@@ -384,7 +384,7 @@ manuf::
 At program start, if there is a _manuf_ file in the global configuration folder, it is read.
 
 The entries in this file are used to translate MAC address prefixes into short and long manufacturer names.
-Each line consists of a MAC address prefix followed by an abbreviated manufaturer name and the full manufacturer name.
+Each line consists of a MAC address prefix followed by an abbreviated manufacturer name and the full manufacturer name.
 Prefixes 24 bits long by default and may be followed by an optional length.
 Note that this is not the same format as the _ethers_ file.
 
@@ -436,7 +436,7 @@ It is also written and read whenever you switch to a different profile.
 recent_common::
 +
 --
-This file contains common GUI settings, such as recently openened capture files, recently used filters, and window geometries.
+This file contains common GUI settings, such as recently opened capture files, recently used filters, and window geometries.
 It is a simple text file containing statements of the form:
 
 ----

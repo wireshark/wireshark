@@ -47,7 +47,7 @@ network. Non-printable characters are replaced by dots.
 Traffic from the client to the server is colored red, while traffic
 from the server to the client is
 colored blue. These colors can be changed by opening menu:Edit[Preferences] and
-under menu:Apperance[Font and Colors], selecting different colors for the
+under menu:Appearance[Font and Colors], selecting different colors for the
 btn:[Sample "Follow Stream" client text] and btn:[Sample "Follow Stream" server text]
 options.
 
@@ -202,7 +202,7 @@ The goal is to give you a better idea of uncommon or notable network behaviour a
 ====
 Expert information is the starting point for investigation, not the stopping point.
 Every network is different, and it's up to you to verify that Wireshark’s expert information applies to your particular situation.
-The presence of expert informantion doesn't necessarily indicate a problem and absence of expert information doesn’t necessarily mean everything is OK.
+The presence of expert information doesn't necessarily indicate a problem and absence of expert information doesn’t necessarily mean everything is OK.
 ====
 
 The amount of expert information largely depends on the protocol being used.
@@ -513,7 +513,7 @@ Supersedes “Spurious Retransmission” and “Retransmission”.
 [discrete]
 ==== TCP Port numbers reused
 
-Set when the SYN flag is set (not SYN+ACK), we have an existing conversation using the same addresses and ports, and the sequencue number is different than the existing conversation’s initial sequence number.
+Set when the SYN flag is set (not SYN+ACK), we have an existing conversation using the same addresses and ports, and the sequence number is different than the existing conversation’s initial sequence number.
 
 // TCP_A_LOST_PACKET
 [discrete]
@@ -988,7 +988,7 @@ you hours of work. Unfortunately, it also has its drawbacks.
 
 * _Resolved names might not be available._
 Wireshark obtains name resolution information from a variety of sources, including DNS servers, the capture file itself (e.g. for a pcapng file), and the _hosts_ files on your system and in your <<ChAppFilesConfigurationSection,profile directory>>.
-The resolved names might not be available if you open the capture file later or on a different machine. As a result, each time you or someone else opens a particularl capture file it may look slightly different due to changing environments.
+The resolved names might not be available if you open the capture file later or on a different machine. As a result, each time you or someone else opens a particular capture file it may look slightly different due to changing environments.
 
 * _DNS may add additional packets to your capture file._
 You might run into the link:{wikipedia-main-url}Observer_effect_(information_technology)[observer effect] if the extra traffic from Wireshark’s DNS queries and responses affects the problem you're trying to troubleshoot or any subsequent analysis.

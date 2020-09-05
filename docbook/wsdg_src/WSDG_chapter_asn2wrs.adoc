@@ -71,17 +71,17 @@ If you still think you'd like to build your module as a plugin, see https://wiki
 
 When running asn2wrs, you could get the following errors:
 
-* A LexToken error (`__main__.ParseError: LexToken(DOT,'.',71)`)
+* A LexToken error (`__main__.ParseError: LexToken(DOT,'.',71)`)
 means that something is not understood in the ASN1 file, line 71,
 around the dot (.) - can be the dot itself.
 
-* A ParseError (`__main__.ParseError: LexToken(SEMICOLON,';',88)`) means that the ';' (SEMICOLON) is not understood. Maybe removing it will work?
+* A ParseError (`__main__.ParseError: LexToken(SEMICOLON,';',88)`) means that the ';' (SEMICOLON) is not understood. Maybe removing it will work?
 
 [[HandMassagingTheASN1File]]
 === Hand-Massaging The ASN.1 File
 
 If a portion of your ASN.1 file is unsupported you can modify it by hand as needed.
-However, the preferred way to resolve the issue is to report it on the link:{wireshark-mailing-lists-url}wireshark-dev[wireshark-dev] mailng list or in the issue tracker so that asn2wrs can be improved.
+However, the preferred way to resolve the issue is to report it on the link:{wireshark-mailing-lists-url}wireshark-dev[wireshark-dev] mailing list or in the issue tracker so that asn2wrs can be improved.
 
 [[CommandLineSyntax]]
 === Command Line Syntax
@@ -336,7 +336,7 @@ offset = dissect_ber_integer(TRUE, pinfo, tree, tvb, offset, hf_index, NULL);
 This tells Asn2wrs to not
 autogenerate any code at all for the Degree-Of-Overlap object instead it
 should use the code specified here. Note that we
-do have to specify the implicit_tag value explicitely and we can NOT use
+do have to specify the implicit_tag value explicitly and we can NOT use
 the parameter passed to the function from the caller (also due to the
 bug in Asn2wrs) this is the TRUE parameter in the call to
 dissect_ber_integer(). We specify TRUE here since
@@ -394,7 +394,7 @@ MessageTransferEnvelope ::= SET {
 }
 ----
 
-This isn't an entirely correct ASN.1 defintion, but should allow
+This isn't an entirely correct ASN.1 definition, but should allow
 successful parsing.
 
 [[ImportedModuleNameConflicts]]
@@ -444,7 +444,7 @@ The following snippets show the different files that make up a dissector for a �
         FOO protocol dissector
         ----------------------
 
-This trivial dissector is an example for the strugling dissector developer (me included)
+This trivial dissector is an example for the struggling dissector developer (me included)
 of how to create a dissector for a protocol that is encapsulated in UDP packets
 for a specific port, and the packet data is ASN1 PER encoded.
 
@@ -1006,7 +1006,7 @@ directive.
 
 This particular example also requires us to keep some state between the
 two field dissectors, namely the OBJECT IDENTIFIER from algorithm which
-specifis what the content of parameters is. For
+specifies what the content of parameters is. For
 this one we need a string where we store the oid from
 AlgorithmIdentifier/algorithm so that we can pick it up and act on
 later from inside the dissector for AlgorithmIdentifier/parameters.
@@ -1029,7 +1029,7 @@ up. Then we add to the conformance file:
 ----
 
 The dissector body we specified for AlgorithmIdentifier/algorithmId
-here stores the retreived OID inside the variable algorithm_id we
+here stores the retrieved OID inside the variable algorithm_id we
 specified. +
 When we later come to the dissector for
 AlgorithmIdentifier/parameters we pick this OID up from the static
@@ -1064,7 +1064,7 @@ Which tells the Asn2wrs compiler that the types 'Name',
 declared inside the external InformationFramework ASN module and
 that they are referenced from this module.
 In order for Asn2wrs to generate correct code for the
-dissection it is neccesary to give it some help by telling what kind of
+dissection it is necessary to give it some help by telling what kind of
 types these are, i.e. are they INTEGERs or SEQUENCEs or something
 else.
 
@@ -1129,9 +1129,9 @@ dissector for that function and also any value_strings while
 
 I.e. #.USER_DEFINED will emit declarations such
 as
-`extern const value_string Type_vals[];`
+`extern const value_string Type_vals[];`
 and
-`[static] int dissect_Proto_Type(...);`
+`[static] int dissect_Proto_Type(...);`
 
 Use #.NO_EMIT if you dont need to call this function at all from anywhere (except from the template itself) and use #.USER_DEFINED is better if you implement the function inside the template but still want to allow it to be called from other places.
 // (need much better explanation here)
@@ -1175,7 +1175,7 @@ The wrapper functions that are created will all be named and have the
 following signature:
 
 ----
-static void dissect_ProtocolName_ObjectName(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+static void dissect_ProtocolName_ObjectName(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 ----
 
 Notice that this is exactly the same signature as `dissector_t` which is used by all dissector entry points.
@@ -1199,8 +1199,8 @@ This will result in Asn2wrs creating this wrapper function in the packet-foo.c d
 
 [source,c]
 ----
-static void dissect_SomeObject_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
-    dissect_foo_SomeObject(FALSE, ...
+static void dissect_SomeObject_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+    dissect_foo_SomeObject(FALSE, ...
 }
 ----
 
@@ -1216,9 +1216,9 @@ In particular, some of the structures here encode an OID in a field and then the
 One such example can be seen in the ASN.1 description for X.509/AuthenticationFramework which has a structure defined such as
 
 ----
-AlgorithmIdentifier ::= SEQUENCE {
-    algorithm   ALGORITHM.&id({SupportedAlgorithms}),
-    parameters  ALGORITHM.&Type({SupportedAlgorithms}{@algorithm}) OPTIONAL
+AlgorithmIdentifier ::= SEQUENCE {
+    algorithm   ALGORITHM.&id({SupportedAlgorithms}),
+    parameters  ALGORITHM.&Type({SupportedAlgorithms}{@algorithm}) OPTIONAL
 }
 ----
 
@@ -1250,7 +1250,7 @@ The "id-at-userCertificate" is just a free form text string to make Wireshark pr
 
 During the compilation phase Asn2wrs will put all the extra registration code for this in the include file
 packet-protocol-dis-tab.c.
-Make sure that you include this file from the template file or the registration to an OID will never occur. `#include "packet-protocol-dis-tab.c"` should be included from the proto_reg_handoff_protocol function in the template file.
+Make sure that you include this file from the template file or the registration to an OID will never occur. `#include "packet-protocol-dis-tab.c"` should be included from the proto_reg_handoff_protocol function in the template file.
 
 [[ASN1CnfDirectiveREGISTERSeeAlso]]
 ===== See Also

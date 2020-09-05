@@ -6,7 +6,7 @@ The following table shows the typographic conventions that are used in this guid
 
 // https://github.com/oreillymedia/orm_book_samples/blob/master/asciidoc_only/preface.adoc
 
-// AsciiDoc allows alternative markup for some styles, specifially
+// AsciiDoc allows alternative markup for some styles, specifically
 // 'single quotes' and _underlines_ for italics and +plus signs+ and
 // `backticks` for monospaces.
 // Asciidoctor’s modern mode is more strict, and only allows _underline_

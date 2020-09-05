@@ -255,7 +255,7 @@ JXTA:: A 160 bit SHA-1 URN.
 
 NCP:: Similar to IPX.
 
-RSVP:: A combination of varios RSVP session attributes and IPv4 addresses.
+RSVP:: A combination of various RSVP session attributes and IPv4 addresses.
 
 SCTP:: A combination of the host IP addresses (plural) and
 the SCTP port used. So different SCTP ports on the same IP address are different

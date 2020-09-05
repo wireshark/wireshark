@@ -230,7 +230,7 @@ Chocolatey ensures cmake.exe is on your path.
 
 https://asciidoctor.org/[Asciidoctor] can be run directly as a Ruby
 script or via a Java wrapper (AsciidoctorJ). It is used in conjunction
-with Xsltproc and DocBook to generate the documenation you're reading
+with Xsltproc and DocBook to generate the documentation you're reading
 and the User’s Guide.
 
 The easiest way to install them on Windows is via Chocolatey:

@@ -184,7 +184,7 @@ data AVP's value string
 lower than the string given
 * <<HigherThan,Higher Than>> _>_ will match if the data AVP's value string is semantically
 higher than the string given
-* <<Exists,Exists>> _?_ (the ? can be ommited) will match as far as a data AVP of the
+* <<Exists,Exists>> _?_ (the ? can be omitted) will match as far as a data AVP of the
 given name exists
 
 ==== AVP lists
@@ -241,7 +241,7 @@ whose _Proto_ is contained in the frame.
 to group it to other Pdus into a Gop (Group of Pdus) by matching the key
 criteria given by a _Gop_ declaration. If there is no Gop yet with the key
 criteria for the Pdu, MATE will try to create a new Gop for it if it matches the
-_Start_ criterium given in the Gop declaration.
+_Start_ criteria given in the Gop declaration.
 
 * In the third phase, if there's a Gop for the Pdu, MATE will try to group this
 Gop with other Gops into a Gog (Group of Groups) using the criteria given by the
@@ -536,7 +536,7 @@ examples.
 mate dns_pdu:6->dns_req:1
     dns_pdu: 6
         dns_pdu time: 2.103063
-        dns_pdu time since begining of Gop: 2.103063
+        dns_pdu time since beginning of Gop: 2.103063
         dns_req: 1
             dns_req Attributes
                 dns_id: 36012
@@ -580,7 +580,7 @@ Note that there are two "timers" for a Gop:
 
 * *Time*, which is defined only for Gops that have been Stopped, and gives the
 time passed between the _Start_ and the _Stop_ Pdus.
-* *Duration*, which is defined for every Gop regardles of its state, and give
+* *Duration*, which is defined for every Gop regardless of its state, and give
 the time passed between its _Start_ Pdu and the last Pdu that was assigned to
 that Gop.
 
@@ -651,7 +651,7 @@ Gog web_use {
 mate http_pdu:4->http_req:2->http_use:1
     http_pdu: 4
         http_pdu time: 1.309847
-        http_pdu time since begining of Gop: 0.218930
+        http_pdu time since beginning of Gop: 0.218930
         http_req: 2
             ... (the gop's tree for http_req: 2) ..
         http_use: 1
@@ -671,7 +671,7 @@ mate http_pdu:4->http_req:2->http_use:1
 We can filter on:
 
 * *mate.http_use.Duration* time elapsed between the first frame of a Gog and the last one assigned to it.
-* the attributess passed to the Gog
+* the attributes passed to the Gog
 ** *mate.http_use.host*
 
 ===== AVPL Transforms
@@ -891,7 +891,7 @@ Pdu my_pdu Proto my_proto transport tcp/ip/eth {
 
 ==== About MATE
 
-MATE was originally written by Luis Ontanon, a Telecomunications systems
+MATE was originally written by Luis Ontanon, a Telecommunications systems
 troubleshooter, as a way to save time filtering out the packets of a single call
 from huge capture files using just the calling number. Later he used the time he
 had saved to make it flexible enough to work with protocols other than the ones
@@ -1273,7 +1273,7 @@ Gop user_smtp_ses On user_smtp (user_ip, user_ip, smtp_port!25) {
     Stop (tcp_stop=1);
 }
 
-// with the following group of groups we'll group toghether the radius and the smtp
+// with the following group of groups we'll group together the radius and the smtp
 // we set a long expiration to avoid the session expire on long pauses.
 Gog user_mail {
     Expiration 1800;
@@ -1306,7 +1306,7 @@ Pdu q931 Proto q931 Transport ip {
 Gop q931_leg On q931 Match (addr, addr, call_ref) {
         Start (q931_msg=5);
         Stop (q931_msg=90);
-        Extra (calling, called, guid, q931_cuase);
+        Extra (calling, called, guid, q931_cause);
 };
 
 Pdu ras Proto h225.RasMessage Transport ip {
@@ -1954,7 +1954,7 @@ Other than the Pdu's _Proto_ and its _Transport_ protocols, there is also a
 _Payload_ attribute to tell MATE from which ranges of _Proto_'s payload to
 extract fields of a frame into the Pdu. In order to extract an attribute from a
 frame's tree the highlighted area of the field in the hex display must be within
-the area of the _Proto_'s relative payload(s). _Payload_ s are choosen moving
+the area of the _Proto_'s relative payload(s). _Payload_ s are chosen moving
 forward from the protocol area, in the order they are given.
 _Proto http Transport tcp/ip Payload mmse_ will select the first mmse range
 after the current http range. Once we've selected the _Payload_ ranges, MATE
@@ -2303,7 +2303,7 @@ Action=Include; {Filename=filename;|Lib=libname;}
 
 ====== Filename
 
-The filename of the file to include. If it does not beging with '/' it will look
+The filename of the file to include. If it does not begin with '/' it will look
 for the file in the current path.
 
 ====== Lib

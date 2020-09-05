@@ -328,7 +328,7 @@ Once installation is completed go to the Services control panel, find the Remote
 
 On Linux or Unix you can capture (and do so more securely) through an SSH tunnel.
 
-To add a new remore capture interface, click btn:[{plus}] and specify the following:
+To add a new remote capture interface, click btn:[{plus}] and specify the following:
 
 Host::
 The IP address or host name of the target platform where the Remote Packet Capture Protocol service is listening.

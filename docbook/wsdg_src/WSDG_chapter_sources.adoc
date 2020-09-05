@@ -278,7 +278,7 @@ See the {wireshark-man-page-url}wireshark.html#ENVIRONMENT-VARIABLES[ENVIRONMENT
 ==== Windows Native
 
 By default the CMake-generated Visual {cpp} project places all of the files necessary to run Wireshark in the subdirectory `run\RelWithDebInfo`.
-As with the Unix-like build desribed above, you can run Wireshark from the build directory without installing it first.
+As with the Unix-like build described above, you can run Wireshark from the build directory without installing it first.
 
 [source,cmd]
 ----

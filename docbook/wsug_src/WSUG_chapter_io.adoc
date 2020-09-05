@@ -594,7 +594,7 @@ This lets you save the packet list, packet details, and packet bytes as plain te
 .The “Export Packet Dissections” dialog box
 image::wsug_graphics/ws-export-packet-dissections.png[{medium-screenshot-attrs}]
 
-The format can be selected from the “Export As” dopdown and further customized using the “<<ChIOPacketRangeSection,Packet Range>>” and “<<ChIOPacketRangeSection,Packet Format>>” controls.
+The format can be selected from the “Export As” dropdown and further customized using the “<<ChIOPacketRangeSection,Packet Range>>” and “<<ChIOPacketRangeSection,Packet Format>>” controls.
 Some controls are unavailable for some formats, notably CSV and JSON.
 The following formats are supported:
 

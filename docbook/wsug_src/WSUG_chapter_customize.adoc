@@ -258,7 +258,7 @@ argument is a string that may contain the following letters:
     Enable network address resolution.
 
     t::
-    Enable transport layer port number resoultion.
+    Enable transport layer port number resolution.
 
     v::
     Enable VLAN ID resolution.
@@ -1149,7 +1149,7 @@ If this option is enabled, Wireshark will load all *.proto files in this directo
 and its subdirectories when Wireshark startup or protobuf search paths preferences
 changed. Note that the source directories that configured to protobuf offical or third
 libraries path (like `d:/protobuf-3.4.1/include/`) should not be set to load all
-files, that may cause memory unnecessary occuption.
+files, that may cause unnecessary memory use.
 
 [[ChProtobufUDPMessageTypes]]
 
