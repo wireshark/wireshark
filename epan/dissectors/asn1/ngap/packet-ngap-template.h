@@ -1,4 +1,4 @@
-/* packet-s1ap.h
+/* packet-ngap.h
  * Routines for NG-RAN NG Application Protocol (NGAP) packet dissection
  *
  * Wireshark - Network traffic analyzer
