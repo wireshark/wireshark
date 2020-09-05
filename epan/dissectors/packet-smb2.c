@@ -943,9 +943,13 @@ static const value_string smb2_hash_algorithm_types[] = {
 
 #define SMB2_CIPHER_AES_128_CCM        0x0001
 #define SMB2_CIPHER_AES_128_GCM        0x0002
+#define SMB2_CIPHER_AES_256_CCM        0x0003
+#define SMB2_CIPHER_AES_256_GCM        0x0004
 static const value_string smb2_cipher_types[] = {
 	{ SMB2_CIPHER_AES_128_CCM, "AES-128-CCM" },
 	{ SMB2_CIPHER_AES_128_GCM, "AES-128-GCM" },
+	{ SMB2_CIPHER_AES_256_CCM, "AES-256-CCM" },
+	{ SMB2_CIPHER_AES_256_GCM, "AES-256-GCM" },
 	{ 0, NULL }
 };
 
