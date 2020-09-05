@@ -139,6 +139,13 @@ id-gNB-CU-UP-CounterCheck              ProcedureCode
 id-gNB-CU-UP-StatusIndication          ProcedureCode
 id-uLDataNotification                  ProcedureCode
 id-mRDC-DataUsageReport                ProcedureCode
+id-TraceStart                          ProcedureCode
+id-DeactivateTrace                     ProcedureCode
+id-resourceStatusReportingInitiation   ProcedureCode
+id-resourceStatusReporting             ProcedureCode
+id-iAB-UPTNLAddressUpdate              ProcedureCode
+id-CellTrafficTrace                    ProcedureCode
+id-earlyForwardingSNTransfer           ProcedureCode
 
 # ProtocolIE-ID
 id-Cause                                        ProtocolIE-ID
@@ -222,6 +229,51 @@ id-GNB-DU-ID                                    ProtocolIE-ID
 id-CommonNetworkInstance                        ProtocolIE-ID
 id-NetworkInstance                              ProtocolIE-ID
 id-QoSFlowMappingIndication                     ProtocolIE-ID
+id-TraceActivation                              ProtocolIE-ID
+id-TraceID                                      ProtocolIE-ID
+id-SubscriberProfileIDforRFP                    ProtocolIE-ID
+id-AdditionalRRMPriorityIndex                   ProtocolIE-ID
+id-RetainabilityMeasurementsInfo                ProtocolIE-ID
+id-Transport-Layer-Address-Info                 ProtocolIE-ID
+id-QoSMonitoringRequest                         ProtocolIE-ID
+id-PDCP-StatusReportIndication                  ProtocolIE-ID
+id-gNB-CU-CP-Measurement-ID                     ProtocolIE-ID
+id-gNB-CU-UP-Measurement-ID                     ProtocolIE-ID
+id-RegistrationRequest                          ProtocolIE-ID
+id-ReportCharacteristics                        ProtocolIE-ID
+id-ReportingPeriodicity                         ProtocolIE-ID
+id-TNL-AvailableCapacityIndicator               ProtocolIE-ID
+id-HW-CapacityIndicator                         ProtocolIE-ID
+id-RedundantCommonNetworkInstance               ProtocolIE-ID
+id-redundant-nG-UL-UP-TNL-Information           ProtocolIE-ID
+id-redundant-nG-DL-UP-TNL-Information           ProtocolIE-ID
+id-RedundantQosFlowIndicator                    ProtocolIE-ID
+id-TSCTrafficCharacteristics                    ProtocolIE-ID
+id-CNPacketDelayBudgetDownlink                  ProtocolIE-ID
+id-CNPacketDelayBudgetUplink                    ProtocolIE-ID
+id-ExtendedPacketDelayBudget                    ProtocolIE-ID
+id-AdditionalPDCPduplicationInformation         ProtocolIE-ID
+id-RedundantPDUSessionInformation               ProtocolIE-ID
+id-RedundantPDUSessionInformation-used          ProtocolIE-ID
+id-QoS-Mapping-Information                      ProtocolIE-ID
+id-DLUPTNLAddressToUpdateList                   ProtocolIE-ID
+id-ULUPTNLAddressToUpdateList                   ProtocolIE-ID
+id-NPNSupportInfo                               ProtocolIE-ID
+id-NPNContextInfo                               ProtocolIE-ID
+id-MDTConfiguration                             ProtocolIE-ID
+id-ManagementBasedMDTPLMNList                   ProtocolIE-ID
+id-TraceCollectionEntityIPAddress               ProtocolIE-ID
+id-PrivacyIndicator                             ProtocolIE-ID
+id-TraceCollectionEntityURI                     ProtocolIE-ID
+id-URIaddress                                   ProtocolIE-ID
+id-EHC-Parameters                               ProtocolIE-ID
+id-DRBs-Subject-To-Early-Forwarding-List        ProtocolIE-ID
+id-DAPSRequestInfo                              ProtocolIE-ID
+id-CHOInitiation                                ProtocolIE-ID
+id-EarlyForwardingCOUNTReq                      ProtocolIE-ID
+id-EarlyForwardingCOUNTInfo                     ProtocolIE-ID
+id-AlternativeQoSParaSetList                    ProtocolIE-ID
+id-ExtendedSliceSupportList                     ProtocolIE-ID
 #.END
 
 #.REGISTER
@@ -301,6 +353,28 @@ GNB-CU-UP-TNLA-To-Remove-List                N e1ap.ies id-GNB-CU-UP-TNLA-To-Rem
 Endpoint-IP-address-and-port                 N e1ap.ies id-endpoint-IP-Address-and-Port
 RANUEID                                      N e1ap.ies id-RANUEID
 GNB-DU-ID                                    N e1ap.ies id-GNB-DU-ID
+TraceActivation                              N e1ap.ies id-TraceActivation
+TraceID                                      N e1ap.ies id-TraceID
+SubscriberProfileIDforRFP                    N e1ap.ies id-SubscriberProfileIDforRFP
+AdditionalRRMPriorityIndex                   N e1ap.ies id-AdditionalRRMPriorityIndex
+RetainabilityMeasurementsInfo                N e1ap.ies id-RetainabilityMeasurementsInfo
+Transport-Layer-Address-Info                 N e1ap.ies id-Transport-Layer-Address-Info
+Measurement-ID                               N e1ap.ies id-gNB-CU-CP-Measurement-ID
+Measurement-ID                               N e1ap.ies id-gNB-CU-UP-Measurement-ID
+RegistrationRequest                          N e1ap.ies id-RegistrationRequest
+ReportCharacteristics                        N e1ap.ies id-ReportCharacteristics
+ReportingPeriodicity                         N e1ap.ies id-ReportingPeriodicity
+TNL-AvailableCapacityIndicator               N e1ap.ies id-TNL-AvailableCapacityIndicator
+HW-CapacityIndicator                         N e1ap.ies id-HW-CapacityIndicator
+DLUPTNLAddressToUpdateList                   N e1ap.ies id-DLUPTNLAddressToUpdateList
+ULUPTNLAddressToUpdateList                   N e1ap.ies id-ULUPTNLAddressToUpdateList
+NPNContextInfo                               N e1ap.ies id-NPNContextInfo
+MDTPLMNList                                  N e1ap.ies id-ManagementBasedMDTPLMNList
+TransportLayerAddress                        N e1ap.ies id-TraceCollectionEntityIPAddress
+PrivacyIndicator                             N e1ap.ies id-PrivacyIndicator
+URIaddress                                   N e1ap.ies id-URIaddress
+DRBs-Subject-To-Early-Forwarding-List        N e1ap.ies id-DRBs-Subject-To-Early-Forwarding-List
+CHOInitiation                                N e1ap.ies id-CHOInitiation
 
 #E1AP-PROTOCOL-EXTENSION
 SNSSAI                                       N e1ap.extension id-SNSSAI
@@ -310,6 +384,29 @@ CP-TNL-Information                           N e1ap.extension id-TNLAssociationT
 CommonNetworkInstance                        N e1ap.extension id-CommonNetworkInstance
 NetworkInstance                              N e1ap.extension id-NetworkInstance
 QoS-Flow-Mapping-Indication                  N e1ap.extension id-QoSFlowMappingIndication
+QosMonitoringRequest                         N e1ap.extension id-QoSMonitoringRequest
+PDCP-StatusReportIndication                  N e1ap.extension id-PDCP-StatusReportIndication
+CommonNetworkInstance                        N e1ap.extension id-RedundantCommonNetworkInstance
+UP-TNL-Information                           N e1ap.extension id-redundant-nG-UL-UP-TNL-Information
+UP-TNL-Information                           N e1ap.extension id-redundant-nG-DL-UP-TNL-Information
+RedundantQoSFlowIndicator                    N e1ap.extension id-RedundantQosFlowIndicator
+TSCTrafficCharacteristics                    N e1ap.extension id-TSCTrafficCharacteristics
+ExtendedPacketDelayBudget                    N e1ap.extension id-CNPacketDelayBudgetDownlink
+ExtendedPacketDelayBudget                    N e1ap.extension id-CNPacketDelayBudgetUplink
+ExtendedPacketDelayBudget                    N e1ap.extension id-ExtendedPacketDelayBudget
+AdditionalPDCPduplicationInformation         N e1ap.extension id-AdditionalPDCPduplicationInformation
+RedundantPDUSessionInformation               N e1ap.extension id-RedundantPDUSessionInformation
+RedundantPDUSessionInformation               N e1ap.extension id-RedundantPDUSessionInformation-used
+QoS-Mapping-Information                      N e1ap.extension id-QoS-Mapping-Information
+NPNSupportInfo                               N e1ap.extension id-NPNSupportInfo
+MDT-Configuration                            N e1ap.extension id-MDTConfiguration
+URIaddress                                   N e1ap.extension id-TraceCollectionEntityURI
+EHC-Parameters                               N e1ap.extension id-EHC-Parameters
+DAPSRequestInfo                              N e1ap.extension id-DAPSRequestInfo
+EarlyForwardingCOUNTReq                      N e1ap.extension id-EarlyForwardingCOUNTReq
+EarlyForwardingCOUNTInfo                     N e1ap.extension id-EarlyForwardingCOUNTInfo
+AlternativeQoSParaSetList                    N e1ap.extension id-AlternativeQoSParaSetList
+ExtendedSliceSupportList                     N e1ap.extension id-ExtendedSliceSupportList
 
 #E1AP-ELEMENTARY-PROCEDURE
 Reset                                    N e1ap.proc.imsg id-reset
@@ -367,6 +464,24 @@ GNB-CU-UP-StatusIndication               N e1ap.proc.imsg id-gNB-CU-UP-StatusInd
 PrivateMessage                           N e1ap.proc.imsg id-privateMessage
 
 MRDC-DataUsageReport                     N e1ap.proc.imsg id-mRDC-DataUsageReport
+
+DeactivateTrace                          N e1ap.proc.imsg id-DeactivateTrace
+
+TraceStart                               N e1ap.proc.imsg id-TraceStart
+
+ResourceStatusRequest                    N e1ap.proc.imsg id-resourceStatusReportingInitiation
+ResourceStatusResponse                   N e1ap.proc.sout id-resourceStatusReportingInitiation
+ResourceStatusFailure                    N e1ap.proc.uout id-resourceStatusReportingInitiation
+
+ResourceStatusUpdate                     N e1ap.proc.imsg id-resourceStatusReporting
+
+IAB-UPTNLAddressUpdate                   N e1ap.proc.imsg id-iAB-UPTNLAddressUpdate
+IAB-UPTNLAddressUpdateAcknowledge        N e1ap.proc.sout id-iAB-UPTNLAddressUpdate
+IAB-UPTNLAddressUpdateFailure            N e1ap.proc.uout id-iAB-UPTNLAddressUpdate
+
+CellTrafficTrace                         N e1ap.proc.imsg id-CellTrafficTrace
+
+EarlyForwardingSNTransfer                N e1ap.proc.imsg id-earlyForwardingSNTransfer
 
 #.FN_BODY PLMN-Identity  VAL_PTR = &param_tvb
   tvbuff_t *param_tvb = NULL;
@@ -475,6 +590,73 @@ MRDC-Data-Usage-Report-Item/usageCountUL DISPLAY=BASE_DEC|BASE_UNIT_STRING STRIN
 #.TYPE_ATTR
 MRDC-Data-Usage-Report-Item/usageCountDL DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_octet_octets
 
+#.TYPE_ATTR
+ExtendedPacketDelayBudget DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(e1ap_ExtendedPacketDelayBudget_fmt)
+
+#.TYPE_ATTR
+HW-CapacityIndicator/offeredThroughput DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_kbps
+
+#.FN_BODY InterfacesToTrace VAL_PTR = &param_tvb
+  tvbuff_t *param_tvb = NULL;
+%(DEFAULT_BODY)s
+  if(param_tvb){
+    static int * const fields[] = {
+      &hf_e1ap_InterfacesToTrace_NG_C,
+      &hf_e1ap_InterfacesToTrace_Xn_C,
+      &hf_e1ap_InterfacesToTrace_Uu,
+      &hf_e1ap_InterfacesToTrace_F1_C,
+      &hf_e1ap_InterfacesToTrace_E1,
+      &hf_e1ap_InterfacesToTrace_Reserved,
+      NULL
+    };
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_e1ap_InterfacesToTrace);
+    proto_tree_add_bitmask_list(subtree, param_tvb, 0, 1, fields, ENC_BIG_ENDIAN);
+  }
+
+#.TYPE_ATTR
+M7period DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_minutes
+
+#.FN_BODY MeasurementsToActivate VAL_PTR=&param_tvb
+  tvbuff_t *param_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (param_tvb) {
+    static int * const fields[] = {
+      &hf_e1ap_MeasurementsToActivate_Reserved1,
+      &hf_e1ap_MeasurementsToActivate_M4,
+      &hf_e1ap_MeasurementsToActivate_Reserved2,
+      &hf_e1ap_MeasurementsToActivate_M6,
+      &hf_e1ap_MeasurementsToActivate_M7,
+      NULL
+    };
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_e1ap_MeasurementsToActivate);
+    proto_tree_add_bitmask_list(subtree, param_tvb, 0, 1, fields, ENC_BIG_ENDIAN);
+  }
+
+#.FN_BODY ReportCharacteristics VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+  if(parameter_tvb){
+    static int * const fields[] = {
+      &hf_e1ap_ReportCharacteristics_TNLAvailableCapacityIndPeriodic,
+      &hf_e1ap_ReportCharacteristics_HWCapacityIndPeriodic,
+      &hf_e1ap_ReportCharacteristics_Reserved,
+      NULL
+    };
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_e1ap_ReportCharacteristics);
+    proto_tree_add_bitmask_list(subtree, parameter_tvb, 0, 5, fields, ENC_BIG_ENDIAN);
+  }
+
+#.TYPE_ATTR
+Periodicity DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_microseconds
+
+#.FN_BODY BurstArrivalTime VAL_PTR = &param_tvb
+  tvbuff_t *param_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (param_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_e1ap_BurstArrivalTime);
+    dissect_nr_rrc_ReferenceTime_r16_PDU(param_tvb, actx->pinfo, subtree, NULL);
+  }
+
 #.FN_HDR Reset
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "Reset");
 #.FN_HDR ResetAcknowledge
@@ -547,6 +729,28 @@ MRDC-Data-Usage-Report-Item/usageCountDL DISPLAY=BASE_DEC|BASE_UNIT_STRING STRIN
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "PrivateMessage");
 #.FN_HDR MRDC-DataUsageReport
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "MRDC-DataUsageReport");
+#.FN_HDR DeactivateTrace
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "DeactivateTrace");
+#.FN_HDR TraceStart
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "TraceStart");
+#.FN_HDR ResourceStatusRequest
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "ResourceStatusRequest");
+#.FN_HDR ResourceStatusResponse
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "ResourceStatusResponse");
+#.FN_HDR ResourceStatusFailure
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "ResourceStatusFailure");
+#.FN_HDR ResourceStatusUpdate
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "ResourceStatusUpdate");
+#.FN_HDR IAB-UPTNLAddressUpdate
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "IAB-UPTNLAddressUpdate");
+#.FN_HDR IAB-UPTNLAddressUpdateAcknowledge
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "IAB-UPTNLAddressUpdateAcknowledge");
+#.FN_HDR IAB-UPTNLAddressUpdateFailure
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "IAB-UPTNLAddressUpdateFailure");
+#.FN_HDR CellTrafficTrace
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "CellTrafficTrace");
+#.FN_HDR EarlyForwardingSNTransfer
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "EarlyForwardingSNTransfer");
 #.END
 
 #

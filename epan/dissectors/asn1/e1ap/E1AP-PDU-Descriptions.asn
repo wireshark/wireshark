@@ -1,4 +1,4 @@
--- 3GPP TS 38.463 V15.4.0 (2019-07)
+-- 3GPP TS 38.463 V16.2.0 (2020-07)
 -- **************************************************************
 --
 -- Elementary Procedure definitions
@@ -59,7 +59,18 @@ FROM E1AP-CommonDataTypes
 	GNB-CU-UP-CounterCheckRequest,
 	GNB-CU-UP-StatusIndication,
 	MRDC-DataUsageReport,
-	PrivateMessage
+	DeactivateTrace,
+	TraceStart,
+	PrivateMessage,
+	ResourceStatusRequest,
+	ResourceStatusResponse,
+	ResourceStatusFailure,
+	ResourceStatusUpdate,
+	IAB-UPTNLAddressUpdate,
+	IAB-UPTNLAddressUpdateAcknowledge,
+	IAB-UPTNLAddressUpdateFailure,
+	CellTrafficTrace,
+	EarlyForwardingSNTransfer
 
 FROM E1AP-PDU-Contents
 	id-reset,
@@ -81,7 +92,14 @@ FROM E1AP-PDU-Contents
 	id-gNB-CU-UP-CounterCheck,
 	id-gNB-CU-UP-StatusIndication,
 	id-mRDC-DataUsageReport,
-	id-privateMessage
+	id-DeactivateTrace,
+	id-TraceStart,
+	id-privateMessage,
+	id-resourceStatusReportingInitiation,
+	id-resourceStatusReporting,
+	id-iAB-UPTNLAddressUpdate,
+	id-CellTrafficTrace,
+	id-earlyForwardingSNTransfer
 
 FROM E1AP-Constants;
 
@@ -161,7 +179,9 @@ E1AP-ELEMENTARY-PROCEDURES-CLASS-1 E1AP-ELEMENTARY-PROCEDURE ::= {
 	bearerContextSetup							|
 	bearerContextModification					|
 	bearerContextModificationRequired			|
-	bearerContextRelease						,
+	bearerContextRelease						|
+	resourceStatusReportingInitiation			|
+	iAB-UPTNLAddressUpdate						,
 	...
 }
 
@@ -175,7 +195,13 @@ E1AP-ELEMENTARY-PROCEDURES-CLASS-2 E1AP-ELEMENTARY-PROCEDURE ::= {
 	gNB-CU-UP-CounterCheck					|
 	gNB-CU-UP-StatusIndication			|
 	mRDC-DataUsageReport					|
-	privateMessage							,
+	deactivateTrace							|
+	traceStart								|
+	privateMessage							|
+	privateMessage							|
+	cellTrafficTrace						|
+	resourceStatusReporting					|
+	earlyForwardingSNTransfer				,
 	...
 }
 
@@ -318,6 +344,52 @@ privateMessage E1AP-ELEMENTARY-PROCEDURE ::= {
 mRDC-DataUsageReport	E1AP-ELEMENTARY-PROCEDURE ::= {
 	INITIATING MESSAGE		MRDC-DataUsageReport
 	PROCEDURE CODE			id-mRDC-DataUsageReport
+	CRITICALITY				ignore
+}
+
+deactivateTrace E1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		DeactivateTrace
+	PROCEDURE CODE			id-DeactivateTrace
+	CRITICALITY				ignore
+}
+
+traceStart E1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		TraceStart
+	PROCEDURE CODE			id-TraceStart
+	CRITICALITY				ignore
+}
+
+resourceStatusReportingInitiation E1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		ResourceStatusRequest
+	SUCCESSFUL OUTCOME		ResourceStatusResponse
+	UNSUCCESSFUL OUTCOME	ResourceStatusFailure
+	PROCEDURE CODE			id-resourceStatusReportingInitiation
+	CRITICALITY				reject
+}
+
+resourceStatusReporting E1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		ResourceStatusUpdate
+	PROCEDURE CODE			id-resourceStatusReporting
+	CRITICALITY				ignore
+}
+
+iAB-UPTNLAddressUpdate E1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		IAB-UPTNLAddressUpdate
+	SUCCESSFUL OUTCOME		IAB-UPTNLAddressUpdateAcknowledge
+	UNSUCCESSFUL OUTCOME	IAB-UPTNLAddressUpdateFailure
+	PROCEDURE CODE			id-iAB-UPTNLAddressUpdate
+	CRITICALITY				reject
+}
+
+cellTrafficTrace E1AP-ELEMENTARY-PROCEDURE ::={
+	INITIATING MESSAGE CellTrafficTrace
+	PROCEDURE CODE		id-CellTrafficTrace
+	CRITICALITY			ignore
+}
+
+earlyForwardingSNTransfer E1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		EarlyForwardingSNTransfer
+	PROCEDURE CODE			id-earlyForwardingSNTransfer
 	CRITICALITY				ignore
 }
 

@@ -1,6 +1,6 @@
 /* packet-e1ap.c
  * Routines for E-UTRAN E1 Application Protocol (E1AP) packet dissection
- * Copyright 2018-2019, Pascal Quantin <pascal@wireshark.org>
+ * Copyright 2018-2020, Pascal Quantin <pascal@wireshark.org>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -8,7 +8,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
- * References: 3GPP TS 38.463 V15.4.0 (2019-07)
+ * References: 3GPP TS 38.463 V16.2.0 (2020-07)
  */
 
 #include "config.h"
@@ -23,6 +23,7 @@
 #include "packet-per.h"
 #include "packet-e212.h"
 #include "packet-ntp.h"
+#include "packet-nr-rrc.h"
 
 #define PNAME  "E1 Application Protocol"
 #define PSNAME "E1AP"
@@ -40,12 +41,30 @@ static int proto_e1ap = -1;
 
 static int hf_e1ap_transportLayerAddressIPv4 = -1;
 static int hf_e1ap_transportLayerAddressIPv6 = -1;
+static int hf_e1ap_InterfacesToTrace_NG_C = -1;
+static int hf_e1ap_InterfacesToTrace_Xn_C = -1;
+static int hf_e1ap_InterfacesToTrace_Uu = -1;
+static int hf_e1ap_InterfacesToTrace_F1_C = -1;
+static int hf_e1ap_InterfacesToTrace_E1 = -1;
+static int hf_e1ap_InterfacesToTrace_Reserved = -1;
+static int hf_e1ap_MeasurementsToActivate_Reserved1 = -1;
+static int hf_e1ap_MeasurementsToActivate_M4 = -1;
+static int hf_e1ap_MeasurementsToActivate_Reserved2 = -1;
+static int hf_e1ap_MeasurementsToActivate_M6 = -1;
+static int hf_e1ap_MeasurementsToActivate_M7 = -1;
+static int hf_e1ap_ReportCharacteristics_TNLAvailableCapacityIndPeriodic = -1;
+static int hf_e1ap_ReportCharacteristics_HWCapacityIndPeriodic = -1;
+static int hf_e1ap_ReportCharacteristics_Reserved = -1;
 #include "packet-e1ap-hf.c"
 
 /* Initialize the subtree pointers */
 static gint ett_e1ap = -1;
 static gint ett_e1ap_PLMN_Identity = -1;
 static gint ett_e1ap_TransportLayerAddress = -1;
+static gint ett_e1ap_InterfacesToTrace = -1;
+static gint ett_e1ap_MeasurementsToActivate = -1;
+static gint ett_e1ap_ReportCharacteristics = -1;
+static gint ett_e1ap_BurstArrivalTime = -1;
 #include "packet-e1ap-ett.c"
 
 enum{
@@ -77,6 +96,11 @@ static int dissect_InitiatingMessageValue(tvbuff_t *tvb, packet_info *pinfo, pro
 static int dissect_SuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *);
 static int dissect_UnsuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *);
 
+static const true_false_string e1ap_tfs_InterfacesToTrace = {
+  "Should be traced",
+  "Should not be traced"
+};
+
 static void
 e1ap_MaxPacketLossRate_fmt(gchar *s, guint32 v)
 {
@@ -87,6 +111,12 @@ static void
 e1ap_PacketDelayBudget_fmt(gchar *s, guint32 v)
 {
   g_snprintf(s, ITEM_LABEL_LENGTH, "%.1fms (%u)", (float)v/2, v);
+}
+
+static void
+e1ap_ExtendedPacketDelayBudget_fmt(gchar *s, guint32 v)
+{
+  g_snprintf(s, ITEM_LABEL_LENGTH, "%.2fms (%u)", (float)v/100, v);
 }
 
 static e1ap_private_data_t*
@@ -179,6 +209,62 @@ void proto_register_e1ap(void) {
       { "IPv6 transportLayerAddress", "e1ap.transportLayerAddressIPv6",
         FT_IPv6, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+    { &hf_e1ap_InterfacesToTrace_NG_C,
+      { "NG-C", "e1ap.InterfacesToTrace.NG_C",
+        FT_BOOLEAN, 8, TFS(&e1ap_tfs_InterfacesToTrace), 0x80,
+        NULL, HFILL }},
+    { &hf_e1ap_InterfacesToTrace_Xn_C,
+      { "Xn-C", "e1ap.InterfacesToTrace.Xn_C",
+        FT_BOOLEAN, 8, TFS(&e1ap_tfs_InterfacesToTrace), 0x40,
+        NULL, HFILL }},
+    { &hf_e1ap_InterfacesToTrace_Uu,
+      { "Uu", "e1ap.InterfacesToTrace.Uu",
+        FT_BOOLEAN, 8, TFS(&e1ap_tfs_InterfacesToTrace), 0x20,
+        NULL, HFILL }},
+    { &hf_e1ap_InterfacesToTrace_F1_C,
+      { "F1-C", "e1ap.InterfacesToTrace.F1_C",
+        FT_BOOLEAN, 8, TFS(&e1ap_tfs_InterfacesToTrace), 0x10,
+        NULL, HFILL }},
+    { &hf_e1ap_InterfacesToTrace_E1,
+      { "E1", "e1ap.InterfacesToTrace.E1",
+        FT_BOOLEAN, 8, TFS(&e1ap_tfs_InterfacesToTrace), 0x08,
+        NULL, HFILL }},
+    { &hf_e1ap_InterfacesToTrace_Reserved,
+      { "Reserved", "e1ap.InterfacesToTrace.Reserved",
+        FT_UINT8, BASE_HEX, NULL, 0x07,
+        NULL, HFILL }},
+    { &hf_e1ap_MeasurementsToActivate_Reserved1,
+      { "Reserved", "e1ap.MeasurementsToActivate.Reserved",
+        FT_UINT8, BASE_HEX, NULL, 0xe0,
+        NULL, HFILL }},
+    { &hf_e1ap_MeasurementsToActivate_M4,
+      { "M4", "e1ap.MeasurementsToActivate.M4",
+        FT_BOOLEAN, 8, TFS(&tfs_activated_deactivated), 0x10,
+        NULL, HFILL }},
+    { &hf_e1ap_MeasurementsToActivate_Reserved2,
+      { "Reserved", "e1ap.MeasurementsToActivate.Reserved",
+        FT_UINT8, BASE_HEX, NULL, 0x0c,
+        NULL, HFILL }},
+    { &hf_e1ap_MeasurementsToActivate_M6,
+      { "M6", "e1ap.MeasurementsToActivate.M6",
+        FT_BOOLEAN, 8, TFS(&tfs_activated_deactivated), 0x02,
+        NULL, HFILL }},
+    { &hf_e1ap_MeasurementsToActivate_M7,
+      { "M7", "e1ap.MeasurementsToActivate.M7",
+        FT_BOOLEAN, 8, TFS(&tfs_activated_deactivated), 0x01,
+        NULL, HFILL }},
+    { &hf_e1ap_ReportCharacteristics_TNLAvailableCapacityIndPeriodic,
+      { "TNLAvailableCapacityIndPeriodic", "e1ap.ReportCharacteristics.TNLAvailableCapacityIndPeriodic",
+        FT_BOOLEAN, 40, TFS(&tfs_requested_not_requested), 0x8000000000,
+        NULL, HFILL }},
+    { &hf_e1ap_ReportCharacteristics_HWCapacityIndPeriodic,
+      { "HWCapacityIndPeriodic", "e1ap.ReportCharacteristics.HWCapacityIndPeriodic",
+        FT_BOOLEAN, 40, TFS(&tfs_requested_not_requested), 0x4000000000,
+        NULL, HFILL }},
+    { &hf_e1ap_ReportCharacteristics_Reserved,
+      { "Reserved", "e1ap.ReportCharacteristics.Reserved",
+        FT_UINT40, BASE_HEX, NULL, 0x3ffffffff0,
+        NULL, HFILL }},
 #include "packet-e1ap-hfarr.c"
   };
 
@@ -187,6 +273,10 @@ void proto_register_e1ap(void) {
     &ett_e1ap,
     &ett_e1ap_PLMN_Identity,
     &ett_e1ap_TransportLayerAddress,
+    &ett_e1ap_InterfacesToTrace,
+    &ett_e1ap_MeasurementsToActivate,
+    &ett_e1ap_ReportCharacteristics,
+    &ett_e1ap_BurstArrivalTime,
 #include "packet-e1ap-ettarr.c"
   };
 

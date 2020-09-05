@@ -1,4 +1,4 @@
--- 3GPP TS 38.463 V15.4.0 (2019-07)
+-- 3GPP TS 38.463 V16.2.0 (2020-07)
 -- **************************************************************
 --
 -- Constant definitions
@@ -46,6 +46,13 @@ id-gNB-CU-UP-CounterCheck										ProcedureCode ::= 16
 id-gNB-CU-UP-StatusIndication									ProcedureCode ::= 17
 id-uLDataNotification											ProcedureCode ::= 18
 id-mRDC-DataUsageReport											ProcedureCode ::= 19
+id-TraceStart													ProcedureCode ::= 20
+id-DeactivateTrace												ProcedureCode ::= 21
+id-resourceStatusReportingInitiation							ProcedureCode ::= 22
+id-resourceStatusReporting										ProcedureCode ::= 23
+id-iAB-UPTNLAddressUpdate										ProcedureCode ::= 24
+id-CellTrafficTrace												ProcedureCode ::= 25
+id-earlyForwardingSNTransfer									ProcedureCode ::= 26
 
 
 -- **************************************************************
@@ -68,6 +75,12 @@ maxnoofUPParameters							INTEGER	::= 8
 maxnoofCellGroups							INTEGER	::= 4
 maxnooftimeperiods							INTEGER	::= 2
 maxnoofTNLAssociations						INTEGER ::= 32
+maxnoofTLAs									INTEGER ::= 16
+maxnoofGTPTLAs								INTEGER ::= 16
+maxnoofTNLAddresses							INTEGER ::= 8
+maxnoofMDTPLMNs								INTEGER ::= 16
+maxnoofQoSParaSets							INTEGER ::= 8
+maxnoofExtSliceItems						INTEGER ::= 65535
 
 
 -- **************************************************************
@@ -146,17 +159,62 @@ id-UEDLMaximumIntegrityProtectedDataRate						ProtocolIE-ID ::= 66
 id-PDU-Session-To-Notify-List									ProtocolIE-ID ::= 67
 id-PDU-Session-Resource-Data-Usage-List							ProtocolIE-ID ::= 68
 id-SNSSAI														ProtocolIE-ID ::= 69
-id-DataDiscardRequired										ProtocolIE-ID ::= 70
+id-DataDiscardRequired											ProtocolIE-ID ::= 70
 id-OldQoSFlowMap-ULendmarkerexpected							ProtocolIE-ID ::= 71
-id-DRB-QoS															ProtocolIE-ID ::= 72
+id-DRB-QoS														ProtocolIE-ID ::= 72
 id-GNB-CU-UP-TNLA-To-Remove-List								ProtocolIE-ID ::= 73
 id-endpoint-IP-Address-and-Port									ProtocolIE-ID ::= 74
 id-TNLAssociationTransportLayerAddressgNBCUUP					ProtocolIE-ID ::= 75
-id-RANUEID													ProtocolIE-ID ::= 76
+id-RANUEID														ProtocolIE-ID ::= 76
 id-GNB-DU-ID													ProtocolIE-ID ::= 77
-id-CommonNetworkInstance											ProtocolIE-ID ::= 78
+id-CommonNetworkInstance										ProtocolIE-ID ::= 78
 id-NetworkInstance												ProtocolIE-ID ::= 79
-id-QoSFlowMappingIndication									ProtocolIE-ID ::= 80
+id-QoSFlowMappingIndication										ProtocolIE-ID ::= 80
+id-TraceActivation												ProtocolIE-ID ::= 81
+id-TraceID														ProtocolIE-ID ::= 82
+id-SubscriberProfileIDforRFP									ProtocolIE-ID ::= 83
+id-AdditionalRRMPriorityIndex									ProtocolIE-ID ::= 84
+id-RetainabilityMeasurementsInfo								ProtocolIE-ID ::= 85
+id-Transport-Layer-Address-Info									ProtocolIE-ID ::= 86
+id-QoSMonitoringRequest											ProtocolIE-ID ::= 87
+id-PDCP-StatusReportIndication									ProtocolIE-ID ::= 88
+id-gNB-CU-CP-Measurement-ID										ProtocolIE-ID ::= 89
+id-gNB-CU-UP-Measurement-ID										ProtocolIE-ID ::= 90
+id-RegistrationRequest											ProtocolIE-ID ::= 91
+id-ReportCharacteristics										ProtocolIE-ID ::= 92
+id-ReportingPeriodicity											ProtocolIE-ID ::= 93
+id-TNL-AvailableCapacityIndicator								ProtocolIE-ID ::= 94
+id-HW-CapacityIndicator											ProtocolIE-ID ::= 95
+id-RedundantCommonNetworkInstance								ProtocolIE-ID ::= 96
+id-redundant-nG-UL-UP-TNL-Information							ProtocolIE-ID ::= 97
+id-redundant-nG-DL-UP-TNL-Information							ProtocolIE-ID ::= 98
+id-RedundantQosFlowIndicator									ProtocolIE-ID ::= 99
+id-TSCTrafficCharacteristics									ProtocolIE-ID ::= 100
+id-CNPacketDelayBudgetDownlink									ProtocolIE-ID ::= 101
+id-CNPacketDelayBudgetUplink									ProtocolIE-ID ::= 102
+id-ExtendedPacketDelayBudget									ProtocolIE-ID ::= 103
+id-AdditionalPDCPduplicationInformation							ProtocolIE-ID ::= 104
+id-RedundantPDUSessionInformation								ProtocolIE-ID ::= 105
+id-RedundantPDUSessionInformation-used							ProtocolIE-ID ::= 106
+id-QoS-Mapping-Information										ProtocolIE-ID ::= 107
+id-DLUPTNLAddressToUpdateList									ProtocolIE-ID ::= 108
+id-ULUPTNLAddressToUpdateList									ProtocolIE-ID ::= 109
+id-NPNSupportInfo												ProtocolIE-ID ::= 110
+id-NPNContextInfo												ProtocolIE-ID ::= 111
+id-MDTConfiguration												ProtocolIE-ID ::= 112
+id-ManagementBasedMDTPLMNList									ProtocolIE-ID ::= 113
+id-TraceCollectionEntityIPAddress								ProtocolIE-ID ::= 114
+id-PrivacyIndicator												ProtocolIE-ID ::= 115
+id-TraceCollectionEntityURI										ProtocolIE-ID ::= 116
+id-URIaddress													ProtocolIE-ID ::= 117
+id-EHC-Parameters												ProtocolIE-ID ::= 118
+id-DRBs-Subject-To-Early-Forwarding-List						ProtocolIE-ID ::= 119
+id-DAPSRequestInfo												ProtocolIE-ID ::= 120
+id-CHOInitiation												ProtocolIE-ID ::= 121
+id-EarlyForwardingCOUNTReq										ProtocolIE-ID ::= 122
+id-EarlyForwardingCOUNTInfo										ProtocolIE-ID ::= 123
+id-AlternativeQoSParaSetList									ProtocolIE-ID ::= 124
+	id-ExtendedSliceSupportList									ProtocolIE-ID ::= 125
 
 
 END
