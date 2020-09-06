@@ -4865,6 +4865,7 @@ tsa		6689/tcp/udp	# Tofino Security Appliance
 cleverdetect	6690/tcp	# CLEVERDetect Message Service
 babel		6696/udp	# Babel Routing Protocol
 ircs-u		6697/tcp	# Internet Relay Chat via TLS/SSL
+babel-dtls	6699/udp	# Babel Routing Protocol over DTLS
 kti-icad-srvr	6701/tcp/udp	# KTI/ICAD Nameserver
 e-design-net	6702/tcp/udp	# e-Design network
 e-design-web	6703/tcp/udp	# e-Design web
