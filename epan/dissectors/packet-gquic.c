@@ -1349,7 +1349,7 @@ gboolean is_gquic_unencrypt(tvbuff_t *tvb, packet_info *pinfo, guint offset, gui
 }
 
 static guint32
-dissect_gquic_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *gquic_tree, guint offset, guint32 tag_number, gquic_info_data_t *gquic_info){
+dissect_gquic_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *gquic_tree, guint offset, guint32 tag_number){
     guint32 tag_offset_start = offset + tag_number*4*2;
     guint32 tag_offset = 0, total_tag_len = 0;
     gint32 tag_len;
@@ -1438,7 +1438,7 @@ dissect_gquic_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *gquic_tree, gui
                 scfg_tag_number = tvb_get_guint32(tvb, tag_offset_start + tag_offset, ENC_LITTLE_ENDIAN);
                 tag_offset += 4;
 
-                dissect_gquic_tag(tvb, pinfo, tag_tree, tag_offset_start + tag_offset, scfg_tag_number, gquic_info);
+                dissect_gquic_tag(tvb, pinfo, tag_tree, tag_offset_start + tag_offset, scfg_tag_number);
                 tag_offset += tag_len - 4 - 4;
                 }
             break;
@@ -1638,8 +1638,8 @@ dissect_gquic_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *gquic_tree, gui
 
 }
 
-static guint32
-dissect_gquic_tags(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ft_tree, guint offset, gquic_info_data_t *gquic_info){
+guint32
+dissect_gquic_tags(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ft_tree, guint offset){
     guint32 tag_number;
 
     proto_tree_add_item(ft_tree, hf_gquic_tag_number, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -1649,7 +1649,7 @@ dissect_gquic_tags(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ft_tree, guint
     proto_tree_add_item(ft_tree, hf_gquic_padding, tvb, offset, 2, ENC_NA);
     offset += 2;
 
-    offset = dissect_gquic_tag(tvb, pinfo, ft_tree, offset, tag_number, gquic_info);
+    offset = dissect_gquic_tag(tvb, pinfo, ft_tree, offset, tag_number);
 
     return offset;
 }
@@ -1794,7 +1794,7 @@ dissect_gquic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *gquic_tr
                 col_add_fstr(pinfo->cinfo, COL_INFO, "%s", val_to_str(message_tag, message_tag_vals, "Unknown"));
                 offset += 4;
 
-                offset = dissect_gquic_tags(tvb, pinfo, ft_tree, offset, gquic_info);
+                offset = dissect_gquic_tags(tvb, pinfo, ft_tree, offset);
 	    } else { /* T050 and T051 */
                 tvbuff_t *next_tvb = tvb_new_subset_length(tvb, offset, (int)crypto_length);
                 col_set_writable(pinfo->cinfo, -1, FALSE);
@@ -1845,7 +1845,7 @@ dissect_gquic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *gquic_tr
                     col_add_fstr(pinfo->cinfo, COL_INFO, "%s", val_to_str(message_tag, message_tag_vals, "Unknown"));
                     offset += 4;
 
-                    offset = dissect_gquic_tags(tvb, pinfo, ft_tree, offset, gquic_info);
+                    offset = dissect_gquic_tags(tvb, pinfo, ft_tree, offset);
                 break;
                 }
                 case 3: { /* Reserved H2 HEADERS (or PUSH_PROMISE..) */
@@ -2165,7 +2165,7 @@ dissect_gquic_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         proto_tree_add_item(gquic_tree, hf_gquic_padding, tvb, offset, 2, ENC_NA);
         offset += 2;
 
-        offset = dissect_gquic_tag(tvb, pinfo, gquic_tree, offset, tag_number, gquic_info);
+        offset = dissect_gquic_tag(tvb, pinfo, gquic_tree, offset, tag_number);
 
         col_add_fstr(pinfo->cinfo, COL_INFO, "Public Reset, CID: %" G_GINT64_MODIFIER "u", cid);
 

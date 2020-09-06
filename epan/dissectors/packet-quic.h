@@ -59,6 +59,8 @@ typedef struct gquic_info_data {
 
 int
 dissect_gquic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *gquic_tree, guint offset, guint8 len_pkn, gquic_info_data_t *gquic_info);
+guint32
+dissect_gquic_tags(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ft_tree, guint offset);
 
 #ifdef __cplusplus
 }
