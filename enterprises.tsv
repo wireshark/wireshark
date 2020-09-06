@@ -5,7 +5,7 @@
 # The format used here is: <NUMERICAL_ID><SPACE><NAME>
 # Where SPACE can be any sequence of spaces and tabs.
 #
-# (last updated 2020-08-29)
+# (last updated 2020-09-04)
 
 0	Reserved
 1	NxNetworks
@@ -52432,7 +52432,6 @@
 52624	Mail.Ru, LLC
 52625	Shearwater Geoservices Norway AS
 52626	Semicyber, LLC
-52627	Apple Inc
 52628	Express Retail LLC
 52629	Nook Industries, Inc.
 52630	TechCertain Limited
@@ -55504,7 +55503,7 @@
 55699	VTNS
 55700	AppLine
 55701	Signers Technology LLC
-55702	Adam Maxwell Investment Company AMI
+55702	Adam Investments	# formerly 'Adam Maxwell Investment Company AMI'
 55703	OAG INDUSTRIES srl
 55704	OpenetME
 55705	Smith Consulting LLC
@@ -56078,3 +56077,24 @@
 56273	Machines talk
 56274	PR Oncology, LLC
 56275	RA-MICRO Hamburg GmbH
+56276	Thales SIX Nederland
+56277	Denbighshire County Council
+56278	China Mobile IoT Company Limited
+56279	SereneIT, Inc.
+56280	Cloud2 Software Inc.
+56281	Arvato Supply Chain Solutions
+56282	Kapsch BusinessCom AG
+56283	EA Systems Dresden GmbH
+56284	Atlas Cloud Services
+56285	S&S Activewear
+56286	Steico Industries Inc
+56287	Hacksoft
+56288	Cloudready.dk
+56289	LEAPBYTE TECHNOLOGY
+56290	Community Brands
+56291	Solmax Inc.
+56292	AS207960 Cyfyngedig
+56293	UI-ICON
+56294	Magnetic Inspection Laboratory, Inc.
+56295	MORSON JAPAN Co., Ltd.
+56296	East West Bank
