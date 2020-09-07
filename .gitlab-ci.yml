@@ -8,8 +8,6 @@
 # The custom Ubuntu image pre-installs dependencies and compilers to speed up the build:
 # https://hub.docker.com/r/wireshark/wireshark-ubuntu-dev
 # https://github.com/wireshark/wireshark-ubuntu-dev-docker
-# XXX - We might be able to speed things up using ccache:
-# https://gould.cx/ted/blog/2017/06/10/ccache-for-Gitlab-CI/
 .build-ubuntu: &build-ubuntu
   <<: *build
   image: wireshark/wireshark-ubuntu-dev
@@ -153,13 +151,12 @@ merge-request:ubuntu-dpkg:
   <<: *build-ubuntu
   tags:
     - docker
-  only:
-    - merge_requests
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
   script:
     - apt-get install -y lintian
     # build-ubuntu puts us in `build`.
     - cd ..
-    # From the Buildbot Petri Dish. We might want to spread these across different builders.
     - bash ./tools/pre-commit 'HEAD^1'
     - sh -c '[ ! -e tools/validate-commit.py ] || tools/validate-commit.py'
     - DH_QUIET=1 CC=/usr/lib/ccache/gcc CXX=/usr/lib/ccache/g++ dpkg-buildpackage -us -uc -rfakeroot -jauto -Zgzip -zfast
@@ -169,8 +166,8 @@ merge-request:ubuntu-gcc-ctest:
   <<: *build-ubuntu
   tags:
     - docker
-  only:
-   - merge_requests
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
   script:
     # build-ubuntu puts us in `build`.
     - perl ../tools/make-version.pl --set-release || ../perl make-version.pl --set-release
@@ -184,8 +181,8 @@ merge-request:ubuntu-clang-other-tests:
   extends: clang-10
   tags:
     - docker
-  only:
-    - merge_requests
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
   script:
     - apt-get install -y cppcheck clang-tools
     # build-ubuntu puts us in `build`.
@@ -208,8 +205,9 @@ merge-request:windows:
   tags:
     - wireshark-windows-dev
   stage: build
-  only:
-   - merge_requests
+  rules:
+    # The Windows Docker image is currently only available via a dedicated runner.
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_PROJECT_URL == "https://gitlab.com/wireshark/wireshark"'
   before_script:
     # XXX Find a better location.
     - mkdir c:\Development
