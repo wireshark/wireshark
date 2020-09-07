@@ -6519,7 +6519,7 @@ proto_register_zbee_zcl_analog_output_basic(void)
             ZBEE_ZCL_STATUS_IN_ALARM, NULL, HFILL } },
 
         { &hf_zbee_zcl_analog_output_basic_status_fault,
-            { "Fault Status", "zbee_zcl_general.analog_output_basic.attr.status.falut", FT_UINT8, BASE_DEC, VALS(zbee_zcl_status_values),
+            { "Fault Status", "zbee_zcl_general.analog_output_basic.attr.status.fault", FT_UINT8, BASE_DEC, VALS(zbee_zcl_status_values),
             ZBEE_ZCL_STATUS_FAULT, NULL, HFILL } },
 
         { &hf_zbee_zcl_analog_output_basic_status_overridden,

@@ -2353,7 +2353,7 @@ static const value_string dce_error_vals[] = {
     { 701247632, "dacl_From_SecAcl: error allocating extended entry array buffer" },
     { 701247633, "dacl_From_SecAcl: error incorrect ACL manager uuid in secAclP" },
     { 701247634, "dacl_To_SecAcl_ExtendedInfo: error allocating buffer for extended info for secAclEntryP" },
-    { 701247635, "dacl_To_SecAcl: unrecoginzed entry type, .d, found in daclP" },
+    { 701247635, "dacl_To_SecAcl: unrecognized entry type, .d, found in daclP" },
     { 701247636, "dacl_To_SecAcl: error allocating buffer for secAclP entries" },
     { 701247637, "dacl_InitPac: no passwd file entry found for .s" },
     { 701247638, "dacl_InitPac: no group file entry found for .s" },

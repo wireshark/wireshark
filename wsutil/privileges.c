@@ -203,7 +203,7 @@ running_with_special_privs(void)
 static void
 setxid_fail(const gchar *str)
 {
-	g_error("Attempt to relinguish privileges failed [%s()] - aborting: %s\n",
+	g_error("Attempt to relinquish privileges failed [%s()] - aborting: %s\n",
 		str, g_strerror(errno));
 }
 

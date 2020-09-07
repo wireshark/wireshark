@@ -3159,7 +3159,7 @@ static expert_field ei_isup_message_type_no_optional_parameters = EI_INIT;
 static expert_field ei_isup_status_subfield_not_present = EI_INIT;
 static expert_field ei_isup_empty_number = EI_INIT;
 static expert_field ei_isup_too_many_digits = EI_INIT;
-static expert_field ei_isup_opt_par_lengt_err = EI_INIT;
+static expert_field ei_isup_opt_par_length_err = EI_INIT;
 
 static dissector_handle_t bicc_handle;
 
@@ -7934,7 +7934,7 @@ dissect_isup_optional_parameter(tvbuff_t *optional_parameters_tvb, packet_info *
     if (parameter_type != PARAM_TYPE_END_OF_OPT_PARAMS) {
       parameter_length = tvb_get_guint8(optional_parameters_tvb, offset + PARAMETER_TYPE_LENGTH);
       if (parameter_length + PARAMETER_TYPE_LENGTH + PARAMETER_LENGTH_IND_LENGTH > (guint)(tvb_reported_length_remaining(optional_parameters_tvb, offset))) {
-        proto_tree_add_expert_format(isup_tree, pinfo, &ei_isup_opt_par_lengt_err, optional_parameters_tvb, offset, -1,
+        proto_tree_add_expert_format(isup_tree, pinfo, &ei_isup_opt_par_length_err, optional_parameters_tvb, offset, -1,
           "Wrong parameter length %u, should be %u",
           parameter_length,
           tvb_reported_length_remaining(optional_parameters_tvb, offset)- (PARAMETER_TYPE_LENGTH + PARAMETER_LENGTH_IND_LENGTH));
@@ -12092,7 +12092,7 @@ proto_register_isup(void)
     { &ei_isup_message_type_no_optional_parameters, { "isup.message_type.no_optional_parameters", PI_PROTOCOL, PI_NOTE, "No optional parameters are possible with this message type", EXPFILL }},
     { &ei_isup_empty_number, { "isup.empty_number", PI_PROTOCOL, PI_NOTE, "(empty) number", EXPFILL }},
     { &ei_isup_too_many_digits, { "isup.too_many_digits", PI_MALFORMED, PI_ERROR, "Too many digits", EXPFILL }},
-    { &ei_isup_opt_par_lengt_err, { "isup.opt_par_lengt_err", PI_MALFORMED, PI_ERROR, "Optional parameter length is wrong", EXPFILL }}
+    { &ei_isup_opt_par_length_err, { "isup.opt_par_length_err", PI_MALFORMED, PI_ERROR, "Optional parameter length is wrong", EXPFILL }}
   };
 
   static const enum_val_t isup_variants[] = {

@@ -507,7 +507,7 @@ static const value_string siii_mdt_idn_text[]=
   {IDN(0,0,0,0, 417), "Positioning velocity threshold in modulo mode"},
   {IDN(0,0,0,0, 418), "Target position window in modulo mode"},
   {IDN(0,0,0,0, 419), "Positioning acknowledge"},
-  {IDN(0,0,0,0, 420), "Activate parametrization level procedure command (PL)"},
+  {IDN(0,0,0,0, 420), "Activate parameterization level procedure command (PL)"},
   {IDN(0,0,0,0, 422), "Exit parameterization level procedure command"},
   {IDN(0,0,0,0, 423), "IDN-list of invalid data for parameterization level"},
   {IDN(0,0,0,0, 426), "Measuring data allocation 1"},

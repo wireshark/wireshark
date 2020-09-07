@@ -8,6 +8,7 @@ accelerometer
 accessors
 acknowledgement
 acp133
+activations
 actuator
 adwin
 aes128
@@ -39,6 +40,7 @@ attrib
 attrs
 authenticates
 authenticator
+authenticators
 authtoken
 authtype
 autoconfiguration
@@ -73,6 +75,7 @@ bthci
 btmesh
 btsdp
 btsnoop
+bugzilla
 byte
 byteorder
 cablelabs
@@ -89,6 +92,7 @@ capsa
 capwap
 carrierfreq
 carrierid
+categorizes
 cccid
 ccpch
 cctrch
@@ -362,6 +366,7 @@ ipsec
 iptrace
 ipv4addr
 isobus
+iterating
 iterator
 itunes
 iwarp
@@ -400,7 +405,9 @@ macaddr
 macaddress
 mailto
 malloc
+mappable
 mcast
+measurements
 megaco
 mellanox
 memcache
@@ -480,6 +487,7 @@ nprach
 nsapi
 nstime
 nstrace
+obfuscated
 objectid
 objkey
 obsoleted
@@ -495,6 +503,7 @@ onduration
 onoff
 ontime
 opcode
+opcodes
 openvpn
 opnum
 optimizations
@@ -575,11 +584,17 @@ reachability
 readme
 realloc
 realtime
+reassembles
 reassigning
+reassignments
+reassigns
+reassociation
 reauth
+reauthenticate
 reauthentication
 reauthorize
 rebinding
+rebooted
 recalculate
 recalculating
 recognizer
@@ -587,12 +602,16 @@ reconf
 reconfig
 reconfigure
 reconfigured
+reconfigures
 reconfrqst
+redelivered
 redelivery
+redirector
 redistributable
 redistributables
 reencyption
 reentry
+reestablishing
 reestablishment
 referer
 referrer
@@ -602,6 +621,8 @@ reinitialize
 reinitializing
 rekey
 rekeying
+relocatable
+remapping
 reoptimization
 reordercap
 reorigination
@@ -610,8 +631,10 @@ reprogrammable
 reprogramming
 requester
 requestor
+rerouted
 rerouting
 resend
+resequencing
 reservable
 reserved
 reserved0
@@ -621,6 +644,7 @@ reserved3
 reserved4
 reserved5
 resize
+resized
 resolver
 resynchronization
 retrans
@@ -631,7 +655,9 @@ retransmits
 retransmitted
 retries
 retry
+retrying
 retyping
+revalidate
 rfcomm
 rlcmac
 rnsap
@@ -646,6 +672,7 @@ scannable
 scell
 scoped
 scrollbar
+sectorized
 segno
 semiautomatic
 seqno
@@ -754,6 +781,7 @@ tooltip
 touchlink
 traceroute
 transcoder
+truncatable
 truncate
 tshark
 tspec
@@ -777,7 +805,9 @@ unadvise
 unaligned
 unassign
 unauthenticated
+unbuffered
 uncalculated
+uncategorized
 unciphered
 uncompress
 uncompressing
@@ -797,6 +827,7 @@ underrun
 undissected
 unencrypted
 unescaped
+unformatted
 unfragmented
 unhandled
 unicast
@@ -813,6 +844,7 @@ unparsable
 unparsed
 unpunctuated
 unreassembled
+unreceived
 unrecoverable
 unrecovered
 unregister
@@ -824,11 +856,13 @@ unsecure
 unsegmented
 unsequenced
 unsubscribe
+unsubscribed
 unsynchronized
 untagged
 untruncated
 untrusted
 untunelled
+untunneled
 uplink
 upload
 uploaded

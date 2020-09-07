@@ -1513,7 +1513,7 @@ pcap_read_erf_pseudoheader(FILE_T fh, wtap_rec *rec,
 		}
 		if (packet_size < (guint)(phdr_len + (int)sizeof(erf_aal2_header_t))) {
 			*err = WTAP_ERR_BAD_FILE;
-			*err_info = g_strdup_printf("pcap/pcapng: ERF file has a %u-byte packet, too small to include the AAL2 headerr",
+			*err_info = g_strdup_printf("pcap/pcapng: ERF file has a %u-byte packet, too small to include the AAL2 header",
 			    packet_size);
 			return -1;
 		}

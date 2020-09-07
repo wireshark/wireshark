@@ -559,7 +559,7 @@ static const value_string terminal_types_vals[] = {
     {0x0201, "Microphone"},
     {0x0202, "Desktop Microphone"},
     {0x0203, "Personal microphone"},
-    {0x0204, "Omni-directional icrophone"},
+    {0x0204, "Omni-directional microphone"},
     {0x0205, "Microphone array"},
     {0x0206, "Processing microphone array"},
     {0x0300, "Output Undefined"},

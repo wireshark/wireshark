@@ -13340,7 +13340,7 @@ proto_register_smb2(void)
 
 		{ &hf_smb2_fscc_file_attr_integrity_stream,
 			{ "Integrity Stream", "smb2.file_attribute.integrity_stream", FT_BOOLEAN, 32,
-			TFS(&tfs_fscc_file_attribute_integrity_stream), SMB2_FSCC_FILE_ATTRIBUTE_INTEGRITY_STREAM, "Is this file configured with inegrity support?", HFILL } },
+			TFS(&tfs_fscc_file_attribute_integrity_stream), SMB2_FSCC_FILE_ATTRIBUTE_INTEGRITY_STREAM, "Is this file configured with integrity support?", HFILL } },
 
 		{ &hf_smb2_fscc_file_attr_no_scrub_data,
 			{ "No Scrub Data", "smb2.file_attribute.no_scrub_data", FT_BOOLEAN, 32,

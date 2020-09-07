@@ -146,7 +146,7 @@ static const value_string down_reason_typevals[] = {
     { BMP_PEER_DOWN_REMOTE_NOTIFY,      "Remote System, Notification" },
     { BMP_PEER_DOWN_REMOTE_NO_NOTIFY,   "Remote System, No Notification" },
     { BMP_PEER_DOWN_INFO_NO_LONGER,     "Peer no longer be sent INformation (Configuration reasons)" },
-    { BMP_LOCAL_SYSTEM_CLOSED,          "Local system CLosed, TLV data Follows" },
+    { BMP_LOCAL_SYSTEM_CLOSED,          "Local system Closed, TLV data Follows" },
     { 0, NULL }
 };
 

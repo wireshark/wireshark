@@ -54,7 +54,7 @@ static const value_string h248_pkg_generic_props_vals[] = {
 
 static const value_string h248_pkg_generic_cause_vals[] _U_ = {
 	{1, "General Cause (gencause)"},
-	{2, "Faiure Cause (failurecause)"},
+	{2, "Failure Cause (failurecause)"},
 	{ 0, NULL }
 };
 

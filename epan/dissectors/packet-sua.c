@@ -352,7 +352,7 @@ static gint ett_sua_sequence_number_rec_number = -1;
 static gint ett_sua_sequence_number_sent_number = -1;
 static gint ett_sua_receive_sequence_number_number = -1;
 static gint ett_sua_return_on_error_bit_and_protocol_class = -1;
-static gint ett_sua_protcol_classes = -1;
+static gint ett_sua_protocol_classes = -1;
 static gint ett_sua_assoc = -1;
 
 static int sua_tap = -1;
@@ -1115,7 +1115,7 @@ dissect_asp_capabilities_parameter(tvbuff_t *parameter_tvb, proto_tree *paramete
    };
 
   proto_tree_add_item(parameter_tree, hf_sua_asp_capabilities_reserved, parameter_tvb, PARAMETER_VALUE_OFFSET, RESERVED_2_LENGTH, ENC_NA);
-  proto_tree_add_bitmask(parameter_tree, parameter_tvb, PROTOCOL_CLASSES_OFFSET, hf_sua_protocol_classes, ett_sua_protcol_classes, capabilities, ENC_BIG_ENDIAN);
+  proto_tree_add_bitmask(parameter_tree, parameter_tvb, PROTOCOL_CLASSES_OFFSET, hf_sua_protocol_classes, ett_sua_protocol_classes, capabilities, ENC_BIG_ENDIAN);
   proto_tree_add_item(parameter_tree, hf_sua_asp_capabilities_interworking, parameter_tvb, INTERWORKING_OFFSET, INTERWORKING_LENGTH, ENC_BIG_ENDIAN);
 }
 
@@ -2398,7 +2398,7 @@ proto_register_sua(void)
     { &hf_sua_importance,                            { "Importance",                   "sua.importance_importance",                     FT_UINT8,   BASE_DEC,  NULL,                               0x0,                      NULL, HFILL } },
     { &hf_sua_message_priority_reserved,             { "Reserved",                     "sua.message_priority_reserved",                 FT_BYTES,   BASE_NONE, NULL,                               0x0,                      NULL, HFILL } },
     { &hf_sua_message_priority,                      { "Message Priority",             "sua.message_priority_priority",                 FT_UINT8,   BASE_DEC,  NULL,                               0x0,                      NULL, HFILL } },
-    { &hf_sua_protocol_class_reserved,               { "Reserved",                     "sua.protcol_class_reserved",                    FT_BYTES,   BASE_NONE, NULL,                               0x0,                      NULL, HFILL } },
+    { &hf_sua_protocol_class_reserved,               { "Reserved",                     "sua.protocol_class_reserved",                    FT_BYTES,   BASE_NONE, NULL,                               0x0,                      NULL, HFILL } },
     { &hf_sua_return_on_error_bit,                   { "Return On Error Bit",          "sua.protocol_class_return_on_error_bit",        FT_BOOLEAN, 8,         TFS(&return_on_error_bit_value),    RETURN_ON_ERROR_BIT_MASK, NULL, HFILL } },
     { &hf_sua_protocol_class,                        { "Protocol Class",               "sua.protocol_class_class",                      FT_UINT8,   BASE_DEC,  NULL,                               PROTOCOL_CLASS_MASK,      NULL, HFILL } },
     { &hf_sua_sequence_control,                      { "Sequence Control",             "sua.sequence_control_sequence_control",         FT_UINT32,  BASE_DEC,  NULL,                               0x0,                      NULL, HFILL } },
@@ -2428,7 +2428,7 @@ proto_register_sua(void)
     &ett_sua_sequence_number_rec_number,
     &ett_sua_sequence_number_sent_number,
     &ett_sua_receive_sequence_number_number,
-    &ett_sua_protcol_classes,
+    &ett_sua_protocol_classes,
     &ett_sua_first_remaining,
     &ett_sua_return_on_error_bit_and_protocol_class,
     &ett_sua_assoc

@@ -633,7 +633,7 @@ static int hf_ecmp_param_format_parameter_has_no_default = -1;
 static int hf_ecmp_param_format_number_of_decimal_places = -1;
 static int hf_ecmp_param_format_variable_maximum_and_minimum = -1;
 static int hf_ecmp_param_format_string_parameter = -1;
-static int hf_ecmp_param_format_desitination_set_up_parameter = -1;
+static int hf_ecmp_param_format_destination_set_up_parameter = -1;
 static int hf_ecmp_param_format_filtered_when_displayed = -1;
 static int hf_ecmp_param_format_pseudo_read_only = -1;
 static int hf_ecmp_param_format_display_format = -1;
@@ -1580,7 +1580,7 @@ static void get_object_info_response(packet_info* pinfo, int offset, tvbuff_t *t
 							&hf_ecmp_param_format_number_of_decimal_places,
 							&hf_ecmp_param_format_variable_maximum_and_minimum,
 							&hf_ecmp_param_format_string_parameter,
-							&hf_ecmp_param_format_desitination_set_up_parameter,
+							&hf_ecmp_param_format_destination_set_up_parameter,
 							&hf_ecmp_param_format_filtered_when_displayed,
 							&hf_ecmp_param_format_pseudo_read_only,
 							&hf_ecmp_param_format_display_format,
@@ -3394,7 +3394,7 @@ void proto_register_ecmp (void)
 	{ &hf_ecmp_param_format_number_of_decimal_places, { "DP- Number of Decimal places", "ecmp.param_format.number_of_decimal_places", FT_UINT32, BASE_DEC, NULL, 0x00000F00, NULL, HFILL }},
 	{ &hf_ecmp_param_format_variable_maximum_and_minimum, { "VM- Variable maximum and minimum", "ecmp.param_format.variable_maximum_and_minimum", FT_UINT32, BASE_DEC, NULL, 0x00001000, NULL, HFILL }},
 	{ &hf_ecmp_param_format_string_parameter, { "TE- String parameter", "ecmp.param_format.string_parameter", FT_UINT32, BASE_DEC, NULL, 0x00002000, NULL, HFILL }},
-	{ &hf_ecmp_param_format_desitination_set_up_parameter, { "DE- Desitination set-up parameter", "ecmp.param_format.desitination_set_up_parameter", FT_UINT32, BASE_DEC, NULL, 0x00004000, NULL, HFILL }},
+	{ &hf_ecmp_param_format_destination_set_up_parameter, { "DE- destination set-up parameter", "ecmp.param_format.destination_set_up_parameter", FT_UINT32, BASE_DEC, NULL, 0x00004000, NULL, HFILL }},
 	{ &hf_ecmp_param_format_filtered_when_displayed, { "FI- Filtered when displayed", "ecmp.param_format.filtered_when_displayed", FT_UINT32, BASE_DEC, NULL, 0x00008000, NULL, HFILL }},
 	{ &hf_ecmp_param_format_pseudo_read_only, { "PR- Pseudo read only", "ecmp.param_format.pseudo_read_only", FT_UINT32, BASE_DEC, NULL, 0x00010000, NULL, HFILL }},
 	{ &hf_ecmp_param_format_display_format, { "DF- Display Format", "ecmp.param_format.display_format", FT_UINT32, BASE_DEC, VALS(display_format), 0x001E0000, NULL, HFILL }},

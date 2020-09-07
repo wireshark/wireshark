@@ -8297,7 +8297,7 @@ proto_register_bthci_evt(void)
             NULL, HFILL }
         },
         { &hf_bthci_evt_le_simultaneous_host,
-          { "Simultaneous LE Host", "bthci_evt.le_simlutaneous_host",
+          { "Simultaneous LE Host", "bthci_evt.le_simultaneous_host",
             FT_BOOLEAN, 8, NULL, 0x0,
             "Support for both LE and BR/EDR to same device", HFILL }
         },

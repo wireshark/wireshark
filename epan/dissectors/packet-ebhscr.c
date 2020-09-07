@@ -598,7 +598,7 @@ proto_register_ebhscr(void)
 			NULL, HFILL }
 		},
 		{ &hf_can_ERRP,
-			{ "CAN Counters reached Error pasive limit", "ebhscr.can.errp",
+			{ "CAN Counters reached Error passive limit", "ebhscr.can.errp",
 			FT_UINT64, BASE_DEC | BASE_VAL64_STRING,
 			VALS64(can_ERRP_strings), 0x0000002000000000,
 			NULL, HFILL }

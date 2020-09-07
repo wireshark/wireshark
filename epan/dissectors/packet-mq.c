@@ -3878,7 +3878,7 @@ void proto_register_mq(void)
         { &hf_mq_id_SeqWrapVal , {"SeqWrapVal", "mq.id.seqwrap", FT_UINT32, BASE_DEC, NULL, 0x0, "ID seq wrap value", HFILL }},
         { &hf_mq_id_channel    , {"ChannelNme", "mq.id.channelname", FT_STRING, STR_UNICODE, NULL, 0x0, "ID channel name", HFILL }},
         { &hf_mq_id_icf2       , {"CapFlag2..", "mq.id.idflags2", FT_UINT8, BASE_HEX, NULL, 0x0, "ID Capability flags 2", HFILL }},
-        { &hf_mq_id_Eicf2      , {"ECapFlag2.", "mq.id.ideflags2", FT_UINT8, BASE_HEX, NULL, 0x0, "ID E Capabitlity flags 2", HFILL }},
+        { &hf_mq_id_Eicf2      , {"ECapFlag2.", "mq.id.ideflags2", FT_UINT8, BASE_HEX, NULL, 0x0, "ID E Capability flags 2", HFILL }},
         { &hf_mq_id_ccsid      , {"ccsid.....", "mq.id.ccsid", FT_INT16, BASE_DEC | BASE_RANGE_STRING, RVALS(GET_VALRV(ccsid)), 0x0, "ID Coded Character Set ID", HFILL }},
         { &hf_mq_id_qmgrname   , {"QMgrName..", "mq.id.qm", FT_STRING, STR_UNICODE, NULL, 0x0, "ID Queue Manager Name", HFILL }},
         { &hf_mq_id_HBInterval , {"HBInterval", "mq.id.hbint", FT_UINT32, BASE_DEC, NULL, 0x0, "ID Heartbeat interval", HFILL }},

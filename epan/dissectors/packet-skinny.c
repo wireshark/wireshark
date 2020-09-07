@@ -8919,7 +8919,7 @@ proto_register_skinny(void)
     { &hf_skinny_maxConferences,
       {
         "Maximum Number of Concurrent Conferences", "skinny.maxConferences", FT_UINT32, BASE_DEC, NULL, 0x0,
-        "Indicates the maximum number of simultansous Conferences, which this client/appliance can handle", HFILL }},
+        "Indicates the maximum number of simultaneous Conferences, which this client/appliance can handle", HFILL }},
     { &hf_skinny_maxFramesPerPacket,
       {
         "maxFramesPerPacket", "skinny.maxFramesPerPacket", FT_UINT32, BASE_DEC, NULL, 0x0,
@@ -8947,7 +8947,7 @@ proto_register_skinny(void)
     { &hf_skinny_maxStreams,
       {
         "Maximum Number of Concurrent RTP Streams", "skinny.maxStreams", FT_UINT32, BASE_DEC, NULL, 0x0,
-        "Indicates the maximum number of simultansous RTP duplex streams, which this client/appliance can handle.", HFILL }},
+        "Indicates the maximum number of simultaneous RTP duplex streams, which this client/appliance can handle.", HFILL }},
     { &hf_skinny_maxStreamsPerConf,
       {
         "maxStreamsPerConf", "skinny.maxStreamsPerConf", FT_UINT32, BASE_DEC, NULL, 0x0,

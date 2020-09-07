@@ -202,7 +202,7 @@ static const value_string oktypenames[] = {
 
 static const string_string errortypenames[] = {
     { "E0", "Syntax error: unknown command (CMDUNKN)" },
-    { "E1", "Syntax error: wrond number of arguments (PARSE_NARGS)" },
+    { "E1", "Syntax error: wrong number of arguments (PARSE_NARGS)" },
     { "E2", "Syntax error: unknown modifiers (PARSE_MODS)" },
     { "E5", "PARSE_1" },
     { "E6", "PARSE_2" },
@@ -1132,7 +1132,7 @@ proto_register_rtpproxy(void)
         {
             &hf_rtpproxy_command_parameter_proto,
             {
-                "RTP transmsission protocol",
+                "RTP transmission protocol",
                 "rtpproxy.command_parameter_proto",
                 FT_CHAR,
                 BASE_HEX,

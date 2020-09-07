@@ -131,7 +131,7 @@ static const value_string messageidnames[] = {
 #if 0
 static const value_string flagnames[] = {
     { HIQNET_REQACK_FLAG, "Request Acknowledgement" },
-    { HIQNET_ACK_FLAG, "Acknowlegement" },
+    { HIQNET_ACK_FLAG, "Acknowledgement" },
     { HIQNET_INFO_FLAG, "Information" },
     { HIQNET_ERROR_FLAG, "Error" },
     { HIQNET_GUARANTEED_FLAG, "Guaranteed" },

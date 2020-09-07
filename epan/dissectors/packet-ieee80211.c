@@ -32038,7 +32038,7 @@ proto_register_ieee80211(void)
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_symbol_proprietary_oui,
-     {"Symbol Propritary OUI", "wlan.tag.symbol_proprietary.oui",
+     {"Symbol Proprietary OUI", "wlan.tag.symbol_proprietary.oui",
       FT_UINT24, BASE_OUI, NULL, 0,
       NULL, HFILL }},
 

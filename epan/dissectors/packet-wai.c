@@ -545,7 +545,7 @@ dissect_signature_algorithm(tvbuff_t *tvb, guint offset, proto_tree *tree)
     alg_id = tvb_get_guint8(tvb, offset);
 
     if (1 == alg_id) {
-        proto_item_set_text(alg_name_item, "Algorithm Idendifier: SHA-256  (0x01)");
+        proto_item_set_text(alg_name_item, "Algorithm Identifier: SHA-256  (0x01)");
     }
 
     offset += 1;

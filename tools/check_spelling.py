@@ -163,6 +163,7 @@ class File:
             v = v.replace('%u', '')
             v = v.replace('%d', '')
             v = v.replace('%s', '')
+            v = v.replace('\\n', ' ')
 
             # Split into words.
             value_words = v.split()

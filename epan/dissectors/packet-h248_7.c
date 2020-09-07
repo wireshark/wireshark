@@ -49,7 +49,7 @@ static const value_string h248_an_prop_vals[] = {
 };
 
 static const value_string  h248_an_signals_vals[] = {
-	{ 0x0001, "Annoumcement Play Fixed (apf)"},
+	{ 0x0001, "Announcement Play Fixed (apf)"},
 	{ 0x0002, "Announcement Play Variable (apv)"},
 	{0,NULL}
 };

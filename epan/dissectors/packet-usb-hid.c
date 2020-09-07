@@ -1444,7 +1444,7 @@ static const value_string usb_hid_consumer_usage_page_vals[] = {
     {0x298, "AC Rename"},
     {0x299, "AC Merge"},
     {0x29A, "AC Split"},
-    {0x29B, "AC Disribute Horizontally"},
+    {0x29B, "AC Distribute Horizontally"},
     {0x29C, "AC Distribute Vertically"},
     {0, NULL}
 };

@@ -17207,7 +17207,7 @@ proto_register_netflow(void)
         },
         /* plixer, 13745 / 112 */
         {&hf_pie_plixer_encryption,
-         {"Cncryption", "cflow.pie.plixer.encryption",
+         {"Encryption", "cflow.pie.plixer.encryption",
           FT_UINT32, BASE_DEC, NULL, 0x0,
           NULL, HFILL}
         },

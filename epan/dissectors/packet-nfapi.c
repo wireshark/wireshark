@@ -4704,7 +4704,7 @@ static void dissect_ul_config_ulsch_pdu_rel13_value(ptvcursor_t * ptvc, packet_i
 		expert_add_info_format(pinfo, item, &ei_invalid_range, "Invalid repetition number value [0..10239, 0xFFFF]");
 	}
 
-	// Empy symbols due to re-tunning
+	// Empty symbols due to re-tunning
 	// todo : decode as a bitmap
 	ptvcursor_add(ptvc, hf_nfapi_empty_symbols_due_to_retunning, 1, ENC_BIG_ENDIAN);
 }
@@ -9697,7 +9697,7 @@ void proto_register_nfapi(void)
 			"Indicates if PHY supports beamforming (FD-MIMO Class B). Equivalent to beamformed-r13 in TS36.306", HFILL }
 		},
 		{ &hf_nfapi_csi_rs_enhancements_supported,
-			{ "CSI-RS enhancements supported", "nfapi.pnf.phy_rel13.csi_rs_enchancements_supported",
+			{ "CSI-RS enhancements supported", "nfapi.pnf.phy_rel13.csi_rs_enhancements_supported",
 			FT_UINT16, BASE_DEC, NULL, 0x0,
 			"Indicates if PHY supports CSI-RS enhancements (FD-MIMO Class A). Equivalent to csi-RS-EnhancementsTDD-r13 in TS36.306", HFILL }
 		},
@@ -10629,7 +10629,7 @@ void proto_register_nfapi(void)
 			"Absolute Sub-Frame of the initial transmission", HFILL }
 		},
 		{ &hf_nfapi_empty_symbols_due_to_retunning,
-			{ "Empy symbols due to re-tunning", "nfapi.empty.symbols.due.to.retunning",
+			{ "Empty symbols due to re-tunning", "nfapi.empty.symbols.due.to.retunning",
 			FT_UINT8, BASE_DEC, NULL, 0x0,
 			"Indicates the symbols that are left empty due to eMTC retuning.", HFILL }
 		},

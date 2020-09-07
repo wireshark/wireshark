@@ -1207,7 +1207,7 @@ void proto_register_s5066dts (void)
                 { "Acknowledgment", "s5066dts.management.ack", FT_BOOLEAN, 8, NULL, 0x01, NULL, HFILL }
             },
             { &hf_s5066dts_management_management_frame_id,
-                { "Management frame ID number", "s5066dts.management.manegement_frame_id", FT_UINT8, BASE_DEC,
+                { "Management frame ID number", "s5066dts.management.management_frame_id", FT_UINT8, BASE_DEC,
                         NULL, 0x0, NULL, HFILL }
             },
             { &hf_s5066dts_management_extended_message,

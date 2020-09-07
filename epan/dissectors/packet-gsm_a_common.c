@@ -722,7 +722,7 @@ static int hf_gsm_a_geo_loc_uncertainty_semi_minor = -1;
 static int hf_gsm_a_geo_loc_orientation_of_major_axis = -1;
 static int hf_gsm_a_geo_loc_uncertainty_altitude = -1;
 static int hf_gsm_a_geo_loc_confidence = -1;
-static int hf_gsm_a_geo_loc_horisontal_confidence = -1;
+static int hf_gsm_a_geo_loc_horizontal_confidence = -1;
 static int hf_gsm_a_geo_loc_vertical_confidence = -1;
 static int hf_gsm_a_geo_loc_high_acc_uncertainty_alt = -1;
 static int hf_gsm_a_geo_loc_no_of_points = -1;
@@ -1018,11 +1018,11 @@ dissect_geographical_description(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
         proto_item_append_text(long_item, " (%s degrees)", deg_lon_str);
 
         offset += 4;
-        /* High accuracy uncertanty semi-major*/
+        /* High accuracy uncertainty semi-major*/
         major_item = proto_tree_add_item_ret_uint(tree, hf_gsm_a_geo_loc_high_acc_uncertainty_semi_major, tvb, offset, 1, ENC_BIG_ENDIAN, &uvalue32);
         proto_item_append_text(major_item, " (%.5f m)", 0.3 * (pow(1.02, (double)uvalue32) - 1));
         offset++;
-        /* High accuracy uncertanty semi-minor*/
+        /* High accuracy uncertainty semi-minor*/
         minor_item = proto_tree_add_item_ret_uint(tree, hf_gsm_a_geo_loc_high_acc_uncertainty_semi_minor, tvb, offset, 1, ENC_BIG_ENDIAN, &uvalue32);
         proto_item_append_text(minor_item, " (%.5f m)", 0.3 * (pow(1.02, (double)uvalue32) - 1));
         offset++;
@@ -1056,11 +1056,11 @@ dissect_geographical_description(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
         proto_tree_add_item(tree, hf_gsm_a_geo_loc_high_acc_alt, tvb, offset, 3, ENC_BIG_ENDIAN);
         offset += 3;
 
-        /* High accuracy uncertanty semi-major*/
+        /* High accuracy uncertainty semi-major*/
         major_item = proto_tree_add_item_ret_uint(tree, hf_gsm_a_geo_loc_high_acc_uncertainty_semi_major, tvb, offset, 1, ENC_BIG_ENDIAN, &uvalue32);
         proto_item_append_text(major_item, " (%.5f m)", 0.3 * (pow(1.02, (double)uvalue32) - 1));
         offset++;
-        /* High accuracy uncertanty semi-minor*/
+        /* High accuracy uncertainty semi-minor*/
         minor_item = proto_tree_add_item_ret_uint(tree, hf_gsm_a_geo_loc_high_acc_uncertainty_semi_minor, tvb, offset, 1, ENC_BIG_ENDIAN, &uvalue32);
         proto_item_append_text(minor_item, " (%.5f m)", 0.3 * (pow(1.02, (double)uvalue32) - 1));
         offset++;
@@ -1068,8 +1068,8 @@ dissect_geographical_description(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
         proto_tree_add_item(tree, hf_gsm_a_geo_loc_orientation_of_major_axis, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
 
-        /* Horisontal confidence */
-        proto_tree_add_item(tree, hf_gsm_a_geo_loc_horisontal_confidence, tvb, offset, 1, ENC_BIG_ENDIAN);
+        /* Horizontal confidence */
+        proto_tree_add_item(tree, hf_gsm_a_geo_loc_horizontal_confidence, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
 
         /* High accuracy uncertenty altitude */
@@ -4677,8 +4677,8 @@ proto_register_gsm_a_common(void)
         FT_UINT8, BASE_DEC, NULL, 0x7f,
         NULL, HFILL }
     },
-    { &hf_gsm_a_geo_loc_horisontal_confidence,
-        { "Horisontal confidence(%)", "gsm_a.gad.horisontal_confidence",
+    { &hf_gsm_a_geo_loc_horizontal_confidence,
+        { "Horizontal confidence(%)", "gsm_a.gad.horizontal_confidence",
         FT_UINT8, BASE_DEC, NULL, 0x7f,
         NULL, HFILL }
     },
@@ -4688,7 +4688,7 @@ proto_register_gsm_a_common(void)
         NULL, HFILL }
     },
     { &hf_gsm_a_geo_loc_high_acc_uncertainty_alt,
-        { "High accuracy uncertanty altitude", "gsm_a.gad.high_acc_uncertainty_alt",
+        { "High accuracy uncertainty altitude", "gsm_a.gad.high_acc_uncertainty_alt",
         FT_UINT8, BASE_DEC, NULL, 0x0,
         NULL, HFILL }
     },

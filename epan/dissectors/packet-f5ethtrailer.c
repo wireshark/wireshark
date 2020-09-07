@@ -4040,7 +4040,7 @@ proto_register_f5ethtrailer(void)
 
     prefs_register_bool_preference(f5ethtrailer_module, "generate_keylog",
         "Generate KEYLOG records from TLS f5ethtrailer",
-        "If enabled, KEYLOG entires will be added to the TLS decode"
+        "If enabled, KEYLOG entries will be added to the TLS decode"
         " in the f5ethtrailer protocol tree.  It will populate the"
         " f5ethtrailer.tls.keylog field.",
         &pref_generate_keylog);

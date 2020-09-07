@@ -1347,7 +1347,7 @@ proto_register_cast(void)
     { &hf_cast_maxStreams,
       { "MaxStreams", "cast.maxStreams",
         FT_UINT32, BASE_DEC, NULL, 0x0,
-        "32 bit unsigned integer indicating the maximum number of simultansous RTP duplex streams that the client can handle.",
+        "32 bit unsigned integer indicating the maximum number of simultaneous RTP duplex streams that the client can handle.",
         HFILL }
     },
 

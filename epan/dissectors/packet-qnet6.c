@@ -656,12 +656,12 @@ static const value_string qnet6_layer_vals[] = {
 };
 
 #define QNET_L4_QOS_TYPE_LOADBALANCE  0
-#define QNET_L4_QOS_TYPE_REDUDANT     1
+#define QNET_L4_QOS_TYPE_REDUNDANT    1
 #define QNET_L4_QOS_TYPE_EXCLUSIVE    2
 #define QNET_L4_QOS_TYPE_PREFERRED    3
 static const value_string qnet6_qos_type_vals[] = {
   {QNET_L4_QOS_TYPE_LOADBALANCE, "Load balance"},
-  {QNET_L4_QOS_TYPE_REDUDANT,    "Redudant"},
+  {QNET_L4_QOS_TYPE_REDUNDANT,   "Redundant"},
   {QNET_L4_QOS_TYPE_EXCLUSIVE,   "Exclusive or Sequential"},
   {QNET_L4_QOS_TYPE_PREFERRED,   "Preferred link"},
   {0, NULL}

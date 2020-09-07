@@ -392,7 +392,7 @@ static const value_string table_cops_reason_subcode_close[] =
 /* PacketCable Error */
 static const value_string table_cops_packetcable_error[] =
 {
-    { 0x1,  "No gates urrently available" },
+    { 0x1,  "No gates currently available" },
     { 0x2,  "Unknown Gate ID" },
     { 0x3,  "Illegal Session Class value" },
     { 0x4,  "Subscriber exceeded gate limit" },

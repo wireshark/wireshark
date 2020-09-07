@@ -646,7 +646,7 @@ dissect_cbor_float_simple_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *cb
 			return item;
 		}
 		expert_add_info_format(pinfo, cbor_tree, &ei_cbor_invalid_minor_type,
-				"invalid minor type %i in fimple data and float", type_minor);
+				"invalid minor type %i in simple data and float", type_minor);
 		return NULL;
 	}
 }
