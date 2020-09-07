@@ -184,6 +184,7 @@ defragmented
 defragmenting
 dehumidification
 delimiters
+demodulator
 demultiplexer
 demultiplexers
 deprecated
@@ -336,6 +337,7 @@ infiniband
 infolist
 informationitem
 informationlist
+infos
 initialise
 initialising
 initialization
@@ -351,6 +353,7 @@ interruptible
 interworking
 invalidation
 ioctl
+ioerr
 ipaddr
 ipaddress
 ipfix
@@ -406,6 +409,7 @@ mergecap
 messageid
 metadata
 meteorological
+mgmtmsg
 microbit
 midamble
 miniport
@@ -588,6 +592,7 @@ redelivery
 redistributable
 redistributables
 reencyption
+reentry
 reestablishment
 referer
 referrer
@@ -699,6 +704,7 @@ subelem
 subelement
 subelements
 subframes
+subhd
 subheader
 subheaders
 subids
@@ -767,6 +773,7 @@ uint32
 uint8
 ulmap
 ulsch
+unadvise
 unaligned
 unassign
 unauthenticated

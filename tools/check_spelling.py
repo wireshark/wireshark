@@ -115,7 +115,7 @@ class File:
     def spellCheck(self):
 
         num_values = len(self.values)
-        this_item = 0
+        this_value = 0
         for v in self.values:
             if should_exit:
                 exit(1)
