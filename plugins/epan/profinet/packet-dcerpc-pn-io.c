@@ -11344,7 +11344,6 @@ dissect_PNIO_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 {
     guint8   drep_data = 0;
     guint8  *drep      = &drep_data;
-    guint8   u8CBAVersion;
     /* the sub tvb will NOT contain the frame_id here! */
     guint16  u16FrameID = GPOINTER_TO_UINT(data);
     heur_dtbl_entry_t *hdtbl_entry;
@@ -11357,8 +11356,6 @@ dissect_PNIO_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     if (dissector_try_heuristic(heur_pn_subdissector_list, tvb, pinfo, tree, &hdtbl_entry, NULL))
         return TRUE;
 
-    u8CBAVersion = tvb_get_guint8 (tvb, 0);
-
     /* is this a (none DFP) PNIO class 3 data packet? */
     /* frame id must be in valid range (cyclic Real-Time, class=3) */
     if ((u16FrameID >= 0x0100 && u16FrameID <= 0x06FF) ||   /* RTC3 non redundant */
@@ -11370,7 +11367,7 @@ dissect_PNIO_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     /* The following range is reserved for following developments */
     /* frame id must be in valid range (Reserved) and
      * first byte (CBA version field) has to be != 0x11 */
-    if (u16FrameID >= 0x1000 && u16FrameID <= 0x7fff && u8CBAVersion != 0x11) {
+    if (u16FrameID >= 0x1000 && u16FrameID <= 0x7fff) {
         dissect_PNIO_C_SDU(tvb, 0, pinfo, tree, drep);
         return TRUE;
     }
@@ -11378,7 +11375,7 @@ dissect_PNIO_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     /* is this a PNIO class 1 data packet? */
     /* frame id must be in valid range (cyclic Real-Time, class=1) and
      * first byte (CBA version field) has to be != 0x11 */
-    if (u16FrameID >= 0x8000 && u16FrameID < 0xbfff && u8CBAVersion != 0x11) {
+    if (u16FrameID >= 0x8000 && u16FrameID < 0xbfff) {
         dissect_PNIO_C_SDU_RTC1(tvb, 0, pinfo, tree, drep);
         return TRUE;
     }
@@ -11386,7 +11383,7 @@ dissect_PNIO_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     /* is this a PNIO class 1 (legacy) data packet? */
     /* frame id must be in valid range (cyclic Real-Time, class=1, legacy) and
      * first byte (CBA version field) has to be != 0x11 */
-    if (u16FrameID >= 0xc000 && u16FrameID < 0xfbff && u8CBAVersion != 0x11) {
+    if (u16FrameID >= 0xc000 && u16FrameID < 0xfbff) {
         dissect_PNIO_C_SDU_RTC1(tvb, 0, pinfo, tree, drep);
         return TRUE;
     }
