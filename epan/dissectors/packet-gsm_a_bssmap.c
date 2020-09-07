@@ -3666,7 +3666,7 @@ be_aoip_trans_lay_add(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint
             /* IPv6 */
             addr_type = 2;
             proto_tree_add_item(tree, hf_gsm_a_bssmap_aoip_trans_ipv6, tvb, curr_offset, 16, ENC_NA);
-            tvb_get_ipv6(tvb, offset + 5, &rtp_addr_ipv6);
+            tvb_get_ipv6(tvb, curr_offset, &rtp_addr_ipv6);
             curr_offset+=16;
             break;
         default:
