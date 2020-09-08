@@ -32,11 +32,11 @@ Official installation packages are available for Microsoft Windows and
 macOS.
 
 It is available as either a standard or add-on package for many popular
-operating sytems and Linux distributions including Debian, Ubuntu, Fedora,
+operating systems and Linux distributions including Debian, Ubuntu, Fedora,
 CentOS, RHEL, Arch, Gentoo, openSUSE, FreeBSD, DragonFly BSD, NetBSD, and
 OpenBSD.
 
-Additionaly it is available through many third-party packaging systems
+Additionally it is available through many third-party packaging systems
 such as pkgsrc, OpenCSW, Homebrew, and MacPorts.
 
 It should run on other Unix-ish systems without too much trouble.
