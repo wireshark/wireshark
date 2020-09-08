@@ -24,7 +24,7 @@ void proto_reg_handoff_hbbak(void);
 void proto_register_hbbak(void);
 
 #define PROTO_SHORT_NAME "PA-HB-Bak"
-#define PROTO_LONG_NAME "Paloalto Heartbeat Backup"
+#define PROTO_LONG_NAME "Palo Alto Heartbeat Backup"
 
 #define HBBAK_SIZE 8
 
