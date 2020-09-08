@@ -221,4 +221,4 @@ Gerald Combs <gerald@wireshark.org>
 
 Gilbert Ramirez <gram@alumni.rice.edu>
 
-Guy Harris <guy@alum.mit.edu>
+Guy Harris <gharris@sonic.net>
