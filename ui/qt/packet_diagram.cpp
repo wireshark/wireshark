@@ -623,7 +623,6 @@ void PacketDiagram::setSelectedField(field_info *fi)
     foreach (QGraphicsItem *item, scene()->items()) {
         if (item->isSelected()) {
             item->setSelected(false);
-            fi_item = qgraphicsitem_cast<FieldInformationGraphicsItem *>(item);
         }
         if (fi && VariantPointer<field_info>::asPtr(item->data(Qt::UserRole)) == fi) {
             fi_item = qgraphicsitem_cast<FieldInformationGraphicsItem *>(item);
