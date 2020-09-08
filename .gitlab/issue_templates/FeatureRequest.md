@@ -4,7 +4,7 @@
 
 ## Sample capture
 
-(For dissector enhancments please attach a sample capture)
+(For dissector enhancements please attach a sample capture)
 
 
 /label ~enhancement
