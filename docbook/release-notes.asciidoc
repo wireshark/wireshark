@@ -13,6 +13,10 @@ It is used for troubleshooting, analysis, development and education.
 
 == What’s New
 
+This is the final release of the Wireshark 2.6 branch.
+It will reach its official end of life on October 18, 2020.
+If you are still using Wireshark 2.6 you are encouraged to upgrade to Wireshark 3.2.
+
 === Bug Fixes
 
 // The following vulnerabilities have been fixed:
