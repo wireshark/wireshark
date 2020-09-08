@@ -4,6 +4,7 @@
  * Huagang XIE <huagang@intruvert.com>
  *
  * MySQL 4.1+ protocol by Axel Schwenke <axel@mysql.com>
+ * MariaDB protocol by Georg Richter <georg@mariadb.com>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -14,9 +15,11 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
  *
- * the protocol spec at
+ * the protocol specifications
+ * For MySQL at
  *  https://dev.mysql.com/doc/internals/en/client-server-protocol.html
- *  https://dev.mysql.com/doc/dev/mysql-server/latest/PAGE_PROTOCOL.html
+ * For MariaDB at
+ *  https://mariadb.com/kb/en/clientserver-protocol/
  * and MySQL source code
  */
 
@@ -39,9 +42,13 @@ void proto_reg_handoff_mysql(void);
 /* port for protocol registration */
 #define TCP_PORT_MySQL   3306
 
+/* MariaDB Server >= 10.0 sends a 5.5.5- prefix for the version, since
+	 replication doesn't support a two digit version number. Version 5.5.5
+   was never released in MySQL and MariaDB */
+#define MARIADB_RPL_VERSION_HACK "5.5.5-"
+
 /* client/server capabilities
  * Source: http://dev.mysql.com/doc/internals/en/capability-flags.html
- * Source: https://dev.mysql.com/doc/dev/mysql-server/latest/group__group__cs__capabilities__flags.html
  * Source: mysql_com.h
  */
 #define MYSQL_CAPS_LP 0x0001 /* CLIENT_LONG_PASSWORD */
@@ -155,6 +162,26 @@ void proto_reg_handoff_mysql(void);
 #define MYSQL_BINLOG_DUMP_GTID    30 /* replication */
 #define MYSQL_RESET_CONNECTION    31
 
+/* MariaDB specific commands */
+#define MARIADB_STMT_BULK_EXECUTE 250
+
+/* MariaDB bulk execute flags */
+#define MARIADB_BULK_AUTOID      64
+#define MARIADB_BULK_SEND_TYPES 128
+
+/* MariaDB extended capabilities */
+#define MARIADB_CAPS_PR 0x0001 /* MARIADB_CLIENT_PROGRESS */
+#define MARIADB_CAPS_CM 0x0002 /* MARIADB_CLIENT_COM_MULTI */
+#define MARIADB_CAPS_BO 0x0004 /* MARIADB_CLIENT_STMT_BULK_OPERATIONS */
+#define MARIADB_CAPS_EM 0x0008 /* MARIADB_CLIENT_EXTENDED_METADATA */
+
+/* MariaDB bulk indicators */
+#define MARIADB_INDICATOR_NONE       0
+#define MARIADB_INDICATOR_NULL       1
+#define MARIADB_INDICATOR_DEFAULT    2
+#define MARIADB_INDICATOR_IGNORE     3
+#define MARIADB_INDICATIR_IGNORE_ROW 4
+
 
 /* MySQL cursor types */
 
@@ -211,6 +238,7 @@ static const value_string mysql_command_vals[] = {
 	{MYSQL_DAEMON, "Daemon"},
 	{MYSQL_BINLOG_DUMP_GTID, "Send Binlog GTID"},
 	{MYSQL_RESET_CONNECTION, "Reset Connection"},
+	{MARIADB_STMT_BULK_EXECUTE, "Execute Bulk Statement"},
 	{0, NULL}
 };
 static value_string_ext mysql_command_vals_ext = VALUE_STRING_EXT_INIT(mysql_command_vals);
@@ -228,6 +256,21 @@ static const value_string mysql_exec_flags_vals[] = {
 static const value_string mysql_new_parameter_bound_flag_vals[] = {
 	{0, "Subsequent call"},
 	{1, "First call or rebound"},
+	{0, NULL}
+};
+/*
+static const value_string mariadb_bulk_flags_vals[] = {
+	{MARIADB_BULK_AUTOID, "Return auto generated IDs"},
+	{MARIADB_BULK_SEND_TYPES, "Send types to server"},
+	{0, NULL}
+};
+*/
+static const value_string mariadb_bulk_indicator_vals[] = {
+	{MARIADB_INDICATOR_NONE, "Not set"},
+	{MARIADB_INDICATOR_NULL, "Null Value"},
+	{MARIADB_INDICATOR_DEFAULT, "Default Value"},
+	{MARIADB_INDICATOR_IGNORE, "Don't Update Value"},
+	{MARIADB_INDICATIR_IGNORE_ROW, "Ignore Row"},
 	{0, NULL}
 };
 
@@ -282,6 +325,8 @@ SELECT CONCAT('  {', ID, ',"', CHARACTER_SET_NAME, ' COLLATE ', COLLATION_NAME, 
 FROM INFORMATION_SCHEMA.COLLATIONS
 ORDER BY ID
 INTO OUTFILE '/tmp/mysql-collations';
+
+Last Update from MySQL 8.0.20
 
 */
 static const value_string mysql_collation_vals[] = {
@@ -403,9 +448,396 @@ static const value_string mysql_collation_vals[] = {
 	{245, "utf8mb4 COLLATE utf8mb4_croatian_ci"},
 	{246, "utf8mb4 COLLATE utf8mb4_unicode_520_ci"},
 	{247, "utf8mb4 COLLATE utf8mb4_vietnamese_ci"},
+	{248,"gb18030 COLLATE gb18030_chinese_ci"},
+	{249,"gb18030 COLLATE gb18030_bin"},
+	{250,"gb18030 COLLATE gb18030_unicode_520_ci"},
+	{255,"utf8mb4 COLLATE utf8mb4_0900_ai_ci"},
+	{256,"utf8mb4 COLLATE utf8mb4_de_pb_0900_ai_ci"},
+	{257,"utf8mb4 COLLATE utf8mb4_is_0900_ai_ci"},
+	{258,"utf8mb4 COLLATE utf8mb4_lv_0900_ai_ci"},
+	{259,"utf8mb4 COLLATE utf8mb4_ro_0900_ai_ci"},
+	{260,"utf8mb4 COLLATE utf8mb4_sl_0900_ai_ci"},
+	{261,"utf8mb4 COLLATE utf8mb4_pl_0900_ai_ci"},
+	{262,"utf8mb4 COLLATE utf8mb4_et_0900_ai_ci"},
+	{263,"utf8mb4 COLLATE utf8mb4_es_0900_ai_ci"},
+	{264,"utf8mb4 COLLATE utf8mb4_sv_0900_ai_ci"},
+	{265,"utf8mb4 COLLATE utf8mb4_tr_0900_ai_ci"},
+	{266,"utf8mb4 COLLATE utf8mb4_cs_0900_ai_ci"},
+	{267,"utf8mb4 COLLATE utf8mb4_da_0900_ai_ci"},
+	{268,"utf8mb4 COLLATE utf8mb4_lt_0900_ai_ci"},
+	{269,"utf8mb4 COLLATE utf8mb4_sk_0900_ai_ci"},
+	{270,"utf8mb4 COLLATE utf8mb4_es_trad_0900_ai_ci"},
+	{271,"utf8mb4 COLLATE utf8mb4_la_0900_ai_ci"},
+	{273,"utf8mb4 COLLATE utf8mb4_eo_0900_ai_ci"},
+	{274,"utf8mb4 COLLATE utf8mb4_hu_0900_ai_ci"},
+	{275,"utf8mb4 COLLATE utf8mb4_hr_0900_ai_ci"},
+	{277,"utf8mb4 COLLATE utf8mb4_vi_0900_ai_ci"},
+	{278,"utf8mb4 COLLATE utf8mb4_0900_as_cs"},
+	{279,"utf8mb4 COLLATE utf8mb4_de_pb_0900_as_cs"},
+	{280,"utf8mb4 COLLATE utf8mb4_is_0900_as_cs"},
+	{281,"utf8mb4 COLLATE utf8mb4_lv_0900_as_cs"},
+	{282,"utf8mb4 COLLATE utf8mb4_ro_0900_as_cs"},
+	{283,"utf8mb4 COLLATE utf8mb4_sl_0900_as_cs"},
+	{284,"utf8mb4 COLLATE utf8mb4_pl_0900_as_cs"},
+	{285,"utf8mb4 COLLATE utf8mb4_et_0900_as_cs"},
+	{286,"utf8mb4 COLLATE utf8mb4_es_0900_as_cs"},
+	{287,"utf8mb4 COLLATE utf8mb4_sv_0900_as_cs"},
+	{288,"utf8mb4 COLLATE utf8mb4_tr_0900_as_cs"},
+	{289,"utf8mb4 COLLATE utf8mb4_cs_0900_as_cs"},
+	{290,"utf8mb4 COLLATE utf8mb4_da_0900_as_cs"},
+	{291,"utf8mb4 COLLATE utf8mb4_lt_0900_as_cs"},
+	{292,"utf8mb4 COLLATE utf8mb4_sk_0900_as_cs"},
+	{293,"utf8mb4 COLLATE utf8mb4_es_trad_0900_as_cs"},
+	{294,"utf8mb4 COLLATE utf8mb4_la_0900_as_cs"},
+	{296,"utf8mb4 COLLATE utf8mb4_eo_0900_as_cs"},
+	{297,"utf8mb4 COLLATE utf8mb4_hu_0900_as_cs"},
+	{298,"utf8mb4 COLLATE utf8mb4_hr_0900_as_cs"},
+	{300,"utf8mb4 COLLATE utf8mb4_vi_0900_as_cs"},
+	{303,"utf8mb4 COLLATE utf8mb4_ja_0900_as_cs"},
+	{304,"utf8mb4 COLLATE utf8mb4_ja_0900_as_cs_ks"},
+	{305,"utf8mb4 COLLATE utf8mb4_0900_as_ci"},
+	{306,"utf8mb4 COLLATE utf8mb4_ru_0900_ai_ci"},
+	{307,"utf8mb4 COLLATE utf8mb4_ru_0900_as_cs"},
+	{308,"utf8mb4 COLLATE utf8mb4_zh_0900_as_cs"},
+	{309,"utf8mb4 COLLATE utf8mb4_0900_bin"},
 	{0, NULL}
 };
+
+
 static value_string_ext mysql_collation_vals_ext = VALUE_STRING_EXT_INIT(mysql_collation_vals);
+
+/* MariaDB specific character sets and collations
+
+   Last Update: MariaDB 10.5.4 */
+
+static const value_string mariadb_collation_vals[] = {
+	{1,"big5 COLLATE big5_chinese_ci"},
+	{2,"latin2 COLLATE latin2_czech_cs"},
+	{3,"dec8 COLLATE dec8_swedish_ci"},
+	{4,"cp850 COLLATE cp850_general_ci"},
+	{5,"latin1 COLLATE latin1_german1_ci"},
+	{6,"hp8 COLLATE hp8_english_ci"},
+	{7,"koi8r COLLATE koi8r_general_ci"},
+	{8,"latin1 COLLATE latin1_swedish_ci"},
+	{9,"latin2 COLLATE latin2_general_ci"},
+	{10,"swe7 COLLATE swe7_swedish_ci"},
+	{11,"ascii COLLATE ascii_general_ci"},
+	{12,"ujis COLLATE ujis_japanese_ci"},
+	{13,"sjis COLLATE sjis_japanese_ci"},
+	{14,"cp1251 COLLATE cp1251_bulgarian_ci"},
+	{15,"latin1 COLLATE latin1_danish_ci"},
+	{16,"hebrew COLLATE hebrew_general_ci"},
+	{18,"tis620 COLLATE tis620_thai_ci"},
+	{19,"euckr COLLATE euckr_korean_ci"},
+	{20,"latin7 COLLATE latin7_estonian_cs"},
+	{21,"latin2 COLLATE latin2_hungarian_ci"},
+	{22,"koi8u COLLATE koi8u_general_ci"},
+	{23,"cp1251 COLLATE cp1251_ukrainian_ci"},
+	{24,"gb2312 COLLATE gb2312_chinese_ci"},
+	{25,"greek COLLATE greek_general_ci"},
+	{26,"cp1250 COLLATE cp1250_general_ci"},
+	{27,"latin2 COLLATE latin2_croatian_ci"},
+	{28,"gbk COLLATE gbk_chinese_ci"},
+	{29,"cp1257 COLLATE cp1257_lithuanian_ci"},
+	{30,"latin5 COLLATE latin5_turkish_ci"},
+	{31,"latin1 COLLATE latin1_german2_ci"},
+	{32,"armscii8 COLLATE armscii8_general_ci"},
+	{33,"utf8 COLLATE utf8_general_ci"},
+	{34,"cp1250 COLLATE cp1250_czech_cs"},
+	{35,"ucs2 COLLATE ucs2_general_ci"},
+	{36,"cp866 COLLATE cp866_general_ci"},
+	{37,"keybcs2 COLLATE keybcs2_general_ci"},
+	{38,"macce COLLATE macce_general_ci"},
+	{39,"macroman COLLATE macroman_general_ci"},
+	{40,"cp852 COLLATE cp852_general_ci"},
+	{41,"latin7 COLLATE latin7_general_ci"},
+	{42,"latin7 COLLATE latin7_general_cs"},
+	{43,"macce COLLATE macce_bin"},
+	{44,"cp1250 COLLATE cp1250_croatian_ci"},
+	{45,"utf8mb4 COLLATE utf8mb4_general_ci"},
+	{46,"utf8mb4 COLLATE utf8mb4_bin"},
+	{47,"latin1 COLLATE latin1_bin"},
+	{48,"latin1 COLLATE latin1_general_ci"},
+	{49,"latin1 COLLATE latin1_general_cs"},
+	{50,"cp1251 COLLATE cp1251_bin"},
+	{51,"cp1251 COLLATE cp1251_general_ci"},
+	{52,"cp1251 COLLATE cp1251_general_cs"},
+	{53,"macroman COLLATE macroman_bin"},
+	{54,"utf16 COLLATE utf16_general_ci"},
+	{55,"utf16 COLLATE utf16_bin"},
+	{56,"utf16le COLLATE utf16le_general_ci"},
+	{57,"cp1256 COLLATE cp1256_general_ci"},
+	{58,"cp1257 COLLATE cp1257_bin"},
+	{59,"cp1257 COLLATE cp1257_general_ci"},
+	{60,"utf32 COLLATE utf32_general_ci"},
+	{61,"utf32 COLLATE utf32_bin"},
+	{62,"utf16le COLLATE utf16le_bin"},
+	{63,"binary COLLATE binary"},
+	{64,"armscii8 COLLATE armscii8_bin"},
+	{65,"ascii COLLATE ascii_bin"},
+	{66,"cp1250 COLLATE cp1250_bin"},
+	{67,"cp1256 COLLATE cp1256_bin"},
+	{68,"cp866 COLLATE cp866_bin"},
+	{69,"dec8 COLLATE dec8_bin"},
+	{70,"greek COLLATE greek_bin"},
+	{71,"hebrew COLLATE hebrew_bin"},
+	{72,"hp8 COLLATE hp8_bin"},
+	{73,"keybcs2 COLLATE keybcs2_bin"},
+	{74,"koi8r COLLATE koi8r_bin"},
+	{75,"koi8u COLLATE koi8u_bin"},
+	{77,"latin2 COLLATE latin2_bin"},
+	{78,"latin5 COLLATE latin5_bin"},
+	{79,"latin7 COLLATE latin7_bin"},
+	{80,"cp850 COLLATE cp850_bin"},
+	{81,"cp852 COLLATE cp852_bin"},
+	{82,"swe7 COLLATE swe7_bin"},
+	{83,"utf8 COLLATE utf8_bin"},
+	{84,"big5 COLLATE big5_bin"},
+	{85,"euckr COLLATE euckr_bin"},
+	{86,"gb2312 COLLATE gb2312_bin"},
+	{87,"gbk COLLATE gbk_bin"},
+	{88,"sjis COLLATE sjis_bin"},
+	{89,"tis620 COLLATE tis620_bin"},
+	{90,"ucs2 COLLATE ucs2_bin"},
+	{91,"ujis COLLATE ujis_bin"},
+	{92,"geostd8 COLLATE geostd8_general_ci"},
+	{93,"geostd8 COLLATE geostd8_bin"},
+	{94,"latin1 COLLATE latin1_spanish_ci"},
+	{95,"cp932 COLLATE cp932_japanese_ci"},
+	{96,"cp932 COLLATE cp932_bin"},
+	{97,"eucjpms COLLATE eucjpms_japanese_ci"},
+	{98,"eucjpms COLLATE eucjpms_bin"},
+	{99,"cp1250 COLLATE cp1250_polish_ci"},
+	{101,"utf16 COLLATE utf16_unicode_ci"},
+	{102,"utf16 COLLATE utf16_icelandic_ci"},
+	{103,"utf16 COLLATE utf16_latvian_ci"},
+	{104,"utf16 COLLATE utf16_romanian_ci"},
+	{105,"utf16 COLLATE utf16_slovenian_ci"},
+	{106,"utf16 COLLATE utf16_polish_ci"},
+	{107,"utf16 COLLATE utf16_estonian_ci"},
+	{108,"utf16 COLLATE utf16_spanish_ci"},
+	{109,"utf16 COLLATE utf16_swedish_ci"},
+	{110,"utf16 COLLATE utf16_turkish_ci"},
+	{111,"utf16 COLLATE utf16_czech_ci"},
+	{112,"utf16 COLLATE utf16_danish_ci"},
+	{113,"utf16 COLLATE utf16_lithuanian_ci"},
+	{114,"utf16 COLLATE utf16_slovak_ci"},
+	{115,"utf16 COLLATE utf16_spanish2_ci"},
+	{116,"utf16 COLLATE utf16_roman_ci"},
+	{117,"utf16 COLLATE utf16_persian_ci"},
+	{118,"utf16 COLLATE utf16_esperanto_ci"},
+	{119,"utf16 COLLATE utf16_hungarian_ci"},
+	{120,"utf16 COLLATE utf16_sinhala_ci"},
+	{121,"utf16 COLLATE utf16_german2_ci"},
+	{122,"utf16 COLLATE utf16_croatian_mysql561_ci"},
+	{123,"utf16 COLLATE utf16_unicode_520_ci"},
+	{124,"utf16 COLLATE utf16_vietnamese_ci"},
+	{128,"ucs2 COLLATE ucs2_unicode_ci"},
+	{129,"ucs2 COLLATE ucs2_icelandic_ci"},
+	{130,"ucs2 COLLATE ucs2_latvian_ci"},
+	{131,"ucs2 COLLATE ucs2_romanian_ci"},
+	{132,"ucs2 COLLATE ucs2_slovenian_ci"},
+	{133,"ucs2 COLLATE ucs2_polish_ci"},
+	{134,"ucs2 COLLATE ucs2_estonian_ci"},
+	{135,"ucs2 COLLATE ucs2_spanish_ci"},
+	{136,"ucs2 COLLATE ucs2_swedish_ci"},
+	{137,"ucs2 COLLATE ucs2_turkish_ci"},
+	{138,"ucs2 COLLATE ucs2_czech_ci"},
+	{139,"ucs2 COLLATE ucs2_danish_ci"},
+	{140,"ucs2 COLLATE ucs2_lithuanian_ci"},
+	{141,"ucs2 COLLATE ucs2_slovak_ci"},
+	{142,"ucs2 COLLATE ucs2_spanish2_ci"},
+	{143,"ucs2 COLLATE ucs2_roman_ci"},
+	{144,"ucs2 COLLATE ucs2_persian_ci"},
+	{145,"ucs2 COLLATE ucs2_esperanto_ci"},
+	{146,"ucs2 COLLATE ucs2_hungarian_ci"},
+	{147,"ucs2 COLLATE ucs2_sinhala_ci"},
+	{148,"ucs2 COLLATE ucs2_german2_ci"},
+	{149,"ucs2 COLLATE ucs2_croatian_mysql561_ci"},
+	{150,"ucs2 COLLATE ucs2_unicode_520_ci"},
+	{151,"ucs2 COLLATE ucs2_vietnamese_ci"},
+	{159,"ucs2 COLLATE ucs2_general_mysql500_ci"},
+	{160,"utf32 COLLATE utf32_unicode_ci"},
+	{161,"utf32 COLLATE utf32_icelandic_ci"},
+	{162,"utf32 COLLATE utf32_latvian_ci"},
+	{163,"utf32 COLLATE utf32_romanian_ci"},
+	{164,"utf32 COLLATE utf32_slovenian_ci"},
+	{165,"utf32 COLLATE utf32_polish_ci"},
+	{166,"utf32 COLLATE utf32_estonian_ci"},
+	{167,"utf32 COLLATE utf32_spanish_ci"},
+	{168,"utf32 COLLATE utf32_swedish_ci"},
+	{169,"utf32 COLLATE utf32_turkish_ci"},
+	{170,"utf32 COLLATE utf32_czech_ci"},
+	{171,"utf32 COLLATE utf32_danish_ci"},
+	{172,"utf32 COLLATE utf32_lithuanian_ci"},
+	{173,"utf32 COLLATE utf32_slovak_ci"},
+	{174,"utf32 COLLATE utf32_spanish2_ci"},
+	{175,"utf32 COLLATE utf32_roman_ci"},
+	{176,"utf32 COLLATE utf32_persian_ci"},
+	{177,"utf32 COLLATE utf32_esperanto_ci"},
+	{178,"utf32 COLLATE utf32_hungarian_ci"},
+	{179,"utf32 COLLATE utf32_sinhala_ci"},
+	{180,"utf32 COLLATE utf32_german2_ci"},
+	{181,"utf32 COLLATE utf32_croatian_mysql561_ci"},
+	{182,"utf32 COLLATE utf32_unicode_520_ci"},
+	{183,"utf32 COLLATE utf32_vietnamese_ci"},
+	{192,"utf8 COLLATE utf8_unicode_ci"},
+	{193,"utf8 COLLATE utf8_icelandic_ci"},
+	{194,"utf8 COLLATE utf8_latvian_ci"},
+	{195,"utf8 COLLATE utf8_romanian_ci"},
+	{196,"utf8 COLLATE utf8_slovenian_ci"},
+	{197,"utf8 COLLATE utf8_polish_ci"},
+	{198,"utf8 COLLATE utf8_estonian_ci"},
+	{199,"utf8 COLLATE utf8_spanish_ci"},
+	{200,"utf8 COLLATE utf8_swedish_ci"},
+	{201,"utf8 COLLATE utf8_turkish_ci"},
+	{202,"utf8 COLLATE utf8_czech_ci"},
+	{203,"utf8 COLLATE utf8_danish_ci"},
+	{204,"utf8 COLLATE utf8_lithuanian_ci"},
+	{205,"utf8 COLLATE utf8_slovak_ci"},
+	{206,"utf8 COLLATE utf8_spanish2_ci"},
+	{207,"utf8 COLLATE utf8_roman_ci"},
+	{208,"utf8 COLLATE utf8_persian_ci"},
+	{209,"utf8 COLLATE utf8_esperanto_ci"},
+	{210,"utf8 COLLATE utf8_hungarian_ci"},
+	{211,"utf8 COLLATE utf8_sinhala_ci"},
+	{212,"utf8 COLLATE utf8_german2_ci"},
+	{213,"utf8 COLLATE utf8_croatian_mysql561_ci"},
+	{214,"utf8 COLLATE utf8_unicode_520_ci"},
+	{215,"utf8 COLLATE utf8_vietnamese_ci"},
+	{223,"utf8 COLLATE utf8_general_mysql500_ci"},
+	{224,"utf8mb4 COLLATE utf8mb4_unicode_ci"},
+	{225,"utf8mb4 COLLATE utf8mb4_icelandic_ci"},
+	{226,"utf8mb4 COLLATE utf8mb4_latvian_ci"},
+	{227,"utf8mb4 COLLATE utf8mb4_romanian_ci"},
+	{228,"utf8mb4 COLLATE utf8mb4_slovenian_ci"},
+	{229,"utf8mb4 COLLATE utf8mb4_polish_ci"},
+	{230,"utf8mb4 COLLATE utf8mb4_estonian_ci"},
+	{231,"utf8mb4 COLLATE utf8mb4_spanish_ci"},
+	{232,"utf8mb4 COLLATE utf8mb4_swedish_ci"},
+	{233,"utf8mb4 COLLATE utf8mb4_turkish_ci"},
+	{234,"utf8mb4 COLLATE utf8mb4_czech_ci"},
+	{235,"utf8mb4 COLLATE utf8mb4_danish_ci"},
+	{236,"utf8mb4 COLLATE utf8mb4_lithuanian_ci"},
+	{237,"utf8mb4 COLLATE utf8mb4_slovak_ci"},
+	{238,"utf8mb4 COLLATE utf8mb4_spanish2_ci"},
+	{239,"utf8mb4 COLLATE utf8mb4_roman_ci"},
+	{240,"utf8mb4 COLLATE utf8mb4_persian_ci"},
+	{241,"utf8mb4 COLLATE utf8mb4_esperanto_ci"},
+	{242,"utf8mb4 COLLATE utf8mb4_hungarian_ci"},
+	{243,"utf8mb4 COLLATE utf8mb4_sinhala_ci"},
+	{244,"utf8mb4 COLLATE utf8mb4_german2_ci"},
+	{245,"utf8mb4 COLLATE utf8mb4_croatian_mysql561_ci"},
+	{246,"utf8mb4 COLLATE utf8mb4_unicode_520_ci"},
+	{247,"utf8mb4 COLLATE utf8mb4_vietnamese_ci"},
+	{576,"utf8 COLLATE utf8_croatian_ci"},
+	{577,"utf8 COLLATE utf8_myanmar_ci"},
+	{578,"utf8 COLLATE utf8_thai_520_w2"},
+	{608,"utf8mb4 COLLATE utf8mb4_croatian_ci"},
+	{609,"utf8mb4 COLLATE utf8mb4_myanmar_ci"},
+	{610,"utf8mb4 COLLATE utf8mb4_thai_520_w2"},
+	{640,"ucs2 COLLATE ucs2_croatian_ci"},
+	{641,"ucs2 COLLATE ucs2_myanmar_ci"},
+	{642,"ucs2 COLLATE ucs2_thai_520_w2"},
+	{672,"utf16 COLLATE utf16_croatian_ci"},
+	{673,"utf16 COLLATE utf16_myanmar_ci"},
+	{674,"utf16 COLLATE utf16_thai_520_w2"},
+	{736,"utf32 COLLATE utf32_croatian_ci"},
+	{737,"utf32 COLLATE utf32_myanmar_ci"},
+	{738,"utf32 COLLATE utf32_thai_520_w2"},
+	{1025,"big5 COLLATE big5_chinese_nopad_ci"},
+	{1027,"dec8 COLLATE dec8_swedish_nopad_ci"},
+	{1028,"cp850 COLLATE cp850_general_nopad_ci"},
+	{1030,"hp8 COLLATE hp8_english_nopad_ci"},
+	{1031,"koi8r COLLATE koi8r_general_nopad_ci"},
+	{1032,"latin1 COLLATE latin1_swedish_nopad_ci"},
+	{1033,"latin2 COLLATE latin2_general_nopad_ci"},
+	{1034,"swe7 COLLATE swe7_swedish_nopad_ci"},
+	{1035,"ascii COLLATE ascii_general_nopad_ci"},
+	{1036,"ujis COLLATE ujis_japanese_nopad_ci"},
+	{1037,"sjis COLLATE sjis_japanese_nopad_ci"},
+	{1040,"hebrew COLLATE hebrew_general_nopad_ci"},
+	{1042,"tis620 COLLATE tis620_thai_nopad_ci"},
+	{1043,"euckr COLLATE euckr_korean_nopad_ci"},
+	{1046,"koi8u COLLATE koi8u_general_nopad_ci"},
+	{1048,"gb2312 COLLATE gb2312_chinese_nopad_ci"},
+	{1049,"greek COLLATE greek_general_nopad_ci"},
+	{1050,"cp1250 COLLATE cp1250_general_nopad_ci"},
+	{1052,"gbk COLLATE gbk_chinese_nopad_ci"},
+	{1054,"latin5 COLLATE latin5_turkish_nopad_ci"},
+	{1056,"armscii8 COLLATE armscii8_general_nopad_ci"},
+	{1057,"utf8 COLLATE utf8_general_nopad_ci"},
+	{1059,"ucs2 COLLATE ucs2_general_nopad_ci"},
+	{1060,"cp866 COLLATE cp866_general_nopad_ci"},
+	{1061,"keybcs2 COLLATE keybcs2_general_nopad_ci"},
+	{1062,"macce COLLATE macce_general_nopad_ci"},
+	{1063,"macroman COLLATE macroman_general_nopad_ci"},
+	{1064,"cp852 COLLATE cp852_general_nopad_ci"},
+	{1065,"latin7 COLLATE latin7_general_nopad_ci"},
+	{1067,"macce COLLATE macce_nopad_bin"},
+	{1069,"utf8mb4 COLLATE utf8mb4_general_nopad_ci"},
+	{1070,"utf8mb4 COLLATE utf8mb4_nopad_bin"},
+	{1071,"latin1 COLLATE latin1_nopad_bin"},
+	{1074,"cp1251 COLLATE cp1251_nopad_bin"},
+	{1075,"cp1251 COLLATE cp1251_general_nopad_ci"},
+	{1077,"macroman COLLATE macroman_nopad_bin"},
+	{1078,"utf16 COLLATE utf16_general_nopad_ci"},
+	{1079,"utf16 COLLATE utf16_nopad_bin"},
+	{1080,"utf16le COLLATE utf16le_general_nopad_ci"},
+	{1081,"cp1256 COLLATE cp1256_general_nopad_ci"},
+	{1082,"cp1257 COLLATE cp1257_nopad_bin"},
+	{1083,"cp1257 COLLATE cp1257_general_nopad_ci"},
+	{1084,"utf32 COLLATE utf32_general_nopad_ci"},
+	{1085,"utf32 COLLATE utf32_nopad_bin"},
+	{1086,"utf16le COLLATE utf16le_nopad_bin"},
+	{1088,"armscii8 COLLATE armscii8_nopad_bin"},
+	{1089,"ascii COLLATE ascii_nopad_bin"},
+	{1090,"cp1250 COLLATE cp1250_nopad_bin"},
+	{1091,"cp1256 COLLATE cp1256_nopad_bin"},
+	{1092,"cp866 COLLATE cp866_nopad_bin"},
+	{1093,"dec8 COLLATE dec8_nopad_bin"},
+	{1094,"greek COLLATE greek_nopad_bin"},
+	{1095,"hebrew COLLATE hebrew_nopad_bin"},
+	{1096,"hp8 COLLATE hp8_nopad_bin"},
+	{1097,"keybcs2 COLLATE keybcs2_nopad_bin"},
+	{1098,"koi8r COLLATE koi8r_nopad_bin"},
+	{1099,"koi8u COLLATE koi8u_nopad_bin"},
+	{1101,"latin2 COLLATE latin2_nopad_bin"},
+	{1102,"latin5 COLLATE latin5_nopad_bin"},
+	{1103,"latin7 COLLATE latin7_nopad_bin"},
+	{1104,"cp850 COLLATE cp850_nopad_bin"},
+	{1105,"cp852 COLLATE cp852_nopad_bin"},
+	{1106,"swe7 COLLATE swe7_nopad_bin"},
+	{1107,"utf8 COLLATE utf8_nopad_bin"},
+	{1108,"big5 COLLATE big5_nopad_bin"},
+	{1109,"euckr COLLATE euckr_nopad_bin"},
+	{1110,"gb2312 COLLATE gb2312_nopad_bin"},
+	{1111,"gbk COLLATE gbk_nopad_bin"},
+	{1112,"sjis COLLATE sjis_nopad_bin"},
+	{1113,"tis620 COLLATE tis620_nopad_bin"},
+	{1114,"ucs2 COLLATE ucs2_nopad_bin"},
+	{1115,"ujis COLLATE ujis_nopad_bin"},
+	{1116,"geostd8 COLLATE geostd8_general_nopad_ci"},
+	{1117,"geostd8 COLLATE geostd8_nopad_bin"},
+	{1119,"cp932 COLLATE cp932_japanese_nopad_ci"},
+	{1120,"cp932 COLLATE cp932_nopad_bin"},
+	{1121,"eucjpms COLLATE eucjpms_japanese_nopad_ci"},
+	{1122,"eucjpms COLLATE eucjpms_nopad_bin"},
+	{1125,"utf16 COLLATE utf16_unicode_nopad_ci"},
+	{1147,"utf16 COLLATE utf16_unicode_520_nopad_ci"},
+	{1152,"ucs2 COLLATE ucs2_unicode_nopad_ci"},
+	{1174,"ucs2 COLLATE ucs2_unicode_520_nopad_ci"},
+	{1184,"utf32 COLLATE utf32_unicode_nopad_ci"},
+	{1206,"utf32 COLLATE utf32_unicode_520_nopad_ci"},
+	{1216,"utf8 COLLATE utf8_unicode_nopad_ci"},
+	{1238,"utf8 COLLATE utf8_unicode_520_nopad_ci"},
+	{1248,"utf8mb4 COLLATE utf8mb4_unicode_nopad_ci"},
+	{1270,"utf8mb4 COLLATE utf8mb4_unicode_520_nopad_ci"},
+	{0, NULL}
+};
+
+
+static value_string_ext mariadb_collation_vals_ext = VALUE_STRING_EXT_INIT(mariadb_collation_vals);
 
 
 /* allowed MYSQL_SHUTDOWN levels */
@@ -461,6 +893,7 @@ static gint ett_request = -1;
 static gint ett_refresh = -1;
 static gint ett_field_flags = -1;
 static gint ett_exec_param = -1;
+static gint ett_bulk_param = -1;
 static gint ett_session_track = -1;
 static gint ett_session_track_data = -1;
 static gint ett_connattrs = -1;
@@ -642,7 +1075,20 @@ static int hf_mysql_auth_switch_response_data = -1;
 static int hf_mysql_compressed_packet_length = -1;
 static int hf_mysql_compressed_packet_length_uncompressed = -1;
 static int hf_mysql_compressed_packet_number = -1;
-
+//static int hf_mariadb_fld_charsetnr = -1;
+static int hf_mariadb_server_language = -1;
+static int hf_mariadb_charset = -1;
+static int hf_mariadb_cap_progress = -1;
+static int hf_mariadb_cap_commulti = -1;
+static int hf_mariadb_cap_bulk = -1;
+static int hf_mariadb_cap_extmetadata = -1;
+static int hf_mariadb_extcaps_server = -1;
+static int hf_mariadb_extcaps_client = -1;
+static int hf_mariadb_bulk_flag_autoid = -1;
+static int hf_mariadb_bulk_flag_sendtypes = -1;
+static int hf_mariadb_bulk_caps_flags = -1;
+static int hf_mariadb_bulk_paramtypes = -1;
+static int hf_mariadb_bulk_indicator = -1;
 static dissector_handle_t mysql_handle;
 static dissector_handle_t tls_handle;
 
@@ -738,6 +1184,10 @@ typedef struct mysql_conn_data {
 	guint32 frame_start_ssl;
 	guint32 frame_start_compressed;
 	guint8 compressed_state;
+	gboolean is_mariadb_server; /* set to 1, if connected to a MariaDB server */
+	gboolean is_mariadb_client; /* set to 1, if connected from a MariaDB client */
+	guint32 mariadb_server_ext_caps;
+	guint32 mariadb_client_ext_caps;
 } mysql_conn_data_t;
 
 struct mysql_frame_data {
@@ -747,6 +1197,8 @@ struct mysql_frame_data {
 typedef struct my_stmt_data {
 	guint16 nparam;
 	guint8* param_flags;
+	guint8* param_types;
+	guint16 bulk_flags;
 } my_stmt_data_t;
 
 typedef struct mysql_exec_dissector {
@@ -779,8 +1231,10 @@ static void mysql_dissect_exec_null(tvbuff_t *tvb, int *param_offset, proto_item
 static char mysql_dissect_exec_param(proto_item *req_tree, tvbuff_t *tvb, int *offset,
 		int *param_offset, guint8 param_flags, packet_info *pinfo);
 static void mysql_dissect_exec_primitive(tvbuff_t *tvb, int *param_offset,
-		proto_item *field_tree, const int hfindex, const int offset);
+proto_item *field_tree, const int hfindex, const int offset);
 static void mysql_dissect_exec_time(tvbuff_t *tvb, int *param_offset, proto_item *field_tree);
+static int mariadb_dissect_caps_or_flags(tvbuff_t *tvb, int offset, enum ftenum type, proto_tree *tree,
+		int mariadb_caps, int * const *fields, void *value);
 
 static gint my_tvb_strsize(tvbuff_t *tvb, int offset);
 static int tvb_get_fle(tvbuff_t *tvb, int offset, guint64 *res, guint8 *is_null);
@@ -869,6 +1323,20 @@ static int * const mysql_extcaps_flags[] = {
 	NULL
 };
 
+static int * const mariadb_extcaps_flags[] = {
+	&hf_mariadb_cap_progress,
+	&hf_mariadb_cap_commulti,
+	&hf_mariadb_cap_bulk,
+	&hf_mariadb_cap_extmetadata,
+	NULL
+};
+
+static int * const mariadb_bulk_caps_flags[] = {
+	&hf_mariadb_bulk_flag_autoid,
+	&hf_mariadb_bulk_flag_sendtypes,
+	NULL
+};
+
 static int * const mysql_fld_flags[] = {
 	&hf_mysql_fld_not_null,
 	&hf_mysql_fld_primary_key,
@@ -904,6 +1372,7 @@ mysql_dissect_greeting(tvbuff_t *tvb, packet_info *pinfo, int offset,
 
 	proto_item *tf;
 	proto_item *greeting_tree;
+	char buffer[7];
 
 	protocol= tvb_get_guint8(tvb, offset);
 
@@ -924,8 +1393,16 @@ mysql_dissect_greeting(tvbuff_t *tvb, packet_info *pinfo, int offset,
 
 	/* version string */
 	lenstr = tvb_strsize(tvb,offset);
+
+	/* check if it is a MariaDB Server: MariaDB always sends 5.5.5- before real version number */
+	tvb_get_raw_bytes_as_string(tvb, offset, buffer, 7);
+	if (lenstr > 6 && strncmp(buffer, MARIADB_RPL_VERSION_HACK, sizeof(MARIADB_RPL_VERSION_HACK) - 1) == 0)
+	{
+		conn_data->is_mariadb_server= 1;
+	}
+
 	col_append_fstr(pinfo->cinfo, COL_INFO, " version=%s",
-			tvb_format_text(tvb, offset, lenstr-1));
+			tvb_format_text(tvb, conn_data->is_mariadb_server ? offset + 6 : offset, conn_data->is_mariadb_server ? lenstr - 7 : lenstr-1));
 
 	proto_tree_add_item(greeting_tree, hf_mysql_version, tvb, offset, lenstr, ENC_ASCII|ENC_NA);
 	conn_data->major_version = 0;
@@ -954,7 +1431,7 @@ mysql_dissect_greeting(tvbuff_t *tvb, packet_info *pinfo, int offset,
 	/* rest is optional */
 	if (!tvb_reported_length_remaining(tvb, offset)) return offset;
 
-	proto_tree_add_item(greeting_tree, hf_mysql_server_language, tvb, offset, 1, ENC_NA);
+	proto_tree_add_item(greeting_tree, conn_data->is_mariadb_server ? hf_mariadb_server_language : hf_mysql_server_language, tvb, offset, 1, ENC_NA);
 	offset += 1; /* for charset */
 
 	offset = mysql_dissect_server_status(tvb, offset, greeting_tree, NULL);
@@ -966,9 +1443,19 @@ mysql_dissect_greeting(tvbuff_t *tvb, packet_info *pinfo, int offset,
 	proto_tree_add_item(greeting_tree, hf_mysql_auth_plugin_length, tvb, offset, 1, ENC_NA);
 	offset += 1;
 
-	/* 10 bytes unused */
-	proto_tree_add_item(greeting_tree, hf_mysql_unused, tvb, offset, 10, ENC_NA);
-	offset += 10;
+	if (conn_data->is_mariadb_server)
+	{
+		/* 6 bytes unused */
+		proto_tree_add_item(greeting_tree, hf_mysql_unused, tvb, offset, 6, ENC_NA);
+    offset += 6;
+		/* MariaDB specific extended capabilities */
+		offset= mariadb_dissect_caps_or_flags(tvb, offset, FT_UINT32, greeting_tree,
+										hf_mariadb_extcaps_server, mariadb_extcaps_flags, &conn_data->mariadb_server_ext_caps);
+	} else {
+		/* 10 bytes unused */
+		proto_tree_add_item(greeting_tree, hf_mysql_unused, tvb, offset, 10, ENC_NA);
+		offset += 10;
+	}
 
 	/* 4.1+ server: rest of salt */
 	if (tvb_reported_length_remaining(tvb, offset)) {
@@ -1042,23 +1529,37 @@ mysql_dissect_login(tvbuff_t *tvb, packet_info *pinfo, int offset,
 
 	offset = mysql_dissect_caps(tvb, offset, login_tree, hf_mysql_caps_client, &conn_data->clnt_caps);
 
+	/* MariaDB clients don't have the CLIENT_MYSQL/CLIENT_LONG_PASSWORD capability */
+	if (!(conn_data->clnt_caps & MYSQL_CAPS_LP))
+	{
+		conn_data->is_mariadb_client= 1;
+	}
+
 	if (!(conn_data->frame_start_ssl) && conn_data->clnt_caps & MYSQL_CAPS_SL) /* Next packet will be use SSL */
 	{
 		col_set_str(pinfo->cinfo, COL_INFO, "Response: SSL Handshake");
 		conn_data->frame_start_ssl = pinfo->num;
 		ssl_starttls_ack(tls_handle, pinfo, mysql_handle);
 	}
-	if (conn_data->clnt_caps & MYSQL_CAPS_CU) /* 4.1 protocol */
-	{
+	if (conn_data->clnt_caps & MYSQL_CAPS_CU) /* 4.1 protocol */{
 		offset = mysql_dissect_extcaps(tvb, offset, login_tree, hf_mysql_extcaps_client, &conn_data->clnt_caps_ext);
 
 		proto_tree_add_item(login_tree, hf_mysql_max_packet, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		offset += 4;
 
-		proto_tree_add_item(login_tree, hf_mysql_charset, tvb, offset, 1, ENC_NA);
+		proto_tree_add_item(login_tree, conn_data->is_mariadb_server ? hf_mariadb_charset : hf_mysql_charset, tvb, offset, 1, ENC_NA);
 		offset += 1; /* for charset */
 
-		offset += 23; /* filler bytes */
+		if (conn_data->is_mariadb_client){
+			/* 19 bytes unused */
+			proto_tree_add_item(login_tree, hf_mysql_unused, tvb, offset, 19, ENC_NA);
+			offset += 19;
+			offset= mariadb_dissect_caps_or_flags(tvb, offset, FT_UINT32, login_tree, hf_mariadb_extcaps_client, mariadb_extcaps_flags, &conn_data->mariadb_client_ext_caps);
+		} else {
+			/* 23 bytes unused */
+			proto_tree_add_item(login_tree, hf_mysql_unused, tvb, offset, 23, ENC_NA);
+			offset += 23;
+		}
 
 	} else { /* pre-4.1 */
 		proto_tree_add_item(login_tree, hf_mysql_max_packet, tvb, offset, 3, ENC_LITTLE_ENDIAN);
@@ -1073,7 +1574,9 @@ mysql_dissect_login(tvbuff_t *tvb, packet_info *pinfo, int offset,
 	offset += lenstr;
 
 	/* rest is optional */
-	if (!tvb_reported_length_remaining(tvb, offset)) return offset;
+	if (!tvb_reported_length_remaining(tvb, offset)) {
+		return offset;
+	}
 
 	/* password: asciiz or length+ascii */
 	if (conn_data->clnt_caps & MYSQL_CAPS_SC) {
@@ -1173,28 +1676,21 @@ mysql_dissect_exec_time(tvbuff_t *tvb, int *param_offset, proto_item *field_tree
 	guint8 param_len;
 
 	param_len = tvb_get_guint8(tvb, *param_offset);
-	proto_tree_add_item(field_tree, hf_mysql_exec_field_time_length,
-			    tvb, *param_offset, 1, ENC_NA);
+	proto_tree_add_item(field_tree, hf_mysql_exec_field_time_length, tvb, *param_offset, 1, ENC_NA);
 	*param_offset += 1;
 	if (param_len >= 1) {
-		proto_tree_add_item(field_tree, hf_mysql_exec_field_time_sign,
-				    tvb, *param_offset, 1, ENC_NA);
+		proto_tree_add_item(field_tree, hf_mysql_exec_field_time_sign, tvb, *param_offset, 1, ENC_NA);
 	}
 	if (param_len >= 5) {
-		proto_tree_add_item(field_tree, hf_mysql_exec_field_time_days,
-				    tvb, *param_offset + 1, 4, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(field_tree, hf_mysql_exec_field_time_days, tvb, *param_offset + 1, 4, ENC_LITTLE_ENDIAN);
 	}
 	if (param_len >= 8) {
-		proto_tree_add_item(field_tree, hf_mysql_exec_field_hour,
-				    tvb, *param_offset + 5, 1, ENC_NA);
-		proto_tree_add_item(field_tree, hf_mysql_exec_field_minute,
-				    tvb, *param_offset + 6, 1, ENC_NA);
-		proto_tree_add_item(field_tree, hf_mysql_exec_field_second,
-				    tvb, *param_offset + 7, 1, ENC_NA);
+		proto_tree_add_item(field_tree, hf_mysql_exec_field_hour, tvb, *param_offset + 5, 1, ENC_NA);
+		proto_tree_add_item(field_tree, hf_mysql_exec_field_minute, tvb, *param_offset + 6, 1, ENC_NA);
+		proto_tree_add_item(field_tree, hf_mysql_exec_field_second, tvb, *param_offset + 7, 1, ENC_NA);
 	}
 	if (param_len >= 12) {
-		proto_tree_add_item(field_tree, hf_mysql_exec_field_second_b,
-				    tvb, *param_offset + 8, 4, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(field_tree, hf_mysql_exec_field_second_b, tvb, *param_offset + 8, 4, ENC_LITTLE_ENDIAN);
 	}
 	*param_offset += param_len;
 }
@@ -1205,41 +1701,30 @@ mysql_dissect_exec_datetime(tvbuff_t *tvb, int *param_offset, proto_item *field_
 	guint8 param_len;
 
 	param_len = tvb_get_guint8(tvb, *param_offset);
-	proto_tree_add_item(field_tree, hf_mysql_exec_field_datetime_length,
-			    tvb, *param_offset, 1, ENC_NA);
+	proto_tree_add_item(field_tree, hf_mysql_exec_field_datetime_length, tvb, *param_offset, 1, ENC_NA);
 	*param_offset += 1;
 	if (param_len >= 2) {
-		proto_tree_add_item(field_tree, hf_mysql_exec_field_year,
-				    tvb, *param_offset, 2, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(field_tree, hf_mysql_exec_field_year, tvb, *param_offset, 2, ENC_LITTLE_ENDIAN);
 	}
 	if (param_len >= 4) {
-		proto_tree_add_item(field_tree, hf_mysql_exec_field_month,
-				    tvb, *param_offset + 2, 1, ENC_NA);
-		proto_tree_add_item(field_tree, hf_mysql_exec_field_day,
-				    tvb, *param_offset + 3, 1, ENC_NA);
+		proto_tree_add_item(field_tree, hf_mysql_exec_field_month, tvb, *param_offset + 2, 1, ENC_NA);
+		proto_tree_add_item(field_tree, hf_mysql_exec_field_day, tvb, *param_offset + 3, 1, ENC_NA);
 	}
 	if (param_len >= 7) {
-		proto_tree_add_item(field_tree, hf_mysql_exec_field_hour,
-				    tvb, *param_offset + 4, 1, ENC_NA);
-		proto_tree_add_item(field_tree, hf_mysql_exec_field_minute,
-				    tvb, *param_offset + 5, 1, ENC_NA);
-		proto_tree_add_item(field_tree, hf_mysql_exec_field_second,
-				    tvb, *param_offset + 6, 1, ENC_NA);
+		proto_tree_add_item(field_tree, hf_mysql_exec_field_hour, tvb, *param_offset + 4, 1, ENC_NA);
+		proto_tree_add_item(field_tree, hf_mysql_exec_field_minute, tvb, *param_offset + 5, 1, ENC_NA);
+		proto_tree_add_item(field_tree, hf_mysql_exec_field_second, tvb, *param_offset + 6, 1, ENC_NA);
 	}
 	if (param_len >= 11) {
-		proto_tree_add_item(field_tree, hf_mysql_exec_field_second_b,
-				    tvb, *param_offset + 7, 4, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(field_tree, hf_mysql_exec_field_second_b, tvb, *param_offset + 7, 4, ENC_LITTLE_ENDIAN);
 	}
 	*param_offset += param_len;
 }
 
 static void
-mysql_dissect_exec_primitive(tvbuff_t *tvb, int *param_offset,
-			     proto_item *field_tree, const int hfindex,
-			     const int offset)
+mysql_dissect_exec_primitive(tvbuff_t *tvb, int *param_offset, proto_item *field_tree, const int hfindex, const int offset)
 {
-	proto_tree_add_item(field_tree, hfindex, tvb,
-			    *param_offset, offset, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(field_tree, hfindex, tvb, *param_offset, offset, ENC_LITTLE_ENDIAN);
 	*param_offset += offset;
 }
 
@@ -1307,7 +1792,7 @@ mysql_dissect_exec_param(proto_item *req_tree, tvbuff_t *tvb, int *offset,
 	}
 	while (mysql_exec_dissectors[dissector_index].dissector != NULL) {
 		if (mysql_exec_dissectors[dissector_index].type == param_type &&
-		    mysql_exec_dissectors[dissector_index].unsigned_flag == param_unsigned) {
+			mysql_exec_dissectors[dissector_index].unsigned_flag == param_unsigned) {
 			mysql_exec_dissectors[dissector_index].dissector(tvb, param_offset, field_tree);
 			return 1;
 		}
@@ -1317,8 +1802,7 @@ mysql_dissect_exec_param(proto_item *req_tree, tvbuff_t *tvb, int *offset,
 }
 
 static int
-mysql_dissect_request(tvbuff_t *tvb,packet_info *pinfo, int offset,
-		      proto_tree *tree, mysql_conn_data_t *conn_data, mysql_state_t current_state)
+mysql_dissect_request(tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *tree, mysql_conn_data_t *conn_data, mysql_state_t current_state)
 {
 	gint opcode;
 	gint lenstr;
@@ -1432,7 +1916,7 @@ mysql_dissect_request(tvbuff_t *tvb,packet_info *pinfo, int offset,
 		offset += lenstr;
 
 		if (tvb_reported_length_remaining(tvb, offset) > 0) {
-			proto_tree_add_item(req_tree, hf_mysql_charset, tvb, offset, 1, ENC_NA);
+			proto_tree_add_item(req_tree, conn_data->is_mariadb_server ? hf_mariadb_charset : hf_mysql_charset, tvb, offset, 1, ENC_NA);
 			offset += 2; /* for charset */
 		}
 		mysql_set_conn_state(pinfo, conn_data, RESPONSE_OK);
@@ -1520,6 +2004,60 @@ mysql_dissect_request(tvbuff_t *tvb,packet_info *pinfo, int offset,
 		}
 		offset += lenstr;
 		mysql_set_conn_state(pinfo, conn_data, REQUEST);
+		break;
+
+	case MARIADB_STMT_BULK_EXECUTE:
+		proto_tree_add_item(req_tree, hf_mysql_stmt_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+		stmt_id = tvb_get_letohl(tvb, offset);
+		offset += 4;
+		stmt_data = (my_stmt_data_t *)wmem_tree_lookup32(conn_data->stmts, stmt_id);
+
+		if (stmt_data != NULL) {
+			guint32 row_nr = 1;
+			proto_item *param_tree;
+
+			mariadb_dissect_caps_or_flags(tvb, offset, FT_UINT16, req_tree, hf_mariadb_bulk_caps_flags, mariadb_bulk_caps_flags, &stmt_data->bulk_flags);
+			offset += 2;
+
+			if ((stmt_data->bulk_flags & MARIADB_BULK_SEND_TYPES) && stmt_data->nparam)
+			{
+				tf = proto_tree_add_item(req_tree, hf_mariadb_bulk_paramtypes, tvb, offset, -1, ENC_NA);
+				param_tree = proto_item_add_subtree(tf, ett_exec_param);
+				for (stmt_pos = 0; stmt_pos < stmt_data->nparam; stmt_pos++) {
+					stmt_data->param_types[stmt_pos] = tvb_get_guint8(tvb, offset);
+					proto_tree_add_item(param_tree, hf_mysql_fld_type, tvb, offset, 1, ENC_NA);
+					offset+= 1;
+					stmt_data->param_flags[stmt_pos] = tvb_get_guint8(tvb, offset);
+					proto_tree_add_item(param_tree, hf_mysql_exec_unsigned, tvb, offset, 1, ENC_NA);
+					offset+= 1;
+				}
+			}
+			while (tvb_reported_length_remaining(tvb, offset) > 0){
+				tf = proto_tree_add_text_internal(req_tree, tvb, offset, 0, "%d. Dataset", row_nr++);
+				param_tree = proto_item_add_subtree(tf, ett_bulk_param);
+
+				for (stmt_pos = 0; stmt_pos < stmt_data->nparam; stmt_pos++)
+				{
+					guint8 indicator= tvb_get_guint8(tvb, offset);
+					proto_tree_add_item(param_tree, hf_mariadb_bulk_indicator, tvb, offset, 1, ENC_NA);
+					offset++;
+					/* If no indicator was specified, data will follow */
+					if (!indicator) {
+						int dissector_index= 0;
+						while (mysql_exec_dissectors[dissector_index].dissector != NULL) {
+							if (mysql_exec_dissectors[dissector_index].type == stmt_data->param_types[stmt_pos])
+	/*	&&
+								mysql_exec_dissectors[dissector_index].unsigned_flag == stmt_data->param_flags[stmt_pos]) */
+							{
+								mysql_exec_dissectors[dissector_index].dissector(tvb, &offset, param_tree);
+								break;
+							}
+							dissector_index++;
+						}
+					}
+				}
+			}
+		}
 		break;
 
 	case MYSQL_STMT_EXECUTE:
@@ -1620,7 +2158,6 @@ mysql_dissect_request(tvbuff_t *tvb,packet_info *pinfo, int offset,
 /*
  * Decode the header of a compressed packet
  * https://dev.mysql.com/doc/internals/en/compressed-packet-header.html
- * https://dev.mysql.com/doc/dev/mysql-server/latest/page_protocol_basic_compression_packet.html
  */
 static int
 mysql_dissect_compressed_header(tvbuff_t *tvb, int offset, proto_tree *mysql_tree)
@@ -1956,6 +2493,33 @@ mysql_dissect_extcaps(tvbuff_t *tvb, int offset, proto_tree *tree, int mysql_ext
 	return offset;
 }
 
+static int mariadb_dissect_caps_or_flags(tvbuff_t *tvb, int offset, enum ftenum type, proto_tree *tree,
+                                int mariadb_caps, int * const *fields, void *value)
+{
+	guint8 diff= 0;
+
+	switch (type) {
+	case FT_UINT8:
+		*((guint8 *)value)= tvb_get_guint8(tvb, offset);
+		diff= 1;
+		break;
+	case FT_UINT16:
+		*((guint16 *)value)= tvb_get_letohs(tvb, offset);
+		diff= 2;
+		break;
+	case FT_UINT32:
+		*((guint32 *)value)= tvb_get_letohl(tvb, offset);
+		diff= 4;
+		break;
+	default:
+		return 0;
+	}
+	proto_tree_add_bitmask_with_flags(tree, tvb, offset, mariadb_caps, ett_extcaps, fields, ENC_LITTLE_ENDIAN, BMT_NO_APPEND);
+
+	offset+= diff;
+	return offset;
+}
+
 
 static int
 mysql_dissect_result_header(tvbuff_t *tvb, packet_info *pinfo, int offset,
@@ -2083,6 +2647,9 @@ mysql_dissect_response_prepare(tvbuff_t *tvb, packet_info *pinfo, int offset, pr
 	flagsize = (int)(sizeof(guint8) * stmt_data->nparam);
 	stmt_data->param_flags = (guint8 *)wmem_alloc(wmem_file_scope(), flagsize);
 	memset(stmt_data->param_flags, 0, flagsize);
+	stmt_data->param_types = (guint8 *)wmem_alloc(wmem_file_scope(), flagsize);
+	memset(stmt_data->param_types, 0, flagsize);
+
 	wmem_tree_insert32(conn_data->stmts, stmt_id, stmt_data);
 	offset += 2;
 	/* Filler */
@@ -2678,6 +3245,11 @@ void proto_register_mysql(void)
 		FT_UINT8, BASE_DEC|BASE_EXT_STRING, &mysql_collation_vals_ext, 0x0,
 		"MySQL Charset", HFILL }},
 
+		{ &hf_mariadb_charset,
+		{ "Charset", "mariadb.charset",
+		FT_UINT8, BASE_DEC|BASE_EXT_STRING, &mariadb_collation_vals_ext, 0x0,
+		"MySQL Charset", HFILL }},
+
 		{ &hf_mysql_table_name,
 		{ "Table Name", "mysql.table_name",
 		FT_STRINGZ, BASE_NONE, NULL, 0x0,
@@ -2761,6 +3333,11 @@ void proto_register_mysql(void)
 		{ &hf_mysql_server_language,
 		{ "Server Language", "mysql.server_language",
 		FT_UINT8, BASE_DEC|BASE_EXT_STRING, &mysql_collation_vals_ext, 0x0,
+		"MySQL Charset", HFILL }},
+
+		{ &hf_mariadb_server_language,
+		{ "Server Language", "mariadb.server_language",
+		FT_UINT8, BASE_DEC|BASE_EXT_STRING, &mariadb_collation_vals_ext, 0x0,
 		"MySQL Charset", HFILL }},
 
 		{ &hf_mysql_server_status,
@@ -3048,6 +3625,11 @@ void proto_register_mysql(void)
 		FT_UINT16, BASE_DEC|BASE_EXT_STRING, &mysql_collation_vals_ext, 0x0,
 		"Field: charset number", HFILL }},
 
+		//{ &hf_mariadb_fld_charsetnr,
+		//{ "Charset number", "mariadb.field.charsetnr",
+		//FT_UINT16, BASE_DEC|BASE_EXT_STRING, &mariadb_collation_vals_ext, 0x0,
+		//"Field: charset number", HFILL }},
+
 		{ &hf_mysql_fld_length,
 		{ "Length", "mysql.field.length",
 		FT_UINT32, BASE_DEC, NULL, 0x0,
@@ -3272,6 +3854,61 @@ void proto_register_mysql(void)
 		{ "Uncompressed Packet Length", "mysql.compressed_packet_length_uncompressed",
 		FT_UINT24, BASE_DEC, NULL,  0x0,
 		NULL, HFILL }},
+
+		{ &hf_mariadb_cap_progress,
+		{ "Progress indication", "mariadb.caps.pr",
+		FT_BOOLEAN, 32, TFS(&tfs_set_notset), MARIADB_CAPS_PR,
+		NULL, HFILL }},
+
+		{ &hf_mariadb_cap_commulti,
+		{ "Multi commands", "mariadb.caps.cm",
+		FT_BOOLEAN, 32, TFS(&tfs_set_notset), MARIADB_CAPS_CM,
+		NULL, HFILL }},
+
+		{ &hf_mariadb_cap_bulk,
+		{ "Bulk Operations", "mariadb.caps.bo",
+		FT_BOOLEAN, 32, TFS(&tfs_set_notset), MARIADB_CAPS_BO,
+		NULL, HFILL }},
+
+		{ &hf_mariadb_cap_extmetadata,
+		{ "Extended metadata", "mariadb.caps.em",
+		FT_BOOLEAN, 32, TFS(&tfs_set_notset), MARIADB_CAPS_EM,
+		NULL, HFILL }},
+
+		{ &hf_mariadb_extcaps_server,
+		{ "MariaDB Extendend Server Capabilities", "mariadb.extcaps.server",
+		FT_UINT32, BASE_HEX, NULL, 0x0,
+		NULL, HFILL }},
+
+		{ &hf_mariadb_extcaps_client,
+		{ "MariaDB Extendend Client Capabilities", "mariadb.extcaps.client",
+		FT_UINT32, BASE_HEX, NULL, 0x0,
+		NULL, HFILL }},
+
+		{ &hf_mariadb_bulk_flag_autoid,
+		{ "Return Generated Autoincrement IDs", "mariadb.bulk.flag.autoid",
+		FT_BOOLEAN, 16, TFS(&tfs_set_notset), MARIADB_BULK_AUTOID,
+		NULL, HFILL }},
+
+		{ &hf_mariadb_bulk_flag_sendtypes,
+		{ "Send Parameter Types", "mariadb.bulk.flag.sendtypes",
+		FT_BOOLEAN, 16, TFS(&tfs_set_notset), MARIADB_BULK_SEND_TYPES,
+		NULL, HFILL }},
+
+		{ &hf_mariadb_bulk_caps_flags,
+		{ "MariaDB Bulk Capabilities", "mariadb.bulk.flags",
+		FT_UINT16, BASE_HEX, NULL, 0x0,
+		NULL, HFILL }},
+
+		{ &hf_mariadb_bulk_paramtypes,
+		{ "Bulk Parameter Types", "mariadb.bulk.paramtypesg",
+		FT_NONE, BASE_NONE, NULL, 0x0,
+		NULL, HFILL }},
+
+		{ &hf_mariadb_bulk_indicator,
+		{ "Indicator", "mariadb.bulk.indicators",
+			FT_UINT8, BASE_HEX, VALS(mariadb_bulk_indicator_vals), 0x00,
+			NULL, HFILL }}
 	};
 
 	static gint *ett[]=
@@ -3286,6 +3923,7 @@ void proto_register_mysql(void)
 		&ett_refresh,
 		&ett_field_flags,
 		&ett_exec_param,
+		&ett_bulk_param,
 		&ett_session_track,
 		&ett_session_track_data,
 		&ett_connattrs,
@@ -3312,14 +3950,14 @@ void proto_register_mysql(void)
 
 	mysql_module = prefs_register_protocol(proto_mysql, NULL);
 	prefs_register_bool_preference(mysql_module, "desegment_buffers",
-				       "Reassemble MySQL buffers spanning multiple TCP segments",
-				       "Whether the MySQL dissector should reassemble MySQL buffers spanning multiple TCP segments."
-				       " To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
-				       &mysql_desegment);
+					"Reassemble MySQL buffers spanning multiple TCP segments",
+					"Whether the MySQL dissector should reassemble MySQL buffers spanning multiple TCP segments."
+					" To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
+					&mysql_desegment);
 	prefs_register_bool_preference(mysql_module, "show_sql_query",
-				       "Show SQL Query string in INFO column",
-				       "Whether the MySQL dissector should display the SQL query string in the INFO column.",
-				       &mysql_showquery);
+					"Show SQL Query string in INFO column",
+					"Whether the MySQL dissector should display the SQL query string in the INFO column.",
+					&mysql_showquery);
 
 	mysql_handle = register_dissector("mysql", dissect_mysql, proto_mysql);
 }

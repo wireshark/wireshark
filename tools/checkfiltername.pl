@@ -418,6 +418,7 @@ sub is_from_other_protocol_allowed {
 	if (($proto_filename eq "packet-mpeg-dsmcc.c") && (index($_[0], "mpeg_sect") >= 0)) {return 1;}
 	if (($proto_filename eq "packet-mpeg-dsmcc.c") && (index($_[0], "etv.dsmcc") >= 0)) {return 1;}
 	if (($proto_filename eq "packet-mpeg1.c") && (index($_[0], "rtp.payload_mpeg_") >= 0)) {return 1;}
+	if (($proto_filename eq "packet-mysql.c") && (index($_[0], "mariadb") >= 0)) {return 1;}
 	if (($proto_filename eq "packet-ndps.c") && (index($_[0], "spx.ndps_") >= 0)) {return 1;}
 	if (($proto_filename eq "packet-pw-atm.c") && (index($_[0], "atm") >= 0)) {return 1;}
 	if (($proto_filename eq "packet-pw-atm.c") && (index($_[0], "pw") >= 0)) {return 1;}
