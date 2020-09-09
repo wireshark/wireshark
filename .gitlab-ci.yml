@@ -31,6 +31,8 @@
     - export CCACHE_DIR=${PWD}/ccache
     - ccache --show-stats
     - export DEB_BUILD_OPTIONS=nocheck
+    - export DH_QUIET=1
+    - export MAKEFLAGS=--silent
     - mkdir build
     - cd build
   script:
@@ -127,7 +129,7 @@ build:debian-stable:
   script:
     # Shared GitLab runners limit the log size to 4M, so reduce verbosity. See
     # https://gitlab.com/gitlab-com/support-forum/issues/2790
-    - DH_QUIET=1 dpkg-buildpackage -b --no-sign -jauto
+    - dpkg-buildpackage -b --no-sign -jauto
     - mkdir debian-packages
     - mv ../*.deb debian-packages/
   artifacts:
@@ -159,7 +161,7 @@ merge-request:ubuntu-dpkg:
     - cd ..
     - bash ./tools/pre-commit 'HEAD^1'
     - sh -c '[ ! -e tools/validate-commit.py ] || tools/validate-commit.py'
-    - DH_QUIET=1 CC=/usr/lib/ccache/gcc CXX=/usr/lib/ccache/g++ dpkg-buildpackage -us -uc -rfakeroot -jauto -Zgzip -zfast
+    - CC=/usr/lib/ccache/gcc CXX=/usr/lib/ccache/g++ dpkg-buildpackage -us -uc -rfakeroot -jauto -Zgzip -zfast
     - lintian --suppress-tags library-not-linked-against-libc --display-experimental --display-info --pedantic --profile debian
 
 merge-request:ubuntu-gcc-ctest:
