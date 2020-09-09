@@ -12,6 +12,12 @@
   <<: *build
   image: wireshark/wireshark-ubuntu-dev
   retry: 1
+  # https://gould.cx/ted/blog/2017/06/10/ccache-for-Gitlab-CI/
+  cache:
+    # XXX Use ${CI_JOB_NAME}-${CI_MERGE_REQUEST_TARGET_BRANCH_NAME} instead?
+    key: ${CI_JOB_NAME}-master-3.2
+    paths:
+      - ccache/
   before_script:
     - apt-get update -qq
     - ./tools/debian-setup.sh --install-optional --install-test-deps -y
@@ -19,6 +25,14 @@
     - locale-gen en_US.UTF-8
     - export LANG=en_US.UTF-8
     - export PYTEST_ADDOPTS=--skip-missing-programs=dumpcap,rawshark
+    - mkdir -p ccache
+    - apt-get install -y ccache
+    - export CCACHE_BASEDIR=${PWD}
+    - export CCACHE_DIR=${PWD}/ccache
+    - ccache --show-stats
+    - export DEB_BUILD_OPTIONS=nocheck
+    - export DH_QUIET=1
+    - export MAKEFLAGS=--silent
     - mkdir build
     - cd build
   script:
@@ -115,10 +129,97 @@ build:debian-stable:
   script:
     # Shared GitLab runners limit the log size to 4M, so reduce verbosity. See
     # https://gitlab.com/gitlab-com/support-forum/issues/2790
-    - DH_QUIET=1 dpkg-buildpackage -b --no-sign -jauto
+    - dpkg-buildpackage -b --no-sign -jauto
     - mkdir debian-packages
     - mv ../*.deb debian-packages/
   artifacts:
     paths:
       - debian-packages/*.deb
     expire_in: 3 days
+
+merge-request:ubuntu-dpkg:
+  <<: *build-ubuntu
+  tags:
+    - docker
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+  script:
+    - apt-get install -y lintian
+    # build-ubuntu puts us in `build`.
+    - cd ..
+    - WS_GITHOOK_PYTHON=python3 ./tools/pre-commit 'HEAD^1'
+    - python3 tools/validate-commit.py
+    - CC=/usr/lib/ccache/gcc CXX=/usr/lib/ccache/g++ dpkg-buildpackage -us -uc -rfakeroot -jauto -Zgzip -zfast
+    - lintian --suppress-tags library-not-linked-against-libc --display-experimental --display-info --pedantic --profile debian
+
+merge-request:ubuntu-gcc-ctest:
+  <<: *build-ubuntu
+  tags:
+    - docker
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+  script:
+    # build-ubuntu puts us in `build`.
+    - perl ../tools/make-version.pl --set-release || ../perl make-version.pl --set-release
+    - CC=gcc CXX=g++ cmake -DENABLE_EXTRA_COMPILER_WARNINGS=on -DCMAKE_EXPORT_COMPILE_COMMANDS=on -DENABLE_CCACHE=ON -G Ninja ..
+    - ninja
+    - ninja test-programs
+    - chown -R user .
+    - su user -c "ctest --parallel 3 --force-new-ctest-process --verbose"
+
+merge-request:ubuntu-clang-other-tests:
+  extends: clang-10
+  tags:
+    - docker
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+  script:
+    - apt-get install -y cppcheck clang-tools
+    # build-ubuntu puts us in `build`.
+    - cd ..
+    - python3 tools/checklicenses.py
+    - ./tools/cppcheck/cppcheck.sh -l 1
+    - cd build
+    - cmake -DENABLE_EXTRA_COMPILER_WARNINGS=on -DENABLE_CHECKHF_CONFLICT=on -DCMAKE_EXPORT_COMPILE_COMMANDS=on -DENABLE_CCACHE=ON -G Ninja ..
+    - ninja
+    - ./run/tshark -v
+    - sh -c '[ ! -e ../tools/validate-clang-check.sh ] || ../tools/validate-clang-check.sh'
+    - ninja checkAPI
+
+# XXX This is still beta:
+# https://docs.gitlab.com/ee/user/gitlab_com/index.html#windows-shared-runners-beta
+# Dockerfile at https://github.com/wireshark/wireshark-windows-dev-docker.
+# XXX We currently depend on Qt being installed in C:\Qt on the host. We should
+# find a more independent way of installing Qt, e.g. via a download+cache.
+merge-request:windows:
+  tags:
+    - wireshark-windows-dev
+  stage: build
+  rules:
+    # The Windows Docker image is currently only available via a dedicated runner.
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_PROJECT_URL == "https://gitlab.com/wireshark/wireshark"'
+  before_script:
+    # XXX Find a better location.
+    - mkdir c:\Development
+    - $env:WIRESHARK_BASE_DIR = "C:\Development"
+    - $env:Configuration = "RelWithDebInfo"
+    - $env:Path += ";C:\Program Files\CMake\bin"
+    - $env:Path += ";C:\Strawberry\c\bin;C:\Strawberry\perl\site\bin;C:\Strawberry\perl\bin"
+    - $env:Path += ";C:\qt\5.12.8\msvc2017_64\bin"
+    # https://help.appveyor.com/discussions/questions/18777-how-to-use-vcvars64bat-from-powershell
+    - cmd.exe /c "call `"C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\VC\Auxiliary\Build\vcvars64.bat`" && set > %temp%\vcvars.txt"
+    - Get-Content "$env:temp\vcvars.txt" | Foreach-Object { if ($_ -match "^(.*?)=(.*)$") { Set-Content "env:\$($matches[1])" $matches[2] } }
+    # Testing / debugging only.
+    #- dir c:\
+    #- dir c:\qt
+    #- $env:path.split(";")
+    #- cmd.exe /c "set"
+    #- Get-Location
+  script:
+    - perl tools/make-version.pl --set-release
+    - mkdir build
+    - cd build
+    - cmake -G "Visual Studio 16 2019" -A x64 ..
+    - msbuild "/consoleloggerparameters:PerformanceSummary;NoSummary" /maxcpucount Wireshark.sln
+    - msbuild "/consoleloggerparameters:PerformanceSummary;NoSummary" test-programs.vcxproj
+    - ctest -C RelWithDebInfo --parallel 3 --force-new-ctest-process --verbose
