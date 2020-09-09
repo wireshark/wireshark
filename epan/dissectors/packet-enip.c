@@ -1110,6 +1110,7 @@ static enip_conv_info_t* create_connection_id_list(conversation_t* conversation)
    return enip_info;
 }
 
+static
 enip_conv_info_t* get_conversation_info_one_direction(packet_info* pinfo, address* src_address, address* dst_address, cip_connID_info_t* connid_info)
 {
    /* default some information if not included */

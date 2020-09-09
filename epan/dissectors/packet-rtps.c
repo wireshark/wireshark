@@ -4546,7 +4546,7 @@ static gboolean compare_by_guid(gconstpointer a, gconstpointer b) {
   return memcmp(guid_a, guid_b, sizeof(endpoint_guid)) == 0;
 }
 
-guint get_domain_id_from_tcp_discovered_participants(wmem_map_t *map, endpoint_guid* key) {
+static guint get_domain_id_from_tcp_discovered_participants(wmem_map_t *map, endpoint_guid* key) {
   participant_info *p_info = (participant_info*)wmem_map_lookup(map, (void*)key);
   return (p_info != NULL) ? p_info->domainId: RTPS_UNKNOWN_DOMAIN_ID_VAL;
 }

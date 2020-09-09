@@ -515,6 +515,10 @@ typedef struct anqp_info_dissector_data {
 
 extern const value_string ie_tag_num_vals[];
 
+guint
+add_ff_action(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset,
+              association_sanity_check_t *association_sanity_check );
+
 /*
  * Editor modelines
  *
