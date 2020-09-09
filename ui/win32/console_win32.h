@@ -26,6 +26,11 @@ extern "C" {
  */
 void create_console(void);
 
+/** Connect to stdio if available.
+ *
+ */
+void restore_pipes(void);
+
 /** Destroy Windows console.
  *
  */

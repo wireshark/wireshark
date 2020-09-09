@@ -204,6 +204,65 @@ do a FreeConsole() first. */
 }
 
 void
+restore_pipes(void)
+{
+    gboolean must_redirect_stdin;
+    gboolean must_redirect_stdout;
+    gboolean must_redirect_stderr;
+
+    if (stdin_capture) {
+        /* We've been handed "-i -". Don't mess with stdio. */
+        return;
+    }
+
+    if (has_console) {
+        return;
+    }
+
+    /* Are the standard input, output, and error invalid handles? */
+    must_redirect_stdin = needs_redirection(STD_INPUT_HANDLE);
+    must_redirect_stdout = needs_redirection(STD_OUTPUT_HANDLE);
+    must_redirect_stderr = needs_redirection(STD_ERROR_HANDLE);
+
+    /* If none of them are invalid, we don't need to do anything. */
+    if (!must_redirect_stdin && !must_redirect_stdout && !must_redirect_stderr)
+        return;
+
+    /* OK, at least one of them needs to be redirected to a console;
+        try to attach to the parent process's console and, if that fails,
+        cleanup and return. */
+    /*
+        * See if we have an existing console (i.e. we were run from a
+        * command prompt).
+        */
+    if (!AttachConsole(ATTACH_PARENT_PROCESS)) {
+        FreeConsole();
+        return;   /* No parent - cleanup and exit */
+    }
+
+    if (must_redirect_stdin)
+        ws_freopen("CONIN$", "r", stdin);
+    if (must_redirect_stdout) {
+        ws_freopen("CONOUT$", "w", stdout);
+        fprintf(stdout, "\n");
+    }
+    if (must_redirect_stderr) {
+        ws_freopen("CONOUT$", "w", stderr);
+        fprintf(stderr, "\n");
+    }
+
+    /* Now register "destroy_console()" as a routine to be called just
+        before the application exits, so that we can destroy the console
+        after the user has typed a key (so that the console doesn't just
+        disappear out from under them, giving the user no chance to see
+        the message(s) we put in there). */
+    atexit(destroy_console);
+
+    /* Well, we have a console now. */
+    has_console = TRUE;
+}
+
+void
 destroy_console(void)
 {
     if (console_wait) {

@@ -18,6 +18,7 @@
 #include <tchar.h>
 #include <wchar.h>
 #include <shellapi.h>
+#include "ui/win32/console_win32.h"
 #endif
 
 #ifdef HAVE_GETOPT_H
@@ -405,6 +406,14 @@ int main(int argc, char *qt_argv[])
 #endif
     /* Start time in microseconds */
     guint64 start_time = g_get_monotonic_time();
+
+    /* Enable destinations for logging earlier in startup */
+    set_console_log_handler();
+    qInstallMessageHandler(g_log_message_handler);
+#ifdef _WIN32
+    restore_pipes();
+#endif
+
 #ifdef DEBUG_STARTUP_TIME
     /* At least on Windows there is a problem with the logging as the preferences is taken
      * into account and the preferences are loaded pretty late in the startup process.
@@ -464,7 +473,7 @@ int main(int argc, char *qt_argv[])
      * executable file.
      */
     /* init_progfile_dir_error = */ init_progfile_dir(argv[0]);
-    g_log(NULL, G_LOG_LEVEL_DEBUG, "progfile_dir: %s", get_progfile_dir());
+    /* g_log(NULL, G_LOG_LEVEL_DEBUG, "progfile_dir: %s", get_progfile_dir()); */
 
 #ifdef _WIN32
     ws_init_dll_search_path();
@@ -597,7 +606,7 @@ int main(int argc, char *qt_argv[])
     read_language_prefs();
     wsApp->loadLanguage(language);
 
-    g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Translator %s", language);
+    /* g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_DEBUG, "Translator %s", language); */
 
     // Init the main window (and splash)
     main_w = new(MainWindow);
@@ -618,8 +627,6 @@ int main(int argc, char *qt_argv[])
       wsApp->setLastOpenDir(get_persdatafile_dir());
     }
 
-    set_console_log_handler();
-    qInstallMessageHandler(g_log_message_handler);
 #ifdef DEBUG_STARTUP_TIME
     g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_INFO, "set_console_log_handler, elapsed time %" G_GUINT64_FORMAT " us \n", g_get_monotonic_time() - start_time);
 #endif
