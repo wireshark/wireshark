@@ -25,7 +25,7 @@ See the “New and Updated Features” section below for more details.
 //* wsbuglink:5000[]
 //* wsbuglink:6000[Wireshark bug]
 //* cveidlink:2014-2486[]
-//* Wireshark exposed details your sordid redneck past, which were subsequently widely dissemenated on social media.
+//* Wireshark exposed details your sordid redneck past, which were subsequently widely disseminated on social media.
 
 === New and Updated Features
 
@@ -38,7 +38,7 @@ since version 3.2.0:
 * Protobuf fields can be dissected as Wireshark (header) fields that allows user input
   the full names of Protobuf fields or messages in Filter toolbar for searching.
 * Dissectors based on Protobuf can register themselves to a new 'protobuf_field' dissector table,
-  which is keyed with the full names of fields, for further parsing fields of BYETS or STRING type.
+  which is keyed with the full names of fields, for further parsing fields of BYTES or STRING type.
 * Wireshark is able to decode, play, and save iLBC payload on platforms where the https://github.com/TimothyGu/libilbc[iLBC library] is available.
 * “Decode As” entries can now be copied from other profiles using a button in the dialog.
 * sshdump can now be copied to multiple instances. Each instance will show up a different interface and will have its own profile.
