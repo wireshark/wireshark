@@ -83,14 +83,14 @@ private:
     void updateWidgets() { updateWidgets(false); } // Needed for WiresharkDialog?
     frs_return_t
     showBuffer(char *buffer, size_t nchars, gboolean is_from_server,
-                guint32 packet_num, guint32 *global_pos);
+                guint32 packet_num, nstime_t abs_ts, guint32 *global_pos);
 
     frs_return_t readStream();
     frs_return_t readFollowStream();
     frs_return_t readSslStream();
 
     void followStream();
-    void addText(QString text, gboolean is_from_server, guint32 packet_num);
+    void addText(QString text, gboolean is_from_server, guint32 packet_num, gboolean colorize = true);
 
     Ui::FollowStreamDialog  *ui;
 

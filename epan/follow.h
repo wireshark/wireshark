@@ -82,6 +82,7 @@ typedef struct {
     gboolean is_server;
     guint32 packet_num;
     guint32 seq; /* TCP only */
+    nstime_t abs_ts; /**< Packet absolute time stamp */
     GByteArray *data;
 } follow_record_t;
 

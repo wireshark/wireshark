@@ -1089,6 +1089,7 @@ check_follow_fragments(follow_info_t *follow_info, gboolean is_server, guint32 a
 
                     follow_record->is_server = is_server;
                     follow_record->packet_num = fragment->packet_num;
+                    follow_record->abs_ts = fragment->abs_ts;
                     follow_record->seq = follow_info->seq[is_server] + new_frag_size;
 
                     follow_record->data = g_byte_array_append(g_byte_array_new(),
@@ -1222,6 +1223,7 @@ follow_tcp_tap_listener(void *tapdata, packet_info *pinfo,
     follow_record = g_new0(follow_record_t, 1);
     follow_record->is_server = is_server;
     follow_record->packet_num = pinfo->fd->num;
+    follow_record->abs_ts = pinfo->fd->abs_ts;
     follow_record->seq = sequence;  /* start of fragment, used by check_follow_fragments. */
     follow_record->data = g_byte_array_append(g_byte_array_new(),
                                               tvb_get_ptr(follow_data->tvb, data_offset, data_length),

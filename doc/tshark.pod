@@ -1195,6 +1195,7 @@ I<mode> specifies the output mode.  It can be one of:
   ebcdic EBCDIC output with dots for non-printable characters
   hex    Hexadecimal and ASCII data with offsets
   raw    Hexadecimal data
+  yaml   YAML format
 
 Since the output in B<ascii> or B<ebcdic> mode may contain newlines, the length
 of each section of output plus a newline precedes each section of output.

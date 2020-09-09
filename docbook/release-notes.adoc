@@ -69,6 +69,9 @@ They previously shipped with Npcap 1.20.
 
 * Follow stream is now able to follow SIP call by SIP.Call-ID
 
+* Follow stream YAML output format’s has been changed to add timestamps and peers information (for more details see the user’s guide,
+{wireshark-users-guide-url}/ChAdvFollowStreamSection.html[Following Protocol Streams])
+
 // === Removed Features and Support
 
 // === Removed Dissectors

@@ -97,6 +97,78 @@ menu:UTF-16[]:: Like ASCII, but decode the data as UTF-16.
 
 menu:YAML[]:: This allows you to load the stream as YAML.
 
+The YAML output is divided into 2 main sections:
+
+* The `peers` section where for each `peer` you found the peer index, the `host` address and the `port` number.
+
+* The `packets` section where for each `packet` you found the packet number in the original capture, the `peer` index,
+the packet `index` for this peer, the `timestamp` in seconds and the `data` in base64 encoding.
+
+.Follow Stream YAML output
+====
+[source,yaml]
+----
+peers:
+  - peer: 0
+    host: 127.0.0.1
+    port: 54048
+  - peer: 1
+    host: 127.0.10.1
+    port: 5000
+packets:
+  - packet: 1
+    peer: 0
+    index: 0
+    timestamp: 1599485409.693955274
+    data: !!binary |
+      aGVsbG8K
+  - packet: 3
+    peer: 1
+    index: 0
+    timestamp: 1599485423.885866692
+    data: !!binary |
+      Ym9uam91cgo=
+----
+====
+
+The same example but in old YAML format (before version 3.5):
+[source,yaml]
+----
+# Packet 1
+peer0_0: !!binary |
+  aGVsbG8K
+# Packet 3
+peer1_0: !!binary |
+  Ym9uam91cgo=
+----
+
+How the old format data can be found in the new format:
+[options="header"]
+|===
+|New YAML format |Old YAML format | 
+a|
+----
+...
+packets:
+  - packet: AAA
+    peer: BBB
+    index: CCC
+    data: !!binary \|
+      DDD
+----
+a|
+----
+# Packet AAA
+peerBBB_CCC !!binary \|
+  DDD
+----
+a|
+ AAA: packet number in the original capture
+ BBB: peer index
+ CCC: packet index for this peer
+ DDD: data in base64 encoding
+|===
+
 menu:Raw[]:: This allows you to load the unaltered stream data into a different
   program for further examination. The display will look the same as the ASCII
   setting, but “Save As” will result in a binary file.

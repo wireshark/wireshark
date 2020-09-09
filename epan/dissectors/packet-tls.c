@@ -463,6 +463,7 @@ ssl_follow_tap_listener(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _
 
         follow_record->is_server = (from == FROM_SERVER);
         follow_record->packet_num = pinfo->num;
+        follow_record->abs_ts = pinfo->abs_ts;
 
         follow_record->data = g_byte_array_sized_new(appl_data->data_len);
         follow_record->data = g_byte_array_append(follow_record->data,

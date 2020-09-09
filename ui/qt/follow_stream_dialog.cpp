@@ -554,7 +554,7 @@ FollowStreamDialog::followStream()
 }
 
 const int FollowStreamDialog::max_document_length_ = 500 * 1000 * 1000; // Just a guess
-void FollowStreamDialog::addText(QString text, gboolean is_from_server, guint32 packet_num)
+void FollowStreamDialog::addText(QString text, gboolean is_from_server, guint32 packet_num, gboolean colorize)
 {
     if (truncated_) {
         return;
@@ -569,8 +569,12 @@ void FollowStreamDialog::addText(QString text, gboolean is_from_server, guint32 
     setUpdatesEnabled(false);
     int cur_pos = ui->teStreamContent->verticalScrollBar()->value();
     ui->teStreamContent->moveCursor(QTextCursor::End);
+
     QTextCharFormat tcf = ui->teStreamContent->currentCharFormat();
-    if (is_from_server) {
+    if (!colorize) {
+        tcf.setBackground(palette().window().color());
+        tcf.setForeground(palette().windowText().color());
+    } else if (is_from_server) {
         tcf.setForeground(ColorUtils::fromColorT(prefs.st_server_fg));
         tcf.setBackground(ColorUtils::fromColorT(prefs.st_server_bg));
     } else {
@@ -654,7 +658,7 @@ static inline void sanitize_buffer(char *buffer, size_t nchars) {
 
 frs_return_t
 FollowStreamDialog::showBuffer(char *buffer, size_t nchars, gboolean is_from_server, guint32 packet_num,
-                                guint32 *global_pos)
+                                nstime_t abs_ts, guint32 *global_pos)
 {
     gchar initbuf[256];
     guint32 current_pos;
@@ -795,17 +799,53 @@ FollowStreamDialog::showBuffer(char *buffer, size_t nchars, gboolean is_from_ser
         const int base64_raw_len = 57; // Encodes to 76 bytes, common in RFCs
         current_pos = 0;
 
+        if (last_packet_ == 0) {
+            // Header with general info about peers
+            const char *hostname0 = address_to_name(&follow_info_.client_ip);
+            const char *hostname1 = address_to_name(&follow_info_.server_ip);
+
+            char *port0 = get_follow_port_to_display(follower_)(NULL, follow_info_.client_port);
+            char *port1 = get_follow_port_to_display(follower_)(NULL, follow_info_.server_port);
+
+            addText("peers:\n", false, 0, false);
+
+            addText(QString(
+                "  - peer: 0\n"
+                "    host: %1\n"
+                "    port: %2\n")
+                .arg(hostname0)
+                .arg(port0), false, 0);
+
+            addText(QString(
+                "  - peer: 1\n"
+                "    host: %1\n"
+                "    port: %2\n")
+                .arg(hostname1)
+                .arg(port1), true, 0);
+
+            wmem_free(NULL, port0);
+            wmem_free(NULL, port1);
+
+            addText("packets:\n", false, 0, false);
+        }
+
         if (packet_num != last_packet_) {
-            yaml_text.append(QString("# Packet %1\npeer%2_%3: !!binary |\n")
-                    .arg(packet_num)
-                    .arg(is_from_server ? 1 : 0)
+            yaml_text.append(QString("  - packet: %1\n")
+                    .arg(packet_num));
+            yaml_text.append(QString("    peer: %1\n")
+                    .arg(is_from_server ? 1 : 0));
+            yaml_text.append(QString("    index: %1\n")
                     .arg(is_from_server ? server_buffer_count_++ : client_buffer_count_++));
+            yaml_text.append(QString("    timestamp: %1.%2\n")
+                    .arg(abs_ts.secs)
+                    .arg(abs_ts.nsecs, 9, 10, QChar('0')));
+            yaml_text.append(QString("    data: !!binary |\n"));
         }
         while (current_pos < nchars) {
             int len = current_pos + base64_raw_len < nchars ? base64_raw_len : (int) nchars - current_pos;
             QByteArray base64_data(&buffer[current_pos], len);
 
-            yaml_text += "  " + base64_data.toBase64() + "\n";
+            yaml_text += "      " + base64_data.toBase64() + "\n";
 
             current_pos += len;
             (*global_pos) += len;
@@ -1160,6 +1200,7 @@ FollowStreamDialog::readFollowStream()
                         follow_record->data->len,
                         follow_record->is_server,
                         follow_record->packet_num,
+                        follow_record->abs_ts,
                         global_pos);
             if (frs_return == FRS_PRINT_ERROR)
                 return frs_return;

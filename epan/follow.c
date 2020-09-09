@@ -190,6 +190,7 @@ follow_tvb_tap_listener(void *tapdata, packet_info *pinfo,
                                               tvb_get_ptr(next_tvb, 0, -1),
                                               tvb_captured_length(next_tvb));
     follow_record->packet_num = pinfo->fd->num;
+    follow_record->abs_ts = pinfo->fd->abs_ts;
 
     if (follow_info->client_port == 0) {
         follow_info->client_port = pinfo->srcport;
