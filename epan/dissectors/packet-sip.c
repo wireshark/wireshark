@@ -10,6 +10,7 @@
  * Copyright 2004, Anders Broman <anders.broman@ericsson.com>
  * Copyright 2011, Anders Broman <anders.broman@ericsson.com>, Johan Wahl <johan.wahl@ericsson.com>
  * Copyright 2018, Anders Broman <anders.broman@ericsson.com>
+ * Copyright 2020, Atul Sharma <asharm37@ncsu.edu>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -228,6 +229,7 @@ static gint hf_sip_session_id_sess_id     = -1;
 static gint hf_sip_session_id_param       = -1;
 static gint hf_sip_session_id_local_uuid  = -1;
 static gint hf_sip_session_id_remote_uuid = -1;
+static gint hf_sip_session_id_logme       = -1;
 static gint hf_sip_continuation           = -1;
 static gint hf_sip_feature_cap            = -1;
 
@@ -2901,7 +2903,7 @@ static void dissect_sip_via_header(tvbuff_t *tvb, proto_tree *tree, gint start_o
  */
 static void dissect_sip_session_id_header(tvbuff_t *tvb, proto_tree *tree, gint start_offset, gint line_end_offset, packet_info *pinfo)
 {
-    gint current_offset, semi_colon_offset, equals_offset, length;
+    gint current_offset, semi_colon_offset, equals_offset, length, logme_end_offset;
     GByteArray *bytes;
     proto_item *pi;
 
@@ -2970,7 +2972,28 @@ static void dissect_sip_session_id_header(tvbuff_t *tvb, proto_tree *tree, gint 
                 memcpy(guid.data4, &uuid->data[8], 8);
                 proto_tree_add_guid(tree, hf_sip_session_id_remote_uuid, tvb,
                                     equals_offset + 1, line_end_offset - equals_offset - 1, &guid);
-            } else {
+     	       /* Decode logme parameter as per https://tools.ietf.org/html/rfc8497
+                *
+                * sess-id-param       =/ logme-param
+                * logme-param         = "logme"
+                */
+                semi_colon_offset = tvb_find_guint8(tvb, current_offset, line_end_offset - current_offset, ';');
+                while(semi_colon_offset != -1){
+                    current_offset = semi_colon_offset + 1;
+                    if(current_offset != line_end_offset){
+                        logme_end_offset = current_offset + 5;
+                        current_offset = tvb_skip_wsp_return(tvb,semi_colon_offset);
+                        /* Extract logme parameter name */
+                        gchar *name = tvb_get_string_enc(wmem_packet_scope(), tvb, current_offset,logme_end_offset - current_offset, ENC_UTF_8|ENC_NA);
+                        if(g_ascii_strcasecmp(name, "logme") == 0){
+                             proto_tree_add_boolean(tree, hf_sip_session_id_logme, tvb, current_offset, logme_end_offset - current_offset, 1);
+                        } else if(current_offset != line_end_offset){
+                             proto_tree_add_item(tree, hf_sip_session_id_param, tvb, current_offset,line_end_offset - current_offset, ENC_UTF_8|ENC_NA);
+                        }
+                    }
+                    semi_colon_offset = tvb_find_guint8(tvb, current_offset, line_end_offset - current_offset, ';');
+                }
+     	    } else {
                 /* Display generic parameter */
                 proto_tree_add_item(tree, hf_sip_session_id_param, tvb, current_offset,
                                     line_end_offset - current_offset, ENC_UTF_8|ENC_NA);
@@ -7297,6 +7320,11 @@ void proto_register_sip(void)
             { "remote-uuid", "sip.Session-ID.remote_uuid",
             FT_GUID, BASE_NONE, NULL, 0x0,
             NULL, HFILL}
+        },
+	{ &hf_sip_session_id_logme,
+           { "logme",  "sip.Session-ID.logme",
+             FT_BOOLEAN, BASE_NONE, TFS(&tfs_set_notset), 0x0,
+             NULL, HFILL}
         },
         { &hf_sip_continuation,
           { "Continuation data",  "sip.continuation",
