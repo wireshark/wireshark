@@ -963,11 +963,13 @@ static int * const smb2_transform_flags[] = {
 #define SMB2_COMP_ALG_LZNT1       0x0001
 #define SMB2_COMP_ALG_LZ77        0x0002
 #define SMB2_COMP_ALG_LZ77HUFF    0x0003
+#define SMB2_COMP_ALG_PATTERN_V1  0x0004
 static const value_string smb2_comp_alg_types[] = {
 	{ SMB2_COMP_ALG_NONE, "None" },
 	{ SMB2_COMP_ALG_LZNT1, "LZNT1" },
 	{ SMB2_COMP_ALG_LZ77, "LZ77" },
 	{ SMB2_COMP_ALG_LZ77HUFF, "LZ77+Huffman" },
+	{ SMB2_COMP_ALG_PATTERN_V1, "Pattern_V1" },
 	{ 0, NULL }
 };
 
