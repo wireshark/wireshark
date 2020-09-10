@@ -261,6 +261,10 @@ static int hf_smb2_comp_alg_count = -1;
 static int hf_smb2_comp_alg_id = -1;
 static int hf_smb2_netname_neg_id = -1;
 static int hf_smb2_transport_reserved = -1;
+static int hf_smb2_rdma_transform_count = -1;
+static int hf_smb2_rdma_transform_reserved1 = -1;
+static int hf_smb2_rdma_transform_reserved2 = -1;
+static int hf_smb2_rdma_transform_id = -1;
 static int hf_smb2_ea_size = -1;
 static int hf_smb2_ea_flags = -1;
 static int hf_smb2_ea_name_len = -1;
@@ -929,12 +933,14 @@ static const value_string smb2_find_info_levels[] = {
 #define SMB2_COMPRESSION_CAPABILITIES       0x0003
 #define SMB2_NETNAME_NEGOTIATE_CONTEXT_ID   0x0005
 #define SMB2_TRANSPORT_CAPABILITIES         0x0006
+#define SMB2_RDMA_TRANSFORM_CAPABILITIES    0x0007
 static const value_string smb2_negotiate_context_types[] = {
 	{ SMB2_PREAUTH_INTEGRITY_CAPABILITIES,  "SMB2_PREAUTH_INTEGRITY_CAPABILITIES" },
 	{ SMB2_ENCRYPTION_CAPABILITIES,	"SMB2_ENCRYPTION_CAPABILITIES" },
 	{ SMB2_COMPRESSION_CAPABILITIES, "SMB2_COMPRESSION_CAPABILITIES" },
 	{ SMB2_NETNAME_NEGOTIATE_CONTEXT_ID, "SMB2_NETNAME_NEGOTIATE_CONTEXT_ID" },
 	{ SMB2_TRANSPORT_CAPABILITIES, "SMB2_TRANSPORT_CAPABILITIES" },
+	{ SMB2_RDMA_TRANSFORM_CAPABILITIES, "SMB2_RDMA_TRANSFORM_CAPABILITIES" },
 	{ 0, NULL }
 };
 
@@ -973,6 +979,14 @@ static const value_string smb2_comp_alg_types[] = {
 	{ SMB2_COMP_ALG_LZ77, "LZ77" },
 	{ SMB2_COMP_ALG_LZ77HUFF, "LZ77+Huffman" },
 	{ SMB2_COMP_ALG_PATTERN_V1, "Pattern_V1" },
+	{ 0, NULL }
+};
+
+#define SMB2_RDMA_TRANSFORM_NONE       0x0000
+#define SMB2_RDMA_TRANSFORM_ENCRYPTION 0x0001
+static const value_string smb2_rdma_transform_types[] = {
+	{ SMB2_RDMA_TRANSFORM_NONE, "None" },
+	{ SMB2_RDMA_TRANSFORM_ENCRYPTION, "Encryption" },
 	{ 0, NULL }
 };
 
@@ -4944,7 +4958,7 @@ dissect_smb2_negotiate_context(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 {
 	guint16 type;
 	const gchar *type_str;
-	guint32 i, data_length, salt_length, hash_count, cipher_count, comp_count;
+	guint32 i, data_length, salt_length, hash_count, cipher_count, comp_count, transform_count;
 	proto_item *sub_item;
 	proto_tree *sub_tree;
 
@@ -5029,6 +5043,20 @@ dissect_smb2_negotiate_context(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 			offset += 4;
 			break;
 
+		case SMB2_RDMA_TRANSFORM_CAPABILITIES:
+			proto_tree_add_item_ret_uint(sub_tree, hf_smb2_rdma_transform_count, tvb, offset, 2, ENC_LITTLE_ENDIAN, &transform_count);
+			offset += 2;
+
+			proto_tree_add_item(sub_tree, hf_smb2_rdma_transform_reserved1, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+			offset += 2;
+			proto_tree_add_item(sub_tree, hf_smb2_rdma_transform_reserved2, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+			offset += 4;
+
+			for (i = 0; i < transform_count; i++) {
+				proto_tree_add_item(sub_tree, hf_smb2_rdma_transform_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+				offset += 2;
+			}
+			break;
 		default:
 			proto_tree_add_item(sub_tree, hf_smb2_unknown, tvb, offset, data_length, ENC_NA);
 			offset += data_length;
@@ -11731,6 +11759,27 @@ proto_register_smb2(void)
 			{ "Reserved", "smb2.negotiate_context.transport_reserved", FT_UINT32, BASE_HEX,
 			NULL, 0, NULL, HFILL }
 		},
+
+		{ &hf_smb2_rdma_transform_count,
+			{ "TransformCount", "smb2.negotiate_context.rdma_transform_count", FT_UINT16, BASE_DEC,
+			NULL, 0, NULL, HFILL }
+		},
+
+		{ &hf_smb2_rdma_transform_reserved1,
+			{ "Reserved1", "smb2.negotiate_context.rdma_transform_reserved1", FT_UINT16, BASE_HEX,
+			NULL, 0, NULL, HFILL }
+		},
+
+		{ &hf_smb2_rdma_transform_reserved2,
+			{ "Reserved2", "smb2.negotiate_context.rdma_transform_reserved2", FT_UINT32, BASE_HEX,
+			NULL, 0, NULL, HFILL }
+		},
+
+		{ &hf_smb2_rdma_transform_id,
+			{ "RDMATransformId", "smb2.negotiate_context.rdma_transform_id", FT_UINT16, BASE_HEX,
+			VALS(smb2_rdma_transform_types), 0, NULL, HFILL }
+		},
+
 		{ &hf_smb2_current_time,
 			{ "Current Time", "smb2.current_time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
 			NULL, 0, "Current Time at server", HFILL }
