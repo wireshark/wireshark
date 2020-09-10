@@ -1560,7 +1560,7 @@ dissect_gquic_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *gquic_tree, gui
                 tag_offset += tag_len;
             break;
             case TAG_CTIM:
-                proto_tree_add_item(tag_tree, hf_gquic_tag_ctim, tvb, tag_offset_start + tag_offset, 8, ENC_TIME_SECS_NSECS);
+                proto_tree_add_item(tag_tree, hf_gquic_tag_ctim, tvb, tag_offset_start + tag_offset, 8, ENC_LITTLE_ENDIAN|ENC_TIME_SECS_NSECS);
                 tag_offset += 8;
             break;
             case TAG_RNON: /* Public Reset Tag */
