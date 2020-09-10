@@ -152,8 +152,8 @@ static int hf_mq_xqh_remoteqmgr = -1;
 
 static int hf_mq_id_StructID = -1;
 static int hf_mq_id_FapLevel = -1;
-static int hf_mq_id_icf1 = -1;
-static int hf_mq_id_Eicf1 = -1;
+static int hf_mq_id_cf1 = -1;
+static int hf_mq_id_ecf1 = -1;
 static int hf_mq_id_ief1 = -1;
 static int hf_mq_id_Reserved = -1;
 static int hf_mq_id_MaxMsgBatch = -1;
@@ -161,8 +161,8 @@ static int hf_mq_id_MaxTrSize = -1;
 static int hf_mq_id_MaxMsgSize = -1;
 static int hf_mq_id_SeqWrapVal = -1;
 static int hf_mq_id_channel = -1;
-static int hf_mq_id_icf2 = -1;
-static int hf_mq_id_Eicf2 = -1;
+static int hf_mq_id_cf2 = -1;
+static int hf_mq_id_ecf2 = -1;
 static int hf_mq_id_ccsid = -1;
 static int hf_mq_id_qmgrname = -1;
 static int hf_mq_id_HBInterval = -1;
@@ -174,8 +174,8 @@ static int hf_mq_id_MsgCprsLst = -1;
 static int hf_mq_id_Reserved2 = -1;
 static int hf_mq_id_SSLKeyRst = -1;
 static int hf_mq_id_ConvBySkt = -1;
-static int hf_mq_id_icf3 = -1;
-static int hf_mq_id_Eicf3 = -1;
+static int hf_mq_id_cf3 = -1;
+static int hf_mq_id_ecf3 = -1;
 static int hf_mq_id_Reserved3 = -1;
 static int hf_mq_id_ProcessId = -1;
 static int hf_mq_id_ThreadId = -1;
@@ -185,25 +185,25 @@ static int hf_mq_id_mqmid = -1;
 static int hf_mq_id_pal = -1;
 static int hf_mq_id_r = -1;
 
-/* Initial Data Capability Flag 1 */
-static int hf_mq_id_icf1_msgseq = -1;
-static int hf_mq_id_icf1_convcap = -1;
-static int hf_mq_id_icf1_splitmsg = -1;
-static int hf_mq_id_icf1_RqstInit = -1;
-static int hf_mq_id_icf1_RqstSecu = -1;
-static int hf_mq_id_icf1_mqreq = -1;
-static int hf_mq_id_icf1_svrsec = -1;
-static int hf_mq_id_icf1_runtime = -1;
-static int * const pf_flds_icf1[] =
+/* Initial Data - Capability Flag 1 */
+static int hf_mq_id_cf1_msgseq = -1;
+static int hf_mq_id_cf1_convcap = -1;
+static int hf_mq_id_cf1_splitmsg = -1;
+static int hf_mq_id_cf1_RqstInit = -1;
+static int hf_mq_id_cf1_RqstSecu = -1;
+static int hf_mq_id_cf1_mqreq = -1;
+static int hf_mq_id_cf1_svrsec = -1;
+static int hf_mq_id_cf1_runtime = -1;
+static int* const pf_flds_cf1[] =
 {
-    &hf_mq_id_icf1_runtime ,
-    &hf_mq_id_icf1_svrsec  ,
-    &hf_mq_id_icf1_mqreq   ,
-    &hf_mq_id_icf1_RqstSecu,
-    &hf_mq_id_icf1_RqstInit,
-    &hf_mq_id_icf1_splitmsg,
-    &hf_mq_id_icf1_convcap ,
-    &hf_mq_id_icf1_msgseq  ,
+    &hf_mq_id_cf1_runtime,
+    &hf_mq_id_cf1_svrsec,
+    &hf_mq_id_cf1_mqreq,
+    &hf_mq_id_cf1_RqstSecu,
+    &hf_mq_id_cf1_RqstInit,
+    &hf_mq_id_cf1_splitmsg,
+    &hf_mq_id_cf1_convcap,
+    &hf_mq_id_cf1_msgseq,
     NULL
 };
 
@@ -216,7 +216,7 @@ static int hf_mq_id_ief1_mxmsgsz = -1;
 static int hf_mq_id_ief1_mxmsgpb = -1;
 static int hf_mq_id_ief1_seqwrap = -1;
 static int hf_mq_id_ief1_hbint = -1;
-static int* const pf_flds_ief1[] =
+static int* const pf_flds_ef1[] =
 {
     &hf_mq_id_ief1_hbint,
     &hf_mq_id_ief1_seqwrap,
@@ -229,25 +229,25 @@ static int* const pf_flds_ief1[] =
     NULL
 };
 
-/* Initial Data Capability Flag 2 */
-static int hf_mq_id_icf2_CanDstLst = -1;
-static int hf_mq_id_icf2_FstMsgReq = -1;
-static int hf_mq_id_icf2_RespConv = -1;
-static int hf_mq_id_icf2_XARequest = -1;
-static int hf_mq_id_icf2_XARunTApp = -1;
-static int hf_mq_id_icf2_SPIRqst = -1;
-static int hf_mq_id_icf2_DualUOW = -1;
-static int hf_mq_id_icf2_CanTrcRte = -1;
-static int * const pf_flds_icf2[] =
+/* Initial Data - Capability Flag 2 */
+static int hf_mq_id_cf2_CanDstLst = -1;
+static int hf_mq_id_cf2_FstMsgReq = -1;
+static int hf_mq_id_cf2_RespConv = -1;
+static int hf_mq_id_cf2_XARequest = -1;
+static int hf_mq_id_cf2_XARunTApp = -1;
+static int hf_mq_id_cf2_SPIRqst = -1;
+static int hf_mq_id_cf2_DualUOW = -1;
+static int hf_mq_id_cf2_CanTrcRte = -1;
+static int* const pf_flds_cf2[] =
 {
-    &hf_mq_id_icf2_CanTrcRte,
-    &hf_mq_id_icf2_SPIRqst  ,
-    &hf_mq_id_icf2_XARunTApp,
-    &hf_mq_id_icf2_XARequest,
-    &hf_mq_id_icf2_DualUOW  ,
-    &hf_mq_id_icf2_RespConv ,
-    &hf_mq_id_icf2_FstMsgReq,
-    &hf_mq_id_icf2_CanDstLst,
+    &hf_mq_id_cf2_CanTrcRte,
+    &hf_mq_id_cf2_SPIRqst,
+    &hf_mq_id_cf2_XARunTApp,
+    &hf_mq_id_cf2_XARequest,
+    &hf_mq_id_cf2_DualUOW,
+    &hf_mq_id_cf2_RespConv,
+    &hf_mq_id_cf2_FstMsgReq,
+    &hf_mq_id_cf2_CanDstLst,
     NULL
 };
 
@@ -255,7 +255,7 @@ static int * const pf_flds_icf2[] =
 static int hf_mq_id_ief2_HdrCmpLst = -1;
 static int hf_mq_id_ief2_MsgCmpLst = -1;
 static int hf_mq_id_ief2_SSLReset = -1;
-static int* const pf_flds_ief2[] =
+static int* const pf_flds_ef2[] =
 {
     &hf_mq_id_ief2_SSLReset,
     &hf_mq_id_ief2_MsgCmpLst,
@@ -263,31 +263,22 @@ static int* const pf_flds_ief2[] =
     NULL
 };
 
-/* Initial Data Capability Flag 3 */
-static int hf_mq_id_icf3_CanMsgPrp = -1;
-static int hf_mq_id_icf3_CanMulticast = -1;
-static int hf_mq_id_icf3_MPlxSyGet = -1;
-static int * const pf_flds_icf3[] =
-{
-    &hf_mq_id_icf3_MPlxSyGet,
-    &hf_mq_id_icf3_CanMulticast,
-    &hf_mq_id_icf3_CanMsgPrp,
-    NULL
-};
+/* Initial Data - Capability Flag 3 */
+static int hf_mq_id_cf3_CanMsgPrp = -1;
+static int hf_mq_id_cf3_CanMulticast = -1;
+static int hf_mq_id_cf3_PropIntSep = -1;
+static int hf_mq_id_cf3_MPlxSyGet = -1;
+static int hf_mq_id_cf3_ProtAlgorit = -1;
+static int hf_mq_id_cf3_CanGenConnTag = -1;
 
-/* Initial Data Error Flag 3 */
-static int hf_mq_id_ief3_CanMsgPrp = -1;
-static int hf_mq_id_ief3_CanMulticast = -1;
-static int hf_mq_id_ief3_PropIntSep = -1;
-static int hf_mq_id_ief3_MPlxSyGet = -1;
-static int hf_mq_id_ief3_ProtAlgorit = -1;
-static int * const pf_flds_ief3[] =
+static int* const pf_flds_cf3[] =
 {
-    &hf_mq_id_ief3_ProtAlgorit,
-    &hf_mq_id_ief3_MPlxSyGet,
-    &hf_mq_id_ief3_PropIntSep,
-    &hf_mq_id_ief3_CanMulticast,
-    &hf_mq_id_ief3_CanMsgPrp,
+    &hf_mq_id_cf3_ProtAlgorit,
+    &hf_mq_id_cf3_MPlxSyGet,
+    &hf_mq_id_cf3_PropIntSep,
+    &hf_mq_id_cf3_CanMulticast,
+    &hf_mq_id_cf3_CanMsgPrp,
+    &hf_mq_id_cf3_CanGenConnTag,
     NULL
 };
 
@@ -309,8 +300,9 @@ static int hf_mq_fcno_StructID = -1;
 static int hf_mq_fcno_prodid = -1;
 static int hf_mq_fcno_mqmid = -1;
 static int hf_mq_fcno_version = -1;
-static int hf_mq_fcno_option = -1;
-static int hf_mq_fcno_connid = -1;
+static int hf_mq_fcno_capflag = -1;
+static int hf_mq_fcno_conn_tag = -1;
+static int hf_mq_fcno_retconn_tag = -1;
 static int hf_mq_fcno_unknowb01 = -1;
 
 static int hf_mq_inq_nbsel = -1;
@@ -430,6 +422,10 @@ static int hf_mq_fopa_DefPersistence = -1;
 static int hf_mq_fopa_DefPutRespType = -1;
 static int hf_mq_fopa_DefReadAhead = -1;
 static int hf_mq_fopa_PropertyControl = -1;
+static int hf_mq_fopa_Unknown = -1;
+
+static int hf_mq_fcmi_StructID = -1;
+static int hf_mq_fcmi_unknown = -1;
 
 static int hf_mq_ping_length = -1;
 static int hf_mq_ping_buffer = -1;
@@ -533,6 +529,8 @@ static int hf_mq_gmo_segmentation = -1;
 static int hf_mq_gmo_reserved = -1;
 static int hf_mq_gmo_msgtoken = -1;
 static int hf_mq_gmo_returnedlen = -1;
+static int hf_mq_gmo_reserved2 = -1;
+static int hf_mq_gmo_msghandle = -1;
 
 static int hf_mq_gmo_options_PROPERTIES_COMPATIBILITY = -1;
 static int hf_mq_gmo_options_PROPERTIES_IN_HANDLE = -1;
@@ -614,14 +612,14 @@ static int* const pf_flds_mtchopt[] =
 
 static int hf_mq_lpoo_StructID = -1;
 static int hf_mq_lpoo_version = -1;
-static int hf_mq_lpoo_lpivers = -1;
 static int hf_mq_lpoo_lpiopts = -1;
 static int hf_mq_lpoo_defpersist = -1;
 static int hf_mq_lpoo_defputresptype = -1;
 static int hf_mq_lpoo_defreadahead = -1;
 static int hf_mq_lpoo_propertyctl = -1;
 static int hf_mq_lpoo_qprotect = -1;
-static int hf_mq_lpoo_xtradata = -1;
+static int hf_mq_lpoo_qprotect_val1 = -1;
+static int hf_mq_lpoo_qprotect_val2 = -1;
 
 static int hf_mq_lpoo_lpiopts_SAVE_IDENTITY_CTXT = -1;
 static int hf_mq_lpoo_lpiopts_SAVE_ORIGIN_CTXT = -1;
@@ -949,12 +947,12 @@ static gint ett_mq_caut = -1;
 static gint ett_mq_msh = -1;
 static gint ett_mq_xqh = -1;
 static gint ett_mq_id = -1;
-static gint ett_mq_id_icf1 = -1;
-static gint ett_mq_id_icf2 = -1;
-static gint ett_mq_id_icf3 = -1;
-static gint ett_mq_id_eicf1 = -1;
-static gint ett_mq_id_eicf2 = -1;
-static gint ett_mq_id_eicf3 = -1;
+static gint ett_mq_id_cf1 = -1;
+static gint ett_mq_id_cf2 = -1;
+static gint ett_mq_id_cf3 = -1;
+static gint ett_mq_id_ecf1 = -1;
+static gint ett_mq_id_ecf2 = -1;
+static gint ett_mq_id_ecf3 = -1;
 static gint ett_mq_id_ief1 = -1;
 static gint ett_mq_id_ief2 = -1;
 static gint ett_mq_uid = -1;
@@ -1647,6 +1645,7 @@ static gint dissect_mq_gmo(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, 
             case 1: iSize = 72; break;
             case 2: iSize = 80; break;
             case 3: iSize = 100; break;
+            case 4: iSize = 112; break;
         }
 
         if (iSize != 0 && tvb_reported_length_remaining(tvb, offset) >= iSize)
@@ -1689,6 +1688,11 @@ static gint dissect_mq_gmo(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, 
                     proto_tree_add_item(mq_tree, hf_mq_gmo_msgtoken, tvb, offset + 80, 16, ENC_NA);
                     proto_tree_add_item(mq_tree, hf_mq_gmo_returnedlen, tvb, offset + 96, 4, p_mq_parm->mq_int_enc);
                 }
+                if (iVersion >= 4)
+                {
+                    proto_tree_add_item(mq_tree, hf_mq_gmo_reserved2, tvb, offset + 100, 4, p_mq_parm->mq_int_enc);
+                    proto_tree_add_item(mq_tree, hf_mq_gmo_msghandle, tvb, offset + 104, 8, p_mq_parm->mq_int_enc);
+                }
             }
         }
     }
@@ -1716,10 +1720,12 @@ static gint dissect_mq_pmo(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, 
 
         if (iSize != 0 && tvb_reported_length_remaining(tvb, offset) >= iSize)
         {
-            guint8 *sQueue;
+            guint8* sQueue;
+            guint8* sQueueA;
 
+            sQueueA = tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 32, 48, 0);
             sQueue = tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 32, 48, p_mq_parm->mq_str_enc);
-            if (strip_trailing_blanks(sQueue, 48) > 0)
+            if (strip_trailing_blanks(sQueue, 48) > 0 && strip_trailing_blanks(sQueueA, 48) > 0)
             {
                 col_append_fstr(pinfo->cinfo, COL_INFO, " Q=%s", sQueue);
             }
@@ -1990,11 +1996,11 @@ static gint dissect_mq_id(tvbuff_t* tvb, packet_info* pinfo, proto_tree* mqroot_
             proto_tree_add_item(mq_tree, hf_mq_id_FapLevel, tvb, offset + 4, 1, ENC_BIG_ENDIAN);
 
             /* ID Capability flags 1 */
-            proto_tree_add_bitmask(mq_tree, tvb, offset + 5, hf_mq_id_icf1, ett_mq_id_icf1, pf_flds_icf1, ENC_BIG_ENDIAN);
-            proto_tree_add_bitmask(mq_tree, tvb, offset + 6, hf_mq_id_Eicf1, ett_mq_id_eicf1, pf_flds_icf1, ENC_BIG_ENDIAN);
+            proto_tree_add_bitmask(mq_tree, tvb, offset + 5, hf_mq_id_cf1, ett_mq_id_cf1, pf_flds_cf1, ENC_BIG_ENDIAN);
+            proto_tree_add_bitmask(mq_tree, tvb, offset + 6, hf_mq_id_ecf1, ett_mq_id_ecf1, pf_flds_cf1, ENC_BIG_ENDIAN);
 
             /* Error flags 1*/
-            proto_tree_add_bitmask(mq_tree, tvb, offset + 7, hf_mq_id_ief1, ett_mq_id_ief1, pf_flds_ief1, ENC_BIG_ENDIAN);
+            proto_tree_add_bitmask(mq_tree, tvb, offset + 7, hf_mq_id_ief1, ett_mq_id_ief1, pf_flds_ef1, ENC_BIG_ENDIAN);
 
             proto_tree_add_item(mq_tree, hf_mq_id_Reserved, tvb, offset + 8, 2, p_mq_parm->mq_int_enc);
             proto_tree_add_item(mq_tree, hf_mq_id_MaxMsgBatch, tvb, offset + 10, 2, p_mq_parm->mq_int_enc);
@@ -2006,8 +2012,8 @@ static gint dissect_mq_id(tvbuff_t* tvb, packet_info* pinfo, proto_tree* mqroot_
             if (iSize > 44 || (iPktSz > iSize && iPktSz > 44))
             {
                 /* ID Capability flags 2 */
-                proto_tree_add_bitmask(mq_tree, tvb, offset + 44, hf_mq_id_icf2, ett_mq_id_icf2, pf_flds_icf2, ENC_BIG_ENDIAN);
-                proto_tree_add_bitmask(mq_tree, tvb, offset + 45, hf_mq_id_Eicf2, ett_mq_id_eicf2, pf_flds_icf2, ENC_BIG_ENDIAN);
+                proto_tree_add_bitmask(mq_tree, tvb, offset + 44, hf_mq_id_cf2, ett_mq_id_cf2, pf_flds_cf2, ENC_BIG_ENDIAN);
+                proto_tree_add_bitmask(mq_tree, tvb, offset + 45, hf_mq_id_ecf2, ett_mq_id_ecf2, pf_flds_cf2, ENC_BIG_ENDIAN);
 
                 proto_tree_add_item(mq_tree, hf_mq_id_ccsid, tvb, offset + 46, 2, p_mq_parm->mq_int_enc);
                 proto_tree_add_item(mq_tree, hf_mq_id_qmgrname, tvb, offset + 48, 48, p_mq_parm->mq_str_enc);
@@ -2016,7 +2022,7 @@ static gint dissect_mq_id(tvbuff_t* tvb, packet_info* pinfo, proto_tree* mqroot_
                 if (iSize > 102 || (iPktSz > iSize && iPktSz > 102))
                 {
                     /* Error flags 2*/
-                    proto_tree_add_bitmask(mq_tree, tvb, offset + 102, hf_mq_id_ief2, ett_mq_id_ief2, pf_flds_ief2, ENC_BIG_ENDIAN);
+                    proto_tree_add_bitmask(mq_tree, tvb, offset + 102, hf_mq_id_ief2, ett_mq_id_ief2, pf_flds_ef2, ENC_BIG_ENDIAN);
                     proto_tree_add_item(mq_tree, hf_mq_id_Reserved1, tvb, offset + 103, 1, ENC_BIG_ENDIAN);
 
                     if (iSize > 104 || (iPktSz > iSize && iPktSz > 104))
@@ -2030,8 +2036,8 @@ static gint dissect_mq_id(tvbuff_t* tvb, packet_info* pinfo, proto_tree* mqroot_
                             proto_tree_add_item(mq_tree, hf_mq_id_ConvBySkt, tvb, offset + 128, 4, p_mq_parm->mq_int_enc);
 
                             /* ID Capability flags 3 */
-                            proto_tree_add_bitmask(mq_tree, tvb, offset + 132, hf_mq_id_icf3, ett_mq_id_icf3, pf_flds_icf3, ENC_BIG_ENDIAN);
-                            proto_tree_add_bitmask(mq_tree, tvb, offset + 133, hf_mq_id_Eicf3, ett_mq_id_eicf3, pf_flds_ief3, ENC_BIG_ENDIAN);
+                            proto_tree_add_bitmask(mq_tree, tvb, offset + 132, hf_mq_id_cf3, ett_mq_id_cf3, pf_flds_cf3, ENC_BIG_ENDIAN);
+                            proto_tree_add_bitmask(mq_tree, tvb, offset + 133, hf_mq_id_ecf3, ett_mq_id_ecf3, pf_flds_cf3, ENC_BIG_ENDIAN);
 
                             proto_tree_add_item(mq_tree, hf_mq_id_Reserved3, tvb, offset + 134, 2, p_mq_parm->mq_int_enc);
                             proto_tree_add_item(mq_tree, hf_mq_id_ProcessId, tvb, offset + 136, 4, p_mq_parm->mq_int_enc);
@@ -2124,10 +2130,12 @@ static gint dissect_mq_md(tvbuff_t* tvb, proto_tree* tree, gint offset, mq_parm_
 static gint dissect_mq_fopa(tvbuff_t* tvb, proto_tree* tree, gint offset, mq_parm_t* p_mq_parm)
 {
     gint iSize = 0;
+    gint iVers = 0;
 
     p_mq_parm->mq_strucID = (tvb_reported_length_remaining(tvb, offset) >= 4) ? tvb_get_ntohl(tvb, offset) : MQ_STRUCTID_NULL;
     if (p_mq_parm->mq_strucID == MQ_STRUCTID_FOPA || p_mq_parm->mq_strucID == MQ_STRUCTID_FOPA_EBCDIC)
     {
+        iVers = tvb_get_guint32(tvb, offset + 4, p_mq_parm->mq_int_enc);
         iSize = tvb_get_guint32(tvb, offset + 8, p_mq_parm->mq_int_enc);
         if (iSize != 0 && tvb_reported_length_remaining(tvb, offset) >= iSize)
         {
@@ -2141,6 +2149,27 @@ static gint dissect_mq_fopa(tvbuff_t* tvb, proto_tree* tree, gint offset, mq_par
             proto_tree_add_item(mq_tree, hf_mq_fopa_DefPutRespType, tvb, offset + 16, 4, p_mq_parm->mq_int_enc);
             proto_tree_add_item(mq_tree, hf_mq_fopa_DefReadAhead, tvb, offset + 20, 4, p_mq_parm->mq_int_enc);
             proto_tree_add_item(mq_tree, hf_mq_fopa_PropertyControl, tvb, offset + 24, 4, p_mq_parm->mq_int_enc);
+
+            if ((iVers > 1) && (iSize > 28))
+                proto_tree_add_item(mq_tree, hf_mq_fopa_Unknown, tvb, offset + 28, iSize - 28, p_mq_parm->mq_int_enc);
+        }
+    }
+    return iSize;
+}
+static gint dissect_mq_fcmi(tvbuff_t* tvb, proto_tree* tree, gint offset, mq_parm_t* p_mq_parm)
+{
+    gint iSize = 0;
+
+    p_mq_parm->mq_strucID = (tvb_reported_length_remaining(tvb, offset) >= 4) ? tvb_get_ntohl(tvb, offset) : MQ_STRUCTID_NULL;
+    if (p_mq_parm->mq_strucID == MQ_STRUCTID_FCMI || p_mq_parm->mq_strucID == MQ_STRUCTID_FCMI_EBCDIC)
+    {
+        iSize = 8;
+        if (iSize != 0 && tvb_reported_length_remaining(tvb, offset) >= iSize)
+        {
+            proto_tree* mq_tree = proto_tree_add_subtree(tree, tvb, offset, iSize, ett_mq_fcmi, NULL, MQ_TEXT_FCMI);
+
+            proto_tree_add_item(mq_tree, hf_mq_fcmi_StructID, tvb, offset, 4, p_mq_parm->mq_str_enc);
+            proto_tree_add_item(mq_tree, hf_mq_fcmi_unknown, tvb, offset + 4, 4, p_mq_parm->mq_int_enc);
         }
     }
     return iSize;
@@ -2431,8 +2460,8 @@ static void dissect_mq_pdu(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree)
                             }
                         }
                         offset += 4;
-                        p_mq_parm->mq_strucID = (tvb_reported_length_remaining(tvb, offset) >= 4) ? tvb_get_ntohl(tvb, offset) : MQ_STRUCTID_NULL;
                         offset += dissect_mq_fopa(tvb, mqroot_tree, offset, p_mq_parm);
+                        offset += dissect_mq_fcmi(tvb, mqroot_tree, offset, p_mq_parm);
                     }
                     else if ((p_mq_parm->mq_opcode == MQ_TST_MQCONN || p_mq_parm->mq_opcode == MQ_TST_MQCONN_REPLY) && capLen > 0)
                     {
@@ -2443,7 +2472,10 @@ static void dissect_mq_pdu(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree)
                         * Instead we rely on the segment length announced in the TSH */
                         /* The MQCONN structure is special because it does not start with a structid */
                         iSizeCONN = iSegmentLength - iSizeTSH - iSizeAPI;
-                        if (iSizeCONN != 112 && iSizeCONN != 120 && iSizeCONN != 260 && iSizeCONN != 332)
+                        if (iSizeCONN != 120 && /*FAPLvl <= 5 - 6 Version 1 */
+                            iSizeCONN != 260 && /*FAPLvl == 7 - 11 Version 1 */
+                            iSizeCONN != 332 && /*FAPLvl == 12 -13 Version 2 */
+                            iSizeCONN != 460)   /*FAPLvl == 14     Version 3 */
                             iSizeCONN = 0;
 
                         if (iSizeCONN != 0 && tvb_reported_length_remaining(tvb, offset) >= iSizeCONN)
@@ -2512,47 +2544,69 @@ static void dissect_mq_pdu(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree)
                                 ptvcursor_add(cursor, hf_mq_conn_apptype, 4, iCod);
                                 ptvcursor_add(cursor, hf_mq_conn_acttoken, 32, ENC_NA);
 
-                                if (iSizeCONN >= 120)
+                                ptvcursor_add(cursor, hf_mq_conn_options, 4, iCod);
+                                ptvcursor_add(cursor, hf_mq_conn_Xoptions, 4, iCod);
+                                if (iSizeCONN == 120)
                                 {
-                                    ptvcursor_add(cursor, hf_mq_conn_options, 4, iCod);
-                                    ptvcursor_add(cursor, hf_mq_conn_Xoptions, 4, iCod);
+                                    gint tRemain = tvb_reported_length_remaining(tvb, ptvcursor_current_offset(cursor));
+                                    if (tRemain > 0)
+                                    {
+                                        if (tRemain >= 24 && iApp != MQ_MQAT_JAVA)
+                                        {
+                                            ptvcursor_add(cursor, hf_mq_fcno_prodid, 24, iEnc);
+                                            tRemain -= 24;
+                                        }
+                                        if (tRemain >= 48 && iApp != MQ_MQAT_JAVA)
+                                        {
+                                            ptvcursor_add(cursor, hf_mq_fcno_mqmid, 48, iEnc);
+                                            tRemain -= 48;
+                                        }
+                                        if (tRemain > 0)
+                                            ptvcursor_add(cursor, hf_mq_fcno_unknowb01, tRemain, ENC_NA);
+                                    }
                                 }
-                                if (iSizeCONN >= 260)
+                                else
                                 {
-                                    proto_tree  *mq_tree_sub;
-                                    gint iOption;
+                                    proto_tree* mq_tree_sub;
+                                    gint iVersion;
                                     gint nofs = ptvcursor_current_offset(cursor);
-                                    gint tOfs;
 
-                                    iOption = tvb_get_guint32(tvb, nofs + 8, iCod);
+                                    iVersion = tvb_get_guint32(tvb, nofs + 4, iCod);
                                     mq_tree_sub = proto_tree_add_subtree(mq_tree, tvb, nofs, iSizeCONN - nofs, ett_mq_fcno, NULL, MQ_TEXT_FCNO);
 
                                     ptvcursor_set_tree(cursor, mq_tree_sub);
 
                                     ptvcursor_add(cursor, hf_mq_fcno_StructID, 4, iEnc);
                                     ptvcursor_add(cursor, hf_mq_fcno_version, 4, iCod);
-                                    ptvcursor_add(cursor, hf_mq_fcno_option, 4, iCod);
+                                    ptvcursor_add(cursor, hf_mq_fcno_capflag, 4, iCod);
+                                    if (iVersion >= 1)
+                                    {
+                                        ptvcursor_add(cursor, hf_mq_fcno_conn_tag, 128, ENC_NA);
+                                    }
+                                    if (iVersion >= 3)
+                                    {
+                                        ptvcursor_add(cursor, hf_mq_fcno_retconn_tag, 128, ENC_NA);
+                                    }
+                                    gint tRemain = tvb_reported_length_remaining(tvb, ptvcursor_current_offset(cursor));
+                                    if (tRemain > 0)
+                                    {
+                                        if (tRemain >= 24 && iApp != MQ_MQAT_JAVA)
+                                        {
+                                            ptvcursor_add(cursor, hf_mq_fcno_prodid, 24, iEnc);
+                                            tRemain -= 24;
+                                        }
+                                        if (tRemain >= 48 && iApp != MQ_MQAT_JAVA)
+                                        {
+                                            ptvcursor_add(cursor, hf_mq_fcno_mqmid, 48, iEnc);
+                                            tRemain -= 48;
+                                        }
+                                        if (tRemain > 0)
+                                        {
+                                            ptvcursor_add(cursor, hf_mq_fcno_unknowb01, tRemain, ENC_NA);
+                                        }
+                                    }
 
-                                    if (iApp == MQ_MQAT_JAVA && iOption == 0)
-                                    {
-                                        ptvcursor_add(cursor, hf_mq_fcno_prodid, 12, iEnc);
-                                        ptvcursor_add(cursor, hf_mq_fcno_mqmid, 48, iEnc);
-                                        tOfs = ptvcursor_current_offset(cursor);
-                                        ptvcursor_add(cursor, hf_mq_fcno_unknowb01, tvb_reported_length_remaining(tvb, tOfs), ENC_NA);
-                                    }
-                                    else
-                                    {
-                                        ptvcursor_add(cursor, hf_mq_fcno_connid, 24, iEnc);
-                                        tOfs = ptvcursor_current_offset(cursor);
-                                        ptvcursor_add(cursor, hf_mq_fcno_unknowb01, tvb_reported_length_remaining(tvb, tOfs) - 48, ENC_NA);
-                                        ptvcursor_add(cursor, hf_mq_fcno_mqmid, 48, iEnc);
-                                    }
-
-                                    if (iSizeCONN >= 332)
-                                    {
-                                        iSizeCONN = ptvcursor_current_offset(cursor) - offset;
-                                        dissect_mqpcf_parm(tvb, pinfo, mq_tree_sub, ptvcursor_current_offset(cursor), (guint32)-1, iCod, TRUE);
-                                    }
+                                    iSizeCONN = ptvcursor_current_offset(cursor) - offset;
                                 }
                                 ptvcursor_free(cursor);
                             }
@@ -2971,39 +3025,48 @@ static void dissect_mq_pdu(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree)
                             }
                         }
                     }
+                    /* LPOO seems to be a bug for SPOO */
                     if ((p_mq_parm->mq_strucID == MQ_STRUCTID_LPOO || p_mq_parm->mq_strucID == MQ_STRUCTID_LPOO_EBCDIC) && tvb_reported_length_remaining(tvb, offset) >= 32)
                     {
                         guint iVersion;
                         guint iXtraData = 0;
                         gint  iSize = 32;
+                        gint  iPos = 0;
+                        gint  iSegSize = tvb_reported_length_remaining(tvb, offset);
                         iVersion = tvb_get_guint32(tvb, offset + 4, p_mq_parm->mq_int_enc);
-                        if (iVersion >= 1)
+                        if (iSegSize >= 488)
                         {
                             iSize += 56;
                             iXtraData = tvb_get_guint32(tvb, offset + 84, p_mq_parm->mq_int_enc);
                         }
 
-                        if (iSize != 0 && tvb_reported_length_remaining(tvb, offset) >= iSize)
+                        if (iSize != 0 && iSegSize >= iSize)
                         {
                             mq_tree = proto_tree_add_subtree(mqroot_tree, tvb, offset, iSize, ett_mq_lpoo, NULL, MQ_TEXT_LPOO);
 
                             proto_tree_add_item(mq_tree, hf_mq_lpoo_StructID, tvb, offset, 4, p_mq_parm->mq_str_enc);
                             proto_tree_add_item(mq_tree, hf_mq_lpoo_version, tvb, offset + 4, 4, p_mq_parm->mq_int_enc);
-                            proto_tree_add_item(mq_tree, hf_mq_lpoo_lpivers, tvb, offset + 8, 4, p_mq_parm->mq_int_enc);
+                            dissect_mq_MQOO(tvb, mq_tree, offset + 8, ett_mq_open_option, hf_mq_open_options, p_mq_parm);
                             dissect_mq_LPOO_LPIOPTS(tvb, mq_tree, offset + 12, ett_mq_lpoo_lpiopts, p_mq_parm);
 
                             proto_tree_add_item(mq_tree, hf_mq_lpoo_defpersist, tvb, offset + 16, 4, p_mq_parm->mq_int_enc);
                             proto_tree_add_item(mq_tree, hf_mq_lpoo_defputresptype, tvb, offset + 20, 4, p_mq_parm->mq_int_enc);
                             proto_tree_add_item(mq_tree, hf_mq_lpoo_defreadahead, tvb, offset + 24, 4, p_mq_parm->mq_int_enc);
                             proto_tree_add_item(mq_tree, hf_mq_lpoo_propertyctl, tvb, offset + 28, 4, p_mq_parm->mq_int_enc);
-
+                            iPos += 32;
+                            if (iSize == 88)
+                            {
+                                proto_tree_add_item(mq_tree, hf_mq_lpoo_qprotect, tvb, offset + iPos, 48, p_mq_parm->mq_str_enc);
+                                proto_tree_add_item(mq_tree, hf_mq_lpoo_qprotect_val1, tvb, offset + iPos + 48, 4, p_mq_parm->mq_str_enc);
+                                proto_tree_add_item(mq_tree, hf_mq_lpoo_qprotect_val2, tvb, offset + iPos + 52, 4, p_mq_parm->mq_str_enc);
+                                iPos += 56;
+                            }
                             if (iVersion >= 1)
                             {
-                                proto_tree_add_item(mq_tree, hf_mq_lpoo_qprotect, tvb, offset + 32, 48, p_mq_parm->mq_str_enc);
-                                dissect_mq_MQOO(tvb, mq_tree, offset + 80, ett_mq_open_option, hf_mq_open_options, p_mq_parm);
-                                proto_tree_add_item(mq_tree, hf_mq_lpoo_xtradata, tvb, offset + 84, 4, p_mq_parm->mq_int_enc);
+                                guint iDistributionListSize2;
+                                iSize = dissect_mq_od(tvb, pinfo, mqroot_tree, offset + iPos, p_mq_parm, &iDistributionListSize2);
                             }
-                            offset += iSize;
+                            offset += iPos + iSize;
                             p_mq_parm->mq_strucID = (tvb_reported_length_remaining(tvb, offset) >= 4) ? tvb_get_ntohl(tvb, offset) : MQ_STRUCTID_NULL;
                             if (iXtraData > 0)
                             {
@@ -3870,8 +3933,8 @@ void proto_register_mq(void)
 
         {&hf_mq_id_StructID, {"Structid..", "mq.id.structid", FT_STRING, STR_UNICODE, NULL, 0x0, NULL, HFILL}},
         {&hf_mq_id_FapLevel, {"FAP level.", "mq.id.faplevel", FT_UINT8, BASE_DEC, NULL, 0x0, "ID Formats And Protocols level", HFILL}},
-        {&hf_mq_id_icf1, {"CapFlag1..", "mq.id.cflags", FT_UINT8, BASE_HEX, NULL, 0x0, "ID Capability Flags 1", HFILL}},
-        {&hf_mq_id_Eicf1, {"ECapFlag1.", "mq.id.ecflags", FT_UINT8, BASE_HEX, NULL, 0x0, "ID E Capability Flags 1", HFILL}},
+        {&hf_mq_id_cf1, {"CapFlag1..", "mq.id.cflags", FT_UINT8, BASE_HEX, NULL, 0x0, "ID Capability Flags 1", HFILL}},
+        {&hf_mq_id_ecf1, {"ECapFlag1.", "mq.id.ecflags", FT_UINT8, BASE_HEX, NULL, 0x0, "ID E Capability Flags 1", HFILL}},
         {&hf_mq_id_ief1, {"IniErrFlg1", "mq.id.inierrflg1", FT_UINT8, BASE_HEX, NULL, 0x0, "ID Initial Error Flags 1", HFILL}},
         {&hf_mq_id_Reserved, {"Reserved..", "mq.id.reserved", FT_UINT16, BASE_HEX, NULL, 0x0, "ID Reserved", HFILL}},
         {&hf_mq_id_MaxMsgBatch, {"MaxMsgBtch", "mq.id.maxmsgbatch", FT_UINT16, BASE_DEC, NULL, 0x0, "ID max msg per batch", HFILL}},
@@ -3879,8 +3942,8 @@ void proto_register_mq(void)
         {&hf_mq_id_MaxMsgSize, {"MaxMsgSize", "mq.id.maxmsgsize", FT_UINT32, BASE_DEC, NULL, 0x0, "ID max msg size", HFILL}},
         {&hf_mq_id_SeqWrapVal, {"SeqWrapVal", "mq.id.seqwrap", FT_UINT32, BASE_DEC, NULL, 0x0, "ID seq wrap value", HFILL}},
         {&hf_mq_id_channel, {"ChannelNme", "mq.id.channelname", FT_STRING, STR_UNICODE, NULL, 0x0, "ID channel name", HFILL}},
-        {&hf_mq_id_icf2, {"CapFlag2..", "mq.id.cflags2", FT_UINT8, BASE_HEX, NULL, 0x0, "ID Capability flags 2", HFILL}},
-        {&hf_mq_id_Eicf2, {"ECapFlag2.", "mq.id.ecflags2", FT_UINT8, BASE_HEX, NULL, 0x0, "ID E Capability flags 2", HFILL}},
+        {&hf_mq_id_cf2, {"CapFlag2..", "mq.id.cflags2", FT_UINT8, BASE_HEX, NULL, 0x0, "ID Capability flags 2", HFILL}},
+        {&hf_mq_id_ecf2, {"ECapFlag2.", "mq.id.ecflags2", FT_UINT8, BASE_HEX, NULL, 0x0, "ID E Capability flags 2", HFILL}},
         {&hf_mq_id_ccsid, {"ccsid.....", "mq.id.ccsid", FT_INT16, BASE_DEC | BASE_RANGE_STRING, RVALS(GET_VALRV(ccsid)), 0x0, "ID Coded Character Set ID", HFILL}},
         {&hf_mq_id_qmgrname, {"QMgrName..", "mq.id.qm", FT_STRING, STR_UNICODE, NULL, 0x0, "ID Queue Manager Name", HFILL}},
         {&hf_mq_id_HBInterval, {"HBInterval", "mq.id.hbint", FT_UINT32, BASE_DEC, NULL, 0x0, "ID Heartbeat interval", HFILL}},
@@ -3892,8 +3955,8 @@ void proto_register_mq(void)
         {&hf_mq_id_Reserved2, {"Reserved2.", "mq.id.reserved2", FT_UINT16, BASE_HEX_DEC, NULL, 0x0, "ID Reserved 2", HFILL}},
         {&hf_mq_id_SSLKeyRst, {"SSLKeyRst.", "mq.id.sslkeyrst", FT_UINT32, BASE_HEX_DEC, NULL, 0x0, "ID SSL Key Reset", HFILL}},
         {&hf_mq_id_ConvBySkt, {"ConvBySkt.", "mq.id.convbyskt", FT_INT32, BASE_DEC, NULL, 0x0, "ID Conv Per Socket", HFILL}},
-        {&hf_mq_id_icf3, {"CapFlag3..", "mq.id.cflags3", FT_UINT8, BASE_HEX_DEC, NULL, 0x0, "ID Capability flags 3", HFILL}},
-        {&hf_mq_id_Eicf3, {"ECapFlag3.", "mq.id.ecflags3", FT_UINT8, BASE_HEX_DEC, NULL, 0x0, "ID E Capability flags 3", HFILL}},
+        {&hf_mq_id_cf3, {"CapFlag3..", "mq.id.cflags3", FT_UINT8, BASE_HEX_DEC, NULL, 0x0, "ID Capability flags 3", HFILL}},
+        {&hf_mq_id_ecf3, {"ECapFlag3.", "mq.id.ecflags3", FT_UINT8, BASE_HEX_DEC, NULL, 0x0, "ID E Capability flags 3", HFILL}},
         {&hf_mq_id_Reserved3, {"Reserved3.", "mq.id.reserved3", FT_UINT16, BASE_HEX_DEC, NULL, 0x0, "ID Reserved 3", HFILL}},
         {&hf_mq_id_ProcessId, {"ProcessId.", "mq.id.processid", FT_UINT32, BASE_HEX_DEC, NULL, 0x0, "ID Process Identifier", HFILL}},
         {&hf_mq_id_ThreadId, {"ThreadId..", "mq.id.threadid", FT_UINT32, BASE_HEX_DEC, NULL, 0x0, "ID Thread Identifier", HFILL}},
@@ -3903,27 +3966,30 @@ void proto_register_mq(void)
         {&hf_mq_id_pal, {"PAL.......", "mq.id.pal", FT_BYTES, BASE_NONE, NULL, 0x0, "ID PAL", HFILL}},
         {&hf_mq_id_r, {"R.........", "mq.id.r", FT_BYTES, BASE_NONE, NULL, 0x0, "ID R", HFILL}},
 
-        {&hf_mq_id_icf1_msgseq, {"Message sequence", "mq.id.icf.msgseq", FT_BOOLEAN, 8, TFS(&tfs_set_notset), MQ_ICF1_MSG_SEQ, "ID ICF Message sequence", HFILL}},
-        {&hf_mq_id_icf1_convcap, {"Conversion capable", "mq.id.icf.convcap", FT_BOOLEAN, 8, TFS(&tfs_set_notset), MQ_ICF1_CONVERSION_CAPABLE, "ID ICF Conversion capable", HFILL}},
-        {&hf_mq_id_icf1_splitmsg, {"Split messages", "mq.id.icf.splitmsg", FT_BOOLEAN, 8, TFS(&tfs_set_notset), MQ_ICF1_SPLIT_MESSAGE, "ID ICF Split message", HFILL}},
-        {&hf_mq_id_icf1_RqstInit, {"Request Initiation", "mq.id.icf.rqstinit", FT_BOOLEAN, 8, TFS(&tfs_set_notset), MQ_ICF1_REQUEST_INITIATION, "ID ICF Request Initiation", HFILL}},
-        {&hf_mq_id_icf1_RqstSecu, {"Request Security", "mq.id.icf.rqstsecu", FT_BOOLEAN, 8, TFS(&tfs_set_notset), MQ_ICF1_REQUEST_SECURITY, "ID ICF Request Security", HFILL}},
-        {&hf_mq_id_icf1_mqreq, {"MQ request", "mq.id.icf.mqreq", FT_BOOLEAN, 8, TFS(&tfs_set_notset), MQ_ICF1_MQREQUEST, "ID ICF MQ request", HFILL}},
-        {&hf_mq_id_icf1_svrsec, {"Srvr Con security", "mq.id.icf.svrsec", FT_BOOLEAN, 8, TFS(&tfs_set_notset), MQ_ICF1_SVRCONN_SECURITY, "ID ICF Server connection security", HFILL}},
-        {&hf_mq_id_icf1_runtime, {"Runtime applic", "mq.id.icf.runtime", FT_BOOLEAN, 8, TFS(&tfs_set_notset), MQ_ICF1_RUNTIME, "ID ICF Runtime application", HFILL}},
+        {&hf_mq_id_cf1_msgseq, {"Message sequence", "mq.id.icf.msgseq", FT_BOOLEAN, 8, TFS(&tfs_set_notset), MQ_CF1_MSG_SEQ, "ID ICF Message sequence", HFILL}},
+        {&hf_mq_id_cf1_convcap, {"Conversion capable", "mq.id.icf.convcap", FT_BOOLEAN, 8, TFS(&tfs_set_notset), MQ_CF1_CONVERSION_CAPABLE, "ID ICF Conversion capable", HFILL}},
+        {&hf_mq_id_cf1_splitmsg, {"Split messages", "mq.id.icf.splitmsg", FT_BOOLEAN, 8, TFS(&tfs_set_notset), MQ_CF1_SPLIT_MESSAGE, "ID ICF Split message", HFILL}},
+        {&hf_mq_id_cf1_RqstInit, {"Request Initiation", "mq.id.icf.rqstinit", FT_BOOLEAN, 8, TFS(&tfs_set_notset), MQ_CF1_REQUEST_INITIATION, "ID ICF Request Initiation", HFILL}},
+        {&hf_mq_id_cf1_RqstSecu, {"Request Security", "mq.id.icf.rqstsecu", FT_BOOLEAN, 8, TFS(&tfs_set_notset), MQ_CF1_REQUEST_SECURITY, "ID ICF Request Security", HFILL}},
+        {&hf_mq_id_cf1_mqreq, {"MQ request", "mq.id.icf.mqreq", FT_BOOLEAN, 8, TFS(&tfs_set_notset), MQ_CF1_MQREQUEST, "ID ICF MQ request", HFILL}},
+        {&hf_mq_id_cf1_svrsec, {"Srvr Con security", "mq.id.icf.svrsec", FT_BOOLEAN, 8, TFS(&tfs_set_notset), MQ_CF1_SVRCONN_SECURITY, "ID ICF Server connection security", HFILL}},
+        {&hf_mq_id_cf1_runtime, {"Runtime applic", "mq.id.icf.runtime", FT_BOOLEAN, 8, TFS(&tfs_set_notset), MQ_CF1_RUNTIME, "ID ICF Runtime application", HFILL}},
 
-        {&hf_mq_id_icf2_CanDstLst, {"DistListCapable", "mq.id.icf2.distlistcap", FT_BOOLEAN, 8, TFS(&tfs_set_notset), MQ_ICF2_DIST_LIST_CAPABLE, "ID ICF2 Distribution List Capable", HFILL}},
-        {&hf_mq_id_icf2_FstMsgReq, {"Fast Msg Reqrd", "mq.id.icf2.fastmsgrqrd", FT_BOOLEAN, 8, TFS(&tfs_set_notset), MQ_ICF2_FAST_MESSAGES_REQUIRED, "ID ICF2 Fast Message Required", HFILL}},
-        {&hf_mq_id_icf2_RespConv, {"RspndrConversion", "mq.id.icf2.respndrconvers", FT_BOOLEAN, 8, TFS(&tfs_set_notset), MQ_ICF2_RESPONDER_CONVERSION, "ID ICF2 Responder Conversion", HFILL}},
-        {&hf_mq_id_icf2_XARequest, {"XARequest", "mq.id.icf2.xarequest", FT_BOOLEAN, 8, TFS(&tfs_set_notset), MQ_ICF2_XAREQUEST, "ID ICF2 XA Request", HFILL}},
-        {&hf_mq_id_icf2_XARunTApp, {"XARunTypApp", "mq.id.icf2.xaruntypapp", FT_BOOLEAN, 8, TFS(&tfs_set_notset), MQ_ICF2_XARUNTIME_APP, "ID ICF2 XA Runtime App", HFILL}},
-        {&hf_mq_id_icf2_SPIRqst, {"SPIRequest", "mq.id.icf2.spirequest", FT_BOOLEAN, 8, TFS(&tfs_set_notset), MQ_ICF2_SPIREQUEST, "ID ICF2 SPI Request", HFILL}},
-        {&hf_mq_id_icf2_DualUOW, {"DualUOW", "mq.id.icf2.dualuow", FT_BOOLEAN, 8, TFS(&tfs_set_notset), MQ_ICF2_DUAL_UOW, "ID ICF2 Dual UOW", HFILL}},
-        {&hf_mq_id_icf2_CanTrcRte, {"Trace Rte Capab", "mq.id.icf2.cantraceroute", FT_BOOLEAN, 8, TFS(&tfs_set_notset), MQ_ICF2_TRACE_ROUTE_CAPABLE, "ID ICF2 Trace Route Capable", HFILL}},
+        {&hf_mq_id_cf2_CanDstLst, {"DistListCapable", "mq.id.icf2.distlistcap", FT_BOOLEAN, 8, TFS(&tfs_set_notset), MQ_CF2_DIST_LIST_CAPABLE, "ID ICF2 Distribution List Capable", HFILL}},
+        {&hf_mq_id_cf2_FstMsgReq, {"Fast Msg Reqrd", "mq.id.icf2.fastmsgrqrd", FT_BOOLEAN, 8, TFS(&tfs_set_notset), MQ_CF2_FAST_MESSAGES_REQUIRED, "ID ICF2 Fast Message Required", HFILL}},
+        {&hf_mq_id_cf2_RespConv, {"RspndrConversion", "mq.id.icf2.respndrconvers", FT_BOOLEAN, 8, TFS(&tfs_set_notset), MQ_CF2_RESPONDER_CONVERSION, "ID ICF2 Responder Conversion", HFILL}},
+        {&hf_mq_id_cf2_XARequest, {"XARequest", "mq.id.icf2.xarequest", FT_BOOLEAN, 8, TFS(&tfs_set_notset), MQ_CF2_XAREQUEST, "ID ICF2 XA Request", HFILL}},
+        {&hf_mq_id_cf2_XARunTApp, {"XARunTypApp", "mq.id.icf2.xaruntypapp", FT_BOOLEAN, 8, TFS(&tfs_set_notset), MQ_CF2_XARUNTIME_APP, "ID ICF2 XA Runtime App", HFILL}},
+        {&hf_mq_id_cf2_SPIRqst, {"SPIRequest", "mq.id.icf2.spirequest", FT_BOOLEAN, 8, TFS(&tfs_set_notset), MQ_CF2_SPIREQUEST, "ID ICF2 SPI Request", HFILL}},
+        {&hf_mq_id_cf2_DualUOW, {"DualUOW", "mq.id.icf2.dualuow", FT_BOOLEAN, 8, TFS(&tfs_set_notset), MQ_CF2_DUAL_UOW, "ID ICF2 Dual UOW", HFILL}},
+        {&hf_mq_id_cf2_CanTrcRte, {"Trace Rte Capab", "mq.id.icf2.cantraceroute", FT_BOOLEAN, 8, TFS(&tfs_set_notset), MQ_CF2_TRACE_ROUTE_CAPABLE, "ID ICF2 Trace Route Capable", HFILL}},
 
-        {&hf_mq_id_icf3_CanMsgPrp, {"Msg Property Cap", "mq.id.ief3.msgpropertycap", FT_BOOLEAN, 8, TFS(&tfs_set_notset), MQ_ICF3_MSG_PROP_CAPABLE, "ID ICF3 Message PropertyCapable", HFILL}},
-        {&hf_mq_id_icf3_CanMulticast, {"Multicast Cap", "mq.id.ief3.multicastcap", FT_BOOLEAN, 8, TFS(&tfs_set_notset), MQ_ICF3_MULTICAST_CAPABLE, "ID ICF3 Mutlicast Capabilities", HFILL}},
-        {&hf_mq_id_icf3_MPlxSyGet, {"Multiplex_synchget", "mq.id.ief3.multiplexsynchget", FT_BOOLEAN, 8, TFS(&tfs_set_notset), MQ_ICF3_MULTIPLEX_SYNCGET, "ID ICF3 MULTIPLEX_SYNCGET", HFILL}},
+        {&hf_mq_id_cf3_CanMsgPrp, {"Msg Property Cap", "mq.id.ief3.msgpropertycap", FT_BOOLEAN, 8, TFS(&tfs_set_notset), MQ_CF3_MSG_PROP_CAPABLE, "ID ICF3 Message PropertyCapable", HFILL}},
+        {&hf_mq_id_cf3_CanMulticast, {"Multicast Cap", "mq.id.ief3.multicastcap", FT_BOOLEAN, 8, TFS(&tfs_set_notset), MQ_CF3_MULTICAST_CAPABLE, "ID ICF3 Mutlicast Capabilities", HFILL}},
+        {&hf_mq_id_cf3_PropIntSep, {"Prop Int Separate", "mq.id.ief3.propintseparate", FT_BOOLEAN, 8, TFS(&tfs_set_notset), MQ_CF3_MSG_PROP_INT_SEPARATE, "ID ICF3 Properety Int Separate", HFILL}},
+        {&hf_mq_id_cf3_MPlxSyGet, {"Multiplex_synchget", "mq.id.ief3.multiplexsynchget", FT_BOOLEAN, 8, TFS(&tfs_set_notset), MQ_CF3_MULTIPLEX_SYNCGET, "ID ICF3 MULTIPLEX_SYNCGET", HFILL}},
+        {&hf_mq_id_cf3_ProtAlgorit, {"Prot Algorithms", "mq.id.ief3.protalgorithms", FT_BOOLEAN, 8, TFS(&tfs_set_notset), MQ_CF3_PROT_ALGORITHMS, "ID ICF3 Prot Algorithms", HFILL}},
+        {&hf_mq_id_cf3_CanGenConnTag, {"Gen ConnTag Cap", "mq.id.ief3.genconntagcap", FT_BOOLEAN, 8, TFS(&tfs_set_notset), MQ_CF3_GEN_CONNTAG_CAP, "ID ICF3 Generate ConnTag Capable", HFILL}},
 
         {&hf_mq_id_ief1_ccsid, {"Invalid CCSID", "mq.id.ief1.ccsid", FT_BOOLEAN, 8, TFS(&tfs_set_notset), MQ_IEF1_CCSID_NOT_SUPPORTED, "ID invalid CCSID", HFILL}},
         {&hf_mq_id_ief1_enc, {"Invalid encoding", "mq.id.ief1.enc", FT_BOOLEAN, 8, TFS(&tfs_set_notset), MQ_IEF1_ENCODING_INVALID, "ID invalid encoding", HFILL}},
@@ -3937,12 +4003,6 @@ void proto_register_mq(void)
         {&hf_mq_id_ief2_HdrCmpLst, {"Invalid HDR CompLst", "mq.id.ief2.hdrcomplst", FT_BOOLEAN, 8, TFS(&tfs_set_notset), MQ_IEF2_HDRCOMPLIST, "ID invalid Header Compression List", HFILL}},
         {&hf_mq_id_ief2_MsgCmpLst, {"Invalid Msg CompLst", "mq.id.ief2.msgcomplst", FT_BOOLEAN, 8, TFS(&tfs_set_notset), MQ_IEF2_MSGCOMPLIST, "ID invalid Message Compression List", HFILL}},
         {&hf_mq_id_ief2_SSLReset, {"Invalid SSL Reset", "mq.id.ief2.sslreset", FT_BOOLEAN, 8, TFS(&tfs_set_notset), MQ_IEF2_SSL_RESET, "ID invalid SSL Reset", HFILL}},
-
-        {&hf_mq_id_ief3_CanMsgPrp, {"Invalid Property Cap", "mq.id.ief3.msgpropertycap", FT_BOOLEAN, 8, TFS(&tfs_set_notset), MQ_IEF3_MSG_PROP_CAPABLE, "ID invalid Message PropertyCapable", HFILL}},
-        {&hf_mq_id_ief3_CanMulticast, {"Invalid Multicast Cap", "mq.id.ief3.multicastcap", FT_BOOLEAN, 8, TFS(&tfs_set_notset), MQ_IEF3_MULTICAST_CAPABLE, "ID invalid Mutlicast Capabilities", HFILL}},
-        {&hf_mq_id_ief3_PropIntSep, {"Invalid Prop Int Separate", "mq.id.ief3.propintseparate", FT_BOOLEAN, 8, TFS(&tfs_set_notset), MQ_IEF3_MSG_PROP_INT_SEPARATE, "ID invalid Properety Int Separate", HFILL}},
-        {&hf_mq_id_ief3_MPlxSyGet, {"Invalid Multiplex_synchget", "mq.id.ief3.multiplexsynchget", FT_BOOLEAN, 8, TFS(&tfs_set_notset), MQ_IEF3_MULTIPLEX_SYNCGET, "ID invalid MULTIPLEX_SYNCGET", HFILL}},
-        {&hf_mq_id_ief3_ProtAlgorit, {"Invalid Prot Algorithms", "mq.id.ief3.protalgorithms", FT_BOOLEAN, 8, TFS(&tfs_set_notset), MQ_IEF3_PROT_ALGORITHMS, "ID invalid Prot Algorithms", HFILL}},
 
         {&hf_mq_uid_StructID, {"Structid", "mq.uid.structid", FT_STRING, STR_UNICODE, NULL, 0x0, NULL, HFILL}},
         {&hf_mq_uid_userid, {"User ID.", "mq.uid.userid", FT_STRING, STR_UNICODE, NULL, 0x0, "UID structid", HFILL}},
@@ -3960,15 +4020,17 @@ void proto_register_mq(void)
         {&hf_mq_conn_options, {"Options.", "mq.conn.options", FT_UINT32, BASE_DEC, VALS(mq_conn_options_vals), 0x0, "CONN options", HFILL}},
         {&hf_mq_conn_Xoptions, {"XOptions", "mq.conn.xoptions", FT_UINT32, BASE_HEX, NULL, 0x0, "CONN Xoptions", HFILL}},
 
-        {&hf_mq_fcno_StructID, {"StructId.", "mq.fcno.structid", FT_STRING, STR_UNICODE, NULL, 0x0, NULL, HFILL}},
-        {&hf_mq_fcno_version, {"version..", "mq.fcno.version", FT_UINT32, BASE_HEX_DEC, NULL, 0x0, "FCNO version", HFILL}},
-        {&hf_mq_fcno_option, {"Option...", "mq.fcno.option", FT_UINT32, BASE_HEX_DEC, NULL, 0x0, "FCNO option", HFILL}},
-        {&hf_mq_fcno_connid, {"connId...", "mq.fcno.connid", FT_STRING, STR_UNICODE, NULL, 0x0, "FCNO Connection ID", HFILL}},
+        {&hf_mq_fcno_StructID, {"StructId..", "mq.fcno.structid", FT_STRING, STR_UNICODE, NULL, 0x0, NULL, HFILL}},
+        {&hf_mq_fcno_version, {"version...", "mq.fcno.version", FT_UINT32, BASE_HEX_DEC, NULL, 0x0, "FCNO version", HFILL}},
+        {&hf_mq_fcno_capflag, {"CapFlag...", "mq.fcno.capflag", FT_UINT32, BASE_HEX_DEC, NULL, 0x0, "FCNO Capability Flag", HFILL}},
 
-        {&hf_mq_fcno_unknowb01, {"unknowb01", "mq.fcno.unknowb01", FT_BYTES, BASE_NONE, NULL, 0x0, "FCNO unknown bytes 01", HFILL}},
+        {&hf_mq_fcno_prodid, {"prodid....", "mq.fcno.prodid", FT_STRING, STR_UNICODE, NULL, 0x0, "FCNO Product Id", HFILL}},
+        {&hf_mq_fcno_mqmid,  {"MqmId.....", "mq.fcno.mqmid", FT_STRING, STR_UNICODE, NULL, 0x0, "FCNO Mqm ID", HFILL}},
 
-        {&hf_mq_fcno_prodid, {"prodid...", "mq.fcno.prodid", FT_STRING, STR_UNICODE, NULL, 0x0, "FCNO Product Id", HFILL}},
-        {&hf_mq_fcno_mqmid, {"MqmId....", "mq.fcno.mqmid", FT_STRING, STR_UNICODE, NULL, 0x0, "FCNO Mqm ID", HFILL}},
+        {&hf_mq_fcno_conn_tag, {"conntag...", "mq.fcno.conntag", FT_BYTES, BASE_NONE, NULL, 0x0, "FCNO Connection Tag", HFILL}},
+        {&hf_mq_fcno_retconn_tag, {"retconntag", "mq.fcno.retconntag", FT_BYTES, BASE_NONE, NULL, 0x0, "FCNO Retry Connection Tag", HFILL}},
+        {&hf_mq_fcno_unknowb01, {"unknowb01.", "mq.fcno.unknowb01", FT_BYTES, BASE_NONE, NULL, 0x0, "FCNO unknown bytes 01", HFILL}},
+
 
         {&hf_mq_inq_nbsel, {"Selector count..", "mq.inq.nbsel", FT_UINT32, BASE_DEC, NULL, 0x0, "INQ Selector count", HFILL}},
         {&hf_mq_inq_nbint, {"Integer count...", "mq.inq.nbint", FT_UINT32, BASE_DEC, NULL, 0x0, "INQ Integer count", HFILL}},
@@ -4047,6 +4109,10 @@ void proto_register_mq(void)
         {&hf_mq_fopa_DefPutRespType, {"DefPutRespType.", "mq.fopa.defputresponsetype", FT_INT32, BASE_DEC, VALS(GET_VALSV(MQPRT)), 0x0, "FOPA DefPutRespType", HFILL}},
         {&hf_mq_fopa_DefReadAhead, {"DefReadAhead...", "mq.fopa.defreadahaed", FT_INT32, BASE_DEC, VALS(GET_VALSV(MQREADA)), 0x0, "FOPA DefReadAhead", HFILL}},
         {&hf_mq_fopa_PropertyControl, {"PropertyControl", "mq.fopa.propertycontrol", FT_INT32, BASE_DEC, VALS(GET_VALSV(MQPROP)), 0x0, "FOPA PropertyControl", HFILL}},
+        {&hf_mq_fopa_Unknown, {"Unknown........", "mq.fopa.unknown", FT_BYTES, BASE_NONE, NULL, 0x0, "FOPA Unknown", HFILL}},
+
+        {&hf_mq_fcmi_StructID, {"StructId.......", "mq.fcmi.structid", FT_STRING, STR_UNICODE, NULL, 0x0, NULL, HFILL}},
+        {&hf_mq_fcmi_unknown, {"Unknown........", "mq.fcmi.unknown", FT_UINT32, BASE_DEC, NULL, 0x0, "FCMI Unknown", HFILL}},
 
         {&hf_mq_msgreq_version, {"version..", "mq.msgreq.version", FT_UINT32, BASE_HEX_DEC, NULL, 0x0, "MSGREQ version", HFILL}},
         {&hf_mq_msgreq_handle, {"handle...", "mq.msgreq.handle", FT_UINT32, BASE_HEX, NULL, 0x0, "MSGREQ handle", HFILL}},
@@ -4231,10 +4297,11 @@ void proto_register_mq(void)
         {&hf_mq_gmo_reserved, {"Reserved.", "mq.gmo.reserved", FT_UINT8, BASE_HEX, NULL, 0x0, "GMO reserved", HFILL}},
         {&hf_mq_gmo_msgtoken, {"MsgToken.", "mq.gmo.msgtoken", FT_BYTES, BASE_NONE, NULL, 0x0, "GMO message token", HFILL}},
         {&hf_mq_gmo_returnedlen, {"RtnLength", "mq.gmo.retlen", FT_INT32, BASE_DEC, NULL, 0x0, "GMO returned length", HFILL}},
+        {&hf_mq_gmo_reserved2, {"Reserved2", "mq.gmo.reserved2", FT_INT32, BASE_DEC, NULL, 0x0, "GMO reserved2", HFILL}},
+        {&hf_mq_gmo_msghandle, {"MsgHandle", "mq.gmo.msghandle", FT_UINT64, BASE_DEC | BASE_HEX, NULL, 0x0, "GMO Message Handle", HFILL}},
 
         {&hf_mq_lpoo_StructID, {"StructID......", "mq.lpoo.structid", FT_STRING, STR_UNICODE, NULL, 0x0, NULL, HFILL}},
         {&hf_mq_lpoo_version, {"version.......", "mq.lpoo.version", FT_UINT32, BASE_DEC, NULL, 0x0, "LPOO version", HFILL}},
-        {&hf_mq_lpoo_lpivers, {"LpiVersion....", "mq.lpoo.lpivers", FT_UINT32, BASE_HEX, NULL, 0x0, "LPOO Lpi Version", HFILL}},
         {&hf_mq_lpoo_lpiopts, {"lpiopts.......", "mq.lpoo.lpioopts", FT_UINT32, BASE_HEX, NULL, 0x0, "LPOO Lpi Options", HFILL}},
 
         {&hf_mq_lpoo_lpiopts_SAVE_USER_CTXT, {"SAVE_USER_CTXT", "mq.lpoo.opts.SAVE_USER_CTXT", FT_BOOLEAN, 32, TFS(&tfs_set_notset), MQ_LPOO_SAVE_USER_CTXT, "LPOO options SAVE_USER_CTXT", HFILL}},
@@ -4246,7 +4313,8 @@ void proto_register_mq(void)
         {&hf_mq_lpoo_defreadahead, {"DefReadAHead..", "mq.lpoo.defreadahead", FT_INT32, BASE_DEC, VALS(GET_VALSV(MQREADA)), 0x0, "LPOO Default Read AHead", HFILL}},
         {&hf_mq_lpoo_propertyctl, {"PropertyCtl...", "mq.lpoo.propertyctl", FT_INT32, BASE_DEC, NULL, 0x0, "LPOO Property Control", HFILL}},
         {&hf_mq_lpoo_qprotect, {"qprotect......", "mq.lpoo.qprotect", FT_STRING, STR_UNICODE, NULL, 0x0, "LPOO queue protection", HFILL}},
-        {&hf_mq_lpoo_xtradata, {"ExtraData.....", "mq.lpoo.extradata", FT_INT32, BASE_DEC, NULL, 0x0, "LPOO Extra Data", HFILL}},
+        {&hf_mq_lpoo_qprotect_val1, {"qprotect_val1.", "mq.lpoo.qprotect.val2", FT_INT32, BASE_DEC, NULL, 0x0, "LPOO queue protection val1", HFILL}},
+        {&hf_mq_lpoo_qprotect_val2, {"qprotect_val2.", "mq.lpoo.qprotect.val1", FT_INT32, BASE_DEC, NULL, 0x0, "LPOO queue protection val2", HFILL}},
 
         {&hf_mq_pmo_StructID, {"StructID...", "mq.pmo.structid", FT_STRING, STR_UNICODE, NULL, 0x0, NULL, HFILL}},
         {&hf_mq_pmo_version, {"Version....", "mq.pmo.version", FT_UINT32, BASE_DEC, NULL, 0x0, "PMO version", HFILL}},
@@ -4453,12 +4521,12 @@ void proto_register_mq(void)
         &ett_mq_caut,
         &ett_mq_xqh,
         &ett_mq_id,
-        &ett_mq_id_icf1,
-        &ett_mq_id_icf2,
-        &ett_mq_id_icf3,
-        &ett_mq_id_eicf1,
-        &ett_mq_id_eicf2,
-        &ett_mq_id_eicf3,
+        &ett_mq_id_cf1,
+        &ett_mq_id_cf2,
+        &ett_mq_id_cf3,
+        &ett_mq_id_ecf1,
+        &ett_mq_id_ecf2,
+        &ett_mq_id_ecf3,
         &ett_mq_id_ief1,
         &ett_mq_id_ief2,
         &ett_mq_uid,
