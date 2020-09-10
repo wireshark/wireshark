@@ -65,6 +65,7 @@
 #define MQ_STRUCTID_DLH           0x444C4820
 #define MQ_STRUCTID_FCNO          0x46434E4F
 #define MQ_STRUCTID_FOPA          0x464F5041
+#define MQ_STRUCTID_FCMI          0x46434D49
 #define MQ_STRUCTID_GMO           0x474D4F20
 #define MQ_STRUCTID_ID            0x49442020
 #define MQ_STRUCTID_IIH           0x49494820
@@ -115,6 +116,7 @@
 #define MQ_STRUCTID_DLH_EBCDIC    0xC4D3C840
 #define MQ_STRUCTID_FCNO_EBCDIC   0xC6C3D5D6
 #define MQ_STRUCTID_FOPA_EBCDIC   0xC6D6D7C1
+#define MQ_STRUCTID_FCMI_EBCDIC   0xC6C3D4C9
 #define MQ_STRUCTID_GMO_EBCDIC    0xC7D4D640
 #define MQ_STRUCTID_ID_EBCDIC     0xC9C44040
 #define MQ_STRUCTID_IIH_EBCDIC    0xC9C9C840
@@ -448,6 +450,7 @@
 #define MQ_TEXT_SPOO  "SPI Out"
 #define MQ_TEXT_LPOO  "LPOO"
 #define MQ_TEXT_FOPA  "FOPA"
+#define MQ_TEXT_FCMI  "FCMI"
 
 /* Documented structures with structid */
 #define MQ_TEXT_CIH  "CICS bridge Header"
@@ -714,6 +717,7 @@ typedef struct _mq_parm_t
 #define MQ_MQCNO_ALL_CONVS_SHARE          0x00040000
 #define MQ_MQCNO_CD_FOR_OUTPUT_ONLY       0x00080000
 #define MQ_MQCNO_USE_CD_SELECTION         0x00100000
+#define MQ_MQCNO_GENERATE_CONN_TAG        0x00200000
 #define MQ_MQCNO_RECONNECT_AS_DEF         0x00000000
 #define MQ_MQCNO_RECONNECT                0x01000000
 #define MQ_MQCNO_RECONNECT_DISABLED       0x02000000
@@ -1563,6 +1567,7 @@ typedef struct _mq_parm_t
 #define MQ_MQRC_TARGET_LENGTH_ERROR       2144
 #define MQ_MQRC_SOURCE_BUFFER_ERROR       2145
 #define MQ_MQRC_TARGET_BUFFER_ERROR       2146
+#define MQ_MQRC_INCOMPLETE_TRANSACTION    2147
 #define MQ_MQRC_IIH_ERROR                 2148
 #define MQ_MQRC_PCF_ERROR                 2149
 #define MQ_MQRC_DBCS_ERROR                2150
@@ -1959,6 +1964,13 @@ typedef struct _mq_parm_t
 #define MQ_MQRC_ADMIN_TOPIC_STRING_ERROR  2598
 #define MQ_MQRC_AMQP_NOT_AVAILABLE        2599
 #define MQ_MQRC_CCDT_URL_ERROR            2600
+#define MQ_MQRC_Q_MGR_RECONNECT_REQUESTED 2601
+#define MQ_MQRC_LIBRARY_LOAD_ERROR        6000
+#define MQ_MQRC_CLASS_LIBRARY_ERROR       6001
+#define MQ_MQRC_STRING_LENGTH_TOO_BIG     6002
+#define MQ_MQRC_WRITE_VALUE_ERROR         6003
+#define MQ_MQRC_PACKED_DECIMAL_ERROR      6004
+#define MQ_MQRC_FLOAT_CONVERSION_ERROR    6005
 #define MQ_MQRC_REOPEN_EXCL_INPUT_ERROR   6100
 #define MQ_MQRC_REOPEN_INQUIRE_ERROR      6101
 #define MQ_MQRC_REOPEN_SAVED_CONTEXT_ERR  6102
@@ -2089,6 +2101,9 @@ typedef struct _mq_parm_t
 #define MQ_MQREORG_DISABLED               0
 #define MQ_MQREORG_ENABLED                1
 
+/* Max queue file size values */
+#define MQ_MQQFS_DEFAULT                  (-1)
+
 /* Read Ahead Values */
 #define MQ_MQREADA_NO                     0
 #define MQ_MQREADA_YES                    1
@@ -2210,7 +2225,12 @@ typedef struct _mq_parm_t
 #define MQ_MQCMDL_LEVEL_904               904
 #define MQ_MQCMDL_LEVEL_905               905
 #define MQ_MQCMDL_LEVEL_910               910
-#define MQ_MQCMDL_CURRENT_LEVEL           910
+#define MQ_MQCMDL_LEVEL_911               911
+#define MQ_MQCMDL_LEVEL_912               912
+#define MQ_MQCMDL_LEVEL_913               913
+#define MQ_MQCMDL_LEVEL_914               914
+#define MQ_MQCMDL_LEVEL_915               915
+#define MQ_MQCMDL_LEVEL_920               920
 
 /* Key reuse count */
 #define MQ_MQKEY_REUSE_DISABLED           0
@@ -2798,7 +2818,7 @@ typedef struct _mq_parm_t
 #define MQ_MQIA_IP_ADDRESS_VERSION        93
 #define MQ_MQIA_KEY_REUSE_COUNT           267
 #define MQ_MQIA_LAST                      2000
-#define MQ_MQIA_LAST_USED                 272
+#define MQ_MQIA_LAST_USED                 274
 #define MQ_MQIA_LDAP_AUTHORMD             263
 #define MQ_MQIA_LDAP_NESTGRP              264
 #define MQ_MQIA_LDAP_SECURE_COMM          261
@@ -2818,6 +2838,7 @@ typedef struct _mq_parm_t
 #define MQ_MQIA_MAX_PRIORITY              14
 #define MQ_MQIA_MAX_PROPERTIES_LENGTH     192
 #define MQ_MQIA_MAX_Q_DEPTH               15
+#define MQ_MQIA_MAX_Q_FILE_SIZE           274
 #define MQ_MQIA_MAX_Q_TRIGGERS            90
 #define MQ_MQIA_MAX_RECOVERY_TASKS        171
 #define MQ_MQIA_MAX_RESPONSES             230
@@ -2827,6 +2848,7 @@ typedef struct _mq_parm_t
 #define MQ_MQIA_MEDIA_IMAGE_LOG_LENGTH    270
 #define MQ_MQIA_MEDIA_IMAGE_RECOVER_OBJ   271
 #define MQ_MQIA_MEDIA_IMAGE_RECOVER_Q     272
+#define MQ_MQIA_ADVANCED_CAPABILITY       273
 #define MQ_MQIA_MEDIA_IMAGE_SCHEDULING    268
 #define MQ_MQIA_MONITORING_AUTO_CLUSSDR   124
 #define MQ_MQIA_MONITORING_CHANNEL        122
@@ -3245,6 +3267,10 @@ typedef struct _mq_parm_t
 #define MQ_MQCMD_INQUIRE_XR_CAPABILITY    214
 #define MQ_MQCMD_INQUIRE_AMQP_CAPABILITY  216
 #define MQ_MQCMD_AMQP_DIAGNOSTICS         217
+#define MQ_MQCMD_INTER_Q_MGR_STATUS       218
+#define MQ_MQCMD_INTER_Q_MGR_BALANCE      219
+#define MQ_MQCMD_INQUIRE_APPL_STATUS      220
+
 
 /* Control Options */
 #define MQ_MQCFC_LAST                     1
@@ -3477,7 +3503,8 @@ typedef struct _mq_parm_t
 #define MQ_MQRCCF_WRONG_CHLAUTH_MATCH     3342
 #define MQ_MQRCCF_IPADDR_RANGE_CONFLICT   3343
 #define MQ_MQRCCF_CHLAUTH_MAX_EXCEEDED    3344
-#define MQ_MQRCCF_IPADDR_ERROR            3345
+/* #define MQ_MQRCCF_IPADDR_ERROR            3345*/
+#define MQ_MQRCCF_ADDRESS_ERROR           3345
 #define MQ_MQRCCF_IPADDR_RANGE_ERROR      3346
 #define MQ_MQRCCF_PROFILE_NAME_MISSING    3347
 #define MQ_MQRCCF_CHLAUTH_CLNTUSER_ERROR  3348
@@ -3515,6 +3542,7 @@ typedef struct _mq_parm_t
 #define MQ_MQRCCF_LOG_NOT_REDUCED         3380
 #define MQ_MQRCCF_LOG_EXTENT_ERROR        3381
 #define MQ_MQRCCF_ACCESS_BLOCKED          3382
+#define MQ_MQRCCF_PS_REQUIRED_MQUC        3383
 #define MQ_MQRCCF_OBJECT_ALREADY_EXISTS   4001
 #define MQ_MQRCCF_OBJECT_WRONG_TYPE       4002
 #define MQ_MQRCCF_LIKE_OBJECT_WRONG_TYPE  4003
@@ -3605,6 +3633,8 @@ typedef struct _mq_parm_t
 #define MQ_MQRCCF_SSL_PEER_NAME_ERROR     4093
 #define MQ_MQRCCF_SSL_CLIENT_AUTH_ERROR   4094
 #define MQ_MQRCCF_RETAINED_NOT_SUPPORTED  4095
+#define MQ_MQRCCF_KWD_VALUE_WRONG_TYPE    4096
+#define MQ_MQRCCF_APPL_STATUS_NOT_FOUND   4097
 
 /* Flags */
 #define MQ_MQEPH_NONE                     0x00000000
@@ -3650,6 +3680,7 @@ typedef struct _mq_parm_t
 #define MQ_MQCFT_INTEGER64                23
 #define MQ_MQCFT_INTEGER64_LIST           25
 #define MQ_MQCFT_APP_ACTIVITY             26
+#define MQ_MQCFT_STATUS                   27
 
 /* Major Release Function */
 #define MQ_MQOPMODE_COMPAT                0
@@ -3694,7 +3725,10 @@ typedef struct _mq_parm_t
 #define MQ_MQBACF_XA_XID                  7033
 #define MQ_MQBACF_XQH_CORREL_ID           7034
 #define MQ_MQBACF_XQH_MSG_ID              7035
-#define MQ_MQBACF_LAST_USED               7035
+#define MQ_MQBACF_REQUEST_ID              7036
+#define MQ_MQBACF_PROPERTIES_DATA         7037
+#define MQ_MQBACF_CONN_TAG                7038
+#define MQ_MQBACF_LAST_USED               7038
 
 /****************************************************************/
 /* Values Related to Integer Parameter Structures               */
@@ -4219,7 +4253,23 @@ typedef struct _mq_parm_t
 #define MQ_MQIACF_LOG_IN_USE              1420
 #define MQ_MQIACF_LOG_UTILIZATION         1421
 #define MQ_MQIACF_LOG_REDUCTION           1422
-#define MQ_MQIACF_LAST_USED               1422
+#define MQ_MQIACF_IGNORE_STATE            1423
+#define MQ_MQIACF_MOVABLE_APPL_COUNT      1424
+#define MQ_MQIACF_APPL_INFO_ATTRS         1425
+#define MQ_MQIACF_APPL_MOVABLE            1426
+#define MQ_MQIACF_REMOTE_QMGR_ACTIVE      1427
+#define MQ_MQIACF_APPL_INFO_TYPE          1428
+#define MQ_MQIACF_APPL_INFO_APPL          1429
+#define MQ_MQIACF_APPL_INFO_QMGR          1430
+#define MQ_MQIACF_APPL_INFO_LOCAL         1431
+#define MQ_MQIACF_APPL_IMMOVABLE_COUNT    1432
+#define MQ_MQIACF_BALANCED                1433
+#define MQ_MQIACF_BALSTATE                1434
+#define MQ_MQIACF_APPL_IMMOVABLE_REASON   1435
+#define MQ_MQIACF_DS_ENCRYPTED            1436
+#define MQ_MQIACF_CUR_Q_FILE_SIZE         1437
+#define MQ_MQIACF_CUR_MAX_FILE_SIZE       1438
+#define MQ_MQIACF_LAST_USED               1438
 
 /* Access Options */
 #define MQ_MQCFACCESS_ENABLED             0
@@ -4389,7 +4439,8 @@ typedef struct _mq_parm_t
 #define MQ_MQIACH_PROTOCOL                1643
 #define MQ_MQIACH_AMQP_KEEP_ALIVE         1644
 #define MQ_MQIACH_SECURITY_PROTOCOL       1645
-#define MQ_MQIACH_LAST_USED               1645
+#define MQ_MQIACH_SPL_PROTECTION          1646
+#define MQ_MQIACH_LAST_USED               1646
 
 
 /****************************************************************/
@@ -4617,7 +4668,9 @@ typedef struct _mq_parm_t
 #define MQ_MQCACF_CSP_USER_IDENTIFIER     3206
 #define MQ_MQCACF_AMQP_CLIENT_ID          3207
 #define MQ_MQCACF_ARCHIVE_LOG_EXTENT_NAME 3208
-#define MQ_MQCACF_LAST_USED               3208
+#define MQ_MQCACF_APPL_IMMOVABLE_DATE     3209
+#define MQ_MQCACF_APPL_IMMOVABLE_TIME     3210
+#define MQ_MQCACF_LAST_USED               3210
 
 /* Character Channel Parameter Types */
 #define MQ_MQCACH_FIRST                   3501
@@ -4705,7 +4758,11 @@ typedef struct _mq_parm_t
 #define MQ_MQGACF_MONITOR_CLASS           8015
 #define MQ_MQGACF_MONITOR_TYPE            8016
 #define MQ_MQGACF_MONITOR_ELEMENT         8017
-#define MQ_MQGACF_LAST_USED               8017
+#define MQ_MQGACF_APPL_STATUS             8018
+#define MQ_MQGACF_CHANGED_APPLS           8019
+#define MQ_MQGACF_ALL_APPLS               8020
+#define MQ_MQGACF_APPL_BALANCE            8021
+#define MQ_MQGACF_LAST_USED               8021
 
 
 /****************************************************************/
@@ -4724,6 +4781,39 @@ typedef struct _mq_parm_t
 #define MQ_MQACT_FAIL                     9
 #define MQ_MQACT_REDUCE_LOG               10
 #define MQ_MQACT_ARCHIVE_LOG              11
+
+
+ /* State Options */
+#define MQIS_NO                        0
+#define MQIS_YES                       1
+
+/* Movable Options */
+#define MQAPPL_IMMOVABLE               0
+#define MQAPPL_MOVABLE                 1
+
+/* Active Options */
+#define MQ_MQACTIVE_NO                    0
+#define MQ_MQACTIVE_YES                   1
+
+/* Balance Options */
+#define MQ_MQBALANCED_NO                  0
+#define MQ_MQBALANCED_YES                 1
+#define MQ_MQBALANCED_NOT_APPLICABLE      2
+#define MQ_MQBALANCED_UNKNOWN             3
+
+/* Balance State */
+#define MQ_MQBALSTATE_NOT_APPLICABLE      0
+#define MQ_MQBALSTATE_LOW                 1
+#define MQ_MQBALSTATE_OK                  2
+#define MQ_MQBALSTATE_HIGH                3
+#define MQ_MQBALSTATE_UNKNOWN             4
+
+/* Immovable Reasons */
+#define MQ_MQIMMREASON_NONE               0
+#define MQ_MQIMMREASON_NOT_CLIENT         1
+#define MQ_MQIMMREASON_NOT_RECONNECTABLE  2
+#define MQ_MQIMMREASON_MOVING             3
+#define MQ_MQIMMREASON_APPLNAME_CHANGED   4
 
 /* Asynchronous State Values */
 #define MQ_MQAS_NONE                      0

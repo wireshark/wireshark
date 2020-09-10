@@ -15,13 +15,13 @@
   *
   *   The MQ Programmable Command Formats API allows remotely configuring a queue manager.
   *
-  *   MQ PCF documentation is called "WebSphere MQ Programmable Command
+  *   MQ PCF documentation is called "WebSphere MQ Programmable Command Formats and Administration Interface"
   *   Formats and Administration Interface"
   *
   *   See:
   *
   *       ftp://public.dhe.ibm.com/software/integration/wmq/docs/V7.0/PDFs/V7.0_2008/csqzak11.pdf
-  */
+ */
 
 #include "config.h"
 
@@ -82,6 +82,7 @@ static expert_field ei_mq_pcf_MaxPrm = EI_INIT;
 static expert_field ei_mq_pcf_PrmCnt = EI_INIT;
 
 static gint ett_mqpcf_prm = -1;
+static gint ett_mqpcf_grp = -1;
 static gint ett_mqpcf = -1;
 static gint ett_mqpcf_cfh = -1;
 
@@ -148,9 +149,28 @@ static void dissect_mqpcf_parm_int(tvbuff_t *tvb, proto_tree *tree, guint offset
         }
     }
 }
+int dissect_mqpcf_parm_grp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* mq_tree,
+    guint offset, guint bLittleEndian, gboolean bParse)
+{
+    guint32 uLen = 0;
+    guint32 uCnt = 0;
+
+    uLen = tvb_get_guint32(tvb, offset + 4, bLittleEndian);
+    uCnt = tvb_get_guint32(tvb, offset + 12, bLittleEndian);
+
+    dissect_mqpcf_parm(tvb, pinfo, mq_tree, offset + uLen, uCnt, bLittleEndian, bParse);
+    offset += uLen;
+    for (guint32 u = 0; u < uCnt; u++)
+    {
+        offset += tvb_get_guint32(tvb, offset + 4, bLittleEndian);
+    }
+    offset -= uLen;
+
+    return offset;
+}
 
 void dissect_mqpcf_parm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mq_tree,
-                        guint offset, guint32 uCount, guint bLittleEndian, gboolean bParse)
+    guint offset, guint32 uCount, guint bLittleEndian, gboolean bParse)
 {
     guint32 u = 0;
     guint32 tOfs = 0;
@@ -361,6 +381,20 @@ void dissect_mqpcf_parm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mq_tree,
                 }
             }
             break;
+            case MQ_MQCFT_GROUP:
+            {
+                uCnt = tvb_get_guint32(tvb, offset + 12, bLittleEndian);
+
+                tree = proto_tree_add_subtree_format(mq_tree, tvb, offset, uLen, ett_mqpcf_prm, &ti, "%s Cnt(%d)", strPrm, uCnt);
+
+                proto_tree_add_item(tree, hf_mq_pcf_prmtyp, tvb, offset, 4, bLittleEndian);
+                proto_tree_add_item(tree, hf_mq_pcf_prmlen, tvb, offset + 4, 4, bLittleEndian);
+                proto_tree_add_item(tree, (bParse) ? hf_mq_pcf_prmid : hf_mq_pcf_prmidnovals, tvb, offset + 8, 4, bLittleEndian);
+                proto_tree_add_item(tree, hf_mq_pcf_prmcount, tvb, offset + 12, 4, bLittleEndian);
+
+                tOfs = dissect_mqpcf_parm_grp(tvb, pinfo, tree, offset, bLittleEndian, bParse);
+            }
+            break;
             case MQ_MQCFT_EVENT:
                 break;
             case MQ_MQCFT_USER:
@@ -369,7 +403,6 @@ void dissect_mqpcf_parm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mq_tree,
 
                 proto_tree_add_item(tree, hf_mq_pcf_prmtyp, tvb, offset, 4, bLittleEndian);
                 proto_tree_add_item(tree, hf_mq_pcf_prmlen, tvb, offset + 4, 4, bLittleEndian);
-
                 proto_tree_add_item(tree, hf_mq_pcf_bytestring, tvb, offset + 8, uLen - 8, bLittleEndian);
             }
             break;
@@ -486,8 +519,6 @@ void dissect_mqpcf_parm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mq_tree,
             case MQ_MQCFT_XR_ITEM:
                 break;
             case MQ_MQCFT_XR_SUMMARY:
-                break;
-            case MQ_MQCFT_GROUP:
                 break;
             case MQ_MQCFT_STATISTICS:
                 break;
@@ -679,6 +710,7 @@ void proto_register_mqpcf(void)
     {
         &ett_mqpcf,
         &ett_mqpcf_prm,
+        &ett_mqpcf_grp,
         &ett_mqpcf_cfh,
     };
     static ei_register_info ei[] =
