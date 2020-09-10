@@ -914,7 +914,7 @@ quic_connection_create(packet_info *pinfo, guint32 version)
 	    gquic_info->version = 150;
         else
 	    gquic_info->version = 151;
-        gquic_info->encoding = ENC_LITTLE_ENDIAN;
+        gquic_info->encoding = ENC_BIG_ENDIAN;
         gquic_info->version_valid = TRUE;
         gquic_info->server_port = pinfo->destport;
         conn->gquic_info = gquic_info;
