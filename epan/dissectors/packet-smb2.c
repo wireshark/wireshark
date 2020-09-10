@@ -259,6 +259,9 @@ static int hf_smb2_cipher_count = -1;
 static int hf_smb2_cipher_id = -1;
 static int hf_smb2_comp_alg_count = -1;
 static int hf_smb2_comp_alg_id = -1;
+static int hf_smb2_comp_alg_flags = -1;
+static int hf_smb2_comp_alg_flags_chained = -1;
+static int hf_smb2_comp_alg_flags_reserved = -1;
 static int hf_smb2_netname_neg_id = -1;
 static int hf_smb2_transport_reserved = -1;
 static int hf_smb2_rdma_transform_count = -1;
@@ -679,6 +682,7 @@ static gint ett_smb2_lease_flags = -1;
 static gint ett_smb2_share_flags = -1;
 static gint ett_smb2_create_rep_flags = -1;
 static gint ett_smb2_share_caps = -1;
+static gint ett_smb2_comp_alg_flags = -1;
 static gint ett_smb2_ioctl_flags = -1;
 static gint ett_smb2_ioctl_network_interface = -1;
 static gint ett_smb2_ioctl_sqos_opeations = -1;
@@ -967,6 +971,8 @@ static int * const smb2_transform_flags[] = {
 	&hf_smb2_transform_flags_encrypted,
 	NULL,
 };
+
+#define SMB2_COMP_ALG_FLAGS_CHAINED  0x00000001
 
 #define SMB2_COMP_ALG_NONE        0x0000
 #define SMB2_COMP_ALG_LZNT1       0x0001
@@ -4961,6 +4967,11 @@ dissect_smb2_negotiate_context(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 	guint32 i, data_length, salt_length, hash_count, cipher_count, comp_count, transform_count;
 	proto_item *sub_item;
 	proto_tree *sub_tree;
+	static int * const comp_alg_flags_fields[] = {
+		&hf_smb2_comp_alg_flags_chained,
+		&hf_smb2_comp_alg_flags_reserved,
+		NULL
+	};
 
 	sub_tree = proto_tree_add_subtree(parent_tree, tvb, offset, -1, ett_smb2_negotiate_context_element, &sub_item, "Negotiate Context");
 
@@ -5023,7 +5034,8 @@ dissect_smb2_negotiate_context(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 			/* padding */
 			offset += 2;
 
-			/* reserved */
+			/* flags */
+			proto_tree_add_bitmask(sub_tree, tvb, offset, hf_smb2_comp_alg_flags, ett_smb2_comp_alg_flags, comp_alg_flags_fields, ENC_LITTLE_ENDIAN);
 			offset += 4;
 
 			for (i = 0; i < comp_count; i ++) {
@@ -11750,6 +11762,21 @@ proto_register_smb2(void)
 			{ "CompressionAlgorithmId", "smb2.negotiate_context.comp_alg_id", FT_UINT16, BASE_HEX,
 			VALS(smb2_comp_alg_types), 0, NULL, HFILL }},
 
+		{ &hf_smb2_comp_alg_flags,
+			{ "Flags", "smb2.negotiate_context.comp_alg_flags", FT_UINT32, BASE_HEX,
+			NULL, 0, NULL, HFILL }
+		},
+
+		{ &hf_smb2_comp_alg_flags_chained,
+			{ "Chained", "smb2.negotiate_context.comp_alg_flags.chained", FT_BOOLEAN, 32,
+			NULL, SMB2_COMP_ALG_FLAGS_CHAINED, "Chained compression is supported on this connection", HFILL }
+		},
+
+		{ &hf_smb2_comp_alg_flags_reserved,
+			{ "Reserved", "smb2.negotiate_context.comp_alg_flags.reserved", FT_UINT32, BASE_HEX,
+			NULL, 0xFFFFFFFE, "Must be zero", HFILL }
+		},
+
 		{ &hf_smb2_netname_neg_id,
 			{ "Netname", "smb2.negotiate_context.netname", FT_STRING,
 			STR_UNICODE, NULL, 0x0, NULL, HFILL }
@@ -13470,6 +13497,7 @@ proto_register_smb2(void)
 		&ett_smb2_lease_flags,
 		&ett_smb2_share_flags,
 		&ett_smb2_share_caps,
+		&ett_smb2_comp_alg_flags,
 		&ett_smb2_ioctl_flags,
 		&ett_smb2_ioctl_network_interface,
 		&ett_smb2_ioctl_sqos_opeations,
