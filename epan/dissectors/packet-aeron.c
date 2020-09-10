@@ -19,7 +19,11 @@
 #include <epan/to_str.h>
 #include <wsutil/pint.h>
 
-/* The Aeron protocol is defined at https://github.com/real-logic/Aeron/wiki/Protocol-Specification */
+/*
+ * The Aeron protocol is defined at
+ *
+ *    https://github.com/real-logic/aeron/wiki/Transport-Protocol-Specification
+ */
 
 void proto_register_aeron(void);
 void proto_reg_handoff_aeron(void);
@@ -3202,7 +3206,7 @@ void proto_register_aeron(void)
         { &hf_aeron_err_off_hdr,
             { "Offending Header", "aeron.err.off_hdr", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_aeron_err_string,
-            { "Error String", "aeron.err.string", FT_STRINGZ, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+            { "Error String", "aeron.err.string", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_aeron_heartbeat,
             { "Heart Frame", "aeron.heartbeat", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_aeron_heartbeat_frame_length,
