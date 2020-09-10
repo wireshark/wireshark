@@ -260,6 +260,7 @@ static int hf_smb2_cipher_id = -1;
 static int hf_smb2_comp_alg_count = -1;
 static int hf_smb2_comp_alg_id = -1;
 static int hf_smb2_netname_neg_id = -1;
+static int hf_smb2_transport_reserved = -1;
 static int hf_smb2_ea_size = -1;
 static int hf_smb2_ea_flags = -1;
 static int hf_smb2_ea_name_len = -1;
@@ -927,11 +928,13 @@ static const value_string smb2_find_info_levels[] = {
 #define SMB2_ENCRYPTION_CAPABILITIES        0x0002
 #define SMB2_COMPRESSION_CAPABILITIES       0x0003
 #define SMB2_NETNAME_NEGOTIATE_CONTEXT_ID   0x0005
+#define SMB2_TRANSPORT_CAPABILITIES         0x0006
 static const value_string smb2_negotiate_context_types[] = {
 	{ SMB2_PREAUTH_INTEGRITY_CAPABILITIES,  "SMB2_PREAUTH_INTEGRITY_CAPABILITIES" },
 	{ SMB2_ENCRYPTION_CAPABILITIES,	"SMB2_ENCRYPTION_CAPABILITIES" },
 	{ SMB2_COMPRESSION_CAPABILITIES, "SMB2_COMPRESSION_CAPABILITIES" },
 	{ SMB2_NETNAME_NEGOTIATE_CONTEXT_ID, "SMB2_NETNAME_NEGOTIATE_CONTEXT_ID" },
+	{ SMB2_TRANSPORT_CAPABILITIES, "SMB2_TRANSPORT_CAPABILITIES" },
 	{ 0, NULL }
 };
 
@@ -5019,6 +5022,11 @@ dissect_smb2_negotiate_context(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 			proto_tree_add_item(sub_tree, hf_smb2_netname_neg_id, tvb, offset,
 					    data_length, ENC_UTF_16|ENC_LITTLE_ENDIAN);
 			offset += data_length;
+			break;
+
+		case SMB2_TRANSPORT_CAPABILITIES:
+			proto_tree_add_item(sub_tree, hf_smb2_transport_reserved, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+			offset += 4;
 			break;
 
 		default:
@@ -11719,6 +11727,10 @@ proto_register_smb2(void)
 			STR_UNICODE, NULL, 0x0, NULL, HFILL }
 		},
 
+		{ &hf_smb2_transport_reserved,
+			{ "Reserved", "smb2.negotiate_context.transport_reserved", FT_UINT32, BASE_HEX,
+			NULL, 0, NULL, HFILL }
+		},
 		{ &hf_smb2_current_time,
 			{ "Current Time", "smb2.current_time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
 			NULL, 0, "Current Time at server", HFILL }
