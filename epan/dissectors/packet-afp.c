@@ -29,23 +29,35 @@
 
   AFP 2.1 & 2.2 documentation, in PDF form, at
 
+http://mirror.informatimago.com/next/developer.apple.com/documentation/macos8/pdf/ASAppleTalkFiling2.1_2.2.pdf
+
+  formerly at
+
 http://developer.apple.com/DOCUMENTATION/macos8/pdf/ASAppleTalkFiling2.1_2.2.pdf
 
   AFP3.0.pdf from http://www.apple.com (still available?)
 
   AFP 3.1 programming guide, in PDF form, at
 
-   http://developer.apple.com/documentation/Networking/Conceptual/AFP/AFP3_1.pdf
+https://web.archive.org/web/20040721011424/http://developer.apple.com/documentation/Networking/Conceptual/AFP/AFP3_1.pdf
 
   and, in HTML form, at
 
-http://developer.apple.com/documentation/Networking/Conceptual/AFP/index.html
+https://web.archive.org/web/20041010010846/http://developer.apple.com/documentation/Networking/Conceptual/AFP/index.html
 
-  Current AFP 3.x specification, in HTML form, at
-http://developer.apple.com/mac/library/documentation/Networking/Reference/AFP_Reference/Reference/reference.html
+  AFP 3.2 programming guide, in PDF form, at
+
+https://web.archive.org/web/20060207231337/http://developer.apple.com/documentation/Networking/Conceptual/AFP/AFP3_1.pdf
+
+  and, in HTML form, at
+
+https://web.archive.org/web/20080514131536/http://developer.apple.com/documentation/Networking/Conceptual/AFP/Introduction/chapter_1_section_1.html
+
+  AFP 3.x specification, as of 2012, in PDF form, at
+https://citeseerx.ist.psu.edu/viewdoc/download?doi=10.1.1.363.9481&rep=rep1&type=pdf
 
   Current AFP 3.x programming guide, in HTML form, at
-http://developer.apple.com/mac/library/documentation/Networking/Conceptual/AFP/Introduction/Introduction.html
+https://developer.apple.com/library/archive/documentation/Networking/Conceptual/AFP/Introduction/Introduction.html
 
   The netatalk source code by Wesley Craig & Adrian Sun
 	http://netatalk.sf.net
@@ -5560,7 +5572,7 @@ proto_register_afp(void)
 
 		{ &hf_afp_passwd,
 		  { "Password",     "afp.passwd",
-		    FT_STRINGZ, BASE_NONE, NULL, 0x0,
+		    FT_STRINGZPAD, BASE_NONE, NULL, 0x0,
 		    NULL, HFILL }},
 
 		{ &hf_afp_random,
