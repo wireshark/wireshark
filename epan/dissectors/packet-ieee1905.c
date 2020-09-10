@@ -1168,7 +1168,7 @@ static const value_string ieee1905_tlv_types_vals[] = {
   { PUSH_BUTTON_EVENT_NOTIFICATION_TLV,      "Push_Button_Event notification" },
   { PUSH_BUTTON_JOIN_NOTIFICATION_TLV,       "Push_Button_Join notification" },
   { GENERIC_PHY_DEVICE_INFORMATION_TLV,      "Generic Phy device information" },
-  { DEVICE_IDENTIFICATION_TYPE_TLV,          "Device identificaton type" },
+  { DEVICE_IDENTIFICATION_TYPE_TLV,          "Device identification type" },
   { CONTROL_URL_TYPE_TLV,                    "Control URL type" },
   { IPV4_TYPE_TLV,                           "IPv4 type" },
   { IPV6_TYPE_TLV,                           "IPv6 type" },
@@ -1541,7 +1541,7 @@ static const value_string ieee1905_steering_policy_vals[] = {
 static const value_string ieee1905_error_code_vals[] = {
   { 0x01, "STA associated with a BSS operated by the Agent" },
   { 0x02, "STA not associated with any BSS operated by the Agent" },
-  { 0x03, "Client capability report undecified failure" },
+  { 0x03, "Client capability report unspecified failure" },
   { 0x04, "Backhaul steering request rejected because station cannot operate on specified channel" },
   { 0x05, "Backhaul steering request rejected because target BSS signal too weak or not found" },
   { 0x06, "Backhaul steering request authentication or association Rejected by target BSS" },

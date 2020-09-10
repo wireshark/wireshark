@@ -29352,7 +29352,7 @@ proto_register_ieee80211(void)
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_bs_fbck_antenna_id,
-     {"BS-FBCK Anetenna ID", "wlan.beam_refine.bs_fbck_antenna_id",
+     {"BS-FBCK Antenna ID", "wlan.beam_refine.bs_fbck_antenna_id",
       FT_UINT40, BASE_DEC, NULL, 0x0000001800,
       NULL, HFILL }},
 
@@ -31836,7 +31836,7 @@ proto_register_ieee80211(void)
       FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
 
     {&hf_ieee80211_hs20_osu_service_desc_len,
-     {"OSU Service Desctription Length", "wlan.hs20.osu_service_desc_len",
+     {"OSU Service Description Length", "wlan.hs20.osu_service_desc_len",
       FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
 
     {&hf_ieee80211_hs20_osu_service_desc_duple_len,
