@@ -3351,6 +3351,13 @@ PathCookieFlags                 = val_string16("path_cookie_flags", "Path Cookie
         [ 0x0001, "Last component is a File Name" ],
 ])
 PathCount                       = uint8("path_count", "Path Count")
+#
+# XXX - in at least some File Search Continue requests, the string
+# length value is longer than the string, and there's a NUL, followed
+# by other non-zero cruft, in the string.  Should this be an
+# "nstringz8", with FT_UINT_STRINGZPAD added to support it?  And
+# does that apply to any other values?
+#
 Path                            = nstring8("path", "Path")
 Path16              = nstring16("path16", "Path")
 PathAndName                     = stringz("path_and_name", "Path and Name")
