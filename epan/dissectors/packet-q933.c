@@ -1118,9 +1118,10 @@ dissect_q933_link_integrity_verf_ie(tvbuff_t *tvb, int offset, int len,
  */
 static const value_string q933_pvc_status_vals[] = {
 	{0x00, "Inactive"},
-	{0x02, "Active"},
-	{0x08, "New"},
-	{0x0a, "New, Active"},
+	{0x01, "Active"},
+	{0x02, "Deleted"},
+	{0x04, "New"},
+	{0x05, "New, Active"},
 	{0, NULL}
 };
 
