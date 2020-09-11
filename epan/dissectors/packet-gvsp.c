@@ -21,6 +21,12 @@
 void proto_register_gvsp(void);
 void proto_reg_handoff_gvsp(void);
 
+/*
+ * For all GenICam standards, including GenDC 1.0 and 1.1:
+ *
+ *    https://www.emva.org/standards-technology/genicam/genicam-downloads/
+ */
+
 #define GVSP_MIN_PACKET_SIZE         8
 #define GVSP_V2_MIN_PACKET_SIZE     20
 #define GVSP_EXTENDED_ID_BIT      0x80
@@ -3196,7 +3202,7 @@ void proto_register_gvsp(void)
 
         { &hf_gvsp_gendc_container_header_signature_v2_2,
         { "Signature", "gvsp.gendc.container.header.signature",
-        FT_STRINGZ, BASE_NONE, NULL, 0x0,
+        FT_STRING, BASE_NONE, NULL, 0x0,
         NULL, HFILL
         } },
 
