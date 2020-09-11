@@ -1947,6 +1947,7 @@ const value_string quic_transport_parameter_id[] = {
     { SSL_HND_QUIC_TP_LOSS_BITS, "loss_bits" },
     { SSL_HND_QUIC_TP_GREASE_QUIC_BIT, "grease_quic_bit" },
     { SSL_HND_QUIC_TP_ENABLE_TIME_STAMP, "enable_time_stamp" },
+    { SSL_HND_QUIC_TP_ENABLE_TIME_STAMP_V2, "enable_time_stamp_v2" },
     { SSL_HND_QUIC_TP_MIN_ACK_DELAY, "min_ack_delay" },
     { SSL_HND_QUIC_TP_GOOGLE_USER_AGENT, "google_user_agent" },
     { SSL_HND_QUIC_TP_GOOGLE_KEY_UPDATE_NOT_YET_SUPPORTED, "google_key_update_not_yet_supported" },
@@ -1955,6 +1956,15 @@ const value_string quic_transport_parameter_id[] = {
     { SSL_HND_QUIC_TP_GOOGLE_SUPPORT_HANDSHAKE_DONE, "google_support_handshake_done" },
     { SSL_HND_QUIC_TP_GOOGLE_QUIC_PARAMS, "google_quic_params" },
     { SSL_HND_QUIC_TP_GOOGLE_CONNECTION_OPTIONS, "google_connection_options" },
+    { SSL_HND_QUIC_TP_FACEBOOK_PARTIAL_RELIABILITY, "facebook_partial_reliability" },
+    { 0, NULL }
+};
+
+/* https://tools.ietf.org/html/draft-huitema-quic-ts-03 */
+const val64_string quic_enable_time_stamp_v2_vals[] = {
+    { 1, "I would like to receive TIME_STAMP frames" },
+    { 2, "I am able to generate TIME_STAMP frames" },
+    { 3, "I am able to generate TIME_STAMP frames and I would like to receive them" },
     { 0, NULL }
 };
 
@@ -7544,6 +7554,16 @@ ssl_dissect_hnd_hello_ext_quic_transport_parameters(ssl_common_dissect_t *hf, tv
             break;
             case SSL_HND_QUIC_TP_ENABLE_TIME_STAMP:
                 /* No Payload */
+            break;
+            case SSL_HND_QUIC_TP_ENABLE_TIME_STAMP_V2:
+                proto_tree_add_item_ret_varint(parameter_tree, hf->hf.hs_ext_quictp_parameter_enable_time_stamp_v2,
+                                               tvb, offset, -1, ENC_VARINT_QUIC, &value, &len);
+                offset += parameter_length;
+            break;
+            case SSL_HND_QUIC_TP_FACEBOOK_PARTIAL_RELIABILITY:
+                proto_tree_add_item_ret_varint(parameter_tree, hf->hf.hs_ext_quictp_parameter_facebook_partial_reliability,
+                                               tvb, offset, -1, ENC_VARINT_QUIC, &value, &len);
+                offset += parameter_length;
             break;
             default:
                 offset += parameter_length;
