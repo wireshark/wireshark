@@ -156,7 +156,7 @@ merge-request:ubuntu-dpkg:
     # build-ubuntu puts us in `build`.
     - cd ..
     - WS_GITHOOK_PYTHON=python3 ./tools/pre-commit 'HEAD^1'
-    - python3 tools/validate-commit.py
+    #- python3 tools/validate-commit.py
     - CC=/usr/lib/ccache/gcc CXX=/usr/lib/ccache/g++ dpkg-buildpackage -us -uc -rfakeroot -jauto -Zgzip -zfast
     - lintian --suppress-tags library-not-linked-against-libc --display-experimental --display-info --pedantic --profile debian
 
@@ -182,11 +182,10 @@ merge-request:ubuntu-clang-other-tests:
   rules:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
   script:
-    - apt-get install -y cppcheck clang-tools
+    - apt-get install -y clang-tools
     # build-ubuntu puts us in `build`.
     - cd ..
     - python3 tools/checklicenses.py
-    - ./tools/cppcheck/cppcheck.sh -l 1
     - cd build
     - cmake -DENABLE_EXTRA_COMPILER_WARNINGS=on -DENABLE_CHECKHF_CONFLICT=on -DCMAKE_EXPORT_COMPILE_COMMANDS=on -DENABLE_CCACHE=ON -G Ninja ..
     - ninja
