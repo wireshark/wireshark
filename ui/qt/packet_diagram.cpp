@@ -508,6 +508,20 @@ void PacketDiagram::addDiagram(proto_node *tl_node)
     }
     qreal y_bottom = y_pos_ + bit_width;
     QGraphicsItem *tl_item = scene()->addLine(x, y_bottom, x + diag_w, y_bottom);
+    QFontMetrics sfm = QFontMetrics(layout_->smallFont());
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 11, 0))
+    int space_w = sfm.horizontalAdvance(' ');
+#else
+    int space_w = sfm.width(' ');
+#endif
+#ifdef Q_OS_WIN
+    // t_item->boundingRect() has a pixel of space on the left on my (gcc)
+    // Windows VM.
+    int tl_adjust = 1;
+#else
+    int tl_adjust = 0;
+#endif
+
     for (int tick_n = 0; tick_n < bits_per_row; tick_n++) {
         x = layout_->hPadding() + (tick_n * bit_width);
         qreal y_top = y_pos_ + (tick_n % 8 == 0 ? 0 : bit_width / 2);
@@ -518,7 +532,15 @@ void PacketDiagram::addDiagram(proto_node *tl_node)
         if (tick_nums.contains(tick_n)) {
             t_item = scene()->addSimpleText(QString::number(tick_n));
             t_item->setFont(layout_->smallFont());
-            t_item->setPos(x + ((bit_width - t_item->boundingRect().width()) / 2.0) + 2, y_pos_);
+            if (tick_n % 2 == 0) {
+                t_item->setPos(x + space_w - tl_adjust, y_pos_);
+            } else {
+                t_item->setPos(x + bit_width - space_w - t_item->boundingRect().width() - tl_adjust, y_pos_);
+            }
+            // Does the placement above look funny on your system? Try
+            // uncommenting the lines below.
+            // QGraphicsRectItem *br_item = scene()->addRect(t_item->boundingRect(), QPen(palette().highlight().color()));
+            // br_item->setPos(t_item->pos());
         }
     }
     y_pos_ = y_bottom;
