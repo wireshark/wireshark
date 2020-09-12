@@ -743,6 +743,7 @@ WSLUA_CONSTRUCTOR ProtoField_new(lua_State* L) {
     case FT_UINT_STRING:
     case FT_AX25:
     case FT_STRINGZPAD:
+    case FT_STRINGZTRUNC:
         WSLUA_ARG_ERROR(ProtoField_new,TYPE,"Unsupported ProtoField field type");
         break;
     /* FT_PCRE isn't a valid field type. */

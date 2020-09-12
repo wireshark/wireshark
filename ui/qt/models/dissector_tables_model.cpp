@@ -203,6 +203,7 @@ static void gatherProtocolDecodes(const char *, ftenum_t selector_type, gpointer
     case FT_STRINGZ:
     case FT_UINT_STRING:
     case FT_STRINGZPAD:
+    case FT_STRINGZTRUNC:
         ti = new DissectorTablesItem((const char *)key, proto_name, pdl_ptr);
         pdl_ptr->prependChild(ti);
         break;
@@ -245,6 +246,7 @@ static void gatherTableNames(const char *short_name, const char *table_name, gpo
     case FT_STRINGZ:
     case FT_UINT_STRING:
     case FT_STRINGZPAD:
+    case FT_STRINGZTRUNC:
         dt_ti = new DissectorTablesItem(table_name, short_name, tables->string_table);
         tables->string_table->prependChild(dt_ti);
         break;

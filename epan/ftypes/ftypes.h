@@ -48,9 +48,9 @@ enum ftenum {
 	FT_DOUBLE,
 	FT_ABSOLUTE_TIME,
 	FT_RELATIVE_TIME,
-	FT_STRING,
-	FT_STRINGZ,	/* for use with proto_tree_add_item() */
-	FT_UINT_STRING,	/* for use with proto_tree_add_item() */
+	FT_STRING,	/* counted string, with no null terminator */
+	FT_STRINGZ,	/* null-terminated string */
+	FT_UINT_STRING,	/* counted string, with count being the first part of the value */
 	FT_ETHER,
 	FT_BYTES,
 	FT_UINT_BYTES,
@@ -66,8 +66,9 @@ enum ftenum {
 	FT_VINES,
 	FT_REL_OID,	/* RELATIVE-OID */
 	FT_SYSTEM_ID,
-	FT_STRINGZPAD,	/* for use with proto_tree_add_item() */
+	FT_STRINGZPAD,	/* null-padded string */
 	FT_FCWWN,
+	FT_STRINGZTRUNC,	/* null-truncated string */
 	FT_NUM_TYPES /* last item number plus one */
 };
 
@@ -98,7 +99,8 @@ enum ftenum {
 #define IS_FT_TIME(ft) \
 	((ft) == FT_ABSOLUTE_TIME || (ft) == FT_RELATIVE_TIME)
 #define IS_FT_STRING(ft) \
-	((ft) == FT_STRING || (ft) == FT_STRINGZ || (ft) == FT_STRINGZPAD)
+	((ft) == FT_STRING || (ft) == FT_STRINGZ || (ft) == FT_STRINGZPAD || \
+	 (ft) == FT_STRINGZTRUNC)
 
 /* field types lengths */
 #define FT_ETHER_LEN		6

@@ -556,6 +556,7 @@ QString DecodeAsModel::entryString(const gchar *table_name, gconstpointer value)
     case FT_STRINGZ:
     case FT_UINT_STRING:
     case FT_STRINGZPAD:
+    case FT_STRINGZTRUNC:
         entry_str = (const char *)value;
         break;
 
@@ -686,6 +687,7 @@ void DecodeAsModel::gatherChangedEntries(const gchar *table_name,
     case FT_STRINGZ:
     case FT_UINT_STRING:
     case FT_STRINGZPAD:
+    case FT_STRINGZTRUNC:
         model->changed_string_entries_ << CharPtrPair(table_name, (const char *) key);
         break;
     default:
@@ -757,6 +759,7 @@ void DecodeAsModel::applyChanges()
                 case FT_STRINGZ:
                 case FT_UINT_STRING:
                 case FT_STRINGZPAD:
+                case FT_STRINGZTRUNC:
                     byteArray = item->selectorString_.toUtf8();
                     selector_value = (gconstpointer) byteArray.constData();
                     break;

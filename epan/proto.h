@@ -263,16 +263,13 @@ void proto_report_dissector_bug(const char *format, ...)
                                            IS_FT_UINT((hfinfo)->type))
 
 #define __DISSECTOR_ASSERT_FIELD_TYPE_IS_STRING(hfinfo) \
-  (REPORT_DISSECTOR_BUG("%s:%u: field %s is not of type FT_STRING, FT_STRINGZ, or FT_STRINGZPAD", \
+  (REPORT_DISSECTOR_BUG("%s:%u: field %s is not of type FT_STRING, FT_STRINGZ, FT_STRINGZPAD, or FT_STRINGZTRUNC", \
         __FILE__, __LINE__, (hfinfo)->abbrev))
 
 #define DISSECTOR_ASSERT_FIELD_TYPE_IS_STRING(hfinfo)  \
-  ((void) (((hfinfo)->type == FT_STRING || (hfinfo)->type == FT_STRINGZ || \
-            (hfinfo)->type == FT_STRINGZPAD) ? (void)0 : \
+  ((void) (IS_FT_STRING((hfinfo)->type) ? (void)0 : \
    __DISSECTOR_ASSERT_FIELD_TYPE_IS_STRING ((hfinfo)))) \
-   __DISSECTOR_ASSERT_STATIC_ANALYSIS_HINT((hfinfo)->type == FT_STRING || \
-                                           (hfinfo)->type == FT_STRINGZ || \
-                                           (hfinfo)->type == FT_STRINGZPAD)
+   __DISSECTOR_ASSERT_STATIC_ANALYSIS_HINT(IS_FT_STRING((hfinfo)->type))
 
 #define __DISSECTOR_ASSERT_FIELD_TYPE_IS_TIME(hfinfo) \
   (REPORT_DISSECTOR_BUG("%s:%u: field %s is not of type FT_ABSOLUTE_TIME or FT_RELATIVE_TIME", \
@@ -1939,7 +1936,8 @@ WS_DLL_PUBLIC proto_item *
 proto_tree_add_oid_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
     gint length, const guint8* value_ptr, const char *format, ...) G_GNUC_PRINTF(7,8);
 
-/** Add a FT_STRING or FT_STRINGZPAD to a proto_tree.
+/** Add an FT_STRING, FT_STRINGZ, FT_STRINGZPAD, or FT_STRINGZTRUNC to a
+    proto_tree.
  @param tree the tree to append this item to
  @param hfindex field index
  @param tvb the tv buffer of the current data
@@ -1951,9 +1949,9 @@ WS_DLL_PUBLIC proto_item *
 proto_tree_add_string(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
     gint length, const char* value);
 
-/** Add a formatted FT_STRING or FT_STRINGZPAD to a proto_tree, with the
-    format generating the string for the value and with the field name
-    being included automatically.
+/** Add a formatted FT_STRING, FT_STRINGZ, FT_STRINGZPAD, or FT_STRINGZTRUNC
+    to a proto_tree, with the format generating the string for the value
+    and with the field name being included automatically.
  @param tree the tree to append this item to
  @param hfindex field index
  @param tvb the tv buffer of the current data
@@ -1968,9 +1966,9 @@ proto_tree_add_string_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
     gint start, gint length, const char* value, const char *format, ...)
     G_GNUC_PRINTF(7,8);
 
-/** Add a formatted FT_STRING or FT_STRINGZPAD to a proto_tree, with the
-    format generating the entire string for the entry, including any field
-    name.
+/** Add a formatted FT_STRING, FT_STRINGZ, FT_STRINGZPAD, or FT_STRINGZTRUNC
+    to a proto_tree, with the format generating the entire string for the
+    entry, including any field name.
  @param tree the tree to append this item to
  @param hfindex field index
  @param tvb the tv buffer of the current data

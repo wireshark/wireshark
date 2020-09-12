@@ -328,11 +328,40 @@ ftype_register_string(void)
 		len,
 		slice,
 	};
+	static ftype_t stringztrunc_type = {
+		FT_STRINGZTRUNC,		/* ftype */
+		"FT_STRINGZTRUNC",		/* name */
+		"Character string",		/* pretty name */
+		0,				/* wire_size */
+		string_fvalue_new,		/* new_value */
+		string_fvalue_free,		/* free_value */
+		val_from_unparsed,		/* val_from_unparsed */
+		val_from_string,		/* val_from_string */
+		string_to_repr,			/* val_to_string_repr */
+		string_repr_len,		/* len_string_repr */
+
+		{ .set_value_string = string_fvalue_set_string },	/* union set_value */
+		{ .get_value_ptr = value_get },	/* union get_value */
+
+		cmp_eq,
+		cmp_ne,
+		cmp_gt,
+		cmp_ge,
+		cmp_lt,
+		cmp_le,
+		NULL,				/* cmp_bitwise_and */
+		cmp_contains,			/* cmp_contains */
+		CMP_MATCHES,
+
+		len,
+		slice,
+	};
 
 	ftype_register(FT_STRING, &string_type);
 	ftype_register(FT_STRINGZ, &stringz_type);
 	ftype_register(FT_UINT_STRING, &uint_string_type);
 	ftype_register(FT_STRINGZPAD, &stringzpad_type);
+	ftype_register(FT_STRINGZTRUNC, &stringztrunc_type);
 }
 
 /*

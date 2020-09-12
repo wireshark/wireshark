@@ -1791,8 +1791,28 @@ get_stringzpad_value(wmem_allocator_t *scope, tvbuff_t *tvb, gint start,
 	 * terminated, so a "zero-padded" string
 	 * isn't special.  If we represent string
 	 * values as something that includes a counted
-	 * array of bytes, we'll need to strip
+	 * array of bytes, we'll need to strip the
 	 * trailing NULs.
+	 */
+	if (length == -1) {
+		length = tvb_ensure_captured_length_remaining(tvb, start);
+	}
+	*ret_length = length;
+	return tvb_get_string_enc(scope, tvb, start, length, encoding);
+}
+
+/* For FT_STRINGZTRUNC */
+static inline const guint8 *
+get_stringztrunc_value(wmem_allocator_t *scope, tvbuff_t *tvb, gint start,
+    gint length, gint *ret_length, const guint encoding)
+{
+	/*
+	 * XXX - currently, string values are null-
+	 * terminated, so a "zero-truncated" string
+	 * isn't special.  If we represent string
+	 * values as something that includes a counted
+	 * array of bytes, we'll need to strip everything
+	 * starting with the terminating NUL.
 	 */
 	if (length == -1) {
 		length = tvb_ensure_captured_length_remaining(tvb, start);
@@ -2862,6 +2882,23 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 			new_fi->length = length;
 			break;
 
+		case FT_STRINGZTRUNC:
+			stringval = get_stringztrunc_value(wmem_packet_scope(),
+			    tvb, start, length, &length, encoding);
+			proto_tree_set_string(new_fi, stringval);
+
+			/* Instead of calling proto_item_set_len(), since we
+			 * don't yet have a proto_item, we set the
+			 * field_info's length ourselves.
+			 *
+			 * XXX - our caller can't use that length to
+			 * advance an offset unless they arrange that
+			 * there always be a protocol tree into which
+			 * we're putting this item.
+			 */
+			new_fi->length = length;
+			break;
+
 		case FT_ABSOLUTE_TIME:
 			/*
 			 * Absolute times can be in any of a number of
@@ -3229,8 +3266,11 @@ ptvcursor_add_ret_string(ptvcursor_t* ptvc, int hf, gint length, const guint enc
 	case FT_STRINGZPAD:
 		value = get_stringzpad_value(scope, ptvc->tvb, offset, length, &item_length, encoding);
 		break;
+	case FT_STRINGZTRUNC:
+		value = get_stringztrunc_value(scope, ptvc->tvb, offset, length, &item_length, encoding);
+		break;
 	default:
-		REPORT_DISSECTOR_BUG("field %s is not of type FT_STRING, FT_STRINGZ, FT_UINT_STRING, or FT_STRINGZPAD",
+		REPORT_DISSECTOR_BUG("field %s is not of type FT_STRING, FT_STRINGZ, FT_UINT_STRING, FT_STRINGZPAD, or FT_STRINGZTRUNC",
 		    hfinfo->abbrev);
 	}
 
@@ -3564,8 +3604,11 @@ proto_tree_add_item_ret_string_and_length(proto_tree *tree, int hfindex,
 	case FT_STRINGZPAD:
 		value = get_stringzpad_value(scope, tvb, start, length, lenretval, encoding);
 		break;
+	case FT_STRINGZTRUNC:
+		value = get_stringztrunc_value(scope, tvb, start, length, lenretval, encoding);
+		break;
 	default:
-		REPORT_DISSECTOR_BUG("field %s is not of type FT_STRING, FT_STRINGZ, FT_UINT_STRING, or FT_STRINGZPAD",
+		REPORT_DISSECTOR_BUG("field %s is not of type FT_STRING, FT_STRINGZ, FT_UINT_STRING, FT_STRINGZPAD, or FT_STRINGZTRUNC",
 		    hfinfo->abbrev);
 	}
 
@@ -3588,6 +3631,7 @@ proto_tree_add_item_ret_string_and_length(proto_tree *tree, int hfindex,
 
 	case FT_STRINGZ:
 	case FT_STRINGZPAD:
+	case FT_STRINGZTRUNC:
 	case FT_UINT_STRING:
 		break;
 
@@ -3646,6 +3690,10 @@ proto_tree_add_item_ret_display_string_and_length(proto_tree *tree, int hfindex,
 		value = get_stringzpad_value(scope, tvb, start, length, lenretval, encoding);
 		*retval = hfinfo_format_text(scope, hfinfo, value);
 		break;
+	case FT_STRINGZTRUNC:
+		value = get_stringztrunc_value(scope, tvb, start, length, lenretval, encoding);
+		*retval = hfinfo_format_text(scope, hfinfo, value);
+		break;
 	case FT_BYTES:
 		value = tvb_get_ptr(tvb, start, length);
 		*retval = hfinfo_format_bytes(scope, hfinfo, value, length);
@@ -3658,7 +3706,7 @@ proto_tree_add_item_ret_display_string_and_length(proto_tree *tree, int hfindex,
 		*lenretval = length + n;
 		break;
 	default:
-		REPORT_DISSECTOR_BUG("field %s is not of type FT_STRING, FT_STRINGZ, FT_UINT_STRING, FT_STRINGZPAD, FT_BYTES, or FT_UINT_BYTES",
+		REPORT_DISSECTOR_BUG("field %s is not of type FT_STRING, FT_STRINGZ, FT_UINT_STRING, FT_STRINGZPAD, FT_STRINGZTRUNC, FT_BYTES, or FT_UINT_BYTES",
 		    hfinfo->abbrev);
 	}
 
@@ -3674,6 +3722,7 @@ proto_tree_add_item_ret_display_string_and_length(proto_tree *tree, int hfindex,
 	case FT_STRINGZ:
 	case FT_UINT_STRING:
 	case FT_STRINGZPAD:
+	case FT_STRINGZTRUNC:
 		proto_tree_set_string(new_fi, value);
 		break;
 
@@ -3696,6 +3745,7 @@ proto_tree_add_item_ret_display_string_and_length(proto_tree *tree, int hfindex,
 
 	case FT_STRINGZ:
 	case FT_STRINGZPAD:
+	case FT_STRINGZTRUNC:
 	case FT_UINT_STRING:
 		break;
 
@@ -4782,8 +4832,9 @@ proto_tree_set_system_id_tvb(field_info *fi, tvbuff_t *tvb, gint start, gint len
 	proto_tree_set_system_id(fi, tvb_get_ptr(tvb, start, length), length);
 }
 
-/* Add a FT_STRING, FT_STRINGZ, or FT_STRINGZPAD to a proto_tree. Creates
- * own copy of string, and frees it when the proto_tree is destroyed. */
+/* Add a FT_STRING, FT_STRINGZ, FT_STRINGZPAD, or FT_STRINGZTRUNC to a
+ * proto_tree. Creates own copy of string, and frees it when the proto_tree
+ * is destroyed. */
 proto_item *
 proto_tree_add_string(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 		      gint length, const char* value)
@@ -5814,9 +5865,10 @@ get_hfi_length(header_field_info *hfinfo, tvbuff_t *tvb, const gint start, gint 
 	 */
 	if (*length == -1) {
 		/*
-		 * For FT_NONE, FT_PROTOCOL, FT_BYTES, FT_STRING, and
-		 * FT_STRINGZPAD fields, a length of -1 means "set the
-		 * length to what remains in the tvbuff".
+		 * For FT_NONE, FT_PROTOCOL, FT_BYTES, FT_STRING,
+		 * FT_STRINGZPAD, and FT_STRINGZTRUNC fields, a length
+		 * of -1 means "set the length to what remains in the
+		 * tvbuff".
 		 *
 		 * The assumption is either that
 		 *
@@ -5891,6 +5943,7 @@ get_hfi_length(header_field_info *hfinfo, tvbuff_t *tvb, const gint start, gint 
 		case FT_BYTES:
 		case FT_STRING:
 		case FT_STRINGZPAD:
+		case FT_STRINGZTRUNC:
 			/*
 			 * We allow FT_PROTOCOLs to be zero-length -
 			 * for example, an ONC RPC NULL procedure has
@@ -6056,6 +6109,7 @@ get_full_length(header_field_info *hfinfo, tvbuff_t *tvb, const gint start,
 		break;
 
 	case FT_STRINGZPAD:
+	case FT_STRINGZTRUNC:
 	case FT_ABSOLUTE_TIME:
 	case FT_RELATIVE_TIME:
 	case FT_IEEE_11073_SFLOAT:
@@ -6608,6 +6662,7 @@ proto_custom_set(proto_tree* tree, GSList *field_ids, gint occurrence,
 					case FT_STRINGZ:
 					case FT_UINT_STRING:
 					case FT_STRINGZPAD:
+					case FT_STRINGZTRUNC:
 						bytes = (guint8 *)fvalue_get(&finfo->value);
 						str = hfinfo_format_text(NULL, hfinfo, bytes);
 						offset_r += protoo_strlcpy(result+offset_r,
@@ -8349,6 +8404,7 @@ tmp_fld_check_assert(header_field_info *hfinfo)
 		case FT_STRINGZ:
 		case FT_UINT_STRING:
 		case FT_STRINGZPAD:
+		case FT_STRINGZTRUNC:
 			switch (hfinfo->display) {
 				case STR_ASCII:
 				case STR_UNICODE:
@@ -9081,6 +9137,7 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 		case FT_STRINGZ:
 		case FT_UINT_STRING:
 		case FT_STRINGZPAD:
+		case FT_STRINGZTRUNC:
 			bytes = (guint8 *)fvalue_get(&fi->value);
 			tmp = hfinfo_format_text(NULL, hfinfo, bytes);
 			label_fill(label_str, 0, hfinfo, tmp);

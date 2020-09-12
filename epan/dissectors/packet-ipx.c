@@ -1486,7 +1486,7 @@ proto_register_ipx(void)
 
 		{ &hf_sap_server_name,
 		{ "Server Name",		"ipxsap.server.name",
-		  FT_STRINGZPAD,	BASE_NONE,	NULL,	0x0,
+		  FT_STRINGZTRUNC,	BASE_NONE,	NULL,	0x0,
 		  NULL, HFILL }},
 
 		{ &hf_sap_server_network,

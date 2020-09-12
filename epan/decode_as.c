@@ -137,6 +137,7 @@ gboolean decode_as_default_reset(const gchar *name, gconstpointer pattern)
     case FT_STRINGZ:
     case FT_UINT_STRING:
     case FT_STRINGZPAD:
+    case FT_STRINGZTRUNC:
         dissector_reset_string(name, (!pattern)?"":(const gchar *) pattern);
         return TRUE;
     default:
@@ -164,6 +165,7 @@ gboolean decode_as_default_change(const gchar *name, gconstpointer pattern, gcon
         case FT_STRINGZ:
         case FT_UINT_STRING:
         case FT_STRINGZPAD:
+        case FT_STRINGZTRUNC:
             dissector_change_string(name, (!pattern)?"":(const gchar *) pattern, *dissector);
             return TRUE;
         default:
@@ -358,6 +360,7 @@ decode_as_write_entry (const gchar *table_name, ftenum_t selector_type,
     case FT_STRINGZ:
     case FT_UINT_STRING:
     case FT_STRINGZPAD:
+    case FT_STRINGZTRUNC:
         decode_as_row = g_strdup_printf(
             DECODE_AS_ENTRY ": %s,%s,%s,%s\n",
             table_name, (gchar *)key, initial_proto_name,
@@ -470,6 +473,7 @@ decode_build_reset_list (const gchar *table_name, ftenum_t selector_type,
     case FT_STRINGZ:
     case FT_UINT_STRING:
     case FT_STRINGZPAD:
+    case FT_STRINGZTRUNC:
         item->ddi_selector.sel_string = g_strdup((char *)key);
         break;
 
@@ -508,6 +512,7 @@ decode_clear_all(void)
         case FT_STRINGZ:
         case FT_UINT_STRING:
         case FT_STRINGZPAD:
+        case FT_STRINGZTRUNC:
             dissector_reset_string(item->ddi_table_name,
                                    item->ddi_selector.sel_string);
             g_free(item->ddi_selector.sel_string);
