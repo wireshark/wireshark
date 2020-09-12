@@ -12,9 +12,9 @@
 
 /*
  * See https://quicwg.org
- * https://tools.ietf.org/html/draft-ietf-quic-transport-29
- * https://tools.ietf.org/html/draft-ietf-quic-tls-29
- * https://tools.ietf.org/html/draft-ietf-quic-invariants-09
+ * https://tools.ietf.org/html/draft-ietf-quic-transport-30
+ * https://tools.ietf.org/html/draft-ietf-quic-tls-30
+ * https://tools.ietf.org/html/draft-ietf-quic-invariants-10
  *
  * Extension:
  * https://tools.ietf.org/html/draft-ferrieuxhamchaoui-quic-lossbits-03
@@ -23,7 +23,7 @@
  * https://tools.ietf.org/html/draft-iyengar-quic-delayed-ack-00
  *
  * Currently supported QUIC version(s): draft-21, draft-22, draft-23, draft-24,
- * draft-25, draft-26, draft-27, draft-28, draft-29.
+ * draft-25, draft-26, draft-27, draft-28, draft-29, draft-30.
  * For a table of supported QUIC versions per Wireshark version, see
  * https://github.com/quicwg/base-drafts/wiki/Tools#wireshark
  *
@@ -426,6 +426,7 @@ const value_string quic_version_vals[] = {
     { 0xff00001b, "draft-27" },
     { 0xff00001c, "draft-28" },
     { 0xff00001d, "draft-29" },
+    { 0xff00001e, "draft-30" },
     { 0, NULL }
 };
 
@@ -513,8 +514,8 @@ static const range_string quic_frame_type_vals[] = {
     { 0x1d, 0x1d,   "CONNECTION_CLOSE (Application)" },
     { 0x1e, 0x1e,   "HANDSHAKE_DONE" },
     { 0x30, 0x31,   "DATAGRAM" },
-    { 0xAF, 0xAF,   "ACK_FREQUENCY" },
-    { 0x02F5, 0x02F5, "TIME_STAMP" },
+    { 0xaf, 0xaf,   "ACK_FREQUENCY" },
+    { 0x02f5, 0x02f5, "TIME_STAMP" },
     { 0,    0,        NULL },
 };
 
@@ -536,12 +537,13 @@ static const range_string quic_transport_error_code_vals[] = {
     { 0x0007, 0x0007, "FRAME_ENCODING_ERROR" },
     { 0x0008, 0x0008, "TRANSPORT_PARAMETER_ERROR" },
     { 0x0009, 0x0009, "CONNECTION_ID_LIMIT_ERROR" },
-    { 0x000A, 0x000A, "PROTOCOL_VIOLATION" },
-    { 0x000B, 0x000B, "INVALID_TOKEN" },
-    { 0x000C, 0x000C, "APPLICATION_ERROR" },
-    { 0x000D, 0x000D, "CRYPTO_BUFFER_EXCEEDED" },
-    { 0x000E, 0x000E, "KEY_UPDATE_ERROR" },
-    { 0x0100, 0x01FF, "CRYPTO_ERROR" },
+    { 0x000a, 0x000a, "PROTOCOL_VIOLATION" },
+    { 0x000b, 0x000b, "INVALID_TOKEN" },
+    { 0x000c, 0x000c, "APPLICATION_ERROR" },
+    { 0x000d, 0x000d, "CRYPTO_BUFFER_EXCEEDED" },
+    { 0x000e, 0x000e, "KEY_UPDATE_ERROR" },
+    { 0x000f, 0x000f, "AEAD_LIMIT_REACHED" },
+    { 0x0100, 0x01ff, "CRYPTO_ERROR" },
     /* 0x40 - 0x3fff Assigned via Specification Required policy. */
     { 0, 0, NULL }
 };
@@ -911,9 +913,9 @@ quic_connection_create(packet_info *pinfo, guint32 version)
         if (version == 0x51303530)
             gquic_info->version = 50;
         else if (version == 0x54303530)
-	    gquic_info->version = 150;
+            gquic_info->version = 150;
         else
-	    gquic_info->version = 151;
+            gquic_info->version = 151;
         gquic_info->encoding = ENC_BIG_ENDIAN;
         gquic_info->version_valid = TRUE;
         gquic_info->server_port = pinfo->destport;
@@ -2424,7 +2426,7 @@ quic_process_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_
         while (tvb_reported_length_remaining(decrypted_tvb, decrypted_offset) > 0) {
             if (quic_info->version == 0x51303530 || quic_info->version == 0x54303530 || quic_info->version == 0x54303531) {
                 decrypted_offset = dissect_gquic_frame_type(decrypted_tvb, pinfo, tree, decrypted_offset, pkn_len, quic_info->gquic_info);
-	    } else {
+            } else {
                 decrypted_offset = dissect_quic_frame_type(decrypted_tvb, pinfo, tree, decrypted_offset, quic_info, from_server);
             }
         }
