@@ -4788,7 +4788,9 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
         case 1:
             for (i = 1 ; i <= values->vvalue; i++ )
             {
-                proto_tree_add_item(ntree, hf_nds_syntax, tvb, ioffset, 4, ENC_LITTLE_ENDIAN);
+                guint32 syntax;
+
+                proto_tree_add_item_ret_uint(ntree, hf_nds_syntax, tvb, ioffset, 4, ENC_LITTLE_ENDIAN, &syntax);
                 ioffset = ioffset + 4;
                 value2 = tvb_get_letohl(tvb, ioffset);
                 ioffset = ioffset + 4;
@@ -4799,7 +4801,7 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
                 ioffset += align_4(tvb, ioffset);
                 values->voffset = ioffset;
 
-                print_nds_values(ntree, pinfo, tvb, value1, values);
+                print_nds_values(ntree, pinfo, tvb, syntax, values);
                 ioffset = values->voffset;
             }
             break;
