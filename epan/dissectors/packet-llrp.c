@@ -569,7 +569,7 @@ static const value_string tlv_type[] = {
     { LLRP_TLV_UHF_CAPABILITIES,        "UHF Capabilities"                               },
     { LLRP_TLV_XMIT_POWER_LEVEL_ENTRY,  "Transmit Power Level Entry"                     },
     { LLRP_TLV_FREQ_INFORMATION,        "Frequency Information"                          },
-    { LLRP_TLV_FREQ_HOP_TABLE,          "Frequenct Hop Table"                            },
+    { LLRP_TLV_FREQ_HOP_TABLE,          "Frequency Hop Table"                            },
     { LLRP_TLV_FIXED_FREQ_TABLE,        "Fixed Frequency Table"                          },
     { LLRP_TLV_ANTENNA_RCV_SENSE_RANGE, "Antenna RCV Sensitivity Range"                  },
     { LLRP_TLV_RO_SPEC,                 "RO Spec"                                        },
@@ -3790,7 +3790,7 @@ proto_register_llrp(void)
           NULL, HFILL }},
 
         { &hf_llrp_impinj_reduce_power_mode,
-        { "Recuced power mode", "llrp.param.impinj_reduce_power_mode", FT_UINT16, BASE_DEC, VALS(impinj_boolean), 0,
+        { "Reduced power mode", "llrp.param.impinj_reduce_power_mode", FT_UINT16, BASE_DEC, VALS(impinj_boolean), 0,
           NULL, HFILL }},
 
         { &hf_llrp_impinj_low_duty_mode,

@@ -3144,7 +3144,7 @@ proto_register_ntp(void)
 			"Bogus origin", "ntp.priv.mode7.bogusorg", FT_UINT32, BASE_DEC,
 			NULL, 0, NULL, HFILL }},
 		{ &hf_ntppriv_mode7_oldpkt, {
-			"Old paket", "ntp.priv.mode7.oldpkt", FT_UINT32, BASE_DEC,
+			"Old packet", "ntp.priv.mode7.oldpkt", FT_UINT32, BASE_DEC,
 			NULL, 0, NULL, HFILL }},
 		{ &hf_ntppriv_mode7_seldisp, {
 			"Bad dispersion", "ntp.priv.mode7.seldisp", FT_UINT32, BASE_DEC,

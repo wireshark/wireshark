@@ -10110,7 +10110,7 @@ proto_register_docsis_mgmt (void)
      {"RxMER Statistics per subcarrier", "docsis_optreq.reqstat.rxmer_stat_per_subcarrier", FT_BOOLEAN, 32, TFS(&tfs_requested_not_requested), 0x1, NULL, HFILL}
     },
     {&hf_docsis_optreq_reqstat_rxmer_subc_threshold_comp,
-     {"RxMER per Subcarrier Threshold Comparison for Candidate Profile", "docsis_optreq.reqstat.rxmer_per_subcarrrier_thresh_comp", FT_BOOLEAN, 32, TFS(&tfs_requested_not_requested), 0x2, NULL, HFILL}
+     {"RxMER per Subcarrier Threshold Comparison for Candidate Profile", "docsis_optreq.reqstat.rxmer_per_subcarrier_thresh_comp", FT_BOOLEAN, 32, TFS(&tfs_requested_not_requested), 0x2, NULL, HFILL}
     },
     {&hf_docsis_optreq_reqstat_snr_marg_cand_prof,
      {"SNR Margin for Candidate Profile", "docsis_optreq.reqstat.snr_marg_cand_prof", FT_BOOLEAN, 32, TFS(&tfs_requested_not_requested), 0x4, NULL, HFILL}

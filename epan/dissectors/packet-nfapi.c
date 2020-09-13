@@ -682,7 +682,7 @@ static const value_string ue_tx_antenna_selection_vals[] = {
 	{ 0, NULL }
 };
 
-static const value_string size_of_cqi_csi_feild_vals[] = {
+static const value_string size_of_cqi_csi_field_vals[] = {
 	{ 0, "1 bit" },
 	{ 1, "2 bits" },
 	{ 2, "3 bits" },
@@ -1315,7 +1315,7 @@ static int hf_nfapi_ul_index = -1;
 static int hf_nfapi_dl_assignment_index = -1;
 static int hf_nfapi_tpc_bitmap = -1;
 static int hf_nfapi_new_data_indication_two = -1;
-static int hf_nfapi_size_of_cqi_csi_feild = -1;
+static int hf_nfapi_size_of_cqi_csi_field = -1;
 static int hf_nfapi_resource_allocation_flag = -1;
 static int hf_nfapi_number_of_antenna_ports = -1;
 static int hf_nfapi_n_ul_rb = -1;
@@ -1599,7 +1599,7 @@ static void dissect_pnf_phy_instance_value(ptvcursor_t * ptvc, packet_info* pinf
 	dissect_array_value(ptvc, pinfo, "RF Config List", ett_nfapi_pnf_phy, array_size, dissect_pnf_rf_config_instance_value);
 
 	ptvcursor_add_ret_uint(ptvc, hf_nfapi_number_of_rf_exclusions, 2, ENC_BIG_ENDIAN, &array_size);
-	dissect_array_value(ptvc, pinfo, "RF Exclustion List", ett_nfapi_pnf_phy, array_size, dissect_pnf_rf_config_instance_value);
+	dissect_array_value(ptvc, pinfo, "RF Exclusion List", ett_nfapi_pnf_phy, array_size, dissect_pnf_rf_config_instance_value);
 
 	// Downlink Channel Bandwidth Supported
 	item = proto_tree_add_bitmask_ret_uint64(ptvcursor_tree(ptvc), ptvcursor_tvbuff(ptvc), ptvcursor_current_offset(ptvc),
@@ -3069,7 +3069,7 @@ static void dissect_maximum_transmit_power_value(ptvcursor_t * ptvc, packet_info
 
 	if (test_value > 700)
 	{
-		expert_add_info_format(pinfo, item, &ei_invalid_range, "Invalid maxiumum transmit power [0..700]");
+		expert_add_info_format(pinfo, item, &ei_invalid_range, "Invalid maximum transmit power [0..700]");
 	}
 }
 static void dissect_earfcn_value(ptvcursor_t * ptvc, packet_info* pinfo _U_)
@@ -5658,7 +5658,7 @@ static void dissect_hi_dci0_dci_ul_rel10_value(ptvcursor_t * ptvc, packet_info* 
 	}
 
 	// Size of CQI/CSI field
-	item = ptvcursor_add_ret_uint(ptvc, hf_nfapi_size_of_cqi_csi_feild, 1, ENC_BIG_ENDIAN, &test_value);
+	item = ptvcursor_add_ret_uint(ptvc, hf_nfapi_size_of_cqi_csi_field, 1, ENC_BIG_ENDIAN, &test_value);
 	if (test_value > 2)
 	{
 		expert_add_info_format(pinfo, item, &ei_invalid_range, "Invalid size of cqi/csi field value [0..2]");
@@ -9544,7 +9544,7 @@ void proto_register_nfapi(void)
 		{ &hf_nfapi_nmm_uplink_rssi_supported,
 			{ "NMM Uplink RSSI supported", "nfapi.nmm.uplink.rssi.supported",
 			FT_UINT8, BASE_DEC, VALS(ul_rssi_supported_vals), 0x0,
-			"Indicates if the uplink RSSI meausurements are supported by NMM.", HFILL }
+			"Indicates if the uplink RSSI measurements are supported by NMM.", HFILL }
 		},
 		{ &hf_nfapi_minimum_transmit_power,
 			{ "Minimum transmit power", "nfapi.minimum_transmit_power",
@@ -10938,9 +10938,9 @@ void proto_register_nfapi(void)
 			FT_UINT8, BASE_DEC, VALS(number_of_antenna_port_vals), 0x0,
 			"Defines number of antenna ports for this ULSCH allocation", HFILL }
 		},
-		{ &hf_nfapi_size_of_cqi_csi_feild,
-			{ "Size of cqi csi feild", "nfapi.size.of.cqi.csi.feild",
-			FT_UINT8, BASE_DEC, VALS(size_of_cqi_csi_feild_vals), 0x0,
+		{ &hf_nfapi_size_of_cqi_csi_field,
+			{ "Size of cqi csi field", "nfapi.size.of.cqi.csi.field",
+			FT_UINT8, BASE_DEC, VALS(size_of_cqi_csi_field_vals), 0x0,
 			"Indicates the size of the CQI/CSI request field", HFILL }
 		},
 		{ &hf_nfapi_new_data_indication_two,

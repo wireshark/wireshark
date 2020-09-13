@@ -595,7 +595,7 @@ static const range_string status_type2_values[] = {
 
 static const range_string reason_code_values[] = {
     { 0, 0, "Reserved" },
-    { 1, 1, "UNSPECIFIED_REASIN" },
+    { 1, 1, "UNSPECIFIED_REASON" },
     { 2, 2, "RESOURCE_LIMITATION" },
     { 3, 3, "INVALID_PARAMETERS" },
     { 4, 4, "FTM_PARAMETERS_INCAPABLE" },

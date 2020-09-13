@@ -2792,7 +2792,7 @@ static const value_string r3_daynames [] =
 {
   { 0,  "Sunday" },
   { 1,  "Monday" },
-  { 2,  "Tueday" },
+  { 2,  "Tuesday" },
   { 3,  "Wednesday" },
   { 4,  "Thursday" },
   { 5,  "Friday" },

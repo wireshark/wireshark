@@ -5046,7 +5046,7 @@ mbim_dissect_ms_network_blacklist_info(tvbuff_t *tvb, proto_tree *tree, gint off
             p_pair_list_item = (struct mbim_pair_list*)wmem_array_index(pair_list, i);
             if (p_pair_list_item->offset && p_pair_list_item->size) {
                 subtree = proto_tree_add_subtree_format(tree, tvb, base_offset + p_pair_list_item->offset, p_pair_list_item->size,
-                            ett_mbim_pair_list, NULL, "Blackisted Provider #%u", i+1);
+                            ett_mbim_pair_list, NULL, "Blacklisted Provider #%u", i+1);
                 item_offset = base_offset + p_pair_list_item->offset;
                 proto_tree_add_item(subtree, hf_mbim_ms_network_blacklist_provider_mcc, tvb, item_offset, 4, ENC_LITTLE_ENDIAN);
                 item_offset += 4;
@@ -8121,12 +8121,12 @@ proto_register_mbim(void)
               NULL, HFILL }
         },
         { &hf_mbim_subscr_ready_status_susbcr_id_offset,
-            { "Subscriber Id Offset", "mbim.control.subscriber_ready_status.susbcriber_id.offset",
+            { "Subscriber Id Offset", "mbim.control.subscriber_ready_status.subscriber_id.offset",
                FT_UINT32, BASE_DEC, NULL, 0,
               NULL, HFILL }
         },
         { &hf_mbim_subscr_ready_status_susbcr_id_size,
-            { "Subscriber Id Size", "mbim.control.subscriber_ready_status.susbcriber_id.size",
+            { "Subscriber Id Size", "mbim.control.subscriber_ready_status.subscriber_id.size",
                FT_UINT32, BASE_DEC, NULL, 0,
               NULL, HFILL }
         },
@@ -8161,7 +8161,7 @@ proto_register_mbim(void)
               NULL, HFILL }
         },
         { &hf_mbim_subscr_ready_status_susbcr_id,
-            { "Subscriber Id", "mbim.control.device_caps_info.subscriber_ready_status.susbcriber_id",
+            { "Subscriber Id", "mbim.control.device_caps_info.subscriber_ready_status.subscriber_id",
                FT_STRING, BASE_NONE, NULL, 0,
               NULL, HFILL }
         },

@@ -45,7 +45,7 @@ Short description of the SML protocol on the SML Wireshark Wiki page:  https://w
 
 #define PROC_VALUE		0x01
 #define	PROC_PERIOD		0x02
-#define	PROC_TUPEL		0x03
+#define	PROC_TUPLE		0x03
 #define PROC_TIME		0x04
 
 #define SHORT_LIST		0x70
@@ -196,7 +196,7 @@ static const value_string sml_timetypes[]={
 static const value_string procvalues[]={
 	{PROC_VALUE,  "Value"},
 	{PROC_PERIOD, "PeriodEntry"},
-	{PROC_TUPEL,  "TupelEntry"},
+	{PROC_TUPLE,  "TupleEntry"},
 	{PROC_TIME,   "Time"},
 	{0, NULL}
 };
@@ -284,7 +284,7 @@ static gint ett_sml_procParValue = -1;
 static gint ett_sml_procParValueTime = -1;
 static gint ett_sml_procParValuetype = -1;
 static gint ett_sml_msgend = -1;
-static gint ett_sml_tupel = -1;
+static gint ett_sml_tuple = -1;
 static gint ett_sml_secIndex = -1;
 static gint ett_sml_signature = -1;
 static gint ett_sml_attentionNo = -1;
@@ -335,7 +335,7 @@ static expert_field ei_sml_procParValue_invalid = EI_INIT;
 static expert_field ei_sml_segment_needed = EI_INIT;
 static expert_field ei_sml_endOfSmlMsg = EI_INIT;
 static expert_field ei_sml_crc_error = EI_INIT;
-static expert_field ei_sml_tupel_error = EI_INIT;
+static expert_field ei_sml_tuple_error = EI_INIT;
 static expert_field ei_sml_crc_error_length = EI_INIT;
 static expert_field ei_sml_invalid_count = EI_INIT;
 static expert_field ei_sml_MessageBody = EI_INIT;
@@ -771,11 +771,11 @@ static void field_valTime(tvbuff_t *tvb, proto_tree *insert_tree, guint *offset,
 	*offset+=*data;
 }
 
-static void TupelEntryTree(tvbuff_t *tvb, proto_tree *procParValue_tree, guint *offset){
+static void TupleEntryTree(tvbuff_t *tvb, proto_tree *procParValue_tree, guint *offset){
 	proto_item *SML_time;
-	proto_item *TupelEntry;
+	proto_item *TupleEntry;
 
-	proto_tree *TupelEntry_list = NULL;
+	proto_tree *TupleEntry_list = NULL;
 	proto_tree *SML_time_tree = NULL;
 	proto_tree *secIndex_tree = NULL;
 	proto_tree *unit_pA_tree = NULL;
@@ -802,13 +802,13 @@ static void TupelEntryTree(tvbuff_t *tvb, proto_tree *procParValue_tree, guint *
 	guint data = 0;
 	guint length = 0;
 
-	/*Tupel_List*/
-	TupelEntry_list = proto_tree_add_subtree(procParValue_tree, tvb, *offset, -1, ett_sml_tupel, &TupelEntry, "TupelEntry");
+	/*Tuple_List*/
+	TupleEntry_list = proto_tree_add_subtree(procParValue_tree, tvb, *offset, -1, ett_sml_tuple, &TupleEntry, "TupleEntry");
 	get_length(tvb, offset, &data, &length);
 	*offset+=length;
 
 	/*Server Id*/
-	field_serverId(tvb, TupelEntry_list, offset, &data, &length);
+	field_serverId(tvb, TupleEntry_list, offset, &data, &length);
 
 	/*secindex*/
 	SML_time_tree = proto_tree_add_subtree(procParValue_tree, tvb, *offset, -1, ett_sml_time, &SML_time, "secIndex");
@@ -823,17 +823,17 @@ static void TupelEntryTree(tvbuff_t *tvb, proto_tree *procParValue_tree, guint *
 	proto_item_set_end(SML_time, tvb, *offset);
 
 	/*Sml Status OPTIONAL*/
-	field_status(tvb, TupelEntry_list, offset, &data, &length);
+	field_status(tvb, TupleEntry_list, offset, &data, &length);
 
 	/*unit_pA*/
-	unit_pA_tree = proto_tree_add_subtree(TupelEntry_list, tvb, *offset, 2, ett_sml_unit_pA, NULL, "unit_pA");
+	unit_pA_tree = proto_tree_add_subtree(TupleEntry_list, tvb, *offset, 2, ett_sml_unit_pA, NULL, "unit_pA");
 	proto_tree_add_item (unit_pA_tree, hf_sml_datatype, tvb, *offset, 1, ENC_BIG_ENDIAN);
 	*offset+=1;
 	proto_tree_add_item (unit_pA_tree, hf_sml_unit_pA, tvb, *offset, 1, ENC_BIG_ENDIAN);
 	*offset+=1;
 
 	/*scaler_pA*/
-	scaler_pA_tree = proto_tree_add_subtree(TupelEntry_list, tvb, *offset, 2, ett_sml_scaler_pA, NULL, "scaler_pA");
+	scaler_pA_tree = proto_tree_add_subtree(TupleEntry_list, tvb, *offset, 2, ett_sml_scaler_pA, NULL, "scaler_pA");
 	proto_tree_add_item (scaler_pA_tree, hf_sml_datatype, tvb, *offset, 1, ENC_BIG_ENDIAN);
 	*offset+=1;
 	proto_tree_add_item (scaler_pA_tree, hf_sml_scaler_pA, tvb, *offset, 1, ENC_BIG_ENDIAN);
@@ -841,21 +841,21 @@ static void TupelEntryTree(tvbuff_t *tvb, proto_tree *procParValue_tree, guint *
 
 	/*value_pA*/
 	get_length(tvb, offset, &data, &length);
-	value_pA_tree = proto_tree_add_subtree(TupelEntry_list, tvb, *offset, length+data, ett_sml_value_pA, NULL, "value_pA");
+	value_pA_tree = proto_tree_add_subtree(TupleEntry_list, tvb, *offset, length+data, ett_sml_value_pA, NULL, "value_pA");
 	proto_tree_add_item (value_pA_tree, hf_sml_datatype, tvb, *offset, 1, ENC_BIG_ENDIAN);
 	*offset+=1;
 	proto_tree_add_item (value_pA_tree, hf_sml_value_pA, tvb, *offset, data, ENC_BIG_ENDIAN);
 	*offset+=data;
 
 	/*unit_R1*/
-	unit_R1_tree = proto_tree_add_subtree(TupelEntry_list, tvb, *offset, 2, ett_sml_unit_R1, NULL, "unit_R1");
+	unit_R1_tree = proto_tree_add_subtree(TupleEntry_list, tvb, *offset, 2, ett_sml_unit_R1, NULL, "unit_R1");
 	proto_tree_add_item (unit_R1_tree, hf_sml_datatype, tvb, *offset, 1, ENC_BIG_ENDIAN);
 	*offset+=1;
 	proto_tree_add_item (unit_R1_tree, hf_sml_unit_R1, tvb, *offset, 1, ENC_BIG_ENDIAN);
 	*offset+=1;
 
 	/*scaler_R1*/
-	scaler_R1_tree = proto_tree_add_subtree(TupelEntry_list, tvb, *offset, 1, ett_sml_scaler_R1, NULL, "scaler_R1");
+	scaler_R1_tree = proto_tree_add_subtree(TupleEntry_list, tvb, *offset, 1, ett_sml_scaler_R1, NULL, "scaler_R1");
 	proto_tree_add_item (scaler_R1_tree, hf_sml_datatype, tvb, *offset, 1, ENC_BIG_ENDIAN);
 	*offset+=1;
 	proto_tree_add_item (scaler_R1_tree, hf_sml_scaler_R1, tvb, *offset, 1, ENC_BIG_ENDIAN);
@@ -863,21 +863,21 @@ static void TupelEntryTree(tvbuff_t *tvb, proto_tree *procParValue_tree, guint *
 
 	/*value_R1*/
 	get_length(tvb, offset, &data, &length);
-	value_R1_tree = proto_tree_add_subtree(TupelEntry_list, tvb, *offset, length+data, ett_sml_value_R1, NULL, "value_R1");
+	value_R1_tree = proto_tree_add_subtree(TupleEntry_list, tvb, *offset, length+data, ett_sml_value_R1, NULL, "value_R1");
 	proto_tree_add_item (value_R1_tree, hf_sml_datatype, tvb, *offset, 1, ENC_BIG_ENDIAN);
 	*offset+=1;
 	proto_tree_add_item (value_R1_tree, hf_sml_value_R1, tvb, *offset, data, ENC_BIG_ENDIAN);
 	*offset+=data;
 
 	/*unit_R4*/
-	unit_R4_tree = proto_tree_add_subtree(TupelEntry_list, tvb, *offset, 2, ett_sml_unit_R4, NULL, "unit_R4");
+	unit_R4_tree = proto_tree_add_subtree(TupleEntry_list, tvb, *offset, 2, ett_sml_unit_R4, NULL, "unit_R4");
 	proto_tree_add_item (unit_R4_tree, hf_sml_datatype, tvb, *offset, 1, ENC_BIG_ENDIAN);
 	*offset+=1;
 	proto_tree_add_item (unit_R4_tree, hf_sml_unit_R4, tvb, *offset, 1, ENC_BIG_ENDIAN);
 	*offset+=1;
 
 	/*scaler_R4*/
-	scaler_R4_tree = proto_tree_add_subtree(TupelEntry_list, tvb, *offset, 2, ett_sml_scaler_R4, NULL, "scaler_R4");
+	scaler_R4_tree = proto_tree_add_subtree(TupleEntry_list, tvb, *offset, 2, ett_sml_scaler_R4, NULL, "scaler_R4");
 	proto_tree_add_item (scaler_R4_tree, hf_sml_datatype, tvb, *offset, 1, ENC_BIG_ENDIAN);
 	*offset+=1;
 	proto_tree_add_item (scaler_R4_tree, hf_sml_scaler_R4, tvb, *offset, 1, ENC_BIG_ENDIAN);
@@ -885,7 +885,7 @@ static void TupelEntryTree(tvbuff_t *tvb, proto_tree *procParValue_tree, guint *
 
 	/*value_R4*/
 	get_length(tvb, offset, &data, &length);
-	value_R4_tree = proto_tree_add_subtree(TupelEntry_list, tvb, *offset, length+data, ett_sml_value_R4, NULL, "value_R4");
+	value_R4_tree = proto_tree_add_subtree(TupleEntry_list, tvb, *offset, length+data, ett_sml_value_R4, NULL, "value_R4");
 	proto_tree_add_item (value_R4_tree, hf_sml_datatype, tvb, *offset, 1, ENC_BIG_ENDIAN);
 	*offset+=1;
 	proto_tree_add_item (value_R4_tree, hf_sml_value_R4, tvb, *offset, data, ENC_BIG_ENDIAN);
@@ -893,21 +893,21 @@ static void TupelEntryTree(tvbuff_t *tvb, proto_tree *procParValue_tree, guint *
 
 	/*signature_pA_R1_R4*/
 	get_length(tvb, offset, &data, &length);
-	signature_pA_R1_R4_tree = proto_tree_add_subtree(TupelEntry_list, tvb, *offset, length+data, ett_sml_signature_pA_R1_R4, NULL, "signature_pa_R1_R4");
+	signature_pA_R1_R4_tree = proto_tree_add_subtree(TupleEntry_list, tvb, *offset, length+data, ett_sml_signature_pA_R1_R4, NULL, "signature_pa_R1_R4");
 	proto_tree_add_uint (signature_pA_R1_R4_tree, hf_sml_length, tvb, *offset, length, data);
 	*offset+=length;
 	proto_tree_add_item (signature_pA_R1_R4_tree, hf_sml_signature_pA_R1_R4, tvb, *offset, data, ENC_NA);
 	*offset+=data;
 
 	/*unit_mA*/
-	unit_mA_tree = proto_tree_add_subtree(TupelEntry_list, tvb, *offset, 2, ett_sml_unit_mA, NULL, "unit_mA");
+	unit_mA_tree = proto_tree_add_subtree(TupleEntry_list, tvb, *offset, 2, ett_sml_unit_mA, NULL, "unit_mA");
 	proto_tree_add_item (unit_mA_tree, hf_sml_datatype, tvb, *offset, 1, ENC_BIG_ENDIAN);
 	*offset+=1;
 	proto_tree_add_item (unit_mA_tree, hf_sml_unit_mA, tvb, *offset, 1, ENC_BIG_ENDIAN);
 	*offset+=1;
 
 	/*scaler_mA*/
-	scaler_mA_tree = proto_tree_add_subtree(TupelEntry_list, tvb, *offset, 2, ett_sml_scaler_mA, NULL, "scaler_mA");
+	scaler_mA_tree = proto_tree_add_subtree(TupleEntry_list, tvb, *offset, 2, ett_sml_scaler_mA, NULL, "scaler_mA");
 	proto_tree_add_item (scaler_mA_tree, hf_sml_datatype, tvb, *offset, 1, ENC_BIG_ENDIAN);
 	*offset+=1;
 	proto_tree_add_item (scaler_mA_tree, hf_sml_scaler_mA, tvb, *offset, 1, ENC_BIG_ENDIAN);
@@ -915,21 +915,21 @@ static void TupelEntryTree(tvbuff_t *tvb, proto_tree *procParValue_tree, guint *
 
 	/*value_mA*/
 	get_length(tvb, offset, &data, &length);
-	value_mA_tree = proto_tree_add_subtree(TupelEntry_list, tvb, *offset, length+data, ett_sml_value_mA, NULL, "value_mA");
+	value_mA_tree = proto_tree_add_subtree(TupleEntry_list, tvb, *offset, length+data, ett_sml_value_mA, NULL, "value_mA");
 	proto_tree_add_item (value_mA_tree, hf_sml_datatype, tvb, *offset, 1, ENC_BIG_ENDIAN);
 	*offset+=1;
 	proto_tree_add_item (value_mA_tree, hf_sml_value_mA, tvb, *offset, data, ENC_BIG_ENDIAN);
 	*offset+=data;
 
 	/*unit_R2*/
-	unit_R2_tree = proto_tree_add_subtree(TupelEntry_list, tvb, *offset, 2, ett_sml_unit_R2, NULL, "unit_R2");
+	unit_R2_tree = proto_tree_add_subtree(TupleEntry_list, tvb, *offset, 2, ett_sml_unit_R2, NULL, "unit_R2");
 	proto_tree_add_item (unit_R2_tree, hf_sml_datatype, tvb, *offset, 1, ENC_BIG_ENDIAN);
 	*offset+=1;
 	proto_tree_add_item (unit_R2_tree, hf_sml_unit_R2, tvb, *offset, 1, ENC_BIG_ENDIAN);
 	*offset+=1;
 
 	/*scaler_R2*/
-	scaler_R2_tree = proto_tree_add_subtree(TupelEntry_list, tvb, *offset, 2, ett_sml_scaler_R2, NULL, "scaler_R2");
+	scaler_R2_tree = proto_tree_add_subtree(TupleEntry_list, tvb, *offset, 2, ett_sml_scaler_R2, NULL, "scaler_R2");
 	proto_tree_add_item (scaler_R2_tree, hf_sml_datatype, tvb, *offset, 1, ENC_BIG_ENDIAN);
 	*offset+=1;
 	proto_tree_add_item (scaler_R2_tree, hf_sml_scaler_R2, tvb, *offset, 1, ENC_BIG_ENDIAN);
@@ -937,21 +937,21 @@ static void TupelEntryTree(tvbuff_t *tvb, proto_tree *procParValue_tree, guint *
 
 	/*value_R2*/
 	get_length(tvb, offset, &data, &length);
-	value_R2_tree = proto_tree_add_subtree(TupelEntry_list, tvb, *offset, length+data, ett_sml_value_R2, NULL, "value_R2");
+	value_R2_tree = proto_tree_add_subtree(TupleEntry_list, tvb, *offset, length+data, ett_sml_value_R2, NULL, "value_R2");
 	proto_tree_add_item (value_R2_tree, hf_sml_datatype, tvb, *offset, 1, ENC_BIG_ENDIAN);
 	*offset+=1;
 	proto_tree_add_item (value_R2_tree, hf_sml_value_R2, tvb, *offset, data, ENC_BIG_ENDIAN);
 	*offset+=data;
 
 	/*unit_R3*/
-	unit_R3_tree = proto_tree_add_subtree(TupelEntry_list, tvb, *offset, 2, ett_sml_unit_R3, NULL, "unit_R3");
+	unit_R3_tree = proto_tree_add_subtree(TupleEntry_list, tvb, *offset, 2, ett_sml_unit_R3, NULL, "unit_R3");
 	proto_tree_add_item (unit_R3_tree, hf_sml_datatype, tvb, *offset, 1, ENC_BIG_ENDIAN);
 	*offset+=1;
 	proto_tree_add_item (unit_R3_tree, hf_sml_unit_R3, tvb, *offset, 1, ENC_BIG_ENDIAN);
 	*offset+=1;
 
 	/*scaler_R3*/
-	scaler_R3_tree = proto_tree_add_subtree(TupelEntry_list, tvb, *offset, 2, ett_sml_scaler_R3, NULL, "scaler_R3");
+	scaler_R3_tree = proto_tree_add_subtree(TupleEntry_list, tvb, *offset, 2, ett_sml_scaler_R3, NULL, "scaler_R3");
 	proto_tree_add_item (scaler_R3_tree, hf_sml_datatype, tvb, *offset, 1, ENC_BIG_ENDIAN);
 	*offset+=1;
 	proto_tree_add_item (scaler_R3_tree, hf_sml_scaler_R3, tvb, *offset, 1, ENC_BIG_ENDIAN);
@@ -959,7 +959,7 @@ static void TupelEntryTree(tvbuff_t *tvb, proto_tree *procParValue_tree, guint *
 
 	/*value_R3*/
 	get_length(tvb, offset, &data, &length);
-	value_R3_tree = proto_tree_add_subtree(TupelEntry_list, tvb, *offset, length+data, ett_sml_value_R3, NULL, "value_R3");
+	value_R3_tree = proto_tree_add_subtree(TupleEntry_list, tvb, *offset, length+data, ett_sml_value_R3, NULL, "value_R3");
 	proto_tree_add_item (value_R3_tree, hf_sml_datatype, tvb, *offset, 1, ENC_BIG_ENDIAN);
 	*offset+=1;
 	proto_tree_add_item (value_R3_tree, hf_sml_value_R3, tvb, *offset, data, ENC_BIG_ENDIAN);
@@ -967,13 +967,13 @@ static void TupelEntryTree(tvbuff_t *tvb, proto_tree *procParValue_tree, guint *
 
 	/*signature_mA_R2_R3*/
 	get_length(tvb, offset, &data, &length);
-	signature_mA_R2_R3_tree = proto_tree_add_subtree(TupelEntry_list, tvb, *offset, length+data, ett_sml_signature_mA_R2_R3, NULL, "signature_mA_R2_R3");
+	signature_mA_R2_R3_tree = proto_tree_add_subtree(TupleEntry_list, tvb, *offset, length+data, ett_sml_signature_mA_R2_R3, NULL, "signature_mA_R2_R3");
 	proto_tree_add_uint (signature_mA_R2_R3_tree, hf_sml_length, tvb, *offset, length, data);
 	*offset+=length;
 	proto_tree_add_item (signature_mA_R2_R3_tree, hf_sml_signature_mA_R2_R3, tvb, *offset, data, ENC_NA);
 	*offset+=data;
 
-	proto_item_set_end(TupelEntry, tvb, *offset);
+	proto_item_set_end(TupleEntry, tvb, *offset);
 }
 
 static void child_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *insert_tree, guint *offset, guint *data, guint *length){
@@ -1057,13 +1057,13 @@ static void child_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *insert_tre
 				proto_item_set_end(periodEntry, tvb, *offset);
 				break;
 
-			case PROC_TUPEL:
-				/*TupelEntry*/
+			case PROC_TUPLE:
+				/*TupleEntry*/
 				if (tvb_get_guint8(tvb, *offset) == 0xF1 && tvb_get_guint8(tvb, *offset+1) == 0x07){
-					TupelEntryTree(tvb, procParValue_tree, offset);
+					TupleEntryTree(tvb, procParValue_tree, offset);
 				}
 				else {
-					expert_add_info(pinfo, NULL, &ei_sml_tupel_error);
+					expert_add_info(pinfo, NULL, &ei_sml_tuple_error);
 					return;
 				}
 				break;
@@ -2711,7 +2711,7 @@ void proto_register_sml (void) {
 		&ett_sml_procParValuetype,
 		&ett_sml_procParValue,
 		&ett_sml_msgend,
-		&ett_sml_tupel,
+		&ett_sml_tuple,
 		&ett_sml_secIndex,
 		&ett_sml_signature,
 		&ett_sml_attentionNo,
@@ -2758,7 +2758,7 @@ void proto_register_sml (void) {
 	};
 
 	static ei_register_info ei[] = {
-		{ &ei_sml_tupel_error, { "sml.tupel_error_", PI_PROTOCOL, PI_ERROR, "error in Tupel", EXPFILL }},
+		{ &ei_sml_tuple_error, { "sml.tuple_error_", PI_PROTOCOL, PI_ERROR, "error in Tuple", EXPFILL }},
 		{ &ei_sml_procParValue_invalid, { "sml.procparvalue.invalid", PI_PROTOCOL, PI_WARN, "invalid procParValue", EXPFILL }},
 		{ &ei_sml_procParValue_errror, { "sml.procparvalue.error", PI_PROTOCOL, PI_ERROR, "error in procParValue", EXPFILL }},
 		{ &ei_sml_invalid_count, { "sml.invalid_count", PI_PROTOCOL, PI_ERROR, "invalid loop count", EXPFILL }},

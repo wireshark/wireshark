@@ -281,7 +281,7 @@ static int * const encodedCPA_flags[] = {
 static gint hf_pnrp_encodedCPA_notAfter = -1;
 static gint hf_pnrp_encodedCPA_serviceLocation = -1;
 static gint hf_pnrp_encodedCPA_binaryAuthority = -1;
-static gint hf_pnrp_encodedCPA_classifiertHash = -1;
+static gint hf_pnrp_encodedCPA_classifierHash = -1;
 static gint hf_pnrp_encodedCPA_friendlyName = -1;
 
 /* Lookup Controls */
@@ -987,8 +987,8 @@ static void dissect_encodedCPA_structure(tvbuff_t *tvb, gint offset, gint length
         }
         /* Check if C Flag is set */
         if (flagsField & FLAGS_ENCODED_CPA_C) {
-            /* Classifiert Hash */
-            proto_tree_add_item(pnrp_encodedCPA_tree, hf_pnrp_encodedCPA_classifiertHash, tvb, offset, 20, ENC_NA);
+            /* Classifier Hash */
+            proto_tree_add_item(pnrp_encodedCPA_tree, hf_pnrp_encodedCPA_classifierHash, tvb, offset, 20, ENC_NA);
             offset +=20;
         }
         /* Check if F Flag is set */
@@ -1291,8 +1291,8 @@ void proto_register_pnrp(void)
         { &hf_pnrp_encodedCPA_binaryAuthority,
             { "Binary Authority", "pnrp.encodedCPA.binaryAuthority", FT_BYTES,BASE_NONE, NULL, 0x0,
                 "SHA-1 Hash of PublicKey Data field", HFILL }},
-        { &hf_pnrp_encodedCPA_classifiertHash,
-            { "Classifiert Hash", "pnrp.encodedCPA.classifierHash", FT_BYTES,BASE_NONE, NULL, 0x0,
+        { &hf_pnrp_encodedCPA_classifierHash,
+            { "Classifier Hash", "pnrp.encodedCPA.classifierHash", FT_BYTES,BASE_NONE, NULL, 0x0,
                 "SHA-1 Hash of the classifier text", HFILL }},
         { &hf_pnrp_encodedCPA_friendlyName,
             { "Friendly Name of PNRP ID", "pnrp.encodedCPA.friendlyName", FT_STRING,BASE_NONE, NULL, 0x0,

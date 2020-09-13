@@ -9681,7 +9681,7 @@ proto_register_ieee1905(void)
             FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
 
         { &hf_ieee1905_steering_policy_policy,
-          { "Steering policy", "ieee1905.steering_polocy.policy",
+          { "Steering policy", "ieee1905.steering_policy.policy",
             FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
 
         { &hf_ieee1905_steering_policy_util,

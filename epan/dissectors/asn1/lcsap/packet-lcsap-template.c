@@ -303,7 +303,7 @@ void proto_register_lcsap(void) {
 
   static ei_register_info ei[] = {
       { &ei_lcsap_civic_data_not_xml,
-      { "lcsap.civic_data_not_xml", PI_PROTOCOL, PI_ERROR, "Shold contain a UTF-8 encoded PIDF - LO XML document as defined in IETF RFC 4119", EXPFILL } },
+      { "lcsap.civic_data_not_xml", PI_PROTOCOL, PI_ERROR, "Should contain a UTF-8 encoded PIDF - LO XML document as defined in IETF RFC 4119", EXPFILL } },
   };
 
 

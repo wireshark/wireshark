@@ -973,7 +973,7 @@ static const value_string DocPropSetGuid_IDS[] = {
 static const value_string ShellDetails_IDS[] = {
 	{ 5, "System.ComputerName"},
 	{ 8, "System.ItemPathDisplayNarrow"},
-	{ 9, "PercivedType"},
+	{ 9, "PerceivedType"},
 	{11, "System.ItemType"},
 	{12, "FileCount"},
 	{14, "TotalFileSize"},
@@ -7734,7 +7734,7 @@ proto_register_mswsp(void)
 		{
 			&hf_mswsp_msg_cpmquerystatusex_dwratiodenom,
 			{
-				"dwRatioFinishedDenomenator", "mswsp.msg.cpmquerystatusex.dwratiodenom",
+				"dwRatioFinishedDenominator", "mswsp.msg.cpmquerystatusex.dwratiodenom",
 				FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL
 			}
 		},

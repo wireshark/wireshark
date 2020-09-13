@@ -3876,12 +3876,12 @@ void proto_register_mysql(void)
 		NULL, HFILL }},
 
 		{ &hf_mariadb_extcaps_server,
-		{ "MariaDB Extendend Server Capabilities", "mariadb.extcaps.server",
+		{ "MariaDB Extended Server Capabilities", "mariadb.extcaps.server",
 		FT_UINT32, BASE_HEX, NULL, 0x0,
 		NULL, HFILL }},
 
 		{ &hf_mariadb_extcaps_client,
-		{ "MariaDB Extendend Client Capabilities", "mariadb.extcaps.client",
+		{ "MariaDB Extended Client Capabilities", "mariadb.extcaps.client",
 		FT_UINT32, BASE_HEX, NULL, 0x0,
 		NULL, HFILL }},
 

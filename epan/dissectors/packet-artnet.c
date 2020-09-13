@@ -5302,7 +5302,7 @@ proto_register_artnet(void) {
         NULL, HFILL }},
 
     { &hf_artnet_poll_talktome_vlc,
-      { "VLC transmision",
+      { "VLC transmission",
         "artnet.poll.talktome_vlc",
         FT_BOOLEAN, 8, TFS(&tfs_disabled_enabled), 0x10,
         NULL, HFILL }},

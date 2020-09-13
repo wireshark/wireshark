@@ -711,7 +711,7 @@ static int hf_smb_unix_capability_posix_paths = -1;
 static int hf_smb_unix_capability_posix_path_ops = -1;
 static int hf_smb_unix_capability_large_read = -1;
 static int hf_smb_unix_capability_large_write = -1;
-static int hf_smb_unix_capability_encrpytion = -1;
+static int hf_smb_unix_capability_encryption = -1;
 static int hf_smb_unix_capability_mandatory_crypto = -1;
 static int hf_smb_unix_capability_proxy = -1;
 static int hf_smb_unix_file_link_dest = -1;
@@ -16177,7 +16177,7 @@ dissect_qfsi_vals(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 			ENC_LITTLE_ENDIAN);
 
 		proto_tree_add_item(
-			subtree, hf_smb_unix_capability_encrpytion, tvb, offset, 4,
+			subtree, hf_smb_unix_capability_encryption, tvb, offset, 4,
 			ENC_LITTLE_ENDIAN);
 
 		proto_tree_add_item(
@@ -20914,8 +20914,8 @@ proto_register_smb(void)
 	  { "Large Write Capability", "smb.unix.capability.large_write", FT_BOOLEAN, 32,
 		TFS(&tfs_set_notset), 0x00000080, NULL, HFILL }},
 
-	{ &hf_smb_unix_capability_encrpytion,
-	  { "Encryption Capability", "smb.unix.capability.encrpytion", FT_BOOLEAN, 32,
+	{ &hf_smb_unix_capability_encryption,
+	  { "Encryption Capability", "smb.unix.capability.encryption", FT_BOOLEAN, 32,
 		TFS(&tfs_set_notset), 0x00000100, NULL, HFILL }},
 
 	{ &hf_smb_unix_capability_mandatory_crypto,

@@ -2462,7 +2462,7 @@ proto_register_zbee_zcl_elec_mes(void)
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_elec_mes_profile_interval_period,
-            { "Profile Interval Pediod", "zbee_zcl_meas_sensing.elecmes.profile_interval_period", FT_UINT8, BASE_DEC, NULL,
+            { "Profile Interval Period", "zbee_zcl_meas_sensing.elecmes.profile_interval_period", FT_UINT8, BASE_DEC, NULL,
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_elec_mes_max_number_of_intervals,

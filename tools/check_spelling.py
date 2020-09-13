@@ -158,6 +158,7 @@ class File:
             v = v.replace('#', ' ')
             v = v.replace('&', ' ')
             v = v.replace('@', ' ')
+            v = v.replace('$', ' ')
             v = v.replace("'", ' ')
             v = v.replace('"', ' ')
             v = v.replace('%u', '')

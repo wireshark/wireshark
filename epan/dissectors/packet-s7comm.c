@@ -1623,7 +1623,7 @@ static gint hf_s7comm_pi_n_x_newfilename = -1;
 static gint hf_s7comm_pi_n_x_findmode = -1;
 static gint hf_s7comm_pi_n_x_switch = -1;
 static gint hf_s7comm_pi_n_x_functionnumber = -1;
-static gint hf_s7comm_pi_n_x_semaphorvalue = -1;
+static gint hf_s7comm_pi_n_x_semaphorevalue = -1;
 static gint hf_s7comm_pi_n_x_onoff = -1;
 static gint hf_s7comm_pi_n_x_mode = -1;
 static gint hf_s7comm_pi_n_x_factor = -1;
@@ -3445,7 +3445,7 @@ s7comm_decode_pi_service(tvbuff_t *tvb,
         case S7COMM_PI_N_MMCSEM:
             hf[0] = hf_s7comm_pi_n_x_addressident;
             hf[1] = hf_s7comm_pi_n_x_functionnumber;
-            hf[2] = hf_s7comm_pi_n_x_semaphorvalue;
+            hf[2] = hf_s7comm_pi_n_x_semaphorevalue;
             s7comm_decode_pistart_parameters(tvb, pinfo, tree, param_tree, servicename, 3, hf, paramoffset);
             break;
         case S7COMM_PI_N_NCKMOD:
@@ -7679,8 +7679,8 @@ proto_register_s7comm (void)
         { &hf_s7comm_pi_n_x_functionnumber,
         { "Function Number", "s7comm.param.pi.n_x.functionnumber", FT_STRING, BASE_NONE, NULL, 0x0,
           NULL , HFILL }},
-        { &hf_s7comm_pi_n_x_semaphorvalue,
-        { "Semaphor Value", "s7comm.param.pi.n_x.semaphorvalue", FT_STRING, BASE_NONE, NULL, 0x0,
+        { &hf_s7comm_pi_n_x_semaphorevalue,
+        { "Semaphore Value", "s7comm.param.pi.n_x.semaphorevalue", FT_STRING, BASE_NONE, NULL, 0x0,
           NULL , HFILL }},
         { &hf_s7comm_pi_n_x_onoff,
         { "OnOff", "s7comm.param.pi.n_x.onoff", FT_STRING, BASE_NONE, NULL, 0x0,
@@ -7704,7 +7704,7 @@ proto_register_s7comm (void)
         { "Tool Status", "s7comm.param.pi.n_x.toolstatus", FT_STRING, BASE_NONE, NULL, 0x0,
           NULL , HFILL }},
         { &hf_s7comm_pi_n_x_wearsearchstrat,
-        { "Search Strategie", "s7comm.param.pi.n_x.wearsearchstrat", FT_STRING, BASE_NONE, NULL, 0x0,
+        { "Search Strategy", "s7comm.param.pi.n_x.wearsearchstrat", FT_STRING, BASE_NONE, NULL, 0x0,
           NULL , HFILL }},
         { &hf_s7comm_pi_n_x_toolid,
         { "Tool ID", "s7comm.param.pi.n_x.toolid", FT_STRING, BASE_NONE, NULL, 0x0,

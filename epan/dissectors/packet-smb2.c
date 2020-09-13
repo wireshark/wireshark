@@ -11141,7 +11141,7 @@ proto_register_smb2(void)
 
 		{ &hf_smb2_mode_information,
 			{ "Mode Information", "smb2.mode_info", FT_UINT32, BASE_HEX,
-			NULL, 0, "File mode informatino", HFILL }
+			NULL, 0, "File mode information", HFILL }
 		},
 
 		{ &hf_smb2_mode_file_write_through,

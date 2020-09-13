@@ -714,7 +714,7 @@ static header_field_info hfi_netlink_route_ifla_linkstats_rx_crc_errs NETLINK_RO
 	  NULL, 0x00, NULL, HFILL };
 
 static header_field_info hfi_netlink_route_ifla_linkstats_rx_frame_errs NETLINK_ROUTE_HFI_INIT =
-	{ "Frame aligment errors", "netlink-route.ifla_linkstats.rx_errors.frame_errs", FT_UINT64, BASE_DEC,
+	{ "Frame alignment errors", "netlink-route.ifla_linkstats.rx_errors.frame_errs", FT_UINT64, BASE_DEC,
 	  NULL, 0x00, NULL, HFILL };
 
 static header_field_info hfi_netlink_route_ifla_linkstats_rx_fifo_errs NETLINK_ROUTE_HFI_INIT =

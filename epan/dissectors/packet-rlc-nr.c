@@ -1614,7 +1614,7 @@ void proto_register_rlc_nr(void)
         { &ei_rlc_nr_header_only, { "rlc-nr.header-only.expert", PI_SEQUENCE, PI_NOTE, "RLC PDU SDUs have been omitted", EXPFILL }},
         { &ei_rlc_nr_am_cpt, { "rlc-nr.am.cpt.invalid", PI_MALFORMED, PI_ERROR, "RLC Control frame type not handled", EXPFILL }},
         { &ei_rlc_nr_am_nack_sn_ack_same, { "rlc-nr.am.nack-sn.ack-same", PI_MALFORMED, PI_ERROR, "Status PDU shouldn't ACK and NACK the same sequence number", EXPFILL }},
-        { &ei_rlc_nr_am_nack_range, { "rlc-nr.am.nack-sn.nack-range", PI_MALFORMED, PI_ERROR, "Status PDU shouldnot contain a NACK range vith value 0", EXPFILL }},
+        { &ei_rlc_nr_am_nack_range, { "rlc-nr.am.nack-sn.nack-range", PI_MALFORMED, PI_ERROR, "Status PDU should not contain a NACK range with value 0", EXPFILL }},
         { &ei_rlc_nr_am_nack_sn_ahead_ack, { "rlc-nr.am.nack-sn.ahead-ack", PI_MALFORMED, PI_ERROR, "NACK must not be ahead of ACK in status PDU", EXPFILL }},
         { &ei_rlc_nr_am_nack_sn_partial, { "rlc-nr.am.nack-sn.partial", PI_SEQUENCE, PI_WARN, "Status PDU reports NACK (partial)", EXPFILL }},
         { &ei_rlc_nr_am_nack_sn, { "rlc-nr.am.nack-sn.expert", PI_SEQUENCE, PI_WARN, "Status PDU reports NACK", EXPFILL }},

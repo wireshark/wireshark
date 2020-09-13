@@ -232,7 +232,7 @@
 #define TDS_DONEPROC_TOKEN        254  /* 0xFE                              */
 #define TDS_DONEINPROC_TOKEN      255  /* 0xFF                              */
 
-/* Capabilty token fields (TDS5) */
+/* Capability token fields (TDS5) */
 #define TDS_CAP_REQUEST                      1
 #define TDS_CAP_RESPONSE                     2
 
@@ -7190,7 +7190,7 @@ proto_register_tds(void)
 
         /* CAPABILITY token */
         { &hf_tds_capability,
-          { "Token - Capability", "tds.capabilty",
+          { "Token - Capability", "tds.capability",
             FT_NONE, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },

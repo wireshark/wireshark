@@ -1708,7 +1708,7 @@ proto_register_ansi_801(void)
 		    NULL, HFILL }
 		},
 		{ &hf_ansi_801_reserved_bits,
-		  { "Reserved bit(s)","ansi_801.reerved_bits",
+		  { "Reserved bit(s)","ansi_801.reserved_bits",
 		    FT_UINT8,BASE_DEC, NULL, 0x0,
 		    NULL, HFILL }
 		},

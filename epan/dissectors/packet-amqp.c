@@ -11617,7 +11617,7 @@ proto_register_amqp(void)
             FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x10,
             "Queue created auto-delete", HFILL}},
         {&hf_amqp_0_10_struct_queue_query_result_message_count, {
-            "Message-count", "amqp.queue.queue-query-result.message-countt",
+            "Message-count", "amqp.queue.queue-query-result.message-count",
             FT_UINT32, BASE_DEC, NULL, 0x0,
             "Number of messages in the queue", HFILL}},
         {&hf_amqp_0_10_struct_queue_query_result_subscriber_count, {

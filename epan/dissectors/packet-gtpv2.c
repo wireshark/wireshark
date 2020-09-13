@@ -5713,7 +5713,7 @@ dissect_gtpv2_selec_mode(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 static const value_string gtpv2_source_ident_types[] = {
     {0, "Cell ID"},
     {1, "RNC ID"},
-    {2, "eNodeB ID(Reserved, used in erlier v of proto.)"},
+    {2, "eNodeB ID(Reserved, used in earlier v of proto.)"},
     {0, NULL}
 };
 #endif

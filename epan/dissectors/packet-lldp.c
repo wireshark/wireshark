@@ -5638,7 +5638,7 @@ proto_register_lldp(void)
 			NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_media_civic_lci_length,
-			{ "LCI Length", "lldp.media.civic.lenth", FT_UINT8, BASE_DEC,
+			{ "LCI Length", "lldp.media.civic.length", FT_UINT8, BASE_DEC,
 			NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_media_civic_what,

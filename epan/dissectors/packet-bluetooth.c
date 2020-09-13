@@ -3227,7 +3227,7 @@ static const value_string bluetooth_company_id_vals[] = {
     { 0x0864,   "Rafaelmicro" },
     { 0x0865,   "Emergency Lighting Products Limited" },
     { 0x0866,   "LAONZ Co.,Ltd" },
-    { 0x0867,   "Western Digital Techologies, Inc." },
+    { 0x0867,   "Western Digital Technologies, Inc." },
     { 0x0868,   "WIOsense GmbH & Co. KG" },
     { 0x0869,   "EVVA Sicherheitstechnologie GmbH" },
     { 0x086A,   "Odic Incorporated" },

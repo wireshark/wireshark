@@ -2115,7 +2115,7 @@ static gint hf_opa_GetGroupInfo_smaCongestionErrors = -1;
 static gint hf_opa_GetGroupInfo_bubbleErrors = -1;
 static gint hf_opa_GetGroupInfo_securityErrors = -1;
 static gint hf_opa_GetGroupInfo_routingErrors = -1;
-static gint hf_opa_GetGroupInfo_utlizationPct10 = -1;
+static gint hf_opa_GetGroupInfo_utilizationPct10 = -1;
 static gint hf_opa_GetGroupInfo_discardsPct10 = -1;
 static gint hf_opa_GetGroupInfo_maxInternalRate = -1;
 static gint hf_opa_GetGroupInfo_minInternalRate = -1;
@@ -2387,7 +2387,7 @@ static gint hf_opa_GetVFInfo_smaCongestionErrors = -1;
 static gint hf_opa_GetVFInfo_bubbleErrors = -1;
 static gint hf_opa_GetVFInfo_securityErrors = -1;
 static gint hf_opa_GetVFInfo_routingErrors = -1;
-static gint hf_opa_GetVFInfo_utlizationPct10 = -1;
+static gint hf_opa_GetVFInfo_utilizationPct10 = -1;
 static gint hf_opa_GetVFInfo_discardsPct10 = -1;
 static gint hf_opa_GetVFInfo_maxInternalRate = -1;
 static gint hf_opa_GetVFInfo_minInternalRate = -1;
@@ -7020,7 +7020,7 @@ static gint parse_GetGroupInfo(proto_tree *parentTree, tvbuff_t *tvb, gint *offs
         GetGroupInfo_Error_Stats_Routing_Buckets_item = proto_tree_add_item(GetGroupInfo_Error_Summary_tree, hf_opa_GetGroupInfo_routingErrors, tvb, local_offset, 4, ENC_BIG_ENDIAN);
         local_offset += 4;
 
-        proto_tree_add_item(GetGroupInfo_Error_Summary_tree, hf_opa_GetGroupInfo_utlizationPct10, tvb, local_offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(GetGroupInfo_Error_Summary_tree, hf_opa_GetGroupInfo_utilizationPct10, tvb, local_offset, 2, ENC_BIG_ENDIAN);
         local_offset += 2;
         proto_tree_add_item(GetGroupInfo_Error_Summary_tree, hf_opa_GetGroupInfo_discardsPct10, tvb, local_offset, 2, ENC_BIG_ENDIAN);
         local_offset += 2;
@@ -7074,7 +7074,7 @@ static gint parse_GetGroupInfo(proto_tree *parentTree, tvbuff_t *tvb, gint *offs
         GetGroupInfo_Error_Stats_Routing_Buckets_item = proto_tree_add_item(GetGroupInfo_Error_Summary_tree, hf_opa_GetGroupInfo_routingErrors, tvb, local_offset, 4, ENC_BIG_ENDIAN);
         local_offset += 4;
 
-        proto_tree_add_item(GetGroupInfo_Error_Summary_tree, hf_opa_GetGroupInfo_utlizationPct10, tvb, local_offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(GetGroupInfo_Error_Summary_tree, hf_opa_GetGroupInfo_utilizationPct10, tvb, local_offset, 2, ENC_BIG_ENDIAN);
         local_offset += 2;
         proto_tree_add_item(GetGroupInfo_Error_Summary_tree, hf_opa_GetGroupInfo_discardsPct10, tvb, local_offset, 2, ENC_BIG_ENDIAN);
         local_offset += 2;
@@ -7776,7 +7776,7 @@ static gint parse_GetVFInfo(proto_tree *parentTree, tvbuff_t *tvb, gint *offset,
         GetVFInfo_Error_Stats_Routing_Buckets_item = proto_tree_add_item(GetVFInfo_Error_Summary_tree, hf_opa_GetVFInfo_routingErrors, tvb, local_offset, 4, ENC_BIG_ENDIAN);
         local_offset += 4;
 
-        proto_tree_add_item(GetVFInfo_Error_Summary_tree, hf_opa_GetVFInfo_utlizationPct10, tvb, local_offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(GetVFInfo_Error_Summary_tree, hf_opa_GetVFInfo_utilizationPct10, tvb, local_offset, 2, ENC_BIG_ENDIAN);
         local_offset += 2;
         proto_tree_add_item(GetVFInfo_Error_Summary_tree, hf_opa_GetVFInfo_discardsPct10, tvb, local_offset, 2, ENC_BIG_ENDIAN);
         local_offset += 2;
@@ -9770,7 +9770,7 @@ void proto_register_opa_mad(void)
                 FT_UINT16, BASE_HEX, NULL, 0x001F, NULL, HFILL }
         },
         { &hf_opa_PortInfo_FlitControl_Preemption_MinInitial, {
-                "Preemption MinIntial", "opa.portinfo.flitcontrol.preemption.mininitial",
+                "Preemption MinInitial", "opa.portinfo.flitcontrol.preemption.mininitial",
                 FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }
         },
         { &hf_opa_PortInfo_FlitControl_Preemption_MinTail, {
@@ -12190,8 +12190,8 @@ void proto_register_opa_mad(void)
                 "routingErrors", "opa.pa.getgroupinfo.routingerrors",
                 FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
         },
-        { &hf_opa_GetGroupInfo_utlizationPct10, {
-                "utlizationPct10", "opa.pa.getgroupinfo.utlizationpct10",
+        { &hf_opa_GetGroupInfo_utilizationPct10, {
+                "utilizationPct10", "opa.pa.getgroupinfo.utilizationpct10",
                 FT_UINT16, BASE_CUSTOM, CF_FUNC(cf_opa_mad_computed_pct10), 0x0, NULL, HFILL }
         },
         { &hf_opa_GetGroupInfo_discardsPct10, {
@@ -13046,8 +13046,8 @@ void proto_register_opa_mad(void)
                 "routingErrors", "opa.pa.getvfinfo.routingerrors",
                 FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }
         },
-        { &hf_opa_GetVFInfo_utlizationPct10, {
-                "utlizationPct10", "opa.pa.getvfinfo.utlizationpct10",
+        { &hf_opa_GetVFInfo_utilizationPct10, {
+                "utilizationPct10", "opa.pa.getvfinfo.utilizationpct10",
                 FT_UINT16, BASE_CUSTOM, CF_FUNC(cf_opa_mad_computed_pct10), 0x0, NULL, HFILL }
         },
         { &hf_opa_GetVFInfo_discardsPct10, {

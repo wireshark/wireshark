@@ -2000,7 +2000,7 @@ proto_register_oampdu(void)
                 NULL, HFILL }},
 
         { &hf_oampdu_info_state_mux,
-            { "Muxiplexer Action",        "oampdu.info.state.muxiplexer",
+            { "Multiplexer Action",        "oampdu.info.state.multiplexer",
                 FT_BOOLEAN,    8,        TFS(&mux),    0x04,
                 NULL, HFILL }},
 
