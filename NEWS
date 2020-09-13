@@ -26,25 +26,25 @@ Wireshark 3.3.0 Release Notes
        not possible (unsupported codec or rate), silence of same length
        is saved and warning is shown.
 
-     • C-ares is now a required dependency.
+     • Asynchronous DNS resolution is always enabled. As a result, the
+       c-ares library is now a required dependency.
 
-     • Protobuf fields can be dissected as wireshark (header) fields
+     • Protobuf fields can be dissected as Wireshark (header) fields
        that allows user input the full names of Protobuf fields or
        messages in Filter toolbar for searching.
 
-     • Dissector based on Protobuf can register itself to a new
+     • Dissectors based on Protobuf can register themselves to a new
        'protobuf_field' dissector table, which is keyed with the full
-       names of fields, for further parsing fields of BYETS or STRING
+       names of fields, for further parsing fields of BYTES or STRING
        type.
 
-     • Wireshark is able to decode, play and save iLBC payload on
-       platforms where iLBC library
-       (https://github.com/TimothyGu/libilbc) is available.
+     • Wireshark is able to decode, play, and save iLBC payload on
+       platforms where the iLBC library[2] is available.
 
-     • Decode As entries can now be copied from other profiles using a
+     • “Decode As” entries can now be copied from other profiles using a
        button in the dialog.
 
-     • sshdump can now be copied in multiple instances. Each instance
+     • sshdump can now be copied to multiple instances. Each instance
        will show up a different interface and will have its own profile.
 
      • The main window now supports a packet diagram view, which shows
@@ -52,14 +52,17 @@ Wireshark 3.3.0 Release Notes
 
   New Protocol Support
 
-   =======, Arinc 615A (A615A), Asphodel Protocol, AudioCodes Debug
-   Recording (ACDR), Cisco MisCabling Protocol (MCP), Dynamic Link
-   Exchange Protocol (DLEP), Fortinet Single Sign-on (FSSO), FTDI
-   Multi-Protocol Synchronous Serial Engine (FTDI MPSSE), Java Debug
-   Wire Protocol (JDWP), LBM Stateful Resolution Service (LBMSRS),
-   Lithionics Battery Management, OBSAI UDP-based Communication Protocol
-   (UDPCP), ScyllaDB RPC, Technically Enhanced Capture Module Protocol
-   (TECMP), Tunnel Extensible Authentication Protocol (TEAP), and USB
+   Arinc 615A (A615A), Asphodel Protocol, AudioCodes Debug Recording
+   (ACDR), Bluetooth HCI ISO (BT HCI ISO), Cisco MisCabling Protocol
+   (MCP), DCE/RPC IRemoteWinspool SubSystem, (IREMOTEWINSPOOL), Dynamic
+   Link Exchange Protocol (DLEP), Fortinet Single Sign-on (FSSO), FTDI
+   Multi-Protocol Synchronous Serial Engine (FTDI MPSSE), Hypertext
+   Transfer Protocol Version 3 (HTTP3), Java Debug Wire Protocol (JDWP),
+   LBM Stateful Resolution Service (LBMSRS), Lithionics Battery
+   Management, OBSAI UDP-based Communication Protocol (UDPCP), Palo Alto
+   Heartbeat Backup (PA-HB-Bak), ScyllaDB RPC, Technically Enhanced
+   Capture Module Protocol (TECMP), Tunnel Extensible Authentication
+   Protocol (TEAP), UDP based FTP w/ multicast V5 (UFTP5), and USB
    Printer (USBPRINTER)
 
   Updated Protocol Support
@@ -67,6 +70,8 @@ Wireshark 3.3.0 Release Notes
    Too many protocols have been updated to list here.
 
   New and Updated Capture File Support
+
+   MP4 (ISO/IEC 14496-12)
 
  Getting Wireshark
 
@@ -78,7 +83,7 @@ Wireshark 3.3.0 Release Notes
    Most Linux and Unix vendors supply their own Wireshark packages. You
    can usually install or upgrade Wireshark using the package management
    system specific to that platform. A list of third-party packages can
-   be found on the download page[2] on the Wireshark web site.
+   be found on the download page[3] on the Wireshark web site.
 
  File Locations
 
@@ -92,24 +97,25 @@ Wireshark 3.3.0 Release Notes
   The User’s Guide, manual pages and various other documentation can be
   found at https://www.wireshark.org/docs/
 
-  Community support is available on Wireshark’s Q&A site[3] and on the
+  Community support is available on Wireshark’s Q&A site[4] and on the
   wireshark-users mailing list. Subscription information and archives
-  for all of Wireshark’s mailing lists can be found on the web site[4].
+  for all of Wireshark’s mailing lists can be found on the web site[5].
 
-  Bugs and feature requests can be reported on the bug tracker[5].
+  Bugs and feature requests can be reported on the issue tracker[6].
 
  Frequently Asked Questions
 
-  A complete FAQ is available on the Wireshark web site[6].
+  A complete FAQ is available on the Wireshark web site[7].
 
-  Last updated 2020-09-06 16:34:31 UTC
+  Last updated 2020-09-13 09:05:40 UTC
 
  References
 
    1. https://support.microsoft.com/en-us/help/4472027/2019-sha-2-code-s
   igning-support-requirement-for-windows-and-wsus
-   2. https://www.wireshark.org/download.html#thirdparty
-   3. https://ask.wireshark.org/
-   4. https://www.wireshark.org/lists/
-   5. https://bugs.wireshark.org/
-   6. https://www.wireshark.org/faq.html
+   2. https://github.com/TimothyGu/libilbc
+   3. https://www.wireshark.org/download.html#thirdparty
+   4. https://ask.wireshark.org/
+   5. https://www.wireshark.org/lists/
+   6. https://gitlab.com/wireshark/wireshark/-/issues
+   7. https://www.wireshark.org/faq.html
