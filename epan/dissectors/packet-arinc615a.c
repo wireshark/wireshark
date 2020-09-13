@@ -73,7 +73,7 @@ static int hf_a615a_number_target_hardware = -1;
 static int hf_a615a_literal_name = -1;
 static int hf_a615a_serial_number = -1;
 static int hf_a615a_part_number_count = -1;
-static int hf_a615a_ammendment = -1;
+static int hf_a615a_amendment = -1;
 static int hf_a615a_designation = -1;
 static int hf_a615a_user_data = -1;
 static int hf_a615a_file_type = -1;
@@ -94,7 +94,7 @@ static void dissect_a615a_LCL(ptvcursor_t *ptvc, packet_info *pinfo _U_)
         for (unsigned j = 0; j < pn_count; ++j) {
             pi = ptvcursor_add(ptvc, hf_a615a_part_number, 1, ENC_ASCII | ENC_BIG_ENDIAN);
             ptvcursor_push_subtree(ptvc, pi, ett_a615a);
-            ptvcursor_add(ptvc, hf_a615a_ammendment, 1, ENC_ASCII | ENC_BIG_ENDIAN);
+            ptvcursor_add(ptvc, hf_a615a_amendment, 1, ENC_ASCII | ENC_BIG_ENDIAN);
             ptvcursor_add(ptvc, hf_a615a_designation, 1, ENC_ASCII | ENC_BIG_ENDIAN);
             ptvcursor_pop_subtree(ptvc);
         }
@@ -360,9 +360,9 @@ void proto_register_a615a(void)
         {&hf_a615a_part_number_count,
          {"Part Number Count", "a615a.num_parts", FT_UINT16, BASE_DEC, NULL, 0x0,
           "A615a Part Number Count", HFILL}},
-        {&hf_a615a_ammendment,
-         {"Ammendment", "a615a.ammendment", FT_UINT_STRING, BASE_NONE, NULL, 0x0,
-          "A615a Ammendment", HFILL}},
+        {&hf_a615a_amendment,
+         {"Amendment", "a615a.amendment", FT_UINT_STRING, BASE_NONE, NULL, 0x0,
+          "A615a Amendment", HFILL}},
         {&hf_a615a_designation,
          {"Designation", "a615a.designation", FT_UINT_STRING, BASE_NONE, NULL, 0x0,
           "A615a Designation", HFILL}},
