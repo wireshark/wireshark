@@ -2974,7 +2974,7 @@ const TLV_PARSER_ENTRY tlvVnsConfigTable[]  =
 	{ EID_V_11R_ENABLE, "Enable 802.11R", TLV_TYPE_BOOL, 0, 0, 0, 0, 0, 0, 0, 0},
 	{ EID_V_11R_R0KH_ID, "802.11R R0 Key Holder ID", TLV_TYPE_STRING, 0, 0, 0, 0, 0, 0, 0, 0},
 	{ EID_V_11R_MD_ID, "802.11R Mobility Domain ID", TLV_TYPE_UINT, 0, 0, 0, 0, 0, 0, 0, 0},
-	{ EID_V_MGMT_FRAME_PROTECTION, "Protected Mangement Frames: 0 = Enable, 1 = Disable, 2 = Require", TLV_TYPE_UINT, 0, 0, 0, 0, 0, 0, 0, 0},
+	{ EID_V_MGMT_FRAME_PROTECTION, "Protected Management Frames: 0 = Enable, 1 = Disable, 2 = Require", TLV_TYPE_UINT, 0, 0, 0, 0, 0, 0, 0, 0},
 	{ EID_V_NETFLOW, "Control for NetFlow: 1 = Enable, 2 = Disable", TLV_TYPE_UINT, 0, 0, 0, 0, 0, 0, 0, 0},
 	{ EID_V_WLAN_DEFAULT_MIRRORN, "V_WLAN_DEFAULT_MIRRORN", TLV_TYPE_UINT, 0, 0, 0, 0, 0, 0, 0, 0},
 	{ EID_V_DEFAULT_MIRRORN, "WLAN Default MirrorN: 0 = None, 1 = Prohibited, 2 = Enable, 3 = Enable TCP and UDP Both Direction, 4 = Enable TCP and UDP In Direction ", TLV_TYPE_UINT, 0, 0, 0, 0, 0, 0, 0, 0},
