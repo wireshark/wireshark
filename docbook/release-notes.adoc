@@ -14,8 +14,8 @@ It is used for troubleshooting, analysis, development and education.
 
 == What’s New
 
-// The Windows installers now ship with Npcap 0.999X.
-// They previously shipped with Npcap 0.9994.
+The Windows installers now ship with Npcap 0.9997.
+They previously shipped with Npcap 0.9994.
 
 // The Windows installers now ship with USBPcap 1.5.X.0.
 // They previously shipped with USBPcap 1.5.4.0.
