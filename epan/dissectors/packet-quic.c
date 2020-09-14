@@ -1082,7 +1082,7 @@ process_quic_stream(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
         tvbuff_t *next_tvb = tvb_new_subset_remaining(tvb, offset);
         // Traverse the STREAM frame tree.
         proto_tree *top_tree = proto_tree_get_parent_tree(tree);
-        //top_tree = proto_tree_get_parent_tree(top_tree);
+        top_tree = proto_tree_get_parent_tree(top_tree);
         call_dissector_with_data(quic_info->app_handle, next_tvb, pinfo, top_tree, stream_info);
     }
 }
