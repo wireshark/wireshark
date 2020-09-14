@@ -364,8 +364,12 @@ PacketDiagram::~PacketDiagram()
 
 void PacketDiagram::setRootNode(proto_node *root_node)
 {
-    scene()->clear();
     root_node_ = root_node;
+    if (!isVisible()) {
+        return;
+    }
+
+    scene()->clear();
     selected_field_ = nullptr;
     y_pos_ = 0;
 
