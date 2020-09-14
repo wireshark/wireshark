@@ -1296,11 +1296,7 @@ static gboolean is_gquic_unencrypt(tvbuff_t *tvb, packet_info *pinfo, guint offs
                     /* First Ack Block Length */
                     offset += len_missing_packet;
                     if(num_blocks){
-                        /* Gap to next block */
-                        offset += 1;
-
-                        num_blocks -= 1;
-                        offset += (num_blocks - 1)*len_missing_packet;
+                        offset += (num_blocks)*(1 + len_missing_packet);
                     }
 
                     /* Timestamp */
@@ -1920,19 +1916,16 @@ dissect_gquic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *gquic_tr
                 proto_tree_add_item(ft_tree, hf_gquic_frame_type_ack_first_ack_block_length, tvb, offset, len_missing_packet, gquic_info->encoding);
                 offset += len_missing_packet;
 
-                if(num_blocks){
+                while(num_blocks){
                     /* Gap to next block */
                     proto_tree_add_item(ft_tree, hf_gquic_frame_type_ack_gap_to_next_block, tvb, offset, 1, ENC_NA);
                     offset += 1;
 
-                    num_blocks -= 1;
-                    while(num_blocks){
-                        /* Ack Block Length */
-                        proto_tree_add_item(ft_tree, hf_gquic_frame_type_ack_ack_block_length, tvb, offset, len_missing_packet, gquic_info->encoding);
-                        offset += len_missing_packet;
+                    /* Ack Block Length */
+                    proto_tree_add_item(ft_tree, hf_gquic_frame_type_ack_ack_block_length, tvb, offset, len_missing_packet, gquic_info->encoding);
+                    offset += len_missing_packet;
 
-                        num_blocks--;
-                    }
+                    num_blocks--;
                 }
 
                 /* Timestamp */
