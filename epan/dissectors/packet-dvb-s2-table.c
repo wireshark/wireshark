@@ -2623,32 +2623,32 @@ void proto_register_dvb_s2_table(void)
                 NULL, HFILL}
         },
         {&hf_dvb_s2_mac_addres_6, {
-                "Table mac adress 6", "dvb-s2_table.mac_address_6",
+                "Table MAC address 6", "dvb-s2_table.mac_address_6",
                 FT_UINT8, BASE_HEX, NULL, 0x0,
                 NULL, HFILL}
         },
         {&hf_dvb_s2_mac_addres_5, {
-                "Table mac adress 5", "dvb-s2_table.mac_address_5",
+                "Table MAC address 5", "dvb-s2_table.mac_address_5",
                 FT_UINT8, BASE_HEX, NULL, 0x0,
                 NULL, HFILL}
         },
         {&hf_dvb_s2_mac_addres_4, {
-                "Table mac adress 4", "dvb-s2_table.mac_address_4",
+                "Table MAC address 4", "dvb-s2_table.mac_address_4",
                 FT_UINT8, BASE_HEX, NULL, 0x0,
                 NULL, HFILL}
         },
         {&hf_dvb_s2_mac_addres_3, {
-                "Table mac adress 3", "dvb-s2_table.mac_address_3",
+                "Table MAC address 3", "dvb-s2_table.mac_address_3",
                 FT_UINT8, BASE_HEX, NULL, 0x0,
                 NULL, HFILL}
         },
         {&hf_dvb_s2_mac_addres_2, {
-                "Table mac adress 2", "dvb-s2_table.mac_address_2",
+                "Table MAC address 2", "dvb-s2_table.mac_address_2",
                 FT_UINT8, BASE_HEX, NULL, 0x0,
                 NULL, HFILL}
         },
         {&hf_dvb_s2_mac_addres_1, {
-                "Table mac adress 1", "dvb-s2_table.mac_address_1",
+                "Table MAC address 1", "dvb-s2_table.mac_address_1",
                 FT_UINT8, BASE_HEX, NULL, 0x0,
                 NULL, HFILL}
         },
