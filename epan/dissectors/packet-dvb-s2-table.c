@@ -807,8 +807,8 @@ static const value_string table_uplinkPolarization[] = {
 static const value_string table_frameType_txFormatClass[] = {
     {0, "Reserved"},
     {DVB_S2_TABLE_TXFORMAT_LMBT, "Linear Modulation Burst Transmission"},
-    {DVB_S2_TABLE_TXFORMAT_CPMBT, "Continous Phase Modulation Burst Transmission"},
-    {DVB_S2_TABLE_TXFORMAT_CT, "Continous Transmission"},
+    {DVB_S2_TABLE_TXFORMAT_CPMBT, "Continuous Phase Modulation Burst Transmission"},
+    {DVB_S2_TABLE_TXFORMAT_CT, "Continuous Transmission"},
     {DVB_S2_TABLE_TXFORMAT_SSLMBT, "Spread-Spectrum Linear Modulation Burst Transmission"},
     {0, NULL}
 };
@@ -818,7 +818,7 @@ static const value_string table_assignContext[] = {
     {1, "Transparent star traffic"},
     {2, "Logon"},
     {3, "Transparent mesh traffic"},
-    {4, "Continous carrier"},
+    {4, "Continuous carrier"},
     {0, NULL}
 };
 
