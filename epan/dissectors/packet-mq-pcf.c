@@ -169,7 +169,7 @@ int dissect_mqpcf_parm_grp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* mq_tre
     return offset;
 }
 
-void dissect_mqpcf_parm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mq_tree,
+guint32 dissect_mqpcf_parm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mq_tree,
     guint offset, guint32 uCount, guint bLittleEndian, gboolean bParse)
 {
     guint32 u = 0;
@@ -186,6 +186,7 @@ void dissect_mqpcf_parm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mq_tree,
     guint32 uVal;
     guint64 uVal64;
     guint32 uDig;
+    guint32 _offset = offset;
 
     const char sMaxLst[] = " Max # of List reached. DECODE interrupted   (actual %u of %u)";
     const char sPrmLn0[] = " MQPrm[%3u] has a zero length. DECODE Failed (MQPrm Count: %u)";
@@ -577,6 +578,7 @@ void dissect_mqpcf_parm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mq_tree,
     {
         proto_tree_add_expert_format(mq_tree, pinfo, &ei_mq_pcf_MaxPrm, tvb, offset, tvb_reported_length_remaining(tvb, offset), sMaxPrm, u, uCount);
     }
+    return offset - _offset;
 }
 
 static void dissect_mqpcf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, mq_parm_t* p_mq_parm)

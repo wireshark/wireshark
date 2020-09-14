@@ -501,6 +501,13 @@ typedef struct _mq_parm_t
     guint32    mq_int_enc;
     guint32    mq_str_enc;
     guint32    mq_FAPLvl;
+    guint32    mq_API_Len;
+    guint32    mq_API_CC;
+    guint32    mq_API_RC;
+    guint32    mq_API_Hdl;
+    guint32    mq_MsgTotLen;
+    guint32    mq_MsgActLen;
+    guint32    mq_AsyMsgRsn;
     guint8     mq_ctlf1;
     guint8     mq_ctlf2;
     guint8     mq_opcode;
@@ -5575,8 +5582,10 @@ typedef struct _mq_parm_t
 
 extern gint32  strip_trailing_blanks(guint8 *a_str,
                                      guint32 a_size);
-extern void    dissect_mqpcf_parm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mq_tree,
+extern guint32 dissect_mqpcf_parm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mq_tree,
                                   guint offset, guint32 uCount, guint bLittleEndian, gboolean bParse);
+extern int dissect_mqpcf_parm_grp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* mq_tree,
+    guint offset, guint bLittleEndian, gboolean bParse);
 
 DEF_VALSX(mqcc);
 
