@@ -177,6 +177,11 @@ public:
         }
     }
 
+    ~FieldInformationGraphicsItem()
+    {
+        delete finfo_;
+    }
+
     int collapsedLength() { return collapsed_len_; }
 
     void setPos(qreal x, qreal y) {
