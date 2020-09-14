@@ -259,13 +259,20 @@ WSLUA_METHOD ByteArray_base64_decode(lua_State* L) {
     ByteArray ba = checkByteArray(L,1);
     ByteArray ba2;
     gchar *data;
-    gsize len;
+    gsize len = ba->len;
+
+    if ((len % 4) != 0) {
+        len += 4 - (len % 4);
+    }
 
     ba2 = g_byte_array_new();
     if (ba->len > 1) {
-        data = (gchar*)g_malloc(ba->len + 1);
+        data = (gchar*)g_malloc(len + 1);
         memcpy(data, ba->data, ba->len);
-        data[ba->len] = '\0';
+        if (len > ba->len) {
+            memcpy(data + ba->len, "====", len - ba->len);
+        }
+        data[len] = '\0';
 
         g_base64_decode_inplace(data, &len);
         g_byte_array_append(ba2, data, (int)len);

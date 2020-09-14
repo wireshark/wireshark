@@ -54,7 +54,7 @@ end
 --     number of verifyFields() * (1 + number of fields) +
 --     number of verifyResults() * (1 + 2 * number of values)
 --
-local taptests = { [FRAME]=4, [OTHER]=335 }
+local taptests = { [FRAME]=4, [OTHER]=337 }
 
 local function getResults()
     print("\n-----------------------------\n")
@@ -629,6 +629,12 @@ function test_proto.dissector(tvbuf,pktinfo,root)
 
     verifyResults("add_pfield-bytes", bytes_match_values)
     verifyFields("bytes.BYTES", bytes_match_fields)
+
+    -- extra test of ByteArray
+    local b64padded = ByteArray.new("dGVzdA==", true):base64_decode():raw()
+    local b64unpadded = ByteArray.new("dGVzdA", true):base64_decode():raw()
+    execute ("bytearray_base64_padded", b64padded == "test")
+    execute ("bytearray_base64_unpadded", b64unpadded == "test")
 
 
 ----------------------------------------
