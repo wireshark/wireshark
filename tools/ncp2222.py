@@ -6486,6 +6486,9 @@ static int hf_hardware_name = -1;
 static int hf_no_request_record_found = -1;
 static int hf_search_modifier = -1;
 static int hf_search_pattern = -1;
+static int hf_nds_acl_protected_attribute = -1;
+static int hf_nds_acl_subject = -1;
+static int hf_nds_acl_privileges = -1;
 
 static expert_field ei_ncp_file_rights_change = EI_INIT;
 static expert_field ei_ncp_completion_code = EI_INIT;
@@ -8485,6 +8488,15 @@ proto_register_ncp2222(void)
 
     { &hf_search_pattern,
     { "Search Pattern", "ncp.search_pattern", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
+    { &hf_nds_acl_protected_attribute,
+    { "Protected Attribute", "ncp.nds_acl_protected_attribute", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
+    { &hf_nds_acl_subject,
+    { "Subject", "ncp.nds_acl_subject", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
+    { &hf_nds_acl_privileges,
+    { "Subject", "ncp.nds_acl_subject", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
 """)
     # Print the registration code for the hf variables
