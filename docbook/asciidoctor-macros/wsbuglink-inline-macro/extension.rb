@@ -17,13 +17,13 @@ class WSBugLinkInlineMacro < Extensions::InlineMacroProcessor
   parse_content_as :text
   name_positional_attributes 'bugtext'
 
-  def process parent, bugnum, attrs
+  def process parent, issueid, attrs
     bugtext = if (attrs['bugtext'])
       attrs['bugtext']
     else
-      %(Bug #{bugnum})
+      %(Bug #{issueid})
     end
-    target = %(https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=#{bugnum})
+    target = %(https://gitlab.com/wireshark/wireshark/-/issues/#{issueid})
     if parent.document.basebackend? 'html'
       parent.document.register :links, target
       %(#{(create_anchor parent, bugtext, type: :link, target: target).render})

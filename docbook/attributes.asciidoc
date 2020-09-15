@@ -18,7 +18,7 @@
 
 // Wireshark top level URLs (sites)
 :wireshark-main-url: https://www.wireshark.org/
-:wireshark-bugs-url: https://bugs.wireshark.org/
+:wireshark-bugs-url: https://gitlab.com/wireshark/wireshark/issues
 :wireshark-code-review-url: https://code.wireshark.org/review
 :wireshark-qa-url: https://ask.wireshark.org/
 :wireshark-wiki-url: https://wiki.wireshark.org/
