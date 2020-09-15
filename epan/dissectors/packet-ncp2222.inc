@@ -7466,6 +7466,7 @@ dissect_nds_reply(tvbuff_t *tvb, packet_info *pinfo,
     char                            *global_object_name = NULL;
     ncp_req_eid_hash_value          *request_eid_value = NULL;
     nds_val                         temp_value;
+    guint32                         class_def_type_val;
 
     nds_offset = 8;
 
@@ -7666,7 +7667,7 @@ dissect_nds_reply(tvbuff_t *tvb, packet_info *pinfo,
     case 0x0f:
         proto_tree_add_item(ncp_tree, hf_nds_iteration, tvb, nds_offset, 4, ENC_LITTLE_ENDIAN);
         nds_offset += 4;
-        proto_tree_add_item(ncp_tree, hf_nds_class_def_type, tvb, nds_offset, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item_ret_uint(ncp_tree, hf_nds_class_def_type, tvb, nds_offset, 4, ENC_LITTLE_ENDIAN, &class_def_type_val);
         nds_offset += 4;
 
         temp_value.vvalue = tvb_get_letohl(tvb, nds_offset);
@@ -7676,7 +7677,7 @@ dissect_nds_reply(tvbuff_t *tvb, packet_info *pinfo,
         temp_value.voffset = nds_offset;
         temp_value.hfname = hf_nds_classes;
         temp_value.mvtype = MVTYPE_CLASS_NAMES;
-        temp_value.vflags = request_value->req_nds_flags;
+        temp_value.vflags = class_def_type_val;
         process_multivalues(ncp_tree, tvb, pinfo, &temp_value);
         break;
     case 0x10:
