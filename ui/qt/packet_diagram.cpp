@@ -95,7 +95,7 @@ public:
     FieldInformationGraphicsItem(field_info *fi, int start_bit, int fi_length, const DiagramLayout *layout, QGraphicsItem *parent = nullptr) :
         QGraphicsPolygonItem(QPolygonF(), parent),
         finfo_(new FieldInformation(fi)),
-	representation(fi->rep->representation),
+        representation_("Unknown"),
         start_bit_(start_bit),
         layout_(layout),
         collapsed_len_(fi_length),
@@ -173,6 +173,7 @@ public:
                        .arg(finfo_->headerInfo().abbreviation)
                        .arg(finfo_->toString()));
             setData(Qt::UserRole, VariantPointer<field_info>::asQVariant(finfo_->fieldInfo()));
+            representation_ = fi->rep->representation;
         } else {
             setToolTip(QObject::tr("Gap in dissection"));
         }
@@ -242,11 +243,11 @@ public:
 
         // Field label(s)
         QString label;
-	if (finfo_->headerInfo().type == FT_NONE) {
-		label = representation;
-	} else {
-		label = finfo_->headerInfo().name;
-	}
+        if (finfo_->headerInfo().type == FT_NONE) {
+            label = representation_;
+        } else {
+            label = finfo_->headerInfo().name;
+        }
         paintLabel(painter, label, scaled_tr_);
 
         if (layout_->showFields()) {
@@ -264,7 +265,7 @@ private:
         NumSpanMarks
     };
     FieldInformation *finfo_;
-    QString representation;
+    QString representation_;
     int start_bit_;
     const DiagramLayout *layout_;
     int collapsed_len_;
