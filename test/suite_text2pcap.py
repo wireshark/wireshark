@@ -99,7 +99,7 @@ def check_text2pcap(cmd_tshark, cmd_text2pcap, capture_file):
         pre_cap_info = check_capinfos_info(self, cap_file)
         # Due to limitations of "tshark -x", the output might contain more than one
         # data source which is subsequently interpreted as additional frame data.
-        # See https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=14639
+        # See https://gitlab.com/wireshark/wireshark/-/issues/14639
         if expected_packets is not None:
             self.assertNotEqual(pre_cap_info['packets'], expected_packets)
             pre_cap_info['packets'] = expected_packets

@@ -17,10 +17,10 @@
 const char *
 please_report_bug(void)
 {
-	return
-	    "Please report this to the Wireshark developers as a bug.\n"
-            "https://bugs.wireshark.org/\n"
-            "(This is not a crash; please do not say, in your report, that it is a crash.)";
+    return
+        "Please report this to the Wireshark developers as a bug.\n"
+        "https://gitlab.com/wireshark/wireshark/issues\n"
+        "(This is not a crash; please do not say, in your report, that it is a crash.)";
 }
 
 /*
@@ -29,5 +29,5 @@ please_report_bug(void)
 const char *
 please_report_bug_short(void)
 {
-	return "Please report this to the Wireshark developers.";
+    return "Please report this to the Wireshark developers.";
 }
