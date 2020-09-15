@@ -416,11 +416,12 @@ static configuration_info *get_configuration_info(packet_info *pinfo, int channe
 }
 
 static int dissect_idn_dmx_sample_values(tvbuff_t *tvb, int offset, proto_tree *idn_dmx_subtree, guint16 data_size, int base) {
-	int i, j, l=0;
+	int i, j, l;
 	short int rest;
 	char values[MAX_BUFFER];
 
 	for(i=0; i+16<=data_size; i+=16) {
+		l = 0;
 		for(j=1; j<16; j++){
 			l += g_snprintf(values+l, MAX_BUFFER-l, " %3d", tvb_get_guint8(tvb, offset+j));
 		}
@@ -429,6 +430,7 @@ static int dissect_idn_dmx_sample_values(tvbuff_t *tvb, int offset, proto_tree *
 	}
 	rest = data_size - i;
 	if(rest > 0) {
+		l = 0;
 		for(j=0; j<rest; j++){
 			l += g_snprintf(values+l, MAX_BUFFER-l, " %3d", tvb_get_guint8(tvb, offset+j));
 		}
@@ -460,7 +462,7 @@ static void set_laser_sample_values_string(tvbuff_t *tvb, int offset, configurat
 }
 
 static int dissect_idn_octet_segment(tvbuff_t *tvb, int offset, proto_tree *idn_tree) {
-	int i, j, l=0;
+	int i, j, l;
 	short int rest;
 	char values[MAX_BUFFER];
 	values[0] = '\0';
@@ -468,6 +470,7 @@ static int dissect_idn_octet_segment(tvbuff_t *tvb, int offset, proto_tree *idn_
 	proto_tree *idn_samples_tree = proto_tree_add_subtree(idn_tree, tvb, offset, data_size, ett_data, NULL, "Octets");
 
 	for(i=0; i+16<=data_size; i+=16) {
+		l = 0;
 		for(j=0; j<16 && (l < MAX_BUFFER-100); j++){
 			l += g_snprintf(values+l, MAX_BUFFER-l, " %3d", tvb_get_gint8(tvb, offset+j));
 		}
@@ -476,6 +479,7 @@ static int dissect_idn_octet_segment(tvbuff_t *tvb, int offset, proto_tree *idn_
 	}
 	rest = data_size - i;
 	if(rest > 0) {
+		l = 0;
 		for(j=0; j<rest && (l < MAX_BUFFER-100); j++){
 			l += g_snprintf(values+l, MAX_BUFFER-l, " %3d", tvb_get_gint8(tvb, offset+j));
 		}
@@ -526,11 +530,6 @@ static int dissect_idn_laser_data(tvbuff_t *tvb, int offset, proto_tree *idn_tre
 	values[0] = '\0';
 	int i;
 	int laser_data_size = tvb_reported_length_remaining(tvb, offset);
-
-	if (config->sample_size == 0) {
-	    /* TODO: log expert info error? */
-	    return 0;
-	}
 
 	int sample_size = laser_data_size/config->sample_size;
 	proto_tree *idn_samples_tree = proto_tree_add_subtree_format(idn_tree, tvb, offset, laser_data_size, ett_data, NULL, "Samples %s", config->sample_column_string);
