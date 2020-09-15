@@ -6948,28 +6948,30 @@ proto_register_tcp(void)
             NULL, HFILL }},
 
         { &hf_tcp_seq,
-        { "Sequence number",        "tcp.seq", FT_UINT32, BASE_DEC, NULL, 0x0,
+        { "Sequence Number",        "tcp.seq", FT_UINT32, BASE_DEC, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_tcp_seq_abs,
-        { "Sequence number (raw)",        "tcp.seq_raw", FT_UINT32, BASE_DEC, NULL, 0x0,
+        { "Sequence Number (raw)",        "tcp.seq_raw", FT_UINT32, BASE_DEC, NULL, 0x0,
             "This shows the raw value of the sequence number", HFILL }},
 
         { &hf_tcp_nxtseq,
-        { "Next sequence number",   "tcp.nxtseq", FT_UINT32, BASE_DEC, NULL, 0x0,
+        { "Next Sequence Number",   "tcp.nxtseq", FT_UINT32, BASE_DEC, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_tcp_ack,
-        { "Acknowledgment number", "tcp.ack", FT_UINT32, BASE_DEC, NULL, 0x0,
+        { "Acknowledgment Number", "tcp.ack", FT_UINT32, BASE_DEC, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_tcp_ack_abs,
         { "Acknowledgment number (raw)", "tcp.ack_raw", FT_UINT32, BASE_DEC, NULL, 0x0,
             "This shows the raw value of the acknowledgment number", HFILL } },
 
+        // "Data Offset" in https://tools.ietf.org/html/rfc793#section-3.1 and
+        // "Data offset" in https://en.wikipedia.org/wiki/Transmission_Control_Protocol#TCP_segment_structure
         { &hf_tcp_hdr_len,
-        { "Header Length",      "tcp.hdr_len", FT_UINT8, BASE_DEC, NULL, 0x0,
-            NULL, HFILL }},
+        { "Header Length",    "tcp.hdr_len", FT_UINT8, BASE_DEC, NULL, 0x0,
+            "Data offset in 32-bit words", HFILL }},
 
         { &hf_tcp_flags,
         { "Flags",          "tcp.flags", FT_UINT16, BASE_HEX, NULL, TH_MASK,
@@ -7020,7 +7022,7 @@ proto_register_tcp(void)
             NULL, HFILL }},
 
         { &hf_tcp_window_size_value,
-        { "Window size value",        "tcp.window_size_value", FT_UINT16, BASE_DEC, NULL, 0x0,
+        { "Window",        "tcp.window_size_value", FT_UINT16, BASE_DEC, NULL, 0x0,
             "The window size value from the TCP header", HFILL }},
 
         /* 32 bits so we can present some values adjusted to window scaling */
@@ -7101,7 +7103,7 @@ proto_register_tcp(void)
             "This is the frame we measure the RTO from", HFILL }},
 
         { &hf_tcp_urgent_pointer,
-        { "Urgent pointer",     "tcp.urgent_pointer", FT_UINT16, BASE_DEC, NULL, 0x0,
+        { "Urgent Pointer",     "tcp.urgent_pointer", FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_tcp_segment_overlap,

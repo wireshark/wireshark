@@ -1860,14 +1860,14 @@ void proto_register_icmp(void)
 		  "Identifier (little endian representation)", HFILL}},
 
 		{&hf_icmp_seq_num,
-		 {"Sequence number (BE)", "icmp.seq", FT_UINT16,
+		 {"Sequence Number (BE)", "icmp.seq", FT_UINT16,
 		  BASE_DEC_HEX, NULL, 0x0,
-		  "Sequence number (big endian representation)", HFILL}},
+		  "Sequence Number (big endian representation)", HFILL}},
 
 		{&hf_icmp_seq_num_le,
-		 {"Sequence number (LE)", "icmp.seq_le", FT_UINT16,
+		 {"Sequence Number (LE)", "icmp.seq_le", FT_UINT16,
 		  BASE_DEC_HEX, NULL,
-		  0x0, "Sequence number (little endian representation)",
+		  0x0, "Sequence Number (little endian representation)",
 		  HFILL}},
 
 		{&hf_icmp_mtu,
@@ -1906,17 +1906,17 @@ void proto_register_icmp(void)
 		  NULL, HFILL}},
 
 		{&hf_icmp_originate_timestamp,
-		 {"Originate timestamp", "icmp.originate_timestamp", FT_UINT32, BASE_DEC, NULL,
+		 {"Originate Timestamp", "icmp.originate_timestamp", FT_UINT32, BASE_DEC, NULL,
 		  0x0,
 		  NULL, HFILL}},
 
 		{&hf_icmp_receive_timestamp,
-		 {"Receive timestamp", "icmp.receive_timestamp", FT_UINT32, BASE_DEC, NULL,
+		 {"Receive Timestamp", "icmp.receive_timestamp", FT_UINT32, BASE_DEC, NULL,
 		  0x0,
 		  NULL, HFILL}},
 
 		{&hf_icmp_transmit_timestamp,
-		 {"Transmit timestamp", "icmp.transmit_timestamp", FT_UINT32, BASE_DEC, NULL,
+		 {"Transmit Timestamp", "icmp.transmit_timestamp", FT_UINT32, BASE_DEC, NULL,
 		  0x0,
 		  NULL, HFILL}},
 
@@ -1926,7 +1926,7 @@ void proto_register_icmp(void)
 		  NULL, HFILL}},
 
 		{&hf_icmp_redir_gw,
-		 {"Gateway address", "icmp.redir_gw", FT_IPv4, BASE_NONE,
+		 {"Gateway Address", "icmp.redir_gw", FT_IPv4, BASE_NONE,
 		  NULL, 0x0,
 		  NULL, HFILL}},
 
@@ -2204,7 +2204,7 @@ void proto_register_icmp(void)
 		  NULL, HFILL}},
 
 		{&hf_icmp_ext_echo_seq_num,
-		 {"Sequence number", "icmp.ext.echo.seq", FT_UINT8,
+		 {"Sequence Number", "icmp.ext.echo.seq", FT_UINT8,
 		  BASE_DEC_HEX, NULL, 0x0,
 		  NULL, HFILL}},
 		{&hf_icmp_ext_echo_req_reserved,

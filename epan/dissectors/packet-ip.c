@@ -2440,9 +2440,11 @@ proto_register_ip(void)
       { "Version", "ip.version", FT_UINT8, BASE_DEC,
         NULL, 0x00, NULL, HFILL }},
 
+    // "IHL" in https://tools.ietf.org/html/rfc791#section-3.1 and
+    // https://en.wikipedia.org/wiki/IPv4#Header
     { &hf_ip_hdr_len,
       { "Header Length", "ip.hdr_len", FT_UINT8, BASE_DEC,
-        NULL, 0x0, NULL, HFILL }},
+        NULL, 0x0, "Header length in 32-bit words", HFILL }},
 
     { &hf_ip_dsfield,
       { "Differentiated Services Field", "ip.dsfield", FT_UINT8, BASE_HEX,
@@ -2489,7 +2491,7 @@ proto_register_ip(void)
         NULL, 0x0, NULL, HFILL }},
 
     { &hf_ip_dst,
-      { "Destination", "ip.dst", FT_IPv4, BASE_NONE,
+      { "Destination Address", "ip.dst", FT_IPv4, BASE_NONE,
         NULL, 0x0, NULL, HFILL }},
 
     { &hf_ip_dst_host,
@@ -2497,7 +2499,7 @@ proto_register_ip(void)
         NULL, 0x0, NULL, HFILL }},
 
     { &hf_ip_src,
-      { "Source", "ip.src", FT_IPv4, BASE_NONE,
+      { "Source Address", "ip.src", FT_IPv4, BASE_NONE,
         NULL, 0x0, NULL, HFILL }},
 
     { &hf_ip_src_host,
@@ -2603,11 +2605,11 @@ proto_register_ip(void)
         TFS(&tfs_set_notset), 0x20, NULL, HFILL }},
 
     { &hf_ip_frag_offset,
-      { "Fragment offset", "ip.frag_offset", FT_UINT16, BASE_DEC,
+      { "Fragment Offset", "ip.frag_offset", FT_UINT16, BASE_DEC,
         NULL, 0x0, "Fragment offset (13 bits)", HFILL }},
 
     { &hf_ip_ttl,
-      { "Time to live", "ip.ttl", FT_UINT8, BASE_DEC,
+      { "Time to Live", "ip.ttl", FT_UINT8, BASE_DEC,
         NULL, 0x0, NULL, HFILL }},
 
     { &hf_ip_proto,
@@ -2615,7 +2617,7 @@ proto_register_ip(void)
         &ipproto_val_ext, 0x0, NULL, HFILL }},
 
     { &hf_ip_checksum,
-      { "Header checksum", "ip.checksum", FT_UINT16, BASE_HEX,
+      { "Header Checksum", "ip.checksum", FT_UINT16, BASE_HEX,
         NULL, 0x0, NULL, HFILL }},
 
     { &hf_ip_checksum_calculated,

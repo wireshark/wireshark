@@ -2543,7 +2543,7 @@ proto_register_ipv6(void)
                 NULL, HFILL }
         },
         { &hf_ipv6_src,
-            { "Source", "ipv6.src",
+            { "Source Address", "ipv6.src",
                 FT_IPv6, BASE_NONE, NULL, 0x0,
                 "Source IPv6 Address", HFILL }
         },
@@ -2593,7 +2593,7 @@ proto_register_ipv6(void)
                 "Source IPv4-Embedded IPv6 Address with Well-Known Prefix", HFILL }
         },
         { &hf_ipv6_dst,
-            { "Destination", "ipv6.dst",
+            { "Destination Address", "ipv6.dst",
                 FT_IPv6, BASE_NONE, NULL, 0x0,
                 "Destination IPv6 Address", HFILL }
         },
