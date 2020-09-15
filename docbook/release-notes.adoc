@@ -82,6 +82,7 @@ Technically Enhanced Capture Module Protocol (TECMP)
 Tunnel Extensible Authentication Protocol (TEAP)
 UDP based FTP w/ multicast V5 (UFTP5)
 USB Printer (USBPRINTER)
+ILDA Digital Network (IDN)
 --
 
 === Updated Protocol Support
