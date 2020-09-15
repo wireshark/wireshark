@@ -149,7 +149,20 @@ test:debian-stable:
     - build:debian-stable
 
 # https://docs.gitlab.com/ee/user/gitlab_com/index.html#linux-shared-runners
-merge-request:ubuntu-dpkg:
+
+merge-req:commit-checks:
+  <<: *build-ubuntu
+  tags:
+    - docker
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+  script:
+    # build-ubuntu puts us in `build`.
+    - cd ..
+    - bash ./tools/pre-commit 'HEAD^1'
+    - tools/validate-commit.py
+
+merge-req:ubuntu-dpkg:
   <<: *build-ubuntu
   tags:
     - docker
@@ -159,12 +172,10 @@ merge-request:ubuntu-dpkg:
     - apt-get install -y lintian
     # build-ubuntu puts us in `build`.
     - cd ..
-    - bash ./tools/pre-commit 'HEAD^1'
-    - sh -c '[ ! -e tools/validate-commit.py ] || tools/validate-commit.py'
     - CC=/usr/lib/ccache/gcc CXX=/usr/lib/ccache/g++ dpkg-buildpackage -us -uc -rfakeroot -jauto -Zgzip -zfast
     - lintian --suppress-tags library-not-linked-against-libc --display-experimental --display-info --pedantic --profile debian
 
-merge-request:ubuntu-gcc-ctest:
+merge-req:ubuntu-gcc-ctest:
   <<: *build-ubuntu
   tags:
     - docker
@@ -179,7 +190,7 @@ merge-request:ubuntu-gcc-ctest:
     - chown -R user .
     - su user -c "ctest --parallel 3 --force-new-ctest-process --verbose"
 
-merge-request:ubuntu-clang-other-tests:
+merge-req:ubuntu-clang-other-tests:
   extends: clang-10
   tags:
     - docker
@@ -203,7 +214,7 @@ merge-request:ubuntu-clang-other-tests:
 # Dockerfile at https://github.com/wireshark/wireshark-windows-dev-docker.
 # XXX We currently depend on Qt being installed in C:\Qt on the host. We should
 # find a more independent way of installing Qt, e.g. via a download+cache.
-merge-request:windows:
+merge-req:windows:
   tags:
     - wireshark-windows-dev
   stage: build
