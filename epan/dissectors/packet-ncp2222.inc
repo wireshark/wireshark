@@ -5445,6 +5445,36 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
         break;
 
     case MVTYPE_CLASS_NAMES:      /* Class Names */
+        /*
+         * Section 5.15 "Information Types for Class Definitions"
+         * of Novell eDirectory Core Services says
+         *
+         *    DS_CLASS_DEF_NAMES     0 Returns only the class names.
+         *
+         *    DS_CLASS_DEFS          1 Returns class names, class flags,
+         *                             and class definitions (super classes,
+         *                             containment classes, naming attributes,
+         *                             mandatory attributes, and optional
+         *                             attributes).
+         *
+         *    DS_EXPANDED_CLASS_DEFS 2 Returns class names, class flags,
+         *                             class definitions, and class
+         *                             definitions of the super classes.
+         *
+         *    DS_INFO_CLASS_DEFS     3 Returns class names, class flags,
+         *                             and ASN.1 identifiers.
+         *
+         *    DS_FULL_CLASS_DEFS     4 Returns class names, class flags,
+         *                             class definitions, class definitions
+         *                             of the super classes, and default
+         *                             ACLs.
+         *
+         * Some version of the Linux ncpfs appears to define
+         * DS_FULL_CLASS_DEFS_AND_TIMESTAMPS as 5.
+         *
+         * Those appear to be the values from earlier in the packet,
+         * passed to us as values->vflags.
+         */
         number_of_referrals = values->vvalue;
         for (i = 0; i < number_of_referrals; i++)
         {
@@ -5459,10 +5489,16 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
             ioffset += align_4(tvb, ioffset);
             if(values->vflags != 0)
             {
+                /* Not just the class names; give the class flags. */
                 proto_tree_add_bitmask(sub1tree, tvb, ioffset, hf_cflags, ett_ncp, ncp_cflags, ENC_LITTLE_ENDIAN);
                 ioffset = ioffset+4;
                 if(values->vflags != 5)
                 {
+                    /*
+                     * XXX - where is it stated that all DS_ values other
+                     * than 0 and 5 include an ASN.1 ID?  And should it
+                     * be displayed as FT_OID?
+                     */
                     value1 = tvb_get_letohl(tvb, ioffset); /* length of field */
                     length_remaining = tvb_captured_length_remaining(tvb, ioffset);
                     if(length_remaining == -1 || value1 > (guint32) length_remaining)
@@ -5476,6 +5512,11 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
                 }
                 if(values->vflags == 1 || values->vflags == 2 || values->vflags == 4)
                 {
+                    /*
+                     * Everything except DS_INFO_CLASS_DEFS and 5;
+                     * What comes next is class definitions, so that's
+                     * what we show here.
+                     */
                     value1 = tvb_get_letohl(tvb, ioffset);  /* Super Classes */
                     sub2item = proto_tree_add_uint_format(sub1tree, hf_nds_number_of_items, tvb, ioffset,
                                                           4, value1, "Super Classes %u", value1);
@@ -5556,14 +5597,45 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
                         }
                     }
                 }
-#if 0
-                if(values->vflags == 2 || values->vflags == 4)   /* Class Definitions of Super Classes */
-#endif
-                if(values->vflags == 4)   /* Class Definitions of Super Classes */
+                if(values->vflags == 4)   /* ACLs */
                 {
-                    value1 = tvb_get_letohl(tvb, ioffset);  /* Containment Classes */
+                    /*
+                     * If the NDS documentation is to be believed, this
+                     * is DS_FULL_CLASS_DEFS (4), which is the class definitions
+                     * done above, class definitions of the super classes
+                     * (which we don't seem to be seeing), and default ACLs
+                     * (which is as described above, *not* just one 32-bit
+                     * number).
+                     *
+                     * DS_EXPANDED_CLASS_DEFS (2) also has the class
+                     * definitions of the super classes.
+                     *
+                     * Perhaps *neither* of them have the class definitions
+                     * of the super classes immediately after the class
+                     * definitions, which is why we aren't checking for 2,
+                     * but we shouldn't be doing this for 4, either.
+                     * (Do the super classes *follow* the ACLs?  Or do
+                     * the descriptions of those DS_ values describe
+                     * *API* behavior, so that DS_EXPANDED_CLASS_DEFS
+                     * including "class definitions of the super classes"
+                     * means that the "class definitions" section includes,
+                     * for each of the super classes listed in a class's
+                     * description, a class definition entry for that
+                     * class, i.e. it's an enumeration that returns
+                     * not only the requested classes, but all their
+                     * super classes, all the way up to the root of
+                     * the class hierarchy?  (Note that a single reply
+                     * to NDS Read Class Definitions" doesn't necessarily
+                     * contain *all* the classes - subsequent reads may
+                     * read more of them.)
+                     *
+                     * XXX - the ACL permission bits are probably described
+                     * by section 5.18 "eDirectory Access Control Rights"
+                     * of Novell eDirectory Core Services.
+                     */
+                    value1 = tvb_get_letohl(tvb, ioffset);  /* ACL entries */
                     sub2item = proto_tree_add_uint_format(sub1tree, hf_nds_number_of_items, tvb, ioffset,
-                                                          4, value1, "Containment Classes %u", value1);
+                                                          4, value1, "ACL Entries %u", value1);
                     sub2tree = proto_item_add_subtree(sub2item, ett_nds);
                     ioffset = ioffset + 4;
                     for (r = 0; r < value1; r++)
@@ -5571,67 +5643,42 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
                         value2 = tvb_get_letohl(tvb, ioffset);
                         ioffset = ioffset + 4;
                         temp_values.vstring = get_string(tvb, ioffset, value2);
-                        proto_tree_add_string(sub2tree, hf_nds_base_class, tvb, ioffset,
+                        proto_tree_add_string(sub2tree, hf_nds_acl_protected_attribute, tvb, ioffset,
                                               value2, temp_values.vstring);
                         ioffset = ioffset + value2;
                         ioffset += align_4(tvb, ioffset);
-                    }
-                    value1 = tvb_get_letohl(tvb, ioffset);  /* Naming Attributes */
-                    sub2item = proto_tree_add_uint_format(sub1tree, hf_nds_number_of_items, tvb, ioffset,
-                                                          4, value1, "Naming Attributes %u", value1);
-                    sub2tree = proto_item_add_subtree(sub2item, ett_nds);
-                    ioffset = ioffset + 4;
-                    for (r = 0; r < value1; r++)
-                    {
+
                         value2 = tvb_get_letohl(tvb, ioffset);
                         ioffset = ioffset + 4;
                         temp_values.vstring = get_string(tvb, ioffset, value2);
-                        proto_tree_add_string(sub2tree, hf_mv_string, tvb, ioffset,
+                        proto_tree_add_string(sub2tree, hf_nds_acl_subject, tvb, ioffset,
                                               value2, temp_values.vstring);
                         ioffset = ioffset + value2;
                         ioffset += align_4(tvb, ioffset);
-                    }
-                    value1 = tvb_get_letohl(tvb, ioffset);  /* Mandatory Attributes */
-                    sub2item = proto_tree_add_uint_format(sub1tree, hf_nds_number_of_items, tvb, ioffset,
-                                                          4, value1, "Mandatory Attributes %u", value1);
-                    sub2tree = proto_item_add_subtree(sub2item, ett_nds);
-                    ioffset = ioffset + 4;
-                    for (r = 0; r < value1; r++)
-                    {
-                        value2 = tvb_get_letohl(tvb, ioffset);
+
+                        proto_tree_add_item(sub2tree, hf_nds_acl_privileges, tvb, ioffset,
+                                            4, ENC_LITTLE_ENDIAN);
                         ioffset = ioffset + 4;
-                        temp_values.vstring = get_string(tvb, ioffset, value2);
-                        proto_tree_add_string(sub2tree, hf_mv_string, tvb, ioffset,
-                                              value2, temp_values.vstring);
-                        ioffset = ioffset + value2;
-                        ioffset += align_4(tvb, ioffset);
-                    }
-                    value1 = tvb_get_letohl(tvb, ioffset);  /* Optional Attributes */
-                    sub2item = proto_tree_add_uint_format(sub1tree, hf_nds_number_of_items, tvb, ioffset,
-                                                          4, value1, "Optional Attributes %u", value1);
-                    sub2tree = proto_item_add_subtree(sub2item, ett_nds);
-                    ioffset = ioffset + 4;
-                    for (r = 0; r < value1; r++)
-                    {
-                        value2 = tvb_get_letohl(tvb, ioffset);
-                        ioffset = ioffset + 4;
-                        temp_values.vstring = get_string(tvb, ioffset, value2);
-                        proto_tree_add_string(sub2tree, hf_mv_string, tvb, ioffset,
-                                              value2, temp_values.vstring);
-                        ioffset = ioffset + value2;
-                        ioffset += align_4(tvb, ioffset);
-                    }
-                    value1 = tvb_get_letohl(tvb, ioffset);    /* Default ACL */
-                    proto_tree_add_uint_format(sub1tree, hf_nds_eid, tvb, ioffset,
-                                               4, value1, "Default ACL %08x", value1);
-                    ioffset = ioffset + 4;
-                    if(tvb_captured_length_remaining(tvb, ioffset) < 4 )
-                    {
-                        break;
                     }
                 }
-                if(values->vflags == 5)   /* Base Class Definitions */
+                if(values->vflags == 5)   /* Time stamps and Base Class definitions  */
                 {
+                    /*
+                     * XXX - and what's this?  I *do* see time stamps,
+                     * followed by a bunch of other stuff, so maybe
+                     * it is, in fact, DS_FULL_CLASS_DEFS_AND_TIMESTAMPS.
+                     *
+                     * But what's the stuff after it?  Is it, in fact,
+                     * present in replies?  Or does it again mean
+                     * "walk up the class hierarchy", so that the
+                     * class hierarchy is linearized, as per the above?
+                     *
+                     * BTW, is this the universe's way of saying that
+                     * maybe this should be divided into a bunch of
+                     * subroutines, called from here, rather than
+                     * what appears to be a bit of inheritance by
+                     * copy and paste?
+                     */
                     ns.secs = tvb_get_letohl(tvb, ioffset);   /* Seconds */
                     ns.nsecs = 0;
                     proto_tree_add_time_format(sub1tree, hf_es_seconds, tvb, ioffset,
@@ -5657,6 +5704,7 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
                                         2, ENC_LITTLE_ENDIAN);
                     ioffset = ioffset + 2;
                     /* Class Definition */
+                    /* XXX - is this really there? */
                     value1 = tvb_get_letohl(tvb, ioffset);  /* Super Classes */
                     sub2item = proto_tree_add_uint_format(sub1tree, hf_nds_number_of_items, tvb, ioffset,
                                                           4, value1, "Super Classes %u", value1);
