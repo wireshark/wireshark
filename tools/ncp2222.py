@@ -24,9 +24,30 @@ or
 http://developer.novell.com/ndk/doc/ncp/
 for a badly-formatted HTML version of the same PDF.
 
-Currently, a list of NCPs by number can be found at
+Currently, NCP documentation can be found at:
+
+https://www.microfocus.com/documentation/open-enterprise-server-developer-documentation/ncp/
+
+with a list of NCPs by number at
 
 https://www.microfocus.com/documentation/open-enterprise-server-developer-documentation/ncp/ncpdocs/main.htm
+
+and some additional NCPs to support volumes > 16TB at
+
+https://www.microfocus.com/documentation/open-enterprise-server-developer-documentation/ncp/ncpdocs/16tb+.htm
+
+NDS information can be found at:
+
+https://www.microfocus.com/documentation/edirectory-developer-documentation/edirectory-libraries-for-c/
+
+and PDFs linked from there, and from
+
+https://www.novell.com/documentation/developer/ndslib/
+
+and HTML versions linked from there.
+
+The Novell eDirectory Schema Reference gives a "Transfer Format" for
+some types, which may be the way they're sent over the wire.
 
 Portions Copyright (c) 2000-2002 by Gilbert Ramirez <gram@alumni.rice.edu>.
 Portions Copyright (c) Novell, Inc. 2000-2003.
