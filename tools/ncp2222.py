@@ -13,9 +13,9 @@ Many thanks to Novell for letting him work on this.
 Additional data sources:
 "Programmer's Guide to the NetWare Core Protocol" by Steve Conner and Dianne Conner.
 
-Novell provides info at:
+At one time, Novell provided a list of NCPs by number at:
 
-http://developer.novell.com/ndk/ncp.htm  (where you can download an
+http://developer.novell.com/ndk/ncp.htm  (where you could download an
 *.exe file which installs a PDF, although you may have to create a login
 to do this)
 
@@ -24,6 +24,9 @@ or
 http://developer.novell.com/ndk/doc/ncp/
 for a badly-formatted HTML version of the same PDF.
 
+Currently, a list of NCPs by number can be found at
+
+https://www.microfocus.com/documentation/open-enterprise-server-developer-documentation/ncp/ncpdocs/main.htm
 
 Portions Copyright (c) 2000-2002 by Gilbert Ramirez <gram@alumni.rice.edu>.
 Portions Copyright (c) Novell, Inc. 2000-2003.
@@ -6857,7 +6860,7 @@ proto_register_ncp2222(void)
     /*
      * XXX - the page at
      *
-     *      http://www.odyssea.com/whats_new/tcpipnet/tcpipnet.html
+     *      https://web.archive.org/web/20030629082113/http://www.odyssea.com/whats_new/tcpipnet/tcpipnet.html
      *
      * says of the connection status "The Connection Code field may
      * contain values that indicate the status of the client host to
@@ -6867,7 +6870,7 @@ proto_register_ncp2222(void)
      *
      * The page at
      *
-     *      http://www.unm.edu/~network/presentations/course/appendix/appendix_f/tsld088.htm
+     *      https://web.archive.org/web/20090809191415/http://www.unm.edu/~network/presentations/course/appendix/appendix_f/tsld088.htm
      *
      * says that bit 0 is "bad service", bit 2 is "no connection
      * available", bit 4 is "service down", and bit 6 is "server
