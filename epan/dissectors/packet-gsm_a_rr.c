@@ -2033,9 +2033,9 @@ de_rr_cell_select_indic(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
             }
 
             /* TARGET PCID */
-            if (gsm_rr_csn_flag(tvb, tree, bit_offset++, hf_gsm_a_rr_eutran_pcid_present))
+            if (gsm_rr_csn_flag(tvb, subtree, bit_offset++, hf_gsm_a_rr_eutran_pcid_present))
             {
-                proto_tree_add_bits_item(tree, hf_gsm_a_rr_eutran_pcid, tvb, bit_offset, 9, ENC_BIG_ENDIAN);
+                proto_tree_add_bits_item(subtree, hf_gsm_a_rr_eutran_pcid, tvb, bit_offset, 9, ENC_BIG_ENDIAN);
                 bit_offset += 9;
             }
         }
