@@ -245,7 +245,6 @@ libwireshark.so.0 libwireshark0 #MINVER#
  decode_as_default_reset@Base 1.12.0~rc1
  decode_as_list@Base 1.12.0~rc1
  decode_bits_in_field@Base 1.9.1
- decode_bits_in_field_long@Base 3.3.0
  decode_build_reset_list@Base 2.3.0
  decode_cleanup@Base 3.3.0
  decode_clear_all@Base 2.3.0

@@ -29,6 +29,10 @@ See the “New and Updated Features” section below for more details.
 
 === New and Updated Features
 
+The following features are new (or have been significantly updated) since version 3.3.0:
+
+* Nothing of note.
+
 The following features are new (or have been significantly updated) since version 3.2.0:
 
 * Windows executables and installers are now https://support.microsoft.com/en-us/help/4472027/2019-sha-2-code-signing-support-requirement-for-windows-and-wsus[signed using SHA-2 only].
