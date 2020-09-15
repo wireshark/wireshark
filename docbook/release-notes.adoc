@@ -29,8 +29,7 @@ See the “New and Updated Features” section below for more details.
 
 === New and Updated Features
 
-The following features are new (or have been significantly updated)
-since version 3.2.0:
+The following features are new (or have been significantly updated) since version 3.2.0:
 
 * Windows executables and installers are now https://support.microsoft.com/en-us/help/4472027/2019-sha-2-code-signing-support-requirement-for-windows-and-wsus[signed using SHA-2 only].
 * Save RTP stream to .au supports any codec with 8000 Hz rate supported by Wireshark (shown in RTP player). If save of audio is not possible (unsupported codec or rate), silence of same length is saved and warning is shown.
@@ -107,30 +106,31 @@ https://www.wireshark.org/download.html.
 
 === Vendor-supplied Packages
 
-Most Linux and Unix vendors supply their own Wireshark packages. You can
-usually install or upgrade Wireshark using the package management system
-specific to that platform. A list of third-party packages can be found
-on the https://www.wireshark.org/download.html#thirdparty[download page]
+Most Linux and Unix vendors supply their own Wireshark packages.
+You can usually install or upgrade Wireshark using the package management system specific to that platform.
+A list of third-party packages can be found on the
+https://www.wireshark.org/download.html#thirdparty[download page]
 on the Wireshark web site.
 
 == File Locations
 
-Wireshark and TShark look in several different locations for preference
-files, plugins, SNMP MIBS, and RADIUS dictionaries. These locations vary
-from platform to platform. You can use About→Folders to find the default
-locations on your system.
+Wireshark and TShark look in several different locations for preference files, plugins, SNMP MIBS, and RADIUS dictionaries.
+These locations vary from platform to platform.
+You can use About → Folders to find the default locations on your system.
 
 == Getting Help
 
-The User’s Guide, manual pages and various other documentation can be
-found at https://www.wireshark.org/docs/
+The User’s Guide, manual pages and various other documentation can be found at
+https://www.wireshark.org/docs/
 
-Community support is available on https://ask.wireshark.org/[Wireshark’s
-Q&A site] and on the wireshark-users mailing list. Subscription
-information and archives for all of Wireshark’s mailing lists can be
-found on https://www.wireshark.org/lists/[the web site].
+Community support is available on
+https://ask.wireshark.org/[Wireshark’sQ&A site]
+and on the wireshark-users mailing list.
+Subscription information and archives for all of Wireshark’s mailing lists can be found on
+https://www.wireshark.org/lists/[the web site].
 
-Bugs and feature requests can be reported on https://gitlab.com/wireshark/wireshark/-/issues[the issue tracker].
+Bugs and feature requests can be reported on
+https://gitlab.com/wireshark/wireshark/-/issues[the issue tracker].
 
 // Official Wireshark training and certification are available from
 // https://www.wiresharktraining.com/[Wireshark University].

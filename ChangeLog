@@ -1,0 +1,2054 @@
+3426b25621 Qt: Make sure the packet diagram's FT_NONE label exists.
+0c373d648a IEC104: add dissection of CP24Time2a time tags
+3417380d65 ncp: fix display of DS_FULL_CLASS_DEFS.
+c1889e3cd5 gsm_a_rr: move TARGET PCID into the correct subtree
+c5a6fccb30 ncp: pass the NDS class definition type to process_multivalues().
+395d2e7425 NCP: add more comments to tools/ncp2222.py.
+e75969fb71 quic: show encapsulated protocols as top level trees
+72921f8867 packet_diagram: use a better label for FT_NONE items
+3b9656780b Qt: Don't fill in the packet diagram if it's not visible.
+adfded498a Qt: FieldInformationGraphicsItem: fix a memory leak
+9f7a06ff88 http: Put the Digest parameters in a subtree.
+25d10e68a8 GQUIC: fix dissection of ACK frame
+3f171542ac gQUIC: Add MAD0 Tag (Max Ack Delay)
+c38c83c38f GQUIC: add support for Q046
+84deceaf1c DVB-S2-TABLE: Another spelling fix.
+bd9554543c DVB-S2-TABLE: Fix spelling.
+cc3c195a32 WASSP: Fix spelling.
+2260fabbdb ncp: fix indentation.
+78466d1046 Support to dissect beacon timing element
+951837a644 A615a: Fix spelling.
+d04afaf4c7 [Automatic update for 2020-09-13]
+46456dcf1a TLS: add missing parameters in QUIC Transport Parameters
+82827278f7 More dissector string spelling fixes.
+2f89b8d62c SMB/NBT: Add support of SMB over QUIC
+97a6146d81 Qt: Fixup packet diagram tick label placement.
+272502790b Add FT_STRINGZTRUNC.
+7811c06272 PFCP: fix dissection of C-TAG and S-TAG IEs
+fd7739de6b CMake: Fix libssh >= 0.9.5 version detection
+889dd0cbfb QUIC: Update to draft-30
+9182bb9c48 smb2: add NegotiateContext/Compression flags field
+1a410ef0b0 ncp: fix a copy-and-pasteo.
+13ac47ad4e Q.933: Fix decoding of PVC Status field
+ee292b11a7 Q,933: Fix display of 'active' bit in PVC Status
+726e0ccb0a MBIM: dissect the commands of MBIM extended version 2.0
+20ae645964 ncp: add a comment about possibly null-truncated strings.
+83b45f0c2e packet-mq: Improve Structure Display
+e32d2c7a7a gvsp: fix type of GenDC signature.
+cb810e7003 proto.c: add support for BASE_SPECIAL_VALS to fill_label_number64()
+b340dc8de8 SAP: make the Server Name field FT_STRINGZPAD.
+3fa8f42c76 bpdu: fix some string types.
+f33e1c13fa gsm_a_rr: correct spare bits of Channel Description
+5e1a302d9e afp: treat passwords as null-padded.
+fd922bc806 SMB2: add new RDMA transport negotiate context
+51a1765698 SMB2: add new transport negotiate context
+76229da61d SMB2: add new compression algorithm in negotiate context
+bb563317a1 GQUIC: fix endianess for Q050, T050 and T051
+b801e7c4a9 gQUIC: fix wrong encoding for client timestamp (ctim)
+ecbc0a5611 PROFINET: CBAVersion control is removed.
+8893a0f311 packet-mq: code reformating
+a2a3e38fdb Fix some more dissector spellings.
+b446e36471 aeron: the Error String in an Error Header is not null-terminated.
+1b5be9bcba Issue 16683 - SIP - Dissection of Logme Marker in the Session ID header of the sip packet
+c0f6f7a7c1 SDP: Handle fmpt:MCVideo
+106e686e45 packet_mq: Support V9.2, improve MultiSegment, improve some struct display
+9e2cbb995e GitLab CI: Set MAKEFLAGS=--silent
+f77b0bd9c2 Fix a couple of spelling errors in release notes.
+a4319f3254 ieee80211: fix Wmissing-prototypes
+6a08695e3e Qt: Remove an unused value.
+f75281cdd0 QUIC: Fix missing bit shift from KP (Key Phase)
+9e36a4fadd tools: Migrate gen-bugnote to GitLab.
+96d8e310bd Update my email address.
+08b5061733 Release notes: Miscellaneous cleanup.
+661a08507e README.md: Fix a couple of typos.
+31b67d320e Fix a typo in FeatureRequest.md
+2f1cf93174 MySQL: Added support for MariaDB protocol
+8bcf6783a5 TLS: add missing parameters in quic_transport_parameters extension
+322f6f3988 GitLab CI: Restrict the Windows build to wireshark/wireshark.
+5a874c5796 BSSMAP: Fix malformed packet exception on correct packet
+28faecec7a BSSMAP: Fix used param marked as unused
+d461bf3025 Yet more spelling fixes.
+de115f6cd5 check_spelling.py: fix a variable name, and add a few dictionary words.
+e7ab0e6dc5 Qt: Update translation files.
+22e02a9d06 Add spell-checking script.
+6a841ce4d5 [Automatic update for 2020-09-06]
+30e13d7717 Gitlab: Add templates for issues
+43a85d674e Fix more spelling errors in the docbook folder.
+9fb13aaa9a SMB2: add missing cipher type for SMB2_ENCRYPTION_CAPABILITIES
+d541071dae E1AP: upgrade dissector to v16.2.0
+dfabf33dfd proto.c: increase PROTO_PRE_ALLOC_HF_FIELDS_MEM
+291c836392 F1AP: upgrade dissector to v16.2.0
+87521e8bf5 NGAP: fix a comment in the header file and add it to CMakeLists.txt
+7ab6440416 Tools: Clean up checkAPI and add ui/qt.
+a46b62fcab (G)QUIC: improve dissection capabilities (Q050, T050 and T051)
+51cbb47e1f Fix some detected spelling errors in ASN1 dissectors.
+fa9f718692 S1AP: fix a field mask
+6f68f86f28 X2AP: fix a field mask
+5024bbed65 XnAP: dissect a few more fields
+ef1c388acd GTP NR RAN Extension Header: Update to latest spec.
+645716fb6d FCOE: Autodetect Ethernet FCS by examining EOF
+f68719bd8a RTP: always add rtp.payload field but hide it if a subdissector is found
+aaf2edf8a7 github: fix windows build.
+188b4a655f README.developer: Note that sources can use UTF-8.
+fd075df3f8 tools: Make the "Allow commits" error more obnoxious.
+c2b69f4e9b Fix a couple of spelling errors in docbook files.
+eb626aa650 Query #define was being used in reply processor.
+0e6551336d Diameter 3GPP: Pretify dissection of 3GPP AVP 524 Codec-Data
+38d77e6c7c Fix some typos detected in man pages.
+07ad7843f6 Qt: Use UTF8 middle dot for non-printable characters
+c09cb5c343 GTPv2: fix dissection of Target Identification IE
+09c9b87c8c XnAP: upgrade dissector to v16.2.0
+d5bafdcf5d WSDG: Add a note about "Allow commits from members..."
+7476911490 tools: Force "Allow commits from members..." in merge requests.
+10204490d7 USB HID: Avoid allocating a huge amount of memory.
+0e6027313d gitlab-ci: Enable the Windows MR build.
+898e390c2c Fix the Windows build.
+5aec54c9c3 GitLab CI: Set up ccache.
+2411eae9ed multipart: fix deallocation of invalid parts
+83050495a7 RTPS: Fixing typo in a mask, it should be app_id instead of host_id
+4f3f9ca54b Fix some spelling mistakes found among plugins.
+a1762dcbb0 get_zonename(): don't convert _tzname[] values to UTF-8.
+c702b44a01 USB HID: Fix a double free.
+218881dd13 Fix some spelling errors detected in epan/prefs.c
+c4634b1e99 TCP: do not use an unknown status when the checksum is 0xffff
+4f362eef8e MBIM: dissect new UICC commands of MBIM extended version 1.0
+d11ca36362 Portcontrol: Implemented option code 130
+a8cb2809d1 ErlDP: support features of Erlang/OTP 23
+3e0ebabdec CI+tools: Install lintian.
+00bf625286 GTpv2: Add expert info for zero length IE
+fb86f83949 FCOE: (Pre-T11) Help Ethernet dissector guess about Ethernet FCS
+d24674c4ae NGAP: fix ngap.MDT_Location_Information.reserved definition
+6c0d34cf4b cl3: (trivial) drop _U_ for a parameter that is used
+e7d20090f7 More spelling fixes, last part of 2nd pass of dissectors.
+4c74caf9ef More spelling fixes, part 2 of 2nd pass of dissectors.
+2999b7f6b3 More spelling fixes, part 2 of 2nd pass of dissectors.
+73ff25185c EBHSCR: Add CAN and TS, update ETH dissectors
+4a4e50992a More spelling fixes, start of second pass of dissectors.
+8ee18eed20 ITS: enable decoding of UDP datagram as ITS message
+54cd3cbb23 [Automatic update for 2020-08-30]
+a7c8da4216 Fix build where compilers can't initialise multi-field struct with {0}
+4c9f59ee56 Fix more spelling errors in dissector strings.
+b8a773dddc Fix some spelling errors in dissector strings.
+97ade16979 nl80211: Fix abbreviated field names for NAN
+0e2cd329e3 CIP: Combine connection structs
+ba34033df4 CIP: Combine handling for cip_connID_info_t connections
+52dabc604e Diameter: Update AVP RAT-Type enum value.
+2e7d75ba59 cirrus: upgrade to freebsd 11.4.
+429fa65c80 Windows: upgrade Npcap to 0.9997
+73eff55668 GSM MAP: fix typo in template file
+986ead744d NGAP: upgrade dissector to v16.2.0
+4c36f43612 Fix a couple of typos in true_false_string entries.
+e48e9a5724 WSDG: remove another git review reference
+f78579ee64 Remove .gitreview.
+847d3949c9 Apply Decode As induced protocol preference changes
+4f61542fc3 Update link to report bugs via gitlab issues.
+97dcaf97fc Convert Gerrit URLs to GitLab.
+ab4ef189ae wiretap: add Z-Wave Serial API frame type and pcap link-layer header
+17e27e6c8b Move quic frag items inside gcrypt feature #if
+d75ebf1139 Move btmesh frag items inside gcrypt version #if
+c2f316dfea MPLS-Echo: Fix length of hf_mpls_echo_tlv_fec_igp_ipv6
+feba9bbff4 ci: add clang-tools to merge-request:ubuntu-clang-other-tests job.
+b586f25789 tools: rename validate-clang-check.py to validate-clang-check.sh.
+9cd9f02b34 Qt: Fix filename used in header comment
+1fe4db4bc4 WSDG: Start updating for GitLab.
+9977ca2132 doc: Update README.dissector for GitLab.
+50550708cc Add merge request jobs to GitLab CI and migrate commit validation.
+69ab0b00af [Automatic update for 2020-08-23]
+a42286524a Only do trailing stray character checks on FT_STRING fields.
+b228b5a1b1 Add Arinc 615A dissector
+f91e6535c2 lldp: show the Protocol Identity as bytes, not a text string.
+82a4968bc3 plugin_if: add plugin_if_get_frame_data() and plugin_if_get_capture_file()
+7e46db8f86 gnutella: add a comment about the character encoding.
+ae9f431c09 wmem_strbuf: add comments asking whether some checks are necessary.
+c542e2476c tds: update URLs.
+cc84e6a4e5 mysql: add more URLs.
+08158882af hiqnet: update URL, use HTTPS One More Place.
+0580dc7677 dmp: add the Wayback Machine version of a URL.
+be8315eeac GBCS: Add alert clock not adjusted outside tolerance
+f43625386a indigocare-netrix: use a string encoding for all tvb_get_string_enc() calls.
+5dec9f91fc indigocare-icall: use a string encoding for all tvb_get_string_enc() calls.
+421db8b019 proxy: add AWS TLV (VPCE)
+6dc6d26768 SMB2: Add TC reserved flags field
+81651fa34f SMB2: use tfs set_notset
+fa6f2681e3 gearman: expand a comment.
+132d6ec70b gsmtap: Add support for E1/T1 traces
+4dac9c2c53 packet-q933: Decode LINK INTEGRITY + PVC STATUS IEs without codeset
+e7116cca75 packet-fr: Treat DLCI=0 as Q.933 LMI if GPRS-NS is selected
+217a92981b FSSO: Fix when additionnal data is not coming from TSAgent
+e59b3c2338 tvb: add tvb_get_bits_array
+bd7d0742db couchbase: fix conflict
+77b67c7357 dcerpc: add more URLs.
+4707c16add X2AP: upgrade dissector to v16.2.0
+df69e61cb6 dicom: Handle frames with segments from different reassemblies
+abd6f143c7 S1AP: upgrade dissector to v16.2.0
+4e595577f3 PROFINET: DHCP suboption undefined bytes
+c8e24f5c55 RTPS: DomainId incorrectly dissected when using TCP
+fd9923cb76 USB HID: fail to parse the rdesc if it has mismatched report ID usage
+bef04c21b4 USB HID: separate HID items into input and output
+4215a55c7d wmem_array: make wmem_array_grow public
+d88cf2780c EPL: additional dissection of flags
+35418a73f7 Add format_text_string(), which gets the length with strlen().
+06ff18fbb4 EPL: adaptations of SDO dissector
+f5f010568a logcat: fix indentation.
+f915bc7523 FSSO: Add support of multiple Range Port
+95176cc52e E212: Update MCC / MNC code interpretations
+952e46fb56 TDS7: Make sure to populate pre-login message tree for all tokens
+1b88c72776 NR RRC: upgrade dissector to v16.1.0
+389b81daeb Q.708: Fix Unassigned values
+f8a394022b Q.708: Update ITU-T ISPC registery
+2fe820c572 GBCS: Dissect user interface alerts.
+293af3c32b Release notes: Add FTDI MPSSE protocol
+5be3de0029 FTDI MPSSE: Display kilohertz using SI symbol
+b85862654b FTDI MPSSE: Dissect Open-Drain enable parameters
+3b67c5b308 TFS: Add some commonly-defined string pairs to tfs.c
+e48ab21267 BER: Fix order of loop tests to avoid overrunning array.
+521180d8d7 [Automatic update for 2020-08-16]
+4e8dae37eb wifi-dpp: Add support for version 1.2.9 of the protocol.
+ce81473b7f check_tfs.py:  Import subprocess module (needed for querying git)
+ba4066f470 dicom: fix exporting objects with tshark
+42cac8dcfd check_typed_item_calls.py:  add optional checks for labels and bitmask.
+d97aedb64f Fix a couple of item bitmasks where bit positions were ommitted in error.
+e2c332032b bthci: Correct endianess and fields related to LE isochronous streams
+62c4e2525f Check that at least one token exists to consider the JSON as valid
+ee42cb7924 bluetooth.gaen: Adding Google/Apple Exposure Notification to bluetooth.
+b921c28603 EPL: append info-column with additional flag infos
+563a270019 BMP: Add Route Policy (draft-xu-grow-bmp-route-policy-attr-trace-04)
+4569772457 eap: fix which tokens we think contain mncNNN and mccNNN.
+c3066b647e make-version.pl: Update sample output in comments to more modern git version 2.24.3 (Apple Git-128)
+30beb5ae22 STUN: att_pw_alg and alg_param_len items are unsigned ints.
+f59262b94c GTPv2: fix S103PDF and S1UDF IE dissection
+6ee65f8af9 Radius: include newly added dictionary files
+395ac51703 Fix some cases where item mask was wider than item type.
+2d74b5c9b0 EPL: modified timestamp format of errorcodelist
+ebf3d6dbf1 Try to fix -Wpointer-sign warnings.
+057d50bfdf NR LTE: add dissection of capabilityRequestFilter for EUTRA and EUTRA-NR RATs
+7c7f5765d3 For a zero time stamp preserve the base time but put "(0)" in front.
+efd7cb38e6 doc: explain when to use FT_STRINGZ, and document FT_STRINGZPAD.
+9eddbdafa9 Don't give a zero-length FT_STRINGZ a special value.
+3e9bf7d7cb MQ: use FT_STRING, not FT_STRINGZ, for strings.
+9c1a55a5ae RPC: partially dissect GSS NFS truncated packets
+bf91124458 packet-stun.c: Add decoding of PASSWORD_ALGORITHM(S)
+2ce378f8ab packet_xml: detect and handle UTF-16 BOM
+dae7f769e8 tacacs: various fixes and cleanups.
+b1753ce511 Qt: Add debugging ifdefs for the packet diagram.
+a72e415451 For a zero time stamp don't print the EPOCH, print NULL.
+a582672d6f lithionics: use ws_strtou32() and ws_hexstrtou32() to convert strings.
+2db3708dfd Add Lithionics battery management dissector.
+c2075185de epan: Fixup proto_item_set_bits_offset_len.
+fed91de7a1 ssh: make fields for string types FT_STRING rather than FT_STRINGZ.
+d5fe2d494c wsutil: define HAVE_LIBGCRYPT_AEAD in wsutil/wsgcrypt.h.
+151ee60555 http3: fix build without support for AEAD cipher suites.
+c462f72273 IEEE802.11: WAN Metrics Length Check Update
+48a6ea0e05 ssh: don't crash when computing hash.
+9b07412277 Qt: Add a packet diagram view.
+e846d238d7 QUIC: fix compile  without LIBGCRYPT_AEAD
+0cce968634 GTPv2: validate length of PDN Address Allocation (PAA) IE
+2364968cd6 Bluetooth: simple HCI ISO Data packet dissector
+d7f7b62ef3 OBEX: Fix mismatching API/item-type for some subtree items.
+e43e6e6897 ieee80211: add radiotap TX flags
+79e43ef98d EAP: Update to EAP Identity Dissection
+bb5d0317d6 Fix merge cruft from release-notes.adoc
+414255f1de DHCPv6: fix for bogus errors. Detailed error msgs
+c3dbba350c LTE RRC: upgrade dissector to v16.1.1
+744c57b42c UI: Follow Stream "Show and save data as" -> "Show data as"
+74e917fc6c wiretap: have wtap_dump_flush(), and its callers, check for errors.
+fcd7492566 proto.c: increase PROTO_PRE_ALLOC_HF_FIELDS_MEM
+37666b6dec NSH: Fix an item's bitmask.
+9a7b30aea8 Fix tfs strings that have leading or trailing space characters.
+e9f6958c46 Windows: upgrade Npcap to 0.9996
+5ca2327cc0 [Automatic update for 2020-08-09]
+2261b59eae Replace more DISSECTOR_ASSERT_NOT_REACHED() with more specific messages.
+c7728244bb http3: add very basic support for HTTP/3 framing
+2a832c8a8c ssh decryption: load logged keys and compute symmetric keys
+c931f0d341 Fix most remaining detected cases where item with wrong type is used.
+f5a8c08b12 Add FSSO (Fortinet Single Sign-On) Dissector
+fd03c85d0f check_typed_item_calls.py:  Look for items with the wrong type passed to APIs
+3b47a55b0d Replace instances of wmem_alloc with wmem_new
+191e1f62d5 Kerberos: make tfs change in template rather than directly.
+ac814cf6b9 ieee1905: Eliminate a shadowed variable index.
+e4379f0ea1 Dumpcap: print closed ring-buffer file names
+a9f39a29fe QUIC: add STREAM data reassembly support
+1dd8bb2811 Find and fix dissectors that should be using a default tfs.
+b711b300cc netmon: handle non-monitor-mode 802.11 packets differently.
+06702303da editcap: use constant for maximum nanosecs in 1sec
+d24c9df384 editcap: add capture-file comments to output file
+9015824c0e dicom: when exporting objects, don't assume we have the AE titles.
+245b6387f0 ieee80211-netmon: fix a typo.
+818bb96e5f editcap: clean up an error message.
+61e8381ab2 editcap: allow the UNIX/POSIX Epoch to be a start or stop time.
+47e9852213 editcap: fix check of start and stop times.
+613c1bd931 editcap: clean up the parsing of fractional time in -A and -B.
+75884bd011 packet-bthci-cmd: For LE Supported Features, fix loop to exit after 8 items.
+30413ed0b3 PFCP: Add GUID field with correct API and length.
+e189bd2996 Qt: Always pop empty filter syntax
+5087b4f418 smb2: add some missing flags for TreeConnect
+555b89492a editcap: support fractional seconds in -A/-B opts
+e22da97fd1 SLSK: Change several items to be signed.
+4ac54e27b0 Qt: Fix status message issues in find packet search
+12242e147e STUN: fix heuristic for ChannelData payload
+f54611d110 Qt: Pop filter syntax in search frame
+3a5d0569d7 packet-stun.c: Support for different versions of the protocol
+5670644829 ISUP: Fix typo - increment offset to move past NC digits
+438a8a8e7e stun: eliminate a warning.
+5c7bb2116a packet-stun.c: Update to current RFCs and current IANA numbers
+5e642b9cb6 dhcp: add RFC8357 agent source port sub option
+22a0db959f TECMP: Adding subdissector support for CAN and FlexRay
+d8702b98cf Added Lawful Intercept Diameter AVPs to the Verizonwireless.xml file.
+d1a15acd9e dhcp: add RFC7839 agent sub options
+3a8111e1c2 Lua: give better errors for more WTAP_ERR_ types from wtap_dump_open().
+e1c10c5856 NTP: fix detection of larger MAC sizes, remove Autokey support
+e6b5bd0976 Build: Add LTO/IPO support
+458623fd87 ISUP: Decode Bellcore GR-317/GR-394 as ANSI
+a381adfe12 wiretap: fix an internal routine's name.
+aa6b8f59af DCERPC: Make heuristics more discriminating
+c5704d3e70 EPL: Include stdlib.h
+1395494e7a STUN: add heuristic over CLASSICSTUN
+a2d994d334 Btle: AE Host Advertising Data reassembly
+e387a4752c wiretap: Adjust the pcapng systemd Journal length check.
+a4fe4e449b EPL: put a hidden field to all EPL message types
+3c7d381f84 dcom: fix typo ("rountine" -> "routine").
+48fdd08237 dcom: free data_marshalers and set it to null when we change capture files.
+7d2629d946 null: use tvb_get_h_guint32() to fetch a host byte order value.
+3b230d5ea3 GSM A DTAP: fix the bitmask of hf_gsm_a_dtap_test_loop
+2356415cfe libwireshark: define ENC_ANTI_HOST_ENDIAN in epan/proto.h.
+93260afcff [Automatic update for 2020-08-02]
+25353885b1 DHCPFO: Update to latest draft-ietf-dhc-failover
+e7057c7923 USB-Audio: fix typo on display filter name
+bad5b89f00 TDS: Lengths are uint, so add with _uint() APIs.
+9c2b2798a6 UMTS_FP: Treat frame_type as an unsigned number, and use #defines for values.
+5e1c011704 usb: fix comments.
+688ba9c5f0 usb: use proto_tree_add_item() and proto_tree_add_item_ret_{u}int().
+b4c08d166c USB: Make iso_status variable a gint.
+0334b6af55 Fix use of _ret_uint() for UINT_{BYTES,STRING} when _ret_length() is wanted
+a44bdf5675 FP: add unsigned item with _uint calls rather than _int()
+7088a0a3e6 USB: Use the correct API to add iso status field
+ab92bb579f usb-audio: fix -Wpointer-sign
+5bd304f470 QUIC: fix conflict
+f30ab19ca6 Aruba(IAP): Octet 14 is model
+ccd7e1a63a ptvcursor_add_ret_int():  Fix error string if item of wrong type
+9fc4ac6cae Update Extreme networks specific radius dictionaries to vendor provided files.
+1977417385 GeoNW: properly display lists of HashedId3
+5d0f0131eb GeoNW: Fix parsing of ecies_nistp256 public keys
+d6ec8aa0f5 Fix some uses of proto_tree_.._ret_[value_type]() calls
+e6469a757b Fixed the usage of proto_tree_add_bytes
+4b0f6b7060 ITS: decode MAP a SPAT v1
+898b00c9a1 Qt: Restore an attribution.
+28bec58f05 CDP: Improve CDP port ID TLV hack heuristic
+c68d36b173 wiretap: have the file's time stamp resolution be a dump parameter.
+f8efccc3cc wiretap: generate fake IDBs for more capture file types.
+12621c5b64 wiretap: add a routine to add a "fake" IDB.
+7760bcb3dc TECMP: Fixing the dissection of Status Bus Vendor Ext
+21e0037231 ieee1905: Fix issues caused when adding reassembly.
+a71e225c40 USB Audio: Fix parsing of v2 Endpoint Descriptor
+8c0c27e590 iptrace: supply packet direction.
+c099892700 iptrace: generate IDBs.
+a4ebc98fa4 iptrace: various cleanups.
+45ab688922 FTDI MPSSE: Fix handling responses without command
+2fcbbf35db FTDI FT: Rename from ftdift to ftdi-ft
+dba5465f11 MQ: Fix short NameValue presentation
+4805a70e0c [Automatic update for 2020-07-26]
+6b400e27af FTDI MPSSE: Link Bad Command when skipping data
+5233fd2c2d FTDI MPSSE: Match responses to fragmented commands
+75c739e4b7 ISDN, LAPD: clean up the way they connect to other dissectors.
+ac2883f5e8 NSIS uninstaller: ensure the uninstaller runs with elevated privileges
+4bea0e7c2e USB Audio: Dissect v2 Feature unit descriptor
+509bffa462 ITS: add subdissector table for PtActivationData
+8ede837188 extcap(.h): fix empty paragraph passed to '@return' command [-Wdocumentation]
+08af00d759 rtps: fix no previous prototype for function
+fc0581e032 TPM20: Add support for new commands
+18bc35e3e5 Support for Kafka 2.5
+1f5624d2ce USB Audio: Dissect version 2 Selector unit descriptor
+e80d08974a pluginifdemo compilable on Windows
+2046666b97 csn1: fix M_UINT_OFFSET: show value after applying the offset
+26c4120204 GTP: extend TPDU Heuristic for ethernet frames
+8cf0cd1bb1 ieee1905: Take into account VLAN IDs.
+1d8680d07f packet-gsm_sms: Return early in hashing funtion when NULL passed in.
+babbe57a1a ftype-time: Use time zone from hfinfo->display
+e269b0e330 ITS: add GDD module
+bc231d2b98 WSDG: Add info for building with Address Sanitizer
+7be4a8fb00 Add wmem_destroy_array()
+c8bda07641 mqtt: Do not configure a default version
+9db3ce11eb ascend: update a comment.
+8cf626bf16 nettl: user IDs are 32-bit in HP-UX.
+3a38fc9d11 STUN: add heuristic over TURN
+70b4dd9f70 mqtt: Add default protocol version setting
+779715a530 ISO 8583: fix dissector for field 15
+b4284772b3 GSM RR: properly handle CSN.1 Null breakpoints in IA Rest Octets
+6b4fae1a0b Windows: Switch from the WpdPack SDK to vcpkg's libpcap.
+ca3b4a79b2 FTDI MPSSE: Dissect CPUMode read response data
+b44dceae0f FTDI MPSSE: Dissect clock N bits commands parameters
+7db43f0b89 C12.22: Fix Calling-authentication-value-c1221 CHOICE
+13e82fa4c1 RTPS: Update vendor IDs
+076a62a091 RTPS: Added dissection of PID PID_UNICAST_LOCATOR6_EX
+2a1431abdc DNS: Add support for SVCB and HTTPS RR
+a0e0389e4e FTDI MPSSE: Dissect read data bits commands response
+93fb6052c0 FTDI MPSSE: Dissect data shifting commands response
+67bef4c24e RTP/RTCP: remove port number check from heuristics
+08b3414d17 RTPS: catch another use of an uninitialized structure member.
+40dee6eafb sshdump: clarify integration with Wireshark
+c0bb2c4e5b FindWinSparkle.cmake: Fix a comment.
+6b5e95c473 opa-mad: use a simpler way to read a time field
+dc7f935330 kafka: zstd: free the composite tvb only once
+391d451663 smb2: SMB_EXT_FILE_ATTR is misused to parse FileAttributes of SMB2.
+7445a7b831 ACDR: Add TLS_APP_TPNCP
+fcf787b408 [Automatic update for 2020-07-19]
+a60bc4da84 sshdump: allow for multiple instances.
+b15ebdf0ab rlcmac: Decode properly Pkt Ul ACK/NACK R99 Additions
+e1df757c46 Qt: Improve status bar messages
+6432e18b2a FTDI FT: Do not add Reassembled data source on first pass
+19e583a4e2 Stun: improve ipv6 addresses visualization
+3f83807c42 DTLS: add heuristic over Stun
+9b5f07d829 json2pcap: Added pcap masking and anonymization support
+3dedaf8064 extcap: put the code to add lissh version information into a common routine.
+9296677472 extcap: assume we're using libssh 0.6 or later.
+a1d2d18cb8 extcap: get the libssh version string from the libssh.h header.
+48237f77aa Profinet: Wrong Block Length Dissection Fix
+a5533561db Qt: Fix 5.15 deprecation warnings
+d04ce112a7 Update to DICOM Edition 2020c
+e4835191cb extcap: clean up the version number handling.
+44ca0af5df extcap-base: no need to get the basename of the executable path twice.
+dccc382b4f Show the version of libssh being used, if possible.
+93012800c8 Extcap: silent mode install
+f793923a12 extcap: add libssh version info to sshdump and ciscodump.
+d975ebbed4 extcap: improve version output for all extcaps.
+88f62c8d0e ieee1905: fix indentation.
+7184c1bce2 OPA MAD: do not search a non existing and unused dissector handle
+34ff98c860 Assign access_bpf to GID less than 500
+7e4ff6f826 cppcheck.sh and check_dissector_urls.py: Show which files are being examined.
+3ff0a55d5c Qt: Check if "Apply as Column" column already exists
+6037b40106 FTDI FT: Add RX payload to tree only when present
+00b5c2809a Sort list of available filetypes when loading a capture
+d8db04bf5f Windows: upgrade Npcap to 0.9995
+f0b35ee9b3 ieee1905: prematurely return if addresses are not defined.
+fe8d996bb2 xcsl: fix an off-by-one in premature exit.
+7a3bef5746 7COMM: Try to fix Wpointer-sign warnings.
+b921a5670b RTSP: Try to fix Wpointer-sign warnings.
+9cd7629daf DNS: Add support for RFC8490 DNS Stateful Operations
+e7642e162f TLS: fix build error without LIBGCRYPT_AEAD
+90c3e7dead QUIC: fix build error without LIBGCRYPT_AEAD
+cc039149a8 DNS: Try to fix Wpointer-sign warnings.
+c5aa5b8f41 IMAP: Try to fix Wpointer-sign warnings.
+45e9da9b67 TDS: Fix If COLMETADATA is present, all row data display is unusable.
+b31a6aaae7 B&R - company naming
+759a62b5c5 RTCP: Add few remaining AVB specific fields
+44ed20a97c QUIC: fix unintended address/port match for empty DCID
+608835bf56 Don't call any routines from WinPcap/Npcap packet32.dll.
+4a4c8bdfea Systemd journal: Fix timestamp conversions.
+73f24f5ad8 ccid: dissect interrupt notifications for 8 slots
+4fc9098830 Qt: Keep pane sizes when quit without loading a file
+7f09a6fd81 ITS: ISO TS 19321 (IVI) updated to version 2
+2b6f38b37d Extend the BLUETOOTH_LE_LL_WITH_PHDR format
+474f8c9a17 synphasor: solve issues from buildbot
+cb8fa30177 ieee1905: Comform to the latest Multi-AP spec plus add reassembly.
+db966fdd2f coap: Do retransmission detection only for CON and NON
+b61a4abc91 FTDI FT: Use custom reassembly table key functions
+dd43aa2a0f FTDI MPSSE: Do not unnecessarily request reassembly
+756178514f FTDI MPSSE: Speed up malformed captures dissection
+32a804dea2 kafka: snappy: free the composite tvb only once
+a71ecfa2b5 QUIC: add GREASE QUIC Bit Transport Parameter
+300099e9e2 [Automatic update for 2020-07-12]
+69216a385d QUIC: fix decryption when the client uses an empty SCID
+34c2353a39 QUIC: improve display of unknown or large Transport Parameter types
+ed334d4f2d FTDI MPSSE: Improve command to response tracking
+c706a909e3 FTDI FT: Reassemble fragmented MPSSE data
+70119bb905 check_dissector_urls.py: Add options to control which files to scan
+415f72a146 QUIC: Add column info for ACK_FREQUENCY and TIME_STAMP frame type
+29c9425d22 PER: decode SEQUENCE OF with extended SIZE constraint, fix unaligned integer
+1257bd379a asn2wrs: support for (SIZE(A..B),...) constraint
+f505ada1f0 pfcp: fix typo found by lintian
+d0cd357825 Qt: Remove some dead code.
+584569932b packet: don't mess up the subdissectors list during optimization.
+a0b2ff45f5 EPL: use predefined tf strings from tfs.(ch)
+3b86e04c2d Doc: Have make-authors*.pl explicitly use UTF-8.
+770872790d Stun: add heuristic over TCP
+734287d6d4 Profinet: ControlBlockProperties Decoded Properly
+1cbaaf3e8d tls: Update list of CT logs to 2020-05-29
+5d313ecb2d TDS:Fix -Wpointer-sign warnings.
+3526ecd623 BGP: Fix scope for path attribute packet_data
+d9f88b3289 EPL: extended decoding of ring redundancy flags
+455a4794d8 USB: Add a size check.
+4cf092382d spoolss: pick up what some printer attributes mean from Microsoft documentation.
+5b0adea0b3 Nano: Fix field abbrev
+c9a5557c76 PIM: Fix field abbrev
+fb37407d27 NIS+: give the meanings of the NIS_CALLBACK return value.
+038161d78e TECMP: Resetting VLAN depth per frame
+4660a30bab Fix -Wpointer-sign warnings.
+48630d4742 packet-smb2: correctly dissect SMB2 TRANSFORM_HEADER Flags
+5b91801a8d value_string: Change the bytes_string struct to avoid Wpointer-sign
+7ed3180a29 ieee80211: add VS SGDSN type 1 message
+e84d431e39 QT: Don't use qAsConst and C+11 on QT < 5.7
+416ccd18c4 E212: allow to decode 5 digits long short IMSI used in MAP messages
+570b9ffe7b UMTS_RLC: Rename rlc.ciphered_data expert item
+e566c615f0 NIS+: Make true_false string differentiating
+af6140d643 Test: Remove an unused routine.
+f0d456bf2d cppcheck: Fixup some comparisons.
+1484c1e7f6 Fix Wpointer-sign warnings.
+e9a21e9f41 cppcheck: Bail if "-l <n>" or "-o" don't find any files.
+3c37494ea6 USB HID: fix memory leak when saving report descriptors
+2b7975db54 Fix Wpointer-sign warnings.
+8a4e53cbed Fix -Wpointer-sign warnings.
+dc42e2b1cb file-rbm: Fix -Wpointer-sign warnings.
+6f52f969d8 tn3270: improve on some of IBM's painful prose.
+86c27cc1c0 USB HID: fix parsing {logical ,phys }{min,max} in the report descriptor
+2d49ab3d25 USB HID: introduce a report descriptor parser
+9c53ac0187 extcap: Lazily load our interface list.
+45378647d7 TDS: Fix field abbrev for RPC name
+3bdf657706 SPOOLSS: make reserved field value presentation meaningful
+620b8b3c71 TN5250: Fix two true_false strings so they are differentiating
+c45aba408d BSSAP: Fix field abbrev for IMEISV IE
+6a5dba8b1e file-pcapng: Try to fix -Wpointer-sign warnings.
+30f8f9656b epan: Fixup our ENABLE_CHECK_FILTER warnings.
+4b4bbe8067 DVB-S2-BB: Add the next-header protocol types from RFC4326, section 4.4.1
+475cba7e6b mbim: Try to fix -Wpointer-sign warnings.
+4dc3114c05 Windows: Set our locale to ".UTF-8".
+0d7d7fe3c6 rtps-utils: fix no previous prototype for functio
+53b0b25661 nfapi: Try to fix -Wpointer-sign warnings.
+64b7bb05d4 http2: fix no previous prototype for functio
+fc3a9d3328 enip: fix no previous prototype for function
+9c5b15a8f4 SDP: Try to fix -Wpointer-sign warnings.
+9fc054a65b Add all supported charsets to Show Packet Bytes/Follow Stream
+23cb6959c1 slsk: Try to fix -Wpointer-sign warnings.
+a8d5920caf tls_utils: Try to fix -Wpointer-sign warnings.
+e01795489b umts_fp: Try to fix -Wpointer-sign warnings.
+d13098e235 GSM-SMS: Fix max of a range value.
+77d4112bb1 DVB-S2-BB: For GSE Protocol Type, separate Next-Header and Ethertype subtypes.
+df5cc85a79 GBCS: fix field abbreviation for firmware hash
+f0158ea131 Nettrace: Try to fix -Wpointer-sign warnings.
+fa6eb07e2e UDPCP: Move link from original specification to Wayback Machine archive.
+b0cea2cb4c ncp2222: Try to fix -Wpointer-sign warnings.
+b1ec5ddff6 ieee80211: Remove duplicate and erroneous entries in the status code table.
+95c56f5b72 nordic_ble: Avoid identical true and false strings
+c3802e5af1 DVB-S2-BB: update list of standards.
+7c855fba83 UNISTIM: Remove useless bit field true_false_string
+f63916425d DVB-S2-BB: update a URL.
+79576219c9 kafka: lz4: free the composite tvb only once
+23aa1ed679 mplog: increase the max packet length to 4096
+486d163470 iso14443: support larger frame sizes
+638d989567 Revert "ISO14443: Update some commands"
+5e05fe0421 [Automatic update for 2020-07-05]
+d626a4b7e8 Add missing CAT001 fields
+0162ba730a Enable display filter autocomplete on find packet search.
+18421cc733 BFD: Adjust BDF echo message filter name
+f0490ae52a dvb-s2-table: Fix Dead Store
+569a768ccd ajp13: fix the type of elements of an array of pointers to hf_ values.
+26b44bd823 DHCPv6: remove a redundant test.
+f23fe3b84e amqp: fix the type of elements of an array of pointers to hf_ values.
+2340a2ebb2 DHCPv6: Fix a header field entry.
+7975b3ae1d Typing errors for Category 011 in ASTERIX
+729ddd1c9d DHCPv6: Fix compilation error.
+78329eb938 NR RRC: fix dissection of MobilityFromNRCommand IEs
+8174e94fe9 NR RRC: fix dissection of 5GS S1 mode to N1 mode NAS container
+f5d08e31c8 DVB-S2: show raw bbframe data when it is not dissected
+73d1721db6 DVB-S2: Reassemble GSE frames.
+fb215255bb DVB-RCS2: dissect Ethernet/VLAN payload
+4bf4ee88f0 DVB-RCS2: Handle optional BBFrame EIP CRC 32 field
+0455c0f16b DVB-RCS2: Added several descriptor dissection
+a17b0f144a WSDG: make sure _U_ is rendered correctly
+daebdc4b1a Qt: Handle filenames in preference editor frame
+a6d8a2c118 Qt: List all protocols in PacketList "Protocol Preferences"
+7bf8a87429 DTLS: Add connection ID extension support
+b8a330d2d5 Qt: Update ByteView recent settings on all tabs
+0c5b81c641 DVB-RCS2: Added TIM, TMST, TDT and TBTP2 dissection
+faeefc9d59 DHCPv6: fix for bogus errors. Detailed error msgs
+b46a554ae7 Packetlogger: check for more packet types in the libwiretap heuristics.
+af31bff2f9 DVB-RCS: dissect signalling tables in DVB-S2 dissector
+656aed7d6a Try to squelch [-Wpointer-sign] warnings.
+1a8b67c772 ieee80211: Fix bitmask of RNSX fields
+5a823dda01 opa-mad: Try to squelch [-Wpointer-sign] warnings.
+dd247d821e Qt: Remove ellipsis from "Disable protocol" menu item
+cd566f4a6a DNS: Try to squelch [-Wpointer-sign] warnings.
+ff4296a1fe oscore: Small bug fixes.
+916550de96 TECMP: Adding support for the TECMP protocol
+39b4d2eb3e A-bis/RSL: fix dissection of Mobile Allocation in CHANnel ACTIVation
+408bc4cb1d Qt: Add keyboard shortcut for Decode As
+9a1a5fd22a Qt: Add copy from another profile for Decode As
+e312d07367 EAP: Handling Identities with Periods
+d592e475cc ASTERIX: add dissection of I001/050 and I001/060
+cb5bb6c99b Qt: Use elided heading in filter menus
+1699e50102 GSM/RR: fix wrong field name in SI2quater dissector
+bd11d5b90b wslua: Include stdint.h on Windows.
+f0f2480f3c coap: Add Hop-Limit Option
+65a70ffd82 ASTERIX: CAT001/210 has an extension indicator, it's not fixed
+c41c47505c NAS 5GS: fix dissection of extended emergency number list IE
+f3a835701e btsdp: Try to squelch [-Wpointer-sign] warnings.
+45da818a53 Add internalAstError to suppressed errors from cppcheck.
+217c0e65f1 NGAP: Preserve column info when NGAP is embedded in HTTP2.
+18d29c7023 S1AP: add dissection of inter RAT to EUTRA transparent containers
+50a71ea0a7 DVB-S2: Add DVB-S2x support
+b8aec0a9f2 NGAP: decode Handover Request Acknowledge target to source RAN container
+ca41ee2aed tests: Try to squelch [-Wpointer-sign] warnings.
+5ae50899bd DVB-S2: Add option to not dissect BBFrame contents
+4af7888cae coap: Fix "End of Block #" indication
+133dbc2178 BER: Add the posibillity to do "decode as" on an UDP port.
+4b40c28a0e DVB-RCS: Dissect NCR in DVB-S2 dissector
+40f3c393c3 coap: Move dissection of payload before state tracking
+90d63ba075 coap: Add items for block payload and block length
+47a1b736bd ASTERIX: Fix data item I002/070
+570a0cb301 Set member variables in initialiser list (rather than in CTOR bodies).
+d70bd4489f GVCP: Fix an infinite loop.
+5258ceadb3 cppcheck: add a -o option to check modified or staged changes
+d000ff3e6c FTDI MPSSE: Replace asserts with expert items.
+9e3671562c SMB: fix Response of SMB_COM_LOCKING_ANDX (0x24)
+360ae8b1c0 couchbase: Fix dissect length of status!=0 values
+07ece895ac RTPS: don't add an unitialized info structure to a table.
+bc3f3b3e09 couchbase: Decode XATTRs in payload of DCP_EXPIRATION & DCP_PREPARE
+d065fe022e couchbase: Add doc_flag::CreateAsDeleted
+52512329c2 Qt: Accept changes in Decode As when combo box has focus
+09777ecc04 epan: Always clear all decode-as when loading entries
+3dc5f5c2d6 epan: Keep decode_as_list when changing profile
+52d8c572fb NetMon 802.11: Register dissector
+6ccae11c11 NGAP:n2InfoContainer is also used for datatype N2InfoContainer
+bf30a1cbe7 QUIC: Add Google QUIC Q050 support
+6d4ec8b044 BSSGP: Try to squelch a couple of warnings.
+5bd9a50e27 DOC: fix layout mergecap manual page
+251d41e07c Diameter AVPs: Add 3GPP AVP 4321 and 4325
+14049d75fd cppcheck: add more include folders to look in.
+9d17b367c4 [Automatic update for 2020-06-28]
+8557c94f87 FTDI MPSSE: Dissect Bad Command response payload
+d933a98f89 A-bis/RSL: fix wrong parent tree in dissect_rsl_ie_cause()
+2dcf32bc9c coap: Mark private and vendor-specific options as unknown
+38bda830d3 NAS 5GS: fix dissection of S1 mode to N1 mode NAS transparent container
+5654dfd982 Optimize heuristic search by bubbling the matched element
+1f75d7b3b9 wslua: Add ability to query current temporary color filter text
+c7f74a94fb USB HID: skip re-saving report descriptors
+7fadf3ac05 USB HID: fix saving the report descriptor body
+b7f282052c USB HID: fix USAGE definition name
+a2afe9b255 NGAP: fix dissection of PWS messages exchanged in Namf interface
+006a7f5115 BGP: Use VNI when VXLAN/VXLAN-GPE encapsulation is specified
+2471ae1e0e CMake: update a comment regarding Libgcrypt requirement for LTE PDCP
+dc023ad68a CMake: warn for older Libgcrypt version
+4b2cecc2de TCP: show relative numbers only when tcp_analyze_seq is enabled
+c914bdd4ef f5ethtrailer: avoid throwing a "Malformed Packet" exception
+cac1426dd6 BGP: MP_REACH_NLRI dissect Next hop network address for EVPN
+ba1777cb6e ieee80211: update status code (from 802.11REVmd May 2020)
+c3d5ddc557 sysdig-event: fix the type of elements of an array of pointers to hf_ values.
+74d7c3d14f RTPS: set the "we have an entity ID" flag whenever the entity ID is set.
+f97e20a011 RTPS: don't use incompletely filled in GUIDs.
+4f1276b5fe WSDG: Update the Code Requirements section.
+2a0a29c544 rtps: Fix Dead Store
+d96e72ee2d pcapng: add support for new Enhanced Packet Block options
+dad321fb0e [Automatic update for 2020-06-21]
+040cb0c9dd tools/generate-sysdig-event.py: fail if the URL fetch fails.
+9e1fbfb766 generate-sysdig-event.py: improve error reporting.
+78a507b142 VRT: fix the type of elements of an array of pointers to hf_ values.
+1d0f7c3a0c ICQ: fix the type of elements of an array of pointers to hf_ values.
+5b885240b7 MAC-NR: get rid of an unnecessary level of indirection.
+1f8c4ec270 QUIC: print helpful hints when Libgcrypt is too old
+2eb87432f7 RTPS: initialize the fields_visited memer of a new type mapping object.
+e6726a4608 PIM: Check return value of dissect_pim_addr()
+e1d9a226a2 Fix the type of arrays of pointers to hf_ values for bitfield routines.
+51bb2c4d7f README.X11: update.
+45b5103e91 X11: update to the latest xcbproto and Mesa.
+3d6b466700 QUIC: Add support of mvfst draft-27 (0xfaceb002)
+b8ef6db0b6 QUIC: restore draft-22 and mvfst (0xfaceb001) support
+2f4bb25287 rtps: fix compilation with and without ZLIB.
+fdf9610b84 radiotap: make tables that we modify automatic rather than static.
+7a526325e9 radiotap: make tables that we modify automatic rather than static.
+8b168e998f radiotap: fix typo.
+090b32f485 A-bis/OML: check indicated vs actual message length
+5336ae7d84 ascend: add a couple of comments.
+77d94aea24 RTPS: Added dissection of user data using discovery traffic
+b179fbe059 ZigBee: Fix multiple wrong field type string in ZCL SE.
+4dc64b44aa ieee80211: fix BSS menbership (wrong value)
+c7c6927332 version_info: make indentation more consistent.
+d91b0d560a acdr: cleaner test for "is this tree item an RTP item?"
+67e70dcad2 proto: clean up comments.
+5954e5556f MACsec: Adding parsing of unencrypted messages
+e3d44136f0 QUIC: fix Malformed Packet exception with small transport parameters
+933067acc2 ACDR: don't call the JSON dissector as an ACDR media type dissector.
+526a9a64ee New dissector: Asphodel Protocol
+d7f610d776 rawshark: fix test to avoid reading beyond end of format string
+326a43627a version_info: fix clang output.
+ef8da8e355 acdr: remove unused variables.
+976130ddf8 acdr: check existence of last_child before using it.
+c0b7a1d6eb Qt: Fix separator for FilterExpressions
+6b1fd0b6f3 ssh: add support for Curve25519/448-based ECDH and EdDSA public keys
+e794525b7a PIM: decoding of address encoding
+c888e3a4ee QUIC: Update Retry secret and nonce (draft-29)
+4015992a89 sshdump: remove redundant ssh_userauth_agent call
+78bcdca8d3 [Automatic update for 2020-06-14]
+3ae8dc65c5 Windows: upgrade Npcap to 0.9994
+d6d4f71f29 macos-setup: Add iLBC.
+ec65f1d9e2 macos-setup.sh: Update GNUTLS, NETTLE and GMP versions
+885ac0c279 More cppcheck fixes, using top-of-tree cppcheck.
+231663a0fb 802.11: Add BSS membership selector to supported(and extended) rates Tag
+18ffd52e8e RTP: Make Decode As handling consistent across subdissectors
+eddfa0f146 dissectors: hartip: Fix command 77 decoding
+24712ec073 Kafka: fix the FETCH response alignment issue
+c97076b7d7 MAC LTE: add support for extended LCID
+4d50fddfed cppcheck.sh: Add support for xml output with '-x'
+07ca55323f NGAP: fix dissection of NASC field
+3d9b2807aa LTE RRC: dissect nas-SecurityParamFromEUTRA for the 5GS to EPS handover case
+9d240722f1 QUIC: Update salt and rename SERVER_BUSY error code (draft-29)
+761985036d NSIS: remove translations sub folder before styles parent folder
+d3845de256 coap: Add block reassembly
+86c6befcab coap: Fix "More Flag" value
+be1ac1333d GTPv2: fix dissection of gtpv2.mon_event_ext_inf.lrtp
+f8d464f435 checklicenses: Add a --list-allowed option.
+5a7b949398 CMake: Remove unnecessary defines
+b77a435aee epan: Reassembled in link is generated
+ec0403acb4 ieee80211: Add RSN eXtension (Tag 244)
+6f700a9da6 Qt: Fix zip import/export on Windows
+0d10d8e6e8 nan(wifi): fix display filter typo
+43c16b14fb NAS-5GS: fix decoding of 5GSM cause
+6ba8bc9233 vpp: get rid of unnecessary header.
+7f4ebb6e67 shim6: indicate the RFC for the protocol.
+89755cc897 shim6: use ip_checksum_tvb().
+2e8a804461 rsvp: explain why we don't worry about in_cksum() returning 0xFFFF.
+b9943e57e8 ospf: explain why we don't worry about in_cksum() returning 0xFFFF.
+05b2804cb4 ip: explain why we don't worry about ip_checksum_tvb() returning 0xFFFF.
+a6f37c5a35 udp: explain why we don't worry about in_cksum() returning 0xFFFF.
+d6c7699790 diameter: update ULI list according to TS 29.061 v15.5.0
+ef76c3a2e2 nhrp: do more packet sanity checks.
+cf66efa82e assa_r3: don't use proto_tree_add_string() on a non-string field.
+440e1d4322 dvb-ci: (trivial) fix two comments
+6219f82390 radius: update ULI list according to TS 29.061 v15.5.0
+fe5bcbaab0 usb-hid: skip report descriptor if caller doesn't provide it.
+439b77d032 lbmsrs: Fix bug in heuristic causing malformed packet.
+9fd024a050 Add some missing values into value_strings.
+39845dcdc6 Windows: upgrade Npcap to 0.9993
+24b19be0dd GSM A Common: Advance offset after reading type_of_shape.
+bc21aa158c icmp: fix indentation.
+73457289ee TPNCP: Update tpncp.dat
+93bf3fd3ae sync_pipe_write: Fixup a comment.
+095d897381 wmem: Use better terminology.
+43b5c63aea Tools: Use better terminology.
+668161f8dd [Automatic update for 2020-06-07]
+35cdb63ecb PIM: update hello options list
+66d5bb9dbe proto.c: check for proto_item_get_display_repr()
+7c6e1a02ce BTLE: check for btle_context
+a5886341e4 BTHFP: Add support for battery level indication
+4ef8c1880d NAS-5GS: fix decoding of SM PDU DN request container
+df2f5cc677 ACDR: Fix T38 with added header
+c125e306c6 NSIS: Add styles/translations to uninstallation
+bc7c5ca628 Diameter-3gpp: 3GPP AVP 525 Service-URN show it as string if printable.
+1bab3c4a0f GTPv2: the header sequence number is 3 bytes long, display it as FT_UINT24
+c914843195 gre: Support decoding GRE-in-UDP (rfc8086)
+4ae362383f kerberos: move krb5.h include upwards.
+12c3a29cbc pa-hbbkacup: Fix Dead Store
+ca6b106265 smb: Fix Dead Store
+72db848d04 btle: Fix Dead Store
+b1fb415dbf gsm_a_common: Fix Dead Store
+f363aa57f9 gitlab-ci: add test:debian-stable.
+2318cbd8bc Qt: Fix a Qt 5.15 deprecation warning for QProcess.
+86eba21b82 Squelch a Coverity warning.
+7f9f781d32 Warn, in a comment, that an interface name could be a valid decimal number.
+16ef9b6735 kerberos: fix compilation on FreeBSD.
+f4e977ebac kerberos: add some comments to #else/#endif.
+21dc133147 kerberos: set some parameters unused.
+469b0b2765 GSM RR: Fix wrong expert warning about missing P1 Rest Octets
+e0eefe186a Fix some cppcheck issues:
+75cc8d7691 PCNFSD: Add missing proto_item for tree.
+060f876f97 HTTP2: check return code of a strcmp() call
+2ca5a14513 Qt: Fix some Qt 5.15 deprecation warnings.
+42544c8c44 dot11decrypt: Support decryption using TK user input
+f1bc8ad34b USB HID: annotate usbhid.data
+88aec0ecd9 editcap: fix time adjustment for ERF
+0b179d901e composite_tvb: fix memory leak when tvb_composite_finalize is not called
+43cfa9c1fa http2: fix build error with nghttp2 before 1.11
+507285a534 GTPv2: add dissection of Monitoring Event Extension Information IE
+9888a4c742 GTPv2: fix display of spare bits in Monitoring Event Information IE
+5e0ebc9fc0 [Automatic update for 2020-05-31]
+c416e2ff37 Qt: improve performance of related packet delegate
+0708fadb33 WSDG: Mention CMAKE_OSX_DEPLOYMENT_TARGET.
+4e6f47fa62 Qt: Make our exported and saved line endings consistent.
+76d92ba7e7 Qt: Updates for 5.15.
+3605bdc323 WSUG: Remove expression button from filter toolbar
+029051d7e9 CMake: Add a MIN_MACOS_VERSION check for Qt 5.15.
+a584fd9fb6 ieee80211: Add datarate for 802.11AX packets
+d02ea543b7 WSDG: Fix example
+b036c0742e USB: Set address after creating interface conversation
+c3e2f3cf9c USB HID: introduce report_descriptors data structure
+fc35d51089 Fix compilation without kerberos.
+64d99d6662 NAS 5GS: do not stop dissection if the messages are integrity protected only
+5233a37c93 GeoNW: add support for psid-traffic-light-control-status-service ::= 637
+f5858299a9 packet-kerberos: maintain EncAPRepPart_subkey in a kerberos_app_session_keys map
+8b35c401dc packet-{kerberos,spnego}: move KRB5_KU_USAGE_* defined to packet-kerberos.h
+5aaec7f16d oscore: Update to RFC8613.
+53a24787b8 kerberos: fix build without krb5_c_fx_cf2_simple().
+60571acacc USB HID: make usbhid.data bytes
+7d3881ddc5 WSDG: Mention winget and scoop.
+daf8b802d8 packet-kerberos: avoid guessing the KDC_REP keyusage were possible
+fd9ed550c3 packet-kerberos: avoid guessing the authorization_data keyusage
+d89565e0c0 packet-kerberos: avoid guessing the authenticator key usage
+fa60a8c5f5 packet-kerberos: provide details about missing keys
+738e73a50e packet-kerberos: add support for decrypting KRB5 FAST messages
+a97956fa20 gtpv2: Use ENC_TIME_MSEC_NT for "Origination time stamp".
+d2ad1a42d6 packet-kerberos: show learnt and used decryption keys on the top level tree
+94f0842f8b packet-kerberos: split out kerberos_new_private_data()
+975e8531a7 packet-kerberos: improve displaying used decryption keys
+b95a1b652f packet-kerberos: display details of learnt keys
+e2f43f4cfa nghttp2: Assume we have a method header if we find <unknown>
+8edf1cf549 packet-kerberos: let decrypt_krb5_with_cb() use kerberos_all_keys
+3a289703ef packet-kerberos: maintain a kerberos_all_keys map
+acbcfefa7e LISP: add support for Distinguished Name AFI in LCAFs
+677fc33d5c NSIS: remove unused DisableSection and EnableSection macros
+f1ef488120 WSUG: Update the Configuration Files section.
+0b7dd5720d packet-kerberos: let verify_krb5_pac() use kerberos_longterm_keys
+4caaba64b2 packet-kerberos: maintain a kerberos_longterm_keys map
+6c4d03c74b packet-kerberos: allocate enc_key_list on wmem_epan_scope()
+06f06eec3c http2: workaround to fix headers dissection for partial captures
+65806b69c5 TCP: Add expert info for ignored TCP Fast Open data
+099d241046 dot11decrypt: Avoid allocating SA on packet decryption
+62f25dfa64 dot11decrypt: Use hash table to store SA entries
+499a49fd84 dot11decrypt: Remove DEBUG_TRACE_START/END macros
+685a125729 dot11decrypt: Remove some unused code
+e4ef58a883 GTPv2: Use message specific IE name for generic IE
+20bfb9ffb9 packet-kerberos: use a fixed keyvalue buffer for enc_key_t
+4d801abad0 packer-kerberos: maintain enc_key_t->id as a unique number
+bc26b5ee24 packet-kerberos: pass more information down to add_encryption_key()
+afaa3d5c30 packet-kerberos: add hooks to handle each learned encryption in a separate way
+d34a806e86 UNISTIM: Refactor display address/control/tag handling
+41c80cde5c Update doxygen config to 1.8.17
+d7b312238d New dissector: UFTP version 5
+567d9d38da [Automatic update for 2020-05-24]
+f94fed6010 Windows: upgrade USBPcap to 1.5.4.0
+6b5e61971e packet-kerberos: use better add_new_data_source() names
+a9634ab5a0 packet-kerberos: add dissection of PAC_DEVICE_INFO
+36ca304359 dumpcap: Initialize a couple of variables.
+2b9796adc6 QUIC: add new transport parameters and error codes (draft-28)
+ff96e37a08 peekremote: update a comment.
+1aac1aa09c peekremote: go to the Wayback Machine for a URL.
+4ed533334c wifi-dpp: changes to cover new public action frames used in dpp v 2.0
+0817970d24 IEEE802.11: Added HS2.0 ANQP Oper Class Indic Info
+05c06d04cc IEEE802.11: Added Hotspot 2.0 ANQP Connection Capability Info
+9e52936b2b IEEE802.11: Adding ANQP Type 280 per IEEE 802.11-2016
+87a8d9fe94 DoxyGen: remove obsolete config file
+c0d04d90ca gsm_common: Update geographical_description
+160e247e69 ITS: fix RCSUnit subtypes decoding
+9d6c7f3ffb NAS 5GS: fix parsing of mapped EPS bearer contexts IE
+238781fe91 [Automatic update for 2020-05-17]
+20094c36fb isobus: note what ISO specs cover ISObus.
+e34f760f28 isobus-vt: update with information from the spec.
+e837ad57d9 PFCP: fix wrong names of some IEs
+bd1724aa38 PFCP: fix Ethertype IE
+a9b0db19c0 PFCP: fix Trace Information IE
+cf340fa0ec USB: fix redundant assignments or tests flagged by PVS-Studio
+7794527604 rlcmac: Improve COL_INFO for (E)GPRS packets
+1ddd9932d8 gprscdr: Update to 3GPP TS 32.298 V16.4.1
+cbb12e04bf pfcp: Update to 3GPP TS 29.244 V16.3.1
+454d974fe5 tls: PSK is named "Pre-Shared Key"
+f331b62436 NSH MD Type 2 Context TLV definition updated to conform with RFC8300.
+b5dc967c79 Radius: Fix NULL pointer call
+6078965ebe smb2: add dissector for App_Instance_Version structure in SMB2 Create Context.
+2342872ed4 ENIP: TCP/IP Object Updates
+536f5b466b sharkd_session.c: fix a warning reported by gcc 10
+4b67b72d2a SBcAP: fix update of info column
+d2812de8e7 Fix some more broken web links in dissector code
+84e0f45640 Add radiotap.vendor dissector table for vendor namespace
+5ed4f53e2b Fix a few broken web links from dissectors
+90d1a9de43 scylla: fix tree sizes and offsets
+da8c28dc67 CIP Motion: Connection Configuration Data
+256cc1a85c RTPS: updated submessage parsing to match protocol spec
+e8c9b6c0dd DoxyGen: Add Wireshark icon to output
+91a4950926 DoxyGen: Remove build dir from input
+17c9a2a2a4 scylla: link requests with responses
+82fb2d1f29 scylla: fill the list of packets that do not expect responses
+24a2d77ac4 DLEP: Additional data items
+fc1929e9ae scylla: add PAXOS_PRUNE verb
+a941457d91 [Automatic update for 2020-05-10]
+a32298b7f6 GSM-SMS: add missing increment of offset.
+366415bcc3 ARP: expand the set of ARPHRD_ definitions from both IANA and Linxu.
+569f3bd611 More PVS-Studio issues flagged by Valerii Zapodovnikov.
+d795711a49 sll: se the value_string table for ARP hardware types.
+7e7db3e91c sll: add support for LINKTYPE_LINUX_SLL2.
+2480d9b69a Add an encapsulation table entry for WTAP_ENCAP_MP4.
+c0a4b8b30f ENIP: Code Cleanup
+63a8ac5210 Qt: Respect user preference to hide packet list
+fd7895d37c Replace instances of wmem_alloc with wmem_new
+87f320ec25 IEEE802.11: HS2.0 ANQP Friendly Name Subtree Fix
+9279be0394 IEEE802.11: Fixed HS2.0 Cap List Dissection
+ef67994c90 TCP: Add expert info for SYN-ACK that accepts TFO data
+3a82774b32 CIP: Various Updates
+ceb45a186c QUIC: append Stream ID to more frame types
+5d3eea14a3 ConversationDialog: fix a TCP graph race condition
+b869452ba3 packet-dof.c: Remove fprintf
+a5703f22cb More changes arising from PVS-Studio output.
+1d0b233f12 Qt: Stretch last packet list header section
+f399d135e0 IDL: Clean up IDL based dissector generation
+5e4379f5b5 IDL: make code generation reproducible
+ddc5a49ca4 EAP: AT_NOTIFICATION Dissection
+5dabd51742 Windows: upgrade Npcap to 0.9991
+1408dd3b50 Last batch of changes from PVS-Studio scan.
+f263df0a45 SOMEIP: removing warnings due to guint64 (%lx vs %llx)
+dba3081f4d EAP: Unknown Data at end of EAP Identities
+6ada4302b5 SOMEIP: Bugfix for SOME/IP-SD Collision of Unique ID
+c5215707d4 Infiniband: skip past the undissected vendor header.
+b99a0c95d8 pcapng (dissector): don't assume the endianness doesn't change.
+432cb20707 Fix calculation of fractional part of time stamps.
+274ec6adc4 NAS 5GS: fix highlighting of the QOs flow description elements
+5b238a6c76 MIME/pcapng: use snap length to get SPB data length
+5634eb64b6 LBMSRS: Dissector for LBMSRS protocol dissector
+ea2c7adb22 asterix: fix extra semi
+c143dfa544 MIME/pcapng: reset interface array on new SHB
+9e299c1166 ui/capture.h: add missing include to fix build with GCC 9.3
+df5b18f437 RTPS: avoid warning from Conflict Check
+f3ddcb96a3 pcapng: pull the interface ID handling into a single routine.
+c9735a3da9 Generate a dummy description if we don't have an interface name.
+bd963200ce Clean up some issues with get_iface_list_string().
+90fdb71bf6 pcapng: show some fields in decimal, not hexadecimal.
+0b1e27ec77 voip_calls: Fix leak of GString from unistim handling.
+6ba8bd037f Some more issues identified by PVS-Studio.
+60622e63fd pcapng: fix more interface ID checks.
+29340f1b33 pcpang: fix test for missing IDB.
+1a9c5364d1 pcapng: expert info when packet or ISB appear without interfaces
+cac7dd3e80 GTP: add support to decode TPDU as ethernet
+1f5c32ae73 doc: update README.idl2wrs to reflect current build system
+35fa77ce96 ASTERIX: Bugfix in CAT021 V0.26 and V0.23
+db717c2c01 FTDI FT: Do not finalize empty composite tvb
+bf3d14ca4e [Automatic update for 2020-05-03]
+c22b2ccd94 stats_tree: plug a memory leak.
+b99dcf0593 Fix some issues seen with a fresh run of PVS Studio
+bab7b8d638 prefs: plug a memory leak.
+95073e299c epan/color filters: plug a memory leak.
+778c708965 travis: allow ppc64le builds fail.
+3618aa2cc6 epan DTD parser: don't leak the full path string on error.
+4067652c86 Fix memory leak in export_object.c
+6967d04544 RTPS: in parameter lists ID 15 is used for DomainId, not deprecated
+a367b0c55d RTPS: Updated built-in entity names and values to match spec
+6341185a49 travis: skip tests when the build fails
+be63a17e54 wiretap: move the "fake an IDB for pcap files" code to libpcap.c.
+7d95c27de2 ERF: split wiretap/erf.h into three files.
+9d30864607 wiretap/erf: Get rid of no-longer-used routine.
+0e0f20bc7d wiretap: add a routine that adds a wtap_block_t for an IDB to a wtap.
+43b945d116 Note why we're getting the time stamp from the frame data structure.
+e548eceeac wiretap: combine common code into a common routine.
+d5fc969e57 No explicit glib.h include required
+f35865428b mpeg: make sure the presence flags are set.
+f0db07421f camins: make sure the presence flags are set.
+582ad24c38 Remove some single-SHB assumptions.
+3a32757313 CMake: Fix FindGLIB2 for saner output
+6b4c158f00 UFTP4: fix for tree display of uftp4.complete.reserved
+3bb7d00d41 pcapng: have per-section interface tables rather than per-file.
+adb8feee6d Qt: Allow renaming personal profile
+07576e9f3b pcapng: clean up handling of current vs. new section.
+ada193f6ad ieee80211: fix typo naqp => anqp
+67f6809d8b pcapng: free up the section table when closing the file.
+1e80803aa1 Support reading mixed-byte-order pcapng files.
+61d923da39 bison/flex: comment why we ignore deprecated directive warning.
+faa4399184 pcapng: give a structure member an appropriate name.
+928bbf5984 capinfos: fix absolute and relative time display.
+0eb92d7aa0 Document unit string and true false string helper functions
+7bd3f8a58f LteMacStatisticsDialog: fix memory leaks
+8025250313 WlanStatisticsDialog: fix memory leaks
+b7ea495e2e CMake: Increase our AsciidoctrJ JVM memory limits.
+76a69be324 If possible use proto_tree_add_item(), not proto_tree_add_bytes_item().
+50806f2f1b Qt: workaround a C4138 warning generated by MSVC2019
+f867d127ec Peekremote : modified the peekremote dissector to support 11ax
+c24286a9ca 3GPP: Update Geographical Area Description (GAD).
+99ecab4122 New dissector: Dynamic Link Exchange Protocol
+e4aeb1d2bb Clean up the encoding value definitions.
+9eaf9a5648 proto(.h): fix parameter (it is pi not it) like on proto.c
+5f80801add RTSP/SDP: Fix parsing error for H264:sprop-parameter-sets
+56e9110e09 ICMPv6: Add PREF64 (RFC8781) Option
+7fcac9c955 Qt: Fix export of dissection
+ca4cc6a34f proto(.h): fix -Wdocumentation
+6d0863eecb dissectors: add ScyllaDB dissector
+1aba12265e openflow_v6: OFPMP_FLOW_DESC multipart req rep has an array of ofp_flow_desc.
+524baee94f Add string encoding values for various BCD encodings, and use them.
+94556ca7a2 doc: document another character encoding.
+bf7aa7710c doc: Add some new character encodings.
+7fcc19a373 tls: Add EC J-PAKE Key Exchange Params
+4149f3e5bd [Automatic update for 2020-04-26]
+3abdb967ae nfs: Initialize the fs_cycle element of an nfs_name_snoop_t.
+e38e2df5a2 WSDG: Expand the zero window description.
+a1266a6363 MSRP:  Support TCP defragmentation in MSRP
+17298cc0fb DTLS: try harder to decrypt broken traces with double CCS
+64b6b68efa TCPStreamDialog: prevent access to uninitialized memory
+d8137cc1be ProfileTreeView: fix a memory leak
+3485ad6d1c travis: fix macOS build.
+5a854b882f DIS: dissector fix for Articulated Part VP records.
+d2824f4820 Fix display of header length and timestamps in UFTP4
+10be2814fc Docs: Switch from [float] to [discrete].
+7cbdab776f WSUG: Name resolution updates.
+dddb086f58 Docs+help: Remove "-m".
+6158e89f19 WSUG: Describe the advanced preferences.
+3460bd70b5 UDPCP: Use g_direct_hash() and g_direct_equal() for reassembly
+9f03cde5a5 Add a routine to get the representation of a protocol tree item and use it.
+9750d00ff1 Introduce tfs_get_string helper
+c9295f161c isakmp: clean up EMERGENCY_CALL_NUMBER dissection.
+ba50c5a5f6 Check the validator in ExtArgText::isValid().
+48f87bc3ee unit_strings.c: Prepend space before dB related unit strings
+a814b0c626 OsmoTRX: Fix unused ei entry ei_otrxc_unknown_dir
+363152916e OsmoTRX: use unit_name_string_get_value() to print unit string
+4b503b1f0e Add a comment explaining why we treat OUI_HP_2 specially.
+485476d0d2 OsmoTRX: Use units from unit_strings.{c,h}
+6bc19621bc PFCP: Fix encoding of PFD Contents IE
+30f4f1b056 Qt: update import via GUI to match import features using text2pcap
+dc4a5b5add LISP: add support for Distinguished Name AFI
+569deb7215 PFCP: Fix lengths of fields in Remote GTP-U Peer
+2a64d97d8c http2: Replace deprecated function.
+9e4a704115 WSDG: Edits to 'How Wireshark Works'
+3a42f536ed JDWP dissector for TCP transport
+9132feb4a4 synphasor: refactor style and add some improvements
+9748e8a315 IEC104: Add dissection of reset process command C_RP_NA_1
+b1668e77e4 NFS: fix dissecting of READ_PLUS contents
+e74ce4e1bc Qt: Fix compilation error
+9c75c1dc18 Qt: Allow folders for filter buttons
+d10817ce02 mac-lte: fix no previous prototype for function
+0c3729a688 lwm2m: fix no previous prototype for function
+6736b8f281 Add a newline at the end of the file.
+76b530eb6a eth: require padding to be zeros by default
+15b53b6892 wireshark_zip_helper(Qt): fix no previous prototype for function
+c0069d9676 http2: Use proto_tree_add_bitmask_with_flags_ret_uint64() to dis flags.
+5115fc50db http2: Introduce decode as for streams without content-type.
+44407c16fc travis: remove Windows support
+439e9a6318 ACDR: Fix DTLS dissection
+c6411187a0 Qt: Fix filling bluetooth device address
+d5ec6882fe ColumnPreferencesFrame: fix memory leaks
+183a0dfdd6 dvb-ci: register the dissector by name
+53a313fff9 [Automatic update for 2020-04-19]
+d29346e2d1 SMB2: fix gcrypt version check to match between def and usage.
+9af6ceec20 docbook: clarify the use of extcap FILESELECT/MUSTEXIST.
+7bb5f01bd6 smb2: fix compilation with older gcrypt versions.
+628c6ff520 ieee80211: Fix minor errors in WFA MBO-OCE element
+97bbe25151 ieee80211: Allow vendor element in WNM transition req/resp
+989ffe78d3 ieee80211: Fix BSS termination in WNM BSS transition request
+adf3826e9f ieee80211: Dissect WFA WNM notification request
+c7316b4c78 http2: fix compilation without HAVE_HTTP2.
+f0e834dfe8 MAC-LTE: Use heuristic for length for DC PHR CE
+3a1a64eea2 bacapp: don't call fTagHeader twice.
+a9ea061368 http2: Make session info part of function signatures.
+12be9483d7 smb2: add checking of SMB2 signatures
+67ce4722fb ieee80211: Dissect OCE attributes of WFA MBO-OCE element
+798e6aee36 ieee80211: Dissect WFA MBO ANQP element
+cad371a59d ieee80211: Fix length in vendor specific ANQP data subset
+5d0bff5c40 ieee80211: Separate WFA vendor specific element and ANQP subtypes
+4cdf2a2419 ieee80211: Dissect MBO attributes of WFA MBO-OCE element
+16dad84dd7 USBLL: Improve the dissection of Split packets
+3d785236ae USBLL: Set usbll_data_ptr to NULL on capture file close
+73d2989f37 Qt: Remove unnecessary private variable
+6d25a1062d epan: access a ws_in4_addr byte by byte.
+251b16bb93 NFS: Switch to p_[gs]et_proto_depth.
+759fb119a7 FrameInformation: fix a crash in the destructor
+040c31c269 sshdump: Use Open dialog for SSH private key
+520bfad41c http2: mark conversation param as unused - without HAVE_NGHTT2
+9a6a64726a http2: Reduce the number of times calling find_or_create_conversation()
+9f7e4fda0b iso15765: Fix Dead Store
+581e34d9e9 nettrace_3gpp_32_423(wiretap): Fix Dead Store
+fc6763989c NFS: Add filesystem cycle detection.
+6a8c1b9b93 epan: Add p_[gs]et_proto_depth.
+e9e90f67b7 Docbook: Documentation toolchain documentation updates.
+2bdff1df49 packet-dhcp.c: AEROHIVE (Extremenetworks) option 60/43 support
+4b060b739e cflow: Add support for dissecting fields with data type subTemplateList
+6b589151a2 Qt: Fix memory leak in TCP Stream Dialog
+d3c4dfa9ee wsutil: use ws_in4_addr in tvb_get_ipv4_addr_with_prefix_len.
+ab52c76cb6 Bluetooth: Complete Additional Controller Advertising Data dissecting
+c2d67c0928 wiretap: don't use memset where possible.
+9eeb1c80fb conversation: use wmem_new0 instead of memset.
+24d7323eaf Bluetooth: nordic: Calculate packet time for LE Coded PHY packets
+8af333af1d Bluetooth: Add support for dissecting packet format on LE Coded PHY
+02ef284140 CMake: fix another Windows specific warning reported by CMake 3.17
+514706b1f8 GSM/SMS: clarify 'no error' values of TP-Status IE
+fd19f39bf2 GSM/SMS: decouple error and reason fields in TP-Status IE
+37c8671141 GSUP: cosmetic: use upper case in short protocol name
+f5622e81eb Bluetooth: nordic: Add support for protocol version 3
+10469dff01 bluetooth: Provide auxiliary PDU types name from capture context
+05e8a30fda SOMEIP: Bug fix for ignored length field config on struct
+d70a4a9321 Standardise IETF RFC and Draft URLs in dissectors.
+58ba81ec09 OSPFv2: Add RFC 8770 Host Router Support
+1f6449c05d Qt: Fix a memory leak in ByteViewTab
+55920e64e5 extcap: Fix a memory leak
+560d9188c7 Bluetooth: nordic: Document that the payload excludes the preamble
+8b5236d470 Bluetooth: Provide BTLE physical channel pdu type from capture context.
+8a0673a578 Bluetooth: nordic: Document RSSI sample result in the nordic_ble dissector
+b6e4b38f25 Bluetooth: Dissect the common extendend advertising payload header
+a6ea26a131 Bluetooth: Add handling of ADV_EXT_IND and setting valid adv header flags
+abcb95ffe2 PacketList: ignoreFrame: remove write-only variable
+7044c6101d PacketList: markFrame: remove write-only variable
+71f6d9411a Qt: don't use a widget if not set.
+ada1a5c770 Add record length checks.
+1070d7b376 Fix a comment.
+e80592b5ce Fix previous change.
+bb352dc0db BGP: Update/Fix Extended Communities
+ac97bca592 lanforge: timestamp and len field are not generated
+5df5f8efe3 lanforge: clean up the dissector a bit
+55b8b5627c mqtt: Improve message decoding when using v5.0
+bd701147df SIP: Differentiate the Display Info items
+1f802975f2 Bluetooth: Handle reserved bits in LE channel map
+88923604b2 Fix up some broken links to specs from dissectors.
+52400c9869 Bluetooth: Set correct name of target address in ADV_DIRECT_IND PDU
+21b4b3c83e Bluetooth: Add channel to bluetooth dissector context
+151de46c0b [Automatic update for 2020-04-12]
+d8615d27b4 Fix the heuristic for checking whether it's a CAM Inspector file.
+edf694393b lanalyzer: Make sure a LANalyzer file has exactly one summary record.
+88bc0082bc Bluetooth: Fix spelling mistake
+3c2d080dee Bluetooth: Rename packet names that has changed from REQ to IND in the spec
+6308451f8f test: fix invalid escape sequence warnings
+ee9d9ddc1b Stylistic consistency.
+fcd51deb99 Docbook: Fix an unterminated tag, other updates.
+ee61578682 decode_as: Update the documentation a bit.
+a0600e02a9 tshark: fix use-after-free while closing a live capture file
+f71a5e0f02 github: add cmake options workflow.
+43c4e88625 SBcAP: use short protocol name in protocol column
+4e909f2b65 packet-dhcp.c: Signed vs. unsigned warning fixes
+f74bd40eac packet-dhcp.c: Small whitespace fixes
+0d2e6033ec Add additional checks, clean up some stuff.
+41ebec37cd lwm2mtlv: Handle 8 bytes Float
+a543cdd350 Use spaces, not tabs, for indentation.
+94a9eeda2d NAS EPS: display remote UE context IPv6 prefix as IPv6 address
+ecebc071ad FPP: Make dissector directionally aware
+a4d4cb1409 nas-eps: Display interface identifier for the IPv6 lla as IPv6
+324f46ce1f NAS-5gs: Display interface identifier for the IPv6 lla as IPv6
+15dc2f6bd4 BACapp: Add a nesting / recursion check.
+3b7ae88961 Revert "github: add action to automatically close pull requests."
+f73135fce9 github: use the Repo Lockdown app to auto-close repos
+ed89fadd3b ISUP: Fix inconsistency within range_string definition.
+0d12aaf0d1 Windows: upgrade Npcap to 0.9990
+d30a0a2ce7 WS_DLL_PUBLIC is required on most UN*X platforms now, as well.
+2acbaf5849 WSDG: Edits to 'Packet dissection'
+8b7757811d Qt: fix endpoint map file creation and presentation
+44799c2e76 FTDI FT: Handle RX with more than MaxPacketSize bytes
+83b1249291 USBLL: Display addresses for SOF packets
+90a68d117a e100: clean up the dissector
+13d5615db9 gsm_map: Dissect location number with the ISUP dissect function
+ef717da61a CMake: remove ENABLE_PCAP_NG_DEFAULT option
+55d3d32239 proto: remove a temporary variable
+ec781e9749 proto: Add a debug check to sanity-check range_string
+361f82fe5a XnAP: upgrade dissector to v15.7.0
+b72e53731d NR RRC: upgrade dissector to v15.9.0
+f627f850b5 Dumpcap manual: remove duplicate '-i' in synopsis
+c5d77e474f synphasor: refactor display according latest version of standart
+e4bfd8b19e dot11decrypt: Silent Coverity Scan out-of-bounds access error
+9bd47b765d dot11decrypt: Fix a resource leak on error path
+3f51380b3b bmp: remove _U_ for a parameter which is used
+1fab12081d at: remove _U_ for a parameter which is used
+1702b922d0 mp4: remove _U_ for a parameter which is used
+cea9793437 afs: remove dead code
+366daf37a0 acn: remove _U_ for parameters which are used
+d28520a7e3 [Automatic update for 2020-04-05]
+f48a62f4ef CMake: fix some warnings reported by CMake 3.17
+8bf6c7b3bf WSDG: Migrate the asn2wrs content from the wiki.
+a3cf955113 X2AP: upgrade dissector to v15.9.0
+64daf0136c LTE RRC: upgrade dissector to v15.9.0
+7fb4ae4c34 NAS 5GS: add dissection og multiple payloads container
+6b87ea0562 zbee_se: fix typ found by range_string checking
+d9c5c59f50 EISS: Fix a typo in range_string (Application Id)
+6c7583fc93 WiFi NAN: Fix range_string typos (ranging setup type)
+e97ba4b489 TN5250: Fix issue with range_string entry hiding those below.
+c474b70f8b github: move pip installations upwards.
+e285c7c1da Eliminate duplicate code.
+5a9c86f5a7 OICQ: Add command 0x03f7 as "Withdraw message"
+2f514106ea github: don't install ruby twice.
+65bcd03ce8 github: install ruby via action v1.1.1.
+764b4d3bb3 netflow: decode RTT
+c0186ba7f1 netflow: nic IE decode
+b94260d0f6 zbee_aps: fix typo found by range_string checking
+18781916da isakmp: fix typo found by range_string checking
+324ec99d6d netflow: decode Boundary bprobe meter ID IEs
+37831185f0 GSM SMS: fix gsm_sms_tp_failure_cause_values array definition
+6d471c9a22 Diameter 3GPP: fix diameter_3gpp_qos_delay_cls_vals array definition
+024e6cf1e7 added fastip (Boundary) enterprise ID
+a4220efead IEC104: Add dissection of parameters P_ME_NA_1, P_ME_NB_1, P_ME_NC_1
+ec2ca11c9c Clean up a number of things.
+a2b3b0d49f usbll: fix no previous prototype for function
+1467f6e57d rtps: fix no previous prototype for function
+2346ad87c0 cfdp: fix no previous prototype for function
+acc6a61ddb RTCP: Fix wrong value in rtcp_mcpt_field_id_vals (Queued User ID)
+772813fcc7 pluginifdemo: fix compilation when it's enabled.
+e37a7abf56 Remove duplicate status messages.
+3885912cca proto: fix invalid types in hf check routine.
+e07f75f795 ieee80211: Beacon Radio Measurement request/report update
+52ae96e360 dot11decrypt_util.c: fix no previous prototype for function
+c68b7cb74a DTN: Fix dissection of the Bundle Refusal Reason.
+3398c2898d Document the -k option.
+0975bf792a Handle -k better on platforms that don't support it.
+8e5007442e QT/UI: Fix shortcut
+71e9009825 Check for true_false_string with identical true/false string.
+9b7a54d86c Make the message type values hex.
+e2b695ddef Qt: Fix a deprecation issue.
+8017bde10c pidl: fix typo found by lintian (mesages => messages)
+4f776cb70e PFCP: add Travelping's vendor IEs
+c694a6f548 PFCP: fix Redirect Information IE
+74aeb50b30 PFCP: fix End-Time IE
+aacb52a31e TCP: Don't scale calculated window size using preference if no scaling signalled
+da04d89f1e wslua: Update the ByteArray and Tvb docs.
+ed3fe162bd wslua: Update the Int64 docs.
+99798d2c1c wslua: Update the Dir and Utils docs.
+3069129fe5 Qt+wslua: Add back progress bar titles.
+6f59b8e84d wslua: Cross-reference and title case fixes.
+e53cb23b1f wslua: Update the packet information docs.
+404bedbf39 USB: GitHub link update
+48407df448 wslua: Update the TreeItem docs.
+87be7fa23c wslua: Update the dissector docs.
+c4f7a9798b ASTERIX: Add support to dissect CAT011
+fa1599a22a ACDR: Dissect LIX2X3 packets when the corresponding bit is enabled
+b2e13cd782 ACDR: Remove unused udp dissector table
+0bbc8f7293 ACDR: Fix T38 over UDP dissection
+23a947073b wslua: Update the Listener docs.
+1a3e64db39 wslua: Update the GUI docs.
+77b0dc6931 gitlab/travis: remove nopcap tests.
+ea2ca383a9 When using preference for window scaling, show same way as signalled.
+1af213e4c4 [Automatic update for 2020-03-29]
+ca41f28cb5 NAS 5GS: S-NSSAI dissection fixed
+fd88bfa348 Write the if_hardware option, if available, to pcapng files when capturing.
+5e77ab8b95 Remove space that snuck in during editing.
+f9cf25f7df Add support for IDB option 15 - if_hardware, for hardware description.
+f9fdf327ce CSN.1: Optimize update of remaining_bits_len dissecting CSN_UINT_ARRAY
+543c55b2c0 CSN.1: verify enough bits present to decode whole CSN_UINT_ARRAY
+64ffd4512b CSN.1: Properly verify CSN_BITMAP length
+c67b607274 QUIC: For gboolean fields, use FALSE/TRUE rather than 0/1.
+db1d0402f2 bluetooth: Update Assigned Numbers
+39ee56ec33 github: fix job names.
+560836f0e5 GSM RLC/MAC: fix typo in comment
+9d14dfb82f GSM RLC/MAC: Drop extra empty line
+9f1b91a4a0 csn1: fix: do not return 0 if no more bits left in the buffer
+ac78d8658d HiSLIP misc changes
+49a2de66da ASTERIX: Bugfix in CAT010
+2f6a692fcd TPNCP: Fix dissection of acTOpenOrUpdateSBCSession
+778555795e Add a dissector for the USB printer class.
+464d5688cc Don't build code to handle capturing if we don't have pcap.
+30bad8e627 Have callback function pointers in a capture_session structure.
+3662a69036 Maintain cf->state, because file cleanup depends on it.
+439005cc2c rlcmac: Introduce MS Radio Access Capabilities 2 to fix related spare bits
+69a47691cd rlcmac: Fix bug receiving RA cap
+badbc3c609 rlcmac: Don't pass array element to CSN1 descriptors
+f6ef53e3ed csn1: Validate recursive array max size during decoding
+7b8ea03c64 lltd: fix typo found by lintian (Phyiscal => Physical)
+9f5be6f7eb fix typo found by lintian (Uknown => Unknown)
+a7a44755f1 ASTERIX: Add support to dissect CAT010
+7579d98448 gitlab-ci: upgrade to Clang 10, drop special -Wframe-larger-than case
+31f933121b TPNCP: Use security_cmd_offset value
+a71765a619 TPNCP: Simplify names for data field info
+8baf0fd295 fix typo found by lintian (mesage => message)
+3d730f84fe nstime: make declaration arg order match definition
+5fbe2e4df8 GTPv2: Dissect  IE 8.106 Node Number
+12d5041eb7 Qt: Fix Lua GUI issues and get rid of casts.
+21ed54aba1 RDMnet
+eb439e89f1 wslua: WSLUA_BIT_OP_FUNC macro already does return .
+d854143e8f NAS-5GS: shift supi_fmt field before testing
+9c28c92d78 USBLL: Handle addresses for all packets
+2f21e7c981 ACDR: Support LawfulIntercept bit
+c6ea36d981 kerberos: fix compilation when kerberos is unavailable.
+3f92e4173b kerberos: remove redundant returns.
+19240a6182 kerberos: change indentation from tabs to spaces.
+d0e279aaed wassp: fix typo found by lintian (Unknown => Unknow)
+dc6fc9bfc3 btmesh: fix typo (Accesss => Access)
+16d4decb4d systemd-journal: fix lintian (Unkown => Unknown)
+25f159e636 fix typo found by lintian (Unkown => Unknown)
+a3195b5539 tempfile(.h): fix -Wdocumentation
+52a782d653 dot11crypt_system(.h): fix Wdocumentation
+3b3a978d26 WSUG: Add dfilter_buttons configuration file
+3e9ce48d24 dot11decrypt: Fix decryption of MFP enabled connections
+f998e785d5 RTCP: contain BYE packet dissection to its stated length
+428735ce9e [Automatic update for 2020-03-22]
+0af8d7c091 Some cppcheck fixes.
+1796abbed6 cirrus-ci: update freebsd 12.0 to 12.1.
+a955d38f3a Fix the nanosecond-resolution pcap magic numbers.
+c4d32e8ddf Handle nanosecond-resolution pcap files.
+f4cd24a3fc NAS 5GS: improve dissection of SUCI
+228fc003b7 couchbase: Add new DCP commands
+dcd65a4012 gsmtap: Support dissection of non CS-1 (E)GPRS data blocks
+378ecc27df CMake: FindGLIB2 depends on FindWSLibrary module
+42010a64a4 Windows: upgrade Npcap to 0.9989
+f5c39a33b7 SOMEIP: SD did not register port for IPv6 correctly (bugfix)
+ac3ca74bce s_addr -> src_addr, d_addr -> dst_addr.
+dd41259548 NR RRC: fix dissection of q-RxLevMin parameter
+8a959eff08 RTPS: hf_rtps_nokey_data_frag_number is FT_UINT32
+2ba42a047e CMake: fix detection of Lua development package
+e59c89b58f packet-kerberos: split out a decrypt_krb5_data_asn1() helper function
+1579ad0d24 packet-kerberos: split out a decrypt_krb5_data_private() function
+1716352f6f travis: remove redundant jobs, update to xcode11.3
+ef8f915c9d packet-kerberos: rename some generated fields to avoid name conflicts
+68087ab776 packet-kerberos: dissect PA_REQ_ENC_PA_REP
+55c068bd0b packet-kerberos: dissect new RFC6113 errors messages
+17dcfb213a packet-kerberos: remove unused line '#EncryptedData/etype encryptedData_etype'
+8f00b7011f packet-kerberos: dissect names of new PAC_* types
+fa7584898d packet-kerberos: Encrypted{AuthorizationData,Authenticator} are not the same
+95d0ab1e01 packet-kerberos: we only need PA-PAC-REQUEST once
+5e1aa48d56 packet-kerberos: decrypt PAC_CREDENTIAL_INFO from [MS-PAC]
+f2dfcebd09 packet-kerberos: dissect AD_GSS_API_ETYPE_NEGOTIATION
+3bf7bfb69e packet-kerberos: dissect AD_TARGET_PRINCIPAL from [MS-KILE]
+60378b1071 NAS-5GS: PDU session reactivation result error cause wrong PDU type
+b7c11bfaa4 packet-kerberos: dissect AD_AP_OPTIONS from [MS-KILE]
+11acf0d40c packet-kerberos: dissect KERB-AD-RESTRICTION-ENTRY from [MS-KILE]
+7a6aa7bb99 packet-kerberos: dissect PA_SUPPORTED_ENCTYPES from [MS-KILE]
+04d2d01d98 Added RDMnet protocol
+3d8cf862cc packet-kerberos: dissect PA_ENC_TIMESTAMP messages
+7eb872d627 packet-kerberos: add more AUTHDATA-TYPE values and generate AUTHDATA_TYPE_vals
+62039fd1c4 packet-{kerberos,pkinit}: Add support for Windows based PKINIT
+bc5a7061a2 packet-kerberos: more PADATA-TYPE values/generate kerberos_PADATA_TYPE_vals
+b970a6bf51 packet-kerberos: always remember the toplevel msg_type in MESSAGE-TYPE
+85147a17d1 packet-kerberos: avoid using actx->private_data for two different things
+c38f97aa22 Add support for more monitor opcodes.
+ac82fd6353 f5ethtrailer: Add support for version 4 of low noise trailer
+ae2e83f2d8 CIP Safety: Change MacID to NodeID
+fbca66fc8d rtcp: extend mantissa and bitrate to 64 bit.
+4a8da5fbde wslua: Fix crash on TvbRange:__tostring for a zero-length TVB
+2b50d124ec tools: do not install doxygen
+5cb8343fb9 packet-dcerpc-netlogon: dissect and verify NETWORK_LOGON messages
+c67b8c4f29 packet-dcerpc-netlogon: remove unused '#ifdef HAVE_KERBEROS'
+8e76178fcd Fix reporting of interface-list-fetching errors.
+eb7774e4c1 Qt: Improve tcptrace graph drag responsiveness
+d87bce7c4f capture-wpcap: gracefully exit when has_wpcap is false.
+5b4af5b65b Remove unwanted newline.
+c14a887b2e USB HID: add missing usage pages
+b5593553d4 debian: Ship codecs libraries in libwireshark0
+6bd6b1df78 More modeline fixes to put HT tab stops every 8 characters.
+d77a8669df WSUG: Update the Service Response Time section.
+16c315ca32 dot11decrypt: Let libgcrypt handle AES unwrap
+1d20a875e4 Qt: Fix bug causing hidden columns to be displayed
+0039505dd1 Tab stops are always always always always always every 8 spaces.
+0f0e486b91 Put common code into get_interface_list_findalldevs_ex().
+c939ef8246 USB HID: update modelines to match the current code style
+8cac5c0a3a Check for "is wpcap.dll loaded"? when getting the remote interface list.
+ee39cd988f [Automatic update for 2020-03-15]
+b4da2c09d2 USB HID: fix incorrect format string when annotating top level rdesc items
+9567bf0595 packet-dis: fix dissection of Entity State Update PDUs
+fd34c09ffe Remove an out-of-date comment.
+eee9f0e4aa Remove no-longer-necessary tests.
+c4f652397b Don't check for ancient libpcap versions on HP-UX.
+e091ee5212 packet-dcerpc-netlogon: add expert info to dissect_secchan_verf()
+44c923737f packet-dcerpc-netlogon: add expert info for NetrServerAuthenticate*
+b26ea6eab2 packet-dcerpc-netlogon: let NetrServerAuthenticate use common code
+0e7e70ac96 packet-ntlmssp: add expert info for session keys too
+e83b3aead7 tests/suite_decryption: Skip CCMP-256 test with libgcrypt < 1.6
+cf4c0552e7 ieee80211: GCMP decryption support
+f3a9d9abed packet-ntlmssp: factor out a ntlmssp_create_session_key() helper
+b30e823301 packet-ntlmssp: cleanup the setup of conv_ntlmssp_info->client_challenge
+d835d59290 packet-ntlmssp: rename gbl_nt_password to ntlmssp_option_nt_password
+7e89bd873a gitlab-ci: test nopcap build with gcc-7 instead of gcc-8
+01f706af65 USB HID: fix interpretation of unit exponent field
+14c71587ef packet-dcerpc-netlogon: make use of get_md4pass_list() from packet-ntmssp
+fff3776cdd packet-ntlmssp: export get_md4pass_list() to be used in packet-dcerpc-netlogon
+d430932b4e packet-ntlmssp: don't pass 'gbl_nt_password' to create_ntlmssp_v[1|2]_key()
+d947c7d8a2 packet-dcerpc-nt: split out cb_str_postprocess_options()
+8882c22851 USB HID: dissect the missing fields from input/output/feature items
+64c3b2dfff USB HID: provide item string for the unicode usage page
+975d99cbac USB HID: have a consistent style
+93f5d130c9 USB HID: fix bug where logical min/max were being dissected as unsigned
+4497902079 packet-ntlmssp: move ifdef's into get_md4pass_list()
+598839ff10 dot11decrypt: Make ccmp_construct_aad an internal utility function
+eed31f13be ieee80211: Add CCMP-256 decryption support
+14bc684b18 dot11decrypt: Use libgcrypt's CCMP decryption ability
+a51e150e2d packet-ntlmssp: display the authentication key origin as expert info
+9dcba0c68a gitlab-ci: print tshark --version for OpenSUSE and Debian
+f9af3ec4d5 tshark: Fix compilation without libpcap.
+012695d944 Diameter 3GPP: Core-Network-Restrictions check if data exists.
+f8de1fcddb USB HID: make the dissection tree look as in the spec
+9f6fad0a46 WSUG: Update the I/O Graphs section.
+73ea612d25 Qt: Fill in our UAT delegate editor backgrounds.
+cd3af470b8 Update comments - Npcap no longer requires HAVE_REMOTE to be defined.
+d73c0be3bf Remove trailing whitespace.
+0c889d6f5c Require at least libpcap 0.8/WinPcap 3.1.
+f77c677f18 Fix some places where we forgot to mention Npcap.
+16adaf33b4 GTPv2: Dissect Core Network Restrictions and UE Radio Capability ID.
+29614e007e gsmtap: Add support for dissecting GSM voice / user plane messages
+b6c50fe032 Add bfd_echo "dissection"
+e3212a49e5 debian: speed up build by running asn1 and guides target in parallel
+0ec5ca3ecf gitlab-ci: remove GCC-5
+1461e5e0ef USB HID: use the correct names from the spec
+297c680fa8 Diameter 3gpp: Don't write to columns when decoding SMS.
+1e60efeb64 USB HID: refactor usage page identification
+ad6b19484d t38: propagate ACDR changes in autogenerated file to the source
+cecde18cc5 Link 16: Add a link to DSTO-TN-1257.
+0145bd0ce5 asn1: fix -Wmisleading-indentation warnings with Clang 10
+4526ad4eb5 Small update to Extreme's MINT
+38a4ffb6c4 dictionary.meinberg: Add some values
+7bdf4cc526 RTCP: Add mor expert info for Application data.
+166c06ff15 Lua: Fix description for pinfo.dst_port
+e2c07dae19 GTPv2: Length of APN Rate Control Statuses is 2 bytes.
+b7f38efb78 github: add action to automatically close pull requests.
+e3f6dd4af3 WSDG: Expand the VS command prompt text.
+1594112d34 github: setup ruby in macos workflow.
+d8ac2a046b Qt: Re-highlight packet bytes when re-selecting packet tree item
+76c8c3ef0e afs: fix backup & butc RPC confusion
+78b08dd00a afs: make defragment / reassembly configurable
+3cf85db1f9 afs: add some "new" RPCs
+94bf1c55f4 rx: decode version packets
+d24a11ee2e dot11decrypt: Avoid unecessary memmove
+a413802052 dot11decrypt: Remove unnecessary offset parameter
+a2dc713c11 Qt: Fix Copy Description from context menu
+694c2bcbf0 FTDI MPSSE: Match response data with commands
+914bb159f7 TLS: Limit the number of DNs in Certificate Request messages
+839209d219 Fix formatting of the start time and elapsed time.
+9caf4650c1 Change $HOME to /home in folder documentation example
+4b0e800773 github: create Windows package and upload it as artifact.
+9cdff50e18 github: create OSX package and upload it as artifact.
+c2b1cf6f33 github: create debian package and upload it as artifact.
+d39e27ad96 tools: add additional params to macos-setup-brew.sh.
+2e2b537381 Qt: Keep profile selection when renamed
+40b8293d43 Qt: add new protocol name when reporting deprecation
+e6dfc1ca01 [Automatic update for 2020-03-08]
+9f2497de9c Fix the isis.hello.reverse_metric.flags field.
+1c7f2c94d1 isis-hello: use UINT type instead of BYTES.
+a7b06aae59 github: restore original Qt windows action.
+fd6490fa8e Windows: upgrade Npcap to 0.9988
+460b42f5f9 fp: add missing field name to tree item
+be90029975 docbook: remove legacy "trap".
+77d2bf81a7 afs: correctly calulate padding for strings
+e8d770f3c7 GTpv2: MM Context, handle new data.
+b31e9f3e20 wsp: Remove lwm2m.dm length check
+a58b398461 rx: display rx-ack reason string
+3c91b1b533 rx: correct erroneous comment
+e0a7190e41 WSDG: Add a note about the VC++ redistributable MSMs.
+480deb2eec QUIC: Add missing extension link (Delayed ACK, Loss Bit)
+ac09d33468 WSUG: Use our full signging organization name.
+64ad0a85c6 pfcp: print Predefined Rules as ascii if possible
+548a08cadc DCERPC: Regenerate autogenerated CLUSAPI dissector.
+cc39bc8495 DCERPC: refresh clusapi idl after various additions were made to the protocol
+caed4ae2a8 Bluetooth: fix Flow Specification HCI Command
+86337a8e69 Qt: Don't hijack Ctrl+C for copy packet list entry as plain text
+b7996de371 NAS-5GS: PDU session reactivation result error cause wrong offset used.
+6e9e51e49c Revert "gitlab-ci: upgrade to Clang 10"
+bdf793d641 ieee80211: Add additional field to fixed parameter.
+fbe9d7f4b4 gitlab-ci: upgrade to Clang 10
+6bb691189c gitlab-ci: remove unnecessary jobs, upgrade versions
+5fba6e973b f5ethtrailer: Add support for TLS Trailer Type 2 Ver 1
+57de65c9e7 Diameter 3GPP: fix dissection of MBMS-Bearer-Event AVP
+718b282f60 QUIC: define QUIC Transport Parameter on Hexadecimal (like spec)
+a1ba7aa35f QUIC: Add Time Stamp Extension
+53246cee24 Qt: Add missing breaks.
+d5794990d5 docbook: add more infos to Mac package build section.
+290ddeeed4 macOS: Make the dmg_package target fail noisily.
+9f3a335f45 QUIC: Add ACK_FREQUENCY Frame Type
+b7566bf40f LUA: remove duplicate words
+5ffb495f07 gvcp, gvsp: Adjusted to GigE Vision spec. 2.2
+b4551fe7b2 docbook: Remove duplicated words
+4a2cd15aa5 Qt: Fill in our item delegate editor backgrounds.
+fb28b60e3f QUIC: Fix frame type (it is also a varint)
+4a3853645f USB: Fix NULL pointer dereference
+2ba35ceb41 USB Audio: Allow filtering on baSourceIDs
+13bf41740b net_dm: implement support for flow action cookie
+8877fa2301 Diameter 3gpp: When checking if text ignore padding or NULL termination.
+7322c35a47 Remove keep alives from "Bad TCP" coloring rules
+a7e3942101 Add github actions yaml files.
+321de10aad USB Audio: Dissecting Selector Unit and Endpoint Descriptor
+340e9b3e84 GSMTAP: also dissect PCS band indicator of ARFCN
+a42fde90c1 [Automatic update for 2020-03-01]
+612568d7b3 Edit Resolved Name: Allow user to remove name
+04a86e99e4 Qt: Fix import profile from directory crash
+50a4063352 USB: Record bcdVersion in device product data
+c68366f01d FTDI MPSSE: Group commands with parameters
+c07a48b6d3 Qt: Fix profile zip import on Windows
+ab274af1ed SMB2: properly show reused FIDs
+4fe7fbd51d Qt: Changes ProfileModel assert
+3c28305ca8 FTDI MPSSE: Dissect setting the clock divisor
+cead73576d macOS: Expand a comment.
+a5926fdda7 nettrace_3gpp_32_423: Improve parsing.
+54261ccaf2 SMB2: remove duplicate session info
+f222e4be33 pfcp: update IE 8.2.12  Transport Level Marking
+27dc3d1481 btatt: Call btatt.handle subdissectors
+d398471cb5 Add support for ISO 15765-2:2015 jumbo frames
+14663215e8 f5ethtrailer: Correctly generate the TLS keylog entries
+eabc9356c2 Qt: Do not display alerts on repeated failed reads
+236dbcf66c USB Audio: Audio-class specific format 3 dissection
+b3871fb864 macOS: Software update fixes.
+00edddb9ba GTPv2: 8.22 F-TEID, update interface types
+14d3c06d15 pfcp: Update to 3GPP TS 29.244 V16.2.0 final part
+6a0f70041d pfcp: Update to 3GPP TS 29.244 V16.2.0 part5
+b6d67794d8 NGAP: fix dissection of intra 5GS NASC IE
+20bef29f72 pfcp: Update to 3GPP TS 29.244 V16.2.0 part4
+b1a4aac543 Qt: fix packet list selection regression
+1ed9ddd26a Fix some typoes in comments.
+e1e8e2dce9 Clean up some comments in the preferences file.
+3383667106 SMB2: generate session for every packet
+c583304dd5 Add TEAP dissector
+f8f6ce55de Test: Make sure we can run Wireshark on macOS.
+574aa22870 macOS: Fix a sanity check.
+47bd34873b macOS: Add a sanity check.
+0659802f5f tools: add missing packages to macos-setup-brew.
+c334293099 smb2: move file related metadata into session object
+46d6230cd4 smb2: make sessions table per-file rather than per-conversation
+12b8144dfc smb2: add editor modelines in header
+5608e07641 bthci_cmd: fix typo
+9bde8f53f3 couchbase: Add new HELLO features and flex frame changes
+5a44e1b7c5 goose: test field is renamed to simulation
+3c5759a0d2 lacp: Fix Dead Store
+7e38df24c6 Remove some entries from .gitignore.
+cd6134da90 Add ws_strtoi() and ws_strtoui() routines and use them.
+f2a64e9559 RTP: Add support for RTP over TCP (RFC 4571)
+4e98225198 GTPv2: Dissect more flags
+301cb9956b gtpv2: 8.12 Indication, add new bit decoding.
+7b99a82bf8 Edit Resolved Name: Don't add duplicate IPs
+2c4fc32913 smpp: Set the column fence before dissecting the PDU
+c86e995aa2 FTDI MPSSE: Improve command descriptions
+59130ed824 ieee80211: Adding dissect of 60GHz Information Element
+6b80979faf FTDI MPSSE: Display pin name alongside signal name
+e54bcb0100 editcap: Remove an arbitrary time boundary.
+0875845e90 f5ethtrailer: Continued clean-up from plug-in import
+8bda8642df EAP: Remove a couple of string length assumptions.
+8953da8975 rpm-setup: Get rid of unary operator expected warning.
+ce0d780c3f Some more issues spotted by PVS-Studio in bug 16335.
+a9d7ce53b1 FTDI FT: Add Amontec JTAGkey USB VID/PID
+7620ba7f72 [Automatic update for 2020-02-23]
+1702e59b55 test/suite_decryption.py: update SMB3+ decryption tests
+b8f9448c78 SMB2: try to guess encryption settings when not available
+95a37ff2fe SMB2: allow users to give decryption keys directly
+de665417ab SMB2: ipv4 address is stored in big endian
+1403c09105 DNS: Add DoT ALPN (RFC 7858)
+a2530f740d WireGuard: ignore messages with invalid lengths
+b2ee7a2876 WireGuard: fix null pointer crash
+c268e9b0d5 Use "must" instead of "should" to avoid ambiguity.
+e4138a3b98 QUIC,TLS: update transport parameter encoding (draft-27)
+31cf648423 SMB2: add (disabled) debug code
+b45b53bd10 smpp: Implement export PDU functionality
+ae1d569322 macos-setup: Update Gcrypt to 1.8.5.
+b3efeb2573 Test: Bump the WireGuard Gcrypt version requirement.
+645f05bafa EVS: Fix display of A.2.1.3 Special case for 56 bit payload size
+498644ef61 mp4(file): Fix Dead Store
+d582640336 ACDR: Move TPNCP registrations to TPNCP dissector
+2abba7ad62 csn1: fix csnStreamDissector(): catch unknown CSN_CHOICE values
+22e617d862 mptcp: correctly parse v1 ADD_ADDR suboption
+c544f7e3f4 Qt: initialize members (CID: 1457926).
+ed0e320611 ACDR: Fix value display for XML media types
+9ea4bd2b96 doc: Apply proper capitalization to the Wireshark name
+52de94394e acdr: remove private gtypes.h header to fix the build
+d400dbe476 Qt: Remove unnecessary processEvents() call
+7e02165453 More issues spotted by PVS-Studio in bug 16335.
+fbd88490dd [Automatic update for 2020-02-16]
+18a7e64c85 get_dns_name: fixup some missing change introduced with c397adda8a7
+c129c28d3a Qt: Allow creating new files in extcap fileselect
+d7bbe384f5 Test+Qt: Add an automatic update check.
+7247b98d45 wsutil: Strip the processor brand string.
+273ec3ffef QUIC: explicitly report verified Retry Integrity Tag values
+9a5bb0705c packet-lldp: Report only the consumed octets
+a64d926ebf packet-lacp: Report only the consumed octets
+5d1f89f10c iee80211: Conform to the spec and handle Anti-Clogging Token container.
+2c1d660940 Qt: Access I/O Graph settings via UAT interface
+e30f0d0920 Some issues spotted by PVS-Studio in bug 16335.  Many more remain
+36e5f9539e UDPCP: Check signalled length against available payload
+c74801c9d9 EAP: Add TEAP (Tunnel EAP)
+32679c14be Introduce AudioCodes Debug Recording (ACDR) dissector
+c867d27138 ULP: Upgrade dissector to OMA-TS-ULP-V2_0_5-20191028-A
+6dad599a8a WiMax DLMAP: Fix a large loop.
+04648c2174 UDPCP: fix reassembly filter name, and other trivial improvements
+eca4bc5682 QUIC: add support for Facebook QUIC variant mvfst
+401098d5c3 tls: GREASE changed from draft to RFC 8701
+558dac8830 F1AP: dissect more RRC containers
+acaba5ee7e CMake: Fix WinSparkle discovery.
+74c2bcbe9b Qt: Restore space and add tooltips
+055b4c59e4 TPNCP: Support IPv6 without modifying tpncp.dat
+52559702a0 SIP:Add SIP Header P-Charge-Info RFC 8496
+912be1a298 NAS 5GS: Dissect more IEs
+0fed3e2681 UDPCP: Check Packet Transfer Options
+7e73515007 Diameter 3GPP: Fix output of AVP 713 Requested-Nodes
+8a6000b6dc TLS (QUIC): Add min_ack_delay TP
+937c7c512a Debian+RPM: Require QtSVG.
+76462953a9 SDP: clarify that the G722 sample rate is actually 16000
+980cf9c857 dcm(.h): Update DICOM 2020a definitions
+f072494611 radiotap: remove unused increment.
+33bb4b0c22 Qt: Add window title settings the preferences dialog
+2ab65bf0ba extcap: Fix packet time calculation
+20c8215fd5 radiotap: remove unused increment (CID: 1458175).
+2db9a52a34 UDPCP: Set protocol column
+a20fea02fc Qt: add initializers.
+b926d24b96 RPM: fix missing qt5-linguist dependency, simplify installed packages
+6e7918319b [Automatic update for 2020-02-09]
+38d54660f2 ieee80211-radiotap: Add support for radiotap TLVs.
+0d68a088fa tools: update pkg in bsd-setup.
+4c87407a3c Fix ZEP dissector for displaying the LQI value
+23749592e3 TDS7: Update Feature IDs for FeatureExtAck Token
+3e2a837cc0 TLS: update cipher suite list
+f307dcc1d4 TPNCP: Show IPv6 correctly
+9d185416da TPNCP: Update tpncp.dat
+02199970d7 SMB2: store file names longer than 256 bytes
+0dd91d64da WSUG: Update the macOS system requirements section.
+ce4e7bdf4b FTDI MPSSE: Initial MPSSE commands dissection
+7ce2ca316c WiMax DLMAP: Add a length check.
+fca18e2e5c Qt: fix compilation without pcap.
+1e4c4f2209 Qt: Make it possible to hide welcome screen warnings.
+19b3376a24 LDAP bogus malformed errors: decoding encrypted data
+80e1c54ff4 CANopen: Add SDO Block Upload/Download decoding
+9266a27264 macOS: Remove a version check from osx-app.sh.
+26be041184 Add dissector for OBSAI UDPCP protocol
+31effe3690 PDCP-LTE: Show name alone with Cipher number in more places
+2580053638 TFTP: Rewritten object (file) export algorithm
+55f83324ef Qt: simplify decode_as_ action in the packet details view
+6bbd61860b Qt: make Decode As from packet list functional again
+abe50bf237 eee802.11: Fix bug in previous SAE Anti-clogging support.
+a6614f995c Windows: upgrade Npcap to 0.9987
+995672e8b6 Qt: allow Resolved Addresses search filter to be cleared
+f5f435305b CFDP: Fix off-by-one offset
+0596047e3f Qt: fix missing IP hosts in Resolved Addresses dialog
+fcc90461fb ieee80211: More correctly handle EOSP vs bit-4 in QoS frames.
+d5d8a3419e ieee80211: Add support for an SAE anti-clogging token handleing.
+37e74c9ceb TFTP: Transferred files may now be reassembled and dissected.
+d597655d25 RLC-NR: make dissector handle volatile to avoid compiler error (gcc 4.8.5)
+e4094aeac6 NBAP: Actually set max mac-d pdu size flag
+8c9efa5f1b ISAKMP: Critical flag should not be in proposals and transforms
+b5c629b62d tools: add lua to bsd-setup.sh.
+7bbda13a72 f5ethtrailer: Whitespace / formatting changes only.
+90ffb0cdf8 RLC NR: call NR RRC dissector for TM payload
+b014062f07 [Automatic update for 2020-02-02]
+a2368cd124 QUIC: ignore invalid short header packet to fix decryption
+f5c70db3b4 extcap: Check for valid PID before killing child process
+4ef8ace610 PDCP NR: call NR RRC dissector for signalling payload
+20e9652179 Check for liblua-{version} as well as liblua{version}.
+9e894cfbd8 QUIC: recognize Connection ID between 1 and 3 bytes
+439621c4e5 gsm_abis_om2000: Name some more information elements
+468e6eb023 btle: Add Version 5.2 to ll_version_number_vals
+977fea0b9e gsm_abis_om2000: Name the 0x9e, 0x9f and 0xa0 information elements
+716771255e gsm_abis_om2000: Dissect some more Information Elements
+3aee5c5054 gsm_abis_om2000: Real decoding of MCTR related Information Elements
+281edac5c0 TLS: do not dissect OCSP when disabled
+d3c704ce63 TFTP: Redesign conversation creation algorithm
+1592679ed8 Bluetooth HCI: Add support for Bluetooth v5.2
+76ed59b756 Regenerate some ASN.1 dissectors after gd44c5e45cb
+96ba92ea8d LLDP: Add ONOS Ether Type (0x8942)
+eb0dcc984f RTP: Fix rtpdump export
+aaad273ec1 pkcs1: recognize explicit curve parameters
+530e243c09 CMake: look for libcap on Linux only
+8c1e28c0b7 tshark: remove unnecessary sys/capability.h include
+ec7a84f14e cmake: add libcap package properties.
+8efde39805 extcap: terminate the child process using kill.
+e0ca87cfb1 tls: update list of known CT logs to 2019-12-23
+09dbf2c979 LLDP: Add ONOS TLV (Chassis, Port and TTL)
+d24fbbc5a0 QUIC: add verification of Retry Integrity Tag (draft -25)
+bbb1a794c5 ieee802154: Do not require correct FCS for ACK tracking
+139e4288d3 dhcp: DHCP option 77 User Class Option 'Microsoft bug'
+b7802d76a8 Netflow: updated Niagara Networks decodes for RADIUS IPFIX IEs.
+0d4e81e7c7 EVS: Handle A.2.1.3 Special case for 56 bit payload size
+8f4cd818ee Profinet: Two new bugs are detected and fixed.
+ddc03b8c87 QUIC: Need to remove Retry Integry Tag to Retry Token Length
+a24231bc90 amqp: fix wrong bitmask (v2)
+6e6831fbd3 QUIC: update Retry Packet and comments, rename idle_timeout (draft -25)
+0c112e2e24 Fix indentation.
+a042c11567 gsm_abis_om2000: Add some more observed message types + IEIs
+c7281ca42c mp4: dissect Chunk Offset Box (stco)
+8228b0bc0f mp4: dissect Sample To Chunk Box (stsc)
+3351effd06 mp4: improve Sample Size Box (stsz) dissection
+d2dcb9ee7b mp4: dissect Edit List Box (elst)
+3b0bdd9e57 mp4: improve Movie Header Box (mvhd) dissection
+239273e925 mp4: fix Sample Size Box (stsz) dissection
+16c9c18e36 mp4: dissect edts box
+db1db08b83 mp4: dissect ctts box
+9247ae9757 mp4: dissect stts box
+77ff747e9f Use the Wayback Machine to find a document that's no longer there.
+59108b1683 Qt: replace QRegExp with QRegularExpression in FilterListModel.
+17a6916a21 epan/to_str: change MAX_BYTE_STR_LEN from 48 to 72
+82ed8918ab mp4: factor out FullBox dissection
+41be9b9c5d mp4: tkhd times are encoded as ENC_TIME_CLASSIC_MAC_OS_SECS
+732aa60098 proto: fix get_time_value() for ENC_TIME_CLASSIC_MAC_OS_SECS
+a4cb1c3234 tools: add missing package to bsd-setup.
+32fc20eef4 [Automatic update for 2020-01-26]
+4f462bb6e3 rdm: Remove incorrect dissection of ack overflow data
+534c462678 amqp: fix typo on file reject requeue display filter
+97f90c07ac androiddump: Link against libwiretap and libwsutil
+eb4e2cca69 IO Graph does no return to 0 if there are no fields for y
+0290bd3592 HTTP: share dissector status value_string array with tshark HTTP stats
+967c0f2c93 IPv4: Use FT_UINT8 for the 3 bits flags field
+0b64a3afc0 Fix the check for ws_fdopen() failure.
+8a79d27010 SIP: share dissector status value_string array with tshark SIP stats
+f1e2d36ffa IPv4: Rename variable
+6fceff7240 RTP Stream Analysis: fix wrong values for clock drift and freq drift.
+db6c3b8e15 IDMP: Reset a couple of variables.
+d7d14f230f QUIC: add new frame type and transport code (draft -25)
+3a8215827d IPv4: Remove unnecessary macros
+89beba7ea6 IPv4: Fix display of Fragment Offset field
+fd1dd72d8e cirrus-ci: fix check and install bash.
+ece8da5ea6 tools: fix check in bsd-setup.
+6686ffcf6b RTCP: fix packet length check when having unhandled application data
+10d683ed07 artnet: update ArtPoll packet dissection
+2399f0ee92 artnet: Update ESTA Manufacturer codes
+f4dfd4c955 artnet: update Art-Net OEM codes
+623d5b3a61 artnet: update documentation URL's
+824fef51aa artnet: Fix ArtPollReply universe calculation
+b3c9244c82 kerberos: fix -Wcomma warnings
+bb105ee06c packet-kerberos: add decrypt_krb5_krb_cfx_dce() function
+a7c862ca0f packet-kerberos: split out decrypt_krb5_with_cb()
+1b97f84785 packet-gssapi: add gssapi_{header,trailer}_tvb
+6afa37bb1a packet-dcerpc: pass down header/trailer for hdr_signing
+560f120946 packet-spnego: make use of decrypt_krb5_krb_cfx_dce()
+b0d959eef8 NVME-TCP: Fix ICReq fields:
+adeeb7f2da LTE RRC: fix a memory leak in composite TVB handling
+7bc9cd620b GTP: fix a leak in UAT
+919b4ca1cf someip: Fix guint64 printf formats
+9084ca2695 geographical_description: Don't mask Orientation of major axis octet 12
+a152e041fa Put various epoch time deltas into wsutil/epochs.h.
+d44c5e45cb x509af,ocsp,ber: display serialNumber (INTEGER) as bytes
+75e1b69e88 CoAP: change detection logic for CoAP over TCP or TLS
+3442c76bc5 Windows: fix win32 libilbc package
+3d2ccf4a9e Rename a time variable to reflect its units.
+fc31446277 Add support for "classic Mac OS" timestamps and use them in file-mp4.c.
+23b91bdcd0 tools: minor changes in bsd-setup script.
+b0c5f2230d Diameter: Fix Location estimate.
+1fccffdaea mp4: Fix uint64 printf format
+ddb547b04e ICMP/ICMPv6: fix request/response tracking for checksum 0x0000
+b5ef0847dc mp4: dissect Track Header Box (tkhd) flags
+bd645093e5 mp4: display timestamps in human-readable format
+084a887a30 Fix compilation with gcc-9.
+567991b8fb toold: add libilbc to bsd-setup.
+a47cf5f45d RPM: fixed log sequence
+8e7432c36a RPC: trivial prettification.
+6693067290 rtp_play_dialog(.cpp): avoid Dead Store false positive
+dd4b562df2 macOS: Add a disk volume icon.
+f605e9466b ui: Define plugins_add_description() unconditionally
+a5abaa81ad CMake: do not check for Qt5Svg at build time
+12a13a6926 RTP: decode iLBC payload
+7bd57479b6 tfshark: Link against libm
+7f45131a4d [Automatic update for 2020-01-19]
+e9031028fc Qt: Support ampersand in profile name
+0f57ad35c8 IO Graph shows unsigned values correctly
+30baaab460 NAS-EPS: add an option to dissect user data container as non IP
+eb1e379948 SMB: Fix DialectIndex handling
+fde8f715ed androiddump: Provide fifo argument to g_warning()
+380282d9cf MMSE: add a missing "Ok" value for X-Mms-Retrieve-Status field
+fc0cca0911 macos-setup.sh: Add SpeexDSP setup and install
+7403f28f4d amqp: wrong bitmask for amqp.method.arguments.multiple
+5ffeabc8ce pfcp: Update to 3GPP TS 29.244 V16.2.0 part3
+597ca8aa38 DOC: Remove lingering references to autotools
+16ebca009a Register Ericsson P-GSL + TFP as GSM LAPD SAPI
+dab167cb9f WSUG: Add details about the TCP Out-Of-Order threshold.
+535f5277f3 ieee802154: Use the dissector internal address format for ACK tracking
+e38fea4dba netscaler: fix nstrace_ensure_buflen call.
+5ead0a36ea pfcp: Update to 3GPP TS 29.244 V16.2.0 part2
+3250410e1b pfcp: Update to 3GPP TS 29.244 V16.2.0 part1
+34a18d9302 packet-gsm_abis_om2000.c: Add string for TRXC Managed Object
+4ad18674b7 QUIC: Add Loss Bits Transport Parameter
+4ee88f3e34 netlink: use indicated encoding for attributes
+3e072f1bc9 lapdm(.h): fix duplicate include guard (found by lgtm.com)
+0de33e955a XnAP: another ASN.1 description fix
+8bc827d561 XnAP: fix ASN.1 description
+e0ea5cbc02 XnAP: upgrade dissector to v15.6.0
+3169344480 NAS-5GS: add support for n1SmMsg from 3GPP 29.502
+d0c9c33f52 IEEE1609.2: Minor updates to the ASN1 specifications.
+6606e95318 CIP Motion: Version 1.5 Updates
+4ee1110fa5 Fix UAT PKCS #11 Library handle leak
+b8101a691c ISAKMP: Dissect ID data types also for GDOI SA TEK
+82032fe375 Qt+Windows: Remove the DBAR check.
+116d381ea4 wiretap: Fix mp4.c compilation.
+62276f79a2 TPNCP: Avoid multiple registration of preferences
+9a5eb26b28 macOS: Force-sign Sparkle's AutoUpdate.app.
+ce8e6e1c95 wiretap: Add MP4 reader
+5b861d84f8 X2AP: upgrade dissector to v15.8.0
+b6ce60afbb Prefs: Fix name of deprecated TPNCP port preference
+e816edd1ea Qt: Add a missing separator in packet tree context menu
+e45ee832a6 LPPa: Make it possible to dissect private IEs
+0ab71cc1ec json: append in Protocol column when call by another dissector
+098077b685 FTDI FT: Dissect SetBitMode command
+bc89c4d774 netlink: add and improve code comments
+e85cbd57c6 Qt: Suppress warning: unused parameter 'actions'
+6e7f08781d Gen-bugnote: Another encoding fix.
+216c4b2673 Gen-bugnote: Fix an encoding issue.
+8b9f718dee Qt: Set AA_DisableWindowContextHelpButton.
+48024b102d Qt: Make sure shortcuts are visible in context menus.
+9e135f8748 ieee802154: Use ACK tracking to add generated addresses to ACKs
+e7a8c94aa7 Qt: Add a splitter to the I/O Graphs dialog.
+3579779dd6 WSUG: Clarify streams docs
+e60a56b050 WSUG: Remove references to OSes prior to Win XP
+8c2328f121 Point to a page that might be less likely to move.
+8fc67d48af Update URL.
+71b59b18e4 WASSP: Fix a couple of off-by-one errors.
+b92bf7c981 Qt: Update our main window capture warnings.
+d5cfa99217 Allow Multiselection of packets to work during live captures
+f582c85623 netlink: use value retrieval with proper encoding
+c84bbf4853 Qt: Add error message when create profiles dir fails
+0b8ba07954 X509SAT: fix conformation file
+f3988d0302 S1AP: fix import of ASN.1 code
+a4c5296aaf F1AP: upgrade dissector to v15.8.0
+23801f0ce2 NGAP: upgrade dissector to v15.6.0
+a8c90e1767 [Automatic update for 2020-01-12]
+efa5c4cbeb S1AP: upgrade dissector to v15.8.0
+e57b37137d Compilation fixes when CMAKE_BUILD_TYPE = MinSizeRel (-Os flag).
+dbfb204f48 ber: display x509af.utcTime year in 4 digits
+3f17a8948f Add Cisco Miscabling Protocol
+f9c2bdc413 Implement all mapping macros for the new proto tree API
+f1a49e55b1 travis: add gcc-9 builds.
+a8c7beb070 Use symbolic values for Cisco's LLC PIDs
+58949b7ff1 DOIP: Trivial typo fixed
+fa2fa5657b DLT: Fixing parsing of multiple DLT message in a single UDP packet.
+160a4696fa NAS 5GS: correction of QoS Rules with the length of two octets
+bc8140be0b Fix build and deprecation warnings with Qt 5.14
+507bec0f36 Add initial version of a dissector for the Paloalto heartbeat backup protocol.
+1fa51cfc0c BGP: MPLS label for EVPN Extented community
+ad2584f437 tpncp: replace stack variable with dynamic allocation.
+1bbac91d33 Qt: Fix related packet delegate
+e3a92cf8f6 Qt+Win32: Tell the user to install Npcap/WinPcap if needed.
+999e63543f Qt: Add elements back to the tcptrace graph.
+0db890ba59 Netlink: Properly interpret and mask out attribute type
+c227279d33 packet-kerberos: try to fix the build on macOS 10.14
+35cdf00669 NR RRC: upgrade dissector to v15.8.0
+b4e37280c5 LTE RRC: upgrade dissector to v15.8.0
+41179647b8 AUTHORS: reword a bit some acknowledgements.
+5c0042a2f6 packet-ip.c: The return value is already calculated and returned by the previous call.
+dda104cdde Add Ethertype 8988 used on the heartbeatlink inside a Paloalto firewall cluster
+d01b85c028 wka: Add Cisco ACI gleaning src MAC
+1ca7f03408 tvbuff.h: Fix formatting inside a comment.
+936a844cc3 Qt: Fix PacketListHeader column
+e0bb1ddea7 TPNCP: Update from downstream
+3e9e05cf0a TCP: fix DESEGMENT_UNTIL_FIN handling in combination with OoO tracking
+0db02a89f3 GSUP/SMS: also dissect ToN/NPI header in SM-RP-DA/OA
+1fec43355f DCERPC: display various driver version fields as hex
+9f30fc974d WSDG: Update the libraries chapter.
+d9aab840a7 packet-kerberos: try to verify the PAC checksums and display the used keys
+23a6fab52e Qt: remove codecs from about Wireshark dialog
+10ef28df30 BGP: Add EVPN Layer 2 Attributes Extended Community (RFC 8214)
+9326789204 packet-kerberos: add a hint to the used decryption key into the proto tree
+ed81b83768 packet-kerberos: re-add dissection of ntstatus (KERB_EXT_ERROR) in PA-PW-SALT
+f9c2b3aa79 NSIS: Fix a dangling output path.
+b553066a33 Netlink: remove encoding copies and, by extension, nl_data copies
+3b781dbab5 rtp_player_dialog: Route audio for a stream to left/right speaker in RTP player
+ce6952dbf5 packet-smb2: add support for SMB2_FILE_NORMALIZED_NAME_INFO
+9483fbcbf4 packet-dcerpc-netlogon: relax the data model for netlogon_auth_key
+088266e39e Netlink: stop hiding packet_netlink_data pointer
+200124d420 NSIS: Make the licensing page match reality.
+44b0cb187d Docs: Ensure that the API reference has the proper permissions.
+3c5480a2c0 Docbook: Fix some file permissions.
+8b7e251bac NSIS: Build Unicode installers / uninstallers.
+1e0fa912d4 AUTHORS: remove newlines.
+b6b7065b7c dcerpc-netlogon: fix compilation with older gcrypt versions.
+984c7a9c42 BGP: update Well-known Communities
+dc74cfb3f9 TFTP Header End Fix
+d958375349 NL80211: Remove global variable m_pinfo from dissector
+46b3753d53 case-sensitive: Fix casing for PCAP and WinSparkle
+73a5236f2f debian: remove double spaces.
+6785c9ad04 Qt: Don't plot zero values in I/O scatter plots
+06bff9f20d packet-smb2: handle SMB2_CHANNEL_RDMA_V1_INVALIDATE for read
+58d446c408 packet-smb-direct: move Flags into data_tree.
+f779835844 packet-dcerpc-netlogon: implement NETLOGON_FLAG_AES decryption
+b00e2834cd packet-dcerpc-netlogon: remove STRONGKEY related processing from get_seal_key()
+fe7a0b4b97 packet-dcerpc-netlogon: split out prepare_decryption_cipher[_strong]()
+2a8a604a1d packet-dcerpc-netlogon: split out uncrypt_sequence_strong()
+371c2d1bd6 packet-dcerpc-netlogon: use the correct NETLOGON_FLAG_AES flag
+33ea029de0 packet-dcerpc-netlogon: fix the build with DEBUG_NETLOGON
+f04475167a UDP: Add a filter for payload.
+71fb8bebfe rtp_player: Player is able to set start of audio play by double click
+c1f5b4d2d9 rtp_analysis_dialog: Improved codec recognition during saving of audio to .au
+c283cf37c5 NAS 5GS: add missing R15 bits in 5GS network feature support IE
+888137161c voip_calls_dialog/voip_calls: Fix for duplicated entries after retap
+2060e02021 Qt: don't use monospace fonts for licence dialog.
+590ad8d8ff wsutil: Replace disallowed filename characters to '-'
+7a09c78f12 NSIS: Don't package .pdb files.
+05d772ce7b USB MSC: Dissect subclass and protocol codes
+13703434da Get rid of %debug, so protobuf_lang.y can be processed by Berkeley YACC.
+ecd60cc7fe USB Audio: Fix Feature Unit Descriptor dissection
+17cd230a03 voip_calls_dialog: avoiding of 'remove_tap_listener(): no listener ...' warning
+376d877012 IPv4: Fix incorrect expert info for IGMP TTL
+b401c92615 [Automatic update for 2020-01-05]
+76c577aab4 SIP: authorization validation segfault on missing fields
+8b7caf5e9d Try this - it might be clearer.
+56e2629c4d Rewrite the "please submit" message a bit.
+68a21c46f6 tools: Make compress-pngs a standard utility.
+9ca39e1c56 IPv4: Fix indentation (use spaces)
+9fd4555c6f gtpv2: added IE Monitoring Event Information
+ae3b611fa0 WSUG: Note that you can edit packet ranges.
+5e8da3d2ee WSDG: More translation updates.
+e0a4e0e123 Qt: Update translations.
+fac6a2179e WSUG: Add a Packet Lengths dialog section.
+4778386e71 WSDG: Miscellaneous updates.
+76dfe6004b packet-iec104: Use pinfo->match_uint instead of port number from configuration
+d832145366 Qt: Add Spanish (es) translation assets.
+83fdea9ad6 GSM RLC/MAC: dissect Mobile Identity in Packet Paging Request
+4d67f06108 make-manuf.py: Add "of" to the general terms list.
+11aef7c19b BER: fix ber.error.bits_unknown display
+4f105e1f24 BGP: Support for drafts Tunnel Encapsulation and Segment Routing
+5ba082d51d Happy New Year 2020
+3c77808cf3 WSUG: Update the Capture Properties dialog section.
+e9014030fe HTTP: Fix dissection of data following the HTTP Upgrade response
+f8aa0d5c02 LPP: upgrade dissector to 37.355 v15.0.0
+6d5c749785 Guides: Update some of the MaxMind text.
+c189393f06 GSM A RR: Fix wrong description for Access Technologies Request presence field
+e9dc3b047c SIP: RFC8688 Rejected Status Code
+8a3572997f codecs API: Added description of API usage
+cff06caa1e GSM A RR: Fix typos in PS IR field
+12550ef794 make-manuf.py: Fix a shortening error.
+4d14586385 [Automatic update for 2019-12-29]
+f8808b8bd0 make-manuf.py: Handle more business types and other fixes.
+96965c6b4a netlink: changes to match Linux kernel v5.4 netlink interface
+fe9ee2c9b9 netlink: update 802.11 related netlink messages Linux kernel v5.4
+17492b8a6b Qt: Use a neutral tone in an error message.
+893f7f3d0c ieee802.11ax: Fix spelling mistakes in HE Capabilities Supported HE-MCS.
+a81c8e57bf Find the line ending using tvb_find_line_end().
+f0be7f27d8 Lemon: Squelch an unused parameter warning.
+aebe018061 Cleanly fetch the query string.
+4010996d8e SMB2: display oplock/lease break packets properly
+b21276d9a0 Qt: Create directories recursively
+b1910fcdc8 rtcp: Extend AVB RTCP (IEEE1733) to decode AS Timestamp and Sequence Id
+e306618d56 whois: add query string to info column.
+87ef6cea34 USB CDC: Match subordinate interfaces with master
+63a954320f Additional styles for IO Graph
+4df2bd988d Qt: Fix the Capture File Properties dropped format.
+cafb5e269e pgsql: add GSS Encode Request message
+31570163d1 Revert "Qt: Fix dangling delete for sequence diagramm"
+2a1d27bcbf [Automatic update for 2019-12-22]
+6cd984011f Note the lack of character-encoding indications in the protocol.
+8d65ccfee4 Show answers a line at a time, after the request frame and time delta.
+0442f7a2c3 UI: Fix compilation with Qt 5.14
+1c98b5b180 log3gpp: invert check with use of offset.
+a8331a9274 802.11: Use the pseudo-header PHY to determine whether it's DMG.
+69c0a10400 test: fix extcap_name fixture and skip test.
+746335804b Expand the frequency range for the DMG PHY.
+e2fc0e4806 There's a macro to test for 802.11ad frequencies; use it.
+2925fb0850 Use g_file_open_tmp within create_tempfile
+c247a8351f wcp: skip buffer too long.
+bbd9c8956b TeamSpeak3 DNS: Change defalt port to 0 as it's not IANA registered.
+80e27e4cba packet-vnc.c : Fix parse h264 packet error
+56e1832cff DCERPC: add DRIVER_INFO_8 decoding for DCE/RPC spoolss dissector
+c7f6591247 DCERPC: Fix DRIVER_INFO_7 defines in DCE/RPC spoolss dissector
+6094e9d392 CMake: Create a DocBook stamp file for Visual Studio.
+1129114c55 DCERPC: implement GetPrinterDriverPackagePath in DCE/RPC spoolss dissector
+641d193ca6 ieee80211: use offsets when needed not before.
+2a4f09aa62 DCERPC: implement GetCorePrinterDrivers in DCE/RPC spoolss dissector
+caf8e70dfe GSM A-bis/OML: use more proto_tree_add_item() in dissect_oml_attrs()
+5b08742905 GSM A-bis/OML: use generic proto_tree_add_item() for IPv4 addresses
+88364fb296 GSM A-bis/OML: fix: do not use tvb_get_ntohl() to fetch IPv4 address
+23b11003bf h264: fix label for frame_crop_right_offset
+56a609028f macOS: Explicitly set our package root permissions.
+89dfd3d378 extcap: fix use-after-free bug.
+a20fcccda4 test: fix CI builds on linux.
+623b347d1e Protobuf: add dissecting protobuf fields as wireshark fields preferences, etc.
+5d342b01e3 Windows: upgrade Npcap to 0.9986
+2cbd844bd1 Release notes: Bump the next version.
+fd6cf89f21 macOS: More ChmodBPF signing updates.
+b044c5f1de Qt: Don't crash when disabling all protocols.
+a9c79f0159 Uncrustify: Change line length to 100 chars
+8dd407d97c macOS: Sign the ChmodBPF script.
+53a6c26023 ieee802.11: Support the latest band id values and fix MHz.
+d614ade782 De-camel-ize "Wireshark" in a few places.
+c656affc34 Windows: Get rid of textify.ps1.
+2abade04f8 MsgPack: add dissector to UDP port decode as list
+f73018eb0c test: add suite_extcaps.
+cc451ab6aa dissectors: re-use most of the existing spoolss container dissectors
+993c027100 Add new DCE/RPC IRemoteWinspool dissector
+12305928b2 PROFINET: Profienergy record dissection
+5e8d79fd69 WSUG: Update the Expert Information and Status Bar docs.
+7c61ab7cf2 WSUG: Update the filter dialog section.
+060716b8df FAQ: Update and remove entries.
+5cfd8bca95 CMake: fix CMake 3.16 warning about CMP0071
+dd90a8fd6f TPNCP: Update tpncp.dat
+20c72b2f45 wcp: fix indentation.
+8fbe28b1f0 profiles: Try to better sync on disk config state
+d90a22c1cc Reorganize long option values
+1cd1e36a05 extcap: remove potential leak.
+effe6ddaca [Automatic update for 2019-12-15]
+6d7e98dd2b MPLS: fix Downstream Detailed Mapping TLV label stack dissection
+625b71bb30 WiFi: Properly parse bitmap sections (CID-1451085)
+2f42fda600 H265: properly index 2D array (CID 1450950)
+595153ca99 RTCP/MCPT: Limit list of SSRCs (CID 1455251)
+85e47d9bcd WSUG+WSDG: Remove description list formatting.
+8939d358e2 WSUG: Update the mailing list section.
+4ee90e4e6f test: fix comment.
+abd83d9961 cmdline: cleanup option string definitions
+8b8bf62600 m3ap: Info column lost at filtering.
+cffa0df310 DCERPC: Add dissect_hresult helper
+7807630857 H.264: add dissection of SPS with seq_scaling_matrix_present_flag equal to 1.
+31414484d4 html2text: Skip generating footnotes for self-links.
+64e5ae4b9d Uncrustify: Remove newline between for and brace
+4649512b14 Uncrustify: Add spaces between else and braces
+dd1daa41cd PER: Add a couple of NULL checks.
+2629bd2081 pcfp: add missing Usage Report Trigger indication
+e1a876cf9d couchbase: Fix Dead Store
+2df91a8742 NAS 5GS: fix LADN Indication ID in Registration Request
+90e80ac6af Qt: Add some null checks.
+3e0acea604 CMake: Fixup a variable in FindLZ4.cmake
+2db8ca2671 radiotap: Detect 11ad based on the frequency.
+23903925a1 Windows: update c-ares 1.15.0 package
+34cbff30e9 LNET: fix malformed packet error on RDMA Read Request
+e8aa574aff Revert "extcap: Pass --extcap-version if extcap supports it"
+6f9efa7583 More Qt minimum version updates.
+c5093fb227 Qt: Remove a comment.
+b098353ad9 ZigBee: Maintain APS extended counter for nodes
+68a7add68a btatt: check the opcode against the current data.
+9910d8c913 extcap: Pass --extcap-version if extcap supports it
+14e4759b56 Qt: Bump our minimum Qt version from 5.2. to 5.3.
+50713161c3 Win32: Remove win32_save_as_statstree.
+dc19356be2 Win32: Fixup our file dialog titles.
+d884ff2cdc Qt: fix wrong checks.
+ef67401c33 Win32: Remove some unused code.
+7c883dd771 Win32: Factor out win32_check_save_as_with_comments.
+6a1ba1af8d NGAP: catch NAS 5GS dissection errors
+fffb132641 M3AP: Update to TS 36.444 V15.0.0 (2018-09) (No change except to ref)
+99bdac09d6 pfcp: add warning of faulty FO flag
+6925671887 RPC-over-RDMA: add reassembly of SEND first, middle and last
+f5705e9118 WSUG: Export, packet range+format, and other IO chapter updates.
+c8dd7eed99 pfcp: Update to 3GPP TS 29.244 V16.1.0
+c6c3ee1d62 TTLs are unsigned; format them with unsigned_time_secs_to_str().
+803d47fd50 dns: Unify display of TTL with time_secs_to_str()
+9110c59322 SMB2: IOCTL response dissector minor fixes
+0820306494 dns: Bring back TTL formatted with time_secs_to_str()
+718837ac45 Bugfix SMB IOCTL response with BUFFER_OVERFLOW
+8de71634db s7comm: Add decoding of some more SZL indices
+3e3a0bc71d WSUG updates.
+fe647fb085 Win32: Fix the Export Packet Dissections dialog title.
+3bf0163506 [Automatic update for 2019-12-08]
+d255a3524a Docbook: Updates for Windows 7 and macOS.
+8275036fda Make the TTL field unsigned, but keep warning if the high-order bit is set.
+1e3db49f05 recent.c: cfield might be NULL
+643dc75964 WSUG: Add a Wireless menu section.
+b116405139 tools: use better operators in package scripts.
+9689eea25f UDS: fix uds.rdbi.data_identifier filter length
+7ab09fa1ad cirrus-ci: increase tasks timeout.
+65663e2bb2 WSUG: Compress some images.
+ffabb74e2c Back up to the beginning of the file if we don't have a gzip header.
+4b673a14d0 tipc: check message bundle size before using it.
+469228a2e5 tools: fix check of shell variables in other setup scripts.
+839e615fcb WSUG: Update the capture chapter.
+7be2d964f0 Qt: We show preference panes using their module names.
+f2c2b9687d README.dissector: Add a note about integer promotion.
+9879850cc3 tools/debian-setup: correctly check the value of shell variables
+082ad65a0d ieee80211: Improve EAPOL Key MIC Len handling in some cases.
+3e97b28c4b RTCP: Add expert info.
+c72413ec14 ieee1905: Fix an incorrect bit usage in the Client Association Even TLV.
+e253e62750 Use human-readable numbers for conversation stats
+997e21d1e9 Qt: Rename the Capture Interfaces dialog to Capture Options.
+ba2e69bc0d WSUG: Remove some old, unused images.
+3704373206 NAS 5GS: small cleanup
+27b297f07a NR RRC: fix dissection of NAS container field
+ab03f35850 gprscdr: add newer RAT types
+f509a83381 Add format_size_wmem
+63945535ac NSIS: The "Sshdump" option installs Ciscodump as well.
+8dcd1e2bcd kafka: don't use an empty tvb list.
+e06969455b Restrict allowed characters in "short name" of heuristic_protos
+faf3118d45 [Automatic update for 2019-12-01]
+4c0a0d6efd expert.h: Reorder includes
+7554369a79 IEEE 1609.2 dissector issue when HeaderInfo.generationLocation field is present
+aa5105de63 packet-mms.c: Sync ASN.1 generated dissector
+890e2bea2e Documentation: update (long) cmd line options
+f17f127760 ieee1722: use payload_length only when it's valid.
+d4ca6cc550 couchbase: Update dissector for latest 6.5.0 DCP snapshot marker
+3c10d7308b GPRS RLC/MAC: Describe CHANNEL_CODING_COMMAND value
+4a353d40e0 couchbase: update dissector with missing collection error codes
+54010d4093 Add support for first frames with CAN-FD
+50595debd5 RTCP:MCPTT fix while loop and location info.
+bb70d49dfd docbook: make all examples use 64bit architecture.
+f6953e378a Qt: Remove a couple of private variables.
+40eece98f8 Change struct can_identifier to can_info
+bb7014731c doc: add reordercap to editcap references.
+57d4161a66 Qt: Remove unneeded method
+2d12ec67a3 Qt: fix erratic expansion of tree item when switching packets
+4370164419 BGP: Add D-PATH Attribute
+7c3ae2b5ab TLS: support Facebook's TLS 1.3 draft 23 and 26 versions
+12d72be15b WireGuard: fix MAC1 computation for non-zero reserved case
+07a1753d44 Qt: focus the correct field when switching packets
+15faccd2e4 Annnnnd fix another typo.
+5f23791f82 docbook: put a space after PS prompts.
+25bbe6654a docbook: add warning about using an old version of Windows.
+12204f1a4b docbook: minor fixes.
+e9b58b1d40 Add short descriptions of the PHYs other than the legacy PHYs.
+ac5c03e21a Add entries for 802.11ad and 802.11ah PHY values.
+473900d102 Add more support for the 802.11ax PHY.
+17bb0b7eb1 macOS: Switch ChmodBPF back from bash to sh.
+9a647c6ed5 NGAP: dissect other variant of N2 SM Information (as found in 3GPP 29.502)
+b0ea9e0760 HTTP: Add Too Early (425) HTTP Error code (RC8470)
+2828c8bcd6 AVSP: Updating Arista vendor sepecific protocol dissection
+f2dce23b40 Qt+macOS: Add /Volumes to the file dialog sidebar.
+69201185ad WireGuard: support Decode As and non-zero reserved bytes
+dd54eb995c ieee80211: Correct 802.11ax Basic Trigger Preferred AC field decoding
+e159e423d5 WSUG: Automatically update wireshark --help output
+cad5dff5e2 packet-gsm_ipa: Add #defines and names for more osmocom IPA extensions
+076334a70c Qt: fix packet selection when modifiers are pressed
+6433e12474 Qt: Show all column types in context menu
+40897b0234 Qt: prevent inline completion from happening for filters
+dededba8dd ISAKMP: fix dissection of SA TEK payload for non IP address
+c9bb676118 Qt: fix crash on Next/Previous Packet in Conversation without selection
+56ed5d49f4 macOS: Use the correct path when building our app bundle.
+4f2304ae02 conversation.h: Whitespace fixes
+4e18ef9b0e Update LACP Dissector
+27f9606932 Qt: fix display filter completion with few recent entries
+a700bb9acb [Automatic update for 2019-11-24]
+451a241e50 Add c-ares to the required library list.
+6a0b558ac1 tools: remove obsolete VS2015 deployment file
+8f90446db5 Qt: Refactor ExportObjectsDialog
+06afefad91 QUIC: atag is an array of bytes, not pointers
+b22a63d025 docs: fix up MS toolchain references
+37f3c65ca5 rtp_analysis_dialog.cpp: save any supported codec as .au
+c55dd79d2c Qt: Further cleanup goToPacket
+59ce14522b Qt: Fix nullpointer access
+5199a61e79 coap: use correct OSCORE option type
+cfee0f8082 Qt: Remove frameSelect signal
+ecb90a4e25 NAS 5GS: fix for control plane service request identification
+986fec7f3b print: remove assert in get_field_data().
+8e8d19be1a WSUG: Avoid using multiple layers of replacements
+45c6ba587d cppcheck: Exclude the doc directory.
+48725641c9 Qt: Remove a duplicate variable.

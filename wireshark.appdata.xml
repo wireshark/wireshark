@@ -48,10 +48,7 @@
     </screenshots>
     <update_contact>wireshark-dev_at_wireshark.org</update_contact>
     <releases>
-        <release version="3.0.4" date="2019-09-11"/>
-        <release version="3.0.3" date="2019-07-17"/>
-        <release version="3.0.2" date="2019-05-21"/>
-        <release version="3.0.1" date="2019-04-08"/>
-        <release version="3.0.0" date="2019-02-28"/>
+        <release version="3.3.0" date="2020-09-15">
+        </release>
     </releases>
 </application>
