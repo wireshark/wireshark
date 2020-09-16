@@ -202,6 +202,8 @@ static int hf_stun_att_sip_call_id = -1;
 static int hf_stun_att_lp_peer_location = -1;
 static int hf_stun_att_lp_self_location = -1;
 static int hf_stun_att_lp_federation = -1;
+static int hf_stun_att_google_network_id = -1;
+static int hf_stun_att_google_network_cost = -1;
 
 /* Expert items */
 static expert_field ei_stun_short_packet = EI_INIT;
@@ -269,7 +271,7 @@ typedef struct _stun_conv_info_t {
 #define REFLECTED_FROM          0x000b /* Deprecated, RFC3489 */
 #define CHANNEL_NUMBER          0x000c /* RFC8656 */
 #define LIFETIME                0x000d /* RFC8656, MS-TURN */
-/* 0x000e reserved */
+#define MS_ALTERNATE_SERVER     0x000e /* MS-TURN */
 /* 0x000f reserved collision */
 #define MAGIC_COOKIE            0x000f /* MS-TURN */
 /* 0x0010 fix reference */
@@ -366,10 +368,17 @@ typedef struct _stun_conv_info_t {
 #define CISCO_STUN_FLOWDATA     0xc000 /* Cisco undocumented */
 #define ENF_FLOW_DESCRIPTION    0xc001 /* Cisco undocumented */
 #define ENF_NETWORK_STATUS      0xc002 /* Cisco undocumented */
-/* 0xc003-0xc058 Unassigned */
-#define GOOG_MISC_INFO          0xc059 /* Google undocumented */
-#define GOOG_MESSAGE_INTEGRITY_32 0xc05a /* Google undocumented */
-/* 0xc05b-0xffff Unassigned */
+/* 0xc003-0xc056 Unassigned */
+/* https://webrtc.googlesource.com/src/+/refs/heads/master/api/transport/stun.h */
+#define GOOG_NETWORK_INFO       0xc057
+#define GOOG_LAST_ICE_CHECK_RECEIVED 0xc058
+#define GOOG_MISC_INFO          0xc059
+#define GOOG_MESSAGE_INTEGRITY_32 0xc060
+/* 0xc061-0xff03 Unassigned */
+/* https://webrtc.googlesource.com/src/+/refs/heads/master/p2p/base/turn_port.cc */
+#define GOOG_MULTI_MAPPING      0xff04
+#define GOOG_LOGGING_ID         0xff05
+/* 0xff06-0xffff Unassigned */
 
 /* Initialize the subtree pointers */
 static gint ett_stun = -1;
@@ -433,6 +442,7 @@ static const value_string attributes[] = {
     {REFLECTED_FROM        , "REFLECTED-FROM"},
     {CHANNEL_NUMBER        , "CHANNEL-NUMBER"},
     {LIFETIME              , "LIFETIME"},
+    {MS_ALTERNATE_SERVER   , "MS-ALTERNATE-SERVER"},
     {MAGIC_COOKIE          , "MAGIC-COOKIE"},
     {BANDWIDTH             , "BANDWIDTH"},
     {DESTINATION_ADDRESS   , "DESTINATION-ADDRESS"},
@@ -509,8 +519,12 @@ static const value_string attributes[] = {
     {CISCO_STUN_FLOWDATA   , "CISCO-STUN-FLOWDATA"},
     {ENF_FLOW_DESCRIPTION   , "ENF-FLOW-DESCRIPTION"},
     {ENF_NETWORK_STATUS    , "ENF-NETWORK-STATUS"},
+    {GOOG_NETWORK_INFO     , "GOOG-NETWORK-INFO"},
+    {GOOG_LAST_ICE_CHECK_RECEIVED, "GOOG-LAST-ICE-CHECK-RECEIVED"},
     {GOOG_MISC_INFO        , "GOOG-MISC-INFO"},
     {GOOG_MESSAGE_INTEGRITY_32, "GOOG-MESSAGE_INTEGRITY-32"},
+    {GOOG_MULTI_MAPPING    , "GOOG-MULTI-MAPPING"},
+    {GOOG_LOGGING_ID       , "GOOG-LOGGING-ID"},
 
     {0x00                  , NULL}
 };
@@ -629,6 +643,21 @@ static const value_string password_algorithm_vals[] = {
     {0x0002, "SHA-256"},
     {0x0000, NULL}
 };
+
+/* https://webrtc.googlesource.com/src/+/refs/heads/master/rtc_base/network_constants.h */
+static const value_string google_network_cost_vals[] = {
+    {0,   "Min"},
+    {10,  "Low"},
+    {50,  "Unknown"},
+    {250, "Cellular5G"},
+    {500, "Cellular4G"},
+    {900, "Cellular"},
+    {910, "Cellular3G"},
+    {980, "Cellular2G"},
+    {999, "Max"},
+    {0,   NULL}
+};
+
 
 static guint
 get_stun_message_len(packet_info *pinfo _U_, tvbuff_t *tvb,
@@ -994,8 +1023,10 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
                 att_length_pad = att_length;
             att_type_display = att_type;
             /* Early drafts and MS-TURN use swapped numbers to later versions */
-            if ((stun_network_version < NET_VER_3489) && (att_type == 0x0014 || att_type == 0x0015))
+            if ((stun_network_version < NET_VER_3489) && (att_type == 0x0014 || att_type == 0x0015)) {
                 att_type_display ^= 1;
+                att_type ^= 1;
+            }
             attribute_name_str = val_to_str_ext_const(att_type_display, &attributes_ext, "Unknown");
             if(att_all_tree){
                 ti = proto_tree_add_uint_format(att_all_tree, hf_stun_attr,
@@ -1070,6 +1101,7 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
             case RESPONSE_ORIGIN:
             case OTHER_ADDRESS:
             case MS_ALT_MAPPED_ADDRESS:
+            case MS_ALTERNATE_SERVER:
             {
                 const gchar       *addr_str;
                 guint16            att_port;
@@ -1532,6 +1564,11 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
                 proto_tree_add_item(att_tree, hf_stun_att_ms_foundation, tvb, offset, 4, ENC_ASCII|ENC_NA);
                 break;
 
+            case GOOG_NETWORK_INFO:
+                proto_tree_add_item(att_tree, hf_stun_att_google_network_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+                proto_tree_add_item(att_tree, hf_stun_att_google_network_cost, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
+                break;
+
             default:
                 if (att_length > 0)
                     proto_tree_add_item(att_tree, hf_stun_att_value, tvb, offset, att_length, ENC_NA);
@@ -1937,6 +1974,14 @@ proto_register_stun(void)
         { &hf_stun_att_lp_federation,
           { "Federation", "stun.att.lp.federation", FT_UINT8,
             BASE_DEC, VALS(federation_vals), 0x0, NULL, HFILL}
+         },
+        { &hf_stun_att_google_network_id,
+          { "Google Network ID", "stun.att.google.network_id", FT_UINT16,
+            BASE_DEC, NULL, 0x0, NULL, HFILL}
+         },
+        { &hf_stun_att_google_network_cost,
+          { "Google Network Cost", "stun.att.google.network_cost", FT_UINT16,
+            BASE_DEC, VALS(google_network_cost_vals), 0x0, NULL, HFILL}
          },
     };
 
