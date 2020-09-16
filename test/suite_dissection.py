@@ -157,7 +157,7 @@ class case_dissect_tcp(subprocesstest.SubprocessTestCase):
             '-eframe.number', '-etcp.reassembled_in', '-e_ws.col.Info',
             '-2',
             ))
-        lines = proc.stdout_str.replace('\r', '').split('\n')
+        lines = proc.stdout_str.split('\n')
         # 2 - start of OoO MSP
         self.assertIn('2\t6\t[TCP Previous segment not captured]', lines[1])
         self.assertIn('[TCP segment of a reassembled PDU]', lines[1])
@@ -186,10 +186,9 @@ class case_dissect_tcp(subprocesstest.SubprocessTestCase):
         proc = self.assertRun((cmd_tshark,
             '-r', capture_file('retrans-tls.pcap'),
             '-Ytls', '-Tfields', '-eframe.number', '-etls.record.length',))
-        output = proc.stdout_str.replace('\r', '')
         # First pass dissection actually accepted the first frame as TLS, but
         # subsequently requested reassembly.
-        self.assertEqual(output, '1\t\n2\t16\n')
+        self.assertEqual(proc.stdout_str, '1\t\n2\t16\n')
 
     def test_tcp_reassembly_more_data_2(self, cmd_tshark, capture_file):
         '''
@@ -198,8 +197,7 @@ class case_dissect_tcp(subprocesstest.SubprocessTestCase):
         proc = self.assertRun((cmd_tshark,
             '-r', capture_file('retrans-tls.pcap'),
             '-Ytls', '-Tfields', '-eframe.number', '-etls.record.length', '-2'))
-        output = proc.stdout_str.replace('\r', '')
-        self.assertEqual(output, '2\t16\n')
+        self.assertEqual(proc.stdout_str, '2\t16\n')
 
 @fixtures.mark_usefixtures('test_env')
 @fixtures.uses_fixtures
@@ -214,7 +212,7 @@ class case_dissect_tls(subprocesstest.SubprocessTestCase):
                                '-zexpert',
                                '-Ytls.handshake.extension.data',
                                '-Tfields', '-etls.handshake.extension.data'] + extraArgs)
-        output = proc.stdout_str.replace('\r', '').replace(',', '\n')
+        output = proc.stdout_str.replace(',', '\n')
         # Expected output are lines with 0001, 0002, ..., 03e8
         expected = ''.join('%04x\n' % i for i in range(1, 1001))
         self.assertEqual(output, expected)

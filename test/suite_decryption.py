@@ -536,7 +536,7 @@ class case_decrypt_tls(subprocesstest.SubprocessTestCase):
                 '-e', 'http.host',
                 '-e', 'http.response.code',
                 '-Y', 'http',
-            )).stdout_str.replace('\r\n', '\n')
+            )).stdout_str
         self.assertEqual('example.com\t\n\t200\nexample.net\t\n\t200\n', output)
 
 

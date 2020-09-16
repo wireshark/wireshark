@@ -50,8 +50,9 @@ def cat_cap_file_command(cap_files):
 class LoggingPopen(subprocess.Popen):
     '''Run a process using subprocess.Popen. Capture and log its output.
 
-    Stdout and stderr are captured to memory and decoded as UTF-8. The
-    program command and output is written to log_fd.
+    Stdout and stderr are captured to memory and decoded as UTF-8. On
+    Windows, CRLF line endings are normalized to LF. The program command
+    and output is written to log_fd.
     '''
     def __init__(self, proc_args, *args, **kwargs):
         self.log_fd = kwargs.pop('log_fd', None)
@@ -80,6 +81,10 @@ class LoggingPopen(subprocess.Popen):
         # Throwing a UnicodeDecodeError exception here is arguably a good thing.
         self.stdout_str = out_data.decode('UTF-8', 'strict')
         self.stderr_str = err_data.decode('UTF-8', 'strict')
+
+        if sys.platform.startswith('win32'):
+            self.stdout_str = self.stdout_str.replace('\r\n', '\n')
+            self.stderr_str = self.stderr_str.replace('\r\n', '\n')
 
     def stop_process(self, kill=False):
         '''Stop the process immediately.'''
