@@ -531,6 +531,11 @@ static int dissect_idn_laser_data(tvbuff_t *tvb, int offset, proto_tree *idn_tre
 	int i;
 	int laser_data_size = tvb_reported_length_remaining(tvb, offset);
 
+	if (config->sample_size == 0) {
+	    /* TODO: log expert info error? */
+	    return 0;
+	}
+
 	int sample_size = laser_data_size/config->sample_size;
 	proto_tree *idn_samples_tree = proto_tree_add_subtree_format(idn_tree, tvb, offset, laser_data_size, ett_data, NULL, "Samples %s", config->sample_column_string);
 	proto_tree *idn_samples_subtree = NULL;
