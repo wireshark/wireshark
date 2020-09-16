@@ -1,4 +1,5 @@
-#! /bin/sh
+#! /bin/zsh
+# shellcheck shell=bash
 
 #
 # Unfortunately, macOS's devfs is based on the old FreeBSD
@@ -27,12 +28,12 @@ if [ "$FORCE_CREATE_BPF_MAX" -gt "$SYSCTL_MAX" ] ; then
 	FORCE_CREATE_BPF_MAX=$SYSCTL_MAX
 fi
 
-syslog -s -l notice "ChmodBPF: Forcing creation and setting permissions for /dev/bpf*"
+syslog -s -l notice "ChmodBPF: Forcing creation and setting permissions for /dev/bpf0-$(( FORCE_CREATE_BPF_MAX - 1))"
 
 CUR_DEV=0
 while [ "$CUR_DEV" -lt "$FORCE_CREATE_BPF_MAX" ] ; do
 	# Try to do the minimum necessary to trigger the next device.
-	: < /dev/bpf$CUR_DEV > /dev/null 2>&1
+	read -r -n 0 < /dev/bpf$CUR_DEV > /dev/null 2>&1
 	CUR_DEV=$(( CUR_DEV + 1 ))
 done
 

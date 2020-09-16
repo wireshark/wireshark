@@ -3474,6 +3474,7 @@ if(SHELLCHECK_EXECUTABLE)
 		COMMAND shellcheck --external-sources
 			image/stock_icons/svg-to-png.sh
 			packaging/appimage/AppRun
+			"packaging/macosx/ChmodBPF/root/Library/Application Support/Wireshark/ChmodBPF/ChmodBPF"
 			packaging/macosx/osx-app.sh.in
 			packaging/macosx/osx-dmg.sh.in
 			packaging/source/git-export-release.sh.in
