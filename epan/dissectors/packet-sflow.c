@@ -2459,8 +2459,8 @@ dissect_sflow_245(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     proto_tree_add_uint(sflow_245_tree, hf_sflow_245_seqnum, tvb, offset, 4, seqnum);
     offset += 4;
     uptime = tvb_get_ntohl(tvb, offset);
-    proto_tree_add_uint_format_value(sflow_245_tree, hf_sflow_245_sysuptime, tvb, offset, 4, uptime, "%s (%us)",
-        unsigned_time_secs_to_str(wmem_packet_scope(), uptime), uptime);
+    proto_tree_add_uint_format_value(sflow_245_tree, hf_sflow_245_sysuptime, tvb, offset, 4, uptime, "%s (%ums)",
+        unsigned_time_secs_to_str(wmem_packet_scope(), uptime / 1000), uptime);
     offset += 4;
     numsamples = tvb_get_ntohl(tvb, offset);
     col_append_fstr(pinfo->cinfo, COL_INFO, ", %u samples", numsamples);
