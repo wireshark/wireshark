@@ -2847,6 +2847,7 @@ dissect_mysql_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 		conn_data->frame_start_ssl= 0;
 		conn_data->frame_start_compressed= 0;
 		conn_data->compressed_state= MYSQL_COMPRESS_NONE;
+		conn_data->is_mariadb_client = 0;
 		conversation_add_proto_data(conversation, proto_mysql, conn_data);
 	}
 
