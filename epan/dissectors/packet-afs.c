@@ -513,12 +513,7 @@ static void OUT_RXArray8(ptvcursor_t *cursor, int field, int field_size, int enc
    nstime_t */
 static void OUT_TIMESTAMP(ptvcursor_t *cursor, int field)
 {
-	nstime_t ts;
-
-	ts.secs = tvb_get_ntohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
-	ts.nsecs = tvb_get_ntohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor)+4)*1000;
-
-	proto_tree_add_time(ptvcursor_tree(cursor), field, ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor), 8, &ts);
+	proto_tree_add_item(ptvcursor_tree(cursor), field, ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor), 8, ENC_TIME_SECS_USECS|ENC_BIG_ENDIAN);
 	ptvcursor_advance(cursor, 8);
 }
 
@@ -527,11 +522,7 @@ static void OUT_TIMESTAMP(ptvcursor_t *cursor, int field)
    relative time in seconds */
 static void OUT_TIMESECS(ptvcursor_t *cursor, int field)
 {
-	nstime_t ts;
-
-	ts.secs = tvb_get_ntohl(ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor));
-	ts.nsecs = 0;
-	proto_tree_add_time(ptvcursor_tree(cursor), field, ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor), 4, &ts);
+	proto_tree_add_item(ptvcursor_tree(cursor), field, ptvcursor_tvbuff(cursor), ptvcursor_current_offset(cursor), 4, ENC_TIME_SECS|ENC_BIG_ENDIAN);
 	ptvcursor_advance(cursor, 4);
 }
 

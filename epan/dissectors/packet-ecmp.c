@@ -1886,8 +1886,6 @@ static void file_close(int offset, gboolean request, tvbuff_t *tvb, proto_tree* 
 /*a function to display file attributes*/
 static int get_file_attribute(packet_info* pinfo, int offset, guint8 attribute0, tvbuff_t *tvb, proto_tree* ecmp_current_tree)
 {
-	nstime_t ts;
-
 	switch(attribute0)
 	{
 		case 0: /*display length of file*/
@@ -1917,15 +1915,11 @@ static int get_file_attribute(packet_info* pinfo, int offset, guint8 attribute0,
 			}
 			break;
 		case 4:	/*display creation date*/
-			ts.secs = tvb_get_ntohl(tvb, offset);
-			ts.nsecs = 0;
-			proto_tree_add_time(ecmp_current_tree, hf_ecmp_display_creation, tvb, offset, 4, &ts);
+			proto_tree_add_item(ecmp_current_tree, hf_ecmp_display_creation, tvb, offset, 4, ENC_TIME_SECS|ENC_BIG_ENDIAN);
 			offset+= 3;
 			break;
 		case 5:	/*display modification date*/
-			ts.secs = tvb_get_ntohl(tvb, offset);
-			ts.nsecs = 0;
-			proto_tree_add_time(ecmp_current_tree, hf_ecmp_display_modification, tvb, offset, 4, &ts);
+			proto_tree_add_item(ecmp_current_tree, hf_ecmp_display_modification, tvb, offset, 4, ENC_TIME_SECS|ENC_BIG_ENDIAN);
 			offset+= 3;
 			break;
 		default: /*display incorrect attribute type error*/
