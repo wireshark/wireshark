@@ -13,7 +13,7 @@
 		<type type-name="UTF8String"/>
 	</avp>
 	<avp name="3GPP-Charging-Id" code="2" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
-		<type type-name="OctetString"/>
+		<type type-name="OctetStringOrUTF8"/>
 	</avp>
 	<avp name="3GPP-PDP-Type" code="3" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
 		<type type-name="Enumerated"/>
