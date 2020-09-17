@@ -856,6 +856,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  get_udp_stream_count@Base 1.12.0~rc1
  get_unichar2_string@Base 1.12.0~rc1
  get_utf_16_string@Base 1.12.0~rc1
+ get_utf_8_string@Base 3.3.1
  get_vlan_hash_table@Base 2.1.0
  get_wka_hashtable@Base 1.12.0~rc1
  get_quic_connections_count@Base 3.1.1
@@ -2051,6 +2052,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  wmem_str_hash@Base 1.12.0~rc1
  wmem_strbuf_append@Base 1.9.1
  wmem_strbuf_append_c@Base 1.12.0~rc1
+ wmem_strbuf_append_len@Base 3.3.1
  wmem_strbuf_append_printf@Base 1.9.1
  wmem_strbuf_append_unichar@Base 1.12.0~rc1
  wmem_strbuf_append_vprintf@Base 3.1.1

@@ -1119,6 +1119,10 @@ wmem_test_strbuf(void)
     g_assert_cmpstr(wmem_strbuf_get_str(strbuf), ==, "TES");
     g_assert(wmem_strbuf_get_len(strbuf) == 3);
 
+    wmem_strbuf_append_len(strbuf, "TFUZZ1234", 5);
+    g_assert_cmpstr(wmem_strbuf_get_str(strbuf), ==, "TESTFUZZ");
+    g_assert(wmem_strbuf_get_len(strbuf) == 8);
+
     strbuf = wmem_strbuf_sized_new(allocator, 10, 10);
     g_assert(strbuf);
     g_assert_cmpstr(wmem_strbuf_get_str(strbuf), ==, "");

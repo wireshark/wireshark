@@ -2541,20 +2541,18 @@ tvb_get_iso_646_string(wmem_allocator_t *scope, tvbuff_t *tvb, gint offset, gint
 /*
  * Given a wmem scope, a tvbuff, an offset, and a length, treat the string
  * of bytes referred to by the tvbuff, the offset. and the length as a UTF-8
- * string, and return a pointer to that string, allocated using the wmem scope.
- *
- * XXX - should map invalid UTF-8 sequences to UNREPL.
+ * string, and return a pointer to a UTF-8 string, allocated using the wmem
+ * scope, with all ill-formed sequences replaced with the Unicode REPLACEMENT
+ * CHARACTER according to the recommended "best practices" given in the Unicode
+ * Standard and specified by W3C/WHATWG.
  */
 static guint8 *
 tvb_get_utf_8_string(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, const gint length)
 {
-	guint8 *strbuf;
+	const guint8  *ptr;
 
-	tvb_ensure_bytes_exist(tvb, offset, length); /* make sure length = -1 fails */
-	strbuf = (guint8 *)wmem_alloc(scope, length + 1);
-	tvb_memcpy(tvb, strbuf, offset, length);
-	strbuf[length] = '\0';
-	return strbuf;
+	ptr = ensure_contiguous(tvb, offset, length);
+	return get_utf_8_string(scope, ptr, length);
 }
 
 /*
@@ -2562,8 +2560,7 @@ tvb_get_utf_8_string(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, 
  * of bytes referred to by the tvbuff, the offset, and the length as a
  * raw string, and return a pointer to that string, allocated using the
  * wmem scope. This means a null is appended at the end, but no replacement
- * checking is done otherwise. Currently tvb_get_utf_8_string() does not
- * replace either, but it might in the future.
+ * checking is done otherwise, unlike tvb_get_utf_8_string().
  *
  * Also, this one allows a length of -1 to mean get all, but does not
  * allow a negative offset.
@@ -3087,14 +3084,14 @@ static guint8 *
 tvb_get_utf_8_stringz(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, gint *lengthp)
 {
 	guint   size;
-	guint8 *strptr;
+	const guint8  *ptr;
 
 	size   = tvb_strsize(tvb, offset);
-	strptr = (guint8 *)wmem_alloc(scope, size);
-	tvb_memcpy(tvb, strptr, offset, size);
+	ptr = ensure_contiguous(tvb, offset, size);
+	/* XXX, conversion between signed/unsigned integer */
 	if (lengthp)
 		*lengthp = size;
-	return strptr;
+	return get_utf_8_string(scope, ptr, size);
 }
 
 static guint8 *

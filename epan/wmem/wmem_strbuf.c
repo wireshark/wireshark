@@ -93,6 +93,8 @@ wmem_strbuf_new(wmem_allocator_t *allocator, const gchar *str)
     return strbuf;
 }
 
+/* grows the allocated size of the wmem_strbuf_t. If max_len is set, then
+ * not guaranteed to grow by the full amount to_add */
 static inline void
 wmem_strbuf_grow(wmem_strbuf_t *strbuf, const gsize to_add)
 {
@@ -141,13 +143,28 @@ wmem_strbuf_append(wmem_strbuf_t *strbuf, const gchar *str)
 
     wmem_strbuf_grow(strbuf, append_len);
 
-    /*
-     * XXX - hasn't wmem_strbuf_grow() ensure there's enough room for
-     * all of str?
-     */
-    g_strlcpy(&strbuf->str[strbuf->len], str, WMEM_STRBUF_RAW_ROOM(strbuf));
+    g_strlcpy(&strbuf->str[strbuf->len], str, strbuf->max_len ? WMEM_STRBUF_RAW_ROOM(strbuf) : append_len+1);
 
     strbuf->len = MIN(strbuf->len + append_len, strbuf->alloc_len - 1);
+}
+
+void
+wmem_strbuf_append_len(wmem_strbuf_t *strbuf, const gchar *str, gsize append_len)
+{
+
+    if (!append_len || !str || str[0] == '\0') {
+        return;
+    }
+
+    wmem_strbuf_grow(strbuf, append_len);
+
+    if (strbuf->max_len) {
+        append_len = MIN(append_len, WMEM_STRBUF_ROOM(strbuf));
+    }
+
+    memcpy(&strbuf->str[strbuf->len], str, append_len);
+    strbuf->len += append_len;
+    strbuf->str[strbuf->len] = '\0';
 }
 
 #ifndef _WIN32
@@ -220,8 +237,7 @@ wmem_strbuf_append_c(wmem_strbuf_t *strbuf, const gchar c)
 {
     wmem_strbuf_grow(strbuf, 1);
 
-    /* XXX - hasn't wmem_strbuf_grow() ensure this to be true? */
-    if (WMEM_STRBUF_ROOM(strbuf) >= 1) {
+    if (!strbuf->max_len || WMEM_STRBUF_ROOM(strbuf) >= 1) {
         strbuf->str[strbuf->len] = c;
         strbuf->len++;
         strbuf->str[strbuf->len] = '\0';
@@ -238,8 +254,7 @@ wmem_strbuf_append_unichar(wmem_strbuf_t *strbuf, const gunichar c)
 
     wmem_strbuf_grow(strbuf, charlen);
 
-    /* XXX - hasn't wmem_strbuf_grow() ensure this to be true? */
-    if (WMEM_STRBUF_ROOM(strbuf) >= charlen) {
+    if (!strbuf->max_len || WMEM_STRBUF_ROOM(strbuf) >= charlen) {
         memcpy(&strbuf->str[strbuf->len], buf, charlen);
         strbuf->len += charlen;
         strbuf->str[strbuf->len] = '\0';

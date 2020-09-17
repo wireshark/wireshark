@@ -52,6 +52,13 @@ WS_DLL_PUBLIC
 void
 wmem_strbuf_append(wmem_strbuf_t *strbuf, const gchar *str);
 
+/* Appends up to append_len bytes (as allowed by strbuf->max_len) from
+ * str. Ensures that strbuf is null terminated afterwards but will copy
+ * embedded nulls. */
+WS_DLL_PUBLIC
+void
+wmem_strbuf_append_len(wmem_strbuf_t *strbuf, const gchar *str, gsize append_len);
+
 WS_DLL_PUBLIC
 void
 wmem_strbuf_append_printf(wmem_strbuf_t *strbuf, const gchar *format, ...)

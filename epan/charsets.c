@@ -85,6 +85,127 @@ get_ascii_string(wmem_allocator_t *scope, const guint8 *ptr, gint length)
 }
 
 /*
+ * Given a wmem scope, a pointer, and a length, treat the string of bytes
+ * referred to by the pointer and length as a UTF-8 string, and return a
+ * pointer to a UTF-8 string, allocated using the wmem scope, with all
+ * ill-formed sequences replaced with the Unicode REPLACEMENT CHARACTER
+ * according to the recommended "best practices" given in the Unicode
+ * Standard and specified by W3C/WHATWG.
+ */
+guint8 *
+get_utf_8_string(wmem_allocator_t *scope, const guint8 *ptr, gint length)
+{
+    wmem_strbuf_t *str;
+    guint8 ch;
+    const guint8 *prev;
+    gsize unichar_len;
+
+    str = wmem_strbuf_sized_new(scope, length+1, 0);
+
+    /* See the Unicode Standard conformance chapter at
+     * https://www.unicode.org/versions/Unicode13.0.0/ch03.pdf especially
+     * Table 3-7 "Well-Formed UTF-8 Byte Sequences" and
+     * U+FFFD Substitution of Maximal Subparts. */
+    while (length > 0) {
+        ch = *ptr;
+        unichar_len = 1;
+
+        if (ch < 0x80) {
+            wmem_strbuf_append_c(str, ch);
+        } else if (ch < 0xc2 || ch > 0xf4) {
+            wmem_strbuf_append_unichar(str, UNREPL);
+        } else {
+            prev = ptr;
+            if (ch < 0xe0) { /* 110xxxxx, 2 byte char */
+                unichar_len = 2;
+            } else if (ch < 0xf0) { /* 1110xxxx, 3 byte char */
+                unichar_len = 3;
+                ptr++;
+                length--;
+                if (length < 1) {
+                    wmem_strbuf_append_unichar(str, UNREPL);
+                    continue;
+                }
+                switch (ch) {
+                    case 0xe0:
+                        if (*ptr < 0xa0 || *ptr > 0xbf) {
+                            wmem_strbuf_append_unichar(str, UNREPL);
+                            continue;
+                        }
+                        break;
+                    case 0xed:
+                        if (*ptr < 0x80 || *ptr > 0x9f) {
+                            wmem_strbuf_append_unichar(str, UNREPL);
+                            continue;
+                        }
+                        break;
+                    default:
+                        if (*ptr < 0x80 || *ptr > 0xbf) {
+                            wmem_strbuf_append_unichar(str, UNREPL);
+                            continue;
+                        }
+                }
+            } else { /* 11110xxx, 4 byte char - > 0xf4 excluded above */
+                unichar_len = 4;
+                ptr++;
+                length--;
+                if (length < 1) {
+                    wmem_strbuf_append_unichar(str, UNREPL);
+                    continue;
+                }
+                switch (ch) {
+                    case 0xf0:
+                        if (*ptr < 0x90 || *ptr > 0xbf) {
+                            wmem_strbuf_append_unichar(str, UNREPL);
+                            continue;
+                        }
+                        break;
+                    case 0xf4:
+                        if (*ptr < 0x80 || *ptr > 0x8f) {
+                            wmem_strbuf_append_unichar(str, UNREPL);
+                            continue;
+                        }
+                        break;
+                    default:
+                        if (*ptr < 0x80 || *ptr > 0xbf) {
+                            wmem_strbuf_append_unichar(str, UNREPL);
+                            continue;
+                        }
+                }
+                ptr++;
+                length--;
+                if (length < 1) {
+                    wmem_strbuf_append_unichar(str, UNREPL);
+                    continue;
+                }
+                if (*ptr < 0x80 || *ptr > 0xbf) {
+                    wmem_strbuf_append_unichar(str, UNREPL);
+                    continue;
+                }
+            }
+
+            ptr++;
+            length--;
+            if (length < 1) {
+                wmem_strbuf_append_unichar(str, UNREPL);
+                continue;
+            }
+            if (*ptr < 0x80 || *ptr > 0xbf) {
+                wmem_strbuf_append_unichar(str, UNREPL);
+                continue;
+            } else {
+                wmem_strbuf_append_len(str, prev, unichar_len);
+            }
+        }
+
+        ptr++;
+        length--;
+    }
+
+    return (guint8 *) wmem_strbuf_finalize(str);
+}
+
+/*
  * ISO 646 "Basic code table".
  */
 const gunichar2 charset_table_iso_646_basic[0x80] = {
