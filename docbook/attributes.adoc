@@ -17,9 +17,9 @@
 // Wireshark top level URLs (sites)
 :wireshark-main-url: https://www.wireshark.org/
 :wireshark-bugs-url: https://gitlab.com/wireshark/wireshark/issues
-:wireshark-code-review-url: https://code.wireshark.org/review
+:wireshark-code-review-url: https://gitlab.com/wireshark/wireshark/-/merge_requests
 :wireshark-qa-url: https://ask.wireshark.org/
-:wireshark-wiki-url: https://wiki.wireshark.org/
+:wireshark-wiki-url: https://gitlab.com/wireshark/wireshark/-/wikis
 :wireshark-gitlab-project-url: https://gitlab.com/wireshark/wireshark
 
 // Wireshark secondary URLs (pages)
@@ -88,4 +88,4 @@
 :multiplication: ×
 :cmd: ⌘
 
-:missing: Not yet written. If you would like to fix this, see https://wiki.wireshark.org/Development/SubmittingPatches.
+:missing: Not yet written. If you would like to fix this, see https://gitlab.com/wireshark/wireshark/-/wikis/Development/SubmittingPatches.

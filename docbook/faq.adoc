@@ -190,7 +190,7 @@ Wireshark to do so), ATM connections (if the OS on which it's running
 allows Wireshark to do so), and the "any" device supported on Linux by
 recent versions of libpcap.
 
-See https://wiki.wireshark.org/CaptureSetup/NetworkMedia[the list of
+See https://gitlab.com/wireshark/wireshark/-/wikis/CaptureSetup/NetworkMedia[the list of
 supported capture media on various OSes] for details (several items in
 there say "Unknown", which doesn't mean "Wireshark can't capture on
 them", it means "we don't know whether it can capture on them"; we
@@ -240,7 +240,7 @@ For example, Wireshark 3.2.0 was released in December 2019, shortly before Windo
 See the
 link:https://www.wireshark.org/docs/wsug_html_chunked/ChIntroPlatforms.html[Microsoft Windows section of the User’s Guide]
 and the
-link:https://wiki.wireshark.org/Development/LifeCycle[End Of Life Planning section of the Release Life Cycle wiki page]
+link:https://gitlab.com/wireshark/wireshark/-/wikis/Development/LifeCycle[End Of Life Planning section of the Release Life Cycle wiki page]
 for more details.
 
 Npcap might not work well on Windows 8 and earlier, so you might want to install WinPcap instead.
@@ -317,8 +317,8 @@ Some switches have the ability to replicate all traffic on all ports to
 a single port so that you can plug your analyzer into that single port
 to sniff all traffic. You would have to check the documentation for the
 switch to see if this is possible and, if so, to see how to do this. See
-https://wiki.wireshark.org/SwitchReference[the switch reference page] on
-https://wiki.wireshark.org/[the Wireshark Wiki] for information on some
+https://gitlab.com/wireshark/wireshark/-/wikis/SwitchReference[the switch reference page] on
+https://gitlab.com/wireshark/wireshark/-/wikis[the Wireshark Wiki] for information on some
 switches. (Note that it's a Wiki, so you can update or fix that
 information, or add additional information on those switches or
 information on new switches, yourself.)
@@ -366,12 +366,6 @@ promiscuous mode. If it does, you should ask whoever supplied the driver
 for the interface (the vendor, or the supplier of the OS you're running
 on your machine) whether it supports promiscuous mode with that network
 interface.
-
-In the case of token ring interfaces, the drivers for some of them, on
-Windows, may require you to enable promiscuous mode in order to capture
-in promiscuous mode. See
-https://wiki.wireshark.org/CaptureSetup/TokenRing[the Wireshark Wiki
-item on Token Ring capturing] for details.
 
 In the case of wireless LAN interfaces, it appears that, when those
 interfaces are promiscuously sniffing, they're running in a
@@ -429,28 +423,6 @@ response to link:#promiscsniff[this earlier question].
 Otherwise, on Windows, see the response to link:#capprobwin[this
 question] and, on a UNIX-flavored OS, see the response to
 link:#capprobunix[this question].
-
-=== Can Wireshark capture on (my T1/E1 line, SS7 links, etc.)?
-
-Wireshark can only capture on devices supported by libpcap/Npcap. On
-most OSes, only devices that can act as network interfaces of the type
-that support IP are supported as capture devices for libpcap/Npcap,
-although the device doesn't necessarily have to be running as an IP
-interface in order to support traffic capture.
-
-On Linux and FreeBSD, libpcap 0.8 and later support the API for
-Endace Measurement Systems' DAG
-cards, so that a system with one of those cards, and its driver and
-libraries, installed can capture traffic with those cards with
-libpcap-based applications. You would either have to have a version of
-Wireshark built with that version of libpcap, or a dynamically-linked
-version of Wireshark and a shared libpcap library with DAG support, in
-order to do so with Wireshark. You should ask Endace whether that could
-be used to capture traffic on, for example, your T1/E1 link.
-
-See https://wiki.wireshark.org/CaptureSetup/SS7[the SS7 capture setup
-page] on https://wiki.wireshark.org/[the Wireshark Wiki] for current
-information on capturing SS7 traffic on TDM links.
 
 === How do I put an interface into promiscuous mode?
 
@@ -572,7 +544,7 @@ various higher-level protocol implementations.
 In order to see the raw Ethernet packets, rather than "de-VLANized"
 packets, you would have to capture not on the virtual interface for the
 VLAN, but on the interface corresponding to the physical network device,
-if possible. See https://wiki.wireshark.org/CaptureSetup/VLAN[the
+if possible. See https://gitlab.com/wireshark/wireshark/-/wikis/CaptureSetup/VLAN[the
 Wireshark Wiki item on VLAN capturing] for details.
 
 === Why does Wireshark hang after I stop a capture?
@@ -814,7 +786,7 @@ need to give your account sufficient privileges to capture packets. Only
 those interfaces that Wireshark can open for capturing show up in that
 list; if you don't have sufficient privileges to capture on any
 interfaces, no interfaces will show up in the list. See
-https://wiki.wireshark.org/CaptureSetup/CapturePrivileges[the Wireshark
+https://gitlab.com/wireshark/wireshark/-/wikis/CaptureSetup/CapturePrivileges[the Wireshark
 Wiki item on capture privileges] for details on how to give a particular
 account or account group capture privileges on platforms where that can
 be done.
@@ -823,7 +795,7 @@ If you are running Wireshark from an account with sufficient
 privileges, then note that Wireshark relies on the libpcap library, and
 on the facilities that come with the OS on which it's running in order
 to do captures. On some OSes, those facilities aren't present by
-default; see https://wiki.wireshark.org/CaptureSetup/CaptureSupport[the
+default; see https://gitlab.com/wireshark/wireshark/-/wikis/CaptureSetup/CaptureSupport[the
 Wireshark Wiki item on adding capture support] for details.
 
 And, even if you're running with an account that has sufficient
@@ -946,7 +918,7 @@ display IP addresses as host names, it will probably block for a long
 time trying to resolve the name because it will not be able to
 communicate with any DNS or NIS servers.
 
-See https://wiki.wireshark.org/CaptureSetup/WLAN[the Wireshark Wiki
+See https://gitlab.com/wireshark/wireshark/-/wikis/CaptureSetup/WLAN[the Wireshark Wiki
 item on 802.11 capturing] for details.
 
 === How do I capture on an 802.11 device in monitor mode?
@@ -995,7 +967,7 @@ preferences file by adding a `tcp.check_checksum:false` line.
 === I've just installed Wireshark, and the traffic on my local LAN is boring. Where can I find more interesting captures?
 
 We have a collection of strange and exotic sample capture files at
-https://wiki.wireshark.org/SampleCaptures[https://wiki.wireshark.org/SampleCaptures]
+https://gitlab.com/wireshark/wireshark/-/wikis/SampleCaptures[https://gitlab.com/wireshark/wireshark/-/wikis/SampleCaptures]
 
 === Why doesn't Wireshark correctly identify RTP packets? It shows them only as UDP.
 
@@ -1067,8 +1039,8 @@ supported on your system.
 
 For some viruses/worms there might be a capture filter to recognize
 the virus traffic. Check the
-https://wiki.wireshark.org/CaptureFilters[CaptureFilters] page on the
-https://wiki.wireshark.org/[Wireshark Wiki] to see if anybody's added
+https://gitlab.com/wireshark/wireshark/-/wikis/CaptureFilters[CaptureFilters] page on the
+https://gitlab.com/wireshark/wireshark/-/wikis[Wireshark Wiki] to see if anybody's added
 such a filter.
 
 Note that Wireshark was not designed to be an intrusion detection
