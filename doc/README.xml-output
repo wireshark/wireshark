@@ -223,4 +223,4 @@ number of simultaneous chat sessions.
 pdml2html.xsl
 =============
 pdml2html.xsl is a XSLT file to convert PDML files into HTML.
-See https://wiki.wireshark.org/PDML for more details.
+See https://gitlab.com/wireshark/wireshark/-/wikis/PDML for more details.

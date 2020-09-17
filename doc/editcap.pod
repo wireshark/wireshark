@@ -347,7 +347,7 @@ additional configuration in protocol preferences.
 The file format is described by E<lt>secrets typeE<gt> which can be one of:
 
 I<tls>  TLS Key Log as described at L<https://developer.mozilla.org/NSS_Key_Log_Format>
-I<wg>   WireGuard Key Log, see L<https://wiki.wireshark.org/WireGuard#Key_Log_Format>
+I<wg>   WireGuard Key Log, see L<https://gitlab.com/wireshark/wireshark/-/wikis/WireGuard#key-log-format>
 
 This option may be specified multiple times. The available options for
 E<lt>secrets typeE<gt> can be listed with B<--inject-secrets help>.
