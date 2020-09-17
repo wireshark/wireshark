@@ -281,6 +281,7 @@ marine_write_specified_fields(packet_filter *filter, epan_dissect_t *edt, char *
 
     //char *output = (char *) g_malloc0(4096); // todo this can overflow
     int counter = 0;
+    gboolean has_value = FALSE;
     for (i = 0; i < fields->fields->len; ++i) {
         gchar *field = (gchar *) g_ptr_array_index(fields->fields, i);
         unsigned int fixed_index = GPOINTER_TO_UINT(g_hash_table_lookup(fields->field_indicies, field)) - 1;
@@ -288,8 +289,7 @@ marine_write_specified_fields(packet_filter *filter, epan_dissect_t *edt, char *
         if (filter->macro_ids != NULL && (g_hash_table_contains(used_macros, filter->macro_ids + i) || (g_ptr_array_len(fields->field_values[fixed_index]) == 0 && !filter->last_in_macro[i]))) {
             continue;
         }
-
-        if (0 != i) {
+        if (has_value) {
             output[counter++] = fields->separator;
         }
 
@@ -320,6 +320,7 @@ marine_write_specified_fields(packet_filter *filter, epan_dissect_t *edt, char *
                 g_hash_table_add(used_macros, key);
             }
         }
+        has_value = TRUE;
     }
 
     /* get ready for the next packet
