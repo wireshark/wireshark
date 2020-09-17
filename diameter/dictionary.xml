@@ -3729,7 +3729,7 @@
 			<type type-name="UTF8String"/>
 		</avp>
 		<avp name="Charging-Rule-Name" code="1005" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
-			<type type-name="OctetString"/>
+			<type type-name="OctetStringOrUTF8"/>
 		</avp>
 		<avp name="Event-Trigger" code="1006" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Enumerated"/>
@@ -4138,7 +4138,7 @@
 			<type type-name="OctetString"/>
 		</avp>
 		<avp name="Monitoring-Key" code="1066" mandatory="mustnot" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
-			<type type-name="OctetString"/>
+			<type type-name="OctetStringOrUTF8"/>
 		</avp>
 		<avp name="Usage-Monitoring-Information" code="1067" mandatory="mustnot" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
 			<grouped>
