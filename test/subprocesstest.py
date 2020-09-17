@@ -78,13 +78,10 @@ class LoggingPopen(subprocess.Popen):
         self.log_fd.write(err_log)
         self.log_fd.write('-- End stderr for {} --\n'.format(self.cmd_str))
         self.log_fd.flush()
+        # Make sure our output is the same everywhere.
         # Throwing a UnicodeDecodeError exception here is arguably a good thing.
-        self.stdout_str = out_data.decode('UTF-8', 'strict')
-        self.stderr_str = err_data.decode('UTF-8', 'strict')
-
-        if sys.platform.startswith('win32'):
-            self.stdout_str = self.stdout_str.replace('\r\n', '\n')
-            self.stderr_str = self.stderr_str.replace('\r\n', '\n')
+        self.stdout_str = out_data.decode('UTF-8', 'strict').replace('\r\n', '\n')
+        self.stderr_str = err_data.decode('UTF-8', 'strict').replace('\r\n', '\n')
 
     def stop_process(self, kill=False):
         '''Stop the process immediately.'''

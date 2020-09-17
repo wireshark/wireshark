@@ -239,9 +239,9 @@ executed. This limitation might be addressed in the future.
 Tests must be in a Python module whose name matches “suite_*.py”. The
 module must contain one or more subclasses of “SubprocessTestCase” or
 “unittest.TestCase”. “SubprocessTestCase” is recommended since it
-contains several convenience methods for running processes, checking
-output, and displaying error information. Each test case method
-whose name starts with “test_” constitutes an individual test.
+contains several convenience methods for running processes, normalizing
+and checking output, and displaying error information. Each test case
+method whose name starts with “test_” constitutes an individual test.
 
 Success or failure conditions can be signalled using the
 “unittest.assertXXX()” or “subprocesstest.assertXXX()” methods.
@@ -275,8 +275,8 @@ class case_basic_clopts(subprocesstest.SubprocessTestCase):
         self.assertRun((cmd_tshark, '-r', capture_file('dhcp.pcap')))
 ----
 
-Program output can be checked using `SubprocessTestCase.grepOutput`,
-`SubprocessTestCase.countOutput` or other `unittest.assert*` methods:
+Program output is decoded as UTF-8 and CRLF sequences ({backslash}r{backslash}n) are converted to LFs ({backslash}n).
+Output can be checked using `SubprocessTestCase.grepOutput`, `SubprocessTestCase.countOutput` or other `unittest.assert*` methods:
 
 [source,python]
 ----
