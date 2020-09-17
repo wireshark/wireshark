@@ -52,14 +52,17 @@ static int hf_lwm2mtlv_value_double              = -1;
 static int hf_lwm2mtlv_value_boolean             = -1;
 static int hf_lwm2mtlv_value_timestamp           = -1;
 
-static gint ett_lwm2mtlv                  = -1;
-static gint ett_lwm2mtlv_header           = -1;
-static gint ett_lwm2mtlv_resource         = -1;
-static gint ett_lwm2mtlv_resourceInstance = -1;
-static gint ett_lwm2mtlv_resourceArray    = -1;
-static gint ett_lwm2mtlv_objectInstance   = -1;
+static int hf_lwm2mtlv_object_instance           = -1;
+static int hf_lwm2mtlv_resource_instance         = -1;
+static int hf_lwm2mtlv_resource_array            = -1;
+static int hf_lwm2mtlv_resource                  = -1;
 
-
+static gint ett_lwm2mtlv                         = -1;
+static gint ett_lwm2mtlv_header                  = -1;
+static gint ett_lwm2mtlv_resource                = -1;
+static gint ett_lwm2mtlv_resource_instance       = -1;
+static gint ett_lwm2mtlv_resource_array          = -1;
+static gint ett_lwm2mtlv_object_instance         = -1;
 
 typedef enum {
 	OBJECT_INSTANCE   = 0,
@@ -661,6 +664,7 @@ addTlvHeaderTree(tvbuff_t *tvb, proto_tree *tlv_tree, lwm2mElement_t *element)
 static proto_tree*
 addElementTree(tvbuff_t *tvb, proto_tree *tlv_tree, lwm2mElement_t *element, const lwm2m_resource_t *resource)
 {
+	proto_item *item = NULL;
 	gchar *identifier = NULL;
 	gint ett_id;
 
@@ -673,22 +677,26 @@ addElementTree(tvbuff_t *tvb, proto_tree *tlv_tree, lwm2mElement_t *element, con
 	switch ( element->type )
 	{
 	case OBJECT_INSTANCE:
-		return proto_tree_add_subtree_format(tlv_tree, tvb, 0, element->totalLength, ett_lwm2mtlv_objectInstance, NULL,
-		                                     "Object Instance %02u", element->identifier);
+		item = proto_tree_add_item(tlv_tree, hf_lwm2mtlv_object_instance, tvb, 0, element->totalLength, ENC_NA);
+		proto_item_append_text(item, " %02u", element->identifier);
+		return proto_item_add_subtree(item, ett_lwm2mtlv_object_instance);
 
 	case RESOURCE_INSTANCE:
-		return proto_tree_add_subtree_format(tlv_tree, tvb, 0, element->totalLength, ett_lwm2mtlv_resourceInstance, NULL,
-		                                     "%02u", element->identifier);
+		item = proto_tree_add_item(tlv_tree, hf_lwm2mtlv_resource_instance, tvb, 0, element->totalLength, ENC_NA);
+		proto_item_set_text(item, "%02u", element->identifier);
+		return proto_item_add_subtree(item, ett_lwm2mtlv_resource_instance);
 
 	case RESOURCE_ARRAY:
-		ett_id = resource ? resource->ett_id : ett_lwm2mtlv_resourceArray;
-		return proto_tree_add_subtree_format(tlv_tree, tvb, 0, element->totalLength, ett_id, NULL,
-		                                     "%s", identifier);
+		ett_id = resource ? resource->ett_id : ett_lwm2mtlv_resource_array;
+		item = proto_tree_add_item(tlv_tree, hf_lwm2mtlv_resource_array, tvb, 0, element->totalLength, ENC_NA);
+		proto_item_set_text(item, "%s", identifier);
+		return proto_item_add_subtree(item, ett_id);
 
 	case RESOURCE:
 		ett_id = resource ? resource->ett_id : ett_lwm2mtlv_resource;
-		return proto_tree_add_subtree_format(tlv_tree, tvb, 0, element->totalLength, ett_id, NULL,
-		                                     "%s", identifier);
+		item = proto_tree_add_item(tlv_tree, hf_lwm2mtlv_resource, tvb, 0, element->totalLength, ENC_NA);
+		proto_item_set_text(item, "%s", identifier);
+		return proto_item_add_subtree(item, ett_id);
 	}
 	return NULL;
 }
@@ -1069,15 +1077,35 @@ void proto_register_lwm2mtlv(void)
 				FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0,
 				NULL, HFILL }
 		},
+		{ &hf_lwm2mtlv_object_instance,
+			{ "Object Instance", "lwm2mtlv.object_instance",
+				FT_NONE, BASE_NONE, NULL, 0,
+				NULL, HFILL }
+		},
+		{ &hf_lwm2mtlv_resource_instance,
+			{ "Resource Instance", "lwm2mtlv.resource_instance",
+				FT_NONE, BASE_NONE, NULL, 0,
+				NULL, HFILL }
+		},
+		{ &hf_lwm2mtlv_resource_array,
+			{ "Resource Array", "lwm2mtlv.resource_array",
+				FT_NONE, BASE_NONE, NULL, 0,
+				NULL, HFILL }
+		},
+		{ &hf_lwm2mtlv_resource,
+			{ "Resource", "lwm2mtlv.resource",
+				FT_NONE, BASE_NONE, NULL, 0,
+				NULL, HFILL }
+		},
 	};
 
 	static gint* ett[] = {
 		&ett_lwm2mtlv,
 		&ett_lwm2mtlv_header,
 		&ett_lwm2mtlv_resource,
-		&ett_lwm2mtlv_resourceInstance,
-		&ett_lwm2mtlv_resourceArray,
-		&ett_lwm2mtlv_objectInstance
+		&ett_lwm2mtlv_resource_instance,
+		&ett_lwm2mtlv_resource_array,
+		&ett_lwm2mtlv_object_instance
 	};
 
 	static uat_field_t lwm2m_object_name_flds[] = {
