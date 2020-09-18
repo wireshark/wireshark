@@ -136,6 +136,7 @@ static const value_string ipaccess_msgtype_vals[] = {
 	{ 0x08,		"PROXY REQUEST" },
 	{ 0x09,		"PROXY ACK" },
 	{ 0x0a,		"PROXY NACK" },
+	{ 0x0b,		"SSL INFO" },
 	{ 0,		NULL }
 };
 
@@ -149,6 +150,10 @@ static const value_string ipaccess_idtag_vals[] = {
 	{ 0x06,		"IP Address" },
 	{ 0x07,		"MAC Address" },
 	{ 0x08,		"Unit ID" },
+	{ 0x09,		"User Name" },
+	{ 0x0a,		"Password" },
+	{ 0x0b,		"Access Class" },
+	{ 0x0c,		"Application Protocol Version" },
 	{ 0,		NULL }
 };
 
