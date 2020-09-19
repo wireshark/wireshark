@@ -46,9 +46,7 @@
 static const QString fld_abbrev_chars_ = "-.0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ_abcdefghijklmnopqrstuvwxyz";
 
 FieldFilterEdit::FieldFilterEdit(QWidget *parent) :
-    SyntaxLineEdit(parent),
-    save_action_(NULL),
-    remove_action_(NULL)
+    SyntaxLineEdit(parent)
 {
     setAccessibleName(tr("Display filter entry"));
 

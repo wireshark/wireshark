@@ -40,8 +40,6 @@ private slots:
 
 private:
     QString placeholder_text_;
-    QAction *save_action_;
-    QAction *remove_action_;
 
     void setDefaultPlaceholderText();
     void buildCompletionList(const QString& field_word);
