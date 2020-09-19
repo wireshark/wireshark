@@ -356,6 +356,18 @@ static int hf_gtp_ext_hdr_nr_ran_cont_high_tx_nr_pdcp_sn = -1;
 static int hf_gtp_ext_hdr_nr_ran_cont_cause_val = -1;
 static int hf_gtp_ext_hdr_nr_ran_cont_high_success_delivered_retx_nr_pdcp_sn = -1;
 static int hf_gtp_ext_hdr_nr_ran_cont_high_retx_nr_pdcp_sn = -1;
+static int hf_gtp_ext_hdr_nr_ran_cont_pdcp_duplication_ind = -1;
+static int hf_gtp_ext_hdr_nr_ran_cont_assistance_information_ind = -1;
+static int hf_gtp_ext_hdr_nr_ran_cont_ul_delay_ind = -1;
+static int hf_gtp_ext_hdr_nr_ran_cont_dl_delay_ind = -1;
+static int hf_gtp_ext_hdr_nr_ran_cont_spare_2 = -1;
+static int hf_gtp_ext_hdr_nr_ran_cont_pdcp_duplication_activation_suggestion = -1;
+static int hf_gtp_ext_hdr_nr_ran_cont_num_assistance_info_fields = -1;
+static int hf_gtp_ext_hdr_nr_ran_cont_assistance_information_type = -1;
+static int hf_gtp_ext_hdr_nr_ran_cont_num_octets_radio_qa_info = -1;
+static int hf_gtp_ext_hdr_nr_ran_cont_radio_qa_info = -1;
+static int hf_gtp_ext_hdr_nr_ran_cont_ul_delay_du_result = -1;
+static int hf_gtp_ext_hdr_nr_ran_cont_dl_delay_du_result = -1;
 static int hf_pdcp_cont = -1;
 
 static int hf_gtp_ext_hdr_pdu_ses_cont_pdu_type = -1;
@@ -482,6 +494,20 @@ static expert_field ei_gtp_ext_geo_loc_type = EI_INIT;
 static expert_field ei_gtp_iei = EI_INIT;
 static expert_field ei_gtp_unknown_extension_header = EI_INIT;
 static expert_field ei_gtp_unknown_pdu_type = EI_INIT;
+
+static const range_string assistance_info_type[] = {
+    { 0,   0,   "UNKNOWN" },
+    { 1,   1,   "Average CQL" },
+    { 2,   2,   "Average HARQ Failure" },
+    { 3,   3,   "Average HARQ Retransmissions" },
+    { 4,   4,   "DL Radio Quality Index" },
+    { 5,   5,   "UL Radio Quality Index" },
+    { 6,   6,   "Power Headroom Report" },
+    { 7,   228, "reserved for future value extensions" },
+    { 229, 255, "reserved for test purposes" },
+    { 0,   0,   NULL}
+};
+
 
 /* --- PDCP DECODE ADDITIONS --- */
 static gboolean
@@ -982,20 +1008,6 @@ static const range_string nr_up_cause_vals[] = {
     {0,   0,     NULL}
 };
 
-const true_false_string tfs_dl_delivery_startus_requested = {
-    "Downlink Data Delivery Status report requested",
-    "Downlink Data Delivery Status report not requested"
-};
-
-const true_false_string tfs_dl_flush = {
-    "DL discard NR PDCP PDU SN present",
-    "DL discard NR PDCP PDU SN not present"
-};
-
-const true_false_string tfs_dl_discard_blocks = {
-    "DL discard Number of blocks, DL discard NR PDCP PDU SN start and Discarded Block size present",
-    "DL discard Number of blocks, DL discard NR PDCP PDU SN start and Discarded Block size not present"
-};
 
 const true_false_string tfs_final_frame_indication = {
     "Frame is final",
@@ -9092,7 +9104,7 @@ addRANContParameter(tvbuff_t *tvb, proto_tree *ran_cont_tree, gint offset)
     gboolean dl_flush;
     guint32 dl_disc_num_blks;
 
-    proto_tree_add_item_ret_uint(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_pdu_type,tvb, offset,1,ENC_BIG_ENDIAN, &pdu_type);
+    proto_tree_add_item_ret_uint(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_pdu_type,tvb, offset, 1, ENC_BIG_ENDIAN, &pdu_type);
 
     switch (pdu_type) {
         case NR_UP_DL_USER_DATA:
@@ -9144,73 +9156,126 @@ addRANContParameter(tvbuff_t *tvb, proto_tree *ran_cont_tree, gint offset)
             gboolean data_rate_ind;
             guint32 lost_NR_U_SN_range;
 
-            proto_tree_add_item_ret_boolean(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_high_tx_nr_pdcp_sn_ind ,tvb, offset,1,ENC_BIG_ENDIAN, &high_tx_nr_pdcp_sn_ind );
-            proto_tree_add_item_ret_boolean(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_high_delivered_nr_pdcp_sn_ind ,tvb, offset,1,ENC_BIG_ENDIAN, &high_del_nr_pdcp_sn_ind );
-            proto_tree_add_item(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_final_frame_ind,tvb, offset,3, ENC_BIG_ENDIAN);
-            proto_tree_add_item_ret_boolean(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_lost_pkt_rpt,tvb, offset,1,ENC_BIG_ENDIAN, &lost_packet_report);
+            proto_tree_add_item_ret_boolean(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_high_tx_nr_pdcp_sn_ind ,tvb, offset,1, ENC_BIG_ENDIAN, &high_tx_nr_pdcp_sn_ind );
+            proto_tree_add_item_ret_boolean(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_high_delivered_nr_pdcp_sn_ind ,tvb, offset,1, ENC_BIG_ENDIAN, &high_del_nr_pdcp_sn_ind );
+            proto_tree_add_item(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_final_frame_ind,tvb, offset, 3, ENC_BIG_ENDIAN);
+            proto_tree_add_item_ret_boolean(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_lost_pkt_rpt,tvb, offset, 1, ENC_BIG_ENDIAN, &lost_packet_report);
             offset++;
 
             proto_tree_add_item(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_spare, tvb, offset, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_delivered_nr_pdcp_sn_range_ind ,tvb, offset,1, ENC_BIG_ENDIAN);
             proto_tree_add_item_ret_boolean(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_data_rate_ind,tvb, offset,1, ENC_BIG_ENDIAN, &data_rate_ind);
             proto_tree_add_item_ret_boolean(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_high_retx_nr_pdcp_sn_ind,tvb, offset,1, ENC_BIG_ENDIAN, &high_retx_nr_pdcp_sn_ind);
-            proto_tree_add_item_ret_boolean(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_high_delivered_retx_nr_pdcp_sn_ind,tvb, offset,1,ENC_BIG_ENDIAN, &high_del_retx_nr_pdcp_sn_ind);
-            proto_tree_add_item_ret_boolean(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_cause_rpt,tvb, offset,1,ENC_BIG_ENDIAN, &cause_rpt);
+            proto_tree_add_item_ret_boolean(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_high_delivered_retx_nr_pdcp_sn_ind,tvb, offset,1, ENC_BIG_ENDIAN, &high_del_retx_nr_pdcp_sn_ind);
+            proto_tree_add_item_ret_boolean(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_cause_rpt,tvb, offset,1, ENC_BIG_ENDIAN, &cause_rpt);
             offset++;
 
-            proto_tree_add_item(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_desrd_buff_sz_data_radio_bearer,tvb, offset,4, ENC_BIG_ENDIAN);
+            proto_tree_add_item(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_desrd_buff_sz_data_radio_bearer,tvb, offset, 4, ENC_BIG_ENDIAN);
             offset += 4;
 
             if (data_rate_ind){
-                proto_tree_add_item(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_desrd_data_rate,tvb, offset,4, ENC_BIG_ENDIAN);
+                proto_tree_add_item(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_desrd_data_rate,tvb, offset, 4, ENC_BIG_ENDIAN);
                 offset += 4;
             }
 
             if (lost_packet_report) {
-                proto_tree_add_item_ret_uint(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_num_lost_nru_seq_num,tvb, offset,1,ENC_BIG_ENDIAN, &lost_NR_U_SN_range);
+                proto_tree_add_item_ret_uint(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_num_lost_nru_seq_num,tvb, offset, 1, ENC_BIG_ENDIAN, &lost_NR_U_SN_range);
                 offset+=1;
 
                 while (lost_NR_U_SN_range) {
-                    proto_tree_add_item(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_start_lost_nru_seq_num,tvb, offset,3, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_start_lost_nru_seq_num,tvb, offset, 3, ENC_BIG_ENDIAN);
                     offset += 3;
 
-                     proto_tree_add_item(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_end_lost_nru_seq_num,tvb, offset,3, ENC_BIG_ENDIAN);
+                     proto_tree_add_item(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_end_lost_nru_seq_num,tvb, offset, 3, ENC_BIG_ENDIAN);
                      offset += 3;
                      lost_NR_U_SN_range--;
                 }
             }
 
             if (high_del_nr_pdcp_sn_ind) {
-                proto_tree_add_item(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_high_success_delivered_nr_pdcp_sn,tvb, offset,3, ENC_BIG_ENDIAN);
+                proto_tree_add_item(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_high_success_delivered_nr_pdcp_sn,tvb, offset, 3, ENC_BIG_ENDIAN);
                 offset += 3;
             }
 
             if (high_tx_nr_pdcp_sn_ind) {
-                proto_tree_add_item(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_high_tx_nr_pdcp_sn,tvb, offset,3, ENC_BIG_ENDIAN);
+                proto_tree_add_item(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_high_tx_nr_pdcp_sn,tvb, offset, 3, ENC_BIG_ENDIAN);
                 offset += 3;
             }
 
             if (cause_rpt) {
-                proto_tree_add_item(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_cause_val,tvb, offset,1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_cause_val,tvb, offset, 1, ENC_BIG_ENDIAN);
                 offset ++;
             }
 
             if (high_del_retx_nr_pdcp_sn_ind) {
-                proto_tree_add_item(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_high_success_delivered_retx_nr_pdcp_sn,tvb, offset,3, ENC_BIG_ENDIAN);
+                proto_tree_add_item(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_high_success_delivered_retx_nr_pdcp_sn,tvb, offset, 3, ENC_BIG_ENDIAN);
                 offset += 3;
             }
 
             if (high_retx_nr_pdcp_sn_ind) {
-                proto_tree_add_item(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_high_retx_nr_pdcp_sn,tvb, offset,3, ENC_BIG_ENDIAN);
+                proto_tree_add_item(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_high_retx_nr_pdcp_sn,tvb, offset, 3, ENC_BIG_ENDIAN);
             }
 
             break;
         }
 
         case NR_UP_ASSISTANCE_INFORMATION_DATA:
-            /* TODO: */
-            break;
+        {
+            gboolean pdcp_duplication_indication;
+            gboolean assistance_information_ind;
+            gboolean ul_delay_ind;
+            gboolean dl_delay_ind;
+            gboolean pdcp_duplication_suggestion;
 
+            /* Flags */
+            proto_tree_add_item_ret_boolean(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_pdcp_duplication_ind, tvb, offset,1, ENC_BIG_ENDIAN, &pdcp_duplication_indication);
+            proto_tree_add_item_ret_boolean(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_assistance_information_ind, tvb, offset,1, ENC_BIG_ENDIAN, &assistance_information_ind);
+            proto_tree_add_item_ret_boolean(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_ul_delay_ind, tvb, offset,1, ENC_BIG_ENDIAN, &ul_delay_ind);
+            proto_tree_add_item_ret_boolean(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_dl_delay_ind, tvb, offset,1, ENC_BIG_ENDIAN, &dl_delay_ind);
+            offset++;
+            proto_tree_add_item(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_spare_2, tvb, offset,1, ENC_BIG_ENDIAN);
+            proto_tree_add_item_ret_boolean(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_pdcp_duplication_activation_suggestion,
+                                            tvb, offset,1, ENC_BIG_ENDIAN, &pdcp_duplication_suggestion);
+            offset++;
+
+            /* Number of Assistance Information Fields */
+            if (assistance_information_ind) {
+                guint32  number_of_assistance_information_fields = 0;
+                guint32 num_octets_radio_qa_info;
+
+                /* Number of assistance info fields */
+                proto_tree_add_item_ret_uint(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_num_assistance_info_fields,
+                                             tvb, offset,1, ENC_BIG_ENDIAN, &number_of_assistance_information_fields);
+                offset++;
+
+                for (guint n=0; n < number_of_assistance_information_fields; n++) {
+                    /* Assistance Information Type */
+                    proto_tree_add_item(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_assistance_information_type,
+                                        tvb, offset,1, ENC_BIG_ENDIAN);
+                    offset++;
+                    /* Num octets in assistance info */
+                    proto_tree_add_item_ret_uint(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_num_octets_radio_qa_info,
+                                                 tvb, offset, 1, ENC_BIG_ENDIAN, &num_octets_radio_qa_info);
+                    offset++;
+                    /* Radio Quality Assistance info */
+                    proto_tree_add_item(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_radio_qa_info, tvb, offset,
+                                        num_octets_radio_qa_info, ENC_NA);
+                    offset += num_octets_radio_qa_info;
+                }
+            }
+
+            /* UL Delay DU Result */
+            if (ul_delay_ind) {
+                proto_tree_add_item(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_ul_delay_du_result, tvb, offset, 4, ENC_BIG_ENDIAN);
+                offset += 4;
+            }
+            /* DL Delay DU Result */
+            if (dl_delay_ind) {
+                proto_tree_add_item(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_dl_delay_du_result, tvb, offset, 4, ENC_BIG_ENDIAN);
+                offset += 4;
+            }
+            break;
+        }
         default:
             /* TODO: expert info error for unexpected PDU type? */
             break;
@@ -10205,17 +10270,17 @@ proto_register_gtp(void)
         },
         {&hf_gtp_ext_hdr_nr_ran_cont_dl_discrd_blks,
          { "DL Discard Blocks", "gtp.ext_hdr.nr_ran_cont.dl_disc_blks",
-           FT_BOOLEAN, 8, TFS(&tfs_dl_discard_blocks), 0x04,
+           FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x04,
            "Presence of DL discard Number of blocks, discard NR PDCP PDU SN start and Discarded Block size", HFILL}
         },
         {&hf_gtp_ext_hdr_nr_ran_cont_dl_flush,
          { "DL Flush", "gtp.ext_hdr.nr_ran_cont.dl_flush",
-           FT_BOOLEAN, 8, TFS(&tfs_dl_flush), 0x02,
+           FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x02,
            "Presence of DL discard NR PDCP PDU SN", HFILL}
         },
         {&hf_gtp_ext_hdr_nr_ran_cont_rpt_poll,
          { "Report Polling", "gtp.ext_hdr.nr_ran_cont.report_polling",
-           FT_BOOLEAN, 8, TFS(&tfs_dl_delivery_startus_requested), 0x01,
+           FT_BOOLEAN, 8, TFS(&tfs_requested_not_requested), 0x01,
            "Indicates that the node hosting the NR PDCP entity requests providing the downlink delivery status report", HFILL}
         },
         {&hf_gtp_ext_hdr_nr_ran_cont_retransmission_flag,
@@ -10367,6 +10432,68 @@ proto_register_gtp(void)
         {&hf_gtp_ext_hdr_nr_ran_cont_high_retx_nr_pdcp_sn,
          { "Highest Retransmitted NR PDCP SN Ind", "gtp.ext_hdr.nr_ran_cont.high_retx_nr_pdcp_sn",
            FT_UINT24, BASE_DEC, NULL, 0,
+           NULL, HFILL}
+        },
+
+        {&hf_gtp_ext_hdr_nr_ran_cont_pdcp_duplication_ind,
+         { "PDCP Duplication Indication", "gtp.ext_hdr.nr_ran_cont.pdcp_duplication_ind",
+           FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x08,
+           NULL, HFILL}
+        },
+        {&hf_gtp_ext_hdr_nr_ran_cont_assistance_information_ind,
+         { "Assistance Information Indication", "gtp.ext_hdr.nr_ran_cont.assistance_information_ind",
+           FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x04,
+           NULL, HFILL}
+        },
+        {&hf_gtp_ext_hdr_nr_ran_cont_ul_delay_ind,
+         { "UL Delay Indicator", "gtp.ext_hdr.nr_ran_cont.ul_delay_ind",
+           FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x02,
+           NULL, HFILL}
+        },
+        {&hf_gtp_ext_hdr_nr_ran_cont_dl_delay_ind,
+         { "DL Delay Indicator", "gtp.ext_hdr.nr_ran_cont.dl_delay_ind",
+           FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x01,
+           NULL, HFILL}
+        },
+        {&hf_gtp_ext_hdr_nr_ran_cont_spare_2,
+         { "Spare", "gtp.ext_hdr.nr_ran_cont.spare",
+           FT_UINT8, BASE_HEX, NULL, 0xfe,
+           NULL, HFILL}
+        },
+        {&hf_gtp_ext_hdr_nr_ran_cont_pdcp_duplication_activation_suggestion,
+         { "PDCP Duplication Activation Suggestion", "gtp.ext_hdr.nr_ran_cont.pdcp_duplication_activation_suggestion",
+           FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x01,
+           NULL, HFILL}
+        },
+        {&hf_gtp_ext_hdr_nr_ran_cont_num_assistance_info_fields,
+         { "Number of Assistance Information Fields", "gtp.ext_hdr.nr_ran_cont.num_assistance_info_fields",
+           FT_UINT8, BASE_DEC, NULL, 0x0,
+           NULL, HFILL}
+        },
+        // TODO: missing fields
+        {&hf_gtp_ext_hdr_nr_ran_cont_assistance_information_type,
+         { "Assistance Information Type", "gtp.ext_hdr.nr_ran_cont.assistance_info_type",
+           FT_UINT8, BASE_DEC|BASE_RANGE_STRING, RVALS(assistance_info_type), 0x0,
+           NULL, HFILL}
+        },
+        {&hf_gtp_ext_hdr_nr_ran_cont_num_octets_radio_qa_info,
+         { "Number of octets for Radio Quality Assistance Information Fields", "gtp.ext_hdr.nr_ran_cont.num_octets_radio_qa_info",
+           FT_UINT8, BASE_DEC, NULL, 0x0,
+           NULL, HFILL}
+        },
+        {&hf_gtp_ext_hdr_nr_ran_cont_radio_qa_info,
+         { "Radio Quality Assistance Information", "gtp.ext_hdr.nr_ran_cont.radio_qa_info",
+           FT_BYTES, BASE_NONE, NULL, 0x0,
+           NULL, HFILL}
+        },
+        {&hf_gtp_ext_hdr_nr_ran_cont_ul_delay_du_result,
+         { "UL Delay DU Result", "gtp.ext_hdr.nr_ran_cont.ul_delay_du_result",
+           FT_UINT32, BASE_DEC, NULL, 0x0,
+           NULL, HFILL}
+        },
+        {&hf_gtp_ext_hdr_nr_ran_cont_dl_delay_du_result,
+         { "DL Delay DU Result", "gtp.ext_hdr.nr_ran_cont.ul_delay_du_result",
+           FT_UINT32, BASE_DEC, NULL, 0x0,
            NULL, HFILL}
         },
         { &hf_gtp_ext_hdr_pdu_ses_cont_pdu_type,
