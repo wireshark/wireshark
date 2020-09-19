@@ -1382,6 +1382,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-mausb.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-mbim.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-mbtcp.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-mc-nmf.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-mcpe.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-mdp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-mdshdr.c
@@ -1436,6 +1437,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-mrp-msrp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-mrp-mvrp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ms-mms.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-ms-nns.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-msdp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-msn-messenger.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-msnip.c
