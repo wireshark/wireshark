@@ -88,7 +88,8 @@ known_non_contiguous_fields = { 'wlan.fixed.capabilities.cfpoll.sta',
                                 'wlan.fixed.capabilities.cfpoll.ap',   # These are 3 separate bits...
                                 'wlan.wfa.ie.wme.tspec.ts_info.reserved', # matches other fields in same sequence
                                 'zbee_zcl_se.pp.attr.payment_control_configuration.reserved', # matches other fields in same sequence
-                                'zbee_zcl_se.pp.snapshot_payload_cause.reserved'  # matches other fields in same sequence
+                                'zbee_zcl_se.pp.snapshot_payload_cause.reserved',  # matches other fields in same sequence
+                                'ebhscr.eth.rsv'  # matches other fields in same sequence
                               }
 ##################################################################################################
 
@@ -265,17 +266,24 @@ def isDissectorFile(filename):
     p = re.compile('.*packet-.*\.c')
     return p.match(filename)
 
-def findDissectorFilesInFolder(folder):
-    # Look at files in sorted order, to give some idea of how far through is.
-    files = []
+def findDissectorFilesInFolder(folder, dissector_files=[], recursive=False):
 
-    for f in sorted(os.listdir(folder)):
-        if should_exit:
-            return
-        if isDissectorFile(f):
+    if recursive:
+        for root, subfolders, files in os.walk(folder):
+            for f in files:
+                if should_exit:
+                    return
+                f = os.path.join(root, f)
+                dissector_files.append(f)
+    else:
+        for f in sorted(os.listdir(folder)):
+            if should_exit:
+                return
             filename = os.path.join(folder, f)
-            files.append(filename)
-    return files
+            dissector_files.append(filename)
+
+    return [x for x in filter(isDissectorFile, dissector_files)]
+
 
 
 # Check the given dissector file.
@@ -344,8 +352,9 @@ elif args.open:
         if not f in files:
             files.append(f)
 else:
-    # Find all dissector files from folder.
+    # Find all dissector files.
     files = findDissectorFilesInFolder(os.path.join('epan', 'dissectors'))
+    files = findDissectorFilesInFolder(os.path.join('plugins', 'epan'), recursive=True, dissector_files=files)
 
 
 # If scanning a subset of files, list them here.
