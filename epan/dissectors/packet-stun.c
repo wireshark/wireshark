@@ -762,6 +762,7 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
     heur_dtbl_entry_t  *hdtbl_entry;
     guint               reported_length;
     gboolean            is_turn = FALSE;
+    gboolean            found_turn_attributes = FALSE;
 
     /*
      * Check if the frame is really meant for us.
@@ -1271,9 +1272,11 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
                 }
                 break;
             }
-            case XOR_MAPPED_ADDRESS:
             case XOR_PEER_ADDRESS:
             case XOR_RELAYED_ADDRESS:
+                found_turn_attributes = TRUE;
+                /* Fallthrough */
+            case XOR_MAPPED_ADDRESS:
             case XOR_RESPONSE_TARGET:
             case XOR_REFLECTED_FROM:
             case MS_XOR_MAPPED_ADDRESS:
@@ -1378,12 +1381,14 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
                 if (att_length < 1)
                     break;
                 proto_tree_add_item(att_tree, hf_stun_att_reserve_next, tvb, offset, 1, ENC_BIG_ENDIAN);
+                found_turn_attributes = TRUE;
                 break;
 
             case RESERVATION_TOKEN:
                 if (att_length < 8)
                     break;
                 proto_tree_add_item(att_tree, hf_stun_att_token, tvb, offset, 8, ENC_NA);
+                found_turn_attributes = TRUE;
                 break;
 
             case PRIORITY:
@@ -1439,6 +1444,7 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
                     }
 
                 }
+                found_turn_attributes = TRUE;
                 break;
 
             case REQUESTED_TRANSPORT:
@@ -1460,6 +1466,7 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
                         );
                 }
                 proto_tree_add_item(att_tree, hf_stun_att_reserved, tvb, offset+1, 3, ENC_NA);
+                found_turn_attributes = TRUE;
                 break;
 
             case CHANNEL_NUMBER:
@@ -1476,6 +1483,7 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
                         );
                 }
                 proto_tree_add_item(att_tree, hf_stun_att_reserved, tvb, offset+2, 2, ENC_NA);
+                found_turn_attributes = TRUE;
                 break;
 
             case MAGIC_COOKIE:
@@ -1494,6 +1502,7 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
                     " bandwidth: %d",
                     tvb_get_ntohl(tvb, offset)
                     );
+                found_turn_attributes = TRUE;
                 break;
             case LIFETIME:
                 if (att_length < 4)
@@ -1505,6 +1514,7 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
                     " lifetime: %d",
                     tvb_get_ntohl(tvb, offset)
                     );
+                found_turn_attributes = TRUE;
                 break;
 
             case MS_VERSION:
@@ -1581,6 +1591,13 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
         }
     }
 
+    if (found_turn_attributes) {
+        /* At least one STUN/TURN implementation (Facetime) uses unknown/custom
+         * TURN methods to setup a Channel Data, so the previous check to set
+         * "is_turn" variable fails. Fortunately, standard TURN attributes are still
+         * used in the replies */
+        is_turn = TRUE;
+    }
     if (heur_check && is_turn && conversation) {
         /*
          * When in heuristic dissector mode, if this is a TURN message, set
