@@ -11512,7 +11512,7 @@ proto_register_amqp(void)
             "Fragment contains the start of the message", HFILL}},
         {&hf_amqp_0_10_struct_fragment_properties_last, {
             "Last", "amqp.message.fragment-properties.last",
-            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x01,
+            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x02,
             "Fragment contains the end of the message", HFILL}},
         {&hf_amqp_0_10_struct_fragment_properties_size, {
             "Fragment-size", "amqp.message.fragment-properties.fragment-size",
