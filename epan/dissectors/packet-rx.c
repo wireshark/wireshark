@@ -431,7 +431,7 @@ dissect_rx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void *dat
 
 	/* Make sure it's a known type */
 	type = tvb_get_guint8(tvb, 20);
-	if (type == 0 || type == 10 || type == 11 || type == 12 || type > 13)
+	if (!try_val_to_str(type, rx_types))
 		return 0;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "RX");
