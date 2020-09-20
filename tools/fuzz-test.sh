@@ -151,7 +151,7 @@ trap_all() {
 
 trap_abrt() {
     for RUNNER_PID in $RUNNER_PIDS ; do
-        kill -ABRT $RUNNER_PID
+        kill -ABRT "$RUNNER_PID"
     done
     trap_all
 }

@@ -3470,6 +3470,8 @@ if(SHELLCHECK_EXECUTABLE)
 	add_custom_target(shellcheck)
 	set_target_properties(shellcheck PROPERTIES FOLDER "Tests")
 	# --external-sources requires 0.4.0 or later.
+	# ChmodBPF uses "shellcheck shell=bash". Not sure which version
+	# added support for that.
 	add_custom_command(TARGET shellcheck POST_BUILD
 		COMMAND shellcheck --external-sources
 			image/stock_icons/svg-to-png.sh
