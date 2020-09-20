@@ -1,4 +1,4 @@
-Wireshark 3.3.0 Release Notes
+Wireshark 3.3.1 Release Notes
 
  This is an experimental release intended to test new features for
  Wireshark 3.4.
@@ -14,6 +14,11 @@ Wireshark 3.3.0 Release Notes
   section below for more details.
 
   New and Updated Features
+
+   The following features are new (or have been significantly updated)
+   since version 3.3.0:
+
+     • Nothing of note.
 
    The following features are new (or have been significantly updated)
    since version 3.2.0:
@@ -57,13 +62,13 @@ Wireshark 3.3.0 Release Notes
    (MCP), DCE/RPC IRemoteWinspool SubSystem, (IREMOTEWINSPOOL), Dynamic
    Link Exchange Protocol (DLEP), Fortinet Single Sign-on (FSSO), FTDI
    Multi-Protocol Synchronous Serial Engine (FTDI MPSSE), Hypertext
-   Transfer Protocol Version 3 (HTTP3), Java Debug Wire Protocol (JDWP),
-   LBM Stateful Resolution Service (LBMSRS), Lithionics Battery
-   Management, OBSAI UDP-based Communication Protocol (UDPCP), Palo Alto
-   Heartbeat Backup (PA-HB-Bak), ScyllaDB RPC, Technically Enhanced
-   Capture Module Protocol (TECMP), Tunnel Extensible Authentication
-   Protocol (TEAP), UDP based FTP w/ multicast V5 (UFTP5), and USB
-   Printer (USBPRINTER)
+   Transfer Protocol Version 3 (HTTP3), ILDA Digital Network (IDN), Java
+   Debug Wire Protocol (JDWP), LBM Stateful Resolution Service (LBMSRS),
+   Lithionics Battery Management, OBSAI UDP-based Communication Protocol
+   (UDPCP), Palo Alto Heartbeat Backup (PA-HB-Bak), ScyllaDB RPC,
+   Technically Enhanced Capture Module Protocol (TECMP), Tunnel
+   Extensible Authentication Protocol (TEAP), UDP based FTP w/ multicast
+   V5 (UFTP5), and USB Printer (USBPRINTER)
 
   Updated Protocol Support
 
@@ -107,7 +112,7 @@ Wireshark 3.3.0 Release Notes
 
   A complete FAQ is available on the Wireshark web site[7].
 
-  Last updated 2020-09-15 20:51:40 UTC
+  Last updated 2020-09-20 09:04:33 UTC
 
  References
 
