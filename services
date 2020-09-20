@@ -5162,6 +5162,7 @@ oa-system	8022/tcp/udp
 arca-api	8023/tcp/udp	# ARCATrust vault API
 ca-audit-da	8025/tcp/udp	# CA Audit Distribution Agent
 ca-audit-ds	8026/tcp/udp	# CA Audit Distribution Server
+papachi-p2p-srv	8027/tcp/udp	# peer tracker and data relay service
 pro-ed		8032/tcp/udp	# ProEd
 mindprint	8033/tcp/udp	# MindPrint
 vantronix-mgmt	8034/tcp/udp	# .vantronix Management
