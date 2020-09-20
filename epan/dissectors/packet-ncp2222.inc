@@ -5284,9 +5284,9 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
                     switch(bvalue)
                     {
                     case 0x00000001:                /* Information Flags */
-                        proto_tree_add_bitmask(ncp_tree, tvb, ioffset, hf_infoflagsl, ett_ncp, ncp_infoflagsl, ENC_LITTLE_ENDIAN);
+                        proto_tree_add_bitmask(ntree, tvb, ioffset, hf_infoflagsl, ett_ncp, ncp_infoflagsl, ENC_LITTLE_ENDIAN);
                         ioffset += 2;
-                        proto_tree_add_bitmask(ncp_tree, tvb, ioffset, hf_infoflagsh, ett_ncp, ncp_infoflagsh, ENC_LITTLE_ENDIAN);
+                        proto_tree_add_bitmask(ntree, tvb, ioffset, hf_infoflagsh, ett_ncp, ncp_infoflagsh, ENC_LITTLE_ENDIAN);
                         ioffset += 2;
                         break;
                     case 0x00000002:                /* Entry ID */
@@ -5296,7 +5296,7 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
                         ioffset = ioffset + 4;
                         break;
                     case 0x00000004:                /* Entry Flags */
-                        proto_tree_add_bitmask(ncp_tree, tvb, ioffset, hf_eflags, ett_ncp, ncp_eflags, ENC_LITTLE_ENDIAN);
+                        proto_tree_add_bitmask(ntree, tvb, ioffset, hf_eflags, ett_ncp, ncp_eflags, ENC_LITTLE_ENDIAN);
                         ioffset = ioffset+4;
                         break;
                     case 0x0000008:                 /* Subordinate Count */
