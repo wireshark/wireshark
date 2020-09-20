@@ -80,17 +80,17 @@ Wireshark 2.6.20 Release Notes
 
   A complete FAQ is available on the Wireshark web site[10].
 
-  Last updated 2020-09-13 09:49:55 UTC
+  Last updated 2020-09-20 09:45:19 UTC
 
  References
 
    1. https://www.wireshark.org/download.html#thirdparty
-   2. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1516
-   3. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1814
-   4. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2234
-   5. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4035
-   6. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4985
-   7. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=10488
+   2. https://gitlab.com/wireshark/wireshark/-/issues/1516
+   3. https://gitlab.com/wireshark/wireshark/-/issues/1814
+   4. https://gitlab.com/wireshark/wireshark/-/issues/2234
+   5. https://gitlab.com/wireshark/wireshark/-/issues/4035
+   6. https://gitlab.com/wireshark/wireshark/-/issues/4985
+   7. https://gitlab.com/wireshark/wireshark/-/issues/10488
    8. https://ask.wireshark.org/
    9. https://www.wireshark.org/lists/
   10. https://www.wireshark.org/faq.html
