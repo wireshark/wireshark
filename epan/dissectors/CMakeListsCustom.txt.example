@@ -6,7 +6,7 @@
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 #
-# You can add custom builtin dissectors here by replaceing foo with your dissectors name.
+# You can add custom builtin dissectors here by replacing foo with your dissectors name.
 
 set(CUSTOM_DISSECTOR_SRC
 #	${CMAKE_CURRENT_SOURCE_DIR}/packet-foo.c
