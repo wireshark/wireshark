@@ -2487,7 +2487,6 @@ dissect_qnet6_kif_msgsend_msg_utime(tvbuff_t * tvb, packet_info * pinfo _U_, pro
 {
   int      ret = -1;
   gint     combine_len, left;
-  nstime_t nt;
 
   left = tvb_reported_length_remaining(tvb, *poffset);
 
@@ -2496,12 +2495,11 @@ dissect_qnet6_kif_msgsend_msg_utime(tvbuff_t * tvb, packet_info * pinfo _U_, pro
   *poffset += 2;
   proto_tree_add_item(tree, hf_qnet6_kif_msg_io_utime_curflag, tvb, *poffset, 4, encoding);
   *poffset += 4;
-  nt.nsecs = 0;
-  nt.secs = tvb_get_guint32(tvb, *poffset, encoding);
-  proto_tree_add_time(tree, hf_qnet6_kif_msg_io_utime_actime, tvb, *poffset, 4, &nt);
+  proto_tree_add_item(tree, hf_qnet6_kif_msg_io_utime_actime,
+      tvb, *poffset, 4, ENC_TIME_SECS|encoding);
   *poffset += 4;
-  nt.secs = tvb_get_guint32(tvb, *poffset, encoding);
-  proto_tree_add_time(tree, hf_qnet6_kif_msg_io_utime_modtime, tvb, *poffset, 4, &nt);
+  proto_tree_add_item(tree, hf_qnet6_kif_msg_io_utime_modtime,
+      tvb, *poffset, 4, ENC_TIME_SECS|encoding);
   *poffset += 4;
 
   left -= 2 + 4 + 4 + 4;
