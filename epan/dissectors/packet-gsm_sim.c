@@ -753,8 +753,8 @@ static const value_string apdu_ins_vals[] = {
 	{ 0x26, "DISABLE CHV" },
 	{ 0x28, "ENABLE CHV" },
 	{ 0x2C, "UNBLOCK CHV" },
-	{ 0x04, "INVALIDATE" },
-	{ 0x44, "REHABILITATE" },
+	{ 0x04, "INVALIDATE / REHABILITATE" },
+	{ 0x44, "REHABILITATE / ACTIVATE" },
 	{ 0x88, "RUN GSM ALGORITHM / AUTHENTICATE" },
 	{ 0xFA, "SLEEP" },
 	{ 0xC0, "GET RESPONSE" },
@@ -771,6 +771,12 @@ static const value_string apdu_ins_vals[] = {
 	{ 0x70, "MANAGE CHANNEL" },
 	{ 0x73, "MANAGE SECURE CHANNEL" },
 	{ 0x75, "TRANSACT DATA" },
+	/* TS TS 102 222 */
+	{ 0xE0, "CREATE FILE" },
+	{ 0xE4, "DELETE FILE" },
+	{ 0xE6, "TERMINATE DF" },
+	{ 0xE8, "TERMINATE EF" },
+	{ 0xFE, "TERMINATE CARD USAGE" },
 	{ 0, NULL }
 };
 
@@ -909,6 +915,14 @@ static const value_string adf_usim_dfs[] = {
 #endif
 	{ 0x5f3a, "DF.PHONEBOOK" },
 	{ 0x5f3b, "DF.GSM-ACCESS" },
+	{ 0x5f3c, "DF.MexE" },
+	{ 0x5f70, "DF.SoLSA" },
+	{ 0x5f40, "DF.WLAN" },
+	{ 0x5f50, "DF.HNB" },
+	{ 0x5f90, "DF.ProSe" },
+	{ 0x5fa0, "DF.ACDC" },
+	{ 0x5fb0, "DF.TV" },
+	{ 0x5fc0, "DF.5GS" },
 #if 0
 	{ 0, NULL }
 };
@@ -996,6 +1010,43 @@ static const value_string adf_usim_efs[] = {
 	{ 0x6fe2, "EF.NCP-IP" },
 	{ 0x6fe3, "EF.EPSLOCI" },
 	{ 0x6fe4, "EF.EPSNSC" },
+	{ 0x6fe6, "EF.UFC" },
+	{ 0x6fe7, "EF.UICCIARI" },
+	{ 0x6fec, "EF.PWS" },
+	{ 0x6fed, "EF.FDNURI" },
+	{ 0x6fee, "EF.BDNURI" },
+	{ 0x6fef, "EF.SDNURI" },
+	{ 0x6ff0, "EF.IWL" },
+	{ 0x6ff1, "EF.IPS" },
+	{ 0x6ff2, "EF.IPD" },
+	{ 0x6ff3, "EF.ePDGId" },
+	{ 0x6ff4, "EF.ePDGSelection" },
+	{ 0x6ff5, "EF.ePDGIdEm" },
+	{ 0x6ff6, "EF.ePDGSelection" },
+	{ 0x6ff7, "EF.FromPreferred" },
+	{ 0x6ff9, "EF.3GPPPSDATAOFF" },
+	{ 0x6ffa, "EF.3GPPPSDATAOFFservicelist" },
+	{ 0x6ffb, "EF.TVCONFIG" },
+	{ 0x6ffc, "EF.XCAPConfigData" },
+	{ 0x6ffe, "EF.ePDGSeEARFCNListlection" },
+#if 0
+	{ 0, NULL }
+};
+
+static const value_string adf_5gs_efs[] = {
+#endif
+	{ 0x4f01, "EF.5GS3GPPLOCI" },
+	{ 0x4f02, "EF.5GSN3GPPLOCI" },
+	{ 0x4f03, "EF.5GS3GPPNSC" },
+	{ 0x4f04, "EF.5GSN3GPPNSC" },
+	{ 0x4f05, "EF.5GAUTHKEYS" },
+	{ 0x4f06, "EF.UAC_AIC" },
+	{ 0x4f07, "EF.SUCI_Calc_Info" },
+	{ 0x4f08, "EF.OPL5G" },
+	{ 0x4f09, "EF.EFSUPI_NAI" },
+	{ 0x4f0a, "EF.Routing_Indicator" },
+	{ 0x4f0b, "EF.URSP" },
+	{ 0x4f0c, "EF.TN3GPPSNN" },
 #if 0
 	{ 0, NULL }
 };
