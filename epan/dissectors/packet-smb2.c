@@ -256,6 +256,8 @@ static int hf_smb2_salt_length = -1;
 static int hf_smb2_salt = -1;
 static int hf_smb2_cipher_count = -1;
 static int hf_smb2_cipher_id = -1;
+static int hf_smb2_signing_alg_count = -1;
+static int hf_smb2_signing_alg_id = -1;
 static int hf_smb2_comp_alg_count = -1;
 static int hf_smb2_comp_alg_id = -1;
 static int hf_smb2_comp_alg_flags = -1;
@@ -919,6 +921,7 @@ static const value_string smb2_find_info_levels[] = {
 #define SMB2_NETNAME_NEGOTIATE_CONTEXT_ID   0x0005
 #define SMB2_TRANSPORT_CAPABILITIES         0x0006
 #define SMB2_RDMA_TRANSFORM_CAPABILITIES    0x0007
+#define SMB2_SIGNING_CAPABILITIES           0x0008
 #define SMB2_POSIX_EXTENSIONS_CAPABILITIES  0x0100
 static const value_string smb2_negotiate_context_types[] = {
 	{ SMB2_PREAUTH_INTEGRITY_CAPABILITIES,  "SMB2_PREAUTH_INTEGRITY_CAPABILITIES" },
@@ -927,6 +930,7 @@ static const value_string smb2_negotiate_context_types[] = {
 	{ SMB2_NETNAME_NEGOTIATE_CONTEXT_ID, "SMB2_NETNAME_NEGOTIATE_CONTEXT_ID" },
 	{ SMB2_TRANSPORT_CAPABILITIES, "SMB2_TRANSPORT_CAPABILITIES" },
 	{ SMB2_RDMA_TRANSFORM_CAPABILITIES, "SMB2_RDMA_TRANSFORM_CAPABILITIES" },
+	{ SMB2_SIGNING_CAPABILITIES, "SMB2_SIGNING_CAPABILITIES" },
 	{ SMB2_POSIX_EXTENSIONS_CAPABILITIES, "SMB2_POSIX_EXTENSIONS_CAPABILITIES" },
 	{ 0, NULL }
 };
@@ -935,6 +939,16 @@ static const value_string smb2_negotiate_context_types[] = {
 static const value_string smb2_hash_algorithm_types[] = {
 	{ SMB2_HASH_ALGORITHM_SHA_512, "SHA-512" },
 	{ 0, NULL }
+};
+
+#define SMB2_SIGNING_ALG_HMAC_SHA256 0x0000
+#define SMB2_SIGNING_ALG_AES_CMAC    0x0001
+#define SMB2_SIGNING_ALG_AES_GMAC    0x0002
+static const value_string smb2_signing_alg_types[] = {
+	{ SMB2_SIGNING_ALG_HMAC_SHA256, "HMAC-SHA256" },
+	{ SMB2_SIGNING_ALG_AES_CMAC,    "AES-CMAC" },
+	{ SMB2_SIGNING_ALG_AES_GMAC,    "AES-GMAC" },
+	{ 0, NULL },
 };
 
 #define SMB2_CIPHER_AES_128_CCM        0x0001
@@ -5014,6 +5028,7 @@ dissect_smb2_negotiate_context(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 	guint16 type;
 	const gchar *type_str;
 	guint32 i, data_length, salt_length, hash_count, cipher_count, comp_count, transform_count;
+	guint32 signing_count;
 	proto_item *sub_item;
 	proto_tree *sub_tree;
 	static int * const comp_alg_flags_fields[] = {
@@ -5118,10 +5133,22 @@ dissect_smb2_negotiate_context(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 				offset += 2;
 			}
 			break;
+
+		case SMB2_SIGNING_CAPABILITIES:
+			proto_tree_add_item_ret_uint(sub_tree, hf_smb2_signing_alg_count, tvb, offset, 2, ENC_LITTLE_ENDIAN, &signing_count);
+			offset += 2;
+
+			for (i = 0; i < signing_count; i++) {
+				proto_tree_add_item(sub_tree, hf_smb2_signing_alg_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+				offset += 2;
+			}
+			break;
+
 		case SMB2_POSIX_EXTENSIONS_CAPABILITIES:
 			proto_tree_add_item(sub_tree, hf_smb2_posix_reserved, tvb, offset, data_length, ENC_NA);
 			offset += data_length;
 			break;
+
 		default:
 			proto_tree_add_item(sub_tree, hf_smb2_unknown, tvb, offset, data_length, ENC_NA);
 			offset += data_length;
@@ -11772,6 +11799,14 @@ proto_register_smb2(void)
 		{ &hf_smb2_salt,
 			{ "Salt", "smb2.negotiate_context.salt", FT_BYTES, BASE_NONE,
 			NULL, 0, NULL, HFILL }},
+
+		{ &hf_smb2_signing_alg_count,
+			{ "SigningAlgorithmCount", "smb2.negotiate_context.signing_alg_count", FT_UINT16, BASE_DEC,
+			NULL, 0, NULL, HFILL }},
+
+		{ &hf_smb2_signing_alg_id,
+			{ "SigningAlgorithmId", "smb2.negotiate_context.signing_id", FT_UINT16, BASE_HEX,
+			VALS(smb2_signing_alg_types), 0, NULL, HFILL }},
 
 		{ &hf_smb2_cipher_count,
 			{ "CipherCount", "smb2.negotiate_context.cipher_count", FT_UINT16, BASE_DEC,
