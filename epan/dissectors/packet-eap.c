@@ -94,9 +94,72 @@ static int hf_eap_ms_chap_v2_response = -1;
 static int hf_eap_ms_chap_v2_message = -1;
 static int hf_eap_ms_chap_v2_failure_request = -1;
 static int hf_eap_ms_chap_v2_data = -1;
+
+static int hf_eap_pax_opcode = -1;
+static int hf_eap_pax_flags = -1;
+static int hf_eap_pax_flags_mf = -1;
+static int hf_eap_pax_flags_ce = -1;
+static int hf_eap_pax_flags_ai = -1;
+static int hf_eap_pax_flags_reserved = -1;
+static int hf_eap_pax_mac_id = -1;
+static int hf_eap_pax_dh_group_id = -1;
+static int hf_eap_pax_public_key_id = -1;
+static int hf_eap_pax_a_len = -1;
+static int hf_eap_pax_a = -1;
+static int hf_eap_pax_b_len = -1;
+static int hf_eap_pax_b = -1;
+static int hf_eap_pax_cid_len = -1;
+static int hf_eap_pax_cid = -1;
+static int hf_eap_pax_mac_ck_len = -1;
+static int hf_eap_pax_mac_ck = -1;
+static int hf_eap_pax_ade_len = -1;
+static int hf_eap_pax_ade = -1;
+static int hf_eap_pax_mac_icv = -1;
+
+static int hf_eap_psk_flags = -1;
+static int hf_eap_psk_flags_t = -1;
+static int hf_eap_psk_flags_reserved = -1;
+static int hf_eap_psk_rand_p = -1;
+static int hf_eap_psk_rand_s = -1;
+static int hf_eap_psk_mac_p = -1;
+static int hf_eap_psk_mac_s = -1;
+static int hf_eap_psk_id_p = -1;
+static int hf_eap_psk_id_s = -1;
+static int hf_eap_psk_pchannel = -1;
+
+static int hf_eap_sake_version = -1;
+static int hf_eap_sake_session_id = -1;
+static int hf_eap_sake_subtype = -1;
+static int hf_eap_sake_attr_type = -1;
+static int hf_eap_sake_attr_len = -1;
+static int hf_eap_sake_attr_value = -1;
+static int hf_eap_sake_attr_value_str = -1;
+static int hf_eap_sake_attr_value_uint48 = -1;
+
+static int hf_eap_gpsk_opcode = -1;
+static int hf_eap_gpsk_id_server_len = -1;
+static int hf_eap_gpsk_id_server = -1;
+static int hf_eap_gpsk_id_peer_len = -1;
+static int hf_eap_gpsk_id_peer = -1;
+static int hf_eap_gpsk_rand_server = -1;
+static int hf_eap_gpsk_rand_peer = -1;
+static int hf_eap_gpsk_csuite_list_len = -1;
+static int hf_eap_gpsk_csuite_vendor = -1;
+static int hf_eap_gpsk_csuite_specifier = -1;
+static int hf_eap_gpsk_pd_payload_len = -1;
+static int hf_eap_gpsk_pd_payload = -1;
+static int hf_eap_gpsk_payload_mac = -1;
+static int hf_eap_gpsk_failure_code = -1;
+
 static int hf_eap_data = -1;
 
 static gint ett_eap = -1;
+static gint ett_eap_pax_flags = -1;
+static gint ett_eap_psk_flags = -1;
+static gint ett_eap_sake_attr = -1;
+static gint ett_eap_gpsk_csuite_list = -1;
+static gint ett_eap_gpsk_csuite = -1;
+static gint ett_eap_gpsk_csuite_sel = -1;
 
 static expert_field ei_eap_ms_chap_v2_length = EI_INIT;
 static expert_field ei_eap_mitm_attacks = EI_INIT;
@@ -317,6 +380,146 @@ const value_string eap_ms_chap_v2_opcode_vals[] = {
   { MS_CHAP_V2_SUCCESS,         "Success" },
   { MS_CHAP_V2_FAILURE,         "Failure" },
   { MS_CHAP_V2_CHANGE_PASSWORD, "Change-Password" },
+  { 0, NULL }
+};
+
+#define PAX_STD_1 0x01
+#define PAX_STD_2 0x02
+#define PAX_STD_3 0x03
+#define PAX_SEC_1 0x11
+#define PAX_SEC_2 0x12
+#define PAX_SEC_3 0x13
+#define PAX_SEC_4 0x14
+#define PAX_SEC_5 0x15
+#define PAX_ACK   0x21
+
+static const value_string eap_pax_opcode_vals[] = {
+  { PAX_STD_1, "STD-1" },
+  { PAX_STD_2, "STD-2" },
+  { PAX_STD_3, "STD-3" },
+  { PAX_SEC_1, "SEC-1" },
+  { PAX_SEC_2, "SEC-2" },
+  { PAX_SEC_3, "SEC-3" },
+  { PAX_SEC_4, "SEC-4" },
+  { PAX_SEC_5, "SEC-5" },
+  { PAX_ACK,   "ACK" },
+  { 0, NULL }
+};
+
+#define EAP_PAX_FLAG_MF       0x01 /* more fragments */
+#define EAP_PAX_FLAG_CE       0x02 /* certificate enabled */
+#define EAP_PAX_FLAG_AI       0x04 /* ADE included */
+#define EAP_PAX_FLAG_RESERVED 0xF8 /* reserved */
+
+#define PAX_MAC_ID_HMAC_SHA1_128   0x01
+#define PAX_MAC_ID_HMAC_SHA256_128 0x02
+
+static const value_string eap_pax_mac_id_vals[] = {
+  { PAX_MAC_ID_HMAC_SHA1_128,   "HMAC_SHA1_128" },
+  { PAX_MAC_ID_HMAC_SHA256_128, "HMAXĆ_SHA256_128" },
+  { 0, NULL }
+};
+
+#define PAX_DH_GROUP_ID_NONE     0x00
+#define PAX_DH_GROUP_ID_DH_14    0x01
+#define PAX_DH_GROUP_ID_DH_15    0x02
+#define PAX_DH_GROUP_ID_ECC_P256 0x03
+
+static const value_string eap_pax_dh_group_id_vals[] = {
+  { PAX_DH_GROUP_ID_NONE,     "NONE" },
+  { PAX_DH_GROUP_ID_DH_14,    "2048-bit MODP Group (IANA DH Group 14)" },
+  { PAX_DH_GROUP_ID_DH_15,    "3072-bit MODP Group (IANA DH Group 15)" },
+  { PAX_DH_GROUP_ID_ECC_P256, "NIST ECC Group P-256" },
+  { 0, NULL }
+};
+
+#define PAX_PUBLIC_KEY_ID_NONE              0x00
+#define PAX_PUBLIC_KEY_ID_RSAES_OAEP        0x01
+#define PAX_PUBLIC_KEY_ID_RSA_PKCS1_V1_5    0x02
+#define PAX_PUBLIC_KEY_ID_EL_GAMAL_ECC_P256 0x03
+
+static const value_string eap_pax_public_key_id_vals[] = {
+  { PAX_PUBLIC_KEY_ID_NONE,              "NONE" },
+  { PAX_PUBLIC_KEY_ID_RSAES_OAEP,        "RSAES-OAEP" },
+  { PAX_PUBLIC_KEY_ID_RSA_PKCS1_V1_5,    "RSA-PKCS1-V1_5" },
+  { PAX_PUBLIC_KEY_ID_EL_GAMAL_ECC_P256, "El-Gamal Over NIST ECC Group P-256" },
+  { 0, NULL }
+};
+
+#define EAP_PSK_FLAGS_T_MASK 0xC0
+
+#define SAKE_CHALLENGE      1
+#define SAKE_CONFIRM        2
+#define SAKE_AUTH_REJECT    3
+#define SAKE_IDENTITY       4
+
+static const value_string eap_sake_subtype_vals[] = {
+  { SAKE_CHALLENGE,   "SAKE/Challenge" },
+  { SAKE_CONFIRM,     "SAKE/Confirm" },
+  { SAKE_AUTH_REJECT, "SAKE/Auth-Reject" },
+  { SAKE_IDENTITY,    "SAKE/Identity" },
+  { 0, NULL }
+};
+
+#define SAKE_AT_RAND_S      1
+#define SAKE_AT_RAND_P      2
+#define SAKE_AT_MIC_S       3
+#define SAKE_AT_MIC_P       4
+#define SAKE_AT_SERVERID    5
+#define SAKE_AT_PEERID      6
+#define SAKE_AT_SPI_S       7
+#define SAKE_AT_SPI_P       8
+#define SAKE_AT_ANY_ID_REQ  9
+#define SAKE_AT_PERM_ID_REQ 10
+#define SAKE_AT_ENCR_DATA   128
+#define SAKE_AT_IV          129
+#define SAKE_AT_PADDING     130
+#define SAKE_AT_NEXT_TMPID  131
+#define SAKE_AT_MSK_LIFE    132
+
+static const value_string eap_sake_attr_type_vals[] = {
+  { SAKE_AT_RAND_S,      "Server Nonce RAND_S" },
+  { SAKE_AT_RAND_P,      "Peer Nonce RAND_P" },
+  { SAKE_AT_MIC_S,       "Server MIC" },
+  { SAKE_AT_MIC_P,       "Peer MIC" },
+  { SAKE_AT_SERVERID,    "Server FQDN" },
+  { SAKE_AT_PEERID,      "Peer NAI (tmp, perm)" },
+  { SAKE_AT_SPI_S,       "Server chosen SPI SPI_S" },
+  { SAKE_AT_SPI_P,       "Peer SPI list SPI_P" },
+  { SAKE_AT_ANY_ID_REQ,  "Requires any Peer Id (tmp, perm)" },
+  { SAKE_AT_PERM_ID_REQ, "Requires Peer's permanent Id/NAI" },
+  { SAKE_AT_ENCR_DATA,   "Contains encrypted attributes" },
+  { SAKE_AT_IV,          "IV for encrypted attributes" },
+  { SAKE_AT_PADDING,     "Padding for encrypted attributes" },
+  { SAKE_AT_NEXT_TMPID,  "TempID for next EAP-SAKE phase" },
+  { SAKE_AT_MSK_LIFE,    "MSK Lifetime" },
+  { 0, NULL }
+};
+
+#define GPSK_RESERVED       0
+#define GPSK_GPSK_1         1
+#define GPSK_GPSK_2         2
+#define GPSK_GPSK_3         3
+#define GPSK_GPSK_4         4
+#define GPSK_FAIL           5
+#define GPSK_PROTECTED_FAIL 6
+
+static const value_string eap_gpsk_opcode_vals[] = {
+  { GPSK_RESERVED,       "Reserved" },
+  { GPSK_GPSK_1,         "GPSK-1" },
+  { GPSK_GPSK_2,         "GPSK-2" },
+  { GPSK_GPSK_3,         "GPSK-3" },
+  { GPSK_GPSK_4,         "GPSK-4" },
+  { GPSK_FAIL,           "Fail" },
+  { GPSK_PROTECTED_FAIL, "Protected Fail" },
+  { 0, NULL }
+};
+
+static const value_string eap_gpsk_failure_code_vals[] = {
+  { 0x00000000, "Reserved" },
+  { 0x00000001, "PSK Not Found" },
+  { 0x00000002, "Authentication Failure" },
+  { 0x00000003, "Authorization Failure" },
   { 0, NULL }
 };
 
@@ -885,6 +1088,382 @@ dissect_eap_aka(proto_tree *eap_tree, tvbuff_t *tvb, packet_info* pinfo, int off
 
     offset += 4 * length;
     left   -= 4 * length;
+  }
+}
+
+static void
+dissect_eap_pax(proto_tree *eap_tree, tvbuff_t *tvb, packet_info *pinfo, int offset, gint size)
+{
+  static int * const pax_flags[] = {
+    &hf_eap_pax_flags_mf,
+    &hf_eap_pax_flags_ce,
+    &hf_eap_pax_flags_ai,
+    &hf_eap_pax_flags_reserved,
+    NULL
+  };
+  guint32 opcode;
+  guint64 flags;
+  guint32 len;
+
+  proto_tree_add_item_ret_uint(eap_tree, hf_eap_pax_opcode, tvb, offset++, 1, ENC_NA, &opcode);
+  col_append_fstr(pinfo->cinfo, COL_INFO, " %s",
+                  val_to_str(opcode, eap_pax_opcode_vals, "Unknown opcode (0x%02X)"));
+
+  proto_tree_add_bitmask_ret_uint64(eap_tree, tvb, offset++, hf_eap_pax_flags, ett_eap_pax_flags,
+                                    pax_flags, ENC_BIG_ENDIAN, &flags);
+  proto_tree_add_item(eap_tree, hf_eap_pax_mac_id, tvb, offset++, 1, ENC_NA);
+  proto_tree_add_item(eap_tree, hf_eap_pax_dh_group_id, tvb, offset++, 1, ENC_NA);
+  proto_tree_add_item(eap_tree, hf_eap_pax_public_key_id, tvb, offset++, 1, ENC_NA);
+
+  switch (opcode) {
+    case PAX_STD_1:
+      proto_tree_add_item_ret_uint(eap_tree, hf_eap_pax_a_len, tvb, offset, 2, ENC_BIG_ENDIAN, &len);
+      offset += 2;
+      proto_tree_add_item(eap_tree, hf_eap_pax_a, tvb, offset, len, ENC_NA);
+      offset += len;
+      len = 5 + size - offset;
+      proto_tree_add_item(eap_tree, hf_eap_pax_mac_icv, tvb, offset, len, ENC_NA);
+      offset += len;
+      break;
+    case PAX_STD_2:
+      proto_tree_add_item_ret_uint(eap_tree, hf_eap_pax_b_len, tvb, offset, 2, ENC_BIG_ENDIAN, &len);
+      offset += 2;
+      proto_tree_add_item(eap_tree, hf_eap_pax_b, tvb, offset, len, ENC_NA);
+      offset += len;
+      proto_tree_add_item_ret_uint(eap_tree, hf_eap_pax_cid_len, tvb, offset, 2, ENC_BIG_ENDIAN, &len);
+      offset += 2;
+      proto_tree_add_item(eap_tree, hf_eap_pax_cid, tvb, offset, len, ENC_ASCII | ENC_NA);
+      offset += len;
+      proto_tree_add_item_ret_uint(eap_tree, hf_eap_pax_mac_ck_len, tvb, offset, 2, ENC_BIG_ENDIAN, &len);
+      offset += 2;
+      proto_tree_add_item(eap_tree, hf_eap_pax_mac_ck, tvb, offset, len, ENC_NA);
+      offset += len;
+      if (flags & EAP_PAX_FLAG_AI) {
+        proto_tree_add_item_ret_uint(eap_tree, hf_eap_pax_ade_len, tvb, offset, 2, ENC_BIG_ENDIAN, &len);
+        offset += 2;
+        proto_tree_add_item(eap_tree, hf_eap_pax_ade, tvb, offset, len, ENC_NA);
+        offset += len;
+      }
+      len = 5 + size - offset;
+      proto_tree_add_item(eap_tree, hf_eap_pax_mac_icv, tvb, offset, len, ENC_NA);
+      offset += len;
+      break;
+    case PAX_STD_3:
+      proto_tree_add_item_ret_uint(eap_tree, hf_eap_pax_mac_ck_len, tvb, offset, 2, ENC_BIG_ENDIAN, &len);
+      offset += 2;
+      proto_tree_add_item(eap_tree, hf_eap_pax_mac_ck, tvb, offset, len, ENC_NA);
+      offset += len;
+      if (flags & EAP_PAX_FLAG_AI) {
+        proto_tree_add_item_ret_uint(eap_tree, hf_eap_pax_ade_len, tvb, offset, 2, ENC_BIG_ENDIAN, &len);
+        offset += 2;
+        proto_tree_add_item(eap_tree, hf_eap_pax_ade, tvb, offset, len, ENC_NA);
+        offset += len;
+      }
+      len = 5 + size - offset;
+      proto_tree_add_item(eap_tree, hf_eap_pax_mac_icv, tvb, offset, len, ENC_NA);
+      offset += len;
+      break;
+    case PAX_ACK:
+      if (flags & EAP_PAX_FLAG_AI) {
+        proto_tree_add_item_ret_uint(eap_tree, hf_eap_pax_ade_len, tvb, offset, 2, ENC_BIG_ENDIAN, &len);
+        offset += 2;
+        proto_tree_add_item(eap_tree, hf_eap_pax_ade, tvb, offset, len, ENC_NA);
+        offset += len;
+      }
+      len = 5 + size - offset;
+      proto_tree_add_item(eap_tree, hf_eap_pax_mac_icv, tvb, offset, len, ENC_NA);
+      offset += len;
+      break;
+    case PAX_SEC_1:
+    case PAX_SEC_2:
+    case PAX_SEC_3:
+    case PAX_SEC_4:
+    case PAX_SEC_5:
+      /* TODO implement */
+    default:
+      break;
+  }
+}
+
+static int
+dissect_eap_psk_pchannel(proto_tree *eap_tree, tvbuff_t *tvb, int offset, gint size)
+{
+  /* The protected channel (PCHANNEL) content is encrypted so for now just present
+   * it as a binary blob */
+  proto_tree_add_item(eap_tree, hf_eap_psk_pchannel, tvb, offset, size, ENC_NA);
+  return size;
+}
+
+static void
+dissect_eap_psk(proto_tree *eap_tree, tvbuff_t *tvb, packet_info *pinfo, int offset, gint size)
+{
+  static int * const psk_flags[] = {
+    &hf_eap_psk_flags_t,
+    &hf_eap_psk_flags_reserved,
+    NULL
+  };
+  guint64 flags;
+
+  proto_tree_add_bitmask_ret_uint64(eap_tree, tvb, offset++, hf_eap_psk_flags, ett_eap_psk_flags,
+                                    psk_flags, ENC_NA, &flags);
+
+  switch (flags & EAP_PSK_FLAGS_T_MASK) {
+    case 0x00: /* T == 0 - EAP-PSK First Message */
+      col_append_str(pinfo->cinfo, COL_INFO, " First Message");
+      proto_tree_add_item(eap_tree, hf_eap_psk_rand_s, tvb, offset, 16, ENC_NA);
+      offset += 16;
+      proto_tree_add_item(eap_tree, hf_eap_psk_id_s, tvb, offset, size + 5 - offset, ENC_ASCII | ENC_NA);
+      offset = size;
+      break;
+    case 0x40: /* T == 1 - EAP-PSK Second Message */
+      col_append_str(pinfo->cinfo, COL_INFO, " Second Message");
+      proto_tree_add_item(eap_tree, hf_eap_psk_rand_s, tvb, offset, 16, ENC_NA);
+      offset += 16;
+      proto_tree_add_item(eap_tree, hf_eap_psk_rand_p, tvb, offset, 16, ENC_NA);
+      offset += 16;
+      proto_tree_add_item(eap_tree, hf_eap_psk_mac_p, tvb, offset, 16, ENC_NA);
+      offset += 16;
+      proto_tree_add_item(eap_tree, hf_eap_psk_id_p, tvb, offset, size + 5 - offset, ENC_ASCII | ENC_NA);
+      offset = size;
+      break;
+    case 0x80: /* T == 2 - EAP-PSK Third Message */
+      col_append_str(pinfo->cinfo, COL_INFO, " Third Message");
+      proto_tree_add_item(eap_tree, hf_eap_psk_rand_s, tvb, offset, 16, ENC_NA);
+      offset += 16;
+      proto_tree_add_item(eap_tree, hf_eap_psk_mac_s, tvb, offset, 16, ENC_NA);
+      offset += 16;
+      offset += dissect_eap_psk_pchannel(eap_tree, tvb, offset, size + 5 - offset);
+      break;
+    case 0xC0: /* T == 3 - EAP-PSK Fourth Message */
+      col_append_str(pinfo->cinfo, COL_INFO, " Fourth Message");
+      proto_tree_add_item(eap_tree, hf_eap_psk_rand_s, tvb, offset, 16, ENC_NA);
+      offset += 16;
+      offset += dissect_eap_psk_pchannel(eap_tree, tvb, offset, size + 5 - offset);
+      break;
+    default:
+      break;
+  }
+}
+
+static gint
+dissect_eap_gpsk_csuite_sel(proto_tree *eap_tree, tvbuff_t *tvb, int offset)
+{
+  proto_tree *csuite_tree;
+  csuite_tree = proto_tree_add_subtree(eap_tree, tvb, offset, 6, ett_eap_gpsk_csuite_sel,
+                                        NULL, "EAP-GPSK CSuite_Sel");
+  proto_tree_add_item(csuite_tree, hf_eap_gpsk_csuite_vendor, tvb, offset, 4, ENC_BIG_ENDIAN);
+  offset += 4;
+  proto_tree_add_item(csuite_tree, hf_eap_gpsk_csuite_specifier, tvb, offset, 2, ENC_BIG_ENDIAN);
+  offset += 2;
+  return 6;
+}
+
+static gint
+dissect_eap_gpsk_csuite_list(proto_tree *eap_tree, tvbuff_t *tvb, int offset)
+{
+  gint start_offset = offset;
+  guint16 len;
+  proto_tree *list_tree, *csuite_tree;
+
+  len = tvb_get_ntohs(tvb, offset) + 2;
+  list_tree = proto_tree_add_subtree(eap_tree, tvb, offset, len, ett_eap_gpsk_csuite_list,
+                                     NULL, "EAP-GPSK CSuite List");
+  proto_tree_add_item(list_tree, hf_eap_gpsk_csuite_list_len, tvb, offset, 2, ENC_BIG_ENDIAN);
+  offset += 2;
+
+  while (offset < start_offset + len) {
+    csuite_tree = proto_tree_add_subtree(list_tree, tvb, offset, 6, ett_eap_gpsk_csuite,
+                                         NULL, "CSuite");
+    proto_tree_add_item(csuite_tree, hf_eap_gpsk_csuite_vendor, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(csuite_tree, hf_eap_gpsk_csuite_specifier, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+  }
+  return len;
+}
+
+static gint
+dissect_eap_sake_attribute(proto_tree *eap_tree, tvbuff_t *tvb, int offset, gint size)
+{
+  gint start_offset = offset;
+  guint8 type;
+  guint8 len;
+  proto_tree *attr_tree;
+
+  type = tvb_get_guint8(tvb, offset);
+  len = tvb_get_guint8(tvb, offset + 1);
+
+  if (len < 2 || len > size) {
+    return -1;
+  }
+  attr_tree = proto_tree_add_subtree_format(eap_tree, tvb, offset, len, ett_eap_sake_attr, NULL,
+                                            "EAP-SAKE Attribute: %s",
+                                            val_to_str(type, eap_sake_attr_type_vals,
+                                                       "Unknown (%d)"));
+
+  proto_tree_add_item(attr_tree, hf_eap_sake_attr_type, tvb, offset++, 1, ENC_NA);
+  proto_tree_add_item(attr_tree, hf_eap_sake_attr_len, tvb, offset++, 1, ENC_NA);
+  len -= 2;
+
+  switch (type) {
+    case SAKE_AT_SERVERID:
+    case SAKE_AT_PEERID:
+      proto_tree_add_item(attr_tree, hf_eap_sake_attr_value_str, tvb, offset, len, ENC_ASCII | ENC_NA);
+      offset += len;
+      break;
+    case SAKE_AT_MSK_LIFE:
+      proto_tree_add_item(attr_tree, hf_eap_sake_attr_value_uint48, tvb, offset, len,
+                          ENC_BIG_ENDIAN);
+      offset += len;
+      break;
+    case SAKE_AT_RAND_S:
+    case SAKE_AT_RAND_P:
+    case SAKE_AT_MIC_S:
+    case SAKE_AT_MIC_P:
+    case SAKE_AT_SPI_S:
+    case SAKE_AT_SPI_P:
+    case SAKE_AT_ANY_ID_REQ:
+    case SAKE_AT_PERM_ID_REQ:
+    case SAKE_AT_ENCR_DATA:
+    case SAKE_AT_IV:
+    case SAKE_AT_PADDING:
+    case SAKE_AT_NEXT_TMPID:
+    default:
+      proto_tree_add_item(attr_tree, hf_eap_sake_attr_value, tvb, offset, len, ENC_NA);
+      offset += len;
+      break;
+  }
+  return offset - start_offset;
+}
+
+static void
+dissect_eap_sake_attributes(proto_tree *eap_tree, tvbuff_t *tvb, int offset, gint size)
+{
+  gint attr_size;
+  while (offset < size) {
+    attr_size = dissect_eap_sake_attribute(eap_tree, tvb, offset, size);
+    if (attr_size == -1) {
+      break;
+    }
+    offset += attr_size;
+  }
+}
+
+static void
+dissect_eap_sake(proto_tree *eap_tree, tvbuff_t *tvb, packet_info *pinfo _U_, int offset, gint size)
+{
+  guint32 version;
+  guint32 subtype;
+
+  proto_tree_add_item_ret_uint(eap_tree, hf_eap_sake_version, tvb, offset++, 1, ENC_NA, &version);
+  if (version != 2) {
+    /* RFC 4763 specify version 2. Everything else is unsupported */
+    return;
+  }
+  proto_tree_add_item(eap_tree, hf_eap_sake_session_id, tvb, offset++, 1, ENC_NA);
+  proto_tree_add_item_ret_uint(eap_tree, hf_eap_sake_subtype, tvb, offset++, 1, ENC_NA, &subtype);
+
+  switch (subtype) {
+    case SAKE_CHALLENGE:
+    case SAKE_CONFIRM:
+    case SAKE_AUTH_REJECT:
+    case SAKE_IDENTITY:
+      dissect_eap_sake_attributes(eap_tree, tvb, offset, size + 5 - offset);
+      break;
+    default:
+      break;
+  }
+}
+
+static void
+dissect_eap_gpsk(proto_tree *eap_tree, tvbuff_t *tvb, packet_info *pinfo, int offset, gint size)
+{
+  guint32 opcode;
+  guint32 len;
+
+  proto_tree_add_item_ret_uint(eap_tree, hf_eap_gpsk_opcode, tvb, offset++, 1, ENC_NA, &opcode);
+  col_append_fstr(pinfo->cinfo, COL_INFO, " %s",
+                  val_to_str(opcode, eap_gpsk_opcode_vals, "Unknown opcode (0x%02X)"));
+
+  switch (opcode) {
+    case GPSK_GPSK_1:
+      proto_tree_add_item_ret_uint(eap_tree, hf_eap_gpsk_id_server_len, tvb, offset, 2, ENC_BIG_ENDIAN, &len);
+      offset += 2;
+      proto_tree_add_item(eap_tree, hf_eap_gpsk_id_server, tvb, offset, len, ENC_ASCII | ENC_NA);
+      offset += len;
+      proto_tree_add_item(eap_tree, hf_eap_gpsk_rand_server, tvb, offset, 32, ENC_NA);
+      offset += 32;
+      offset += dissect_eap_gpsk_csuite_list(eap_tree, tvb, offset);
+      break;
+    case GPSK_GPSK_2:
+      proto_tree_add_item_ret_uint(eap_tree, hf_eap_gpsk_id_peer_len, tvb, offset, 2, ENC_BIG_ENDIAN, &len);
+      offset += 2;
+      proto_tree_add_item(eap_tree, hf_eap_gpsk_id_peer, tvb, offset, len, ENC_ASCII | ENC_NA);
+      offset += len;
+      proto_tree_add_item_ret_uint(eap_tree, hf_eap_gpsk_id_server_len, tvb, offset, 2, ENC_BIG_ENDIAN, &len);
+      offset += 2;
+      proto_tree_add_item(eap_tree, hf_eap_gpsk_id_server, tvb, offset, len, ENC_ASCII | ENC_NA);
+      offset += len;
+      proto_tree_add_item(eap_tree, hf_eap_gpsk_rand_peer, tvb, offset, 32, ENC_NA);
+      offset += 32;
+      proto_tree_add_item(eap_tree, hf_eap_gpsk_rand_server, tvb, offset, 32, ENC_NA);
+      offset += 32;
+      offset += dissect_eap_gpsk_csuite_list(eap_tree, tvb, offset);
+      offset += dissect_eap_gpsk_csuite_sel(eap_tree, tvb, offset);
+      proto_tree_add_item_ret_uint(eap_tree, hf_eap_gpsk_pd_payload_len, tvb, offset, 2, ENC_BIG_ENDIAN, &len);
+      offset += 2;
+      if (len > 0) {
+        proto_tree_add_item(eap_tree, hf_eap_gpsk_pd_payload, tvb, offset, len, ENC_NA);
+        offset += len;
+      }
+      len = size + 5 - offset;
+      proto_tree_add_item(eap_tree, hf_eap_gpsk_payload_mac, tvb, offset, len, ENC_NA);
+      offset += len;
+      break;
+    case GPSK_GPSK_3:
+      proto_tree_add_item(eap_tree, hf_eap_gpsk_rand_peer, tvb, offset, 32, ENC_NA);
+      offset += 32;
+      proto_tree_add_item(eap_tree, hf_eap_gpsk_rand_server, tvb, offset, 32, ENC_NA);
+      offset += 32;
+      proto_tree_add_item_ret_uint(eap_tree, hf_eap_gpsk_id_server_len, tvb, offset, 2, ENC_BIG_ENDIAN, &len);
+      offset += 2;
+      proto_tree_add_item(eap_tree, hf_eap_gpsk_id_server, tvb, offset, len, ENC_ASCII | ENC_NA);
+      offset += len;
+      offset += dissect_eap_gpsk_csuite_sel(eap_tree, tvb, offset);
+      proto_tree_add_item_ret_uint(eap_tree, hf_eap_gpsk_pd_payload_len, tvb, offset, 2, ENC_BIG_ENDIAN, &len);
+      offset += 2;
+      if (len > 0) {
+        proto_tree_add_item(eap_tree, hf_eap_gpsk_pd_payload, tvb, offset, len, ENC_NA);
+        offset += len;
+      }
+      len = size + 5 - offset;
+      proto_tree_add_item(eap_tree, hf_eap_gpsk_payload_mac, tvb, offset, len, ENC_NA);
+      offset += len;
+      break;
+    case GPSK_GPSK_4:
+      proto_tree_add_item_ret_uint(eap_tree, hf_eap_gpsk_pd_payload_len, tvb, offset, 2, ENC_BIG_ENDIAN, &len);
+      offset += 2;
+      if (len > 0) {
+        proto_tree_add_item(eap_tree, hf_eap_gpsk_pd_payload, tvb, offset, len, ENC_NA);
+        offset += len;
+      }
+      len = size + 5 - offset;
+      proto_tree_add_item(eap_tree, hf_eap_gpsk_payload_mac, tvb, offset, len, ENC_NA);
+      offset += len;
+      break;
+    case GPSK_FAIL:
+      proto_tree_add_item(eap_tree, hf_eap_gpsk_failure_code, tvb, offset, 4, ENC_BIG_ENDIAN);
+      offset += 4;
+      break;
+    case GPSK_PROTECTED_FAIL:
+      proto_tree_add_item(eap_tree, hf_eap_gpsk_failure_code, tvb, offset, 4, ENC_BIG_ENDIAN);
+      offset += 4;
+      len = size + 5 - offset;
+      proto_tree_add_item(eap_tree, hf_eap_gpsk_payload_mac, tvb, offset, len, ENC_NA);
+      offset += len;
+      break;
+    default:
+      break;
   }
 }
 
@@ -1471,6 +2050,34 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
       break;
 
       /*********************************************************************
+            EAP-PAX - RFC 4746
+      **********************************************************************/
+      case EAP_TYPE_PAX:
+        dissect_eap_pax(eap_tree, tvb, pinfo, offset, size);
+        break; /* EAP_TYPE_PAX */
+
+      /*********************************************************************
+            EAP-PSK - RFC 4764
+      **********************************************************************/
+      case EAP_TYPE_PSK:
+        dissect_eap_psk(eap_tree, tvb, pinfo, offset, size);
+        break; /* EAP_TYPE_PSK */
+
+      /*********************************************************************
+            EAP-SAKE - RFC 4763
+      **********************************************************************/
+      case EAP_TYPE_SAKE:
+        dissect_eap_sake(eap_tree, tvb, pinfo, offset, size);
+        break; /* EAP_TYPE_SAKE */
+
+      /*********************************************************************
+            EAP-GPSK - RFC 5433
+      **********************************************************************/
+      case EAP_TYPE_GPSK:
+        dissect_eap_gpsk(eap_tree, tvb, pinfo, offset, size);
+        break; /* EAP_TYPE_GPSK */
+
+      /*********************************************************************
       **********************************************************************/
       default:
         proto_tree_add_item(eap_tree, hf_eap_data, tvb, offset, size, ENC_NA);
@@ -1847,6 +2454,266 @@ proto_register_eap(void)
       FT_BYTES, BASE_NONE, NULL, 0x0,
       NULL, HFILL }},
 
+    { &hf_eap_pax_opcode, {
+      "EAP-PAX OP-Code", "eap.pax.opcode",
+      FT_UINT8, BASE_HEX, VALS(eap_pax_opcode_vals), 0x0,
+      NULL, HFILL }},
+
+    { &hf_eap_pax_flags, {
+      "EAP-PAX Flags", "eap.pax.flags",
+      FT_UINT8, BASE_HEX, NULL, 0x0,
+      NULL, HFILL }},
+
+    { &hf_eap_pax_flags_mf, {
+      "more fragments", "eap.pax.flags.mf",
+      FT_BOOLEAN, 8, NULL, EAP_PAX_FLAG_MF,
+      NULL, HFILL }},
+
+    { &hf_eap_pax_flags_ce, {
+      "certificate enabled", "eap.pax.flags.ce",
+      FT_BOOLEAN, 8, NULL, EAP_PAX_FLAG_CE,
+      NULL, HFILL }},
+
+    { &hf_eap_pax_flags_ai, {
+      "ADE Included", "eap.pax.flags.ai",
+      FT_BOOLEAN, 8, NULL, EAP_PAX_FLAG_AI,
+      NULL, HFILL }},
+
+    { &hf_eap_pax_flags_reserved, {
+      "reserved", "eap.pax.flags.reserved",
+      FT_BOOLEAN, 8, NULL, EAP_PAX_FLAG_RESERVED,
+      NULL, HFILL }},
+
+     { &hf_eap_pax_mac_id, {
+      "EAP-PAX MAC ID", "eap.pax.mac_id",
+      FT_UINT8, BASE_HEX, VALS(eap_pax_mac_id_vals), 0x0,
+      NULL, HFILL }},
+
+     { &hf_eap_pax_dh_group_id, {
+      "EAP-PAX DH Group ID", "eap.pax.dh_group_id",
+      FT_UINT8, BASE_HEX, VALS(eap_pax_dh_group_id_vals), 0x0,
+      NULL, HFILL }},
+
+     { &hf_eap_pax_public_key_id, {
+      "EAP-PAX Public Key ID", "eap.pax.public_key_id",
+      FT_UINT8, BASE_HEX, VALS(eap_pax_public_key_id_vals), 0x0,
+      NULL, HFILL }},
+
+     { &hf_eap_pax_a_len, {
+      "EAP-PAX A len", "eap.pax.a.len",
+      FT_UINT16, BASE_DEC, NULL, 0x0,
+      NULL, HFILL }},
+
+     { &hf_eap_pax_a, {
+      "EAP-PAX A", "eap.pax.a",
+      FT_BYTES, BASE_NONE, NULL, 0x0,
+      NULL, HFILL }},
+
+     { &hf_eap_pax_b_len, {
+      "EAP-PAX B len", "eap.pax.b.len",
+      FT_UINT16, BASE_DEC, NULL, 0x0,
+      NULL, HFILL }},
+
+     { &hf_eap_pax_b, {
+      "EAP-PAX B", "eap.pax.b",
+      FT_BYTES, BASE_NONE, NULL, 0x0,
+      NULL, HFILL }},
+
+     { &hf_eap_pax_cid_len, {
+      "EAP-PAX CID len", "eap.pax.cid.len",
+      FT_UINT16, BASE_DEC, NULL, 0x0,
+      NULL, HFILL }},
+
+     { &hf_eap_pax_cid, {
+      "EAP-PAX CID", "eap.pax.cid",
+      FT_STRING, BASE_NONE, NULL, 0x0,
+      NULL, HFILL }},
+
+     { &hf_eap_pax_mac_ck_len, {
+      "EAP-PAX MAC_CK len", "eap.pax.mac_ck.len",
+      FT_UINT16, BASE_DEC, NULL, 0x0,
+      NULL, HFILL }},
+
+     { &hf_eap_pax_mac_ck, {
+      "EAP-PAX MAC_CK", "eap.pax.mac_ck",
+      FT_BYTES, BASE_NONE, NULL, 0x0,
+      NULL, HFILL }},
+
+     { &hf_eap_pax_ade_len, {
+      "EAP-PAX ADE len", "eap.pax.ade.len",
+      FT_UINT16, BASE_DEC, NULL, 0x0,
+      NULL, HFILL }},
+
+     { &hf_eap_pax_ade, {
+      "EAP-PAX ADE", "eap.pax.ade",
+      FT_BYTES, BASE_NONE, NULL, 0x0,
+      NULL, HFILL }},
+
+     { &hf_eap_pax_mac_icv, {
+      "EAP-PAX ICV", "eap.pax.icv",
+      FT_BYTES, BASE_NONE, NULL, 0x0,
+      NULL, HFILL }},
+
+    { &hf_eap_psk_flags, {
+      "EAP-PSK Flags", "eap.psk.flags",
+      FT_UINT8, BASE_HEX, NULL, 0x0,
+      NULL, HFILL }},
+
+    { &hf_eap_psk_flags_t, {
+      "T", "eap.psk.flags.t",
+      FT_UINT8, BASE_HEX, NULL, EAP_PSK_FLAGS_T_MASK,
+      NULL, HFILL }},
+
+    { &hf_eap_psk_flags_reserved, {
+      "Reserved", "eap.psk.flags.reserved",
+       FT_UINT8, BASE_HEX, NULL, 0x3F,
+      NULL, HFILL }},
+
+    { &hf_eap_psk_rand_p, {
+      "EAP-PSK RAND_P", "eap.psk.rand_p",
+      FT_BYTES, BASE_NONE, NULL, 0x0,
+      NULL, HFILL }},
+
+    { &hf_eap_psk_rand_s, {
+      "EAP-PSK RAND_S", "eap.psk.rand_s",
+      FT_BYTES, BASE_NONE, NULL, 0x0,
+      NULL, HFILL }},
+
+    { &hf_eap_psk_mac_p, {
+      "EAP-PSK MAC_P", "eap.psk.mac_p",
+      FT_BYTES, BASE_NONE, NULL, 0x0,
+      NULL, HFILL }},
+
+    { &hf_eap_psk_mac_s, {
+      "EAP-PSK MAC_S", "eap.psk.mac_s",
+      FT_BYTES, BASE_NONE, NULL, 0x0,
+      NULL, HFILL }},
+
+    { &hf_eap_psk_id_p, {
+      "EAP-PSK ID_P", "eap.psk.id_p",
+      FT_STRING, BASE_NONE, NULL, 0x0,
+      NULL, HFILL }},
+
+    { &hf_eap_psk_id_s, {
+      "EAP-PSK ID_S", "eap.psk.id_s",
+      FT_STRING, BASE_NONE, NULL, 0x0,
+      NULL, HFILL }},
+
+    { &hf_eap_psk_pchannel, {
+      "EAP-PSK Protected Channel (encrypted)", "eap.psk.pchannel",
+      FT_BYTES, BASE_NONE, NULL, 0x0,
+      NULL, HFILL }},
+
+    { &hf_eap_sake_version, {
+      "EAP-SAKE Version", "eap.sake.version",
+      FT_UINT8, BASE_HEX, NULL, 0x0,
+      NULL, HFILL }},
+
+    { &hf_eap_sake_session_id, {
+      "EAP-SAKE Session ID", "eap.sake.session_id",
+      FT_UINT8, BASE_HEX, NULL, 0x0,
+      NULL, HFILL }},
+
+     { &hf_eap_sake_subtype, {
+      "EAP-SAKE Subtype", "eap.sake.subtype",
+      FT_UINT8, BASE_HEX, VALS(eap_sake_subtype_vals), 0x0,
+      NULL, HFILL }},
+
+     { &hf_eap_sake_attr_type, {
+      "Attribute Type", "eap.sake.attr.type",
+      FT_UINT8, BASE_HEX, VALS(eap_sake_attr_type_vals), 0x0,
+      NULL, HFILL }},
+
+    { &hf_eap_sake_attr_len, {
+      "Attribute Length", "eap.sake.attr.len",
+      FT_UINT8, BASE_DEC, NULL, 0x0,
+      NULL, HFILL }},
+
+    { &hf_eap_sake_attr_value, {
+      "Attribute Value", "eap.sake.attr.val",
+      FT_BYTES, BASE_NONE, NULL, 0x0,
+      NULL, HFILL }},
+
+    { &hf_eap_sake_attr_value_str, {
+      "Attribute Value", "eap.sake.attr.val_str",
+      FT_STRING, BASE_NONE, NULL, 0x0,
+      NULL, HFILL }},
+
+    { &hf_eap_sake_attr_value_uint48, {
+      "Attribute Value", "eap.sake.attr.val_uint48",
+      FT_UINT48, BASE_DEC, NULL, 0x0,
+      NULL, HFILL }},
+
+     { &hf_eap_gpsk_opcode, {
+      "EAP-GPSK OP-Code", "eap.gpsk.opcode",
+      FT_UINT8, BASE_HEX, VALS(eap_gpsk_opcode_vals), 0x0,
+      NULL, HFILL }},
+
+    { &hf_eap_gpsk_id_server_len, {
+      "EAP-GPSK ID_Server len", "eap.gpsk.id_server.len",
+      FT_UINT16, BASE_DEC, NULL, 0x0,
+      NULL, HFILL }},
+
+    { &hf_eap_gpsk_id_server, {
+      "EAP-GPSK ID_Server", "eap.gpsk.id_server",
+      FT_STRING, BASE_NONE, NULL, 0x0,
+      NULL, HFILL }},
+
+    { &hf_eap_gpsk_id_peer_len, {
+      "EAP-GPSK ID_Peer len", "eap.gpsk.id_peer.len",
+      FT_UINT16, BASE_DEC, NULL, 0x0,
+      NULL, HFILL }},
+
+    { &hf_eap_gpsk_id_peer, {
+      "EAP-GPSK ID_Peer", "eap.gpsk.id_peer",
+      FT_STRING, BASE_NONE, NULL, 0x0,
+      NULL, HFILL }},
+
+    { &hf_eap_gpsk_rand_server, {
+      "EAP-GPSK Rand_Server", "eap.gpsk.rand_server",
+      FT_BYTES, BASE_NONE, NULL, 0x0,
+      NULL, HFILL }},
+
+    { &hf_eap_gpsk_rand_peer, {
+      "EAP-GPSK Rand_Peer", "eap.gpsk.rand_peer",
+      FT_BYTES, BASE_NONE, NULL, 0x0,
+      NULL, HFILL }},
+
+    { &hf_eap_gpsk_csuite_list_len, {
+      "Len", "eap.gpsk.csuite_list_len",
+      FT_UINT16, BASE_DEC, NULL, 0x0,
+      NULL, HFILL }},
+
+    { &hf_eap_gpsk_csuite_vendor, {
+      "Vendor", "eap.gpsk.csuite.vendor",
+      FT_UINT32, BASE_HEX, NULL, 0x0,
+      NULL, HFILL }},
+
+    { &hf_eap_gpsk_csuite_specifier, {
+      "Specifier", "eap.gpsk.csuite.specifier",
+      FT_UINT16, BASE_HEX, NULL, 0x0,
+      NULL, HFILL }},
+
+    { &hf_eap_gpsk_pd_payload_len, {
+      "EAP-GPSK PD_Payload len", "eap.gpsk.pd_payload.len",
+      FT_UINT16, BASE_DEC, NULL, 0x0,
+      NULL, HFILL }},
+
+    { &hf_eap_gpsk_pd_payload, {
+      "EAP-GPSK PD_Payload", "eap.gpsk.pd_payload",
+      FT_BYTES, BASE_NONE, NULL, 0x0,
+      NULL, HFILL }},
+
+    { &hf_eap_gpsk_payload_mac, {
+      "EAP-GPSK Payload MAC", "eap.gpsk.payload_mac",
+      FT_BYTES, BASE_NONE, NULL, 0x0,
+      NULL, HFILL }},
+
+     { &hf_eap_gpsk_failure_code, {
+      "EAP-GPSK Failure code", "eap.gpsk.failure_code",
+      FT_UINT16, BASE_HEX, VALS(eap_gpsk_failure_code_vals), 0x0,
+      NULL, HFILL }},
+
     { &hf_eap_data, {
       "EAP Data", "eap.data",
       FT_BYTES, BASE_NONE, NULL, 0x0,
@@ -1865,6 +2732,12 @@ proto_register_eap(void)
   };
   static gint *ett[] = {
     &ett_eap,
+    &ett_eap_pax_flags,
+    &ett_eap_psk_flags,
+    &ett_eap_gpsk_csuite_list,
+    &ett_eap_gpsk_csuite,
+    &ett_eap_gpsk_csuite_sel,
+    &ett_eap_sake_attr,
     &ett_eap_tls_fragment,
     &ett_eap_tls_fragments,
     &ett_eap_sim_attr,
