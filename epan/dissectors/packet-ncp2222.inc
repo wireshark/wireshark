@@ -4243,6 +4243,20 @@ process_set_filter(proto_tree *it_tree, tvbuff_t *tvb, packet_info *pinfo, nds_v
     return;
 }
 
+/*
+ * XXX - what if DSI_OUTPUT_FIELDS *isn't* set in the flags?
+ * If so, then there *aren't* any flags in which it *could* be
+ * set.
+ *
+ * This is processing entries in a response to a request that
+ * probably contained a list of requested flags; if *that* list
+ * doesn't have DSI_OUTPUT_FIELDS set, perhaps we should
+ * assume that field isn't present in the response, and that
+ * the flags in the request indicate what's in the response.
+ *
+ * Either that, or report an error with an expert info, and
+ * give up on trying to parse the response.
+ */
 static void
 process_entry_info(proto_tree *it_tree, tvbuff_t *tvb, nds_val *values)
 {
@@ -4649,6 +4663,11 @@ dissect_nds_iterator(proto_tree *it_tree, tvbuff_t *tvb, packet_info *pinfo, gui
 
                     /* Start WGetAndBufferEntryInfo = process_entry_info() */
                     values.voffset = ioffset;
+                    /*
+                     * XXX - each entry also may contain a set of flags
+                     * indicating what values are(?) present; which
+                     * should be used?
+                     */
                     values.vflags = request_flags;
                     process_entry_info(it_subtree1, tvb, &values);
                     ioffset = values.voffset;
@@ -5275,6 +5294,9 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
         }
         for (i = 0; i < number_of_referrals; i++)
         {
+            /*
+             * XXX - should we just call process_entry_info() here?
+             */
             bvalue = 0x00000001;
 
             for (r = 0 ; r < 32; r++ )
@@ -5285,6 +5307,12 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
                     switch(bvalue)
                     {
                     case DSI_OUTPUT_FIELDS:           /* Information Flags */
+                        /*
+                         * XXX - if this bit isn't set, report an error,
+                         * because if it's not set, the field containing
+                         * the bits, including this bit, isn't present!
+                         * (Computer bursts into flames at that point.)
+                         */
                         proto_tree_add_bitmask(ntree, tvb, ioffset, hf_infoflagsl, ett_ncp, ncp_infoflagsl, ENC_LITTLE_ENDIAN);
                         ioffset += 2;
                         proto_tree_add_bitmask(ntree, tvb, ioffset, hf_infoflagsh, ett_ncp, ncp_infoflagsh, ENC_LITTLE_ENDIAN);
