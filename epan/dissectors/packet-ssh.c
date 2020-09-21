@@ -381,7 +381,7 @@ static int ssh_dissect_key_init(tvbuff_t *tvb, int offset, proto_tree *tree,
         int is_response,
         struct ssh_flow_data *global_data);
 static int ssh_dissect_proposal(tvbuff_t *tvb, int offset, proto_tree *tree,
-        int hf_index_length, int hf_index_value, gchar **store);
+        int hf_index_length, int hf_index_value, char **store);
 static int ssh_dissect_ssh1(tvbuff_t *tvb, packet_info *pinfo,
         struct ssh_flow_data *global_data,
         int offset, proto_tree *tree, int is_response,
@@ -749,7 +749,7 @@ ssh_tree_add_hostkey(tvbuff_t *tvb, int offset, proto_tree *parent_tree,
     int last_offset;
     int remaining_len;
     guint key_len, type_len;
-    guint8* key_type;
+    char* key_type;
     gchar *tree_title;
 
     last_offset = offset;
@@ -760,7 +760,7 @@ ssh_tree_add_hostkey(tvbuff_t *tvb, int offset, proto_tree *parent_tree,
     /* Read the key type before creating the tree so we can append it as info. */
     type_len = tvb_get_ntohl(tvb, offset);
     offset += 4;
-    key_type = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, type_len, ENC_ASCII|ENC_NA);
+    key_type = (char *) tvb_get_string_enc(wmem_packet_scope(), tvb, offset, type_len, ENC_ASCII|ENC_NA);
 
     tree_title = wmem_strdup_printf(wmem_packet_scope(), "%s (type: %s)", tree_name, key_type);
     tree = proto_tree_add_subtree(parent_tree, tvb, last_offset, key_len + 4, ett_idx, NULL,
@@ -1391,7 +1391,7 @@ ssh_dissect_key_init(tvbuff_t *tvb, int offset, proto_tree *tree,
 
 static int
 ssh_dissect_proposal(tvbuff_t *tvb, int offset, proto_tree *tree,
-             int hf_index_length, int hf_index_value, gchar **store)
+             int hf_index_length, int hf_index_value, char **store)
 {
     guint32 len = tvb_get_ntohl(tvb, offset);
     proto_tree_add_uint(tree, hf_index_length, tvb, offset, 4, len);
@@ -1400,7 +1400,7 @@ ssh_dissect_proposal(tvbuff_t *tvb, int offset, proto_tree *tree,
     proto_tree_add_item(tree, hf_index_value, tvb, offset, len,
                 ENC_ASCII);
     if (store)
-        *store = tvb_get_string_enc(wmem_file_scope(), tvb, offset, len, ENC_ASCII);
+        *store = (char *) tvb_get_string_enc(wmem_file_scope(), tvb, offset, len, ENC_ASCII);
     offset += len;
 
     return offset;
@@ -1479,7 +1479,7 @@ ssh_keylog_process_line(char *line)
 
     gchar hexbyte[3] = {0, 0, 0};
     guint8 c;
-    gchar *converted = g_new(gchar, key_len);
+    guint8 *converted = g_new(guint8, key_len);
 
     for (int i = 0; i < key_len; i ++) {
         hexbyte[0] = value[i * 2];
@@ -1510,9 +1510,9 @@ ssh_keylog_reset(void)
 }
 
 static guint
-ssh_kex_type(gchar *type)
+ssh_kex_type(char *type)
 {
-    if (g_str_has_prefix(type, "curve25519")) {
+    if (type && g_str_has_prefix(type, "curve25519")) {
         return SSH_KEX_CURVE25519;
     }
 
@@ -1537,14 +1537,25 @@ ssh_keylog_add_keys(guint8 *priv, guint priv_length, gchar *type_string)
 
     if (!wmem_map_contains(ssh_kex_keys, pub)) {
         ssh_kex_key *value = ssh_kex_make_key(NULL, priv_length);
+        if (!value) {
+            g_debug("invalid key length %u", priv_length);
+            return;
+        }
         memcpy(value->data, priv, priv_length);
         wmem_map_insert(ssh_kex_keys, pub, value);
     }
 }
 
+// This was the largest valid value I (gcc) could find.
+// https://github.com/openssh/openssh-portable/blob/0a4a5571ada76b1b012bec9cf6ad1203fc19ec8d/sshkey.c#L1589
+#define MAX_SSH_KEY_BYTES 16384
 static ssh_kex_key *
 ssh_kex_make_key(guint8 *data, guint length)
 {
+    if (length >= MAX_SSH_KEY_BYTES) {
+        return NULL;
+    }
+
     ssh_kex_key *key = wmem_new0(wmem_file_scope(), ssh_kex_key);
     key->data = (guint8 *)wmem_alloc0(wmem_file_scope(), length);
 
@@ -1559,6 +1570,10 @@ ssh_kex_make_key(guint8 *data, guint length)
 static ssh_kex_pub_key *
 ssh_kex_make_pub_key(guint8 *data, guint length, gchar type)
 {
+    if (length >= MAX_SSH_KEY_BYTES) {
+        return NULL;
+    }
+
     ssh_kex_pub_key *key = wmem_new0(wmem_file_scope(), ssh_kex_pub_key);
     key->data = (guint8 *)wmem_alloc0(wmem_file_scope(), length);
 
@@ -1575,9 +1590,14 @@ static void
 ssh_read_e(tvbuff_t *tvb, int offset, struct ssh_flow_data *global_data)
 {
     // store the client's public part (e) for later usage
-    int length = tvb_get_ntohl(tvb, offset);
+    guint length = tvb_get_ntohl(tvb, offset);
     guint type = ssh_kex_type(global_data->kex);
-    global_data->kex_e = ssh_kex_make_pub_key(NULL, length, type);
+    ssh_kex_pub_key *kex = ssh_kex_make_pub_key(NULL, length, type);
+    if (!kex) {
+        g_debug("invalid key length %u", length);
+        return;
+    }
+    global_data->kex_e = kex;
     tvb_memcpy(tvb, global_data->kex_e->data, offset + 4, length);
 }
 
@@ -1669,6 +1689,10 @@ static ssh_kex_key *
 ssh_kex_shared_secret(ssh_kex_pub_key *pub, ssh_kex_key *priv)
 {
     ssh_kex_key *secret = ssh_kex_make_key(NULL, pub->length);
+    if (!secret) {
+        g_debug("invalid key length %u", pub->length);
+        return NULL;
+    }
 
     if (crypto_scalarmult_curve25519(secret->data, priv->data, pub->data)) {
         g_debug("curve25519: can't compute shared secret");
