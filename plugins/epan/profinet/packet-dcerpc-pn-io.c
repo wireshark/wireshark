@@ -850,6 +850,8 @@ static guint16  ver_pn_io_implicitar = 1;
 gboolean           pnio_ps_selection = TRUE;
 static const char *pnio_ps_networkpath = "";
 
+wmem_list_t       *aruuid_frame_setup_list = NULL;
+
 
 /* Allow heuristic dissection */
 static heur_dissector_list_t heur_pn_subdissector_list;
@@ -4580,7 +4582,7 @@ dissect_IODReadResHeader_block(tvbuff_t *tvb, int offset,
 static int
 dissect_ControlConnect_block(tvbuff_t *tvb, int offset,
     packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 *drep, guint8 u8BlockVersionHigh, guint8 u8BlockVersionLow,
-    pnio_ar_t **ar)
+    pnio_ar_t **ar, guint16 blocktype)
 {
     e_guid_t    ar_uuid;
     guint16     u16SessionKey;
@@ -4588,7 +4590,6 @@ dissect_ControlConnect_block(tvbuff_t *tvb, int offset,
     proto_tree *sub_tree;
     guint16     u16Command;
     guint16     u16Properties;
-
 
     if (u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
         expert_add_info_format(pinfo, item, &ei_pn_io_block_version,
@@ -4663,6 +4664,22 @@ dissect_ControlConnect_block(tvbuff_t *tvb, int offset,
         proto_item_append_text(sub_item, ", Done");
         proto_item_append_text(item, ", Done");
         col_append_str(pinfo->cinfo, COL_INFO, ", Command: Done");
+
+        /* When Release Command Done, keep the release frame of corresponding ar & ar uuid */
+        if (!PINFO_FD_VISITED(pinfo) && blocktype == 0x8114) {
+
+            wmem_list_frame_t* aruuid_frame;
+            ARUUIDFrame* current_aruuid_frame = NULL;
+
+            if (aruuid_frame_setup_list != NULL) {
+                for (aruuid_frame = wmem_list_head(aruuid_frame_setup_list); aruuid_frame != NULL; aruuid_frame = wmem_list_frame_next(aruuid_frame)) {
+                    current_aruuid_frame = (ARUUIDFrame*)wmem_list_frame_data(aruuid_frame);
+                    if (current_aruuid_frame->aruuid.data1 == ar_uuid.data1) {
+                        current_aruuid_frame->releaseframe = pinfo->num;
+                    }
+                }
+            }
+        }
     }
 
     proto_item_append_text(item, ", Properties:0x%x", u16Properties);
@@ -4696,6 +4713,10 @@ dissect_ControlBlockPrmBegin(tvbuff_t *tvb, int offset,
 
     /* ARUUID */
     offset = dissect_dcerpc_uuid_t(tvb, offset, pinfo, tree, drep, hf_pn_io_ar_uuid, &ar_uuid);
+
+    if (!PINFO_FD_VISITED(pinfo)) {
+        pn_init_append_aruuid_frame_setup_list(ar_uuid, pinfo->num);
+    }
 
     /* The value NIL indicates the usage of the implicit AR*/
     *ar = pnio_ar_find_by_aruuid(pinfo, &ar_uuid);
@@ -7122,6 +7143,11 @@ dissect_ARData_block(tvbuff_t *tvb, int offset,
             u32ARDataStart = offset;
             offset = dissect_dcerpc_uuid_t(tvb, offset, pinfo, ar_tree, drep,
                             hf_pn_io_ar_uuid, &aruuid);
+
+            if (!PINFO_FD_VISITED(pinfo)) {
+                pn_init_append_aruuid_frame_setup_list(aruuid, pinfo->num);
+            }
+
             proto_item_append_text(ar_item, "ARUUID:%s", guid_to_str(wmem_packet_scope(), (const e_guid_t*) &aruuid));
             offset = dissect_dcerpc_uint16(tvb, offset, pinfo, ar_tree, drep,
                         hf_pn_io_ar_type, &u16ARType);
@@ -7234,6 +7260,11 @@ dissect_ARData_block(tvbuff_t *tvb, int offset,
             u32ARDataStart = offset;
             /*ARUUID */
             offset = dissect_dcerpc_uuid_t(tvb, offset, pinfo, ar_tree, drep, hf_pn_io_ar_uuid, &aruuid);
+
+            if (!PINFO_FD_VISITED(pinfo)) {
+                pn_init_append_aruuid_frame_setup_list(aruuid, pinfo->num);
+            }
+
             proto_item_append_text(ar_item, "ARUUID:%s", guid_to_str(wmem_packet_scope(), (const e_guid_t*) &aruuid));
             /* CMInitiatorObjectUUID */
             offset = dissect_dcerpc_uuid_t(tvb, offset, pinfo, ar_tree, drep, hf_pn_io_cminitiator_objectuuid, &uuid);
@@ -7443,6 +7474,11 @@ dissect_LogData_block(tvbuff_t *tvb, int offset,
         /* ARUUID */
         offset = dissect_dcerpc_uuid_t(tvb, offset, pinfo, tree, drep,
                         hf_pn_io_ar_uuid, &aruuid);
+
+        if (!PINFO_FD_VISITED(pinfo)) {
+            pn_init_append_aruuid_frame_setup_list(aruuid, pinfo->num);
+        }
+
         /* PNIOStatus */
         offset = dissect_PNIO_status(tvb, offset, pinfo, tree, drep);
         /* EntryDetail */
@@ -7864,6 +7900,8 @@ dissect_ARBlockReq_block(tvbuff_t *tvb, int offset,
 
     if (u16ARType == 0x0020)
     {
+        dissect_dcerpc_uuid_t(tvb, offset, pinfo, tree, drep, hf_pn_io_ar_uuid, &aruuid);
+
         sub_item = proto_tree_add_item(tree, hf_pn_io_ar_uuid, tvb, offset, 16, ENC_NA);
         sub_tree = proto_item_add_subtree(sub_item, ett_pn_io_ar_info);
 
@@ -7880,7 +7918,7 @@ dissect_ARBlockReq_block(tvbuff_t *tvb, int offset,
         offset = dissect_dcerpc_uint16(tvb, offset, pinfo, sub_tree_selector, drep, hf_pn_io_ar_arreserved, &u16ArReserved);
 
         /* When ARType==IOCARSR, then find or create conversation for this frame */
-        if (!pinfo->fd->visited) {
+        if (!PINFO_FD_VISITED(pinfo)) {
             /* Get current conversation endpoints using MAC addresses */
             conversation = find_conversation(pinfo->num, &pinfo->dl_src, &pinfo->dl_dst, ENDPOINT_UDP, 0, 0, 0);
             if (conversation == NULL) {
@@ -7916,6 +7954,11 @@ dissect_ARBlockReq_block(tvbuff_t *tvb, int offset,
             hf_pn_io_ar_uuid, &aruuid);
         have_aruuid = TRUE;
     }
+
+    if (!PINFO_FD_VISITED(pinfo)) {
+        pn_init_append_aruuid_frame_setup_list(aruuid, pinfo->num);
+    }
+
     offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
                         hf_pn_io_sessionkey, &u16SessionKey);
     offset = dissect_pn_mac(tvb, offset, pinfo, tree,
@@ -7975,7 +8018,6 @@ dissect_ARBlockRes_block(tvbuff_t *tvb, int offset,
     guint16    u16UDPRTPort;
     pnio_ar_t *par;
 
-
     if (u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
         expert_add_info_format(pinfo, item, &ei_pn_io_block_version,
             "Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
@@ -7986,6 +8028,12 @@ dissect_ARBlockRes_block(tvbuff_t *tvb, int offset,
                         hf_pn_io_ar_type, &u16ARType);
     offset = dissect_dcerpc_uuid_t(tvb, offset, pinfo, tree, drep,
                         hf_pn_io_ar_uuid, &uuid);
+
+
+    if (!PINFO_FD_VISITED(pinfo)) {
+        pn_init_append_aruuid_frame_setup_list(uuid, pinfo->num);
+    }
+
     offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
                         hf_pn_io_sessionkey, &u16SessionKey);
     offset = dissect_pn_mac(tvb, offset, pinfo, tree,
@@ -8055,6 +8103,9 @@ dissect_IOCRBlockReq_block(tvbuff_t *tvb, int offset,
     wmem_list_frame_t *frame;
     wmem_list_t       *iocs_list;
 
+    ARUUIDFrame       *current_aruuid_frame = NULL;
+    guint32            current_aruuid = 0;
+
     if (u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
         expert_add_info_format(pinfo, item, &ei_pn_io_block_version,
             "Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
@@ -8115,7 +8166,7 @@ dissect_IOCRBlockReq_block(tvbuff_t *tvb, int offset,
 
         /* Set global Variant for Number of IO Data Objects */
         /* Notice: Handle Input & Output seperate!!! */
-        if (!pinfo->fd->visited) {
+        if (!PINFO_FD_VISITED(pinfo)) {
             /* Get current conversation endpoints using MAC addresses */
             conversation = find_conversation(pinfo->num, &pinfo->dl_src, &pinfo->dl_dst, ENDPOINT_NONE, 0, 0, 0);
             if (conversation == NULL) {
@@ -8125,15 +8176,26 @@ dissect_IOCRBlockReq_block(tvbuff_t *tvb, int offset,
                 conversation = conversation_new(pinfo->num, &pinfo->dl_dst, &pinfo->dl_src, ENDPOINT_NONE, 0, 0, 0);
             }
 
-            station_info = (stationInfo*)conversation_get_proto_data(conversation, proto_pn_dcp);
+            current_aruuid_frame = pn_find_aruuid_frame_setup(pinfo);
+
+            if (current_aruuid_frame != NULL) {
+                current_aruuid = current_aruuid_frame->aruuid.data1;
+                if (u16IOCRType == PN_INPUT_CR) {
+                    current_aruuid_frame->inputframe = u16FrameID;
+                }
+            }
+
+            station_info = (stationInfo*)conversation_get_proto_data(conversation, current_aruuid);
             if (station_info == NULL) {
                 station_info = wmem_new0(wmem_file_scope(), stationInfo);
                 init_pnio_rtc1_station(station_info);
-                conversation_add_proto_data(conversation, proto_pn_dcp, station_info);
+                conversation_add_proto_data(conversation, current_aruuid, station_info);
             }
             else {
                 station_info->ioDataObjectNr = u16NumberOfIODataObjects;
             }
+
+            pn_find_dcp_station_info(station_info, conversation);
         }
 
         u16Tmp = u16NumberOfIODataObjects;
@@ -8157,7 +8219,7 @@ dissect_IOCRBlockReq_block(tvbuff_t *tvb, int offset,
 
             proto_item_set_len(sub_item, offset - u32SubStart);
 
-            if (!pinfo->fd->visited && station_info != NULL) {
+            if (!PINFO_FD_VISITED(pinfo) && station_info != NULL) {
                 io_data_object = wmem_new0(wmem_file_scope(), ioDataObject);
                 io_data_object->slotNr = u16SlotNr;
                 io_data_object->subSlotNr = u16SubslotNr;
@@ -8199,7 +8261,7 @@ dissect_IOCRBlockReq_block(tvbuff_t *tvb, int offset,
                             hf_pn_io_number_of_iocs, &u16NumberOfIOCS);
 
         /* Set global Vairant for NumberOfIOCS */
-        if (!pinfo->fd->visited) {
+        if (!PINFO_FD_VISITED(pinfo)) {
             if (station_info != NULL) {
                 station_info->iocsNr = u16NumberOfIOCS;
             }
@@ -8226,7 +8288,7 @@ dissect_IOCRBlockReq_block(tvbuff_t *tvb, int offset,
 
             proto_item_set_len(sub_item, offset - u32SubStart);
 
-            if (!pinfo->fd->visited) {
+            if (!PINFO_FD_VISITED(pinfo)) {
                 if (station_info != NULL) {
                     if (u16IOCRType == PN_INPUT_CR) {
                         iocs_list = station_info->iocs_data_in;
@@ -8436,6 +8498,7 @@ dissect_IOCRBlockRes_block(tvbuff_t *tvb, int offset,
     guint16 u16IOCRReference;
     guint16 u16FrameID;
 
+    ARUUIDFrame *current_aruuid_frame = NULL;
 
     if (u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
         expert_add_info_format(pinfo, item, &ei_pn_io_block_version,
@@ -8473,6 +8536,18 @@ dissect_IOCRBlockRes_block(tvbuff_t *tvb, int offset,
         }
     } else {
         expert_add_info_format(pinfo, item, &ei_pn_io_ar_info_not_found, "IOCRBlockRes: no corresponding AR found!");
+    }
+
+    if (!PINFO_FD_VISITED(pinfo)) {
+        current_aruuid_frame = pn_find_aruuid_frame_setup(pinfo);
+        if (current_aruuid_frame != NULL) {
+            if (u16IOCRType == 1) {
+                current_aruuid_frame->inputframe = u16FrameID;
+            }
+            else if (u16IOCRType == 2) {
+                current_aruuid_frame->outputframe = u16FrameID;
+            }
+        }
     }
 
     return offset;
@@ -8866,6 +8941,9 @@ dissect_DataDescription(tvbuff_t *tvb, int offset,
     wmem_list_frame_t *frame;
     wmem_list_t       *ioobject_list;
 
+    ARUUIDFrame       *current_aruuid_frame = NULL;
+    guint32            current_aruuid = 0;
+
     sub_item = proto_tree_add_item(tree, hf_pn_io_data_description_tree, tvb, offset, 0, ENC_NA);
     sub_tree = proto_item_add_subtree(sub_item, ett_pn_io_data_description);
     u32SubStart = offset;
@@ -8889,7 +8967,7 @@ dissect_DataDescription(tvbuff_t *tvb, int offset,
     proto_item_set_len(sub_item, offset - u32SubStart);
 
     /* Save new data for IO Data Objects */
-    if (!pinfo->fd->visited) {
+    if (!PINFO_FD_VISITED(pinfo)) {
         /* Get current conversation endpoints using MAC addresses */
         conversation = find_conversation(pinfo->num, &pinfo->dl_src, &pinfo->dl_dst, ENDPOINT_NONE, 0, 0, 0);
         if (conversation == NULL) {
@@ -8899,9 +8977,17 @@ dissect_DataDescription(tvbuff_t *tvb, int offset,
            conversation = conversation_new(pinfo->num, &pinfo->dl_dst, &pinfo->dl_src, ENDPOINT_NONE, 0, 0, 0);
         }
 
-        station_info = (stationInfo*)conversation_get_proto_data(conversation, proto_pn_dcp);
+        current_aruuid_frame = pn_find_aruuid_frame_setup(pinfo);
+
+        if (current_aruuid_frame != NULL) {
+            current_aruuid = current_aruuid_frame->aruuid.data1;
+        }
+
+        station_info = (stationInfo*)conversation_get_proto_data(conversation, current_aruuid);
 
         if (station_info != NULL) {
+            pn_find_dcp_station_info(station_info, conversation);
+
             if (u16DataDescription == PN_INPUT_DATADESCRITPION) {
                 /* INPUT HANDLING */
                 ioobject_list = station_info->ioobject_data_in;
@@ -8993,6 +9079,9 @@ dissect_ExpectedSubmoduleBlockReq_block(tvbuff_t *tvb, int offset,
     FILE    *fp = NULL;       /* filepointer */
     const gchar *filename;    /* saves the found GSD-file name */
 
+    ARUUIDFrame       *current_aruuid_frame = NULL;
+    guint32            current_aruuid = 0;
+
     /* Helppointer initial */
     convertStr = (gchar*)wmem_alloc(wmem_packet_scope(), MAX_NAMELENGTH);
     convertStr[0] = '\0';
@@ -9034,8 +9123,17 @@ dissect_ExpectedSubmoduleBlockReq_block(tvbuff_t *tvb, int offset,
         conversation = conversation_new(pinfo->num, &pinfo->dl_dst, &pinfo->dl_src, ENDPOINT_NONE, 0, 0, 0);
     }
 
-    station_info = (stationInfo*)conversation_get_proto_data(conversation, proto_pn_dcp);
+    current_aruuid_frame = pn_find_aruuid_frame_setup(pinfo);
+
+    if (current_aruuid_frame != NULL) {
+        current_aruuid = current_aruuid_frame->aruuid.data1;
+    }
+
+    station_info = (stationInfo*)conversation_get_proto_data(conversation, current_aruuid);
+
     if (station_info != NULL) {
+        pn_find_dcp_station_info(station_info, conversation);
+
         station_info->gsdFound = FALSE;
         station_info->gsdPathLength = FALSE;
 
@@ -9363,6 +9461,9 @@ dissect_ModuleDiffBlock_block(tvbuff_t *tvb, int offset,
     moduleDiffInfo    *module_diff_info;
     moduleDiffInfo    *cmp_module_diff_info;
 
+    ARUUIDFrame       *current_aruuid_frame = NULL;
+    guint32            current_aruuid = 0;
+
     if (u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
         expert_add_info_format(pinfo, item, &ei_pn_io_block_version,
             "Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
@@ -9416,15 +9517,24 @@ dissect_ModuleDiffBlock_block(tvbuff_t *tvb, int offset,
                 u16NumberOfSubmodules);
 
 
-            if (!pinfo->fd->visited) {
+            if (!PINFO_FD_VISITED(pinfo)) {
                 /* Get current conversation endpoints using MAC addresses */
                 conversation = find_conversation(pinfo->num, &pinfo->dl_src, &pinfo->dl_dst, ENDPOINT_NONE, 0, 0, 0);
                 if (conversation == NULL) {
                     conversation = conversation_new(pinfo->num, &pinfo->dl_src, &pinfo->dl_dst, ENDPOINT_NONE, 0, 0, 0);
                 }
 
-                station_info = (stationInfo*)conversation_get_proto_data(conversation, proto_pn_dcp);
+                current_aruuid_frame = pn_find_aruuid_frame_setup(pinfo);
+
+                if (current_aruuid_frame != NULL) {
+                    current_aruuid = current_aruuid_frame->aruuid.data1;
+                }
+
+                station_info = (stationInfo*)conversation_get_proto_data(conversation, current_aruuid);
+
                 if (station_info != NULL) {
+                    pn_find_dcp_station_info(station_info, conversation);
+
                     for (frame = wmem_list_head(station_info->diff_module); frame != NULL; frame = wmem_list_frame_next(frame)) {
                         cmp_module_diff_info = (moduleDiffInfo*)wmem_list_frame_data(frame);
                         if (cmp_module_diff_info->slotNr == u16SlotNr) {
@@ -10022,7 +10132,7 @@ dissect_block(tvbuff_t *tvb, int offset,
     case(0x0114):
     case(0x0116):
     case(0x0117):
-        dissect_ControlConnect_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow, ar);
+        dissect_ControlConnect_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow, ar, u16BlockType);
         break;
 
     case(0x0118):
@@ -10265,7 +10375,7 @@ dissect_block(tvbuff_t *tvb, int offset,
     case(0x8116):
     case(0x8117):
     case(0x8118):
-        dissect_ControlConnect_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow, ar);
+        dissect_ControlConnect_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow, ar, u16BlockType);
         break;
     default:
         dissect_pn_undecoded(tvb, offset, pinfo, sub_tree, u16BodyLength);
@@ -10823,6 +10933,9 @@ dissect_ProfiSafeParameterRequest(tvbuff_t *tvb, int offset,
     ioDataObject      *io_data_object;
     wmem_list_frame_t *frame_out;
 
+    ARUUIDFrame       *current_aruuid_frame = NULL;
+    guint32            current_aruuid = 0;
+
     f_item = proto_tree_add_item(tree, hf_pn_io_block, tvb, offset, 0, ENC_NA);
     f_tree = proto_item_add_subtree(f_item, ett_pn_io_profisafe_f_parameter);
     proto_item_set_text(f_item, "F-Parameter: ");
@@ -10896,7 +11009,7 @@ dissect_ProfiSafeParameterRequest(tvbuff_t *tvb, int offset,
                 prm_flag1, prm_flag2, src_addr, dst_addr, wd_time, par_crc);
     }
 
-    if (!pinfo->fd->visited) {
+    if (!PINFO_FD_VISITED(pinfo)) {
         /* Get current conversation endpoints using MAC addresses */
         conversation = find_conversation(pinfo->num, &pinfo->dl_src, &pinfo->dl_dst, ENDPOINT_NONE, 0, 0, 0);
         if (conversation == NULL) {
@@ -10906,8 +11019,17 @@ dissect_ProfiSafeParameterRequest(tvbuff_t *tvb, int offset,
             conversation = conversation_new(pinfo->num, &pinfo->dl_dst, &pinfo->dl_src, ENDPOINT_NONE, 0, 0, 0);
         }
 
-        station_info = (stationInfo*)conversation_get_proto_data(conversation, proto_pn_dcp);
+        current_aruuid_frame = pn_find_aruuid_frame_setup(pinfo);
+
+        if (current_aruuid_frame != NULL) {
+            current_aruuid = current_aruuid_frame->aruuid.data1;
+        }
+
+        station_info = (stationInfo*)conversation_get_proto_data(conversation, current_aruuid);
+
         if (station_info != NULL) {
+            pn_find_dcp_station_info(station_info, conversation);
+
             if (frame != NULL) {
                 io_data_object = (ioDataObject*)wmem_list_frame_data(frame);
 
@@ -10964,6 +11086,9 @@ dissect_RecordDataWrite(tvbuff_t *tvb, int offset,
     const gchar *userProfile;
     pnio_ar_t   *ar = NULL;
 
+    ARUUIDFrame       *current_aruuid_frame = NULL;
+    guint32            current_aruuid = 0;
+
     /* PROFISafe */
     /* Get current conversation endpoints using MAC addresses */
     conversation = find_conversation(pinfo->num, &pinfo->dl_src, &pinfo->dl_dst, ENDPOINT_NONE, 0, 0, 0);
@@ -10974,9 +11099,18 @@ dissect_RecordDataWrite(tvbuff_t *tvb, int offset,
         conversation = conversation_new(pinfo->num, &pinfo->dl_dst, &pinfo->dl_src, ENDPOINT_NONE, 0, 0, 0);
     }
 
-    station_info = (stationInfo*)conversation_get_proto_data(conversation, proto_pn_dcp);
+    current_aruuid_frame = pn_find_aruuid_frame_setup(pinfo);
+
+    if (current_aruuid_frame != NULL) {
+        current_aruuid = current_aruuid_frame->aruuid.data1;
+    }
+
+    station_info = (stationInfo*)conversation_get_proto_data(conversation, current_aruuid);
+
     if (station_info != NULL) {
-        if (!pinfo->fd->visited) {
+        pn_find_dcp_station_info(station_info, conversation);
+
+        if (!PINFO_FD_VISITED(pinfo)) {
             /* Search within the entire existing list for current input object data */
             for (frame = wmem_list_head(station_info->ioobject_data_in); frame != NULL; frame = wmem_list_frame_next(frame)) {
                 io_data_object = (ioDataObject*)wmem_list_frame_data(frame);
@@ -11376,7 +11510,7 @@ dissect_PNIO_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     /* frame id must be in valid range (cyclic Real-Time, class=1) and
      * first byte (CBA version field) has to be != 0x11 */
     if (u16FrameID >= 0x8000 && u16FrameID < 0xbfff) {
-        dissect_PNIO_C_SDU_RTC1(tvb, 0, pinfo, tree, drep);
+        dissect_PNIO_C_SDU_RTC1(tvb, 0, pinfo, tree, drep, u16FrameID);
         return TRUE;
     }
 
@@ -11384,7 +11518,7 @@ dissect_PNIO_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     /* frame id must be in valid range (cyclic Real-Time, class=1, legacy) and
      * first byte (CBA version field) has to be != 0x11 */
     if (u16FrameID >= 0xc000 && u16FrameID < 0xfbff) {
-        dissect_PNIO_C_SDU_RTC1(tvb, 0, pinfo, tree, drep);
+        dissect_PNIO_C_SDU_RTC1(tvb, 0, pinfo, tree, drep, u16FrameID);
         return TRUE;
     }
 
@@ -11508,6 +11642,12 @@ static void
 pnio_cleanup(void) {
     g_list_free(pnio_ars);
     pnio_ars = NULL;
+}
+
+
+static void
+pnio_setup(void) {
+    aruuid_frame_setup_list = wmem_list_new(wmem_file_scope());
 }
 
 
@@ -14422,6 +14562,9 @@ proto_register_pn_io (void)
 
     /* Initialise RTC1 dissection */
     init_pn_io_rtc1(proto_pn_io);
+
+    /* Init functions of PNIO protocol */
+    register_init_routine(pnio_setup);
 
     /* Cleanup functions of PNIO protocol */
     register_cleanup_routine(pnio_cleanup);

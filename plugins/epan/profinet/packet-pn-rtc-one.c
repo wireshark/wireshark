@@ -355,7 +355,7 @@ int hfindex, guint8 bytelength, guint64 *pdata)
 /* dissect a PN-IO RTC1 Cyclic Service Data Unit */
 int
 dissect_PNIO_C_SDU_RTC1(tvbuff_t *tvb, int offset,
-    packet_info *pinfo, proto_tree *tree, guint8 *drep _U_)
+    packet_info *pinfo, proto_tree *tree, guint8 *drep _U_, guint16 frameid)
 {
     proto_tree  *data_tree = NULL;
 
@@ -406,6 +406,10 @@ dissect_PNIO_C_SDU_RTC1(tvbuff_t *tvb, int offset,
     number_io_data_objects_output_cr = 0;
     number_iocs_output_cr = 0;
 
+    wmem_list_frame_t  *aruuid_frame;
+    ARUUIDFrame        *current_aruuid_frame = NULL;
+    guint32             current_aruuid = 0;
+
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "PNIO");            /* set protocol name */
 
     data_item = proto_tree_add_protocol_format(tree, proto_pn_io_rtc1, tvb, offset, tvb_captured_length(tvb),
@@ -421,8 +425,34 @@ dissect_PNIO_C_SDU_RTC1(tvbuff_t *tvb, int offset,
 
     /* Detect input data package and output data package */
     if (conversation != NULL) {
-        station_info = (stationInfo*)conversation_get_proto_data(conversation, proto_pn_dcp);
+        if (aruuid_frame_setup_list != NULL) {
+            for (aruuid_frame = wmem_list_tail(aruuid_frame_setup_list); aruuid_frame != NULL; aruuid_frame = wmem_list_frame_prev(aruuid_frame)) {
+                current_aruuid_frame = (ARUUIDFrame*)wmem_list_frame_data(aruuid_frame);
+                /* There are prerequisites to dissect RTC frame data */
+                /* Current station info must be found before RTC frame dissection starts */
+                /* if RTC frame has setup frame and setup frame number is less than RTC frame number AND if RTC frame has release frame and release frame number is greater than RTC frame number */
+                /* if RTC frame has setup frame and setup frame number is less than RTC frame number AND RTC frame does not have release frame yet! */
+                /* then, get AR UUID of current station info */
+                if ((current_aruuid_frame->setupframe && current_aruuid_frame->setupframe < pinfo->num) &&
+                   ((current_aruuid_frame->releaseframe && current_aruuid_frame->releaseframe > pinfo->num) ||
+                    !current_aruuid_frame->releaseframe)) {
+                    if (current_aruuid_frame->inputframe == frameid) {
+                        current_aruuid = current_aruuid_frame->aruuid.data1;
+                        break;
+                    }
+                    else if (current_aruuid_frame->outputframe == frameid) {
+                        current_aruuid = current_aruuid_frame->aruuid.data1;
+                        break;
+                    }
+                }
+            }
+        }
+
+        station_info = (stationInfo*)conversation_get_proto_data(conversation, current_aruuid);
+
         if (station_info != NULL) {
+            pn_find_dcp_station_info(station_info, conversation);
+
             if (pnio_ps_selection == TRUE) {
                 col_set_str(pinfo->cinfo, COL_PROTOCOL, "PNIO_PS");    /* set PROFISsafe protocol name */
             }

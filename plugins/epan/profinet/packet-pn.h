@@ -99,6 +99,15 @@ typedef struct tagModuleDiffInfo {
     guint32    modulID;
 } moduleDiffInfo;
 
+typedef struct tagARUUIDFrame {
+    e_guid_t aruuid;
+    guint32  setupframe;
+    guint32  releaseframe;
+    guint16  outputframe;
+    guint16  inputframe;
+} ARUUIDFrame;
+
+extern wmem_list_t *aruuid_frame_setup_list;
 
 extern void init_pn(int proto);
 extern void init_pn_io_rtc1(int proto);
@@ -154,10 +163,16 @@ extern int dissect_pn_align4(tvbuff_t *tvb, int offset, packet_info *pinfo, prot
 extern int dissect_PNIO_status(tvbuff_t *tvb, int offset, packet_info *pinfo,
                     proto_tree *tree, guint8 *drep);
 
-extern int dissect_PNIO_C_SDU_RTC1(tvbuff_t *tvb, int offset, packet_info *pinfo,
-                    proto_tree *tree, guint8 *drep _U_);
+extern int dissect_PNIO_C_SDU_RTC1(tvbuff_t* tvb, int offset, packet_info* pinfo,
+                    proto_tree* tree, guint8* drep _U_, guint16 frameid);
 
 extern void pn_append_info(packet_info *pinfo, proto_item *dcp_item, const char *text);
+
+extern void pn_init_append_aruuid_frame_setup_list(e_guid_t aruuid, guint32 setup);
+
+extern ARUUIDFrame* pn_find_aruuid_frame_setup(packet_info* pinfo);
+
+extern void pn_find_dcp_station_info(stationInfo* station_info, conversation_t* conversation);
 
 extern gboolean dissect_CSF_SDU_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data);
 

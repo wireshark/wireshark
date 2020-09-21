@@ -1090,6 +1090,58 @@ pn_append_info(packet_info *pinfo, proto_item *dcp_item, const char *text)
     proto_item_append_text(dcp_item, "%s", text);
 }
 
+void pn_init_append_aruuid_frame_setup_list(e_guid_t aruuid, guint32 setup) {
+
+    ARUUIDFrame* aruuid_frame;
+
+    aruuid_frame = wmem_new0(wmem_file_scope(), ARUUIDFrame);
+    aruuid_frame->aruuid = aruuid;
+    aruuid_frame->setupframe = setup;
+    aruuid_frame->releaseframe = 0;
+    aruuid_frame->inputframe = 0;
+    aruuid_frame->outputframe = 0;
+
+    wmem_list_append(aruuid_frame_setup_list, aruuid_frame);
+}
+
+ARUUIDFrame* pn_find_aruuid_frame_setup(packet_info* pinfo) {
+
+    wmem_list_frame_t* aruuid_frame;
+    ARUUIDFrame* current_aruuid_frame = NULL;
+
+    if (aruuid_frame_setup_list != NULL) {
+        for (aruuid_frame = wmem_list_head(aruuid_frame_setup_list); aruuid_frame != NULL; aruuid_frame = wmem_list_frame_next(aruuid_frame)) {
+            current_aruuid_frame = (ARUUIDFrame*)wmem_list_frame_data(aruuid_frame);
+            if (current_aruuid_frame->setupframe == pinfo->num) {
+                break;
+            }
+        }
+    }
+
+    return current_aruuid_frame;
+}
+
+void pn_find_dcp_station_info(stationInfo* station_info, conversation_t* conversation) {
+    stationInfo* dcp_station_info = NULL;
+    /* search for DCP Station Info */
+    dcp_station_info = (stationInfo*)conversation_get_proto_data(conversation, proto_pn_dcp);
+    if (dcp_station_info != NULL) {
+        if (dcp_station_info->typeofstation != NULL) {
+            if (station_info->typeofstation == NULL || strcmp(dcp_station_info->typeofstation, station_info->typeofstation) != 0) {
+                station_info->typeofstation = wmem_strdup(wmem_file_scope(), dcp_station_info->typeofstation);
+            }
+        }
+        if (dcp_station_info->nameofstation != NULL) {
+            if (station_info->nameofstation == NULL || strcmp(dcp_station_info->nameofstation, station_info->nameofstation) != 0) {
+                station_info->nameofstation = wmem_strdup(wmem_file_scope(), dcp_station_info->nameofstation);
+            }
+        }
+        if (dcp_station_info->u16Vendor_id != station_info->u16Vendor_id || dcp_station_info->u16Device_id != station_info->u16Device_id) {
+            station_info->u16Vendor_id = dcp_station_info->u16Vendor_id;
+            station_info->u16Device_id = dcp_station_info->u16Device_id;
+        }
+    }
+}
 
 
 void
