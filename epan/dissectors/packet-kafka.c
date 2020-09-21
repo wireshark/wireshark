@@ -1886,6 +1886,7 @@ dissect_kafka_message_old(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
     tvbuff_t    *decompressed_tvb;
     int         decompressed_offset;
     int         start_offset = offset;
+    int         bytes_offset;
     gint8       magic_byte;
     guint8      codec;
     guint32     message_size;
@@ -1913,7 +1914,13 @@ dissect_kafka_message_old(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
         offset += 8;
     }
 
-    offset = dissect_kafka_regular_bytes(subtree, hf_kafka_message_key, tvb, pinfo, offset, NULL, NULL);
+    bytes_offset = dissect_kafka_regular_bytes(subtree, hf_kafka_message_key, tvb, pinfo, offset, NULL, NULL);
+    if (bytes_offset > offset) {
+        offset = bytes_offset;
+    } else {
+        expert_add_info(pinfo, message_ti, &ei_kafka_bad_bytes_length);
+        return -1;
+    }
 
     /*
      * depending on the compression codec, the payload is the actual message payload (codes=none)
@@ -1921,7 +1928,13 @@ dissect_kafka_message_old(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
      * is no such duality.
      */
     if (codec == 0) {
-        offset = dissect_kafka_regular_bytes(subtree, hf_kafka_message_value, tvb, pinfo, offset, NULL, &length);
+        bytes_offset = dissect_kafka_regular_bytes(subtree, hf_kafka_message_value, tvb, pinfo, offset, NULL, &length);
+        if (bytes_offset > offset) {
+            offset = bytes_offset;
+        } else {
+            expert_add_info(pinfo, message_ti, &ei_kafka_bad_bytes_length);
+            return -1;
+        }
     } else {
         length = tvb_get_ntohl(tvb, offset);
         offset += 4;
