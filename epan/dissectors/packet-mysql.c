@@ -2834,20 +2834,8 @@ dissect_mysql_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 	/* get associated state information, create if necessary */
 	conn_data= (mysql_conn_data_t *)conversation_get_proto_data(conversation, proto_mysql);
 	if (!conn_data) {
-		conn_data= wmem_new(wmem_file_scope(), mysql_conn_data_t);
-		conn_data->srv_caps= 0;
-		conn_data->clnt_caps= 0;
-		conn_data->clnt_caps_ext= 0;
-		conn_data->state= UNDEFINED;
-		conn_data->stmts= wmem_tree_new(wmem_file_scope());
-#ifdef CTDEBUG
-		conn_data->generation= 0;
-#endif
-		conn_data->major_version= 0;
-		conn_data->frame_start_ssl= 0;
-		conn_data->frame_start_compressed= 0;
-		conn_data->compressed_state= MYSQL_COMPRESS_NONE;
-		conn_data->is_mariadb_client = 0;
+		conn_data = wmem_new0(wmem_file_scope(), mysql_conn_data_t);
+		conn_data->stmts = wmem_tree_new(wmem_file_scope());
 		conversation_add_proto_data(conversation, proto_mysql, conn_data);
 	}
 
