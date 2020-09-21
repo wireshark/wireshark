@@ -24,7 +24,7 @@ from textwrap import TextWrapper
 try:
     from HTMLParser import HTMLParser
     from htmlentitydefs import name2codepoint
-except: # Python 3
+except ImportError: # Python 3
     from html.parser import HTMLParser
     from html.entities import name2codepoint
     unichr = chr # for html entity handling
@@ -35,7 +35,7 @@ class TextHTMLParser(HTMLParser):
         try:
             # Python 3.4
             HTMLParser. __init__(self, convert_charrefs=True)
-        except:
+        except Exception:
             HTMLParser. __init__(self)
         # All text, concatenated
         self.output_buffer = ''

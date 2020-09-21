@@ -246,7 +246,7 @@ class _ExecutionScope(object):
         for cleanup in self.finalizers:
             try:
                 cleanup()
-            except:
+            except Exception:
                 exceptions.append(sys.exc_info()[1])
         self.cache.clear()
         self.finalizers.clear()

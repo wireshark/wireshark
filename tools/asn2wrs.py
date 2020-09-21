@@ -319,7 +319,7 @@ reserved_words = {
 }
 
 for k in list(static_tokens.keys()):
-    if static_tokens [k] == None:
+    if static_tokens [k] is None:
         static_tokens [k] = k
 
 StringTypes = ['Numeric', 'Printable', 'IA5', 'BMP', 'Universal', 'UTF8',
@@ -1594,7 +1594,7 @@ class EthCtx:
             name=self.eth_hf[f]['attr']['NAME']
             try: # Python < 3
                 trantab = maketrans("- ", "__")
-            except:
+            except Exception:
                 trantab = str.maketrans("- ", "__")
             name = name.translate(trantab)
             namelower = name.lower()
@@ -4132,7 +4132,7 @@ class SequenceOfType (SeqOfType):
         # name, tag (None for no tag, EXPLICIT() for explicit), typ)
         # or '' + (1,) for optional
         sizestr = ''
-        if self.size_constr != None:
+        if self.size_constr is not None:
             print("#Ignoring size constraint:", self.size_constr.subtype)
         return "%sasn1.SEQUENCE_OF (%s%s)" % (ctx.spaces (),
                                               self.val.to_python (ctx),
@@ -4267,7 +4267,7 @@ class SequenceType (SeqType):
             # CHOICE or SEQUENCE_OF (where should the SEQUENCE_OF name come
             # from?  for others, element or arm name would be fine)
         seq_name = getattr (self, 'sequence_name', None)
-        if seq_name == None:
+        if seq_name is None:
             seq_name = 'None'
         else:
             seq_name = "'" + seq_name + "'"
@@ -4751,7 +4751,7 @@ class EnumeratedType (Type):
     def eth_type_default_pars(self, ectx, tname):
         pars = Type.eth_type_default_pars(self, ectx, tname)
         (root_num, ext_num, map_table) = self.get_vals_etc(ectx)[1:]
-        if (self.ext != None):
+        if self.ext is not None:
             ext = 'TRUE'
         else:
             ext = 'FALSE'
@@ -4767,7 +4767,7 @@ class EnumeratedType (Type):
     def eth_type_default_table(self, ectx, tname):
         if (not ectx.Per() and not ectx.Oer()): return ''
         map_table = self.get_vals_etc(ectx)[3]
-        if (map_table == None): return ''
+        if map_table is None: return ''
         table = "static guint32 %(TABLE)s[%(ROOT_NUM)s+%(EXT_NUM)s] = {"
         table += ", ".join([str(v) for v in map_table])
         table += "};\n"
@@ -8022,7 +8022,7 @@ def eth_main():
             try:
                 data = data.decode(encoding)
                 break
-            except:
+            except Exception:
                 warnings.warn_explicit("Decoding %s as %s failed, trying next." % (fn, encoding), UserWarning, '', 0)
         # Py2 compat, name.translate in eth_output_hf_arr fails with unicode
         if not isinstance(data, str):

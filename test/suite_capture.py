@@ -131,7 +131,7 @@ def check_capture_fifo(cmd_dumpcap):
         try:
             # If a previous test left its fifo laying around, e.g. from a failure, remove it.
             os.unlink(fifo_file)
-        except:
+        except Exception:
             pass
         os.mkfifo(fifo_file)
         slow_dhcp_cmd = subprocesstest.cat_dhcp_command('slow')
@@ -334,7 +334,7 @@ def check_dumpcap_pcapng_sections(cmd_dumpcap, cmd_tshark, capture_file):
             # If a previous test left its fifo laying around, e.g. from a failure, remove it.
             try:
                 os.unlink(fifo_file)
-            except: pass
+            except Exception: pass
             os.mkfifo(fifo_file)
             cat_cmd = subprocesstest.cat_cap_file_command(in_files)
             fifo_procs.append(self.startProcess(('{0} > {1}'.format(cat_cmd, fifo_file)), shell=True))

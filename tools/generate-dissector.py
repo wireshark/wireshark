@@ -16,9 +16,10 @@
 #   --protoshortname DUMB --protoabbrev dumb --license GPL-2.0-or-later --years "2019-2020"
 #
 
-import os
 import argparse
 from datetime import datetime
+import os
+
 
 parser = argparse.ArgumentParser(description='The Wireshark Dissector Generator')
 parser.add_argument("--name", help="The author of the dissector", required=True)
@@ -30,16 +31,20 @@ parser.add_argument("--license", help="The license for this dissector (please us
 parser.add_argument("--years", help="Years of validity for the license. If omitted, the current year will be used")
 parser.add_argument("-f", "--force", action='store_true', help="Force overwriting the dissector file if it already exists")
 
+
 def wsdir():
     return os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 
+
 def output_file(args):
     return os.path.join(wsdir(), "epan/dissectors/packet-" + args.protoabbrev + ".c")
+
 
 def read_skeleton():
     skeletonfile = os.path.join(wsdir(), "doc/packet-PROTOABBREV.c")
     print("Reading skeleton file: " + skeletonfile)
     return open(skeletonfile).read()
+
 
 def replace_fields(buffer, args):
     print("Replacing fields in skeleton")
@@ -77,12 +82,14 @@ def replace_fields(buffer, args):
 
     return output
 
+
 def write_dissector(buffer, args):
     ofile = output_file(args)
     if os.path.isfile(ofile) and not args.force:
         raise Exception("The file " + ofile + " already exists. You're likely overwriting an existing dissector.")
     print("Writing output file: " + ofile)
     return open(ofile, "w").write(buffer)
+
 
 def patch_makefile(args):
     cmakefile = os.path.join(wsdir(), "epan/dissectors/CMakeLists.txt")
@@ -104,6 +111,7 @@ def patch_makefile(args):
             output += line
     open(cmakefile, "w").write(output)
 
+
 def print_header():
     print("")
     print("**************************************************")
@@ -117,11 +125,13 @@ def print_header():
     print("**************************************************")
     print("")
 
+
 def print_trailer(args):
     print("")
     print("The skeleton for the dissector of the " + args.protoshortname + " protocol has been generated.")
     print("Please review/extend it to match your specific criterias.")
     print("")
+
 
 if __name__ == '__main__':
     print_header()

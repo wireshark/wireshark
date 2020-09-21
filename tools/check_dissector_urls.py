@@ -5,13 +5,14 @@
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 
+import argparse
 import os
 import re
-import requests
 import shutil
-import subprocess
-import argparse
 import signal
+import subprocess
+
+import requests
 
 # This utility scans the dissector code for URLs, then attempts to
 # fetch the links.  The results are shown in stdout, but also, at
@@ -37,6 +38,7 @@ def signal_handler(sig, frame):
     global should_exit
     should_exit = True
     print('You pressed Ctrl+C - exiting')
+
 
 signal.signal(signal.SIGINT, signal_handler)
 
@@ -127,7 +129,7 @@ links = []
 files = []
 
 
-def findLinksInFile(filename):
+def find_links_in_file(filename):
     with open(filename, 'r') as f:
         for line_number, line in enumerate(f, start=1):
             # TODO: not matching
@@ -149,13 +151,13 @@ def findLinksInFile(filename):
 
 
 # Scan the given folder for links to test.
-def findLinksInFolder(folder):
+def find_links_in_folder(folder):
     # Look at files in sorted order, to give some idea of how far through it
     # is.
     for filename in sorted(os.listdir(folder)):
         if filename.endswith('.c'):
             global links
-            findLinksInFile(os.path.join(folder, filename))
+            find_links_in_file(os.path.join(folder, filename))
 
 
 #################################################################
@@ -176,44 +178,44 @@ parser.add_argument('--verbose', action='store_true',
 args = parser.parse_args()
 
 
-
-def isDissectorFile(filename):
-    p = re.compile('epan/dissectors/packet-.*\.c')
+def is_dissector_file(filename):
+    p = re.compile(r'epan/dissectors/packet-.*\.c')
     return p.match(filename)
+
 
 # Get files from wherever command-line args indicate.
 if args.file:
     # Fetch links from single file.
-    findLinksInFile(args.file)
+    find_links_in_file(args.file)
 elif args.commits:
     # Get files affected by specified number of commits.
     command = ['git', 'diff', '--name-only', 'HEAD~' + args.commits]
     files = [f.decode('utf-8')
              for f in subprocess.check_output(command).splitlines()]
     # Fetch links from files (dissectors files only)
-    files = list(filter(lambda f : isDissectorFile(f), files))
+    files = list(filter(lambda f: is_dissector_file(f), files))
     for f in files:
-        findLinksInFile(f)
+        find_links_in_file(f)
 elif args.open:
     # Unstaged changes.
     command = ['git', 'diff', '--name-only']
     files = [f.decode('utf-8')
              for f in subprocess.check_output(command).splitlines()]
-    files = list(filter(lambda f : isDissectorFile(f), files))
+    files = list(filter(lambda f: is_dissector_file(f), files))
     # Staged changes.
     command = ['git', 'diff', '--staged', '--name-only']
     files_staged = [f.decode('utf-8')
                     for f in subprocess.check_output(command).splitlines()]
-    files_staged = list(filter(lambda f : isDissectorFile(f), files_staged))
+    files_staged = list(filter(lambda f: is_dissector_file(f), files_staged))
     for f in files:
-        findLinksInFile(f)
+        find_links_in_file(f)
     for f in files_staged:
-        if not f in files:
-            findLinksInFile(f)
+        if f not in files:
+            find_links_in_file(f)
             files.append(f)
 else:
     # Find links from dissector folder.
-    findLinksInFolder(os.path.join(os.path.dirname(
+    find_links_in_folder(os.path.join(os.path.dirname(
         __file__), '..', 'epan', 'dissectors'))
 
 

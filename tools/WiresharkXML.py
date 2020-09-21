@@ -23,7 +23,7 @@ class PacketList:
     items within it."""
 
     def __init__(self, children=None):
-        if children == None:
+        if children is None:
             self.children = []
         else:
             self.children = children
@@ -61,7 +61,7 @@ class PacketList:
     def get_items(self, name, items=None):
         """Return all items that match the name 'name'.
         They are returned in order of a depth-first-search."""
-        if items == None:
+        if items is None:
             top_level = 1
             items = []
         else:
@@ -83,7 +83,7 @@ class PacketList:
         before other protocols. For example, if you have an HTTP
         protocol, you can find all tcp.dstport fields *before* that HTTP
         protocol. This helps analyze in the presence of tunneled protocols."""
-        if items == None:
+        if items is None:
             top_level = 1
             items = []
         else:
@@ -173,7 +173,7 @@ class Protocol(ProtoTreeItem):
 
     def dump(self, fh=sys.stdout, indent=0):
         print >> fh, "%s<proto " %  ("  " * indent,),
-       
+
         ProtoTreeItem.dump(self, fh)
 
         print >> fh, '>'
@@ -252,7 +252,7 @@ class ParseXML(xml.sax.handler.ContentHandler):
         if len(self.element_stack) > 1:
             parent_elem = self.element_stack[-1]
             parent_elem.add_child(elem)
-        
+
         self.chars = ""
 
         # If we just finished a Packet element, hand it to the

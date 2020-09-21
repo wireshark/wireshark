@@ -13,6 +13,7 @@ import os
 import stat
 import time
 
+
 class OutputFile:
     TIMER_MAX = 99999.9
 
@@ -28,11 +29,11 @@ class OutputFile:
     def PrintPacket(self, timestamp, datalines):
         # What do to with the timestamp? I need more data about what
         # the netscreen timestamp is, then I can generate one for the text file.
-#        print "TS:", timestamp.group("time")
+        #     print("TS:", timestamp.group("time"))
         try:
             timestamp = float(timestamp.group("time"))
         except ValueError:
-            sys.exit("Unable to convert '%s' to floating point." % \
+            sys.exit("Unable to convert '%s' to floating point." %
                     (timestamp,))
 
         # Did we wrap around the timeer max?
@@ -63,11 +64,13 @@ class OutputFile:
         # Blank line
         print >> self.fh
 
+
 # Find a timestamp line
 re_timestamp = re.compile(r"^(?P<time>\d+\.\d): [\w/]+\((?P<io>.)\)(:| len=)")
 
 # Find a hex dump line
 re_hex_line = re.compile(r"(?P<hex>([0-9a-f]{2} ){1,16})\s+(?P<ascii>.){1,16}")
+
 
 def run(input_filename, output_filename):
     try:
@@ -122,11 +125,13 @@ def usage():
     print >> sys.stderr, "Usage: netscreen2dump.py netscreen-dump-file new-dump-file"
     sys.exit(1)
 
+
 def main():
     if len(sys.argv) != 3:
         usage()
 
     run(sys.argv[1], sys.argv[2])
+
 
 if __name__ == "__main__":
     main()

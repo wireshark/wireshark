@@ -47,7 +47,7 @@ def get_url_lines(url):
         exit_msg("URL error fetching {0}: {1}".format(url, err.reason))
     except OSError as err:
         exit_msg("OS error fetching {0}".format(url, err.strerror))
-    except:
+    except Exception:
         exit_msg("Unexpected error:", sys.exc_info()[0])
 
     return lines

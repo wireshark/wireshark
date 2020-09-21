@@ -335,13 +335,13 @@ elif args.open:
     files = [f.decode('utf-8')
              for f in subprocess.check_output(command).splitlines()]
     # Only interested in dissector files.
-    files = list(filter(lambda f : isDissectorFile(f), files))
+    files = list(filter(lambda f : is_dissector_file(f), files))
     # Staged changes.
     command = ['git', 'diff', '--staged', '--name-only']
     files_staged = [f.decode('utf-8')
                     for f in subprocess.check_output(command).splitlines()]
     # Only interested in dissector files.
-    files_staged = list(filter(lambda f : isDissectorFile(f), files_staged))
+    files_staged = list(filter(lambda f : is_dissector_file(f), files_staged))
     for f in files:
         files.append(f)
     for f in files_staged:

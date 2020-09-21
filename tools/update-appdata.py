@@ -51,7 +51,7 @@ def main():
         if not 'wireshark-' in tag_cp.stdout:
             print('Wireshark release tag not found')
             sys.exit(1)
-    except:
+    except Exception:
         print('`git tag` returned {}:'.format(tag_cp.returncode))
         raise
 
@@ -61,7 +61,7 @@ def main():
             check=True,
             encoding='UTF-8',
             stdout=subprocess.PIPE, stderr=subprocess.PIPE).stdout
-    except:
+    except Exception:
         print('Unable to fetch most recent rc0.')
         raise
 
@@ -69,7 +69,7 @@ def main():
         ver_m = re.match('v(\d+\.\d+)\.(\d+)rc0.*', cur_rc0)
         maj_min = ver_m.group(1)
         next_micro = ver_m.group(2)
-    except:
+    except Exception:
         print('Unable to fetch major.minor version.')
         raise
 
@@ -90,7 +90,7 @@ def main():
                 encoding='UTF-8',
                 stdout=subprocess.PIPE, stderr=subprocess.PIPE).stdout.strip()
             release_tag_l.append(release_tag_fmt.format(maj_min, micro, tag_date))
-        except:
+        except Exception:
             print('Unable to fetch release tag')
             raise
 

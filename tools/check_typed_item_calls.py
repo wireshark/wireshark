@@ -192,7 +192,7 @@ class Item:
                     return
                 n += 1
 
-        except:
+        except Exception:
             # Sometimes, macro is used for item type so catch and keep going.
             pass
 
@@ -262,7 +262,7 @@ def find_items(filename, check_mask=False, check_label=False):
 
 
 
-def isDissectorFile(filename):
+def is_dissector_file(filename):
     p = re.compile('.*packet-.*\.c')
     return p.match(filename)
 
@@ -282,7 +282,7 @@ def findDissectorFilesInFolder(folder, dissector_files=[], recursive=False):
             filename = os.path.join(folder, f)
             dissector_files.append(filename)
 
-    return [x for x in filter(isDissectorFile, dissector_files)]
+    return [x for x in filter(is_dissector_file, dissector_files)]
 
 
 
@@ -332,20 +332,20 @@ elif args.commits:
     files = [f.decode('utf-8')
              for f in subprocess.check_output(command).splitlines()]
     # Will examine dissector files only
-    files = list(filter(lambda f : isDissectorFile(f), files))
+    files = list(filter(lambda f : is_dissector_file(f), files))
 elif args.open:
     # Unstaged changes.
     command = ['git', 'diff', '--name-only']
     files = [f.decode('utf-8')
              for f in subprocess.check_output(command).splitlines()]
     # Only interested in dissector files.
-    files = list(filter(lambda f : isDissectorFile(f), files))
+    files = list(filter(lambda f : is_dissector_file(f), files))
     # Staged changes.
     command = ['git', 'diff', '--staged', '--name-only']
     files_staged = [f.decode('utf-8')
                     for f in subprocess.check_output(command).splitlines()]
     # Only interested in dissector files.
-    files_staged = list(filter(lambda f : isDissectorFile(f), files_staged))
+    files_staged = list(filter(lambda f : is_dissector_file(f), files_staged))
     for f in files:
         files.append(f)
     for f in files_staged:

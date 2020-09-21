@@ -22,6 +22,7 @@ Ported to Python from rdps.c.
 import sys
 import os.path
 
+
 def ps_clean_string(raw_str):
     ps_str = ''
     for c in raw_str:
@@ -35,29 +36,35 @@ def ps_clean_string(raw_str):
             ps_str += c
     return ps_str
 
+
 def start_code(fd, func):
     script_name = os.path.split(__file__)[-1]
     fd.write("void print_ps_%s(FILE *fd) {\n" % func)
+
 
 def write_code(fd, raw_str):
     ps_str = ps_clean_string(raw_str)
     fd.write("\tfprintf(fd, \"%s\");\n" % ps_str)
 
+
 def end_code(fd):
     fd.write("}\n\n\n")
+
 
 def exit_err(msg=None, *param):
     if msg is not None:
         sys.stderr.write(msg % param)
     sys.exit(1)
 
+
 # Globals
 STATE_NULL = 'null'
 STATE_PREAMBLE = 'preamble'
 STATE_FINALE = 'finale'
 
+
 def main():
-    state = STATE_NULL;
+    state = STATE_NULL
 
     if len(sys.argv) != 3:
         exit_err("%s: input_file output_file\n", __file__)

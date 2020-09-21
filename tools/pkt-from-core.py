@@ -46,7 +46,7 @@ class BackTrace:
                 # what we expect it should be.
                 frame_num = int(m.group("num"))
                 if frame_num != frame_will_be:
-                    sys.exit("Found frame %d instead of %d" % \
+                    sys.exit("Found frame %d instead of %d" %
                             (frame_num, frame_will_be))
 
                 # Find the function name. XXX - need to handle '???'
@@ -193,7 +193,7 @@ def run_gdb(*commands):
     except IOError, err:
         try:
             os.unlink(fname)
-        except:
+        except Exception:
             pass
         sys.exit("Cannot close %s: %s" % (fname, err))
 
@@ -207,17 +207,17 @@ def run_gdb(*commands):
     except OSError, err:
         try:
             os.unlink(fname)
-        except:
+        except Exception:
             pass
         sys.exit("Cannot run gdb: %s" % (err,))
 
     # Get gdb's output
     result = pipe.readlines()
     error = pipe.close()
-    if error != None:
+    if error is not None:
         try:
             os.unlink(fname)
-        except:
+        except Exception:
             pass
         sys.exit("gdb returned an exit value of %s" % (error,))
 
@@ -225,7 +225,7 @@ def run_gdb(*commands):
     # Remove the temp file and return the results
     try:
         os.unlink(fname)
-    except:
+    except Exception:
         pass
     return result
 
@@ -341,7 +341,7 @@ def make_cap_file(pkt_data, lnk_t):
     except IOError, err:
         try:
             os.unlink(fname)
-        except:
+        except Exception:
             pass
         sys.exit("Cannot close %s: %s" % (fname, err))
 
@@ -354,14 +354,14 @@ def make_cap_file(pkt_data, lnk_t):
     except OSError, err:
         try:
             os.unlink(fname)
-        except:
+        except Exception:
             pass
         sys.exit("Cannot run text2pcap: %s" % (err,))
 
     # Remove the temp file
     try:
         os.unlink(fname)
-    except:
+    except Exception:
         pass
 
     if retval == 0:
@@ -448,7 +448,7 @@ def main():
         else:
             assert 0
 
-    if output_file == None:
+    if output_file is None:
         usage()
 
     if len(args) != 2:

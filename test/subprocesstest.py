@@ -129,7 +129,7 @@ class SubprocessTestCase(unittest.TestCase):
         for proc in self.processes:
             try:
                 proc.kill()
-            except:
+            except Exception:
                 pass
 
     def setUp(self):

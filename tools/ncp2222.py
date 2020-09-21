@@ -173,7 +173,7 @@ class NamedList:
 
     def Name(self, new_name = None):
         "Get/Set name of list"
-        if new_name != None:
+        if new_name is not None:
             self.name = new_name
         return self.name
 
@@ -183,7 +183,7 @@ class NamedList:
 
     def Null(self):
         "Is there no list (different from an empty list)?"
-        return self.list == None
+        return self.list is None
 
     def Empty(self):
         "It the list empty (different from a null list)?"
@@ -253,7 +253,7 @@ class PTVC(NamedList):
 
             ptvc_rec = PTVCRecord(field, length, endianness, var, repeat, req_cond, info_str, code)
 
-            if expected_offset == None:
+            if expected_offset is None:
                 expected_offset = offset
 
             elif expected_offset == -1:
@@ -381,7 +381,7 @@ class PTVCRecord:
             req_cond = "NO_REQ_COND"
         else:
             req_cond = global_req_cond[self.req_cond]
-            assert req_cond != None
+            assert req_cond is not None
 
         if isinstance(self.field, struct):
             return self.field.ReferenceString(var, repeat, req_cond)
@@ -489,7 +489,7 @@ class NCP:
 
     def FunctionCode(self, part=None):
         "Returns the function code for this NCP packet."
-        if part == None:
+        if part is None:
             return self.__code__
         elif part == 'high':
             if self.HasSubFunction():
@@ -685,7 +685,7 @@ class NCP:
         realizes that because Python lists are the input and
         output."""
 
-        if codes == None:
+        if codes is None:
             return self.codes
 
         # Sanity check
@@ -729,7 +729,7 @@ def srec(field, endianness=None, **kw):
 def _rec(start, length, field, endianness, kw):
     # If endianness not explicitly given, use the field's
     # default endiannes.
-    if endianness == None:
+    if endianness is None:
         endianness = field.Endianness()
 
     # Setting a var?
@@ -804,7 +804,7 @@ class Type:
         return self.ftype
 
     def Display(self, newval=None):
-        if newval != None:
+        if newval is not None:
             self.disp = newval
         return self.disp
 
@@ -6786,7 +6786,7 @@ static expert_field ei_ncp_address_type = EI_INIT;
             req_cond_size = "NO_REQ_COND_SIZE"
         else:
             req_cond_size = pkt.ReqCondSize()
-            if req_cond_size == None:
+            if req_cond_size is None:
                 msg.write("NCP packet %s needs a ReqCondSize*() call\n" \
                         % (pkt.CName(),))
                 sys.exit(1)
@@ -8626,7 +8626,7 @@ def main():
 
         msg.write("Defined %d NCP types.\n" % (len(packets),))
         produce_code()
-    except:
+    except Exception:
         traceback.print_exc(20, msg)
         try:
             out_file.close()

@@ -14,11 +14,9 @@ import sys
 import ijson
 import operator
 import copy
-import os
 import binascii
 import array
 import argparse
-import subprocess
 import string
 import random
 import math
@@ -135,13 +133,13 @@ def read_py_function(name):
 
         ind = len(line) - len(line.lstrip())
 
-        if (line.find("def " + name) != -1):
+        if line.find("def " + name) != -1:
             record = True
             indent = ind
-        elif (record == True and indent == ind and len(line) > 1):
+        elif record and indent == ind and len(line) > 1:
             record = False
 
-        if (record == True):
+        if record:
             s = s + line
 
     file.close()
@@ -227,8 +225,8 @@ def py_generator(d, r, frame_name='frame_raw', frame_position=0):
         for k, v in d.items():
 
             # no recursion
-            if ( k.endswith("_raw") or ("_raw_" in k) ):
-                if (isinstance(v[1], (list, tuple)) or isinstance(v[2], (list, tuple)) ):
+            if k.endswith("_raw") or "_raw_" in k:
+                if isinstance(v[1], (list, tuple)) or isinstance(v[2], (list, tuple)):
                     #i = 1;
                     for _v in v:
                         h = _v[0]
@@ -248,7 +246,7 @@ def py_generator(d, r, frame_name='frame_raw', frame_position=0):
                         fn = frame_name.replace('.', '_')
                         if (fn == key):
                             fn = None
-                        value = [fn , h, p, l, b, t]
+                        value = [fn, h, p, l, b, t]
 
                         r[key] = value
 
@@ -328,7 +326,7 @@ def lsb(x):
 def multiply_strings(original_string, new_string, mask):
 
     ret_string = new_string
-    if mask == None:
+    if mask is None:
         return ret_string
     for i in range(0, min(len(original_string), len(new_string), len(mask)), 2):
         if mask[i:i + 2] == 'ff':
@@ -344,7 +342,7 @@ def multiply_strings(original_string, new_string, mask):
 # b - bitmask
 # t - type
 # frame_amask - optional, anonymization mask (00 - not anonymized byte, ff - anonymized byte)
-def rewrite_frame(frame_raw, h, p, l, b, t, frame_amask = None):
+def rewrite_frame(frame_raw, h, p, l, b, t, frame_amask=None):
     if p < 0 or l < 0 or h is None:
         return frame_raw
 
@@ -389,14 +387,14 @@ def rewrite_frame(frame_raw, h, p, l, b, t, frame_amask = None):
         #    print "{0:08b}".format(M[i]),
         # print
 
-        j = 0;
+        j = 0
         for i in range(len(_H)):
             if (M[i] != 0):
                 v = H[j] << lsb(M[i])
                 # print "Debug: {0:08b}".format(v),
                 _H[i] = (_H[i] & ~M[i]) | (v & M[i])
                 # print "Debug: " + str(_H[i]),
-                j = j + 1;
+                j = j + 1
 
         # for i in range(len(_H)):
         #    print "{0:08b}".format(_H[i]),
@@ -412,8 +410,8 @@ def rewrite_frame(frame_raw, h, p, l, b, t, frame_amask = None):
 def assemble_frame(d, frame_time):
     input = d['frame_raw'][1]
     isFlat = False
-    linux_cooked_header = False;
-    while(isFlat == False):
+    linux_cooked_header = False
+    while not isFlat:
         isFlat = True
         _d = d.copy()
         for key, val in _d.items():
@@ -424,7 +422,7 @@ def assemble_frame(d, frame_time):
             t = val[5]          # type
 
             if (key == "sll_raw"):
-                linux_cooked_header = True;
+                linux_cooked_header = True
 
             # only if the node is not parent
             isParent = False
@@ -434,7 +432,7 @@ def assemble_frame(d, frame_time):
                     isFlat = False
                     break
 
-            if (isParent == False and val[0] is not None):
+            if not isParent and val[0] is not None:
                 d[val[0]][1] = rewrite_frame(d[val[0]][1], h, p, l, b, t)
                 del d[key]
 
@@ -554,14 +552,14 @@ else:
 anonymize = {}
 if args.mask:
     for m in args.mask:
-        if not '_raw' in m:
+        if '_raw' not in m:
             print("Error: The specified fields by -m switch should be raw fields. " + m + " does not have _raw suffix")
             sys.exit()
         af = AnonymizedField(m, 0)
         anonymize[af.field] = af
 if args.anonymize:
     for a in args.anonymize:
-        if not '_raw' in a:
+        if '_raw' not in a:
             print("Error: The specified fields by -a switch should be raw fields. " + a + " does not have _raw suffix")
             sys.exit()
         af = AnonymizedField(a, 1)
@@ -577,13 +575,13 @@ if salt is None:
     salt = ''.join(random.SystemRandom().choice(string.ascii_letters + string.digits) for _ in range(10))
 
 # Generate pcap
-if args.python == False:
+if args.python is False:
     pcap_out = scapy.PcapWriter(outfile, append=False, sync=False)
 
     # Iterate over packets in JSON
     for packet in ijson.items(data_file, "item", buf_size=200000):
         _list = []
-        linux_cooked_header = False;
+        linux_cooked_header = False
 
         # get flat raw fields into _list
         for raw in raw_flat_collector(packet['_source']['layers']):
@@ -635,7 +633,7 @@ if args.python == False:
 
                         # anonymize fields
                         if (raw[5] in anonymize):
-                            [_h, _h_mask]  = anonymize[raw[5]].anonymize_field(_h, _t, salt)
+                            [_h, _h_mask] = anonymize[raw[5]].anonymize_field(_h, _t, salt)
 
                         # print("Debug: " + str(raw))
                         frame_raw = rewrite_frame(frame_raw, _h, _p, _l, _b, _t, frame_amask)
@@ -654,8 +652,8 @@ if args.python == False:
 
         # for Linux cooked header replace dest MAC and remove two bytes to reconstruct normal frame using text2pcap
         if (linux_cooked_header):
-           frame_raw = "000000000000" + frame_raw[6 * 2:]  # replce dest MAC
-           frame_raw = frame_raw[:12 * 2] + "" + frame_raw[14 * 2:]  # remove two bytes before Protocol
+            frame_raw = "000000000000" + frame_raw[6 * 2:]  # replce dest MAC
+            frame_raw = frame_raw[:12 * 2] + "" + frame_raw[14 * 2:]  # remove two bytes before Protocol
 
         # Testing: remove comment to compare input and output for not modified json
         if (args.verbose and input_frame_raw != frame_raw):
@@ -687,7 +685,7 @@ else:
         #print "packet = " + str(packet['_source']['layers'])
         py_generator(packet['_source']['layers'], r)
 
-        for key, value in r.items() :
+        for key, value in r.items():
             f.write("    d['" + key + "'] =",)
             f.write(" " + str(value) + "\n")
 

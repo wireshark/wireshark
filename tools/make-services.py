@@ -64,19 +64,19 @@ def parse_rows(svc_fd):
 
     try:
         sn_pos = headers.index('Service Name')
-    except:
+    except Exception:
         sn_pos = 0
     try:
         pn_pos = headers.index('Port Number')
-    except:
+    except Exception:
         pn_pos = 1
     try:
         tp_pos = headers.index('Transport Protocol')
-    except:
+    except Exception:
         tp_pos = 2
     try:
         desc_pos = headers.index('Description')
-    except:
+    except Exception:
         desc_pos = 3
 
     services_map = {}
@@ -176,7 +176,7 @@ def main(argv):
         else:
             req = urllib.request.urlopen(svc_url)
             svc_fd = codecs.getreader('utf8')(req)
-    except:
+    except Exception:
         exit_msg('Error opening ' + svc_url)
 
     body = parse_rows(svc_fd)
