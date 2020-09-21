@@ -1884,20 +1884,31 @@ static void file_close(int offset, gboolean request, tvbuff_t *tvb, proto_tree* 
 
 
 /*a function to display file attributes*/
-static int get_file_attribute(packet_info* pinfo, int offset, guint8 attribute0, tvbuff_t *tvb, proto_tree* ecmp_current_tree)
+static int get_file_attribute(packet_info* pinfo, int offset, tvbuff_t *tvb, proto_tree* ecmp_current_tree)
 {
+	proto_item *ecmp_file_info_att_item;
+	proto_tree *ecmp_file_info_att_tree;
+	guint32 attribute0;
+	int start_offset = offset;
+
+	ecmp_file_info_att_item = proto_tree_add_item_ret_uint(ecmp_current_tree,
+			hf_ecmp_file_attributes, tvb, offset, 1, ENC_BIG_ENDIAN, &attribute0);
+	offset++;
+	ecmp_file_info_att_tree = proto_item_add_subtree(ecmp_file_info_att_item, ett_ecmp_file_info_att);
+
 	switch(attribute0)
 	{
 		case 0: /*display length of file*/
-			proto_tree_add_item(ecmp_current_tree, hf_ecmp_file_length, tvb, offset, 4, ENC_BIG_ENDIAN);
-			offset+= 3;
+			proto_tree_add_item(ecmp_file_info_att_tree, hf_ecmp_file_length, tvb, offset, 4, ENC_BIG_ENDIAN);
+			offset += 4;
 			break;
 		case 1: /*display integrity*/
-			proto_tree_add_item(ecmp_current_tree, hf_ecmp_file_integrity, tvb, offset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(ecmp_file_info_att_tree, hf_ecmp_file_integrity, tvb, offset, 1, ENC_BIG_ENDIAN);
+			offset++;
 			break;
 		case 2:	/*display CRC*/
-			proto_tree_add_item(ecmp_current_tree, hf_ecmp_crc, tvb, offset, 4, ENC_BIG_ENDIAN);
-			offset+= 3;
+			proto_tree_add_item(ecmp_file_info_att_tree, hf_ecmp_crc, tvb, offset, 4, ENC_BIG_ENDIAN);
+			offset += 4;
 			break;
 		case 3:	/*display attrib*/
 			{
@@ -1911,21 +1922,24 @@ static int get_file_attribute(packet_info* pinfo, int offset, guint8 attribute0,
 					NULL
 				};
 
-				proto_tree_add_bitmask_list(ecmp_current_tree, tvb, offset, 1, fields, ENC_BIG_ENDIAN);
+				proto_tree_add_bitmask_list(ecmp_file_info_att_tree, tvb, offset, 1, fields, ENC_BIG_ENDIAN);
+				offset++;
 			}
 			break;
 		case 4:	/*display creation date*/
-			proto_tree_add_item(ecmp_current_tree, hf_ecmp_display_creation, tvb, offset, 4, ENC_TIME_SECS|ENC_BIG_ENDIAN);
-			offset+= 3;
+			proto_tree_add_item(ecmp_file_info_att_tree, hf_ecmp_display_creation, tvb, offset, 4, ENC_TIME_SECS|ENC_BIG_ENDIAN);
+			offset += 4;
 			break;
 		case 5:	/*display modification date*/
-			proto_tree_add_item(ecmp_current_tree, hf_ecmp_display_modification, tvb, offset, 4, ENC_TIME_SECS|ENC_BIG_ENDIAN);
-			offset+= 3;
+			proto_tree_add_item(ecmp_file_info_att_tree, hf_ecmp_display_modification, tvb, offset, 4, ENC_TIME_SECS|ENC_BIG_ENDIAN);
+			offset += 4;
 			break;
 		default: /*display incorrect attribute type error*/
-			proto_tree_add_expert(ecmp_current_tree, pinfo, &ei_ecmp_attribute_type, tvb, offset, 1);
+			proto_tree_add_expert(ecmp_file_info_att_tree, pinfo, &ei_ecmp_attribute_type, tvb, offset, 1);
+			offset++;
 			break;
 	}
+	proto_item_set_len(ecmp_file_info_att_item, offset - start_offset);
 	return offset;
 }
 
@@ -1933,57 +1947,44 @@ static int get_file_attribute(packet_info* pinfo, int offset, guint8 attribute0,
 /*a function to dissect "FileInfo" command*/
 static void file_info(packet_info* pinfo, int offset, gboolean request, tvbuff_t *tvb, proto_tree* ecmp_tree)
 {
-	proto_item* ecmp_file_info_item = NULL;
-	proto_tree* ecmp_file_info_tree = NULL;
-	proto_tree* ecmp_file_info_att_tree = NULL;
-	guint8 no_of_att = 0;
-	guint8 attribute0 = 0;
-	guint8 a = 0;
+	proto_tree *ecmp_file_info_tree;
+	guint32 a, no_of_att;
 	int start_offset;
 
 	if (request) {
-		/*display file handle*/
 		proto_tree_add_item(ecmp_tree, hf_ecmp_file_handle, tvb, offset, 2, ENC_BIG_ENDIAN);
 		offset+=2;
 
-		/*display number of attributes*/
-		no_of_att = tvb_get_guint8(tvb, offset);
-		ecmp_file_info_item = proto_tree_add_uint(ecmp_tree, hf_ecmp_no_of_attributes, tvb, offset, 1, no_of_att);
-		ecmp_file_info_tree = proto_item_add_subtree(ecmp_file_info_item, ett_ecmp_file_info);
-		offset++;
-
-		/*display attributes*/
-		for (a = 0; a < no_of_att; a++) {
-			ecmp_file_info_item = proto_tree_add_item(ecmp_file_info_tree, hf_ecmp_file_attributes, tvb, offset, 1, ENC_BIG_ENDIAN);
-			ecmp_file_info_att_tree = proto_item_add_subtree(ecmp_file_info_item, ett_ecmp_file_info_att);
-			attribute0 = tvb_get_guint8(tvb, offset);
-			offset++;
-			offset = get_file_attribute(pinfo, offset, attribute0, tvb, ecmp_file_info_att_tree);
-		}
-
-		proto_item_set_len(ecmp_file_info_item, no_of_att);
-	} else {
-		/*display file status*/
-		proto_tree_add_item(ecmp_tree, hf_ecmp_file_status, tvb, offset, 1, ENC_BIG_ENDIAN);
-
-		offset++;
-
-		/*display number of attributes*/
-		no_of_att = tvb_get_guint8(tvb, offset);
-		ecmp_file_info_item = proto_tree_add_uint(ecmp_tree, hf_ecmp_no_of_attributes, tvb, offset, 1, no_of_att);
-		ecmp_file_info_tree = proto_item_add_subtree(ecmp_file_info_item, ett_ecmp_file_info);
 		start_offset = offset;
+		ecmp_file_info_tree = proto_tree_add_subtree(ecmp_tree,
+				tvb, offset, -1, ett_ecmp_file_info, NULL, "Requested Attributes");
+		proto_tree_add_item_ret_uint(ecmp_file_info_tree,
+				hf_ecmp_no_of_attributes, tvb, offset, 1, ENC_BIG_ENDIAN, &no_of_att);
+		offset++;
+
+		for (a = 0; a < no_of_att; a++) {
+			proto_tree_add_item(ecmp_file_info_tree,
+					hf_ecmp_file_attributes, tvb, offset, 1, ENC_BIG_ENDIAN);
+			offset++;
+		}
+		proto_item_set_len(ecmp_file_info_tree, offset - start_offset);
+	} else {
+		proto_tree_add_item(ecmp_tree, hf_ecmp_file_status, tvb, offset, 1, ENC_BIG_ENDIAN);
+		offset++;
+
+		start_offset = offset;
+		ecmp_file_info_tree = proto_tree_add_subtree(ecmp_tree,
+				tvb, offset, -1, ett_ecmp_file_info, NULL, "Received Attributes");
+
+		proto_tree_add_item_ret_uint(ecmp_file_info_tree,
+				hf_ecmp_no_of_attributes, tvb, offset, 1, ENC_BIG_ENDIAN, &no_of_att);
+		offset++;
 
 		/*display attributes*/
 		for (a = 0; a < no_of_att; a++) {
-			offset++;
-			ecmp_file_info_item = proto_tree_add_item(ecmp_file_info_tree, hf_ecmp_file_attributes, tvb, offset, 1, ENC_BIG_ENDIAN);
-			ecmp_file_info_att_tree = proto_item_add_subtree(ecmp_file_info_item, ett_ecmp_file_info_att);
-			attribute0 = tvb_get_guint8(tvb, offset);
-			offset++;
-			offset = get_file_attribute(pinfo, offset, attribute0, tvb, ecmp_file_info_att_tree);
+			offset = get_file_attribute(pinfo, offset, tvb, ecmp_file_info_tree);
 		}
-		proto_item_set_len(ecmp_file_info_item, offset-start_offset);
+		proto_item_set_len(ecmp_file_info_tree, offset-start_offset);
 	}
 }
 
