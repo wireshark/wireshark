@@ -195,15 +195,15 @@ static reassembly_table nds_reassembly_table;
 #define DSI_PARTITION_ROOT_DN           0x00004000U
 #define DSI_PARENT_DN                   0x00008000U
 #define DSI_PURGE_TIME                  0x00010000U
-#define DSI_DEREFERENCED_BASE_CLASS     0x00020000
-#define DSI_REPLICA_NUMBER              0x00040000
-#define DSI_REPLICA_STATE               0x00080000
-#define DSI_FEDERATION_BOUNDARY         0x00100000
-#define DSI_SCHEMA_BOUNDARY             0x00200000
-#define DSI_FEDERATION_BOUNDARY_ID      0x00400000
-#define DSI_SCHEMA_BOUNDARY_ID          0x00800000
-#define DSI_CUR_SUBCOUNT                0x01000000
-#define DSI_LOCAL_ENTRY_FLAGS           0x02000000
+#define DSI_DEREFERENCED_BASE_CLASS     0x00020000U
+#define DSI_REPLICA_NUMBER              0x00040000U
+#define DSI_REPLICA_STATE               0x00080000U
+#define DSI_FEDERATION_BOUNDARY         0x00100000U
+#define DSI_SCHEMA_BOUNDARY             0x00200000U
+#define DSI_FEDERATION_BOUNDARY_ID      0x00400000U
+#define DSI_SCHEMA_BOUNDARY_ID          0x00800000U
+#define DSI_CUR_SUBCOUNT                0x01000000U
+#define DSI_LOCAL_ENTRY_FLAGS           0x02000000U
 
 static const value_string zensearchenum[] = {
     { 0, "[Root]" },
@@ -4984,6 +4984,7 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
             {
                 if (values->vflags & bvalue)
                 {
+                    // Note: these do not all apear to be DSI_ flags
                     switch(bvalue)
                     {
                     case 0x00000001:                /*p3values.bit1 = "Output Flags"*/
@@ -5283,29 +5284,29 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
                 {
                     switch(bvalue)
                     {
-                    case 0x00000001:                /* Information Flags */
+                    case DSI_OUTPUT_FIELDS:           /* Information Flags */
                         proto_tree_add_bitmask(ntree, tvb, ioffset, hf_infoflagsl, ett_ncp, ncp_infoflagsl, ENC_LITTLE_ENDIAN);
                         ioffset += 2;
                         proto_tree_add_bitmask(ntree, tvb, ioffset, hf_infoflagsh, ett_ncp, ncp_infoflagsh, ENC_LITTLE_ENDIAN);
                         ioffset += 2;
                         break;
-                    case 0x00000002:                /* Entry ID */
+                    case DSI_ENTRY_ID:                /* Entry ID */
                         value1 = tvb_get_letohl(tvb, ioffset);
                         proto_tree_add_uint_format(ntree, hf_nds_eid, tvb, ioffset,
                                                    4, value1, "Entry ID %08x", value1);
                         ioffset = ioffset + 4;
                         break;
-                    case 0x00000004:                /* Entry Flags */
+                    case DSI_ENTRY_FLAGS:             /* Entry Flags */
                         proto_tree_add_bitmask(ntree, tvb, ioffset, hf_eflags, ett_ncp, ncp_eflags, ENC_LITTLE_ENDIAN);
                         ioffset = ioffset+4;
                         break;
-                    case 0x0000008:                 /* Subordinate Count */
+                    case DSI_SUBORDINATE_COUNT:       /* Subordinate Count */
                         value1 = tvb_get_letohl(tvb, ioffset);
                         proto_tree_add_uint_format(ntree, hf_sub_count, tvb, ioffset,
                                                    4, value1, "Subordinate Count %u", value1);
                         ioffset = ioffset + 4;
                         break;
-                    case 0x0000010:                 /* Modification Time */
+                    case DSI_MODIFICATION_TIME:       /* Modification Time */
                         ns.secs = tvb_get_letohl(tvb, ioffset);   /* Seconds */
                         ns.nsecs = 0;
                         proto_tree_add_time_format(ntree, hf_es_seconds, tvb, ioffset,
@@ -5313,7 +5314,7 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
                                                    abs_time_secs_to_str(wmem_packet_scope(), ns.secs, ABSOLUTE_TIME_LOCAL, TRUE));
                         ioffset = ioffset + 4;
                         break;
-                    case 0x0000020:                 /* Modification Timestamp */
+                    case DSI_MODIFICATION_TIMESTAMP:  /* Modification Timestamp */
                         ns.secs = tvb_get_letohl(tvb, ioffset);   /* Seconds */
                         ns.nsecs = 0;
                         proto_tree_add_time_format(ntree, hf_es_seconds, tvb, ioffset,
@@ -5327,7 +5328,7 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
                                             2, ENC_LITTLE_ENDIAN);
                         ioffset = ioffset + 2;
                         break;
-                    case 0x0000040:                 /* Creation Timestamp */
+                    case DSI_CREATION_TIMESTAMP:      /* Creation Timestamp */
                         ns.secs = tvb_get_letohl(tvb, ioffset);   /* Seconds */
                         ns.nsecs = 0;
                         proto_tree_add_time_format(ntree, hf_es_seconds, tvb, ioffset,
@@ -5341,21 +5342,21 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
                                             2, ENC_LITTLE_ENDIAN);
                         ioffset = ioffset + 2;
                         break;
-                    case 0x00000080:                /* Partition Root ID */
+                    case DSI_PARTITION_ROOT_ID:       /* Partition Root ID */
                         value1 = tvb_get_letohl(tvb, ioffset);
                         proto_tree_add_uint_format(ntree, hf_nds_partition_root_id, tvb, ioffset,
                                                    4, value1, "Partition Root ID %08x", value1);
                         ioffset = ioffset + 4;
                         break;
-                    case 0x00000100:                /* Parent ID */
+                    case DSI_PARENT_ID:               /* Parent ID */
                         proto_tree_add_item(ntree, hf_nds_parent, tvb, ioffset, 4, ENC_LITTLE_ENDIAN);
                         ioffset = ioffset + 4;
                         break;
-                    case 0x00000200:                /* Revision Count */
+                    case DSI_REVISION_COUNT:          /* Revision Count */
                         proto_tree_add_item(ntree, hf_nds_revision, tvb, ioffset, 4, ENC_LITTLE_ENDIAN);
                         ioffset = ioffset + 4;
                         break;
-                    case 0x00000400:                /* Replica Type & State */
+                    case DSI_REPLICA_TYPE:           /* Replica Type & State */
                         value1 = tvb_get_letohl(tvb, ioffset);
                         value2 = value1 & 0x00ff;
                         proto_tree_add_uint(ntree, hf_replica_type, tvb, ioffset, 4, value2);
@@ -5363,7 +5364,7 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
                         proto_tree_add_uint(ntree, hf_replica_state, tvb, ioffset, 4, value3);
                         ioffset = ioffset + 4;
                         break;
-                    case 0x00000800:                /* Base Class */
+                    case DSI_BASE_CLASS:              /* Base Class */
                         value1 = tvb_get_letohl(tvb, ioffset);
                         ioffset = ioffset + 4;
                         temp_values.vstring = get_string(tvb, ioffset, value1);
@@ -5371,7 +5372,7 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
                                               value1, temp_values.vstring);
                         ioffset = ioffset + value1;
                         break;
-                    case 0x00001000:                /* Relative Distinguished Name */
+                    case DSI_ENTRY_RDN:               /* Relative Distinguished Name */
                         value1 = tvb_get_letohl(tvb, ioffset);
                         ioffset = ioffset + 4;
                         temp_values.vstring = get_string(tvb, ioffset, value1);
@@ -5379,7 +5380,7 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
                                               value1, temp_values.vstring);
                         ioffset = ioffset + value1;
                         break;
-                    case 0x00002000:                /* Distinguished Name */
+                    case DSI_ENTRY_DN:                /* Distinguished Name */
                         value1 = tvb_get_letohl(tvb, ioffset);
                         ioffset = ioffset + 4;
                         temp_values.vstring = get_string(tvb, ioffset, value1);
@@ -5387,7 +5388,7 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
                                               value1, temp_values.vstring);
                         ioffset = ioffset + value1;
                         break;
-                    case 0x00004000:                /* Root Distinguished Name */
+                    case DSI_PARTITION_ROOT_DN:       /* Root Distinguished Name */
                         value1 = tvb_get_letohl(tvb, ioffset);
                         ioffset = ioffset + 4;
                         temp_values.vstring = get_string(tvb, ioffset, value1);
@@ -5395,7 +5396,7 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
                                               value1, temp_values.vstring);
                         ioffset = ioffset + value1;
                         break;
-                    case 0x00008000:                /* Parent Distinguished Name */
+                    case DSI_PARENT_DN:               /* Parent Distinguished Name */
                         value1 = tvb_get_letohl(tvb, ioffset);
                         ioffset = ioffset + 4;
                         temp_values.vstring = get_string(tvb, ioffset, value1);
@@ -5403,7 +5404,7 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
                                               value1, temp_values.vstring);
                         ioffset = ioffset + value1;
                         break;
-                    case 0x00010000:                /* Purge Time */
+                    case DSI_PURGE_TIME:              /* Purge Time */
                         ns.secs = tvb_get_letohl(tvb, ioffset);   /* Seconds */
                         ns.nsecs = 0;
                         proto_tree_add_time_format(ntree, hf_es_seconds, tvb, ioffset,
@@ -5411,7 +5412,7 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
                                                    abs_time_secs_to_str(wmem_packet_scope(), ns.secs, ABSOLUTE_TIME_LOCAL, TRUE));
                         ioffset = ioffset + 4;
                         break;
-                    case 0x00020000:                /* Dereference Base Class */
+                    case DSI_DEREFERENCED_BASE_CLASS: /* Dereference Base Class */
                         value1 = tvb_get_letohl(tvb, ioffset);
                         ioffset = ioffset + 4;
                         temp_values.vstring = get_string(tvb, ioffset, value1);
