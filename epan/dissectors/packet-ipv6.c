@@ -2324,8 +2324,8 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 
     /* Validate IP version (6) */
     version = tvb_get_bits8(tvb, (offset + IP6H_CTL_VFC) * 8, 4);
-    ti_ipv6_version = proto_tree_add_item(ipv6_tree, hf_ipv6_version, tvb,
-                                 offset + IP6H_CTL_VFC, 1, ENC_BIG_ENDIAN);
+    ti_ipv6_version = proto_tree_add_bits_item(ipv6_tree, hf_ipv6_version, tvb,
+                                 (offset + IP6H_CTL_VFC) * 8, 4, ENC_BIG_ENDIAN);
     pi = proto_tree_add_item(ipv6_tree, hf_ip_version, tvb,
                                  offset + IP6H_CTL_VFC, 1, ENC_BIG_ENDIAN);
     proto_item_append_text(pi, " [This field makes the filter match on \"ip.version == 6\" possible]");
@@ -2349,6 +2349,7 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     /* !!! warning: (4-bit) version, (6-bit) DSCP, (2-bit) ECN and (20-bit) Flow */
     ti = proto_tree_add_item(ipv6_tree, hf_ipv6_tclass, tvb,
                         offset + IP6H_CTL_VFC, 4, ENC_BIG_ENDIAN);
+    proto_item_set_bits_offset_len(ti, 4, 8);
     ip6_tcls = tvb_get_bits8(tvb, (offset + IP6H_CTL_VFC) * 8 + 4, 8);
     proto_item_append_text(ti, " (DSCP: %s, ECN: %s)",
                         val_to_str_ext_const(IPDSFIELD_DSCP(ip6_tcls), &dscp_short_vals_ext, "Unknown"),
@@ -2364,8 +2365,9 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     col_add_str(pinfo->cinfo, COL_DSCP_VALUE,
                 val_to_str_ext(IPDSFIELD_DSCP(ip6_tcls), &dscp_short_vals_ext, "%u"));
 
-    proto_tree_add_item_ret_uint(ipv6_tree, hf_ipv6_flow, tvb,
-                        offset + IP6H_CTL_FLOW, 4, ENC_BIG_ENDIAN, &ip6_flow);
+    ti = proto_tree_add_item_ret_uint(ipv6_tree, hf_ipv6_flow, tvb,
+                        offset + IP6H_CTL_FLOW + 1, 3, ENC_BIG_ENDIAN, &ip6_flow);
+    proto_item_set_bits_offset_len(ti, 4, 20);
 
     ip6_plen = tvb_get_guint16(tvb, offset + IP6H_CTL_PLEN, ENC_BIG_ENDIAN);
 
@@ -2557,7 +2559,7 @@ proto_register_ipv6(void)
     static hf_register_info hf_ipv6[] = {
         { &hf_ipv6_version,
             { "Version", "ipv6.version",
-                FT_UINT8, BASE_DEC, NULL, 0xF0,
+                FT_UINT8, BASE_DEC, NULL, 0x00,
                 NULL, HFILL }
         },
         { &hf_ip_version,
