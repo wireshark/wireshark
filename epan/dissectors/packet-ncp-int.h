@@ -98,6 +98,10 @@ typedef struct _ncp_record {
 	ncp_expert_handler  *expert_handler_func;
 } ncp_record;
 
+/*
+ * XXX - should the object_name be a pointer, initialized to null,
+ * and set to a wmem-allocated copy of the full string?
+ */
 typedef struct {
 	const ncp_record	*ncp_rec;
 	gboolean		*req_cond_results;
