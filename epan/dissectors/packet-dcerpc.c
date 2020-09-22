@@ -5461,7 +5461,6 @@ is_dcerpc(tvbuff_t *tvb, int offset, packet_info *pinfo _U_)
     offset++;
 
     tvb_memcpy(tvb, (guint8 *)drep, offset, sizeof (drep));
-    offset += (int)sizeof (drep);
     if (drep[0]&0xee)
         return FALSE;
     if (drep[1] > DCE_RPC_DREP_FP_IBM)
