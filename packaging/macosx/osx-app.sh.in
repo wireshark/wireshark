@@ -366,7 +366,7 @@ rpathify_dir () {
 		#
 		# shellcheck disable=SC2086
 		files=$( ls $2 2>/dev/null )
-		if [ ! -z "$files" ]; then
+		if [ -n "$files" ]; then
 			for file in $files; do
 				rpathify_file "$file" "$( pwd )"
 			done
