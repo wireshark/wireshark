@@ -248,6 +248,22 @@ class case_decompress_smb2(subprocesstest.SubprocessTestCase):
             fixtures.skip('this test is supported on little endian only')
         self.extract_compressed_payload(cmd_tshark, capture_file, 3)
 
+    def extract_chained_compressed_payload(self, cmd_tshark, capture_file, frame_num):
+        proc = self.assertRun((cmd_tshark,
+            '-r', capture_file('smb311-chained-patternv1-lznt1.pcapng.gz'),
+            '-Tfields', '-edata.data',
+            '-Y', 'frame.number == %d'%frame_num,
+        ))
+        self.assertEqual(b'\xaa'*256, bytes.fromhex(proc.stdout_str.strip()))
+
+    def test_smb311_chained_lznt1_patternv1(self, cmd_tshark, capture_file):
+        if sys.byteorder == 'big':
+            fixtures.skip('this test is supported on little endian only')
+        self.extract_chained_compressed_payload(cmd_tshark, capture_file, 1)
+
+    def test_smb311_chained_none_patternv1(self, cmd_tshark, capture_file):
+        self.extract_chained_compressed_payload(cmd_tshark, capture_file, 2)
+
 @fixtures.mark_usefixtures('test_env')
 @fixtures.uses_fixtures
 class case_communityid(subprocesstest.SubprocessTestCase):
