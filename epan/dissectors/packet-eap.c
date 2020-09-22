@@ -1105,15 +1105,24 @@ dissect_eap_pax(proto_tree *eap_tree, tvbuff_t *tvb, packet_info *pinfo, int off
   guint64 flags;
   guint32 len;
 
-  proto_tree_add_item_ret_uint(eap_tree, hf_eap_pax_opcode, tvb, offset++, 1, ENC_NA, &opcode);
+  proto_tree_add_item_ret_uint(eap_tree, hf_eap_pax_opcode, tvb, offset, 1, ENC_NA, &opcode);
+  offset++;
+
   col_append_fstr(pinfo->cinfo, COL_INFO, " %s",
                   val_to_str(opcode, eap_pax_opcode_vals, "Unknown opcode (0x%02X)"));
 
-  proto_tree_add_bitmask_ret_uint64(eap_tree, tvb, offset++, hf_eap_pax_flags, ett_eap_pax_flags,
+  proto_tree_add_bitmask_ret_uint64(eap_tree, tvb, offset, hf_eap_pax_flags, ett_eap_pax_flags,
                                     pax_flags, ENC_BIG_ENDIAN, &flags);
-  proto_tree_add_item(eap_tree, hf_eap_pax_mac_id, tvb, offset++, 1, ENC_NA);
-  proto_tree_add_item(eap_tree, hf_eap_pax_dh_group_id, tvb, offset++, 1, ENC_NA);
-  proto_tree_add_item(eap_tree, hf_eap_pax_public_key_id, tvb, offset++, 1, ENC_NA);
+  offset++;
+
+  proto_tree_add_item(eap_tree, hf_eap_pax_mac_id, tvb, offset, 1, ENC_NA);
+  offset++;
+
+  proto_tree_add_item(eap_tree, hf_eap_pax_dh_group_id, tvb, offset, 1, ENC_NA);
+  offset++;
+
+  proto_tree_add_item(eap_tree, hf_eap_pax_public_key_id, tvb, offset, 1, ENC_NA);
+  offset++;
 
   switch (opcode) {
     case PAX_STD_1:
@@ -1204,8 +1213,9 @@ dissect_eap_psk(proto_tree *eap_tree, tvbuff_t *tvb, packet_info *pinfo, int off
   };
   guint64 flags;
 
-  proto_tree_add_bitmask_ret_uint64(eap_tree, tvb, offset++, hf_eap_psk_flags, ett_eap_psk_flags,
+  proto_tree_add_bitmask_ret_uint64(eap_tree, tvb, offset, hf_eap_psk_flags, ett_eap_psk_flags,
                                     psk_flags, ENC_NA, &flags);
+  offset++;
 
   switch (flags & EAP_PSK_FLAGS_T_MASK) {
     case 0x00: /* T == 0 - EAP-PSK First Message */
@@ -1301,8 +1311,10 @@ dissect_eap_sake_attribute(proto_tree *eap_tree, tvbuff_t *tvb, int offset, gint
                                             val_to_str(type, eap_sake_attr_type_vals,
                                                        "Unknown (%d)"));
 
-  proto_tree_add_item(attr_tree, hf_eap_sake_attr_type, tvb, offset++, 1, ENC_NA);
-  proto_tree_add_item(attr_tree, hf_eap_sake_attr_len, tvb, offset++, 1, ENC_NA);
+  proto_tree_add_item(attr_tree, hf_eap_sake_attr_type, tvb, offset, 1, ENC_NA);
+  offset++;
+  proto_tree_add_item(attr_tree, hf_eap_sake_attr_len, tvb, offset, 1, ENC_NA);
+  offset++;
   len -= 2;
 
   switch (type) {
@@ -1355,13 +1367,16 @@ dissect_eap_sake(proto_tree *eap_tree, tvbuff_t *tvb, packet_info *pinfo _U_, in
   guint32 version;
   guint32 subtype;
 
-  proto_tree_add_item_ret_uint(eap_tree, hf_eap_sake_version, tvb, offset++, 1, ENC_NA, &version);
+  proto_tree_add_item_ret_uint(eap_tree, hf_eap_sake_version, tvb, offset, 1, ENC_NA, &version);
+  offset++;
   if (version != 2) {
     /* RFC 4763 specify version 2. Everything else is unsupported */
     return;
   }
-  proto_tree_add_item(eap_tree, hf_eap_sake_session_id, tvb, offset++, 1, ENC_NA);
-  proto_tree_add_item_ret_uint(eap_tree, hf_eap_sake_subtype, tvb, offset++, 1, ENC_NA, &subtype);
+  proto_tree_add_item(eap_tree, hf_eap_sake_session_id, tvb, offset, 1, ENC_NA);
+  offset++;
+  proto_tree_add_item_ret_uint(eap_tree, hf_eap_sake_subtype, tvb, offset, 1, ENC_NA, &subtype);
+  offset++;
 
   switch (subtype) {
     case SAKE_CHALLENGE:
@@ -1381,7 +1396,8 @@ dissect_eap_gpsk(proto_tree *eap_tree, tvbuff_t *tvb, packet_info *pinfo, int of
   guint32 opcode;
   guint32 len;
 
-  proto_tree_add_item_ret_uint(eap_tree, hf_eap_gpsk_opcode, tvb, offset++, 1, ENC_NA, &opcode);
+  proto_tree_add_item_ret_uint(eap_tree, hf_eap_gpsk_opcode, tvb, offset, 1, ENC_NA, &opcode);
+  offset++;
   col_append_fstr(pinfo->cinfo, COL_INFO, " %s",
                   val_to_str(opcode, eap_gpsk_opcode_vals, "Unknown opcode (0x%02X)"));
 
