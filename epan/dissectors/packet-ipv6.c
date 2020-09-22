@@ -260,15 +260,9 @@ static int hf_ipv6_routing_rpl_addr_count       = -1;
 static int hf_ipv6_routing_rpl_addr             = -1;
 static int hf_ipv6_routing_rpl_fulladdr         = -1;
 
-static int hf_ipv6_routing_srh_first_seg        = -1;
+static int hf_ipv6_routing_srh_last_entry       = -1;
 static int hf_ipv6_routing_srh_flags            = -1;
-static int hf_ipv6_routing_srh_flag_unused1     = -1;
-static int hf_ipv6_routing_srh_flag_p           = -1;
-static int hf_ipv6_routing_srh_flag_o           = -1;
-static int hf_ipv6_routing_srh_flag_a           = -1;
-static int hf_ipv6_routing_srh_flag_h           = -1;
-static int hf_ipv6_routing_srh_flag_unused2     = -1;
-static int hf_ipv6_routing_srh_reserved         = -1;
+static int hf_ipv6_routing_srh_tag              = -1;
 static int hf_ipv6_routing_srh_addr             = -1;
 
 static int hf_geoip_country             = -1;
@@ -305,7 +299,6 @@ static gint ett_ipv6_opt_dff_flags      = -1;
 static gint ett_ipv6_hopopts_proto      = -1;
 static gint ett_ipv6_fraghdr_proto      = -1;
 static gint ett_ipv6_routing_proto      = -1;
-static gint ett_ipv6_routing_srh_flags  = -1;
 static gint ett_ipv6_routing_srh_vect   = -1;
 static gint ett_ipv6_fragments          = -1;
 static gint ett_ipv6_fragment           = -1;
@@ -1081,91 +1074,38 @@ dissect_routing6_rpl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 }
 
 /* Segment Routing Header (Type 4) */
-/* draft-ietf-6man-segment-routing-header-05 */
 static int
 dissect_routing6_srh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     struct ws_rthdr *rt = (struct ws_rthdr *)data;
-    proto_item *ti;
     int offset = 0;
-    gint offlim, offstart;
-    gint idx;
-    gint srh_first_seg, srh_addr_count;
-    const ws_in6_addr *addr;
-    proto_tree *rthdr_srh_addr_tree;
-    static int * const srh_flags[] = {
-        &hf_ipv6_routing_srh_flag_unused1,
-        &hf_ipv6_routing_srh_flag_p,
-        &hf_ipv6_routing_srh_flag_o,
-        &hf_ipv6_routing_srh_flag_a,
-        &hf_ipv6_routing_srh_flag_h,
-        &hf_ipv6_routing_srh_flag_unused2,
-        NULL
-    };
+    gint addr_offset;
+    guint32 last_entry, addr_count;
 
-    srh_first_seg = tvb_get_guint8(tvb, offset);
-    proto_tree_add_item(tree, hf_ipv6_routing_srh_first_seg, tvb, offset, 1, ENC_NA);
-    offset += 1;
-    srh_addr_count = srh_first_seg + 1;
-
-    /* TODO: dissect TLVs */
-    ti = proto_tree_add_bitmask(tree, tvb, offset, hf_ipv6_routing_srh_flags,
-                            ett_ipv6_routing_srh_flags, srh_flags, ENC_BIG_ENDIAN);
-    expert_add_info_format(pinfo, ti, &ei_ipv6_routing_undecoded,
-                "Dissection for SRH TLVs not yet implemented");
+    proto_tree_add_item_ret_uint(tree, hf_ipv6_routing_srh_last_entry,
+                                    tvb, offset, 1, ENC_BIG_ENDIAN,
+                                    &last_entry);
+    addr_count = last_entry + 1;
     offset += 1;
 
-    proto_tree_add_item(tree, hf_ipv6_routing_srh_reserved, tvb, offset, 2, ENC_NA);
+    proto_tree_add_item(tree, hf_ipv6_routing_srh_flags, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+
+    proto_tree_add_item(tree, hf_ipv6_routing_srh_tag, tvb, offset, 2, ENC_NA);
     offset += 2;
 
-    if (rt->hdr.ip6r_segleft > srh_first_seg) {
+    if (rt->hdr.ip6r_segleft > addr_count) {
         expert_add_info_format(pinfo, rt->ti_segleft, &ei_ipv6_routing_invalid_segleft,
-                               "IPv6 Type 4 Routing Header segments left field must not exceed first segment (%u)", srh_first_seg);
+                               "IPv6 Type 4 Routing Header segments left field must not exceed address count (%u)", addr_count);
     }
 
-    offstart = offset;
-    offlim = offset + srh_addr_count * IPv6_ADDR_SIZE;
-
-    /* Destination address is the first vector address */
-    addr = tvb_get_ptr_ipv6(tvb, offset);
-    if (in6_addr_is_multicast(addr)) {
-        expert_add_info(pinfo, ti, &ei_ipv6_src_route_list_multicast_addr);
-    }
-    ti = _proto_tree_add_ipv6_vector_address(tree, hf_ipv6_routing_srh_addr, tvb,
-                            offset, IPv6_ADDR_SIZE, addr, 0);
-    if (rt->hdr.ip6r_segleft == 1) {
-        proto_item_append_text(ti, " [next segment]");
+    for (unsigned i = 0; i < addr_count; i++) {
+        addr_offset = offset + i * IPv6_ADDR_SIZE;
+        _proto_tree_add_ipv6_vector_address(tree, hf_ipv6_routing_srh_addr, tvb,
+                addr_offset, IPv6_ADDR_SIZE, tvb_get_ptr_ipv6(tvb, addr_offset), i);
     }
 
-    if (pinfo->dst.type == AT_IPv6 && rt->hdr.ip6r_segleft > 0) {
-        alloc_address_wmem_ipv6(pinfo->pool, &pinfo->dst, addr);
-    }
-
-    offset += IPv6_ADDR_SIZE;
-    for (idx = 1; offset < offlim; offset += IPv6_ADDR_SIZE, idx++) {
-        addr = tvb_get_ptr_ipv6(tvb, offset);
-        if (in6_addr_is_multicast(addr)) {
-            expert_add_info(pinfo, ti, &ei_ipv6_src_route_list_multicast_addr);
-        }
-        ti = _proto_tree_add_ipv6_vector_address(tree, hf_ipv6_routing_srh_addr, tvb,
-                            offset, IPv6_ADDR_SIZE, addr, idx);
-        if (idx == rt->hdr.ip6r_segleft - 1) {
-            proto_item_append_text(ti, " [next segment]");
-        }
-    }
-
-    rthdr_srh_addr_tree = proto_tree_add_subtree_format(tree, tvb, offstart, srh_addr_count * IPv6_ADDR_SIZE,
-                            ett_ipv6_routing_srh_vect, &ti, "Segments in Traversal Order");
-    proto_item_set_generated(ti);
-    offset -= IPv6_ADDR_SIZE;
-    for (idx = srh_first_seg; offset >= offstart; offset -= IPv6_ADDR_SIZE, idx--) {
-        addr = tvb_get_ptr_ipv6(tvb, offset);
-        ti = _proto_tree_add_ipv6_vector_address(rthdr_srh_addr_tree, hf_ipv6_routing_srh_addr, tvb,
-                            offset, IPv6_ADDR_SIZE, addr, idx);
-        if (idx == rt->hdr.ip6r_segleft - 1) {
-            proto_item_append_text(ti, " [next segment]");
-        }
-    }
+    /* TODO: dissect TLVs */
 
     return tvb_captured_length(tvb);
 }
@@ -3382,50 +3322,20 @@ proto_register_ipv6(void)
         },
 
         /* Segment Routing Header */
-        { &hf_ipv6_routing_srh_first_seg,
-            { "First segment", "ipv6.routing.srh.first_segment",
+        { &hf_ipv6_routing_srh_last_entry,
+            { "Last Entry", "ipv6.routing.srh.last_entry",
                 FT_UINT8, BASE_DEC, NULL, 0x0,
-                "Index of the first segment", HFILL }
+                "Index (zero based) of the last element of the Segment List", HFILL }
         },
         { &hf_ipv6_routing_srh_flags,
             { "Flags", "ipv6.routing.srh.flags",
                 FT_UINT8, BASE_HEX, NULL, 0x0,
-                NULL, HFILL }
+                "Unused, 8 bits of flags", HFILL }
         },
-        { &hf_ipv6_routing_srh_flag_unused1,
-            { "Unused", "ipv6.routing.srh.flag_unused1",
-                FT_UINT8, BASE_HEX, NULL, 0x80,
-                "Unset on transmission and ignored on receipt", HFILL }
-        },
-        { &hf_ipv6_routing_srh_flag_p,
-            { "Protected", "ipv6.routing.srh.flag_p",
-                FT_BOOLEAN, 8, TFS(&tfs_true_false), 0x40,
-                NULL, HFILL }
-        },
-        { &hf_ipv6_routing_srh_flag_o,
-            { "OAM", "ipv6.routing.srh.flag_o",
-                FT_BOOLEAN, 8, TFS(&tfs_true_false), 0x20,
-                NULL, HFILL }
-        },
-        { &hf_ipv6_routing_srh_flag_a,
-            { "Alert", "ipv6.routing.srh.flag_a",
-                FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x10,
-                NULL, HFILL }
-        },
-        { &hf_ipv6_routing_srh_flag_h,
-            { "HMAC", "ipv6.routing.srh.flag_h",
-                FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x08,
-                NULL, HFILL }
-        },
-        { &hf_ipv6_routing_srh_flag_unused2,
-            { "Unused", "ipv6.routing.srh.flag_unused2",
-                FT_UINT8, BASE_HEX, NULL, 0x07,
-                NULL, HFILL }
-        },
-        { &hf_ipv6_routing_srh_reserved,
-            { "Reserved", "ipv6.routing.srh.reserved",
+        { &hf_ipv6_routing_srh_tag,
+            { "Tag", "ipv6.routing.srh.tag",
                 FT_BYTES, BASE_NONE, NULL, 0x0,
-                "Must be zero", HFILL }
+                "Tag a packet as part of a class or group of packets", HFILL }
         },
         { &hf_ipv6_routing_srh_addr,
             { "Address", "ipv6.routing.srh.addr",
@@ -3486,7 +3396,6 @@ proto_register_ipv6(void)
 
     static gint *ett_ipv6_routing[] = {
         &ett_ipv6_routing_proto,
-        &ett_ipv6_routing_srh_flags,
         &ett_ipv6_routing_srh_vect
     };
 
