@@ -7,7 +7,7 @@
 
 #line 1 "./asn1/x2ap/packet-x2ap-template.h"
 /* packet-x2ap.h
- * Routines for E-UTRAN X2 Application Protocol (S1AP) packet dissection
+ * Routines for E-UTRAN X2 Application Protocol (X2AP) packet dissection
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
