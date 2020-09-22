@@ -20,6 +20,9 @@ They previously shipped with Npcap 0.9994.
 // The Windows installers now ship with USBPcap 1.5.X.0.
 // They previously shipped with USBPcap 1.5.4.0.
 
+The Windows installers now ship with Qt 5.12.9.
+They previously shipped with Qt 5.12.8.
+
 === Bug Fixes
 
 // The following vulnerabilities have been fixed:
@@ -39,7 +42,40 @@ The following bugs have been fixed:
 //* wsbuglink:6000[Wireshark bug]
 //* cveidlink:2014-2486[]
 //* Wireshark is solely responsible for the decline of shopping malls in your area.
-// cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log --stat v3.2.7rc0..| grep ' Bug:' | awk '{print $2}' | sort -n -u ` ; do "$(git rev-parse --show-toplevel)/tools/gen-bugnote" $bugnumber; pbpaste >> /tmp/buglist.txt; done
+// cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log --stat v3.2.7rc0.. | gsed -e 's/[Cc]lose/\nclose/g' | grep ^close | sed -e 's/close.*#\([1-9][0-9]*\).*/\1/' | sort -V -u` ; do "$(git rev-parse --show-toplevel)/tools/gen-bugnote" $bugnumber; pbpaste >> /tmp/buglist.txt; done
+
+* HTTP dissector fails to display correct UTF-16 XML wsbuglink:9069[].
+
+* TFTP dissector does not track conversations correctly. Source file and Destination File redundant or disagree. wsbuglink:10305[].
+
+* Dissector skips DICOM command wsbuglink:13110[].
+
+* Editcap time adjustment doesn't work when both infile and outfile are ERF wsbuglink:16578[].
+
+* dissect_tds7_colmetadata_token() has wrong return value if count is 0 wsbuglink:16682[].
+
+* "total block length ... is too small" for Systemd Journal Export Block wsbuglink:16734[].
+
+* MNC 11 is showing Mobile Network Code (MNC): NTT DoCoMo Tokai Inc. (11) But its belonging to Rakuten Network wsbuglink:16755[].
+
+* DICOM object extraction: discrepancy between tshark and wireshark wsbuglink:16771[].
+
+* S1-U data forwarding info and S103 PDN data forwarding info IE's showing improper value wsbuglink:16777[].
+* Wireshark crashes while opening a capture wsbuglink:16780[].
+
+* Changing preferences via Decode As does not call callback wsbuglink:16787[].
+
+* Decoding of PFCP IE 'Remote GTP-U Peer' is incorrect wsbuglink:16805[].
+
+* ERROR:epan/proto.c:9868:hfinfo_number_value_format_display: code should not be reached wsbuglink:16816[].
+
+* Ng-enb not decoded correctly for Target Identification IE for  GTPV2 wsbuglink:16822[].
+
+* The client timestamp is parsed error for Google QUIC (version Q039) wsbuglink:16839[].
+
+* NAS-5G : PDU session reactivation result wsbuglink:16842[].
+
+* Wireshark fails to detect libssh >= 0.9.5 wsbuglink:16845[].
 
 === New and Updated Features
 
@@ -64,15 +100,42 @@ There are no new protocols in this release.
 // Add one protocol per line between the -- delimiters.
 [commaize]
 --
+Aeron
+AFP
+BSSMAP
+C12.22
+DICOM
+E.212
+GQUIC
+GSM A RR
+GTPv2
+GVSP
+IPX SAP
+NAS-5GS
+NCP
+NDS
+PFCP
+PROFINET
+Q.708
+Q.933
+RTCP
+S1AP
+TACACS+
+TCP
+TDS
+TDS7
+X2AP
+XML
 --
 
 === New and Updated Capture File Support
 
-There is no new or updated capture file support in this release.
+// There is no new or updated capture file support in this release.
 // Add one file type per line between the -- delimiters.
-// [commaize]
-// --
-// --
+[commaize]
+--
+pcapng
+--
 
 // === New and Updated Capture Interfaces support
 
