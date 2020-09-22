@@ -8668,7 +8668,7 @@ dissect_smb2_posix_buffer_response(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pr
 
 	/* Owner and Group SID */
 	offset = dissect_nt_sid(tvb, offset, tree, "Owner SID", NULL, -1);
-	offset = dissect_nt_sid(tvb, offset, tree, "Group SID", NULL, -1);
+	dissect_nt_sid(tvb, offset, tree, "Group SID", NULL, -1);
 }
 
 #define SMB2_AAPL_SERVER_QUERY	1
