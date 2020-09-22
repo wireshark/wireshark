@@ -9272,7 +9272,7 @@ addRANContParameter(tvbuff_t *tvb, proto_tree *ran_cont_tree, gint offset)
             /* DL Delay DU Result */
             if (dl_delay_ind) {
                 proto_tree_add_item(ran_cont_tree, hf_gtp_ext_hdr_nr_ran_cont_dl_delay_du_result, tvb, offset, 4, ENC_BIG_ENDIAN);
-                offset += 4;
+                 /* offset += 4; */
             }
             break;
         }
