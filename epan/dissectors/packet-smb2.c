@@ -553,9 +553,11 @@ static int hf_smb2_transform_encrypted_data = -1;
 static int hf_smb2_protocol_id = -1;
 static int hf_smb2_comp_transform_orig_size = -1;
 static int hf_smb2_comp_transform_comp_alg = -1;
-static int hf_smb2_comp_transform_reserved = -1;
+static int hf_smb2_comp_transform_flags = -1;
 static int hf_smb2_comp_transform_offset = -1;
+static int hf_smb2_comp_transform_length = -1;
 static int hf_smb2_comp_transform_data = -1;
+static int hf_smb2_comp_transform_orig_payload_size = -1;
 static int hf_smb2_truncated = -1;
 static int hf_smb2_pipe_fragments = -1;
 static int hf_smb2_pipe_fragment = -1;
@@ -728,6 +730,7 @@ static gint ett_smb2_read_flags = -1;
 static gint ett_smb2_signature = -1;
 static gint ett_smb2_transform_flags = -1;
 static gint ett_smb2_fscc_file_attributes = -1;
+static gint ett_smb2_comp_payload = -1;
 
 static expert_field ei_smb2_invalid_length = EI_INIT;
 static expert_field ei_smb2_bad_response = EI_INIT;
@@ -983,6 +986,14 @@ static const value_string smb2_comp_alg_types[] = {
 	{ SMB2_COMP_ALG_LZ77, "LZ77" },
 	{ SMB2_COMP_ALG_LZ77HUFF, "LZ77+Huffman" },
 	{ SMB2_COMP_ALG_PATTERN_V1, "Pattern_V1" },
+	{ 0, NULL }
+};
+
+#define SMB2_COMP_FLAG_NONE    0x0000
+#define SMB2_COMP_FLAG_CHAINED 0x0001
+static const value_string smb2_comp_transform_flags_vals[] = {
+	{ SMB2_COMP_FLAG_NONE, "None" },
+	{ SMB2_COMP_FLAG_CHAINED, "Chained" },
 	{ 0, NULL }
 };
 
@@ -10169,6 +10180,92 @@ decrypt_smb_payload(packet_info *pinfo,
 }
 #endif
 
+/*
+  Append tvb[offset:offset+length] to out
+*/
+static void
+append_uncompress_data(wmem_array_t *out, tvbuff_t *tvb, int offset, guint length)
+{
+	wmem_array_append(out, tvb_get_ptr(tvb, offset, length), length);
+}
+
+static int
+dissect_smb2_chained_comp_payload(packet_info *pinfo, proto_tree *tree,
+				  tvbuff_t *tvb, int offset,
+				  wmem_array_t *out,
+				  gboolean *ok)
+{
+	proto_tree *subtree;
+	proto_item *subitem;
+	guint alg, length, flags, orig_size = 0;
+	tvbuff_t *uncomp_tvb = NULL;
+	gboolean lz_based = FALSE;
+
+	*ok = TRUE;
+
+	subtree = proto_tree_add_subtree_format(tree, tvb, offset, 0, ett_smb2_comp_payload, &subitem, "COMPRESSION_PAYLOAD_HEADER");
+	proto_tree_add_item_ret_uint(subtree, hf_smb2_comp_transform_comp_alg, tvb, offset, 2, ENC_LITTLE_ENDIAN, &alg);
+	offset += 2;
+
+	proto_tree_add_item_ret_uint(subtree, hf_smb2_comp_transform_flags, tvb, offset, 2, ENC_LITTLE_ENDIAN, &flags);
+	offset += 2;
+
+	proto_tree_add_item_ret_uint(subtree, hf_smb2_comp_transform_length, tvb, offset, 4, ENC_LITTLE_ENDIAN, &length);
+	offset += 4;
+
+	proto_item_set_len(subitem, length);
+
+	lz_based = (SMB2_COMP_ALG_LZNT1 <= alg && alg <= SMB2_COMP_ALG_LZ77HUFF);
+	if (lz_based) {
+		proto_tree_add_item_ret_uint(subtree, hf_smb2_comp_transform_orig_payload_size,
+					     tvb, offset, 4, ENC_LITTLE_ENDIAN, &orig_size);
+		offset += 4;
+		length -= 4;
+	}
+
+	if (length > MAX_UNCOMPRESSED_SIZE) {
+		/* decompression error */
+		col_append_str(pinfo->cinfo, COL_INFO, "Comp. SMB3 (invalid)");
+		*ok = FALSE;
+		goto out;
+	}
+
+	switch (alg) {
+	case SMB2_COMP_ALG_NONE:
+		append_uncompress_data(out, tvb, offset, length);
+		break;
+	case SMB2_COMP_ALG_LZ77:
+		uncomp_tvb = tvb_uncompress_lz77(tvb, offset, length);
+		break;
+	case SMB2_COMP_ALG_LZ77HUFF:
+		uncomp_tvb = tvb_uncompress_lz77huff(tvb, offset, length);
+		break;
+	case SMB2_COMP_ALG_LZNT1:
+		uncomp_tvb = tvb_uncompress_lznt1(tvb, offset, length);
+		break;
+	default:
+		col_append_str(pinfo->cinfo, COL_INFO, "Comp. SMB3 (unknown)");
+		uncomp_tvb = NULL;
+		break;
+	}
+
+	if (lz_based) {
+		if (!uncomp_tvb || tvb_reported_length(uncomp_tvb) != orig_size) {
+			/* decompression error */
+			col_append_str(pinfo->cinfo, COL_INFO, "Comp. SMB3 (invalid)");
+			*ok = FALSE;
+			goto out;
+		}
+		append_uncompress_data(out, uncomp_tvb, 0, tvb_reported_length(uncomp_tvb));
+	}
+
+ out:
+	proto_tree_add_item(subtree, hf_smb2_comp_transform_data, tvb, offset, length, ENC_NA);
+	offset += length;
+
+	return offset;
+}
+
 static int
 dissect_smb2_comp_transform_header(packet_info *pinfo, proto_tree *tree,
 				   tvbuff_t *tvb, int offset,
@@ -10176,13 +10273,29 @@ dissect_smb2_comp_transform_header(packet_info *pinfo, proto_tree *tree,
 				   tvbuff_t **comp_tvb,
 				   tvbuff_t **plain_tvb)
 {
-	guint final_size;
-	guint8 *orig_data;
 	gint in_size;
 	tvbuff_t *uncomp_tvb = NULL;
+	guint flags;
+	wmem_array_t *uncomp_data;
 
 	*comp_tvb = NULL;
 	*plain_tvb = NULL;
+
+	/*
+	  "old" compressed method:
+
+	  [COMPRESS_TRANSFORM_HEADER with Flags=0]
+	    [OPTIONAL UNCOMPRESSED DATA]
+	    [COMPRESSED DATA]
+
+	  new "chained" compressed method:
+
+	  [fist 8 bytes of COMPRESS_TRANSFORM_HEADER with Flags=CHAINED]
+	    [ sequence of
+               [ COMPRESSION_PAYLOAD_HEADER ]
+               [ COMPRESSED PAYLOAD ]
+	    ]
+	 */
 
 	/* SMB2_COMPRESSION_TRANSFORM marker */
 	proto_tree_add_item(tree, hf_smb2_protocol_id, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -10191,10 +10304,31 @@ dissect_smb2_comp_transform_header(packet_info *pinfo, proto_tree *tree,
 	proto_tree_add_item_ret_uint(tree, hf_smb2_comp_transform_orig_size, tvb, offset, 4, ENC_LITTLE_ENDIAN, &scti->orig_size);
 	offset += 4;
 
+	uncomp_data = wmem_array_sized_new(pinfo->pool, 1, 1024);
+
+	flags = tvb_get_letohs(tvb, offset+2);
+	if (flags & SMB2_COMP_FLAG_CHAINED) {
+		gboolean all_ok = TRUE;
+
+		*comp_tvb = tvb_new_subset_length(tvb, offset, tvb_reported_length_remaining(tvb, offset));
+		do {
+			gboolean ok = FALSE;
+
+			offset = dissect_smb2_chained_comp_payload(pinfo, tree, tvb, offset, uncomp_data, &ok);
+			if (!ok)
+				all_ok = FALSE;
+		} while (tvb_reported_length_remaining(tvb, offset) > 8);
+		if (all_ok)
+			goto decompression_ok;
+		else
+			goto out;
+
+	}
+
 	proto_tree_add_item_ret_uint(tree, hf_smb2_comp_transform_comp_alg, tvb, offset, 2, ENC_LITTLE_ENDIAN, &scti->alg);
 	offset += 2;
 
-	proto_tree_add_item(tree, hf_smb2_comp_transform_reserved, tvb, offset, 2, ENC_NA);
+	proto_tree_add_item_ret_uint(tree, hf_smb2_comp_transform_flags, tvb, offset, 2, ENC_LITTLE_ENDIAN, &flags);
 	offset += 2;
 
 	proto_tree_add_item_ret_uint(tree, hf_smb2_comp_transform_offset, tvb, offset, 4, ENC_LITTLE_ENDIAN, &scti->comp_offset);
@@ -10207,13 +10341,12 @@ dissect_smb2_comp_transform_header(packet_info *pinfo, proto_tree *tree,
 		goto out;
 	}
 
-	/* alloc enough space for partial normal packet + uncompressed segment */
-	final_size = scti->orig_size + scti->comp_offset;
-	orig_data = (guint8*)wmem_alloc0(pinfo->pool, final_size);
+	/*
+	 *  final uncompressed size is the partial normal packet + uncompressed segment
+         *  final_size = scti->orig_size + scti->comp_offset
+	 */
 
-	/* copy start of partial packet */
-	tvb_memcpy(tvb, orig_data, offset, scti->comp_offset);
-
+	append_uncompress_data(uncomp_data, tvb, offset, scti->comp_offset);
 	in_size = tvb_reported_length_remaining(tvb, offset + scti->comp_offset);
 
 	/* decompress compressed segment */
@@ -10227,7 +10360,6 @@ dissect_smb2_comp_transform_header(packet_info *pinfo, proto_tree *tree,
 	case SMB2_COMP_ALG_LZNT1:
 		uncomp_tvb = tvb_uncompress_lznt1(tvb, offset + scti->comp_offset, in_size);
 		break;
-	case SMB2_COMP_ALG_NONE:
 	default:
 		col_append_str(pinfo->cinfo, COL_INFO, "Comp. SMB3 (unknown)");
 		uncomp_tvb = NULL;
@@ -10241,10 +10373,14 @@ dissect_smb2_comp_transform_header(packet_info *pinfo, proto_tree *tree,
 	}
 
 	/* write decompressed segment at the end of partial packet */
+	append_uncompress_data(uncomp_data, uncomp_tvb, 0, scti->orig_size);
 
-	tvb_memcpy(uncomp_tvb, orig_data + scti->comp_offset, 0, scti->orig_size);
+ decompression_ok:
 	col_append_str(pinfo->cinfo, COL_INFO, "Decomp. SMB3");
-	*plain_tvb = tvb_new_child_real_data(tvb, orig_data, final_size, final_size);
+	*plain_tvb = tvb_new_child_real_data(tvb,
+					     (guint8 *)wmem_array_get_raw(uncomp_data),
+					     wmem_array_get_count(uncomp_data),
+					     wmem_array_get_count(uncomp_data));
 	add_new_data_source(pinfo, *plain_tvb, "Decomp. SMB3");
 
  out:
@@ -13215,9 +13351,9 @@ proto_register_smb2(void)
 			VALS(smb2_comp_alg_types), 0, NULL, HFILL }
 		},
 
-		{ &hf_smb2_comp_transform_reserved,
-			{ "Reserved", "smb2.header.comp_transform.reserved", FT_BYTES, BASE_NONE,
-			NULL, 0, NULL, HFILL }
+		{ &hf_smb2_comp_transform_flags,
+			{ "Flags", "smb2.header.comp_transform.flags", FT_UINT16, BASE_HEX,
+			  VALS(smb2_comp_transform_flags_vals), 0, NULL, HFILL }
 		},
 
 		{ &hf_smb2_comp_transform_offset,
@@ -13225,8 +13361,18 @@ proto_register_smb2(void)
 			NULL, 0, NULL, HFILL }
 		},
 
+		{ &hf_smb2_comp_transform_length,
+			{ "Length", "smb2.header.comp_transform.length", FT_UINT32, BASE_HEX,
+			NULL, 0, NULL, HFILL }
+		},
+
 		{ &hf_smb2_comp_transform_data,
 		  { "CompressedData", "smb2.header.comp_transform.data", FT_BYTES, BASE_NONE,
+		    NULL, 0, NULL, HFILL }
+		},
+
+		{ &hf_smb2_comp_transform_orig_payload_size,
+		  { "OriginalPayloadSize", "smb2.header.comp_transform.orig_payload_size", FT_UINT32, BASE_DEC,
 		    NULL, 0, NULL, HFILL }
 		},
 
@@ -13579,6 +13725,7 @@ proto_register_smb2(void)
 		&ett_smb2_signature,
 		&ett_smb2_transform_flags,
 		&ett_smb2_fscc_file_attributes,
+		&ett_smb2_comp_payload,
 	};
 
 	static ei_register_info ei[] = {
