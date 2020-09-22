@@ -623,6 +623,7 @@ static gint ett_smb2_ea = -1;
 static gint ett_smb2_header = -1;
 static gint ett_smb2_encrypted = -1;
 static gint ett_smb2_compressed = -1;
+static gint ett_smb2_decompressed = -1;
 static gint ett_smb2_command = -1;
 static gint ett_smb2_secblob = -1;
 static gint ett_smb2_negotiate_context_element = -1;
@@ -10850,6 +10851,7 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, gboolea
 		}
 	} else if (msg_type == SMB2_COMP_HEADER) {
 		proto_tree *comp_tree;
+		proto_item *decomp_item;
 		tvbuff_t   *plain_tvb = NULL;
 		tvbuff_t   *comp_tvb = NULL;
 
@@ -10859,8 +10861,9 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, gboolea
 		if (plain_tvb) {
 			comp_tree = proto_tree_add_subtree(tree, plain_tvb, 0,
 							   tvb_reported_length_remaining(plain_tvb, 0),
-							   ett_smb2_compressed, NULL,
-							   "Compressed SMB3 data");
+							   ett_smb2_decompressed, &decomp_item,
+							   "Decompressed SMB3 data");
+			proto_item_set_generated(decomp_item);
 			dissect_smb2(plain_tvb, pinfo, comp_tree, FALSE);
 		} else {
 			comp_tree = proto_tree_add_subtree(tree, tvb, offset,
@@ -13471,6 +13474,7 @@ proto_register_smb2(void)
 		&ett_smb2_header,
 		&ett_smb2_encrypted,
 		&ett_smb2_compressed,
+		&ett_smb2_decompressed,
 		&ett_smb2_command,
 		&ett_smb2_secblob,
 		&ett_smb2_negotiate_context_element,
