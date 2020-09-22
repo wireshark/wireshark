@@ -10855,18 +10855,18 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, gboolea
 		tvbuff_t   *plain_tvb = NULL;
 		tvbuff_t   *comp_tvb = NULL;
 
-		offset = dissect_smb2_comp_transform_header(pinfo, tree, tvb, offset,
+		offset = dissect_smb2_comp_transform_header(pinfo, header_tree, tvb, offset,
 							    scti, &comp_tvb, &plain_tvb);
 
 		if (plain_tvb) {
-			comp_tree = proto_tree_add_subtree(tree, plain_tvb, 0,
+			comp_tree = proto_tree_add_subtree(header_tree, plain_tvb, 0,
 							   tvb_reported_length_remaining(plain_tvb, 0),
 							   ett_smb2_decompressed, &decomp_item,
 							   "Decompressed SMB3 data");
 			proto_item_set_generated(decomp_item);
 			dissect_smb2(plain_tvb, pinfo, comp_tree, FALSE);
 		} else {
-			comp_tree = proto_tree_add_subtree(tree, tvb, offset,
+			comp_tree = proto_tree_add_subtree(header_tree, tvb, offset,
 							   tvb_reported_length_remaining(tvb, offset),
 							   ett_smb2_compressed, NULL,
 							   "Compressed SMB3 data");
