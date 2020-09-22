@@ -203,7 +203,7 @@ dissect_lithionics(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 	proto_tree_add_item(lithionics_tree, hf_lithionics_temination, tvb, offset, 2, ENC_NA);
 	offset += 2;
 
-	return tvb_captured_length(tvb);
+	return offset;
 }
 
 void
