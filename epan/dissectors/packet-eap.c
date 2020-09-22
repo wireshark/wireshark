@@ -1091,7 +1091,7 @@ dissect_eap_aka(proto_tree *eap_tree, tvbuff_t *tvb, packet_info* pinfo, int off
   }
 }
 
-static void
+static int
 dissect_eap_pax(proto_tree *eap_tree, tvbuff_t *tvb, packet_info *pinfo, int offset, gint size)
 {
   static int * const pax_flags[] = {
@@ -1192,6 +1192,8 @@ dissect_eap_pax(proto_tree *eap_tree, tvbuff_t *tvb, packet_info *pinfo, int off
     default:
       break;
   }
+
+  return offset;
 }
 
 static int
@@ -1203,7 +1205,7 @@ dissect_eap_psk_pchannel(proto_tree *eap_tree, tvbuff_t *tvb, int offset, gint s
   return size;
 }
 
-static void
+static int
 dissect_eap_psk(proto_tree *eap_tree, tvbuff_t *tvb, packet_info *pinfo, int offset, gint size)
 {
   static int * const psk_flags[] = {
@@ -1253,6 +1255,8 @@ dissect_eap_psk(proto_tree *eap_tree, tvbuff_t *tvb, packet_info *pinfo, int off
     default:
       break;
   }
+
+  return offset;
 }
 
 static gint
@@ -1265,7 +1269,7 @@ dissect_eap_gpsk_csuite_sel(proto_tree *eap_tree, tvbuff_t *tvb, int offset)
   offset += 4;
   proto_tree_add_item(csuite_tree, hf_eap_gpsk_csuite_specifier, tvb, offset, 2, ENC_BIG_ENDIAN);
   offset += 2;
-  return 6;
+  return offset;
 }
 
 static gint
@@ -1390,7 +1394,7 @@ dissect_eap_sake(proto_tree *eap_tree, tvbuff_t *tvb, packet_info *pinfo _U_, in
   }
 }
 
-static void
+static int
 dissect_eap_gpsk(proto_tree *eap_tree, tvbuff_t *tvb, packet_info *pinfo, int offset, gint size)
 {
   guint32 opcode;
@@ -1481,6 +1485,8 @@ dissect_eap_gpsk(proto_tree *eap_tree, tvbuff_t *tvb, packet_info *pinfo, int of
     default:
       break;
   }
+
+  return offset;
 }
 
 static int
