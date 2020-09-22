@@ -31,7 +31,8 @@ See the “New and Updated Features” section below for more details.
 
 The following features are new (or have been significantly updated) since version 3.3.0:
 
-* Nothing of note.
+* The Windows installers now ship with Qt 5.15.1.
+  They previously shipped with Qt 5.12.8.
 
 The following features are new (or have been significantly updated) since version 3.2.0:
 
