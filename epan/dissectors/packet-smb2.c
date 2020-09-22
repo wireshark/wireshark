@@ -558,6 +558,10 @@ static int hf_smb2_comp_transform_offset = -1;
 static int hf_smb2_comp_transform_length = -1;
 static int hf_smb2_comp_transform_data = -1;
 static int hf_smb2_comp_transform_orig_payload_size = -1;
+static int hf_smb2_comp_pattern_v1_pattern = -1;
+static int hf_smb2_comp_pattern_v1_reserved1 = -1;
+static int hf_smb2_comp_pattern_v1_reserved2 = -1;
+static int hf_smb2_comp_pattern_v1_repetitions = -1;
 static int hf_smb2_truncated = -1;
 static int hf_smb2_pipe_fragments = -1;
 static int hf_smb2_pipe_fragment = -1;
@@ -731,6 +735,7 @@ static gint ett_smb2_signature = -1;
 static gint ett_smb2_transform_flags = -1;
 static gint ett_smb2_fscc_file_attributes = -1;
 static gint ett_smb2_comp_payload = -1;
+static gint ett_smb2_comp_pattern_v1 = -1;
 
 static expert_field ei_smb2_invalid_length = EI_INIT;
 static expert_field ei_smb2_bad_response = EI_INIT;
@@ -10190,6 +10195,43 @@ append_uncompress_data(wmem_array_t *out, tvbuff_t *tvb, int offset, guint lengt
 }
 
 static int
+dissect_smb2_compression_pattern_v1(proto_tree *tree,
+				    tvbuff_t *tvb, int offset, int length,
+				    wmem_array_t *out)
+{
+	proto_item *pat_item;
+	proto_tree *pat_tree;
+	guint pattern, times;
+
+	pat_tree = proto_tree_add_subtree_format(tree, tvb, offset, length,
+						 ett_smb2_comp_pattern_v1, &pat_item,
+						 "Pattern");
+
+	proto_tree_add_item_ret_uint(pat_tree, hf_smb2_comp_pattern_v1_pattern, tvb, offset, 1, ENC_LITTLE_ENDIAN, &pattern);
+	offset += 1;
+
+	proto_tree_add_item(pat_tree, hf_smb2_comp_pattern_v1_reserved1, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+	offset += 1;
+
+	proto_tree_add_item(pat_tree, hf_smb2_comp_pattern_v1_reserved2, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+	offset += 2;
+
+	proto_tree_add_item_ret_uint(pat_tree, hf_smb2_comp_pattern_v1_repetitions, tvb, offset, 4, ENC_LITTLE_ENDIAN, &times);
+	offset += 4;
+
+	proto_item_append_text(pat_item, " 0x%02x repeated %u times", pattern, times);
+
+	if (out) {
+		guint8 v = (guint8)pattern;
+
+		for (guint i = 0; i < times; i++)
+			wmem_array_append(out, &v, 1);
+	}
+
+	return offset;
+}
+
+static int
 dissect_smb2_chained_comp_payload(packet_info *pinfo, proto_tree *tree,
 				  tvbuff_t *tvb, int offset,
 				  wmem_array_t *out,
@@ -10242,6 +10284,9 @@ dissect_smb2_chained_comp_payload(packet_info *pinfo, proto_tree *tree,
 		break;
 	case SMB2_COMP_ALG_LZNT1:
 		uncomp_tvb = tvb_uncompress_lznt1(tvb, offset, length);
+		break;
+	case SMB2_COMP_ALG_PATTERN_V1:
+		dissect_smb2_compression_pattern_v1(subtree, tvb, offset, length, out);
 		break;
 	default:
 		col_append_str(pinfo->cinfo, COL_INFO, "Comp. SMB3 (unknown)");
@@ -13376,6 +13421,26 @@ proto_register_smb2(void)
 		    NULL, 0, NULL, HFILL }
 		},
 
+		{ &hf_smb2_comp_pattern_v1_pattern,
+		  { "Pattern", "smb2.pattern_v1.pattern", FT_UINT8, BASE_HEX,
+		    NULL, 0, NULL, HFILL }
+		},
+
+		{ &hf_smb2_comp_pattern_v1_reserved1,
+		  { "Reserved1", "smb2.pattern_v1.reserved1", FT_UINT8, BASE_HEX,
+		    NULL, 0, NULL, HFILL }
+		},
+
+		{ &hf_smb2_comp_pattern_v1_reserved2,
+		  { "Reserved2", "smb2.pattern_v1.reserved2", FT_UINT8, BASE_HEX,
+		    NULL, 0, NULL, HFILL }
+		},
+
+		{ &hf_smb2_comp_pattern_v1_repetitions,
+		  { "Repetitions", "smb2.pattern_v1.repetitions", FT_UINT32, BASE_DEC,
+		    NULL, 0, NULL, HFILL }
+		},
+
 		{ &hf_smb2_protocol_id,
 			{ "ProtocolId", "smb2.protocol_id", FT_UINT32, BASE_HEX,
 			NULL, 0, NULL, HFILL }
@@ -13725,6 +13790,7 @@ proto_register_smb2(void)
 		&ett_smb2_signature,
 		&ett_smb2_transform_flags,
 		&ett_smb2_fscc_file_attributes,
+		&ett_smb2_comp_pattern_v1,
 		&ett_smb2_comp_payload,
 	};
 
