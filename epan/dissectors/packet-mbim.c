@@ -5278,7 +5278,7 @@ mbim_dissect_ms_app_list(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree
     proto_tree_add_item_ret_uint(tree, hf_mbim_ms_app_list_app_list_offset, tvb, offset, 4, ENC_LITTLE_ENDIAN, &app_list_offset);
     offset += 4;
     proto_tree_add_item(tree, hf_mbim_ms_app_list_app_list_size, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-    offset += 4;
+    /*offset += 4;*/
     if (app_count && app_list_offset) {
         offset = base_offset + app_list_offset;
         mbim_dissect_ms_app_info_elements(tvb, pinfo, tree, offset, app_count);
