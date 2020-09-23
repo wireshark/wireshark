@@ -10,9 +10,69 @@ Wireshark 3.2.7 Release Notes
   The Windows installers now ship with Npcap 0.9997. They previously
   shipped with Npcap 0.9994.
 
+  The Windows installers now ship with Qt 5.12.9. They previously
+  shipped with Qt 5.12.8.
+
   Bug Fixes
 
+   The following vulnerabilities have been fixed:
+
+     • wnpa-sec-2020-11[1] MIME Multipart dissector crash. Bug 16741[2].
+       Fixed in master: 2411eae9ed Fixed in master-3.2: 21f082cb6e Fixed
+       in master-3.0: 14e274f3be Fixed in master-2.6: 5803c7b87b
+
+     • wnpa-sec-2020-12[3] TCP dissector crash. Bug 16816[4]. Fixed in
+       master: c4634b1e99 Fixed in master-3.2: e9b727595b Fixed in
+       master-3.0: 7f3fe6164a Fixed in master-2.6: 9d7ab8b46f
+
+     • wnpa-sec-2020-13[5] BLIP dissector crash. Bug 16866[6]. Fixed in
+       master: 4a94842710 Fixed in master-3.2: 594d312b12 Fixed in
+       master-3.0: 2fb6002559 Fixed in master-2.6: n/a
+
    The following bugs have been fixed:
+
+     • HTTP dissector fails to display correct UTF-16 XML Bug 9069[7].
+
+     • TFTP dissector does not track conversations correctly. Source
+       file and Destination File redundant or disagree. Bug 10305[8].
+
+     • Dissector skips DICOM command Bug 13110[9].
+
+     • Editcap time adjustment doesn’t work when both infile and outfile
+       are ERF Bug 16578[10].
+
+     • dissect_tds7_colmetadata_token() has wrong return value if count
+       is 0 Bug 16682[11].
+
+     • "total block length …​ is too small" for Systemd Journal Export
+       Block Bug 16734[12].
+
+     • MNC 11 is showing Mobile Network Code (MNC): NTT DoCoMo Tokai
+       Inc. (11) But its belonging to Rakuten Network Bug 16755[13].
+
+     • DICOM object extraction: discrepancy between tshark and wireshark
+       Bug 16771[14].
+
+     • S1-U data forwarding info and S103 PDN data forwarding info IE’s
+       showing improper value Bug 16777[15].
+
+     • Wireshark crashes while opening a capture Bug 16780[16].
+
+     • Changing preferences via Decode As does not call callback Bug
+       16787[17].
+
+     • Decoding of PFCP IE 'Remote GTP-U Peer' is incorrect Bug
+       16805[18].
+
+     • Ng-enb not decoded correctly for Target Identification IE for
+       GTPV2 Bug 16822[19].
+
+     • The client timestamp is parsed error for Google QUIC (version
+       Q039) Bug 16839[20].
+
+     • NAS-5G : PDU session reactivation result Bug 16842[21].
+
+     • Wireshark fails to detect libssh >= 0.9.5 Bug 16845[22].
 
   New and Updated Features
 
@@ -24,9 +84,14 @@ Wireshark 3.2.7 Release Notes
 
   Updated Protocol Support
 
+   Aeron, AFP, BLIP, BSSMAP, C12.22, DICOM, E.212, GQUIC, GSM A RR,
+   GTPv2, GVSP, IPX SAP, MIME Multipart, MMS, NAS-5GS, NCP, NDS, PFCP,
+   PROFINET, Q.708, Q.933, RTCP, S1AP, TACACS+, TCP, TDS, TDS7, X2AP,
+   and XML
+
   New and Updated Capture File Support
 
-   There is no new or updated capture file support in this release.
+   pcapng
 
  Getting Wireshark
 
@@ -38,7 +103,7 @@ Wireshark 3.2.7 Release Notes
    Most Linux and Unix vendors supply their own Wireshark packages. You
    can usually install or upgrade Wireshark using the package management
    system specific to that platform. A list of third-party packages can
-   be found on the download page[1] on the Wireshark web site.
+   be found on the download page[23] on the Wireshark web site.
 
  File Locations
 
@@ -52,22 +117,44 @@ Wireshark 3.2.7 Release Notes
   The User’s Guide, manual pages and various other documentation can be
   found at https://www.wireshark.org/docs/
 
-  Community support is available on Wireshark’s Q&A site[2] and on the
+  Community support is available on Wireshark’s Q&A site[24] and on the
   wireshark-users mailing list. Subscription information and archives
-  for all of Wireshark’s mailing lists can be found on the web site[3].
+  for all of Wireshark’s mailing lists can be found on the web site[25].
 
-  Bugs and feature requests can be reported on the bug tracker[4].
+  Bugs and feature requests can be reported on the bug tracker[26].
 
  Frequently Asked Questions
 
-  A complete FAQ is available on the Wireshark web site[5].
+  A complete FAQ is available on the Wireshark web site[27].
 
-  Last updated 2020-09-20 09:18:46 UTC
+  Last updated 2020-09-23 21:05:39 UTC
 
  References
 
-   1. https://www.wireshark.org/download.html#thirdparty
-   2. https://ask.wireshark.org/
-   3. https://www.wireshark.org/lists/
-   4. https://bugs.wireshark.org/
-   5. https://www.wireshark.org/faq.html
+   1. https://www.wireshark.org/security/wnpa-sec-2020-11
+   2. https://gitlab.com/wireshark/wireshark/-/issues/16741
+   3. https://www.wireshark.org/security/wnpa-sec-2020-12
+   4. https://gitlab.com/wireshark/wireshark/-/issues/16816
+   5. https://www.wireshark.org/security/wnpa-sec-2020-13
+   6. https://gitlab.com/wireshark/wireshark/-/issues/16866
+   7. https://gitlab.com/wireshark/wireshark/-/issues/9069
+   8. https://gitlab.com/wireshark/wireshark/-/issues/10305
+   9. https://gitlab.com/wireshark/wireshark/-/issues/13110
+  10. https://gitlab.com/wireshark/wireshark/-/issues/16578
+  11. https://gitlab.com/wireshark/wireshark/-/issues/16682
+  12. https://gitlab.com/wireshark/wireshark/-/issues/16734
+  13. https://gitlab.com/wireshark/wireshark/-/issues/16755
+  14. https://gitlab.com/wireshark/wireshark/-/issues/16771
+  15. https://gitlab.com/wireshark/wireshark/-/issues/16777
+  16. https://gitlab.com/wireshark/wireshark/-/issues/16780
+  17. https://gitlab.com/wireshark/wireshark/-/issues/16787
+  18. https://gitlab.com/wireshark/wireshark/-/issues/16805
+  19. https://gitlab.com/wireshark/wireshark/-/issues/16822
+  20. https://gitlab.com/wireshark/wireshark/-/issues/16839
+  21. https://gitlab.com/wireshark/wireshark/-/issues/16842
+  22. https://gitlab.com/wireshark/wireshark/-/issues/16845
+  23. https://www.wireshark.org/download.html#thirdparty
+  24. https://ask.wireshark.org/
+  25. https://www.wireshark.org/lists/
+  26. https://bugs.wireshark.org/
+  27. https://www.wireshark.org/faq.html
