@@ -365,7 +365,6 @@ static gint global_mac_nr_lcid_drb_source = (gint)FromStaticTable;
 
 
 static const value_string drb_lcid_vals[] = {
-    { 3,  "LCID 3"},
     { 4,  "LCID 4"},
     { 5,  "LCID 5"},
     { 6,  "LCID 6"},
@@ -4528,7 +4527,7 @@ void proto_register_mac_nr(void)
     };
 
     static uat_field_t lcid_drb_mapping_flds[] = {
-        UAT_FLD_VS(lcid_drb_mappings, lcid, "LCID (3-32)", drb_lcid_vals, "The MAC LCID"),
+        UAT_FLD_VS(lcid_drb_mappings, lcid, "LCID (4-32)", drb_lcid_vals, "The MAC LCID"),
         UAT_FLD_DEC(lcid_drb_mappings, drbid,"DRBID id (1-32)", "Identifier of logical data channel"),
         UAT_FLD_VS(lcid_drb_mappings, bearer_type_ul, "UL RLC Bearer Type", rlc_bearer_type_vals, "UL Bearer Mode"),
         UAT_FLD_VS(lcid_drb_mappings, bearer_type_dl, "DL RLC Bearer Type", rlc_bearer_type_vals, "DL Bearer Mode"),
