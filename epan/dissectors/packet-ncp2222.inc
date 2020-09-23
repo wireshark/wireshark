@@ -5303,10 +5303,25 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
              */
             bvalue = 0x00000001;
 
+            /*
+             * If the caller didn't request DSI_OUTPUT_FIELDS,
+             * assume the presence bits aren't present, so we
+             * can't fetch them; use the fields the caller
+             * requested, instead.
+             *
+             * XXX - or should we treat that as an error, and report
+             * it with an expert info?
+             */
+            guint32 output_fields;
+
+            if (values->vflags & DSI_OUTPUT_FIELDS)
+                output_fields = tvb_get_letohl(tvb, ioffset);
+            else
+                output_fields = values->vflags;
             for (r = 0 ; r < 32; r++ )
             {
                 /*oldioffset = ioffset;*/
-                if (values->vflags & bvalue)
+                if (output_fields & bvalue)
                 {
                     switch(bvalue)
                     {
@@ -8712,10 +8727,47 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                     foffset += 4;
                     proto_tree_add_bitmask(ncp_tree, tvb, foffset, hf_nds_rflags, ett_ncp, ncp_lflags, ENC_LITTLE_ENDIAN);
                     foffset += 2;
+                    /*
+                     * XXX - what are the two bytes following the rflags?
+                     * Or is it a 4-byte field?
+                     */
+                    foffset += 2;
                     proto_tree_add_item(ncp_tree, hf_nds_iteration, tvb, foffset, 4, ENC_LITTLE_ENDIAN);
                     foffset += 4;
                     proto_tree_add_item(ncp_tree, hf_nds_parent, tvb, foffset, 4, ENC_LITTLE_ENDIAN);
                     foffset += 4;
+                    if (tvb_reported_length_remaining(tvb, foffset) == 0) {
+                        /*
+                         * Some requests appear to stop here.
+                         *
+                         * XXX - we test for version == 0 later; do all
+                         * version 0 requests stop here, rather than
+                         * after the name filter, or do some stop here
+                         * and some stop there?  If the latter, is there
+                         * some other way of determining whether the
+                         * request stops here?
+                         */
+                        if (!pinfo->fd->visited) {
+                            /*
+                             * This appears to be the set of fields
+                             * provided in responses to requests that
+                             * stop before providing a list of requested
+                             * fields.
+                             *
+                             * XXX - is the last entry really the Relative
+                             * Distinguished Name?  In the captures I've
+                             * seen with short requests, it begins with
+                             * "CN=", unlike the captures I've seen with
+                             * long requests, where it doesn't have that
+                             * prefix.
+                             */
+                            if (request_value)
+                                request_value->req_nds_flags = 
+                                    DSI_ENTRY_ID|DSI_ENTRY_FLAGS|DSI_SUBORDINATE_COUNT|DSI_MODIFICATION_TIME|DSI_BASE_CLASS|DSI_ENTRY_RDN;
+                        }
+                        break;
+                    }
+
                     if (!pinfo->fd->visited) {
                         if (request_value)
                             request_value->req_nds_flags = tvb_get_letohl(tvb, foffset);
