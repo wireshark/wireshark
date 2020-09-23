@@ -79,7 +79,7 @@ static int hf_blip_checksum = -1;
 
 static gint ett_blip = -1;
 
-static expert_field ei_blip_decompress_buffer_too_small = EI_INIT;
+static expert_field ei_blip_decompress_buffer_error = EI_INIT;
 
 // Compressed = 0x08
 // Urgent	  = 0x10
@@ -297,9 +297,9 @@ decompress(packet_info* pinfo, proto_tree* tree, tvbuff_t* tvb, gint offset, gin
 		if(saved_data->domain) {
 			proto_item* field = proto_tree_add_string(tree, hf_blip_message_body, tvb, offset, tvb_reported_length_remaining(tvb, offset), "<Error decompressing data>");
 			if(saved_data->domain == zlib_error) {
-				expert_add_info_format(pinfo, field, &ei_blip_decompress_buffer_too_small, "Unable to decompress message, got zlib error %d", saved_data->code);
+				expert_add_info_format(pinfo, field, &ei_blip_decompress_buffer_error, "Unable to decompress message, got zlib error %d", saved_data->code);
 			} else {
-				expert_add_info_format(pinfo, field, &ei_blip_decompress_buffer_too_small, "Unable to decompress message, buffer too small (%u Kb).  Please adjust in settings.", max_uncompressed_size);
+				expert_add_info_format(pinfo, field, &ei_blip_decompress_buffer_error, "Unable to decompress message, buffer too small (%u Kb).  Please adjust in settings.", max_uncompressed_size);
 			}
 
 			return NULL;
@@ -342,11 +342,11 @@ decompress(packet_info* pinfo, proto_tree* tree, tvbuff_t* tvb, gint offset, gin
 		decompress_result_t* data_to_save = wmem_new0(wmem_file_scope(), decompress_result_t);
 		if(size_overflow && err == Z_DATA_ERROR) {
 			data_to_save->domain = overflow_error;
-			expert_add_info_format(pinfo, field, &ei_blip_decompress_buffer_too_small, "Unable to decompress message, buffer too small (%u Kb).  Please adjust in settings.", max_uncompressed_size);
+			expert_add_info_format(pinfo, field, &ei_blip_decompress_buffer_error, "Unable to decompress message, buffer too small (%u Kb).  Please adjust in settings.", max_uncompressed_size);
 		} else {
 			data_to_save->domain = zlib_error;
 			data_to_save->code = err;
-			expert_add_info_format(pinfo, field, &ei_blip_decompress_buffer_too_small, "Unable to decompress message, got zlib error %d", err);
+			expert_add_info_format(pinfo, field, &ei_blip_decompress_buffer_error, "Unable to decompress message, got zlib error %d", err);
 		}
 
 		p_add_proto_data(wmem_file_scope(), pinfo, proto_blip, 0, data_to_save);
@@ -362,11 +362,11 @@ decompress(packet_info* pinfo, proto_tree* tree, tvbuff_t* tvb, gint offset, gin
 		if(err == Z_BUF_ERROR) {
 			data_to_save->domain = overflow_error;
 			size_overflow = TRUE;
-			expert_add_info_format(pinfo, field, &ei_blip_decompress_buffer_too_small, "Unable to decompress message, buffer too small (%u Kb).  Please adjust in settings.", max_uncompressed_size);
+			expert_add_info_format(pinfo, field, &ei_blip_decompress_buffer_error, "Unable to decompress message, buffer too small (%u Kb).  Please adjust in settings.", max_uncompressed_size);
 		} else {
 			data_to_save->domain = zlib_error;
 			data_to_save->code = err;
-			expert_add_info_format(pinfo, field, &ei_blip_decompress_buffer_too_small, "Unable to decompress message, got zlib error %d", err);
+			expert_add_info_format(pinfo, field, &ei_blip_decompress_buffer_error, "Unable to decompress message, got zlib error %d", err);
 		}
 
 		p_add_proto_data(wmem_file_scope(), pinfo, proto_blip, 0, data_to_save);
@@ -594,7 +594,7 @@ proto_register_blip(void)
 
 	/* Expert Infos */
 	static ei_register_info ei[] = {
-		{ &ei_blip_decompress_buffer_too_small, { "blip.decompress_buffer_too_small", PI_UNDECODED, PI_WARN, "Decompression buffer size too small", EXPFILL }}
+		{ &ei_blip_decompress_buffer_error, { "blip.decompress_buffer_error", PI_UNDECODED, PI_WARN, "Decompression error", EXPFILL }}
 	};
 
 	proto_blip = proto_register_protocol("BLIP Couchbase Mobile", "BLIP", "blip");
