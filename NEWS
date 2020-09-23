@@ -13,7 +13,27 @@ Wireshark 2.6.20 Release Notes
 
   Bug Fixes
 
+   The following vulnerabilities have been fixed:
+
+     • wnpa-sec-2020-11[1] MIME Multipart dissector crash. Bug 16741[2].
+       Fixed in master: 2411eae9ed Fixed in master-3.2: 21f082cb6e Fixed
+       in master-3.0: 14e274f3be Fixed in master-2.6: 5803c7b87b
+
+     • wnpa-sec-2020-12[3] TCP dissector crash. Bug 16816[4]. Fixed in
+       master: c4634b1e99 Fixed in master-3.2: e9b727595b Fixed in
+       master-3.0: 7f3fe6164a Fixed in master-2.6: 9d7ab8b46f
+
    The following bugs have been fixed:
+
+     • Buildbot crash output: randpkt-2019-04-01-28345.pcap Bug
+       15661[5].
+
+     • Buildbot crash output: fuzz-2020-07-28-5905.pcap Bug 16741[6].
+
+     • S1-U data forwarding info and S103 PDN data forwarding info IE’s
+       showing improper value Bug 16777[7].
+
+     • Wireshark fails to detect libssh >= 0.9.5 Bug 16845[8].
 
   New and Updated Features
 
@@ -24,6 +44,9 @@ Wireshark 2.6.20 Release Notes
    There are no new protocols in this release.
 
   Updated Protocol Support
+
+   AARP, BSSMAP, GSM A RR, GTPv2, MIME Multipart, NCP, Q.933, S1AP, TCP,
+   and X2AP
 
   New and Updated Capture File Support
 
@@ -43,7 +66,7 @@ Wireshark 2.6.20 Release Notes
    Most Linux and Unix vendors supply their own Wireshark packages. You
    can usually install or upgrade Wireshark using the package management
    system specific to that platform. A list of third-party packages can
-   be found on the download page[1] on the Wireshark web site.
+   be found on the download page[9] on the Wireshark web site.
 
  File Locations
 
@@ -54,43 +77,51 @@ Wireshark 2.6.20 Release Notes
 
  Known Problems
 
-  The BER dissector might infinitely loop. Bug 1516[2].
+  The BER dissector might infinitely loop. Bug 1516[10].
 
   Capture filters aren’t applied when capturing from named pipes. Bug
-  1814[3].
+  1814[11].
 
   Filtering tshark captures with read filters (-R) no longer works. Bug
-  2234[4].
+  2234[12].
 
-  Application crash when changing real-time option. Bug 4035[5].
+  Application crash when changing real-time option. Bug 4035[13].
 
   Wireshark and TShark will display incorrect delta times in some cases.
-  Bug 4985[6].
+  Bug 4985[14].
 
   Wireshark should let you work with multiple capture files. Bug
-  10488[7].
+  10488[15].
 
  Getting Help
 
-  Community support is available on Wireshark’s Q&A site[8] and on the
+  Community support is available on Wireshark’s Q&A site[16] and on the
   wireshark-users mailing list. Subscription information and archives
-  for all of Wireshark’s mailing lists can be found on the web site[9].
+  for all of Wireshark’s mailing lists can be found on the web site[17].
 
  Frequently Asked Questions
 
-  A complete FAQ is available on the Wireshark web site[10].
+  A complete FAQ is available on the Wireshark web site[18].
 
-  Last updated 2020-09-20 09:45:19 UTC
+  Last updated 2020-09-23 18:00:18 UTC
 
  References
 
-   1. https://www.wireshark.org/download.html#thirdparty
-   2. https://gitlab.com/wireshark/wireshark/-/issues/1516
-   3. https://gitlab.com/wireshark/wireshark/-/issues/1814
-   4. https://gitlab.com/wireshark/wireshark/-/issues/2234
-   5. https://gitlab.com/wireshark/wireshark/-/issues/4035
-   6. https://gitlab.com/wireshark/wireshark/-/issues/4985
-   7. https://gitlab.com/wireshark/wireshark/-/issues/10488
-   8. https://ask.wireshark.org/
-   9. https://www.wireshark.org/lists/
-  10. https://www.wireshark.org/faq.html
+   1. https://www.wireshark.org/security/wnpa-sec-2020-11
+   2. https://gitlab.com/wireshark/wireshark/-/issues/16741
+   3. https://www.wireshark.org/security/wnpa-sec-2020-12
+   4. https://gitlab.com/wireshark/wireshark/-/issues/16816
+   5. https://gitlab.com/wireshark/wireshark/-/issues/15661
+   6. https://gitlab.com/wireshark/wireshark/-/issues/16741
+   7. https://gitlab.com/wireshark/wireshark/-/issues/16777
+   8. https://gitlab.com/wireshark/wireshark/-/issues/16845
+   9. https://www.wireshark.org/download.html#thirdparty
+  10. https://gitlab.com/wireshark/wireshark/-/issues/1516
+  11. https://gitlab.com/wireshark/wireshark/-/issues/1814
+  12. https://gitlab.com/wireshark/wireshark/-/issues/2234
+  13. https://gitlab.com/wireshark/wireshark/-/issues/4035
+  14. https://gitlab.com/wireshark/wireshark/-/issues/4985
+  15. https://gitlab.com/wireshark/wireshark/-/issues/10488
+  16. https://ask.wireshark.org/
+  17. https://www.wireshark.org/lists/
+  18. https://www.wireshark.org/faq.html

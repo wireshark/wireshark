@@ -1,0 +1,418 @@
+commit daba92add2
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Tue Sep 22 18:12:44 2020 -0700
+
+    Prep for 2.6.20.
+
+commit ea5f6b1891
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Sep 20 09:55:44 2020 +0000
+
+    [Automatic update for 2020-09-20]
+    
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit 06ca48aafa
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Tue Sep 15 14:42:19 2020 -0700
+
+    Update our issue tracker URL in some places.
+    
+    Replace bugs.wireshark.org links with their equivalent
+    gitlab.com/wireshark/wireshark/issues links in the AsciiDoctor buglink
+    macro and the please_report_bug function. Update the bug URLs in
+    comments in the tools and test directories.
+    
+    (cherry picked from commit c61c1a001b6670839e9c041643719dddf973e729)
+    
+    Conflicts:
+            docbook/asciidoctor-macros/wsbuglink-inline-macro/extension.rb
+            docbook/wsug_src/WSUG_chapter_mate.asciidoc
+            test/suite_decryption.py
+            test/suite_text2pcap.py
+
+commit a38c681dd0
+Author: Alexander Couzens <lynxis@fe80.eu>
+Date:   Tue Sep 15 09:15:36 2020 +0000
+
+    gsm_a_rr: move TARGET PCID into the correct subtree
+    
+    
+    (cherry picked from commit c1889e3cd5c455d4915033bfc83c8431e0548c34)
+
+commit 5fbd3d5a5f
+Author: Nardi Ivan <nardi.ivan@gmail.com>
+Date:   Mon Sep 14 09:10:43 2020 +0000
+
+    GQUIC: fix dissection of ACK frame
+    
+    
+    (cherry picked from commit 25d10e68a89633de80ea00406ab7683fab8795f6)
+
+commit 8069eee571
+Author: Greg Morris <greg.morris@microfocus.com>
+Date:   Thu May 9 20:35:57 2019 +0000
+
+    Updates to NCP protocol dissector
+    
+    Add NCP 98
+    Fix NDSrequestprotocolflags not being captured on request so that reply
+    would offset correctly with CRC flag.
+    
+    Change-Id: Ie45a1017326dd38393baf3f005f3ec9195438565
+    Reviewed-on: https://code.wireshark.org/review/33146
+    Petri-Dish: Anders Broman <a.broman58@gmail.com>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+    
+    
+    (cherry picked from commit 715f46b768c3dab4752b0b5752f89f62f509fa0d)
+
+commit 7cc0cd365b
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Sun Feb 24 00:00:03 2019 +0000
+
+    Put back the NCP Group Type item for LIP Echo packets.
+    
+    Change-Id: Ifc26e939ed204ec55eb508f26d0f47c4a6f38484
+    Reviewed-on: https://code.wireshark.org/review/32179
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    
+    
+    (cherry picked from commit 95bf9f5e0acac09f35cd8e8467cb6d93fb5a0d78)
+
+commit 1f93fef89b
+Author: Dario Lombardo <lomato@gmail.com>
+Date:   Sat Feb 23 21:30:01 2019 +0000
+
+    ncp2222: remove unused variable.
+    
+    Change-Id: Id42897b07bfec788499207a9438041d7439d8b14
+    Reviewed-on: https://code.wireshark.org/review/32177
+    Petri-Dish: Dario Lombardo <lomato@gmail.com>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    
+    
+    (cherry picked from commit d99cd2ed739277f714cb7e67c60264269d73c755)
+
+commit 858991ca65
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Sat Feb 23 19:45:11 2019 +0000
+
+    Fix dissection of Large Internet Packet echos.
+    
+    There are two different types, with different formats, and the stuff
+    after the "LIP Echo Data"/"Lip Echo Data" string isn't text, it's
+    arbitrary binary data.
+    
+    Change-Id: I5bc56a557b436b7d179b0bea586f3ed5d4e017d0
+    Reviewed-on: https://code.wireshark.org/review/32175
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    
+    
+    (cherry picked from commit 5b9bbaf7e2286c7c450dde606e460c445e037972)
+
+commit d6c7f5a397
+Author: Guy Harris <gharris@sonic.net>
+Date:   Sat Sep 12 06:23:47 2020 +0000
+
+    ncp: fix a copy-and-pasteo.
+    
+    In process_multivalues(), we create a protocol item for the attribute
+    syntax, but we don't fetch its value, and don't pass it to
+    print_nds_values() as the syntax argument; instead, we pass a variable
+    that wee initialize to 0, but never set.  (One of the disadvantages of
+    preemptively initializing local variables is that data flow analyzers in
+    compilers and static analyzers can't point out that you didn't set the
+    variables in question to *useful* values.)
+    
+    This fixes the dissection of NDS Read replies.
+    
+    
+    (cherry picked from commit 1a410ef0b0d841c4f60936418f18ef6a5544dbd9)
+
+commit ed477327a7
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Sep 13 10:00:08 2020 +0000
+
+    [Automatic update for 2020-09-13]
+    
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit 113cc6263d
+Author: Pascal Quantin <pascal@wireshark.org>
+Date:   Thu Sep 10 20:07:47 2020 +0000
+
+    proto.c: add support for BASE_SPECIAL_VALS to fill_label_number64()
+    
+    This is similar to what is done in fill_label_number()
+    
+    
+    (cherry picked from commit cb810e70036e232308c50dd9296fa6a257468ad9)
+
+commit 247b17c786
+Author: João Valverde <joao.valverde@tecnico.ulisboa.pt>
+Date:   Sat Sep 12 15:07:22 2020 +0000
+
+    CMake: Fix libssh >= 0.9.5 version detection
+    
+    libssh 0.9.5 moved version macros to a different header file.
+    
+    Closes #16845
+    
+    
+    (cherry picked from commit fd7739de6bc679036c02c7aabbc3f71783751e3d)
+
+commit a517d9578f
+Author: Harald Welte <laforge@osmocom.org>
+Date:   Fri Sep 11 22:14:05 2020 +0200
+
+    Q.933: Fix decoding of PVC Status field
+    
+    This field is actually a bitmask of four bits.  It's somewhat odd
+    to decode it using a value_string.  In any case, the values were
+    plain wrong (shifted to the left by '1').
+    
+    See Figure A.3 of ITU-T Q.933
+    
+    A related pcap file can be found at
+    https://people.osmocom.org/laforge/pcap/gsmtap-fr-q933-pvc_status.pcap
+    
+    (cherry picked from commit 13ac47ad4ecdf9ce4363d89f15a245fc10c3c67e)
+
+commit da1d631796
+Author: Harald Welte <laforge@osmocom.org>
+Date:   Fri Sep 11 22:05:54 2020 +0200
+
+    Q,933: Fix display of 'active' bit in PVC Status
+    
+    The mask applied to the final octet of the PVC Status IE must be 0x0E,
+    not 0x0A.  The current code masks out the active bit, printing a '.'
+    instead of it.
+    
+    See Figure A.3 of ITU-T Q.933
+    
+    A related pcap file can be found at
+    https://people.osmocom.org/laforge/pcap/gsmtap-fr-q933-pvc_status.pcapc
+    
+    (cherry picked from commit ee292b11a73e00ea3f5d1e2ee25cf9579f6c7532)
+
+commit 04ceebafff
+Author: Alexander Couzens <lynxis@fe80.eu>
+Date:   Thu Sep 10 19:32:53 2020 +0000
+
+    gsm_a_rr: correct spare bits of Channel Description
+    
+    ETSI 44.018: 10.5.2.5: spare bits are 3+4 and not 5+6. The counting
+    in the spec might be confusing, because bits start at 8 not at 1.
+    
+    
+    (cherry picked from commit f33e1c13fa1b91d7c57b282043bbc58ab03cc0be)
+
+commit aac13379d4
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Tue Sep 8 11:37:01 2020 -0700
+
+    Release notes: Add an EOL notice.
+
+commit 594e0e7929
+Author: Pau Espin Pedrol <pespin@sysmocom.de>
+Date:   Mon Sep 7 09:27:08 2020 +0000
+
+    BSSMAP: Fix malformed packet exception on correct packet
+    
+    Both osmocom and TTCN3 Titan are parsing Handover Request with an IPv6
+    Transport layer Address just fine, but wireshark was showing it as
+    malformed. Parsing the address similar to what is done in IPv4 fixes the
+    issue.
+    
+    
+    (cherry picked from commit 5a874c5796d487054a3f562379731720931340d3)
+
+commit fa6dba1feb
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Tue Apr 2 00:51:22 2019 +0000
+
+    AARP: Add length checks.
+    
+    Add hardware and protocol address length checks.
+    
+    Bug: 15661
+    Change-Id: Iff871ea40d01efcac99228001c1429ba872e7da5
+    Reviewed-on: https://code.wireshark.org/review/32681
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+    Petri-Dish: Gerald Combs <gerald@wireshark.org>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+    
+    
+    (cherry picked from commit aa0abdf156a67a910b4a9daa50faf6ba217270ad)
+
+commit 2fde43295e
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Sep 6 17:18:27 2020 +0000
+
+    [Automatic update for 2020-09-06]
+    
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit 7bf780d914
+Author: Pascal Quantin <pascal@wireshark.org>
+Date:   Fri Sep 4 21:15:40 2020 +0000
+
+    S1AP: fix a field mask
+    
+    
+    (cherry picked from commit fa9f718692dae293e16bf9e081780f5947010926)
+
+commit 74f7599600
+Author: Pascal Quantin <pascal@wireshark.org>
+Date:   Fri Sep 4 21:12:16 2020 +0000
+
+    X2AP: fix a field mask
+    
+    
+    (cherry picked from commit 6f68f86f2884e8073cc8eda7fe138fcfe8ac9a1f)
+
+commit 0dc15ba108
+Author: Chuck Craft <bubbasnmp@gmail.com>
+Date:   Fri Sep 4 03:08:28 2020 +0000
+
+    Query #define was being used in reply processor.
+    
+    (cherry picked from commit eb626aa650b0216b094d2a5a8f41c9c87c62b322)
+
+commit 9d7ab8b46f
+Author: Pascal Quantin <pascal@wireshark.org>
+Date:   Tue Sep 1 15:22:14 2020 +0000
+
+    TCP: do not use an unknown status when the checksum is 0xffff
+    
+    Otherwise it triggers an assert when adding the column as the field is
+    defined as BASE_NONE and not BASE_DEC or BASE_HEX. Thus an unknown value
+    (not in proto_checksum_vals[)array) cannot be represented.
+    Mark the checksum as bad even if we process the packet.
+    Closes #16816
+    
+    Conflicts:
+            epan/dissectors/packet-tcp.c
+    
+    
+    (cherry picked from commit 7f3fe6164a68b76d9988c4253b24d43f498f1753)
+
+commit 5803c7b87b
+Author: George Hopkins <george-hopkins@null.net>
+Date:   Wed Sep 2 10:05:25 2020 +0000
+
+    multipart: fix deallocation of invalid parts
+    
+    Fixes #16741
+    
+    
+    (cherry picked from commit 2411eae9edb562e80c45962c74945238a94e5d3b)
+
+commit 5f59c69dd6
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Mon Aug 31 16:45:08 2020 +0000
+
+    Fix dist.
+    
+    We no longer have tools/commit-msg, so remove it from
+    tools/Makefile.am.
+
+commit 1fac4fff48
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Aug 30 18:12:44 2020 +0000
+
+    [Automatic update for 2020-08-30]
+    
+    Update manuf, services enterprise numbers, translations, and other items.
+    /target_branch master-2.6
+
+commit c873ec0f6e
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Tue Aug 25 18:56:07 2020 -0700
+
+    Remove .gitreview.
+    
+    We no longer use Gerrit, so it's no longer needed.
+    
+    Change-Id: I59fa175af481371747046be4a8f1cbe1676a29d2
+
+commit a7ac15f402
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Tue Aug 18 16:00:32 2020 -0700
+
+    Remove tools/commit-msg.
+    
+    tools/commit-msg was specific to Gerrit, so remove it.
+    
+    Modified cherry-pick of 50550708cc.
+    
+    (cherry picked from commit d4724b002d7074510b95f3562507216ecf76ed00)
+    
+    Change-Id: I3c2405f84548fb41b45f7751ead5c2b0b15f7db7
+
+commit 8208cfcb9a
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Mon Aug 24 14:36:40 2020 -0700
+
+    gitlab-ci: Use the wireshark-ubuntu-dev base image.
+    
+    Start migrating to the wireshark/wireshark-ubuntu-dev base image,
+    similar to g8a2cd1f7a3. Drop the gcc-4 and clang 3.5 - 3.8 builds since
+    they no longer have packages available.
+    
+    Change-Id: Iaa4647b85903bafd4f1c7652b4bd757f8f056d03
+
+commit 9ac3b9ff81
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Aug 23 08:56:26 2020 +0000
+
+    [Automatic update for 2020-08-23]
+    
+    Update manuf, services enterprise numbers, translations, and other items.
+    
+    Change-Id: Iaffa821af44b8cecdd29d0ed08c53d472373f751
+    Reviewed-on: https://code.wireshark.org/review/38235
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit 20c1740d29
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Aug 16 08:56:44 2020 +0000
+
+    [Automatic update for 2020-08-16]
+    
+    Update manuf, services enterprise numbers, translations, and other items.
+    
+    Change-Id: Iae7457c45aa10491f5da3e5c0e850fff136676ac
+    Reviewed-on: https://code.wireshark.org/review/38176
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit 502b65cb09
+Author: Pascal Quantin <pascal@wireshark.org>
+Date:   Thu Aug 13 13:48:20 2020 +0200
+
+    GTPv2: fix S103PDF and S1UDF IE dissection
+    
+    The IPv4 or IPv6 address was not added properly to the tree
+    
+    Bug: 16777
+    Change-Id: Ic28138cc1d4c2dc350fb5ff95aa3a5496a293c91
+    Reviewed-on: https://code.wireshark.org/review/38153
+    Petri-Dish: Pascal Quantin <pascal@wireshark.org>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Pascal Quantin <pascal@wireshark.org>
+    (cherry picked from commit f59262b94c10cb3e2c5655274698899dc41d43cf)
+    Reviewed-on: https://code.wireshark.org/review/38156
+
+commit 8cda1eb09a
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Wed Aug 12 13:02:57 2020 -0700
+
+    2.6.19 → 2.6.20.
+    
+    Change-Id: I63626b7f2acb80097c69724c08e067be55189144
+    Reviewed-on: https://code.wireshark.org/review/38149
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
