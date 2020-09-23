@@ -18,6 +18,8 @@
 
 #include <epan/packet.h>
 #include <epan/conversation.h>
+#include <epan/prefs.h>
+#include <epan/expert.h>
 #include "proto_data.h"
 
 #ifdef HAVE_ZLIB
@@ -28,7 +30,6 @@ void proto_reg_handoff_blip(void);
 void proto_register_blip(void);
 
 #define BLIP_BODY_CHECKSUM_SIZE 4
-#define BLIP_INFLATE_BUFFER_SIZE 16384
 
 // blip_conversation_entry_t is metadata that the blip dissector associates w/ each wireshark conversation
 typedef struct {
@@ -49,11 +50,20 @@ typedef struct {
 } blip_conversation_entry_t;
 
 #ifdef HAVE_ZLIB
+typedef enum
+{
+	no_error = 0,
+	zlib_error,
+	overflow_error
+} decompress_error_t;
+
 typedef struct
 {
+	decompress_error_t domain;
+	int code;
 	size_t size;
 	void* buf;
-} slice_t;
+} decompress_result_t;
 #endif
 
 // File level variables
@@ -66,7 +76,10 @@ static int hf_blip_properties = -1;
 static int hf_blip_message_body = -1;
 static int hf_blip_ack_size = -1;
 static int hf_blip_checksum = -1;
+
 static gint ett_blip = -1;
+
+static expert_field ei_blip_decompress_buffer_too_small = EI_INIT;
 
 // Compressed = 0x08
 // Urgent	  = 0x10
@@ -104,6 +117,11 @@ static const val64_string msg_types[] = {
 	{ 0x05ll, "ACKRPY" },
 	{ 0, NULL }
 };
+
+// Preferences
+#ifdef HAVE_ZLIB
+static guint max_uncompressed_size = 64; // Max uncompressed body size in Kb
+#endif
 
 // MSG =	0x00
 // RPY =	0x01
@@ -267,16 +285,33 @@ get_decompress_stream(packet_info* pinfo)
 }
 
 static tvbuff_t*
-decompress(packet_info* pinfo, tvbuff_t* tvb, gint offset, gint length)
+decompress(packet_info* pinfo, proto_tree* tree, tvbuff_t* tvb, gint offset, gint length)
 {
 	if(PINFO_FD_VISITED(pinfo)) {
-		const slice_t* saved_data = (slice_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_blip, 0);
-		tvbuff_t* decompressedChild = tvb_new_child_real_data(tvb, (guint8 *)saved_data->buf,
-			(gint)saved_data->size, (gint)saved_data->size);
-		add_new_data_source(pinfo, decompressedChild, "Decompressed Payload");
-		return decompressedChild;
+		const decompress_result_t* saved_data = (decompress_result_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_blip, 0);
+		if(!saved_data) {
+			proto_tree_add_string(tree, hf_blip_message_body, tvb, offset, tvb_reported_length_remaining(tvb, offset), "<Error decompressing data>");
+			return NULL;
+		}
+
+		if(saved_data->domain) {
+			proto_item* field = proto_tree_add_string(tree, hf_blip_message_body, tvb, offset, tvb_reported_length_remaining(tvb, offset), "<Error decompressing data>");
+			if(saved_data->domain == zlib_error) {
+				expert_add_info_format(pinfo, field, &ei_blip_decompress_buffer_too_small, "Unable to decompress message, got zlib error %d", saved_data->code);
+			} else {
+				expert_add_info_format(pinfo, field, &ei_blip_decompress_buffer_too_small, "Unable to decompress message, buffer too small (%u Kb).  Please adjust in settings.", max_uncompressed_size);
+			}
+
+			return NULL;
+		} else {
+			tvbuff_t* decompressedChild = tvb_new_child_real_data(tvb, (guint8 *)saved_data->buf,
+				(gint)saved_data->size, (gint)saved_data->size);
+			add_new_data_source(pinfo, decompressedChild, "Decompressed Payload");
+			return decompressedChild;
+		}
 	}
 
+	static gboolean size_overflow = FALSE;
 	const guint8* buf = tvb_get_ptr(tvb, offset, length);
 	z_stream* decompress_stream = get_decompress_stream(pinfo);
 	static Byte trailer[4] = { 0x00, 0x00, 0xff, 0xff };
@@ -292,30 +327,62 @@ decompress(packet_info* pinfo, tvbuff_t* tvb, gint offset, gint length)
 		}
 	}
 
-	Bytef* decompress_buffer = (Bytef*)wmem_alloc(wmem_file_scope(), BLIP_INFLATE_BUFFER_SIZE);
+	// Create a temporary buffer of the maximum size, which will get cleaned up later
+	// when the packet scope is freed
+	uInt buffer_size = max_uncompressed_size * 1024;
+	Bytef* decompress_buffer = (Bytef*)wmem_alloc(wmem_packet_scope(), buffer_size);
 	decompress_stream->next_in = (Bytef*)buf;
 	decompress_stream->avail_in = length;
 	decompress_stream->next_out = decompress_buffer;
-	decompress_stream->avail_out = BLIP_INFLATE_BUFFER_SIZE;
+	decompress_stream->avail_out = buffer_size;
 	uLong start = decompress_stream->total_out;
 	int err = inflate(decompress_stream, Z_NO_FLUSH);
-	if(err < 0) {
+	if(err != Z_OK) {
+		proto_item* field = proto_tree_add_string(tree, hf_blip_message_body, tvb, offset, tvb_reported_length_remaining(tvb, offset), "<Error decompressing data>");
+		decompress_result_t* data_to_save = wmem_new0(wmem_file_scope(), decompress_result_t);
+		if(size_overflow && err == Z_DATA_ERROR) {
+			data_to_save->domain = overflow_error;
+			expert_add_info_format(pinfo, field, &ei_blip_decompress_buffer_too_small, "Unable to decompress message, buffer too small (%u Kb).  Please adjust in settings.", max_uncompressed_size);
+		} else {
+			data_to_save->domain = zlib_error;
+			data_to_save->code = err;
+			expert_add_info_format(pinfo, field, &ei_blip_decompress_buffer_too_small, "Unable to decompress message, got zlib error %d", err);
+		}
+
+		p_add_proto_data(wmem_file_scope(), pinfo, proto_blip, 0, data_to_save);
 		return NULL;
 	}
 
 	decompress_stream->next_in = trailer;
 	decompress_stream->avail_in = 4;
 	err = inflate(decompress_stream, Z_SYNC_FLUSH);
-	if(err < 0) {
+	if(err != Z_OK) {
+		proto_item* field = proto_tree_add_string(tree, hf_blip_message_body, tvb, offset, tvb_reported_length_remaining(tvb, offset), "<Error decompressing data>");
+		decompress_result_t* data_to_save = wmem_new0(wmem_file_scope(), decompress_result_t);
+		if(err == Z_BUF_ERROR) {
+			data_to_save->domain = overflow_error;
+			size_overflow = TRUE;
+			expert_add_info_format(pinfo, field, &ei_blip_decompress_buffer_too_small, "Unable to decompress message, buffer too small (%u Kb).  Please adjust in settings.", max_uncompressed_size);
+		} else {
+			data_to_save->domain = zlib_error;
+			data_to_save->code = err;
+			expert_add_info_format(pinfo, field, &ei_blip_decompress_buffer_too_small, "Unable to decompress message, got zlib error %d", err);
+		}
+
+		p_add_proto_data(wmem_file_scope(), pinfo, proto_blip, 0, data_to_save);
 		return NULL;
 	}
 
+	// Shrink the buffer so that there is not wasted space on the end of it since
+	// it will be long lived in the file scope
 	uLong bodyLength = decompress_stream->total_out - start;
-	tvbuff_t* decompressedChild = tvb_new_child_real_data(tvb, decompress_buffer, (guint)bodyLength, (gint)bodyLength);
+	Bytef* shortened_buffer = (Bytef *)wmem_memdup(wmem_file_scope(), decompress_buffer, bodyLength);
+
+	tvbuff_t* decompressedChild = tvb_new_child_real_data(tvb, shortened_buffer, (guint)bodyLength, (gint)bodyLength);
 	add_new_data_source(pinfo, decompressedChild, "Decompressed Payload");
-	slice_t* data_to_save = wmem_new0(wmem_file_scope(), slice_t);
+	decompress_result_t* data_to_save = wmem_new0(wmem_file_scope(), decompress_result_t);
 	data_to_save->size = (size_t)bodyLength;
-	data_to_save->buf = decompress_buffer;
+	data_to_save->buf = shortened_buffer;
 	p_add_proto_data(wmem_file_scope(), pinfo, proto_blip, 0, data_to_save);
 
 	return decompressedChild;
@@ -401,15 +468,15 @@ dissect_blip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, _U_ void *data
 
 	tvbuff_t* tvb_to_use = tvb;
 	gboolean compressed = is_compressed(value_frame_flags);
+
 	if(compressed) {
 #ifdef HAVE_ZLIB
-		tvb_to_use = decompress(pinfo, tvb, offset, tvb_reported_length_remaining(tvb, offset) - BLIP_BODY_CHECKSUM_SIZE);
+		tvb_to_use = decompress(pinfo, blip_tree, tvb, offset, tvb_reported_length_remaining(tvb, offset) - BLIP_BODY_CHECKSUM_SIZE);
 		if(!tvb_to_use) {
-			proto_tree_add_string(blip_tree, hf_blip_message_body, tvb, offset, tvb_reported_length_remaining(tvb, offset), "<Error decompressing message>");
 			return tvb_reported_length(tvb);
 		}
 #else /* ! HAVE_ZLIB */
-		proto_tree_add_string(blip_tree, hf_blip_message_body, tvb, offset, tvb_reported_length_remaining(tvb, offset), "<decompression support is not available>");
+		proto_tree_add_string(tree, hf_blip_message_body, tvb, offset, tvb_reported_length_remaining(tvb, offset), "<decompression support is not available>");
 		return tvb_reported_length(tvb);
 #endif /* ! HAVE_ZLIB */
 
@@ -525,12 +592,29 @@ proto_register_blip(void)
 		&ett_blip
 	};
 
+	/* Expert Infos */
+	static ei_register_info ei[] = {
+		{ &ei_blip_decompress_buffer_too_small, { "blip.decompress_buffer_too_small", PI_UNDECODED, PI_WARN, "Decompression buffer size too small", EXPFILL }}
+	};
+
 	proto_blip = proto_register_protocol("BLIP Couchbase Mobile", "BLIP", "blip");
+	expert_module_t* expert_blip = expert_register_protocol(proto_blip);
 
 	proto_register_field_array(proto_blip, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+	expert_register_field_array(expert_blip, ei, array_length(ei));
 
 	blip_handle = register_dissector("blip", dissect_blip, proto_blip);
+
+#ifdef HAVE_ZLIB
+	module_t *blip_module = prefs_register_protocol(proto_blip, NULL);
+	prefs_register_uint_preference(blip_module, "max_uncompressed_size",
+						"Maximum uncompressed message size (Kb)",
+						"The maximum size of the buffer for uncompressed messages. "
+						"If a message is larger than this, then the packet containing "
+						"the message, as well as subsequent packets, will fail to "
+						"decompress", 10, &max_uncompressed_size);
+#endif
 }
 
 void
