@@ -30,13 +30,26 @@ If you are still using Wireshark 2.6 you are encouraged to upgrade to Wireshark 
 // Fixed in master-3.0: xxxx
 // Fixed in master-2.6: xxxx
 
+* Buildbot crash output: fuzz-2020-07-28-5905.pcap wsbuglink:16741[].
+
+
 The following bugs have been fixed:
 
 //* wsbuglink:5000[]
 //* wsbuglink:6000[Wireshark bug]
 //* cveidlink:2014-2486[]
 //* Wireshark convinced you to switch seats on the plane while neglecting to tell you that its seat was noticeably moist.
-// cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log --stat v2.6.20rc0..| grep ' Bug:' | awk '{print $2}' | sort -n -u ` ; do "$(git rev-parse --show-toplevel)/tools/gen-bugnote" $bugnumber; pbpaste >> /tmp/buglist.txt; done
+// cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log --stat v2.6.20rc0.. | gsed -e 's/[Cc]lose/\nclose/g' | grep ^close | sed -e 's/close.*#\([1-9][0-9]*\).*/\1/' | sort -V -u` ; do "$(git rev-parse --show-toplevel)/tools/gen-bugnote" $bugnumber; pbpaste >> /tmp/buglist.txt; done
+
+* Buildbot crash output: randpkt-2019-04-01-28345.pcap wsbuglink:15661[].
+
+* Buildbot crash output: fuzz-2020-07-28-5905.pcap wsbuglink:16741[].
+
+* S1-U data forwarding info and S103 PDN data forwarding info IE's showing improper value wsbuglink:16777[].
+
+* ERROR:epan/proto.c:9868:hfinfo_number_value_format_display: code should not be reached wsbuglink:16816[].
+
+* Wireshark fails to detect libssh >= 0.9.5 wsbuglink:16845[].
 
 === New and Updated Features
 
@@ -55,6 +68,16 @@ There are no new protocols in this release.
 // Add one protocol per line between the -- delimiters.
 [commaize]
 --
+AARP
+BSSMAP
+GSM A RR
+GTPv2
+MIME Multipart
+NCP
+Q.933
+S1AP
+TCP
+X2AP
 --
 
 === New and Updated Capture File Support
