@@ -1689,7 +1689,7 @@ E-RABs-ToBeReleased-SgNBRelConfList				N x2ap.ies id-E-RABs-ToBeReleased-SgNBRel
 E-RABs-ToBeReleased-SgNBRelConf-Item				N x2ap.ies id-E-RABs-ToBeReleased-SgNBRelConf-Item
 E-RABs-SubjectToSgNBCounterCheck-List				N x2ap.ies id-E-RABs-SubjectToSgNBCounterCheck-List
 E-RABs-SubjectToSgNBCounterCheck-Item				N x2ap.ies id-E-RABs-SubjectToSgNBCounterCheck-Item
-GNB-ID								N x2ap.ies id-Target-SgNB-ID
+GlobalGNB-ID								N x2ap.ies id-Target-SgNB-ID
 HandoverRestrictionList						N x2ap.ies id-HandoverRestrictionList
 SCGConfigurationQuery						N x2ap.ies id-SCGConfigurationQuery
 SplitSRB							N x2ap.ies id-SplitSRB
