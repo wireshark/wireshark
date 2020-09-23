@@ -13,9 +13,12 @@ It is used for troubleshooting, analysis, development and education.
 
 == What’s New
 
-// This is the final release of the Wireshark 3.0 branch.
-// It will reach its official end of life on Smarch 230, 2020.
-// If you are still using Wireshark 3.0 you are encouraged to upgrade to Wireshark 3.4.
+This is expected to be the final release of the Wireshark 3.0 branch.
+It will reach its official end of life https://gitlab.com/wireshark/editor-wiki/-/wikis/Development/LifeCycle#end-of-life-planning[when Wireshark 3.4.0 is released].
+If you are still using Wireshark 3.0 you are encouraged to upgrade to Wireshark 3.2 or 3.4.
+
+The Windows installers now ship with Qt 5.12.9.
+They previously shipped with Qt 5.12.8.
 
 === Bug Fixes
 
@@ -36,7 +39,20 @@ The following bugs have been fixed:
 //* wsbuglink:6000[Wireshark bug]
 //* cveidlink:2014-2486[]
 //* Wireshark slowly leaked water under the kitchen sink over the course of several months, causing a big mess.
-// cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log --stat v3.0.14rc0..| grep ' Bug:' | awk '{print $2}' | sort -n -u ` ; do "$(git rev-parse --show-toplevel)/tools/gen-bugnote" $bugnumber; pbpaste >> /tmp/buglist.txt; done
+// cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log --stat v3.0.14rc0.. | gsed -e 's/\(close\|fix\|resolv\)[^ ]* #/\nclose #/gI' | grep ^close | sed -e 's/close.*#\([1-9][0-9]*\).*/\1/' | sort -V -u` ; do "$(git rev-parse --show-toplevel)/tools/gen-bugnote" $bugnumber; pbpaste >> /tmp/buglist.txt; done
+
+* Buildbot crash output: randpkt-2019-04-01-28345.pcap wsbuglink:15661[].
+
+* Buildbot crash output: fuzz-2020-07-28-5905.pcap wsbuglink:16741[].
+
+* ERROR:epan/proto.c:9868:hfinfo_number_value_format_display: code should not be reached wsbuglink:16816[].
+
+* S1-U data forwarding info and S103 PDN data forwarding info IE's showing improper value wsbuglink:16777[].
+
+* The client timestamp is parsed error for Google QUIC (version Q039) wsbuglink:16839[].
+
+* Wireshark fails to detect libssh >= 0.9.5 wsbuglink:16845[].
+
 
 === New and Updated Features
 
@@ -59,6 +75,21 @@ There are no new protocols in this release.
 // Add one protocol per line between the -- delimiters.
 [commaize]
 --
+AARP
+BSSMAP
+GQUIC
+GSM A RR
+GTPv2
+MIME Multipart
+NCP
+NDS
+PFCP
+PROFINET
+Q.933
+TACACS+
+TCP
+S1AP
+X2AP
 --
 
 === New and Updated Capture File Support
