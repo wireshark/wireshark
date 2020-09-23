@@ -600,7 +600,6 @@ static int hf_x2ap_GNBOverloadInformation_PDU = -1;  /* GNBOverloadInformation *
 static int hf_x2ap_GTPtunnelEndpoint_PDU = -1;    /* GTPtunnelEndpoint */
 static int hf_x2ap_GUGroupIDList_PDU = -1;        /* GUGroupIDList */
 static int hf_x2ap_GUMMEI_PDU = -1;               /* GUMMEI */
-static int hf_x2ap_GNB_ID_PDU = -1;               /* GNB_ID */
 static int hf_x2ap_HandoverReportType_PDU = -1;   /* HandoverReportType */
 static int hf_x2ap_HandoverRestrictionList_PDU = -1;  /* HandoverRestrictionList */
 static int hf_x2ap_InvokeIndication_PDU = -1;     /* InvokeIndication */
@@ -15533,14 +15532,6 @@ static int dissect_GUMMEI_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_t
   offset += 7; offset >>= 3;
   return offset;
 }
-static int dissect_GNB_ID_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
-  int offset = 0;
-  asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
-  offset = dissect_x2ap_GNB_ID(tvb, offset, &asn1_ctx, tree, hf_x2ap_GNB_ID_PDU);
-  offset += 7; offset >>= 3;
-  return offset;
-}
 static int dissect_HandoverReportType_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
@@ -18522,10 +18513,6 @@ void proto_register_x2ap(void) {
     { &hf_x2ap_GUMMEI_PDU,
       { "GUMMEI", "x2ap.GUMMEI_element",
         FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_x2ap_GNB_ID_PDU,
-      { "GNB-ID", "x2ap.GNB_ID",
-        FT_UINT32, BASE_DEC, VALS(x2ap_GNB_ID_vals), 0,
         NULL, HFILL }},
     { &hf_x2ap_HandoverReportType_PDU,
       { "HandoverReportType", "x2ap.HandoverReportType",
@@ -23016,7 +23003,7 @@ proto_reg_handoff_x2ap(void)
   dissector_add_uint("x2ap.ies", id_E_RABs_ToBeReleased_SgNBRelConf_Item, create_dissector_handle(dissect_E_RABs_ToBeReleased_SgNBRelConf_Item_PDU, proto_x2ap));
   dissector_add_uint("x2ap.ies", id_E_RABs_SubjectToSgNBCounterCheck_List, create_dissector_handle(dissect_E_RABs_SubjectToSgNBCounterCheck_List_PDU, proto_x2ap));
   dissector_add_uint("x2ap.ies", id_E_RABs_SubjectToSgNBCounterCheck_Item, create_dissector_handle(dissect_E_RABs_SubjectToSgNBCounterCheck_Item_PDU, proto_x2ap));
-  dissector_add_uint("x2ap.ies", id_Target_SgNB_ID, create_dissector_handle(dissect_GNB_ID_PDU, proto_x2ap));
+  dissector_add_uint("x2ap.ies", id_Target_SgNB_ID, create_dissector_handle(dissect_GlobalGNB_ID_PDU, proto_x2ap));
   dissector_add_uint("x2ap.ies", id_HandoverRestrictionList, create_dissector_handle(dissect_HandoverRestrictionList_PDU, proto_x2ap));
   dissector_add_uint("x2ap.ies", id_SCGConfigurationQuery, create_dissector_handle(dissect_SCGConfigurationQuery_PDU, proto_x2ap));
   dissector_add_uint("x2ap.ies", id_SplitSRB, create_dissector_handle(dissect_SplitSRB_PDU, proto_x2ap));
