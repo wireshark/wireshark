@@ -11,7 +11,7 @@
 #
 
 gitlab_issue_url_pfx="https://gitlab.com/api/v4/projects/wireshark%2Fwireshark/issues"
-issue_id="$1"
+issue_id="${1#\#}" # Strip leading "#"
 
 case "$OSTYPE" in
     darwin*)
