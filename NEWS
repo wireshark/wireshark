@@ -7,9 +7,44 @@ Wireshark 3.0.14 Release Notes
 
  What’s New
 
+  This is expected to be the final release of the Wireshark 3.0 branch.
+  It will reach its official end of life when Wireshark 3.4.0 is
+  released[1]. If you are still using Wireshark 3.0 you are encouraged
+  to upgrade to Wireshark 3.2 or 3.4.
+
+  The Windows installers now ship with Qt 5.12.9. They previously
+  shipped with Qt 5.12.8.
+
   Bug Fixes
 
+   The following vulnerabilities have been fixed:
+
+     • wnpa-sec-2020-11[2] MIME Multipart dissector crash. Bug 16741[3].
+       Fixed in master: 2411eae9ed Fixed in master-3.2: 21f082cb6e Fixed
+       in master-3.0: 14e274f3be Fixed in master-2.6: 5803c7b87b
+
+     • wnpa-sec-2020-12[4] TCP dissector crash. Bug 16816[5]. Fixed in
+       master: c4634b1e99 Fixed in master-3.2: e9b727595b Fixed in
+       master-3.0: 7f3fe6164a Fixed in master-2.6: 9d7ab8b46f
+
+     • wnpa-sec-2020-13[6] BLIP dissector crash. Bug 16866[7]. Fixed in
+       master: 4a94842710 Fixed in master-3.2: 594d312b12 Fixed in
+       master-3.0: 2fb6002559 Fixed in master-2.6: n/a
+
    The following bugs have been fixed:
+
+     • Buildbot crash output: randpkt-2019-04-01-28345.pcap Bug
+       15661[8].
+
+     • Buildbot crash output: fuzz-2020-07-28-5905.pcap Bug 16741[9].
+
+     • S1-U data forwarding info and S103 PDN data forwarding info IE’s
+       showing improper value Bug 16777[10].
+
+     • The client timestamp is parsed error for Google QUIC (version
+       Q039) Bug 16839[11].
+
+     • Wireshark fails to detect libssh >= 0.9.5 Bug 16845[12].
 
   New and Updated Features
 
@@ -20,6 +55,9 @@ Wireshark 3.0.14 Release Notes
    There are no new protocols in this release.
 
   Updated Protocol Support
+
+   AARP, BLIP, BSSMAP, GQUIC, GSM A RR, GTPv2, MIME Multipart, NCP, NDS,
+   PFCP, PROFINET, Q.933, S1AP, TACACS+, TCP, and X2AP
 
   New and Updated Capture File Support
 
@@ -39,7 +77,7 @@ Wireshark 3.0.14 Release Notes
    Most Linux and Unix vendors supply their own Wireshark packages. You
    can usually install or upgrade Wireshark using the package management
    system specific to that platform. A list of third-party packages can
-   be found on the download page[1] on the Wireshark web site.
+   be found on the download page[13] on the Wireshark web site.
 
  File Locations
 
@@ -53,22 +91,35 @@ Wireshark 3.0.14 Release Notes
   The User’s Guide, manual pages and various other documentation can be
   found at https://www.wireshark.org/docs/
 
-  Community support is available on Wireshark’s Q&A site[2] and on the
+  Community support is available on Wireshark’s Q&A site[14] and on the
   wireshark-users mailing list. Subscription information and archives
-  for all of Wireshark’s mailing lists can be found on the web site[3].
+  for all of Wireshark’s mailing lists can be found on the web site[15].
 
-  Bugs and feature requests can be reported on the bug tracker[4].
+  Bugs and feature requests can be reported on the bug tracker[16].
 
  Frequently Asked Questions
 
-  A complete FAQ is available on the Wireshark web site[5].
+  A complete FAQ is available on the Wireshark web site[17].
 
-  Last updated 2020-09-20 09:32:29 UTC
+  Last updated 2020-09-23 21:05:30 UTC
 
  References
 
-   1. https://www.wireshark.org/download.html#thirdparty
-   2. https://ask.wireshark.org/
-   3. https://www.wireshark.org/lists/
-   4. https://bugs.wireshark.org/
-   5. https://www.wireshark.org/faq.html
+   1. https://gitlab.com/wireshark/editor-wiki/-/wikis/Development/LifeC
+  ycle#end-of-life-planning
+   2. https://www.wireshark.org/security/wnpa-sec-2020-11
+   3. https://gitlab.com/wireshark/wireshark/-/issues/16741
+   4. https://www.wireshark.org/security/wnpa-sec-2020-12
+   5. https://gitlab.com/wireshark/wireshark/-/issues/16816
+   6. https://www.wireshark.org/security/wnpa-sec-2020-13
+   7. https://gitlab.com/wireshark/wireshark/-/issues/16866
+   8. https://gitlab.com/wireshark/wireshark/-/issues/15661
+   9. https://gitlab.com/wireshark/wireshark/-/issues/16741
+  10. https://gitlab.com/wireshark/wireshark/-/issues/16777
+  11. https://gitlab.com/wireshark/wireshark/-/issues/16839
+  12. https://gitlab.com/wireshark/wireshark/-/issues/16845
+  13. https://www.wireshark.org/download.html#thirdparty
+  14. https://ask.wireshark.org/
+  15. https://www.wireshark.org/lists/
+  16. https://bugs.wireshark.org/
+  17. https://www.wireshark.org/faq.html

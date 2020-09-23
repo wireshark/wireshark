@@ -22,16 +22,37 @@ They previously shipped with Qt 5.12.8.
 
 === Bug Fixes
 
-// The following vulnerabilities have been fixed:
+The following vulnerabilities have been fixed:
 
-// * wssalink:2020-11[]
-// Foo dissector {crash,infinite loop}.
-// wsbuglink:xxxx[].
+// * Buildbot crash output: fuzz-2020-07-28-5905.pcap wsbuglink:16741[].
+* wssalink:2020-11[]
+MIME Multipart dissector crash.
+wsbuglink:16741[].
 // cveidlink:2020-xxxx[].
-// Fixed in master: xxxx
-// Fixed in master-3.2: xxxx
-// Fixed in master-3.0: xxxx
-// Fixed in master-2.6: xxxx
+Fixed in master: 2411eae9ed
+Fixed in master-3.2: 21f082cb6e
+Fixed in master-3.0: 14e274f3be
+Fixed in master-2.6: 5803c7b87b
+
+// * ERROR:epan/proto.c:9868:hfinfo_number_value_format_display: code should not be reached wsbuglink:16816[].
+* wssalink:2020-12[]
+TCP dissector crash.
+wsbuglink:16816[].
+// cveidlink:2020-xxxx[].
+Fixed in master: c4634b1e99
+Fixed in master-3.2: e9b727595b
+Fixed in master-3.0: 7f3fe6164a
+Fixed in master-2.6: 9d7ab8b46f
+
+// * BLIP: Static decompression buffer is of insufficient size wsbuglink:16866[].
+* wssalink:2020-13[]
+BLIP dissector crash.
+wsbuglink:16866[].
+// cveidlink:2020-xxxx[].
+Fixed in master: 4a94842710
+Fixed in master-3.2: 594d312b12
+Fixed in master-3.0: 2fb6002559
+Fixed in master-2.6: n/a
 
 The following bugs have been fixed:
 
@@ -39,20 +60,17 @@ The following bugs have been fixed:
 //* wsbuglink:6000[Wireshark bug]
 //* cveidlink:2014-2486[]
 //* Wireshark slowly leaked water under the kitchen sink over the course of several months, causing a big mess.
-// cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log --stat v3.0.14rc0.. | gsed -e 's/\(close\|fix\|resolv\)[^ ]* #/\nclose #/gI' | grep ^close | sed -e 's/close.*#\([1-9][0-9]*\).*/\1/' | sort -V -u` ; do "$(git rev-parse --show-toplevel)/tools/gen-bugnote" $bugnumber; pbpaste >> /tmp/buglist.txt; done
+// cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log v3.0.15rc0.. | gsed -e 's/\(close\|fix\|resolv\)[^ ]* #/\nclose #/gI' | grep ^close | sed -e 's/close.*#\([1-9][0-9]*\).*/\1/' | sort -V -u` ; do "$(git rev-parse --show-toplevel)/tools/gen-bugnote" $bugnumber; pbpaste >> /tmp/buglist.txt; done
 
 * Buildbot crash output: randpkt-2019-04-01-28345.pcap wsbuglink:15661[].
 
 * Buildbot crash output: fuzz-2020-07-28-5905.pcap wsbuglink:16741[].
-
-* ERROR:epan/proto.c:9868:hfinfo_number_value_format_display: code should not be reached wsbuglink:16816[].
 
 * S1-U data forwarding info and S103 PDN data forwarding info IE's showing improper value wsbuglink:16777[].
 
 * The client timestamp is parsed error for Google QUIC (version Q039) wsbuglink:16839[].
 
 * Wireshark fails to detect libssh >= 0.9.5 wsbuglink:16845[].
-
 
 === New and Updated Features
 
@@ -76,6 +94,7 @@ There are no new protocols in this release.
 [commaize]
 --
 AARP
+BLIP
 BSSMAP
 GQUIC
 GSM A RR
