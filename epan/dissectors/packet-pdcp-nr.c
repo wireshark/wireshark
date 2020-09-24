@@ -1637,24 +1637,24 @@ void proto_register_pdcp_nr(void)
         { &hf_sdap_rdi,
             { "RDI",
               "sdap.rdi", FT_BOOLEAN, 8, TFS(&sdap_rdi), 0x80,
-              NULL, HFILL
+              "Reflective QoS flow to DRB mapping Indication", HFILL
             }
         },
         { &hf_sdap_rqi,
             { "RQI",
               "sdap.rqi", FT_BOOLEAN, 8, TFS(&sdap_rqi), 0x40,
-              NULL, HFILL
+              "Reflective QoS Indication", HFILL
             }
         },
         { &hf_sdap_qfi,
             { "QFI",
               "sdap.qfi", FT_UINT8, BASE_DEC, NULL, 0x3f,
-              NULL, HFILL
+              "QoS Flow ID", HFILL
             }
         },
         { &hf_sdap_data_control,
             { "PDU Type",
-              "sdap.reserved", FT_BOOLEAN, 8, TFS(&pdu_type_bit), 0x80,
+              "sdap.pdu-type", FT_BOOLEAN, 8, TFS(&pdu_type_bit), 0x80,
               NULL, HFILL
             }
         },
