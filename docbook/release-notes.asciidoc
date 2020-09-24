@@ -19,30 +19,16 @@ If you are still using Wireshark 2.6 you are encouraged to upgrade to Wireshark 
 
 === Bug Fixes
 
-The following vulnerabilities have been fixed:
+// The following vulnerabilities have been fixed:
 
-// * Buildbot crash output: fuzz-2020-07-28-5905.pcap wsbuglink:16741[].
-* wssalink:2020-11[]
-MIME Multipart dissector crash.
-wsbuglink:16741[].
+// * wssalink:2020-14[]
+// Foo dissector {crash,infinite loop}.
+// wsbuglink:xxxx[].
 // cveidlink:2020-xxxx[].
-Fixed in master: 2411eae9ed
-Fixed in master-3.2: 21f082cb6e
-Fixed in master-3.0: 14e274f3be
-Fixed in master-2.6: 5803c7b87b
-
-// * ERROR:epan/proto.c:9868:hfinfo_number_value_format_display: code should not be reached wsbuglink:16816[].
-* wssalink:2020-12[]
-TCP dissector crash.
-wsbuglink:16816[].
-// cveidlink:2020-xxxx[].
-Fixed in master: c4634b1e99
-Fixed in master-3.2: e9b727595b
-Fixed in master-3.0: 7f3fe6164a
-Fixed in master-2.6: 9d7ab8b46f
-
-* Buildbot crash output: fuzz-2020-07-28-5905.pcap wsbuglink:16741[].
-
+// Fixed in master: xxxx
+// Fixed in master-3.2: xxxx
+// Fixed in master-3.0: xxxx
+// Fixed in master-2.6: xxxx
 
 The following bugs have been fixed:
 
@@ -51,14 +37,6 @@ The following bugs have been fixed:
 //* cveidlink:2014-2486[]
 //* Wireshark convinced you to switch seats on the plane while neglecting to tell you that its seat was noticeably moist.
 // cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log v2.6.21rc0.. | gsed -e 's/\(close\|fix\|resolv\)[^ ]* #/\nclose #/gI' | grep ^close | sed -e 's/close.*#\([1-9][0-9]*\).*/\1/' | sort -V -u` ; do "$(git rev-parse --show-toplevel)/tools/gen-bugnote" $bugnumber; pbpaste >> /tmp/buglist.txt; done
-
-* Buildbot crash output: randpkt-2019-04-01-28345.pcap wsbuglink:15661[].
-
-* Buildbot crash output: fuzz-2020-07-28-5905.pcap wsbuglink:16741[].
-
-* S1-U data forwarding info and S103 PDN data forwarding info IE's showing improper value wsbuglink:16777[].
-
-* Wireshark fails to detect libssh >= 0.9.5 wsbuglink:16845[].
 
 === New and Updated Features
 
@@ -77,25 +55,15 @@ There are no new protocols in this release.
 // Add one protocol per line between the -- delimiters.
 [commaize]
 --
-AARP
-BSSMAP
-GSM A RR
-GTPv2
-MIME Multipart
-NCP
-Q.933
-S1AP
-TCP
-X2AP
 --
 
 === New and Updated Capture File Support
 
-There is no new or updated capture file support in this release.
+// There is no new or updated capture file support in this release.
 // Add one file type per line between the -- delimiters.
-// [commaize]
-// --
-// --
+[commaize]
+--
+--
 
 === New and Updated Capture Interfaces support
 
@@ -149,6 +117,9 @@ Community support is available on https://ask.wireshark.org/[Wireshark’s
 Q&A site] and on the wireshark-users mailing list. Subscription
 information and archives for all of Wireshark’s mailing lists can be
 found on https://www.wireshark.org/lists/[the web site].
+
+Bugs and feature requests can be reported on
+https://gitlab.com/wireshark/wireshark/-/issues[the issue tracker].
 
 // Official Wireshark training and certification are available from
 // http://www.wiresharktraining.com/[Wireshark University].

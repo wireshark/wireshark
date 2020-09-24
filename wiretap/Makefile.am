@@ -188,7 +188,7 @@ libwiretap_la_SOURCES = \
 	version_info.c
 
 # http://www.gnu.org/software/libtool/manual/html_node/Updating-version-info.html
-libwiretap_la_LDFLAGS = -version-info 8:20:0 @LDFLAGS_SHAREDLIB@
+libwiretap_la_LDFLAGS = -version-info 8:21:0 @LDFLAGS_SHAREDLIB@
 
 libwiretap_la_LIBADD = ${top_builddir}/wsutil/libwsutil.la $(GLIB_LIBS)
 

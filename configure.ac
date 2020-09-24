@@ -7,7 +7,7 @@
 #
 m4_define([version_major], [2])
 m4_define([version_minor], [6])
-m4_define([version_micro], [20])
+m4_define([version_micro], [21])
 dnl Updated by make-version.pl
 m4_define([version_extra], [])
 m4_define([version_micro_extra], m4_join([], version_micro, version_extra))

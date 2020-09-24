@@ -300,7 +300,7 @@ nodist_libwireshark_la_SOURCES = \
 libwireshark_la_CPPFLAGS = $(AM_CPPFLAGS) -DWS_BUILD_DLL
 
 # http://www.gnu.org/software/libtool/manual/html_node/Updating-version-info.html
-libwireshark_la_LDFLAGS = -version-info 11:20:1 @LDFLAGS_BIGSHAREDLIB@ @LDFLAGS_SHAREDLIB@
+libwireshark_la_LDFLAGS = -version-info 11:21:1 @LDFLAGS_BIGSHAREDLIB@ @LDFLAGS_SHAREDLIB@
 
 if HAVE_LIBLUA
 wslua_lib = wslua/libwslua.la
