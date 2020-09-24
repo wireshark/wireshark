@@ -3367,8 +3367,8 @@ de_esm_pdn_addr(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
              * contains an IPv6 interface identifier. Bit 8 of octet 4 represents the most significant bit
              * of the IPv6 interface identifier and bit 1 of octet 11 the least significant bit.
              */
-            tvb_memcpy(tvb, (guint8*)&interface_id.bytes[8], offset, 8);
-            proto_tree_add_ipv6(tree, hf_nas_eps_esm_pdn_ipv6_if_id, tvb, offset, 8, &interface_id);
+            tvb_memcpy(tvb, (guint8*)&interface_id.bytes[8], curr_offset, 8);
+            proto_tree_add_ipv6(tree, hf_nas_eps_esm_pdn_ipv6_if_id, tvb, curr_offset, 8, &interface_id);
             curr_offset+=8;
             break;
         case 3:
@@ -3379,8 +3379,8 @@ de_esm_pdn_addr(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
              * significant bit. Bit 8 of octet 12 represents the most significant bit of the IPv4 address
              * and bit 1 of octet 15 the least significant bit.
              */
-            tvb_memcpy(tvb, (guint8*)&interface_id.bytes[8], offset, 8);
-            proto_tree_add_ipv6(tree, hf_nas_eps_esm_pdn_ipv6_if_id, tvb, offset, 8, &interface_id);
+            tvb_memcpy(tvb, (guint8*)&interface_id.bytes[8], curr_offset, 8);
+            proto_tree_add_ipv6(tree, hf_nas_eps_esm_pdn_ipv6_if_id, tvb, curr_offset, 8, &interface_id);
             curr_offset+=8;
             proto_tree_add_item(tree, hf_nas_eps_esm_pdn_ipv4, tvb, curr_offset, 4, ENC_BIG_ENDIAN);
             curr_offset+=4;
@@ -3596,7 +3596,7 @@ de_esm_remote_ue_context_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pinf
                 {
                     ws_in6_addr prefix;
                     memset(&prefix, 0, sizeof(prefix));
-                    tvb_memcpy(tvb, (guint8*)&prefix.bytes[0], offset, 8);
+                    tvb_memcpy(tvb, (guint8*)&prefix.bytes[0], curr_offset, 8);
                     proto_tree_add_ipv6(subtree, hf_nas_eps_esm_remote_ue_context_list_ue_context_ipv6_prefix, tvb, curr_offset, 8, &prefix);
                     curr_offset += 8;
                 }
