@@ -35,7 +35,7 @@ close(INPUT_FILE);
 sub extract_spec_version {
   my $line;
   while($line = <INPUT_FILE>){
-    if($line =~ m/3GPP TS ((25|36|38)\.331|(36|37)\.355|(36|38)\.413|(36|38).423|38\.463|38\.473) V/){
+    if($line =~ m/3GPP TS ((25|36|38)\.331|(36|37)\.355|38\.413|(36|38).423|38\.463|38\.473) V/){
       $version = $line;
       return;
     }
@@ -48,6 +48,7 @@ sub extract_spec_version {
 # and closed on encounter of the keyword "END"
 sub extract_asn1 {
   my $line;
+  my $prev_line;
   my $is_asn1 = 0;
   my $output_file_name = 0;
   my $file_name_found = 0;
@@ -57,11 +58,21 @@ sub extract_asn1 {
       $is_asn1 = 0;
     }
 
-    if($line =~ m/	LPP-PDU-Definitions/){
+    if(($file_name_found == 0) && ($line =~ m/	LPP-PDU-Definitions/)){
       $output_file_name = "LPP.asn";
       print  "generating $output_file_name\n";
       open(OUTPUT_FILE, "> $output_file_name") or die "Can not open file $output_file_name";
       $file_name_found = 1;
+    }
+
+    if(($file_name_found == 0) && ($line =~ m/itu-t \(0\) identified-organization \(4\) etsi \(0\) mobileDomain \(0\)/)){
+      ($output_file_name) = ($prev_line =~ m/^([a-zA-Z0-9\-]+)\s/);
+      $output_file_name = "$output_file_name".".asn";
+      print  "generating $output_file_name\n";
+      open(OUTPUT_FILE, "> $output_file_name") or die "Can not open file $output_file_name";
+      $is_asn1 = 1;
+      $file_name_found = 1;
+      syswrite OUTPUT_FILE,"$prev_line";
     }
 
     if(($file_name_found == 0) && ($line =~ m/DEFINITIONS AUTOMATIC TAGS ::=/)){
@@ -87,6 +98,8 @@ sub extract_asn1 {
     if ($line =~ m/-- ASN1START/) {
       $is_asn1 = 1;
     }
+
+    $prev_line = $line;
   }
 }
 
