@@ -116,7 +116,7 @@ public:
         if (bits_remain + row1_start > bits_per_row) {
             row1_bits = bits_per_row - row1_start;
             bits_remain -= row1_bits;
-            if (row1_start == 0 && bits_remain > bits_per_row) {
+            if (row1_start == 0 && bits_remain >= bits_per_row) {
                 // Collapse first row
                 bits_remain %= bits_per_row;
                 collapsed_row_ = 0;
@@ -495,8 +495,8 @@ void PacketDiagram::sceneSelectionChanged()
     }
 }
 
-struct WireItem {
-    proto_item *item;
+struct DiagramItemSpan {
+    field_info *finfo;
     int start_bit;
     int length;
 };
@@ -563,10 +563,10 @@ void PacketDiagram::addDiagram(proto_node *tl_node)
     y_pos_ = y_bottom;
     x = layout_->hPadding();
 
-    // Top-level fields
+    // Collect our top-level fields
     int last_start_bit = -1;
     int max_l_y = y_bottom;
-    QList<WireItem>wire_items;
+    QList<DiagramItemSpan>item_spans;
     for (proto_item *cur_item = tl_node->first_child; cur_item; cur_item = cur_item->next) {
         if (proto_item_is_generated(cur_item) || proto_item_is_hidden(cur_item)) {
             continue;
@@ -578,52 +578,62 @@ void PacketDiagram::addDiagram(proto_node *tl_node)
 
         if (start_bit <= last_start_bit || length <= 0) {
 #ifdef DEBUG_PACKET_DIAGRAM
-            qDebug() << "Skipping pass 1" << fi->hfinfo->abbrev << start_bit << last_start_bit << length;
+            qDebug() << "Skipping item" << fi->hfinfo->abbrev << start_bit << last_start_bit << length;
 #endif
             continue;
         }
         last_start_bit = start_bit;
 
-        WireItem wire_item = { cur_item, start_bit, length };
-        wire_items << wire_item;
-    }
-    qreal z_value = tl_item->zValue();
-    for (int idx = 0; idx < wire_items.size(); idx++) {
-        WireItem *wire_item = &wire_items[idx];
-        field_info *fi = wire_item->item->finfo;
-
-        if (idx < wire_items.size() - 1) {
-            WireItem *next_item = &wire_items[idx + 1];
-            if (wire_item->start_bit + wire_item->length > next_item->start_bit) {
-                wire_item->length = next_item->start_bit - wire_item->start_bit;
+        if (item_spans.size() > 0) {
+            DiagramItemSpan prev_span = item_spans.last();
+            // Get rid of overlaps.
+            if (prev_span.start_bit + prev_span.length > start_bit) {
 #ifdef DEBUG_PACKET_DIAGRAM
-                qDebug() << "Resized pass 2" << fi->hfinfo->abbrev << wire_item->start_bit << wire_item->length << next_item->start_bit;
+                qDebug() << "Resized prev" << prev_item.item->finfo->hfinfo->abbrev << prev_item.start_bit << prev_item.length << "->" << start_bit - prev_item.start_bit;
 #endif
-                if (wire_item->length <= 0) {
+                prev_span.length = start_bit - prev_span.start_bit;
+            }
+            if (prev_span.length < 1) {
 #ifdef DEBUG_PACKET_DIAGRAM
-                    qDebug() << "Skipping pass 2" << fi->hfinfo->abbrev << wire_item->start_bit << wire_item->length;
-#endif
+                qDebug() << "Removed prev" << prev_item.item->finfo->hfinfo->abbrev << prev_item.start_bit << prev_item.length;
+                diag_items.removeLast();
+                if (diag_items.size() < 1) {
                     continue;
                 }
+                prev_item = diag_items.last();
+#endif
             }
-
-            if (next_item->start_bit > wire_item->start_bit + wire_item->length) {
-                int gap_start_bit = wire_item->start_bit + wire_item->length;
-                int gap_len = next_item->start_bit - gap_start_bit;
-                int y_off = (gap_start_bit / bits_per_row) * layout_->rowHeight();
-                // Stack each item behind the previous one.
-                z_value -= .01;
-                FieldInformationGraphicsItem *gap_item = new FieldInformationGraphicsItem(nullptr, gap_start_bit, gap_len, layout_);
-                gap_item->setPos(x, y_bottom + y_off);
-                gap_item->setZValue(z_value);
-                scene()->addItem(gap_item);
+            // Fill in gaps.
+            if (prev_span.start_bit + prev_span.length < start_bit) {
+#ifdef DEBUG_PACKET_DIAGRAM
+                qDebug() << "Adding gap" << prev_item.item->finfo->hfinfo->abbrev << prev_item.start_bit << prev_item.length << start_bit;
+#endif
+                int gap_start = prev_span.start_bit + prev_span.length;
+                DiagramItemSpan gap_span = { nullptr, gap_start, start_bit - gap_start };
+                item_spans << gap_span;
             }
         }
 
-        int y_off = (wire_item->start_bit / bits_per_row) * layout_->rowHeight();
+        DiagramItemSpan item_span = { cur_item->finfo, start_bit, length };
+        item_spans << item_span;
+    }
+
+    qreal z_value = tl_item->zValue();
+    int collapse_offset = 0;
+    for (int idx = 0; idx < item_spans.size(); idx++) {
+        DiagramItemSpan *item_span = &item_spans[idx];
+        int start_bit = item_span->start_bit - collapse_offset;
+
+        int y_off = (start_bit / bits_per_row) * layout_->rowHeight();
         // Stack each item behind the previous one.
         z_value -= .01;
-        FieldInformationGraphicsItem *fi_item = new FieldInformationGraphicsItem(fi, wire_item->start_bit, wire_item->length, layout_);
+        FieldInformationGraphicsItem *fi_item = new FieldInformationGraphicsItem(item_span->finfo, start_bit, item_span->length, layout_);
+        if (fi_item->collapsedLength() < item_span->length) {
+            collapse_offset += item_span->length - fi_item->collapsedLength();
+#ifdef DEBUG_PACKET_DIAGRAM
+            qDebug() << "Collapse offset now" << collapse_offset;
+#endif
+        }
         fi_item->setPos(x, y_bottom + y_off);
         fi_item->setFlag(QGraphicsItem::ItemIsSelectable);
         fi_item->setAcceptedMouseButtons(Qt::LeftButton);
