@@ -1,7 +1,7 @@
 #!/usr/bin/perl
 #
-# This script extracts the ASN1 definition from and TS 36.331/36.355/25.331/38.331/37.355
-# and generates asn files that can be processed by asn2wrs
+# This script extracts the ASN1 definition from TS 36.331/36.355/25.331/38.331/37.355/38.413/36.423/38.423
+# /38.463/38.473 , and generates asn files that can be processed by asn2wrs
 # First download the specification from 3gpp.org as a word document and open it
 # Then in "view" menu, select normal, draft or web layout (any kind that removes page header and footers)
 # Finally save the document as a text file
