@@ -3453,7 +3453,7 @@ static const value_string wbxml_mssyncc10_tags_cp18[] = { /* ActiveSync 'Setting
 	{ 0x0B, "StartTime" },
 	{ 0x0C, "EndTime" },
 	{ 0x0D, "OofMessage" },
-	{ 0x0E, "AppliesToInteral" },
+	{ 0x0E, "AppliesToInternal" },
 	{ 0x0F, "AppliesToExternalKnown" },
 	{ 0x10, "AppliesToExternalUnknown" },
 	{ 0x11, "Enabled" },

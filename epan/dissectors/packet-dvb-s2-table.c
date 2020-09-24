@@ -183,7 +183,7 @@ static int hf_dvb_s2_table_tx_type_branch = -1;
 static int hf_dvb_s2_table_tx_type = -1;
 static int hf_dvb_s2_table_tx_type_tx_content_type = -1;
 static int hf_dvb_s2_table_tx_type_tx_format_class = -1;
-static int hf_dvb_s2_table_tx_type_tx_format_data_lenght = -1;
+static int hf_dvb_s2_table_tx_type_tx_format_data_length = -1;
 static int hf_dvb_s2_table_tx_type_tx_format_data = -1;
 /* BCT Common Tx */
 static int hf_dvb_s2_table_tx_type_tx_block_size = -1;
@@ -1832,7 +1832,7 @@ static int dissect_dvb_s2_table_bct(tvbuff_t *tvb, int cur_off, proto_tree *dvb_
         tx_format = tvb_get_guint8(tvb, cur_off + new_off);
         proto_tree_add_item(dvb_s2_hdr_table_txtype_tree, hf_dvb_s2_table_tx_type_tx_format_class, tvb, cur_off + new_off, 1, ENC_NA);
         new_off += 1;
-        proto_tree_add_item(dvb_s2_hdr_table_txtype_tree, hf_dvb_s2_table_tx_type_tx_format_data_lenght, tvb, cur_off + new_off, 1, ENC_NA);
+        proto_tree_add_item(dvb_s2_hdr_table_txtype_tree, hf_dvb_s2_table_tx_type_tx_format_data_length, tvb, cur_off + new_off, 1, ENC_NA);
         new_off += 1;
         switch(tx_format)
         {
@@ -3152,8 +3152,8 @@ void proto_register_dvb_s2_table(void)
                 FT_UINT8, BASE_HEX, VALS(table_frameType_txFormatClass), 0x0,
                 NULL, HFILL}
         },
-        {&hf_dvb_s2_table_tx_type_tx_format_data_lenght, {
-                "Tx type tx format data length", "dvb-s2_table.tx_type.tx_format_data_lenght",
+        {&hf_dvb_s2_table_tx_type_tx_format_data_length, {
+                "Tx type tx format data length", "dvb-s2_table.tx_type.tx_format_data_length",
                 FT_UINT8, BASE_HEX, NULL, 0x0,
                 NULL, HFILL}
         },

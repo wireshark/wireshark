@@ -5564,12 +5564,12 @@ proto_register_ptp(void)
             NULL, HFILL }
         },
         { &hf_ptp_v2_atoi_tlv_displayname,
-          { "displayName", "ptp.v2.an.atoi.dislpayName",
+          { "displayName", "ptp.v2.an.atoi.displayName",
             FT_STRING, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_ptp_v2_atoi_tlv_displayname_length,
-          { "length",           "ptp.v2.an.atoi.dislpayName.length",
+          { "length",           "ptp.v2.an.atoi.displayName.length",
             FT_UINT8, BASE_DEC, NULL, 0x00,
             NULL, HFILL }
         },

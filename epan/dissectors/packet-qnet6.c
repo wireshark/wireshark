@@ -4702,7 +4702,7 @@ proto_register_qnet6(void)
     {&hf_qnet6_kif_vtid_info_tid,
      {"Vtid", "qnet6.kif.msgsend.vtid_info.tid",
       FT_INT32, BASE_DEC, NULL, 0,
-      "essage virtual thread information thread id", HFILL}
+      "Virtual thread information thread id", HFILL}
     },
     {&hf_qnet6_kif_vtid_info_coid,
      {"Coid", "qnet6.kif.msgsend.vtid_info.coid",

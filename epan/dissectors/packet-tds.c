@@ -7345,12 +7345,12 @@ proto_register_tds(void)
             NULL, HFILL }
         },
         { &hf_tds_capability_data_lchar,
-          { "Support long varible-length character types", "tds.capability.data.lchar",
+          { "Support long variable-length character types", "tds.capability.data.lchar",
             FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x10,
             NULL, HFILL }
         },
         { &hf_tds_capability_data_lbin,
-          { "Support long varible-length binary types", "tds.capability.data.lbin",
+          { "Support long variable-length binary types", "tds.capability.data.lbin",
             FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x20,
             NULL, HFILL }
         },
@@ -8327,7 +8327,7 @@ proto_register_tds(void)
             NULL, HFILL }
         },
         { &hf_tds_curdeclare_options_implicit,
-          { "Implict", "tds.curdeclare.options.implicit",
+          { "Implicit", "tds.curdeclare.options.implicit",
             FT_BOOLEAN, 8, NULL, 0x10,
             NULL, HFILL }
         },

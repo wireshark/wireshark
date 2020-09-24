@@ -547,7 +547,7 @@ static int hf_dhcp_option_rfc3825_longitude = -1;			/* 123 */
 static int hf_dhcp_option_rfc3825_latitude_res = -1;			/* 123 */
 static int hf_dhcp_option_rfc3825_longitude_res = -1;			/* 123 */
 static int hf_dhcp_option_rfc3825_altitude = -1;			/* 123 */
-static int hf_dhcp_option_rfc3825_altitide_res = -1;			/* 123 */
+static int hf_dhcp_option_rfc3825_altitude_res = -1;			/* 123 */
 static int hf_dhcp_option_rfc3825_altitude_type = -1;			/* 123 */
 static int hf_dhcp_option_rfc3825_map_datum = -1;			/* 123 */
 static int hf_dhcp_option_cl_dss_id_option = -1;			/* 123 CL */
@@ -3025,7 +3025,7 @@ dissect_dhcpopt_coordinate_based_location(tvbuff_t *tvb, packet_info *pinfo, pro
 			proto_tree_add_double_format_value(tree, hf_dhcp_option_rfc3825_latitude_res, tvb, offset, 1, location.latitude_res, "%15.10f", location.latitude_res);
 			proto_tree_add_double_format_value(tree, hf_dhcp_option_rfc3825_longitude_res, tvb, offset+5, 1, location.longitude_res, "%15.10f", location.longitude_res);
 			proto_tree_add_double_format_value(tree, hf_dhcp_option_rfc3825_altitude, tvb, offset+12, 4, location.altitude, "%15.10f", location.altitude);
-			proto_tree_add_double_format_value(tree, hf_dhcp_option_rfc3825_altitide_res, tvb, offset+10, 2, location.altitude_res, "%15.10f", location.altitude_res);
+			proto_tree_add_double_format_value(tree, hf_dhcp_option_rfc3825_altitude_res, tvb, offset+10, 2, location.altitude_res, "%15.10f", location.altitude_res);
 			proto_tree_add_uint(tree, hf_dhcp_option_rfc3825_altitude_type, tvb, offset+10, 1, location.altitude_type);
 			proto_tree_add_uint(tree, hf_dhcp_option_rfc3825_map_datum, tvb, offset+15, 1, location.datum_type);
 		}
@@ -9507,8 +9507,8 @@ proto_register_dhcp(void)
 		    FT_DOUBLE, BASE_NONE, NULL, 0x0,
 		    "Option 123: Altitude", HFILL }},
 
-		{ &hf_dhcp_option_rfc3825_altitide_res,
-		  { "Altitude resolution", "dhcp.option.rfc3825.altitide_res",
+		{ &hf_dhcp_option_rfc3825_altitude_res,
+		  { "Altitude resolution", "dhcp.option.rfc3825.altitude_res",
 		    FT_DOUBLE, BASE_NONE, NULL, 0x0,
 		    "Option 123: Altitude resolution", HFILL }},
 

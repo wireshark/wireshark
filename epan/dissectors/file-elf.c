@@ -430,7 +430,7 @@ static const value_string os_abi_vals[] = {
     { 0x00,  "No extensions or unspecified" },
     { 0x01,  "Hewlett-Packard HP-UX" },
     { 0x02,  "NetBSD" },
-    { 0x03,  "GNU (historial alias: Linux)" },
+    { 0x03,  "GNU (historical alias: Linux)" },
     { 0x06,  "Sun Solaris" },
     { 0x07,  "AIX" },
     { 0x08,  "IRIX" },

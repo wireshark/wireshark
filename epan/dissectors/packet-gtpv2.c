@@ -1359,7 +1359,7 @@ static const value_string gtpv2_element_type_vals[] = {
     {148, "CSG Membership Indication (CMI)"},                                   /* Extendable / 8.79 */
     {149, "Service indicator"},                                                 /* Fixed Length / 8.80 */
     {150, "Detach Type"},                                                       /* Fixed Length / 8.81 */
-    {151, "Local Distiguished Name (LDN)"},                                     /* Variable Length / 8.82 */
+    {151, "Local Distinguished Name (LDN)"},                                    /* Variable Length / 8.82 */
     {152, "Node Features"},                                                     /* Extendable / 8.83 */
     {153, "MBMS Time to Data Transfer"},                                        /* Extendable / 8.84 */
     {154, "Throttling"},                                                        /* Extendable / 8.85 */

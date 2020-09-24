@@ -1210,7 +1210,7 @@ static const value_string btmesh_model_vals[] = {
     { 0x1012, "Generic Manufacturer Property Server" },
     { 0x1013, "Generic User Property Server" },
     { 0x1014, "Generic Client Property Server" },
-    { 0x1015, "Generic Property Clien" },
+    { 0x1015, "Generic Property Client" },
     { 0x1100, "Sensors Sensor Server" },
     { 0x1101, "Sensor Setup Server" },
     { 0x1102, "Sensor Client" },

@@ -10647,7 +10647,7 @@ proto_register_openflow_v6(void)
         },
         { &ei_openflow_v6_multipart_request_undecoded,
             { "openflow_v6.multipart_request.undecoded", PI_UNDECODED, PI_NOTE,
-              "Unknown multipart reqeuest body.", EXPFILL }
+              "Unknown multipart request body.", EXPFILL }
         },
         { &ei_openflow_v6_queue_stats_prop_undecoded,
             { "openflow_v6.queue_stats_prop.undecoded", PI_UNDECODED, PI_NOTE,

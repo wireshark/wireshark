@@ -47,6 +47,7 @@ attrs
 authenticates
 authenticator
 authenticators
+authn
 authntransitioning
 authtoken
 authtype
@@ -113,6 +114,7 @@ cdma2000
 celcius
 cellid
 cellidentity
+centiseconds
 chan1
 chan2
 channelisation
@@ -132,6 +134,7 @@ classmark
 classmark3
 cmake
 cmdcontrol
+cmstatus
 codebook
 codepoint
 codeset
@@ -246,6 +249,7 @@ downlink
 dpauxmon
 dpnss
 drbid
+droppable
 dsmcc
 dstport
 dumpcap
@@ -262,6 +266,7 @@ ellipsoid
 encap
 encaps
 encapsulations
+encapsulator
 enciphered
 encrypt
 encrypting
@@ -294,6 +299,7 @@ flavored
 flowid
 flowmod
 flowspec
+followup
 format0
 fortigate
 fortinet
@@ -360,6 +366,8 @@ iface
 ifconfig
 ikev2
 illuminance
+immersive
+implementer
 implementor
 incits
 incrementing
@@ -426,6 +434,7 @@ loglocal
 logoff
 logout
 loopback
+lossy
 lscap
 lucent
 luminance
@@ -441,12 +450,15 @@ mellanox
 memcache
 menubar
 mergecap
+meshcop
 messageid
 metadata
 meteorological
 mgmtmsg
 microbit
 midamble
+millimeters
+milliwatt
 miniport
 minislot
 minislots
@@ -506,6 +518,7 @@ nexthop
 nfs4err
 ngsniffer
 niagra
+noauth
 nominals
 nonblock
 noncriticalextension
@@ -519,6 +532,7 @@ nprach
 nsapi
 nstime
 nstrace
+ntlmssp
 obfuscated
 objectid
 objkey
@@ -615,6 +629,7 @@ qnet6
 quintuplet
 quintuplets
 radiotap
+ralink
 ranap
 randomizer
 randpkt
@@ -636,14 +651,18 @@ reauthorize
 rebalance
 rebinding
 rebooted
+reboots
 recalculate
 recalculating
 recognizer
+recomputed
 reconf
 reconfig
+reconfigurable
 reconfigure
 reconfigured
 reconfigures
+reconfirm
 reconfrqst
 redelivered
 redelivery
@@ -659,6 +678,7 @@ referer
 referrer
 regex
 reimplemented
+reinitialization
 reinitialize
 reinitialized
 reinitializing
@@ -666,6 +686,7 @@ rekey
 rekeying
 relocatable
 remapping
+renumbering
 reoptimization
 reordercap
 reorigination
@@ -674,7 +695,9 @@ reprogrammable
 reprogramming
 requester
 requestor
+requeue
 reregister
+reroute
 rerouted
 rerouting
 resegment
@@ -704,6 +727,7 @@ retry
 retrying
 retyping
 revalidate
+revertive
 rfcomm
 rlcmac
 rnsap
@@ -721,6 +745,7 @@ scrollbar
 sectorized
 segno
 semiautomatic
+sendto
 seqno
 seqnum
 sequenceno
@@ -756,6 +781,7 @@ spare8
 spare9
 spcell
 spnego
+spoofing
 spooled
 srbid
 srcport
@@ -773,6 +799,7 @@ subcode
 subdevice
 subdissector
 subdissectors
+subdoc
 subelem
 subelement
 subelements
@@ -781,6 +808,7 @@ subhd
 subheader
 subheaders
 subids
+subidx
 subindex
 subm
 submode
@@ -814,6 +842,7 @@ tcpudp
 tdd128
 tdd384
 tdd768
+teletex
 teredo
 text2pcap
 timeout
@@ -827,10 +856,13 @@ tooltip
 touchlink
 traceroute
 transcoder
+transitioning
 truncatable
 truncate
+truncates
 tshark
 tspec
+tunid
 tunneled
 tunneling
 tvbuff
@@ -886,8 +918,11 @@ unignore
 unimplemented
 uninitialized
 uninstall
+uninstalled
 uninstaller
 unjoin
+unjoined
+unjoining
 unknown1
 unlink
 unlinked
@@ -917,6 +952,8 @@ untruncated
 untrusted
 untunelled
 untunneled
+untyped
+updatability
 updatable
 uplink
 upload
@@ -929,6 +966,7 @@ userdata
 userinfo
 userlist
 userplane
+utf8mb
 utilization
 utran
 v1250

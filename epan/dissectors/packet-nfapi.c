@@ -10569,7 +10569,7 @@ void proto_register_nfapi(void)
 			NULL, HFILL }
 		},
 		{ &hf_nfapi_new_data_indication,
-			{ "New Data inidication", "nfapi.new.data.indication",
+			{ "New Data indication", "nfapi.new.data.indication",
 			FT_UINT8, BASE_DEC, NULL, 0x0,
 			"Specify whether this received transport block is a new transmission from UE", HFILL }
 		},

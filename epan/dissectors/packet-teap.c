@@ -653,7 +653,7 @@ proto_register_teap(void)
       NULL, HFILL }},
 
      { &hf_pac_attr_pac_lifetime, {
-      "Liftime", "teap.pac.lifetime",
+      "Lifetime", "teap.pac.lifetime",
       FT_UINT32, BASE_DEC, NULL, 0x0,
       NULL, HFILL }},
 

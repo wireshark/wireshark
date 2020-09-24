@@ -23864,7 +23864,7 @@ static const value_string Teleservice_vals[] = {
   { 0x63, "facsimileGroup4" },
 
   { 0x70, "allDataTeleservices" },
-  { 0x80, "allTeleservices-ExeptSMS" },
+  { 0x80, "allTeleservices-ExceptSMS" },
 
   { 0x90, "allVoiceGroupCallServices" },
   { 0x91, "voiceGroupCall" },
