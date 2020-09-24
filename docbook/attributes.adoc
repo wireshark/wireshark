@@ -19,7 +19,7 @@
 :wireshark-bugs-url: https://gitlab.com/wireshark/wireshark/issues
 :wireshark-code-review-url: https://gitlab.com/wireshark/wireshark/-/merge_requests
 :wireshark-qa-url: https://ask.wireshark.org/
-:wireshark-wiki-url: https://gitlab.com/wireshark/wireshark/-/wikis
+:wireshark-wiki-url: https://gitlab.com/wireshark/wireshark/wikis/
 :wireshark-gitlab-project-url: https://gitlab.com/wireshark/wireshark
 
 // Wireshark secondary URLs (pages)
