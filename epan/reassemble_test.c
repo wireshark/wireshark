@@ -48,6 +48,8 @@
 #include <epan/tvbuff.h>
 #include <epan/reassemble.h>
 
+#include "exceptions.h"
+
 static int failure = 0;
 
 #define ASSERT(b)           \
@@ -190,7 +192,7 @@ print_tables(void) {
        1    12     1     0    60   T       5
        0    13     2     0    60   T      15
        0    12     3     2    60   F       5
-       0    12     4     1    60   F      15
+       0    12     4     1    60   T      15
 */
 static void
 test_simple_fragment_add_seq(void)
@@ -1510,7 +1512,1756 @@ test_missing_data_fragment_add_seq_next_3(void)
 }
 #endif
 
+/**********************************************************************************
+ *
+ * fragment_add
+ *
+ *********************************************************************************/
 
+/* Simple test case for fragment_add.
+ * Adds three fragments (out of order, with one for a different datagram in between),
+ * and checks that they are reassembled correctly.
+ */
+/*   visit  id  frame  frag_offset  len  more  tvb_offset
+       0    12     1       0        50   T      10
+       1    12     1       0        60   T       5
+       0    13     2       0        60   T      15
+       0    12     3     110        60   F       5
+       0    12     4      50        60   T      15
+*/
+static void
+test_simple_fragment_add(void)
+{
+    fragment_head *fd_head, *fdh0;
+    fragment_item *fd;
+
+    printf("Starting test test_simple_fragment_add\n");
+
+    pinfo.num = 1;
+    fd_head=fragment_add(&test_reassembly_table, tvb, 10, &pinfo, 12, NULL,
+                         0, 50, TRUE);
+
+    ASSERT_EQ(1,g_hash_table_size(test_reassembly_table.fragment_table));
+    ASSERT_EQ_POINTER(NULL,fd_head);
+
+    /* adding the same fragment again should do nothing, even with different
+     * offset etc */
+    pinfo.fd->visited = 1;
+    fd_head=fragment_add(&test_reassembly_table, tvb, 5, &pinfo, 12, NULL,
+                         0, 60, TRUE);
+    ASSERT_EQ(1,g_hash_table_size(test_reassembly_table.fragment_table));
+    ASSERT_EQ_POINTER(NULL,fd_head);
+
+    /* start another pdu (just to confuse things) */
+    pinfo.fd->visited = 0;
+    pinfo.num = 2;
+    fd_head=fragment_add(&test_reassembly_table, tvb, 15, &pinfo, 13, NULL,
+                         0, 60, TRUE);
+    ASSERT_EQ(2,g_hash_table_size(test_reassembly_table.fragment_table));
+    ASSERT_EQ_POINTER(NULL,fd_head);
+
+    /* now we add the terminal fragment of the first datagram */
+    pinfo.num = 3;
+    fd_head=fragment_add(&test_reassembly_table, tvb, 5, &pinfo, 12, NULL,
+                         110, 60, FALSE);
+
+    /* we haven't got all the fragments yet ... */
+    ASSERT_EQ(2,g_hash_table_size(test_reassembly_table.fragment_table));
+    ASSERT_EQ_POINTER(NULL,fd_head);
+
+    /* finally, add the missing fragment */
+    pinfo.num = 4;
+    fd_head=fragment_add(&test_reassembly_table, tvb, 15, &pinfo, 12, NULL,
+                         50, 60, TRUE);
+
+    ASSERT_EQ(2,g_hash_table_size(test_reassembly_table.fragment_table));
+    ASSERT_NE_POINTER(NULL,fd_head);
+
+    /* check the contents of the structure */
+    ASSERT_EQ(4,fd_head->frame);  /* max frame number of fragment in assembly */
+    ASSERT_EQ(0,fd_head->offset); /* unused */
+    ASSERT_EQ(0,fd_head->len); /* unused in fragment_add */
+    ASSERT_EQ(170,fd_head->datalen); /* total datalen of assembly */
+    ASSERT_EQ(4,fd_head->reassembled_in);
+    ASSERT_EQ(FD_DEFRAGMENTED|FD_DATALEN_SET,fd_head->flags);
+    ASSERT_NE_POINTER(NULL,fd_head->tvb_data);
+    ASSERT_NE_POINTER(NULL,fd_head->next);
+
+    fd = fd_head->next;
+    ASSERT_EQ(1,fd->frame);
+    ASSERT_EQ(0,fd->offset);  /* offset */
+    ASSERT_EQ(50,fd->len);    /* segment length */
+    ASSERT_EQ(0,fd->flags);
+    ASSERT_EQ_POINTER(NULL,fd->tvb_data);
+    ASSERT_NE_POINTER(NULL,fd->next);
+
+    fd = fd->next;
+    ASSERT_EQ(4,fd->frame);
+    ASSERT_EQ(50,fd->offset); /* offset */
+    ASSERT_EQ(60,fd->len);    /* segment length */
+    ASSERT_EQ(0,fd->flags);
+    ASSERT_EQ_POINTER(NULL,fd->tvb_data);
+    ASSERT_NE_POINTER(NULL,fd->next);
+
+    fd = fd->next;
+    ASSERT_EQ(3,fd->frame);
+    ASSERT_EQ(110,fd->offset); /* offset */
+    ASSERT_EQ(60,fd->len);     /* segment length */
+    ASSERT_EQ(0,fd->flags);
+    ASSERT_EQ_POINTER(NULL,fd->tvb_data);
+    ASSERT_EQ_POINTER(NULL,fd->next);
+
+    /* test the actual reassembly */
+    ASSERT(!tvb_memeql(fd_head->tvb_data,0,data+10,50));
+    ASSERT(!tvb_memeql(fd_head->tvb_data,50,data+15,60));
+    ASSERT(!tvb_memeql(fd_head->tvb_data,110,data+5,60));
+
+#if 0
+    print_fragment_table();
+#endif
+
+    /* what happens if we revisit the packets now? */
+    fdh0 = fd_head;
+    pinfo.fd->visited = 1;
+    pinfo.num = 1;
+    fd_head=fragment_add(&test_reassembly_table, tvb, 10, &pinfo, 12, NULL,
+                         0, 50, TRUE);
+    /*
+     * this api relies on the caller to check fd_head -> reassembled_in
+     *
+     * Redoing all the tests seems like overkill - just check the pointer
+     */
+    ASSERT_EQ_POINTER(fdh0,fd_head);
+
+    pinfo.num = 3;
+    fd_head=fragment_add(&test_reassembly_table, tvb, 5, &pinfo, 12, NULL,
+                         110, 60, FALSE);
+    ASSERT_EQ_POINTER(fdh0,fd_head);
+
+    pinfo.num = 4;
+    fd_head=fragment_add(&test_reassembly_table, tvb, 15, &pinfo, 12, NULL,
+                         50, 60, TRUE);
+    ASSERT_EQ_POINTER(fdh0,fd_head);
+
+#if 0
+    print_fragment_table();
+#endif
+}
+
+/* This tests the functionality of fragment_set_partial_reassembly for
+ * fragment_add based reassembly.
+ *
+ * We add a sequence of fragments thus:
+ *    seq_off   frame  tvb_off   len   (initial) more_frags
+ *    -------   -----  -------   ---   --------------------
+ *        0       1       10      50   false
+ *       50       2        0      40   true
+ *       50       3        0      40   true (a duplicate fragment)
+ *       90       4       20     100   false
+ *      190       5        0      40   false
+ */
+static void
+test_fragment_add_partial_reassembly(void)
+{
+    fragment_head *fd_head;
+    fragment_item *fd;
+
+    printf("Starting test test_fragment_add_partial_reassembly\n");
+
+    /* generally it's probably fair to assume that we will be called with
+     * more_frags=FALSE.
+     */
+    pinfo.num = 1;
+    fd_head=fragment_add(&test_reassembly_table, tvb, 10, &pinfo, 12, NULL,
+                             0, 50, FALSE);
+
+    ASSERT_EQ(1,g_hash_table_size(test_reassembly_table.fragment_table));
+    ASSERT_NE_POINTER(NULL,fd_head);
+
+    /* check the contents of the structure */
+    ASSERT_EQ(1,fd_head->frame);  /* max frame in reassembly */
+    ASSERT_EQ(0,fd_head->offset); /* unused */
+    ASSERT_EQ(0,fd_head->len); /* unused */
+    ASSERT_EQ(50,fd_head->datalen); /* the length of data we we have */
+    ASSERT_EQ(1,fd_head->reassembled_in);
+    ASSERT_EQ(FD_DEFRAGMENTED|FD_DATALEN_SET,fd_head->flags);
+    ASSERT_NE_POINTER(NULL,fd_head->tvb_data);
+    ASSERT_NE_POINTER(NULL,fd_head->next);
+
+    ASSERT_EQ(1,fd_head->next->frame);
+    ASSERT_EQ(0,fd_head->next->offset);  /* offset */
+    ASSERT_EQ(50,fd_head->next->len);    /* segment length */
+    ASSERT_EQ(0,fd_head->next->flags);
+    ASSERT_EQ_POINTER(NULL,fd_head->next->tvb_data);
+    ASSERT_EQ_POINTER(NULL,fd_head->next->next);
+
+    /* test the actual reassembly */
+    ASSERT(!tvb_memeql(fd_head->tvb_data,0,data+10,50));
+
+    /* now we announce that the reassembly wasn't complete after all. */
+    fragment_set_partial_reassembly(&test_reassembly_table, &pinfo, 12, NULL);
+
+    /* and add another segment. To mix things up slightly (and so that we can
+     * check on the state of things), we're going to set the more_frags flag
+     * here
+     */
+    pinfo.num = 2;
+    fd_head=fragment_add(&test_reassembly_table, tvb, 0, &pinfo, 12, NULL,
+                         50, 40, TRUE);
+
+    ASSERT_EQ(1,g_hash_table_size(test_reassembly_table.fragment_table));
+    ASSERT_EQ_POINTER(NULL,fd_head);
+
+    fd_head=fragment_get(&test_reassembly_table, &pinfo, 12, NULL);
+    ASSERT_NE_POINTER(NULL,fd_head);
+
+    /* check the contents of the structure */
+    ASSERT_EQ(2,fd_head->frame);   /* max frame in reassembly */
+    ASSERT_EQ(0,fd_head->offset);  /* unused */
+    ASSERT_EQ(0,fd_head->len);     /* unused */
+    /* ASSERT_EQ(0,fd_head->datalen);
+     * reassembly not finished; datalen not well defined.
+     * Current implemenation has it as 0, could change to 90 without issues */
+    ASSERT_EQ(0,fd_head->reassembled_in);
+    ASSERT_EQ(0,fd_head->flags);
+    ASSERT_NE_POINTER(NULL,fd_head->tvb_data);
+    ASSERT_NE_POINTER(NULL,fd_head->next);
+
+    fd=fd_head->next;
+    ASSERT_EQ(1,fd->frame);
+    ASSERT_EQ(0,fd->offset);  /* offset */
+    ASSERT_EQ(50,fd->len);    /* segment length */
+    ASSERT_EQ(FD_SUBSET_TVB,fd->flags);
+    ASSERT_EQ_POINTER(tvb_get_ptr(fd_head->tvb_data,0,0),tvb_get_ptr(fd->tvb_data,0,0));
+    ASSERT_NE_POINTER(NULL,fd->next);
+
+    fd=fd->next;
+    ASSERT_EQ(2,fd->frame);
+    ASSERT_EQ(50,fd->offset); /* offset */
+    ASSERT_EQ(40,fd->len);    /* segment length */
+    ASSERT_EQ(0,fd->flags);
+    ASSERT_NE_POINTER(NULL,fd->tvb_data);
+    ASSERT_EQ_POINTER(NULL,fd->next);
+
+    /* Another copy of the second segment.
+     */
+    pinfo.num = 3;
+    fd_head=fragment_add(&test_reassembly_table, tvb, 0, &pinfo, 12, NULL,
+                         50, 40, TRUE);
+
+    ASSERT_EQ(1,g_hash_table_size(test_reassembly_table.fragment_table));
+    ASSERT_EQ_POINTER(NULL,fd_head);
+    fd_head=fragment_get(&test_reassembly_table, &pinfo, 12, NULL);
+    ASSERT_NE_POINTER(NULL,fd_head);
+    ASSERT_EQ(3,fd_head->frame);   /* max frame we have */
+    ASSERT_EQ(0,fd_head->offset);  /* unused */
+    ASSERT_EQ(0,fd_head->len);     /* unused */
+    /* ASSERT_EQ(0,fd_head->datalen);
+     * reassembly not finished; datalen not well defined.
+     * Current implemenation has it as 0, could change to 90 without issues */
+    ASSERT_EQ(0,fd_head->reassembled_in);
+    ASSERT_EQ(0,fd_head->flags);
+    ASSERT_NE_POINTER(NULL,fd_head->tvb_data);
+    ASSERT_NE_POINTER(NULL,fd_head->next);
+
+    fd=fd_head->next;
+    ASSERT_EQ(1,fd->frame);
+    ASSERT_EQ(0,fd->offset);
+    ASSERT_EQ(50,fd->len);    /* segment length */
+    ASSERT_EQ(FD_SUBSET_TVB,fd->flags);
+    ASSERT_EQ_POINTER(tvb_get_ptr(fd_head->tvb_data,0,0),tvb_get_ptr(fd->tvb_data,0,0));
+    ASSERT_NE_POINTER(NULL,fd->next);
+
+    fd=fd->next;
+    ASSERT_EQ(2,fd->frame);
+    ASSERT_EQ(50,fd->offset);
+    ASSERT_EQ(40,fd->len);    /* segment length */
+    ASSERT_EQ(0,fd->flags);
+    ASSERT_NE_POINTER(NULL,fd->tvb_data);
+    ASSERT_NE_POINTER(NULL,fd->next);
+
+    fd=fd->next;
+    ASSERT_EQ(3,fd->frame);
+    ASSERT_EQ(50,fd->offset);
+    ASSERT_EQ(40,fd->len);    /* segment length */
+    ASSERT_EQ(0,fd->flags);
+    ASSERT_NE_POINTER(NULL,fd->tvb_data);
+    ASSERT_EQ_POINTER(NULL,fd->next);
+
+
+
+    /* have another go at wrapping things up */
+    pinfo.num = 4;
+    fd_head=fragment_add(&test_reassembly_table, tvb, 20, &pinfo, 12, NULL,
+                         90, 100, FALSE);
+
+    ASSERT_EQ(1,g_hash_table_size(test_reassembly_table.fragment_table));
+    ASSERT_NE_POINTER(NULL,fd_head);
+
+    /* check the contents of the structure */
+    ASSERT_EQ(4,fd_head->frame);  /* max frame we have */
+    ASSERT_EQ(0,fd_head->offset); /* unused */
+    ASSERT_EQ(0,fd_head->len); /* unused */
+    ASSERT_EQ(190,fd_head->datalen); /* the length of data we have */
+    ASSERT_EQ(4,fd_head->reassembled_in);
+    ASSERT_EQ(FD_DEFRAGMENTED|FD_DATALEN_SET|FD_OVERLAP,fd_head->flags);
+    ASSERT_NE_POINTER(NULL,fd_head->tvb_data);
+    ASSERT_NE_POINTER(NULL,fd_head->next);
+
+    fd=fd_head->next;
+    ASSERT_EQ(1,fd->frame);
+    ASSERT_EQ(0,fd->offset);
+    ASSERT_EQ(50,fd->len);    /* segment length */
+    ASSERT_EQ(0,fd->flags);
+    ASSERT_EQ_POINTER(NULL,fd->tvb_data);
+    ASSERT_NE_POINTER(NULL,fd->next);
+
+    fd=fd->next;
+    ASSERT_EQ(2,fd->frame);
+    ASSERT_EQ(50,fd->offset);
+    ASSERT_EQ(40,fd->len);    /* segment length */
+    ASSERT_EQ(0,fd->flags);
+    ASSERT_EQ_POINTER(NULL,fd->tvb_data);
+    ASSERT_NE_POINTER(NULL,fd->next);
+
+    fd=fd->next;
+    ASSERT_EQ(3,fd->frame);
+    ASSERT_EQ(50,fd->offset);
+    ASSERT_EQ(40,fd->len);    /* segment length */
+    ASSERT_EQ(FD_OVERLAP,fd->flags);
+    ASSERT_EQ_POINTER(NULL,fd->tvb_data);
+    ASSERT_NE_POINTER(NULL,fd->next);
+
+    fd=fd->next;
+    ASSERT_EQ(4,fd->frame);
+    ASSERT_EQ(90,fd->offset);
+    ASSERT_EQ(100,fd->len);    /* segment length */
+    ASSERT_EQ(0,fd->flags);
+    ASSERT_EQ_POINTER(NULL,fd->tvb_data);
+    ASSERT_EQ_POINTER(NULL,fd->next);
+
+    /* test the actual reassembly */
+    ASSERT(!tvb_memeql(fd_head->tvb_data,0,data+10,50));
+    ASSERT(!tvb_memeql(fd_head->tvb_data,50,data,40));
+    ASSERT(!tvb_memeql(fd_head->tvb_data,90,data+20,100));
+
+
+    /* do it again (this time it is more complicated, with an overlap in the
+     * reassembly) */
+
+    fragment_set_partial_reassembly(&test_reassembly_table, &pinfo, 12, NULL);
+
+    pinfo.num = 5;
+    fragment_add(&test_reassembly_table, tvb, 0, &pinfo, 12, NULL,
+                 190, 40, FALSE);
+
+    fd_head=fragment_get(&test_reassembly_table, &pinfo, 12, NULL);
+    ASSERT_NE_POINTER(NULL,fd_head);
+    ASSERT_EQ(5,fd_head->frame);   /* max frame we have */
+    ASSERT_EQ(0,fd_head->offset);  /* unused */
+    ASSERT_EQ(0,fd_head->len);   /* unused */
+    ASSERT_EQ(230,fd_head->datalen); /* the length of data we have */
+    ASSERT_EQ(5,fd_head->reassembled_in);
+    ASSERT_EQ(FD_DEFRAGMENTED|FD_DATALEN_SET|FD_OVERLAP,fd_head->flags);
+    ASSERT_NE_POINTER(NULL,fd_head->tvb_data);
+    ASSERT_NE_POINTER(NULL,fd_head->next);
+
+    fd=fd_head->next;
+    ASSERT_EQ(1,fd->frame);
+    ASSERT_EQ(0,fd->offset);
+    ASSERT_EQ(50,fd->len);    /* segment length */
+    ASSERT_EQ(0,fd->flags);
+    ASSERT_EQ_POINTER(NULL,fd->tvb_data);
+    ASSERT_NE_POINTER(NULL,fd->next);
+
+    fd=fd->next;
+    ASSERT_EQ(2,fd->frame);
+    ASSERT_EQ(50,fd->offset);
+    ASSERT_EQ(40,fd->len);    /* segment length */
+    ASSERT_EQ(0,fd->flags);
+    ASSERT_EQ_POINTER(NULL,fd->tvb_data);
+    ASSERT_NE_POINTER(NULL,fd->next);
+
+    fd=fd->next;
+    ASSERT_EQ(3,fd->frame);
+    ASSERT_EQ(50,fd->offset);
+    ASSERT_EQ(40,fd->len);    /* segment length */
+    ASSERT_EQ(FD_OVERLAP,fd->flags);
+    ASSERT_EQ_POINTER(NULL,fd->tvb_data);
+    ASSERT_NE_POINTER(NULL,fd->next);
+
+    fd=fd->next;
+    ASSERT_EQ(4,fd->frame);
+    ASSERT_EQ(90,fd->offset);
+    ASSERT_EQ(100,fd->len);   /* segment length */
+    ASSERT_EQ(0,fd->flags);
+    ASSERT_EQ_POINTER(NULL,fd->tvb_data);
+    ASSERT_NE_POINTER(NULL,fd->next);
+
+    fd=fd->next;
+    ASSERT_EQ(5,fd->frame);
+    ASSERT_EQ(190,fd->offset);
+    ASSERT_EQ(40,fd->len);    /* segment length */
+    ASSERT_EQ(0,fd->flags);
+    ASSERT_EQ_POINTER(NULL,fd->tvb_data);
+    ASSERT_EQ_POINTER(NULL,fd->next);
+
+    /* test the actual reassembly */
+    ASSERT(!tvb_memeql(fd_head->tvb_data,0,data+10,50));
+    ASSERT(!tvb_memeql(fd_head->tvb_data,50,data,40));
+    ASSERT(!tvb_memeql(fd_head->tvb_data,90,data+20,100));
+    ASSERT(!tvb_memeql(fd_head->tvb_data,190,data,40));
+}
+
+/* XXX: Is the proper behavior here really throwing an exception instead
+ * of setting FD_OVERLAP?
+ */
+/* Test case for fragment_add with duplicated (e.g., retransmitted) data.
+ * Adds three fragments--adding the 1st one twice at the end--
+ * and checks that they are reassembled correctly.
+ */
+/*   visit  id  frame  frag_off  len  more  tvb_offset
+       0    12     1        0    50   T      10
+       0    12     2       50    60   T      5
+       0    12     3      110    40   F      5
+       0    12     4        0    50   T      10
+*/
+static void
+test_fragment_add_duplicate_first(void)
+{
+    fragment_head *fd_head;
+    fragment_item *fd;
+    volatile gboolean ex_thrown;
+
+    printf("Starting test test_fragment_add_duplicate_first\n");
+
+    pinfo.num = 1;
+    fd_head=fragment_add(&test_reassembly_table, tvb, 10, &pinfo, 12, NULL,
+                         0, 50, TRUE);
+
+    ASSERT_EQ(1,g_hash_table_size(test_reassembly_table.fragment_table));
+    ASSERT_EQ_POINTER(NULL,fd_head);
+
+    /* Add the 2nd segment */
+    pinfo.num = 2;
+    fd_head=fragment_add(&test_reassembly_table, tvb, 5, &pinfo, 12, NULL,
+                         50, 60, TRUE);
+
+    /* we haven't got all the fragments yet ... */
+    ASSERT_EQ(1,g_hash_table_size(test_reassembly_table.fragment_table));
+    ASSERT_EQ_POINTER(NULL,fd_head);
+
+    /* Add the last fragment */
+    pinfo.num = 3;
+    fd_head=fragment_add(&test_reassembly_table, tvb, 5, &pinfo, 12, NULL,
+                         110, 40, FALSE);
+
+    ASSERT_EQ(1,g_hash_table_size(test_reassembly_table.fragment_table));
+    ASSERT_NE_POINTER(NULL,fd_head);
+
+    /* Add the first fragment again */
+    pinfo.num = 4;
+    /* XXX: The current reassemble.c code for fragment_add() throws an
+     * exception and doesn't try to add a duplicate if and only if the
+     * assembly is already completed. This means that it doesn't get
+     * put in the linked list. This is counter to how the _seq functions
+     * work, as well as to how this code works if a duplicate comes in the
+     * middle instead of at the end. Test matches current code, but the
+     * current code should perhaps be changed. */
+    ex_thrown = FALSE;
+    TRY {
+    fd_head=fragment_add(&test_reassembly_table, tvb, 10, &pinfo, 12, NULL,
+                         0, 50, TRUE);
+    }
+    CATCH(ReassemblyError) {
+        ex_thrown = TRUE;
+    }
+    ENDTRY;
+
+    ASSERT_EQ(TRUE, ex_thrown);
+
+    /* Reassembly should have still succeeded */
+    ASSERT_EQ(1,g_hash_table_size(test_reassembly_table.fragment_table));
+    ASSERT_NE_POINTER(NULL,fd_head);
+
+    /* check the contents of the structure */
+    /*ASSERT_EQ(4,fd_head->frame);  max frame we have */
+    ASSERT_EQ(3,fd_head->frame);  /* never add the duplicate frame */
+    ASSERT_EQ(0,fd_head->offset); /* unused */
+    ASSERT_EQ(0,fd_head->len); /* unused */
+    ASSERT_EQ(150,fd_head->datalen);
+    ASSERT_EQ(3,fd_head->reassembled_in);
+    /* ASSERT_EQ(FD_DEFRAGMENTED|FD_DATALEN_SET|FD_OVERLAP,fd_head->flags); */
+    /* FD_OVERLAP doesn't get set because we hit the exception early */
+    ASSERT_EQ(FD_DEFRAGMENTED|FD_DATALEN_SET,fd_head->flags);
+    ASSERT_NE_POINTER(NULL,fd_head->tvb_data);
+    ASSERT_NE_POINTER(NULL,fd_head->next);
+
+    fd = fd_head->next;
+
+    ASSERT_EQ(1,fd->frame);
+    ASSERT_EQ(0,fd->offset);
+    ASSERT_EQ(50,fd->len);    /* segment length */
+    ASSERT_EQ(0,fd->flags);
+    ASSERT_EQ_POINTER(NULL,fd->tvb_data);
+    ASSERT_NE_POINTER(NULL,fd->next);
+
+    /*
+    fd = fd_head->next;
+    ASSERT_EQ(4,fd->frame);
+    ASSERT_EQ(0,fd->offset);
+    ASSERT_EQ(50,fd->len);
+    ASSERT_EQ(FD_OVERLAP,fd->flags);
+    ASSERT_EQ_POINTER(NULL,fd->tvb_data);
+    ASSERT_NE_POINTER(NULL,fd->next); */
+
+    fd = fd->next;
+    ASSERT_EQ(2,fd->frame);
+    ASSERT_EQ(50,fd->offset);
+    ASSERT_EQ(60,fd->len);    /* segment length */
+    ASSERT_EQ(0,fd->flags);
+    ASSERT_EQ_POINTER(NULL,fd->tvb_data);
+    ASSERT_NE_POINTER(NULL,fd->next);
+
+    fd = fd->next;
+    ASSERT_EQ(3,fd->frame);
+    ASSERT_EQ(110,fd->offset);
+    ASSERT_EQ(40,fd->len);    /* segment length */
+    ASSERT_EQ(0,fd->flags);
+    ASSERT_EQ_POINTER(NULL,fd->tvb_data);
+    ASSERT_EQ_POINTER(NULL,fd->next);
+
+    /* test the actual reassembly */
+    ASSERT(!tvb_memeql(fd_head->tvb_data,0,data+10,50));
+    ASSERT(!tvb_memeql(fd_head->tvb_data,50,data+5,60));
+    ASSERT(!tvb_memeql(fd_head->tvb_data,110,data+5,40));
+
+#if 0
+    print_fragment_table();
+#endif
+}
+
+
+/* Test case for fragment_add with duplicated (e.g., retransmitted) data.
+ * Adds three fragments--adding the 2nd one twice--
+ * and checks that they are reassembled correctly.
+ */
+/*   visit  id  frame  frag_off  len  more  tvb_offset
+       0    12     1       0     50   T      10
+       0    12     2      50     60   T      5
+       0    12     3      50     60   T      5
+       0    12     4     110     40   F      5
+*/
+static void
+test_fragment_add_duplicate_middle(void)
+{
+    fragment_head *fd_head;
+    fragment_item *fd;
+
+    printf("Starting test test_fragment_add_duplicate_middle\n");
+
+    pinfo.num = 1;
+    fd_head=fragment_add(&test_reassembly_table, tvb, 10, &pinfo, 12, NULL,
+                         0, 50, TRUE);
+
+    ASSERT_EQ(1,g_hash_table_size(test_reassembly_table.fragment_table));
+    ASSERT_EQ_POINTER(NULL,fd_head);
+
+    /* Add the 2nd segment */
+    pinfo.num = 2;
+    fd_head=fragment_add(&test_reassembly_table, tvb, 5, &pinfo, 12, NULL,
+                         50, 60, TRUE);
+
+    /* we haven't got all the fragments yet ... */
+    ASSERT_EQ(1,g_hash_table_size(test_reassembly_table.fragment_table));
+    ASSERT_EQ_POINTER(NULL,fd_head);
+
+    /* Now, add the 2nd segment again (but in a different frame) */
+    pinfo.num = 3;
+    fd_head=fragment_add(&test_reassembly_table, tvb, 5, &pinfo, 12, NULL,
+                         50, 60, TRUE);
+
+    /* This duplicate fragment should have been ignored */
+    ASSERT_EQ(1,g_hash_table_size(test_reassembly_table.fragment_table));
+    ASSERT_EQ_POINTER(NULL,fd_head);
+
+    /* finally, add the last fragment */
+    pinfo.num = 4;
+    fd_head=fragment_add(&test_reassembly_table, tvb, 5, &pinfo, 12, NULL,
+                         110, 40, FALSE);
+
+    ASSERT_EQ(1,g_hash_table_size(test_reassembly_table.fragment_table));
+    ASSERT_NE_POINTER(NULL,fd_head);
+
+    /* check the contents of the structure */
+    ASSERT_EQ(4,fd_head->frame);  /* max frame we have */
+    ASSERT_EQ(0,fd_head->offset); /* unused */
+    ASSERT_EQ(0,fd_head->len); /* unused */
+    ASSERT_EQ(150,fd_head->datalen);
+    ASSERT_EQ(4,fd_head->reassembled_in);
+    ASSERT_EQ(FD_DEFRAGMENTED|FD_DATALEN_SET|FD_OVERLAP,fd_head->flags);
+    ASSERT_NE_POINTER(NULL,fd_head->tvb_data);
+    ASSERT_NE_POINTER(NULL,fd_head->next);
+
+    fd = fd_head->next;
+    ASSERT_EQ(1,fd->frame);
+    ASSERT_EQ(0,fd->offset);
+    ASSERT_EQ(50,fd->len);    /* segment length */
+    ASSERT_EQ(0,fd->flags);
+    ASSERT_EQ_POINTER(NULL,fd->tvb_data);
+    ASSERT_NE_POINTER(NULL,fd->next);
+
+    fd = fd->next;
+    ASSERT_EQ(2,fd->frame);
+    ASSERT_EQ(50,fd->offset);
+    ASSERT_EQ(60,fd->len);    /* segment length */
+    ASSERT_EQ(0,fd->flags);
+    ASSERT_EQ_POINTER(NULL,fd->tvb_data);
+    ASSERT_NE_POINTER(NULL,fd->next);
+
+    fd = fd->next;
+    ASSERT_EQ(3,fd->frame);
+    ASSERT_EQ(50,fd->offset);
+    ASSERT_EQ(60,fd->len);    /* segment length */
+    ASSERT_EQ(FD_OVERLAP,fd->flags);
+    ASSERT_EQ_POINTER(NULL,fd->tvb_data);
+    ASSERT_NE_POINTER(NULL,fd->next);
+
+    fd = fd->next;
+    ASSERT_EQ(4,fd->frame);
+    ASSERT_EQ(110,fd->offset);
+    ASSERT_EQ(40,fd->len);    /* segment length */
+    ASSERT_EQ(0,fd->flags);
+    ASSERT_EQ_POINTER(NULL,fd->tvb_data);
+    ASSERT_EQ_POINTER(NULL,fd->next);
+
+    /* test the actual reassembly */
+    ASSERT(!tvb_memeql(fd_head->tvb_data,0,data+10,50));
+    ASSERT(!tvb_memeql(fd_head->tvb_data,50,data+5,60));
+    ASSERT(!tvb_memeql(fd_head->tvb_data,110,data+5,40));
+
+#if 0
+    print_fragment_table();
+#endif
+}
+
+/* XXX: Is the proper behavior here really throwing an exception instead
+ * of setting FD_OVERLAP?
+ */
+/* Test case for fragment_add with duplicated (e.g., retransmitted) data.
+ * Adds three fragments--adding the 3rd one twice--
+ * and checks that they are reassembled correctly.
+ */
+/*   visit  id  frame  frag  len  more  tvb_offset
+       0    12     1     0    50   T      10
+       0    12     2     1    60   T      5
+       0    12     3     2    40   F      5
+       0    12     4     2    40   F      5
+*/
+static void
+test_fragment_add_duplicate_last(void)
+{
+    fragment_head *fd_head;
+    fragment_item *fd;
+    volatile gboolean ex_thrown;
+
+    printf("Starting test test_fragment_add_duplicate_last\n");
+
+    pinfo.num = 1;
+    fd_head=fragment_add(&test_reassembly_table, tvb, 10, &pinfo, 12, NULL,
+                         0, 50, TRUE);
+
+    ASSERT_EQ(1,g_hash_table_size(test_reassembly_table.fragment_table));
+    ASSERT_EQ_POINTER(NULL,fd_head);
+
+    /* Add the 2nd segment */
+    pinfo.num = 2;
+    fd_head=fragment_add(&test_reassembly_table, tvb, 5, &pinfo, 12, NULL,
+                         50, 60, TRUE);
+
+    /* we haven't got all the fragments yet ... */
+    ASSERT_EQ(1,g_hash_table_size(test_reassembly_table.fragment_table));
+    ASSERT_EQ_POINTER(NULL,fd_head);
+
+    /* Add the last fragment */
+    pinfo.num = 3;
+    fd_head=fragment_add(&test_reassembly_table, tvb, 5, &pinfo, 12, NULL,
+                         110, 40, FALSE);
+
+    ASSERT_EQ(1,g_hash_table_size(test_reassembly_table.fragment_table));
+    ASSERT_NE_POINTER(NULL,fd_head);
+
+    /* Add the last fragment again */
+    pinfo.num = 4;
+    /* XXX: The current reassemble.c code for fragment_add() throws an
+     * exception and doesn't try to add a duplicate if and only if the
+     * assembly is already completed. This means that it doesn't get
+     * put in the linked list. This is counter to how the _seq functions
+     * work, as well as to how this code works if a duplicate comes in the
+     * middle instead of at the end. Test matches current code, but the
+     * current code should perhaps be changed. */
+    ex_thrown = FALSE;
+    TRY {
+    fd_head=fragment_add(&test_reassembly_table, tvb, 5, &pinfo, 12, NULL,
+                         110, 40, FALSE);
+    }
+    CATCH(ReassemblyError) {
+        ex_thrown = TRUE;
+    }
+    ENDTRY;
+
+    ASSERT_EQ(TRUE, ex_thrown);
+
+    /* Reassembly should have still succeeded */
+    ASSERT_EQ(1,g_hash_table_size(test_reassembly_table.fragment_table));
+    ASSERT_NE_POINTER(NULL,fd_head);
+
+    /* check the contents of the structure */
+    /* ASSERT_EQ(4,fd_head->frame); never add the last frame again */
+    ASSERT_EQ(3,fd_head->frame);  /* max frame we have */
+    ASSERT_EQ(0,fd_head->offset); /* unused */
+    ASSERT_EQ(0,fd_head->len); /* unused */
+    ASSERT_EQ(150,fd_head->datalen);
+    ASSERT_EQ(3,fd_head->reassembled_in);
+    /* ASSERT_EQ(FD_DEFRAGMENTED|FD_DATALEN_SET|FD_OVERLAP,fd_head->flags);
+     * FD_OVERLAP doesn't get set since we don't add a fragment after the
+     * end but throw an exception instead. */
+    ASSERT_EQ(FD_DEFRAGMENTED|FD_DATALEN_SET,fd_head->flags);
+    ASSERT_NE_POINTER(NULL,fd_head->tvb_data);
+    ASSERT_NE_POINTER(NULL,fd_head->next);
+
+    fd = fd_head->next;
+    ASSERT_EQ(1,fd->frame);
+    ASSERT_EQ(0,fd->offset);
+    ASSERT_EQ(50,fd->len);    /* segment length */
+    ASSERT_EQ(0,fd->flags);
+    ASSERT_EQ_POINTER(NULL,fd->tvb_data);
+    ASSERT_NE_POINTER(NULL,fd->next);
+
+    fd = fd->next;
+    ASSERT_EQ(2,fd->frame);
+    ASSERT_EQ(50,fd->offset);
+    ASSERT_EQ(60,fd->len);    /* segment length */
+    ASSERT_EQ(0,fd->flags);
+    ASSERT_EQ_POINTER(NULL,fd->tvb_data);
+    ASSERT_NE_POINTER(NULL,fd->next);
+
+    fd = fd->next;
+    ASSERT_EQ(3,fd->frame);
+    ASSERT_EQ(110,fd->offset);
+    ASSERT_EQ(40,fd->len);    /* segment length */
+    ASSERT_EQ(0,fd->flags);
+    ASSERT_EQ_POINTER(NULL,fd->tvb_data);
+
+    /* Duplicate packet never gets added
+    ASSERT_NE_POINTER(NULL,fd->next);
+
+    fd = fd->next;
+    ASSERT_EQ(4,fd->frame);
+    ASSERT_EQ(110,fd->offset);
+    ASSERT_EQ(40,fd->len);
+    ASSERT_EQ(FD_OVERLAP,fd->flags);
+    ASSERT_EQ_POINTER(NULL,fd->tvb_data);
+    ASSERT_EQ_POINTER(NULL,fd->next); */
+
+    /* test the actual reassembly */
+    ASSERT(!tvb_memeql(fd_head->tvb_data,0,data+10,50));
+    ASSERT(!tvb_memeql(fd_head->tvb_data,50,data+5,60));
+    ASSERT(!tvb_memeql(fd_head->tvb_data,110,data+5,40));
+
+#if 0
+    print_fragment_table();
+#endif
+}
+
+/* Test case for fragment_add with duplicated (e.g., retransmitted) data
+ * where the retransmission "conflicts" with the original transmission
+ * (contents are different).
+ * Adds three fragments--adding the 2nd one twice--
+ * and checks that they are reassembled correctly.
+ */
+/*   visit  id  frame  frag_off  len  more  tvb_offset
+       0    12     1       0     50   T      10
+       0    12     2      50     60   T      5
+       0    12     3      50     60   T      15
+       0    12     4     110     40   F      5
+*/
+static void
+test_fragment_add_duplicate_conflict(void)
+{
+    fragment_head *fd_head;
+    fragment_item *fd;
+
+    printf("Starting test test_fragment_add_duplicate_conflict\n");
+
+    pinfo.num = 1;
+    fd_head=fragment_add(&test_reassembly_table, tvb, 10, &pinfo, 12, NULL,
+                         0, 50, TRUE);
+
+    ASSERT_EQ(1,g_hash_table_size(test_reassembly_table.fragment_table));
+    ASSERT_EQ_POINTER(NULL,fd_head);
+
+    /* Add the 2nd segment */
+    pinfo.num = 2;
+    fd_head=fragment_add(&test_reassembly_table, tvb, 5, &pinfo, 12, NULL,
+                         50, 60, TRUE);
+
+    /* we haven't got all the fragments yet ... */
+    ASSERT_EQ(1,g_hash_table_size(test_reassembly_table.fragment_table));
+    ASSERT_EQ_POINTER(NULL,fd_head);
+
+    /* Now, add the 2nd segment again (but in a different frame and with
+     * different data)
+     */
+    pinfo.num = 3;
+    fd_head=fragment_add(&test_reassembly_table, tvb, 15, &pinfo, 12, NULL,
+                         50, 60, TRUE);
+
+    /* This duplicate fragment should have been ignored */
+    ASSERT_EQ(1,g_hash_table_size(test_reassembly_table.fragment_table));
+    ASSERT_EQ_POINTER(NULL,fd_head);
+
+    /* finally, add the last fragment */
+    pinfo.num = 4;
+    fd_head=fragment_add(&test_reassembly_table, tvb, 5, &pinfo, 12, NULL,
+                         110, 40, FALSE);
+
+    ASSERT_EQ(1,g_hash_table_size(test_reassembly_table.fragment_table));
+    ASSERT_NE_POINTER(NULL,fd_head);
+
+    /* check the contents of the structure */
+    ASSERT_EQ(4,fd_head->frame);  /* max frame we have */
+    ASSERT_EQ(0,fd_head->offset); /* unused */
+    ASSERT_EQ(0,fd_head->len); /* unused */
+    ASSERT_EQ(150,fd_head->datalen);
+    ASSERT_EQ(4,fd_head->reassembled_in);
+    ASSERT_EQ(FD_DEFRAGMENTED|FD_DATALEN_SET|FD_OVERLAP|FD_OVERLAPCONFLICT,fd_head->flags);
+    ASSERT_NE_POINTER(NULL,fd_head->tvb_data);
+    ASSERT_NE_POINTER(NULL,fd_head->next);
+
+    fd = fd_head->next;
+    ASSERT_EQ(1,fd->frame);
+    ASSERT_EQ(0,fd->offset);
+    ASSERT_EQ(50,fd->len);    /* segment length */
+    ASSERT_EQ(0,fd->flags);
+    ASSERT_EQ_POINTER(NULL,fd->tvb_data);
+    ASSERT_NE_POINTER(NULL,fd->next);
+
+    fd = fd->next;
+    ASSERT_EQ(2,fd->frame);
+    ASSERT_EQ(50,fd->offset);
+    ASSERT_EQ(60,fd->len);    /* segment length */
+    ASSERT_EQ(0,fd->flags);
+    ASSERT_EQ_POINTER(NULL,fd->tvb_data);
+    ASSERT_NE_POINTER(NULL,fd->next);
+
+    fd = fd->next;
+    ASSERT_EQ(3,fd->frame);
+    ASSERT_EQ(50,fd->offset);
+    ASSERT_EQ(60,fd->len);    /* segment length */
+    ASSERT_EQ(FD_OVERLAP|FD_OVERLAPCONFLICT,fd->flags);
+    ASSERT_EQ_POINTER(NULL,fd->tvb_data);
+    ASSERT_NE_POINTER(NULL,fd->next);
+
+    fd = fd->next;
+    ASSERT_EQ(4,fd->frame);
+    ASSERT_EQ(110,fd->offset);
+    ASSERT_EQ(40,fd->len);    /* segment length */
+    ASSERT_EQ(0,fd->flags);
+    ASSERT_EQ_POINTER(NULL,fd->tvb_data);
+    ASSERT_EQ_POINTER(NULL,fd->next);
+
+    /* test the actual reassembly */
+    ASSERT(!tvb_memeql(fd_head->tvb_data,0,data+10,50));
+    ASSERT(!tvb_memeql(fd_head->tvb_data,50,data+5,60));
+    ASSERT(!tvb_memeql(fd_head->tvb_data,110,data+5,40));
+
+#if 0
+    print_fragment_table();
+#endif
+}
+
+/**********************************************************************************
+ *
+ * fragment_add_check
+ *
+ *********************************************************************************/
+
+/* Simple test case for fragment_add_check.
+ * Adds three fragments (out of order, with one for a different datagram in between),
+ * and checks that they are reassembled correctly.
+ */
+/*   visit  id  frame  frag_offset  len  more  tvb_offset
+       0    12     1       0        50   T      10
+       1    12     1       0        60   T       5
+       0    13     2       0        60   T      15
+       0    12     3     110        60   F       5
+       0    12     4      50        60   T      15
+*/
+static void
+test_simple_fragment_add_check(void)
+{
+    fragment_head *fd_head, *fdh0;
+    fragment_item *fd;
+
+    printf("Starting test test_simple_fragment_add_check\n");
+
+    pinfo.num = 1;
+    fd_head=fragment_add_check(&test_reassembly_table, tvb, 10, &pinfo, 12,
+                               NULL, 0, 50, TRUE);
+
+    ASSERT_EQ(1,g_hash_table_size(test_reassembly_table.fragment_table));
+    ASSERT_EQ(0,g_hash_table_size(test_reassembly_table.reassembled_table));
+    ASSERT_EQ_POINTER(NULL,fd_head);
+
+    /* adding the same fragment again should do nothing, even with different
+     * offset etc */
+    pinfo.fd->visited = 1;
+    fd_head=fragment_add_check(&test_reassembly_table, tvb, 5, &pinfo, 12,
+                               NULL, 0, 60, TRUE);
+    ASSERT_EQ(1,g_hash_table_size(test_reassembly_table.fragment_table));
+    ASSERT_EQ(0,g_hash_table_size(test_reassembly_table.reassembled_table));
+    ASSERT_EQ_POINTER(NULL,fd_head);
+
+    /* start another pdu (just to confuse things) */
+    pinfo.fd->visited = 0;
+    pinfo.num = 2;
+    fd_head=fragment_add_check(&test_reassembly_table, tvb, 15, &pinfo, 13,
+                               NULL, 0, 60, TRUE);
+    ASSERT_EQ(2,g_hash_table_size(test_reassembly_table.fragment_table));
+    ASSERT_EQ(0,g_hash_table_size(test_reassembly_table.reassembled_table));
+    ASSERT_EQ_POINTER(NULL,fd_head);
+
+    /* now we add the terminal fragment of the first datagram */
+    pinfo.num = 3;
+    fd_head=fragment_add_check(&test_reassembly_table, tvb, 5, &pinfo, 12,
+                               NULL, 110, 60, FALSE);
+
+    /* we haven't got all the fragments yet ... */
+    ASSERT_EQ(2,g_hash_table_size(test_reassembly_table.fragment_table));
+    ASSERT_EQ(0,g_hash_table_size(test_reassembly_table.reassembled_table));
+    ASSERT_EQ_POINTER(NULL,fd_head);
+
+    /* finally, add the missing fragment */
+    pinfo.num = 4;
+    fd_head=fragment_add_check(&test_reassembly_table, tvb, 15, &pinfo, 12,
+                               NULL, 50, 60, TRUE);
+
+    ASSERT_EQ(1,g_hash_table_size(test_reassembly_table.fragment_table));
+    ASSERT_EQ(3,g_hash_table_size(test_reassembly_table.reassembled_table));
+    ASSERT_NE_POINTER(NULL,fd_head);
+
+    /* check the contents of the structure */
+    ASSERT_EQ(4,fd_head->frame);  /* max frame number of fragment in assembly */
+    ASSERT_EQ(0,fd_head->offset); /* unused */
+    ASSERT_EQ(0,fd_head->len); /* unused in fragment_add */
+    ASSERT_EQ(170,fd_head->datalen); /* total datalen of assembly */
+    ASSERT_EQ(4,fd_head->reassembled_in);
+    ASSERT_EQ(FD_DEFRAGMENTED|FD_DATALEN_SET,fd_head->flags);
+    ASSERT_NE_POINTER(NULL,fd_head->tvb_data);
+    ASSERT_NE_POINTER(NULL,fd_head->next);
+
+    fd = fd_head->next;
+    ASSERT_EQ(1,fd->frame);
+    ASSERT_EQ(0,fd->offset);
+    ASSERT_EQ(50,fd->len);    /* segment length */
+    ASSERT_EQ(0,fd->flags);
+    ASSERT_EQ_POINTER(NULL,fd->tvb_data);
+    ASSERT_NE_POINTER(NULL,fd->next);
+
+    fd = fd->next;
+    ASSERT_EQ(4,fd->frame);
+    ASSERT_EQ(50,fd->offset);
+    ASSERT_EQ(60,fd->len);    /* segment length */
+    ASSERT_EQ(0,fd->flags);
+    ASSERT_EQ_POINTER(NULL,fd->tvb_data);
+    ASSERT_NE_POINTER(NULL,fd->next);
+
+    fd = fd->next;
+    ASSERT_EQ(3,fd->frame);
+    ASSERT_EQ(110,fd->offset);
+    ASSERT_EQ(60,fd->len);     /* segment length */
+    ASSERT_EQ(0,fd->flags);
+    ASSERT_EQ_POINTER(NULL,fd->tvb_data);
+    ASSERT_EQ_POINTER(NULL,fd->next);
+
+    /* test the actual reassembly */
+    ASSERT(!tvb_memeql(fd_head->tvb_data,0,data+10,50));
+    ASSERT(!tvb_memeql(fd_head->tvb_data,50,data+15,60));
+    ASSERT(!tvb_memeql(fd_head->tvb_data,110,data+5,60));
+
+#if 0
+    print_fragment_table();
+#endif
+
+    /* what happens if we revisit the packets now? */
+    fdh0 = fd_head;
+    pinfo.fd->visited = 1;
+    pinfo.num = 1;
+    fd_head=fragment_add_check(&test_reassembly_table, tvb, 10, &pinfo, 12,
+                               NULL, 0, 50, TRUE);
+    /*
+     * this api relies on the caller to check fd_head -> reassembled_in
+     *
+     * Redoing all the tests seems like overkill - just check the pointer
+     */
+    ASSERT_EQ_POINTER(fdh0,fd_head);
+
+    pinfo.num = 3;
+    fd_head=fragment_add_check(&test_reassembly_table, tvb, 5, &pinfo, 12,
+                               NULL, 110, 60, FALSE);
+    ASSERT_EQ_POINTER(fdh0,fd_head);
+
+    pinfo.num = 4;
+    fd_head=fragment_add_check(&test_reassembly_table, tvb, 15, &pinfo, 12,
+                               NULL, 50, 60, TRUE);
+    ASSERT_EQ_POINTER(fdh0,fd_head);
+
+#if 0
+    print_fragment_table();
+#endif
+}
+
+#if 0
+/* XXX: fragment_set_partial_reassembly() does not work for fragment_add_check
+ * because it doesn't remove the previously completed reassembly from
+ * reassembled_table (and lookup_fd_head() only looks in the fragment
+ * table, not the reassembled_table) */
+/* This tests the functionality of fragment_set_partial_reassembly for
+ * fragment_add_check based reassembly.
+ *
+ * We add a sequence of fragments thus:
+ *    seq_off   frame  tvb_off   len   (initial) more_frags
+ *    -------   -----  -------   ---   --------------------
+ *        0       1       10      50   false
+ *       50       2        0      40   true
+ *       50       3        0      40   true (a duplicate fragment)
+ *       90       4       20     100   false
+ *      190       5        0      40   false
+ */
+static void
+test_fragment_add_check_partial_reassembly(void)
+{
+    fragment_head *fd_head;
+    fragment_item *fd;
+
+    printf("Starting test test_fragment_add_check_partial_reassembly\n");
+
+    /* generally it's probably fair to assume that we will be called with
+     * more_frags=FALSE.
+     */
+    pinfo.num = 1;
+    fd_head=fragment_add_check(&test_reassembly_table, tvb, 10, &pinfo, 12,
+                               NULL, 0, 50, FALSE);
+
+    ASSERT_EQ(0,g_hash_table_size(test_reassembly_table.fragment_table));
+    ASSERT_EQ(1,g_hash_table_size(test_reassembly_table.reassembled_table));
+    ASSERT_NE_POINTER(NULL,fd_head);
+
+    /* check the contents of the structure */
+    ASSERT_EQ(1,fd_head->frame);  /* max frame in reassembly */
+    ASSERT_EQ(0,fd_head->offset); /* unused */
+    ASSERT_EQ(0,fd_head->len); /* unused */
+    ASSERT_EQ(50,fd_head->datalen); /* the length of data we we have */
+    ASSERT_EQ(1,fd_head->reassembled_in);
+    ASSERT_EQ(FD_DEFRAGMENTED|FD_DATALEN_SET,fd_head->flags);
+    ASSERT_NE_POINTER(NULL,fd_head->tvb_data);
+    ASSERT_NE_POINTER(NULL,fd_head->next);
+
+    ASSERT_EQ(1,fd_head->next->frame);
+    ASSERT_EQ(0,fd_head->next->offset);  /* offset */
+    ASSERT_EQ(50,fd_head->next->len);    /* segment length */
+    ASSERT_EQ(0,fd_head->next->flags);
+    ASSERT_EQ_POINTER(NULL,fd_head->next->tvb_data);
+    ASSERT_EQ_POINTER(NULL,fd_head->next->next);
+
+    /* test the actual reassembly */
+    ASSERT(!tvb_memeql(fd_head->tvb_data,0,data+10,50));
+
+    /* now we announce that the reassembly wasn't complete after all. */
+    fragment_set_partial_reassembly(&test_reassembly_table, &pinfo, 12, NULL);
+
+    /* and add another segment. To mix things up slightly (and so that we can
+     * check on the state of things), we're going to set the more_frags flag
+     * here
+     */
+    pinfo.num = 2;
+    fd_head=fragment_add_check(&test_reassembly_table, tvb, 0, &pinfo, 12,
+                               NULL, 50, 40, TRUE);
+
+    ASSERT_EQ(1,g_hash_table_size(test_reassembly_table.fragment_table));
+    ASSERT_EQ(1,g_hash_table_size(test_reassembly_table.reassembled_table));
+    ASSERT_EQ_POINTER(NULL,fd_head);
+
+    fd_head=fragment_get(&test_reassembly_table, &pinfo, 12, NULL);
+    ASSERT_NE_POINTER(NULL,fd_head);
+
+    /* check the contents of the structure */
+    ASSERT_EQ(2,fd_head->frame);   /* max frame in reassembly */
+    ASSERT_EQ(0,fd_head->offset);  /* unused */
+    ASSERT_EQ(0,fd_head->len);     /* unused */
+    /* ASSERT_EQ(0,fd_head->datalen);
+     * reassembly not finished; datalen not well defined.
+     * Current implemenation has it as 0, could change to 90 without issues */
+    ASSERT_EQ(0,fd_head->reassembled_in);
+    ASSERT_EQ(0,fd_head->flags);
+    ASSERT_NE_POINTER(NULL,fd_head->tvb_data);
+    ASSERT_NE_POINTER(NULL,fd_head->next);
+
+    fd=fd_head->next;
+    ASSERT_EQ(1,fd->frame);
+    ASSERT_EQ(0,fd->offset);  /* offset */
+    ASSERT_EQ(50,fd->len);    /* segment length */
+    ASSERT_EQ(FD_SUBSET_TVB,fd->flags);
+    ASSERT_EQ_POINTER(tvb_get_ptr(fd_head->tvb_data,0,0),tvb_get_ptr(fd->tvb_data,0,0));
+    ASSERT_NE_POINTER(NULL,fd->next);
+
+    fd=fd->next;
+    ASSERT_EQ(2,fd->frame);
+    ASSERT_EQ(50,fd->offset); /* offset */
+    ASSERT_EQ(40,fd->len);    /* segment length */
+    ASSERT_EQ(0,fd->flags);
+    ASSERT_NE_POINTER(NULL,fd->tvb_data);
+    ASSERT_EQ_POINTER(NULL,fd->next);
+
+    /* Another copy of the second segment.
+     */
+    pinfo.num = 3;
+    fd_head=fragment_add_check(&test_reassembly_table, tvb, 0, &pinfo, 12,
+                               NULL, 50, 40, TRUE);
+
+    ASSERT_EQ(1,g_hash_table_size(test_reassembly_table.fragment_table));
+    ASSERT_EQ_POINTER(NULL,fd_head);
+    fd_head=fragment_get(&test_reassembly_table, &pinfo, 12, NULL);
+    ASSERT_NE_POINTER(NULL,fd_head);
+    ASSERT_EQ(3,fd_head->frame);   /* max frame we have */
+    ASSERT_EQ(0,fd_head->offset);  /* unused */
+    ASSERT_EQ(0,fd_head->len);     /* unused */
+    /* ASSERT_EQ(0,fd_head->datalen);
+     * reassembly not finished; datalen not well defined.
+     * Current implemenation has it as 0, could change to 90 without issues */
+    ASSERT_EQ(0,fd_head->reassembled_in);
+    ASSERT_EQ(0,fd_head->flags);
+    ASSERT_NE_POINTER(NULL,fd_head->tvb_data);
+    ASSERT_NE_POINTER(NULL,fd_head->next);
+
+    fd=fd_head->next;
+    ASSERT_EQ(1,fd->frame);
+    ASSERT_EQ(0,fd->offset);
+    ASSERT_EQ(50,fd->len);    /* segment length */
+    ASSERT_EQ(FD_SUBSET_TVB,fd->flags);
+    ASSERT_EQ_POINTER(tvb_get_ptr(fd_head->tvb_data,0,0),tvb_get_ptr(fd->tvb_data,0,0));
+    ASSERT_NE_POINTER(NULL,fd->next);
+
+    fd=fd->next;
+    ASSERT_EQ(2,fd->frame);
+    ASSERT_EQ(50,fd->offset);
+    ASSERT_EQ(40,fd->len);    /* segment length */
+    ASSERT_EQ(0,fd->flags);
+    ASSERT_NE_POINTER(NULL,fd->tvb_data);
+    ASSERT_NE_POINTER(NULL,fd->next);
+
+    fd=fd->next;
+    ASSERT_EQ(3,fd->frame);
+    ASSERT_EQ(50,fd->offset);
+    ASSERT_EQ(40,fd->len);    /* segment length */
+    ASSERT_EQ(0,fd->flags);
+    ASSERT_NE_POINTER(NULL,fd->tvb_data);
+    ASSERT_EQ_POINTER(NULL,fd->next);
+
+
+
+    /* have another go at wrapping things up */
+    pinfo.num = 4;
+    fd_head=fragment_add_check(&test_reassembly_table, tvb, 20, &pinfo, 12,
+                               NULL, 90, 100, FALSE);
+
+    ASSERT_EQ(1,g_hash_table_size(test_reassembly_table.fragment_table));
+    ASSERT_NE_POINTER(NULL,fd_head);
+
+    /* check the contents of the structure */
+    ASSERT_EQ(4,fd_head->frame);  /* max frame we have */
+    ASSERT_EQ(0,fd_head->offset); /* unused */
+    ASSERT_EQ(0,fd_head->len); /* unused */
+    ASSERT_EQ(190,fd_head->datalen); /* the length of data we have */
+    ASSERT_EQ(4,fd_head->reassembled_in);
+    ASSERT_EQ(FD_DEFRAGMENTED|FD_DATALEN_SET|FD_OVERLAP,fd_head->flags);
+    ASSERT_NE_POINTER(NULL,fd_head->tvb_data);
+    ASSERT_NE_POINTER(NULL,fd_head->next);
+
+    fd=fd_head->next;
+    ASSERT_EQ(1,fd->frame);
+    ASSERT_EQ(0,fd->offset);
+    ASSERT_EQ(50,fd->len);    /* segment length */
+    ASSERT_EQ(0,fd->flags);
+    ASSERT_EQ_POINTER(NULL,fd->tvb_data);
+    ASSERT_NE_POINTER(NULL,fd->next);
+
+    fd=fd->next;
+    ASSERT_EQ(2,fd->frame);
+    ASSERT_EQ(50,fd->offset);
+    ASSERT_EQ(40,fd->len);    /* segment length */
+    ASSERT_EQ(0,fd->flags);
+    ASSERT_EQ_POINTER(NULL,fd->tvb_data);
+    ASSERT_NE_POINTER(NULL,fd->next);
+
+    fd=fd->next;
+    ASSERT_EQ(3,fd->frame);
+    ASSERT_EQ(50,fd->offset);
+    ASSERT_EQ(40,fd->len);    /* segment length */
+    ASSERT_EQ(FD_OVERLAP,fd->flags);
+    ASSERT_EQ_POINTER(NULL,fd->tvb_data);
+    ASSERT_NE_POINTER(NULL,fd->next);
+
+    fd=fd->next;
+    ASSERT_EQ(4,fd->frame);
+    ASSERT_EQ(90,fd->offset);
+    ASSERT_EQ(100,fd->len);    /* segment length */
+    ASSERT_EQ(0,fd->flags);
+    ASSERT_EQ_POINTER(NULL,fd->tvb_data);
+    ASSERT_EQ_POINTER(NULL,fd->next);
+
+    /* test the actual reassembly */
+    ASSERT(!tvb_memeql(fd_head->tvb_data,0,data+10,50));
+    ASSERT(!tvb_memeql(fd_head->tvb_data,50,data,40));
+    ASSERT(!tvb_memeql(fd_head->tvb_data,90,data+20,100));
+
+
+    /* do it again (this time it is more complicated, with an overlap in the
+     * reassembly) */
+
+    fragment_set_partial_reassembly(&test_reassembly_table, &pinfo, 12, NULL);
+
+    pinfo.num = 5;
+    fragment_add_check(&test_reassembly_table, tvb, 0, &pinfo, 12, NULL,
+                       190, 40, FALSE);
+
+    fd_head=fragment_get(&test_reassembly_table, &pinfo, 12, NULL);
+    ASSERT_NE_POINTER(NULL,fd_head);
+    ASSERT_EQ(5,fd_head->frame);   /* max frame we have */
+    ASSERT_EQ(0,fd_head->offset);  /* unused */
+    ASSERT_EQ(0,fd_head->len);   /* unused */
+    ASSERT_EQ(230,fd_head->datalen); /* the length of data we have */
+    ASSERT_EQ(5,fd_head->reassembled_in);
+    ASSERT_EQ(FD_DEFRAGMENTED|FD_DATALEN_SET|FD_OVERLAP,fd_head->flags);
+    ASSERT_NE_POINTER(NULL,fd_head->tvb_data);
+    ASSERT_NE_POINTER(NULL,fd_head->next);
+
+    fd=fd_head->next;
+    ASSERT_EQ(1,fd->frame);
+    ASSERT_EQ(0,fd->offset);
+    ASSERT_EQ(50,fd->len);    /* segment length */
+    ASSERT_EQ(0,fd->flags);
+    ASSERT_EQ_POINTER(NULL,fd->tvb_data);
+    ASSERT_NE_POINTER(NULL,fd->next);
+
+    fd=fd->next;
+    ASSERT_EQ(2,fd->frame);
+    ASSERT_EQ(50,fd->offset);
+    ASSERT_EQ(40,fd->len);    /* segment length */
+    ASSERT_EQ(0,fd->flags);
+    ASSERT_EQ_POINTER(NULL,fd->tvb_data);
+    ASSERT_NE_POINTER(NULL,fd->next);
+
+    fd=fd->next;
+    ASSERT_EQ(3,fd->frame);
+    ASSERT_EQ(50,fd->offset);
+    ASSERT_EQ(40,fd->len);    /* segment length */
+    ASSERT_EQ(FD_OVERLAP,fd->flags);
+    ASSERT_EQ_POINTER(NULL,fd->tvb_data);
+    ASSERT_NE_POINTER(NULL,fd->next);
+
+    fd=fd->next;
+    ASSERT_EQ(4,fd->frame);
+    ASSERT_EQ(90,fd->offset);
+    ASSERT_EQ(100,fd->len);   /* segment length */
+    ASSERT_EQ(0,fd->flags);
+    ASSERT_EQ_POINTER(NULL,fd->tvb_data);
+    ASSERT_NE_POINTER(NULL,fd->next);
+
+    fd=fd->next;
+    ASSERT_EQ(5,fd->frame);
+    ASSERT_EQ(190,fd->offset);
+    ASSERT_EQ(40,fd->len);    /* segment length */
+    ASSERT_EQ(0,fd->flags);
+    ASSERT_EQ_POINTER(NULL,fd->tvb_data);
+    ASSERT_EQ_POINTER(NULL,fd->next);
+
+    /* test the actual reassembly */
+    ASSERT(!tvb_memeql(fd_head->tvb_data,0,data+10,50));
+    ASSERT(!tvb_memeql(fd_head->tvb_data,50,data,40));
+    ASSERT(!tvb_memeql(fd_head->tvb_data,90,data+20,100));
+    ASSERT(!tvb_memeql(fd_head->tvb_data,190,data,40));
+}
+#endif
+
+#if 0
+/* XXX: fragment_add_check moves completed reassemblies to the
+ * reassembled_table, so adding a duplicated fragment after the end doesn't
+ * get marked as duplicate, but starts a new reassembly. This is the correct
+ * thing for very long captures where the identification field gets reused,
+ * somewhat wrong when it is retransmitted data (it won't get marked as such
+ * but doesn't interfere with defragmentation too much), and very wrong when
+ * there is both retransmitted data and later on the identification field
+ * gets reused (the dangling data will get added to the wrong reassembly.)
+ *
+ * Not sure what behavior to check. Possibly both behaviors should be supported,
+ * perhaps being affected by how close pinfo.num is to the reassembly, though
+ * that gets complicated.
+ */
+/* Test case for fragment_add_check with duplicated (e.g., retransmitted) data.
+ * Adds three fragments--adding the 1st one twice at the end--
+ * and checks that they are reassembled correctly.
+ */
+/*   visit  id  frame  frag_off  len  more  tvb_offset
+       0    12     1        0    50   T      10
+       0    12     2       50    60   T      5
+       0    12     3      110    40   F      5
+       0    12     4        0    50   T      10
+*/
+static void
+test_fragment_add_check_duplicate_first(void)
+{
+    fragment_head *fd_head;
+    fragment_item *fd;
+    volatile gboolean ex_thrown;
+
+    printf("Starting test test_fragment_add_check_duplicate_first\n");
+
+    pinfo.num = 1;
+    fd_head=fragment_add_check(&test_reassembly_table, tvb, 10, &pinfo, 12,
+                               NULL, 0, 50, TRUE);
+
+    ASSERT_EQ(1,g_hash_table_size(test_reassembly_table.fragment_table));
+    ASSERT_EQ(0,g_hash_table_size(test_reassembly_table.reassembled_table));
+    ASSERT_EQ_POINTER(NULL,fd_head);
+
+    /* Add the 2nd segment */
+    pinfo.num = 2;
+    fd_head=fragment_add_check(&test_reassembly_table, tvb, 5, &pinfo, 12,
+                               NULL, 50, 60, TRUE);
+
+    /* we haven't got all the fragments yet ... */
+    ASSERT_EQ(1,g_hash_table_size(test_reassembly_table.fragment_table));
+    ASSERT_EQ(0,g_hash_table_size(test_reassembly_table.reassembled_table));
+    ASSERT_EQ_POINTER(NULL,fd_head);
+
+    /* Add the last fragment */
+    pinfo.num = 3;
+    fd_head=fragment_add_check(&test_reassembly_table, tvb, 5, &pinfo, 12,
+                               NULL, 110, 40, FALSE);
+
+    ASSERT_EQ(0,g_hash_table_size(test_reassembly_table.fragment_table));
+    ASSERT_EQ(3,g_hash_table_size(test_reassembly_table.reassembled_table));
+    ASSERT_NE_POINTER(NULL,fd_head);
+
+    /* Add the first fragment again */
+    pinfo.num = 4;
+    fd_head=fragment_add_check(&test_reassembly_table, tvb, 10, &pinfo, 12,
+                               NULL, 0, 50, TRUE);
+
+    /* Reassembly should have still succeeded */
+    /* XXX: Current behavior is to start a new reassembly - which is
+     * the proper behavior in a long capture that reuses the id, but the
+     * wrong thing when it's actually a retransmission. Should the distinction
+     * be made by analyzing pinfo.num to see if it is nearby? Or is that the
+     * dissector's job? */
+    ASSERT_EQ(1,g_hash_table_size(test_reassembly_table.fragment_table));
+    ASSERT_EQ(3,g_hash_table_size(test_reassembly_table.reassembled_table));
+    ASSERT_NE_POINTER(NULL,fd_head);
+
+    /* check the contents of the structure */
+    /*ASSERT_EQ(4,fd_head->frame);  max frame we have */
+    ASSERT_EQ(3,fd_head->frame);  /* never add the duplicate frame */
+    ASSERT_EQ(0,fd_head->offset); /* unused */
+    ASSERT_EQ(0,fd_head->len); /* unused */
+    ASSERT_EQ(150,fd_head->datalen);
+    ASSERT_EQ(3,fd_head->reassembled_in);
+    /* ASSERT_EQ(FD_DEFRAGMENTED|FD_DATALEN_SET|FD_OVERLAP,fd_head->flags); */
+    /* FD_OVERLAP doesn't get set because we hit the exception early */
+    ASSERT_EQ(FD_DEFRAGMENTED|FD_DATALEN_SET,fd_head->flags);
+    ASSERT_NE_POINTER(NULL,fd_head->tvb_data);
+    ASSERT_NE_POINTER(NULL,fd_head->next);
+
+    fd = fd_head->next;
+
+    ASSERT_EQ(1,fd->frame);
+    ASSERT_EQ(0,fd->offset);
+    ASSERT_EQ(50,fd->len);    /* segment length */
+    ASSERT_EQ(0,fd->flags);
+    ASSERT_EQ_POINTER(NULL,fd->tvb_data);
+    ASSERT_NE_POINTER(NULL,fd->next);
+
+    /*
+    fd = fd_head->next;
+    ASSERT_EQ(4,fd->frame);
+    ASSERT_EQ(0,fd->offset);
+    ASSERT_EQ(50,fd->len);
+    ASSERT_EQ(FD_OVERLAP,fd->flags);
+    ASSERT_EQ_POINTER(NULL,fd->tvb_data);
+    ASSERT_NE_POINTER(NULL,fd->next); */
+
+    fd = fd->next;
+    ASSERT_EQ(2,fd->frame);
+    ASSERT_EQ(50,fd->offset);
+    ASSERT_EQ(60,fd->len);    /* segment length */
+    ASSERT_EQ(0,fd->flags);
+    ASSERT_EQ_POINTER(NULL,fd->tvb_data);
+    ASSERT_NE_POINTER(NULL,fd->next);
+
+    fd = fd->next;
+    ASSERT_EQ(3,fd->frame);
+    ASSERT_EQ(110,fd->offset);
+    ASSERT_EQ(40,fd->len);    /* segment length */
+    ASSERT_EQ(0,fd->flags);
+    ASSERT_EQ_POINTER(NULL,fd->tvb_data);
+    ASSERT_EQ_POINTER(NULL,fd->next);
+
+    /* test the actual reassembly */
+    ASSERT(!tvb_memeql(fd_head->tvb_data,0,data+10,50));
+    ASSERT(!tvb_memeql(fd_head->tvb_data,50,data+5,60));
+    ASSERT(!tvb_memeql(fd_head->tvb_data,110,data+5,40));
+
+#if 0
+    print_fragment_table();
+#endif
+}
+#endif
+
+/* Test case for fragment_add_check with duplicated (e.g., retransmitted) data.
+ * Adds three fragments--adding the 2nd one twice--
+ * and checks that they are reassembled correctly.
+ */
+/*   visit  id  frame  frag_off  len  more  tvb_offset
+       0    12     1       0     50   T      10
+       0    12     2      50     60   T      5
+       0    12     3      50     60   T      5
+       0    12     4     110     40   F      5
+*/
+static void
+test_fragment_add_check_duplicate_middle(void)
+{
+    fragment_head *fd_head;
+    fragment_item *fd;
+
+    printf("Starting test test_fragment_add_check_duplicate_middle\n");
+
+    pinfo.num = 1;
+    fd_head=fragment_add_check(&test_reassembly_table, tvb, 10, &pinfo, 12,
+                               NULL, 0, 50, TRUE);
+
+    ASSERT_EQ(1,g_hash_table_size(test_reassembly_table.fragment_table));
+    ASSERT_EQ(0,g_hash_table_size(test_reassembly_table.reassembled_table));
+    ASSERT_EQ_POINTER(NULL,fd_head);
+
+    /* Add the 2nd segment */
+    pinfo.num = 2;
+    fd_head=fragment_add_check(&test_reassembly_table, tvb, 5, &pinfo, 12,
+                               NULL, 50, 60, TRUE);
+
+    /* we haven't got all the fragments yet ... */
+    ASSERT_EQ(1,g_hash_table_size(test_reassembly_table.fragment_table));
+    ASSERT_EQ(0,g_hash_table_size(test_reassembly_table.reassembled_table));
+    ASSERT_EQ_POINTER(NULL,fd_head);
+
+    /* Now, add the 2nd segment again (but in a different frame) */
+    pinfo.num = 3;
+    fd_head=fragment_add_check(&test_reassembly_table, tvb, 5, &pinfo, 12,
+                               NULL, 50, 60, TRUE);
+
+    /* This duplicate fragment should have been ignored */
+    ASSERT_EQ(1,g_hash_table_size(test_reassembly_table.fragment_table));
+    ASSERT_EQ(0,g_hash_table_size(test_reassembly_table.reassembled_table));
+    ASSERT_EQ_POINTER(NULL,fd_head);
+
+    /* finally, add the last fragment */
+    pinfo.num = 4;
+    fd_head=fragment_add_check(&test_reassembly_table, tvb, 5, &pinfo, 12,
+                               NULL, 110, 40, FALSE);
+
+    ASSERT_EQ(0,g_hash_table_size(test_reassembly_table.fragment_table));
+    ASSERT_EQ(4,g_hash_table_size(test_reassembly_table.reassembled_table));
+    ASSERT_NE_POINTER(NULL,fd_head);
+
+    /* check the contents of the structure */
+    ASSERT_EQ(4,fd_head->frame);  /* max frame we have */
+    ASSERT_EQ(0,fd_head->offset); /* unused */
+    ASSERT_EQ(0,fd_head->len); /* unused */
+    ASSERT_EQ(150,fd_head->datalen);
+    ASSERT_EQ(4,fd_head->reassembled_in);
+    ASSERT_EQ(FD_DEFRAGMENTED|FD_DATALEN_SET|FD_OVERLAP,fd_head->flags);
+    ASSERT_NE_POINTER(NULL,fd_head->tvb_data);
+    ASSERT_NE_POINTER(NULL,fd_head->next);
+
+    fd = fd_head->next;
+    ASSERT_EQ(1,fd->frame);
+    ASSERT_EQ(0,fd->offset);
+    ASSERT_EQ(50,fd->len);    /* segment length */
+    ASSERT_EQ(0,fd->flags);
+    ASSERT_EQ_POINTER(NULL,fd->tvb_data);
+    ASSERT_NE_POINTER(NULL,fd->next);
+
+    fd = fd->next;
+    ASSERT_EQ(2,fd->frame);
+    ASSERT_EQ(50,fd->offset);
+    ASSERT_EQ(60,fd->len);    /* segment length */
+    ASSERT_EQ(0,fd->flags);
+    ASSERT_EQ_POINTER(NULL,fd->tvb_data);
+    ASSERT_NE_POINTER(NULL,fd->next);
+
+    fd = fd->next;
+    ASSERT_EQ(3,fd->frame);
+    ASSERT_EQ(50,fd->offset);
+    ASSERT_EQ(60,fd->len);    /* segment length */
+    ASSERT_EQ(FD_OVERLAP,fd->flags);
+    ASSERT_EQ_POINTER(NULL,fd->tvb_data);
+    ASSERT_NE_POINTER(NULL,fd->next);
+
+    fd = fd->next;
+    ASSERT_EQ(4,fd->frame);
+    ASSERT_EQ(110,fd->offset);
+    ASSERT_EQ(40,fd->len);    /* segment length */
+    ASSERT_EQ(0,fd->flags);
+    ASSERT_EQ_POINTER(NULL,fd->tvb_data);
+    ASSERT_EQ_POINTER(NULL,fd->next);
+
+    /* test the actual reassembly */
+    ASSERT(!tvb_memeql(fd_head->tvb_data,0,data+10,50));
+    ASSERT(!tvb_memeql(fd_head->tvb_data,50,data+5,60));
+    ASSERT(!tvb_memeql(fd_head->tvb_data,110,data+5,40));
+
+#if 0
+    print_fragment_table();
+#endif
+}
+
+#if 0
+/* XXX: same issue as test_fragment_add_check_duplicate_first, above.
+ */
+/* Test case for fragment_add_check with duplicated (e.g., retransmitted) data.
+ * Adds three fragments--adding the 3rd one twice--
+ * and checks that they are reassembled correctly.
+ */
+/*   visit  id  frame  frag  len  more  tvb_offset
+       0    12     1     0    50   T      10
+       0    12     2     1    60   T      5
+       0    12     3     2    40   F      5
+       0    12     4     2    40   F      5
+*/
+static void
+test_fragment_add_check_duplicate_last(void)
+{
+    fragment_head *fd_head;
+    fragment_item *fd;
+
+    printf("Starting test test_fragment_add_check_duplicate_last\n");
+
+    pinfo.num = 1;
+    fd_head=fragment_add_check(&test_reassembly_table, tvb, 10, &pinfo, 12,
+                               NULL, 0, 50, TRUE);
+
+    ASSERT_EQ(1,g_hash_table_size(test_reassembly_table.fragment_table));
+    ASSERT_EQ(0,g_hash_table_size(test_reassembly_table.reassembled_table));
+    ASSERT_EQ_POINTER(NULL,fd_head);
+
+    /* Add the 2nd segment */
+    pinfo.num = 2;
+    fd_head=fragment_add_check(&test_reassembly_table, tvb, 5, &pinfo, 12,
+                               NULL, 50, 60, TRUE);
+
+    /* we haven't got all the fragments yet ... */
+    ASSERT_EQ(1,g_hash_table_size(test_reassembly_table.fragment_table));
+    ASSERT_EQ(0,g_hash_table_size(test_reassembly_table.reassembled_table));
+    ASSERT_EQ_POINTER(NULL,fd_head);
+
+    /* Add the last fragment */
+    pinfo.num = 3;
+    fd_head=fragment_add_check(&test_reassembly_table, tvb, 5, &pinfo, 12,
+                               NULL, 110, 40, FALSE);
+
+    ASSERT_EQ(0,g_hash_table_size(test_reassembly_table.fragment_table));
+    ASSERT_EQ(3,g_hash_table_size(test_reassembly_table.reassembled_table));
+    ASSERT_NE_POINTER(NULL,fd_head);
+
+    /* Add the last fragment again */
+    pinfo.num = 4;
+    fd_head=fragment_add_check(&test_reassembly_table, tvb, 5, &pinfo, 12,
+                               NULL, 110, 40, FALSE);
+
+    /* Reassembly should have still succeeded */
+    /* XXX: Current behavior is to start a new reassembly */
+    ASSERT_EQ(1,g_hash_table_size(test_reassembly_table.fragment_table));
+    ASSERT_EQ(3,g_hash_table_size(test_reassembly_table.reassembled_table));
+    ASSERT_NE_POINTER(NULL,fd_head);
+
+    /* check the contents of the structure */
+    /* ASSERT_EQ(4,fd_head->frame); never add the last frame again */
+    ASSERT_EQ(3,fd_head->frame);  /* max frame we have */
+    ASSERT_EQ(0,fd_head->offset); /* unused */
+    ASSERT_EQ(0,fd_head->len); /* unused */
+    ASSERT_EQ(150,fd_head->datalen);
+    ASSERT_EQ(3,fd_head->reassembled_in);
+    /* ASSERT_EQ(FD_DEFRAGMENTED|FD_DATALEN_SET|FD_OVERLAP,fd_head->flags);
+     * FD_OVERLAP doesn't get set since we don't add a fragment after the
+     * end but start a new assembly instead. */
+    ASSERT_EQ(FD_DEFRAGMENTED|FD_DATALEN_SET,fd_head->flags);
+    ASSERT_NE_POINTER(NULL,fd_head->tvb_data);
+    ASSERT_NE_POINTER(NULL,fd_head->next);
+
+    fd = fd_head->next;
+    ASSERT_EQ(1,fd->frame);
+    ASSERT_EQ(0,fd->offset);
+    ASSERT_EQ(50,fd->len);    /* segment length */
+    ASSERT_EQ(0,fd->flags);
+    ASSERT_EQ_POINTER(NULL,fd->tvb_data);
+    ASSERT_NE_POINTER(NULL,fd->next);
+
+    fd = fd->next;
+    ASSERT_EQ(2,fd->frame);
+    ASSERT_EQ(50,fd->offset);
+    ASSERT_EQ(60,fd->len);    /* segment length */
+    ASSERT_EQ(0,fd->flags);
+    ASSERT_EQ_POINTER(NULL,fd->tvb_data);
+    ASSERT_NE_POINTER(NULL,fd->next);
+
+    fd = fd->next;
+    ASSERT_EQ(3,fd->frame);
+    ASSERT_EQ(110,fd->offset);
+    ASSERT_EQ(40,fd->len);    /* segment length */
+    ASSERT_EQ(0,fd->flags);
+    ASSERT_EQ_POINTER(NULL,fd->tvb_data);
+
+    /* Duplicate packet never gets added
+    ASSERT_NE_POINTER(NULL,fd->next);
+
+    fd = fd->next;
+    ASSERT_EQ(4,fd->frame);
+    ASSERT_EQ(110,fd->offset);
+    ASSERT_EQ(40,fd->len);
+    ASSERT_EQ(FD_OVERLAP,fd->flags);
+    ASSERT_EQ_POINTER(NULL,fd->tvb_data);
+    ASSERT_EQ_POINTER(NULL,fd->next); */
+
+    /* test the actual reassembly */
+    ASSERT(!tvb_memeql(fd_head->tvb_data,0,data+10,50));
+    ASSERT(!tvb_memeql(fd_head->tvb_data,50,data+5,60));
+    ASSERT(!tvb_memeql(fd_head->tvb_data,110,data+5,40));
+
+#if 0
+    print_fragment_table();
+#endif
+}
+#endif
+
+/* Test case for fragment_add_check with duplicated (e.g., retransmitted) data
+ * where the retransmission "conflicts" with the original transmission
+ * (contents are different).
+ * Adds three fragments--adding the 2nd one twice--
+ * and checks that they are reassembled correctly.
+ */
+/*   visit  id  frame  frag_off  len  more  tvb_offset
+       0    12     1       0     50   T      10
+       0    12     2      50     60   T      5
+       0    12     3      50     60   T      15
+       0    12     4     110     40   F      5
+*/
+static void
+test_fragment_add_check_duplicate_conflict(void)
+{
+    fragment_head *fd_head;
+    fragment_item *fd;
+
+    printf("Starting test test_fragment_add_check_duplicate_conflict\n");
+
+    pinfo.num = 1;
+    fd_head=fragment_add_check(&test_reassembly_table, tvb, 10, &pinfo, 12,
+                               NULL, 0, 50, TRUE);
+
+    ASSERT_EQ(1,g_hash_table_size(test_reassembly_table.fragment_table));
+    ASSERT_EQ(0,g_hash_table_size(test_reassembly_table.reassembled_table));
+    ASSERT_EQ_POINTER(NULL,fd_head);
+
+    /* Add the 2nd segment */
+    pinfo.num = 2;
+    fd_head=fragment_add_check(&test_reassembly_table, tvb, 5, &pinfo, 12,
+                               NULL, 50, 60, TRUE);
+
+    /* we haven't got all the fragments yet ... */
+    ASSERT_EQ(1,g_hash_table_size(test_reassembly_table.fragment_table));
+    ASSERT_EQ(0,g_hash_table_size(test_reassembly_table.reassembled_table));
+    ASSERT_EQ_POINTER(NULL,fd_head);
+
+    /* Now, add the 2nd segment again (but in a different frame and with
+     * different data)
+     */
+    pinfo.num = 3;
+    fd_head=fragment_add_check(&test_reassembly_table, tvb, 15, &pinfo, 12,
+                               NULL, 50, 60, TRUE);
+
+    ASSERT_EQ(1,g_hash_table_size(test_reassembly_table.fragment_table));
+    ASSERT_EQ(0,g_hash_table_size(test_reassembly_table.reassembled_table));
+    ASSERT_EQ_POINTER(NULL,fd_head);
+
+    /* finally, add the last fragment */
+    pinfo.num = 4;
+    fd_head=fragment_add_check(&test_reassembly_table, tvb, 5, &pinfo, 12,
+                               NULL, 110, 40, FALSE);
+
+    ASSERT_EQ(0,g_hash_table_size(test_reassembly_table.fragment_table));
+    ASSERT_EQ(4,g_hash_table_size(test_reassembly_table.reassembled_table));
+    ASSERT_NE_POINTER(NULL,fd_head);
+
+    /* check the contents of the structure */
+    ASSERT_EQ(4,fd_head->frame);  /* max frame we have */
+    ASSERT_EQ(0,fd_head->offset); /* unused */
+    ASSERT_EQ(0,fd_head->len); /* unused */
+    ASSERT_EQ(150,fd_head->datalen);
+    ASSERT_EQ(4,fd_head->reassembled_in);
+    ASSERT_EQ(FD_DEFRAGMENTED|FD_DATALEN_SET|FD_OVERLAP|FD_OVERLAPCONFLICT,fd_head->flags);
+    ASSERT_NE_POINTER(NULL,fd_head->tvb_data);
+    ASSERT_NE_POINTER(NULL,fd_head->next);
+
+    fd = fd_head->next;
+    ASSERT_EQ(1,fd->frame);
+    ASSERT_EQ(0,fd->offset);
+    ASSERT_EQ(50,fd->len);    /* segment length */
+    ASSERT_EQ(0,fd->flags);
+    ASSERT_EQ_POINTER(NULL,fd->tvb_data);
+    ASSERT_NE_POINTER(NULL,fd->next);
+
+    fd = fd->next;
+    ASSERT_EQ(2,fd->frame);
+    ASSERT_EQ(50,fd->offset);
+    ASSERT_EQ(60,fd->len);    /* segment length */
+    ASSERT_EQ(0,fd->flags);
+    ASSERT_EQ_POINTER(NULL,fd->tvb_data);
+    ASSERT_NE_POINTER(NULL,fd->next);
+
+    fd = fd->next;
+    ASSERT_EQ(3,fd->frame);
+    ASSERT_EQ(50,fd->offset);
+    ASSERT_EQ(60,fd->len);    /* segment length */
+    ASSERT_EQ(FD_OVERLAP|FD_OVERLAPCONFLICT,fd->flags);
+    ASSERT_EQ_POINTER(NULL,fd->tvb_data);
+    ASSERT_NE_POINTER(NULL,fd->next);
+
+    fd = fd->next;
+    ASSERT_EQ(4,fd->frame);
+    ASSERT_EQ(110,fd->offset);
+    ASSERT_EQ(40,fd->len);    /* segment length */
+    ASSERT_EQ(0,fd->flags);
+    ASSERT_EQ_POINTER(NULL,fd->tvb_data);
+    ASSERT_EQ_POINTER(NULL,fd->next);
+
+    /* test the actual reassembly */
+    ASSERT(!tvb_memeql(fd_head->tvb_data,0,data+10,50));
+    ASSERT(!tvb_memeql(fd_head->tvb_data,50,data+5,60));
+    ASSERT(!tvb_memeql(fd_head->tvb_data,110,data+5,40));
+
+#if 0
+    print_fragment_table();
+#endif
+}
 /**********************************************************************************
  *
  * main
@@ -1543,6 +3294,22 @@ main(int argc _U_, char **argv _U_)
 #if 0
         test_fragment_add_seq_check_multiple
 #endif
+        test_simple_fragment_add,              /* frag table only   */
+        test_fragment_add_partial_reassembly,
+        test_fragment_add_duplicate_first,
+        test_fragment_add_duplicate_middle,
+        test_fragment_add_duplicate_last,
+        test_fragment_add_duplicate_conflict,
+        test_simple_fragment_add_check,              /* frag table only   */
+#if 0
+        test_fragment_add_check_partial_reassembly,
+        test_fragment_add_check_duplicate_first,
+#endif
+        test_fragment_add_check_duplicate_middle,
+#if 0
+        test_fragment_add_check_duplicate_last,
+#endif
+        test_fragment_add_check_duplicate_conflict,
     };
 
     /* a tvbuff for testing with */
