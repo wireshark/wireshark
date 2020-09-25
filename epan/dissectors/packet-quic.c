@@ -1153,6 +1153,14 @@ again:
     /* Else, find the most previous PDU starting before this sequence number */
     if (!msp && seq > 0) {
         msp = (struct tcp_multisegment_pdu *)wmem_tree_lookup32_le(stream->multisegment_pdus, seq-1);
+        /* Unless if we already fully reassembled the msp that covers seq-1
+         * and seq is beyond the end of that msp. In that case this segment
+         * will be the start of a new msp.
+         */
+        if (msp && (msp->flags & MSP_FLAGS_GOT_ALL_SEGMENTS) &&
+            seq >= msp->nxtpdu) {
+            msp = NULL;
+        }
     }
 
     {
@@ -1196,7 +1204,9 @@ again:
                           pinfo, reassembly_id, NULL,
                           seq - msp->seq, len,
                           nxtseq < msp->nxtpdu);
-
+        if (fh) {
+            msp->flags |= MSP_FLAGS_GOT_ALL_SEGMENTS;
+        }
         if (!PINFO_FD_VISITED(pinfo)
         && msp->flags & MSP_FLAGS_REASSEMBLE_ENTIRE_SEGMENT) {
             msp->flags &= (~MSP_FLAGS_REASSEMBLE_ENTIRE_SEGMENT);
@@ -1234,8 +1244,11 @@ again:
          * packet.
          */
         if (pinfo->desegment_len) {
-            if (!PINFO_FD_VISITED(pinfo))
+            if (!PINFO_FD_VISITED(pinfo)) {
                 must_desegment = TRUE;
+                if (msp)
+                    msp->flags &= ~MSP_FLAGS_GOT_ALL_SEGMENTS;
+            }
 
             /*
              * Set "deseg_offset" to the offset in "tvb"
@@ -1340,8 +1353,11 @@ again:
                 // TODO move tree item if needed.
 
                 if(pinfo->desegment_len) {
-                    if (!PINFO_FD_VISITED(pinfo))
+                    if (!PINFO_FD_VISITED(pinfo)) {
                         must_desegment = TRUE;
+                        if (msp)
+                            msp->flags &= ~MSP_FLAGS_GOT_ALL_SEGMENTS;
+                    }
                     /* See packet-tcp.h for details about this. */
                     deseg_offset = fh->datalen - pinfo->desegment_offset;
                     deseg_offset = tvb_reported_length(tvb) - deseg_offset;
