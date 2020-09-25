@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 #
-# This script extracts the ASN1 definition from TS 36.331/36.355/25.331/38.331/37.355/38.413/36.423/38.423
+# This script extracts the ASN1 definition from TS 36.331/36.355/25.331/38.331/37.355/36.413/38.413/36.423/38.423
 # /38.463/38.473 , and generates asn files that can be processed by asn2wrs
 # First download the specification from 3gpp.org as a word document and open it
 # Then in "view" menu, select normal, draft or web layout (any kind that removes page header and footers)
@@ -35,7 +35,7 @@ close(INPUT_FILE);
 sub extract_spec_version {
   my $line;
   while($line = <INPUT_FILE>){
-    if($line =~ m/3GPP TS ((25|36|38)\.331|(36|37)\.355|38\.413|(36|38).423|38\.463|38\.473) V/){
+    if($line =~ m/3GPP TS ((25|36|38)\.331|(36|37)\.355|(36|38)\.413|(36|38).423|38\.463|38\.473) V/){
       $version = $line;
       return;
     }
@@ -62,6 +62,14 @@ sub extract_asn1 {
       $output_file_name = "LPP.asn";
       print  "generating $output_file_name\n";
       open(OUTPUT_FILE, "> $output_file_name") or die "Can not open file $output_file_name";
+      $file_name_found = 1;
+    }
+
+    if(($file_name_found == 0) && ($line =~ m/SonTransfer-IEs/)){
+      $output_file_name = "S1AP-SonTransfer-IEs.asn";
+      print  "generating $output_file_name\n";
+      open(OUTPUT_FILE, "> $output_file_name") or die "Can not open file $output_file_name";
+      $is_asn1 = 1;
       $file_name_found = 1;
     }
 
