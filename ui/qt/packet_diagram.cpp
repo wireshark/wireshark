@@ -372,12 +372,19 @@ PacketDiagram::~PacketDiagram()
 
 void PacketDiagram::setRootNode(proto_node *root_node)
 {
+    // As https://doc.qt.io/qt-5/qgraphicsscene.html#clear says, this
+    // "Removes and deletes all items from the scene, but otherwise leaves
+    // the state of the scene unchanged."
+    // This means that the scene rect grows but doesn't shrink, which is
+    // useful in our case because it gives us a cheap way to retain our
+    // scroll position between packets.
+    scene()->clear();
+
     root_node_ = root_node;
     if (!isVisible()) {
         return;
     }
 
-    scene()->clear();
     selected_field_ = nullptr;
     y_pos_ = 0;
 
@@ -414,6 +421,13 @@ void PacketDiagram::setCaptureFile(capture_file *cf)
     // dissection (EDT) ready.
     // The packet dialog sets a fixed EDT context and MUST NOT use this.
     cap_file_ = cf;
+
+    if (!cf && scene()) {
+        // As noted in setRootNode, scene()->clear() doesn't clear everything.
+        // Do a "hard" clear, which resets our various rects and scroll position.
+        delete scene();
+        setScene(new QGraphicsScene(this));
+    }
 }
 
 void PacketDiagram::setFont(const QFont &font)
