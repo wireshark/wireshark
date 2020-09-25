@@ -52,6 +52,7 @@ static int hf_pdcp_nr_bearer_type = -1;
 static int hf_pdcp_nr_bearer_id = -1;
 static int hf_pdcp_nr_plane = -1;
 static int hf_pdcp_nr_seqnum_length = -1;
+static int hf_pdcp_nr_sdap = -1;
 
 static int hf_pdcp_nr_rohc_compression = -1;
 static int hf_pdcp_nr_rohc_mode = -1;
@@ -738,6 +739,14 @@ static void show_pdcp_config(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree
                                  p_pdcp_info->seqnum_length);
         proto_item_set_generated(ti);
 
+        /* SDAP */
+        ti = proto_tree_add_boolean(configuration_tree, hf_pdcp_nr_sdap, tvb, 0, 0,
+                                    (p_pdcp_info->direction == PDCP_NR_DIRECTION_UPLINK) ?
+                                        p_pdcp_info->sdap_header & PDCP_NR_UL_SDAP_HEADER_PRESENT :
+                                        p_pdcp_info->sdap_header & PDCP_NR_DL_SDAP_HEADER_PRESENT);
+        proto_item_set_generated(ti);
+
+
         /* ROHC compression */
         ti = proto_tree_add_boolean(configuration_tree, hf_pdcp_nr_rohc_compression, tvb, 0, 0,
                                     p_pdcp_info->rohc.rohc_compression);
@@ -1315,20 +1324,30 @@ static int dissect_pdcp_nr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
              p_pdcp_info->sdap_header & PDCP_NR_UL_SDAP_HEADER_PRESENT) ||
             (p_pdcp_info->direction == PDCP_NR_DIRECTION_DOWNLINK &&
              p_pdcp_info->sdap_header & PDCP_NR_DL_SDAP_HEADER_PRESENT)) {
+
+            /* SDAP */
             proto_item *sdap_ti;
             proto_tree *sdap_tree;
+            guint32 qfi;
 
+            /* Protocol subtree */
             sdap_ti = proto_tree_add_item(pdcp_tree, proto_sdap, payload_tvb, offset, 1, ENC_NA);
             sdap_tree = proto_item_add_subtree(sdap_ti, ett_sdap);
             if (p_pdcp_info->direction == PDCP_NR_DIRECTION_UPLINK) {
-                proto_tree_add_item(sdap_tree, hf_sdap_data_control, payload_tvb, offset, 1, ENC_NA);
+                gboolean data_control;
+                proto_tree_add_item_ret_boolean(sdap_tree, hf_sdap_data_control, payload_tvb, offset, 1, ENC_NA, &data_control);
                 proto_tree_add_item(sdap_tree, hf_sdap_reserved, payload_tvb, offset, 1, ENC_NA);
+                proto_item_append_text(sdap_ti, " (%s", tfs_get_string(data_control, &pdu_type_bit));
             } else {
-                proto_tree_add_item(sdap_tree, hf_sdap_rdi, payload_tvb, offset, 1, ENC_NA);
-                proto_tree_add_item(sdap_tree, hf_sdap_rqi, payload_tvb, offset, 1, ENC_NA);
+                gboolean rdi, rqi;
+                proto_tree_add_item_ret_boolean(sdap_tree, hf_sdap_rdi, payload_tvb, offset, 1, ENC_NA, &rdi);
+                proto_tree_add_item_ret_boolean(sdap_tree, hf_sdap_rqi, payload_tvb, offset, 1, ENC_NA, &rqi);
+                proto_item_append_text(sdap_ti, " (RDI=%s, RQI=%s",
+                                       tfs_get_string(rdi, &sdap_rdi), tfs_get_string(rqi, &sdap_rqi));
             }
-            proto_tree_add_item(sdap_tree, hf_sdap_qfi, payload_tvb, offset, 1, ENC_NA);
+            proto_tree_add_item_ret_uint(sdap_tree, hf_sdap_qfi, payload_tvb, offset, 1, ENC_NA, &qfi);
             offset++;
+            proto_item_append_text(sdap_ti, "  QFI=%u)", qfi);
             payload_length--;
         }
 
@@ -1457,6 +1476,12 @@ void proto_register_pdcp_nr(void)
             { "Seqnum length",
               "pdcp-nr.seqnum_length", FT_UINT8, BASE_DEC, NULL, 0x0,
               "Sequence Number Length", HFILL
+            }
+        },
+        { &hf_pdcp_nr_sdap,
+            { "SDAP header",
+              "pdcp-nr.sdap", FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x0,
+              "Indicates whether SDAP appears after PDCP headers", HFILL
             }
         },
 
