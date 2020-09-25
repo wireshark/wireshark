@@ -277,10 +277,10 @@ Don't use "index()" or "rindex()"; instead, use the ANSI C equivalents,
 "index()" or "rindex()", and those that do might not declare them in the
 header file on which they're declared on your platform.
 
-Don't use "tvb_get_ptr().  If you must use it, keep in mind that the pointer
+Don't use "tvb_get_ptr()".  If you must use it, keep in mind that the pointer
 returned by a call to "tvb_get_ptr()" is not guaranteed to be aligned on any
 particular byte boundary; this means that you cannot safely cast it to any
-data type other than a pointer to "char", unsigned char", "guint8", or other
+data type other than a pointer to "char", "unsigned char", "guint8", or other
 one-byte data types.  Casting a pointer returned by tvb_get_ptr() into any
 multi-byte data type or structure may cause crashes on some platforms (even
 if it does not crash on x86-based PCs).  Even if such mis-aligned accesses
