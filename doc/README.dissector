@@ -262,7 +262,7 @@ gint16 tvb_get_ntohis(tvbuff_t *tvb, const gint offset);
 guint32 tvb_get_ntoh24(tvbuff_t *tvb, const gint offset);
 gint32 tvb_get_ntohi24(tvbuff_t *tvb, const gint offset);
 
-32-bit unsgined (guint32) and signed (gint32) integers:
+32-bit unsigned (guint32) and signed (gint32) integers:
 
 guint32 tvb_get_ntohl(tvbuff_t *tvb, const gint offset);
 gint32 tvb_get_ntohil(tvbuff_t *tvb, const gint offset);
@@ -3624,7 +3624,7 @@ The arguments to udp_dissect_pdus are:
 For the typical dissector there is a 1-1 relationship between it and it's
 protocol. However, there are times when a protocol needs multiple "names"
 because it has multiple dissection functions going into the same dissector
-table. The muliple names removes confusion when picking dissection through
+table. The multiple names removes confusion when picking dissection through
 Decode As functionality.
 
 Once the "main" protocol name has been created through proto_register_protocol,
@@ -3675,7 +3675,7 @@ be passed to the dissector table to change the dissection output.
 
 ip_da pulls everything together including the dissector (protocol) name, the
 "layer type" of the dissector, the dissector table name, the function pointer
-values as well as handlers for populating, applying and reseting the changes
+values as well as handlers for populating, applying and resetting the changes
 to the dissector table through Decode As GUI functionality. For dissector
 tables that are an integer or string type, the provided "default" handling
 functions shown in the example should suffice.
@@ -3736,19 +3736,19 @@ certain type of fields (See above under proto_tree_add_item()).
 
 proto_item*
 ptvcursor_add_ret_uint(ptvcursor_t* ptvc, int hf, gint length, const guint encoding, guint32 *retval);
-    Like ptvcursor_add, but returns uint value retreived
+    Like ptvcursor_add, but returns uint value retrieved
 
 proto_item*
 ptvcursor_add_ret_int(ptvcursor_t* ptvc, int hf, gint length, const guint encoding, gint32 *retval);
-    Like ptvcursor_add, but returns int value retreived
+    Like ptvcursor_add, but returns int value retrieved
 
 proto_item*
 ptvcursor_add_ret_string(ptvcursor_t* ptvc, int hf, gint length, const guint encoding, wmem_allocator_t *scope, const guint8 **retval);
-    Like ptvcursor_add, but returns string retreived
+    Like ptvcursor_add, but returns string retrieved
 
 proto_item*
 ptvcursor_add_ret_boolean(ptvcursor_t* ptvc, int hf, gint length, const guint encoding, gboolean *retval);
-    Like ptvcursor_add, but returns boolean value retreived
+    Like ptvcursor_add, but returns boolean value retrieved
 
 proto_item*
 ptvcursor_add_no_advance(ptvcursor_t* ptvc, int hf, gint length, const guint encoding)

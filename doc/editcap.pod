@@ -91,7 +91,7 @@ file; B<editcap -F> provides a list of the available output formats.
 
 =item -a  E<lt>framenum:commentE<gt>
 
-For the specificed frame number, assign the given comment string.
+For the specifiqed frame number, assign the given comment string.
 Can be repeated for multiple frames.  Quotes should be used with comment
 strings that include spaces.
 
@@ -238,7 +238,7 @@ This is useful for recreating a particular sequence of errors.
 
 =item --skip-radiotap-header
 
-Skip the readiotap header of each frame when checking for packet duplicates. This is useful
+Skip the radiotap header of each frame when checking for packet duplicates. This is useful
 when processing a caputure created by combining outputs of multiple capture devices on the same
 channel in the vicinity of each other.
 

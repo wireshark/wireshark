@@ -117,7 +117,7 @@ in the NSIS installer wireshark.nsi file.
 
 3.2.2.1  Changes to packaging/nsis/wireshark.nsi
 
-Add the relative path of your plugin DLL (in alphbetical order) to the
+Add the relative path of your plugin DLL (in alphabetical order) to the
 list of "File" statements in the "Dissector Plugins" section:
 
 File "${STAGING_DIR}\plugins\${VERSION_MAJOR}.${VERSION_MINOR}\epan\ethercat.dll"

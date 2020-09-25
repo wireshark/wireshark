@@ -76,7 +76,7 @@ use XQuartz as your X server. XQuartz can be downloaded from
 https://www.xquartz.org/.
 
 The VM can be shutdown or suspended from the host system with the
-commands `vagrant halt` and `vagrant suspend` repectively. In either case the
+commands `vagrant halt` and `vagrant suspend` respectively. In either case the
 VM can be brought back up with the command `vagrant up`.
 
 5. Using Vagrant with multiple VMs
