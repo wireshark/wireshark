@@ -53,7 +53,7 @@ missing_words = []
 
 # Split camelCase string into separate words.
 def camelCaseSplit(identifier):
-    matches = re.finditer('.+?(?:(?<=[a-z])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])|$)', identifier)
+    matches = re.finditer(r'.+?(?:(?<=[a-z])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])|$)', identifier)
     return [m.group(0) for m in matches]
 
 
@@ -191,9 +191,9 @@ class File:
                     missing_words.append(word)
 
 def removeComments(code_string):
-    code_string = re.sub(re.compile("/\*.*?\*/",re.DOTALL ) ,"" ,code_string) # C-style comment
+    code_string = re.sub(re.compile(r"/\*.*?\*/",re.DOTALL ) ,"" ,code_string) # C-style comment
     # Remove this for now as can get tripped up if see htpps://www.... within a string!
-    #code_string = re.sub(re.compile("//.*?\n" ) ,"" ,code_string)             # C++-style comment
+    #code_string = re.sub(re.compile(r"//.*?\n" ) ,"" ,code_string)             # C++-style comment
     return code_string
 
 def removeSingleQuotes(code_string):
@@ -364,7 +364,7 @@ else:
 
 # If scanning a subset of files, list them here.
 print('Examining:')
-if args.file or args.commits or args.open:
+if args.file or args.folder or args.commits or args.open:
     if files:
         print(' '.join(files), '\n')
     else:

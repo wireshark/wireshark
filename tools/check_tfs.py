@@ -60,8 +60,8 @@ class TFS:
 
 
 def removeComments(code_string):
-    code_string = re.sub(re.compile("/\*.*?\*/",re.DOTALL ) ,"" ,code_string) # C-style comment
-    code_string = re.sub(re.compile("//.*?\n" ) ,"" ,code_string)             # C++-style comment
+    code_string = re.sub(re.compile(r"/\*.*?\*/",re.DOTALL ) ,"" ,code_string) # C-style comment
+    code_string = re.sub(re.compile(r"//.*?\n" ) ,"" ,code_string)             # C++-style comment
     return code_string
 
 
@@ -89,7 +89,7 @@ def findItems(filename):
 
 
 def is_dissector_file(filename):
-    p = re.compile('.*packet-.*\.c')
+    p = re.compile(r'.*packet-.*\.c')
     return p.match(filename)
 
 def findDissectorFilesInFolder(folder):
