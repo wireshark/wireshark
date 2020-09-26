@@ -603,24 +603,24 @@ void PacketDiagram::addDiagram(proto_node *tl_node)
             // Get rid of overlaps.
             if (prev_span.start_bit + prev_span.length > start_bit) {
 #ifdef DEBUG_PACKET_DIAGRAM
-                qDebug() << "Resized prev" << prev_item.item->finfo->hfinfo->abbrev << prev_item.start_bit << prev_item.length << "->" << start_bit - prev_item.start_bit;
+                qDebug() << "Resized prev" << prev_span.finfo->hfinfo->abbrev << prev_span.start_bit << prev_span.length << "->" << start_bit - prev_span.start_bit;
 #endif
                 prev_span.length = start_bit - prev_span.start_bit;
             }
             if (prev_span.length < 1) {
 #ifdef DEBUG_PACKET_DIAGRAM
-                qDebug() << "Removed prev" << prev_item.item->finfo->hfinfo->abbrev << prev_item.start_bit << prev_item.length;
-                diag_items.removeLast();
-                if (diag_items.size() < 1) {
+                qDebug() << "Removed prev" << prev_span.finfo->hfinfo->abbrev << prev_span.start_bit << prev_span.length;
+                item_spans.removeLast();
+                if (item_spans.size() < 1) {
                     continue;
                 }
-                prev_item = diag_items.last();
+                prev_span = item_spans.last();
 #endif
             }
             // Fill in gaps.
             if (prev_span.start_bit + prev_span.length < start_bit) {
 #ifdef DEBUG_PACKET_DIAGRAM
-                qDebug() << "Adding gap" << prev_item.item->finfo->hfinfo->abbrev << prev_item.start_bit << prev_item.length << start_bit;
+                qDebug() << "Adding gap" << prev_span.finfo->hfinfo->abbrev << prev_span.start_bit << prev_span.length << start_bit;
 #endif
                 int gap_start = prev_span.start_bit + prev_span.length;
                 DiagramItemSpan gap_span = { nullptr, gap_start, start_bit - gap_start };
@@ -633,21 +633,15 @@ void PacketDiagram::addDiagram(proto_node *tl_node)
     }
 
     qreal z_value = tl_item->zValue();
-    int collapse_offset = 0;
+    int start_bit = 0;
     for (int idx = 0; idx < item_spans.size(); idx++) {
         DiagramItemSpan *item_span = &item_spans[idx];
-        int start_bit = item_span->start_bit - collapse_offset;
 
         int y_off = (start_bit / bits_per_row) * layout_->rowHeight();
         // Stack each item behind the previous one.
         z_value -= .01;
         FieldInformationGraphicsItem *fi_item = new FieldInformationGraphicsItem(item_span->finfo, start_bit, item_span->length, layout_);
-        if (fi_item->collapsedLength() < item_span->length) {
-            collapse_offset += item_span->length - fi_item->collapsedLength();
-#ifdef DEBUG_PACKET_DIAGRAM
-            qDebug() << "Collapse offset now" << collapse_offset;
-#endif
-        }
+        start_bit += fi_item->collapsedLength();
         fi_item->setPos(x, y_bottom + y_off);
         fi_item->setFlag(QGraphicsItem::ItemIsSelectable);
         fi_item->setAcceptedMouseButtons(Qt::LeftButton);
