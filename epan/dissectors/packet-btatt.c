@@ -12279,7 +12279,7 @@ proto_register_btatt(void)
             NULL, HFILL}
         },
         {&hf_btatt_report_reference_report_type,
-            {"Report Type", "btatt.report_reference.report_id",
+            {"Report Type", "btatt.report_reference.report_type",
             FT_UINT8, BASE_HEX, VALS(report_reference_report_type_vals), 0x0,
             NULL, HFILL}
         },

@@ -6672,7 +6672,7 @@ proto_register_bthci_cmd(void)
            NULL, HFILL}
         },
         { &hf_bthci_cmd_inq_mode,
-          {"Inquiry Mode", "bthci_cmd.inq_scan_type",
+          {"Inquiry Mode", "bthci_cmd.inq_mode",
            FT_UINT8, BASE_DEC, VALS(bthci_cmd_inq_modes), 0x0,
            NULL, HFILL}
         },
@@ -7393,7 +7393,7 @@ proto_register_bthci_cmd(void)
             NULL, HFILL }
         },
         { &hf_bthci_cmd_test_packet_payload,
-          { "Packet Payload", "bthci_cmd.le_test_data_length",
+          { "Packet Payload", "bthci_cmd.le_test_payload",
             FT_UINT8, BASE_HEX, VALS(cmd_le_test_pkt_payload), 0x0,
             NULL, HFILL }
         },

@@ -9913,7 +9913,7 @@ proto_register_pfcp(void)
             NULL, HFILL }
         },
         { &hf_pfcp_gate_status_b0b1_dlgate,
-        { "DL Gate", "pfcp.gate_status.ulgate",
+        { "DL Gate", "pfcp.gate_status.dlgate",
             FT_UINT8, BASE_DEC, VALS(pfcp_gate_status_vals), 0x03,
             NULL, HFILL }
         },

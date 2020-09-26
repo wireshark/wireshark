@@ -474,7 +474,7 @@ proto_register_rtls(void)
         },
         /* AR_STATION_REQUEST */
         { &hf_rtls_sr_mac_address,
-          { "MAC Address", "rtls.as_tag_addr",
+          { "MAC Address", "rtls.sr_mac_addr",
             FT_ETHER, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },

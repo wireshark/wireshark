@@ -1736,7 +1736,7 @@ proto_register_alcap(void)
         NULL, HFILL }
     },
     { &hf_alcap_ssisa_max_sssar_bw,
-      { "Maximum Len of SSSAR-SDU Backwards", "alcap.ssisa.sssar.max_len.fw",
+      { "Maximum Len of SSSAR-SDU Backwards", "alcap.ssisa.sssar.max_len.bw",
         FT_UINT24, BASE_DEC, NULL, 0,
         NULL, HFILL }
     },
@@ -1767,7 +1767,7 @@ proto_register_alcap(void)
         NULL, HFILL }
     },
     { &hf_alcap_ssisu_max_sssar_bw,
-      { "Maximum Len of SSSAR-SDU Backwards", "alcap.ssisu.sssar.max_len.fw",
+      { "Maximum Len of SSSAR-SDU Backwards", "alcap.ssisu.sssar.max_len.bw",
         FT_UINT24, BASE_DEC, NULL, 0,
         NULL, HFILL }
     },

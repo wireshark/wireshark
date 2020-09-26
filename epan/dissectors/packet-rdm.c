@@ -6288,7 +6288,7 @@ proto_register_rdm(void)
         NULL, HFILL }},
 
     { &hf_rdm_pd_rdm_traffic_enable_rdm_enabled,
-      { "Enabled", "rdm.pd.rdm_traffic_enable.endpoint_id",
+      { "Enabled", "rdm.pd.rdm_traffic_enable.enabled",
         FT_UINT8, BASE_DEC, VALS(true_false_vals), 0x0,
         NULL, HFILL }},
 

@@ -1484,7 +1484,7 @@ proto_register_snort(void)
             "Number of match for this alert among all alerts", HFILL }},
 
         { &hf_snort_global_stats_rule_alerts_count,
-            { "Number of alerts for this rule", "snort.global-stats.rule.match-number", FT_UINT32, BASE_DEC, NULL, 0x00,
+            { "Number of alerts for this rule", "snort.global-stats.rule.alerts-count", FT_UINT32, BASE_DEC, NULL, 0x00,
             "Number of alerts detected for this rule", HFILL }},
         { &hf_snort_global_stats_rule_match_number,
             { "Match number for this rule", "snort.global-stats.rule.match-number", FT_UINT32, BASE_DEC, NULL, 0x00,

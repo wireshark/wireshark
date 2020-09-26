@@ -1458,7 +1458,7 @@ proto_register_fc(void)
           {"Type", "fc.vft.type", FT_UINT8, BASE_DEC, NULL,
            0, "Type of tagged frame", HFILL}},
         { &hf_fc_vft_pri,
-          {"Priority", "fc.vft.type", FT_UINT8, BASE_DEC, NULL,
+          {"Priority", "fc.vft.pri", FT_UINT8, BASE_DEC, NULL,
            0, "QoS Priority", HFILL}},
         { &hf_fc_vft_vf_id,
           {"VF_ID", "fc.vft.vf_id", FT_UINT16, BASE_DEC, NULL,

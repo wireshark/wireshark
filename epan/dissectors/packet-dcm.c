@@ -4042,7 +4042,7 @@ proto_register_dcm(void)
         FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL } },
     { &hf_dcm_pctx_id, { "Presentation Context ID", "dicom.pctx.id",
         FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL } },
-    { &hf_dcm_pctx_result, { "Presentation Context Result", "dicom.pctx.id",
+    { &hf_dcm_pctx_result, { "Presentation Context Result", "dicom.pctx.result",
         FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL } },
     { &hf_dcm_pctx_abss_syntax, { "Abstract Syntax", "dicom.pctx.abss.syntax",
         FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL } },

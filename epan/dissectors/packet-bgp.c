@@ -10276,7 +10276,7 @@ proto_register_bgp(void)
         { "MPLS Label", "bgp.update.encaps_tunnel_tlv_subtlv.segment_list_subtlv.mpls_label", FT_UINT24,
           BASE_HEX, NULL, BGP_MPLS_LABEL, NULL, HFILL}},
       { &hf_bgp_update_encaps_tunnel_subtlv_segment_list_subtlv_traffic_class,
-        { "Traffic Class", "bgp.update.encaps_tunnel_tlv_subtlv.segment_list_subtlv.mpls_label", FT_UINT8,
+        { "Traffic Class", "bgp.update.encaps_tunnel_tlv_subtlv.segment_list_subtlv.traffic_class", FT_UINT8,
           BASE_HEX, NULL, BGP_MPLS_TRAFFIC_CLASS, NULL, HFILL}},
       { &hf_bgp_update_encaps_tunnel_subtlv_segment_list_subtlv_bottom_stack,
         { "Bottom-of-Stack", "bgp.update.encaps_tunnel_tlv_subtlv.segment_list_subtlv.bottom_stack", FT_BOOLEAN,

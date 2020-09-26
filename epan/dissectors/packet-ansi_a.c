@@ -11288,12 +11288,12 @@ proto_register_ansi_a(void)
             NULL, HFILL }
         },
         { &hf_ansi_a_scm_band_class_entry_opmode5_2,
-            { "Air Interface OP_MODE5:  DS-41", "ansi_a_bsmap.cm2.scm.bc_entry.opmode4",
+            { "Air Interface OP_MODE5:  DS-41", "ansi_a_bsmap.cm2.scm.bc_entry.opmode5",
             FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x04,
             NULL, HFILL }
         },
         { &hf_ansi_a_scm_band_class_entry_opmode6_2,
-            { "Air Interface OP_MODE6:  MC-MAP", "ansi_a_bsmap.cm2.scm.bc_entry.opmode4",
+            { "Air Interface OP_MODE6:  MC-MAP", "ansi_a_bsmap.cm2.scm.bc_entry.opmode6",
             FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x02,
             NULL, HFILL }
         },

@@ -10492,7 +10492,7 @@ proto_register_gtp(void)
            NULL, HFILL}
         },
         {&hf_gtp_ext_hdr_nr_ran_cont_dl_delay_du_result,
-         { "DL Delay DU Result", "gtp.ext_hdr.nr_ran_cont.ul_delay_du_result",
+         { "DL Delay DU Result", "gtp.ext_hdr.nr_ran_cont.dl_delay_du_result",
            FT_UINT32, BASE_DEC, NULL, 0x0,
            NULL, HFILL}
         },

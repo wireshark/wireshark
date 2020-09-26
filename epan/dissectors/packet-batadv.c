@@ -5310,7 +5310,7 @@ void proto_register_batadv(void)
 		    NULL, HFILL }
 		},
 		{ &hf_batadv_tvlv_version,
-		  { "Version", "batadv.tvlv.length",
+		  { "Version", "batadv.tvlv.version",
 		    FT_UINT8, BASE_HEX, NULL, 0x0,
 		    NULL, HFILL }
 		},

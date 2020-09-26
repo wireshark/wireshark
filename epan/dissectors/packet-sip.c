@@ -6507,7 +6507,7 @@ void proto_register_sip(void)
             "RFC 3261: Expires Header", HFILL }
         },
         { &hf_header_array[POS_FEATURE_CAPS],
-          { "Feature-Caps",        "sip.feature_caps",
+          { "Feature-Caps",        "sip.Feature-Caps",
             FT_STRING, BASE_NONE,NULL,0x0,
             "RFC 6809: Feature-Caps", HFILL }
         },
@@ -6527,12 +6527,12 @@ void proto_register_sip(void)
             NULL, HFILL }
         },
         { &hf_header_array[POS_GEOLOCATION_ERROR],
-          { "Geolocation-Error",       "sip.Geolocation",
+          { "Geolocation-Error",       "sip.Geolocation-Error",
             FT_STRING, BASE_NONE,NULL,0x0,
             NULL, HFILL }
         },
         { &hf_header_array[POS_GEOLOCATION_ROUTING],
-          { "Geolocation-Routing",         "sip.Geolocation_Routing",
+          { "Geolocation-Routing",         "sip.Geolocation-Routing",
             FT_STRING, BASE_NONE,NULL,0x0,
             NULL, HFILL }
         },

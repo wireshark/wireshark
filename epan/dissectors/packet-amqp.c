@@ -13252,7 +13252,7 @@ proto_register_amqp(void)
             FT_UINT8, BASE_DEC, NULL, 0,
             NULL, HFILL}},
         {&hf_amqp_0_10_dtx_xa_status, {
-            "dtx.xa-status", "amqp.method.properties.broadcast",
+            "DTX  xa-status", "amqp.dtx.xa-status",
             FT_UINT16, BASE_DEC, VALS(amqp_0_10_xa_status), 0,
             NULL, HFILL}},
         {&hf_amqp_payload, {

@@ -7936,7 +7936,7 @@ proto_register_bthci_evt(void)
            NULL, HFILL}
         },
         { &hf_bthci_evt_inq_mode,
-          {"Inquiry Mode", "bthci_evt.inq_scan_type",
+          {"Inquiry Mode", "bthci_evt.inq_mode",
            FT_UINT8, BASE_DEC, VALS(bthci_cmd_inq_modes), 0x0,
            NULL, HFILL}
         },
