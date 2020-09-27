@@ -12,9 +12,9 @@
 
 /*
  * See https://quicwg.org
- * https://tools.ietf.org/html/draft-ietf-quic-transport-30
- * https://tools.ietf.org/html/draft-ietf-quic-tls-30
- * https://tools.ietf.org/html/draft-ietf-quic-invariants-10
+ * https://tools.ietf.org/html/draft-ietf-quic-transport-31
+ * https://tools.ietf.org/html/draft-ietf-quic-tls-31
+ * https://tools.ietf.org/html/draft-ietf-quic-invariants-11
  *
  * Extension:
  * https://tools.ietf.org/html/draft-ferrieuxhamchaoui-quic-lossbits-03
@@ -23,7 +23,7 @@
  * https://tools.ietf.org/html/draft-iyengar-quic-delayed-ack-00
  *
  * Currently supported QUIC version(s): draft-21, draft-22, draft-23, draft-24,
- * draft-25, draft-26, draft-27, draft-28, draft-29, draft-30.
+ * draft-25, draft-26, draft-27, draft-28, draft-29, draft-30, draft-31.
  * For a table of supported QUIC versions per Wireshark version, see
  * https://github.com/quicwg/base-drafts/wiki/Tools#wireshark
  *
@@ -428,6 +428,7 @@ const value_string quic_version_vals[] = {
     { 0xff00001c, "draft-28" },
     { 0xff00001d, "draft-29" },
     { 0xff00001e, "draft-30" },
+    { 0xff00001f, "draft-31" },
     { 0, NULL }
 };
 
