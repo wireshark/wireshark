@@ -63,6 +63,7 @@ sub extract_asn1 {
       print  "generating $output_file_name\n";
       open(OUTPUT_FILE, "> $output_file_name") or die "Can not open file $output_file_name";
       $file_name_found = 1;
+      syswrite OUTPUT_FILE,"-- "."$version"."\n";
     }
 
     if(($file_name_found == 0) && ($line =~ m/SonTransfer-IEs/)){
@@ -71,6 +72,7 @@ sub extract_asn1 {
       open(OUTPUT_FILE, "> $output_file_name") or die "Can not open file $output_file_name";
       $is_asn1 = 1;
       $file_name_found = 1;
+      syswrite OUTPUT_FILE,"-- "."$version"."\n";
     }
 
     if(($file_name_found == 0) && ($line =~ m/itu-t \(0\) identified-organization \(4\) etsi \(0\) mobileDomain \(0\)/)){
@@ -80,6 +82,7 @@ sub extract_asn1 {
       open(OUTPUT_FILE, "> $output_file_name") or die "Can not open file $output_file_name";
       $is_asn1 = 1;
       $file_name_found = 1;
+      syswrite OUTPUT_FILE,"-- "."$version"."\n";
       syswrite OUTPUT_FILE,"$prev_line";
     }
 
@@ -90,6 +93,7 @@ sub extract_asn1 {
       open(OUTPUT_FILE, "> $output_file_name") or die "Can not open file $output_file_name";
       $is_asn1 = 1;
       $file_name_found = 1;
+      syswrite OUTPUT_FILE,"-- "."$version"."\n";
     }
 
     if (($line =~ /^END/) && (defined fileno OUTPUT_FILE)){
