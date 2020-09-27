@@ -5490,6 +5490,7 @@ sma-spw		9522/udp	# SMA Speedwire
 mngsuite	9535/tcp/udp	# Management Suite Remote Control
 laes-bf		9536/tcp/udp	# Surveillance buffering function
 trispen-sra	9555/tcp/udp	# Trispen Secure Remote Access
+p4runtime	9559/tcp	# P4Runtime gRPC Service
 ldgateway	9592/tcp/udp	# LANDesk Gateway
 cba8		9593/tcp/udp	# LANDesk Management Agent (cba8)
 msgsys		9594/tcp/udp	# Message System

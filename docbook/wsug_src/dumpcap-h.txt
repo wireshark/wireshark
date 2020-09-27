@@ -1,4 +1,4 @@
-Dumpcap (Wireshark) 2.6.20 (v2.6.20rc0-1-g502b65cb)
+Dumpcap (Wireshark) 2.6.21 (v2.6.21rc0-0-gb69ab2e1)
 Capture network packets and dump them into a pcapng or pcap file.
 See https://www.wireshark.org for more information.
 
