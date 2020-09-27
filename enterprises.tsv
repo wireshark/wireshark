@@ -5,7 +5,7 @@
 # The format used here is: <NUMERICAL_ID><SPACE><NAME>
 # Where SPACE can be any sequence of spaces and tabs.
 #
-# (last updated 2020-09-18)
+# (last updated 2020-09-25)
 
 0	Reserved
 1	NxNetworks
@@ -20090,7 +20090,7 @@
 20243	SNR S.A.
 20244	Police IT Management Agency
 20245	Deverto Systems Ltd.
-20246	Delta Energy Systems (Sweden) AB
+20246	Delta Electronics (Switzerland) AG	# formerly 'Delta Energy Systems (Sweden) AB'
 20247	Bladiant Technologies, Inc.
 20248	Sony Computer Entertainment America, Inc.
 20249	Touchstone Systems, Inc.
@@ -20115,7 +20115,7 @@
 20268	Chelsea Technologies Inc.
 20269	University of Yamanashi
 20270	xtendo technologies Kurt Schwedes
-20271	NetEnrich, Inc.
+20271	OpsRamp, Inc.	# formerly 'NetEnrich, Inc.'
 20272	Creative Media GmbH
 20273	Kunsthistorisches Museum
 20274	Cyber Ware Ltd
@@ -20150,7 +20150,7 @@
 20303	Banco Industrial e Comercial S.A.
 20304	Matrix Bancorp
 20305	DIR A/S
-20306	Kapsch CarrierCom AG
+20306	Kontron Transportation Austria AG	# formerly 'Kapsch CarrierCom AG'
 20307	Lie-Comtel
 20308	Regent Group of Companies
 20309	CIRIL - Centre Interuniversitaire de Ressources Informatiques de Lorraine, Nancy - FRANCE
@@ -56157,3 +56157,33 @@
 56353	OXD Consulting Ltd.
 56354	ThoughtFarmer Inc.
 56355	Baelim
+56356	Inkwire Tech (Hangzhou) Co.,Ltd.
+56357	ITK » CONSULTING & SOLUTIONS
+56358	WEFA Inotec GmbH
+56359	Karlborgs Elkontroll AB
+56360	City of Lafayette
+56361	Beyond LED Inc
+56362	e-scopics
+56363	Nexeria AB
+56364	Leuchter IT Infrastructure Solutions AG
+56365	K-Soft
+56366	Bombardier Transportation Sverige AB - RCS
+56367	dSoft-Bulgaria Ltd.
+56368	Singularity LLC
+56369	Mission Embedded
+56370	Kantonspolizei St. Gallen
+56371	DOTSCREEN
+56372	CONEXTOP Technologies Co., Ltd.
+56373	CSSF
+56374	Media-Tel
+56375	Elektro Celje d.d.
+56376	New Technologies
+56377	Penzagrazhdanproekt
+56378	SMSTraffic
+56379	Singularis development, s.r.o.
+56380	Frank Czepat
+56381	Ingenieria de Sistemas Avanzados del Centro S.A. de C.V.
+56382	BHP Hardware and Software
+56383	Morsoe kommune
+56384	Landkreis Teltow-Fläming
+56385	LLC Lotsiya
