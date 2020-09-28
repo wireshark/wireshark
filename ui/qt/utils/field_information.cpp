@@ -145,6 +145,10 @@ QString FieldInformation::toString()
         repr = repr_str;
     }
     wmem_free(NULL, repr_str);
+
+    if (repr.isEmpty()) {
+        return "[no value for field]";
+    }
     return repr;
 }
 
