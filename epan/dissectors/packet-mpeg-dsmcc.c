@@ -3231,7 +3231,7 @@ proto_register_dsmcc(void)
         } },
 
         { &hf_dsmcc_un_sess_nsap_sel, {
-            "Selector (SEL)", "mpeg_dsmcc.un_sess.dsmcc_nsap_esi",
+            "Selector (SEL)", "mpeg_dsmcc.un_sess.dsmcc_nsap_sel",
             FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL
         } },
         /* table J.3 NSAP - end */

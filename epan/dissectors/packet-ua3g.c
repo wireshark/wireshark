@@ -4741,7 +4741,7 @@ proto_register_ua3g(void)
         { &hf_ua3g_ip_device_routing_start_rtp_parameter_ip, { "IP", "ua3g.ip.start_rtp.parameter.ip", FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_ua3g_ip_device_routing_start_rtp_parameter_compressor, { "Compressor", "ua3g.ip.start_rtp.parameter.compressor", FT_UINT64, BASE_DEC|BASE_VAL64_STRING, VALS64(str_compressor_vals), 0x0, NULL, HFILL }},
         { &hf_ua3g_ip_device_routing_start_rtp_parameter_enabler, { "Enabler", "ua3g.ip.start_rtp.parameter.enabler", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-        { &hf_ua3g_ip_device_routing_start_rtp_parameter_send_qos, { "Must Send QOS Tickets", "ua3g.ip.start_rtp.parameter.enabler", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_ua3g_ip_device_routing_start_rtp_parameter_send_qos, { "Must Send QOS Tickets", "ua3g.ip.start_rtp.parameter.send_qos", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_ua3g_ip_device_routing_start_rtp_parameter_uint, { "Value", "ua3g.ip.start_rtp.parameter.uint", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_ua3g_ip_device_routing_start_rtp_parameter_dtmf_sending, { "Send DTMF", "ua3g.ip.start_rtp.parameter.dtmf_sending", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_ua3g_ip_device_routing_start_rtp_parameter_rfc2198, { "Enable RFC 2198", "ua3g.ip.start_rtp.parameter.rfc2198", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL }},

@@ -2969,7 +2969,7 @@ proto_register_obex(void)
             NULL, HFILL}
         },
         { &hf_pbap_application_parameter_vcard_selector,
-          { "vCard Selector", "obex.parameter.value.filter",
+          { "vCard Selector", "obex.parameter.value.vcard_selector",
             FT_UINT32, BASE_HEX, NULL, 0x0,
             NULL, HFILL}
         },

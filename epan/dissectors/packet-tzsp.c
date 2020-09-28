@@ -582,7 +582,7 @@ proto_register_tzsp(void)
             NULL, 0, "DeviceName", HFILL }},
 
         { &hf_capture_location, {
-            "Capture Location", "tzsp.device_name", FT_STRING, STR_ASCII,
+            "Capture Location", "tzsp.capture_location", FT_STRING, STR_ASCII,
             NULL, 0, "CaptureLocation", HFILL }},
 
         { &hf_capture_info, {

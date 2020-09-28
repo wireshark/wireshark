@@ -3847,7 +3847,7 @@ proto_register_wlccp(void)
 		},
 
 		{ &hf_80211_cap_privacy,
-		  { "Privacy flag", "wlccp.80211_cf_poll_req_flag",
+		  { "Privacy flag", "wlccp.80211_privacy",
 		    FT_UINT16, BASE_DEC, NULL,
 		    F_80211_PRIVACY, "Set on indicate confidentiality is required in the BSS", HFILL }
 		},

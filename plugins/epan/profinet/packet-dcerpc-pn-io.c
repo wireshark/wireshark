@@ -12252,7 +12252,7 @@ proto_register_pn_io (void)
         NULL, HFILL }
     },
     { &hf_pn_io_ar_arresource,
-      { "ARresource", "pn_io.ar_arnumber",
+      { "ARresource", "pn_io.ar_arresource",
         FT_UINT16, BASE_HEX, VALS(pn_io_ar_arresource), 0x0018,
         NULL, HFILL }
     },

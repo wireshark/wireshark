@@ -3285,7 +3285,7 @@ proto_register_wccp(void)
         NULL, HFILL }
     },
     { &hf_capability_transmit_t_lower_limit,
-      { "Message interval lower limit in milliseconds", "wccp.capability.transmit_t.upper_limit", FT_UINT16, BASE_DEC, NULL, 0x0,
+      { "Message interval lower limit in milliseconds", "wccp.capability.transmit_t.lower_limit", FT_UINT16, BASE_DEC, NULL, 0x0,
         NULL, HFILL }
     },
     { &hf_capability_timer_scale_timeout_scale,

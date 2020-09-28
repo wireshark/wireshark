@@ -6444,7 +6444,7 @@ proto_register_mswsp(void)
 		{
 			&hf_mswsp_bool_options_cursor,
 			{
-				"Cursor", "mswsp.CPMCreateQuery.RowSetProperties.uBooleanOptions", FT_UINT32,
+				"Cursor", "mswsp.CPMCreateQuery.RowSetProperties.uBooleanOptions.cursor", FT_UINT32,
 				BASE_HEX, VALS(cursor_vals), 0x0000000007, "Cursor Type", HFILL
 			}
 		},
@@ -6626,7 +6626,7 @@ proto_register_mswsp(void)
 		{
 			&hf_mswsp_ctablecolumn_valoffset,
 			{
-				"ValueOffset", "mswsp.ctablecolumn.valused",
+				"ValueOffset", "mswsp.ctablecolumn.valoffset",
 				FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL
 			}
 		},
@@ -7279,7 +7279,7 @@ proto_register_mswsp(void)
 		{
 			&hf_mswsp_msg_cpmcreatequery_workid,
 			{
-				"WorkId", "mswsp.cpmcreatequery.trueseq",
+				"WorkId", "mswsp.cpmcreatequery.workid",
 				FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL
 			}
 		},

@@ -2094,7 +2094,7 @@ void proto_register_zbee_nwk(void)
                 IEEE802154_CMD_CINFO_POWER_SRC, "Indicates this device is using AC/Mains power.", HFILL }},
 
             { &hf_zbee_nwk_cmd_cinfo_idle_rx,
-            { "Rx On When Idle",        "zbee_nwk.cmd.cinfo.power", FT_BOOLEAN, 8, NULL,
+            { "Rx On When Idle",        "zbee_nwk.cmd.cinfo.on_idle", FT_BOOLEAN, 8, NULL,
                 IEEE802154_CMD_CINFO_IDLE_RX,
                 "Indicates the receiver is active when the device is idle.", HFILL }},
 

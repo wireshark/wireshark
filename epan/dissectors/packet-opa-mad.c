@@ -10185,7 +10185,7 @@ void proto_register_opa_mad(void)
                 FT_UINT16, BASE_CUSTOM, CF_FUNC(cf_opa_mad_linkwidth), 0x0, NULL, HFILL }
         },
         { &hf_opa_PortStates_LinkWidthDowngradeRxActive, {
-                "LinkWidthDowngrade RxActive", "opa.portstates.linkwidthdowngradetxactive",
+                "LinkWidthDowngrade RxActive", "opa.portstates.linkwidthdowngraderxactive",
                 FT_UINT16, BASE_CUSTOM, CF_FUNC(cf_opa_mad_linkwidth), 0x0, NULL, HFILL }
         },
 

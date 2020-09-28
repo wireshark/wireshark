@@ -7353,7 +7353,7 @@ proto_register_nas_5gs(void)
             NULL, HFILL }
         },
         { &hf_nas_5gs_mm_5g_128_ia3,
-        { "128-5G-IA3","nas_5gs.mm.5g_128_ia4",
+        { "128-5G-IA3","nas_5gs.mm.5g_128_ia3",
             FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x10,
             NULL, HFILL }
         },

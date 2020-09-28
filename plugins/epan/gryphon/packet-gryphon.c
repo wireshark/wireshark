@@ -4372,7 +4372,7 @@ proto_register_gryphon(void)
           { "Context",      "gryphon.cmd.context", FT_UINT8, BASE_DEC, NULL, 0x0,
                 NULL, HFILL }},
         { &hf_gryphon_cmd_ioctl_context,
-          { "IOCTL Response",  "gryphon.cmd.context", FT_UINT8, BASE_DEC, VALS(ioctls), 0x0,
+          { "IOCTL Response",  "gryphon.cmd.ioctl_response", FT_UINT8, BASE_DEC, VALS(ioctls), 0x0,
                 NULL, HFILL }},
         { &hf_gryphon_data,
           { "Data",          "gryphon.data", FT_BYTES, BASE_NONE, NULL, 0x0,

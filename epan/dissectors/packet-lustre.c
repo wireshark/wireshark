@@ -7799,7 +7799,7 @@ proto_register_lustre(void)
         { &hf_lustre_lmv_mds_md_hash_type,
           { "Lmv Hash Type", "lustre.lmv_mds_md.hash_type", FT_UINT32, BASE_DEC, VALS(lmv_hash_type_vals), LMV_HASH_TYPE_MASK, NULL, HFILL }},
         { &hf_lustre_lmv_mds_md_status,
-          { "Lmv Status", "lustre.lmv_mds_md.hash_type", FT_UINT32, BASE_HEX, NULL, ~LMV_HASH_TYPE_MASK, NULL, HFILL }},
+          { "Lmv Status", "lustre.lmv_mds_md.status", FT_UINT32, BASE_HEX, NULL, ~LMV_HASH_TYPE_MASK, NULL, HFILL }},
         { &hf_lustre_lmv_mds_md_layout_version,
           { "Lmv Layout Ver", "lustre.lmv_mds_md.layout_version", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
         { &hf_lustre_lmv_mds_md_padding,

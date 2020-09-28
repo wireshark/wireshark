@@ -1953,7 +1953,7 @@ proto_register_stun(void)
             32, TFS(&tfs_yes_no), 0x80000000, NULL, HFILL}
          },
         { &hf_stun_att_address_rp_b,
-          { "PSTN", "stun.att.address_rp.valid", FT_BOOLEAN,
+          { "PSTN", "stun.att.address_rp.pstn", FT_BOOLEAN,
             32, TFS(&tfs_yes_no), 0x40000000, NULL, HFILL}
          },
         { &hf_stun_att_address_rp_rsv1,

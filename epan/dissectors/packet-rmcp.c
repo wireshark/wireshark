@@ -177,7 +177,7 @@ proto_register_rmcp(void)
 			FT_UINT8, BASE_HEX, NULL, 0,
 			"RMCP Version", HFILL }},
 		{ &hf_rmcp_reserved, {
-			"Reserved", "rmcp.version",
+			"Reserved", "rmcp.reserved",
 			FT_UINT8, BASE_HEX, NULL, 0,
 			"RMCP Reserved", HFILL }},
 		{ &hf_rmcp_sequence, {

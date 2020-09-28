@@ -3492,7 +3492,7 @@ proto_register_nan(void)
         { &hf_nan_attr_availability_map_id,
             {
             "Map ID",
-            "nan.availability.ctr",
+            "nan.availability.map_id",
             FT_UINT16, BASE_HEX_DEC, NULL, 0x00F, NULL, HFILL
             }
         },

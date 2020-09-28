@@ -6946,7 +6946,7 @@ void proto_register_wassp(void)
 		{
 			&hf_wassp_apprules,
 			{
-				"Number of Application Rules", "wassp.mu", FT_UINT16, BASE_DEC, NULL,
+				"Number of Application Rules", "wassp.num_apprules", FT_UINT16, BASE_DEC, NULL,
 				0x00, "WASSP number of app rules", HFILL
 			}
 		},

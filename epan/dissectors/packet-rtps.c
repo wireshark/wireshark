@@ -12762,15 +12762,15 @@ void proto_register_rtps(void) {
         FT_BOOLEAN, 16, TFS(&tfs_set_notset), 0x0001, NULL, HFILL }
     },
     { &hf_rtps_flag_memberflag_optional, {
-        "Optional", "rtps.flag.typeflags.key",
+        "Optional", "rtps.flag.typeflags.optional",
         FT_BOOLEAN, 16, TFS(&tfs_set_notset), 0x0002, NULL, HFILL }
     },
     { &hf_rtps_flag_memberflag_shareable, {
-        "Shareable", "rtps.flag.typeflags.key",
+        "Shareable", "rtps.flag.typeflags.shareable",
         FT_BOOLEAN, 16, TFS(&tfs_set_notset), 0x0004, NULL, HFILL }
     },
     { &hf_rtps_flag_memberflag_union_default, {
-        "Union default", "rtps.flag.typeflags.key",
+        "Union default", "rtps.flag.typeflags.union_default",
         FT_BOOLEAN, 16, TFS(&tfs_set_notset), 0x0008, NULL, HFILL }
     },
     { &hf_rtps_type_object_element_module_name,

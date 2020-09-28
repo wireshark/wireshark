@@ -14035,7 +14035,7 @@ proto_register_zbee_zcl_device_management(void)
             0x0, NULL, HFILL } },
 
         { &hf_zbee_zcl_device_management_set_event_configuration_event_configuration_event_id,
-            { "Event ID", "zbee_zcl_se.device_management.set_event_configuration.event_configuration.number_of_events", FT_UINT16, BASE_DEC, NULL,
+            { "Event ID", "zbee_zcl_se.device_management.set_event_configuration.event_configuration.event_id", FT_UINT16, BASE_DEC, NULL,
             0x0, NULL, HFILL } },
 
         { &hf_zbee_zcl_device_management_set_event_configuration_event_configuration_event_group_id,
@@ -14468,7 +14468,7 @@ proto_register_zbee_zcl_events(void)
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_events_get_event_log_event_offset,
-            { "Event Offset", "zbee_zcl_se.events.get_event_log.number_of_events", FT_UINT16, BASE_DEC, NULL,
+            { "Event Offset", "zbee_zcl_se.events.get_event_log.event_offset", FT_UINT16, BASE_DEC, NULL,
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_events_clear_event_log_request_log_id,

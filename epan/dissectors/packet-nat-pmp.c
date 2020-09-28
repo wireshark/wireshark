@@ -831,7 +831,7 @@ void proto_register_nat_pmp(void)
       { "IPv4 Prefix Count", "portcontrol.option.p64.ipv4_prefix_count", FT_UINT16, BASE_DEC,
         NULL, 0x0, NULL, HFILL } },
     { &hf_option_p64_ipv4_prefix_length,
-      { "IPv4 Prefix Length", "portcontrol.option.p64.ipv4_prefix_count", FT_UINT16, BASE_DEC,
+      { "IPv4 Prefix Length", "portcontrol.option.p64.ipv4_prefix_length", FT_UINT16, BASE_DEC,
         NULL, 0x0, NULL, HFILL } },
     { &hf_option_p64_ipv4_address,
       { "IPv4 Address", "portcontrol.option.p64.ipv4_address", FT_IPv4, BASE_NONE,
