@@ -41,6 +41,7 @@ public slots:
     void selectedFrameChanged(QList<int> frames);
 
 protected:
+    virtual bool event(QEvent *event) override;
     virtual void contextMenuEvent(QContextMenuEvent *event) override;
 
 private slots:
@@ -48,6 +49,7 @@ private slots:
     void sceneSelectionChanged();
 
 private:
+    void resetScene(bool reset_root = true);
     void addDiagram(proto_node *tl_node);
     void setSelectedField(field_info *fi);
     QImage exportToImage();

@@ -344,7 +344,7 @@ private:
 };
 
 PacketDiagram::PacketDiagram(QWidget *parent) :
-    QGraphicsView(new QGraphicsScene(), parent),
+    QGraphicsView(parent),
     layout_(new DiagramLayout),
     cap_file_(nullptr),
     root_node_(nullptr),
@@ -359,10 +359,9 @@ PacketDiagram::PacketDiagram(QWidget *parent) :
     layout_->setFont(font());
 
     connect(wsApp, &WiresharkApplication::appInitialized, this, &PacketDiagram::connectToMainWindow);
-    QGraphicsScene *this_scene = scene();
-    connect(this_scene, &QGraphicsScene::selectionChanged, this, &PacketDiagram::sceneSelectionChanged);
-
     connect(wsApp, &WiresharkApplication::zoomRegularFont, this, &PacketDiagram::setFont);
+
+    resetScene();
 }
 
 PacketDiagram::~PacketDiagram()
@@ -379,14 +378,13 @@ void PacketDiagram::setRootNode(proto_node *root_node)
     // useful in our case because it gives us a cheap way to retain our
     // scroll position between packets.
     scene()->clear();
-
-    root_node_ = root_node;
-    if (!isVisible()) {
-        return;
-    }
-
     selected_field_ = nullptr;
     y_pos_ = 0;
+
+    root_node_ = root_node;
+    if (!isVisible() || !root_node) {
+        return;
+    }
 
     ProtoNode parent_node(root_node_);
     if (!parent_node.isValid()) {
@@ -422,18 +420,15 @@ void PacketDiagram::setCaptureFile(capture_file *cf)
     // The packet dialog sets a fixed EDT context and MUST NOT use this.
     cap_file_ = cf;
 
-    if (!cf && scene()) {
-        // As noted in setRootNode, scene()->clear() doesn't clear everything.
-        // Do a "hard" clear, which resets our various rects and scroll position.
-        delete scene();
-        setScene(new QGraphicsScene(this));
+    if (!cf) {
+        resetScene();
     }
 }
 
 void PacketDiagram::setFont(const QFont &font)
 {
     layout_->setFont(font);
-    setRootNode(root_node_);
+    resetScene(false);
 }
 
 void PacketDiagram::selectedFieldChanged(FieldInformation *finfo)
@@ -449,6 +444,19 @@ void PacketDiagram::selectedFrameChanged(QList<int> frames)
         // Clear the proto tree contents as they have become invalid.
         setRootNode(nullptr);
     }
+}
+
+bool PacketDiagram::event(QEvent *event)
+{
+    switch (event->type()) {
+    case QEvent::ApplicationPaletteChange:
+        resetScene(false);
+        break;
+    default:
+        break;
+
+    }
+    return QGraphicsView::event(event);
 }
 
 void PacketDiagram::contextMenuEvent(QContextMenuEvent *event)
@@ -507,6 +515,19 @@ void PacketDiagram::sceneSelectionChanged()
     } else {
         emit fieldSelected(nullptr);
     }
+}
+
+void PacketDiagram::resetScene(bool reset_root)
+{
+    // As noted in setRootNode, scene()->clear() doesn't clear everything.
+    // Do a "hard" clear, which resets our various rects and scroll position.
+    if (scene()) {
+        delete scene();
+    }
+    QGraphicsScene *new_scene = new QGraphicsScene();
+    setScene(new_scene);
+    connect(new_scene, &QGraphicsScene::selectionChanged, this, &PacketDiagram::sceneSelectionChanged);
+    setRootNode(reset_root ? nullptr : root_node_);
 }
 
 struct DiagramItemSpan {
