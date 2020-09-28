@@ -28344,7 +28344,7 @@ proto_register_ieee80211(void)
       NULL, HFILL }},
 
     {&hf_ieee80211_ff_rm_action_code,
-     {"Action code", "wlan.rm.action_code",
+     {"Action code", "wlan.fixed.action_code",
       FT_UINT8, BASE_DEC|BASE_EXT_STRING, &rm_action_codes_ext, 0,
       "Radio Measurement Action", HFILL }},
 
