@@ -385,45 +385,48 @@ void proto_report_dissector_bug(const char *format, ...)
  *
  * *DO NOT* add anything to this set that is not a character encoding!
  */
-#define ENC_CHARENCODING_MASK    0x0000FFFE  /* mask out byte-order bits and other bits used with string encodings */
-#define ENC_ASCII                0x00000000
-#define ENC_ISO_646_IRV          ENC_ASCII   /* ISO 646 International Reference Version = ASCII */
-#define ENC_UTF_8                0x00000002
-#define ENC_UTF_16               0x00000004
-#define ENC_UCS_2                0x00000006
-#define ENC_UCS_4                0x00000008
-#define ENC_ISO_8859_1           0x0000000A
-#define ENC_ISO_8859_2           0x0000000C
-#define ENC_ISO_8859_3           0x0000000E
-#define ENC_ISO_8859_4           0x00000010
-#define ENC_ISO_8859_5           0x00000012
-#define ENC_ISO_8859_6           0x00000014
-#define ENC_ISO_8859_7           0x00000016
-#define ENC_ISO_8859_8           0x00000018
-#define ENC_ISO_8859_9           0x0000001A
-#define ENC_ISO_8859_10          0x0000001C
-#define ENC_ISO_8859_11          0x0000001E
-/* #define ENC_ISO_8859_12          0x00000020 ISO 8859-12 was abandoned */
-#define ENC_ISO_8859_13          0x00000022
-#define ENC_ISO_8859_14          0x00000024
-#define ENC_ISO_8859_15          0x00000026
-#define ENC_ISO_8859_16          0x00000028
-#define ENC_WINDOWS_1250         0x0000002A
-#define ENC_3GPP_TS_23_038_7BITS 0x0000002C
-#define ENC_EBCDIC               0x0000002E
-#define ENC_MAC_ROMAN            0x00000030
-#define ENC_CP437                0x00000032
-#define ENC_ASCII_7BITS          0x00000034
-#define ENC_T61                  0x00000036
-#define ENC_EBCDIC_CP037         0x00000038
-#define ENC_WINDOWS_1252         0x0000003A
-#define ENC_WINDOWS_1251         0x0000003C
-#define ENC_CP855                0x0000003E
-#define ENC_CP866                0x00000040
-#define ENC_ISO_646_BASIC        0x00000042
-#define ENC_BCD_DIGITS_0_9       0x00000044 /* Packed BCD, digits 0-9 */
-#define ENC_KEYPAD_ABC_TBCD      0x00000046 /* Keypad-with-a/b/c "telephony BCD" = 0-9, *, #, a, b, c */
-#define ENC_KEYPAD_BC_TBCD       0x00000048 /* Keypad-with-B/C "telephony BCD" = 0-9, B, C, *, # */
+#define ENC_CHARENCODING_MASK             0x0000FFFE  /* mask out byte-order bits and other bits used with string encodings */
+#define ENC_ASCII                         0x00000000
+#define ENC_ISO_646_IRV                   ENC_ASCII   /* ISO 646 International Reference Version = ASCII */
+#define ENC_UTF_8                         0x00000002
+#define ENC_UTF_16                        0x00000004
+#define ENC_UCS_2                         0x00000006
+#define ENC_UCS_4                         0x00000008
+#define ENC_ISO_8859_1                    0x0000000A
+#define ENC_ISO_8859_2                    0x0000000C
+#define ENC_ISO_8859_3                    0x0000000E
+#define ENC_ISO_8859_4                    0x00000010
+#define ENC_ISO_8859_5                    0x00000012
+#define ENC_ISO_8859_6                    0x00000014
+#define ENC_ISO_8859_7                    0x00000016
+#define ENC_ISO_8859_8                    0x00000018
+#define ENC_ISO_8859_9                    0x0000001A
+#define ENC_ISO_8859_10                   0x0000001C
+#define ENC_ISO_8859_11                   0x0000001E
+/* #define ENC_ISO_8859_12                  0x00000020 ISO 8859-12 was abandoned */
+#define ENC_ISO_8859_13                   0x00000022
+#define ENC_ISO_8859_14                   0x00000024
+#define ENC_ISO_8859_15                   0x00000026
+#define ENC_ISO_8859_16                   0x00000028
+#define ENC_WINDOWS_1250                  0x0000002A
+#define ENC_3GPP_TS_23_038_7BITS_PACKED   0x0000002C
+#define ENC_3GPP_TS_23_038_7BITS          ENC_3GPP_TS_23_038_7BITS_PACKED
+#define ENC_EBCDIC                        0x0000002E
+#define ENC_MAC_ROMAN                     0x00000030
+#define ENC_CP437                         0x00000032
+#define ENC_ASCII_7BITS                   0x00000034
+#define ENC_T61                           0x00000036
+#define ENC_EBCDIC_CP037                  0x00000038
+#define ENC_WINDOWS_1252                  0x0000003A
+#define ENC_WINDOWS_1251                  0x0000003C
+#define ENC_CP855                         0x0000003E
+#define ENC_CP866                         0x00000040
+#define ENC_ISO_646_BASIC                 0x00000042
+#define ENC_BCD_DIGITS_0_9                0x00000044 /* Packed BCD, digits 0-9 */
+#define ENC_KEYPAD_ABC_TBCD               0x00000046 /* Keypad-with-a/b/c "telephony BCD" = 0-9, *, #, a, b, c */
+#define ENC_KEYPAD_BC_TBCD                0x00000048 /* Keypad-with-B/C "telephony BCD" = 0-9, B, C, *, # */
+#define ENC_3GPP_TS_23_038_7BITS_UNPACKED 0x0000004C
+#define ENC_ETSI_TS_102_221_ANNEX_A       0x0000004E /* ETSI TS 102 221 Annex A */
 /*
  * TODO:
  *
@@ -3167,7 +3170,8 @@ proto_tree_add_float_bits_format_value(proto_tree *tree, const int hf_index, tvb
     G_GNUC_PRINTF(7,8);
 
 
-/** Add a FT_STRING with ENC_3GPP_TS_23_038_7BITS encoding to a proto_tree.
+/** Add a FT_STRING with ENC_3GPP_TS_23_038_7BITS_PACKED encoding to a
+    proto_tree.
  @param tree the tree to append this item to
  @param hfindex field index
  @param tvb the tv buffer of the current data
@@ -3175,7 +3179,7 @@ proto_tree_add_float_bits_format_value(proto_tree *tree, const int hf_index, tvb
  @param no_of_chars number of 7bits characters to display
  @return the newly created item */
 WS_DLL_PUBLIC proto_item *
-proto_tree_add_ts_23_038_7bits_item(proto_tree *tree, const int hfindex, tvbuff_t *tvb,
+proto_tree_add_ts_23_038_7bits_packed_item(proto_tree *tree, const int hfindex, tvbuff_t *tvb,
     const guint bit_offset, const gint no_of_chars);
 
 /** Add a FT_STRING with ENC_ASCII_7BITS encoding to a proto_tree.
@@ -3525,7 +3529,7 @@ proto_custom_set(proto_tree* tree, GSList *field_id,
 #define proto_tree_add_float_bits_format_value(tree, hfinfo, tvb, start, no_of_bits, value, format, ...) \
     proto_tree_add_float_bits_format_value(tree, (hfinfo)->id, tvb, start, no_of_bits, value, format, __VA_ARGS__)
 
-#define proto_tree_add_ts_23_038_7bits_item(tree, hfinfo, tvb, start, no_of_chars) \
+#define proto_tree_add_ts_23_038_7bits_packed_item(tree, hfinfo, tvb, start, no_of_chars) \
     proto_tree_add_ts_23_038_7bits(tree, (hfinfo)->id, tvb, start, no_of_chars)
 
 #define proto_tree_add_ascii_7bits_item(tree, hfinfo, tvb, start, no_of_chars) \

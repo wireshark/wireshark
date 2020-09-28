@@ -938,7 +938,7 @@ de_network_name(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 off
         {
             expert_add_info(pinfo, item, &ei_gsm_a_dtap_text_string_not_multiple_of_7);
         }
-        proto_tree_add_ts_23_038_7bits_item(tree, hf_gsm_a_dtap_text_string, tvb, curr_offset<<3, num_text_bits/7);
+        proto_tree_add_ts_23_038_7bits_packed_item(tree, hf_gsm_a_dtap_text_string, tvb, curr_offset<<3, num_text_bits/7);
         break;
     case 1:
         proto_tree_add_item(tree, hf_gsm_a_dtap_text_string, tvb, curr_offset, len - 1, ENC_UCS_2|ENC_BIG_ENDIAN);

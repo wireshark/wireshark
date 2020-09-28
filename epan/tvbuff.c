@@ -1606,7 +1606,8 @@ validate_single_byte_ascii_encoding(const guint encoding)
 	    case ENC_UTF_16:
 	    case ENC_UCS_2:
 	    case ENC_UCS_4:
-	    case ENC_3GPP_TS_23_038_7BITS:
+	    case ENC_3GPP_TS_23_038_7BITS_PACKED:
+	    case ENC_ASCII_7BITS:
 	    case ENC_EBCDIC:
 		REPORT_DISSECTOR_BUG("Invalid string encoding type passed to tvb_get_string_XXX");
 		break;
@@ -2698,7 +2699,7 @@ tvb_get_ucs_4_string(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, 
 }
 
 gchar *
-tvb_get_ts_23_038_7bits_string(wmem_allocator_t *scope, tvbuff_t *tvb,
+tvb_get_ts_23_038_7bits_string_packed(wmem_allocator_t *scope, tvbuff_t *tvb,
 	const gint bit_offset, gint no_of_chars)
 {
 	gint           in_offset = bit_offset >> 3; /* Current pointer to the input buffer */
@@ -2708,7 +2709,31 @@ tvb_get_ts_23_038_7bits_string(wmem_allocator_t *scope, tvbuff_t *tvb,
 	DISSECTOR_ASSERT(tvb && tvb->initialized);
 
 	ptr = ensure_contiguous(tvb, in_offset, length);
-	return get_ts_23_038_7bits_string(scope, ptr, bit_offset, no_of_chars);
+	return get_ts_23_038_7bits_string_packed(scope, ptr, bit_offset, no_of_chars);
+}
+
+gchar *
+tvb_get_ts_23_038_7bits_string_unpacked(wmem_allocator_t *scope, tvbuff_t *tvb,
+	const gint offset, gint length)
+{
+	const guint8  *ptr;
+
+	DISSECTOR_ASSERT(tvb && tvb->initialized);
+
+	ptr = ensure_contiguous(tvb, offset, length);
+	return get_ts_23_038_7bits_string_unpacked(scope, ptr, length);
+}
+
+gchar *
+tvb_get_etsi_ts_102_221_annex_a_string(wmem_allocator_t *scope, tvbuff_t *tvb,
+	const gint offset, gint length)
+{
+	const guint8  *ptr;
+
+	DISSECTOR_ASSERT(tvb && tvb->initialized);
+
+	ptr = ensure_contiguous(tvb, offset, length);
+	return get_etsi_ts_102_221_annex_a_string(scope, ptr, length);
 }
 
 gchar *
@@ -2933,11 +2958,11 @@ tvb_get_string_enc(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset,
 		strptr = tvb_get_iso_646_string(scope, tvb, offset, length, charset_table_iso_646_basic);
 		break;
 
-	case ENC_3GPP_TS_23_038_7BITS:
+	case ENC_3GPP_TS_23_038_7BITS_PACKED:
 		{
 			gint bit_offset  = offset << 3;
 			gint no_of_chars = (length << 3) / 7;
-			strptr = tvb_get_ts_23_038_7bits_string(scope, tvb, bit_offset, no_of_chars);
+			strptr = tvb_get_ts_23_038_7bits_string_packed(scope, tvb, bit_offset, no_of_chars);
 		}
 		break;
 
@@ -2990,6 +3015,14 @@ tvb_get_string_enc(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset,
 		 * digits 0-9 and symbols B, C, *, and #.
 		 */
 		strptr = tvb_get_bcd_string(scope, tvb, offset, length, &Dgt_ansi_tbcd, FALSE);
+		break;
+
+	case ENC_3GPP_TS_23_038_7BITS_UNPACKED:
+		strptr = tvb_get_ts_23_038_7bits_string_unpacked(scope, tvb, offset, length);
+		break;
+
+	case ENC_ETSI_TS_102_221_ANNEX_A:
+		strptr = tvb_get_etsi_ts_102_221_annex_a_string(scope, tvb, offset, length);
 		break;
 	}
 	return strptr;
@@ -3340,7 +3373,9 @@ tvb_get_stringz_enc(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, g
 		strptr = tvb_get_iso_646_stringz(scope, tvb, offset, lengthp, charset_table_iso_646_basic);
 		break;
 
-	case ENC_3GPP_TS_23_038_7BITS:
+	case ENC_3GPP_TS_23_038_7BITS_PACKED:
+	case ENC_3GPP_TS_23_038_7BITS_UNPACKED:
+	case ENC_ETSI_TS_102_221_ANNEX_A:
 		REPORT_DISSECTOR_BUG("TS 23.038 7bits has no null character and doesn't support null-terminated strings");
 		break;
 

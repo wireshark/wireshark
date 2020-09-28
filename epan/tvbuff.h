@@ -594,7 +594,8 @@ WS_DLL_PUBLIC guint8 *tvb_get_string_enc(wmem_allocator_t *scope,
 /**
  * Given an allocator scope, a tvbuff, a bit offset, and a length in
  * 7-bit characters (not octets!), with the specified offset and
- * length referring to a string in the 3GPP TS 23.038 7bits encoding:
+ * length referring to a string in the 3GPP TS 23.038 7bits encoding,
+ * with code points packed into 7 bits:
  *
  *    allocate a buffer using the specified scope;
  *
@@ -611,11 +612,58 @@ WS_DLL_PUBLIC guint8 *tvb_get_string_enc(wmem_allocator_t *scope,
  * the memory allocated. Otherwise memory is automatically freed when the
  * scope lifetime is reached.
  */
-WS_DLL_PUBLIC gchar *tvb_get_ts_23_038_7bits_string(wmem_allocator_t *scope,
+WS_DLL_PUBLIC gchar *tvb_get_ts_23_038_7bits_string_packed(wmem_allocator_t *scope,
     tvbuff_t *tvb, const gint bit_offset, gint no_of_chars);
 
 /**
- * Given an allocator scope, a tvbuff, a bit offset, and a length in
+ * Given an allocator scope, a tvbuff, an offset, and a length in
+ * octets with the specified offset and length referring to a string
+ * in the 3GPP TS 23.038 7bits encoding, with one octet per code poiint
+ * (the 8th bit of each octet should be 0; if not, the octet is invalid):
+ *
+ *    allocate a buffer using the specified scope;
+ *
+ *    convert the string from the specified encoding to UTF-8, possibly
+ *    mapping some characters or invalid octet sequences to the Unicode
+ *    REPLACEMENT CHARACTER, and put the resulting UTF-8 string, plus a
+ *    trailing '\0', into that buffer;
+ *
+ *    and return a pointer to the buffer.
+ *
+ * Throws an exception if the tvbuff ends before the string does.
+ *
+ * If scope is set to NULL it is the user's responsibility to wmem_free()
+ * the memory allocated. Otherwise memory is automatically freed when the
+ * scope lifetime is reached.
+ */
+WS_DLL_PUBLIC gchar *tvb_get_ts_23_038_7bits_string_unpacked(wmem_allocator_t *scope,
+    tvbuff_t *tvb, const gint offset, gint length);
+
+/**
+ * Given an allocator scope, a tvbuff, an offset, and a length in
+ * octets with the specified offset and length referring to a string
+ * in the ETSI TS 102 221 Annex A encodings; if not:
+ *
+ *    allocate a buffer using the specified scope;
+ *
+ *    convert the string from the specified encoding to UTF-8, possibly
+ *    mapping some characters or invalid octet sequences to the Unicode
+ *    REPLACEMENT CHARACTER, and put the resulting UTF-8 string, plus a
+ *    trailing '\0', into that buffer;
+ *
+ *    and return a pointer to the buffer.
+ *
+ * Throws an exception if the tvbuff ends before the string does.
+ *
+ * If scope is set to NULL it is the user's responsibility to wmem_free()
+ * the memory allocated. Otherwise memory is automatically freed when the
+ * scope lifetime is reached.
+ */
+WS_DLL_PUBLIC gchar *tvb_get_etsi_ts_102_221_annex_a_string(wmem_allocator_t *scope,
+    tvbuff_t *tvb, const gint offset, gint length);
+
+/**
+ * Given an allocator scope, a tvbuff, an offset, and a length in
  * 7-bit characters (not octets!), with the specified offset and
  * length referring to a string in the ASCII 7bits encoding:
  *

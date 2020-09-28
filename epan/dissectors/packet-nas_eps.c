@@ -2356,7 +2356,7 @@ de_emm_ext_emerg_num_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U
                                      tvb, curr_offset, 1, ENC_NA, &length);
         curr_offset++;
         if (length > 0) {
-            proto_tree_add_ts_23_038_7bits_item(sub_tree, hf_eps_emm_ext_emerg_num_list_sub_serv_field,
+            proto_tree_add_ts_23_038_7bits_packed_item(sub_tree, hf_eps_emm_ext_emerg_num_list_sub_serv_field,
                                                 tvb, curr_offset<<3, (length<<3)/7);
             curr_offset += length;
         }

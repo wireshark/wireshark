@@ -166,8 +166,16 @@ WS_DLL_PUBLIC guint8 *
 get_ucs_4_string(wmem_allocator_t *scope, const guint8 *ptr, gint length, const guint encoding);
 
 WS_DLL_PUBLIC guint8 *
-get_ts_23_038_7bits_string(wmem_allocator_t *scope, const guint8 *ptr,
+get_ts_23_038_7bits_string_packed(wmem_allocator_t *scope, const guint8 *ptr,
         const gint bit_offset, gint no_of_chars);
+
+WS_DLL_PUBLIC guint8 *
+get_ts_23_038_7bits_string_unpacked(wmem_allocator_t *scope, const guint8 *ptr,
+        gint length);
+
+WS_DLL_PUBLIC guint8 *
+get_etsi_ts_102_221_annex_a_string(wmem_allocator_t *scope, const guint8 *ptr,
+        gint length);
 
 WS_DLL_PUBLIC guint8 *
 get_ascii_7bits_string(wmem_allocator_t *scope, const guint8 *ptr,

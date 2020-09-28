@@ -997,89 +997,25 @@ typedef struct {
 	cat_nmr_type nmr_type;
 } cat_transaction_t;
 
+/*
+ * ETSI TS 102 221 Annex A.
+ */
 static void
 dissect_cat_efadn_coding(tvbuff_t *tvb, proto_tree *tree, guint32 pos, guint32 len, int hf_entry)
 {
 	if (len) {
-		guint32 i;
-
 		guint8 first_byte = tvb_get_guint8(tvb, pos);
+
 		if ((first_byte & 0x80) == 0) {
-			wmem_strbuf_t *strbuf = wmem_strbuf_sized_new(wmem_packet_scope(), len+1, 0);
-			for (i = 0; i < len; i++) {
-				guint8 gsm_chars[2];
-				gsm_chars[0] = tvb_get_guint8(tvb, pos+i);
-				if (gsm_chars[0] == 0x1b) {
-					/* Escape character */
-					guint8 second_byte;
-					i++;
-					second_byte = tvb_get_guint8(tvb, pos+i);
-					gsm_chars[0] |= second_byte << 7;
-					gsm_chars[1] = second_byte >> 1;
-					wmem_strbuf_append(strbuf, get_ts_23_038_7bits_string(wmem_packet_scope(), gsm_chars, 0, 2));
-				} else {
-					wmem_strbuf_append(strbuf, get_ts_23_038_7bits_string(wmem_packet_scope(), gsm_chars, 0, 1));
-				}
-			}
-			proto_tree_add_string(tree, hf_entry, tvb, pos, len, wmem_strbuf_finalize(strbuf));
-		} else if (first_byte == 0x80) {
-			proto_tree_add_item(tree, hf_entry, tvb, pos+1, len-1, ENC_UCS_2|ENC_BIG_ENDIAN);
-		} else if (first_byte == 0x81) {
-			guint8 string_len = tvb_get_guint8(tvb, pos+1);
-			guint16 ucs2_base = tvb_get_guint8(tvb, pos+2) << 7;
-			wmem_strbuf_t *strbuf = wmem_strbuf_sized_new(wmem_packet_scope(), 2*string_len+1, 0);
-			for (i = 0; i < string_len; i++) {
-				guint8 byte = tvb_get_guint8(tvb, pos+3+i);
-				if ((byte & 0x80) == 0) {
-					guint8 gsm_chars[2];
-					gsm_chars[0] = byte;
-					if (gsm_chars[0] == 0x1b) {
-						/* Escape character */
-						guint8 second_byte;
-						i++;
-						second_byte = tvb_get_guint8(tvb, pos+3+i);
-						gsm_chars[0] |= second_byte << 7;
-						gsm_chars[1] = second_byte >> 1;
-						wmem_strbuf_append(strbuf, get_ts_23_038_7bits_string(wmem_packet_scope(), gsm_chars, 0, 2));
-					} else {
-						wmem_strbuf_append(strbuf, get_ts_23_038_7bits_string(wmem_packet_scope(), gsm_chars, 0, 1));
-					}
-				} else {
-					guint8 ucs2_char[2];
-					ucs2_char[0] = ucs2_base >> 8;
-					ucs2_char[1] = (ucs2_base & 0xff) + (byte & 0x7f);
-					wmem_strbuf_append(strbuf, get_ucs_2_string(wmem_packet_scope(), ucs2_char, 2, ENC_BIG_ENDIAN));
-				}
-			}
-			proto_tree_add_string(tree, hf_entry, tvb, pos, len, wmem_strbuf_finalize(strbuf));
-		} else if (first_byte == 0x82) {
-			guint8 string_len = tvb_get_guint8(tvb, pos+1);
-			guint16 ucs2_base = tvb_get_ntohs(tvb, pos+2);
-			wmem_strbuf_t *strbuf = wmem_strbuf_sized_new(wmem_packet_scope(), 2*string_len+1, 0);
-			for (i = 0; i < string_len; i++) {
-				guint8 byte = tvb_get_guint8(tvb, pos+4+i);
-				if ((byte & 0x80) == 0) {
-					guint8 gsm_chars[2];
-					gsm_chars[0] = byte;
-					if (gsm_chars[0] == 0x1b) {
-						/* Escape character */
-						guint8 second_byte;
-						i++;
-						second_byte = tvb_get_guint8(tvb, pos+4+i);
-						gsm_chars[0] |= second_byte << 7;
-						gsm_chars[1] = second_byte >> 1;
-						wmem_strbuf_append(strbuf, get_ts_23_038_7bits_string(wmem_packet_scope(), gsm_chars, 0, 2));
-					} else {
-						wmem_strbuf_append(strbuf, get_ts_23_038_7bits_string(wmem_packet_scope(), gsm_chars, 0, 1));
-					}
-				} else {
-					guint8 ucs2_char[2];
-					ucs2_char[0] = ucs2_base >> 8;
-					ucs2_char[1] = (ucs2_base & 0xff) + (byte & 0x7f);
-					wmem_strbuf_append(strbuf, get_ucs_2_string(wmem_packet_scope(), ucs2_char, 2, ENC_BIG_ENDIAN));
-				}
-			}
-			proto_tree_add_string(tree, hf_entry, tvb, pos, len, wmem_strbuf_finalize(strbuf));
+			/*
+			 * Unpacked GSM alphabet.
+			 */
+			proto_tree_add_item(tree, hf_entry, tvb, pos, len, ENC_3GPP_TS_23_038_7BITS_UNPACKED|ENC_NA);
+		} else {
+			/*
+			 * Annex A.
+			 */
+			proto_tree_add_item(tree, hf_entry, tvb, pos, len, ENC_ETSI_TS_102_221_ANNEX_A);
 		}
 	}
 }

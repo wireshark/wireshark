@@ -240,7 +240,7 @@ tvbuff_t * dissect_cbs_data(guint8 sms_encoding, tvbuff_t *tvb, proto_tree *tree
    switch(sms_encoding){
    case SMS_ENCODING_7BIT:
    case SMS_ENCODING_7BIT_LANG:
-      text = tvb_get_ts_23_038_7bits_string(pinfo->pool, tvb, offset<<3, (length*8)/7);
+      text = tvb_get_ts_23_038_7bits_string_packed(pinfo->pool, tvb, offset<<3, (length*8)/7);
       tvb_out = tvb_new_child_real_data(tvb, text, (guint)strlen(text), (guint)strlen(text));
       add_new_data_source(pinfo, tvb_out, "unpacked 7 bit data");
       break;

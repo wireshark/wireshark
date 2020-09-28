@@ -451,7 +451,7 @@ text_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset
         offset = 0;
         bit = fill_bits;
 
-        proto_tree_add_ts_23_038_7bits_item(tree, hf_index, tvb_out, (offset << 3) + bit, num_fields);
+        proto_tree_add_ts_23_038_7bits_packed_item(tree, hf_index, tvb_out, (offset << 3) + bit, num_fields);
         break;
 
     case 0x10: /* KSC5601 (Korean) */

@@ -3833,7 +3833,7 @@ static void mbim_decode_sms_cdma_text(tvbuff_t *tvb, proto_tree *tree, const int
             proto_tree_add_item(tree, hfindex, tvb, offset, size_in_bytes, ENC_ISO_8859_1|ENC_NA);
             break;
         case MBIM_ENCODING_GSM_7BIT:
-            proto_tree_add_ts_23_038_7bits_item(tree, hfindex, tvb, (offset << 3), size_in_chars);
+            proto_tree_add_ts_23_038_7bits_packed_item(tree, hfindex, tvb, (offset << 3), size_in_chars);
             break;
         default:
             break;

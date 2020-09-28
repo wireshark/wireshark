@@ -652,7 +652,7 @@ GMR1_IE_FUNC(gmr1_ie_rr_pos_display)
 	txt_packed_tvb = tvb_new_real_data(txt_packed, 11, 11);
 
 	/* Unpack text */
-	txt_unpacked = tvb_get_ts_23_038_7bits_string(wmem_packet_scope(), txt_packed_tvb, 0, 12);
+	txt_unpacked = tvb_get_ts_23_038_7bits_string_packed(wmem_packet_scope(), txt_packed_tvb, 0, 12);
 	tvb_free(txt_packed_tvb);
 
 	/* Display it */

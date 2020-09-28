@@ -12676,7 +12676,7 @@ proto_tree_add_boolean_bits_format_value64(proto_tree *tree, const int hfindex,
 }
 
 proto_item *
-proto_tree_add_ts_23_038_7bits_item(proto_tree *tree, const int hfindex, tvbuff_t *tvb,
+proto_tree_add_ts_23_038_7bits_packed_item(proto_tree *tree, const int hfindex, tvbuff_t *tvb,
 	const guint bit_offset, const gint no_of_chars)
 {
 	proto_item	  *pi;
@@ -12694,7 +12694,7 @@ proto_tree_add_ts_23_038_7bits_item(proto_tree *tree, const int hfindex, tvbuff_
 	byte_length = (((no_of_chars + 1) * 7) + (bit_offset & 0x07)) >> 3;
 	byte_offset = bit_offset >> 3;
 
-	string = tvb_get_ts_23_038_7bits_string(wmem_packet_scope(), tvb, bit_offset, no_of_chars);
+	string = tvb_get_ts_23_038_7bits_string_packed(wmem_packet_scope(), tvb, bit_offset, no_of_chars);
 
 	if (hfinfo->display == STR_UNICODE) {
 		DISSECTOR_ASSERT(g_utf8_validate(string, -1, NULL));
