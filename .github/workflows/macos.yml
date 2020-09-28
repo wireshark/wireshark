@@ -27,6 +27,10 @@ jobs:
         run: gem install asciidoctor
       - name: Mkdir
         run: mkdir build
+      - name: Select xcode
+        run: |
+          sudo xcode-select --switch /Library/Developer/CommandLineTools
+          xcode-select --print-path
       - name: Cmake
         working-directory: build
         run: cmake -GNinja ..
