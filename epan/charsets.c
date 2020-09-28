@@ -1126,7 +1126,6 @@ get_etsi_ts_102_221_annex_a_string(wmem_allocator_t *scope, const guint8 *ptr,
         /* Invalid string type. */
         /* XXX - return error indication */
         return (guint8 *)wmem_strbuf_finalize(strbuf);
-        return NULL;
     }
 
     for (i = 0; i < string_len; i++) {
