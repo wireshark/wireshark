@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--Metaswitch Networks vendor-specific AVPs. 2020-06-04 -->
+
+<vendor vendor-id="Metaswitch" code="19444" name="Metaswitch">
+    <avp name="Metaswitch-Information" code="10000" vendor-id="Metaswitch" mandatory="may" protected="may" may-encrypt="yes" vendor-bit="must">
+        <grouped>
+            <gavp name="Adjacency-Name"/>
+            <gavp name="Account-Name"/>
+            <gavp name="SIP-Diversion"/>
+            <gavp name="Input-Output-Octets"/>
+            <gavp name="Disconnect-Direction"/>
+        </grouped>
+    </avp>
+
+    <avp name="Adjacency-Name" code="10001" vendor-id="Metaswitch" mandatory="may" protected="may" may-encrypt="yes" vendor-bit="must">
+        <grouped>
+            <gavp name="Incoming-Adjacency-Name"/>
+            <gavp name="Outgoing-Adjacency-Name"/>
+        </grouped>
+    </avp>
+
+    <avp name="Incoming-Adjacency-Name" code="10002" vendor-id="Metaswitch" mandatory="may" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="UTF8String"/>
+    </avp>
+
+    <avp name="Outgoing-Adjacency-Name" code="10003" vendor-id="Metaswitch" mandatory="may" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="UTF8String"/>
+    </avp>
+
+    <avp name="Account-Name" code="10004" vendor-id="Metaswitch" mandatory="may" protected="may" may-encrypt="yes" vendor-bit="must">
+        <grouped>
+            <gavp name="Incoming-Account-Name"/>
+            <gavp name="Outgoing-Account-Name"/>
+        </grouped>
+    </avp>
+
+    <avp name="Incoming-Account-Name" code="10005" vendor-id="Metaswitch" mandatory="may" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="UTF8String"/>
+    </avp>
+
+    <avp name="Outgoing-Account-Name" code="10006" vendor-id="Metaswitch" mandatory="may" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="UTF8String"/>
+    </avp>
+
+    <avp name="SIP-Diversion" code="10007" vendor-id="Metaswitch" mandatory="may" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="UTF8String"/>
+    </avp>
+
+    <avp name="Input-Output-Octets" code="10008" vendor-id="Metaswitch" mandatory="may" protected="may" may-encrypt="yes" vendor-bit="must">
+        <grouped>
+            <gavp name="Ingress-Input-Octets"/>
+            <gavp name="Ingress-Output-Octets"/>
+            <gavp name="Egress-Input-Octets"/>
+            <gavp name="Egress-Output-Octets"/>
+        </grouped>
+    </avp>
+
+    <avp name="Ingress-Input-Octets" code="10009" vendor-id="Metaswitch" mandatory="may" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+    </avp>
+
+    <avp name="Ingress-Output-Octets" code="10010" vendor-id="Metaswitch" mandatory="may" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+    </avp>
+
+    <avp name="Egress-Input-Octets" code="10011" vendor-id="Metaswitch" mandatory="may" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+    </avp>
+
+    <avp name="Egress-Output-Octets" code="10012" vendor-id="Metaswitch" mandatory="may" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Unsigned32"/>
+    </avp>
+
+    <avp name="Disconnect-Direction" code="10013" vendor-id="Metaswitch" mandatory="may" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="Enumerated"/>
+        <enum name="Disconnect-Side-Orig" code="1"/>
+        <enum name="Disconnect-Side-Term" code="2"/>
+        <enum name="Disconnect-Side-Neither" code="3"/>
+    </avp>
+
+    <avp name="Media-Description" code="10014" vendor-id="Metaswitch" mandatory="may" protected="may" may-encrypt="yes" vendor-bit="must">
+        <type type-name="UTF8String"/>
+    </avp>
+</vendor>

@@ -33,6 +33,7 @@
 	<!ENTITY Telefonica		SYSTEM "Telefonica.xml">
 	<!ENTITY Siemens		SYSTEM "Siemens.xml">
 	<!ENTITY Microsoft		SYSTEM "Microsoft.xml">
+	<!ENTITY Metaswitch		SYSTEM "Metaswitch.xml">
 	<!ENTITY Custom			SYSTEM "Custom.xml">
 ]>
 <dictionary>
@@ -8902,5 +8903,6 @@
 	&Telefonica;
 	&Siemens;
 	&Microsoft;
+	&Metaswitch;
 	&Custom;
 </dictionary>
