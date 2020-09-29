@@ -69,7 +69,7 @@ PrintDialog::PrintDialog(QWidget *parent, capture_file *cf, QString selRange) :
     cur_printer_(NULL),
     cur_painter_(NULL),
     preview_(new QPrintPreviewWidget(&printer_)),
-    print_bt_(new QPushButton(tr("&Print" UTF8_HORIZONTAL_ELLIPSIS))),
+    print_bt_(new QPushButton(tr("&Print…"))),
     cap_file_(cf),
     page_pos_(0),
     in_preview_(FALSE)
@@ -113,7 +113,7 @@ PrintDialog::PrintDialog(QWidget *parent, capture_file *cf, QString selRange) :
     pd_ui_->rangeGroupBox->initRange(&print_args_.range, selRange);
 
     pd_ui_->buttonBox->addButton(print_bt_, QDialogButtonBox::ActionRole);
-    pd_ui_->buttonBox->addButton(tr("Page &Setup" UTF8_HORIZONTAL_ELLIPSIS), QDialogButtonBox::ResetRole);
+    pd_ui_->buttonBox->addButton(tr("Page &Setup…"), QDialogButtonBox::ResetRole);
     print_bt_->setDefault(true);
 
     connect(preview_, SIGNAL(paintRequested(QPrinter*)), this, SLOT(paintPreview(QPrinter*)));

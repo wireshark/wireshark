@@ -47,7 +47,7 @@ EndpointDialog::EndpointDialog(QWidget &parent, CaptureFile &cf, int cli_proto_i
     QAction *action;
     action = map_menu_->addAction(tr("Open in browser"));
     connect(action, &QAction::triggered, this, &EndpointDialog::openMap);
-    action = map_menu_->addAction(tr("Save As" UTF8_HORIZONTAL_ELLIPSIS));
+    action = map_menu_->addAction(tr("Save As…"));
     connect(action, &QAction::triggered, this, &EndpointDialog::saveMap);
     map_bt_->setMenu(map_menu_);
 #endif

@@ -168,7 +168,7 @@ void LteRlcGraphDialog::completeGraph(bool may_be_empty)
 
     // Change label on save/export button.
     QPushButton *save_bt = ui->buttonBox->button(QDialogButtonBox::Save);
-    save_bt->setText(tr("Save As" UTF8_HORIZONTAL_ELLIPSIS));
+    save_bt->setText(tr("Save As…"));
 
     // Don't want to connect again after first time. - causes mouse handlers to get called
     // multiple times.
@@ -856,7 +856,7 @@ void LteRlcGraphDialog::on_buttonBox_accepted()
             .arg(bmp_filter)
             .arg(jpeg_filter);
 
-    file_name = WiresharkFileDialog::getSaveFileName(this, wsApp->windowTitleString(tr("Save Graph As" UTF8_HORIZONTAL_ELLIPSIS)),
+    file_name = WiresharkFileDialog::getSaveFileName(this, wsApp->windowTitleString(tr("Save Graph As…")),
                                              path.canonicalPath(), filter, &extension);
 
     if (file_name.length() > 0) {

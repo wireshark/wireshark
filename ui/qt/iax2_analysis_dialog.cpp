@@ -578,7 +578,7 @@ void Iax2AnalysisDialog::on_actionSaveGraph_triggered()
     if (!file_closed_) {
         save_file += QString("/%1").arg(cap_file_.fileBaseName());
     }
-    file_name = WiresharkFileDialog::getSaveFileName(this, wsApp->windowTitleString(tr("Save Graph As" UTF8_HORIZONTAL_ELLIPSIS)),
+    file_name = WiresharkFileDialog::getSaveFileName(this, wsApp->windowTitleString(tr("Save Graph As…")),
                                              save_file, filter, &extension);
 
     if (!file_name.isEmpty()) {
@@ -921,7 +921,7 @@ void Iax2AnalysisDialog::saveAudio(Iax2AnalysisDialog::StreamDirection direction
         return;
     }
 
-    ui->hintLabel->setText(tr("Saving %1" UTF8_HORIZONTAL_ELLIPSIS).arg(save_file.fileName()));
+    ui->hintLabel->setText(tr("Saving %1…").arg(save_file.fileName()));
     ui->progressFrame->showProgress(tr("Analyzing IAX2"), true, true, &stop_flag);
 
     if	(save_format == save_audio_au_) { /* au format; https://pubs.opengroup.org/external/auformat.html */

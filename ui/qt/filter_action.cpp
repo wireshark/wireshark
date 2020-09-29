@@ -113,16 +113,16 @@ const QString FilterAction::actionTypeName(ActionType type) {
         return QObject::tr("Not Selected");
         break;
     case ActionTypeAnd:
-        return QObject::tr(UTF8_HORIZONTAL_ELLIPSIS "and Selected");
+        return QObject::tr("…and Selected");
         break;
     case ActionTypeOr:
-        return QObject::tr(UTF8_HORIZONTAL_ELLIPSIS "or Selected");
+        return QObject::tr("…or Selected");
         break;
     case ActionTypeAndNot:
-        return QObject::tr(UTF8_HORIZONTAL_ELLIPSIS "and not Selected");
+        return QObject::tr("…and not Selected");
         break;
     case ActionTypeOrNot:
-        return QObject::tr(UTF8_HORIZONTAL_ELLIPSIS "or not Selected");
+        return QObject::tr("…or not Selected");
         break;
     default:
         return QObject::tr("UNKNOWN");
@@ -203,16 +203,16 @@ QActionGroup * FilterAction::createFilterGroup(QString filter, bool prepare, boo
     action->setProperty("filterType", FilterAction::ActionTypePlain);
     action = group->addAction(tr("Not Selected"));
     action->setProperty("filterType", FilterAction::ActionTypeNot);
-    action = group->addAction(tr(UTF8_HORIZONTAL_ELLIPSIS "and Selected"));
+    action = group->addAction(tr("…and Selected"));
     action->setProperty("filterType", FilterAction::ActionTypeAnd);
     action->setEnabled(!filterEmpty);
-    action = group->addAction(tr(UTF8_HORIZONTAL_ELLIPSIS "or Selected"));
+    action = group->addAction(tr("…or Selected"));
     action->setProperty("filterType", FilterAction::ActionTypeOr);
     action->setEnabled(!filterEmpty);
-    action = group->addAction(tr(UTF8_HORIZONTAL_ELLIPSIS "and not Selected"));
+    action = group->addAction(tr("…and not Selected"));
     action->setProperty("filterType", FilterAction::ActionTypeAndNot);
     action->setEnabled(!filterEmpty);
-    action = group->addAction(tr(UTF8_HORIZONTAL_ELLIPSIS "or not Selected"));
+    action = group->addAction(tr("…or not Selected"));
     action->setProperty("filterType", FilterAction::ActionTypeOrNot);
     action->setEnabled(!filterEmpty);
     group->setEnabled(enabled);

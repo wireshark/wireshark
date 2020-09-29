@@ -235,7 +235,7 @@ void ExportObjectDialog::saveCurrentEntry(QString *tempFile)
     if (!tempFile)
     {
         GString *safe_filename = eo_massage_str(entry_filename.toUtf8().constData(), EXPORT_OBJECT_MAXFILELEN, 0);
-        file_name = WiresharkFileDialog::getSaveFileName(this, wsApp->windowTitleString(tr("Save Object As" UTF8_HORIZONTAL_ELLIPSIS)),
+        file_name = WiresharkFileDialog::getSaveFileName(this, wsApp->windowTitleString(tr("Save Object As…")),
                                                 safe_filename->str);
         g_string_free(safe_filename, TRUE);
     } else {
@@ -265,7 +265,7 @@ void ExportObjectDialog::saveAllEntries()
     // as the native dialog is used, and it supports that; does
     // that also work on Windows and with Qt's own dialog?
     //
-    save_in_path = WiresharkFileDialog::getExistingDirectory(this, wsApp->windowTitleString(tr("Save All Objects In" UTF8_HORIZONTAL_ELLIPSIS)),
+    save_in_path = WiresharkFileDialog::getExistingDirectory(this, wsApp->windowTitleString(tr("Save All Objects In…")),
                                                      save_in_dir.canonicalPath(),
                                                      QFileDialog::ShowDirsOnly);
 

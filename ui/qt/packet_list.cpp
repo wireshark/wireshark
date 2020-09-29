@@ -697,10 +697,10 @@ void PacketList::contextMenuEvent(QContextMenuEvent *event)
     QAction * action = submenu->addAction(tr("Summary as Text"));
     action->setData(CopyAsText);
     connect(action, SIGNAL(triggered()), this, SLOT(copySummary()));
-    action = submenu->addAction(tr(UTF8_HORIZONTAL_ELLIPSIS "as CSV"));
+    action = submenu->addAction(tr("…as CSV"));
     action->setData(CopyAsCSV);
     connect(action, SIGNAL(triggered()), this, SLOT(copySummary()));
-    action = submenu->addAction(tr(UTF8_HORIZONTAL_ELLIPSIS "as YAML"));
+    action = submenu->addAction(tr("…as YAML"));
     action->setData(CopyAsYAML);
     connect(action, SIGNAL(triggered()), this, SLOT(copySummary()));
     submenu->addSeparator();
@@ -715,7 +715,7 @@ void PacketList::contextMenuEvent(QContextMenuEvent *event)
 
     ctx_menu->addSeparator();
     ctx_menu->addMenu(&proto_prefs_menus_);
-    action = ctx_menu->addAction(tr("Decode As" UTF8_HORIZONTAL_ELLIPSIS));
+    action = ctx_menu->addAction(tr("Decode As…"));
     action->setProperty("create_new", QVariant(true));
     connect(action, &QAction::triggered, this, &PacketList::ctxDecodeAsDialog);
     // "Print" not ported intentionally

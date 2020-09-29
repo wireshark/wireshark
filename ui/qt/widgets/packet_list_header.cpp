@@ -186,13 +186,13 @@ void PacketListHeader::contextMenuEvent(QContextMenuEvent *event)
     contextMenu->addActions(alignmentActions->actions());
     contextMenu->addSeparator();
 
-    action = contextMenu->addAction(tr("Column Preferences" UTF8_HORIZONTAL_ELLIPSIS));
+    action = contextMenu->addAction(tr("Column Preferences…"));
     connect(action, &QAction::triggered, this, &PacketListHeader::showColumnPrefs);
     action = contextMenu->addAction(tr("Edit Column"));
     connect(action, &QAction::triggered, this, &PacketListHeader::doEditColumn);
     action = contextMenu->addAction(tr("Resize to Contents"));
     connect(action, &QAction::triggered, this, &PacketListHeader::resizeToContent);
-    action = contextMenu->addAction(tr("Resize Column to Width" UTF8_HORIZONTAL_ELLIPSIS));
+    action = contextMenu->addAction(tr("Resize Column to Width…"));
     connect(action, &QAction::triggered, this, &PacketListHeader::resizeToWidth);
 
     action = contextMenu->addAction(tr("Resolve Names"));

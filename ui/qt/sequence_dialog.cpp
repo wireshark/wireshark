@@ -168,7 +168,7 @@ SequenceDialog::SequenceDialog(QWidget &parent, CaptureFile &cf, SequenceInfo *i
     }
 
     QPushButton *save_bt = ui->buttonBox->button(QDialogButtonBox::Save);
-    save_bt->setText(tr("Save As" UTF8_HORIZONTAL_ELLIPSIS));
+    save_bt->setText(tr("Save As…"));
 
     QPushButton *close_bt = ui->buttonBox->button(QDialogButtonBox::Close);
     if (close_bt) {
@@ -382,7 +382,7 @@ void SequenceDialog::on_buttonBox_accepted()
         filter.append(QString(";;%5").arg(ascii_filter));
     }
 
-    file_name = WiresharkFileDialog::getSaveFileName(this, wsApp->windowTitleString(tr("Save Graph As" UTF8_HORIZONTAL_ELLIPSIS)),
+    file_name = WiresharkFileDialog::getSaveFileName(this, wsApp->windowTitleString(tr("Save Graph As…")),
                                              path.canonicalPath(), filter, &extension);
 
     if (file_name.length() > 0) {

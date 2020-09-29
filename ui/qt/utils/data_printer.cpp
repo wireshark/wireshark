@@ -197,27 +197,27 @@ QActionGroup * DataPrinter::copyActions(QObject * copyClass, QObject * data)
     action->setProperty("printertype", DataPrinter::DP_HexDump);
     connect(action, &QAction::triggered, dpi, &DataPrinter::copyIDataBytes);
 
-    action = new QAction(tr(UTF8_HORIZONTAL_ELLIPSIS "as Hex Dump"), actions);
+    action = new QAction(tr("…as Hex Dump"), actions);
     action->setToolTip(tr("Copy packet bytes as a hex dump."));
     action->setProperty("printertype", DataPrinter::DP_HexOnly);
     connect(action, &QAction::triggered, dpi, &DataPrinter::copyIDataBytes);
 
-    action = new QAction(tr(UTF8_HORIZONTAL_ELLIPSIS "as Printable Text"), actions);
+    action = new QAction(tr("…as Printable Text"), actions);
     action->setToolTip(tr("Copy only the printable text in the packet."));
     action->setProperty("printertype", DataPrinter::DP_PrintableText);
     connect(action, &QAction::triggered, dpi, &DataPrinter::copyIDataBytes);
 
-    action = new QAction(tr(UTF8_HORIZONTAL_ELLIPSIS "as a Hex Stream"), actions);
+    action = new QAction(tr("…as a Hex Stream"), actions);
     action->setToolTip(tr("Copy packet bytes as a stream of hex."));
     action->setProperty("printertype", DataPrinter::DP_HexStream);
     connect(action, &QAction::triggered, dpi, &DataPrinter::copyIDataBytes);
 
-    action = new QAction(tr(UTF8_HORIZONTAL_ELLIPSIS "as Raw Binary"), actions);
+    action = new QAction(tr("…as Raw Binary"), actions);
     action->setToolTip(tr("Copy packet bytes as application/octet-stream MIME data."));
     action->setProperty("printertype", DataPrinter::DP_Binary);
     connect(action, &QAction::triggered, dpi, &DataPrinter::copyIDataBytes);
 
-    action = new QAction(tr(UTF8_HORIZONTAL_ELLIPSIS "as Escaped String"), actions);
+    action = new QAction(tr("…as Escaped String"), actions);
     action->setToolTip(tr("Copy packet bytes as an escaped string."));
     action->setProperty("printertype", DataPrinter::DP_EscapedString);
     connect(action, &QAction::triggered, dpi, &DataPrinter::copyIDataBytes);

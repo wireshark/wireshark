@@ -543,13 +543,13 @@ void MainStatusBar::showProfileMenu(const QPoint &global_pos, Qt::MouseButton bu
 
         profile_menu_.setTitle(tr("Switch to"));
         QMenu ctx_menu_;
-        QAction * action = ctx_menu_.addAction(tr("Manage Profiles" UTF8_HORIZONTAL_ELLIPSIS), this, SLOT(manageProfile()));
+        QAction * action = ctx_menu_.addAction(tr("Manage Profiles…"), this, SLOT(manageProfile()));
         action->setProperty("dialog_action_", (int)ProfileDialog::ShowProfiles);
 
         ctx_menu_.addSeparator();
-        action = ctx_menu_.addAction(tr("New" UTF8_HORIZONTAL_ELLIPSIS), this, SLOT(manageProfile()));
+        action = ctx_menu_.addAction(tr("New…"), this, SLOT(manageProfile()));
         action->setProperty("dialog_action_", (int)ProfileDialog::NewProfile);
-        action = ctx_menu_.addAction(tr("Edit" UTF8_HORIZONTAL_ELLIPSIS), this, SLOT(manageProfile()));
+        action = ctx_menu_.addAction(tr("Edit…"), this, SLOT(manageProfile()));
         action->setProperty("dialog_action_", (int)ProfileDialog::EditCurrentProfile);
         action->setEnabled(enable_edit);
         action = ctx_menu_.addAction(tr("Delete"), this, SLOT(manageProfile()));

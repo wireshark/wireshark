@@ -87,7 +87,7 @@ ShowPacketBytesDialog::ShowPacketBytesDialog(QWidget &parent, CaptureFile &cf) :
     copy_button_ = ui->buttonBox->addButton(tr("Copy"), QDialogButtonBox::ActionRole);
     connect(copy_button_, SIGNAL(clicked()), this, SLOT(copyBytes()));
 
-    save_as_button_ = ui->buttonBox->addButton(tr("Save as" UTF8_HORIZONTAL_ELLIPSIS), QDialogButtonBox::ActionRole);
+    save_as_button_ = ui->buttonBox->addButton(tr("Save as…"), QDialogButtonBox::ActionRole);
     connect(save_as_button_, SIGNAL(clicked()), this, SLOT(saveAs()));
 
     connect(ui->buttonBox, SIGNAL(helpRequested()), this, SLOT(helpButton()));
@@ -304,7 +304,7 @@ void ShowPacketBytesDialog::copyBytes()
 
 void ShowPacketBytesDialog::saveAs()
 {
-    QString file_name = WiresharkFileDialog::getSaveFileName(this, wsApp->windowTitleString(tr("Save Selected Packet Bytes As" UTF8_HORIZONTAL_ELLIPSIS)));
+    QString file_name = WiresharkFileDialog::getSaveFileName(this, wsApp->windowTitleString(tr("Save Selected Packet Bytes As…")));
 
     if (file_name.isEmpty())
         return;

@@ -199,13 +199,13 @@ FolderListModel::FolderListModel(QObject * parent):
     /* pers conf */
     appendRow(QStringList() << tr("Personal configuration")
             << gchar_free_to_qstring(get_persconffile_path("", FALSE))
-            << tr("dfilters, preferences, ethers, " UTF8_HORIZONTAL_ELLIPSIS));
+            << tr("dfilters, preferences, ethers, …"));
 
     /* global conf */
     QString dirPath = get_datafile_dir();
     if (! dirPath.isEmpty()) {
         appendRow (QStringList() << tr("Global configuration") << dirPath
-                << tr("dfilters, preferences, manuf, " UTF8_HORIZONTAL_ELLIPSIS));
+                << tr("dfilters, preferences, manuf, …"));
     }
 
     /* system */

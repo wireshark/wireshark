@@ -172,7 +172,7 @@ pref_show(pref_t *pref, gpointer layout_ptr)
         QLabel *label = new QLabel(prefs_get_title(pref));
         label->setToolTip(tooltip);
         hb->addWidget(label);
-        QPushButton *uat_pb = new QPushButton(QObject::tr("Edit" UTF8_HORIZONTAL_ELLIPSIS));
+        QPushButton *uat_pb = new QPushButton(QObject::tr("Edit…"));
         uat_pb->setToolTip(tooltip);
         uat_pb->setProperty(pref_prop_, VariantPointer<pref_t>::asQVariant(pref));
         hb->addWidget(uat_pb);
@@ -200,7 +200,7 @@ pref_show(pref_t *pref, gpointer layout_ptr)
                               )
                           .arg(path_le->style()->subElementRect(QStyle::SE_CheckBoxContents, &style_opt).left()));
         hb->addWidget(path_le);
-        QPushButton *path_pb = new QPushButton(QObject::tr("Browse" UTF8_HORIZONTAL_ELLIPSIS));
+        QPushButton *path_pb = new QPushButton(QObject::tr("Browse…"));
         path_pb->setProperty(pref_prop_, VariantPointer<pref_t>::asQVariant(pref));
         hb->addWidget(path_pb);
         hb->addSpacerItem(new QSpacerItem(1, 1, QSizePolicy::Expanding, QSizePolicy::Minimum));

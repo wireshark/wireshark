@@ -56,11 +56,11 @@ ConversationDialog::ConversationDialog(QWidget &parent, CaptureFile &cf, int cli
     TrafficTableDialog(parent, cf, filter, table_name_),
     tcp_graph_requested_(false)
 {
-    follow_bt_ = buttonBox()->addButton(tr("Follow Stream" UTF8_HORIZONTAL_ELLIPSIS), QDialogButtonBox::ActionRole);
+    follow_bt_ = buttonBox()->addButton(tr("Follow Stream…"), QDialogButtonBox::ActionRole);
     follow_bt_->setToolTip(tr("Follow a TCP or UDP stream."));
     connect(follow_bt_, SIGNAL(clicked()), this, SLOT(followStream()));
 
-    graph_bt_ = buttonBox()->addButton(tr("Graph" UTF8_HORIZONTAL_ELLIPSIS), QDialogButtonBox::ActionRole);
+    graph_bt_ = buttonBox()->addButton(tr("Graph…"), QDialogButtonBox::ActionRole);
     graph_bt_->setToolTip(tr("Graph a TCP conversation."));
     connect(graph_bt_, SIGNAL(clicked()), this, SLOT(graphTcp()));
 

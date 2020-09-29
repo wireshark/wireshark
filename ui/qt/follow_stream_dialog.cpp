@@ -131,7 +131,7 @@ FollowStreamDialog::FollowStreamDialog(QWidget &parent, CaptureFile &cf, follow_
     b_print_ = ui->buttonBox->addButton(tr("Print"), QDialogButtonBox::ActionRole);
     connect(b_print_, SIGNAL(clicked()), this, SLOT(printStream()));
 
-    b_save_ = ui->buttonBox->addButton(tr("Save as" UTF8_HORIZONTAL_ELLIPSIS), QDialogButtonBox::ActionRole);
+    b_save_ = ui->buttonBox->addButton(tr("Save as…"), QDialogButtonBox::ActionRole);
     connect(b_save_, SIGNAL(clicked()), this, SLOT(saveAs()));
 
     b_back_ = ui->buttonBox->addButton(tr("Back"), QDialogButtonBox::ActionRole);
@@ -285,7 +285,7 @@ void FollowStreamDialog::findText(bool go_back)
 
 void FollowStreamDialog::saveAs()
 {
-    QString file_name = WiresharkFileDialog::getSaveFileName(this, wsApp->windowTitleString(tr("Save Stream Content As" UTF8_HORIZONTAL_ELLIPSIS)));
+    QString file_name = WiresharkFileDialog::getSaveFileName(this, wsApp->windowTitleString(tr("Save Stream Content As…")));
     if (file_name.isEmpty()) {
         return;
     }

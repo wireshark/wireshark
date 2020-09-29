@@ -86,9 +86,9 @@ ColoringRulesDialog::ColoringRulesDialog(QWidget *parent, QString add_filter) :
 
     rowCountChanged();
 
-    import_button_ = ui->buttonBox->addButton(tr("Import" UTF8_HORIZONTAL_ELLIPSIS), QDialogButtonBox::ApplyRole);
+    import_button_ = ui->buttonBox->addButton(tr("Import…"), QDialogButtonBox::ApplyRole);
     import_button_->setToolTip(tr("Select a file and add its filters to the end of the list."));
-    export_button_ = ui->buttonBox->addButton(tr("Export" UTF8_HORIZONTAL_ELLIPSIS), QDialogButtonBox::ApplyRole);
+    export_button_ = ui->buttonBox->addButton(tr("Export…"), QDialogButtonBox::ApplyRole);
     export_button_->setToolTip(tr("Save filters in a file."));
 
     CopyFromProfileButton * copy_button = new CopyFromProfileButton(this, COLORFILTERS_FILE_NAME, tr("Copy coloring rules from another profile."));

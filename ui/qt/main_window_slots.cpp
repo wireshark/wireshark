@@ -682,7 +682,7 @@ void MainWindow::captureEventHandler(CaptureEvent ev)
         {
             QFileInfo file_info(ev.filePath());
             wsApp->popStatus(WiresharkApplication::FileStatus);
-            wsApp->pushStatus(WiresharkApplication::FileStatus, tr("Saving %1" UTF8_HORIZONTAL_ELLIPSIS).arg(file_info.fileName()));
+            wsApp->pushStatus(WiresharkApplication::FileStatus, tr("Saving %1…").arg(file_info.fileName()));
             break;
         }
         default:
@@ -1602,7 +1602,7 @@ void MainWindow::setFeaturesEnabled(bool enabled)
     }
     else
     {
-        main_ui_->statusBar->showMessage(tr("Please wait while Wireshark is initializing" UTF8_HORIZONTAL_ELLIPSIS));
+        main_ui_->statusBar->showMessage(tr("Please wait while Wireshark is initializing…"));
     }
 }
 

@@ -152,7 +152,7 @@ void DisplayFilterEdit::contextMenuEvent(QContextMenuEvent *event) {
     menu->addSeparator();
     menu->addAction(na);
 
-    na = new QAction(tr("Display Filter Expression" UTF8_HORIZONTAL_ELLIPSIS), this);
+    na = new QAction(tr("Display Filter Expression…"), this);
     connect(na, &QAction::triggered, this, &DisplayFilterEdit::displayFilterExpression);
     menu->insertAction(first, na);
 

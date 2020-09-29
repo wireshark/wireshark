@@ -88,7 +88,7 @@ void ByteViewText::createContextMenu()
     action_bytes_hex_->setData(QVariant::fromValue(BYTES_HEX));
     action_bytes_hex_->setCheckable(true);
 
-    action_bytes_bits_ = format_actions->addAction(tr(UTF8_HORIZONTAL_ELLIPSIS "as bits"));
+    action_bytes_bits_ = format_actions->addAction(tr("…as bits"));
     action_bytes_bits_->setData(QVariant::fromValue(BYTES_BITS));
     action_bytes_bits_->setCheckable(true);
 
@@ -102,11 +102,11 @@ void ByteViewText::createContextMenu()
     action_bytes_enc_from_packet_->setData(QVariant::fromValue(BYTES_ENC_FROM_PACKET));
     action_bytes_enc_from_packet_->setCheckable(true);
 
-    action_bytes_enc_ascii_ = encoding_actions->addAction(tr(UTF8_HORIZONTAL_ELLIPSIS "as ASCII"));
+    action_bytes_enc_ascii_ = encoding_actions->addAction(tr("…as ASCII"));
     action_bytes_enc_ascii_->setData(QVariant::fromValue(BYTES_ENC_ASCII));
     action_bytes_enc_ascii_->setCheckable(true);
 
-    action_bytes_enc_ebcdic_ = encoding_actions->addAction(tr(UTF8_HORIZONTAL_ELLIPSIS "as EBCDIC"));
+    action_bytes_enc_ebcdic_ = encoding_actions->addAction(tr("…as EBCDIC"));
     action_bytes_enc_ebcdic_->setData(QVariant::fromValue(BYTES_ENC_EBCDIC));
     action_bytes_enc_ebcdic_->setCheckable(true);
 

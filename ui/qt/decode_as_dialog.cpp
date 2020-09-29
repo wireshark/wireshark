@@ -63,7 +63,7 @@ DecodeAsDialog::DecodeAsDialog(QWidget *parent, capture_file *cf, bool create_ne
     ui->pathLabel->setAttribute(Qt::WA_MacSmallSize, true);
 #endif
 
-    setWindowTitle(wsApp->windowTitleString(tr("Decode As" UTF8_HORIZONTAL_ELLIPSIS)));
+    setWindowTitle(wsApp->windowTitleString(tr("Decode As…")));
 
     QString abs_path = gchar_free_to_qstring(get_persconffile_path(DECODE_AS_ENTRIES_FILE_NAME, TRUE));
     if (file_exists(abs_path.toUtf8().constData())) {

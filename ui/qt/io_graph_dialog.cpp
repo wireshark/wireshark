@@ -329,7 +329,7 @@ IOGraphDialog::IOGraphDialog(QWidget &parent, CaptureFile &cf, QString displayFi
 #endif
 
     QPushButton *save_bt = ui->buttonBox->button(QDialogButtonBox::Save);
-    save_bt->setText(tr("Save As" UTF8_HORIZONTAL_ELLIPSIS));
+    save_bt->setText(tr("Save As…"));
 
     QPushButton *copy_bt = ui->buttonBox->addButton(tr("Copy"), QDialogButtonBox::ActionRole);
     connect (copy_bt, SIGNAL(clicked()), this, SLOT(copyAsCsvClicked()));
@@ -1484,7 +1484,7 @@ void IOGraphDialog::on_buttonBox_accepted()
     if (!file_closed_) {
         save_file += QString("/%1").arg(cap_file_.fileBaseName());
     }
-    file_name = WiresharkFileDialog::getSaveFileName(this, wsApp->windowTitleString(tr("Save Graph As" UTF8_HORIZONTAL_ELLIPSIS)),
+    file_name = WiresharkFileDialog::getSaveFileName(this, wsApp->windowTitleString(tr("Save Graph As…")),
                                              save_file, filter, &extension);
 
     if (file_name.length() > 0) {

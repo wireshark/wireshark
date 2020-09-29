@@ -81,7 +81,7 @@ TapParameterDialog::TapParameterDialog(QWidget &parent, CaptureFile &cf, int hel
     button = ui->buttonBox->addButton(tr("Copy"), QDialogButtonBox::ActionRole);
     connect(button, SIGNAL(clicked()), this, SLOT(on_actionCopyToClipboard_triggered()));
 
-    button = ui->buttonBox->addButton(tr("Save as" UTF8_HORIZONTAL_ELLIPSIS), QDialogButtonBox::ActionRole);
+    button = ui->buttonBox->addButton(tr("Save as…"), QDialogButtonBox::ActionRole);
     connect(button, SIGNAL(clicked()), this, SLOT(on_actionSaveAs_triggered()));
 
     connect(ui->displayFilterLineEdit, SIGNAL(textChanged(QString)),
@@ -528,7 +528,7 @@ void TapParameterDialog::on_actionSaveAs_triggered()
 #ifdef Q_OS_WIN
     HANDLE da_ctx = set_thread_per_monitor_v2_awareness();
 #endif
-    QFileDialog SaveAsDialog(this, wsApp->windowTitleString(tr("Save Statistics As" UTF8_HORIZONTAL_ELLIPSIS)),
+    QFileDialog SaveAsDialog(this, wsApp->windowTitleString(tr("Save Statistics As…")),
                                                             get_last_open_dir());
     SaveAsDialog.setNameFilter(tr("Plain text file (*.txt);;"
                                     "Comma separated values (*.csv);;"

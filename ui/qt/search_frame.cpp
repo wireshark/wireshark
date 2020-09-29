@@ -449,7 +449,7 @@ void SearchFrame::on_findButton_clicked()
     g_free(cap_file_->sfilter);
     cap_file_->sfilter = g_strdup(sf_ui_->searchLineEdit->text().toUtf8().constData());
     wsApp->popStatus(WiresharkApplication::FileStatus);
-    wsApp->pushStatus(WiresharkApplication::FileStatus, tr("Searching for %1" UTF8_HORIZONTAL_ELLIPSIS).arg(sf_ui_->searchLineEdit->text()));
+    wsApp->pushStatus(WiresharkApplication::FileStatus, tr("Searching for %1…").arg(sf_ui_->searchLineEdit->text()));
 
     if (cap_file_->hex) {
         /* Hex value in packet data */

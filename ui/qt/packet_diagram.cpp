@@ -475,14 +475,14 @@ void PacketDiagram::contextMenuEvent(QContextMenuEvent *event)
 
     ctx_menu.addSeparator();
 
-    action = ctx_menu.addAction(tr("Save Diagram As" UTF8_HORIZONTAL_ELLIPSIS));
+    action = ctx_menu.addAction(tr("Save Diagram As…"));
     connect(action, &QAction::triggered, this, &PacketDiagram::saveAsTriggered);
 
     action = ctx_menu.addAction(tr("Copy as Raster Image"));
     connect(action, &QAction::triggered, this, &PacketDiagram::copyAsRasterTriggered);
 
 #if defined(QT_SVG_LIB) && !defined(Q_OS_MAC)
-    action = ctx_menu.addAction(tr(UTF8_HORIZONTAL_ELLIPSIS "as SVG"));
+    action = ctx_menu.addAction(tr("…as SVG"));
     connect(action, &QAction::triggered, this, &PacketDiagram::copyAsSvgTriggered);
 #endif
 
@@ -770,7 +770,7 @@ void PacketDiagram::saveAsTriggered()
 #endif
     QString filter = fl.join(";;");
 
-    file_name = WiresharkFileDialog::getSaveFileName(this, wsApp->windowTitleString(tr("Save Graph As" UTF8_HORIZONTAL_ELLIPSIS)),
+    file_name = WiresharkFileDialog::getSaveFileName(this, wsApp->windowTitleString(tr("Save Graph As…")),
                                              path.canonicalPath(), filter, &extension);
 
     if (file_name.length() > 0) {

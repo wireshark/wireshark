@@ -617,7 +617,7 @@ void RtpAnalysisDialog::on_actionSaveGraph_triggered()
     if (!file_closed_) {
         save_file += QString("/%1").arg(cap_file_.fileBaseName());
     }
-    file_name = WiresharkFileDialog::getSaveFileName(this, wsApp->windowTitleString(tr("Save Graph As" UTF8_HORIZONTAL_ELLIPSIS)),
+    file_name = WiresharkFileDialog::getSaveFileName(this, wsApp->windowTitleString(tr("Save Graph As…")),
                                              save_file, filter, &extension);
 
     if (!file_name.isEmpty()) {
@@ -1459,7 +1459,7 @@ void RtpAnalysisDialog::saveAudio(RtpAnalysisDialog::StreamDirection direction, 
         return;
     }
 
-    ui->hintLabel->setText(tr("Saving %1" UTF8_HORIZONTAL_ELLIPSIS).arg(save_file.fileName()));
+    ui->hintLabel->setText(tr("Saving %1…").arg(save_file.fileName()));
     ui->progressFrame->showProgress(tr("Analyzing RTP"), true, true, &stop_flag);
 
     clearSAEErrors();

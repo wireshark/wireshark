@@ -65,7 +65,7 @@ void PreferenceEditorFrame::editPreference(preference *pref, pref_module *module
         return;
     }
 
-    ui->modulePreferencesToolButton->setText(tr("Open %1 preferences" UTF8_HORIZONTAL_ELLIPSIS).arg(module_->title));
+    ui->modulePreferencesToolButton->setText(tr("Open %1 preferences…").arg(module_->title));
 
     pref_stash(pref_, NULL);
     ui->preferenceTitleLabel->setText(QString("%1:").arg(prefs_get_title(pref)));

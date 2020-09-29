@@ -360,7 +360,7 @@ MainWindow::MainWindow(QWidget *parent) :
     // The fewer children we have at this point the better.
     main_ui_->setupUi(this);
 #ifdef HAVE_SOFTWARE_UPDATE
-    update_action_ = new QAction(tr("Check for Updates" UTF8_HORIZONTAL_ELLIPSIS), main_ui_->menuHelp);
+    update_action_ = new QAction(tr("Check for Updates…"), main_ui_->menuHelp);
 #endif
 #if defined(HAVE_LIBNL) && defined(HAVE_NL80211)
     wireless_frame_ = new WirelessFrame(this);
