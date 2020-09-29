@@ -10221,7 +10221,7 @@ dissect_smb2_compression_pattern_v1(proto_tree *tree,
 
 	proto_item_append_text(pat_item, " 0x%02x repeated %u times", pattern, times);
 
-	if (out) {
+	if (out && times < MAX_UNCOMPRESSED_SIZE) {
 		guint8 v = (guint8)pattern;
 
 		for (guint i = 0; i < times; i++)
