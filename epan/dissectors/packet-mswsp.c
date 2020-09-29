@@ -4609,7 +4609,14 @@ int parse_CCategSpec(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *
 
 	offset = parse_CSort(tvb, offset, tree, pad_tree, "CSort");
 
-	offset = parse_CRangeCategSpec(tvb, pinfo, offset, tree, pad_tree, "CRangeCategSpec");
+	/*
+	 * A CRangeCategSpec structure specifying the range values.
+	 * This field MUST be omitted if _ulCategType is set to
+	 * CATEGORIZE_UNIQUE e.g. '0' otherwise it MUST be present.
+	 */
+	if (type != 0) {
+		offset = parse_CRangeCategSpec(tvb, pinfo, offset, tree, pad_tree, "CRangeCategSpec");
+	}
 
 	proto_item_set_end(item, tvb, offset);
 	return offset;
