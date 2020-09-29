@@ -6010,7 +6010,7 @@ de_sm_tflow_temp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 of
 /*
  * [9] 10.5.6.13 Temporary Mobile Group Identity (TMGI)
  */
-static guint16
+guint16
 de_sm_tmgi(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
