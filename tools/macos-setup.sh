@@ -170,6 +170,7 @@ if [ "$SPANDSP_VERSION" ]; then
 fi
 BCG729_VERSION=1.0.2
 ILBC_VERSION=2.0.2
+OPUS_VERSION=1.3.1
 PYTHON3_VERSION=3.7.1
 BROTLI_VERSION=1.0.7
 # minizip
@@ -1776,6 +1777,42 @@ uninstall_ilbc() {
     fi
 }
 
+install_opus() {
+    if [ "$OPUS_VERSION" -a ! -f opus-$OPUS_VERSION-done ] ; then
+        echo "Downloading, building, and installing opus:"
+        [ -f opus-$OPUS_VERSION.tar.gz ] || curl -L -O https://archive.mozilla.org/pub/opus/opus-$OPUS_VERSION.tar.gz || exit 1
+        $no_build && echo "Skipping installation" && return
+        gzcat opus-$OPUS_VERSION.tar.gz | tar xf - || exit 1
+        cd opus-$OPUS_VERSION
+        CFLAGS="$CFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" CXXFLAGS="$CXXFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" ./configure || exit 1
+        make $MAKE_BUILD_OPTS || exit 1
+        $DO_MAKE_INSTALL || exit 1
+        cd ..
+        touch opus-$OPUS_VERSION-done
+    fi
+}
+
+uninstall_opus() {
+    if [ ! -z "$installed_opus_version" ] ; then
+        echo "Uninstalling opus:"
+        cd opus-$installed_opus_version
+        $DO_MAKE_UNINSTALL || exit 1
+        make distclean || exit 1
+        cd ..
+        rm opus-$installed_opus_version-done
+
+        if [ "$#" -eq 1 -a "$1" = "-r" ] ; then
+            #
+            # Get rid of the previously downloaded and unpacked version.
+            #
+            rm -rf opus-$installed_opus_version
+            rm -rf opus-$installed_opus_version.tar.gz
+        fi
+
+        installed_opus_version=""
+    fi
+}
+
 install_python3() {
     local macver=10.9
     if [[ $DARWIN_MAJOR_VERSION -lt 13 ]]; then
@@ -1985,6 +2022,17 @@ install_all() {
             echo "Requested iLBC version is $ILBC_VERSION"
         fi
         uninstall_ilbc -r
+    fi
+
+    if [ -n "$installed_opus_version" ] \
+           && [ "$installed_opus_version" != "$OPUS_VERSION" ] ; then
+        echo "Installed opus version is $installed_opus_version"
+        if [ -z "$OPUS_VERSION" ] ; then
+            echo "opus is not requested"
+        else
+            echo "Requested opus version is $OPUS_VERSION"
+        fi
+        uninstall_opus -r
     fi
 
     if [ ! -z "$installed_spandsp_version" -a \
@@ -2475,6 +2523,8 @@ install_all() {
 
     install_ilbc
 
+    install_opus
+
     install_python3
 
     install_brotli
@@ -2505,6 +2555,8 @@ uninstall_all() {
         uninstall_brotli
 
         uninstall_python3
+
+        uninstall_opus
 
         uninstall_ilbc
 
@@ -2714,6 +2766,7 @@ then
     installed_speexdsp_version=`ls speexdsp-*-done 2>/dev/null | sed 's/speexdsp-\(.*\)-done/\1/'`
     installed_bcg729_version=`ls bcg729-*-done 2>/dev/null | sed 's/bcg729-\(.*\)-done/\1/'`
     installed_ilbc_version=`ls ilbc-*-done 2>/dev/null | sed 's/ilbc-\(.*\)-done/\1/'`
+    installed_opus_version=`ls opus-*-done 2>/dev/null | sed 's/opus-\(.*\)-done/\1/'`
     installed_python3_version=`ls python3-*-done 2>/dev/null | sed 's/python3-\(.*\)-done/\1/'`
     installed_brotli_version=`ls brotli-*-done 2>/dev/null | sed 's/brotli-\(.*\)-done/\1/'`
     installed_minizip_version=`ls minizip-*-done 2>/dev/null | sed 's/minizip-\(.*\)-done/\1/'`

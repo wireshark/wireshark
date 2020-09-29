@@ -99,6 +99,7 @@ option(ENABLE_SPANDSP    "Build with G.722/G.726 codecs support in RTP Player" O
 option(ENABLE_BCG729     "Build with G.729 codec support in RTP Player" ON)
 option(ENABLE_ILBC       "Build with iLBC codec support in RTP Player" ON)
 option(ENABLE_LIBXML2    "Build with libxml2 support" ON)
+option(ENABLE_OPUS       "Build with opus support" ON)
 
 # How to install
 set(DUMPCAP_INSTALL_OPTION   "normal" CACHE STRING "Permissions to install")

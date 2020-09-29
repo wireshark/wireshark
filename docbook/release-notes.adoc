@@ -50,6 +50,7 @@ The following features are new (or have been significantly updated) since versio
 * Dissectors based on Protobuf can register themselves to a new 'protobuf_field' dissector table,
   which is keyed with the full names of fields, for further parsing fields of BYTES or STRING type.
 * Wireshark is able to decode, play, and save iLBC payload on platforms where the https://github.com/TimothyGu/libilbc[iLBC library] is available.
+* Wireshark is able to decode, play, and save opus payload on platforms where the https://opus-codec.org/[opus library] is available.
 * “Decode As” entries can now be copied from other profiles using a button in the dialog.
 * sshdump can now be copied to multiple instances. Each instance will show up a different interface and will have its own profile.
 * The main window now supports a packet diagram view, which shows each packet as a textbook-style diagram.

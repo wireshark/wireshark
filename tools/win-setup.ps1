@@ -69,8 +69,8 @@ Param(
 # trouble instead of trying to catch exceptions everywhere.
 $ErrorActionPreference = "Stop"
 
-$Win64CurrentTag = "2020-09-27"
-$Win32CurrentTag = "2020-09-27"
+$Win64CurrentTag = "2020-09-30"
+$Win32CurrentTag = "2020-09-30"
 
 # Archive file / SHA256
 $Win64Archives = @{
@@ -90,6 +90,7 @@ $Win64Archives = @{
     "MaxMindDB-1.3.2-win64ws.zip" = "9025c43e9b21ff0bfbaf206b8ed96e2920ef1434107f789e4c7c0c1d8b508952";
     "minizip-1.2.11-4-win64ws.zip" = "dd6bf24e2d946465ad19aa4f8c38e0db91da6585887935de68011982cd6fb2cb";
     "nghttp2-1.39.2-win64ws.zip" = "a53f4074bffd919539d90c8d0cde2ea6a10a383f14e38b706e7e70e55476e6bf";
+    "opus-1.3.1-3-win64ws.zip" = "1f7a55a6d2d7215dffa4a43bca8ca05024bd4ba1ac3d0d0c405fd38b09cc2205";
     "sbc-1.3-1-win64ws.zip" = "08cef6898c421277a6582ef3225d8820f74a037cbd5b6e673a4d8f4593ce80a1";
     "snappy-1.1.3-1-win64ws.zip" = "692a15e70f2cdeca621988a46e936d3651e7feb5176981f2656a5e913c394bcc";
     "spandsp-0.0.6-1-win64ws.zip" = "0e46c61a5a8dca562c36e88a8962a50c1ec1a9fcf89dd05996dac5a79e454527";
@@ -115,6 +116,7 @@ $Win32Archives = @{
     "MaxMindDB-1.3.2-win32ws.zip" = "5c8b4bf3092da8fad6edb005a5283c6a74b7e115a50da010953eed77d33c11b7";
     "minizip-1.2.11-4-win32ws.zip" = "41e113930902c2519c4644e8307a0cc51c5855e001e1e69768c48deb376142d0";
     "nghttp2-1.39.2-win32ws.zip" = "b511260befc210c1d6d0e920e5f5c47b9e6a21baee6e9874ef12a92093abd245";
+    "opus-1.3.1-3-win32ws.zip" = "9700b14c8945fcfed2188b806a2ee7e8628922c22569a4c5183075f3dc133177";
     "sbc-1.3-1-win32ws.zip" = "ad37825e9ace4b849a5442c08f1ed7e30634e6b774bba4307fb86f35f82e71ba";
     "snappy-1.1.3-1-win32ws.zip" = "2508ef7c5d27655c356d7b86a00ac887fc178eab5df63595b8793953dae5c379";
     "spandsp-0.0.6-1-win32ws.zip" = "3c25f2f4d641d4257ec9922f6db77346a8eed2e360e7d0e27b828ade19c4705b";
@@ -176,6 +178,7 @@ $CleanupItems = @(
     "MaxMindDB-1.3.2-win??ws"
     "minizip-*-win??ws"
     "nghttp2-*-win??ws"
+    "opus-1.3.1-?-win??ws"
     "portaudio_v19"
     "portaudio_v19_2"
     "sbc-1.3-win??ws"

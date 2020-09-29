@@ -21,6 +21,7 @@
 %bcond_with	brotli
 %bcond_with	zstd
 %bcond_with	ilbc
+%bcond_with	opus
 
 # Set at most one of these two:
 # Note that setcap requires rpmbuild 4.7.0 or later.
@@ -350,6 +351,11 @@ cmake3 \
 %else
   -DENABLE_ILBC=OFF \
 %endif
+%if %{with opus}
+  -DENABLE_OPUS=ON \
+%else
+  -DENABLE_OPUS=OFF \
+%endif
 
 %if %{with ninja}
 # Older RPM-based distributions used ninja-build in order to prevent a collision with
@@ -507,6 +513,9 @@ update-mime-database %{_datadir}/mime &> /dev/null || :
 %{_libdir}/pkgconfig/wireshark.pc
 
 %changelog
+* Tue Sep 29 2020 Lin Sun
+- Added opus codec as an option
+
 * Sun Jan 19 2020 Jiri Novak
 - Added ilbc codec as an option
 

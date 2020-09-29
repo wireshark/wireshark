@@ -159,6 +159,10 @@ echo "libsystemd-dev is unavailable"
 add_package ADDITIONAL_LIST libilbc-dev ||
 echo "libilbc-dev is unavailable"
 
+# opus library libopus-dev
+add_package ADDITIONAL_LIST libopus-dev ||
+    echo "libopus-dev is unavailable"
+
 # softhsm2 2.0.0: Ubuntu 16.04
 # softhsm2 2.2.0: Debian >= jessie-backports, Ubuntu 18.04
 # softhsm2 >= 2.4.0: Debian >= buster, Ubuntu >= 18.10

@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Include>
 
   <!-- Plugins -->
@@ -129,6 +129,9 @@
             <Component Id="cmpILBC_dll" Guid="*">
                 <File Id="filILBC_dll" KeyPath="yes" Source="$(var.Plugins.Dir)\$(var.WiresharkMajorVersion).$(var.WiresharkMinorVersion)\codecs\ilbc.dll" />
             </Component>
+            <Component Id="cmpOPUS_dll" Guid="*">
+                <File Id="filOPUS_dll" KeyPath="yes" Source="$(var.Plugins.Dir)\$(var.WiresharkMajorVersion).$(var.WiresharkMinorVersion)\codecs\opus_dec.dll" />
+            </Component>
         </DirectoryRef>
     </Fragment>
     <Fragment>
@@ -140,6 +143,7 @@
             <ComponentRef Id="cmpL16mono_dll" />
             <ComponentRef Id="cmpSBC_dll" />
             <ComponentRef Id="cmpILBC_dll" />
+            <ComponentRef Id="cmpOPUS_dll" />
         </ComponentGroup>
     </Fragment>
 

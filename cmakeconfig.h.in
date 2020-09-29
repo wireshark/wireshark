@@ -235,6 +235,9 @@
 /* Define to 1 if you have the ilbc library. */
 #cmakedefine HAVE_ILBC 1
 
+/* Define to 1 if you have the opus library. */
+#cmakedefine HAVE_OPUS 1
+
 /* Define to 1 if you have the speexdsp library. */
 #cmakedefine HAVE_SPEEXDSP 1
 
