@@ -1812,6 +1812,9 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		proto_tree_add_string_format_value(http_tree, hf_http_file_data,
 			next_tvb, 0, tvb_captured_length(next_tvb), file_data, "%u bytes", tvb_captured_length(next_tvb));
 
+		if (tvb_captured_length(next_tvb) == 0)
+			goto body_dissected;
+
 		/*
 		 * Do subdissector checks.
 		 *
