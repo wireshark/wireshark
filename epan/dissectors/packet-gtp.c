@@ -4451,17 +4451,15 @@ static int
 decode_gtp_17(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args)
 {
 
-    guint16 flow_sig;
     guint32 teid_cp;
     guint32 *teid;
 
     switch (gtp_version) {
     case 0:
-        flow_sig = tvb_get_ntohs(tvb, offset + 1);
-        proto_tree_add_uint(tree, hf_gtp_flow_sig, tvb, offset, 3, flow_sig);
+        proto_tree_add_item(tree, hf_gtp_flow_sig, tvb, offset+1, 2, ENC_BIG_ENDIAN);
         return 3;
     case 1:
-        teid_cp = tvb_get_ntohl(tvb, offset + 1);
+        proto_tree_add_item_ret_uint(tree, hf_gtp_teid_cp, tvb, offset+1 , 4, ENC_BIG_ENDIAN, &teid_cp);
         /* We save the teid_cp so that we could assignate its corresponding session ID later */
         if (g_gtp_session && !PINFO_FD_VISITED(pinfo)) {
             if (!teid_exists(teid_cp, args->teid_list)) {
@@ -4470,7 +4468,6 @@ decode_gtp_17(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree
                 wmem_list_prepend(args->teid_list, teid);
             }
         }
-        proto_tree_add_uint(tree, hf_gtp_teid_cp, tvb, offset, 5, teid_cp);
         return 5;
     default:
         proto_tree_add_expert_format(tree, pinfo, &ei_gtp_field_not_support_in_version,
