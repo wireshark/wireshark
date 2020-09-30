@@ -877,9 +877,16 @@ This field is also where the current applied filter is displayed.
 Applying a display filter on large capture files might take quite a long time.
 
 |image:wsug_graphics/toolbar/filter-toolbar-recent.png[{filter-icon-attrs}]|Recent|Select from a list of recently applied filters.
-|image:wsug_graphics/toolbar/filter-toolbar-add.png[{filter-icon-attrs}]|Add Button|Add a new filter expression button.
-|btn:[Squirrels]|Expression Button|Example filter expression button named “Squirrels”.
+|image:wsug_graphics/toolbar/filter-toolbar-add.png[{filter-icon-attrs}]|Add Button|Add a new filter button.
+|btn:[Squirrels]|Filter Button|
+Filter buttons are handy shortcuts that apply a display filter as soon as you press them.
+You can create filter buttons by pressing the btn:[{plus}] button, right-clicking in the filter button area, or opening the Filter Button section of the <<ChCustPreferencesSection,Preferences Dialog>>.
+The example shows a filter button with the label “Squirrels”.
+If you have lots of buttons you can arrange them into groups by using “//” as a label separator.
+For example if you create buttons named “Not Squirrels // Rabbits” and “Not Squirrels // Capybaras” they will show up in the toolbar under a single button named “Not Squirrels”.
+
 |===
+
 
 [[ChUsePacketListPaneSection]]
 
