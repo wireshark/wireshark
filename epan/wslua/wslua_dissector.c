@@ -40,11 +40,11 @@ WSLUA_CONSTRUCTOR Dissector_get (lua_State *L) {
 
     if ((d = find_dissector(name))) {
         pushDissector(L, d);
-        WSLUA_RETURN(1); /* The <<lua_class_Dissector,`Dissector`>> reference. */
+    } else {
+        lua_pushnil(L);
     }
 
-    WSLUA_ARG_ERROR(Dissector_get,NAME,"No such dissector");
-    return 0;
+    WSLUA_RETURN(1); /* The <<lua_class_Dissector,`Dissector`>> reference if found, otherwise `nil`. */
 }
 
 /* Allow dissector key names to be sorted alphabetically. */
@@ -303,12 +303,11 @@ WSLUA_CONSTRUCTOR DissectorTable_get (lua_State *L) {
         dt->expired = FALSE;
 
         pushDissectorTable(L, dt);
-
-        WSLUA_RETURN(1); /* The `DissectorTable`. */
+    } else {
+        lua_pushnil(L);
     }
 
-    WSLUA_ARG_ERROR(DissectorTable_get,TABLENAME,"no such dissector_table");
-    return 0;
+    WSLUA_RETURN(1); /* The <<lua_class_DissectorTable,`DissectorTable`>> reference if found, otherwise `nil`. */
 }
 
 WSLUA_METHOD DissectorTable_add (lua_State *L) {
@@ -597,11 +596,11 @@ WSLUA_METHOD DissectorTable_get_dissector (lua_State *L) {
 
     if (handle) {
         pushDissector(L,handle);
-        WSLUA_RETURN(1); /* The <<lua_class_Dissector,`Dissector`>> handle if found, otherwise `nil` */
     } else {
         lua_pushnil(L);
-        WSLUA_RETURN(1);
     }
+
+    WSLUA_RETURN(1); /* The <<lua_class_Dissector,`Dissector`>> handle if found, otherwise `nil` */
 }
 
 WSLUA_METHOD DissectorTable_add_for_decode_as (lua_State *L) {
