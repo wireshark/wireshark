@@ -3103,7 +3103,7 @@ dissect_quic(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             } else {
                 new_offset = dissect_quic_long_header(next_tvb, pinfo, quic_tree, dgram_info, quic_packet);
             }
-        } else if (first_byte != 0) {
+        } else if (!(first_byte == 0 && offset > 0)) {
             // Firefox neqo adds unencrypted padding consisting of all zeroes
             // after an Initial Packet. Whether that is valid or not is
             // discussed at https://github.com/quicwg/base-drafts/issues/3333
