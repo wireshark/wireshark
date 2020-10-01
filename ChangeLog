@@ -2052,3 +2052,106 @@ ecb90a4e25 NAS 5GS: fix for control plane service request identification
 8e8d19be1a WSUG: Avoid using multiple layers of replacements
 45c6ba587d cppcheck: Exclude the doc directory.
 48725641c9 Qt: Remove a duplicate variable.
+82e7835b2e EAP: Fix Dead Store
+d2da4c7afb Qt: Use … instead of UTF8_HORIZONTAL_ELLIPSIS in translated strings.
+9ad3d14ea4 http: don't try to dissect zero-length bodies
+df7d1905eb github: fix macOS build.
+4105e65add Tools: Handle leading "#"s in gen-bugnote.
+bf46e5c4cc Docs: Note that you can group filter buttons.
+a08e78f324 GTPv1: Highlight only the value part of "TEID Control Plane"
+b65893f4f4 lithionics: Fix Dead Store
+71ea1f9017 dcerpc: Fix Dead Store
+4ad8adeab4 gtp: Fix Dead Store
+e126d91455 mbim: Fix Dead Store
+de44c3e392 smb2: Fix Dead Store
+7d3ee49180 RTCP: Add dissection of Application mccp TS 24.380
+7514e50d16 SMB2: add reasonable upper limit to pattern_v1 repetition
+3502d53ffb Remove leftover cruft from previous comment.
+c34bc0cf4c Qt: Handle palette changes in the packet diagram.
+2ecd9f6818 IEEE 802.11:  Use common filter string for action_code
+b9a2d861e4 quic: fix reassembly issue for smb2 (and other protocols)
+c597927da8 Add some more string encodings.
+b7c0dc3cb1 Qt: Make sure the packet diagram always has a field value.
+8b4e0148a2 Fix some more wrong filter names.
+c69d8dd410 extract_asn1_from_spec.pl: add version into exported asn file
+ec7c5699a7 QUIC: update to draft-31
+73c0e8efc9 Add Metaswitch vendor-specific AVPs for Diameter
+6dd9c098ad check_typed_item_calls.py:  add --consecutive flag
+24ef8400fe Release notes: Add an item about Npcap 1.00.
+330fd5733c Add /*build*/ to .gitignore
+08ab0e5d1f Fix some wrong filter names.
+2dd014f8f2 [Automatic update for 2020-09-27]
+0b99248593 Windows: upgrade Npcap to 1.00
+d1f29ee338 Qt: Fix the packet diagram start offset arithmetic.
+8b9ec1b5a5 Qt: Reset the packet diagram between captures.
+8d7ebc732e Fix issues discovered by common python linters
+c5926c51e7 SMB2: add tests for chained compression and pattern_v1
+3d94644dc8 SMB2: add new pattern_v1 decompression support
+b0f5b2c174 SMB2: handle chained compression
+b2fd5bcfb9 SMB2: stick the compress header items under the header tree
+fed08cfd45 SMB2: label decompressed data as such and mark as generated
+906ead6993 Fix some more doc folder spelling errors.
+acdaf33630 README.developer: Fix some quotation marks around function names
+6f49de2e65 SDAP: Show presence in configuration, and summary in root.
+d0256f168a extract_asn1_from_spec.pl : fix export of S1AP
+572c1ae5a3 Qt: Collapse packet diagram items correctly.
+2722082171 docbook: Fix wiki links.
+ca43dace10 IPv6: Update SRH dissection to RFC8754
+fc64ba242a More dissector spelling fixes.
+b00a76d36b SDAP: Add some long help, and fix filter name.
+04873cc5ef NAS EPS: fix dissection of IPv6 PDN address
+68f59bd1f4 extract_asn1_from_spec.pl : update comments
+b562109562 extract_asn1_from_spec.pl: fix export of X2AP, NGAP, XnAP, E1AP and F1AP
+c92ab1158e MAC-NR:for drb the lcid range is 4-32,lcid=3 corresponding srb3
+71223de4a3 Add : extract asn from (36|38)\.413|(36|38).423|38\.463|38\.473)
+a6393f24b6 a defining the Filter Macros procedure is added plus screenshot
+dcc8bbaf9b BLIP: Update an expert item.
+4a94842710 BLIP: Fix decompression buffer bug
+b2380385a3 DHCP: Update Captive-Portal to RFC8910
+6387fd7729 X2AP : fix id-Target-SgNB-ID registered to wrong type
+103d9140ae Kafka: Check returned offsets.
+99f6ac1969 ncp: fix handling of NDS List requests and replies.
+d3c1f31439 Windows: Switch to Qt 5.15.1.
+e487575362 ncp: fix setting elements of an ncp_record structure.
+8201285759 EAP: Avoid to inscrement offset on proto_tree_add_item function
+b746222896 X2AP : fix a typo
+3ec16de87b USBLL: Code commenting and alignment
+ddd3910709 IPv6: Fix the bit lengths of top-level items.
+1e2e32f8ab MySQL: Fixup connection data initialization.
+2b3e666a16 SSH: Fix some warnings.
+af83d476dc ncp: add some XXX comments.
+586121fad4 Shellcheck fixes.
+dde6261626 nds: use DSI_ #defines in case statement.
+2af134ad2e SMB2: dissect new signing capability negotiate context
+2a3f9d2789 Add a few EAP dissectors
+91418775aa PROFINET: IOCS and IOData object dissection with Multi AR
+41e6b2f2ae ecmp: fix dissection of file_info request
+bf0a6c8bd9 typo: replaceing--> replacing
+a734de58a6 ncp: put the information flags and entry flags in the right place.
+1b0e691157 QUIC: add support for MVFST EXPERIMENTAL version
+51adcbf255 STUN: improve heuristic to detect TURN ChannelData
+3c08f06be6 RTP, DTLS: add heuristic over CLASSICSTUN
+b870486ce6 [Automatic update for 2020-09-20]
+9086af5e25 GSM-SIM - Added support for additional EFs, INS and ADFs
+ae6bbff3d5 AMQP: fix the bitmask of an item.
+f0e7a98e96 NRUP: Add Assistance Information Data message.
+f962539374 check_typed_item_calls.py: Scan plugins folder too
+59483604de macOS: Switch ChmodBPF to zsh.
+888a8178f5 lwm2mtlv: Create element items
+211e375ef0 docbook: Update wiki and code review URLs.
+4a7be0aaa7 doc: Update wiki URLs in man pages.
+1f6bf70505 sample_size check readded
+a1f6dc4fad New dissector: ILDA Digital Network (IDN) Protocol
+e5921672f8 New dissector: ILDA Digital Network (IDN) Protocol
+34f60a1cfc Test: Normalize the line endings everywhere.
+45188b673d Diameter make use of OctetStringOrUTF8
+187b1f05bc packet-mq: Improve MultiSegment dissect and display
+9f3a42f0d5 sflow: fix dissection of sysuptime
+ee8ee3e3ad STUN: add some missing attributes
+4cf3a742c8 Test: Normalize the line endings of subprocess output.
+c5d5023654 A Community ID implementation for Wireshark.
+0d179f114c Diameter:Define a new type-name type-name="OctetStringOrUTF8"
+11adf2d019 afs: use a simpler way to read a time field
+d02ddfb9b1 mysql: initilize is_mariadb_client
+194b3b406a Update our issue tracker URL in some places.
+ece76abdd3 GitLab CI: Move commit validation to its own job.

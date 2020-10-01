@@ -48,6 +48,8 @@
     </screenshots>
     <update_contact>wireshark-dev_at_wireshark.org</update_contact>
     <releases>
+        <release version="3.3.1" date="2020-10-01">
+        </release>
         <release version="3.3.0" date="2020-09-15">
         </release>
     </releases>
