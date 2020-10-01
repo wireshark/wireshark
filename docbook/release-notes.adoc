@@ -29,6 +29,10 @@ See the “New and Updated Features” section below for more details.
 
 === New and Updated Features
 
+The following features are new (or have been significantly updated) since version 3.3.1:
+
+* Nothing of note.
+
 The following features are new (or have been significantly updated) since version 3.3.0:
 
 * The Windows installers now ship with Npcap 1.00.
