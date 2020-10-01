@@ -94,6 +94,7 @@ static int hf_tecmp_payload_data_flags_sf = -1;
 static int hf_tecmp_payload_data_flags_sync = -1;
 static int hf_tecmp_payload_data_flags_wus = -1;
 static int hf_tecmp_payload_data_flags_ppi = -1;
+static int hf_tecmp_payload_data_flags_cas = -1;
 
 /* UART/RS232 ASCII*/
 static int hf_tecmp_payload_data_flags_dl = -1;
@@ -592,6 +593,7 @@ dissect_tecmp_entry_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
         &hf_tecmp_payload_data_flags_sync,
         &hf_tecmp_payload_data_flags_wus,
         &hf_tecmp_payload_data_flags_ppi,
+        &hf_tecmp_payload_data_flags_cas,
         &hf_tecmp_payload_data_flags_crc,
         &hf_tecmp_payload_data_flags_tx,
         &hf_tecmp_payload_data_flags_overflow,
@@ -1452,6 +1454,9 @@ proto_register_tecmp_payload(void) {
         { &hf_tecmp_payload_data_flags_ppi,
             { "Payload Preamble Indicator", "tecmp.payload.data_flags.payload_preamble_indicator",
             FT_BOOLEAN, 16, NULL, 0x0010, NULL, HFILL }},
+        { &hf_tecmp_payload_data_flags_cas,
+            { "Collision Avoidance Symbol", "tecmp.payload.data_flags.collision_avoidance_symbol",
+            FT_BOOLEAN, 16, NULL, 0x0020, NULL, HFILL } },
 
         /* UART/RS232 ASCII */
         { &hf_tecmp_payload_data_flags_dl,
