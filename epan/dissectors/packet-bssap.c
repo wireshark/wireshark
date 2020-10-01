@@ -84,8 +84,8 @@ static guint global_bssap_ssn = 98;
 
 static const value_string bssap_cc_values[] = {
     { 0x00,     "not further specified" },
-    { 0x80,     "FACCH or SDCCH" },
-    { 0xc0,     "SACCH" },
+    { 0x02,     "FACCH or SDCCH" },
+    { 0x03,     "SACCH" },
     { 0,        NULL } };
 
 static const value_string bsap_cc_values[] = {
