@@ -17,6 +17,11 @@ VALUE	AH-HM-Admin-Group-Id		Read-Only-Admin		0
 VALUE	AH-HM-Admin-Group-Id		Super-Admin		1
 VALUE	AH-HM-Admin-Group-Id		Read-Write-Admin	2
 
+# Attr-26.26928.212 = 0x43382d36362d35442d32462d33432d3430
+#                   = 4338-3636-3544-3246-3343-3430
+#                   = C8-66-5D-2F-3C-40
+#                   = AP Mgt0 MAC Address
+
 # The following is an example of an admin group that you can define.
 #VALUE  AH-HM-Admin-Group-Id            Admin-Group100          100
 
