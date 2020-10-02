@@ -66,6 +66,7 @@ static gint ett_fb_zero_tag_value = -1;
 static expert_field ei_fb_zero_tag_undecoded = EI_INIT;
 static expert_field ei_fb_zero_tag_length = EI_INIT;
 static expert_field ei_fb_zero_tag_unknown = EI_INIT;
+static expert_field ei_fb_zero_length_invalid = EI_INIT;
 
 #define FBZERO_MIN_LENGTH 3
 
@@ -261,17 +262,25 @@ dissect_fb_zero_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *fb_zero_tree,
                                  "Dissector for FB Zero Tag"
                                  " %s (%s) code not implemented, Contact"
                                  " Wireshark developers if you want this supported", tvb_get_string_enc(wmem_packet_scope(), tvb, offset-8, 4, ENC_ASCII|ENC_NA), val_to_str(tag, tag_vals, "Unknown"));
-                tag_offset += tag_len;
+                goto end;
             break;
         }
 
         if(tag_offset != offset_end){
             /* Wrong Tag len... */
             proto_tree_add_expert(tag_tree, pinfo, &ei_fb_zero_tag_unknown, tvb, tag_offset_start + tag_offset, offset_end - tag_offset);
-            tag_offset = offset_end;
+            // XXX Return instead?
+            goto end;
         }
 
         tag_number--;
+    }
+
+    end:
+    if (offset + total_tag_len <= offset) {
+        expert_add_info_format(pinfo, fb_zero_tree, &ei_fb_zero_length_invalid,
+                         "Invalid total tag length: %u", total_tag_len);
+        return offset + tvb_reported_length_remaining(tvb, offset);
     }
     return offset + total_tag_len;
 
@@ -562,6 +571,7 @@ proto_register_fb_zero(void)
         { &ei_fb_zero_tag_undecoded, { "fb_zero.tag.undecoded", PI_UNDECODED, PI_NOTE, "Dissector for FB Zero Tag code not implemented, Contact Wireshark developers if you want this supported", EXPFILL }},
         { &ei_fb_zero_tag_length, { "fb_zero.tag.length.truncated", PI_MALFORMED, PI_NOTE, "Truncated Tag Length...", EXPFILL }},
         { &ei_fb_zero_tag_unknown, { "fb_zero.tag.unknown.data", PI_UNDECODED, PI_NOTE, "Unknown Data", EXPFILL }},
+        { &ei_fb_zero_length_invalid, { "fb_zero.length.invalid", PI_PROTOCOL, PI_WARN, "Invalid length", EXPFILL }},
     };
 
     expert_module_t *expert_fb_zero;
