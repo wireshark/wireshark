@@ -2279,7 +2279,7 @@ static guint dissect_lbmsrs_batch(tvbuff_t * tvb, packet_info * pinfo, proto_tre
         }
 
         /*if nothing is dissected then return the current offset*/
-        if (FALSE == can_dissect_further)
+        if (FALSE == can_dissect_further || len_dissected < 1)
         {
             col_append_fstr(pinfo->cinfo, COL_INFO, "SIR:%u SER:%u SDR:%u RIR:%u RER:%u RDR:%u WIR:%u WER:%u WDR:%u SLI:%u]",
                 cnt_sir, cnt_ser, cnt_sdr, cnt_rir, cnt_rer, cnt_rdr, cnt_wir, cnt_wer, cnt_wdr, cnt_sli);
