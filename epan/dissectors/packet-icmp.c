@@ -778,9 +778,11 @@ dissect_interface_information_object(tvbuff_t * tvb, gint offset,
 		switch(afi){
 			case 1: /* IPv4 */
 			proto_tree_add_item(int_ipaddr_object_tree, hf_icmp_int_info_ipv4, tvb, offset, 4, ENC_BIG_ENDIAN);
+			offset += 4;
 			break;
 			case 2: /* IPv6 */
 			proto_tree_add_item(int_ipaddr_object_tree, hf_icmp_int_info_ipv6, tvb, offset, 16, ENC_NA);
+			offset += 16;
 			break;
 			default: /* Unknown ?! */
 			proto_tree_add_item(int_ipaddr_object_tree, hf_icmp_int_info_ipunknown, tvb, offset, offset - obj_end_offset, ENC_NA);
