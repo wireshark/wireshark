@@ -27,6 +27,7 @@
 #include "capture_info.h"
 #include "ui/capture_ui_utils.h"
 #include "ui/util.h"
+#include "ui/urls.h"
 #include "caputils/capture-pcap-util.h"
 #include <epan/prefs.h>
 
@@ -254,6 +255,8 @@ capture_input_read_all(capture_session *cap_session, gboolean is_tempfile,
             return FALSE;
     }
 
+#define BITEME "https://gitlab.com/wireshark/wireshark/-/wikis"
+
     /* if we didn't capture even a single packet, close the file again */
     if(cap_session->count == 0 && !capture_opts->restart) {
         simple_dialog(ESD_TYPE_INFO, ESD_BTN_OK,
@@ -264,7 +267,7 @@ capture_input_read_all(capture_session *cap_session, gboolean is_tempfile,
                 "\n"
                 "Help about capturing can be found at\n"
                 "\n"
-                "       https://wiki.wireshark.org/CaptureSetup"
+                "       " WS_WIKI_URL("CaptureSetup")
 #ifdef _WIN32
                 "\n\n"
                 "Wireless (Wi-Fi/WLAN):\n"
@@ -668,7 +671,7 @@ capture_input_closed(capture_session *cap_session, gchar *msg)
                                 "\n"
                                 "Help about capturing can be found at\n"
                                 "\n"
-                                "       https://wiki.wireshark.org/CaptureSetup"
+                                "       " WS_WIKI_URL("CaptureSetup")
 #ifdef _WIN32
                                 "\n\n"
                                 "Wireless (Wi-Fi/WLAN):\n"

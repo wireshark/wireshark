@@ -13,7 +13,8 @@
 /*
  * Documentation that formed the basis of the packet decoding:
  * https://github.com/matthiasbock/OpenSkype/wiki/Skype's-UDP-Format
- * For additional information see: https://wiki.wireshark.org/Skype
+ * For additional information see:
+ *     https://gitlab.com/wireshark/wireshark/-/wikis/Skype
  *
  *  TODO:
  *  - Authentication
@@ -22,7 +23,8 @@
  *  - Decryption (with given keys)
  *  - Test CRC check (requires working decryption)
  *  - Heuristics to reliably detect Skype traffic - most likely impossible
- *    to implement in Wireshark (see http://en.wikipedia.org/wiki/Skype)
+ *    to implement in Wireshark (see
+ *    https://gitlab.com/wireshark/wireshark/-/wikis/Skype)
  *  - Improve tests
  */
 

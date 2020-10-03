@@ -109,13 +109,6 @@ typedef enum {
     HELP_TELEPHONY_RTP_PLAYER_DIALOG
 } topic_action_e;
 
-/** Given a topic action return its online (www.wireshark.org) URL or NULL.
- *
- * @param action Topic action, e.g. ONLINEPAGE_HOME or ONLINEPAGE_ASK.
- * @return A static URL or NULL. MUST NOT be freed.
- */
-const char *topic_online_url(topic_action_e action);
-
 /** Given a page in the Wireshark User's Guide return its URL. On Windows
  *  an attempt will be made to open User Guide URLs with HTML Help. If
  *  the attempt succeeds NULL will be returned.

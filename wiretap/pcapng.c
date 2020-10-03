@@ -12,7 +12,7 @@
 /* File format specification:
  *   https://github.com/pcapng/pcapng
  * Related Wiki page:
- *   https://wiki.wireshark.org/Development/PcapNg
+ *   https://gitlab.com/wireshark/wireshark/-/wikis/Development/PcapNg
  */
 
 #include "config.h"

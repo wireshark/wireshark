@@ -93,21 +93,21 @@ void set_rlc_lte_drb_pdcp_seqnum_length(packet_info *pinfo, guint16 ueid, guint8
 /* Configure LI field for AM DRB channels. */
 void set_rlc_lte_drb_li_field(packet_info *pinfo, guint16 ueid, guint8 drbid, gboolean ul_ext_li_field, gboolean dl_ext_li_field);
 
-/*****************************************************************/
-/* UDP framing format                                            */
-/* -----------------------                                       */
-/* Several people have asked about dissecting RLC by framing     */
-/* PDUs over IP.  A suggested format over UDP has been defined   */
-/* and implemented by this dissector, using the definitions      */
-/* below. A link to an example program showing you how to encode */
-/* these headers and send LTE RLC PDUs on a UDP socket is        */
-/* provided at https://wiki.wireshark.org/RLC-LTE                */
-/*                                                               */
-/* A heuristic dissector (enabled by a preference) will          */
-/* recognise a signature at the beginning of these frames.       */
-/* Until someone is using this format, suggestions for changes   */
-/* are welcome.                                                  */
-/*****************************************************************/
+/**********************************************************************/
+/* UDP framing format                                                 */
+/* -----------------------                                            */
+/* Several people have asked about dissecting RLC by framing          */
+/* PDUs over IP.  A suggested format over UDP has been defined        */
+/* and implemented by this dissector, using the definitions           */
+/* below. A link to an example program showing you how to encode      */
+/* these headers and send LTE RLC PDUs on a UDP socket is             */
+/* provided at https://gitlab.com/wireshark/wireshark/-/wikis/RLC-LTE */
+/*                                                                    */
+/* A heuristic dissector (enabled by a preference) will               */
+/* recognise a signature at the beginning of these frames.            */
+/* Until someone is using this format, suggestions for changes        */
+/* are welcome.                                                       */
+/**********************************************************************/
 
 
 /* Signature.  Rather than try to define a port for this, or make the

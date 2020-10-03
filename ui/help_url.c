@@ -16,6 +16,7 @@
 #include <glib.h>
 
 #include "help_url.h"
+#include "urls.h"
 #include "wsutil/filesystem.h"
 
 #ifdef HHC_DIR
@@ -23,54 +24,6 @@
 #include <htmlhelp.h>
 #include <wsutil/unicode-utils.h>
 #endif
-
-const char *
-topic_online_url(topic_action_e action)
-{
-    switch(action) {
-    case(ONLINEPAGE_HOME):
-        return "https://www.wireshark.org";
-        break;
-    case(ONLINEPAGE_WIKI):
-        return "https://wiki.wireshark.org";
-        break;
-    case(ONLINEPAGE_DOWNLOAD):
-        return "https://www.wireshark.org/download.html";
-        break;
-    case(ONLINEPAGE_DOCS):
-        return "https://www.wireshark.org/docs/";
-        break;
-    case(ONLINEPAGE_USERGUIDE):
-        return "https://www.wireshark.org/docs/wsug_html_chunked/";
-        break;
-    case(ONLINEPAGE_FAQ):
-        return "http://www.wireshark.org/faq.html";
-        break;
-    case(ONLINEPAGE_ASK):
-        return "https://ask.wireshark.org";
-        break;
-    case(ONLINEPAGE_SAMPLE_FILES):
-        return "https://wiki.wireshark.org/SampleCaptures";
-        break;
-    case(ONLINEPAGE_CAPTURE_SETUP):
-        return "https://wiki.wireshark.org/CaptureSetup";
-        break;
-    case(ONLINEPAGE_NETWORK_MEDIA):
-        return "https://wiki.wireshark.org/CaptureSetup/NetworkMedia";
-        break;
-    case(ONLINEPAGE_SAMPLE_CAPTURES):
-        return "https://wiki.wireshark.org/SampleCaptures";
-        break;
-    case(ONLINEPAGE_SECURITY):
-        return "https://wiki.wireshark.org/Security";
-        break;
-    case(ONLINEPAGE_CHIMNEY):
-        return "https://wiki.wireshark.org/CaptureSetup/Offloading#chimney";
-        break;
-    default:
-        return NULL;
-    }
-}
 
 /*
  * Open the help dialog and show a specific HTML help page.
@@ -107,7 +60,7 @@ user_guide_url(const gchar *page) {
     } else {
 #endif /* ifdef DOC_DIR */
        /* try to open the HTML page from wireshark.org instead */
-        g_string_printf(url, "https://www.wireshark.org/docs/wsug_html_chunked/%s", page);
+        g_string_printf(url, WS_DOCS_URL "/wsug_html_chunked/%s", page);
 #ifdef DOC_DIR
     }
 #endif /* ifdef DOC_DIR */
@@ -121,13 +74,48 @@ topic_action_url(topic_action_e action)
 {
     gchar *url;
 
-    /* pages online at www.wireshark.org */
-    url = g_strdup(topic_online_url(action));
-    if(url != NULL) {
-        return url;
-    }
-
     switch(action) {
+    /* pages online at www.wireshark.org */
+    case(ONLINEPAGE_HOME):
+        return WS_HOME_PAGE_URL;
+        break;
+    case(ONLINEPAGE_WIKI):
+        return WS_WIKI_HOME_URL;
+        break;
+    case(ONLINEPAGE_DOWNLOAD):
+        return WS_DOWNLOAD_URL;
+        break;
+    case(ONLINEPAGE_DOCS):
+        return WS_DOCS_URL;
+        break;
+    case(ONLINEPAGE_USERGUIDE):
+        return WS_DOCS_URL "/wsug_html_chunked/";
+        break;
+    case(ONLINEPAGE_FAQ):
+        return WS_FAQ_URL;
+        break;
+    case(ONLINEPAGE_ASK):
+        return WS_Q_AND_A_URL;
+        break;
+    case(ONLINEPAGE_SAMPLE_FILES):
+        return WS_WIKI_URL("SampleCaptures");
+        break;
+    case(ONLINEPAGE_CAPTURE_SETUP):
+        return WS_WIKI_URL("CaptureSetup");
+        break;
+    case(ONLINEPAGE_NETWORK_MEDIA):
+        return WS_WIKI_URL("CaptureSetup/NetworkMedia");
+        break;
+    case(ONLINEPAGE_SAMPLE_CAPTURES):
+        return WS_WIKI_URL("SampleCaptures");
+        break;
+    case(ONLINEPAGE_SECURITY):
+        return WS_WIKI_URL("Security");
+        break;
+    case(ONLINEPAGE_CHIMNEY):
+        return WS_WIKI_URL("CaptureSetup/Offloading#chimney");
+        break;
+
     /* local manual pages */
     case(LOCALPAGE_MAN_WIRESHARK):
         url = data_file_url("wireshark.html");

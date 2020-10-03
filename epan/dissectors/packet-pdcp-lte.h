@@ -88,21 +88,21 @@ typedef struct pdcp_lte_info
 
 
 
-/*****************************************************************/
-/* UDP framing format                                            */
-/* -----------------------                                       */
-/* Several people have asked about dissecting PDCP by framing    */
-/* PDUs over IP.  A suggested format over UDP has been defined   */
-/* and implemented by this dissector, using the definitions      */
-/* below. A link to an example program showing you how to encode */
-/* these headers and send LTE PDCP PDUs on a UDP socket is       */
-/* provided at https://wiki.wireshark.org/PDCP-LTE                */
-/*                                                               */
-/* A heuristic dissecter (enabled by a preference) will          */
-/* recognise a signature at the beginning of these frames.       */
-/* Until someone is using this format, suggestions for changes   */
-/* are welcome.                                                  */
-/*****************************************************************/
+/***********************************************************************/
+/* UDP framing format                                                  */
+/* -----------------------                                             */
+/* Several people have asked about dissecting PDCP by framing          */
+/* PDUs over IP.  A suggested format over UDP has been defined         */
+/* and implemented by this dissector, using the definitions            */
+/* below. A link to an example program showing you how to encode       */
+/* these headers and send LTE PDCP PDUs on a UDP socket is             */
+/* provided at https://gitlab.com/wireshark/wireshark/-/wikis/PDCP-LTE */
+/*                                                                     */
+/* A heuristic dissecter (enabled by a preference) will                */
+/* recognise a signature at the beginning of these frames.             */
+/* Until someone is using this format, suggestions for changes         */
+/* are welcome.                                                        */
+/***********************************************************************/
 
 
 /* Signature.  Rather than try to define a port for this, or make the

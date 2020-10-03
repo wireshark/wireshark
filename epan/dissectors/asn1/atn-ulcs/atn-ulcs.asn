@@ -275,7 +275,7 @@ Application-context-name ::= OBJECT IDENTIFIER
 --  Application-entity title productions follow (not in alphabetical order)
 --  ***************************************************************************
 -- MG: asn2wrs cannot handle untagged CHOICEs within either a SET or a SEQUENCE.
--- https://wiki.wireshark.org/Asn2wrs_Handmassaging_the_ASN_file
+-- https://gitlab.com/wireshark/wireshark/-/wikis/Asn2wrs_Handmassaging_the_ASN_file
 AP-title ::= CHOICE { -- ATN: See encoding guidance in 2.5.11
                           -- "form2" is encoded as 0 and "form1" as 1
     ap-title-form2 [0]  IMPLICIT  AP-title-form2,   -- Object Identifier form
