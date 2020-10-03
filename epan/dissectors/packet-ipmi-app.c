@@ -1226,7 +1226,7 @@ proto_register_ipmi_app(void)
 				"ipmi.app25.initial_countdown", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
 		{ &hf_ipmi_app_25_present_countdown,
 			{ "Present countdown value (100ms/count)",
-				"ipmi.app25.initial_countdown", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+				"ipmi.app25.present_countdown", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
 
 		{ &hf_ipmi_app_2e_byte1_oem2,
 			{ "OEM 2",

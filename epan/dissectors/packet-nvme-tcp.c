@@ -1295,7 +1295,7 @@ void proto_register_nvme_tcp(void) {
            { "PDU Header Digest", "nvme-tcp.hdgst",
             FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL } },
         { &hf_nvme_tcp_ddgst,
-           { "PDU Data Digest", "nvme-tcp.hdgst",
+           { "PDU Data Digest", "nvme-tcp.ddgst",
             FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL } },
         { &hf_nvme_tcp_hdgst_status,
           { "Header Digest Status",    "nvme-tcp.hdgst.status",

@@ -1199,7 +1199,7 @@ proto_register_xra (void)
         NULL, HFILL}
     },
     {&hf_ncp_mb_c,
-      {"NCP MB Data Profile Update", "docsis_ncp.mb.z",
+      {"NCP MB Data Profile Update", "docsis_ncp.mb.c",
         FT_BOOLEAN, 8, TFS(&data_profile_update) , 0x04,
         NULL, HFILL}
     },

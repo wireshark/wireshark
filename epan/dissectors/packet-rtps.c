@@ -12011,7 +12011,7 @@ void proto_register_rtps(void) {
     },
 
     { &hf_rtps_virtual_heartbeat_num_writers,
-      { "numWriters", "rtps.virtual_heartbeat.num_virtual_guids",
+      { "numWriters", "rtps.virtual_heartbeat.num_writers",
         FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }
     },

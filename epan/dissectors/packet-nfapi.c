@@ -9762,12 +9762,12 @@ void proto_register_nfapi(void)
 			"Number of UEs contributing to the uplink SRS", HFILL }
 		},
 		{ &hf_nfapi_lbt_dl_req_pdu_type,
-			{ "LBT DL Request PDU Type", "nfapi.number_srss",
+			{ "LBT DL Request PDU Type", "nfapi.lbt_dl_req_pdu_type",
 			FT_UINT16, BASE_DEC, VALS(nfapi_lbt_dl_req_pdu_type), 0x0,
 			NULL, HFILL }
 		},
 		{ &hf_nfapi_lbt_dl_ind_pdu_type,
-			{ "LBT DL Indication PDU Type", "nfapi.number_srss",
+			{ "LBT DL Indication PDU Type", "nfapi.lbt_dl_ind_pdu_type",
 			FT_UINT16, BASE_DEC, VALS(nfapi_lbt_dl_ind_pdu_type), 0x0,
 			NULL, HFILL }
 		},

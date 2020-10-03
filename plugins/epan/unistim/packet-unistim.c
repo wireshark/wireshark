@@ -3101,7 +3101,7 @@ proto_register_unistim(void){
          BASE_HEX,NULL,0x00,NULL,HFILL}
       },
       { &hf_audio_tx_stream_id,
-        {"Transmit Stream Id","unistim.rx.stream.id",FT_UINT8,
+        {"Transmit Stream Id","unistim.tx.stream.id",FT_UINT8,
          BASE_HEX,NULL,0x00,NULL,HFILL}
       },
       { &hf_rx_vocoder_type,

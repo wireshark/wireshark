@@ -1941,7 +1941,7 @@ proto_register_mle(void)
     },
     { &hf_mle_tlv_pending_op_dataset,
       { "Pending Operational Dataset",
-        "mle.tlv.active_op_dataset",
+        "mle.tlv.pending_op_dataset",
         FT_BYTES, BASE_NONE, NULL, 0x0,
         "Thread Pending Operational Dataset",
         HFILL

@@ -714,7 +714,7 @@ proto_register_mka(void)
         NULL, HFILL }},
 
     { &hf_mka_potential_peer_list_set, {
-        "Potential Peer List Parameter set", "mka.live_peer_list_set",
+        "Potential Peer List Parameter set", "mka.potential_peer_list_set",
         FT_NONE, BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
 
