@@ -874,7 +874,7 @@ WSLUA_FUNCTION wslua_copy_to_clipboard(lua_State* L) { /* Copy a string into the
 
 WSLUA_FUNCTION wslua_open_capture_file(lua_State* L) { /* Open and display a capture file. Requires a GUI. */
 #define WSLUA_ARG_open_capture_file_FILENAME 1 /* The name of the file to be opened. */
-#define WSLUA_ARG_open_capture_file_FILTER 2 /* The https://wiki.wireshark.org/DisplayFilters[display filter] to be applied once the file is opened. */
+#define WSLUA_ARG_open_capture_file_FILTER 2 /* The https://gitlab.com/wireshark/wireshark/-/wikis/DisplayFilters[display filter] to be applied once the file is opened. */
 
     const char* fname = luaL_checkstring(L,WSLUA_ARG_open_capture_file_FILENAME);
     const char* filter = luaL_optstring(L,WSLUA_ARG_open_capture_file_FILTER,NULL);
@@ -930,7 +930,7 @@ WSLUA_FUNCTION wslua_set_filter(lua_State* L) { /* Set the main filter text. */
 }
 
 WSLUA_FUNCTION wslua_get_color_filter_slot(lua_State* L) { /*
-    Gets the current https://wiki.wireshark.org/ColoringRules[packet coloring rule] (by index) for the
+    Gets the current https://gitlab.com/wireshark/wireshark/-/wikis/ColoringRules[packet coloring rule] (by index) for the
     current session. Wireshark reserves 10 slots for these coloring rules. Requires a GUI.
 */
 #define WSLUA_ARG_get_color_filter_slot_ROW 1 /*
@@ -972,7 +972,7 @@ WSLUA_FUNCTION wslua_get_color_filter_slot(lua_State* L) { /*
 }
 
 WSLUA_FUNCTION wslua_set_color_filter_slot(lua_State* L) { /*
-    Sets a https://wiki.wireshark.org/ColoringRules[packet coloring rule] (by index) for the current session.
+    Sets a https://gitlab.com/wireshark/wireshark/-/wikis/ColoringRules[packet coloring rule] (by index) for the current session.
     Wireshark reserves 10 slots for these coloring rules.
     Requires a GUI.
 */
@@ -1007,7 +1007,7 @@ WSLUA_FUNCTION wslua_set_color_filter_slot(lua_State* L) { /*
     wireshark -o gui.colorized_frame.bg:ffc0c0,ffc0ff,e0c0e0,c0c0ff,c0e0e0,c0ffff,c0ffc0,ffffc0,e0e0c0,e0e0e0 -o gui.colorized_frame.fg:000000,000000,000000,000000,000000,000000,000000,000000
     ----
     */
-#define WSLUA_ARG_set_color_filter_slot_TEXT  2 /* The https://wiki.wireshark.org/DisplayFilters[display filter] for selecting packets to be colorized
+#define WSLUA_ARG_set_color_filter_slot_TEXT  2 /* The https://gitlab.com/wireshark/wireshark/-/wikis/DisplayFilters[display filter] for selecting packets to be colorized
 . */
     guint8 row = (guint8)luaL_checkinteger(L,WSLUA_ARG_set_color_filter_slot_ROW);
     const gchar* filter_str = luaL_checkstring(L,WSLUA_ARG_set_color_filter_slot_TEXT);

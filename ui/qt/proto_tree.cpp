@@ -27,6 +27,7 @@
 #include <ui/qt/filter_action.h>
 #include <ui/all_files_wildcard.h>
 #include <ui/alert_box.h>
+#include <ui/urls.h>
 #include "wireshark_application.h"
 
 #include <QApplication>
@@ -216,11 +217,11 @@ void ProtoTree::ctxOpenUrlWiki()
 
         if (ret != QMessageBox::Yes) return;
 
-        url = QString("https://wiki.wireshark.org/Protocols/%1").arg(proto_abbrev);
+        url = QString(WS_WIKI_HOME_URL "/Protocols/%1").arg(proto_abbrev);
     }
     else
     {
-        url = QString("https://www.wireshark.org/docs/dfref/%1/%2")
+        url = QString(WS_DOCS_URL "/dfref/%1/%2")
                 .arg(proto_abbrev[0])
                 .arg(proto_abbrev);
     }

@@ -216,19 +216,19 @@ typedef struct mac_lte_tap_info {
 /* Accessor function to check if a frame was considered to be ReTx */
 int is_mac_lte_frame_retx(packet_info *pinfo, guint8 direction);
 
-/*****************************************************************/
-/* UDP framing format                                            */
-/* -----------------------                                       */
-/* Several people have asked about dissecting MAC by framing     */
-/* PDUs over IP.  A suggested format over UDP has been created   */
-/* and implemented by this dissector, using the definitions      */
-/* below. A link to an example program showing you how to encode */
-/* these headers and send LTE MAC PDUs on a UDP socket is        */
-/* provided at https://wiki.wireshark.org/MAC-LTE                */
-/*                                                               */
-/* A heuristic dissector (enabled by a preference) will          */
-/* recognise a signature at the beginning of these frames.       */
-/*****************************************************************/
+/**********************************************************************/
+/* UDP framing format                                                 */
+/* -----------------------                                            */
+/* Several people have asked about dissecting MAC by framing          */
+/* PDUs over IP.  A suggested format over UDP has been created        */
+/* and implemented by this dissector, using the definitions           */
+/* below. A link to an example program showing you how to encode      */
+/* these headers and send LTE MAC PDUs on a UDP socket is             */
+/* provided at https://gitlab.com/wireshark/wireshark/-/wikis/MAC-LTE */
+/*                                                                    */
+/* A heuristic dissector (enabled by a preference) will               */
+/* recognise a signature at the beginning of these frames.            */
+/**********************************************************************/
 
 
 /* Signature.  Rather than try to define a port for this, or make the

@@ -904,7 +904,10 @@ typedef proto_node proto_item;
 /** The protocol field has been deprecated, usually PI_NOTE severity */
 #define PI_DEPRECATED           0x0e000000
 
-/* add more, see https://wiki.wireshark.org/Development/ExpertInfo */
+/*
+ * add more, see
+ *    https://gitlab.com/wireshark/wireshark/-/wikis/Development/ExpertInfo
+ */
 
 /** Retrieve the field_info from a proto_node */
 #define PNODE_FINFO(proto_node)  ((proto_node)->finfo)

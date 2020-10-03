@@ -2933,7 +2933,7 @@ else
 fi
 echo
 echo "Make sure you are allowed capture access to the network devices"
-echo "See: https://wiki.wireshark.org/CaptureSetup/CapturePrivileges"
+echo "See: https://gitlab.com/wireshark/wireshark/-/wikis/CaptureSetup/CapturePrivileges"
 echo
 
 exit 0

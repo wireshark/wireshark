@@ -52,6 +52,7 @@
 #include "ui/simple_dialog.h"
 #include "ui/main_statusbar.h"
 #include "ui/progress_dlg.h"
+#include "ui/urls.h"
 #include "ui/ws_ui_util.h"
 
 /* Needed for addrinfo */
@@ -634,7 +635,7 @@ cf_read(capture_file *cf, gboolean reloading)
   CATCH(OutOfMemoryError) {
     simple_message_box(ESD_TYPE_ERROR, NULL,
                    "More information and workarounds can be found at\n"
-                   "https://wiki.wireshark.org/KnownBugs/OutOfMemory",
+                   WS_WIKI_URL("KnownBugs/OutOfMemory"),
                    "Sorry, but Wireshark has run out of memory and has to terminate now.");
 #if 0
     /* Could we close the current capture and free up memory from that? */
@@ -812,7 +813,7 @@ cf_continue_tail(capture_file *cf, volatile int to_read, wtap_rec *rec,
   CATCH(OutOfMemoryError) {
     simple_message_box(ESD_TYPE_ERROR, NULL,
                    "More information and workarounds can be found at\n"
-                   "https://wiki.wireshark.org/KnownBugs/OutOfMemory",
+                   WS_WIKI_URL("KnownBugs/OutOfMemory"),
                    "Sorry, but Wireshark has run out of memory and has to terminate now.");
 #if 0
     /* Could we close the current capture and free up memory from that? */

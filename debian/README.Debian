@@ -85,10 +85,10 @@ II. Installing SNMP MIBs
     from RFC authors [5].
 
 
-   [1] https://wiki.wireshark.org/Development/PrivilegeSeparation
-   [2] https://wiki.wireshark.org/CaptureSetup/CapturePrivileges
+   [1] https://gitlab.com/wireshark/wireshark/-/wikis/Development/PrivilegeSeparation
+   [2] https://gitlab.com/wireshark/wireshark/-/wikis/CaptureSetup/CapturePrivileges
    [3] https://blog.wireshark.org/2010/02/running-wireshark-as-you
-   [4] https://wiki.wireshark.org/SNMP
+   [4] https://gitlab.com/wireshark/wireshark/-/wikis/SNMP
    [5] https://wiki.debian.org/NonFreeIETFDocuments
    [6] https://www.debian.org/doc/debian-policy/ch-archive.html#s-non-free
    [7] https://www.debian.org/doc/debian-policy/ch-archive.html#s-main

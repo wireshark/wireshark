@@ -6,7 +6,7 @@
  *
  * https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-smb2/
  * https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-fscc/
- * https://wiki.wireshark.org/SMB2
+ * https://gitlab.com/wireshark/wireshark/-/wikis/SMB2
  *
  * If you edit this file, keep the wiki updated as well.
  *

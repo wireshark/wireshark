@@ -25,7 +25,7 @@ import fixtures
 class case_decrypt_80211(subprocesstest.SubprocessTestCase):
     def test_80211_wpa_psk(self, cmd_tshark, capture_file):
         '''IEEE 802.11 WPA PSK'''
-        # https://wiki.wireshark.org/SampleCaptures?action=AttachFile&do=view&target=wpa-Induction.pcap
+        # https://gitlab.com/wireshark/wireshark/-/wikis/SampleCaptures?action=AttachFile&do=view&target=wpa-Induction.pcap
         self.assertRun((cmd_tshark,
                 '-o', 'wlan.enable_decryption: TRUE',
                 '-Tfields',
@@ -289,7 +289,7 @@ class case_decrypt_dtls(subprocesstest.SubprocessTestCase):
         '''DTLS'''
         if not features.have_gnutls:
             self.skipTest('Requires GnuTLS.')
-        # https://wiki.wireshark.org/SampleCaptures?action=AttachFile&do=view&target=snakeoil.tgz
+        # https://gitlab.com/wireshark/wireshark/-/wikis/SampleCaptures?action=AttachFile&do=view&target=snakeoil.tgz
         self.assertRun((cmd_tshark,
                 '-r', capture_file('snakeoil-dtls.pcap'),
                 '-Tfields',
@@ -339,7 +339,7 @@ class case_decrypt_tls(subprocesstest.SubprocessTestCase):
         '''TLS using the server's private RSA key.'''
         if not features.have_gnutls:
             self.skipTest('Requires GnuTLS.')
-        # https://wiki.wireshark.org/SampleCaptures?action=AttachFile&do=view&target=snakeoil2_070531.tgz
+        # https://gitlab.com/wireshark/wireshark/-/wikis/SampleCaptures?action=AttachFile&do=view&target=snakeoil2_070531.tgz
         self.assertRun((cmd_tshark,
                 '-r', capture_file('rsasnakeoil2.pcap'),
                 '-Tfields',

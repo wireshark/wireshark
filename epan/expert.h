@@ -1,7 +1,8 @@
 /* expert.h
  * Collecting of Expert information.
  *
- * For further info, see: https://wiki.wireshark.org/Development/ExpertInfo
+ * For further info, see:
+ *    https://gitlab.com/wireshark/wireshark/-/wikis/Development/ExpertInfo
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
