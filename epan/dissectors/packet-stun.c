@@ -42,7 +42,6 @@
  */
 
 /* TODO
- * Add protocol version auto detection
  * Add information about different versions to table as we find it
  * Add/Implement missing attributes
  * Add/Implement missing message classes/methods
@@ -91,20 +90,29 @@ void proto_reg_handoff_stun(void);
  */
 
 enum {
-        /* NET_VER_AUTO, */
+        NET_VER_AUTO,
         NET_VER_MS_TURN,
         NET_VER_3489,
         NET_VER_5389
 };
 
+/* Auto-tuning. Default: NET_VER_5389; NET_VER_MS_TURN if MAGIC_COOKIE is found */
+
 static gint stun_network_version = NET_VER_5389;
 
 static const enum_val_t stun_network_version_vals[] = {
-        /* { "Auto", "Auto",     NET_VER_AUTO}, */
+        { "Auto", "Auto",     NET_VER_AUTO},
         { "MS-TURN",  "MS-TURN", NET_VER_MS_TURN },
         { "RFC3489 and earlier", "RFC3489 and earlier",     NET_VER_3489},
         { "RFC5389 and later",  "RFC5389 and later", NET_VER_5389 },
         { NULL, NULL, 0 }
+};
+
+static const value_string network_versions_vals[] = {
+        {NET_VER_MS_TURN,  "MS-TURN"},
+        {NET_VER_3489,     "RFC-3489 and ealier"},
+        {NET_VER_5389,     "RFC-5389/8489"},
+        {0,   NULL}
 };
 
 /* heuristic subdissectors */
@@ -204,6 +212,7 @@ static int hf_stun_att_lp_self_location = -1;
 static int hf_stun_att_lp_federation = -1;
 static int hf_stun_att_google_network_id = -1;
 static int hf_stun_att_google_network_cost = -1;
+static int hf_stun_network_version = -1;
 
 /* Expert items */
 static expert_field ei_stun_short_packet = EI_INIT;
@@ -763,6 +772,7 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
     guint               reported_length;
     gboolean            is_turn = FALSE;
     gboolean            found_turn_attributes = FALSE;
+    int                 network_version; /* STUN flavour of the current message */
 
     /*
      * Check if the frame is really meant for us.
@@ -1009,22 +1019,32 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
     /* Remember this (in host order) so we can show clear xor'd addresses */
     magic_cookie_first_word = tvb_get_ntohl(tvb, tcp_framing_offset + 4);
 
+    network_version = stun_network_version != NET_VER_AUTO ? stun_network_version : NET_VER_5389;
+
     if (msg_length != 0) {
         const gchar       *attribute_name_str;
 
         ti = proto_tree_add_item(stun_tree, hf_stun_attributes, tvb, offset, msg_length, ENC_NA);
         att_all_tree = proto_item_add_subtree(ti, ett_stun_att_all);
 
+        /* According to [MS-TURN] section 2.2.2.8: "This attribute MUST be the
+           first attribute following the TURN message header in all TURN messages  */
+        if (stun_network_version == NET_VER_AUTO &&
+            offset < (STUN_HDR_LEN + msg_length) &&
+            tvb_get_ntohs(tvb, offset) == MAGIC_COOKIE) {
+          network_version = NET_VER_MS_TURN;
+        }
+
         while (offset < (STUN_HDR_LEN + msg_length)) {
             att_type = tvb_get_ntohs(tvb, offset);     /* Attribute type field in attribute header */
             att_length = tvb_get_ntohs(tvb, offset+2); /* Attribute length field in attribute header */
-            if (stun_network_version >= NET_VER_5389)
+            if (network_version >= NET_VER_5389)
                 att_length_pad = (att_length + 3) & ~3; /* Attribute length including padding */
             else
                 att_length_pad = att_length;
             att_type_display = att_type;
             /* Early drafts and MS-TURN use swapped numbers to later versions */
-            if ((stun_network_version < NET_VER_3489) && (att_type == 0x0014 || att_type == 0x0015)) {
+            if ((network_version < NET_VER_3489) && (att_type == 0x0014 || att_type == 0x0015)) {
                 att_type_display ^= 1;
                 att_type ^= 1;
             }
@@ -1160,7 +1180,7 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
 
             case USERNAME:
             {
-                if (stun_network_version >  NET_VER_3489) {
+                if (network_version >  NET_VER_3489) {
                     const guint8 *user_name_str;
 
                     proto_tree_add_item_ret_string(att_tree, hf_stun_att_username, tvb, offset, att_length, ENC_UTF_8|ENC_NA, wmem_packet_scope(), &user_name_str);
@@ -1585,11 +1605,16 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
                 break;
             }
 
-            if ((stun_network_version >= NET_VER_5389) && (att_length < att_length_pad))
+            if ((network_version >= NET_VER_5389) && (att_length < att_length_pad))
                 proto_tree_add_uint(att_tree, hf_stun_att_padding, tvb, offset+att_length, att_length_pad-att_length, att_length_pad-att_length);
             offset += att_length_pad;
         }
     }
+
+    ti = proto_tree_add_uint(stun_tree, hf_stun_network_version,
+                             tvb, offset, 0,
+                             network_version);
+    proto_item_set_generated(ti);
 
     if (found_turn_attributes) {
         /* At least one STUN/TURN implementation (Facetime) uses unknown/custom
@@ -2000,6 +2025,10 @@ proto_register_stun(void)
           { "Google Network Cost", "stun.att.google.network_cost", FT_UINT16,
             BASE_DEC, VALS(google_network_cost_vals), 0x0, NULL, HFILL}
          },
+        { &hf_stun_network_version,
+          { "STUN Network Version", "stun.network_version", FT_UINT8,
+            BASE_DEC, VALS(network_versions_vals), 0x0, NULL, HFILL }
+        },
     };
 
     /* Setup protocol subtree array */
