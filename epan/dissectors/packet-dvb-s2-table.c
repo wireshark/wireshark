@@ -2516,7 +2516,7 @@ void proto_register_dvb_s2_table(void)
                 NULL, HFILL}
         },
         {&hf_dvb_s2_table_private, {
-                "Table private indicator", "dvb-s2_table.section",
+                "Table private indicator", "dvb-s2_table.private_indicator",
                 FT_UINT8, BASE_HEX, NULL, DVB_S2_TABLE_PRIVATE_MASK,
                 NULL, HFILL}
         },
@@ -3545,7 +3545,7 @@ void proto_register_dvb_s2_table(void)
                 NULL, HFILL}
         },
         {&hf_dvb_s2_table_pt_mapping_section, {
-                "Mapping section", "dvb-s2_table.pt.mapping_sections",
+                "Mapping section", "dvb-s2_table.pt.mapping_section",
                 FT_BYTES, BASE_NONE, NULL, 0x0,
                 NULL, HFILL}
         },
@@ -3555,7 +3555,7 @@ void proto_register_dvb_s2_table(void)
                 NULL, HFILL}
         },
         {&hf_dvb_s2_table_pt_ms_inclusion_end, {
-                "Mapping section inclusion end", "dvb-s2_table.pt.ms.inclusion_start",
+                "Mapping section inclusion end", "dvb-s2_table.pt.ms.inclusion_end",
                 FT_BYTES, BASE_NONE, NULL, 0x0,
                 NULL, HFILL}
         },
@@ -4386,7 +4386,7 @@ void proto_register_dvb_s2_table(void)
                 NULL, HFILL}
         },
         {&hf_dvb_s2_table_lls, {
-                "lower layer service", "dvb-s2_table.lls.index",
+                "lower layer service", "dvb-s2_table.lls",
                 FT_BYTES, BASE_NONE, NULL, 0x0,
                 NULL, HFILL}
         },

@@ -8668,7 +8668,7 @@ void proto_register_dis(void)
                 NULL, HFILL }
             },
             { &hf_dis_current_part,
-              { "Current Part",       "dis.num_parts",
+              { "Current Part",       "dis.current_part",
                 FT_UINT8, BASE_DEC, NULL, 0x0,
                 NULL, HFILL }
             },
@@ -9498,7 +9498,7 @@ void proto_register_dis(void)
                NULL, HFILL}
             },
             { &hf_appearance_concealed_movement,
-              {"Concealed Movement", "dis.appearance.lifeform.concealed_stationary",
+              {"Concealed Movement", "dis.appearance.lifeform.concealed_movement",
                FT_UINT32, BASE_DEC, VALS(appearance_concealed_movement_vals), 0x80000000,
                NULL, HFILL}
             },

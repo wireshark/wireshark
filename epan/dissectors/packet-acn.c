@@ -7735,7 +7735,7 @@ proto_register_acn(void)
 
     /* DMX 2 First Property Address */
     { &hf_acn_dmx_2_first_property_address,
-      { "First Property Address", "acn.dmx.start_code",
+      { "First Property Address", "acn.dmx.first_property_address",
         FT_UINT16, BASE_DEC_HEX, NULL, 0x0,
         "DMX First Property Address", HFILL }
     },

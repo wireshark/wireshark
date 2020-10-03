@@ -10355,7 +10355,7 @@ void proto_register_gtpv2(void)
            "Old Security Context Indicator", HFILL}
         },
         { &hf_gtpv2_mm_context_nruna,
-        { "NRUNA (NR-U in 5GS Not Allowed)", "gtpv2.mm_context.nrusrna",
+        { "NRUNA (NR-U in 5GS Not Allowed)", "gtpv2.mm_context.nruna",
             FT_BOOLEAN, 8, NULL, 0x10,
             NULL, HFILL }
         },
@@ -11132,7 +11132,7 @@ void proto_register_gtpv2(void)
           NULL, HFILL }
       },
       { &hf_gtpv2_origination_ts,
-      { "Origination Time Stamp", "gtpv2.ms_ts",
+      { "Origination Time Stamp", "gtpv2.origination_ts",
           FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL, 0x0,
           NULL, HFILL }
       },

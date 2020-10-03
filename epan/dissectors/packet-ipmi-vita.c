@@ -424,7 +424,7 @@ static hf_register_info hf_ipmi_vita[] = {
 		{ "Tier Functionality", "ipmi.vita.ipmc.tier",
 			FT_UINT8, BASE_HEX, VALS(str_vita_ipmc_tiers), 0x3, NULL, HFILL }},
 	{ &hf_vita_layer,
-		{ "Layer Functionality", "ipmi.vita.ipmc.tier",
+		{ "Layer Functionality", "ipmi.vita.ipmc.layer",
 			FT_UINT8, BASE_HEX, VALS(str_vita_ipmc_layers), 0x30, NULL, HFILL }},
 	{ &hf_vita_ipmb,
 		{ "IPMB Capabilities", "ipmi.vita.ipmb",

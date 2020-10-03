@@ -4782,7 +4782,7 @@ void proto_register_radiotap(void)
 		  IEEE80211_RADIOTAP_L_SIG_RATE_MASK, NULL, HFILL}},
 
 		{&hf_radiotap_l_sig_length,
-		 {"length", "radiotap.l_sig.rate",
+		 {"length", "radiotap.l_sig.length",
 		  FT_UINT16, BASE_DEC, NULL,
 		  IEEE80211_RADIOTAP_L_SIG_LENGTH_MASK, NULL, HFILL}},
 	};

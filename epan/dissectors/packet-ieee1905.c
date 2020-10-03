@@ -8609,11 +8609,11 @@ proto_register_ieee1905(void)
             0, NULL, HFILL }},
 
         { &hf_ieee1905_responder_al_mac_addr,
-          { "Responder MAC address", "ieee1905.responder_mac_addr",
+          { "Responder MAC address", "ieee1905.responder_al_mac_addr",
             FT_ETHER, BASE_NONE, NULL, 0, NULL, HFILL }},
 
         { &hf_ieee1905_neighbor_al_mac_addr,
-          { "Neighbor MAC address", "ieee1905.responder_mac_addr",
+          { "Neighbor MAC address", "ieee1905.neighbor_al_mac_addr",
             FT_ETHER, BASE_NONE, NULL, 0, NULL, HFILL }},
 
         { &hf_ieee1905_receiving_al_mac_addr,

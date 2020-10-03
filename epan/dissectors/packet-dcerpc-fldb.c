@@ -1842,11 +1842,11 @@ proto_register_fldb (void)
      {"Principal Name", "fldb.NameString_principal", FT_STRING, BASE_NONE,
       NULL, 0x0, NULL, HFILL}},
     {&hf_fldb_namestring,
-     {"Name string", "fldb.NameString_principal", FT_STRING, BASE_NONE, NULL,
+     {"Name string", "fldb.NameString", FT_STRING, BASE_NONE, NULL,
       0x0, NULL, HFILL}},
 #if 0
     {&hf_dcerpc_error_status,
-     {"Error Status", "fldb.NameString_principal", FT_UINT32, BASE_DEC, NULL,
+     {"Error Status", "fldb.error_status", FT_UINT32, BASE_DEC, NULL,
       0x0, NULL, HFILL}},
 #endif
     {&hf_error_st,

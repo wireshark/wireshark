@@ -7856,7 +7856,7 @@ proto_register_bthci_evt(void)
            "Num of IACs currently in use to simultaneously listen", HFILL }
         },
         { &hf_bthci_evt_iac_lap,
-          { "IAC LAP", "bthci_evt.num_curr_iac",
+          { "IAC LAP", "bthci_evt.iac_lap",
             FT_UINT24, BASE_HEX, NULL, 0x0,
             "LAP(s)used to create IAC", HFILL }
         },

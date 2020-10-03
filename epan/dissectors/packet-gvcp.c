@@ -4236,7 +4236,7 @@ void proto_register_gvcp(void)
 		/* GVCP_SC_GENDC_FLOW_MAPPING_TABLE_ADDRESS(0), 1, 2, 3 */
 
 		{ &hf_gvcp_sc_gendc_flow_mapping_table_address_v2_2,
-		{ "Stream Channel GenDC Flow Mapping Table Address", "gvcp.bootstrap.gendc.flowmappingtablesize",
+		{ "Stream Channel GenDC Flow Mapping Table Address", "gvcp.bootstrap.gendc.flowmappingtableaddress",
 		FT_UINT32, BASE_HEX, NULL, 0x0,
 		NULL, HFILL
 		} },

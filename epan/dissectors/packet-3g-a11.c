@@ -2652,7 +2652,7 @@ proto_register_a11(void)
             NULL, HFILL }
         },
         { &hf_a11_max_num_serv_opt,
-          { "Max number of service instances of Service Option",   "a11.serviceoption",
+          { "Max number of service instances of Service Option",   "a11.max_serviceoptions",
             FT_UINT8, BASE_DEC, NULL, 0,
             NULL, HFILL }
         },

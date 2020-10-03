@@ -11510,7 +11510,7 @@ proto_register_isup(void)
         NULL, HFILL }},
 
     { &hf_bat_ase_duration,
-      { "Duration in ms",  "bat_ase.signal_type",
+      { "Duration in ms",  "bat_ase.duration",
         FT_UINT16, BASE_DEC, NULL, 0x0,
         NULL, HFILL }},
 

@@ -4409,7 +4409,7 @@ proto_register_capwap_control(void)
               NULL, HFILL }
         },
         { &hf_capwap_msg_element_type_ieee80211_ie_wlan_id,
-            { "WLAN ID", "capwap.control.message_element.ieee80211_ie.radio_id",
+            { "WLAN ID", "capwap.control.message_element.ieee80211_ie.wlan_id",
               FT_UINT8, BASE_DEC, NULL, 0x0,
               NULL, HFILL }
         },

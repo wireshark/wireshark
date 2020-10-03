@@ -5597,7 +5597,7 @@ proto_register_17221(void)
             FT_BOOLEAN, 32, NULL, AECP_COUNTERS_VALID_LINK_UP, NULL, HFILL }
       },
       { &hf_aecp_avb_interface_link_down_valid,
-         {"Link Down Valid", "ieee17221.flags.link_up_valid",
+         {"Link Down Valid", "ieee17221.flags.link_down_valid",
             FT_BOOLEAN, 32, NULL, AECP_COUNTERS_VALID_LINK_DOWN, NULL, HFILL }
       },
       { &hf_aecp_avb_interface_packets_tx_valid,

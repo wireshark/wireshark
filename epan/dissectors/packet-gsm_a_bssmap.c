@@ -8310,7 +8310,7 @@ proto_register_gsm_a_bssmap(void)
             NULL, HFILL }
     },
     { &hf_gsm_a_bssmap_channel_rate_and_type,
-        { "Channel Rate and Type", "gsm_a.bssmap.perm_speech_v_ind",
+        { "Channel Rate and Type", "gsm_a.bssmap.rate_and_type",
             FT_UINT8, BASE_DEC, VALS(gsm_a_bssap_channel_rate_and_type_vals), 0x0,
             NULL, HFILL }
     },
@@ -8325,7 +8325,7 @@ proto_register_gsm_a_bssmap(void)
             NULL, HFILL }
     },
     { &hf_gsm_a_bssmap_send_seqn,
-        { "Send Sequence Number", "gsm_a.bssmap.reroute_rej_cause",
+        { "Send Sequence Number", "gsm_a.bssmap.send_seqn",
             FT_UINT8, BASE_HEX, NULL, 0xc0,
             NULL, HFILL }
     },

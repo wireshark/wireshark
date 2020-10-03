@@ -7506,7 +7506,7 @@ proto_register_gsm_a_dtap(void)
             NULL, HFILL }
         },
         { &hf_gsm_a_dtap_enicm,
-          { "ENICM", "gsm_a.dtap.mcat",
+          { "ENICM", "gsm_a.dtap.enicm",
             FT_BOOLEAN, 8, TFS(&gsm_a_dtap_enicm_value), 0x04,
             NULL, HFILL }
         },

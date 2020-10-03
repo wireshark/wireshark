@@ -4773,7 +4773,7 @@ proto_register_gsm_a_common(void)
         NULL, HFILL }
     },
     { &hf_gsm_a_geo_loc_inner_radius,
-        { "Inner radius", "gsm_a.gad.altitude",
+        { "Inner radius", "gsm_a.gad.inner_radius",
         FT_UINT16, BASE_DEC, NULL, 0x0,
         NULL, HFILL }
     },

@@ -1136,7 +1136,7 @@ void proto_register_drbd(void)
         { &hf_drbd_current_uuid, { "Current UUID", "drbd.current_uuid", FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL }},
         { &hf_drbd_bitmap_uuid, { "Bitmap UUID", "drbd.bitmap_uuid", FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL }},
         { &hf_drbd_history_uuid_list, { "History UUIDs", "drbd.history_uuids", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-        { &hf_drbd_history_uuid, { "History UUID", "drbd.history_uuids", FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+        { &hf_drbd_history_uuid, { "History UUID", "drbd.history_uuid", FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL }},
         { &hf_drbd_dirty_bits, { "Dirty bits", "drbd.dirty_bits", FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL }},
         { &hf_drbd_uuid_flags, { "UUID flags", "drbd.uuid_flags", FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL }},
         { &hf_drbd_node_mask, { "Nodes", "drbd.node_mask", FT_UINT64, BASE_CUSTOM, format_node_mask, 0x0, NULL, HFILL }},

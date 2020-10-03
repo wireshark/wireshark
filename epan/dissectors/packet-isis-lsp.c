@@ -4698,7 +4698,7 @@ proto_register_isis_lsp(void)
               NULL, HFILL}
         },
         { &hf_isis_lsp_sl_sub_tlv_flags_l,
-            { "Flag L: Local", "isis.lsp.sl_sub_tlv.flags_v",
+            { "Flag L: Local", "isis.lsp.sl_sub_tlv.flags_l",
               FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x04,
               NULL, HFILL}
         },

@@ -10875,7 +10875,7 @@ proto_register_gsm_rlcmac(void)
       }
     },
     { &hf_mobile_union,
-      { "Mobile Allocation",        "gsm_rlcmac.dl.bitmap",
+      { "Mobile Allocation",        "gsm_rlcmac.dl.mobile_allocation",
         FT_UINT8, BASE_DEC, NULL, 0x0,
         NULL, HFILL
       }

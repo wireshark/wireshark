@@ -2765,7 +2765,7 @@ proto_register_ipmi_transport(void)
 				"ipmi.lan50.both", FT_BOOLEAN, 8, NULL, 0x02, NULL, HFILL }},
 		{ &hf_ipmi_trn_lan50_ipv6_alerting,
 			{ "Support IPv6 destinations for LAN Alerting",
-				"ipmi.lan50.both", FT_BOOLEAN, 8, NULL, 0x04, NULL, HFILL }},
+				"ipmi.lan50.ipv6_alerting", FT_BOOLEAN, 8, NULL, 0x04, NULL, HFILL }},
 
 		{ &hf_ipmi_trn_lan51_enables,
 			{ "Enables",

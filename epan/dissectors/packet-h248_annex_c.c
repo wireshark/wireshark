@@ -1319,7 +1319,7 @@ void proto_register_h248_annex_c(void) {
 		    FT_UINT8, BASE_HEX, VALS(h248_pkg_annexc_tmrsr_values), 0,
 		    "Transmission Medium Requirement Subrate", HFILL }},
 		{ &hf_h248_pkg_annexc_contcheck,
-		  { "Continuity Check", "h248.annexc.tmsr",
+		  { "Continuity Check", "h248.annexc.contcheck",
 		    FT_UINT8, BASE_DEC, VALS(h248_pkg_annexc_contcheck_values), 0x0C,
 		    NULL, HFILL }},
 

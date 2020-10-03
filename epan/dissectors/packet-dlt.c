@@ -1156,7 +1156,7 @@ void proto_register_dlt(void) {
             "With ECU ID", "dlt.header_type.with_ecu_id",
             FT_BOOLEAN, 8, NULL, DLT_HDR_TYPE_WITH_ECU_ID, NULL, HFILL }},
         { &hf_dlt_ht_with_sessionid, {
-            "With Session ID", "dlt.header_type.with_ecu_id",
+            "With Session ID", "dlt.header_type.with_session_id",
             FT_BOOLEAN, 8, NULL, DLT_HDR_TYPE_WITH_SESSION_ID, NULL, HFILL }},
         { &hf_dlt_ht_with_timestamp, {
             "With Timestamp", "dlt.header_type.with_timestamp",
@@ -1226,7 +1226,7 @@ void proto_register_dlt(void) {
             "(uint16)", "dlt.data.uint16",
             FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
         { &hf_dlt_uint32, {
-            "(uint32)", "dlt.data.uint16",
+            "(uint32)", "dlt.data.uint32",
            FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL } },
         { &hf_dlt_uint64, {
             "(uint64)", "dlt.data.uint64",

@@ -6351,7 +6351,7 @@ proto_register_bthci_cmd(void)
             "Number of IACs which are currently in use", HFILL }
         },
         { &hf_bthci_cmd_iac_lap,
-          { "IAC LAP", "bthci_cmd.num_curr_iac",
+          { "IAC LAP", "bthci_cmd.num_iac_lap",
             FT_UINT24, BASE_HEX, NULL, 0x0,
             "LAP(s)used to create IAC", HFILL }
         },

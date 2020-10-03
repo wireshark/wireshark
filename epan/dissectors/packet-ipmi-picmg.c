@@ -3702,7 +3702,7 @@ proto_register_ipmi_picmg(void)
 
 		{ &hf_ipmi_picmg_2b_alarm_state,
 			{ "Alarm State",
-				"ipmi.picmg29.alrm.ctrl", FT_UINT8, BASE_HEX, VALS(picmg_2a_alarm_ctrls), 0, NULL, HFILL }},
+				"ipmi.picmg29.alrm.state", FT_UINT8, BASE_HEX, VALS(picmg_2a_alarm_ctrls), 0, NULL, HFILL }},
 
 	};
 	static gint *ett[] = {

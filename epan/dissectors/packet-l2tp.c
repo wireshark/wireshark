@@ -3510,7 +3510,7 @@ proto_register_l2tp(void)
             NULL, HFILL }},
 
         { &hf_l2tp_avp_csu_remote_session_id_v2,
-          { "Remote Session ID", "l2tp.avp.csu.res", FT_UINT16, BASE_DEC_HEX, NULL, 0x0,
+          { "Remote Session ID", "l2tp.avp.csu.remote_session_id", FT_UINT16, BASE_DEC_HEX, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_l2tp_avp_csu_current_tx_speed_v2,

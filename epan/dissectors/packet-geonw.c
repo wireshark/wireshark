@@ -3343,7 +3343,7 @@ proto_register_geonw(void)
            BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
         { &hf_geonw_tsb,
-         { "Topologically-Scoped Broadcast Packet", "geonw.gbc", FT_NONE,
+         { "Topologically-Scoped Broadcast Packet", "geonw.tsb", FT_NONE,
            BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
         { &hf_geonw_ls,
