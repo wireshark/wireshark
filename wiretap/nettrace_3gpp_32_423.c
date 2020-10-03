@@ -1076,7 +1076,7 @@ create_temp_pcapng_file(wtap *wth, int *err, gchar **err_info, nettrace_3gpp_32_
 				guint start_ms = start_time.nsecs / 1000000;
 				guint elapsed_ms = start_ms + ms;
 				if (elapsed_ms > 1000) {
-					elapsed_ms =- 1000;
+					elapsed_ms -= 1000;
 					second++;
 				}
 				packet_time.secs = start_time.secs + second;
