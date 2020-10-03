@@ -5,7 +5,7 @@
  *
  * Used some code by habibi_khalid <khalidhabibi@gmx.de> and
  * Honorine_KEMGNE_NGUIFFO <honorinekemgne@yahoo.fr> from
- * https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4704
+ * https://gitlab.com/wireshark/wireshark/-/issues/4704
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>

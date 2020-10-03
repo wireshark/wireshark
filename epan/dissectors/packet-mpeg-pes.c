@@ -903,7 +903,7 @@ dissect_mpeg_pes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 
 			offset = dissect_mpeg_pes_Stream(tvb, offset, &asn1_ctx,
 					tree, hf_mpeg_pes_extension);
-			/* https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2229
+			/* https://gitlab.com/wireshark/wireshark/-/issues/2229
 			 * A value of 0 indicates that the PES packet length
 			 * is neither specified nor bounded and is allowed
 			 * only in PES packets whose payload is a video

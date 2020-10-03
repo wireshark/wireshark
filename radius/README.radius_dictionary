@@ -1,6 +1,6 @@
 [Dec-01-2010]
  Commented out global VSA:s from dictionary.ascend to avoid name clashes with IANA assigned VSA:s
- https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5455
+ https://gitlab.com/wireshark/wireshark/-/issues/5455
 
 [Jul-09-2009]
 

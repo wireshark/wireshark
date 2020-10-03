@@ -1207,7 +1207,7 @@ dissect_acdr_voiceai(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 	 * an http_message_info_t *, and that's *NOT* what we hand
 	 * subdissectors.  Hilarity ensures; see
 	 *
-	 *    https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=16622
+	 *    https://gitlab.com/wireshark/wireshark/-/issues/16622
 	 */
 	call_dissector(json_dissector_handle, tvb, pinfo, tree);
 	return tvb_captured_length(tvb);

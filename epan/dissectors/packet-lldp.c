@@ -1191,7 +1191,7 @@ static const value_string hytec_mc[] = {
 
 /* Some vendors interpreted the standard to invert the bitorder:
  * according to a IEEE ruling, this is now officially wrong.
- * See https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1455
+ * See https://gitlab.com/wireshark/wireshark/-/issues/1455
  * for all the gory details
  */
 

@@ -112,7 +112,7 @@ tvb_uncompress(tvbuff_t *tvb, const int offset, int comprlen)
 			if (uncompr == NULL) {
 				/*
 				 * This is ugly workaround for bug #6480
-				 * (https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6480)
+				 * (https://gitlab.com/wireshark/wireshark/-/issues/6480)
 				 *
 				 * g_memdup(..., 0) returns NULL (g_malloc(0) also)
 				 * when uncompr is NULL logic below doesn't create tvb

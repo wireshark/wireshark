@@ -17,7 +17,8 @@
  *      https://www.endace.com/erf-extensible-record-format-types.pdf
  *
  *  Version 8:
- *      https://bugs.wireshark.org/bugzilla/attachment.cgi?id=4333 (bug #4484)
+ *      https://gitlab.com/wireshark/wireshark/uploads/f694bfee494784425b6545892180a8b2/Endace_ERF_Types.pdf
+ *        (bug #4484)
  */
 
 #include "config.h"

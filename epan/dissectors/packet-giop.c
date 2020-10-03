@@ -522,7 +522,7 @@ static const value_string target_address_discriminant_vals[] = {
   { 0, NULL}
   };
 Bug fix:
-https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2800
+https://gitlab.com/wireshark/wireshark/-/issues/2800
 http://ethereal.netmirror.org/lists/ethereal-users/200303/msg00135.html
 */
 static const value_string response_flags_vals[] = {

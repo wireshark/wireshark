@@ -429,7 +429,7 @@ read_length(unsigned int *offset, tvbuff_t *tvb, proto_tree *etch_tree)
 
   if (*offset + length < *offset) {
     /* overflow case
-     * https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8464 */
+     * https://gitlab.com/wireshark/wireshark/-/issues/8464 */
     length = tvb_reported_length_remaining(tvb, *offset);
   }
   return length;

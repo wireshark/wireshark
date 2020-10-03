@@ -828,8 +828,8 @@ void WiresharkApplication::emitAppSignal(AppSignal signal)
 //
 // On macOS emitting PacketDissectionChanged from a dialog can
 // render the application unusable:
-// https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=11361
-// https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=11448
+// https://gitlab.com/wireshark/wireshark/-/issues/11361
+// https://gitlab.com/wireshark/wireshark/-/issues/11448
 // Work around the problem by queueing up app signals and emitting them
 // after the dialog is closed.
 //

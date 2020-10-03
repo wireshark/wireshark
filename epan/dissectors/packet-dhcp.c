@@ -2370,7 +2370,7 @@ dissect_dhcpopt_user_class_information(tvbuff_t *tvb, packet_info *pinfo, proto_
 			 * "MSFT 5.0") such as "RRAS.Microsoft" and others like "iPXE".
 			 * In the unlikely case that the first character can be interpreted as a valid length the next iteration
 			 * of this while loop will catch that.
-			 * https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=16349
+			 * https://gitlab.com/wireshark/wireshark/-/issues/16349
 			 * https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-dhcpe/fe8a2dd4-1e8c-4546-bacd-4ae10de02058
 			 */
 			proto_item *expert_ti = proto_tree_add_item(tree, hf_dhcp_option77_user_class_text, tvb, offset, uci_len, ENC_ASCII|ENC_NA);

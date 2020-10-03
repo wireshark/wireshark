@@ -140,7 +140,7 @@ static gboolean rtmpt_desegment = TRUE;
  * exceed 256KB, but setting the limit there can cause massive memory
  * usage in some scenarios. For now make it a preference, but a better fix
  * is really needed.
- * See https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6898
+ * See https://gitlab.com/wireshark/wireshark/-/issues/6898
  */
 static guint rtmpt_max_packet_size = 32768;
 

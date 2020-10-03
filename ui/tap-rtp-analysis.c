@@ -221,7 +221,7 @@ rtppacket_analyse(tap_rtp_stat_t *statinfo,
     /* Reset flags */
     statinfo->flags = 0;
 #if 0
-    /*According to bug https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=11478
+    /*According to bug https://gitlab.com/wireshark/wireshark/-/issues/11478
      * this code causes problems. A better solution is needed if there is need for the functionality */
     /* Try to detect duplicated packets due to mirroring/span ports by comparing src MAC addresses.
      * Check for duplicates (src mac differs from first_packet_mac_addr) */
@@ -285,7 +285,7 @@ rtppacket_analyse(tap_rtp_stat_t *statinfo,
      * we assume that instead of being massively late we lost the packet(s)
      * that would have indicated the sequence number wrapping. An imprecise
      * heuristic at best, but it seems to work well enough.
-     * https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5958 */
+     * https://gitlab.com/wireshark/wireshark/-/issues/5958 */
     else if (statinfo->seq_num+1 < rtpinfo->info_seq_num || statinfo->seq_num - rtpinfo->info_seq_num > 0xFF00) {
         statinfo->seq_num = rtpinfo->info_seq_num;
         statinfo->sequence++;

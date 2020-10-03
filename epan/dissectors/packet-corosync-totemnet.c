@@ -137,7 +137,7 @@ On 12/14/2010 08:04 AM, Masatake YAMATO wrote:
 >>>>   Honza
 >>> I got the similar comment from wireshark developer.
 >>> Please, read the discussion:
->>>     https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3232
+>>>     https://gitlab.com/wireshark/wireshark/-/issues/3232
 >>>
 >>
 >> I've read that thread long time before I've sent previous mail, so
@@ -214,7 +214,7 @@ nnn>>
 >
 >>> licensed in 3-clause BSD, as you know. I'd like to change the license
 >>> to merge my code to upstream project. I cannot do it in this context.
->>> See https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3232#c13
+>>> See https://gitlab.com/wireshark/wireshark/-/issues/3232#c13
 >>> Thank you.
 >>
 >> Regards,

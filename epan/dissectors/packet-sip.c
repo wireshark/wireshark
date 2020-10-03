@@ -2112,7 +2112,7 @@ dissect_sip_contact_item(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gi
                 /* it is actually unusual - arguably invalid - for a SIP REGISTER
                  * 200 OK _response_ to contain Contacts with expires=0.
                  *
-                 * See Bug https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=10364
+                 * See Bug https://gitlab.com/wireshark/wireshark/-/issues/10364
                  * Why this warning was removed (3GPP usage, 3GPP TS24.229 )
                  */
 #if 0

@@ -898,7 +898,7 @@
 		</avp>
 		<avp name="Acct-Session-Id" code="44" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="mustnot">
 			<type type-name="OctetString"/>
-			<!-- See https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5411 -->
+			<!-- See https://gitlab.com/wireshark/wireshark/-/issues/5411 -->
 		</avp>
 		<avp name="Acct-Authentic" code="45" mandatory="must" protected="may" may-encrypt="yes" vendor-bit="mustnot">
 			<type type-name="Enumerated"/>

@@ -27,7 +27,7 @@
  * National variants
  * French ISUP Specification: SPIROU 1998 - 002-005 edition 1 ( Info found here http://www.icg-corp.com/docs/ISUP.pdf ).
  *   See also http://www.fftelecoms.org/sites/default/files/contenus_lies/fft_interco_ip_-_sip-i_interface_specification_v1_0.pdf
- * Israeli ISUP Specification: excertp (for BCM message) found in https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4231 .
+ * Israeli ISUP Specification: excertp (for BCM message) found in https://gitlab.com/wireshark/wireshark/-/issues/4231 .
  * Russian national ISUP-R 2000: RD 45.217-2001 book 4
  * Japan ISUP http://www.ttc.or.jp/jp/document_list/sum/sum_JT-Q763v21.1.pdf
  */

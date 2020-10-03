@@ -211,7 +211,7 @@ static const value_string sm_pdu_type_value[] = {
 };
 
 /* TODO: Change to useful name once known */
-#define SM_PROTOCOL_X004 0x0004 /* https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7188 */
+#define SM_PROTOCOL_X004 0x0004 /* https://gitlab.com/wireshark/wireshark/-/issues/7188 */
 /* RUDP/SM stack called BSM V1 (version 1 versus Version 0 used for SS7). */
 #define SM_PROTOCOL_X100 0x0100
 #define SM_PROTOCOL_X101 0x0101

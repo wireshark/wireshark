@@ -34,7 +34,7 @@ FROM MAP-ExtensionDataTypes {
    gsm-Network (1) modules (3) map-ExtensionDataTypes (21) version13 (13)}
 ;
 
--- non 3GPP standard compliant extension used by Ericsson (see https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7648)
+-- non 3GPP standard compliant extension used by Ericsson (see https://gitlab.com/wireshark/wireshark/-/issues/7648)
 EnhancedCheckIMEI-Arg ::= SEQUENCE {
 	imei			IMEI,
 	requestedEquipmentInfo	RequestedEquipmentInfo OPTIONAL,

@@ -858,7 +858,7 @@ dissect_usb_video_extension_unit(proto_tree *tree, tvbuff_t *tvb, int offset)
         {
             /* Too big to display as integer */
             /* @todo Display as FT_BYTES with a big-endian disclaimer?
-             * See https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7933
+             * See https://gitlab.com/wireshark/wireshark/-/issues/7933
              */
             proto_tree_add_bytes_format(tree, hf_usb_vid_bmControl_bytes, tvb, offset, control_size, NULL, "bmControl");
         }
@@ -1752,7 +1752,7 @@ dissect_usb_vid_control_value(proto_tree *tree, tvbuff_t *tvb, int offset, guint
     else
     {
         /* @todo Display as FT_BYTES with a big-endian disclaimer?
-         * See https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7933
+         * See https://gitlab.com/wireshark/wireshark/-/issues/7933
          */
         proto_tree_add_bytes_format(tree, hf_usb_vid_control_value, tvb, offset, value_size, NULL, "%s", fallback_name);
     }

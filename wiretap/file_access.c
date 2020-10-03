@@ -325,7 +325,7 @@ wtap_get_all_capture_file_extensions_list(void)
  *
  * Note that the routine does not have to free the private data pointer on
  * error. The caller takes care of that by calling wtap_close on error.
- * (See https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8518)
+ * (See https://gitlab.com/wireshark/wireshark/-/issues/8518)
  *
  * However, the caller does have to free the private data pointer when
  * returning 0, since the next file type will be called and will likely

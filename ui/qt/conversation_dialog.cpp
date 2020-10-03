@@ -28,13 +28,13 @@
 #include <QPushButton>
 
 // To do:
-// - https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6727
+// - https://gitlab.com/wireshark/wireshark/-/issues/6727
 //   - Wide last column?
 //   + No arrows on unsorted columns
 //   - Add follow stream to context menu
 //   + Change "A <- B" to "B -> A"
-// - Improper wildcard handling https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8010
-// - TShark consolidation https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6310
+// - Improper wildcard handling https://gitlab.com/wireshark/wireshark/-/issues/8010
+// - TShark consolidation https://gitlab.com/wireshark/wireshark/-/issues/6310
 // - Display filter entry?
 // - Add follow, copy & graph actions to context menu.
 
@@ -45,10 +45,10 @@
 // - Closing the capture file clears conversation data.
 
 // Fixed bugs:
-// - Friendly unit displays https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=9231
-// - Misleading bps calculation https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8703
-// - Show Absolute time in conversation tables https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=11618
-// - The value of 'Rel start' and 'Duration' in "Conversations" no need too precise https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=12803
+// - Friendly unit displays https://gitlab.com/wireshark/wireshark/-/issues/9231
+// - Misleading bps calculation https://gitlab.com/wireshark/wireshark/-/issues/8703
+// - Show Absolute time in conversation tables https://gitlab.com/wireshark/wireshark/-/issues/11618
+// - The value of 'Rel start' and 'Duration' in "Conversations" no need too precise https://gitlab.com/wireshark/wireshark/-/issues/12803
 
 
 static const QString table_name_ = QObject::tr("Conversation");
@@ -326,7 +326,7 @@ void init_conversation_table(struct register_ct* ct, const char *filter)
 // TrafficTableTreeWidgetItem / QTreeWidgetItem subclass that allows sorting
 
 // Minimum bandwidth calculation duration
-// https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8703
+// https://gitlab.com/wireshark/wireshark/-/issues/8703
 static const double min_bw_calc_duration_ = 5 / 1000.0; // seconds
 static const char *bps_na_ = UTF8_EM_DASH;
 

@@ -30,7 +30,7 @@
  * Decryption is supported via TLS 1.3 secrets in the "TLS Key Log File",
  * configured either at the TLS Protocol preferences, or embedded in a pcapng
  * file. Sample captures and secrets can be found at:
- * https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=13881
+ * https://gitlab.com/wireshark/wireshark/-/issues/13881
  *
  * Limitations:
  * - STREAM offsets larger than 32-bit are unsupported.
@@ -3257,7 +3257,7 @@ static tap_packet_status
 follow_quic_tap_listener(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_, const void *data)
 {
     // TODO fix filtering for multiple streams, see
-    // https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=16093
+    // https://gitlab.com/wireshark/wireshark/-/issues/16093
     follow_tvb_tap_listener(tapdata, pinfo, NULL, data);
     return TAP_PACKET_DONT_REDRAW;
 }

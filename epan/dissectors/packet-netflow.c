@@ -4887,7 +4887,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
             /* have the same template with the same ID. */
             /* XXX: One capture has been seen wherein the "length" field in the template is 0 even though
                     the field is actually present in the dataflow.
-                    See: https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=10432#c1
+                    See: https://gitlab.com/wireshark/wireshark/-/issues/10432#c1
             */
             continue;
         }

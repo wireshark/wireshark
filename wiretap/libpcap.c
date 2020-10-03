@@ -676,7 +676,7 @@ static int libpcap_try_record(wtap *wth, FILE_T fh, int *err, gchar **err_info)
 		 * corrupt, and treating them as such makes the heuristics
 		 * much more reliable. See, for example,
 		 *
-		 *    https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=9634
+		 *    https://gitlab.com/wireshark/wireshark/-/issues/9634
 		 *
 		 * (128MB is an arbitrary size at this point, chosen to be
 		 * large enough for the largest D-Bus packet).

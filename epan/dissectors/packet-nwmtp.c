@@ -96,7 +96,7 @@ static int dissect_nwmtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
 			call_dissector(mtp_handle, next_tvb, pinfo, tree);
 		/* Check for overflows, which probably can't happen, but better
 		 * safe than sorry. See
-		 * https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8169
+		 * https://gitlab.com/wireshark/wireshark/-/issues/8169
 		 */
 		DISSECTOR_ASSERT(len < G_MAXUINT32 - 11);
 		DISSECTOR_ASSERT((guint64)offset + len + 12 < G_MAXINT);

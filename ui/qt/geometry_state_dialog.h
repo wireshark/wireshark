@@ -45,7 +45,7 @@ public:
 //   W, L, X: Independent, minimize button.
 //
 // Additionally, maximized, parent-less dialogs can close to a black screen
-// on macOS: https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=12544
+// on macOS: https://gitlab.com/wireshark/wireshark/-/issues/12544
 //
 // Pass in the parent on macOS and NULL elsewhere so that we have an
 // independent window that un-maximizes correctly.

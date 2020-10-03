@@ -805,7 +805,7 @@ create_data_tree(proto_tree *tree, header_field_info* hfi, tvbuff_t *tvb, guint3
  *    So: the loop should be executed only when 'tree' is defined so that the
  *        proto_ calls will throw an exception when the tvb is used up;
  *        This should only take a few-hundred loops at most.
- *           https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=8312
+ *           https://gitlab.com/wireshark/wireshark/-/issues/8312
  */
 
 /**

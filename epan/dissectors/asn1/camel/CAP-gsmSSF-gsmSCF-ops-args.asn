@@ -212,7 +212,7 @@ ApplyChargingArg {PARAMETERS-BOUND : bound} ::= SEQUENCE {
 												DEFAULT legID:sendingSideID:leg1,
 	...,
 	-- WS modification Frensh National standard addition
-	-- https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=7656
+	-- https://gitlab.com/wireshark/wireshark/-/issues/7656
 	iTXcharging [64] BOOLEAN OPTIONAL
 	-- End WS
 	}

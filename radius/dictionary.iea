@@ -11,7 +11,7 @@ BEGIN-VENDOR	IEA-Software
 # AirMarshal Attributes [1-30]
 # Some added as per
 #
-#    https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6486
+#    https://gitlab.com/wireshark/wireshark/-/issues/6486
 #
 ATTRIBUTE	AM-Interrupt-HTMLFile			1	string
 ATTRIBUTE	AM-Interrupt-Interval			2	integer

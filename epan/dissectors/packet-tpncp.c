@@ -974,7 +974,7 @@ proto_register_tpncp(void)
     expert_tpncp = expert_register_protocol(proto_tpncp);
     expert_register_field_array(expert_tpncp, ei, array_length(ei));
 
-    /* See https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=9569 for some discussion on this as well */
+    /* See https://gitlab.com/wireshark/wireshark/-/issues/9569 for some discussion on this as well */
     prefs_register_bool_preference(tpncp_module, "load_db",
                                    "Whether to load DB or not; if DB not loaded dissector is passive",
                                    "Whether to load the Database or not; not loading the DB"

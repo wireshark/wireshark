@@ -6507,7 +6507,7 @@ tls_dissect_certificate_authorities(ssl_common_dissect_t *hf, tvbuff_t *tvb, pac
 
             if (dnames_count-- == 0) {
                 /* stop adding to tree when the list is considered too large
-                 * https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=16202
+                 * https://gitlab.com/wireshark/wireshark/-/issues/16202
                    Note: dnames_count must be set low enough not to hit the
                    limit set by PINFO_LAYER_MAX_RECURSION_DEPTH in packet.c
                  */
@@ -9397,7 +9397,7 @@ dissect_ssl3_hnd_cli_keyex_rsa(ssl_common_dissect_t *hf, tvbuff_t *tvb,
     case DTLSV1DOT0_OPENSSL_VERSION:
         /* OpenSSL pre-0.9.8f DTLS and pre-TLS quirk: 2-octet length vector is
          * not present. The handshake contents represents the EPMS, see:
-         * https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=10222 */
+         * https://gitlab.com/wireshark/wireshark/-/issues/10222 */
         epms_len = length;
         break;
 
