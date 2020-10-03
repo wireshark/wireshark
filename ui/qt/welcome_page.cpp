@@ -14,7 +14,7 @@
 #include <epan/prefs.h>
 
 #include "ui/capture_globals.h"
-#include "ui/help_url.h"
+#include "ui/urls.h"
 
 #include "version_info.h"
 
@@ -416,7 +416,7 @@ void WelcomePage::on_captureLabel_clicked()
 
 void WelcomePage::on_helpLabel_clicked()
 {
-    QDesktopServices::openUrl(QUrl(topic_online_url(ONLINEPAGE_DOCS)));
+    QDesktopServices::openUrl(QUrl(WS_DOCS_URL));
 }
 
 void WelcomePage::updateStyleSheets()

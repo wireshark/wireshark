@@ -30,6 +30,7 @@
 
 #include <ui/clopts_common.h>
 #include <ui/cmdarg_err.h>
+#include <ui/urls.h>
 #include <wsutil/filesystem.h>
 #include <wsutil/privileges.h>
 #include <wsutil/socket.h>
@@ -361,7 +362,7 @@ check_and_warn_user_startup(const QString &cf_name)
         "This could be dangerous.\n\n"
         "If you're running Wireshark this way in order to perform live capture, "
         "you may want to be aware that there is a better way documented at\n"
-        "https://wiki.wireshark.org/CaptureSetup/CapturePrivileges", cur_user, cur_group);
+        WS_WIKI_URL("CaptureSetup/CapturePrivileges"), cur_user, cur_group);
         g_free(cur_user);
         g_free(cur_group);
     }

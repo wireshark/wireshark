@@ -37,6 +37,8 @@ DIAG_ON(frame-larger-than=)
 
 #include "ui/commandline.h"
 
+#include "ui/urls.h"
+
 #include "epan/color_filters.h"
 #include "epan/export_object.h"
 
@@ -3895,7 +3897,7 @@ void MainWindow::on_actionContextWikiProtocolPage_triggered()
 
     if (ret != QMessageBox::Yes) return;
 
-    QUrl wiki_url = QString("https://wiki.wireshark.org/Protocols/%1").arg(proto_abbrev);
+    QUrl wiki_url = QString(WS_WIKI_HOME_URL "/" "/Protocols/%1").arg(proto_abbrev);
     QDesktopServices::openUrl(wiki_url);
 }
 
@@ -3910,7 +3912,7 @@ void MainWindow::on_actionContextFilterFieldReference_triggered()
 
     const QString proto_abbrev = proto_registrar_get_abbrev(field_id);
 
-    QUrl dfref_url = QString("https://www.wireshark.org/docs/dfref/%1/%2")
+    QUrl dfref_url = QString(WS_DOCS_URL "/dfref/%1/%2")
             .arg(proto_abbrev[0])
             .arg(proto_abbrev);
     QDesktopServices::openUrl(dfref_url);

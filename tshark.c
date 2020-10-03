@@ -47,6 +47,7 @@
 
 #include <ui/clopts_common.h>
 #include <ui/cmdarg_err.h>
+#include <ui/urls.h>
 #include <wsutil/filesystem.h>
 #include <wsutil/file_util.h>
 #include <wsutil/socket.h>
@@ -2065,7 +2066,7 @@ main(int argc, char *argv[])
               "Sorry, but TShark has to terminate now.\n"
               "\n"
               "More information and workarounds can be found at\n"
-              "https://wiki.wireshark.org/KnownBugs/OutOfMemory\n");
+              WS_WIKI_URL("KnownBugs/OutOfMemory") "\n");
       status = PROCESS_FILE_ERROR;
     }
     ENDTRY;
@@ -2574,7 +2575,7 @@ capture(void)
             "Sorry, but TShark has to terminate now.\n"
             "\n"
             "More information and workarounds can be found at\n"
-            "https://wiki.wireshark.org/KnownBugs/OutOfMemory\n");
+             WS_WIKI_URL("KnownBugs/OutOfMemory") "\n");
     abort();
   }
   ENDTRY;

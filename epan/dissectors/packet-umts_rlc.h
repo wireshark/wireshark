@@ -56,7 +56,7 @@ void rlc_reset_channel(enum rlc_mode mode, guint8 rbid, guint8 dir, guint32 ueid
 /* and implemented by this dissector, using the definitions      */
 /* below. A link to an example program showing you how to encode */
 /* these headers and send RLC PDUs on a UDP socket is provided   */
-/* at https://wiki.wireshark.org/RLC                              */
+/* at https://gitlab.com/wireshark/wireshark/-/wikis/RLC         */
 /*                                                               */
 /* A heuristic dissecter (enabled by a preference) will          */
 /* recognise a signature at the beginning of these frames.       */
