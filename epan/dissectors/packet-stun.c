@@ -193,6 +193,8 @@ static int hf_stun_att_ms_sequence_number = -1;
 static int hf_stun_att_ms_stream_type = -1;
 static int hf_stun_att_ms_service_quality = -1;
 static int hf_stun_att_ms_foundation = -1;
+static int hf_stun_att_ms_multiplexed_turn_session_id = -1;
+static int hf_stun_att_ms_turn_session_id = -1;
 static int hf_stun_att_bandwidth_acm_type = -1;
 static int hf_stun_att_bandwidth_rsv_id = -1;
 static int hf_stun_att_bandwidth_rsv_amount_misb = -1;
@@ -708,10 +710,11 @@ get_stun_message_len(packet_info *pinfo _U_, tvbuff_t *tvb,
  * re-use the packet-turnchannel.c's dissect_turnchannel_message() function?
  */
 static int
-dissect_stun_message_channel_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint16 msg_type _U_, guint msg_length)
+dissect_stun_message_channel_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint16 msg_type, guint msg_length)
 {
     tvbuff_t *next_tvb;
     heur_dtbl_entry_t *hdtbl_entry;
+    gint offset = CHANNEL_DATA_HDR_LEN;
 
     /* XXX: a TURN ChannelData message is not actually a STUN message. */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "STUN");
@@ -728,9 +731,17 @@ dissect_stun_message_channel_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
         stun_tree = proto_item_add_subtree(ti, ett_stun);
         proto_tree_add_item(stun_tree, hf_stun_channel, tvb, 0, 2, ENC_BIG_ENDIAN);
         proto_tree_add_item(stun_tree, hf_stun_length,  tvb, 2, 2, ENC_BIG_ENDIAN);
+        /* MS-TURN Multiplexed TURN Channel */
+        if (msg_type == 0xFF10 && msg_length >= 8) {
+            proto_tree_add_item(stun_tree, hf_stun_att_ms_turn_session_id, tvb, 4, 8, ENC_NA);
+        }
+    }
+    if (msg_type == 0xFF10 && msg_length >= 8) {
+        msg_length -= 8;
+        offset += 8;
     }
 
-    next_tvb = tvb_new_subset_length(tvb, CHANNEL_DATA_HDR_LEN, msg_length);
+    next_tvb = tvb_new_subset_length(tvb, offset, msg_length);
 
     if (!dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, tree, &hdtbl_entry, NULL)) {
         call_dissector_only(data_handle, next_tvb, pinfo, tree, NULL);
@@ -1593,6 +1604,11 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
             case MS_CANDIDATE_IDENTIFIER:
                 proto_tree_add_item(att_tree, hf_stun_att_ms_foundation, tvb, offset, 4, ENC_ASCII|ENC_NA);
                 break;
+            case MS_MULTIPLEXED_TURN_SESSION_ID:
+                proto_tree_add_item(att_tree, hf_stun_att_ms_multiplexed_turn_session_id, tvb, offset, 8, ENC_NA);
+                /* Trick to force decoding of MS-TURN Multiplexed TURN channels */
+                found_turn_attributes = TRUE;
+                break;
 
             case GOOG_NETWORK_INFO:
                 proto_tree_add_item(att_tree, hf_stun_att_google_network_id, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -1949,6 +1965,14 @@ proto_register_stun(void)
            { "Foundation", "stun.att.ms.foundation", FT_STRING,
              BASE_NONE, NULL, 0x0, NULL, HFILL}
           },
+        { &hf_stun_att_ms_multiplexed_turn_session_id,
+          { "MS Multiplexed TURN Session Id", "stun.att.ms.multiplexed_turn_session_id", FT_UINT64,
+            BASE_HEX, NULL, 0x0, NULL, HFILL}
+         },
+        { &hf_stun_att_ms_turn_session_id,
+          { "MS TURN Session Id", "stun.att.ms.turn_session_id", FT_UINT64,
+            BASE_HEX, NULL, 0x0, NULL, HFILL}
+         },
         { &hf_stun_att_bandwidth_acm_type,
           { "Message Type", "stun.att.bandwidth_acm.type", FT_UINT16,
             BASE_DEC, VALS(bandwidth_acm_type_vals), 0x0, NULL, HFILL}
