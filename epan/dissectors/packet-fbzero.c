@@ -10,9 +10,17 @@
  */
 
 /*
-Zero Protocol coming from Facebook and used the same framing like QUIC (tag-map value) but based on TCP
-It was reverse engineered based off of QUIC dissector functionality
-*/
+ * Zero Protocol coming from Facebook and used the same framing like QUIC
+ * (tag-map value) but based on TCP
+ *
+ * See
+ *
+ *    https://engineering.fb.com/networking-traffic/building-zero-protocol-for-fast-secure-mobile-connections/
+ *
+ * for some (not much!) information on it.
+ *
+ * It was reverse engineered based off of QUIC dissector functionality
+ */
 #include "config.h"
 
 #include <epan/packet.h>
@@ -64,7 +72,7 @@ static gint ett_fb_zero_ftflags = -1;
 static gint ett_fb_zero_tag_value = -1;
 
 static expert_field ei_fb_zero_tag_undecoded = EI_INIT;
-static expert_field ei_fb_zero_tag_length = EI_INIT;
+static expert_field ei_fb_zero_tag_offset_end_invalid = EI_INIT;
 static expert_field ei_fb_zero_tag_unknown = EI_INIT;
 static expert_field ei_fb_zero_length_invalid = EI_INIT;
 
@@ -161,13 +169,20 @@ dissect_fb_zero_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *fb_zero_tree,
     guint32 tag_offset_start = offset + tag_number*4*2;
     guint32 tag_offset = 0, total_tag_len = 0;
     gint32 tag_len;
+    gboolean tag_offset_valid = TRUE;
 
     while(tag_number){
-        proto_tree *tag_tree, *ti_len, *ti_tag, *ti_type;
+        proto_tree *tag_tree;
+        proto_item *ti_tag, *ti_type, *ti_offset_len, *ti_len;
         guint32 offset_end, tag;
         const guint8* tag_str;
 
-        ti_tag = proto_tree_add_item(fb_zero_tree, hf_fb_zero_tags, tvb, offset, 8, ENC_NA);
+        /*
+         * This item covers the tag type and end offset; the tag values
+         * are in a separate region following all the type/end offset
+         * pairs.
+         */
+        ti_tag = proto_tree_add_item(fb_zero_tree, hf_fb_zero_tags, tvb, offset, 4*2, ENC_NA);
         tag_tree = proto_item_add_subtree(ti_tag, ett_fb_zero_tag_value);
         ti_type = proto_tree_add_item_ret_string(tag_tree, hf_fb_zero_tag_type, tvb, offset, 4, ENC_ASCII|ENC_NA, wmem_packet_scope(), &tag_str);
         tag = tvb_get_ntohl(tvb, offset);
@@ -175,108 +190,186 @@ dissect_fb_zero_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *fb_zero_tree,
         proto_item_append_text(ti_tag, ": %s (%s)", tag_str, val_to_str(tag, tag_vals, "Unknown"));
         offset += 4;
 
-        proto_tree_add_item(tag_tree, hf_fb_zero_tag_offset_end, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-        offset_end = tvb_get_letohl(tvb, offset);
-
-        tag_len = offset_end - tag_offset;
-        total_tag_len += tag_len;
-        ti_len = proto_tree_add_uint(tag_tree, hf_fb_zero_tag_length, tvb, offset, 4, tag_len);
-        proto_item_append_text(ti_tag, " (l=%u)", tag_len);
-        proto_item_set_generated(ti_len);
+        ti_offset_len = proto_tree_add_item_ret_uint(tag_tree, hf_fb_zero_tag_offset_end, tvb, offset, 4, ENC_LITTLE_ENDIAN, &offset_end);
+        if(offset_end < tag_offset){
+            expert_add_info_format(pinfo, ti_offset_len, &ei_fb_zero_tag_offset_end_invalid,
+                                   "Invalid tag end offset %u < %u",
+                                   offset_end, tag_offset);
+            /*
+             * We can continue to show the tag type, end offset, and length,
+             * but we can no longer show the values, or subsequent length
+             * values, as the end offset in the tag value region is bogus.
+             */
+            tag_offset_valid = FALSE;
+        } else {
+            tag_len = offset_end - tag_offset;
+            if(!tvb_bytes_exist(tvb, tag_offset_start + tag_offset, tag_len)){
+                expert_add_info_format(pinfo, ti_offset_len, &ei_fb_zero_tag_offset_end_invalid,
+                                       "Invalid tag end offset %u past end of packet",
+                                       offset_end);
+                /*
+                 * We can continue to show the tag type, end offset,
+                 * and length, but we can no longer show the values,
+                 * as the end offset in the tag value region is bogus.
+                 *
+                 * We don't just throw an exception here, because we
+                 * want to show all the tag type and end offset values.
+                 */
+                tag_offset_valid = FALSE;
+            }
+            total_tag_len += tag_len;
+            ti_len = proto_tree_add_uint(tag_tree, hf_fb_zero_tag_length, tvb, offset, 4, tag_len);
+            proto_item_append_text(ti_tag, " (l=%u)", tag_len);
+            proto_item_set_generated(ti_len);
+        }
         offset += 4;
 
-        /* Fix issue with CRT.. (Fragmentation ?) */
-        if( tag_len > tvb_reported_length_remaining(tvb, tag_offset_start + tag_offset)){
-            tag_len = tvb_reported_length_remaining(tvb, tag_offset_start + tag_offset);
-            offset_end = tag_offset + tag_len;
-            expert_add_info(pinfo, ti_len, &ei_fb_zero_tag_length);
+        if(tag_offset_valid){
+            proto_tree_add_item(tag_tree, hf_fb_zero_tag_value, tvb, tag_offset_start + tag_offset, tag_len, ENC_NA);
         }
-
-        proto_tree_add_item(tag_tree, hf_fb_zero_tag_value, tvb, tag_offset_start + tag_offset, tag_len, ENC_NA);
 
         switch(tag){
             case TAG_SNI:
-                proto_tree_add_item_ret_string(tag_tree, hf_fb_zero_tag_sni, tvb, tag_offset_start + tag_offset, tag_len, ENC_ASCII|ENC_NA, wmem_packet_scope(), &tag_str);
-                proto_item_append_text(ti_tag, ": %s", tag_str);
-                tag_offset += tag_len;
-            break;
+                if(tag_offset_valid){
+                    proto_tree_add_item_ret_string(tag_tree, hf_fb_zero_tag_sni, tvb, tag_offset_start + tag_offset, tag_len, ENC_ASCII|ENC_NA, wmem_packet_scope(), &tag_str);
+                    proto_item_append_text(ti_tag, ": %s", tag_str);
+                    tag_offset += tag_len;
+                }
+                break;
             case TAG_VERS:
-                proto_tree_add_item_ret_string(tag_tree, hf_fb_zero_tag_vers, tvb, tag_offset_start + tag_offset, 4, ENC_ASCII|ENC_NA, wmem_packet_scope(), &tag_str);
-                proto_item_append_text(ti_tag, ": %s", tag_str);
-                tag_offset += 4;
+                if(tag_offset_valid){
+                    if(tag_len != 4){
+                        expert_add_info_format(pinfo, fb_zero_tree, &ei_fb_zero_length_invalid,
+                                               "Invalid tag length: %u, should be 4", tag_len);
+                        tag_offset += tag_len;
+                        break;
+                    }
+                    proto_tree_add_item_ret_string(tag_tree, hf_fb_zero_tag_vers, tvb, tag_offset_start + tag_offset, 4, ENC_ASCII|ENC_NA, wmem_packet_scope(), &tag_str);
+                    proto_item_append_text(ti_tag, ": %s", tag_str);
+                    tag_offset += 4;
+                }
             break;
             case TAG_SNO:
-                proto_tree_add_item(tag_tree, hf_fb_zero_tag_sno, tvb, tag_offset_start + tag_offset, tag_len, ENC_NA);
-                tag_offset += tag_len;
+                if(tag_offset_valid){
+                    proto_tree_add_item(tag_tree, hf_fb_zero_tag_sno, tvb, tag_offset_start + tag_offset, tag_len, ENC_NA);
+                    tag_offset += tag_len;
+                }
             break;
             case TAG_AEAD:
-                while(offset_end - tag_offset >= 4){
-                    proto_tree *ti_aead;
-                    ti_aead = proto_tree_add_item(tag_tree, hf_fb_zero_tag_aead, tvb, tag_offset_start + tag_offset, 4, ENC_ASCII|ENC_NA);
-                    proto_item_append_text(ti_aead, " (%s)", val_to_str(tvb_get_ntohl(tvb, tag_offset_start + tag_offset), tag_aead_vals, "Unknown"));
-                    proto_item_append_text(ti_tag, ", %s", val_to_str(tvb_get_ntohl(tvb, tag_offset_start + tag_offset), tag_aead_vals, "Unknown"));
-                    tag_offset += 4;
+                if(tag_offset_valid){
+                    while(offset_end - tag_offset >= 4){
+                        proto_tree *ti_aead;
+                        ti_aead = proto_tree_add_item(tag_tree, hf_fb_zero_tag_aead, tvb, tag_offset_start + tag_offset, 4, ENC_ASCII|ENC_NA);
+                        proto_item_append_text(ti_aead, " (%s)", val_to_str(tvb_get_ntohl(tvb, tag_offset_start + tag_offset), tag_aead_vals, "Unknown"));
+                        proto_item_append_text(ti_tag, ", %s", val_to_str(tvb_get_ntohl(tvb, tag_offset_start + tag_offset), tag_aead_vals, "Unknown"));
+                        tag_offset += 4;
+                    }
+                    if(offset_end - tag_offset > 0){
+                        expert_add_info_format(pinfo, fb_zero_tree, &ei_fb_zero_length_invalid,
+                                               "Invalid tag length: %u, should be a multiple of 4", tag_len);
+                        tag_offset = offset_end;
+                    }
                 }
             break;
             case TAG_SCID:
-                proto_tree_add_item(tag_tree, hf_fb_zero_tag_scid, tvb, tag_offset_start + tag_offset, tag_len, ENC_NA);
-                tag_offset += tag_len;
-            break;
-            case TAG_TIME:
-                proto_tree_add_item(tag_tree, hf_fb_zero_tag_time, tvb, tag_offset_start + tag_offset, 4, ENC_LITTLE_ENDIAN);
-                proto_item_append_text(ti_tag, ": %u", tvb_get_letohl(tvb, tag_offset_start + tag_offset));
-                tag_offset += 4;
-            break;
-            case TAG_ALPN:
-                proto_tree_add_item_ret_string(tag_tree, hf_fb_zero_tag_alpn, tvb, tag_offset_start + tag_offset, 4, ENC_ASCII|ENC_NA, wmem_packet_scope(), &tag_str);
-                proto_item_append_text(ti_tag, ": %s", tag_str);
-                tag_offset += 4;
-            break;
-            case TAG_PUBS:
-                /*TODO FIX: 24 Length + Pubs key?.. ! */
-                proto_tree_add_item(tag_tree, hf_fb_zero_tag_pubs, tvb, tag_offset_start + tag_offset, 2, ENC_LITTLE_ENDIAN);
-                tag_offset += 2;
-                while(offset_end - tag_offset >= 3){
-                    proto_tree_add_item(tag_tree, hf_fb_zero_tag_pubs, tvb, tag_offset_start + tag_offset, 3, ENC_LITTLE_ENDIAN);
-                    tag_offset += 3;
+                if(tag_offset_valid){
+                    proto_tree_add_item(tag_tree, hf_fb_zero_tag_scid, tvb, tag_offset_start + tag_offset, tag_len, ENC_NA);
+                    tag_offset += tag_len;
                 }
             break;
-            case TAG_KEXS:
-                while(offset_end - tag_offset >= 4){
-                    proto_tree *ti_kexs;
-                    ti_kexs = proto_tree_add_item(tag_tree, hf_fb_zero_tag_kexs, tvb, tag_offset_start + tag_offset, 4, ENC_ASCII|ENC_NA);
-                    proto_item_append_text(ti_kexs, " (%s)", val_to_str(tvb_get_ntohl(tvb, tag_offset_start + tag_offset), tag_kexs_vals, "Unknown"));
-                    proto_item_append_text(ti_tag, ", %s", val_to_str(tvb_get_ntohl(tvb, tag_offset_start + tag_offset), tag_kexs_vals, "Unknown"));
+            case TAG_TIME:
+                if(tag_offset_valid){
+                    if(tag_len != 4){
+                        expert_add_info_format(pinfo, fb_zero_tree, &ei_fb_zero_length_invalid,
+                                               "Invalid tag length: %u, should be 4", tag_len);
+                        tag_offset += tag_len;
+                        break;
+                    }
+                    proto_tree_add_item(tag_tree, hf_fb_zero_tag_time, tvb, tag_offset_start + tag_offset, 4, ENC_LITTLE_ENDIAN);
+                    proto_item_append_text(ti_tag, ": %u", tvb_get_letohl(tvb, tag_offset_start + tag_offset));
                     tag_offset += 4;
                 }
             break;
-            case TAG_NONC:
-                /*TODO: Enhance display: 32 bytes consisting of 4 bytes of timestamp (big-endian, UNIX epoch seconds), 8 bytes of server orbit and 20 bytes of random data. */
-                proto_tree_add_item(tag_tree, hf_fb_zero_tag_nonc, tvb, tag_offset_start + tag_offset, 32, ENC_NA);
-                tag_offset += 32;
+            case TAG_ALPN:
+                if(tag_offset_valid){
+                    if(tag_len != 4){
+                        expert_add_info_format(pinfo, fb_zero_tree, &ei_fb_zero_length_invalid,
+                                               "Invalid tag length: %u, should be 4", tag_len);
+                        tag_offset += tag_len;
+                        break;
+                    }
+                    proto_tree_add_item_ret_string(tag_tree, hf_fb_zero_tag_alpn, tvb, tag_offset_start + tag_offset, 4, ENC_ASCII|ENC_NA, wmem_packet_scope(), &tag_str);
+                    proto_item_append_text(ti_tag, ": %s", tag_str);
+                    tag_offset += 4;
+                }
             break;
-
+            case TAG_PUBS:
+                if(tag_offset_valid){
+                    /*TODO FIX: 24 Length + Pubs key?.. ! */
+                    if(tag_len < 2){
+                        expert_add_info_format(pinfo, fb_zero_tree, &ei_fb_zero_length_invalid,
+                                               "Invalid tag length: %u, should be >= 2", tag_len);
+                        tag_offset += tag_len;
+                        break;
+                    }
+                    proto_tree_add_item(tag_tree, hf_fb_zero_tag_pubs, tvb, tag_offset_start + tag_offset, 2, ENC_LITTLE_ENDIAN);
+                    tag_offset += 2;
+                    while(offset_end - tag_offset >= 3){
+                        proto_tree_add_item(tag_tree, hf_fb_zero_tag_pubs, tvb, tag_offset_start + tag_offset, 3, ENC_LITTLE_ENDIAN);
+                        tag_offset += 3;
+                    }
+                    if(offset_end - tag_offset > 0){
+                        expert_add_info_format(pinfo, fb_zero_tree, &ei_fb_zero_length_invalid,
+                                               "Invalid tag length: %u, should be a multiple of 3", tag_len);
+                        tag_offset = offset_end;
+                    }
+                }
+            break;
+            case TAG_KEXS:
+                if(tag_offset_valid){
+                    while(offset_end - tag_offset >= 4){
+                        proto_tree *ti_kexs;
+                        ti_kexs = proto_tree_add_item(tag_tree, hf_fb_zero_tag_kexs, tvb, tag_offset_start + tag_offset, 4, ENC_ASCII|ENC_NA);
+                        proto_item_append_text(ti_kexs, " (%s)", val_to_str(tvb_get_ntohl(tvb, tag_offset_start + tag_offset), tag_kexs_vals, "Unknown"));
+                        proto_item_append_text(ti_tag, ", %s", val_to_str(tvb_get_ntohl(tvb, tag_offset_start + tag_offset), tag_kexs_vals, "Unknown"));
+                        tag_offset += 4;
+                    }
+                    if(offset_end - tag_offset > 0){
+                        expert_add_info_format(pinfo, fb_zero_tree, &ei_fb_zero_length_invalid,
+                                               "Invalid tag length: %u, should be a multiple of 4", tag_len);
+                        tag_offset = offset_end;
+                    }
+                }
+            break;
+            case TAG_NONC:
+                if(tag_offset_valid){
+                    /*TODO: Enhance display: 32 bytes consisting of 4 bytes of timestamp (big-endian, UNIX epoch seconds), 8 bytes of server orbit and 20 bytes of random data. */
+                    if(tag_len != 32){
+                        expert_add_info_format(pinfo, fb_zero_tree, &ei_fb_zero_length_invalid,
+                                               "Invalid tag length: %u, should be 32", tag_len);
+                        tag_offset += tag_len;
+                        break;
+                    }
+                    proto_tree_add_item(tag_tree, hf_fb_zero_tag_nonc, tvb, tag_offset_start + tag_offset, 32, ENC_NA);
+                    tag_offset += 32;
+                }
+            break;
             default:
-                proto_tree_add_item(tag_tree, hf_fb_zero_tag_unknown, tvb, tag_offset_start + tag_offset, tag_len, ENC_NA);
                 expert_add_info_format(pinfo, ti_tag, &ei_fb_zero_tag_undecoded,
                                  "Dissector for FB Zero Tag"
                                  " %s (%s) code not implemented, Contact"
                                  " Wireshark developers if you want this supported", tvb_get_string_enc(wmem_packet_scope(), tvb, offset-8, 4, ENC_ASCII|ENC_NA), val_to_str(tag, tag_vals, "Unknown"));
-                goto end;
-            break;
-        }
-
-        if(tag_offset != offset_end){
-            /* Wrong Tag len... */
-            proto_tree_add_expert(tag_tree, pinfo, &ei_fb_zero_tag_unknown, tvb, tag_offset_start + tag_offset, offset_end - tag_offset);
-            // XXX Return instead?
-            goto end;
+                if(tag_offset_valid){
+                    proto_tree_add_item(tag_tree, hf_fb_zero_tag_unknown, tvb, tag_offset_start + tag_offset, tag_len, ENC_NA);
+                    tag_offset += tag_len;
+                }
+                break;
         }
 
         tag_number--;
     }
 
-    end:
+    /* XXX - can this still occur? */
     if (offset + total_tag_len <= offset) {
         expert_add_info_format(pinfo, fb_zero_tree, &ei_fb_zero_length_invalid,
                          "Invalid total tag length: %u", total_tag_len);
@@ -297,6 +390,12 @@ dissect_fb_zero_unencrypt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *fb_zero
         proto_tree_add_item(fb_zero_tree, hf_fb_zero_unknown, tvb, offset, 1, ENC_NA);
         offset += 1;
 
+        /*
+         * XXX: in theory, a tagged message could be split between
+         * TCP segments - even the *header containing the length*
+         * could be split - but, from the sequence described in the
+         * Facebook blog post, that's probably unlikely in practice.
+         */
         proto_tree_add_item_ret_uint(fb_zero_tree, hf_fb_zero_length, tvb, offset, 4, ENC_LITTLE_ENDIAN, &length);
         offset += 4;
 
@@ -569,7 +668,7 @@ proto_register_fb_zero(void)
 
     static ei_register_info ei[] = {
         { &ei_fb_zero_tag_undecoded, { "fb_zero.tag.undecoded", PI_UNDECODED, PI_NOTE, "Dissector for FB Zero Tag code not implemented, Contact Wireshark developers if you want this supported", EXPFILL }},
-        { &ei_fb_zero_tag_length, { "fb_zero.tag.length.truncated", PI_MALFORMED, PI_NOTE, "Truncated Tag Length...", EXPFILL }},
+        { &ei_fb_zero_tag_offset_end_invalid, { "fb_zero.offset_end.invalid", PI_PROTOCOL, PI_ERROR, "Invalid tag end offset", EXPFILL }},
         { &ei_fb_zero_tag_unknown, { "fb_zero.tag.unknown.data", PI_UNDECODED, PI_NOTE, "Unknown Data", EXPFILL }},
         { &ei_fb_zero_length_invalid, { "fb_zero.length.invalid", PI_PROTOCOL, PI_WARN, "Invalid length", EXPFILL }},
     };
