@@ -10,7 +10,7 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-#define WS_HOME_PAGE_URL "https://www.wireshark.org";
+#define WS_HOME_PAGE_URL "https://www.wireshark.org"
 #define WS_DOWNLOAD_URL  "https://www.wireshark.org/download.html"
 #define WS_DOCS_URL      "https://www.wireshark.org/docs/"
 #define WS_FAQ_URL       "https://www.wireshark.org/faq.html"
