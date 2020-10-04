@@ -81,43 +81,43 @@ topic_action_url(topic_action_e action)
     switch(action) {
     /* pages online at www.wireshark.org */
     case(ONLINEPAGE_HOME):
-        url = WS_HOME_PAGE_URL;
+        url = g_strdup(WS_HOME_PAGE_URL);
         break;
     case(ONLINEPAGE_WIKI):
-        url = WS_WIKI_HOME_URL;
+        url = g_strdup(WS_WIKI_HOME_URL);
         break;
     case(ONLINEPAGE_DOWNLOAD):
-        url = WS_DOWNLOAD_URL;
+        url = g_strdup(WS_DOWNLOAD_URL);
         break;
     case(ONLINEPAGE_DOCS):
-        url = WS_DOCS_URL;
+        url = g_strdup(WS_DOCS_URL);
         break;
     case(ONLINEPAGE_USERGUIDE):
-        url = WS_DOCS_URL "/wsug_html_chunked/";
+        url = g_strdup(WS_DOCS_URL "/wsug_html_chunked/");
         break;
     case(ONLINEPAGE_FAQ):
-        url = WS_FAQ_URL;
+        url = g_strdup(WS_FAQ_URL);
         break;
     case(ONLINEPAGE_ASK):
-        url = WS_Q_AND_A_URL;
+        url = g_strdup(WS_Q_AND_A_URL);
         break;
     case(ONLINEPAGE_SAMPLE_FILES):
-        url = WS_WIKI_URL("SampleCaptures");
+        url = g_strdup(WS_WIKI_URL("SampleCaptures"));
         break;
     case(ONLINEPAGE_CAPTURE_SETUP):
-        url = WS_WIKI_URL("CaptureSetup");
+        url = g_strdup(WS_WIKI_URL("CaptureSetup"));
         break;
     case(ONLINEPAGE_NETWORK_MEDIA):
-        url = WS_WIKI_URL("CaptureSetup/NetworkMedia");
+        url = g_strdup(WS_WIKI_URL("CaptureSetup/NetworkMedia"));
         break;
     case(ONLINEPAGE_SAMPLE_CAPTURES):
-        url = WS_WIKI_URL("SampleCaptures");
+        url = g_strdup(WS_WIKI_URL("SampleCaptures"));
         break;
     case(ONLINEPAGE_SECURITY):
-        url = WS_WIKI_URL("Security");
+        url = g_strdup(WS_WIKI_URL("Security"));
         break;
     case(ONLINEPAGE_CHIMNEY):
-        url = WS_WIKI_URL("CaptureSetup/Offloading#chimney");
+        url = g_strdup(WS_WIKI_URL("CaptureSetup/Offloading#chimney"));
         break;
 
     /* local manual pages */
@@ -314,7 +314,7 @@ topic_action_url(topic_action_e action)
     case(TOPIC_ACTION_NONE):
     default:
         g_assert_not_reached();
-        url = WS_HOME_PAGE_URL;
+        url = g_strdup(WS_HOME_PAGE_URL);
     }
 
     return url;
