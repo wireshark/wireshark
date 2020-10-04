@@ -81,43 +81,43 @@ topic_action_url(topic_action_e action)
     switch(action) {
     /* pages online at www.wireshark.org */
     case(ONLINEPAGE_HOME):
-        return WS_HOME_PAGE_URL;
+        url = WS_HOME_PAGE_URL;
         break;
     case(ONLINEPAGE_WIKI):
-        return WS_WIKI_HOME_URL;
+        url = WS_WIKI_HOME_URL;
         break;
     case(ONLINEPAGE_DOWNLOAD):
-        return WS_DOWNLOAD_URL;
+        url = WS_DOWNLOAD_URL;
         break;
     case(ONLINEPAGE_DOCS):
-        return WS_DOCS_URL;
+        url = WS_DOCS_URL;
         break;
     case(ONLINEPAGE_USERGUIDE):
-        return WS_DOCS_URL "/wsug_html_chunked/";
+        url = WS_DOCS_URL "/wsug_html_chunked/";
         break;
     case(ONLINEPAGE_FAQ):
-        return WS_FAQ_URL;
+        url = WS_FAQ_URL;
         break;
     case(ONLINEPAGE_ASK):
-        return WS_Q_AND_A_URL;
+        url = WS_Q_AND_A_URL;
         break;
     case(ONLINEPAGE_SAMPLE_FILES):
-        return WS_WIKI_URL("SampleCaptures");
+        url = WS_WIKI_URL("SampleCaptures");
         break;
     case(ONLINEPAGE_CAPTURE_SETUP):
-        return WS_WIKI_URL("CaptureSetup");
+        url = WS_WIKI_URL("CaptureSetup");
         break;
     case(ONLINEPAGE_NETWORK_MEDIA):
-        return WS_WIKI_URL("CaptureSetup/NetworkMedia");
+        url = WS_WIKI_URL("CaptureSetup/NetworkMedia");
         break;
     case(ONLINEPAGE_SAMPLE_CAPTURES):
-        return WS_WIKI_URL("SampleCaptures");
+        url = WS_WIKI_URL("SampleCaptures");
         break;
     case(ONLINEPAGE_SECURITY):
-        return WS_WIKI_URL("Security");
+        url = WS_WIKI_URL("Security");
         break;
     case(ONLINEPAGE_CHIMNEY):
-        return WS_WIKI_URL("CaptureSetup/Offloading#chimney");
+        url = WS_WIKI_URL("CaptureSetup/Offloading#chimney");
         break;
 
     /* local manual pages */
@@ -314,6 +314,7 @@ topic_action_url(topic_action_e action)
     case(TOPIC_ACTION_NONE):
     default:
         g_assert_not_reached();
+        url = WS_HOME_PAGE_URL;
     }
 
     return url;
