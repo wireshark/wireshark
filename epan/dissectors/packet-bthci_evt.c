@@ -3044,7 +3044,40 @@ dissect_bthci_evt_le_meta(tvbuff_t *tvb, int offset, packet_info *pinfo,
             send_hci_summary_status_tap(status, pinfo, bluetooth_data);
             offset += 1;
             proto_tree_add_item(tree, hf_bthci_evt_cis_handle, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            connection_handle = tvb_get_letohs(tvb, offset) & 0x0FFF;
             offset += 2;
+
+            if (!pinfo->fd->visited && status == STATUS_SUCCESS) {
+                wmem_tree_key_t    key[5];
+                guint32            k_interface_id;
+                guint32            k_adapter_id;
+                guint32            k_connection_handle;
+                guint32            k_frame_number;
+                chandle_session_t *chandle_session;
+
+                k_interface_id = bluetooth_data->interface_id;
+                k_adapter_id = bluetooth_data->adapter_id;
+                k_connection_handle = connection_handle;
+                k_frame_number = pinfo->num;
+
+                key[0].length = 1;
+                key[0].key    = &k_interface_id;
+                key[1].length = 1;
+                key[1].key    = &k_adapter_id;
+                key[2].length = 1;
+                key[2].key    = &k_connection_handle;
+                key[3].length = 1;
+                key[3].key    = &k_frame_number;
+                key[4].length = 0;
+                key[4].key    = NULL;
+
+                chandle_session = (chandle_session_t *) wmem_new(wmem_file_scope(), chandle_session_t);
+                chandle_session->connect_in_frame = k_frame_number;
+                chandle_session->disconnect_in_frame = max_disconnect_in_frame;
+                chandle_session->link_type = BT_LINK_TYPE_ISO;
+                wmem_tree_insert32_array(bluetooth_data->chandle_sessions, key, chandle_session);
+            }
+
             proto_tree_add_item(tree, hf_bthci_evt_cig_sync_delay, tvb, offset, 3, ENC_LITTLE_ENDIAN);
             offset += 3;
             proto_tree_add_item(tree, hf_bthci_evt_cis_sync_delay, tvb, offset, 3, ENC_LITTLE_ENDIAN);
@@ -3076,14 +3109,48 @@ dissect_bthci_evt_le_meta(tvbuff_t *tvb, int offset, packet_info *pinfo,
             offset += 2;
             break;
         case 0x1A: /* LE CIS Request */
+            {
+            guint32 chandle, k_shandle;
             proto_tree_add_item(tree, hf_bthci_evt_connection_handle, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            chandle = tvb_get_letohs(tvb, offset) & 0xfff;
             offset += 2;
             proto_tree_add_item(tree, hf_bthci_evt_cis_handle, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            k_shandle = tvb_get_letohs(tvb, offset) & 0xfff;
             offset += 2;
             proto_tree_add_item(tree, hf_bthci_evt_cig_id, tvb, offset, 1, ENC_NA);
             offset += 1;
             proto_tree_add_item(tree, hf_bthci_evt_cis_id, tvb, offset, 1, ENC_NA);
             offset += 1;
+
+            if (!pinfo->fd->visited) {
+                wmem_tree_key_t     key[5];
+                guint32             interface_id;
+                guint32             adapter_id;
+                guint32             frame_number;
+                stream_connection_handle_pair_t *stream_connection_handle_pair;
+
+                interface_id = bluetooth_data->interface_id;
+                adapter_id   = bluetooth_data->adapter_id;
+                frame_number = pinfo->num;
+
+                key[0].length = 1;
+                key[0].key    = &interface_id;
+                key[1].length = 1;
+                key[1].key    = &adapter_id;
+                key[2].length = 1;
+                key[2].key    = &k_shandle;
+                key[3].length = 1;
+                key[3].key    = &frame_number;
+                key[4].length = 0;
+                key[4].key    = NULL;
+
+                stream_connection_handle_pair = (stream_connection_handle_pair_t *) wmem_new(wmem_file_scope(), stream_connection_handle_pair_t);
+                stream_connection_handle_pair->chandle = chandle;
+                stream_connection_handle_pair->change_in_frame = frame_number;
+
+                wmem_tree_insert32_array(bluetooth_data->shandle_to_chandle, key, stream_connection_handle_pair);
+            }
+            }
             break;
         case 0x1B: /* LE Create BIG Complete */
             {

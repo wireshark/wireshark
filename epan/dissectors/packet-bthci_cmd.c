@@ -5278,6 +5278,7 @@ dissect_le_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, 
         case 0x0064: /* LE Create CIS */
             {
             guint8 cis_count;
+            guint32 k_shandle, chandle;
             proto_tree_add_item(tree, hf_bthci_cmd_cis_count, tvb, offset, 1, ENC_NA);
             cis_count = tvb_get_guint8(tvb, offset);
             offset++;
@@ -5286,9 +5287,41 @@ dissect_le_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, 
                                                       tvb_get_letohs(tvb, offset), tvb_get_letohs(tvb, offset+2));
                 sub_tree = proto_item_add_subtree(sub_item, ett_cis_params);
                 proto_tree_add_item(sub_tree, hf_bthci_cmd_cis_handle, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                k_shandle = tvb_get_letohs(tvb, offset) & 0xfff;
                 offset+=2;
                 proto_tree_add_item(sub_tree, hf_bthci_cmd_connection_handle, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                chandle = tvb_get_letohs(tvb, offset) & 0xfff;
                 offset+=2;
+
+                if (!pinfo->fd->visited) {
+                    wmem_tree_key_t     key[5];
+                    guint32             interface_id;
+                    guint32             adapter_id;
+                    guint32             frame_number;
+                    stream_connection_handle_pair_t  *stream_connection_handle_pair;
+
+                    interface_id = bluetooth_data->interface_id;
+                    adapter_id   = bluetooth_data->adapter_id;
+                    frame_number = pinfo->num;
+
+                    key[0].length = 1;
+                    key[0].key    = &interface_id;
+                    key[1].length = 1;
+                    key[1].key    = &adapter_id;
+                    key[2].length = 1;
+                    key[2].key    = &k_shandle;
+                    key[3].length = 1;
+                    key[3].key    = &frame_number;
+                    key[4].length = 0;
+                    key[4].key    = NULL;
+
+                    stream_connection_handle_pair =
+                        (stream_connection_handle_pair_t *) wmem_new(wmem_file_scope(), stream_connection_handle_pair_t);
+                    stream_connection_handle_pair->chandle = chandle;
+                    stream_connection_handle_pair->change_in_frame = frame_number;
+
+                    wmem_tree_insert32_array(bluetooth_data->shandle_to_chandle, key, stream_connection_handle_pair);
+                }
             }
             }
             break;

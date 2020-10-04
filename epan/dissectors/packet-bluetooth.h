@@ -88,6 +88,7 @@ typedef enum {
 /* chandle_sessions:         interface_id + adapter_id + connection_handle + frame_number -> connect_in_frame, disconnect_in_frame */
 /* chandle_to_bdaddr:        interface_id + adapter_id + connection_handle + frame_number -> bd_addr[6] */
 /* chandle_to_mode:          interface_id + adapter_id + connection_handle + frame_number -> mode */
+/* shandle_to_chandle:       interface_id + adapter_id + stream_handle + frame_number -> connection_handle */
 /* bdaddr_to_name:           bd_addr[6] + frame_number -> name */
 /* bdaddr_to_role:           bd_addr[6] + frame_number -> role */
 /* localhost_bdaddr:         interface_id + adapter_id + frame_number -> bd_addr[6] */
@@ -99,6 +100,7 @@ typedef struct _bluetooth_data_t {
     wmem_tree_t *chandle_sessions;
     wmem_tree_t *chandle_to_bdaddr;
     wmem_tree_t *chandle_to_mode;
+    wmem_tree_t *shandle_to_chandle;
     wmem_tree_t *bdaddr_to_name;
     wmem_tree_t *bdaddr_to_role;
     wmem_tree_t *localhost_bdaddr;
@@ -120,6 +122,7 @@ typedef struct _bluetooth_data_t {
 #define BT_LINK_TYPE_ACL     1
 #define BT_LINK_TYPE_SCO     2
 #define BT_LINK_TYPE_LL      3
+#define BT_LINK_TYPE_ISO     4
 
 typedef struct _chandle_session_t {
     guint32  connect_in_frame;
@@ -149,6 +152,11 @@ typedef struct _connection_mode_t {
     gint32   mode;
     guint32  change_in_frame;
 } connection_mode_t;
+
+typedef struct _stream_connection_handle_pair_t {
+    gint32   chandle;
+    guint32  change_in_frame;
+} stream_connection_handle_pair_t;
 
 #define ROLE_UNKNOWN  0
 #define ROLE_MASTER   1

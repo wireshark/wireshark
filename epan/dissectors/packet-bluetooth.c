@@ -51,6 +51,7 @@ dissector_table_t        bluetooth_uuid_table;
 static wmem_tree_t *chandle_sessions        = NULL;
 static wmem_tree_t *chandle_to_bdaddr       = NULL;
 static wmem_tree_t *chandle_to_mode         = NULL;
+static wmem_tree_t *shandle_to_chandle      = NULL;
 static wmem_tree_t *bdaddr_to_name          = NULL;
 static wmem_tree_t *bdaddr_to_role          = NULL;
 static wmem_tree_t *localhost_name          = NULL;
@@ -3698,6 +3699,7 @@ dissect_bluetooth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     bluetooth_data->chandle_sessions             = chandle_sessions;
     bluetooth_data->chandle_to_bdaddr            = chandle_to_bdaddr;
     bluetooth_data->chandle_to_mode              = chandle_to_mode;
+    bluetooth_data->shandle_to_chandle           = shandle_to_chandle;
     bluetooth_data->bdaddr_to_name               = bdaddr_to_name;
     bluetooth_data->bdaddr_to_role               = bdaddr_to_role;
     bluetooth_data->localhost_bdaddr             = localhost_bdaddr;
@@ -3944,6 +3946,7 @@ proto_register_bluetooth(void)
     chandle_sessions         = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
     chandle_to_bdaddr        = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
     chandle_to_mode          = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
+    shandle_to_chandle       = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
     bdaddr_to_name           = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
     bdaddr_to_role           = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
     localhost_bdaddr         = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
