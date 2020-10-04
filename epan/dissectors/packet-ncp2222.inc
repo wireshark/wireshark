@@ -2729,6 +2729,11 @@ align_4(tvbuff_t *tvb, guint32 aoffset)
     return 0;
 }
 
+/*
+ * XXX - should we just use regular string functions, or proto_item_
+ * functions, with ENC_UTF_16|ENC_LITTLE_ENDIAN (or ENC_UCS_2, if
+ * they don't support full UTF-16)?
+ */
 static const char *
 get_string(tvbuff_t* tvb, guint offset, guint str_length)
 {
@@ -4764,6 +4769,7 @@ process_multivalues(proto_tree *ncp_tree, tvbuff_t *tvb, packet_info *pinfo, nds
     values->vstring = "";
 
     /* Is the value passed a string or UINT32? */
+    /* XXX - this should just be an FT_NONE to cover the entire item */
     if(values->mvtype != MVTYPE_LIST_PARTITIONS && values->mvtype != MVTYPE_PROCESS_TAGS)
     {
         nitem = proto_tree_add_uint_format(ncp_tree, values->hfname, tvb, values->voffset+ioffset,
