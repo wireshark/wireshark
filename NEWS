@@ -1,4 +1,4 @@
-Wireshark 3.3.1 Release Notes
+Wireshark 3.3.2 Release Notes
 
  This is an experimental release intended to test new features for
  Wireshark 3.4.
@@ -14,6 +14,11 @@ Wireshark 3.3.1 Release Notes
   section below for more details.
 
   New and Updated Features
+
+   The following features are new (or have been significantly updated)
+   since version 3.3.1:
+
+     • Nothing of note.
 
    The following features are new (or have been significantly updated)
    since version 3.3.0:
@@ -49,6 +54,9 @@ Wireshark 3.3.1 Release Notes
 
      • Wireshark is able to decode, play, and save iLBC payload on
        platforms where the iLBC library[2] is available.
+
+     • Wireshark is able to decode, play, and save opus payload on
+       platforms where the opus library[3] is available.
 
      • “Decode As” entries can now be copied from other profiles using a
        button in the dialog.
@@ -99,7 +107,7 @@ Wireshark 3.3.1 Release Notes
    Most Linux and Unix vendors supply their own Wireshark packages. You
    can usually install or upgrade Wireshark using the package management
    system specific to that platform. A list of third-party packages can
-   be found on the download page[3] on the Wireshark web site.
+   be found on the download page[4] on the Wireshark web site.
 
  File Locations
 
@@ -113,25 +121,26 @@ Wireshark 3.3.1 Release Notes
   The User’s Guide, manual pages and various other documentation can be
   found at https://www.wireshark.org/docs/
 
-  Community support is available on Wireshark’sQ&A site[4] and on the
+  Community support is available on Wireshark’sQ&A site[5] and on the
   wireshark-users mailing list. Subscription information and archives
-  for all of Wireshark’s mailing lists can be found on the web site[5].
+  for all of Wireshark’s mailing lists can be found on the web site[6].
 
-  Bugs and feature requests can be reported on the issue tracker[6].
+  Bugs and feature requests can be reported on the issue tracker[7].
 
  Frequently Asked Questions
 
-  A complete FAQ is available on the Wireshark web site[7].
+  A complete FAQ is available on the Wireshark web site[8].
 
-  Last updated 2020-10-01 17:05:15 UTC
+  Last updated 2020-10-04 09:04:19 UTC
 
  References
 
    1. https://support.microsoft.com/en-us/help/4472027/2019-sha-2-code-s
   igning-support-requirement-for-windows-and-wsus
    2. https://github.com/TimothyGu/libilbc
-   3. https://www.wireshark.org/download.html#thirdparty
-   4. https://ask.wireshark.org/
-   5. https://www.wireshark.org/lists/
-   6. https://gitlab.com/wireshark/wireshark/-/issues
-   7. https://www.wireshark.org/faq.html
+   3. https://opus-codec.org/
+   4. https://www.wireshark.org/download.html#thirdparty
+   5. https://ask.wireshark.org/
+   6. https://www.wireshark.org/lists/
+   7. https://gitlab.com/wireshark/wireshark/-/issues
+   8. https://www.wireshark.org/faq.html
