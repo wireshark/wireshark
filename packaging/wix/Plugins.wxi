@@ -130,7 +130,7 @@
                 <File Id="filILBC_dll" KeyPath="yes" Source="$(var.Plugins.Dir)\$(var.WiresharkMajorVersion).$(var.WiresharkMinorVersion)\codecs\ilbc.dll" />
             </Component>
             <Component Id="cmpOPUS_dll" Guid="*">
-                <File Id="filOPUS_dll" KeyPath="yes" Source="$(var.Plugins.Dir)\$(var.WiresharkMajorVersion).$(var.WiresharkMinorVersion)\codecs\opus_dec.dll" />
+                <File Id="filOPUS_dec_dll" KeyPath="yes" Source="$(var.Plugins.Dir)\$(var.WiresharkMajorVersion).$(var.WiresharkMinorVersion)\codecs\opus_dec.dll" />
             </Component>
         </DirectoryRef>
     </Fragment>
