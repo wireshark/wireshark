@@ -292,7 +292,7 @@ ulistproc	372/tcp/udp	# ListProcessor
 legent-1	373/tcp/udp	# Legent Corporation
 legent-2	374/tcp/udp	# Legent Corporation
 hassle		375/tcp/udp	# Hassle
-nip		376/tcp/udp	# Amiga Envoy Network Inquiry Proto
+nip		376/tcp/udp	# Amiga Envoy Network Inquiry Protocol
 tnETOS		377/tcp/udp	# NEC Corporation
 dsETOS		378/tcp/udp	# NEC Corporation
 is99c		379/tcp/udp	# TIA/EIA/IS-99 modem client
