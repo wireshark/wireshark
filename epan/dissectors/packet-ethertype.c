@@ -186,6 +186,7 @@ const value_string etype_vals[] = {
 	{ ETHERTYPE_ECPRI,                "eCPRI" },
 	{ ETHERTYPE_CABLELABS,            "CableLabs Layer-3 Protocol" },
 	{ ETHERTYPE_ACIGLEAN,             "Cisco ACI ARP gleaning" },
+	{ ETHERTYPE_IEEE_802_1CB,         "802.1CB Frame Replication and Elimination for Reliability" },
 	{ 0, NULL }
 };
 

@@ -650,6 +650,10 @@ extern "C" {
 #define ETHERTYPE_ACIGLEAN		0xFFF2	/* Used to transport Cisco ACI internal frames for ARP gleaning (not registered) */
 #endif
 
+#ifndef ETHERTYPE_IEEE_802_1CB
+#define ETHERTYPE_IEEE_802_1CB		0xF1C1	/* IEEE 802.1CB Frame Replication and Elimination for Reliability */
+#endif
+
 WS_DLL_PUBLIC const value_string etype_vals[];
 
 #ifdef __cplusplus
