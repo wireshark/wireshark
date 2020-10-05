@@ -119,33 +119,34 @@ ProtocolIE-Field/value ie_field_value
 
 #.ASSIGN_VALUE_TO_TYPE  # E1AP does not have constants assigned to types, they are pure INTEGER
 # ProcedureCode
-id-reset                               ProcedureCode
-id-errorIndication                     ProcedureCode
-id-privateMessage                      ProcedureCode
-id-gNB-CU-UP-E1Setup                   ProcedureCode
-id-gNB-CU-CP-E1Setup                   ProcedureCode
-id-gNB-CU-UP-ConfigurationUpdate       ProcedureCode
-id-gNB-CU-CP-ConfigurationUpdate       ProcedureCode
-id-e1Release                           ProcedureCode
-id-bearerContextSetup                  ProcedureCode
-id-bearerContextModification           ProcedureCode
-id-bearerContextModificationRequired   ProcedureCode
-id-bearerContextRelease                ProcedureCode
-id-bearerContextReleaseRequest         ProcedureCode
-id-bearerContextInactivityNotification ProcedureCode
-id-dLDataNotification                  ProcedureCode
-id-dataUsageReport                     ProcedureCode
-id-gNB-CU-UP-CounterCheck              ProcedureCode
-id-gNB-CU-UP-StatusIndication          ProcedureCode
-id-uLDataNotification                  ProcedureCode
-id-mRDC-DataUsageReport                ProcedureCode
-id-TraceStart                          ProcedureCode
-id-DeactivateTrace                     ProcedureCode
-id-resourceStatusReportingInitiation   ProcedureCode
-id-resourceStatusReporting             ProcedureCode
-id-iAB-UPTNLAddressUpdate              ProcedureCode
-id-CellTrafficTrace                    ProcedureCode
-id-earlyForwardingSNTransfer           ProcedureCode
+id-reset                                  ProcedureCode
+id-errorIndication                        ProcedureCode
+id-privateMessage                         ProcedureCode
+id-gNB-CU-UP-E1Setup                      ProcedureCode
+id-gNB-CU-CP-E1Setup                      ProcedureCode
+id-gNB-CU-UP-ConfigurationUpdate          ProcedureCode
+id-gNB-CU-CP-ConfigurationUpdate          ProcedureCode
+id-e1Release                              ProcedureCode
+id-bearerContextSetup                     ProcedureCode
+id-bearerContextModification              ProcedureCode
+id-bearerContextModificationRequired      ProcedureCode
+id-bearerContextRelease                   ProcedureCode
+id-bearerContextReleaseRequest            ProcedureCode
+id-bearerContextInactivityNotification    ProcedureCode
+id-dLDataNotification                     ProcedureCode
+id-dataUsageReport                        ProcedureCode
+id-gNB-CU-UP-CounterCheck                 ProcedureCode
+id-gNB-CU-UP-StatusIndication             ProcedureCode
+id-uLDataNotification                     ProcedureCode
+id-mRDC-DataUsageReport                   ProcedureCode
+id-TraceStart                             ProcedureCode
+id-DeactivateTrace                        ProcedureCode
+id-resourceStatusReportingInitiation      ProcedureCode
+id-resourceStatusReporting                ProcedureCode
+id-iAB-UPTNLAddressUpdate                 ProcedureCode
+id-CellTrafficTrace                       ProcedureCode
+id-earlyForwardingSNTransfer              ProcedureCode
+id-gNB-CU-CPMeasurementResultsInformation ProcedureCode
 
 # ProtocolIE-ID
 id-Cause                                        ProtocolIE-ID
@@ -274,6 +275,11 @@ id-EarlyForwardingCOUNTReq                      ProtocolIE-ID
 id-EarlyForwardingCOUNTInfo                     ProtocolIE-ID
 id-AlternativeQoSParaSetList                    ProtocolIE-ID
 id-ExtendedSliceSupportList                     ProtocolIE-ID
+id-MCG-OfferedGBRQoSFlowInfo                    ProtocolIE-ID
+id-Number-of-tunnels                            ProtocolIE-ID
+id-DRB-Measurement-Results-Information-List     ProtocolIE-ID
+id-Extended-GNB-CU-CP-Name                      ProtocolIE-ID
+id-Extended-GNB-CU-UP-Name                      ProtocolIE-ID
 #.END
 
 #.REGISTER
@@ -375,6 +381,9 @@ PrivacyIndicator                             N e1ap.ies id-PrivacyIndicator
 URIaddress                                   N e1ap.ies id-URIaddress
 DRBs-Subject-To-Early-Forwarding-List        N e1ap.ies id-DRBs-Subject-To-Early-Forwarding-List
 CHOInitiation                                N e1ap.ies id-CHOInitiation
+DRB-Measurement-Results-Information-List     N e1ap.ies id-DRB-Measurement-Results-Information-List
+Extended-GNB-CU-CP-Name                      N e1ap.ies id-Extended-GNB-CU-CP-Name
+Extended-GNB-CU-UP-Name                      N e1ap.ies id-Extended-GNB-CU-UP-Name
 
 #E1AP-PROTOCOL-EXTENSION
 SNSSAI                                       N e1ap.extension id-SNSSAI
@@ -407,6 +416,8 @@ EarlyForwardingCOUNTReq                      N e1ap.extension id-EarlyForwarding
 EarlyForwardingCOUNTInfo                     N e1ap.extension id-EarlyForwardingCOUNTInfo
 AlternativeQoSParaSetList                    N e1ap.extension id-AlternativeQoSParaSetList
 ExtendedSliceSupportList                     N e1ap.extension id-ExtendedSliceSupportList
+GBR-QoSFlowInformation                       N e1ap.extension id-MCG-OfferedGBRQoSFlowInfo
+Number-of-tunnels                            N e1ap.extension id-Number-of-tunnels
 
 #E1AP-ELEMENTARY-PROCEDURE
 Reset                                    N e1ap.proc.imsg id-reset
@@ -462,6 +473,8 @@ GNB-CU-UP-CounterCheckRequest            N e1ap.proc.imsg id-gNB-CU-UP-CounterCh
 GNB-CU-UP-StatusIndication               N e1ap.proc.imsg id-gNB-CU-UP-StatusIndication
 
 PrivateMessage                           N e1ap.proc.imsg id-privateMessage
+
+GNB-CU-CPMeasurementResultsInformation   N e1ap.proc.imsg id-gNB-CU-CPMeasurementResultsInformation
 
 MRDC-DataUsageReport                     N e1ap.proc.imsg id-mRDC-DataUsageReport
 
@@ -532,7 +545,7 @@ DRB-Usage-Report-Item/usageCountDL DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&un
 MaxPacketLossRate DISPLAY = BASE_CUSTOM STRINGS = CF_FUNC(e1ap_MaxPacketLossRate_fmt)
 
 #.TYPE_ATTR
-PacketDelayBudget DISPLAY = BASE_CUSTOM STRINGS = CF_FUNC(e1ap_PacketDelayBudget_fmt)
+PacketDelayBudget DISPLAY = BASE_CUSTOM STRINGS = CF_FUNC(e1ap_PacketDelayBudget_uL_D1_Result_fmt)
 
 #.TYPE_ATTR
 AveragingWindow DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_milliseconds
@@ -657,6 +670,9 @@ Periodicity DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_microseconds
     dissect_nr_rrc_ReferenceTime_r16_PDU(param_tvb, actx->pinfo, subtree, NULL);
   }
 
+#.TYPE_ATTR
+DRB-Measurement-Results-Information-Item/uL-D1-Result DISPLAY = BASE_CUSTOM STRINGS = CF_FUNC(e1ap_PacketDelayBudget_uL_D1_Result_fmt)
+
 #.FN_HDR Reset
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "Reset");
 #.FN_HDR ResetAcknowledge
@@ -727,6 +743,8 @@ Periodicity DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_microseconds
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "GNB-CU-UP-CounterCheckRequest");
 #.FN_HDR PrivateMessage
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "PrivateMessage");
+#.FN_HDR GNB-CU-CPMeasurementResultsInformation
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "GNB-CU-CPMeasurementResultsInformation");
 #.FN_HDR MRDC-DataUsageReport
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "MRDC-DataUsageReport");
 #.FN_HDR DeactivateTrace

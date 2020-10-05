@@ -1,4 +1,4 @@
--- 3GPP TS 38.463 V16.2.0 (2020-07)
+-- 3GPP TS 38.463 V16.3.0 (2020-09)﻿
 -- **************************************************************
 --
 -- Information Element Definitions
@@ -45,6 +45,8 @@ IMPORTS
 	id-EarlyForwardingCOUNTReq,
 	id-EarlyForwardingCOUNTInfo,
 	id-AlternativeQoSParaSetList,
+	id-MCG-OfferedGBRQoSFlowInfo,
+	id-Number-of-tunnels,
 	maxnoofQoSParaSets,
 	maxnoofErrors,
 	maxnoofSliceItems,
@@ -201,7 +203,11 @@ CauseRadioNetwork ::= ENUMERATED {
 	uP-integrity-protection-failure,
 	release-due-to-pre-emption,
 	rsn-not-available-for-the-up,
-	nPN-not-supported
+	nPN-not-supported,
+	report-characteristic-empty,
+	existing-measurement-ID,
+	measurement-temporarily-not-available,
+	measurement-not-supported-for-the-object
 }
 
 CauseTransport ::= ENUMERATED {
@@ -223,6 +229,7 @@ Cell-Group-Information-Item	::=	SEQUENCE {
 }
 
 Cell-Group-Information-Item-ExtIEs		E1AP-PROTOCOL-EXTENSION ::= {
+	{ ID id-Number-of-tunnels	CRITICALITY ignore	EXTENSION Number-of-tunnels 	PRESENCE optional},
 	...
 }
 
@@ -230,6 +237,8 @@ Cell-Group-Information-Item-ExtIEs		E1AP-PROTOCOL-EXTENSION ::= {
 Cell-Group-ID	::=		INTEGER (0..3, ...)
 
 CHOInitiation	::=		ENUMERATED {true, ...}
+
+Number-of-tunnels  ::=		INTEGER (1..4, ...)
 
 CipheringAlgorithm	::=	ENUMERATED {
 	nEA0,
@@ -540,6 +549,17 @@ DRB-Failed-To-Modify-Item-NG-RAN-ExtIEs		E1AP-PROTOCOL-EXTENSION ::= {
 }
 
 DRB-ID	::=	INTEGER (1..32, ...)
+DRB-Measurement-Results-Information-List	::= SEQUENCE (SIZE(1.. maxnoofDRBs)) OF DRB-Measurement-Results-Information-Item
+DRB-Measurement-Results-Information-Item	::=	SEQUENCE {
+	dRB-ID										DRB-ID,
+	uL-D1-Result								INTEGER (0..10000, ...)							OPTIONAL,
+	iE-Extensions							ProtocolExtensionContainer { { DRB-Measurement-Results-Information-Item-ExtIEs } }	OPTIONAL,
+	...
+}
+
+DRB-Measurement-Results-Information-Item-ExtIEs		E1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
 
 DRB-Modified-List-EUTRAN	::= SEQUENCE (SIZE(1.. maxnoofDRBs)) OF DRB-Modified-Item-EUTRAN
 
@@ -1077,7 +1097,23 @@ FirstDLCount-ExtIEs E1AP-PROTOCOL-EXTENSION ::= {
 
 -- G
 
-GNB-CU-CP-Name 				::= PrintableString(SIZE(1..150,...))
+GNB-CU-CP-Name 				::= PrintableString(SIZE(1..150,...)) 
+
+Extended-GNB-CU-CP-Name	 ::= SEQUENCE {
+	gNB-CU-CP-NameVisibleString			GNB-CU-CP-NameVisibleString				OPTIONAL,
+	gNB-CU-CP-NameUTF8String			GNB-CU-CP-NameUTF8String				OPTIONAL, 
+	iE-Extensions						ProtocolExtensionContainer { { Extended-GNB-CU-CP-Name-ExtIEs } } OPTIONAL,
+	...
+}
+
+Extended-GNB-CU-CP-Name-ExtIEs E1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+GNB-CU-CP-NameVisibleString ::= VisibleString(SIZE(1..150,...))
+
+GNB-CU-CP-NameUTF8String ::= UTF8String(SIZE(1..150,...))
+
 
 GNB-CU-CP-UE-E1AP-ID		::= INTEGER (0..4294967295)
 
@@ -1099,6 +1135,21 @@ GNB-CU-UP-CellGroupRelatedConfiguration-Item-ExtIEs	E1AP-PROTOCOL-EXTENSION ::= 
 GNB-CU-UP-ID				::= INTEGER (0..68719476735)
 
 GNB-CU-UP-Name 				::= PrintableString(SIZE(1..150,...))
+
+Extended-GNB-CU-UP-Name	 ::= SEQUENCE {
+	gNB-CU-UP-NameVisibleString			GNB-CU-UP-NameVisibleString				OPTIONAL,
+	gNB-CU-UP-NameUTF8String			GNB-CU-UP-NameUTF8String				OPTIONAL, 
+	iE-Extensions						ProtocolExtensionContainer { { Extended-GNB-CU-UP-Name-ExtIEs } } OPTIONAL,
+	...
+}
+
+Extended-GNB-CU-UP-Name-ExtIEs E1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+GNB-CU-UP-NameVisibleString ::= VisibleString(SIZE(1..150,...))
+
+GNB-CU-UP-NameUTF8String ::= UTF8String(SIZE(1..150,...))
 
 GNB-CU-UP-UE-E1AP-ID		::= INTEGER (0..4294967295) 
 
@@ -1616,7 +1667,7 @@ PDCP-SN-Size	::=	ENUMERATED	{
 PDCP-SN-Status-Information ::= SEQUENCE {
 	pdcpStatusTransfer-UL	DRBBStatusTransfer,
 	pdcpStatusTransfer-DL	PDCP-Count,
-	iE-Extension		ProtocolExtensionContainer { {DRBsSubjectToStatusTransfer-Item-ExtIEs} }	OPTIONAL,
+	iE-Extension		ProtocolExtensionContainer { { PDCP-SN-Status-Information-ExtIEs} }	OPTIONAL,
 	...
 }
 
@@ -1627,7 +1678,7 @@ PDCP-StatusReportIndication	::=	ENUMERATED	{
 	...
 }
 
-DRBsSubjectToStatusTransfer-Item-ExtIEs E1AP-PROTOCOL-EXTENSION ::= {
+PDCP-SN-Status-Information-ExtIEs E1AP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
@@ -2024,7 +2075,8 @@ QoSFlowLevelQoSParameters	::= SEQUENCE {
 }
 
 QoSFlowLevelQoSParameters-ExtIEs 	E1AP-PROTOCOL-EXTENSION ::= {
-	{ID id-QoSMonitoringRequest	CRITICALITY ignore	EXTENSION QosMonitoringRequest	PRESENCE optional},
+	{ID id-QoSMonitoringRequest	CRITICALITY ignore	EXTENSION QosMonitoringRequest	PRESENCE optional}|
+	{ID id-MCG-OfferedGBRQoSFlowInfo		CRITICALITY ignore	EXTENSION GBR-QoSFlowInformation	PRESENCE optional},
 	...
 }
 

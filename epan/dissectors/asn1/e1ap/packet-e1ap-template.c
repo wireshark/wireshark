@@ -8,7 +8,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
- * References: 3GPP TS 38.463 V16.2.0 (2020-07)
+ * References: 3GPP TS 38.463 V16.3.0 (2020-09)
  */
 
 #include "config.h"
@@ -108,7 +108,7 @@ e1ap_MaxPacketLossRate_fmt(gchar *s, guint32 v)
 }
 
 static void
-e1ap_PacketDelayBudget_fmt(gchar *s, guint32 v)
+e1ap_PacketDelayBudget_uL_D1_Result_fmt(gchar *s, guint32 v)
 {
   g_snprintf(s, ITEM_LABEL_LENGTH, "%.1fms (%u)", (float)v/2, v);
 }
