@@ -19,8 +19,10 @@ ProcedureCode
 ProtocolIE-ID
 
 #.EXPORTS
+IntendedTDD-DL-ULConfiguration-NR_PDU
 
 #.PDU
+IntendedTDD-DL-ULConfiguration-NR
 XnAP-PDU
 
 #.TYPE_RENAME

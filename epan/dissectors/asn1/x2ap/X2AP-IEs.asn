@@ -1,4 +1,4 @@
--- 3GPP TS 36.423 V16.2.0 (2020-07)
+-- 3GPP TS 36.423 V16.3.0 (2020-09)﻿
 -- 9.3.5	Information Element definitions
 -- **************************************************************
 --
@@ -83,6 +83,7 @@ IMPORTS
 	id-MDTConfigurationNR,
 	id-CSI-RSTransmissionIndication,
 	id-QoS-Mapping-Information,
+	id-IntendedTDD-DL-ULConfiguration-NR,
 
 	maxnoofBearers,
 	maxCellineNB,
@@ -134,8 +135,8 @@ IMPORTS
 	maxnoofCellsinCHO,	maxnoofPC5QoSFlows,
 	maxnoofSSBAreas,
 	maxnoofNRSCSs,
-	maxnoofPhysicalResourceBlocks,
-	maxnoofNRPhysicalResourceBlocks
+	maxnoofNRPhysicalResourceBlocks,
+	maxnoofNonAnchorCarrierFreqConfig
 
 
 FROM X2AP-Constants
@@ -444,7 +445,8 @@ CauseRadioNetwork ::= ENUMERATED {
 	count-reaches-max-value,
 	unknown-old-en-gNB-UE-X2AP-ID,
 	pDCP-Overload,
-	cho-cpc-resources-tobechanged
+	cho-cpc-resources-tobechanged,
+	ue-power-saving
 
 
 }
@@ -1383,6 +1385,8 @@ IABNodeIndication ::= ENUMERATED {true,...}
 
 IntegrityProtectionAlgorithms ::= BIT STRING (SIZE (16, ...))
 
+IntendedTDD-DL-ULConfiguration-NR ::= OCTET STRING
+
 InterfaceInstanceIndication ::= INTEGER (0..255, ...)
 
 InterfacesToTrace ::= BIT STRING (SIZE (8))
@@ -1588,7 +1592,7 @@ ManagementBasedMDTallowed ::= ENUMERATED {allowed, ...}
 
 Masked-IMEISV ::= BIT STRING (SIZE (64))
 
-MaxCHOpreparations ::= INTEGER(1..16, ...)
+MaxCHOpreparations ::= INTEGER(1..8, ...)
 
 MDT-Activation		::= ENUMERATED {
 	immediate-MDT-only,
@@ -1787,7 +1791,7 @@ NRCarrierList ::= SEQUENCE (SIZE(1..maxnoofNRSCSs)) OF NRCarrierItem
 NRCarrierItem ::= SEQUENCE {
 	carrierSCS					NRSCS,
 	offsetToCarrier				INTEGER (0..2199, ...),
-	carrierBandwidth			INTEGER (0..maxnoofPhysicalResourceBlocks, ...),
+	carrierBandwidth			INTEGER (0..maxnoofNRPhysicalResourceBlocks, ...),
 	iE-Extension		ProtocolExtensionContainer { {NRCarrierItem-ExtIEs} } 		OPTIONAL,
 	...
 }
@@ -1865,7 +1869,7 @@ NRNeighbour-Information ::= SEQUENCE (SIZE (1.. maxofNRNeighbours))OF SEQUENCE {
 }
 
 NRNeighbour-Information-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
-	{ID id-CSI-RSTransmissionIndication		CRITICALITY reject	EXTENSION EARFCNExtension	PRESENCE optional},
+	{ID id-CSI-RSTransmissionIndication		CRITICALITY ignore	EXTENSION EARFCNExtension	PRESENCE optional},
 	...
 }
 
@@ -1924,7 +1928,7 @@ NPRACH-preambleFormat::= 	ENUMERATED {fmt0,fmt1,fmt2,fmt0a,fmt1a,...}
 -- WS modification: define a dedicated type for dissection
 Non-anchorCarrierFrequency ::= OCTET STRING
 
-Non-AnchorCarrierFrequencylist ::= SEQUENCE (SIZE(1..15)) OF
+Non-AnchorCarrierFrequencylist ::= SEQUENCE (SIZE(1..maxnoofNonAnchorCarrierFreqConfig)) OF
 	SEQUENCE {
 -- WS modification: define a dedicated type for dissection
 --		non-anchorCarrioerFrquency		OCTET STRING,
@@ -2923,6 +2927,7 @@ TDD-InfoNeighbourServedNRCell-Information ::= SEQUENCE {
 }
 
 TDD-InfoNeighbourServedNRCell-Information-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
+	{ID id-IntendedTDD-DL-ULConfiguration-NR	CRITICALITY ignore	EXTENSION IntendedTDD-DL-ULConfiguration-NR		PRESENCE optional},
 	...
 }
 
@@ -3077,7 +3082,6 @@ traceCollectionEntityIPAddress		TraceCollectionEntityIPAddress,
 TraceActivation-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
 	{ ID id-MDTConfiguration			CRITICALITY ignore	EXTENSION MDT-Configuration			PRESENCE optional}|
 	{ ID id-UEAppLayerMeasConfig		CRITICALITY ignore	EXTENSION UEAppLayerMeasConfig		PRESENCE optional}|
--- WS modification: fix what seems to be an obvious typo (id-MDTConfiguration instead of id-MDTConfigurationNR)
 	{ ID id-MDTConfigurationNR			CRITICALITY ignore	EXTENSION MDT-ConfigurationNR		PRESENCE optional},
 	...
 }
@@ -3174,6 +3178,8 @@ UE-S1AP-ID ::= INTEGER (0.. 4294967295)
 UE-X2AP-ID ::= INTEGER (0..4095)
 
 UE-X2AP-ID-Extension ::= INTEGER (0..4095, ...)
+
+UERadioCapability ::= OCTET STRING
 
 UERadioCapabilityID ::= OCTET STRING
 

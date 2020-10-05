@@ -617,6 +617,7 @@ set(DISSECTOR_PUBLIC_HEADERS
 	packet-xmpp-jingle.h
 	packet-xmpp-other.h
 	packet-xmpp-utils.h
+	packet-xnap.h
 	packet-ypbind.h
 	packet-yppasswd.h
 	packet-ypserv.h

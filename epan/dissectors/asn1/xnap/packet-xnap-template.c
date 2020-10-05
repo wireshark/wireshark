@@ -22,6 +22,7 @@
 #include <epan/proto_data.h>
 #include <epan/conversation.h>
 
+#include "packet-xnap.h"
 #include "packet-per.h"
 #include "packet-lte-rrc.h"
 #include "packet-nr-rrc.h"

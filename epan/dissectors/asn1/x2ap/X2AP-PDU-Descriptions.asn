@@ -1,4 +1,4 @@
--- 3GPP TS 36.423 V16.2.0 (2020-07)
+-- 3GPP TS 36.423 V16.3.0 (2020-09)﻿
 -- 9.3.3	Elementary Procedure Definitions
 -- **************************************************************
 --
@@ -128,7 +128,9 @@ FROM X2AP-CommonDataTypes
 	ENDCResourceStatusFailure,
 	ENDCResourceStatusUpdate,
 	CellTrafficTrace,
-	F1CTrafficTransfer
+	F1CTrafficTransfer,
+	UERadioCapabilityIDMappingRequest,
+	UERadioCapabilityIDMappingResponse
 
 
 
@@ -192,7 +194,8 @@ FROM X2AP-PDU-Contents
 	id-endcresourceStatusReporting,
 	id-endcresourceStatusReportingInitiation,
 	id-cellTrafficTrace,
-	id-f1CTrafficTransfer
+	id-f1CTrafficTransfer,
+	id-UERadioCapabilityIDMapping
 
 
 
@@ -289,7 +292,8 @@ X2AP-ELEMENTARY-PROCEDURES-CLASS-1 X2AP-ELEMENTARY-PROCEDURE ::= {
 	endcPartialReset											|
 	eUTRANRCellResourceCoordination							|
 	endcX2Removal											|
-	endcresourceStatusReportingInitiation					,
+	endcresourceStatusReportingInitiation					|
+	uERadioCapabilityIDMapping								,
 	...
 }
 
@@ -719,6 +723,13 @@ f1CTrafficTransfer			X2AP-ELEMENTARY-PROCEDURE ::= {
 	INITIATING MESSAGE		F1CTrafficTransfer
 	PROCEDURE CODE			id-f1CTrafficTransfer
 	CRITICALITY				ignore
+}
+
+uERadioCapabilityIDMapping X2AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		UERadioCapabilityIDMappingRequest
+	SUCCESSFUL OUTCOME		UERadioCapabilityIDMappingResponse
+	PROCEDURE CODE			id-UERadioCapabilityIDMapping
+	CRITICALITY				reject
 }
 
 END

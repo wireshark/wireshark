@@ -861,6 +861,23 @@ ScheduledCommunicationTime/timeofDayEnd DISPLAY=BASE_DEC|BASE_UNIT_STRING STRING
     dissect_f1ap_NRPRACHConfig_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
   }
 
+#.FN_BODY IntendedTDD-DL-ULConfiguration-NR VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb = NULL;
+  proto_tree *subtree;
+%(DEFAULT_BODY)s
+  if (parameter_tvb) {
+    subtree = proto_item_add_subtree(actx->created_item, ett_x2ap_IntendedTDD_DL_ULConfiguration_NR);
+    dissect_xnap_IntendedTDD_DL_ULConfiguration_NR_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.FN_BODY UERadioCapability VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb = NULL;
+  proto_tree *subtree;
+%(DEFAULT_BODY)s
+  if (parameter_tvb) {
+    subtree = proto_item_add_subtree(actx->created_item, ett_x2ap_UERadioCapability);
+    dissect_lte_rrc_UERadioAccessCapabilityInformation_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+  }
 #.END
 
 #.FN_HDR HandoverRequest
@@ -1069,6 +1086,10 @@ ScheduledCommunicationTime/timeofDayEnd DISPLAY=BASE_DEC|BASE_UNIT_STRING STRING
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "CellTrafficTrace");
 #.FN_HDR F1CTrafficTransfer
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "F1CTrafficTransfer");
+#.FN_HDR UERadioCapabilityIDMappingRequest
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "UERadioCapabilityIDMappingRequest");
+#.FN_HDR UERadioCapabilityIDMappingResponse
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "UERadioCapabilityIDMappingResponse");
 
 #.ASSIGN_VALUE_TO_TYPE  # X2AP does not have constants assigned to types, they are pure INTEGER
 # ProcedureCode
@@ -1129,7 +1150,7 @@ id-cellTrafficTrace 						ProcedureCode
 id-endcresourceStatusReporting					ProcedureCode
 id-endcresourceStatusReportingInitiation			ProcedureCode
 id-f1CTrafficTransfer						ProcedureCode
-
+id-UERadioCapabilityIDMapping					ProcedureCode
 
 # ProtocolIE-ID
 
@@ -1522,6 +1543,8 @@ id-IABNodeIndication						ProtocolIE-ID
 id-QoS-Mapping-Information					ProtocolIE-ID
 id-F1CTrafficContainer						ProtocolIE-ID
 id-IABInformation						ProtocolIE-ID
+id-IntendedTDD-DL-ULConfiguration-NR				ProtocolIE-ID
+id-UERadioCapability						ProtocolIE-ID
 
 #.REGISTER
 
@@ -1799,6 +1822,7 @@ CellMeasurementResult-ENDC-Item					N x2ap.ies id-CellMeasurementResult-ENDC-Ite
 IABNodeIndication						N x2ap.ies id-IABNodeIndication
 F1CTrafficContainer						N x2ap.ies id-F1CTrafficContainer
 IABInformation							N x2ap.ies id-IABInformation
+UERadioCapability						N x2ap.ies id-UERadioCapability
 
 #X2AP-PROTOCOL-EXTENSION
 Number-of-Antennaports						N x2ap.extension id-Number-of-Antennaports
@@ -1917,6 +1941,7 @@ FrequencyShift7p5khz						N x2ap.extension id-FrequencyShift7p5khz
 SSB-PositionsInBurst						N x2ap.extension id-SSB-PositionsInBurst
 NRCellPRACHConfig						N x2ap.extension id-NRCellPRACHConfig
 QoS-Mapping-Information						N x2ap.extension id-QoS-Mapping-Information
+IntendedTDD-DL-ULConfiguration-NR				N x2ap.extension id-IntendedTDD-DL-ULConfiguration-NR
 
 # X2AP-PDU-Descriptions.asn  Interface Elementary Procedures
 #X2AP-ELEMENTARY-PROCEDURE
@@ -2078,4 +2103,7 @@ ENDCResourceStatusUpdate			N x2ap.proc.imsg id-endcresourceStatusReporting
 CellTrafficTrace				N x2ap.proc.imsg id-cellTrafficTrace
 
 F1CTrafficTransfer				N x2ap.proc.imsg id-f1CTrafficTransfer
+
+UERadioCapabilityIDMappingRequest		N x2ap.proc.imsg id-UERadioCapabilityIDMapping
+UERadioCapabilityIDMappingResponse		N x2ap.proc.sout id-UERadioCapabilityIDMapping
 #.END
