@@ -256,32 +256,35 @@ void FontColorPreferencesFrame::updateWidgets()
     //
     // Sample valid filter
     //
+    QColor ss_bg = ColorUtils::fromColorT(prefs_get_color_value(pref_valid_bg_, pref_stashed));
     ui->validFilterBGPushButton->setStyleSheet(color_button_ss.arg(
                                                    ColorUtils::fromColorT(prefs_get_color_value(pref_valid_bg_, pref_stashed)).name())
                                                    .arg(0));
     ui->validFilterSampleLineEdit->setStyleSheet(sample_text_ss.arg(
-                                                     "palette(text)",
-                                                     ColorUtils::fromColorT(prefs_get_color_value(pref_valid_bg_, pref_stashed)).name()));
+                                                     ColorUtils::contrastingTextColor(ss_bg).name(),
+                                                     ss_bg.name()));
 
     //
     // Sample invalid filter
     //
+    ss_bg = ColorUtils::fromColorT(prefs_get_color_value(pref_invalid_bg_, pref_stashed));
     ui->invalidFilterBGPushButton->setStyleSheet(color_button_ss.arg(
                                                      ColorUtils::fromColorT(prefs_get_color_value(pref_invalid_bg_, pref_stashed)).name())
                                                      .arg(0));
     ui->invalidFilterSampleLineEdit->setStyleSheet(sample_text_ss.arg(
-                                                       "palette(text)",
-                                                       ColorUtils::fromColorT(prefs_get_color_value(pref_invalid_bg_, pref_stashed)).name()));
+                                                       ColorUtils::contrastingTextColor(ss_bg).name(),
+                                                       ss_bg.name()));
 
     //
     // Sample warning filter
     //
+    ss_bg = ColorUtils::fromColorT(prefs_get_color_value(pref_deprecated_bg_, pref_stashed));
     ui->deprecatedFilterBGPushButton->setStyleSheet(color_button_ss.arg(
                                                         ColorUtils::fromColorT(prefs_get_color_value(pref_deprecated_bg_, pref_stashed)).name())
                                                         .arg(0));
     ui->deprecatedFilterSampleLineEdit->setStyleSheet(sample_text_ss.arg(
-                                                          "palette(text)",
-                                                          ColorUtils::fromColorT(prefs_get_color_value(pref_deprecated_bg_, pref_stashed)).name()));
+                                                          ColorUtils::contrastingTextColor(ss_bg).name(),
+                                                          ss_bg.name()));
 }
 
 void FontColorPreferencesFrame::changeColor(pref_t *pref)

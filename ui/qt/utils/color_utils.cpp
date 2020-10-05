@@ -179,6 +179,15 @@ QString ColorUtils::themeLinkStyle()
     return link_style;
 }
 
+const QColor ColorUtils::contrastingTextColor(const QColor color)
+{
+    bool background_is_light = color.lightness() > 127;
+    if ( (background_is_light && !ColorUtils::themeIsDark()) || (!background_is_light && ColorUtils::themeIsDark()) ) {
+        return QApplication::palette().text().color();
+    }
+    return QApplication::palette().base().color();
+}
+
 /*
  * Editor modelines
  *

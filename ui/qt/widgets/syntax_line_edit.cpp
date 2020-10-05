@@ -25,6 +25,7 @@
 #include <ui/qt/utils/stock_icon.h>
 
 #include <QAbstractItemView>
+#include <QApplication>
 #include <QCompleter>
 #include <QKeyEvent>
 #include <QPainter>
@@ -41,13 +42,6 @@ SyntaxLineEdit::SyntaxLineEdit(QWidget *parent) :
     completion_model_(NULL),
     completion_enabled_(false)
 {
-    // Try to matche QLineEdit's placeholder text color (which sets the
-    // alpha channel to 50%, which doesn't work in style sheets).
-    // Setting the foreground color lets us avoid yet another background
-    // color preference and should hopefully make things easier to
-    // distinguish for color blind folk.
-    busy_fg_ = ColorUtils::alphaBlend(palette().text(), palette().base(), 0.5);
-
     setSyntaxState();
     setMaxLength(std::numeric_limits<quint32>::max());
 }
@@ -83,43 +77,59 @@ void SyntaxLineEdit::allowCompletion(bool enabled)
 
 void SyntaxLineEdit::setSyntaxState(SyntaxState state) {
     syntax_state_ = state;
+
+    QColor valid_bg = ColorUtils::fromColorT(&prefs.gui_text_valid);
+    QColor valid_fg = ColorUtils::contrastingTextColor(valid_bg);
+    QColor invalid_bg = ColorUtils::fromColorT(&prefs.gui_text_invalid);
+    QColor invalid_fg = ColorUtils::contrastingTextColor(invalid_bg);
+    QColor deprecated_bg = ColorUtils::fromColorT(&prefs.gui_text_deprecated);
+    QColor deprecated_fg = ColorUtils::contrastingTextColor(deprecated_bg);
+
+    // Try to matche QLineEdit's placeholder text color (which sets the
+    // alpha channel to 50%, which doesn't work in style sheets).
+    // Setting the foreground color lets us avoid yet another background
+    // color preference and should hopefully make things easier to
+    // distinguish for color blind folk.
+    QColor busy_fg = ColorUtils::alphaBlend(QApplication::palette().text(), QApplication::palette().base(), 0.5);
+
     state_style_sheet_ = QString(
             "SyntaxLineEdit[syntaxState=\"%1\"] {"
-            "  color: %5;"
-            "  background-color: %7;"
-            "}"
-
-            "SyntaxLineEdit[syntaxState=\"%2\"] {"
-            "  color: %5;"
-            "  background-color: %8;"
-            "}"
-
-            "SyntaxLineEdit[syntaxState=\"%3\"] {"
-            "  color: %5;"
-            "  background-color: %9;"
+            "  color: %2;"
+            "  background-color: %3;"
             "}"
 
             "SyntaxLineEdit[syntaxState=\"%4\"] {"
-            "  color: %10;"
+            "  color: %5;"
             "  background-color: %6;"
+            "}"
+
+            "SyntaxLineEdit[syntaxState=\"%7\"] {"
+            "  color: %8;"
+            "  background-color: %9;"
+            "}"
+
+            "SyntaxLineEdit[syntaxState=\"%10\"] {"
+            "  color: %11;"
+            "  background-color: %12;"
             "}"
             )
 
-            // CSS selectors
+            // CSS selector, foreground, background
             .arg(Valid)
+            .arg(valid_fg.name())
+            .arg(valid_bg.name())
+
             .arg(Invalid)
+            .arg(invalid_fg.name())
+            .arg(invalid_bg.name())
+
             .arg(Deprecated)
+            .arg(deprecated_fg.name())
+            .arg(deprecated_bg.name())
+
             .arg(Busy)
-
-            // Normal foreground / background
-            .arg("palette(text)")
-            .arg("palette(base)")
-
-            // Special foreground / background
-            .arg(ColorUtils::fromColorT(&prefs.gui_text_valid).name())
-            .arg(ColorUtils::fromColorT(&prefs.gui_text_invalid).name())
-            .arg(ColorUtils::fromColorT(&prefs.gui_text_deprecated).name())
-            .arg(busy_fg_.name())
+            .arg(busy_fg.name())
+            .arg(palette().base().color().name())
             ;
     setStyleSheet(style_sheet_);
 }

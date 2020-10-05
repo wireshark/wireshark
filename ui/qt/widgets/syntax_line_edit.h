@@ -70,7 +70,6 @@ private:
     QString state_style_sheet_;
     QString syntax_error_message_;
     QString token_chars_;
-    QColor busy_fg_;
     bool completion_enabled_;
 
 private slots:

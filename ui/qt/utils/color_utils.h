@@ -52,8 +52,24 @@ public:
      * @return true if we're running in dark mode, false otherwise.
      */
     static bool themeIsDark();
+    /**
+     * Returns an appropriate link color for the current mode.
+     * @return A brush suitable for setting a text color.
+     */
     static QBrush themeLinkBrush();
+    /**
+     * Returns an appropriate HTML+CSS link style for the current mode.
+     * @return A "<style>a:link { color: ... ; }</style>" string
+     */
     static QString themeLinkStyle();
+    /**
+     * Returns either QPalette::Text or QPalette::Base as appropriate for the
+     * specified foreground color
+     *
+     * @param color The background color.
+     * @return A contrasting foreground color for the current mode / theme.
+     */
+    static const QColor contrastingTextColor(const QColor color);
 
 signals:
 
