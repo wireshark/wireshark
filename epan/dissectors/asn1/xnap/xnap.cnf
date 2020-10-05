@@ -47,9 +47,7 @@ ProtocolIE-FieldPair
 ProtocolIE-ContainerList
 ProtocolIE-ContainerPair
 ProtocolIE-ContainerPairList
-NRFrequencyInfoforMDT
 ReferenceID
-ServingSNPNID
 #.END
 
 #.FN_BODY ProtocolIE-ID VAL_PTR = &xnap_data->protocol_ie_id
@@ -1072,6 +1070,10 @@ id-SNTriggered                                ProtocolIE-ID
 id-DLCarrierList                              ProtocolIE-ID
 id-ExtendedTAISliceSupportList                ProtocolIE-ID
 id-cellAssistanceInfo-EUTRA                   ProtocolIE-ID
+id-ConfiguredTACIndication                    ProtocolIE-ID
+id-secondary-SN-UL-PDCP-UP-TNLInfo            ProtocolIE-ID
+id-pdcpDuplicationConfiguration               ProtocolIE-ID
+id-duplicationActivation                      ProtocolIE-ID
 
 #.REGISTER
 
@@ -1227,7 +1229,7 @@ HandoverReportType                                N xnap.ies id-HandoverReportTy
 Cause                                             N xnap.ies id-HandoverCause
 GlobalNG-RANCell-ID                               N xnap.ies id-SourceCellCGI
 GlobalNG-RANCell-ID                               N xnap.ies id-TargetCellCGI
-GlobalNG-RANCell-ID                               N xnap.ies id-ReEstablishmentCellCGI
+GlobalCell-ID                                     N xnap.ies id-ReEstablishmentCellCGI
 TargetCellinEUTRAN                                N xnap.ies id-TargetCellinEUTRAN
 C-RNTI                                            N xnap.ies id-SourceCellCRNTI
 UERLFReportContainer                              N xnap.ies id-UERLFReportContainer
@@ -1313,6 +1315,10 @@ URIaddress                                        N xnap.extension id-TraceColle
 UERadioCapabilityID                               N xnap.extension id-UERadioCapabilityID
 CSI-RSTransmissionIndication                      N xnap.extension id-CSI-RSTransmissionIndication
 ExtendedSliceSupportList                          N xnap.extension id-ExtendedTAISliceSupportList
+ConfiguredTACIndication                           N xnap.extension id-ConfiguredTACIndication
+UPTransportParameters                             N xnap.extension id-secondary-SN-UL-PDCP-UP-TNLInfo
+PDCPDuplicationConfiguration                      N xnap.extension id-pdcpDuplicationConfiguration
+DuplicationActivation                             N xnap.extension id-duplicationActivation
 
 #XNAP-ELEMENTARY-PROCEDURE
 HandoverRequest                            N xnap.proc.imsg id-handoverPreparation
