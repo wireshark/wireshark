@@ -18,7 +18,7 @@
  *
  * Based on the RANAP dissector
  *
- * References: 3GPP TS 36.413 V16.2.0 (2020-07)
+ * References: 3GPP TS 36.413 V16.3.0 (2020-09)
  */
 
 #include "config.h"
@@ -1224,8 +1224,7 @@ static int hf_s1ap_nRencryptionAlgorithms = -1;   /* NRencryptionAlgorithms */
 static int hf_s1ap_nRintegrityProtectionAlgorithms = -1;  /* NRintegrityProtectionAlgorithms */
 static int hf_s1ap_vehicleUE = -1;                /* VehicleUE */
 static int hf_s1ap_pedestrianUE = -1;             /* PedestrianUE */
-static int hf_s1ap_uEaggregateMaximumBitRateDL = -1;  /* BitRate */
-static int hf_s1ap_uEaggregateMaximumBitRateUL = -1;  /* BitRate */
+static int hf_s1ap_uEaggregateMaximumBitRate = -1;  /* BitRate */
 static int hf_s1ap_overloadAction = -1;           /* OverloadAction */
 static int hf_s1ap_pagingAttemptCount = -1;       /* PagingAttemptCount */
 static int hf_s1ap_intendedNumberOfPagingAttempts = -1;  /* IntendedNumberOfPagingAttempts */
@@ -1344,6 +1343,8 @@ static int hf_s1ap_traceDepth = -1;               /* TraceDepth */
 static int hf_s1ap_traceCollectionEntityIPAddress = -1;  /* TransportLayerAddress */
 static int hf_s1ap_uDP_Port_Number = -1;          /* Port_Number */
 static int hf_s1ap_TAIListForRestart_item = -1;   /* TAI */
+static int hf_s1ap_uEaggregateMaximumBitRateDL = -1;  /* BitRate */
+static int hf_s1ap_uEaggregateMaximumBitRateUL = -1;  /* BitRate */
 static int hf_s1ap_containerForAppLayerMeasConfig = -1;  /* OCTET_STRING_SIZE_1_1000 */
 static int hf_s1ap_areaScopeOfQMC = -1;           /* AreaScopeOfQMC */
 static int hf_s1ap_uE_S1AP_ID_pair = -1;          /* UE_S1AP_ID_pair */
@@ -4353,6 +4354,7 @@ const value_string s1ap_CauseRadioNetwork_vals[] = {
   {  37, "not-supported-QCI-value" },
   {  38, "invalid-CSG-Id" },
   {  39, "release-due-to-pre-emption" },
+  {  40, "n26-interface-not-available" },
   { 0, NULL }
 };
 
@@ -4364,7 +4366,7 @@ dissect_s1ap_CauseRadioNetwork(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 #line 2515 "./asn1/s1ap/s1ap.cnf"
   guint32 value;
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     36, &value, TRUE, 4, NULL);
+                                     36, &value, TRUE, 5, NULL);
 
   col_append_fstr(actx->pinfo->cinfo, COL_INFO, " [RadioNetwork-cause=%s]", val_to_str_const(value, s1ap_CauseRadioNetwork_vals, "Unknown"));
 
@@ -8754,8 +8756,7 @@ dissect_s1ap_NRV2XServicesAuthorized(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
 
 
 static const per_sequence_t NRUESidelinkAggregateMaximumBitrate_sequence[] = {
-  { &hf_s1ap_uEaggregateMaximumBitRateDL, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_s1ap_BitRate },
-  { &hf_s1ap_uEaggregateMaximumBitRateUL, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_s1ap_BitRate },
+  { &hf_s1ap_uEaggregateMaximumBitRate, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_s1ap_BitRate },
   { &hf_s1ap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_s1ap_ProtocolExtensionContainer },
   { NULL, 0, 0, NULL }
 };
@@ -20888,12 +20889,8 @@ void proto_register_s1ap(void) {
       { "pedestrianUE", "s1ap.pedestrianUE",
         FT_UINT32, BASE_DEC, VALS(s1ap_PedestrianUE_vals), 0,
         NULL, HFILL }},
-    { &hf_s1ap_uEaggregateMaximumBitRateDL,
-      { "uEaggregateMaximumBitRateDL", "s1ap.uEaggregateMaximumBitRateDL",
-        FT_UINT64, BASE_DEC|BASE_UNIT_STRING, &units_bit_sec, 0,
-        "BitRate", HFILL }},
-    { &hf_s1ap_uEaggregateMaximumBitRateUL,
-      { "uEaggregateMaximumBitRateUL", "s1ap.uEaggregateMaximumBitRateUL",
+    { &hf_s1ap_uEaggregateMaximumBitRate,
+      { "uEaggregateMaximumBitRate", "s1ap.uEaggregateMaximumBitRate",
         FT_UINT64, BASE_DEC|BASE_UNIT_STRING, &units_bit_sec, 0,
         "BitRate", HFILL }},
     { &hf_s1ap_overloadAction,
@@ -21368,6 +21365,14 @@ void proto_register_s1ap(void) {
       { "TAI", "s1ap.TAI_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+    { &hf_s1ap_uEaggregateMaximumBitRateDL,
+      { "uEaggregateMaximumBitRateDL", "s1ap.uEaggregateMaximumBitRateDL",
+        FT_UINT64, BASE_DEC|BASE_UNIT_STRING, &units_bit_sec, 0,
+        "BitRate", HFILL }},
+    { &hf_s1ap_uEaggregateMaximumBitRateUL,
+      { "uEaggregateMaximumBitRateUL", "s1ap.uEaggregateMaximumBitRateUL",
+        FT_UINT64, BASE_DEC|BASE_UNIT_STRING, &units_bit_sec, 0,
+        "BitRate", HFILL }},
     { &hf_s1ap_containerForAppLayerMeasConfig,
       { "containerForAppLayerMeasConfig", "s1ap.containerForAppLayerMeasConfig",
         FT_BYTES, BASE_NONE, NULL, 0,

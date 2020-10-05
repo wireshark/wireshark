@@ -1,4 +1,4 @@
--- 3GPP TS 36.413 V16.2.0 (2020-07)
+-- 3GPP TS 36.413 V16.3.0 (2020-09)﻿
 -- 9.3.4	Information Element Definitions
 -- **************************************************************
 --
@@ -415,7 +415,8 @@ CauseRadioNetwork ::= ENUMERATED {
 	redirection-towards-1xRTT,
 	not-supported-QCI-value,
 	invalid-CSG-Id,
-	release-due-to-pre-emption
+	release-due-to-pre-emption,
+	n26-interface-not-available
 
 }
 
@@ -1835,8 +1836,7 @@ NRV2XServicesAuthorized-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
 }
 
 NRUESidelinkAggregateMaximumBitrate ::= SEQUENCE {
-	uEaggregateMaximumBitRateDL		BitRate,
-	uEaggregateMaximumBitRateUL		BitRate,
+	uEaggregateMaximumBitRate		BitRate,
 	iE-Extensions					ProtocolExtensionContainer { {NRUESidelinkAggregateMaximumBitrate-ExtIEs} } OPTIONAL,
 	...
 }
