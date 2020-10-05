@@ -1,4 +1,4 @@
--- 3GPP TS 38.413 V16.2.0 (2020-07)
+-- 3GPP TS 38.413 V16.3.0 (2020-09)﻿
 -- 9.4.7	Constant Definitions
 -- **************************************************************
 --
@@ -356,7 +356,7 @@ maxProtocolIEs							INTEGER ::= 65535
 	id-SourceToTarget-AMFInformationReroute					ProtocolIE-ID ::= 171
 	id-AdditionalULForwardingUPTNLInformation				ProtocolIE-ID ::= 172
 	id-SCTP-TLAs											ProtocolIE-ID ::= 173
-	id-DataForwardingResponseERABList						ProtocolIE-ID ::= 174
+	id-SelectedPLMNIdentity									ProtocolIE-ID ::= 174
 	id-RIMInformationTransfer								ProtocolIE-ID ::= 175
 	id-GUAMIType											ProtocolIE-ID ::= 176
 	id-SRVCCOperationPossible								ProtocolIE-ID ::= 177
@@ -431,7 +431,7 @@ maxProtocolIEs							INTEGER ::= 65535
 	id-TNGFIdentityInformation								ProtocolIE-ID ::= 246
 	id-TWIFIdentityInformation								ProtocolIE-ID ::= 247
 	id-UserLocationInformationTWIF							ProtocolIE-ID ::= 248
-	id-SelectedPLMNIdentity									ProtocolIE-ID ::= 249
+	id-DataForwardingResponseERABList						ProtocolIE-ID ::= 249
 	id-IntersystemSONConfigurationTransferDL				ProtocolIE-ID ::= 250
 	id-IntersystemSONConfigurationTransferUL				ProtocolIE-ID ::= 251
 	id-SONInformationReport									ProtocolIE-ID ::= 252
@@ -454,5 +454,8 @@ maxProtocolIEs							INTEGER ::= 65535
 	id-NotifySourceNGRANNode									ProtocolIE-ID ::= 269
 	id-ExtendedSliceSupportList								ProtocolIE-ID ::= 270
 	id-ExtendedTAISliceSupportList							ProtocolIE-ID ::= 271
+	id-ConfiguredTACIndication								ProtocolIE-ID ::= 272
+	id-Extended-RANNodeName									ProtocolIE-ID ::= 273
+	id-Extended-AMFName										ProtocolIE-ID ::= 274
 
 END

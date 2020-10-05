@@ -1305,7 +1305,7 @@ id-LocationReportingAdditionalInfo               ProtocolIE-ID
 id-SourceToTarget-AMFInformationReroute          ProtocolIE-ID
 id-AdditionalULForwardingUPTNLInformation        ProtocolIE-ID
 id-SCTP-TLAs                                     ProtocolIE-ID
-id-DataForwardingResponseERABList                ProtocolIE-ID
+id-SelectedPLMNIdentity                          ProtocolIE-ID
 id-RIMInformationTransfer                        ProtocolIE-ID
 id-GUAMIType                                     ProtocolIE-ID
 id-SRVCCOperationPossible                        ProtocolIE-ID
@@ -1380,7 +1380,7 @@ id-AuthenticatedIndication                       ProtocolIE-ID
 id-TNGFIdentityInformation                       ProtocolIE-ID
 id-TWIFIdentityInformation                       ProtocolIE-ID
 id-UserLocationInformationTWIF                   ProtocolIE-ID
-id-SelectedPLMNIdentity                          ProtocolIE-ID
+id-DataForwardingResponseERABList                ProtocolIE-ID
 id-IntersystemSONConfigurationTransferDL         ProtocolIE-ID
 id-IntersystemSONConfigurationTransferUL         ProtocolIE-ID
 id-SONInformationReport                          ProtocolIE-ID
@@ -1403,6 +1403,9 @@ id-EarlyStatusTransfer-TransparentContainer      ProtocolIE-ID
 id-NotifySourceNGRANNode                         ProtocolIE-ID
 id-ExtendedSliceSupportList                      ProtocolIE-ID
 id-ExtendedTAISliceSupportList                   ProtocolIE-ID
+id-ConfiguredTACIndication                       ProtocolIE-ID
+id-Extended-RANNodeName                          ProtocolIE-ID
+id-Extended-AMFName                              ProtocolIE-ID
 #.END
 
 
@@ -1630,6 +1633,8 @@ UERadioCapabilityID                         N ngap.ies id-UERadioCapabilityID
 UERadioCapability                           N ngap.ies id-UERadioCapability-EUTRA-Format
 EarlyStatusTransfer-TransparentContainer    N ngap.ies id-EarlyStatusTransfer-TransparentContainer
 NotifySourceNGRANNode                       N ngap.ies id-NotifySourceNGRANNode
+Extended-RANNodeName                        N ngap.ies id-Extended-RANNodeName
+Extended-AMFName                            N ngap.ies id-Extended-AMFName
 
 #NGAP-PROTOCOL-EXTENSION
 
@@ -1687,6 +1692,7 @@ DAPSRequestInfo                                        N ngap.extension id-DAPSR
 DAPSResponseInfoList                                   N ngap.extension id-DAPSResponseInfoList
 ExtendedSliceSupportList                               N ngap.extension id-ExtendedSliceSupportList
 ExtendedSliceSupportList                               N ngap.extension id-ExtendedTAISliceSupportList
+ConfiguredTACIndication                                N ngap.extension id-ConfiguredTACIndication
 
 #NGAP-ELEMENTARY-PROCEDURE
 

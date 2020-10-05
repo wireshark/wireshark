@@ -1,4 +1,4 @@
--- 3GPP TS 38.413 V16.2.0 (2020-07)
+-- 3GPP TS 38.413 V16.3.0 (2020-09)﻿
 -- 9.4.3	Elementary Procedure Definitions
 -- **************************************************************
 --
@@ -281,7 +281,8 @@ NGAP-ELEMENTARY-PROCEDURES-CLASS-1 NGAP-ELEMENTARY-PROCEDURE ::= {
 	uEContextSuspend							|
 	uERadioCapabilityCheck			|
 	uERadioCapabilityIDMapping		|
-	writeReplaceWarning
+	writeReplaceWarning,
+	...
 }
 
 NGAP-ELEMENTARY-PROCEDURES-CLASS-2 NGAP-ELEMENTARY-PROCEDURE ::= {	
@@ -295,6 +296,7 @@ NGAP-ELEMENTARY-PROCEDURES-CLASS-2 NGAP-ELEMENTARY-PROCEDURE ::= {
 	downlinkRANConfigurationTransfer	|
 	downlinkRANEarlyStatusTransfer	|
 	downlinkRANStatusTransfer		|
+	downlinkRIMInformationTransfer	|
 	downlinkUEAssociatedNRPPaTransport	|
 	errorIndication					|
 	handoverNotification			|
@@ -325,11 +327,12 @@ NGAP-ELEMENTARY-PROCEDURES-CLASS-2 NGAP-ELEMENTARY-PROCEDURE ::= {
 	uplinkNASTransport				|
 	uplinkNonUEAssociatedNRPPaTransport	|
 	uplinkRANConfigurationTransfer	|
-	uplinkRANEarlyStatusTransfer					|
+	uplinkRANEarlyStatusTransfer				|
 	uplinkRANStatusTransfer			|
-	uplinkUEAssociatedNRPPaTransport			|
 	uplinkRIMInformationTransfer				|
-	downlinkRIMInformationTransfer
+	uplinkUEAssociatedNRPPaTransport,
+	...
+
 }
 
 -- **************************************************************

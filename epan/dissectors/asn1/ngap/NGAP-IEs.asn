@@ -1,4 +1,4 @@
--- 3GPP TS 38.413 V16.2.0 (2020-07)
+-- 3GPP TS 38.413 V16.3.0 (2020-09)﻿
 -- 9.4.5	Information Element Definitions
 -- **************************************************************
 --
@@ -33,6 +33,7 @@ IMPORTS
 	id-CNTypeRestrictionsForEquivalent,
 	id-CNTypeRestrictionsForServing,
 	id-CommonNetworkInstance,
+	id-ConfiguredTACIndication,
 	id-CurrentQoSParaSetIndex,
 	id-DAPSRequestInfo,
 	id-DAPSResponseInfoList,
@@ -260,6 +261,10 @@ AlternativeQoSParaSetItem-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
 
 AMFName ::= PrintableString (SIZE(1..150, ...))
 
+AMFNameVisibleString ::= VisibleString (SIZE(1..150, ...))
+
+AMFNameUTF8String ::= UTF8String (SIZE(1..150, ...))
+
 AMFPagingTarget ::= CHOICE {
 	globalRANNodeID			GlobalRANNodeID,
 	tAI						TAI,
@@ -438,6 +443,10 @@ AreaScopeOfMDT-NR ::= CHOICE {
 	tABased						TABasedMDT,
 	pLMNWide					NULL,
 	tAIBased					TAIBasedMDT,
+	choice-Extensions		ProtocolIE-SingleContainer { {AreaScopeOfMDT-NR-ExtIEs} }
+}
+
+AreaScopeOfMDT-NR-ExtIEs NGAP-PROTOCOL-IES ::= {
 	...
 }
 
@@ -446,6 +455,10 @@ AreaScopeOfMDT-EUTRA ::= CHOICE {
 	tABased						TABasedMDT,
 	pLMNWide					NULL,
 	tAIBased					TAIBasedMDT,
+	choice-Extensions		ProtocolIE-SingleContainer { {AreaScopeOfMDT-EUTRA-ExtIEs} }
+}
+
+AreaScopeOfMDT-EUTRA-ExtIEs NGAP-PROTOCOL-IES ::= {
 	...
 }
 
@@ -520,7 +533,17 @@ BluetoothMeasurementConfiguration-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
-BluetoothMeasConfigNameList ::= SEQUENCE (SIZE(1..maxnoofBluetoothName)) OF BluetoothName
+BluetoothMeasConfigNameList ::= SEQUENCE (SIZE(1..maxnoofBluetoothName)) OF BluetoothMeasConfigNameItem
+
+BluetoothMeasConfigNameItem ::= SEQUENCE {
+	bluetoothName		BluetoothName,
+	iE-Extensions		ProtocolExtensionContainer { { BluetoothMeasConfigNameItem-ExtIEs } } 	OPTIONAL,
+	...
+}
+
+BluetoothMeasConfigNameItem-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	...
+}
 
 BluetoothMeasConfig::= ENUMERATED {setup,...}
 
@@ -589,22 +612,33 @@ CancelledCellsInTAI-NR-Item-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
-CandidateCellList ::= SEQUENCE (SIZE(1.. maxnoofCandidateCells)) OF CandidateCell-Item
+CandidateCellList ::= SEQUENCE (SIZE(1.. maxnoofCandidateCells)) OF CandidateCellItem
 
-CandidateCell-Item::= CHOICE {
-	candidateCGI			CandidateCellID,
-	candidatePCI			CandidatePCI,
-	choice-Extensions		ProtocolIE-SingleContainer { { CandidateCell-Item-ExtIEs} }
+CandidateCellItem ::= SEQUENCE{
+	candidateCell		CandidateCell,
+	iE-Extensions		ProtocolExtensionContainer { {CandidateCellItem-ExtIEs} } OPTIONAL,
+	...
 }
 
-CandidateCell-Item-ExtIEs NGAP-PROTOCOL-IES ::= {
+CandidateCellItem-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+CandidateCell::= CHOICE {
+	candidateCGI			CandidateCellID,
+	candidatePCI			CandidatePCI,
+	choice-Extensions		ProtocolIE-SingleContainer { { CandidateCell-ExtIEs} }
+}
+
+CandidateCell-ExtIEs NGAP-PROTOCOL-IES ::= {
 	...
 }
 
 
 CandidateCellID::= SEQUENCE {
 	candidateCellID			NR-CGI,
-	iE-Extensions			ProtocolExtensionContainer { { CandidateCellID-ExtIEs} }			OPTIONAL
+	iE-Extensions			ProtocolExtensionContainer { { CandidateCellID-ExtIEs} }			OPTIONAL,
+	...
 }
 
 CandidateCellID-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
@@ -612,9 +646,10 @@ CandidateCellID-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
 }
 
 CandidatePCI::= SEQUENCE {
-	candidatePCI			INTEGER (0..1007),
+	candidatePCI			INTEGER (0..1007, ...),
 	candidateNRARFCN		INTEGER (0..3279165),
-	iE-Extensions			ProtocolExtensionContainer { { CandidatePCI-ExtIEs} }			OPTIONAL
+	iE-Extensions			ProtocolExtensionContainer { { CandidatePCI-ExtIEs} }			OPTIONAL,
+	...
 }
 
 CandidatePCI-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
@@ -714,7 +749,8 @@ CauseRadioNetwork ::= ENUMERATED {
 	release-due-to-pre-emption,
 	multiple-location-reporting-reference-ID-instances,
 	rsn-not-available-for-the-up,
-	npn-access-denied
+	npn-access-denied,
+	cag-only-access-denied
 }
 
 CauseTransport ::= ENUMERATED {
@@ -724,7 +760,7 @@ CauseTransport ::= ENUMERATED {
 }
 
 Cell-CAGInformation ::= SEQUENCE {
-	nR-CGI				NR-CGI,
+	nGRAN-CGI				NGRAN-CGI,
 	cellCAGList			CellCAGList,
 	iE-Extensions		ProtocolExtensionContainer { {Cell-CAGInformation-ExtIEs} } OPTIONAL,
 	...
@@ -912,6 +948,11 @@ ConfidentialityProtectionIndication ::= ENUMERATED {
 ConfidentialityProtectionResult ::= ENUMERATED {
 	performed,
 	not-performed,
+	...
+}
+
+ConfiguredTACIndication ::= ENUMERATED {
+	true,
 	...
 }
 
@@ -1520,7 +1561,29 @@ ExpectedUEMovingTrajectoryItem-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
+Extended-AMFName	 ::= SEQUENCE {
+	aMFNameVisibleString		AMFNameVisibleString				OPTIONAL,
+	aMFNameUTF8String			AMFNameUTF8String					OPTIONAL, 
+	iE-Extensions				ProtocolExtensionContainer { { Extended-AMFName-ExtIEs } } OPTIONAL,
+	...
+}
+
+Extended-AMFName-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
 ExtendedPacketDelayBudget ::= INTEGER (1..65535, ...)
+
+
+Extended-RANNodeName	 ::= SEQUENCE {
+	rANNodeNameVisibleString		RANNodeNameVisibleString					OPTIONAL,
+	rANNodeNameUTF8String			RANNodeNameUTF8String						OPTIONAL, 
+	iE-Extensions					ProtocolExtensionContainer { { Extended-RANNodeName-ExtIEs } } OPTIONAL,	...
+}
+
+Extended-RANNodeName-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	...
+}
 
 ExtendedRATRestrictionInformation ::= SEQUENCE {
 	primaryRATRestriction		BIT STRING (SIZE(8, ...)),
@@ -1541,8 +1604,13 @@ ExtendedSliceSupportList ::= SEQUENCE (SIZE(1..maxnoofExtSliceItems)) OF SliceSu
 EventTrigger::= CHOICE {
 	outOfCoverage				ENUMERATED {true, ...},
 	eventL1LoggedMDTConfig		EventL1LoggedMDTConfig,
+	choice-Extensions		ProtocolIE-SingleContainer { { EventTrigger-ExtIEs} }
+}
+
+EventTrigger-ExtIEs NGAP-PROTOCOL-IES ::= {
 	...
 }
+
 EventL1LoggedMDTConfig ::= SEQUENCE {
 	l1Threshold					MeasurementThresholdL1LoggedMDT,
 	hysteresis					Hysteresis,
@@ -1558,6 +1626,10 @@ EventL1LoggedMDTConfig-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
 MeasurementThresholdL1LoggedMDT ::= CHOICE {
 	threshold-RSRP				Threshold-RSRP,
 	threshold-RSRQ				Threshold-RSRQ,
+	choice-Extensions		ProtocolIE-SingleContainer { { MeasurementThresholdL1LoggedMDT-ExtIEs} }
+}
+
+MeasurementThresholdL1LoggedMDT-ExtIEs NGAP-PROTOCOL-IES ::= {
 	...
 }
 
@@ -1565,7 +1637,8 @@ MeasurementThresholdL1LoggedMDT ::= CHOICE {
 
 FailureIndication ::= SEQUENCE {
 	uERLFReportContainer 	UERLFReportContainer,
-	iE-Extensions		ProtocolExtensionContainer { { FailureIndication-ExtIEs} }	OPTIONAL
+	iE-Extensions		ProtocolExtensionContainer { { FailureIndication-ExtIEs} }	OPTIONAL,
+	...
 }
 
 FailureIndication-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
@@ -1639,7 +1712,8 @@ GBR-QosInformation ::= SEQUENCE {
 
 GBR-QosInformation-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
 	{ ID id-AlternativeQoSParaSetList	CRITICALITY ignore	EXTENSION AlternativeQoSParaSetList	PRESENCE optional	},
-	...}
+	...
+}
 
 GlobalENB-ID ::= SEQUENCE {
 	pLMNidentity			PLMNIdentity,
@@ -1877,13 +1951,14 @@ HOReport::= SEQUENCE {
 	sourcecellCGI				NGRAN-CGI,
 	targetcellCGI				NGRAN-CGI,
 	reestablishmentcellCGI		NGRAN-CGI									OPTIONAL,
-	-- This IE shall be present if the Handover Report Type IE is set to the value "HO to wrong cell" --
-	sourcecellC-RNTI			BIT STRING (SIZE(16)),
+	-- The above IE shall be present if the Handover Report Type IE is set to the value "HO to wrong cell" --
+	sourcecellC-RNTI			BIT STRING (SIZE(16))						OPTIONAL,
 	targetcellinE-UTRAN			EUTRA-CGI									OPTIONAL,
-	-- This IE shall be present if the Handover Report Type IE is set to the value "Inter System ping-pong" --
-	mobilityInformation			MobilityInformation,
+	-- The above IE shall be present if the Handover Report Type IE is set to the value "Inter System ping-pong" --
+	mobilityInformation			MobilityInformation							OPTIONAL,
 	uERLFReportContainer		UERLFReportContainer						OPTIONAL,
-	iE-Extensions		ProtocolExtensionContainer { { HOReport-ExtIEs} }	OPTIONAL
+	iE-Extensions		ProtocolExtensionContainer { { HOReport-ExtIEs} }	OPTIONAL,
+	...
 }
 
 HOReport-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
@@ -1950,11 +2025,16 @@ InterfacesToTrace ::= BIT STRING (SIZE(8))
 
 ImmediateMDTNr ::= SEQUENCE { 
 	measurementsToActivate					MeasurementsToActivate,
-	m1Configuration							M1Configuration						OPTIONAL,
-	m4Configuration							M4Configuration						OPTIONAL,
+	m1Configuration							M1Configuration						OPTIONAL, 
+-- The above IE shall be present if the Measurements to Activate IE has the first bit set to “1”
+	m4Configuration							M4Configuration						OPTIONAL, 
+-- The above IE shall be present if the Measurements to Activate IE has the third bit set to “1”
 	m5Configuration							M5Configuration						OPTIONAL,
+-- The above IE shall be present if the Measurements to Activate IE has the fourth bit set to “1”
 	m6Configuration							M6Configuration						OPTIONAL,
+-- The above IE shall be present if the Measurements to Activate IE has the fifth bit set to “1”
 	m7Configuration							M7Configuration						OPTIONAL,
+-- The above IE shall be present if the Measurements to Activate IE has the sixth bit set to “1”
 	bluetoothMeasurementConfiguration		BluetoothMeasurementConfiguration	OPTIONAL,
 	wLANMeasurementConfiguration			WLANMeasurementConfiguration 		OPTIONAL,
 	mDT-Location-Info 						MDT-Location-Info 					OPTIONAL,
@@ -1969,7 +2049,8 @@ ImmediateMDTNr-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
 
 InterSystemFailureIndication ::= SEQUENCE {
 	uERLFReportContainer		UERLFReportContainer	OPTIONAL,
-	iE-Extensions			ProtocolExtensionContainer { { InterSystemFailureIndication-ExtIEs} }			OPTIONAL
+	iE-Extensions			ProtocolExtensionContainer { { InterSystemFailureIndication-ExtIEs} }			OPTIONAL,
+	...
 }
 
 InterSystemFailureIndication-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
@@ -1979,7 +2060,8 @@ InterSystemFailureIndication-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
 IntersystemSONConfigurationTransfer ::= SEQUENCE {
 	transferType				IntersystemSONTransferType,
 	intersystemSONInformation	IntersystemSONInformation,
-	iE-Extensions			ProtocolExtensionContainer { { IntersystemSONConfigurationTransfer-ExtIEs} }			OPTIONAL
+	iE-Extensions			ProtocolExtensionContainer { { IntersystemSONConfigurationTransfer-ExtIEs} }			OPTIONAL,
+	...
 }
 
 IntersystemSONConfigurationTransfer-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
@@ -1998,7 +2080,8 @@ IntersystemSONTransferType-ExtIEs NGAP-PROTOCOL-IES ::= {
 IntersystemSONeNBID ::= SEQUENCE {
 	globaleNBID				GlobalENB-ID,
 	selectedEPSTAI			EPS-TAI,
-	iE-Extensions			ProtocolExtensionContainer { { IntersystemSONeNBID-ExtIEs} }			OPTIONAL
+	iE-Extensions			ProtocolExtensionContainer { { IntersystemSONeNBID-ExtIEs} }			OPTIONAL,
+	...
 }
 
 IntersystemSONeNBID-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
@@ -2008,7 +2091,8 @@ IntersystemSONeNBID-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
 IntersystemSONNGRANnodeID ::= SEQUENCE {
 	globalRANNodeID		GlobalRANNodeID,
 	selectedTAI			TAI,
-	iE-Extensions		ProtocolExtensionContainer { { IntersystemSONNGRANnodeID-ExtIEs} }			OPTIONAL
+	iE-Extensions		ProtocolExtensionContainer { { IntersystemSONNGRANnodeID-ExtIEs} }			OPTIONAL,
+	...
 }
 
 IntersystemSONNGRANnodeID-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
@@ -2036,7 +2120,8 @@ IntersystemSONInformationReport-ExtIEs NGAP-PROTOCOL-IES ::= {
 
 InterSystemHOReport ::= SEQUENCE {
 	handoverReportType		InterSystemHandoverReportType,
-	iE-Extensions			ProtocolExtensionContainer { { InterSystemHOReport-ExtIEs} }			OPTIONAL
+	iE-Extensions			ProtocolExtensionContainer { { InterSystemHOReport-ExtIEs} }			OPTIONAL,
+	...
 }
 
 InterSystemHOReport-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
@@ -2054,11 +2139,12 @@ InterSystemHandoverReportType-ExtIEs NGAP-PROTOCOL-IES ::= {
 }
 
 IntersystemUnnecessaryHO ::= SEQUENCE {
-	sourcecellID			EUTRA-CGI,
-	failurecellID			NGRAN-CGI,
-	earlyIRATHO				ENUMERATED{no, yes},
+	sourcecellID			NGRAN-CGI,
+	targetcellID			EUTRA-CGI,
+	earlyIRATHO				ENUMERATED {true, false, ...},
 	candidateCellList		CandidateCellList,
-	iE-Extensions			ProtocolExtensionContainer { { IntersystemUnnecessaryHO-ExtIEs} }			OPTIONAL
+	iE-Extensions			ProtocolExtensionContainer { { IntersystemUnnecessaryHO-ExtIEs} }			OPTIONAL,
+	...
 }
 
 IntersystemUnnecessaryHO-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
@@ -2185,8 +2271,12 @@ Links-to-log ::= ENUMERATED {
 }
 
 LoggedMDTTrigger ::= CHOICE{
-	periodical		NULL,
-	eventTrigger	EventTrigger,
+	periodical			NULL,
+	eventTrigger			EventTrigger,
+	choice-Extensions		ProtocolIE-SingleContainer { {LoggedMDTTrigger-ExtIEs} }
+}
+
+LoggedMDTTrigger-ExtIEs NGAP-PROTOCOL-IES ::= {
 	...
 }
 
@@ -2259,6 +2349,11 @@ MDTPLMNList ::= SEQUENCE (SIZE(1..maxnoofMDTPLMNs)) OF PLMNIdentity
 MDT-Configuration ::= SEQUENCE {
 	mdt-Config-NR		MDT-Configuration-NR		OPTIONAL,
 	mdt-Config-EUTRA	MDT-Configuration-EUTRA		OPTIONAL,
+	iE-Extensions		ProtocolExtensionContainer { { MDT-Configuration-ExtIEs} } OPTIONAL,
+	...
+}
+
+MDT-Configuration-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
@@ -2266,8 +2361,8 @@ MDT-Configuration-NR ::= SEQUENCE {
 	mdt-Activation				MDT-Activation,
 	areaScopeOfMDT				AreaScopeOfMDT-NR,
 	mDTModeNr					MDTModeNr,
-	signallingBasedMDTPLMNList 	MDTPLMNList,
-	iE-Extensions		ProtocolExtensionContainer { { MDT-Configuration-NR-ExtIEs} } OPTIONAL,
+	signallingBasedMDTPLMNList 	MDTPLMNList												OPTIONAL,
+	iE-Extensions		ProtocolExtensionContainer { { MDT-Configuration-NR-ExtIEs} } 	OPTIONAL,
 	...
 }
 
@@ -2279,8 +2374,8 @@ MDT-Configuration-EUTRA ::= SEQUENCE {
 	mdt-Activation				MDT-Activation,
 	areaScopeOfMDT				AreaScopeOfMDT-EUTRA,
 	mDTMode						MDTModeEutra,
-	signallingBasedMDTPLMNList 	MDTPLMNList,
-	iE-Extensions		ProtocolExtensionContainer { { MDT-Configuration-EUTRA-ExtIEs} } OPTIONAL,
+	signallingBasedMDTPLMNList 	MDTPLMNList													OPTIONAL,
+	iE-Extensions		ProtocolExtensionContainer { { MDT-Configuration-EUTRA-ExtIEs} } 	OPTIONAL,
 	...
 }
 
@@ -2290,14 +2385,18 @@ MDT-Configuration-EUTRA-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
 
 MDT-Activation 	::= ENUMERATED { 
 	immediate-MDT-only,
-	immediate-MDT-and-Trace,
 	logged-MDT-only,
+	immediate-MDT-and-Trace,
 	...
 }
 
 MDTModeNr ::= CHOICE {
 	immediateMDTNr				ImmediateMDTNr,
 	loggedMDTNr					LoggedMDTNr,
+	choice-Extensions		ProtocolIE-SingleContainer { {MDTModeNr-ExtIEs} }
+}
+
+MDTModeNr-ExtIEs NGAP-PROTOCOL-IES ::= {
 	...
 }
 
@@ -2308,9 +2407,9 @@ MeasurementsToActivate ::= BIT STRING(SIZE(8))
 M1Configuration ::= SEQUENCE {
 	m1reportingTrigger			M1ReportingTrigger,
 	m1thresholdEventA2			M1ThresholdEventA2									OPTIONAL,
--- Included in case of event-triggered, or event-triggered periodic reporting for measurement M1
+--	The above IE shall be present if the M1 Reporting Trigger IE is set to “A2event-triggered” or “A2event-triggered periodic”
 	m1periodicReporting			M1PeriodicReporting									OPTIONAL,
--- Included in case of periodic or event-triggered periodic reporting
+--	The above IE shall be present if the M1 Reporting Trigger IE is set to “periodic” or “A2event-triggered periodic”
 	iE-Extensions		ProtocolExtensionContainer { { M1Configuration-ExtIEs} } 	OPTIONAL,
 	...
 }
@@ -2327,14 +2426,23 @@ M1ReportingTrigger ::= ENUMERATED{
 }
 
 M1ThresholdEventA2 ::= SEQUENCE { 
-	threshold-RSRP				Threshold-RSRP,
-	threshold-RSRQ				Threshold-RSRQ,
-	threshold-SINR				Threshold-SINR,
+	m1ThresholdType		M1ThresholdType,
 	iE-Extensions		ProtocolExtensionContainer { { M1ThresholdEventA2-ExtIEs} } OPTIONAL,
 	...
 }
 
 M1ThresholdEventA2-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+M1ThresholdType ::= CHOICE { 
+	threshold-RSRP				Threshold-RSRP,
+	threshold-RSRQ				Threshold-RSRQ,
+	threshold-SINR				Threshold-SINR,
+	choice-Extensions		ProtocolIE-SingleContainer { {M1ThresholdType-ExtIEs} }
+}
+
+M1ThresholdType-ExtIEs NGAP-PROTOCOL-IES ::= {
 	...
 }
 
@@ -2387,7 +2495,7 @@ M6Configuration-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
 }
 
 M6report-Interval ::= ENUMERATED { 
-	ms120, ms240, ms640, ms1024, ms2048, ms5120, ms10240, ms20480, ms40960, min1, min6, min12, min30,
+	ms120, ms240, ms480, ms640, ms1024, ms2048, ms5120, ms10240, ms20480, ms40960, min1, min6, min12, min30,
 	...
 }
 
@@ -2406,7 +2514,7 @@ M7Configuration-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
 M7period ::= INTEGER(1..60, ...)
 
 MDT-Location-Info ::= SEQUENCE {
-	mDT-Location-Infoormation	MDT-Location-Information,
+	mDT-Location-Information	MDT-Location-Information,
 	iE-Extensions		ProtocolExtensionContainer { { MDT-Location-Info-ExtIEs} } OPTIONAL,
 	...
 }
@@ -2867,7 +2975,7 @@ PathSwitchRequestUnsuccessfulTransfer-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
 
 PC5QoSParameters ::= SEQUENCE {
 	pc5QoSFlowList				PC5QoSFlowList,
-	pc5LinkAggregatedBitRates	BitRate												OPTIONAL,
+	pc5LinkAggregateBitRates	BitRate												OPTIONAL,
 	iE-Extensions		ProtocolExtensionContainer { { PC5QoSParameters-ExtIEs} }	OPTIONAL,
 	...
 }
@@ -3612,7 +3720,7 @@ PDUSessionUsageReport ::= SEQUENCE {
 	rATType								ENUMERATED {nr, eutra, ..., nr-unlicensed, e-utra-unlicensed},
 	pDUSessionTimedReportList			VolumeTimedReportList,
 	iE-Extensions		ProtocolExtensionContainer { {PDUSessionUsageReport-ExtIEs} } OPTIONAL,
-...
+	...
 }
 
 PDUSessionUsageReport-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
@@ -3877,7 +3985,7 @@ QoSFlowsUsageReport-Item ::= SEQUENCE {
 	rATType								ENUMERATED {nr, eutra, ..., nr-unlicensed, e-utra-unlicensed},
 	qoSFlowsTimedReportList				VolumeTimedReportList,
 	iE-Extensions		ProtocolExtensionContainer { {QoSFlowsUsageReport-Item-ExtIEs} } OPTIONAL,
-...
+	...
 }
 
 QoSFlowsUsageReport-Item-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
@@ -3889,6 +3997,10 @@ QoSFlowsUsageReport-Item-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
 Range ::= ENUMERATED {m50, m80, m180, m200, m350, m400, m500, m700, m1000, ...}
 
 RANNodeName ::= PrintableString (SIZE(1..150, ...))
+
+RANNodeNameVisibleString ::= VisibleString (SIZE(1..150, ...))
+
+RANNodeNameUTF8String ::= UTF8String (SIZE(1..150, ...))
 
 RANPagingPriority ::= INTEGER (1..256)
 
@@ -4170,7 +4282,7 @@ SecurityResult-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
 
 SensorMeasurementConfiguration ::=	SEQUENCE {
 	sensorMeasConfig            SensorMeasConfig,
-	sensorMeasConfigName		SensorMeasConfigName            								OPTIONAL,
+	sensorMeasConfigNameList	SensorMeasConfigNameList            								OPTIONAL,
 	iE-Extensions		ProtocolExtensionContainer { {SensorMeasurementConfiguration-ExtIEs} } 	OPTIONAL,
 	...
 }
@@ -4179,14 +4291,28 @@ SensorMeasurementConfiguration-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
-SensorMeasConfigName ::= SEQUENCE (SIZE(1..maxnoofSensorName)) OF SensorNameConfig
+SensorMeasConfigNameList ::= SEQUENCE (SIZE(1..maxnoofSensorName)) OF SensorMeasConfigNameItem
+
+SensorMeasConfigNameItem ::= SEQUENCE {
+	sensorNameConfig		SensorNameConfig,
+	iE-Extensions		ProtocolExtensionContainer { { SensorMeasConfigNameItem-ExtIEs } } 	OPTIONAL,
+	...
+}
+
+SensorMeasConfigNameItem-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	...
+}
 
 SensorMeasConfig::= ENUMERATED {setup,...}
 
 SensorNameConfig ::= CHOICE {
-	uncompensattedBarometericConfig		ENUMERATED {true, ...},
+	uncompensatedBarometricConfig		ENUMERATED {true, ...},
 	ueSpeedConfig						ENUMERATED {true, ...},
 	ueOrientationConfig					ENUMERATED {true, ...},
+	choice-Extensions		ProtocolIE-SingleContainer { {SensorNameConfig-ExtIEs} }
+}
+
+SensorNameConfig-ExtIEs NGAP-PROTOCOL-IES ::= {
 	...
 }
 
@@ -4394,7 +4520,8 @@ SupportedTAItem ::= SEQUENCE {
 }
 
 SupportedTAItem-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
-	{ID id-RAT-Information		CRITICALITY reject	EXTENSION RAT-Information		PRESENCE optional	},
+	{ID id-ConfiguredTACIndication		CRITICALITY ignore	EXTENSION ConfiguredTACIndication	PRESENCE optional	}|
+	{ID id-RAT-Information				CRITICALITY reject	EXTENSION RAT-Information			PRESENCE optional	},
 	...
 }
 
@@ -4568,7 +4695,7 @@ TargetRNC-ID ::= SEQUENCE {
 	extendedRNC-ID		ExtendedRNC-ID											OPTIONAL,
 	iE-Extensions		ProtocolExtensionContainer { {TargetRNC-ID-ExtIEs} } 	OPTIONAL,
 	...
-	}
+}
 
 TargetRNC-ID-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
 	...
@@ -4632,7 +4759,8 @@ TooearlyIntersystemHO::= SEQUENCE {
 	sourcecellID			EUTRA-CGI,
 	failurecellID			NGRAN-CGI,
 	uERLFReportContainer	UERLFReportContainer		OPTIONAL,
-	iE-Extensions			ProtocolExtensionContainer { { TooearlyIntersystemHO-ExtIEs} }			OPTIONAL
+	iE-Extensions			ProtocolExtensionContainer { { TooearlyIntersystemHO-ExtIEs} }			OPTIONAL,
+	...
 }
 
 TooearlyIntersystemHO-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
@@ -4651,7 +4779,6 @@ traceCollectionEntityIPAddress		TransportLayerAddress,
 TraceActivation-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
 	{ ID id-MDTConfiguration			CRITICALITY ignore	EXTENSION MDT-Configuration		PRESENCE optional 	}|
 	{ ID id-TraceCollectionEntityURI	CRITICALITY ignore	EXTENSION URI-address			PRESENCE optional		},
-
 	...
 }
 
@@ -4765,7 +4892,8 @@ UE-associatedLogicalNG-connectionItem ::= SEQUENCE {
 }
 
 UE-associatedLogicalNG-connectionItem-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
-	...}
+	...
+}
 
 UECapabilityInfoRequest ::= ENUMERATED {
 	requested,
@@ -5130,7 +5258,7 @@ VolumeTimedReport-Item ::= SEQUENCE {
 	usageCountUL				INTEGER (0..18446744073709551615),
 	usageCountDL				INTEGER (0..18446744073709551615),
 	iE-Extensions		ProtocolExtensionContainer { {VolumeTimedReport-Item-ExtIEs} } OPTIONAL,
-...
+	...
 }
 
 VolumeTimedReport-Item-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
@@ -5140,7 +5268,7 @@ VolumeTimedReport-Item-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
 -- W
 
 W-AGF-ID ::= CHOICE {
-	w-AGF-ID				BIT STRING (SIZE(16)),
+	w-AGF-ID				BIT STRING (SIZE(16, ...)),
 	choice-Extensions		ProtocolIE-SingleContainer { {W-AGF-ID-ExtIEs} }
 }
 
@@ -5181,7 +5309,17 @@ WLANMeasurementConfiguration-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
-WLANMeasConfigNameList ::= SEQUENCE (SIZE(1..maxnoofWLANName)) OF WLANName
+WLANMeasConfigNameList ::= SEQUENCE (SIZE(1..maxnoofWLANName)) OF WLANMeasConfigNameItem
+
+WLANMeasConfigNameItem ::= SEQUENCE {
+	wLANName			WLANName,
+	iE-Extensions		ProtocolExtensionContainer { { WLANMeasConfigNameItem-ExtIEs } } 	OPTIONAL,
+	...
+}
+
+WLANMeasConfigNameItem-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	...
+}
 
 WLANMeasConfig::= ENUMERATED {setup,...}
 
