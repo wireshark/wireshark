@@ -260,6 +260,9 @@ TAC TYPE = FT_UINT24 DISPLAY = BASE_DEC_HEX
   }
 
 #.FIELD_ATTR
+BPLMN-ID-Info-NR-Item/nr-CI ABBREV=NR-Cell-Identity TYPE=FT_UINT40 DISPLAY=BASE_HEX
+
+#.FIELD_ATTR
 NG-RAN-Cell-Identity/nr ABBREV=NR-Cell-Identity TYPE=FT_UINT40 DISPLAY=BASE_HEX
 
 #.FIELD_ATTR
@@ -272,6 +275,9 @@ NR-CGI/nr-CI ABBREV=NR-Cell-Identity TYPE=FT_UINT40 DISPLAY=BASE_HEX
     guint64 cell_id = tvb_get_bits64(cell_id_tvb, 0, 36, ENC_BIG_ENDIAN);
     actx->created_item = proto_tree_add_uint64(tree, hf_index, cell_id_tvb, 0, 5, cell_id);
   }
+
+#.FIELD_ATTR
+BPLMN-ID-Info-EUTRA-Item/e-utraCI ABBREV=E-UTRA-Cell-Identity TYPE=FT_UINT32 DISPLAY=BASE_HEX
 
 #.FIELD_ATTR
 E-UTRA-CGI/e-utra-CI ABBREV=E-UTRA-Cell-Identity TYPE=FT_UINT32 DISPLAY=BASE_HEX
