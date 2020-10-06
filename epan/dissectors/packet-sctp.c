@@ -390,7 +390,7 @@ static const value_string sctp_payload_proto_id_values[] = {
   { PROTO_3GPP_M3AP_PROTOCOL_ID,                    "3GPP M3AP" },
   { SSH_PAYLOAD_PROTOCOL_ID,                        "SSH" },
   { DIAMETER_PROTOCOL_ID,                           "DIAMETER" },
-  { DIAMETER_DTLS_PROTOCOL_ID,                      "DIAMETER OVER DTLS" },
+  { DIAMETER_DTLS_PROTOCOL_ID,                      "DIAMETER over DTLS" },
   { R14P_BER_PROTOCOL_ID,                           "R14P" },
   { WEBRTC_DCEP_PROTOCOL_ID,                        "WebRTC Control" },
   { WEBRTC_STRING_PAYLOAD_PROTOCOL_ID,              "WebRTC String" },
@@ -406,6 +406,14 @@ static const value_string sctp_payload_proto_id_values[] = {
   { XNAP_PROTOCOL_ID,                               "XnAP" },
   { F1AP_PROTOCOL_ID,                               "F1 AP" },
   { ELE2_PROTOCOL_ID,                               "ELE2 Lawful Interception" },
+  { NGAP_OVER_DTLS_PROTOCOL_ID,                     "NGAP over DTLS" },
+  { XNAP_OVER_DTLS_PROTOCOL_ID,                     "XnAP over DTLS" },
+  { F1AP_OVER_DTLS_PROTOCOL_ID,                     "F1AP over DTLS" },
+  { E1AP_OVER_DTLS_PROTOCOL_ID,                     "E1AP over DTLS" },
+  { E2_CP_PROTOCOL_ID,                              "E2-CP" },
+  { E2_UP_PROTOCOL_ID,                              "E2-UP" },
+  { E2_DU_PROTOCOL_ID,                              "E2-DU" },
+  { W1AP_PROTOCOL_ID,                               "W1AP" },
 
   { 0,                                              NULL } };
 

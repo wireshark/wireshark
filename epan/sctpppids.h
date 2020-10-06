@@ -85,5 +85,13 @@
 #define HTTP_SCTP_PROTOCOL_ID                          63
 #define E1AP_PROTOCOL_ID                               64
 #define ELE2_PROTOCOL_ID                               65
+#define NGAP_OVER_DTLS_PROTOCOL_ID                     66
+#define XNAP_OVER_DTLS_PROTOCOL_ID                     67
+#define F1AP_OVER_DTLS_PROTOCOL_ID                     68
+#define E1AP_OVER_DTLS_PROTOCOL_ID                     69
+#define E2_CP_PROTOCOL_ID                              70
+#define E2_UP_PROTOCOL_ID                              71
+#define E2_DU_PROTOCOL_ID                              72
+#define W1AP_PROTOCOL_ID                               73
 
 #endif /* sctpppids.h */
