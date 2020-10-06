@@ -237,7 +237,7 @@ dissect_mc_nmf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
                     return tvb_reported_length(tvb);
                 proto_tree_add_uint(rec_tree, hf_mc_nmf_via_length, tvb, offset - len_length, len_length, (guint32)size);
                 proto_tree_add_item(rec_tree, hf_mc_nmf_via, tvb, offset, (guint32)size, ENC_UTF_8|ENC_NA);
-                offset += size;
+                offset += (guint32)size;
                 break;
             case MC_NMF_REC_KNOWN_ENC:
                 rec_tree = proto_item_add_subtree(rti, ett_mc_nmf_rec);
@@ -253,7 +253,7 @@ dissect_mc_nmf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
                     return tvb_reported_length(tvb);
                 proto_tree_add_uint(rec_tree, hf_mc_nmf_encoding_length, tvb, offset - len_length, len_length, (guint32)size);
                 proto_tree_add_item(rec_tree, hf_mc_nmf_encoding_type, tvb, offset, (guint32)size, ENC_UTF_8|ENC_NA);
-                offset += size;
+                offset += (guint32)size;
                 break;
             case MC_NMF_REC_UNSIZED_ENV:
                 rec_tree = proto_item_add_subtree(rti, ett_mc_nmf_rec);
@@ -265,7 +265,7 @@ dissect_mc_nmf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
                         return tvb_reported_length(tvb);
                     proto_tree_add_uint(rec_tree, hf_mc_nmf_chunk_length, tvb, offset - len_length, len_length, (guint32)size);
                     proto_tree_add_item(rec_tree, hf_mc_nmf_chunk, tvb, offset, (guint32)size, ENC_NA);
-                    offset += size;
+                    offset += (guint32)size;
                     search_terminator = tvb_get_guint8(tvb, offset);
                 } while ( search_terminator != 0x00 );
                 proto_tree_add_item(rec_tree, hf_mc_nmf_terminator, tvb,
@@ -281,7 +281,7 @@ dissect_mc_nmf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
                     return tvb_reported_length(tvb);
                 proto_tree_add_uint(rec_tree, hf_mc_nmf_payload_length, tvb, offset - len_length, len_length, (guint32)size);
                 proto_tree_add_item(rec_tree, hf_mc_nmf_payload, tvb, offset, (guint32)size, ENC_NA);
-                offset += size;
+                offset += (guint32)size;
                 break;
             case MC_NMF_REC_FAULT:
                 size = 0;
@@ -292,7 +292,7 @@ dissect_mc_nmf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
                     return tvb_reported_length(tvb);
                 proto_tree_add_uint(rec_tree, hf_mc_nmf_fault_length, tvb, offset - len_length, len_length, (guint32)size);
                 proto_tree_add_item(rec_tree, hf_mc_nmf_fault, tvb, offset, (guint32)size, ENC_UTF_8|ENC_NA);
-                offset += size;
+                offset += (guint32)size;
                 break;
             case MC_NMF_REC_UPGRADE_REQ:
                 size = 0;
@@ -304,7 +304,7 @@ dissect_mc_nmf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
                 proto_tree_add_uint(rec_tree, hf_mc_nmf_upgrade_length, tvb, offset - len_length, len_length, (guint32)size);
                 proto_tree_add_item(rec_tree, hf_mc_nmf_upgrade, tvb, offset, (guint32)size, ENC_UTF_8|ENC_NA);
                 upgrade_protocol = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, (guint32)size, ENC_UTF_8|ENC_NA);
-                offset += size;
+                offset += (guint32)size;
                 if (strcmp((char*)upgrade_protocol, "application/negotiate") == 0) {
                     session_state->negotiate = TRUE;
                 }
