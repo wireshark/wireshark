@@ -124,7 +124,7 @@ static gint ett_mc_nmf_rec = -1;
 
 #define MC_NMF_MIN_LENGTH 1
 
-static gint64 get_size_length(tvbuff_t *tvb, int *offset, guint *len_length, packet_info *pinfo) {
+static gboolean get_size_length(tvbuff_t *tvb, int *offset, guint *len_length, packet_info *pinfo, guint32 *out_size) {
     guint8    lbyte;
     gint64    size = 0;
     guint     shiftcount = 0;
@@ -146,10 +146,11 @@ static gint64 get_size_length(tvbuff_t *tvb, int *offset, guint *len_length, pac
          */
         if (size > 0xffffffff) {
             expert_add_info(pinfo, NULL, &ei_mc_nmf_size_too_big);
-            return -1;
+            return FALSE;
         }
     }
-    return size;
+    *out_size = (guint32)size;
+    return TRUE;
 }
 
 static int
@@ -161,7 +162,7 @@ dissect_mc_nmf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     guint32        record_type;
     guint8         *upgrade_protocol;
     guint          len_length;
-    gint64         size;
+    gint32         size;
     guint8         search_terminator;
     conversation_t *conversation;
     tvbuff_t       *nt_tvb;
@@ -232,12 +233,11 @@ dissect_mc_nmf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
                 size = 0;
                 len_length = 0;
                 rec_tree = proto_item_add_subtree(rti, ett_mc_nmf_rec);
-                size = get_size_length(tvb, &offset, &len_length, pinfo);
-                if (size == -1)
+                if (!get_size_length(tvb, &offset, &len_length, pinfo, &size))
                     return tvb_reported_length(tvb);
-                proto_tree_add_uint(rec_tree, hf_mc_nmf_via_length, tvb, offset - len_length, len_length, (guint32)size);
-                proto_tree_add_item(rec_tree, hf_mc_nmf_via, tvb, offset, (guint32)size, ENC_UTF_8|ENC_NA);
-                offset += (guint32)size;
+                proto_tree_add_uint(rec_tree, hf_mc_nmf_via_length, tvb, offset - len_length, len_length, size);
+                proto_tree_add_item(rec_tree, hf_mc_nmf_via, tvb, offset, size, ENC_UTF_8|ENC_NA);
+                offset += size;
                 break;
             case MC_NMF_REC_KNOWN_ENC:
                 rec_tree = proto_item_add_subtree(rti, ett_mc_nmf_rec);
@@ -248,24 +248,22 @@ dissect_mc_nmf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
                 size = 0;
                 len_length = 0;
                 rec_tree = proto_item_add_subtree(rti, ett_mc_nmf_rec);
-                size = get_size_length(tvb, &offset, &len_length, pinfo);
-                if (size == -1)
+                if (!get_size_length(tvb, &offset, &len_length, pinfo, &size))
                     return tvb_reported_length(tvb);
-                proto_tree_add_uint(rec_tree, hf_mc_nmf_encoding_length, tvb, offset - len_length, len_length, (guint32)size);
-                proto_tree_add_item(rec_tree, hf_mc_nmf_encoding_type, tvb, offset, (guint32)size, ENC_UTF_8|ENC_NA);
-                offset += (guint32)size;
+                proto_tree_add_uint(rec_tree, hf_mc_nmf_encoding_length, tvb, offset - len_length, len_length, size);
+                proto_tree_add_item(rec_tree, hf_mc_nmf_encoding_type, tvb, offset, size, ENC_UTF_8|ENC_NA);
+                offset += size;
                 break;
             case MC_NMF_REC_UNSIZED_ENV:
                 rec_tree = proto_item_add_subtree(rti, ett_mc_nmf_rec);
                 do {
                     size = 0;
                     len_length = 0;
-                    size = get_size_length(tvb, &offset, &len_length, pinfo);
-                    if (size == -1)
+                    if (!get_size_length(tvb, &offset, &len_length, pinfo, &size))
                         return tvb_reported_length(tvb);
-                    proto_tree_add_uint(rec_tree, hf_mc_nmf_chunk_length, tvb, offset - len_length, len_length, (guint32)size);
-                    proto_tree_add_item(rec_tree, hf_mc_nmf_chunk, tvb, offset, (guint32)size, ENC_NA);
-                    offset += (guint32)size;
+                    proto_tree_add_uint(rec_tree, hf_mc_nmf_chunk_length, tvb, offset - len_length, len_length, size);
+                    proto_tree_add_item(rec_tree, hf_mc_nmf_chunk, tvb, offset, size, ENC_NA);
+                    offset += size;
                     search_terminator = tvb_get_guint8(tvb, offset);
                 } while ( search_terminator != 0x00 );
                 proto_tree_add_item(rec_tree, hf_mc_nmf_terminator, tvb,
@@ -276,35 +274,32 @@ dissect_mc_nmf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
                 size = 0;
                 len_length = 0;
                 rec_tree = proto_item_add_subtree(rti, ett_mc_nmf_rec);
-                size = get_size_length(tvb, &offset, &len_length, pinfo);
-                if (size == -1)
+                if (!get_size_length(tvb, &offset, &len_length, pinfo, &size))
                     return tvb_reported_length(tvb);
-                proto_tree_add_uint(rec_tree, hf_mc_nmf_payload_length, tvb, offset - len_length, len_length, (guint32)size);
-                proto_tree_add_item(rec_tree, hf_mc_nmf_payload, tvb, offset, (guint32)size, ENC_NA);
-                offset += (guint32)size;
+                proto_tree_add_uint(rec_tree, hf_mc_nmf_payload_length, tvb, offset - len_length, len_length, size);
+                proto_tree_add_item(rec_tree, hf_mc_nmf_payload, tvb, offset, size, ENC_NA);
+                offset += size;
                 break;
             case MC_NMF_REC_FAULT:
                 size = 0;
                 len_length = 0;
                 rec_tree = proto_item_add_subtree(rti, ett_mc_nmf_rec);
-                size = get_size_length(tvb, &offset, &len_length, pinfo);
-                if (size == -1)
+                if (!get_size_length(tvb, &offset, &len_length, pinfo, &size))
                     return tvb_reported_length(tvb);
-                proto_tree_add_uint(rec_tree, hf_mc_nmf_fault_length, tvb, offset - len_length, len_length, (guint32)size);
-                proto_tree_add_item(rec_tree, hf_mc_nmf_fault, tvb, offset, (guint32)size, ENC_UTF_8|ENC_NA);
-                offset += (guint32)size;
+                proto_tree_add_uint(rec_tree, hf_mc_nmf_fault_length, tvb, offset - len_length, len_length, size);
+                proto_tree_add_item(rec_tree, hf_mc_nmf_fault, tvb, offset, size, ENC_UTF_8|ENC_NA);
+                offset += size;
                 break;
             case MC_NMF_REC_UPGRADE_REQ:
                 size = 0;
                 len_length = 0;
                 rec_tree = proto_item_add_subtree(rti, ett_mc_nmf_rec);
-                size = get_size_length(tvb, &offset, &len_length, pinfo);
-                if (size == -1)
+                if (!get_size_length(tvb, &offset, &len_length, pinfo, &size))
                     return tvb_reported_length(tvb);
-                proto_tree_add_uint(rec_tree, hf_mc_nmf_upgrade_length, tvb, offset - len_length, len_length, (guint32)size);
-                proto_tree_add_item(rec_tree, hf_mc_nmf_upgrade, tvb, offset, (guint32)size, ENC_UTF_8|ENC_NA);
-                upgrade_protocol = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, (guint32)size, ENC_UTF_8|ENC_NA);
-                offset += (guint32)size;
+                proto_tree_add_uint(rec_tree, hf_mc_nmf_upgrade_length, tvb, offset - len_length, len_length, size);
+                proto_tree_add_item(rec_tree, hf_mc_nmf_upgrade, tvb, offset, size, ENC_UTF_8|ENC_NA);
+                upgrade_protocol = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, size, ENC_UTF_8|ENC_NA);
+                offset += size;
                 if (strcmp((char*)upgrade_protocol, "application/negotiate") == 0) {
                     session_state->negotiate = TRUE;
                 }
