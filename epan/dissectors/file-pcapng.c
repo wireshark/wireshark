@@ -134,6 +134,13 @@ static int hf_pcapng_option_darwin_process_uuid = -1;
 static int hf_pcapng_option_data_packet_darwin_dpeb_id = -1;
 static int hf_pcapng_option_data_packet_darwin_svc_class = -1;
 static int hf_pcapng_option_data_packet_darwin_edpeb_id = -1;
+static int hf_pcapng_option_data_packet_darwin_flags = -1;
+static int hf_pcapng_option_data_packet_darwin_flags_reserved = -1;
+static int hf_pcapng_option_data_packet_darwin_flags_ch = -1;
+static int hf_pcapng_option_data_packet_darwin_flags_so = -1;
+static int hf_pcapng_option_data_packet_darwin_flags_re = -1;
+static int hf_pcapng_option_data_packet_darwin_flags_ka = -1;
+static int hf_pcapng_option_data_packet_darwin_flags_nf = -1;
 
 static expert_field ei_invalid_byte_order_magic = EI_INIT;
 static expert_field ei_block_length_too_short = EI_INIT;
@@ -181,6 +188,16 @@ static int * const hfx_pcapng_option_data_packet_flags[] = {
 static int * const hfx_pcapng_block_type[] = {
     &hf_pcapng_block_type_vendor,
     &hf_pcapng_block_type_value,
+    NULL
+};
+
+static int * const hfx_pcapng_option_data_packet_darwin_flags[] = {
+    &hf_pcapng_option_data_packet_darwin_flags_reserved,
+    &hf_pcapng_option_data_packet_darwin_flags_ch,
+    &hf_pcapng_option_data_packet_darwin_flags_so,
+    &hf_pcapng_option_data_packet_darwin_flags_re,
+    &hf_pcapng_option_data_packet_darwin_flags_ka,
+    &hf_pcapng_option_data_packet_darwin_flags_nf,
     NULL
 };
 
@@ -359,6 +376,7 @@ static const value_string block_type_vals[] = {
  *          | darwin_dpeb_id   | 32769 | 4      | no?               |
  *          | darwin_svc_class | 32770 | 4      | no?               |
  *          | darwin_edpeb_id  | 32771 | 4      | no?               |
+ *          | darwin_flags     | 32772 | 4      | no?               |
  *          +------------------+------+---------+-------------------+
  *
  *           Table XXX.2: Darwin options for Enhanced Packet Blocks
@@ -404,6 +422,29 @@ static const value_string block_type_vals[] = {
  *            the same number (see Section XXX.X) of this field.  The DPEB
  *            ID MUST be valid, which means that a matching Darwin Process
  *            Event Block MUST exist.
+ *
+ *    darwin_flags:
+ *            The darwin_flags option is a 32 bit field for indicating
+ *            various Darwin specific flags.
+ *
+ *    The following Darwin Flags are defined:
+ *
+ *                          +-------------------------+
+ *                          |     FLAG_MASK    | Flag |
+ *                          +-------------------------+
+ *                          |    0x00000010    |  ch  |
+ *                          |    0x00000008    |  so  |
+ *                          |    0x00000004    |  re  |
+ *                          |    0x00000002    |  ka  |
+ *                          |    0x00000001    |  nf  |
+ *                          +-------------------------+
+ *
+ *                           Table XXX.4: Darwin Flags
+ * nf = New Flow
+ * ka = Keep Alive
+ * re = ReXmit (I assume this means Re-Transmit)
+ * so = Socket
+ * ch = Nexus Channel
  */
 
 static const value_string option_code_section_header_vals[] = {
@@ -447,6 +488,7 @@ static const value_string option_code_enhanced_packet_vals[] = {
     { 32769,   "Darwin DPEB ID" },
     { 32770,   "Darwin Service Class" },
     { 32771,   "Darwin Effective DPEB ID" },
+    { 32772,   "Darwin Flags" },
     { 0, NULL }
 };
 
@@ -1182,6 +1224,11 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
                 offset += option_length;
 
                 str = (const guint8*)wmem_strdup_printf(wmem_packet_scope(), "%u", value.u32);
+
+                break;
+            case 32772: /* Darwin Flags */
+                proto_tree_add_bitmask(option_tree, tvb, offset, hf_pcapng_option_data_packet_darwin_flags, ett_pcapng_option, hfx_pcapng_option_data_packet_darwin_flags, encoding);
+                offset += option_length;
 
                 break;
             default:
@@ -2153,6 +2200,41 @@ proto_register_pcapng(void)
         { &hf_pcapng_option_data_packet_darwin_edpeb_id,
             { "Effective DPED ID",                         "pcapng.options.option.data.packet.darwin.edpeb_id",
             FT_UINT32, BASE_DEC, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_pcapng_option_data_packet_darwin_flags,
+            { "Darwin Flags",                              "pcapng.options.option.data.packet.darwin.flags",
+            FT_UINT32, BASE_HEX, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_pcapng_option_data_packet_darwin_flags_reserved,
+            { "Reserved",                                  "pcapng.options.option.data.packet.darwin.flags.reserved",
+            FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0xFFFFFFE0,
+            NULL, HFILL }
+        },
+        { &hf_pcapng_option_data_packet_darwin_flags_ch,
+            { "Nexus Channel(ch)",                                        "pcapng.options.option.data.packet.darwin.flags.ch",
+            FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00000010,
+            NULL, HFILL }
+        },
+        { &hf_pcapng_option_data_packet_darwin_flags_so,
+            { "Socket(so)",                                        "pcapng.options.option.data.packet.darwin.flags.so",
+            FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00000008,
+            NULL, HFILL }
+        },
+        { &hf_pcapng_option_data_packet_darwin_flags_re,
+            { "ReXmit(re)",                                        "pcapng.options.option.data.packet.darwin.flags.re",
+            FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00000004,
+            NULL, HFILL }
+        },
+        { &hf_pcapng_option_data_packet_darwin_flags_ka,
+            { "Keep Alive(ka)",                                        "pcapng.options.option.data.packet.darwin.flags.ka",
+            FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00000002,
+            NULL, HFILL }
+        },
+        { &hf_pcapng_option_data_packet_darwin_flags_nf,
+            { "New Flow(nf)",                                        "pcapng.options.option.data.packet.darwin.flags.nf",
+            FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00000001,
             NULL, HFILL }
         },
         { &hf_pcapng_option_data_dns_name,
