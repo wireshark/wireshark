@@ -6025,7 +6025,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
         <translation>Aplicar como filtro</translation>
     </message>
     <message>
-        <source>Prepare a Filter</source>
+        <source>Prepare as Filter</source>
         <translation>Preparar un filtro</translation>
     </message>
     <message>
@@ -9330,7 +9330,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
         <translation type="unfinished">Aplicar como filtro</translation>
     </message>
     <message>
-        <source>Prepare a Filter</source>
+        <source>Prepare as Filter</source>
         <translation type="unfinished">Preparar un filtro</translation>
     </message>
     <message>

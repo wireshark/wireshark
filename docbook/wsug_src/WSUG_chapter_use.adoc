@@ -579,7 +579,7 @@ the chosen menu item, the current display filter string will be replaced
 or appended to by the selected protocol field in the packet details
 pane.
 
-|menu:Prepare a Filter[]            ||
+|menu:Prepare as Filter[]            ||
 Change the current display filter but won’t apply it. Depending on the
 chosen menu item, the current display filter string will be replaced or
 appended to by the selected protocol field in the packet details pane.

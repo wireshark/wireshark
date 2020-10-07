@@ -6094,7 +6094,7 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
         <translation>Appliquer comme un Filtre</translation>
     </message>
     <message>
-        <source>Prepare a Filter</source>
+        <source>Prepare as Filter</source>
         <translation>Préparer un Filtre</translation>
     </message>
     <message>
@@ -9405,7 +9405,7 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
         <translation>Appliquer comme un Filtre</translation>
     </message>
     <message>
-        <source>Prepare a Filter</source>
+        <source>Prepare as Filter</source>
         <translation>Préparer un Filtre</translation>
     </message>
     <message>

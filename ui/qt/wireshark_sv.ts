@@ -6118,7 +6118,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>Använd som ett filter</translation>
     </message>
     <message>
-        <source>Prepare a Filter</source>
+        <source>Prepare as Filter</source>
         <translation>Förbered ett filter</translation>
     </message>
     <message>
@@ -9440,7 +9440,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>Använd som ett filter</translation>
     </message>
     <message>
-        <source>Prepare a Filter</source>
+        <source>Prepare as Filter</source>
         <translation>Förbered ett filter</translation>
     </message>
     <message>

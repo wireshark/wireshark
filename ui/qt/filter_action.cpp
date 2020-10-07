@@ -58,7 +58,7 @@ const QString FilterAction::actionName(Action action) {
         return QObject::tr("Apply as Filter");
         break;
     case ActionPrepare:
-        return QObject::tr("Prepare a Filter");
+        return QObject::tr("Prepare as Filter");
         break;
     case ActionFind:
         return QObject::tr("Find");

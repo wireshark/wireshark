@@ -1369,7 +1369,7 @@ B<And Not Selected>, and B<Or Not Selected> options add to the end of
 the display filter in the strip at the top (or bottom) an AND or OR
 operator followed by the new display filter expression.
 
-=item Analyze:Prepare a Filter
+=item Analyze:Prepare as Filter
 
 Create a display filter based on the data currently highlighted in the
 packet details.  The filter strip at the top (or bottom) is updated but

@@ -6118,7 +6118,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <translation>Als Filter anwenden</translation>
     </message>
     <message>
-        <source>Prepare a Filter</source>
+        <source>Prepare as Filter</source>
         <translation>Filter vorbereiten</translation>
     </message>
     <message>
@@ -9440,7 +9440,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <translation>Als Filter anwenden</translation>
     </message>
     <message>
-        <source>Prepare a Filter</source>
+        <source>Prepare as Filter</source>
         <translation>Als Filter vorbereiten</translation>
     </message>
     <message>

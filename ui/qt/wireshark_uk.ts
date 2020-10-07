@@ -6054,7 +6054,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Застосувати як Фільтр</translation>
     </message>
     <message>
-        <source>Prepare a Filter</source>
+        <source>Prepare as Filter</source>
         <translation>Підготувати Фільтр</translation>
     </message>
     <message>
@@ -9365,7 +9365,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished">Застосувати як Фільтр</translation>
     </message>
     <message>
-        <source>Prepare a Filter</source>
+        <source>Prepare as Filter</source>
         <translation type="unfinished">Підготувати Фільтр</translation>
     </message>
     <message>

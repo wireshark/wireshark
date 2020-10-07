@@ -140,7 +140,7 @@ Allows you to enter a name to resolve for the selected address.
 Immediately replace or append the current display filter based on the most recent packet list or packet details item selected.
 The first submenu item shows the filter and subsequent items show the different ways that the filter can be applied.
 
-|menu:Prepare a Filter[]|menu:Analyze[]|
+|menu:Prepare as Filter[]|menu:Analyze[]|
 Change the current display filter based on the most recent packet list or packet details item selected, but don't apply it.
 The first submenu item shows the filter and subsequent items show the different ways that the filter can be changed.
 
@@ -247,7 +247,7 @@ description of each item.
 Immediately replace or append the current display filter based on the most recent packet list or packet details item selected.
 The first submenu item shows the filter and subsequent items show the different ways that the filter can be applied.
 
-|menu:Prepare a Filter[]|menu:Analyze[]|
+|menu:Prepare as Filter[]|menu:Analyze[]|
 Change the current display filter based on the most recent packet list or packet details item selected, but don't apply it.
 The first submenu item shows the filter and subsequent items show the different ways that the filter can be changed.
 

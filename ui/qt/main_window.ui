@@ -398,7 +398,7 @@
     </widget>
     <widget class="QMenu" name="menuPrepareAFilter">
      <property name="title">
-      <string>Prepare a Filter</string>
+      <string>Prepare as Filter</string>
      </property>
     </widget>
     <widget class="QMenu" name="menuSCTP">
