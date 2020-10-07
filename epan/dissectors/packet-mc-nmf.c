@@ -60,7 +60,7 @@ static const value_string mc_nmf_record_type_vals[] = {
     { MC_NMF_REC_UPGRADE_REQ, "Upgrade Request Record" },
     { MC_NMF_REC_UPGRADE_RSP, "Upgrade Response Record" },
     { MC_NMF_REC_PREAMBLE_ACK, "Preamble Ack Record" },
-    { MC_NMF_REC_PREAMBLE_END, "Rreamble End Record" },
+    { MC_NMF_REC_PREAMBLE_END, "Preamble End Record" },
     { 0, NULL}
 };
 
@@ -381,7 +381,7 @@ void proto_register_mc_nmf(void)
             NULL, HFILL }
         },
         { &hf_mc_nmf_upgrade_length,
-          { "Upgrade Protocal Length", "mc-nmf.upgrade_length",
+          { "Upgrade Protocol Length", "mc-nmf.upgrade_length",
             FT_UINT32, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
