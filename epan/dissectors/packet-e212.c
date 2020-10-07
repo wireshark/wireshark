@@ -3294,7 +3294,7 @@ dissect_e212_mcc_mnc_in_address(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     }
 
     item = proto_tree_add_uint(tree, hf_E212_mcc , tvb, start_offset, 2, mcc);
-    if (((mcc1 > 9) || (mcc2 > 9) || (mcc3 > 9)) & (mcc_mnc != 0xffffff))
+    if (((mcc1 > 9) || (mcc2 > 9) || (mcc3 > 9)) && (mcc_mnc != 0xffffff))
         expert_add_info(pinfo, item, &ei_E212_mcc_non_decimal);
 
     if (long_mnc)
