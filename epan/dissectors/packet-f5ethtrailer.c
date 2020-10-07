@@ -228,6 +228,7 @@ static gint hf_data        = -1;
 static gint hf_data_str    = -1;
 static gint hf_dpt_unknown = -1;
 static gint hf_trailer_hdr = -1;
+static gint hf_orig_fcs    = -1;
 /* Low */
 static gint hf_low_id         = -1;
 static gint hf_flags          = -1;
@@ -2853,6 +2854,7 @@ dissect_f5ethtrailer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
     guint trailer_length;
     guint offset  = 0;
     found_t found = NONE;
+    gboolean has_fcs = FALSE;
 
     if (tvb_reported_length(tvb) != tvb_captured_length(tvb)) {
         /* The trailers are really only helpful if we have the entire trailer. If we
@@ -2888,6 +2890,22 @@ dissect_f5ethtrailer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
             found = NEW_FORMAT;
             break;
         }
+        /* It's possible to have the trailer added after the FCS has already been added.
+           Let's move in 4 bytes and check there.  If so, display the Original FCS.
+
+           Only add this check for new format trailers.  Old format trailers are all but extinct
+           and likely wouldn't have been added after FCS anyway.  The walk trailer prefernce could
+           find it anyway, and that seems reasonable enough for old format. */
+        if (tvb_get_ntohl(tvb, offset + 4) == F5_DPT_V1_HDR_MAGIC) {
+            if (tvb_get_ntohs(tvb, offset + 4 + F5_DPT_V1_HDR_LENGTH_OFF) > trailer_length) {
+                return 0;
+            }
+            found = NEW_FORMAT;
+            has_fcs = TRUE;
+            offset += 4;
+            break;
+        }
+
         /* Not new format? Are we old format? */
         guint tlv_type, tlv_length, tlv_ver;
 
@@ -2924,6 +2942,9 @@ dissect_f5ethtrailer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
     if (tree) {
         trailer_item = proto_tree_add_item(tree, proto_f5ethtrailer, tvb, offset, 0, ENC_NA);
         tree = proto_item_add_subtree(trailer_item, ett_f5ethtrailer);
+        if (has_fcs) {
+            proto_tree_add_item(tree, hf_orig_fcs, tvb, offset - 4, 4, ENC_NA);
+        }
     }
 
     if (found == NEW_FORMAT) {
@@ -3662,6 +3683,10 @@ proto_register_f5ethtrailer(void)
         },
         { &hf_data_str,
           { "Data", "f5ethtrailer.data.string", FT_STRING, BASE_NONE, NULL,
+            0x0, NULL, HFILL }
+        },
+        { &hf_orig_fcs,
+          { "Original FCS", "f5ethtrailer.orig_fcs", FT_UINT32, BASE_HEX, NULL,
             0x0, NULL, HFILL }
         },
 
