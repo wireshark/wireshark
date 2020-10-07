@@ -1,5 +1,5 @@
--- 3GPP TS 36.331 V16.1.1 (2020-07)
---
+-- 3GPP TS 36.331 V16.2.0 (2020-09)
+
 EUTRA-Sidelink-Preconf DEFINITIONS AUTOMATIC TAGS ::=
 
 BEGIN
@@ -33,6 +33,7 @@ IMPORTS
 	SL-CommTxPoolSensingConfig-r14,
 	SL-CP-Len-r12,
 	SL-HoppingConfigComm-r12,
+	SL-NR-AnchorCarrierFreqList-r16,
 	SL-OffsetIndicator-r12,
 	SL-OffsetIndicatorSync-r12,
 	SL-OffsetIndicatorSync-v1430,
@@ -168,6 +169,8 @@ SL-V2X-Preconfiguration-r14 ::=	SEQUENCE {
 		syncFreqList-r15			SL-V2X-SyncFreqList-r15						OPTIONAL,
 		slss-TxMultiFreq-r15		ENUMERATED {true}							OPTIONAL,
 		v2x-TxProfileList-r15		SL-V2X-TxProfileList-r15					OPTIONAL
+	]],
+	[[	anchorCarrierFreqListNR-r16		SL-NR-AnchorCarrierFreqList-r16			OPTIONAL
 	]]
 }
 

@@ -1,5 +1,5 @@
--- 3GPP TS 36.331 V16.1.1 (2020-07)
---
+-- 3GPP TS 36.331 V16.2.0 (2020-09)
+
 NBIOT-RRC-Definitions DEFINITIONS AUTOMATIC TAGS ::=
 
 BEGIN
@@ -285,7 +285,7 @@ GuardbandTDD-NB-r15 ::=				SEQUENCE {
 		sib-GuardbandGuardband-r15			SIB-GuardbandGuardbandTDD-NB-r15,
 		sib-GuardbandInbandSamePCI-r15		SIB-GuardbandInbandSamePCI-TDD-NB-r15,
 		sib-GuardbandinbandDiffPCI-r15		SIB-GuardbandInbandDiffPCI-TDD-NB-r15
-	},
+	},	
 	eutra-Bandwitdh-r15					ENUMERATED {bw5or10, bw15or20}
 }
 
@@ -569,12 +569,17 @@ RRCConnectionRelease-NB-v1530-IEs ::=	SEQUENCE {
 
 RRCConnectionRelease-NB-v1550-IEs ::=	SEQUENCE {
 	redirectedCarrierInfo-v1550			RedirectedCarrierInfo-NB-v1550	OPTIONAL,	-- Cond Redirection-TDD
-	nonCriticalExtension				RRCConnectionRelease-NB-v1610-IEs	OPTIONAL
+	nonCriticalExtension				RRCConnectionRelease-NB-v15b0-IEs	OPTIONAL
+}
+
+RRCConnectionRelease-NB-v15b0-IEs ::=	SEQUENCE {
+	noLastCellUpdate-r15					ENUMERATED {true} 		OPTIONAL,	-- Need OP
+	nonCriticalExtension					RRCConnectionRelease-NB-v1610-IEs		OPTIONAL
 }
 
 RRCConnectionRelease-NB-v1610-IEs ::=	SEQUENCE {
 	resumeIdentity-r16						I-RNTI-r15					OPTIONAL,	-- Need OR
-	anr-MeasConfig-r16						ANR-MeasConfig-NB-r16		OPTIONAL,	-- Need ON
+	anr-MeasConfig-r16						ANR-MeasConfig-NB-r16		OPTIONAL,	-- Need OP
 	pur-Config-r16							CHOICE {release NULL, setup PUR-Config-NB-r16}
 																		OPTIONAL,	-- Need ON
 	nonCriticalExtension					SEQUENCE {}		OPTIONAL
@@ -1292,8 +1297,8 @@ AB-Config-NB-r13 ::=		SEQUENCE {
 }
 
 UAC-Param-NB-r16	::=		CHOICE {
-	uac-BarringCommon-r16			UAC-Barring-NB-r16,
-	uac-BarringPerPLMN-List-r16		SEQUENCE (SIZE (1..maxPLMN-r11)) OF UAC-Barring-NB-r16
+	uac-BarringCommon			UAC-Barring-NB-r16,
+	uac-BarringPerPLMN-List		SEQUENCE (SIZE (1..maxPLMN-r11)) OF UAC-Barring-NB-r16
 }
 
 UAC-Barring-NB-r16	::=		SEQUENCE {
@@ -1539,11 +1544,11 @@ DL-CarrierConfigDedicated-NB-r13 ::=	SEQUENCE {
 				eutra-NumCRS-Ports-r13					ENUMERATED {same, four}
 			}
 		}							OPTIONAL,		-- Cond anchor-guardband-or-standalone
-		eutraControlRegionSize-r13				ENUMERATED {n1, n2, n3}
+		eutraControlRegionSize-r13				ENUMERATED {n1, n2, n3}	
 	}								OPTIONAL,		-- Cond non-anchor-inband
 	...,
 	[[	nrs-PowerOffsetNonAnchor-v1330		ENUMERATED {dB-12, dB-10, dB-8, dB-6,
-														dB-4, dB-2, dB0, dB3}
+														dB-4, dB-2, dB0, dB3}	
 									OPTIONAL	-- Need ON
 	]],
 	[[	dl-GapNonAnchor-v1530				DL-GapConfig-NB-v1530	OPTIONAL	-- Cond TDD1
@@ -1593,7 +1598,7 @@ DL-CarrierConfigCommon-NB-r14 ::=	SEQUENCE {
 		useNoGap-r14						NULL,
 		useAnchorGapConfig-r14				NULL,
 		explicitGapConfiguration-r14		DL-GapConfig-NB-r13
-	},
+	},	
 	inbandCarrierInfo-r14				SEQUENCE {
 		samePCI-Indicator-r14				CHOICE	{
 			samePCI-r14							SEQUENCE {
@@ -1603,7 +1608,7 @@ DL-CarrierConfigCommon-NB-r14 ::=	SEQUENCE {
 				eutra-NumCRS-Ports-r14				ENUMERATED {same, four}
 			}
 		}	OPTIONAL,		-- Cond anchor-guardband-or-standalone
-		eutraControlRegionSize-r14			ENUMERATED {n1, n2, n3}
+		eutraControlRegionSize-r14			ENUMERATED {n1, n2, n3}	
 	}	OPTIONAL,		-- Cond non-anchor-inband
 	nrs-PowerOffsetNonAnchor-r14		ENUMERATED {dB-12, dB-10, dB-8, dB-6,
 													dB-4, dB-2, dB0, dB3}	DEFAULT dB0,
@@ -1635,7 +1640,7 @@ GWUS-Config-NB-r16 ::= 			SEQUENCE {
 	resourceConfig-eDRX-Short-r16	GWUS-ResourceConfig-NB-r16	OPTIONAL, -- Need OP
 	resourceConfig-eDRX-Long-r16	GWUS-ResourceConfig-NB-r16	OPTIONAL, -- Cond timeOffset
 	probThreshList-r16				GWUS-ProbThreshList-NB-r16	OPTIONAL, -- Cond probabilityBased
-	...
+	...	
 }
 
 GWUS-ResourceConfig-NB-r16 ::= 	SEQUENCE {
@@ -2050,8 +2055,7 @@ PUR-Config-NB-r16	::=				SEQUENCE {
 	}																	OPTIONAL,	--Need ON
 	pur-NumOccasions-r16				ENUMERATED {one, infinite},
 	pur-PhysicalConfig-r16				SEQUENCE {
-		dl-CarrierConfig-r16				DL-CarrierConfigCommon-NB-r14,
-		ul-CarrierFreq-r16					CarrierFreq-NB-r13,
+		carrierConfig-r16					CarrierConfigDedicated-NB-r13,
 		npusch-NumRUsIndex-r16				INTEGER (0..7),
 		npusch-NumRepetitionsIndex-r16		INTEGER (0..7),
 		npusch-SubCarrierSetIndex-r16		CHOICE {
@@ -2071,12 +2075,12 @@ PUR-Config-NB-r16	::=				SEQUENCE {
 	...
 }
 
-NRSRP-ChangeThresh-NB-r16 ::= ENUMERATED {dB4, dB6, dB8, dB10, dB14, dB18, dB22, dB26, dB30, dB34, spare6, spare5, spare4, spare3, spare2, spare1}
-
 PUR-NRSRP-ChangeThreshold-r16 ::=	SEQUENCE {
 	increaseThresh-r16						NRSRP-ChangeThresh-NB-r16,
 	decreaseThresh-r16						NRSRP-ChangeThresh-NB-r16	OPTIONAL	--Need OP
 }
+
+NRSRP-ChangeThresh-NB-r16 ::= ENUMERATED {dB4, dB6, dB8, dB10, dB14, dB18, dB22, dB26, dB30, dB34, spare6, spare5, spare4, spare3, spare2, spare1}
 
 
 PUR-ConfigID-NB-r16 ::= BIT STRING (SIZE(20))
@@ -2257,12 +2261,12 @@ ResourceReservationConfig-NB-r16::=	SEQUENCE {
 			},
 			symbolBitmap-r16			CHOICE {
 				symbolBitmapFddDl			SEQUENCE {
-					symbolBitmap1				BIT STRING (SIZE (5))	OPTIONAL,	-- Cond Bitmap1
-					symbolBitmap2				BIT STRING (SIZE (5))	OPTIONAL	-- Cond Bitmap2
+					symbolBitmap1-r16			BIT STRING (SIZE (5))	OPTIONAL,	-- Cond Bitmap1
+					symbolBitmap2-r16			BIT STRING (SIZE (5))	OPTIONAL	-- Cond Bitmap2
 				},
 				symbolBitmapFddUlOrTdd		SEQUENCE {
-					symbolBitmap1				BIT STRING (SIZE (7))	OPTIONAL,	-- Cond Bitmap1
-					symbolBitmap2				BIT STRING (SIZE (7))	OPTIONAL	-- Cond Bitmap2
+					symbolBitmap1-r16			BIT STRING (SIZE (7))	OPTIONAL,	-- Cond Bitmap1
+					symbolBitmap2-r16			BIT STRING (SIZE (7))	OPTIONAL	-- Cond Bitmap2
 				}
 			}
 		}
@@ -2387,7 +2391,7 @@ UplinkPowerControlCommon-NB-r13 ::=	SEQUENCE {
 	alpha-r13							ENUMERATED {al0, al04, al05, al06, al07, al08, al09, al1},
 	deltaPreambleMsg3-r13				INTEGER (-1..6)
 }
-
+   
 UplinkPowerControlDedicated-NB-r13 ::=	SEQUENCE {
 	p0-UE-NPUSCH-r13						INTEGER (-8..7)
 }
@@ -2395,12 +2399,12 @@ UplinkPowerControlDedicated-NB-r13 ::=	SEQUENCE {
 
 WUS-Config-NB-r15 ::=			SEQUENCE {
 	maxDurationFactor-r15			WUS-MaxDurationFactor-NB-r15,
-	numPOs-r15						ENUMERATED {n1, n2, n4}		DEFAULT n1,
-	numDRX-CyclesRelaxed-r15			ENUMERATED {n1, n2, n4, n8},
+	numPOs-r15						ENUMERATED {n1, n2, n4}		DEFAULT n1,	
+	numDRX-CyclesRelaxed-r15			ENUMERATED {n1, n2, n4, n8},	
 	timeOffsetDRX-r15				ENUMERATED {ms40, ms80, ms160, ms240},
 	timeOffset-eDRX-Short-r15		ENUMERATED {ms40, ms80, ms160, ms240},
 	timeOffset-eDRX-Long-r15		ENUMERATED {ms1000, ms2000}	OPTIONAL,	-- Need OP
-	...
+	...	
 }
 
 WUS-ConfigPerCarrier-NB-r15 ::=	SEQUENCE {

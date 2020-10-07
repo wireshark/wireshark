@@ -1,5 +1,5 @@
--- 3GPP TS 36.331 V16.1.1 (2020-07)
---
+-- 3GPP TS 36.331 V16.2.0 (2020-09)
+
 EUTRA-InterNodeDefinitions DEFINITIONS AUTOMATIC TAGS ::=
 
 BEGIN
@@ -40,6 +40,7 @@ IMPORTS
 	P-Max,
 	PowerCoordinationInfo-r12,
 	SidelinkUEInformation-r12,
+
 	SL-CommConfig-r12,
 	SL-DiscConfig-r12,
 	SubframeAssignment-r15,
@@ -73,6 +74,7 @@ IMPORTS
 	SystemInformationBlockType1,
 	SystemInformationBlockType1-v890-IEs,
 	SystemInformationBlockType2,
+	TDM-PatternConfig-r15,
 	UEAssistanceInformation-r11,
 	UECapabilityInformation,
 	UE-CapabilityRAT-ContainerList,
@@ -197,6 +199,11 @@ HandoverPreparationInformation-v1540-IEs ::= SEQUENCE {
 
 HandoverPreparationInformation-v1610-IEs ::= SEQUENCE {
 	as-Context-v1610			AS-Context-v1610						OPTIONAL,	--Cond HO5
+	nonCriticalExtension		HandoverPreparationInformation-v1620-IEs	OPTIONAL
+}
+
+HandoverPreparationInformation-v1620-IEs ::= SEQUENCE {
+	as-Context-v1620			AS-Context-v1620						OPTIONAL, 	--Cond HO2
 	nonCriticalExtension		SEQUENCE {}								OPTIONAL
 }
 
@@ -450,6 +457,8 @@ AS-Config ::=				SEQUENCE {
 	[[	as-Config-v1550						AS-Config-v1550					OPTIONAL
 	]],
 	[[	as-ConfigNR-v1570					AS-ConfigNR-v1570				OPTIONAL
+	]],
+	[[	as-ConfigNR-v1620					AS-ConfigNR-v1620				OPTIONAL
 	]]
 }
 
@@ -503,6 +512,10 @@ AS-Config-v1550 ::=			SEQUENCE {
 	p-MaxEUTRA-r15				P-Max		OPTIONAL
 }
 
+AS-ConfigNR-v1620 ::=			SEQUENCE {
+	tdm-PatternConfig2-r16		TDM-PatternConfig-r15
+}
+
 
 AS-Context ::=							SEQUENCE {
 	reestablishmentInfo						ReestablishmentInfo			OPTIONAL	-- Cond HO
@@ -532,8 +545,12 @@ AS-Context-v1320 ::=					SEQUENCE {
 
 AS-Context-v1610 ::=					SEQUENCE {
 	sidelinkUEInformationNR-r16				OCTET STRING	OPTIONAL, -- Cond HO3
-	ueAssistanceInformationNR-r16				OCTET STRING	OPTIONAL, -- Cond HO3
+	ueAssistanceInformationNR-r16			OCTET STRING	OPTIONAL, -- Cond HO3
 	configRestrictInfoDAPS-r16				ConfigRestrictInfoDAPS-r16		OPTIONAL -- Cond HO2
+}
+
+AS-Context-v1620 ::=					SEQUENCE {
+	ueAssistanceInformationNR-SCG-r16		OCTET STRING	OPTIONAL  -- Cond HO2
 }
 
 ConfigRestrictInfoDAPS-r16 ::=		SEQUENCE {

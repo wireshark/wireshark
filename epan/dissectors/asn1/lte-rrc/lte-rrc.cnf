@@ -1485,17 +1485,6 @@ MeasResultUTRA/measResult/utra-EcN0 DISPLAY=BASE_DEC|BASE_EXT_STRING STRINGS=&lt
 #.TYPE_ATTR
 MeasResultUTRA/measResult/utra-RSCP DISPLAY=BASE_DEC|BASE_EXT_STRING STRINGS=&lte_rrc_utra_RSCP_vals_ext
 
-#.FN_BODY MeasResultCBR-NR-r16/cbr-ResultsNR-r16 VAL_PTR = &cbr_results_nr_tvb
-  tvbuff_t *cbr_results_nr_tvb = NULL;
-
-%(DEFAULT_BODY)s
-
-  if (cbr_results_nr_tvb) {
-    proto_tree *subtree;
-    subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_cbr_ResultsNR_r16);
-    dissect_nr_rrc_SL_CBR_r16_PDU(cbr_results_nr_tvb, actx->pinfo, subtree, NULL);
-  }
-
 #.TYPE_ATTR
 ReportConfigEUTRA/triggerType/event/eventId/eventA3/a3-Offset DISPLAY=BASE_DEC|BASE_EXT_STRING STRINGS=&lte_rrc_a3_a6_c2_Offset_vals_ext
 
@@ -2735,14 +2724,14 @@ P0-SL-r12 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_dbm
     dissect_nr_rrc_RadioBearerConfig_PDU(radio_bearer_config_tvb, actx->pinfo, subtree, NULL);
   }
 
-#.FN_BODY RRCConnectionReconfiguration-v1610-IEs/sl-ConfigDedicatedNR-r16 VAL_PTR = &rrc_reconfiguration_tvb
+#.FN_BODY RRCConnectionReconfiguration-v1610-IEs/sl-ConfigDedicatedForNR-r16 VAL_PTR = &rrc_reconfiguration_tvb
   tvbuff_t *rrc_reconfiguration_tvb = NULL;
 
 %(DEFAULT_BODY)s
 
   if (rrc_reconfiguration_tvb) {
     proto_tree *subtree;
-    subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_sl_ConfigDedicatedNR_r16);
+    subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_sl_ConfigDedicatedForNR_r16);
     dissect_nr_rrc_RRCReconfiguration_PDU(rrc_reconfiguration_tvb, actx->pinfo, subtree, NULL);
   }
 
@@ -2845,7 +2834,7 @@ P0-SL-r12 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_dbm
     dissect_nr_rrc_UL_DCCH_Message_PDU(nr_ul_dcch_tvb, actx->pinfo, subtree, NULL);
   }
 
-#.FN_BODY SL-ParametersNR-r16/sl-ParameterNR-r16 VAL_PTR = &sl_params_nr_tvb
+#.FN_BODY SL-Parameters-v1610/sl-ParameterNR-r16 VAL_PTR = &sl_params_nr_tvb
   tvbuff_t *sl_params_nr_tvb = NULL;
 
 %(DEFAULT_BODY)s
@@ -2856,18 +2845,7 @@ P0-SL-r12 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_dbm
     dissect_nr_rrc_SidelinkParametersNR_r16_PDU(sl_params_nr_tvb, actx->pinfo, subtree, NULL);
   }
 
-#.FN_BODY SL-ParametersNR-r16/v2x-SupportedBandCombinationListNR-r16 VAL_PTR = &v2x_supp_band_comb_list_nr_tvb
-  tvbuff_t *v2x_supp_band_comb_list_nr_tvb = NULL;
-
-%(DEFAULT_BODY)s
-
-  if (v2x_supp_band_comb_list_nr_tvb) {
-    proto_tree *subtree;
-    subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_v2x_SupportedBandCombinationListNR_r16);
-    dissect_nr_rrc_SupportedBandCombinationListSidelink_r16_PDU(v2x_supp_band_comb_list_nr_tvb, actx->pinfo, subtree, NULL);
-  }
-
-#.FN_BODY V2X-BandCombinationParametersEUTRA-NR-r16/nr/v2x-BandParametersNR-r16 VAL_PTR = &v2x_band_params_nr_tvb
+#.FN_BODY V2X-BandCombinationParametersNR-r16/nr/v2x-BandParametersNR-r16 VAL_PTR = &v2x_band_params_nr_tvb
   tvbuff_t *v2x_band_params_nr_tvb = NULL;
 
 %(DEFAULT_BODY)s
@@ -2967,6 +2945,17 @@ P0-SL-r12 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_dbm
   if (ue_assist_info_nr_tvb) {
     proto_tree *subtree;
     subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_ueAssistanceInformationNR_r16);
+    dissect_nr_rrc_UEAssistanceInformation_PDU(ue_assist_info_nr_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.FN_BODY AS-Context-v1620/ueAssistanceInformationNR-SCG-r16 VAL_PTR = &ue_assist_info_nr_tvb
+  tvbuff_t *ue_assist_info_nr_tvb = NULL;
+
+%(DEFAULT_BODY)s
+
+  if (ue_assist_info_nr_tvb) {
+    proto_tree *subtree;
+    subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_ueAssistanceInformationNR_SCG_r16);
     dissect_nr_rrc_UEAssistanceInformation_PDU(ue_assist_info_nr_tvb, actx->pinfo, subtree, NULL);
   }
 

@@ -1,7 +1,7 @@
 /* packet-lte-rrc-template.c
  * Routines for Evolved Universal Terrestrial Radio Access (E-UTRA);
  * Radio Resource Control (RRC) protocol specification
- * (3GPP TS 36.331 V16.1.1 Release 16) packet dissection
+ * (3GPP TS 36.331 V16.2.0 Release 16) packet dissection
  * Copyright 2008, Vincent Helfre
  * Copyright 2009-2020, Pascal Quantin
  *
@@ -298,7 +298,7 @@ static gint ett_lte_rrc_sib12_fragments = -1;
 static gint ett_lte_rrc_nr_SecondaryCellGroupConfig_r15 = -1;
 static gint ett_lte_rrc_nr_RadioBearerConfig_r15 = -1;
 static gint ett_lte_rrc_nr_RadioBearerConfigS_r15 = -1;
-static gint ett_lte_rrc_sl_ConfigDedicatedNR_r16 = -1;
+static gint ett_lte_rrc_sl_ConfigDedicatedForNR_r16 = -1;
 static gint ett_lte_rrc_nr_SecondaryCellGroupConfig = -1;
 static gint ett_lte_rrc_scg_ConfigResponseNR_r15 = -1;
 static gint ett_lte_rrc_scg_ConfigResponseNR_r16 = -1;
@@ -318,10 +318,9 @@ static gint ett_lte_rrc_selectedbandCombinationInfoEN_DC_v1540 = -1;
 static gint ett_lte_rrc_requestedCapabilityCommon_r15 = -1;
 static gint ett_lte_rrc_sidelinkUEInformationNR_r16 = -1;
 static gint ett_lte_rrc_ueAssistanceInformationNR_r16 = -1;
-static gint ett_lte_rrc_cbr_ResultsNR_r16 = -1;
 static gint ett_lte_rrc_sl_ParameterNR_r16 = -1;
-static gint ett_lte_rrc_v2x_SupportedBandCombinationListNR_r16 = -1;
 static gint ett_lte_rrc_v2x_BandParametersNR_r16 = -1;
+static gint ett_lte_rrc_ueAssistanceInformationNR_SCG_r16 = -1;
 
 static expert_field ei_lte_rrc_number_pages_le15 = EI_INIT;
 static expert_field ei_lte_rrc_si_info_value_changed = EI_INIT;
@@ -4359,7 +4358,7 @@ void proto_register_lte_rrc(void) {
     &ett_lte_rrc_nr_SecondaryCellGroupConfig_r15,
     &ett_lte_rrc_nr_RadioBearerConfig_r15,
     &ett_lte_rrc_nr_RadioBearerConfigS_r15,
-    &ett_lte_rrc_sl_ConfigDedicatedNR_r16,
+    &ett_lte_rrc_sl_ConfigDedicatedForNR_r16,
     &ett_lte_rrc_nr_SecondaryCellGroupConfig,
     &ett_lte_rrc_scg_ConfigResponseNR_r15,
     &ett_lte_rrc_scg_ConfigResponseNR_r16,
@@ -4379,10 +4378,9 @@ void proto_register_lte_rrc(void) {
     &ett_lte_rrc_requestedCapabilityCommon_r15,
     &ett_lte_rrc_sidelinkUEInformationNR_r16,
     &ett_lte_rrc_ueAssistanceInformationNR_r16,
-    &ett_lte_rrc_cbr_ResultsNR_r16,
     &ett_lte_rrc_sl_ParameterNR_r16,
-    &ett_lte_rrc_v2x_SupportedBandCombinationListNR_r16,
-    &ett_lte_rrc_v2x_BandParametersNR_r16
+    &ett_lte_rrc_v2x_BandParametersNR_r16,
+    &ett_lte_rrc_ueAssistanceInformationNR_SCG_r16
   };
 
   static ei_register_info ei[] = {
