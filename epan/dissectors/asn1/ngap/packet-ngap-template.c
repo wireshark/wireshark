@@ -83,10 +83,10 @@ static int hf_ngap_RATRestrictionInformation_e_UTRA = -1;
 static int hf_ngap_RATRestrictionInformation_nR = -1;
 static int hf_ngap_RATRestrictionInformation_nR_unlicensed = -1;
 static int hf_ngap_RATRestrictionInformation_reserved = -1;
-static int hf_ngap_NrencyptionAlgorithms_nea1 = -1;
-static int hf_ngap_NrencyptionAlgorithms_nea2 = -1;
-static int hf_ngap_NrencyptionAlgorithms_nea3 = -1;
-static int hf_ngap_NrencyptionAlgorithms_reserved = -1;
+static int hf_ngap_NrencryptionAlgorithms_nea1 = -1;
+static int hf_ngap_NrencryptionAlgorithms_nea2 = -1;
+static int hf_ngap_NrencryptionAlgorithms_nea3 = -1;
+static int hf_ngap_NrencryptionAlgorithms_reserved = -1;
 static int hf_ngap_NrintegrityProtectionAlgorithms_nia1 = -1;
 static int hf_ngap_NrintegrityProtectionAlgorithms_nia2 = -1;
 static int hf_ngap_NrintegrityProtectionAlgorithms_nia3 = -1;
@@ -774,20 +774,20 @@ void proto_register_ngap(void) {
       { "reserved", "ngap.RATRestrictionInformation.reserved",
         FT_UINT8, BASE_HEX, NULL, 0x1f,
         NULL, HFILL }},
-    { &hf_ngap_NrencyptionAlgorithms_nea1,
-      { "128-NEA1", "ngap.NrencyptionAlgorithms.nea1",
+	{ &hf_ngap_NrencryptionAlgorithms_nea1,
+	  { "128-NEA1", "ngap.NrencryptionAlgorithms.nea1",
         FT_BOOLEAN, 16, TFS(&tfs_supported_not_supported), 0x8000,
         NULL, HFILL }},
-    { &hf_ngap_NrencyptionAlgorithms_nea2,
-      { "128-NEA2", "ngap.NrencyptionAlgorithms.nea2",
+	{ &hf_ngap_NrencryptionAlgorithms_nea2,
+	  { "128-NEA2", "ngap.NrencryptionAlgorithms.nea2",
         FT_BOOLEAN, 16, TFS(&tfs_supported_not_supported), 0x4000,
         NULL, HFILL }},
-    { &hf_ngap_NrencyptionAlgorithms_nea3,
-      { "128-NEA3", "ngap.NrencyptionAlgorithms.nea3",
+	{ &hf_ngap_NrencryptionAlgorithms_nea3,
+	  { "128-NEA3", "ngap.NrencryptionAlgorithms.nea3",
         FT_BOOLEAN, 16, TFS(&tfs_supported_not_supported), 0x2000,
         NULL, HFILL }},
-    { &hf_ngap_NrencyptionAlgorithms_reserved,
-      { "Reserved", "ngap.NrencyptionAlgorithms.reserved",
+	{ &hf_ngap_NrencryptionAlgorithms_reserved,
+	  { "Reserved", "ngap.NrencryptionAlgorithms.reserved",
         FT_UINT16, BASE_HEX, NULL, 0x1fff,
         NULL, HFILL }},
     { &hf_ngap_NrintegrityProtectionAlgorithms_nia1,

@@ -726,10 +726,10 @@ RecommendedCellItem/timeStayedInCell DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&
 %(DEFAULT_BODY)s
   if (parameter_tvb) {
     static int * const fields[] = {
-      &hf_ngap_NrencyptionAlgorithms_nea1,
-      &hf_ngap_NrencyptionAlgorithms_nea2,
-      &hf_ngap_NrencyptionAlgorithms_nea3,
-      &hf_ngap_NrencyptionAlgorithms_reserved,
+      &hf_ngap_NrencryptionAlgorithms_nea1,
+      &hf_ngap_NrencryptionAlgorithms_nea2,
+      &hf_ngap_NrencryptionAlgorithms_nea3,
+      &hf_ngap_NrencryptionAlgorithms_reserved,
       NULL
     };
     proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_ngap_NrencryptionAlgorithms);
