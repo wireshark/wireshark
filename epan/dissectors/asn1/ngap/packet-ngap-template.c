@@ -69,6 +69,12 @@ static int proto_json = -1;
 static int proto_ngap = -1;
 static int hf_ngap_transportLayerAddressIPv4 = -1;
 static int hf_ngap_transportLayerAddressIPv6 = -1;
+static int hf_ngap_SerialNumber_gs = -1;
+static int hf_ngap_SerialNumber_msg_code = -1;
+static int hf_ngap_SerialNumber_upd_nb = -1;
+static int hf_ngap_WarningType_value = -1;
+static int hf_ngap_WarningType_emergency_user_alert = -1;
+static int hf_ngap_WarningType_popup = -1;
 static int hf_ngap_WarningMessageContents_nb_pages = -1;
 static int hf_ngap_WarningMessageContents_decoded_page = -1;
 static int hf_ngap_NGRANTraceID_TraceID = -1;
@@ -115,6 +121,8 @@ static int hf_ngap_MDT_Location_Information_reserved = -1;
 static gint ett_ngap = -1;
 static gint ett_ngap_TransportLayerAddress = -1;
 static gint ett_ngap_DataCodingScheme = -1;
+static gint ett_ngap_SerialNumber = -1;
+static gint ett_ngap_WarningType = -1;
 static gint ett_ngap_WarningMessageContents = -1;
 static gint ett_ngap_PLMNIdentity = -1;
 static gint ett_ngap_NGAP_Message = -1;
@@ -282,7 +290,7 @@ static int dissect_PDUSessionResourceReleaseCommandTransfer_PDU(tvbuff_t *tvb _U
 static int dissect_TargetNGRANNode_ToSourceNGRANNode_FailureTransparentContainer_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
 
 const value_string ngap_serialNumber_gs_vals[] = {
-  { 0, "Display mode iamfdiate, cell wide"},
+  { 0, "Display mode immediate, cell wide"},
   { 1, "Display mode normal, PLMN wide"},
   { 2, "Display mode normal, tracking area wide"},
   { 3, "Display mode normal, cell wide"},
@@ -722,6 +730,30 @@ void proto_register_ngap(void) {
       { "Number of Pages", "ngap.WarningMessageContents.nb_pages",
         FT_UINT8, BASE_DEC, NULL, 0,
         NULL, HFILL }},
+    { &hf_ngap_SerialNumber_gs,
+      { "Geographical Scope", "ngap.SerialNumber.gs",
+        FT_UINT16, BASE_DEC, VALS(ngap_serialNumber_gs_vals), 0xc000,
+        NULL, HFILL }},
+    { &hf_ngap_SerialNumber_msg_code,
+      { "Message Code", "ngap.SerialNumber.msg_code",
+        FT_UINT16, BASE_DEC, NULL, 0x3ff0,
+        NULL, HFILL }},
+    { &hf_ngap_SerialNumber_upd_nb,
+      { "Update Number", "ngap.SerialNumber.upd_nb",
+        FT_UINT16, BASE_DEC, NULL, 0x000f,
+        NULL, HFILL }},
+    { &hf_ngap_WarningType_value,
+      { "Warning Type Value", "ngap.WarningType.value",
+        FT_UINT16, BASE_DEC, VALS(ngap_warningType_vals), 0xfe00,
+        NULL, HFILL }},
+    { &hf_ngap_WarningType_emergency_user_alert,
+      { "Emergency User Alert", "ngap.WarningType.emergency_user_alert",
+        FT_BOOLEAN, 16, TFS(&tfs_yes_no), 0x0100,
+        NULL, HFILL }},
+    { &hf_ngap_WarningType_popup,
+      { "Popup", "ngap.WarningType.popup",
+        FT_BOOLEAN, 16, TFS(&tfs_yes_no), 0x0080,
+        NULL, HFILL }},
     { &hf_ngap_WarningMessageContents_decoded_page,
       { "Decoded Page", "ngap.WarningMessageContents.decoded_page",
         FT_STRING, STR_UNICODE, NULL, 0,
@@ -886,6 +918,8 @@ void proto_register_ngap(void) {
     &ett_ngap,
     &ett_ngap_TransportLayerAddress,
     &ett_ngap_DataCodingScheme,
+    &ett_ngap_SerialNumber,
+    &ett_ngap_WarningType,
     &ett_ngap_WarningMessageContents,
     &ett_ngap_PLMNIdentity,
     &ett_ngap_NGAP_Message,
