@@ -47,6 +47,7 @@
 #include <epan/packet.h>
 #include <epan/expert.h>
 #include <epan/prefs.h>
+#include "packet-rtps.h"
 #include <epan/addr_resolv.h>
 #include <epan/reassemble.h>
 #include "zlib.h"
@@ -698,22 +699,6 @@ static dissector_table_t rtps_type_name_table;
 #define CRYPTO_TRANSFORMATION_KIND_AES128_GCM    (2)
 #define CRYPTO_TRANSFORMATION_KIND_AES256_GMAC   (3)
 #define CRYPTO_TRANSFORMATION_KIND_AES256_GCM    (4)
-
-/* Vendor specific - rti */
-#define NDDS_TRANSPORT_CLASSID_ANY                  (0)
-#define NDDS_TRANSPORT_CLASSID_UDPv4                (1)
-#define NDDS_TRANSPORT_CLASSID_UDPv6                (2)
-#define NDDS_TRANSPORT_CLASSID_INTRA                (3)
-#define NDDS_TRANSPORT_CLASSID_DTLS                 (6)
-#define NDDS_TRANSPORT_CLASSID_WAN                  (7)
-#define NDDS_TRANSPORT_CLASSID_TCPV4_LAN            (8)
-#define NDDS_TRANSPORT_CLASSID_TCPV4_WAN            (9)
-#define NDDS_TRANSPORT_CLASSID_TLSV4_LAN            (10)
-#define NDDS_TRANSPORT_CLASSID_TLSV4_WAN            (11)
-#define NDDS_TRANSPORT_CLASSID_PCIE                 (12)
-#define NDDS_TRANSPORT_CLASSID_ITP                  (13)
-#define NDDS_TRANSPORT_CLASSID_SHMEM                (0x01000000)
-#define NDDS_TRANSPORT_CLASSID_UDPv4_WAN            (0x01000001)
 
 #define TOPIC_INFO_ADD_GUID                      (0x01)
 #define TOPIC_INFO_ADD_TYPE_NAME                 (0x02)
@@ -11863,16 +11848,11 @@ static gboolean dissect_rtps_submessage_v1(tvbuff_t *tvb, packet_info *pinfo, gi
 static gboolean dissect_rtps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
 {
   proto_item   *ti;
-  proto_tree   *rtps_tree, *rtps_submessage_tree;
-  guint8       submessageId, flags, majorRev;
+  proto_tree   *rtps_tree;
+  guint8       majorRev;
   guint16      version, vendor_id;
   gboolean     is_ping;
-  guint        encoding;
-  gint         next_submsg, octets_to_next_header;
-  int          sub_hf;
-  const value_string *sub_vals;
   endpoint_guid guid;
-  endpoint_guid dst_guid;
   guint32 magic_number;
   gchar domain_id_str[RTPS_UNKNOWN_DOMAIN_ID_STR_LEN] = RTPS_UNKNOWN_DOMAIN_ID_STR;
   /* Check 'RTPS' signature:
@@ -11891,9 +11871,8 @@ static gboolean dissect_rtps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
   if ((majorRev != 1) && (majorRev != 2))
     return FALSE;
 
-  /* No fields have been set in either GUID yet. */
+  /* No fields have been set in GUID yet. */
   guid.fields_present = 0;
-  dst_guid.fields_present = 0;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "RTPS");
   col_clear(pinfo->cinfo, COL_INFO);
@@ -12044,6 +12023,30 @@ static gboolean dissect_rtps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
   /* offset behind RTPS's Header (need to be set in case tree=NULL)*/
   offset += ((version < 0x0200) ? 16 : 20);
 
+  dissect_rtps_submessages(tvb, offset, pinfo, rtps_tree, version, vendor_id);
+
+  /* If TCP there's an extra OOB byte at the end of the message */
+  /* TODO: What to do with it? */
+  return TRUE;
+
+}  /* dissect_rtps(...) */
+
+void dissect_rtps_submessages(
+    tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *rtps_tree,
+    guint16 version, guint16 vendor_id)
+{
+  guint8 submessageId, flags;
+  int sub_hf;
+  const value_string *sub_vals;
+  proto_item *ti;
+  proto_tree *rtps_submessage_tree;
+  guint encoding;
+  gint next_submsg, octets_to_next_header;
+  endpoint_guid guid;
+  endpoint_guid dst_guid;
+
+  /* No fields have been set in GUID yet. */
+  dst_guid.fields_present = 0;
   while (tvb_reported_length_remaining(tvb, offset) > 0) {
     submessageId = tvb_get_guint8(tvb, offset);
 
@@ -12085,7 +12088,8 @@ static gboolean dissect_rtps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
     /* Octets-to-next-header */
     octets_to_next_header = tvb_get_guint16(tvb, offset + 2, encoding);
-    if ((octets_to_next_header == 0) && (version >= 0x0200) && (submessageId != SUBMESSAGE_PAD) && (submessageId != SUBMESSAGE_INFO_TS)) {
+    if ((octets_to_next_header == 0) && (version >= 0x0200)
+        && (submessageId != SUBMESSAGE_PAD) && (submessageId != SUBMESSAGE_INFO_TS)) {
       octets_to_next_header = tvb_reported_length_remaining(tvb, offset + 4);
     }
     next_submsg = offset + octets_to_next_header + 4;
@@ -12116,12 +12120,7 @@ static gboolean dissect_rtps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
      /* next submessage's offset */
      offset = next_submsg;
   }
-
-  /* If TCP there's an extra OOB byte at the end of the message */
-  /* TODO: What to do with it? */
-  return TRUE;
-
-}  /* dissect_rtps(...) */
+}
 
 static gboolean dissect_rtps_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
