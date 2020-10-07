@@ -937,8 +937,8 @@ static int dissect_dvb_s2_table_desc(tvbuff_t *tvb, int cur_off, proto_tree *dvb
     int cur_desc, lls_size, rc_size, raac_size, new_off = 0;
     int start_off = 0;
     int linkage_type = 0;
-    int hand_over_type = 0;
-    int origin_type = 0;
+    guint32 hand_over_type = 0;
+    guint32 origin_type = 0;
     int remaning_data = 0;
     int capacity_type_flag = 0;
     int traffic_burst_type = 0;
@@ -1172,11 +1172,9 @@ static int dissect_dvb_s2_table_desc(tvbuff_t *tvb, int cur_off, proto_tree *dvb
                 proto_tree_add_item(dvb_s2_hdr_table_desc_tree, hf_dvb_s2_table_ld_linkage_type, tvb, cur_off + new_off, 1, ENC_NA);
                 new_off += 1;
                 if (linkage_type == 0x08) {
-                    hand_over_type = tvb_get_guint8(tvb, cur_off + new_off) & DVB_S2_TABLE_DESC_HAND_OVER_TYPE_MASK;
-                    origin_type = tvb_get_guint8(tvb, cur_off + new_off) && DVB_S2_TABLE_DESC_ORIGIN_TYPE_MASK;
-                    proto_tree_add_item(dvb_s2_hdr_table_desc_tree, hf_dvb_s2_table_ld_ho_type, tvb, cur_off + new_off, 1, ENC_NA);
+                    proto_tree_add_item_ret_uint(dvb_s2_hdr_table_desc_tree, hf_dvb_s2_table_ld_ho_type, tvb, cur_off + new_off, 1, ENC_NA, &hand_over_type);
                     proto_tree_add_item(dvb_s2_hdr_table_desc_tree, hf_dvb_s2_table_ld_reserved_future_use, tvb, cur_off + new_off, 1, ENC_NA);
-                    proto_tree_add_item(dvb_s2_hdr_table_desc_tree, hf_dvb_s2_table_ld_origin_type, tvb, cur_off + new_off, 1, ENC_NA);
+                    proto_tree_add_item_ret_uint(dvb_s2_hdr_table_desc_tree, hf_dvb_s2_table_ld_origin_type, tvb, cur_off + new_off, 1, ENC_NA, &origin_type);
                     new_off += 1;
                     if ((hand_over_type == 0x01) || (hand_over_type == 0x02) || (hand_over_type == 0x03)) {
                         proto_tree_add_item(dvb_s2_hdr_table_desc_tree, hf_dvb_s2_table_ld_network_id, tvb, cur_off + new_off, 2, ENC_NA);
