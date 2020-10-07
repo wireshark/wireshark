@@ -437,7 +437,7 @@ proto_register_metamako(void)
 void
 proto_reg_handoff_metamako(void)
 {
-  heur_dissector_add("eth.trailer", dissect_metamako, "Metamako ethernet trailer", "metamako_eth", proto_metamako, HEURISTIC_ENABLE);
+  heur_dissector_add("eth.trailer", dissect_metamako, "Metamako ethernet trailer", "metamako_eth", proto_metamako, HEURISTIC_DISABLE);
 }
 
 /*

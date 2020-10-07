@@ -189,7 +189,7 @@ void
 proto_reg_handoff_exablaze(void)
 {
     heur_dissector_add("eth.trailer", dissect_exablaze, "Exablaze trailer",
-            "exablaze_eth", proto_exablaze, HEURISTIC_ENABLE);
+            "exablaze_eth", proto_exablaze, HEURISTIC_DISABLE);
 }
 
 /*
