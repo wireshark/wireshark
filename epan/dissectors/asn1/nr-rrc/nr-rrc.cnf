@@ -190,7 +190,6 @@ VisitedCellInfoList-r16
 CellsTriggeredList
 CLI-RSSI-TriggeredList-r16
 CLI-TriggeredList-r16
-MeasResultLogging2NR-r16
 PLMN-IdentityList-r16
 SIB12-IEs-r16
 SidelinkPreconfigNR-r16
@@ -982,7 +981,10 @@ SIB9/timeInfo/leapSeconds DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_secon
 SIB9/timeInfo/localTimeOffset DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(nr_rrc_localTimeOffset_fmt)
 
 #.TYPE_ATTR
-CLI-RSSI-Range-r16 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(nr_rrc_CLI_RSSI_Range_r16_fmt)
+CLI-RSSI-Range-r16 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(nr_rrc_RSSI_Range_r16_fmt)
+
+#.TYPE_ATTR
+RSSI-Range-r16 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(nr_rrc_RSSI_Range_r16_fmt)
 
 #.FN_BODY CommonLocationInfo-r16/locationTimestamp-r16 VAL_PTR = &location_timestamp_tvb
   tvbuff_t *location_timestamp_tvb = NULL;
@@ -1190,24 +1192,6 @@ SRS-RSRP-Range-r16 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(nr_rrc_SRS_RSRP_r16_fmt)
 
 #.TYPE_ATTR
 T-Reselection DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
-
-#.FN_BODY SupportedBandCombinationListSidelinkEUTRA-r16/bandCombinationListEUTRA1-r16 VAL_PTR = &band_comb_list_tvb
-  tvbuff_t *band_comb_list_tvb = NULL;
-%(DEFAULT_BODY)s
-  if (band_comb_list_tvb) {
-    proto_tree *subtree;
-    subtree = proto_item_add_subtree(actx->created_item, ett_nr_rrc_bandCombinationListEUTRA1_r16);
-    dissect_lte_rrc_V2X_SupportedBandCombination_r14_PDU(band_comb_list_tvb, actx->pinfo, subtree, NULL);
-  }
-
-#.FN_BODY SupportedBandCombinationListSidelinkEUTRA-r16/bandCombinationListEUTRA2-r16 VAL_PTR = &band_comb_list_tvb
-  tvbuff_t *band_comb_list_tvb = NULL;
-%(DEFAULT_BODY)s
-  if (band_comb_list_tvb) {
-    proto_tree *subtree;
-    subtree = proto_item_add_subtree(actx->created_item, ett_nr_rrc_bandCombinationListEUTRA2_r16);
-    dissect_lte_rrc_V2X_SupportedBandCombination_v1530_PDU(band_comb_list_tvb, actx->pinfo, subtree, NULL);
-  }
 
 #.FN_BODY BandParametersSidelinkEUTRA-NR-r16/eutra/bandParametersSidelinkEUTRA1-r16 VAL_PTR = &band_params_sl_tvb
   tvbuff_t *band_params_sl_tvb = NULL;

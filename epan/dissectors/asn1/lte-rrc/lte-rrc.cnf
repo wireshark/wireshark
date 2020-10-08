@@ -86,8 +86,6 @@ UL-ConfigCommonListTDD-NB-r15_PDU
 UL-DCCH-Message_PDU
 V2X-BandParameters-r14_PDU
 V2X-BandParameters-v1530_PDU
-V2X-SupportedBandCombination-r14_PDU
-V2X-SupportedBandCombination-v1530_PDU
 VisitedCellInfo-r12_PDU
 VisitedCellInfoList-r12_PDU
 #.END
@@ -134,8 +132,6 @@ UL-ConfigCommonList-NB-v1530
 UL-ConfigCommonListTDD-NB-r15
 V2X-BandParameters-r14
 V2X-BandParameters-v1530
-V2X-SupportedBandCombination-r14
-V2X-SupportedBandCombination-v1530
 VisitedCellInfo-r12
 VisitedCellInfoList-r12
 BCCH-BCH-Message             @bcch.bch

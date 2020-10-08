@@ -1,4 +1,4 @@
--- 3GPP TS 38.331 V16.1.0 (2020-07)
+-- ﻿3GPP TS 38.331 V16.2.0 (2020-09)
 
 NR-UE-Variables DEFINITIONS AUTOMATIC TAGS ::=
 
@@ -95,7 +95,7 @@ VarLogMeasConfig-r16-IEs ::= SEQUENCE {
 -- TAG-VARLOGMEAREPORT-START
 
 VarLogMeasReport-r16 ::=     SEQUENCE {
-    absoluteTimeStamp-r16        AbsoluteTimeInfo-r16,
+    absoluteTimeInfo-r16         AbsoluteTimeInfo-r16,
     traceReference-r16           TraceReference-r16,
     traceRecordingSessionRef-r16 OCTET STRING (SIZE (2)),
     tce-Id-r16                   OCTET STRING (SIZE (1)),
@@ -115,7 +115,6 @@ VarMeasConfig ::=                   SEQUENCE {
     reportConfigList                    ReportConfigToAddModList            OPTIONAL,
     -- Other parameters
     quantityConfig                      QuantityConfig                      OPTIONAL,
-
     s-MeasureConfig                         CHOICE {
         ssb-RSRP                                RSRP-Range,
         csi-RSRP                                RSRP-Range
@@ -144,7 +143,7 @@ VarMeasIdleConfig-r16 ::=     SEQUENCE {
     measIdleCarrierListNR-r16     SEQUENCE (SIZE (1..maxFreqIdle-r16)) OF MeasIdleCarrierNR-r16                  OPTIONAL,
     measIdleCarrierListEUTRA-r16  SEQUENCE (SIZE (1..maxFreqIdle-r16)) OF MeasIdleCarrierEUTRA-r16               OPTIONAL,
     measIdleDuration-r16          ENUMERATED {sec10, sec30, sec60, sec120, sec180, sec240, sec300, spare},
-    validityAreaList-r16          ValidityAreaList-r16                                                          OPTIONAL
+    validityAreaList-r16          ValidityAreaList-r16                                                           OPTIONAL
 }
 
 -- TAG-VARMEASIDLECONFIG-STOP
@@ -166,7 +165,7 @@ VarMeasReport ::=                   SEQUENCE {
     cellsTriggeredList                  CellsTriggeredList              OPTIONAL,
     numberOfReportsSent                 INTEGER,
     cli-TriggeredList-r16               CLI-TriggeredList-r16           OPTIONAL,
-    tx-PoolMeasToAddModListNR-r16       Tx-PoolMeasList-r16           OPTIONAL
+    tx-PoolMeasToAddModListNR-r16       Tx-PoolMeasList-r16             OPTIONAL
 }
 
 CellsTriggeredList ::=              SEQUENCE (SIZE (1..maxNrofCellMeas)) OF CHOICE {
@@ -233,7 +232,7 @@ VarResumeMAC-Input  ::=     SEQUENCE {
 
 VarRLF-Report-r16 ::=    SEQUENCE {
     rlf-Report-r16           RLF-Report-r16,
-    plmn-IdentityList-r16    PLMN-IdentityList-r16
+    plmn-IdentityList-r16    PLMN-IdentityList2-r16
 }
 
 -- TAG-VARRLF-REPORT-STOP

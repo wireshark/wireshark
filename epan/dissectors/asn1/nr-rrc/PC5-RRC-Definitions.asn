@@ -1,4 +1,4 @@
--- 3GPP TS 38.331 V16.1.0 (2020-07)
+-- ﻿3GPP TS 38.331 V16.2.0 (2020-09)
 
 PC5-RRC-Definitions DEFINITIONS AUTOMATIC TAGS ::=
 
@@ -17,7 +17,11 @@ IMPORTS
     SL-MeasConfig-r16,
     SL-MeasId-r16,
     FreqBandList,
-    SupportedBandCombinationListSidelink-r16
+    FreqBandIndicatorNR,
+    maxSimultaneousBands,
+    maxBandComb,
+    maxBands,
+    BandParametersSidelink-r16
 
 FROM NR-RRC-Definitions;
 
@@ -133,29 +137,30 @@ SLRB-Config-r16::=                      SEQUENCE {
 SLRB-PC5-ConfigIndex-r16 ::=            INTEGER (1..maxNrofSLRB-r16)
 
 SL-SDAP-ConfigPC5-r16 ::=               SEQUENCE {
-    sl-MappedQoS-FlowsToAddList-r16         SEQUENCE (SIZE (1.. maxNrofSL-QFIsPerDest-r16)) OF SL-PFI-r16       OPTIONAL, -- Need N
-    sl-MappedQoS-FlowsToReleaseList-r16     SEQUENCE (SIZE (1.. maxNrofSL-QFIsPerDest-r16)) OF SL-PFI-r16       OPTIONAL, -- Need N
+    sl-MappedQoS-FlowsToAddList-r16         SEQUENCE (SIZE (1.. maxNrofSL-QFIsPerDest-r16)) OF SL-PQFI-r16      OPTIONAL, -- Need N
+    sl-MappedQoS-FlowsToReleaseList-r16     SEQUENCE (SIZE (1.. maxNrofSL-QFIsPerDest-r16)) OF SL-PQFI-r16      OPTIONAL, -- Need N
+    sl-SDAP-Header-r16                      ENUMERATED {present, absent},
     ...
 }
 
 SL-PDCP-ConfigPC5-r16 ::=               SEQUENCE {
     sl-PDCP-SN-Size-r16                     ENUMERATED {len12bits, len18bits}                                   OPTIONAL, -- Need M
-    sl-OutOfOrderDelivery                   ENUMERATED { true }                                                 OPTIONAL,  -- Need R
+    sl-OutOfOrderDelivery-r16               ENUMERATED { true }                                                 OPTIONAL,  -- Need R
     ...
 }
 
 SL-RLC-ConfigPC5-r16 ::=                CHOICE {
     sl-AM-RLC-r16                           SEQUENCE {
         sl-SN-FieldLengthAM-r16                 SN-FieldLengthAM                                                OPTIONAL, -- Need M
-    ...
+        ...
     },
     sl-UM-Bi-Directional-RLC-r16            SEQUENCE {
         sl-SN-FieldLengthUM-r16                 SN-FieldLengthUM                                                OPTIONAL, -- Need M
-    ...
+        ...
     },
     sl-UM-Uni-Directional-RLC-r16           SEQUENCE {
         sl-SN-FieldLengthUM-r16                 SN-FieldLengthUM                                                OPTIONAL, -- Need M
-    ...
+        ...
     }
 }
 
@@ -164,7 +169,7 @@ SL-LogicalChannelConfigPC5-r16 ::=      SEQUENCE {
     ...
 }
 
-SL-PFI-r16 ::=                          INTEGER (1..64)
+SL-PQFI-r16 ::=                         INTEGER (1..64)
 
 SL-CSI-RS-Config-r16 ::=                SEQUENCE {
     sl-CSI-RS-FreqAllocation-r16            CHOICE {
@@ -219,8 +224,8 @@ UECapabilityEnquirySidelink ::=         SEQUENCE {
 }
 
 UECapabilityEnquirySidelink-IEs-r16 ::= SEQUENCE {
-    ueCapabilityRequestFilterSidelink-r16   UE-CapabilityRequestFilterSidelink-r16                                  OPTIONAL, -- Need N
-    ue-CapabilityInformationSidelink-r16     OCTET STRING                                                           OPTIONAL,
+    frequencyBandListFilterSidelink-r16     FreqBandList                                                            OPTIONAL, -- Need N
+    ue-CapabilityInformationSidelink-r16    OCTET STRING                                                            OPTIONAL,
     lateNonCriticalExtension                OCTET STRING                                                            OPTIONAL,
     nonCriticalExtension                    SEQUENCE{}                                                              OPTIONAL
 }
@@ -239,9 +244,12 @@ UECapabilityInformationSidelink ::=         SEQUENCE {
 UECapabilityInformationSidelink-IEs-r16 ::= SEQUENCE {
     accessStratumReleaseSidelink-r16            AccessStratumReleaseSidelink-r16,
     pdcp-ParametersSidelink-r16                 PDCP-ParametersSidelink-r16                                             OPTIONAL,
--- WS modification: rename to avoid conflict with NR-RRC-DEfintions.asn
+-- WS modification: rename to avoid conflict with NR-RRC-Definitions.asn
     rlc-ParametersSidelink-r16                  PC5-RLC-ParametersSidelink-r16                                              OPTIONAL,
-    supportedBandCombinationListSidelink-r16    SupportedBandCombinationListSidelink-r16                                OPTIONAL,
+    supportedBandCombinationListSidelinkNR-r16  BandCombinationListSidelinkNR-r16                                       OPTIONAL,
+-- WS modification: rename to avoid conflict with NR-RRC-Definitions.asn
+    supportedBandListSidelink-r16               SEQUENCE (SIZE (1..maxBands)) OF PC5-BandSidelink-r16                       OPTIONAL,
+    appliedFreqBandListFilter-r16               FreqBandList                                                            OPTIONAL,
     lateNonCriticalExtension                    OCTET STRING                                                            OPTIONAL,
     nonCriticalExtension                        SEQUENCE{}                                                              OPTIONAL
 }
@@ -253,21 +261,44 @@ PDCP-ParametersSidelink-r16 ::= SEQUENCE {
     ...
 }
 
--- WS modification: rename to avoid conflict with NR-RRC-DEfintions.asn
+-- WS modification: rename to avoid conflict with NR-RRC-Definitions.asn
 PC5-RLC-ParametersSidelink-r16 ::= SEQUENCE {
     am-WithLongSN-Sidelink-r16                  ENUMERATED {supported}      OPTIONAL,
     um-WithLongSN-Sidelink-r16                  ENUMERATED {supported}      OPTIONAL,
     ...
 }
 
--- TAG-UECAPABILITYINFORMATIONSIDELINK-STOP
--- TAG-UE-CAPABILITYREQUESTFILTERSIDELINK-START
+BandCombinationListSidelinkNR-r16 ::= SEQUENCE (SIZE (1..maxBandComb)) OF BandCombinationParametersSidelinkNR-r16
 
-UE-CapabilityRequestFilterSidelink-r16 ::=      SEQUENCE {
-    frequencyBandListFilterSidelink-r16             FreqBandList                 OPTIONAL,   -- Need N
-    nonCriticalExtension                            SEQUENCE {}                  OPTIONAL
+BandCombinationParametersSidelinkNR-r16 ::= SEQUENCE (SIZE (1..maxSimultaneousBands)) OF BandParametersSidelink-r16
+
+-- WS modification: rename to avoid conflict with NR-RRC-Definitions.asn
+PC5-BandSidelink-r16 ::=              SEQUENCE {
+    freqBandSidelink-r16              FreqBandIndicatorNR,
+    --15-1
+    sl-Reception-r16                  SEQUENCE {
+        harq-RxProcessSidelink-r16        ENUMERATED {n16, n24, n32, n64},
+        pscch-RxSidelink-r16              ENUMERATED {value1, value2},
+        scs-CP-PatternRxSidelink-r16      CHOICE {
+            fr1-r16                           SEQUENCE {
+                scs-15kHz-r16                     BIT STRING (SIZE (16))                            OPTIONAL,
+                scs-30kHz-r16                     BIT STRING (SIZE (16))                            OPTIONAL,
+                scs-60kHz-r16                     BIT STRING (SIZE (16))                            OPTIONAL
+            },
+            fr2-r16                           SEQUENCE {
+                scs-60kHz-r16                     BIT STRING (SIZE (16))                            OPTIONAL,
+                scs-120kHz-r16                    BIT STRING (SIZE (16))                            OPTIONAL
+            }
+        }                                                                                           OPTIONAL,
+        extendedCP-RxSidelink-r16         ENUMERATED {supported}                                    OPTIONAL
+    }                                                                                               OPTIONAL,
+    --15-10
+    sl-Tx-256QAM-r16                  ENUMERATED {supported}                                        OPTIONAL,
+    --15-12
+    lowSE-64QAM-MCS-TableSidelink-r16 ENUMERATED {supported}                                        OPTIONAL,
+    ...
 }
 
--- TAG-UE-CAPABILITYREQUESTFILTERSIDELINK-STOP
+-- TAG-UECAPABILITYINFORMATIONSIDELINK-STOP
 
 END

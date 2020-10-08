@@ -1,4 +1,4 @@
--- 3GPP TS 38.331 V16.1.0 (2020-07)
+-- ﻿3GPP TS 38.331 V16.2.0 (2020-09)
 
 NR-InterNodeDefinitions DEFINITIONS AUTOMATIC TAGS ::=
 
@@ -112,23 +112,23 @@ AS-Config ::=                           SEQUENCE {
 }
 
 AS-Context ::=                          SEQUENCE {
-    reestablishmentInfo                     ReestablishmentInfo                             OPTIONAL,
-    configRestrictInfo                      ConfigRestrictInfoSCG                           OPTIONAL,
+    reestablishmentInfo                     ReestablishmentInfo                                 OPTIONAL,
+    configRestrictInfo                      ConfigRestrictInfoSCG                               OPTIONAL,
     ...,
-    [[  ran-NotificationAreaInfo            RAN-NotificationAreaInfo                        OPTIONAL
+    [[  ran-NotificationAreaInfo            RAN-NotificationAreaInfo                            OPTIONAL
     ]],
-    [[  ueAssistanceInformation             OCTET STRING (CONTAINING UEAssistanceInformation)  OPTIONAL   -- Cond HO2
-    ]],
-    [[
-    selectedBandCombinationSN               BandCombinationInfoSN                           OPTIONAL
+    [[  ueAssistanceInformation             OCTET STRING (CONTAINING UEAssistanceInformation)   OPTIONAL   -- Cond HO2
     ]],
     [[
-    configRestrictInfoDAPS-r16              ConfigRestrictInfoDAPS-r16                      OPTIONAL,
-    sidelinkUEInformationNR-r16             OCTET STRING                                    OPTIONAL,
-    sidelinkUEInformationEUTRA-r16          OCTET STRING                                    OPTIONAL,
-    ueAssistanceInformationEUTRA-r16        OCTET STRING                                    OPTIONAL,
-    ueAssistanceInformationSCG-r16          OCTET STRING (CONTAINING UEAssistanceInformation)  OPTIONAL,   -- Cond HO2
-    needForGapsInfoNR-r16                   NeedForGapsInfoNR-r16                           OPTIONAL
+    selectedBandCombinationSN               BandCombinationInfoSN                               OPTIONAL
+    ]],
+    [[
+    configRestrictInfoDAPS-r16              ConfigRestrictInfoDAPS-r16                          OPTIONAL,
+    sidelinkUEInformationNR-r16             OCTET STRING                                        OPTIONAL,
+    sidelinkUEInformationEUTRA-r16          OCTET STRING                                        OPTIONAL,
+    ueAssistanceInformationEUTRA-r16        OCTET STRING                                        OPTIONAL,
+    ueAssistanceInformationSCG-r16          OCTET STRING (CONTAINING UEAssistanceInformation)   OPTIONAL,   -- Cond HO2
+    needForGapsInfoNR-r16                   NeedForGapsInfoNR-r16                               OPTIONAL
     ]]
 }
 
@@ -137,7 +137,7 @@ ConfigRestrictInfoDAPS-r16 ::=          SEQUENCE {
         p-DAPS-Source-r16                       P-Max,
         p-DAPS-Target-r16                       P-Max,
         uplinkPowerSharingDAPS-Mode-r16          ENUMERATED {semi-static-mode1, semi-static-mode2, dynamic }
-    }                                                                                       OPTIONAL
+    }                                                                                                       OPTIONAL
 }
 
 ReestablishmentInfo ::=             SEQUENCE {
@@ -234,7 +234,12 @@ CG-Config-v1590-IEs ::=             SEQUENCE {
 
 CG-Config-v1610-IEs ::=             SEQUENCE {
     drx-InfoSCG2                        DRX-Info2                                       OPTIONAL,
-    nonCriticalExtension                SEQUENCE {}                                     OPTIONAL
+    nonCriticalExtension                CG-Config-v1620-IEs                             OPTIONAL
+}
+
+CG-Config-v1620-IEs ::=             SEQUENCE {
+    ueAssistanceInformationSCG-r16      OCTET STRING (CONTAINING UEAssistanceInformation)  OPTIONAL,
+    nonCriticalExtension                SEQUENCE {}                                        OPTIONAL
 }
 
 PH-TypeListSCG ::=                  SEQUENCE (SIZE (1..maxNrofServingCells)) OF PH-InfoSCG
@@ -272,7 +277,8 @@ ConfigRestrictModReqSCG ::=         SEQUENCE {
     [[
     requestedP-MaxFR2-r16               P-Max                                               OPTIONAL,
     requestedMaxInterFreqMeasIdSCG-r16  INTEGER(1..maxMeasIdentitiesMN)                     OPTIONAL,
-    requestedMaxIntraFreqMeasIdSCG-r16  INTEGER(1..maxMeasIdentitiesMN)                     OPTIONAL
+    requestedMaxIntraFreqMeasIdSCG-r16  INTEGER(1..maxMeasIdentitiesMN)                     OPTIONAL,
+    requestedToffset-r16                T-Offset-r16                                        OPTIONAL
     ]]
 }
 
@@ -293,6 +299,8 @@ FR-Info ::= SEQUENCE {
 CandidateServingFreqListNR ::= SEQUENCE (SIZE (1.. maxFreqIDC-MRDC)) OF ARFCN-ValueNR
 
 CandidateServingFreqListEUTRA ::= SEQUENCE (SIZE (1.. maxFreqIDC-MRDC)) OF ARFCN-ValueEUTRA
+
+T-Offset-r16 ::= ENUMERATED {ms0dot5, ms0dot75, ms1, ms1dot5, ms2, ms2dot5, ms3, spare1}
 
 -- TAG-CG-CONFIG-STOP
 -- TAG-CG-CONFIG-INFO-START
@@ -340,95 +348,102 @@ CG-ConfigInfo-v1540-IEs ::=     SEQUENCE {
 }
 
 CG-ConfigInfo-v1560-IEs ::=	 SEQUENCE {
-    candidateCellInfoListMN-EUTRA       OCTET STRING                                              OPTIONAL,
-    candidateCellInfoListSN-EUTRA       OCTET STRING                                              OPTIONAL,
-    sourceConfigSCG-EUTRA               OCTET STRING                                              OPTIONAL,
+    candidateCellInfoListMN-EUTRA       OCTET STRING                                                  OPTIONAL,
+    candidateCellInfoListSN-EUTRA       OCTET STRING                                                  OPTIONAL,
+    sourceConfigSCG-EUTRA               OCTET STRING                                                  OPTIONAL,
     scgFailureInfoEUTRA                 SEQUENCE {
         failureTypeEUTRA                    ENUMERATED { t313-Expiry, randomAccessProblem,
                                                     rlc-MaxNumRetx, scg-ChangeFailure},
         measResultSCG-EUTRA                 OCTET STRING
-    }                                                                                             OPTIONAL,
-    drx-ConfigMCG                       DRX-Config                                                OPTIONAL,
+    }                                                                                                 OPTIONAL,
+    drx-ConfigMCG                       DRX-Config                                                    OPTIONAL,
     measResultReportCGI-EUTRA               SEQUENCE {
         eutraFrequency                      ARFCN-ValueEUTRA,
         cellForWhichToReportCGI-EUTRA           EUTRA-PhysCellId,
         cgi-InfoEUTRA                           CGI-InfoEUTRA
-    }                                                                                             OPTIONAL,
-    measResultCellListSFTD-EUTRA        MeasResultCellListSFTD-EUTRA                              OPTIONAL,
-    fr-InfoListMCG                      FR-InfoList                                               OPTIONAL,
-    nonCriticalExtension                CG-ConfigInfo-v1570-IEs                                   OPTIONAL
+    }                                                                                                 OPTIONAL,
+    measResultCellListSFTD-EUTRA        MeasResultCellListSFTD-EUTRA                                  OPTIONAL,
+    fr-InfoListMCG                      FR-InfoList                                                   OPTIONAL,
+    nonCriticalExtension                CG-ConfigInfo-v1570-IEs                                       OPTIONAL
 }
 
 CG-ConfigInfo-v1570-IEs ::=  SEQUENCE {
-    sftdFrequencyList-NR                SFTD-FrequencyList-NR                                     OPTIONAL,
-    sftdFrequencyList-EUTRA             SFTD-FrequencyList-EUTRA                                  OPTIONAL,
-    nonCriticalExtension                CG-ConfigInfo-v1590-IEs                                   OPTIONAL
+    sftdFrequencyList-NR                SFTD-FrequencyList-NR                                         OPTIONAL,
+    sftdFrequencyList-EUTRA             SFTD-FrequencyList-EUTRA                                      OPTIONAL,
+    nonCriticalExtension                CG-ConfigInfo-v1590-IEs                                       OPTIONAL
 }
 
 CG-ConfigInfo-v1590-IEs ::=  SEQUENCE {
-    servFrequenciesMN-NR            SEQUENCE (SIZE (1.. maxNrofServingCells-1)) OF  ARFCN-ValueNR OPTIONAL,
-    nonCriticalExtension            CG-ConfigInfo-v1610-IEs                                       OPTIONAL
+    servFrequenciesMN-NR            SEQUENCE (SIZE (1.. maxNrofServingCells-1)) OF  ARFCN-ValueNR     OPTIONAL,
+    nonCriticalExtension            CG-ConfigInfo-v1610-IEs                                           OPTIONAL
 }
 
 CG-ConfigInfo-v1610-IEs ::=  SEQUENCE {
-    drx-InfoMCG2                 DRX-Info2                                                        OPTIONAL,
-    alignedDRX-Indication        ENUMERATED {true}                                                OPTIONAL,
+    drx-InfoMCG2                 DRX-Info2                                                            OPTIONAL,
+    alignedDRX-Indication        ENUMERATED {true}                                                    OPTIONAL,
     scgFailureInfo-r16                  SEQUENCE {
         failureType-r16                     ENUMERATED { scg-lbtFailure-r16, beamFailureRecoveryFailure-r16,
                                                          t312-Expiry-r16, bh-RLF-r16,
                                                          spare4, spare3, spare2, spare1},
         measResultSCG-r16                   OCTET STRING (CONTAINING MeasResultSCG-Failure)
-    }                                                                                             OPTIONAL,
+    }                                                                                                 OPTIONAL,
     scgFailureInfoEUTRA-r16                 SEQUENCE {
         failureTypeEUTRA-r16                    ENUMERATED { scg-lbtFailure-r16, beamFailureRecoveryFailure-r16,
                                                          t312-Expiry-r16, bh-RLF-r16,
                                                                      spare4, spare3, spare2, spare1},
         measResultSCG-EUTRA-r16                 OCTET STRING
-    }                                                                                             OPTIONAL,
-    sidelinkUEInformationNR-r16      OCTET STRING (CONTAINING SidelinkUEInformationNR-r16)        OPTIONAL,
-    sidelinkUEInformationEUTRA-r16   OCTET STRING                                                 OPTIONAL,
-    nonCriticalExtension             SEQUENCE {}                                                  OPTIONAL
+    }                                                                                                 OPTIONAL,
+    sidelinkUEInformationNR-r16      OCTET STRING (CONTAINING SidelinkUEInformationNR-r16)            OPTIONAL,
+    sidelinkUEInformationEUTRA-r16   OCTET STRING                                                     OPTIONAL,
+    nonCriticalExtension             CG-ConfigInfo-v1620-IEs                                          OPTIONAL
 }
+
+CG-ConfigInfo-v1620-IEs ::=             SEQUENCE {
+    ueAssistanceInformationSourceSCG-r16    OCTET STRING (CONTAINING UEAssistanceInformation)         OPTIONAL,
+    nonCriticalExtension                    SEQUENCE {}                                               OPTIONAL
+}
+
 SFTD-FrequencyList-NR ::=               SEQUENCE (SIZE (1..maxCellSFTD)) OF ARFCN-ValueNR
 
 SFTD-FrequencyList-EUTRA ::=            SEQUENCE (SIZE (1..maxCellSFTD)) OF ARFCN-ValueEUTRA
 
 ConfigRestrictInfoSCG ::=       SEQUENCE {
-    allowedBC-ListMRDC              BandCombinationInfoList                                       OPTIONAL,
+    allowedBC-ListMRDC              BandCombinationInfoList                                           OPTIONAL,
     powerCoordination-FR1               SEQUENCE {
-        p-maxNR-FR1                     P-Max                                                     OPTIONAL,
-        p-maxEUTRA                      P-Max                                                     OPTIONAL,
-        p-maxUE-FR1                     P-Max                                                     OPTIONAL
-    }                                                                                             OPTIONAL,
+        p-maxNR-FR1                     P-Max                                                         OPTIONAL,
+        p-maxEUTRA                      P-Max                                                         OPTIONAL,
+        p-maxUE-FR1                     P-Max                                                         OPTIONAL
+    }                                                                                                 OPTIONAL,
     servCellIndexRangeSCG           SEQUENCE {
         lowBound                        ServCellIndex,
         upBound                         ServCellIndex
-    }                                                                                             OPTIONAL,   -- Cond SN-AddMod
-    maxMeasFreqsSCG                     INTEGER(1..maxMeasFreqsMN)                                OPTIONAL,
-    dummy                               INTEGER(1..maxMeasIdentitiesMN)                           OPTIONAL,
+    }                                                                                                 OPTIONAL,   -- Cond SN-AddMod
+    maxMeasFreqsSCG                     INTEGER(1..maxMeasFreqsMN)                                    OPTIONAL,
+    dummy                               INTEGER(1..maxMeasIdentitiesMN)                               OPTIONAL,
     ...,
     [[
-    selectedBandEntriesMNList        SEQUENCE (SIZE (1..maxBandComb)) OF SelectedBandEntriesMN    OPTIONAL,
-    pdcch-BlindDetectionSCG          INTEGER (1..15)                                              OPTIONAL,
-    maxNumberROHC-ContextSessionsSN  INTEGER(0.. 16384)                                           OPTIONAL
+    selectedBandEntriesMNList        SEQUENCE (SIZE (1..maxBandComb)) OF SelectedBandEntriesMN        OPTIONAL,
+    pdcch-BlindDetectionSCG          INTEGER (1..15)                                                  OPTIONAL,
+    maxNumberROHC-ContextSessionsSN  INTEGER(0.. 16384)                                               OPTIONAL
     ]],
     [[
-    maxIntraFreqMeasIdentitiesSCG     INTEGER(1..maxMeasIdentitiesMN)                             OPTIONAL,
-    maxInterFreqMeasIdentitiesSCG     INTEGER(1..maxMeasIdentitiesMN)                             OPTIONAL
+    maxIntraFreqMeasIdentitiesSCG     INTEGER(1..maxMeasIdentitiesMN)                                 OPTIONAL,
+    maxInterFreqMeasIdentitiesSCG     INTEGER(1..maxMeasIdentitiesMN)                                 OPTIONAL
     ]],
     [[
-    p-maxNR-FR1-MCG-r16               P-Max                                                       OPTIONAL,
+    p-maxNR-FR1-MCG-r16               P-Max                                                           OPTIONAL,
     powerCoordination-FR2-r16         SEQUENCE {
-        p-maxNR-FR2-MCG-r16                P-Max                                                  OPTIONAL,
-        p-maxNR-FR2-SCG-r16                P-Max                                                  OPTIONAL,
-        p-maxUE-FR2-r16                    P-Max                                                  OPTIONAL
-    }                                                                                             OPTIONAL,
-    nrdc-PC-mode-FR1-r16    ENUMERATED {semi-static-mode1, semi-static-mode2, dynamic}            OPTIONAL,
-    nrdc-PC-mode-FR2-r16    ENUMERATED {semi-static-mode1, semi-static-mode2, dynamic}            OPTIONAL,
-    maxMeasSRS-ResourceSCG-r16       INTEGER(0..maxNrofCLI-SRS-Resources-r16)                     OPTIONAL,
-    maxMeasCLI-ResourceSCG-r16       INTEGER(0..maxNrofCLI-RSSI-Resources-r16)                    OPTIONAL,
-    maxNumberEHC-ContextsSN-r16      INTEGER(0..65536)                                            OPTIONAL,
-    allowedReducedConfigForOverheating-r16      OverheatingAssistance                             OPTIONAL
+        p-maxNR-FR2-MCG-r16                P-Max                                                      OPTIONAL,
+        p-maxNR-FR2-SCG-r16                P-Max                                                      OPTIONAL,
+        p-maxUE-FR2-r16                    P-Max                                                      OPTIONAL
+    }                                                                                                 OPTIONAL,
+    nrdc-PC-mode-FR1-r16    ENUMERATED {semi-static-mode1, semi-static-mode2, dynamic}                OPTIONAL,
+    nrdc-PC-mode-FR2-r16    ENUMERATED {semi-static-mode1, semi-static-mode2, dynamic}                OPTIONAL,
+    maxMeasSRS-ResourceSCG-r16       INTEGER(0..maxNrofCLI-SRS-Resources-r16)                         OPTIONAL,
+    maxMeasCLI-ResourceSCG-r16       INTEGER(0..maxNrofCLI-RSSI-Resources-r16)                        OPTIONAL,
+    maxNumberEHC-ContextsSN-r16      INTEGER(0..65536)                                                OPTIONAL,
+    allowedReducedConfigForOverheating-r16      OverheatingAssistance                                 OPTIONAL,
+    maxToffset-r16                   T-Offset-r16                                                     OPTIONAL
     ]]
 }
 
@@ -441,7 +456,7 @@ PH-TypeListMCG ::=              SEQUENCE (SIZE (1..maxNrofServingCells)) OF PH-I
 PH-InfoMCG ::=                  SEQUENCE {
     servCellIndex                       ServCellIndex,
     ph-Uplink                           PH-UplinkCarrierMCG,
-    ph-SupplementaryUplink              PH-UplinkCarrierMCG                                       OPTIONAL,
+    ph-SupplementaryUplink              PH-UplinkCarrierMCG                                           OPTIONAL,
     ...
 }
 
@@ -506,7 +521,8 @@ MeasConfigMN ::= SEQUENCE {
     measGapConfig                       CHOICE {release NULL, setup GapConfig }                                OPTIONAL,
     gapPurpose                          ENUMERATED {perUE, perFR1}                                OPTIONAL,
     ...,
-    [[ measGapConfigFR2                 CHOICE {release NULL, setup GapConfig }                                OPTIONAL
+    [[
+    measGapConfigFR2                    CHOICE {release NULL, setup GapConfig }                                OPTIONAL
     ]]
 
 }
@@ -555,8 +571,8 @@ MeasurementTimingConfiguration ::=      SEQUENCE {
 }
 
 MeasurementTimingConfiguration-IEs ::=  SEQUENCE {
-    measTiming                              MeasTimingList                              OPTIONAL,
-    nonCriticalExtension                    MeasurementTimingConfiguration-v1550-IEs    OPTIONAL
+    measTiming                              MeasTimingList                                      OPTIONAL,
+    nonCriticalExtension                    MeasurementTimingConfiguration-v1550-IEs            OPTIONAL
 }
 
 MeasurementTimingConfiguration-v1550-IEs ::= SEQUENCE {
@@ -571,7 +587,7 @@ MeasurementTimingConfiguration-v1610-IEs ::=  SEQUENCE {
         csi-RS-CellMobility-r16                       CSI-RS-CellMobility,
         refSSBFreq-r16                                ARFCN-ValueNR
     },
-    nonCriticalExtension                          SEQUENCE {}                           OPTIONAL
+    nonCriticalExtension                          SEQUENCE {}                                   OPTIONAL
 }
 
 MeasTimingList ::= SEQUENCE (SIZE (1..maxMeasFreqsMN)) OF MeasTiming
@@ -581,12 +597,12 @@ MeasTiming ::= SEQUENCE {
         carrierFreq                             ARFCN-ValueNR,
         ssbSubcarrierSpacing                    SubcarrierSpacing,
         ssb-MeasurementTimingConfiguration      SSB-MTC,
-        ss-RSSI-Measurement                     SS-RSSI-Measurement                         OPTIONAL
-    }                                                                                   OPTIONAL,
-...,
-    [[
-    ssb-ToMeasure                           SSB-ToMeasure                               OPTIONAL,
-    physCellId                              PhysCellId                                  OPTIONAL
+        ss-RSSI-Measurement                     SS-RSSI-Measurement                             OPTIONAL
+    }                                                                                           OPTIONAL,
+    ...,
+    [[ 
+    ssb-ToMeasure                           SSB-ToMeasure                                       OPTIONAL,
+    physCellId                              PhysCellId                                          OPTIONAL
     ]]
 }
 
