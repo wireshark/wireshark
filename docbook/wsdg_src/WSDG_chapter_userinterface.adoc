@@ -246,7 +246,7 @@ class. Use this class when you need a standard color provided by the
 underlying operating system.
 
 Wireshark uses an extended version of the
-http://tango.freedesktop.org/Tango_Icon_Theme_Guidelines[Tango Color Palette]
+https://en.wikipedia.org/wiki/Tango_Desktop_Project[Tango Color Palette]
 for many interface elements that require custom colors. This includes the
 I/O graphs, sequence diagrams, and RTP streams. Please use this palette
 (defined in `tango_colors.h` and the *ColorUtils* class) if *QPalette*
