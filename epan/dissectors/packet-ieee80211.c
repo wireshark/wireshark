@@ -8034,7 +8034,7 @@ dissect_hs20_osu_provider(proto_tree *tree, tvbuff_t *tvb,
     proto_item_set_len(pi, offset - start_offset);
   }
 
-  return end;
+  return offset;
 }
 
 static void
