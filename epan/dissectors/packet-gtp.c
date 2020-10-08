@@ -4223,11 +4223,11 @@ decode_gtp_tlli(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree 
 static int
 decode_gtp_ptmsi(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_)
 {
+    proto_item* ti;
 
-    guint32 ptmsi;
-
-    ptmsi = tvb_get_ntohl(tvb, offset + 1);
-    proto_tree_add_uint(tree, hf_gtp_ptmsi, tvb, offset, 5, ptmsi);
+    proto_tree_add_item(tree, hf_gtp_ptmsi, tvb, offset + 1, 4, ENC_BIG_ENDIAN);
+    ti = proto_tree_add_item(tree, hf_3gpp_tmsi, tvb, offset+1, 4, ENC_BIG_ENDIAN);
+    proto_item_set_hidden(ti);
 
     return 5;
 }
@@ -10651,7 +10651,7 @@ proto_register_gtp(void)
         },
         {&hf_gtp_ptmsi,
          { "P-TMSI", "gtp.ptmsi",
-           FT_UINT32, BASE_HEX, NULL, 0,
+           FT_UINT32, BASE_DEC_HEX, NULL, 0,
            "Packet-Temporary Mobile Subscriber Identity", HFILL}
         },
         {&hf_gtp_ptmsi_sig,

@@ -545,6 +545,7 @@ const value_string gsm_a_rr_rxqual_vals[] = {
 
 /* Initialize the protocol and registered fields */
 static int proto_a_common = -1;
+static int proto_3gpp = -1;
 
 int gsm_a_tap = -1;
 
@@ -753,6 +754,9 @@ static int hf_gsm_a_ciphering_info = -1;
 static int hf_gsm_a_sapi = -1;
 static int hf_gsm_a_mobile_country_code = -1;
 static int hf_gsm_a_mobile_network_code = -1;
+
+/* Inter protocol hf */
+int hf_3gpp_tmsi = -1;
 
 static int ett_gsm_a_plmn = -1;
 
@@ -2355,11 +2359,7 @@ de_mid(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guin
         proto_tree_add_item(tree, hf_gsm_a_mobile_identity_type, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
         curr_offset++;
 
-        value = tvb_get_ntohl(tvb, curr_offset);
-
-        proto_tree_add_uint(tree, hf_gsm_a_tmsi,
-            tvb, curr_offset, 4,
-            value);
+        proto_tree_add_item_ret_uint(tree, hf_3gpp_tmsi, tvb, curr_offset, 4, ENC_BIG_ENDIAN, &value);
 
         if (add_string)
             g_snprintf(add_string, string_len, " - TMSI/P-TMSI (0x%04x)", value);
@@ -3871,7 +3871,7 @@ proto_register_gsm_a_common(void)
     },
     { &hf_gsm_a_tmsi,
         { "TMSI/P-TMSI",    "gsm_a.tmsi",
-        FT_UINT32, BASE_HEX, 0, 0x0,
+        FT_UINT32, BASE_DEC_HEX, 0, 0x0,
         NULL, HFILL }
     },
     { &hf_gsm_a_imei,
@@ -5026,6 +5026,21 @@ proto_register_gsm_a_common(void)
     register_stat_tap_table_ui(&gsm_a_dtap_ss_stat_table);
     register_stat_tap_table_ui(&gsm_a_dtap_tp_stat_table);
     register_stat_tap_table_ui(&gsm_a_sacch_rr_stat_table);
+
+    /* Register a 3GPP protocol to be used for "global hf" that can be used to track inter protocol relations*/
+    static hf_register_info hf_3gpp[] =
+    {
+        { &hf_3gpp_tmsi,
+            { "TMSI/P-TMSI/M-TMSI",    "3gpp.tmsi",
+            FT_UINT32, BASE_DEC_HEX, 0, 0x0,
+            "Filter TMSI,P-TMSI,M-TMSI across protocols", HFILL }
+        },
+    };
+
+    proto_3gpp = proto_register_protocol("3GPP COMMON", "3GPP COMMON", "3gpp");
+
+    proto_register_field_array(proto_3gpp, hf_3gpp, array_length(hf_3gpp));
+
 }
 
 /*

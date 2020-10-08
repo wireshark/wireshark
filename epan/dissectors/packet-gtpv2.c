@@ -4968,9 +4968,12 @@ static void
 dissect_gtpv2_p_tmsi(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_, session_args_t * args _U_)
 {
     int offset = 0;
+    proto_item* ti;
 
     /* The TMSI consists of 4 octets. It can be coded using a full hexadecimal representation. */
     proto_tree_add_item(tree, hf_gtpv2_p_tmsi, tvb, offset, 4, ENC_BIG_ENDIAN);
+    ti = proto_tree_add_item(tree, hf_3gpp_tmsi, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_item_set_hidden(ti);
     proto_item_append_text(item, "%s", tvb_bytes_to_str(wmem_packet_scope(), tvb, offset, 4));
 }
 
@@ -9041,7 +9044,7 @@ void proto_register_gtpv2(void)
         },
         { &hf_gtpv2_p_tmsi,
           {"Packet TMSI (P-TMSI)", "gtpv2.p_tmsi",
-           FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}
+           FT_UINT32, BASE_DEC_HEX, NULL, 0x0, NULL, HFILL}
         },
         { &hf_gtpv2_p_tmsi_sig,
           {"P-TMSI Signature", "gtpv2.p_tmsi_sig",

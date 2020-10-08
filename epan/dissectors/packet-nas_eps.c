@@ -1329,6 +1329,7 @@ de_emm_eps_mid(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
     guint8    octet;
     const char     *digit_str;
     tvbuff_t *new_tvb;
+    proto_item* ti;
 
     curr_offset = offset;
 
@@ -1360,6 +1361,8 @@ de_emm_eps_mid(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
             curr_offset++;
             /* M-TMSI Octet 10 - 13 */
             proto_tree_add_item(tree, hf_nas_eps_emm_m_tmsi, tvb, curr_offset, 4, ENC_BIG_ENDIAN);
+            ti = proto_tree_add_item(tree, hf_3gpp_tmsi, tvb, curr_offset, 4, ENC_BIG_ENDIAN);
+            proto_item_set_hidden(ti);
             /*curr_offset+=4;*/
             break;
         default:
@@ -6946,8 +6949,8 @@ proto_register_nas_eps(void)
     },
     { &hf_nas_eps_emm_m_tmsi,
         { "M-TMSI","nas_eps.emm.m_tmsi",
-        FT_UINT32, BASE_HEX, NULL, 0x0,
-        NULL, HFILL }
+        FT_UINT32, BASE_DEC_HEX, NULL, 0x0,
+        "Global flt 3gpp.tmsi", HFILL }
     },
     { &hf_nas_eps_esm_msg_cont,
         { "ESM message container contents","nas_eps.emm.esm_msg_cont",

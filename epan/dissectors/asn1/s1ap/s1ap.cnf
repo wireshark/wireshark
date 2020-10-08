@@ -1298,9 +1298,13 @@ FiveGSTAC TYPE = FT_UINT24 DISPLAY = BASE_DEC_HEX
 M-TMSI TYPE = FT_UINT32 DISPLAY = BASE_DEC_HEX
 #.FN_BODY M-TMSI VAL_PTR = &parameter_tvb HF_INDEX = -1
   tvbuff_t *parameter_tvb = NULL;
+  proto_item *ti;
 %(DEFAULT_BODY)s
   if (parameter_tvb) {
     actx->created_item = proto_tree_add_item(tree, hf_index, parameter_tvb, 0, 4, ENC_BIG_ENDIAN);
+    ti = proto_tree_add_item(tree, hf_3gpp_tmsi, tvb, 0, 4, ENC_BIG_ENDIAN);
+    proto_item_set_hidden(ti);
+
   }
 
 #.FN_BODY IMSI VAL_PTR = &parameter_tvb
