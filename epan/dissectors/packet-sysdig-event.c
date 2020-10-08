@@ -2219,7 +2219,7 @@ dissect_sysdig_event(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 /* Register the protocol with Wireshark.
  *
- * This format is require because a script is used to build the C function that
+ * This format is required because a script is used to build the C function that
  * calls all the protocol registration.
  */
 void
