@@ -1,4 +1,4 @@
-name: RPM
+name: Docker
 
 on:
   push:
