@@ -1,10 +1,6 @@
 FROM ubuntu:latest
 
-RUN apt update
-
 ENV DEBIAN_FRONTEND=noninteractive
-
-RUN apt-get -y install tzdata
 
 RUN apt update && apt install -y \
     build-essential \
