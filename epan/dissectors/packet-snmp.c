@@ -3634,7 +3634,7 @@ void proto_register_snmp(void) {
 		    "Value (Integer32)", "snmp.value.int", FT_INT64, BASE_DEC,
 		    NULL, 0, NULL, HFILL }},
 		{ &hf_snmp_octetstring_value, {
-		    "Value (OctetString)", "snmp.value.octets", FT_BYTES, BASE_NONE,
+		    "Value (OctetString)", "snmp.value.octets", FT_BYTES, BASE_SHOW_ASCII_PRINTABLE,
 		    NULL, 0, NULL, HFILL }},
 		{ &hf_snmp_oid_value, {
 		    "Value (OID)", "snmp.value.oid", FT_OID, BASE_NONE,

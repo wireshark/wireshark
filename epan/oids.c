@@ -56,7 +56,7 @@ static int debuglevel = 0;
 
 #ifdef HAVE_LIBSMI
 static const oid_value_type_t integer_type =    { FT_INT32,  BASE_DEC,  BER_CLASS_UNI, BER_UNI_TAG_INTEGER,     1,   4, OID_KEY_TYPE_INTEGER, 1};
-static const oid_value_type_t bytes_type =      { FT_BYTES,  BASE_NONE, BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, 0,  -1, OID_KEY_TYPE_BYTES,   0};
+static const oid_value_type_t bytes_type =      { FT_BYTES,  BASE_SHOW_ASCII_PRINTABLE, BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, 0,  -1, OID_KEY_TYPE_BYTES,   0};
 static const oid_value_type_t oid_type =        { FT_OID,    BASE_NONE, BER_CLASS_UNI, BER_UNI_TAG_OID,         1,  -1, OID_KEY_TYPE_OID,     0};
 static const oid_value_type_t ipv4_type =       { FT_IPv4,   BASE_NONE, BER_CLASS_APP, 0,                       4,   4, OID_KEY_TYPE_IPADDR,  4};
 static const oid_value_type_t counter32_type =  { FT_UINT64, BASE_DEC,  BER_CLASS_APP, 1,                       1,   5, OID_KEY_TYPE_INTEGER, 1};
