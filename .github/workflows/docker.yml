@@ -2,7 +2,7 @@ name: Docker
 
 on:
   push:
-    branches: [ feature/docker ]
+    branches: [ marine ]
 
 jobs:
   build:
