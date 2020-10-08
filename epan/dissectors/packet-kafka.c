@@ -2265,7 +2265,7 @@ dissect_kafka_offset_fetch_request_topic(tvbuff_t *tvb, packet_info *pinfo, prot
 {
     proto_item *ti;
     proto_tree *subtree;
-    gint32     count;
+    gint32     count = 0;
     int topic_start, topic_len;
 
     subtree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_kafka_topic, &ti, "Topic");
@@ -2292,7 +2292,7 @@ dissect_kafka_offset_fetch_request_topics(tvbuff_t *tvb, packet_info *pinfo, pro
 {
     proto_item *ti;
     proto_tree *subtree;
-    gint32     count;
+    gint32     count = 0;
 
     subtree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_kafka_topics, &ti, "Topics");
     offset = dissect_kafka_array(subtree, tvb, pinfo, offset, api_version >= 6, api_version,
@@ -2412,7 +2412,7 @@ dissect_kafka_offset_fetch_response_topic(tvbuff_t *tvb, packet_info *pinfo, pro
     proto_item *ti;
     proto_tree *subtree;
     int topic_start, topic_len;
-    int count;
+    int count = 0;
 
     subtree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_kafka_topic, &ti, "Topic");
 
@@ -2439,7 +2439,7 @@ dissect_kafka_offset_fetch_response(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 {
     proto_item *ti;
     proto_tree *subtree;
-    int count;
+    int count = 0;
 
     if (api_version >= 3) {
         offset = dissect_kafka_throttle_time(tvb, pinfo, tree, offset);
@@ -4264,7 +4264,7 @@ static int
 dissect_kafka_offset_commit_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset,
                                     kafka_api_version_t api_version)
 {
-    int group_start, group_len;
+    int group_start = 0, group_len;
 
     /* group_id */
     offset = dissect_kafka_string(tree, hf_kafka_consumer_group, tvb, pinfo, offset, api_version >= 8,
@@ -4617,7 +4617,7 @@ dissect_kafka_join_group_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 {
     proto_item *subti;
     proto_tree *subtree;
-    int member_start, member_len;
+    int member_start = 0, member_len;
 
     if (api_version >= 2) {
         offset = dissect_kafka_throttle_time(tvb, pinfo, tree, offset);
