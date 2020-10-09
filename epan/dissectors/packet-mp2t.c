@@ -1575,7 +1575,7 @@ proto_register_mp2t(void)
     heur_subdissector_list = register_heur_dissector_list("mp2t.pid", proto_mp2t);
     /* Register init of processing of fragmented DEPI packets */
     reassembly_table_register(&mp2t_reassembly_table,
-        &addresses_reassembly_table_functions);
+        &addresses_ports_reassembly_table_functions);
 }
 
 
