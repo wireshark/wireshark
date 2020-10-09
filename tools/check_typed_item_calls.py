@@ -248,8 +248,14 @@ apiChecks.append(APICheck('proto_tree_add_string_format_value', { 'FT_STRING', '
 apiChecks.append(APICheck('proto_tree_add_guid', { 'FT_GUID'}))
 apiChecks.append(APICheck('proto_tree_add_oid', { 'FT_OID'}))
 apiChecks.append(APICheck('proto_tree_add_none_format', { 'FT_NONE'}))
-# TODO: add proto_tree_add_ret_varint, eui APIs, uint64_bits, float_bits, boolean_bits?
-
+apiChecks.append(APICheck('proto_tree_add_item_ret_varint', { 'FT_INT8', 'FT_INT16', 'FT_INT24', 'FT_INT32', 'FT_INT40', 'FT_INT48', 'FT_INT56', 'FT_INT64',
+                                                              'FT_CHAR', 'FT_UINT8', 'FT_UINT16', 'FT_UINT24', 'FT_UINT32', 'FT_FRAMENUM',
+                                                              'FT_UINT40', 'FT_UINT48', 'FT_UINT56', 'FT_UINT64',}))
+apiChecks.append(APICheck('proto_tree_add_boolean_bits_format_value', { 'FT_BOOLEAN'}))
+apiChecks.append(APICheck('proto_tree_add_boolean_bits_format_value64', { 'FT_BOOLEAN'}))
+apiChecks.append(APICheck('proto_tree_add_ascii_7bits_item', { 'FT_STRING'}))
+apiChecks.append(APICheck('proto_tree_add_checksum', { 'FT_UINT8', 'FT_UINT16', 'FT_UINT24', 'FT_UINT32'}))
+apiChecks.append(APICheck('proto_tree_add_int64_bits_format_value', { 'FT_INT40', 'FT_INT48', 'FT_INT56', 'FT_INT64'}))
 
 def removeComments(code_string):
     code_string = re.sub(re.compile(r"/\*.*?\*/",re.DOTALL ) ,"" , code_string) # C-style comment
