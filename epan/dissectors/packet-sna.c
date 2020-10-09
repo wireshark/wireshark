@@ -366,10 +366,6 @@ static const value_string sna_rh_ru_category_vals[] = {
 static const true_false_string sna_rh_fi_truth =
 	{ "FM Header", "No FM Header" };
 
-/* Sense Data Included */
-static const true_false_string sna_rh_sdi_truth =
-	{ "Included", "Not Included" };
-
 /* Begin Chain Indicator */
 static const true_false_string sna_rh_bci_truth =
 	{ "First in Chain", "Not First in Chain" };
@@ -3072,7 +3068,7 @@ proto_register_sna(void)
 
 		{ &hf_sna_rh_sdi,
 		  { "Sense Data Included", "sna.rh.sdi", FT_BOOLEAN, 8,
-		    TFS(&sna_rh_sdi_truth), 0x04, NULL, HFILL }},
+		    TFS(&tfs_included_not_included), 0x04, NULL, HFILL }},
 
 		{ &hf_sna_rh_bci,
 		  { "Begin Chain Indicator", "sna.rh.bci", FT_BOOLEAN, 8,

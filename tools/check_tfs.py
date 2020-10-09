@@ -117,10 +117,17 @@ def checkFile(filename, tfs_items, look_for_common=False):
     for i in items:
         for t in tfs_items:
             found = False
+            exact_case = False
             if tfs_items[t].val1 == items[i].val1 and tfs_items[t].val2 == items[i].val2:
-                print(filename, i, "- could have used", t, 'from tfs.c instead: ', tfs_items[t])
-                issues_found += 1
                 found = True
+                exact_case = True
+            elif tfs_items[t].val1.upper() == items[i].val1.upper() and tfs_items[t].val2.upper() == items[i].val2.upper():
+                found = True
+
+            if found:
+                print(filename, i, "- could have used", t, 'from tfs.c instead: ', tfs_items[t],
+                      '' if exact_case else '  (capitalisation differs)')
+                issues_found += 1
                 break
         if not found:
             if look_for_common:

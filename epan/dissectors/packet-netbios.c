@@ -237,10 +237,6 @@ static const value_string name_types[] = {
 	{ 0, NULL }
 };
 
-static const true_false_string flags_allowed = {
-	"Allowed",
-	"Not allowed"
-};
 
 static const true_false_string netb_version_str = {
 	"2.00 or higher",
@@ -1336,7 +1332,7 @@ proto_register_netbios(void)
 
 		{ &hf_netb_flags_ack_with_data,
 		  { "Acknowledge with data", "netbios.flags.ack_with_data", FT_BOOLEAN, 8,
-		    TFS( &flags_allowed), 0x04, NULL, HFILL }},
+		    TFS( &tfs_allowed_not_allowed), 0x04, NULL, HFILL }},
 
 		{ &hf_netb_flags_ack_expected,
 		  { "Acknowledge expected", "netbios.flags.ack_expected", FT_BOOLEAN,  8,

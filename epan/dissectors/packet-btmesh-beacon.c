@@ -67,11 +67,6 @@ static const value_string btmesh_beacon_type[] = {
     { 0, NULL }
 };
 
-static const true_false_string available = {
-  "available",
-  "not available"
-};
-
 static const true_false_string flags_key_refresh = {
   "Key Refresh in progress",
   "Key Refresh not in progress"
@@ -215,37 +210,37 @@ proto_register_btmesh_beacon(void)
         },
         { &hf_btmesh_beacon_oob_other,
             { "Other", "beacon.oob.other",
-                FT_BOOLEAN, 16, TFS(&available), 0x0001,
+                FT_BOOLEAN, 16, TFS(&tfs_available_not_available), 0x0001,
                 NULL, HFILL }
         },
        { &hf_btmesh_beacon_oob_electronic,
             { "Electronic / URI", "beacon.oob.electronic",
-                FT_BOOLEAN, 16, TFS(&available), 0x0002,
+                FT_BOOLEAN, 16, TFS(&tfs_available_not_available), 0x0002,
                 NULL, HFILL }
         },
        { &hf_btmesh_beacon_oob_2d_code,
             { "2D machine-readable code", "beacon.oob.2d_code",
-                FT_BOOLEAN, 16, TFS(&available), 0x0004,
+                FT_BOOLEAN, 16, TFS(&tfs_available_not_available), 0x0004,
                 NULL, HFILL }
         },
        { &hf_btmesh_beacon_oob_bar_code,
             { "Bar code", "beacon.oob.bar_code",
-                FT_BOOLEAN, 16, TFS(&available), 0x0008,
+                FT_BOOLEAN, 16, TFS(&tfs_available_not_available), 0x0008,
                 NULL, HFILL }
         },
        { &hf_btmesh_beacon_oob_nfc,
             { "Near Field Communication (NFC)", "beacon.oob.nfc",
-                FT_BOOLEAN, 16, TFS(&available), 0x0010,
+                FT_BOOLEAN, 16, TFS(&tfs_available_not_available), 0x0010,
                 NULL, HFILL }
         },
        { &hf_btmesh_beacon_oob_number,
             { "Number", "beacon.oob.number",
-                FT_BOOLEAN, 16, TFS(&available), 0x0020,
+                FT_BOOLEAN, 16, TFS(&tfs_available_not_available), 0x0020,
                 NULL, HFILL }
         },
        { &hf_btmesh_beacon_oob_string,
             { "String", "beacon.oob.string",
-                FT_BOOLEAN, 16, TFS(&available), 0x0040,
+                FT_BOOLEAN, 16, TFS(&tfs_available_not_available), 0x0040,
                 NULL, HFILL }
         },
        { &hf_btmesh_beacon_oob_rfu,
@@ -255,27 +250,27 @@ proto_register_btmesh_beacon(void)
         },
        { &hf_btmesh_beacon_oob_on_box,
             { "On box", "beacon.oob.on_box",
-                FT_BOOLEAN, 16, TFS(&available), 0x0800,
+                FT_BOOLEAN, 16, TFS(&tfs_available_not_available), 0x0800,
                 NULL, HFILL }
         },
        { &hf_btmesh_beacon_oob_inside_box,
             { "Inside box", "beacon.oob.inside_box",
-                FT_BOOLEAN, 16, TFS(&available), 0x1000,
+                FT_BOOLEAN, 16, TFS(&tfs_available_not_available), 0x1000,
                 NULL, HFILL }
         },
        { &hf_btmesh_beacon_oob_on_paper,
             { "On piece of paper", "beacon.oob.on_paper",
-                FT_BOOLEAN, 16, TFS(&available), 0x2000,
+                FT_BOOLEAN, 16, TFS(&tfs_available_not_available), 0x2000,
                 NULL, HFILL }
         },
        { &hf_btmesh_beacon_oob_inside_manual,
             { "Inside manual", "beacon.oob.inside_manual",
-                FT_BOOLEAN, 16, TFS(&available), 0x4000,
+                FT_BOOLEAN, 16, TFS(&tfs_available_not_available), 0x4000,
                 NULL, HFILL }
         },
        { &hf_btmesh_beacon_oob_on_device,
             { "On device", "beacon.oob.on_device",
-                FT_BOOLEAN, 16, TFS(&available), 0x8000,
+                FT_BOOLEAN, 16, TFS(&tfs_available_not_available), 0x8000,
                 NULL, HFILL }
         },
         { &hf_btmesh_beacon_uri_hash,

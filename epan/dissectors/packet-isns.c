@@ -478,23 +478,15 @@ static value_string_ext isns_attribute_tags_ext = VALUE_STRING_EXT_INIT(isns_att
 #define tfs_isns_scn_bitmap_dd_dds_member_removed               tfs_true_false
 #define tfs_isns_scn_bitmap_dd_dds_member_added                 tfs_true_false
 
-static const true_false_string tfs_isns_preferred = {
-    "Preferred",
-    "No Preference"
-};
 
-#define tfs_isns_psb_tunnel_mode    tfs_isns_preferred
-#define tfs_isns_psb_transport_mode tfs_isns_preferred
+#define tfs_isns_psb_tunnel_mode    tfs_preferred_no_preference
+#define tfs_isns_psb_transport_mode tfs_preferred_no_preference
 
 #define tfs_isns_psb_pfs             tfs_enabled_disabled
 #define tfs_isns_psb_aggressive_mode tfs_enabled_disabled
 #define tfs_isns_psb_main_mode       tfs_enabled_disabled
 #define tfs_isns_psb_ike_ipsec       tfs_enabled_disabled
 
-static const true_false_string tfs_isns_psb_bitmap = {
-    "VALID",
-    "INVALID"
-};
 
 #define tfs_isns_isnt_control   tfs_yes_no
 #define tfs_isns_isnt_initiator tfs_yes_no
@@ -1293,7 +1285,7 @@ void proto_register_isns(void)
     },
     { &hf_isns_psb_bitmap,
       { "Bitmap", "isns.psb.bitmap",
-        FT_BOOLEAN, 32, TFS(&tfs_isns_psb_bitmap),     0x0001, /* bit 31 */
+        FT_BOOLEAN, 32, TFS(&tfs_valid_invalid),     0x0001, /* bit 31 */
         NULL, HFILL }
     },
 

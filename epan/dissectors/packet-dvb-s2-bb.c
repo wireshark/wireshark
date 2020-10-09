@@ -846,10 +846,7 @@ static const value_string bb_low_ro[] = {
 #define DVB_S2_GSE_HDR_START_POS        15
 #define DVB_S2_GSE_HDR_STOP_MASK        0x4000
 #define DVB_S2_GSE_HDR_STOP_POS         14
-static const true_false_string tfs_gse_ss = {
-    "enabled",
-    "disabled"
-};
+
 
 #define DVB_S2_GSE_HDR_LABELTYPE_MASK   0x3000
 #define DVB_S2_GSE_HDR_LABELTYPE_POS1   13
@@ -1590,12 +1587,12 @@ void proto_register_dvb_s2_modeadapt(void)
         },
         {&hf_dvb_s2_gse_hdr_start, {
                 "Start", "dvb-s2_gse.hdr.start",
-                FT_BOOLEAN, 16, TFS(&tfs_gse_ss), DVB_S2_GSE_HDR_START_MASK,
+                FT_BOOLEAN, 16, TFS(&tfs_enabled_disabled), DVB_S2_GSE_HDR_START_MASK,
                 "Start Indicator", HFILL}
         },
         {&hf_dvb_s2_gse_hdr_stop, {
                 "Stop", "dvb-s2_gse.hdr.stop",
-                FT_BOOLEAN, 16, TFS(&tfs_gse_ss), DVB_S2_GSE_HDR_STOP_MASK,
+                FT_BOOLEAN, 16, TFS(&tfs_enabled_disabled), DVB_S2_GSE_HDR_STOP_MASK,
                 "Stop Indicator", HFILL}
         },
         {&hf_dvb_s2_gse_hdr_labeltype, {

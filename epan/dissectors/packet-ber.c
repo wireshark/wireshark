@@ -220,10 +220,6 @@ static const true_false_string ber_pc_codes = {
     "Primitive Encoding"
 };
 
-static const true_false_string ber_pc_codes_short = {
-    "constructed",
-    "primitive"
-};
 
 static const value_string ber_uni_tag_codes[] = {
     { BER_UNI_TAG_EOC,              "'end-of-content'" },
@@ -1602,7 +1598,7 @@ proto_tree_add_debug_text(tree, "OCTET STRING dissect_ber_octet_string(%s) enter
                     "BER Error: OctetString expected but class:%s(%d) %s tag:%d was unexpected",
                     val_to_str_const(ber_class, ber_class_codes, "Unknown"),
                     ber_class,
-                    tfs_get_string(pc, &ber_pc_codes_short),
+                    tfs_get_string(pc, &tfs_constructed_primitive),
                     tag);
                 if (decode_unexpected) {
                     proto_tree *unknown_tree = proto_item_add_subtree(cause, ett_ber_unknown);
@@ -1836,7 +1832,7 @@ dissect_ber_null(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *tree, tvbu
                 "BER Error: NULL expected but class:%s(%d) %s tag:%d was unexpected",
                 val_to_str_const(ber_class, ber_class_codes, "Unknown"),
                 ber_class,
-                tfs_get_string(pc, &ber_pc_codes_short),
+                tfs_get_string(pc, &tfs_constructed_primitive),
                 tag);
         }
 
@@ -2213,7 +2209,7 @@ proto_tree_add_debug_text(tree, "SEQUENCE dissect_ber_sequence(%s) entered\n", n
                     "BER Error: Sequence expected but class:%s(%d) %s tag:%d was unexpected",
                     val_to_str_const(classx, ber_class_codes, "Unknown"),
                     classx,
-                    tfs_get_string(pcx, &ber_pc_codes_short),
+                    tfs_get_string(pcx, &tfs_constructed_primitive),
                     tagx);
                 if (decode_unexpected) {
                     proto_tree *unknown_tree = proto_item_add_subtree(cause, ett_ber_unknown);
@@ -2573,7 +2569,7 @@ proto_tree_add_debug_text(tree, "SET dissect_ber_set(%s) entered\n", name);
                     "BER Error: SET expected but class:%s(%d) %s tag:%d was found",
                     val_to_str_const(classx, ber_class_codes, "Unknown"),
                     classx,
-                    tfs_get_string(pcx, &ber_pc_codes_short),
+                    tfs_get_string(pcx, &tfs_constructed_primitive),
                     tagx);
                 if (decode_unexpected) {
                     proto_tree *unknown_tree = proto_item_add_subtree(cause, ett_ber_unknown);
@@ -3067,7 +3063,7 @@ dissect_ber_GeneralString(asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int
             tvb, identifier_offset, identifier_len,
             "BER Error: GeneralString expected but class:%s(%d) %s tag:%d was unexpected",
             val_to_str_const(ber_class, ber_class_codes, "Unknown"),
-            ber_class, tfs_get_string(pc, &ber_pc_codes_short),
+            ber_class, tfs_get_string(pc, &tfs_constructed_primitive),
             tag);
         if (decode_unexpected) {
             proto_tree *unknown_tree = proto_item_add_subtree(cause, ett_ber_unknown);
@@ -3138,7 +3134,7 @@ proto_tree_add_debug_text(tree, "RESTRICTED STRING dissect_ber_octet_string(%s) 
                 "BER Error: String with tag=%d expected but class:%s(%d) %s tag:%d was unexpected",
                 type,
                 val_to_str_const(ber_class, ber_class_codes, "Unknown"),
-                ber_class, tfs_get_string(pc, &ber_pc_codes_short),
+                ber_class, tfs_get_string(pc, &tfs_constructed_primitive),
                 tag);
             if (decode_unexpected) {
                 proto_tree *unknown_tree = proto_item_add_subtree(cause, ett_ber_unknown);
@@ -3239,7 +3235,7 @@ proto_tree_add_debug_text(tree, "OBJECT IDENTIFIER dissect_ber_any_oid(%s) enter
                 "BER Error: Object Identifier expected but class:%s(%d) %s tag:%d was unexpected",
                 val_to_str_const(ber_class, ber_class_codes, "Unknown"),
                 ber_class,
-                tfs_get_string(pc, &ber_pc_codes_short),
+                tfs_get_string(pc, &tfs_constructed_primitive),
                 tag);
             if (decode_unexpected) {
                 proto_tree *unknown_tree = proto_item_add_subtree(cause, ett_ber_unknown);
@@ -3383,7 +3379,7 @@ proto_tree_add_debug_text(tree, "SQ OF dissect_ber_sq_of(%s) entered\n", name);
                     "BER Error: %s OF expected but class:%s(%d) %s tag:%d was unexpected",
                     (type == BER_UNI_TAG_SEQUENCE) ? "SET" : "SEQUENCE",
                     val_to_str_const(classx, ber_class_codes, "Unknown"),
-                    classx, tfs_get_string(pcx, &ber_pc_codes_short),
+                    classx, tfs_get_string(pcx, &tfs_constructed_primitive),
                     tagx);
                 if (decode_unexpected) {
                     proto_tree *unknown_tree = proto_item_add_subtree(causex, ett_ber_unknown);
@@ -3641,7 +3637,7 @@ dissect_ber_GeneralizedTime(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree 
                 "BER Error: GeneralizedTime expected but class:%s(%d) %s tag:%d was unexpected",
                 val_to_str_const(ber_class, ber_class_codes, "Unknown"),
                 ber_class,
-                tfs_get_string(pc, &ber_pc_codes_short),
+                tfs_get_string(pc, &tfs_constructed_primitive),
                 tag);
             if (decode_unexpected) {
                 proto_tree *unknown_tree = proto_item_add_subtree(cause, ett_ber_unknown);
@@ -3827,7 +3823,7 @@ dissect_ber_UTCTime(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *tree, t
                 "BER Error: UTCTime expected but class:%s(%d) %s tag:%d was unexpected",
                 val_to_str_const(ber_class, ber_class_codes, "Unknown"),
                 ber_class,
-                tfs_get_string(pc, &ber_pc_codes_short),
+                tfs_get_string(pc, &tfs_constructed_primitive),
                 tag);
             if (decode_unexpected) {
                 proto_tree *unknown_tree = proto_item_add_subtree(cause, ett_ber_unknown);
@@ -3996,7 +3992,7 @@ dissect_ber_constrained_bitstring(gboolean implicit_tag, asn1_ctx_t *actx, proto
                     tvb, identifier_offset, identifier_len,
                     "BER Error: BitString expected but class:%s(%d) %s tag:%d was unexpected",
                     val_to_str_const(ber_class, ber_class_codes, "Unknown"),
-                    ber_class, tfs_get_string(pc, &ber_pc_codes_short),
+                    ber_class, tfs_get_string(pc, &tfs_constructed_primitive),
                     tag);
                 if (decode_unexpected) {
                     proto_tree *unknown_tree = proto_item_add_subtree(cause, ett_ber_unknown);

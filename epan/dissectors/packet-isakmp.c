@@ -1702,10 +1702,6 @@ typedef struct isakmp_hdr {
   guint32       length;
 } isakmp_hdr_t;
 
-static const true_false_string criticalpayload = {
-  "Critical",
-  "Not Critical"
-};
 static const true_false_string attribute_format = {
   "Type/Value (TV)",
   "Type/Length/Value (TLV)"
@@ -6466,7 +6462,7 @@ proto_register_isakmp(void)
         "ISAKMP Next Payload", HFILL }},
     { &hf_isakmp_criticalpayload,
       { "Critical Bit", "isakmp.criticalpayload",
-        FT_BOOLEAN, 8,TFS(&criticalpayload), 0x80,
+        FT_BOOLEAN, 8,TFS(&tfs_critical_not_critical), 0x80,
         "IKEv2 Critical Payload", HFILL }},
     { &hf_isakmp_reserved7,
       { "Reserved", "isakmp.reserved7",
