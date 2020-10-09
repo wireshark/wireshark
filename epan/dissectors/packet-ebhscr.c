@@ -823,12 +823,12 @@ proto_register_ebhscr(void)
 			"Frame Header is malformed", EXPFILL }
 		},
 		{ &ei_ebhscr_err_status_flag,
-			{ "ebhscr.sts", PI_PROTOCOL, PI_WARN,
+			{ "ebhscr.sts.err.status", PI_PROTOCOL, PI_WARN,
 			"Status Flag is set", EXPFILL }
 		},
 		{ &ei_ebhscr_info_status_flag,
-		{ "ebhscr.sts", PI_PROTOCOL, PI_CHAT,
-		"Status Flag is set", EXPFILL }
+			{ "ebhscr.sts.info.status", PI_PROTOCOL, PI_CHAT,
+			"Status Flag is set", EXPFILL }
 		},
 	};
 

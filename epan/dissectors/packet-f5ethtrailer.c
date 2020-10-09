@@ -3661,7 +3661,7 @@ proto_register_f5ethtrailer(void)
             0x0, NULL, HFILL }
         },
         { &hf_data_str,
-          { "Data", "f5ethtrailer.data", FT_STRING, BASE_NONE, NULL,
+          { "Data", "f5ethtrailer.data.string", FT_STRING, BASE_NONE, NULL,
             0x0, NULL, HFILL }
         },
 
@@ -3891,7 +3891,7 @@ proto_register_f5ethtrailer(void)
 
     /* TLS provider parameters */
         { &hf_f5tls_tls,
-          { "F5 TLS", "f5ethtrailer.tls", FT_NONE, BASE_NONE, NULL,
+          { "F5 TLS", "f5ethtrailer.tls.data", FT_NONE, BASE_NONE, NULL,
             0x0, NULL, HFILL }
         },
         { &hf_f5tls_secret_len,
