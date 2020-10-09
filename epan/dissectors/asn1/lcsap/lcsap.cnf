@@ -158,7 +158,7 @@ ProtocolIE-Field/value ie_field_value
   if (!parameter_tvb)
     return offset;
   subtree = proto_item_add_subtree(actx->created_item, ett_lcsap_plmnd_id);
-  dissect_e212_mcc_mnc(parameter_tvb, actx->pinfo, subtree, 0, E212_NONE, TRUE);
+  dissect_e212_mcc_mnc(parameter_tvb, actx->pinfo, subtree, 0, E212_NONE, FALSE);
 #.END
 
 #.FN_BODY Positioning-Method-And-Usage VAL_PTR = &parameter_tvb
