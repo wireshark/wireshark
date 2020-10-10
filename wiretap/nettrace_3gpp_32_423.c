@@ -810,7 +810,7 @@ nettrace_parse_address(char* curr_pos, char* next_pos, gboolean is_src_addr/*SRC
 }
 
 /*
- * Opens an .xml file with Trace data formated according to 3GPP TS 32.423 and converts it to
+ * Opens an .xml file with Trace data formatted according to 3GPP TS 32.423 and converts it to
  * an "Exported PDU type file with the entire xml file as the first "packet" appending the
  * raw messages as subsequent packages to be dissected by wireshark.
  */
@@ -1021,7 +1021,7 @@ create_temp_pcapng_file(wtap *wth, int *err, gchar **err_info, nettrace_3gpp_32_
 		char *raw_msg_pos;
 		char* start_msg_tag_cont;
 
-		/* Clear for each itteration */
+		/* Clear for each iteration */
 		exported_pdu_info.precense_flags = 0;
 		exported_pdu_info.ptype = OLD_PT_NONE;
 
@@ -1067,7 +1067,7 @@ create_temp_pcapng_file(wtap *wth, int *err, gchar **err_info, nettrace_3gpp_32_
 		 */
 		ms = 0;
 		curr_pos = strstr(start_msg_tag_cont, "changeTime");
-		/* Check if we have the tag or if we pased the end of the current message */
+		/* Check if we have the tag or if we passed the end of the current message */
 		if ((curr_pos) && (curr_pos < next_msg_pos)) {
 			curr_pos = curr_pos + 12;
 			scan_found = sscanf(curr_pos, "%u.%u", &second, &ms);
@@ -1105,7 +1105,7 @@ create_temp_pcapng_file(wtap *wth, int *err, gchar **err_info, nettrace_3gpp_32_
 		*  It might contain an address
 		*/
 		curr_pos = strstr(start_msg_tag_cont, "<initiator");
-		/* Check if we have the tag or if we pased the end of the current message */
+		/* Check if we have the tag or if we passed the end of the current message */
 		if ((curr_pos) && (curr_pos < next_msg_pos)) {
 			curr_pos = curr_pos + 10;
 			next_pos = strstr(curr_pos, "</initiator>");
@@ -1121,7 +1121,7 @@ create_temp_pcapng_file(wtap *wth, int *err, gchar **err_info, nettrace_3gpp_32_
 		*  It might contain an address
 		*/
 		curr_pos = strstr(start_msg_tag_cont, "<target");
-		/* Check if we have the tag or if we pased the end of the current message */
+		/* Check if we have the tag or if we passed the end of the current message */
 		if ((curr_pos) && (curr_pos < next_msg_pos)) {
 			curr_pos = curr_pos + 7;
 			next_pos = strstr(curr_pos, "</target>");

@@ -1612,8 +1612,8 @@ static gboolean erf_write_anchor_meta_update_phdr(wtap_dumper *wdh, erf_dump_t *
    * implicit Host ID. */
 
   /* 2. AnchorID exthdr with 'unique' per-host Anchor ID assigned by this host
-   * (in this case Wireshark). Anchor defintion flag set to 1 to indicate this
-   * record contains a defintion of the ID, in this case a comment on a single
+   * (in this case Wireshark). Anchor definition flag set to 1 to indicate this
+   * record contains a definition of the ID, in this case a comment on a single
    * packet. Tied to above extension header by ordering like a list */
   erf_append_ext_hdr_to_list(anchor_id_hdr | ERF_EHDR_ANCHOR_ID_DEFINITION_MASK, meta_ehdrs);
 
@@ -1913,7 +1913,7 @@ static gboolean erf_dump(
   } else { /* don't want to insert a new metadata record while looking at another */
     if (dump_priv->prev_erf_type == ERF_TYPE_META && dump_priv->last_meta_periodic) {
       /* Last frame was a periodic (non-comment) metadata record (and this frame is not), check if we
-       * need to insert one to update metdata. */
+       * need to insert one to update metadata. */
 
       if(dump_priv->write_next_extra_meta) {
         if (!dump_priv->periodic_sections) {
@@ -2192,7 +2192,7 @@ static int erf_update_anchors_from_header(erf_t *erf_priv, wtap_rec *rec, union 
         anchor_id_current = hdr & ERF_EHDR_ANCHOR_ID_MASK;
         if (!(ERF_ANCHOR_ID_IS_DEFINITION(hdr))) {
           /*
-            * Anchor definiton flag is 0, attempt to associate a comment with this record
+            * Anchor definition flag is 0, attempt to associate a comment with this record
             * XXX: currently the comment count may be wrong on the first pass!
             */
           /* We may not have found the implicit Host ID yet, if so we are unlikely to find anything */

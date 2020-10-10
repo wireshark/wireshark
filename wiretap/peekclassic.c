@@ -33,7 +33,7 @@
 
 /* CREDITS
  *
- * This file decoder could not have been writen without examining how
+ * This file decoder could not have been written without examining how
  * tcptrace (http://www.tcptrace.org/) handles EtherPeek files.
  */
 

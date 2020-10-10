@@ -104,7 +104,7 @@ ipfix_read_message_header(ipfix_message_header_t *pfx_hdr, FILE_T fh, int *err, 
     if (!wtap_read_bytes_or_eof(fh, pfx_hdr, IPFIX_MSG_HDR_SIZE, err, err_info))
         return FALSE;
 
-    /* fix endianess, because IPFIX files are always big-endian */
+    /* fix endianness, because IPFIX files are always big-endian */
     pfx_hdr->version = g_ntohs(pfx_hdr->version);
     pfx_hdr->message_length = g_ntohs(pfx_hdr->message_length);
     pfx_hdr->export_time_secs = g_ntohl(pfx_hdr->export_time_secs);

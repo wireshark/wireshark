@@ -232,7 +232,7 @@ BOOL win32_create_process(const char *application_name, const char *command_line
     //     e.g. if we're running under "Run As", ConEmu, or Visual Studio. On Windows
     //     <= 7 our child process needs to break away from it so that we can cleanly
     //     call AssignProcessToJobObject on *our* job.
-    //     Windows >= 8 supports nested jobs so this isn't neccessary there.
+    //     Windows >= 8 supports nested jobs so this isn't necessary there.
     //     https://blogs.msdn.microsoft.com/winsdk/2014/09/22/job-object-insanity/
     //
     if (! IsWindowsVersionOrGreater(6, 2, 0)) { // Windows 8

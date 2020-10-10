@@ -136,7 +136,7 @@ XMIT-Max7:20: (task "_brouterControlTask" at 0xb094ac20, time: 1481.51) 20 octet
     1) White space is added before "(task".
     2) Task has a name, indicated by a subsequent string surrounded by a
        double-quote.
-    3) Address expressed in hex number has a preceeding "0x".
+    3) Address expressed in hex number has a preceding "0x".
     4) Hex numbers are in lower case.
     5) There is a character display corresponding to hex data in each line.
 

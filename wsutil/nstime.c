@@ -57,7 +57,7 @@ gboolean nstime_is_unset(const nstime_t *nstime)
 }
 
 
-/** funcion: nstime_copy
+/** function: nstime_copy
  *
  * a = b
  */

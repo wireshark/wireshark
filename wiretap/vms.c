@@ -94,7 +94,7 @@
 The only difference between the utilities is the Packet header line, primarily
 the utility identifier and the packet sequence formats.
 
-There appear to be 2 formats for packet seqencing
+There appear to be 2 formats for packet sequencing
 
 Format 1:
 

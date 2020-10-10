@@ -90,7 +90,7 @@ rsa_load_pem_key(FILE *fp, char **err)
 {
     /* gnutls makes our work much harder, since we have to work internally with
      * s-exp formatted data, but PEM loader exports only in "gnutls_datum_t"
-     * format, and a datum -> s-exp convertion function does not exist.
+     * format, and a datum -> s-exp conversion function does not exist.
      */
     gnutls_x509_privkey_t priv_key;
     gnutls_datum_t        key;

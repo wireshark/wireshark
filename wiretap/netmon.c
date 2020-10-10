@@ -470,7 +470,7 @@ wtap_open_return_val netmon_open(wtap *wth, int *err, gchar **err_info)
 	wth->subtype_close = netmon_close;
 
 	/* NetMon capture file formats v2.1+ use per-packet encapsulation types.  NetMon 3 sets the value in
-	 * the header to 1 (Ethernet) for backwards compability. */
+	 * the header to 1 (Ethernet) for backwards compatibility. */
 	if((hdr.ver_major == 2 && hdr.ver_minor >= 1) || hdr.ver_major > 2)
 		wth->file_encap = WTAP_ENCAP_PER_PACKET;
 	else
@@ -1209,7 +1209,7 @@ netmon_process_record(wtap *wth, FILE_T fh, wtap_rec *rec,
 	    netmon->version_major > 2) {
 		if (netmon->version_major > 2) {
 			/*
-			 * Asssume 2.3 format, for now.
+			 * Assume 2.3 format, for now.
 			 */
 			trlr_size = (int)sizeof (struct netmonrec_2_3_trlr);
 		} else {

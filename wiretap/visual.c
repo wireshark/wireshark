@@ -60,7 +60,7 @@ struct visual_file_hdr
     guint16 file_version;       /* Version number of this file format */
     guint32 media_speed;        /* ifSpeed of packet source in bits/sec. */
     guint16 media_param;        /* Media-specific extra parameter. */
-    char    RESERVED_[102];     /* MUST BE ALL ZEROS FOR FUTURE COMPATABILITY */
+    char    RESERVED_[102];     /* MUST BE ALL ZEROS FOR FUTURE COMPATIBILITY */
     char    description[64];    /* File description (null terminated) */
 };
 

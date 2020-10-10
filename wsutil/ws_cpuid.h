@@ -47,7 +47,7 @@ static gboolean
 ws_cpuid(guint32 *CPUInfo _U_, int selector _U_)
 {
 	/*
-	 * TODO: need a test if older proccesors have the cpuid instruction.
+	 * TODO: need a test if older processors have the cpuid instruction.
 	 *
 	 * The correct way to test for this, according to the Intel64/IA-32
 	 * documentation from Intel, in section 17.1 "USING THE CPUID

@@ -104,7 +104,7 @@ static gboolean snoop_dump(wtap_dumper *wdh, const wtap_rec *rec,
  *	http://mrpink.lerc.nasa.gov/118x/support.html
  *
  * had links to modified versions of "tcpdump" and "libpcap" for SUNatm
- * DLPI support; they suggested that the 3.0 verson of SUNatm uses those
+ * DLPI support; they suggested that the 3.0 version of SUNatm uses those
  * values.  The Wayback Machine archived that page, but not the stuff
  * to which it linked, unfortunately.
  *

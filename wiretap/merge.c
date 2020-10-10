@@ -798,7 +798,7 @@ generate_merged_idbs(merge_in_file_t *in_files, const guint in_file_count, const
                     merge_debug("merge::generate_merged_idbs: mode NONE set or did not find a duplicate");
                     /*
                      * This IDB does not match a previous (or we want to save all IDBs),
-                     * so add the IDB to the merge file, and add a map of the indeces.
+                     * so add the IDB to the merge file, and add a map of the indices.
                      */
                     merged_index = add_idb_to_merged_file(merged_idb_list, input_file_idb);
                     add_idb_index_map(&in_files[i], itf_count, merged_index);

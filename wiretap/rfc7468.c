@@ -19,7 +19,7 @@
 #include <string.h>
 
 /* 128 bytes should be enough to contain any line. Strictly speaking, 64 is
-   enough, but we provide some leeway to accomodate nonconformant producers and
+   enough, but we provide some leeway to accommodate nonconformant producers and
    trailing whitespace. The 2 extra bytes are for the trailing newline and NUL
    terminator. */
 #define MAX_LINE_LENGTH (128 + 2)

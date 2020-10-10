@@ -162,7 +162,7 @@ WS_DLL_PUBLIC int create_persconffile_profile(const char *profilename,
 				       char **pf_dir_path_return);
 
 /*
- * Returns the list of known profile config filesnames
+ * Returns the list of known profile config filenames
  */
 WS_DLL_PUBLIC const GHashTable * allowed_profile_filenames(void);
 

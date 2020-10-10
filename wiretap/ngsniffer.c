@@ -300,7 +300,7 @@ typedef struct _ATMSaveInfo {
  *
  * For AAL types other than AAL5, the packet data is presumably for a
  * single cell, not a reassembled frame, as the ATM Sniffer manual says
- * it dosn't reassemble cells other than AAL5 cells.
+ * it doesn't reassemble cells other than AAL5 cells.
  */
 #define	ATT_AALTYPE		0x0F	/* AAL type: */
 #define	ATT_AAL_UNKNOWN		0x00	/* Unknown AAL */

@@ -3,11 +3,11 @@ AMC: Wireless Analyzer Captured Data (AirMagnet)
 This is just a braindump from looking at some Airmagnet capture files,
 in one case having a look at a decoded display in Airmagnet itself.
 Lots of things are still unknown.
-This is NOT the intention to write a file importer in the forseeable
+This is NOT the intention to write a file importer in the foreseeable
 future.
 
 Exact timestamp decoding still unknown:
-From a diffrent decoded examplefile:
+From a different decoded example file:
 06 51 49 1b     Timestamp  (105990427)  =  03:30:27.497544
 06 51 4a cd     Timestamp  (105990861)  =  03:30:27.497978  (+434)
 06 51 4b ce     Timestamp  (105991118)  =  03:30:27.498235  (+257)

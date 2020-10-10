@@ -794,7 +794,7 @@ gz_head(FILE_T state)
              *
              *    2) we only read the first byte into the buffer with
              *    the first ws_read (e.g., because we're reading from
-             *    a pipe and only the first byte had been writen to
+             *    a pipe and only the first byte had been written to
              *    the pipe at that point), and read the second byte
              *    into the buffer after the first byte in the
              *    fill_in_buffer call, so we now have two bytes in

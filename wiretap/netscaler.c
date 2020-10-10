@@ -66,7 +66,7 @@
 
 
 /* The high resolution relative time format.
-** The MS 2 bits of the high resoltion time is defined as follows:
+** The MS 2 bits of the high resolution time is defined as follows:
 ** 00 : time value is in seconds
 ** 01 : time value is in milliseconds
 ** 10 : time value is in microseconds

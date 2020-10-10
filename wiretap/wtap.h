@@ -682,7 +682,7 @@ struct ieee_802_11a {
  *    http://wifi-insider.com/atheros/turbo.htm
  */
 #define PHDR_802_11A_TURBO_TYPE_NORMAL           0
-#define PHDR_802_11A_TURBO_TYPE_TURBO            1  /* If we don't know wehther it's static or dynamic */
+#define PHDR_802_11A_TURBO_TYPE_TURBO            1  /* If we don't know whether it's static or dynamic */
 #define PHDR_802_11A_TURBO_TYPE_DYNAMIC_TURBO    2
 #define PHDR_802_11A_TURBO_TYPE_STATIC_TURBO     3
 
@@ -1264,7 +1264,7 @@ union wtap_pseudo_header {
  * They may have a time stamp, and should be dissected and displayed
  * just as packets are.
  *
- * We distingiush between "events" and "reports" so that, for example,
+ * We distinguish between "events" and "reports" so that, for example,
  * the packet display can show the delta between a packet and an event
  * but not show the delta between a packet and a report, as the time
  * stamp of a report may not correspond to anything interesting on
@@ -1544,7 +1544,7 @@ typedef struct hashipv6 {
 } hashipv6_t;
 
 /** A struct with lists of resolved addresses.
- *  Used when writing name resoultion blocks (NRB)
+ *  Used when writing name resolutions blocks (NRB)
  */
 typedef struct addrinfo_lists {
     GList      *ipv4_addr_list; /**< A list of resolved hashipv4_t*/
@@ -2289,7 +2289,7 @@ void wtap_deregister_file_type_subtype(const int file_type_subtype);
 WS_DLL_PUBLIC
 int wtap_register_encap_type(const char *description, const char *name);
 
-/*** Cleanup the interal library structures */
+/*** Cleanup the internal library structures */
 WS_DLL_PUBLIC
 void wtap_cleanup(void);
 

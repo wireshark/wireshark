@@ -29,7 +29,7 @@
 
 /* CREDITS
  *
- * This file decoder could not have been writen without examining
+ * This file decoder could not have been written without examining
  * http://www.varsanofiev.com/inside/airopeekv9.htm, the help from
  * Martin Regner and Guy Harris, and the etherpeek.c file (as it
  * was called before renaming it to peekclassic.c).

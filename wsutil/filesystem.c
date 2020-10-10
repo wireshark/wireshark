@@ -1666,7 +1666,7 @@ create_persconffile_profile(const char *profilename, char **pf_dir_path_return)
          * Something with that pathname exists; if it's not
          * a directory, we'll get an error if we try to put
          * something in it, so we don't fail here, we wait
-         * for that attempt fo fail.
+         * for that attempt to fail.
          */
         ret = 0;
     }

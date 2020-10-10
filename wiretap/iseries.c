@@ -20,7 +20,7 @@
  * 1. Object protocol = ETHERNET (Default)
  * 2. ASCII or Unicode file formats.
  *
- * The above can be acheived by passing option ASCII(*YES) with the trace command
+ * The above can be achieved by passing option ASCII(*YES) with the trace command
  *
  */
 
@@ -58,7 +58,7 @@
  * identifying the packet number, direction, size, timestamp,
  * source/destination MAC addresses and packet type.
  *
- * Thereafter there will be a formated display of the headers above
+ * Thereafter there will be a formatted display of the headers above
  * the link layer, such as ARP, IP, TCP, UDP, and ICMP (all but
  * ICMP have either been seen in captures or on pages such as the ones
  * at
@@ -76,7 +76,7 @@
  * "TCP Header :", "UDP Header :", and (presumably) "ICMP Header:".
  *
  * If the packet contains data this is displayed as 4 groups of 16 hex digits
- * followed by an ASCII representaion of the data line.
+ * followed by an ASCII representation of the data line.
  *
  * Information from the packet header line, higher-level headers and, if
  * available, data lines are extracted by the module for displaying.
@@ -320,7 +320,7 @@ iseries_open (wtap * wth, int *err, gchar ** err_info)
 /*
  * Do some basic sanity checking to ensure we can handle the
  * contents of this trace by checking the header page for
- * requisit requirements and additional information.
+ * requisite requirements and additional information.
  */
 static gboolean
 iseries_check_file_type (wtap * wth, int *err, gchar **err_info, int format)

@@ -242,7 +242,7 @@
  * 4 octets - errors
  */
 
-/* Size of Layer-1, PLCP, and Layer-2/4 header incase of OCTO version FPGA */
+/* Size of Layer-1, PLCP, and Layer-2/4 header in case of OCTO version FPGA */
 #define OCTO_LAYER1TO4_LEN          (2+14+16+23)
 
 /*
@@ -270,7 +270,7 @@
 /* Size of RF header with the fields we do supply */
 #define OCTO_MODIFIED_RF_LEN        76              /* 24 bytes of RF are not displayed*/
 
-/*Offset of differnt parameters of RF header for port-1*/
+/*Offset of different parameters of RF header for port-1*/
 #define RF_PORT_1_NOISE_OFF         4
 #define RF_PORT_1_SNR_OFF           6
 #define RF_PORT_1_PFE_OFF           8
@@ -1889,7 +1889,7 @@ static gboolean vwr_read_s3_W_rec(vwr_t *vwr, wtap_rec *record,
         /* Also get a bunch of fields from the stats blocks */
         /* 'stats_offset' variable is use to locate the exact offset.
          * When a RX frame contrains RF,
-         * the postion of Stats, Layer 1-4, PLCP parameters are shifted to
+         * the position of Stats, Layer 1-4, PLCP parameters are shifted to
          * + OCTO_RF_MOD_ACTUAL_LEN bytes
          */
         if (IS_TX == 4)     /*IS_TX =4, i.e., command type is RF-RX Modified*/
@@ -2249,7 +2249,7 @@ static gboolean vwr_read_s3_W_rec(vwr_t *vwr, wtap_rec *record,
     /*** Time Collapsible header ends ***/
     }
 
-    /*** RF Collapsable header starts***/
+    /*** RF Collapsible header starts***/
     if (IS_TX == 3 || IS_TX == 4) {
         phtole8(&data_ptr[bytes_written], rf_id);
         bytes_written += 1;
@@ -2426,7 +2426,7 @@ static gboolean vwr_read_s3_W_rec(vwr_t *vwr, wtap_rec *record,
         }
 ***/
     }
-    /*** RF Collapsable header ends***/
+    /*** RF Collapsible header ends***/
 
     if (IS_TX != 3) {
         /*
@@ -2497,7 +2497,7 @@ static gboolean vwr_read_s3_W_rec(vwr_t *vwr, wtap_rec *record,
         phtolel(&data_ptr[bytes_written], pntoh32(&s_trail_ptr[24]));   /*** 4 bytes for Payload Decode ***/
         bytes_written += 4;
 
-        /*** Incase of RX, Info has 3 bytes of data, whereas for TX, 2 bytes ***/
+        /*** In case of RX, Info has 3 bytes of data, whereas for TX, 2 bytes ***/
         if (IS_TX == 0 || IS_TX == 4) {
             phtoles(&data_ptr[bytes_written], info);
             bytes_written += 2;

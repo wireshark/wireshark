@@ -563,7 +563,7 @@ static const struct {
 	 * We treat 13 as WTAP_ENCAP_ENC on all systems except those
 	 * that define DLT_ATM_RFC1483 as 13 - presumably only
 	 * BSD/OS does so - so that, on BSD/OS systems, we still
-	 * treate 13 as WTAP_ENCAP_ATM_RFC1483, but, on all other
+	 * treat 13 as WTAP_ENCAP_ATM_RFC1483, but, on all other
 	 * systems, we can read OpenBSD DLT_ENC captures.
 	 */
 #if defined(__bsdi__) /* BSD/OS */

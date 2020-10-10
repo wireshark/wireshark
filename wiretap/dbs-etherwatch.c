@@ -78,7 +78,7 @@ static gboolean parse_dbs_etherwatch_packet(FILE_T fh, wtap_rec *rec,
     Buffer* buf, int *err, gchar **err_info);
 static guint parse_single_hex_dump_line(char* rec, guint8 *buf,
     int byte_offset);
-static guint parse_hex_dump(char* dump, guint8 *buf, char seperator, char end);
+static guint parse_hex_dump(char* dump, guint8 *buf, char separator, char end);
 
 /* Seeks to the beginning of the next packet, and returns the
    byte offset.  Returns -1 on failure, and sets "*err" to the error
@@ -237,7 +237,7 @@ Protocol 08-00 00 00-00-00-00-00,   50 byte buffer at 10-OCT-2001 10:20:45.17
 #define PID_LENGTH          5           /* Length PID */
 #define PID_POS             18          /* Position PID */
 #define LENGTH_POS          33          /* Position length */
-#define HEX_HDR_SPR         '-'         /* Seperator char header hex values */
+#define HEX_HDR_SPR         '-'         /* Separator char header hex values */
 #define HEX_HDR_END         ' '         /* End char hdr. hex val. except PID */
 #define HEX_PID_END         ','         /* End char PID hex value */
 #define IEEE802_LEN_LEN     2           /* Length of the IEEE 802 len. field */
@@ -518,7 +518,7 @@ parse_dbs_etherwatch_packet(FILE_T fh, wtap_rec *rec, Buffer* buf,
 #define COUNT_POS_HEX       1   /* Count position HEX type */
 #define COUNT_SIZE      5   /* Length counter */
 #define HEX_DUMP_START      '[' /* Start char */
-#define HEX_DUMP_SPR        ' ' /* Seperator char */
+#define HEX_DUMP_SPR        ' ' /* Separator char */
 #define HEX_DUMP_END        ']' /* End char */
 
 /* Take a string representing one line from a hex dump and converts the
@@ -592,7 +592,7 @@ parse_single_hex_dump_line(char* rec, guint8 *buf, int byte_offset) {
 
 /* Parse a hex dump */
 static guint
-parse_hex_dump(char* dump, guint8 *buf, char seperator, char end) {
+parse_hex_dump(char* dump, guint8 *buf, char separator, char end) {
     int     pos, count;
 
     /* Parse the hex dump */
@@ -618,8 +618,8 @@ parse_hex_dump(char* dump, guint8 *buf, char seperator, char end) {
         }
         pos++;
         count++;
-        /* Skip the seperator characters */
-        while(dump[pos] == seperator) {
+        /* Skip the separator characters */
+        while(dump[pos] == separator) {
             pos++;
         }
     }
