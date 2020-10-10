@@ -185,6 +185,7 @@ static expert_field ei_gquic_tag_undecoded = EI_INIT;
 static expert_field ei_gquic_tag_length = EI_INIT;
 static expert_field ei_gquic_tag_unknown = EI_INIT;
 static expert_field ei_gquic_version_invalid = EI_INIT;
+static expert_field ei_gquic_length_invalid = EI_INIT;
 
 
 typedef struct gquic_info_data {
@@ -1619,7 +1620,7 @@ dissect_gquic_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *gquic_tree, gui
                                  "Dissector for (Google) QUIC Tag"
                                  " %s (%s) code not implemented, Contact"
                                  " Wireshark developers if you want this supported", tvb_get_string_enc(wmem_packet_scope(), tvb, offset-8, 4, ENC_ASCII|ENC_NA), val_to_str(tag, tag_vals, "Unknown"));
-                tag_offset += tag_len;
+                goto end;
             break;
         }
         if(tag_offset != offset_end){
@@ -1629,6 +1630,13 @@ dissect_gquic_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *gquic_tree, gui
         }
 
         tag_number--;
+    }
+
+    end:
+    if (offset + total_tag_len <= offset) {
+        expert_add_info_format(pinfo, gquic_tree, &ei_gquic_length_invalid,
+                                "Invalid total tag length: %u", total_tag_len);
+        return offset + tvb_reported_length_remaining(tvb, offset);
     }
     return offset + total_tag_len;
 
@@ -2887,7 +2895,8 @@ proto_register_gquic(void)
         { &ei_gquic_tag_undecoded, { "gquic.tag.undecoded", PI_UNDECODED, PI_NOTE, "Dissector for (Google)QUIC Tag code not implemented, Contact Wireshark developers if you want this supported", EXPFILL }},
         { &ei_gquic_tag_length, { "gquic.tag.length.truncated", PI_MALFORMED, PI_NOTE, "Truncated Tag Length...", EXPFILL }},
         { &ei_gquic_tag_unknown, { "gquic.tag.unknown.data", PI_UNDECODED, PI_NOTE, "Unknown Data", EXPFILL }},
-        { &ei_gquic_version_invalid, { "gquic.version.invalid", PI_MALFORMED, PI_ERROR, "Invalid Version", EXPFILL }}
+        { &ei_gquic_version_invalid, { "gquic.version.invalid", PI_MALFORMED, PI_ERROR, "Invalid Version", EXPFILL }},
+        { &ei_gquic_length_invalid, { "gquic.length.invalid", PI_PROTOCOL, PI_WARN, "Invalid Length", EXPFILL }}
     };
 
     expert_module_t *expert_gquic;
