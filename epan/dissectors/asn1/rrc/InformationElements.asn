@@ -1,4 +1,4 @@
--- 3GPP TS 25.331 V15.4.0 (2018-09)
+-- 3GPP TS 25.331 V16.1.0 (2020-09)
 --
 -- 11.3	Information element definitions
 --
@@ -800,7 +800,7 @@ AccessGroupIdentity ::=				INTEGER (0..15)
 AccessStratumReleaseIndicator ::=	ENUMERATED {
 										rel-4, rel-5, rel-6, rel-7, rel-8,
 										rel-9, rel-10, rel-11, rel-12,
-										rel-13, rel-14, rel-15, spare4, spare3,
+										rel-13, rel-14, rel-15, rel-16, spare3,
 										spare2, spare1 }
 
 -- TABULAR : for ActivationTime, value 'now' always appear as default, and is encoded
