@@ -914,7 +914,12 @@ initialize_enterprises(void)
     parse_enterprises_file(g_enterprises_path);
 
     if (g_penterprises_path == NULL) {
-        g_penterprises_path = get_persconffile_path(ENAME_ENTERPRISES, FALSE);
+        /* Check profile directory before personal configuration */
+        g_penterprises_path = get_persconffile_path(ENAME_ENTERPRISES, TRUE);
+        if (!file_exists(g_penterprises_path)) {
+            g_free(g_penterprises_path);
+            g_penterprises_path = get_persconffile_path(ENAME_ENTERPRISES, FALSE);
+        }
     }
     parse_enterprises_file(g_penterprises_path);
 }
@@ -1714,8 +1719,14 @@ initialize_ethers(void)
     /* Set g_pethers_path here, but don't actually do anything
      * with it. It's used in get_ethbyaddr().
      */
-    if (g_pethers_path == NULL)
-        g_pethers_path = get_persconffile_path(ENAME_ETHERS, FALSE);
+    if (g_pethers_path == NULL) {
+        /* Check profile directory before personal configuration */
+        g_pethers_path = get_persconffile_path(ENAME_ETHERS, TRUE);
+        if (!file_exists(g_pethers_path)) {
+            g_free(g_pethers_path);
+            g_pethers_path = get_persconffile_path(ENAME_ETHERS, FALSE);
+        }
+    }
 
     /* Compute the pathname of the manuf file */
     if (g_manuf_path == NULL)
@@ -2057,8 +2068,14 @@ initialize_ipxnets(void)
     /* Set g_pipxnets_path here, but don't actually do anything
      * with it. It's used in get_ipxnetbyaddr().
      */
-    if (g_pipxnets_path == NULL)
-        g_pipxnets_path = get_persconffile_path(ENAME_IPXNETS, FALSE);
+    if (g_pipxnets_path == NULL) {
+        /* Check profile directory before personal configuration */
+        g_pipxnets_path = get_persconffile_path(ENAME_IPXNETS, TRUE);
+        if (!file_exists(g_pipxnets_path)) {
+            g_free(g_pipxnets_path);
+            g_pipxnets_path = get_persconffile_path(ENAME_IPXNETS, FALSE);
+        }
+    }
 
 } /* initialize_ipxnets */
 
@@ -3180,6 +3197,12 @@ void host_name_lookup_reset(void)
     host_name_lookup_init();
     vlan_name_lookup_cleanup();
     initialize_vlans();
+    ethers_cleanup();
+    initialize_ethers();
+    ipx_name_lookup_cleanup();
+    initialize_ipxnets();
+    enterprises_cleanup();
+    initialize_enterprises();
 }
 
 gchar *
