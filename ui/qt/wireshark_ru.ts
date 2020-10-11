@@ -728,7 +728,7 @@
     </message>
     <message>
         <source>…as bits</source>
-        <translation type="unfinished"></translation>
+        <translation>…как биты</translation>
     </message>
     <message>
         <source>Show text based on packet</source>
@@ -736,11 +736,11 @@
     </message>
     <message>
         <source>…as ASCII</source>
-        <translation type="unfinished"></translation>
+        <translation>…как ASCII</translation>
     </message>
     <message>
         <source>…as EBCDIC</source>
-        <translation type="unfinished"></translation>
+        <translation>…как EBCDIC</translation>
     </message>
 </context>
 <context>
@@ -1252,7 +1252,7 @@
     </message>
     <message>
         <source>Manage Interfaces…</source>
-        <translation>Управлять Интерфейсами...</translation>
+        <translation>Управлять Интерфейсами…</translation>
     </message>
     <message>
         <source>Capture filter for selected interfaces:</source>
@@ -1280,7 +1280,7 @@
     </message>
     <message>
         <source>Browse…</source>
-        <translation>Открыть...</translation>
+        <translation>Открыть…</translation>
     </message>
     <message>
         <source>Output format:</source>
@@ -1300,7 +1300,7 @@
     </message>
     <message>
         <source>Create a new file automatically…</source>
-        <translation>Автоматически создать новый файл...</translation>
+        <translation>Автоматически создать новый файл…</translation>
     </message>
     <message>
         <source>after</source>
@@ -1614,18 +1614,8 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Применить как фильтр</translation>
     </message>
     <message>
-        <source>Import…</source>
-        <oldsource>Import</oldsource>
-        <translation type="unfinished">Импорт</translation>
-    </message>
-    <message>
         <source>Select a file and add its filters to the end of the list.</source>
         <translation>Выберите файл и добавьте его фильтры в конец списка.</translation>
-    </message>
-    <message>
-        <source>Export…</source>
-        <oldsource>Export</oldsource>
-        <translation type="unfinished">Экспорт</translation>
     </message>
     <message>
         <source>Save filters in a file.</source>
@@ -1634,6 +1624,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Coloring Rules %1</source>
         <translation>Цветовые Правила %1</translation>
+    </message>
+    <message>
+        <source>Import…</source>
+        <translation>Импорт…</translation>
+    </message>
+    <message>
+        <source>Export…</source>
+        <translation>Экспорт…</translation>
     </message>
     <message>
         <source>Copy coloring rules from another profile.</source>
@@ -1791,8 +1789,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>ConversationDialog</name>
     <message>
         <source>Follow Stream…</source>
-        <oldsource>Follow Stream</oldsource>
-        <translation type="unfinished">Отслеживание Потока</translation>
+        <translation>Отслеживание Потока…</translation>
     </message>
     <message>
         <source>Follow a TCP or UDP stream.</source>
@@ -1800,8 +1797,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Graph…</source>
-        <oldsource>Graph</oldsource>
-        <translation type="unfinished">График</translation>
+        <translation>График…</translation>
     </message>
     <message>
         <source>Graph a TCP conversation.</source>
@@ -1888,7 +1884,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>…as Hex Dump</source>
-        <translation type="unfinished"></translation>
+        <translation>…как Шестнадцатеричный Дамп</translation>
     </message>
     <message>
         <source>Copy packet bytes as a hex dump.</source>
@@ -1896,7 +1892,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>…as Printable Text</source>
-        <translation type="unfinished"></translation>
+        <translation>…как Готовый к Печати Текст</translation>
     </message>
     <message>
         <source>Copy only the printable text in the packet.</source>
@@ -1904,7 +1900,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>…as a Hex Stream</source>
-        <translation type="unfinished"></translation>
+        <translation>…как Шестнадцатеричный Поток</translation>
     </message>
     <message>
         <source>Copy packet bytes as a stream of hex.</source>
@@ -1912,7 +1908,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>…as Raw Binary</source>
-        <translation type="unfinished"></translation>
+        <translation>…как Двоичный Raw</translation>
     </message>
     <message>
         <source>Copy packet bytes as application/octet-stream MIME data.</source>
@@ -1920,7 +1916,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>…as Escaped String</source>
-        <translation type="unfinished"></translation>
+        <translation>…как Экранированную Строку</translation>
     </message>
     <message>
         <source>Copy packet bytes as an escaped string.</source>
@@ -1947,8 +1943,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Decode As…</source>
-        <oldsource>Decode As</oldsource>
-        <translation type="unfinished">Декодировать Как</translation>
+        <translation>Декодировать Как…</translation>
     </message>
     <message>
         <source>Open </source>
@@ -2036,6 +2031,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Управлять сохранёнными закладками.</translation>
     </message>
     <message>
+        <source>Display Filter Expression…</source>
+        <translation>Показать Дисплейный Фильтр…</translation>
+    </message>
+    <message>
         <source>Apply a display filter %1 &lt;%2/&gt;</source>
         <translation>Применить дисплейный фильтр %1 &lt;%2/&gt;</translation>
     </message>
@@ -2054,11 +2053,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Left align buttons</source>
         <translation>Выравнять кнопки по левой границе</translation>
-    </message>
-    <message>
-        <source>Display Filter Expression…</source>
-        <oldsource>Display Filter Expression</oldsource>
-        <translation type="unfinished">Выражение Дисплейного Фильтра</translation>
     </message>
     <message>
         <source>Apply a read filter %1</source>
@@ -2312,8 +2306,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Save As…</source>
-        <oldsource>Save As</oldsource>
-        <translation type="unfinished">Сохранить Как</translation>
+        <translation>Сохранить Как…</translation>
     </message>
     <message>
         <source>Map file error</source>
@@ -2579,13 +2572,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Save Object As…</source>
-        <oldsource>Save Object As</oldsource>
-        <translation type="unfinished">Сохранить Объект Как</translation>
+        <translation>Сохранить Объект Как…</translation>
     </message>
     <message>
         <source>Save All Objects In…</source>
-        <oldsource>Save All Objects In</oldsource>
-        <translation type="unfinished">Сохранить Все Объекты В</translation>
+        <translation>Сохранить Все Объекты в…</translation>
     </message>
 </context>
 <context>
@@ -2754,19 +2745,19 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>…and Selected</source>
-        <translation type="unfinished"></translation>
+        <translation>…и Выбранное</translation>
     </message>
     <message>
         <source>…or Selected</source>
-        <translation type="unfinished"></translation>
+        <translation>…или Выбранное</translation>
     </message>
     <message>
         <source>…and not Selected</source>
-        <translation type="unfinished"></translation>
+        <translation>…и не Выбранное</translation>
     </message>
     <message>
         <source>…or not Selected</source>
-        <translation type="unfinished"></translation>
+        <translation>…или не Выбранное</translation>
     </message>
 </context>
 <context>
@@ -2990,18 +2981,16 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Личная конфигурация</translation>
     </message>
     <message>
-        <source>dfilters, preferences, ethers, …</source>
-        <oldsource>dfilters, preferences, ethers, </oldsource>
-        <translation type="unfinished">dfilters, preferences, ethers, </translation>
-    </message>
-    <message>
         <source>Global configuration</source>
         <translation>Глобальная конфигурация</translation>
     </message>
     <message>
+        <source>dfilters, preferences, ethers, …</source>
+        <translation>dfilters, preferences, ethers, …</translation>
+    </message>
+    <message>
         <source>dfilters, preferences, manuf, …</source>
-        <oldsource>dfilters, preferences, manuf, </oldsource>
-        <translation type="unfinished">dfilters, preferences, manuf, </translation>
+        <translation>dfilters, preferences, manuf, …</translation>
     </message>
     <message>
         <source>System</source>
@@ -3103,11 +3092,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <source>Print</source>
         <translation>Печатать</translation>
     </message>
-    <message>
-        <source>Save as…</source>
-        <oldsource>Save as</oldsource>
-        <translation type="unfinished">Сохранить как</translation>
-    </message>
     <message numerus="yes">
         <source>%Ln client pkt(s), </source>
         <translation type="vanished">
@@ -3153,6 +3137,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Необработанный</translation>
     </message>
     <message>
+        <source>Save as…</source>
+        <translation>Сохранить как…</translation>
+    </message>
+    <message>
         <source>Back</source>
         <translation>Назад</translation>
     </message>
@@ -3193,11 +3181,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Найти Регулярное Выражение:</translation>
     </message>
     <message>
-        <source>Save Stream Content As…</source>
-        <oldsource>Save Stream Content As</oldsource>
-        <translation type="unfinished">Сохранить Контент Потока Как</translation>
-    </message>
-    <message>
         <source>No capture file.</source>
         <translation>Нет файла захвата.</translation>
     </message>
@@ -3236,6 +3219,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Error creating filter for this stream.</source>
         <translation>Ошибка создания фильтра для этого потока.</translation>
+    </message>
+    <message>
+        <source>Save Stream Content As…</source>
+        <translation>Сохранить Контент Потока Как…</translation>
     </message>
     <message>
         <source>[Stream output truncated]</source>
@@ -3821,11 +3808,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Shift+Y</translation>
     </message>
     <message>
-        <source>Save As…</source>
-        <oldsource>Save As</oldsource>
-        <translation type="unfinished">Сохранить Как</translation>
-    </message>
-    <message>
         <source>1 sec</source>
         <translation>1 с</translation>
     </message>
@@ -3848,6 +3830,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>I/O Graphs</source>
         <translation>Графики ввода/вывода</translation>
+    </message>
+    <message>
+        <source>Save As…</source>
+        <translation>Сохранить Как…</translation>
     </message>
     <message>
         <source>Copy</source>
@@ -3943,8 +3929,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Save Graph As…</source>
-        <oldsource>Save Graph As</oldsource>
-        <translation type="unfinished">Сохранить График Как</translation>
+        <translation>Сохранить График Как…</translation>
     </message>
 </context>
 <context>
@@ -4143,8 +4128,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Save Graph As…</source>
-        <oldsource>Save Graph As</oldsource>
-        <translation type="unfinished">Сохранить График Как</translation>
+        <translation>Сохранить График Как…</translation>
     </message>
     <message>
         <source>Can&apos;t save in a file: Wrong length of captured packets.</source>
@@ -4188,8 +4172,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Saving %1…</source>
-        <oldsource>Saving %1</oldsource>
-        <translation type="unfinished">Сохранение %1</translation>
+        <translation>Сохранение %1…</translation>
     </message>
     <message>
         <source>Analyzing IAX2</source>
@@ -4233,7 +4216,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Browse…</source>
         <oldsource>Browse...</oldsource>
-        <translation>Открыть...</translation>
+        <translation>Открыть…</translation>
     </message>
     <message>
         <source>Offsets in the text file are in octal notation</source>
@@ -5833,8 +5816,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Save As…</source>
-        <oldsource>Save As</oldsource>
-        <translation type="unfinished">Сохранить Как</translation>
+        <translation>Сохранить Как…</translation>
     </message>
     <message>
         <source>%1 %2 (%3s seq %4 len %5)</source>
@@ -5878,8 +5860,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Save Graph As…</source>
-        <oldsource>Save Graph As</oldsource>
-        <translation type="unfinished">Сохранить График Как</translation>
+        <translation>Сохранить График Как…</translation>
     </message>
 </context>
 <context>
@@ -5966,6 +5947,18 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Profile: %1</source>
         <translation>Профиль: %1</translation>
+    </message>
+    <message>
+        <source>Manage Profiles…</source>
+        <translation>Управлять Профилями…</translation>
+    </message>
+    <message>
+        <source>New…</source>
+        <translation>Новый…</translation>
+    </message>
+    <message>
+        <source>Edit…</source>
+        <translation>Редактировать…</translation>
     </message>
     <message>
         <source>Import</source>
@@ -6071,21 +6064,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>No Packets</source>
         <translation>Нет Пакетов</translation>
-    </message>
-    <message>
-        <source>Manage Profiles…</source>
-        <oldsource>Manage Profiles</oldsource>
-        <translation type="unfinished">Управлять Профилями</translation>
-    </message>
-    <message>
-        <source>New…</source>
-        <oldsource>New</oldsource>
-        <translation type="unfinished">Новый</translation>
-    </message>
-    <message>
-        <source>Edit…</source>
-        <oldsource>Edit</oldsource>
-        <translation type="unfinished">Редактировать</translation>
     </message>
     <message>
         <source>selected personal profile</source>
@@ -6589,7 +6567,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Go to Packet…</source>
-        <translation>Перейти к Пакету...</translation>
+        <translation>Перейти к Пакету…</translation>
     </message>
     <message>
         <source>&amp;Merge…</source>
@@ -6605,11 +6583,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Save &amp;As…</source>
-        <translation>Сохранить &amp;Как...</translation>
+        <translation>Сохранить &amp;Как…</translation>
     </message>
     <message>
         <source>Export Specified Packets…</source>
-        <translation>Экспортировать Указанные Пакеты...</translation>
+        <translation>Экспортировать Указанные Пакеты…</translation>
     </message>
     <message>
         <source>Export Packet &amp;Bytes…</source>
@@ -6617,7 +6595,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>&amp;Print…</source>
-        <translation>&amp;Печать...</translation>
+        <translation>&amp;Печать…</translation>
     </message>
     <message>
         <source>Reload this file</source>
@@ -6759,7 +6737,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>&amp;Configuration Profiles…</source>
-        <translation>&amp;Конфигурационные Профили...</translation>
+        <translation>&amp;Конфигурационные Профили…</translation>
     </message>
     <message>
         <source>Configuration profiles</source>
@@ -7279,7 +7257,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>&amp;Find Packet…</source>
-        <translation>&amp;Найти Пакет...</translation>
+        <translation>&amp;Найти Пакет…</translation>
     </message>
     <message>
         <source>Find Ne&amp;xt</source>
@@ -7311,11 +7289,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Packet Comment…</source>
-        <translation>Комментарии к Пакету...</translation>
+        <translation>Комментарии к Пакету…</translation>
     </message>
     <message>
         <source>&amp;Preferences…</source>
-        <translation>&amp;Параметры...</translation>
+        <translation>&amp;Параметры…</translation>
     </message>
     <message>
         <source>TCP throughput</source>
@@ -7607,7 +7585,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>&amp;Coloring Rules…</source>
-        <translation>&amp;Цветовые Правила...</translation>
+        <translation>&amp;Цветовые Правила…</translation>
     </message>
     <message>
         <source>Show Linked Packet in New Window</source>
@@ -7616,7 +7594,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>New Coloring Rule…</source>
         <oldsource>New Conversation Rule…</oldsource>
-        <translation>Новое Цветовое Правило...</translation>
+        <translation>Новое Цветовое Правило…</translation>
     </message>
     <message>
         <source>IA&amp;X2 Stream Analysis</source>
@@ -7625,7 +7603,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Enabled Protocols…</source>
         <oldsource>Enable Protocols…</oldsource>
-        <translation>Разрешённые Протоколы...</translation>
+        <translation>Разрешённые Протоколы…</translation>
     </message>
     <message>
         <source>Wiki Protocol Page</source>
@@ -7701,7 +7679,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Display &amp;Filters…</source>
-        <translation>Дисплейные &amp;Фильтры...</translation>
+        <translation>Дисплейные &amp;Фильтры…</translation>
     </message>
     <message>
         <source>&amp;Unmark All Displayed</source>
@@ -7860,11 +7838,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Разрешить и запретить указанные протоколы</translation>
     </message>
     <message>
-        <source>Check for Updates…</source>
-        <oldsource>Check for Updates</oldsource>
-        <translation type="unfinished">Проверить Обновления</translation>
-    </message>
-    <message>
         <source> before quitting</source>
         <translation>перед выходом</translation>
     </message>
@@ -7925,6 +7898,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Your changes will be lost if you don&apos;t save them.</source>
         <translation>Сделанные изменения будут потеряны, если Вы их не сохраните.</translation>
+    </message>
+    <message>
+        <source>Check for Updates…</source>
+        <translation>Проверить Обновления…</translation>
     </message>
     <message>
         <source>Unable to drop files during capture.</source>
@@ -7991,16 +7968,8 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>%1: %2</translation>
     </message>
     <message>
-        <source>Saving %1</source>
-        <translation type="vanished">Сохранение %1</translation>
-    </message>
-    <message>
         <source>Clear Menu</source>
         <translation>Очистить меню</translation>
-    </message>
-    <message>
-        <source>Please wait while Wireshark is initializing</source>
-        <translation type="vanished">Пожалуйста, подождите, пока Wireshark инициализируется</translation>
     </message>
     <message>
         <source> before closing the file</source>
@@ -8057,7 +8026,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Saving %1…</source>
-        <translation type="unfinished">Сохранение %1</translation>
+        <translation>Сохранение %1…</translation>
     </message>
     <message>
         <source>Invalid capture filter.</source>
@@ -8069,7 +8038,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Please wait while Wireshark is initializing…</source>
-        <translation type="unfinished"></translation>
+        <translation>Пожалуйста, подождите, пока Wireshark инициализируется…</translation>
     </message>
     <message>
         <source>There are no TLS Session Keys to save.</source>
@@ -8161,7 +8130,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Browse…</source>
         <oldsource>Browse...</oldsource>
-        <translation>Открыть...</translation>
+        <translation>Открыть…</translation>
     </message>
     <message>
         <source>The most recently used folder</source>
@@ -8532,12 +8501,8 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Показать значения полей</translation>
     </message>
     <message>
-        <source>Save Diagram As</source>
-        <translation type="vanished">Сохранить Диаграмму Как</translation>
-    </message>
-    <message>
         <source>Save Diagram As…</source>
-        <translation type="unfinished"></translation>
+        <translation>Сохранить Диаграмму Как…</translation>
     </message>
     <message>
         <source>Copy as Raster Image</source>
@@ -8545,7 +8510,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>…as SVG</source>
-        <translation type="unfinished"></translation>
+        <translation>…как CSV</translation>
     </message>
     <message>
         <source>Portable Network Graphics (*.png)</source>
@@ -8565,11 +8530,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Save Graph As…</source>
-        <translation type="unfinished">Сохранить График Как</translation>
-    </message>
-    <message>
-        <source>Save Graph As</source>
-        <translation type="vanished">Сохранить граф как</translation>
+        <translation>Сохранить График Как…</translation>
     </message>
 </context>
 <context>
@@ -8674,16 +8635,15 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>…as CSV</source>
-        <translation type="unfinished"></translation>
+        <translation>…как CSV</translation>
     </message>
     <message>
         <source>…as YAML</source>
-        <translation type="unfinished"></translation>
+        <translation>…как YAML</translation>
     </message>
     <message>
         <source>Decode As…</source>
-        <oldsource>Decode As</oldsource>
-        <translation type="unfinished">Декодировать Как</translation>
+        <translation>Декодировать Как…</translation>
     </message>
     <message>
         <source>Frame %1: %2
@@ -8713,11 +8673,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Выровнять по Правой Стороне</translation>
     </message>
     <message>
-        <source>Column Preferences…</source>
-        <oldsource>Column Preferences</oldsource>
-        <translation type="unfinished">Настройки Столбца</translation>
-    </message>
-    <message>
         <source>Edit Column</source>
         <translation>Редактировать Столбец</translation>
     </message>
@@ -8726,9 +8681,12 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Размер В Соответствии с Содержимым</translation>
     </message>
     <message>
+        <source>Column Preferences…</source>
+        <translation>Настройки Столбца…</translation>
+    </message>
+    <message>
         <source>Resize Column to Width…</source>
-        <oldsource>Resize Column to Width</oldsource>
-        <translation type="unfinished">Изменить размер столбцов по ширине</translation>
+        <translation>Изменить размер столбцов по ширине…</translation>
     </message>
     <message>
         <source>Resolve Names</source>
@@ -8751,8 +8709,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>PacketListModel</name>
     <message>
         <source>Sorting &quot;%1&quot;…</source>
-        <oldsource>Sorting &quot;%1&quot;</oldsource>
-        <translation type="unfinished">Сортировка &quot;%1&quot;</translation>
+        <translation>Сортировка &quot;%1&quot;…</translation>
     </message>
 </context>
 <context>
@@ -8887,8 +8844,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Open %1 preferences…</source>
-        <oldsource>Open %1 preferences</oldsource>
-        <translation type="unfinished">Открыть %1 параметры</translation>
+        <translation>Открыть параметры %1…</translation>
     </message>
     <message>
         <source>Invalid value.</source>
@@ -8973,13 +8929,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>&amp;Print…</source>
-        <oldsource>&amp;Print</oldsource>
-        <translation type="unfinished">&amp;Печатать</translation>
+        <translation>&amp;Печатать…</translation>
     </message>
     <message>
         <source>Page &amp;Setup…</source>
-        <oldsource>Page &amp;Setup</oldsource>
-        <translation type="unfinished">Настройка &amp;Страницы</translation>
+        <translation>Настройка &amp;Страницы…</translation>
     </message>
     <message>
         <source>%1 %2 total packets, %3 shown</source>
@@ -9463,8 +9417,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Open %1 preferences…</source>
-        <oldsource>Open %1 preferences</oldsource>
-        <translation type="unfinished">Открыть %1 параметры</translation>
+        <translation>Открыть %1 параметры…</translation>
     </message>
 </context>
 <context>
@@ -9547,19 +9500,19 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>…and Selected</source>
-        <translation type="unfinished"></translation>
+        <translation>…и Выбранное</translation>
     </message>
     <message>
         <source>…or Selected</source>
-        <translation type="unfinished"></translation>
+        <translation>…или Выбранное</translation>
     </message>
     <message>
         <source>…and not Selected</source>
-        <translation type="unfinished"></translation>
+        <translation>…и не Выбранное</translation>
     </message>
     <message>
         <source>…or not Selected</source>
-        <translation type="unfinished"></translation>
+        <translation>…или не Выбранное</translation>
     </message>
     <message>
         <source>A </source>
@@ -9596,16 +9549,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>%1 entries.</source>
         <translation>%1 записей.</translation>
-    </message>
-    <message>
-        <source>Edit…</source>
-        <oldsource>Edit</oldsource>
-        <translation type="unfinished">Редактировать</translation>
-    </message>
-    <message>
-        <source>Browse…</source>
-        <oldsource>Browse</oldsource>
-        <translation type="unfinished">Просмотреть</translation>
     </message>
     <message>
         <source>Base station</source>
@@ -9902,6 +9845,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Gap in dissection</source>
         <translation>Пробел при диссекции</translation>
+    </message>
+    <message>
+        <source>Edit…</source>
+        <translation>Редактировать…</translation>
+    </message>
+    <message>
+        <source>Browse…</source>
+        <translation>Открыть…</translation>
     </message>
 </context>
 <context>
@@ -10219,7 +10170,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Add new keyfile…</source>
-        <translation>Добавить новый ключевой файл...</translation>
+        <translation>Добавить новый ключевой файл…</translation>
     </message>
     <message>
         <source>Add new token…</source>
@@ -10547,6 +10498,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Невозможно сохранить данные RTP.</translation>
     </message>
     <message>
+        <source>Save Graph As…</source>
+        <translation>Сохранить График Как…</translation>
+    </message>
+    <message>
         <source>Can&apos;t synchronize when only one channel is selected</source>
         <translation>Невозможно синхронизировать, если выбран лишь один канал</translation>
     </message>
@@ -10561,6 +10516,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Raw (*.raw)</source>
         <translation>Raw (*.raw)</translation>
+    </message>
+    <message>
+        <source>Saving %1…</source>
+        <translation>Сохранение %1…</translation>
     </message>
     <message>
         <source>Analyzing RTP</source>
@@ -10627,11 +10586,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>JPEG File Interchange Format (*.jpeg *.jpg)</translation>
     </message>
     <message>
-        <source>Save Graph As…</source>
-        <oldsource>Save Graph As</oldsource>
-        <translation type="unfinished">Сохранить График Как</translation>
-    </message>
-    <message>
         <source>Can&apos;t save in a file: Wrong length of captured packets.</source>
         <translation>Невозможно сохранить в файл: Неверная длина захваченных пакетов.</translation>
     </message>
@@ -10670,11 +10624,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Unable to save %1</source>
         <translation>Невозможно сохранить %1</translation>
-    </message>
-    <message>
-        <source>Saving %1…</source>
-        <oldsource>Saving %1</oldsource>
-        <translation type="unfinished">Сохранение %1</translation>
     </message>
     <message>
         <source>Error</source>
@@ -11174,8 +11123,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Export…</source>
-        <oldsource>Export</oldsource>
-        <translation type="unfinished">Экспорт</translation>
+        <translation>Экспорт…</translation>
     </message>
     <message>
         <source>Copy</source>
@@ -11199,8 +11147,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Save RTPDump As…</source>
-        <oldsource>Save RTPDump As</oldsource>
-        <translation type="unfinished">Сохранить дамп RTP Как</translation>
+        <translation>Сохранить RTPDump Как…</translation>
     </message>
 </context>
 <context>
@@ -11882,8 +11829,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Save Graph As…</source>
-        <oldsource>Save Graph As</oldsource>
-        <translation type="unfinished">Сохранить График Как</translation>
+        <translation>Сохранить График Как…</translation>
     </message>
 </context>
 <context>
@@ -12002,8 +11948,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Searching for %1…</source>
-        <oldsource>Searching for %1</oldsource>
-        <translation type="unfinished">Поиск %1</translation>
+        <translation>Поиск %1…</translation>
     </message>
     <message>
         <source>No packet contained those bytes.</source>
@@ -12042,8 +11987,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Save As…</source>
-        <oldsource>Save As</oldsource>
-        <translation type="unfinished">Сохранить Как</translation>
+        <translation>Сохранить Как…</translation>
     </message>
     <message>
         <source>No data</source>
@@ -12087,8 +12031,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Save Graph As…</source>
-        <oldsource>Save Graph As</oldsource>
-        <translation type="unfinished">Сохранить График Как</translation>
+        <translation>Сохранить График Как…</translation>
     </message>
     <message>
         <source>Flow</source>
@@ -12470,8 +12413,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Save as…</source>
-        <oldsource>Save as</oldsource>
-        <translation type="unfinished">Сохранить как</translation>
+        <translation>Сохранить как…</translation>
+    </message>
+    <message>
+        <source>Save Selected Packet Bytes As…</source>
+        <translation>Сохранить Выбранные Байты Пакета Как…</translation>
     </message>
     <message numerus="yes">
         <source>Displaying %Ln byte(s).</source>
@@ -12484,11 +12430,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Regex Find:</source>
         <translation>Найти Регулярное Выражение:</translation>
-    </message>
-    <message>
-        <source>Save Selected Packet Bytes As…</source>
-        <oldsource>Save Selected Packet Bytes As</oldsource>
-        <translation type="unfinished">Сохранить Выбранные Байты Пакета Как</translation>
     </message>
 </context>
 <context>
@@ -13129,8 +13070,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Save As…</source>
-        <oldsource>Save As</oldsource>
-        <translation type="unfinished">Сохранить Как</translation>
+        <translation>Сохранить Как…</translation>
     </message>
     <message>
         <source>No Capture Data</source>
@@ -13206,8 +13146,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Save Graph As…</source>
-        <oldsource>Save Graph As</oldsource>
-        <translation type="unfinished">Сохранить График Как</translation>
+        <translation>Сохранить График Как…</translation>
     </message>
 </context>
 <context>
@@ -13247,7 +13186,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Save as…</source>
         <oldsource>Save as...</oldsource>
-        <translation>Сохранить как...</translation>
+        <translation>Сохранить как…</translation>
     </message>
     <message>
         <source>Save the displayed data in various formats</source>
@@ -13255,8 +13194,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Save Statistics As…</source>
-        <oldsource>Save Statistics As</oldsource>
-        <translation type="unfinished">Сохранить Статистику Как</translation>
+        <translation>Сохранить Статистику Как…</translation>
     </message>
     <message>
         <source>Plain text file (*.txt);;Comma separated values (*.csv);;XML document (*.xml);;YAML document (*.yaml)</source>
@@ -13674,38 +13612,7 @@ a:hover {
 
 &lt;/tr&gt;&lt;/table&gt;
 &lt;/body&gt;&lt;/html&gt;</source>
-        <oldsource>&lt;html&gt;&lt;head&gt;
-&lt;style&gt;
-a:link {
-  color: palette(text);
-  text-decoration: none;
-}
-a:hover {
-  color: palette(text);
-  text-decoration: underline;
-}
-&lt;/style&gt;
-&lt;/head&gt;
-&lt;body&gt;
-
-&lt;table&gt;&lt;tr&gt;
-&lt;th&gt;&lt;a href=&quot;https://www.wireshark.org/docs/wsug_html_chunked/&quot;&gt;User&apos;s Guide&lt;/a&gt;&lt;/th&gt;
-
-&lt;td style=&quot;padding-left: 8px; padding-right: 8px;&quot;&gt;·&lt;/td&gt;
-
-&lt;th&gt;&lt;a href=&quot;https://wiki.wireshark.org/&quot;&gt;Wiki&lt;/a&gt;&lt;/th&gt;
-
-&lt;td style=&quot;padding-left: 8px; padding-right: 8px;&quot;&gt;·&lt;/td&gt;
-
-&lt;th&gt;&lt;a href=&quot;https://ask.wireshark.org/&quot;&gt;Questions and Answers&lt;/a&gt;&lt;/th&gt;
-
-&lt;td style=&quot;padding-left: 8px; padding-right: 8px;&quot;&gt;·&lt;/td&gt;
-
-&lt;th&gt;&lt;a href=&quot;https://www.wireshark.org/lists/&quot;&gt;Mailing Lists&lt;/a&gt;&lt;/th&gt;
-
-&lt;/tr&gt;&lt;/table&gt;
-&lt;/body&gt;&lt;/html&gt;</oldsource>
-        <translation type="unfinished">&lt;html&gt;&lt;head&gt;
+        <translation>&lt;html&gt;&lt;head&gt;
 &lt;style&gt;
 a:link {
   color: palette(text);
@@ -13724,7 +13631,7 @@ a:hover {
 
 &lt;td style=&quot;padding-left: 8px; padding-right: 8px;&quot;&gt;·&lt;/td&gt;
 
-&lt;th&gt;&lt;a href=&quot;https://wiki.wireshark.org/&quot;&gt;Вики&lt;/a&gt;&lt;/th&gt;
+&lt;th&gt;&lt;a href=&quot;https://gitlab.com/wireshark/wireshark/-/wikis/&quot;&gt;Вики&lt;/a&gt;&lt;/th&gt;
 
 &lt;td style=&quot;padding-left: 8px; padding-right: 8px;&quot;&gt;·&lt;/td&gt;
 

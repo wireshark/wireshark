@@ -1250,7 +1250,7 @@
     </message>
     <message>
         <source>Browse…</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Feuilleter...</translation>
     </message>
     <message>
         <source>Output format:</source>
@@ -1583,18 +1583,8 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Import…</source>
-        <oldsource>Import</oldsource>
-        <translation type="unfinished">Importer</translation>
-    </message>
-    <message>
         <source>Select a file and add its filters to the end of the list.</source>
         <translation>Sélectionner un fichier et ajouter ses filtres à la fin de la liste.</translation>
-    </message>
-    <message>
-        <source>Export…</source>
-        <oldsource>Export</oldsource>
-        <translation type="unfinished">Exporter</translation>
     </message>
     <message>
         <source>Save filters in a file.</source>
@@ -1602,6 +1592,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Coloring Rules %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Import…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Export…</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -1760,8 +1758,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>ConversationDialog</name>
     <message>
         <source>Follow Stream…</source>
-        <oldsource>Follow Stream</oldsource>
-        <translation type="unfinished">Suivre flux</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Follow a TCP or UDP stream.</source>
@@ -1769,8 +1766,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Graph…</source>
-        <oldsource>Graph</oldsource>
-        <translation type="unfinished">Graphique</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Graph a TCP conversation.</source>
@@ -1916,8 +1912,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Decode As…</source>
-        <oldsource>Decode As</oldsource>
-        <translation type="unfinished">Décoder comme</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Open </source>
@@ -2005,6 +2000,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Display Filter Expression…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Apply a display filter %1 &lt;%2/&gt;</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2022,11 +2021,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Left align buttons</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Display Filter Expression…</source>
-        <oldsource>Display Filter Expression</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -2279,8 +2273,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Save As…</source>
-        <oldsource>Save As</oldsource>
-        <translation type="unfinished">Enregistrer sous</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Map file error</source>
@@ -2546,13 +2539,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Save Object As…</source>
-        <oldsource>Save Object As</oldsource>
-        <translation type="unfinished">Enregistrer l&apos;objet sous</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Save All Objects In…</source>
-        <oldsource>Save All Objects In</oldsource>
-        <translation type="unfinished">Enregistrer tous les objets dans</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2956,17 +2947,15 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>dfilters, preferences, ethers, …</source>
-        <oldsource>dfilters, preferences, ethers, </oldsource>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Global configuration</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>dfilters, preferences, ethers, …</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>dfilters, preferences, manuf, …</source>
-        <oldsource>dfilters, preferences, manuf, </oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3069,11 +3058,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <source>Print</source>
         <translation>Imprimer</translation>
     </message>
-    <message>
-        <source>Save as…</source>
-        <oldsource>Save as</oldsource>
-        <translation type="unfinished">Enregistrer sous</translation>
-    </message>
     <message numerus="yes">
         <source>%Ln client pkt(s), </source>
         <translation type="vanished">
@@ -3117,6 +3101,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Brut</translation>
     </message>
     <message>
+        <source>Save as…</source>
+        <translation type="unfinished">Sauvegarder sous...</translation>
+    </message>
+    <message>
         <source>Back</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3152,11 +3140,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Regex Find:</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Save Stream Content As…</source>
-        <oldsource>Save Stream Content As</oldsource>
-        <translation type="unfinished">Enregistrer Contenu du Flux Comme</translation>
     </message>
     <message>
         <source>No capture file.</source>
@@ -3196,6 +3179,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Error creating filter for this stream.</source>
         <translation>Erreur pour la création du filtre pour ce flux.</translation>
+    </message>
+    <message>
+        <source>Save Stream Content As…</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>[Stream output truncated]</source>
@@ -3782,11 +3769,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Majuscule+Y</translation>
     </message>
     <message>
-        <source>Save As…</source>
-        <oldsource>Save As</oldsource>
-        <translation type="unfinished">Enregistrer sous</translation>
-    </message>
-    <message>
         <source>1 sec</source>
         <translation>1 sec</translation>
     </message>
@@ -3808,6 +3790,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>I/O Graphs</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save As…</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3904,8 +3890,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Save Graph As…</source>
-        <oldsource>Save Graph As</oldsource>
-        <translation type="unfinished">Sauvegarder le Graphique Sous</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -4104,8 +4089,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Save Graph As…</source>
-        <oldsource>Save Graph As</oldsource>
-        <translation type="unfinished">Sauvegarder le Graphique Sous</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Can&apos;t save in a file: Wrong length of captured packets.</source>
@@ -4149,8 +4133,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Saving %1…</source>
-        <oldsource>Saving %1</oldsource>
-        <translation type="unfinished">Sauvegarde en cours %1</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Analyzing IAX2</source>
@@ -5792,8 +5775,7 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     </message>
     <message>
         <source>Save As…</source>
-        <oldsource>Save As</oldsource>
-        <translation type="unfinished">Enregistrer sous</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>%1 %2 (%3s seq %4 len %5)</source>
@@ -5837,8 +5819,7 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     </message>
     <message>
         <source>Save Graph As…</source>
-        <oldsource>Save Graph As</oldsource>
-        <translation type="unfinished">Sauvegarder le Graphique Sous</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -5924,6 +5905,18 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     </message>
     <message>
         <source>Profile: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Manage Profiles…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>New…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Edit…</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -6029,21 +6022,6 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     <message>
         <source>No Packets</source>
         <translation>Pas de paquets</translation>
-    </message>
-    <message>
-        <source>Manage Profiles…</source>
-        <oldsource>Manage Profiles</oldsource>
-        <translation type="unfinished">Gérer des Profils</translation>
-    </message>
-    <message>
-        <source>New…</source>
-        <oldsource>New</oldsource>
-        <translation type="unfinished">Nouveau</translation>
-    </message>
-    <message>
-        <source>Edit…</source>
-        <oldsource>Edit</oldsource>
-        <translation type="unfinished">Editer</translation>
     </message>
     <message>
         <source>selected personal profile</source>
@@ -7817,11 +7795,6 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
         <translation>Active et désactive des protocoles spécifiques</translation>
     </message>
     <message>
-        <source>Check for Updates…</source>
-        <oldsource>Check for Updates</oldsource>
-        <translation type="unfinished">Vérifier Mises à Jour</translation>
-    </message>
-    <message>
         <source> before quitting</source>
         <translation>avant de quitter</translation>
     </message>
@@ -7882,6 +7855,10 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     <message>
         <source>Your changes will be lost if you don&apos;t save them.</source>
         <translation>Vos changements seront perdus si vous ne les enregistrez pas.</translation>
+    </message>
+    <message>
+        <source>Check for Updates…</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Unable to drop files during capture.</source>
@@ -7948,16 +7925,8 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
         <translation>%1: %2</translation>
     </message>
     <message>
-        <source>Saving %1</source>
-        <translation type="vanished">Sauvegarde en cours %1</translation>
-    </message>
-    <message>
         <source>Clear Menu</source>
         <translation>Effacer les fichiers récemment ouverts</translation>
-    </message>
-    <message>
-        <source>Please wait while Wireshark is initializing</source>
-        <translation type="vanished">Veuillez patienter pendant que Wireshark s&apos;initialise. . .</translation>
     </message>
     <message>
         <source> before closing the file</source>
@@ -8005,7 +7974,7 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     </message>
     <message>
         <source>Saving %1…</source>
-        <translation type="unfinished">Sauvegarde en cours %1</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Invalid capture filter.</source>
@@ -8510,7 +8479,7 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     </message>
     <message>
         <source>Save Graph As…</source>
-        <translation type="unfinished">Sauvegarder le Graphique Sous</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -8623,8 +8592,7 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     </message>
     <message>
         <source>Decode As…</source>
-        <oldsource>Decode As</oldsource>
-        <translation type="unfinished">Décoder comme</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Frame %1: %2
@@ -8654,11 +8622,6 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Column Preferences…</source>
-        <oldsource>Column Preferences</oldsource>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Edit Column</source>
         <translation type="unfinished"></translation>
     </message>
@@ -8667,8 +8630,11 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Column Preferences…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Resize Column to Width…</source>
-        <oldsource>Resize Column to Width</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -8692,7 +8658,6 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     <name>PacketListModel</name>
     <message>
         <source>Sorting &quot;%1&quot;…</source>
-        <oldsource>Sorting &quot;%1&quot;</oldsource>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -8824,12 +8789,11 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     </message>
     <message>
         <source>Browse…</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Feuilleter...</translation>
     </message>
     <message>
         <source>Open %1 preferences…</source>
-        <oldsource>Open %1 preferences</oldsource>
-        <translation type="unfinished">Ouvrir les préférences %1</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Invalid value.</source>
@@ -8914,13 +8878,11 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     </message>
     <message>
         <source>&amp;Print…</source>
-        <oldsource>&amp;Print</oldsource>
-        <translation type="unfinished">&amp;Imprimer</translation>
+        <translation type="unfinished">&amp;Imprimer...</translation>
     </message>
     <message>
         <source>Page &amp;Setup…</source>
-        <oldsource>Page &amp;Setup</oldsource>
-        <translation type="unfinished">&amp;Mise en Page</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>%1 %2 total packets, %3 shown</source>
@@ -9393,8 +9355,7 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     </message>
     <message>
         <source>Open %1 preferences…</source>
-        <oldsource>Open %1 preferences</oldsource>
-        <translation type="unfinished">Ouvrir les préférences %1</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -9526,16 +9487,6 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     <message>
         <source>%1 entries.</source>
         <translation>%1 entrées.</translation>
-    </message>
-    <message>
-        <source>Edit…</source>
-        <oldsource>Edit</oldsource>
-        <translation type="unfinished">Editer</translation>
-    </message>
-    <message>
-        <source>Browse…</source>
-        <oldsource>Browse</oldsource>
-        <translation type="unfinished">Parcourir</translation>
     </message>
     <message>
         <source>Base station</source>
@@ -9832,6 +9783,14 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     <message>
         <source>Gap in dissection</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Edit…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Browse…</source>
+        <translation type="unfinished">Feuilleter...</translation>
     </message>
 </context>
 <context>
@@ -10477,6 +10436,10 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
         <translation>Impossible de sauvegarder les données RTP.</translation>
     </message>
     <message>
+        <source>Save Graph As…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Can&apos;t synchronize when only one channel is selected</source>
         <translation type="unfinished"></translation>
     </message>
@@ -10490,6 +10453,10 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     </message>
     <message>
         <source>Raw (*.raw)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Saving %1…</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -10557,11 +10524,6 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
         <translation>Fichier JPEG (*.jpeg *.jpg)</translation>
     </message>
     <message>
-        <source>Save Graph As…</source>
-        <oldsource>Save Graph As</oldsource>
-        <translation type="unfinished">Sauvegarder le Graphique Sous</translation>
-    </message>
-    <message>
         <source>Can&apos;t save in a file: Wrong length of captured packets.</source>
         <translation>Ne peut sauvegarder dans un fichier: Longueur incorrecte des paquets capturés.</translation>
     </message>
@@ -10600,11 +10562,6 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     <message>
         <source>Unable to save %1</source>
         <translation>Impossible de sauvegarder %1</translation>
-    </message>
-    <message>
-        <source>Saving %1…</source>
-        <oldsource>Saving %1</oldsource>
-        <translation type="unfinished">Sauvegarde en cours %1</translation>
     </message>
     <message>
         <source>Error</source>
@@ -11100,8 +11057,7 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     </message>
     <message>
         <source>Export…</source>
-        <oldsource>Export</oldsource>
-        <translation type="unfinished">Exporter</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Copy</source>
@@ -11125,8 +11081,7 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     </message>
     <message>
         <source>Save RTPDump As…</source>
-        <oldsource>Save RTPDump As</oldsource>
-        <translation type="unfinished">Savegarder RTPDump Comme</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -11808,8 +11763,7 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     </message>
     <message>
         <source>Save Graph As…</source>
-        <oldsource>Save Graph As</oldsource>
-        <translation type="unfinished">Sauvegarder le Graphique Sous</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -11928,7 +11882,6 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     </message>
     <message>
         <source>Searching for %1…</source>
-        <oldsource>Searching for %1</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -11968,8 +11921,7 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     </message>
     <message>
         <source>Save As…</source>
-        <oldsource>Save As</oldsource>
-        <translation type="unfinished">Enregistrer sous</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>No data</source>
@@ -12011,8 +11963,7 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     </message>
     <message>
         <source>Save Graph As…</source>
-        <oldsource>Save Graph As</oldsource>
-        <translation type="unfinished">Sauvegarder le Graphique Sous</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Flow</source>
@@ -12370,7 +12321,10 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     </message>
     <message>
         <source>Save as…</source>
-        <oldsource>Save as</oldsource>
+        <translation type="unfinished">Sauvegarder sous...</translation>
+    </message>
+    <message>
+        <source>Save Selected Packet Bytes As…</source>
         <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
@@ -12382,11 +12336,6 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     </message>
     <message>
         <source>Regex Find:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Save Selected Packet Bytes As…</source>
-        <oldsource>Save Selected Packet Bytes As</oldsource>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -13029,8 +12978,7 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     </message>
     <message>
         <source>Save As…</source>
-        <oldsource>Save As</oldsource>
-        <translation type="unfinished">Enregistrer sous</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>No Capture Data</source>
@@ -13106,8 +13054,7 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     </message>
     <message>
         <source>Save Graph As…</source>
-        <oldsource>Save Graph As</oldsource>
-        <translation type="unfinished">Sauvegarder le Graphique Sous</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -13155,8 +13102,7 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     </message>
     <message>
         <source>Save Statistics As…</source>
-        <oldsource>Save Statistics As</oldsource>
-        <translation type="unfinished">Sauvegarde Statistiques Sous</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Plain text file (*.txt);;Comma separated values (*.csv);;XML document (*.xml);;YAML document (*.yaml)</source>
@@ -13574,37 +13520,6 @@ a:hover {
 
 &lt;/tr&gt;&lt;/table&gt;
 &lt;/body&gt;&lt;/html&gt;</source>
-        <oldsource>&lt;html&gt;&lt;head&gt;
-&lt;style&gt;
-a:link {
-  color: palette(text);
-  text-decoration: none;
-}
-a:hover {
-  color: palette(text);
-  text-decoration: underline;
-}
-&lt;/style&gt;
-&lt;/head&gt;
-&lt;body&gt;
-
-&lt;table&gt;&lt;tr&gt;
-&lt;th&gt;&lt;a href=&quot;https://www.wireshark.org/docs/wsug_html_chunked/&quot;&gt;User&apos;s Guide&lt;/a&gt;&lt;/th&gt;
-
-&lt;td style=&quot;padding-left: 8px; padding-right: 8px;&quot;&gt;·&lt;/td&gt;
-
-&lt;th&gt;&lt;a href=&quot;https://wiki.wireshark.org/&quot;&gt;Wiki&lt;/a&gt;&lt;/th&gt;
-
-&lt;td style=&quot;padding-left: 8px; padding-right: 8px;&quot;&gt;·&lt;/td&gt;
-
-&lt;th&gt;&lt;a href=&quot;https://ask.wireshark.org/&quot;&gt;Questions and Answers&lt;/a&gt;&lt;/th&gt;
-
-&lt;td style=&quot;padding-left: 8px; padding-right: 8px;&quot;&gt;·&lt;/td&gt;
-
-&lt;th&gt;&lt;a href=&quot;https://www.wireshark.org/lists/&quot;&gt;Mailing Lists&lt;/a&gt;&lt;/th&gt;
-
-&lt;/tr&gt;&lt;/table&gt;
-&lt;/body&gt;&lt;/html&gt;</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
