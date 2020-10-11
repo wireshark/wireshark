@@ -408,7 +408,7 @@ At the end of the CMake generation process the following should be displayed:
 -- Build files have been written to: C:/Development/wsbuild64
 ----
 
-If you get any other output, there is an issue in your envirnment that must be rectified before building.
+If you get any other output, there is an issue in your environment that must be rectified before building.
 Check the parameters passed to CMake, especially the `-G` option and the path to the Wireshark sources and
 the environment variables `WIRESHARK_BASE_DIR` and `QT5_BASE_DIR`.
 

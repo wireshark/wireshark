@@ -204,9 +204,9 @@ the main Npcap site at {npcap-main-url}.
 
 ==== Update Wireshark
 
-The offical Wireshark Windows package will check for new versions and notify
+The official Wireshark Windows package will check for new versions and notify
 you when they are available. If you have the _Check for updates_ preference
-disabled or if you run Wireshark in an isolated environment you should subcribe
+disabled or if you run Wireshark in an isolated environment you should subscribe
 to the _wireshark-announce_ mailing list to be notified of new versions.
 See <<ChIntroMailingLists>> for details on subscribing to this list.
 

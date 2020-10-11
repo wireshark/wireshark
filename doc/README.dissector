@@ -1893,7 +1893,7 @@ in the past.
 proto_tree_add_item_ret_XXX()
 ------------------------------
 proto_tree_add_item_ret_XXX is used when you want the displayed value returned
-for futher processing only integer and unsigned integer types up to 32 bits are
+for further processing only integer and unsigned integer types up to 32 bits are
 supported usage of proper FT_ is checked.
 
 proto_tree_add_XXX_item()
@@ -3223,7 +3223,7 @@ persistent data about the packet for the lifetime of the capture (file scope)
 and to exchange data between dissectors across a single packet (packet scope).
 It is also used to provide packet data for Decode As dialog (packet scope).
 
-These functions are delcared in <epan/proto_data.h>.
+These functions are declared in <epan/proto_data.h>.
 
 void
 p_add_proto_data(wmem_allocator_t *scope, packet_info *pinfo, int proto, guint32 key, void *proto_data)

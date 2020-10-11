@@ -24,7 +24,7 @@ the extcap folder, with the following content:
 -------
 
 Windows is not able to execute Python scripts directly, which also goes for all
-other script-based formates beside VBScript
+other script-based formats beside VBScript
 }
 
 """
@@ -222,7 +222,7 @@ def pcap_fake_header():
     header += struct.pack('<H', unsigned(2))  # Pcap Major Version
     header += struct.pack('<H', unsigned(4))  # Pcap Minor Version
     header += struct.pack('<I', int(0))  # Timezone
-    header += struct.pack('<I', int(0))  # Accurancy of timestamps
+    header += struct.pack('<I', int(0))  # Accuracy of timestamps
     header += struct.pack('<L', int('0000ffff', 16))  # Max Length of capture frame
     header += struct.pack('<L', unsigned(1))  # Ethernet
     return header
@@ -439,7 +439,7 @@ if __name__ == '__main__':
     parser.add_argument("--delay", help="Demonstrates an integer variable", type=int, default=0, choices=[0, 1, 2, 3, 4, 5, 6] )
     parser.add_argument("--remote", help="Demonstrates a selector choice", default="if1", choices=["if1", "if2", "if3", "if4"] )
     parser.add_argument("--message", help="Demonstrates string variable", nargs='?', default="" )
-    parser.add_argument("--fake_ip", help="Add a fake sender IP adress", nargs='?', default="127.0.0.1" )
+    parser.add_argument("--fake_ip", help="Add a fake sender IP address", nargs='?', default="127.0.0.1" )
     parser.add_argument("--ts", help="Capture start time", action="store_true" )
 
     try:

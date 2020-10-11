@@ -243,9 +243,9 @@ B<files>:I<value> begin again with the first file after I<value> number of
 files were written (form a ring buffer).  This value must be less than 100000.
 Caution should be used when using large numbers of files: some filesystems do
 not handle many files in a single directory well.  The B<files> criterion
-requires one of the other critereon to be specified to
+requires one of the other criteria to be specified to
 control when to go to the next file.  It should be noted that each B<-b>
-parameter takes exactly one criterion; to specify two criterion, each must be
+parameter takes exactly one criterion; to specify two criteria, each must be
 preceded by the B<-b> option.
 
 B<filesize>:I<value> switch to the next file after it reaches a size of

@@ -411,7 +411,7 @@ The sum of the values of the field specified in “Y Field” per interval.
 
 COUNT FRAMES(Y Field):::
 The number of frames that contain the field specified in “Y Field” per interval.
-Unlike thie plain “Packets” graph, this always displays <<ChStatIOGraphsMissingValues, zero values>>.
+Unlike the plain “Packets” graph, this always displays <<ChStatIOGraphsMissingValues, zero values>>.
 
 COUNT FIELDS(Y Field):::
 The number of instances of the field specified in “Y Field” per interval.

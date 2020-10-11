@@ -67,7 +67,7 @@ is a notable example. While it's typically installed in a top-level
 directory, e.g. _C:\Python37_ or in %PROGRAMFILES%, e.g. _C:\Program
 Files\Python37_, Chocolatey tends to install it under
 _C:\ProgramData\chocolatey_ or _C:\Tools_. If you want to avoid this
-behavior you'll probabaly want to install Python using the packages from
+behavior you'll probably want to install Python using the packages from
 python.org.
 
 Other package managers for Windows include the https://docs.microsoft.com/en-us/windows/package-manager/[Windows Package Manager (winget)] and https://scoop.sh/[Scoop].

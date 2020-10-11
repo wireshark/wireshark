@@ -239,7 +239,7 @@ This is useful for recreating a particular sequence of errors.
 =item --skip-radiotap-header
 
 Skip the radiotap header of each frame when checking for packet duplicates. This is useful
-when processing a caputure created by combining outputs of multiple capture devices on the same
+when processing a capture created by combining outputs of multiple capture devices on the same
 channel in the vicinity of each other.
 
 =item -S  E<lt>strict time adjustmentE<gt>

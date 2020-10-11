@@ -733,7 +733,7 @@ into the search box.
 Type selection::
 Profiles can be filtered between displaying "All profiles", "Personal profiles"
 and "Global profiles"
-* Personal profiles - these are profiles stored in the user's configuration dirctory
+* Personal profiles - these are profiles stored in the user's configuration directory
 * Global profiles - these are profiles provided with Wireshark
 
 New (+)::
@@ -1131,7 +1131,7 @@ https://grpc.io/[gRPC]) based on the message, enum and field definitions.
 You can specify protobuf search paths at the Protobuf protocol preferences.
 For example, if you defined a proto file with path `d:/my_proto_files/helloworld.proto`
 and the `helloworld.proto` contains a line of `import "google/protobuf/any.proto";`
-because the `any` type of offical protobuf library is used. And the real path of
+because the `any` type of official protobuf library is used. And the real path of
 `any.proto` is `d:/protobuf-3.4.1/include/google/protobuf/any.proto`. You should
 add the `d:/protobuf-3.4.1/include/` and `d:/my_proto_files` paths into protobuf
 search paths.
@@ -1147,7 +1147,7 @@ This specifies a directory containing protobuf source files. For example,
 Load all files::
 If this option is enabled, Wireshark will load all *.proto files in this directory
 and its subdirectories when Wireshark startup or protobuf search paths preferences
-changed. Note that the source directories that configured to protobuf offical or third
+changed. Note that the source directories that configured to protobuf official or third
 libraries path (like `d:/protobuf-3.4.1/include/`) should not be set to load all
 files, that may cause unnecessary memory use.
 
