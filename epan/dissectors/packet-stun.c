@@ -219,6 +219,7 @@ static int hf_stun_network_version = -1;
 /* Expert items */
 static expert_field ei_stun_short_packet = EI_INIT;
 static expert_field ei_stun_long_attribute = EI_INIT;
+static expert_field ei_stun_unknown_attribute = EI_INIT;
 
 /* Structure containing transaction specific information */
 typedef struct _stun_transaction_t {
@@ -1059,8 +1060,8 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
                 att_type_display ^= 1;
                 att_type ^= 1;
             }
-            attribute_name_str = val_to_str_ext_const(att_type_display, &attributes_ext, "Unknown");
-            if(att_all_tree){
+            attribute_name_str = try_val_to_str_ext(att_type_display, &attributes_ext);
+            if (attribute_name_str){
                 ti = proto_tree_add_uint_format(att_all_tree, hf_stun_attr,
                                                 tvb, offset, ATTR_HDR_LEN+att_length_pad,
                                                 att_type, "%s", attribute_name_str);
@@ -1079,6 +1080,9 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
                                                      att_length_pad);
                     break;
                 }
+            } else {
+                att_tree = proto_tree_add_expert_format(att_all_tree, pinfo, &ei_stun_unknown_attribute, tvb,
+                                                        offset, 2, "Unknown attribute 0x%04x", att_type_display);
             }
             offset += 2;
 
@@ -2070,6 +2074,9 @@ proto_register_stun(void)
 
         { &ei_stun_long_attribute,
         { "stun.long_attribute", PI_MALFORMED, PI_WARN, "Attribute has trailing data", EXPFILL }},
+
+        { &ei_stun_unknown_attribute,
+        { "stun.unknown_attribute", PI_UNDECODED, PI_WARN, "Attribute unknown", EXPFILL }},
     };
 
     module_t *stun_module;
