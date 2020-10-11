@@ -609,6 +609,7 @@ proto_reg_handoff_gfp(void)
      * frames including the FCS. */
     dissector_add_uint("gfp.upi", 1, find_dissector("eth_withfcs"));
     dissector_add_uint("gfp.upi", 2, find_dissector("ppp_hdlc"));
+    dissector_add_uint("gfp.upi", 9, find_dissector("mp2t"));
     dissector_add_uint("gfp.upi", 12, find_dissector("mpls"));
     dissector_add_uint("gfp.upi", 13, find_dissector("mpls"));
     dissector_add_uint("gfp.upi", 16, find_dissector("ip"));
