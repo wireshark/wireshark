@@ -5,12 +5,13 @@
  *  3270 Information Display System: Data Stream Programmer's Reference
  *    GA23-0059-07
  *    http://publib.boulder.ibm.com/cgi-bin/bookmgr_OS390/BOOKS/CN7P4000
+ *      (dead, not archived on the Wayback Machine)
+ *    http://bitsavers.trailing-edge.com/pdf/ibm/3174/GA23-0059-07_3270_Data_Stream_Programmers_Reference_199206.pdf
  *    (Paragraph references in the comments in this file (e.g., 6.15) are to the above document)
  *
  *  3174 Establishment Controller Functional Description
  *    GA23-0218-11
  *    http://publib.boulder.ibm.com/cgi-bin/bookmgr/BOOKS/cn7a7003
- *
  *
  *  RFC 1041: Telnet 3270 Regime Option
  *    https://tools.ietf.org/html/rfc1041
