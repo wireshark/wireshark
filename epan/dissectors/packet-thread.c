@@ -2106,6 +2106,10 @@ dissect_thread_coap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
 
     /* Obtain the CoAP info */
     coinfo = (coap_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_coap, 0);
+
+    /* Reject the packet if not CoAP */
+    if (!coinfo) return 0;
+
     uri = wmem_strbuf_get_str(coinfo->uri_str_strbuf);
 
     tokens = wmem_strsplit(wmem_packet_scope(), uri, "/", 3);
