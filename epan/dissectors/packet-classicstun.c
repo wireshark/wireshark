@@ -313,229 +313,227 @@ dissect_classicstun(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
     col_add_fstr(pinfo->cinfo, COL_INFO, "Message: %s",
              msg_type_str);
 
-    if (tree) {
-        guint transaction_id_first_word;
+    guint transaction_id_first_word;
 
-        ti = proto_tree_add_item(tree, proto_classicstun, tvb, 0, -1, ENC_NA);
+    ti = proto_tree_add_item(tree, proto_classicstun, tvb, 0, -1, ENC_NA);
 
-        classicstun_tree = proto_item_add_subtree(ti, ett_classicstun);
+    classicstun_tree = proto_item_add_subtree(ti, ett_classicstun);
 
-        if (((msg_type & CLASS_MASK) >> 4) == REQUEST) {
-            if (classicstun_trans->rep_frame) {
-                proto_item *it;
-                it=proto_tree_add_uint(classicstun_tree, hf_classicstun_response_in,
-                               tvb, 0, 0,
-                               classicstun_trans->rep_frame);
-                proto_item_set_generated(it);
-            }
+    if (((msg_type & CLASS_MASK) >> 4) == REQUEST) {
+        if (classicstun_trans->rep_frame) {
+            proto_item *it;
+            it=proto_tree_add_uint(classicstun_tree, hf_classicstun_response_in,
+                           tvb, 0, 0,
+                           classicstun_trans->rep_frame);
+            proto_item_set_generated(it);
         }
-        else if ((((msg_type & CLASS_MASK) >> 4) == RESPONSE) ||
-             (((msg_type & CLASS_MASK) >> 4) == ERROR_RESPONSE)) {
-            /* This is a response */
-            if(classicstun_trans->req_frame){
-                proto_item *it;
-                nstime_t ns;
+    }
+    else if ((((msg_type & CLASS_MASK) >> 4) == RESPONSE) ||
+         (((msg_type & CLASS_MASK) >> 4) == ERROR_RESPONSE)) {
+        /* This is a response */
+        if(classicstun_trans->req_frame){
+            proto_item *it;
+            nstime_t ns;
 
-                it=proto_tree_add_uint(classicstun_tree, hf_classicstun_response_to, tvb, 0, 0, classicstun_trans->req_frame);
-                proto_item_set_generated(it);
+            it=proto_tree_add_uint(classicstun_tree, hf_classicstun_response_to, tvb, 0, 0, classicstun_trans->req_frame);
+            proto_item_set_generated(it);
 
-                nstime_delta(&ns, &pinfo->abs_ts, &classicstun_trans->req_time);
-                it=proto_tree_add_time(classicstun_tree, hf_classicstun_time, tvb, 0, 0, &ns);
-                proto_item_set_generated(it);
-            }
-
+            nstime_delta(&ns, &pinfo->abs_ts, &classicstun_trans->req_time);
+            it=proto_tree_add_time(classicstun_tree, hf_classicstun_time, tvb, 0, 0, &ns);
+            proto_item_set_generated(it);
         }
 
-        proto_tree_add_uint(classicstun_tree, hf_classicstun_type, tvb, 0, 2, msg_type);
-        proto_tree_add_uint(classicstun_tree, hf_classicstun_length, tvb, 2, 2, msg_length);
-        proto_tree_add_item(classicstun_tree, hf_classicstun_id, tvb, 4, 16, ENC_NA);
+    }
 
-        /* Remember this (in host order) so we can show clear xor'd addresses */
-        transaction_id_first_word = tvb_get_ntohl(tvb, 4);
+    proto_tree_add_uint(classicstun_tree, hf_classicstun_type, tvb, 0, 2, msg_type);
+    proto_tree_add_uint(classicstun_tree, hf_classicstun_length, tvb, 2, 2, msg_length);
+    proto_tree_add_item(classicstun_tree, hf_classicstun_id, tvb, 4, 16, ENC_NA);
 
-        if (msg_length > 0) {
-            ta = proto_tree_add_item(classicstun_tree, hf_classicstun_att, tvb, CLASSICSTUN_HDR_LEN, msg_length, ENC_NA);
-            att_type_tree = proto_item_add_subtree(ta, ett_classicstun_att_type);
+    /* Remember this (in host order) so we can show clear xor'd addresses */
+    transaction_id_first_word = tvb_get_ntohl(tvb, 4);
 
-            offset = CLASSICSTUN_HDR_LEN;
+    if (msg_length > 0) {
+        ta = proto_tree_add_item(classicstun_tree, hf_classicstun_att, tvb, CLASSICSTUN_HDR_LEN, msg_length, ENC_NA);
+        att_type_tree = proto_item_add_subtree(ta, ett_classicstun_att_type);
 
-            while( msg_length > 0) {
-                att_type = tvb_get_ntohs(tvb, offset); /* Type field in attribute header */
-                att_length = tvb_get_ntohs(tvb, offset+2); /* Length field in attribute header */
+        offset = CLASSICSTUN_HDR_LEN;
 
-                att_tree = proto_tree_add_subtree_format(att_type_tree, tvb, offset,
-                             ATTR_HDR_LEN+att_length, ett_classicstun_att, NULL,
-                             "Attribute: %s",
-                             val_to_str(att_type, attributes, "Unknown (0x%04x)"));
+        while( msg_length > 0) {
+            att_type = tvb_get_ntohs(tvb, offset); /* Type field in attribute header */
+            att_length = tvb_get_ntohs(tvb, offset+2); /* Length field in attribute header */
 
-                proto_tree_add_uint(att_tree, classicstun_att_type, tvb,
-                            offset, 2, att_type);
-                offset += 2;
-                if (ATTR_HDR_LEN+att_length > msg_length) {
-                    proto_tree_add_uint_format_value(att_tree,
-                                   classicstun_att_length, tvb, offset, 2,
-                                   att_length,
-                                   "%u (bogus, goes past the end of the message)",
-                                   att_length);
+            att_tree = proto_tree_add_subtree_format(att_type_tree, tvb, offset,
+                         ATTR_HDR_LEN+att_length, ett_classicstun_att, NULL,
+                         "Attribute: %s",
+                         val_to_str(att_type, attributes, "Unknown (0x%04x)"));
+
+            proto_tree_add_uint(att_tree, classicstun_att_type, tvb,
+                        offset, 2, att_type);
+            offset += 2;
+            if (ATTR_HDR_LEN+att_length > msg_length) {
+                proto_tree_add_uint_format_value(att_tree,
+                               classicstun_att_length, tvb, offset, 2,
+                               att_length,
+                               "%u (bogus, goes past the end of the message)",
+                               att_length);
+                break;
+            }
+            proto_tree_add_uint(att_tree, classicstun_att_length, tvb,
+                        offset, 2, att_length);
+            offset += 2;
+            switch( att_type ){
+                case MAPPED_ADDRESS:
+                case RESPONSE_ADDRESS:
+                case SOURCE_ADDRESS:
+                case CHANGED_ADDRESS:
+                case REFLECTED_FROM:
+                case ALTERNATE_SERVER:
+                case DESTINATION_ADDRESS:
+                case REMOTE_ADDRESS:
+                    if (att_length < 2)
+                        break;
+                    proto_tree_add_item(att_tree, classicstun_att_family, tvb, offset+1, 1, ENC_BIG_ENDIAN);
+                    if (att_length < 4)
+                        break;
+                    proto_tree_add_item(att_tree, classicstun_att_port, tvb, offset+2, 2, ENC_BIG_ENDIAN);
+                    switch( tvb_get_guint8(tvb, offset+1) ){
+                        case 1:
+                            if (att_length < 8)
+                                break;
+                            proto_tree_add_item(att_tree, classicstun_att_ipv4, tvb, offset+4, 4, ENC_BIG_ENDIAN);
+                            break;
+
+                        case 2:
+                            if (att_length < 20)
+                                break;
+                            proto_tree_add_item(att_tree, classicstun_att_ipv6, tvb, offset+4, 16, ENC_NA);
+                            break;
+                    }
                     break;
-                }
-                proto_tree_add_uint(att_tree, classicstun_att_length, tvb,
-                            offset, 2, att_length);
-                offset += 2;
-                switch( att_type ){
-                    case MAPPED_ADDRESS:
-                    case RESPONSE_ADDRESS:
-                    case SOURCE_ADDRESS:
-                    case CHANGED_ADDRESS:
-                    case REFLECTED_FROM:
-                    case ALTERNATE_SERVER:
-                    case DESTINATION_ADDRESS:
-                    case REMOTE_ADDRESS:
-                        if (att_length < 2)
-                            break;
-                        proto_tree_add_item(att_tree, classicstun_att_family, tvb, offset+1, 1, ENC_BIG_ENDIAN);
-                        if (att_length < 4)
-                            break;
-                        proto_tree_add_item(att_tree, classicstun_att_port, tvb, offset+2, 2, ENC_BIG_ENDIAN);
-                        switch( tvb_get_guint8(tvb, offset+1) ){
-                            case 1:
-                                if (att_length < 8)
-                                    break;
-                                proto_tree_add_item(att_tree, classicstun_att_ipv4, tvb, offset+4, 4, ENC_BIG_ENDIAN);
+
+                case CHANGE_REQUEST:
+                    if (att_length < 4)
+                        break;
+                    proto_tree_add_item(att_tree, classicstun_att_change_ip, tvb, offset, 4, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(att_tree, classicstun_att_change_port, tvb, offset, 4, ENC_BIG_ENDIAN);
+                    break;
+
+                case USERNAME:
+                case PASSWORD:
+                case MESSAGE_INTEGRITY:
+                case NONCE:
+                case REALM:
+                    if (att_length < 1)
+                        break;
+                    proto_tree_add_item(att_tree, classicstun_att_value, tvb, offset, att_length, ENC_NA);
+                    break;
+
+                case ERROR_CODE:
+                    if (att_length < 3)
+                        break;
+                    proto_tree_add_item(att_tree, classicstun_att_error_class, tvb, offset+2, 1, ENC_BIG_ENDIAN);
+                    if (att_length < 4)
+                        break;
+                    proto_tree_add_item(att_tree, classicstun_att_error_number, tvb, offset+3, 1, ENC_BIG_ENDIAN);
+                    if (att_length < 5)
+                        break;
+                    proto_tree_add_item(att_tree, classicstun_att_error_reason, tvb, offset+4, (att_length-4), ENC_UTF_8|ENC_NA);
+                    break;
+
+                case LIFETIME:
+                    if (att_length < 4)
+                        break;
+                    proto_tree_add_item(att_tree, classicstun_att_lifetime, tvb, offset, 4, ENC_BIG_ENDIAN);
+                    break;
+
+                case MAGIC_COOKIE:
+                    if (att_length < 4)
+                        break;
+                    proto_tree_add_item(att_tree, classicstun_att_magic_cookie, tvb, offset, 4, ENC_BIG_ENDIAN);
+                    break;
+
+                case BANDWIDTH:
+                    if (att_length < 4)
+                        break;
+                    proto_tree_add_item(att_tree, classicstun_att_bandwidth, tvb, offset, 4, ENC_BIG_ENDIAN);
+                    break;
+
+                case DATA:
+                    proto_tree_add_item(att_tree, classicstun_att_data, tvb, offset, att_length, ENC_NA);
+
+                    tvbuff_t *next_tvb;
+                    heur_dtbl_entry_t *hdtbl_entry;
+                    next_tvb = tvb_new_subset_length(tvb, offset, att_length);
+
+                    if (!dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, att_tree, &hdtbl_entry, NULL)) {
+                        call_dissector_only(data_handle, next_tvb, pinfo, att_tree, NULL);
+                    }
+
+                    break;
+
+                case UNKNOWN_ATTRIBUTES:
+                    for (i = 0; i < att_length; i += 4) {
+                        proto_tree_add_item(att_tree, classicstun_att_unknown, tvb, offset+i, 2, ENC_BIG_ENDIAN);
+                        proto_tree_add_item(att_tree, classicstun_att_unknown, tvb, offset+i+2, 2, ENC_BIG_ENDIAN);
+                    }
+                    break;
+
+                case SERVER:
+                    proto_tree_add_item(att_tree, classicstun_att_server_string, tvb, offset, att_length, ENC_UTF_8|ENC_NA);
+                    break;
+
+                case XOR_MAPPED_ADDRESS:
+                    if (att_length < 2)
+                        break;
+                    proto_tree_add_item(att_tree, classicstun_att_family, tvb, offset+1, 1, ENC_BIG_ENDIAN);
+                    if (att_length < 4)
+                        break;
+                    proto_tree_add_item(att_tree, classicstun_att_xor_port, tvb, offset+2, 2, ENC_BIG_ENDIAN);
+
+                    /* Show the port 'in the clear'
+                       XOR (host order) transid with (host order) xor-port.
+                       Add host-order port into tree. */
+                    clear_port = tvb_get_ntohs(tvb, offset+2) ^ (transaction_id_first_word >> 16);
+                    ti = proto_tree_add_uint(att_tree, classicstun_att_port, tvb, offset+2, 2, clear_port);
+                    proto_item_set_generated(ti);
+
+                    switch( tvb_get_guint8(tvb, offset+1) ){
+                        case 1:
+                            if (att_length < 8)
                                 break;
+                            proto_tree_add_item(att_tree, classicstun_att_xor_ipv4, tvb, offset+4, 4, ENC_BIG_ENDIAN);
 
-                            case 2:
-                                if (att_length < 20)
-                                    break;
-                                proto_tree_add_item(att_tree, classicstun_att_ipv6, tvb, offset+4, 16, ENC_NA);
+                            /* Show the address 'in the clear'.
+                               XOR (host order) transid with (host order) xor-address.
+                               Add in network order tree. */
+                            clear_ip = tvb_get_ipv4(tvb, offset+4) ^ g_htonl(transaction_id_first_word);
+                            ti = proto_tree_add_ipv4(att_tree, classicstun_att_ipv4, tvb, offset+4, 4, clear_ip);
+                            proto_item_set_generated(ti);
+                            break;
+
+                        case 2:
+                            if (att_length < 20)
                                 break;
-                        }
-                        break;
-
-                    case CHANGE_REQUEST:
-                        if (att_length < 4)
+                            proto_tree_add_item(att_tree, classicstun_att_xor_ipv6, tvb, offset+4, 16, ENC_NA);
                             break;
-                        proto_tree_add_item(att_tree, classicstun_att_change_ip, tvb, offset, 4, ENC_BIG_ENDIAN);
-                        proto_tree_add_item(att_tree, classicstun_att_change_port, tvb, offset, 4, ENC_BIG_ENDIAN);
+                    }
+                    break;
+
+                case REQUESTED_ADDRESS_TYPE:
+                    if (att_length < 2)
                         break;
+                    proto_tree_add_item(att_tree, classicstun_att_family, tvb, offset+1, 1, ENC_BIG_ENDIAN);
+                    break;
 
-                    case USERNAME:
-                    case PASSWORD:
-                    case MESSAGE_INTEGRITY:
-                    case NONCE:
-                    case REALM:
-                        if (att_length < 1)
-                            break;
-                        proto_tree_add_item(att_tree, classicstun_att_value, tvb, offset, att_length, ENC_NA);
-                        break;
+                case CONNECTION_REQUEST_BINDING:
+                    proto_tree_add_item(att_tree, classicstun_att_connection_request_binding, tvb, offset, att_length, ENC_UTF_8|ENC_NA);
+                    break;
 
-                    case ERROR_CODE:
-                        if (att_length < 3)
-                            break;
-                        proto_tree_add_item(att_tree, classicstun_att_error_class, tvb, offset+2, 1, ENC_BIG_ENDIAN);
-                        if (att_length < 4)
-                            break;
-                        proto_tree_add_item(att_tree, classicstun_att_error_number, tvb, offset+3, 1, ENC_BIG_ENDIAN);
-                        if (att_length < 5)
-                            break;
-                        proto_tree_add_item(att_tree, classicstun_att_error_reason, tvb, offset+4, (att_length-4), ENC_UTF_8|ENC_NA);
-                        break;
-
-                    case LIFETIME:
-                        if (att_length < 4)
-                            break;
-                        proto_tree_add_item(att_tree, classicstun_att_lifetime, tvb, offset, 4, ENC_BIG_ENDIAN);
-                        break;
-
-                    case MAGIC_COOKIE:
-                        if (att_length < 4)
-                            break;
-                        proto_tree_add_item(att_tree, classicstun_att_magic_cookie, tvb, offset, 4, ENC_BIG_ENDIAN);
-                        break;
-
-                    case BANDWIDTH:
-                        if (att_length < 4)
-                            break;
-                        proto_tree_add_item(att_tree, classicstun_att_bandwidth, tvb, offset, 4, ENC_BIG_ENDIAN);
-                        break;
-
-                    case DATA:
-                        proto_tree_add_item(att_tree, classicstun_att_data, tvb, offset, att_length, ENC_NA);
-
-                        tvbuff_t *next_tvb;
-                        heur_dtbl_entry_t *hdtbl_entry;
-                        next_tvb = tvb_new_subset_length(tvb, offset, att_length);
-
-                        if (!dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, att_tree, &hdtbl_entry, NULL)) {
-                            call_dissector_only(data_handle, next_tvb, pinfo, att_tree, NULL);
-                        }
-
-                        break;
-
-                    case UNKNOWN_ATTRIBUTES:
-                        for (i = 0; i < att_length; i += 4) {
-                            proto_tree_add_item(att_tree, classicstun_att_unknown, tvb, offset+i, 2, ENC_BIG_ENDIAN);
-                            proto_tree_add_item(att_tree, classicstun_att_unknown, tvb, offset+i+2, 2, ENC_BIG_ENDIAN);
-                        }
-                        break;
-
-                    case SERVER:
-                        proto_tree_add_item(att_tree, classicstun_att_server_string, tvb, offset, att_length, ENC_UTF_8|ENC_NA);
-                        break;
-
-                    case XOR_MAPPED_ADDRESS:
-                        if (att_length < 2)
-                            break;
-                        proto_tree_add_item(att_tree, classicstun_att_family, tvb, offset+1, 1, ENC_BIG_ENDIAN);
-                        if (att_length < 4)
-                            break;
-                        proto_tree_add_item(att_tree, classicstun_att_xor_port, tvb, offset+2, 2, ENC_BIG_ENDIAN);
-
-                        /* Show the port 'in the clear'
-                           XOR (host order) transid with (host order) xor-port.
-                           Add host-order port into tree. */
-                        clear_port = tvb_get_ntohs(tvb, offset+2) ^ (transaction_id_first_word >> 16);
-                        ti = proto_tree_add_uint(att_tree, classicstun_att_port, tvb, offset+2, 2, clear_port);
-                        proto_item_set_generated(ti);
-
-                        switch( tvb_get_guint8(tvb, offset+1) ){
-                            case 1:
-                                if (att_length < 8)
-                                    break;
-                                proto_tree_add_item(att_tree, classicstun_att_xor_ipv4, tvb, offset+4, 4, ENC_BIG_ENDIAN);
-
-                                /* Show the address 'in the clear'.
-                                   XOR (host order) transid with (host order) xor-address.
-                                   Add in network order tree. */
-                                clear_ip = tvb_get_ipv4(tvb, offset+4) ^ g_htonl(transaction_id_first_word);
-                                ti = proto_tree_add_ipv4(att_tree, classicstun_att_ipv4, tvb, offset+4, 4, clear_ip);
-                                proto_item_set_generated(ti);
-                                break;
-
-                            case 2:
-                                if (att_length < 20)
-                                    break;
-                                proto_tree_add_item(att_tree, classicstun_att_xor_ipv6, tvb, offset+4, 16, ENC_NA);
-                                break;
-                        }
-                        break;
-
-                    case REQUESTED_ADDRESS_TYPE:
-                        if (att_length < 2)
-                            break;
-                        proto_tree_add_item(att_tree, classicstun_att_family, tvb, offset+1, 1, ENC_BIG_ENDIAN);
-                        break;
-
-                    case CONNECTION_REQUEST_BINDING:
-                        proto_tree_add_item(att_tree, classicstun_att_connection_request_binding, tvb, offset, att_length, ENC_UTF_8|ENC_NA);
-                        break;
-
-                    default:
-                        break;
-                }
-                offset += att_length;
-                msg_length -= ATTR_HDR_LEN+att_length;
+                default:
+                    break;
             }
+            offset += att_length;
+            msg_length -= ATTR_HDR_LEN+att_length;
         }
     }
     return tvb_reported_length(tvb);
