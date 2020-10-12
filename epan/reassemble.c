@@ -1242,7 +1242,7 @@ fragment_add_work(fragment_head *fd_head, tvbuff_t *tvb, const int offset,
 					fd_head->error = "dfpos < offset";
 				} else if (dfpos - fd_i->offset > fd_i->len)
 					fd_head->error = "dfpos - offset > len";
-				else if (!fd_head->tvb_data)
+				else if (!fd_i->tvb_data)
 					fd_head->error = "no data";
 				else {
 					fraglen = fd_i->len;
