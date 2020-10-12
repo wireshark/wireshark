@@ -51,6 +51,7 @@
 #include <epan/sctpppids.h>
 #include <epan/show_exception.h>
 #include <epan/to_str.h>
+#include <epan/afn.h>
 #include <wsutil/filesystem.h>
 #include <wsutil/report_message.h>
 #include "packet-tcp.h"
@@ -169,6 +170,7 @@ typedef struct _address_avp_t {
 	int hf_address_type;
 	int hf_ipv4;
 	int hf_ipv6;
+	int hf_e164_str;
 	int hf_other;
 } address_avp_t;
 
@@ -998,21 +1000,32 @@ address_rfc_avp(diam_ctx_t *c, diam_avp_t *a, tvbuff_t *tvb, diam_sub_dis_t *dia
 	guint32 addr_type;
 	len = len-2;
 
-    proto_tree_add_item_ret_uint(pt, t->hf_address_type, tvb, 0, 2, ENC_NA, &addr_type);
+	proto_tree_add_item_ret_uint(pt, t->hf_address_type, tvb, 0, 2, ENC_NA, &addr_type);
+	/* See afn.h and https://www.iana.org/assignments/address-family-numbers/address-family-numbers.xhtml */
 	switch (addr_type ) {
-		case 1:
+		case AFNUM_INET:
 			if (len != 4) {
 				proto_tree_add_expert_format(pt, c->pinfo, &ei_diameter_avp_len, tvb, 2, len, "Wrong length for IPv4 Address: %d instead of 4", len);
 				return "[Malformed]";
 			}
 			pi = proto_tree_add_item(pt,t->hf_ipv4,tvb,2,4,ENC_BIG_ENDIAN);
 			break;
-		case 2:
+		case AFNUM_INET6:
 			if (len != 16) {
 				proto_tree_add_expert_format(pt, c->pinfo, &ei_diameter_avp_len, tvb, 2, len, "Wrong length for IPv6 Address: %d instead of 16", len);
 				return "[Malformed]";
 			}
 			pi = proto_tree_add_item(pt,t->hf_ipv6,tvb,2,16,ENC_NA);
+			break;
+		case AFNUM_E164:
+			/* It's unclear what format the e164 address would be encoded in but AVP 3GPP 2008 has
+			 * ...value 8, E.164, and the address information is UTF8 encoded.
+			 */
+			if (tvb_ascii_isprint(tvb, 2, len)) {
+				pi = proto_tree_add_item(pt, t->hf_e164_str, tvb, 2, len, ENC_ASCII | ENC_NA);
+			} else {
+				pi = proto_tree_add_item(pt, t->hf_other, tvb, 2, -1, ENC_BIG_ENDIAN);
+			}
 			break;
 		default:
 			pi = proto_tree_add_item(pt,t->hf_other,tvb,2,-1,ENC_BIG_ENDIAN);
@@ -1834,6 +1847,7 @@ build_address_avp(const avp_type_t *type _U_, guint32 code,
 	t->hf_address_type = -1;
 	t->hf_ipv4 = -1;
 	t->hf_ipv6 = -1;
+	t->hf_e164_str = -1;
 	t->hf_other = -1;
 
 	basic_avp_reginfo(a, name, FT_BYTES, BASE_NONE, NULL);
@@ -1849,6 +1863,10 @@ build_address_avp(const avp_type_t *type _U_, guint32 code,
 	reginfo(&(t->hf_ipv6), wmem_strconcat(wmem_epan_scope(), name, " Address", NULL),
 		alnumerize(wmem_strconcat(wmem_epan_scope(), "diameter.", name, ".IPv6", NULL)),
 		NULL, FT_IPv6, BASE_NONE, NULL, 0);
+
+	reginfo(&(t->hf_e164_str), wmem_strconcat(wmem_epan_scope(), name, " Address", NULL),
+		alnumerize(wmem_strconcat(wmem_epan_scope(), "diameter.", name, ".E164", NULL)),
+		NULL, FT_STRING, BASE_NONE, NULL, 0);
 
 	reginfo(&(t->hf_other), wmem_strconcat(wmem_epan_scope(), name, " Address", NULL),
 		alnumerize(wmem_strconcat(wmem_epan_scope(), "diameter.", name, ".Bytes", NULL)),
