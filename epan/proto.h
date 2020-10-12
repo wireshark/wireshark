@@ -1280,6 +1280,10 @@ WS_DLL_PUBLIC proto_item *
 proto_tree_add_item_ret_boolean(proto_tree *tree, int hfindex, tvbuff_t *tvb,
     const gint start, gint length, const guint encoding, gboolean *retval);
 
+WS_DLL_PUBLIC proto_item *
+proto_tree_add_item_ret_ipv4(proto_tree *tree, int hfindex, tvbuff_t *tvb,
+    const gint start, gint length, const guint encoding, ws_in4_addr *retval);
+
 /** Add an string item to a proto_tree, using the text label registered to
 that item.
 
@@ -1732,7 +1736,7 @@ proto_tree_add_ipxnet_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint 
  @return the newly created item */
 WS_DLL_PUBLIC proto_item *
 proto_tree_add_ipv4(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
-    gint length, guint32 value);
+    gint length, ws_in4_addr value);
 
 /** Add a formatted FT_IPv4 to a proto_tree, with the format generating
     the string for the value and with the field name being included
@@ -1748,7 +1752,7 @@ proto_tree_add_ipv4(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
  @return the newly created item */
 WS_DLL_PUBLIC proto_item *
 proto_tree_add_ipv4_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
-    gint start, gint length, guint32 value, const char *format, ...)
+    gint start, gint length, ws_in4_addr value, const char *format, ...)
     G_GNUC_PRINTF(7,8);
 
 /** Add a formatted FT_IPv4 to a proto_tree, with the format generating
@@ -1764,7 +1768,7 @@ proto_tree_add_ipv4_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
  @return the newly created item */
 WS_DLL_PUBLIC proto_item *
 proto_tree_add_ipv4_format(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
-    gint length, guint32 value, const char *format, ...) G_GNUC_PRINTF(7,8);
+    gint length, ws_in4_addr value, const char *format, ...) G_GNUC_PRINTF(7,8);
 
 /** Add a FT_IPv6 to a proto_tree.
  @param tree the tree to append this item to

@@ -281,7 +281,7 @@ proto_tree_set_ether_tvb(field_info *fi, tvbuff_t *tvb, gint start);
 static void
 proto_tree_set_ipxnet(field_info *fi, guint32 value);
 static void
-proto_tree_set_ipv4(field_info *fi, guint32 value);
+proto_tree_set_ipv4(field_info *fi, ws_in4_addr value);
 static void
 proto_tree_set_ipv6(field_info *fi, const guint8* value_ptr);
 static void
@@ -2512,6 +2512,7 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 	proto_item *pi;
 	guint32	    value, n;
 	guint64	    value64;
+	ws_in4_addr ipv4_value;
 	float	    floatval;
 	double	    doubleval;
 	const char *stringval = NULL;
@@ -2649,7 +2650,7 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 				length_error = length < FT_IPv4_LEN ? TRUE : FALSE;
 				report_type_length_mismatch(tree, "an IPv4 address", length, length_error);
 			}
-			value = tvb_get_ipv4(tvb, start);
+			ipv4_value = tvb_get_ipv4(tvb, start);
 			/*
 			 * NOTE: to support code written when
 			 * proto_tree_add_item() took a gboolean as its
@@ -2658,7 +2659,7 @@ proto_tree_new_item(field_info *new_fi, proto_tree *tree,
 			 * non-zero value of "encoding" as meaning
 			 * "little-endian".
 			 */
-			proto_tree_set_ipv4(new_fi, encoding ? GUINT32_SWAP_LE_BE(value) : value);
+			proto_tree_set_ipv4(new_fi, encoding ? GUINT32_SWAP_LE_BE(ipv4_value) : ipv4_value);
 			break;
 
 		case FT_IPXNET:
@@ -3572,6 +3573,59 @@ proto_tree_add_item_ret_boolean(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 
 	new_fi->flags |= (encoding & ENC_LITTLE_ENDIAN) ? FI_LITTLE_ENDIAN : FI_BIG_ENDIAN;
 
+	return proto_tree_add_node(tree, new_fi);
+}
+
+proto_item *
+proto_tree_add_item_ret_ipv4(proto_tree *tree, int hfindex, tvbuff_t *tvb,
+                             const gint start, gint length,
+                             const guint encoding, ws_in4_addr *retval)
+{
+	header_field_info *hfinfo = proto_registrar_get_nth(hfindex);
+	field_info	  *new_fi;
+	ws_in4_addr	   value;
+
+	DISSECTOR_ASSERT_HINT(hfinfo != NULL, "Not passed hfi!");
+
+	switch (hfinfo->type) {
+	case FT_IPv4:
+		break;
+	default:
+		REPORT_DISSECTOR_BUG("field %s is not of type FT_IPv4",
+		    hfinfo->abbrev);
+	}
+
+	if (length != FT_IPv4_LEN)
+		REPORT_DISSECTOR_BUG("Invalid length %d passed to proto_tree_add_item_ret_ipv4",
+			length);
+
+	if (encoding & (ENC_STRING | ENC_VARIANT_MASK | ENC_VARINT_PROTOBUF | ENC_VARINT_ZIGZAG)) {
+		REPORT_DISSECTOR_BUG("wrong encoding");
+	}
+
+	/*
+	 * NOTE: to support code written when proto_tree_add_item() took
+	 * a gboolean as its last argument, with FALSE meaning "big-endian"
+	 * and TRUE meaning "little-endian", we treat any non-zero value
+	 * of "encoding" as meaning "little-endian".
+	 */
+	value = tvb_get_ipv4(tvb, start);
+	if (encoding)
+		value = GUINT32_SWAP_LE_BE(value);
+
+	if (retval) {
+		*retval = value;
+	}
+
+	CHECK_FOR_NULL_TREE(tree);
+
+	TRY_TO_FAKE_THIS_ITEM(tree, hfinfo->id, hfinfo);
+
+	new_fi = new_field_info(tree, hfinfo, tvb, start, length);
+
+	proto_tree_set_ipv4(new_fi, value);
+
+	new_fi->flags |= encoding ? FI_LITTLE_ENDIAN : FI_BIG_ENDIAN;
 	return proto_tree_add_node(tree, new_fi);
 }
 
@@ -4504,7 +4558,7 @@ proto_tree_set_ipxnet(field_info *fi, guint32 value)
 /* Add a FT_IPv4 to a proto_tree */
 proto_item *
 proto_tree_add_ipv4(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
-		    gint length, guint32 value)
+		    gint length, ws_in4_addr value)
 {
 	proto_item	  *pi;
 	header_field_info *hfinfo;
@@ -4523,7 +4577,7 @@ proto_tree_add_ipv4(proto_tree *tree, int hfindex, tvbuff_t *tvb, gint start,
 
 proto_item *
 proto_tree_add_ipv4_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
-				 gint start, gint length, guint32 value,
+				 gint start, gint length, ws_in4_addr value,
 				 const char *format, ...)
 {
 	proto_item	  *pi;
@@ -4541,7 +4595,7 @@ proto_tree_add_ipv4_format_value(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 
 proto_item *
 proto_tree_add_ipv4_format(proto_tree *tree, int hfindex, tvbuff_t *tvb,
-			   gint start, gint length, guint32 value,
+			   gint start, gint length, ws_in4_addr value,
 			   const char *format, ...)
 {
 	proto_item	  *pi;
@@ -4561,7 +4615,7 @@ proto_tree_add_ipv4_format(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 
 /* Set the FT_IPv4 value */
 static void
-proto_tree_set_ipv4(field_info *fi, guint32 value)
+proto_tree_set_ipv4(field_info *fi, ws_in4_addr value)
 {
 	fvalue_set_uinteger(&fi->value, value);
 }
@@ -6289,7 +6343,7 @@ proto_custom_set(proto_tree* tree, GSList *field_ids, gint occurrence,
 	guint32             number;
 	guint64             number64;
 	guint8             *bytes;
-	guint32             ipv4;
+	ws_in4_addr         ipv4;
 	ws_in6_addr        *ipv6;
 	address             addr;
 
@@ -8842,7 +8896,7 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 	guint8		   *bytes;
 	guint32		    integer;
 	guint64		    integer64;
-	guint32             ipv4;
+	ws_in4_addr         ipv4;
 	e_guid_t	   *guid;
 	gchar		   *name;
 	address		    addr;

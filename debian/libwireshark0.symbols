@@ -1255,6 +1255,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  proto_tree_add_item_ret_display_string_and_length@Base 3.1.0
  proto_tree_add_item_ret_int64@Base 3.1.1
  proto_tree_add_item_ret_int@Base 1.99.6
+ proto_tree_add_item_ret_ipv4@Base 3.3.1
  proto_tree_add_item_ret_length@Base 2.1.0
  proto_tree_add_item_ret_time_string@Base 3.1.1
  proto_tree_add_item_ret_string@Base 2.1.0
