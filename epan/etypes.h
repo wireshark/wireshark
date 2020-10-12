@@ -217,6 +217,18 @@ extern "C" {
 #define ETHERTYPE_VLAN			0x8100	/* 802.1Q Virtual LAN */
 #endif
 
+#ifndef ETHERTYPE_SLPP
+#define ETHERTYPE_SLPP			0x8102	/* Nortel/Avaya/Extremenetworks Simple Loop Protection Protocol */
+#endif
+
+#ifndef ETHERTYPE_VLACP
+#define ETHERTYPE_VLACP			0x8103	/* Nortel/Avaya/Extremenetworks virtual LACP */
+#endif
+
+#ifndef ETHERTYPE_OLDSLPP
+#define ETHERTYPE_OLDSLPP		0x8104	/* Nortel/Avaya/Extremenetworks Simple Loop Protection Protocol */
+#endif
+
 #ifndef ETHERTYPE_NSRP
 #define ETHERTYPE_NSRP			0x8133
 #endif

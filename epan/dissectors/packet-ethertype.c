@@ -34,6 +34,9 @@ const value_string etype_vals[] = {
 	{ ETHERTYPE_IP,                   "IPv4" },
 	{ ETHERTYPE_IPv6,                 "IPv6" },
 	{ ETHERTYPE_VLAN,                 "802.1Q Virtual LAN" },
+	{ ETHERTYPE_SLPP,                 "Simple Loop Protection Protocol" },
+	{ ETHERTYPE_VLACP,                "Virtual LACP" }, /* Nortel/Avaya/Extremenetworks */
+	{ ETHERTYPE_OLDSLPP,              "Simple Loop Protection Protocol (old)" },
 	{ ETHERTYPE_ARP,                  "ARP" },
 	{ ETHERTYPE_WLCCP,                "Cisco Wireless Lan Context Control Protocol" },
 	{ ETHERTYPE_MINT,                 "Motorola Media Independent Network Transport" },

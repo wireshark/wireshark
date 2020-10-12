@@ -14,6 +14,7 @@
 
 #include "config.h"
 
+#include <epan/etypes.h>
 #include <epan/packet.h>
 #include <epan/to_str.h>
 #include <epan/expert.h>
@@ -22,6 +23,9 @@
 /* General declarations */
 void proto_register_lacp(void);
 void proto_reg_handoff_lacp(void);
+
+#define VLACP_MAGIC_LACP 0x01010114
+#define VLACP_MAGIC_MARKER 0x02010114
 
 /* TLV Types */
 #define LACPDU_TYPE_TERMINATOR			0x00
@@ -50,6 +54,7 @@ static const value_string lacp_type_vals[] = {
 /* Initialise the protocol and registered fields */
 static int proto_lacp = -1;
 
+static int hf_lacp_vlacp_subtype = -1;
 static int hf_lacp_version = -1;
 static int hf_lacp_tlv_type = -1;
 static int hf_lacp_tlv_length = -1;
@@ -158,6 +163,8 @@ dissect_lacp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     guint        tlv_type, tlv_length;
     guint        version, port, key;
     const gchar  *sysidstr, *flagstr;
+    guint32      protodetect;
+    guint8       is_vlacp;
 
     proto_tree *lacp_tree;
     proto_item *lacp_item, *tlv_type_item, *tlv_length_item;
@@ -197,10 +204,24 @@ dissect_lacp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
      * 01-80-C2-00-00-03: Nearest non-TPMR Bridge group address
      */
 
-    /* Add LACP Heading - Note: 1 byte for slowprotocol has been consumed already */
-    lacp_item = proto_tree_add_protocol_format(tree, proto_lacp, tvb,
+    protodetect = tvb_get_ntohl(tvb, 0);
+    if ((protodetect == VLACP_MAGIC_LACP) || (protodetect == VLACP_MAGIC_MARKER)) {
+      is_vlacp = 1;
+      /* Add vLACP Heading */
+      lacp_item = proto_tree_add_protocol_format(tree, proto_lacp, tvb,
+                                                 0, -1, "Virtual Link Aggregation Control Protocol");
+    } else {
+      is_vlacp = 0;
+      /* Add LACP Heading - Note: 1 byte for slowprotocol has been consumed already */
+      lacp_item = proto_tree_add_protocol_format(tree, proto_lacp, tvb,
                                                  0, -1, "Link Aggregation Control Protocol");
+    }
     lacp_tree = proto_item_add_subtree(lacp_item, ett_lacp);
+
+    if (is_vlacp == 1) {
+      proto_tree_add_item(lacp_tree, hf_lacp_vlacp_subtype, tvb, offset, 1, ENC_NA);
+      offset += 1;
+    }
 
     /* Version Number */
 
@@ -397,6 +418,11 @@ proto_register_lacp(void)
 /* Setup list of header fields */
 
     static hf_register_info hf[] = {
+        { &hf_lacp_vlacp_subtype,
+          { "vLACP subtype",          "lacp.vlacp_subtype",
+            FT_UINT8,    BASE_DEC,    NULL,    0x0,
+            "Avaya vlacp unused lacp subtype byte", HFILL }},
+
         { &hf_lacp_version,
           { "LACP Version",          "lacp.version",
             FT_UINT8,    BASE_HEX,    NULL,    0x0,
@@ -655,6 +681,7 @@ proto_reg_handoff_lacp(void)
 
     lacp_handle = create_dissector_handle(dissect_lacp, proto_lacp);
     dissector_add_uint("slow.subtype", LACP_SUBTYPE, lacp_handle);
+    dissector_add_uint("ethertype", ETHERTYPE_VLACP, lacp_handle);
 }
 
 /*
