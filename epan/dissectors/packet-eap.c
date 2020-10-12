@@ -1523,7 +1523,7 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
    * retransmitted messages, try TLS reassembly and so on.
    *
    * EAP runs over RADIUS (which runs over UDP), EAPOL (802.1X Authentication)
-   * or other transports. In case of RADIUS, a single "session" can have consist
+   * or other transports. In case of RADIUS, a single "session" may consist
    * of two UDP associations (one for authorization, one for accounting) which
    * results in two separate conversations. This wastes memory, but won't affect
    * the use cases below. In case of EAPOL, there are no ports. In any case,
