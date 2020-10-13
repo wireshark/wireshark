@@ -22757,7 +22757,7 @@ ieee80211_tag_beacon_timing(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   };
 
   /* Beacon timing element (120) */
-  if (tag_len < 2) {
+  if (tag_len < 1) {
     expert_add_info_format(pinfo, field_data->item_tag_length, &ei_ieee80211_tag_length,
                            "Tag length %u too short, must be greater than 1", tag_len);
     return tvb_captured_length(tvb);
