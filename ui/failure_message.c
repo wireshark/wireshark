@@ -160,7 +160,7 @@ cfile_dump_open_failure_message(const char *progname, const char *filename,
          * Wiretap error.
          * Get a string that describes what we're opening.
          */
-        char *file_description = input_file_description(filename);
+        char *file_description = output_file_description(filename);
 
         switch (err) {
 
