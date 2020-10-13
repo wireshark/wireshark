@@ -3136,8 +3136,8 @@ dissect_quic_short_header_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     }
 
     // DCID length is unknown, so extract the maximum and look for a match.
-    quic_cid_t dcid = {.len=QUIC_MAX_CID_LENGTH};
-    tvb_memcpy(tvb, dcid.cid, 1, QUIC_MAX_CID_LENGTH);
+    quic_cid_t dcid = {.len = MIN(QUIC_MAX_CID_LENGTH, tvb_captured_length(tvb) - 1 - 1 - 16)};
+    tvb_memcpy(tvb, dcid.cid, 1, dcid.len);
     gboolean from_server;
     if (!quic_connection_find(pinfo, QUIC_SHORT_PACKET, &dcid, &from_server)) {
         return FALSE;
