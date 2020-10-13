@@ -227,8 +227,7 @@ static gint ett_gluster_dict_items = -1;
 static int
 glusterfs_rpc_dissect_gfid(proto_tree *tree, tvbuff_t *tvb, int hfindex, int offset)
 {
-	if (tree)
-		proto_tree_add_item(tree, hfindex, tvb, offset, 16, ENC_NA);
+	proto_tree_add_item(tree, hfindex, tvb, offset, 16, ENC_NA);
 	offset += 16;
 
 	return offset;
@@ -255,8 +254,7 @@ glusterfs_rpc_dissect_mode(proto_tree *tree, tvbuff_t *tvb, int hfindex,
 		NULL
 	};
 
-	if (tree)
-		proto_tree_add_bitmask(tree, tvb, offset, hfindex,
+	proto_tree_add_bitmask(tree, tvb, offset, hfindex,
 			ett_glusterfs_mode, mode_bits, ENC_BIG_ENDIAN);
 
 	offset += 4;
@@ -272,7 +270,6 @@ glusterfs_rpc_dissect_gf_iatt(proto_tree *tree, tvbuff_t *tvb, int hfindex,
 {
 	proto_item *iatt_item;
 	proto_tree *iatt_tree;
-	nstime_t timestamp;
 	int start_offset = offset;
 
 	iatt_item = proto_tree_add_item(tree, hfindex, tvb, offset, -1,
@@ -302,25 +299,16 @@ glusterfs_rpc_dissect_gf_iatt(proto_tree *tree, tvbuff_t *tvb, int hfindex,
 	offset = dissect_rpc_uint64(tvb, iatt_tree, hf_glusterfs_ia_blocks,
 								offset);
 
-	timestamp.secs = tvb_get_ntohl(tvb, offset);
-	timestamp.nsecs = tvb_get_ntohl(tvb, offset + 4);
-	if (tree)
-		proto_tree_add_time(iatt_tree, hf_glusterfs_ia_atime, tvb,
-							offset, 8, &timestamp);
+	proto_tree_add_item(iatt_tree, hf_glusterfs_ia_atime, tvb,
+			offset, 8, ENC_TIME_SECS_NSECS|ENC_BIG_ENDIAN);
 	offset += 8;
 
-	timestamp.secs = tvb_get_ntohl(tvb, offset);
-	timestamp.nsecs = tvb_get_ntohl(tvb, offset + 4);
-	if (tree)
-		proto_tree_add_time(iatt_tree, hf_glusterfs_ia_mtime, tvb,
-							offset, 8, &timestamp);
+	proto_tree_add_item(iatt_tree, hf_glusterfs_ia_mtime, tvb,
+			offset, 8, ENC_TIME_SECS_NSECS|ENC_BIG_ENDIAN);
 	offset += 8;
 
-	timestamp.secs = tvb_get_ntohl(tvb, offset);
-	timestamp.nsecs = tvb_get_ntohl(tvb, offset + 4);
-	if (tree)
-		proto_tree_add_time(iatt_tree, hf_glusterfs_ia_ctime, tvb,
-							offset, 8, &timestamp);
+	proto_tree_add_item(iatt_tree, hf_glusterfs_ia_ctime, tvb,
+			offset, 8, ENC_TIME_SECS_NSECS|ENC_BIG_ENDIAN);
 	offset += 8;
 
 	proto_item_set_len (iatt_item, offset - start_offset);
@@ -337,9 +325,7 @@ glusterfs_rpc_dissect_gf_flock(proto_tree *tree, tvbuff_t *tvb, int offset)
 	offset = dissect_rpc_uint64(tvb, tree, hf_glusterfs_flock_len, offset);
 	offset = dissect_rpc_uint32(tvb, tree, hf_glusterfs_flock_pid, offset);
 
-	if (tree)
-		proto_tree_add_item(tree, hf_glusterfs_flock_owner, tvb,
-							offset, 8, ENC_NA);
+	proto_tree_add_item(tree, hf_glusterfs_flock_owner, tvb, offset, 8, ENC_NA);
 	offset += 8;
 
 	return offset;
@@ -369,9 +355,7 @@ glusterfs_rpc_dissect_gf_2_flock(proto_tree *tree, tvbuff_t *tvb, int offset)
 	len = tvb_get_ntohl(tvb, offset);
 	offset += 4;
 
-	if (tree)
-		proto_tree_add_item(flock_tree, hf_glusterfs_flock_owner, tvb,
-							offset, len, ENC_NA);
+	proto_tree_add_item(flock_tree, hf_glusterfs_flock_owner, tvb, offset, len, ENC_NA);
 	offset += len;
 
 	proto_item_set_len (flock_item, offset - start_offset);
@@ -422,25 +406,23 @@ glusterfs_rpc_dissect_flags(proto_tree *tree, tvbuff_t *tvb, int offset)
 		NULL
 	};
 
-	if (tree) {
-		flag_tree = proto_tree_add_bitmask(tree, tvb, offset, hf_glusterfs_flags, ett_glusterfs_flags, flag_bits, ENC_BIG_ENDIAN);
+	flag_tree = proto_tree_add_bitmask(tree, tvb, offset, hf_glusterfs_flags, ett_glusterfs_flags, flag_bits, ENC_BIG_ENDIAN);
 
-		/* rdonly is TRUE only when no flags are set */
-		rdonly = (tvb_get_ntohl(tvb, offset) == 0);
-		proto_tree_add_item(flag_tree, hf_glusterfs_flags_rdonly, tvb, offset, 4, ENC_BIG_ENDIAN);
-		if (rdonly) {
-			rdonly_hf = proto_registrar_get_nth(hf_glusterfs_flags_rdonly);
-			proto_item_append_text(flag_tree, ", %s", rdonly_hf->name);
-		}
-
-		/* hf_glusterfs_flags_accmode is TRUE if bits 0 and 1 are set */
-		accmode_hf = proto_registrar_get_nth(hf_glusterfs_flags_accmode);
-		accmode = tvb_get_ntohl(tvb, offset);
-		proto_tree_add_uint_format_value(flag_tree, hf_glusterfs_flags_accmode, tvb, offset, 4, accmode,
-						 "%s", val_to_str_const((accmode & (guint32)(accmode_hf->bitmask)), glusterfs_accmode_vals, "Unknown"));
-		if ((accmode & accmode_hf->bitmask) == accmode_hf->bitmask)
-			proto_item_append_text(flag_tree, ", %s", proto_registrar_get_nth(hf_glusterfs_flags_accmode)->name);
+	/* rdonly is TRUE only when no flags are set */
+	rdonly = (tvb_get_ntohl(tvb, offset) == 0);
+	proto_tree_add_item(flag_tree, hf_glusterfs_flags_rdonly, tvb, offset, 4, ENC_BIG_ENDIAN);
+	if (rdonly) {
+		rdonly_hf = proto_registrar_get_nth(hf_glusterfs_flags_rdonly);
+		proto_item_append_text(flag_tree, ", %s", rdonly_hf->name);
 	}
+
+	/* hf_glusterfs_flags_accmode is TRUE if bits 0 and 1 are set */
+	accmode_hf = proto_registrar_get_nth(hf_glusterfs_flags_accmode);
+	accmode = tvb_get_ntohl(tvb, offset);
+	proto_tree_add_uint_format_value(flag_tree, hf_glusterfs_flags_accmode, tvb, offset, 4, accmode,
+			"%s", val_to_str_const((accmode & (guint32)(accmode_hf->bitmask)), glusterfs_accmode_vals, "Unknown"));
+	if ((accmode & accmode_hf->bitmask) == accmode_hf->bitmask)
+		proto_item_append_text(flag_tree, ", %s", proto_registrar_get_nth(hf_glusterfs_flags_accmode)->name);
 
 	offset += 4;
 	return offset;
@@ -475,8 +457,7 @@ glusterfs_rpc_dissect_statfs(proto_tree *tree, tvbuff_t *tvb, int offset)
 	offset = dissect_rpc_uint64(tvb, tree, hf_glusterfs_favail, offset);
 	offset = dissect_rpc_uint64(tvb, tree, hf_glusterfs_id, offset);
 
-	if (tree)
-		proto_tree_add_bitmask(tree, tvb, offset,
+	proto_tree_add_bitmask(tree, tvb, offset,
 			hf_glusterfs_mnt_flags, ett_glusterfs_mnt_flags,
 			flag_bits, ENC_BIG_ENDIAN);
 	offset += 8;
@@ -544,37 +525,36 @@ gluster_rpc_dissect_dict(proto_tree *tree, tvbuff_t *tvb, int hfindex, int offse
 		offset += key_len;
 
 		/* read the value, possibly '\0' terminated */
-		if (tree) {
-			/* keys named "gfid-req" contain a GFID in hex */
-			if (value_len == 16 && (
+
+		/* keys named "gfid-req" contain a GFID in hex */
+		if (value_len == 16 && (
 					!strncmp("gfid-req", key, 8) ||
 					!strncmp("transaction_id", key, 14) ||
 					!strncmp("originator_uuid", key, 15))) {
-				char *gfid_s;
-				e_guid_t gfid;
+			char *gfid_s;
+			e_guid_t gfid;
 
-				tvb_get_ntohguid(tvb, offset, &gfid);
+			tvb_get_ntohguid(tvb, offset, &gfid);
 
-				gfid_s = guid_to_str(wmem_packet_scope(), &gfid);
-				dict_item = proto_tree_add_guid_format(subtree, hf_glusterfs_gfid,
-								tvb, offset, 16, &gfid,
-								"%s: %s", key, gfid_s);
+			gfid_s = guid_to_str(wmem_packet_scope(), &gfid);
+			dict_item = proto_tree_add_guid_format(subtree, hf_glusterfs_gfid,
+					tvb, offset, 16, &gfid,
+					"%s: %s", key, gfid_s);
 			/* this is a changelog in binary format */
-			} else if (value_len == 12 && !strncmp("trusted.afr.", key, 12)) {
-				dict_item = proto_tree_add_bytes_format(subtree, hf_gluster_trusted_afr_key, tvb, offset, 12,
-								NULL, "%s: 0x%.8x%.8x%.8x", key,
-								tvb_get_letohl(tvb, offset + 0),
-								tvb_get_letohl(tvb, offset + 4),
-								tvb_get_letohl(tvb, offset + 8));
-			} else {
-				value = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, value_len, ENC_ASCII);
-				dict_item = proto_tree_add_string_format(subtree, hf_gluster_dict_value, tvb, offset, value_len, value, "%s: %s",
-								key, value);
-			}
+		} else if (value_len == 12 && !strncmp("trusted.afr.", key, 12)) {
+			dict_item = proto_tree_add_bytes_format(subtree, hf_gluster_trusted_afr_key, tvb, offset, 12,
+					NULL, "%s: 0x%.8x%.8x%.8x", key,
+					tvb_get_letohl(tvb, offset + 0),
+					tvb_get_letohl(tvb, offset + 4),
+					tvb_get_letohl(tvb, offset + 8));
+		} else {
+			value = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, value_len, ENC_ASCII);
+			dict_item = proto_tree_add_string_format(subtree, hf_gluster_dict_value, tvb, offset, value_len, value, "%s: %s",
+					key, value);
 		}
+
 		offset += value_len;
-		if (tree)
-			proto_item_set_len (dict_item, offset - start_offset2);
+		proto_item_set_len (dict_item, offset - start_offset2);
 	}
 
 	if (roundup) {
@@ -744,35 +724,34 @@ gluster_rpc4_0_dissect_dict(proto_tree *tree, tvbuff_t *tvb, int hfindex, int of
 			offset += 4;
 
 			/* read the value, possibly '\0' terminated */
-			if (tree) {
-				/* keys named "gfid-req" contain a GFID in hex */
-				if (val_len == 16 && (
-							!strncmp("gfid-req", key, 8) ||
-							!strncmp("transaction_id", key, 14) ||
-							!strncmp("originator_uuid", key, 15))) {
-					tvb_get_ntohguid(tvb, offset, &gfid);
 
-					gfid_s = guid_to_str(wmem_packet_scope(), &gfid);
-					dict_item = proto_tree_add_guid_format(subtree, hf_glusterfs_gfid,
-							tvb, offset, 16, &gfid,
-							"%s: %s", key, gfid_s);
-					/* this is a changelog in binary format */
-				} else if (val_len == 12 && !strncmp("trusted.afr.", key, 12)) {
-					dict_item = proto_tree_add_bytes_format(subtree, hf_gluster_trusted_afr_key, tvb, offset, 12,
-							NULL, "%s: 0x%.8x%.8x%.8x", key,
-							tvb_get_letohl(tvb, offset + 0),
-							tvb_get_letohl(tvb, offset + 4),
-							tvb_get_letohl(tvb, offset + 8));
-				} else {
-					value = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, val_len, ENC_ASCII);
-					dict_item = proto_tree_add_string_format(subtree, hf_gluster_dict_value, tvb, offset, val_len, value, "%s: %s",
-							key, value);
-				}
+			/* keys named "gfid-req" contain a GFID in hex */
+			if (val_len == 16 && (
+						!strncmp("gfid-req", key, 8) ||
+						!strncmp("transaction_id", key, 14) ||
+						!strncmp("originator_uuid", key, 15))) {
+				tvb_get_ntohguid(tvb, offset, &gfid);
+
+				gfid_s = guid_to_str(wmem_packet_scope(), &gfid);
+				dict_item = proto_tree_add_guid_format(subtree, hf_glusterfs_gfid,
+						tvb, offset, 16, &gfid,
+						"%s: %s", key, gfid_s);
+				/* this is a changelog in binary format */
+			} else if (val_len == 12 && !strncmp("trusted.afr.", key, 12)) {
+				dict_item = proto_tree_add_bytes_format(subtree, hf_gluster_trusted_afr_key, tvb, offset, 12,
+						NULL, "%s: 0x%.8x%.8x%.8x", key,
+						tvb_get_letohl(tvb, offset + 0),
+						tvb_get_letohl(tvb, offset + 4),
+						tvb_get_letohl(tvb, offset + 8));
+			} else {
+				value = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, val_len, ENC_ASCII);
+				dict_item = proto_tree_add_string_format(subtree, hf_gluster_dict_value, tvb, offset, val_len, value, "%s: %s",
+						key, value);
 			}
 		}
+
 		offset += val_len;
-		if (tree)
-			proto_item_set_len (dict_item, offset - start_offset2);
+		proto_item_set_len (dict_item, offset - start_offset2);
 	}
 
 	proto_item_set_len (subtree_item, offset - start_offset);
@@ -789,13 +768,10 @@ gluster_dissect_common_reply(tvbuff_t *tvb, int offset,
 
 	offset = dissect_rpc_uint32(tvb, tree, hf_gluster_op_ret, offset);
 
-	if (tree) {
-		op_errno = tvb_get_ntohl(tvb, offset);
-		errno_item = proto_tree_add_int(tree, hf_gluster_op_errno, tvb,
-					    offset, 4, op_errno);
-		proto_item_append_text(errno_item, " (%s)",
-							g_strerror(op_errno));
-	}
+	op_errno = tvb_get_ntohl(tvb, offset);
+	errno_item = proto_tree_add_int(tree, hf_gluster_op_errno, tvb,
+			offset, 4, op_errno);
+	proto_item_append_text(errno_item, " (%s)", g_strerror(op_errno));
 
 	offset += 4;
 
@@ -817,17 +793,13 @@ _glusterfs_gfs3_common_readdir_reply(tvbuff_t *tvb, proto_tree *tree, int offset
 
 	offset = dissect_rpc_uint32(tvb, tree, hf_glusterfs_entries, offset);
 
-	if (tree) {
-		op_errno = tvb_get_ntohl(tvb, offset);
-		errno_item = proto_tree_add_int(tree, hf_gluster_op_errno, tvb,
-					    offset, 4, op_errno);
-		if (op_errno == 0)
-			proto_item_append_text(errno_item,
-					    " (More replies follow)");
-		else if (op_errno == 2 /* ENOENT */)
-			proto_item_append_text(errno_item,
-					    " (Last reply)");
-	}
+	op_errno = tvb_get_ntohl(tvb, offset);
+	errno_item = proto_tree_add_int(tree, hf_gluster_op_errno, tvb,
+			offset, 4, op_errno);
+	if (op_errno == 0)
+		proto_item_append_text(errno_item, " (More replies follow)");
+	else if (op_errno == 2 /* ENOENT */)
+		proto_item_append_text(errno_item, " (Last reply)");
 	offset += 4;
 
 	return offset;
@@ -1147,9 +1119,7 @@ glusterfs_rpc_dissect_setattr(proto_tree *tree, tvbuff_t *tvb, int offset)
 		NULL
 	};
 
-	if (tree)
-		proto_tree_add_bitmask(tree, tvb, offset,
-			hf_glusterfs_setattr_valid,
+	proto_tree_add_bitmask(tree, tvb, offset, hf_glusterfs_setattr_valid,
 			ett_glusterfs_setattr_valid, flag_bits, ENC_NA);
 	offset += 4;
 
