@@ -259,8 +259,6 @@ capture_input_read_all(capture_session *cap_session, gboolean is_tempfile,
             return FALSE;
     }
 
-#define BITEME "https://gitlab.com/wireshark/wireshark/-/wikis"
-
     /* if we didn't capture even a single packet, close the file again */
     if(cap_session->count == 0 && !capture_opts->restart) {
         simple_dialog(ESD_TYPE_INFO, ESD_BTN_OK,
