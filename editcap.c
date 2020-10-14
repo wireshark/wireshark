@@ -997,17 +997,17 @@ failure_message_cont(const char *msg_format, va_list ap)
 
 static wtap_dumper *
 editcap_dump_open(const char *filename, const wtap_dump_params *params,
-                  int *write_err)
+                  int *write_err, gchar **write_err_info)
 {
     wtap_dumper *pdh;
 
     if (strcmp(filename, "-") == 0) {
         /* Write to the standard output. */
         pdh = wtap_dump_open_stdout(out_file_type_subtype, WTAP_UNCOMPRESSED,
-                                    params, write_err);
+                                    params, write_err, write_err_info);
     } else {
         pdh = wtap_dump_open(filename, out_file_type_subtype, WTAP_UNCOMPRESSED,
-                             params, write_err);
+                             params, write_err, write_err_info);
     }
     return pdh;
 }
@@ -1688,11 +1688,12 @@ invalid_time:
                 wtap_block_add_string_option_format(g_array_index(params.shb_hdrs, wtap_block_t, 0), OPT_SHB_USERAPPL, "%s", get_appname_and_version());
             }
 
-            pdh = editcap_dump_open(filename, &params, &write_err);
+            pdh = editcap_dump_open(filename, &params, &write_err,
+                                    &write_err_info);
 
             if (pdh == NULL) {
                 cfile_dump_open_failure_message("editcap", filename,
-                                                write_err,
+                                                write_err, write_err_info,
                                                 out_file_type_subtype);
                 ret = INVALID_FILE;
                 goto clean_exit;
@@ -1714,8 +1715,9 @@ invalid_time:
                 }
                 while (nstime_cmp(&rec->ts, &block_next) > 0) { /* time for the next file */
 
-                    if (!wtap_dump_close(pdh, &write_err)) {
-                        cfile_close_failure_message(filename, write_err);
+                    if (!wtap_dump_close(pdh, &write_err, &write_err_info)) {
+                        cfile_close_failure_message(filename, write_err,
+                                                    write_err_info);
                         ret = WRITE_ERROR;
                         goto clean_exit;
                     }
@@ -1727,11 +1729,13 @@ invalid_time:
                     if (verbose)
                         fprintf(stderr, "Continuing writing in file %s\n", filename);
 
-                    pdh = editcap_dump_open(filename, &params, &write_err);
+                    pdh = editcap_dump_open(filename, &params, &write_err,
+                                            &write_err_info);
 
                     if (pdh == NULL) {
                         cfile_dump_open_failure_message("editcap", filename,
                                                         write_err,
+                                                        write_err_info,
                                                         out_file_type_subtype);
                         ret = INVALID_FILE;
                         goto clean_exit;
@@ -1743,8 +1747,9 @@ invalid_time:
         if (split_packet_count != 0) {
             /* time for the next file? */
             if (written_count > 0 && (written_count % split_packet_count) == 0) {
-                if (!wtap_dump_close(pdh, &write_err)) {
-                    cfile_close_failure_message(filename, write_err);
+                if (!wtap_dump_close(pdh, &write_err, &write_err_info)) {
+                    cfile_close_failure_message(filename, write_err,
+                                                write_err_info);
                     ret = WRITE_ERROR;
                     goto clean_exit;
                 }
@@ -1756,10 +1761,11 @@ invalid_time:
                 if (verbose)
                     fprintf(stderr, "Continuing writing in file %s\n", filename);
 
-                pdh = editcap_dump_open(filename, &params, &write_err);
+                pdh = editcap_dump_open(filename, &params, &write_err,
+                                        &write_err_info);
                 if (pdh == NULL) {
                     cfile_dump_open_failure_message("editcap", filename,
-                                                    write_err,
+                                                    write_err, write_err_info,
                                                     out_file_type_subtype);
                     ret = INVALID_FILE;
                     goto clean_exit;
@@ -2155,18 +2161,18 @@ invalid_time:
         g_free (filename);
         filename = g_strdup(argv[optind+1]);
 
-        pdh = editcap_dump_open(filename, &params, &write_err);
+        pdh = editcap_dump_open(filename, &params, &write_err, &write_err_info);
         if (pdh == NULL) {
             cfile_dump_open_failure_message("editcap", filename,
-                                            write_err,
+                                            write_err, write_err_info,
                                             out_file_type_subtype);
             ret = INVALID_FILE;
             goto clean_exit;
         }
     }
 
-    if (!wtap_dump_close(pdh, &write_err)) {
-        cfile_close_failure_message(filename, write_err);
+    if (!wtap_dump_close(pdh, &write_err, &write_err_info)) {
+        cfile_close_failure_message(filename, write_err, write_err_info);
         ret = WRITE_ERROR;
         goto clean_exit;
     }

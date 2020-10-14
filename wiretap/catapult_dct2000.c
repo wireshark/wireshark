@@ -542,7 +542,7 @@ typedef struct {
 /* Set other dump callbacks.                         */
 /*****************************************************/
 gboolean
-catapult_dct2000_dump_open(wtap_dumper *wdh, int *err _U_)
+catapult_dct2000_dump_open(wtap_dumper *wdh, int *err _U_, gchar **err_info _U_)
 {
     /* Fill in other dump callbacks */
     wdh->subtype_write = catapult_dct2000_dump;

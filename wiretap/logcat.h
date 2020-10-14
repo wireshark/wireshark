@@ -47,7 +47,7 @@ struct logger_entry_v2 {
 
 wtap_open_return_val  logcat_open(wtap *wth, int *err, gchar **err_info);
 
-gboolean logcat_binary_dump_open(wtap_dumper *wdh, int *err);
+gboolean logcat_binary_dump_open(wtap_dumper *wdh, int *err, gchar **err_info);
 
 int      logcat_dump_can_write_encap(int encap);
 

@@ -262,7 +262,8 @@ static gboolean lanalyzer_read(wtap *wth, wtap_rec *rec,
     Buffer *buf, int *err, gchar **err_info, gint64 *data_offset);
 static gboolean lanalyzer_seek_read(wtap *wth, gint64 seek_off,
     wtap_rec *rec, Buffer *buf, int *err, gchar **err_info);
-static gboolean lanalyzer_dump_finish(wtap_dumper *wdh, int *err);
+static gboolean lanalyzer_dump_finish(wtap_dumper *wdh, int *err,
+    gchar **err_info);
 
 wtap_open_return_val lanalyzer_open(wtap *wth, int *err, gchar **err_info)
 {
@@ -786,7 +787,7 @@ int lanalyzer_dump_can_write_encap(int encap)
  * Returns TRUE on success, FALSE on failure; sets "*err" to an
  * error code on failure
  *---------------------------------------------------*/
-gboolean lanalyzer_dump_open(wtap_dumper *wdh, int *err)
+gboolean lanalyzer_dump_open(wtap_dumper *wdh, int *err, gchar **err_info _U_)
 {
       int   jump;
       void  *tmp;
@@ -952,7 +953,8 @@ static gboolean lanalyzer_dump_header(wtap_dumper *wdh, int *err)
  * Finish writing to a dump file.
  * Returns TRUE on success, FALSE on failure.
  *---------------------------------------------------*/
-static gboolean lanalyzer_dump_finish(wtap_dumper *wdh, int *err)
+static gboolean lanalyzer_dump_finish(wtap_dumper *wdh, int *err,
+        gchar **err_info _U_)
 {
       lanalyzer_dump_header(wdh,err);
       return *err ? FALSE : TRUE;

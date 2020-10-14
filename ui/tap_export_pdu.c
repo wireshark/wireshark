@@ -84,12 +84,10 @@ export_pdu_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt, const 
     return TAP_PACKET_DONT_REDRAW; /* Do not redraw */
 }
 
-int
-exp_pdu_open(exp_pdu_t *exp_pdu_tap_data, int fd, const char *comment)
+gboolean
+exp_pdu_open(exp_pdu_t *exp_pdu_tap_data, int fd, const char *comment, int *err,
+             gchar **err_info)
 {
-
-    int   err;
-
     /* pcapng defs */
     wtap_block_t                 shb_hdr;
     wtap_block_t                 int_data;
@@ -150,31 +148,29 @@ exp_pdu_open(exp_pdu_t *exp_pdu_tap_data, int fd, const char *comment)
     };
     if (fd == 1) {
         exp_pdu_tap_data->wdh = wtap_dump_open_stdout(WTAP_FILE_TYPE_SUBTYPE_PCAPNG,
-                WTAP_UNCOMPRESSED, &params, &err);
+                WTAP_UNCOMPRESSED, &params, err, err_info);
     } else {
         exp_pdu_tap_data->wdh = wtap_dump_fdopen(fd, WTAP_FILE_TYPE_SUBTYPE_PCAPNG,
-                WTAP_UNCOMPRESSED, &params, &err);
+                WTAP_UNCOMPRESSED, &params, err, err_info);
     }
-    if (exp_pdu_tap_data->wdh == NULL) {
-        g_assert(err != 0);
-        return err;
-    }
+    if (exp_pdu_tap_data->wdh == NULL)
+        return FALSE;
 
-    return 0;
+    return TRUE;
 }
 
-int
-exp_pdu_close(exp_pdu_t *exp_pdu_tap_data)
+gboolean
+exp_pdu_close(exp_pdu_t *exp_pdu_tap_data, int *err, gchar **err_info)
 {
-    int err = 0;
-    if (!wtap_dump_close(exp_pdu_tap_data->wdh, &err))
-        g_assert(err != 0);
+    gboolean status;
+
+    status = wtap_dump_close(exp_pdu_tap_data->wdh, err, err_info);
 
     wtap_block_array_free(exp_pdu_tap_data->shb_hdrs);
     wtap_free_idb_info(exp_pdu_tap_data->idb_inf);
 
     remove_tap_listener(exp_pdu_tap_data);
-    return err;
+    return status;
 }
 
 

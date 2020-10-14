@@ -410,7 +410,8 @@ main(int argc, char *argv[])
       break;
 
     case MERGE_ERR_CANT_OPEN_OUTFILE:
-      cfile_dump_open_failure_message("mergecap", out_filename, err, file_type);
+      cfile_dump_open_failure_message("mergecap", out_filename, err, err_info,
+                                      file_type);
       break;
 
     case MERGE_ERR_CANT_READ_INFILE:
@@ -430,7 +431,7 @@ main(int argc, char *argv[])
        break;
 
     case MERGE_ERR_CANT_CLOSE_OUTFILE:
-        cfile_close_failure_message(out_filename, err);
+        cfile_close_failure_message(out_filename, err, err_info);
         break;
 
     default:

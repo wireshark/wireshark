@@ -578,7 +578,7 @@ static gboolean logcat_text_dump_text(wtap_dumper *wdh,
     return TRUE;
 }
 
-static gboolean logcat_text_dump_open(wtap_dumper *wdh, guint dump_type, int *err _U_) {
+static gboolean logcat_text_dump_open(wtap_dumper *wdh, guint dump_type) {
     struct dumper_t *dumper;
 
     dumper = (struct dumper_t *) g_malloc(sizeof(struct dumper_t));
@@ -590,32 +590,32 @@ static gboolean logcat_text_dump_open(wtap_dumper *wdh, guint dump_type, int *er
     return TRUE;
 }
 
-gboolean logcat_text_brief_dump_open(wtap_dumper *wdh, int *err) {
-    return logcat_text_dump_open(wdh, WTAP_ENCAP_LOGCAT_BRIEF, err);
+gboolean logcat_text_brief_dump_open(wtap_dumper *wdh, int *err _U_, gchar **err_info _U_) {
+    return logcat_text_dump_open(wdh, WTAP_ENCAP_LOGCAT_BRIEF);
 }
 
-gboolean logcat_text_process_dump_open(wtap_dumper *wdh, int *err) {
-    return logcat_text_dump_open(wdh, WTAP_ENCAP_LOGCAT_PROCESS, err);
+gboolean logcat_text_process_dump_open(wtap_dumper *wdh, int *err _U_, gchar **err_info _U_) {
+    return logcat_text_dump_open(wdh, WTAP_ENCAP_LOGCAT_PROCESS);
 }
 
-gboolean logcat_text_tag_dump_open(wtap_dumper *wdh, int *err) {
-    return logcat_text_dump_open(wdh, WTAP_ENCAP_LOGCAT_TAG, err);
+gboolean logcat_text_tag_dump_open(wtap_dumper *wdh, int *err _U_, gchar **err_info _U_) {
+    return logcat_text_dump_open(wdh, WTAP_ENCAP_LOGCAT_TAG);
 }
 
-gboolean logcat_text_time_dump_open(wtap_dumper *wdh, int *err) {
-    return logcat_text_dump_open(wdh, WTAP_ENCAP_LOGCAT_TIME, err);
+gboolean logcat_text_time_dump_open(wtap_dumper *wdh, int *err _U_, gchar **err_info _U_) {
+    return logcat_text_dump_open(wdh, WTAP_ENCAP_LOGCAT_TIME);
 }
 
-gboolean logcat_text_thread_dump_open(wtap_dumper *wdh, int *err) {
-    return logcat_text_dump_open(wdh, WTAP_ENCAP_LOGCAT_THREAD, err);
+gboolean logcat_text_thread_dump_open(wtap_dumper *wdh, int *err _U_, gchar **err_info _U_) {
+    return logcat_text_dump_open(wdh, WTAP_ENCAP_LOGCAT_THREAD);
 }
 
-gboolean logcat_text_threadtime_dump_open(wtap_dumper *wdh, int *err) {
-    return logcat_text_dump_open(wdh, WTAP_ENCAP_LOGCAT_THREADTIME, err);
+gboolean logcat_text_threadtime_dump_open(wtap_dumper *wdh, int *err _U_, gchar **err_info _U_) {
+    return logcat_text_dump_open(wdh, WTAP_ENCAP_LOGCAT_THREADTIME);
 }
 
-gboolean logcat_text_long_dump_open(wtap_dumper *wdh, int *err) {
-    return logcat_text_dump_open(wdh, WTAP_ENCAP_LOGCAT_LONG, err);
+gboolean logcat_text_long_dump_open(wtap_dumper *wdh, int *err _U_, gchar **err_info _U_) {
+    return logcat_text_dump_open(wdh, WTAP_ENCAP_LOGCAT_LONG);
 }
 
 /*

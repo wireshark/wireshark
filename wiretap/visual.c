@@ -153,7 +153,8 @@ static gboolean visual_read_packet(wtap *wth, FILE_T fh,
     wtap_rec *rec, Buffer *buf, int *err, gchar **err_info);
 static gboolean visual_dump(wtap_dumper *wdh, const wtap_rec *rec,
     const guint8 *pd, int *err, gchar **err_info);
-static gboolean visual_dump_finish(wtap_dumper *wdh, int *err);
+static gboolean visual_dump_finish(wtap_dumper *wdh, int *err,
+    gchar **err_info);
 static void visual_dump_free(wtap_dumper *wdh);
 
 
@@ -601,7 +602,7 @@ int visual_dump_can_write_encap(int encap)
 /* Open a file for writing.
    Returns TRUE on success, FALSE on failure; sets "*err" to an
    error code on failure */
-gboolean visual_dump_open(wtap_dumper *wdh, int *err)
+gboolean visual_dump_open(wtap_dumper *wdh, int *err, gchar **err_info _U_)
 {
     struct visual_write_info *visual;
 
@@ -761,7 +762,8 @@ static gboolean visual_dump(wtap_dumper *wdh, const wtap_rec *rec,
 
 /* Finish writing to a dump file.
    Returns TRUE on success, FALSE on failure. */
-static gboolean visual_dump_finish(wtap_dumper *wdh, int *err)
+static gboolean visual_dump_finish(wtap_dumper *wdh, int *err,
+    gchar **err_info _U_)
 {
     struct visual_write_info * visual = (struct visual_write_info *)wdh->priv;
     size_t n_to_write;

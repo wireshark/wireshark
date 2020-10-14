@@ -819,7 +819,6 @@ create_temp_pcapng_file(wtap *wth, int *err, gchar **err_info, nettrace_3gpp_32_
 {
 	int import_file_fd;
 	wtap_dumper* wdh_exp_pdu;
-	int   exp_pdu_file_err;
 	wtap_open_return_val result = WTAP_OPEN_MINE;
 
 	/* pcapng defs */
@@ -832,8 +831,6 @@ create_temp_pcapng_file(wtap *wth, int *err, gchar **err_info, nettrace_3gpp_32_
 	gint64 file_size;
 	int packet_size;
 	char *packet_buf = NULL;
-	int wrt_err;
-	gchar *wrt_err_info = NULL;
 	wtap_rec rec;
 	nstime_t start_time, packet_time;
 	int scan_found;
@@ -907,7 +904,7 @@ create_temp_pcapng_file(wtap *wth, int *err, gchar **err_info, nettrace_3gpp_32_
 	};
 	wdh_exp_pdu = wtap_dump_fdopen(import_file_fd, WTAP_FILE_TYPE_SUBTYPE_PCAPNG,
 				       WTAP_UNCOMPRESSED, &params,
-				       &exp_pdu_file_err);
+				       err, err_info);
 	if (wdh_exp_pdu == NULL) {
 		result = WTAP_OPEN_ERROR;
 		goto end;
@@ -954,7 +951,7 @@ create_temp_pcapng_file(wtap *wth, int *err, gchar **err_info, nettrace_3gpp_32_
 	packet_buf[10] = 0;
 	packet_buf[11] = 0;
 
-	if (!wtap_read_bytes(wth->fh, packet_buf + 12, packet_size, &wrt_err, &wrt_err_info)){
+	if (!wtap_read_bytes(wth->fh, packet_buf + 12, packet_size, err, err_info)){
 		result = WTAP_OPEN_ERROR;
 		goto end;
 	}
@@ -1001,15 +998,7 @@ create_temp_pcapng_file(wtap *wth, int *err, gchar **err_info, nettrace_3gpp_32_
 	rec.rec_header.packet_header.len = packet_size + 12;
 
 	/* XXX: report errors! */
-	if (!wtap_dump(wdh_exp_pdu, &rec, packet_buf, &wrt_err, &wrt_err_info)) {
-		switch (wrt_err) {
-
-		case WTAP_ERR_UNWRITABLE_REC_DATA:
-			break;
-
-		default:
-			break;
-		}
+	if (!wtap_dump(wdh_exp_pdu, &rec, packet_buf, err, err_info)) {
 		result = WTAP_OPEN_ERROR;
 		goto end;
 	}
@@ -1138,18 +1127,16 @@ create_temp_pcapng_file(wtap *wth, int *err, gchar **err_info, nettrace_3gpp_32_
 		curr_pos = raw_msg_pos;
 		curr_pos = curr_pos + 7;
 		/* Add the raw msg*/
-		temp_val = write_packet_data(wdh_exp_pdu, &rec, &wrt_err, &wrt_err_info, curr_pos, packet_time, &exported_pdu_info, name_str);
+		temp_val = write_packet_data(wdh_exp_pdu, &rec, err, err_info, curr_pos, packet_time, &exported_pdu_info, name_str);
 		if (temp_val != WTAP_OPEN_MINE){
 			result = temp_val;
-			*err = wrt_err;
-			*err_info = g_strdup(wrt_err_info);
 			goto end;
 		}
 		curr_pos = next_msg_pos;
 	}
 
 	/* Close the written file*/
-	if (!wtap_dump_close(wdh_exp_pdu, err)){
+	if (!wtap_dump_close(wdh_exp_pdu, err, err_info)){
 		result = WTAP_OPEN_ERROR;
 		goto end;
 	}
@@ -1169,7 +1156,6 @@ create_temp_pcapng_file(wtap *wth, int *err, gchar **err_info, nettrace_3gpp_32_
 	}
 
 end:
-	g_free(wrt_err_info);
 	g_free(packet_buf);
 	wtap_block_array_free(shb_hdrs);
 	wtap_free_idb_info(idb_inf);

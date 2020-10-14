@@ -204,11 +204,13 @@ WSLUA_CONSTRUCTOR Dumper_new(lua_State* L) {
     int filetype = (int)luaL_optinteger(L,WSLUA_OPTARG_Dumper_new_FILETYPE,WTAP_FILE_TYPE_SUBTYPE_PCAP);
     int encap  = (int)luaL_optinteger(L,WSLUA_OPTARG_Dumper_new_ENCAP,WTAP_ENCAP_ETHERNET);
     int err = 0;
+    gchar *err_info = NULL;
     const char* filename = cross_plat_fname(fname);
     wtap_dump_params params = WTAP_DUMP_PARAMS_INIT;
 
     params.encap = encap;
-    d = wtap_dump_open(filename, filetype, WTAP_UNCOMPRESSED, &params, &err);
+    d = wtap_dump_open(filename, filetype, WTAP_UNCOMPRESSED, &params, &err,
+                       &err_info);
 
     if (! d ) {
         /* WSLUA_ERROR("Error while opening file for writing"); */
@@ -254,6 +256,13 @@ WSLUA_CONSTRUCTOR Dumper_new(lua_State* L) {
                        wtap_file_type_subtype_string(filetype));
             break;
 
+        case WTAP_ERR_INTERNAL:
+             luaL_error(L,"An internal error occurred creating the file \"%s\" (%s)",
+                        filename,
+                        err_info != NULL ? err_info : "no information supplied");
+             g_free(err_info);
+             break;
+
         default:
             luaL_error(L,"error while opening \"%s\": %s",
                        filename,
@@ -274,6 +283,7 @@ WSLUA_METHOD Dumper_close(lua_State* L) {
     /* Closes a dumper. */
     Dumper* dp = (Dumper*)luaL_checkudata(L, 1, "Dumper");
     int err;
+    gchar *err_info;
 
     if (! *dp) {
         WSLUA_ERROR(Dumper_close,"Cannot operate on a closed dumper");
@@ -282,9 +292,15 @@ WSLUA_METHOD Dumper_close(lua_State* L) {
 
     g_hash_table_remove(dumper_encaps,*dp);
 
-    if (!wtap_dump_close(*dp, &err)) {
-        luaL_error(L,"error closing: %s",
-                   wtap_strerror(err));
+    if (!wtap_dump_close(*dp, &err, &err_info)) {
+        if (err_info != NULL) {
+            luaL_error(L,"error closing: %s (%s)",
+                       wtap_strerror(err), err_info);
+            g_free(err_info);
+        } else {
+            luaL_error(L,"error closing: %s",
+                       wtap_strerror(err));
+        }
     }
 
     /* this way if we close a dumper any attempt to use it (for everything but GC) will yield an error */
@@ -392,6 +408,7 @@ WSLUA_METHOD Dumper_new_for_current(lua_State* L) {
     int filetype = (int)luaL_optinteger(L,WSLUA_OPTARG_Dumper_new_for_current_FILETYPE,WTAP_FILE_TYPE_SUBTYPE_PCAP);
     int encap;
     int err = 0;
+    gchar *err_info = NULL;
     const char* filename = cross_plat_fname(fname);
     wtap_dump_params params = WTAP_DUMP_PARAMS_INIT;
 
@@ -406,7 +423,8 @@ WSLUA_METHOD Dumper_new_for_current(lua_State* L) {
 
     encap = lua_pinfo->rec->rec_header.packet_header.pkt_encap;
     params.encap = encap;
-    d = wtap_dump_open(filename, filetype, WTAP_UNCOMPRESSED, &params, &err);
+    d = wtap_dump_open(filename, filetype, WTAP_UNCOMPRESSED, &params, &err,
+                       &err_info);
 
     if (! d ) {
         switch (err) {
@@ -450,6 +468,13 @@ WSLUA_METHOD Dumper_new_for_current(lua_State* L) {
             luaL_error(L,"Files of file type %s cannot be written as a compressed file",
                        wtap_file_type_subtype_string(filetype));
             break;
+
+        case WTAP_ERR_INTERNAL:
+             luaL_error(L,"An internal error occurred creating the file \"%s\" (%s)",
+                        filename,
+                        err_info != NULL ? err_info : "no information supplied");
+             g_free(err_info);
+             break;
 
         default:
             luaL_error(L,"error while opening \"%s\": %s",
@@ -541,6 +566,7 @@ WSLUA_METHOD Dumper_dump_current(lua_State* L) {
 static int Dumper__gc(lua_State* L) {
     Dumper* dp = (Dumper*)luaL_checkudata(L, 1, "Dumper");
     int err;
+    gchar *err_info;
 
     /* If we are Garbage Collected it means the Dumper is no longer usable. Close it */
 
@@ -549,9 +575,15 @@ static int Dumper__gc(lua_State* L) {
 
     g_hash_table_remove(dumper_encaps,*dp);
 
-    if (!wtap_dump_close(*dp, &err)) {
-        luaL_error(L,"error closing: %s",
-                   wtap_strerror(err));
+    if (!wtap_dump_close(*dp, &err, &err_info)) {
+        if (err_info != NULL) {
+            luaL_error(L,"error closing: %s (%s)",
+                       wtap_strerror(err), err_info);
+            g_free(err_info);
+        } else {
+            luaL_error(L,"error closing: %s",
+                       wtap_strerror(err));
+        }
     }
 
     return 0;

@@ -35,7 +35,9 @@ exp_pdu_file_open(exp_pdu_t *exp_pdu_tap_data)
 {
     int   import_file_fd;
     char *capfile_name, *comment;
+    gboolean status;
     int   err;
+    gchar *err_info;
 
     /* Choose a random name for the temporary import buffer */
     GError *err_tempfile = NULL;
@@ -47,20 +49,21 @@ exp_pdu_file_open(exp_pdu_t *exp_pdu_tap_data)
     }
 
     comment = g_strdup_printf("Dump of PDUs from %s", cfile.filename);
-    err = exp_pdu_open(exp_pdu_tap_data, import_file_fd, comment);
+    status = exp_pdu_open(exp_pdu_tap_data, import_file_fd, comment, &err,
+                          &err_info);
     g_free(comment);
-    if (err != 0) {
+    if (!status) {
         cfile_dump_open_failure_alert_box(capfile_name ? capfile_name : "temporary file",
-                                          err, WTAP_FILE_TYPE_SUBTYPE_PCAPNG);
+                                          err, err_info,
+                                          WTAP_FILE_TYPE_SUBTYPE_PCAPNG);
         goto end;
     }
 
     /* Run the tap */
     cf_retap_packets(&cfile);
 
-    err = exp_pdu_close(exp_pdu_tap_data);
-    if (err!= 0) {
-        cfile_close_failure_alert_box(capfile_name, err);
+    if (!exp_pdu_close(exp_pdu_tap_data, &err, &err_info)) {
+        cfile_close_failure_alert_box(capfile_name, err, err_info);
     }
 
     /* XXX: should this use the open_routine type in the cfile instead of WTAP_TYPE_AUTO? */

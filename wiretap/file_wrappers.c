@@ -1670,14 +1670,15 @@ file_close(FILE_T file)
 struct wtap_writer {
     int fd;                 /* file descriptor */
     gint64 pos;             /* current position in uncompressed data */
-    guint size;          /* buffer size, zero if not allocated yet */
-    guint want;          /* requested buffer size, default is GZBUFSIZE */
+    guint size;             /* buffer size, zero if not allocated yet */
+    guint want;             /* requested buffer size, default is GZBUFSIZE */
     unsigned char *in;      /* input buffer */
     unsigned char *out;     /* output buffer (double-sized when reading) */
     unsigned char *next;    /* next output data to deliver or write */
     int level;              /* compression level */
     int strategy;           /* compression strategy */
     int err;                /* error code */
+    const char *err_info;   /* additional error information string for some errors */
     /* zlib deflate stream */
     z_stream strm;          /* stream structure in-place (not a pointer) */
 };
@@ -1719,6 +1720,7 @@ gzwfile_fdopen(int fd)
 
     /* initialize stream */
     state->err = Z_OK;              /* clear error */
+    state->err_info = NULL;         /* clear additional error information */
     state->pos = 0;                 /* no uncompressed data yet */
     state->strm.avail_in = 0;       /* no input data yet */
 
@@ -1727,8 +1729,8 @@ gzwfile_fdopen(int fd)
 }
 
 /* Initialize state for writing a gzip file.  Mark initialization by setting
-   state->size to non-zero.  Return -1, and set state->err, on failure;
-   return 0 on success. */
+   state->size to non-zero.  Return -1, and set state->err and possibly
+   state->err_info, on failure; return 0 on success. */
 static int
 gz_init(GZWFILE_T state)
 {
@@ -1760,6 +1762,7 @@ gz_init(GZWFILE_T state)
         } else {
             /* This "shouldn't happen". */
             state->err = WTAP_ERR_INTERNAL;
+            state->err_info = "Unknown error from deflateInit2()";
         }
         return -1;
     }
@@ -1775,8 +1778,8 @@ gz_init(GZWFILE_T state)
 }
 
 /* Compress whatever is at avail_in and next_in and write to the output file.
-   Return -1, and set state->err, if there is an error writing to the output
-   file; return 0 on success.
+   Return -1, and set state->err and possibly state->err_info, if there is
+   an error writing to the output file; return 0 on success.
    flush is assumed to be a valid deflate() flush value.  If flush is Z_FINISH,
    then the deflate() state is reset to start a new gzip stream. */
 static int
@@ -1823,6 +1826,7 @@ gz_comp(GZWFILE_T state, int flush)
         if (ret == Z_STREAM_ERROR) {
             /* This "shouldn't happen". */
             state->err = WTAP_ERR_INTERNAL;
+            state->err_info = "Z_STREAM_ERROR from deflate()";
             return -1;
         }
         have -= strm->avail_out;

@@ -42,7 +42,7 @@ struct erf_private {
 
 wtap_open_return_val erf_open(wtap *wth, int *err, gchar **err_info);
 int erf_dump_can_write_encap(int encap);
-int erf_dump_open(wtap_dumper *wdh, int *err);
+int erf_dump_open(wtap_dumper *wdh, int *err, gchar **err_info);
 
 #endif /* __W_ERF_H__ */
 

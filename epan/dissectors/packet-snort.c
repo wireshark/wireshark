@@ -1145,6 +1145,7 @@ snort_dissector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
             if (!current_session.pdh) {
                 wtap_dump_params params = WTAP_DUMP_PARAMS_INIT;
                 int open_err;
+                gchar *open_err_info;
 
                 /* Older versions of Snort don't support capture file with several encapsulations (like pcapng),
                  * so write in pcap format and hope we have just one encap.
@@ -1163,8 +1164,11 @@ snort_dissector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
                                                        WTAP_FILE_TYPE_SUBTYPE_PCAP,
                                                        WTAP_UNCOMPRESSED,
                                                        &params,
-                                                       &open_err);
+                                                       &open_err,
+                                                       &open_err_info);
                 if (!current_session.pdh) {
+                    /* XXX - report the error somehow? */
+                    g_free(open_err_info);
                     current_session.working = FALSE;
                     return 0;
                 }
@@ -1189,10 +1193,13 @@ snort_dissector(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
 
             /* Dump frame into snort's stdin */
             if (!wtap_dump(current_session.pdh, &rec, tvb_get_ptr(tvb, 0, tvb_reported_length(tvb)), &write_err, &err_info)) {
+                /* XXX - report the error somehow? */
+                g_free(err_info);
                 current_session.working = FALSE;
                 return 0;
             }
             if (!wtap_dump_flush(current_session.pdh, &write_err)) {
+                /* XXX - report the error somehow? */
                 current_session.working = FALSE;
                 return 0;
             }
@@ -1375,8 +1382,10 @@ static void snort_cleanup(void)
     /* Close dumper writing into snort's stdin.  This will cause snort to exit! */
     if (current_session.pdh) {
         int write_err;
-        if (!wtap_dump_close(current_session.pdh, &write_err)) {
-
+        gchar *write_err_info;
+        if (!wtap_dump_close(current_session.pdh, &write_err, &write_err_info)) {
+            /* XXX - somehow report the error? */
+            g_free(write_err_info);
         }
         current_session.pdh = NULL;
     }

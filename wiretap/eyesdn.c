@@ -338,7 +338,7 @@ static gboolean eyesdn_dump(wtap_dumper *wdh,
 			    const wtap_rec *rec,
 			    const guint8 *pd, int *err, gchar **err_info);
 
-gboolean eyesdn_dump_open(wtap_dumper *wdh, int *err)
+gboolean eyesdn_dump_open(wtap_dumper *wdh, int *err, gchar **err_info _U_)
 {
 	wdh->subtype_write=eyesdn_dump;
 

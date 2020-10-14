@@ -12,9 +12,9 @@
 #include <glib.h>
 #include "ws_symbol_export.h"
 
-wtap_open_return_val commview_open(wtap *wth, int *err, gchar **err_info _U_);
+wtap_open_return_val commview_open(wtap *wth, int *err, gchar **err_info);
 int commview_dump_can_write_encap(int encap);
-gboolean commview_dump_open(wtap_dumper *wdh, int *err);
+gboolean commview_dump_open(wtap_dumper *wdh, int *err, gchar **err_info);
 
 #endif /* __COMMVIEW_H__ */
 

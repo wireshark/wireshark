@@ -786,7 +786,7 @@ int snoop_dump_can_write_encap(int encap)
 
 /* Returns TRUE on success, FALSE on failure; sets "*err" to an error code on
    failure */
-gboolean snoop_dump_open(wtap_dumper *wdh, int *err)
+gboolean snoop_dump_open(wtap_dumper *wdh, int *err, gchar **err_info _U_)
 {
 	struct snoop_hdr file_hdr;
 

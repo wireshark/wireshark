@@ -365,6 +365,7 @@ capsa_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
 	default:
 		g_assert_not_reached();
 		*err = WTAP_ERR_INTERNAL;
+		*err_info = g_strdup_printf("capsa: format indicator is %u", capsa->format_indicator);
 		return -1;
 	}
 	if (orig_size > WTAP_MAX_PACKET_SIZE_STANDARD) {

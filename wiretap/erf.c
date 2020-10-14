@@ -319,7 +319,7 @@ static void erf_meta_tag_free(gpointer data) {
 }
 
 
-static gboolean erf_dump_finish(struct wtap_dumper *wdh, int *err) {
+static gboolean erf_dump_finish(struct wtap_dumper *wdh, int *err, gchar **err_info _U_) {
   erf_dump_t *dump_priv = (erf_dump_t*)wdh->priv;
   gboolean ret = TRUE;
 
@@ -2020,7 +2020,7 @@ int erf_dump_can_write_encap(int encap)
   return 0;
 }
 
-int erf_dump_open(wtap_dumper *wdh, int *err _U_)
+int erf_dump_open(wtap_dumper *wdh, int *err _U_, gchar **err_info _U_)
 {
   erf_dump_t *dump_priv;
   gchar *s;

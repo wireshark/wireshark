@@ -313,19 +313,19 @@ read_packet_data(FILE_T fh, guint8 dat_trans_type, guint8 *buf, guint16 dat_len,
 /* create a DVB-CI pseudo header
    return its length or -1 for error */
 static gint
-create_pseudo_hdr(guint8 *buf, guint8 dat_trans_type, guint16 dat_len)
+create_pseudo_hdr(guint8 *buf, guint8 dat_trans_type, guint16 dat_len,
+    gchar **err_info)
 {
-    if (!buf)
-        return -1;
-
     buf[0] = DVB_CI_PSEUDO_HDR_VER;
 
     if (dat_trans_type==TRANS_CAM_HOST)
         buf[1] = DVB_CI_PSEUDO_HDR_CAM_TO_HOST;
     else if (dat_trans_type==TRANS_HOST_CAM)
         buf[1] = DVB_CI_PSEUDO_HDR_HOST_TO_CAM;
-    else
+    else {
+        *err_info = g_strdup_printf("camins: invalid dat_trans_type %u", dat_trans_type);
         return -1;
+    }
 
     buf[2] = (dat_len>>8) & 0xFF;
     buf[3] = dat_len & 0xFF;
@@ -355,12 +355,12 @@ camins_read_packet(FILE_T fh, wtap_rec *rec, Buffer *buf,
 
     ws_buffer_assure_space(buf, DVB_CI_PSEUDO_HDR_LEN+dat_len);
     p = ws_buffer_start_ptr(buf);
-    /* NULL check for p is done in create_pseudo_hdr() */
-    offset = create_pseudo_hdr(p, dat_trans_type, dat_len);
+    offset = create_pseudo_hdr(p, dat_trans_type, dat_len, err_info);
     if (offset<0) {
         /* shouldn't happen, all invalid packets must be detected by
            find_next_pkt_info() */
         *err = WTAP_ERR_INTERNAL;
+        /* create_pseudo_hdr() set err_info appropriately */
         return FALSE;
     }
 

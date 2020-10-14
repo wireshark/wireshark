@@ -224,7 +224,8 @@ static gboolean netmon_read_atm_pseudoheader(FILE_T fh,
 static void netmon_close(wtap *wth);
 static gboolean netmon_dump(wtap_dumper *wdh, const wtap_rec *rec,
     const guint8 *pd, int *err, gchar **err_info);
-static gboolean netmon_dump_finish(wtap_dumper *wdh, int *err);
+static gboolean netmon_dump_finish(wtap_dumper *wdh, int *err,
+    gchar **err_info);
 
 /*
  * Convert a counted UTF-16 string, which is probably also null-terminated
@@ -1618,7 +1619,7 @@ int netmon_dump_can_write_encap_2_x(int encap)
 
 /* Returns TRUE on success, FALSE on failure; sets "*err" to an error code on
    failure */
-gboolean netmon_dump_open(wtap_dumper *wdh, int *err)
+gboolean netmon_dump_open(wtap_dumper *wdh, int *err, gchar **err_info _U_)
 {
 	netmon_dump_t *netmon;
 
@@ -1893,7 +1894,8 @@ static gboolean netmon_dump(wtap_dumper *wdh, const wtap_rec *rec,
 
 /* Finish writing to a dump file.
    Returns TRUE on success, FALSE on failure. */
-static gboolean netmon_dump_finish(wtap_dumper *wdh, int *err)
+static gboolean netmon_dump_finish(wtap_dumper *wdh, int *err,
+    gchar **err_info _U_)
 {
 	netmon_dump_t *netmon = (netmon_dump_t *)wdh->priv;
 	size_t n_to_write;

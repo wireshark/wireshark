@@ -352,7 +352,8 @@ static gboolean logcat_binary_dump(wtap_dumper *wdh,
     return TRUE;
 }
 
-gboolean logcat_binary_dump_open(wtap_dumper *wdh, int *err _U_)
+gboolean logcat_binary_dump_open(wtap_dumper *wdh, int *err _U_,
+    gchar **err_info _U_)
 {
     wdh->subtype_write = logcat_binary_dump;
 

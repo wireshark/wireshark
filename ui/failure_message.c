@@ -124,6 +124,14 @@ cfile_open_failure_message(const char *progname, const char *filename,
             g_free(err_info);
             break;
 
+        case WTAP_ERR_INTERNAL:
+            cmdarg_err("An internal error occurred opening the %s.\n"
+                       "(%s)",
+                       file_description,
+                       err_info != NULL ? err_info : "no information supplied");
+            g_free(err_info);
+            break;
+
         case WTAP_ERR_DECOMPRESSION_NOT_SUPPORTED:
             cmdarg_err("The %s cannot be decompressed; it is compressed in a way that we don't support."
                        "(%s)",
@@ -147,13 +155,15 @@ cfile_open_failure_message(const char *progname, const char *filename,
  * Error message for a failed attempt to open a capture file for writing.
  * "progname" is the name of the program trying to open the file;
  * "filename" is the name of the file being opened; "err" is assumed
- * to be a UNIX-style errno or a WTAP_ERR_ value; "file_type_subtype" is
- * a WTAP_FILE_TYPE_SUBTYPE_ value for the type and subtype of file being
- * opened.
+ * to be a UNIX-style errno or a WTAP_ERR_ value; "err_info" is assumed
+ * to be a string giving further information for some WTAP_ERR_ values;
+ * "file_type_subtype" is a WTAP_FILE_TYPE_SUBTYPE_ value for the type
+ * and subtype of file being opened.
  */
 void
 cfile_dump_open_failure_message(const char *progname, const char *filename,
-                                int err, int file_type_subtype)
+                                int err, gchar *err_info,
+                                int file_type_subtype)
 {
     if (err < 0) {
         /*
@@ -202,6 +212,14 @@ cfile_dump_open_failure_message(const char *progname, const char *filename,
 
         case WTAP_ERR_COMPRESSION_NOT_SUPPORTED:
             cmdarg_err("This file type cannot be written as a compressed file.");
+            break;
+
+        case WTAP_ERR_INTERNAL:
+            cmdarg_err("An internal error occurred creating the %s.\n"
+                       "(%s)",
+                       file_description,
+                       err_info != NULL ? err_info : "no information supplied");
+            g_free(err_info);
             break;
 
         default:
@@ -257,6 +275,13 @@ cfile_read_failure_message(const char *progname, const char *filename,
     case WTAP_ERR_DECOMPRESS:
         cmdarg_err("The %s cannot be decompressed; it may be damaged or corrupt.\n"
                    "(%s)",
+                   file_string,
+                   err_info != NULL ? err_info : "no information supplied");
+        g_free(err_info);
+        break;
+
+    case WTAP_ERR_INTERNAL:
+        cmdarg_err("An internal error occurred while reading the %s.\n(%s)",
                    file_string,
                    err_info != NULL ? err_info : "no information supplied");
         g_free(err_info);
@@ -372,6 +397,13 @@ cfile_write_failure_message(const char *progname, const char *in_filename,
         g_free(err_info);
         break;
 
+    case WTAP_ERR_INTERNAL:
+        cmdarg_err("An internal error occurred while writing the %s.\n(%s)",
+                   out_file_string,
+                   err_info != NULL ? err_info : "no information supplied");
+        g_free(err_info);
+        break;
+
     case ENOSPC:
         cmdarg_err("Not all the packets could be written to the %s because there is "
                    "no space left on the file system.",
@@ -403,7 +435,8 @@ cfile_write_failure_message(const char *progname, const char *in_filename,
 /*
  * Error message for a failed attempt to close a capture file.
  * "filename" is the name of the file being closed; "err" is assumed
- * to be a UNIX-style errno or a WTAP_ERR_ value.
+ * to be a UNIX-style errno or a WTAP_ERR_ value; "err_info" is assumed
+ * to be a string giving further information for some WTAP_ERR_ values.
  *
  * When closing a capture file:
  *
@@ -424,7 +457,7 @@ cfile_write_failure_message(const char *progname, const char *in_filename,
  * so we have to check for write errors here.
  */
 void
-cfile_close_failure_message(const char *filename, int err)
+cfile_close_failure_message(const char *filename, int err, gchar *err_info)
 {
     char *file_string;
 
@@ -455,6 +488,14 @@ cfile_close_failure_message(const char *filename, int err)
     case WTAP_ERR_SHORT_WRITE:
         cmdarg_err("A full write couldn't be done to the %s.",
                    file_string);
+        break;
+
+    case WTAP_ERR_INTERNAL:
+        cmdarg_err("An internal error occurred closing the file \"%s\".\n"
+                   "(%s)",
+                   file_string,
+                   err_info != NULL ? err_info : "no information supplied");
+        g_free(err_info);
         break;
 
     default:

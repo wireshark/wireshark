@@ -39,12 +39,16 @@ char *exp_pdu_pre_open(const char *tap_name, const char *filter,
 * Use the given file descriptor for writing an output file. Can only be called
 * once and exp_pdu_pre_open() must be called before.
 *
-* @return 0 on success or a wtap error code.
+* @param[out] err Will be set to an error code on failure.
+* @param[out] err_info for some errors, a string giving more details of
+* the error
+* @return TRUE on success or FALSE on failure.
 */
-int exp_pdu_open(exp_pdu_t *data, int fd, const char *comment);
+gboolean exp_pdu_open(exp_pdu_t *data, int fd, const char *comment, int *err,
+    gchar **err_info);
 
 /* Stops the PDUs export. */
-int exp_pdu_close(exp_pdu_t *exp_pdu_tap_data);
+gboolean exp_pdu_close(exp_pdu_t *exp_pdu_tap_data, int *err, gchar **err_info);
 
 #ifdef __cplusplus
 }

@@ -1320,7 +1320,7 @@ static gboolean k12_dump(wtap_dumper *wdh, const wtap_rec *rec,
 
 static const guint8 k12_eof[] = {0xff,0xff};
 
-static gboolean k12_dump_finish(wtap_dumper *wdh, int *err) {
+static gboolean k12_dump_finish(wtap_dumper *wdh, int *err, gchar **err_info _U_) {
     k12_dump_t *k12 = (k12_dump_t *)wdh->priv;
     union {
         guint8 b[sizeof(guint32)];
@@ -1367,7 +1367,7 @@ static gboolean k12_dump_finish(wtap_dumper *wdh, int *err) {
 }
 
 
-gboolean k12_dump_open(wtap_dumper *wdh, int *err) {
+gboolean k12_dump_open(wtap_dumper *wdh, int *err, gchar **err_info _U_) {
     k12_dump_t *k12;
 
     if ( ! wtap_dump_file_write(wdh, k12_file_magic, 8, err)) {

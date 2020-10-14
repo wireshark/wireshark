@@ -20,7 +20,7 @@
 
 wtap_open_return_val network_instruments_open(wtap *wth, int *err, gchar **err_info);
 int network_instruments_dump_can_write_encap(int encap);
-gboolean network_instruments_dump_open(wtap_dumper *wdh, int *err);
+gboolean network_instruments_dump_open(wtap_dumper *wdh, int *err, gchar **err_info);
 
 /*
  * In v15 the high_byte was added to allow a larger offset This was done by

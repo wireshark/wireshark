@@ -515,7 +515,8 @@ static void ngsniffer_sequential_close(wtap *wth);
 static void ngsniffer_close(wtap *wth);
 static gboolean ngsniffer_dump(wtap_dumper *wdh, const wtap_rec *rec,
     const guint8 *pd, int *err, gchar **err_info);
-static gboolean ngsniffer_dump_finish(wtap_dumper *wdh, int *err);
+static gboolean ngsniffer_dump_finish(wtap_dumper *wdh, int *err,
+    gchar **err_info);
 static int SnifferDecompress( unsigned char * inbuf, size_t inlen,
     unsigned char * outbuf, size_t outlen, int *err, gchar **err_info );
 static gboolean ng_read_bytes_or_eof(wtap *wth, void *buffer,
@@ -2020,7 +2021,7 @@ ngsniffer_dump_can_write_encap(int encap)
 /* Returns TRUE on success, FALSE on failure; sets "*err" to an error code on
    failure */
 gboolean
-ngsniffer_dump_open(wtap_dumper *wdh, int *err)
+ngsniffer_dump_open(wtap_dumper *wdh, int *err, gchar **err_info _U_)
 {
 	ngsniffer_dump_t *ngsniffer;
 	char buf[6] = {REC_VERS, 0x00, 0x12, 0x00, 0x00, 0x00}; /* version record */
@@ -2194,7 +2195,7 @@ ngsniffer_dump(wtap_dumper *wdh, const wtap_rec *rec,
 /* Finish writing to a dump file.
    Returns TRUE on success, FALSE on failure. */
 static gboolean
-ngsniffer_dump_finish(wtap_dumper *wdh, int *err)
+ngsniffer_dump_finish(wtap_dumper *wdh, int *err, gchar **err_info _U_)
 {
 	/* EOF record */
 	char buf[6] = {REC_EOF, 0x00, 0x00, 0x00, 0x00, 0x00};

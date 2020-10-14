@@ -338,7 +338,7 @@ WSLUA_METHOD File_seek(lua_State* L) {
     File f = checkFile(L,1);
     int op = luaL_checkoption(L, 2, "cur", modenames);
     gint64 offset = (gint64) luaL_optlong(L, 3, 0);
-    int err = WTAP_ERR_INTERNAL;
+    int err;
 
 
     if (file_is_reader(f)) {

@@ -264,15 +264,17 @@ main(int argc, char *argv[])
 
     /* Open outfile (same filetype/encap as input file) */
     if (strcmp(outfile, "-") == 0) {
-      pdh = wtap_dump_open_stdout(wtap_file_type_subtype(wth), WTAP_UNCOMPRESSED, &params, &err);
+      pdh = wtap_dump_open_stdout(wtap_file_type_subtype(wth),
+                                  WTAP_UNCOMPRESSED, &params, &err, &err_info);
     } else {
-      pdh = wtap_dump_open(outfile, wtap_file_type_subtype(wth), WTAP_UNCOMPRESSED, &params, &err);
+      pdh = wtap_dump_open(outfile, wtap_file_type_subtype(wth),
+                           WTAP_UNCOMPRESSED, &params, &err, &err_info);
     }
     g_free(params.idb_inf);
     params.idb_inf = NULL;
 
     if (pdh == NULL) {
-        cfile_dump_open_failure_message("reordercap", outfile, err,
+        cfile_dump_open_failure_message("reordercap", outfile, err, err_info,
                                         wtap_file_type_subtype(wth));
         wtap_dump_params_cleanup(&params);
         ret = OUTPUT_FILE_ERROR;
@@ -341,8 +343,8 @@ main(int argc, char *argv[])
     g_ptr_array_free(frames, TRUE);
 
     /* Close outfile */
-    if (!wtap_dump_close(pdh, &err)) {
-        cfile_close_failure_message(outfile, err);
+    if (!wtap_dump_close(pdh, &err, &err_info)) {
+        cfile_close_failure_message(outfile, err, err_info);
         wtap_dump_params_cleanup(&params);
         ret = OUTPUT_FILE_ERROR;
         goto clean_exit;

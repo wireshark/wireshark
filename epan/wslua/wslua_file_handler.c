@@ -50,22 +50,40 @@ static GSList *registered_file_handlers;
    set this to true right before pcall(), and back to false afterwards */
 static gboolean in_routine = FALSE;
 
+static void
+report_error(int *err, gchar **err_info, const char *fmt, ...)
+{
+    va_list ap;
+    gchar *msg;
+
+    va_start(ap, fmt);
+    msg = g_strdup_vprintf(fmt, ap);
+    va_end(ap);
+    if (err != NULL) {
+        *err = WTAP_ERR_INTERNAL;
+        *err_info = msg;
+    } else {
+        g_warning("%s", msg);
+        g_free(msg);
+    }
+}
+
 /* This does the verification and setup common to all open/read/seek_read/close routines */
-#define INIT_FILEHANDLER_ROUTINE(name,retval) \
+#define INIT_FILEHANDLER_ROUTINE(name,retval,err,err_info) \
     if (!fh) { \
-        g_warning("Error in file %s: no Lua FileHandler object", #name); \
+        report_error(err, err_info, "Error in file %s: no Lua FileHandler object", #name); \
         return retval; \
     } \
     if (!fh->registered) { \
-        g_warning("Error in file %s: Lua FileHandler is not registered", #name); \
+        report_error(err, err_info, "Error in file %s: Lua FileHandler is not registered", #name); \
         return retval; \
     } \
     if (!fh->L) { \
-        g_warning("Error in file %s: no FileHandler Lua state", #name); \
+        report_error(err, err_info, "Error in file %s: no FileHandler Lua state", #name); \
         return retval; \
     } \
     if (fh->name##_ref == LUA_NOREF) { \
-        g_warning("Error in file %s: no FileHandler %s routine reference", #name, #name); \
+        report_error(err, err_info, "Error in file %s: no FileHandler %s routine reference", #name, #name); \
         return retval; \
     } \
     L = fh->L; \
@@ -73,7 +91,7 @@ static gboolean in_routine = FALSE;
     push_error_handler(L, #name " routine"); \
     lua_rawgeti(L, LUA_REGISTRYINDEX, fh->name##_ref); \
     if (!lua_isfunction(L, -1)) { \
-         g_warning("Error in file %s: no FileHandler %s routine function in Lua", #name, #name); \
+        report_error(err, err_info, "Error in file %s: no FileHandler %s routine function in Lua", #name, #name); \
         return retval; \
     } \
     /* now guard against deregistering during pcall() */ \
@@ -89,44 +107,22 @@ static gboolean in_routine = FALSE;
 #define LUA_ERRGCMM 9
 #endif
 
-#define CASE_ERROR(name) \
+#define CASE_ERROR(name,err,err_info) \
     case LUA_ERRRUN: \
-        g_warning("Run-time error while calling FileHandler %s routine", name); \
+        report_error(err, err_info, "Run-time error while calling FileHandler %s routine", name); \
         break; \
     case LUA_ERRMEM: \
-        g_warning("Memory alloc error while calling FileHandler %s routine", name); \
+        report_error(err, err_info, "Memory alloc error while calling FileHandler %s routine", name); \
         break; \
     case LUA_ERRERR: \
-        g_warning("Error in error handling while calling FileHandler %s routine", name); \
+        report_error(err, err_info, "Error in error handling while calling FileHandler %s routine", name); \
         break; \
     case LUA_ERRGCMM: \
-        g_warning("Error in garbage collector while calling FileHandler %s routine", name); \
+        report_error(err, err_info, "Error in garbage collector while calling FileHandler %s routine", name); \
         break; \
     default: \
         g_assert_not_reached(); \
         break;
-
-#define CASE_ERROR_ERRINFO(name) \
-    case LUA_ERRRUN: \
-        g_warning("Run-time error while calling FileHandler %s routine", name); \
-        *err_info = g_strdup_printf("Run-time error while calling FileHandler %s routine", name); \
-        break; \
-    case LUA_ERRMEM: \
-        g_warning("Memory alloc error while calling FileHandler %s routine", name); \
-        *err_info = g_strdup_printf("Memory alloc error while calling FileHandler %s routine", name); \
-        break; \
-    case LUA_ERRERR: \
-        g_warning("Error in error handling while calling FileHandler %s routine", name); \
-        *err_info = g_strdup_printf("Error in error handling while calling FileHandler %s routine", name); \
-        break; \
-    case LUA_ERRGCMM: \
-        g_warning("Error in garbage collector while calling FileHandler %s routine", name); \
-        *err_info = g_strdup_printf("Error in garbage collector while calling FileHandler %s routine", name); \
-        break; \
-    default: \
-        g_assert_not_reached(); \
-        break;
-
 
 /* some declarations */
 static gboolean
@@ -162,7 +158,7 @@ wslua_filehandler_open(wtap *wth, int *err, gchar **err_info)
     File *fp = NULL;
     CaptureInfo *fc = NULL;
 
-    INIT_FILEHANDLER_ROUTINE(read_open,WTAP_OPEN_NOT_MINE);
+    INIT_FILEHANDLER_ROUTINE(read_open,WTAP_OPEN_ERROR,err,err_info);
 
     create_wth_priv(L, wth);
 
@@ -174,7 +170,7 @@ wslua_filehandler_open(wtap *wth, int *err, gchar **err_info)
         case 0:
             retval = (wtap_open_return_val)wslua_optboolint(L,-1,0);
             break;
-        CASE_ERROR_ERRINFO("read_open")
+        CASE_ERROR("read_open",err,err_info)
     }
 
     END_FILEHANDLER_ROUTINE();
@@ -227,9 +223,9 @@ wslua_filehandler_open(wtap *wth, int *err, gchar **err_info)
     }
     else {
         /* not a valid return type */
-        g_warning("FileHandler read_open routine returned %d", retval);
         if (err) {
             *err = WTAP_ERR_INTERNAL;
+            *err_info = g_strdup_printf("FileHandler read_open routine returned %d", retval);
         }
         retval = WTAP_OPEN_ERROR;
     }
@@ -255,7 +251,7 @@ wslua_filehandler_read(wtap *wth, wtap_rec *rec, Buffer *buf,
     CaptureInfo *fc = NULL;
     FrameInfo *fi = NULL;
 
-    INIT_FILEHANDLER_ROUTINE(read,FALSE);
+    INIT_FILEHANDLER_ROUTINE(read,FALSE,err,err_info);
 
     /* Reset errno */
     if (err) {
@@ -285,7 +281,7 @@ wslua_filehandler_read(wtap *wth, wtap_rec *rec, Buffer *buf,
             }
             retval = wslua_optboolint(L,-1,0);
             break;
-        CASE_ERROR_ERRINFO("read")
+        CASE_ERROR("read",err,err_info)
     }
 
     END_FILEHANDLER_ROUTINE();
@@ -313,7 +309,7 @@ wslua_filehandler_seek_read(wtap *wth, gint64 seek_off,
     CaptureInfo *fc = NULL;
     FrameInfo *fi = NULL;
 
-    INIT_FILEHANDLER_ROUTINE(seek_read,FALSE);
+    INIT_FILEHANDLER_ROUTINE(seek_read,FALSE,err,err_info);
 
     /* Reset errno */
     if (err) {
@@ -340,7 +336,7 @@ wslua_filehandler_seek_read(wtap *wth, gint64 seek_off,
              */
             retval = lua_toboolean(L, -1);
             break;
-        CASE_ERROR_ERRINFO("seek_read")
+        CASE_ERROR("seek_read",err,err_info)
     }
 
     END_FILEHANDLER_ROUTINE();
@@ -363,7 +359,7 @@ wslua_filehandler_close(wtap *wth)
     File *fp = NULL;
     CaptureInfo *fc = NULL;
 
-    INIT_FILEHANDLER_ROUTINE(read_close,);
+    INIT_FILEHANDLER_ROUTINE(read_close,,NULL,NULL);
 
     fp = push_File(L, wth->fh);
     fc = push_CaptureInfo(L, wth, FALSE);
@@ -371,7 +367,7 @@ wslua_filehandler_close(wtap *wth)
     switch ( lua_pcall(L,2,1,1) ) {
         case 0:
             break;
-        CASE_ERROR("read_close")
+        CASE_ERROR("read_close",NULL,NULL)
     }
 
     END_FILEHANDLER_ROUTINE();
@@ -395,7 +391,7 @@ wslua_filehandler_sequential_close(wtap *wth)
     File *fp = NULL;
     CaptureInfo *fc = NULL;
 
-    INIT_FILEHANDLER_ROUTINE(seq_read_close,);
+    INIT_FILEHANDLER_ROUTINE(seq_read_close,,NULL,NULL);
 
     fp = push_File(L, wth->fh);
     fc = push_CaptureInfo(L, wth, FALSE);
@@ -403,7 +399,7 @@ wslua_filehandler_sequential_close(wtap *wth)
     switch ( lua_pcall(L,2,1,1) ) {
         case 0:
             break;
-        CASE_ERROR("seq_read_close")
+        CASE_ERROR("seq_read_close",NULL,NULL)
     }
 
     END_FILEHANDLER_ROUTINE();
@@ -435,7 +431,7 @@ wslua_filehandler_can_write_encap(int encap, void* data)
     int retval = WTAP_ERR_UNWRITABLE_ENCAP;
     lua_State* L = NULL;
 
-    INIT_FILEHANDLER_ROUTINE(can_write_encap,WTAP_ERR_INTERNAL);
+    INIT_FILEHANDLER_ROUTINE(can_write_encap,WTAP_ERR_UNWRITABLE_ENCAP,NULL,NULL);
 
     lua_pushnumber(L, encap);
 
@@ -443,7 +439,7 @@ wslua_filehandler_can_write_encap(int encap, void* data)
         case 0:
             retval = wslua_optboolint(L,-1,WTAP_ERR_UNWRITABLE_ENCAP);
             break;
-        CASE_ERROR("can_write_encap")
+        CASE_ERROR("can_write_encap",NULL,NULL)
     }
 
     END_FILEHANDLER_ROUTINE();
@@ -464,14 +460,14 @@ static gboolean
 wslua_filehandler_dump(wtap_dumper *wdh, const wtap_rec *rec,
                       const guint8 *pd, int *err, gchar **err_info);
 static gboolean
-wslua_filehandler_dump_finish(wtap_dumper *wdh, int *err);
+wslua_filehandler_dump_finish(wtap_dumper *wdh, int *err, gchar **err_info);
 
 
 /* The classic wtap dump_open function.
  * This returns 1 (TRUE) on success.
  */
 static int
-wslua_filehandler_dump_open(wtap_dumper *wdh, int *err)
+wslua_filehandler_dump_open(wtap_dumper *wdh, int *err, gchar **err_info)
 {
     FileHandler fh = (FileHandler)(wdh->wslua_data);
     int retval = 0;
@@ -479,7 +475,7 @@ wslua_filehandler_dump_open(wtap_dumper *wdh, int *err)
     File *fp = NULL;
     CaptureInfoConst *fc = NULL;
 
-    INIT_FILEHANDLER_ROUTINE(write_open,0);
+    INIT_FILEHANDLER_ROUTINE(write_open,0,err,err_info);
 
     create_wdh_priv(L, wdh);
 
@@ -495,7 +491,7 @@ wslua_filehandler_dump_open(wtap_dumper *wdh, int *err)
         case 0:
             retval = wslua_optboolint(L,-1,0);
             break;
-        CASE_ERROR("write_open")
+        CASE_ERROR("write_open",err,err_info)
     }
 
     END_FILEHANDLER_ROUTINE();
@@ -533,7 +529,7 @@ wslua_filehandler_dump_open(wtap_dumper *wdh, int *err)
 */
 static gboolean
 wslua_filehandler_dump(wtap_dumper *wdh, const wtap_rec *rec,
-                      const guint8 *pd, int *err, gchar **err_info _U_)
+                      const guint8 *pd, int *err, gchar **err_info)
 {
     FileHandler fh = (FileHandler)(wdh->wslua_data);
     int retval = -1;
@@ -542,7 +538,7 @@ wslua_filehandler_dump(wtap_dumper *wdh, const wtap_rec *rec,
     CaptureInfoConst *fc = NULL;
     FrameInfoConst *fi = NULL;
 
-    INIT_FILEHANDLER_ROUTINE(write,FALSE);
+    INIT_FILEHANDLER_ROUTINE(write,FALSE,err,err_info);
 
     /* Reset errno */
     if (err) {
@@ -558,7 +554,7 @@ wslua_filehandler_dump(wtap_dumper *wdh, const wtap_rec *rec,
         case 0:
             retval = wslua_optboolint(L,-1,0);
             break;
-        CASE_ERROR("write")
+        CASE_ERROR("write",err,err_info)
     }
 
     END_FILEHANDLER_ROUTINE();
@@ -574,7 +570,7 @@ wslua_filehandler_dump(wtap_dumper *wdh, const wtap_rec *rec,
  * writes out the last information cleanly, else FALSE.
 */
 static gboolean
-wslua_filehandler_dump_finish(wtap_dumper *wdh, int *err)
+wslua_filehandler_dump_finish(wtap_dumper *wdh, int *err, gchar **err_info)
 {
     FileHandler fh = (FileHandler)(wdh->wslua_data);
     int retval = -1;
@@ -582,7 +578,7 @@ wslua_filehandler_dump_finish(wtap_dumper *wdh, int *err)
     File *fp = NULL;
     CaptureInfoConst *fc = NULL;
 
-    INIT_FILEHANDLER_ROUTINE(write_close,FALSE);
+    INIT_FILEHANDLER_ROUTINE(write_close,FALSE,err,err_info);
 
     /* Reset errno */
     if (err) {
@@ -597,7 +593,7 @@ wslua_filehandler_dump_finish(wtap_dumper *wdh, int *err)
         case 0:
             retval = wslua_optboolint(L,-1,0);
             break;
-        CASE_ERROR("write_close")
+        CASE_ERROR("write_close",err,err_info)
     }
 
     END_FILEHANDLER_ROUTINE();

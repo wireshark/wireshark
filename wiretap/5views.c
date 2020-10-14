@@ -93,7 +93,7 @@ static int _5views_read_header(wtap *wth, FILE_T fh, t_5VW_TimeStamped_Header *h
     wtap_rec *rec, int *err, gchar **err_info);
 
 static gboolean _5views_dump(wtap_dumper *wdh, const wtap_rec *rec, const guint8 *pd, int *err, gchar **err_info);
-static gboolean _5views_dump_finish(wtap_dumper *wdh, int *err);
+static gboolean _5views_dump_finish(wtap_dumper *wdh, int *err, gchar **err_info);
 
 
 wtap_open_return_val
@@ -321,7 +321,7 @@ int _5views_dump_can_write_encap(int encap)
 
 /* Returns TRUE on success, FALSE on failure; sets "*err" to an error code on
    failure */
-gboolean _5views_dump_open(wtap_dumper *wdh, int *err)
+gboolean _5views_dump_open(wtap_dumper *wdh, int *err, gchar **err_info _U_)
 {
 	_5views_dump_t *_5views;
 
@@ -401,7 +401,7 @@ static gboolean _5views_dump(wtap_dumper *wdh,
 	return TRUE;
 }
 
-static gboolean _5views_dump_finish(wtap_dumper *wdh, int *err)
+static gboolean _5views_dump_finish(wtap_dumper *wdh, int *err, gchar **err_info _U_)
 {
 	_5views_dump_t *_5views = (_5views_dump_t *)wdh->priv;
 	t_5VW_Capture_Header file_hdr;

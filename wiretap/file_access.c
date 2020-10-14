@@ -2271,7 +2271,7 @@ static wtap_dumper* wtap_dump_alloc_wdh(int file_type_subtype, int encap, int sn
 					wtap_compression_type compression_type,
 					int *err);
 static gboolean wtap_dump_open_finish(wtap_dumper *wdh, int file_type_subtype,
-				      int *err);
+				      int *err, gchar **err_info);
 
 static WFILE_T wtap_dump_file_open(wtap_dumper *wdh, const char *filename);
 static WFILE_T wtap_dump_file_fdopen(wtap_dumper *wdh, int fd);
@@ -2396,10 +2396,13 @@ wtap_dump_init_dumper(int file_type_subtype, wtap_compression_type compression_t
 wtap_dumper *
 wtap_dump_open(const char *filename, int file_type_subtype,
     wtap_compression_type compression_type, const wtap_dump_params *params,
-    int *err)
+    int *err, gchar **err_info)
 {
 	wtap_dumper *wdh;
 	WFILE_T fh;
+
+	*err = 0;
+	*err_info = NULL;
 
 	/* Allocate and initialize a data structure for the output stream. */
 	wdh = wtap_dump_init_dumper(file_type_subtype, compression_type, params,
@@ -2418,7 +2421,7 @@ wtap_dump_open(const char *filename, int file_type_subtype,
 	}
 	wdh->fh = fh;
 
-	if (!wtap_dump_open_finish(wdh, file_type_subtype, err)) {
+	if (!wtap_dump_open_finish(wdh, file_type_subtype, err, err_info)) {
 		/* Get rid of the file we created; we couldn't finish
 		   opening it. */
 		wtap_dump_file_close(wdh);
@@ -2432,7 +2435,7 @@ wtap_dump_open(const char *filename, int file_type_subtype,
 wtap_dumper *
 wtap_dump_open_tempfile(char **filenamep, const char *pfx,
     int file_type_subtype, wtap_compression_type compression_type,
-    const wtap_dump_params *params, int *err)
+    const wtap_dump_params *params, int *err, gchar **err_info)
 {
 	int fd;
 	const char *ext;
@@ -2442,6 +2445,9 @@ wtap_dump_open_tempfile(char **filenamep, const char *pfx,
 
 	/* No path name for the temporary file yet. */
 	*filenamep = NULL;
+
+	*err = 0;
+	*err_info = NULL;
 
 	/* Allocate and initialize a data structure for the output stream. */
 	wdh = wtap_dump_init_dumper(file_type_subtype, compression_type, params,
@@ -2477,7 +2483,7 @@ wtap_dump_open_tempfile(char **filenamep, const char *pfx,
 	}
 	wdh->fh = fh;
 
-	if (!wtap_dump_open_finish(wdh, file_type_subtype, err)) {
+	if (!wtap_dump_open_finish(wdh, file_type_subtype, err, err_info)) {
 		/* Get rid of the file we created; we couldn't finish
 		   opening it. */
 		wtap_dump_file_close(wdh);
@@ -2490,10 +2496,13 @@ wtap_dump_open_tempfile(char **filenamep, const char *pfx,
 
 wtap_dumper *
 wtap_dump_fdopen(int fd, int file_type_subtype, wtap_compression_type compression_type,
-    const wtap_dump_params *params, int *err)
+    const wtap_dump_params *params, int *err, gchar **err_info)
 {
 	wtap_dumper *wdh;
 	WFILE_T fh;
+
+	*err = 0;
+	*err_info = NULL;
 
 	/* Allocate and initialize a data structure for the output stream. */
 	wdh = wtap_dump_init_dumper(file_type_subtype, compression_type, params,
@@ -2512,7 +2521,7 @@ wtap_dump_fdopen(int fd, int file_type_subtype, wtap_compression_type compressio
 	}
 	wdh->fh = fh;
 
-	if (!wtap_dump_open_finish(wdh, file_type_subtype, err)) {
+	if (!wtap_dump_open_finish(wdh, file_type_subtype, err, err_info)) {
 		wtap_dump_file_close(wdh);
 		g_free(wdh);
 		return NULL;
@@ -2522,7 +2531,7 @@ wtap_dump_fdopen(int fd, int file_type_subtype, wtap_compression_type compressio
 
 wtap_dumper *
 wtap_dump_open_stdout(int file_type_subtype, wtap_compression_type compression_type,
-    const wtap_dump_params *params, int *err)
+    const wtap_dump_params *params, int *err, gchar **err_info)
 {
 	int new_fd;
 	wtap_dumper *wdh;
@@ -2554,7 +2563,7 @@ wtap_dump_open_stdout(int file_type_subtype, wtap_compression_type compression_t
 #endif
 
 	wdh = wtap_dump_fdopen(new_fd, file_type_subtype, compression_type,
-	    params, err);
+	    params, err, err_info);
 	if (wdh == NULL) {
 		/* Failed; close the new FD */
 		ws_close(new_fd);
@@ -2619,7 +2628,8 @@ wtap_dump_alloc_wdh(int file_type_subtype, int encap, int snaplen,
 }
 
 static gboolean
-wtap_dump_open_finish(wtap_dumper *wdh, int file_type_subtype, int *err)
+wtap_dump_open_finish(wtap_dumper *wdh, int file_type_subtype, int *err,
+    gchar **err_info)
 {
 	int fd;
 	gboolean cant_seek;
@@ -2652,7 +2662,8 @@ wtap_dump_open_finish(wtap_dumper *wdh, int file_type_subtype, int *err)
 		wdh->wslua_data = dump_open_table[file_type_subtype].wslua_info->wslua_data;
 
 	/* Now try to open the file for writing. */
-	if (!(*dump_open_table[file_type_subtype].dump_open)(wdh, err)) {
+	if (!(*dump_open_table[file_type_subtype].dump_open)(wdh, err,
+	    err_info)) {
 		return FALSE;
 	}
 
@@ -2689,13 +2700,15 @@ wtap_dump_flush(wtap_dumper *wdh, int *err)
 }
 
 gboolean
-wtap_dump_close(wtap_dumper *wdh, int *err)
+wtap_dump_close(wtap_dumper *wdh, int *err, gchar **err_info)
 {
 	gboolean ret = TRUE;
 
+	*err = 0;
+	*err_info = NULL;
 	if (wdh->subtype_finish != NULL) {
 		/* There's a finish routine for this dump stream. */
-		if (!(wdh->subtype_finish)(wdh, err))
+		if (!(wdh->subtype_finish)(wdh, err, err_info))
 			ret = FALSE;
 	}
 	errno = WTAP_ERR_CANT_CLOSE;

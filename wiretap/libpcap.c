@@ -952,7 +952,7 @@ int libpcap_dump_can_write_encap(int encap)
 
 /* Returns TRUE on success, FALSE on failure; sets "*err" to an error code on
    failure */
-gboolean libpcap_dump_open(wtap_dumper *wdh, int *err)
+gboolean libpcap_dump_open(wtap_dumper *wdh, int *err, gchar **err_info)
 {
 	guint32 magic;
 	struct pcap_hdr file_hdr;
@@ -981,7 +981,9 @@ gboolean libpcap_dump_open(wtap_dumper *wdh, int *err)
 	default:
 		/* We should never get here - our open routine
 		   should only get called for the types above. */
-		*err = WTAP_ERR_UNWRITABLE_FILE_TYPE;
+		*err = WTAP_ERR_INTERNAL;
+		*err_info = g_strdup_printf("libpcap: invalid file type/subtype %u",
+		    wdh->file_type_subtype);
 		return FALSE;
 	}
 

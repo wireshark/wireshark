@@ -370,6 +370,20 @@ cf_open_error_message(int err, gchar *err_info, gboolean for_writing,
             errmsg = errmsg_errno;
             break;
 
+        case WTAP_ERR_INTERNAL:
+            if (for_writing) {
+                g_snprintf(errmsg_errno, sizeof(errmsg_errno),
+                           "An internal error occurred creating the file \"%%s\".\n"
+                           "(%s)", err_info != NULL ? err_info : "no information supplied");
+            } else {
+                g_snprintf(errmsg_errno, sizeof(errmsg_errno),
+                           "An internal error occurred opening the file \"%%s\".\n"
+                           "(%s)", err_info != NULL ? err_info : "no information supplied");
+            }
+            g_free(err_info);
+            errmsg = errmsg_errno;
+            break;
+
         case WTAP_ERR_DECOMPRESSION_NOT_SUPPORTED:
             g_snprintf(errmsg_errno, sizeof(errmsg_errno),
                        "We don't support the form of compression used by the compressed file \"%%s\".\n"

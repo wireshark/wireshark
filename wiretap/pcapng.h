@@ -73,7 +73,7 @@ struct pcapng_option_header {
 #define MIN_DSB_SIZE    ((guint32)(MIN_BLOCK_SIZE + sizeof(pcapng_decryption_secrets_block_t)))
 
 wtap_open_return_val pcapng_open(wtap *wth, int *err, gchar **err_info);
-gboolean pcapng_dump_open(wtap_dumper *wdh, int *err);
+gboolean pcapng_dump_open(wtap_dumper *wdh, int *err, gchar **err_info);
 int pcapng_dump_can_write_encap(int encap);
 
 #endif

@@ -712,6 +712,8 @@ main(int argc, char *argv[])
   gboolean             arg_error = FALSE;
 
   int                  err;
+  gchar               *err_info;
+  gboolean             exp_pdu_status;
   volatile process_file_status_t status;
   volatile gboolean    draw_taps = FALSE;
   volatile int         exit_status = EXIT_SUCCESS;
@@ -2009,10 +2011,12 @@ main(int argc, char *argv[])
 
       /* Activate the export PDU tap */
       comment = g_strdup_printf("Dump of PDUs from %s", cf_name);
-      err = exp_pdu_open(&exp_pdu_tap_data, exp_fd, comment);
+      exp_pdu_status = exp_pdu_open(&exp_pdu_tap_data, exp_fd, comment,
+                                    &err, &err_info);
       g_free(comment);
-      if (err != 0) {
-          cfile_dump_open_failure_message("TShark", exp_pdu_filename, err,
+      if (!exp_pdu_status) {
+          cfile_dump_open_failure_message("TShark", exp_pdu_filename,
+                                          err, err_info,
                                           WTAP_FILE_TYPE_SUBTYPE_PCAPNG);
           exit_status = INVALID_EXPORT;
           goto clean_exit;
@@ -2098,9 +2102,8 @@ main(int argc, char *argv[])
     }
 
     if (pdu_export_arg) {
-        err = exp_pdu_close(&exp_pdu_tap_data);
-        if (err) {
-            cfile_close_failure_message(exp_pdu_filename, err);
+        if (!exp_pdu_close(&exp_pdu_tap_data, &err, &err_info)) {
+            cfile_close_failure_message(exp_pdu_filename, err, err_info);
             exit_status = 2;
         }
         g_free(pdu_export_arg);
@@ -3481,10 +3484,10 @@ process_cap_file(capture_file *cf, char *save_file, int out_file_type,
     if (strcmp(save_file, "-") == 0) {
       /* Write to the standard output. */
       pdh = wtap_dump_open_stdout(out_file_type, WTAP_UNCOMPRESSED, &params,
-                                  &err);
+                                  &err, &err_info);
     } else {
       pdh = wtap_dump_open(save_file, out_file_type, WTAP_UNCOMPRESSED, &params,
-                           &err);
+                           &err, &err_info);
     }
 
     g_free(params.idb_inf);
@@ -3492,7 +3495,8 @@ process_cap_file(capture_file *cf, char *save_file, int out_file_type,
 
     if (pdh == NULL) {
       /* We couldn't set up to write to the capture file. */
-      cfile_dump_open_failure_message("TShark", save_file, err, out_file_type);
+      cfile_dump_open_failure_message("TShark", save_file, err, err_info,
+                                      out_file_type);
       status = PROCESS_FILE_NO_FILE_PROCESSED;
       goto out;
     }
@@ -3667,14 +3671,15 @@ process_cap_file(capture_file *cf, char *save_file, int out_file_type,
         }
       }
       /* Now close the capture file. */
-      if (!wtap_dump_close(pdh, &err)) {
-        cfile_close_failure_message(save_file, err);
+      if (!wtap_dump_close(pdh, &err, &err_info)) {
+        cfile_close_failure_message(save_file, err, err_info);
         status = PROCESS_FILE_ERROR;
       }
     } else {
       /* We got a write error; it was reported, so just close the dump file
          without bothering to check for further errors. */
-      wtap_dump_close(pdh, &err);
+      wtap_dump_close(pdh, &err, &err_info);
+      g_free(err_info);
       status = PROCESS_FILE_ERROR;
     }
   } else {

@@ -1410,7 +1410,8 @@ cf_merge_files_to_tempfile(gpointer pd_window, char **out_filenamep,
       break;
 
     case MERGE_ERR_CANT_OPEN_OUTFILE:
-      cfile_dump_open_failure_alert_box(*out_filenamep, err, file_type);
+      cfile_dump_open_failure_alert_box(*out_filenamep, err, err_info,
+                                        file_type);
       break;
 
     case MERGE_ERR_CANT_READ_INFILE:
@@ -1429,7 +1430,7 @@ cf_merge_files_to_tempfile(gpointer pd_window, char **out_filenamep,
        break;
 
     case MERGE_ERR_CANT_CLOSE_OUTFILE:
-        cfile_close_failure_alert_box(*out_filenamep, err);
+        cfile_close_failure_alert_box(*out_filenamep, err, err_info);
         break;
 
     default:
@@ -4539,16 +4540,17 @@ cf_save_records(capture_file *cf, const char *fname, guint save_format,
          from which we're reading the packets that we're writing!) */
       fname_new = g_strdup_printf("%s~", fname);
       pdh = wtap_dump_open(fname_new, save_format, compression_type, &params,
-                           &err);
+                           &err, &err_info);
     } else {
-      pdh = wtap_dump_open(fname, save_format, compression_type, &params, &err);
+      pdh = wtap_dump_open(fname, save_format, compression_type, &params,
+                           &err, &err_info);
     }
     /* XXX idb_inf is documented to be used until wtap_dump_close. */
     g_free(params.idb_inf);
     params.idb_inf = NULL;
 
     if (pdh == NULL) {
-      cfile_dump_open_failure_alert_box(fname, err, save_format);
+      cfile_dump_open_failure_alert_box(fname, err, err_info, save_format);
       goto fail;
     }
 
@@ -4571,7 +4573,7 @@ cf_save_records(capture_file *cf, const char *fname, guint save_format,
          If we're writing to a temporary file, remove it.
          XXX - should we do so even if we're not writing to a
          temporary file? */
-      wtap_dump_close(pdh, &err);
+      wtap_dump_close(pdh, &err, &err_info);
       if (fname_new != NULL)
         ws_unlink(fname_new);
       cf_callback_invoke(cf_cb_file_save_stopped, NULL);
@@ -4582,14 +4584,14 @@ cf_save_records(capture_file *cf, const char *fname, guint save_format,
          If we're writing to a temporary file, remove it. */
       if (fname_new != NULL)
         ws_unlink(fname_new);
-      wtap_dump_close(pdh, &err);
+      wtap_dump_close(pdh, &err, &err_info);
       goto fail;
     }
 
     needs_reload = wtap_dump_get_needs_reload(pdh);
 
-    if (!wtap_dump_close(pdh, &err)) {
-      cfile_close_failure_alert_box(fname, err);
+    if (!wtap_dump_close(pdh, &err, &err_info)) {
+      cfile_close_failure_alert_box(fname, err, err_info);
       goto fail;
     }
 
@@ -4764,6 +4766,7 @@ cf_export_specified_packets(capture_file *cf, const char *fname,
 {
   gchar                       *fname_new = NULL;
   int                          err;
+  gchar                       *err_info;
   wtap_dumper                 *pdh;
   save_callback_args_t         callback_args;
   wtap_dump_params             params;
@@ -4796,16 +4799,17 @@ cf_export_specified_packets(capture_file *cf, const char *fname,
        from which we're reading the packets that we're writing!) */
     fname_new = g_strdup_printf("%s~", fname);
     pdh = wtap_dump_open(fname_new, save_format, compression_type, &params,
-                         &err);
+                         &err, &err_info);
   } else {
-    pdh = wtap_dump_open(fname, save_format, compression_type, &params, &err);
+    pdh = wtap_dump_open(fname, save_format, compression_type, &params,
+                         &err, &err_info);
   }
   /* XXX idb_inf is documented to be used until wtap_dump_close. */
   g_free(params.idb_inf);
   params.idb_inf = NULL;
 
   if (pdh == NULL) {
-    cfile_dump_open_failure_alert_box(fname, err, save_format);
+    cfile_dump_open_failure_alert_box(fname, err, err_info, save_format);
     goto fail;
   }
 
@@ -4834,7 +4838,7 @@ cf_export_specified_packets(capture_file *cf, const char *fname,
          If we're writing to a temporary file, remove it.
          XXX - should we do so even if we're not writing to a
          temporary file? */
-      wtap_dump_close(pdh, &err);
+      wtap_dump_close(pdh, &err, &err_info);
       if (fname_new != NULL)
         ws_unlink(fname_new);
       return CF_WRITE_ABORTED;
@@ -4845,12 +4849,12 @@ cf_export_specified_packets(capture_file *cf, const char *fname,
        If we're writing to a temporary file, remove it. */
     if (fname_new != NULL)
       ws_unlink(fname_new);
-    wtap_dump_close(pdh, &err);
+    wtap_dump_close(pdh, &err, &err_info);
     goto fail;
   }
 
-  if (!wtap_dump_close(pdh, &err)) {
-    cfile_close_failure_alert_box(fname, err);
+  if (!wtap_dump_close(pdh, &err, &err_info)) {
+    cfile_close_failure_alert_box(fname, err, err_info);
     goto fail;
   }
 

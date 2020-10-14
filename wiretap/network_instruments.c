@@ -126,6 +126,7 @@ wtap_open_return_val network_instruments_open(wtap *wth, int *err, gchar **err_i
     guint seek_increment;
     packet_entry_header packet_header;
     observer_dump_private_state * private_state = NULL;
+    const char *err_str;
 
     offset = 0;
 
@@ -299,15 +300,10 @@ wtap_open_return_val network_instruments_open(wtap *wth, int *err, gchar **err_i
     if (file_seek(wth->fh, header_offset, SEEK_SET, err) == -1)
         return WTAP_OPEN_ERROR;
 
-    if (init_gmt_to_localtime_offset() != NULL) {
+    err_str = init_gmt_to_localtime_offset();
+    if (err_str != NULL) {
         *err = WTAP_ERR_INTERNAL;
-        /*
-         * XXX - we should return the error string, so the caller
-         * can report the details of the internal error, but that
-         * would require plugin file readers to do so for internal
-         * errors as well, which could break binary compatibility;
-         * we'll do that in the next release.
-         */
+        *err_info = g_strdup_printf("network_instruments: %s", err_str);
         return WTAP_OPEN_ERROR;
     }
 
@@ -664,11 +660,13 @@ int network_instruments_dump_can_write_encap(int encap)
 
 /* Returns TRUE on success, FALSE on failure; sets "*err" to an error code on
    failure. */
-gboolean network_instruments_dump_open(wtap_dumper *wdh, int *err)
+gboolean network_instruments_dump_open(wtap_dumper *wdh, int *err,
+    gchar **err_info)
 {
     observer_dump_private_state * private_state = NULL;
     capture_file_header file_header;
     guint header_offset;
+    const gchar *err_str;
     tlv_header comment_header;
     tlv_time_info time_header;
     char comment[64];
@@ -755,7 +753,12 @@ gboolean network_instruments_dump_open(wtap_dumper *wdh, int *err)
         wdh->bytes_dumped += sizeof(time_header);
     }
 
-    init_gmt_to_localtime_offset();
+    err_str = init_gmt_to_localtime_offset();
+    if (err_str != NULL) {
+        *err = WTAP_ERR_INTERNAL;
+        *err_info = g_strdup_printf("network_instruments: %s", err_str);
+        return FALSE;
+    }
 
     return TRUE;
 }
