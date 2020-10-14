@@ -398,8 +398,8 @@ cfile_write_failure_message(const char *progname, const char *in_filename,
         break;
 
     case WTAP_ERR_INTERNAL:
-        cmdarg_err("An internal error occurred while writing the %s.\n(%s)",
-                   out_file_string,
+        cmdarg_err("An internal error occurred while writing record%s to the %s.\n(%s)",
+                   in_frame_string, out_file_string,
                    err_info != NULL ? err_info : "no information supplied");
         g_free(err_info);
         break;
