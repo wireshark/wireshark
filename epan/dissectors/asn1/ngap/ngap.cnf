@@ -1091,6 +1091,18 @@ WLANName TYPE=FT_STRING DISPLAY = STR_UNICODE
   actx->created_item = proto_tree_add_item(tree, hf_index, parameter_tvb, 0, -1, ENC_UTF_8|ENC_NA);
 #.END
 
+#.TYPE_ATTR
+FiveG-TMSI TYPE = FT_UINT32 DISPLAY = BASE_DEC_HEX
+#.FN_BODY FiveG-TMSI VAL_PTR = &parameter_tvb HF_INDEX = -1
+  tvbuff_t *parameter_tvb = NULL;
+  proto_item *ti;
+%(DEFAULT_BODY)s
+  if (parameter_tvb) {
+    actx->created_item = proto_tree_add_item(tree, hf_index, parameter_tvb, 0, 4, ENC_BIG_ENDIAN);
+    ti = proto_tree_add_item(tree, hf_3gpp_tmsi, tvb, 0, 4, ENC_BIG_ENDIAN);
+    proto_item_set_hidden(ti);
+  }
+
 #.ASSIGN_VALUE_TO_TYPE  # NGAP does not have constants assigned to types, they are pure INTEGER
 # ProcedureCode
 

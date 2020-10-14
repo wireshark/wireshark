@@ -5031,9 +5031,9 @@ proto_register_gsm_a_common(void)
     static hf_register_info hf_3gpp[] =
     {
         { &hf_3gpp_tmsi,
-            { "TMSI/P-TMSI/M-TMSI",    "3gpp.tmsi",
+            { "TMSI/P-TMSI/M-TMSI/5G-TMSI", "3gpp.tmsi",
             FT_UINT32, BASE_DEC_HEX, 0, 0x0,
-            "Filter TMSI,P-TMSI,M-TMSI across protocols", HFILL }
+            "Filter TMSI, P-TMSI, M-TMSI, 5G-TMSI across protocols", HFILL }
         },
     };
 
