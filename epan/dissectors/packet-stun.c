@@ -293,8 +293,8 @@ typedef struct _stun_conv_info_t {
 #define XOR_PEER_ADDRESS        0x0012 /* RFC8656, MS-TURN */
 #define DATA                    0x0013 /* RFC8656, MS-TURN */
 /* Note: REALM and NONCE have swapped attribute numbers in MS-TURN */
-#define REALM                   0x0014 /* RFC8489, MS-TURN */
-#define NONCE                   0x0015 /* RFC8489, MS-TURN */
+#define REALM                   0x0014 /* RFC8489, MS-TURN uses 0x0015 */
+#define NONCE                   0x0015 /* RFC8489, MS-TURN uses 0x0014 */
 #define XOR_RELAYED_ADDRESS     0x0016 /* RFC8656 */
 #define REQUESTED_ADDRESS_FAMILY 0x0017 /* RFC8656, MS-TURN */
 #define EVEN_PORT               0x0018 /* RFC8656 */
@@ -1036,9 +1036,6 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
     if (msg_length != 0) {
         const gchar       *attribute_name_str;
 
-        ti = proto_tree_add_item(stun_tree, hf_stun_attributes, tvb, offset, msg_length, ENC_NA);
-        att_all_tree = proto_item_add_subtree(ti, ett_stun_att_all);
-
         /* According to [MS-TURN] section 2.2.2.8: "This attribute MUST be the
            first attribute following the TURN message header in all TURN messages  */
         if (stun_network_version == NET_VER_AUTO &&
@@ -1046,6 +1043,12 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
             tvb_get_ntohs(tvb, offset) == MAGIC_COOKIE) {
           network_version = NET_VER_MS_TURN;
         }
+
+        ti = proto_tree_add_uint(stun_tree, hf_stun_network_version, tvb, offset, 0, network_version);
+        proto_item_set_generated(ti);
+
+        ti = proto_tree_add_item(stun_tree, hf_stun_attributes, tvb, offset, msg_length, ENC_NA);
+        att_all_tree = proto_item_add_subtree(ti, ett_stun_att_all);
 
         while (offset < (STUN_HDR_LEN + msg_length)) {
             att_type = tvb_get_ntohs(tvb, offset);     /* Attribute type field in attribute header */
@@ -1058,7 +1061,6 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
             /* Early drafts and MS-TURN use swapped numbers to later versions */
             if ((network_version < NET_VER_3489) && (att_type == 0x0014 || att_type == 0x0015)) {
                 att_type_display ^= 1;
-                att_type ^= 1;
             }
             attribute_name_str = try_val_to_str_ext(att_type_display, &attributes_ext);
             if (attribute_name_str){
@@ -1066,8 +1068,8 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
                                                 tvb, offset, ATTR_HDR_LEN+att_length_pad,
                                                 att_type, "%s", attribute_name_str);
                 att_tree = proto_item_add_subtree(ti, ett_stun_att);
-                ti = proto_tree_add_uint(att_tree, hf_stun_att_type, tvb,
-                                         offset, 2, att_type);
+                ti = proto_tree_add_uint_format_value(att_tree, hf_stun_att_type, tvb,
+                                         offset, 2, att_type, "%s", attribute_name_str);
                 att_type_tree = proto_item_add_subtree(ti, ett_stun_att_type);
                 proto_tree_add_uint(att_type_tree, hf_stun_att_type_comprehension, tvb, offset, 2, att_type);
                 proto_tree_add_uint(att_type_tree, hf_stun_att_type_assignment, tvb, offset, 2, att_type);
@@ -1082,7 +1084,7 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
                 }
             } else {
                 att_tree = proto_tree_add_expert_format(att_all_tree, pinfo, &ei_stun_unknown_attribute, tvb,
-                                                        offset, 2, "Unknown attribute 0x%04x", att_type_display);
+                                                        offset, 2, "Unknown attribute 0x%04x", att_type);
             }
             offset += 2;
 
@@ -1631,11 +1633,6 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
         }
     }
 
-    ti = proto_tree_add_uint(stun_tree, hf_stun_network_version,
-                             tvb, offset, 0,
-                             network_version);
-    proto_item_set_generated(ti);
-
     if (found_turn_attributes) {
         /* At least one STUN/TURN implementation (Facetime) uses unknown/custom
          * TURN methods to setup a Channel Data, so the previous check to set
@@ -1774,7 +1771,7 @@ proto_register_stun(void)
         /* ////////////////////////////////////// */
         { &hf_stun_att_type,
           { "Attribute Type", "stun.att.type", FT_UINT16,
-            BASE_HEX | BASE_EXT_STRING, &attributes_ext, 0x0, NULL, HFILL }
+            BASE_HEX, NULL, 0x0, NULL, HFILL }
         },
         { &hf_stun_att_type_comprehension,
           { "Attribute Type Comprehension", "stun.att.type.comprehension", FT_UINT16,
