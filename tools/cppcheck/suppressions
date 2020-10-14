@@ -3,4 +3,5 @@ duplicateExpression
 invalidscanf
 noConstructor
 internalAstError
+syntaxError
 
