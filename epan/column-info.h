@@ -22,7 +22,7 @@ extern "C" {
  * Column info.
  */
 
-#define COL_MAX_LEN 256
+#define COL_MAX_LEN 2048
 #define COL_MAX_INFO_LEN 4096
 #define COL_CUSTOM_PRIME_REGEX " *([^ \\|]+) *(?:(?:\\|\\|)|(?:or)| *$){1}"
 
