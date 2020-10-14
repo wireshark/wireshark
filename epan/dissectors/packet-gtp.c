@@ -482,6 +482,7 @@ static int hf_nrup_dl_disc_nr_pdcp_pdu_sn = -1;
 static int hf_nrup_dl_disc_num_blks = -1;
 static int hf_nrup_dl_disc_nr_pdcp_pdu_sn_start = -1;
 static int hf_nrup_dl_disc_blk_sz = -1;
+static int hf_nrup_dl_report_nr_pdcp_pdu_sn = -1;
 static int hf_nrup_high_tx_nr_pdcp_sn_ind = -1;
 static int hf_nrup_high_delivered_nr_pdcp_sn_ind = -1;
 static int hf_nrup_final_frame_ind = -1;
@@ -9124,7 +9125,10 @@ dissect_nrup(tvbuff_t * tvb, packet_info * pinfo _U_, proto_tree * tree,
 
     switch (pdu_type) {
         case NR_UP_DL_USER_DATA:
+        {
             /* 5.5.2.1 */
+            gboolean report_delivered;
+
             /* PDU Type (=0) Spare DL Discard Blocks DL Flush Report polling Octet 1*/
             proto_tree_add_item(nrup_tree, hf_nrup_spr_bit_extnd_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item_ret_boolean(nrup_tree, hf_nrup_dl_discrd_blks, tvb, offset, 1, ENC_BIG_ENDIAN, &dl_disc_blk);
@@ -9135,32 +9139,45 @@ dissect_nrup(tvbuff_t * tvb, packet_info * pinfo _U_, proto_tree * tree,
             /* Spare    Assistance Info. Report Polling Flag    Retransmission flag*/
             proto_tree_add_item(nrup_tree, hf_nrup_spare, tvb, offset, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(nrup_tree, hf_nrup_request_out_of_seq_report, tvb, offset, 1, ENC_BIG_ENDIAN);
-            proto_tree_add_item(nrup_tree, hf_nrup_report_delivered, tvb, offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item_ret_boolean(nrup_tree, hf_nrup_report_delivered, tvb, offset, 1, ENC_BIG_ENDIAN, &report_delivered);
             proto_tree_add_item(nrup_tree, hf_nrup_user_data_existence_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(nrup_tree, hf_nrup_ass_inf_rep_poll_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(nrup_tree, hf_nrup_retransmission_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;
 
+            /* NR-U Sequence NUmber */
             proto_tree_add_item(nrup_tree, hf_nrup_nr_u_seq_num, tvb, offset, 3, ENC_BIG_ENDIAN);
             offset += 3;
 
             if (dl_flush) {
+                /* DL discard NR PDCP PDU SN */
                 proto_tree_add_item(nrup_tree, hf_nrup_dl_disc_nr_pdcp_pdu_sn, tvb, offset, 3, ENC_BIG_ENDIAN);
                 offset += 3;
             }
+            /* Discarded blocks */
             if (dl_disc_blk) {
+                /* DL discard Number of blocks */
                 proto_tree_add_item_ret_uint(nrup_tree, hf_nrup_dl_disc_num_blks, tvb, offset, 1, ENC_BIG_ENDIAN, &dl_disc_num_blks);
                 offset++;
                 while (dl_disc_num_blks) {
+                    /* DL discard NR PDCP PDU SN start */
                     proto_tree_add_item(nrup_tree, hf_nrup_dl_disc_nr_pdcp_pdu_sn_start, tvb, offset, 3, ENC_BIG_ENDIAN);
                     offset += 3;
 
+                    /* Discarded Block size */
                     proto_tree_add_item(nrup_tree, hf_nrup_dl_disc_blk_sz, tvb, offset, 1, ENC_BIG_ENDIAN);
                     offset++;
                     dl_disc_num_blks--;
                 }
             }
+
+            if (report_delivered) {
+                /* DL report NR PDCP PDU SN */
+                proto_tree_add_item(nrup_tree, hf_nrup_dl_report_nr_pdcp_pdu_sn, tvb, offset, 3, ENC_BIG_ENDIAN);
+                offset += 3;
+            }
             break;
+        }
 
         case NR_UP_DL_DATA_DELIVERY_STATUS:
         {
@@ -11422,6 +11439,12 @@ proto_register_gtp(void)
            FT_UINT8, BASE_DEC, NULL, 0,
            "The number of NR PDCP PDUs counted from the starting SN to be discarded", HFILL}
       },
+       {&hf_nrup_dl_report_nr_pdcp_pdu_sn,
+          { "DL report NR PDCP PDU SN", "nrup.dl_report_nr_pdcp_pdu_sn",
+            FT_UINT24, BASE_DEC, NULL, 0,
+            "DL delivery status report wanted when this SN has been delivered", HFILL}
+       },
+
       {&hf_nrup_high_tx_nr_pdcp_sn_ind,
          { "Highest Transmitted NR PDCP SN Ind", "nrup.high_tx_nr_pdcp_sn_ind",
            FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x08,
