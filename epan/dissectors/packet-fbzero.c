@@ -168,7 +168,7 @@ static guint32
 dissect_fb_zero_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *fb_zero_tree, guint offset, guint32 tag_number){
     guint32 tag_offset_start = offset + tag_number*4*2;
     guint32 tag_offset = 0, total_tag_len = 0;
-    gint32 tag_len;
+    gint32 tag_len = 0;
     gboolean tag_offset_valid = TRUE;
 
     while(tag_number){
