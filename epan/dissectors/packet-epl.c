@@ -4348,6 +4348,7 @@ dissect_epl_sdo_command_write_multiple_by_index(struct epl_convo *convo, proto_t
 	proto_tree *psf_od_tree;
 	struct object *obj = NULL;
 	const struct subobject *subobj = NULL;
+	guint16 segment_restsize = segment_size;
 
 
 	/* Offset is calculated simply by only applying EPL payload offset, not packet offset.
@@ -4378,45 +4379,38 @@ dissect_epl_sdo_command_write_multiple_by_index(struct epl_convo *convo, proto_t
 			/* the data is aligned in 4-byte increments, therfore maximum padding is 3 */
 			padding = tvb_get_guint8 ( tvb, offset + 7 ) & 0x03;
 
-			datalength = offsetincrement - ( offset - EPL_SOA_EPLV_OFFSET );
 			/* An offset increment of zero usually indicates, that we are at the end
 			 * of the payload. But we cannot ignore the end, because packages are
 			 * stacked up until the last byte */
-			if ( offsetincrement == 0 )
-				datalength = remlength - EPL_SOA_EPLV_OFFSET;
-
-			/* Possible guint overflow */
-			if ( ( datalength + EPL_SOA_EPLV_OFFSET ) > remlength )
-				break;
-
-			/* Last frame detected */
-			if ( offsetincrement == 0 )
+			if (offsetincrement == 0)
 			{
-				datalength = remlength;
-
-				/* guarding size against remaining length */
-				if ( remlength < EPL_SOA_EPLV_OFFSET )
-					break;
-
-				size = remlength - EPL_SOA_EPLV_OFFSET - padding;
+				datalength = segment_restsize;
 				lastentry = TRUE;
 			}
 			else
 			{
-				/* Each entry has a header size of 8, based on the following calculation:
-				 *   - 4 byte for byte position of next data set
-				 *   - 2 byte for index
-				 *   - 1 byte for subindex
-				 *   - 1 byte for reserved and padding */
-
-				/* Guarding against readout of padding. Probability is nearly zero, as
-				 * padding was checked above, but to be sure, this remains here */
-				if ( (guint32)( padding + 8 ) >= datalength )
-					break;
-
-				/* size of data is datalength - ( entry header size and padding ) */
-				size = datalength - 8 - padding;
+				datalength = offsetincrement - (offset - EPL_SOA_EPLV_OFFSET);
 			}
+			/* decrease restsize */
+			segment_restsize -= datalength;
+
+			/* Possible guint overflow */
+			if ( datalength > remlength )
+				break;
+
+			/* Each entry has a header size of 8, based on the following calculation:
+			*   - 4 byte for byte position of next data set
+			*   - 2 byte for index
+			*   - 1 byte for subindex
+			*   - 1 byte for reserved and padding */
+
+			/* Guarding against readout of padding. Probability is nearly zero, as
+			 * padding was checked above, but to be sure, this remains here */
+			if ((guint32)(padding + 8) >= datalength)
+				break;
+
+			/* size of data is datalength - ( entry header size and padding ) */
+			size = datalength - 8 - padding;
 
 			dataoffset = offset + 4;
 
@@ -4689,6 +4683,7 @@ dissect_epl_sdo_command_read_multiple_by_index(struct epl_convo *convo, proto_tr
 	struct object *obj = NULL;
 	const struct subobject *subobj = NULL;
 	const char *name;
+	guint16 segment_restsize = segment_size;
 
 	/* Offset is calculated simply by only applying EPL payload offset, not packet offset.
 	* The packet offset is 16, as this is the number of bytes trailing the SDO payload.
@@ -4720,45 +4715,38 @@ dissect_epl_sdo_command_read_multiple_by_index(struct epl_convo *convo, proto_tr
 			if ((tvb_get_guint8 ( tvb, offset + 7 ) & 0x80) == 0x80)
 				is_abort = TRUE;
 
-			datalength = offsetincrement - ( offset - EPL_SOA_EPLV_OFFSET );
-			/* An offset increment of zero usually indicates, that we are at the end
-			 * of the payload. But we cannot ignore the end, because packages are
-			 * stacked up until the last byte */
-			if ( offsetincrement == 0 )
-				datalength = remlength - EPL_SOA_EPLV_OFFSET;
-
-			/* Possible guint overflow */
-			if ( ( datalength + EPL_SOA_EPLV_OFFSET ) > remlength )
-				break;
-
-			/* Last frame detected */
-			if ( offsetincrement == 0 )
+			 /* An offset increment of zero usually indicates, that we are at the end
+			  * of the payload. But we cannot ignore the end, because packages are
+			  * stacked up until the last byte */
+			if (offsetincrement == 0)
 			{
-				datalength = remlength;
-
-				/* guarding size against remaining length */
-				if ( remlength < EPL_SOA_EPLV_OFFSET )
-					break;
-
-				size = remlength - EPL_SOA_EPLV_OFFSET - padding;
+				datalength = segment_restsize;
 				lastentry = TRUE;
 			}
 			else
 			{
-				/* Each entry has a header size of 8, based on the following calculation:
-				 *   - 4 byte for byte position of next data set
-				 *   - 2 byte for index
-				 *   - 1 byte for subindex
-				 *   - 1 byte for reserved and padding */
-
-				/* Guarding against readout of padding. Probability is nearly zero, as
-				 * padding was checked above, but to be sure, this remains here */
-				if ( (guint32)( padding + 8 ) >= datalength )
-					break;
-
-				/* size of data is datalength - ( entry header size and padding ) */
-				size = datalength - 8 - padding;
+				datalength = offsetincrement - (offset - EPL_SOA_EPLV_OFFSET);
 			}
+			/* decrease restsize */
+			segment_restsize -= datalength;
+
+			/* Possible guint overflow */
+			if (datalength > remlength)
+				break;
+
+			/* Each entry has a header size of 8, based on the following calculation:
+			*   - 4 byte for byte position of next data set
+			*   - 2 byte for index
+			*   - 1 byte for subindex
+			*   - 1 byte for reserved and padding */
+
+			/* Guarding against readout of padding. Probability is nearly zero, as
+			 * padding was checked above, but to be sure, this remains here */
+			if ((guint32)(padding + 8) >= datalength)
+				break;
+
+			/* size of data is datalength - ( entry header size and padding ) */
+			size = datalength - 8 - padding;
 
 			dataoffset = offset + 4;
 
@@ -5059,7 +5047,7 @@ dissect_epl_sdo_command_read_multiple_by_index(struct epl_convo *convo, proto_tr
 static gint
 dissect_epl_sdo_command_read_by_index(struct epl_convo *convo, proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, gint offset, guint8 segmented, gboolean response, guint16 segment_size)
 {
-	gint size, payload_length;
+	gint size, payload_length, rem_size = 0;
 	guint16 idx = 0x00;
 	guint8 subindex = 0x00;
 	guint32 fragmentId, frame;
@@ -5213,7 +5201,17 @@ dissect_epl_sdo_command_read_by_index(struct epl_convo *convo, proto_tree *epl_t
 
 		}
 
-		offset = dissect_epl_payload(epl_tree, tvb, pinfo, offset, size, type, EPL_ASND);
+		/* determine remaining SDO payload size (depends on segment size of current command) */
+		if (size > (segment_size - 4))
+		{
+			rem_size = (segment_size - 4);
+		}
+		else
+		{
+			rem_size = size;
+		}
+
+		offset = dissect_epl_payload(epl_tree, tvb, pinfo, offset, rem_size, type, EPL_ASND);
 	}
 
 	return offset;
