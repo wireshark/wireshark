@@ -1479,20 +1479,27 @@ main(int argc, char *argv[])
                 wtap_file_type_subtype_string(wtap_file_type_subtype(wth)));
     }
 
-    if (ignored_bytes != 0 && skip_radiotap == TRUE) {
-        fprintf(stderr, "editcap: can't skip radiotap headers and %d byte(s)\n", ignored_bytes);
-        fprintf(stderr, "editcap: at the start of packet at the same time\n");
-        ret = INVALID_OPTION;
-        goto clean_exit;
-    }
+    if (skip_radiotap) {
+        if (ignored_bytes != 0) {
+            fprintf(stderr, "editcap: can't skip radiotap headers and %d byte(s)\n", ignored_bytes);
+            fprintf(stderr, "editcap: at the start of packet at the same time\n");
+            ret = INVALID_OPTION;
+            goto clean_exit;
+        }
 
-    if (skip_radiotap == TRUE && wtap_file_encap(wth) != WTAP_ENCAP_IEEE_802_11_RADIOTAP) {
-        fprintf(stderr, "editcap: can't skip radiotap header because input file is incorrect\n");
-        fprintf(stderr, "editcap: expected '%s', input is '%s'\n",
-                wtap_encap_description(WTAP_ENCAP_IEEE_802_11_RADIOTAP),
-                wtap_encap_description(wtap_file_type_subtype(wth)));
-        ret = INVALID_OPTION;
-        goto clean_exit;
+        if (wtap_file_encap(wth) != WTAP_ENCAP_IEEE_802_11_RADIOTAP) {
+            fprintf(stderr, "editcap: can't skip radiotap header because input file has non-radiotap packets\n");
+            if (wtap_file_encap(wth) == WTAP_ENCAP_PER_PACKET) {
+                fprintf(stderr, "editcap: expected '%s', not all packets are necessarily that type\n",
+                        wtap_encap_description(WTAP_ENCAP_IEEE_802_11_RADIOTAP));
+            } else {
+                fprintf(stderr, "editcap: expected '%s', packets are '%s'\n",
+                        wtap_encap_description(WTAP_ENCAP_IEEE_802_11_RADIOTAP),
+                        wtap_encap_description(wtap_file_encap(wth)));
+            }
+            ret = INVALID_OPTION;
+            goto clean_exit;
+        }
     }
 
     wtap_dump_params_init(&params, wth);
