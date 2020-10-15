@@ -17,6 +17,8 @@ jobs:
         run: pip3 install dmgbuild
       - name: Install pytest
         run: pip install pytest pytest-xdist
+      - name: Install biplist
+        run: pip install biplist
       - name: Set up Ruby 2.6
         uses: actions/setup-ruby@v1.1.1
         with:
