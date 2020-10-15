@@ -12054,6 +12054,8 @@ _proto_tree_add_bits_ret_val(proto_tree *tree, const int hfindex, tvbuff_t *tvb,
 	char    *bf_str;
 	char     lbl_str[ITEM_LABEL_LENGTH];
 	guint64  value = 0;
+	guint8  *bytes = NULL;
+	size_t bytes_length = 0;
 
 	proto_item        *pi;
 	header_field_info *hf_field;
@@ -12085,7 +12087,7 @@ _proto_tree_add_bits_ret_val(proto_tree *tree, const int hfindex, tvbuff_t *tvb,
 
 	if (no_of_bits < 65) {
 		value = tvb_get_bits64(tvb, bit_offset, no_of_bits, encoding);
-	} else {
+	} else if (hf_field->type != FT_BYTES) {
 		REPORT_DISSECTOR_BUG("field %s passed to proto_tree_add_bits_ret_val() has a bit width of %u > 65",
 				     hf_field->abbrev, no_of_bits);
 		return NULL;
@@ -12164,6 +12166,14 @@ _proto_tree_add_bits_ret_val(proto_tree *tree, const int hfindex, tvbuff_t *tvb,
 	case FT_INT64:
 		pi = proto_tree_add_int64(tree, hfindex, tvb, offset, length, (gint64)value);
 		fill_label_number64(PITEM_FINFO(pi), lbl_str, TRUE);
+		break;
+
+	case FT_BYTES:
+		bytes = tvb_get_bits_array(NULL, tvb, bit_offset, no_of_bits, &bytes_length);
+		pi = proto_tree_add_bytes_with_length(tree, hfindex, tvb, offset, length, bytes, (gint) bytes_length);
+		proto_item_fill_label(PITEM_FINFO(pi), lbl_str);
+		proto_item_set_text(pi, "%s", lbl_str);
+		return pi;
 		break;
 
 	default:
