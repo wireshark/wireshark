@@ -22,7 +22,8 @@
  * - RFC 5780, formerly draft-ietf-behave-nat-behavior-discovery-08
  *             NAT Behavior Discovery Using Session Traversal Utilities for NAT (STUN)
  * - RFC 5766, formerly draft-ietf-behave-turn-16
- *             Traversal Using Relays around NAT (TURN)
+ *             Traversal Using Relays around NAT (TURN) (superseeded by RFC 8656)
+ * - RFC 8656  Traversal Using Relays around NAT (TURN)
  * - RFC 6062  Traversal Using Relays around NAT (TURN) Extensions for TCP Allocations
  * - RFC 6156, formerly draft-ietf-behave-turn-ipv6-11
  *             Traversal Using Relays around NAT (TURN) Extension for IPv6
@@ -169,6 +170,7 @@ static int hf_stun_att_xor_ipv6 = -1;
 static int hf_stun_att_xor_port = -1;
 static int hf_stun_att_icmp_type = -1;
 static int hf_stun_att_icmp_code = -1;
+static int hf_stun_att_ms_turn_unknown_8006 = -1;
 static int hf_stun_att_software = -1;
 static int hf_stun_att_priority = -1;
 static int hf_stun_att_tie_breaker = -1;
@@ -218,6 +220,7 @@ static int hf_stun_network_version = -1;
 
 /* Expert items */
 static expert_field ei_stun_short_packet = EI_INIT;
+static expert_field ei_stun_wrong_msglen = EI_INIT;
 static expert_field ei_stun_long_attribute = EI_INIT;
 static expert_field ei_stun_unknown_attribute = EI_INIT;
 
@@ -243,11 +246,11 @@ typedef struct _stun_conv_info_t {
 #define MESSAGE_COOKIE 0x2112A442
 #define TURN_MAGIC_COOKIE 0x72C64BC6
 
-/* Message classes */
-#define REQUEST         0x0000
-#define INDICATION      0x0001
-#define RESPONSE        0x0002
-#define ERROR_RESPONSE  0x0003
+/* Message classes (2 bit) */
+#define REQUEST          0
+#define INDICATION       1
+#define SUCCESS_RESPONSE 2
+#define ERROR_RESPONSE   3
 
 
 /* Methods */
@@ -332,6 +335,8 @@ typedef struct _stun_conv_info_t {
 #define PASSWORD_ALGORITHMS     0x8002 /* RFC8489 */
 #define ALTERNATE_DOMAIN        0x8003 /* RFC8489 */
 #define ICMP                    0x8004 /* RFC8656 */
+/* Unknown attribute in MS-TURN packets */
+#define MS_TURN_UNKNOWN_8006	0x8006
 /* 0x8005-0x8021 Unassigned collision */
 #define MS_VERSION              0x8008 /* MS-TURN */
 /* collision */
@@ -415,11 +420,11 @@ static const value_string transportnames[] = {
 };
 
 static const value_string classes[] = {
-    {REQUEST       , "Request"},
-    {INDICATION    , "Indication"},
-    {RESPONSE      , "Success Response"},
-    {ERROR_RESPONSE, "Error Response"},
-    {0x00          , NULL}
+    {REQUEST         , "Request"},
+    {INDICATION      , "Indication"},
+    {SUCCESS_RESPONSE, "Success Response"},
+    {ERROR_RESPONSE  , "Error Response"},
+    {0x00            , NULL}
 };
 
 static const value_string methods[] = {
@@ -489,6 +494,7 @@ static const value_string attributes[] = {
     {PASSWORD_ALGORITHMS   , "PASSWORD-ALGORITHMS"},
     {ALTERNATE_DOMAIN      , "ALTERNATE-DOMAIN"},
     {ICMP                  , "ICMP"},
+    {MS_TURN_UNKNOWN_8006  , "MS-TURN UNKNOWN 8006"},
     {MS_VERSION            , "MS-VERSION"},
     {MS_XOR_MAPPED_ADDRESS , "XOR-MAPPED-ADDRESS"},
     {SOFTWARE              , "SOFTWARE"},
@@ -987,7 +993,7 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
                                    stun_trans->rep_frame);
             proto_item_set_generated(it);
         }
-        if (msg_type_class == RESPONSE || msg_type_class == ERROR_RESPONSE) {
+        if (msg_type_class == SUCCESS_RESPONSE || msg_type_class == ERROR_RESPONSE) {
             /* This is a response */
             if (stun_trans->req_frame) {
                 proto_item *it;
@@ -1046,6 +1052,10 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
 
         ti = proto_tree_add_uint(stun_tree, hf_stun_network_version, tvb, offset, 0, network_version);
         proto_item_set_generated(ti);
+
+        /* Starting with RFC 5389 msg_length MUST be multiple of 4 bytes */
+        if ((network_version >= NET_VER_5389 && msg_length & 3) != 0)
+            stun_tree = proto_tree_add_expert(stun_tree, pinfo, &ei_stun_wrong_msglen, tvb, offset-18, 2);
 
         ti = proto_tree_add_item(stun_tree, hf_stun_attributes, tvb, offset, msg_length, ENC_NA);
         att_all_tree = proto_item_add_subtree(ti, ett_stun_att_all);
@@ -1446,6 +1456,10 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
                 proto_tree_add_item(att_tree, hf_stun_att_icmp_code, tvb, offset+1, 1, ENC_BIG_ENDIAN);
                 break;
 
+            case MS_TURN_UNKNOWN_8006:
+                proto_tree_add_item(att_tree, hf_stun_att_ms_turn_unknown_8006, tvb, offset, att_length, ENC_NA);
+                break;
+
             case SOFTWARE:
                 proto_tree_add_item(att_tree, hf_stun_att_software, tvb, offset, att_length, ENC_UTF_8|ENC_NA);
                 break;
@@ -1657,7 +1671,7 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
     }
 
     if (!PINFO_FD_VISITED(pinfo) && is_turn && (pinfo->ptype == PT_TCP)
-        && (msg_type_method == CONNECTION_BIND) && (msg_type_class == RESPONSE)) {
+        && (msg_type_method == CONNECTION_BIND) && (msg_type_class == SUCCESS_RESPONSE)) {
         /* RFC 6062: after the ConnectionBind exchange, the connection is no longer framed as TURN;
            instead, it is an unframed pass-through.
            Starting from next frame set conversation dissector to data */
@@ -1869,6 +1883,10 @@ proto_register_stun(void)
           { "ICMP code", "stun.att.icmp.code", FT_UINT8,
             BASE_DEC, NULL, 0x0, NULL, HFILL}
          },
+        { &hf_stun_att_ms_turn_unknown_8006,
+          { "Unknown8006", "stun.att.unknown8006", FT_BYTES,
+            BASE_NONE, NULL, 0x0, "MS-TURN Unknown Attribute 0x8006", HFILL }
+        },
         { &hf_stun_att_software,
           { "Software","stun.att.software", FT_STRING,
             BASE_NONE, NULL, 0x0, NULL, HFILL}
@@ -2068,6 +2086,9 @@ proto_register_stun(void)
     static ei_register_info ei[] = {
         { &ei_stun_short_packet,
         { "stun.short_packet", PI_MALFORMED, PI_ERROR, "Packet is too short", EXPFILL }},
+
+        { &ei_stun_wrong_msglen,
+        { "stun.wrong_msglen", PI_MALFORMED, PI_ERROR, "Packet length is not multiple of 4 bytes", EXPFILL }},
 
         { &ei_stun_long_attribute,
         { "stun.long_attribute", PI_MALFORMED, PI_WARN, "Attribute has trailing data", EXPFILL }},
