@@ -107,7 +107,6 @@ static int hf_pfcp_time_quota_mechanism_bti_type = -1;
 static int hf_pfcp_time_quota_mechanism_bti = -1;
 static int hf_pfcp_multiplier_value_digits = -1;
 static int hf_pfcp_multiplier_exponent = -1;
-static int hf_pfcp_aggregated_urr_id_ie_urr_id = -1;
 
 static int hf_pfcp_ue_ip_address_flags = -1;
 static int hf_pfcp_ue_ip_address_flag_b0_v6 = -1;
@@ -181,7 +180,6 @@ static int hf_pfcp_redirect_server_addr_len = -1;
 static int hf_pfcp_redirect_server_address = -1;
 static int hf_pfcp_other_redirect_server_addr_len = -1;
 static int hf_pfcp_other_redirect_server_address = -1;
-static int hf_pfcp_linked_urr_id = -1;
 static int hf_pfcp_outer_hdr_desc = -1;
 static int hf_pfcp_outer_hdr_creation_teid = -1;
 static int hf_pfcp_outer_hdr_creation_ipv4 = -1;
@@ -3968,14 +3966,11 @@ static void
 dissect_pfcp_linked_urr_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
 {
     int offset = 0;
-    guint32 value;
+
     /* Octet 5 to 8 Linked URR ID value
     * The Linked URR ID value shall be encoded as an Unsigned32 binary integer value
     */
-    proto_tree_add_item_ret_uint(tree, hf_pfcp_linked_urr_id, tvb, offset, 4, ENC_BIG_ENDIAN, &value);
-    offset += 4;
-
-    proto_item_append_text(item, "%u", value);
+    offset = decode_pfcp_urr_id(tvb, pinfo, tree, item, offset);
 
     if (offset < length) {
         proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, offset, -1);
@@ -5098,11 +5093,8 @@ dissect_pfcp_multiplier(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 static void
 dissect_pfcp_aggregated_urr_id_ie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item, guint16 length _U_, guint8 message_type _U_, pfcp_session_args_t *args _U_)
 {
-    guint32 value;
     /* 5 to 8  URR ID */
-    proto_tree_add_item_ret_uint(tree, hf_pfcp_aggregated_urr_id_ie_urr_id, tvb, 0, 4, ENC_BIG_ENDIAN, &value);
-
-    proto_item_append_text(item, "%u", value);
+    decode_pfcp_urr_id(tvb, pinfo, tree, item, 0);
 }
 
 /*
@@ -9149,11 +9141,6 @@ proto_register_pfcp(void)
             FT_UINT32, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
-        { &hf_pfcp_aggregated_urr_id_ie_urr_id,
-        { "URR ID", "pfcp.aggregated_urr_id_ie.urr_id",
-            FT_UINT32, BASE_DEC, NULL, 0x0,
-            NULL, HFILL }
-        },
         { &hf_pfcp_failed_rule_id_type,
         { "Failed Rule ID Type", "pfcp.failed_rule_id_type",
             FT_UINT8, BASE_DEC, VALS(pfcp_failed_rule_id_type_vals), 0x7,
@@ -9498,11 +9485,6 @@ proto_register_pfcp(void)
         { &hf_pfcp_other_redirect_server_address,
         { "Other Redirect Server Address", "pfcp.other_redirect_server_address",
             FT_STRING, BASE_NONE, NULL, 0x0,
-            NULL, HFILL }
-        },
-        { &hf_pfcp_linked_urr_id,
-        { "Linked URR ID", "pfcp.linked_urr_id",
-            FT_UINT32, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_pfcp_outer_hdr_desc,
