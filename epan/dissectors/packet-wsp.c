@@ -906,6 +906,7 @@ static const value_string vals_content_types[] = {
     { 0x4B, "application/vnd.oma.drm.rights+wbxml"},
     { 0x4C, "application/vnd.wv.csp+xml"},
     { 0x4D, "application/vnd.wv.csp+wbxml"},
+    { 0x5A, "application/octet-stream"},
     /* The following media types are registered by 3rd parties */
     { 0x0201, "application/vnd.uplanet.cachop-wbxml" },
     { 0x0202, "application/vnd.uplanet.signal" },
