@@ -1153,6 +1153,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  proto_item_add_subtree@Base 1.9.1
  proto_item_append_text@Base 1.9.1
  proto_item_fill_label@Base 1.9.1
+ proto_item_fill_display_label@Base 3.5.0
  proto_item_get_display_repr@Base 3.3.0
  proto_item_get_len@Base 1.9.1
  proto_item_get_parent@Base 1.9.1

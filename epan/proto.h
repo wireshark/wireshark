@@ -1130,7 +1130,7 @@ WS_DLL_PUBLIC int proto_item_get_len(const proto_item *pi);
  */
 WS_DLL_PUBLIC void proto_item_set_bits_offset_len(proto_item *ti, int bits_offset, int bits_len);
 
-/** Get display representation of a proto_item.
+/** Get the display representation of a proto_item.
  * Can be used, for example, to append that to the parent item of
  * that item.
  @param scope the wmem scope to use to allocate the string
@@ -2369,12 +2369,22 @@ WS_DLL_PUBLIC proto_item *
 proto_tree_add_debug_text(proto_tree *tree, const char *format,
     ...) G_GNUC_PRINTF(2,3);
 
-/** Fill given label_str with string representation of field
+/** Fill given label_str with a simple string representation of field.
  @param fi the item to get the info from
  @param label_str the string to fill
  @todo think about changing the parameter profile */
 WS_DLL_PUBLIC void
-proto_item_fill_label(field_info *fi, gchar *label_str);
+proto_item_fill_label(field_info *finfo, gchar *label_str);
+
+/** Fill the given display_label_str with the string representation of a field
+ * formatted according to its type and field display specifier.
+ * Used to display custom columns and packet diagram values.
+ @param fi The item to get the info from
+ @param display_label_str The string to fill
+ @return The length of the label excluding the terminating '\0'.
+ */
+WS_DLL_PUBLIC int
+proto_item_fill_display_label(field_info *fi, gchar *display_label_str, const int label_str_size);
 
 /** Register a new protocol.
  @param name the full name of the new protocol

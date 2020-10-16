@@ -138,18 +138,15 @@ const QString FieldInformation::moduleName()
 
 QString FieldInformation::toString()
 {
-    QString repr;
-    gchar *repr_str;
-    repr_str = fvalue_to_string_repr(NULL, &fi_->value, FTREPR_DISPLAY, fi_->hfinfo->display);
-    if (repr_str) {
-        repr = repr_str;
-    }
-    wmem_free(NULL, repr_str);
+    QByteArray display_label;
 
-    if (repr.isEmpty()) {
+    display_label.resize(80); // Arbitrary.
+    proto_item_fill_display_label(fi_, display_label.data(), display_label.size());
+
+    if (display_label.isEmpty()) {
         return "[no value for field]";
     }
-    return repr;
+    return QString(display_label);
 }
 
 QString FieldInformation::url()
