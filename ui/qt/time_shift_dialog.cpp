@@ -13,7 +13,7 @@
 #include "wireshark_application.h"
 
 #include <ui/time_shift.h>
-#include <ui/qt/utils/tango_colors.h>
+#include <ui/qt/utils/color_utils.h>
 
 #include <QStyleOption>
 
@@ -104,12 +104,10 @@ void TimeShiftDialog::enableWidgets()
         ts_ui_->errorLabel->setStyleSheet(QString(
                     "QLabel {"
                     "  margin-top: 0.5em;"
-                    "  color: #%1;"
-                    "  background-color: #%2;"
+                    "  background-color: %2;"
                     "}"
                     )
-                .arg(ws_css_warn_text, 6, 16, QChar('0'))
-                .arg(ws_css_warn_background, 6, 16, QChar('0'))
+                .arg(ColorUtils::warningBackground().name())
                 );
     }
     apply_button_->setEnabled(enable_apply);

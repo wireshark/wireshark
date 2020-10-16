@@ -24,7 +24,7 @@
 #include <ui/qt/models/interface_tree_model.h>
 #include <ui/qt/models/sparkline_delegate.h>
 
-#include <ui/qt/utils/tango_colors.h>
+#include <ui/qt/utils/color_utils.h>
 
 
 #include "extcap.h"
@@ -68,17 +68,7 @@ InterfaceFrame::InterfaceFrame(QWidget * parent)
                       "QTreeView {"
                       "  border: 0;"
                       "}"
-                      "QLabel {"
-                      "  border-radius: 0.5em;"
-                      "  padding: 0.33em;"
-                      "  margin-bottom: 0.25em;"
-                      // We might want to transition this to normal colors this after a timeout.
-                      "  color: #%1;"
-                      "  background-color: #%2;"
-                      "}"
-                    )
-                  .arg(ws_css_warn_text, 6, 16, QChar('0'))
-                  .arg(ws_css_warn_background, 6, 16, QChar('0')));
+                      ));
 
     ui->warningLabel->hide();
 
@@ -277,6 +267,16 @@ void InterfaceFrame::resetInterfaceTreeDisplay()
 {
     ui->warningLabel->hide();
     ui->warningLabel->clear();
+
+    ui->warningLabel->setStyleSheet(QString(
+                "QLabel {"
+                "  border-radius: 0.5em;"
+                "  padding: 0.33em;"
+                "  margin-bottom: 0.25em;"
+                // We might want to transition this to normal colors this after a timeout.
+                "  background-color: %2;"
+                "}"
+                ).arg(ColorUtils::warningBackground().name()));
 
 #ifdef HAVE_LIBPCAP
 #ifdef Q_OS_WIN

@@ -14,7 +14,7 @@
 #include <QMouseEvent>
 #include <QStyleOption>
 
-#include <ui/qt/utils/tango_colors.h>
+#include <ui/qt/utils/color_utils.h>
 
 /* Temporary message timeouts */
 const int temporary_interval_ = 1000;
@@ -57,11 +57,9 @@ void LabelStack::fillLabel() {
     if (si.ctx == temporary_ctx_) {
         style_sheet += QString(
                     "  border-radius: 0.25em;"
-                    "  color: #%1;"
-                    "  background-color: #%2;"
+                    "  background-color: %2;"
                     )
-                .arg(ws_css_warn_text, 6, 16, QChar('0'))
-                .arg(ws_css_warn_background, 6, 16, QChar('0'));
+                .arg(ColorUtils::warningBackground().name());
     }
 
     style_sheet += "}";

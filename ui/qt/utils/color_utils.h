@@ -71,6 +71,12 @@ public:
      */
     static const QColor contrastingTextColor(const QColor color);
 
+    /**
+     * Returns an appropriate warning background color for the current mode.
+     * @return The background color.
+     */
+    static const QColor warningBackground();
+
 signals:
 
 public slots:

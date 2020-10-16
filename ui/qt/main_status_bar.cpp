@@ -27,7 +27,7 @@
 #include "main_status_bar.h"
 #include "profile_dialog.h"
 #include <ui/qt/utils/stock_icon.h>
-#include <ui/qt/utils/tango_colors.h>
+#include <ui/qt/utils/color_utils.h>
 #include <ui/qt/capture_file.h>
 #include <ui/qt/widgets/clickable_label.h>
 
@@ -595,12 +595,10 @@ void MainStatusBar::toggleBackground(bool enabled)
     if (enabled) {
         setStyleSheet(QString(
                           "QStatusBar {"
-                          "  color: #%1;"
-                          "  background-color: #%2;"
+                          "  background-color: %2;"
                           "}"
                           )
-                      .arg(ws_css_warn_text, 6, 16, QChar('0'))
-                      .arg(ws_css_warn_background, 6, 16, QChar('0')));
+                      .arg(ColorUtils::warningBackground().name()));
     } else {
         setStyleSheet(QString());
     }

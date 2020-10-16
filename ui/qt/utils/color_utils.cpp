@@ -188,6 +188,14 @@ const QColor ColorUtils::contrastingTextColor(const QColor color)
     return QApplication::palette().base().color();
 }
 
+const QColor ColorUtils::warningBackground()
+{
+    if (themeIsDark()) {
+        return QColor(tango_butter_6);
+    }
+    return QColor(tango_butter_2);
+}
+
 /*
  * Editor modelines
  *

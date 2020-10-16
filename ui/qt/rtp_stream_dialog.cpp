@@ -30,7 +30,7 @@
 #include <QTreeWidgetItem>
 #include <QTreeWidgetItemIterator>
 
-#include <ui/qt/utils/tango_colors.h>
+#include <ui/qt/utils/color_utils.h>
 
 /*
  * @file RTP stream dialog
@@ -105,8 +105,8 @@ public:
         if (calc.problem) {
             setText(status_col_, UTF8_BULLET);
             setTextAlignment(status_col_, Qt::AlignCenter);
-            QColor bgColor(ws_css_warn_background);
-            QColor textColor(ws_css_warn_text);
+            QColor bgColor(ColorUtils::warningBackground());
+            QColor textColor(QApplication::palette().text().color());
             for (int i = 0; i < columnCount(); i++) {
                 QBrush bgBrush = background(i);
                 bgBrush.setColor(bgColor);
