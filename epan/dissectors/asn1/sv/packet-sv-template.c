@@ -16,6 +16,7 @@
 #include <epan/etypes.h>
 #include <epan/expert.h>
 #include <epan/prefs.h>
+#include <epan/addr_resolv.h>
 
 #include "packet-ber.h"
 #include "packet-acse.h"
@@ -81,6 +82,8 @@ static int hf_sv_phsmeas_q_source = -1;
 static int hf_sv_phsmeas_q_test = -1;
 static int hf_sv_phsmeas_q_operatorblocked = -1;
 static int hf_sv_phsmeas_q_derived = -1;
+static int hf_sv_gmidentity = -1;
+static int hf_sv_gmidentity_manuf = -1;
 
 #include "packet-sv-hf.c"
 
@@ -88,11 +91,13 @@ static int hf_sv_phsmeas_q_derived = -1;
 static int ett_sv = -1;
 static int ett_phsmeas = -1;
 static int ett_phsmeas_q = -1;
+static int ett_gmidentity = -1;
 
 #include "packet-sv-ett.c"
 
 static expert_field ei_sv_mal_utctime = EI_INIT;
 static expert_field ei_sv_zero_pdu = EI_INIT;
+static expert_field ei_sv_mal_gmidentity = EI_INIT;
 
 static gboolean sv_decode_data_as_phsmeas = FALSE;
 
@@ -283,6 +288,12 @@ void proto_register_sv(void) {
 		{ &hf_sv_phsmeas_q_derived,
 		{ "derived", "sv.meas_quality.derived", FT_BOOLEAN, 32, NULL, Q_DERIVED, NULL, HFILL}},
 
+		{ &hf_sv_gmidentity,
+		{ "gmIdentity", "sv.gmidentity", FT_UINT64, BASE_HEX, NULL, 0x00, NULL, HFILL}},
+
+		{ &hf_sv_gmidentity_manuf,
+		{ "MAC Vendor", "sv.gmidentity_manuf", FT_BYTES, BASE_NONE, NULL, 0x00, NULL, HFILL}},
+
 
 #include "packet-sv-hfarr.c"
 	};
@@ -292,12 +303,14 @@ void proto_register_sv(void) {
 		&ett_sv,
 		&ett_phsmeas,
 		&ett_phsmeas_q,
+		&ett_gmidentity,
 #include "packet-sv-ettarr.c"
 	};
 
 	static ei_register_info ei[] = {
 		{ &ei_sv_mal_utctime, { "sv.malformed.utctime", PI_MALFORMED, PI_WARN, "BER Error: malformed UTCTime encoding", EXPFILL }},
 		{ &ei_sv_zero_pdu, { "sv.zero_pdu", PI_PROTOCOL, PI_ERROR, "Internal error, zero-byte SV PDU", EXPFILL }},
+		{ &ei_sv_mal_gmidentity, { "sv.malformed.gmidentity", PI_MALFORMED, PI_WARN, "BER Error: malformed gmIdentity encoding", EXPFILL }},
 	};
 
 	expert_module_t* expert_sv;

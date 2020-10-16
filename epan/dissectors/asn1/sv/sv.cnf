@@ -81,4 +81,36 @@ UtcTime	TYPE = FT_STRING DISPLAY = BASE_NONE
 	}
 #.END
 
+#.FN_BODY GmidData
+	guint32 len;
+	proto_item  *gmidentity_ti;
+	proto_tree  *gmidentity_tree;
+	const gchar *manuf_name;
+
+	len = tvb_reported_length_remaining(tvb, offset);
+
+	if(len != 8)
+	{
+		proto_tree_add_expert_format(tree, actx->pinfo, &ei_sv_mal_gmidentity, tvb, offset, len,
+				"BER Error: malformed gmIdentity encoding, length must be 8 bytes");
+		if(hf_index >= 0)
+		{
+			proto_tree_add_string(tree, hf_index, tvb, offset, len, "????");
+		}
+		return offset;
+	}
+
+	gmidentity_ti = proto_tree_add_item(tree, hf_sv_gmidentity, tvb, offset, 8, ENC_BIG_ENDIAN);
+
+	/* EUI-64: vendor ID | 0xFF - 0xFE | card ID */
+	if (tvb_get_ntohs(tvb, offset + 3) == 0xFFFE) {
+		gmidentity_tree = proto_item_add_subtree(gmidentity_ti, ett_gmidentity);
+
+		manuf_name = tvb_get_manuf_name(tvb, offset);
+		proto_tree_add_bytes_format_value(gmidentity_tree, hf_sv_gmidentity_manuf, tvb, offset, 3, NULL, "%%s", manuf_name);
+	}
+
+	offset += 8;
+#.END
+
 #.END_OF_CNF

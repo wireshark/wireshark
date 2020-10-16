@@ -20,9 +20,11 @@ ASDU ::= SEQUENCE {
 	smpRate		[6] IMPLICIT INTEGER(0..65535) OPTIONAL,
 	seqData		[7] IMPLICIT Data,
 	smpMod		[8] IMPLICIT INTEGER{samplesPerNormalPeriod(0),samplesPerSecond(1),secondsPerSample(2)} OPTIONAL,
+	gmidData	[9] IMPLICIT GmidData OPTIONAL,
 	...
 }
 UtcTime ::= OCTET STRING
 Data ::= OCTET STRING
+GmidData ::= OCTET STRING
 END
 
