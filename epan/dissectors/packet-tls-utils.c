@@ -7457,7 +7457,7 @@ ssl_dissect_hnd_hello_ext_quic_transport_parameters(ssl_common_dissect_t *hf, tv
                                     tvb, offset, 2, ENC_BIG_ENDIAN);
                 offset += 2;
 
-                if (!ssl_add_vector(hf, tvb, pinfo, tree, offset, offset_end, &connectionid_length,
+                if (!ssl_add_vector(hf, tvb, pinfo, parameter_tree, offset, offset_end, &connectionid_length,
                                     hf->hf.hs_ext_quictp_parameter_pa_connectionid_length, 0, 20)) {
                     break;
                 }
