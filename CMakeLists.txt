@@ -2841,6 +2841,8 @@ if (MAXMINDDB_FOUND)
 endif()
 
 if(ENABLE_APPLICATION_BUNDLE)
+	file(MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/run/${CMAKE_CFG_INTDIR}/Wireshark.app/Contents/Resources/Extras")
+
 	# --preserve-xattr is undocumented but ensures that we install
 	# a signed ChmodBPF script.
 	set (install_chmodbpf_component_pkg "${CMAKE_BINARY_DIR}/install.ChmodBPF.pkg")
