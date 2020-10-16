@@ -323,7 +323,7 @@ typedef struct tcp_process_info_t {
 typedef struct _tcp_flow_t {
 	guint8 static_flags; /* true if base seq set */
 	guint32 base_seq;	/* base seq number (used by relative sequence numbers)*/
-#define TCP_MAX_UNACKED_SEGMENTS 1000 /* The most unacked segments we'll store */
+#define TCP_MAX_UNACKED_SEGMENTS 10000 /* The most unacked segments we'll store */
 	guint32 fin;		/* frame number of the final FIN */
 	guint32 window;		/* last seen window */
 	gint16	win_scale;	/* -1 is we don't know, -2 is window scaling is not used */
