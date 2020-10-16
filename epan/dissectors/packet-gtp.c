@@ -9193,7 +9193,7 @@ dissect_nrup(tvbuff_t * tvb, packet_info * pinfo _U_, proto_tree * tree,
 
             proto_tree_add_item_ret_boolean(nrup_tree, hf_nrup_high_tx_nr_pdcp_sn_ind ,tvb, offset,1, ENC_BIG_ENDIAN, &high_tx_nr_pdcp_sn_ind );
             proto_tree_add_item_ret_boolean(nrup_tree, hf_nrup_high_delivered_nr_pdcp_sn_ind ,tvb, offset,1, ENC_BIG_ENDIAN, &high_del_nr_pdcp_sn_ind );
-            proto_tree_add_item(nrup_tree, hf_nrup_final_frame_ind,tvb, offset, 3, ENC_BIG_ENDIAN);
+            proto_tree_add_item(nrup_tree, hf_nrup_final_frame_ind,tvb, offset, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item_ret_boolean(nrup_tree, hf_nrup_lost_pkt_rpt,tvb, offset, 1, ENC_BIG_ENDIAN, &lost_packet_report);
             offset++;
 
