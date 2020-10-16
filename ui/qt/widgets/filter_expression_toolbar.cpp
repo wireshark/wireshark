@@ -381,11 +381,13 @@ QMenu * FilterExpressionToolBar::findParentMenu(const QStringList tree, void *fe
         QString parentName = tree.at(0).trimmed();
         QToolButton * menuButton = new QToolButton();
         menuButton->setText(parentName);
-        menuButton->setPopupMode(QToolButton::InstantPopup);
+        menuButton->setPopupMode(QToolButton::MenuButtonPopup);
         QMenu * parentMenu = new QMenu(menuButton);
         parentMenu->installEventFilter(data->toolbar);
         parentMenu->setProperty(dfe_menu_, QVariant::fromValue(true));
         menuButton->setMenu(parentMenu);
+        // Required for QToolButton::MenuButtonPopup.
+        connect(menuButton, &QToolButton::pressed, menuButton, &QToolButton::showMenu);
         data->toolbar->addWidget(menuButton);
 
         return findParentMenu(tree.mid(1), fed_data, parentMenu);
