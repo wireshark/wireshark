@@ -201,6 +201,8 @@ static int hf_tcp_option_wscale_multiplier = -1;
 static int hf_tcp_option_sack_sle = -1;
 static int hf_tcp_option_sack_sre = -1;
 static int hf_tcp_option_sack_range_count = -1;
+static int hf_tcp_option_sack_dsack_le = -1;
+static int hf_tcp_option_sack_dsack_re = -1;
 static int hf_tcp_option_echo = -1;
 static int hf_tcp_option_timestamp_tsval = -1;
 static int hf_tcp_option_timestamp_tsecr = -1;
@@ -386,6 +388,7 @@ static expert_field ei_tcp_analysis_tfo_syn = EI_INIT;
 static expert_field ei_tcp_analysis_tfo_ack = EI_INIT;
 static expert_field ei_tcp_analysis_tfo_ignored = EI_INIT;
 static expert_field ei_tcp_scps_capable = EI_INIT;
+static expert_field ei_tcp_option_sack_dsack = EI_INIT;
 static expert_field ei_tcp_option_snack_sequence = EI_INIT;
 static expert_field ei_tcp_option_wscale_shift_invalid = EI_INIT;
 static expert_field ei_tcp_option_mss_absent = EI_INIT;
@@ -4172,6 +4175,7 @@ dissect_tcpopt_sack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
     guint32 base_ack=0;
     guint  num_sack_ranges = 0;
     int offset = 0;
+    int sackoffset;
     int optlen = tvb_reported_length(tvb);
 
     if(tcp_analyze_seq && tcp_relative_seq) {
@@ -4194,6 +4198,7 @@ dissect_tcpopt_sack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
     offset += 2;    /* skip past type and length */
     optlen -= 2;    /* subtract size of type and length */
 
+    sackoffset = offset;
     while (optlen > 0) {
         if (optlen < 4) {
             proto_tree_add_expert(field_tree, pinfo, &ei_tcp_suboption_malformed, tvb, offset, optlen);
@@ -4204,7 +4209,6 @@ dissect_tcpopt_sack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
                                    offset, 4, leftedge,
                                    "left edge = %u%s", leftedge,
                                    (tcp_analyze_seq && tcp_relative_seq) ? " (relative)" : "");
-
         optlen -= 4;
         if (optlen < 4) {
             proto_tree_add_expert(field_tree, pinfo, &ei_tcp_suboption_malformed, tvb, offset, optlen);
@@ -4236,6 +4240,31 @@ dissect_tcpopt_sack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
     tf = proto_tree_add_uint(field_tree, hf_tcp_option_sack_range_count,
                              tvb, 0, 0, num_sack_ranges);
     proto_item_set_generated(tf);
+
+    /* RFC 2883 "An Extension to the Selective Acknowledgement (SACK) Option for TCP" aka "D-SACK"
+     * Section 4
+     *   Conditions: Either the first sack-block is inside the already acknowledged range or
+     *               the first sack block is inside the second sack block.
+     *
+     * Maybe add later:
+     * (1) A D-SACK block is only used to report a duplicate contiguous sequence of data received by
+     *     the receiver in the most recent packet.
+     */
+    if (GE_SEQ(tcph->sack_right_edge[0], tcph->th_ack) ||
+         (tcph->num_sack_ranges > 1 &&
+          LT_SEQ(tcph->sack_left_edge[1], tcph->sack_right_edge[0]) &&
+          GE_SEQ(tcph->sack_right_edge[1], tcph->sack_right_edge[0]))
+    ) {
+        leftedge = tvb_get_ntohl(tvb, sackoffset)-base_ack;
+        tf = proto_tree_add_uint_format(field_tree, hf_tcp_option_sack_dsack_le, tvb, sackoffset, 4, leftedge,
+            "D-SACK Left Edge = %u%s", leftedge, (tcp_analyze_seq && tcp_relative_seq) ? " (relative)" : "");
+        proto_item_set_generated(tf);
+        rightedge = tvb_get_ntohl(tvb, sackoffset+4)-base_ack;
+        tf = proto_tree_add_uint_format(field_tree, hf_tcp_option_sack_dsack_re, tvb, sackoffset+4, 4, rightedge,
+            "D-SACK Right Edge = %u%s", rightedge, (tcp_analyze_seq && tcp_relative_seq) ? " (relative)" : "");
+        proto_item_set_generated(tf);
+        proto_tree_add_expert(field_tree, pinfo, &ei_tcp_option_sack_dsack, tvb, sackoffset, 8);
+    }
 
     return tvb_captured_length(tvb);
 }
@@ -7198,6 +7227,14 @@ proto_register_tcp(void)
           { "TCP SACK Count", "tcp.options.sack.count", FT_UINT8,
             BASE_DEC, NULL, 0x0, NULL, HFILL}},
 
+        { &hf_tcp_option_sack_dsack_le,
+          {"TCP D-SACK Left Edge", "tcp.options.sack.dsack_le", FT_UINT32,
+           BASE_DEC, NULL, 0x0, "Duplicate SACK Left Edge", HFILL}},
+
+        { &hf_tcp_option_sack_dsack_re,
+          {"TCP D-SACK Right Edge", "tcp.options.sack.dsack_re", FT_UINT32,
+           BASE_DEC, NULL, 0x0, "Duplicate SACK Right Edge", HFILL}},
+
         { &hf_tcp_option_echo,
           { "TCP Echo Option", "tcp.options.echo_value", FT_UINT32,
             BASE_DEC, NULL, 0x0, "TCP Sack Echo", HFILL}},
@@ -7737,6 +7774,7 @@ proto_register_tcp(void)
         { &ei_tcp_analysis_tfo_ack, { "tcp.analysis.tfo_ack", PI_SEQUENCE, PI_NOTE, "TCP SYN-ACK accepting TFO data", EXPFILL }},
         { &ei_tcp_analysis_tfo_ignored, { "tcp.analysis.tfo_ignored", PI_SEQUENCE, PI_NOTE, "TCP SYN-ACK ignoring TFO data", EXPFILL }},
         { &ei_tcp_scps_capable, { "tcp.analysis.zero_window_probe_ack", PI_SEQUENCE, PI_NOTE, "Connection establish request (SYN-ACK): SCPS Capabilities Negotiated", EXPFILL }},
+        { &ei_tcp_option_sack_dsack, { "tcp.options.sack.dsack", PI_SEQUENCE, PI_WARN, "D-SACK Sequence", EXPFILL }},
         { &ei_tcp_option_snack_sequence, { "tcp.options.snack.sequence", PI_SEQUENCE, PI_NOTE, "SNACK Sequence", EXPFILL }},
         { &ei_tcp_option_wscale_shift_invalid, { "tcp.options.wscale.shift.invalid", PI_PROTOCOL, PI_WARN, "Window scale shift exceeds 14", EXPFILL }},
         { &ei_tcp_option_mss_absent, { "tcp.options.mss.absent", PI_PROTOCOL, PI_NOTE, "The SYN packet does not contain a MSS option", EXPFILL }},
