@@ -4327,6 +4327,7 @@ proto_reg_handoff_http(void)
 	dissector_add_uint("acdr.tls_application_port", 443, http_handle);
 	dissector_add_uint("acdr.tls_application", TLS_APP_HTTP, http_handle);
 	dissector_add_uint("acdr.tls_application", TLS_APP_TR069, http_handle);
+	dissector_add_uint("ippusb", 0, http_tcp_handle);
 }
 
 /*

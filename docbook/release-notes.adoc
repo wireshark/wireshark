@@ -55,6 +55,7 @@ The following features are new (or have been significantly updated) since versio
 * sshdump can now be copied to multiple instances. Each instance will show up a different interface and will have its own profile.
 * The main window now supports a packet diagram view, which shows each packet as a textbook-style diagram.
 * Filter buttons (“Preferences -> Filter Buttons”) can be grouped by using “//” as a path separator in the filter button label.
+* IPP Over USB packets can now be dissected and displayed
 
 // === Removed Features and Support
 

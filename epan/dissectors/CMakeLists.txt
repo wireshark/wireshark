@@ -1255,6 +1255,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ipoib.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ipos.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ipp.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-ippusb.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ipsec-tcp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ipsec-udp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ipsec.c
