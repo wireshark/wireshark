@@ -392,7 +392,7 @@ static expert_field ei_tcp_option_mss_absent = EI_INIT;
 static expert_field ei_tcp_option_mss_present = EI_INIT;
 static expert_field ei_tcp_short_segment = EI_INIT;
 static expert_field ei_tcp_ack_nonzero = EI_INIT;
-static expert_field ei_tcp_connection_sack = EI_INIT;
+static expert_field ei_tcp_connection_synack = EI_INIT;
 static expert_field ei_tcp_connection_syn = EI_INIT;
 static expert_field ei_tcp_connection_fin = EI_INIT;
 static expert_field ei_tcp_connection_rst = EI_INIT;
@@ -6500,7 +6500,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
     if(tcph->th_flags & TH_SYN) {
         if(tcph->th_flags & TH_ACK) {
-           expert_add_info_format(pinfo, tf_syn, &ei_tcp_connection_sack,
+           expert_add_info_format(pinfo, tf_syn, &ei_tcp_connection_synack,
                                   "Connection establish acknowledge (SYN+ACK): server port %u", tcph->th_sport);
            /* Save the server port to help determine dissector used */
            tcpd->server_port = tcph->th_sport;
@@ -7743,7 +7743,7 @@ proto_register_tcp(void)
         { &ei_tcp_option_mss_present, { "tcp.options.mss.present", PI_PROTOCOL, PI_WARN, "The non-SYN packet does contain a MSS option", EXPFILL }},
         { &ei_tcp_short_segment, { "tcp.short_segment", PI_MALFORMED, PI_WARN, "Short segment", EXPFILL }},
         { &ei_tcp_ack_nonzero, { "tcp.ack.nonzero", PI_PROTOCOL, PI_NOTE, "The acknowledgment number field is nonzero while the ACK flag is not set", EXPFILL }},
-        { &ei_tcp_connection_sack, { "tcp.connection.sack", PI_SEQUENCE, PI_CHAT, "Connection establish acknowledge (SYN+ACK)", EXPFILL }},
+        { &ei_tcp_connection_synack, { "tcp.connection.synack", PI_SEQUENCE, PI_CHAT, "Connection establish acknowledge (SYN+ACK)", EXPFILL }},
         { &ei_tcp_connection_syn, { "tcp.connection.syn", PI_SEQUENCE, PI_CHAT, "Connection establish request (SYN)", EXPFILL }},
         { &ei_tcp_connection_fin, { "tcp.connection.fin", PI_SEQUENCE, PI_CHAT, "Connection finish (FIN)", EXPFILL }},
         /* According to RFCs, RST is an indication of an error. Some applications use it
