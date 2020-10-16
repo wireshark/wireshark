@@ -653,37 +653,23 @@ See {wireshark-wiki-url}FuzzTesting for details.
 
 When you're satisfied with your changes (and obtained any necessary
 approval from your organization) you can upload them for review at
-{wireshark-code-review-url}. This requires a Gerrit Code Review account
+{wireshark-code-review-url}. This requires a Gitlab account
 as described at <<ChSrcGitRepository>>.
 
-Changes should be pushed to a
-https://code.wireshark.org/review/Documentation/user-upload.html#push_create[magical "refs/for" branch]
-in Gerrit. For example, to upload your new Snowcone Machine Protocol dissector
-you could push to refs/for/master with the topic "snowcone-machine":
+You need to fork your repository which will became yours, and you will have write access to it. Once
+you are done with your changes, push them to a branch of your choice (as snowcone-machine). Now in the
+Gitlab's UI a message will tell you that you created a new branch and a button to create a merge request.
+
 
 [source,sh]
 ----
-$ git push ssh://my.username@code.wireshark.org:29418/wireshark HEAD:refs/for/master/snowcone-machine
+$ git push https://gitlab.com/wireshark/<my.username>.git HEAD:<branchname>
 ----
 
 The username `my.username` is the one which was given during registration with
 the review system.
 
-If you have `git-review` installed you can upload the change with a lot less typing:
-
-[source,sh]
-----
-# Note: The "-f" flag deletes your current branch.
-git review -f
-----
-
-You can push using any Git client. Many clients have support for Gerrit, either
-built in or via an additional module.
-
-The Change-Id is very relevant in the review process, since it's the key used
-to identify one change. See the
-https://gerrit-review.googlesource.com/Documentation/user-changeid.html[Gerrit manual]
-for more details.
+You can push using any Git client.
 
 You might get one of the following responses to your patch request:
 

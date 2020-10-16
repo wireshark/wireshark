@@ -275,7 +275,7 @@ Using the command line:
 
 ----
 >cd C:\Development
->git clone https://code.wireshark.org/review/wireshark
+>git clone https://gitlab.com/wireshark/wireshark.git
 ----
 
 Using Git extensions:
@@ -287,7 +287,7 @@ Using Git extensions:
 
 . In the main screen select _Clone repository_. Fill in the following:
 +
-Repository to clone: *`https://code.wireshark.org/review/wireshark`*
+Repository to clone: *`https://gitlab.com/wireshark/wireshark.git`*
 +
 Destination: Your top-level development directory, e.g. _C:\Development_.
 +
