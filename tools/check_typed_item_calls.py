@@ -39,9 +39,15 @@ issues_found = 0
 # A call is an individual call to an API we are interested in.
 # Internal to APICheck below.
 class Call:
-    def __init__(self, hf_name, line_number):
+    def __init__(self, hf_name, line_number=None, length=None):
        self.hf_name = hf_name
        self.line_number = line_number
+       self.length = None
+       if length:
+           try:
+               self.length = int(length)
+           except:
+               pass
 
 
 # A check for a particular API function.
@@ -61,7 +67,7 @@ class APICheck:
             for line_number, line in enumerate(f, start=1):
                 m = self.p.match(line)
                 if m:
-                    self.calls.append(Call(m.group(2), line_number))
+                    self.calls.append(Call(m.group(2), line_number=line_number))
 
     def check_against_items(self, items):
         for call in self.calls:
@@ -75,6 +81,66 @@ class APICheck:
                     # Inc global count of issues found.
                     global issues_found
                     issues_found += 1
+
+
+class ProtoTreeAddItemCheck(APICheck):
+    def __init__(self):
+        # proto_item *
+        # proto_tree_add_item(proto_tree *tree, int hfindex, tvbuff_t *tvb,
+        #                     const gint start, gint length, const guint encoding)
+        # RE will capture whole call.  N.B. only looking at calls with literal numerical length field.
+        self.p = re.compile('.*proto_tree_add_item\(([a-zA-Z0-9_]+),\s*([a-zA-Z0-9_]+),\s*([a-zA-Z0-9_]+),\s*([a-zA-Z0-9_]+),\s*([0-9]+),\s*([a-zA-Z0-9_]+)')
+
+        self.lengths = {}
+        self.lengths['FT_CHAR']  = 1
+        self.lengths['FT_UINT8']  = 1
+        self.lengths['FT_INT8']   = 1
+        self.lengths['FT_UINT16'] = 2
+        self.lengths['FT_INT16']  = 2
+        self.lengths['FT_UINT24'] = 3
+        self.lengths['FT_INT24']  = 3
+        self.lengths['FT_UINT32'] = 4
+        self.lengths['FT_INT32']  = 4
+        self.lengths['FT_UINT40'] = 5
+        self.lengths['FT_INT40']  = 5
+        self.lengths['FT_UINT48'] = 6
+        self.lengths['FT_INT48']  = 6
+        self.lengths['FT_UINT56'] = 7
+        self.lengths['FT_INT56']  = 7
+        self.lengths['FT_UINT64'] = 8
+        self.lengths['FT_INT64']  = 8
+        # TODO: for FT_BOOLEAN, could take length from 2nd arg (which is in bits...)
+        self.lengths['FT_ETHER']  = 6
+        # TODO: other types...
+
+    def find_calls(self, file):
+        self.file = file
+        self.calls = []
+        with open(file, 'r') as f:
+            # TODO: would be better to just iterate over those found in whole file,
+            # but extra effort would be needed to still know line number.
+            for line_number, line in enumerate(f, start=1):
+                m = self.p.match(line)
+                if m:
+                    self.calls.append(Call(m.group(2), line_number=line_number, length=m.group(5)))
+
+    def check_against_items(self, items):
+        # For now, only complaining if length if call is longer than the item type implies.
+        #
+        # Could also be bugs where the length is always less than the type allows.
+        # Would involve keeping track (in the item) of whether any call had used the full length.
+
+        for call in self.calls:
+            if call.hf_name in items:
+                if call.length and items[call.hf_name].item_type in self.lengths:
+                    if self.lengths[items[call.hf_name].item_type] < call.length:
+                        print(self.file + ':' + str(call.line_number),
+                              'proto_tree_add_item called for', call.hf_name, ' - ',
+                              'item type is', items[call.hf_name].item_type, 'but call has len ', call.length)
+
+                        global issues_found
+                        issues_found += 1
+
 
 
 ##################################################################################################
@@ -256,6 +322,10 @@ apiChecks.append(APICheck('proto_tree_add_boolean_bits_format_value64', { 'FT_BO
 apiChecks.append(APICheck('proto_tree_add_ascii_7bits_item', { 'FT_STRING'}))
 apiChecks.append(APICheck('proto_tree_add_checksum', { 'FT_UINT8', 'FT_UINT16', 'FT_UINT24', 'FT_UINT32'}))
 apiChecks.append(APICheck('proto_tree_add_int64_bits_format_value', { 'FT_INT40', 'FT_INT48', 'FT_INT56', 'FT_INT64'}))
+
+# Also try to check proto_tree_add_item() calls
+apiChecks.append(ProtoTreeAddItemCheck())
+
 
 def removeComments(code_string):
     code_string = re.sub(re.compile(r"/\*.*?\*/",re.DOTALL ) ,"" , code_string) # C-style comment
