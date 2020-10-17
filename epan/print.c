@@ -411,13 +411,25 @@ write_fields_proto_tree(output_fields_t* fields, epan_dissect_t *edt, column_inf
 /* Indent to the correct level */
 static void print_indent(int level, FILE *fh)
 {
-    int i;
+    /* Use a buffer pre-filed with spaces */
+#define MAX_INDENT 2048
+    static char spaces[MAX_INDENT];
+    static gboolean inited = FALSE;
+    if (!inited) {
+        for (int n=0; n < MAX_INDENT; n++) {
+            spaces[n] = ' ';
+        }
+        inited = TRUE;
+    }
+
     if (fh == NULL) {
         return;
     }
-    for (i = 0; i < level; i++) {
-        fputs("  ", fh);
-    }
+
+    /* Temp terminate at right length and write to fh. */
+    spaces[MIN(level*2, MAX_INDENT-1)] ='\0';
+    fputs(spaces, fh);
+    spaces[MIN(level*2, MAX_INDENT-1)] =' ';
 }
 
 /* Write out a tree's data, and any child nodes, as PDML */
@@ -1730,7 +1742,10 @@ static void
 print_escaped_xml(FILE *fh, const char *unescaped_string)
 {
     const char *p;
-    char        temp_str[8];
+
+#define ESCAPED_BUFFER_MAX 256
+    static char temp_buffer[ESCAPED_BUFFER_MAX];
+    gint        offset = 0;
 
     if (fh == NULL || unescaped_string == NULL) {
         return;
@@ -1739,28 +1754,44 @@ print_escaped_xml(FILE *fh, const char *unescaped_string)
     for (p = unescaped_string; *p != '\0'; p++) {
         switch (*p) {
         case '&':
-            fputs("&amp;", fh);
+            g_strlcpy(&temp_buffer[offset], "&amp;", ESCAPED_BUFFER_MAX-offset);
+            offset += 5;
             break;
         case '<':
-            fputs("&lt;", fh);
+            g_strlcpy(&temp_buffer[offset], "&lt;", ESCAPED_BUFFER_MAX-offset);
+            offset += 4;
             break;
         case '>':
-            fputs("&gt;", fh);
+            g_strlcpy(&temp_buffer[offset], "&gt;", ESCAPED_BUFFER_MAX-offset);
+            offset += 4;
             break;
         case '"':
-            fputs("&quot;", fh);
+            g_strlcpy(&temp_buffer[offset], "&quot;", ESCAPED_BUFFER_MAX-offset);
+            offset += 6;
             break;
         case '\'':
-            fputs("&#x27;", fh);
+            g_strlcpy(&temp_buffer[offset], "&#x27;", ESCAPED_BUFFER_MAX-offset);
+            offset += 6;
             break;
         default:
-            if (g_ascii_isprint(*p))
-                fputc(*p, fh);
+            if (g_ascii_isprint(*p)) {
+                temp_buffer[offset++] = *p;
+            }
             else {
-                g_snprintf(temp_str, sizeof(temp_str), "\\x%x", (guint8)*p);
-                fputs(temp_str, fh);
+                offset += g_snprintf(&temp_buffer[offset], ESCAPED_BUFFER_MAX-offset, "\\x%x", (guint8)*p);
             }
         }
+        if (offset > ESCAPED_BUFFER_MAX-8) {
+            /* Getting close to end of buffer so flush to fh */
+            temp_buffer[offset] = '\0';
+            fputs(temp_buffer, fh);
+            offset = 0;
+        }
+    }
+    if (offset) {
+        /* Flush any outstanding data */
+        temp_buffer[offset] = '\0';
+        fputs(temp_buffer, fh);
     }
 }
 
@@ -1814,10 +1845,26 @@ pdml_write_field_hex_value(write_pdml_data *pdata, field_info *fi)
     pd = get_field_data(pdata->src_list, fi);
 
     if (pd) {
+        /* Used fixed buffer where can, otherwise temp malloc */
+        static gchar str_static[129];
+        gchar *str = str_static;
+        gchar* str_heap = NULL;
+        if (fi->length > 64) {
+            str_heap = (gchar*)g_malloc0(fi->length*2+1);
+            str = str_heap;
+        }
+
+        static const char hex[] = "0123456789abcdef";
+
         /* Print a simple hex dump */
         for (i = 0 ; i < fi->length; i++) {
-            fprintf(pdata->fh, "%02x", pd[i]);
+            str[2*i] =   hex[pd[i] >> 4];
+            str[2*i+1] = hex[pd[i] & 0xf];
         }
+        str[2 * fi->length] = '\0';
+        fputs(str, pdata->fh);
+        g_free(str_heap);
+
     }
 }
 
