@@ -152,7 +152,7 @@ void
 wmem_strbuf_append_len(wmem_strbuf_t *strbuf, const gchar *str, gsize append_len)
 {
 
-    if (!append_len || !str || str[0] == '\0') {
+    if (!append_len || !str) {
         return;
     }
 
