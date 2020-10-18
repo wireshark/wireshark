@@ -32370,7 +32370,7 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_tclas_ether_type,
      {"Ethernet Type", "wlan.tclas.ether_type",
-      FT_UINT8, BASE_DEC, NULL, 0,
+      FT_UINT16, BASE_DEC, NULL, 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_tclas_version,
@@ -37301,7 +37301,7 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_osen_akm_count,
      {"OSEN AKM Cipher Suite Count", "wlan.osen.akms.count",
-      FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+      FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
 
     {&hf_ieee80211_osen_akm_cipher_suite_oui,
      {"OSEN AKM Cipher Suite OUI", "wlan.osen.akms.oui",
