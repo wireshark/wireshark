@@ -281,6 +281,74 @@ sint64_decode(guint64 sint64) {
     return (sint64 >> 1) ^ ((gint64)sint64 << 63 >> 63);
 }
 
+/* Try to get a protobuf field which has a varint value from the tvb.
+ * The field number, wire type and uint64 value will be output.
+ * @return the length of this field. Zero if failed.
+ */
+static guint
+tvb_get_protobuf_field_uint(tvbuff_t* tvb, guint offset, guint maxlen,
+    guint64* field_number, guint32* wire_type, guint64* value)
+{
+    guint tag_length, value_length;
+    guint64 tag_value;
+
+    /* parsing the tag of the field */
+    tag_length = tvb_get_varint(tvb, offset, maxlen, &tag_value, ENC_VARINT_PROTOBUF);
+    if (tag_length == 0 || tag_length >= maxlen) {
+        return 0;
+    }
+    *field_number = tag_value >> 3;
+    *wire_type = tag_value & 0x07;
+
+    if (*wire_type != PROTOBUF_WIRETYPE_VARINT) {
+        return 0;
+    }
+    /* parsing the value of the field */
+    value_length = tvb_get_varint(tvb, offset + tag_length, maxlen - tag_length, value, ENC_VARINT_PROTOBUF);
+    return (value_length == 0) ? 0 : (tag_length + value_length);
+}
+
+/* Get Protobuf timestamp from the tvb according to the format of google.protobuf.Timestamp.
+ * return the length parsed.
+ */
+static guint
+tvb_get_protobuf_time(tvbuff_t* tvb, guint offset, guint maxlen, nstime_t* timestamp)
+{
+    guint field_length;
+    guint64 field_number, value;
+    guint32 wire_type;
+    guint off = offset;
+    guint len = maxlen; /* remain bytes */
+
+    /* Get the seconds and nanos fields from google.protobuf.Timestamp message which defined:
+     *
+     * message Timestamp {
+     *    int64 seconds = 1;
+     *    int32 nanos = 2;
+     * }
+     */
+    timestamp->secs = 0;
+    timestamp->nsecs = 0;
+
+    while (len > 0) {
+        field_length = tvb_get_protobuf_field_uint(tvb, off, len, &field_number, &wire_type, &value);
+        if (field_length == 0) {
+            break;
+        }
+
+        if (field_number == 1) {
+            timestamp->secs = (gint64)value;
+        } else if (field_number == 2) {
+            timestamp->nsecs = (gint32)value;
+        }
+
+        off += field_length;
+        len -= field_length;
+    }
+
+    return maxlen - len;
+}
+
 
 /* declare first because it will be called by dissect_packed_repeated_field_values */
 static void
@@ -423,6 +491,7 @@ protobuf_dissect_field_value(proto_tree *value_tree, tvbuff_t *tvb, guint offset
     proto_tree* field_tree = proto_item_get_subtree(ti_field);
     proto_tree* field_parent_tree = proto_tree_get_parent_tree(field_tree);
     proto_tree* pbf_tree = field_tree;
+    nstime_t timestamp = { 0 };
 
     if (pbf_as_hf && field_full_name) {
         hf_id_ptr = (int*)g_hash_table_lookup(pbf_hf_hash, field_full_name);
@@ -569,20 +638,29 @@ protobuf_dissect_field_value(proto_tree *value_tree, tvbuff_t *tvb, guint offset
     case PROTOBUF_TYPE_GROUP: /* This feature is deprecated. GROUP is identical to Nested MESSAGE. */
     case PROTOBUF_TYPE_MESSAGE:
         subtree = field_tree;
-        if (hf_id_ptr) {
-            ti = proto_tree_add_bytes_format_value(pbf_tree, *hf_id_ptr, tvb, offset, length, NULL, "(%u bytes)", length);
-            subtree = proto_item_add_subtree(ti, ett_protobuf_message);
-        }
         if (field_desc) {
             sub_message_desc = pbw_FieldDescriptor_message_type(field_desc);
-            if (sub_message_desc) {
-                dissect_protobuf_message(tvb, offset, length, pinfo,
-                    subtree, sub_message_desc, FALSE);
-            } else {
+            if (sub_message_desc == NULL) {
                 expert_add_info(pinfo, ti_field, &et_protobuf_message_type_not_found);
             }
-        } else {
-            /* we don't continue with unknown mssage type */
+        }
+        if (hf_id_ptr) {
+            if (sub_message_desc
+                && strcmp(pbw_Descriptor_full_name(sub_message_desc), "google.protobuf.Timestamp") == 0)
+            {   /* parse this field directly as timestamp */
+                if (tvb_get_protobuf_time(tvb, offset, length, &timestamp)) {
+                    ti = proto_tree_add_time(pbf_tree, *hf_id_ptr, tvb, offset, length, &timestamp);
+                    subtree = proto_item_add_subtree(ti, ett_protobuf_message);
+                } else {
+                    expert_add_info(pinfo, ti_field, &ei_protobuf_failed_parse_field);
+                }
+            } else {
+                ti = proto_tree_add_bytes_format_value(pbf_tree, *hf_id_ptr, tvb, offset, length, NULL, "(%u bytes)", length);
+                subtree = proto_item_add_subtree(ti, ett_protobuf_message);
+            }
+        }
+        if (sub_message_desc) {
+            dissect_protobuf_message(tvb, offset, length, pinfo, subtree, sub_message_desc, FALSE);
         }
         break;
 
@@ -1160,6 +1238,7 @@ collect_fields(const PbwDescriptor* message, void* userdata)
     hf_register_info* hf;
     const PbwFieldDescriptor* field_desc;
     const PbwEnumDescriptor* enum_desc;
+    const PbwDescriptor* sub_msg_desc;
     int i, field_type, total_num = pbw_Descriptor_field_count(message);
 
     /* add message as field */
@@ -1250,8 +1329,14 @@ collect_fields(const PbwDescriptor* message, void* userdata)
 
         case PROTOBUF_TYPE_GROUP:
         case PROTOBUF_TYPE_MESSAGE:
-            hf->hfinfo.type = FT_BYTES;
-            hf->hfinfo.display = BASE_NONE;
+            sub_msg_desc = pbw_FieldDescriptor_message_type(field_desc);
+            if (sub_msg_desc && strcmp(pbw_Descriptor_full_name(sub_msg_desc), "google.protobuf.Timestamp") == 0) {
+                hf->hfinfo.type = FT_ABSOLUTE_TIME;
+                hf->hfinfo.display = ABSOLUTE_TIME_LOCAL;
+            } else {
+                hf->hfinfo.type = FT_BYTES;
+                hf->hfinfo.display = BASE_NONE;
+            }
             break;
 
         default:

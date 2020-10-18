@@ -31,7 +31,8 @@ See the “New and Updated Features” section below for more details.
 
 The following features are new (or have been significantly updated) since version 3.3.1:
 
-* Nothing of note.
+* The Protobuf fields defined as google.protobuf.Timestamp type of Protobuf standard library
+  can now be dissected as Wireshark fields of absolute time type.
 
 The following features are new (or have been significantly updated) since version 3.3.0:
 
