@@ -176,6 +176,29 @@ docbook:
       - wsdg_html/
       - wsdg_html_chunked/
 
+
+# Build all doxygen docs
+doxygen_all:
+  stage: build
+  image: wireshark/wireshark-ubuntu-dev
+  before_script:
+    - ./tools/debian-setup.sh -y doxygen graphviz
+  script:
+    - mkdir build
+    - cd build
+    - cmake -GNinja ..
+    - ninja wsar_html 2>&1 > doxygen_output.txt | tee doxygen_errors.txt
+  after_script:
+    - mv build/wsar_html .
+    - mv build/doxygen_output.txt .
+    - mv build/doxygen_errors.txt .
+  artifacts:
+    when: always
+    paths:
+    - doxygen_errors.txt
+    - doxygen_output.txt
+    - wsar_html
+
 # https://docs.gitlab.com/ee/user/gitlab_com/index.html#linux-shared-runners
 
 merge-req:commit-checks:
