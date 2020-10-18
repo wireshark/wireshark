@@ -70,6 +70,8 @@ Wireshark 3.3.2 Release Notes
      • Filter buttons (“Preferences → Filter Buttons”) can be grouped by
        using “//” as a path separator in the filter button label.
 
+     • IPP Over USB packets can now be dissected and displayed
+
   New Protocol Support
 
    Arinc 615A (A615A), Asphodel Protocol, AudioCodes Debug Recording
@@ -131,7 +133,7 @@ Wireshark 3.3.2 Release Notes
 
   A complete FAQ is available on the Wireshark web site[8].
 
-  Last updated 2020-10-11 09:04:20 UTC
+  Last updated 2020-10-18 09:04:19 UTC
 
  References
 

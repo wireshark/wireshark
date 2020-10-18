@@ -6055,7 +6055,8 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Prepare as Filter</source>
-        <translation>Підготувати Фільтр</translation>
+        <oldsource>Prepare a Filter</oldsource>
+        <translation type="unfinished">Підготувати Фільтр</translation>
     </message>
     <message>
         <source>SCTP</source>
@@ -9366,6 +9367,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Prepare as Filter</source>
+        <oldsource>Prepare a Filter</oldsource>
         <translation type="unfinished">Підготувати Фільтр</translation>
     </message>
     <message>
@@ -9422,10 +9424,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Any </source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Prepare as Filter</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

@@ -6119,7 +6119,8 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Prepare as Filter</source>
-        <translation>Filter vorbereiten</translation>
+        <oldsource>Prepare a Filter</oldsource>
+        <translation type="unfinished">Filter vorbereiten</translation>
     </message>
     <message>
         <source>SCTP</source>
@@ -9441,7 +9442,8 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Prepare as Filter</source>
-        <translation>Als Filter vorbereiten</translation>
+        <oldsource>Prepare a Filter</oldsource>
+        <translation type="unfinished">Als Filter vorbereiten</translation>
     </message>
     <message>
         <source>Find</source>
@@ -9498,10 +9500,6 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     <message>
         <source>Any </source>
         <translation>Alle</translation>
-    </message>
-    <message>
-        <source>Prepare as Filter</source>
-        <translation>Als Filter vorbereiten</translation>
     </message>
     <message>
         <source>Don&apos;t show this message again.</source>

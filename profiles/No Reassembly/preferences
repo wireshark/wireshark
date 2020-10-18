@@ -10,6 +10,7 @@ bgp.desegment: FALSE
 bitcoin.desegment: FALSE
 bittorrent.desegment: FALSE
 bthci_acl.hci_acl_reassembly: FALSE
+bthci_iso.hci_iso_reassembly: FALSE
 bmp.desegment: FALSE
 c1222.desegment: FALSE
 capwap.reassemble: FALSE
@@ -61,6 +62,7 @@ http.desegment_body: FALSE
 ifcp.desegment: FALSE
 ilp.desegment_ilp_messages: FALSE
 ipdc.desegment_ipdc_messages: FALSE
+ippusb.attempt_reassembly: FALSE
 iscsi.desegment_iscsi_messages: FALSE
 isns.desegment: FALSE
 jxta.desegment: FALSE

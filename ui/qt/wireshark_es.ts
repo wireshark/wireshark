@@ -6026,7 +6026,8 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>Prepare as Filter</source>
-        <translation>Preparar un filtro</translation>
+        <oldsource>Prepare a Filter</oldsource>
+        <translation type="unfinished">Preparar un filtro</translation>
     </message>
     <message>
         <source>SCTP</source>
@@ -9331,6 +9332,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>Prepare as Filter</source>
+        <oldsource>Prepare a Filter</oldsource>
         <translation type="unfinished">Preparar un filtro</translation>
     </message>
     <message>
@@ -9387,10 +9389,6 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>Any </source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Prepare as Filter</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

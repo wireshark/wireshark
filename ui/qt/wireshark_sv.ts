@@ -6119,7 +6119,8 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>Prepare as Filter</source>
-        <translation>Förbered ett filter</translation>
+        <oldsource>Prepare a Filter</oldsource>
+        <translation type="unfinished">Förbered ett filter</translation>
     </message>
     <message>
         <source>SCTP</source>
@@ -9441,7 +9442,8 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>Prepare as Filter</source>
-        <translation>Förbered ett filter</translation>
+        <oldsource>Prepare a Filter</oldsource>
+        <translation type="unfinished">Förbered ett filter</translation>
     </message>
     <message>
         <source>Find</source>
@@ -9498,10 +9500,6 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <message>
         <source>Any </source>
         <translation>Godtycklig</translation>
-    </message>
-    <message>
-        <source>Prepare as Filter</source>
-        <translation>Förbered som filter</translation>
     </message>
     <message>
         <source>Don&apos;t show this message again.</source>
