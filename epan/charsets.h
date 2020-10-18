@@ -203,6 +203,30 @@ get_ascii_7bits_string(wmem_allocator_t *scope, const guint8 *ptr,
 WS_DLL_PUBLIC guint8 *
 get_nonascii_unichar2_string(wmem_allocator_t *scope, const guint8 *ptr, gint length, const gunichar2 table[256]);
 
+/*
+ * Given a wmem scope, a pointer, and a length, treat the bytes referred to
+ * by the pointer and length as a GB18030 encoded string, and return a pointer
+ * to a UTF-8 string, allocated using the wmem scope, converted having
+ * substituted REPLACEMENT CHARACTER according to the Unicode Standard
+ * 5.22 U+FFFD Substitution for Conversion.
+ * ( https://www.unicode.org/versions/Unicode13.0.0/ch05.pdf )
+ *
+ * As expected, this will also decode GBK and GB2312 strings.
+ */
+WS_DLL_PUBLIC guint8 *
+get_gb18030_string(wmem_allocator_t *scope, const guint8 *ptr, gint length);
+
+/*
+ * Given a wmem scope, a pointer, and a length, treat the bytes referred to
+ * by the pointer and length as a EUC-KR encoded string, and return a pointer
+ * to a UTF-8 string, allocated using the wmem scope, converted having
+ * substituted REPLACEMENT CHARACTER according to the Unicode Standard
+ * 5.22 U+FFFD Substitution for Conversion.
+ * ( https://www.unicode.org/versions/Unicode13.0.0/ch05.pdf )
+ */
+WS_DLL_PUBLIC guint8 *
+get_euc_kr_string(wmem_allocator_t *scope, const guint8 *ptr, gint length);
+
 WS_DLL_PUBLIC guint8 *
 get_t61_string(wmem_allocator_t *scope, const guint8 *ptr, gint length);
 

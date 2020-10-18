@@ -377,9 +377,7 @@ text_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset
     guint32     required_octs;
     tvbuff_t    *tvb_out = NULL;
 
-    GIConv      cd;
-    GError      *l_conv_error = NULL;
-    gchar       *ustr = NULL;
+    const guchar *ustr = NULL;
 
     /*
      * has to be big enough to hold all of the 'shifted' bits
@@ -458,25 +456,10 @@ text_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset
 
         offset = 0;
 
-        if ((cd = g_iconv_open("UTF-8", "EUC-KR")) != (GIConv) -1)
-        {
-            ustr = g_convert_with_iconv(tvb_get_ptr(tvb_out, offset, required_octs), required_octs , cd , NULL , NULL , &l_conv_error);
-            if (!l_conv_error)
-            {
-                proto_tree_add_string(tree, hf_index, tvb_out, offset,
-                    required_octs, ustr);
-            }
-            else
-            {
-                proto_tree_add_expert_format(tree, pinfo, &ei_ansi_637_failed_conversion, tvb_out, offset, required_octs,
-                    "Failed iconv conversion on EUC-KR - (report to wireshark.org)");
-            }
-            if (ustr)
-            {
-                g_free(ustr);
-            }
-            g_iconv_close(cd);
-        }
+        proto_tree_add_item_ret_string(tree, hf_index, tvb_out, offset, required_octs, ENC_EUC_KR|ENC_NA, wmem_packet_scope(), &ustr);
+        if (ustr == NULL)
+            proto_tree_add_expert_format(tree, pinfo, &ei_ansi_637_failed_conversion, tvb_out, offset, required_octs,
+                "Failed iconv conversion on EUC-KR - (report to wireshark.org)");
         break;
     }
 }

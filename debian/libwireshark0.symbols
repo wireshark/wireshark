@@ -798,6 +798,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  get_eth_hashtable@Base 1.12.0~rc1
  get_ether_name@Base 1.9.1
  get_etsi_ts_102_221_annex_a_string@Base 3.3.1
+ get_euc_kr_string@Base 3.3.2
  get_follow_address_func@Base 2.1.0
  get_follow_by_name@Base 2.1.0
  get_follow_conv_func@Base 2.1.0
@@ -807,6 +808,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  get_follow_tap_handler@Base 2.1.0
  get_follow_tap_string@Base 2.1.0
  get_export_pdu_tap_list@Base 1.99.0
+ get_gb18030_string@Base 3.3.2
  get_hash_ether_status@Base 1.99.3
  get_hash_ether_hexaddr@Base 1.99.3
  get_hash_ether_resolved_name@Base 1.99.3

@@ -8013,6 +8013,27 @@ fCharacterStringBase(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint 
              * XXX - are we guaranteed that these encoding
              * names correspond, on *all* platforms with
              * iconv(), to the encodings we want?
+             *
+             * Not necessarily. These specify "character sets" but
+             * not the encodings. IBM/MS DBCS specifies that it uses
+             * some IBM or MS double byte character set, but does not
+             * specify the code page - there was a proposal to explicitly
+             * add the code page, but that was apparently withdrawn in favor
+             * of just deprecating using DBCS, as it never got past a draft
+             * (One problem could be that IBM and MS code pages with the
+             * same number are slightly different, and then there's non
+             * IBM/MS unofficial ones that got used, sometimes conflicting
+             * numbers.) Even if we assume that they certainly mean one
+             * of the DBCS and not just any non ISO-8859-1 code page, there's
+             * all four types of CJK to choose from. -
+             * http://www.bacnet.org/Addenda/Add-135-2004k-PPR1-chair-approved.pdf
+             * JIS C 6226 (now JIS X 0208)
+             * http://www.bacnet.org/Addenda/Add-135-2008k.pdf
+             * is a character set, which are supported by several different
+             * encodings, the main types being ISO-2022-JP (JIS X 0202,
+             * a 7 bit encoding), Shift-JIS (most common), and EUC-JP (UNIX).
+             * It is unclear which encoding this refers to.
+             *
              * If not (and perhaps even if so), we should
              * perhaps have our own iconv() implementation,
              * with a different name, so that we control the

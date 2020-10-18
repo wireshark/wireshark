@@ -1759,9 +1759,13 @@ currently supported are:
     ENC_ISO_8859_14 - ISO 8859-14
     ENC_ISO_8859_15 - ISO 8859-15
     ENC_ISO_8859_16 - ISO 8859-16
-    ENC_WINDOWS_1250 - Windows-1250
     ENC_3GPP_TS_23_038_7BITS - GSM 7 bits alphabet as described
         in 3GPP TS 23.038
+    ENC_3GPP_TS_23_038_7BITS_UNPACKED - GSM 7 bits alphabet where each
+        7 bit character occupies a distinct octet
+    ENC_ETSI_TS_102_221_ANNEX_A - Coding scheme for SIM cards with GSM 7 bit
+        alphabet, UCS-2 characters, or a mixture of the two as described
+        in ETSI TS 102 221 Annex A
     ENC_EBCDIC - EBCDIC
     ENC_EBCDIC_CP037 - EBCDIC code page 037
     ENC_MAC_ROMAN - MAC ROMAN
@@ -1773,6 +1777,8 @@ currently supported are:
     ENC_BCD_DIGITS_0_9 - packed BCD (one digit per nibble), digits 0-9
     ENC_KEYPAD_ABC_TBCD - keypad-with-a/b/c "telephony packed BCD" = 0-9, *, #, a, b, c
     ENC_KEYPAD_BC_TBCD - keypad-with-B/C "telephony packed BCD" = 0-9, B, C, *, #
+    ENC_GB18030 - GB 18030
+    ENC_EUC_KR - EUC-KR
 
 Other encodings will be added in the future.
 

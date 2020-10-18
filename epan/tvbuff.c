@@ -2545,6 +2545,13 @@ tvb_get_iso_646_string(wmem_allocator_t *scope, tvbuff_t *tvb, gint offset, gint
  * scope, with all ill-formed sequences replaced with the Unicode REPLACEMENT
  * CHARACTER according to the recommended "best practices" given in the Unicode
  * Standard and specified by W3C/WHATWG.
+ *
+ * Note that in conformance with the Unicode Standard, this treats three
+ * byte sequences corresponding to UTF-16 surrogate halves (paired or unpaired)
+ * and two byte overlong encodings of 7-bit ASCII characters as invalid and
+ * substitutes REPLACEMENT CHARACTER for them. Explicit support for nonstandard
+ * derivative encoding formats (e.g. CESU-8, Java Modified UTF-8, WTF-8) could
+ * be added later.
  */
 static guint8 *
 tvb_get_utf_8_string(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, const gint length)
@@ -2764,6 +2771,42 @@ tvb_get_nonascii_unichar2_string(wmem_allocator_t *scope, tvbuff_t *tvb, gint of
 	return get_nonascii_unichar2_string(scope, ptr, length, table);
 }
 
+/*
+ * Given a wmem scope, a tvbuff, an offset, and a length, treat the bytes
+ * referred to by the tvbuff, offset, and length as a GB18030 encoded string,
+ * and return a pointer to a UTF-8 string, allocated with the wmem scope,
+ * converted having substituted REPLACEMENT CHARACTER according to the
+ * Unicode Standard 5.22 U+FFFD Substitution for Conversion.
+ * ( https://www.unicode.org/versions/Unicode13.0.0/ch05.pdf )
+ *
+ * As expected, this will also decode GBK and GB2312 strings.
+ */
+static guint8 *
+tvb_get_gb18030_string(wmem_allocator_t *scope, tvbuff_t *tvb, gint offset, gint length)
+{
+	const guint8  *ptr;
+
+	ptr = ensure_contiguous(tvb, offset, length);
+	return get_gb18030_string(scope, ptr, length);
+}
+
+/*
+ * Given a wmem scope, a tvbuff, an offset, and a length, treat the bytes
+ * referred to by the tvbuff, offset, and length as a EUC-KR encoded string,
+ * and return a pointer to a UTF-8 string, allocated with the wmem scope,
+ * converted having substituted REPLACEMENT CHARACTER according to the
+ * Unicode Standard 5.22 U+FFFD Substitution for Conversion.
+ * ( https://www.unicode.org/versions/Unicode13.0.0/ch05.pdf )
+ */
+static guint8 *
+tvb_get_euc_kr_string(wmem_allocator_t *scope, tvbuff_t *tvb, gint offset, gint length)
+{
+	const guint8  *ptr;
+
+	ptr = ensure_contiguous(tvb, offset, length);
+	return get_euc_kr_string(scope, ptr, length);
+}
+
 static guint8 *
 tvb_get_t61_string(wmem_allocator_t *scope, tvbuff_t *tvb, gint offset, gint length)
 {
@@ -2834,12 +2877,6 @@ tvb_get_string_enc(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset,
 		break;
 
 	case ENC_UTF_8:
-		/*
-		 * XXX - should map lead and trail surrogate value code
-		 * points to a "substitute" UTF-8 character?
-		 * XXX - should map code points > 10FFFF to REPLACEMENT
-		 * CHARACTERs.
-		 */
 		strptr = tvb_get_utf_8_string(scope, tvb, offset, length);
 		break;
 
@@ -3020,6 +3057,12 @@ tvb_get_string_enc(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset,
 
 	case ENC_ETSI_TS_102_221_ANNEX_A:
 		strptr = tvb_get_etsi_ts_102_221_annex_a_string(scope, tvb, offset, length);
+		break;
+	case ENC_GB18030:
+		strptr = tvb_get_gb18030_string(scope, tvb, offset, length);
+		break;
+	case ENC_EUC_KR:
+		strptr = tvb_get_euc_kr_string(scope, tvb, offset, length);
 		break;
 	}
 	return strptr;

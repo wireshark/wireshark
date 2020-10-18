@@ -427,16 +427,29 @@ void proto_report_dissector_bug(const char *format, ...)
 #define ENC_KEYPAD_BC_TBCD                0x00000048 /* Keypad-with-B/C "telephony BCD" = 0-9, B, C, *, # */
 #define ENC_3GPP_TS_23_038_7BITS_UNPACKED 0x0000004C
 #define ENC_ETSI_TS_102_221_ANNEX_A       0x0000004E /* ETSI TS 102 221 Annex A */
+#define ENC_GB18030                       0x00000050
+#define ENC_EUC_KR                        0x00000052
 /*
  * TODO:
  *
- * These could probably be used by existing code:
+ * packet-bacapp.c refers to two currently unsupported character sets (where
+ * we just use ASCII currently):
  *
- *  "IBM MS DBCS"
- *  JIS C 6226
+ *  "IBM MS DBCS" - At the very least could be any IBM/MS Double Byte
+ *      Character Set for CJK (4 major ones), but also could just be any non
+ *      Unicode and non ISO-8859-1 code page. This would be supported via the
+ *      various code pages.
+ *  JIS C 6226 / JIS X 0206 - Does this refer to ISO-2022-JP, SHIFT-JIS, or
+ *      EUC-JP, which are all encoding schemes that support the JIS X 0206
+ *      character set?
  *
  * As those are added, change code such as the code in packet-bacapp.c
  * to use them.
+ *
+ * There's also some other code (e.g., packet-smpp.c) that just ignores
+ * strings if it determines that they are in an unsupported encoding, such
+ * as various encodings of Japanese mentioned above, for example.
+ *
  */
 
 /*

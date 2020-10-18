@@ -10,6 +10,7 @@
 
 #include "config.h"
 
+#include <errno.h>
 #include <glib.h>
 
 #include <epan/proto.h>
@@ -91,6 +92,13 @@ get_ascii_string(wmem_allocator_t *scope, const guint8 *ptr, gint length)
  * ill-formed sequences replaced with the Unicode REPLACEMENT CHARACTER
  * according to the recommended "best practices" given in the Unicode
  * Standard and specified by W3C/WHATWG.
+ *
+ * Note that in conformance with the Unicode Standard, this treats three
+ * byte sequences corresponding to UTF-16 surrogate halves (paired or unpaired)
+ * and two byte overlong encodings of 7-bit ASCII characters as invalid and
+ * substitutes REPLACEMENT CHARACTER for them. Explicit support for nonstandard
+ * derivative encoding formats (e.g. CESU-8, Java Modified UTF-8, WTF-8) could
+ * be added later.
  */
 guint8 *
 get_utf_8_string(wmem_allocator_t *scope, const guint8 *ptr, gint length)
@@ -1550,6 +1558,151 @@ get_nonascii_unichar2_string(wmem_allocator_t *scope, const guint8 *ptr, gint le
     }
 
     return (guint8 *) wmem_strbuf_finalize(str);
+}
+
+/*
+ * Given a wmem scope, a pointer, a length, and a string referring to an
+ * encoding (recognized by iconv), treat the bytes referred to by the pointer
+ * and length as a string in that encoding, and return a pointer to a UTF-8
+ * string, allocated using the wmem scope, converted from the original
+ * encoding having substituted REPLACEMENT CHARACTER according to the
+ * Unicode Standard 5.22 U+FFFD Substitution for Conversion
+ * ( https://www.unicode.org/versions/Unicode13.0.0/ch05.pdf )
+ */
+static guint8 *
+get_string_enc_iconv(wmem_allocator_t *scope, const guint8 *ptr, gint length, const gchar *encoding)
+{
+    GIConv cd;
+    gsize inbytes, outbytes;
+    gsize tempstr_size, bytes_written;
+    gsize err;
+    gsize max_subpart, tempinbytes;
+    gchar *outptr, *tempstr;
+
+    wmem_strbuf_t *str;
+
+    if ((cd = g_iconv_open("UTF-8", encoding)) == (GIConv) -1) {
+        REPORT_DISSECTOR_BUG("Unable to allocate iconv() converter from %s to UTF-8", encoding);
+        /* Most likely to be a programming error passing in a bad encoding
+         * name. However, could be a issue with the iconv support on the
+         * system running WS. GLib requires iconv/libiconv, but is it possible
+         * that some versions don't support all common encodings? */
+    }
+
+    inbytes = length;
+    str = wmem_strbuf_sized_new(scope, length+1, 0);
+    /* XXX: If speed becomes an issue, the faster way to do this would
+     * involve passing the wmem_strbuf_t's string buffer directly into
+     * g_iconv to avoid a memcpy later, but that requires changes to the
+     * wmem_strbuf interface to have non const access to the string buffer,
+     * and to manipulate the used length directly. */
+    outbytes = tempstr_size = MAX(8, length);
+    outptr = tempstr = (gchar *)g_malloc(outbytes);
+    while (inbytes > 0) {
+        err = g_iconv(cd, (gchar **)&ptr, &inbytes, &outptr, &outbytes);
+        bytes_written = outptr - tempstr;
+        wmem_strbuf_append_len(str, tempstr, bytes_written);
+        outptr = tempstr;
+        outbytes = tempstr_size;
+
+        if (err == (gsize) -1) {
+            /* Errors */
+            switch (errno) {
+                case EINVAL:
+                    /* Incomplete sequence at the end, not an error */
+                    wmem_strbuf_append_unichar(str, UNREPL);
+                    inbytes = 0;
+                    break;
+                case E2BIG:
+                    /* Not enough room (UTF-8 longer than the initial buffer),
+                     * start back at the beginning of the buffer */
+                    break;
+                case EILSEQ:
+                    /* Find the maximal subpart of the ill-formed sequence */
+                    errno = EINVAL;
+                    for (max_subpart = 1; err == (gsize)-1 && errno == EINVAL; max_subpart++) {
+                        tempinbytes = max_subpart;
+                        err = g_iconv(cd, (gchar **)&ptr, &tempinbytes,
+                                &outptr, &outbytes);
+                    }
+                    max_subpart = MAX(1, max_subpart-1);
+                    ptr += max_subpart;
+                    inbytes -= max_subpart;
+                    wmem_strbuf_append_unichar(str, UNREPL);
+                    outptr = tempstr;
+                    outbytes = tempstr_size;
+                    break;
+                default:
+                    /* Unexpected conversion error, unrecoverable */
+                    g_free(tempstr);
+                    g_iconv_close(cd);
+                    REPORT_DISSECTOR_BUG("Unexpected iconv() error when converting from %s to UTF-8", encoding);
+                    break;
+            }
+        } else {
+            /* Otherwise err is the number of replacement characters used,
+             * but we don't care about that. */
+            /* If we were converting to ISO-2022-JP or some other stateful
+             * decoder with shift sequences (e.g. EBCDIC mixed-byte), a
+             * final call with NULL input in order to output the shift
+             * sequence back to initial state might make sense, but not
+             * needed for UTF-8. */
+        }
+    }
+
+    g_free(tempstr);
+    g_iconv_close(cd);
+    return (guint8 *) wmem_strbuf_finalize(str);
+}
+
+/*
+ * Given a wmem scope, a pointer, and a length, treat the bytes referred to
+ * by the pointer and length as a GB18030 encoded string, and return a pointer
+ * to a UTF-8 string, allocated using the wmem scope, converted having
+ * substituted REPLACEMENT CHARACTER according to the Unicode Standard
+ * 5.22 U+FFFD Substitution for Conversion.
+ * ( https://www.unicode.org/versions/Unicode13.0.0/ch05.pdf )
+ *
+ * As expected, this will also decode GBK and GB2312 strings.
+ */
+guint8 *
+get_gb18030_string(wmem_allocator_t *scope, const guint8 *ptr, gint length)
+{
+    /* iconv/libiconv support is guaranteed with GLib. Support this
+     * via iconv, at least for now. */
+    /* GNU libiconv has supported GB18030 (~ Windows Code page 54936) since
+     * 2000-10-24 and version 1.4, is there is a system that compiles current
+     * Wireshark yet its iconv only supports GBK (~ Windows Code page 936)? */
+    const gchar *encoding = "GB18030";
+    GIConv cd;
+    if ((cd = g_iconv_open("UTF-8", encoding)) == (GIConv) -1) {
+        encoding = "GBK";
+        /* GB18030 is backwards compatible, at worst this will mean a few
+         * extra REPLACEMENT CHARACTERs - GBK lacks the four byte encodings
+         * from GB18030, which are all pairs of two byte sequences
+         * 0x[81-FE] 0x[30-39]; that trailing byte is illegal in GBK
+         * and thus the 4 byte characters will be replaced with two
+         * REPLACEMENT CHARACTERs. */
+    } else {
+        g_iconv_close(cd);
+    }
+    return get_string_enc_iconv(scope, ptr, length, encoding);
+}
+
+/*
+ * Given a wmem scope, a pointer, and a length, treat the bytes referred to
+ * by the pointer and length as a EUC-KR encoded string, and return a pointer
+ * to a UTF-8 string, allocated using the wmem scope, converted having
+ * substituted REPLACEMENT CHARACTER according to the Unicode Standard
+ * 5.22 U+FFFD Substitution for Conversion.
+ * ( https://www.unicode.org/versions/Unicode13.0.0/ch05.pdf )
+ */
+guint8 *
+get_euc_kr_string(wmem_allocator_t *scope, const guint8 *ptr, gint length)
+{
+    /* iconv/libiconv support is guaranteed with GLib. Support this
+     * via iconv, at least for now. */
+    return get_string_enc_iconv(scope, ptr, length, "EUC-KR");
 }
 
 /* T.61 to UTF-8 conversion table from OpenLDAP project
