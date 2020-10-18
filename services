@@ -5656,6 +5656,7 @@ smsqp		11201/tcp/udp
 dcsl-backup	11202/tcp	# DCSL Network Backup Services
 wifree		11208/tcp/udp	# WiFree Service
 memcache	11211/tcp/udp	# Memory cache service
+xcompute	11235/tcp/sctp	# numerical systems messaging
 imip		11319/tcp/udp	# IMIP
 imip-channels	11320/tcp/udp	# IMIP Channels Port
 arena-server	11321/tcp/udp	# Arena Server Listen
