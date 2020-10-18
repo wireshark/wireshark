@@ -793,7 +793,36 @@ The file extension.
 
 ==== The “Export PDUs to File...” Dialog Box
 
-{missing}
+The “Export PDUs to File...” dialog box allows you to filter the captured Protocol Data Units (PDUs) and export them into the file. It allows you to export reassembled PDUs avoiding lower layers such as HTTP without TCP, and decrypted PDUs without the lower protocols such as HTTP without TLS and TCP.
+
+. In the main menu select menu:File[Export PDUs to File...]. Wireshark will open a corresponding dialog <<ExportPDUsToFile>>.
++
+[[ExportPDUsToFile]]
++
+.Export PDUs to File window
+image::wsug_graphics/ws-export-pdus-to-file.png[{screenshot-attrs}]
+
+. To select the data according to your needs, type the filter value into the `Display Filter` field. For more information about filters syntax, see the link:https://www.wireshark.org/docs/man-pages/wireshark-filter.html[Wireshark Filters] man page.
+
+. In the field below the `Display Filter` field you can choose the level, from which you want to export the PDUs to the file. There are seven levels:
++
+.. `DLT User`. You can export a protocol, which is framed in the user data link type table without the need to reconfigure the DLT user table. For more information, see the link:https://gitlab.com/wireshark/wireshark/-/wikis/HowToDissectAnything[How to Dissect Anything] page. 
++
+.. `DVB-CI`. You can use it for the Digital Video Broadcasting (DVB) protocol.
++
+.. `Logcat` and `Logcat Text`. You can use them for the Android logs.
++
+.. `OSI layer 3`. You can use it to export encapsulated in IPSec or SCTP protocols.
++
+.. `OSI layer 4`. You can use it to export encapsulated in TCP or UDP protocols.
++
+.. `OSI layer 7`. You can use it to export the following protocols: CredSSP over TLS, Diameter, protocols encapsulated in TLS and DTLS, H.248, Megaco, RELOAD framing, SIP, SMPP.
++
+NOTE: You can add any dissector to the existing list, or define a new entry in the list.
+
+. To finish exporting PDUs to file, click the btn:[OK] button in the bottom-right corner.
+
+. You can open the file from the main Wireshark window by choosing it in the bottom-left corner. That closes the originally captured file and opens the exported results instead.
 
 [[ChIOExportTLSSessionKeys]]
 
