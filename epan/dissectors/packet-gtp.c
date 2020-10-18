@@ -4411,7 +4411,7 @@ decode_gtp_sel_mode(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_t
     ext_tree = proto_tree_add_subtree(tree, tvb, offset, 2, ett_gtp_ies[GTP_EXT_SEL_MODE], &te,
                             val_to_str_ext_const(GTP_EXT_SEL_MODE, &gtp_val_ext, "Unknown message"));
     proto_item_append_text(te, ": %s", val_to_str_const(sel_mode, sel_mode_type, "Unknown"));
-    proto_tree_add_item(ext_tree, hf_gtp_sel_mode, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(ext_tree, hf_gtp_sel_mode, tvb, offset+1, 1, ENC_BIG_ENDIAN);
 
     return 2;
 }
@@ -7597,7 +7597,7 @@ decode_gtp_bssgp_cause(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, prot
     /*
      * The BSSGP Cause information element contains the cause as defined in 3GPP TS 48.018
      */
-    proto_tree_add_item(ext_tree, hf_gtp_bssgp_cause, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(ext_tree, hf_gtp_bssgp_cause, tvb, offset, 1, ENC_BIG_ENDIAN);
 
     return 3 + length;
 
@@ -10713,7 +10713,7 @@ proto_register_gtp(void)
         },
         {&hf_gtp_rai_rac,
          { "Routing Area Code (RAC)", "gtp.rai_rac",
-           FT_UINT8, BASE_DEC, NULL, 0,
+           FT_UINT16, BASE_DEC, NULL, 0,
            NULL, HFILL}
         },
         {&hf_gtp_lac,
