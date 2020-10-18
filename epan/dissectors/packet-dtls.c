@@ -97,6 +97,7 @@ static gint hf_dtls_record_sequence_number      = -1;
 static gint hf_dtls_record_connection_id        = -1;
 static gint hf_dtls_record_length               = -1;
 static gint hf_dtls_record_appdata              = -1;
+static gint hf_dtls_record_appdata_proto        = -1;
 static gint hf_dtls_record_encrypted_content    = -1;
 static gint hf_dtls_alert_message               = -1;
 static gint hf_dtls_alert_message_level         = -1;
@@ -968,6 +969,11 @@ dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
 
     proto_tree_add_item(dtls_record_tree, hf_dtls_record_appdata, tvb,
                         offset, record_length, ENC_NA);
+
+    if (session->app_handle) {
+      ti = proto_tree_add_string(dtls_record_tree, hf_dtls_record_appdata_proto, tvb, 0, 0, dissector_handle_get_dissector_name(session->app_handle));
+      proto_item_set_generated(ti);
+    }
 
     /* show decrypted data info, if available */
     if (decrypted)
@@ -1900,6 +1906,11 @@ proto_register_dtls(void)
       { "Encrypted Application Data", "dtls.app_data",
         FT_BYTES, BASE_NONE, NULL, 0x0,
         "Payload is encrypted application data", HFILL }
+    },
+    { &hf_dtls_record_appdata_proto,
+      { "Application Data Protocol", "dtls.app_data_proto",
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
     },
     { &hf_dtls_record_encrypted_content,
       { "Encrypted Record Content", "dtls.enc_content",

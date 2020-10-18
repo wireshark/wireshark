@@ -100,6 +100,7 @@ static gint hf_tls_record_opaque_type         = -1;
 static gint hf_tls_record_version             = -1;
 static gint hf_tls_record_length              = -1;
 static gint hf_tls_record_appdata             = -1;
+static gint hf_tls_record_appdata_proto       = -1;
 static gint hf_ssl2_record                    = -1;
 static gint hf_ssl2_record_is_escape          = -1;
 static gint hf_ssl2_record_padding_length     = -1;
@@ -2033,6 +2034,11 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
 
         proto_tree_add_item(ssl_record_tree, hf_tls_record_appdata, tvb,
                        offset, record_length, ENC_NA);
+
+        if (app_handle) {
+            ti = proto_tree_add_string(ssl_record_tree, hf_tls_record_appdata_proto, tvb, 0, 0, dissector_handle_get_dissector_name(app_handle));
+            proto_item_set_generated(ti);
+        }
 
         if (decrypted) {
             dissect_ssl_payload(decrypted, pinfo, tree, session, record, app_handle);
@@ -4168,7 +4174,11 @@ proto_register_tls(void)
             FT_BYTES, BASE_NONE, NULL, 0x0,
             "Payload is encrypted application data", HFILL }
         },
-
+        { &hf_tls_record_appdata_proto,
+          { "Application Data Protocol", "tls.app_data_proto",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
         { &hf_ssl2_record,
           { "SSLv2 Record Header", "tls.record",
             FT_NONE, BASE_NONE, NULL, 0x0,
