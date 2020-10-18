@@ -662,13 +662,22 @@ display_epoch_time(gchar *buf, int buflen, const time_t sec, gint32 frac,
 	}
 }
 
+/*
+ * Number of characters required by a 64-bit signed number.
+ */
+#define CHARS_64_BIT_SIGNED	20	/* sign plus 19 digits */
+
+/*
+ * Number of characters required by a fractional part, in nanoseconds */
+#define CHARS_NANOSECONDS	10	/* .000000001 */
+
 void
-display_signed_time(gchar *buf, int buflen, const gint32 sec, gint32 frac,
+display_signed_time(gchar *buf, int buflen, const gint64 sec, gint32 frac,
 		const to_str_time_res_t units)
 {
 	/* this buffer is not NUL terminated */
-	gint8 num_buf[16]; /* max: '-2147483648', '.1000000000' */
-	gint8 *num_end = &num_buf[16];
+	gint8 num_buf[CHARS_64_BIT_SIGNED];
+	gint8 *num_end = &num_buf[CHARS_64_BIT_SIGNED];
 	gint8 *num_ptr;
 	int num_len;
 
@@ -688,7 +697,7 @@ display_signed_time(gchar *buf, int buflen, const gint32 sec, gint32 frac,
 		}
 	}
 
-	num_ptr = int_to_str_back(num_end, sec);
+	num_ptr = int64_to_str_back(num_end, sec);
 
 	num_len = MIN((int) (num_end - num_ptr), buflen);
 	memcpy(buf, num_ptr, num_len);
@@ -936,7 +945,8 @@ rel_time_to_str(wmem_allocator_t *scope, const nstime_t *rel_time)
 	return wmem_strbuf_finalize(buf);
 }
 
-#define REL_TIME_SECS_LEN	(1+10+1+9+1)
+/* Includes terminating '\0' */
+#define REL_TIME_SECS_LEN	(CHARS_64_BIT_SIGNED+CHARS_NANOSECONDS+1)
 
 /*
  * Display a relative time as seconds.
@@ -948,7 +958,7 @@ rel_time_to_secs_str(wmem_allocator_t *scope, const nstime_t *rel_time)
 
 	buf=(gchar *)wmem_alloc(scope, REL_TIME_SECS_LEN);
 
-	display_signed_time(buf, REL_TIME_SECS_LEN, (gint32) rel_time->secs,
+	display_signed_time(buf, REL_TIME_SECS_LEN, (gint64) rel_time->secs,
 			rel_time->nsecs, TO_STR_TIME_RES_T_NSECS);
 	return buf;
 }
