@@ -30,6 +30,17 @@ typedef struct _quic_stream_info {
     gboolean    from_server;
 } quic_stream_info;
 
+/*
+ * Although the QUIC SCID/DCID length field can store at most 255, v1 limits the
+ * CID length to 20.
+ */
+#define QUIC_MAX_CID_LENGTH  20
+
+typedef struct quic_cid {
+    guint8      len;
+    guint8      cid[QUIC_MAX_CID_LENGTH];
+} quic_cid_t;
+
 /**
  * Obtain Stream Type from a Stream ID.
  * https://tools.ietf.org/html/draft-ietf-quic-transport-23#section-2.1
@@ -61,6 +72,9 @@ int
 dissect_gquic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *gquic_tree, guint offset, guint8 len_pkn, gquic_info_data_t *gquic_info);
 guint32
 dissect_gquic_tags(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ft_tree, guint offset);
+
+void
+quic_add_connection(packet_info *pinfo, const quic_cid_t *cid);
 
 #ifdef __cplusplus
 }

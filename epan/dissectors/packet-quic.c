@@ -245,17 +245,6 @@ typedef struct quic_decrypt_result {
     guint           data_len;   /**< Size of decrypted data. */
 } quic_decrypt_result_t;
 
-/*
- * Although the QUIC SCID/DCID length field can store at most 255, v1 limits the
- * CID length to 20.
- */
-#define QUIC_MAX_CID_LENGTH  20
-
-typedef struct quic_cid {
-    guint8      len;
-    guint8      cid[QUIC_MAX_CID_LENGTH];
-} quic_cid_t;
-
 /** QUIC decryption context. */
 typedef struct quic_cipher {
     // TODO hp_cipher does not change after KeyUpdate, but is still tied to the
@@ -2523,6 +2512,22 @@ quic_verify_retry_token(tvbuff_t *tvb, quic_packet_info_t *quic_packet, const qu
     gcry_cipher_close(h);
 }
 #endif /* HAVE_LIBGCRYPT_AEAD */
+
+void
+quic_add_connection(packet_info *pinfo, const quic_cid_t *cid)
+{
+#ifdef HAVE_LIBGCRYPT_AEAD
+    quic_datagram *dgram_info;
+
+    dgram_info = (quic_datagram *)p_get_proto_data(wmem_file_scope(), pinfo, proto_quic, 0);
+    if (dgram_info && dgram_info->conn) {
+      quic_connection_add_cid(dgram_info->conn, cid, dgram_info->from_server);
+    }
+#else
+    (void)pinfo;
+    (void)cid;
+#endif
+}
 
 static void
 quic_add_connection_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, quic_info_data_t *conn)
