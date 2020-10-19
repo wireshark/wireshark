@@ -1774,12 +1774,7 @@ print_escaped_xml(FILE *fh, const char *unescaped_string)
             offset += 6;
             break;
         default:
-            if (g_ascii_isprint(*p)) {
-                temp_buffer[offset++] = *p;
-            }
-            else {
-                offset += g_snprintf(&temp_buffer[offset], ESCAPED_BUFFER_MAX-offset, "\\x%x", (guint8)*p);
-            }
+            temp_buffer[offset++] = *p;
         }
         if (offset > ESCAPED_BUFFER_MAX-8) {
             /* Getting close to end of buffer so flush to fh */
