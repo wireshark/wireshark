@@ -7686,7 +7686,7 @@ proto_register_rtcp(void)
         },
         { &hf_rtcp_mcptt_participant_ref,
             { "Floor Participant Reference", "rtcp.app_data.mcptt.floor_participant_ref",
-            FT_UINT8, BASE_DEC, NULL, 0x0,
+            FT_UINT32, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_rtcp_mcptt_ssrc,
