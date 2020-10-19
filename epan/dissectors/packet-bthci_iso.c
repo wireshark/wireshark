@@ -105,7 +105,7 @@ dissect_bthci_iso(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     chandle_data_t           *chandle_data;
     bluetooth_data_t         *bluetooth_data;
     wmem_tree_key_t           key[6];
-    guint32                   k_connection_handle;
+    guint32                   k_connection_handle = 0;
     guint32                   k_stream_handle;
     guint32                   k_frame_number;
     guint32                   k_interface_id;
