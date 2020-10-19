@@ -1293,7 +1293,7 @@ dissect_eap_gpsk_csuite_list(proto_tree *eap_tree, tvbuff_t *tvb, int offset)
     proto_tree_add_item(csuite_tree, hf_eap_gpsk_csuite_specifier, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
   }
-  return len;
+  return offset;
 }
 
 static gint
@@ -1413,7 +1413,7 @@ dissect_eap_gpsk(proto_tree *eap_tree, tvbuff_t *tvb, packet_info *pinfo, int of
       offset += len;
       proto_tree_add_item(eap_tree, hf_eap_gpsk_rand_server, tvb, offset, 32, ENC_NA);
       offset += 32;
-      offset += dissect_eap_gpsk_csuite_list(eap_tree, tvb, offset);
+      offset = dissect_eap_gpsk_csuite_list(eap_tree, tvb, offset);
       break;
     case GPSK_GPSK_2:
       proto_tree_add_item_ret_uint(eap_tree, hf_eap_gpsk_id_peer_len, tvb, offset, 2, ENC_BIG_ENDIAN, &len);
@@ -1428,8 +1428,8 @@ dissect_eap_gpsk(proto_tree *eap_tree, tvbuff_t *tvb, packet_info *pinfo, int of
       offset += 32;
       proto_tree_add_item(eap_tree, hf_eap_gpsk_rand_server, tvb, offset, 32, ENC_NA);
       offset += 32;
-      offset += dissect_eap_gpsk_csuite_list(eap_tree, tvb, offset);
-      offset += dissect_eap_gpsk_csuite_sel(eap_tree, tvb, offset);
+      offset = dissect_eap_gpsk_csuite_list(eap_tree, tvb, offset);
+      offset = dissect_eap_gpsk_csuite_sel(eap_tree, tvb, offset);
       proto_tree_add_item_ret_uint(eap_tree, hf_eap_gpsk_pd_payload_len, tvb, offset, 2, ENC_BIG_ENDIAN, &len);
       offset += 2;
       if (len > 0) {
@@ -1449,7 +1449,7 @@ dissect_eap_gpsk(proto_tree *eap_tree, tvbuff_t *tvb, packet_info *pinfo, int of
       offset += 2;
       proto_tree_add_item(eap_tree, hf_eap_gpsk_id_server, tvb, offset, len, ENC_ASCII | ENC_NA);
       offset += len;
-      offset += dissect_eap_gpsk_csuite_sel(eap_tree, tvb, offset);
+      offset = dissect_eap_gpsk_csuite_sel(eap_tree, tvb, offset);
       proto_tree_add_item_ret_uint(eap_tree, hf_eap_gpsk_pd_payload_len, tvb, offset, 2, ENC_BIG_ENDIAN, &len);
       offset += 2;
       if (len > 0) {
