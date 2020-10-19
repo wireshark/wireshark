@@ -2733,7 +2733,7 @@ proto_register_eap(void)
 
      { &hf_eap_gpsk_failure_code, {
       "EAP-GPSK Failure code", "eap.gpsk.failure_code",
-      FT_UINT16, BASE_HEX, VALS(eap_gpsk_failure_code_vals), 0x0,
+      FT_UINT32, BASE_HEX, VALS(eap_gpsk_failure_code_vals), 0x0,
       NULL, HFILL }},
 
     { &hf_eap_data, {
