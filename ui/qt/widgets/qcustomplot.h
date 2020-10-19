@@ -1747,7 +1747,7 @@ public:
 
 protected:
   // property members:
-  QMap<double, QString> mTicks;
+  QMultiMap<double, QString> mTicks;
   int mSubTickCount;
 
   // reimplemented virtual methods:
