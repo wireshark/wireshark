@@ -205,6 +205,10 @@ dissect_bthci_iso(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 
     /* remote bdaddr and name */
     remote_bdaddr = (remote_bdaddr_t *)wmem_tree_lookup32_array_le(bluetooth_data->chandle_to_bdaddr, key);
+    /*
+     * XXX - do this only if we found a handle pair, so that we have
+     * a connection handle?
+     */
     if (remote_bdaddr && remote_bdaddr->interface_id == bluetooth_data->interface_id &&
             remote_bdaddr->adapter_id == bluetooth_data->adapter_id &&
             remote_bdaddr->chandle == k_connection_handle) {
