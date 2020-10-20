@@ -2058,7 +2058,10 @@ invalid_time:
                 switch (rec->rec_type) {
 
                 case REC_TYPE_PACKET:
-                    if (wtap_file_type_subtype(wth) == WTAP_FILE_TYPE_SUBTYPE_CATAPULT_DCT2000)
+                    /*
+                     * XXX - any reason not to fuzz this part?
+                     */
+                    if (rec->rec_header.packet_header.pkt_encap == WTAP_ENCAP_CATAPULT_DCT2000)
                         real_data_start = find_dct2000_real_data(buf);
                     break;
                 }
