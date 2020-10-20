@@ -970,7 +970,6 @@ static void call_next_dissector(tvbuff_t *tvb, int offset, packet_info *pinfo,
     guint16 save_can_desegment;
     struct tcp_analysis *tcpd=NULL;
 
-    tcpd=get_tcp_conversation_data(NULL,pinfo);
 
     if (( hash_info->command  == PING_COMMAND) ||
         ( hash_info->command  == TRACERT_COMMAND))
@@ -981,13 +980,15 @@ static void call_next_dissector(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 /*XXX may want to load dest address here */
 
-        if ( pinfo->destport  == TCP_PORT_SOCKS)
-                ptr = &pinfo->destport;
-        else
-                ptr = &pinfo->srcport;
+        if (pinfo->destport == TCP_PORT_SOCKS) {
+            ptr = &pinfo->destport;
+        } else {
+            ptr = &pinfo->srcport;
+        }
 
-            *ptr = hash_info->port;
+        *ptr = hash_info->port;
 
+        tcpd = get_tcp_conversation_data(NULL, pinfo);
 /* 2003-09-18 JCFoster Fixed problem with socks tunnel in socks tunnel */
 
         state_info->in_socks_dissector_flag = 1; /* avoid recursive overflow */
