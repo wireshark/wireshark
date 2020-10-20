@@ -161,7 +161,7 @@ static INT Dot11DecryptWepMng(
     guint mac_header_len,
     guint *decrypt_len,
     PDOT11DECRYPT_KEY_ITEM key,
-    DOT11DECRYPT_SEC_ASSOCIATION *sa)
+    DOT11DECRYPT_SEC_ASSOCIATION_ID *id)
     ;
 
 static INT Dot11DecryptRsna4WHandshake(
@@ -1082,12 +1082,7 @@ INT Dot11DecryptDecryptPacket(
     /*          IEEE 802.11i-2004, 8.3.3.2, pag. 57 for CCMP   */
     if (DOT11DECRYPT_EXTIV(data[mac_header_len + 3]) == 0) {
         DEBUG_PRINT_LINE("WEP encryption", DEBUG_LEVEL_3);
-        /* get the Security Association structure for the STA and AP */
-        sa = Dot11DecryptGetSa(ctx, &id);
-        if (sa == NULL) {
-            return DOT11DECRYPT_RET_REQ_DATA;
-        }
-        return Dot11DecryptWepMng(ctx, decrypt_data, mac_header_len, decrypt_len, key, sa);
+        return Dot11DecryptWepMng(ctx, decrypt_data, mac_header_len, decrypt_len, key, &id);
     } else {
         DEBUG_PRINT_LINE("TKIP or CCMP encryption", DEBUG_LEVEL_3);
 
@@ -1435,7 +1430,7 @@ Dot11DecryptWepMng(
     guint mac_header_len,
     guint *decrypt_len,
     PDOT11DECRYPT_KEY_ITEM key,
-    DOT11DECRYPT_SEC_ASSOCIATION *sa)
+    DOT11DECRYPT_SEC_ASSOCIATION_ID *id)
 {
     UCHAR wep_key[DOT11DECRYPT_WEP_KEY_MAXLEN+DOT11DECRYPT_WEP_IVLEN];
     size_t keylen;
@@ -1444,12 +1439,21 @@ Dot11DecryptWepMng(
     DOT11DECRYPT_KEY_ITEM *tmp_key;
     UINT8 useCache=FALSE;
     UCHAR *try_data;
+    DOT11DECRYPT_SEC_ASSOCIATION *sa;
     guint try_data_len = *decrypt_len;
 
     try_data = (UCHAR *)g_malloc(try_data_len);
 
-    if (sa->key!=NULL)
-        useCache=TRUE;
+    /* get the Security Association structure for the STA and AP */
+
+    /* For WEP the sa is used only for caching. When no sa exists all user
+     * entered WEP keys are checked and on successful packet decryption an
+     * sa is formed caching the key used for decryption.
+     */
+    sa = Dot11DecryptGetSa(ctx, id);
+    if (sa != NULL && sa->key != NULL) {
+        useCache = TRUE;
+    }
 
     for (key_index=0; key_index<(INT)ctx->keys_nr; key_index++) {
         /* use the cached one, or try all keys */
@@ -1487,8 +1491,18 @@ Dot11DecryptWepMng(
         }
 
         if (!ret_value && tmp_key->KeyType==DOT11DECRYPT_KEY_TYPE_WEP) {
-            /* the tried key is the correct one, cached in the Security Association */
+            /* the tried key is the correct one, cache it in the Security Association */
 
+            /* Form an SA if one does not exist already */
+            if (sa == NULL) {
+                sa = Dot11DecryptNewSa(id);
+                if (sa == NULL) {
+                    DEBUG_PRINT_LINE("Failed to alloc sa for WEP", DEBUG_LEVEL_3);
+                    ret_value = DOT11DECRYPT_RET_UNSUCCESS;
+                    break;
+                }
+                sa = Dot11DecryptAddSa(ctx, id, sa);
+            }
             sa->key=tmp_key;
 
             if (key!=NULL) {

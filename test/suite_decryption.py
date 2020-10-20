@@ -23,6 +23,16 @@ import fixtures
 @fixtures.mark_usefixtures('test_env')
 @fixtures.uses_fixtures
 class case_decrypt_80211(subprocesstest.SubprocessTestCase):
+    def test_80211_wep(self, cmd_tshark, capture_file):
+        '''IEEE 802.11 WEP'''
+        # Included in git sources test/captures/wep.pcapng.gz
+        self.assertRun((cmd_tshark,
+                '-o', 'wlan.enable_decryption: TRUE',
+                '-r', capture_file('wep.pcapng.gz'),
+                ))
+        self.assertTrue(self.grepOutput('Who has 192.168.5.1'))
+        self.assertTrue(self.grepOutput('Echo \(ping\) request'))
+
     def test_80211_wpa_psk(self, cmd_tshark, capture_file):
         '''IEEE 802.11 WPA PSK'''
         # https://gitlab.com/wireshark/wireshark/-/wikis/SampleCaptures?action=AttachFile&do=view&target=wpa-Induction.pcap
