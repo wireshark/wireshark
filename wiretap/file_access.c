@@ -1996,6 +1996,24 @@ wtap_get_savable_file_types_subtypes(int file_type_subtype,
 	return savable_file_types_subtypes;
 }
 
+/**
+ * Return TRUE if files of this file type/subtype use interface IDs
+ * to associate records with an interface.
+ */
+gboolean
+wtap_uses_interface_ids(int file_type)
+{
+	/*
+	 * XXX - for now, pcapng and iptrace are the only such file types.
+	 * We don't write iptrace files, so this doesn't currently
+	 * matter, but we provide this API to make it clearer what's
+	 * being checked.
+	 */
+	return file_type == WTAP_FILE_TYPE_SUBTYPE_PCAPNG ||
+	       file_type == WTAP_FILE_TYPE_SUBTYPE_IPTRACE_1_0 ||
+	       file_type == WTAP_FILE_TYPE_SUBTYPE_IPTRACE_2_0;
+}
+
 /* Name that should be somewhat descriptive. */
 const char *
 wtap_file_type_subtype_string(int file_type_subtype)

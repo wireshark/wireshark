@@ -144,5 +144,6 @@ libwiretap.so.0 libwiretap0 #MINVER#
  wtap_snapshot_length@Base 1.9.1
  wtap_strerror@Base 1.9.1
  wtap_tsprec_string@Base 1.99.9
+ wtap_uses_interface_ids@Base 3.3.2
  wtap_write_shb_comment@Base 1.9.1
  wtap_wtap_encap_to_pcap_encap@Base 1.9.1

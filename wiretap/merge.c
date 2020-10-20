@@ -908,7 +908,7 @@ merge_process_packets(wtap_dumper *pdh, const int file_type,
             break;
         }
 
-        if (file_type == WTAP_FILE_TYPE_SUBTYPE_PCAPNG) {
+        if (wtap_uses_interface_ids(file_type)) {
             /*
              * XXX - We should do this only for record types
              * that pertain to a particular interface; for

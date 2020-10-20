@@ -2220,6 +2220,13 @@ WS_DLL_PUBLIC
 GArray *wtap_get_savable_file_types_subtypes(int file_type,
     const GArray *file_encaps, guint32 required_comment_types);
 
+/**
+ * Return TRUE if files of this file type/subtype use interface IDs
+ * to associate records with an interface.
+ */
+WS_DLL_PUBLIC
+gboolean wtap_uses_interface_ids(int file_type);
+
 /*** various string converter functions ***/
 WS_DLL_PUBLIC
 const char *wtap_file_type_subtype_string(int file_type_subtype);
