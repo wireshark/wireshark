@@ -11959,7 +11959,7 @@ proto_register_smb2(void)
 		},
 
 		{ &hf_smb2_negotiate_context_offset,
-			{ "NegotiateContextOffset", "smb2.negotiate_context.offset", FT_UINT16, BASE_HEX,
+			{ "NegotiateContextOffset", "smb2.negotiate_context.offset", FT_UINT32, BASE_HEX,
 			NULL, 0, NULL, HFILL }
 		},
 
@@ -12894,7 +12894,7 @@ proto_register_smb2(void)
 		},
 
 		{ &hf_smb2_output_buffer_len,
-			{ "Output Buffer Length", "smb2.output_buffer_len", FT_UINT16, BASE_DEC,
+			{ "Output Buffer Length", "smb2.output_buffer_len", FT_UINT32, BASE_DEC,
 			NULL, 0, NULL, HFILL }
 		},
 

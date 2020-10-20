@@ -8980,7 +8980,7 @@ void proto_register_opa_mad(void)
         /* Trap 128 */
         { &hf_opa_Trap_LID, {
                 "LIDADDR", "opa.trap.lidaddr",
-                FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }
+                FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }
         },
 
         /* Trap 129, 130, 131 */

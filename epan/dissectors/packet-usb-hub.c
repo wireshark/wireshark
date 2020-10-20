@@ -712,11 +712,11 @@ proto_register_usb_hub(void)
 		  NULL, HFILL }},
 
 		{ &hf_usb_hub_descriptor_length,
-		{ "DescriptorLength", "usbhub.setup.DescriptorLength", FT_UINT8, BASE_DEC, NULL, 0x0,
+		{ "DescriptorLength", "usbhub.setup.DescriptorLength", FT_UINT16, BASE_DEC, NULL, 0x0,
 		  NULL, HFILL }},
 
 		{ &hf_usb_hub_zero,
-		{ "(zero)", "usbhub.setup.zero", FT_UINT8, BASE_DEC, NULL, 0x0,
+		{ "(zero)", "usbhub.setup.zero", FT_UINT16, BASE_DEC, NULL, 0x0,
 		  NULL, HFILL }},
 
 		{ &hf_usb_hub_tt_flags,
