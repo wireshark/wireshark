@@ -1497,7 +1497,7 @@ static gint dissect_mq_MQCO(tvbuff_t* tvb, proto_tree* mq_tree, gint offset, mq_
     }
     else
     {
-        proto_tree_add_bitmask(mq_tree, tvb, offset, hf_mq_close_options, ett_mq_close_option, pf_flds_clsopt, ENC_BIG_ENDIAN);
+        proto_tree_add_bitmask(mq_tree, tvb, offset, hf_mq_close_options, ett_mq_close_option, pf_flds_clsopt, p_mq_parm->mq_int_enc);
     }
     return 4;
 }
@@ -1812,7 +1812,7 @@ static gint dissect_mq_od(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, g
         if (iSize != 0 && tvb_reported_length_remaining(tvb, offset) >= iSize)
         {
             gint     iNbrRecords = 0;
-            guint8*  sObj;
+            guint8* sObj;
             guint32  uTyp;
 
             if (iVersion >= 2)
@@ -1921,7 +1921,7 @@ static gint dissect_mq_sid(tvbuff_t* tvb, proto_tree* tree, mq_parm_t* p_mq_parm
 {
     guint8 iSIDL;
     guint8 iSID;
-    char*  sid_str;
+    char* sid_str;
     gint   bOffset = offset;
 
     iSIDL = tvb_get_guint8(tvb, offset);
@@ -2315,8 +2315,9 @@ static void dissect_mq_pdu(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree)
                         guint32 iHdl = 0;
                         iReturnCode = tvb_get_guint32(tvb, offset + 8, p_mq_parm->mq_int_enc);
                         iHdl = tvb_get_guint32(tvb, offset + 12, p_mq_parm->mq_int_enc);
-                        dissect_mq_addCR_colinfo(pinfo, p_mq_parm);
-                        if (iHdl != 0 && iHdl != 0xffffffff)
+                        if (!mq_in_reassembly)
+                            dissect_mq_addCR_colinfo(pinfo, p_mq_parm);
+                        if (iHdl != 0 && iHdl != 0xffffffff && !mq_in_reassembly)
                             col_append_fstr(pinfo->cinfo, COL_INFO, " Hdl=0x%04x", iHdl);
                         if (iReturnCode != 0)
                             col_append_fstr(pinfo->cinfo, COL_INFO, " [RC=%d]", iReturnCode);
@@ -2812,8 +2813,8 @@ static void dissect_mq_pdu(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree)
                             if (iReasnCode != MQ_MQRC_NONE)
                                 col_append_fstr(pinfo->cinfo, COL_INFO,
                                     ", RC=%d(0x%x) - %s",
-                                iReasnCode, iReasnCode,
-                                val_to_str_ext(iReasnCode, GET_VALS_EXTP(MQRC), "Unknown (0x%02x)"));
+                                    iReasnCode, iReasnCode,
+                                    val_to_str_ext(iReasnCode, GET_VALS_EXTP(MQRC), "Unknown (0x%02x)"));
                         }
 
                         mq_tree = proto_tree_add_subtree(mqroot_tree, tvb, offset, iHdrL, ett_mq_msg, NULL, MQ_TEXT_ASYMSG);
@@ -3510,10 +3511,10 @@ static void dissect_mq_pdu(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree)
                                 }
                             }
 
-                            col_append_fstr(pinfo->cinfo, COL_INFO, " (%d bytes)", iSizePayload - iHeadersLength);
-
                             if (!mq_in_reassembly)
                             {
+                                col_append_fstr(pinfo->cinfo, COL_INFO, " (Data %d bytes)", iSizePayload - iHeadersLength);
+
                                 /* Call subdissector for the payload */
                                 tvbuff_t* next_tvb;
                                 p_mq_parm->mq_cur_ccsid.encod = tvb_get_guint32(tvb, p_mq_parm->iOfsEnc, p_mq_parm->mq_int_enc);
@@ -3546,8 +3547,9 @@ static void dissect_mq_pdu(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree)
                 else
                 {
                     /* This is a MQ segment continuation (if MQ reassembly is not enabled) */
-                    col_append_str(pinfo->cinfo, COL_INFO, " [Unreassembled MQ]");
-                    call_data_dissector(tvb_new_subset_remaining(tvb, offset), pinfo, tree);
+                    if (!mq_in_reassembly)
+                        col_append_str(pinfo->cinfo, COL_INFO, " [Unreassembled MQ]");
+                    call_data_dissector(tvb_new_subset_remaining(tvb, offset), pinfo, (mqroot_tree) ? mqroot_tree : tree);
                 }
             }
         }
@@ -3667,9 +3669,9 @@ static int reassemble_mq(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, vo
                 gboolean reassembly_error = FALSE;
                 guint8* pTmp = "Full";
                 if (bSeg1st && !bSegLst)
-                    pTmp = "First";
+                    pTmp = "First ";
                 if (!bSeg1st && bSegLst)
-                    pTmp = "Last";
+                    pTmp = "Last  ";
                 if (!bSeg1st && !bSegLst)
                     pTmp = "Middle";
 
@@ -3720,7 +3722,15 @@ static int reassemble_mq(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, vo
                     }
                     else
                     {
-                        mq_parm.mq_MsgActLen += (iSegL - iHdrL);
+                        fragment_head* _head = fragment_get_reassembled_id(&mq_reassembly_table, pinfo, iConnectionId);
+                        if (_head)
+                        {
+                            uStrL = mq_parm.mq_API_Len = tvb_get_guint32(_head->tvb_data, iHdrL, ENC_BIG_ENDIAN);
+                            mq_parm.mq_API_CC = tvb_get_guint32(_head->tvb_data, iHdrL + 4, iEnco);
+                            mq_parm.mq_API_RC = tvb_get_guint32(_head->tvb_data, iHdrL + 8, iEnco);
+                            iHdl = mq_parm.mq_API_Hdl = tvb_get_guint32(_head->tvb_data, iHdrL + 12, iEnco);
+                            mq_parm.mq_MsgTotLen = uStrL;
+                        }
                     }
 
                     iNxtP = iHdrL + ((bSeg1st) ? 16 : 0);
@@ -3796,11 +3806,12 @@ static int reassemble_mq(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, vo
                             val_to_str_ext(iOpcd, GET_VALS_EXTP(opcode), "Unknown (0x%02x)"),
                             pTmp);
                     }
-
                     if (iOpcd == MQ_TST_ASYNC_MESSAGE)
-                        proto_item_append_text(ti, ", Hdl=0x%04x GlbMsgIdx=%d, SegIdx=%d, SegLen=%d",
+                        proto_item_append_text(ti, ", Hdl=0x%04x, GlbMsgIdx=%d, SegIdx=%d, SegLen=%d",
                             iHdl, iGlbMsgIdx, iSegmIndex, iSegLength);
-
+                    else
+                        proto_item_append_text(ti, ", Hdl=0x%04x, Len=%d",
+                            mq_parm.mq_API_Hdl, mq_parm.mq_MsgTotLen);
                     if (reassembly_error)
                     {
                         expert_add_info_format(pinfo, ti, &ei_mq_reassembly_error,
@@ -3842,7 +3853,7 @@ static int reassemble_mq(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, vo
                             val_to_str_ext(iOpcd, GET_VALS_EXTP(opcode), "Unknown (0x%02x)"));
                         if (iOpcd == MQ_TST_ASYNC_MESSAGE)
                         {
-                            proto_item_append_text(ti, ", Hdl=0x%04x GlbMsgIdx=%d, Len=%d",
+                            proto_item_append_text(ti, ", Hdl=0x%04x, GlbMsgIdx=%d, Len=%d",
                                 iHdl, iGlbMsgIdx,
                                 tvb_reported_length_remaining(next_tvb, 0));
                             if (mq_parm.mq_AsyMsgRsn != MQ_MQRC_NONE)
@@ -3852,7 +3863,8 @@ static int reassemble_mq(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, vo
                         }
                         else
                         {
-                            proto_item_append_text(ti, ", Len=%d",
+                            proto_item_append_text(ti, ", Hdl=0x%04x, Len=%d",
+                                mq_parm.mq_API_Hdl,
                                 tvb_reported_length_remaining(next_tvb, 0));
                             if (mq_parm.mq_API_RC != MQ_MQRC_NONE)
                                 proto_item_append_text(ti, ", RC=%d(0x%x) - %s",
@@ -3879,9 +3891,11 @@ static int reassemble_mq(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, vo
                         pTmp);
                     dissect_mq_addCR_colinfo(pinfo, &mq_parm);
                     if (iOpcd == MQ_TST_ASYNC_MESSAGE)
-                        col_append_fstr(pinfo->cinfo, COL_INFO, " Hdl=0x%04x GlbMsgIdx=%d, SegIdx=%d, SegLen=%d",
+                        col_append_fstr(pinfo->cinfo, COL_INFO, " Hdl=0x%04x, GlbMsgIdx=%d, SegIdx=%d, SegLen=%d",
                             iHdl, iGlbMsgIdx, iSegmIndex, iSegLength);
-
+                    else
+                        col_append_fstr(pinfo->cinfo, COL_INFO, " Hdl=0x%04x, Len=%d",
+                            mq_parm.mq_API_Hdl, mq_parm.mq_MsgTotLen);
                     dissect_mq_pdu(tvb, pinfo, mq_tree);
                     return tvb_reported_length(tvb);
                 }
@@ -4129,7 +4143,7 @@ void proto_register_mq(void)
         {&hf_mq_fcno_capflag, {"CapFlag...", "mq.fcno.capflag", FT_UINT32, BASE_HEX_DEC, NULL, 0x0, "FCNO Capability Flag", HFILL}},
 
         {&hf_mq_fcno_prodid, {"prodid....", "mq.fcno.prodid", FT_STRING, STR_UNICODE, NULL, 0x0, "FCNO Product Id", HFILL}},
-        {&hf_mq_fcno_mqmid,  {"MqmId.....", "mq.fcno.mqmid", FT_STRING, STR_UNICODE, NULL, 0x0, "FCNO Mqm ID", HFILL}},
+        {&hf_mq_fcno_mqmid, {"MqmId.....", "mq.fcno.mqmid", FT_STRING, STR_UNICODE, NULL, 0x0, "FCNO Mqm ID", HFILL}},
 
         {&hf_mq_fcno_conn_tag, {"conntag...", "mq.fcno.conntag", FT_BYTES, BASE_NONE, NULL, 0x0, "FCNO Connection Tag", HFILL}},
         {&hf_mq_fcno_retconn_tag, {"retconntag", "mq.fcno.retconntag", FT_BYTES, BASE_NONE, NULL, 0x0, "FCNO Retry Connection Tag", HFILL}},
