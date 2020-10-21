@@ -54,7 +54,7 @@ end
 --     number of verifyFields() * (1 + number of fields) +
 --     number of verifyResults() * (1 + 2 * number of values)
 --
-local taptests = { [FRAME]=4, [OTHER]=337 }
+local taptests = { [FRAME]=4, [OTHER]=353 }
 
 local function getResults()
     print("\n-----------------------------\n")
@@ -881,6 +881,100 @@ function test_proto.dissector(tvbuf,pktinfo,root)
     verifyFields("time.ABSOLUTE_UTC", autc_match_fields)
 
     verifyResults("add_pfield-rfc1123-local", autc_match_values)
+
+----------------------------------------
+    testing(OTHER, "TvbRange subsets")
+
+    resetResults()
+
+    local offset = 5
+    local len = 10
+    local b_offset = 3
+    local b_len = 2
+    local range
+    local range_raw
+    local expected
+
+    -- This is the same data from the "tree:add_packet_field Bytes" test
+    -- copied here for clarity
+    local bytesstring1 = "deadbeef0123456789DEADBEEFabcdef"
+    local bytestvb1 = ByteArray.new(bytesstring1, true):tvb("Bytes hex-string 1")
+
+    -- tvbrange with no offset or length (control test case)
+    range = bytestvb1()
+    range_raw = range:raw()
+    expected = range:bytes():raw()
+    execute ("tvbrange_raw", range_raw == expected,
+        string.format('range_raw="%s" expected="%s"', range_raw, expected))
+    range_raw = range:raw(b_offset)
+    expected = range:bytes():raw(b_offset)
+    execute ("tvbrange_raw_offset", range_raw == expected,
+        string.format('range_raw="%s" expected="%s"', range_raw, expected))
+    range_raw = range:raw(0, b_len)
+    expected = range:bytes():raw(0, b_len)
+    execute ("tvbrange_raw_len", range_raw == expected,
+        string.format('range_raw="%s" expected="%s"', range_raw, expected))
+    range_raw = range:raw(b_offset, b_len)
+    expected = range:bytes():raw(b_offset, b_len)
+    execute ("tvbrange_raw_offset_len", range_raw == expected,
+        string.format('range_raw="%s" expected="%s"', range_raw, expected))
+
+    -- tvbrange with len only
+    range = bytestvb1(0, len)
+    range_raw = range:raw()
+    expected = range:bytes():raw()
+    execute ("tvbrange_len_raw", range_raw == expected,
+        string.format('range_raw="%s" expected="%s"', range_raw, expected))
+    range_raw = range:raw(b_offset)
+    expected = range:bytes():raw(b_offset)
+    execute ("tvbrange_len_raw_offset", range_raw == expected,
+        string.format('range_raw="%s" expected="%s"', range_raw, expected))
+    range_raw = range:raw(0, b_len)
+    expected = range:bytes():raw(0, b_len)
+    execute ("tvbrange_len_raw_len", range_raw == expected,
+        string.format('range_raw="%s" expected="%s"', range_raw, expected))
+    range_raw = range:raw(b_offset, b_len)
+    expected = range:bytes():raw(b_offset, b_len)
+    execute ("tvbrange_len_raw_offset_len", range_raw == expected,
+        string.format('range_raw="%s" expected="%s"', range_raw, expected))
+
+    -- tvbrange with offset only
+    range = bytestvb1(offset)
+    range_raw = range:raw()
+    expected = range:bytes():raw()
+    execute ("tvbrange_offset_raw", range_raw == expected,
+        string.format('range_raw="%s" expected="%s"', range_raw, expected))
+    range_raw = range:raw(b_offset)
+    expected = range:bytes():raw(b_offset)
+    execute ("tvbrange_offset_raw_offset", range_raw == expected,
+        string.format('range_raw="%s" expected="%s"', range_raw, expected))
+    range_raw = range:raw(0, b_len)
+    expected = range:bytes():raw(0, b_len)
+    execute ("tvbrange_offset_raw_len", range_raw == expected,
+        string.format('range_raw="%s" expected="%s"', range_raw, expected))
+    range_raw = range:raw(b_offset, b_len)
+    expected = range:bytes():raw(b_offset, b_len)
+    execute ("tvbrange_offset_raw_offset_len", range_raw == expected,
+        string.format('range_raw="%s" expected="%s"', range_raw, expected))
+
+    -- tvbrange with offset and len
+    range = bytestvb1(offset, len)
+    range_raw = range:raw()
+    expected = range:bytes():raw()
+    execute ("tvbrange_offset_len_raw", range_raw == expected,
+        string.format('range_raw="%s" expected="%s"', range_raw, expected))
+    range_raw = range:raw(b_offset)
+    expected = range:bytes():raw(b_offset)
+    execute ("tvbrange_offset_len_raw_offset", range_raw == expected,
+        string.format('range_raw="%s" expected="%s"', range_raw, expected))
+    range_raw = range:raw(0, b_len)
+    expected = range:bytes():raw(0, b_len)
+    execute ("tvbrange_offset_len_raw_len", range_raw == expected,
+        string.format('range_raw="%s" expected="%s"', range_raw, expected))
+    range_raw = range:raw(b_offset, b_len)
+    expected = range:bytes():raw(b_offset, b_len)
+    execute ("tvbrange_offset_len_raw_offset_len", range_raw == expected,
+        string.format('range_raw="%s" expected="%s"', range_raw, expected))
 
 ----------------------------------------
 

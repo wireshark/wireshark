@@ -1324,8 +1324,8 @@ WSLUA_METHOD TvbRange_raw(lua_State* L) {
 
        @since 1.11.3
      */
-#define WSLUA_OPTARG_TvbRange_raw_OFFSET 2 /* The position of the first byte. Default is 0, or first byte. */
-#define WSLUA_OPTARG_TvbRange_raw_LENGTH 3 /* The length of the segment to get. Default is -1, Default is -1, or the remaining bytes. */
+#define WSLUA_OPTARG_TvbRange_raw_OFFSET 2 /* The position of the first byte within the range. Default is 0, or first byte. */
+#define WSLUA_OPTARG_TvbRange_raw_LENGTH 3 /* The length of the segment to get. Default is -1, or the remaining bytes in the range. */
     TvbRange tvbr = checkTvbRange(L,1);
     int offset = (int)luaL_optinteger(L,WSLUA_OPTARG_TvbRange_raw_OFFSET,0);
     int len = (int)luaL_optinteger(L,WSLUA_OPTARG_TvbRange_raw_LENGTH,-1);
@@ -1336,23 +1336,27 @@ WSLUA_METHOD TvbRange_raw(lua_State* L) {
         return 0;
     }
 
-    if ((guint)offset > tvb_captured_length(tvbr->tvb->ws_tvb)) {
-        WSLUA_OPTARG_ERROR(TvbRange_raw,OFFSET,"offset beyond end of Tvb");
+    if (offset < 0) {
+        WSLUA_OPTARG_ERROR(TvbRange_raw,OFFSET,"offset before start of TvbRange");
+        return 0;
+    }
+    if (offset > tvbr->len) {
+        WSLUA_OPTARG_ERROR(TvbRange_raw,OFFSET,"offset beyond end of TvbRange");
         return 0;
     }
 
     if (len == -1) {
-        len = tvb_captured_length_remaining(tvbr->tvb->ws_tvb,offset);
-        if (len < 0) {
-            luaL_error(L,"out of bounds");
-            return FALSE;
-        }
-    } else if ( (guint)(len + offset) > tvb_captured_length(tvbr->tvb->ws_tvb)) {
+        len = tvbr->len - offset;
+    }
+    if (len < 0) {
+        luaL_error(L,"out of bounds");
+        return FALSE;
+    } else if ( (len + offset) > tvbr->len) {
         luaL_error(L,"Range is out of bounds");
         return FALSE;
     }
 
-    lua_pushlstring(L, tvb_get_ptr(tvbr->tvb->ws_tvb, offset, len), len);
+    lua_pushlstring(L, tvb_get_ptr(tvbr->tvb->ws_tvb, tvbr->offset+offset, len), len);
 
     WSLUA_RETURN(1); /* A Lua string of the binary bytes in the <<lua_class_TvbRange,`TvbRange`>>. */
 }
