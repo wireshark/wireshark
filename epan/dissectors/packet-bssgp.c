@@ -652,7 +652,7 @@ de_bssgp_bss_area_ind(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, g
 
     curr_offset = offset;
 
-    proto_tree_add_item(tree, hf_bssgp_bss_area_ind, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_bssgp_bss_area_ind, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
     curr_offset++;
 
     return(curr_offset-offset);
@@ -1465,8 +1465,8 @@ de_bssgp_gprs_timer(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gui
     curr_offset = offset;
 
     /*octet 3 Unit Value Timer value */
-    proto_tree_add_item(tree, hf_bssgp_unit_val, tvb, curr_offset, 3, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_bssgp_gprs_timer, tvb, curr_offset, 3, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_bssgp_unit_val, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_bssgp_gprs_timer, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
     curr_offset++;
 
@@ -2603,8 +2603,8 @@ de_bssgp_pfcs_to_be_set_up_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pi
          */
         pft_tree = proto_tree_add_subtree(pfc_tree, tvb, curr_offset, 3,
                     ett_bssgp_pfcs_to_be_set_up_list_pft, NULL, "Packet Flow Timer(PFT)");
-        proto_tree_add_item(pft_tree, hf_bssgp_unit_val, tvb, curr_offset, 3, ENC_BIG_ENDIAN);
-        proto_tree_add_item(pft_tree, hf_bssgp_gprs_timer, tvb, curr_offset, 3, ENC_BIG_ENDIAN);
+        proto_tree_add_item(pft_tree, hf_bssgp_unit_val, tvb, curr_offset+2, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(pft_tree, hf_bssgp_gprs_timer, tvb, curr_offset+2, 1, ENC_BIG_ENDIAN);
         curr_offset += 3;
 
         /* ABQP: Aggregate BSS QoS Profile.
@@ -2632,8 +2632,8 @@ de_bssgp_pfcs_to_be_set_up_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pi
         if(pfc_len>18){
             t10_tree = proto_tree_add_subtree(pfc_tree, tvb, curr_offset, 3,
                     ett_bssgp_pfcs_to_be_set_up_list_t10, NULL, "T10");
-            proto_tree_add_item(t10_tree, hf_bssgp_unit_val, tvb, curr_offset, 3, ENC_BIG_ENDIAN);
-            proto_tree_add_item(t10_tree, hf_bssgp_gprs_timer, tvb, curr_offset, 3, ENC_BIG_ENDIAN);
+            proto_tree_add_item(t10_tree, hf_bssgp_unit_val, tvb, curr_offset+2, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(t10_tree, hf_bssgp_gprs_timer, tvb, curr_offset+2, 1, ENC_BIG_ENDIAN);
             curr_offset += 3;
         }
     }
@@ -3273,7 +3273,7 @@ de_bssgp_csg_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32
     proto_tree_add_item(tree, hf_bssgp_csg_id, tvb, curr_offset, 4, ENC_BIG_ENDIAN);
     curr_offset+=4;
     /* Cell Access Mode */
-    proto_tree_add_item(tree, hf_bssgp_cell_acc_mode, tvb, curr_offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_bssgp_cell_acc_mode, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
     curr_offset++;
 
     return(curr_offset-offset);
