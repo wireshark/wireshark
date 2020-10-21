@@ -1324,7 +1324,9 @@ process_cap_file(const char *filename, gboolean need_separator)
   /*
    * Get IDB info strings.
    * We do this at the end, so we can get information for all IDBs in
-   * the file, even those that come after packet records.
+   * the file, even those that come after packet records, and so that
+   * we get, for example, a count of the number of statistics entries
+   * for each interface as of the *end* of the file.
    */
   idb_info = wtap_file_get_idb_info(cf_info.wth);
 
