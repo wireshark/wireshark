@@ -691,6 +691,8 @@ typedef struct _ieee802154_transaction_t {
     guint16 src_pan;
 } ieee802154_transaction_t;
 
+static const nstime_t ieee802154_transaction_timeout = NSTIME_INIT_SECS_MSECS(1, 0); // ACKs usually arrive within milliseconds
+
 static wmem_tree_t *transaction_unmatched_pdus;
 static wmem_tree_t *transaction_matched_pdus;
 
@@ -1365,7 +1367,7 @@ static ieee802154_transaction_t *transaction_start(packet_info *pinfo, proto_tre
         ieee802154_trans->rqst_frame = pinfo->num;
         ieee802154_trans->ack_frame = 0;
         ieee802154_trans->rqst_time = pinfo->abs_ts;
-        nstime_set_zero(&ieee802154_trans->ack_time);
+        nstime_set_unset(&ieee802154_trans->ack_time);
         wmem_tree_insert32_array(transaction_unmatched_pdus, ieee802154_key, (void *)ieee802154_trans);
     } else {
         /* Already visited this frame */
@@ -1379,18 +1381,16 @@ static ieee802154_transaction_t *transaction_start(packet_info *pinfo, proto_tre
         ieee802154_key[2].key = NULL;
 
         ieee802154_trans = (ieee802154_transaction_t *)wmem_tree_lookup32_array(transaction_matched_pdus, ieee802154_key);
-    }
 
-    if (ieee802154_trans == NULL) {
-        if (PINFO_FD_VISITED(pinfo)) {
+        if (!ieee802154_trans) {
             /* No ACK found - add field and expert info */
             it = proto_tree_add_item(tree, hf_ieee802154_no_ack, NULL, 0, 0, ENC_NA);
             proto_item_set_generated(it);
 
-            expert_add_info_format(pinfo, it, &ei_ieee802154_ack_not_found, "No ack found to ack request in frame %u", pinfo->num);
-        }
+            expert_add_info_format(pinfo, it, &ei_ieee802154_ack_not_found, "No ack found to request in frame %u", pinfo->num);
 
-        return NULL;
+            return NULL;
+        }
     }
 
     /* Print state tracking in the tree */
@@ -1407,11 +1407,10 @@ static ieee802154_transaction_t *transaction_end(packet_info *pinfo, proto_tree 
     ieee802154_transaction_t    *ieee802154_trans = NULL;
     wmem_tree_key_t             ieee802154_key[3];
     proto_item                  *it;
-    nstime_t                    ns;
-    double                      ack_time;
 
     if (!PINFO_FD_VISITED(pinfo)) {
         guint32 frame_num;
+        nstime_t ns;
 
         ieee802154_key[0].length = 2;
         ieee802154_key[0].key = key;
@@ -1444,6 +1443,11 @@ static ieee802154_transaction_t *transaction_end(packet_info *pinfo, proto_tree 
                 return NULL;
         }
 
+        nstime_delta(&ns, &pinfo->abs_ts, &ieee802154_trans->rqst_time);
+        if (nstime_cmp(&ns, &ieee802154_transaction_timeout) > 0)
+            return NULL;
+
+        ieee802154_trans->ack_time = ns;
         ieee802154_trans->ack_frame = pinfo->num;
 
         /*
@@ -1480,7 +1484,7 @@ static ieee802154_transaction_t *transaction_end(packet_info *pinfo, proto_tree 
             it = proto_tree_add_item(tree, hf_ieee802154_no_ack_request, NULL, 0, 0, ENC_NA);
             proto_item_set_generated(it);
 
-            expert_add_info_format(pinfo, it, &ei_ieee802154_ack_request_not_found, "No ack request found to ack in frame %u", pinfo->num);
+            expert_add_info_format(pinfo, it, &ei_ieee802154_ack_request_not_found, "No request found to ack in frame %u", pinfo->num);
             return NULL;
         }
     }
@@ -1542,10 +1546,7 @@ static ieee802154_transaction_t *transaction_end(packet_info *pinfo, proto_tree 
     it = proto_tree_add_uint(tree, hf_ieee802154_ack_to, NULL, 0, 0, ieee802154_trans->rqst_frame);
     proto_item_set_generated(it);
 
-    nstime_delta(&ns, &pinfo->abs_ts, &ieee802154_trans->rqst_time);
-    ieee802154_trans->ack_time = ns;
-    ack_time = nstime_to_msec(&ns);
-    it = proto_tree_add_double_format_value(tree, hf_ieee802154_ack_time, NULL, 0, 0, ack_time, "%.3f ms", ack_time);
+    it = proto_tree_add_time(tree, hf_ieee802154_ack_time, NULL, 0, 0, &ieee802154_trans->ack_time);
     proto_item_set_generated(it);
 
     return ieee802154_trans;
@@ -6454,8 +6455,8 @@ void proto_register_ieee802154(void)
             "No corresponding ack frame was found", HFILL }},
 
         { &hf_ieee802154_no_ack_request,
-        { "No ack request found", "wpan.no_ack_request", FT_NONE, BASE_NONE, NULL, 0x0,
-            "No corresponding ack request frame was found", HFILL }},
+        { "No request found", "wpan.no_ack_request", FT_NONE, BASE_NONE, NULL, 0x0,
+            "No corresponding request frame was found", HFILL }},
 
         { &hf_ieee802154_ack_in,
         { "Ack In", "wpan.ack_in", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
@@ -6466,8 +6467,8 @@ void proto_register_ieee802154(void)
             "This is the ack to the request in this frame", HFILL }},
 
         { &hf_ieee802154_ack_time,
-        { "Ack Time", "wpan.ack_time", FT_DOUBLE, BASE_NONE, NULL, 0x0,
-            "The time between the request and the ack, in ms.", HFILL }},
+        { "Ack Time", "wpan.ack_time", FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0,
+            "The time between the request and the ack", HFILL }},
 
         /* ZBOSS dump */
 
@@ -6711,7 +6712,7 @@ void proto_register_ieee802154(void)
         { &ei_ieee802154_ack_not_found, { "wpan.ack_not_found",  PI_SEQUENCE, PI_NOTE,
                 "Ack not found", EXPFILL }},
         { &ei_ieee802154_ack_request_not_found, { "wpan.ack_request_not_found",  PI_SEQUENCE, PI_NOTE,
-                "Ack request not found", EXPFILL }},
+                "Request not found", EXPFILL }},
         { &ei_ieee802154_seqno_suppression, { "wpan.seqno_suppression_invalid",  PI_MALFORMED, PI_WARN,
                 "Sequence Number Suppression invalid for 802.15.4-2003 and 2006", EXPFILL }},
         { &ei_ieee802154_6top_unsupported_type, { "wpan.6top_unsupported_type", PI_PROTOCOL, PI_WARN,
