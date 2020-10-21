@@ -1,4 +1,4 @@
--- 3GPP TS 32.298 v16.4.1 (2020-04-01)
+-- 3GPP TS 32.298 v16.6.1 (2020-09-30)
 GenericChargingDataTypes {itu-t (0) identified-organization (4) etsi(0) mobileDomain (0) charging (5) genericChargingDataTypes (0) asn1Module (0) version2 (1)}  
 
 DEFINITIONS IMPLICIT TAGS	::=
@@ -811,6 +811,13 @@ SubscriptionIDType	::= ENUMERATED
 	eND-USER-SIP-URI		(2),
 	eND-USER-NAI			(3),
 	eND-USER-PRIVATE		(4)
+
+--
+-- eND-USER-IMSI can be used for 5G BRG or 5G CRG. 
+-- eND-USER-NAI can be used to contain GLI or GCI for wireless access network scenarios
+-- NAI format containing a GCI or GLI is specified in 28.15.5 and 28.15.6 of TS 23.003 [200]. 
+--
+
 }
 
 SystemType	::= ENUMERATED
