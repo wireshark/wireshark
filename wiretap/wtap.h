@@ -1972,6 +1972,18 @@ WS_DLL_PUBLIC
 wtapng_iface_descriptions_t *wtap_file_get_idb_info(wtap *wth);
 
 /**
+ * @brief Gets next interface description.
+ *
+ * @details This returns the first unfetched wtap_block_t from the set
+ * of interface descriptions.  Returns NULL if there are no more
+ * unfetched interface descriptions; a subsequent call after
+ * wtap_read() returns, either with a new record or an EOF, may return
+ * another interface description.
+ */
+WS_DLL_PUBLIC
+wtap_block_t wtap_get_next_interface_description(wtap *wth);
+
+/**
  * @brief Free's a interface description block and all of its members.
  *
  * @details This free's all of the interface descriptions inside the passed-in

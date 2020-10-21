@@ -155,6 +155,29 @@ wtap_file_get_idb_info(wtap *wth)
 	return idb_info;
 }
 
+wtap_block_t
+wtap_get_next_interface_description(wtap *wth)
+{
+	if (wth->next_interface_data < wth->interface_data->len) {
+		/*
+		 * We have an IDB to return.  Advance to the next
+		 * IDB, and return this one.
+		 */
+		wtap_block_t idb;
+
+		idb = g_array_index(wth->interface_data, wtap_block_t,
+		    wth->next_interface_data);
+		wth->next_interface_data++;
+		return idb;
+	}
+
+	/*
+	 * We've returned all the interface descriptions we currently
+	 * have.  (There may be more in the future, if we read more.)
+	 */
+	return NULL;
+}
+
 void
 wtap_add_idb(wtap *wth, wtap_block_t idb)
 {

@@ -110,6 +110,7 @@ libwiretap.so.0 libwiretap0 #MINVER#
  wtap_get_file_extension_type_extensions@Base 1.12.0~rc1
  wtap_get_file_extension_type_name@Base 1.12.0~rc1
  wtap_get_file_extensions_list@Base 1.9.1
+ wtap_get_next_interface_description@Base 3.3.2
  wtap_get_num_encap_types@Base 1.9.1
  wtap_get_num_file_type_extensions@Base 1.12.0~rc1
  wtap_get_num_file_types_subtypes@Base 1.12.0~rc1

@@ -40,6 +40,7 @@ struct wtap {
     guint                       snapshot_length;
     GArray                      *shb_hdrs;
     GArray                      *interface_data;        /**< An array holding the interface data from pcapng IDB:s or equivalent(?)*/
+    guint                       next_interface_data;    /**< Next interface data that wtap_get_next_interface_description() will show */
     GArray                      *nrb_hdrs;              /**< holds the Name Res Block's comment/custom_opts, or NULL */
     GArray                      *dsbs;                  /**< An array of DSBs (of type wtap_block_t), or NULL if not supported. */
 

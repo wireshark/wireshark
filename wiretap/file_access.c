@@ -885,6 +885,11 @@ wtap_open_offline(const char *filename, unsigned int type, int *err, char **err_
 	 * erf_open needs this (and libpcap_open for ERF encapsulation types).
 	 * Always initing it here saves checking for a NULL ptr later. */
 	wth->interface_data = g_array_new(FALSE, FALSE, sizeof(wtap_block_t));
+	/*
+	 * Next interface data that wtap_get_next_interface_description()
+	 * will return.
+	 */
+	wth->next_interface_data = 0;
 
 	if (wth->random_fh) {
 		wth->fast_seek = g_ptr_array_new();
