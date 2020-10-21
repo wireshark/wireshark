@@ -37,6 +37,7 @@
 :wireshark-man-page-url: {wireshark-main-url}docs/man-pages/
 :wireshark-snapshots-url: {wireshark-main-url}download/automated/src/
 :wireshark-users-guide-url: {wireshark-main-url}docs/wsug_html_chunked/
+:wireshark-wiki-moin-import-url: {wireshark-wiki-url}uploads/__moin_import__/attachments/
 
 // External URLs
 :tcpdump-main-url: https://www.tcpdump.org/
