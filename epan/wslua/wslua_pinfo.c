@@ -292,8 +292,9 @@ PINFO_ADDRESS_SETTER(src);
 PINFO_ADDRESS_GETTER(dst);
 PINFO_ADDRESS_SETTER(dst);
 
-/* WSLUA_ATTRIBUTE Pinfo_p2p_dir RO direction of this Packet. (incoming / outgoing) */
+/* WSLUA_ATTRIBUTE Pinfo_p2p_dir RW direction of this Packet. (incoming / outgoing) */
 PINFO_NUMBER_GETTER(p2p_dir);
+PINFO_NUMBER_SETTER(p2p_dir,int);
 
 /* WSLUA_ATTRIBUTE Pinfo_match RO Port/Data we are matching. */
 static int Pinfo_get_match(lua_State *L) {
@@ -459,7 +460,7 @@ WSLUA_ATTRIBUTES Pinfo_attributes[] = {
     WSLUA_ATTRIBUTE_ROREG(Pinfo,match_uint),
     WSLUA_ATTRIBUTE_ROREG(Pinfo,match_string),
     WSLUA_ATTRIBUTE_WOREG(Pinfo,conversation),
-    WSLUA_ATTRIBUTE_ROREG(Pinfo,p2p_dir),
+    WSLUA_ATTRIBUTE_RWREG(Pinfo,p2p_dir),
     { NULL, NULL, NULL }
 };
 
