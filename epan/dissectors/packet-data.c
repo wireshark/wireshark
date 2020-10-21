@@ -19,6 +19,9 @@
 #include <wsutil/wsgcrypt.h>
 #include <wsutil/str_util.h>
 
+#include <packet-tls.h>
+#include <packet-dtls.h>
+
 void proto_register_data(void);
 void proto_reg_handoff_data(void);
 
@@ -190,6 +193,8 @@ void
 proto_reg_handoff_data(void)
 {
 	dissector_add_string("media_type", "application/octet-stream", data_handle);
+	ssl_dissector_add(0, data_handle);
+	dtls_dissector_add(0, data_handle);
 }
 
 /*
