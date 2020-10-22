@@ -6684,7 +6684,7 @@ void proto_register_fp(void)
             },
             { &hf_fp_hsdsch_drt,
               { "DRT",
-                "fp.hsdsch.drt", FT_UINT8, BASE_DEC, 0, 0xf0,
+                "fp.hsdsch.drt", FT_UINT16, BASE_DEC, 0, 0x0,
                 "Delay Reference Time", HFILL
               }
             },
