@@ -190,7 +190,6 @@ void ExportObjectModel::saveAllEntries(QString path)
             }
             filename = QString::fromUtf8(safe_filename->str);
             g_string_free(safe_filename, TRUE);
-            count++;
         } while (save_dir.exists(filename) && ++count < prefs.gui_max_export_objects);
         eo_save_entry(save_dir.filePath(filename).toUtf8().constData(), entry);
     }
