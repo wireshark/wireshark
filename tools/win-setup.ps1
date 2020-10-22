@@ -33,7 +33,7 @@ Wireshark.
 
 .PARAMETER Destination
 Specifies the destination directory for the text files. The path must
-contain the pattern "wireshark-*-libs".
+contain the pattern "wireshark-*-libs-3.4".
 
 .PARAMETER Platform
 Target platform. One of "win64" or "win32".
@@ -48,12 +48,12 @@ their compressed archives.
 A date stamp (current-tag.txt)
 
 .EXAMPLE
-C:\PS> .\tools\win-setup.ps1 -Destination C:\wireshark-master-64-libs -Platform win64
+C:\PS> .\tools\win-setup.ps1 -Destination C:\wireshark-win64-libs-3.4 -Platform win64
 #>
 
 Param(
     [Parameter(Mandatory=$true, Position=0)]
-    [ValidateScript({$_ -like "*\wireshark-*-libs"})]
+    [ValidateScript({$_ -like "*\wireshark-*-libs-3.4"})]
     [String]
     $Destination,
 

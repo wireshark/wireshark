@@ -1,7 +1,7 @@
 [main]
 host = https://www.transifex.com
 
-[wireshark.master]
+[wireshark.qt-34]
 file_filter = ui/qt/wireshark_<lang>.ts
 source_file = ui/qt/wireshark_en.ts
 source_lang = en
@@ -17,7 +17,7 @@ trans.uk = ui/qt/wireshark_uk.ts
 trans.zh_CN = ui/qt/wireshark_zh_CN.ts
 type = QT
 
-[wireshark.debian]
+[wireshark.po-34]
 file_filter = debian/po/<lang>.po
 source_file = debian/po/templates.pot
 source_lang = en

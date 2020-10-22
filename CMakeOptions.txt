@@ -37,7 +37,7 @@ else()
 endif()
 option(BUILD_mmdbresolve   "Build MaxMind DB resolver" ON)
 
-option(DISABLE_WERROR    "Do not treat warnings as errors" OFF)
+option(DISABLE_WERROR    "Do not treat warnings as errors" ON)
 option(DISABLE_FRAME_LARGER_THAN_WARNING "Disable warning if the size of a function frame is large" OFF)
 option(EXTCAP_ANDROIDDUMP_LIBPCAP    "Build androiddump using libpcap" OFF)
 option(ENABLE_EXTRA_COMPILER_WARNINGS "Do additional compiler warnings (disables -Werror)" OFF)

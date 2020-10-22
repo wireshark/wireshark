@@ -1,4 +1,4 @@
-libwireshark.so.0 libwireshark0 #MINVER#
+libwireshark.so.14 libwireshark14 #MINVER#
  AdmissionRejectReason_vals@Base 1.9.1
  BandRejectReason_vals@Base 1.9.1
  CommandCode_vals_ext@Base 1.9.1

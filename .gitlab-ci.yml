@@ -15,7 +15,7 @@
   # https://gould.cx/ted/blog/2017/06/10/ccache-for-Gitlab-CI/
   cache:
     # XXX Use ${CI_JOB_NAME}-${CI_MERGE_REQUEST_TARGET_BRANCH_NAME} instead?
-    key: ${CI_JOB_NAME}-master
+    key: ${CI_JOB_NAME}-release-3.4
     paths:
       - ccache/
   before_script:

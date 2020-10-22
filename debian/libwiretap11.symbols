@@ -1,4 +1,4 @@
-libwiretap.so.0 libwiretap0 #MINVER#
+libwiretap.so.11 libwiretap11 #MINVER#
  file_eof@Base 1.9.1
  file_error@Base 1.9.1
  file_getc@Base 1.9.1
