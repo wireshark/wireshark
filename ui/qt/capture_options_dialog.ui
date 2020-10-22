@@ -529,7 +529,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</stri
             <number>2</number>
            </property>
            <property name="maximum">
-            <number>1000</number>
+            <number>65535</number>
            </property>
            <property name="value">
             <number>2</number>
