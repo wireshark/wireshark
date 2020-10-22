@@ -248,7 +248,6 @@ static int hf_dns_csync_flags_soaminimum = -1;
 static int hf_dns_csync_type_bitmap = -1;
 static int hf_dns_svcb_priority = -1;
 static int hf_dns_svcb_target = -1;
-static int hf_dns_svcb_svcparams = -1;
 static int hf_dns_svcb_param_key = -1;
 static int hf_dns_svcb_param_length = -1;
 static int hf_dns_svcb_param_value = -1;
@@ -258,8 +257,9 @@ static int hf_dns_svcb_param_alpn_length = -1;
 static int hf_dns_svcb_param_alpn = -1;
 static int hf_dns_svcb_param_port = -1;
 static int hf_dns_svcb_param_ipv4hint_ip = -1;
-static int hf_dns_svcb_param_echoconfig = -1;
+static int hf_dns_svcb_param_echconfig = -1;
 static int hf_dns_svcb_param_ipv6hint_ip = -1;
+static int hf_dns_svcb_param_odohconfig = -1;
 static int hf_dns_openpgpkey = -1;
 static int hf_dns_spf_length = -1;
 static int hf_dns_spf = -1;
@@ -1235,19 +1235,25 @@ static const range_string dns_dso_type_rvals[] = {
 #define DNS_SVCB_KEY_NOALPN           2
 #define DNS_SVCB_KEY_PORT             3
 #define DNS_SVCB_KEY_IPV4HINT         4
-#define DNS_SVCB_KEY_ECHOCONFIG       5
+#define DNS_SVCB_KEY_ECHCONFIG        5
 #define DNS_SVCB_KEY_IPV6HINT         6
+#define DNS_SVCB_KEY_ODOHCONFIG   32769 /* draft-pauly-dprive-oblivious-doh-02 */
 #define DNS_SVCB_KEY_RESERVED     65535
 
+/**
+ * Service Binding (SVCB) Parameter Registry.
+ * https://tools.ietf.org/html/draft-ietf-dnsop-svcb-https-01#section-12.3.2
+ */
 static const value_string dns_svcb_param_key_vals[] = {
-  { DNS_SVCB_KEY_MANDATORY,     "Mandatory" },
-  { DNS_SVCB_KEY_ALPN,          "ALPN" },
-  { DNS_SVCB_KEY_NOALPN,        "No-default-ALPN" },
-  { DNS_SVCB_KEY_PORT,          "Port" },
-  { DNS_SVCB_KEY_IPV4HINT,      "IPv4 Hint" },
-  { DNS_SVCB_KEY_ECHOCONFIG,    "Echo Config" },
-  { DNS_SVCB_KEY_IPV6HINT,      "IPv6 Hint" },
-  { DNS_SVCB_KEY_RESERVED,      "Invalid" },
+  { DNS_SVCB_KEY_MANDATORY,     "mandatory" },
+  { DNS_SVCB_KEY_ALPN,          "alpn" },
+  { DNS_SVCB_KEY_NOALPN,        "no-default-alpn" },
+  { DNS_SVCB_KEY_PORT,          "port" },
+  { DNS_SVCB_KEY_IPV4HINT,      "ipv4hint" },
+  { DNS_SVCB_KEY_ECHCONFIG,     "echconfig" },
+  { DNS_SVCB_KEY_IPV6HINT,      "ipv6hint" },
+  { DNS_SVCB_KEY_ODOHCONFIG,    "odohconfig" },
+  { DNS_SVCB_KEY_RESERVED,      "key65535" },
   { 0,                          NULL }
 };
 
@@ -1912,6 +1918,16 @@ compute_key_id(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int offset, 
        break;
   }
   return TRUE;
+}
+
+/* Dissect a SvbParam where the presentation format of the value is base64. */
+static void
+dissect_dns_svcparam_base64(proto_tree *param_tree, proto_item *param_item, int hf_id, tvbuff_t *tvb, int offset, guint length)
+{
+  gchar *str = g_base64_encode((guint8 *)tvb_memdup(wmem_packet_scope(), tvb, offset, length), length);
+  proto_tree_add_bytes_format_value(param_tree, hf_id, tvb, offset, length, NULL, "%s", str);
+  proto_item_append_text(param_item, "=%s", str);
+  g_free(str);
 }
 
 
@@ -3387,15 +3403,14 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
     case T_SVCB: /* Service binding and parameter specification (64) */
     case T_HTTPS: /* Service binding and parameter specification (65) */
     {
-      guint32       priority = 0;
+      guint32       priority = 0, value;
       guint32       svc_param_key;
+      guint32       svc_param_offset;
       guint32       svc_param_length;
       guint32       svc_param_alpn_length;
       const gchar  *target;
       int           target_len;
       int           start_offset = cur_offset;
-      proto_item   *svcb_ti;
-      proto_tree   *svcb_tree;
       proto_item   *svcb_param_ti;
       proto_tree   *svcb_param_tree;
 
@@ -3409,11 +3424,8 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       cur_offset += used_bytes;
 
       if (data_len > cur_offset - start_offset) {
-        svcb_ti = proto_tree_add_item(rr_tree, hf_dns_svcb_svcparams, tvb, cur_offset, data_len - (cur_offset - start_offset), ENC_NA);
-        svcb_tree = proto_item_add_subtree(svcb_ti, ett_dns_svcb);
-
         while (data_len > cur_offset - start_offset) {
-          svcb_param_ti = proto_tree_add_item(svcb_tree, hf_dns_svcb_param, tvb, cur_offset, -1, ENC_NA);
+          svcb_param_ti = proto_tree_add_item(rr_tree, hf_dns_svcb_param, tvb, cur_offset, -1, ENC_NA);
           svcb_param_tree = proto_item_add_subtree(svcb_param_ti, ett_dns_svcb);
 
           proto_tree_add_item_ret_uint(svcb_param_tree, hf_dns_svcb_param_key, tvb, cur_offset, 2, ENC_BIG_ENDIAN, &svc_param_key);
@@ -3422,54 +3434,62 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
           proto_tree_add_item_ret_uint(svcb_param_tree, hf_dns_svcb_param_length, tvb, cur_offset, 2, ENC_BIG_ENDIAN, &svc_param_length);
           cur_offset += 2;
 
-          proto_item_append_text(svcb_param_ti, ": %s", val_to_str(svc_param_key, dns_svcb_param_key_vals, "Unknown Type"));
+          proto_item_append_text(svcb_param_ti, ": %s", val_to_str(svc_param_key, dns_svcb_param_key_vals, "key%u"));
           proto_item_set_len(svcb_param_ti, svc_param_length + 4);
 
           switch(svc_param_key) {
             case DNS_SVCB_KEY_MANDATORY:
-              while (svc_param_length >= 2 && svc_param_length % 2 == 0) {
-                proto_tree_add_item(svcb_param_tree, hf_dns_svcb_param_mandatory_key, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
+              for (svc_param_offset = 0; svc_param_offset < svc_param_length; svc_param_offset += 2) {
+                guint32 key;
+                proto_tree_add_item_ret_uint(svcb_param_tree, hf_dns_svcb_param_mandatory_key, tvb, cur_offset, 2, ENC_BIG_ENDIAN, &key);
+                proto_item_append_text(svcb_param_ti, "%c%s", (svc_param_offset == 0 ? '=' : ','), val_to_str(key, dns_svcb_param_key_vals, "key%u"));
                 cur_offset += 2;
-                svc_param_length -= 2;
               }
               break;
             case DNS_SVCB_KEY_ALPN:
-              while (svc_param_length >= 1) {
+              for (svc_param_offset = 0; svc_param_offset < svc_param_length; ) {
+                const guint8 *alpn;
                 proto_tree_add_item_ret_uint(svcb_param_tree, hf_dns_svcb_param_alpn_length, tvb, cur_offset, 1, ENC_BIG_ENDIAN, &svc_param_alpn_length);
                 cur_offset += 1;
-                svc_param_length -= 1;
-                proto_tree_add_item(svcb_param_tree, hf_dns_svcb_param_alpn, tvb, cur_offset, svc_param_alpn_length, ENC_ASCII|ENC_NA);
+                proto_tree_add_item_ret_string(svcb_param_tree, hf_dns_svcb_param_alpn, tvb, cur_offset, svc_param_alpn_length, ENC_ASCII|ENC_NA, wmem_packet_scope(), &alpn);
                 cur_offset += svc_param_alpn_length;
-                svc_param_length -= svc_param_alpn_length;
+                proto_item_append_text(svcb_param_ti, "%c%s", (svc_param_offset == 0 ? '=' : ','), alpn);
+                svc_param_offset += 1 + svc_param_alpn_length;
               }
               break;
             case DNS_SVCB_KEY_NOALPN:
               break;
             case DNS_SVCB_KEY_PORT:
-              proto_tree_add_item(svcb_param_tree, hf_dns_svcb_param_port, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
+              proto_tree_add_item_ret_uint(svcb_param_tree, hf_dns_svcb_param_port, tvb, cur_offset, 2, ENC_BIG_ENDIAN, &value);
+              proto_item_append_text(svcb_param_ti, "=%u", value);
               cur_offset += 2;
               break;
             case DNS_SVCB_KEY_IPV4HINT:
-              while (svc_param_length >= 4 && svc_param_length % 4 == 0) {
+              for (svc_param_offset = 0; svc_param_offset < svc_param_length; svc_param_offset += 4) {
                 proto_tree_add_item(svcb_param_tree, hf_dns_svcb_param_ipv4hint_ip, tvb, cur_offset, 4, ENC_NA);
+                proto_item_append_text(svcb_param_ti, "%c%s", (svc_param_offset == 0 ? '=' : ','), tvb_ip_to_str(tvb, cur_offset));
                 cur_offset += 4;
-                svc_param_length -= 4;
               }
               break;
-            case DNS_SVCB_KEY_ECHOCONFIG:
-              proto_tree_add_item(svcb_param_tree, hf_dns_svcb_param_echoconfig, tvb, cur_offset, svc_param_length, ENC_NA);
+            case DNS_SVCB_KEY_ECHCONFIG:
+              dissect_dns_svcparam_base64(svcb_param_tree, svcb_param_ti, hf_dns_svcb_param_echconfig, tvb, cur_offset, svc_param_length);
               cur_offset += svc_param_length;
               break;
             case DNS_SVCB_KEY_IPV6HINT:
-              while (svc_param_length >= 16 && svc_param_length % 16 == 0) {
+              for (svc_param_offset = 0; svc_param_offset < svc_param_length; svc_param_offset += 16) {
                 proto_tree_add_item(svcb_param_tree, hf_dns_svcb_param_ipv6hint_ip, tvb, cur_offset, 16, ENC_NA);
+                proto_item_append_text(svcb_param_ti, "%c%s", (svc_param_offset == 0 ? '=' : ','), tvb_ip6_to_str(tvb, cur_offset));
                 cur_offset += 16;
-                svc_param_length -= 16;
               }
+              break;
+            case DNS_SVCB_KEY_ODOHCONFIG:
+              dissect_dns_svcparam_base64(svcb_param_tree, svcb_param_ti, hf_dns_svcb_param_odohconfig, tvb, cur_offset, svc_param_length);
+              cur_offset += svc_param_length;
               break;
             default:
               if (svc_param_length > 0) {
                 proto_tree_add_item(svcb_param_tree, hf_dns_svcb_param_value, tvb, cur_offset, svc_param_length, ENC_NA);
+                proto_item_append_text(svcb_param_ti, "=%s", tvb_format_text(tvb, cur_offset, svc_param_length));
                 cur_offset += svc_param_length;
               }
               break;
@@ -5017,11 +5037,6 @@ proto_register_dns(void)
         FT_STRING, BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
 
-    { &hf_dns_svcb_svcparams,
-      { "SvcParams", "dns.svcb.svcparams",
-        FT_NONE, BASE_NONE, NULL, 0x0,
-        NULL, HFILL }},
-
     { &hf_dns_svcb_param_key,
       { "SvcParamKey", "dns.svcb.svcparam.key",
         FT_UINT16, BASE_DEC, VALS(dns_svcb_param_key_vals), 0x0,
@@ -5045,7 +5060,7 @@ proto_register_dns(void)
     { &hf_dns_svcb_param_mandatory_key,
       { "Mandatory key", "dns.svcb.svcparam.mandatory.key",
         FT_UINT16, BASE_DEC, VALS(dns_svcb_param_key_vals), 0x0,
-        NULL, HFILL }},
+        "Mandatory keys in this RR", HFILL }},
 
     { &hf_dns_svcb_param_alpn_length,
       { "ALPN length", "dns.svcb.svcparam.alpn.length",
@@ -5055,27 +5070,32 @@ proto_register_dns(void)
     { &hf_dns_svcb_param_alpn,
       { "ALPN", "dns.svcb.svcparam.alpn",
         FT_STRING, BASE_NONE, NULL, 0x0,
-        NULL, HFILL }},
+        "Additional supported protocols", HFILL }},
 
     { &hf_dns_svcb_param_port,
       { "Port", "dns.svcb.svcparam.port",
         FT_UINT16, BASE_DEC, NULL, 0x0,
-        NULL, HFILL }},
+        "Port for alternative endpoint", HFILL }},
 
     { &hf_dns_svcb_param_ipv4hint_ip,
       { "IP", "dns.svcb.svcparam.ipv4hint.ip",
         FT_IPv4, BASE_NONE, NULL, 0x0,
-        NULL, HFILL }},
+        "IPv4 address hints", HFILL }},
 
-    { &hf_dns_svcb_param_echoconfig,
-      { "EchoConfig", "dns.svcb.svcparam.echoconfig",
+    { &hf_dns_svcb_param_echconfig,
+      { "ECHConfig", "dns.svcb.svcparam.echconfig",
         FT_BYTES, BASE_NONE, NULL, 0x0,
-        NULL, HFILL }},
+        "Encrypted ClientHello (ECH) infos", HFILL }},
 
     { &hf_dns_svcb_param_ipv6hint_ip,
       { "IP", "dns.svcb.svcparam.ipv6hint.ip",
         FT_IPv6, BASE_NONE, NULL, 0x0,
-        NULL, HFILL }},
+        "IPv6 address hints", HFILL }},
+
+    { &hf_dns_svcb_param_odohconfig,
+      { "ODoHConfig", "dns.svcb.svcparam.odohconfig",
+        FT_BYTES, BASE_NONE, NULL, 0x0,
+        "Oblivious DoH keys", HFILL }},
 
     { &hf_dns_spf_length,
       { "SPF Length", "dns.spf.length",
