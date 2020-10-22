@@ -124,8 +124,7 @@ wtap_file_get_shb_for_new_file(wtap *wth)
 
 	for (shb_count = 0; shb_count < wth->shb_hdrs->len; shb_count++) {
 		shb_hdr_src = g_array_index(wth->shb_hdrs, wtap_block_t, shb_count);
-		shb_hdr_dest = wtap_block_create(WTAP_BLOCK_NG_SECTION);
-		wtap_block_copy(shb_hdr_dest, shb_hdr_src);
+		shb_hdr_dest = wtap_block_make_copy(shb_hdr_src);
 		g_array_append_val(shb_hdrs, shb_hdr_dest);
 	}
 
@@ -426,8 +425,7 @@ wtap_file_get_nrb_for_new_file(wtap *wth)
 
 	for (nrb_count = 0; nrb_count < wth->nrb_hdrs->len; nrb_count++) {
 		nrb_hdr_src = g_array_index(wth->nrb_hdrs, wtap_block_t, nrb_count);
-		nrb_hdr_dest = wtap_block_create(WTAP_BLOCK_NG_NRB);
-		wtap_block_copy(nrb_hdr_dest, nrb_hdr_src);
+		nrb_hdr_dest = wtap_block_make_copy(nrb_hdr_src);
 		g_array_append_val(nrb_hdrs, nrb_hdr_dest);
 	}
 

@@ -305,6 +305,15 @@ wtap_block_copy(wtap_block_t dest_block, wtap_block_t src_block)
     }
 }
 
+wtap_block_t wtap_block_make_copy(wtap_block_t block)
+{
+    wtap_block_t block_copy;
+
+    block_copy = wtap_block_create(block->info->block_type);
+    wtap_block_copy(block_copy, block);
+    return block_copy;
+}
+
 void wtap_block_foreach_option(wtap_block_t block, wtap_block_foreach_func func, void* user_data)
 {
     guint i;
@@ -965,8 +974,7 @@ static void idb_copy_mand(wtap_block_t dest_block, wtap_block_t src_block)
         for (j = 0; j < src_mand->num_stat_entries; j++)
         {
             src_if_stats = g_array_index(src_mand->interface_statistics, wtap_block_t, j);
-            dest_if_stats = wtap_block_create(WTAP_BLOCK_IF_STATS);
-            wtap_block_copy(dest_if_stats, src_if_stats);
+            dest_if_stats = wtap_block_make_copy(src_if_stats);
             dest_mand->interface_statistics = g_array_append_val(dest_mand->interface_statistics, dest_if_stats);
         }
     }

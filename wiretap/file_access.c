@@ -2336,8 +2336,7 @@ wtap_dump_init_dumper(int file_type_subtype, wtap_compression_type compression_t
 		for (itf_count = 0; itf_count < interfaces->len; itf_count++) {
 			file_int_data = g_array_index(interfaces, wtap_block_t, itf_count);
 			file_int_data_mand = (wtapng_if_descr_mandatory_t*)wtap_block_get_mandatory_data(file_int_data);
-			descr = wtap_block_create(WTAP_BLOCK_IF_DESCR);
-			wtap_block_copy(descr, file_int_data);
+			descr = wtap_block_make_copy(file_int_data);
 			if ((params->encap != WTAP_ENCAP_PER_PACKET) && (params->encap != file_int_data_mand->wtap_encap)) {
 				descr_mand = (wtapng_if_descr_mandatory_t*)wtap_block_get_mandatory_data(descr);
 				descr_mand->wtap_encap = params->encap;
