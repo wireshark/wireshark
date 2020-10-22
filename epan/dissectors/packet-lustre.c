@@ -3480,7 +3480,7 @@ dissect_struct_hsm_progress(tvbuff_t *tvb, int offset, proto_tree *parent_tree)
     offset += 2;
     proto_tree_add_item(tree, hf_lustre_hsm_prog_errval, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset += 2;
-    proto_tree_add_item(tree, hf_lustre_hsm_prog_padding1, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(tree, hf_lustre_hsm_prog_padding1, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
     proto_tree_add_item(tree, hf_lustre_hsm_prog_data_ver, tvb, offset, 8, ENC_LITTLE_ENDIAN);
     offset += 8;
@@ -3517,13 +3517,13 @@ dissect_struct_hsm_user_state(tvbuff_t *tvb, int offset, packet_info *pinfo, pro
     /*     char            hus_extended_info[]; */
     /* }; */
 
-    proto_tree_add_item(tree, hf_lustre_hsm_us_states, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(tree, hf_lustre_hsm_us_states, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
-    proto_tree_add_item(tree, hf_lustre_hsm_us_archive_id, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(tree, hf_lustre_hsm_us_archive_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
-    proto_tree_add_item(tree, hf_lustre_hsm_us_in_prog_state, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(tree, hf_lustre_hsm_us_in_prog_state, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
-    proto_tree_add_item(tree, hf_lustre_hsm_us_in_prog_action, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(tree, hf_lustre_hsm_us_in_prog_action, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
     offset = dissect_struct_hsm_extent(tvb, offset, tree);
 
@@ -4096,7 +4096,7 @@ dissect_struct_lu_ladvise(tvbuff_t *tvb, int offset, proto_tree *parent_tree)
     item = proto_tree_add_item(parent_tree, hf_lustre_lu_ladvise, tvb, offset, 32, ENC_NA);
     tree = proto_item_add_subtree(item, ett_lustre_ladvise);
 
-    proto_tree_add_item(tree, hf_lustre_lu_ladvise_advice, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(tree, hf_lustre_lu_ladvise_advice, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset += 2;
     proto_tree_add_item(tree, hf_lustre_lu_ladvise_value1, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset += 2;
