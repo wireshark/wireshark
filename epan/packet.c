@@ -751,7 +751,7 @@ call_dissector_work(dissector_handle_t handle, tvbuff_t *tvb, packet_info *pinfo
 	guint16      saved_can_desegment;
 	int          len;
 	guint        saved_layers_len = 0;
-	int          saved_tree_count = tree ? tree->tree_data->count : 0;
+	guint        saved_tree_count = tree ? tree->tree_data->count : 0;
 
 	if (handle->protocol != NULL &&
 	    !proto_is_protocol_enabled(handle->protocol)) {
@@ -2761,7 +2761,7 @@ dissector_try_heuristic(heur_dissector_list_t sub_dissectors, tvbuff_t *tvb,
 	heur_dtbl_entry_t *hdtbl_entry;
 	int                proto_id;
 	int                len;
-	int                saved_tree_count = tree ? tree->tree_data->count : 0;
+	guint              saved_tree_count = tree ? tree->tree_data->count : 0;
 
 	/* can_desegment is set to 2 by anyone which offers this api/service.
 	   then everytime a subdissector is called it is decremented by one.

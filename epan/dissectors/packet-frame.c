@@ -209,7 +209,7 @@ format_verdict_summary(wtap_rec *rec, char *buffer, size_t n)
 }
 
 static void
-ensure_tree_item(proto_tree *tree, gint count)
+ensure_tree_item(proto_tree *tree, guint count)
 {
 	/*
 	 * Ensure that no exception is thrown in proto.c when adding the

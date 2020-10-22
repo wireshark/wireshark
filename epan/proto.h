@@ -845,7 +845,7 @@ typedef struct {
     GHashTable          *interesting_hfids;
     gboolean             visible;
     gboolean             fake_protocols;
-    gint                 count;
+    guint                count;
     struct _packet_info *pinfo;
 } tree_data_t;
 

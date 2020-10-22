@@ -3343,6 +3343,16 @@ prefs_register_modules(void)
                                    "The maximum number of objects that can be exported",
                                    10,
                                    &prefs.gui_max_export_objects);
+    prefs_register_uint_preference(gui_module, "max_tree_items",
+                                   "Maximum number of tree items",
+                                   "The maximum number of items that can be added to the dissection tree (Increase with caution)",
+                                   10,
+                                   &prefs.gui_max_tree_items);
+    prefs_register_uint_preference(gui_module, "max_tree_depth",
+                                   "Maximum tree depth",
+                                   "The maximum depth of the dissection tree (Increase with caution)",
+                                   10,
+                                   &prefs.gui_max_tree_depth);
 
 
     /* User Interface : Layout */
@@ -4139,6 +4149,8 @@ pre_init_prefs(void)
     prefs.gui_qt_show_selected_packet = FALSE;
     prefs.gui_qt_show_file_load_time = FALSE;
     prefs.gui_max_export_objects     = 1000;
+    prefs.gui_max_tree_items = 1 * 1000 * 1000;
+    prefs.gui_max_tree_depth = 5 * 100;
 
     if (prefs.col_list) {
         free_col_info(prefs.col_list);

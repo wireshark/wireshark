@@ -173,6 +173,8 @@ typedef struct _e_prefs {
   gchar       *gui_start_title;
   version_info_e gui_version_placement;
   guint        gui_max_export_objects;
+  guint        gui_max_tree_items;
+  guint        gui_max_tree_depth;
   layout_type_e gui_layout_type;
   layout_pane_content_e gui_layout_content_1;
   layout_pane_content_e gui_layout_content_2;

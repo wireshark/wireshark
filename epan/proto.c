@@ -53,11 +53,6 @@
 #define SUBTREE_ONCE_ALLOCATION_NUMBER 8
 #define SUBTREE_MAX_LEVELS 256
 
-/* Throw an exception if our tree exceeds these. */
-/* XXX - These should probably be preferences */
-#define MAX_TREE_ITEMS (1 * 1000 * 1000)
-#define MAX_TREE_LEVELS (5 * 100)
-
 typedef struct __subtree_lvl {
 	gint        cursor_offset;
 	proto_item *it;
@@ -112,17 +107,17 @@ struct ptvcursor {
 	*/								\
 	PTREE_DATA(tree)->count++;					\
 	PROTO_REGISTRAR_GET_NTH(hfindex, hfinfo);			\
-	if (PTREE_DATA(tree)->count > MAX_TREE_ITEMS) {			\
+	if (PTREE_DATA(tree)->count > prefs.gui_max_tree_items) {			\
 		free_block;						\
 		if (getenv("WIRESHARK_ABORT_ON_TOO_MANY_ITEMS") != NULL) \
-			g_error("Adding %s would put more than %d items in the tree -- possible infinite loop", \
-			    hfinfo->abbrev, MAX_TREE_ITEMS);		\
+			g_error("Adding %s would put more than %d items in the tree -- possible infinite loop (max number of items can be increased in advanced preferences)", \
+			    hfinfo->abbrev, prefs.gui_max_tree_items);	\
 		/* Let the exception handler add items to the tree */	\
 		PTREE_DATA(tree)->count = 0;				\
 		THROW_MESSAGE(DissectorError,				\
 			wmem_strdup_printf(wmem_packet_scope(),		\
-			    "Adding %s would put more than %d items in the tree -- possible infinite loop", \
-			    hfinfo->abbrev, MAX_TREE_ITEMS));		\
+			    "Adding %s would put more than %d items in the tree -- possible infinite loop (max number of items can be increased in advanced preferences)", \
+			    hfinfo->abbrev, prefs.gui_max_tree_items));	\
 	}								\
 	if (!(PTREE_DATA(tree)->visible)) {				\
 		if (PTREE_FINFO(tree)) {				\
@@ -5823,7 +5818,7 @@ proto_tree_add_node(proto_tree *tree, field_info *fi)
 {
 	proto_node *pnode, *tnode, *sibling;
 	field_info *tfi;
-	int depth = 1;
+	guint depth = 1;
 
 	/*
 	 * Restrict our depth. proto_tree_traverse_pre_order and
@@ -5833,10 +5828,10 @@ proto_tree_add_node(proto_tree *tree, field_info *fi)
 	if (tree->first_child == NULL) {
 		for (tnode = tree; tnode != NULL; tnode = tnode->parent) {
 			depth++;
-			if (G_UNLIKELY(depth > MAX_TREE_LEVELS)) {
+			if (G_UNLIKELY(depth > prefs.gui_max_tree_depth)) {
 				THROW_MESSAGE(DissectorError, wmem_strdup_printf(wmem_packet_scope(),
-						     "Maximum tree depth %d exceeded for \"%s\" - \"%s\" (%s:%u)",
-						     MAX_TREE_LEVELS,
+						     "Maximum tree depth %d exceeded for \"%s\" - \"%s\" (%s:%u) (Maximum depth can be increased in advanced preferences)",
+						     prefs.gui_max_tree_depth,
 						     fi->hfinfo->name, fi->hfinfo->abbrev, G_STRFUNC, __LINE__));
 			}
 		}
