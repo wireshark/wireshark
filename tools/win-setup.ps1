@@ -33,7 +33,7 @@ Wireshark.
 
 .PARAMETER Destination
 Specifies the destination directory for the text files. The path must
-contain the pattern "wireshark-*-libs".
+contain the pattern "wireshark-*-libs-3.2".
 
 .PARAMETER Platform
 Target platform. One of "win64" or "win32".
