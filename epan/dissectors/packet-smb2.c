@@ -1040,6 +1040,11 @@ static const value_string smb2_error_id_vals[] = {
 #define REPARSE_TAG_SYMLINK            0xA000000C /* Used for symbolic link support. */
 #define REPARSE_TAG_DFSR               0x80000012 /* Used by the DFS filter. */
 #define REPARSE_TAG_NFS                0x80000014 /* Used by the Network File System (NFS) component. */
+#define REPARSE_TAG_LX_SYMLINK         0xA000001D /* WSL symbolic link */
+#define REPARSE_TAG_AF_UNIX            0x80000023 /* WSL unix socket */
+#define REPARSE_TAG_LX_FIFO            0x80000024 /* WSL fifo pipe */
+#define REPARSE_TAG_LX_CHR             0x80000025 /* WSL char device */
+#define REPARSE_TAG_LX_BLK             0x80000026 /* WSL block device */
 static const value_string reparse_tag_vals[] = {
 	{ REPARSE_TAG_RESERVED_ZERO,   "REPARSE_TAG_RESERVED_ZERO"},
 	{ REPARSE_TAG_RESERVED_ONE,    "REPARSE_TAG_RESERVED_ONE"},
@@ -1053,6 +1058,11 @@ static const value_string reparse_tag_vals[] = {
 	{ REPARSE_TAG_SYMLINK,         "REPARSE_TAG_SYMLINK"},
 	{ REPARSE_TAG_DFSR,            "REPARSE_TAG_DFSR"},
 	{ REPARSE_TAG_NFS,             "REPARSE_TAG_NFS"},
+	{ REPARSE_TAG_LX_SYMLINK,      "REPARSE_TAG_LX_SYMLINK"},
+	{ REPARSE_TAG_AF_UNIX,         "REPARSE_TAG_AF_UNIX"},
+	{ REPARSE_TAG_LX_FIFO,         "REPARSE_TAG_LX_FIFO"},
+	{ REPARSE_TAG_LX_CHR,          "REPARSE_TAG_LX_CHR"},
+	{ REPARSE_TAG_LX_BLK,          "REPARSE_TAG_LX_BLK"},
 	{ 0, NULL }
 };
 
@@ -2475,7 +2485,7 @@ static const true_false_string tfs_fscc_file_attribute_no_scrub_data = {
  * File Attributes, section 2.6 in the [MS-FSCC] spec
  */
 static int
-dissect_fscc_file_attr(tvbuff_t* tvb, proto_tree* parent_tree, int offset)
+dissect_fscc_file_attr(tvbuff_t* tvb, proto_tree* parent_tree, int offset, guint32* attr)
 {
 	guint32 mask = tvb_get_letohl(tvb, offset);
 	static int* const mask_fields[] = {
@@ -2500,6 +2510,9 @@ dissect_fscc_file_attr(tvbuff_t* tvb, proto_tree* parent_tree, int offset)
 	proto_tree_add_bitmask_value_with_flags(parent_tree, tvb, offset, hf_smb2_fscc_file_attr, ett_smb2_fscc_file_attributes, mask_fields, mask, BMT_NO_APPEND);
 
 	offset += 4;
+
+	if (attr)
+		*attr = mask;
 
 	return offset;
 }
@@ -2541,7 +2554,7 @@ dissect_smb2_file_all_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *pa
 	offset = dissect_nt_64bit_time(tvb, tree, offset, hf_smb2_last_change_timestamp);
 
 	/* File Attributes */
-	offset = dissect_fscc_file_attr(tvb, tree, offset);
+	offset = dissect_fscc_file_attr(tvb, tree, offset, NULL);
 
 	/* some unknown bytes */
 	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 4, ENC_NA);
@@ -2709,7 +2722,7 @@ dissect_smb2_file_basic_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 	offset = dissect_nt_64bit_time(tvb, tree, offset, hf_smb2_last_change_timestamp);
 
 	/* File Attributes */
-	offset = dissect_fscc_file_attr(tvb, tree, offset);
+	offset = dissect_fscc_file_attr(tvb, tree, offset, NULL);
 
 	/* some unknown bytes */
 	proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, 4, ENC_NA);
@@ -4386,7 +4399,7 @@ static void dissect_smb2_file_directory_info(tvbuff_t *tvb, packet_info *pinfo _
 		offset += 8;
 
 		/* File Attributes */
-		offset = dissect_fscc_file_attr(tvb, tree, offset);
+		offset = dissect_fscc_file_attr(tvb, tree, offset, NULL);
 
 		/* file name length */
 		file_name_len = tvb_get_letohl(tvb, offset);
@@ -4429,6 +4442,7 @@ static void dissect_smb2_full_directory_info(tvbuff_t *tvb, packet_info *pinfo _
 		int old_offset = offset;
 		int next_offset;
 		int file_name_len;
+		guint32 attr;
 
 		if (parent_tree) {
 			item = proto_tree_add_item(parent_tree, hf_smb2_full_directory_info, tvb, offset, -1, ENC_NA);
@@ -4465,15 +4479,18 @@ static void dissect_smb2_full_directory_info(tvbuff_t *tvb, packet_info *pinfo _
 		offset += 8;
 
 		/* File Attributes */
-		offset = dissect_fscc_file_attr(tvb, tree, offset);
+		offset = dissect_fscc_file_attr(tvb, tree, offset, &attr);
 
 		/* file name length */
 		file_name_len = tvb_get_letohl(tvb, offset);
 		proto_tree_add_item(tree, hf_smb2_filename_len, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		offset += 4;
 
-		/* ea size */
-		proto_tree_add_item(tree, hf_smb2_ea_size, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+		/* ea size or reparse tag */
+		if (attr & SMB2_FSCC_FILE_ATTRIBUTE_REPARSE_POINT)
+			proto_tree_add_item(tree, hf_smb2_reparse_tag, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+		else
+			proto_tree_add_item(tree, hf_smb2_ea_size, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		offset += 4;
 
 		/* file name */
@@ -4513,6 +4530,7 @@ static void dissect_smb2_both_directory_info(tvbuff_t *tvb, packet_info *pinfo _
 		int next_offset;
 		int file_name_len;
 		int short_name_len;
+		guint32 attr;
 
 		if (parent_tree) {
 			item = proto_tree_add_item(parent_tree, hf_smb2_both_directory_info, tvb, offset, -1, ENC_NA);
@@ -4549,15 +4567,18 @@ static void dissect_smb2_both_directory_info(tvbuff_t *tvb, packet_info *pinfo _
 		offset += 8;
 
 		/* File Attributes */
-		offset = dissect_fscc_file_attr(tvb, tree, offset);
+		offset = dissect_fscc_file_attr(tvb, tree, offset, &attr);
 
 		/* file name length */
 		file_name_len = tvb_get_letohl(tvb, offset);
 		proto_tree_add_item(tree, hf_smb2_filename_len, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		offset += 4;
 
-		/* ea size */
-		proto_tree_add_item(tree, hf_smb2_ea_size, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+		/* ea size or reparse tag */
+		if (attr & SMB2_FSCC_FILE_ATTRIBUTE_REPARSE_POINT)
+			proto_tree_add_item(tree, hf_smb2_reparse_tag, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+		else
+			proto_tree_add_item(tree, hf_smb2_ea_size, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		offset += 4;
 
 		/* short name length */
@@ -4669,6 +4690,7 @@ static void dissect_smb2_id_both_directory_info(tvbuff_t *tvb, packet_info *pinf
 		int next_offset;
 		int file_name_len;
 		int short_name_len;
+		guint32 attr;
 
 		if (parent_tree) {
 			item = proto_tree_add_item(parent_tree, hf_smb2_id_both_directory_info, tvb, offset, -1, ENC_NA);
@@ -4705,15 +4727,18 @@ static void dissect_smb2_id_both_directory_info(tvbuff_t *tvb, packet_info *pinf
 		offset += 8;
 
 		/* File Attributes */
-		offset = dissect_fscc_file_attr(tvb, tree, offset);
+		offset = dissect_fscc_file_attr(tvb, tree, offset, &attr);
 
 		/* file name length */
 		file_name_len = tvb_get_letohl(tvb, offset);
 		proto_tree_add_item(tree, hf_smb2_filename_len, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		offset += 4;
 
-		/* ea size */
-		proto_tree_add_item(tree, hf_smb2_ea_size, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+		/* ea size or reparse tag */
+		if (attr & SMB2_FSCC_FILE_ATTRIBUTE_REPARSE_POINT)
+			proto_tree_add_item(tree, hf_smb2_reparse_tag, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+		else
+			proto_tree_add_item(tree, hf_smb2_ea_size, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		offset += 4;
 
 		/* short name length */
@@ -4777,6 +4802,7 @@ static void dissect_smb2_id_full_directory_info(tvbuff_t *tvb, packet_info *pinf
 		int old_offset = offset;
 		int next_offset;
 		int file_name_len;
+		guint32 attr;
 
 		if (parent_tree) {
 			item = proto_tree_add_item(parent_tree, hf_smb2_id_both_directory_info, tvb, offset, -1, ENC_NA);
@@ -4813,15 +4839,18 @@ static void dissect_smb2_id_full_directory_info(tvbuff_t *tvb, packet_info *pinf
 		offset += 8;
 
 		/* File Attributes */
-		offset = dissect_fscc_file_attr(tvb, tree, offset);
+		offset = dissect_fscc_file_attr(tvb, tree, offset, &attr);
 
 		/* file name length */
 		file_name_len = tvb_get_letohl(tvb, offset);
 		proto_tree_add_item(tree, hf_smb2_filename_len, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		offset += 4;
 
-		/* ea size */
-		proto_tree_add_item(tree, hf_smb2_ea_size, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+		/* ea size or reparse tag */
+		if (attr & SMB2_FSCC_FILE_ATTRIBUTE_REPARSE_POINT)
+			proto_tree_add_item(tree, hf_smb2_reparse_tag, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+		else
+			proto_tree_add_item(tree, hf_smb2_ea_size, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		offset += 4;
 
 		/* reserved */
@@ -4881,7 +4910,7 @@ static int dissect_smb2_posix_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
 	offset += 8;
 
 	/* File Attributes */
-	offset = dissect_fscc_file_attr(tvb, tree, offset);
+	offset = dissect_fscc_file_attr(tvb, tree, offset, NULL);
 
 	/* file index */
 	proto_tree_add_item(tree, hf_smb2_inode, tvb, offset, 8, ENC_LITTLE_ENDIAN);
@@ -6000,7 +6029,7 @@ dissect_smb2_close_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 	offset += 8;
 
 	/* File Attributes */
-	offset = dissect_fscc_file_attr(tvb, tree, offset);
+	offset = dissect_fscc_file_attr(tvb, tree, offset, NULL);
 
 	return offset;
 }
@@ -9025,7 +9054,7 @@ dissect_smb2_create_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	offset = dissect_smb_access_mask(tvb, tree, offset);
 
 	/* File Attributes */
-	offset = dissect_fscc_file_attr(tvb, tree, offset);
+	offset = dissect_fscc_file_attr(tvb, tree, offset, NULL);
 
 	/* share access */
 	offset = dissect_nt_share_access(tvb, tree, offset);
@@ -9131,8 +9160,7 @@ dissect_smb2_create_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	offset += 8;
 
 	/* File Attributes */
-	attr_mask=tvb_get_letohl(tvb, offset);
-	offset = dissect_fscc_file_attr(tvb, tree, offset);
+	offset = dissect_fscc_file_attr(tvb, tree, offset, &attr_mask);
 
 	/* reserved */
 	proto_tree_add_item(tree, hf_smb2_reserved, tvb, offset, 4, ENC_NA);
