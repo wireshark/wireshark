@@ -440,7 +440,7 @@ sub {
 	${${$function}{args}}{$name} = {descr=>parse_function_arg_desc($4),}
 } ],
 
-[ '/\052\s+WSLUA_ATTRIBUTE\s+([A-Za-z0-9]+)_([a-z_]+)\s+([A-Z]*)\s*(.*?)\052/',
+[ '/\052\s+WSLUA_ATTRIBUTE\s+([A-Za-z0-9]+)_([a-z0-9_]+)\s+([A-Z]*)\s*(.*?)\052/',
 sub {
 	deb ">at=$1=$2=$3=$4=$5=$6=$7=\n";
 	my $name = "$1";
