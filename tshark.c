@@ -3235,6 +3235,26 @@ process_packet_second_pass(capture_file *cf, epan_dissect_t *edt,
   return passed || fdata->dependent_of_displayed;
 }
 
+static gboolean
+process_new_idbs(wtap *wth, wtap_dumper *pdh, int *err, gchar **err_info)
+{
+  wtap_block_t if_data;
+
+  while ((if_data = wtap_get_next_interface_description(wth)) != NULL) {
+    /*
+     * Only add IDBs if we're writing to a file and the output file
+     * requires interface IDs; otherwise, it doesn't support writing IDBs.
+     */
+    if (pdh != NULL) {
+      if (wtap_uses_interface_ids(wtap_dump_file_type_subtype(pdh))) {
+        if (!wtap_dump_add_idb(pdh, if_data, err, err_info))
+          return FALSE;
+      }
+    }
+  }
+  return TRUE;
+}
+
 static pass_status_t
 process_cap_file_second_pass(capture_file *cf, wtap_dumper *pdh,
                              int *err, gchar **err_info,
@@ -3248,6 +3268,16 @@ process_cap_file_second_pass(capture_file *cf, wtap_dumper *pdh,
   guint           tap_flags;
   epan_dissect_t *edt = NULL;
   pass_status_t   status = PASS_SUCCEEDED;
+
+  /*
+   * Process whatever IDBs we haven't seen yet.  This will be all
+   * the IDBs in the file, as we've finished reading it; they'll
+   * all be at the beginning of the output file.
+   */
+  if (!process_new_idbs(cf->provider.wth, pdh, err, err_info)) {
+    *err_framenum = 0;
+    return PASS_WRITE_ERROR;
+  }
 
   wtap_rec_init(&rec);
   ws_buffer_init(&buf, 1514);
@@ -3409,6 +3439,15 @@ process_cap_file_single_pass(capture_file *cf, wtap_dumper *pdh,
     }
     framenum++;
 
+    /*
+     * Process whatever IDBs we haven't seen yet.
+     */
+    if (!process_new_idbs(cf->provider.wth, pdh, err, err_info)) {
+      *err_framenum = framenum;
+      status = PASS_WRITE_ERROR;
+      break;
+    }
+
     tshark_debug("tshark: processing packet #%d", framenum);
 
     reset_epan_mem(cf, edt, create_proto_tree, print_packet_info && print_details);
@@ -3472,7 +3511,7 @@ process_cap_file(capture_file *cf, char *save_file, int out_file_type,
 
   if (save_file != NULL) {
     /* Set up to write to the capture file. */
-    wtap_dump_params_init(&params, cf->provider.wth);
+    wtap_dump_params_init_no_idbs(&params, cf->provider.wth);
 
     /* If we don't have an application name add Tshark */
     if (wtap_block_get_string_option_value(g_array_index(params.shb_hdrs, wtap_block_t, 0), OPT_SHB_USERAPPL, &shb_user_appl) != WTAP_OPTTYPE_SUCCESS) {

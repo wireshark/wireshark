@@ -4763,6 +4763,24 @@ pcapng_write_if_descr_block(wtap_dumper *wdh, wtap_block_t int_data, int *err)
     return TRUE;
 }
 
+static gboolean pcapng_add_idb(wtap_dumper *wdh, wtap_block_t idb,
+                               int *err, gchar **err_info _U_)
+{
+	wtap_block_t idb_copy;
+
+	/*
+	 * Add a copy of this IDB to our array of IDBs.
+	 */
+	idb_copy = wtap_block_create(WTAP_BLOCK_IF_DESCR);
+	wtap_block_copy(idb_copy, idb);
+	g_array_append_val(wdh->interface_data, idb_copy);
+
+	/*
+	 * And write it to the output file.
+	 */
+	return pcapng_write_if_descr_block(wdh, idb_copy, err);
+}
+
 static gboolean pcapng_dump(wtap_dumper *wdh,
                             const wtap_rec *rec,
                             const guint8 *pd, int *err, gchar **err_info)
@@ -4885,22 +4903,15 @@ static gboolean pcapng_dump_finish(wtap_dumper *wdh, int *err,
 /* Returns TRUE on success, FALSE on failure; sets "*err" to an error code on
    failure */
 gboolean
-pcapng_dump_open(wtap_dumper *wdh, int *err, gchar **err_info)
+pcapng_dump_open(wtap_dumper *wdh, int *err, gchar **err_info _U_)
 {
     guint i;
 
     pcapng_debug("pcapng_dump_open");
     /* This is a pcapng file */
+    wdh->subtype_add_idb = pcapng_add_idb;
     wdh->subtype_write = pcapng_dump;
     wdh->subtype_finish = pcapng_dump_finish;
-
-    // XXX IDBs should be optional.
-    if (wdh->interface_data->len == 0) {
-        pcapng_debug("There are no interfaces. Can't handle that...");
-        *err = WTAP_ERR_INTERNAL;
-        *err_info = g_strdup("pcapng: there are no interfaces");
-        return FALSE;
-    }
 
     /* write the section header block */
     if (!pcapng_write_section_header_block(wdh, err)) {

@@ -2329,19 +2329,21 @@ wtap_dump_init_dumper(int file_type_subtype, wtap_compression_type compression_t
 	wdh->nrb_hdrs = params->nrb_hdrs;
 	/* Set Interface Description Block data */
 	if (interfaces && interfaces->len) {
-		guint itf_count;
+		if (!params->dont_copy_idbs) {	/* XXX */
+			guint itf_count;
 
-		/* Note: this memory is owned by wtap_dumper and will become
-		 * invalid after wtap_dump_close. */
-		for (itf_count = 0; itf_count < interfaces->len; itf_count++) {
-			file_int_data = g_array_index(interfaces, wtap_block_t, itf_count);
-			file_int_data_mand = (wtapng_if_descr_mandatory_t*)wtap_block_get_mandatory_data(file_int_data);
-			descr = wtap_block_make_copy(file_int_data);
-			if ((params->encap != WTAP_ENCAP_PER_PACKET) && (params->encap != file_int_data_mand->wtap_encap)) {
-				descr_mand = (wtapng_if_descr_mandatory_t*)wtap_block_get_mandatory_data(descr);
-				descr_mand->wtap_encap = params->encap;
+			/* Note: this memory is owned by wtap_dumper and will become
+			 * invalid after wtap_dump_close. */
+			for (itf_count = 0; itf_count < interfaces->len; itf_count++) {
+				file_int_data = g_array_index(interfaces, wtap_block_t, itf_count);
+				file_int_data_mand = (wtapng_if_descr_mandatory_t*)wtap_block_get_mandatory_data(file_int_data);
+				descr = wtap_block_make_copy(file_int_data);
+				if ((params->encap != WTAP_ENCAP_PER_PACKET) && (params->encap != file_int_data_mand->wtap_encap)) {
+					descr_mand = (wtapng_if_descr_mandatory_t*)wtap_block_get_mandatory_data(descr);
+					descr_mand->wtap_encap = params->encap;
+				}
+				g_array_append_val(wdh->interface_data, descr);
 			}
-			g_array_append_val(wdh->interface_data, descr);
 		}
 	} else {
 		int snaplen;
@@ -2693,6 +2695,21 @@ wtap_dump_open_finish(wtap_dumper *wdh, int file_type_subtype, int *err,
 }
 
 gboolean
+wtap_dump_add_idb(wtap_dumper *wdh, wtap_block_t idb, int *err,
+                  gchar **err_info)
+{
+	if (wdh->subtype_add_idb == NULL) {
+		/* Not supported. */
+		*err = WTAP_ERR_UNWRITABLE_REC_TYPE;
+		*err_info = g_strdup("Adding IDBs isn't supported by this file type");
+		return FALSE;
+	}
+	*err = 0;
+	*err_info = NULL;
+	return (wdh->subtype_add_idb)(wdh, idb, err, err_info);
+}
+
+gboolean
 wtap_dump(wtap_dumper *wdh, const wtap_rec *rec,
 	  const guint8 *pd, int *err, gchar **err_info)
 {
@@ -2749,6 +2766,12 @@ wtap_dump_close(wtap_dumper *wdh, int *err, gchar **err_info)
 	wtap_block_array_free(wdh->dsbs_initial);
 	g_free(wdh);
 	return ret;
+}
+
+int
+wtap_dump_file_type_subtype(wtap_dumper *wdh)
+{
+	return wdh->file_type_subtype;
 }
 
 gint64

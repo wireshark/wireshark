@@ -1012,6 +1012,24 @@ editcap_dump_open(const char *filename, const wtap_dump_params *params,
     return pdh;
 }
 
+static gboolean
+process_new_idbs(wtap *wth, wtap_dumper *pdh, int *err, gchar **err_info)
+{
+    wtap_block_t if_data;
+
+    while ((if_data = wtap_get_next_interface_description(wth)) != NULL) {
+        /*
+         * Only add IDBs if the output file requires interface IDs;
+         * otherwise, it doesn't support writing IDBs.
+         */
+        if (wtap_uses_interface_ids(wtap_dump_file_type_subtype(pdh))) {
+            if (!wtap_dump_add_idb(pdh, if_data, err, err_info))
+                return FALSE;
+        }
+    }
+    return TRUE;
+}
+
 int
 main(int argc, char *argv[])
 {
@@ -1555,7 +1573,7 @@ invalid_time:
         }
     }
 
-    wtap_dump_params_init(&params, wth);
+    wtap_dump_params_init_no_idbs(&params, wth);
 
     /*
      * Discard any secrets we read in while opening the file.
@@ -1669,6 +1687,12 @@ invalid_time:
     wtap_rec_init(&read_rec);
     ws_buffer_init(&read_buf, 1514);
     while (wtap_read(wth, &read_rec, &read_buf, &read_err, &read_err_info, &data_offset)) {
+        /*
+         * XXX - what about non-packet records in the file after this?
+         * We can *probably* ignore IDBs after this point, as they
+         * presumably indicate that we weren't capturing on that
+         * interface at this point, but what about, for example, NRBs?
+         */
         if (max_packet_number <= read_count)
             break;
 
@@ -1707,6 +1731,18 @@ invalid_time:
             }
         } /* first packet only handling */
 
+        /*
+         * Process whatever IDBs we haven't seen yet.
+         */
+        if (!process_new_idbs(wth, pdh, &write_err, &write_err_info)) {
+            cfile_write_failure_message("editcap", argv[optind],
+                                        filename,
+                                        write_err, write_err_info,
+                                        read_count,
+                                        out_file_type_subtype);
+            ret = DUMP_ERROR;
+            goto clean_exit;
+        }
 
         buf = ws_buffer_start_ptr(&read_buf);
 

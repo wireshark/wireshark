@@ -80,6 +80,9 @@ struct wtap_dumper;
  */
 typedef void *WFILE_T;
 
+typedef gboolean (*subtype_add_idb_func)(struct wtap_dumper*, wtap_block_t,
+                                         int *, gchar **);
+
 typedef gboolean (*subtype_write_func)(struct wtap_dumper*,
                                        const wtap_rec *rec,
                                        const guint8*, int*, gchar**);
@@ -91,18 +94,19 @@ struct wtap_dumper {
     int                     snaplen;
     int                     encap;
     wtap_compression_type   compression_type;
-    gboolean                needs_reload;   /* TRUE if the file requires re-loading after saving with wtap */
+    gboolean                needs_reload;    /* TRUE if the file requires re-loading after saving with wtap */
     gint64                  bytes_dumped;
 
-    void                    *priv;          /* this one holds per-file state and is free'd automatically by wtap_dump_close() */
-    void                    *wslua_data;    /* this one holds wslua state info and is not free'd */
+    void                    *priv;           /* this one holds per-file state and is free'd automatically by wtap_dump_close() */
+    void                    *wslua_data;     /* this one holds wslua state info and is not free'd */
 
-    subtype_write_func      subtype_write;  /* write out a record */
-    subtype_finish_func     subtype_finish; /* write out information to finish writing file */
+    subtype_add_idb_func    subtype_add_idb; /* add an IDB, writing it as necessary */
+    subtype_write_func      subtype_write;   /* write out a record */
+    subtype_finish_func     subtype_finish;  /* write out information to finish writing file */
 
     addrinfo_lists_t        *addrinfo_lists; /**< Struct containing lists of resolved addresses */
     GArray                  *shb_hdrs;
-    GArray                  *nrb_hdrs;        /**< name resolution comment/custom_opt, or NULL */
+    GArray                  *nrb_hdrs;       /**< name resolution comment/custom_opt, or NULL */
     GArray                  *interface_data; /**< An array holding the interface data from pcapng IDB:s or equivalent(?) NULL if not present.*/
     GArray                  *dsbs_initial;   /**< An array of initial DSBs (of type wtap_block_t) */
 

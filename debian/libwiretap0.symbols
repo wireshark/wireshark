@@ -61,6 +61,7 @@ libwiretap.so.0 libwiretap0 #MINVER#
  wtap_deregister_file_type_subtype@Base 1.12.0~rc1
  wtap_deregister_open_info@Base 1.12.0~rc1
  wtap_dump@Base 1.9.1
+ wtap_dump_add_idb@Base 3.3.2
  wtap_dump_can_compress@Base 1.9.1
  wtap_dump_can_open@Base 1.9.1
  wtap_dump_can_write@Base 1.9.1
@@ -70,6 +71,7 @@ libwiretap.so.0 libwiretap0 #MINVER#
  wtap_dump_file_encap_type@Base 1.9.1
  wtap_dump_file_seek@Base 1.12.0~rc1
  wtap_dump_file_tell@Base 1.12.0~rc1
+ wtap_dump_file_type_subtype@Base 3.3.2
  wtap_dump_file_write@Base 1.12.0~rc1
  wtap_dump_flush@Base 1.9.1
  wtap_dump_get_needs_reload@Base 2.5.0
@@ -80,6 +82,7 @@ libwiretap.so.0 libwiretap0 #MINVER#
  wtap_dump_params_cleanup@Base 2.9.0
  wtap_dump_params_discard_decryption_secrets@Base 3.0.0
  wtap_dump_params_init@Base 2.9.0
+ wtap_dump_params_init_no_idbs@Base 3.3.2
  wtap_dump_set_addrinfo_list@Base 1.9.1
  wtap_dump_supports_comment_types@Base 1.9.1
  wtap_encap_description@Base 2.9.1
