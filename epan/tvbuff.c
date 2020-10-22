@@ -1597,6 +1597,22 @@ tvb_get_letohieee_double(tvbuff_t *tvb, const int offset)
 #endif
 }
 
+/* This function is a slight misnomer. It accepts all encodings that are
+ * ASCII "enough", which means encodings that are the same as US-ASCII
+ * for textual representations of dates and hex bytes; i.e., the same
+ * for the hex digits and Z (in practice, all alphanumerics), and the
+ * four separators ':' '-' '.' and ' '
+ * That means that any encoding that keeps the ISO/IEC 646 invariant
+ * characters the same (including the T.61 8 bit encoding and multibyte
+ * encodings like EUC-KR and GB18030) are OK, even if they replace characters
+ * like '$' '#' and '\' with national variants, but not encodings like UTF-16
+ * that include extra null bytes.
+ * For our current purposes, the unpacked GSM 7-bit default alphabet (but not
+ * all National Language Shift Tables) also satisfies this requirement, but
+ * note that it does *not* keep all ISO/IEC 646 invariant characters the same.
+ * If this internal function gets used for additional purposes than currently,
+ * the set of encodings that it accepts could change.
+ * */
 static inline void
 validate_single_byte_ascii_encoding(const guint encoding)
 {
@@ -1609,6 +1625,11 @@ validate_single_byte_ascii_encoding(const guint encoding)
 	    case ENC_3GPP_TS_23_038_7BITS_PACKED:
 	    case ENC_ASCII_7BITS:
 	    case ENC_EBCDIC:
+	    case ENC_EBCDIC_CP037:
+	    case ENC_BCD_DIGITS_0_9:
+	    case ENC_KEYPAD_ABC_TBCD:
+	    case ENC_KEYPAD_BC_TBCD:
+	    case ENC_ETSI_TS_102_221_ANNEX_A:
 		REPORT_DISSECTOR_BUG("Invalid string encoding type passed to tvb_get_string_XXX");
 		break;
 	    default:
