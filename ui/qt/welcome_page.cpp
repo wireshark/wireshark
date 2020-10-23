@@ -128,7 +128,7 @@ void WelcomePage::interfaceListChanged()
     welcome_ui_->btnInterfaceType->setMenu(welcome_ui_->interfaceFrame->getSelectionMenu());
 }
 
-void WelcomePage::appInitialized()
+void WelcomePage::setReleaseLabel()
 {
     // XXX Add a "check for updates" link?
     QString full_release;
@@ -152,6 +152,11 @@ void WelcomePage::appInitialized()
     // also add a link to the download page.
 #endif
     welcome_ui_->fullReleaseLabel->setText(full_release);
+}
+
+void WelcomePage::appInitialized()
+{
+    setReleaseLabel();
 
 #ifdef HAVE_LIBPCAP
     welcome_ui_->captureFilterComboBox->lineEdit()->setText(global_capture_opts.default_options.cfilter);
@@ -344,6 +349,7 @@ void WelcomePage::changeEvent(QEvent* event)
             welcome_ui_->retranslateUi(this);
             welcome_ui_->flavorBanner->setText(flavor_);
             interfaceListChanged();
+            setReleaseLabel();
             break;
         default:
             break;

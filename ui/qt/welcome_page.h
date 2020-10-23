@@ -71,6 +71,7 @@ public slots:
 private slots:
     void appInitialized();
     void interfaceListChanged();
+    void setReleaseLabel();
     void captureFilterTextEdited(const QString capture_filter);
     void updateRecentCaptures();
     void openRecentItem(QListWidgetItem *item);
