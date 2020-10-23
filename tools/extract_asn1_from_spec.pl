@@ -96,7 +96,7 @@ sub extract_asn1 {
       syswrite OUTPUT_FILE,"-- "."$version"."\n";
     }
 
-    if (($line =~ /^END/) && (defined fileno OUTPUT_FILE)){
+    if (($line =~ /^END$/) && (defined fileno OUTPUT_FILE)){
       syswrite OUTPUT_FILE,"$line";
       close(OUTPUT_FILE);
       $is_asn1 = 0;
