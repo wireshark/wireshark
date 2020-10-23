@@ -224,13 +224,13 @@ Qt Linguist resources in the _ui/qt_ in the master branch.
 debian::
 GNU gettext resources in the _debian_ directory in the master branch.
 
-master-_XY_::
+qt-_XY_, master-_XY_::
 Qt Linguist resources in the _ui/qt_ in the _X.Y_ release branch.
-For example, master-32 matches the Wireshark 3.2 release branch.
+For example, qt-34 matches the Wireshark 3.2 release branch.
 
-debian-_XY_::
-GNU gettext resources in the _debian_ directory in the _X.Y_ release branch.
-For example, debian-32 matches the Wireshark 3.2 release branch.
+po-_XY_, debian-_XY_::
+GNU gettext (.po) resources in the _debian_ directory in the _X.Y_ release branch.
+For example, po-34 matches the Wireshark 3.4 release branch.
 
 Each week translations are automatically synchronized with the source code through the following steps:
 
