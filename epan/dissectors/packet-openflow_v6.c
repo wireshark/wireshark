@@ -4553,7 +4553,7 @@ dissect_openflow_flow_desc_v6(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
     offset+=2;
 
     /* uint16_t importance; */
-    proto_tree_add_item(desc_tree, hf_openflow_v6_flow_desc_importance, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(desc_tree, hf_openflow_v6_flow_desc_importance, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset+=2;
 
     /* uint64_t cookie; */
@@ -10109,7 +10109,7 @@ proto_register_openflow_v6(void)
         },
         { &hf_openflow_v6_metermod_command,
             { "Command", "openflow_v6.metermod.command",
-               FT_UINT8, BASE_DEC, VALS(openflow_v6_metermod_command_values), 0x0,
+               FT_UINT16, BASE_DEC, VALS(openflow_v6_metermod_command_values), 0x0,
                NULL, HFILL }
         },
         { &hf_openflow_v6_metermod_flags,
@@ -10179,7 +10179,7 @@ proto_register_openflow_v6(void)
         },
         { &hf_openflow_v6_bundle_control_type,
             { "Type", "openflow_v6.bundle_control.type",
-               FT_UINT8, BASE_HEX, VALS(openflow_v6_bundle_control_type_values), 0x0,
+               FT_UINT16, BASE_HEX, VALS(openflow_v6_bundle_control_type_values), 0x0,
                NULL, HFILL }
         },
         { &hf_openflow_v6_bundle_control_flags,

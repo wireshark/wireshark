@@ -7297,7 +7297,7 @@ proto_register_openflow_v4(void)
         },
         { &hf_openflow_v4_metermod_command,
             { "Command", "openflow_v4.metermod.command",
-               FT_UINT8, BASE_DEC, VALS(openflow_v4_metermod_command_values), 0x0,
+               FT_UINT16, BASE_DEC, VALS(openflow_v4_metermod_command_values), 0x0,
                NULL, HFILL }
         },
         { &hf_openflow_v4_metermod_flags,
