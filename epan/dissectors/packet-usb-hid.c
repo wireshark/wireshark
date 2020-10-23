@@ -4056,7 +4056,7 @@ dissect_usb_hid_get_report_descriptor(packet_info *pinfo _U_, proto_tree *parent
     /* only insert report descriptor the first time we parse it */
     if (!PINFO_FD_VISITED(pinfo) && usb_conv_info) {
         wmem_allocator_t *scope = wmem_file_scope();
-        report_descriptor_t *data = wmem_new(scope, report_descriptor_t);
+        report_descriptor_t *data = wmem_new0(scope, report_descriptor_t);
 
         data->usb_info = *usb_conv_info;
         data->desc_length = offset - old_offset;
