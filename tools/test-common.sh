@@ -147,9 +147,9 @@ function ws_exit_error() {
 
     echo -e "\n" >> $TMP_DIR/${ERR_FILE}.header
 
-    if [ -d ${GIT_DIR:-.git} ] ; then
-        echo -e "\nGit commit" >> $TMP_DIR/${ERR_FILE}.header
-        git log -1 >> $TMP_DIR/${ERR_FILE}.header
+    if [ -d "${GIT_DIR:-.git}" ] ; then
+        echo -e "\nLatest (but not necessarily the problem) commit:" >> "$TMP_DIR/${ERR_FILE}.header"
+        git log --max-count=1 --oneline >> "$TMP_DIR/${ERR_FILE}.header"
     fi
 
     echo -e "\n" >> $TMP_DIR/${ERR_FILE}.header
