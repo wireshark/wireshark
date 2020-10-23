@@ -4452,6 +4452,65 @@ dissect_dns(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
   }
 }
 
+static gboolean
+dissect_dns_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+  /*
+   * Try hard to match DNS messages while avoiding false positives. Look for:
+   *
+   * - Non-empty DNS messages (more than just a header).
+   * - Flags: QR bit (0-Query, 1-Response); Opcode bits: Standard Query (0000)
+   * - Questions: 1 (for queries), or 0 or 1 (for responses like AXFR)
+   * - Answer RRs: 0 (for queries) or a low number (for responses)
+   * - Authority RRs: 0 (for queries) or a low number (for responses)
+   * - Additional RRs: assume a low number.
+   *
+   * Not implemented, but perhaps we could check for:
+   * - Require that the question and answer count cannot both be zero. Perhaps
+   *   some protocols have large sequences of zero bytes, this check reduces the
+   *   probability of matching such payloads.
+   * - Assume a valid QNAME in the question section. (Is there sufficient data
+   *   for a valid name?)
+   * - Assume a common QTYPE and QCLASS (IN/CH).
+   * - Potentially implement heuristics for TCP by checking the length prefix?
+   */
+  int               offset = 0;
+  guint16           flags, quest, ans, auth, add;
+  /*
+   * max_ans=10 was sufficient for recognizing the majority of DNS messages from
+   * the rrdns test suite, but four "huge record" test cases have 100 answers.
+   * The max_auth and max_add numbers were picked arbitrarily.
+   */
+  const guint16     max_ans = 100;
+  const guint16     max_auth = 10;
+  const guint16     max_add = 10;
+
+  if (tvb_reported_length(tvb) <= DNS_HDRLEN)
+    return FALSE;
+
+  flags = tvb_get_ntohs(tvb, offset + DNS_FLAGS);
+  if ((flags & F_OPCODE) != 0)
+    return FALSE;
+
+  quest = tvb_get_ntohs(tvb, offset + DNS_QUEST);
+  ans = tvb_get_ntohs(tvb, offset + DNS_ANS);
+  auth = tvb_get_ntohs(tvb, offset + DNS_AUTH);
+  if (!(flags & F_RESPONSE)) {
+    if (quest != 1 || ans != 0 || auth != 0)
+      return FALSE;
+  } else {
+    if (quest > 1 || ans > max_ans || auth > max_auth)
+      return FALSE;
+  }
+
+  add = tvb_get_ntohs(tvb, offset + DNS_ADD);
+  if (add > max_add)
+    return FALSE;
+
+  dissect_dns(tvb, pinfo, tree, NULL);
+  return TRUE;
+}
+
 static void dns_stats_tree_init(stats_tree* st)
 {
   st_node_packets = stats_tree_create_node(st, st_str_packets, 0, STAT_DT_INT, TRUE);
@@ -4566,6 +4625,7 @@ proto_reg_handoff_dns(void)
   dissector_add_uint_range_with_preference("tcp.port", DEFAULT_DNS_TCP_PORT_RANGE, dns_handle);
   dissector_add_uint_range_with_preference("udp.port", DEFAULT_DNS_PORT_RANGE, dns_handle);
   dissector_add_string("media_type", "application/dns-message", dns_handle); /* since draft-ietf-doh-dns-over-https-07 */
+  heur_dissector_add("udp", dissect_dns_heur, "DNS over UDP", "dns_udp", proto_dns, HEURISTIC_ENABLE);
 }
 
 void
