@@ -2040,7 +2040,7 @@ dissect_push_button_join_notification(tvbuff_t *tvb, packet_info *pinfo _U_,
     offset += 6;
 
     proto_tree_add_item(tree, hf_ieee1905_push_button_event_msg_id, tvb,
-                        offset, 2, ENC_LITTLE_ENDIAN);
+                        offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
     proto_tree_add_item(tree, hf_ieee1905_sender_joining_interface, tvb,
@@ -2641,7 +2641,7 @@ dissect_l2_neighbor_device(tvbuff_t *tvb, packet_info *pinfo _U_,
 
         neighbor_device_count = tvb_get_ntohs(tvb, offset);
         proto_tree_add_item(intf_tree, hf_ieee1905_l2_neighbor_dev_count, tvb,
-                            offset, 2, ENC_LITTLE_ENDIAN);
+                            offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
 
         neighbor_list = proto_tree_add_subtree(intf_tree, tvb, offset, -1,
@@ -2670,7 +2670,7 @@ dissect_l2_neighbor_device(tvbuff_t *tvb, packet_info *pinfo _U_,
             behind_mac_addr_count = tvb_get_ntohs(tvb, offset);
             proto_tree_add_item(neighbor_dev_tree,
                                 hf_ieee1905_l2_behind_mac_addr_count,
-                                tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                                tvb, offset, 2, ENC_BIG_ENDIAN);
             offset += 2;
 
             while(behind_mac_addr_index < behind_mac_addr_count) {
@@ -3115,11 +3115,11 @@ dissect_ap_vht_capabilities(tvbuff_t *tvb, packet_info *pinfo _U_,
     offset += 6;
 
     proto_tree_add_item(tree, hf_ieee1905_ap_vht_supported_vht_tx_mcs,
-                        tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                        tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
     proto_tree_add_item(tree, hf_ieee1905_ap_vht_supported_vht_rx_mcs,
-                        tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                        tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
     proto_tree_add_bitmask(tree, tvb, offset, hf_ieee1905_vht_cap_flags,
@@ -3932,11 +3932,11 @@ dissect_steering_request(tvbuff_t *tvb, packet_info *pinfo _U_,
 
     /* If Request Mode is 1, this field is ignored. */
     proto_tree_add_item(tree, hf_ieee1905_steering_req_op_window,
-                        tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                        tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
     proto_tree_add_item(tree, hf_ieee1905_steering_btm_disass_timer,
-                        tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                        tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
     steering_count = tvb_get_guint8(tvb, offset);
@@ -4066,7 +4066,7 @@ dissect_client_association_control_request(tvbuff_t *tvb, packet_info *pinfo _U_
     offset++;
 
     pi = proto_tree_add_item(tree, hf_ieee1905_association_control_validity,
-                        tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                        tvb, offset, 2, ENC_BIG_ENDIAN);
     proto_item_append_text(pi, " seconds");
     offset += 2;
 
@@ -8283,7 +8283,7 @@ dissect_ieee1905_tlvs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         offset++;
 
         proto_tree_add_bitmask(tlv_tree, tvb, offset, hf_ieee1905_tlv_len,
-                             ett_ieee1905_tlv_len, tlv_len_headers, ENC_NA);
+                             ett_ieee1905_tlv_len, tlv_len_headers, ENC_BIG_ENDIAN);
         offset += 2;
 
         if (tlv_len)
