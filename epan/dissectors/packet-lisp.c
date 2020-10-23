@@ -16,6 +16,7 @@
 
 #include <epan/to_str.h>
 #include <epan/afn.h>
+#include <epan/oui.h>
 #include <epan/expert.h>
 
 #include <wsutil/utf8_entities.h>
@@ -26,13 +27,12 @@ void proto_reg_handoff_lisp(void);
 /*
  * See RFC 6830 "Locator/ID Separation Protocol (LISP)",
  * draft-ietf-lisp-lcaf-05 "LISP Canonical Address Format (LCAF)",
+ * draft-ietf-lisp-vendor-lcaf-07 "Vendor Specific LISP Canonical Address Format (LCAF)"
  * draft-ietf-lisp-sec-04 "LISP-Security (LISP-SEC)",
  * draft-ermagan-lisp-nat-traversal-03 "NAT traversal for LISP",
  * draft-farinacci-lisp-name-encoding-09 "LISP Distinguished Name Encoding"
  * for packet format and protocol information.
  */
-
-#define LCAF_DRAFT_VERSION  "05"
 
 /* LISP Control Message types */
 #define LISP_MAP_REQUEST    1
@@ -74,6 +74,7 @@ void proto_reg_handoff_lisp(void);
 #define LCAF_RLE            13
 #define LCAF_JSON           14
 #define LCAF_KV_ADDR_PAIR   15
+#define LCAF_VENDOR         255
 
 #define LCAF_HEADER_LEN     6
 #define LISP_ECM_HEADER_LEN 4
@@ -368,6 +369,11 @@ static int hf_lisp_lcaf_kv_value_ipv6 = -1;
 static int hf_lisp_lcaf_kv_value_mac = -1;
 static int hf_lisp_lcaf_kv_value_dn = -1;
 
+/* Vendor Specific LCAF fields */
+static int hf_lisp_lcaf_vendor_res = -1;
+static int hf_lisp_lcaf_vendor_oui = -1;
+static int hf_lisp_lcaf_vendor_data = -1;
+
 /* Encapsulated Control Message fields */
 static int hf_lisp_ecm_flags_sec = -1;
 static int hf_lisp_ecm_flags_ddt = -1;
@@ -395,13 +401,13 @@ static gint ett_lisp_lcaf_srcdst_dst = -1;
 static gint ett_lisp_lcaf_rle_entry = -1;
 static gint ett_lisp_lcaf_kv_key = -1;
 static gint ett_lisp_lcaf_kv_value = -1;
+static gint ett_lisp_lcaf_vendor = -1;
 static gint ett_lisp_loc = -1;
 static gint ett_lisp_loc_flags = -1;
 static gint ett_lisp_info_prefix = -1;
 static gint ett_lisp_afi_list = -1;
 
 static expert_field ei_lisp_undecoded = EI_INIT;
-static expert_field ei_lisp_lcaf_type = EI_INIT;
 static expert_field ei_lisp_expected_field = EI_INIT;
 static expert_field ei_lisp_invalid_field = EI_INIT;
 static expert_field ei_lisp_unexpected_field = EI_INIT;
@@ -463,6 +469,7 @@ const value_string lcaf_typevals[] = {
     { LCAF_RLE,             "Replication List Entry" },
     { LCAF_JSON,            "JSON Data Model" },
     { LCAF_KV_ADDR_PAIR,    "Key/Value Address Pair" },
+    { LCAF_VENDOR,          "Vendor Specific LCAF" },
     { 0,                    NULL}
 };
 
@@ -475,6 +482,12 @@ const value_string lat_typevals[] = {
 const value_string lon_typevals[] = {
     { 0,                    "W" },
     { 1,                    "E" },
+    { 0,                    NULL}
+};
+
+/* Add your company OUI here if you're developing a vendor LCAF dissector */
+const value_string oui_vals[] = {
+    { OUI_CISCO,            "Cisco" },
     { 0,                    NULL}
 };
 
@@ -1730,6 +1743,51 @@ dissect_lcaf_kv_addr_pair(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 
 /*
+  *  Dissector code for Vendor Specific LCAF
+  *
+  *   0                   1                   2                   3
+  *   0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+  *  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+  *  |           AFI = 16387         |     Rsvd1     |     Flags     |
+  *  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+  *  |   Type = 255  |     Rsvd2     |            Length             |
+  *  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+  *  |      Rsvd3    |    Organizationally Unique Identifier (OUI)   |
+  *  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+  *  |                        Internal format...                     |
+  *  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+  *
+  */
+
+static int
+dissect_lcaf_vendor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+        gint offset, guint16 length)
+{
+    gint len;
+    proto_item  *ti_vendor;
+    proto_tree  *vendor_tree;
+
+    /* Reserved (1 byte) */
+    proto_tree_add_item(tree, hf_lisp_lcaf_vendor_res, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+
+    /* Organizationally Unique Identifier (3 bytes) */
+    proto_tree_add_item(tree, hf_lisp_lcaf_vendor_oui, tvb, offset, 3, ENC_BIG_ENDIAN);
+    offset += 3;
+
+    /* Vendor Data */
+    len = length - 4;
+    ti_vendor = proto_tree_add_item(tree, hf_lisp_lcaf_vendor_data, tvb, offset, len, ENC_NA);
+    vendor_tree = proto_item_add_subtree(ti_vendor, ett_lisp_lcaf_vendor);
+    expert_add_info_format(pinfo, vendor_tree, &ei_lisp_undecoded,
+                    "Look up the vendor's OUI (IEEE 802-2001) and contact them for support on decoding this field");
+    offset += len;
+
+    return offset;
+}
+
+
+/*
  * Dissector code for LISP Canonical Address Format (LCAF)
  *
  *   0                   1                   2                   3
@@ -1740,22 +1798,23 @@ dissect_lcaf_kv_addr_pair(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
  *  |    Type       |     Rsvd2     |            Length             |
  *  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
  *
- *  Type 0:  Null Body Type
- *  Type 1:  AFI List Type
- *  Type 2:  Instance ID Type
- *  Type 3:  AS Number Type
- *  Type 4:  Application Data Type
- *  Type 5:  Geo Coordinates Type
- *  Type 6:  Opaque Key Type
- *  Type 7:  NAT-Traversal Type
- *  Type 8:  Nonce Locator Type
- *  Type 9:  Multicast Info Type
- *  Type 10: Explicit Locator Path Type
- *  Type 11: Security Key Type
- *  Type 12: Source/Dest Key Type
- *  Type 13: Replication List Entry Type
- *  Type 14: JSON Data Model Type
- *  Type 15: Key/Value Address Pair Type
+ *  Type 0:   Null Body Type
+ *  Type 1:   AFI List Type
+ *  Type 2:   Instance ID Type
+ *  Type 3:   AS Number Type
+ *  Type 4:   Application Data Type
+ *  Type 5:   Geo Coordinates Type
+ *  Type 6:   Opaque Key Type
+ *  Type 7:   NAT-Traversal Type
+ *  Type 8:   Nonce Locator Type
+ *  Type 9:   Multicast Info Type
+ *  Type 10:  Explicit Locator Path Type
+ *  Type 11:  Security Key Type
+ *  Type 12:  Source/Dest Key Type
+ *  Type 13:  Replication List Entry Type
+ *  Type 14:  JSON Data Model Type
+ *  Type 15:  Key/Value Address Pair Type
+ *  Type 255: Vendor Specific LCAF
  *
  */
 
@@ -1848,13 +1907,11 @@ dissect_lcaf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset, p
         case LCAF_KV_ADDR_PAIR:
             offset = dissect_lcaf_kv_addr_pair(tvb, pinfo, lcaf_tree, offset);
             break;
+        case LCAF_VENDOR:
+            offset = dissect_lcaf_vendor(tvb, pinfo, lcaf_tree, offset, len);
+            break;
         default:
-            if (lcaf_type < 16)
-                proto_tree_add_expert(tree, pinfo, &ei_lisp_undecoded, tvb, offset, len);
-            else
-                expert_add_info_format(pinfo, lcaf_tree, &ei_lisp_lcaf_type,
-                        "LCAF type %d is not defined in draft-ietf-lisp-lcaf-%s",
-                        lcaf_type, LCAF_DRAFT_VERSION);
+            proto_tree_add_expert(tree, pinfo, &ei_lisp_undecoded, tvb, offset, len);
             return offset + len;
     }
     return offset;
@@ -3612,6 +3669,15 @@ proto_register_lisp(void)
         { &hf_lisp_lcaf_natt_etrport,
             { "ETR UDP Port Number", "lisp.lcaf.natt.etrport",
             FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_lisp_lcaf_vendor_res,
+            { "Reserved", "lisp.lcaf.vendor.res",
+            FT_UINT8, BASE_HEX, NULL, 0x0, "Must be zero", HFILL }},
+        { &hf_lisp_lcaf_vendor_oui,
+            { "OUI", "lisp.lcaf.vendor.oui",
+            FT_UINT24, BASE_HEX, VALS(oui_vals), 0x0, "Organizationally Unique Identifier", HFILL }},
+        { &hf_lisp_lcaf_vendor_data,
+            { "Vendor Specific Data", "lisp.lcaf.vendor.data",
+            FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
     };
 
     /* Setup protocol subtree array */
@@ -3637,6 +3703,7 @@ proto_register_lisp(void)
         &ett_lisp_lcaf_rle_entry,
         &ett_lisp_lcaf_kv_key,
         &ett_lisp_lcaf_kv_value,
+        &ett_lisp_lcaf_vendor,
         &ett_lisp_loc,
         &ett_lisp_loc_flags,
         &ett_lisp_info_prefix,
@@ -3647,7 +3714,6 @@ proto_register_lisp(void)
         { &ei_lisp_undecoded, { "lisp.undecoded", PI_UNDECODED, PI_WARN, "Not dissected yet (report to wireshark.org)", EXPFILL }},
         { &ei_lisp_unexpected_field, { "lisp.unexpected_field", PI_PROTOCOL, PI_ERROR, "Unexpected field", EXPFILL }},
         { &ei_lisp_invalid_field, { "lisp.invalid_field", PI_PROTOCOL, PI_WARN, "Invalid field", EXPFILL }},
-        { &ei_lisp_lcaf_type, { "lisp.lcaf.type.invalid", PI_PROTOCOL, PI_ERROR, "LCAF type is not defined in draft-ietf-lisp-lcaf-X", EXPFILL }},
         { &ei_lisp_expected_field, { "lisp.expected_field", PI_PROTOCOL, PI_ERROR, "Expecting field", EXPFILL }},
     };
 
