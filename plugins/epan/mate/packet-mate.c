@@ -37,6 +37,14 @@ static expert_field ei_mate_undefined_attribute = EI_INIT;
 static const gchar* pref_mate_config_filename = "";
 static const gchar* current_mate_config_filename = NULL;
 
+#ifdef _AVP_DEBUGGING
+static int pref_avp_debug_general = 0;
+static int pref_avp_debug_avp = 0;
+static int pref_avp_debug_avp_op = 0;
+static int pref_avp_debug_avpl = 0;
+static int pref_avp_debug_avpl_op = 0;
+#endif
+
 static dissector_handle_t mate_handle;
 
 static void
@@ -313,6 +321,22 @@ static void
 initialize_mate(void)
 {
 	initialize_mate_runtime(mc);
+#ifdef _AVP_DEBUGGING
+	setup_avp_debug(mc->dbg_facility,
+		&pref_avp_debug_general,
+		&pref_avp_debug_avp,
+		&pref_avp_debug_avp_op,
+		&pref_avp_debug_avpl,
+		&pref_avp_debug_avpl_op);
+#endif
+}
+
+static void
+flush_mate_debug(void)
+{
+	/* Flush debug information */
+	if (mc->dbg_facility)
+		fflush(mc->dbg_facility);
 }
 
 extern
@@ -335,6 +359,7 @@ proto_reg_handoff_mate(void)
 				proto_register_field_array(proto_mate, (hf_register_info*)(void *)mc->hfrs->data, mc->hfrs->len );
 				proto_register_subtree_array((gint**)(void*)mc->ett->data, mc->ett->len);
 				register_init_routine(initialize_mate);
+				register_postseq_cleanup_routine(flush_mate_debug);
 
 				/*
 				 * Set the list of hfids we want.
@@ -381,6 +406,33 @@ proto_register_mate(void)
 					   "Configuration Filename",
 					   "The name of the file containing the mate module's configuration",
 					   &pref_mate_config_filename, FALSE);
+#ifdef _AVP_DEBUGGING
+	prefs_register_uint_preference(mate_module, "avp_debug_general",
+					    "AVP Debug general",
+					    "General debugging level (0..5)",
+					    10,
+					   &pref_avp_debug_general);
+	prefs_register_uint_preference(mate_module, "avp_debug_avp",
+					    "Debug AVP",
+					    "Attribute Value Pairs debugging level (0..5)",
+					    10,
+					   &pref_avp_debug_avp);
+	prefs_register_uint_preference(mate_module, "avp_debug_avp_op",
+					    "Debug AVP operations",
+					    "Attribute Value Pairs operations debugging level (0..5)",
+					    10,
+					   &pref_avp_debug_avp_op);
+	prefs_register_uint_preference(mate_module, "avp_debug_avpl",
+					    "Debug AVP list",
+					    "Attribute Value Pairs list debugging level (0..5)",
+					    10,
+					   &pref_avp_debug_avpl);
+	prefs_register_uint_preference(mate_module, "avp_debug_avpl_op",
+					    "Debug AVP list operations",
+					    "Attribute Value Pairs list operations debugging level (0..5)",
+					    10,
+					   &pref_avp_debug_avpl_op);
+#endif
 
 	register_postdissector(mate_handle);
 }
