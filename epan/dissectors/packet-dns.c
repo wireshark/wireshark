@@ -370,6 +370,8 @@ static int hf_dns_opt_cookie_server = -1;
 static int hf_dns_opt_edns_tcp_keepalive_timeout = -1;
 static int hf_dns_opt_padding = -1;
 static int hf_dns_opt_chain_fqdn = -1;
+static int hf_dns_opt_ext_error_info_code = -1;
+static int hf_dns_opt_ext_error_extra_text = -1;
 static int hf_dns_nsec3_algo = -1;
 static int hf_dns_nsec3_flags = -1;
 static int hf_dns_nsec3_flag_optout = -1;
@@ -691,6 +693,7 @@ typedef struct _dns_conv_info_t {
 #define O_EDNS_TCP_KA   11              /* edns-tcp-keepalive EDNS0 Option (RFC7828) */
 #define O_PADDING       12              /* EDNS(0) Padding Option (RFC7830) */
 #define O_CHAIN         13              /* draft-ietf-dnsop-edns-chain-query */
+#define O_EXT_ERROR     15              /* Extended DNS Errors (RFC8914) */
 
 #define MIN_DNAME_LEN    2              /* minimum domain name length */
 
@@ -1134,10 +1137,11 @@ static const value_string edns0_opt_code_vals[] = {
   {O_CLIENT_SUBNET_EXP, "Experimental - CSUBNET - Client subnet" },
   {O_CLIENT_SUBNET, "CSUBNET - Client subnet" },
   {O_EDNS_EXPIRE, "EDNS EXPIRE (RFC7314)"},
-  {O_COOKIE,     "COOKIE"},
+  {O_COOKIE,      "COOKIE"},
   {O_EDNS_TCP_KA, "EDNS TCP Keepalive"},
-  {O_PADDING, "PADDING"},
+  {O_PADDING,     "PADDING"},
   {O_CHAIN,       "CHAIN"},
+  {O_EXT_ERROR,   "Extended DNS Error"},
   {0,             NULL}
  };
 /* DNS-Based Authentication of Named Entities (DANE) Parameters
@@ -1262,6 +1266,37 @@ static int * const dns_csync_flags[] = {
     &hf_dns_csync_flags_soaminimum,
     NULL
 };
+
+static const range_string dns_ext_err_info_code[] = {
+  {     0,     0, "Other Error"        },
+  {     1,     1, "Unsupported DNSKEY Algorithm" },
+  {     2,     2, "Unsupported DS Digest Type"   },
+  {     3,     3, "Stale Answer"                 },
+  {     4,     4, "Forged Answer"                },
+  {     5,     5, "DNSSEC Indeterminate"         },
+  {     6,     6, "DNSSEC Bogus"                 },
+  {     7,     7, "Signature Expired"            },
+  {     8,     8, "Signature Not Yet Valid"      },
+  {     9,     9, "DNSKEY Missing"               },
+  {    10,    10, "RRSIGs Missing"               },
+  {    11,    11, "No Zone Key Bit Set"          },
+  {    12,    12, "NSEC Missing"                 },
+  {    13,    13, "Cached Error"                 },
+  {    14,    14, "Not Ready"                    },
+  {    15,    15, "Blocked"                      },
+  {    16,    16, "Censored"                     },
+  {    17,    17, "Filtered"                     },
+  {    18,    18, "Prohibited"                   },
+  {    19,    19, "Stale NXDomain Answer"        },
+  {    20,    20, "Not Authoritative"            },
+  {    21,    21, "Not Supported"                },
+  {    22,    22, "No Reachable Authority"       },
+  {    23,    23, "Network Error"                },
+  {    24,    24, "Invalid Data"                 },
+  {    25, 49151, "Unassigned"                   },
+  { 49152, 65535, "Reserved for Private Use"     },
+  {     0,     0, NULL                           } };
+
 
 /* This function counts how many '.' are in the string, plus 1, in order to count the number
  * of labels
@@ -2976,6 +3011,21 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
             }
             cur_offset += optlen;
             rropt_len  -= optlen;
+          }
+          break;
+
+          case O_EXT_ERROR:
+          {
+            if (optlen >= 2) {
+              proto_tree_add_item(rropt_tree, hf_dns_opt_ext_error_info_code, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
+              cur_offset += 2;
+              rropt_len  -= 2;
+              if (optlen > 2) {
+                proto_tree_add_item(rropt_tree, hf_dns_opt_ext_error_extra_text, tvb, cur_offset, optlen - 2, ENC_UTF_8|ENC_NA);
+                cur_offset += (optlen - 2);
+                rropt_len  -= (optlen - 2);
+              }
+            }
           }
           break;
 
@@ -5706,6 +5756,16 @@ proto_register_dns(void)
       { "Closest Trust Point", "dns.opt.chain.fqdn",
         FT_STRING, BASE_NONE, NULL, 0x0,
         "A variable length Fully Qualified Domain Name (FQDN) in DNS wire format of the requested start point of the chain", HFILL }},
+
+    { &hf_dns_opt_ext_error_info_code,
+      { "Info Code", "dns.opt.ext_error.info_code",
+        FT_UINT16, BASE_DEC | BASE_RANGE_STRING, RVALS(dns_ext_err_info_code), 0x0,
+        NULL, HFILL }},
+
+    { &hf_dns_opt_ext_error_extra_text,
+      { "Extra Text", "dns.opt.ext_error.extra_text",
+        FT_STRING, STR_UNICODE, NULL, 0x0,
+        NULL, HFILL }},
 
     { &hf_dns_count_questions,
       { "Questions", "dns.count.queries",
