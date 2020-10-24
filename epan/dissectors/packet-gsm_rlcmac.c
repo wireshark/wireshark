@@ -10145,7 +10145,7 @@ proto_register_gsm_rlcmac(void)
      { &hf_tlli,
        { "TLLI",
          "gsm_rlcmac.tlli",
-         FT_UINT32, BASE_DEC, NULL, 0x0,
+         FT_UINT32, BASE_HEX, NULL, 0x0,
          NULL, HFILL
        }
      },
