@@ -334,11 +334,12 @@ check_and_warn_user_startup()
         cur_user = get_cur_username();
         cur_group = get_cur_groupname();
         simple_message_box(ESD_TYPE_WARN, &recent.privs_warn_if_elevated,
-        "Running as user \"%s\" and group \"%s\".\n"
-        "This could be dangerous.\n\n"
-        "If you're running Wireshark this way in order to perform live capture, "
-        "you may want to be aware that there is a better way documented at\n"
-        WS_WIKI_URL("CaptureSetup/CapturePrivileges"), cur_user, cur_group);
+          "Running as user \"%s\" and group \"%s\".\n"
+          "This could be dangerous.\n\n"
+          "If you're running Wireshark this way in order to perform live capture, "
+          "you may want to be aware that there is a better way documented at\n"
+          WS_WIKI_HOME_URL "/" "CaptureSetup/CapturePrivileges",
+          cur_user, cur_group);
         g_free(cur_user);
         g_free(cur_group);
     }

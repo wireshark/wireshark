@@ -953,7 +953,7 @@ main(int argc, char *argv[])
             "Sorry, but TFShark has to terminate now.\n"
             "\n"
             "Some infos / workarounds can be found at:\n"
-             WS_WIKI_URL("KnownBugs/OutOfMemory") "\n");
+            WS_WIKI_HOME_URL "/" "KnownBugs/OutOfMemory" "\n");
     success = FALSE;
   }
   ENDTRY;

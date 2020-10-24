@@ -635,7 +635,7 @@ cf_read(capture_file *cf, gboolean reloading)
   CATCH(OutOfMemoryError) {
     simple_message_box(ESD_TYPE_ERROR, NULL,
                    "More information and workarounds can be found at\n"
-                   WS_WIKI_URL("KnownBugs/OutOfMemory"),
+                   WS_WIKI_HOME_URL "/" "KnownBugs/OutOfMemory",
                    "Sorry, but Wireshark has run out of memory and has to terminate now.");
 #if 0
     /* Could we close the current capture and free up memory from that? */
@@ -813,7 +813,7 @@ cf_continue_tail(capture_file *cf, volatile int to_read, wtap_rec *rec,
   CATCH(OutOfMemoryError) {
     simple_message_box(ESD_TYPE_ERROR, NULL,
                    "More information and workarounds can be found at\n"
-                   WS_WIKI_URL("KnownBugs/OutOfMemory"),
+                   WS_WIKI_HOME_URL "/" "KnownBugs/OutOfMemory",
                    "Sorry, but Wireshark has run out of memory and has to terminate now.");
 #if 0
     /* Could we close the current capture and free up memory from that? */
