@@ -2066,7 +2066,7 @@ main(int argc, char *argv[])
               "Sorry, but TShark has to terminate now.\n"
               "\n"
               "More information and workarounds can be found at\n"
-              WS_WIKI_URL("KnownBugs/OutOfMemory") "\n");
+              WS_WIKI_HOME_URL "/" "KnownBugs/OutOfMemory" "\n");
       status = PROCESS_FILE_ERROR;
     }
     ENDTRY;
@@ -2575,7 +2575,7 @@ capture(void)
             "Sorry, but TShark has to terminate now.\n"
             "\n"
             "More information and workarounds can be found at\n"
-             WS_WIKI_URL("KnownBugs/OutOfMemory") "\n");
+            WS_WIKI_HOME_URL "/" "KnownBugs/OutOfMemory" "\n");
     abort();
   }
   ENDTRY;

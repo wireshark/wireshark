@@ -98,22 +98,22 @@ topic_action_url(topic_action_e action)
         url = g_strdup(WS_Q_AND_A_URL);
         break;
     case(ONLINEPAGE_SAMPLE_FILES):
-        url = g_strdup(WS_WIKI_URL("SampleCaptures"));
+        url = g_strdup(WS_WIKI_HOME_URL "/" "SampleCaptures");
         break;
     case(ONLINEPAGE_CAPTURE_SETUP):
-        url = g_strdup(WS_WIKI_URL("CaptureSetup"));
+        url = g_strdup(WS_WIKI_HOME_URL "/" "CaptureSetup");
         break;
     case(ONLINEPAGE_NETWORK_MEDIA):
-        url = g_strdup(WS_WIKI_URL("CaptureSetup/NetworkMedia"));
+        url = g_strdup(WS_WIKI_HOME_URL "/" "CaptureSetup/NetworkMedia");
         break;
     case(ONLINEPAGE_SAMPLE_CAPTURES):
-        url = g_strdup(WS_WIKI_URL("SampleCaptures"));
+        url = g_strdup(WS_WIKI_HOME_URL "/" "SampleCaptures");
         break;
     case(ONLINEPAGE_SECURITY):
-        url = g_strdup(WS_WIKI_URL("Security"));
+        url = g_strdup(WS_WIKI_HOME_URL "/" "Security");
         break;
     case(ONLINEPAGE_CHIMNEY):
-        url = g_strdup(WS_WIKI_URL("CaptureSetup/Offloading#chimney"));
+        url = g_strdup(WS_WIKI_HOME_URL "/" "CaptureSetup/Offloading#chimney");
         break;
 
     /* local manual pages */
