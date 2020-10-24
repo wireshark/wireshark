@@ -1205,7 +1205,8 @@ host_lookup6(const ws_in6_addr *addr)
  */
 
 /*
- * Converts Ethernet addresses of the form aa:bb:cc or aa:bb:cc:dd:ee:ff/28. The
+ * Converts Ethernet addresses of the form aa:bb:cc or aa:bb:cc:dd:ee:ff/28.
+ * '-' is also supported as a separator. The
  * octets must be exactly two hexadecimal characters and the mask must be either
  * 28 or 36. Pre-condition: cp MUST be at least 21 bytes.
  */
@@ -1235,43 +1236,48 @@ parse_ether_address_fast(const guchar *cp, ether_t *eth, unsigned int *mask,
     };
     const guint8 *str_to_nibble_usg = (const guint8 *)str_to_nibble;
 
-    if (cp[2] != ':' || cp[5] != ':') {
+    guchar sep = cp[2];
+    if ((sep != ':' && sep != '-') || cp[5] != sep) {
         /* Unexpected separators. */
         return FALSE;
     }
 
-    guint8 num0 = (str_to_nibble_usg[cp[0]] << 4) | str_to_nibble_usg[cp[1]];
-    guint8 num1 = (str_to_nibble_usg[cp[3]] << 4) | str_to_nibble_usg[cp[4]];
-    guint8 num2 = (str_to_nibble_usg[cp[6]] << 4) | str_to_nibble_usg[cp[7]];
-    if (((num0 | num1 | num2) & 0x80)) {
+    /* N.B. store octet values in an int to detect invalid (-1) entries */
+    int num0 = (str_to_nibble_usg[cp[0]] << 4) | (gint8)str_to_nibble_usg[cp[1]];
+    int num1 = (str_to_nibble_usg[cp[3]] << 4) | (gint8)str_to_nibble_usg[cp[4]];
+    int num2 = (str_to_nibble_usg[cp[6]] << 4) | (gint8)str_to_nibble_usg[cp[7]];
+
+    if ((num0 | num1 | num2) & 0x100) {
         /* Not hexadecimal numbers. */
         return FALSE;
     }
 
-    eth->addr[0] = num0;
-    eth->addr[1] = num1;
-    eth->addr[2] = num2;
+    eth->addr[0] = (guint8)num0;
+    eth->addr[1] = (guint8)num1;
+    eth->addr[2] = (guint8)num2;
 
     if (cp[8] == '\0' && accept_mask) {
         /* Indicate that this is a manufacturer ID (0 is not allowed as a mask). */
         *mask = 0;
         return TRUE;
-    } else if (cp[8] != ':' || !accept_mask) {
+    } else if (cp[8] != sep || !accept_mask) {
         /* Format not handled by this fast path. */
         return FALSE;
     }
 
-    guint8 num3 = (str_to_nibble_usg[cp[9]] << 4) | str_to_nibble_usg[cp[10]];
-    guint8 num4 = (str_to_nibble_usg[cp[12]] << 4) | str_to_nibble_usg[cp[13]];
-    guint8 num5 = (str_to_nibble_usg[cp[15]] << 4) | str_to_nibble_usg[cp[16]];
-    if (((num3 | num4 | num5) & 0x80) || cp[11] != ':' || cp[14] != ':') {
+    /* N.B. store octet values in an int to detect invalid (-1) entries */
+    int num3 = (str_to_nibble_usg[cp[9]]  << 4) | (gint8)str_to_nibble_usg[cp[10]];
+    int num4 = (str_to_nibble_usg[cp[12]] << 4) | (gint8)str_to_nibble_usg[cp[13]];
+    int num5 = (str_to_nibble_usg[cp[15]] << 4) | (gint8)str_to_nibble_usg[cp[16]];
+
+    if (((num3 | num4 | num5) & 0x100) || cp[11] != sep || cp[14] != sep)  {
         /* Not hexadecimal numbers or invalid separators. */
         return FALSE;
     }
 
-    eth->addr[3] = num3;
-    eth->addr[4] = num4;
-    eth->addr[5] = num5;
+    eth->addr[3] = (guint8)num3;
+    eth->addr[4] = (guint8)num4;
+    eth->addr[5] = (guint8)num5;
     if (cp[17] == '\0') {
         /* We got 6 bytes, so this is a MAC address (48 is not allowed as a mask). */
         *mask = 48;
