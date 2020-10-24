@@ -547,9 +547,10 @@ relinquish_all_capabilities(void)
 #elif defined(__APPLE__)
   #define PLATFORM_PERMISSIONS_SUGGESTION \
     "\n\n" \
-    "If you installed Wireshark using the package from wireshark.org, "\
-    "Try re-installing it and checking the box for the \"Set capture " \
-    "permissions on startup\" item."
+    "If you installed Wireshark using the package from wireshark.org, " \
+    "close this dialog and click on the \"installing ChmodBPF\" link in " \
+    "\"You can fix this by installing ChmodBPF.\" on the main screen, " \
+    "and then complete the installation procedure."
 #else
   #define PLATFORM_PERMISSIONS_SUGGESTION
 #endif
