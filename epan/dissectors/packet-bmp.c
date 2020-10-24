@@ -211,21 +211,21 @@ static const value_string route_policy_tlv_policy_class_typevals[] = {
 
 static int proto_bmp = -1;
 
-/* BMP Common Header filed */
+/* BMP Common Header field */
 static int hf_bmp_version = -1;
 static int hf_bmp_length = -1;
 static int hf_bmp_type = -1;
 
-/* BMP Unused Bytes filed */
+/* BMP Unused Bytes field */
 static int hf_bmp_unused = -1;
 
-/* BMP Initiation Header filed */
+/* BMP Initiation Header field */
 static int hf_init_types = -1;
 static int hf_init_type = -1;
 static int hf_init_length = -1;
 static int hf_init_info = -1;
 
-/* BMP Per Peer Header filed */
+/* BMP Per Peer Header field */
 static int hf_peer_header = -1;
 static int hf_peer_type = -1;
 static int hf_peer_flags = -1;
@@ -244,17 +244,17 @@ static int hf_peer_bgp_id = -1;
 static int hf_peer_timestamp_sec = -1;
 static int hf_peer_timestamp_msec = -1;
 
-/* BMP Peer Up Notification filed */
+/* BMP Peer Up Notification field */
 static int hf_peer_up_ipv4_address = -1;
 static int hf_peer_up_ipv6_address = -1;
 static int hf_peer_up_local_port = -1;
 static int hf_peer_up_remote_port = -1;
 
-/* BMP Peer Down Notification filed */
+/* BMP Peer Down Notification field */
 static int hf_peer_down_reason = -1;
 static int hf_peer_down_data = -1;
 
-/* BMP Stat Reports filed */
+/* BMP Stat Reports field */
 static int hf_stats_count = -1;
 static int hf_stat_type = -1;
 static int hf_stat_len = -1;
@@ -286,7 +286,7 @@ static int hf_stat_data_routes_post_per_adj_rib_out_afi = -1;
 static int hf_stat_data_routes_post_per_adj_rib_out_safi = -1;
 static int hf_stat_data_routes_post_per_adj_rib_out = -1;
 
-/* BMP Termination filed */
+/* BMP Termination field */
 static int hf_term_types = -1;
 static int hf_term_type = -1;
 static int hf_term_len = -1;
