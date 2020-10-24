@@ -303,6 +303,12 @@ void InterfaceFrame::resetInterfaceTreeDisplay()
     if (!haveLocalCapturePermissions())
     {
 #ifdef Q_OS_MAC
+        //
+        // NOTE: if you change this text, you must also change the
+        // definition of PLATFORM_PERMISSIONS_SUGGESTION that is
+        // used if __APPLE__ is defined, so that it reflects the
+        // new message text.
+        //
         QString install_chmodbpf_path = wsApp->applicationDirPath() + "/../Resources/Extras/Install ChmodBPF.pkg";
         ui->warningLabel->setText(tr(
             "<p>"
@@ -312,6 +318,11 @@ void InterfaceFrame::resetInterfaceTreeDisplay()
             "</p>")
             .arg(install_chmodbpf_path));
 #else
+        //
+        // XXX - should this give similar platform-dependent recommendations,
+        // just as dumpcap gives platform-dependent recommendations in its
+        // PLATFORM_PERMISSIONS_SUGGESTION #define?
+        //
         ui->warningLabel->setText(tr("You don't have permission to capture on local interfaces."));
 #endif
     }
