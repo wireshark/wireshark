@@ -14,6 +14,7 @@
 
 #include <ui/qt/utils/color_utils.h>
 #include <ui/qt/utils/qt_ui_utils.h>
+#include "ui/recent.h"
 
 #include <QFont>
 #include <QFontMetrics>
@@ -250,7 +251,7 @@ void SequenceDiagram::draw(QCPPainter *painter)
             fg_pen.setColor(sel_pal.color(QPalette::HighlightedText));
             bg_color = sel_pal.color(QPalette::Highlight);
             selected_key_ = cur_key;
-        } else if (sai->has_color_filter) {
+        } else if ((sai->has_color_filter) && (recent.packet_list_colorize)) {
             fg_pen.setColor(QColor().fromRgb(sai->fg_color));
             bg_color = QColor().fromRgb(sai->bg_color);
         } else {
