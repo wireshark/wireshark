@@ -5354,6 +5354,7 @@ ddi-udp-7	8894/udp	# Desktop Data UDP 6: COAL application
 ospf-lite	8899/tcp/udp
 jmb-cds1	8900/tcp/udp	# JMB-CDS 1
 jmb-cds2	8901/tcp/udp	# JMB-CDS 2
+dpp		8908/tcp	# WFA Device Provisioning Protocol
 manyone-http	8910/tcp/udp
 manyone-xml	8911/tcp/udp
 wcbackup	8912/tcp/udp	# Windows Client Backup

@@ -5783,7 +5783,7 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     </message>
     <message>
         <source>Prepare a Filter</source>
-        <translation>Filter vorbereiten</translation>
+        <translation>Als Filter vorbereiten</translation>
     </message>
     <message>
         <source>SCTP</source>
@@ -10285,7 +10285,7 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     </message>
     <message>
         <source>Prepare Filter</source>
-        <translation>Filter vorbereiten</translation>
+        <translation>Als Filter vorbereiten</translation>
     </message>
     <message>
         <source>Prepare a filter matching the selected stream(s).</source>
@@ -12678,7 +12678,7 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     </message>
     <message>
         <source>Prepare Filter</source>
-        <translation>Filter vorbereiten</translation>
+        <translation>Als Filter vorbereiten</translation>
     </message>
     <message>
         <source>Flow Sequence</source>
