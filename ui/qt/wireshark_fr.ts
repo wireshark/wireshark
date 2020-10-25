@@ -6095,8 +6095,7 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     </message>
     <message>
         <source>Prepare as Filter</source>
-        <oldsource>Prepare a Filter</oldsource>
-        <translation type="unfinished">Préparer un Filtre</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>SCTP</source>
@@ -9407,8 +9406,7 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     </message>
     <message>
         <source>Prepare as Filter</source>
-        <oldsource>Prepare a Filter</oldsource>
-        <translation type="unfinished">Préparer un Filtre</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Find</source>

@@ -6119,8 +6119,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Prepare as Filter</source>
-        <oldsource>Prepare a Filter</oldsource>
-        <translation type="unfinished">Filter vorbereiten</translation>
+        <translation>Als Filter vorbereiten</translation>
     </message>
     <message>
         <source>SCTP</source>
@@ -9442,8 +9441,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Prepare as Filter</source>
-        <oldsource>Prepare a Filter</oldsource>
-        <translation type="unfinished">Als Filter vorbereiten</translation>
+        <translation>Als Filter vorbereiten</translation>
     </message>
     <message>
         <source>Find</source>
@@ -11042,7 +11040,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Prepare Filter</source>
-        <translation>Filter vorbereiten</translation>
+        <translation>Als Filter vorbereiten</translation>
     </message>
     <message>
         <source>Prepare a filter matching the selected stream(s).</source>
@@ -13419,7 +13417,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Prepare Filter</source>
-        <translation>Filter vorbereiten</translation>
+        <translation>Als Filter vorbereiten</translation>
     </message>
     <message>
         <source>Flow Sequence</source>
