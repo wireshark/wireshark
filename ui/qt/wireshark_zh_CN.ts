@@ -798,26 +798,6 @@
         <source>Automatically detect file type</source>
         <translation>自动检测文件类型</translation>
     </message>
-    <message numerus="yes">
-        <source>%1, error after %Ln packet(s)</source>
-        <oldsource>%1, error after %2 packets</oldsource>
-        <translation type="vanished">
-            <numerusform>%1，%Ln 分组后出错</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>%1, timed out at %Ln packet(s)</source>
-        <oldsource>%1, timed out at %2 packets</oldsource>
-        <translation type="vanished">
-            <numerusform>%1，在分组 %Ln 处超时</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>%1, %Ln packet(s)</source>
-        <translation type="vanished">
-            <numerusform>%1，%Ln 分组</numerusform>
-        </translation>
-    </message>
     <message>
         <source>Prepend packets</source>
         <translation>前置分组</translation>
@@ -3070,18 +3050,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Print</source>
         <translation>打印</translation>
-    </message>
-    <message numerus="yes">
-        <source>%Ln client pkt(s), </source>
-        <translation type="vanished">
-            <numerusform>%Ln 客户端 分组，</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>%Ln server pkt(s), </source>
-        <translation type="vanished">
-            <numerusform>%Ln 服务器 分组，</numerusform>
-        </translation>
     </message>
     <message>
         <source>ASCII</source>
@@ -6095,8 +6063,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Prepare as Filter</source>
-        <oldsource>Prepare a Filter</oldsource>
-        <translation type="unfinished">准备过滤器</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>SCTP</source>
@@ -7941,13 +7908,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <source>No Keys</source>
         <translation>无密钥</translation>
     </message>
-    <message numerus="yes">
-        <source>Export SSL Session Keys (%Ln key(s))</source>
-        <oldsource>Export SSL Session Keys (%1 key%2</oldsource>
-        <translation type="vanished">
-            <numerusform>导出 SSL 会话密钥 (%Ln 个密钥)</numerusform>
-        </translation>
-    </message>
     <message>
         <source>Raw data (*.bin *.dat *.raw);;All Files (</source>
         <translation>原始数据 (*.bin *.dat *.raw);;所有文件 (</translation>
@@ -9403,8 +9363,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Prepare as Filter</source>
-        <oldsource>Prepare a Filter</oldsource>
-        <translation type="unfinished">准备过滤器</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Find</source>

@@ -1,17 +1,20 @@
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the wireshark package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 # 
 # Translators:
-# Balint Reczey <balint@balintreczey.hu>, 2011
+# Gerald Combs <gerald@wireshark.org>, 2020
+# 
+#, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: Wireshark\n"
+"Project-Id-Version: wireshark\n"
 "Report-Msgid-Bugs-To: wireshark@packages.debian.org\n"
 "POT-Creation-Date: 2017-08-06 18:31-0400\n"
-"PO-Revision-Date: 2017-09-22 06:50+0000\n"
-"Last-Translator: Gerald Combs <gerald@wireshark.org>\n"
-"Language-Team: Hungarian (http://www.transifex.com/wireshark/wireshark/language/hu/)\n"
+"PO-Revision-Date: 2020-10-22 19:57+0000\n"
+"Last-Translator: Gerald Combs <gerald@wireshark.org>, 2020\n"
+"Language-Team: Hungarian (https://www.transifex.com/wireshark/teams/36457/hu/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -22,7 +25,9 @@ msgstr ""
 #. Description
 #: ../templates:2001
 msgid "Should non-superusers be able to capture packets?"
-msgstr "A rendszergazdán kívül más felhasználók is képesek legyenek lehallgatni ahálózati forgalmat?"
+msgstr ""
+"A rendszergazdán kívül más felhasználók is képesek legyenek lehallgatni "
+"ahálózati forgalmat?"
 
 #. Type: boolean
 #. Description
@@ -32,7 +37,12 @@ msgid ""
 "system group to capture packets. This is recommended over the alternative of"
 " running Wireshark/Tshark directly as root, because less of the code will "
 "run with elevated privileges."
-msgstr "A dumpcap segédprogramot úgy is be lehet állítani telepítéskor, hogy lehetővétegye a \"wireshark\" rendszer-csoport tagjainak, hogy lehallgassák ahálózati forgalmat. Ez biztonságosabb, mint rendszergazdaként futtatni aWireshark/Tshark programokat, mivel kevesebb kód fut így rendszergazdaijogokkal ellátva."
+msgstr ""
+"A dumpcap segédprogramot úgy is be lehet állítani telepítéskor, hogy "
+"lehetővétegye a \"wireshark\" rendszer-csoport tagjainak, hogy lehallgassák "
+"ahálózati forgalmat. Ez biztonságosabb, mint rendszergazdaként futtatni "
+"aWireshark/Tshark programokat, mivel kevesebb kód fut így "
+"rendszergazdaijogokkal ellátva."
 
 #. Type: boolean
 #. Description
@@ -40,7 +50,9 @@ msgstr "A dumpcap segédprogramot úgy is be lehet állítani telepítéskor, ho
 msgid ""
 "For more detailed information please see /usr/share/doc/wireshark-"
 "common/README.Debian."
-msgstr "Részletesebb információk a usr/share/doc/wireshark-common/README.Debianfájlban találhatók."
+msgstr ""
+"Részletesebb információk a usr/share/doc/wireshark-"
+"common/README.Debianfájlban találhatók."
 
 #. Type: boolean
 #. Description
@@ -48,7 +60,9 @@ msgstr "Részletesebb információk a usr/share/doc/wireshark-common/README.Debi
 msgid ""
 "Enabling this feature may be a security risk, so it is disabled by default. "
 "If in doubt, it is suggested to leave it disabled."
-msgstr "Ennek a beállításnak az engedélyezése biztonsági kockázatot hordoz.Ha bizonytalan vagy, inkább ne engedélyezd."
+msgstr ""
+"Ennek a beállításnak az engedélyezése biztonsági kockázatot hordoz.Ha "
+"bizonytalan vagy, inkább ne engedélyezd."
 
 #. Type: error
 #. Description

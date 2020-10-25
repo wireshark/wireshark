@@ -798,26 +798,6 @@
         <source>Automatically detect file type</source>
         <translation>ファイル種別を自動的に検出</translation>
     </message>
-    <message numerus="yes">
-        <source>%1, error after %Ln packet(s)</source>
-        <oldsource>%1, error after %2 packets</oldsource>
-        <translation type="vanished">
-            <numerusform>%Ln パケットの後に %1, エラー </numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>%1, timed out at %Ln packet(s)</source>
-        <oldsource>%1, timed out at %2 packets</oldsource>
-        <translation type="vanished">
-            <numerusform>%Ln パケットにて %1, タイムアウト</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>%1, %Ln packet(s)</source>
-        <translation type="vanished">
-            <numerusform>%1, %Ln パケット</numerusform>
-        </translation>
-    </message>
     <message>
         <source>Prepend packets</source>
         <translation>前にパケットを挿入</translation>
@@ -3074,18 +3054,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Print</source>
         <translation>印刷</translation>
-    </message>
-    <message numerus="yes">
-        <source>%Ln client pkt(s), </source>
-        <translation type="vanished">
-            <numerusform>%Ln クライアントパケット, </numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>%Ln server pkt(s), </source>
-        <translation type="vanished">
-            <numerusform>%Ln サーバーパケット, </numerusform>
-        </translation>
     </message>
     <message>
         <source>ASCII</source>
@@ -6103,8 +6071,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Prepare as Filter</source>
-        <oldsource>Prepare a Filter</oldsource>
-        <translation type="unfinished">フィルタを準備</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>SCTP</source>
@@ -7949,13 +7916,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <source>No Keys</source>
         <translation>キーはありません</translation>
     </message>
-    <message numerus="yes">
-        <source>Export SSL Session Keys (%Ln key(s))</source>
-        <oldsource>Export SSL Session Keys (%1 key%2</oldsource>
-        <translation type="vanished">
-            <numerusform>SSLセッション鍵をエクスポート(%1 鍵%2</numerusform>
-        </translation>
-    </message>
     <message>
         <source>Raw data (*.bin *.dat *.raw);;All Files (</source>
         <translation>Raw(無加工)データ形式 (*.bin *.dat *.raw);;すべてのファイル(</translation>
@@ -8963,12 +8923,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>エキスポートするzipファイルを選択します</translation>
     </message>
     <message numerus="yes">
-        <source>… %Ln selected personal profile(s)</source>
-        <translation type="vanished">
-            <numerusform>… %Ln 選択された個人プロファイル</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
         <source>%Ln selected personal profile(s)</source>
         <translation>
             <numerusform>%Ln 選択された個人プロファイル</numerusform>
@@ -9418,8 +9372,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Prepare as Filter</source>
-        <oldsource>Prepare a Filter</oldsource>
-        <translation type="unfinished">フィルタを準備</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Find</source>

@@ -1,7 +1,6 @@
-Wireshark 3.3.2 Release Notes
+Wireshark 3.4.0 Release Notes
 
- This is an experimental release intended to test new features for
- Wireshark 3.4.
+ This is the first release candidate for Wireshark 3.4.
 
  What is Wireshark?
 
@@ -18,7 +17,9 @@ Wireshark 3.3.2 Release Notes
    The following features are new (or have been significantly updated)
    since version 3.3.1:
 
-     • Nothing of note.
+     • The Protobuf fields defined as google.protobuf.Timestamp type of
+       Protobuf standard library can now be dissected as Wireshark
+       fields of absolute time type.
 
    The following features are new (or have been significantly updated)
    since version 3.3.0:
@@ -83,13 +84,13 @@ Wireshark 3.3.2 Release Notes
    (EAP-PSK), EAP Shared-secret Authentication and Key Establishment
    (EAP-SAKE), Fortinet Single Sign-on (FSSO), FTDI Multi-Protocol
    Synchronous Serial Engine (FTDI MPSSE), Hypertext Transfer Protocol
-   Version 3 (HTTP3), ILDA Digital Network (IDN), ILDA Digital Network
-   (IDN), Java Debug Wire Protocol (JDWP), LBM Stateful Resolution
-   Service (LBMSRS), Lithionics Battery Management, OBSAI UDP-based
-   Communication Protocol (UDPCP), Palo Alto Heartbeat Backup
-   (PA-HB-Bak), ScyllaDB RPC, Technically Enhanced Capture Module
-   Protocol (TECMP), Tunnel Extensible Authentication Protocol (TEAP),
-   UDP based FTP w/ multicast V5 (UFTP5), and USB Printer (USBPRINTER)
+   Version 3 (HTTP3), ILDA Digital Network (IDN), Java Debug Wire
+   Protocol (JDWP), LBM Stateful Resolution Service (LBMSRS), Lithionics
+   Battery Management, OBSAI UDP-based Communication Protocol (UDPCP),
+   Palo Alto Heartbeat Backup (PA-HB-Bak), ScyllaDB RPC, Technically
+   Enhanced Capture Module Protocol (TECMP), Tunnel Extensible
+   Authentication Protocol (TEAP), UDP based FTP w/ multicast V5
+   (UFTP5), and USB Printer (USBPRINTER)
 
   Updated Protocol Support
 
@@ -133,7 +134,7 @@ Wireshark 3.3.2 Release Notes
 
   A complete FAQ is available on the Wireshark web site[8].
 
-  Last updated 2020-10-18 09:04:19 UTC
+  Last updated 2020-10-25 09:16:28 UTC
 
  References
 

@@ -799,29 +799,6 @@
         <source>Automatically detect file type</source>
         <translation>Detektera automatiskt filtyp</translation>
     </message>
-    <message numerus="yes">
-        <source>%1, error after %Ln packet(s)</source>
-        <oldsource>%1, error after %2 packets</oldsource>
-        <translation type="vanished">
-            <numerusform>%1, fel efter %Ln paket</numerusform>
-            <numerusform>%1, fel efter %Ln paket</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>%1, timed out at %Ln packet(s)</source>
-        <oldsource>%1, timed out at %2 packets</oldsource>
-        <translation type="vanished">
-            <numerusform>%1, tidsgränsen gick ut efter %Ln paket</numerusform>
-            <numerusform>%1, tidsgränsen gick ut efter %Ln paket</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>%1, %Ln packet(s)</source>
-        <translation type="vanished">
-            <numerusform>%1, %Ln paket</numerusform>
-            <numerusform>%1, %Ln paket</numerusform>
-        </translation>
-    </message>
     <message>
         <source>Prepend packets</source>
         <translation>Lägg paket före</translation>
@@ -3083,20 +3060,6 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <message>
         <source>Print</source>
         <translation>Skriv</translation>
-    </message>
-    <message numerus="yes">
-        <source>%Ln client pkt(s), </source>
-        <translation type="vanished">
-            <numerusform>%Ln klientpaket,</numerusform>
-            <numerusform>%Ln klientpaket,</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>%Ln server pkt(s), </source>
-        <translation type="vanished">
-            <numerusform>%Ln serverpaket,</numerusform>
-            <numerusform>%Ln serverpaket,</numerusform>
-        </translation>
     </message>
     <message>
         <source>ASCII</source>
@@ -6119,8 +6082,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>Prepare as Filter</source>
-        <oldsource>Prepare a Filter</oldsource>
-        <translation type="unfinished">Förbered ett filter</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>SCTP</source>
@@ -7965,14 +7927,6 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <source>No Keys</source>
         <translation>Inga nycklar</translation>
     </message>
-    <message numerus="yes">
-        <source>Export SSL Session Keys (%Ln key(s))</source>
-        <oldsource>Export SSL Session Keys (%1 key%2</oldsource>
-        <translation type="vanished">
-            <numerusform>Exportera SSL-sessionsnycklar (%Ln nyckel)</numerusform>
-            <numerusform>Exportera SSL-sessionsnycklar (%Ln nycklar)</numerusform>
-        </translation>
-    </message>
     <message>
         <source>Raw data (*.bin *.dat *.raw);;All Files (</source>
         <translation>Rå data (*.bin *.dat *.raw);;Alla filer (</translation>
@@ -8981,13 +8935,6 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>Välj zip-fil för exporten</translation>
     </message>
     <message numerus="yes">
-        <source>… %Ln selected personal profile(s)</source>
-        <translation type="vanished">
-            <numerusform>… %Ln vad personlig profil</numerusform>
-            <numerusform>… %Ln valda personliga profiler</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
         <source>%Ln selected personal profile(s)</source>
         <translation>
             <numerusform>%Ln vald personlig profil</numerusform>
@@ -9442,8 +9389,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>Prepare as Filter</source>
-        <oldsource>Prepare a Filter</oldsource>
-        <translation type="unfinished">Förbered ett filter</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Find</source>

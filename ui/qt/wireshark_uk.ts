@@ -109,10 +109,10 @@
     </message>
     <message numerus="yes">
         <source>Copy Row(s)</source>
-        <translation>
-            <numerusform>Скопіювати Рядок</numerusform>
-            <numerusform>Скопіювати Рядки</numerusform>
-            <numerusform>Скопіювати Рядки</numerusform>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
 </context>
@@ -2320,7 +2320,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Hosts</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Хости</translation>
     </message>
     <message>
         <source>Ethernet Addresses</source>
@@ -3062,22 +3062,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Print</source>
         <translation>Роздрукувати</translation>
-    </message>
-    <message numerus="yes">
-        <source>%Ln client pkt(s), </source>
-        <translation type="vanished">
-            <numerusform>%Ln пакет клієнта,</numerusform>
-            <numerusform>%Ln пакети клієнта,</numerusform>
-            <numerusform>%Ln пакетів клієнта,</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>%Ln server pkt(s), </source>
-        <translation type="vanished">
-            <numerusform>%Ln пакет сервера,</numerusform>
-            <numerusform>%Ln пакети сервера,</numerusform>
-            <numerusform>%Ln пакетів сервера,</numerusform>
-        </translation>
     </message>
     <message>
         <source>ASCII</source>
@@ -6055,8 +6039,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Prepare as Filter</source>
-        <oldsource>Prepare a Filter</oldsource>
-        <translation type="unfinished">Підготувати Фільтр</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>SCTP</source>
@@ -9367,8 +9350,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Prepare as Filter</source>
-        <oldsource>Prepare a Filter</oldsource>
-        <translation type="unfinished">Підготувати Фільтр</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Find</source>
@@ -9860,7 +9842,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Hosts</source>
-        <translation type="unfinished"></translation>
+        <translation>Хости</translation>
     </message>
     <message>
         <source>Search for entry (min 3 characters)</source>
@@ -9868,11 +9850,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Ports</source>
-        <translation type="unfinished"></translation>
+        <translation>Порти</translation>
     </message>
     <message>
         <source>Search for port or name</source>
-        <translation type="unfinished"></translation>
+        <translation>Пошук порту чи імені</translation>
     </message>
     <message>
         <source>Capture File Comments</source>
@@ -9888,7 +9870,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>IPv4 Hash Table</source>
-        <translation type="unfinished"></translation>
+        <translation>Хеш-таблиця IPv4</translation>
     </message>
     <message>
         <source>Show the IPv4 hash table entries.</source>
@@ -9896,7 +9878,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>IPv6 Hash Table</source>
-        <translation type="unfinished"></translation>
+        <translation>Хеш-таблиця IPv6</translation>
     </message>
     <message>
         <source>Show the IPv6 hash table entries.</source>
@@ -9904,7 +9886,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Show All</source>
-        <translation type="unfinished"></translation>
+        <translation>Показати Все</translation>
     </message>
     <message>
         <source>Show all address types.</source>
@@ -9912,7 +9894,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Hide All</source>
-        <translation type="unfinished"></translation>
+        <translation>Сховати Все</translation>
     </message>
     <message>
         <source>Hide all address types.</source>
@@ -12286,7 +12268,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Show All</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Показати Все</translation>
     </message>
 </context>
 <context>

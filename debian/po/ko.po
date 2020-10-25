@@ -1,18 +1,20 @@
 # SOME DESCRIPTIVE TITLE.
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the wireshark package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
 # 
 # Translators:
-# ks k, 2019
-# ks k, 2019
+# Gerald Combs <gerald@wireshark.org>, 2020
+# 
+#, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: Wireshark\n"
+"Project-Id-Version: wireshark\n"
 "Report-Msgid-Bugs-To: wireshark@packages.debian.org\n"
 "POT-Creation-Date: 2017-08-06 18:31-0400\n"
-"PO-Revision-Date: 2019-11-24 12:41+0000\n"
-"Last-Translator: ks k\n"
-"Language-Team: Korean (http://www.transifex.com/wireshark/wireshark/language/ko/)\n"
+"PO-Revision-Date: 2020-10-22 19:57+0000\n"
+"Last-Translator: Gerald Combs <gerald@wireshark.org>, 2020\n"
+"Language-Team: Korean (https://www.transifex.com/wireshark/teams/36457/ko/)\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
@@ -33,7 +35,9 @@ msgid ""
 "system group to capture packets. This is recommended over the alternative of"
 " running Wireshark/Tshark directly as root, because less of the code will "
 "run with elevated privileges."
-msgstr "root로 직접 Wireshark/Tshark를 실행시키는 것의 대안으로 좀 더 적은 권한으로 패킷 갈무리를 하기위해 \"와이어샤크\" 체제 묶음의 일원인 Dumpcap이 설치될 수 있습니다."
+msgstr ""
+"root로 직접 Wireshark/Tshark를 실행시키는 것의 대안으로 좀 더 적은 권한으로 패킷 갈무리를 하기위해 \"와이어샤크\" "
+"체제 묶음의 일원인 Dumpcap이 설치될 수 있습니다."
 
 #. Type: boolean
 #. Description
@@ -63,7 +67,8 @@ msgstr "와이어샤크 체제 묶음 작성에 실패했습니다"
 msgid ""
 "The wireshark group does not exist, and creating it failed, so Wireshark "
 "cannot be configured to capture traffic as an unprivileged user."
-msgstr "와이어샤크 묶음은 존재하지 않아 만들기에 실패하므로 와이어샤크는 권한이 없는 사용자로 트래픽을 갈무리하도록 구성할 수 없습니다."
+msgstr ""
+"와이어샤크 묶음은 존재하지 않아 만들기에 실패하므로 와이어샤크는 권한이 없는 사용자로 트래픽을 갈무리하도록 구성할 수 없습니다."
 
 #. Type: error
 #. Description
@@ -93,7 +98,8 @@ msgstr "와이어샤크 묶음은 사용자 묶음으로 존재하지만 기본 
 msgid ""
 "As a result, purging wireshark-common will not remove the wireshark group, "
 "but everything else should work properly."
-msgstr "결과적으로 wireshark-common을 제거해도 와이어샤크 묶음이 제거되지는 않지만 다른 모든 기능은 제대로 작동해야합니다."
+msgstr ""
+"결과적으로 wireshark-common을 제거해도 와이어샤크 묶음이 제거되지는 않지만 다른 모든 기능은 제대로 작동해야합니다."
 
 #. Type: error
 #. Description
@@ -107,7 +113,9 @@ msgstr "덤프캡에 대한 기능 설정 실패"
 msgid ""
 "The attempt to use Linux capabilities to grant packet-capturing privileges "
 "to the dumpcap binary failed. Instead, it has had the set-user-id bit set."
-msgstr "리눅스 기능을 사용하여 덤프 갈무리 바이너리에 패킷 갈무리 권한을 부여하려는 시도가 실패했습니다. 대신 set-user-id 비트가 설정되었습니다."
+msgstr ""
+"리눅스 기능을 사용하여 덤프 갈무리 바이너리에 패킷 갈무리 권한을 부여하려는 시도가 실패했습니다. 대신 set-user-id 비트가 "
+"설정되었습니다."
 
 #. Type: error
 #. Description
@@ -122,7 +130,9 @@ msgid ""
 "When the wireshark-common package is configured to allow non-superusers to "
 "capture packets the postinst script of wireshark-common creates the "
 "wireshark group as a system group."
-msgstr "슈퍼 유저가 아닌 사용자가 패킷을 갈무리 할 수 있도록 wireshark-common 패키지를 구성하면 wireshark-common의 postinst 스크립트가 와이어샤크 묶음을 체제 묶음으로 만듭니다."
+msgstr ""
+"슈퍼 유저가 아닌 사용자가 패킷을 갈무리 할 수 있도록 wireshark-common 패키지를 구성하면 wireshark-common의 "
+"postinst 스크립트가 와이어샤크 묶음을 체제 묶음으로 만듭니다."
 
 #. Type: error
 #. Description
@@ -130,7 +140,8 @@ msgstr "슈퍼 유저가 아닌 사용자가 패킷을 갈무리 할 수 있도�
 msgid ""
 "However, on this system the wireshark group is a user group instead of being"
 " a system group, so purging wireshark-common did not remove it."
-msgstr "그러나, 이 체제에서 와이어샤크 묶음은 체제 묶음이 아닌 사용자 묶음이므로 wireshark-common을 제거해도 제거되지 않았습니다."
+msgstr ""
+"그러나, 이 체제에서 와이어샤크 묶음은 체제 묶음이 아닌 사용자 묶음이므로 wireshark-common을 제거해도 제거되지 않았습니다."
 
 #. Type: error
 #. Description
