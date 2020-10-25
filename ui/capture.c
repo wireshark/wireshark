@@ -269,7 +269,7 @@ capture_input_read_all(capture_session *cap_session, gboolean is_tempfile,
                 "\n"
                 "Help about capturing can be found at\n"
                 "\n"
-                "       " WS_WIKI_HOME_URL "/" "CaptureSetup"
+                "       " WS_WIKI_URL("CaptureSetup")
 #ifdef _WIN32
                 "\n\n"
                 "Wireless (Wi-Fi/WLAN):\n"
@@ -746,7 +746,7 @@ capture_input_closed(capture_session *cap_session, gchar *msg)
                                 "\n"
                                 "Help about capturing can be found at\n"
                                 "\n"
-                                "       " WS_WIKI_HOME_URL "/" "CaptureSetup"
+                                "       " WS_WIKI_URL("CaptureSetup")
 #ifdef _WIN32
                                 "\n\n"
                                 "Wireless (Wi-Fi/WLAN):\n"

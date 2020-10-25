@@ -16,3 +16,8 @@
 #define WS_FAQ_URL       "https://www.wireshark.org/faq.html"
 #define WS_Q_AND_A_URL   "https://ask.wireshark.org"
 #define WS_WIKI_HOME_URL "https://gitlab.com/wireshark/wireshark/-/wikis"
+
+/*
+ * Construct a wiki URL given the path to the wiki page.
+ */
+#define WS_WIKI_URL(path)	WS_WIKI_HOME_URL "/" path
