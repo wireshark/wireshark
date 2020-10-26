@@ -587,8 +587,11 @@ void ProtoTree::collapseAll()
     updateContentWidth();
 }
 
-void ProtoTree::itemClicked(const QModelIndex &index) {
-    if (index == selectionModel()->selectedIndexes().first()) {
+void ProtoTree::itemClicked(const QModelIndex &index)
+{
+    if (selectionModel()->selectedIndexes().isEmpty()) {
+        emit fieldSelected(0);
+    } else if (index == selectionModel()->selectedIndexes().first()) {
         FieldInformation finfo(proto_tree_model_->protoNodeFromIndex(index).protoNode());
 
         if (finfo.isValid()) {
@@ -597,7 +600,8 @@ void ProtoTree::itemClicked(const QModelIndex &index) {
     }
 }
 
-void ProtoTree::itemDoubleClicked(const QModelIndex &index) {
+void ProtoTree::itemDoubleClicked(const QModelIndex &index)
+{
     FieldInformation finfo(proto_tree_model_->protoNodeFromIndex(index).protoNode());
     if (!finfo.isValid()) return;
 
