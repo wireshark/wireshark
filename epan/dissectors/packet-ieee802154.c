@@ -452,6 +452,9 @@ static int hf_ieee802154_hie_csl_period = -1;
 static int hf_ieee802154_hie_csl_rendezvous_time = -1;
 static int hf_ieee802154_hie_global_time = -1;
 static int hf_ieee802154_hie_global_time_value = -1;
+static int hf_ieee802154_hie_vendor_specific = -1;
+static int hf_ieee802154_hie_vendor_specific_vendor_oui = -1;
+static int hf_ieee802154_hie_vendor_specific_content = -1;
 static int hf_ieee802154_payload_ies = -1;
 static int hf_ieee802154_payload_ie_tlv = -1;
 static int hf_ieee802154_payload_ie_type = -1;
@@ -725,6 +728,7 @@ static gint ett_ieee802154_hie_time_correction = -1;
 static gint ett_ieee802154_hie_ht = -1;
 static gint ett_ieee802154_hie_csl = -1;
 static gint ett_ieee802154_hie_global_time = -1;
+static gint ett_ieee802154_hie_vendor_specific = -1;
 static gint ett_ieee802154_payload_ie = -1;
 static gint ett_ieee802154_payload_ie_tlv = -1;
 static gint ett_ieee802154_pie_termination = -1;
@@ -4009,6 +4013,28 @@ dissect_hie_global_time(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 }
 
 /**
+ * Dissect the Vendor Specific IE (7.4.2.2)
+ */
+static int
+dissect_hie_vendor_specific(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    proto_tree *subtree = ieee802154_create_hie_tree(tvb, tree, hf_ieee802154_hie_vendor_specific,
+                                                                ett_ieee802154_hie_vendor_specific);
+
+    guint hie_length = tvb_reported_length(tvb) - 2;
+    guint      offset = 2;
+
+    tvb_get_letoh24(tvb, offset);
+    proto_tree_add_item(subtree, hf_ieee802154_hie_vendor_specific_vendor_oui, tvb, offset, 3, ENC_LITTLE_ENDIAN);
+    offset += 3; /* adjust for vendor OUI */
+    hie_length -= 3;
+
+    proto_tree_add_item(subtree, hf_ieee802154_hie_vendor_specific_content, tvb, offset, hie_length, ENC_NA);
+
+    return tvb_reported_length(tvb);
+}
+
+/**
  * Subdissector for Header IEs (Information Elements)
  *
  * Since the header is never encrypted and the payload may be encrypted,
@@ -5846,6 +5872,19 @@ void proto_register_ieee802154(void)
         { "Global Time",                    "wpan.header_ie.global_time.value", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL, 0x0,
             NULL, HFILL }},
 
+		/* Vendor Specific IE */
+        { &hf_ieee802154_hie_vendor_specific,
+        { "Vendor Specific IE",             "wpan.header_ie.vendor_specific", FT_NONE, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_ieee802154_hie_vendor_specific_vendor_oui,
+        { "Vendor OUI",                 "wpan.header_ie.vendor_specific.vendor_oui", FT_UINT24, BASE_OUI, NULL, 0x0,
+            NULL, HFILL }},
+
+		{ &hf_ieee802154_hie_vendor_specific_content,
+        { "Vendor Content",                "wpan.header_ie.vendor_specific.content", FT_BYTES, SEP_SPACE, NULL, 0x0,
+            NULL, HFILL }},
+
         /* Payload IEs */
 
         { &hf_ieee802154_payload_ies,
@@ -6654,6 +6693,7 @@ void proto_register_ieee802154(void)
         &ett_ieee802154_hie_ht,
         &ett_ieee802154_hie_csl,
         &ett_ieee802154_hie_global_time,
+        &ett_ieee802154_hie_vendor_specific,
         &ett_ieee802154_payload_ie,
         &ett_ieee802154_payload_ie_tlv,
         &ett_ieee802154_pie_termination,
@@ -6966,6 +7006,7 @@ void proto_reg_handoff_ieee802154(void)
     dissector_add_uint(IEEE802154_HEADER_IE_DTABLE, IEEE802154_HEADER_IE_TIME_CORR, create_dissector_handle(dissect_hie_time_correction, -1));
     dissector_add_uint(IEEE802154_HEADER_IE_DTABLE, IEEE802154_HEADER_IE_CSL, create_dissector_handle(dissect_hie_csl, -1));
     dissector_add_uint(IEEE802154_HEADER_IE_DTABLE, IEEE802154_HEADER_IE_GLOBAL_TIME, create_dissector_handle(dissect_hie_global_time, -1));
+    dissector_add_uint(IEEE802154_HEADER_IE_DTABLE, IEEE802154_HEADER_IE_VENDOR_SPECIFIC, create_dissector_handle(dissect_hie_vendor_specific, -1));
 
     dissector_add_uint(IEEE802154_PAYLOAD_IE_DTABLE, IEEE802154_PAYLOAD_IE_MLME, create_dissector_handle(dissect_pie_mlme, -1));
     dissector_add_uint(IEEE802154_PAYLOAD_IE_DTABLE, IEEE802154_PAYLOAD_IE_VENDOR, create_dissector_handle(dissect_pie_vendor, -1));
