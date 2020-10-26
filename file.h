@@ -81,6 +81,14 @@ typedef struct {
 } match_data;
 
 /**
+ * Set maximum number of records per capture file.
+ *
+ * @param max_records maximum number of records to support.
+ */
+extern void
+cf_set_max_records(guint max_records);
+
+/**
  * Add a capture file event callback.
  *
  * @param func The function to be called for each event.
