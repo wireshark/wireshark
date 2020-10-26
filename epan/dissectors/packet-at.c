@@ -1816,7 +1816,7 @@ dissect_at_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 i_char = 0;
             }
         }
-    } else if (at_stream[0] == '\r' && at_stream[1] == '\n') {
+    } else {
         command_item = proto_tree_add_none_format(tree, hf_command, tvb,
                 offset, 0, "Command %u", command_number);
         command_tree = proto_item_add_subtree(command_item, ett_at_command);
