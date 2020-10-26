@@ -117,6 +117,23 @@ static void ref_time_packets(capture_file *cf);
 #define PROGBAR_SHOW_DELAY 0.5
 
 /*
+ * Maximum number of records we support in a file.
+ *
+ * It is, at most, the maximum value of a guint32, as we use a guint32
+ * for the frame number.
+ *
+ * We allow it to be set to a lower value; see issue #16908 for why
+ * we're doing this.  Thanks, Qt!
+ */
+static guint32 max_records = G_MAXUINT32;
+
+void
+cf_set_max_records(guint max_records_arg)
+{
+	max_records = max_records_arg;
+}
+
+/*
  * We could probably use g_signal_...() instead of the callbacks below but that
  * would require linking our CLI programs to libgobject and creating an object
  * instance for the signals.
@@ -482,6 +499,7 @@ cf_read(capture_file *cf, gboolean reloading)
 {
   int                  err = 0;
   gchar               *err_info = NULL;
+  volatile gboolean    too_many_records = FALSE;
   gchar               *name_ptr;
   progdlg_t           *volatile progbar = NULL;
   GTimer              *prog_timer = g_timer_new();
@@ -569,7 +587,7 @@ cf_read(capture_file *cf, gboolean reloading)
   ws_buffer_init(&buf, 1514);
 
   TRY {
-    int     count             = 0;
+    guint32 count             = 0;
 
     gint64  file_pos;
     gint64  data_offset;
@@ -580,6 +598,14 @@ cf_read(capture_file *cf, gboolean reloading)
     while ((wtap_read(cf->provider.wth, &rec, &buf, &err, &err_info,
             &data_offset))) {
       if (size >= 0) {
+        if (cf->count == max_records) {
+            /*
+             * Quit if we've already read the maximum number of
+             * records allowed.
+             */
+            too_many_records = TRUE;
+            break;
+        }
         count++;
         file_pos = wtap_read_so_far(cf->provider.wth);
 
@@ -731,6 +757,18 @@ cf_read(capture_file *cf, gboolean reloading)
        the line.  Don't throw out the stuff we managed to read, though,
        if any. */
     cfile_read_failure_alert_box(NULL, err, err_info);
+    return CF_READ_ERROR;
+  } else if (too_many_records) {
+    simple_message_box(ESD_TYPE_WARN, NULL,
+                  "The remaining packets in the file were discarded.\n"
+                  "\n"
+                  "As a lot of packets from the original file will be missing,\n"
+                  "remember to be careful when saving the current content to a file.\n"
+                  "\n"
+                  "The command-line utility editcap can be used to split "
+                  "the file into multiple smaller files",
+                  "The file contains more records than the maximum "
+                  "supported number of records, %u.", max_records);
     return CF_READ_ERROR;
   } else
     return CF_READ_OK;

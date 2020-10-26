@@ -407,6 +407,34 @@ int main(int argc, char *qt_argv[])
     /* Start time in microseconds */
     guint64 start_time = g_get_monotonic_time();
 
+#if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
+    /*
+     * See:
+     *
+     *    issue #16908;
+     *
+     *    https://doc.qt.io/qt-5/qvector.html#maximum-size-and-out-of-memory-conditions
+     *
+     *    https://forum.qt.io/topic/114950/qvector-realloc-throwing-sigsegv-when-very-large-surface3d-is-rendered
+     *
+     * for why we're doing this; the widget we use for the packet list
+     * uses QVector, so those limitations apply to it.
+     *
+     * Apparently, this will be fixed in Qt 6:
+     *
+     *    https://github.com/qt/qtbase/commit/215ca735341b9487826023a7983382851ce8bf26
+     *
+     *    https://github.com/qt/qtbase/commit/2a6cdec718934ca2cc7f6f9c616ebe62f6912123#diff-724f419b0bb0487c2629bb16cf534c4b268ddcee89b5177189b607f940cfd83dR192
+     *
+     * Hopefully QList won't cause any performance hits relative to
+     * QVector.
+     *
+     * We pick 53 million records as a value that should avoid the problem;
+     * see the Wireshark issue for why that value was chosen.
+     */
+    cf_set_max_records(53000000);
+#endif
+
     /* Enable destinations for logging earlier in startup */
     set_console_log_handler();
     qInstallMessageHandler(g_log_message_handler);
