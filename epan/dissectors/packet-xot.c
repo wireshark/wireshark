@@ -372,7 +372,7 @@ proto_register_xot(void)
           NULL, 0, NULL, HFILL }},
 
       { &hf_xot_pvc_init_lcn,
-        { "Initiator LCN", "xot.pvc.init_lcn", FT_UINT8, BASE_DEC,
+        { "Initiator LCN", "xot.pvc.init_lcn", FT_UINT16, BASE_DEC,
           NULL, 0, "Initiator Logical Channel Number", HFILL }},
 
       { &hf_xot_pvc_resp_itf_name_len,

@@ -279,7 +279,7 @@ void proto_register_zep(void)
             NULL, HFILL }},
 
         { &hf_zep_seqno,
-        { "Sequence Number",            "zep.seqno", FT_UINT8, BASE_DEC, NULL, 0x0,
+        { "Sequence Number",            "zep.seqno", FT_UINT32, BASE_DEC, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_zep_ieee_length,

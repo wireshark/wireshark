@@ -2857,7 +2857,7 @@ proto_register_wccp(void)
         "The data for an unknown item type", HFILL }
     },
     { &hf_security_info_option,
-      { "Security Option", "wccp.security_info_option", FT_UINT16, BASE_DEC, VALS(security_option_vals), 0x0,
+      { "Security Option", "wccp.security_info_option", FT_UINT32, BASE_DEC, VALS(security_option_vals), 0x0,
         NULL, HFILL }
     },
     { &hf_security_info_md5_checksum,
@@ -3449,7 +3449,7 @@ proto_register_wccp(void)
         "The WCCP Address Table Address Length", HFILL }
     },
     { &hf_address_table_length,
-      { "Length", "wccp.address_table.length", FT_UINT16, BASE_DEC, NULL, 0x0,
+      { "Length", "wccp.address_table.length", FT_UINT32, BASE_DEC, NULL, 0x0,
         "The WCCP Address Table Length", HFILL }
     },
     { &hf_address_table_element,

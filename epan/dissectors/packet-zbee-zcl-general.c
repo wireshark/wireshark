@@ -15386,7 +15386,7 @@ proto_register_zbee_zcl_gp(void)
           { "Number of Client clusters", "zbee_zcl_general.gp.pc.n_clnt_clusters", FT_UINT8, BASE_DEC,
             NULL, ZBEE_ZCL_GP_CLUSTER_LIST_LEN_CLI, NULL, HFILL }},
         { &hf_zbee_gp_gpd_cluster_id,
-          { "Cluster ID", "zbee_zcl_general.gp.pc.cluster", FT_UINT8, BASE_HEX | BASE_RANGE_STRING, RVALS(zbee_aps_cid_names),
+          { "Cluster ID", "zbee_zcl_general.gp.pc.cluster", FT_UINT16, BASE_HEX | BASE_RANGE_STRING, RVALS(zbee_aps_cid_names),
             0x0, NULL, HFILL }},
 
         /* GP Sink Table Request and  GP Proxy Table Request commands */
