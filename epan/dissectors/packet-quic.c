@@ -246,22 +246,27 @@ typedef struct quic_decrypt_result {
 } quic_decrypt_result_t;
 
 /** QUIC decryption context. */
-typedef struct quic_cipher {
-    // TODO hp_cipher does not change after KeyUpdate, but is still tied to the
-    //      current encryption level (initial, 0rtt, handshake, appdata).
-    //      Maybe move this into quic_info_data (2x) and quic_pp_state?
-    //      See https://tools.ietf.org/html/draft-ietf-quic-tls-22#section-5.4
+
+
+typedef struct quic_hp_cipher {
     gcry_cipher_hd_t    hp_cipher;  /**< Header protection cipher. */
+} quic_hp_cipher;
+typedef struct quic_pp_cipher {
     gcry_cipher_hd_t    pp_cipher;  /**< Packet protection cipher. */
     guint8              pp_iv[TLS13_AEAD_NONCE_LENGTH];
-} quic_cipher;
+} quic_pp_cipher;
+typedef struct quic_ciphers {
+    quic_hp_cipher hp_cipher;
+    quic_pp_cipher pp_cipher;
+} quic_ciphers;
 
 /**
  * Packet protection state for an endpoint.
  */
 typedef struct quic_pp_state {
     guint8         *next_secret;    /**< Next application traffic secret. */
-    quic_cipher     cipher[2];      /**< Cipher for Key Phase 0/1 */
+    quic_pp_cipher  pp_ciphers[2];  /**< PP cipher for Key Phase 0/1 */
+    quic_hp_cipher  hp_cipher;      /**< HP cipher for both Key Phases; it does not change after KeyUpdate */
     guint64         changed_in_pkn; /**< Packet number where key change occurred. */
     gboolean        key_phase : 1;  /**< Current key phase. */
 } quic_pp_state_t;
@@ -300,11 +305,11 @@ typedef struct quic_info_data {
     int             hash_algo;      /**< Libgcrypt hash algorithm for key derivation. */
     int             cipher_algo;    /**< Cipher algorithm for packet number and packet encryption. */
     int             cipher_mode;    /**< Cipher mode for packet encryption. */
-    quic_cipher     client_initial_cipher;
-    quic_cipher     server_initial_cipher;
-    quic_cipher     client_0rtt_cipher;
-    quic_cipher     client_handshake_cipher;
-    quic_cipher     server_handshake_cipher;
+    quic_ciphers    client_initial_ciphers;
+    quic_ciphers    server_initial_ciphers;
+    quic_ciphers    client_0rtt_ciphers;
+    quic_ciphers    client_handshake_ciphers;
+    quic_ciphers    server_handshake_ciphers;
     quic_pp_state_t client_pp;
     quic_pp_state_t server_pp;
     guint64         max_client_pkn[3];  /**< Packet number spaces for Initial, Handshake and appdata. */
@@ -565,14 +570,43 @@ static void
 quic_extract_header(tvbuff_t *tvb, guint8 *long_packet_type, guint32 *version,
                     quic_cid_t *dcid, quic_cid_t *scid);
 
-
 static void
-quic_cipher_reset(quic_cipher *cipher)
+quic_hp_cipher_reset(quic_hp_cipher *hp_cipher)
 {
-    gcry_cipher_close(cipher->hp_cipher);
-    gcry_cipher_close(cipher->pp_cipher);
-    memset(cipher, 0, sizeof(*cipher));
+    gcry_cipher_close(hp_cipher->hp_cipher);
+    memset(hp_cipher, 0, sizeof(*hp_cipher));
 }
+static void
+quic_pp_cipher_reset(quic_pp_cipher *pp_cipher)
+{
+    gcry_cipher_close(pp_cipher->pp_cipher);
+    memset(pp_cipher, 0, sizeof(*pp_cipher));
+}
+static void
+quic_ciphers_reset(quic_ciphers *ciphers)
+{
+    quic_hp_cipher_reset(&ciphers->hp_cipher);
+    quic_pp_cipher_reset(&ciphers->pp_cipher);
+}
+
+static gboolean
+quic_is_hp_cipher_initialized(quic_hp_cipher *hp_cipher)
+{
+    return hp_cipher && hp_cipher->hp_cipher;
+}
+static gboolean
+quic_is_pp_cipher_initialized(quic_pp_cipher *pp_cipher)
+{
+    return pp_cipher && pp_cipher->pp_cipher;
+}
+static gboolean
+quic_are_ciphers_initialized(quic_ciphers *ciphers)
+{
+    return ciphers &&
+           quic_is_hp_cipher_initialized(&ciphers->hp_cipher) &&
+           quic_is_pp_cipher_initialized(&ciphers->pp_cipher);
+}
+
 
 #ifdef HAVE_LIBGCRYPT_AEAD
 /* Inspired from ngtcp2 */
@@ -596,14 +630,14 @@ static guint64 quic_pkt_adjust_pkt_num(guint64 max_pkt_num, guint64 pkt_num,
  * return the unmasked first byte and packet number.
  */
 static gboolean
-quic_decrypt_header(tvbuff_t *tvb, guint pn_offset, gcry_cipher_hd_t hp_cipher, int hp_cipher_algo,
+quic_decrypt_header(tvbuff_t *tvb, guint pn_offset, quic_hp_cipher *hp_cipher, int hp_cipher_algo,
                     guint8 *first_byte, guint32 *pn)
 {
-    gcry_cipher_hd_t h = hp_cipher;
-    if (!hp_cipher) {
+    if (!hp_cipher->hp_cipher) {
         // need to know the cipher.
         return FALSE;
     }
+    gcry_cipher_hd_t h = hp_cipher->hp_cipher;
 
     // Sample is always 16 bytes and starts after PKN (assuming length 4).
     // https://tools.ietf.org/html/draft-ietf-quic-tls-22#section-5.4.2
@@ -1031,15 +1065,18 @@ static void
 quic_connection_destroy(gpointer data, gpointer user_data _U_)
 {
     quic_info_data_t *conn = (quic_info_data_t *)data;
-    quic_cipher_reset(&conn->client_initial_cipher);
-    quic_cipher_reset(&conn->server_initial_cipher);
-    quic_cipher_reset(&conn->client_handshake_cipher);
-    quic_cipher_reset(&conn->server_handshake_cipher);
+    quic_ciphers_reset(&conn->client_initial_ciphers);
+    quic_ciphers_reset(&conn->server_initial_ciphers);
+    quic_ciphers_reset(&conn->client_handshake_ciphers);
+    quic_ciphers_reset(&conn->server_handshake_ciphers);
 
-    for (int i = 0; i < 2; i++) {
-        quic_cipher_reset(&conn->client_pp.cipher[i]);
-        quic_cipher_reset(&conn->server_pp.cipher[i]);
-    }
+    quic_hp_cipher_reset(&conn->client_pp.hp_cipher);
+    quic_pp_cipher_reset(&conn->client_pp.pp_ciphers[0]);
+    quic_pp_cipher_reset(&conn->client_pp.pp_ciphers[1]);
+
+    quic_hp_cipher_reset(&conn->server_pp.hp_cipher);
+    quic_pp_cipher_reset(&conn->server_pp.pp_ciphers[0]);
+    quic_pp_cipher_reset(&conn->server_pp.pp_ciphers[1]);
 }
 /* QUIC Connection tracking. }}} */
 
@@ -1898,12 +1935,14 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
 
 #ifdef HAVE_LIBGCRYPT_AEAD
 static gboolean
-quic_cipher_init(quic_cipher *cipher, int hash_algo, guint8 key_length, guint8 *secret);
+quic_hp_cipher_init(quic_hp_cipher *hp_cipher, int hash_algo, guint8 key_length, guint8 *secret);
+static gboolean
+quic_pp_cipher_init(quic_pp_cipher *pp_cipher, int hash_algo, guint8 key_length, guint8 *secret);
 
 
 /**
  * Given a QUIC message (header + non-empty payload), the actual packet number,
- * try to decrypt it using the cipher.
+ * try to decrypt it using the PP cipher.
  * As the header points to the original buffer with an encrypted packet number,
  * the (encrypted) packet number length is also included.
  *
@@ -1911,7 +1950,7 @@ quic_cipher_init(quic_cipher *cipher, int hash_algo, guint8 key_length, guint8 *
  * https://tools.ietf.org/html/draft-ietf-quic-transport-22#section-12.3
  */
 static void
-quic_decrypt_message(quic_cipher *cipher, tvbuff_t *head, guint header_length,
+quic_decrypt_message(quic_pp_cipher *pp_cipher, tvbuff_t *head, guint header_length,
                      guint8 first_byte, guint pkn_len, guint64 packet_number, quic_decrypt_result_t *result)
 {
     gcry_error_t    err;
@@ -1922,8 +1961,8 @@ quic_decrypt_message(quic_cipher *cipher, tvbuff_t *head, guint header_length,
     guint           buffer_length;
     const guchar  **error = &result->error;
 
-    DISSECTOR_ASSERT(cipher != NULL);
-    DISSECTOR_ASSERT(cipher->pp_cipher != NULL);
+    DISSECTOR_ASSERT(pp_cipher != NULL);
+    DISSECTOR_ASSERT(pp_cipher->pp_cipher != NULL);
     DISSECTOR_ASSERT(pkn_len < header_length);
     DISSECTOR_ASSERT(1 <= pkn_len && pkn_len <= 4);
     // copy header, but replace encrypted first byte and PKN by plaintext.
@@ -1942,32 +1981,32 @@ quic_decrypt_message(quic_cipher *cipher, tvbuff_t *head, guint header_length,
     buffer = (guint8 *)tvb_memdup(wmem_file_scope(), head, header_length, buffer_length);
     tvb_memcpy(head, atag, header_length + buffer_length, 16);
 
-    memcpy(nonce, cipher->pp_iv, TLS13_AEAD_NONCE_LENGTH);
+    memcpy(nonce, pp_cipher->pp_iv, TLS13_AEAD_NONCE_LENGTH);
     /* Packet number is left-padded with zeroes and XORed with write_iv */
     phton64(nonce + sizeof(nonce) - 8, pntoh64(nonce + sizeof(nonce) - 8) ^ packet_number);
 
-    gcry_cipher_reset(cipher->pp_cipher);
-    err = gcry_cipher_setiv(cipher->pp_cipher, nonce, TLS13_AEAD_NONCE_LENGTH);
+    gcry_cipher_reset(pp_cipher->pp_cipher);
+    err = gcry_cipher_setiv(pp_cipher->pp_cipher, nonce, TLS13_AEAD_NONCE_LENGTH);
     if (err) {
         *error = wmem_strdup_printf(wmem_file_scope(), "Decryption (setiv) failed: %s", gcry_strerror(err));
         return;
     }
 
     /* associated data (A) is the contents of QUIC header */
-    err = gcry_cipher_authenticate(cipher->pp_cipher, header, header_length);
+    err = gcry_cipher_authenticate(pp_cipher->pp_cipher, header, header_length);
     if (err) {
         *error = wmem_strdup_printf(wmem_file_scope(), "Decryption (authenticate) failed: %s", gcry_strerror(err));
         return;
     }
 
     /* Output ciphertext (C) */
-    err = gcry_cipher_decrypt(cipher->pp_cipher, buffer, buffer_length, NULL, 0);
+    err = gcry_cipher_decrypt(pp_cipher->pp_cipher, buffer, buffer_length, NULL, 0);
     if (err) {
         *error = wmem_strdup_printf(wmem_file_scope(), "Decryption (decrypt) failed: %s", gcry_strerror(err));
         return;
     }
 
-    err = gcry_cipher_checktag(cipher->pp_cipher, atag, 16);
+    err = gcry_cipher_checktag(pp_cipher->pp_cipher, atag, 16);
     if (err) {
         *error = wmem_strdup_printf(wmem_file_scope(), "Decryption (checktag) failed: %s", gcry_strerror(err));
         return;
@@ -2113,10 +2152,10 @@ quic_get_pn_cipher_algo(int cipher_algo, int *hp_cipher_mode)
  * algorithm output.
  */
 static gboolean
-quic_cipher_prepare(quic_cipher *cipher, int hash_algo, int cipher_algo, int cipher_mode, guint8 *secret, const char **error)
+quic_hp_cipher_prepare(quic_hp_cipher *hp_cipher, int hash_algo, int cipher_algo, guint8 *secret, const char **error)
 {
     /* Clear previous state (if any). */
-    quic_cipher_reset(cipher);
+    quic_hp_cipher_reset(hp_cipher);
 
     int hp_cipher_mode;
     if (!quic_get_pn_cipher_algo(cipher_algo, &hp_cipher_mode)) {
@@ -2124,24 +2163,59 @@ quic_cipher_prepare(quic_cipher *cipher, int hash_algo, int cipher_algo, int cip
         return FALSE;
     }
 
-    if (gcry_cipher_open(&cipher->hp_cipher, cipher_algo, hp_cipher_mode, 0) ||
-        gcry_cipher_open(&cipher->pp_cipher, cipher_algo, cipher_mode, 0)) {
-        quic_cipher_reset(cipher);
-        *error = "Failed to create ciphers";
+    if (gcry_cipher_open(&hp_cipher->hp_cipher, cipher_algo, hp_cipher_mode, 0)) {
+        quic_hp_cipher_reset(hp_cipher);
+        *error = "Failed to create HP cipher";
         return FALSE;
     }
 
     if (secret) {
         guint cipher_keylen = (guint8) gcry_cipher_get_algo_keylen(cipher_algo);
-        if (!quic_cipher_init(cipher, hash_algo, cipher_keylen, secret)) {
-            quic_cipher_reset(cipher);
-            *error = "Failed to derive key material for cipher";
+        if (!quic_hp_cipher_init(hp_cipher, hash_algo, cipher_keylen, secret)) {
+            quic_hp_cipher_reset(hp_cipher);
+            *error = "Failed to derive key material for HP cipher";
             return FALSE;
         }
     }
 
     return TRUE;
 }
+static gboolean
+quic_pp_cipher_prepare(quic_pp_cipher *pp_cipher, int hash_algo, int cipher_algo, int cipher_mode, guint8 *secret, const char **error)
+{
+    /* Clear previous state (if any). */
+    quic_pp_cipher_reset(pp_cipher);
+
+    int hp_cipher_mode;
+    if (!quic_get_pn_cipher_algo(cipher_algo, &hp_cipher_mode)) {
+        *error = "Unsupported cipher algorithm";
+        return FALSE;
+    }
+
+    if (gcry_cipher_open(&pp_cipher->pp_cipher, cipher_algo, cipher_mode, 0)) {
+        quic_pp_cipher_reset(pp_cipher);
+        *error = "Failed to create PP cipher";
+        return FALSE;
+    }
+
+    if (secret) {
+        guint cipher_keylen = (guint8) gcry_cipher_get_algo_keylen(cipher_algo);
+        if (!quic_pp_cipher_init(pp_cipher, hash_algo, cipher_keylen, secret)) {
+            quic_pp_cipher_reset(pp_cipher);
+            *error = "Failed to derive key material for PP cipher";
+            return FALSE;
+        }
+    }
+
+    return TRUE;
+}
+static gboolean
+quic_ciphers_prepare(quic_ciphers *ciphers, int hash_algo, int cipher_algo, int cipher_mode, guint8 *secret, const char **error)
+{
+    return quic_hp_cipher_prepare(&ciphers->hp_cipher, hash_algo, cipher_algo, secret, error) &&
+           quic_pp_cipher_prepare(&ciphers->pp_cipher, hash_algo, cipher_algo, cipher_mode, secret, error);
+}
+
 
 static gboolean
 quic_create_initial_decoders(const quic_cid_t *cid, const gchar **error, quic_info_data_t *quic_info)
@@ -2155,10 +2229,10 @@ quic_create_initial_decoders(const quic_cid_t *cid, const gchar **error, quic_in
 
     /* Packet numbers are protected with AES128-CTR,
      * initial packets are protected with AEAD_AES_128_GCM. */
-    if (!quic_cipher_prepare(&quic_info->client_initial_cipher, GCRY_MD_SHA256,
-                             GCRY_CIPHER_AES128, GCRY_CIPHER_MODE_GCM, client_secret, error) ||
-        !quic_cipher_prepare(&quic_info->server_initial_cipher, GCRY_MD_SHA256,
-                             GCRY_CIPHER_AES128, GCRY_CIPHER_MODE_GCM, server_secret, error)) {
+    if (!quic_ciphers_prepare(&quic_info->client_initial_ciphers, GCRY_MD_SHA256,
+                              GCRY_CIPHER_AES128, GCRY_CIPHER_MODE_GCM, client_secret, error) ||
+        !quic_ciphers_prepare(&quic_info->server_initial_ciphers, GCRY_MD_SHA256,
+                              GCRY_CIPHER_AES128, GCRY_CIPHER_MODE_GCM, server_secret, error)) {
         return FALSE;
     }
 
@@ -2167,7 +2241,7 @@ quic_create_initial_decoders(const quic_cid_t *cid, const gchar **error, quic_in
 
 static gboolean
 quic_create_0rtt_decoder(guint i, gchar *early_data_secret, guint early_data_secret_len,
-                         quic_cipher *cipher, int *cipher_algo)
+                         quic_ciphers *ciphers, int *cipher_algo)
 {
     static const guint16 tls13_ciphers[] = {
         0x1301, /* TLS_AES_128_GCM_SHA256 */
@@ -2184,17 +2258,17 @@ quic_create_0rtt_decoder(guint i, gchar *early_data_secret, guint early_data_sec
     const char *error_ignored = NULL;
     if (tls_get_cipher_info(NULL, tls13_ciphers[i], cipher_algo, &cipher_mode, &hash_algo)) {
         guint hash_len = gcry_md_get_algo_dlen(hash_algo);
-        if (hash_len == early_data_secret_len && quic_cipher_prepare(cipher, hash_algo, *cipher_algo, cipher_mode, early_data_secret, &error_ignored)) {
+        if (hash_len == early_data_secret_len && quic_ciphers_prepare(ciphers, hash_algo, *cipher_algo, cipher_mode, early_data_secret, &error_ignored)) {
             return TRUE;
         }
     }
     /* This cipher failed, but there are more to try. */
-    quic_cipher_reset(cipher);
+    quic_ciphers_reset(ciphers);
     return TRUE;
 }
 
 static gboolean
-quic_create_decoders(packet_info *pinfo, quic_info_data_t *quic_info, quic_cipher *cipher,
+quic_create_decoders(packet_info *pinfo, quic_info_data_t *quic_info, quic_ciphers *ciphers,
                      gboolean from_server, TLSRecordType type, const char **error)
 {
     if (!quic_info->hash_algo) {
@@ -2218,8 +2292,8 @@ quic_create_decoders(packet_info *pinfo, quic_info_data_t *quic_info, quic_ciphe
         return FALSE;
     }
 
-    if (!quic_cipher_prepare(cipher, quic_info->hash_algo,
-                             quic_info->cipher_algo, quic_info->cipher_mode, secret, error)) {
+    if (!quic_ciphers_prepare(ciphers, quic_info->hash_algo,
+                              quic_info->cipher_algo, quic_info->cipher_mode, secret, error)) {
         return FALSE;
     }
 
@@ -2246,10 +2320,21 @@ quic_get_traffic_secret(packet_info *pinfo, int hash_algo, quic_pp_state_t *pp_s
  * and initialize cipher with the new key.
  */
 static gboolean
-quic_cipher_init(quic_cipher *cipher, int hash_algo, guint8 key_length, guint8 *secret)
+quic_hp_cipher_init(quic_hp_cipher *hp_cipher, int hash_algo, guint8 key_length, guint8 *secret)
+{
+    guchar      hp_key[256/8];
+    guint       hash_len = gcry_md_get_algo_dlen(hash_algo);
+
+    if (!quic_hkdf_expand_label(hash_algo, secret, hash_len, "quic hp", hp_key, key_length)) {
+        return FALSE;
+    }
+
+    return gcry_cipher_setkey(hp_cipher->hp_cipher, hp_key, key_length) == 0;
+}
+static gboolean
+quic_pp_cipher_init(quic_pp_cipher *pp_cipher, int hash_algo, guint8 key_length, guint8 *secret)
 {
     guchar      write_key[256/8];   /* Maximum key size is for AES256 cipher. */
-    guchar      hp_key[256/8];
     guint       hash_len = gcry_md_get_algo_dlen(hash_algo);
 
     if (key_length > sizeof(write_key)) {
@@ -2257,14 +2342,13 @@ quic_cipher_init(quic_cipher *cipher, int hash_algo, guint8 key_length, guint8 *
     }
 
     if (!quic_hkdf_expand_label(hash_algo, secret, hash_len, "quic key", write_key, key_length) ||
-        !quic_hkdf_expand_label(hash_algo, secret, hash_len, "quic iv", cipher->pp_iv, sizeof(cipher->pp_iv)) ||
-        !quic_hkdf_expand_label(hash_algo, secret, hash_len, "quic hp", hp_key, key_length)) {
+        !quic_hkdf_expand_label(hash_algo, secret, hash_len, "quic iv", pp_cipher->pp_iv, sizeof(pp_cipher->pp_iv))) {
         return FALSE;
     }
 
-    return gcry_cipher_setkey(cipher->hp_cipher, hp_key, key_length) == 0 &&
-           gcry_cipher_setkey(cipher->pp_cipher, write_key, key_length) == 0;
+    return gcry_cipher_setkey(pp_cipher->pp_cipher, write_key, key_length) == 0;
 }
+
 
 /**
  * Updates the packet protection secret to the next one.
@@ -2284,7 +2368,7 @@ quic_update_key(guint32 version, int hash_algo, quic_pp_state_t *pp_state)
  * Retrieves the header protection cipher for short header packets and prepares
  * the packet protection cipher. The application layer protocol is also queried.
  */
-static gcry_cipher_hd_t
+static quic_hp_cipher *
 quic_get_1rtt_hp_cipher(packet_info *pinfo, quic_info_data_t *quic_info, gboolean from_server)
 {
     const char *error = NULL;
@@ -2321,10 +2405,14 @@ quic_get_1rtt_hp_cipher(packet_info *pinfo, quic_info_data_t *quic_info, gboolea
         }
 
         // Create initial cipher handles for Key Phase 0 using the 1-RTT keys.
-        if (!quic_cipher_prepare(&client_pp->cipher[0], quic_info->hash_algo,
-                                 quic_info->cipher_algo, quic_info->cipher_mode, client_pp->next_secret, &error) ||
-            !quic_cipher_prepare(&server_pp->cipher[0], quic_info->hash_algo,
-                                 quic_info->cipher_algo, quic_info->cipher_mode, server_pp->next_secret, &error)) {
+        if (!quic_hp_cipher_prepare(&client_pp->hp_cipher, quic_info->hash_algo,
+                                    quic_info->cipher_algo, client_pp->next_secret, &error) ||
+            !quic_pp_cipher_prepare(&client_pp->pp_ciphers[0], quic_info->hash_algo,
+                                    quic_info->cipher_algo, quic_info->cipher_mode, client_pp->next_secret, &error) ||
+            !quic_hp_cipher_prepare(&server_pp->hp_cipher, quic_info->hash_algo,
+                                    quic_info->cipher_algo, server_pp->next_secret, &error) ||
+            !quic_pp_cipher_prepare(&server_pp->pp_ciphers[0], quic_info->hash_algo,
+                                    quic_info->cipher_algo, quic_info->cipher_mode, server_pp->next_secret, &error)) {
             quic_info->skip_decryption = TRUE;
             return NULL;
         }
@@ -2345,14 +2433,14 @@ quic_get_1rtt_hp_cipher(packet_info *pinfo, quic_info_data_t *quic_info, gboolea
     }
 
     // Note: Header Protect cipher does not change after Key Update.
-    return pp_state->cipher[0].hp_cipher;
+    return &pp_state->hp_cipher;
 }
 
 /**
  * Tries to construct the appropriate cipher for the current key phase.
  * See also "PROTECTED PAYLOAD DECRYPTION" comment on top of this file.
  */
-static quic_cipher *
+static quic_pp_cipher *
 quic_get_pp_cipher(gboolean key_phase, quic_info_data_t *quic_info, gboolean from_server)
 {
     const char *error = NULL;
@@ -2374,14 +2462,14 @@ quic_get_pp_cipher(gboolean key_phase, quic_info_data_t *quic_info, gboolean fro
      * '!!' is due to key_phase being a signed bitfield, it forces -1 into 1.
      */
     if (key_phase != !!pp_state->key_phase) {
-        quic_cipher new_cipher;
+        quic_pp_cipher new_cipher;
 
-        memset(&new_cipher, 0, sizeof(quic_cipher));
-        if (!quic_cipher_prepare(&new_cipher, quic_info->hash_algo,
-                                 quic_info->cipher_algo, quic_info->cipher_mode, pp_state->next_secret, &error)) {
+        memset(&new_cipher, 0, sizeof(new_cipher));
+        if (!quic_pp_cipher_prepare(&new_cipher, quic_info->hash_algo,
+                                    quic_info->cipher_algo, quic_info->cipher_mode, pp_state->next_secret, &error)) {
             /* This should never be reached, if the parameters were wrong
              * before, then it should have set "skip_decryption". */
-            REPORT_DISSECTOR_BUG("quic_cipher_prepare unexpectedly failed: %s", error);
+            REPORT_DISSECTOR_BUG("quic_pp_cipher_prepare unexpectedly failed: %s", error);
             return NULL;
         }
 
@@ -2390,21 +2478,25 @@ quic_get_pp_cipher(gboolean key_phase, quic_info_data_t *quic_info, gboolean fro
 
         if (success) {
             /* Verified the cipher, use it from now on and rotate the key. */
-            quic_cipher_reset(&pp_state->cipher[key_phase]);
-            pp_state->cipher[key_phase] = new_cipher;
+            /* Note that HP cipher is not touched.
+               https://tools.ietf.org/html/draft-ietf-quic-tls-32#section-5.4
+	       "The same header protection key is used for the duration of the
+	        connection, with the value not changing after a key update" */
+            quic_pp_cipher_reset(&pp_state->pp_ciphers[key_phase]);
+            pp_state->pp_ciphers[key_phase] = new_cipher;
             quic_update_key(quic_info->version, quic_info->hash_algo, pp_state);
 
             pp_state->key_phase = key_phase;
             //pp_state->changed_in_pkn = pkn;
 
-            return &pp_state->cipher[key_phase];
+            return &pp_state->pp_ciphers[key_phase];
         } else {
             // TODO fallback to previous cipher
             return NULL;
         }
     }
 
-    return &pp_state->cipher[key_phase];
+    return &pp_state->pp_ciphers[key_phase];
 }
 #endif /* HAVE_LIBGCRYPT_AEAD */
 
@@ -2420,7 +2512,7 @@ quic_get_pp_cipher(gboolean key_phase, quic_info_data_t *quic_info, gboolean fro
 static void
 quic_process_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *ti, guint offset,
                      quic_info_data_t *quic_info, quic_packet_info_t *quic_packet, gboolean from_server,
-                     quic_cipher *cipher, guint8 first_byte, guint pkn_len)
+                     quic_pp_cipher *pp_cipher, guint8 first_byte, guint pkn_len)
 {
     quic_decrypt_result_t *decryption = &quic_packet->decryption;
 
@@ -2429,8 +2521,8 @@ quic_process_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_
      * pass and store the result for later use.
      */
     if (!PINFO_FD_VISITED(pinfo)) {
-        if (!quic_packet->decryption.error && cipher && cipher->pp_cipher) {
-            quic_decrypt_message(cipher, tvb, offset, first_byte, pkn_len, quic_packet->packet_number, &quic_packet->decryption);
+        if (!quic_packet->decryption.error && quic_is_pp_cipher_initialized(pp_cipher)) {
+            quic_decrypt_message(pp_cipher, tvb, offset, first_byte, pkn_len, quic_packet->packet_number, &quic_packet->decryption);
         }
     }
 
@@ -2688,7 +2780,7 @@ dissect_quic_long_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tre
     quic_info_data_t *conn = dgram_info->conn;
 #ifdef HAVE_LIBGCRYPT_AEAD
     const gboolean from_server = dgram_info->from_server;
-    quic_cipher *cipher = NULL;
+    quic_ciphers *ciphers = NULL;
     proto_item *ti;
 #endif
 
@@ -2696,15 +2788,15 @@ dissect_quic_long_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tre
 #ifdef HAVE_LIBGCRYPT_AEAD
     if (conn) {
         if (long_packet_type == QUIC_LPT_INITIAL) {
-            cipher = !from_server ? &conn->client_initial_cipher : &conn->server_initial_cipher;
+            ciphers = !from_server ? &conn->client_initial_ciphers : &conn->server_initial_ciphers;
         } else if (long_packet_type == QUIC_LPT_0RTT && !from_server) {
-            cipher = &conn->client_0rtt_cipher;
+            ciphers = &conn->client_0rtt_ciphers;
         } else if (long_packet_type == QUIC_LPT_HANDSHAKE) {
-            cipher = !from_server ? &conn->client_handshake_cipher : &conn->server_handshake_cipher;
+            ciphers = !from_server ? &conn->client_handshake_ciphers : &conn->server_handshake_ciphers;
         }
     }
     /* Prepare the Initial/Handshake cipher for header/payload decryption. */
-    if (!PINFO_FD_VISITED(pinfo) && conn && cipher) {
+    if (!PINFO_FD_VISITED(pinfo) && conn && ciphers) {
 #define DIGEST_MIN_SIZE 32  /* SHA256 */
 #define DIGEST_MAX_SIZE 48  /* SHA384 */
         const gchar *error = NULL;
@@ -2721,8 +2813,8 @@ dissect_quic_long_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tre
                 error = "Secrets are not available";
             }
         } else if (long_packet_type == QUIC_LPT_HANDSHAKE) {
-            if (!cipher->hp_cipher) {
-                quic_create_decoders(pinfo, conn, cipher, from_server, TLS_SECRET_HANDSHAKE, &error);
+            if (!quic_are_ciphers_initialized(ciphers)) {
+                quic_create_decoders(pinfo, conn, ciphers, from_server, TLS_SECRET_HANDSHAKE, &error);
             }
         }
         if (!error) {
@@ -2739,13 +2831,13 @@ dissect_quic_long_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tre
             // Assume failure unless proven otherwise.
             error = "Header deprotection failed";
             if (long_packet_type != QUIC_LPT_0RTT) {
-                if (quic_decrypt_header(tvb, pn_offset, cipher->hp_cipher, hp_cipher_algo, &first_byte, &pkn32)) {
+                if (quic_decrypt_header(tvb, pn_offset, &ciphers->hp_cipher, hp_cipher_algo, &first_byte, &pkn32)) {
                     error = NULL;
                 }
             } else {
                 // Cipher is not stored with 0-RTT data or key, perform trial decryption.
-                for (guint i = 0; quic_create_0rtt_decoder(i, early_data_secret, early_data_secret_len, cipher, &hp_cipher_algo); i++) {
-                    if (cipher->hp_cipher && quic_decrypt_header(tvb, pn_offset, cipher->hp_cipher, hp_cipher_algo, &first_byte, &pkn32)) {
+                for (guint i = 0; quic_create_0rtt_decoder(i, early_data_secret, early_data_secret_len, ciphers, &hp_cipher_algo); i++) {
+                    if (quic_is_hp_cipher_initialized(&ciphers->hp_cipher) && quic_decrypt_header(tvb, pn_offset, &ciphers->hp_cipher, hp_cipher_algo, &first_byte, &pkn32)) {
                         error = NULL;
                         break;
                     }
@@ -2817,7 +2909,7 @@ dissect_quic_long_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tre
 #ifdef HAVE_LIBGCRYPT_AEAD
     if (conn) {
         quic_process_payload(tvb, pinfo, quic_tree, ti, offset,
-                             conn, quic_packet, from_server, cipher, first_byte, quic_packet->pkn_len);
+                             conn, quic_packet, from_server, &ciphers->pp_cipher, first_byte, quic_packet->pkn_len);
     }
     if (!PINFO_FD_VISITED(pinfo) && !quic_packet->decryption.error) {
         // Packet number is verified to be valid, remember it.
@@ -2839,7 +2931,7 @@ dissect_quic_short_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tr
     gboolean    key_phase = FALSE;
 #ifdef HAVE_LIBGCRYPT_AEAD
     proto_item *ti;
-    quic_cipher *cipher = NULL;
+    quic_pp_cipher *pp_cipher = NULL;
 #endif
     quic_info_data_t *conn = dgram_info->conn;
     const gboolean from_server = dgram_info->from_server;
@@ -2854,8 +2946,8 @@ dissect_quic_short_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tr
 #ifdef HAVE_LIBGCRYPT_AEAD
     if (!PINFO_FD_VISITED(pinfo) && conn) {
         guint32 pkn32 = 0;
-        gcry_cipher_hd_t hp_cipher = quic_get_1rtt_hp_cipher(pinfo, conn, from_server);
-        if (hp_cipher && quic_decrypt_header(tvb, 1 + dcid.len, hp_cipher, conn->cipher_algo, &first_byte, &pkn32)) {
+        quic_hp_cipher *hp_cipher = quic_get_1rtt_hp_cipher(pinfo, conn, from_server);
+        if (quic_is_hp_cipher_initialized(hp_cipher) && quic_decrypt_header(tvb, 1 + dcid.len, hp_cipher, conn->cipher_algo, &first_byte, &pkn32)) {
             quic_set_full_packet_number(conn, quic_packet, from_server, first_byte, pkn32);
             quic_packet->first_byte = first_byte;
         }
@@ -2888,7 +2980,7 @@ dissect_quic_short_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tr
 
 #ifdef HAVE_LIBGCRYPT_AEAD
     if (!PINFO_FD_VISITED(pinfo) && conn) {
-        cipher = quic_get_pp_cipher(key_phase, conn, from_server);
+        pp_cipher = quic_get_pp_cipher(key_phase, conn, from_server);
     }
 #endif /* !HAVE_LIBGCRYPT_AEAD */
     if (!conn || conn->skip_decryption || quic_packet->pkn_len == 0) {
@@ -2911,7 +3003,7 @@ dissect_quic_short_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tr
 #ifdef HAVE_LIBGCRYPT_AEAD
     if (conn) {
         quic_process_payload(tvb, pinfo, quic_tree, ti, offset,
-                             conn, quic_packet, from_server, cipher, first_byte, quic_packet->pkn_len);
+                             conn, quic_packet, from_server, pp_cipher, first_byte, quic_packet->pkn_len);
         if (!PINFO_FD_VISITED(pinfo) && !quic_packet->decryption.error) {
             // Packet number is verified to be valid, remember it.
             *quic_max_packet_number(conn, from_server, first_byte) = quic_packet->packet_number;
