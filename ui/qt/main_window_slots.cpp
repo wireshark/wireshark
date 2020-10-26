@@ -3897,7 +3897,7 @@ void MainWindow::on_actionContextWikiProtocolPage_triggered()
 
     if (ret != QMessageBox::Yes) return;
 
-    QUrl wiki_url = QString(WS_WIKI_HOME_URL "/" "/Protocols/%1").arg(proto_abbrev);
+    QUrl wiki_url = QString(WS_WIKI_URL("Protocols/%1")).arg(proto_abbrev);
     QDesktopServices::openUrl(wiki_url);
 }
 
