@@ -229,7 +229,7 @@ PacketList::PacketList(QWidget *parent) :
     rows_inserted_(false),
     columns_changed_(false),
     set_column_visibility_(false),
-    frozen_row_(-1),
+    frozen_rows_(QModelIndexList()),
     cur_history_(-1),
     in_history_(false)
 {
@@ -1180,11 +1180,7 @@ void PacketList::freeze()
 {
     column_state_ = header()->saveState();
     setHeaderHidden(true);
-    if (currentIndex().isValid()) {
-        frozen_row_ = currentIndex().row();
-    } else {
-        frozen_row_ = -1;
-    }
+    frozen_rows_ = selectedIndexes();
     selectionModel()->clear();
     setModel(Q_NULLPTR);
     // It looks like GTK+ sends a cursor-changed signal at this point but Qt doesn't
@@ -1205,14 +1201,16 @@ void PacketList::thaw(bool restore_selection)
     // resized the columns manually since they were initially loaded.
     header()->restoreState(column_state_);
 
-    if (restore_selection && frozen_row_ > -1 && selectionModel()) {
+    if (restore_selection && frozen_rows_.length() > 0 && selectionModel()) {
         /* This updates our selection, which redissects the current packet,
          * which is needed when we're called from MainWindow::layoutPanes.
          * Also, this resets all ProtoTree and ByteView data */
-        QModelIndex restored = packet_list_model_->index(frozen_row_, 0);
-        selectionModel()->select(restored, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
+        clearSelection();
+        foreach (QModelIndex idx, frozen_rows_) {
+            selectionModel()->select(idx, QItemSelectionModel::Select | QItemSelectionModel::Rows);
+        }
     }
-    frozen_row_ = -1;
+    frozen_rows_ = QModelIndexList();
 }
 
 void PacketList::clear() {
