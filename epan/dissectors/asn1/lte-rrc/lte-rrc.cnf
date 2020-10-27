@@ -2014,7 +2014,7 @@ SoundingRS-UL-ConfigDedicated/setup/duration STRINGS=TFS(&lte_rrc_duration_val)
   /* Number of items is (last 3 bits of first byte and first bit of second) + 1 */
   guint16 number_of_records = ((tvb_get_ntohs(tvb, 0) >> 7) & 0x0f) + 1;
 %(DEFAULT_BODY)s
-  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " (%%u PagingRecords)", number_of_records);
+  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " (%%u PagingRecord%%s)", number_of_records, plurality(number_of_records, "", "s"));
 
 #.FN_BODY Paging-v1310-IEs/systemInfoModification-eDRX-r13
 %(DEFAULT_BODY)s
