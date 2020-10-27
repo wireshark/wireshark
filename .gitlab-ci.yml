@@ -99,7 +99,9 @@ test:rpm-opensuse-15.1:
     GIT_STRATEGY: none
   dependencies:
     - build:rpm-opensuse-15.1
-build:rpm-fedora:
+
+# Disabled for now due to issues with Fedora 33.
+.build:rpm-fedora:
   <<: *build-rpm
   image: fedora
   script:
@@ -109,7 +111,8 @@ build:rpm-fedora:
     - cd build
     - cmake3 -GNinja ..
     - ninja-build rpm-package
-test:rpm-fedora:
+
+.test:rpm-fedora:
   image: fedora
   stage: test
   script:
