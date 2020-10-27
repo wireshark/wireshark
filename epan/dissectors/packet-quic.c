@@ -384,6 +384,16 @@ static inline guint8 quic_draft_version(guint32 version) {
         version == 0x54303531) {
         return 27;
     }
+    /* https://tools.ietf.org/html/draft-ietf-quic-transport-32#section-15
+       "Versions that follow the pattern 0x?a?a?a?a are reserved for use in
+       forcing version negotiation to be exercised"
+       It is tricky to return a correct draft version: such number is primarly
+       used to select a proper salt (which depends on the version itself), but
+       we don't have a real version here! Let's hope that we need to handle
+       only latest drafts... */
+    if ((version & 0x0F0F0F0F) == 0x0a0a0a0a) {
+        return 29;
+    }
     return 0;
 }
 
@@ -2545,6 +2555,7 @@ dissect_quic_long_header_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *q
 {
     guint32     version;
     guint32     dcil, scil;
+    proto_item  *ti;
 
     version = tvb_get_ntohl(tvb, offset);
 
@@ -2552,7 +2563,10 @@ dissect_quic_long_header_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *q
         *version_out = version;
     }
 
-    proto_tree_add_item(quic_tree, hf_quic_version, tvb, offset, 4, ENC_BIG_ENDIAN);
+    ti = proto_tree_add_item(quic_tree, hf_quic_version, tvb, offset, 4, ENC_BIG_ENDIAN);
+    if ((version & 0x0F0F0F0F) == 0x0a0a0a0a) {
+        proto_item_append_text(ti, " (Forcing Version Negotiation)");
+    }
     offset += 4;
 
     proto_tree_add_item_ret_uint(quic_tree, hf_quic_dcil, tvb, offset, 1, ENC_BIG_ENDIAN, &dcil);
