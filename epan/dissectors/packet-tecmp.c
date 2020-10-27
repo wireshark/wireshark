@@ -153,6 +153,11 @@ static int hf_tecmp_payload_status_cm_vendor_technica_buffer_size = -1;
 static int hf_tecmp_payload_status_cm_vendor_technica_lifecycle = -1;
 static int hf_tecmp_payload_status_cm_vendor_technica_voltage = -1;
 static int hf_tecmp_payload_status_cm_vendor_technica_temperature = -1;
+static int hf_tecmp_payload_status_cm_vendor_technica_temperature_chassis = -1;
+static int hf_tecmp_payload_status_cm_vendor_technica_temperature_silicon = -1;
+
+#define VENDOR_TECHNICA_TEMP_MAX 127
+#define VENDOR_TECHNICA_TEMP_NA  -128
 
 /* Status Bus Vendor Data Technica Engineering */
 static int hf_tecmp_payload_status_bus_vendor_technica_link_status = -1;
@@ -768,6 +773,7 @@ dissect_tecmp_status_cm_vendor_data(tvbuff_t *tvb, packet_info *pinfo _U_, proto
     proto_item *ti = NULL;
     gint offset = 0;
     guint tmp = 0;
+    gint temperature = 0;
 
     proto_item_append_text(ti_root, " (%s)", val_to_str(vendor_id, tecmp_vendor_ids, "(Unknown Vendor: %d)"));
     tree = proto_item_add_subtree(ti_root, ett_tecmp_status_cm_vendor_data);
@@ -807,12 +813,33 @@ dissect_tecmp_status_cm_vendor_data(tvbuff_t *tvb, packet_info *pinfo _U_, proto
         offset += 8;
 
         tmp = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN);
-        proto_tree_add_string_format(tree, hf_tecmp_payload_status_cm_vendor_technica_voltage, tvb, offset, 2, NULL,
-                                     "Voltage: %d.%d V", (tmp & 0x0000ff00) >> 8, tmp & 0x000000ff);
+        proto_tree_add_string_format_value(tree, hf_tecmp_payload_status_cm_vendor_technica_voltage, tvb, offset, 2, NULL,
+                                     "%d.%d V", (tmp & 0x0000ff00) >> 8, tmp & 0x000000ff);
         offset += 2;
 
-        ti = proto_tree_add_item(tree, hf_tecmp_payload_status_cm_vendor_technica_temperature, tvb, offset, 1, ENC_NA);
-        proto_item_append_text(ti, " %s", "Degrees Celsius");
+        if (tvb_captured_length_remaining(tvb, offset) == 1) {
+            ti = proto_tree_add_item(tree, hf_tecmp_payload_status_cm_vendor_technica_temperature, tvb, offset, 1, ENC_NA);
+                proto_item_append_text(ti, " %s", "Degrees Celsius");
+        } else if (tvb_captured_length_remaining(tvb, offset) > 1) {
+            /* TECMP 1.5 and later */
+            ti = proto_tree_add_item_ret_int(tree, hf_tecmp_payload_status_cm_vendor_technica_temperature_chassis, tvb, offset, 1, ENC_NA, &temperature);
+            proto_item_append_text(ti, " %s", "Degrees Celsius");
+            if (temperature == VENDOR_TECHNICA_TEMP_MAX) {
+                proto_item_append_text(ti, " %s", "or more");
+            }
+            offset += 1;
+
+            temperature = tvb_get_gint8(tvb, offset);
+            if ( temperature == VENDOR_TECHNICA_TEMP_NA) {
+                proto_tree_add_int_format_value(tree, hf_tecmp_payload_status_cm_vendor_technica_temperature_silicon, tvb, offset, 1, temperature, "%s", "Not Available");
+            } else {
+                ti = proto_tree_add_item_ret_int(tree, hf_tecmp_payload_status_cm_vendor_technica_temperature_silicon, tvb, offset, 1, ENC_NA, &temperature);
+                proto_item_append_text(ti, " %s", "Degrees Celsius");
+                if (temperature == VENDOR_TECHNICA_TEMP_MAX) {
+                    proto_item_append_text(ti, " %s", "or more");
+                }
+            }
+        }
 
         break;
     }
@@ -1369,6 +1396,12 @@ proto_register_tecmp_payload(void) {
         { &hf_tecmp_payload_status_cm_vendor_technica_temperature,
             { "Temperature", "tecmp.payload.status_cm.vendor_technica.temperature",
             FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_tecmp_payload_status_cm_vendor_technica_temperature_chassis,
+            { "Temperature Chassis", "tecmp.payload.status_cm.vendor_technica.temperature_chassis",
+            FT_INT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+        { &hf_tecmp_payload_status_cm_vendor_technica_temperature_silicon,
+            { "Temperature Silicon", "tecmp.payload.status_cm.vendor_technica.temperature_silicon",
+            FT_INT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
 
         /* Status Bus Vendor Data */
         { &hf_tecmp_payload_status_bus_vendor_technica_link_status,
