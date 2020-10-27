@@ -134,7 +134,7 @@ private:
     bool rows_inserted_;
     bool columns_changed_;
     bool set_column_visibility_;
-    int frozen_row_;
+    QModelIndexList frozen_rows_;
     QVector<int> selection_history_;
     int cur_history_;
     bool in_history_;
