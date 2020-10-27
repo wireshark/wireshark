@@ -492,6 +492,8 @@ protobuf_dissect_field_value(proto_tree *value_tree, tvbuff_t *tvb, guint offset
     proto_tree* field_parent_tree = proto_tree_get_parent_tree(field_tree);
     proto_tree* pbf_tree = field_tree;
     nstime_t timestamp = { 0 };
+    dissector_handle_t field_dissector = (field_full_name && (field_type == PROTOBUF_TYPE_BYTES || field_type == PROTOBUF_TYPE_STRING)) ?
+        dissector_get_string_handle(protobuf_field_subdissector_table, field_full_name) : NULL;
 
     if (pbf_as_hf && field_full_name) {
         hf_id_ptr = (int*)g_hash_table_lookup(pbf_hf_hash, field_full_name);
@@ -616,16 +618,30 @@ protobuf_dissect_field_value(proto_tree *value_tree, tvbuff_t *tvb, guint offset
         break;
 
     case PROTOBUF_TYPE_BYTES:
+        if (field_dissector) {
+            if (!show_details) { /* don't show Value node if there is a subdissector for this field */
+                proto_item_set_hidden(proto_tree_get_parent(value_tree));
+            }
+            if (dissect_bytes_as_string) { /* the type of *hf_id_ptr MUST be FT_STRING now */
+                if (hf_id_ptr) {
+                    ti = proto_tree_add_string_format_value(pbf_tree, *hf_id_ptr, tvb, offset, length, "", "(%u bytes)", length);
+                }
+                /* don't try to dissect bytes as string if there is a subdissector for this field */
+                break;
+            }
+        }
         if (!dissect_bytes_as_string) {
+            /* the type of *hf_id_ptr MUST be FT_BYTES now */
             if (hf_id_ptr) {
                 ti = proto_tree_add_bytes_format_value(pbf_tree, *hf_id_ptr, tvb, offset, length, NULL, "(%u bytes)", length);
             }
             break;
         }
         /* or continue dissect BYTES as STRING */
+        proto_item_append_text(ti_field, " =");
         /* FALLTHROUGH */
     case PROTOBUF_TYPE_STRING:
-        ti = proto_tree_add_item_ret_display_string(value_tree, hf_protobuf_value_string, tvb, offset, length, ENC_UTF_8|ENC_NA, wmem_packet_scope(), &buf);
+        proto_tree_add_item_ret_display_string(value_tree, hf_protobuf_value_string, tvb, offset, length, ENC_UTF_8|ENC_NA, wmem_packet_scope(), &buf);
         proto_item_append_text(ti_field, "%s %s", prepend_text, buf);
         if (is_top_level) {
             col_append_fstr(pinfo->cinfo, COL_INFO, "=%s", buf);
@@ -707,9 +723,9 @@ protobuf_dissect_field_value(proto_tree *value_tree, tvbuff_t *tvb, guint offset
     }
 
     /* try dissect field value according to protobuf_field dissector table */
-    if (field_full_name && (field_type == PROTOBUF_TYPE_BYTES || field_type == PROTOBUF_TYPE_STRING)) {
+    if (field_dissector) {
         /* determine the tree passing to the subdissector */
-        subtree = value_tree;
+        subtree = field_tree;
         if (ti) {
             subtree = proto_item_get_subtree(ti);
             if (!subtree) {
@@ -717,8 +733,7 @@ protobuf_dissect_field_value(proto_tree *value_tree, tvbuff_t *tvb, guint offset
             }
         }
 
-        dissector_try_string(protobuf_field_subdissector_table, field_full_name,
-            tvb_new_subset_length(tvb, offset, length), pinfo, subtree, NULL);
+        call_dissector(field_dissector, tvb_new_subset_length(tvb, offset, length), pinfo, subtree);
     }
 
     if (add_datatype)
@@ -813,7 +828,7 @@ dissect_one_protobuf_field(tvbuff_t *tvb, guint* offset, guint maxlen, packet_in
     if (field_name) {
         proto_item_append_text(ti_field, " %s %s", field_name,
             (field_type == PROTOBUF_TYPE_MESSAGE || field_type == PROTOBUF_TYPE_GROUP
-                || (field_type == PROTOBUF_TYPE_BYTES && !dissect_bytes_as_string))
+                || field_type == PROTOBUF_TYPE_BYTES)
             ? "" : "="
         );
         if (field_type > 0) {
