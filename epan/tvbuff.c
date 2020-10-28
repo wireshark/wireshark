@@ -3289,6 +3289,34 @@ tvb_get_t61_stringz(wmem_allocator_t *scope, tvbuff_t *tvb, gint offset, gint *l
 	return get_t61_string(scope, ptr, size);
 }
 
+static guint8 *
+tvb_get_gb18030_stringz(wmem_allocator_t *scope, tvbuff_t *tvb, gint offset, gint *lengthp)
+{
+	guint          size;
+	const guint8  *ptr;
+
+	size = tvb_strsize(tvb, offset);
+	ptr  = ensure_contiguous(tvb, offset, size);
+	/* XXX, conversion between signed/unsigned integer */
+	if (lengthp)
+		*lengthp = size;
+	return get_gb18030_string(scope, ptr, size);
+}
+
+static guint8 *
+tvb_get_euc_kr_stringz(wmem_allocator_t *scope, tvbuff_t *tvb, gint offset, gint  *lengthp)
+{
+	guint          size;
+	const guint8  *ptr;
+
+	size = tvb_strsize(tvb, offset);
+	ptr  = ensure_contiguous(tvb, offset, size);
+	/* XXX, conversion between signed/unsigned integer */
+	if (lengthp)
+		*lengthp = size;
+	return get_euc_kr_string(scope, ptr, size);
+}
+
 guint8 *
 tvb_get_stringz_enc(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, gint *lengthp, const guint encoding)
 {
@@ -3462,6 +3490,14 @@ tvb_get_stringz_enc(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, g
 
 	case ENC_T61:
 		strptr = tvb_get_t61_stringz(scope, tvb, offset, lengthp);
+		break;
+
+	case ENC_GB18030:
+		strptr = tvb_get_gb18030_stringz(scope, tvb, offset, lengthp);
+		break;
+
+	case ENC_EUC_KR:
+		strptr = tvb_get_euc_kr_stringz(scope, tvb, offset, lengthp);
 		break;
 	}
 
