@@ -1,6 +1,6 @@
 /* packet-docsis-tlv.c
  *
- * Routines to Dissect Appendix C TLV's
+ * Routines to Dissect Appendix C TLVs
  * Copyright 2015, Adrian Simionov <daniel.simionov@gmail.com>
  * Copyright 2002, Anand V. Narwani <anand[AT]narwani.org>
  * Copyright 2017, Bruno Verstuyft <bruno.verstuyft@excentis.com>
@@ -20,11 +20,11 @@
 
 #include "packet-docsis-tlv.h"
 
-/* This module will dissect the Appendix C TLV's.  Please see:
+/* This module will dissect the Appendix C TLVs.  Please see:
  * http://www.cablemodem.com/specifications/specifications.html
  *
  * The main dissector is dissect_docsis_tlv.  This routine will dissect
- * top level TLV's and call sub-dissectors for the sub-TLV's.
+ * top level TLVs and call sub-dissectors for the sub-TLVs.
  */
 
 void proto_register_docsis_tlv(void);
@@ -672,7 +672,7 @@ const value_string docsis_conf_code[] = {
   {  7, "Reject: Service flow exists"},
   {  8, "Reject: Required parameter not present"},
   {  9, "Reject: Header suppression"},
-  { 10, "Reject: Unknown transaction id"},
+  { 10, "Reject: Unknown transaction ID"},
   { 11, "Reject: Authentication failure"},
   { 12, "Reject: Add aborted"},
   { 13, "Reject: Multiple errors"},
@@ -3889,7 +3889,7 @@ dissect_tcc(tvbuff_t * tvb, packet_info * pinfo,
                 proto_tree_add_item_ret_uint (tcc_tree,
                                      hf_docsis_tlv_tcc_us_ch_id, tvb, pos,
                                      length, ENC_BIG_ENDIAN, &channel_id);
-                /*Only perform reassembly on UCD if TLV is reassembled. fragment_end_seq_next added for the rare cases where UCD end is 254 long.*/
+                /* Only perform reassembly on UCD if TLV is reassembled. fragment_end_seq_next added for the rare cases where UCD end is 254 long. */
                 if(!pinfo->fragmented && *previous_channel_id != -1) {
                   fragment_end_seq_next(&ucd_reassembly_table, pinfo, *previous_channel_id, NULL);
                 }
@@ -3919,7 +3919,7 @@ dissect_tcc(tvbuff_t * tvb, packet_info * pinfo,
               channel_id = *previous_channel_id;
             }
 
-            /*Only perform reassembly on UCD if TLV is reassembled*/
+            /* Only perform reassembly on UCD if TLV is reassembled */
             if(!pinfo->fragmented) {
               reassembled_ucd_item = proto_tree_add_item(tcc_tree, hf_docsis_ucd_reassembled, tvb, 0, -1, ENC_NA);
               reassembled_ucd_tree = proto_item_add_subtree (reassembled_ucd_item, ett_docsis_ucd_reassembled );
@@ -5125,7 +5125,7 @@ dissect_docsis_tlv (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void
         switch (type)
           {
             case TLV_DOWN_FREQ:
-              /* This is ugly.  There are multiple type 1 TLV's that may appear
+              /* This is ugly.  There are multiple type 1 TLVs that may appear
                * in the TLV data, the problem is that they are dependent on
                * message type.  */
               if (length == 4)
@@ -5555,7 +5555,7 @@ dissect_docsis_tlv (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void
 
         pos = pos + length;
       }                         /* while (pos < total_len) */
-  }                             /*if (tree) */
+  }                             /* if (tree) */
 
   return tvb_captured_length(tvb);
 }
@@ -6544,14 +6544,14 @@ proto_register_docsis_tlv (void)
     },
 #endif
     {&hf_docsis_tlv_ethclsfr_dmac,
-     {"..1 Dest Mac Address", "docsis_tlv.clsfr.eth.dmac",
+     {"..1 Dest MAC Address", "docsis_tlv.clsfr.eth.dmac",
       FT_ETHER, BASE_NONE, NULL, 0x0,
-      "Destination Mac Address", HFILL}
+      "Destination MAC Address", HFILL}
     },
     {&hf_docsis_tlv_ethclsfr_smac,
-     {"..2 Source Mac Address", "docsis_tlv.clsfr.eth.smac",
+     {"..2 Source MAC Address", "docsis_tlv.clsfr.eth.smac",
       FT_ETHER, BASE_NONE, NULL, 0x0,
-      "Source Mac Address", HFILL}
+      "Source MAC Address", HFILL}
     },
     {&hf_docsis_tlv_ethclsfr_ethertype,
      {"..3 Ethertype", "docsis_tlv.clsfr.eth.ethertype",
@@ -6571,9 +6571,9 @@ proto_register_docsis_tlv (void)
       "User Priority", HFILL}
     },
     {&hf_docsis_tlv_dot1qclsfr_vlanid,
-     {"..2 VLAN id", "docsis_tlv.clsfr.dot1q.ethertype",
+     {"..2 VLAN ID", "docsis_tlv.clsfr.dot1q.ethertype",
       FT_UINT16, BASE_DEC, NULL, 0x0,
-      "VLAN Id", HFILL}
+      "VLAN ID", HFILL}
     },
     {&hf_docsis_tlv_dot1qclsfr_vendorspec,
      {"..43 Vendor Specific Encodings", "docsis_tlv.clsfr.dot1q.vendorspec",
@@ -6603,9 +6603,9 @@ proto_register_docsis_tlv (void)
       "Service Flow Reference", HFILL}
     },
     {&hf_docsis_tlv_sflow_id,
-     {".2 Service Flow Id", "docsis_tlv.sflow.id",
+     {".2 Service Flow ID", "docsis_tlv.sflow.id",
       FT_UINT32, BASE_DEC, NULL, 0x0,
-      "Service Flow Id", HFILL}
+      "Service Flow ID", HFILL}
     },
     {&hf_docsis_tlv_sflow_sid,
      {".3 Service Identifier", "docsis_tlv.sflow.sid",
@@ -6837,9 +6837,9 @@ proto_register_docsis_tlv (void)
       "Classifier Reference", HFILL}
     },
     {&hf_docsis_tlv_phs_class_id,
-     {".2 Classifier Id", "docsis_tlv.phs.classid",
+     {".2 Classifier ID", "docsis_tlv.phs.classid",
       FT_UINT16, BASE_DEC, NULL, 0x0,
-      "Classifier Id", HFILL}
+      "Classifier ID", HFILL}
     },
     {&hf_docsis_tlv_phs_sflow_ref,
      {".3 Service flow reference", "docsis_tlv.phs.sflowref",
@@ -6847,9 +6847,9 @@ proto_register_docsis_tlv (void)
       "Service Flow Reference", HFILL}
     },
     {&hf_docsis_tlv_phs_sflow_id,
-     {".4 Service flow Id", "docsis_tlv.phs.sflowid",
+     {".4 Service flow ID", "docsis_tlv.phs.sflowid",
       FT_UINT16, BASE_DEC, NULL, 0x0,
-      "Service Flow Id", HFILL}
+      "Service Flow ID", HFILL}
     },
     {&hf_docsis_tlv_phs_dsc_action,
      {".5 DSC Action", "docsis_tlv.phs.dscaction",
@@ -7864,7 +7864,7 @@ proto_register_docsis_tlv (void)
 
   expert_module_t* expert_docsis_tlv;
 
-  proto_docsis_tlv = proto_register_protocol ("DOCSIS Appendix C TLV's", "DOCSIS TLVs", "docsis_tlv");
+  proto_docsis_tlv = proto_register_protocol ("DOCSIS Appendix C TLVs", "DOCSIS TLVs", "docsis_tlv");
 
   proto_register_field_array (proto_docsis_tlv, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));

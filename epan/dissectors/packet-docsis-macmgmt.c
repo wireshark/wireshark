@@ -1,5 +1,5 @@
 /* packet-macmgmt.c
- * Routines for docsis Mac Management Header dissection
+ * Routines for DOCSIS MAC Management Header dissection
  * Routines for Upstream Channel Change dissection
  * Routines for Ranging Message dissection
  * Routines for Registration Message dissection
@@ -222,7 +222,7 @@ void proto_reg_handoff_docsis_mgmt(void);
 #define RNGRSP_TRANSMIT_EQ_SET_OFDMA_CHANNELS 16
 #define RNGRSP_COMMANDED_POWER 17
 
-/* Commanded Power Sub TLVs*/
+/* Commanded Power Sub-TLVs */
 #define RNGRSP_COMMANDED_POWER_DYNAMIC_RANGE_WINDOW 1
 #define RNGRSP_COMMANDED_POWER_UCID_AND_POWER_LEVEL_LIST 2
 
@@ -386,7 +386,7 @@ void proto_reg_handoff_docsis_mgmt(void);
 #define FULL_DUPLEX_DESCRIPTOR 22
 
 
-/*Downstream Active Channel List*/
+/* Downstream Active Channel List */
 #define DOWNSTREAM_ACTIVE_CHANNEL_LIST_CHANNEL_ID 1
 #define DOWNSTREAM_ACTIVE_CHANNEL_LIST_FREQUENCY 2
 #define DOWNSTREAM_ACTIVE_CHANNEL_LIST_MODULATION_ORDER_ANNEX 3
@@ -395,55 +395,55 @@ void proto_reg_handoff_docsis_mgmt(void);
 #define DOWNSTREAM_ACTIVE_CHANNEL_LIST_MAP_UCD_TRANSPORT_INDICATOR 6
 #define DOWNSTREAM_ACTIVE_CHANNEL_LIST_OFDM_PLC_PARAMETERS 7
 
-/*Mac Domain Downstream Service Group*/
+/* MAC Domain Downstream Service Group */
 #define MAC_DOMAIN_DOWNSTREAM_SERVICE_GROUP_MD_DS_SG_IDENTIFIER 1
 #define MAC_DOMAIN_DOWNSTREAM_SERVICE_GROUP_CHANNEL_IDS 2
 
-/*Modulation Orders*/
+/* Modulation Orders */
 #define QAM64 0
 #define QAM256 1
 
-/*Annexes*/
+/* Annexes */
 #define J83_ANNEX_A 0
 #define J83_ANNEX_B 1
 #define J83_ANNEX_C 2
 
-/*Primary Capable*/
+/* Primary Capable */
 #define NOT_PRIMARY_CAPABLE 0
 #define PRIMARY_CAPABLE 1
 
-/*Can carry MAP and UCD*/
+/* Can carry MAP and UCD */
 #define CANNOT_CARRY_MAP_UCD 0
 #define CAN_CARRY_MAP_UCD 1
 
-/*Receive Channel Profile Reporting Control*/
+/* Receive Channel Profile Reporting Control */
 #define RCP_CENTER_FREQUENCY_SPACING 1
 #define VERBOSE_RCP_REPORTING 2
 #define FRAGMENTED_RCP_TRANSMISSION 3
 
-/*Frequency spacing*/
+/* Frequency spacing */
 #define ASSUME_6MHZ_CENTER_FREQUENCY_SPACING 0
 #define ASSUME_8MHZ_CENTER_FREQUENCY_SPACING 1
 
-/*Verbose RCP reporting*/
+/* Verbose RCP reporting */
 #define RCP_NO_VERBOSE_REPORTING 0
 #define RCP_VERBOSE_REPORTING 1
 
-/*Sub-TLVs for IP Initialization Parameters*/
+/* Sub-TLVs for IP Initialization Parameters */
 #define IP_PROVISIONING_MODE 1
 #define PRE_REGISTRATION_DSID 2
 
-/*IP Provisioning Modes*/
+/* IP Provisioning Modes */
 #define IPv4_ONLY 0
 #define IPv6_ONLY 1
 #define IP_ALTERNATE 2
 #define DUAL_STACK 3
 
-/*Early authentication and encryption*/
+/* Early authentication and encryption */
 #define EAE_DISABLED 0
 #define EAE_ENABLED 1
 
-/*Upstream Active Channel List*/
+/* Upstream Active Channel List */
 #define UPSTREAM_ACTIVE_CHANNEL_LIST_UPSTREAM_CHANNEL_ID 1
 #define UPSTREAM_ACTIVE_CHANNEL_LIST_CM_STATUS_EVENT_ENABLE_BITMASK 2
 #define UPSTREAM_ACTIVE_CHANNEL_LIST_UPSTREAM_CHANNEL_PRIORITY 3
@@ -451,20 +451,20 @@ void proto_reg_handoff_docsis_mgmt(void);
 #define UPSTREAM_ACTIVE_CHANNEL_LIST_FDX_UPSTREAM_CHANNEL 5
 #define UPSTREAM_ACTIVE_CHANNEL_LIST_FDX_SUBBAND_ID 6
 
-/*Upstream Frequency Range*/
+/* Upstream Frequency Range */
 #define STANDARD_UPSTREAM_FREQUENCY_RANGE 0
 #define EXTENDED_UPSTREAM_FREQUENCY_RANGE 1
 
-/*Symbol Clock Locking Indicator*/
+/* Symbol Clock Locking Indicator */
 #define NOT_LOCKED_TO_MASTER_CLOCK 0
 #define LOCKED_TO_MASTER_CLOCK 1
 
-/*CM-STATUS Event Control */
+/* CM-STATUS Event Control */
 #define EVENT_TYPE_CODE 1
 #define MAXIMUM_EVENT_HOLDOFF_TIMER 2
 #define MAXIMUM_NUMBER_OF_REPORTS_PER_EVENT 3
 
-/*CM-STATUS Events*/
+/* CM-STATUS Events */
 #define SECONDARY_CHANNEL_MDD_TIMEOUT 1
 #define QAM_FEC_LOCK_FAILURE 2
 #define SEQUENCE_OUT_OF_RANGE 3
@@ -476,15 +476,15 @@ void proto_reg_handoff_docsis_mgmt(void);
 #define CM_OPERATING_ON_BATTERY_BACKUP 9
 #define CM_RETURNED_TO_AC_POWER 10
 
-/*Upstream Transmit Power Reporting*/
+/* Upstream Transmit Power Reporting */
 #define CM_DOESNT_REPORT_TRANSMIT_POWER 0
 #define CM_REPORTS_TRANSMIT_POWER 1
 
-/*Dsg DA to DSID association entry*/
+/* DSG DA to DSID association entry */
 #define DSG_DA_TO_DSID_ASSOCIATION_DA 1
 #define DSG_DA_TO_DSID_ASSOCIATION_DSID 2
 
-/*CMTS DOCSIS VERSION*/
+/* CMTS DOCSIS VERSION */
 #define CMTS_MAJOR_DOCSIS_VERSION 1
 #define CMTS_MINOR_DOCSIS_VERSION 2
 
@@ -1691,7 +1691,7 @@ static const value_string dcc_tlv_vals[] = {
   {DCCREQ_UCD_SUB, "UCD Substitution"},
   {DCCREQ_SAID_SUB, "SAID Sub"},
   {DCCREQ_SF_SUB, "Service Flow Substitution Encodings"},
-  {DCCREQ_CMTS_MAC_ADDR, "CMTS Mac Address"},
+  {DCCREQ_CMTS_MAC_ADDR, "CMTS MAC Address"},
   {DCCREQ_KEY_SEQ_NUM, "Auth Key Sequence Number"},
   {DCCREQ_HMAC_DIGEST, "HMAC-DigestNumber"},
   {0, NULL}
@@ -1748,14 +1748,14 @@ static const value_string dcd_tlv_vals[] = {
 };
 
 static const value_string dcd_down_classifier_vals[] = {
-  {DCD_CFR_ID, "Downstream Classifier Id"},
+  {DCD_CFR_ID, "Downstream Classifier ID"},
   {DCD_CFR_RULE_PRI, "Downstream Classifier Rule Priority"},
   {DCD_CFR_IP_CLASSIFIER, "DCD_CFR_IP Encodings"},
   {0, NULL}
 };
 
 static const value_string dcd_dsg_rule_vals[] = {
-  {DCD_RULE_ID, "DSG Rule Id"},
+  {DCD_RULE_ID, "DSG Rule ID"},
   {DCD_RULE_PRI, "DSG Rule Priority"},
   {DCD_RULE_UCID_RNG, "DSG Rule UCID Range"},
   {DCD_RULE_CLIENT_ID, "DCD Rule ClientID Encodings"},
@@ -1803,8 +1803,8 @@ static const value_string J83_annex_vals[] = {
 };
 
 static const value_string modulation_order_vals[] = {
-  {QAM64,  "64 QAM"},
-  {QAM256, "256 QAM"},
+  {QAM64,  "64-QAM"},
+  {QAM256, "256-QAM"},
   {0, NULL}
 };
 
@@ -1847,8 +1847,8 @@ static const value_string spacing_vals[] = {
 static const value_string bpkmattr_tlv_vals[] = {
   {BPKM_RESERVED,           "Reserved"},
   {BPKM_SERIAL_NUM,         "Serial Number"},
-  {BPKM_MANUFACTURER_ID,    "Manufacturer Id"},
-  {BPKM_MAC_ADDR,           "Mac Address"},
+  {BPKM_MANUFACTURER_ID,    "Manufacturer ID"},
+  {BPKM_MAC_ADDR,           "MAC Address"},
   {BPKM_RSA_PUB_KEY,        "RSA Public Key"},
   {BPKM_CM_ID,              "CM Identification"},
   {BPKM_DISPLAY_STR,        "Display String"},
@@ -1908,7 +1908,7 @@ static const value_string bpi_ver_vals[] = {
 
 static const value_string mdd_tlv_vals[] = {
   {DOWNSTREAM_ACTIVE_CHANNEL_LIST,                       "Downstream Active Channel List"},
-  {MAC_DOMAIN_DOWNSTREAM_SERVICE_GROUP,                  "Mac Domain Downstream Service Group"},
+  {MAC_DOMAIN_DOWNSTREAM_SERVICE_GROUP,                  "MAC Domain Downstream Service Group"},
   {DOWNSTREAM_AMBIGUITY_RESOLUTION_FREQUENCY_LIST,       "Downstream Ambiguity Resolution Frequency List "},
   {RECEIVE_CHANNEL_PROFILE_REPORTING_CONTROL ,           "Receive Channel Profile Reporting Control"},
   {IP_INITIALIZATION_PARAMETERS ,                        "IP Initialization Parameters"},
@@ -2040,7 +2040,7 @@ static const value_string mdd_ip_init_param_vals[] = {
 };
 
 static const value_string mdd_up_active_channel_list_vals[] = {
-  {UPSTREAM_ACTIVE_CHANNEL_LIST_UPSTREAM_CHANNEL_ID, "Upstream Channel Id"},
+  {UPSTREAM_ACTIVE_CHANNEL_LIST_UPSTREAM_CHANNEL_ID, "Upstream Channel ID"},
   {UPSTREAM_ACTIVE_CHANNEL_LIST_CM_STATUS_EVENT_ENABLE_BITMASK, "CM-STATUS Event Enable Bitmask"},
   {UPSTREAM_ACTIVE_CHANNEL_LIST_UPSTREAM_CHANNEL_PRIORITY, "Upstream Channel Priority"},
   {UPSTREAM_ACTIVE_CHANNEL_LIST_DSCHIDS_MAPS_UCDS, "Downstream Channel(s) on which MAPs and UCDs for this Upstream Channel are sent"},
@@ -3239,7 +3239,7 @@ dissect_any_map (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, guint8 
       break;
     default:
       it = proto_tree_add_item(tree, proto_docsis_map_v1, tvb, 0, -1, ENC_NA);
-      expert_add_info_format(pinfo, it, &ei_docsis_mgmt_version_unknown, "Unknown MAP Mac Management version: %u", version);
+      expert_add_info_format(pinfo, it, &ei_docsis_mgmt_version_unknown, "Unknown MAP MAC Management version: %u", version);
       return tvb_captured_length(tvb);
   }
 
@@ -3259,7 +3259,7 @@ dissect_any_map (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, guint8 
       break;
     default:
       it = proto_tree_add_item(tree, proto_docsis_map_v1, tvb, 0, -1, ENC_NA);
-      expert_add_info_format(pinfo, it, &ei_docsis_mgmt_version_unknown, "Unknown MAP Mac Management version: %u", version);
+      expert_add_info_format(pinfo, it, &ei_docsis_mgmt_version_unknown, "Unknown MAP MAC Management version: %u", version);
       return tvb_captured_length(tvb);
   }
 
@@ -3583,14 +3583,14 @@ dissect_rngrsp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* da
     multipart = 0;
   }
 
-  /* Reassemble TLV's */
+  /* Reassemble TLVs */
   if (tvb_reported_length_remaining(tvb, 3) > 0) {
     if (version > 4 && multipart) {
-      /*Fragmented data*/
+      /* Fragmented data */
       number_of_fragments = (multipart >> 4);
       fragment_sequence_number = (multipart & 0x0F);
 
-      /*DOCSIS mac management messages do not have network (ip)  address. Use link (mac)  address instead. Same workflow as in wimax.*/
+      /* DOCSIS MAC management messages do not have network (IP) address. Use link (MAC) address instead. Same workflow as in wimax. */
       /* Save address pointers. */
       copy_address_shallow(&save_src, &pinfo->src);
       copy_address_shallow(&save_dst, &pinfo->dst);
@@ -3615,7 +3615,7 @@ dissect_rngrsp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* da
           dissect_rngrsp_tlv(tlv_tvb, pinfo, rngrsp_tree);
         }
       }
-    } else { /*version > 4 && multipart*/
+    } else { /* version > 4 && multipart */
       tlv_tvb = tvb_new_subset_remaining (tvb, 3);
       dissect_rngrsp_tlv(tlv_tvb, pinfo, rngrsp_tree);
     }
@@ -3662,7 +3662,7 @@ dissect_regrsp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* da
                 "Registration Response SID = %u (%s)", sid,
                 val_to_str_ext (response, &docsis_conf_code_ext, "%d"));
 
-  /* Call Dissector for Appendix C TLV's */
+  /* Call Dissector for Appendix C TLVs */
   next_tvb = tvb_new_subset_remaining (tvb, 3);
   call_dissector (docsis_tlv_handle, next_tvb, pinfo, regrsp_tree);
   return tvb_captured_length(tvb);
@@ -3967,7 +3967,7 @@ dissect_regack (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* da
                 "Registration Acknowledge SID = %u (%s)", sid,
                 val_to_str_ext (response, &docsis_conf_code_ext, "%d"));
 
-  /* Call Dissector for Appendix C TLV's */
+  /* Call Dissector for Appendix C TLVs */
   if(tvb_reported_length_remaining(tvb, 3) > 0 )
   {
     next_tvb = tvb_new_subset_remaining (tvb, 3);
@@ -3991,9 +3991,9 @@ dissect_dsareq (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* da
   proto_tree_add_item_ret_uint (dsareq_tree, hf_docsis_mgt_tranid, tvb, 0, 2, ENC_BIG_ENDIAN, &transid);
 
   col_add_fstr (pinfo->cinfo, COL_INFO,
-                "Dynamic Service Addition Request Tran-id = %u", transid);
+                "Dynamic Service Addition Request: Transaction ID = %u", transid);
 
-  /* Call Dissector for Appendix C TLV's */
+  /* Call Dissector for Appendix C TLVs */
   next_tvb = tvb_new_subset_remaining (tvb, 2);
   call_dissector (docsis_tlv_handle, next_tvb, pinfo, dsareq_tree);
   return tvb_captured_length(tvb);
@@ -4016,7 +4016,7 @@ dissect_dsarsp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* da
                 "Dynamic Service Add Response ID = %u (%s)", transid,
                 val_to_str_ext (response, &docsis_conf_code_ext, "%d"));
 
-  /* Call dissector for Appendix C TLV's */
+  /* Call dissector for Appendix C TLVs */
   next_tvb = tvb_new_subset_remaining (tvb, 3);
   call_dissector (docsis_tlv_handle, next_tvb, pinfo, dsarsp_tree);
   return tvb_captured_length(tvb);
@@ -4036,10 +4036,10 @@ dissect_dsaack (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* da
   proto_tree_add_item_ret_uint (dsaack_tree, hf_docsis_dsaack_response, tvb, 2, 1, ENC_BIG_ENDIAN, &response);
 
   col_add_fstr (pinfo->cinfo, COL_INFO,
-                "Dynamic Service Add Ack ID = %u (%s)", transid,
+                "Dynamic Service Add Acknowledge: Transaction ID = %u (%s)", transid,
                 val_to_str_ext (response, &docsis_conf_code_ext, "%d"));
 
-  /* Call Dissector for Appendix C TLV's */
+  /* Call Dissector for Appendix C TLVs */
   next_tvb = tvb_new_subset_remaining (tvb, 3);
   call_dissector (docsis_tlv_handle, next_tvb, pinfo, dsaack_tree);
   return tvb_captured_length(tvb);
@@ -4059,9 +4059,9 @@ dissect_dscreq (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* da
   proto_tree_add_item_ret_uint (dscreq_tree, hf_docsis_mgt_tranid, tvb, 0, 2, ENC_BIG_ENDIAN, &transid);
 
   col_add_fstr (pinfo->cinfo, COL_INFO,
-                "Dynamic Service Change Request Tran-id = %u", transid);
+                "Dynamic Service Change Request: Transaction ID = %u", transid);
 
-  /* Call dissector for Appendix C TLV's */
+  /* Call dissector for Appendix C TLVs */
   next_tvb = tvb_new_subset_remaining (tvb, 2);
   call_dissector (docsis_tlv_handle, next_tvb, pinfo, dscreq_tree);
   return tvb_captured_length(tvb);
@@ -4081,10 +4081,10 @@ dissect_dscrsp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* da
   proto_tree_add_item_ret_uint (dscrsp_tree, hf_docsis_dscrsp_response, tvb, 2, 1, ENC_BIG_ENDIAN, &response);
 
   col_add_fstr (pinfo->cinfo, COL_INFO,
-                "Dynamic Service Change Response ID = %u (%s)", transid,
+                "Dynamic Service Change Response: Transaction ID = %u (%s)", transid,
                 val_to_str_ext (response, &docsis_conf_code_ext, "%d"));
 
-  /* Call Dissector for Appendix C TLV's */
+  /* Call Dissector for Appendix C TLVs */
   next_tvb = tvb_new_subset_remaining (tvb, 3);
   call_dissector (docsis_tlv_handle, next_tvb, pinfo, dscrsp_tree);
   return tvb_captured_length(tvb);
@@ -4105,10 +4105,10 @@ dissect_dscack (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* da
   proto_tree_add_item_ret_uint (dscack_tree, hf_docsis_dscack_response, tvb, 2, 1, ENC_BIG_ENDIAN, &response);
 
   col_add_fstr (pinfo->cinfo, COL_INFO,
-                "Dynamic Service Change Ack ID = %u (%s)", transid,
+                "Dynamic Service Change Acknowledge: Transaction ID = %u (%s)", transid,
                 val_to_str_ext (response, &docsis_conf_code_ext, "%d"));
 
-  /* Call Dissector for Appendix C TLV's */
+  /* Call Dissector for Appendix C TLVs */
   next_tvb = tvb_new_subset_remaining (tvb, 3);
   call_dissector (docsis_tlv_handle, next_tvb, pinfo, dscack_tree);
   return tvb_captured_length(tvb);
@@ -4128,12 +4128,12 @@ dissect_dsdreq (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* da
   proto_tree_add_item_ret_uint (dsdreq_tree, hf_docsis_mgt_tranid, tvb, 0, 2, ENC_BIG_ENDIAN, &transid);
 
   col_add_fstr (pinfo->cinfo, COL_INFO,
-                "Dynamic Service Delete Request Tran-id = %u", transid);
+                "Dynamic Service Delete Request: Transaction ID = %u", transid);
 
   proto_tree_add_item (dsdreq_tree, hf_docsis_dsdreq_rsvd, tvb, 2, 2, ENC_BIG_ENDIAN);
   proto_tree_add_item (dsdreq_tree, hf_docsis_dsdreq_sfid, tvb, 4, 4, ENC_BIG_ENDIAN);
 
-  /* Call Dissector for Appendix C TLV's */
+  /* Call Dissector for Appendix C TLVs */
   next_tvb = tvb_new_subset_remaining (tvb, 8);
   call_dissector (docsis_tlv_handle, next_tvb, pinfo, dsdreq_tree);
   return tvb_captured_length(tvb);
@@ -4153,7 +4153,7 @@ dissect_dsdrsp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* da
   proto_tree_add_item (dsdrsp_tree, hf_docsis_dsdrsp_rsvd, tvb, 3, 1, ENC_BIG_ENDIAN);
 
   col_add_fstr (pinfo->cinfo, COL_INFO,
-                "Dynamic Service Delete Response Tran id = %u (%s)",
+                "Dynamic Service Delete Response: Transaction ID = %u (%s)",
                 tranid, val_to_str_ext (confcode, &docsis_conf_code_ext, "%d"));
 
   return tvb_captured_length(tvb);
@@ -5602,7 +5602,7 @@ dissect_mdd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data 
   proto_tree_add_item (mdd_tree, hf_docsis_mdd_fragment_sequence_number, tvb, 2, 1, ENC_BIG_ENDIAN);
   proto_tree_add_item (mdd_tree, hf_docsis_mdd_current_channel_dcid, tvb, 3, 1, ENC_BIG_ENDIAN);
 
-  /*TLVs...*/
+  /* TLVs... */
   pos = 4;
   while (tvb_reported_length_remaining(tvb, pos) > 0)
   {
@@ -5778,7 +5778,7 @@ dissect_dbcreq (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* da
   proto_tree_add_item_ret_uint( dbcreq_tree, hf_docsis_dbcreq_fragment_sequence_number, tvb, 3, 1, ENC_BIG_ENDIAN, &fragment_sequence_number);
 
   col_add_fstr (pinfo->cinfo, COL_INFO,
-                "Dynamic Bonding Change Request: Tran-Id = %u", transid);
+                "Dynamic Bonding Change Request: Transaction ID = %u", transid);
   col_set_fence(pinfo->cinfo, COL_INFO);
 
   if(number_of_fragments > 1) {
@@ -5788,7 +5788,7 @@ dissect_dbcreq (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* da
      reassembled_tlv = fragment_add_seq_check(&docsis_tlv_reassembly_table,
                                   tvb, 4, pinfo,
                                   transid, NULL, /* ID for fragments belonging together */
-                                  fragment_sequence_number -1, /*Sequence number starts at 0*/
+                                  fragment_sequence_number -1, /* Sequence number starts at 0 */
                                   tvb_reported_length_remaining(tvb, 4), /* fragment length - to the end */
                                   (fragment_sequence_number != number_of_fragments)); /* More fragments? */
 
@@ -5808,7 +5808,7 @@ dissect_dbcreq (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* da
      }
 
   } else {
-    /* Call Dissector for Appendix C TLV's */
+    /* Call Dissector for Appendix C TLVs */
     next_tvb = tvb_new_subset_remaining (tvb, 4);
     call_dissector (docsis_tlv_handle, next_tvb, pinfo, dbcreq_tree);
   }
@@ -5830,10 +5830,10 @@ dissect_dbcrsp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* da
   proto_tree_add_item_ret_uint( dbcrsp_tree, hf_docsis_dbcrsp_conf_code, tvb, 2, 1, ENC_BIG_ENDIAN, &confcode);
 
   col_add_fstr (pinfo->cinfo, COL_INFO,
-                "Dynamic Bonding Change Response: Tran-Id = %u (%s)", transid,
+                "Dynamic Bonding Change Response: Transaction ID = %u (%s)", transid,
                 val_to_str_ext (confcode, &docsis_conf_code_ext, "%d"));
 
-  /* Call Dissector for Appendix C TLV's */
+  /* Call Dissector for Appendix C TLVs */
   next_tvb = tvb_new_subset_remaining (tvb, 3);
   call_dissector (docsis_tlv_handle, next_tvb, pinfo, dbcrsp_tree);
   return tvb_captured_length(tvb);
@@ -5850,13 +5850,13 @@ dissect_dbcack (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* da
   transid = tvb_get_ntohs (tvb, 0);
 
   col_add_fstr (pinfo->cinfo, COL_INFO,
-                "Dynamic Bonding Change Acknowledge: Tran-Id = %u", transid);
+                "Dynamic Bonding Change Acknowledge: Transaction ID = %u", transid);
 
   dbcack_item = proto_tree_add_item(tree, proto_docsis_dbcack, tvb, 0, -1, ENC_NA);
   dbcack_tree = proto_item_add_subtree (dbcack_item, ett_docsis_dbcack);
   proto_tree_add_item (dbcack_tree, hf_docsis_mgt_tranid, tvb, 0, 2, ENC_BIG_ENDIAN);
 
-  /* Call Dissector for Appendix C TLV's */
+  /* Call Dissector for Appendix C TLVs */
   next_tvb = tvb_new_subset_remaining (tvb, 2);
   call_dissector (docsis_tlv_handle, next_tvb, pinfo, dbcack_tree);
   return tvb_captured_length(tvb);
@@ -5875,7 +5875,7 @@ dissect_dpvreq (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* da
   proto_tree_add_item_ret_uint (dpvreq_tree, hf_docsis_mgt_down_chid, tvb, 2, 1, ENC_BIG_ENDIAN, &dschan);
 
   col_add_fstr (pinfo->cinfo, COL_INFO,
-                "DOCSIS Path Verify Request: Transaction-Id = %u DS-Ch %d",
+                "DOCSIS Path Verify Request: Transaction ID = %u DS-Ch %d",
                 transid, dschan);
 
   proto_tree_add_item (dpvreq_tree, hf_docsis_dpv_flags, tvb, 3, 1, ENC_BIG_ENDIAN);
@@ -5902,7 +5902,7 @@ dissect_dpvrsp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* da
   proto_tree_add_item_ret_uint (dpvrsp_tree, hf_docsis_mgt_down_chid, tvb, 2, 1, ENC_BIG_ENDIAN, &dschan);
 
   col_add_fstr (pinfo->cinfo, COL_INFO,
-                "DOCSIS Path Verify Response: Transaction-Id = %u DS-Ch %d",
+                "DOCSIS Path Verify Response: Transaction ID = %u DS-Ch %d",
                 transid, dschan);
 
   proto_tree_add_item (dpvrsp_tree, hf_docsis_dpv_flags, tvb, 3, 1, ENC_BIG_ENDIAN);
@@ -6181,7 +6181,7 @@ dissect_cmstatus (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* 
 
   dissect_cmstatus_common (tvb, cmstatus_tree);
 
-  /* Call Dissector TLV's */
+  /* Call Dissector TLVs */
   next_tvb = tvb_new_subset_remaining(tvb, 3);
   dissect_cmstatus_tlv(next_tvb, pinfo, cmstatus_tree);
   return tvb_captured_length(tvb);
@@ -6422,7 +6422,7 @@ dissect_cmctrlreq(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* 
   proto_tree_add_item_ret_uint (cmctrlreq_tree, hf_docsis_mgt_tranid, tvb, 0, 2, ENC_BIG_ENDIAN, &transid);
 
   col_add_fstr (pinfo->cinfo, COL_INFO,
-                "CM Control Request: Transaction-Id = %u", transid);
+                "CM Control Request: Transaction ID = %u", transid);
 
   next_tvb = tvb_new_subset_remaining(tvb, 2);
   dissect_cmctrlreq_tlv(next_tvb, pinfo, cmctrlreq_tree);
@@ -6442,9 +6442,9 @@ dissect_cmctrlrsp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void*
   proto_tree_add_item_ret_uint (cmctrlrsp_tree, hf_docsis_mgt_tranid, tvb, 0, 2, ENC_BIG_ENDIAN, &transid);
 
   col_add_fstr (pinfo->cinfo, COL_INFO,
-                "CM Control Response: Transaction-Id = %u", transid);
+                "CM Control Response: Transaction ID = %u", transid);
 
-  /* Call Dissector for Appendix C TLV's */
+  /* Call Dissector for Appendix C TLVs */
   next_tvb = tvb_new_subset_remaining (tvb, 2);
   dissect_cmctrlreq_tlv(next_tvb, pinfo, cmctrlrsp_tree);
   return tvb_captured_length(tvb);
@@ -6466,7 +6466,7 @@ dissect_regreqmp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* 
   proto_tree_add_item (regreqmp_tree, hf_docsis_regreqmp_number_of_fragments, tvb, 2, 1, ENC_BIG_ENDIAN);
   proto_tree_add_item (regreqmp_tree, hf_docsis_regreqmp_fragment_sequence_number, tvb, 3, 1, ENC_BIG_ENDIAN);
 
-  /* Call Dissector for Appendix C TLV's */
+  /* Call Dissector for Appendix C TLVs */
   next_tvb = tvb_new_subset_remaining (tvb, 4);
   call_dissector (docsis_tlv_handle, next_tvb, pinfo, regreqmp_tree);
   return tvb_captured_length(tvb);
@@ -6482,7 +6482,7 @@ dissect_regrspmp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* 
   tvbuff_t *next_tvb;
 
   col_set_str(pinfo->cinfo, COL_INFO, "REG-RSP-MP Message");
-  /*Make sure embedded UCD does not overwrite REGRSPMP info*/
+  /* Make sure embedded UCD does not overwrite REGRSPMP info */
   col_set_fence(pinfo->cinfo, COL_INFO);
 
   it = proto_tree_add_item(tree, proto_docsis_regrspmp, tvb, 0, -1, ENC_NA);
@@ -6494,7 +6494,7 @@ dissect_regrspmp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* 
   proto_tree_add_item_ret_uint (regrspmp_tree, hf_docsis_regrspmp_fragment_sequence_number, tvb, 4, 1, ENC_BIG_ENDIAN, &fragment_sequence_number);
 
   col_add_fstr(pinfo->cinfo, COL_INFO, " (fragment %d):", fragment_sequence_number);
-  /*Make sure embedded UCD does not overwrite REGRSPMP info*/
+  /* Make sure embedded UCD does not overwrite REGRSPMP info */
   col_set_fence(pinfo->cinfo, COL_INFO);
 
   if(number_of_fragments > 1) {
@@ -6504,7 +6504,7 @@ dissect_regrspmp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* 
      reassembled_tlv = fragment_add_seq_check(&docsis_tlv_reassembly_table,
                                   tvb, 5, pinfo,
                                   sid, NULL, /* ID for fragments belonging together */
-                                  fragment_sequence_number -1, /*Sequence number starts at 0*/
+                                  fragment_sequence_number -1, /* Sequence number starts at 0 */
                                   tvb_reported_length_remaining(tvb, 5), /* fragment length - to the end */
                                   (fragment_sequence_number != number_of_fragments)); /* More fragments? */
 
@@ -6524,7 +6524,7 @@ dissect_regrspmp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* 
      }
 
   } else {
-    /* Call Dissector for Appendix C TLV's */
+    /* Call Dissector for Appendix C TLVs */
     next_tvb = tvb_new_subset_remaining (tvb, 5);
     call_dissector (docsis_tlv_handle, next_tvb, pinfo, regrspmp_tree);
   }
@@ -6610,7 +6610,7 @@ dissect_emrsp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* dat
   col_add_fstr (pinfo->cinfo, COL_INFO, "EM-RSP: Transaction ID: %u, Response Code: %s (%u)", trans_id,
                               val_to_str(rsp_code, emrsp_rsp_code_vals, "Unknown Response Code (%u)"), rsp_code);
 
-  /* Call Dissector TLV's */
+  /* Call Dissector TLVs */
   if(tvb_reported_length_remaining(tvb, 4) > 0 )
   {
     next_tvb = tvb_new_subset_remaining(tvb, 4);
@@ -6769,7 +6769,7 @@ dissect_ocd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data 
 
   col_add_fstr (pinfo->cinfo, COL_INFO, "OCD: DS CH ID: %u, CCC: %u", downstream_channel_id, configuration_change_count);
 
-  /* Call Dissector TLV's */
+  /* Call Dissector TLVs */
   next_tvb = tvb_new_subset_remaining(tvb, 2);
   dissect_ocd_tlv(next_tvb, pinfo, ocd_tree);
 
@@ -6847,7 +6847,7 @@ dissect_dpd_tlv (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
     type = tvb_get_guint8 (tvb, pos);
     if ( type == SUBCARRIER_ASSIGNMENT_VECTOR)
     {
-      /*For this type, length is 2 bytes instead of 1 */
+      /* For this type, length is 2 bytes instead of 1 */
       length = tvb_get_ntohs (tvb, pos + 1);
     } else {
       length = tvb_get_guint8 (tvb, pos + 1);
@@ -6861,7 +6861,7 @@ dissect_dpd_tlv (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
     pos++;
     if (type == SUBCARRIER_ASSIGNMENT_VECTOR)
     {
-      /*For this type, length is 2 bytes instead of 1 */
+      /* For this type, length is 2 bytes instead of 1 */
       tlv_len_item = proto_tree_add_item (tlvtlv_tree, hf_docsis_dpd_length, tvb, pos, 2, ENC_BIG_ENDIAN);
       pos += 2;
     } else {
@@ -6923,7 +6923,7 @@ dissect_dpd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data 
 
   col_add_fstr (pinfo->cinfo, COL_INFO, "DPD: DS CH ID: %u, Profile ID: %u, CCC: %u", downstream_channel_id, profile_identifier, configuration_change_count);
 
-  /* Call Dissector TLV's */
+  /* Call Dissector TLVs */
   next_tvb = tvb_new_subset_remaining(tvb, 3);
   dissect_dpd_tlv(next_tvb, pinfo, dpd_tree);
 
@@ -7068,7 +7068,7 @@ dissect_optreq (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* da
                               val_to_str(profile_identifier, profile_id_vals, "Unknown Profile ID (%u)"), profile_identifier,
                               val_to_str(opcode, opt_opcode_vals, "Unknown Opcode (%u)"), opcode);
 
-  /* Call Dissector TLV's */
+  /* Call Dissector TLVs */
   if(tvb_reported_length_remaining(tvb, 5) > 0 )
   {
     next_tvb = tvb_new_subset_remaining(tvb, 5);
@@ -7213,14 +7213,14 @@ dissect_optrsp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* da
     multipart = 0;
   }
 
-  /* Reassemble TLV's */
+  /* Reassemble TLVs */
   if (tvb_reported_length_remaining(tvb, 5) > 0) {
     if (version > 4 && multipart) {
-      /*Fragmented data*/
+      /* Fragmented data */
       number_of_fragments = (multipart >> 4);
       fragment_sequence_number = (multipart & 0x0F);
 
-      /*DOCSIS mac management messages do not have network (ip)  address. Use link (mac)  address instead. Same workflow as in wimax.*/
+      /* DOCSIS MAC management messages do not have network (IP) address. Use link (MAC) address instead. Same workflow as in wimax. */
       /* Save address pointers. */
       copy_address_shallow(&save_src, &pinfo->src);
       copy_address_shallow(&save_dst, &pinfo->dst);
@@ -7245,7 +7245,7 @@ dissect_optrsp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* da
           dissect_optrsp_tlv(tlv_tvb, pinfo, opt_tree);
         }
       }
-    } else { /*version > 4 && multipart*/
+    } else { /* version > 4 && multipart */
       tlv_tvb = tvb_new_subset_remaining (tvb, 5);
       dissect_optrsp_tlv(tlv_tvb, pinfo, opt_tree);
     }
@@ -8184,12 +8184,12 @@ proto_register_docsis_mgmt (void)
       NULL, HFILL}
     },
     {&hf_docsis_bpkmattr_manf_id,
-     {"Manufacturer Id", "docsis_bpkm.attr.manfid",
+     {"Manufacturer ID", "docsis_bpkm.attr.manfid",
       FT_BYTES, BASE_NONE, NULL, 0x0,
       NULL, HFILL}
     },
     {&hf_docsis_bpkmattr_mac_addr,
-     {"Mac Address", "docsis_bpkm.attr.macaddr",
+     {"MAC Address", "docsis_bpkm.attr.macaddr",
       FT_ETHER, BASE_NONE, NULL, 0x0,
       NULL, HFILL}
     },
@@ -8611,7 +8611,7 @@ proto_register_docsis_mgmt (void)
     },
     {&hf_docsis_dccreq_cmts_mac_addr ,
      {
-       "CMTS Mac Address",
+       "CMTS MAC Address",
        "docsis_dccreq.cmts_mac_addr",
        FT_ETHER, BASE_NONE, NULL, 0x0,
        NULL,
@@ -8827,7 +8827,7 @@ proto_register_docsis_mgmt (void)
     },
     {&hf_docsis_dcd_cfr_id,
      {
-       "Downstream Classifier Id",
+       "Downstream Classifier ID",
        "docsis_dcd.cfr_id",
        FT_UINT16, BASE_DEC, NULL, 0x0,
        NULL,
@@ -8935,7 +8935,7 @@ proto_register_docsis_mgmt (void)
     },
     {&hf_docsis_dcd_rule_id,
      {
-       "DSG Rule Id",
+       "DSG Rule ID",
        "docsis_dcd.rule_id",
        FT_UINT8, BASE_DEC, NULL, 0x0,
        NULL,
@@ -9135,22 +9135,22 @@ proto_register_docsis_mgmt (void)
     {&hf_docsis_mdd_ccc,
      {"Configuration Change Count", "docsis_mdd.ccc",
       FT_UINT8, BASE_DEC, NULL, 0x0,
-      "Mdd Configuration Change Count", HFILL}
+      "MDD Configuration Change Count", HFILL}
     },
     {&hf_docsis_mdd_number_of_fragments,
      {"Number of Fragments", "docsis_mdd.number_of_fragments",
       FT_UINT8, BASE_DEC, NULL, 0x0,
-      "Mdd Number of Fragments", HFILL}
+      "MDD Number of Fragments", HFILL}
     },
     {&hf_docsis_mdd_fragment_sequence_number,
      {"Fragment Sequence Number", "docsis_mdd.fragment_sequence_number",
       FT_UINT8, BASE_DEC, NULL, 0x0,
-      "Mdd Fragment Sequence Number", HFILL}
+      "MDD Fragment Sequence Number", HFILL}
     },
     {&hf_docsis_mdd_current_channel_dcid,
      {"Current Channel DCID", "docsis_mdd.current_channel_dcid",
       FT_UINT8, BASE_DEC, NULL, 0x0,
-      "Mdd Current Channel DCID", HFILL}
+      "MDD Current Channel DCID", HFILL}
     },
     {&hf_docsis_mdd_ds_active_channel_list_subtype,
      {"Type", "docsis_mdd.downstream_active_channel_list_tlvtype",
@@ -9165,27 +9165,27 @@ proto_register_docsis_mgmt (void)
     {&hf_docsis_mdd_downstream_active_channel_list_channel_id,
      {"Channel ID", "docsis_mdd.downstream_active_channel_list_channel_id",
       FT_UINT8, BASE_DEC, NULL, 0x0,
-      "Mdd Downstream Active Channel List Channel ID", HFILL}
+      "MDD Downstream Active Channel List Channel ID", HFILL}
     },
     {&hf_docsis_mdd_downstream_active_channel_list_frequency,
      {"Frequency", "docsis_mdd.downstream_active_channel_list_frequency",
       FT_UINT32, BASE_DEC, NULL, 0x0,
-      "Mdd Downstream Active Channel List Frequency", HFILL}
+      "MDD Downstream Active Channel List Frequency", HFILL}
     },
     {&hf_docsis_mdd_downstream_active_channel_list_annex,
      {"Annex", "docsis_mdd.downstream_active_channel_list_annex",
       FT_UINT8, BASE_DEC, VALS(J83_annex_vals), 0xF0,
-      "Mdd Downstream Active Channel List Annex", HFILL}
+      "MDD Downstream Active Channel List Annex", HFILL}
     },
     {&hf_docsis_mdd_downstream_active_channel_list_modulation_order,
      {"Modulation Order", "docsis_mdd.downstream_active_channel_list_modulation_order",
       FT_UINT8, BASE_DEC, VALS(modulation_order_vals), 0x0F,
-      "Mdd Downstream Active Channel List Modulation Order", HFILL}
+      "MDD Downstream Active Channel List Modulation Order", HFILL}
     },
     {&hf_docsis_mdd_downstream_active_channel_list_primary_capable,
      {"Primary Capable", "docsis_mdd.downstream_active_channel_list_primary_capable",
       FT_UINT8, BASE_DEC, VALS(primary_capable_vals), 0x0,
-      "Mdd Downstream Active Channel List Primary Capable", HFILL}
+      "MDD Downstream Active Channel List Primary Capable", HFILL}
     },
     {&hf_docsis_mdd_cm_status_event_enable_bitmask,
      {"CM-STATUS Event Enable Bitmask", "docsis_mdd.cm_status_event_enable_bitmask",
@@ -9195,12 +9195,12 @@ proto_register_docsis_mgmt (void)
     {&hf_docsis_mdd_cm_status_event_enable_bitmask_mdd_timeout,
      {"MDD Timeout", "docsis_mdd.downstream_active_channel_list_mdd_timeout",
       FT_UINT16, BASE_DEC, NULL, 0x0002,
-      "Mdd Downstream Active Channel List MDD Timeout", HFILL}
+      "MDD Downstream Active Channel List MDD Timeout", HFILL}
     },
     {&hf_docsis_mdd_cm_status_event_enable_bitmask_qam_fec_lock_failure,
      {"QAM/FEC Lock Failure", "docsis_mdd.cm_status_event_enable_bitmask_qam_fec_lock_failure",
       FT_UINT16, BASE_DEC, NULL, 0x0004,
-      "Mdd Downstream Active Channel List QAM/FEC Lock Failure", HFILL}
+      "MDD Downstream Active Channel List QAM/FEC Lock Failure", HFILL}
     },
     {&hf_docsis_mdd_cm_status_event_enable_bitmask_mdd_recovery,
      {"MDD Recovery", "docsis_mdd.cm_status_event_enable_bitmask_mdd_recovery",
@@ -9215,7 +9215,7 @@ proto_register_docsis_mgmt (void)
     {&hf_docsis_mdd_downstream_active_channel_list_map_ucd_transport_indicator,
      {"MAP and UCD transport indicator", "docsis_mdd.downstream_active_channel_list_map_ucd_transport_indicator",
       FT_UINT8, BASE_DEC, VALS(map_ucd_transport_indicator_vals), 0x0,
-      "Mdd Downstream Active Channel List MAP and UCD Transport Indicator", HFILL}
+      "MDD Downstream Active Channel List MAP and UCD Transport Indicator", HFILL}
     },
     {&hf_docsis_mdd_ofdm_plc_parameters,
      {"OFDM PLC Parameters", "docsis_mdd.ofdm_plc_parameters",
@@ -9263,9 +9263,9 @@ proto_register_docsis_mgmt (void)
       "CM-STATUS event Successful Ranging after T3 Retries Exceeded", HFILL}
     },
     {&hf_docsis_mdd_mac_domain_downstream_service_group_channel_id,
-     {"Channel Id", "docsis_mdd.mac_domain_downstream_service_group_channel_id",
+     {"Channel ID", "docsis_mdd.mac_domain_downstream_service_group_channel_id",
       FT_UINT8, BASE_DEC, NULL, 0x0,
-      "Mdd Mac Domain Downstream Service Group Channel Id", HFILL}
+      "MDD MAC Domain Downstream Service Group Channel ID", HFILL}
     },
     {&hf_docsis_mdd_ds_service_group_subtype,
      {"Type", "docsis_mdd.ds_service_group_type",
@@ -9280,7 +9280,7 @@ proto_register_docsis_mgmt (void)
     {&hf_docsis_mdd_mac_domain_downstream_service_group_md_ds_sg_identifier,
      {"MD-DS-SG Identifier", "docsis_mdd.mac_domain_downstream_service_group_md_ds_sg_identifier",
       FT_UINT8, BASE_DEC, NULL, 0x0,
-      "Mdd Mac Domain Downstream Service Group MD-DS-SG Identifier", HFILL}
+      "MDD MAC Domain Downstream Service Group MD-DS-SG Identifier", HFILL}
     },
     {&hf_docsis_mdd_type,
      {"Type", "docsis_mdd.type",
@@ -9295,7 +9295,7 @@ proto_register_docsis_mgmt (void)
     {&hf_docsis_mdd_downstream_ambiguity_resolution_frequency,
      {"Frequency", "docsis_mdd.downstream_ambiguity_resolution_frequency",
       FT_UINT32, BASE_DEC, NULL, 0x0,
-      "Mdd Downstream Ambiguity Resolution frequency", HFILL}
+      "MDD Downstream Ambiguity Resolution frequency", HFILL}
     },
     {&hf_docsis_mdd_channel_profile_reporting_control_subtype,
      {"Type", "docsis_mdd.channel_profile_reporting_control_type",
@@ -9310,17 +9310,17 @@ proto_register_docsis_mgmt (void)
     {&hf_docsis_mdd_rcp_center_frequency_spacing,
      {"RCP Center Frequency Spacing", "docsis_mdd.rcp_center_frequency_spacing",
       FT_UINT8, BASE_DEC, VALS(rcp_center_frequency_spacing_vals), 0x0,
-      "Mdd RCP Center Frequency Spacing", HFILL}
+      "MDD RCP Center Frequency Spacing", HFILL}
     },
     {&hf_docsis_mdd_verbose_rcp_reporting,
      {"Verbose RCP reporting", "docsis_mdd.verbose_rcp_reporting",
       FT_UINT8, BASE_DEC, VALS(verbose_rcp_reporting_vals), 0x0,
-      "Mdd Verbose RCP Reporting", HFILL}
+      "MDD Verbose RCP Reporting", HFILL}
     },
     {&hf_docsis_mdd_fragmented_rcp_transmission,
      {"Fragmented RCP transmission", "docsis_mdd.fragmented_rcp_transmission",
       FT_UINT8, BASE_DEC, VALS(fragmented_rcp_transmission_vals), 0x0,
-      "Mdd Fragmented RCP transmission", HFILL}
+      "MDD Fragmented RCP transmission", HFILL}
     },
     {&hf_docsis_mdd_ip_init_param_subtype,
      {"Type", "docsis_mdd.ip_init_param_type",
@@ -9335,62 +9335,62 @@ proto_register_docsis_mgmt (void)
     {&hf_docsis_mdd_ip_provisioning_mode,
      {"IP Provisioning Mode", "docsis_mdd.ip_provisioning_mode",
       FT_UINT8, BASE_DEC, VALS(ip_provisioning_mode_vals), 0x0,
-      "Mdd IP Provisioning Mode", HFILL}
+      "MDD IP Provisioning Mode", HFILL}
     },
     {&hf_docsis_mdd_pre_registration_dsid,
      {"Pre-registration DSID", "docsis_mdd.pre_registration_dsid",
       FT_UINT24, BASE_DEC, NULL, 0x0FFFFF,
-      "Mdd Pre-registration DSID", HFILL}
+      "MDD Pre-registration DSID", HFILL}
     },
     {&hf_docsis_mdd_early_authentication_and_encryption,
      {"Early Authentication and Encryption", "docsis_mdd.early_authentication_and_encryption",
       FT_UINT8, BASE_DEC, VALS(eae_vals), 0x0,
-      "Mdd Early Authentication and Encryption", HFILL}
+      "MDD Early Authentication and Encryption", HFILL}
     },
     {&hf_docsis_mdd_upstream_active_channel_list_upstream_channel_id,
-     {"Upstream Channel Id", "docsis_mdd.upstream_active_channel_list_upstream_channel_id",
+     {"Upstream Channel ID", "docsis_mdd.upstream_active_channel_list_upstream_channel_id",
       FT_UINT8, BASE_DEC, NULL, 0x0,
-      "Mdd Upstream Active Channel List - Upstream Channel Id", HFILL}
+      "MDD Upstream Active Channel List - Upstream Channel ID", HFILL}
     },
     {&hf_docsis_mdd_upstream_active_channel_list_upstream_channel_priority,
      {"Upstream Channel Priority", "docsis_mdd.upstream_active_channel_list_upstream_channel_priority",
       FT_UINT8, BASE_DEC, NULL, 0x0,
-      "Mdd Upstream Active Channel List - Upstream Channel Priority", HFILL}
+      "MDD Upstream Active Channel List - Upstream Channel Priority", HFILL}
     },
     {&hf_docsis_mdd_upstream_active_channel_list_dschids_maps_ucds,
      {"Downstream Channel(s) on which MAPs and UCDs for this Upstream Channel are sent", "docsis_mdd.upstream_active_channel_list_dschids_maps_ucds",
       FT_BYTES, BASE_NONE, NULL, 0x0,
-      "Mdd Upstream Active Channel List - Downstream Channel(s) on which MAPs and UCDs for this Upstream Channel are sent", HFILL}
+      "MDD Upstream Active Channel List - Downstream Channel(s) on which MAPs and UCDs for this Upstream Channel are sent", HFILL}
     },
     {&hf_docsis_mdd_upstream_active_channel_list_dschids_maps_ucds_dschid,
      {"Downstream Channel ID", "docsis_mdd.upstream_active_channel_list_dschids_maps_ucds.dschid",
       FT_UINT8, BASE_DEC, NULL, 0x0,
-      "Mdd Upstream Active Channel List - ID of Downstream Channel on which MAPs and UCDs for this Upstream Channel are sent", HFILL}
+      "MDD Upstream Active Channel List - ID of Downstream Channel on which MAPs and UCDs for this Upstream Channel are sent", HFILL}
     },
     {&hf_docsis_mdd_upstream_active_channel_list_fdx_upstream_channel,
      {"FDX Upstream Channel", "docsis_mdd.upstream_active_channel_list_fdx_upstream_channel",
       FT_UINT8, BASE_DEC, NULL, 0x0,
-      "Mdd Upstream Active Channel List - FDX Upstream Channel", HFILL}
+      "MDD Upstream Active Channel List - FDX Upstream Channel", HFILL}
     },
     {&hf_docsis_mdd_upstream_active_channel_list_fdx_subband_id,
      {"FDX Sub-band ID", "docsis_mdd.upstream_active_channel_list_fdx_subband_id",
       FT_UINT8, BASE_DEC, NULL, 0x0,
-      "Mdd Upstream Active Channel List - FDX Sub-band ID", HFILL}
+      "MDD Upstream Active Channel List - FDX Sub-band ID", HFILL}
     },
     {&hf_docsis_mdd_upstream_ambiguity_resolution_channel_list_channel_id,
-     {"Channel Id", "docsis_mdd.upstream_ambiguity_resolution_channel_list_channel_id",
+     {"Channel ID", "docsis_mdd.upstream_ambiguity_resolution_channel_list_channel_id",
       FT_UINT8, BASE_DEC, NULL, 0x0,
-      "Mdd Mac Domain Upstream Ambiguity Resolution Channel List Channel Id", HFILL}
+      "MDD MAC Domain Upstream Ambiguity Resolution Channel List Channel ID", HFILL}
     },
     {&hf_docsis_mdd_upstream_frequency_range,
      {"Upstream Frequency Range", "docsis_mdd.upstream_frequency_range",
       FT_UINT8, BASE_DEC, VALS(upstream_frequency_range_vals), 0x0,
-      "Mdd Upstream Frequency Range", HFILL}
+      "MDD Upstream Frequency Range", HFILL}
     },
     {&hf_docsis_mdd_symbol_clock_locking_indicator,
      {"Symbol Clock Locking Indicator", "docsis_mdd.symbol_clock_locking_indicator",
       FT_UINT8, BASE_DEC, VALS(symbol_clock_locking_indicator_vals), 0x0,
-      "Mdd Symbol Clock Locking Indicator", HFILL}
+      "MDD Symbol Clock Locking Indicator", HFILL}
     },
     {&hf_docsis_mdd_cm_status_event_control_subtype,
      {"Type", "docsis_mdd.cm_status_event_control_type",
@@ -9405,22 +9405,22 @@ proto_register_docsis_mgmt (void)
     {&hf_docsis_mdd_event_type,
      {"Event Type", "docsis_mdd.event_type",
       FT_UINT8, BASE_DEC, VALS(symbol_cm_status_event_vals), 0x0,
-      "Mdd CM-STATUS Event Type", HFILL}
+      "MDD CM-STATUS Event Type", HFILL}
     },
     {&hf_docsis_mdd_maximum_event_holdoff_timer,
      {"Maximum Event Holdoff Timer (units of 20 ms)", "docsis_mdd.maximum_event_holdoff_timer",
       FT_UINT16, BASE_DEC, NULL, 0x0,
-      "Mdd Maximum Event Holdoff Timer", HFILL}
+      "MDD Maximum Event Holdoff Timer", HFILL}
     },
     {&hf_docsis_mdd_maximum_number_of_reports_per_event,
      {"Maximum Number of Reports per Event", "docsis_mdd.maximum_number_of_reports_per_event",
       FT_UINT8, BASE_DEC|BASE_SPECIAL_VALS, VALS(unique_unlimited), 0x0,
-      "Mdd Maximum Number of Reports per Event", HFILL}
+      "MDD Maximum Number of Reports per Event", HFILL}
     },
     {&hf_docsis_mdd_upstream_transmit_power_reporting,
      {"Upstream Transmit Power Reporting", "docsis_mdd.upstream_transmit_power_reporting",
       FT_UINT8, BASE_DEC, VALS(upstream_transmit_power_reporting_vals), 0x0,
-      "Mdd Upstream Transmit Power Reporting", HFILL}
+      "MDD Upstream Transmit Power Reporting", HFILL}
     },
     {&hf_docsis_mdd_dsg_da_to_dsid_subtype,
      {"Type", "docsis_mdd.dsg_da_to_dsid_type",
@@ -9435,12 +9435,12 @@ proto_register_docsis_mgmt (void)
     {&hf_docsis_mdd_dsg_da_to_dsid_association_da,
      {"Destination Address", "docsis_mdd.dsg_da_to_dsid_association_da",
       FT_ETHER, BASE_NONE, NULL, 0x0,
-      "Mdd DSG DA to DSID association Destination Address", HFILL}
+      "MDD DSG DA to DSID association Destination Address", HFILL}
     },
     {&hf_docsis_mdd_dsg_da_to_dsid_association_dsid,
      {"DSID", "docsis_mdd.dsg_da_to_dsid_association_dsid",
       FT_UINT24, BASE_DEC, NULL, 0x0FFFFF,
-      "Mdd Mdd DSG DA to DSID association DSID", HFILL}
+      "MDD MDD DSG DA to DSID association DSID", HFILL}
     },
     {&hf_docsis_mdd_cm_status_event_enable_non_channel_specific_events,
      {"CM-STATUS Event Enable Bitmask for Non-Channel-Specific Events", "docsis_mdd.cm_status_event_enable_non_channel_specific_events",
@@ -9465,7 +9465,7 @@ proto_register_docsis_mgmt (void)
     {&hf_docsis_mdd_extended_upstream_transmit_power_support,
      { "Extended Upstream Transmit Power Support", "docsis_mdd.extended_upstream_transmit_power_support",
        FT_BOOLEAN, BASE_NONE, TFS(&tfs_on_off), 0x0,
-       "Mdd Extended Upstream Transmit Power Support", HFILL}
+       "MDD Extended Upstream Transmit Power Support", HFILL}
     },
     {&hf_docsis_mdd_cmts_major_docsis_version,
      { "CMTS Major DOCSIS Version", "docsis_mdd.cmts_major_docsis_version",
@@ -10186,7 +10186,7 @@ proto_register_docsis_mgmt (void)
     {&hf_docsis_optack_reserved,
      {"Reserved", "docsis_optack.reserved", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}
     },
-    /*RBA*/
+    /* RBA */
     {&hf_docsis_rba_tg_id,
      {"Transmission Group ID", "docsis_rba.tg_id", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
     },
@@ -10233,7 +10233,7 @@ proto_register_docsis_mgmt (void)
       "Management Message", HFILL}
     },
     {&hf_docsis_mgt_tranid,
-     {"Transaction Id", "docsis_mgmt.tranid",
+     {"Transaction ID", "docsis_mgmt.tranid",
       FT_UINT16, BASE_DEC, NULL, 0x0,
       NULL, HFILL}
     },
@@ -10494,12 +10494,12 @@ proto_register_docsis_mgmt (void)
   static ei_register_info ei[] = {
     {&ei_docsis_mgmt_tlvlen_bad, {"docsis_mgmt.tlvlenbad", PI_MALFORMED, PI_ERROR, "Bad TLV length", EXPFILL}},
     {&ei_docsis_mgmt_tlvtype_unknown, { "docsis_mgmt.tlvtypeunknown", PI_PROTOCOL, PI_WARN, "Unknown TLV type", EXPFILL}},
-    {&ei_docsis_mgmt_version_unknown, { "docsis_mgmt.versionunknown", PI_PROTOCOL, PI_WARN, "Unknown mac management version", EXPFILL}},
+    {&ei_docsis_mgmt_version_unknown, { "docsis_mgmt.versionunknown", PI_PROTOCOL, PI_WARN, "Unknown MAC management version", EXPFILL}},
    };
 
   expert_module_t* expert_docsis_mgmt;
 
-  proto_docsis_mgmt = proto_register_protocol ("DOCSIS Mac Management", "DOCSIS MAC MGMT", "docsis_mgmt");
+  proto_docsis_mgmt = proto_register_protocol ("DOCSIS MAC Management", "DOCSIS MAC MGMT", "docsis_mgmt");
 
   proto_register_field_array (proto_docsis_mgmt, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));
@@ -10507,10 +10507,10 @@ proto_register_docsis_mgmt (void)
   expert_register_field_array(expert_docsis_mgmt, ei, array_length(ei));
 
   docsis_mgmt_dissector_table = register_dissector_table ("docsis_mgmt",
-                                                          "DOCSIS Mac Management", proto_docsis_mgmt,
+                                                          "DOCSIS MAC Management", proto_docsis_mgmt,
                                                           FT_UINT8, BASE_DEC);
 
-  /* Register Mac Management commands as their own protocols so we can get the name of the option */
+  /* Register MAC Management commands as their own protocols so we can get the name of the option */
   proto_docsis_sync = proto_register_protocol_in_name_only("DOCSIS Synchronisation Message", "SYNC Message", "docsis_sync", proto_docsis_mgmt, FT_BYTES);
   proto_docsis_ucd = proto_register_protocol_in_name_only("DOCSIS Upstream Channel Descriptor", "DOCSIS UCD", "docsis_ucd", proto_docsis_mgmt, FT_BYTES);
   proto_docsis_map_v1 = proto_register_protocol_in_name_only("DOCSIS Upstream Bandwidth Allocation - version 1", "DOCSIS MAP", "docsis_map", proto_docsis_mgmt, FT_BYTES);
@@ -10529,7 +10529,7 @@ proto_register_docsis_mgmt (void)
   proto_docsis_dsaack = proto_register_protocol_in_name_only("DOCSIS Dynamic Service Addition Acknowledge", "DOCSIS DSA-ACK", "docsis_dsaack", proto_docsis_mgmt, FT_BYTES);
   proto_docsis_dscreq = proto_register_protocol_in_name_only("DOCSIS Dynamic Service Change Request", "DOCSIS DSC-REQ", "docsis_dscreq", proto_docsis_mgmt, FT_BYTES);
   proto_docsis_dscrsp = proto_register_protocol_in_name_only("DOCSIS Dynamic Service Change Response", "DOCSIS DSC-RSP", "docsis_dscrsp", proto_docsis_mgmt, FT_BYTES);
-  proto_docsis_dscack = proto_register_protocol_in_name_only("DOCSIS Dynamic Service Change Acknowledgement", "DOCSIS DSC-ACK", "docsis_dscack", proto_docsis_mgmt, FT_BYTES);
+  proto_docsis_dscack = proto_register_protocol_in_name_only("DOCSIS Dynamic Service Change Acknowledge", "DOCSIS DSC-ACK", "docsis_dscack", proto_docsis_mgmt, FT_BYTES);
   proto_docsis_dsdreq = proto_register_protocol_in_name_only("DOCSIS Dynamic Service Delete Request", "DOCSIS DSD-REQ", "docsis_dsdreq", proto_docsis_mgmt, FT_BYTES);
   proto_docsis_dsdrsp = proto_register_protocol_in_name_only("DOCSIS Dynamic Service Delete Response", "DOCSIS DSD-RSP", "docsis_dsdrsp", proto_docsis_mgmt, FT_BYTES);
   proto_docsis_dccreq = proto_register_protocol_in_name_only("DOCSIS Downstream Channel Change Request", "DOCSIS DCC-REQ", "docsis_dccreq", proto_docsis_mgmt, FT_BYTES);
@@ -10538,7 +10538,7 @@ proto_register_docsis_mgmt (void)
   proto_docsis_type29ucd = proto_register_protocol_in_name_only("DOCSIS Upstream Channel Descriptor Type 29", "DOCSIS type29ucd", "docsis_type29ucd", proto_docsis_mgmt, FT_BYTES);
   proto_docsis_intrngreq = proto_register_protocol_in_name_only("DOCSIS Initial Ranging Message", "DOCSIS INT-RNG-REQ", "docsis_intrngreq", proto_docsis_mgmt, FT_BYTES);
   proto_docsis_dcd = proto_register_protocol_in_name_only("DOCSIS Downstream Channel Descriptor", "DOCSIS DCD", "docsis_dcd", proto_docsis_mgmt, FT_BYTES);
-  proto_docsis_mdd = proto_register_protocol_in_name_only("DOCSIS Mac Domain Description", "DOCSIS Mdd", "docsis_mdd", proto_docsis_mgmt, FT_BYTES);
+  proto_docsis_mdd = proto_register_protocol_in_name_only("DOCSIS MAC Domain Description", "DOCSIS MDD", "docsis_mdd", proto_docsis_mgmt, FT_BYTES);
   proto_docsis_bintrngreq = proto_register_protocol_in_name_only("DOCSIS Bonded Initial Ranging Message", "DOCSIS B-INT-RNG-REQ", "docsis_bintrngreq", proto_docsis_mgmt, FT_BYTES);
   proto_docsis_type35ucd = proto_register_protocol_in_name_only("DOCSIS Upstream Channel Descriptor Type 35", "DOCSIS type35ucd", "docsis_type35ucd", proto_docsis_mgmt, FT_BYTES);
   proto_docsis_dbcreq = proto_register_protocol_in_name_only("DOCSIS Dynamic Bonding Change Request", "DOCSIS DBC-REQ", "docsis_dbcreq", proto_docsis_mgmt, FT_BYTES);
@@ -10569,7 +10569,7 @@ proto_register_docsis_mgmt (void)
 void
 proto_reg_handoff_docsis_mgmt (void)
 {
-  /* Create dissection function handles for all Mac Management commands */
+  /* Create dissection function handles for all MAC Management commands */
   dissector_add_uint ("docsis_mgmt", MGT_SYNC, create_dissector_handle( dissect_sync, proto_docsis_sync ));
   dissector_add_uint ("docsis_mgmt", MGT_UCD, docsis_ucd_handle);
   dissector_add_uint ("docsis_mgmt", 256*MAP_v1 + MGT_MAP, create_dissector_handle( dissect_map_v1, proto_docsis_map_v1 ));

@@ -10,15 +10,15 @@
  */
 
 
-/* Notes to Adding dissectors for Vendor specific TLV's:
+/* Notes to Adding dissectors for Vendor specific TLVs:
  * 1. Create a dissect_<vendorname> function with the following prototype:
  *   dissect_foovendor(tvbuff_t *tvb, proto_tree *tree, gint vsif_len)
  * 2. vsif_len will be the *entire* length of the vsif TLV (including the
- *   Vendor Id TLV, which is 5 bytes long).
+ *   Vendor ID TLV, which is 5 bytes long).
  * 3. Create a new 'case' statement in dissect_vsif, for your specific Vendor
- *   id.
+ *   ID.
  * 4. In that 'case' statement you will make the following calls:
- *   (assume for this example that your vendor id is 0x000054)
+ *   (assume for this example that your vendor ID is 0x000054)
  *   #define VENDOR_FOOVENDOR 0x00054
  *   case VENDOR_FOOVENDOR:
  *      proto_item_append_text (it, " (foo vendor)");
@@ -126,7 +126,7 @@ static const value_string authorization_action_vals[] = {
 };
 
 
-/* Dissector for Cisco Vendor Specific TLV's */
+/* Dissector for Cisco Vendor Specific TLVs */
 
 #define NUM_PHONES      0x0a
 #define IOS_CONFIG_FILE 0x80
@@ -551,7 +551,7 @@ dissect_ip_multicast_join_authorization(tvbuff_t * tvb, packet_info * pinfo,  pr
 
 
 
-/* Dissector for General Extension TLV's */
+/* Dissector for General Extension TLVs */
 
 #define GEX_CM_LOAD_BALANCING_POLICY_ID 1
 #define GEX_CM_LOAD_BALANCING_PRIORITY 2
@@ -624,7 +624,7 @@ proto_register_docsis_vsif (void)
 {
   static hf_register_info hf[] = {
     {&hf_docsis_vsif_vendorid,
-     {"Vendor Id", "docsis_vsif.vendorid",
+     {"Vendor ID", "docsis_vsif.vendorid",
       FT_UINT24, BASE_HEX, VALS(vendorid_vals), 0x0,
       "Vendor Identifier", HFILL}
     },
