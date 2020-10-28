@@ -98,6 +98,7 @@ typedef struct recent_settings_tag {
     gint        gui_zoom_level;
     bytes_view_type gui_bytes_view;
     bytes_encoding_type gui_bytes_encoding;
+    gboolean    gui_packet_diagram_field_values;
 
     search_in_type  gui_search_in;
     search_char_set_type gui_search_char_set;

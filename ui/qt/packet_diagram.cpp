@@ -21,6 +21,7 @@
 #include "ui/qt/main_window.h"
 #include "ui/qt/utils/proto_node.h"
 #include "ui/qt/utils/variant_pointer.h"
+#include "ui/recent.h"
 
 
 #include <QContextMenuEvent>
@@ -48,8 +49,7 @@ public:
         small_font_rems_(0.75),
         bit_width_rems_(1.0),
         padding_rems_(0.5),
-        span_mark_offset_rems_(0.2),
-        show_fields_(false)
+        span_mark_offset_rems_(0.2)
     {
         setFont(wsApp->font());
     }
@@ -62,7 +62,7 @@ public:
         QFontMetrics fm(regular_font_);
         root_em_ = fm.height();
     }
-    void setShowFields(bool show_fields = false) { show_fields_ = show_fields; }
+    void setShowFields(bool show_fields = false) { recent.gui_packet_diagram_field_values = show_fields; }
 
     int bitsPerRow() const { return bits_per_row_; }
     const QFont regularFont() const { return regular_font_; }
@@ -73,17 +73,16 @@ public:
     int vPadding() const { return root_em_ * padding_rems_; }
     int spanMarkOffset() const { return root_em_ * span_mark_offset_rems_; }
     int rowHeight() const {
-        int rows = show_fields_ ? 2 : 1;
+        int rows = recent.gui_packet_diagram_field_values ? 2 : 1;
         return ((lineHeight() * rows) + (vPadding() * 2));
     }
-    bool showFields() const { return show_fields_; }
+    bool showFields() const { return recent.gui_packet_diagram_field_values; }
 private:
     int bits_per_row_;
     double small_font_rems_;
     double bit_width_rems_;
     double padding_rems_;
     double span_mark_offset_rems_; // XXX Make this padding_rems_ / 2 instead?
-    bool show_fields_;
     QFont regular_font_;
     QFont small_font_;
     int root_em_;
