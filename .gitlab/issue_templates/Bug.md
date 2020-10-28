@@ -24,10 +24,11 @@
 
 
 ## Relevant logs and/or screenshots
-
-(Paste any relevant logs - please use code blocks (```) to format console output, logs, and code as it's very hard to read otherwise.)
-
+```
+(Paste any relevant logs)
+```
 
 ## Build information
-
-(In Wireshark, select Help->About Wireshark from the main menu. Or from the command line, run `tshark -v` or `wireshark -v`.)
+```
+(In Wireshark, select Help->About Wireshark from the main menu. Or from the command line, run `tshark -v` or `wireshark -v`)
+```
