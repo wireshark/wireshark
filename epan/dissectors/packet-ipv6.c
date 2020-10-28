@@ -111,6 +111,7 @@ static int proto_ipv6_routing_rt0               = -1;
 static int proto_ipv6_routing_mipv6             = -1;
 static int proto_ipv6_routing_rpl               = -1;
 static int proto_ipv6_routing_srh               = -1;
+static int proto_ipv6_routing_crh               = -1;
 
 static int hf_ipv6_version                      = -1;
 static int hf_ip_version                        = -1;
@@ -264,6 +265,11 @@ static int hf_ipv6_routing_srh_last_entry       = -1;
 static int hf_ipv6_routing_srh_flags            = -1;
 static int hf_ipv6_routing_srh_tag              = -1;
 static int hf_ipv6_routing_srh_addr             = -1;
+
+static int hf_ipv6_routing_crh16_current_sid      = -1;
+static int hf_ipv6_routing_crh32_current_sid      = -1;
+static int hf_ipv6_routing_crh16_segment_id     = -1;
+static int hf_ipv6_routing_crh32_segment_id     = -1;
 
 static int hf_geoip_country             = -1;
 static int hf_geoip_country_iso         = -1;
@@ -651,6 +657,8 @@ enum {
     IPv6_RT_HEADER_MOBILE_IP       = 2,
     IPv6_RT_HEADER_RPL             = 3,
     IPv6_RT_HEADER_SEGMENT_ROUTING = 4,
+    IPv6_RT_HEADER_COMPACT_16      = 5,
+    IPv6_RT_HEADER_COMPACT_32      = 6,
     IPv6_RT_HEADER_EXP1            = 253,
     IPv6_RT_HEADER_EXP2            = 254
 };
@@ -662,6 +670,8 @@ static const value_string routing_header_type[] = {
     { IPv6_RT_HEADER_MOBILE_IP,         "Type 2 Routing"   },
     { IPv6_RT_HEADER_RPL,               "RPL Source Route" },
     { IPv6_RT_HEADER_SEGMENT_ROUTING,   "Segment Routing"  },
+    { IPv6_RT_HEADER_COMPACT_16,        "Compact Routing Header 16"  },
+    { IPv6_RT_HEADER_COMPACT_32,        "Compact Routing Header 32"  },
     { IPv6_RT_HEADER_EXP1,              "Experiment 1"     },
     { IPv6_RT_HEADER_EXP2,              "Experiment 2"     },
     { 0, NULL }
@@ -1110,6 +1120,82 @@ dissect_routing6_srh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
     return tvb_captured_length(tvb);
 }
 
+/* Compact Routing Header 16 (Type 5) and  Compact Routing Header 32 (Type 6).
+    https://tools.ietf.org/html/draft-bonica-6man-comp-rtg-hdr-23. */
+static int dissect_routing6_crh(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data)
+{
+    int offset, minimum_crh_length;
+    gint sid;
+
+    unsigned sid_count = 0;
+    unsigned octets_per_sid = 0;
+    unsigned sids_beyond_first_word = 0;
+    unsigned sids_per_word = 0;
+    struct ws_rthdr* rt = (struct ws_rthdr*)data;
+    gboolean is_crh16 = rt->hdr.ip6r_type == IPv6_RT_HEADER_COMPACT_16;
+    guint8 segments_left = rt->hdr.ip6r_segleft;
+
+    /* Compute the minimum CRH length measured in 8-octet units, not including
+    the first 8 octets */
+    minimum_crh_length = -1;
+    switch (rt->hdr.ip6r_type) {
+    case IPv6_RT_HEADER_COMPACT_16:
+        octets_per_sid = 2;
+        sids_per_word = 4;
+        sid_count = rt->hdr.ip6r_len * 4 + 2;
+        if (segments_left <= 2)
+            minimum_crh_length = 0;
+        sids_beyond_first_word = segments_left - 2;
+        break;
+    case IPv6_RT_HEADER_COMPACT_32:
+        octets_per_sid = 4;
+        sids_per_word = 2;
+        sid_count = rt->hdr.ip6r_len * 2 + 1;
+        if (segments_left <= 1)
+            minimum_crh_length = 0;
+        sids_beyond_first_word = segments_left - 1;
+        break;
+    }
+    if (minimum_crh_length) {
+        minimum_crh_length = sids_beyond_first_word / sids_per_word;
+        if (sids_beyond_first_word % sids_per_word)
+            minimum_crh_length++;
+    }
+    if (minimum_crh_length > rt->hdr.ip6r_len) {
+        expert_add_info_format(pinfo, rt->ti_len, &ei_ipv6_routing_invalid_length,
+            "IPv6 Compact Routing Header minimum length must not exceed header length (%u)",
+            rt->hdr.ip6r_len);
+    }
+
+    offset = 0;
+    if (is_crh16) {
+        proto_item* current_sid_item = proto_tree_add_item(tree, hf_ipv6_routing_crh16_current_sid,
+            tvb, offset + (octets_per_sid * segments_left), octets_per_sid, ENC_BIG_ENDIAN);
+        proto_item_set_generated(current_sid_item);
+    } else {
+        proto_item* current_sid_item = proto_tree_add_item(tree, hf_ipv6_routing_crh16_current_sid,
+            tvb, offset + (octets_per_sid * segments_left), octets_per_sid, ENC_BIG_ENDIAN);
+        proto_item_set_generated(current_sid_item);
+    }
+    sid = is_crh16 ? tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN)
+                   : tvb_get_guint32(tvb, offset, ENC_BIG_ENDIAN);
+    proto_tree* segment_ids
+        = proto_tree_add_subtree(tree, tvb, 0, -1, 0, NULL, "Segment Identifiers");
+    for (unsigned i = 0; i < sid_count && sid; i++) {
+        if (is_crh16) {
+            proto_tree_add_uint_format(segment_ids, hf_ipv6_routing_crh16_segment_id, tvb, offset,
+                octets_per_sid, sid, "SID[%d] = %d", i, sid);
+        } else {
+            proto_tree_add_uint_format(segment_ids, hf_ipv6_routing_crh32_segment_id, tvb, offset,
+                octets_per_sid, sid, "SID[%d] = %d", i, sid);
+        }
+        offset += octets_per_sid;
+        sid = is_crh16 ? tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN)
+                       : tvb_get_guint32(tvb, offset, ENC_BIG_ENDIAN);
+    }
+
+    return tvb_captured_length(tvb);
+}
 
 /*
     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -3341,6 +3427,28 @@ proto_register_ipv6(void)
             { "Address", "ipv6.routing.srh.addr",
                 FT_IPv6, BASE_NONE, NULL, 0x0,
                 "Segment address", HFILL }
+        },
+
+        /* Compact Routing Header */
+        { &hf_ipv6_routing_crh16_current_sid,
+            { "Current SID", "ipv6.routing.crh16.current_sid",
+                FT_UINT16, BASE_DEC, NULL, 0x0,
+                "Value of the current Segment ID", HFILL }
+        },
+        { &hf_ipv6_routing_crh32_current_sid,
+            { "Current SID", "ipv6.routing.crh32.current_sid",
+                FT_UINT32, BASE_DEC, NULL, 0x0,
+                "Value of the current Segment ID", HFILL }
+        },
+        { &hf_ipv6_routing_crh16_segment_id,
+            { "Segment ID", "ipv6.routing.crh16.sid",
+                FT_UINT16, BASE_DEC, NULL, 0x0,
+                "Segment address", HFILL }
+        },
+        { &hf_ipv6_routing_crh32_segment_id,
+            { "Segment ID", "ipv6.routing.crh32.sid",
+                FT_UINT32, BASE_DEC, NULL, 0x0,
+                "Segment address", HFILL }
         }
     };
 
@@ -3569,6 +3677,7 @@ proto_register_ipv6(void)
     proto_ipv6_routing_mipv6 = proto_register_protocol_in_name_only("IPv6 Routing Type - Type 2", "Type 2", "ipv6.routing.type.mipv6", proto_ipv6, FT_BYTES);
     proto_ipv6_routing_rpl = proto_register_protocol_in_name_only("IPv6 Routing Type - RPL Source Route", "RPL Source Route", "ipv6.routing.type.mipv6", proto_ipv6, FT_BYTES);
     proto_ipv6_routing_srh = proto_register_protocol_in_name_only("IPv6 Routing Types - Segment Routing", "Segment Routing", "ipv6.routing.type.srh", proto_ipv6, FT_BYTES);
+    proto_ipv6_routing_crh = proto_register_protocol_in_name_only("IPv6 Routing Types - Compact Routing", "Compact Routing", "ipv6.routing.type.crh", proto_ipv6, FT_BYTES);
 
     proto_ipv6_fraghdr = proto_register_protocol("Fragment Header for IPv6", "IPv6 Fragment", "ipv6.fraghdr");
     proto_register_field_array(proto_ipv6_fraghdr, hf_ipv6_fraghdr, array_length(hf_ipv6_fraghdr));
@@ -3712,6 +3821,9 @@ proto_reg_handoff_ipv6(void)
     dissector_add_uint("ipv6.routing.type", IPv6_RT_HEADER_RPL, h);
     h = create_dissector_handle(dissect_routing6_srh, proto_ipv6_routing_srh);
     dissector_add_uint("ipv6.routing.type", IPv6_RT_HEADER_SEGMENT_ROUTING, h);
+    h = create_dissector_handle(dissect_routing6_crh, proto_ipv6_routing_crh);
+    dissector_add_uint("ipv6.routing.type", IPv6_RT_HEADER_COMPACT_16, h);
+    dissector_add_uint("ipv6.routing.type", IPv6_RT_HEADER_COMPACT_32, h);
 }
 
 /*
