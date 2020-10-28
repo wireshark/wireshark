@@ -450,7 +450,7 @@ dissect_wtp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         fprintf(stderr, "dissect_wtp: cbHeader = %d\n", cbHeader);
 #endif
         /* NOTE - Length will be set when we process the TPI */
-        ti = proto_tree_add_item(tree, proto_wtp, tvb, offCur, 0, ENC_NA);
+        ti = proto_tree_add_item(tree, proto_wtp, tvb, offCur, -1, ENC_NA);
 #ifdef DEBUG
         fprintf(stderr, "dissect_wtp: (7) Returned from proto_tree_add_item\n");
 #endif

@@ -2721,7 +2721,7 @@ dissect_f5ethtrailer(
 				if(trailer_item == NULL && tree) {
 					start = offset;
 					trailer_item = proto_tree_add_item(tree, proto_f5ethtrailer, tvb,
-							start, 0, ENC_NA);
+							start, -1, ENC_NA);
 					tree = proto_item_add_subtree(trailer_item, ett_f5ethtrailer);
 				}
 				dissect_dpt_trailer(tvb_dpt, pinfo, tree, tdata);
@@ -2743,7 +2743,7 @@ dissect_f5ethtrailer(
 			if(trailer_item == NULL && tree)
 			{
 				start = offset;
-				trailer_item = proto_tree_add_item(tree, proto_f5ethtrailer, tvb, start, 0, ENC_NA);
+				trailer_item = proto_tree_add_item(tree, proto_f5ethtrailer, tvb, start, -1, ENC_NA);
 				tree = proto_item_add_subtree(trailer_item, ett_f5ethtrailer);
 			}
 
