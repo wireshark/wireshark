@@ -193,8 +193,7 @@ nettrace_parse_begin_time(char *curr_pos, wtap_rec *rec)
 {
 	/* Time vars*/
 	guint year, month, day, hour, minute, second, frac;
-	int UTCdiffh = 0;
-	guint UTCdiffm = 0;
+	int UTCdiffh, UTCdiffm = 0;
 	int time_length = 0;
 	int scan_found;
 	static const guint days_in_month[12] = {
@@ -211,92 +210,33 @@ nettrace_parse_begin_time(char *curr_pos, wtap_rec *rec)
 	if (length < 2) {
 		return next_pos + 3;
 	}
+
+	rec->presence_flags = 0; /* mark time as invalid, until successful converted */
+	rec->ts.secs = 0;
+	rec->ts.nsecs = 0;
+
 	/* Scan for this format: 2001-09-11T09:30:47 Then we will parse any fractions and UTC offset */
 	scan_found = sscanf(curr_pos, "%4u-%2u-%2uT%2u:%2u:%2u%n",
 		&year, &month, &day, &hour, &minute, &second, &time_length);
-
-	rec->ts.nsecs = 0;
 	if (scan_found == 6 && time_length == 19) {
-		guint UTCdiffsec;
-		gchar chr;
-		/* Only set time if we managed to parse it*/
-		/* Move curr_pos to end of parsed object and get that character 2019-01-10T10:14:56*/
-		curr_pos += time_length;
-		chr = *curr_pos;
-		switch (chr) {
-		case '-':
-		case '+':
-			/* We have no fractions but UTC offset*/
-			sscanf(curr_pos, "%3d:%2u", &UTCdiffh, &UTCdiffm);
-			break;
-		case '.':
-		case ',':
-		{
-			/* We have fractions and possibly UTC offset*/
-			guint multiplier;
-			curr_pos++;
-			sscanf(curr_pos, "%u%3d:%2u", &frac, &UTCdiffh, &UTCdiffm);
-			if ((frac >= 1000000000) || (frac == 0)) {
-				rec->ts.nsecs = 0;
-			} else {
-				if (frac < 10) {
-					multiplier = 100000000;
-				} else if (frac < 100) {
-					multiplier = 10000000;
-				} else if (frac < 1000) {
-					multiplier = 1000000;
-				} else if (frac < 10000) {
-					multiplier = 100000;
-				} else if (frac < 100000) {
-					multiplier = 10000;
-				} else if (frac < 1000000) {
-					multiplier = 1000;
-				} else if (frac < 10000000) {
-					multiplier = 100;
-				} else if (frac < 100000000) {
-					multiplier = 10;
-				} else {
-					multiplier = 1;
-				}
-				rec->ts.nsecs = frac * multiplier;
-			}
-		}
-			break;
-		default:
-			break;
-		}
-
-		/* Fill in remaining fields and return it in a time_t */
+		/* Fill in the fields and return it in a time_t */
 		tm.tm_year = year - 1900;
 		if (month < 1 || month > 12) {
-			rec->presence_flags = 0; /* yes, we have no bananas^Wtime stamp */
-			rec->ts.secs = 0;
-			rec->ts.nsecs = 0;
 			/* g_warning("Failed to parse time, month is %u", month); */
 			return curr_pos;
 		}
 		tm.tm_mon = month - 1; /* Zero count*/
 		if (day > ((month == 2 && isleap(year)) ? 29 : days_in_month[month - 1])) {
-			rec->presence_flags = 0; /* yes, we have no bananas^Wtime stamp */
-			rec->ts.secs = 0;
-			rec->ts.nsecs = 0;
-			/* g_warning("Failed to parse time, %u-%02u-%2u is not a valid day",
-			    year, month, day); */
+			/* g_warning("Failed to parse time, %u-%02u-%2u is not a valid day", year, month, day); */
 			return curr_pos;
 		}
 		tm.tm_mday = day;
 		if (hour > 23) {
-			rec->presence_flags = 0; /* yes, we have no bananas^Wtime stamp */
-			rec->ts.secs = 0;
-			rec->ts.nsecs = 0;
 			/* g_warning("Failed to parse time, hour is %u", hour); */
 			return curr_pos;
 		}
 		tm.tm_hour = hour;
 		if (minute > 59) {
-			rec->presence_flags = 0; /* yes, we have no bananas^Wtime stamp */
-			rec->ts.secs = 0;
-			rec->ts.nsecs = 0;
 			/* g_warning("Failed to parse time, minute is %u", minute); */
 			return curr_pos;
 		}
@@ -306,31 +246,59 @@ nettrace_parse_begin_time(char *curr_pos, wtap_rec *rec)
 			 * Yes, 60, for leap seconds - POSIX's and Windows'
 			 * refusal to believe in them nonwithstanding.
 			 */
-			rec->presence_flags = 0; /* yes, we have no bananas^Wtime stamp */
-			rec->ts.secs = 0;
-			rec->ts.nsecs = 0;
 			/* g_warning("Failed to parse time, second is %u", second); */
 			return curr_pos;
 		}
 		tm.tm_sec = second;
 		tm.tm_isdst = -1;    /* daylight saving time info not known */
 
-		/* Get seconds from this time */
-		rec->presence_flags = WTAP_HAS_TS;
-		rec->ts.secs = mktime(&tm);
-
-		UTCdiffsec = (abs(UTCdiffh) * 60 * 60) + (UTCdiffm * 60);
-
-		if (UTCdiffh < 0) {
-			rec->ts.secs = rec->ts.secs - UTCdiffsec;
-		} else {
-			rec->ts.secs = rec->ts.secs + UTCdiffsec;
+		/* Move curr_pos to end of parsed object and get that character 2019-01-10T10:14:56 */
+		curr_pos += time_length;
+		if (*curr_pos == '.' || *curr_pos == ',') {
+			/* We have fractions */
+			curr_pos++;
+			if (1 == sscanf(curr_pos, "%u%n", &frac, &time_length)) {
+				if ((frac >= 1000000000) || (frac == 0)) {
+					rec->ts.nsecs = 0;
+				} else {
+					switch (time_length) { /* including leading zeros */
+					case 1: rec->ts.nsecs = frac * 100000000; break;
+					case 2: rec->ts.nsecs = frac * 10000000; break;
+					case 3: rec->ts.nsecs = frac * 1000000; break;
+					case 4: rec->ts.nsecs = frac * 100000; break;
+					case 5: rec->ts.nsecs = frac * 10000; break;
+					case 6: rec->ts.nsecs = frac * 1000; break;
+					case 7: rec->ts.nsecs = frac * 100; break;
+					case 8: rec->ts.nsecs = frac * 10; break;
+					default: rec->ts.nsecs = frac;
+					}
+				}
+				curr_pos += time_length;
+			}
 		}
-	} else {
-		/* g_warning("Failed to parse time, only %u fields", scan_found); */
-		rec->presence_flags = 0; /* yes, we have no bananas^Wtime stamp */
-		rec->ts.secs = 0;
-		rec->ts.nsecs = 0;
+
+		if (*curr_pos == '-' || *curr_pos == '+' || *curr_pos == 'Z') {
+			/* We have UTC offset */
+			if (1 <= sscanf(curr_pos, "%3d:%2d", &UTCdiffh, &UTCdiffm)) {
+				/* adjust for timezone */
+				tm.tm_hour -= UTCdiffh;
+				tm.tm_min  -= UTCdiffh < 0 ? -UTCdiffm: UTCdiffm;
+			} /* else 'Z' for Zero time */
+			/* convert to UTC time */
+#ifdef _WIN32
+			rec->ts.secs = _mkgmtime(&tm);
+#else
+			rec->ts.secs = timegm(&tm);
+#endif
+		} else {
+			/* no UTC offset means localtime in ISO 8601 */
+			rec->ts.secs = mktime(&tm);
+		}
+
+		/* Mark time parsed successfully */
+		rec->presence_flags = WTAP_HAS_TS;
+	/* } else {
+		g_warning("Failed to parse time, only %u fields", scan_found); */
 	}
 
 	return curr_pos;
