@@ -2952,6 +2952,7 @@ static gboolean validate_xr_block_length(tvbuff_t *tvb, packet_info *pinfo, int 
     proto_item *ti;
 
     ti = proto_tree_add_uint(tree, hf_rtcp_xr_block_length, tvb, offset, 2, block_len);
+    proto_item_append_text(ti, " (%u bytes)", (block_len)*4);
     switch (block_type) {
         case RTCP_XR_REF_TIME:
             if (block_len != 2)
@@ -2981,7 +2982,7 @@ static gboolean validate_xr_block_length(tvbuff_t *tvb, packet_info *pinfo, int 
 }
 
 static int
-dissect_rtcp_xr(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree, gint packet_len)
+dissect_rtcp_xr(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree, unsigned int padding, gint packet_len)
 {
     guint       block_num;
 
@@ -2989,6 +2990,13 @@ dissect_rtcp_xr(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree,
     if (packet_len < 4) {
         proto_tree_add_expert(tree, pinfo, &ei_rtcp_missing_sender_ssrc, tvb, offset, packet_len);
         return offset + packet_len;
+    }
+
+    if (padding) {
+        /* If there's padding present, we have to remove that from the data part
+        * The last octet of the packet contains the length of the padding
+        */
+        packet_len -= tvb_get_guint8(tvb, offset + packet_len - 1);
     }
 
     /* SSRC */
@@ -4241,7 +4249,7 @@ dissect_rtcp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
                 offset++;
                 /* Packet length in 32 bit words MINUS one, 16 bits */
                 offset = dissect_rtcp_length_field(rtcp_tree, tvb, offset);
-                offset = dissect_rtcp_xr( tvb, pinfo, offset, rtcp_tree, packet_length - 4 );
+                offset = dissect_rtcp_xr( tvb, pinfo, offset, rtcp_tree, padding_set, packet_length - 4 );
                 break;
             case RTCP_AVB:
                 /* Subtype, 5 bits */
