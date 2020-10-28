@@ -1098,7 +1098,7 @@ proto_register_frame(void)
 		{ &hf_frame_interface_description,
 		  { "Interface description", "frame.interface_description",
 		    FT_STRING, BASE_NONE, NULL, 0x0,
-		    "The descriptionfor this interface", HFILL }},
+		    "The description for this interface", HFILL }},
 
 		{ &hf_frame_interface_queue,
 		  { "Interface queue", "frame.interface_queue",
