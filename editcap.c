@@ -2078,6 +2078,11 @@ invalid_time:
                     caplen = rec->rec_header.syscall_header.event_filelen;
                     do_mutation = TRUE;
                     break;
+
+                case REC_TYPE_SYSTEMD_JOURNAL:
+                    caplen = rec->rec_header.systemd_journal_header.record_len;
+                    do_mutation = TRUE;
+                    break;
                 }
 
                 if (change_offset > caplen) {

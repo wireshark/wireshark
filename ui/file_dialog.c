@@ -69,6 +69,7 @@ get_stats_for_preview(wtap *wth, ws_file_preview_stats *stats,
         case REC_TYPE_FT_SPECIFIC_EVENT:
         case REC_TYPE_FT_SPECIFIC_REPORT:
         case REC_TYPE_SYSCALL:
+        case REC_TYPE_SYSTEMD_JOURNAL:
             data_records++;
             break;
         }

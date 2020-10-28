@@ -105,6 +105,7 @@ static int frame_tap = -1;
 
 static dissector_handle_t docsis_handle;
 static dissector_handle_t sysdig_handle;
+static dissector_handle_t systemd_journal_handle;
 
 /* Preferences */
 static gboolean show_file_off       = FALSE;
@@ -379,6 +380,10 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 		pinfo->current_proto = "System Call";
 		break;
 
+	case REC_TYPE_SYSTEMD_JOURNAL:
+		pinfo->current_proto = "Systemd Journal";
+		break;
+
 	default:
 		g_assert_not_reached();
 		break;
@@ -491,6 +496,19 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 			 */
 			ti = proto_tree_add_protocol_format(tree, proto_syscall, tvb, 0, tvb_captured_length(tvb),
 			    "System Call %u: %u byte%s",
+			    pinfo->num, frame_len, frame_plurality);
+			break;
+
+		case REC_TYPE_SYSTEMD_JOURNAL:
+			/*
+			 * XXX - we need to rethink what's handled by
+			 * packet-record.c, what's handled by packet-frame.c.
+			 * and what's handled by the syscall and systemd
+			 * journal dissectors (and maybe even the packet
+			 * dissector).
+			 */
+			ti = proto_tree_add_protocol_format(tree, proto_frame, tvb, 0, tvb_captured_length(tvb),
+			    "Systemd Journal Entry %u: %u byte%s",
 			    pinfo->num, frame_len, frame_plurality);
 			break;
 		}
@@ -795,6 +813,14 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 				/* Sysdig is the only type we currently handle. */
 				if (sysdig_handle) {
 					call_dissector_with_data(sysdig_handle,
+					    tvb, pinfo, parent_tree,
+					    (void *)pinfo->pseudo_header);
+				}
+				break;
+
+			case REC_TYPE_SYSTEMD_JOURNAL:
+				if (systemd_journal_handle) {
+					call_dissector_with_data(systemd_journal_handle,
 					    tvb, pinfo, parent_tree,
 					    (void *)pinfo->pseudo_header);
 				}
@@ -1274,6 +1300,7 @@ proto_reg_handoff_frame(void)
 {
 	docsis_handle = find_dissector_add_dependency("docsis", proto_frame);
 	sysdig_handle = find_dissector_add_dependency("sysdig", proto_frame);
+	systemd_journal_handle = find_dissector_add_dependency("systemd_journal", proto_frame);
 }
 
 /*
