@@ -154,7 +154,7 @@ dissect_pflog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "PFLOG");
 
-  ti = proto_tree_add_item(tree, proto_pflog, tvb, offset, 0, ENC_NA);
+  ti = proto_tree_add_item(tree, proto_pflog, tvb, offset, -1, ENC_NA);
   pflog_tree = proto_item_add_subtree(ti, ett_pflog);
 
   length = tvb_get_guint8(tvb, offset) + pad_len;
@@ -414,7 +414,7 @@ dissect_old_pflog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "PFLOG-OLD");
 
-  ti = proto_tree_add_item(tree, proto_old_pflog, tvb, 0, 0, ENC_NA);
+  ti = proto_tree_add_item(tree, proto_old_pflog, tvb, 0, -1, ENC_NA);
   pflog_tree = proto_item_add_subtree(ti, ett_pflog);
 
   proto_tree_add_item(pflog_tree, hf_old_pflog_af, tvb, offset, 4, ENC_BIG_ENDIAN);
