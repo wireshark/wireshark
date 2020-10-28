@@ -2940,7 +2940,7 @@ dissect_f5ethtrailer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
     tdata->tmm = F5ETH_TAP_TMM_MAX;
 
     if (tree) {
-        trailer_item = proto_tree_add_item(tree, proto_f5ethtrailer, tvb, offset, 0, ENC_NA);
+        trailer_item = proto_tree_add_item(tree, proto_f5ethtrailer, tvb, offset, -1, ENC_NA);
         tree = proto_item_add_subtree(trailer_item, ett_f5ethtrailer);
         if (has_fcs) {
             proto_tree_add_item(tree, hf_orig_fcs, tvb, offset - 4, 4, ENC_NA);

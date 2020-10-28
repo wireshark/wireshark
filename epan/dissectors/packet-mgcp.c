@@ -488,7 +488,7 @@ static int dissect_mgcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 		num_messages++;
 
 		/* Create our mgcp subtree */
-		ti = proto_tree_add_item(tree, proto_mgcp, tvb, 0, 0, ENC_NA);
+		ti = proto_tree_add_item(tree, proto_mgcp, tvb, 0, -1, ENC_NA);
 		mgcp_tree = proto_item_add_subtree(ti, ett_mgcp);
 
 		sectionlen = tvb_find_dot_line(tvb, tvb_sectionbegin, -1, &tvb_sectionend);

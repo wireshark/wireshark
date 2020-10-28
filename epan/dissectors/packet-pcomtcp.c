@@ -278,7 +278,7 @@ dissect_pcomascii(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     guint8       op_size;
 
     /* Create protocol tree */
-    ti = proto_tree_add_item(tree, proto_pcomascii, tvb, offset, 0, ENC_NA);
+    ti = proto_tree_add_item(tree, proto_pcomascii, tvb, offset, -1, ENC_NA);
     pcomascii_tree = proto_item_add_subtree(ti, ett_pcomascii);
 
     if (pinfo->srcport == global_pcomtcp_tcp_port ){ // Reply
@@ -429,7 +429,7 @@ dissect_pcombinary(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     const gchar* command_str;
 
     /* Create protocol tree */
-    ti = proto_tree_add_item(tree, proto_pcombinary, tvb, offset, 0, ENC_NA);
+    ti = proto_tree_add_item(tree, proto_pcombinary, tvb, offset, -1, ENC_NA);
     pcombinary_tree = proto_item_add_subtree(ti, ett_pcombinary);
 
     proto_tree_add_item(pcombinary_tree, hf_pcombinary_stx, tvb,

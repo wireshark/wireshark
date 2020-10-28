@@ -737,7 +737,7 @@ dissect_mtp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 
   pref_mtp3_standard = mtp3_standard;
 
-  mtp3_item = proto_tree_add_item(tree, proto_mtp3, tvb, 0, 0, ENC_NA);
+  mtp3_item = proto_tree_add_item(tree, proto_mtp3, tvb, 0, -1, ENC_NA);
 
   si = tvb_get_guint8(tvb, SIO_OFFSET) & SERVICE_INDICATOR_MASK;
   if (mtp3_heuristic_standard) {
