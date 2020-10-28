@@ -29,44 +29,45 @@
 
 #include <wsutil/file_util.h>
 
-#define RECENT_KEY_MAIN_TOOLBAR_SHOW          "gui.toolbar_main_show"
-#define RECENT_KEY_FILTER_TOOLBAR_SHOW        "gui.filter_toolbar_show"
-#define RECENT_KEY_WIRELESS_TOOLBAR_SHOW      "gui.wireless_toolbar_show"
-#define RECENT_KEY_PACKET_LIST_SHOW           "gui.packet_list_show"
-#define RECENT_KEY_TREE_VIEW_SHOW             "gui.tree_view_show"
-#define RECENT_KEY_BYTE_VIEW_SHOW             "gui.byte_view_show"
-#define RECENT_KEY_PACKET_DIAGRAM_SHOW        "gui.packet_diagram_show"
-#define RECENT_KEY_STATUSBAR_SHOW             "gui.statusbar_show"
-#define RECENT_KEY_PACKET_LIST_COLORIZE       "gui.packet_list_colorize"
-#define RECENT_GUI_TIME_FORMAT                "gui.time_format"
-#define RECENT_GUI_TIME_PRECISION             "gui.time_precision"
-#define RECENT_GUI_SECONDS_FORMAT             "gui.seconds_format"
-#define RECENT_GUI_ZOOM_LEVEL                 "gui.zoom_level"
-#define RECENT_GUI_BYTES_VIEW                 "gui.bytes_view"
-#define RECENT_GUI_BYTES_ENCODING             "gui.bytes_encoding"
-#define RECENT_GUI_GEOMETRY_MAIN_X            "gui.geometry_main_x"
-#define RECENT_GUI_GEOMETRY_MAIN_Y            "gui.geometry_main_y"
-#define RECENT_GUI_GEOMETRY_MAIN_WIDTH        "gui.geometry_main_width"
-#define RECENT_GUI_GEOMETRY_MAIN_HEIGHT       "gui.geometry_main_height"
-#define RECENT_GUI_GEOMETRY_MAIN_MAXIMIZED    "gui.geometry_main_maximized"
-#define RECENT_GUI_GEOMETRY_LEFTALIGN_ACTIONS "gui.geometry_leftalign_actions"
-#define RECENT_GUI_GEOMETRY_MAIN_UPPER_PANE   "gui.geometry_main_upper_pane"
-#define RECENT_GUI_GEOMETRY_MAIN_LOWER_PANE   "gui.geometry_main_lower_pane"
-#define RECENT_GUI_GEOMETRY_STATUS_PANE_LEFT  "gui.geometry_status_pane"
-#define RECENT_GUI_GEOMETRY_STATUS_PANE_RIGHT "gui.geometry_status_pane_right"
-#define RECENT_GUI_GEOMETRY_WLAN_STATS_PANE   "gui.geometry_status_wlan_stats_pane"
-#define RECENT_LAST_USED_PROFILE              "gui.last_used_profile"
-#define RECENT_GUI_FILEOPEN_REMEMBERED_DIR    "gui.fileopen_remembered_dir"
-#define RECENT_GUI_CONVERSATION_TABS          "gui.conversation_tabs"
-#define RECENT_GUI_ENDPOINT_TABS              "gui.endpoint_tabs"
-#define RECENT_GUI_RLC_PDUS_FROM_MAC_FRAMES   "gui.rlc_pdus_from_mac_frames"
-#define RECENT_GUI_CUSTOM_COLORS              "gui.custom_colors"
-#define RECENT_GUI_TOOLBAR_SHOW               "gui.additional_toolbar_show"
-#define RECENT_GUI_INTERFACE_TOOLBAR_SHOW     "gui.interface_toolbar_show"
-#define RECENT_GUI_SEARCH_IN                  "gui.search_in"
-#define RECENT_GUI_SEARCH_CHAR_SET            "gui.search_char_set"
-#define RECENT_GUI_SEARCH_CASE_SENSITIVE      "gui.search_case_sensitive"
-#define RECENT_GUI_SEARCH_TYPE                "gui.search_type"
+#define RECENT_KEY_MAIN_TOOLBAR_SHOW            "gui.toolbar_main_show"
+#define RECENT_KEY_FILTER_TOOLBAR_SHOW          "gui.filter_toolbar_show"
+#define RECENT_KEY_WIRELESS_TOOLBAR_SHOW        "gui.wireless_toolbar_show"
+#define RECENT_KEY_PACKET_LIST_SHOW             "gui.packet_list_show"
+#define RECENT_KEY_TREE_VIEW_SHOW               "gui.tree_view_show"
+#define RECENT_KEY_BYTE_VIEW_SHOW               "gui.byte_view_show"
+#define RECENT_KEY_PACKET_DIAGRAM_SHOW          "gui.packet_diagram_show"
+#define RECENT_KEY_STATUSBAR_SHOW               "gui.statusbar_show"
+#define RECENT_KEY_PACKET_LIST_COLORIZE         "gui.packet_list_colorize"
+#define RECENT_GUI_TIME_FORMAT                  "gui.time_format"
+#define RECENT_GUI_TIME_PRECISION               "gui.time_precision"
+#define RECENT_GUI_SECONDS_FORMAT               "gui.seconds_format"
+#define RECENT_GUI_ZOOM_LEVEL                   "gui.zoom_level"
+#define RECENT_GUI_BYTES_VIEW                   "gui.bytes_view"
+#define RECENT_GUI_BYTES_ENCODING               "gui.bytes_encoding"
+#define RECENT_GUI_PACKET_DIAGRAM_FIELD_VALUES  "gui.packet_diagram_field_values"
+#define RECENT_GUI_GEOMETRY_MAIN_X              "gui.geometry_main_x"
+#define RECENT_GUI_GEOMETRY_MAIN_Y              "gui.geometry_main_y"
+#define RECENT_GUI_GEOMETRY_MAIN_WIDTH          "gui.geometry_main_width"
+#define RECENT_GUI_GEOMETRY_MAIN_HEIGHT         "gui.geometry_main_height"
+#define RECENT_GUI_GEOMETRY_MAIN_MAXIMIZED      "gui.geometry_main_maximized"
+#define RECENT_GUI_GEOMETRY_LEFTALIGN_ACTIONS   "gui.geometry_leftalign_actions"
+#define RECENT_GUI_GEOMETRY_MAIN_UPPER_PANE     "gui.geometry_main_upper_pane"
+#define RECENT_GUI_GEOMETRY_MAIN_LOWER_PANE     "gui.geometry_main_lower_pane"
+#define RECENT_GUI_GEOMETRY_STATUS_PANE_LEFT    "gui.geometry_status_pane"
+#define RECENT_GUI_GEOMETRY_STATUS_PANE_RIGHT   "gui.geometry_status_pane_right"
+#define RECENT_GUI_GEOMETRY_WLAN_STATS_PANE     "gui.geometry_status_wlan_stats_pane"
+#define RECENT_LAST_USED_PROFILE                "gui.last_used_profile"
+#define RECENT_GUI_FILEOPEN_REMEMBERED_DIR      "gui.fileopen_remembered_dir"
+#define RECENT_GUI_CONVERSATION_TABS            "gui.conversation_tabs"
+#define RECENT_GUI_ENDPOINT_TABS                "gui.endpoint_tabs"
+#define RECENT_GUI_RLC_PDUS_FROM_MAC_FRAMES     "gui.rlc_pdus_from_mac_frames"
+#define RECENT_GUI_CUSTOM_COLORS                "gui.custom_colors"
+#define RECENT_GUI_TOOLBAR_SHOW                 "gui.additional_toolbar_show"
+#define RECENT_GUI_INTERFACE_TOOLBAR_SHOW       "gui.interface_toolbar_show"
+#define RECENT_GUI_SEARCH_IN                    "gui.search_in"
+#define RECENT_GUI_SEARCH_CHAR_SET              "gui.search_char_set"
+#define RECENT_GUI_SEARCH_CASE_SENSITIVE        "gui.search_case_sensitive"
+#define RECENT_GUI_SEARCH_TYPE                  "gui.search_type"
 
 #define RECENT_GUI_GEOMETRY                   "gui.geom."
 
@@ -882,6 +883,10 @@ write_profile_recent(void)
             RECENT_GUI_BYTES_ENCODING, bytes_encoding_type_values,
             recent.gui_bytes_encoding);
 
+    write_recent_boolean(rf, "Packet diagram field values show (hide)",
+            RECENT_GUI_PACKET_DIAGRAM_FIELD_VALUES,
+            recent.gui_packet_diagram_field_values);
+
     fprintf(rf, "\n# Main window upper (or leftmost) pane size.\n");
     fprintf(rf, "# Decimal number.\n");
     if (recent.gui_geometry_main_upper_pane != 0) {
@@ -1085,6 +1090,8 @@ read_set_recent_pair_static(gchar *key, const gchar *value,
     } else if (strcmp(key, RECENT_GUI_BYTES_ENCODING) == 0) {
         recent.gui_bytes_encoding =
             (bytes_encoding_type)str_to_val(value, bytes_encoding_type_values, BYTES_ENC_FROM_PACKET);
+    } else if (strcmp(key, RECENT_GUI_PACKET_DIAGRAM_FIELD_VALUES) == 0) {
+        parse_recent_boolean(value, &recent.gui_packet_diagram_field_values);
     } else if (strcmp(key, RECENT_GUI_GEOMETRY_MAIN_MAXIMIZED) == 0) {
         parse_recent_boolean(value, &recent.gui_geometry_main_maximized);
     } else if (strcmp(key, RECENT_GUI_GEOMETRY_MAIN_UPPER_PANE) == 0) {
