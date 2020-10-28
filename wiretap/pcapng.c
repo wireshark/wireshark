@@ -2519,9 +2519,8 @@ pcapng_read_systemd_journal_export_block(wtap *wth, FILE_T fh, pcapng_block_head
         return FALSE;
     }
 
-    wblock->rec->rec_type = REC_TYPE_FT_SPECIFIC_EVENT;
-    wblock->rec->rec_header.ft_specific_header.record_type = BLOCK_TYPE_SYSTEMD_JOURNAL;
-    wblock->rec->rec_header.ft_specific_header.record_len = entry_length;
+    wblock->rec->rec_type = REC_TYPE_SYSTEMD_JOURNAL;
+    wblock->rec->rec_header.systemd_journal_header.record_len = entry_length;
     wblock->rec->presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
     wblock->rec->tsprec = WTAP_TSPREC_USEC;
 
@@ -3863,23 +3862,23 @@ pcapng_write_systemd_journal_export_block(wtap_dumper *wdh, const wtap_rec *rec,
     guint32 pad_len;
 
     /* Don't write anything we're not willing to read. */
-    if (rec->rec_header.ft_specific_header.record_len > WTAP_MAX_PACKET_SIZE_STANDARD) {
+    if (rec->rec_header.systemd_journal_header.record_len > WTAP_MAX_PACKET_SIZE_STANDARD) {
         *err = WTAP_ERR_PACKET_TOO_LARGE;
         return FALSE;
     }
 
-    if (rec->rec_header.ft_specific_header.record_len % 4) {
-        pad_len = 4 - (rec->rec_header.ft_specific_header.record_len % 4);
+    if (rec->rec_header.systemd_journal_header.record_len % 4) {
+        pad_len = 4 - (rec->rec_header.systemd_journal_header.record_len % 4);
     } else {
         pad_len = 0;
     }
 
     /* write systemd journal export block header */
     bh.block_type = BLOCK_TYPE_SYSTEMD_JOURNAL;
-    bh.block_total_length = (guint32)sizeof(bh) + rec->rec_header.ft_specific_header.record_len + pad_len + 4;
+    bh.block_total_length = (guint32)sizeof(bh) + rec->rec_header.systemd_journal_header.record_len + pad_len + 4;
 
     pcapng_debug("%s: writing %u bytes, %u padded", G_STRFUNC,
-                 rec->rec_header.ft_specific_header.record_len,
+                 rec->rec_header.systemd_journal_header.record_len,
                  bh.block_total_length);
 
     if (!wtap_dump_file_write(wdh, &bh, sizeof bh, err))
@@ -3887,9 +3886,9 @@ pcapng_write_systemd_journal_export_block(wtap_dumper *wdh, const wtap_rec *rec,
     wdh->bytes_dumped += sizeof bh;
 
     /* write entry data */
-    if (!wtap_dump_file_write(wdh, pd, rec->rec_header.ft_specific_header.record_len, err))
+    if (!wtap_dump_file_write(wdh, pd, rec->rec_header.systemd_journal_header.record_len, err))
         return FALSE;
-    wdh->bytes_dumped += rec->rec_header.ft_specific_header.record_len;
+    wdh->bytes_dumped += rec->rec_header.systemd_journal_header.record_len;
 
     /* write padding (if any) */
     if (pad_len != 0) {
@@ -4824,12 +4823,6 @@ static gboolean pcapng_dump(wtap_dumper *wdh,
 
         case REC_TYPE_FT_SPECIFIC_EVENT:
         case REC_TYPE_FT_SPECIFIC_REPORT:
-            if (rec->rec_header.ft_specific_header.record_type == WTAP_FILE_TYPE_SUBTYPE_SYSTEMD_JOURNAL) {
-                if (!pcapng_write_systemd_journal_export_block(wdh, rec, pd, err)) {
-                    return FALSE;
-                }
-                return TRUE;
-            }
 #ifdef HAVE_PLUGINS
             /*
              * Do we have a handler for this block type?
@@ -4851,6 +4844,12 @@ static gboolean pcapng_dump(wtap_dumper *wdh,
 
         case REC_TYPE_SYSCALL:
             if (!pcapng_write_sysdig_event_block(wdh, rec, pd, err)) {
+                return FALSE;
+            }
+            break;
+
+        case REC_TYPE_SYSTEMD_JOURNAL:
+            if (!pcapng_write_systemd_journal_export_block(wdh, rec, pd, err)) {
                 return FALSE;
             }
             break;

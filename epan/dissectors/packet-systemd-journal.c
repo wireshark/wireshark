@@ -161,6 +161,8 @@ static expert_field ei_unhandled_field_type = EI_INIT;
 static expert_field ei_nonbinary_field = EI_INIT;
 static expert_field ei_undecoded_field = EI_INIT;
 
+static dissector_handle_t sje_handle = NULL;
+
 #define MAX_DATA_SIZE 262144 // WTAP_MAX_PACKET_SIZE_STANDARD. Increase if needed.
 
 /* Initialize the subtree pointers */
@@ -877,6 +879,9 @@ proto_register_systemd_journal(void)
     expert_systemd_journal = expert_register_protocol(proto_systemd_journal);
     expert_register_field_array(expert_systemd_journal, ei, array_length(ei));
 
+    sje_handle = register_dissector("systemd_journal", dissect_systemd_journal_line_entry,
+                proto_systemd_journal);
+
     init_jf_to_hf_map();
 }
 
@@ -884,13 +889,6 @@ proto_register_systemd_journal(void)
 void
 proto_reg_handoff_systemd_journal(void)
 {
-    static dissector_handle_t sje_handle = NULL;
-
-    if (!sje_handle) {
-        sje_handle = create_dissector_handle(dissect_systemd_journal_line_entry,
-                proto_systemd_journal);
-    }
-
     dissector_add_uint("wtap_fts_rec", WTAP_FILE_TYPE_SUBTYPE_SYSTEMD_JOURNAL, sje_handle);
     dissector_add_uint("pcapng.block_type", BLOCK_TYPE_SYSTEMD_JOURNAL, sje_handle);
     // It's possible to ship journal entries over HTTP/HTTPS using

@@ -1296,6 +1296,7 @@ union wtap_pseudo_header {
 #define REC_TYPE_FT_SPECIFIC_EVENT    1    /**< file-type-specific event */
 #define REC_TYPE_FT_SPECIFIC_REPORT   2    /**< file-type-specific report */
 #define REC_TYPE_SYSCALL              3    /**< system call */
+#define REC_TYPE_SYSTEMD_JOURNAL      4    /**< systemd journal entry */
 
 typedef struct {
     guint32   caplen;           /* data length in the file */
@@ -1403,6 +1404,10 @@ typedef struct {
 } wtap_syscall_header;
 
 typedef struct {
+    guint32   record_len;       /* length of the record */
+} wtap_systemd_journal_header;
+
+typedef struct {
     guint     rec_type;         /* what type of record is this? */
     guint32   presence_flags;   /* what stuff do we have? */
     nstime_t  ts;               /* time stamp */
@@ -1411,6 +1416,7 @@ typedef struct {
         wtap_packet_header packet_header;
         wtap_ft_specific_header ft_specific_header;
         wtap_syscall_header syscall_header;
+        wtap_systemd_journal_header systemd_journal_header;
     } rec_header;
     /*
      * XXX - this should become a full set of options.

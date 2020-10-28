@@ -225,10 +225,9 @@ systemd_journal_read_export_entry(FILE_T fh, wtap_rec *rec, Buffer *buf, int *er
         return FALSE;
     }
 
-    rec->rec_type = REC_TYPE_FT_SPECIFIC_EVENT;
+    rec->rec_type = REC_TYPE_SYSTEMD_JOURNAL;
     rec->presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
-    rec->rec_header.ft_specific_header.record_type = WTAP_FILE_TYPE_SUBTYPE_SYSTEMD_JOURNAL;
-    rec->rec_header.ft_specific_header.record_len = (guint32) fld_end;
+    rec->rec_header.systemd_journal_header.record_len = (guint32) fld_end;
 
     return TRUE;
 }
