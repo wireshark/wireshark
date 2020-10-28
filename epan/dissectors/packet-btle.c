@@ -2403,7 +2403,7 @@ proto_register_btle(void)
         },
         { &hf_control_company_id,
             { "Company Id",                      "btle.control.company_id",
-            FT_UINT8, BASE_HEX | BASE_EXT_STRING, &bluetooth_company_id_vals_ext, 0x0,
+            FT_UINT16, BASE_HEX | BASE_EXT_STRING, &bluetooth_company_id_vals_ext, 0x0,
             NULL, HFILL }
         },
         { &hf_control_subversion_number,

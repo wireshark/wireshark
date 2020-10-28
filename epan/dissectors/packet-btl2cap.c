@@ -2860,7 +2860,7 @@ proto_register_btl2cap(void)
         },
         { &hf_btl2cap_cmd_length,
           { "Command Length",           "btl2cap.cmd_length",
-            FT_UINT8, BASE_DEC, NULL, 0x0,
+            FT_UINT16, BASE_DEC, NULL, 0x0,
             "L2CAP Command Length", HFILL }
         },
         { &hf_btl2cap_cmd_data,

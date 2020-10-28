@@ -502,7 +502,7 @@ proto_register_btamp(void)
         },
         { &hf_btamp_cmd_length,
             { "Command Length",           "btamp.cmd_length",
-                FT_UINT8, BASE_DEC, NULL, 0x0,
+                FT_UINT16, BASE_DEC, NULL, 0x0,
                 "L2CAP Command Length", HFILL }
         },
         { &hf_btamp_cmd_data,

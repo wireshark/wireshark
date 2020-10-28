@@ -7777,7 +7777,7 @@ proto_register_bthci_cmd(void)
         },
         { &hf_bthci_cmd_skip,
           { "Skip", "bthci_cmd.skip",
-            FT_UINT8, BASE_DEC, NULL, 0x0,
+            FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_bthci_cmd_sync_handle,
@@ -7847,7 +7847,7 @@ proto_register_bthci_cmd(void)
         },
         { &hf_bthci_cmd_cte_request_interval,
           { "CTE Request Interval",   "bthci_cmd.cte_request_interval",
-            FT_UINT8, BASE_DEC, NULL, 0x0,
+            FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_bthci_cmd_reporting_enable,

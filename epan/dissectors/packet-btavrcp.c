@@ -581,7 +581,7 @@ static const value_string major_player_type_vals[] = {
 };
 
 static const value_string player_subtype_vals[] = {
-    { 0x00,   "Audio Book" },
+    { 0x01,   "Audio Book" },
     { 0x02,   "Podcast" },
     { 0, NULL }
 };
@@ -2685,12 +2685,12 @@ proto_register_btavrcp(void)
         },
         { &hf_btavrcp_player_subtype,
             { "Player SubType",                  "btavrcp.player_subtype",
-            FT_UINT8, BASE_HEX, VALS(player_subtype_vals), 0x00,
+            FT_UINT32, BASE_HEX, VALS(player_subtype_vals), 0x00,
             NULL, HFILL }
         },
         { &hf_btavrcp_setting_value_length,
             { "Value Length",                    "btavrcp.setting_value.length",
-            FT_UINT8, BASE_DEC, NULL, 0x00,
+            FT_UINT16, BASE_DEC, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_btavrcp_setting_value,
