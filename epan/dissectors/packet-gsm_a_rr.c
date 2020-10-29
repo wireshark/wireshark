@@ -400,7 +400,7 @@ const value_string gsm_rr_rest_octets_elem_strings[] = {
 };
 
 
-/* RR cause value (octet 2) TS 44.018 6.11.0*/
+/* RR cause value (octet 2) 3GPP TS 24.018, section 10.5.2.31 */
 static const value_string gsm_a_rr_RR_cause_vals[] = {
     {    0, "Normal event"},
     {    1, "Abnormal release, unspecified"},
@@ -412,7 +412,7 @@ static const value_string gsm_a_rr_RR_cause_vals[] = {
     {    8, "Handover impossible, timing advance out of range"},
     {    9, "Channel mode unacceptable"},
     {   10, "Frequency not implemented"},
-    {   13, "Originator or talker leaving group call area"},
+    {   11, "Originator or talker leaving group call area"},
     {   12, "Lower layer failure"},
     { 0x41, "Call already cleared"},
     { 0x5f, "Semantically incorrect message"},
