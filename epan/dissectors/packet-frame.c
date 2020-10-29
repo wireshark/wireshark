@@ -68,6 +68,7 @@ static int hf_frame_verdict_hardware = -1;
 static int hf_frame_verdict_tc = -1;
 static int hf_frame_verdict_xdp = -1;
 static int hf_frame_verdict_unknown = -1;
+static int hf_frame_drop_count = -1;
 static int hf_frame_protocols = -1;
 static int hf_frame_color_filter_name = -1;
 static int hf_frame_color_filter_text = -1;
@@ -684,6 +685,10 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 					   0, 0, cap_len, "Capture Length: %u byte%s (%u bits)",
 					   cap_len, cap_plurality, cap_len * 8);
 
+		if (pinfo->rec->presence_flags & WTAP_HAS_DROP_COUNT)
+			proto_tree_add_uint64(fh_tree, hf_frame_drop_count, tvb, 0, 0,
+					    pinfo->rec->rec_header.packet_header.drop_count);
+
 		if (generate_md5_hash) {
 			const guint8 *cp;
 			guint8        digest[HASH_MD5_LENGTH];
@@ -1206,6 +1211,11 @@ proto_register_frame(void)
 		  { "Unknown", "frame.verdict.unknown",
 		    FT_BYTES, SEP_SPACE, NULL, 0x0,
 		    NULL, HFILL }},
+
+		{ &hf_frame_drop_count,
+		  { "Drop Count", "frame.drop_count",
+		    FT_UINT64, BASE_DEC, NULL, 0x0,
+		    "Number of frames lost between this frame and the preceding one on the same interface", HFILL }},
 	};
 
 	static hf_register_info hf_encap =
