@@ -1350,7 +1350,12 @@ include(ConfigureChecks.cmake)
 # Global properties
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
-if(ENABLE_CCACHE AND (CMAKE_COMPILER_IS_GNUCC OR CMAKE_C_COMPILER_ID MATCHES "Clang"))
+if(ENABLE_CCACHE)
+	if(NOT (CMAKE_COMPILER_IS_GNUCC OR CMAKE_C_COMPILER_ID MATCHES "Clang"))
+		# https://ccache.dev/platform-compiler-language-support.html
+		message(WARNING "Ccache is enabled, but your compiler is ${CMAKE_C_COMPILER_ID}."
+		" We wish you the best of luck.")
+	endif()
 	# https://stackoverflow.com/questions/1815688/how-to-use-ccache-with-cmake/24305849#24305849
 	find_program(CCACHE_EXECUTABLE ccache)
 	if(CCACHE_EXECUTABLE)
