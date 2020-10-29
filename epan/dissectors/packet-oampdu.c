@@ -2249,7 +2249,7 @@ proto_register_oampdu(void)
         /* DPoE Variable Descriptor */
         { &hf_dpoe_variable_descriptor,
             { "Variable Descriptor", "oampdu.variable.descriptor",
-                FT_UINT8, BASE_HEX, VALS(dpoe_variable_descriptor_vals),
+                FT_UINT24, BASE_HEX, VALS(dpoe_variable_descriptor_vals),
                 0x0, NULL, HFILL }},
 
         { &hf_dpoe_variable_response_code,
