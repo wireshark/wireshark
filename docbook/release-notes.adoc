@@ -16,49 +16,27 @@ It is used for troubleshooting, analysis, development and education.
 Many improvements have been made.
 See the “New and Updated Features” section below for more details.
 
-// === Bug Fixes
+=== Bug Fixes
 
-// The following bugs have been fixed:
+// The following vulnerabilities have been fixed:
+
+// * wssalink:2020-16[]
+// Foo dissector {crash,infinite loop}.
+// wsbuglink:xxxxx[].
+// cveidlink:2020-xxxx[].
+// Fixed in master: 3ff9406529
+// Fixed in release-3.4: 3ff9406529
+// Fixed in master-3.2: 2bdcb78afd
+
+The following bugs have been fixed:
+
+=== New and Updated Features
 
 //* wsbuglink:5000[]
 //* wsbuglink:6000[Wireshark bug]
 //* cveidlink:2014-2486[]
 //* Wireshark exposed details your sordid redneck past, which were subsequently widely disseminated on social media.
-
-=== New and Updated Features
-
-The following features are new (or have been significantly updated) since version 3.4.0rc1:
-
-* Nothing of note.
-
-The following features are new (or have been significantly updated) since version 3.3.1:
-
-* The Protobuf fields defined as google.protobuf.Timestamp type of Protobuf standard library
-  can now be dissected as Wireshark fields of absolute time type.
-
-The following features are new (or have been significantly updated) since version 3.3.0:
-
-* The Windows installers now ship with Npcap 1.00.
-  They previously shipped with Npcap 0.9997.
-* The Windows installers now ship with Qt 5.15.1.
-  They previously shipped with Qt 5.12.8.
-
-The following features are new (or have been significantly updated) since version 3.2.0:
-
-* Windows executables and installers are now https://support.microsoft.com/en-us/help/4472027/2019-sha-2-code-signing-support-requirement-for-windows-and-wsus[signed using SHA-2 only].
-* Save RTP stream to .au supports any codec with 8000 Hz rate supported by Wireshark (shown in RTP player). If save of audio is not possible (unsupported codec or rate), silence of same length is saved and warning is shown.
-* Asynchronous DNS resolution is always enabled. As a result, the c-ares library is now a required dependency.
-* Protobuf fields can be dissected as Wireshark (header) fields that allows user input
-  the full names of Protobuf fields or messages in Filter toolbar for searching.
-* Dissectors based on Protobuf can register themselves to a new 'protobuf_field' dissector table,
-  which is keyed with the full names of fields, for further parsing fields of BYTES or STRING type.
-* Wireshark is able to decode, play, and save iLBC payload on platforms where the https://github.com/TimothyGu/libilbc[iLBC library] is available.
-* Wireshark is able to decode, play, and save opus payload on platforms where the https://opus-codec.org/[opus library] is available.
-* “Decode As” entries can now be copied from other profiles using a button in the dialog.
-* sshdump can now be copied to multiple instances. Each instance will show up a different interface and will have its own profile.
-* The main window now supports a packet diagram view, which shows each packet as a textbook-style diagram.
-* Filter buttons (“Preferences -> Filter Buttons”) can be grouped by using “//” as a path separator in the filter button label.
-* IPP Over USB packets can now be dissected and displayed
+// cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log v3.2.9rc0.. | gsed -e 's/\(close\|fix\|resolv\)[^ ]* #/\nclose #/gI' | grep ^close | sed -e 's/close.*#\([1-9][0-9]*\).*/\1/' | sort -V -u` ; do "$(git rev-parse --show-toplevel)/tools/gen-bugnote" $bugnumber; pbpaste >> /tmp/buglist.txt; done
 
 // === Removed Features and Support
 
@@ -72,49 +50,22 @@ The following features are new (or have been significantly updated) since versio
 
 === New Protocol Support
 
-// Add one protocol per line between the -- delimiters.
-[commaize]
---
-Arinc 615A (A615A)
-Asphodel Protocol
-AudioCodes Debug Recording (ACDR)
-Bluetooth HCI ISO (BT HCI ISO)
-Cisco MisCabling Protocol (MCP)
-Community ID Flow Hashing (CommunityID)
-DCE/RPC IRemoteWinspool SubSystem, (IREMOTEWINSPOOL)
-Dynamic Link Exchange Protocol (DLEP)
-EAP Generalized Pre-Shared Key (EAP-GPSK)
-EAP Password Authenticated Exchange (EAP-PAX)
-EAP Pre-Shared Key (EAP-PSK)
-EAP Shared-secret Authentication and Key Establishment (EAP-SAKE)
-Fortinet Single Sign-on (FSSO)
-FTDI Multi-Protocol Synchronous Serial Engine (FTDI MPSSE)
-Hypertext Transfer Protocol Version 3 (HTTP3)
-ILDA Digital Network (IDN)
-Java Debug Wire Protocol (JDWP)
-LBM Stateful Resolution Service (LBMSRS)
-Lithionics Battery Management
-OBSAI UDP-based Communication Protocol (UDPCP)
-Palo Alto Heartbeat Backup (PA-HB-Bak)
-ScyllaDB RPC
-Technically Enhanced Capture Module Protocol (TECMP)
-Tunnel Extensible Authentication Protocol (TEAP)
-UDP based FTP w/ multicast V5 (UFTP5)
-USB Printer (USBPRINTER)
---
+There are no new protocols in this release.
 
 === Updated Protocol Support
 
-Too many protocols have been updated to list here.
+// Add one protocol per line between the -- delimiters.
+[commaize]
+--
+--
 
 === New and Updated Capture File Support
 
-// There is no new or updated capture file support in this release.
+There is no new or updated capture file support in this release.
 // Add one file type per line between the -- delimiters.
-[commaize]
---
-MP4 (ISO/IEC 14496-12)
---
+// [commaize]
+// --
+// --
 
 // === New and Updated Capture Interfaces support
 
