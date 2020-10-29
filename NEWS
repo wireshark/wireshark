@@ -1,7 +1,5 @@
 Wireshark 3.4.0 Release Notes
 
- This is the first release candidate for Wireshark 3.4.
-
  What is Wireshark?
 
   Wireshark is the world’s most popular network protocol analyzer. It is
@@ -13,6 +11,11 @@ Wireshark 3.4.0 Release Notes
   section below for more details.
 
   New and Updated Features
+
+   The following features are new (or have been significantly updated)
+   since version 3.4.0rc1:
+
+     • Nothing of note.
 
    The following features are new (or have been significantly updated)
    since version 3.3.1:
@@ -128,13 +131,13 @@ Wireshark 3.4.0 Release Notes
   wireshark-users mailing list. Subscription information and archives
   for all of Wireshark’s mailing lists can be found on the web site[6].
 
-  Bugs and feature requests can be reported on the issue tracker[7].
+  Issues and feature requests can be reported on the issue tracker[7].
 
  Frequently Asked Questions
 
   A complete FAQ is available on the Wireshark web site[8].
 
-  Last updated 2020-10-25 09:16:28 UTC
+  Last updated 2020-10-29 18:48:21 UTC
 
  References
 

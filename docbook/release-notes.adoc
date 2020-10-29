@@ -6,8 +6,6 @@ include::attributes.adoc[]
 // Asciidoctor Syntax Quick Reference:
 // https://asciidoctor.org/docs/asciidoc-syntax-quick-reference/
 
-This is the first release candidate for Wireshark 3.4.
-
 == What is Wireshark?
 
 Wireshark is the world’s most popular network protocol analyzer.
@@ -28,6 +26,10 @@ See the “New and Updated Features” section below for more details.
 //* Wireshark exposed details your sordid redneck past, which were subsequently widely disseminated on social media.
 
 === New and Updated Features
+
+The following features are new (or have been significantly updated) since version 3.4.0rc1:
+
+* Nothing of note.
 
 The following features are new (or have been significantly updated) since version 3.3.1:
 
@@ -150,7 +152,7 @@ and on the wireshark-users mailing list.
 Subscription information and archives for all of Wireshark’s mailing lists can be found on
 https://www.wireshark.org/lists/[the web site].
 
-Bugs and feature requests can be reported on
+Issues and feature requests can be reported on
 https://gitlab.com/wireshark/wireshark/-/issues[the issue tracker].
 
 // Official Wireshark training and certification are available from

@@ -1,3 +1,26 @@
+e3b33beded Build: 3.4.0.
+731f847342 GSM A RR: fix wrong cause value in gsm_a_rr_RR_cause_vals
+34b41729f9 lcsap: fix decode of plmnIdentity
+1d6de11c49 Protobuf: fix bugs about field subdissector
+a1909f2343 Qt: Add a recent item for packet diagram field values.
+f49d6000a7 Qt: Fix saving+restoring frozen packet list rows.
+a4213f2c4f Create protocols to the end of the TVB if length unknown upfront
+d28275c397 lte-rrc: Pluralize PagingRecord(s)
+13d0b4e400 Fix typo: 'descriptionfor' -> 'description for'.
+928f32e85c Add a new record type REC_TYPE_SYSTEMD_JOURNAL.
+9837703a11 dumpcap: fix the macOS "no permission to capture" message.
+c53cbf81f4 Use wtap_uses_interface_ids() to check if IDBs are necessary.
+ab41153f22 AT: Handle response without leading \r\n
+ce22707c35 Impose limits on the number of records we read.
+b45aad9be2 Apparently, WS_WIKI_URL() can work in Qt C++ code.
+9b437e3c2d Include <ui/urls.h>
+fe86435dd7 Qt: Avoid crash on ProtoTree item deselect
+38207edc52 [Automatic update for 2020-10-25]
+74eeba5787 USB HID: Initialize a struct.
+f7a46fbed9 MATE: Improve MATE debug facility
+24450d9c51 tools: Skip over commit body checks.
+de81bd705a Export Objects: Don't double increment count
+d1865925ee Build: 3.4.0rc1.
 dfae8942af Fix our version, update the release notes.
 eff9f0fb0d Initialize release-3.4.
 87a42de393 MATE: allow _AVP_DEBUGGING flag to be set
