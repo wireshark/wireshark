@@ -344,7 +344,7 @@ static void iter_table_and_call(lua_State* LS, const gchar* table_name, lua_CFun
 
 static int init_error_handler(lua_State* LS) {
     const gchar* error =  lua_tostring(LS,1);
-    report_failure("Lua: Error During execution of Initialization:\n %s",error);
+    report_failure("Lua: Error during execution of initialization:\n %s",error);
     return 0;
 }
 
@@ -381,7 +381,7 @@ static void wslua_cleanup_routine(void) {
 
 static int prefs_changed_error_handler(lua_State* LS) {
     const gchar* error =  lua_tostring(LS,1);
-    report_failure("Lua: Error During execution of prefs apply callback:\n %s",error);
+    report_failure("Lua: Error during execution of prefs apply callback:\n %s",error);
     return 0;
 }
 

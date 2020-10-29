@@ -32,8 +32,8 @@ static int tap_packet_cb_error_handler(lua_State* L) {
     static int repeated = 0;
     static int next = 2;
     gchar* where =  (lua_pinfo) ?
-        wmem_strdup_printf(NULL, "Lua: on packet %i Error During execution of Listener Packet Callback",lua_pinfo->num) :
-        wmem_strdup_printf(NULL, "Lua: Error During execution of Listener Packet Callback") ;
+        wmem_strdup_printf(NULL, "Lua: on packet %i Error during execution of Listener packet callback",lua_pinfo->num) :
+        wmem_strdup_printf(NULL, "Lua: Error during execution of Listener packet callback") ;
 
     /* show the error the 1st, 3rd, 5th, 9th, 17th, 33th... time it appears to avoid window flooding */
     /* XXX the last series of identical errors won't be shown (the user however gets at least one message) */
@@ -75,7 +75,6 @@ static tap_packet_status lua_tap_packet(void *tapdata, packet_info *pinfo, epan_
     if (tap->packet_ref == LUA_NOREF) return TAP_PACKET_DONT_REDRAW; /* XXX - report error and return TAP_PACKET_FAILED? */
 
     lua_settop(tap->L,0);
-
     lua_pushcfunction(tap->L,tap_packet_cb_error_handler);
     lua_rawgeti(tap->L, LUA_REGISTRYINDEX, tap->packet_ref);
 
@@ -105,6 +104,9 @@ static tap_packet_status lua_tap_packet(void *tapdata, packet_info *pinfo, epan_
             g_warning("Memory alloc error while calling listener tap callback packet");
             /* XXX - TAP_PACKET_FAILED? */
             break;
+        case LUA_ERRERR:
+            g_warning("Error while running the error handler function for listener tap callback");
+            break;
         default:
             g_assert_not_reached();
             break;
@@ -122,9 +124,9 @@ static tap_packet_status lua_tap_packet(void *tapdata, packet_info *pinfo, epan_
 }
 
 static int tap_reset_cb_error_handler(lua_State* L) {
-    const gchar* error =  lua_tostring(L,1);
-    report_failure("Lua: Error During execution of Listener init Callback:\n %s",error);
-    return 1;
+    const gchar* error = lua_tostring(L,1);
+    report_failure("Lua: Error during execution of Listener reset callback:\n %s",error);
+    return 0;
 }
 
 static void lua_tap_reset(void *tapdata) {
@@ -135,7 +137,7 @@ static void lua_tap_reset(void *tapdata) {
     lua_pushcfunction(tap->L,tap_reset_cb_error_handler);
     lua_rawgeti(tap->L, LUA_REGISTRYINDEX, tap->reset_ref);
 
-    switch ( lua_pcall(tap->L,0,0,1) ) {
+    switch ( lua_pcall(tap->L,0,0,lua_gettop(tap->L)-1) ) {
         case 0:
             break;
         case LUA_ERRRUN:
@@ -144,21 +146,31 @@ static void lua_tap_reset(void *tapdata) {
         case LUA_ERRMEM:
             g_warning("Memory alloc error while calling a listener's init()");
             break;
+        case LUA_ERRERR:
+            g_warning("Error while running the error handler function for a listener's init()");
+            break;
         default:
             g_assert_not_reached();
             break;
     }
 }
 
+static int tap_draw_cb_error_handler(lua_State* L) {
+    const gchar* error = lua_tostring(L,1);
+    report_failure("Lua: Error during execution of Listener draw callback:\n %s",error);
+    return 0;
+}
+
 static void lua_tap_draw(void *tapdata) {
     Listener tap = (Listener)tapdata;
     const gchar* error;
+
     if (tap->draw_ref == LUA_NOREF) return;
 
-    lua_pushcfunction(tap->L,tap_reset_cb_error_handler);
+    lua_pushcfunction(tap->L,tap_draw_cb_error_handler);
     lua_rawgeti(tap->L, LUA_REGISTRYINDEX, tap->draw_ref);
 
-    switch ( lua_pcall(tap->L,0,0,1) ) {
+    switch ( lua_pcall(tap->L,0,0,lua_gettop(tap->L)-1) ) {
         case 0:
             /* OK */
             break;
@@ -168,6 +180,9 @@ static void lua_tap_draw(void *tapdata) {
             break;
         case LUA_ERRMEM:
             g_warning("Memory alloc error while calling a listener's draw()");
+            break;
+        case LUA_ERRERR:
+            g_warning("Error while running the error handler function for a listener's draw()");
             break;
         default:
             g_assert_not_reached();

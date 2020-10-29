@@ -279,6 +279,9 @@ static void statcmd_init(const char *opt_arg, void* userdata) {
         case LUA_ERRMEM:
             g_warning("Memory alloc error while calling statcmd callback");
             break;
+        case LUA_ERRERR:
+            g_warning("Error while running the error handler function for statcmd callback");
+            break;
         default:
             g_assert_not_reached();
             break;

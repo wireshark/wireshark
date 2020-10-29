@@ -27,7 +27,7 @@ struct _lua_menu_data {
 
 static int menu_cb_error_handler(lua_State* L) {
     const gchar* error =  lua_tostring(L,1);
-    report_failure("Lua: Error During execution of Menu Callback:\n %s",error);
+    report_failure("Lua: Error during execution of Menu callback:\n %s",error);
     return 0;
 }
 
@@ -52,6 +52,9 @@ static void lua_menu_callback(gpointer data) {
             break;
         case LUA_ERRMEM:
             g_warning("Memory alloc error while calling menu callback");
+            break;
+        case LUA_ERRERR:
+            g_warning("Error while running the error handler function for menu callback");
             break;
         default:
             g_assert_not_reached();
@@ -123,7 +126,7 @@ struct _dlg_cb_data {
 
 static int dlg_cb_error_handler(lua_State* L) {
     const gchar* error =  lua_tostring(L,1);
-    report_failure("Lua: Error During execution of dialog callback:\n %s",error);
+    report_failure("Lua: Error during execution of Dialog callback:\n %s",error);
     return 0;
 }
 
@@ -153,6 +156,9 @@ static void lua_dialog_cb(gchar** user_input, void* data) {
         case LUA_ERRMEM:
             g_warning("Memory alloc error while calling dialog callback");
             break;
+        case LUA_ERRERR:
+            g_warning("Error while running the error handler function for dialog callback");
+            break;
         default:
             g_assert_not_reached();
             break;
@@ -169,7 +175,7 @@ struct _close_cb_data {
 
 static int text_win_close_cb_error_handler(lua_State* L) {
     const gchar* error =  lua_tostring(L,1);
-    report_failure("Lua: Error During execution of TextWindow close callback:\n %s",error);
+    report_failure("Lua: Error during execution of TextWindow close callback:\n %s",error);
     return 0;
 }
 
@@ -191,6 +197,9 @@ static void text_win_close_cb(void* data) {
                 break;
             case LUA_ERRMEM:
                 g_warning("Memory alloc error during execution of TextWindow close callback");
+                break;
+            case LUA_ERRERR:
+                g_warning("Error while running the error handler function for TextWindow close callback");
                 break;
             default:
                 break;
@@ -760,6 +769,9 @@ static gboolean wslua_button_callback(funnel_text_window_t* ws_tw, void* data) {
             break;
         case LUA_ERRMEM:
             g_warning("Memory alloc error while calling button callback");
+            break;
+        case LUA_ERRERR:
+            g_warning("Error while running the error handler function for button callback");
             break;
         default:
             g_assert_not_reached();
