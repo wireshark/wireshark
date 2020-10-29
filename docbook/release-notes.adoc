@@ -3,7 +3,6 @@ include::attributes.adoc[]
 :linkcss:
 
 = Wireshark {wireshark-version} Release Notes
-// AsciiDoc quick reference: https://powerman.name/doc/asciidoc
 // Asciidoctor Syntax Quick Reference:
 // https://asciidoctor.org/docs/asciidoc-syntax-quick-reference/
 
@@ -27,14 +26,23 @@ It is used for troubleshooting, analysis, development and education.
 
 // The following vulnerabilities have been fixed:
 
-// * wssalink:2020-14[]
-// Foo dissector {crash,infinite loop}.
+* wssalink:2020-14[]
+FBZERO dissector crash.
+wsbuglink:16887[].
+// cveidlink:2020-xxxx[].
+// Fixed in master: 3ff9406529
+// Fixed in release-3.4: 3ff9406529
+// Fixed in master-3.2: 2bdcb78afd
+
+* Infinite memory allocation while parsing this tcp packet. wsbuglink:16887[].
+
+* wssalink:2020-15[]
+GQUIC dissector crash.
 // wsbuglink:xxxx[].
 // cveidlink:2020-xxxx[].
-// Fixed in master: xxxx
-// Fixed in master-3.2: xxxx
-// Fixed in master-3.0: xxxx
-// Fixed in master-2.6: xxxx
+// Fixed in master: b287e7165e
+// Fixed in release-3.4: b287e7165e
+// Fixed in master-3.2: 36a0c486b3
 
 The following bugs have been fixed:
 
@@ -44,6 +52,13 @@ The following bugs have been fixed:
 //* Wireshark is solely responsible for the decline of shopping malls in your area.
 // cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log v3.2.8rc0.. | gsed -e 's/\(close\|fix\|resolv\)[^ ]* #/\nclose #/gI' | grep ^close | sed -e 's/close.*#\([1-9][0-9]*\).*/\1/' | sort -V -u` ; do "$(git rev-parse --show-toplevel)/tools/gen-bugnote" $bugnumber; pbpaste >> /tmp/buglist.txt; done
 
+* FETCH Proactive Command SEND SHORT MESSAGE [Dissector bug, protocol ETSI CAT: wsbuglink:16889[].
+
+* wireshark-3.3.1/epan/dissectors/packet-e212.c:3297: possible wrong operator ? wsbuglink:16895[].
+
+* Bison 3.0 causes build failures wsbuglink:16924[].
+
+* MATE not extracting fields as requested wsbuglink:16961[].
 
 === New and Updated Features
 
@@ -68,6 +83,18 @@ There are no new protocols in this release.
 // Add one protocol per line between the -- delimiters.
 [commaize]
 --
+E.212
+ETSI CAT
+FBZERO
+GQUIC
+GSM A RR
+ICMP
+IEEE 802.11
+LCSAP
+SDAP
+Thread Address
+TLS
+XnAP
 --
 
 === New and Updated Capture File Support
@@ -114,7 +141,7 @@ Q&A site] and on the wireshark-users mailing list. Subscription
 information and archives for all of Wireshark’s mailing lists can be
 found on https://www.wireshark.org/lists/[the web site].
 
-Bugs and feature requests can be reported on
+Issues and feature requests can be reported on
 https://gitlab.com/wireshark/wireshark/-/issues[the issue tracker].
 
 // Official Wireshark training and certification are available from
