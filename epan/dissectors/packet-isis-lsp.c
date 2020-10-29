@@ -455,6 +455,8 @@ static int hf_isis_lsp_clv_srv6_end_sid_flags = -1;
 static int hf_isis_lsp_clv_srv6_end_sid_endpoint_func = -1;
 static int hf_isis_lsp_clv_srv6_end_sid_sid = -1;
 static int hf_isis_lsp_clv_srv6_end_sid_subsubclvs_len = -1;
+static int hf_isis_lsp_purge_orig_id_num = -1;
+static int hf_isis_lsp_purge_orig_id_system_id = -1;
 
 static gint ett_isis_lsp = -1;
 static gint ett_isis_lsp_info = -1;
@@ -522,6 +524,7 @@ static gint ett_isis_lsp_clv_grp_macaddr = -1;
 static gint ett_isis_lsp_clv_grp_ipv4addr = -1;
 static gint ett_isis_lsp_clv_grp_ipv6addr = -1;
 static gint ett_isis_lsp_clv_grp_unknown = -1;
+static gint ett_isis_lsp_clv_purge_orig_id = -1; /* CLV 13 */
 static gint ett_isis_lsp_clv_originating_buff_size = -1; /* CLV 14 */
 static gint ett_isis_lsp_sl_flags = -1;
 static gint ett_isis_lsp_sl_sub_tlv = -1;
@@ -3708,6 +3711,64 @@ dissect_lsp_srv6_locator_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree
     }
 }
 
+/*
+ * Name: dissect_lsp_purge_orig_id_clv()
+ *
+ * Description: Decode a Purge Originator ID CLV - code 13.
+ *
+ *   CALLED BY TLV 13 DISSECTOR
+ *
+ * Input:
+ *   tvbuff_t * : tvbuffer for packet data
+ *   packet_info * : expert error misuse reporting
+ *   proto_tree * : proto tree to build on (may be null)
+ *   int : current offset into packet data
+ *   isis_data_t : data given to subdissectors
+ *   int : length of clv we are decoding
+ *
+ * Output:
+ *   void, will modify proto_tree if not null.
+ */
+static void
+dissect_lsp_purge_orig_id_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int offset,
+                              isis_data_t *isis _U_, int length)
+{
+    int min_tlv_len = 7;
+    guint8 num_of_system_ids;
+    int i;
+
+    if (length < min_tlv_len) {
+        proto_tree_add_expert_format(tree, pinfo, &ei_isis_lsp_short_clv, tvb, offset, length,
+                                     "Too short LSP Purge Originator ID (%d vs %d)",
+                                     length, min_tlv_len);
+        return;
+    }
+
+    /* Number of System IDs */
+    num_of_system_ids = tvb_get_guint8(tvb, offset);
+    proto_tree_add_item(tree, hf_isis_lsp_purge_orig_id_num, tvb, offset, 1, ENC_NA);
+    offset++;
+    length--;
+
+    if (num_of_system_ids != 1 && num_of_system_ids != 2) {
+        proto_tree_add_expert_format(tree, pinfo, &ei_isis_lsp_malformed_subtlv, tvb, offset, length,
+                                     "Invalid number of System IDs: %u (should be 1 or 2)",
+                                     num_of_system_ids);
+        return;
+    }
+    if (length < num_of_system_ids * 6) {
+        proto_tree_add_expert_format(tree, pinfo, &ei_isis_lsp_malformed_subtlv, tvb, offset, length,
+                                     "Invalid Purge Originator ID TLV length: %u ",
+                                     length+1);
+        return;
+    }
+    for (i = 0; i < num_of_system_ids; i++) {
+        proto_tree_add_item(tree, hf_isis_lsp_purge_orig_id_system_id, tvb, offset, 6, ENC_NA);
+        offset += 6;
+        length -= 6;
+    }
+}
+
 static const isis_clv_handle_t clv_l1_lsp_opts[] = {
     {
         ISIS_CLV_AREA_ADDRESS,
@@ -3876,6 +3937,12 @@ static const isis_clv_handle_t clv_l1_lsp_opts[] = {
         "SRv6 Locator",
         &ett_isis_lsp_clv_srv6_locator,
         dissect_lsp_srv6_locator_clv
+    },
+    {
+        ISIS_CLV_PURGE_ORIG_ID,
+        "Purge Originator ID",
+        &ett_isis_lsp_clv_purge_orig_id,
+        dissect_lsp_purge_orig_id_clv
     },
     {
         0,
@@ -4053,6 +4120,12 @@ static const isis_clv_handle_t clv_l2_lsp_opts[] = {
         "SRv6 Locator",
         &ett_isis_lsp_clv_srv6_locator,
         dissect_lsp_srv6_locator_clv
+    },
+    {
+        ISIS_CLV_PURGE_ORIG_ID,
+        "Purge Originator ID",
+        &ett_isis_lsp_clv_purge_orig_id,
+        dissect_lsp_purge_orig_id_clv
     },
     {
         0,
@@ -5678,6 +5751,18 @@ proto_register_isis_lsp(void)
             NULL, HFILL }
         },
 
+        /* rfc6232 */
+        { &hf_isis_lsp_purge_orig_id_num,
+            { "Number of System IDs", "isis.lsp.purge_originator_id.num",
+              FT_UINT8, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_purge_orig_id_system_id,
+            { "System ID", "isis.lsp.purge_originator_id.system_id",
+              FT_SYSTEM_ID, BASE_NONE, NULL, 0x0,
+              NULL, HFILL }
+        },
+
         { &hf_isis_lsp_area_address,
             { "Area address", "isis.lsp.area_address",
               FT_BYTES, BASE_NONE, NULL, 0x0,
@@ -5885,6 +5970,7 @@ proto_register_isis_lsp(void)
         &ett_isis_lsp_clv_grp_unknown,
         &ett_isis_lsp_clv_mt_reachable_IPv4_prefx,
         &ett_isis_lsp_clv_mt_reachable_IPv6_prefx,
+        &ett_isis_lsp_clv_purge_orig_id, /* CLV 13 */
         &ett_isis_lsp_clv_originating_buff_size, /* CLV 14 */
         &ett_isis_lsp_clv_sr_cap,
         &ett_isis_lsp_clv_sr_sid_label,

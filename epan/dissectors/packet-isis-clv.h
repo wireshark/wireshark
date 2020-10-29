@@ -35,6 +35,7 @@
 #define ISIS_CLV_LSP_ENTRIES         9   /* iso10589 */
 #define ISIS_CLV_AUTHENTICATION      10  /* iso10589, rfc3567 */
 #define ISIS_CLV_CHECKSUM            12  /* rfc3358 */
+#define ISIS_CLV_PURGE_ORIG_ID       13  /* rfc6232 */
 #define ISIS_CLV_LSP_BUFFERSIZE      14  /* iso10589 rev2 */
 #define ISIS_CLV_REVERSE_METRIC      16  /* rfc8500 */
 #define ISIS_CLV_EXTD_IS_REACH       22  /* draft-ietf-isis-traffic-05 */
