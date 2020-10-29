@@ -262,6 +262,50 @@
           <bool>true</bool>
          </property>
          <layout class="QGridLayout" name="gridLayout">
+          <item row="2" column="2">
+           <widget class="QComboBox" name="MBComboBox">
+            <property name="toolTip">
+             <string>Switch to the next file after the file size exceeds the specified file size.</string>
+            </property>
+            <item>
+             <property name="text">
+              <string>kilobytes</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>megabytes</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>gigabytes</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+          <item row="3" column="2">
+           <widget class="QComboBox" name="SecsComboBox">
+            <property name="toolTip">
+             <string>Switch to the next file when the time capturing to the current file exceeds the specified time.</string>
+            </property>
+            <item>
+             <property name="text">
+              <string>seconds</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>minutes</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>hours</string>
+             </property>
+            </item>
+           </widget>
+          </item>
           <item row="0" column="3" rowspan="4">
            <spacer name="horizontalSpacer_8">
             <property name="orientation">
@@ -285,90 +329,10 @@
             </property>
            </widget>
           </item>
-          <item row="1" column="1">
-           <widget class="QSpinBox" name="PktSpinBox">
-            <property name="toolTip">
-             <string>Switch to the next file after the specified number of packets have been captured.</string>
-            </property>
-            <property name="buttonSymbols">
-             <enum>QAbstractSpinBox::PlusMinus</enum>
-            </property>
-            <property name="maximum">
-             <number>2147483647</number>
-            </property>
-            <property name="value">
-             <number>100000</number>
-            </property>
-           </widget>
-          </item>
           <item row="1" column="2">
            <widget class="QLabel" name="PktLabel">
             <property name="text">
              <string>packets</string>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="0">
-           <widget class="QCheckBox" name="MBCheckBox">
-            <property name="toolTip">
-             <string>Switch to the next file after the file size exceeds the specified file size.</string>
-            </property>
-            <property name="text">
-             <string>after</string>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="1">
-           <widget class="QSpinBox" name="MBSpinBox">
-            <property name="toolTip">
-             <string>Switch to the next file after the file size exceeds the specified file size.</string>
-            </property>
-            <property name="wrapping">
-             <bool>true</bool>
-            </property>
-            <property name="buttonSymbols">
-             <enum>QAbstractSpinBox::PlusMinus</enum>
-            </property>
-            <property name="minimum">
-             <number>1</number>
-            </property>
-            <property name="maximum">
-             <number>1000000</number>
-            </property>
-            <property name="value">
-             <number>1</number>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="2">
-           <widget class="QComboBox" name="MBComboBox">
-            <property name="toolTip">
-             <string>Switch to the next file after the file size exceeds the specified file size.</string>
-            </property>
-            <item>
-             <property name="text">
-              <string>kilobytes</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>megabytes</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>gigabytes</string>
-             </property>
-            </item>
-           </widget>
-          </item>
-          <item row="3" column="0">
-           <widget class="QCheckBox" name="SecsCheckBox">
-            <property name="toolTip">
-             <string>Switch to the next file when the time capturing to the current file exceeds the specified time.</string>
-            </property>
-            <property name="text">
-             <string>after</string>
             </property>
            </widget>
           </item>
@@ -394,10 +358,40 @@
             </property>
            </widget>
           </item>
-          <item row="3" column="2">
-           <widget class="QComboBox" name="SecsComboBox">
+          <item row="1" column="1">
+           <widget class="QSpinBox" name="PktSpinBox">
             <property name="toolTip">
-             <string>Switch to the next file when the time capturing to the current file exceeds the specified time.</string>
+             <string>Switch to the next file after the specified number of packets have been captured.</string>
+            </property>
+            <property name="buttonSymbols">
+             <enum>QAbstractSpinBox::PlusMinus</enum>
+            </property>
+            <property name="maximum">
+             <number>2147483647</number>
+            </property>
+            <property name="value">
+             <number>100000</number>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QCheckBox" name="MBCheckBox">
+            <property name="toolTip">
+             <string>Switch to the next file after the file size exceeds the specified file size.</string>
+            </property>
+            <property name="text">
+             <string>after</string>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="2">
+           <widget class="QComboBox" name="IntervalSecsComboBox">
+            <property name="toolTip">
+             <string>Switch to the next file when the (wall clock) time is an even multiple of the specified interval.
+For example, use 1 hour to have a new file created every hour on the hour.</string>
+            </property>
+            <property name="currentIndex">
+             <number>2</number>
             </property>
             <item>
              <property name="text">
@@ -414,6 +408,38 @@
               <string>hours</string>
              </property>
             </item>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <widget class="QSpinBox" name="MBSpinBox">
+            <property name="toolTip">
+             <string>Switch to the next file after the file size exceeds the specified file size.</string>
+            </property>
+            <property name="wrapping">
+             <bool>true</bool>
+            </property>
+            <property name="buttonSymbols">
+             <enum>QAbstractSpinBox::PlusMinus</enum>
+            </property>
+            <property name="minimum">
+             <number>1</number>
+            </property>
+            <property name="maximum">
+             <number>1000000</number>
+            </property>
+            <property name="value">
+             <number>1</number>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="0">
+           <widget class="QCheckBox" name="SecsCheckBox">
+            <property name="toolTip">
+             <string>Switch to the next file when the time capturing to the current file exceeds the specified time.</string>
+            </property>
+            <property name="text">
+             <string>after</string>
+            </property>
            </widget>
           </item>
           <item row="4" column="0">
@@ -450,30 +476,33 @@ For example, use 1 hour to have a new file created every hour on the hour.</stri
             </property>
            </widget>
           </item>
-          <item row="4" column="2">
-           <widget class="QComboBox" name="IntervalSecsComboBox">
-            <property name="toolTip">
-             <string>Switch to the next file when the (wall clock) time is an even multiple of the specified interval.
-For example, use 1 hour to have a new file created every hour on the hour.</string>
+          <item row="5" column="0">
+           <widget class="QGroupBox" name="gbCompression">
+            <property name="title">
+             <string>compression</string>
             </property>
-            <property name="currentIndex">
-             <number>2</number>
-            </property>
-            <item>
-             <property name="text">
-              <string>seconds</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>minutes</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>hours</string>
-             </property>
-            </item>
+            <layout class="QVBoxLayout" name="verticalLayout_5">
+             <item>
+              <widget class="QRadioButton" name="rbCompressionNone">
+               <property name="text">
+                <string>None</string>
+               </property>
+               <attribute name="buttonGroup">
+                <string notr="true">buttonGroup</string>
+               </attribute>
+              </widget>
+             </item>
+             <item>
+              <widget class="QRadioButton" name="rbCompressionGzip">
+               <property name="text">
+                <string>gzip</string>
+               </property>
+               <attribute name="buttonGroup">
+                <string notr="true">buttonGroup</string>
+               </attribute>
+              </widget>
+             </item>
+            </layout>
            </widget>
           </item>
          </layout>
@@ -530,35 +559,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</stri
         </layout>
        </item>
        <item>
-        <widget class="QGroupBox" name="gbCompression">
-         <property name="title">
-          <string>compression</string>
-         </property>
-         <layout class="QVBoxLayout" name="verticalLayout_5">
-          <item>
-           <widget class="QRadioButton" name="rbCompressionNone">
-            <property name="text">
-             <string>None</string>
-            </property>
-            <attribute name="buttonGroup">
-             <string notr="true">buttonGroup</string>
-            </attribute>
-           </widget>
-          </item>
-          <item>
-           <widget class="QRadioButton" name="rbCompressionGzip">
-            <property name="text">
-             <string>gzip</string>
-            </property>
-            <attribute name="buttonGroup">
-             <string notr="true">buttonGroup</string>
-            </attribute>
-           </widget>
-          </item>
-         </layout>
-        </widget>
-       </item>
-       <item>
         <spacer name="verticalSpacer_2">
          <property name="orientation">
           <enum>Qt::Vertical</enum>
@@ -574,7 +574,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</stri
       </layout>
       <zorder>gbNewFileAuto</zorder>
       <zorder>gbCaptureToFile</zorder>
-      <zorder>gbCompression</zorder>
+      <zorder></zorder>
      </widget>
      <widget class="QWidget" name="optionsTab">
       <attribute name="title">

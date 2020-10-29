@@ -484,6 +484,9 @@ void CaptureOptionsDialog::on_gbNewFileAuto_toggled(bool checked)
     ui->stopMBCheckBox->setEnabled(checked?false:true);
     ui->stopMBSpinBox->setEnabled(checked?false:true);
     ui->stopMBComboBox->setEnabled(checked?false:true);
+    ui->gbCompression->setEnabled(checked);
+    ui->rbCompressionNone->setEnabled(checked);
+    ui->rbCompressionGzip->setEnabled(checked);
 }
 
 void CaptureOptionsDialog::on_cbUpdatePacketsRT_toggled(bool checked)
