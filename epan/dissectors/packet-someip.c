@@ -162,6 +162,8 @@ static int hf_payload_type_field_32bit                                  = -1;
 static int hf_payload_str_base                                          = -1;
 static int hf_payload_str_string                                        = -1;
 static int hf_payload_str_struct                                        = -1;
+static int hf_payload_str_array                                         = -1;
+static int hf_payload_str_union                                         = -1;
 
 static gint ett_someip_tp_fragment                                      = -1;
 static gint ett_someip_tp_fragments                                     = -1;
@@ -2098,10 +2100,13 @@ dissect_someip_payload_string(tvbuff_t* tvb, packet_info* pinfo, proto_tree *tre
         return 0;
     };
 
+    ti = proto_tree_add_string_format(tree, hf_payload_str_string, tvb, offset, 0, name, "%s [%s]", name, config->name);
+    subtree = proto_item_add_subtree(ti, ett_someip_string);
+
     if (config->length_of_length == 0) {
         length = config->max_length;
     } else {
-        tmp = dissect_someip_payload_length_field(tvb, pinfo, tree, offset, config->length_of_length);
+        tmp = dissect_someip_payload_length_field(tvb, pinfo, subtree, offset, config->length_of_length);
         if (tmp < 0) {
             /* error */
             return config->length_of_length / 8;
@@ -2111,7 +2116,7 @@ dissect_someip_payload_string(tvbuff_t* tvb, packet_info* pinfo, proto_tree *tre
     }
 
     if ((guint32)tvb_captured_length_remaining(tvb, offset) < length) {
-        expert_someip_payload_malformed(tree, pinfo, tvb, offset, 0);
+        expert_someip_payload_malformed(subtree, pinfo, tvb, offset, 0);
         return 0;
     }
 
@@ -2134,9 +2139,7 @@ dissect_someip_payload_string(tvbuff_t* tvb, packet_info* pinfo, proto_tree *tre
         }
     }
 
-    ti = proto_tree_add_string_format(tree, hf_payload_str_string, tvb, offset_orig, length + (offset - offset_orig), buf, "%s [%s]: %s", name, config->name, buf);
-    subtree = proto_item_add_subtree(ti, ett_someip_string);
-    proto_tree_add_string_format(subtree, hf_payload_str_string, tvb, offset_orig, offset - offset_orig, buf, "string length: %d", length);
+    proto_item_append_text(ti, ": %s", buf);
     offset += length;
 
     ret = 8 * (offset - offset_orig) + (offset_bits - offset_bits_orig);
@@ -2302,6 +2305,7 @@ dissect_someip_payload_array_payload(tvbuff_t* tvb, packet_info* pinfo, proto_tr
 /* returns bits parsed */
 static gint
 dissect_someip_payload_array_dim(tvbuff_t* tvb, packet_info* pinfo, proto_tree *tree, gint offset_orig, gint length, gint lower_limit, gint upper_limit, someip_parameter_array_t *config, guint current_dim, gchar* name) {
+    proto_item *ti = NULL;
     proto_tree *subtree = NULL;
     gint        sub_length = 0;
     gint        sub_lower_limit = 0;
@@ -2312,7 +2316,6 @@ dissect_someip_payload_array_dim(tvbuff_t* tvb, packet_info* pinfo, proto_tree *
     gint        offset = offset_orig;
     gint        offset_bits = 0;
     gint        ret = 0;
-    gint        len_of_len = 0;
 
     if (config->num_of_dims == current_dim + 1) {
         /* only payload left. :) */
@@ -2321,19 +2324,26 @@ dissect_someip_payload_array_dim(tvbuff_t* tvb, packet_info* pinfo, proto_tree *
         if (length != -1) {
             while (offset < offset_orig + (gint)length) {
                 sub_offset = offset;
-                offset += dissect_someip_payload_array_dim_length(tvb, pinfo, tree, offset, &sub_length, &sub_lower_limit, &sub_upper_limit, config, current_dim + 1);
-                len_of_len = offset - sub_offset;
+
+                ti = proto_tree_add_string_format(tree, hf_payload_str_array, tvb, sub_offset, 0, name, "subarray (dim: %d, limit %d-%d)", current_dim + 1, sub_lower_limit, sub_upper_limit);
+                subtree = proto_item_add_subtree(ti, ett_someip_array_dim);
+
+                offset += dissect_someip_payload_array_dim_length(tvb, pinfo, subtree, offset, &sub_length, &sub_lower_limit, &sub_upper_limit, config, current_dim + 1);
 
                 if (tvb_captured_length_remaining(tvb, offset) < (gint)sub_length) {
-                    expert_someip_payload_truncated(tree, pinfo, tvb, offset, tvb_captured_length_remaining(tvb, offset));
+                    expert_someip_payload_truncated(subtree, pinfo, tvb, offset, tvb_captured_length_remaining(tvb, offset));
                     return 0;
                 }
-
-                subtree = proto_tree_add_subtree_format(tree, tvb, sub_offset, sub_length + len_of_len, ett_someip_array_dim, NULL, "subarray (dim: %d, limit %d-%d)", current_dim + 1, sub_lower_limit, sub_upper_limit);
 
                 offset_bits += dissect_someip_payload_array_dim(tvb, pinfo, subtree, offset, sub_length, sub_lower_limit, sub_upper_limit, config, current_dim + 1, name);
                 offset = (8 * offset + offset_bits) / 8;
                 offset_bits = (8 * offset + offset_bits) % 8;
+                if (offset_bits == 0) {
+                    proto_item_set_end(ti, tvb, offset);
+                } else {
+                    proto_item_set_end(ti, tvb, offset + 1);
+                }
+
             }
         } else {
             /* Multi-dim static array */
@@ -2355,11 +2365,13 @@ dissect_someip_payload_array(tvbuff_t* tvb, packet_info* pinfo, proto_tree *tree
     someip_parameter_array_t *config = NULL;
 
     proto_tree *subtree;
+    proto_item *ti = NULL;
 
     gint        offset = offset_orig;
     gint        offset_bits = offset_bits_orig;
 
     gint        length = 0;
+    gint        size_of_length = 0;
     gint        lower_limit = 0;
     gint        upper_limit = 0;
 
@@ -2379,23 +2391,44 @@ dissect_someip_payload_array(tvbuff_t* tvb, packet_info* pinfo, proto_tree *tree
         return 0;
     }
 
-    offset += dissect_someip_payload_array_dim_length(tvb, pinfo, tree, offset_orig, &length, &lower_limit, &upper_limit, config, 0);
+    ti = proto_tree_add_string_format(tree, hf_payload_str_array, tvb, offset, 0, config->name, "array %s", name);
+    subtree = proto_item_add_subtree(ti, ett_someip_struct);
+
+    offset += dissect_someip_payload_array_dim_length(tvb, pinfo, subtree, offset_orig, &length, &lower_limit, &upper_limit, config, 0);
+    size_of_length = offset - offset_orig;
 
     if (length != -1) {
-        subtree = proto_tree_add_subtree_format(tree, tvb, offset_orig, length + (offset - offset_orig), ett_someip_array, NULL, "array %s (elements limit: %d-%d)", name, lower_limit, upper_limit);
+        proto_item_append_text(ti, " (elements limit: %d-%d)", lower_limit, upper_limit);
     } else {
-        subtree = proto_tree_add_subtree_format(tree, tvb, offset_orig, length + (offset - offset_orig), ett_someip_array, NULL, "array %s (elements limit: %d)", name, upper_limit);
+         proto_item_append_text(ti, " (elements limit: %d)", upper_limit);
     }
 
     offset_bits += dissect_someip_payload_array_dim(tvb, pinfo, subtree, offset, length, lower_limit, upper_limit, config, 0, name);
 
-    return 8 * (length + (offset - offset_orig)) + (offset_bits - offset_bits_orig);
+    offset = (8 * offset + offset_bits) / 8;
+    offset_bits = (8 * offset + offset_bits) % 8;
+
+    if (offset_bits == 0) {
+        proto_item_set_end(ti, tvb, offset);
+    } else {
+        proto_item_set_end(ti, tvb, offset + 1);
+    }
+
+    if (length >= 0) {
+        /* length field present */
+        return 8 * (size_of_length + length);
+    } else {
+        /* We have no length field, so we return what has been parsed! */
+        return 8 * (offset - offset_orig) + (offset_bits - offset_bits_orig);
+    }
 }
 
 static int
 dissect_someip_payload_union(tvbuff_t* tvb, packet_info* pinfo, proto_tree *tree, gint offset_orig, gint offset_bits_orig, guint32 id, gchar* name) {
     someip_parameter_union_t        *config = NULL;
     someip_parameter_union_item_t   *item = NULL;
+
+    proto_item *ti = NULL;
     proto_tree *subtree = NULL;
 
     tvbuff_t   *subtvb;
@@ -2428,7 +2461,8 @@ dissect_someip_payload_union(tvbuff_t* tvb, packet_info* pinfo, proto_tree *tree
         return 0;
     }
 
-    subtree = proto_tree_add_subtree_format(tree, tvb, offset_orig, offset - offset_orig + length, ett_someip_union, NULL, "union %s [%s]", name, config->name);
+    ti = proto_tree_add_string_format(tree, hf_payload_str_union, tvb, offset_orig, 0, name, "union %s [%s]", name, config->name);
+    subtree = proto_item_add_subtree(ti, ett_someip_union);
 
     tmp = dissect_someip_payload_length_field(tvb, pinfo, subtree, offset_orig, config->length_of_length);
     if (tmp == -1) {
@@ -2445,6 +2479,7 @@ dissect_someip_payload_union(tvbuff_t* tvb, packet_info* pinfo, proto_tree *tree
     }
 
     offset += (config->length_of_length + config->length_of_type) / 8;
+    proto_item_set_end(ti, tvb, offset + length);
 
     item = NULL;
     for (i = 0; i < config->num_of_items; i++) {
@@ -2527,8 +2562,14 @@ dissect_someip_payload(tvbuff_t* tvb, packet_info* pinfo, proto_item *ti, guint1
         offset_bits = (8 * offset + offset_bits + bits_parsed) % 8;
     }
 
-    if (length > offset + 1) {
-        proto_tree_add_item(tree, hf_payload_unparsed, tvb, offset + 1, length - (offset + 1), ENC_NA);
+    if (offset_bits != 0) {
+        /* allign to byte */
+        offset += 1;
+        offset_bits = 0;
+    }
+
+    if (length > offset) {
+        proto_tree_add_item(tree, hf_payload_unparsed, tvb, offset, length - (offset), ENC_NA);
     }
 }
 
@@ -2924,6 +2965,12 @@ proto_register_someip(void) {
             FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_payload_str_struct, {
             "(struct)", "someip.payload.struct",
+            FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_payload_str_array, {
+            "(array)", "someip.payload.array",
+            FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_payload_str_union, {
+            "(array)", "someip.payload.union",
             FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
     };
 
