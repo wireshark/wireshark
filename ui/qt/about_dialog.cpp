@@ -315,6 +315,8 @@ AboutDialog::AboutDialog(QWidget *parent) :
     ui->tblFolders->setItemDelegateForColumn(1, new UrlLinkDelegate(this));
     ui->tblFolders->setContextMenuPolicy(Qt::CustomContextMenu);
     ui->tblFolders->setTextElideMode(Qt::ElideMiddle);
+    ui->tblFolders->setSortingEnabled(true);
+    ui->tblFolders->sortByColumn(0, Qt::AscendingOrder);
     connect(ui->tblFolders, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(handleCopyMenu(QPoint)));
     connect(ui->searchFolders, SIGNAL(textChanged(QString)), folderProxyModel, SLOT(setFilter(QString)));
     connect(ui->tblFolders, SIGNAL(doubleClicked(QModelIndex)), this, SLOT(urlDoubleClicked(QModelIndex)));
@@ -338,6 +340,8 @@ AboutDialog::AboutDialog(QWidget *parent) :
     ui->cmbType->addItems(pluginModel->typeNames());
     ui->tblPlugins->setContextMenuPolicy(Qt::CustomContextMenu);
     ui->tblPlugins->setTextElideMode(Qt::ElideMiddle);
+    ui->tblPlugins->setSortingEnabled(true);
+    ui->tblPlugins->sortByColumn(0, Qt::AscendingOrder);
     connect(ui->tblPlugins, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(handleCopyMenu(QPoint)));
     connect(ui->searchPlugins, SIGNAL(textChanged(QString)), pluginFilterModel, SLOT(setFilter(QString)));
     connect(ui->cmbType, SIGNAL(currentIndexChanged(QString)), pluginTypeModel, SLOT(setFilter(QString)));
@@ -360,6 +364,8 @@ AboutDialog::AboutDialog(QWidget *parent) :
     ui->tblShortcuts->setModel(shortcutProxyModel);
     ui->tblShortcuts->setRootIsDecorated(false);
     ui->tblShortcuts->setContextMenuPolicy(Qt::CustomContextMenu);
+    ui->tblShortcuts->setSortingEnabled(true);
+    ui->tblShortcuts->sortByColumn(1, Qt::AscendingOrder);
     connect(ui->tblShortcuts, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(handleCopyMenu(QPoint)));
     connect(ui->searchShortcuts, SIGNAL(textChanged(QString)), shortcutProxyModel, SLOT(setFilter(QString)));
 
