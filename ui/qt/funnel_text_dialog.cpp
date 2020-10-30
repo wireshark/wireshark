@@ -118,8 +118,11 @@ void FunnelTextDialog::setTextEditable(gboolean editable)
     ui->textEdit->setReadOnly(!editable);
 }
 
-void FunnelTextDialog::addButton(funnel_bt_t *funnel_button, const QString label)
+void FunnelTextDialog::addButton(funnel_bt_t *funnel_button, QString label)
 {
+    // Use "&&" to get a real ampersand in the button.
+    label.replace('&', "&&");
+
     QPushButton *button = new QPushButton(label);
     ui->buttonBox->addButton(button, QDialogButtonBox::ActionRole);
     text_button_to_funnel_button_[button] = funnel_button;
