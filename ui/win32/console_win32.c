@@ -210,6 +210,8 @@ restore_pipes(void)
     gboolean must_redirect_stdout;
     gboolean must_redirect_stderr;
 
+    HANDLE fd;
+
     if (stdin_capture) {
         /* We've been handed "-i -". Don't mess with stdio. */
         return;
@@ -228,6 +230,9 @@ restore_pipes(void)
     if (!must_redirect_stdin && !must_redirect_stdout && !must_redirect_stderr)
         return;
 
+    if (!must_redirect_stdin)
+        fd = GetStdHandle(STD_INPUT_HANDLE);
+
     /* OK, at least one of them needs to be redirected to a console;
         try to attach to the parent process's console and, if that fails,
         cleanup and return. */
@@ -240,8 +245,11 @@ restore_pipes(void)
         return;   /* No parent - cleanup and exit */
     }
 
-    if (must_redirect_stdin)
+    if (must_redirect_stdin) {
         ws_freopen("CONIN$", "r", stdin);
+    } else {
+        SetStdHandle(STD_INPUT_HANDLE, fd);
+    }
     if (must_redirect_stdout) {
         ws_freopen("CONOUT$", "w", stdout);
         fprintf(stdout, "\n");
