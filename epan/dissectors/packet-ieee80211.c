@@ -3925,6 +3925,14 @@ static int hf_ieee80211_bcn_timing_info_nsta_id = -1;
 static int hf_ieee80211_bcn_timing_info_nsta_tbtt = -1;
 static int hf_ieee80211_bcn_timing_info_nsta_bi = -1;
 
+static int hf_ieee80211_gann_flags = -1;
+static int hf_ieee80211_gann_flags_reserved = -1;
+static int hf_ieee80211_gann_hop_count = -1;
+static int hf_ieee80211_gann_elem_ttl = -1;
+static int hf_ieee80211_gann_mesh_gate_addr = -1;
+static int hf_ieee80211_gann_seq_num = -1;
+static int hf_ieee80211_gann_interval = -1;
+
 static int hf_ieee80211_ff_public_action = -1;
 static int hf_ieee80211_ff_protected_public_action = -1;
 static int hf_ieee80211_ff_tod = -1;
@@ -6011,6 +6019,7 @@ static gint ett_mesh_config_cap_tree = -1;
 static gint ett_mesh_formation_info_tree = -1;
 static gint ett_bcn_timing_rctrl_tree = -1;
 static gint ett_bcn_timing_info_tree = -1;
+static gint ett_gann_flags_tree = -1;
 
 static gint ett_rsn_gcs_tree = -1;
 static gint ett_rsn_pcs_tree = -1;
@@ -22792,6 +22801,43 @@ ieee80211_tag_beacon_timing(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 }
 
 static int
+ieee80211_tag_gann(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
+{
+  int tag_len = tvb_reported_length(tvb);
+  ieee80211_tagged_field_data_t* field_data = (ieee80211_tagged_field_data_t*)data;
+  int offset = 0;
+
+  static int * const ieee80211_gann_flags_byte[] = {
+    &hf_ieee80211_gann_flags_reserved,
+    NULL,
+  };
+
+  /* Gate Announcement (125) */
+  if (tag_len != 15) {
+    expert_add_info_format(pinfo, field_data->item_tag_length, &ei_ieee80211_tag_length,
+                           "Tag length %u wrong, must be = 15", tag_len);
+    return tvb_captured_length(tvb);
+  }
+
+  proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_ieee80211_gann_flags,
+                      ett_gann_flags_tree, ieee80211_gann_flags_byte,
+                      ENC_LITTLE_ENDIAN, BMT_NO_APPEND);
+  offset += 1;
+
+  proto_tree_add_item(tree, hf_ieee80211_gann_hop_count, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+  offset += 1;
+  proto_tree_add_item(tree, hf_ieee80211_gann_elem_ttl, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+  offset += 1;
+  proto_tree_add_item(tree, hf_ieee80211_gann_mesh_gate_addr, tvb, offset, 6, ENC_NA);
+  offset += 6;
+  proto_tree_add_item(tree, hf_ieee80211_gann_seq_num, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+  offset += 4;
+  proto_tree_add_item(tree, hf_ieee80211_gann_interval, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+
+  return tvb_captured_length(tvb);
+}
+
+static int
 ieee80211_tag_mesh_preq(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
   int offset = 0;
@@ -31211,6 +31257,41 @@ proto_register_ieee80211(void)
        FT_UINT16, BASE_CUSTOM, CF_FUNC(beacon_interval_base_custom), 0,
       NULL, HFILL }},
 
+    {&hf_ieee80211_gann_flags,
+     {"GANN Flags", "wlan.gann.flags",
+       FT_UINT8, BASE_HEX, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_gann_flags_reserved,
+     {"Reserved", "wlan.gann.flags.reserved",
+       FT_UINT8, BASE_HEX, NULL, 0xFF,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_gann_hop_count,
+     {"GANN Hop count", "wlan.gann.hop_count",
+       FT_UINT8, BASE_DEC, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_gann_elem_ttl,
+     {"GANN Element TTL", "wlan.gann.elem_ttl",
+       FT_UINT8, BASE_DEC, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_gann_mesh_gate_addr,
+     {"GANN Mesh Gate Address", "wlan.gann.gate_addr",
+       FT_BYTES, SEP_COLON, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_gann_seq_num,
+     {"GANN Sequence Number", "wlan.gann.seq_num",
+       FT_UINT32, BASE_DEC, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_gann_interval,
+     {"GANN Interval", "wlan.gann.interval",
+       FT_UINT16, BASE_DEC, NULL, 0,
+      NULL, HFILL }},
+
     {&hf_ieee80211_mesh_mic,
      {"Mesh Peering Management MIC", "wlan.mesh.mic",
       FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
@@ -39182,6 +39263,7 @@ proto_register_ieee80211(void)
     &ett_mesh_formation_info_tree,
     &ett_bcn_timing_rctrl_tree,
     &ett_bcn_timing_info_tree,
+    &ett_gann_flags_tree,
 
     &ett_rsn_gcs_tree,
     &ett_rsn_pcs_tree,
@@ -40084,6 +40166,7 @@ proto_reg_handoff_ieee80211(void)
   dissector_add_uint("wlan.tag.number", TAG_MESH_CONFIGURATION, create_dissector_handle(ieee80211_tag_mesh_configuration, -1));
   dissector_add_uint("wlan.tag.number", TAG_MESH_ID, create_dissector_handle(ieee80211_tag_mesh_id, -1));
   dissector_add_uint("wlan.tag.number", TAG_BEACON_TIMING, create_dissector_handle(ieee80211_tag_beacon_timing, -1));
+  dissector_add_uint("wlan.tag.number", TAG_GANN, create_dissector_handle(ieee80211_tag_gann, -1));
   dissector_add_uint("wlan.tag.number", TAG_MESH_PREQ, create_dissector_handle(ieee80211_tag_mesh_preq, -1));
   dissector_add_uint("wlan.tag.number", TAG_MESH_PREP, create_dissector_handle(ieee80211_tag_mesh_prep, -1));
   dissector_add_uint("wlan.tag.number", TAG_MESH_PERR, create_dissector_handle(ieee80211_tag_mesh_perr, -1));
