@@ -45,7 +45,7 @@ public:
     const char *getText();
     void setCloseCallback(text_win_close_cb_t close_cb, void* close_cb_data);
     void setTextEditable(gboolean editable);
-    void addButton(funnel_bt_t *button_cb, const QString label);
+    void addButton(funnel_bt_t *button_cb, QString label);
 
 private slots:
     void buttonClicked();

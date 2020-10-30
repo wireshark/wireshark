@@ -58,13 +58,16 @@ static void progress_window_destroy(struct progdlg *progress_dialog);
 class FunnelAction : public QAction
 {
 public:
-    FunnelAction(const QString title, funnel_menu_callback callback, gpointer callback_data, gboolean retap, QObject *parent = nullptr) :
+    FunnelAction(QString title, funnel_menu_callback callback, gpointer callback_data, gboolean retap, QObject *parent = nullptr) :
         QAction(parent),
         title_(title),
         callback_(callback),
         callback_data_(callback_data),
         retap_(retap)
     {
+        // Use "&&" to get a real ampersand in the menu item.
+        title.replace('&', "&&");
+
         setText(title);
         setObjectName(FunnelStatistics::actionName());
     }
