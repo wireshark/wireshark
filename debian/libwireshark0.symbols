@@ -1085,6 +1085,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  prefs_set_effect_flags@Base 2.5.0
  prefs_set_effect_flags_by_name@Base 2.5.0
  prefs_set_enum_value@Base 2.3.0
+ prefs_set_enum_string_value@Base 3.5.0
  prefs_set_gui_theme_is_dark@Base 2.5.0
  prefs_set_module_effect_flags@Base 2.5.0
  prefs_set_pref@Base 1.9.1

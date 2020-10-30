@@ -65,6 +65,7 @@ static gboolean parse_column_format(fmt_data *cfmt, const char *fmt);
 static void try_convert_to_custom_column(gpointer *el_data);
 static guint prefs_module_list_foreach(wmem_tree_t *module_list, module_cb callback,
                           gpointer user_data, gboolean skip_obsolete);
+static gint find_val_for_string(const char *needle, const enum_val_t *haystack, gint default_value);
 
 #define IS_PREF_OBSOLETE(p) ((p) & PREF_OBSOLETE)
 #define SET_PREF_OBSOLETE(p) ((p) |= PREF_OBSOLETE)
@@ -1347,6 +1348,13 @@ unsigned int prefs_set_enum_value(pref_t *pref, gint value, pref_source_t source
     }
 
     return changed;
+}
+
+unsigned int prefs_set_enum_string_value(pref_t *pref, const gchar *value, pref_source_t source)
+{
+    gint enum_val = find_val_for_string(value, pref->info.enum_info.enumvals, *pref->varp.enump);
+
+    return prefs_set_enum_value(pref, enum_val, source);
 }
 
 gint prefs_get_enum_value(pref_t *pref, pref_source_t source)

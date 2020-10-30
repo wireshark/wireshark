@@ -231,6 +231,7 @@ WS_DLL_PUBLIC guint prefs_get_uint_value_real(pref_t *pref, pref_source_t source
 
 
 WS_DLL_PUBLIC unsigned int prefs_set_enum_value(pref_t *pref, gint value, pref_source_t source);
+WS_DLL_PUBLIC unsigned int prefs_set_enum_string_value(pref_t *pref, const gchar *value, pref_source_t source);
 WS_DLL_PUBLIC gint prefs_get_enum_value(pref_t *pref, pref_source_t source);
 WS_DLL_PUBLIC const enum_val_t* prefs_get_enumvals(pref_t *pref);
 WS_DLL_PUBLIC gboolean prefs_get_enum_radiobuttons(pref_t *pref);

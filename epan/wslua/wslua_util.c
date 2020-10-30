@@ -17,6 +17,8 @@
 #include "wslua.h"
 #include <math.h>
 #include <epan/stat_tap_ui.h>
+#include <epan/prefs.h>
+#include <epan/prefs-int.h>
 
 
 WSLUA_FUNCTION wslua_get_version(lua_State* L) { /* Gets the Wireshark version as a string. */
@@ -121,6 +123,222 @@ WSLUA_FUNCTION wslua_format_time(lua_State* LS) { /* Formats a relative timestam
     wmem_free(NULL, str);
 
     WSLUA_RETURN(1); /* A string with the formated time */
+}
+
+WSLUA_FUNCTION wslua_get_preference(lua_State *L) {
+    /* Get a preference value. @since 3.5.0 */
+#define WSLUA_ARG_Prefs_get_PREFERENCE 1 /* The name of the preference. */
+    const gchar* preference = luaL_checkstring(L,WSLUA_ARG_Prefs_get_PREFERENCE);
+
+    /* Split preference from module.preference */
+    gchar *module_name = g_strdup(preference);
+    gchar *preference_name = strchr(module_name, '.');
+    pref_t *pref = NULL;
+
+    if (preference_name) {
+        *preference_name = '\0';
+        preference_name++;
+
+        module_t *module = prefs_find_module(module_name);
+        pref = prefs_find_preference(module, preference_name);
+    }
+
+    if (pref) {
+        switch (prefs_get_type(pref)) {
+            case PREF_UINT:
+            {
+                guint uint_value = prefs_get_uint_value_real(pref, pref_current);
+                lua_pushinteger(L, uint_value);
+                break;
+            }
+            case PREF_BOOL:
+            {
+                gboolean bool_value = prefs_get_bool_value(pref, pref_current);
+                lua_pushboolean(L, bool_value);
+                break;
+            }
+            case PREF_ENUM:
+            {
+                const enum_val_t *enums;
+                gint enum_value = prefs_get_enum_value(pref, pref_current);
+
+                for (enums = prefs_get_enumvals(pref); enums->name; enums++) {
+                    if (enums->value == enum_value) {
+                        lua_pushstring(L,enums->name);
+                        break;
+                    }
+                }
+
+                if (!enums || !enums->name) {
+                    /* Enum preference has an unknown value. */
+                    lua_pushstring(L,"");
+                }
+                break;
+            }
+            case PREF_STRING:
+            case PREF_SAVE_FILENAME:
+            case PREF_OPEN_FILENAME:
+            case PREF_DIRNAME:
+            {
+                const gchar *string_value = prefs_get_string_value(pref, pref_current);
+                lua_pushstring(L,string_value);
+                break;
+            }
+            case PREF_RANGE:
+            {
+                char *range_value = range_convert_range(NULL, prefs_get_range_value_real(pref, pref_current));
+                lua_pushstring(L,range_value);
+                wmem_free(NULL, range_value);
+                break;
+            }
+            default:
+                /* Get not supported for this type. */
+                return luaL_error(L, "preference type %d is not supported.", prefs_get_type(pref));
+        }
+    } else {
+        /* No such preference. */
+        lua_pushnil(L);
+    }
+
+    g_free (module_name);
+    WSLUA_RETURN(1); /* The preference value, or nil if not found. */
+}
+
+WSLUA_FUNCTION wslua_set_preference(lua_State *L) {
+    /* Set a preference value. @since 3.5.0 */
+#define WSLUA_ARG_Prefs_set_PREFERENCE 1 /* The name of the preference. */
+#define WSLUA_ARG_Prefs_set_VALUE 2 /* The preference value to set. */
+    const gchar* preference = luaL_checkstring(L,WSLUA_ARG_Prefs_get_PREFERENCE);
+
+    /* Split preference from module.preference */
+    gchar *module_name = g_strdup(preference);
+    gchar *preference_name = strchr(module_name, '.');
+    module_t *module = NULL;
+    pref_t *pref = NULL;
+
+    if (preference_name) {
+        *preference_name = '\0';
+        preference_name++;
+
+        module = prefs_find_module(module_name);
+        pref = prefs_find_preference(module, preference_name);
+    }
+
+    if (pref) {
+        unsigned int changed = 0;
+        switch (prefs_get_type(pref)) {
+            case PREF_UINT:
+            {
+                guint uint_value = (guint)luaL_checkinteger(L,WSLUA_ARG_Prefs_set_VALUE);
+                changed = prefs_set_uint_value(pref, uint_value, pref_current);
+                module->prefs_changed_flags |= changed;
+                lua_pushboolean(L, changed);
+                break;
+            }
+            case PREF_BOOL:
+            {
+                gboolean bool_value = wslua_checkboolean(L, WSLUA_ARG_Prefs_set_VALUE);
+                changed = prefs_set_bool_value(pref, bool_value, pref_current);
+                module->prefs_changed_flags |= changed;
+                lua_pushboolean(L, changed);
+                break;
+            }
+            case PREF_ENUM:
+            {
+                const gchar *enum_value = luaL_checkstring(L,WSLUA_ARG_Prefs_set_VALUE);
+                changed = prefs_set_enum_string_value(pref, enum_value, pref_current);
+                module->prefs_changed_flags |= changed;
+                lua_pushboolean(L, changed);
+                break;
+            }
+            case PREF_STRING:
+            case PREF_SAVE_FILENAME:
+            case PREF_OPEN_FILENAME:
+            case PREF_DIRNAME:
+            {
+                const gchar *string_value = luaL_checkstring(L,WSLUA_ARG_Prefs_set_VALUE);
+                changed = prefs_set_string_value(pref, string_value, pref_current);
+                module->prefs_changed_flags |= changed;
+                lua_pushboolean(L, changed);
+                break;
+            }
+            case PREF_RANGE:
+            {
+                const gchar *range_value = luaL_checkstring(L,WSLUA_ARG_Prefs_set_VALUE);
+                range_t *range = NULL;
+                convert_ret_t ret = range_convert_str(NULL, &range, range_value, prefs_get_max_value(pref));
+                if (ret == CVT_NUMBER_TOO_BIG) {
+                    return luaL_error(L, "illegal range (number too big)");
+                } else if (ret != CVT_NO_ERROR) {
+                    return luaL_error(L, "illegal range (syntax error)");
+                }
+                changed = prefs_set_range_value(pref, range, pref_current);
+                wmem_free(NULL, range);
+                module->prefs_changed_flags |= changed;
+                lua_pushboolean(L, changed);
+                break;
+            }
+            default:
+                /* Set not supported for this type. */
+                return luaL_error(L, "preference type %d is not supported.", prefs_get_type(pref));
+        }
+    } else {
+        /* No such preference. */
+        lua_pushnil(L);
+    }
+
+    g_free(module_name);
+    WSLUA_RETURN(1); /* true if changed, false if unchanged or nil if not found. */
+}
+
+WSLUA_FUNCTION wslua_reset_preference(lua_State *L) {
+    /* Reset a preference to default value. @since 3.5.0 */
+#define WSLUA_ARG_Prefs_set_PREFERENCE 1 /* The name of the preference. */
+    const gchar* preference = luaL_checkstring(L,WSLUA_ARG_Prefs_get_PREFERENCE);
+
+    // Split preference from module.preference
+    gchar *module_name = g_strdup(preference);
+    gchar *preference_name = strchr(module_name, '.');
+    pref_t *pref = NULL;
+
+    if (preference_name) {
+        *preference_name = '\0';
+        preference_name++;
+
+        module_t *module = prefs_find_module(module_name);
+        pref = prefs_find_preference(module, preference_name);
+    }
+
+    if (pref) {
+        reset_pref(pref);
+        lua_pushboolean(L, TRUE);
+    } else {
+        /* No such preference. */
+        lua_pushnil(L);
+    }
+
+    g_free(module_name);
+    WSLUA_RETURN(1); /* true if valid preference */
+}
+
+WSLUA_FUNCTION wslua_apply_preferences(lua_State *L) {
+    /* Write preferences to file and apply changes. @since 3.5.0 */
+    char *pf_path = NULL;
+    int err = write_prefs(&pf_path);
+
+    if (err) {
+        /* Make a copy of pf_path because luaL_error() will return */
+        gchar pf_path_copy[256];
+        g_strlcpy(pf_path_copy, pf_path, sizeof pf_path_copy);
+        g_free(pf_path);
+
+        return luaL_error(L, "can't open preferences file\n\"%s\": %s.",
+                          pf_path_copy, g_strerror(err));
+    } else {
+        prefs_apply_all();
+    }
+
+    return 0;
 }
 
 WSLUA_FUNCTION wslua_report_failure(lua_State* LS) { /* Reports a failure to the user. */

@@ -83,6 +83,10 @@ class case_wslua(subprocesstest.SubprocessTestCase):
         '''wslua directory functions'''
         check_lua_script(self, 'dir.lua', empty_pcap, True)
 
+    def test_wslua_util(self, check_lua_script):
+        '''wslua utility functions'''
+        check_lua_script(self, 'util.lua', empty_pcap, True)
+
     # Mode_1, mode_2, and mode_3, and fpm were all under wslua_step_dissector_test
     # in the Bash version.
     def test_wslua_dissector_mode_1(self, check_lua_script_verify):
