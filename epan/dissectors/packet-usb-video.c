@@ -2746,7 +2746,7 @@ proto_register_usb_vid(void)
 
             { &hf_usb_vid_probe_framing,
                     { "bmFramingInfo", "usbvideo.probe.framing",
-                            FT_UINT16, BASE_HEX, NULL, 0,
+                            FT_UINT8, BASE_HEX, NULL, 0,
                             NULL, HFILL }
             },
 
@@ -2772,7 +2772,7 @@ proto_register_usb_vid(void)
                             "Min supported payload format version", HFILL }
             },
             { &hf_usb_vid_probe_max_ver,
-                    { "bPreferredVersion", "usbvideo.probe.maxVer",
+                    { "bMaxVersion", "usbvideo.probe.maxVer",
                             FT_UINT8, BASE_DEC, NULL, 0,
                             "Max supported payload format version", HFILL }
             },
