@@ -50,7 +50,7 @@ Packager:	Gerald Combs <gerald[AT]wireshark.org>
 
 BuildRoot:	/tmp/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
-%if 0%{?rhel}
+%if 0%{?rhel} && ( 0%{?rhel} <= 7 )
 BuildRequires:	cmake3 >= 3.5
 %else
 BuildRequires:	cmake >= 3.5
@@ -112,7 +112,7 @@ Requires:	c-ares
 %endif
 
 %if %{with lua}
-%if 0%{?fedora}
+%if 0%{?fedora} || ( 0%{?rhel} >= 8 )
 BuildRequires:	compat-lua-devel < 5.3
 Requires:	compat-lua < 5.3
 %else
@@ -226,7 +226,7 @@ Wireshark. A Qt graphical user interface is packaged separately.
 %package	qt
 Summary:	Wireshark's Qt-based GUI
 Group:		Applications/Internet
-# XXX Fedora 33 requires versioned "Obsoletes" declarations.
+# XXX Recent versions of rpm (Fedora 33 et al.) warn about unversioned "Obsoletes".
 Obsoletes:	wireshark-gnome wireshark-gtk
 %description qt
 This package contains the Qt Wireshark GUI and desktop integration files.
@@ -280,22 +280,31 @@ development of Wireshark scripts and plugins.
 # SUSE has a wrong bindir for cmake. Set it to the right one.
 %if 0%{?suse_version}
 %define _bindir /usr/bin
+%if %{with ninja}
+%define __builder %{_bindir}/ninja
+%endif
 %endif
 
-# XXX How do we reliably run CMake for all of CentOS, Fedora, RHEL, and openSUSE?
-# The percent-cmake macro in Fedora >= 33 runs
-# /usr/bin/cmake -S . -B x86_64-redhat-linux-gnu
-# which presumably means we need to use the cmake_build and cmake_install
-# macros described at https://docs.fedoraproject.org/en-US/packaging-guidelines/CMake/
 %if 0%{?rhel}
+%define __ninja /usr/bin/ninja-build
+%endif
+
+# How do we reliably run CMake for all of CentOS, Fedora, RHEL, and openSUSE?
+# https://docs.fedoraproject.org/en-US/packaging-guidelines/CMake/
+# https://fedoraproject.org/wiki/Changes/CMake_to_do_out-of-source_builds
+# https://en.opensuse.org/openSUSE:Build_system_recipes#cmake
+%if 0%{?rhel} && ( 0%{?rhel} <= 7 )
 cmake3 \
 %else
+%if 0%{?el8}
+cmake \
+%else
 %cmake \
+%endif
 %endif
 %if %{with ccache}
   -DENABLE_CCACHE=ON \
 %endif
-  -DCMAKE_INSTALL_PREFIX=@CMAKE_INSTALL_PREFIX@ \
 %if %{with qt5}
   -DBUILD_wireshark=ON \
 %else
@@ -364,10 +373,11 @@ cmake3 \
 %endif
 
 %if %{with ninja}
-# Older RPM-based distributions used ninja-build in order to prevent a collision with
-# the Ninja IRC client: https://bugzilla.redhat.com/show_bug.cgi?id=1166135
-NINJA=$(type ninja >/dev/null 2>&1 && echo ninja || echo ninja-build)
-$NINJA
+%if 0%{?fedora} || ( 0%{?suse_version} && 0%{?sle_version} >= 150200 )
+%cmake_build
+%else
+%ninja_build
+%endif
 %else
 # Suggestion: put this in your ~/.rpmmacros (without the hash sign, of course):
 # %_smp_mflags -j %(grep -c processor /proc/cpuinfo)
@@ -376,14 +386,22 @@ make %{?_smp_mflags}
 
 %install
 rm -rf $RPM_BUILD_ROOT
-%if 0%{?suse_version}
+%if 0%{?suse_version} && 0%{?sle_version} <= 150100
 cd build
 %endif
+
 %if %{with ninja}
-NINJA=$(type ninja >/dev/null 2>&1 && echo ninja || echo ninja-build)
-DESTDIR=$RPM_BUILD_ROOT $NINJA install
+%if 0%{?fedora} || ( 0%{?suse_version} && 0%{?sle_version} >= 150200 )
+%cmake_install
+%else
+%ninja_install
+%endif
 %if %{with guides}
-DESTDIR=$RPM_BUILD_ROOT $NINJA install_guides
+%if 0%{?fedora}
+DESTDIR=$RPM_BUILD_ROOT %ninja_build install_guides -C %{__cmake_builddir}
+%else
+DESTDIR=$RPM_BUILD_ROOT %ninja_build install_guides
+%endif
 %endif
 %else
 make DESTDIR=$RPM_BUILD_ROOT install
@@ -391,7 +409,8 @@ make DESTDIR=$RPM_BUILD_ROOT install
 make DESTDIR=$RPM_BUILD_ROOT install_guides
 %endif
 %endif
-%if 0%{?suse_version}
+
+%if 0%{?suse_version} && 0%{?sle_version} <= 150100
 cd -
 %endif
 

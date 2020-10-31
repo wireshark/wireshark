@@ -57,8 +57,6 @@ ADDITIONAL_LIST="libcap-devel \
 	libssh-devel \
 	krb5-devel \
 	perl-Parse-Yapp \
-	sbc-devel \
-	libsmi-devel \
 	snappy-devel \
 	minizip-devel \
 	lz4 \
@@ -126,7 +124,7 @@ add_package BASIC_LIST glib2 || add_package BASIC_LIST libglib-2_0-0 ||
 echo "glib2 is unavailable" >&2
 
 # lua51, lua51-devel: OpenSUSE Leap 42.3 (lua would be fine too, as it installs lua52), OpenSUSE Leap 15.0 (lua installs lua53, so it wouldn't work)
-# compat-lua, compat-lua-devel: Fedora 28, Fedora 29
+# compat-lua, compat-lua-devel: Fedora 28, Fedora 29, CentOS 8
 # lua, lua-devel: CentOS 7
 add_package BASIC_LIST lua51-devel || add_package BASIC_LIST compat-lua-devel || add_package BASIC_LIST lua-devel ||
 echo "lua devel is unavailable" >&2
@@ -224,6 +222,19 @@ echo "opus is unavailable" >&2
 
 add_package ADDITIONAL_LIST bcg729-devel ||
 echo "bcg729 is unavailable" >&2
+
+# RHEL 8 / CentOS 8 are missing the -devel packages for sbc and libsmi due to
+# RH deciding not to ship all -devel packages.
+# https://wiki.centos.org/FAQ/CentOS8/UnshippedPackages
+# There are CentOS bugs filed to add them to the Devel repository and eventually
+# RHEL 8 CRB / CentOS PowerTools, but make them optional for now.
+# https://bugs.centos.org/view.php?id=16504
+# https://bugs.centos.org/view.php?id=17824
+add_package ADDITIONAL_LIST sbc-devel ||
+echo "sbc is unavailable"
+
+add_package ADDITIONAL_LIST libsmi-devel ||
+echo "libsmi is unavailable"
 
 ACTUAL_LIST=$BASIC_LIST
 
