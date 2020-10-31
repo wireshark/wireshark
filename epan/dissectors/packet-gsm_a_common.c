@@ -1084,7 +1084,7 @@ dissect_description_of_velocity(tvbuff_t *tvb, proto_tree *tree, packet_info *pi
          * N gives the uncertainty speed except for N=255 which indicates that the uncertainty is not specified.
          */
         uncertainty_speed = tvb_get_guint8(tvb,curr_offset);
-        velocity_item = proto_tree_add_item(tree, hf_gsm_a_uncertainty_speed, tvb, offset, 2, ENC_BIG_ENDIAN);
+        velocity_item = proto_tree_add_item(tree, hf_gsm_a_uncertainty_speed, tvb, offset, 1, ENC_BIG_ENDIAN);
         if (uncertainty_speed == 255) {
             proto_item_append_text(velocity_item, " not specified");
         }else{
@@ -1112,7 +1112,7 @@ dissect_description_of_velocity(tvbuff_t *tvb, proto_tree *tree, packet_info *pi
 
         /* Horizontal Uncertainty Speed Octet 6 */
         uncertainty_speed = tvb_get_guint8(tvb,curr_offset);
-        velocity_item = proto_tree_add_item(tree, hf_gsm_a_h_uncertainty_speed, tvb, offset, 2, ENC_BIG_ENDIAN);
+        velocity_item = proto_tree_add_item(tree, hf_gsm_a_h_uncertainty_speed, tvb, offset, 1, ENC_BIG_ENDIAN);
         if (uncertainty_speed == 255) {
             proto_item_append_text(velocity_item, " not specified");
         }else{
@@ -1122,7 +1122,7 @@ dissect_description_of_velocity(tvbuff_t *tvb, proto_tree *tree, packet_info *pi
 
         /* Vertical Uncertainty Speed Octet 7 */
         uncertainty_speed = tvb_get_guint8(tvb,curr_offset);
-        velocity_item = proto_tree_add_item(tree, hf_gsm_a_v_uncertainty_speed, tvb, offset, 2, ENC_BIG_ENDIAN);
+        velocity_item = proto_tree_add_item(tree, hf_gsm_a_v_uncertainty_speed, tvb, offset, 1, ENC_BIG_ENDIAN);
         if (uncertainty_speed == 255) {
             proto_item_append_text(velocity_item, " not specified");
         }else{
