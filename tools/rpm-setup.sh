@@ -220,6 +220,9 @@ echo "ilbc is unavailable" >&2
 add_package ADDITIONAL_LIST opus-devel ||
     echo "opus is unavailable" >&2
 
+add_package ADDITIONAL_LIST bcg729-devel ||
+echo "bcg729 is unavailable" >&2
+
 ACTUAL_LIST=$BASIC_LIST
 
 # Now arrange for optional support libraries
