@@ -86,7 +86,10 @@ void proto_reg_handoff_stun(void);
  *  NONCE &  | 0x0014             | 0x0015             | 0x0015             |                    |
  *  REALM    | 0x0015             | 0x0014             | 0x0014             |                    |
  * -----------------------------------------------------------------------------------------------
- *
+ *  TURN     | RFC 5766/8656 or   | N/A                | RFC 5766/8656      |                    |
+ *  Channels | Multiplexed TURN   |                    |                    |                    |
+ *           | Channels           |                    |                    |                    |
+ * -----------------------------------------------------------------------------------------------
  * *1: Only where different from RFC 5389
  */
 
@@ -693,7 +696,7 @@ get_stun_message_len(packet_info *pinfo _U_, tvbuff_t *tvb,
          * field from that framing, rather than the STUN/TURN
          * ChannelData length field.
          */
-        return (tvb_get_ntohs(tvb, 0) + 2);
+        return (tvb_get_ntohs(tvb, offset) + 2);
     }
 
     type   = tvb_get_ntohs(tvb, offset);
@@ -1701,10 +1704,62 @@ dissect_stun_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 }
 
 static gboolean
-dissect_stun_heur_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_stun_heur_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-    if (dissect_stun_message(tvb, pinfo, tree, TRUE, FALSE) == 0)
+    conversation_t *conversation;
+    guint captured_length;
+    guint16 msg_type;
+    guint msg_length;
+    guint tcp_framing_offset;
+    guint reported_length;
+
+    /* There might be multiple STUN messages in a TCP payload: try finding a valid
+       message and then switch to non-heuristic TCP dissector which will handle
+       multiple messages and reassembler stuff correctly */
+
+    captured_length = tvb_captured_length(tvb);
+    if (captured_length < MIN_HDR_LEN)
         return FALSE;
+    reported_length = tvb_reported_length(tvb);
+
+    tcp_framing_offset = 0;
+    if ((captured_length >= TCP_FRAME_COOKIE_LEN) &&
+        (tvb_get_ntohl(tvb, 6) == MESSAGE_COOKIE)) {
+        /*
+         * The magic cookie is off by two, so this appears to be
+         * RFC 4571 framing, as per RFC 6544; the STUN/TURN
+         * ChannelData header begins after the 2-octet
+         * RFC 4571 length field.
+         */
+        tcp_framing_offset = 2;
+    }
+
+    msg_type = tvb_get_ntohs(tvb, tcp_framing_offset + 0);
+    msg_length = tvb_get_ntohs(tvb, tcp_framing_offset + 2);
+
+    /* TURN ChannelData message ? */
+    if (msg_type & 0xC000) {
+        /* We don't want to handle TURN ChannelData message in heuristic function
+           See comment in dissect_stun_message() */
+        return FALSE;
+    }
+
+    /* Normal STUN message */
+    if (captured_length < STUN_HDR_LEN)
+        return FALSE;
+
+    /* Check if it is really a STUN message */
+    if (tvb_get_ntohl(tvb, tcp_framing_offset + 4) != MESSAGE_COOKIE)
+        return FALSE;
+
+    /* We may have more than one STUN message in the TCP payload */
+    if (reported_length < (msg_length + STUN_HDR_LEN + tcp_framing_offset))
+        return FALSE;
+
+    conversation = find_or_create_conversation(pinfo);
+    conversation_set_dissector(conversation, stun_tcp_handle);
+
+    dissect_stun_tcp(tvb, pinfo, tree, data);
     return TRUE;
 }
 static gboolean
