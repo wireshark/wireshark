@@ -177,7 +177,7 @@ proto_register_aruba_iap(void)
         "Unknown Data...", HFILL}},
 
         { &hf_iap_unknown_uint,
-        { "Unknown", "aruba_iap.unknown.uint", FT_UINT32, BASE_DEC_HEX, NULL, 0x0,
+        { "Unknown", "aruba_iap.unknown.uint", FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
         "Unknown (UINT) Data...", HFILL}},
 
 
