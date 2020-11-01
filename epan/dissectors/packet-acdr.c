@@ -777,7 +777,7 @@ static void
 acdr_payload_handler(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
                      acdr_dissector_data_t *data, const char *proto_name)
 {
-    if (data->header_added) {
+    if (data->header_added && data->media_type != ACDR_Control) {
         dissector_handle_t dissector = ip_dissector_handle;
         if (data->media_type == ACDR_DTLS || data->media_type == ACDR_T38)
             dissector = udp_dissector_handle;
