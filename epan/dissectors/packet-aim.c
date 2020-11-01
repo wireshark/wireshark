@@ -450,7 +450,8 @@ static int hf_aim_rendezvous_extended_data_message_text = -1;
 
 static int hf_aim_messaging_plugin = -1;
 static int hf_aim_icbm_client_err_length = -1;
-static int hf_aim_messaging_unknown = -1;
+static int hf_aim_messaging_unknown_uint8 = -1;
+static int hf_aim_messaging_unknown_uint16 = -1;
 static int hf_aim_icbm_client_err_downcounter = -1;
 static int hf_aim_messaging_unknown_data = -1;
 static int hf_aim_messaging_plugin_specific_data = -1;
@@ -3217,9 +3218,9 @@ dissect_aim_tlv_value_extended_data(proto_tree *entry, guint16 valueid _U_, tvbu
 	proto_tree_add_item(entry, hf_aim_icbm_client_err_protocol_version, tvb, offset, 2, ENC_BIG_ENDIAN); offset+=2;
 
 	offset = dissect_aim_plugin(entry, tvb, offset, &plugin_uuid);
-	proto_tree_add_item(entry, hf_aim_messaging_unknown, tvb, offset, 2, ENC_LITTLE_ENDIAN); offset += 2;
+	proto_tree_add_item(entry, hf_aim_messaging_unknown_uint16, tvb, offset, 2, ENC_LITTLE_ENDIAN); offset += 2;
 	proto_tree_add_item(entry, hf_aim_icbm_client_err_client_caps_flags, tvb, offset, 4, ENC_BIG_ENDIAN); offset+=4;
-	proto_tree_add_item(entry, hf_aim_messaging_unknown, tvb, offset, 1, ENC_NA);	offset += 1;
+	proto_tree_add_item(entry, hf_aim_messaging_unknown_uint8, tvb, offset, 1, ENC_NA);	offset += 1;
 	proto_tree_add_item(entry, hf_aim_icbm_client_err_downcounter, tvb, offset, 2, ENC_LITTLE_ENDIAN); /* offset += 2;*/
 
 	offset = start_offset + length;
@@ -4147,7 +4148,7 @@ proto_register_aim(void)
 		    { "New warning level", "aim_generic.evil.new_warn_level", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL },
 		},
 		{ &hf_generic_idle_time,
-		    { "Idle time (seconds)", "aim_generic.idle_time", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL },
+		    { "Idle time (seconds)", "aim_generic.idle_time", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL },
 		},
 		{ &hf_generic_client_ver_req_offset,
 		    { "Client Verification Request Offset", "aim_generic.client_verification.offset", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL },
@@ -4328,7 +4329,8 @@ proto_register_aim(void)
 		/* Generated from convert_proto_tree_add_text.pl */
 		{ &hf_aim_messaging_plugin, { "Plugin", "aim_messaging.plugin", FT_GUID, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 		{ &hf_aim_icbm_client_err_length, { "Length", "aim_messaging.clienterr.length", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-		{ &hf_aim_messaging_unknown, { "Unknown", "aim_messaging.unknown", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		{ &hf_aim_messaging_unknown_uint8, { "Unknown", "aim_messaging.unknown_uint8", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+		{ &hf_aim_messaging_unknown_uint16, { "Unknown", "aim_messaging.unknown_uint16", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 		{ &hf_aim_icbm_client_err_downcounter, { "Downcounter?", "aim_messaging.clienterr.downcounter", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 		{ &hf_aim_messaging_unknown_data, { "Unknown", "aim_messaging.unknown_bytes", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 		{ &hf_aim_messaging_plugin_specific_data, { "Plugin-specific data", "aim_messaging.plugin_specific_data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
