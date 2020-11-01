@@ -1299,7 +1299,7 @@ proto_register_cdp(void)
           NULL, HFILL }},
 
         { &hf_cdp_ttl,
-        { "TTL",                "cdp.ttl", FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_second_seconds, 0x0,
+        { "TTL",                "cdp.ttl", FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &units_second_seconds, 0x0,
           NULL, HFILL }},
 
         { &hf_cdp_checksum,
@@ -1319,7 +1319,7 @@ proto_register_cdp(void)
           NULL, HFILL }},
 
         { &hf_cdp_nrgyz_tlvtype,
-        { "TLV Type",               "cdp.nrgyz.tlv.type", FT_UINT16, BASE_HEX, VALS(type_nrgyz_vals), 0x0,
+        { "TLV Type",               "cdp.nrgyz.tlv.type", FT_UINT32, BASE_HEX, VALS(type_nrgyz_vals), 0x0,
           NULL, HFILL }},
 
         { &hf_cdp_nrgyz_tlvlength,
