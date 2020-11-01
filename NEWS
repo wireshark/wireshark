@@ -1,4 +1,4 @@
-Wireshark 3.2.8 Release Notes
+Wireshark 3.2.9 Release Notes
 
  What is Wireshark?
 
@@ -9,24 +9,7 @@ Wireshark 3.2.8 Release Notes
 
   Bug Fixes
 
-     • wnpa-sec-2020-14[1] FBZERO dissector crash. Bug 16887[2].
-
-     • Infinite memory allocation while parsing this tcp packet. Bug
-       16887[3].
-
-     • wnpa-sec-2020-15[4] GQUIC dissector crash.
-
    The following bugs have been fixed:
-
-     • FETCH Proactive Command SEND SHORT MESSAGE [Dissector bug,
-       protocol ETSI CAT: Bug 16889[5].
-
-     • wireshark-3.3.1/epan/dissectors/packet-e212.c:3297: possible
-       wrong operator ? Bug 16895[6].
-
-     • Bison 3.0 causes build failures Bug 16924[7].
-
-     • MATE not extracting fields as requested Bug 16961[8].
 
   New and Updated Features
 
@@ -37,9 +20,6 @@ Wireshark 3.2.8 Release Notes
    There are no new protocols in this release.
 
   Updated Protocol Support
-
-   E.212, ETSI CAT, FBZERO, GQUIC, GSM A RR, ICMP, IEEE 802.11, LCSAP,
-   SDAP, Thread Address, TLS, and XnAP
 
   New and Updated Capture File Support
 
@@ -55,7 +35,7 @@ Wireshark 3.2.8 Release Notes
    Most Linux and Unix vendors supply their own Wireshark packages. You
    can usually install or upgrade Wireshark using the package management
    system specific to that platform. A list of third-party packages can
-   be found on the download page[9] on the Wireshark web site.
+   be found on the download page[1] on the Wireshark web site.
 
  File Locations
 
@@ -69,30 +49,22 @@ Wireshark 3.2.8 Release Notes
   The User’s Guide, manual pages and various other documentation can be
   found at https://www.wireshark.org/docs/
 
-  Community support is available on Wireshark’s Q&A site[10] and on the
+  Community support is available on Wireshark’s Q&A site[2] and on the
   wireshark-users mailing list. Subscription information and archives
-  for all of Wireshark’s mailing lists can be found on the web site[11].
+  for all of Wireshark’s mailing lists can be found on the web site[3].
 
-  Issues and feature requests can be reported on the issue tracker[12].
+  Issues and feature requests can be reported on the issue tracker[4].
 
  Frequently Asked Questions
 
-  A complete FAQ is available on the Wireshark web site[13].
+  A complete FAQ is available on the Wireshark web site[5].
 
-  Last updated 2020-10-29 19:01:18 UTC
+  Last updated 2020-11-01 09:31:39 UTC
 
  References
 
-   1. https://www.wireshark.org/security/wnpa-sec-2020-14
-   2. https://gitlab.com/wireshark/wireshark/-/issues/16887
-   3. https://gitlab.com/wireshark/wireshark/-/issues/16887
-   4. https://www.wireshark.org/security/wnpa-sec-2020-15
-   5. https://gitlab.com/wireshark/wireshark/-/issues/16889
-   6. https://gitlab.com/wireshark/wireshark/-/issues/16895
-   7. https://gitlab.com/wireshark/wireshark/-/issues/16924
-   8. https://gitlab.com/wireshark/wireshark/-/issues/16961
-   9. https://www.wireshark.org/download.html#thirdparty
-  10. https://ask.wireshark.org/
-  11. https://www.wireshark.org/lists/
-  12. https://gitlab.com/wireshark/wireshark/-/issues
-  13. https://www.wireshark.org/faq.html
+   1. https://www.wireshark.org/download.html#thirdparty
+   2. https://ask.wireshark.org/
+   3. https://www.wireshark.org/lists/
+   4. https://gitlab.com/wireshark/wireshark/-/issues
+   5. https://www.wireshark.org/faq.html
