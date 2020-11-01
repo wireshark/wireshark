@@ -3100,6 +3100,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
             <numerusform>%Ln пакет клиента, </numerusform>
         </translation>
     </message>
+    <message numerus="yes">
+        <source>%Ln server pkt(s), </source>
+        <translation type="vanished">
+            <numerusform>%Ln пакет сервера, </numerusform>
+            <numerusform>%Ln пакет сервера, </numerusform>
+            <numerusform>%Ln пакет сервера, </numerusform>
+        </translation>
+    </message>
     <message>
         <source>ASCII</source>
         <translation>ASCII</translation>
@@ -3142,18 +3150,18 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message numerus="yes">
         <source>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;client&lt;/span&gt; pkt(s), </source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;пакет &lt;/span&gt; клиента, </numerusform>
+            <numerusform>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;пакет &lt;/span&gt; клиента, </numerusform>
+            <numerusform>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;пакет &lt;/span&gt; клиента, </numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;server&lt;/span&gt; pkt(s), </source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;пакет&lt;/span&gt; сервера, </numerusform>
+            <numerusform>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;пакет&lt;/span&gt; сервера, </numerusform>
+            <numerusform>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;пакет&lt;/span&gt; сервера, </numerusform>
         </translation>
     </message>
     <message numerus="yes">
@@ -7975,6 +7983,15 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <source>No Keys</source>
         <translation>Нет Ключей</translation>
     </message>
+    <message numerus="yes">
+        <source>Export SSL Session Keys (%Ln key(s))</source>
+        <oldsource>Export SSL Session Keys (%1 key%2</oldsource>
+        <translation type="vanished">
+            <numerusform>Экспортировать Ключи Сессии SSL (%Ln ключ)</numerusform>
+            <numerusform>Экспортировать Ключи Сессии SSL (%Ln ключ)</numerusform>
+            <numerusform>Экспортировать Ключи Сессии SSL (%Ln ключ)</numerusform>
+        </translation>
+    </message>
     <message>
         <source>Raw data (*.bin *.dat *.raw);;All Files (</source>
         <translation>Данные Raw (*.bin *.dat *.raw);;Все Файлы (</translation>
@@ -8029,10 +8046,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message numerus="yes">
         <source>Export TLS Session Keys (%Ln key(s))</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Экспортировать Ключи Сессии TLS (%Ln ключ)</numerusform>
+            <numerusform>Экспортировать Ключи Сессии TLS (%Ln ключ)</numerusform>
+            <numerusform>Экспортировать Ключи Сессии TLS (%Ln ключ)</numerusform>
         </translation>
     </message>
     <message>
@@ -8984,11 +9001,19 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Выбрать zip файл для экспорта</translation>
     </message>
     <message numerus="yes">
+        <source>… %Ln selected personal profile(s)</source>
+        <translation type="vanished">
+            <numerusform>… %Ln выбранного личного профиля</numerusform>
+            <numerusform>… %Ln выбранного личного профиля</numerusform>
+            <numerusform>… %Ln выбранного личного профиля</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
         <source>%Ln selected personal profile(s)</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%Ln выбранный личный профиль</numerusform>
+            <numerusform>%Ln выбранный личный профиль</numerusform>
+            <numerusform>%Ln выбранный личный профиль</numerusform>
         </translation>
     </message>
     <message>
@@ -9009,10 +9034,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message numerus="yes">
         <source>%Ln profile(s) exported</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%Ln профиль экспортирован</numerusform>
+            <numerusform>%Ln профиль экспортирован</numerusform>
+            <numerusform>%Ln профиль экспортирован</numerusform>
         </translation>
     </message>
     <message>
@@ -9053,10 +9078,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message numerus="yes">
         <source>%Ln profile(s) imported</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%Ln профиль импортирован</numerusform>
+            <numerusform>%Ln профиль импортирован</numerusform>
+            <numerusform>%Ln профилей импортирован</numerusform>
         </translation>
     </message>
     <message numerus="yes">
@@ -11966,18 +11991,18 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message numerus="yes">
         <source>%Ln node(s)</source>
-        <translation type="unfinished">
-            <numerusform>%Ln node</numerusform>
-            <numerusform>%Ln nodes</numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%Ln узел</numerusform>
+            <numerusform>%Ln узлы</numerusform>
+            <numerusform>%Ln узлы</numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>%Ln item(s)</source>
-        <translation type="unfinished">
-            <numerusform>%Ln item</numerusform>
-            <numerusform>%Ln items</numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%Ln пункт</numerusform>
+            <numerusform>%Ln пункты</numerusform>
+            <numerusform>%Ln пункты</numerusform>
         </translation>
     </message>
     <message>
@@ -12308,10 +12333,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message numerus="yes">
         <source>Frame %1, %2, %Ln byte(s).</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Кадр %1, %2, %Ln байт.</numerusform>
+            <numerusform>Кадр %1, %2, %Ln байты.</numerusform>
+            <numerusform>Кадр %1, %2, %Ln байты.</numerusform>
         </translation>
     </message>
     <message>
@@ -12392,10 +12417,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message numerus="yes">
         <source>Displaying %Ln byte(s).</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Показ %Ln байта.</numerusform>
+            <numerusform>Показ %Ln байтов.</numerusform>
+            <numerusform>Показ %Ln байтов.</numerusform>
         </translation>
     </message>
     <message>
