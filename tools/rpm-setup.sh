@@ -217,8 +217,10 @@ echo "libnl3/libnl are unavailable" >&2
 add_package ADDITIONAL_LIST ilbc-devel ||
 echo "ilbc is unavailable" >&2
 
-add_package ADDITIONAL_LIST opus-devel ||
-    echo "opus is unavailable" >&2
+# opus-devel: RHEL/CentOS, Fedora
+# libopus-devel: OpenSUSE
+add_package ADDITIONAL_LIST opus-devel || add_package ADDITIONAL_LIST libopus-devel ||
+echo "opus is unavailable" >&2
 
 add_package ADDITIONAL_LIST bcg729-devel ||
 echo "bcg729 is unavailable" >&2
