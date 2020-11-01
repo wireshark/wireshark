@@ -4944,7 +4944,7 @@ proto_register_dns(void)
 
     { &hf_dns_rr_len,
       { "Data length", "dns.resp.len",
-        FT_UINT32, BASE_DEC, NULL, 0x0,
+        FT_UINT16, BASE_DEC, NULL, 0x0,
         "Response Length", HFILL }},
 
     { &hf_dns_a,
