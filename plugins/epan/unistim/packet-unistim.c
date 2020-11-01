@@ -2679,8 +2679,8 @@ proto_register_unistim(void){
          BASE_HEX, VALS(network_server_id),0x00,NULL,HFILL}
       },
       { &hf_net_server_ip_address,
-        {"Download Server Address","unistim.download.address",FT_UINT32,
-         BASE_HEX, NULL,0x00,NULL,HFILL}
+        {"Download Server Address","unistim.download.address",FT_IPv4,
+         BASE_NONE, NULL,0x00,NULL,HFILL}
       },
       { &hf_net_server_time_out,
         {"Watchdog Timeout","unistim.watchdog.timeout",FT_UINT16,
@@ -3682,8 +3682,8 @@ proto_register_unistim(void){
          BASE_DEC,NULL,0x00,NULL,HFILL}
       },
       { &hf_audio_nat_ip,
-        {"NAT Listen Address","unistim.nat.listen.address",FT_UINT8,
-         BASE_DEC,NULL,0x00,NULL,HFILL}
+        {"NAT Listen Address","unistim.nat.listen.address",FT_IPv4,
+         BASE_NONE,NULL,0x00,NULL,HFILL}
       },
       { &hf_audio_nat_add_len,
         {"NAT Address Length","unistim.nat.address.len",FT_UINT8,
