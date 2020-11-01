@@ -5,7 +5,7 @@
 # The format used here is: <NUMERICAL_ID><SPACE><NAME>
 # Where SPACE can be any sequence of spaces and tabs.
 #
-# (last updated 2020-10-24)
+# (last updated 2020-10-31)
 
 0	Reserved
 1	NxNetworks
@@ -1419,7 +1419,7 @@
 1411	Juniper Networks/Funk Software
 1412	DunsGate, a Dun and Bradstreet Company
 1413	AFP
-1414	VertexRSI, Controls and Structures
+1414	Communications & Power Industries, Satcom Division
 1415	The Williams Companies, Inc.
 1416	ASP Technologies, Inc.
 1417	Philips Communication Systems
@@ -13179,7 +13179,7 @@
 13310	wwwolf
 13311	Joys Online, Inc
 13312	Factor-TS Ltd.
-13313	Analog Devices, Inc
+13313	ANALOG
 13314	Blank
 13315	BlueCat Networks
 13316	Byteworks
@@ -38223,7 +38223,7 @@
 38395	Phillips Foods, Inc.
 38396	Flinders Christian Community College Inc
 38397	TSB - Tiefdruck Schwann-Bagel GmbH & Co.KG
-38398	ZAO TD BOVID
+38398	AO TD BOVID
 38399	Kloeckner & Co SE
 38400	nfon AG
 38401	Veridian Solutions Pty. Ltd
@@ -40669,7 +40669,7 @@
 40844	MAC&C LLC
 40845	Veris Industries
 40846	Endurance Services	# formerly 'Montpelier Technical Resources Ltd'
-40847	CRDP de l'Académie de Versailles
+40847	Académie de Versailles
 40848	VeriFyle, Inc.
 40849	Ceiec Electric Technology Inc.
 40850	Kongsberg Spacetec AS
@@ -56288,3 +56288,42 @@
 56484	Aniruddha Telemetry systems
 56485	IANT GmbH
 56486	BattleCrate Ltd
+56487	IERUS Technologies, Inc.
+56488	Xolaris AB
+56489	UANATACA EL SALVADOR, S.A. DE C.V.
+56490	Wildboar Software
+56491	AvD Wirtschaftsdienst GmbH
+56492	Nexteer Automotive Poland
+56493	Awake Software
+56494	Almariya Trust Services SLU
+56495	Quanzhou Kingtone Optic & Electronic Technology Co.,Ltd.
+56496	Lacerda Tecnologia
+56497	Webb Electronics
+56498	Mei Sheng Textiles Vietnam Co., Ltd
+56499	Psomagen inc
+56500	Maryland Judiciary - Administrative Office of the Courts
+56501	AB Handshake Corporation
+56502	AVUTEC
+56503	Bachleitner Technology GmbH
+56504	grammm GmbH
+56505	Premier Suburban Medical Group, PLLC
+56506	Project Antrea
+56507	Kennedy Engineering
+56508	AMETEK Solidstate Controls
+56509	Mensing Jochim
+56510	ShenZhen SureCall COMM Tech Co., Ltd
+56511	JCC PAYMENT SYSTEMS LTD
+56512	Vizolution Ltd
+56513	Hottinger Brüel & Kjær
+56514	Institute of Physics Bhubaneswar
+56515	Facultad de Ingeniería - UBA
+56516	Hermann Stemberger
+56517	n0n3's
+56518	FyeLabs Inc.
+56519	Home Lab
+56520	SISPI SISTEMA PALERMO INNOVAZIONE S.P.A.
+56521	Jesse Coretta
+56522	Jokey Holding GmbH & Co.KG
+56523	AKSA-SDS, Islamabad
+56524	Magellan Midstream Partners
+56525	EBE Elektro-Bau-Elemente GmbH
