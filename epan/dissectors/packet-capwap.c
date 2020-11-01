@@ -3565,7 +3565,7 @@ proto_register_capwap_control(void)
         },
         { &hf_capwap_control_header_msg_type_enterprise_nbr,
             { "Message Type (Enterprise Number)", "capwap.control.header.message_type.enterprise_number",
-              FT_UINT32, BASE_ENTERPRISES, STRINGS_ENTERPRISES, 0x0,
+              FT_UINT24, BASE_ENTERPRISES, STRINGS_ENTERPRISES, 0x0,
               NULL, HFILL }
         },
         { &hf_capwap_control_header_msg_type_enterprise_specific,
@@ -5438,7 +5438,7 @@ proto_register_capwap_control(void)
         },
         { &hf_capwap_fortinet_mesh_eth_bridge_enable,
             { "Mesh Eth Bridge Enable", "capwap.control.fortinet.mesh_eth_bridge.enable",
-              FT_UINT32, BASE_DEC, NULL, 0x0,
+              FT_UINT8, BASE_DEC, NULL, 0x0,
               NULL, HFILL }
         },
         { &hf_capwap_fortinet_mesh_eth_bridge_type,
