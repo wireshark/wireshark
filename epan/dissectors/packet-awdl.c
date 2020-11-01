@@ -2062,7 +2062,7 @@ void proto_register_awdl(void)
     },
     { &hf_awdl_electionparams_private_phc,
       { "PHC", "awdl.electionparams.private.phc",
-        FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL
+        FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL
       }
     },
 
