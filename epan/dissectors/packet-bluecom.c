@@ -606,7 +606,7 @@ proto_register_bluecom(void)
             "TransId", "bluecom.hdr.transid", FT_UINT16,
             BASE_DEC_HEX, NULL, 0, NULL, HFILL }},
         { &hf_bcp_hdr_cmd, {
-            "Cmd", "bluecom.hdr.cmd", FT_UINT32,
+            "Cmd", "bluecom.hdr.cmd", FT_UINT8,
             BASE_HEX, VALS(bcp_cmds), 0, NULL, HFILL }},
         { &hf_bcp_hdr_slavestate, {
             "SlaveState", "bluecom.hdr.slavestate", FT_UINT8,
@@ -615,7 +615,7 @@ proto_register_bluecom(void)
             "Flags", "bluecom.hdr.blockflags", FT_UINT8,
              BASE_DEC_HEX, NULL, 0, NULL, HFILL }},
         { &hf_bcp_hdr_len, {
-            "Len", "bluecom.hdr.len", FT_UINT8,
+            "Len", "bluecom.hdr.len", FT_UINT16,
             BASE_DEC_HEX, NULL, 0, NULL, HFILL }},
         { &hf_bcp_hdr_fragoffset, {
             "FragOffset", "bluecom.hdr.fragoffset", FT_UINT16,
