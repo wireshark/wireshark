@@ -574,7 +574,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</stri
       </layout>
       <zorder>gbNewFileAuto</zorder>
       <zorder>gbCaptureToFile</zorder>
-      <zorder></zorder>
      </widget>
      <widget class="QWidget" name="optionsTab">
       <attribute name="title">
