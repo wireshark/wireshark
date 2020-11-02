@@ -105,7 +105,8 @@ The time is given in ISO 8601 format, either
 YYYY-MM-DD HH:MM:SS[.nnnnnnnnn][Z|±hh:mm] or
 YYYY-MM-DDTHH:MM:SS[.nnnnnnnnn][Z|±hh:mm] .
 The fractional seconds are optional, as is the time zone offset from UTC
-(in which case local time is assumed).
+(in which case local time is assumed). Unix epoch timestamps
+(floating point format) are also accepted.
 
 =item -B  E<lt>stop timeE<gt>
 
@@ -114,7 +115,8 @@ The time is given in ISO 8601 format, either
 YYYY-MM-DD HH:MM:SS[.nnnnnnnnn][Z|±hh:mm] or
 YYYY-MM-DDTHH:MM:SS[.nnnnnnnnn][Z|±hh:mm] .
 The fractional seconds are optional, as is the time zone offset from UTC
-(in which case local time is assumed).
+(in which case local time is assumed). Unix epoch timestamps
+(floating point format) are also accepted.
 
 =item -c  E<lt>packets per fileE<gt>
 

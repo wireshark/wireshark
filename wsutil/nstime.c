@@ -17,6 +17,10 @@
 #include "epochs.h"
 #include "time_util.h"
 
+#ifndef HAVE_STRPTIME
+# include "wsutil/strptime.h"
+#endif
+
 /* this is #defined so that we can clearly see that we have the right number of
    zeros, rather than as a guard against the number of nanoseconds in a second
    changing ;) */
@@ -450,6 +454,80 @@ iso8601_to_nstime(nstime_t *nstime, const char *ptr)
     }
     nstime->nsecs = frac;
     ret_val = (guint)(ptr-start);
+    return ret_val;
+}
+
+/*
+ * function: unix_epoch_to_nstime
+ * parses a character string for a date and time given in
+ * a floating point number containing a Unix epoch date-time
+ * format (e.g. 1600000000.000 for Sun Sep 13 05:26:40 AM PDT 2020)
+ * and converts to an nstime_t
+ * returns number of chars parsed on success, or 0 on failure
+ *
+ * Reference: https://en.wikipedia.org/wiki/Unix_time
+ */
+guint8
+unix_epoch_to_nstime(nstime_t *nstime, const char *ptr)
+{
+    struct tm tm;
+    char *ptr_new;
+
+    gint n_chars = 0;
+    guint frac = 0;
+    guint8 ret_val = 0;
+    const char *start = ptr;
+
+    memset(&tm, 0, sizeof(tm));
+    tm.tm_isdst = -1;
+    nstime_set_unset(nstime);
+
+    if (!(ptr_new=strptime(ptr, "%s", &tm))) {
+        return 0;
+    }
+
+    /* Validate what we got so far. mktime() doesn't care about strange
+       values (and we use this to our advantage when calculating the
+       time zone offset) but we should at least start with something valid */
+    if (!tm_is_valid(&tm)) {
+        return 0;
+    }
+
+    /* No UTC offset given; ISO 8601 says this means localtime */
+    nstime->secs = mktime(&tm);
+
+    /* Now let's test for fractional seconds */
+    if (*ptr_new == '.' || *ptr_new == ',') {
+        /* Get fractional seconds */
+        ptr_new++;
+        if (1 <= sscanf(ptr_new, "%u%n", &frac, &n_chars)) {
+            /* normalize frac to nanoseconds */
+            if ((frac >= 1000000000) || (frac == 0)) {
+                frac = 0;
+            } else {
+                switch (n_chars) { /* including leading zeros */
+                    case 1: frac *= 100000000; break;
+                    case 2: frac *= 10000000; break;
+                    case 3: frac *= 1000000; break;
+                    case 4: frac *= 100000; break;
+                    case 5: frac *= 10000; break;
+                    case 6: frac *= 1000; break;
+                    case 7: frac *= 100; break;
+                    case 8: frac *= 10; break;
+                    default: break;
+                }
+            }
+            ptr_new += n_chars;
+        }
+        /* If we didn't get frac, it's still its default of 0 */
+    }
+    else {
+        tm.tm_sec = 0;
+    }
+    nstime->nsecs = frac;
+
+    /* return pointer shift */
+    ret_val = (guint)(ptr_new-start);
     return ret_val;
 }
 

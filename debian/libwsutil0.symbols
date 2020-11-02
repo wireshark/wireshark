@@ -186,6 +186,7 @@ libwsutil.so.0 libwsutil0 #MINVER#
  type_util_gdouble_to_guint64@Base 1.10.0
  type_util_guint64_to_gdouble@Base 1.10.0
  ulaw2linear@Base 1.12.0~rc1
+ unix_epoch_to_nstime@Base 3.5.0
  update_adler32@Base 1.12.0~rc1
  update_crc10_by_bytes@Base 1.10.0
  ws_add_crash_info@Base 1.10.0

@@ -764,6 +764,7 @@ print_usage(FILE *output)
     fprintf(output, "                         given time.\n");
     fprintf(output, "                         Time format for -A/-B options is\n");
     fprintf(output, "                         YYYY-MM-DDThh:mm:ss[.nnnnnnnnn][Z|+-hh:mm]\n");
+    fprintf(output, "                         Unix epoch timestamps are also supported.\n");
     fprintf(output, "\n");
     fprintf(output, "Duplicate packet removal:\n");
     fprintf(output, "  --novlan               remove vlan info from packets before checking for duplicates.\n");
@@ -1284,7 +1285,7 @@ main(int argc, char *argv[])
             nstime_t in_time;
 
             check_startstop = TRUE;
-            if (0 < iso8601_to_nstime(&in_time, optarg)) {
+            if ((0 < iso8601_to_nstime(&in_time, optarg)) || (0 < unix_epoch_to_nstime(&in_time, optarg))) {
                 if (opt == 'A') {
                     nstime_copy(&starttime, &in_time);
                     have_starttime = TRUE;

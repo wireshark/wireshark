@@ -128,6 +128,11 @@ WS_DLL_PUBLIC gboolean nsfiletime_to_nstime(nstime_t *nstime, guint64 nsfiletime
     Note that nstime is set to unset in the case of failure */
 WS_DLL_PUBLIC guint8 iso8601_to_nstime(nstime_t *nstime, const char *ptr);
 
+/** parse an Unix epoch timestamp format datetime string to nstime, returns
+    number of chars parsed on success, 0 on failure.
+    Note that nstime is set to unset in the case of failure */
+WS_DLL_PUBLIC guint8 unix_epoch_to_nstime(nstime_t *nstime, const char *ptr);
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
