@@ -372,6 +372,9 @@ void WiresharkApplication::setConfigurationProfile(const gchar *profile_name, bo
     int    rf_open_errno;
     gchar *err_msg = NULL;
 
+    gboolean prev_capture_no_interface_load;
+    gboolean prev_capture_no_extcap;
+
     /* First check if profile exists */
     if (!profile_exists(profile_name, FALSE)) {
         if (profile_exists(profile_name, TRUE)) {
@@ -405,6 +408,9 @@ void WiresharkApplication::setConfigurationProfile(const gchar *profile_name, bo
     if (profile_name && strcmp (profile_name, get_profile_name()) == 0) {
         return;
     }
+
+    prev_capture_no_interface_load = prefs.capture_no_interface_load;
+    prev_capture_no_extcap = prefs.capture_no_extcap;
 
     /* Get the current geometry, before writing it to disk */
     emit profileChanging();
@@ -457,6 +463,13 @@ void WiresharkApplication::setConfigurationProfile(const gchar *profile_name, bo
     if (!color_filters_reload(&err_msg, color_filter_add_cb)) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err_msg);
         g_free(err_msg);
+    }
+
+    /* Load interfaces if settings have changed */
+    if (!prefs.capture_no_interface_load &&
+        ((prefs.capture_no_interface_load != prev_capture_no_interface_load) ||
+         (prefs.capture_no_extcap != prev_capture_no_extcap))) {
+        refreshLocalInterfaces();
     }
 
     emit localInterfaceListChanged();
