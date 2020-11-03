@@ -179,10 +179,6 @@ def prefix_to_oui(prefix):
     return '{}/{:d}'.format(oui, int(pfx_len))
 
 def main():
-    if sys.version_info[0] < 3:
-        print("This requires Python 3")
-        sys.exit(2)
-
     this_dir = os.path.dirname(__file__)
     template_path = os.path.join(this_dir, '..', 'manuf.tmpl')
     manuf_path = os.path.join(this_dir, '..', 'manuf')

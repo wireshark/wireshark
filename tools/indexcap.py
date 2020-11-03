@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #
 # Tool to index protocols that appears in the given capture files
 #
@@ -29,8 +29,7 @@ def extract_protos_from_file_proces(tshark, file):
         cmd = [tshark, "-Tfields", "-e", "frame.protocols", "-r", file]
         p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         (stdout, stderr) = p.communicate()
-        if sys.version_info[0] >= 3:
-            stdout = stdout.decode('utf-8')
+        stdout = stdout.decode('utf-8')
         if p.returncode != 0:
             return (file, {})
 

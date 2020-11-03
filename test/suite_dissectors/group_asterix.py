@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 #
 # Wireshark ASTERIX dissector tests
 # By Atli Guðmundsson <atli@tern.is>

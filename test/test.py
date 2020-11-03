@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 #
 # Wireshark tests
 # By Gerald Combs <gerald@wireshark.org>
@@ -38,10 +37,6 @@ def find_test_ids(suite, all_ids):
         all_ids.append(suite.id())
 
 def main():
-    if sys.version_info[0] < 3:
-        print("Unit tests require Python 3")
-        sys.exit(2)
-
     parser = argparse.ArgumentParser(description='Wireshark unit tests')
     cap_group = parser.add_mutually_exclusive_group()
     cap_group.add_argument('-E', '--disable-capture', action='store_true', help='Disable capture tests')

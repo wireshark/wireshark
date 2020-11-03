@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # Copyright (c) 2013 The Chromium Authors. All rights reserved.
 #
 # SPDX-License-Identifier: BSD-3-Clause
@@ -186,9 +186,8 @@ def check_licenses(options, args):
                                   stdout=subprocess.PIPE,
                                   stderr=subprocess.PIPE)
   stdout, stderr = licensecheck.communicate()
-  if sys.version_info[0] >= 3:
-      stdout = stdout.decode('utf-8')
-      stderr = stderr.decode('utf-8')
+  stdout = stdout.decode('utf-8')
+  stderr = stderr.decode('utf-8')
   if options.verbose:
     print('----------- licensecheck stdout -----------')
     print(stdout)

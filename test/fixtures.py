@@ -1,5 +1,4 @@
 #
-# -*- coding: utf-8 -*-
 # Extends unittest with support for pytest-style fixtures.
 #
 # Copyright (c) 2018 Peter Wu <peter@lekensteyn.nl>

@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #
 # Looks for registration routines in the source files
 # and assembles C code to call all the routines.

@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # Parses the nl80211.h interface and generate appropriate enums and fields
 # (value_string) for packet-netlink-nl80211.c
 #

@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 #
 # make-usb - Creates a file containing vendor and product ids.
 # It use the databases from
@@ -18,10 +17,6 @@ MIN_VENDORS = 2900 # 2948 as of 2015-06-28
 MIN_PRODUCTS = 15000 # 15415 as of 2015-06-28
 
 mode = MODE_IDLE
-
-if sys.version_info[0] < 3:
-    print("This requires Python 3")
-    sys.exit(2)
 
 # Grab from linux-usb.org
 req_headers = { 'User-Agent': 'Wireshark make-usb' }

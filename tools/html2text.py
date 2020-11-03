@@ -1,5 +1,4 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
+#!/usr/bin/env python3
 #
 # html2text.py - converts HTML to text
 #
@@ -68,8 +67,7 @@ class TextHTMLParser(HTMLParser):
             'initial_indent': initial_indent,
             'subsequent_indent': indent
         }
-        if sys.version_info[0:2] >= (2, 6):
-            kwargs['break_on_hyphens'] = False
+        kwargs['break_on_hyphens'] = False
         wrapper = TextWrapper(**kwargs)
         return '\n'.join(wrapper.wrap(text))
 
