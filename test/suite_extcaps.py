@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+#
 # Wireshark tests
 # By Gerald Combs <gerald@wireshark.org>
 #

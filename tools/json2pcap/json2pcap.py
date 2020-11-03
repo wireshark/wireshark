@@ -1,5 +1,4 @@
-#!/usr/bin/env python
-# -*- coding: utf-8 -*-
+#!/usr/bin/env python3
 
 #
 # Copyright 2020, Martin Kacer <kacer.martin[AT]gmail.com> and contributors
@@ -24,12 +23,6 @@ import hashlib
 import re
 from collections import OrderedDict
 from scapy import all as scapy
-
-try:
-    # Python 2 forward compatibility
-    range = xrange
-except NameError:
-    pass
 
 # Field anonymization class
 class AnonymizedField:
@@ -158,12 +151,6 @@ import sys
 import subprocess
 from collections import OrderedDict
 from scapy import all as scapy
-
-try:
-    # Python 2 forward compatibility
-    range = xrange
-except NameError:
-    pass
 
 # *****************************************************
 # *     PACKET PAYLOAD GENERATED FROM INPUT PCAP      *

@@ -1,5 +1,4 @@
 #
-# -*- coding: utf-8 -*-
 # Wireshark tests
 #
 # Copyright (c) 2019 Gerald Combs <gerald@wireshark.org>

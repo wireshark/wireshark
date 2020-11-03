@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 #
 # Generate preferences for a "No Reassembly" profile.
 # By Gerald Combs <gerald@wireshark.org>
@@ -15,10 +14,6 @@ import subprocess
 import sys
 
 def main():
-    if sys.version_info[0] < 3:
-        print("This requires Python 3")
-        sys.exit(2)
-
     parser = argparse.ArgumentParser(description='No reassembly profile generator')
     parser.add_argument('-p', '--program-path', default=os.path.curdir, help='Path to TShark.')
     parser.add_argument('-v', '--verbose', action='store_const', const=True, default=False, help='Verbose output.')

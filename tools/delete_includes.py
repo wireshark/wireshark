@@ -1,4 +1,4 @@
-#!/usr/bin/python
+#!/usr/bin/python3
 
 # Martin Mathieson
 # Look for and removes unnecessary includes in .cpp or .c files

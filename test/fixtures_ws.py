@@ -1,5 +1,4 @@
 #
-# -*- coding: utf-8 -*-
 # Wireshark tests
 #
 # Copyright (c) 2018 Peter Wu <peter@lekensteyn.nl>
