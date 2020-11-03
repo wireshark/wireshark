@@ -149,7 +149,7 @@ $ python3 test/test.py
 $ python3 test/test.py all
 
 # Only run tests containing "dumpcap"
-$ python3 test/test.py -l dumpcap
+$ python3 test/test.py dumpcap
 
 # Run the "clopts" suite
 $ python3 test/test.py suite_clopts
