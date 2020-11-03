@@ -30,5 +30,5 @@
 
 ## Build information
 ```
-(In Wireshark, select Help->About Wireshark from the main menu. Or from the command line, run `tshark -v` or `wireshark -v`)
+(In Wireshark, select Help->About Wireshark from the main menu and use the button "Copy To Clipboard". Please paste the complete output here. Or from the command line, run `tshark -v` or `wireshark -v`)
 ```
