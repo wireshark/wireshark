@@ -5733,6 +5733,11 @@ WS_DLL_PUBLIC
 int dissect_nt_sid(tvbuff_t *tvb, int offset, proto_tree *parent_tree,
 		   const char *name, char **sid_str, int hf_sid);
 
+WS_DLL_PUBLIC
+int dissect_nt_sid_ret_item(tvbuff_t *tvb, int offset, proto_tree *parent_tree,
+                            const char *name, char **sid_str, int hf_sid,
+                            proto_item **item_ret);
+
 /*
  * Stuff for dissecting NT access masks
  */

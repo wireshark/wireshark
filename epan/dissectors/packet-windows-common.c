@@ -18,6 +18,74 @@
 #include "packet-windows-common.h"
 #include "packet-smb.h"	/* for "sid_name_snooping" */
 
+/* The types used in [MS-DTYP] v20180912 should be interpreted as
+ * follows (all multi-byte integer types are little endian):
+ * typedef guint8 MS_BYTE;
+ * typedef guint16 MS_WORD;
+ * typedef guint32 MS_DWORD;
+ * typedef guint64 MS_QWORD;
+ * typedef guint64 MS_ULONG64;
+ * typedef guint64 MS_DWORD64;
+ * typedef gint64 MS_LONG64;
+ */
+
+enum cond_ace_token {
+#define DEF_COND_ACE_TOKEN(VAL, VAR, STR) COND_ACE_TOKEN_ ## VAR = VAL,
+#define DEF_COND_ACE_TOKEN_WITH_DATA DEF_COND_ACE_TOKEN
+#include "cond_ace_token_enum.h"
+	COND_ACE_TOKEN_UNKNOWN = -1
+};
+
+static const value_string ace_cond_token_vals[] = {
+#define DEF_COND_ACE_TOKEN(VAL, VAR, STR) {VAL, STR},
+#define DEF_COND_ACE_TOKEN_WITH_DATA DEF_COND_ACE_TOKEN
+#include "cond_ace_token_enum.h"
+	{ 0, NULL }
+};
+
+static gboolean
+ace_cond_token_has_data(guint8 token) {
+	switch (token) {
+#define DEF_COND_ACE_TOKEN(VAL, VAR, STR)
+#define DEF_COND_ACE_TOKEN_WITH_DATA(VAL, VAR, STR) case VAL:
+#include "cond_ace_token_enum.h"
+		return TRUE;
+	}
+	return FALSE;
+}
+
+static const value_string ace_cond_base_vals[] = {
+	{ 0x01, "OCT" },
+	{ 0x02, "DEC" },
+	{ 0x03, "HEX" },
+	{ 0, NULL }
+};
+
+static const value_string ace_cond_sign_vals[] = {
+	{ 0x01, "PLUS" },
+	{ 0x02, "MINUS" },
+	{ 0x03, "NONE" },
+	{ 0, NULL }
+};
+
+
+#define CLAIM_SECURITY_ATTRIBUTE_TYPE_INT64           0x0001
+#define CLAIM_SECURITY_ATTRIBUTE_TYPE_UINT64          0x0002
+#define CLAIM_SECURITY_ATTRIBUTE_TYPE_STRING          0x0003
+#define CLAIM_SECURITY_ATTRIBUTE_TYPE_SID             0x0005
+#define CLAIM_SECURITY_ATTRIBUTE_TYPE_BOOLEAN         0x0006
+#define CLAIM_SECURITY_ATTRIBUTE_TYPE_OCTET_STRING    0x0010
+
+static const value_string ace_sra_type_vals[] = {
+	{ CLAIM_SECURITY_ATTRIBUTE_TYPE_INT64, "INT64" },
+	{ CLAIM_SECURITY_ATTRIBUTE_TYPE_UINT64, "UINT64" },
+	{ CLAIM_SECURITY_ATTRIBUTE_TYPE_STRING, "STRING" },
+	{ CLAIM_SECURITY_ATTRIBUTE_TYPE_SID, "SID"},
+	{ CLAIM_SECURITY_ATTRIBUTE_TYPE_BOOLEAN, "BOOLEAN" },
+	{ CLAIM_SECURITY_ATTRIBUTE_TYPE_OCTET_STRING, "OCTET_STRING" },
+	{ 0, NULL }
+};
+
 static int hf_nt_sec_desc_revision = -1;
 static int hf_nt_sec_desc_type_owner_defaulted = -1;
 static int hf_nt_sec_desc_type_group_defaulted = -1;
@@ -61,6 +129,47 @@ static int hf_nt_ace_flags_object_type_present = -1;
 static int hf_nt_ace_flags_inherited_object_type_present = -1;
 static int hf_nt_ace_guid = -1;
 static int hf_nt_ace_inherited_guid = -1;
+
+/* Conditional ACE dissect */
+static int hf_nt_ace_cond = -1;
+static int hf_nt_ace_cond_token = -1;
+static int hf_nt_ace_cond_sign = -1;
+static int hf_nt_ace_cond_base = -1;
+static int hf_nt_ace_cond_value_int8 = -1;
+static int hf_nt_ace_cond_value_int16 = -1;
+static int hf_nt_ace_cond_value_int32 = -1;
+static int hf_nt_ace_cond_value_int64 = -1;
+static int hf_nt_ace_cond_value_string = -1;
+static int hf_nt_ace_cond_value_octet_string = -1;
+static int hf_nt_ace_cond_local_attr = -1;
+static int hf_nt_ace_cond_user_attr = -1;
+static int hf_nt_ace_cond_resource_attr = -1;
+static int hf_nt_ace_cond_device_attr = -1;
+
+/* System Resource Attribute ACE dissect */
+static int hf_nt_ace_sra = -1;
+static int hf_nt_ace_sra_name_offset = -1;
+static int hf_nt_ace_sra_name = -1;
+static int hf_nt_ace_sra_type = -1;
+static int hf_nt_ace_sra_reserved = -1;
+static int hf_nt_ace_sra_flags = -1;
+static int hf_nt_ace_sra_flags_manual = -1;
+static int hf_nt_ace_sra_flags_policy_derived = -1;
+static int hf_nt_ace_sra_flags_non_inheritable = -1;
+static int hf_nt_ace_sra_flags_case_sensitive = -1;
+static int hf_nt_ace_sra_flags_deny_only = -1;
+static int hf_nt_ace_sra_flags_disabled_by_default = -1;
+static int hf_nt_ace_sra_flags_disabled = -1;
+static int hf_nt_ace_sra_flags_mandatory = -1;
+static int hf_nt_ace_sra_value_count = -1;
+static int hf_nt_ace_sra_value_offset = -1;
+static int hf_nt_ace_sra_value_int64 = -1;
+static int hf_nt_ace_sra_value_uint64 = -1;
+static int hf_nt_ace_sra_value_string = -1;
+static int hf_nt_ace_sra_value_sid = -1;
+static int hf_nt_ace_sra_value_boolean = -1;
+static int hf_nt_ace_sra_value_octet_string = -1;
+
 static int hf_nt_security_information_sacl = -1;
 static int hf_nt_security_information_dacl = -1;
 static int hf_nt_security_information_group = -1;
@@ -85,6 +194,12 @@ static gint ett_nt_ace_flags = -1;
 static gint ett_nt_ace_object = -1;
 static gint ett_nt_ace_object_flags = -1;
 static gint ett_nt_security_information = -1;
+static gint ett_nt_ace_cond = -1;
+static gint ett_nt_ace_cond_data = -1;
+static gint ett_nt_ace_sra = -1;
+static gint ett_nt_ace_sra_flags = -1;
+static gint ett_nt_ace_sra_value_offsets = -1;
+static gint ett_nt_ace_sra_values = -1;
 
 static expert_field ei_nt_owner_sid_beyond_data = EI_INIT;
 static expert_field ei_nt_owner_sid_beyond_reassembled_data = EI_INIT;
@@ -1244,6 +1359,7 @@ static const sid_strings well_known_sids[] = {
 	{"S-1-3-4",        "Owner Rights"},
 	{"S-1-4",          "Non-unique Authority"},
 
+	{"S-1-5",          "NT Authority"},
 	{"S-1-5-1",        "Dialup"},
 	{"S-1-5-2",        "Network"},
 	{"S-1-5-3",        "Batch"},
@@ -1255,7 +1371,7 @@ static const sid_strings well_known_sids[] = {
 	{"S-1-5-9",        "Enterprise Domain Controllers"},
 	{"S-1-5-10",       "Principal Self"},
 	{"S-1-5-11",       "Authenticated Users"},
-	{"S-1-5-12",       "Reserved"},
+	{"S-1-5-12",       "Restricted Code"},
 	{"S-1-5-13",       "Terminal Server Users"},
 	{"S-1-5-14",       "Remote Interactive Logon"},
 	{"S-1-5-15",       "All users in this organization"},
@@ -1267,6 +1383,9 @@ static const sid_strings well_known_sids[] = {
 	 * S-1-5-21-<d1>-<d2>-<d3>-<RID> where "<d1>-<d2>-<d3>" is the NT domain
 	 *          RIDs are defined in 'wkwn_S_1_5_21_rids' */
 	{"S-1-5-21",       "Domain SID"},
+
+	{"S-1-5-21-0-0-0-496", "Compounded Authentication"},
+	{"S-1-5-21-0-0-0-497", "Claims Valid"},
 
 	/* S-1-5-32-<RID>: Builtin local group SIDs  */
 	{"S-1-5-32",       "Local Group"},
@@ -1288,9 +1407,18 @@ static const sid_strings well_known_sids[] = {
 	{"S-1-5-32-560",   "Windows Authorization Access Group"},
 	{"S-1-5-32-561",   "Terminal Server License Servers"},
 	{"S-1-5-32-562",   "Distributed COM Users"},
+	{"S-1-5-32-568",   "IIS Users"},
 	{"S-1-5-32-569",   "Cryptographic Operators"},
 	{"S-1-5-32-573",   "Event Log Readers"},
 	{"S-1-5-32-574",   "Certificate Service DCOM Access"},
+	{"S-1-5-32-575",   "RDS Remote Access Servers"},
+	{"S-1-5-32-576",   "RDS Endpoint Servers"},
+	{"S-1-5-32-577",   "RDS Management Servers"},
+	{"S-1-5-32-578",   "Hyper-V Admins"},
+	{"S-1-5-32-579",   "Access Control Assistance Operators"},
+	{"S-1-5-32-580",   "Remote Management Users"},
+
+	{"S-1-5-33",       "Write Restricted Code"},
 
 	{"S-1-5-64",       "Authentication"},
 	{"S-1-5-64-10",    "NTLM"},
@@ -1298,6 +1426,15 @@ static const sid_strings well_known_sids[] = {
 	{"S-1-5-64-21",    "Digest"},
 
 	{"S-1-5-80",       "NT Service"},
+
+	{"S-1-5-84-0-0-0-0-0", "User Mode Drivers"},
+
+	{"S-1-5-113",      "Local Account"},
+	{"S-1-5-114",      "Local Administrator Account"},
+
+	{"S-1-5-1000",     "Other Organisation"},
+
+	{"S-1-15-2-1",     "All App Packages"},
 
 	{"S-1-16",         "Mandatory Level"},
 	{"S-1-16-0",       "Untrusted"},
@@ -1308,6 +1445,14 @@ static const sid_strings well_known_sids[] = {
 	{"S-1-16-16384",   "System"},
 	{"S-1-16-20480",   "Protected Process"},
 	{"S-1-16-28672",   "Secure Process"},
+
+	{"S-1-18-1",       "Authentication Authority Asserted Identity"},
+	{"S-1-18-2",       "Service Asserted Identity"},
+	{"S-1-18-3",       "Fresh Public Key Identity"},
+	{"S-1-18-4",       "Key Trust Identity"},
+	{"S-1-18-5",       "Key Property Multifactor Authentication"},
+	{"S-1-18-6",       "Key Property Attestation"},
+
 	{NULL, NULL}
 };
 
@@ -1361,7 +1506,7 @@ static value_string_ext wkwn_S_1_5_21_rids_ext = VALUE_STRING_EXT_INIT(wkwn_S_1_
  */
 int
 dissect_nt_sid(tvbuff_t *tvb, int offset, proto_tree *parent_tree,
-				const char *name, char **sid_str, int hf_sid)
+	       const char *name, char **sid_str, int hf_sid)
 {
 	int offset_sid_start = offset, sa_offset, rid_offset=0, wkwn_sid1_len=0,
 		wkwn_sid2_len = 0, i;
@@ -1372,7 +1517,7 @@ dissect_nt_sid(tvbuff_t *tvb, int offset, proto_tree *parent_tree,
 				  *domain_str = NULL, *wkwn_sid1_str = NULL, *wkwn_sid2_str = NULL;
 	const char *mapped_name = NULL, *mapped_rid = NULL;
 	gboolean domain_sid = FALSE, s_1_5_32 = FALSE, s_1_5_64 = FALSE, locally_defined = FALSE,
-			 S_1_16 = FALSE;
+		S_1_16 = FALSE;
 	proto_item *item = NULL, *hidden_item;
 	proto_tree *subtree = NULL;
 
@@ -1417,9 +1562,16 @@ dissect_nt_sid(tvbuff_t *tvb, int offset, proto_tree *parent_tree,
 	if (strcmp(wmem_strbuf_get_str(sid_in_dec_str), "S-1-16")==0)
 		S_1_16 = TRUE;
 
+	/* Check for Scoped Policy ID (S-1-17-<subauth1>...) */
+	if (authority == 17) {
+		mapped_name = "Central Access Policy";
+	}
+
 	/* Look for well-known SIDs in format 'S-1-<Identifier Authority>' (i.e., exactly 3 fields) */
-	if (num_auth==0 || S_1_16) {
-		mapped_name = match_wkwn_sids(wmem_strbuf_get_str(sid_in_dec_str));
+	if (num_auth==0 || S_1_16 || mapped_name) {
+		if (!mapped_name)
+			mapped_name = match_wkwn_sids(wmem_strbuf_get_str(sid_in_dec_str));
+
 		if (mapped_name) {
 			wmem_strbuf_append(label_str, mapped_name);
 			wmem_strbuf_append(wkwn_sid1_str,
@@ -1427,6 +1579,7 @@ dissect_nt_sid(tvbuff_t *tvb, int offset, proto_tree *parent_tree,
 			wkwn_sid1_len = 8;
 		}
 	}
+
 
 	sa_offset = offset;
 	sa_str = wmem_strbuf_new_label(wmem_packet_scope());
@@ -1561,8 +1714,10 @@ dissect_nt_sid(tvbuff_t *tvb, int offset, proto_tree *parent_tree,
 		(sid_display_hex ? wmem_strbuf_get_str(sid_in_hex_str) : wmem_strbuf_get_str(sid_in_dec_str)),
 		"%s: %s", name, (sid_display_hex ? wmem_strbuf_get_str(sid_in_hex_str) : wmem_strbuf_get_str(sid_in_dec_str))
 	);
-	proto_item_append_text(item, "  (%s)", wmem_strbuf_get_str(label_str));
 
+	if (wmem_strbuf_get_len(label_str) > 0) {
+		proto_item_append_text(item, "  (%s)", wmem_strbuf_get_str(label_str));
+	}
 
 	subtree = proto_item_add_subtree(item, ett_nt_sid);
 
@@ -1580,7 +1735,9 @@ dissect_nt_sid(tvbuff_t *tvb, int offset, proto_tree *parent_tree,
 	if (rid) {
 		item = proto_tree_add_item (subtree,
 			(sid_display_hex ? hf_nt_sid_rid_hex : hf_nt_sid_rid_dec), tvb, rid_offset, 4, ENC_LITTLE_ENDIAN);
-		proto_item_append_text(item, "  (%s)", mapped_rid);
+
+		if (mapped_rid)
+			proto_item_append_text(item, "  (%s)", mapped_rid);
 	}
 
 	/* Add well-known SID and domain strings if present */
@@ -1588,14 +1745,19 @@ dissect_nt_sid(tvbuff_t *tvb, int offset, proto_tree *parent_tree,
 		hidden_item = proto_tree_add_string_format_value(
 			subtree, hf_nt_sid_wkwn, tvb, offset_sid_start, wkwn_sid1_len,
 			wmem_strbuf_get_str(wkwn_sid1_str), "%s", wmem_strbuf_get_str(wkwn_sid1_str));
-		proto_item_append_text(hidden_item, "  (%s)", mapped_name);
+
+		if (mapped_name) {
+			proto_item_append_text(hidden_item, "  (%s)", mapped_name);
+		}
 		proto_item_set_hidden(hidden_item);
 	}
 	if (wmem_strbuf_get_len(wkwn_sid2_str) > 0) {
 		hidden_item = proto_tree_add_string_format_value(
 			subtree, hf_nt_sid_wkwn, tvb, offset_sid_start, wkwn_sid2_len,
 			wmem_strbuf_get_str(wkwn_sid2_str), "%s", wmem_strbuf_get_str(wkwn_sid2_str));
-		proto_item_append_text(hidden_item, "  (%s)", wmem_strbuf_get_str(label_str));
+		if (wmem_strbuf_get_len(label_str) > 0) {
+			proto_item_append_text(hidden_item, "  (%s)", wmem_strbuf_get_str(label_str));
+		}
 		proto_item_set_hidden(hidden_item);
 	}
 	if (domain_sid && wmem_strbuf_get_len(domain_str) > 0) {
@@ -1607,7 +1769,7 @@ dissect_nt_sid(tvbuff_t *tvb, int offset, proto_tree *parent_tree,
 
 	/* If requested, return SID string with mapped name */
 	if(sid_str){
-		if(mapped_name){
+		if(wmem_strbuf_get_len(label_str) > 0){
 			*sid_str = wmem_strdup_printf(wmem_packet_scope(), "%s  (%s)",
 				(sid_display_hex ? wmem_strbuf_get_str(sid_in_hex_str) : wmem_strbuf_get_str(sid_in_dec_str)), wmem_strbuf_get_str(label_str));
 		} else {
@@ -1618,6 +1780,415 @@ dissect_nt_sid(tvbuff_t *tvb, int offset, proto_tree *parent_tree,
 		}
 	}
 	return offset;
+}
+
+/* Dissect SYSTEM_RESOURCE_ATTRIBUTE_ACE Value, see [MS-DTYP] v20180912 section 2.4.4.15 */
+int
+dissect_nt_ace_system_resource_attribute_value(tvbuff_t *tvb, int value_offset, proto_tree *tree,
+					       guint16 value_type, proto_item *sra_item)
+{
+	guint value_len;
+	guint32 blob_len;
+	proto_item *value_item = NULL;
+	char *value_str = NULL; /* packet scope, do not free */
+	gboolean quote = FALSE;
+	switch (value_type) {
+	    case CLAIM_SECURITY_ATTRIBUTE_TYPE_INT64:
+		value_len = sizeof(gint64);
+		value_item = proto_tree_add_item(tree, hf_nt_ace_sra_value_int64,
+						 tvb, value_offset, value_len,
+						 ENC_LITTLE_ENDIAN);
+		value_offset += value_len;
+		break;
+
+	    case CLAIM_SECURITY_ATTRIBUTE_TYPE_UINT64:
+		value_len = sizeof(guint64);
+		value_item = proto_tree_add_item(tree, hf_nt_ace_sra_value_uint64,
+						 tvb, value_offset, value_len,
+						 ENC_LITTLE_ENDIAN);
+		value_offset += value_len;
+		break;
+
+	    case CLAIM_SECURITY_ATTRIBUTE_TYPE_STRING:
+		value_len = tvb_unicode_strsize(tvb, value_offset);
+		value_item = proto_tree_add_item(tree, hf_nt_ace_sra_value_string,
+						 tvb, value_offset, value_len,
+						 ENC_UTF_16 | ENC_LITTLE_ENDIAN);
+		quote = TRUE;
+		value_offset += value_len;
+		break;
+
+	    case CLAIM_SECURITY_ATTRIBUTE_TYPE_SID:
+		value_offset = dissect_nt_sid(tvb, value_offset, tree,
+					      "SID", &value_str, hf_nt_ace_sra_value_sid);
+		break;
+
+	    case CLAIM_SECURITY_ATTRIBUTE_TYPE_BOOLEAN:
+		value_len = sizeof(guint64);
+		value_item = proto_tree_add_item(tree, hf_nt_ace_sra_value_boolean,
+						 tvb, value_offset, value_len,
+						 ENC_LITTLE_ENDIAN);
+		value_offset += value_len;
+		break;
+
+	    case CLAIM_SECURITY_ATTRIBUTE_TYPE_OCTET_STRING:
+		blob_len = tvb_get_letohl(tvb, value_offset);
+		value_offset += sizeof(blob_len);
+		value_item = proto_tree_add_item(tree, hf_nt_ace_sra_value_octet_string,
+						 tvb, value_offset, blob_len, ENC_NA);
+		/* do not append binary to sra_item */
+		value_str = "<bin>";
+		value_offset += blob_len;
+		break;
+
+	    default:
+		break;
+	}
+
+	if (sra_item) {
+		if ((value_str == NULL) && value_item) {
+			value_str = proto_item_get_display_repr(wmem_packet_scope(), value_item);
+		}
+
+		if (value_str == NULL) {
+			/* missing system resource attribute value */
+			value_str = "???";
+		}
+
+		if (value_str) {
+			proto_item_append_text(sra_item,
+					       (quote) ? "\"%s\"" : "%s",
+					       value_str);
+		}
+	}
+
+	return value_offset;
+}
+
+/* Dissect SYSTEM_RESOURCE_ATTRIBUTE_ACE, see [MS-DTYP] v20180912 section 2.4.4.15 */
+int
+dissect_nt_ace_system_resource_attribute(tvbuff_t *tvb, int offset, guint16 size, proto_tree *parent_tree)
+{
+	/* The caller has already dissected Header, Mask and Sid. Therefore
+	   this function only dissects Attribute Data. This data takes
+	   the form of a CLAIM_SECURITY_ATTRIBUTE_RELATIVE_V1. The
+	   following code dissects the structure piecemeal */
+	int start_offset = offset;
+	guint32 name; /* offset, relative to start_offset */
+	guint16 value_type;
+	guint32 value_count;
+
+	/* Add a subtree to hold the system resource attribute details */
+	proto_item *sra_item;
+	proto_tree *sra_tree;
+	sra_item = proto_tree_add_item(parent_tree, hf_nt_ace_sra, tvb, offset, size, ENC_NA);
+	sra_tree = proto_item_add_subtree(sra_item, ett_nt_ace_sra);
+
+	/* Name offset */
+	name = tvb_get_letohl(tvb, offset);
+	proto_tree_add_uint(sra_tree, hf_nt_ace_sra_name_offset,
+			    tvb, offset, sizeof(name), name);
+
+	int name_offset = (start_offset + name);
+	guint name_len = tvb_unicode_strsize(tvb, name_offset);
+	proto_item *name_item;
+	name_item = proto_tree_add_item(sra_tree, hf_nt_ace_sra_name,
+					tvb, name_offset, name_len,
+					ENC_UTF_16 | ENC_LITTLE_ENDIAN);
+	proto_item_append_text(sra_item, ": %s=",
+			       proto_item_get_display_repr(wmem_packet_scope(), name_item));
+	offset += sizeof(name);
+
+	/* ValueType */
+	value_type = tvb_get_letohs(tvb, offset);
+	proto_tree_add_uint(sra_tree, hf_nt_ace_sra_type,
+			    tvb, offset, sizeof(value_type), value_type);
+	offset += sizeof(value_type);
+
+	/* Reserved */
+	proto_tree_add_item(sra_tree, hf_nt_ace_sra_reserved,
+			    tvb, offset, sizeof(guint16),
+			    ENC_LITTLE_ENDIAN);
+	offset += sizeof(guint16);
+
+	/* Flags */
+	static int * const flags[] = {
+		&hf_nt_ace_sra_flags_policy_derived,
+		&hf_nt_ace_sra_flags_manual,
+		&hf_nt_ace_sra_flags_mandatory,
+		&hf_nt_ace_sra_flags_disabled,
+		&hf_nt_ace_sra_flags_disabled_by_default,
+		&hf_nt_ace_sra_flags_deny_only,
+		&hf_nt_ace_sra_flags_case_sensitive,
+		&hf_nt_ace_sra_flags_non_inheritable,
+		NULL
+	};
+
+	proto_tree_add_bitmask(sra_tree, tvb, offset, hf_nt_ace_sra_flags,
+			       ett_nt_ace_sra_flags, flags, ENC_LITTLE_ENDIAN);
+	offset += sizeof(guint32);
+
+	/* ValueCount */
+	value_count = tvb_get_letohl(tvb, offset);
+	proto_tree_add_uint(sra_tree, hf_nt_ace_sra_value_count,
+			    tvb, offset, sizeof(value_count), value_count);
+	offset += sizeof(value_count);
+
+	/* Value Offsets and Values */
+	guint32 value_offset;
+	proto_tree *value_offset_tree = sra_tree;
+	proto_tree *value_tree = sra_tree;
+	if (value_count > 1) {
+		/* Use independent value offset and value trees when
+		   there are multiple values. */
+		int value_offset_tree_offset = offset;
+		int value_offset_tree_len = value_count * sizeof(value_offset);
+		value_offset_tree = proto_tree_add_subtree(sra_tree, tvb,
+							   value_offset_tree_offset,
+							   value_offset_tree_len,
+							   ett_nt_ace_sra_value_offsets,
+							   NULL, "Value Offsets");
+
+		/* The range associated with the value tree will
+		   include some non-value data (but that's fine as the
+		   value items it contains will have accurate ranges) */
+		int value_tree_offset = value_offset_tree_offset + value_offset_tree_len;
+		int value_tree_len = (start_offset + size) - value_tree_offset;
+		value_tree = proto_tree_add_subtree(sra_tree, tvb,
+						    value_tree_offset,
+						    value_tree_len,
+						    ett_nt_ace_sra_values,
+						    NULL, "Values");
+	}
+
+	proto_item_append_text(sra_item, "{");
+	for (guint32 i = 0; i < value_count; ++i) {
+		if (i) {
+			proto_item_append_text(sra_item, ", ");
+		}
+		value_offset = tvb_get_letohl(tvb, offset);
+		proto_tree_add_uint(value_offset_tree, hf_nt_ace_sra_value_offset,
+				    tvb, offset, sizeof(value_offset), value_offset);
+		dissect_nt_ace_system_resource_attribute_value(tvb, start_offset + value_offset,
+							       value_tree, value_type, sra_item);
+		offset += sizeof(value_offset);
+	}
+	proto_item_append_text(sra_item, "}");
+
+	return start_offset + size;
+}
+
+/* Dissect Condition ACE token, see [MS-DTYP] v20180912 section 2.4.4.17.4 */
+int
+dissect_nt_conditional_ace_token(tvbuff_t *tvb, int offset, guint16 size, proto_tree *parent_tree)
+{
+	int start_offset = offset;
+	proto_tree *tree = parent_tree;
+	proto_item *item = NULL;
+	guint8 token = tvb_get_guint8(tvb, offset);
+	guint32 len;
+
+	item = proto_tree_add_uint(tree, hf_nt_ace_cond_token,
+				   tvb, offset, sizeof(token), token);
+
+	if (ace_cond_token_has_data(token)) {
+		tree = proto_item_add_subtree(item, ett_nt_ace_cond_data);
+	}
+	offset += sizeof(token);
+
+	switch (token) {
+	    case COND_ACE_TOKEN_INT8:
+		proto_tree_add_item(tree, hf_nt_ace_cond_value_int8,
+				    tvb, offset, sizeof(guint64),
+				    ENC_LITTLE_ENDIAN);
+		offset += sizeof(guint64);
+
+		proto_tree_add_item(tree, hf_nt_ace_cond_sign,
+				    tvb, offset, sizeof(guint8),
+				    ENC_LITTLE_ENDIAN);
+		offset += sizeof(guint8);
+
+		proto_tree_add_item(tree, hf_nt_ace_cond_base,
+				    tvb, offset, sizeof(guint8),
+				    ENC_LITTLE_ENDIAN);
+		offset += sizeof(guint8);
+		break;
+
+	    case COND_ACE_TOKEN_INT16:
+		proto_tree_add_item(tree, hf_nt_ace_cond_value_int16,
+				    tvb, offset, sizeof(guint64),
+				    ENC_LITTLE_ENDIAN);
+		offset += sizeof(guint64);
+
+		proto_tree_add_item(tree, hf_nt_ace_cond_sign,
+				    tvb, offset, sizeof(guint8),
+				    ENC_LITTLE_ENDIAN);
+		offset += sizeof(guint8);
+
+		proto_tree_add_item(tree, hf_nt_ace_cond_base,
+				    tvb, offset, sizeof(guint8),
+				    ENC_LITTLE_ENDIAN);
+		offset += sizeof(guint8);
+		break;
+
+	    case COND_ACE_TOKEN_INT32:
+		proto_tree_add_item(tree, hf_nt_ace_cond_value_int32,
+				    tvb, offset, sizeof(guint64),
+				    ENC_LITTLE_ENDIAN);
+		offset += sizeof(guint64);
+
+		proto_tree_add_item(tree, hf_nt_ace_cond_sign,
+				    tvb, offset, sizeof(guint8),
+				    ENC_LITTLE_ENDIAN);
+		offset += sizeof(guint8);
+
+		proto_tree_add_item(tree, hf_nt_ace_cond_base,
+				    tvb, offset, sizeof(guint8),
+				    ENC_LITTLE_ENDIAN);
+		offset += sizeof(guint8);
+		break;
+
+	    case COND_ACE_TOKEN_INT64:
+		proto_tree_add_item(tree, hf_nt_ace_cond_value_int64,
+				    tvb, offset, sizeof(guint64),
+				    ENC_LITTLE_ENDIAN);
+		offset += sizeof(guint64);
+
+		proto_tree_add_item(tree, hf_nt_ace_cond_sign,
+				    tvb, offset, sizeof(guint8),
+				    ENC_LITTLE_ENDIAN);
+		offset += sizeof(guint8);
+
+		proto_tree_add_item(tree, hf_nt_ace_cond_base,
+				    tvb, offset, sizeof(guint8),
+				    ENC_LITTLE_ENDIAN);
+		offset += sizeof(guint8);
+		break;
+
+	    case COND_ACE_TOKEN_UNICODE_STRING:
+		len = tvb_get_letohl(tvb, offset); /* in bytes */
+		offset += sizeof(len);
+
+		proto_tree_add_item(tree, hf_nt_ace_cond_value_string,
+				    tvb, offset, len,
+				    ENC_UTF_16 | ENC_LITTLE_ENDIAN);
+		offset += len;
+		break;
+
+	    case COND_ACE_TOKEN_OCTET_STRING:
+		len = tvb_get_letohl(tvb, offset); /* in bytes */
+		offset += sizeof(len);
+
+		proto_tree_add_item(tree, hf_nt_ace_cond_value_octet_string,
+				    tvb, offset, len, ENC_NA);
+		offset += len;
+		break;
+
+	    case COND_ACE_TOKEN_COMPOSITE:
+		/* Create another tree for composite */
+		len = tvb_get_letohl(tvb, offset); /* in bytes */
+		offset += sizeof(len);
+		if (len) {
+			int remaining = size - (offset - start_offset);
+			if (remaining >= (int)len) {
+				int end_offset = offset + len;
+				while (offset < end_offset)
+					offset = dissect_nt_conditional_ace_token(tvb, offset, remaining, tree);
+			} else {
+				/* malformed: composite len is longer
+				 * than the remaining data in the ace
+				 */
+				offset += remaining;
+			}
+		}
+		break;
+
+	    case COND_ACE_TOKEN_SID:
+		len = tvb_get_letohl(tvb, offset); /* in bytes */
+		offset += sizeof(len);
+
+		offset = dissect_nt_sid(tvb, offset, tree, "SID", NULL, -1);
+		break;
+
+	    case COND_ACE_TOKEN_LOCAL_ATTRIBUTE:
+		len = tvb_get_letohl(tvb, offset); /* in bytes */
+		offset += sizeof(len);
+
+		proto_tree_add_item(tree, hf_nt_ace_cond_local_attr,
+				    tvb, offset, len,
+				    ENC_UTF_16 | ENC_LITTLE_ENDIAN);
+		offset += len;
+		break;
+
+	    case COND_ACE_TOKEN_USER_ATTRIBUTE:
+		len = tvb_get_letohl(tvb, offset); /* in bytes */
+		offset += sizeof(len);
+
+		proto_tree_add_item(tree, hf_nt_ace_cond_user_attr,
+				    tvb, offset, len,
+				    ENC_UTF_16 | ENC_LITTLE_ENDIAN);
+		offset += len;
+		break;
+
+	    case COND_ACE_TOKEN_RESOURCE_ATTRIBUTE:
+		len = tvb_get_letohl(tvb, offset); /* in bytes */
+		offset += sizeof(len);
+
+		proto_tree_add_item(tree, hf_nt_ace_cond_resource_attr,
+				    tvb, offset, len,
+				    ENC_UTF_16 | ENC_LITTLE_ENDIAN);
+		offset += len;
+		break;
+
+	    case COND_ACE_TOKEN_DEVICE_ATTRIBUTE:
+		len = tvb_get_letohl(tvb, offset); /* in bytes */
+		offset += sizeof(len);
+
+		proto_tree_add_item(tree, hf_nt_ace_cond_device_attr,
+				    tvb, offset, len,
+				    ENC_UTF_16 | ENC_LITTLE_ENDIAN);
+		offset += len;
+		break;
+
+	    default:
+		DISSECTOR_ASSERT(!ace_cond_token_has_data(token));
+		break;
+	}
+
+	proto_item_set_len(item, offset - start_offset);
+	return offset;
+}
+
+
+/* Dissect Conditional ACE (if present), see [MS-DTYP] v20180912 section 2.4.4.17.4 */
+int
+dissect_nt_conditional_ace(tvbuff_t *tvb, int offset, guint16 size, proto_tree *parent_tree)
+{
+	int start_offset = offset;
+
+	/* Conditional ACE Application Data starts with "artx" */
+	if (size >= 4) {
+		const guint32 artx = 0x78747261; /* "xtra" (LE) */
+		guint32 prefix = tvb_get_letohl(tvb, offset);
+		offset += sizeof(prefix);
+
+		if (prefix == artx) {
+			/* Add a subtree to hold the condition expression tokens */
+			proto_item *item = NULL;
+			item = proto_tree_add_item(parent_tree, hf_nt_ace_cond, tvb, start_offset, size, ENC_NA);
+			parent_tree = proto_item_add_subtree(item, ett_nt_ace_cond);
+
+			/* Add the tokens to the subtree */
+			int remaining;
+			while (TRUE) {
+				remaining = size - (offset - start_offset);
+				if (remaining <= 0)
+					break;
+				offset = dissect_nt_conditional_ace_token(tvb, offset, remaining, parent_tree);
+			}
+		}
+	}
+	return start_offset + size;
 }
 
 /* Dissect an access mask.  All this stuff is kind of explained at
@@ -1867,6 +2438,9 @@ static const value_string acl_revision_vals[] = {
 #define ACE_TYPE_SYSTEM_AUDIT_CALLBACK_OBJECT   15
 #define ACE_TYPE_SYSTEM_ALARM_CALLBACK_OBJECT   16
 #define ACE_TYPE_SYSTEM_MANDATORY_LABEL         17
+#define ACE_TYPE_SYSTEM_RESOURCE_ATTRIBUTE      18
+#define ACE_TYPE_SYSTEM_SCOPED_POLICY_ID        19
+
 static const value_string ace_type_vals[] = {
 	{ ACE_TYPE_ACCESS_ALLOWED,		   "Access Allowed"},
 	{ ACE_TYPE_ACCESS_DENIED,		   "Access Denied"},
@@ -1886,6 +2460,8 @@ static const value_string ace_type_vals[] = {
 	{ ACE_TYPE_SYSTEM_AUDIT_CALLBACK_OBJECT,   "Audit Callback Object"},
 	{ ACE_TYPE_SYSTEM_ALARM_CALLBACK_OBJECT,   "Alarm Callback Object"},
 	{ ACE_TYPE_SYSTEM_MANDATORY_LABEL,         "Mandatory label"},
+	{ ACE_TYPE_SYSTEM_RESOURCE_ATTRIBUTE,      "Resource Attribute"},
+	{ ACE_TYPE_SYSTEM_SCOPED_POLICY_ID,        "Scoped Policy ID" },
 	{ 0, NULL}
 };
 static const true_false_string tfs_ace_flags_object_inherit = {
@@ -1932,6 +2508,47 @@ static const true_false_string flags_sec_info_group = {
 static const true_false_string flags_sec_info_owner = {
 	"Request OWNER",
 	"Do NOT request owner"
+};
+
+static const true_false_string flags_ace_sra_info_manual = {
+	"Manually Assigned",
+	"NOT Manually Assigned"
+};
+
+
+static const true_false_string flags_ace_sra_info_policy_derived = {
+	"Policy Derived",
+	"NOT Policy Derived"
+};
+
+static const true_false_string flags_ace_sra_info_non_inheritable = {
+	"Non-Inheritable",
+	"Inheritable"
+};
+
+static const true_false_string flags_ace_sra_info_case_sensitive = {
+	"Case Sensitive",
+	"NOT Case Sensitive"
+};
+
+static const true_false_string flags_ace_sra_info_deny_only = {
+	"Deny Only",
+	"NOT Deny Only"
+};
+
+static const true_false_string flags_ace_sra_info_disabled_by_default = {
+	"Disabled By Default",
+	"NOT Disabled By Default"
+};
+
+static const true_false_string flags_ace_sra_info_disabled = {
+	"Disabled",
+	"NOT Disabled"
+};
+
+static const true_false_string flags_ace_sra_info_mandatory = {
+	"Mandatory",
+	"NOT Mandatory"
 };
 
 #define APPEND_ACE_TEXT(flag, item, string) \
@@ -2035,6 +2652,7 @@ dissect_nt_v2_ace(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	int old_offset = offset;
 	char *sid_str = NULL;
 	guint16 size;
+	guint16 data_size;
 	guint8 type;
 	guint8 flags;
 	guint32 perms = 0;
@@ -2088,6 +2706,8 @@ dissect_nt_v2_ace(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	case ACE_TYPE_SYSTEM_AUDIT_CALLBACK_OBJECT:
 	case ACE_TYPE_SYSTEM_ALARM_CALLBACK_OBJECT:
 	case ACE_TYPE_SYSTEM_MANDATORY_LABEL:
+	case ACE_TYPE_SYSTEM_RESOURCE_ATTRIBUTE:
+	case ACE_TYPE_SYSTEM_SCOPED_POLICY_ID:
 		/* access mask */
 		offset = dissect_nt_access_mask(
 			tvb, offset, pinfo, tree, NULL, drep,
@@ -2114,6 +2734,26 @@ dissect_nt_v2_ace(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				item, "%s, flags 0x%02x, %s, mask 0x%08x", sid_str, flags,
 				val_to_str(type, ace_type_vals, "Unknown ACE type (0x%02x)"),
 				perms);
+
+		data_size = size - (offset - old_offset);
+
+		/* Dissect Dynamic Access Control related ACE types
+		   (if present). That is, Conditional ACE and Resource
+		   Attributes. See [MS-DTYP] v20180912 section 2.4.4.17 */
+		switch (type) {
+		    case ACE_TYPE_ACCESS_ALLOWED_CALLBACK:
+		    case ACE_TYPE_ACCESS_DENIED_CALLBACK:
+		    case ACE_TYPE_ACCESS_ALLOWED_CALLBACK_OBJECT:
+		    case ACE_TYPE_ACCESS_DENIED_CALLBACK_OBJECT:
+		    case ACE_TYPE_SYSTEM_AUDIT_CALLBACK:
+		    case ACE_TYPE_SYSTEM_AUDIT_CALLBACK_OBJECT:
+			dissect_nt_conditional_ace(tvb, offset, data_size, tree);
+			break;
+
+		    case ACE_TYPE_SYSTEM_RESOURCE_ATTRIBUTE:
+			dissect_nt_ace_system_resource_attribute(tvb, offset, data_size, tree);
+			break;
+		}
 		break;
 	};
 
@@ -2854,6 +3494,154 @@ proto_do_register_windows_common(int proto_smb)
 		  { "Inherited GUID", "nt.ace.object.inherited_guid", FT_GUID, BASE_NONE,
 		    NULL, 0, NULL, HFILL }},
 
+		{ &hf_nt_ace_cond,
+		  { "Conditional Expression", "nt.ace.cond", FT_NONE, BASE_NONE,
+		    NULL, 0, NULL, HFILL }},
+
+		{ &hf_nt_ace_cond_token,
+		  { "Token", "nt.ace.cond.token",
+		    FT_UINT8, BASE_HEX, VALS(ace_cond_token_vals), 0, "Type of Token",
+		    HFILL }},
+
+		{ &hf_nt_ace_cond_sign,
+		  { "SIGN", "nt.ace.cond.sign",
+		    FT_UINT8, BASE_HEX, VALS(ace_cond_sign_vals), 0,
+		    NULL, HFILL }},
+
+		{ &hf_nt_ace_cond_base,
+		  { "BASE", "nt.ace.cond.base",
+		    FT_UINT8, BASE_HEX, VALS(ace_cond_base_vals), 0,
+		    NULL, HFILL }},
+
+		{ &hf_nt_ace_cond_value_int8,
+		  { "INT8", "nt.ace.cond.value_int8", FT_INT8, BASE_DEC,
+		    NULL, 0, NULL, HFILL }},
+
+		{ &hf_nt_ace_cond_value_int16,
+		  { "INT16", "nt.ace.cond.value_int16", FT_INT16, BASE_DEC,
+		    NULL, 0, NULL, HFILL }},
+
+		{ &hf_nt_ace_cond_value_int32,
+		  { "INT32", "nt.ace.cond.value_int32", FT_INT32, BASE_DEC,
+		    NULL, 0, NULL, HFILL }},
+
+		{ &hf_nt_ace_cond_value_int64,
+		  { "INT64", "nt.ace.cond.value_int64", FT_INT64, BASE_DEC,
+		    NULL, 0, NULL, HFILL }},
+
+		{ &hf_nt_ace_cond_value_string,
+		  { "UNICODE_STRING", "nt.ace.cond.value_string", FT_STRING, BASE_NONE,
+		    NULL, 0, NULL, HFILL }},
+
+		{ &hf_nt_ace_cond_value_octet_string,
+		  { "OCTET_STRING", "nt.ace.cond.value_octet_string", FT_BYTES, BASE_NONE,
+		    NULL, 0x0, NULL, HFILL }},
+
+		{ &hf_nt_ace_cond_local_attr,
+		  { "LOCAL_ATTRIBUTE", "nt.ace.cond.local_attr", FT_STRING, BASE_NONE,
+		    NULL, 0, NULL, HFILL }},
+
+		{ &hf_nt_ace_cond_user_attr,
+		  { "USER_ATTRIBUTE", "nt.ace.cond.user_attr", FT_STRING, BASE_NONE,
+		    NULL, 0, NULL, HFILL }},
+
+		{ &hf_nt_ace_cond_resource_attr,
+		  { "RESOURCE_ATTRIBUTE", "nt.ace.cond.resource_attr", FT_STRING, BASE_NONE,
+		    NULL, 0, NULL, HFILL }},
+
+		{ &hf_nt_ace_cond_device_attr,
+		  { "DEVICE_ATTRIBUTE", "nt.ace.cond.device_attr", FT_STRING, BASE_NONE,
+		    NULL, 0, NULL, HFILL }},
+
+		{ &hf_nt_ace_sra,
+		  { "Resource Attribute", "nt.ace.sra", FT_NONE, BASE_NONE,
+		    NULL, 0, NULL, HFILL }},
+
+		{ &hf_nt_ace_sra_name_offset,
+		  { "Name Offset", "nt.ace.sra.name_offset", FT_UINT32, BASE_DEC, NULL, 0,
+		    "Offset to Name of Resource Attribute", HFILL }},
+
+		{ &hf_nt_ace_sra_name,
+		  { "Name", "nt.ace.sra.name", FT_STRING, BASE_NONE, NULL, 0,
+		    "Name of Resource Attribute", HFILL }},
+
+		{ &hf_nt_ace_sra_type,
+		  { "Type", "nt.ace.sra.type",
+		    FT_UINT16, BASE_DEC, VALS(ace_sra_type_vals), 0,
+		    "Type of Resource Attribute", HFILL }},
+
+		{ &hf_nt_ace_sra_reserved,
+		  { "Reserved", "nt.ace.sra.reserved", FT_UINT16, BASE_HEX, NULL, 0,
+		    "Reserved of Resource Attribute", HFILL }},
+
+		{ &hf_nt_ace_sra_flags,
+		  { "Flags", "nt.ace.sra.flags", FT_UINT32, BASE_HEX, NULL, 0,
+		    "Flags of Resource Attribute", HFILL }},
+
+		{ &hf_nt_ace_sra_flags_manual,
+		  { "Manual", "nt.ace.sra.flags.manual", FT_BOOLEAN, 32,
+		    TFS(&flags_ace_sra_info_manual), 0x00010000, NULL, HFILL }},
+
+		{ &hf_nt_ace_sra_flags_policy_derived,
+		  { "Policy Derived", "nt.ace.sra.flags.policy_derived", FT_BOOLEAN, 32,
+		    TFS(&flags_ace_sra_info_policy_derived), 0x00020000, NULL, HFILL }},
+
+		{ &hf_nt_ace_sra_flags_non_inheritable,
+		  { "Non-Inheritable", "nt.ace.sra.flags.non_inheritable", FT_BOOLEAN, 32,
+		    TFS(&flags_ace_sra_info_non_inheritable), 0x0001, NULL, HFILL }},
+
+		{ &hf_nt_ace_sra_flags_case_sensitive,
+		  { "Case Sensitive", "nt.ace.sra.flags.case_sensitive", FT_BOOLEAN, 32,
+		    TFS(&flags_ace_sra_info_case_sensitive), 0x0002, NULL, HFILL }},
+
+		{ &hf_nt_ace_sra_flags_deny_only,
+		  { "Deny Only", "nt.ace.sra.flags.deny_only", FT_BOOLEAN, 32,
+		    TFS(&flags_ace_sra_info_deny_only), 0x0004, NULL, HFILL }},
+
+		{ &hf_nt_ace_sra_flags_disabled_by_default,
+		  { "Disabled By Default", "nt.ace.sra.flags.disabled_by_default", FT_BOOLEAN, 32,
+		    TFS(&flags_ace_sra_info_disabled_by_default), 0x0008, NULL, HFILL }},
+
+		{ &hf_nt_ace_sra_flags_disabled,
+		  { "Disabled", "nt.ace.sra.flags.disabled", FT_BOOLEAN, 32,
+		    TFS(&flags_ace_sra_info_disabled), 0x0010, NULL, HFILL }},
+
+		{ &hf_nt_ace_sra_flags_mandatory,
+		  { "Mandatory", "nt.ace.sra.flags.mandatory", FT_BOOLEAN, 32,
+		    TFS(&flags_ace_sra_info_mandatory), 0x0020, NULL, HFILL }},
+
+		{ &hf_nt_ace_sra_value_count,
+		  { "Value Count", "nt.ace.sra.value_count", FT_UINT32, BASE_DEC, NULL, 0,
+		    "Value Count of Resource Attribute", HFILL }},
+
+		{ &hf_nt_ace_sra_value_offset,
+		  { "Value Offset", "nt.ace.sra.name_offset", FT_UINT32, BASE_DEC, NULL, 0,
+		    "Offset to a Resource Attribute Value", HFILL }},
+
+		{ &hf_nt_ace_sra_value_int64,
+		  { "INT64", "nt.ace.sra.value_int64", FT_INT64, BASE_DEC, NULL, 0,
+		    NULL, HFILL }},
+
+		{ &hf_nt_ace_sra_value_uint64,
+		  { "UINT64", "nt.ace.sra.value_uint64", FT_UINT64, BASE_DEC, NULL, 0,
+		    NULL, HFILL }},
+
+		{ &hf_nt_ace_sra_value_string,
+		  { "STRING", "nt.ace.sra.value_string", FT_STRING, BASE_NONE,
+		    NULL, 0, NULL, HFILL }},
+
+		{ &hf_nt_ace_sra_value_sid,
+		  { "SID", "nt.ace.sra.value_sid", FT_STRING, BASE_NONE,
+		    NULL, 0, NULL, HFILL }},
+
+		{ &hf_nt_ace_sra_value_boolean,
+		  { "BOOLEAN", "nt.ace.sra.value_boolean", FT_UINT64, BASE_DEC,
+		    NULL, 0, NULL, HFILL }},
+
+		{ &hf_nt_ace_sra_value_octet_string,
+		  { "OCTET_STRING", "nt.ace.sra.value_octet_string", FT_BYTES, BASE_NONE,
+		    NULL, 0x0, NULL, HFILL }},
+
 		{ &hf_nt_security_information_sacl,
 		  { "SACL", "nt.sec_info.sacl", FT_BOOLEAN, 32,
 		    TFS(&flags_sec_info_sacl), 0x00000008, NULL, HFILL }},
@@ -2895,6 +3683,12 @@ proto_do_register_windows_common(int proto_smb)
 		&ett_nt_access_mask_standard,
 		&ett_nt_access_mask_specific,
 		&ett_nt_security_information,
+		&ett_nt_ace_cond,
+		&ett_nt_ace_cond_data,
+		&ett_nt_ace_sra,
+		&ett_nt_ace_sra_flags,
+		&ett_nt_ace_sra_value_offsets,
+		&ett_nt_ace_sra_values,
 	};
 
 	static ei_register_info ei[] = {
