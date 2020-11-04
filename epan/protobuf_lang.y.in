@@ -92,6 +92,7 @@ DIAG_OFF_BYACC
     char* sval;
     pbl_node_t* node;
     int ival;
+    guint64 u64val;
 };
 
 /* operations or symbols tokens */
@@ -104,7 +105,7 @@ DIAG_OFF_BYACC
 %right <sval> PT_REPEATED PT_ONEOF PT_MAP PT_RESERVED PT_ENUM PT_GROUP PT_EXTEND PT_EXTENSIONS
 %right <sval> PT_MESSAGE PT_SERVICE PT_RPC PT_STREAM PT_RETURNS PT_TO PT_PROTO2 PT_PROTO3 PT_IDENT PT_STRLIT
 
-%token <ival> PT_DECIMALLIT PT_OCTALLIT PT_HEXLIT
+%token <u64val> PT_DECIMALLIT PT_OCTALLIT PT_HEXLIT
 
 %type <sval> optionName label type keyType messageName enumName
 %type <sval> streamName fieldName oneofName mapName serviceName rpcName messageType
@@ -114,7 +115,8 @@ DIAG_OFF_BYACC
 %type <node> enum enumBody enumField service serviceBody stream streamDecl
 %type <node> fieldOptions fieldOption oneof oneofBody mapField group extend extendBody
 
-%type <ival> intLit fieldNumber
+%type <u64val> intLit
+%type <ival> fieldNumber enumNumber
 
 /* We don't care about following nodes:
 syntax import package option enumValueOptions enumValueOption rpcBody streamBody
@@ -262,12 +264,18 @@ enumBody:
 | enumBody emptyStatement
 ;
 
-/* v2/v3: enumField = ident "=" intLit [ "[" enumValueOption { ","  enumValueOption } "]" ]";" */
+/* v2/v3: enumField = ident "=" [ "-" ] intLit [ "[" enumValueOption { ","  enumValueOption } "]" ]";" */
 enumField:
-  exIdent PT_ASSIGN intLit PT_LBRACKET enumValueOptions PT_RBRACKET PT_SEMICOLON
+  exIdent PT_ASSIGN enumNumber PT_LBRACKET enumValueOptions PT_RBRACKET PT_SEMICOLON
     { $$ = pbl_create_enum_value_node(state->file, $1, $3); }
-| exIdent PT_ASSIGN intLit
+| exIdent PT_ASSIGN enumNumber
     { $$ = pbl_create_enum_value_node(state->file, $1, $3); }
+;
+
+/* v2/v3: must be in the range of a 32-bit integer. negative values are not recommended. */
+enumNumber: intLit { $$ = (int)$1; }
+| PT_PLUS intLit { $$ = (int)$2; }
+| PT_MINUS intLit { $$ = -(int)$2; }
 ;
 
 /* v2/v3: enumValueOption { ","  enumValueOption } */
@@ -365,7 +373,10 @@ label: PT_REQUIRED | PT_OPTIONAL | PT_REPEATED;
 */
 type: exIdent;
 
-fieldNumber: intLit;
+/* v2/v3: The smallest field number is 1, and the largest is 2^29 - 1, or 536,870,911. */
+fieldNumber: intLit { $$ = (int)$1; }
+| PT_PLUS intLit { $$ = (int)$2; }
+;
 
 /* v2/v3: fieldOptions = fieldOption { ","  fieldOption } */
 fieldOptions:
@@ -503,6 +514,12 @@ emptyStatement: PT_SEMICOLON;
 
 /* constant = fullIdent | ( [ "-" | "+" ] intLit ) | ( [ "-" | "+" ] floatLit ) | strLit | boolLit */
 constant: exIdent | strLit
+| intLit { $$ = pbl_store_string_token(state, g_strdup_printf("%" G_GUINT64_FORMAT, $1)); }
+| PT_PLUS intLit { $$ = pbl_store_string_token(state, g_strdup_printf("%" G_GUINT64_FORMAT, $2)); }
+| PT_MINUS intLit { $$ = pbl_store_string_token(state, g_strdup_printf("-%" G_GUINT64_FORMAT, $2)); }
+/* This cover floatLit. In addition, boolLit is parsed as exIdent */
+| PT_PLUS exIdent { $$ = pbl_store_string_token(state, g_strconcat("+", $2, NULL)); }
+| PT_MINUS exIdent { $$ = pbl_store_string_token(state, g_strconcat("-", $2, NULL)); }
 ;
 
 exIdent: PT_IDENT

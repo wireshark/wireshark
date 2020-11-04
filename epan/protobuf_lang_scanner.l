@@ -166,12 +166,12 @@ to                     yylval->sval = strdup_and_store(yyscanner, yytext); retur
 ["']proto3["']         yylval->sval = strdup_and_store(yyscanner, yytext); return PT_PROTO3;
 
     /* intLit values */
-0|[1-9][0-9]*          yylval->ival = atoi(yytext); return PT_DECIMALLIT;
-0[0-7]*                sscanf(yytext+1, "%o", &yylval->ival); return PT_OCTALLIT;
-0[xX][0-9a-fA-F]+      sscanf(yytext+2, "%x", &yylval->ival); return PT_HEXLIT;
+0|[1-9][0-9]*          yylval->u64val = g_ascii_strtoull(yytext, NULL, 10); return PT_DECIMALLIT;
+0[0-7]*                yylval->u64val = g_ascii_strtoull(yytext+1, NULL, 8); return PT_OCTALLIT;
+0[xX][0-9a-fA-F]+      yylval->u64val = g_ascii_strtoull(yytext+2, NULL, 16); return PT_HEXLIT;
 
     /* Using extended identifier because we care only about position */
-[a-zA-Z0-9_.+-]+            yylval->sval = strdup_and_store(yyscanner, yytext); return PT_IDENT;
+[a-zA-Z0-9_][a-zA-Z0-9_.+-]*    yylval->sval = strdup_and_store(yyscanner, yytext); return PT_IDENT;
 \"(\\.|\"\"|[^"\n"])*\"     yylval->sval = g_strndup(yytext + 1, strlen(yytext) - 2); return PT_STRLIT;
 \'(\\.|\'\'|[^"\n"])*\'     yylval->sval = g_strndup(yytext + 1, strlen(yytext) - 2); return PT_STRLIT;
 
