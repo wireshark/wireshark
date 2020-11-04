@@ -1172,7 +1172,7 @@ const value_string tls_hello_extension_types[] = {
     { SSL_HND_HELLO_EXT_GREASE_DADA, "Reserved (GREASE)" }, /* https://tools.ietf.org/html/draft-ietf-tls-grease */
     { SSL_HND_HELLO_EXT_GREASE_EAEA, "Reserved (GREASE)" }, /* https://tools.ietf.org/html/draft-ietf-tls-grease */
     { SSL_HND_HELLO_EXT_GREASE_FAFA, "Reserved (GREASE)" }, /* https://tools.ietf.org/html/draft-ietf-tls-grease */
-    { SSL_HND_HELLO_EXT_QUIC_TRANSPORT_PARAMETERS, "quic_transports_parameters" }, /* https://tools.ietf.org/html/draft-ietf-quic-tls */
+    { SSL_HND_HELLO_EXT_QUIC_TRANSPORT_PARAMETERS, "quic_transport_parameters" }, /* https://tools.ietf.org/html/draft-ietf-quic-tls */
     { SSL_HND_HELLO_EXT_ENCRYPTED_SERVER_NAME, "encrypted_server_name" }, /* https://tools.ietf.org/html/draft-ietf-tls-esni-01 */
     { 0, NULL }
 };
