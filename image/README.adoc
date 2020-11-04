@@ -55,3 +55,5 @@ Ionicons: https://github.com/ionic-team/ionicons
 Mono Icons: https://github.com/mono-company/mono-icons
 
 Tabler Icons: https://github.com/tabler/tabler-icons
+
+Fluent UI System Icons: https://github.com/microsoft/fluentui-system-icons
