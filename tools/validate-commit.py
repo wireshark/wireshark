@@ -141,6 +141,10 @@ for details.
 ''')
         return False
 
+    # Cherry-picking can add an extra newline, which we'll allow.
+    cp_line = '\n(cherry picked from commit'
+    body = body.replace('\n' + cp_line, cp_line)
+
     try:
         cmd = ['git', 'stripspace']
         newbody = subprocess.check_output(cmd, input=body, universal_newlines=True)
@@ -184,7 +188,7 @@ def verify_merge_request():
 
     m_r_url = '{}/projects/{}/merge_requests/{}'.format(gitlab_api_pfx, project_id, m_r_iid)
     req = urllib.request.Request(m_r_url)
-    # print('req', repr(req))
+    # print('req', repr(req), m_r_url)
     with urllib.request.urlopen(req) as resp:
         resp_json = resp.read().decode('utf-8')
         # print('resp', resp_json)
