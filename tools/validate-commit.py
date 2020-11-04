@@ -141,6 +141,10 @@ for details.
 ''')
         return False
 
+    # Cherry-picking can add an extra newline, which we'll allow.
+    cp_line = '\n(cherry picked from commit'
+    body = body.replace('\n' + cp_line, cp_line)
+
     try:
         cmd = ['git', 'stripspace']
         gs_proc = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, universal_newlines=True)
@@ -185,7 +189,7 @@ def verify_merge_request():
 
     m_r_url = '{}/projects/{}/merge_requests/{}'.format(gitlab_api_pfx, project_id, m_r_iid)
     req = urllib.request.Request(m_r_url)
-    # print('req', repr(req))
+    # print('req', repr(req), m_r_url)
     with urllib.request.urlopen(req) as resp:
         resp_json = resp.read().decode('utf-8')
         # print('resp', resp_json)
@@ -233,9 +237,8 @@ def main():
     if exit_code:
         print_git_user_instructions()
 
-    # Cherry-picking might add extra newlines, so skip this for now.
-    # if not verify_body(body):
-    #     exit_code = 1
+    if not verify_body(body):
+        exit_code = 1
 
     if not verify_merge_request():
         exit_code = 1
