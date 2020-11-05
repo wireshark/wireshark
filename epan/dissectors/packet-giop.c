@@ -1465,7 +1465,7 @@ static guint32 string_to_IOR(gchar *in, guint32 in_len, guint8 **out) {
   gint8   tmpval;        /* complete value */
   guint32 i;
 
-  *out = wmem_alloc0_array(wmem_packet_scope(), guint8, in_len); /* allocate buffer */
+  *out = wmem_alloc0_array(NULL, guint8, in_len); /* allocate buffer */
 
   if (*out == NULL) {
     return 0;
@@ -1528,7 +1528,7 @@ static void read_IOR_strings_from_file(const gchar *name, int max_iorlen) {
   int       len;
   int       ior_val_len;        /* length after unstringifying. */
   FILE     *fp;
-  guint8   *out;                /* ptr to unstringified IOR */
+  guint8   *out = NULL;         /* ptr to unstringified IOR */
   tvbuff_t *tvb;                /* temp tvbuff for dissectin IORs */
   int       my_offset = 0;
   gboolean  stream_is_big_endian;
@@ -1571,6 +1571,7 @@ static void read_IOR_strings_from_file(const gchar *name, int max_iorlen) {
   fclose(fp);                   /* be nice */
 
   wmem_free(NULL, buf);
+  wmem_free(NULL, out);
 }
 
 
