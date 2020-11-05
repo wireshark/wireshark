@@ -1564,14 +1564,14 @@ static void read_IOR_strings_from_file(const gchar *name, int max_iorlen) {
       decode_IOR(tvb, NULL, NULL, &my_offset, 0, stream_is_big_endian);
 
       tvb_free(tvb);
-
     }
+
+    wmem_free(NULL, out);
   }
 
   fclose(fp);                   /* be nice */
 
   wmem_free(NULL, buf);
-  wmem_free(NULL, out);
 }
 
 
