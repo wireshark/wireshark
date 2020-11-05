@@ -2311,6 +2311,7 @@ pcapng_read_systemd_journal_export_block(wtap *wth, FILE_T fh, pcapng_block_head
     guint32 entry_length;
     guint32 block_total_length;
     guint64 rt_ts;
+    gboolean have_ts = FALSE;
 
     if (bh->block_total_length < MIN_SYSTEMD_JOURNAL_EXPORT_BLOCK_SIZE) {
         *err = WTAP_ERR_BAD_FILE;
@@ -2359,35 +2360,28 @@ pcapng_read_systemd_journal_export_block(wtap *wth, FILE_T fh, pcapng_block_head
     char *ts_pos = strstr(buf_ptr, SDJ__REALTIME_TIMESTAMP);
 
     if (!ts_pos) {
-        *err = WTAP_ERR_BAD_FILE;
-        *err_info = g_strdup_printf("%s: no timestamp", G_STRFUNC);
-        return FALSE;
-    }
+        pcapng_debug("%s: no timestamp", G_STRFUNC);
+    } else if (ts_pos+rt_ts_len >= (char *) buf_ptr+entry_length) {
+        pcapng_debug("%s: timestamp past end of buffer", G_STRFUNC);
+    } else {
+        const char *ts_end;
+        have_ts = ws_strtou64(ts_pos+rt_ts_len, &ts_end, &rt_ts);
 
-    if (ts_pos+rt_ts_len >= (char *) buf_ptr+entry_length) {
-        *err = WTAP_ERR_BAD_FILE;
-        *err_info = g_strdup_printf("%s: timestamp past end of buffer", G_STRFUNC);
-        return FALSE;
-    }
-
-    errno = 0;
-    const char *ts_end;
-    gboolean ok = ws_strtou64(ts_pos+rt_ts_len, &ts_end, &rt_ts);
-
-    if (!ok) {
-        *err = WTAP_ERR_BAD_FILE;
-        *err_info = g_strdup_printf("%s: invalid timestamp", G_STRFUNC);
-        return FALSE;
+        if (!have_ts) {
+            pcapng_debug("%s: invalid timestamp", G_STRFUNC);
+        }
     }
 
     wblock->rec->rec_type = REC_TYPE_FT_SPECIFIC_EVENT;
     wblock->rec->rec_header.ft_specific_header.record_type = BLOCK_TYPE_SYSTEMD_JOURNAL;
     wblock->rec->rec_header.ft_specific_header.record_len = entry_length;
-    wblock->rec->presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
-    wblock->rec->tsprec = WTAP_TSPREC_USEC;
-
-    wblock->rec->ts.secs = (time_t) (rt_ts / 1000000);
-    wblock->rec->ts.nsecs = (rt_ts % 1000000) * 1000;
+    wblock->rec->presence_flags = WTAP_HAS_CAP_LEN;
+    if (have_ts) {
+        wblock->rec->presence_flags |= WTAP_HAS_TS;
+        wblock->rec->tsprec = WTAP_TSPREC_USEC;
+        wblock->rec->ts.secs = (time_t) (rt_ts / 1000000);
+        wblock->rec->ts.nsecs = (rt_ts % 1000000) * 1000;
+    }
 
     /*
      * We return these to the caller in pcapng_read().
