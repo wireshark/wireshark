@@ -4296,6 +4296,7 @@ dissect_rtcp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
     proto_item       *ti;
     proto_tree       *rtcp_tree           = NULL;
     guint             padding_set         = 0;
+    proto_item       *padding_item        = NULL;
     gint              offset              = 0;
     gint              total_packet_length = 0;
     guint             padding_offset      = 0;
@@ -4344,7 +4345,6 @@ dissect_rtcp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
      */
     while ( !srtcp_now_encrypted && tvb_bytes_exist( tvb, offset, 4) ) {
         guint temp_byte;
-        proto_item *padding_item;
         gint elem_count;
         guint packet_type;
         gint packet_length;
