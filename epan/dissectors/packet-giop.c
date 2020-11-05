@@ -1542,7 +1542,7 @@ static void read_IOR_strings_from_file(const gchar *name, int max_iorlen) {
     return;
   }
 
-  buf = (gchar *)wmem_alloc0(wmem_packet_scope(), max_iorlen+1);        /* input buf */
+  buf = (gchar *)wmem_alloc0(NULL, max_iorlen+1);        /* input buf */
 
   while ((len = giop_getline(fp, buf, max_iorlen+1)) > 0) {
     my_offset = 0;              /* reset for every IOR read */
@@ -1551,10 +1551,12 @@ static void read_IOR_strings_from_file(const gchar *name, int max_iorlen) {
 
     if (ior_val_len>0) {
 
-      /* XXX - can this throw an exception in this case?  If so, we
-         need to catch it and clean up, but we really shouldn't allow
-         it - or "get_CDR_octet()", or "decode_IOR()" - to throw an
-         exception. */
+      /* XXX - can this code throw an exception?  If so, we need to
+         catch it and clean up, but we really shouldn't allow it - or
+         "get_CDR_octet()", or "decode_IOR()" - to throw an exception.
+
+         Either that, or don't reuse dissector code when we're not
+         dissecting a packet. */
 
       tvb =  tvb_new_real_data(out, ior_val_len, ior_val_len);
 
@@ -1567,6 +1569,8 @@ static void read_IOR_strings_from_file(const gchar *name, int max_iorlen) {
   }
 
   fclose(fp);                   /* be nice */
+
+  wmem_free(NULL, buf);
 }
 
 
