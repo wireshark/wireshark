@@ -6024,7 +6024,7 @@ proto_register_afp(void)
 
 		{ &hf_afp_vol_id,
 		  { "Volume id",         "afp.vol_id",
-		    FT_UINT16, BASE_DEC, NULL, 0x0,
+		    FT_UINT32, BASE_DEC, NULL, 0x0,
 		    NULL, HFILL }},
 
 		{ &hf_afp_vol_signature,
@@ -6184,7 +6184,7 @@ proto_register_afp(void)
 
 		{ &hf_afp_file_bitmap,
 		  { "File bitmap",         "afp.file_bitmap",
-		    FT_UINT16, BASE_HEX, NULL, 0x0,
+		    FT_UINT32, BASE_HEX, NULL, 0x0,
 		    NULL, HFILL }},
 
 		{ &hf_afp_req_count,

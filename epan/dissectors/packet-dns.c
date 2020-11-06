@@ -5424,7 +5424,7 @@ proto_register_dns(void)
 
     { &hf_dns_px_preference,
       { "Preference", "dns.px.preference",
-        FT_UINT8, BASE_DEC, NULL, 0x0,
+        FT_UINT16, BASE_DEC, NULL, 0x0,
         NULL, HFILL }},
 
     { &hf_dns_px_map822,

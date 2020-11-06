@@ -486,7 +486,7 @@ proto_register_dsr(void)
         },
         { &hf_dsr_length,
             { "Length", "dsr.len",
-               FT_UINT8, BASE_DEC,
+               FT_UINT16, BASE_DEC,
                NULL, 0x0,
               "Payload length", HFILL }
         },
