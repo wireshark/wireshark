@@ -972,13 +972,13 @@ rel_time_to_secs_str(wmem_allocator_t *scope, const nstime_t *rel_time)
 char *
 decode_bits_in_field(const guint bit_offset, const gint no_of_bits, const guint64 value)
 {
-	guint64 mask = 0,tmp;
+	guint64 mask;
 	char *str;
 	int bit, str_p = 0;
 	int i;
+	int max_bits = MIN(64, no_of_bits);
 
-	mask = 1;
-	mask = mask << (no_of_bits-1);
+	mask = G_GUINT64_CONSTANT(1) << (max_bits-1);
 
 	/* Prepare the string, 256 pos for the bits and zero termination, + 64 for the spaces */
 	str=(char *)wmem_alloc0(wmem_packet_scope(), 256+64);
@@ -992,7 +992,7 @@ decode_bits_in_field(const guint bit_offset, const gint no_of_bits, const guint6
 	}
 
 	/* read the bits for the int */
-	for(i=0;i<no_of_bits;i++){
+	for(i=0;i<max_bits;i++){
 		if(bit&&(!(bit%4))){
 			str[str_p] = ' ';
 			str_p++;
@@ -1002,8 +1002,7 @@ decode_bits_in_field(const guint bit_offset, const gint no_of_bits, const guint6
 			str_p++;
 		}
 		bit++;
-		tmp = value & mask;
-		if(tmp != 0){
+		if((value & mask) != 0){
 			str[str_p] = '1';
 			str_p++;
 		} else {
