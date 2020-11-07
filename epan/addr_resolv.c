@@ -857,20 +857,30 @@ parse_enterprises_line (char *line)
 {
     char *tok, *dec_str, *org_str;
     guint32 dec;
+    gboolean had_comment = FALSE;
 
-    if ((tok = strchr(line, '#')))
+    /* Stop the line at any comment found */
+    if ((tok = strchr(line, '#'))) {
         *tok = '\0';
+        had_comment = TRUE;
+    }
+    /* Get enterprise number */
     dec_str = strtok(line, " \t");
     if (!dec_str)
         return;
+    /* Get enterprise name */
     org_str = strtok(NULL, ""); /* everything else */
-    if (org_str)
-        org_str = g_strstrip(org_str);
+    if (org_str && had_comment) {
+        /* Only need to strip after (between name and where comment was) */
+        org_str = g_strchomp(org_str);
+    }
     if (!org_str)
         return;
+
+    /* Add entry using number as key */
     if (!ws_strtou32(dec_str, NULL, &dec))
         return;
-    g_hash_table_replace(enterprises_hashtable, GUINT_TO_POINTER(dec), g_strdup(org_str));
+    g_hash_table_insert(enterprises_hashtable, GUINT_TO_POINTER(dec), g_strdup(org_str));
 }
 
 
