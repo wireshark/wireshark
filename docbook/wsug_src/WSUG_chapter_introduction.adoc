@@ -230,6 +230,8 @@ including the following platforms:
 
 * Alpine Linux
 
+* Arch Linux
+
 * Canonical Ubuntu
 
 * Debian GNU/Linux
@@ -239,8 +241,6 @@ including the following platforms:
 * Gentoo Linux
 
 * HP-UX
-
-* Mandriva Linux
 
 * NetBSD
 
@@ -258,20 +258,22 @@ mailto:{wireshark-dev-list-email}[].
 
 === Where To Get Wireshark
 
-You can get the latest copy of the program from the Wireshark website at
-{wireshark-download-url}. The download page should automatically
-highlight the appropriate download for your platform and direct you to
-the nearest mirror. Official Windows and macOS installers are signed by
-the *Wireshark Foundation*.
+You can get the latest copy of the program from the Wireshark website at {wireshark-download-url}.
+The download page should automatically highlight the appropriate download for your platform and direct you to the nearest mirror.
+Official Windows and macOS installers are signed by the *Wireshark Foundation*.
+macOS installers are also notarized.
 
-A new Wireshark version typically becomes available each month or two.
+A new Wireshark version typically becomes available every six weeks.
 
-If you want to be notified about new Wireshark releases you should subscribe to
-the wireshark-announce mailing list. You will find more details in
-<<ChIntroMailingLists>>.
+If you want to be notified about new Wireshark releases you should subscribe to the wireshark-announce mailing list.
+You will find more details in <<ChIntroMailingLists>>.
+
+Each release includes a list of file hashes which are sent to the wireshark-announce mailing list and placed in a file named SIGNATURES-_x_._y_._z_.txt.
+Announcement messages are archived at https://www.wireshark.org/lists/wireshark-announce/ and SIGNATURES files can be found at https://www.wireshark.org/download/src/all-versions/.
+Both are GPG-signed and include verification instructions for Windows, Linux, and macOS.
+As noted above, you can also verify downloads on Windows and macOS using the code signature validation features on those systems.
 
 [[ChIntroHistory]]
-
 
 === A Brief History Of Wireshark
 
