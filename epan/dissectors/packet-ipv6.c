@@ -1127,10 +1127,10 @@ static int dissect_routing6_crh(tvbuff_t* tvb, packet_info* pinfo, proto_tree* t
     int offset, minimum_crh_length;
     gint sid;
 
-    unsigned sid_count = 0;
-    unsigned octets_per_sid = 0;
-    unsigned sids_beyond_first_word = 0;
-    unsigned sids_per_word = 0;
+    unsigned sid_count;
+    unsigned octets_per_sid;
+    unsigned sids_beyond_first_word;
+    unsigned sids_per_word;
     struct ws_rthdr* rt = (struct ws_rthdr*)data;
     gboolean is_crh16 = rt->hdr.ip6r_type == IPv6_RT_HEADER_COMPACT_16;
     guint8 segments_left = rt->hdr.ip6r_segleft;
@@ -1155,6 +1155,8 @@ static int dissect_routing6_crh(tvbuff_t* tvb, packet_info* pinfo, proto_tree* t
             minimum_crh_length = 0;
         sids_beyond_first_word = segments_left - 1;
         break;
+    default:
+        DISSECTOR_ASSERT_NOT_REACHED();
     }
     if (minimum_crh_length) {
         minimum_crh_length = sids_beyond_first_word / sids_per_word;
