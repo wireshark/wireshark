@@ -172,6 +172,7 @@ static expert_field ei_quic_ft_unknown = EI_INIT;
 static expert_field ei_quic_decryption_failed = EI_INIT;
 static expert_field ei_quic_protocol_violation = EI_INIT;
 static expert_field ei_quic_bad_retry = EI_INIT;
+static expert_field ei_quic_coalesced_padding_data = EI_INIT;
 
 static gint ett_quic = -1;
 static gint ett_quic_short_header = -1;
@@ -3207,6 +3208,54 @@ quic_extract_header(tvbuff_t *tvb, guint8 *long_packet_type, guint32 *version,
     }
 }
 
+/**
+ * Sanity check on (coalasced) packet.
+ * https://tools.ietf.org/html/draft-ietf-quic-transport-32#section-12.2
+ * "Senders MUST NOT coalesce QUIC packets with different connection IDs
+ *  into a single UDP datagram"
+ * For the first packet of the datagram, we simply save the DCID for later usage (no real check).
+ * For any subsequent packets, we control if DCID is valid.
+ */
+static gboolean
+check_dcid_on_coalesced_packet(tvbuff_t *tvb, const quic_datagram *dgram_info,
+                               gboolean is_first_packet, quic_cid_t *first_packet_dcid)
+{
+    guint offset = 0;
+    guint8 first_byte;
+    quic_cid_t dcid = {.len=0};
+
+    first_byte = tvb_get_guint8(tvb, offset);
+    offset++;
+    if (first_byte & 0x80) {
+        offset += 4; /* Skip version */
+        dcid.len = tvb_get_guint8(tvb, offset);
+        offset++;
+        if (dcid.len && dcid.len <= QUIC_MAX_CID_LENGTH) {
+            tvb_memcpy(tvb, dcid.cid, offset, dcid.len);
+        }
+    } else {
+        quic_info_data_t *conn = dgram_info->conn;
+        gboolean from_server = dgram_info->from_server;
+        if (conn) {
+            dcid.len = from_server ? conn->client_cids.data.len : conn->server_cids.data.len;
+            if (dcid.len) {
+                tvb_memcpy(tvb, dcid.cid, offset, dcid.len);
+            }
+        } else {
+            /* If we don't have a valid quic_info_data_t structure for this flow,
+               we can't really validate the CID. */
+            return TRUE;
+        }
+    }
+
+    if (is_first_packet) {
+        *first_packet_dcid = dcid;
+        return TRUE; /* Nothing to check */
+    }
+
+    return quic_connection_equal(&dcid, first_packet_dcid);
+}
+
 static int
 dissect_quic(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         void *data _U_)
@@ -3217,6 +3266,7 @@ dissect_quic(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     quic_datagram *dgram_info = NULL;
     quic_packet_info_t *quic_packet = NULL;
     quic_cid_t  real_retry_odcid = {.len=0}, *retry_odcid = NULL;
+    quic_cid_t  first_packet_dcid = {.len=0}; /* DCID of the first packet of the datagram */
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "QUIC");
 
@@ -3275,6 +3325,15 @@ dissect_quic(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         }
 
         tvbuff_t *next_tvb = quic_get_message_tvb(tvb, offset);
+
+        if (!check_dcid_on_coalesced_packet(next_tvb, dgram_info, offset == 0, &first_packet_dcid)) {
+            /* Coalesced packet with unexpected CID; it probably is some kind
+               of unencrypted padding data added after the valid QUIC payload */
+            expert_add_info_format(pinfo, quic_tree, &ei_quic_coalesced_padding_data,
+                                   "(Random) padding data appended to the datagram");
+            break;
+        }
+
         proto_item_set_len(quic_ti, tvb_reported_length(next_tvb));
         ti = proto_tree_add_uint(quic_tree, hf_quic_packet_length, next_tvb, 0, 0, tvb_reported_length(next_tvb));
         proto_item_set_generated(ti);
@@ -3293,12 +3352,8 @@ dissect_quic(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             } else {
                 new_offset = dissect_quic_long_header(next_tvb, pinfo, quic_tree, dgram_info, quic_packet);
             }
-        } else if (!(first_byte == 0 && offset > 0)) {
-            // Firefox neqo adds unencrypted padding consisting of all zeroes
-            // after an Initial Packet. Whether that is valid or not is
-            // discussed at https://github.com/quicwg/base-drafts/issues/3333
-            // As it happens, at least draft -25 requires the "Fixed" bit to be
-            // set, so any zero first byte is definitely invalid.
+        } else { /* Note that the "Fixed" bit might have been greased,
+                    so 0x00 is a perfectly valid value as first_byte */
             new_offset = dissect_quic_short_header(next_tvb, pinfo, quic_tree, dgram_info, quic_packet);
         }
         if (tvb_reported_length_remaining(next_tvb, new_offset)) {
@@ -4022,6 +4077,10 @@ proto_register_quic(void)
         { &ei_quic_bad_retry,
           { "quic.bad_retry", PI_PROTOCOL, PI_WARN,
             "Retry Integrity Tag verification failure", EXPFILL }
+        },
+        { &ei_quic_coalesced_padding_data,
+          { "quic.coalesced_padding_data", PI_PROTOCOL, PI_NOTE,
+            "Coalesced Padding Data", EXPFILL }
         },
     };
 
