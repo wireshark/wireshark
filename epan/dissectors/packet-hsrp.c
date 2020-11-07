@@ -679,12 +679,12 @@ void proto_register_hsrp(void)
 
                 { &hf_hsrp_adv_activegrp,
                   { "Adv active groups", "hsrp.adv.activegrp",
-                    FT_UINT8, BASE_DEC, NULL, 0x0,
+                    FT_UINT16, BASE_DEC, NULL, 0x0,
                     "Advertisement active group count", HFILL }},
 
                 { &hf_hsrp_adv_passivegrp,
                   { "Adv passive groups", "hsrp.adv.passivegrp",
-                    FT_UINT8, BASE_DEC, NULL, 0x0,
+                    FT_UINT16, BASE_DEC, NULL, 0x0,
                     "Advertisement passive group count", HFILL }},
 
                 { &hf_hsrp_adv_reserved2,
@@ -794,7 +794,7 @@ void proto_register_hsrp(void)
 
                 { &hf_hsrp2_md5_flags,
                   { "MD5 Flags", "hsrp2.md5_flags",
-                    FT_UINT8, BASE_DEC, NULL, 0x0,
+                    FT_UINT16, BASE_DEC, NULL, 0x0,
                     "Undefined", HFILL }},
 
                 { &hf_hsrp2_md5_ip_address,

@@ -2110,7 +2110,7 @@ static hf_register_info hf[] =
     /* Common U3V data */
     { &hf_u3v_gencp_prefix,
     { "Prefix", "u3v.gencp.prefix",
-    FT_UINT8, BASE_HEX, NULL, 0x0,
+    FT_UINT32, BASE_HEX, NULL, 0x0,
     "U3V GenCP Prefix", HFILL
     } },
 
