@@ -960,7 +960,7 @@ dissect_kafka_regular_array(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
 
     if (count < -1) { // -1 means null array
         expert_add_info(pinfo, proto_tree_get_parent(tree), &ei_kafka_bad_array_length);
-        return -1;
+        return offset;
     }
 
     offset = dissect_kafka_array_elements(tree, tvb, pinfo, offset, api_version, func, count);
@@ -987,7 +987,7 @@ dissect_kafka_compact_array(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
     len = tvb_get_varint(tvb, offset, FT_VARINT_MAX_LEN, &count, ENC_VARINT_PROTOBUF);
     if (len == 0 || count > 0x7ffffffL) {
         expert_add_info(pinfo, proto_tree_get_parent(tree), &ei_kafka_bad_array_length);
-        return -1;
+        return offset;
     }
     offset += len;
 
@@ -1036,7 +1036,7 @@ dissect_kafka_varint(proto_tree *tree, int hf_item, tvbuff_t *tvb, packet_info *
 
     if (len == 0) {
         expert_add_info(pinfo, pi, &ei_kafka_bad_varint);
-        return -1;
+        return offset;
     }
 
     if (p_value != NULL) *p_value = value;
@@ -1057,7 +1057,7 @@ dissect_kafka_varuint(proto_tree *tree, int hf_item, tvbuff_t *tvb, packet_info 
 
     if (len == 0) {
         expert_add_info(pinfo, pi, &ei_kafka_bad_varint);
-        return -1;
+        return offset;
     }
 
     if (p_value != NULL) *p_value = value;
@@ -1095,7 +1095,13 @@ dissect_kafka_regular_string(proto_tree *tree, int hf_item, tvbuff_t *tvb, packe
     if (length < -1) {
         pi = proto_tree_add_item(tree, hf_item, tvb, offset, 0, ENC_NA);
         expert_add_info(pinfo, pi, &ei_kafka_bad_string_length);
-        return -1;
+        if (p_offset) {
+            *p_offset = 2;
+        }
+        if (p_length) {
+            *p_length = 0;
+        }
+        return offset + 2;
     }
 
     if (length == -1) {
@@ -1130,7 +1136,13 @@ dissect_kafka_compact_string(proto_tree *tree, int hf_item, tvbuff_t *tvb, packe
     if (len == 0) {
         pi = proto_tree_add_item(tree, hf_item, tvb, offset, 0, ENC_NA);
         expert_add_info(pinfo, pi, &ei_kafka_bad_varint);
-        return -1;
+        if (p_offset) {
+            *p_offset = 0;
+        }
+        if (p_length) {
+            *p_length = 0;
+        }
+        return offset;
     }
 
     if (length == 0) {
@@ -1143,10 +1155,9 @@ dissect_kafka_compact_string(proto_tree *tree, int hf_item, tvbuff_t *tvb, packe
     if (p_offset != NULL) *p_offset = offset + len;
     if (p_length != NULL) *p_length = (gint)length - 1;
 
-    if (length == 0) {
-        offset += len;
-    } else {
-        offset += len + (gint)length - 1;
+    offset += len;
+    if (length > 0) {
+        offset += (gint)length - 1;
     }
 
     return offset;
@@ -1180,7 +1191,13 @@ dissect_kafka_regular_bytes(proto_tree *tree, int hf_item, tvbuff_t *tvb, packet
     if (length < -1) {
         pi = proto_tree_add_item(tree, hf_item, tvb, offset, 0, ENC_NA);
         expert_add_info(pinfo, pi, &ei_kafka_bad_string_length);
-        return -1;
+        if (p_offset) {
+            *p_offset = 2;
+        }
+        if (p_length) {
+            *p_length = 0;
+        }
+        return offset + 2;
     }
 
     if (length == -1) {
@@ -1216,7 +1233,13 @@ dissect_kafka_compact_bytes(proto_tree *tree, int hf_item, tvbuff_t *tvb, packet
     if (len == 0) {
         pi = proto_tree_add_item(tree, hf_item, tvb, offset, 0, ENC_NA);
         expert_add_info(pinfo, pi, &ei_kafka_bad_varint);
-        return -1;
+        if (p_offset) {
+            *p_offset = 0;
+        }
+        if (p_length) {
+            *p_length = 0;
+        }
+        return offset;
     }
 
     if (length == 0) {
@@ -1290,7 +1313,7 @@ dissect_kafka_offset_delta(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
     pi = proto_tree_add_int64(tree, hf_item, tvb, offset, len, base_offset+val);
     if (len == 0) {
         expert_add_info(pinfo, pi, &ei_kafka_bad_varint);
-        return -1;
+        return offset;
     }
 
     return offset+len;
@@ -1537,10 +1560,10 @@ dissect_kafka_record(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, in
     len = tvb_get_varint(tvb, offset, 5, &size, ENC_VARINT_ZIGZAG);
     if (len == 0) {
         expert_add_info(pinfo, record_ti, &ei_kafka_bad_varint);
-        return -1;
+        return offset;
     } else if (size < 6) {
         expert_add_info(pinfo, record_ti, &ei_kafka_bad_record_length);
-        return -1;
+        return offset + len;
     }
 
     end_offset = offset + len + (gint)size;
@@ -1925,7 +1948,7 @@ dissect_kafka_message_old(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
         offset = bytes_offset;
     } else {
         expert_add_info(pinfo, message_ti, &ei_kafka_bad_bytes_length);
-        return -1;
+        return offset;
     }
 
     /*
@@ -1939,7 +1962,7 @@ dissect_kafka_message_old(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
             offset = bytes_offset;
         } else {
             expert_add_info(pinfo, message_ti, &ei_kafka_bad_bytes_length);
-            return -1;
+            return offset;
         }
     } else {
         length = tvb_get_ntohl(tvb, offset);
@@ -2126,7 +2149,13 @@ dissect_kafka_tagged_field_data(proto_tree *tree, int hf_item, tvbuff_t *tvb, pa
     pi = proto_tree_add_item(tree, hf_item, tvb, offset+len, (gint)length, ENC_NA);
     if (len == 0) {
         expert_add_info(pinfo, pi, &ei_kafka_bad_varint);
-        return -1;
+        if (p_offset) {
+            *p_offset = 0;
+        }
+        if (p_len) {
+            *p_len = 0;
+        }
+        return offset;
     }
 
     offset = offset + len + (gint)length;
@@ -2173,7 +2202,7 @@ dissect_kafka_tagged_fields(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     len = tvb_get_varint(tvb, offset, FT_VARINT_MAX_LEN, &count, ENC_VARINT_PROTOBUF);
     if (len == 0) {
         expert_add_info(pinfo, subtree, &ei_kafka_bad_varint);
-        return -1;
+        return offset;
     }
     offset += len;
 
