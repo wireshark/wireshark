@@ -185,7 +185,7 @@ More details can be found on the
 
 === SIP Statistics
 
-{missing}
+SIP Statistics window shows captured SIP transactions. It is divided into SIP Responses and SIP Requests. In this window the user can filter, copy or save the statistics into a file.  
 
 [[ChTelWAPWSPPacketCounter]]
 
