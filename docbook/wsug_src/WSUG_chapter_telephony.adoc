@@ -35,7 +35,15 @@ More details can be found on the {wireshark-wiki-url}VoIP_calls page.
 
 === ANSI
 
-{missing}
+This menu shows groups of statistic data for mobile communication protocols according to ETSI GSM standards.
+
+==== A-I/F BSMAP Statistics
+
+The A-Interface Base Station Management Application Part (BSMAP) Statistics window shows the messages list and the number of the captured messages. There is a possibility to filter the messages, copy or save the date into a file.
+
+==== A-I/F DTAP Statistics
+
+The A-Interface Direct Transfer Application Part (DTAP) Statistics widow shows the messages list and the number of the captured messages. There is a possibility to filter the messages, copy or save the date into a file. 
 
 [[ChTelGSM]]
 
