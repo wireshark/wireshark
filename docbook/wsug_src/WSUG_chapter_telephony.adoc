@@ -181,7 +181,16 @@ In the Real Time Streaming Protocol (RTSP) menu the user can check the Paket Cou
 
 === SIP Flows
 
-{missing}
+Session Initiation Protocol (SIP) Flows window shows the list of all captured SIP transactions, such as client registrations, messages, calls and so on. 
+
+NOTE: This window will list both complete and in-progress SIP transactions.
+
+User's operations in the window:
+
+* Filtering the captured data. To do so, click the btn:[Prepare Filter] button.
+* Checking the sequence diagram. To do so, click the btn:[Flow Sequence] button.
+* Listen to the captured RTP stream if a decoder for the payload exists. To do so, click the btn:[Play Streams] button.
+* Copy the data in the `SCV` or `YAML` format.
 
 [[ChTelSIPStatistics]]
 
