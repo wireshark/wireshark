@@ -1351,15 +1351,15 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>compression</source>
-        <translation type="unfinished"></translation>
+        <translation>compressione</translation>
     </message>
     <message>
         <source>None</source>
-        <translation type="unfinished">Nessuno</translation>
+        <translation>Nessuna</translation>
     </message>
     <message>
         <source>gzip</source>
-        <translation type="unfinished"></translation>
+        <translation>gzip</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;After capturing has switched to the next file and the given number of files has exceeded, the oldest file will be removed.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -9220,8 +9220,12 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Frame</translation>
     </message>
     <message>
+        <source>Loading</source>
+        <translation type="unfinished">Caricamento in corso</translation>
+    </message>
+    <message>
         <source>TextLabel</source>
-        <translation>EtichettaTesto</translation>
+        <translation type="vanished">EtichettaTesto</translation>
     </message>
 </context>
 <context>

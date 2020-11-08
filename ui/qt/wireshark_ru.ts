@@ -1358,15 +1358,15 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>compression</source>
-        <translation type="unfinished"></translation>
+        <translation>сжатие</translation>
     </message>
     <message>
         <source>None</source>
-        <translation type="unfinished">Никакой</translation>
+        <translation>Нет</translation>
     </message>
     <message>
         <source>gzip</source>
-        <translation type="unfinished"></translation>
+        <translation>gzip</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;After capturing has switched to the next file and the given number of files has exceeded, the oldest file will be removed.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -9247,8 +9247,12 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Кадр</translation>
     </message>
     <message>
+        <source>Loading</source>
+        <translation type="unfinished">Загрузка</translation>
+    </message>
+    <message>
         <source>TextLabel</source>
-        <translation>Текстовая Метка</translation>
+        <translation type="vanished">Текстовая Метка</translation>
     </message>
 </context>
 <context>
