@@ -29,9 +29,11 @@ See the “New and Updated Features” section below for more details.
 
 === New and Updated Features
 
-The following features are new (or have been significantly updated) since version 3.2.0:
+The following features are new (or have been significantly updated) since version 3.4.0:
 
-* Nothing of note.
+* Protobuf fields that are not serialized on the wire (missing in capture files) can now be displayed with default values
+  by setting the new 'add_default_value' preference. The default values might be explicitly declared in 'proto2' files,
+  or false for bools, first value for enums, zero for numeric types.
 
 // === Removed Features and Support
 

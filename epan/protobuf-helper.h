@@ -169,6 +169,51 @@ pbw_FieldDescriptor_message_type(const PbwFieldDescriptor* field);
 const PbwEnumDescriptor*
 pbw_FieldDescriptor_enum_type(const PbwFieldDescriptor* field);
 
+/* like FieldDescriptor::is_required() */
+gboolean
+pbw_FieldDescriptor_is_required(const PbwFieldDescriptor* field);
+
+/* like FieldDescriptor::has_default_value().
+ * Does this field have an explicitly-declared default value? */
+gboolean
+pbw_FieldDescriptor_has_default_value(const PbwFieldDescriptor* field);
+
+/* like FieldDescriptor::default_value_int32() */
+gint32
+pbw_FieldDescriptor_default_value_int32(const PbwFieldDescriptor* field);
+
+/* like FieldDescriptor::default_value_int64() */
+gint64
+pbw_FieldDescriptor_default_value_int64(const PbwFieldDescriptor* field);
+
+/* like FieldDescriptor::default_value_uint32() */
+guint32
+pbw_FieldDescriptor_default_value_uint32(const PbwFieldDescriptor* field);
+
+/* like FieldDescriptor::default_value_uint64() */
+guint64
+pbw_FieldDescriptor_default_value_uint64(const PbwFieldDescriptor* field);
+
+/* like FieldDescriptor::default_value_float() */
+gfloat
+pbw_FieldDescriptor_default_value_float(const PbwFieldDescriptor* field);
+
+/* like FieldDescriptor::default_value_double() */
+gdouble
+pbw_FieldDescriptor_default_value_double(const PbwFieldDescriptor* field);
+
+/* like FieldDescriptor::default_value_bool() */
+gboolean
+pbw_FieldDescriptor_default_value_bool(const PbwFieldDescriptor* field);
+
+/* like FieldDescriptor::default_value_string() */
+const gchar*
+pbw_FieldDescriptor_default_value_string(const PbwFieldDescriptor* field, int* size);
+
+/* like FieldDescriptor::default_value_enum() */
+const PbwEnumValueDescriptor*
+pbw_FieldDescriptor_default_value_enum(const PbwFieldDescriptor* field);
+
 /* like EnumDescriptor::name() */
 const char*
 pbw_EnumDescriptor_name(const PbwEnumDescriptor* anEnum);
@@ -188,6 +233,10 @@ pbw_EnumDescriptor_value(const PbwEnumDescriptor* anEnum, int value_index);
 /* like EnumDescriptor::FindValueByNumber() */
 const PbwEnumValueDescriptor*
 pbw_EnumDescriptor_FindValueByNumber(const PbwEnumDescriptor* anEnum, int number);
+
+/* like EnumDescriptor::FindValueByName() */
+const PbwEnumValueDescriptor*
+pbw_EnumDescriptor_FindValueByName(const PbwEnumDescriptor* anEnum, const gchar* name);
 
 /* like EnumValueDescriptor::name() */
 const char*

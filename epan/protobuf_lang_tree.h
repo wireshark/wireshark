@@ -88,6 +88,12 @@ typedef struct {
     GHashTable* fields_by_number;
 } pbl_message_descriptor_t;
 
+/* like google::protobuf::EnumValueDescriptor of protobuf cpp library */
+typedef struct {
+    pbl_node_t basic_info;
+    int number;
+} pbl_enum_value_descriptor_t;
+
 /* like google::protobuf::FieldDescriptor of protobuf cpp library */
 typedef struct {
     pbl_node_t basic_info;
@@ -96,6 +102,21 @@ typedef struct {
     gchar* type_name;
     pbl_node_t* options_node;
     gboolean is_repeated;
+    gboolean is_required;
+    gboolean has_default_value; /* Does this field have an explicitly-declared default value? */
+    gchar* orig_default_value;
+    int string_or_bytes_default_value_length;
+    union {
+        gint32 i32;
+        gint64 i64;
+        guint32 u32;
+        guint64 u64;
+        gfloat f;
+        gdouble d;
+        gboolean b;
+        gchar* s;
+        const pbl_enum_value_descriptor_t* e;
+    } default_value;
 } pbl_field_descriptor_t;
 
 /* like google::protobuf::EnumDescriptor of protobuf cpp library */
@@ -104,12 +125,6 @@ typedef struct {
     GSList* values;
     GHashTable* values_by_number;
 } pbl_enum_descriptor_t;
-
-/* like google::protobuf::EnumValueDescriptor of protobuf cpp library */
-typedef struct {
-    pbl_node_t basic_info;
-    int number;
-} pbl_enum_value_descriptor_t;
 
 /* Option node. The name of basic_info is optionName.
    Now, we only care about fieldOption. */
@@ -249,6 +264,51 @@ pbl_field_descriptor_message_type(const pbl_field_descriptor_t* field);
 const pbl_enum_descriptor_t*
 pbl_field_descriptor_enum_type(const pbl_field_descriptor_t* field);
 
+/* like FieldDescriptor::is_required() */
+gboolean
+pbl_field_descriptor_is_required(const pbl_field_descriptor_t* field);
+
+/* like FieldDescriptor::has_default_value().
+ * Does this field have an explicitly-declared default value? */
+gboolean
+pbl_field_descriptor_has_default_value(const pbl_field_descriptor_t* field);
+
+/* like FieldDescriptor::default_value_int32() */
+gint32
+pbl_field_descriptor_default_value_int32(const pbl_field_descriptor_t* field);
+
+/* like FieldDescriptor::default_value_int64() */
+gint64
+pbl_field_descriptor_default_value_int64(const pbl_field_descriptor_t* field);
+
+/* like FieldDescriptor::default_value_uint32() */
+guint32
+pbl_field_descriptor_default_value_uint32(const pbl_field_descriptor_t* field);
+
+/* like FieldDescriptor::default_value_uint64() */
+guint64
+pbl_field_descriptor_default_value_uint64(const pbl_field_descriptor_t* field);
+
+/* like FieldDescriptor::default_value_float() */
+gfloat
+pbl_field_descriptor_default_value_float(const pbl_field_descriptor_t* field);
+
+/* like FieldDescriptor::default_value_double() */
+gdouble
+pbl_field_descriptor_default_value_double(const pbl_field_descriptor_t* field);
+
+/* like FieldDescriptor::default_value_bool() */
+gboolean
+pbl_field_descriptor_default_value_bool(const pbl_field_descriptor_t* field);
+
+/* like FieldDescriptor::default_value_string() */
+const gchar*
+pbl_field_descriptor_default_value_string(const pbl_field_descriptor_t* field, int* size);
+
+/* like FieldDescriptor::default_value_enum() */
+const pbl_enum_value_descriptor_t*
+pbl_field_descriptor_default_value_enum(const pbl_field_descriptor_t* field);
+
 /* like EnumDescriptor::name() */
 const char*
 pbl_enum_descriptor_name(const pbl_enum_descriptor_t* anEnum);
@@ -268,6 +328,10 @@ pbl_enum_descriptor_value(const pbl_enum_descriptor_t* anEnum, int value_index);
 /* like EnumDescriptor::FindValueByNumber() */
 const pbl_enum_value_descriptor_t*
 pbl_enum_descriptor_FindValueByNumber(const pbl_enum_descriptor_t* anEnum, int number);
+
+/* like EnumDescriptor::FindValueByName() */
+const pbl_enum_value_descriptor_t*
+pbl_enum_descriptor_FindValueByName(const pbl_enum_descriptor_t* anEnum, const gchar* name);
 
 /* like EnumValueDescriptor::name() */
 const char*

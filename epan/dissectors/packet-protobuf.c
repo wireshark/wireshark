@@ -133,6 +133,8 @@ static expert_field ei_protobuf_wire_type_invalid = EI_INIT;
 static expert_field et_protobuf_message_type_not_found = EI_INIT;
 static expert_field et_protobuf_wire_type_not_support_packed_repeated = EI_INIT;
 static expert_field et_protobuf_failed_parse_packed_repeated_field = EI_INIT;
+static expert_field et_protobuf_missing_required_field = EI_INIT;
+static expert_field et_protobuf_default_value_error = EI_INIT;
 
 /* trees */
 static int ett_protobuf = -1;
@@ -148,6 +150,15 @@ static gboolean dissect_bytes_as_string = FALSE;
 static gboolean old_dissect_bytes_as_string = FALSE;
 static gboolean show_details = FALSE;
 static gboolean pbf_as_hf = FALSE; /* dissect protobuf fields as header fields of wireshark */
+
+enum add_default_value_policy_t {
+    ADD_DEFAULT_VALUE_NONE,
+    ADD_DEFAULT_VALUE_DECLARED,
+    ADD_DEFAULT_VALUE_ENUM_BOOL,
+    ADD_DEFAULT_VALUE_ALL,
+};
+
+static gint add_default_value = (gint) ADD_DEFAULT_VALUE_NONE;
 
 /* dynamic wireshark header fields for protobuf fields */
 static hf_register_info *dynamic_hf = NULL;
@@ -760,7 +771,7 @@ protobuf_try_dissect_field_value_on_multi_types(proto_tree *value_tree, tvbuff_t
 
 static guint
 dissect_one_protobuf_field(tvbuff_t *tvb, guint* offset, guint maxlen, packet_info *pinfo, proto_tree *protobuf_tree,
-    const PbwDescriptor* message_desc, gboolean is_top_level)
+    const PbwDescriptor* message_desc, gboolean is_top_level, const PbwFieldDescriptor** field_desc_ptr)
 {
     guint64 tag_value; /* tag value = (field_number << 3) | wire_type */
     guint tag_length; /* how many bytes this tag has */
@@ -812,6 +823,7 @@ dissect_one_protobuf_field(tvbuff_t *tvb, guint* offset, guint maxlen, packet_in
         /* find field descriptor according to field number from message descriptor */
         field_desc = pbw_Descriptor_FindFieldByNumber(message_desc, (int) field_number);
         if (field_desc) {
+            *field_desc_ptr = field_desc;
             field_name = pbw_FieldDescriptor_name(field_desc);
             field_type = pbw_FieldDescriptor_type(field_desc);
             is_packed_repeated = pbw_FieldDescriptor_is_packed(field_desc)
@@ -942,6 +954,278 @@ dissect_one_protobuf_field(tvbuff_t *tvb, guint* offset, guint maxlen, packet_in
     return TRUE;
 }
 
+/* Make Protobuf fields that are not serialized on the wire (missing in capture files) to be displayed
+ * with default values. In 'proto2', default values can be explicitly declared. In 'proto3', if a
+ * field is set to its default, the value will *not* be serialized on the wire.
+ *
+ * The default value will be displayed according to following situations:
+ *  1. Explicitly-declared default values in 'proto2', for example:
+ *             optional int32 result_per_page = 3 [default = 10]; // default value is 10
+ *  2. For bools, the default value is false.
+ *  3. For enums, the default value is the first defined enum value, which must be 0 in 'proto3' (but
+ *     allowed to be other in 'proto2').
+ *  4. For numeric types, the default value is zero.
+ * There are no default values for fields 'repeated' or 'bytes' and 'string' without default value declared.
+ * If the missing field is 'required' in a 'proto2' file, an expert warning item will be added to the tree.
+ *
+ * Which fields will be displayed is controlled by 'add_default_value' option:
+ *  - ADD_DEFAULT_VALUE_NONE      -- do not display any missing fields.
+ *  - ADD_DEFAULT_VALUE_DECLARED  -- only missing fields of situation (1) will be displayed.
+ *  - ADD_DEFAULT_VALUE_ENUM_BOOL -- missing fields of situantions (1, 2 and 3) will be displayed.
+ *  - ADD_DEFAULT_VALUE_ALL       -- missing fields of all situations (1, 2, 3, and 4) will be displayed.
+ */
+static void
+add_missing_fields_with_default_values(tvbuff_t* tvb, guint offset, packet_info* pinfo, proto_tree* message_tree,
+    const PbwDescriptor* message_desc, int* parsed_fields, int parsed_fields_count)
+{
+    const PbwFieldDescriptor* field_desc;
+    const gchar* field_name, * field_full_name, * enum_value_name, * string_value;
+    int field_count = pbw_Descriptor_field_count(message_desc);
+    int field_type, i, j;
+    guint64 field_number;
+    gboolean is_required;
+    gboolean is_repeated;
+    gboolean has_default_value; /* explicitly-declared default value */
+    proto_item* ti_message = proto_tree_get_parent(message_tree);
+    proto_item* ti_field, * ti_field_number, * ti_field_name, * ti_field_type, * ti_value, * ti_pbf;
+    proto_tree* field_tree, * pbf_tree;
+    int* hf_id_ptr;
+    gdouble double_value;
+    gfloat float_value;
+    gint64 int64_value;
+    gint32 int32_value;
+    guint64 uint64_value;
+    guint32 uint32_value;
+    gboolean bool_value;
+    gint size;
+    const PbwEnumValueDescriptor* enum_value_desc;
+
+    for (i = 0; i < field_count; i++) {
+        field_desc = pbw_Descriptor_field(message_desc, i);
+        field_number = (guint64) pbw_FieldDescriptor_number(field_desc);
+        field_type = pbw_FieldDescriptor_type(field_desc);
+        is_required = pbw_FieldDescriptor_is_required(field_desc);
+        is_repeated = pbw_FieldDescriptor_is_repeated(field_desc);
+        has_default_value = pbw_FieldDescriptor_has_default_value(field_desc);
+
+        if (!is_required && add_default_value == ADD_DEFAULT_VALUE_DECLARED && !has_default_value) {
+            /* ignore this field if default value is not explicitly-declared */
+            continue;
+        }
+
+        if (!is_required && add_default_value == ADD_DEFAULT_VALUE_ENUM_BOOL && !has_default_value
+            && field_type != PROTOBUF_TYPE_ENUM && field_type != PROTOBUF_TYPE_BOOL) {
+            /* ignore this field if default value is not explicitly-declared, or it is not enum or bool */
+            continue;
+        }
+
+        /* ignore repeated fields, or optional fields of message/group,
+         * or string/bytes fields without explicitly-declared default value.
+         */
+        if (is_repeated || (!is_required && (field_type == PROTOBUF_TYPE_NONE
+            || field_type == PROTOBUF_TYPE_MESSAGE
+            || field_type == PROTOBUF_TYPE_GROUP
+            || (field_type == PROTOBUF_TYPE_BYTES && !has_default_value)
+            || (field_type == PROTOBUF_TYPE_STRING && !has_default_value)
+            ))) {
+            continue;
+        }
+
+        /* check if it is parsed */
+        if (parsed_fields && parsed_fields_count > 0) {
+            for (j = 0; j < parsed_fields_count; j++) {
+                if ((guint64) parsed_fields[j] == field_number) {
+                    break;
+                }
+            }
+            if (j < parsed_fields_count) {
+                continue; /* this field is parsed */
+            }
+        }
+
+        field_name = pbw_FieldDescriptor_name(field_desc);
+
+        /* this field is not found in message payload */
+        if (is_required) {
+            expert_add_info_format(pinfo, ti_message, &et_protobuf_missing_required_field, "missing required field '%s'", field_name);
+            continue;
+        }
+
+        field_full_name = pbw_FieldDescriptor_full_name(field_desc);
+
+        /* add common tree item for this field */
+        field_tree = proto_tree_add_subtree_format(message_tree, tvb, offset, 0, ett_protobuf_field, &ti_field,
+            "Field(%" G_GUINT64_FORMAT "): %s %s", field_number, field_name, "=");
+        proto_item_set_generated(ti_field);
+
+        /* support filtering with the name, type or number of the field  */
+        ti_field_name = proto_tree_add_string(field_tree, hf_protobuf_field_name, tvb, offset, 0, field_name);
+        proto_item_set_generated(ti_field_name);
+        ti_field_type = proto_tree_add_int(field_tree, hf_protobuf_field_type, tvb, offset, 0, field_type);
+        proto_item_set_generated(ti_field_type);
+        ti_field_number = proto_tree_add_uint64_format(field_tree, hf_protobuf_field_number, tvb, offset, 0, field_number << 3, "Field Number: %" G_GUINT64_FORMAT, field_number);
+        proto_item_set_generated(ti_field_number);
+
+        hf_id_ptr = NULL;
+        if (pbf_as_hf && field_full_name) {
+            hf_id_ptr = (int*)g_hash_table_lookup(pbf_hf_hash, field_full_name);
+            DISSECTOR_ASSERT_HINT(hf_id_ptr && (*hf_id_ptr) > 0, "hf must have been initialized properly");
+        }
+
+        pbf_tree = field_tree;
+        if (pbf_as_hf && hf_id_ptr && !show_details) {
+            /* set ti_field (Field(x)) item hidden if there is header_field */
+            proto_item_set_hidden(ti_field);
+            pbf_tree = message_tree;
+        }
+
+        ti_value = ti_pbf = NULL;
+        string_value = NULL;
+        size = 0;
+
+        switch (field_type)
+        {
+        case PROTOBUF_TYPE_INT32:
+        case PROTOBUF_TYPE_SINT32:
+        case PROTOBUF_TYPE_SFIXED32:
+            int32_value = pbw_FieldDescriptor_default_value_int32(field_desc);
+            ti_value = proto_tree_add_int(field_tree, hf_protobuf_value_int32, tvb, offset, 0, int32_value);
+            proto_item_append_text(ti_field, " %d", int32_value);
+            if (hf_id_ptr) {
+                ti_pbf = proto_tree_add_int(pbf_tree, *hf_id_ptr, tvb, offset, 0, int32_value);
+            }
+            break;
+
+        case PROTOBUF_TYPE_INT64:
+        case PROTOBUF_TYPE_SINT64:
+        case PROTOBUF_TYPE_SFIXED64:
+            int64_value = pbw_FieldDescriptor_default_value_int64(field_desc);
+            ti_value = proto_tree_add_int64(field_tree, hf_protobuf_value_int64, tvb, offset, 0, int64_value);
+            proto_item_append_text(ti_field, " %" G_GINT64_MODIFIER "d", int64_value);
+            if (hf_id_ptr) {
+                ti_pbf = proto_tree_add_int64(pbf_tree, *hf_id_ptr, tvb, offset, 0, int64_value);
+            }
+            break;
+
+        case PROTOBUF_TYPE_UINT32:
+        case PROTOBUF_TYPE_FIXED32:
+            uint32_value = pbw_FieldDescriptor_default_value_uint32(field_desc);
+            ti_value = proto_tree_add_uint(field_tree, hf_protobuf_value_uint32, tvb, offset, 0, uint32_value);
+            proto_item_append_text(ti_field, " %u", uint32_value);
+            if (hf_id_ptr) {
+                ti_pbf = proto_tree_add_uint(pbf_tree, *hf_id_ptr, tvb, offset, 0, uint32_value);
+            }
+            break;
+
+        case PROTOBUF_TYPE_UINT64:
+        case PROTOBUF_TYPE_FIXED64:
+            uint64_value = pbw_FieldDescriptor_default_value_uint64(field_desc);
+            ti_value = proto_tree_add_uint64(field_tree, hf_protobuf_value_uint64, tvb, offset, 0, uint64_value);
+            proto_item_append_text(ti_field, " %" G_GINT64_MODIFIER "u", uint64_value);
+            if (hf_id_ptr) {
+                ti_pbf = proto_tree_add_uint64(pbf_tree, *hf_id_ptr, tvb, offset, 0, uint64_value);
+            }
+            break;
+
+        case PROTOBUF_TYPE_BOOL:
+            bool_value = pbw_FieldDescriptor_default_value_bool(field_desc);
+            ti_value = proto_tree_add_boolean(field_tree, hf_protobuf_value_bool, tvb, offset, 0, bool_value);
+            proto_item_append_text(ti_field, " %s", bool_value ? "true" : "false");
+            if (hf_id_ptr) {
+                ti_pbf = proto_tree_add_boolean(pbf_tree, *hf_id_ptr, tvb, offset, 0, bool_value);
+            }
+            break;
+
+        case PROTOBUF_TYPE_DOUBLE:
+            double_value = pbw_FieldDescriptor_default_value_double(field_desc);
+            ti_value = proto_tree_add_double(field_tree, hf_protobuf_value_double, tvb, offset, 0, double_value);
+            proto_item_append_text(ti_field, " %lf", double_value);
+            if (hf_id_ptr) {
+                ti_pbf = proto_tree_add_double(pbf_tree, *hf_id_ptr, tvb, offset, 0, double_value);
+            }
+            break;
+
+        case PROTOBUF_TYPE_FLOAT:
+            float_value = pbw_FieldDescriptor_default_value_float(field_desc);
+            ti_value = proto_tree_add_float(field_tree, hf_protobuf_value_float, tvb, offset, 0, float_value);
+            proto_item_append_text(ti_field, " %f", float_value);
+            if (hf_id_ptr) {
+                ti_pbf = proto_tree_add_float(pbf_tree, *hf_id_ptr, tvb, offset, 0, float_value);
+            }
+            break;
+
+        case PROTOBUF_TYPE_BYTES:
+            string_value = pbw_FieldDescriptor_default_value_string(field_desc, &size);
+            DISSECTOR_ASSERT_HINT(has_default_value && string_value, "Bytes field must have default value!");
+            if (!dissect_bytes_as_string) {
+                ti_value = proto_tree_add_bytes_with_length(field_tree, hf_protobuf_value_data, tvb, offset, 0, (const guint8*) string_value, size);
+                proto_item_append_text(ti_field, " (%d bytes)", size);
+                /* the type of *hf_id_ptr MUST be FT_BYTES now */
+                if (hf_id_ptr) {
+                    ti_pbf = proto_tree_add_bytes_with_length(pbf_tree, *hf_id_ptr, tvb, offset, 0, (const guint8*)string_value, size);
+                }
+                break;
+            }
+            /* or continue dissect BYTES as STRING */
+            /* FALLTHROUGH */
+        case PROTOBUF_TYPE_STRING:
+            if (string_value == NULL) {
+                string_value = pbw_FieldDescriptor_default_value_string(field_desc, &size);
+            }
+            DISSECTOR_ASSERT_HINT(has_default_value && string_value, "String field must have default value!");
+            ti_value = proto_tree_add_string(field_tree, hf_protobuf_value_string, tvb, offset, 0, string_value);
+            proto_item_append_text(ti_field, " %s", string_value);
+            if (hf_id_ptr) {
+                ti_pbf = proto_tree_add_string(pbf_tree, *hf_id_ptr, tvb, offset, 0, string_value);
+            }
+            break;
+
+        case PROTOBUF_TYPE_ENUM:
+            enum_value_desc = pbw_FieldDescriptor_default_value_enum(field_desc);
+            if (enum_value_desc) {
+                int32_value = pbw_EnumValueDescriptor_number(enum_value_desc);
+                enum_value_name = pbw_EnumValueDescriptor_name(enum_value_desc);
+                ti_value = proto_tree_add_int(field_tree, hf_protobuf_value_int32, tvb, offset, 0, int32_value);
+                if (enum_value_name) { /* show enum value name */
+                    proto_item_append_text(ti_field, " %s(%d)", enum_value_name, int32_value);
+                    proto_item_append_text(ti_value, " (%s)", enum_value_name);
+                } else {
+                    proto_item_append_text(ti_field, " %d", int32_value);
+                }
+                if (hf_id_ptr) {
+                    ti_pbf = proto_tree_add_int(pbf_tree, *hf_id_ptr, tvb, offset, 0, int32_value);
+                }
+                break;
+            } else {
+                expert_add_info_format(pinfo, ti_message, &et_protobuf_default_value_error, "enum value of field '%s' not found in *.proto!", field_name);
+            }
+            break;
+
+        default:
+            /* should not get here */
+            break;
+        }
+
+        proto_item_append_text(ti_field, " (%s)", val_to_str(field_type, protobuf_field_type, "Unknown type (%d)"));
+
+        if (ti_value) {
+            proto_item_set_generated(ti_value);
+        }
+        if (ti_pbf) {
+            proto_item_set_generated(ti_pbf);
+        }
+
+        if (!show_details) {
+            proto_item_set_hidden(ti_field_name);
+            proto_item_set_hidden(ti_field_type);
+            proto_item_set_hidden(ti_field_number);
+            if (ti_value && (field_type != PROTOBUF_TYPE_BYTES || dissect_bytes_as_string)) {
+                proto_item_set_hidden(ti_value);
+            }
+        }
+    }
+}
+
 static void
 dissect_protobuf_message(tvbuff_t *tvb, guint offset, guint length, packet_info *pinfo, proto_tree *protobuf_tree,
     const PbwDescriptor* message_desc, gboolean is_top_level)
@@ -950,9 +1234,17 @@ dissect_protobuf_message(tvbuff_t *tvb, guint offset, guint length, packet_info 
     proto_item *ti_message, *ti;
     const gchar* message_name = "<UNKNOWN> Message Type";
     guint max_offset = offset + length;
+    const PbwFieldDescriptor* field_desc;
+    int* parsed_fields = NULL; /* store parsed field numbers. end with NULL */
+    int parsed_fields_count = 0;
+    int field_count = 0;
 
     if (message_desc) {
         message_name = pbw_Descriptor_full_name(message_desc);
+        field_count = pbw_Descriptor_field_count(message_desc);
+        if (add_default_value && field_count > 0) {
+            parsed_fields = wmem_alloc0_array(wmem_packet_scope(), int, field_count);
+        }
     }
 
     if (pbf_as_hf && message_desc) {
@@ -995,8 +1287,22 @@ dissect_protobuf_message(tvbuff_t *tvb, guint offset, guint length, packet_info 
     /* each time we dissect one protobuf field. */
     while (offset < max_offset)
     {
-        if (!dissect_one_protobuf_field(tvb, &offset, max_offset - offset, pinfo, message_tree, message_desc, is_top_level))
+        field_desc = NULL;
+        if (!dissect_one_protobuf_field(tvb, &offset, max_offset - offset, pinfo, message_tree, message_desc, is_top_level, &field_desc))
             break;
+
+        if (parsed_fields && field_desc) {
+            parsed_fields[parsed_fields_count++] = pbw_FieldDescriptor_number(field_desc);
+        }
+    }
+
+    /* add default values for missing fields */
+    if (add_default_value && field_count > 0) {
+        add_missing_fields_with_default_values(tvb, offset, pinfo, message_tree, message_desc, parsed_fields, parsed_fields_count);
+    }
+
+    if (parsed_fields) {
+        wmem_free(wmem_packet_scope(), parsed_fields);
     }
 }
 
@@ -1602,6 +1908,22 @@ proto_register_protobuf(void)
           { "protobuf.field.failed_parse_packed_repeated_field", PI_MALFORMED, PI_ERROR,
             "Failed to parse packed repeated field", EXPFILL }
         },
+        { &et_protobuf_missing_required_field,
+          { "protobuf.message.missing_required_field", PI_PROTOCOL, PI_WARN,
+            "The required field is not found in message payload", EXPFILL }
+        },
+        { &et_protobuf_default_value_error,
+          { "protobuf.message.default_value_error", PI_PROTOCOL, PI_WARN,
+            "Parsing default value of a field error", EXPFILL }
+        },
+    };
+
+    static const enum_val_t add_default_value_policy_vals[] = {
+        {"none", "None", ADD_DEFAULT_VALUE_NONE},
+        {"decl", "Only Explicitly-Declared (proto2)", ADD_DEFAULT_VALUE_DECLARED},
+        {"enbl", "Explicitly-Declared, ENUM and BOOL", ADD_DEFAULT_VALUE_ENUM_BOOL},
+        {"all",  "All", ADD_DEFAULT_VALUE_ALL},
+        {NULL, NULL, -1}
     };
 
     module_t *protobuf_module;
@@ -1669,6 +1991,18 @@ proto_register_protobuf(void)
         "Show all fields of bytes type as string.",
         "Show all fields of bytes type as string. For example ETCD string",
         &dissect_bytes_as_string);
+
+    prefs_register_enum_preference(protobuf_module, "add_default_value",
+        "Add missing fields with default values.",
+        "Make Protobuf fields that are not serialized on the wire to be displayed with default values.\n"
+        "The default value will be one of the following: \n"
+        "  1) The value of the 'default' option of an optional field defined in 'proto2' file. (explicitly-declared)\n"
+        "  2) False for bools.\n"
+        "  3) First defined enum value for enums.\n"
+        "  4) Zero for numeric types.\n"
+        "There are no default values for fields 'repeated' or 'bytes' and 'string' without default value declared.\n"
+        "If the missing field is 'required' in a 'proto2' file, a warning item will be added to the tree.",
+        &add_default_value, add_default_value_policy_vals, FALSE);
 
     protobuf_udp_message_types_uat = uat_new("Protobuf UDP Message Types",
         sizeof(protobuf_udp_message_type_t),
