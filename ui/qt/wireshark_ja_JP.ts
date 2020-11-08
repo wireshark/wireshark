@@ -9184,8 +9184,12 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>フレーム</translation>
     </message>
     <message>
+        <source>Loading</source>
+        <translation type="unfinished">ロード中</translation>
+    </message>
+    <message>
         <source>TextLabel</source>
-        <translation>テキストラベル</translation>
+        <translation type="vanished">テキストラベル</translation>
     </message>
 </context>
 <context>

@@ -9208,8 +9208,12 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <translation>Frame</translation>
     </message>
     <message>
+        <source>Loading</source>
+        <translation type="unfinished">Laden</translation>
+    </message>
+    <message>
         <source>TextLabel</source>
-        <translation>Textbeschriftung</translation>
+        <translation type="vanished">Textbeschriftung</translation>
     </message>
 </context>
 <context>

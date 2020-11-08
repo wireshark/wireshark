@@ -9098,7 +9098,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
         <translation type="unfinished">Trama</translation>
     </message>
     <message>
-        <source>TextLabel</source>
+        <source>Loading</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

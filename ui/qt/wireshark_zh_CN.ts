@@ -9130,8 +9130,8 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>帧</translation>
     </message>
     <message>
-        <source>TextLabel</source>
-        <translation type="unfinished"> 文本标签 </translation>
+        <source>Loading</source>
+        <translation type="unfinished">正在载入</translation>
     </message>
 </context>
 <context>

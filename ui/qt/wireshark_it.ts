@@ -9208,8 +9208,12 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Frame</translation>
     </message>
     <message>
+        <source>Loading</source>
+        <translation type="unfinished">Caricamento in corso</translation>
+    </message>
+    <message>
         <source>TextLabel</source>
-        <translation>EtichettaTesto</translation>
+        <translation type="vanished">EtichettaTesto</translation>
     </message>
 </context>
 <context>

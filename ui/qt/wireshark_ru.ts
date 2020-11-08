@@ -9235,8 +9235,12 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Кадр</translation>
     </message>
     <message>
+        <source>Loading</source>
+        <translation type="unfinished">Загрузка</translation>
+    </message>
+    <message>
         <source>TextLabel</source>
-        <translation>Текстовая Метка</translation>
+        <translation type="vanished">Текстовая Метка</translation>
     </message>
 </context>
 <context>

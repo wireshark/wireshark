@@ -9165,8 +9165,8 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Ramka</translation>
     </message>
     <message>
-        <source>TextLabel</source>
-        <translation type="unfinished">TekstEtykiety</translation>
+        <source>Loading</source>
+        <translation type="unfinished">Wczytywanie</translation>
     </message>
 </context>
 <context>

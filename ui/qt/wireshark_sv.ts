@@ -9156,8 +9156,12 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>Ram</translation>
     </message>
     <message>
+        <source>Loading</source>
+        <translation type="unfinished">Läser in</translation>
+    </message>
+    <message>
         <source>TextLabel</source>
-        <translation>TextEtikett</translation>
+        <translation type="vanished">TextEtikett</translation>
     </message>
 </context>
 <context>

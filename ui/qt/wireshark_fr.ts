@@ -9157,8 +9157,8 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
         <translation>Trame</translation>
     </message>
     <message>
-        <source>TextLabel</source>
-        <translation type="unfinished"></translation>
+        <source>Loading</source>
+        <translation type="unfinished">Chargement</translation>
     </message>
 </context>
 <context>
