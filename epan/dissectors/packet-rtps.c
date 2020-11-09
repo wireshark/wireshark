@@ -1911,6 +1911,8 @@ void rtps_util_add_coherent_set_general_cases_case(
       register_entry);
   }
 
+  // The hash and compare functions treat the key as a sequence of bytes.
+  memset(&coherent_set_info_key, 0, sizeof(coherent_set_info_key));
   coherent_set_info_key.guid = coherent_set_entity_info_object->guid;
   coherent_set_info_key.coherent_set_seq_number = coherent_seq_number;
   coherent_set_info_entry = (coherent_set_info*)wmem_map_lookup(coherent_set_tracking.coherent_set_registry_map,
@@ -1990,6 +1992,8 @@ void rtps_util_detect_coherent_set_end_empty_data_case(
     coherent_set_info *coherent_set_info_entry;
     coherent_set_key key;
 
+    // The hash and compare functions treat the key as a sequence of bytes.
+    memset(&key, 0, sizeof(key));
     key.guid = coherent_set_entity_info_object->guid;
     key.coherent_set_seq_number = coherent_set_entry->coherent_set_seq_number;
 
@@ -4318,22 +4322,16 @@ static guint hash_by_guid(gconstpointer key) {
   return g_int_hash(&(guid->app_id));
 }
 
-static gboolean compare_by_guid(gconstpointer a, gconstpointer b) {
-  const endpoint_guid * guid_a = (const endpoint_guid *) a;
-  const endpoint_guid * guid_b = (const endpoint_guid *) b;
+static gboolean compare_by_guid(gconstpointer guid_a, gconstpointer guid_b) {
   return memcmp(guid_a, guid_b, sizeof(endpoint_guid)) == 0;
 }
 
 static guint coherent_set_key_hash_by_key(gconstpointer key) {
-  GBytes * coherent_set_object_key_bytes = NULL;
-  coherent_set_object_key_bytes = g_bytes_new(key, sizeof(coherent_set_key));
-  return g_bytes_hash(coherent_set_object_key_bytes);
+  return wmem_strong_hash((const guint8 *)key, sizeof(coherent_set_key));
 }
 
-static gboolean compare_by_coherent_set_key(gconstpointer a, gconstpointer b) {
-  const coherent_set_key * guid_a = (const coherent_set_key *)a;
-  const coherent_set_key * guid_b = (const coherent_set_key *)b;
-  return memcmp(guid_a, guid_b, sizeof(coherent_set_key)) == 0;
+static gboolean compare_by_coherent_set_key(gconstpointer key_a, gconstpointer key_b) {
+  return memcmp(key_a, key_b, sizeof(coherent_set_key)) == 0;
 }
 
 static type_mapping * rtps_util_get_topic_info(endpoint_guid * guid) {
