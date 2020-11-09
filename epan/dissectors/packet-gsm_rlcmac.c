@@ -9660,7 +9660,7 @@ dissect_egprs_ul_data_block(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   /* the next fields are present according to earlier flags */
   if (tlli_i)
   {
-    proto_tree_add_bits_item(data_tree, hf_tlli, tvb, offset * 8, 32, ENC_BIG_ENDIAN);
+    proto_tree_add_item(data_tree, hf_tlli, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
   }
   if (egprs_ul_header_info->pi)
