@@ -264,9 +264,9 @@ dissect_bt_dht_values(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint
   {
     string_len = bencoded_string_length(tvb, &offset);
 
-    /* 4 bytes ip, 2 bytes port */
-    for( ; string_len>=6; string_len-=6, offset+=6 )
+    if (string_len == 6)
     {
+      /* 4 bytes ip, 2 bytes port */
       peer_index += 1;
 
       value_ti = proto_tree_add_item( sub_tree, hf_bt_dht_peer, tvb, offset, 6, ENC_NA );
@@ -277,14 +277,28 @@ dissect_bt_dht_values(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint
       proto_item_append_text(value_ti, " (IP/Port: %s", tvb_ip_to_str(tvb, offset));
       proto_tree_add_item( value_tree, hf_port, tvb, offset+4, 2, ENC_BIG_ENDIAN);
       proto_item_append_text(value_ti, ":%u)", tvb_get_ntohs( tvb, offset+4 ));
-
     }
-    /* truncated data */
-    if( string_len>0 )
+    else if (string_len == 18)
     {
-      proto_tree_add_item( tree, hf_truncated_data, tvb, offset, string_len, ENC_NA );
-      offset += string_len;
+      /* 16 bytes ip, 2 bytes port */
+      peer_index += 1;
+
+      value_ti = proto_tree_add_item( sub_tree, hf_bt_dht_peer, tvb, offset, 18, ENC_NA );
+      proto_item_append_text(value_ti, " %d", peer_index);
+      value_tree = proto_item_add_subtree( value_ti, ett_bt_dht_peers);
+
+      proto_tree_add_item( value_tree, hf_ip6, tvb, offset, 16, ENC_NA);
+      proto_item_append_text(value_ti, " (IPv6/Port: [%s]", tvb_ip6_to_str(tvb, offset));
+      proto_tree_add_item( value_tree, hf_port, tvb, offset+16, 2, ENC_BIG_ENDIAN);
+      proto_item_append_text(value_ti, ":%u)", tvb_get_ntohs( tvb, offset+16 ));
     }
+    else
+    {
+      /* truncated data */
+      proto_tree_add_item( tree, hf_truncated_data, tvb, offset, string_len, ENC_NA );
+    }
+
+    offset += string_len;
   }
 
   if (tvb_get_guint8(tvb,offset)=='e') { /* list ending delimiter */
@@ -293,7 +307,7 @@ dissect_bt_dht_values(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint
   }
 
   proto_item_set_text( ti, "%s: %d peers", label, peer_index );
-  col_append_fstr( pinfo->cinfo, COL_INFO, "reply=%d peers ", peer_index );
+  col_append_fstr( pinfo->cinfo, COL_INFO, " reply=%d peers", peer_index );
   *result = wmem_strdup_printf(wmem_packet_scope(), "%d peers", peer_index);
 
   return offset;
@@ -361,7 +375,7 @@ dissect_bt_dht_nodes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint 
     offset += string_len;
   }
   proto_item_set_text( ti, "%s: %d nodes", label, node_index );
-  col_append_fstr( pinfo->cinfo, COL_INFO, " reply=%d nodes ", node_index );
+  col_append_fstr( pinfo->cinfo, COL_INFO, " reply=%d nodes", node_index );
   *result = wmem_strdup_printf(wmem_packet_scope(), "%d", node_index);
 
   return offset;
