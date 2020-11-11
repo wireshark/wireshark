@@ -7535,8 +7535,11 @@ ssl_dissect_hnd_hello_ext_quic_transport_parameters(ssl_common_dissect_t *hf, tv
                 offset += len;
             break;
             case SSL_HND_QUIC_TP_LOSS_BITS:
-                proto_tree_add_item(parameter_tree, hf->hf.hs_ext_quictp_parameter_loss_bits,
-                                    tvb, offset, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item_ret_varint(parameter_tree, hf->hf.hs_ext_quictp_parameter_loss_bits,
+                                               tvb, offset, -1, ENC_VARINT_QUIC, &value, &len);
+                if (len > 0) {
+                    quic_add_loss_bits(pinfo, value);
+                }
                 offset += 1;
             break;
             case SSL_HND_QUIC_TP_MIN_ACK_DELAY:
