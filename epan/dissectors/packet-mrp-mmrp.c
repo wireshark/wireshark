@@ -313,7 +313,7 @@ dissect_mmrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
                                         MMRP_FIRST_VALUE_GROUP_OFFSET + msg_offset + vect_offset,
                                         attribute_length, ENC_NA);
                     offset = dissect_mmrp_three_packed_event(vect_attr_tree, tvb,
-                                                             MMRP_MAC_THREE_PACKED_OFFSET + msg_offset + vect_offset,
+                                                             MMRP_SERVICE_THREE_PACKED_OFFSET + msg_offset + vect_offset,
                                                              number_of_values);
 
                 }
