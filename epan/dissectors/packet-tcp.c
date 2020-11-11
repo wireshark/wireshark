@@ -122,6 +122,7 @@ static int proto_tcp_option_cc = -1;
 static int proto_tcp_option_cc_new = -1;
 static int proto_tcp_option_cc_echo = -1;
 static int proto_tcp_option_md5 = -1;
+static int proto_tcp_option_ao = -1;
 static int proto_tcp_option_scps = -1;
 static int proto_tcp_option_snack = -1;
 static int proto_tcp_option_scpsrec = -1;
@@ -208,6 +209,9 @@ static int hf_tcp_option_timestamp_tsval = -1;
 static int hf_tcp_option_timestamp_tsecr = -1;
 static int hf_tcp_option_cc = -1;
 static int hf_tcp_option_md5_digest = -1;
+static int hf_tcp_option_ao_keyid = -1;
+static int hf_tcp_option_ao_rnextkeyid = -1;
+static int hf_tcp_option_ao_mac = -1;
 static int hf_tcp_option_qs_rate = -1;
 static int hf_tcp_option_qs_ttl_diff = -1;
 static int hf_tcp_option_exp_data = -1;
@@ -360,6 +364,7 @@ static gint ett_tcp_opt_rvbd_trpy_flags = -1;
 static gint ett_tcp_opt_echo = -1;
 static gint ett_tcp_opt_cc = -1;
 static gint ett_tcp_opt_md5 = -1;
+static gint ett_tcp_opt_ao = -1;
 static gint ett_tcp_opt_qs = -1;
 static gint ett_tcp_opt_recbound = -1;
 static gint ett_tcp_opt_scpscor = -1;
@@ -458,6 +463,7 @@ static gboolean tcp_display_process_info = FALSE;
 #define TCPOPT_CORREXP          23      /* SCPS Corruption Experienced */
 #define TCPOPT_QS               27      /* RFC4782 Quick-Start Response */
 #define TCPOPT_USER_TO          28      /* RFC5482 User Timeout Option */
+#define TCPOPT_AO               29      /* RFC5925 The TCP Authentication Option */
 #define TCPOPT_MPTCP            30      /* RFC6824 Multipath TCP */
 #define TCPOPT_TFO              34      /* RFC7413 TCP Fast Open Cookie */
 #define TCPOPT_EXP_FD           0xfd    /* Experimental, reserved */
@@ -538,7 +544,7 @@ static const value_string tcp_option_kind_vs[] = {
     { 26, "TCP Compression Filter" },
     { TCPOPT_QS, "Quick-Start Response" },
     { TCPOPT_USER_TO, "User Timeout Option" },
-    { 29, "TCP Authentication Option" },
+    { TCPOPT_AO, "The TCP Authentication Option" },
     { TCPOPT_MPTCP, "Multipath TCP" },
     { TCPOPT_TFO, "TCP Fast Open Cookie" },
     { TCPOPT_RVBD_PROBE, "Riverbed Probe" },
@@ -4978,6 +4984,42 @@ dissect_tcpopt_md5(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 }
 
 static int
+dissect_tcpopt_ao(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+{
+    proto_tree *field_tree;
+    proto_item *item;
+    proto_item *length_item;
+    int offset = 0, optlen = tvb_reported_length(tvb);
+
+    item = proto_tree_add_item(tree, proto_tcp_option_ao, tvb, offset, -1, ENC_NA);
+    field_tree = proto_item_add_subtree(item, ett_tcp_opt_ao);
+
+    col_append_lstr(pinfo->cinfo, COL_INFO, "TCP AO", COL_ADD_LSTR_TERMINATOR);
+    proto_tree_add_item(field_tree, hf_tcp_option_kind, tvb,
+                        offset, 1, ENC_BIG_ENDIAN);
+    length_item = proto_tree_add_item(field_tree, hf_tcp_option_len, tvb,
+                                      offset + 1, 1, ENC_BIG_ENDIAN);
+
+    if (optlen < 4) {
+        expert_add_info_format(pinfo, length_item, &ei_tcp_opt_len_invalid,
+                               "option length should be >= than 4");
+        return tvb_captured_length(tvb);
+    }
+
+    proto_tree_add_item(field_tree, hf_tcp_option_ao_keyid, tvb,
+                        offset + 2, 1, ENC_NA);
+
+    proto_tree_add_item(field_tree, hf_tcp_option_ao_rnextkeyid, tvb,
+                        offset + 3, 1, ENC_NA);
+
+    if (optlen > 4)
+        proto_tree_add_item(field_tree, hf_tcp_option_ao_mac, tvb,
+                            offset + 4, optlen - 4, ENC_NA);
+
+    return tvb_captured_length(tvb);
+}
+
+static int
 dissect_tcpopt_qs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_tree *field_tree;
@@ -7387,6 +7429,18 @@ proto_register_tcp(void)
           { "MD5 digest", "tcp.options.md5.digest", FT_BYTES, BASE_NONE,
             NULL, 0x0, NULL, HFILL}},
 
+        { &hf_tcp_option_ao_keyid,
+          { "AO KeyID", "tcp.options.ao.keyid", FT_UINT8, BASE_DEC,
+            NULL, 0x0, NULL, HFILL}},
+
+        { &hf_tcp_option_ao_rnextkeyid,
+          { "AO RNextKeyID", "tcp.options.ao.rnextkeyid", FT_UINT8, BASE_DEC,
+            NULL, 0x0, NULL, HFILL}},
+
+        { &hf_tcp_option_ao_mac,
+          { "AO MAC", "tcp.options.ao.mac", FT_BYTES, BASE_NONE,
+            NULL, 0x0, NULL, HFILL}},
+
         { &hf_tcp_option_qs_rate,
           { "QS Rate", "tcp.options.qs.rate", FT_UINT8, BASE_DEC|BASE_EXT_STRING,
             &qs_rate_vals_ext, 0x0F, NULL, HFILL}},
@@ -7714,6 +7768,7 @@ proto_register_tcp(void)
         &ett_tcp_opt_echo,
         &ett_tcp_opt_cc,
         &ett_tcp_opt_md5,
+        &ett_tcp_opt_ao,
         &ett_tcp_opt_qs,
         &ett_tcp_analysis_faults,
         &ett_tcp_analysis,
@@ -7913,6 +7968,7 @@ proto_register_tcp(void)
     proto_tcp_option_cc = proto_register_protocol_in_name_only("TCP Option - CC", "CC", "tcp.options.cc", proto_tcp, FT_BYTES);
     proto_tcp_option_cc_new = proto_register_protocol_in_name_only("TCP Option - CC.NEW", "CC.NEW", "tcp.options.ccnew", proto_tcp, FT_BYTES);
     proto_tcp_option_cc_echo = proto_register_protocol_in_name_only("TCP Option - CC.ECHO", "CC.ECHO", "tcp.options.ccecho", proto_tcp, FT_BYTES);
+    proto_tcp_option_ao = proto_register_protocol_in_name_only("TCP Option - TCP AO", "TCP AO", "tcp.options.ao", proto_tcp, FT_BYTES);
     proto_tcp_option_md5 = proto_register_protocol_in_name_only("TCP Option - TCP MD5 signature", "TCP MD5 signature", "tcp.options.md5", proto_tcp, FT_BYTES);
     proto_tcp_option_scps = proto_register_protocol_in_name_only("TCP Option - SCPS capabilities", "SCPS capabilities", "tcp.options.scps", proto_tcp, FT_BYTES);
     proto_tcp_option_snack = proto_register_protocol_in_name_only("TCP Option - Selective Negative Acknowledgment", "Selective Negative Acknowledgment", "tcp.options.snack", proto_tcp, FT_BYTES);
@@ -8078,6 +8134,7 @@ proto_reg_handoff_tcp(void)
     dissector_add_uint("tcp.option", TCPOPT_CCNEW, create_dissector_handle( dissect_tcpopt_cc, proto_tcp_option_cc_new ));
     dissector_add_uint("tcp.option", TCPOPT_CCECHO, create_dissector_handle( dissect_tcpopt_cc, proto_tcp_option_cc_echo ));
     dissector_add_uint("tcp.option", TCPOPT_MD5, create_dissector_handle( dissect_tcpopt_md5, proto_tcp_option_md5 ));
+    dissector_add_uint("tcp.option", TCPOPT_AO, create_dissector_handle( dissect_tcpopt_ao, proto_tcp_option_ao ));
     dissector_add_uint("tcp.option", TCPOPT_SCPS, create_dissector_handle( dissect_tcpopt_scps, proto_tcp_option_scps ));
     dissector_add_uint("tcp.option", TCPOPT_SNACK, create_dissector_handle( dissect_tcpopt_snack, proto_tcp_option_snack ));
     dissector_add_uint("tcp.option", TCPOPT_RECBOUND, create_dissector_handle( dissect_tcpopt_recbound, proto_tcp_option_scpsrec ));
