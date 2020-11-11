@@ -1006,9 +1006,11 @@ static const value_string smb2_comp_transform_flags_vals[] = {
 
 #define SMB2_RDMA_TRANSFORM_NONE       0x0000
 #define SMB2_RDMA_TRANSFORM_ENCRYPTION 0x0001
+#define SMB2_RDMA_TRANSFORM_SIGNING    0x0002
 static const value_string smb2_rdma_transform_types[] = {
 	{ SMB2_RDMA_TRANSFORM_NONE, "None" },
 	{ SMB2_RDMA_TRANSFORM_ENCRYPTION, "Encryption" },
+	{ SMB2_RDMA_TRANSFORM_SIGNING, "Signing" },
 	{ 0, NULL }
 };
 
@@ -6427,11 +6429,13 @@ clean_up_and_exit:
 #define SMB2_CHANNEL_NONE		0x00000000
 #define SMB2_CHANNEL_RDMA_V1		0x00000001
 #define SMB2_CHANNEL_RDMA_V1_INVALIDATE	0x00000002
+#define SMB2_CHANNEL_RDMA_TRANSFORM	0x00000003
 
 static const value_string smb2_channel_vals[] = {
 	{ SMB2_CHANNEL_NONE,	"None" },
 	{ SMB2_CHANNEL_RDMA_V1,	"RDMA V1" },
 	{ SMB2_CHANNEL_RDMA_V1_INVALIDATE,	"RDMA V1_INVALIDATE" },
+	{ SMB2_CHANNEL_RDMA_TRANSFORM,	"RDMA TRANSFORM" },
 	{ 0, NULL }
 };
 
