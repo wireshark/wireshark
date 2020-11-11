@@ -75,6 +75,8 @@ dissect_gquic_tags(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ft_tree, guint
 
 void
 quic_add_connection(packet_info *pinfo, const quic_cid_t *cid);
+void
+quic_add_loss_bits(packet_info *pinfo, guint64 value);
 
 #ifdef __cplusplus
 }

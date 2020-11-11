@@ -86,6 +86,8 @@ static int hf_quic_short = -1;
 static int hf_quic_fixed_bit = -1;
 static int hf_quic_spin_bit = -1;
 static int hf_quic_short_reserved = -1;
+static int hf_quic_q_bit = -1;
+static int hf_quic_l_bit = -1;
 static int hf_quic_key_phase = -1;
 static int hf_quic_payload = -1;
 static int hf_quic_protected_payload = -1;
@@ -239,6 +241,22 @@ static const fragment_items quic_stream_fragment_items = {
  * - 5 payload protection ciphers: initial, 0-RTT, HS, 1-RTT (KP0), 1-RTT (KP1).
  */
 
+/* Loss bits feature: https://tools.ietf.org/html/draft-ferrieuxhamchaoui-quic-lossbits-03
+   "The use of the loss bits is negotiated using a transport parameter.
+    [..]
+    When loss_bits parameter is present, the peer is allowed to use
+    reserved bits in the short packet header as loss bits if the peer
+    sends loss_bits=1.
+    When loss_bits is set to 1, the sender will use reserved bits as loss
+    bits if the peer includes the loss_bits transport parameter.
+    [..]
+    Unlike the reserved (R) bits, the loss (Q and L) bits are not
+    protected.  When sending loss bits has been negotiated, the first
+    byte of the header protection mask used to protect short packet
+    headers has its five most significant bits masked out instead of
+    three.
+*/
+
 typedef struct quic_decrypt_result {
     const guchar   *error;      /**< Error message or NULL for success. */
     const guint8   *data;       /**< Decrypted result on success (file-scoped). */
@@ -302,6 +320,10 @@ typedef struct quic_info_data {
     guint16         server_port;
     gboolean        skip_decryption : 1; /**< Set to 1 if no keys are available. */
     gboolean        client_dcid_set : 1; /**< Set to 1 if client_dcid_initial is set. */
+    gboolean        client_loss_bits_recv : 1; /**< The client is able to read loss bits info */
+    gboolean        client_loss_bits_send : 1; /**< The client wants to send loss bits info */
+    gboolean        server_loss_bits_recv : 1; /**< The server is able to read loss bits info */
+    gboolean        server_loss_bits_send : 1; /**< The server wants to send loss bits info */
     int             hash_algo;      /**< Libgcrypt hash algorithm for key derivation. */
     int             cipher_algo;    /**< Cipher algorithm for packet number and packet encryption. */
     int             cipher_mode;    /**< Cipher mode for packet encryption. */
@@ -627,10 +649,12 @@ static guint64 quic_pkt_adjust_pkt_num(guint64 max_pkt_num, guint64 pkt_num,
 /**
  * Given a header protection cipher, a buffer and the packet number offset,
  * return the unmasked first byte and packet number.
+ * If the loss bits feature is enabled, the protected bits in the first byte
+ * are fewer than usual: 3 instead of 5 (on short headers only)
  */
 static gboolean
 quic_decrypt_header(tvbuff_t *tvb, guint pn_offset, quic_hp_cipher *hp_cipher, int hp_cipher_algo,
-                    guint8 *first_byte, guint32 *pn)
+                    guint8 *first_byte, guint32 *pn, gboolean loss_bits_negotiated)
 {
     if (!hp_cipher->hp_cipher) {
         // need to know the cipher.
@@ -676,8 +700,14 @@ quic_decrypt_header(tvbuff_t *tvb, guint pn_offset, quic_hp_cipher *hp_cipher, i
         // Long header: 4 bits masked
         packet0 ^= mask[0] & 0x0f;
     } else {
-        // Short header: 5 bits masked
-        packet0 ^= mask[0] & 0x1f;
+        // Short header
+        if (loss_bits_negotiated == FALSE) {
+            // Standard mask: 5 bits masked
+            packet0 ^= mask[0] & 0x1F;
+        } else {
+            // https://tools.ietf.org/html/draft-ferrieuxhamchaoui-quic-lossbits-03#section-5.3
+            packet0 ^= mask[0] & 0x07;
+        }
     }
     guint pkn_len = (packet0 & 0x03) + 1;
 
@@ -2608,12 +2638,35 @@ quic_add_connection(packet_info *pinfo, const quic_cid_t *cid)
 
     dgram_info = (quic_datagram *)p_get_proto_data(wmem_file_scope(), pinfo, proto_quic, 0);
     if (dgram_info && dgram_info->conn) {
-      quic_connection_add_cid(dgram_info->conn, cid, dgram_info->from_server);
+        quic_connection_add_cid(dgram_info->conn, cid, dgram_info->from_server);
     }
 #else
     (void)pinfo;
     (void)cid;
 #endif /* HAVE_LIBGCRYPT_AEAD */
+}
+
+void
+quic_add_loss_bits(packet_info *pinfo, guint64 value)
+{
+    quic_datagram *dgram_info;
+    quic_info_data_t *conn;
+
+    dgram_info = (quic_datagram *)p_get_proto_data(wmem_file_scope(), pinfo, proto_quic, 0);
+    if (dgram_info && dgram_info->conn) {
+        conn = dgram_info->conn;
+        if (dgram_info->from_server) {
+            conn->server_loss_bits_recv = TRUE;
+            if (value == 1) {
+                conn->server_loss_bits_send = TRUE;
+            }
+        } else {
+            conn->client_loss_bits_recv = TRUE;
+            if (value == 1) {
+                conn->client_loss_bits_send = TRUE;
+            }
+        }
+    }
 }
 
 static void
@@ -2826,13 +2879,13 @@ dissect_quic_long_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tre
             // Assume failure unless proven otherwise.
             error = "Header deprotection failed";
             if (long_packet_type != QUIC_LPT_0RTT) {
-                if (quic_decrypt_header(tvb, pn_offset, &ciphers->hp_cipher, hp_cipher_algo, &first_byte, &pkn32)) {
+                if (quic_decrypt_header(tvb, pn_offset, &ciphers->hp_cipher, hp_cipher_algo, &first_byte, &pkn32, FALSE)) {
                     error = NULL;
                 }
             } else {
                 // Cipher is not stored with 0-RTT data or key, perform trial decryption.
                 for (guint i = 0; quic_create_0rtt_decoder(i, early_data_secret, early_data_secret_len, ciphers, &hp_cipher_algo); i++) {
-                    if (quic_is_hp_cipher_initialized(&ciphers->hp_cipher) && quic_decrypt_header(tvb, pn_offset, &ciphers->hp_cipher, hp_cipher_algo, &first_byte, &pkn32)) {
+                    if (quic_is_hp_cipher_initialized(&ciphers->hp_cipher) && quic_decrypt_header(tvb, pn_offset, &ciphers->hp_cipher, hp_cipher_algo, &first_byte, &pkn32, FALSE)) {
                         error = NULL;
                         break;
                     }
@@ -2916,6 +2969,17 @@ dissect_quic_long_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tre
     return offset;
 }
 
+/* Check if "loss bits" feature has been negotiated */
+static gboolean
+quic_loss_bits_negotiated(quic_info_data_t *conn, gboolean from_server)
+{
+    if (from_server) {
+        return conn->client_loss_bits_recv && conn->server_loss_bits_send;
+    } else {
+        return conn->server_loss_bits_recv && conn->client_loss_bits_send;
+    }
+}
+
 static int
 dissect_quic_short_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree,
                           quic_datagram *dgram_info, quic_packet_info_t *quic_packet)
@@ -2930,6 +2994,7 @@ dissect_quic_short_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tr
 #endif /* HAVE_LIBGCRYPT_AEAD */
     quic_info_data_t *conn = dgram_info->conn;
     const gboolean from_server = dgram_info->from_server;
+    gboolean loss_bits_negotiated = FALSE;
 
     proto_item *pi = proto_tree_add_item(quic_tree, hf_quic_short, tvb, 0, -1, ENC_NA);
     proto_tree *hdr_tree = proto_item_add_subtree(pi, ett_quic_short_header);
@@ -2937,12 +3002,13 @@ dissect_quic_short_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tr
 
     if (conn) {
        dcid.len = from_server ? conn->client_cids.data.len : conn->server_cids.data.len;
+       loss_bits_negotiated = quic_loss_bits_negotiated(conn, from_server);
     }
 #ifdef HAVE_LIBGCRYPT_AEAD
     if (!PINFO_FD_VISITED(pinfo) && conn) {
         guint32 pkn32 = 0;
         quic_hp_cipher *hp_cipher = quic_get_1rtt_hp_cipher(pinfo, conn, from_server);
-        if (quic_is_hp_cipher_initialized(hp_cipher) && quic_decrypt_header(tvb, 1 + dcid.len, hp_cipher, conn->cipher_algo, &first_byte, &pkn32)) {
+        if (quic_is_hp_cipher_initialized(hp_cipher) && quic_decrypt_header(tvb, 1 + dcid.len, hp_cipher, conn->cipher_algo, &first_byte, &pkn32, loss_bits_negotiated)) {
             quic_set_full_packet_number(conn, quic_packet, from_server, first_byte, pkn32);
             quic_packet->first_byte = first_byte;
         }
@@ -2952,9 +3018,17 @@ dissect_quic_short_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tr
 #endif /* HAVE_LIBGCRYPT_AEAD */
     proto_tree_add_item(hdr_tree, hf_quic_fixed_bit, tvb, offset, 1, ENC_NA);
     proto_tree_add_item(hdr_tree, hf_quic_spin_bit, tvb, offset, 1, ENC_NA);
+    /* Q and L bits are not protected by HP cipher */
+    if (loss_bits_negotiated) {
+        proto_tree_add_item(hdr_tree, hf_quic_q_bit, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(hdr_tree, hf_quic_l_bit, tvb, offset, 1, ENC_NA);
+    }
     if (quic_packet->pkn_len) {
         key_phase = (first_byte & SH_KP) != 0;
-        proto_tree_add_uint(hdr_tree, hf_quic_short_reserved, tvb, offset, 1, first_byte);
+        /* No room for reserved bits with "loss bits" feature is enable */
+        if (!loss_bits_negotiated) {
+            proto_tree_add_uint(hdr_tree, hf_quic_short_reserved, tvb, offset, 1, first_byte);
+        }
         proto_tree_add_boolean(hdr_tree, hf_quic_key_phase, tvb, offset, 1, key_phase<<2);
         proto_tree_add_uint(hdr_tree, hf_quic_packet_number_length, tvb, offset, 1, first_byte);
     }
@@ -3498,6 +3572,16 @@ proto_register_quic(void)
           { "Reserved", "quic.short.reserved",
             FT_UINT8, BASE_DEC, NULL, 0x18,
             "Reserved bits (protected using header protection)", HFILL }
+        },
+        { &hf_quic_q_bit,
+          { "Square Signal Bit (Q)", "quic.q_bit",
+            FT_BOOLEAN, 8, NULL, 0x10,
+            "Square Signal Bit (used to measure and locate the source of packet loss)", HFILL }
+        },
+        { &hf_quic_l_bit,
+          { "Loss Event Bit (L)", "quic.l_bit",
+            FT_BOOLEAN, 8, NULL, 0x08,
+            "Loss Event Bit (used to measure and locate the source of packet loss)",  HFILL }
         },
         { &hf_quic_key_phase,
           { "Key Phase Bit", "quic.key_phase",
