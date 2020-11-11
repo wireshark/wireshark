@@ -221,6 +221,7 @@ static int hf_smb2_write_length = -1;
 static int hf_smb2_write_data = -1;
 static int hf_smb2_write_flags = -1;
 static int hf_smb2_write_flags_write_through = -1;
+static int hf_smb2_write_flags_write_unbuffered = -1;
 static int hf_smb2_write_count = -1;
 static int hf_smb2_write_remaining = -1;
 static int hf_smb2_read_length = -1;
@@ -6470,6 +6471,17 @@ dissect_smb2_rdma_v1_blob(tvbuff_t *tvb, packet_info *pinfo _U_,
 }
 
 #define SMB2_WRITE_FLAG_WRITE_THROUGH		0x00000001
+#define SMB2_WRITE_FLAG_WRITE_UNBUFFERED	0x00000002
+
+static const true_false_string tfs_write_through = {
+	"Client is asking for WRITE_THROUGH",
+	"Client is NOT asking for WRITE_THROUGH"
+};
+
+static const true_false_string tfs_write_unbuffered = {
+	"Client is asking for UNBUFFERED write",
+	"Client is NOT asking for UNBUFFERED write"
+};
 
 static int
 dissect_smb2_write_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, smb2_info_t *si)
@@ -6482,6 +6494,7 @@ dissect_smb2_write_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	guint64 off;
 	static int * const f_fields[] = {
 		&hf_smb2_write_flags_write_through,
+		&hf_smb2_write_flags_write_unbuffered,
 		NULL
 	};
 
@@ -11638,7 +11651,12 @@ proto_register_smb2(void)
 
 		{ &hf_smb2_write_flags_write_through,
 			{ "Write through", "smb2.write.flags.write_through", FT_BOOLEAN, 32,
-			NULL, SMB2_WRITE_FLAG_WRITE_THROUGH, NULL, HFILL }
+			TFS(&tfs_write_through), SMB2_WRITE_FLAG_WRITE_THROUGH, "If the client requests WRITE_THROUGH", HFILL }
+		},
+
+		{ &hf_smb2_write_flags_write_unbuffered,
+			{ "Unbuffered", "smb2.write.flags.unbuffered", FT_BOOLEAN, 32,
+			TFS(&tfs_write_unbuffered), SMB2_WRITE_FLAG_WRITE_UNBUFFERED, "If client requests UNBUFFERED read", HFILL }
 		},
 
 		{ &hf_smb2_write_count,
