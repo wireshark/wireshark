@@ -32,6 +32,9 @@
 // - Add recent settings and context menu items to show/hide the offset.
 // - Add a UTF-8 and possibly UTF-xx option to the ASCII display.
 // - Move more common metrics to DataPrinter.
+// - Pre-draw all of our characters and paint our display using pixmap
+//   copying? That would make this behave like a terminal screen, which
+//   is what we ultimately want.
 
 Q_DECLARE_METATYPE(bytes_view_type)
 Q_DECLARE_METATYPE(bytes_encoding_type)
@@ -183,15 +186,11 @@ void ByteViewText::setMonospaceFont(const QFont &mono_font)
     QFont int_font(mono_font);
     int_font.setStyleStrategy(QFont::ForceIntegerMetrics);
 
-    const QFontMetricsF fm(int_font);
-    font_width_  = fm.width('M');
-
     setFont(int_font);
     viewport()->setFont(int_font);
     layout_->setFont(int_font);
 
-    // We should probably use ProtoTree::rowHeight.
-    line_height_ = fontMetrics().height();
+    updateLayoutMetrics();
 
     updateScrollbars();
     viewport()->update();
@@ -208,6 +207,8 @@ void ByteViewText::updateByteViewSettings()
 
 void ByteViewText::paintEvent(QPaintEvent *)
 {
+    updateLayoutMetrics();
+
     QPainter painter(viewport());
     painter.translate(-horizontalScrollBar()->value() * font_width_, 0);
 
@@ -341,6 +342,13 @@ void ByteViewText::contextMenuEvent(QContextMenuEvent *event)
 // Private
 
 const int ByteViewText::separator_interval_ = DataPrinter::separatorInterval();
+
+void ByteViewText::updateLayoutMetrics()
+{
+    font_width_  = fontMetrics().boundingRect('M').width();
+    // We might want to match ProtoTree::rowHeight.
+    line_height_ = fontMetrics().height();
+}
 
 // Draw a line of byte view text for a given offset.
 // Text highlighting is handled using QTextLayout::FormatRange.
