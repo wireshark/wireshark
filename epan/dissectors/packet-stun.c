@@ -114,7 +114,7 @@ static const enum_val_t stun_network_version_vals[] = {
 
 static const value_string network_versions_vals[] = {
         {NET_VER_MS_TURN,  "MS-TURN"},
-        {NET_VER_3489,     "RFC-3489 and ealier"},
+        {NET_VER_3489,     "RFC-3489 and earlier"},
         {NET_VER_5389,     "RFC-5389/8489"},
         {0,   NULL}
 };

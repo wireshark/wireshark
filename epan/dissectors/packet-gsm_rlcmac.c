@@ -18227,7 +18227,7 @@ proto_register_gsm_rlcmac(void)
     },
 
     { &hf_packet_access_reject_reject_exist,
-      { "Reject[1] Exist", "gsm_rlcmac.acket_access_reject.reject_exist",
+      { "Reject[1] Exist", "gsm_rlcmac.packet_access_reject.reject_exist",
         FT_UINT8, BASE_DEC, NULL, 0x0,
         NULL, HFILL
       }

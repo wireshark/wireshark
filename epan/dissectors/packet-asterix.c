@@ -8538,7 +8538,7 @@ static const FieldPart *I032_420_PARTS[] = { &I032_420_GAT, &I032_420_FR, &I032_
 static const FieldPart I032_430_TYP = { 32, 1.0, FIELD_PART_ASCII, &hf_032_430_TYP, NULL };
 static const FieldPart *I032_430_PARTS[] = { &I032_430_TYP, NULL };
 
-/* I032/435 - Category of Turbulance */
+/* I032/435 - Category of Turbulence */
 static const FieldPart I032_435_TURB = { 8, 1.0, FIELD_PART_UINT, &hf_032_435_TUR, NULL };
 static const FieldPart *I032_435_PARTS[] = { &I032_435_TURB, NULL };
 
@@ -13243,7 +13243,7 @@ void proto_register_asterix (void)
         { &hf_004_120_02_SC, { "SC", "asterix.004_120_02_SC", FT_UINT8, BASE_DEC, NULL, 0x0e, NULL, HFILL } },
         { &hf_004_120_02_CS, { "CS", "asterix.004_120_02_CS", FT_UINT8, BASE_DEC, VALS (valstr_004_120_02_CS), 0x01, NULL, HFILL } },
         { &hf_004_120_03, { "#3: Conflict Probability", "asterix.004_120_03", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-        { &hf_004_120_03_Probability, { "Probatility[%]", "asterix.004_120_03_Probability", FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_004_120_03_Probability, { "Probability[%]", "asterix.004_120_03_Probability", FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_004_120_04, { "#4: Conflict Duration", "asterix.004_120_04", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_004_120_04_Duration, { "Duration[s]", "asterix.004_120_04_Duration", FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_004_170, { "170, Aircraft Identification & Characteristics 1", "asterix.004_170", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
@@ -14420,7 +14420,7 @@ void proto_register_asterix (void)
         { &hf_032_420_SP, { "SP", "asterix.032_420_SP", FT_UINT8, BASE_HEX, NULL, 0x0E, NULL, HFILL } },
         { &hf_032_430, { "430, Type of Aircraft", "asterix.032_430", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_032_430_TYP, { "TYP", "asterix.032_430_TYP", FT_STRING, BASE_NONE, NULL, 0x00, NULL, HFILL } },
-        { &hf_032_435, { "435, Category of Turbulance", "asterix.032_435", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        { &hf_032_435, { "435, Category of Turbulence", "asterix.032_435", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
         { &hf_032_435_TUR, { "TURB", "asterix.032_435_TUR", FT_UINT8, BASE_DEC, VALS(valstr_032_435_CAT), 0x00, NULL, HFILL } },
         { &hf_032_440, { "440, Departure Airport", "asterix.032_440", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_032_440_DEP, { "DEP", "asterix.032_440_DEP", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },

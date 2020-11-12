@@ -60,6 +60,7 @@ backend
 backhaul
 backoff
 bacnet
+batched
 baudrate
 bcast
 beamformed
@@ -139,6 +140,7 @@ codebook
 codepoint
 codeset
 codingrate
+colocated
 coloring
 colorise
 colorization
@@ -147,6 +149,7 @@ colorized
 colorizing
 combiner
 combiners
+communication
 concatenate
 concatenated
 concatenates
@@ -229,6 +232,7 @@ dfilter
 dfsauth
 dhcpv
 dialed
+dialup
 diffie
 diplexer
 directionality
@@ -272,9 +276,11 @@ encrypt
 encrypting
 endian
 endianness
+enrollee
 entryid
 enumerations
 epasv
+errno
 errorcode
 errored
 errorportinfo
@@ -354,6 +360,7 @@ hostname
 hsdpa
 hsdsch
 hspdsch
+hsupa
 http2
 https
 icmpv
@@ -369,6 +376,7 @@ illuminance
 immersive
 implementer
 implementor
+inband
 incits
 incrementing
 infile
@@ -387,6 +395,7 @@ initializers
 initializes
 initializing
 inline
+interferer
 interleaving
 interruptible
 interworking
@@ -442,6 +451,7 @@ macaddr
 macaddress
 mailto
 malloc
+manuf
 mappable
 mcast
 measurements
@@ -524,6 +534,7 @@ nonblock
 noncriticalextension
 noncriticalextensions
 nopad
+notarized
 notif
 notifier
 notused
@@ -764,6 +775,7 @@ shouldn't
 siapp
 sidelink
 signaling
+simulcast
 slsch
 sname
 snaplen
@@ -780,6 +792,7 @@ spare7
 spare8
 spare9
 spcell
+speex
 spnego
 spoofing
 spooled
@@ -842,6 +855,7 @@ tcpudp
 tdd128
 tdd384
 tdd768
+technica
 teletex
 teredo
 text2pcap
@@ -985,6 +999,7 @@ version7
 versioned
 versioning
 virtualization
+vocoder
 volerr
 wakeup
 webcam
@@ -999,6 +1014,7 @@ wiretap
 withfcs
 withoutfcs
 wksta
+workarounds
 writable
 wslua
 wsluarm

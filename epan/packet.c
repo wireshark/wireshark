@@ -2617,7 +2617,7 @@ check_valid_heur_name_or_fail(const char *heur_name)
 	}
 
 	if (found_invalid) {
-		g_error("Hueristic Protocol internal name \"%s\" has one or more invalid characters."
+		g_error("Heuristic Protocol internal name \"%s\" has one or more invalid characters."
 			" Allowed are lowercase, digits, '-', '_' and non-repeating '.'."
 			" This might be caused by an inappropriate plugin or a development error.", heur_name);
 	}

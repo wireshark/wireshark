@@ -9951,7 +9951,7 @@ proto_register_bgp(void)
         { "BGP Shutdown Communication Length", "bgp.notify.communication_length", FT_UINT8, BASE_DEC,
           NULL, 0x0, NULL, HFILL }},
       { &hf_bgp_notify_communication,
-        { "Shutdown Communication", "bgp.notify.commmunication", FT_STRING, BASE_NONE,
+        { "Shutdown Communication", "bgp.notify.communication", FT_STRING, BASE_NONE,
           NULL, 0x0, NULL, HFILL }},
 
         /* Route Refresh */
