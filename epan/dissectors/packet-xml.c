@@ -174,6 +174,7 @@ static const gchar *default_media_types[] = {
     "application/vnd.3gpp.cw+xml",
     "application/vnd.3gpp.iut+xml",             /*3GPP TS 24.337*/
     "application/vnc.3gpp.iut-config+xml",      /*3GPP TS 24.337*/
+    "application/vnd.3gpp.mcptt-info+xml"
     "application/vnd.3gpp.mid-call+xml",
     "application/vnd.3gpp-prose-pc3ch+xml",
     "application/vnd.3gpp-prose+xml",
