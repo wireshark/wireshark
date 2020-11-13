@@ -2146,9 +2146,8 @@ de_emm_ue_net_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
         return (len);
 
     /* Octet 9
-     * 0 Spare    SGC    N1mode    DCNR    CP backoff    RestrictEC    V2X PC5    multipleDRB
+     * 15 bearers    SGC    N1mode    DCNR    CP backoff    RestrictEC    V2X PC5    multipleDRB
      */
-    proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, (curr_offset<<3), 1, ENC_BIG_ENDIAN);
     proto_tree_add_bitmask_list(tree, tvb, curr_offset, 1, oct9_flags, ENC_NA);
     curr_offset++;
 
