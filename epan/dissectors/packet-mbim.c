@@ -5252,7 +5252,7 @@ mbim_dissect_ms_app_info_elements(tvbuff_t* tvb, packet_info* pinfo _U_, proto_t
         offset += 16;
         proto_tree_add_item_ret_uint(subtree, hf_mbim_ms_app_info_app_name_length, tvb, offset, 4, ENC_LITTLE_ENDIAN, &app_name_length);
         offset += 4;
-        proto_tree_add_item(subtree, hf_mbim_ms_app_info_app_name, tvb, offset, app_name_length, ENC_UTF_8);
+        proto_tree_add_item(subtree, hf_mbim_ms_app_info_app_name, tvb, offset, app_name_length, ENC_UTF_8|ENC_NA);
         offset += 256;
         proto_tree_add_item_ret_uint(subtree, hf_mbim_ms_app_info_num_pins, tvb, offset, 4, ENC_LITTLE_ENDIAN, &num_pins);
         offset += 4;
@@ -11127,7 +11127,7 @@ proto_register_mbim(void)
         },
         { &hf_mbim_ms_app_info_app_name,
             { "App Name", "mbim.control.ms_app_info.app_name",
-               FT_UINT32, BASE_DEC, NULL, 0,
+               FT_STRING, BASE_NONE, NULL, 0,
               NULL, HFILL }
         },
         { &hf_mbim_ms_app_info_num_pins,
