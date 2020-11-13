@@ -349,14 +349,21 @@ IOGraphDialog::IOGraphDialog(QWidget &parent, CaptureFile &cf, QString displayFi
 
     // Intervals (ms)
     ui->intervalComboBox->addItem(tr("1 ms"),        1);
+    ui->intervalComboBox->addItem(tr("2 ms"),        2);
     ui->intervalComboBox->addItem(tr("5 ms"),        5);
     ui->intervalComboBox->addItem(tr("10 ms"),      10);
+    ui->intervalComboBox->addItem(tr("20 ms"),      20);
+    ui->intervalComboBox->addItem(tr("50 ms"),      50);
     ui->intervalComboBox->addItem(tr("100 ms"),    100);
+    ui->intervalComboBox->addItem(tr("200 ms"),    200);
+    ui->intervalComboBox->addItem(tr("500 ms"),    500);
     ui->intervalComboBox->addItem(tr("1 sec"),    1000);
+    ui->intervalComboBox->addItem(tr("2 sec"),    2000);
+    ui->intervalComboBox->addItem(tr("5 sec"),    5000);
     ui->intervalComboBox->addItem(tr("10 sec"),  10000);
     ui->intervalComboBox->addItem(tr("1 min"),   60000);
     ui->intervalComboBox->addItem(tr("10 min"), 600000);
-    ui->intervalComboBox->setCurrentIndex(4);
+    ui->intervalComboBox->setCurrentIndex(9);
 
     ui->todCheckBox->setChecked(false);
     iop->xAxis->setTicker(number_ticker_);
