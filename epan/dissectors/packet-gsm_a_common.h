@@ -1751,31 +1751,42 @@ typedef enum
     DE_NAS_5GS_MM_ABBA,                      /* 9.11.3.10    ABBA */
     DE_NAS_5GS_MM_ACCESS_TYPE,               /* 9.11.3.11    Access type */
     DE_NAS_5GS_MM_ADD_5G_SEC_INF,            /* 9.11.3.12    Additional 5G security information */
+    DE_NAS_5GS_MM_ADD_INF_REQ,               /* 9.11.3.12A   Additional information requested */
     DE_NAS_5GS_MM_ALLOW_PDU_SES_STS,         /* 9.11.3.13    Allowed PDU session status*/
     DE_NAS_5GS_MM_AUT_FAIL_PAR,              /* 9.11.3.14    Authentication failure parameter */
     DE_NAS_5GS_MM_AUT_PAR_AUTN,              /* 9.11.3.15    Authentication parameter AUTN*/
     DE_NAS_5GS_MM_AUT_PAR_RAND,              /* 9.11.3.16    Authentication parameter RAND*/
     DE_NAS_5GS_MM_AUT_RESP_PAR,              /* 9.11.3.17    Authentication response parameter */
     DE_NAS_5GS_MM_CONF_UPD_IND,              /* 9.11.3.18    Configuration update indication*/
+    DE_NAS_5GS_MM_CAG_INFORMATION_LIST,      /* 9.11.3.18A   CAG information list*/
+    DE_NAS_5GS_MM_CIOT_SMALL_DATA_CONT,      /* 9.11.3.18B   CIoT small data container */
+    DE_NAS_5GS_MM_CIPHERING_KEY_DATA,        /* 9.11.3.18C   Ciphering key data*/
+    DE_NAS_5GS_MM_CTRL_PLANE_SERVICE_TYPE,   /* 9.11.3.18D   Control plane service type*/
     DE_NAS_5GS_MM_DLGT_SAVING_TIME,          /* 9.11.3.19    Daylight saving time*/
     DE_NAS_5GS_MM_DE_REG_TYPE,               /* 9.11.3.20    De-registration type*/
                                              /* 9.11.3.21    Void */
                                              /* 9.11.3.22    Void*/
     DE_NAS_5GS_MM_EMRG_NR_LIST,              /* 9.11.3.23    Emergency number list */
+    DE_NAS_5GS_MM_EPS_BEARER_CTX_STATUS,     /* 9.11.3.23A   EPS bearer context status */
     DE_NAS_5GS_MM_EPS_NAS_MSG_CONT,          /* 9.11.3.24    EPS NAS message container */
     DE_NAS_5GS_MM_EPS_NAS_SEC_ALGO,          /* 9.11.3.25    EPS NAS security algorithms */
     DE_NAS_5GS_MM_EXT_EMERG_NUM_LIST,        /* 9.11.3.26    Extended emergency number list */
+    DE_NAS_5GS_MM_EXTENDED_DRX_PARAMETERS,   /* 9.11.3.26A   Extended DRX parameters */
                                              /* 9.11.3.27    Void*/
     DE_NAS_5GS_MM_IMEISV_REQ,                /* 9.11.3.28    IMEISV request*/
     DE_NAS_5GS_MM_LADN_INDIC,                /* 9.11.3.29    LADN indication*/
     DE_NAS_5GS_MM_LADN_INF,                  /* 9.11.3.30    LADN information */
     DE_NAS_5GS_MM_MICO_IND,                  /* 9.11.3.31    MICO indication*/
+    DE_NAS_5GS_MM_MA_PDU_SES_INF,            /* 9.11.3.31A   MA PDU session information */
+    DE_NAS_5GS_MM_MAPPED_NSSAI,              /* 9.11.3.31B   Mapped NSSAI */
+    DE_NAS_5GS_MM_MOBILE_STATION_CLSMK_2,    /* 9.11.3.31C   Mobile station classmark 2 */
     DE_NAS_5GS_MM_NAS_KEY_SET_ID,            /* 9.11.3.32    NAS key set identifier*/
     DE_NAS_5GS_MM_NAS_KEY_SET_ID_H1,         /* 9.11.3.32    NAS key set identifier*/
     DE_NAS_5GS_MM_NAS_MSG_CONT,              /* 9.11.3.33    NAS message container*/
     DE_NAS_5GS_MM_NAS_SEC_ALGO,              /* 9.11.3.34    NAS security algorithms*/
     DE_NAS_5GS_MM_NW_NAME,                   /* 9.11.3.35    Network name*/
     DE_NAS_5GS_MM_NW_SLICING_IND,            /* 9.11.3.36    Network slicing indication */
+    DE_NAS_5GS_MM_NW_NON_3GPP_NW_PROV_POL,   /* 9.11.3.36A   Non-3GPP NW provided policies */
     DE_NAS_5GS_MM_NSSAI,                     /* 9.11.3.37    NSSAI*/
     DE_NAS_5GS_MM_NSSAI_INC_MODE,            /* 9.11.3.37A   NSSAI inclusion mode */
     DE_NAS_5GS_MM_OP_DEF_ACC_CAT_DEF,        /* 9.11.3.38    Operator-defined access category definitions */
@@ -1787,13 +1798,15 @@ typedef enum
     DE_NAS_5GS_MM_PDU_SES_STATUS,            /* 9.11.3.44    PDU session status */
     DE_NAS_5GS_MM_PLMN_LIST,                 /* 9.11.3.45    PLMN list*/
     DE_NAS_5GS_MM_REJ_NSSAI,                 /* 9.11.3.46    Rejected NSSAI*/
+    DE_NAS_5GS_MM_REL_ASS_IND,               /* 9.11.3.46A   Release assistance indication*/
     DE_NAS_5GS_MM_REQ_TYPE,                  /* 9.11.3.47    Request type */
     DE_NAS_5GS_MM_S1_UE_NW_CAP,              /* 9.11.3.48    S1 UE network capability*/
     DE_NAS_5GS_MM_S1_UE_SEC_CAP,             /* 9.11.3.48A   S1 UE security capability*/
     DE_NAS_5GS_MM_SAL,                       /* 9.11.3.49    Service area list*/
-    DE_NAS_5GS_MM_SERV_TYPE,                 /* 9.11.3.50    Service type,*/ /* Used inline Half octet IE*/
+    DE_NAS_5GS_MM_SERV_TYPE,                 /* 9.11.3.50    Service type,*/
     DE_NAS_5GS_MM_SMS_IND,                   /* 9.11.3.50A   SMS indication */
     DE_NAS_5GS_MM_SOR_TRASP_CONT,            /* 9.11.3.51    SOR transparent container */
+    DE_NAS_5GS_MM_SUPPORTED_CODEC_LIST,      /* 9.11.3.51A   Supported codec list */
     DE_NAS_5GS_MM_TZ,                        /* 9.11.3.52    Time zone*/
     DE_NAS_5GS_MM_TZ_AND_T,                  /* 9.11.3.53    Time zone and time*/
     DE_NAS_5GS_MM_UE_PAR_UPD_TRASNSP_CONT,   /* 9.11.3.53A   UE parameters update transparent container */
@@ -1803,7 +1816,15 @@ typedef enum
     DE_NAS_5GS_MM_UL_DATA_STATUS,            /* 9.11.3.57    Uplink data status */
     DE_NAS_5GS_MM_CP_SERVICE_TYPE,           /* 9.11.3.65    Control plane service type*/
     DE_NAS_5GS_MM_UE_RADIO_CAP_ID,           /* 9.11.3.68    UE radio capability ID*/
-    DE_NAS_5GS_MM_NONE        /* NONE */}
+    DE_NAS_5GS_MM_UE_RADIO_CAP_ID_DEL_IND,   /* 9.11.3.69    UE radio capability ID deletion indication*/
+    DE_NAS_5GS_MM_TRUNCATED_5G_S_TMSI_CONF,  /* 9.11.3.70    Truncated 5G-S-TMSI configuration*/
+    DE_NAS_5GS_MM_WUS_ASSISTANCE_INF,        /* 9.11.3.71    WUS assistance information*/
+    DE_NAS_5GS_MM_N5GC_INDICATION,           /* 9.11.3.72    N5GC indication*/
+    DE_NAS_5GS_MM_NB_N1_MODE_DRX_PARS,       /* 9.11.3.73    NB-N1 mode DRX parameters*/
+    DE_NAS_5GS_MM_ADDITIONAL_CONF_IND,       /* 9.11.3.74    Additional configuration indication*/
+    DE_NAS_5GS_MM_EXTENDED_REJECTED_NSSAI,   /* 9.11.3.75    Extended rejected NSSAI*/
+    DE_NAS_5GS_MM_NONE        /* NONE */
+}
 nas_5gs_mm_elem_idx_t;
 
 
