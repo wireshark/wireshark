@@ -1436,7 +1436,7 @@ proto_register_ged125 (void)
 
 		{ &hf_ged125_TrunkNumber,
 		  { "Trunk Number", "ged125.trunk_number",
-			FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+			FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
 		{ &hf_ged125_TrunkStatus,
 		  { "Trunk Status", "ged125.trunk_status",

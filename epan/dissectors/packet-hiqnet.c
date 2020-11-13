@@ -1137,7 +1137,7 @@ proto_register_hiqnet(void)
         },
         { &hf_hiqnet_sourcedev,
             { "Source device", "hiqnet.srcdev",
-                FT_UINT8, BASE_DEC_HEX,
+                FT_UINT16, BASE_DEC_HEX,
                 NULL, 0x0,
                 NULL, HFILL }
         },
@@ -1149,7 +1149,7 @@ proto_register_hiqnet(void)
         },
         { &hf_hiqnet_destdev,
             { "Destination device", "hiqnet.dstdev",
-                FT_UINT8, BASE_DEC_HEX,
+                FT_UINT16, BASE_DEC_HEX,
                 NULL, 0x0,
                 NULL, HFILL }
         },
