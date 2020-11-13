@@ -191,6 +191,8 @@ static int hf_dhcpv6_xid = -1;
 static int hf_dhcpv6_peeraddr = -1;
 static int hf_dhcpv6_linkaddr = -1;
 static int hf_opt_mudurl = -1;
+static int hf_option_userclass_length = -1;
+static int hf_option_userclass_opaque_data = -1;
 static int hf_option_ntpserver_type = -1;
 static int hf_option_ntpserver_length = -1;
 static int hf_option_ntpserver_addr = -1;
@@ -259,6 +261,7 @@ static gint ett_dhcpv6_option = -1;
 static gint ett_dhcpv6_option_vsoption = -1;
 static gint ett_dhcpv6_vendor_option = -1;
 static gint ett_dhcpv6_pkt_option = -1;
+static gint ett_dhcpv6_userclass_option = -1;
 static gint ett_dhcpv6_netserver_option = -1;
 static gint ett_dhcpv6_tlv5_type = -1;
 static gint ett_dhcpv6_sip_server_domain_search_list_option = -1;
@@ -1910,6 +1913,23 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
             break;
         }
         break;
+    case OPTION_USER_CLASS:
+    {
+        temp_optlen = 0;
+        while (optlen > temp_optlen) {
+            subopt_len = tvb_get_ntohs(tvb,  off + temp_optlen);
+            if (subopt_len > optlen - temp_optlen) {
+                expert_add_info_format(pinfo, option_item, &ei_dhcpv6_malformed_option, "User Class: suboption too long");
+                break;
+            }
+            subtree_2 = proto_tree_add_subtree(subtree, tvb, off+temp_optlen, subopt_len, ett_dhcpv6_userclass_option, &ti, "User Class suboption");
+            proto_tree_add_item(subtree_2, hf_option_userclass_length, tvb, off + temp_optlen, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(subtree_2, hf_option_userclass_opaque_data, tvb, off + temp_optlen + 2, subopt_len - 2, ENC_NA);
+
+            temp_optlen += subopt_len;
+        }
+        break;
+    }
     case OPTION_NTP_SERVER:
         if (optlen < 4) {
             expert_add_info_format(pinfo, option_item, &ei_dhcpv6_malformed_option, "NTP Server: malformed option");
@@ -3246,6 +3266,10 @@ proto_register_dhcpv6(void)
           { "Prefix length", "dhcpv6.pd_exclude.pref_len", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
         { &hf_pd_exclude_subnet_id,
           { "IPv6 subnet ID", "dhcpv6.pd_exclude.subnet_id", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+        { &hf_option_userclass_length,
+          { "Length", "dhcpv6.userclass.length", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}},
+        { &hf_option_userclass_opaque_data,
+          { "Suboption", "dhcpv6.userclass.opaque_data", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL}},
         { &hf_option_ntpserver_type,
           { "Suboption", "dhcpv6.ntpserver.option.type", FT_UINT16, BASE_DEC, VALS(ntp_server_opttype_vals), 0x0, NULL, HFILL}},
         { &hf_option_ntpserver_length,
@@ -3436,6 +3460,7 @@ proto_register_dhcpv6(void)
         &ett_dhcpv6_option_vsoption,
         &ett_dhcpv6_vendor_option,
         &ett_dhcpv6_pkt_option,
+        &ett_dhcpv6_userclass_option,
         &ett_dhcpv6_netserver_option,
         &ett_dhcpv6_tlv5_type,
         &ett_dhcpv6_sip_server_domain_search_list_option,
