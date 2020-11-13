@@ -60,12 +60,6 @@
 #define NETLOGON_NETRLOGONSAMLOGONWITHFLAGS		0x2d
 #define NETLOGON_NETRSERVERGETTRUSTINFO			0x2e
 
-/* Secure channel types */
-
-#define SEC_CHAN_WKSTA   2
-#define SEC_CHAN_DOMAIN  4
-#define SEC_CHAN_BDC     6
-
 
 /* needed to decrypt PAC_LOGON_INFO in kerberos */
 int
