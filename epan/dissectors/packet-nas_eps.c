@@ -8214,7 +8214,7 @@ proto_register_nas_eps(void)
         NULL, HFILL }
     },
     { &hf_emm_5g_up_ciot_b3,
-        { "Control plane CIoT 5GS optimization", "nas_eps.emm.5g_up_ciot",
+        { "User plane CIoT 5GS optimization", "nas_eps.emm.5g_up_ciot",
         FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x08,
         NULL, HFILL }
     },
@@ -8229,7 +8229,7 @@ proto_register_nas_eps(void)
         NULL, HFILL }
     },
     { &hf_emm_5g_cp_ciot,
-        { "User plane CIoT 5GS optimization", "nas_eps.emm.5g_cp_ciot",
+        { "Control plane CIoT 5GS optimization", "nas_eps.emm.5g_cp_ciot",
         FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x01,
         NULL, HFILL }
     },
