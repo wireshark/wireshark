@@ -30029,7 +30029,7 @@ proto_register_ieee80211(void)
        NULL, HFILL }},
 
     {&hf_ieee80211_tag_addba_ext_reserved,
-      {"Reserved", "wlan.addba.he_frag_oper",
+      {"Reserved", "wlan.addba.reserved",
        FT_UINT8, BASE_HEX, NULL, 0xF8,
        NULL, HFILL }},
 
@@ -30689,12 +30689,12 @@ proto_register_ieee80211(void)
       "HT Information Fixed Field", HFILL }},
 
     {&hf_ieee80211_ff_ht_info_information_request,
-     {"Information Request", "wlan.fixed.mimo.control.chanwidth",
+     {"Information Request", "wlan.fixed.mimo.control.inforequest",
       FT_BOOLEAN, 8, TFS(&ff_ht_info_information_request_flag), 0x01,
       NULL, HFILL }},
 
     {&hf_ieee80211_ff_ht_info_40_mhz_intolerant,
-     {"40 MHz Intolerant", "wlan.fixed.mimo.control.chanwidth",
+     {"40 MHz Intolerant", "wlan.fixed.mimo.control.intolerant",
       FT_BOOLEAN, 8, TFS(&ff_ht_info_40_mhz_intolerant_flag), 0x02,
       NULL, HFILL }},
 
@@ -36322,7 +36322,7 @@ proto_register_ieee80211(void)
       "Traffic Stream (TS) Info Direction", HFILL }},
 
     {&hf_ieee80211_tsinfo_access,
-     {"Access Policy", "wlan.ts_info.dir",
+     {"Access Policy", "wlan.ts_info.access",
       FT_UINT24, BASE_DEC, VALS(tsinfo_access), 0x000180,
       "Traffic Stream (TS) Info Access Policy", HFILL }},
 

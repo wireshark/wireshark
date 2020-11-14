@@ -12851,7 +12851,7 @@ void proto_register_lbmc(void)
         { &hf_lbmc_umq_ulb_rcr_msgid_regid,
             { "Message ID Registration ID", "lbmc.umq_ulb_rcr.msgid_regid", FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL } },
         { &hf_lbmc_umq_ulb_rcr_msgid_stamp,
-            { "Message ID Stamp", "lbmc.umq_ulb_rcr.msgid_regid", FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+            { "Message ID Stamp", "lbmc.umq_ulb_rcr.msgid_stamp", FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL } },
         { &hf_lbmc_umq_ulb_rcr_topic_tsp,
             { "Topic TSP", "lbmc.umq_ulb_rcr.topic_tsp", FT_UINT32, BASE_HEX_DEC, NULL, 0x0, NULL, HFILL } },
         { &hf_lbmc_umq_ulb_rcr_assign_id,

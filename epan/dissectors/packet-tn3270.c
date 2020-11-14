@@ -5953,7 +5953,7 @@ proto_register_tn3270(void)
     /* 5.19 - Read Partition */
     { &hf_tn3270_read_partition_operation_type,
       {  "Read Partition Operation Type",
-         "tn3270.read_partition_reqtyp",
+         "tn3270.read_partition_optyp",
          FT_UINT8, BASE_HEX, VALS(vals_read_partition_operation_type), 0x0,
          NULL, HFILL }
     },
