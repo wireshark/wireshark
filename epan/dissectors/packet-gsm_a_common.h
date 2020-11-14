@@ -1617,7 +1617,7 @@ typedef enum
     DE_EMM_TRAC_AREA_ID,        /* 9.9.3.32 Tracking area identity */
     DE_EMM_TRAC_AREA_ID_LST,    /* 9.9.3.33 Tracking area identity list */
     DE_EMM_UE_NET_CAP,          /* 9.9.3.34 UE network capability */
-    DE_EMM_UE_RA_CAP_INF_UPD_NEED,  /* 9.9.3.35 UE radio capability information update needed */
+    DE_EMM_UE_RA_CAP_INF_UPD_NEED, /* 9.9.3.35 UE radio capability information update needed */
     DE_EMM_UE_SEC_CAP,          /* 9.9.3.36 UE security capability */
     DE_EMM_EMERG_NUM_LIST,      /* 9.9.3.37 Emergency Number List */
     DE_EMM_EXT_EMERG_NUM_LIST,  /* 9.9.3.37a Extended Emergency Number List */
@@ -1641,6 +1641,12 @@ typedef enum
     DE_EMM_ADD_INFO_REQ,        /* 9.9.3.55 Additional information requested */
     DE_EMM_CIPH_KEY_DATA,       /* 9.9.3.56 Ciphering key data */
     DE_EMM_N1_UE_NETWORK_CAP,   /* 9.9.3.57 N1 UE network capability */
+    DE_EMM_UE_RADIO_CAP_ID_AVAIL, /* 9.9.3.58 UE radio capability ID availability */
+    DE_EMM_UE_RADIO_CAP_ID_REQ, /* 9.9.3.59 UE radio capability ID request */
+    DE_EMM_UE_RADIO_CAP_ID,     /* 9.9.3.60 UE radio capability ID */
+    DE_EMM_UE_RADIO_CAP_ID_DEL_IND, /* 9.9.3.61 UE radio capability ID deletion indication */
+    DE_EMM_WUS_ASSIT_INFO,      /* 9.9.3.62 WUS assistance information */
+    DE_EMM_NB_S1_DRX_PARAM,     /* 9.9.3.63 NB-S1 DRX parameter */
     DE_EMM_NONE                 /* NONE */
 }
 nas_emm_elem_idx_t;
