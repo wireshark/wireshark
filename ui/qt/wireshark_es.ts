@@ -3785,8 +3785,28 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
         <translation>10 ms</translation>
     </message>
     <message>
+        <source>20 ms</source>
+        <translation type="unfinished">100 ms {20 ?}</translation>
+    </message>
+    <message>
+        <source>50 ms</source>
+        <translation type="unfinished">100 ms {50 ?}</translation>
+    </message>
+    <message>
         <source>100 ms</source>
         <translation>100 ms</translation>
+    </message>
+    <message>
+        <source>500 ms</source>
+        <translation type="unfinished">100 ms {500 ?}</translation>
+    </message>
+    <message>
+        <source>2 sec</source>
+        <translation type="unfinished">10 seg {2 ?}</translation>
+    </message>
+    <message>
+        <source>5 sec</source>
+        <translation type="unfinished">10 seg {5 ?}</translation>
     </message>
     <message>
         <source>Wireshark I/O Graphs: %1</source>
@@ -3859,6 +3879,14 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     <message>
         <source>Save Graph As…</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>2 ms</source>
+        <translation type="unfinished">100 ms {2 ?}</translation>
+    </message>
+    <message>
+        <source>200 ms</source>
+        <translation type="unfinished">100 ms {200 ?}</translation>
     </message>
 </context>
 <context>

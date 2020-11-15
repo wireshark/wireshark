@@ -3811,6 +3811,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>2 ms</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>5 ms</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3819,7 +3823,31 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>20 ms</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>50 ms</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>100 ms</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>200 ms</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>500 ms</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>2 sec</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>5 sec</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

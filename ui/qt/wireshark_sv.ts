@@ -3853,8 +3853,28 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>10 ms</translation>
     </message>
     <message>
+        <source>20 ms</source>
+        <translation type="unfinished">100 ms {20 ?}</translation>
+    </message>
+    <message>
+        <source>50 ms</source>
+        <translation type="unfinished">100 ms {50 ?}</translation>
+    </message>
+    <message>
         <source>100 ms</source>
         <translation>100 ms</translation>
+    </message>
+    <message>
+        <source>500 ms</source>
+        <translation type="unfinished">100 ms {500 ?}</translation>
+    </message>
+    <message>
+        <source>2 sec</source>
+        <translation type="unfinished">10 s {2 ?}</translation>
+    </message>
+    <message>
+        <source>5 sec</source>
+        <translation type="unfinished">10 s {5 ?}</translation>
     </message>
     <message>
         <source>Wireshark I/O Graphs: %1</source>
@@ -3927,6 +3947,14 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <message>
         <source>Save Graph As…</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>2 ms</source>
+        <translation type="unfinished">100 ms {2 ?}</translation>
+    </message>
+    <message>
+        <source>200 ms</source>
+        <translation type="unfinished">100 ms {200 ?}</translation>
     </message>
 </context>
 <context>
@@ -9222,10 +9250,6 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <message>
         <source>Loading</source>
         <translation type="unfinished">Läser in</translation>
-    </message>
-    <message>
-        <source>TextLabel</source>
-        <translation type="vanished">TextEtikett</translation>
     </message>
 </context>
 <context>

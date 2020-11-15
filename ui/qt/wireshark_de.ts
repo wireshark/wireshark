@@ -3853,8 +3853,28 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <translation>10 ms</translation>
     </message>
     <message>
+        <source>20 ms</source>
+        <translation type="unfinished">100 ms {20 ?}</translation>
+    </message>
+    <message>
+        <source>50 ms</source>
+        <translation type="unfinished">100 ms {50 ?}</translation>
+    </message>
+    <message>
         <source>100 ms</source>
         <translation>100 ms</translation>
+    </message>
+    <message>
+        <source>500 ms</source>
+        <translation type="unfinished">100 ms {500 ?}</translation>
+    </message>
+    <message>
+        <source>2 sec</source>
+        <translation type="unfinished">10 Sek. {2 ?}</translation>
+    </message>
+    <message>
+        <source>5 sec</source>
+        <translation type="unfinished">10 Sek. {5 ?}</translation>
     </message>
     <message>
         <source>Wireshark I/O Graphs: %1</source>
@@ -3927,6 +3947,14 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     <message>
         <source>Save Graph As…</source>
         <translation>Graph speichern als…</translation>
+    </message>
+    <message>
+        <source>2 ms</source>
+        <translation type="unfinished">100 ms {2 ?}</translation>
+    </message>
+    <message>
+        <source>200 ms</source>
+        <translation type="unfinished">100 ms {200 ?}</translation>
     </message>
 </context>
 <context>
@@ -9221,11 +9249,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Loading</source>
-        <translation type="unfinished">Laden</translation>
-    </message>
-    <message>
-        <source>TextLabel</source>
-        <translation type="vanished">Textbeschriftung</translation>
+        <translation>Laden</translation>
     </message>
 </context>
 <context>

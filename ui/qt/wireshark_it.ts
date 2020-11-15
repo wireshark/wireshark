@@ -3853,8 +3853,28 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>10 ms</translation>
     </message>
     <message>
+        <source>20 ms</source>
+        <translation type="unfinished">100 ms {20 ?}</translation>
+    </message>
+    <message>
+        <source>50 ms</source>
+        <translation type="unfinished">100 ms {50 ?}</translation>
+    </message>
+    <message>
         <source>100 ms</source>
         <translation>100 ms</translation>
+    </message>
+    <message>
+        <source>500 ms</source>
+        <translation type="unfinished">100 ms {500 ?}</translation>
+    </message>
+    <message>
+        <source>2 sec</source>
+        <translation type="unfinished">10 sec {2 ?}</translation>
+    </message>
+    <message>
+        <source>5 sec</source>
+        <translation type="unfinished">10 sec {5 ?}</translation>
     </message>
     <message>
         <source>Wireshark I/O Graphs: %1</source>
@@ -3927,6 +3947,14 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <message>
         <source>Save Graph As…</source>
         <translation>Salva il grafico come...</translation>
+    </message>
+    <message>
+        <source>2 ms</source>
+        <translation type="unfinished">100 ms {2 ?}</translation>
+    </message>
+    <message>
+        <source>200 ms</source>
+        <translation type="unfinished">100 ms {200 ?}</translation>
     </message>
 </context>
 <context>
@@ -8085,11 +8113,11 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Loading</source>
-        <translation>Caricamento in corso</translation>
+        <translation>Caricamento</translation>
     </message>
     <message>
         <source>Reloading</source>
-        <translation>Ricaricamento in corso</translation>
+        <translation>Ricaricamento</translation>
     </message>
     <message>
         <source>Rescanning</source>
@@ -9221,11 +9249,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Loading</source>
-        <translation type="unfinished">Caricamento in corso</translation>
-    </message>
-    <message>
-        <source>TextLabel</source>
-        <translation type="vanished">EtichettaTesto</translation>
+        <translation>Caricamento</translation>
     </message>
 </context>
 <context>

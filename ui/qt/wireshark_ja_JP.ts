@@ -3837,8 +3837,28 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>10ミリ秒</translation>
     </message>
     <message>
+        <source>20 ms</source>
+        <translation type="unfinished">100ミリ秒 {20 ?}</translation>
+    </message>
+    <message>
+        <source>50 ms</source>
+        <translation type="unfinished">100ミリ秒 {50 ?}</translation>
+    </message>
+    <message>
         <source>100 ms</source>
         <translation>100ミリ秒</translation>
+    </message>
+    <message>
+        <source>500 ms</source>
+        <translation type="unfinished">100ミリ秒 {500 ?}</translation>
+    </message>
+    <message>
+        <source>2 sec</source>
+        <translation type="unfinished">10秒 {2 ?}</translation>
+    </message>
+    <message>
+        <source>5 sec</source>
+        <translation type="unfinished">10秒 {5 ?}</translation>
     </message>
     <message>
         <source>Wireshark I/O Graphs: %1</source>
@@ -3911,6 +3931,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Save Graph As…</source>
         <translation>...としてグラフを保存</translation>
+    </message>
+    <message>
+        <source>2 ms</source>
+        <translation type="unfinished">100ミリ秒 {2 ?}</translation>
+    </message>
+    <message>
+        <source>200 ms</source>
+        <translation type="unfinished">100ミリ秒 {200 ?}</translation>
     </message>
 </context>
 <context>
@@ -9197,11 +9225,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Loading</source>
-        <translation type="unfinished">ロード中</translation>
-    </message>
-    <message>
-        <source>TextLabel</source>
-        <translation type="vanished">テキストラベル</translation>
+        <translation>ロード中</translation>
     </message>
 </context>
 <context>
