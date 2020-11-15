@@ -10544,8 +10544,7 @@ static gboolean dissect_rtps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
      * its changes.
      */
     if (pinfo->private_table == NULL && pinfo->ptype == PT_TCP) {
-      pinfo->private_table = g_hash_table_new_full(g_str_hash, g_str_equal,
-        g_free, g_free);
+      pinfo->private_table = g_hash_table_new(g_str_hash, g_str_equal);
     }
     if (pinfo->private_table != NULL) {
       gchar* key = wmem_strdup(wmem_packet_scope() , RTPS_TCPMAP_DOMAIN_ID_KEY_STR);
