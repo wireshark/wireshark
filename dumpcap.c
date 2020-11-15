@@ -1316,6 +1316,7 @@ static int
 cap_open_socket(char *pipename, capture_src *pcap_src, char *errmsg, size_t errmsgl)
 {
     struct sockaddr_storage sa;
+    socklen_t sa_len;
     int fd;
 
     /* Skip the initial "TCP@" in the pipename. */
@@ -1327,10 +1328,27 @@ cap_open_socket(char *pipename, capture_src *pcap_src, char *errmsg, size_t errm
         return -1;
     }
 
-    if ((fd = (int)socket(sa.ss_family, SOCK_STREAM, 0)) < 0 ||
-                connect(fd, (struct sockaddr *)&sa, sizeof(sa)) < 0) {
+    if ((fd = (int)socket(sa.ss_family, SOCK_STREAM, 0)) < 0) {
         g_snprintf(errmsg, (gulong)errmsgl,
-            "The capture session could not be initiated due to the socket error: \n"
+            "The capture session could not be initiated because"
+            " the socket couldn't be created due to the socket error: \n"
+#ifdef _WIN32
+            "         %s", win32strerror(WSAGetLastError()));
+#else
+            "         %d: %s", errno, g_strerror(errno));
+#endif
+        pcap_src->cap_pipe_err = PIPERR;
+        return -1;
+    }
+
+    if (sa.ss_family == AF_INET6)
+        sa_len = sizeof(struct sockaddr_in6);
+    else
+        sa_len = sizeof(struct sockaddr_in);
+    if (connect(fd, (struct sockaddr *)&sa, sa_len) < 0) {
+        g_snprintf(errmsg, (gulong)errmsgl,
+            "The capture session could not be initiated because"
+            " the socket couldn't be connected due to the socket error: \n"
 #ifdef _WIN32
             "         %s", win32strerror(WSAGetLastError()));
 #else
@@ -1338,8 +1356,7 @@ cap_open_socket(char *pipename, capture_src *pcap_src, char *errmsg, size_t errm
 #endif
         pcap_src->cap_pipe_err = PIPERR;
 
-        if (fd >= 0)
-            cap_pipe_close(fd, TRUE);
+        cap_pipe_close(fd, TRUE);
         return -1;
     }
 
