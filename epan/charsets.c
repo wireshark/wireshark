@@ -1149,7 +1149,7 @@ get_ts_23_038_7bits_string_unpacked(wmem_allocator_t *scope, const guint8 *ptr,
     strbuf = wmem_strbuf_sized_new(scope, length+1, 0);
 
     for (i = 0; i < length; i++)
-        saw_escape = handle_ts_23_038_char(strbuf, *ptr, saw_escape);
+        saw_escape = handle_ts_23_038_char(strbuf, *ptr++, saw_escape);
 
     return (guint8 *)wmem_strbuf_finalize(strbuf);
 }
