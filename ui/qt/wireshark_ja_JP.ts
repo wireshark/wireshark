@@ -9185,11 +9185,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Loading</source>
-        <translation type="unfinished">ロード中</translation>
-    </message>
-    <message>
-        <source>TextLabel</source>
-        <translation type="vanished">テキストラベル</translation>
+        <translation>ロード中</translation>
     </message>
 </context>
 <context>

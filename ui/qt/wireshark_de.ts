@@ -9209,11 +9209,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Loading</source>
-        <translation type="unfinished">Laden</translation>
-    </message>
-    <message>
-        <source>TextLabel</source>
-        <translation type="vanished">Textbeschriftung</translation>
+        <translation>Laden</translation>
     </message>
 </context>
 <context>
