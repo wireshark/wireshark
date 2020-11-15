@@ -257,13 +257,13 @@ static dissector_handle_t smpp_handle;
 static gboolean reassemble_over_tcp = TRUE;
 
 typedef enum {
-  DECODE_AS_ASCII      = 0,
-  DECODE_AS_IA5        = 1,
+  DECODE_AS_DEFAULT    = 0,
+  DECODE_AS_ASCII      = 1,
   DECODE_AS_ISO_8859_1 = 3,
   DECODE_AS_ISO_8859_5 = 6,
   DECODE_AS_ISO_8859_8 = 7,
   DECODE_AS_UCS2       = 8,
-  DO_NOT_DECODE        = 255
+  DO_NOT_DECODE        = G_MAXUINT,
 } SMPP_DCS_Type;
 
 /* Default preference whether to decode the SMS over SMPP when DCS = 0 */
@@ -589,7 +589,7 @@ static const value_string vals_replace_if_present_flag[] = {
 
 static const value_string vals_data_coding[] = {
     {   0, "SMSC default alphabet" },
-    {   1, "IA5 (CCITT T.50/ASCII (ANSI X3.4)" },
+    {   1, "IA5 (CCITT T.50)/ASCII (ANSI X3.4)" },
     {   2, "Octet unspecified (8-bit binary)" },
     {   3, "Latin 1 (ISO-8859-1)" },
     {   4, "Octet unspecified (8-bit binary)" },
@@ -1885,48 +1885,41 @@ smpp_handle_dcs(proto_tree *tree, tvbuff_t *tvb, int *offset, guint8 *dataCoding
 static void
 smpp_handle_msg(proto_tree *tree, tvbuff_t *tvb, int offset, int length, guint8 dataCoding)
 {
-    guint8 *msg = NULL;
-    unsigned char *src = NULL;
+    proto_item *ti;
+    guint encoding = DO_NOT_DECODE;
 
-    if (dataCoding == 0)
-    {
-        dataCoding = smpp_decode_dcs_0_sms;
-    }
     switch (dataCoding)
     {
-    case DECODE_AS_ASCII:
-        msg = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, length, ENC_ASCII|ENC_NA);
+    case DECODE_AS_DEFAULT:
+        encoding = smpp_decode_dcs_0_sms;
         break;
-    case DECODE_AS_IA5:
-        src = tvb_get_ascii_7bits_string(wmem_packet_scope(), tvb, (offset << 3), length);
-        msg = (unsigned char*)wmem_alloc(wmem_packet_scope(), length+1);
-        IA5_7BIT_decode(msg, src, length);
+    case DECODE_AS_ASCII:
+        encoding = ENC_ASCII|ENC_NA;
         break;
     case DECODE_AS_ISO_8859_1:
-        msg = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, length, ENC_ISO_8859_1|ENC_NA);
+        encoding = ENC_ISO_8859_1|ENC_NA;
         break;
     case DECODE_AS_ISO_8859_5:
-        msg = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, length, ENC_ISO_8859_5|ENC_NA);
+        encoding = ENC_ISO_8859_5|ENC_NA;
         break;
     case DECODE_AS_ISO_8859_8:
-        msg = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, length, ENC_ISO_8859_8|ENC_NA);
+        encoding = ENC_ISO_8859_8|ENC_NA;
         break;
     case DECODE_AS_UCS2:
-        msg = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, length, ENC_UCS_2|ENC_BIG_ENDIAN);
+        encoding = ENC_UCS_2|ENC_BIG_ENDIAN;
         break;
     default:
+        /* XXX: Support decoding unknown values according to the pref? */
+        encoding = DO_NOT_DECODE;
         break;
     }
 
-    if (msg)
-    {
-        proto_tree_add_string(tree,hf_smpp_short_message,
-                              tvb, offset, length, msg);
-    }
-    else
-    {
-        proto_tree_add_item(tree, hf_smpp_short_message_bin,
+    ti = proto_tree_add_item(tree, hf_smpp_short_message_bin,
                             tvb, offset, length, ENC_NA);
+    if (encoding != DO_NOT_DECODE) {
+        proto_item_set_hidden(ti);
+        proto_tree_add_item(tree, hf_smpp_short_message,
+                            tvb, offset, length, encoding);
     }
 
 }
@@ -3743,12 +3736,13 @@ proto_register_smpp(void)
     /* Encoding used to decode the SMS over SMPP when DCS is 0 */
     static const enum_val_t smpp_dcs_0_sms_decode_options[] = {
         { "none",        "None",       DO_NOT_DECODE },
-        { "ascii",       "ASCII",      DECODE_AS_ASCII },
-        { "ia5",         "IA5",        DECODE_AS_IA5 },
-        { "iso-8859-1",  "ISO-8859-1", DECODE_AS_ISO_8859_1 },
-        { "iso-8859-5",  "ISO-8859-5", DECODE_AS_ISO_8859_5 },
-        { "iso-8859-8",  "ISO-8859-8", DECODE_AS_ISO_8859_8 },
-        { "ucs2",        "UCS2",       DECODE_AS_UCS2 },
+        { "ascii",       "ASCII",      ENC_ASCII|ENC_NA },
+        { "gsm7",        "GSM 7-bit",  ENC_3GPP_TS_23_038_7BITS_UNPACKED|ENC_NA},
+        { "gsm7-packed", "GSM 7-bit (packed)", ENC_3GPP_TS_23_038_7BITS_PACKED|ENC_NA},
+        { "iso-8859-1",  "ISO-8859-1", ENC_ISO_8859_1|ENC_NA },
+        { "iso-8859-5",  "ISO-8859-5", ENC_ISO_8859_5|ENC_NA },
+        { "iso-8859-8",  "ISO-8859-8", ENC_ISO_8859_8|ENC_NA },
+        { "ucs2",        "UCS2",       ENC_UCS_2|ENC_BIG_ENDIAN },
         { NULL, NULL, 0 }
     };
 
