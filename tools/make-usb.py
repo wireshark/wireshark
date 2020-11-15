@@ -13,14 +13,16 @@ import urllib.request, urllib.error, urllib.parse
 
 MODE_IDLE           = 0
 MODE_VENDOR_PRODUCT = 1
-MIN_VENDORS = 2900 # 2948 as of 2015-06-28
-MIN_PRODUCTS = 15000 # 15415 as of 2015-06-28
+MIN_VENDORS = 3400 # 3409 as of 2020-11-15
+MIN_PRODUCTS = 20000 # 20361 as of 2020-11-15
 
 mode = MODE_IDLE
 
-# Grab from linux-usb.org
+# The canonical location for the usb.ids file is http://www.linux-usb.org/usb.ids.
+# As of November 2020 that site isn't available over HTTPS. Use what appears to
+# be the source code repository for the site.
 req_headers = { 'User-Agent': 'Wireshark make-usb' }
-req = urllib.request.Request('https://usb-ids.gowdy.us/usb.ids', headers=req_headers)
+req = urllib.request.Request('https://sourceforge.net/p/linux-usb/repo/HEAD/tree/trunk/htdocs/usb.ids?format=raw', headers=req_headers)
 response = urllib.request.urlopen(req)
 lines = response.read().decode('UTF-8', 'replace').splitlines()
 
