@@ -145,12 +145,15 @@ test:rpm-opensuse-15.2:
     GIT_STRATEGY: none
   dependencies:
     - build:rpm-opensuse-15.2
+
+# The custom Fedora image pre-installs dependencies and compilers to speed up the build:
+# https://hub.docker.com/repository/docker/wireshark/wireshark-fedora-dev
+# https://gitlab.com/wireshark/wireshark-containers/-/tree/master/dev/fedora
 build:rpm-fedora:
   <<: *build-rpm
-  image: fedora
+  image: wireshark/wireshark-fedora-dev
   script:
-    - dnf upgrade -y
-    - tools/rpm-setup.sh --install-optional -y
+    #- dnf upgrade -y
     - mkdir build
     - cd build
     - cmake3 -GNinja ..
