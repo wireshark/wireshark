@@ -7,7 +7,7 @@
 
 # The custom Ubuntu image pre-installs dependencies and compilers to speed up the build:
 # https://hub.docker.com/r/wireshark/wireshark-ubuntu-dev
-# https://github.com/wireshark/wireshark-ubuntu-dev-docker
+# https://gitlab.com/wireshark/wireshark-containers/-/tree/master/dev/ubuntu
 .build-ubuntu: &build-ubuntu
   <<: *build
   image: wireshark/wireshark-ubuntu-dev
@@ -19,14 +19,13 @@
     paths:
       - ccache/
   before_script:
-    - apt-get update -qq
+    #- apt-get update -qq
     - ./tools/debian-setup.sh --install-optional --install-test-deps -y
     - useradd user
     - locale-gen en_US.UTF-8
     - export LANG=en_US.UTF-8
     - export PYTEST_ADDOPTS=--skip-missing-programs=dumpcap,rawshark
     - mkdir -p ccache
-    - apt-get install -y ccache
     - export CCACHE_BASEDIR=${PWD}
     - export CCACHE_DIR=${PWD}/ccache
     - ccache --show-stats
@@ -267,7 +266,6 @@ merge-req:ubuntu-dpkg:
   rules:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
   script:
-    - apt-get install -y lintian
     # build-ubuntu puts us in `build`.
     - cd ..
     - CC=/usr/lib/ccache/gcc CXX=/usr/lib/ccache/g++ dpkg-buildpackage -us -uc -rfakeroot -jauto -Zgzip -zfast
@@ -295,7 +293,6 @@ merge-req:ubuntu-clang-other-tests:
   rules:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
   script:
-    - apt-get install -y cppcheck clang-tools python-pygments
     # build-ubuntu puts us in `build`.
     - cd ..
     - python3 tools/checklicenses.py
