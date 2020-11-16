@@ -275,8 +275,7 @@ static gint hf_cf_flags = -1;
 static gint hf_cf_flags2 = -1;
 static gint hf_flow_type = -1;
 static gint hf_ha_unit = -1;
-static gint hf_ingress_slot = -1;
-static gint hf_ingress_port = -1;
+static gint hf_reserved = -1;
 static gint hf_priority = -1;
 static gint hf_rstcause = -1;
 static gint hf_rstcause_len = -1;
@@ -1867,18 +1866,8 @@ dissect_med_trailer(
 
 	proto_tree_add_item(tree, hf_ha_unit, tvb, o, 1, ENC_BIG_ENDIAN);
 	o += 1;
-	if(trailer_ver == 0 && (trailer_length == F5_MEDV94_LEN || trailer_length == F5_MEDV10_LEN)) {
-		proto_tree_add_item(tree, hf_ingress_slot, tvb, o, 2, ENC_LITTLE_ENDIAN);
-		o += 2;
-		proto_tree_add_item(tree, hf_ingress_port, tvb, o, 2, ENC_LITTLE_ENDIAN);
-		o += 2;
-	} else {
-		/* V11 fixed the byte order of these */
-		proto_tree_add_item(tree, hf_ingress_slot, tvb, o, 2, ENC_BIG_ENDIAN);
-		o += 2;
-		proto_tree_add_item(tree, hf_ingress_port, tvb, o, 2, ENC_BIG_ENDIAN);
-		o += 2;
-	}
+	proto_tree_add_item(tree, hf_reserved, tvb, o, 4, ENC_BIG_ENDIAN);
+	o += 4;
 	if(trailer_ver >= 2) {
 		proto_tree_add_item(tree, hf_priority, tvb, o, 1, ENC_BIG_ENDIAN);
 		o += 1;
@@ -2321,10 +2310,8 @@ dissect_dpt_trailer_noise_med(
 
 	proto_tree_add_item(tree, hf_ha_unit,      tvb, o, 1, ENC_BIG_ENDIAN);
 	o += 1;
-	proto_tree_add_item(tree, hf_ingress_slot, tvb, o, 2, ENC_BIG_ENDIAN);
-	o += 2;
-	proto_tree_add_item(tree, hf_ingress_port, tvb, o, 2, ENC_BIG_ENDIAN);
-	o += 2;
+	proto_tree_add_item(tree, hf_reserved, tvb, o, 4, ENC_BIG_ENDIAN);
+	o += 4;
 	proto_tree_add_item(tree, hf_priority,     tvb, o, 1, ENC_BIG_ENDIAN);
 	o += 1;
 	if(badrstcauselen) {
@@ -3529,12 +3516,8 @@ void proto_register_f5ethtrailer (void)
 		  { "HA Unit", "f5ethtrailer.haunit", FT_UINT8, BASE_HEX, NULL,
 		    0x0, NULL, HFILL }
 		},
-		{ &hf_ingress_slot,
-		  { "Ingress Slot", "f5ethtrailer.ingressslot", FT_UINT16, BASE_DEC, NULL,
-		    0x0, NULL, HFILL }
-		},
-		{ &hf_ingress_port,
-		  { "Ingress Port", "f5ethtrailer.ingressport", FT_UINT16, BASE_DEC, NULL,
+		{ &hf_reserved,
+		  { "Reserved", "f5ethtrailer.reserved", FT_UINT32, BASE_HEX, NULL,
 		    0x0, NULL, HFILL }
 		},
 		{ &hf_priority,
