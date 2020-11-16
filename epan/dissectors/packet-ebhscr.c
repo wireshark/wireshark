@@ -40,6 +40,7 @@ static int hf_can_BOFF = -1;
 static int hf_can_DLEC = -1;
 static int hf_can_TEC = -1;
 static int hf_can_REC = -1;
+static int hf_can_CEL = -1;
 static int hf_can_reserved_bytes = -1;
 
 static int hf_eth_reserved_bytes = -1;
@@ -50,6 +51,7 @@ static int hf_eth_late_collision = -1;
 static int hf_eth_link_up_down = -1;
 static int hf_eth_master_slave = -1;
 static int hf_eth_fcs_unavailable = -1;
+static int hf_eth_rsvd_bit = -1;
 static int hf_eth_speed = -1;
 
 static int hf_eth_crc_error = -1;
@@ -94,8 +96,8 @@ static int * const can_status_bits[] = {
 	NULL
 };
 
-static  int * const can_mjr_hdr_bits[] = {
-	&hf_can_reserved_bytes,
+static int * const can_mjr_hdr_bits[] = {
+	& hf_can_reserved_bytes,
 	& hf_can_LEC,
 	& hf_can_ERRP,
 	& hf_can_ERRW,
@@ -103,6 +105,7 @@ static  int * const can_mjr_hdr_bits[] = {
 	& hf_can_DLEC,
 	& hf_can_TEC,
 	& hf_can_REC,
+	& hf_can_CEL,
 	NULL
 };
 
@@ -171,6 +174,7 @@ static int * const eth_mjr_hdr_bits[] = {
 	&hf_eth_link_up_down,
 	&hf_eth_master_slave,
 	&hf_eth_fcs_unavailable,
+	&hf_eth_rsvd_bit,
 	&hf_eth_speed,
 	NULL
 };
@@ -324,7 +328,7 @@ static int dissect_ebhscr_eth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 	proto_tree_add_bitmask(ebhscr_packet_header_tree, tvb, 24, hf_ebhscr_mjr_hdr, ett_ebhscr_mjr_hdr,
 							eth_mjr_hdr_bits, ENC_BIG_ENDIAN);
 
-	fsc_not_present = (major_hrd & 0x0000000004000000);
+	fsc_not_present = (major_hrd & 0x0000000400000000);
 
 	/* received hdr only and no data */
 	if (ebhscr_frame_length == EBHSCR_HEADER_LENGTH) {
@@ -633,40 +637,52 @@ proto_register_ebhscr(void)
 			NULL, 0x7F00000000000000,
 			NULL, HFILL }
 		},
+		{ &hf_can_CEL,
+			{ "Can Error Logging Counter", "ebhscr.can.cel",
+			FT_UINT64, BASE_DEC | BASE_VAL64_STRING,
+			NULL, 0x00000000000000FF,
+			NULL, HFILL }
+		},
 		{ &hf_can_reserved_bytes,
 			{ "Reserved Flags", "ebhscr.can.rsv",
 			FT_BOOLEAN, 64, NULL,
-			0x00000000FFFFFFFF,
+			0x00000000FFFFFF00,
 			NULL, HFILL }
 		},
 		{ &hf_eth_reserved_bytes,
 			{ "Reserved Flags", "ebhscr.eth.rsv",
 			FT_BOOLEAN, 64, NULL,
-			0xFFFFFFFF00FF00FF,
+			0xFFF0FF00FFFFFFFF,
 			NULL, HFILL }
 		},
 		{ &hf_eth_link_up_down,
 			{ "Link Up or Down", "ebhscr.eth.lud",
 			FT_UINT64, BASE_HEX | BASE_VAL64_STRING,
-			VALS64(eth_link_strings), 0x0000000001000000,
+			VALS64(eth_link_strings), 0x0000000100000000,
 			NULL, HFILL }
 		},
 		{ &hf_eth_master_slave,
 			{ "Master or Slave (if supported)", "ebhscr.eth.ms",
 			FT_UINT64, BASE_HEX | BASE_VAL64_STRING,
-			VALS64(eth_master_strings), 0x0000000002000000,
+			VALS64(eth_master_strings), 0x0000000200000000,
 			NULL, HFILL }
 		},
 		{ &hf_eth_fcs_unavailable,
 		{ "FCS unavailable", "ebhscr.eth.fcsua",
 			FT_UINT64, BASE_HEX | BASE_VAL64_STRING,
-			VALS64(eth_fcs_strings), 0x0000000004000000,
+			VALS64(eth_fcs_strings), 0x0000000400000000,
+			NULL, HFILL }
+		},
+		{ &hf_eth_rsvd_bit,
+		{ "Reserved", "ebhscr.eth.rsvd",
+			FT_BOOLEAN, 64, NULL,
+			0x0000000800000000,
 			NULL, HFILL }
 		},
 		{ &hf_eth_speed,
 			{ "Ethernet speed", "ebhscr.eth.spd",
 			FT_UINT64, BASE_HEX | BASE_VAL64_STRING,
-			VALS64(eth_speed_strings), 0x00000000F0000000,
+			VALS64(eth_speed_strings), 0x000000F000000000,
 			NULL, HFILL }
 		},
 		{ &hf_eth_crc_error,
@@ -732,25 +748,25 @@ proto_register_ebhscr(void)
 		{ &hf_eth_tx_trunc,
 			{ "If value 1 then a Truncation occured. The frame is sent truncated.", "ebhscr.eth.trc",
 			FT_BOOLEAN, 64, NULL,
-			0x00000100,
+			0x0001000000000000,
 			NULL, HFILL }
 		},
 		{ &hf_eth_trans_undrun,
 			{ "If value 1 then a Transmitter Underrun occured.", "ebhscr.eth.trudr",
 			FT_BOOLEAN, 64, NULL,
-			0x00000200,
+			0x0002000000000000,
 			NULL, HFILL }
 		},
 		{ &hf_eth_retrans_limit,
 			{ "If value 1 then the Retransmission Limit was reached", "ebhscr.eth.rtrlmt",
 			FT_BOOLEAN, 64, NULL,
-			0x00000400,
+			0x0004000000000000,
 			NULL, HFILL }
 		},
 		{ &hf_eth_late_collision,
 			{ "If value 1 then a Late collision was detected.", "ebhscr.eth.ltcls",
 			FT_BOOLEAN, 64, NULL,
-			0x00000800,
+			0x0008000000000000,
 			NULL, HFILL }
 		},
 		{ &hf_ts_time_offset_valid,
