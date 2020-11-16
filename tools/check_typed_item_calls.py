@@ -136,7 +136,7 @@ class ProtoTreeAddItemCheck(APICheck):
                     if self.lengths[items[call.hf_name].item_type] < call.length:
                         print(self.file + ':' + str(call.line_number),
                               'proto_tree_add_item called for', call.hf_name, ' - ',
-                              'item type is', items[call.hf_name].item_type, 'but call has len ', call.length)
+                              'item type is', items[call.hf_name].item_type, 'but call has len', call.length)
 
                         global issues_found
                         issues_found += 1
@@ -187,11 +187,20 @@ class Item:
         self.filter = filter
         self.label = label
 
+        self.mask = mask
+        if check_mask or check_consecutive:
+            self.set_mask_value()
+
         if check_consecutive:
             if Item.previousItem and Item.previousItem.filter == filter:
                 if label != Item.previousItem.label:
                     print('Warn: ' + filename + ': - filter "' + filter +
                           '" appears consecutively - labels are "' + Item.previousItem.label + '" and "' + label + '"')
+            if Item.previousItem and self.mask_value and (Item.previousItem.mask_value == self.mask_value):
+                if label != Item.previousItem.label:
+                    print('Warn: ' + filename + ': - mask ' + self.mask +
+                          ' appears consecutively - labels are "' + Item.previousItem.label + '" and "' + label + '"')
+
             Item.previousItem = self
 
 
@@ -207,6 +216,18 @@ class Item:
             if not mask in { 'NULL', '0x0', '0'}:
                 self.check_contiguous_bits(mask)
 
+    def set_mask_value(self):
+        try:
+            # Read according to the appropriate base.
+            if self.mask.startswith('0x'):
+                self.mask_value = int(self.mask, 16)
+            elif self.mask.startswith('0'):
+                self.mask_value = int(self.mask, 8)
+            else:
+                self.mask_value = int(self.mask, 10)
+        except:
+            self.mask_value = 0
+
 
     # Return true if bit position n is set in value.
     def check_bit(self, value, n):
@@ -217,61 +238,52 @@ class Item:
     # bits are conflated into one field.
     # TODO: there is probably a cool/efficient way to check this?
     def check_contiguous_bits(self, mask):
-        try:
-            # Read according to the appropriate base.
-            if mask.startswith('0x'):
-                value = int(mask, 16)
-            elif mask.startswith('0'):
-                value = int(mask, 8)
-            else:
-                value = int(mask, 10)
+        if not self.mask_value:
+            return
 
-            # Walk past any l.s. 0 bits
-            n = 0
-            while not self.check_bit(value, n) and n <= 63:
-                n += 1
-            if n==63:
+        # Walk past any l.s. 0 bits
+        n = 0
+        while not self.check_bit(self.mask_value, n) and n <= 63:
+            n += 1
+        if n==63:
+            return
+
+        mask_start = n
+        # Walk through any bits that are set
+        while self.check_bit(self.mask_value, n) and n <= 63:
+            n += 1
+        n += 1
+
+        if n >= 63:
+            return
+
+        # Look up the field width
+        field_width = 0
+        if not self.item_type in field_widths:
+            print('unexpected item_type is ', self.item_type)
+            field_width = 64
+        else:
+            field_width = field_widths[self.item_type]
+
+
+        # Its a problem is the mask_width is > field_width - some of the bits won't get looked at!?
+        mask_width = n-1-mask_start
+        if mask_width > field_width:
+            print('Error: ', self.filename, 'filter=', self.filter, self.item_type, 'so field_width=', field_width,
+                  'but mask is', mask, 'which is', mask_width, 'bits wide!')
+            global issues_found
+            issues_found += 1
+
+        # Now, any more zero set bits are an error!
+        if self.filter in known_non_contiguous_fields:
+            # Don't report if we know this one is Ok.
+            return
+        while n <= 63:
+            if self.check_bit(self.mask_value, n):
+                print('Warning: ', self.filename, 'filter=', self.filter, ' - mask with non-contiguous bits', mask)
                 return
-
-            mask_start = n
-            # Walk through any bits that are set
-            while self.check_bit(value, n) and n <= 63:
-                n += 1
             n += 1
 
-            if n >= 63:
-                return
-
-            # Look up the field width
-            field_width = 0
-            if not self.item_type in field_widths:
-                print('unexpected item_type is ', self.item_type)
-                field_width = 64
-            else:
-                field_width = field_widths[self.item_type]
-
-
-            # Its a problem is the mask_width is > field_width - some of the bits won't get looked at!?
-            mask_width = n-1-mask_start
-            if mask_width > field_width:
-                print('Error: ', self.filename, 'filter=', self.filter, self.item_type, 'so field_width=', field_width,
-                      'but mask is', mask, 'which is', mask_width, 'bits wide!')
-                global issues_found
-                issues_found += 1
-
-            # Now, any more zero set bits are an error!
-            if self.filter in known_non_contiguous_fields:
-                # Don't report if we know this one is Ok.
-                return
-            while n <= 63:
-                if self.check_bit(value, n):
-                    print('Warning: ', self.filename, 'filter=', self.filter, ' - mask with non-contiguous bits', mask)
-                    return
-                n += 1
-
-        except Exception:
-            # Sometimes, macro is used for item type so catch and keep going.
-            pass
 
 
 # These are APIs in proto.c that check a set of types at runtime and can print '.. is not of type ..' to the console
