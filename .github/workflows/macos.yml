@@ -20,7 +20,7 @@ jobs:
       - name: Install biplist
         run: pip install biplist
       - name: Set up Ruby 2.6
-        uses: actions/setup-ruby@v1.1.1
+        uses: actions/setup-ruby@v1.1.2
         with:
           ruby-version: '2.6'
       - name: Install deps

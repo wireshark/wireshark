@@ -14,13 +14,14 @@ jobs:
       - name: Install winflexbison3
         run: cinst -y --force winflexbison3 --version 2.5.18.20190508
       - name: Install strawberryperl
-        run: |
-          choco install strawberryperl
-          echo "##[add-path]C:\strawberry\c\bin;C:\strawberry\perl\site\bin;C:\strawberry\perl\bin"
+        uses: shogo82148/actions-setup-perl@v1
+        with:
+          perl-version: '5.30'
+          distribution: strawberry
       - name: Install Qt
         uses: jurplel/install-qt-action@v2
       - name: Add msbuild to PATH
-        uses: microsoft/setup-msbuild@v1.0.0
+        uses: microsoft/setup-msbuild@v1.0.2
         with:
           vs-version: 16.4
       - name: Set MSVC command prompt
