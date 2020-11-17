@@ -171,6 +171,7 @@ void proto_reg_handoff_1722_acf_lin(void);
 #define IEEE_1722_CVF_MJPEG_Q_MASK                      0x00
 #define IEEE_1722_CVF_MJPEG_WIDTH_MASK                  0x00
 #define IEEE_1722_CVF_MJPEG_HEIGHT_MASK                 0x00
+#define IEEE_1722_H264_PTV_MASK                         0x20
 #define IEEE_1722_MARKER_BIT_MASK                       0x10
 #define IEEE_1722_EVT_MASK                              0x0f
 
@@ -609,7 +610,7 @@ static const range_string cvf_format_range_rvals [] = {
     {0, 0,      NULL}
 };
 
-static const true_false_string tfs_marker_bit_set_not_set = { "Marker Bit is set", "Marker bit not set" };
+static const true_false_string tfs_set_not_set = { "Is set", "Is not set" };
 
 static const range_string cvf_format_subtype_range_rvals [] = {
     {0, 0,      "MJPEG Format (RFC2435)"},
@@ -655,6 +656,7 @@ static int hf_1722_cvf_format_subtype = -1;
 static int hf_1722_cvf_stream_data_length = -1;
 static int hf_1722_cvf_evtfield = -1;
 static int hf_1722_cvf_marker_bit = -1;
+static int hf_1722_cvf_h264_ptvfield = -1;
 static int hf_1722_cvf_h264_timestamp = -1;
 static int hf_1722_cvf_h264_forbidden_bit = -1;
 static int hf_1722_cvf_h264_nri = -1;
@@ -1649,6 +1651,7 @@ static int dissect_1722_cvf (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
         NULL
     };
     int * const fields_cvf[] = {
+        &hf_1722_cvf_h264_ptvfield,
         &hf_1722_cvf_marker_bit,
         &hf_1722_cvf_evtfield,
         NULL
@@ -1755,9 +1758,13 @@ void proto_register_1722_cvf (void)
             { "Stream Data Length", "cvf.stream_data_len",
               FT_UINT16, BASE_DEC | BASE_UNIT_STRING, &units_byte_bytes, IEEE_1722_STREAM_DATA_LENGTH_MASK, NULL, HFILL }
         },
+        { &hf_1722_cvf_h264_ptvfield,
+            { "H264 PTV", "cvf.h264_ptvfield",
+              FT_BOOLEAN, 8, TFS(&tfs_set_not_set), IEEE_1722_H264_PTV_MASK, NULL, HFILL }
+        },
         { &hf_1722_cvf_marker_bit,
             { "Marker Bit", "cvf.marker_bit",
-              FT_BOOLEAN, 8, TFS(&tfs_marker_bit_set_not_set), IEEE_1722_MARKER_BIT_MASK, NULL, HFILL }
+              FT_BOOLEAN, 8, TFS(&tfs_set_not_set), IEEE_1722_MARKER_BIT_MASK, NULL, HFILL }
         },
         { &hf_1722_cvf_evtfield,
             { "EVT", "cvf.evtfield",
