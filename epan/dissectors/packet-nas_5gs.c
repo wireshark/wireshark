@@ -4196,7 +4196,8 @@ guint16(*nas_5gs_common_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info
     gchar *add_string, int string_len) = {
         /*  9.10.2    Common information elements */
         de_nas_5gs_cmn_add_inf,                      /* 9.11.2.1     Additional information*/
-        NULL,                                        /* 9.11.2.1B    DNN*/
+        NULL,                                        /* 9.11.2.1A    Access type */
+        de_nas_5gs_cmn_dnn,                          /* 9.11.2.1B    DNN*/
         de_nas_5gs_cmn_eap_msg,                      /* 9.11.2.2     EAP message*/
         NULL,                                        /* 9.11.2.3     GPRS timer*/
         NULL,                                        /* 9.11.2.4     GPRS timer 2*/
