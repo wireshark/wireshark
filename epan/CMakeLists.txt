@@ -295,10 +295,7 @@ add_lex_files(LEX_FILES LIBWIRESHARK_FILES
 
 add_lemon_files(LEMON_FILES LIBWIRESHARK_FILES
 	dtd_grammar.lemon
-)
-
-add_yacc_files(YACC_FILES LIBWIRESHARK_FILES
-	protobuf_lang.y
+	protobuf_lang_parser.lemon
 )
 
 set_source_files_properties(

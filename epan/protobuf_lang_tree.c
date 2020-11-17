@@ -17,9 +17,6 @@
 #include "protobuf_lang_tree.h"
 #include "protobuf-helper.h" /* only for PROTOBUF_TYPE_XXX enumeration */
 
-extern int
-pbl_get_current_lineno(void* scanner);
-
 extern void
 pbl_parser_error(protobuf_lang_state_t *state, const char *fmt, ...);
 
@@ -207,6 +204,7 @@ pbl_add_proto_file_to_be_parsed(pbl_descriptor_pool_t* pool, const char* filepat
         file->filename = path;
         file->syntax_version = 2;
         file->package_name = PBL_DEFAULT_PACKAGE_NAME;
+        file->package_name_lineno = -1;
         file->pool = pool;
 
         /* store in hash table and list */
@@ -782,18 +780,17 @@ pbl_foreach_message(const pbl_descriptor_pool_t* pool, void (*cb)(const pbl_mess
  */
 
 static void
-pbl_init_node(pbl_node_t* node, pbl_file_descriptor_t* file, pbl_node_type_t nodetype, const char* name)
+pbl_init_node(pbl_node_t* node, pbl_file_descriptor_t* file, int lineno, pbl_node_type_t nodetype, const char* name)
 {
     node->nodetype = nodetype;
     node->name = g_strdup(name);
     node->file = file;
-    node->lineno = (file && file->pool && file->pool->parser_state && file->pool->parser_state->scanner) ?
-                    pbl_get_current_lineno(file->pool->parser_state->scanner) : -1;
+    node->lineno = (lineno > -1) ? lineno : -1;
 }
 
 /* create a normal node */
 pbl_node_t*
-pbl_create_node(pbl_file_descriptor_t* file, pbl_node_type_t nodetype, const char* name)
+pbl_create_node(pbl_file_descriptor_t* file, int lineno, pbl_node_type_t nodetype, const char* name)
 {
     pbl_node_t* node = NULL;
 
@@ -813,15 +810,18 @@ pbl_create_node(pbl_file_descriptor_t* file, pbl_node_type_t nodetype, const cha
     default:
         node = g_new0(pbl_node_t, 1);
     }
-    pbl_init_node(node, file, nodetype, name);
+    pbl_init_node(node, file, lineno, nodetype, name);
     return node;
 }
 
 pbl_node_t*
-pbl_set_node_name(pbl_node_t* node, const char* newname)
+pbl_set_node_name(pbl_node_t* node, int lineno, const char* newname)
 {
     g_free(node->name);
     node->name = g_strdup(newname);
+    if (lineno > -1) {
+        node->lineno = lineno;
+    }
     return node;
 }
 
@@ -836,12 +836,12 @@ pbl_get_option_by_name(pbl_node_t* options, const char* name)
 }
 
 /* create a method (rpc or stream of service) node */
-pbl_node_t* pbl_create_method_node(pbl_file_descriptor_t* file,
+pbl_node_t* pbl_create_method_node(pbl_file_descriptor_t* file, int lineno,
     const char* name, const char* in_msg_type,
     gboolean in_is_stream, const char* out_msg_type, gboolean out_is_stream)
 {
     pbl_method_descriptor_t* node = g_new0(pbl_method_descriptor_t, 1);
-    pbl_init_node(&node->basic_info, file, PBL_METHOD, name);
+    pbl_init_node(&node->basic_info, file, lineno, PBL_METHOD, name);
 
     node->in_msg_type = g_strdup(in_msg_type);
     node->in_is_stream = in_is_stream;
@@ -865,12 +865,12 @@ pbl_get_simple_type_enum_value_by_typename(const char* type_name)
 }
 
 /* create a field node */
-pbl_node_t* pbl_create_field_node(pbl_file_descriptor_t* file, const char* label,
+pbl_node_t* pbl_create_field_node(pbl_file_descriptor_t* file, int lineno, const char* label,
     const char* type_name, const char* name, int number, pbl_node_t* options)
 {
     pbl_option_descriptor_t* default_option;
     pbl_field_descriptor_t* node = g_new0(pbl_field_descriptor_t, 1);
-    pbl_init_node(&node->basic_info, file, PBL_FIELD, name);
+    pbl_init_node(&node->basic_info, file, lineno, PBL_FIELD, name);
 
     node->number = number;
     node->options_node = options;
@@ -944,11 +944,11 @@ pbl_node_t* pbl_create_field_node(pbl_file_descriptor_t* file, const char* label
 }
 
 /* create a map field node */
-pbl_node_t* pbl_create_map_field_node(pbl_file_descriptor_t* file,
+pbl_node_t* pbl_create_map_field_node(pbl_file_descriptor_t* file, int lineno,
     const char* name, int number, pbl_node_t* options)
 {
     pbl_field_descriptor_t* node = g_new0(pbl_field_descriptor_t, 1);
-    pbl_init_node(&node->basic_info, file, PBL_MAP_FIELD, name);
+    pbl_init_node(&node->basic_info, file, lineno, PBL_MAP_FIELD, name);
 
     node->number = number;
     node->type_name = g_strconcat(name, "MapEntry", NULL);
@@ -961,21 +961,21 @@ pbl_node_t* pbl_create_map_field_node(pbl_file_descriptor_t* file,
 
 /* create an enumeration field node */
 pbl_node_t*
-pbl_create_enum_value_node(pbl_file_descriptor_t* file, const char* name, int number)
+pbl_create_enum_value_node(pbl_file_descriptor_t* file, int lineno, const char* name, int number)
 {
     pbl_enum_value_descriptor_t* node = g_new0(pbl_enum_value_descriptor_t, 1);
-    pbl_init_node(&node->basic_info, file, PBL_ENUM_VALUE, name);
+    pbl_init_node(&node->basic_info, file, lineno, PBL_ENUM_VALUE, name);
 
     node->number = number;
     return (pbl_node_t*)node;
 }
 
 /* create an option node */
-pbl_node_t* pbl_create_option_node(pbl_file_descriptor_t* file,
+pbl_node_t* pbl_create_option_node(pbl_file_descriptor_t* file, int lineno,
     const char* name, const char* value)
 {
     pbl_option_descriptor_t* node = g_new0(pbl_option_descriptor_t, 1);
-    pbl_init_node(&node->basic_info, file, PBL_OPTION, name);
+    pbl_init_node(&node->basic_info, file, lineno, PBL_OPTION, name);
 
     if (value)
         node->value = g_strdup(value);
@@ -993,7 +993,7 @@ pbl_add_child(pbl_node_t* parent, pbl_node_t* child)
 
     /* add a message node for mapField first */
     if (child->nodetype == PBL_MAP_FIELD) {
-        node = pbl_create_node(child->file, PBL_MESSAGE, ((pbl_field_descriptor_t*)child)->type_name);
+        node = pbl_create_node(child->file, child->lineno, PBL_MESSAGE, ((pbl_field_descriptor_t*)child)->type_name);
         pbl_merge_children(node, child);
         pbl_add_child(parent, node);
     }

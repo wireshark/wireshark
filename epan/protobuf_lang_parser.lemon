@@ -1,0 +1,632 @@
+%include {
+/* protobuf_lang_parser.lemon
+ *
+ * C Protocol Buffers Language (PBL) Parser (for *.proto files)
+ * Copyright 2020, Huang Qiangxiong <qiangxiong.huang@qq.com>
+ *
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
+
+/* This parser is mainly to get MESSAGE, ENUM, and FIELD information from *.proto files.
+ * There are two formats of *.proto files:
+ * 1) Protocol Buffers Version 3 Language Specification:
+ *      https://developers.google.com/protocol-buffers/docs/reference/proto3-spec
+ * 2) Protocol Buffers Version 2 Language Specification:
+ *      https://developers.google.com/protocol-buffers/docs/reference/proto2-spec
+ * There are some errors about 'proto', 'option' (value) and 'reserved' (fieldName) definitions on that sites.
+ * This parser is created because Wireshark is mainly implemented in plain ANSI C but the offical
+ * Protocol Buffers Language parser is implemented in C++.
+ */
+#include "config.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <stdarg.h>
+#include <glib.h>
+#include <assert.h>
+#include <wsutil/file_util.h>
+#include "protobuf_lang_tree.h"
+#include "protobuf_lang_parser.h"
+#include "protobuf_lang_scanner_lex.h"
+
+#define NAME_TO_BE_SET "<NAME_TO_BE_SET>"
+#define NEED_NOT_NAME "<NEED_NOT_NAME>"
+
+/* Error handling function for parser */
+void protobuf_lang_error(void* yyscanner, protobuf_lang_state_t *state, const char *msg);
+
+/* Extended error handling function */
+void pbl_parser_error(protobuf_lang_state_t *state, const char *fmt, ...);
+
+/* It's just the approximate line number which is gotten when a grammar rule is reduced
+   by the parser (lemon). That might be overridden by the lineno argument of
+   pbl_set_node_name() later. */
+#define CUR_LINENO (protobuf_lang_get_lineno(state->scanner))
+
+} /* end of %include */
+
+%name ProtobufLangParser
+
+%extra_argument { protobuf_lang_state_t *state }
+
+%token_type { protobuf_lang_token_t* }
+
+%token_destructor {
+    /* We manage memory allocated for token values by ourself */
+    (void) state; /* Mark unused, similar to Q_UNUSED */
+    (void) $$; /* Mark unused, similar to Q_UNUSED */
+}
+
+%syntax_error {
+    pbl_parser_error(state, "Syntax Error: unexpected token \"%s\"!", yyminor->v);
+    state->grammar_error = TRUE;
+}
+
+%parse_failure {
+    pbl_parser_error(state, "Parse Error");
+    state->grammar_error = TRUE;
+}
+
+/* Keywords like 'syntax', 'message', etc can be used as the names of messages, fields or enums.
+   So we tell the lemon: "If you are unable to parse this keyword, try treating it as an identifier instead.*/
+%fallback PT_IDENT  PT_SYNTAX PT_IMPORT PT_WEAK PT_PUBLIC PT_PACKAGE PT_OPTION PT_REQUIRED PT_OPTIONAL.
+%fallback PT_IDENT  PT_REPEATED PT_ONEOF PT_MAP PT_RESERVED PT_ENUM PT_GROUP PT_EXTEND PT_EXTENSIONS.
+%fallback PT_IDENT  PT_MESSAGE PT_SERVICE PT_RPC PT_STREAM PT_RETURNS PT_TO.
+
+%type strLit { gchar* }
+%type label { gchar* }
+%type type { gchar* }
+%type keyType { gchar* }
+%type messageType { gchar* }
+%type constant { gchar* }
+
+%type exIdent { protobuf_lang_token_t* }
+%type optionName { protobuf_lang_token_t* }
+%type messageName { protobuf_lang_token_t* }
+%type enumName { protobuf_lang_token_t* }
+%type streamName { protobuf_lang_token_t* }
+%type fieldName { protobuf_lang_token_t* }
+%type oneofName { protobuf_lang_token_t* }
+%type mapName { protobuf_lang_token_t* }
+%type serviceName { protobuf_lang_token_t* }
+%type rpcName { protobuf_lang_token_t* }
+%type groupName { protobuf_lang_token_t* }
+
+%type protoBody { pbl_node_t* }
+%type topLevelDef { pbl_node_t* }
+%type message { pbl_node_t* }
+%type messageBody { pbl_node_t* }
+%type rpc { pbl_node_t* }
+%type rpcDecl { pbl_node_t* }
+%type field { pbl_node_t* }
+%type oneofField { pbl_node_t* }
+%type enum { pbl_node_t* }
+%type enumBody { pbl_node_t* }
+%type enumField { pbl_node_t* }
+%type service { pbl_node_t* }
+%type serviceBody { pbl_node_t* }
+%type stream { pbl_node_t* }
+%type streamDecl { pbl_node_t* }
+%type fieldOptions { pbl_node_t* }
+%type fieldOption { pbl_node_t* }
+%type oneof { pbl_node_t* }
+%type oneofBody { pbl_node_t* }
+%type mapField { pbl_node_t* }
+%type group { pbl_node_t* }
+%type extend { pbl_node_t* }
+%type extendBody { pbl_node_t* }
+
+%type intLit { guint64 }
+
+%type fieldNumber { int }
+%type enumNumber { int }
+
+/* We don't care about the types of following nodes:
+syntax import package option enumValueOptions enumValueOption rpcBody streamBody
+extensions reserved ranges range quoteFieldNames emptyStatement
+*/
+
+%start_symbol proto
+
+/* v2/v3: proto = syntax { import | package | option | topLevelDef | emptyStatement } */
+/* Offical PBL bugfix: proto = { syntax } { import | package | option | topLevelDef | emptyStatement }
+   The default syntax version is "proto2". */
+proto ::= wholeProtoBody.
+proto ::= syntax wholeProtoBody.
+
+wholeProtoBody ::= protoBody(B).
+    {
+        /* set real package name */
+        pbl_set_node_name(B, state->file->package_name_lineno, state->file->package_name);
+        /* use the allocate mem of the name of the package node */
+        state->file->package_name = pbl_get_node_name(B);
+        /* put this file data into package tables */
+        pbl_node_t* packnode = (pbl_node_t*)g_hash_table_lookup(state->pool->packages, state->file->package_name);
+        if (packnode) {
+            pbl_merge_children(packnode, B);
+            pbl_free_node(B);
+        } else {
+            g_hash_table_insert(state->pool->packages, g_strdup(state->file->package_name), B);
+        }
+    }
+
+/* v2: syntax = "syntax" "=" quote "proto2" quote ";" */
+/* v3: syntax = "syntax" "=" quote "proto3" quote ";" */
+syntax ::= PT_SYNTAX PT_ASSIGN strLit(B) PT_SEMICOLON.
+    {
+        if (!strcmp(B, "proto3")) {
+            state->file->syntax_version = 3;
+        } else if (!strcmp(B, "proto2")) {
+            state->file->syntax_version = 2;
+        } else {
+            pbl_parser_error(state, "Unrecognized syntax identifier [%s]. This parser only recognizes \"proto3\" or \"proto2\"!", B);
+            state->grammar_error = TRUE;
+        }
+    }
+
+protoBody(A) ::= . { A = pbl_create_node(state->file, CUR_LINENO, PBL_PACKAGE, NAME_TO_BE_SET); } /* create am empty package node */
+protoBody ::= protoBody import. /* default action is {A = B; } */
+protoBody ::= protoBody package.
+protoBody ::= protoBody option.
+protoBody(A) ::= protoBody(B) topLevelDef(C).  { A = B; pbl_add_child(A, C); }
+protoBody ::= protoBody emptyStatement.
+
+/* v2/v3: import = "import" [ "weak" | "public" ] strLit ";" */
+import ::=  PT_IMPORT strLit(B) PT_SEMICOLON. { pbl_add_proto_file_to_be_parsed(state->pool, B); } /* append file to todo list */
+import ::=  PT_IMPORT PT_PUBLIC strLit(B) PT_SEMICOLON. { pbl_add_proto_file_to_be_parsed(state->pool, B); }
+import ::=  PT_IMPORT PT_WEAK strLit(B) PT_SEMICOLON. { pbl_add_proto_file_to_be_parsed(state->pool, B); }
+
+/* v2/v3: package = "package" fullIdent ";" */
+package ::= PT_PACKAGE exIdent(B) PT_SEMICOLON.
+    {   /* The memory of (B) will be freed after parsing, but the package_name will
+           be replaced by the new-allocated name of package node late */
+        state->file->package_name = B->v;
+        state->file->package_name_lineno = B->ln;
+    }
+
+/* v2/v3: option = "option" optionName  "=" constant ";" */
+/* Offical PBL bugfix: option = "option" optionName  "=" ( constant | customOptionValue ) ";" */
+option ::= PT_OPTION optionName PT_ASSIGN constant PT_SEMICOLON.
+option ::= PT_OPTION optionName PT_ASSIGN customOptionValue PT_SEMICOLON.
+
+/* v2/v3: optionName = ( ident | "(" fullIdent ")" ) { "." ident } */
+optionName ::= exIdent.
+optionName(A) ::= PT_LPAREN exIdent(B) PT_RPAREN.
+    { A = B; A->v = pbl_store_string_token(state, g_strconcat("(", B->v, ")", NULL)); }
+optionName(A) ::= PT_LPAREN exIdent(B) PT_RPAREN exIdent(C).  /* Note that the exIdent contains "." */
+    { A = B; A->v = pbl_store_string_token(state, g_strconcat("(", B->v, ")", C->v, NULL)); }
+
+/* Allow format which not defined in offical PBL specification like:
+    option (google.api.http) = { post: "/v3alpha/kv/put" body: "*" };
+    option (google.api.http) = { post: "/v3alpha/kv/put", body: "*" };
+    option (google.api.http) = { post: "/v3alpha/kv/put" { any format } body: "*" };
+*/
+customOptionValue ::= PT_LCURLY customOptionBody PT_RCURLY.
+
+customOptionBody ::= .
+customOptionBody ::= customOptionBody exIdent.
+customOptionBody ::= customOptionBody strLit.
+customOptionBody ::= customOptionBody symbolsWithoutCurly.
+customOptionBody ::= customOptionBody intLit.
+customOptionBody ::= customOptionBody customOptionValue.
+
+symbolsWithoutCurly ::= PT_LPAREN.
+symbolsWithoutCurly ::= PT_RPAREN.
+symbolsWithoutCurly ::= PT_LBRACKET.
+symbolsWithoutCurly ::= PT_RBRACKET.
+symbolsWithoutCurly ::= PT_EQUAL.
+symbolsWithoutCurly ::= PT_NOTEQUAL.
+symbolsWithoutCurly ::= PT_NOTEQUAL2.
+symbolsWithoutCurly ::= PT_GEQUAL.
+symbolsWithoutCurly ::= PT_LEQUAL.
+symbolsWithoutCurly ::= PT_ASSIGN_PLUS.
+symbolsWithoutCurly ::= PT_ASSIGN.
+symbolsWithoutCurly ::= PT_PLUS.
+symbolsWithoutCurly ::= PT_MINUS.
+symbolsWithoutCurly ::= PT_MULTIPLY.
+symbolsWithoutCurly ::= PT_DIV.
+symbolsWithoutCurly ::= PT_LOGIC_OR.
+symbolsWithoutCurly ::= PT_OR.
+symbolsWithoutCurly ::= PT_LOGIC_AND.
+symbolsWithoutCurly ::= PT_AND.
+symbolsWithoutCurly ::= PT_NOT.
+symbolsWithoutCurly ::= PT_NEG.
+symbolsWithoutCurly ::= PT_XOR.
+symbolsWithoutCurly ::= PT_SHL.
+symbolsWithoutCurly ::= PT_SHR.
+symbolsWithoutCurly ::= PT_PERCENT.
+symbolsWithoutCurly ::= PT_DOLLAR.
+symbolsWithoutCurly ::= PT_COND.
+symbolsWithoutCurly ::= PT_SEMICOLON.
+symbolsWithoutCurly ::= PT_DOT.
+symbolsWithoutCurly ::= PT_COMMA.
+symbolsWithoutCurly ::= PT_COLON.
+symbolsWithoutCurly ::= PT_LESS.
+symbolsWithoutCurly ::= PT_GREATER.
+
+/* v2: topLevelDef = message | enum | extend | service */
+/* v3: topLevelDef = message | enum | service */
+topLevelDef ::= message.
+topLevelDef ::= enum.
+topLevelDef ::= extend. /*v2 only */
+topLevelDef ::= service.
+
+/* v2/v3: message = "message" messageName messageBody */
+message(A) ::= PT_MESSAGE messageName(B) PT_LCURLY messageBody(C) PT_RCURLY.
+    { A = C; pbl_set_node_name(A, B->ln, B->v); }
+
+/* v2: messageBody = "{" { field | enum | message | extend | extensions | group | option | oneof | mapField | reserved | emptyStatement } "}" */
+/* v3: messageBody = "{" { field | enum | message | option | oneof | mapField | reserved | emptyStatement } "}" */
+messageBody(A) ::= .  { A = pbl_create_node(state->file, CUR_LINENO, PBL_MESSAGE, NAME_TO_BE_SET); }
+messageBody(A) ::= messageBody(B) field(C).  { A = B; pbl_add_child(A, C); }
+messageBody(A) ::= messageBody(B) enum(C).  { A = B; pbl_add_child(A, C); }
+messageBody(A) ::= messageBody(B) message(C).  { A = B; pbl_add_child(A, C); }
+messageBody ::= messageBody extend.  /* v2 only */
+messageBody ::= messageBody extensions. /* v2 only */
+messageBody(A) ::= messageBody(B) group(C). /* v2 only */  { A = B; pbl_add_child(A, C); }
+messageBody ::= messageBody option.
+messageBody(A) ::= messageBody(B) oneof(C).  { A = B; pbl_merge_children(A, C); pbl_free_node(C); }
+messageBody(A) ::= messageBody(B) mapField(C).  { A = B; pbl_add_child(A, C); }
+messageBody ::= messageBody reserved.
+messageBody ::= messageBody emptyStatement.
+
+/* v2/v3: enum = "enum" enumName enumBody */
+enum(A) ::= PT_ENUM enumName(B) PT_LCURLY enumBody(C) PT_RCURLY.
+    { A = C; pbl_set_node_name(A, B->ln, B->v); }
+
+/* v2/v3: enumBody = "{" { option | enumField | emptyStatement } "}" */
+enumBody(A) ::= .  { A = pbl_create_node(state->file, CUR_LINENO, PBL_ENUM, NAME_TO_BE_SET); }
+enumBody ::= enumBody option.
+enumBody(A) ::= enumBody(B) enumField(C).  { A = B; pbl_add_child(A, C); }
+enumBody ::= enumBody emptyStatement.
+
+/* v2/v3: enumField = ident "=" [ "-" ] intLit [ "[" enumValueOption { ","  enumValueOption } "]" ]";" */
+enumField(A) ::= exIdent(B) PT_ASSIGN enumNumber(C) PT_LBRACKET enumValueOptions PT_RBRACKET PT_SEMICOLON.
+    { A = pbl_create_enum_value_node(state->file, B->ln, B->v, C); }
+enumField(A) ::= exIdent(B) PT_ASSIGN enumNumber(C).
+    { A = pbl_create_enum_value_node(state->file, B->ln, B->v, C); }
+
+/* v2/v3: must be in the range of a 32-bit integer. negative values are not recommended. */
+enumNumber(A) ::= intLit(B). { A = (int)B; }
+enumNumber(A) ::= PT_PLUS intLit(B). { A = (int)B; }
+enumNumber(A) ::= PT_MINUS intLit(B). { A = -(int)B; }
+
+/* v2/v3: enumValueOption { ","  enumValueOption } */
+enumValueOptions ::= enumValueOption.
+enumValueOptions ::= enumValueOptions PT_COMMA enumValueOption.
+
+/* v2/v3: enumValueOption = optionName "=" constant */
+enumValueOption ::= optionName PT_ASSIGN constant.
+
+/* v2: service = "service" serviceName "{" { option | rpc | stream | emptyStatement } "}" */
+/* v3: service = "service" serviceName "{" { option | rpc | emptyStatement } "}" */
+service(A) ::= PT_SERVICE serviceName(B) PT_LCURLY serviceBody(C) PT_RCURLY.
+    { A = C; pbl_set_node_name(A, B->ln, B->v); }
+
+serviceBody(A) ::= .  { A = pbl_create_node(state->file, CUR_LINENO, PBL_SERVICE, NAME_TO_BE_SET); }
+serviceBody ::= serviceBody option.
+serviceBody(A) ::= serviceBody(B) rpc(C).  { A = B; pbl_add_child(A, C); }
+serviceBody ::= serviceBody emptyStatement.
+serviceBody(A) ::= serviceBody(B) stream(C). /* v2 only */ { A = B; pbl_add_child(A, C); }
+
+/* v2/v3: rpc = "rpc" rpcName "(" [ "stream" ] messageType ")" "returns" "(" [ "stream" ] messageType ")" (( "{" {option | emptyStatement } "}" ) | ";") */
+rpc ::= rpcDecl PT_SEMICOLON.
+rpc ::= rpcDecl PT_LCURLY rpcBody PT_RCURLY.
+
+/* "rpc" rpcName "(" [ "stream" ] messageType ")" "returns" "(" [ "stream" ] messageType ")" */
+rpcDecl(A) ::= PT_RPC rpcName(B) PT_LPAREN messageType(C) PT_RPAREN PT_RETURNS PT_LPAREN messageType(D) PT_RPAREN.
+    { A = pbl_create_method_node(state->file, B->ln, B->v, C, FALSE, D, FALSE); }
+rpcDecl(A) ::= PT_RPC rpcName(B) PT_LPAREN PT_STREAM messageType(C) PT_RPAREN PT_RETURNS PT_LPAREN messageType(D) PT_RPAREN.
+    { A = pbl_create_method_node(state->file, B->ln, B->v, C, TRUE, D, FALSE); }
+rpcDecl(A) ::= PT_RPC rpcName(B) PT_LPAREN messageType(C) PT_RPAREN PT_RETURNS PT_LPAREN PT_STREAM messageType(D) PT_RPAREN.
+    { A = pbl_create_method_node(state->file, B->ln, B->v, C, FALSE, D, TRUE); }
+rpcDecl(A) ::= PT_RPC rpcName(B) PT_LPAREN PT_STREAM messageType(C) PT_RPAREN PT_RETURNS PT_LPAREN PT_STREAM messageType(D) PT_RPAREN.
+    { A = pbl_create_method_node(state->file, B->ln, B->v, C, TRUE, D, TRUE); }
+
+rpcBody ::= .
+rpcBody ::= rpcBody option.
+rpcBody ::= rpcBody emptyStatement.
+
+/* v2: stream = "stream" streamName "(" messageType "," messageType ")" (( "{" { option | emptyStatement } "}") | ";" ) */
+stream ::= streamDecl PT_SEMICOLON.
+stream ::= streamDecl PT_LCURLY streamBody PT_RCURLY.
+
+/* v2 only */
+streamDecl(A) ::= PT_STREAM streamName(B) PT_LPAREN messageType(C) PT_COMMA messageType(D) PT_RPAREN.
+    { A = pbl_create_method_node(state->file, B->ln, B->v, C, TRUE, D, TRUE); }
+
+/* v2 only */
+streamBody ::= .
+streamBody ::= streamBody option.
+streamBody ::= streamBody emptyStatement.
+
+/* v2: label type fieldName "=" fieldNumber [ "[" fieldOptions "]" ] ";" */
+/* v3: field = [ "repeated" ] type fieldName "=" fieldNumber [ "[" fieldOptions "]" ] ";" */
+field(A) ::= type(C) fieldName(D) PT_ASSIGN fieldNumber(E) PT_SEMICOLON.
+    { A = pbl_create_field_node(state->file, D->ln, NULL, C, D->v, E, NULL); }
+field(A) ::= type(C) fieldName(D) PT_ASSIGN fieldNumber(E) PT_LBRACKET fieldOptions(F) PT_RBRACKET PT_SEMICOLON.
+    { A = pbl_create_field_node(state->file, D->ln, NULL, C, D->v, E, F); }
+field(A) ::= label(B) type(C) fieldName(D) PT_ASSIGN fieldNumber(E) PT_SEMICOLON.
+    { A = pbl_create_field_node(state->file, D->ln, B, C, D->v, E, NULL); }
+field(A) ::= label(B) type(C) fieldName(D) PT_ASSIGN fieldNumber(E) PT_LBRACKET fieldOptions(F) PT_RBRACKET PT_SEMICOLON.
+    { A = pbl_create_field_node(state->file, D->ln, B, C, D->v, E, F); }
+
+/* v2: label = "required" | "optional" | "repeated" */
+label(A) ::= PT_REQUIRED(B).  { A = B->v; }
+label(A) ::= PT_OPTIONAL(B).  { A = B->v; }
+label(A) ::= PT_REPEATED(B).  { A = B->v; }
+
+/* v2/v3: type = "double" | "float" | "int32" | "int64" | "uint32" | "uint64"
+      | "sint32" | "sint64" | "fixed32" | "fixed64" | "sfixed32" | "sfixed64"
+      | "bool" | "string" | "bytes" | messageType | enumType
+*/
+type(A) ::= exIdent(B).  { A = B->v; }
+
+/* v2/v3: The smallest field number is 1, and the largest is 2^29 - 1, or 536,870,911. */
+fieldNumber(A) ::= intLit(B). { A = (int)B; }
+fieldNumber(A) ::= PT_PLUS intLit(B). { A = (int)B; }
+
+/* v2/v3: fieldOptions = fieldOption { ","  fieldOption } */
+fieldOptions(A) ::= fieldOption(B).
+    { A = pbl_create_node(state->file, CUR_LINENO, PBL_OPTIONS, NEED_NOT_NAME); pbl_add_child(A, B); }
+fieldOptions(A) ::= fieldOptions(B) PT_COMMA fieldOption(C).
+    { A = B; pbl_add_child(A, C); }
+
+/* v2/v3: fieldOption = optionName "=" constant */
+fieldOption(A) ::= optionName(B) PT_ASSIGN constant(C).
+    { A = pbl_create_option_node(state->file, B->ln, B->v, C); }
+
+/* v2 only: group = label "group" groupName "=" fieldNumber messageBody */
+group(A) ::= label PT_GROUP groupName(B) PT_ASSIGN fieldNumber PT_LCURLY messageBody(C) PT_RCURLY.
+    { A = C; pbl_set_node_name(A, B->ln, B->v); }
+
+groupName ::= exIdent.
+
+/* v2/v3: oneof = "oneof" oneofName "{" { oneofField | emptyStatement } "}" */
+oneof(A) ::= PT_ONEOF oneofName(B) PT_LCURLY oneofBody(C) PT_RCURLY.
+    { A = C; pbl_set_node_name(A, B->ln, B->v); }
+
+oneofBody(A) ::= .  { A = pbl_create_node(state->file, CUR_LINENO, PBL_ONEOF, NAME_TO_BE_SET); }
+oneofBody(A) ::= oneofBody(B) oneofField(C). { A = B; pbl_add_child(A, C); }
+oneofBody ::= oneofBody emptyStatement.
+
+/* v2/v3: oneofField = type fieldName "=" fieldNumber [ "[" fieldOptions "]" ] ";" */
+oneofField(A) ::= type(B) fieldName(C) PT_ASSIGN fieldNumber(D) PT_LBRACKET fieldOptions(E) PT_RBRACKET PT_SEMICOLON.
+    { A = pbl_create_field_node(state->file, C->ln, NULL, B, C->v, D, E); }
+oneofField(A) ::= type(B) fieldName(C) PT_ASSIGN fieldNumber(D) PT_SEMICOLON.
+    { A = pbl_create_field_node(state->file, C->ln, NULL, B, C->v, D, NULL); }
+
+/* v2/v3: mapField = "map" "<" keyType "," type ">" mapName "=" fieldNumber [ "[" fieldOptions "]" ] ";" */
+mapField(A) ::= PT_MAP PT_LESS keyType(B) PT_COMMA type(C) PT_GREATER mapName(D) PT_ASSIGN fieldNumber(E) PT_LBRACKET fieldOptions(F) PT_RBRACKET PT_SEMICOLON.
+    {
+        A = pbl_create_map_field_node(state->file, D->ln, D->v, E, F);
+        pbl_add_child(A, pbl_create_field_node(state->file, D->ln, NULL, B, "key", 1, NULL)); /* add key field */
+        pbl_add_child(A, pbl_create_field_node(state->file, D->ln, NULL, C, "value", 2, NULL)); /* add value field */
+    }
+mapField(A) ::= PT_MAP PT_LESS keyType(B) PT_COMMA type(C) PT_GREATER mapName(D) PT_ASSIGN fieldNumber(E) PT_SEMICOLON.
+    {
+        A = pbl_create_map_field_node(state->file, D->ln, D->v, E, NULL);
+        pbl_add_child(A, pbl_create_field_node(state->file, D->ln, NULL, B, "key", 1, NULL)); /* add key field */
+        pbl_add_child(A, pbl_create_field_node(state->file, D->ln, NULL, C, "value", 2, NULL)); /* add value field */
+    }
+
+/* keyType = "int32" | "int64" | "uint32" | "uint64" | "sint32" | "sint64" |
+          "fixed32" | "fixed64" | "sfixed32" | "sfixed64" | "bool" | "string" */
+keyType(A) ::= exIdent(B). { A = B->v; }
+
+/* v2 only: extensions = "extensions" ranges ";" */
+extensions ::= PT_EXTENSIONS ranges PT_SEMICOLON.
+
+/* v2/v3: reserved = "reserved" ( ranges | fieldNames ) ";" */
+reserved ::= PT_RESERVED ranges PT_SEMICOLON.
+reserved ::= PT_RESERVED quoteFieldNames PT_SEMICOLON.
+
+/* v2/v3: ranges = range { "," range } */
+ranges ::= range.
+ranges ::= ranges PT_COMMA range.
+
+/* v2/v3: range =  intLit [ "to" ( intLit | "max" ) ] */
+range ::= intLit.
+range ::= intLit PT_TO intLit.
+range ::= intLit PT_TO exIdent.
+
+/* v2/v3: fieldNames = fieldName { "," fieldName }
+Note that there is an error in BNF definition about reserved fieldName. It's strLit, not ident.
+*/
+quoteFieldNames ::= strLit.
+quoteFieldNames ::= quoteFieldNames PT_COMMA strLit.
+
+/* v2 only: extend = "extend" messageType "{" {field | group | emptyStatement} "}" */
+extend(A) ::= PT_EXTEND(X) messageType(B) PT_LCURLY extendBody(C) PT_RCURLY.
+    { A = C; pbl_set_node_name(A, X->ln, pbl_store_string_token(state, g_strconcat(B, "Extend", NULL))); }
+
+/* v2 only */
+extendBody(A) ::= .  { A = pbl_create_node(state->file, CUR_LINENO, PBL_MESSAGE, NAME_TO_BE_SET); }
+extendBody(A) ::= extendBody(B) field(C). { A = B; pbl_add_child(A, C); }
+extendBody(A) ::= extendBody(B) group(C). { A = B; pbl_add_child(A, C); }
+extendBody ::= extendBody emptyStatement.
+
+messageName ::= exIdent.
+enumName ::= exIdent.
+streamName ::= exIdent.
+fieldName ::= exIdent.
+oneofName ::= exIdent.
+mapName ::= exIdent.
+serviceName ::= exIdent.
+rpcName ::= exIdent.
+
+/* messageType = [ "." ] { ident "." } messageName */
+messageType(A) ::= exIdent(B).  { A = B->v; }
+
+/* enumType = [ "." ] { ident "." } enumName */
+/*enumType ::= exIdent.*/
+
+/* intLit     = decimalLit | octalLit | hexLit */
+intLit(A) ::= PT_DECIMALLIT(B).  { A = g_ascii_strtoull(B->v, NULL, 10); }
+intLit(A) ::= PT_OCTALLIT(B).  { A = g_ascii_strtoull(B->v+1, NULL, 8); }
+intLit(A) ::= PT_HEXLIT(B).  { A = g_ascii_strtoull(B->v+2, NULL, 16); }
+
+/* emptyStatement = ";" */
+emptyStatement ::= PT_SEMICOLON.
+
+/* constant = fullIdent | ( [ "-" | "+" ] intLit ) | ( [ "-" | "+" ] floatLit ) | strLit | boolLit */
+constant(A) ::= exIdent(B).  { A = B->v; } /* boolLit is parsed as exIdent */
+constant ::= strLit.
+constant(A) ::= intLit(B). { A = pbl_store_string_token(state, g_strdup_printf("%" G_GUINT64_FORMAT, B)); }
+constant(A) ::= PT_PLUS intLit(B). { A = pbl_store_string_token(state, g_strdup_printf("%" G_GUINT64_FORMAT, B)); }
+constant(A) ::= PT_MINUS intLit(B). { A = pbl_store_string_token(state, g_strdup_printf("-%" G_GUINT64_FORMAT, B)); }
+constant(A) ::= PT_PLUS exIdent(B). { A = pbl_store_string_token(state, g_strconcat("+", B->v, NULL)); } /* This cover floatLit. */
+constant(A) ::= PT_MINUS exIdent(B). { A = pbl_store_string_token(state, g_strconcat("-", B->v, NULL)); }
+
+exIdent ::= PT_IDENT.
+
+strLit(A) ::= PT_STRLIT(B).  { A = pbl_store_string_token(state, g_strndup(B->v + 1, strlen(B->v) - 2)); }
+
+%code {
+
+void
+protobuf_lang_error(void* yyscanner, protobuf_lang_state_t *state, const char *msg)
+{
+    int lineno;
+    void(*error_cb)(const char *format, ...);
+    const char* filepath = (state && state->file) ?
+                            state->file->filename : "UNKNOWN";
+
+    error_cb = (state && state->pool->error_cb) ?
+                state->pool->error_cb : pbl_printf;
+
+    lineno = yyscanner ? protobuf_lang_get_lineno(yyscanner) : -1;
+
+    if (lineno > -1) {
+        error_cb("Protobuf: Parsing file [%s:%d] failed: %s\n", filepath, lineno, msg);
+    } else {
+        error_cb("Protobuf: Parsing file [%s] failed: %s\n", filepath, msg);
+    }
+}
+
+void
+pbl_parser_error(protobuf_lang_state_t *state, const char *fmt, ...)
+{
+    char* msg;
+    void* scanner;
+    va_list ap;
+    va_start(ap, fmt);
+    msg = g_strdup_vprintf(fmt, ap);
+    scanner = state ? state->scanner : NULL;
+    protobuf_lang_error(scanner, state, msg);
+    va_end(ap);
+    g_free(msg);
+}
+
+static void
+pbl_clear_state(protobuf_lang_state_t *state, pbl_descriptor_pool_t* pool)
+{
+    if (state == NULL) {
+        return;
+    }
+
+    state->pool = NULL;
+    state->file = NULL;
+    state->scanner = NULL;
+    state->grammar_error = FALSE;
+    state->tmp_token = NULL;
+
+    if (state->pParser) {
+        ProtobufLangParserFree(state->pParser, g_free);
+        state->pParser = NULL;
+    }
+
+    if (state->lex_string_tokens) {
+        g_slist_free_full(state->lex_string_tokens, g_free);
+        state->lex_string_tokens = NULL;
+    }
+
+    if (state->lex_struct_tokens) {
+        g_slist_free_full(state->lex_struct_tokens, g_free);
+        state->lex_struct_tokens = NULL;
+    }
+
+    if (pool) {
+        pool->parser_state = NULL;
+    }
+}
+
+static void
+pbl_reinit_state(protobuf_lang_state_t *state, pbl_descriptor_pool_t* pool, const char* filepath)
+{
+    if (state == NULL) {
+        return;
+    }
+    pbl_clear_state(state, pool);
+
+    state->pool = pool;
+    state->file = (pbl_file_descriptor_t*) g_hash_table_lookup(pool->proto_files, filepath);
+    state->pParser = ProtobufLangParserAlloc(g_malloc);
+
+    if (pool) {
+        pool->parser_state = state;
+    }
+}
+
+int run_pbl_parser(pbl_descriptor_pool_t* pool)
+{
+    protobuf_lang_state_t state = {0};
+    yyscan_t scanner;
+    GSList* it;
+    FILE * fp;
+    int status = 0;
+    int token_id;
+    const char* filepath;
+
+    it = pool->proto_files_to_be_parsed;
+    while (it) {
+        filepath = (const char*) it->data;
+        /* reinit state and scanner */
+        pbl_reinit_state(&state, pool, filepath);
+        scanner = NULL;
+
+        /* Note that filepath is absolute path in proto_files */
+        fp = ws_fopen(filepath, "r");
+        if (fp == NULL) {
+            pbl_parser_error(&state, "File does not exists!");
+            status = -1;
+            goto finish;
+        }
+
+        status = protobuf_lang_lex_init(&scanner);
+        if (status != 0) {
+            pbl_parser_error(&state, "Initialize Protocol Buffers Languange scanner failed!\n");
+            fclose(fp);
+            goto finish;
+        }
+
+        /* associate the parser state with the lexical analyzer state */
+        protobuf_lang_set_extra(&state, scanner);
+        state.scanner = scanner;
+
+        protobuf_lang_restart(fp, scanner);
+        /* uncomment the next line for debugging */
+        /* ProtobufLangParserTrace(stdout, ">>>"); */
+        while (!state.grammar_error && (token_id = protobuf_lang_lex(scanner))) {
+            /* state.tmp_token contains token string value and lineno information */
+            ProtobufLangParser(state.pParser, token_id, state.tmp_token, &state);
+        }
+        fclose(fp);
+
+        if (state.grammar_error) {
+            status = -2;
+            goto finish;
+        } else {
+            ProtobufLangParser(state.pParser, 0, NULL, &state);
+        }
+
+        /* remove the parsed file from list */
+        pool->proto_files_to_be_parsed = it = g_slist_delete_link(pool->proto_files_to_be_parsed, it);
+    }
+
+finish:
+    pbl_clear_state(&state, pool);
+    return status;
+}
+
+} /* end of %code block */
