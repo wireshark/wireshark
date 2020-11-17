@@ -3776,7 +3776,7 @@ proto_register_f5ethtrailer(void)
             0x0, NULL, HFILL }
         },
         { &hf_reserved,
-          { "Reserved", "f5ethtrailer.reserved", FT_UINT32, BASE_DEC, NULL,
+          { "Reserved", "f5ethtrailer.reserved", FT_UINT32, BASE_HEX, NULL,
             0x0, NULL, HFILL }
         },
         { &hf_priority,
