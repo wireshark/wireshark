@@ -9012,6 +9012,7 @@ dissect_dl_gprs_block(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, RlcMa
   guint16      bit_length  = tvb_reported_length(tvb) * 8;
 
   guint8 payload_type = tvb_get_bits8(tvb, 0, 2);
+  guint8 s_p  = tvb_get_bits8(tvb, 4, 1);
   guint8 rbsn = tvb_get_bits8(tvb, 8, 1);
   guint8 fs   = tvb_get_bits8(tvb, 14, 1);
   guint8 ac   = tvb_get_bits8(tvb, 15, 1);
@@ -9098,6 +9099,8 @@ dissect_dl_gprs_block(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, RlcMa
     }
     data->u.MESSAGE_TYPE = tvb_get_bits8(tvb, message_type_offset, 6);
     col_append_sep_fstr(pinfo->cinfo, COL_INFO, " CTRL: ", "%s", val_to_str_ext(data->u.MESSAGE_TYPE, &dl_rlc_message_type_vals_ext, "Unknown Message Type"));
+    if (s_p)
+        col_append_str(pinfo->cinfo, COL_INFO, " [RRBP]");
     ti = proto_tree_add_protocol_format(tree, proto_gsm_rlcmac, tvb, bit_offset >> 3, -1,
                                         "GSM RLC/MAC: %s (%d) (Downlink)",
                                         val_to_str_ext(data->u.MESSAGE_TYPE, &dl_rlc_message_type_vals_ext, "Unknown Message Type"),
