@@ -56,30 +56,34 @@ clang-10: &clang-10
     CC: clang-10
     CXX: clang++-10
 
+# The custom CentOS 7 image pre-installs dependencies and compilers to speed up the build:
+# https://hub.docker.com/r/wireshark/wireshark-centos-7-dev
+# https://gitlab.com/wireshark/wireshark-containers/-/tree/master/dev/centos-7
 build:rpm-centos-7:
   <<: *build-rpm
-  image: centos:7
+  image: wireshark/wireshark-centos-7-dev
   script:
-    - yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
-    - tools/rpm-setup.sh --install-optional -y
     - mkdir build
     - cd build
     - cmake3 -GNinja ..
     - ninja-build rpm-package
 test:rpm-centos-7:
   stage: test
-  image: centos:7
+  image: wireshark/wireshark-centos-7-dev
   script:
-    - yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
     - yum --nogpgcheck localinstall -y build/packaging/rpm/RPMS/x86_64/*.rpm
     - tshark --version
   dependencies:
     - build:rpm-centos-7
   variables:
     GIT_STRATEGY: none
+
+# The custom CentOS 8 image pre-installs dependencies and compilers to speed up the build:
+# https://hub.docker.com/r/wireshark/wireshark-centos-8-dev
+# https://gitlab.com/wireshark/wireshark-containers/-/tree/master/dev/centos-8
 build:rpm-centos-8:
   <<: *build-rpm
-  image: centos:8
+  image: wireshark/wireshark-centos-8-dev
   script:
     - dnf -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
     - dnf -y install dnf-plugins-core
@@ -94,28 +98,28 @@ build:rpm-centos-8:
     - ninja-build rpm-package
 test:rpm-centos-8:
   stage: test
-  image: centos:8
+  image: wireshark/wireshark-centos-8-dev
   script:
-    - dnf -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
     - dnf --nogpgcheck localinstall -y build/packaging/rpm/RPMS/x86_64/*.rpm
     - tshark --version
   dependencies:
     - build:rpm-centos-8
   variables:
     GIT_STRATEGY: none
+
+# The custom openSUSE 15.1 image pre-installs dependencies and compilers to speed up the build:
+# https://hub.docker.com/r/wireshark/wireshark-opensuse-15.1-dev
+# https://gitlab.com/wireshark/wireshark-containers/-/tree/master/dev/opensuse-15.1
 build:rpm-opensuse-15.1:
-  image: opensuse/leap:15.1
+  image: wireshark/wireshark-opensuse-15.1-dev
   <<: *build-rpm
   script:
-    - zypper --non-interactive install update-desktop-files
-    - tools/rpm-setup.sh --install-optional ruby
-    - gem install asciidoctor -v 1.5.8 --no-ri --no-rdoc
     - mkdir build
     - cd build
     - cmake -GNinja ..
     - ninja rpm-package
 test:rpm-opensuse-15.1:
-  image: opensuse/leap:15.1
+  image: wireshark/wireshark-opensuse-15.1-dev
   stage: test
   script:
     - zypper --no-gpg-checks install -y build/packaging/rpm/RPMS/x86_64/*.rpm
@@ -124,19 +128,20 @@ test:rpm-opensuse-15.1:
     GIT_STRATEGY: none
   dependencies:
     - build:rpm-opensuse-15.1
+
+# The custom openSUSE 15.2 image pre-installs dependencies and compilers to speed up the build:
+# https://hub.docker.com/r/wireshark/wireshark-opensuse-15.2-dev
+# https://gitlab.com/wireshark/wireshark-containers/-/tree/master/dev/opensuse-15.2
 build:rpm-opensuse-15.2:
-  image: opensuse/leap:15.2
+  image: wireshark/wireshark-opensuse-15.2-dev
   <<: *build-rpm
   script:
-    - zypper --non-interactive install update-desktop-files
-    - tools/rpm-setup.sh --install-optional ruby
-    - gem install asciidoctor -v 2.0.10 --no-ri --no-rdoc
     - mkdir build
     - cd build
     - cmake -GNinja ..
     - ninja rpm-package
 test:rpm-opensuse-15.2:
-  image: opensuse/leap:15.2
+  image: wireshark/wireshark-opensuse-15.2-dev
   stage: test
   script:
     - zypper --no-gpg-checks install -y build/packaging/rpm/RPMS/x86_64/*.rpm
@@ -170,11 +175,12 @@ test:rpm-fedora:
     - build:rpm-fedora
 
 # Job to generate packages for Debian stable
+# The custom Debian image pre-installs dependencies and compilers to speed up the build:
+# https://hub.docker.com/r/wireshark/wireshark-debian-stable-dev
+# https://github.com/wireshark/wireshark-debian-stable-dev-docker
 build:debian-stable:
   <<: *build
-  image: debian:stable
-  before_script:
-    - ./tools/debian-setup.sh --install-optional --install-test-deps -y --install-deb-deps
+  image: wireshark/wireshark-debian-stable-dev
   script:
     # Shared GitLab runners limit the log size to 4M, so reduce verbosity. See
     # https://gitlab.com/gitlab-com/support-forum/issues/2790
@@ -186,10 +192,9 @@ build:debian-stable:
       - debian-packages/*.deb
     expire_in: 3 days
 test:debian-stable:
-  image: debian:stable
+  image: wireshark/wireshark-debian-stable-dev
   stage: test
   script:
-    - apt-get update
     - DEBIAN_FRONTEND=noninteractive apt-get install ./debian-packages/*.deb -y
     - tshark --version
   variables:
