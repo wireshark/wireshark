@@ -85,13 +85,6 @@ build:rpm-centos-8:
   <<: *build-rpm
   image: wireshark/wireshark-centos-8-dev
   script:
-    - dnf -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-8.noarch.rpm
-    - dnf -y install dnf-plugins-core
-    # PowerTools is the CentOS name for CodeReady, where -devel packages live
-    - dnf config-manager --enable PowerTools
-    # Devel is a CentOS repository with some extra -devel packages not (yet?) in RHEL
-    - dnf config-manager --enable Devel
-    - tools/rpm-setup.sh --install-optional -y
     - mkdir build
     - cd build
     - cmake -GNinja ..
