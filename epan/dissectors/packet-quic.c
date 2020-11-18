@@ -428,7 +428,12 @@ static inline gboolean is_quic_draft_max(guint32 version, guint8 max_version) {
 const value_string quic_version_vals[] = {
     { 0x00000000, "Version Negotiation" },
     { 0x00000001, "1" },
+    /* Versions QXXX < Q050 are dissected by Wireshark as GQUIC and not as QUIC.
+       Nonetheless, some implementations report these values in "Version Negotiation"
+       packets, so decode these fields */
+    { 0x51303433, "Google Q043" },
     { 0x51303434, "Google Q044" },
+    { 0x51303436, "Google Q046" },
     { 0x51303530, "Google Q050" },
     { 0x54303530, "Google T050" },
     { 0x54303531, "Google T051" },
@@ -3437,7 +3442,7 @@ static gboolean dissect_quic_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
      */
     conversation_t *conversation = NULL;
     int offset = 0;
-    guint8 flags;
+    guint8 flags, dcid, scid;
     guint32 version;
     gboolean is_quic = FALSE;
 
@@ -3458,13 +3463,38 @@ static gboolean dissect_quic_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     // check for draft QUIC version (for draft -11 and newer)
     version = tvb_get_ntohl(tvb, offset);
     is_quic = (quic_draft_version(version) >= 11);
-
-    if (is_quic) {
-        conversation = find_or_create_conversation(pinfo);
-        conversation_set_dissector(conversation, quic_handle);
-        dissect_quic(tvb, pinfo, tree, data);
+    if (!is_quic) {
+        return FALSE;
     }
-    return is_quic;
+
+    /* Version check on packet forcing version negotiation is quite weak:
+       try hardenig it checking packets type, too */
+    if ((version & 0x0F0F0F0F) == 0x0a0a0a0a &&
+        (flags & 0x30) != 0x00) { /* Initial Packet */
+            return FALSE;
+    }
+
+    /* Check that CIDs lengths are valid */
+    offset += 4;
+    dcid = tvb_get_guint8(tvb, offset);
+    if (dcid > QUIC_MAX_CID_LENGTH) {
+        return FALSE;
+    }
+    offset += 1 + dcid;
+    if (offset >= (int)tvb_captured_length(tvb)) {
+        return FALSE;
+    }
+    scid = tvb_get_guint8(tvb, offset);
+    if (scid > QUIC_MAX_CID_LENGTH) {
+        return FALSE;
+    }
+
+    /* Ok! */
+    conversation = find_or_create_conversation(pinfo);
+    conversation_set_dissector(conversation, quic_handle);
+    dissect_quic(tvb, pinfo, tree, data);
+
+    return TRUE;
 }
 
 
