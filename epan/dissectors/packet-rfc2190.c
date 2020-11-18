@@ -317,7 +317,7 @@ proto_register_rfc2190(void)
                 FT_BOOLEAN,
                 8,
                 NULL,
-                0x08,
+                0x10,
                 "Picture coding type, intra-coded (false) or inter-coded (true)", HFILL
             }
         },
@@ -329,7 +329,7 @@ proto_register_rfc2190(void)
                 FT_BOOLEAN,
                 8,
                 NULL,
-                0x10,
+                0x08,
                 "Unrestricted Motion Vector option for current picture", HFILL
             }
         },
@@ -341,7 +341,7 @@ proto_register_rfc2190(void)
                 FT_BOOLEAN,
                 8,
                 NULL,
-                0x20,
+                0x04,
                 "Syntax-based Arithmetic Coding option for current picture", HFILL
             }
         },
@@ -353,7 +353,7 @@ proto_register_rfc2190(void)
                 FT_BOOLEAN,
                 8,
                 NULL,
-                0x40,
+                0x02,
                 "Advanced Prediction option for current picture", HFILL
             }
         },
@@ -533,7 +533,7 @@ proto_register_rfc2190(void)
                 FT_UINT16,
                 BASE_DEC,
                 NULL,
-                0x0380,
+                0x01E0,
                 "Reserved field that should contain zeroes", HFILL
             }
         },
