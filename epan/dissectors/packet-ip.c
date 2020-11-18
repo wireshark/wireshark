@@ -2019,10 +2019,8 @@ dissect_ip_v4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
     tf = proto_tree_add_bitmask_with_flags(ip_tree, tvb, offset + 6, hf_ip_flags,
         ett_ip_flags, ip_flags, ENC_BIG_ENDIAN, BMT_NO_FALSE | BMT_NO_TFS | BMT_NO_INT);
   }
-  proto_item_set_bits_offset_len(tf, 0, 3);
 
   tf = proto_tree_add_uint(ip_tree, hf_ip_frag_offset, tvb, offset + 6, 2, (iph->ip_off & IP_OFFSET)*8);
-  proto_item_set_bits_offset_len(tf, 3, 13);
 
   iph->ip_ttl = tvb_get_guint8(tvb, offset + 8);
   if (tree) {
@@ -2606,7 +2604,7 @@ proto_register_ip(void)
 
     { &hf_ip_frag_offset,
       { "Fragment Offset", "ip.frag_offset", FT_UINT16, BASE_DEC,
-        NULL, 0x0, "Fragment offset (13 bits)", HFILL }},
+        NULL, IP_OFFSET, "Fragment offset (13 bits)", HFILL }},
 
     { &hf_ip_ttl,
       { "Time to Live", "ip.ttl", FT_UINT8, BASE_DEC,

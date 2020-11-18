@@ -196,6 +196,8 @@ struct ptvcursor {
 
 static const char *hf_try_val_to_str(guint32 value, const header_field_info *hfinfo);
 static const char *hf_try_val64_to_str(guint64 value, const header_field_info *hfinfo);
+static int hfinfo_bitoffset(const header_field_info *hfinfo);
+static int hfinfo_mask_bitwidth(const header_field_info *hfinfo);
 static int hfinfo_container_bitwidth(const header_field_info *hfinfo);
 
 static void label_mark_truncated(char *label_str, gsize name_pos);
@@ -5459,6 +5461,9 @@ proto_tree_set_uint(field_info *fi, guint32 value)
 
 		/* Shift bits */
 		integer >>= hfinfo_bitshift(hfinfo);
+
+		FI_SET_FLAG(fi, FI_BITS_OFFSET(hfinfo_bitoffset(hfinfo)));
+		FI_SET_FLAG(fi, FI_BITS_SIZE(hfinfo_mask_bitwidth(hfinfo)));
 	}
 
 	fvalue_set_uinteger(&fi->value, integer);
@@ -5548,6 +5553,9 @@ proto_tree_set_uint64(field_info *fi, guint64 value)
 
 		/* Shift bits */
 		integer >>= hfinfo_bitshift(hfinfo);
+
+		FI_SET_FLAG(fi, FI_BITS_OFFSET(hfinfo_bitoffset(hfinfo)));
+		FI_SET_FLAG(fi, FI_BITS_SIZE(hfinfo_mask_bitwidth(hfinfo)));
 	}
 
 	fvalue_set_uinteger64(&fi->value, integer);
@@ -5640,6 +5648,9 @@ proto_tree_set_int(field_info *fi, gint32 value)
 
 		no_of_bits = ws_count_ones(hfinfo->bitmask);
 		integer = ws_sign_ext32(integer, no_of_bits);
+
+		FI_SET_FLAG(fi, FI_BITS_OFFSET(hfinfo_bitoffset(hfinfo)));
+		FI_SET_FLAG(fi, FI_BITS_SIZE(hfinfo_mask_bitwidth(hfinfo)));
 	}
 
 	fvalue_set_sinteger(&fi->value, integer);
@@ -5712,6 +5723,9 @@ proto_tree_set_int64(field_info *fi, gint64 value)
 
 		no_of_bits = ws_count_ones(hfinfo->bitmask);
 		integer = ws_sign_ext64(integer, no_of_bits);
+
+		FI_SET_FLAG(fi, FI_BITS_OFFSET(hfinfo_bitoffset(hfinfo)));
+		FI_SET_FLAG(fi, FI_BITS_SIZE(hfinfo_mask_bitwidth(hfinfo)));
 	}
 
 	fvalue_set_sinteger64(&fi->value, integer);
@@ -9833,6 +9847,19 @@ hfinfo_bitshift(const header_field_info *hfinfo)
 	return ws_ctz(hfinfo->bitmask);
 }
 
+
+static int
+hfinfo_bitoffset(const header_field_info *hfinfo)
+{
+	if (!hfinfo->bitmask) {
+		return 0;
+	}
+
+	/* ilog2 = first set bit, counting 0 as the last bit; we want 0
+	 * as the first bit */
+	return hfinfo_container_bitwidth(hfinfo) - 1 - ws_ilog2(hfinfo->bitmask);
+}
+
 static int
 hfinfo_mask_bitwidth(const header_field_info *hfinfo)
 {
@@ -11540,9 +11567,11 @@ proto_item_add_bitmask_tree(proto_item *item, tvbuff_t *tvb, const int offset,
 			    proto_tree* tree, guint64 value)
 {
 	guint64            available_bits = G_MAXUINT64;
+	guint64            bitmask = 0;
 	guint64            tmpval;
 	header_field_info *hf;
 	guint32            integer32;
+	gint               bit_offset;
 	gint               no_of_bits;
 
 	if (len < 0 || len > 8)
@@ -11563,6 +11592,8 @@ proto_item_add_bitmask_tree(proto_item *item, tvbuff_t *tvb, const int offset,
 		guint64 present_bits;
 		PROTO_REGISTRAR_GET_NTH(**fields,hf);
 		DISSECTOR_ASSERT_HINT(hf->bitmask != 0, hf->abbrev);
+
+		bitmask |= hf->bitmask;
 
 		/* Skip fields that aren't fully present */
 		present_bits = available_bits & hf->bitmask;
@@ -11836,6 +11867,16 @@ proto_item_add_bitmask_tree(proto_item *item, tvbuff_t *tvb, const int offset,
 		fields++;
 	}
 
+	/* XXX: We don't pass the hfi into this function. Perhaps we should,
+	 * but then again most dissectors don't set the bitmask field for
+	 * the higher level bitmask hfi, so calculate the bitmask from the
+	 * fields present. */
+	if (item) {
+		bit_offset = len*8 - 1 - ws_ilog2(bitmask);
+		no_of_bits = ws_ilog2(bitmask) - ws_ctz(bitmask) + 1;
+		FI_SET_FLAG(PNODE_FINFO(item), FI_BITS_OFFSET(bit_offset));
+		FI_SET_FLAG(PNODE_FINFO(item), FI_BITS_SIZE(no_of_bits));
+	}
 	return first;
 }
 
