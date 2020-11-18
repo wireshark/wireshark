@@ -4178,11 +4178,9 @@ tvb_get_bcd_string(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, gi
 		 */
 		octet = octet >> 4;
 
-		if (len == 1 && octet == 0x0f) {
+		if (octet == 0x0f) {
 			/*
-			 * This is the last octet, and the high-order
-			 * nibble is 0xf, so we have an odd number of
-			 * digits, and this is a filler digit.  Ignore
+			 * This is the stop digit or a filler digit.  Ignore
 			 * it.
 			 */
 			break;
