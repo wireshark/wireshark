@@ -192,7 +192,7 @@ extern int gsm_a_tap;
 extern packet_info *gsm_a_dtap_pinfo;
 
 /* TS 23 032 */
-void dissect_geographical_description(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+int dissect_geographical_description(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 guint16 dissect_description_of_velocity(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
 
 

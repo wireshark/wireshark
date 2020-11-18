@@ -759,6 +759,7 @@ static int hf_gsm_a_mobile_network_code = -1;
 int hf_3gpp_tmsi = -1;
 
 static int ett_gsm_a_plmn = -1;
+static int ett_gsm_a_poly_pnt = -1;
 
 static expert_field ei_gsm_a_extraneous_data = EI_INIT;
 static expert_field ei_gsm_a_unknown_element = EI_INIT;
@@ -826,13 +827,12 @@ static const value_string dir_of_alt_vals[] = {
 
 typedef guint16 (**elem_func_hander)(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len);
 
-void
+int
 dissect_geographical_description(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree) {
 
     proto_item *lat_item, *long_item, *major_item, *minor_item, *alt_item, *uncer_item, *loc_uri_item;
     /*proto_tree *subtree; */
-    guint8      type_of_shape;
-    /*guint8 no_of_points;*/
+    guint32      type_of_shape;
     int         offset = 0;
     int         length;
     guint8      value;
@@ -850,11 +850,11 @@ dissect_geographical_description(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
      * The Location Estimate field is composed of 1 or more octets with an internal structure
      * according to section 7 in [23.032].
      */
-    proto_tree_add_item(tree, hf_gsm_a_geo_loc_type_of_shape, tvb, 0, 1, ENC_BIG_ENDIAN);
-    if (length < 2)
-        return;
-    type_of_shape = tvb_get_guint8(tvb,offset)>>4;
+    proto_tree_add_item_ret_uint(tree, hf_gsm_a_geo_loc_type_of_shape, tvb, 0, 1, ENC_BIG_ENDIAN, &type_of_shape);
     offset++;
+    if (length < 2) {
+        return length;
+    }
     switch (type_of_shape) {
     case ELLIPSOID_POINT:
         /* Ellipsoid Point */
@@ -869,7 +869,7 @@ dissect_geographical_description(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
     case ELLIPSOID_ARC:
         /* Ellipsoid Arc */
         if (length < 4)
-            return;
+            return length;
         proto_tree_add_item(tree, hf_gsm_a_geo_loc_sign_of_lat, tvb, offset, 1, ENC_BIG_ENDIAN);
 
         uvalue32  = tvb_get_ntoh24(tvb,offset);
@@ -880,9 +880,9 @@ dissect_geographical_description(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
             ((double)(uvalue32 & 0x7fffff)/8388607.0) * 90);
         proto_item_append_text(lat_item, " (%s degrees)", deg_lat_str);
         loc_offset = offset;
+        offset = offset + 3;
         if (length < 7)
-            return;
-        offset    = offset + 3;
+            return offset;
         svalue32   = tvb_get_ntoh24(tvb,offset);
         svalue32 |= (svalue32 & 0x800000) ? 0xff000000 : 0x00000000;
         long_item = proto_tree_add_item(tree, hf_gsm_a_geo_loc_deg_of_long, tvb, offset, 3, ENC_BIG_ENDIAN);
@@ -894,7 +894,7 @@ dissect_geographical_description(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
         if (type_of_shape == ELLIPSOID_POINT_WITH_UNCERT_CIRC) {
             /* Ellipsoid Point with uncertainty Circle */
             if (length < 8)
-                return;
+                return offset;
             /* Uncertainty code */
             value = tvb_get_guint8(tvb,offset)&0x7f;
             uncer_item = proto_tree_add_item(tree, hf_gsm_a_geo_loc_uncertainty_code, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -992,16 +992,46 @@ dissect_geographical_description(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 
         break;
     case POLYGON:                   /* Polygon */
+    {
         /* Number of points */
-        proto_tree_add_item(tree, hf_gsm_a_geo_loc_no_of_points, tvb, offset, 1, ENC_BIG_ENDIAN);
-#if 0
-        no_of_points = tvb_get_guint8(tvb,offset)&0x0f;
-        while ( no_of_points > 0) {
-            offset++;
+        guint32 no_of_points;
+        guint point_no = 0;
+        proto_tree* sub_tree;
+        proto_item *ti;
 
+        proto_tree_add_item_ret_uint(tree, hf_gsm_a_geo_loc_no_of_points, tvb, 0, 1, ENC_BIG_ENDIAN, &no_of_points);
+        /* offset increased with 1 after reading of shape abowe*/
+        while (no_of_points > 0) {
+            point_no++;
+            sub_tree = proto_tree_add_subtree_format(tree, tvb, offset, 6,
+                ett_gsm_a_poly_pnt, &ti, "Polygon point %u", point_no);
+            proto_tree_add_item(sub_tree, hf_gsm_a_geo_loc_sign_of_lat, tvb, offset, 1, ENC_BIG_ENDIAN);
+
+            uvalue32 = tvb_get_ntoh24(tvb, offset);
+            /* convert degrees (X/0x7fffff) * 90 = degrees */
+            lat_item = proto_tree_add_item(sub_tree, hf_gsm_a_geo_loc_deg_of_lat, tvb, offset, 3, ENC_BIG_ENDIAN);
+            deg_lat_str = wmem_strdup_printf(wmem_packet_scope(), "%s%.5f",
+                (uvalue32 & 0x00800000) ? "-" : "",
+                ((double)(uvalue32 & 0x7fffff) / 8388607.0) * 90);
+            proto_item_append_text(lat_item, " (%s degrees)", deg_lat_str);
+            loc_offset = offset;
+            offset = offset + 3;
+            svalue32 = tvb_get_ntoh24(tvb, offset);
+            svalue32 |= (svalue32 & 0x800000) ? 0xff000000 : 0x00000000;
+            long_item = proto_tree_add_item(sub_tree, hf_gsm_a_geo_loc_deg_of_long, tvb, offset, 3, ENC_BIG_ENDIAN);
+            /* (X/0xffffff) *360 = degrees */
+            deg_lon_str = wmem_strdup_printf(wmem_packet_scope(), "%.5f",
+                ((double)svalue32 / 16777215.0) * 360);
+            proto_item_append_text(long_item, " (%s degrees)", deg_lon_str);
+            offset = offset + 3;
             no_of_points--;
+
+            osm_uri = wmem_strdup_printf(wmem_packet_scope(), "https://www.openstreetmap.org/?mlat=%s&mlon=%s&zoom=12", deg_lat_str, deg_lon_str);
+            loc_uri_item = proto_tree_add_string(tree, hf_gsm_a_geo_loc_osm_uri, tvb, loc_offset, 6, osm_uri);
+            proto_item_set_url(loc_uri_item);
+            proto_item_set_generated(loc_uri_item);
         }
-#endif
+    }
         break;
     case HIGH_ACC_ELLIPSOID_PNT_WITH_UNCERT_ELLIPSE:
         loc_offset = offset;
@@ -1084,7 +1114,7 @@ dissect_geographical_description(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
     default:
         break;
     }
-
+    return offset;
 }
 
 /* TS 23.032
@@ -4813,7 +4843,7 @@ proto_register_gsm_a_common(void)
     };
 
     /* Setup protocol subtree array */
-#define NUM_INDIVIDUAL_ELEMS    1
+#define NUM_INDIVIDUAL_ELEMS    2
     static gint *ett[NUM_INDIVIDUAL_ELEMS +
             NUM_GSM_COMMON_ELEM];
 
@@ -4996,6 +5026,7 @@ proto_register_gsm_a_common(void)
     last_offset = NUM_INDIVIDUAL_ELEMS;
 
     ett[0] = &ett_gsm_a_plmn;
+    ett[1] = &ett_gsm_a_poly_pnt;
     for (i=0; i < NUM_GSM_COMMON_ELEM; i++, last_offset++)
     {
         ett_gsm_common_elem[i] = -1;
