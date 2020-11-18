@@ -1634,6 +1634,8 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                     acl_data->remote_bd_addr_id = 0;
                     acl_data->is_btle = TRUE;
                     acl_data->is_btle_retransmit = retransmit;
+                    acl_data->adapter_disconnect_in_frame = &max_disconnect_in_frame;
+                    acl_data->disconnect_in_frame = &max_disconnect_in_frame;
 
                     next_tvb = tvb_new_subset_length(tvb, offset, length);
                     if (next_tvb) {
@@ -1715,6 +1717,8 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                     acl_data->remote_bd_addr_id  = 0;
                     acl_data->is_btle = TRUE;
                     acl_data->is_btle_retransmit = retransmit;
+                    acl_data->adapter_disconnect_in_frame = &max_disconnect_in_frame;
+                    acl_data->disconnect_in_frame = &max_disconnect_in_frame;
 
                     next_tvb = tvb_new_subset_length(tvb, offset, length);
                     call_dissector_with_data(btl2cap_handle, next_tvb, pinfo, tree, acl_data);
