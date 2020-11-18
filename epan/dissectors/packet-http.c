@@ -1184,7 +1184,9 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			 */
 			gint response_code = parse_http_status_code(firstline, firstline + first_linelen);
 			if ((g_strcmp0(conv_data->request_method, "HEAD") == 0 ||
-				(response_code / 100 == 2 && g_strcmp0(conv_data->request_method, "CONNECT") == 0) ||
+				(response_code / 100 == 2 &&
+					(g_strcmp0(conv_data->request_method, "CONNECT") == 0 ||
+					 g_strcmp0(conv_data->request_method, "SSTP_DUPLEX_POST") == 0)) ||
 				response_code / 100 == 1 ||
 				response_code == 204 ||
 				response_code == 304)) {
