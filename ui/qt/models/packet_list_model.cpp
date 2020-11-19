@@ -760,7 +760,7 @@ void PacketListModel::ensureRowColorized(int row)
     if (!record)
         return;
     if (!record->colorized()) {
-        record->columnString(cap_file_, 1, true);
+        record->ensureColorized(cap_file_);
     }
 }
 

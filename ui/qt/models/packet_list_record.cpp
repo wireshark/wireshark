@@ -45,6 +45,26 @@ PacketListRecord::~PacketListRecord()
     col_text_.clear();
 }
 
+void PacketListRecord::ensureColorized(capture_file *cap_file)
+{
+    // packet_list_store.c:packet_list_get_value
+    Q_ASSERT(fdata_);
+
+    if (!cap_file) {
+        return;
+    }
+
+    //
+    // XXX - do we need to check whether the data versions match?
+    // If the record's color is already correct, we shouldn't need
+    // to redissect it to colorize it.
+    //
+    bool dissect_color = !colorized_ || ( color_ver_ != rows_color_ver_ );
+    if (data_ver_ != col_data_ver_ || dissect_color) {
+        dissect(cap_file, dissect_color);
+    }
+}
+
 // We might want to return a const char * instead. This would keep us from
 // creating excessive QByteArrays, e.g. in PacketListModel::recordLessThan.
 const QString PacketListRecord::columnString(capture_file *cap_file, int column, bool colorized)
@@ -56,6 +76,11 @@ const QString PacketListRecord::columnString(capture_file *cap_file, int column,
         return QString();
     }
 
+    //
+    // XXX - do we still need to check the colorization, given that we now
+    // have the ensureColorized() method to ensure that the record is
+    // properly colorized?
+    //
     bool dissect_color = ( colorized && !colorized_ ) || ( color_ver_ != rows_color_ver_ );
     if (column >= col_text_.count() || col_text_.at(column).isNull() || data_ver_ != col_data_ver_ || dissect_color) {
         dissect(cap_file, dissect_color);
