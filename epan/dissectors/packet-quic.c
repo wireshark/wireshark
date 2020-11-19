@@ -589,6 +589,7 @@ quic_ciphers_reset(quic_ciphers *ciphers)
     quic_pp_cipher_reset(&ciphers->pp_cipher);
 }
 
+#ifdef HAVE_LIBGCRYPT_AEAD
 static gboolean
 quic_is_hp_cipher_initialized(quic_hp_cipher *hp_cipher)
 {
@@ -607,8 +608,6 @@ quic_are_ciphers_initialized(quic_ciphers *ciphers)
            quic_is_pp_cipher_initialized(&ciphers->pp_cipher);
 }
 
-
-#ifdef HAVE_LIBGCRYPT_AEAD
 /* Inspired from ngtcp2 */
 static guint64 quic_pkt_adjust_pkt_num(guint64 max_pkt_num, guint64 pkt_num,
                                    size_t n) {
@@ -733,7 +732,7 @@ quic_set_full_packet_number(quic_info_data_t *quic_info, quic_packet_info_t *qui
     quic_packet->pkn_len = pkn_len;
     quic_packet->packet_number = pkn_full;
 }
-#endif /* !HAVE_LIBGCRYPT_AEAD */
+#endif /* HAVE_LIBGCRYPT_AEAD */
 
 static const char *
 cid_to_string(const quic_cid_t *cid)
@@ -1007,7 +1006,7 @@ quic_connection_add_cid(quic_info_data_t *conn, const quic_cid_t *new_cid, gbool
 
     quic_cids_insert(&new_item->data, conn, from_server);
 }
-#endif
+#endif /* HAVE_LIBGCRYPT_AEAD */
 
 /** Create or update a connection. */
 static void
@@ -1931,9 +1930,7 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
 
     return offset;
 }
-#endif /* HAVE_LIBGCRYPT_AEAD */
 
-#ifdef HAVE_LIBGCRYPT_AEAD
 static gboolean
 quic_hp_cipher_init(quic_hp_cipher *hp_cipher, int hash_algo, guint8 key_length, guint8 *secret);
 static gboolean
@@ -2498,9 +2495,7 @@ quic_get_pp_cipher(gboolean key_phase, quic_info_data_t *quic_info, gboolean fro
 
     return &pp_state->pp_ciphers[key_phase];
 }
-#endif /* HAVE_LIBGCRYPT_AEAD */
 
-#ifdef HAVE_LIBGCRYPT_AEAD
 /**
  * Process (protected) payload, adding the encrypted payload to the tree. If
  * decryption is possible, frame dissection is also attempted.
@@ -2618,7 +2613,7 @@ quic_add_connection(packet_info *pinfo, const quic_cid_t *cid)
 #else
     (void)pinfo;
     (void)cid;
-#endif
+#endif /* HAVE_LIBGCRYPT_AEAD */
 }
 
 static void
@@ -2757,7 +2752,7 @@ dissect_quic_retry_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tr
         (void)odcid;
         expert_add_info_format(pinfo, ti, &ei_quic_bad_retry,
                 "Libgcrypt >= 1.6.0 is required for Retry Packet verification");
-#endif
+#endif /* HAVE_LIBGCRYPT_AEAD */
         offset += 16;
     }
 
@@ -2782,7 +2777,7 @@ dissect_quic_long_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tre
     const gboolean from_server = dgram_info->from_server;
     quic_ciphers *ciphers = NULL;
     proto_item *ti;
-#endif
+#endif /* HAVE_LIBGCRYPT_AEAD */
 
     quic_extract_header(tvb, &long_packet_type, &version, &dcid, &scid);
 #ifdef HAVE_LIBGCRYPT_AEAD
@@ -2854,7 +2849,7 @@ dissect_quic_long_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tre
     } else if (conn && quic_packet->pkn_len) {
         first_byte = quic_packet->first_byte;
     }
-#endif /* !HAVE_LIBGCRYPT_AEAD */
+#endif /* HAVE_LIBGCRYPT_AEAD */
 
     proto_tree_add_item(quic_tree, hf_quic_fixed_bit, tvb, offset, 1, ENC_NA);
     proto_tree_add_item(quic_tree, hf_quic_long_packet_type, tvb, offset, 1, ENC_NA);
@@ -2891,7 +2886,7 @@ dissect_quic_long_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tre
 #else
         // if not part of a connection, the full PKN cannot be reconstructed.
         expert_add_info_format(pinfo, quic_tree, &ei_quic_decryption_failed, "Failed to decrypt packet number");
-#endif
+#endif /* HAVE_LIBGCRYPT_AEAD */
         return offset;
     }
 
@@ -2904,7 +2899,7 @@ dissect_quic_long_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tre
     ti = proto_tree_add_item(quic_tree, hf_quic_payload, tvb, offset, -1, ENC_NA);
 #else
     proto_tree_add_item(quic_tree, hf_quic_payload, tvb, offset, -1, ENC_NA);
-#endif
+#endif /* HAVE_LIBGCRYPT_AEAD */
 
 #ifdef HAVE_LIBGCRYPT_AEAD
     if (conn) {
@@ -2915,7 +2910,7 @@ dissect_quic_long_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tre
         // Packet number is verified to be valid, remember it.
         *quic_max_packet_number(conn, from_server, first_byte) = quic_packet->packet_number;
     }
-#endif /* !HAVE_LIBGCRYPT_AEAD */
+#endif /* HAVE_LIBGCRYPT_AEAD */
     offset += tvb_reported_length_remaining(tvb, offset);
 
     return offset;
@@ -2932,7 +2927,7 @@ dissect_quic_short_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tr
 #ifdef HAVE_LIBGCRYPT_AEAD
     proto_item *ti;
     quic_pp_cipher *pp_cipher = NULL;
-#endif
+#endif /* HAVE_LIBGCRYPT_AEAD */
     quic_info_data_t *conn = dgram_info->conn;
     const gboolean from_server = dgram_info->from_server;
 
@@ -2954,7 +2949,7 @@ dissect_quic_short_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tr
     } else if (conn && quic_packet->pkn_len) {
         first_byte = quic_packet->first_byte;
     }
-#endif /* !HAVE_LIBGCRYPT_AEAD */
+#endif /* HAVE_LIBGCRYPT_AEAD */
     proto_tree_add_item(hdr_tree, hf_quic_fixed_bit, tvb, offset, 1, ENC_NA);
     proto_tree_add_item(hdr_tree, hf_quic_spin_bit, tvb, offset, 1, ENC_NA);
     if (quic_packet->pkn_len) {
@@ -2982,7 +2977,7 @@ dissect_quic_short_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tr
     if (!PINFO_FD_VISITED(pinfo) && conn) {
         pp_cipher = quic_get_pp_cipher(key_phase, conn, from_server);
     }
-#endif /* !HAVE_LIBGCRYPT_AEAD */
+#endif /* HAVE_LIBGCRYPT_AEAD */
     if (!conn || conn->skip_decryption || quic_packet->pkn_len == 0) {
         return offset;
     }
@@ -2998,7 +2993,7 @@ dissect_quic_short_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tr
     ti = proto_tree_add_item(hdr_tree, hf_quic_protected_payload, tvb, offset, -1, ENC_NA);
 #else
     proto_tree_add_item(hdr_tree, hf_quic_protected_payload, tvb, offset, -1, ENC_NA);
-#endif
+#endif /* HAVE_LIBGCRYPT_AEAD */
 
 #ifdef HAVE_LIBGCRYPT_AEAD
     if (conn) {
@@ -3009,7 +3004,7 @@ dissect_quic_short_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tr
             *quic_max_packet_number(conn, from_server, first_byte) = quic_packet->packet_number;
         }
     }
-#endif /* !HAVE_LIBGCRYPT_AEAD */
+#endif /* HAVE_LIBGCRYPT_AEAD */
     offset += tvb_reported_length_remaining(tvb, offset);
 
     return offset;
