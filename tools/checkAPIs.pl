@@ -527,7 +527,7 @@ sub check_included_files($$)
                         if ( m#([<"]|/+)gcrypt\.h[>"]$# ) {
                                 print STDERR "Warning: ".$filename.
                                         " includes gcrypt.h directly. ".
-                                        "Include wsutil/wsgrypt.h instead.\n";
+                                        "Include wsutil/wsgcrypt.h instead.\n";
                                 last;
                         }
                 }
