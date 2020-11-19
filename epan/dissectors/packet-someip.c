@@ -2564,7 +2564,6 @@ dissect_someip_payload(tvbuff_t* tvb, packet_info* pinfo, proto_item *ti, guint1
     if (offset_bits != 0) {
         /* allign to byte */
         offset += 1;
-        offset_bits = 0;
     }
 
     if (length > offset) {

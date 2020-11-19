@@ -106,7 +106,6 @@ get_utf_8_string(wmem_allocator_t *scope, const guint8 *ptr, gint length)
     wmem_strbuf_t *str;
     guint8 ch;
     const guint8 *prev;
-    gsize unichar_len;
 
     str = wmem_strbuf_sized_new(scope, length+1, 0);
 
@@ -115,8 +114,8 @@ get_utf_8_string(wmem_allocator_t *scope, const guint8 *ptr, gint length)
      * Table 3-7 "Well-Formed UTF-8 Byte Sequences" and
      * U+FFFD Substitution of Maximal Subparts. */
     while (length > 0) {
+        gsize unichar_len;
         ch = *ptr;
-        unichar_len = 1;
 
         if (ch < 0x80) {
             wmem_strbuf_append_c(str, ch);

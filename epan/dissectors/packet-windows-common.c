@@ -2104,7 +2104,6 @@ dissect_nt_conditional_ace_token(tvbuff_t *tvb, int offset, guint16 size, proto_
 		break;
 
 	    case COND_ACE_TOKEN_SID:
-		len = tvb_get_letohl(tvb, offset); /* in bytes */
 		offset += sizeof(len);
 
 		offset = dissect_nt_sid(tvb, offset, tree, "SID", NULL, -1);

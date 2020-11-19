@@ -2469,7 +2469,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
             guint8      flags;
             proto_item *fi = NULL;
             proto_tree *flags_tree = NULL;
-            char       *flags_str, *suffix;
+            char       *flags_str= NULL, *suffix;
             gboolean    is_client;
             proto_item *exi;
             proto_tree *ex_subtree;
