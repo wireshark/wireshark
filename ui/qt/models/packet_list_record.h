@@ -32,6 +32,8 @@ public:
     PacketListRecord(frame_data *frameData);
     virtual ~PacketListRecord();
 
+    // Ensure that the record is colorized.
+    void ensureColorized(capture_file *cap_file);
     // Return the string value for a column. Data is cached if possible.
     const QString columnString(capture_file *cap_file, int column, bool colorized = false);
     frame_data *frameData() const { return fdata_; }
