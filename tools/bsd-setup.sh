@@ -152,9 +152,6 @@ echo "libilbc is unavailable"
 # Add OS-specific required/optional packages
 # Those not listed don't require additions.
 case `uname` in
-	OpenBSD)
-		add_package ADDITIONAL_LIST bison || echo "bison is unavailable"
-		;;
 	NetBSD)
 		add_package ADDITIONAL_LIST libgcrypt || echo "libgcrypt is unavailable"
 		;;

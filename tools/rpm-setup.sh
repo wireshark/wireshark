@@ -43,7 +43,6 @@ BASIC_LIST="cmake \
 	gcc \
 	gcc-c++ \
 	flex \
-	bison \
 	python3 \
 	perl \
 	desktop-file-utils \

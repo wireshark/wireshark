@@ -46,18 +46,11 @@ operating system. This is the case for Windows XP, which is supported by
 Wireshark 1.10 and earlier. In other cases the standard package for
 Wireshark might simply be old. This is the case for Solaris and HP-UX.
 
-NOTE: The Makefile depends on GNU "make"; it doesn't appear to
-work with the "make" that comes with Solaris 7 nor the BSD "make".
+Both Perl and Python 3 are needed, the former for building the man
+pages.
 
-Both Perl and Python are needed, the former for building the man pages.
-
-If you decide to modify the yacc grammar or lex scanner, then
-you need "flex" - it cannot be built with vanilla "lex" -
-and either "bison" or the Berkeley "yacc". Your flex
-version must be 2.5.1 or greater. Check this with `flex -V`.
-
-You must therefore install Perl, Python, GNU "make", "flex", and either "bison"
-or Berkeley "yacc" on systems that lack them.
+You must therefore install Perl, Python, GNU "make", and "flex" (vanilla
+"lex" won't work) on systems that lack them.
 
 Full installation instructions can be found in the INSTALL file and in the
 Developer's Guide at https://www.wireshark.org/docs/wsdg_html_chunked/

@@ -47,7 +47,6 @@ BASIC_LIST="cmake \
 	glib-dev \
 	libgcrypt-dev \
 	flex \
-	bison \
 	perl \
 	tiff-dev \
 	c-ares-dev \

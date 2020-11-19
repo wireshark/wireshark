@@ -58,7 +58,6 @@ BASIC_LIST="libglib2.0-dev \
 	qt5-default \
 	libc-ares-dev \
 	libpcap-dev \
-	bison \
 	flex \
 	make \
 	python3 \

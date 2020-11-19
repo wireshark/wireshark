@@ -10,7 +10,7 @@ Build-Depends:
  python3, python3-ply, libc-ares-dev, xsltproc, dh-python,
  docbook-xsl (>= 1.64.1.0-0), docbook-xml, libxml2-utils, libpcre3-dev,
  libcap2-dev [linux-any] | libcap-dev (>= 2.17) [linux-any], lsb-release,
- bison, quilt, libparse-yapp-perl,
+ quilt, libparse-yapp-perl,
 # libgnutls28-dev >= 3.2.14-1 is GPLv2+ compatible.
  libgnutls28-dev (>= 3.2.14-1~),
  libgcrypt-dev, libkrb5-dev, liblua5.2-dev, libsmi2-dev,

@@ -100,7 +100,7 @@ PATH_SPECIFIC_ALLOWED_LICENSES = {
     'cmake/TestFileOffsetBits.c': [
         'UNKNOWN',
     ],
-    # Generated header files by lex/yacc/whatever
+    # Generated header files by lex/lemon/whatever
     'epan/dtd_grammar.h': [
         'UNKNOWN',
     ],

@@ -96,11 +96,8 @@ add_lex_files(LEX_FILES WIRETAP_FILES
 	k12text.l
 )
 
-add_yacc_files(YACC_FILES WIRETAP_FILES
-	ascend.y
-)
-
 add_lemon_files(LEMON_FILES WIRETAP_FILES
+	ascend_parser.lemon
 	busmaster_parser.lemon
 	candump_parser.lemon
 )
@@ -162,7 +159,6 @@ CHECKAPI(
 	  ${WIRETAP_NONGENERATED_FILES}
 # LEX files commented out due to use of malloc, free etc.
 #	  ${LEX_FILES}
-	  ${YACC_FILES}
 	  ${LEMON_FILES}
 )
 

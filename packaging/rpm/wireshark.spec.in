@@ -59,7 +59,6 @@ BuildRequires:  python3
 BuildRequires:	gcc
 BuildRequires:	perl
 BuildRequires:	flex
-BuildRequires:	bison
 %if %{with guides}
 # HTML guides
 BuildRequires:	asciidoctor
@@ -538,6 +537,9 @@ update-mime-database %{_datadir}/mime &> /dev/null || :
 %{_libdir}/pkgconfig/wireshark.pc
 
 %changelog
+* Thu Nov 26 2020 Gerald Combs
+- Bison is no longer required
+
 * Tue Sep 29 2020 Lin Sun
 - Added opus codec as an option
 

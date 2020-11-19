@@ -770,59 +770,6 @@ Built 18:08:02 Feb  4 2003
 
 However, the version string may vary.
 
-// Sed is no longer required.
-//[[ChToolsSed]]
-
-[[ChToolsBison]]
-
-=== Bison
-
-Bison is a parser generator used for some of Wireshark’s file format support.
-
-[[ChToolsUnixBison]]
-
-[discrete]
-==== Unix
-
-Bison is available for most UNIX and UNIX-like platforms. See the next
-section for native Windows options.
-
-If GNU Bison isn't already installed or available as a package for your
-platform you can get it at: https://www.gnu.org/software/bison/bison.html[].
-
-After correct installation running the following
-
-[source,sh]
-----
-$ bison --version
-----
-
-should result in something like:
-
-----
-bison (GNU Bison) 2.3
-Written by Robert Corbett and Richard Stallman.
-
-Copyright (C) 2006 Free Software Foundation, Inc.
-This is free software; see the source for copying conditions.  There is NO
-warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-----
-
-Your version string may vary.
-
-[[ChToolsWindowsBison]]
-
-[discrete]
-==== Windows
-
-A native Windows version of bison is available in the _winflexbison3_
-https://chocolatey.org/[Chocolatey] package. Note that the executable is named
-_win_bison_.
-
-Native packages are available from other sources such as
-http://gnuwin32.sourceforge.net/packages/bison.htm[GnuWin].
-They aren't officially supported but _should_ work.
-
 [[ChToolsFlex]]
 
 === Flex
@@ -861,13 +808,13 @@ Your version string may vary.
 [discrete]
 ==== Windows
 
-A native Windows version of flex is available in the _winflexbison_
+A native Windows version of flex is available in the _winflexbison3_
 https://chocolatey.org/[Chocolatey] package. Note that the executable is named
 _win_flex_.
 
 [source,cmd]
 ----
-PS:\> choco install winflexbison
+PS:\> choco install winflexbison3
 ----
 
 Native packages are available from other sources such as

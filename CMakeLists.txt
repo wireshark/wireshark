@@ -1050,7 +1050,6 @@ find_package(GCRYPT "1.4.2" REQUIRED)
 reset_find_package(CARES)
 find_package(CARES "1.5.0" REQUIRED)
 find_package(LEX REQUIRED)
-find_package(YACC REQUIRED)
 find_package(Perl REQUIRED)
 
 if(CMAKE_VERSION VERSION_LESS "3.12")

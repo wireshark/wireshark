@@ -149,13 +149,6 @@ extern "C" {
     __pragma(warning(disable:6387)) \
     __pragma(warning(disable:28182))
   #define DIAG_ON_FLEX	__pragma(warning(pop))
-
-  /*
-   * XXX - is there an issue with shadowed definitions with MSVC if
-   * somebody were to happen to use Berkeley YACC rather than Bison?
-   */
-  #define DIAG_OFF_BYACC
-  #define DIAG_ON_BYACC
 #else
   /*
    * Suppress:
@@ -191,28 +184,6 @@ extern "C" {
     #define DIAG_ON_FLEX \
       DIAG_ON(sign-compare)
   #endif
-
-  /*
-   * Berkeley YACC and, apparently, some versions of Bison, such as the
-   * one in Fedora 21, generate a global declaration of yylval, or the
-   * appropriately prefixed version of yylval, in grammar.h, *even
-   * though it's been told to generate a pure parser, meaning it
-   * doesn't have any global variables*.  Other versions of Bison, such
-   * as the one in macOS Sierra don't do that.
-   *
-   * That causes a warning due to the local declaration in the parser
-   * shadowing the global declaration.
-   *
-   * So, if we have _Pragma, and have pragmas to suppress diagnostics,
-   * we use it to turn off -Wshadow warnings.
-   *
-   * XXX - do this for Bison only in versions of Bison with this
-   * problem?
-   */
-  #define DIAG_OFF_BYACC \
-    DIAG_OFF(shadow)
-  #define DIAG_ON_BYACC \
-    DIAG_ON(shadow)
 #endif
 
 /*
