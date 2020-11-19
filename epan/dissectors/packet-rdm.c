@@ -1765,7 +1765,7 @@ dissect_rdm_pd_sensor_definition(tvbuff_t *tvb, guint offset, proto_tree *tree, 
     rdm_proto_tree_add_numeric_item(tree, hf_rdm_pd_sensor_normal_min_value, tvb, &offset, 2);
     rdm_proto_tree_add_numeric_item(tree, hf_rdm_pd_sensor_normal_max_value, tvb, &offset, 2);
     rdm_proto_tree_add_numeric_item(tree, hf_rdm_pd_sensor_recorded_value_support, tvb, &offset, 1);
-    rdm_proto_tree_add_ascii_item(tree, hf_rdm_pd_sensor_description, tvb, &offset, len);
+    rdm_proto_tree_add_ascii_item(tree, hf_rdm_pd_sensor_description, tvb, &offset, len-13);
     break;
   }
 
@@ -2016,7 +2016,7 @@ dissect_rdm_pd_parameter_description(tvbuff_t *tvb, guint offset, proto_tree *tr
     rdm_proto_tree_add_numeric_item(tree, hf_rdm_pd_parameter_min_value, tvb, &offset, 4);
     rdm_proto_tree_add_numeric_item(tree, hf_rdm_pd_parameter_max_value, tvb, &offset, 4);
     rdm_proto_tree_add_numeric_item(tree, hf_rdm_pd_parameter_default_value, tvb, &offset, 4);
-    rdm_proto_tree_add_ascii_item(tree, hf_rdm_pd_parameter_description, tvb, &offset, len);
+    rdm_proto_tree_add_ascii_item(tree, hf_rdm_pd_parameter_description, tvb, &offset, len-20);
     break;
   }
 
@@ -2142,7 +2142,7 @@ dissect_rdm_pd_dmx_personality_description(tvbuff_t *tvb, guint offset, proto_tr
   case RDM_CC_GET_COMMAND_RESPONSE:
     rdm_proto_tree_add_numeric_item(tree, hf_rdm_pd_dmx_pers_requested, tvb, &offset, 1);
     rdm_proto_tree_add_numeric_item(tree, hf_rdm_pd_dmx_pers_slots, tvb, &offset, 2);
-    rdm_proto_tree_add_ascii_item(tree, hf_rdm_pd_dmx_pers_text, tvb, &offset, len);
+    rdm_proto_tree_add_ascii_item(tree, hf_rdm_pd_dmx_pers_text, tvb, &offset, len-3);
     break;
   }
 
@@ -2176,7 +2176,7 @@ dissect_rdm_pd_slot_description(tvbuff_t *tvb, guint offset, proto_tree *tree, g
 
   case RDM_CC_GET_COMMAND_RESPONSE:
     rdm_proto_tree_add_numeric_item(tree, hf_rdm_pd_slot_nr, tvb, &offset, 2);
-    rdm_proto_tree_add_ascii_item(tree, hf_rdm_pd_slot_description, tvb, &offset, len);
+    rdm_proto_tree_add_ascii_item(tree, hf_rdm_pd_slot_description, tvb, &offset, len-2);
     break;
   }
 
@@ -2266,7 +2266,7 @@ dissect_rdm_pd_record_sensors(tvbuff_t *tvb, guint offset, proto_tree *tree, gui
     rdm_proto_tree_add_numeric_item(tree, hf_rdm_pd_sensor_normal_min_value, tvb, &offset, 2);
     rdm_proto_tree_add_numeric_item(tree, hf_rdm_pd_sensor_normal_max_value, tvb, &offset, 2);
     rdm_proto_tree_add_numeric_item(tree, hf_rdm_pd_rec_value_support, tvb, &offset, 1);
-    rdm_proto_tree_add_ascii_item(tree, hf_rdm_pd_sensor_description, tvb, &offset, len);
+    rdm_proto_tree_add_ascii_item(tree, hf_rdm_pd_sensor_description, tvb, &offset, len-13);
     break;
   }
 
@@ -2346,7 +2346,7 @@ dissect_rdm_pd_curve_description(tvbuff_t *tvb, guint offset, proto_tree *tree, 
 
   case RDM_CC_GET_COMMAND_RESPONSE:
     rdm_proto_tree_add_numeric_item(tree, hf_rdm_pd_curve_description_curve, tvb, &offset, 1);
-    rdm_proto_tree_add_ascii_item(tree, hf_rdm_pd_curve_description_text, tvb, &offset, len);
+    rdm_proto_tree_add_ascii_item(tree, hf_rdm_pd_curve_description_text, tvb, &offset, len-1);
     break;
   }
 
@@ -2380,7 +2380,7 @@ dissect_rdm_pd_output_response_time_description(tvbuff_t *tvb, guint offset, pro
 
   case RDM_CC_GET_COMMAND_RESPONSE:
     rdm_proto_tree_add_numeric_item(tree, hf_rdm_pd_output_response_time_description_output_response_time, tvb, &offset, 1);
-    rdm_proto_tree_add_ascii_item(tree, hf_rdm_pd_output_response_time_description_text, tvb, &offset, len);
+    rdm_proto_tree_add_ascii_item(tree, hf_rdm_pd_output_response_time_description_text, tvb, &offset, len-1);
     break;
   }
 
@@ -2414,7 +2414,7 @@ dissect_rdm_pd_modulation_frequency_description(tvbuff_t *tvb, guint offset, pro
 
   case RDM_CC_GET_COMMAND_RESPONSE:
     rdm_proto_tree_add_numeric_item(tree, hf_rdm_pd_modulation_frequency_description_modulation_frequency, tvb, &offset, 1);
-    rdm_proto_tree_add_ascii_item(tree, hf_rdm_pd_modulation_frequency_description_text, tvb, &offset, len);
+    rdm_proto_tree_add_ascii_item(tree, hf_rdm_pd_modulation_frequency_description_text, tvb, &offset, len-1);
     break;
   }
 
@@ -2601,7 +2601,7 @@ dissect_rdm_pd_lock_description(tvbuff_t *tvb, guint offset, proto_tree *tree, g
 
   case RDM_CC_GET_COMMAND_RESPONSE:
     rdm_proto_tree_add_numeric_item(tree, hf_rdm_pd_lock_state_description_lock_state, tvb, &offset, 1);
-    rdm_proto_tree_add_ascii_item(tree, hf_rdm_pd_lock_state_description_text, tvb, &offset, len);
+    rdm_proto_tree_add_ascii_item(tree, hf_rdm_pd_lock_state_description_text, tvb, &offset, len-1);
     break;
   }
 
@@ -2633,7 +2633,7 @@ dissect_rdm_pd_interface_label(tvbuff_t *tvb, guint offset, proto_tree *tree, gu
     break;
   case RDM_CC_GET_COMMAND_RESPONSE:
     rdm_proto_tree_add_numeric_item(tree, hf_rdm_pd_interface_label_interface_identifier, tvb, &offset, 4);
-    rdm_proto_tree_add_ascii_item(tree, hf_rdm_pd_interface_label_label, tvb, &offset, len);
+    rdm_proto_tree_add_ascii_item(tree, hf_rdm_pd_interface_label_label, tvb, &offset, len-4);
     break;
   }
 
@@ -2886,7 +2886,7 @@ dissect_rdm_pd_self_test_description(tvbuff_t *tvb, guint offset, proto_tree *tr
 
   case RDM_CC_GET_COMMAND_RESPONSE:
     rdm_proto_tree_add_numeric_item(tree, hf_rdm_pd_selftest_nr, tvb, &offset, 1);
-    rdm_proto_tree_add_ascii_item(tree, hf_rdm_pd_selftest_description, tvb, &offset, len);
+    rdm_proto_tree_add_ascii_item(tree, hf_rdm_pd_selftest_description, tvb, &offset, len-1);
     break;
   }
 
@@ -3042,7 +3042,7 @@ dissect_rdm_pd_background_queued_status_policy_description(tvbuff_t *tvb, guint 
     break;
   case RDM_CC_GET_COMMAND_RESPONSE:
     rdm_proto_tree_add_numeric_item(tree, hf_rdm_pd_background_queued_status_policy_description_policy, tvb, &offset, 1);
-    rdm_proto_tree_add_ascii_item(tree, hf_rdm_pd_background_queued_status_policy_description_description, tvb, &offset, len);
+    rdm_proto_tree_add_ascii_item(tree, hf_rdm_pd_background_queued_status_policy_description_description, tvb, &offset, len-1);
     break;
   }
 
@@ -3142,7 +3142,7 @@ dissect_rdm_pd_endpoint_label(tvbuff_t *tvb, guint offset, proto_tree *tree, gui
   case RDM_CC_GET_COMMAND_RESPONSE:
   case RDM_CC_SET_COMMAND:
     rdm_proto_tree_add_numeric_item(tree, hf_rdm_pd_endpoint_label_endpoint_id, tvb, &offset, 2);
-    rdm_proto_tree_add_ascii_item(tree, hf_rdm_pd_endpoint_label_label, tvb, &offset, len);
+    rdm_proto_tree_add_ascii_item(tree, hf_rdm_pd_endpoint_label_label, tvb, &offset, len-2);
     break;
   }
 
@@ -3202,7 +3202,7 @@ dissect_rdm_pd_endpoint_timing_description(tvbuff_t *tvb, guint offset, proto_tr
     break;
   case RDM_CC_GET_COMMAND_RESPONSE:
     rdm_proto_tree_add_numeric_item(tree, hf_rdm_pd_endpoint_timing_description_setting, tvb, &offset, 1);
-    rdm_proto_tree_add_ascii_item(tree, hf_rdm_pd_endpoint_timing_description_description, tvb, &offset, len);
+    rdm_proto_tree_add_ascii_item(tree, hf_rdm_pd_endpoint_timing_description_description, tvb, &offset, len-1);
     break;
   }
 
@@ -3393,7 +3393,7 @@ dissect_etc_pd_led_curve_description(tvbuff_t *tvb, guint offset, proto_tree *tr
     break;
   case RDM_CC_GET_COMMAND_RESPONSE:
     rdm_proto_tree_add_numeric_item(tree, hf_etc_pd_led_curve_description_curve, tvb, &offset, 1);
-    rdm_proto_tree_add_ascii_item(tree, hf_etc_pd_led_curve_description_text, tvb, &offset, len);
+    rdm_proto_tree_add_ascii_item(tree, hf_etc_pd_led_curve_description_text, tvb, &offset, len-1);
     break;
   }
 
@@ -3435,7 +3435,7 @@ dissect_etc_pd_led_output_mode_description(tvbuff_t *tvb, guint offset, proto_tr
     break;
   case RDM_CC_GET_COMMAND_RESPONSE:
     rdm_proto_tree_add_numeric_item(tree, hf_etc_pd_led_output_mode_description_mode, tvb, &offset, 1);
-    rdm_proto_tree_add_ascii_item(tree, hf_etc_pd_led_output_mode_description_text, tvb, &offset, len);
+    rdm_proto_tree_add_ascii_item(tree, hf_etc_pd_led_output_mode_description_text, tvb, &offset, len-1);
     break;
   }
 
@@ -3477,7 +3477,7 @@ dissect_etc_pd_led_white_point_description(tvbuff_t *tvb, guint offset, proto_tr
     break;
   case RDM_CC_GET_COMMAND_RESPONSE:
     rdm_proto_tree_add_numeric_item(tree, hf_etc_pd_led_white_point_description_white_point, tvb, &offset, 1);
-    rdm_proto_tree_add_ascii_item(tree, hf_etc_pd_led_white_point_description_text, tvb, &offset, len);
+    rdm_proto_tree_add_ascii_item(tree, hf_etc_pd_led_white_point_description_text, tvb, &offset, len-1);
     break;
   }
 
@@ -3519,7 +3519,7 @@ dissect_etc_pd_dmx_data_loss_behavior_description(tvbuff_t *tvb, guint offset, p
     break;
   case RDM_CC_GET_COMMAND_RESPONSE:
     rdm_proto_tree_add_numeric_item(tree, hf_etc_pd_dmx_data_loss_behavior_description_behavior, tvb, &offset, 1);
-    rdm_proto_tree_add_ascii_item(tree, hf_etc_pd_dmx_data_loss_behavior_description_text, tvb, &offset, len);
+    rdm_proto_tree_add_ascii_item(tree, hf_etc_pd_dmx_data_loss_behavior_description_text, tvb, &offset, len-1);
     break;
   }
 
@@ -3620,7 +3620,7 @@ dissect_etc_pd_led_strobe_description(tvbuff_t *tvb, guint offset, proto_tree *t
     break;
   case RDM_CC_GET_COMMAND_RESPONSE:
     rdm_proto_tree_add_numeric_item(tree, hf_etc_pd_led_strobe_description_strobe, tvb, &offset, 1);
-    rdm_proto_tree_add_ascii_item(tree, hf_etc_pd_led_strobe_description_text, tvb, &offset, len);
+    rdm_proto_tree_add_ascii_item(tree, hf_etc_pd_led_strobe_description_text, tvb, &offset, len-1);
     break;
   }
 
@@ -3636,7 +3636,7 @@ dissect_etc_pd_red_shift_description(tvbuff_t *tvb, guint offset, proto_tree *tr
     break;
   case RDM_CC_GET_COMMAND_RESPONSE:
     rdm_proto_tree_add_numeric_item(tree, hf_etc_pd_red_shift_description_red_shift, tvb, &offset, 1);
-    rdm_proto_tree_add_ascii_item(tree, hf_etc_pd_red_shift_description_text, tvb, &offset, len);
+    rdm_proto_tree_add_ascii_item(tree, hf_etc_pd_red_shift_description_text, tvb, &offset, len-1);
     break;
   }
 
@@ -3652,7 +3652,7 @@ dissect_etc_pd_plus_seven_description(tvbuff_t *tvb, guint offset, proto_tree *t
     break;
   case RDM_CC_GET_COMMAND_RESPONSE:
     rdm_proto_tree_add_numeric_item(tree, hf_etc_pd_plus_seven_description_plus_seven, tvb, &offset, 1);
-    rdm_proto_tree_add_ascii_item(tree, hf_etc_pd_plus_seven_description_text, tvb, &offset, len);
+    rdm_proto_tree_add_ascii_item(tree, hf_etc_pd_plus_seven_description_text, tvb, &offset, len-1);
     break;
   }
 
@@ -3668,7 +3668,7 @@ dissect_etc_pd_backlight_timeout_description(tvbuff_t *tvb, guint offset, proto_
     break;
   case RDM_CC_GET_COMMAND_RESPONSE:
     rdm_proto_tree_add_numeric_item(tree, hf_etc_pd_backlight_timeout_description_timeout, tvb, &offset, 1);
-    rdm_proto_tree_add_ascii_item(tree, hf_etc_pd_backlight_timeout_description_text, tvb, &offset, len);
+    rdm_proto_tree_add_ascii_item(tree, hf_etc_pd_backlight_timeout_description_text, tvb, &offset, len-1);
     break;
   }
 
@@ -3684,7 +3684,7 @@ dissect_etc_pd_simple_setup_mode_description(tvbuff_t *tvb, guint offset, proto_
     break;
   case RDM_CC_GET_COMMAND_RESPONSE:
     rdm_proto_tree_add_numeric_item(tree, hf_etc_pd_simple_setup_mode_description_mode, tvb, &offset, 1);
-    rdm_proto_tree_add_ascii_item(tree, hf_etc_pd_simple_setup_mode_description_text, tvb, &offset, len);
+    rdm_proto_tree_add_ascii_item(tree, hf_etc_pd_simple_setup_mode_description_text, tvb, &offset, len-1);
     break;
   }
 
@@ -3700,7 +3700,7 @@ dissect_etc_pd_overtemp_mode_description(tvbuff_t *tvb, guint offset, proto_tree
     break;
   case RDM_CC_GET_COMMAND_RESPONSE:
     rdm_proto_tree_add_numeric_item(tree, hf_etc_pd_overtemp_mode_description_mode, tvb, &offset, 1);
-    rdm_proto_tree_add_ascii_item(tree, hf_etc_pd_overtemp_mode_description_text, tvb, &offset, len);
+    rdm_proto_tree_add_ascii_item(tree, hf_etc_pd_overtemp_mode_description_text, tvb, &offset, len-1);
     break;
   }
 
@@ -3880,7 +3880,7 @@ dissect_etc_pd_low_power_timeout_description(tvbuff_t *tvb, guint offset, proto_
     break;
   case RDM_CC_GET_COMMAND_RESPONSE:
     rdm_proto_tree_add_numeric_item(tree, hf_etc_pd_low_power_timeout_description_timeout, tvb, &offset, 1);
-    rdm_proto_tree_add_ascii_item(tree, hf_etc_pd_low_power_timeout_description_text, tvb, &offset, len);
+    rdm_proto_tree_add_ascii_item(tree, hf_etc_pd_low_power_timeout_description_text, tvb, &offset, len-1);
     break;
   }
 
@@ -3909,7 +3909,7 @@ dissect_etc_pd_led_enum_frequency_description(tvbuff_t *tvb, guint offset, proto
     break;
   case RDM_CC_GET_COMMAND_RESPONSE:
     rdm_proto_tree_add_numeric_item(tree, hf_etc_pd_led_enum_frequency_description_frequency, tvb, &offset, 1);
-    rdm_proto_tree_add_ascii_item(tree, hf_etc_pd_led_enum_frequency_description_text, tvb, &offset, len);
+    rdm_proto_tree_add_ascii_item(tree, hf_etc_pd_led_enum_frequency_description_text, tvb, &offset, len-1);
     break;
   }
 
@@ -3972,7 +3972,7 @@ dissect_etc_pd_supplementary_device_version(tvbuff_t *tvb, guint offset, proto_t
     break;
   case RDM_CC_GET_COMMAND_RESPONSE:
     rdm_proto_tree_add_numeric_item(tree, hf_etc_pd_supplementary_device_version_param_index, tvb, &offset, 1);
-    rdm_proto_tree_add_ascii_item(tree, hf_etc_pd_supplementary_device_version_param_description, tvb, &offset, len);
+    rdm_proto_tree_add_ascii_item(tree, hf_etc_pd_supplementary_device_version_param_description, tvb, &offset, len-1);
     break;
   }
 
@@ -4001,7 +4001,7 @@ dissect_etc_pd_power_command_description(tvbuff_t *tvb, guint offset, proto_tree
     break;
   case RDM_CC_GET_COMMAND_RESPONSE:
     rdm_proto_tree_add_numeric_item(tree, hf_etc_pd_power_command_description_state, tvb, &offset, 1);
-    rdm_proto_tree_add_ascii_item(tree, hf_etc_pd_power_command_description_text, tvb, &offset, len);
+    rdm_proto_tree_add_ascii_item(tree, hf_etc_pd_power_command_description_text, tvb, &offset, len-1);
     break;
   }
 
@@ -4094,7 +4094,7 @@ dissect_etc_pd_get_enum_text(tvbuff_t *tvb, guint offset, proto_tree *tree, guin
   case RDM_CC_GET_COMMAND_RESPONSE:
     rdm_proto_tree_add_numeric_item(tree, hf_etc_pd_get_enum_text_pid, tvb, &offset, 2);
     rdm_proto_tree_add_numeric_item(tree, hf_etc_pd_get_enum_text_enum, tvb, &offset, 4);
-    rdm_proto_tree_add_ascii_item(tree, hf_etc_pd_get_enum_text_description, tvb, &offset, len);
+    rdm_proto_tree_add_ascii_item(tree, hf_etc_pd_get_enum_text_description, tvb, &offset, len-6);
     break;
   }
 
