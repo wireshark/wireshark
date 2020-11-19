@@ -1067,7 +1067,7 @@ void proto_register_a21(void)
 		  },
 		  { &hf_a21_service_option,
 			 {"Service Option", "a21.service_option",
-			  FT_UINT8, BASE_DEC, VALS(a21_service_option_vals), 0x7f,
+			  FT_UINT16, BASE_DEC, VALS(a21_service_option_vals), 0x7f,
 			  NULL, HFILL }
 		  },
 		  { &hf_a21_gcsna_status_reserved,

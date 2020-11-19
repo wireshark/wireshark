@@ -1237,7 +1237,7 @@ void proto_register_sasp(void)
 
         { &hf_sasp_wt_rep_interval,
           { "Get Wt Rep-Interval", "sasp.getwt-rep.interval",
-            FT_UINT8, BASE_DEC, NULL, 0x0,
+            FT_UINT16, BASE_DEC, NULL, 0x0,
             "SASP Get Wt Rep Interval", HFILL } },
 
         { &hf_sasp_wt_rep_gwed_cnt,

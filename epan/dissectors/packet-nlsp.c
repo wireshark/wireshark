@@ -1362,7 +1362,7 @@ proto_register_nlsp(void)
 
 		{ &hf_nlsp_hello_holding_timer,
 		  { "Holding Timer", "nlsp.hello.holding_timer",
-		    FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &units_seconds, 0x0,
+		    FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_seconds, 0x0,
 		    NULL, HFILL }
 		},
 
