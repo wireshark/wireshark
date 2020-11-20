@@ -8383,7 +8383,7 @@ proto_register_gsm_a_dtap(void)
         },
         { &hf_gsm_a_dtap_ue_received_rlc_sdu_counter_value,
           { "UE received RLC SDU counter value", "gsm_a_dtap.ue_received_rlc_sdu_counter_value",
-          FT_UINT8, BASE_DEC, NULL, 0x0,
+          FT_UINT32, BASE_DEC, NULL, 0x0,
           NULL, HFILL }
         },
         { &hf_gsm_a_dtap_num_lb_entities,
