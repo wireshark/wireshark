@@ -2370,7 +2370,7 @@ proto_tree_add_debug_text(proto_tree *tree, const char *format,
     ...) G_GNUC_PRINTF(2,3);
 
 /** Fill given label_str with a simple string representation of field.
- @param fi the item to get the info from
+ @param finfo the item to get the info from
  @param label_str the string to fill
  @todo think about changing the parameter profile */
 WS_DLL_PUBLIC void
