@@ -1325,7 +1325,7 @@ dissect_rpcrdma(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
     proto_item *ti;
     proto_tree *rpcordma_tree;
     guint offset;
-    guint32 msg_type = 0;
+    guint32 msg_type;
     guint32 xid;
     guint32 val;
     guint write_size;
@@ -1336,13 +1336,14 @@ dissect_rpcrdma(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 
     /* tvb_get_ntohl() should not throw an exception while checking if
        this is an rpcrdma packet */
-    if (tvb_captured_length(tvb) < 8)
+    if (tvb_captured_length(tvb) < MIN_RPCRDMA_HDR_SZ)
         return 0;
 
     if (tvb_get_ntohl(tvb, 4) != 1)  /* vers */
         return 0;
 
     xid = tvb_get_ntohl(tvb, 0);
+    msg_type = tvb_get_ntohl(tvb, 12);
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "RPCoRDMA");
     col_add_fstr(pinfo->cinfo, COL_INFO, "%s XID 0x%x",
@@ -1362,8 +1363,8 @@ dissect_rpcrdma(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
     proto_tree_add_item(rpcordma_tree, hf_rpcordma_flow_control, tvb,
                 offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
-    proto_tree_add_item_ret_uint(rpcordma_tree, hf_rpcordma_message_type, tvb,
-                offset, 4, ENC_BIG_ENDIAN, &msg_type);
+    proto_tree_add_item(rpcordma_tree, hf_rpcordma_message_type, tvb,
+                offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
     switch (msg_type) {
