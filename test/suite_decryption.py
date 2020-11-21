@@ -30,7 +30,7 @@ class case_decrypt_80211(subprocesstest.SubprocessTestCase):
                 '-r', capture_file('wep.pcapng.gz'),
                 ))
         self.assertTrue(self.grepOutput('Who has 192.168.5.1'))
-        self.assertTrue(self.grepOutput('Echo \(ping\) request'))
+        self.assertTrue(self.grepOutput(r'Echo \(ping\) request'))
 
     def test_80211_wpa_psk(self, cmd_tshark, capture_file):
         '''IEEE 802.11 WPA PSK'''
