@@ -110,6 +110,23 @@ static int hf_nas_5gs_mm_nas_sec_algo_ip = -1;
 static int hf_nas_5gs_mm_s1_mode_b0 = -1;
 static int hf_nas_5gs_mm_ho_attach_b1 = -1;
 static int hf_nas_5gs_mm_lpp_cap_b2 = -1;
+static int hf_nas_5gs_mm_restrict_ec_b3 = -1;
+static int hf_nas_5gs_mm_5g_cp_ciot_b4 = -1;
+static int hf_nas_5gs_mm_n3_data_b5 = -1;
+static int hf_nas_5gs_mm_5g_iphc_cp_ciot_b6 = -1;
+static int hf_nas_5gs_mm_sgc_b7 = -1;
+static int hf_nas_5gs_mm_5g_srvcc_b0 = -1;
+static int hf_nas_5gs_mm_5g_up_ciot_b1 = -1;
+static int hf_nas_5gs_mm_v2x_b2 = -1;
+static int hf_nas_5gs_mm_v2xcepc5_b3 = -1;
+static int hf_nas_5gs_mm_v2xcnpc5_b4 = -1;
+static int hf_nas_5gs_mm_5g_lcs_b5 = -1;
+static int hf_nas_5gs_mm_nssaa_b6 = -1;
+static int hf_nas_5gs_mm_racs_b7 = -1;
+static int hf_nas_5gs_mm_cag_b0 = -1;
+static int hf_nas_5gs_mm_wsusa_b1 = -1;
+static int hf_nas_5gs_mm_multiple_up_b2 = -1;
+static int hf_nas_5gs_mm_5g_ehc_cp_ciot_b3 = -1;
 static int hf_nas_5gs_mm_type_id = -1;
 static int hf_nas_5gs_mm_odd_even = -1;
 static int hf_nas_5gs_mm_length = -1;
@@ -345,9 +362,13 @@ static int hf_nas_5gs_mm_scheme_output_mac_tag = -1;
 static int hf_nas_5gs_mm_suci_nai = -1;
 static int hf_nas_5gs_mm_imei = -1;
 static int hf_nas_5gs_mm_imeisv = -1;
+static int hf_nas_5gs_mm_mauri = -1;
+static int hf_nas_5gs_mm_mac_addr = -1;
+static int hf_nas_5gs_mm_eui_64 = -1;
+static int hf_nas_5gs_mm_reg_res_res = -1;
 static int hf_nas_5gs_mm_reg_res_sms_allowed = -1;
 static int hf_nas_5gs_mm_reg_res_nssaa_perf = -1;
-static int hf_nas_5gs_mm_reg_res_res = -1;
+static int hf_nas_5gs_mm_reg_res_emergency_reg = -1;
 static int hf_nas_5gs_amf_region_id = -1;
 static int hf_nas_5gs_amf_set_id = -1;
 static int hf_nas_5gs_amf_pointer = -1;
@@ -363,6 +384,14 @@ static int hf_nas_5gs_nw_feat_sup_ims_vops_3gpp = -1;
 static int hf_nas_5gs_nw_feat_sup_ims_vops_n3gpp = -1;
 static int hf_nas_5gs_nw_feat_sup_emcn3 = -1;
 static int hf_nas_5gs_nw_feat_sup_mcsi = -1;
+static int hf_nas_5gs_nw_feat_sup_restrict_ec = -1;
+static int hf_nas_5gs_nw_feat_sup_5g_cp_ciot = -1;
+static int hf_nas_5gs_nw_feat_sup_n3_data = -1;
+static int hf_nas_5gs_nw_feat_sup_5g_iphc_cp_ciot = -1;
+static int hf_nas_5gs_nw_feat_sup_5g_ciot_up = -1;
+static int hf_nas_5gs_nw_feat_sup_5g_lcs = -1;
+static int hf_nas_5gs_nw_feat_sup_ats_ind = -1;
+static int hf_nas_5gs_nw_feat_sup_5g_ehc_cp_ciot = -1;
 
 static int hf_nas_5gs_tac = -1;
 
@@ -559,20 +588,56 @@ de_nas_5gs_mm_5gmm_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
 {
     guint32     curr_offset;
 
-    static int * const flags[] = {
-        &hf_nas_5gs_spare_b7,
-        &hf_nas_5gs_spare_b6,
-        &hf_nas_5gs_spare_b5,
-        &hf_nas_5gs_spare_b4,
-        &hf_nas_5gs_spare_b3,
+    static int * const flags1[] = {
+        &hf_nas_5gs_mm_sgc_b7,
+        &hf_nas_5gs_mm_5g_iphc_cp_ciot_b6,
+        &hf_nas_5gs_mm_n3_data_b5,
+        &hf_nas_5gs_mm_5g_cp_ciot_b4,
+        &hf_nas_5gs_mm_restrict_ec_b3,
         &hf_nas_5gs_mm_lpp_cap_b2,
         &hf_nas_5gs_mm_ho_attach_b1,
         &hf_nas_5gs_mm_s1_mode_b0,
         NULL
     };
 
+    static int * const flags2[] = {
+        &hf_nas_5gs_mm_racs_b7,
+        &hf_nas_5gs_mm_nssaa_b6,
+        &hf_nas_5gs_mm_5g_lcs_b5,
+        &hf_nas_5gs_mm_v2xcnpc5_b4,
+        &hf_nas_5gs_mm_v2xcepc5_b3,
+        &hf_nas_5gs_mm_v2x_b2,
+        &hf_nas_5gs_mm_5g_up_ciot_b1,
+        &hf_nas_5gs_mm_5g_srvcc_b0,
+        NULL
+    };
+
+    static int * const flags3[] = {
+        &hf_nas_5gs_spare_b7,
+        &hf_nas_5gs_spare_b6,
+        &hf_nas_5gs_spare_b5,
+        &hf_nas_5gs_spare_b4,
+        &hf_nas_5gs_mm_5g_ehc_cp_ciot_b3,
+        &hf_nas_5gs_mm_multiple_up_b2,
+        &hf_nas_5gs_mm_wsusa_b1,
+        &hf_nas_5gs_mm_cag_b0,
+        NULL
+    };
     curr_offset = offset;
-    proto_tree_add_bitmask_list(tree, tvb, curr_offset, 1, flags, ENC_BIG_ENDIAN);
+
+    proto_tree_add_bitmask_list(tree, tvb, curr_offset, 1, flags1, ENC_BIG_ENDIAN);
+    curr_offset++;
+
+    if ((curr_offset - offset) >= len)
+        return (len);
+
+    proto_tree_add_bitmask_list(tree, tvb, curr_offset, 1, flags2, ENC_BIG_ENDIAN);
+    curr_offset++;
+
+    if ((curr_offset - offset) >= len)
+        return (len);
+
+    proto_tree_add_bitmask_list(tree, tvb, curr_offset, 1, flags3, ENC_BIG_ENDIAN);
     curr_offset++;
 
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset, pinfo, &ei_nas_5gs_extraneous_data);
@@ -603,13 +668,19 @@ static const value_string nas_5gs_mm_cause_vals[] = {
     { 0x1a, "Non-5G authentication unacceptable" },
     { 0x1b, "N1 mode not allowed" },
     { 0x1c, "Restricted service area" },
+    { 0x1f, "Redirection to EPC required" },
     { 0x2b, "LADN not available" },
+    { 0x3e, "No network slices available" },
     { 0x41, "Maximum number of PDU sessions reached" },
     { 0x43, "Insufficient resources for specific slice and DNN" },
     { 0x45, "Insufficient resources for specific slice" },
     { 0x47, "ngKSI already in use" },
     { 0x48, "Non-3GPP access to 5GCN not allowed" },
     { 0x49, "Serving network not authorized" },
+    { 0x4a, "Temporarily not authorized for this SNPN" },
+    { 0x4b, "Permanently not authorized for this SNPN" },
+    { 0x4c, "Not authorized for this CAG or authorized for CAG cells only" },
+    { 0x4d, "Wireline access area not allowed" },
     { 0x5a, "Payload was not forwarded" },
     { 0x5b, "DNN not supported or not subscribed in the slice" },
     { 0x5c, "Insufficient user-plane resources for the PDU session" },
@@ -687,6 +758,8 @@ static const value_string nas_5gs_mm_type_id_vals[] = {
     { 0x3, "IMEI" },
     { 0x4, "5G-S-TMSI" },
     { 0x5, "IMEISV" },
+    { 0x6, "MAC address" },
+    { 0x7, "EUI-64" },
     { 0, NULL }
  };
 
@@ -698,6 +771,8 @@ static true_false_string nas_5gs_odd_even_tfs = {
 static const value_string nas_5gs_mm_supi_fmt_vals[] = {
     { 0x0, "IMSI" },
     { 0x1, "Network Specific Identifier" },
+    { 0x2, "GCI" },
+    { 0x3, "GLI" },
     { 0, NULL }
 };
 
@@ -706,6 +781,11 @@ static const value_string nas_5gs_mm_prot_scheme_id_vals[] = {
     { 0x1, "ECIES scheme profile A" },
     { 0x2, "ECIES scheme profile B" },
     { 0, NULL }
+};
+
+static true_false_string nas_5gs_mauri_tfs = {
+    "MAC address is not usable as an equipment identifier",
+    "No restrictions"
 };
 
 static guint16
@@ -719,8 +799,12 @@ de_nas_5gs_mm_5gs_mobile_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
     const char *digit_str, *route_id_str;
     proto_item* ti;
 
-    static int * const flags_odd_even_tid[] = {
-        &hf_nas_5gs_mm_odd_even,
+    static int * const flags_spare_tid[] = {
+        &hf_nas_5gs_spare_b7,
+        &hf_nas_5gs_spare_b6,
+        &hf_nas_5gs_spare_b5,
+        &hf_nas_5gs_spare_b4,
+        &hf_nas_5gs_spare_b3,
         &hf_nas_5gs_mm_type_id,
         NULL
     };
@@ -733,12 +817,28 @@ de_nas_5gs_mm_5gs_mobile_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
         NULL
     };
 
+    static int * const flags_odd_even_tid[] = {
+        &hf_nas_5gs_mm_odd_even,
+        &hf_nas_5gs_mm_type_id,
+        NULL
+    };
+
+    static int * const flags_mauri_tid[] = {
+        &hf_nas_5gs_spare_b7,
+        &hf_nas_5gs_spare_b6,
+        &hf_nas_5gs_spare_b5,
+        &hf_nas_5gs_spare_b4,
+        &hf_nas_5gs_mm_mauri,
+        &hf_nas_5gs_mm_type_id,
+        NULL
+    };
+
     oct = tvb_get_guint8(tvb, offset);
     type_id = oct & 0x07;
 
     switch (type_id) {
     case 0:
-        proto_tree_add_bitmask_list(tree, tvb, offset, 1, flags_odd_even_tid, ENC_BIG_ENDIAN);
+        proto_tree_add_bitmask_list(tree, tvb, offset, 1, flags_spare_tid, ENC_BIG_ENDIAN);
         break;
     case 1:
         /* SUCI */
@@ -786,7 +886,7 @@ de_nas_5gs_mm_5gs_mobile_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
                     proto_tree_add_item(subtree, hf_nas_5gs_mm_scheme_output_mac_tag, tvb, offset, 8, ENC_BIG_ENDIAN);
                 }
             }
-        } else if (supi_fmt == 1) {
+        } else if (supi_fmt == 1 ||supi_fmt == 2 ||supi_fmt == 3) {
             /* NAI */
             proto_tree_add_item(tree, hf_nas_5gs_mm_suci_nai, tvb, offset, len - 1, ENC_UTF_8 | ENC_NA);
         } else {
@@ -795,7 +895,7 @@ de_nas_5gs_mm_5gs_mobile_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
         break;
     case 2:
         /* 5G-GUTI*/
-        proto_tree_add_bitmask_list(tree, tvb, offset, 1, flags_odd_even_tid, ENC_BIG_ENDIAN);
+        proto_tree_add_bitmask_list(tree, tvb, offset, 1, flags_spare_tid, ENC_BIG_ENDIAN);
         offset++;
         /* MCC digit 2    MCC digit 1
          * MNC digit 3    MCC digit 3
@@ -843,6 +943,18 @@ de_nas_5gs_mm_5gs_mobile_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
         digit_str = tvb_bcd_dig_to_wmem_packet_str(new_tvb, 0, -1, NULL, TRUE);
         proto_tree_add_string(tree, hf_nas_5gs_mm_imeisv, new_tvb, 0, -1, digit_str);
         break;
+    case 6:
+        /* MAC address */
+        proto_tree_add_bitmask_list(tree, tvb, offset, 1, flags_mauri_tid, ENC_BIG_ENDIAN);
+        offset++;
+        proto_tree_add_item(tree, hf_nas_5gs_mm_mac_addr, tvb, offset, 6, ENC_NA);
+        break;
+    case 7:
+        /* EUI-64 */
+        proto_tree_add_bitmask_list(tree, tvb, offset, 1, flags_spare_tid, ENC_BIG_ENDIAN);
+        offset++;
+        proto_tree_add_item(tree, hf_nas_5gs_mm_eui_64, tvb, offset, 8, ENC_NA);
+        break;
 
     default:
         proto_tree_add_item(tree, hf_nas_5gs_mm_type_id, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -878,6 +990,19 @@ static const true_false_string tfs_nas_5gs_nw_feat_sup_mpsi = {
     "Access identity 1 not valid in RPLMN or equivalent PLMN"
 };
 
+static const true_false_string tfs_nas_5gs_nw_feat_sup_mcsi = {
+    "Access identity 2 valid",
+    "Access identity 2 not valid"
+};
+
+static const value_string nas_5gs_nw_feat_sup_restrict_ec_values[] = {
+    { 0x0, "WB-N1: Both CE mode A and CE mode B are not restricted / NB-N1: Use of enhanced coverage is not restricted" },
+    { 0x1, "WB-N1: Both CE mode A and CE mode B are restricted / NB-N1: Use of enhanced coverage is restricted" },
+    { 0x2, "WB-N1: CE mode B is restricted / NB-N1: Restricted" },
+    { 0x3, "Restricted" },
+    { 0, NULL }
+};
+
 static guint16
 de_nas_5gs_mm_5gs_nw_feat_sup(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
     guint32 offset, guint len,
@@ -896,14 +1021,25 @@ de_nas_5gs_mm_5gs_nw_feat_sup(tvbuff_t *tvb, proto_tree *tree, packet_info *pinf
     };
 
     static int * const flags_oct4[] = {
+        &hf_nas_5gs_nw_feat_sup_5g_ciot_up,
+        &hf_nas_5gs_nw_feat_sup_5g_iphc_cp_ciot,
+        &hf_nas_5gs_nw_feat_sup_n3_data,
+        &hf_nas_5gs_nw_feat_sup_5g_cp_ciot,
+        &hf_nas_5gs_nw_feat_sup_restrict_ec,
+        &hf_nas_5gs_nw_feat_sup_mcsi,
+        &hf_nas_5gs_nw_feat_sup_emcn3,
+        NULL
+    };
+
+    static int * const flags_oct5[] = {
         &hf_nas_5gs_spare_b7,
         &hf_nas_5gs_spare_b6,
         &hf_nas_5gs_spare_b5,
         &hf_nas_5gs_spare_b4,
         &hf_nas_5gs_spare_b3,
-        &hf_nas_5gs_spare_b2,
-        &hf_nas_5gs_nw_feat_sup_mcsi,
-        &hf_nas_5gs_nw_feat_sup_emcn3,
+        &hf_nas_5gs_nw_feat_sup_5g_ehc_cp_ciot,
+        &hf_nas_5gs_nw_feat_sup_ats_ind,
+        &hf_nas_5gs_nw_feat_sup_5g_lcs,
         NULL
     };
 
@@ -915,8 +1051,16 @@ de_nas_5gs_mm_5gs_nw_feat_sup(tvbuff_t *tvb, proto_tree *tree, packet_info *pinf
         return len;
     }
 
-    /* 5G-LCS 5G-UP CIoT 5G-HC-CP CIoT N3 data 5G-CP CIoT RestrictEC MCSI EMCN3 octet 4*/
+    /* 5G-UP CIoT 5G-IPHC-CP CIoT N3 data 5G-CP CIoT RestrictEC MCSI EMCN3 octet 4*/
     proto_tree_add_bitmask_list(tree, tvb, curr_offset, 1, flags_oct4, ENC_BIG_ENDIAN);
+    curr_offset++;
+
+    if (len == 2) {
+        return len;
+    }
+
+    /* spare spare spare spare spare 5G-EHC-CP CIoT ATS-IND 5G-LCS octet 5*/
+    proto_tree_add_bitmask_list(tree, tvb, curr_offset, 1, flags_oct5, ENC_BIG_ENDIAN);
     curr_offset++;
 
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset, pinfo, &ei_nas_5gs_extraneous_data);
@@ -935,6 +1079,15 @@ static const value_string nas_5gs_mm_reg_res_values[] = {
 { 0, NULL }
 };
 
+static true_false_string tfs_nas_5gs_mm_reg_res_nssaa_perf = {
+    "Network slice-specific authentication and authorization is to be performed",
+    "Network slice-specific authentication and authorization is not to be performed"
+};
+
+static true_false_string tfs_nas_5gs_mm_reg_res_emergency_reg = {
+    "Registered for emergency services",
+    "Not registered for emergency services"
+};
 
 static guint16
 de_nas_5gs_mm_5gs_reg_res(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
@@ -943,6 +1096,7 @@ de_nas_5gs_mm_5gs_reg_res(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U
 {
 
     static int* const flags[] = {
+        &hf_nas_5gs_mm_reg_res_emergency_reg,
         &hf_nas_5gs_mm_reg_res_nssaa_perf,
         &hf_nas_5gs_mm_reg_res_sms_allowed,
         &hf_nas_5gs_mm_reg_res_res,
@@ -2657,7 +2811,7 @@ de_nas_5gs_mm_ue_status(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
         NULL
     };
 
-    /* 0 Spare    0 Spare    0 Spare    0 Spare    0 Spare    0 Spare    0 Spare    S1 mode reg */
+    /* 0 Spare    0 Spare    0 Spare    0 Spare    0 Spare    0 Spare    N1 mode    S1 mode reg */
     proto_tree_add_bitmask_list(tree, tvb, offset, 1, flags, ENC_BIG_ENDIAN);
 
     return 1;
@@ -7806,18 +7960,103 @@ proto_register_nas_5gs(void)
             NULL, HFILL }
         },
         { &hf_nas_5gs_mm_s1_mode_b0,
-        { "S1 mode",   "nas_5gs.mm.s1_mode_b0",
-            FT_BOOLEAN, 8, TFS(&tfs_requested_not_requested), 0x01,
+        { "EPC NAS supported (S1 mode)",   "nas_5gs.mm.s1_mode_b0",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x01,
             NULL, HFILL }
         },
         { &hf_nas_5gs_mm_ho_attach_b1,
-        { "HO attach",   "nas_5gs.mm.ho_attach_b1",
+        { "ATTACH REQUEST message containing PDN CONNECTIVITY REQUEST message for handover support (HO attach)",   "nas_5gs.mm.ho_attach_b1",
             FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x02,
             NULL, HFILL }
         },
         { &hf_nas_5gs_mm_lpp_cap_b2,
         { "LTE Positioning Protocol (LPP) capability",   "nas_5gs.mm.lpp_cap_b2",
-            FT_BOOLEAN, 8, TFS(&tfs_requested_not_requested), 0x04,
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x04,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_mm_restrict_ec_b3,
+        { "Restriction on use of enhanced coverage support (RestrictEC)",   "nas_5gs.mm.restrict_ec_b3",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x08,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_mm_5g_cp_ciot_b4,
+        { "Control plane CIoT 5GS optimization (5G-CP CIoT)",   "nas_5gs.mm.5g_cp_ciot_b4",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x10,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_mm_n3_data_b5,
+        { "N3 data transfer (N3 data)",   "nas_5gs.mm.n3_data_b5",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x20,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_mm_5g_iphc_cp_ciot_b6,
+        { "IP header compression for control plane CIoT 5GS optimization (5G-IPHC-CP CIoT)",   "nas_5gs.mm.5g_iphc_cp_ciot_b6",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x40,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_mm_sgc_b7,
+        { "Service gap control (SGC)",   "nas_5gs.mm.sgc_b7",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x80,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_mm_5g_srvcc_b0,
+        { "5G-SRVCC from NG-RAN to UTRAN (5GSRVCC) capability",   "nas_5gs.mm.5g_srvcc_b0",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x01,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_mm_5g_up_ciot_b1,
+        { "User plane CIoT 5GS optimization (5G-UP CIoT)",   "nas_5gs.mm.5g_up_ciot_b1",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x02,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_mm_v2x_b2,
+        { "V2X capability (V2X)",   "nas_5gs.mm.v2x_b2",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x04,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_mm_v2xcepc5_b3,
+        { "V2X communication over E-UTRA-PC5 capability (V2XCEPC5)",   "nas_5gs.mm.v2xcepc5_b3",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x08,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_mm_v2xcnpc5_b4,
+        { "V2X communication over NR-PC5 capability (V2XCNPC5)",   "nas_5gs.mm.v2xcnpc5_b4",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x10,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_mm_5g_lcs_b5,
+        { "Location Services (5G-LCS) notification mechanisms capability",   "nas_5gs.mm.5g_lcs_b5",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x20,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_mm_nssaa_b6,
+        { "Network slice-specific authentication and authorization (NSSAA)",   "nas_5gs.mm.nssaa_b6",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x40,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_mm_racs_b7,
+        { "Radio capability signalling optimisation (RACS) capability",   "nas_5gs.mm.racs_b7",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x80,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_mm_cag_b0,
+        { "Closed Access Group (CAG) capability",   "nas_5gs.mm.cag_b0",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x01,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_mm_wsusa_b1,
+        { "WUS assistance (WUSA) information reception capability",   "nas_5gs.mm.wsusa_b1",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x02,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_mm_multiple_up_b2,
+        { "Multiple user-plane resources support (multipleUP)",   "nas_5gs.mm.multiple_up_b2",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x04,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_mm_5g_ehc_cp_ciot_b3,
+        { "Ethernet header compression for control plane CIoT 5GS optimization (5G-EHC-CP CIoT)",   "nas_5gs.mm.ehc_cp_ciot_b3",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x08,
             NULL, HFILL }
         },
         { &hf_nas_5gs_mm_type_id,
@@ -8755,6 +8994,21 @@ proto_register_nas_5gs(void)
             FT_STRING, BASE_NONE, NULL, 0,
             NULL, HFILL }
         },
+        { &hf_nas_5gs_mm_mauri,
+        { "MAURI", "nas_5gs.mm.mauri",
+            FT_BOOLEAN, 8, TFS(&nas_5gs_mauri_tfs), 0x08,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_mm_mac_addr,
+        { "MAURI", "nas_5gs.mm.mauri",
+            FT_ETHER, BASE_NONE, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_mm_eui_64,
+        { "MAURI", "nas_5gs.mm.mauri",
+            FT_EUI64, BASE_NONE, NULL, 0,
+            NULL, HFILL }
+        },
         { &hf_nas_5gs_mm_reg_res_res,
         { "5GS registration result",   "nas_5gs.mm.reg_res.res",
             FT_UINT8, BASE_DEC, VALS(nas_5gs_mm_reg_res_values), 0x07,
@@ -8767,7 +9021,12 @@ proto_register_nas_5gs(void)
         },
         { &hf_nas_5gs_mm_reg_res_nssaa_perf,
         { "NSSAA Performed",   "nas_5gs.mm.reg_res.nssaa_perf",
-            FT_BOOLEAN, 8, NULL, 0x10,
+            FT_BOOLEAN, 8, TFS(&tfs_nas_5gs_mm_reg_res_nssaa_perf), 0x10,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_mm_reg_res_emergency_reg,
+        { "Emergency registered",   "nas_5gs.mm.reg_res.emergency_reg",
+            FT_BOOLEAN, 8, TFS(&tfs_nas_5gs_mm_reg_res_emergency_reg), 0x20,
             NULL, HFILL }
         },
         { &hf_nas_5gs_amf_region_id,
@@ -8811,7 +9070,7 @@ proto_register_nas_5gs(void)
             NULL, HFILL }
         },
         { &hf_nas_5gs_nw_feat_sup_ims_iwk_n26_b6,
-        { "Interworking without N26",   "nas_5gs.nw_feat_sup.iwk_n26",
+        { "Interworking without N26 (IWK N26)",   "nas_5gs.nw_feat_sup.iwk_n26",
             FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x40,
             NULL, HFILL }
         },
@@ -8827,9 +9086,50 @@ proto_register_nas_5gs(void)
         },
         { &hf_nas_5gs_nw_feat_sup_mcsi,
         { "MCS indicator (MCSI)",   "nas_5gs.nw_feat_sup.mcsi",
+            FT_BOOLEAN, 8, TFS(&tfs_nas_5gs_nw_feat_sup_mcsi), 0x02,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_nw_feat_sup_restrict_ec,
+        { "Restriction on enhanced coverage (RestrictEC)",   "nas_5gs.nw_feat_sup.restrict_ec",
+            FT_UINT8, BASE_DEC, VALS(nas_5gs_nw_feat_sup_restrict_ec_values), 0x0c,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_nw_feat_sup_5g_cp_ciot,
+        { "Control plane CIoT 5GS optimization (5G-CP CIoT)",   "nas_5gs.nw_feat_sup.5g_cp_ciot",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x10,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_nw_feat_sup_n3_data,
+        { "N3 data transfer (N3 data)",   "nas_5gs.nw_feat_sup.n3_data",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x20,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_nw_feat_sup_5g_iphc_cp_ciot,
+        { "IP header compression for control plane CIoT 5GS optimization (5G-IPHC-CP CIoT)",   "nas_5gs.nw_feat_sup.5g_iphc_cp_ciot",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x40,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_nw_feat_sup_5g_ciot_up,
+        { "User plane CIoT 5GS optimization (5G-UP CIoT)",   "nas_5gs.nw_feat_sup.5g_ciot_up",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x80,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_nw_feat_sup_5g_lcs,
+        { "Location Services indicator in 5GC (5G-LCS)",   "nas_5gs.nw_feat_sup.5g_lcs",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x01,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_nw_feat_sup_ats_ind,
+        { "ATSSS support indicator (ATS-IND)",   "nas_5gs.nw_feat_sup.ats_ind",
             FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x02,
             NULL, HFILL }
         },
+        { &hf_nas_5gs_nw_feat_sup_5g_ehc_cp_ciot,
+        { "Ethernet header compression for control plane CIoT 5GS optimization (5G-EHC-CP CIoT)",   "nas_5gs.nw_feat_sup.5g_ehc_cp_ciot",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x04,
+            NULL, HFILL }
+        },
+
 
         { &hf_nas_5gs_tac,
         { "TAC",   "nas_5gs.tac",
