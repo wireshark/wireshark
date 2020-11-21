@@ -64,6 +64,7 @@
 const qreal graph_line_width_ = 1.0;
 
 const int DEFAULT_MOVING_AVERAGE = 0;
+const int DEFAULT_Y_AXIS_FACTOR = 1;
 
 // Don't accidentally zoom into a 1x1 rect if you happen to click on the graph
 // in zoom mode.
@@ -81,6 +82,7 @@ typedef struct _io_graph_settings_t {
     guint32 yaxis;
     char* yfield;
     guint32 sma_period;
+    guint32 y_axis_factor;
 } io_graph_settings_t;
 
 static const value_string graph_style_vs[] = {
@@ -253,6 +255,7 @@ UAT_COLOR_CB_DEF(io_graph, color, io_graph_settings_t)
 UAT_VS_DEF(io_graph, style, io_graph_settings_t, guint32, 0, "Line")
 UAT_VS_DEF(io_graph, yaxis, io_graph_settings_t, guint32, 0, "Packets")
 UAT_PROTO_FIELD_CB_DEF(io_graph, yfield, io_graph_settings_t)
+UAT_DEC_CB_DEF(io_graph, y_axis_factor, io_graph_settings_t)
 
 static uat_field_t io_graph_fields[] = {
     UAT_FLD_BOOL_ENABLE(io_graph, enabled, "Enabled", "Graph visibility"),
@@ -263,6 +266,7 @@ static uat_field_t io_graph_fields[] = {
     UAT_FLD_VS(io_graph, yaxis, "Y Axis", y_axis_vs, "Y Axis units"),
     UAT_FLD_PROTO_FIELD(io_graph, yfield, "Y Field", "Apply calculations to this field"),
     UAT_FLD_SMA_PERIOD(io_graph, sma_period, "SMA Period", moving_avg_vs, "Simple moving average period"),
+    UAT_FLD_DEC(io_graph, y_axis_factor, "Y Axis Factor", "Y Axis Factor"),
 
     UAT_END_FIELDS
 };
@@ -279,6 +283,7 @@ static void* io_graph_copy_cb(void* dst_ptr, const void* src_ptr, size_t) {
     dst->yaxis = src->yaxis;
     dst->yfield = g_strdup(src->yfield);
     dst->sma_period = src->sma_period;
+    dst->y_axis_factor = src->y_axis_factor;
 
     return dst;
 }
@@ -416,13 +421,13 @@ IOGraphDialog::IOGraphDialog(QWidget &parent, CaptureFile &cf, QString displayFi
         }
         if (! filterExists && displayFilter.length() > 0)
             addGraph(true, tr("Filtered packets"), displayFilter, ColorUtils::graphColor(uat_model_->rowCount()),
-                IOGraph::psLine, IOG_ITEM_UNIT_PACKETS, QString(), DEFAULT_MOVING_AVERAGE);
+                IOGraph::psLine, IOG_ITEM_UNIT_PACKETS, QString(), DEFAULT_MOVING_AVERAGE, DEFAULT_Y_AXIS_FACTOR);
     } else {
         addDefaultGraph(true, 0);
         addDefaultGraph(true, 1);
         if (displayFilter.length() > 0)
             addGraph(true, tr("Filtered packets"), displayFilter, ColorUtils::graphColor(uat_model_->rowCount()),
-                IOGraph::psLine, IOG_ITEM_UNIT_PACKETS, QString(), DEFAULT_MOVING_AVERAGE);
+                IOGraph::psLine, IOG_ITEM_UNIT_PACKETS, QString(), DEFAULT_MOVING_AVERAGE, DEFAULT_Y_AXIS_FACTOR);
     }
 
     toggleTracerStyle(true);
@@ -472,7 +477,7 @@ void IOGraphDialog::copyFromProfile(QString filename)
     }
 }
 
-void IOGraphDialog::addGraph(bool checked, QString name, QString dfilter, QRgb color_idx, IOGraph::PlotStyles style, io_graph_item_unit_t value_units, QString yfield, int moving_average)
+void IOGraphDialog::addGraph(bool checked, QString name, QString dfilter, QRgb color_idx, IOGraph::PlotStyles style, io_graph_item_unit_t value_units, QString yfield, int moving_average, int y_axis_factor)
 {
     // should not fail, but you never know.
     if (!uat_model_->insertRows(uat_model_->rowCount(), 1)) {
@@ -491,6 +496,7 @@ void IOGraphDialog::addGraph(bool checked, QString name, QString dfilter, QRgb c
     uat_model_->setData(uat_model_->index(currentRow, colYAxis), val_to_str_const(value_units, y_axis_vs, "Packets"));
     uat_model_->setData(uat_model_->index(currentRow, colYField), yfield);
     uat_model_->setData(uat_model_->index(currentRow, colSMAPeriod), val_to_str_const((guint32) moving_average, moving_avg_vs, "None"));
+    uat_model_->setData(uat_model_->index(currentRow, colYAxisFactor), (guint32) y_axis_factor);
 
     // due to an EditTrigger, this will also start editing.
     ui->graphUat->setCurrentIndex(new_index);
@@ -547,11 +553,11 @@ void IOGraphDialog::addDefaultGraph(bool enabled, int idx)
     switch (idx % 2) {
     case 0:
         addGraph(enabled, tr("All Packets"), QString(), ColorUtils::graphColor(idx),
-                 IOGraph::psLine, IOG_ITEM_UNIT_PACKETS, QString(), DEFAULT_MOVING_AVERAGE);
+                 IOGraph::psLine, IOG_ITEM_UNIT_PACKETS, QString(), DEFAULT_MOVING_AVERAGE, DEFAULT_Y_AXIS_FACTOR);
         break;
     default:
         addGraph(enabled, tr("TCP Errors"), "tcp.analysis.flags", ColorUtils::graphColor(4), // 4 = red
-                 IOGraph::psBar, IOG_ITEM_UNIT_PACKETS, QString(), DEFAULT_MOVING_AVERAGE);
+                 IOGraph::psBar, IOG_ITEM_UNIT_PACKETS, QString(), DEFAULT_MOVING_AVERAGE, DEFAULT_Y_AXIS_FACTOR);
         break;
     }
 }
@@ -592,6 +598,8 @@ void IOGraphDialog::syncGraphSettings(int row)
 
     data_str = uat_model_->data(uat_model_->index(row, colSMAPeriod)).toString();
     iog->moving_avg_period_ = str_to_val(qUtf8Printable(data_str), moving_avg_vs, 0);
+
+    iog->y_axis_factor_ = uat_model_->data(uat_model_->index(row, colYAxisFactor)).toInt();
 
     iog->setInterval(ui->intervalComboBox->itemData(ui->intervalComboBox->currentIndex()).toInt());
 
@@ -1963,6 +1971,8 @@ void IOGraph::recalcGraphData(capture_file *cap_file, bool enable_scaling)
                 val = mavg_cumulated / mavg_in_average_count;
             }
         }
+
+        val *= y_axis_factor_;
 
         if (hasItemToShow(i, val))
         {

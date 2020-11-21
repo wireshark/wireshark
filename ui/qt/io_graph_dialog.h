@@ -80,6 +80,7 @@ public:
     void clearAllData();
 
     unsigned int moving_avg_period_;
+    unsigned int y_axis_factor_;
 
 public slots:
     void recalcGraphData(capture_file *cap_file, bool enable_scaling);
@@ -134,10 +135,10 @@ public:
     explicit IOGraphDialog(QWidget &parent, CaptureFile &cf, QString displayFilter = QString());
     ~IOGraphDialog();
 
-    enum UatColumns { colEnabled = 0, colName, colDFilter, colColor, colStyle, colYAxis, colYField, colSMAPeriod, colMaxNum};
+    enum UatColumns { colEnabled = 0, colName, colDFilter, colColor, colStyle, colYAxis, colYField, colSMAPeriod, colYAxisFactor, colMaxNum};
 
     void addGraph(bool checked, QString name, QString dfilter, QRgb color_idx, IOGraph::PlotStyles style,
-                  io_graph_item_unit_t value_units, QString yfield, int moving_average);
+                  io_graph_item_unit_t value_units, QString yfield, int moving_average, int yaxisfactor);
     void addGraph(bool copy_from_current = false);
     void addDefaultGraph(bool enabled, int idx = 0);
     void syncGraphSettings(int row);
