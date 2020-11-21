@@ -370,6 +370,7 @@ dissect_flags(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree, 
     }
 
     nordic_ble_context->phy = (flags >> 4) & 7;
+    context->phy = nordic_ble_context->phy;
 
     if (context->pdu_type == BTLE_PDU_TYPE_DATA) {
         if (dir) {
