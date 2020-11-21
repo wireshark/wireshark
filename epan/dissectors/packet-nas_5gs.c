@@ -88,6 +88,9 @@ static int hf_nas_5gs_cmn_add_info = -1;
 static int hf_nas_5gs_cmn_acc_type = -1;
 static int hf_nas_5gs_cmn_dnn = -1;
 static int hf_nas_5gs_mm_sms_requested = -1;
+static int hf_nas_5gs_mm_ng_ran_rcu = -1;
+static int hf_nas_5gs_mm_5gs_pnb_ciot = -1;
+static int hf_nas_5gs_mm_eps_pnb_ciot = -1;
 static int hf_nas_5gs_mm_5gs_reg_type = -1;
 static int hf_nas_5gs_mm_tsc = -1;
 static int hf_nas_5gs_mm_nas_key_set_id = -1;
@@ -319,7 +322,6 @@ static int hf_nas_5gs_mm_dcni = -1;
 static int hf_nas_5gs_mm_nssci = -1;
 static int hf_nas_5gs_mm_nssai_inc_mode = -1;
 static int hf_nas_5gs_mm_ue_usage_setting = -1;
-static int hf_nas_5gs_mm_ng_ran_rcu = -1;
 static int hf_nas_5gs_mm_5gs_drx_param = -1;
 static int hf_nas_5gs_sup_andsp = -1;
 
@@ -1174,8 +1176,8 @@ de_nas_5gs_mm_5gs_ta_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
  * 9.11.3.9     5GS tracking area identity list
  */
 static const value_string nas_5gs_mm_tal_t_li_values[] = {
-    { 0x00, "list of TACs belonging to one PLMN, with non-consecutive TAC values" },
-    { 0x01, "list of TACs belonging to one PLMN, with consecutive TAC values" },
+    { 0x00, "list of TACs belonging to one PLMN or SNPN, with non-consecutive TAC values" },
+    { 0x01, "list of TACs belonging to one PLMN or SNPN, with consecutive TAC values" },
     { 0x02, "list of TAIs belonging to different PLMNs" },
     { 0, NULL } };
 
@@ -1288,10 +1290,20 @@ de_nas_5gs_mm_5gs_ta_id_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo
 /*
  * 9.11.3.9A    5GS update type
  */
+static const value_string nas_5gs_mm_5gs_pnb_ciot_values[] = {
+    { 0x0, "no additional information" },
+    { 0x1, "control plane CIoT 5GS optimization" },
+    { 0x2, "user plane CIoT 5GS optimization" },
+    { 0x3, "reserved" },
+    { 0, NULL }
+};
 
-static true_false_string tfs_nas5gs_sms_requested = {
-    "SMS over NAS supported",
-    "SMS over NAS not supported"
+static const value_string nas_5gs_mm_eps_pnb_ciot_values[] = {
+    { 0x0, "no additional information" },
+    { 0x1, "control plane CIoT EPS optimization" },
+    { 0x2, "user plane CIoT EPS optimization" },
+    { 0x3, "reserved" },
+    { 0, NULL }
 };
 
 static guint16
@@ -1300,8 +1312,10 @@ de_nas_5gs_mm_update_type(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U
     gchar *add_string _U_, int string_len _U_)
 {
     static int * const flags[] = {
-        &hf_nas_5gs_spare_b3,
-        &hf_nas_5gs_spare_b2,
+        &hf_nas_5gs_spare_b7,
+        &hf_nas_5gs_spare_b6,
+        &hf_nas_5gs_mm_eps_pnb_ciot,
+        &hf_nas_5gs_mm_5gs_pnb_ciot,
         &hf_nas_5gs_mm_ng_ran_rcu,
         &hf_nas_5gs_mm_sms_requested,
         NULL
@@ -1321,7 +1335,8 @@ de_nas_5gs_mm_abba(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
     guint32 offset, guint len,
     gchar *add_string _U_, int string_len _U_)
 {
-    proto_tree_add_item(tree, hf_nas_5gs_mm_abba, tvb, offset, len, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_nas_5gs_mm_abba, tvb, offset, len, ENC_NA);
+
     return len;
 }
 
@@ -1338,6 +1353,10 @@ de_nas_5gs_mm_add_5g_sec_inf(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo
     gchar *add_string _U_, int string_len _U_)
 {
     static int * const flags[] = {
+        &hf_nas_5gs_spare_b7,
+        &hf_nas_5gs_spare_b6,
+        &hf_nas_5gs_spare_b5,
+        &hf_nas_5gs_spare_b4,
         &hf_nas_5gs_spare_b3,
         &hf_nas_5gs_spare_b2,
         &hf_nas_5gs_mm_rinmr,
@@ -1426,10 +1445,12 @@ de_nas_5gs_mm_allow_pdu_ses_sts(tvbuff_t *tvb, proto_tree *tree, packet_info *pi
 
     return (curr_offset - offset);
 }
+
 /*
  * 9.11.3.14    Authentication failure parameter
  */
 /* See subclause 10.5.3.2.2 in 3GPP TS 24.008 */
+
 /*
  *  9.11.3.15    Authentication parameter AUTN
  */
@@ -7860,8 +7881,23 @@ proto_register_nas_5gs(void)
             NULL, HFILL }
         },
         { &hf_nas_5gs_mm_sms_requested,
-        { "SMS requested",   "nas_5gs.mm.sms_requested",
-            FT_BOOLEAN, 8, TFS(&tfs_nas5gs_sms_requested), 0x01,
+        { "SMS over NAS transport requested (SMS requested)",   "nas_5gs.mm.sms_requested",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x01,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_mm_ng_ran_rcu,
+        { "NG-RAN Radio Capability Update (NG-RAN-RCU)", "nas_5gs.mm.ng_ran_rcu",
+            FT_BOOLEAN, 8, TFS(&tfs_needed_not_needed), 0x02,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_mm_5gs_pnb_ciot,
+        { "5GS Preferred CIoT network behaviour (5GS PNB-CIoT)", "nas_5gs.mm.5gs_pnb_ciot",
+            FT_UINT8, BASE_DEC, VALS(nas_5gs_mm_5gs_pnb_ciot_values), 0x0c,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_mm_eps_pnb_ciot,
+        { "EPS Preferred CIoT network behaviour (EPS-PNB-CIoT)", "nas_5gs.mm.eps_pnb_ciot",
+            FT_UINT8, BASE_DEC, VALS(nas_5gs_mm_eps_pnb_ciot_values), 0x30,
             NULL, HFILL }
         },
         { &hf_nas_5gs_mm_5gs_reg_type,
@@ -8076,7 +8112,7 @@ proto_register_nas_5gs(void)
         },
         { &hf_nas_5gs_mm_abba,
         { "ABBA Contents",   "nas_5gs.mm.abba_contents",
-            FT_UINT16, BASE_HEX, NULL, 0x00,
+            FT_BYTES, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_nas_5gs_mm_pld_cont,
@@ -9172,7 +9208,7 @@ proto_register_nas_5gs(void)
             NULL, HFILL }
         },
         { &hf_nas_5gs_mm_rinmr,
-        { "Retransmission of initial NAS message request(RINMR)", "nas_5gs.mm.rinmr",
+        { "Retransmission of initial NAS message request (RINMR)", "nas_5gs.mm.rinmr",
             FT_BOOLEAN, 8, TFS(&tfs_requested_not_requested), 0x02,
             NULL, HFILL }
         },
@@ -9204,11 +9240,6 @@ proto_register_nas_5gs(void)
         { &hf_nas_5gs_mm_ue_usage_setting,
         { "UE's usage setting", "nas_5gs.mm.ue_usage_setting",
             FT_BOOLEAN, 8, TFS(&tfs_nas_5gs_mm_ue_usage_setting), 0x01,
-            NULL, HFILL }
-        },
-        { &hf_nas_5gs_mm_ng_ran_rcu,
-        { "NG-RAN Radio Capability Update (NG-RAN-RCU)", "nas_5gs.mm.ng_ran_rcu",
-            FT_BOOLEAN, 8, TFS(&tfs_needed_not_needed), 0x02,
             NULL, HFILL }
         },
         { &hf_nas_5gs_mm_5gs_drx_param,
