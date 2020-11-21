@@ -1755,7 +1755,7 @@ typedef enum
     DE_NAS_5GS_MM_5GS_TA_ID_LIST,            /* 9.11.3.9     5GS tracking area identity list */
     DE_NAS_5GS_MM_UPDATE_TYPE,               /* 9.11.3.9A    5GS update type */
     DE_NAS_5GS_MM_ABBA,                      /* 9.11.3.10    ABBA */
-    DE_NAS_5GS_MM_ACCESS_TYPE,               /* 9.11.3.11    Access type */
+                                             /* 9.11.3.11    void */
     DE_NAS_5GS_MM_ADD_5G_SEC_INF,            /* 9.11.3.12    Additional 5G security information */
     DE_NAS_5GS_MM_ADD_INF_REQ,               /* 9.11.3.12A   Additional information requested */
     DE_NAS_5GS_MM_ALLOW_PDU_SES_STS,         /* 9.11.3.13    Allowed PDU session status*/
@@ -1811,7 +1811,7 @@ typedef enum
     DE_NAS_5GS_MM_SAL,                       /* 9.11.3.49    Service area list*/
     DE_NAS_5GS_MM_SERV_TYPE,                 /* 9.11.3.50    Service type,*/
     DE_NAS_5GS_MM_SMS_IND,                   /* 9.11.3.50A   SMS indication */
-    DE_NAS_5GS_MM_SOR_TRASP_CONT,            /* 9.11.3.51    SOR transparent container */
+    DE_NAS_5GS_MM_SOR_TRANSP_CONT,           /* 9.11.3.51    SOR transparent container */
     DE_NAS_5GS_MM_SUPPORTED_CODEC_LIST,      /* 9.11.3.51A   Supported codec list */
     DE_NAS_5GS_MM_TZ,                        /* 9.11.3.52    Time zone*/
     DE_NAS_5GS_MM_TZ_AND_T,                  /* 9.11.3.53    Time zone and time*/
