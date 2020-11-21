@@ -183,6 +183,7 @@ static gboolean print_summary;     /* TRUE if we're to print packet summary info
 static gboolean print_details;     /* TRUE if we're to print packet details information */
 static gboolean print_hex;         /* TRUE if we're to print hex/ascci information */
 static gboolean line_buffered;
+static gboolean quiet = FALSE;
 static gboolean really_quiet = FALSE;
 static gchar* delimiter_char = " ";
 static gboolean dissect_color = FALSE;
@@ -727,7 +728,6 @@ main(int argc, char *argv[])
   gboolean             capture_option_specified = FALSE;
   volatile int         max_packet_count = 0;
 #endif
-  gboolean             quiet = FALSE;
 #ifdef PCAP_NG_DEFAULT
   volatile int         out_file_type = WTAP_FILE_TYPE_SUBTYPE_PCAPNG;
 #else
@@ -2678,6 +2678,10 @@ capture_input_new_file(capture_session *cap_session, gchar *new_file)
       capture_opts->save_file = NULL;
       return FALSE;
     }
+  } else if (quiet && is_tempfile) {
+      cf->state = FILE_READ_ABORTED;
+      cf->filename = g_strdup(new_file);
+      cf->is_tempfile = is_tempfile;
   }
 
   cap_session->state = CAPTURE_RUNNING;
