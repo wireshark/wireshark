@@ -374,7 +374,7 @@ dissect_iso15765(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
     }
 
     if (next_tvb) {
-        if (!complete || !dissector_try_payload_new(subdissector_table, next_tvb, pinfo, tree, TRUE, NULL)) {
+        if (!complete || !dissector_try_payload_new(subdissector_table, next_tvb, pinfo, tree, TRUE, data)) {
             call_data_dissector(next_tvb, pinfo, tree);
         }
     }

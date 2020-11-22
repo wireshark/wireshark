@@ -121,6 +121,9 @@ static int hf_obdii_mode01_torque_reference_engine = -1;
 #define ODBII_CAN_RESPONSE_ID_LOWER_MASK_EFF 0xFF00
 #define ODBII_CAN_RESPONSE_ID_UPPER_MASK_EFF 0x00FF
 
+#define ODBII_MODE_POS  0x00
+#define ODBII_PID_POS   0x01
+
 #define OBDII_MODE01_PIDS_SUPPORT00         0x00
 #define OBDII_MODE01_MONITOR_STATUS         0x01
 #define OBDII_MODE01_FREEZE_DTC             0x02
@@ -622,7 +625,7 @@ dissect_obdii_common_torque(tvbuff_t *tvb, struct obdii_packet_info *oinfo, prot
 static void
 dissect_obdii_mode_01(tvbuff_t *tvb, struct obdii_packet_info *oinfo, proto_tree *tree)
 {
-	guint8 pid = tvb_get_guint8(tvb, 2);
+	guint8 pid = tvb_get_guint8(tvb, ODBII_PID_POS);
 	int value_offset;
 	gboolean handled = FALSE;
 
@@ -1221,9 +1224,9 @@ dissect_obdii_query(tvbuff_t *tvb, struct obdii_packet_info *oinfo, proto_tree *
 		pid = 0; /* Should never be required but set to satisfy petri-dish */
 	}
 	else if (pid_len == 1)
-		pid  = tvb_get_guint8(tvb, 2);
+		pid  = tvb_get_guint8(tvb, ODBII_PID_POS);
 	else if (pid_len == 2)
-		pid = tvb_get_ntohs(tvb, 2);
+		pid = tvb_get_ntohs(tvb, ODBII_PID_POS);
 	else
 		return 0;
 
@@ -1256,11 +1259,11 @@ dissect_obdii_response(tvbuff_t *tvb, struct obdii_packet_info *oinfo, proto_tre
 
 	oinfo->value_bytes = 1 + (oinfo->data_bytes - 3);
 
-	if (oinfo->value_bytes >= 1) oinfo->valueA = tvb_get_guint8(tvb, 3);
-	if (oinfo->value_bytes >= 2) oinfo->valueB = tvb_get_guint8(tvb, 4);
-	if (oinfo->value_bytes >= 3) oinfo->valueC = tvb_get_guint8(tvb, 5);
-	if (oinfo->value_bytes >= 4) oinfo->valueD = tvb_get_guint8(tvb, 6);
-	if (oinfo->value_bytes >= 5) oinfo->valueE = tvb_get_guint8(tvb, 7);
+	if (oinfo->value_bytes >= 1) oinfo->valueA = tvb_get_guint8(tvb, 2);
+	if (oinfo->value_bytes >= 2) oinfo->valueB = tvb_get_guint8(tvb, 3);
+	if (oinfo->value_bytes >= 3) oinfo->valueC = tvb_get_guint8(tvb, 4);
+	if (oinfo->value_bytes >= 4) oinfo->valueD = tvb_get_guint8(tvb, 5);
+	if (oinfo->value_bytes >= 5) oinfo->valueE = tvb_get_guint8(tvb, 6);
 
 	switch (oinfo->mode)
 	{
@@ -1315,11 +1318,8 @@ dissect_obdii(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 	if (!(id_is_query || id_is_response))
 		return 0;
 
-	if (tvb_reported_length(tvb) != 8)
-		return 0;
-
-	data_bytes = tvb_get_guint8(tvb, 0);
-	mode = tvb_get_guint8(tvb, 1);
+	data_bytes = tvb_reported_length(tvb);
+	mode = tvb_get_guint8(tvb, ODBII_MODE_POS);
 
 	/* Mode 7 is a datalength of 1, all other queries either 2 or 3 bytes */
 	if (id_is_query)
@@ -1603,7 +1603,7 @@ proto_reg_handoff_obdii(void)
 
 	obdii_handle = create_dissector_handle(dissect_obdii, proto_obdii);
 
-	dissector_add_for_decode_as("can.subdissector", obdii_handle);
+	dissector_add_for_decode_as("iso15765.subdissector", obdii_handle);
 
 	/* heuristics default off since these standardized IDs might be reused outside automotive systems */
 	heur_dissector_add("can", dissect_obdii_heur, "OBD-II Heuristic", "obd-ii_can_heur", proto_obdii, HEURISTIC_DISABLE);
