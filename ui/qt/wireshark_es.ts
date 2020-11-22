@@ -53,7 +53,7 @@
     </message>
     <message>
         <source>No plugins found.</source>
-        <translation type="unfinished"></translation>
+        <translation>No se encontraron complementos.</translation>
     </message>
     <message>
         <source>Search Plugins</source>
@@ -85,7 +85,7 @@
     </message>
     <message>
         <source>Should the directory %1 be created?</source>
-        <translation type="unfinished"></translation>
+        <translation>¿Debería ser creado el directorio %1?</translation>
     </message>
     <message>
         <source>The directory could not be created</source>
@@ -93,7 +93,7 @@
     </message>
     <message>
         <source>The directory %1 could not be created.</source>
-        <translation type="unfinished"></translation>
+        <translation>No se ha podido crear el directorio %1.</translation>
     </message>
     <message>
         <source>Show in Finder</source>
@@ -101,7 +101,7 @@
     </message>
     <message>
         <source>Show in Folder</source>
-        <translation type="unfinished"></translation>
+        <translation>Mostrar en carpeta</translation>
     </message>
     <message>
         <source>Copy</source>
@@ -251,39 +251,39 @@
     </message>
     <message>
         <source>BD_ADDR</source>
-        <translation type="unfinished">BD_ADDR</translation>
+        <translation>BD_ADDR</translation>
     </message>
     <message>
         <source>OUI</source>
-        <translation type="unfinished">OUI</translation>
+        <translation>OUI</translation>
     </message>
     <message>
         <source>Name</source>
-        <translation type="unfinished">Nombre</translation>
+        <translation>Nombre</translation>
     </message>
     <message>
         <source>Class of Device</source>
-        <translation type="unfinished"></translation>
+        <translation>Clase de dispositivo</translation>
     </message>
     <message>
         <source>LMP Version</source>
-        <translation type="unfinished">Versión LMP</translation>
+        <translation>Versión LMP</translation>
     </message>
     <message>
         <source>LMP Subversion</source>
-        <translation type="unfinished">Subversión LMP</translation>
+        <translation>Subversión LMP</translation>
     </message>
     <message>
         <source>Manufacturer</source>
-        <translation type="unfinished">Fabricante</translation>
+        <translation>Fabricante</translation>
     </message>
     <message>
         <source>HCI Version</source>
-        <translation type="unfinished">Versión HCI</translation>
+        <translation>Versión HCI</translation>
     </message>
     <message>
         <source>HCI Revision</source>
-        <translation type="unfinished">Revisión HCI</translation>
+        <translation>Revisión HCI</translation>
     </message>
     <message>
         <source>Scan</source>
@@ -291,11 +291,11 @@
     </message>
     <message>
         <source>Authentication</source>
-        <translation type="unfinished">Autenticación</translation>
+        <translation>Autenticación</translation>
     </message>
     <message>
         <source>Encryption</source>
-        <translation type="unfinished"></translation>
+        <translation>Cifrado</translation>
     </message>
     <message>
         <source>ACL MTU</source>
@@ -347,35 +347,35 @@
     </message>
     <message>
         <source>Value</source>
-        <translation type="unfinished">Valor</translation>
+        <translation>Valor</translation>
     </message>
     <message>
         <source>Changes</source>
-        <translation type="unfinished"></translation>
+        <translation>Cambios</translation>
     </message>
     <message>
         <source>%1 changes</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 cambios</translation>
     </message>
     <message>
         <source>Copy Cell</source>
-        <translation type="unfinished">Copiar celda</translation>
+        <translation>Copiar celda</translation>
     </message>
     <message>
         <source>Copy Rows</source>
-        <translation type="unfinished">Copiar filas</translation>
+        <translation>Copiar filas</translation>
     </message>
     <message>
         <source>Copy All</source>
-        <translation type="unfinished">Copiar todo</translation>
+        <translation>Copiar todo</translation>
     </message>
     <message>
         <source>Save as image</source>
-        <translation type="unfinished">Guardar como imagen</translation>
+        <translation>Guardar como imagen</translation>
     </message>
     <message>
         <source>Mark/Unmark Row</source>
-        <translation type="unfinished">Marcar/Desmarcar fila</translation>
+        <translation>Marcar/Desmarcar fila</translation>
     </message>
     <message>
         <source>Ctrl-M</source>
@@ -383,15 +383,15 @@
     </message>
     <message>
         <source>Mark/Unmark Cell</source>
-        <translation type="unfinished">Marcar/Desmarcar celda</translation>
+        <translation>Marcar/Desmarcar celda</translation>
     </message>
     <message>
         <source>Unknown</source>
-        <translation type="unfinished"></translation>
+        <translation>Desconocida</translation>
     </message>
     <message>
         <source>Bluetooth Device - %1%2</source>
-        <translation type="unfinished"></translation>
+        <translation>Dispositivo bluetooth - %1%2</translation>
     </message>
     <message>
         <source>enabled</source>
@@ -407,7 +407,7 @@
     </message>
     <message>
         <source>Save Table Image</source>
-        <translation type="unfinished">Guardar imagen de tabla</translation>
+        <translation>Guardar imagen de tabla</translation>
     </message>
     <message>
         <source>PNG Image (*.png)</source>
@@ -689,7 +689,7 @@
     </message>
     <message>
         <source>Unknown</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Desconocida</translation>
     </message>
     <message>
         <source>Adapter %1</source>
@@ -926,7 +926,7 @@
     </message>
     <message>
         <source>Unknown</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Desconocida</translation>
     </message>
     <message>
         <source>File</source>
@@ -1607,11 +1607,11 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>Import…</source>
-        <translation type="unfinished"></translation>
+        <translation>Importar…</translation>
     </message>
     <message>
         <source>Export…</source>
-        <translation type="unfinished"></translation>
+        <translation>Exportar…</translation>
     </message>
     <message>
         <source>Copy coloring rules from another profile.</source>
@@ -1670,17 +1670,17 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     <message>
         <source>Title:</source>
         <oldsource>Title</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Título:</translation>
     </message>
     <message>
         <source>Type:</source>
         <oldsource>Type</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Tipo:</translation>
     </message>
     <message>
         <source>Fields:</source>
         <oldsource>Fields</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Campos:</translation>
     </message>
     <message>
         <source>Occurrence:</source>
@@ -2520,11 +2520,11 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>Content Type:</source>
-        <translation type="unfinished"></translation>
+        <translation>Tipo de contenido:</translation>
     </message>
     <message>
         <source>Searching for objects</source>
-        <translation type="unfinished"></translation>
+        <translation>Buscando objetos</translation>
     </message>
     <message>
         <source>Text Filter:</source>
@@ -3777,6 +3777,10 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
         <translation>1 ms</translation>
     </message>
     <message>
+        <source>2 ms</source>
+        <translation type="unfinished">100 ms {2 ?}</translation>
+    </message>
+    <message>
         <source>5 ms</source>
         <translation>5 ms</translation>
     </message>
@@ -3795,6 +3799,10 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     <message>
         <source>100 ms</source>
         <translation>100 ms</translation>
+    </message>
+    <message>
+        <source>200 ms</source>
+        <translation type="unfinished">100 ms {200 ?}</translation>
     </message>
     <message>
         <source>500 ms</source>
@@ -3879,14 +3887,6 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     <message>
         <source>Save Graph As…</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>2 ms</source>
-        <translation type="unfinished">100 ms {2 ?}</translation>
-    </message>
-    <message>
-        <source>200 ms</source>
-        <translation type="unfinished">100 ms {200 ?}</translation>
     </message>
 </context>
 <context>
@@ -9675,7 +9675,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>Unknown</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Desconocida</translation>
     </message>
     <message>
         <source>UE Id</source>
@@ -10836,7 +10836,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>Unknown</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Desconocida</translation>
     </message>
 </context>
 <context>
@@ -10995,7 +10995,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>Export…</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Exportar…</translation>
     </message>
     <message>
         <source>Copy</source>
@@ -13123,7 +13123,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>Unknown</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Desconocida</translation>
     </message>
 </context>
 <context>
@@ -13426,7 +13426,7 @@ a:hover {
     </message>
     <message>
         <source>Show in Folder</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Mostrar en carpeta</translation>
     </message>
     <message>
         <source>All interfaces shown</source>

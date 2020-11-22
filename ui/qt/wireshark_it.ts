@@ -3845,6 +3845,10 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>1 ms</translation>
     </message>
     <message>
+        <source>2 ms</source>
+        <translation>2 ms</translation>
+    </message>
+    <message>
         <source>5 ms</source>
         <translation>5 ms</translation>
     </message>
@@ -3854,27 +3858,31 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>20 ms</source>
-        <translation type="unfinished">100 ms {20 ?}</translation>
+        <translation>20 ms</translation>
     </message>
     <message>
         <source>50 ms</source>
-        <translation type="unfinished">100 ms {50 ?}</translation>
+        <translation>50 ms</translation>
     </message>
     <message>
         <source>100 ms</source>
         <translation>100 ms</translation>
     </message>
     <message>
+        <source>200 ms</source>
+        <translation>200 ms</translation>
+    </message>
+    <message>
         <source>500 ms</source>
-        <translation type="unfinished">100 ms {500 ?}</translation>
+        <translation>500 ms</translation>
     </message>
     <message>
         <source>2 sec</source>
-        <translation type="unfinished">10 sec {2 ?}</translation>
+        <translation>2 sec</translation>
     </message>
     <message>
         <source>5 sec</source>
-        <translation type="unfinished">10 sec {5 ?}</translation>
+        <translation>5 sec</translation>
     </message>
     <message>
         <source>Wireshark I/O Graphs: %1</source>
@@ -3947,14 +3955,6 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <message>
         <source>Save Graph As…</source>
         <translation>Salva il grafico come...</translation>
-    </message>
-    <message>
-        <source>2 ms</source>
-        <translation type="unfinished">100 ms {2 ?}</translation>
-    </message>
-    <message>
-        <source>200 ms</source>
-        <translation type="unfinished">100 ms {200 ?}</translation>
     </message>
 </context>
 <context>

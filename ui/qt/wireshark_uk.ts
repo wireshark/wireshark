@@ -3802,6 +3802,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>2 ms</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>5 ms</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3819,6 +3823,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>100 ms</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>200 ms</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3903,14 +3911,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Save Graph As…</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>2 ms</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>200 ms</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

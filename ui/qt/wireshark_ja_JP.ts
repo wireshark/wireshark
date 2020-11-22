@@ -3829,6 +3829,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>1ミリ秒</translation>
     </message>
     <message>
+        <source>2 ms</source>
+        <translation type="unfinished">100ミリ秒 {2 ?}</translation>
+    </message>
+    <message>
         <source>5 ms</source>
         <translation>5ミリ秒</translation>
     </message>
@@ -3847,6 +3851,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>100 ms</source>
         <translation>100ミリ秒</translation>
+    </message>
+    <message>
+        <source>200 ms</source>
+        <translation type="unfinished">100ミリ秒 {200 ?}</translation>
     </message>
     <message>
         <source>500 ms</source>
@@ -3931,14 +3939,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Save Graph As…</source>
         <translation>...としてグラフを保存</translation>
-    </message>
-    <message>
-        <source>2 ms</source>
-        <translation type="unfinished">100ミリ秒 {2 ?}</translation>
-    </message>
-    <message>
-        <source>200 ms</source>
-        <translation type="unfinished">100ミリ秒 {200 ?}</translation>
     </message>
 </context>
 <context>
