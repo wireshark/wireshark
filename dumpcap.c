@@ -1283,10 +1283,31 @@ static void *cap_thread_read(void *arg)
     /* Post to queue if we didn't read enough data as the main thread waits for the message */
     g_mutex_lock(pcap_src->cap_pipe_read_mtx);
     if (pcap_src->cap_pipe_bytes_read < pcap_src->cap_pipe_bytes_to_read) {
+        /* There's still more of the record to read. */
         g_async_queue_push(pcap_src->cap_pipe_done_q, pcap_src->cap_pipe_buf); /* Any non-NULL value will do */
     }
     g_mutex_unlock(pcap_src->cap_pipe_read_mtx);
     return NULL;
+}
+
+/*
+ * Do a blocking read from a pipe within the main thread, by pushing
+ * the read onto the pipe queue and then popping it off that queue;
+ * the pipe will block until the pushed read completes.
+ *
+ * We do it with another thread because we can't use select() on
+ * pipes on Windows, as we can on UN*Xes, we can only use it on
+ * sockets.
+ */
+void
+pipe_read_sync(capture_src *pcap_src, void *buf, DWORD nbytes)
+{
+    pcap_src->cap_pipe_buf = (char *) buf;
+    pcap_src->cap_pipe_bytes_read = 0;
+    pcap_src->cap_pipe_bytes_to_read = nbytes;
+    /* We don't have to worry about cap_pipe_read_mtx here */
+    g_async_queue_push(pcap_src->cap_pipe_pending_q, pcap_src->cap_pipe_buf);
+    g_async_queue_pop(pcap_src->cap_pipe_done_q);
 }
 #endif
 
@@ -1676,11 +1697,27 @@ cap_pipe_open_live(char *pipename,
     pcap_src->cap_pipe_databuf = (char*)g_malloc(2048);
     pcap_src->cap_pipe_databuf_size = 2048;
 
+    /*
+     * Read the first 4 bytes of data from the pipe.
+     *
+     * If a pcap file is being written to it, that will be
+     * the pcap magic number.
+     *
+     * If a pcapng file is being written to it, that will be
+     * the block type of the initial SHB.
+     */
 #ifdef _WIN32
+    /*
+     * On UN*X, we can use select() on pipes or sockets.
+     *
+     * On Windows, we can only use it on sockets; to do non-blocking
+     * reads from pipes, we currently do reads in a separate thread
+     * and use GLib asynchronous queues from the main thread to start
+     * read operations and to wait for them to complete.
+     */
     if (pcap_src->from_cap_socket)
 #endif
     {
-        /* read the pcap header */
         bytes_read = 0;
         while (bytes_read < sizeof magic) {
             sel_ret = cap_pipe_select(fd);
@@ -1713,14 +1750,10 @@ cap_pipe_open_live(char *pipename,
     }
 #ifdef _WIN32
     else {
+        /* Create a thread to read from this pipe */
         g_thread_new("cap_pipe_open_live", &cap_thread_read, pcap_src);
 
-        pcap_src->cap_pipe_buf = (char *) &magic;
-        pcap_src->cap_pipe_bytes_read = 0;
-        pcap_src->cap_pipe_bytes_to_read = sizeof(magic);
-        /* We don't have to worry about cap_pipe_read_mtx here */
-        g_async_queue_push(pcap_src->cap_pipe_pending_q, pcap_src->cap_pipe_buf);
-        g_async_queue_pop(pcap_src->cap_pipe_done_q);
+        pipe_read_sync(pcap_src, &magic, sizeof(magic));
         /* jump messaging, if extcap had an error, stderr will provide the correct message */
         if (pcap_src->cap_pipe_bytes_read <= 0 && extcap_pipe)
             goto error;
@@ -1741,44 +1774,57 @@ cap_pipe_open_live(char *pipename,
     switch (magic) {
     case PCAP_MAGIC:
     case PCAP_NSEC_MAGIC:
-        /* Host that wrote it has our byte order, and was running
+        /* This is a pcap file.
+           The host that wrote it has our byte order, and was running
            a program using either standard or ss990417 libpcap. */
         pcap_src->cap_pipe_info.pcap.byte_swapped = FALSE;
         pcap_src->cap_pipe_modified = FALSE;
         pcap_src->ts_nsec = magic == PCAP_NSEC_MAGIC;
+        pcap_pipe_open_live(fd, pcap_src, (struct pcap_hdr *) hdr, errmsg, errmsgl,
+                            secondary_errmsg, secondary_errmsgl);
         break;
     case PCAP_MODIFIED_MAGIC:
-        /* Host that wrote it has our byte order, but was running
+        /* This is a pcap file.
+           The host that wrote it has our byte order, but was running
            a program using either ss990915 or ss991029 libpcap. */
         pcap_src->cap_pipe_info.pcap.byte_swapped = FALSE;
         pcap_src->cap_pipe_modified = TRUE;
+        pcap_pipe_open_live(fd, pcap_src, (struct pcap_hdr *) hdr, errmsg, errmsgl,
+                            secondary_errmsg, secondary_errmsgl);
         break;
     case PCAP_SWAPPED_MAGIC:
     case PCAP_SWAPPED_NSEC_MAGIC:
-        /* Host that wrote it has a byte order opposite to ours,
+        /* This is a pcap file.
+           The host that wrote it has a byte order opposite to ours,
            and was running a program using either standard or
            ss990417 libpcap. */
         pcap_src->cap_pipe_info.pcap.byte_swapped = TRUE;
         pcap_src->cap_pipe_modified = FALSE;
         pcap_src->ts_nsec = magic == PCAP_SWAPPED_NSEC_MAGIC;
+        pcap_pipe_open_live(fd, pcap_src, (struct pcap_hdr *) hdr, errmsg, errmsgl,
+                            secondary_errmsg, secondary_errmsgl);
         break;
     case PCAP_SWAPPED_MODIFIED_MAGIC:
-        /* Host that wrote it out has a byte order opposite to
+        /* This is a pcap file.
+           The host that wrote it out has a byte order opposite to
            ours, and was running a program using either ss990915
            or ss991029 libpcap. */
         pcap_src->cap_pipe_info.pcap.byte_swapped = TRUE;
         pcap_src->cap_pipe_modified = TRUE;
+        pcap_pipe_open_live(fd, pcap_src, (struct pcap_hdr *) hdr, errmsg, errmsgl,
+                            secondary_errmsg, secondary_errmsgl);
         break;
     case BLOCK_TYPE_SHB:
-        /* This isn't pcap, it's pcapng. */
+        /* This is a pcapng file. */
         pcap_src->from_pcapng = TRUE;
         pcap_src->cap_pipe_dispatch = pcapng_pipe_dispatch;
         pcap_src->cap_pipe_info.pcapng.src_iface_to_global = g_array_new(FALSE, FALSE, sizeof(guint32));
         global_capture_opts.use_pcapng = TRUE;      /* we can only output in pcapng format */
         pcapng_pipe_open_live(fd, pcap_src, errmsg, errmsgl);
-        return;
+        break;
     default:
-        /* Not a pcap type we know about, or not pcap at all. */
+        /* Not a pcapng file, and either not a pcap type we know about
+           or not a pcap file, either. */
         g_snprintf(errmsg, (gulong)errmsgl,
                    "Data written to the pipe is neither in a supported pcap format nor in pcapng format.");
         g_snprintf(secondary_errmsg, (gulong)secondary_errmsgl, "%s",
@@ -1786,8 +1832,6 @@ cap_pipe_open_live(char *pipename,
         goto error;
     }
 
-    pcap_pipe_open_live(fd, pcap_src, (struct pcap_hdr *) hdr, errmsg, errmsgl,
-                        secondary_errmsg, secondary_errmsgl);
     return;
 
 error:
@@ -1800,6 +1844,10 @@ error:
 #endif
 }
 
+/*
+ * Read the part of the pcap file header that follows the magic
+ * number (we've already read the magic number).
+ */
 static void
 pcap_pipe_open_live(int fd,
                     capture_src *pcap_src,
@@ -1810,11 +1858,20 @@ pcap_pipe_open_live(int fd,
     size_t   bytes_read;
     ssize_t  b;
     int      sel_ret;
+
+    /*
+     * We're reading from a pcap file.  We've already read the magic
+     * number; read the rest of the header.
+     *
+     * (Note that struct pcap_hdr is a structure for the part of a
+     * pcap file header *following the magic number*; it does not
+     * include the magic number itself.)
+     */
 #ifdef _WIN32
     if (pcap_src->from_cap_socket)
 #endif
     {
-        /* Read the rest of the header */
+        /* Keep reading until we get the rest of the header. */
         bytes_read = 0;
         while (bytes_read < sizeof(struct pcap_hdr)) {
             sel_ret = cap_pipe_select(fd);
@@ -1845,11 +1902,7 @@ pcap_pipe_open_live(int fd,
     }
 #ifdef _WIN32
     else {
-        pcap_src->cap_pipe_buf = (char *) hdr;
-        pcap_src->cap_pipe_bytes_read = 0;
-        pcap_src->cap_pipe_bytes_to_read = sizeof(struct pcap_hdr);
-        g_async_queue_push(pcap_src->cap_pipe_pending_q, pcap_src->cap_pipe_buf);
-        g_async_queue_pop(pcap_src->cap_pipe_done_q);
+        pipe_read_sync(pcap_src, hdr, sizeof(struct pcap_hdr));
         if (pcap_src->cap_pipe_bytes_read <= 0) {
             if (pcap_src->cap_pipe_bytes_read == 0)
                 g_snprintf(errmsg, (gulong)errmsgl,
@@ -1915,7 +1968,10 @@ error:
 #endif
 }
 
-/* Read the pcapng section header block */
+/*
+ * Read the fixed portion of the pcapng section header block
+ * (we've already read the pcapng block header).
+ */
 static int
 pcapng_read_shb(capture_src *pcap_src,
                 char *errmsg,
@@ -1934,11 +1990,8 @@ pcapng_read_shb(capture_src *pcap_src,
     }
 #ifdef _WIN32
     else {
-        pcap_src->cap_pipe_buf = pcap_src->cap_pipe_databuf + sizeof(pcapng_block_header_t);
-        pcap_src->cap_pipe_bytes_read = 0;
-        pcap_src->cap_pipe_bytes_to_read = sizeof(pcapng_section_header_block_t);
-        g_async_queue_push(pcap_src->cap_pipe_pending_q, pcap_src->cap_pipe_buf);
-        g_async_queue_pop(pcap_src->cap_pipe_done_q);
+        pipe_read_sync(pcap_src, pcap_src->cap_pipe_databuf + sizeof(pcapng_block_header_t),
+            sizeof(pcapng_section_header_block_t));
         if (pcap_src->cap_pipe_bytes_read <= 0) {
             if (pcap_src->cap_pipe_bytes_read == 0)
                 g_snprintf(errmsg, (gulong)errmsgl,
@@ -2104,6 +2157,10 @@ pcapng_adjust_block(capture_src *pcap_src, const pcapng_block_header_t *bh, u_ch
     return TRUE;
 }
 
+/*
+ * Read the part of the initial pcapng SHB following the block type
+ * (we've already read the block type).
+ */
 static void
 pcapng_pipe_open_live(int fd,
                       capture_src *pcap_src,
@@ -2114,12 +2171,25 @@ pcapng_pipe_open_live(int fd,
     pcapng_block_header_t *bh = &pcap_src->cap_pipe_info.pcapng.bh;
 
     g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "pcapng_pipe_open_live: fd %d", fd);
+
+    /*
+     * A pcapng block begins with the block type followed by the block
+     * total length; we've already read the block type, now read the
+     * block length.
+     */
 #ifdef _WIN32
+    /*
+     * On UN*X, we can use select() on pipes or sockets.
+     *
+     * On Windows, we can only use it on sockets; to do non-blocking
+     * reads from pipes, we currently do reads in a separate thread
+     * and use GLib asynchronous queues from the main thread to start
+     * read operations and to wait for them to complete.
+     */
     if (pcap_src->from_cap_socket)
 #endif
     {
         memcpy(pcap_src->cap_pipe_databuf, &type, sizeof(guint32));
-        /* read the rest of the pcapng general block header */
         pcap_src->cap_pipe_bytes_read = sizeof(guint32);
         pcap_src->cap_pipe_bytes_to_read = sizeof(pcapng_block_header_t);
         pcap_src->cap_pipe_fd = fd;
@@ -2133,12 +2203,8 @@ pcapng_pipe_open_live(int fd,
         g_thread_new("cap_pipe_open_live", &cap_thread_read, pcap_src);
 
         bh->block_type = type;
-        pcap_src->cap_pipe_buf = (char *) &bh->block_total_length;
-        pcap_src->cap_pipe_bytes_read = 0;
-        pcap_src->cap_pipe_bytes_to_read = sizeof(bh->block_total_length);
-        /* We don't have to worry about cap_pipe_read_mtx here */
-        g_async_queue_push(pcap_src->cap_pipe_pending_q, pcap_src->cap_pipe_buf);
-        g_async_queue_pop(pcap_src->cap_pipe_done_q);
+        pipe_read_sync(pcap_src, &bh->block_total_length,
+            sizeof(bh->block_total_length));
         if (pcap_src->cap_pipe_bytes_read <= 0) {
             if (pcap_src->cap_pipe_bytes_read == 0)
                 g_snprintf(errmsg, (gulong)errmsgl,
@@ -2240,8 +2306,10 @@ pcap_pipe_dispatch(loop_data *ld, capture_src *pcap_src, char *errmsg, size_t er
             }
         }
 #endif
-        if (pcap_src->cap_pipe_bytes_read < pcap_src->cap_pipe_bytes_to_read)
+        if (pcap_src->cap_pipe_bytes_read < pcap_src->cap_pipe_bytes_to_read) {
+            /* There's still more of the pcap packet header to read. */
             return 0;
+        }
         result = PD_REC_HDR_READ;
         break;
 
@@ -2296,8 +2364,10 @@ pcap_pipe_dispatch(loop_data *ld, capture_src *pcap_src, char *errmsg, size_t er
             }
         }
 #endif /* _WIN32 */
-        if (pcap_src->cap_pipe_bytes_read < pcap_src->cap_pipe_bytes_to_read)
+        if (pcap_src->cap_pipe_bytes_read < pcap_src->cap_pipe_bytes_to_read) {
+            /* There's still more of the pcap packet data to read. */
             return 0;
+        }
         result = PD_DATA_READ;
         break;
 
@@ -2314,7 +2384,10 @@ pcap_pipe_dispatch(loop_data *ld, capture_src *pcap_src, char *errmsg, size_t er
     switch (result) {
 
     case PD_REC_HDR_READ:
-        /* We've read the header. Take care of byte order. */
+        /*
+         * We've read the packet header, so we know the captured length,
+         * and thus the number of packet data bytes. Take care of byte order.
+         */
         cap_pipe_adjust_pcap_header(pcap_src->cap_pipe_info.pcap.byte_swapped, &pcap_info->hdr,
                                &pcap_info->rechdr.hdr);
         if (pcap_info->rechdr.hdr.incl_len > pcap_src->cap_pipe_max_pkt_size) {
@@ -2349,11 +2422,11 @@ pcap_pipe_dispatch(loop_data *ld, capture_src *pcap_src, char *errmsg, size_t er
             pcap_src->cap_pipe_databuf_size = new_bufsize;
         }
 
-        /*
-         * The record has some data following the header, try to read it next
-         * time.
-         */
         if (pcap_info->rechdr.hdr.incl_len) {
+            /*
+             * The record has some data following the header, try
+             * to read it next time.
+             */
             pcap_src->cap_pipe_state = STATE_EXPECT_DATA;
             return 0;
         }
@@ -2363,8 +2436,12 @@ pcap_pipe_dispatch(loop_data *ld, capture_src *pcap_src, char *errmsg, size_t er
          * read and we will fallthrough and emit an empty packet.
          */
         /* FALLTHROUGH */
+
     case PD_DATA_READ:
-        /* Fill in a "struct pcap_pkthdr", and process the packet. */
+        /*
+         * We've read the full contents of the packet record.
+         * Fill in a "struct pcap_pkthdr", and process the packet.
+         */
         phdr.ts.tv_sec = pcap_info->rechdr.hdr.ts_sec;
         phdr.ts.tv_usec = pcap_info->rechdr.hdr.ts_usec;
         phdr.caplen = pcap_info->rechdr.hdr.incl_len;
@@ -2375,6 +2452,10 @@ pcap_pipe_dispatch(loop_data *ld, capture_src *pcap_src, char *errmsg, size_t er
         } else {
             capture_loop_write_packet_cb((u_char *)pcap_src, &phdr, pcap_src->cap_pipe_databuf);
         }
+
+        /*
+         * Now we want to read the next packet's header.
+         */
         pcap_src->cap_pipe_state = STATE_EXPECT_REC_HDR;
         return 1;
 
@@ -2464,6 +2545,7 @@ pcapng_pipe_dispatch(loop_data *ld, capture_src *pcap_src, char *errmsg, size_t 
         }
 #endif
         if (pcap_src->cap_pipe_bytes_read < pcap_src->cap_pipe_bytes_to_read) {
+            /* There's still more of the pcapng block header to read. */
             return 0;
         }
         memcpy(bh, pcap_src->cap_pipe_databuf, sizeof(pcapng_block_header_t));
@@ -2519,6 +2601,7 @@ pcapng_pipe_dispatch(loop_data *ld, capture_src *pcap_src, char *errmsg, size_t 
         }
 #endif /* _WIN32 */
         if (pcap_src->cap_pipe_bytes_read < pcap_src->cap_pipe_bytes_to_read) {
+            /* There's still more of the pcap block contents to read. */
             return 0;
         }
         result = PD_DATA_READ;
@@ -2537,8 +2620,20 @@ pcapng_pipe_dispatch(loop_data *ld, capture_src *pcap_src, char *errmsg, size_t 
     switch (result) {
 
     case PD_REC_HDR_READ:
+        /*
+         * We've read the pcapng block header, so we know the block type
+         * and length.
+         */
         if (bh->block_type == BLOCK_TYPE_SHB) {
-            /* we need to read ahead to get the endianess before getting the block type and length */
+            /*
+             * We need to read the fixed portion of the SHB before to
+             * get the endianness before we can interpret the block length.
+             * (The block type of the SHB is byte-order-independent, so that
+             * an SHB can be recognized before we know the endianness of
+             * the section.)
+             *
+             * Continue the read process.
+             */
             pcapng_read_shb(pcap_src, errmsg, errmsgl);
             return 1;
         }
@@ -2582,15 +2677,27 @@ pcapng_pipe_dispatch(loop_data *ld, capture_src *pcap_src, char *errmsg, size_t 
             pcap_src->cap_pipe_err = PIPEOF;
             return -1;
         }
+
+        /*
+         * Now we want to read the block contents.
+         */
         pcap_src->cap_pipe_state = STATE_EXPECT_DATA;
         return 0;
 
     case PD_DATA_READ:
+        /*
+         * We've read the full contents of the block.
+         * Process the block.
+         */
         if (use_threads) {
             capture_loop_queue_pcapng_cb(pcap_src, bh, pcap_src->cap_pipe_databuf);
         } else {
             capture_loop_write_pcapng_cb(pcap_src, bh, pcap_src->cap_pipe_databuf);
         }
+
+        /*
+         * Now we want to read the next block's header.
+         */
         pcap_src->cap_pipe_state = STATE_EXPECT_REC_HDR;
         return 1;
 
