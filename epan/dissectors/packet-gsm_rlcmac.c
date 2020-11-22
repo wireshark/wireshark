@@ -15527,7 +15527,7 @@ proto_register_gsm_rlcmac(void)
       }
     },
     { &hf_packet_compact_cell_sel_gprs_penalty_time,
-      { "GPRS_PENALTY_TIME",        "gsm_rlcmac.dl.psi3_compact_cell_sel_gprs_panelty_time",
+      { "GPRS_PENALTY_TIME",        "gsm_rlcmac.dl.psi3_compact_cell_sel_gprs_penalty_time",
         FT_UINT8, BASE_DEC, NULL, 0x0,
         NULL, HFILL
       }

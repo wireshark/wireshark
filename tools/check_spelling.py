@@ -13,7 +13,6 @@ import signal
 from collections import Counter
 
 # Looks for spelling errors among strings found in source or documentation files.
-# TODO: deal with contractions - pyspellcheck doesn't seem to handle apostrophies..
 
 # For text colouring/highlighting.
 class bcolors:
@@ -76,7 +75,7 @@ class File:
 
             # Find protocol name and add to dict.
             # N.B. doesn't work when a variable is used instead of a literal for the protocol name...
-            matches =   re.finditer(r'proto_register_protocol\s*\([\n\r\s]*\"(.*)\",[\n\r\s]*\"(.*)\",[\n\r\s]*\"(.*)\"', contents)
+            matches = re.finditer(r'proto_register_protocol\s*\([\n\r\s]*\"(.*)\",[\n\r\s]*\"(.*)\",[\n\r\s]*\"(.*)\"', contents)
             for m in matches:
                 protocol = m.group(3)
                 # Add to dict.
@@ -107,6 +106,15 @@ class File:
 
             if not spell.unknown([word1, word2]):
                 return True
+
+        # Run through, looking for any number of separate words.
+        next_word_start = 0
+        for idx in range(1, length+1):
+            w = word[next_word_start:idx]
+            if  len(w) > 3 and not spell.unknown([w]):
+                next_word_start = idx
+        if next_word_start == length:
+            return True
 
         return False
 
@@ -164,7 +172,6 @@ class File:
             v = v.replace('%u', '')
             v = v.replace('%d', '')
             v = v.replace('%s', '')
-            v = v.replace('\\n', ' ')
 
             # Split into words.
             value_words = v.split()
@@ -189,6 +196,21 @@ class File:
                     # bcolors.OKGREEN + spell.correction(word) + bcolors.ENDC
                     global missing_words
                     missing_words.append(word)
+
+def removeWhitespaceControl(code_string):
+    code_string = code_string.replace('\\n', ' ')
+    code_string = code_string.replace('\\r', ' ')
+    code_string = code_string.replace('\\t', ' ')
+    return code_string
+
+def removeContractions(code_string):
+    contractions = [ "Wireshark’s", "don’t", "let’s", "isn’t", "won’t", "User’s", "user’s", "hasn’t", "you’re", "o’clock", "you’ll",
+                     "you’d", "Developer’s", "doesn’t", "what’s", "Don’t", "Let’s", "haven’t", "can’t", "you’ve",
+                     "shouldn’t", "didn’t", "wouldn’t", "aren’t", "there’s", "packet’s", "couldn’t" ]
+    for c in contractions:
+        code_string = code_string.replace(c, "")
+        code_string = code_string.replace(c.replace('’', "'"), "")
+    return code_string
 
 def removeComments(code_string):
     code_string = re.sub(re.compile(r"/\*.*?\*/",re.DOTALL ) ,"" ,code_string) # C-style comment
@@ -219,7 +241,8 @@ def findStrings(filename):
         contents = f.read()
 
         # Remove comments & embedded quotes so as not to trip up RE.
-        contents = removeComments(contents)
+        contents = removeContractions(contents)
+        contents = removeWhitespaceControl(contents)
         contents = removeSingleQuotes(contents)
         contents = removeHexSpecifiers(contents)
 
@@ -228,6 +251,7 @@ def findStrings(filename):
 
         # What we check depends upon file type.
         if file.code_file:
+            contents = removeComments(contents)
             # Code so only checking strings.
             matches =   re.finditer(r'\"([^\"]*)\"', contents)
             for m in matches:

@@ -4092,7 +4092,7 @@ proto_register_gsm_a_common(void)
     { &hf_gsm_a_att,
         { "ATT", "gsm_a.att",
         FT_BOOLEAN, 8, TFS(&gsm_a_att_value), 0x01,
-        "ttach-detach allowed", HFILL }
+        "Attach-detach allowed", HFILL }
     },
     { &hf_gsm_a_nmo_1,
         { "NMO I", "gsm_a.nmo_1",

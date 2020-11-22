@@ -91,7 +91,7 @@ file; B<editcap -F> provides a list of the available output formats.
 
 =item -a  E<lt>framenum:commentE<gt>
 
-For the specifiqed frame number, assign the given comment string.
+For the specified frame number, assign the given comment string.
 Can be repeated for multiple frames.  Quotes should be used with comment
 strings that include spaces.
 

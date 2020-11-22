@@ -280,7 +280,7 @@ void proto_register_sv(void) {
 		{ "source", "sv.meas_quality.source", FT_UINT32, BASE_HEX, VALS(sv_q_source_vals), Q_SOURCE_MASK, NULL, HFILL}},
 
 		{ &hf_sv_phsmeas_q_test,
-		{ "test", "sv.meas_quality.teset", FT_BOOLEAN, 32, NULL, Q_TEST, NULL, HFILL}},
+		{ "test", "sv.meas_quality.test", FT_BOOLEAN, 32, NULL, Q_TEST, NULL, HFILL}},
 
 		{ &hf_sv_phsmeas_q_operatorblocked,
 		{ "operator blocked", "sv.meas_quality.operatorblocked", FT_BOOLEAN, 32, NULL, Q_OPERATORBLOCKED, NULL, HFILL}},

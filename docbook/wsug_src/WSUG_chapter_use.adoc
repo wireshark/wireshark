@@ -1033,7 +1033,7 @@ image::wsug_graphics/ws-bytes-pane.png[{screenshot-attrs}]
 The “Packet Bytes” pane shows a canonical
 https://en.wikipedia.org/wiki/Hex_dump[hex dump] of the packet data. Each line
 contains the data offset, sixteen hexadecimal bytes, and sixteen ASCII bytes.
-Non-printalbe bytes are replaced with a period (“.”).
+Non-printable bytes are replaced with a period (“.”).
 
 Depending on the packet data, sometimes more than one page is available, e.g.
 when Wireshark has reassembled some packets into a single chunk of data. (See

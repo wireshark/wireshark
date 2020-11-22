@@ -5605,7 +5605,7 @@ static const value_string valstr_011_430_FLS[] = {
     { 1, "On Stand" },
     { 2, "Taxiing for Departure" },
     { 3, "Taxiing for Arrival" },
-    { 4, "Ruwnay for Departure" },
+    { 4, "Runway for Departure" },
     { 5, "Runway for Arrival" },
     { 6, "Hold for Departure" },
     { 7, "Hold for arrival" },

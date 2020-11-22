@@ -1469,7 +1469,7 @@ static const value_string etc_model_id_vals[] = {
   { ETC_MODEL_ID_SOURCE_FOUR_DIMMER,                 "Source Four Dimmer" },
   { ETC_MODEL_ID_KILLSWITCH_WIRELESS,                "Killswitch Wireless" },
   { ETC_MODEL_ID_KILLSWITCH_DMX,                     "Killswitch DMX" },
-  { ETC_MODEL_ID_KILLSWITCH_ETHERNET,                "Killswitch Etherner" },
+  { ETC_MODEL_ID_KILLSWITCH_ETHERNET,                "Killswitch Ethernet" },
   { ETC_MODEL_ID_KILLSWITCH_TRANSMITTER,             "Killswitch Transmitter" },
   { ETC_MODEL_ID_DMX_ZONE_CONTROLLER_SINGLE_DIMMER,  "DMX Zone Controller, Single Dimmer" },
   { ETC_MODEL_ID_DMX_ZONE_CONTROLLER_RELAY,          "DMX Zone Controller, Relay" },

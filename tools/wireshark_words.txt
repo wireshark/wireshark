@@ -1,12 +1,16 @@
 
 0x%02x
 0x%08x
+16bit
 1xrtt
+32bit
 3gpp2
 80211n
 accelerometer
+accessor
 accessors
 acked
+acknack
 acknowledgement
 acp133
 activations
@@ -31,6 +35,7 @@ amperes
 analyzers
 analyzes
 annexc
+anonsvn
 appdata
 appid
 arfcn
@@ -88,6 +93,8 @@ btmesh
 btsdp
 btsnoop
 bugzilla
+buildbot
+builtin
 byte
 byteorder
 cablelabs
@@ -124,6 +131,7 @@ charset
 charsets
 checkbox
 checkout
+choco
 chocolatey
 chunked
 ciphered
@@ -137,6 +145,7 @@ cmake
 cmdcontrol
 cmstatus
 codebook
+codecs
 codepoint
 codeset
 codingrate
@@ -218,6 +227,8 @@ demultiplexer
 demultiplexers
 deobfuscated
 deprecated
+dequeued
+dereg
 deregister
 deregistered
 deregistering
@@ -258,6 +269,7 @@ dsmcc
 dstport
 dumpcap
 duple
+eapol
 earfcn
 ebcdic
 ecdhe
@@ -274,9 +286,11 @@ encapsulator
 enciphered
 encrypt
 encrypting
+endace
 endian
 endianness
 enrollee
+entityid
 entryid
 enumerations
 epasv
@@ -291,9 +305,11 @@ ettarr
 etype
 eutra
 eutran
+eventlog
 extattr
 extcap
 extensibility
+exthdr
 extrainformation
 failover
 fiber
@@ -310,6 +326,7 @@ format0
 fortigate
 fortinet
 fpiur
+fraghdr
 framenum
 framenumber
 framenun
@@ -330,6 +347,7 @@ geonw
 geran
 getattr
 getnext
+getter
 gigabit
 gigamon
 github
@@ -352,6 +370,7 @@ hashed
 hazelcast
 heuristic
 hfarr
+hfill,
 HI2Operations
 hnbap
 homeplug
@@ -484,6 +503,8 @@ modulo
 mpeg4
 mpsse
 mrcpv
+msbuild
+msgid
 msgsend
 mtftp
 mtrace
@@ -562,6 +583,7 @@ onoff
 ontime
 opcode
 opcodes
+openstreetmap
 openvpn
 opnum
 optimizations
@@ -665,6 +687,7 @@ rebooted
 reboots
 recalculate
 recalculating
+recalibrate
 recognizer
 recomputed
 reconf
@@ -923,6 +946,7 @@ underrun
 undissected
 unencrypted
 unescaped
+unexported
 unformatted
 unfragmented
 unhandled
@@ -940,6 +964,7 @@ unjoining
 unknown1
 unlink
 unlinked
+unmappable
 unmarshal
 unoptimized
 unparsable
@@ -999,6 +1024,7 @@ version7
 versioned
 versioning
 virtualization
+vlans
 vocoder
 volerr
 wakeup
@@ -1006,6 +1032,7 @@ webcam
 websocket
 wideband
 wikipedia
+wikis
 wimax
 winpcap
 winspool
