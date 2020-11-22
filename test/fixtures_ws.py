@@ -195,6 +195,7 @@ def dirs():
         config_dir=os.path.join(this_dir, 'config'),
         key_dir=os.path.join(this_dir, 'keys'),
         lua_dir=os.path.join(this_dir, 'lua'),
+        protobuf_lang_files_dir=os.path.join(this_dir, 'protobuf_lang_files'),
         tools_dir=os.path.join(this_dir, '..', 'tools'),
     )
 

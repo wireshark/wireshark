@@ -1,0 +1,59 @@
+// Test default values of Protobuf fields
+syntax = "proto2";
+package wireshark.protobuf.test;
+
+message TestDefaultValueMessage {
+  enum EnumFoo {
+    ENUM_FOO_V_FIRST = 1;
+    ENUM_FOO_V_SECOND = 0x2;
+    ENUM_FOO_V_THIRD = 3;
+    ENUM_FOO_V_FOURTH = - 4;
+  }
+
+  // The format of field name is:
+  //    <type> "With" ( "Value" | "DefaultValue" | "NoValue" ) [ "_" <correct_value_in_wireshark> ]
+  // The "DefaultValue" fields should be wrapped with generated mark ("[" and "]") of Wireshark tree item.
+  // The "NoValue" fields should not appear in Wireshark.
+
+  // The default value is overridden to 8 at running time.
+  required int32 int32WithValue_8 = 1 [ default = 2 ];
+  // The default value is overridden to ENUM_FOO_V_THIRD at running time.
+  optional EnumFoo enumFooWithValue_Third = 2 [ default = ENUM_FOO_V_SECOND ];
+  
+  // default values of bool
+  optional bool boolWithDefaultValue_False = 11;
+  optional bool boolWithDefaultValue_True = 12 [ default = true ];
+  
+  // default values of enum
+  optional EnumFoo enumFooWithDefaultValue_First = 21;
+  optional EnumFoo enumFooWithDefaultValue_Second = 22 [ default = ENUM_FOO_V_SECOND ];
+  optional EnumFoo enumFooWithDefaultValue_Fouth = 23 [ default = ENUM_FOO_V_FOURTH ];
+
+  // default values of integer number
+  optional int32 int32WithDefaultValue_0 = 31;
+  optional int64 int64WithDefaultValue_Negative1152921504606846976 = 32 [ default = - 1152921504606846976 ];
+  optional uint32 uint32WithDefaultValue_11 = 33 [ default = 11 ];
+  optional uint64 uint64WithDefaultValue_1152921504606846976 = 34 [ default = 1152921504606846976 ]; // equals to 2^60
+  optional sint32 sint32WithDefaultValue_Negative12 = 35 [ default = -12 ];
+  optional sint64 sint64WithDefaultValue_0 = 36; // default value is zero
+  optional fixed64 fixed64WithDefaultValue_1152921504606846976 = 37 [ default = 1152921504606846976 ];
+  optional sfixed32 sfixed32WithDefaultValue_Negative31 = 38 [ default = -0X1f ]; // -21
+
+  // default values of float and double
+  optional float floatWithDefaultValue_0point23 = 41 [ default = 0.23 ];
+  optional double doubleWithDefaultValue_Negative0point12345678 = 42 [ default = -0.12345678 ];
+
+  // default values of string and bytes
+  optional string stringWithNoValue = 51; // default value must not appear because not declared
+  optional string stringWithDefaultValue_SymbolPi = 52 [ default = "The symbol \'\xF0\x9D\x9B\x91\' is mathematical bold small Pi."]; 
+  optional bytes bytesWithNoValue = 53; // default value must not appear because not declared
+  // '\'nnn is octal value of a byte, '\x'nn is hex value of a byte
+  optional bytes bytesWithDefaultValue_1F2F890D0A00004B = 54 [ default = "\x1F\x2F\211\r\n\000\x0\x4B" ];
+
+  // others
+  repeated int32 repeatedFieldWithNoValue = 81; // should not appear
+  required int32 missingRequiredField = 82; // for testing required field. (comment this line if you regenerated stub code)
+  // test taking keyword as identification feature
+  optional int32 message = 83;
+  optional int32 optional = 84;
+}

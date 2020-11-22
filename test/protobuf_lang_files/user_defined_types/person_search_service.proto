@@ -1,0 +1,15 @@
+// A gRPC service that searches for persons based on certain attributes.
+syntax = "proto3";
+package tutorial;
+import "addressbook.proto";
+
+message PersonSearchRequest {
+  repeated string name = 1;
+  repeated int32 id = 2;
+  repeated string phoneNumber = 3;
+}
+
+service PersonSearchService {
+  rpc Search (PersonSearchRequest) returns (stream Person) {}
+}
+

@@ -1,0 +1,17 @@
+syntax="proto3";
+
+package test.map;
+
+message Foo {
+  int32 param1 = 1;
+}
+
+message MapMaster {
+  oneof Abc {
+    string param2 = 2;
+    string param3 = 3;
+  }
+
+  map<string, int64> param4 = 4;
+  map<sint32, Foo> param5 = 5;
+}

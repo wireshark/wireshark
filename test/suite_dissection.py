@@ -16,6 +16,38 @@ import sys
 
 @fixtures.mark_usefixtures('test_env')
 @fixtures.uses_fixtures
+class case_dissect_grpc(subprocesstest.SubprocessTestCase):
+    def test_grpc_with_json(self, cmd_tshark, features, dirs, capture_file):
+        '''gRPC with JSON payload'''
+        if not features.have_nghttp2:
+            self.skipTest('Requires nghttp2.')
+        self.assertRun((cmd_tshark,
+                '-r', capture_file('grpc_person_search_json_with_image.pcapng.gz'),
+                '-d', 'tcp.port==50052,http2',
+                '-Y', 'grpc.message_length == 208 && json.value.string == "87561234"',
+            ))
+        self.assertTrue(self.grepOutput('GRPC/JSON'))
+
+    def test_grpc_with_protobuf(self, cmd_tshark, features, dirs, capture_file):
+        '''gRPC with Protobuf payload'''
+        if not features.have_nghttp2:
+            self.skipTest('Requires nghttp2.')
+        well_know_types_dir = os.path.join(dirs.protobuf_lang_files_dir, 'well_know_types').replace('\\', '/')
+        user_defined_types_dir = os.path.join(dirs.protobuf_lang_files_dir, 'user_defined_types').replace('\\', '/')
+        self.assertRun((cmd_tshark,
+                '-r', capture_file('grpc_person_search_protobuf_with_image.pcapng.gz'),
+                '-o', 'uat:protobuf_search_paths: "{}","{}"'.format(well_know_types_dir, 'FALSE'),
+                '-o', 'uat:protobuf_search_paths: "{}","{}"'.format(user_defined_types_dir, 'TRUE'),
+                '-d', 'tcp.port==50051,http2',
+                '-Y', 'protobuf.message.name == "tutorial.PersonSearchRequest"'
+                      ' || (grpc.message_length == 66 && protobuf.field.value.string == "Jason"'
+                      '     && protobuf.field.value.int64 == 1602601886)',
+            ))
+        self.assertTrue(self.grepOutput('tutorial.PersonSearchService/Search')) # grpc request
+        self.assertTrue(self.grepOutput('tutorial.Person')) # grpc response
+
+@fixtures.mark_usefixtures('test_env')
+@fixtures.uses_fixtures
 class case_dissect_http(subprocesstest.SubprocessTestCase):
     def test_http_brotli_decompression(self, cmd_tshark, features, dirs, capture_file):
         '''HTTP brotli decompression'''
@@ -82,6 +114,116 @@ class case_dissect_http2(subprocesstest.SubprocessTestCase):
         self.assertFalse(self.grepOutput('00000000  00 00 12 04 00 00 00 00'))
         self.assertTrue(self.grepOutput('00000000  00 00 2c 01 05 00 00 00'))
 
+@fixtures.mark_usefixtures('test_env')
+@fixtures.uses_fixtures
+class case_dissect_protobuf(subprocesstest.SubprocessTestCase):
+    def test_protobuf_udp_message_mapping(self, cmd_tshark, features, dirs, capture_file):
+        '''Test Protobuf UDP Message Mapping and parsing google.protobuf.Timestamp features'''
+        well_know_types_dir = os.path.join(dirs.protobuf_lang_files_dir, 'well_know_types').replace('\\', '/')
+        user_defined_types_dir = os.path.join(dirs.protobuf_lang_files_dir, 'user_defined_types').replace('\\', '/')
+        self.assertRun((cmd_tshark,
+                '-r', capture_file('protobuf_udp_addressbook_with_image_ts.pcapng'),
+                '-o', 'uat:protobuf_search_paths: "{}","{}"'.format(well_know_types_dir, 'FALSE'),
+                '-o', 'uat:protobuf_search_paths: "{}","{}"'.format(user_defined_types_dir, 'TRUE'),
+                '-o', 'uat:protobuf_udp_message_types: "8127","tutorial.AddressBook"',
+                '-o', 'protobuf.preload_protos: TRUE',
+                '-o', 'protobuf.pbf_as_hf: TRUE',
+                '-Y', 'pbf.tutorial.Person.name == "Jason"'
+                      ' && pbf.tutorial.Person.last_updated > "2020-10-15"'
+                      ' && pbf.tutorial.Person.last_updated < "2020-10-19"',
+            ))
+        self.assertTrue(self.grepOutput('tutorial.AddressBook'))
+
+    def test_protobuf_message_type_leading_with_dot(self, cmd_tshark, features, dirs, capture_file):
+        '''Test Protobuf Message type is leading with dot'''
+        well_know_types_dir = os.path.join(dirs.protobuf_lang_files_dir, 'well_know_types').replace('\\', '/')
+        user_defined_types_dir = os.path.join(dirs.protobuf_lang_files_dir, 'user_defined_types').replace('\\', '/')
+        self.assertRun((cmd_tshark,
+                '-r', capture_file('protobuf_test_leading_dot.pcapng'),
+                '-o', 'uat:protobuf_search_paths: "{}","{}"'.format(well_know_types_dir, 'FALSE'),
+                '-o', 'uat:protobuf_search_paths: "{}","{}"'.format(user_defined_types_dir, 'TRUE'),
+                '-o', 'uat:protobuf_udp_message_types: "8123","a.b.msg"',
+                '-o', 'protobuf.preload_protos: TRUE',
+                '-o', 'protobuf.pbf_as_hf: TRUE',
+                '-Y', 'pbf.a.b.a.b.c.param3 contains "in a.b.a.b.c" && pbf.a.b.c.param6 contains "in a.b.c"',
+            ))
+        self.assertTrue(self.grepOutput('PB[(]a.b.msg[)]'))
+
+    def test_protobuf_map_and_oneof_types(self, cmd_tshark, features, dirs, capture_file):
+        '''Test Protobuf map and oneof types, and taking keyword as identification'''
+        well_know_types_dir = os.path.join(dirs.protobuf_lang_files_dir, 'well_know_types').replace('\\', '/')
+        user_defined_types_dir = os.path.join(dirs.protobuf_lang_files_dir, 'user_defined_types').replace('\\', '/')
+        self.assertRun((cmd_tshark,
+                '-r', capture_file('protobuf_test_map_and_oneof_types.pcapng'),
+                '-o', 'uat:protobuf_search_paths: "{}","{}"'.format(well_know_types_dir, 'FALSE'),
+                '-o', 'uat:protobuf_search_paths: "{}","{}"'.format(user_defined_types_dir, 'TRUE'),
+                '-o', 'uat:protobuf_udp_message_types: "8124","test.map.MapMaster"',
+                '-o', 'protobuf.preload_protos: TRUE',
+                '-o', 'protobuf.pbf_as_hf: TRUE',
+                '-Y', 'pbf.test.map.MapMaster.param3 == "I\'m param3 for oneof test."'  # test oneof type
+                      ' && pbf.test.map.MapMaster.param4MapEntry.value == 1234'        # test map type
+                      ' && pbf.test.map.Foo.param1 == 88 && pbf.test.map.MapMaster.param5MapEntry.key == 88'
+            ))
+        self.assertTrue(self.grepOutput('PB[(]test.map.MapMaster[)]'))
+
+    def test_protobuf_default_value(self, cmd_tshark, features, dirs, capture_file):
+        '''Test Protobuf feature adding missing fields with default values'''
+        well_know_types_dir = os.path.join(dirs.protobuf_lang_files_dir, 'well_know_types').replace('\\', '/')
+        user_defined_types_dir = os.path.join(dirs.protobuf_lang_files_dir, 'user_defined_types').replace('\\', '/')
+        self.assertRun((cmd_tshark,
+                '-r', capture_file('protobuf_test_default_value.pcapng'),
+                '-o', 'uat:protobuf_search_paths: "{}","{}"'.format(well_know_types_dir, 'FALSE'),
+                '-o', 'uat:protobuf_search_paths: "{}","{}"'.format(user_defined_types_dir, 'TRUE'),
+                '-o', 'uat:protobuf_udp_message_types: "8128","wireshark.protobuf.test.TestDefaultValueMessage"',
+                '-o', 'protobuf.preload_protos: TRUE',
+                '-o', 'protobuf.pbf_as_hf: TRUE',
+                '-o', 'protobuf.add_default_value: all',
+                '-O', 'protobuf',
+                '-Y', 'pbf.wireshark.protobuf.test.TestDefaultValueMessage.enumFooWithDefaultValue_Fouth == -4'
+                      ' && pbf.wireshark.protobuf.test.TestDefaultValueMessage.boolWithDefaultValue_False == false'
+                      ' && pbf.wireshark.protobuf.test.TestDefaultValueMessage.int32WithDefaultValue_0 == 0'
+                      ' && pbf.wireshark.protobuf.test.TestDefaultValueMessage.doubleWithDefaultValue_Negative0point12345678 == -0.12345678'
+                      ' && pbf.wireshark.protobuf.test.TestDefaultValueMessage.stringWithDefaultValue_SymbolPi contains "Pi."'
+                      ' && pbf.wireshark.protobuf.test.TestDefaultValueMessage.bytesWithDefaultValue_1F2F890D0A00004B == 1f:2f:89:0d:0a:00:00:4b'
+                      ' && pbf.wireshark.protobuf.test.TestDefaultValueMessage.optional' # test taking keyword 'optional' as identification
+                      ' && pbf.wireshark.protobuf.test.TestDefaultValueMessage.message' # test taking keyword 'message' as identification
+            ))
+        self.assertTrue(self.grepOutput('floatWithDefaultValue_0point23: 0.23')) # another default value will be displayed
+        self.assertTrue(self.grepOutput('missing required field \'missingRequiredField\'')) # check the missing required field export warn
+
+    def test_protobuf_field_subdissector(self, cmd_tshark, features, dirs, capture_file):
+        '''Test "protobuf_field" subdissector table'''
+        well_know_types_dir = os.path.join(dirs.protobuf_lang_files_dir, 'well_know_types').replace('\\', '/')
+        user_defined_types_dir = os.path.join(dirs.protobuf_lang_files_dir, 'user_defined_types').replace('\\', '/')
+        lua_file = os.path.join(dirs.lua_dir, 'protobuf_test_field_subdissector_table.lua')
+        self.assertRun((cmd_tshark,
+                '-r', capture_file('protobuf_udp_addressbook_with_image_ts.pcapng'),
+                '-o', 'uat:protobuf_search_paths: "{}","{}"'.format(well_know_types_dir, 'FALSE'),
+                '-o', 'uat:protobuf_search_paths: "{}","{}"'.format(user_defined_types_dir, 'TRUE'),
+                '-o', 'uat:protobuf_udp_message_types: "8127","tutorial.AddressBook"',
+                '-o', 'protobuf.preload_protos: TRUE',
+                '-o', 'protobuf.pbf_as_hf: TRUE',
+                '-X', 'lua_script:{}'.format(lua_file),
+                '-Y', 'pbf.tutorial.Person.name == "Jason" && pbf.tutorial.Person.last_updated && png',
+            ))
+        self.assertTrue(self.grepOutput('PB[(]tutorial.AddressBook[)]'))
+
+    def test_protobuf_called_by_custom_dissector(self, cmd_tshark, features, dirs, capture_file):
+        '''Test Protobuf invoked by other dissector (passing type by pinfo.private)'''
+        well_know_types_dir = os.path.join(dirs.protobuf_lang_files_dir, 'well_know_types').replace('\\', '/')
+        user_defined_types_dir = os.path.join(dirs.protobuf_lang_files_dir, 'user_defined_types').replace('\\', '/')
+        lua_file = os.path.join(dirs.lua_dir, 'protobuf_test_called_by_custom_dissector.lua')
+        self.assertRun((cmd_tshark,
+                '-r', capture_file('protobuf_tcp_addressbook.pcapng.gz'),
+                '-o', 'uat:protobuf_search_paths: "{}","{}"'.format(well_know_types_dir, 'FALSE'),
+                '-o', 'uat:protobuf_search_paths: "{}","{}"'.format(user_defined_types_dir, 'TRUE'),
+                '-o', 'protobuf.preload_protos: TRUE',
+                '-o', 'protobuf.pbf_as_hf: TRUE',
+                '-X', 'lua_script:{}'.format(lua_file),
+                '-d', 'tcp.port==18127,addrbook',
+                '-Y', 'pbf.tutorial.Person.name == "Jason" && pbf.tutorial.Person.last_updated',
+            ))
+        self.assertTrue(self.grepOutput('tutorial.AddressBook'))
 
 @fixtures.mark_usefixtures('test_env')
 @fixtures.uses_fixtures

@@ -1,0 +1,24 @@
+syntax="proto3";
+
+package a.b;
+
+message a {
+  string param1 = 1;
+
+  message b {
+    string param2 = 2;
+
+    message c {
+      string param3 = 3;
+    }
+  }
+}
+
+message msg {
+  a.b.c param4 = 4; /* the full name of the type is a.b.a.b.c */
+  .a.b.c param5 = 5; /* the full name of the type is a.b.c */
+}
+
+message c {
+  string param6 = 6;
+}
