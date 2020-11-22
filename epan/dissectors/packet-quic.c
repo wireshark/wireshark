@@ -2422,9 +2422,13 @@ quic_get_1rtt_hp_cipher(packet_info *pinfo, quic_info_data_t *quic_info, gboolea
         const char *proto_name = tls_get_alpn(pinfo);
         if (proto_name) {
             quic_info->app_handle = dissector_get_string_handle(quic_proto_dissector_table, proto_name);
-            // If no specific handle is found, alias "h3-*" to "h3".
-            if (!quic_info->app_handle && g_str_has_prefix(proto_name, "h3-")) {
-                quic_info->app_handle = dissector_get_string_handle(quic_proto_dissector_table, "h3");
+            // If no specific handle is found, alias "h3-*" to "h3" and "doq-*" to "doq"
+            if (!quic_info->app_handle) {
+                if (g_str_has_prefix(proto_name, "h3-")) {
+                    quic_info->app_handle = dissector_get_string_handle(quic_proto_dissector_table, "h3");
+                } else if (g_str_has_prefix(proto_name, "doq-")) {
+                    quic_info->app_handle = dissector_get_string_handle(quic_proto_dissector_table, "doq");
+                }
             }
         }
     }
