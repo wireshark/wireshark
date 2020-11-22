@@ -19,6 +19,8 @@
 #include <epan/proto_data.h>
 #include <epan/ipproto.h>
 #include <epan/etypes.h>
+#include <epan/exceptions.h>
+#include <epan/show_exception.h>
 
 #include <wsutil/pow2.h>
 #include <wsutil/wsjson.h>
@@ -31,6 +33,22 @@ void proto_register_nas_5gs(void);
 void proto_reg_handoff_nas_5gs(void);
 
 static gboolean g_nas_5gs_null_decipher = FALSE;
+enum {
+    DECODE_USER_DATA_AS_NONE,
+    DECODE_USER_DATA_AS_IP,
+    DECODE_USER_DATA_AS_NON_IP,
+    DECODE_USER_DATA_AS_ETHERNET
+};
+static const enum_val_t nas_5gs_user_data_container_as_vals[] = {
+    {"none", "None", DECODE_USER_DATA_AS_NONE},
+    {"ip", "IP", DECODE_USER_DATA_AS_IP},
+    {"non_ip","Non IP", DECODE_USER_DATA_AS_NON_IP},
+    {"ethernet","Ethernet", DECODE_USER_DATA_AS_ETHERNET},
+    {NULL, NULL, -1}
+};
+static gint g_nas_5gs_decode_user_data_container_as = DECODE_USER_DATA_AS_NONE;
+static const gchar *g_nas_5gs_non_ip_data_dissector = "";
+
 
 static int dissect_nas_5gs_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, void* data);
 static int dissect_nas_5gs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data);
@@ -40,13 +58,16 @@ static guint16 de_nas_5gs_cmn_add_inf(tvbuff_t *tvb, proto_tree *tree, packet_in
 static void nas_5gs_mm_5gmm_status(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len);
 static guint16 de_nas_5gs_mm_req_type(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_);
 
-static dissector_handle_t nas_5gs_handle = NULL;
-static dissector_handle_t eap_handle = NULL;
-static dissector_handle_t nas_eps_handle = NULL;
-static dissector_handle_t nas_eps_plain_handle = NULL;
-static dissector_handle_t lpp_handle = NULL;
+static dissector_handle_t nas_5gs_handle;
+static dissector_handle_t eap_handle;
+static dissector_handle_t nas_eps_handle;
+static dissector_handle_t nas_eps_plain_handle;
+static dissector_handle_t lpp_handle;
 static dissector_handle_t gsm_a_dtap_handle;
-
+static dissector_handle_t ipv4_handle;
+static dissector_handle_t ipv6_handle;
+static dissector_handle_t non_ip_data_handle;
+static dissector_handle_t ethernet_handle;
 
 #define PNAME  "Non-Access-Stratum 5GS (NAS)PDU"
 #define PSNAME "NAS-5GS"
@@ -62,6 +83,7 @@ int hf_nas_5gs_sm_elem_id = -1;
 int hf_nas_5gs_updp_elem_id = -1;
 
 static int hf_nas_5gs_epd = -1;
+static int hf_nas_5gs_spare_bits = -1;
 static int hf_nas_5gs_spare_b7 = -1;
 static int hf_nas_5gs_spare_b6 = -1;
 static int hf_nas_5gs_spare_b5 = -1;
@@ -108,6 +130,15 @@ static int hf_nas_5gs_mm_acc_type = -1;
 static int hf_nas_5gs_mm_raai_b0 = -1;
 static int hf_nas_5gs_mm_conf_upd_ind_ack_b0 = -1;
 static int hf_nas_5gs_mm_conf_upd_ind_red_b1 = -1;
+static int hf_nas_5gs_mm_cag_info_entry_len = -1;
+static int hf_nas_5gs_mm_cag_info_entry_cag_only = -1;
+static int hf_nas_5gs_mm_cag_info_entry_cag_id = -1;
+static int hf_nas_5gs_mm_ciot_small_data_cont_data_type = -1;
+static int hf_nas_5gs_mm_ciot_small_data_cont_ddx = -1;
+static int hf_nas_5gs_mm_ciot_small_data_cont_pdu_session_id = -1;
+static int hf_nas_5gs_mm_ciot_small_data_cont_add_info_len = -1;
+static int hf_nas_5gs_mm_ciot_small_data_cont_add_info = -1;
+static int hf_nas_5gs_mm_ciot_small_data_cont_data_contents = -1;
 static int hf_nas_5gs_mm_nas_sec_algo_enc = -1;
 static int hf_nas_5gs_mm_nas_sec_algo_ip = -1;
 static int hf_nas_5gs_mm_s1_mode_b0 = -1;
@@ -350,6 +381,9 @@ static int ett_nas_5gs_mm_rej_nssai = -1;
 static int ett_nas_5gs_mm_scheme_output = -1;
 static int ett_nas_5gs_mm_pld_cont_pld_entry = -1;
 static int ett_nas_5gs_mm_pld_cont_opt_ie = -1;
+static int ett_nas_5gs_mm_cag_info_entry = -1;
+static int ett_nas_5gs_ciot_small_data_cont_data_contents = -1;
+static int ett_nas_5gs_user_data_cont = -1;
 
 static int hf_nas_5gs_mm_abba = -1;
 static int hf_nas_5gs_mm_supi_fmt = -1;
@@ -1493,12 +1527,40 @@ de_nas_5gs_mm_conf_upd_ind(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _
 /*
  * 9.11.3.18A   CAG information list
  */
+static true_false_string tfs_5gs_mm_cag_info_entry_cag_only = {
+    "the UE is allowed to access 5GS via non-CAG cells",
+    "the UE is not allowed to access 5GS via non-CAG cells"
+};
+
 static guint16
 de_nas_5gs_mm_cag_information_list(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo,
     guint32 offset, guint len,
     gchar* add_string _U_, int string_len _U_)
 {
-    proto_tree_add_expert(tree, pinfo, &ei_nas_5gs_ie_not_dis, tvb, offset, len);
+    proto_tree *sub_tree;
+    proto_item *item;
+    guint num_entry = 1;
+    guint32 curr_offset = offset;
+    guint32 start_offset, entry_len;
+
+    while ((curr_offset - offset) < len) {
+        start_offset = curr_offset;
+        sub_tree = proto_tree_add_subtree_format(tree, tvb, curr_offset, -1, ett_nas_5gs_mm_cag_info_entry,
+                                                 &item, "CAG information entry %u", num_entry);
+        proto_tree_add_item_ret_uint(sub_tree, hf_nas_5gs_mm_cag_info_entry_len, tvb, curr_offset, 1, ENC_BIG_ENDIAN, &entry_len);
+        curr_offset++;
+        dissect_e212_mcc_mnc(tvb, pinfo, sub_tree, curr_offset, E212_NONE, TRUE);
+        curr_offset += 3;
+        proto_tree_add_bits_item(sub_tree, hf_nas_5gs_spare_bits, tvb, (curr_offset << 3), 7, ENC_BIG_ENDIAN);
+        proto_tree_add_item(sub_tree, hf_nas_5gs_mm_cag_info_entry_cag_only, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+        curr_offset++;
+        while ((curr_offset - start_offset) < entry_len) {
+            proto_tree_add_item(sub_tree, hf_nas_5gs_mm_cag_info_entry_cag_id, tvb, curr_offset, 4, ENC_BIG_ENDIAN);
+            curr_offset += 4;
+        }
+        proto_item_set_len(item, curr_offset - start_offset);
+        num_entry++;
+    }
 
     return len;
 }
@@ -1506,12 +1568,121 @@ de_nas_5gs_mm_cag_information_list(tvbuff_t* tvb, proto_tree* tree, packet_info*
 /*
  * 9.11.3.18B CIoT small data container
  */
+static void
+nas_5gs_decode_user_data_cont(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo,
+                              guint32 offset, guint len, int hfindex)
+{
+    proto_tree *subtree;
+    proto_item *item;
+
+    item = proto_tree_add_item(tree, hfindex, tvb, offset, len, ENC_NA);
+    if (g_nas_5gs_decode_user_data_container_as != DECODE_USER_DATA_AS_NONE) {
+        tvbuff_t *user_data_cont_tvb;
+        volatile dissector_handle_t handle;
+
+        subtree = proto_item_add_subtree(item, ett_nas_5gs_user_data_cont);
+        user_data_cont_tvb = tvb_new_subset_length(tvb, offset, len);
+        if (g_nas_5gs_decode_user_data_container_as == DECODE_USER_DATA_AS_IP) {
+            guint8 first_byte = tvb_get_guint8(user_data_cont_tvb, 0);
+            if (first_byte >= 0x45 && first_byte <= 0x4f && len > 20)
+                handle = ipv4_handle;
+            else if ((first_byte & 0xf0) == 0x60 && len > 40)
+                handle = ipv6_handle;
+            else
+                handle = NULL;
+        } else if (g_nas_5gs_decode_user_data_container_as == DECODE_USER_DATA_AS_NON_IP) {
+            handle = non_ip_data_handle;
+        } else {
+            handle = ethernet_handle;
+        }
+        if (handle) {
+            col_append_str(pinfo->cinfo, COL_PROTOCOL, "/");
+            col_set_fence(pinfo->cinfo, COL_PROTOCOL);
+            col_append_str(pinfo->cinfo, COL_INFO, ", ");
+            col_set_fence(pinfo->cinfo, COL_INFO);
+            TRY {
+                call_dissector_only(handle, user_data_cont_tvb, pinfo, subtree, NULL);
+            } CATCH_BOUNDS_ERRORS {
+                /* Dissection exception: message was probably non IP and heuristic was too weak */
+                show_exception(user_data_cont_tvb, pinfo, subtree, EXCEPT_CODE, GET_MESSAGE);
+            } ENDTRY
+        }
+    }
+}
+
+static const value_string nas_5gs_mm_ciot_small_data_cont_data_type_values[] = {
+    { 0x00, "Control plane user data" },
+    { 0x01, "SMS" },
+    { 0x02, "Location services message container" },
+    { 0, NULL }
+};
+
+static const value_string nas_5gs_mm_ciot_small_data_cont_ddx_values[] = {
+    { 0x00, "No information available" },
+    { 0x01, "No further uplink and no further downlink data transmission subsequent to the uplink data transmission is expected" },
+    { 0x02, "Only a single downlink data transmission and no further uplink data transmission subsequent to the uplink data transmission is expected" },
+    { 0x03, "Reserved" },
+    { 0, NULL }
+};
+
 static guint16
 de_nas_5gs_mm_ciot_small_data_cont(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo,
     guint32 offset, guint len,
     gchar* add_string _U_, int string_len _U_)
 {
-    proto_tree_add_expert(tree, pinfo, &ei_nas_5gs_ie_not_dis, tvb, offset, len);
+    guint32 curr_offset = offset;
+    guint32 data_type, add_info_len;
+    proto_tree *sub_tree;
+    proto_item *item;
+
+    proto_tree_add_item_ret_uint(tree, hf_nas_5gs_mm_ciot_small_data_cont_data_type,
+                                 tvb, curr_offset, 1, ENC_BIG_ENDIAN, &data_type);
+    switch (data_type) {
+    case 0:
+        proto_tree_add_item(tree, hf_nas_5gs_mm_ciot_small_data_cont_ddx,
+                            tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_nas_5gs_mm_ciot_small_data_cont_pdu_session_id,
+                            tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+        curr_offset++;
+        nas_5gs_decode_user_data_cont(tvb, tree, pinfo, curr_offset, len - curr_offset,
+                                      hf_nas_5gs_mm_ciot_small_data_cont_data_contents);
+        break;
+    case 1:
+        proto_tree_add_bits_item(tree, hf_nas_5gs_spare_bits, tvb,
+                                 (curr_offset << 3) + 3, 5, ENC_BIG_ENDIAN);
+        curr_offset++;
+        item = proto_tree_add_item(tree, hf_nas_5gs_mm_ciot_small_data_cont_data_contents,
+                                   tvb, curr_offset, len - curr_offset, ENC_NA);
+        if (gsm_a_dtap_handle) {
+            sub_tree = proto_item_add_subtree(item, ett_nas_5gs_ciot_small_data_cont_data_contents);
+            call_dissector(gsm_a_dtap_handle, tvb_new_subset_length(tvb, curr_offset, curr_offset - len), pinfo, sub_tree);
+        }
+        break;
+    case 2:
+        proto_tree_add_item(tree, hf_nas_5gs_mm_ciot_small_data_cont_ddx,
+                            tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_bits_item(tree, hf_nas_5gs_spare_bits, tvb,
+                                 (curr_offset << 3) + 5, 3, ENC_BIG_ENDIAN);
+        curr_offset++;
+        proto_tree_add_item_ret_uint(tree, hf_nas_5gs_mm_ciot_small_data_cont_add_info_len,
+                                     tvb, curr_offset, 1, ENC_BIG_ENDIAN, &add_info_len);
+        curr_offset++;
+        if (add_info_len > 0) {
+            proto_tree_add_item(tree, hf_nas_5gs_mm_ciot_small_data_cont_add_info,
+                                tvb, curr_offset, add_info_len, ENC_NA);
+            curr_offset += add_info_len;
+        }
+        item = proto_tree_add_item(tree, hf_nas_5gs_mm_ciot_small_data_cont_data_contents,
+                                   tvb, curr_offset, len - curr_offset, ENC_NA);
+        if (gsm_a_dtap_handle) {
+            sub_tree = proto_item_add_subtree(item, ett_nas_5gs_ciot_small_data_cont_data_contents);
+            call_dissector(gsm_a_dtap_handle, tvb_new_subset_length(tvb, curr_offset, curr_offset - len), pinfo, sub_tree);
+        }
+        break;
+    default:
+        proto_tree_add_expert(tree, pinfo, &ei_nas_5gs_unknown_value, tvb, curr_offset, len);
+        break;
+    }
 
     return len;
 }
@@ -7734,6 +7905,11 @@ proto_register_nas_5gs(void)
             FT_UINT8, BASE_DEC, VALS(nas_5gs_epd_vals), 0x0,
             NULL, HFILL }
         },
+        { &hf_nas_5gs_spare_bits,
+        { "Spare",   "nas_5gs.spare_bits",
+            FT_UINT8, BASE_HEX, NULL, 0,
+            NULL, HFILL }
+        },
         { &hf_nas_5gs_spare_b7,
         { "Spare",   "nas_5gs.spare_b7",
             FT_UINT8, BASE_DEC, NULL, 0x80,
@@ -7983,6 +8159,51 @@ proto_register_nas_5gs(void)
         { &hf_nas_5gs_mm_conf_upd_ind_red_b1,
         { "Registration",   "nas_5gs.mm.conf_upd_ind.red",
             FT_BOOLEAN, 8, TFS(&tfs_requested_not_requested), 0x02,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_mm_cag_info_entry_len,
+        { "Lengh of entry contents",   "nas_5gs.mm.cag_info.entry.len",
+            FT_UINT8, BASE_DEC, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_mm_cag_info_entry_cag_only,
+        { "CAG only",   "nas_5gs.mm.cag_info.entry.cag_only",
+            FT_BOOLEAN, 8, TFS(&tfs_5gs_mm_cag_info_entry_cag_only), 0x01,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_mm_cag_info_entry_cag_id,
+        { "CAG-ID",   "nas_5gs.mm.cag_info.entry.cag_id",
+            FT_UINT32, BASE_HEX, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_mm_ciot_small_data_cont_data_type,
+        { "Data type",   "nas_5gs.mm.ciot_small_data_cont.data_type",
+            FT_UINT8, BASE_DEC, VALS(nas_5gs_mm_ciot_small_data_cont_data_type_values), 0xe0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_mm_ciot_small_data_cont_ddx,
+        { "Downlink data expected (DDX)",   "nas_5gs.mm.ciot_small_data_cont.ddx",
+            FT_UINT8, BASE_DEC, VALS(nas_5gs_mm_ciot_small_data_cont_ddx_values), 0x18,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_mm_ciot_small_data_cont_pdu_session_id,
+        { "PDU session identity",   "nas_5gs.mm.ciot_small_data_cont.pdu_session_id",
+            FT_UINT8, BASE_DEC, VALS(nas_5gs_pdu_session_id_vals), 0x07,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_mm_ciot_small_data_cont_add_info_len,
+        { "Length of additional information",   "nas_5gs.mm.ciot_small_data_cont.add_info_len",
+            FT_UINT8, BASE_DEC, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_mm_ciot_small_data_cont_add_info,
+        { "Additional information",   "nas_5gs.mm.ciot_small_data_cont.add_info",
+            FT_BYTES, BASE_NONE, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_mm_ciot_small_data_cont_data_contents,
+        { "Data contents",   "nas_5gs.mm.ciot_small_data_cont.data_contents",
+            FT_BYTES, BASE_NONE, NULL, 0,
             NULL, HFILL }
         },
         { &hf_nas_5gs_mm_nas_sec_algo_enc,
@@ -9577,7 +9798,7 @@ proto_register_nas_5gs(void)
     guint     last_offset;
 
     /* Setup protocol subtree array */
-#define NUM_INDIVIDUAL_ELEMS    25
+#define NUM_INDIVIDUAL_ELEMS    28
     gint *ett[NUM_INDIVIDUAL_ELEMS +
         NUM_NAS_5GS_COMMON_ELEM +
         NUM_NAS_5GS_MM_MSG + NUM_NAS_5GS_MM_ELEM +
@@ -9610,6 +9831,9 @@ proto_register_nas_5gs(void)
     ett[22] = &ett_nas_5gs_mm_scheme_output;
     ett[23] = &ett_nas_5gs_mm_pld_cont_pld_entry;
     ett[24] = &ett_nas_5gs_mm_pld_cont_opt_ie;
+    ett[25] = &ett_nas_5gs_mm_cag_info_entry;
+    ett[26] = &ett_nas_5gs_ciot_small_data_cont_data_contents;
+    ett[27] = &ett_nas_5gs_user_data_cont;
 
     last_offset = NUM_INDIVIDUAL_ELEMS;
 
@@ -9685,7 +9909,7 @@ proto_register_nas_5gs(void)
     /* Register dissector */
     nas_5gs_handle = register_dissector(PFNAME, dissect_nas_5gs, proto_nas_5gs);
 
-    nas_5GS_module = prefs_register_protocol(proto_nas_5gs, NULL);
+    nas_5GS_module = prefs_register_protocol(proto_nas_5gs, proto_reg_handoff_nas_5gs);
 
     prefs_register_bool_preference(nas_5GS_module,
         "null_decipher",
@@ -9693,19 +9917,40 @@ proto_register_nas_5gs(void)
         "This should work when the NAS ciphering algorithm is NULL (5G-EEA0)",
         &g_nas_5gs_null_decipher);
 
+    prefs_register_enum_preference(nas_5GS_module, "decode_user_data_container_as",
+                                   "Try to decode User Data Container content as",
+                                   NULL,
+                                   &g_nas_5gs_decode_user_data_container_as,
+                                   nas_5gs_user_data_container_as_vals, FALSE);
 
+    prefs_register_string_preference(nas_5GS_module, "non_ip_data_dissector",
+                                     "Dissector name for non IP data", NULL,
+                                     &g_nas_5gs_non_ip_data_dissector);
 }
 
 void
 proto_reg_handoff_nas_5gs(void)
 {
-    eap_handle = find_dissector("eap");
-    nas_eps_handle = find_dissector("nas-eps");
-    nas_eps_plain_handle = find_dissector("nas-eps_plain");
-    lpp_handle = find_dissector("lpp");
-    gsm_a_dtap_handle = find_dissector("gsm_a_dtap");
-    dissector_add_string("media_type", "application/vnd.3gpp.5gnas", create_dissector_handle(dissect_nas_5gs_media_type, proto_nas_5gs));
-    proto_json = proto_get_id_by_filter_name("json");
+    static gint initialized = FALSE;
+
+    if (!initialized) {
+        eap_handle = find_dissector("eap");
+        nas_eps_handle = find_dissector("nas-eps");
+        nas_eps_plain_handle = find_dissector("nas-eps_plain");
+        lpp_handle = find_dissector("lpp");
+        gsm_a_dtap_handle = find_dissector("gsm_a_dtap");
+        ipv4_handle = find_dissector("ip");
+        ipv6_handle = find_dissector("ipv6");
+        ethernet_handle = find_dissector("eth_withoutfcs");
+        dissector_add_string("media_type", "application/vnd.3gpp.5gnas", create_dissector_handle(dissect_nas_5gs_media_type, proto_nas_5gs));
+        proto_json = proto_get_id_by_filter_name("json");
+        initialized = TRUE;
+    }
+    if (g_nas_5gs_non_ip_data_dissector[0] != '\0') {
+        non_ip_data_handle = find_dissector(g_nas_5gs_non_ip_data_dissector);
+    } else {
+        non_ip_data_handle = NULL;
+    }
 }
 
 /*
