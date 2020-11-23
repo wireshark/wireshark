@@ -7185,7 +7185,7 @@ proto_register_nas_5gs(void)
         },
         { &hf_nas_5gs_mm_req_type,
         { "Request type",   "nas_5gs.mm.req_typ",
-            FT_UINT8, BASE_DEC, VALS(nas_5gs_mm_req_type_vals), 0x0f,
+            FT_UINT8, BASE_DEC, VALS(nas_5gs_mm_req_type_vals), 0x07,
             NULL, HFILL }
         },
         { &hf_nas_5gs_mm_serv_type,
