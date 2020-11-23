@@ -791,7 +791,11 @@ void PacketList::mousePressEvent (QMouseEvent *event)
     QModelIndex curIndex = indexAt(event->pos());
     mouse_pressed_at_ = curIndex;
 
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 15, 0))
+    bool midButton = (event->buttons() & Qt::MiddleButton) == Qt::MiddleButton;
+#else
     bool midButton = (event->buttons() & Qt::MidButton) == Qt::MidButton;
+#endif
     if (midButton && cap_file_ && packet_list_model_)
     {
         packet_list_model_->toggleFrameMark(QModelIndexList() << curIndex);
