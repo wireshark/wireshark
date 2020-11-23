@@ -150,6 +150,7 @@ static gboolean dissect_bytes_as_string = FALSE;
 static gboolean old_dissect_bytes_as_string = FALSE;
 static gboolean show_details = FALSE;
 static gboolean pbf_as_hf = FALSE; /* dissect protobuf fields as header fields of wireshark */
+static gboolean preload_protos = FALSE;
 
 enum add_default_value_policy_t {
     ADD_DEFAULT_VALUE_NONE,
@@ -1950,6 +1951,12 @@ proto_register_protobuf(void)
 
     protobuf_module = prefs_register_protocol(proto_protobuf, proto_reg_handoff_protobuf);
 
+    prefs_register_bool_preference(protobuf_module, "preload_protos",
+        "Load .proto files on startup.",
+        "Load .proto files when Wireshark starts. By default, the .proto files are loaded only"
+        " when the Protobuf dissector is called for the first time.",
+        &preload_protos);
+
     protobuf_search_paths_uat = uat_new("Protobuf Search Paths",
         sizeof(protobuf_search_path_t),
         "protobuf_search_paths",
@@ -2059,6 +2066,9 @@ proto_reg_handoff_protobuf(void)
         update_header_fields( /* if bytes_as_string preferences changed, we force reload header fields */
             (old_dissect_bytes_as_string && !dissect_bytes_as_string) || (!old_dissect_bytes_as_string && dissect_bytes_as_string)
         );
+    } else if (preload_protos) {
+        protobuf_dissector_called = TRUE;
+        protobuf_reinit(PREFS_UPDATE_ALL);
     }
     old_dissect_bytes_as_string = dissect_bytes_as_string;
     dissector_add_string("grpc_message_type", "application/grpc", protobuf_handle);
