@@ -613,6 +613,9 @@ static int hf_nas_5gs_upsi_sublist_len = -1;
 static int hf_nas_5gs_upsc = -1;
 static int hf_nas_5gs_os_id = -1;
 static int hf_nas_5gs_os_id_len = -1;
+static int hf_nas_5gs_upds_cause = -1;
+static int hf_nas_5gs_v2xuui = -1;
+static int hf_nas_5gs_v2xpc5i = -1;
 static int hf_nas_5gs_os_app_id_len = -1;
 static int hf_nas_5gs_os_app_id = -1;
 static int hf_nas_5gs_mm_len_of_rej_s_nssai = -1;
@@ -7648,6 +7651,60 @@ de_nas_5gs_updp_ue_os_id(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo,
     return len;
 }
 
+/* 24.587 8.3.1 UPDS cause */
+static const value_string nas_5gs_updp_upds_cause_vals[] = {
+    { 0x1f, "Request rejected, unspecified"},
+    { 0x20, "Service option not supported"},
+    { 0x22, "Service option temporarily out of order"},
+    { 0x23, "PTI already in use"},
+    { 0x5f, "Semantically incorrect message"},
+    { 0x60, "Invalid mandatory information"},
+    { 0x61, "Message type non-existent or not implemented"},
+    { 0x62, "Message type not compatible with the protocol state"},
+    { 0x53, "Information element non-existent or not implemented"},
+    { 0x64, "Conditional IE error"},
+    { 0x6f, "Protocol error, unspecified"},
+    { 0,    NULL }
+};
+
+static guint16
+de_nas_5gs_updp_upds_cause(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo _U_,
+    guint32 offset, guint len,
+    gchar* add_string _U_, int string_len _U_)
+{
+    proto_tree_add_item(tree, hf_nas_5gs_upds_cause, tvb, offset, 1, ENC_BIG_ENDIAN);
+
+    return len;
+}
+
+/* 24.587 8.3.2 Requested UE policies */
+static guint16
+de_nas_5gs_updp_req_ue_policies(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo,
+    guint32 offset, guint len _U_,
+    gchar* add_string _U_, int string_len _U_)
+{
+    guint32 curr_offset = offset;
+
+    static int* const flags[] = {
+        &hf_nas_5gs_spare_b7,
+        &hf_nas_5gs_spare_b6,
+        &hf_nas_5gs_spare_b5,
+        &hf_nas_5gs_spare_b4,
+        &hf_nas_5gs_spare_b3,
+        &hf_nas_5gs_spare_b2,
+        &hf_nas_5gs_v2xuui,
+        &hf_nas_5gs_v2xpc5i,
+        NULL
+    };
+
+    proto_tree_add_bitmask_list(tree, tvb, curr_offset, 1, flags, ENC_BIG_ENDIAN);
+    curr_offset++;
+
+    EXTRANEOUS_DATA_CHECK(len, curr_offset - offset, pinfo, &ei_nas_5gs_extraneous_data);
+
+    return (curr_offset - offset);
+}
+
 /* D.6 Information elements coding */
 typedef enum
 {
@@ -7656,6 +7713,10 @@ typedef enum
     DE_NAS_5GS_UPDP_UPSI_LIST,                          /* D.6.4 UPSI list */
     DE_NAS_5GS_UPDP_UE_POLICY_CM,                       /* D.6.5 UE policy classmark */
     DE_NAS_5GS_UPDP_UE_OS_ID,                           /* D.6.6 UE OS Id */
+
+    DE_NAS_5GS_UPDP_UPDS_CAUSE,                         /* 24.587 8.3.1 UPDS cause */
+    DE_NAS_5GS_UPDP_REQ_UE_POLICIES,                    /* 24.587 8.3.2 Requested UE policies */
+
     DE_NAS_5GS_UPDP_NONE                                /* NONE */
 }
 nas_5gs_updp_elem_idx_t;
@@ -7666,6 +7727,9 @@ static const value_string nas_5gs_updp_elem_strings[] = {
     { DE_NAS_5GS_UPDP_UPSI_LIST,                 "UPSI list" },                                          /* D.6.4 UPSI list */
     { DE_NAS_5GS_UPDP_UE_POLICY_CM,              "UE policy classmark" },                                /* D.6.5 UE policy classmark */
     { DE_NAS_5GS_UPDP_UE_OS_ID,                  "UE OS Id" },                                           /* D.6.6 UE OS Id */
+
+    { DE_NAS_5GS_UPDP_UPDS_CAUSE,                "UPDS cause" },                                         /* 24.587 8.3.1 UPDS cause */
+    { DE_NAS_5GS_UPDP_REQ_UE_POLICIES,           "Requested UE policies" },                              /* 24.587 8.3.2 Requested UE policies */
 
     { 0, NULL }
 };
@@ -7683,6 +7747,10 @@ guint16(*nas_5gs_updp_elem_fcn[])(tvbuff_t* tvb, proto_tree* tree, packet_info* 
         de_nas_5gs_updp_upsi_list,                          /* D.6.4 UPSI list */
         de_nas_5gs_updp_ue_policy_cm,                       /* D.6.5 UE policy classmark */
         de_nas_5gs_updp_ue_os_id,                           /* D.6.6 UE OS Id */
+
+        de_nas_5gs_updp_upds_cause,                         /* 24.587 8.3.1 UPDS cause */
+        de_nas_5gs_updp_req_ue_policies,                    /* 24.587 8.3.2 Requested UE policies */
+
         NULL,   /* NONE */
 };
 
@@ -7763,6 +7831,46 @@ nas_5gs_updp_ue_state_indication(tvbuff_t* tvb, proto_tree* tree, packet_info* p
 
     /* 41    UE OS Id    OS Id D.6.6    O    TLV    18-242 */
     ELEM_OPT_TLV(0x41, NAS_5GS_PDU_TYPE_UPDP, DE_NAS_5GS_UPDP_UE_OS_ID, NULL);
+
+}
+
+
+/* 24.587 7.2.1 UE policy provisioning request */
+static void
+nas_5gs_updp_ue_policy_prov_req(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo, guint32 offset, guint len)
+{
+    guint32 curr_offset;
+    guint32 consumed;
+    guint   curr_len;
+
+    curr_offset = offset;
+    curr_len = len;
+
+    /* Direction: UE to network */
+    pinfo->link_dir = P2P_DIR_UL;
+
+    /* Requested UE policies    Requested UE policies    8.3.2    M    LV    2-3 */
+    ELEM_MAND_LV(NAS_5GS_PDU_TYPE_UPDP, DE_NAS_5GS_UPDP_REQ_UE_POLICIES, NULL, ei_nas_5gs_missing_mandatory_element);
+
+}
+
+
+/* 24.587 7.2.2 UE policy provisioning reject */
+static void
+nas_5gs_updp_ue_policy_prov_rej(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo, guint32 offset, guint len)
+{
+    guint32 curr_offset;
+    guint32 consumed;
+    guint   curr_len;
+
+    curr_offset = offset;
+    curr_len = len;
+
+    /* Direction: UE to network */
+    pinfo->link_dir = P2P_DIR_DL;
+
+    /* UPDS cause    UPDS cause    8.3.1    M    V    1 */
+    ELEM_MAND_V(NAS_5GS_PDU_TYPE_UPDP, DE_NAS_5GS_UPDP_UPDS_CAUSE, NULL, ei_nas_5gs_missing_mandatory_element);
 
 }
 
@@ -7959,6 +8067,8 @@ static const value_string nas_5gs_updp_msg_strings[] = {
     { 0x2,    "MANAGE UE POLICY COMPLETE"},
     { 0x3,    "MANAGE UE POLICY COMMAND REJECT"},
     { 0x4,    "UE STATE INDICATION"},
+    { 0x5,    "UE POLICY PROVISIONING REQUEST"},
+    { 0x6,    "UE POLICY PROVISIONING REJECT"},
     { 0,    NULL }
 };
 static value_string_ext nas_5gs_updp_msg_strings_ext = VALUE_STRING_EXT_INIT(nas_5gs_updp_msg_strings);
@@ -7972,6 +8082,8 @@ static void(*nas_5gs_updp_msg_fcn[])(tvbuff_t* tvb, proto_tree* tree, packet_inf
     nas_5gs_updp_manage_ue_policy_cmd_cmpl,/* 0x2     MANAGE UE POLICY COMPLETE */
     nas_5gs_updp_manage_ue_policy_cmd_rej, /* 0x3     MANAGE UE POLICY COMMAND REJECT */
     nas_5gs_updp_ue_state_indication,      /* 0x4     UE STATE INDICATION */
+    nas_5gs_updp_ue_policy_prov_req,       /* 0x5     UE POLICY PROVISIONING REQUEST */
+    nas_5gs_updp_ue_policy_prov_rej,       /* 0x6     UE POLICY PROVISIONING REJECT */
 
     NULL,   /* NONE */
 
@@ -10870,6 +10982,21 @@ proto_register_nas_5gs(void)
         { &hf_nas_5gs_os_id_len,
         { "Length", "nas_5gs.os_id_len",
             FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_upds_cause,
+        { "UPDS cause", "nas_5gs.upds_cause",
+            FT_UINT8, BASE_DEC, VALS(nas_5gs_updp_upds_cause_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_v2xuui,
+        { "UE policies for V2X communication over Uu indicator (V2XUUI)", "nas_5gs.v2xuui",
+            FT_BOOLEAN, 8, TFS(&tfs_requested_not_requested), 0x02,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_v2xpc5i,
+        { "UE policies for V2X communication over PC5 indicator (V2XPC5I)", "nas_5gs.v2xpc5i",
+            FT_BOOLEAN, 8, TFS(&tfs_requested_not_requested), 0x01,
             NULL, HFILL }
         },
         { &hf_nas_5gs_os_app_id_len,
