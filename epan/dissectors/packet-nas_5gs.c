@@ -3099,7 +3099,7 @@ de_nas_5gs_sm_pdu_address(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
 
     memset(&interface_id, 0, sizeof(interface_id));
 
-    /* 0 Spare    0 Spare    0 Spare    0 Spare    PDU session type value */
+    /* 0 Spare    0 Spare    0 Spare    0 Spare    0 Spare    PDU session type value */
     ti = proto_tree_add_item_ret_uint(tree, hf_nas_5gs_sm_pdu_ses_type, tvb, offset, 1, ENC_BIG_ENDIAN, &value);
     offset++;
 
@@ -7489,7 +7489,7 @@ proto_register_nas_5gs(void)
         },
         { &hf_nas_5gs_sm_pdu_session_type,
         { "PDU session type",   "nas_5gs.sm.pdu_session_type",
-            FT_UINT8, BASE_DEC, VALS(nas_5gs_pdu_session_type_values), 0x0f,
+            FT_UINT8, BASE_DEC, VALS(nas_5gs_pdu_session_type_values), 0x07,
             NULL, HFILL }
         },
         { &hf_nas_5gs_pdu_ses_sts_psi_0_b0,
@@ -7814,12 +7814,12 @@ proto_register_nas_5gs(void)
         },
         { &hf_nas_5gs_sm_sc_mode,
         { "SSC mode",   "nas_5gs.sm.sc_mode",
-            FT_UINT8, BASE_DEC, VALS(nas_5gs_sc_mode_values), 0x0f,
+            FT_UINT8, BASE_DEC, VALS(nas_5gs_sc_mode_values), 0x07,
             NULL, HFILL }
         },
         { &hf_nas_5gs_sm_sel_sc_mode,
         { "Selected SSC mode",   "nas_5gs.sm.sel_sc_mode",
-            FT_UINT8, BASE_DEC, VALS(nas_5gs_sc_mode_values), 0xf0,
+            FT_UINT8, BASE_DEC, VALS(nas_5gs_sc_mode_values), 0x70,
             NULL, HFILL }
         },
         { &hf_nas_5gs_sm_mh6_pdu_b1,
@@ -7859,7 +7859,7 @@ proto_register_nas_5gs(void)
         },
         { &hf_nas_5gs_sm_pdu_ses_type,
         { "PDU session type",   "nas_5gs.sm.pdu_ses_type",
-            FT_UINT8, BASE_DEC, VALS(nas_5gs_sm_pdu_ses_type_vals), 0x0f,
+            FT_UINT8, BASE_DEC, VALS(nas_5gs_sm_pdu_ses_type_vals), 0x07,
             NULL, HFILL }
         },
         { &hf_nas_5gs_sm_pdu_addr_inf_ipv4,
