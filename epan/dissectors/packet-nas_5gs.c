@@ -381,6 +381,20 @@ static int hf_nas_5gs_sm_ept_s1 = -1;
 static int hf_nas_5gs_sm_abo = -1;
 static int hf_nas_5gs_sm_atsss_cont = -1;
 static int hf_nas_5gs_sm_cpoi = -1;
+static int hf_nas_5gs_sm_ip_hdr_comp_config_p0104 = -1;
+static int hf_nas_5gs_sm_ip_hdr_comp_config_p0103 = -1;
+static int hf_nas_5gs_sm_ip_hdr_comp_config_p0102 = -1;
+static int hf_nas_5gs_sm_ip_hdr_comp_config_p0006 = -1;
+static int hf_nas_5gs_sm_ip_hdr_comp_config_p0004 = -1;
+static int hf_nas_5gs_sm_ip_hdr_comp_config_p0003 = -1;
+static int hf_nas_5gs_sm_ip_hdr_comp_config_p0002 = -1;
+static int hf_nas_5gs_sm_ip_hdr_comp_config_max_cid = -1;
+static int hf_nas_5gs_sm_ip_hdr_comp_config_add_ip_hdr_compr_cxt_setup_params_type = -1;
+static int hf_nas_5gs_sm_ip_hdr_comp_config_add_ip_hdr_compr_cxt_setup_params_cont = -1;
+static int hf_nas_5gs_sm_ds_tt_eth_port_mac_addr = -1;
+static int hf_nas_5gs_sm_ue_ds_tt_residence_time = -1;
+static int hf_nas_5gs_sm_port_mgmt_info_cont = -1;
+static int hf_nas_5gs_sm_eth_hdr_comp_config_cid_len = -1;
 static int hf_nas_5gs_sm_sel_sc_mode = -1;
 static int hf_nas_5gs_sm_tpmic_b7 = -1;
 static int hf_nas_5gs_sm_atsss_st_b3_b6 = -1;
@@ -4770,14 +4784,52 @@ de_nas_5gs_sm_ctl_plane_only_ind(tvbuff_t* tvb, proto_tree* tree, packet_info* p
     return 1;
 }
 /*
- * 9.11.4.24 Header compression configuration
+ * 9.11.4.24 IP header compression configuration
  */
+static const value_string nas_5gs_sm_ip_hdr_comp_config_add_ip_hdr_compr_cxt_setup_params_type_vals[] = {
+    { 0x00, "0x0000 (No Compression)" },
+    { 0x01, "0x0002 (UDP/IP)" },
+    { 0x02, "0x0003 (ESP/IP)" },
+    { 0x03, "0x0004 (IP)" },
+    { 0x04, "0x0006 (TCP/IP)" },
+    { 0x05, "0x0102 (UDP/IP)" },
+    { 0x06, "0x0103 (ESP/IP)" },
+    { 0x07, "0x0104 (IP)" },
+    { 0x08, "Other" },
+    { 0x0, NULL }
+};
+
 static guint16
-de_nas_5gs_sm_ip_hdr_comp_conf(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo,
+de_nas_5gs_sm_ip_hdr_comp_conf(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo _U_,
     guint32 offset, guint len,
     gchar* add_string _U_, int string_len _U_)
 {
-    proto_tree_add_expert(tree, pinfo, &ei_nas_5gs_ie_not_dis, tvb, offset, len);
+    guint32 curr_offset = offset;
+
+    static int * const flags[] = {
+        &hf_nas_5gs_spare_b7,
+        &hf_nas_5gs_sm_ip_hdr_comp_config_p0104,
+        &hf_nas_5gs_sm_ip_hdr_comp_config_p0103,
+        &hf_nas_5gs_sm_ip_hdr_comp_config_p0102,
+        &hf_nas_5gs_sm_ip_hdr_comp_config_p0006,
+        &hf_nas_5gs_sm_ip_hdr_comp_config_p0004,
+        &hf_nas_5gs_sm_ip_hdr_comp_config_p0003,
+        &hf_nas_5gs_sm_ip_hdr_comp_config_p0002,
+        NULL
+    };
+
+    proto_tree_add_bitmask_list(tree, tvb, curr_offset, 1, flags, ENC_NA);
+    curr_offset++;
+    proto_tree_add_item(tree, hf_nas_5gs_sm_ip_hdr_comp_config_max_cid, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
+    curr_offset += 2;
+
+    if ((curr_offset - offset) >= len) {
+        return len;
+    }
+
+    proto_tree_add_item(tree, hf_nas_5gs_sm_ip_hdr_comp_config_add_ip_hdr_compr_cxt_setup_params_type, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+    curr_offset++;
+    proto_tree_add_item(tree, hf_nas_5gs_sm_ip_hdr_comp_config_add_ip_hdr_compr_cxt_setup_params_cont, tvb, curr_offset, len - (curr_offset - offset), ENC_NA);
 
     return len;
 }
@@ -4785,24 +4837,24 @@ de_nas_5gs_sm_ip_hdr_comp_conf(tvbuff_t* tvb, proto_tree* tree, packet_info* pin
  * 9.11.4.25 DS-TT Ethernet port MAC address
  */
 static guint16
-de_nas_5gs_sm_ds_tt_eth_port_mac_addr(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo,
+de_nas_5gs_sm_ds_tt_eth_port_mac_addr(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo _U_,
     guint32 offset, guint len,
     gchar* add_string _U_, int string_len _U_)
 {
-    proto_tree_add_expert(tree, pinfo, &ei_nas_5gs_ie_not_dis, tvb, offset, len);
+    proto_tree_add_item(tree, hf_nas_5gs_sm_ds_tt_eth_port_mac_addr, tvb, offset, 6, ENC_NA);
 
     return len;
 }
 
 /*
- * 9.11.4.26 DS-TT residence time
+ * 9.11.4.26 UE-DS-TT residence time
  */
 static guint16
-de_nas_5gs_sm_ue_ds_tt_residence_t(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo,
+de_nas_5gs_sm_ue_ds_tt_residence_t(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo _U_,
     guint32 offset, guint len,
     gchar* add_string _U_, int string_len _U_)
 {
-    proto_tree_add_expert(tree, pinfo, &ei_nas_5gs_ie_not_dis, tvb, offset, len);
+    proto_tree_add_item(tree, hf_nas_5gs_sm_ue_ds_tt_residence_time, tvb, offset, 8, ENC_NA);
 
     return len;
 }
@@ -4811,11 +4863,11 @@ de_nas_5gs_sm_ue_ds_tt_residence_t(tvbuff_t* tvb, proto_tree* tree, packet_info*
 * 9.11.4.27 Port management information container
 */
 static guint16
-de_nas_5gs_sm_port_mgnt_inf_cont(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo,
+de_nas_5gs_sm_port_mgnt_inf_cont(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo _U_,
     guint32 offset, guint len,
     gchar* add_string _U_, int string_len _U_)
 {
-    proto_tree_add_expert(tree, pinfo, &ei_nas_5gs_ie_not_dis, tvb, offset, len);
+    proto_tree_add_item(tree, hf_nas_5gs_sm_port_mgmt_info_cont, tvb, offset, len, ENC_NA);
 
     return len;
 }
@@ -4823,12 +4875,30 @@ de_nas_5gs_sm_port_mgnt_inf_cont(tvbuff_t* tvb, proto_tree* tree, packet_info* p
 /*
  * 9.11.4.28 Ethernet header compression configuration
  */
+static const value_string nas_5gs_sm_eth_hdr_comp_config_cid_len_vals[] = {
+    { 0x0, "Ethernet header compression not used" },
+    { 0x1, "7 bits" },
+    { 0x2, "15 bits" },
+    { 0x0, NULL }
+};
+
 static guint16
-de_nas_5gs_sm_eth_hdr_comp_conf(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo,
+de_nas_5gs_sm_eth_hdr_comp_conf(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo _U_,
     guint32 offset, guint len,
     gchar* add_string _U_, int string_len _U_)
 {
-    proto_tree_add_expert(tree, pinfo, &ei_nas_5gs_ie_not_dis, tvb, offset, len);
+    static int * const flags[] = {
+        &hf_nas_5gs_spare_b7,
+        &hf_nas_5gs_spare_b6,
+        &hf_nas_5gs_spare_b5,
+        &hf_nas_5gs_spare_b4,
+        &hf_nas_5gs_spare_b3,
+        &hf_nas_5gs_spare_b2,
+        &hf_nas_5gs_sm_eth_hdr_comp_config_cid_len,
+        NULL
+    };
+
+    proto_tree_add_bitmask_list(tree, tvb, offset, 1, flags, ENC_NA);
 
     return len;
 }
@@ -9851,6 +9921,76 @@ proto_register_nas_5gs(void)
             FT_BOOLEAN, 8, TFS(&tfs_5gs_sm_cpoi), 0x01,
             NULL, HFILL }
         },
+        { &hf_nas_5gs_sm_ip_hdr_comp_config_p0104,
+        { "RoHC profile 0x0104 (IP)", "nas_5gs.sm.ip_hdr_comp_config.p0104",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x40,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_sm_ip_hdr_comp_config_p0103,
+        { "RoHC profile 0x0103 (ESP/IP)", "nas_5gs.sm.ip_hdr_comp_config.p0103",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x20,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_sm_ip_hdr_comp_config_p0102,
+        { "RoHC profile 0x0102 (UDP/IP)", "nas_5gs.sm.ip_hdr_comp_config.p0102",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x10,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_sm_ip_hdr_comp_config_p0006,
+        { "RoHC profile 0x0006 (TCP/IP)", "nas_5gs.sm.ip_hdr_comp_config.p0006",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x08,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_sm_ip_hdr_comp_config_p0004,
+        { "RoHC profile 0x0004 (IP)", "nas_5gs.sm.ip_hdr_comp_config.p0004",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x04,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_sm_ip_hdr_comp_config_p0003,
+        { "RoHC profile 0x0003 (ESP/IP)", "nas_5gs.sm.ip_hdr_comp_config.p0003",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x02,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_sm_ip_hdr_comp_config_p0002,
+        { "RoHC profile 0x0002 (UDP/IP)", "nas_5gs.sm.ip_hdr_comp_config.p0002",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x01,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_sm_ip_hdr_comp_config_max_cid,
+        { "MAX_CID", "nas_5gs.sm.ip_hdr_comp_config.max_cid",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_sm_ip_hdr_comp_config_add_ip_hdr_compr_cxt_setup_params_type,
+        { "Additional header compression context setup parameters type", "nas_5gs.sm.ip_hdr_comp_config.add_hdr_compr_cxt_setup_params_type",
+            FT_UINT8, BASE_HEX, VALS(nas_5gs_sm_ip_hdr_comp_config_add_ip_hdr_compr_cxt_setup_params_type_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_sm_ip_hdr_comp_config_add_ip_hdr_compr_cxt_setup_params_cont,
+        { "Additional header compression context setup parameters container", "nas_5gs.sm.ip_hdr_comp_config.add_hdr_compr_cxt_setup_params_cont",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_sm_ds_tt_eth_port_mac_addr,
+        { "DS-TT Ethernet port MAC address", "nas_5gs.sm.ds_tt_eth_port_mac_addr",
+            FT_ETHER, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_sm_ue_ds_tt_residence_time,
+        { "UE-DS-TT residence time", "nas_5gs.sm.ue_ds_tt_residence_time",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_sm_port_mgmt_info_cont,
+        { "Port management information container", "nas_5gs.sm.port_mgmt_info_cont",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_sm_eth_hdr_comp_config_cid_len,
+        { "Port management information container", "nas_5gs.sm.eth_hdr_comp_config.cid_len",
+            FT_UINT8, BASE_DEC, VALS(nas_5gs_sm_eth_hdr_comp_config_cid_len_vals), 0x03,
+            NULL, HFILL }
+        },
         { &hf_nas_5gs_sm_sel_sc_mode,
         { "Selected SSC mode",   "nas_5gs.sm.sel_sc_mode",
             FT_UINT8, BASE_DEC, VALS(nas_5gs_sc_mode_values), 0x70,
@@ -10227,17 +10367,17 @@ proto_register_nas_5gs(void)
             NULL, HFILL }
         },
         { &hf_nas_5gs_mm_mauri,
-        { "MAURI", "nas_5gs.mm.mauri",
+        { "MAC address usage restriction indication (MAURI)", "nas_5gs.mm.mauri",
             FT_BOOLEAN, 8, TFS(&nas_5gs_mauri_tfs), 0x08,
             NULL, HFILL }
         },
         { &hf_nas_5gs_mm_mac_addr,
-        { "MAURI", "nas_5gs.mm.mauri",
+        { "MAC address", "nas_5gs.mm.mac_addr",
             FT_ETHER, BASE_NONE, NULL, 0,
             NULL, HFILL }
         },
         { &hf_nas_5gs_mm_eui_64,
-        { "MAURI", "nas_5gs.mm.mauri",
+        { "EUI-64", "nas_5gs.mm.eui_64",
             FT_EUI64, BASE_NONE, NULL, 0,
             NULL, HFILL }
         },
