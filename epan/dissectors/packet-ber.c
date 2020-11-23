@@ -41,7 +41,7 @@
  * if they were definite length.
  */
 
-/*#define DEBUG_BER 1*/
+//#define DEBUG_BER 1
 
 #include "config.h"
 
@@ -1415,7 +1415,7 @@ dissect_ber_length(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, int 
         *ind = tmp_ind;
 
 #ifdef DEBUG_BER
-proto_tree_add_debug_text("dissect BER length %d, offset %d (remaining %d)\n", tmp_length, offset, tvb_reported_length_remaining(tvb, offset));
+proto_tree_add_debug_text(tree, "dissect BER length %d, offset %d (remaining %d)\n", tmp_length, offset, tvb_reported_length_remaining(tvb, offset));
 #endif
 
     last_length = tmp_length;
