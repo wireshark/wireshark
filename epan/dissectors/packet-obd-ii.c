@@ -14,6 +14,7 @@
 
 #include <epan/packet.h>
 #include <epan/proto.h>
+#include <expert.h>
 
 #include <wsutil/utf8_entities.h>
 
@@ -102,6 +103,8 @@ static int hf_obdii_mode09_unsupported_pid = -1;
 
 static int hf_obdii_vin = -1;
 static int hf_obdii_ecu_name = -1;
+
+static expert_field ei_obdii_padding = EI_INIT;
 
 /* OBD-II CAN IDs have three aspects.
    - IDs are either standard 11bit format (SFF) or extended 29bit format (EFF)
@@ -1225,7 +1228,7 @@ dissect_obdii_mode_01(tvbuff_t *tvb, struct obdii_packet_info *oinfo, proto_tree
 static void
 dissect_obdii_mode_07(tvbuff_t *tvb, struct obdii_packet_info *oinfo, proto_tree *tree)
 {
-	proto_tree_add_item(tree, hf_obdii_raw_value, tvb, OBDII_MODE07_DATA_OFF, MIN(oinfo->value_bytes, 5), ENC_NA);
+	proto_tree_add_item(tree, hf_obdii_raw_value, tvb, OBDII_MODE07_DATA_OFF, oinfo->value_bytes, ENC_NA);
 
 	/* display raw */
 	col_append_fstr(oinfo->pinfo->cinfo, COL_INFO, ": <");
@@ -1398,6 +1401,8 @@ dissect_obdii(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 	/* Mode 7 is a datalength of 1, all other queries either 2 or 3 bytes */
 	if (id_is_query)
 	{
+		if (can_info.len != 8)
+			expert_add_info(pinfo, NULL, &ei_obdii_padding);
 		if (data_bytes == 0 || data_bytes > 3)
 			return 0;
 		if (mode > 0x0a)
@@ -1675,9 +1680,20 @@ proto_register_obdii(void)
 		&ett_obdii
 	};
 
+	struct expert_module *expert_obdii;
+
+	static ei_register_info obdii_ei[] =
+	{
+		{ &ei_obdii_padding,
+			{ "obdii.padding", PI_PROTOCOL, PI_WARN, "OBD2 Spec requires 8 byte, zero padded frames. Some tools/ecus may ignore frames that don't follow this rule.", EXPFILL }},
+	};
+
 	proto_obdii = proto_register_protocol("OBD-II PID", "OBD-II", "obd-ii");
 	proto_register_field_array(proto_obdii, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+
+	expert_obdii = expert_register_protocol(proto_obdii);
+	expert_register_field_array(expert_obdii, obdii_ei, array_length(obdii_ei));
 }
 
 void
