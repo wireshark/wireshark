@@ -96,6 +96,13 @@ static int hf_obdii_mode01_torque_driver_demand_engine = -1;
 static int hf_obdii_mode01_torque_actual_engine = -1;
 static int hf_obdii_mode01_torque_reference_engine = -1;
 
+static int hf_obdii_mode09_pid = -1;
+static int hf_obdii_mode09_supported_pid = -1;
+static int hf_obdii_mode09_unsupported_pid = -1;
+
+static int hf_obdii_vin = -1;
+static int hf_obdii_ecu_name = -1;
+
 /* OBD-II CAN IDs have three aspects.
    - IDs are either standard 11bit format (SFF) or extended 29bit format (EFF)
    - An ID can be a query ID or a response ID.
@@ -227,6 +234,14 @@ static int hf_obdii_mode01_torque_reference_engine = -1;
 #define OBDII_MODE01_PIDS_SUPPORT80         0x80
 #define OBDII_MODE01_PIDS_SUPPORTA0         0xA0
 #define OBDII_MODE01_PIDS_SUPPORTC0         0xC0
+
+#define OBDII_MODE09_PIDS_SUPPORT00 			0x00
+#define OBDII_MODE09_VIN02								0x02
+#define OBDII_MODE09_CALIBRATION_ID04			0x04
+#define OBDII_MODE09_CAL_VER_NUMBERS06		0x06
+#define OBDII_MODE09_PERFORMANCE_SPARK08	0x08
+#define OBDII_MODE09_ECU_NAME0A						0x0A
+#define OBDII_MODE09_PERFORMANCE_COMPRESSION0B 0x0B
 
 /* unit_name_string for OBDII_MODE01_TIMING_ADVANCE */
 static const unit_name_string units_degree_btdc = { UTF8_DEGREE_SIGN "BTDC", NULL };
@@ -474,6 +489,20 @@ static const value_string obdii_mode01_pid_vals[] =
 };
 
 static value_string_ext obdii_mode01_pid_vals_ext = VALUE_STRING_EXT_INIT(obdii_mode01_pid_vals);
+
+static const value_string obdii_mode09_pid_vals[] =
+{
+	{ OBDII_MODE09_PIDS_SUPPORT00, "PIDs supported [00 - 20]" },
+	{ OBDII_MODE09_VIN02, "Vehicle VIN" },
+	{ OBDII_MODE09_CALIBRATION_ID04, "Calibration ID" },
+	{ OBDII_MODE09_CAL_VER_NUMBERS06, "Calibration Verification Numbers" },
+	{ OBDII_MODE09_PERFORMANCE_SPARK08, "In-use performance tracking for spark ignition vehicles" },
+	{ OBDII_MODE09_ECU_NAME0A, "ECU Name" },
+	{ OBDII_MODE09_PERFORMANCE_COMPRESSION0B, "In-use performance tracking for compression ignition vehicles" },
+	{ 0x00, NULL }
+};
+
+static value_string_ext obdii_mode09_pid_vals_ext = VALUE_STRING_EXT_INIT(obdii_mode09_pid_vals);
 
 static const value_string obdii_mode_vals[] =
 {
@@ -1208,6 +1237,41 @@ dissect_obdii_mode_07(tvbuff_t *tvb, struct obdii_packet_info *oinfo, proto_tree
 	col_append_fstr(oinfo->pinfo->cinfo, COL_INFO, " >");
 }
 
+static void
+dissect_obdii_mode_09(tvbuff_t *tvb, struct obdii_packet_info *oinfo, proto_tree *tree)
+{
+	guint8 pid = tvb_get_guint8(tvb, OBDII_PID_POS);
+	int value_offset;
+
+	col_append_fstr(oinfo->pinfo->cinfo, COL_INFO, "- %s", val_to_str_ext(pid, &obdii_mode09_pid_vals_ext, "Unknown (%.2x)"));
+	proto_tree_add_uint(tree, hf_obdii_mode09_pid, tvb, OBDII_PID_POS, 1, pid);
+
+	value_offset = OBDII_VAL_OFF;
+	oinfo->value_offset = value_offset;
+
+	switch (pid)
+	{
+	case OBDII_MODE09_PIDS_SUPPORT00:
+		proto_tree_add_item(tree, hf_obdii_raw_value, tvb, OBDII_VAL_OFF, oinfo->value_bytes, ENC_NA);
+		break;
+	case OBDII_MODE09_VIN02:
+		proto_tree_add_item(tree, hf_obdii_vin, tvb, OBDII_VAL_OFF+1, oinfo->value_bytes-1, ENC_ASCII|ENC_NA);
+		break;
+	case OBDII_MODE09_CALIBRATION_ID04:
+	case OBDII_MODE09_CAL_VER_NUMBERS06:
+	case OBDII_MODE09_PERFORMANCE_SPARK08:
+		proto_tree_add_item(tree, hf_obdii_raw_value, tvb, OBDII_VAL_OFF, oinfo->value_bytes, ENC_NA);
+		break;
+	case OBDII_MODE09_ECU_NAME0A:
+		proto_tree_add_item(tree, hf_obdii_ecu_name, tvb, OBDII_VAL_OFF+1, oinfo->value_bytes-1, ENC_ASCII|ENC_NA);
+		break;
+	case OBDII_MODE09_PERFORMANCE_COMPRESSION0B:
+	default:
+		proto_tree_add_item(tree, hf_obdii_raw_value, tvb, OBDII_VAL_OFF, oinfo->value_bytes, ENC_NA);
+		break;
+	}
+}
+
 
 static int
 dissect_obdii_query(tvbuff_t *tvb, struct obdii_packet_info *oinfo, proto_tree *tree)
@@ -1244,6 +1308,13 @@ dissect_obdii_query(tvbuff_t *tvb, struct obdii_packet_info *oinfo, proto_tree *
 	case 0x07:
 		col_append_fstr(oinfo->pinfo->cinfo, COL_INFO, " Request[%.3x] %s", oinfo->can_id, mode_str);
 		break;
+
+	case 0x09:
+		pid_str = val_to_str_ext(pid, &obdii_mode09_pid_vals_ext, "Unknown (%.2x)");
+		proto_tree_add_uint(tree, hf_obdii_mode09_pid, tvb, OBDII_PID_POS, pid_len, pid);
+		col_append_fstr(oinfo->pinfo->cinfo, COL_INFO, " Request[%.3x] %s - %s", oinfo->can_id, mode_str, pid_str);
+		break;
+
 	default:
 		pid_str = wmem_strdup_printf(wmem_packet_scope(), "Unknown (%.2x)", pid);
 		col_append_fstr(oinfo->pinfo->cinfo, COL_INFO, " Request[%.3x] %s - %s", oinfo->can_id, mode_str, pid_str);
@@ -1274,6 +1345,8 @@ dissect_obdii_response(tvbuff_t *tvb, struct obdii_packet_info *oinfo, proto_tre
 	case 0x07:
 		dissect_obdii_mode_07(tvb, oinfo, tree);
 		break;
+	case 0x09:
+		dissect_obdii_mode_09(tvb, oinfo, tree);
 	}
 
 	return tvb_captured_length(tvb);
@@ -1580,6 +1653,21 @@ proto_register_obdii(void)
 		},
 		{ &hf_obdii_mode01_torque_reference_engine,
 			{ "Engine reference torque", "obd-ii.mode01_torque_reference_engine", FT_UINT16, BASE_DEC | BASE_UNIT_STRING, &units_newton_metre, 0x0, NULL, HFILL },
+		},
+		{ &hf_obdii_mode09_pid,
+			{ "PID", "obd-ii.mode09_pid", FT_UINT16, BASE_HEX | BASE_EXT_STRING, VALS_EXT_PTR(&obdii_mode09_pid_vals_ext), 0x0, NULL, HFILL },
+		},
+		{ &hf_obdii_mode09_supported_pid,
+			{ "Supported PID", "obd-ii.mode09_supported_pid", FT_UINT8, BASE_HEX | BASE_EXT_STRING, VALS_EXT_PTR(&obdii_mode09_pid_vals_ext), 0x0, NULL, HFILL },
+		},
+		{ &hf_obdii_mode09_unsupported_pid,
+			{ "NOT Supported PID", "obd-ii.mode09_unsupported_pid", FT_UINT8, BASE_HEX | BASE_EXT_STRING, VALS_EXT_PTR(&obdii_mode09_pid_vals_ext), 0x0, NULL, HFILL },
+		},
+		{ &hf_obdii_vin,
+			{ "VIN", "obd-ii.VIN", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL },
+		},
+		{ &hf_obdii_ecu_name,
+			{ "ECU Name", "obd-ii.ecu_name", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL },
 		},
 	};
 
