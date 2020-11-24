@@ -34,12 +34,10 @@ static flag_pair gregex_compile_flags[] = {
   { "NEWLINE_CR",                    G_REGEX_NEWLINE_CR },
   { "NEWLINE_LF",                    G_REGEX_NEWLINE_LF },
   { "NEWLINE_CRLF",                  G_REGEX_NEWLINE_CRLF },
-#if VERSION_GLIB >= 234
   { "FIRSTLINE",                     G_REGEX_FIRSTLINE },
   { "NEWLINE_ANYCRLF",               G_REGEX_NEWLINE_ANYCRLF },
   { "BSR_ANYCRLF",                   G_REGEX_BSR_ANYCRLF },
   { "JAVASCRIPT_COMPAT",             G_REGEX_JAVASCRIPT_COMPAT },
-#endif
 /*---------------------------------------------------------------------------*/
   { NULL, 0 }
 };
@@ -55,14 +53,12 @@ static flag_pair gregex_match_flags[] = {
   { "NEWLINE_LF",                    G_REGEX_MATCH_NEWLINE_LF },
   { "NEWLINE_CRLF",                  G_REGEX_MATCH_NEWLINE_CRLF },
   { "NEWLINE_ANY",                   G_REGEX_MATCH_NEWLINE_ANY },
-#if VERSION_GLIB >= 234
   { "NEWLINE_ANYCRLF",               G_REGEX_MATCH_NEWLINE_ANYCRLF },
   { "BSR_ANYCRLF",                   G_REGEX_MATCH_BSR_ANYCRLF },
   { "BSR_ANY",                       G_REGEX_MATCH_BSR_ANY },
   { "PARTIAL_SOFT",                  G_REGEX_MATCH_PARTIAL_SOFT },
   { "PARTIAL_HARD",                  G_REGEX_MATCH_PARTIAL_HARD },
   { "NOTEMPTY_ATSTART",              G_REGEX_MATCH_NOTEMPTY_ATSTART },
-#endif
 /*---------------------------------------------------------------------------*/
   { NULL, 0 }
 };
@@ -109,7 +105,6 @@ flag_pair gregex_error_flags[] = {
   { "TOO_MANY_BRANCHES_IN_DEFINE",            G_REGEX_ERROR_TOO_MANY_BRANCHES_IN_DEFINE },
   { "INCONSISTENT_NEWLINE_OPTIONS",           G_REGEX_ERROR_INCONSISTENT_NEWLINE_OPTIONS },
   { "MISSING_BACK_REFERENCE",                 G_REGEX_ERROR_MISSING_BACK_REFERENCE },
-#if VERSION_GLIB >= 234
   { "INVALID_RELATIVE_REFERENCE",             G_REGEX_ERROR_INVALID_RELATIVE_REFERENCE },
   { "BACKTRACKING_CONTROL_VERB_ARGUMENT_FORBIDDEN",G_REGEX_ERROR_BACKTRACKING_CONTROL_VERB_ARGUMENT_FORBIDDEN },
   { "UNKNOWN_BACKTRACKING_CONTROL_VERB",      G_REGEX_ERROR_UNKNOWN_BACKTRACKING_CONTROL_VERB },
@@ -125,7 +120,6 @@ flag_pair gregex_error_flags[] = {
   { "TOO_MANY_FORWARD_REFERENCES",            G_REGEX_ERROR_TOO_MANY_FORWARD_REFERENCES },
   { "NAME_TOO_LONG",                          G_REGEX_ERROR_NAME_TOO_LONG },
   { "CHARACTER_VALUE_TOO_LARGE",              G_REGEX_ERROR_CHARACTER_VALUE_TOO_LARGE },
-#endif
 /*---------------------------------------------------------------------------*/
   { NULL, 0 }
 };

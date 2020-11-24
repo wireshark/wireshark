@@ -83,17 +83,6 @@ static int getcflags (lua_State *L, int pos);
 /* we define ALG_USERETRY because GLib does expose PCRE's NOTEMPTY and ANCHORED flags */
 #define ALG_USERETRY
 
-#define VERSION_GLIB (GLIB_MAJOR_VERSION*100 + GLIB_MINOR_VERSION)
-/* unfortunately GLib doesn't expose cerrtain macros it would be nice to have */
-#if VERSION_GLIB >= 234
-# define G_REGEX_COMPILE_MASK_234 (G_REGEX_FIRSTLINE | \
-                                  G_REGEX_NEWLINE_ANYCRLF | \
-                                  G_REGEX_BSR_ANYCRLF | \
-                                  G_REGEX_JAVASCRIPT_COMPAT)
-#else
-# define G_REGEX_COMPILE_MASK_234  0
-#endif
-
 /* Mask of all the possible values for GRegexCompileFlags. */
 #define G_REGEX_COMPILE_MASK (G_REGEX_CASELESS | \
                               G_REGEX_MULTILINE | \
@@ -109,18 +98,10 @@ static int getcflags (lua_State *L, int pos);
                               G_REGEX_NEWLINE_CR | \
                               G_REGEX_NEWLINE_LF | \
                               G_REGEX_NEWLINE_CRLF | \
-                              G_REGEX_COMPILE_MASK_234)
-
-#if VERSION_GLIB >= 234
-# define G_REGEX_MATCH_MASK_234 (G_REGEX_MATCH_NEWLINE_ANYCRLF | \
-                                  G_REGEX_MATCH_BSR_ANYCRLF | \
-                                  G_REGEX_MATCH_BSR_ANY | \
-                                  G_REGEX_MATCH_PARTIAL_SOFT | \
-                                  G_REGEX_MATCH_PARTIAL_HARD | \
-                                  G_REGEX_MATCH_NOTEMPTY_ATSTART)
-#else
-# define G_REGEX_MATCH_MASK_234  0
-#endif
+                              G_REGEX_FIRSTLINE | \
+                              G_REGEX_NEWLINE_ANYCRLF | \
+                              G_REGEX_BSR_ANYCRLF | \
+                              G_REGEX_JAVASCRIPT_COMPAT)
 
 /* Mask of all the possible values for GRegexMatchFlags. */
 #define G_REGEX_MATCH_MASK (G_REGEX_MATCH_ANCHORED | \
@@ -131,7 +112,13 @@ static int getcflags (lua_State *L, int pos);
                             G_REGEX_MATCH_NEWLINE_CR | \
                             G_REGEX_MATCH_NEWLINE_LF | \
                             G_REGEX_MATCH_NEWLINE_CRLF | \
-                            G_REGEX_MATCH_NEWLINE_ANY)
+                            G_REGEX_MATCH_NEWLINE_ANY | \
+                            G_REGEX_MATCH_NEWLINE_ANYCRLF | \
+                            G_REGEX_MATCH_BSR_ANYCRLF | \
+                            G_REGEX_MATCH_BSR_ANY | \
+                            G_REGEX_MATCH_PARTIAL_SOFT | \
+                            G_REGEX_MATCH_PARTIAL_HARD | \
+                            G_REGEX_MATCH_NOTEMPTY_ATSTART)
 
 
 static int check_eflags(lua_State *L, const int idx, const int def);

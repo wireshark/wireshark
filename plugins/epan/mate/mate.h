@@ -364,11 +364,7 @@ extern gchar* add_ranges(gchar* range, GPtrArray* range_ptr_arr);
 extern gboolean mate_load_config(const gchar* filename, mate_config* mc);
 
 /* Constructor/Destructor prototypes for Lemon Parser */
-#if (GLIB_MAJOR_VERSION > 2 || (GLIB_MAJOR_VERSION == 2 && GLIB_MINOR_VERSION >= 16))
 #define YYMALLOCARGTYPE gsize
-#else
-#define YYMALLOCARGTYPE gulong
-#endif
 void *MateParserAlloc(void* (*)(YYMALLOCARGTYPE));
 void MateParserFree(void*, void (*)(void *));
 void MateParser(void*, int, gchar*,  mate_config*);

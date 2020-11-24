@@ -461,13 +461,7 @@ extcap_run_all(const char *argv[], extcap_run_cb_t output_cb, gsize data_size, g
 
     GSList *paths = extcap_get_extcap_paths();
     int i = 0;
-#if GLIB_CHECK_VERSION(2,36,0)
     int max_threads = (int)g_get_num_processors();
-#else
-    // If the number of processors is unavailable, just use some sane maximum.
-    // extcap should not be CPU bound, so -1 could also be used for unlimited.
-    int max_threads = 8;
-#endif
 
     if (!paths) {
         *count = 0;
