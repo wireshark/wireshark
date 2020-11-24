@@ -384,6 +384,11 @@ Port-Number TYPE = FT_UINT16 DISPLAY = BASE_DEC
   struct s1ap_private_data *s1ap_data = s1ap_get_private_data(actx->pinfo);
   s1ap_data->handover_type_value = 0xff;
 
+#.FN_HDR SourceeNB-ToTargeteNB-TransparentContainer
+  struct s1ap_private_data *s1ap_data = s1ap_get_private_data(actx->pinfo);
+
+  s1ap_data->transparent_container_type = SOURCE_TO_TARGET_TRANSPARENT_CONTAINER;
+
 #.FN_BODY Source-ToTarget-TransparentContainer VAL_PTR = &parameter_tvb
 # I think the message is "directly encoded" into the octet string(no "double encoding")
 # (Compare RANAP)
@@ -458,6 +463,12 @@ Port-Number TYPE = FT_UINT16 DISPLAY = BASE_DEC
     /* Enable writing of the column again */
     col_set_writable(actx->pinfo->cinfo, COL_INFO, TRUE);
   }
+
+#.FN_HDR TargeteNB-ToSourceeNB-TransparentContainer
+  struct s1ap_private_data *s1ap_data = s1ap_get_private_data(actx->pinfo);
+
+  s1ap_data->transparent_container_type = TARGET_TO_SOURCE_TRANSPARENT_CONTAINER;
+
 #.FN_BODY Target-ToSource-TransparentContainer VAL_PTR = &parameter_tvb
 # I think the message is "directly encoded" into the octet string(no "double encoding")
 # See Target-ToSource-TransparentContainer in RANAP
@@ -567,8 +578,8 @@ Port-Number TYPE = FT_UINT16 DISPLAY = BASE_DEC
     struct s1ap_private_data *s1ap_data = s1ap_get_private_data(actx->pinfo);
     subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_RRCContainer);
 
-    switch(s1ap_data->message_type){
-      case INITIATING_MESSAGE:
+    switch(s1ap_data->transparent_container_type){
+      case SOURCE_TO_TARGET_TRANSPARENT_CONTAINER:
         /* 9.2.1.7 Source eNB to Target eNB Transparent Container */
         if ((s1ap_is_nbiot_ue(actx->pinfo) && (g_s1ap_dissect_lte_container_as == S1AP_LTE_CONTAINER_AUTOMATIC)) ||
             (g_s1ap_dissect_lte_container_as == S1AP_LTE_CONTAINER_NBIOT)) {
@@ -589,7 +600,7 @@ Port-Number TYPE = FT_UINT16 DISPLAY = BASE_DEC
           ENDTRY;
         }
         break;
-      case SUCCESSFUL_OUTCOME:
+      case TARGET_TO_SOURCE_TRANSPARENT_CONTAINER:
         /* 9.2.1.8 Target eNB to Source eNB Transparent Container */
           TRY {
             dissect_lte_rrc_HandoverCommand_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
