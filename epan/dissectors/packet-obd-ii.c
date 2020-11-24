@@ -26,7 +26,6 @@ static int proto_obdii = -1;
 
 static int ett_obdii = -1;
 
-static int hf_obdii_data_bytes = -1;
 static int hf_obdii_mode = -1;
 static int hf_obdii_raw_value = -1;
 
@@ -121,8 +120,10 @@ static int hf_obdii_mode01_torque_reference_engine = -1;
 #define ODBII_CAN_RESPONSE_ID_LOWER_MASK_EFF 0xFF00
 #define ODBII_CAN_RESPONSE_ID_UPPER_MASK_EFF 0x00FF
 
-#define ODBII_MODE_POS  0x00
-#define ODBII_PID_POS   0x01
+#define OBDII_MODE_POS  0x00
+#define OBDII_PID_POS   0x01
+#define OBDII_VAL_OFF   0x02
+#define OBDII_MODE07_DATA_OFF 0x01
 
 #define OBDII_MODE01_PIDS_SUPPORT00         0x00
 #define OBDII_MODE01_MONITOR_STATUS         0x01
@@ -625,16 +626,16 @@ dissect_obdii_common_torque(tvbuff_t *tvb, struct obdii_packet_info *oinfo, prot
 static void
 dissect_obdii_mode_01(tvbuff_t *tvb, struct obdii_packet_info *oinfo, proto_tree *tree)
 {
-	guint8 pid = tvb_get_guint8(tvb, ODBII_PID_POS);
+	guint8 pid = tvb_get_guint8(tvb, OBDII_PID_POS);
 	int value_offset;
 	gboolean handled = FALSE;
 
 	col_append_fstr(oinfo->pinfo->cinfo, COL_INFO, "- %s", val_to_str_ext(pid, &obdii_mode01_pid_vals_ext, "Unknown (%.2x)"));
-	proto_tree_add_uint(tree, hf_obdii_mode01_pid, tvb, 2, 1, pid);
+	proto_tree_add_uint(tree, hf_obdii_mode01_pid, tvb, OBDII_PID_POS, 1, pid);
 
-	proto_tree_add_item(tree, hf_obdii_raw_value, tvb, 3, MIN(oinfo->value_bytes, 4), ENC_NA);
+	proto_tree_add_item(tree, hf_obdii_raw_value, tvb, OBDII_VAL_OFF, MIN(oinfo->value_bytes, 4), ENC_NA);
 
-	value_offset = 3;
+	value_offset = OBDII_VAL_OFF;
 	oinfo->value_offset = value_offset;
 
 	/* https://en.wikipedia.org/wiki/OBD-II_PIDs#Mode_01 */
@@ -1195,7 +1196,7 @@ dissect_obdii_mode_01(tvbuff_t *tvb, struct obdii_packet_info *oinfo, proto_tree
 static void
 dissect_obdii_mode_07(tvbuff_t *tvb, struct obdii_packet_info *oinfo, proto_tree *tree)
 {
-	proto_tree_add_item(tree, hf_obdii_raw_value, tvb, 3, MIN(oinfo->value_bytes, 5), ENC_NA);
+	proto_tree_add_item(tree, hf_obdii_raw_value, tvb, OBDII_MODE07_DATA_OFF, MIN(oinfo->value_bytes, 5), ENC_NA);
 
 	/* display raw */
 	col_append_fstr(oinfo->pinfo->cinfo, COL_INFO, ": <");
@@ -1224,9 +1225,9 @@ dissect_obdii_query(tvbuff_t *tvb, struct obdii_packet_info *oinfo, proto_tree *
 		pid = 0; /* Should never be required but set to satisfy petri-dish */
 	}
 	else if (pid_len == 1)
-		pid  = tvb_get_guint8(tvb, ODBII_PID_POS);
+		pid  = tvb_get_guint8(tvb, OBDII_PID_POS);
 	else if (pid_len == 2)
-		pid = tvb_get_ntohs(tvb, ODBII_PID_POS);
+		pid = tvb_get_ntohs(tvb, OBDII_PID_POS);
 	else
 		return 0;
 
@@ -1236,7 +1237,7 @@ dissect_obdii_query(tvbuff_t *tvb, struct obdii_packet_info *oinfo, proto_tree *
 	{
 	case 0x01:
 		pid_str = val_to_str_ext(pid, &obdii_mode01_pid_vals_ext, "Unknown (%.2x)");
-		proto_tree_add_uint(tree, hf_obdii_mode01_pid, tvb, 2, pid_len, pid);
+		proto_tree_add_uint(tree, hf_obdii_mode01_pid, tvb, OBDII_PID_POS, pid_len, pid);
 		col_append_fstr(oinfo->pinfo->cinfo, COL_INFO, " Request[%.3x] %s - %s", oinfo->can_id, mode_str, pid_str);
 		break;
 
@@ -1257,13 +1258,13 @@ dissect_obdii_response(tvbuff_t *tvb, struct obdii_packet_info *oinfo, proto_tre
 {
 	col_append_fstr(oinfo->pinfo->cinfo, COL_INFO, "Response[%.3x] %s ", oinfo->can_id, val_to_str(oinfo->mode, obdii_mode_vals, "Unknown (%.2x)"));
 
-	oinfo->value_bytes = 1 + (oinfo->data_bytes - 3);
+	oinfo->value_bytes = oinfo->data_bytes - OBDII_VAL_OFF;
 
-	if (oinfo->value_bytes >= 1) oinfo->valueA = tvb_get_guint8(tvb, 2);
-	if (oinfo->value_bytes >= 2) oinfo->valueB = tvb_get_guint8(tvb, 3);
-	if (oinfo->value_bytes >= 3) oinfo->valueC = tvb_get_guint8(tvb, 4);
-	if (oinfo->value_bytes >= 4) oinfo->valueD = tvb_get_guint8(tvb, 5);
-	if (oinfo->value_bytes >= 5) oinfo->valueE = tvb_get_guint8(tvb, 6);
+	if (oinfo->value_bytes >= 1) oinfo->valueA = tvb_get_guint8(tvb, OBDII_VAL_OFF);
+	if (oinfo->value_bytes >= 2) oinfo->valueB = tvb_get_guint8(tvb, OBDII_VAL_OFF + 1);
+	if (oinfo->value_bytes >= 3) oinfo->valueC = tvb_get_guint8(tvb, OBDII_VAL_OFF + 2);
+	if (oinfo->value_bytes >= 4) oinfo->valueD = tvb_get_guint8(tvb, OBDII_VAL_OFF + 3);
+	if (oinfo->value_bytes >= 5) oinfo->valueE = tvb_get_guint8(tvb, OBDII_VAL_OFF + 4);
 
 	switch (oinfo->mode)
 	{
@@ -1319,7 +1320,7 @@ dissect_obdii(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 		return 0;
 
 	data_bytes = tvb_reported_length(tvb);
-	mode = tvb_get_guint8(tvb, ODBII_MODE_POS);
+	mode = tvb_get_guint8(tvb, OBDII_MODE_POS);
 
 	/* Mode 7 is a datalength of 1, all other queries either 2 or 3 bytes */
 	if (id_is_query)
@@ -1332,7 +1333,7 @@ dissect_obdii(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
 	if (id_is_response)
 	{
-		if (!(data_bytes >= 3 && data_bytes <= 7))
+		if (data_bytes < 2)
 			return 0;
 		if (mode < 0x40)
 			return 0;
@@ -1346,8 +1347,7 @@ dissect_obdii(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 	ti = proto_tree_add_item(tree, proto_obdii, tvb, 0, -1, ENC_NA);
 	obdii_tree = proto_item_add_subtree(ti, ett_obdii);
 
-	proto_tree_add_item(obdii_tree, hf_obdii_data_bytes, tvb, 0, 1, ENC_NA);
-	proto_tree_add_uint(obdii_tree, hf_obdii_mode, tvb, 1, 1, mode);
+	proto_tree_add_uint(obdii_tree, hf_obdii_mode, tvb, OBDII_MODE_POS, 1, mode);
 
 	memset(&oinfo, 0, sizeof(oinfo));
 	oinfo.pinfo = pinfo;
@@ -1377,16 +1377,12 @@ void
 proto_register_obdii(void)
 {
 	static hf_register_info hf[] = {
-		{ &hf_obdii_data_bytes,
-			{ "Number of data bytes", "obd-ii.data_bytes", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL },
-		},
 		{ &hf_obdii_mode,
 			{ "Mode", "obd-ii.mode", FT_UINT8, BASE_HEX, VALS(obdii_mode_vals), 0x0, NULL, HFILL },
 		},
 		{ &hf_obdii_raw_value,
 			{ "Raw value", "obd-ii.raw_value", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL },
 		},
-
 		{ &hf_obdii_mode01_pid,
 			{ "PID", "obd-ii.mode01_pid", FT_UINT16, BASE_HEX | BASE_EXT_STRING, VALS_EXT_PTR(&obdii_mode01_pid_vals_ext), 0x0, NULL, HFILL },
 		},
