@@ -1,6 +1,7 @@
 /* packet-lacp.c
  * Routines for Link Aggregation Control Protocol dissection.
  * IEEE Std 802.1AX-2014 Section 6.4.2.3
+ *  Split from IEEE Std 802.3-2005 and named IEEE 802.3ad before that
  *
  * Copyright 2002 Steve Housley <steve_housley@3com.com>
  *
