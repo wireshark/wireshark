@@ -188,6 +188,7 @@ struct s1ap_private_data {
   struct s1ap_tai *tai;
   guint16 enb_ue_s1ap_id;
   gboolean srvcc_ho_cs_only;
+  guint8 transparent_container_type;
 };
 
 enum {
@@ -201,6 +202,11 @@ static const enum_val_t s1ap_lte_container_vals[] = {
   {"legacy", "Legacy LTE", S1AP_LTE_CONTAINER_LEGACY},
   {"nb-iot","NB-IoT", S1AP_LTE_CONTAINER_NBIOT},
   {NULL, NULL, -1}
+};
+
+enum {
+  SOURCE_TO_TARGET_TRANSPARENT_CONTAINER = 1,
+  TARGET_TO_SOURCE_TRANSPARENT_CONTAINER
 };
 
 /* Global variables */
