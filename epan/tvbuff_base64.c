@@ -13,6 +13,7 @@
 #include <glib.h>
 
 #include <epan/tvbuff.h>
+#include "proto.h"
 
 tvbuff_t *
 base64_to_tvb(tvbuff_t *parent, const char *base64)
@@ -29,6 +30,20 @@ base64_to_tvb(tvbuff_t *parent, const char *base64)
   return tvb;
 }
 
+tvbuff_t*
+base64_tvb_to_new_tvb(tvbuff_t* parent, int offset, int length)
+{
+    tvbuff_t* tvb;
+    char* data;
+    gsize len;
+
+    data = g_base64_decode(tvb_get_string_enc(wmem_packet_scope(), parent, offset, length, ENC_ASCII), &len);
+    tvb = tvb_new_child_real_data(parent, (const guint8*)data, (gint)len, (gint)len);
+
+    tvb_set_free_cb(tvb, g_free);
+
+    return tvb;
+}
 /*
  * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *

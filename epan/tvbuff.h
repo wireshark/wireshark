@@ -1073,6 +1073,18 @@ WS_DLL_PUBLIC tvbuff_t *tvb_child_uncompress_lznt1(tvbuff_t *parent,
  */
 extern tvbuff_t* base64_to_tvb(tvbuff_t *parent, const char *base64);
 
+
+/** Return a tvb that contains the binary representation of a base64
+ *  encoded string in the parent tvb as a child of the indicated tvb.
+ *
+ * @param parent The parent tvbuff.
+ * @param offset Start of the base64 string in the tvb
+ * @param offset Length of the base64 string in the tvb
+ *
+ * @return   A tvb with the binary representation of the base64 decoded string.
+ */
+extern tvbuff_t* base64_tvb_to_new_tvb(tvbuff_t* parent, int offset, int length);
+
 /**
  * Extract a variable length integer from a tvbuff.
  * Each byte in a varint, except the last byte, has the most significant bit (msb)
