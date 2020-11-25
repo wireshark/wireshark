@@ -1442,18 +1442,18 @@ cap_pipe_read_data_bytes(capture_src *pcap_src, char *errmsg, size_t errmsgl)
             if (b <= 0) {
                 if (b == 0) {
                     g_snprintf(errmsg, (gulong)errmsgl,
-                               "End of file on pipe during cap_pipe_read.");
+                               "End of file reading from pipe or socket.");
                     pcap_src->cap_pipe_err = PIPEOF;
                 } else {
 #ifdef _WIN32
                     DWORD lastError = WSAGetLastError();
                     errno = lastError;
                     g_snprintf(errmsg, (gulong)errmsgl,
-                               "Error on pipe data during cap_pipe_read: %s.",
+                               "Error reading from pipe or socket: %s.",
                                win32strerror(lastError));
 #else
                     g_snprintf(errmsg, (gulong)errmsgl,
-                               "Error on pipe data during cap_pipe_read: %s.",
+                               "Error reading from pipe or socket: %s.",
                                g_strerror(errno));
 #endif
                     pcap_src->cap_pipe_err = PIPERR;
@@ -1543,7 +1543,7 @@ cap_pipe_open_live(char *pipename,
             else {
                 g_snprintf(errmsg, (gulong)errmsgl,
                            "The capture session could not be initiated "
-                           "due to error getting information on pipe/socket: %s.", g_strerror(errno));
+                           "due to error getting information on pipe or socket: %s.", g_strerror(errno));
                 pcap_src->cap_pipe_err = PIPERR;
             }
             return;
@@ -1995,11 +1995,14 @@ pcapng_read_shb(capture_src *pcap_src,
         if (pcap_src->cap_pipe_bytes_read <= 0) {
             if (pcap_src->cap_pipe_bytes_read == 0)
                 g_snprintf(errmsg, (gulong)errmsgl,
-                           "End of file on pipe section header during open.");
-            else
+                           "End of file reading from pipe or socket.");
+            else {
+                DWORD lastError = WSAGetLastError();
+                errno = lastError;
                 g_snprintf(errmsg, (gulong)errmsgl,
-                           "Error on pipe section header during open: %s.",
-                           g_strerror(errno));
+                           "Error reading from pipe or socket: %s.",
+                           win32strerror(lastError));
+            }
             return -1;
         }
         /* Continuing with STATE_EXPECT_DATA requires reading into cap_pipe_databuf at offset cap_pipe_bytes_read */
@@ -2208,11 +2211,14 @@ pcapng_pipe_open_live(int fd,
         if (pcap_src->cap_pipe_bytes_read <= 0) {
             if (pcap_src->cap_pipe_bytes_read == 0)
                 g_snprintf(errmsg, (gulong)errmsgl,
-                           "End of file on pipe block_total_length during open.");
-            else
+                           "End of file reading from pipe or socket.");
+            else {
+                DWORD lastError = WSAGetLastError();
+                errno = lastError;
                 g_snprintf(errmsg, (gulong)errmsgl,
-                           "Error on pipe block_total_length during open: %s.",
-                           g_strerror(errno));
+                           "Error reading from pipe or socket: %s.",
+                           win32strerror(lastError));
+            }
             goto error;
         }
         pcap_src->cap_pipe_bytes_read = sizeof(pcapng_block_header_t);
@@ -2220,6 +2226,12 @@ pcapng_pipe_open_live(int fd,
         pcap_src->cap_pipe_fd = fd;
     }
 #endif
+    if ((bh->block_total_length & 0x03) != 0) {
+        g_snprintf(errmsg, (gulong)errmsgl,
+                   "block_total_length read from pipe is %u, which is not a multiple of 4.",
+                   bh->block_total_length);
+        goto error;
+    }
     if (pcapng_read_shb(pcap_src, errmsg, errmsgl)) {
         goto error;
     }
@@ -2638,6 +2650,12 @@ pcapng_pipe_dispatch(loop_data *ld, capture_src *pcap_src, char *errmsg, size_t 
             return 1;
         }
 
+        if ((bh->block_total_length & 0x03) != 0) {
+            g_snprintf(errmsg, (gulong)errmsgl,
+                       "Total length of pcapng block read from pipe is %u, which is not a multiple of 4.",
+                       bh->block_total_length);
+            break;
+        }
         if (bh->block_total_length > pcap_src->cap_pipe_max_pkt_size) {
             /*
             * The record contains more data than the advertised/allowed in the
