@@ -1784,8 +1784,6 @@ cap_pipe_open_live(char *pipename,
         pcap_src->cap_pipe_info.pcap.byte_swapped = FALSE;
         pcap_src->cap_pipe_modified = FALSE;
         pcap_src->ts_nsec = magic == PCAP_NSEC_MAGIC;
-        pcap_pipe_open_live(fd, pcap_src, (struct pcap_hdr *) hdr, errmsg, errmsgl,
-                            secondary_errmsg, secondary_errmsgl);
         break;
     case PCAP_MODIFIED_MAGIC:
         /* This is a pcap file.
@@ -1793,8 +1791,6 @@ cap_pipe_open_live(char *pipename,
            a program using either ss990915 or ss991029 libpcap. */
         pcap_src->cap_pipe_info.pcap.byte_swapped = FALSE;
         pcap_src->cap_pipe_modified = TRUE;
-        pcap_pipe_open_live(fd, pcap_src, (struct pcap_hdr *) hdr, errmsg, errmsgl,
-                            secondary_errmsg, secondary_errmsgl);
         break;
     case PCAP_SWAPPED_MAGIC:
     case PCAP_SWAPPED_NSEC_MAGIC:
@@ -1805,8 +1801,6 @@ cap_pipe_open_live(char *pipename,
         pcap_src->cap_pipe_info.pcap.byte_swapped = TRUE;
         pcap_src->cap_pipe_modified = FALSE;
         pcap_src->ts_nsec = magic == PCAP_SWAPPED_NSEC_MAGIC;
-        pcap_pipe_open_live(fd, pcap_src, (struct pcap_hdr *) hdr, errmsg, errmsgl,
-                            secondary_errmsg, secondary_errmsgl);
         break;
     case PCAP_SWAPPED_MODIFIED_MAGIC:
         /* This is a pcap file.
@@ -1815,8 +1809,6 @@ cap_pipe_open_live(char *pipename,
            or ss991029 libpcap. */
         pcap_src->cap_pipe_info.pcap.byte_swapped = TRUE;
         pcap_src->cap_pipe_modified = TRUE;
-        pcap_pipe_open_live(fd, pcap_src, (struct pcap_hdr *) hdr, errmsg, errmsgl,
-                            secondary_errmsg, secondary_errmsgl);
         break;
     case BLOCK_TYPE_SHB:
         /* This is a pcapng file. */
@@ -1824,7 +1816,6 @@ cap_pipe_open_live(char *pipename,
         pcap_src->cap_pipe_dispatch = pcapng_pipe_dispatch;
         pcap_src->cap_pipe_info.pcapng.src_iface_to_global = g_array_new(FALSE, FALSE, sizeof(guint32));
         global_capture_opts.use_pcapng = TRUE;      /* we can only output in pcapng format */
-        pcapng_pipe_open_live(fd, pcap_src, errmsg, errmsgl);
         break;
     default:
         /* Not a pcapng file, and either not a pcap type we know about
@@ -1835,6 +1826,12 @@ cap_pipe_open_live(char *pipename,
                    not_our_bug);
         goto error;
     }
+
+    if (pcap_src->from_pcapng)
+        pcapng_pipe_open_live(fd, pcap_src, errmsg, errmsgl);
+    else
+        pcap_pipe_open_live(fd, pcap_src, (struct pcap_hdr *) hdr, errmsg, errmsgl,
+                            secondary_errmsg, secondary_errmsgl);
 
     return;
 
