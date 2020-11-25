@@ -19725,7 +19725,7 @@ ieee80211_tag_country_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
                       tvb, offset, 1, ENC_LITTLE_ENDIAN);
   proto_item_append_text(field_data->item_tag, ", Environment %s",
                          val_to_str(tvb_get_guint8(tvb, offset),
-                                    environment_vals, "Unknown (0x%02x)"));
+                                    environment_vals, "0x%02x"));
   offset += 1;
 
   while (offset < tag_len) {
@@ -32742,7 +32742,7 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_tag_country_info_env,
      {"Environment", "wlan.country_info.environment",
-      FT_UINT8, BASE_HEX, VALS(environment_vals), 0x0,
+      FT_UINT8, BASE_DEC|BASE_SPECIAL_VALS, VALS(environment_vals), 0x0,
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_country_info_pad,
