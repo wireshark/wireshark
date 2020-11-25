@@ -3010,7 +3010,8 @@ capture_loop_init_filter(pcap_t *pcap_h, gboolean from_cap_pipe,
  * Called from capture_loop_init_output and do_file_switch_or_stop.
  */
 static gboolean
-capture_loop_init_pcapng_output(capture_options *capture_opts, loop_data *ld)
+capture_loop_init_pcapng_output(capture_options *capture_opts, loop_data *ld,
+                                int *err)
 {
     g_rw_lock_reader_lock (&ld->saved_shb_idb_lock);
 
@@ -3022,9 +3023,9 @@ capture_loop_init_pcapng_output(capture_options *capture_opts, loop_data *ld)
     }
 
     gboolean successful = TRUE;
-    int      err = 0;
     GString *os_info_str = g_string_new("");
 
+    *err = 0;
     get_os_version_info(os_info_str);
 
     if (ld->saved_shb) {
@@ -3034,7 +3035,7 @@ capture_loop_init_pcapng_output(capture_options *capture_opts, loop_data *ld)
 
         memcpy(&bh, ld->saved_shb, sizeof(pcapng_block_header_t));
 
-        successful = pcapng_write_block(ld->pdh, ld->saved_shb, bh.block_total_length, &ld->bytes_written, &err);
+        successful = pcapng_write_block(ld->pdh, ld->saved_shb, bh.block_total_length, &ld->bytes_written, err);
 
         g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "%s: wrote saved passthrough SHB %d", G_STRFUNC, successful);
     } else {
@@ -3048,7 +3049,7 @@ capture_loop_init_pcapng_output(capture_options *capture_opts, loop_data *ld)
                                                        get_appname_and_version(),
                                                        -1,                          /* section_length */
                                                        &ld->bytes_written,
-                                                       &err);
+                                                       err);
         g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "%s: wrote dumpcap SHB %d", G_STRFUNC, successful);
         g_string_free(cpu_info_str, TRUE);
     }
@@ -3084,7 +3085,7 @@ capture_loop_init_pcapng_output(capture_options *capture_opts, loop_data *ld)
                                                                   &global_ld.err);
             g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "%s: skipping deleted pcapng IDB %u", G_STRFUNC, i);
         } else if (idb_source.idb && idb_source.idb_len) {
-            successful = pcapng_write_block(global_ld.pdh, idb_source.idb, idb_source.idb_len, &ld->bytes_written, &err);
+            successful = pcapng_write_block(global_ld.pdh, idb_source.idb, idb_source.idb_len, &ld->bytes_written, err);
             g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "%s: wrote pcapng IDB %d", G_STRFUNC, successful);
         } else if (idb_source.interface_id < capture_opts->ifaces->len) {
             unsigned if_id = idb_source.interface_id;
@@ -3160,7 +3161,7 @@ capture_loop_init_output(capture_options *capture_opts, loop_data *ld, char *err
     if (ld->pdh) {
         gboolean successful;
         if (capture_opts->use_pcapng) {
-            successful = capture_loop_init_pcapng_output(capture_opts, ld);
+            successful = capture_loop_init_pcapng_output(capture_opts, ld, &err);
         } else {
             capture_src *pcap_src;
             pcap_src = g_array_index(ld->pcaps, capture_src *, 0);
@@ -3688,7 +3689,7 @@ do_file_switch_or_stop(capture_options *capture_opts)
             global_ld.bytes_written = 0;
             global_ld.packets_written = 0;
             if (capture_opts->use_pcapng) {
-                successful = capture_loop_init_pcapng_output(capture_opts, &global_ld);
+                successful = capture_loop_init_pcapng_output(capture_opts, &global_ld, &global_ld.err);
             } else {
                 capture_src *pcap_src;
                 pcap_src = g_array_index(global_ld.pcaps, capture_src *, 0);
