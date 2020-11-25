@@ -20,15 +20,17 @@
 
 ## Sample capture file
 
-(If possible attach a sample capture file showing this issue)
+(If possible attach a sample capture file, not screenshot of dissection, showing this issue)
 
 
 ## Relevant logs and/or screenshots
 ```
-(Paste any relevant logs)
+(Paste any relevant logs here)
 ```
+(Paste any relevant screenshots here)
 
 ## Build information
 ```
-(In Wireshark, select Help->About Wireshark from the main menu and use the button "Copy To Clipboard". Please paste the complete output here. Or from the command line, run `tshark -v` or `wireshark -v`)
+(In Wireshark, select Help->About Wireshark from the main menu and use the button "Copy To Clipboard".
+Please paste the complete output here. Or from the command line, run `tshark -v` or `wireshark -v`)
 ```

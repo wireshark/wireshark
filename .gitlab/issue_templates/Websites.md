@@ -15,8 +15,10 @@
 
 ## Relevant logs and/or screenshots
 ```
-(Paste any relevant logs or screenshots)
+(Paste any relevant logs here)
 ```
+(Paste any relevant screenshots here)
+
 
 ## Additional information
 
