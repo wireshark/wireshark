@@ -2738,7 +2738,8 @@ pcapng_pipe_dispatch(loop_data *ld, capture_src *pcap_src, char *errmsg, size_t 
     return -1;
 }
 
-/** Open the capture input file (pcap or capture pipe).
+/** Open the capture input sources; each one is either a pcap device,
+ *  a capture pipe, or a capture socket.
  *  Returns TRUE if it succeeds, FALSE otherwise. */
 static gboolean
 capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
@@ -2921,7 +2922,16 @@ capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
             pcapng_src_count++;
         }
     }
+
+    /*
+     * Are we capturing from one source that is providing pcapng
+     * information?
+     */
     if (capture_opts->ifaces->len == 1 && pcapng_src_count == 1) {
+        /*
+         * Yes; pass through SHBs and IDBs from the source, rather
+         * than generating our own.
+         */
         ld->pcapng_passthrough = TRUE;
         g_rw_lock_writer_lock (&ld->saved_shb_idb_lock);
         g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "%s: Clearing %u interfaces for passthrough",
