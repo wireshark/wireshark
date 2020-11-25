@@ -1969,7 +1969,7 @@ error:
 }
 
 /*
- * Read the fixed portion of the pcapng section header block
+ * Synchronously read the fixed portion of the pcapng section header block
  * (we've already read the pcapng block header).
  */
 static int
