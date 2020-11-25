@@ -86,6 +86,7 @@ static int hf_catapult_dct2000_rlc_mui = -1;
 static int hf_catapult_dct2000_rlc_cnf = -1;
 static int hf_catapult_dct2000_rlc_discard_req = -1;
 static int hf_catapult_dct2000_carrier_type = -1;
+static int hf_catapult_dct2000_cell_group = -1;
 static int hf_catapult_dct2000_carrier_id = -1;
 
 static int hf_catapult_dct2000_lte_ccpri_opcode = -1;
@@ -288,8 +289,10 @@ enum LTE_or_NR {
 };
 
 static const value_string carrier_type_vals[] = {
-    { 1,        "LTE"},
-    { 2,        "NR"},
+    { 0,        "LTE"},
+    { 1,        "CatM"},
+    { 2,        "NBIoT"},
+    { 3,        "NR"},
     { 0,     NULL}
 };
 
@@ -306,6 +309,7 @@ static dissector_handle_t mac_lte_handle;
 static dissector_handle_t rlc_lte_handle;
 static dissector_handle_t pdcp_lte_handle;
 static dissector_handle_t catapult_dct2000_handle;
+static dissector_handle_t nrup_handle;
 
 static dissector_handle_t look_for_dissector(const char *protocol_name);
 static guint parse_outhdr_string(const guchar *outhdr_string, gint outhdr_length, guint *outhdr_values);
@@ -999,15 +1003,21 @@ static void dissect_rrc_lte_nr(tvbuff_t *tvb, gint offset,
         offset++;
     }
 
-
     /* Optional Carrier Type */
     if (tvb_get_guint8(tvb, offset)==0x20) {
-        offset++;
+        offset += 2;
         proto_tree_add_item(tree, hf_catapult_dct2000_carrier_type,
                             tvb, offset, 1, ENC_BIG_ENDIAN);
-        offset += (1+tvb_get_guint8(tvb, offset));
+        offset++;
     }
 
+    /* Optional Cell Group */
+    if (tvb_get_guint8(tvb, offset)==0x22) {
+        offset += 2;
+        proto_tree_add_item(tree, hf_catapult_dct2000_cell_group,
+                            tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset++;
+    }
 
     if (opcode == 0x07) {
         /* Data_Ind_UE_SM - 1 byte MAC */
@@ -2222,6 +2232,20 @@ static void check_for_oob_mac_lte_events(packet_info *pinfo, tvbuff_t *tvb, prot
     call_dissector_only(mac_lte_handle, tvb, pinfo, tree, NULL);
 }
 
+static guint8
+hex_from_char(gchar c)
+{
+    if ((c >= '0') && (c <= '9')) {
+        return c - '0';
+    }
+
+    if ((c >= 'a') && (c <= 'f')) {
+        return 0x0a + (c - 'a');
+    }
+
+    /* Not a valid hex string character */
+    return 0xff;
+}
 
 /*****************************************/
 /* Main dissection function.             */
@@ -2711,6 +2735,44 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
                                           "%s", string);
                 }
 
+
+                /* Look for logged NRUP PDU */
+                const char *nrup_pattern = "NRUP PDU: ";
+                char *start = strstr(string, nrup_pattern);
+                if (start) {
+                    int off = 0;
+
+                    while (start[off] && start[off] != '$') {
+                        off++;
+                    }
+
+                    const char *payload = &start[off+1];
+
+                    /* Convert data to hex. */
+                    #define MAX_NRUP_DATA_LENGTH 200
+                    static guint8 nrup_data[MAX_NRUP_DATA_LENGTH];
+                    int idx, m;
+
+                    /* The rest (or all) is data! */
+                    int length = (int)strlen(payload) / 2;
+                    for (m=0, idx=0; payload[m] != '\0' && idx < MAX_NRUP_DATA_LENGTH-4; m+=2, idx++) {
+                        nrup_data[idx] = (hex_from_char(payload[m]) << 4) + hex_from_char(payload[m+1]);
+                    }
+                    /* Pad out to nearest 4 bytes if necessary. */
+                    if (length % 4 != 0) {
+                        for (int p=length % 4; p < 4; p++) {
+                            nrup_data[length++] = '\0';
+                        }
+                    }
+
+                    /* Create separate NRUP tvb */
+                    tvbuff_t *nrup_tvb = tvb_new_real_data(nrup_data, length, length);
+                    add_new_data_source(pinfo, nrup_tvb, "NRUP Payload");
+
+                    /* Call the dissector! */
+                    call_dissector_only(nrup_handle, nrup_tvb, pinfo, tree, NULL);
+                }
+
                 return tvb_captured_length(tvb);
             }
 
@@ -3100,6 +3162,8 @@ void proto_reg_handoff_catapult_dct2000(void)
     mac_lte_handle = find_dissector("mac-lte");
     rlc_lte_handle = find_dissector("rlc-lte");
     pdcp_lte_handle = find_dissector("pdcp-lte");
+
+    nrup_handle = find_dissector("nrup");
 }
 
 /****************************************/
@@ -3385,7 +3449,13 @@ void proto_register_catapult_dct2000(void)
         },
         { &hf_catapult_dct2000_carrier_type,
             { "Carrier Type",
-              "dct2000.carrier-type", FT_UINT8, BASE_NONE, VALS(carrier_type_vals), 0x0,
+              "dct2000.carrier-type", FT_UINT8, BASE_DEC, VALS(carrier_type_vals), 0x0,
+              NULL, HFILL
+            }
+        },
+        { &hf_catapult_dct2000_cell_group,
+            { "Cell Group",
+              "dct2000.cell-group", FT_UINT8, BASE_DEC, NULL, 0x0,
               NULL, HFILL
             }
         },
@@ -3523,8 +3593,7 @@ void proto_register_catapult_dct2000(void)
               "dct2000.number-of-padding-bits", FT_UINT8, BASE_DEC, NULL, 0x0,
               NULL, HFILL
             }
-        },
-
+        }
     };
 
     static gint *ett[] =
