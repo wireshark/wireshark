@@ -1401,7 +1401,8 @@ cap_pipe_close(int pipe_fd, gboolean from_socket)
 #endif
 }
 
-/** Read bytes from a capture source, which is assumed to be a pipe.
+/** Read bytes from a capture source, which is assumed to be a pipe or
+ * socket.
  *
  * Returns -1, or the number of bytes read similar to read(2).
  * Sets pcap_src->cap_pipe_err on error or EOF.
@@ -1446,6 +1447,9 @@ cap_pipe_read_data_bytes(capture_src *pcap_src, char *errmsg, size_t errmsgl)
                     pcap_src->cap_pipe_err = PIPEOF;
                 } else {
 #ifdef _WIN32
+                    /*
+                     * On Windows, we only do this for sockets.
+                     */
                     DWORD lastError = WSAGetLastError();
                     errno = lastError;
                     g_snprintf(errmsg, (gulong)errmsgl,
@@ -1996,13 +2000,10 @@ pcapng_read_shb(capture_src *pcap_src,
             if (pcap_src->cap_pipe_bytes_read == 0)
                 g_snprintf(errmsg, (gulong)errmsgl,
                            "End of file reading from pipe or socket.");
-            else {
-                DWORD lastError = WSAGetLastError();
-                errno = lastError;
+            else
                 g_snprintf(errmsg, (gulong)errmsgl,
                            "Error reading from pipe or socket: %s.",
-                           win32strerror(lastError));
-            }
+                           g_strerror(errno));
             return -1;
         }
         /* Continuing with STATE_EXPECT_DATA requires reading into cap_pipe_databuf at offset cap_pipe_bytes_read */
@@ -2212,13 +2213,10 @@ pcapng_pipe_open_live(int fd,
             if (pcap_src->cap_pipe_bytes_read == 0)
                 g_snprintf(errmsg, (gulong)errmsgl,
                            "End of file reading from pipe or socket.");
-            else {
-                DWORD lastError = WSAGetLastError();
-                errno = lastError;
+            else
                 g_snprintf(errmsg, (gulong)errmsgl,
                            "Error reading from pipe or socket: %s.",
-                           win32strerror(lastError));
-            }
+                           g_strerror(errno));
             goto error;
         }
         pcap_src->cap_pipe_bytes_read = sizeof(pcapng_block_header_t);
