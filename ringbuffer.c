@@ -152,6 +152,7 @@ static int ringbuf_exec_compress(gchar* name)
   buffer = (guint8*)g_malloc(FS_READ_SIZE);
   if (buffer == NULL) {
     ws_close(fd);
+    gzclose(fi);
     return -1;
   }
 
