@@ -29,6 +29,7 @@
 
 #include "packet-http.h"
 #include "packet-acdr.h"
+#include "packet-gtpv2.h"
 
 void proto_register_json(void);
 void proto_reg_handoff_json(void);
@@ -37,6 +38,7 @@ static char *json_string_unescape(tvbparse_elem_t *tok);
 static dissector_handle_t json_handle;
 
 static int proto_json = -1;
+static int proto_json_3gpp = -1;
 
 //Used to get AC DR proto data
 static int proto_acdr = -1;
@@ -50,6 +52,7 @@ static gint ett_json_compact = -1;
 static gint ett_json_array_compact = -1;
 static gint ett_json_object_compact = -1;
 static gint ett_json_member_compact = -1;
+static gint ett_json_ueepspdnconnection = -1;
 
 static header_field_info *hfi_json = NULL;
 
@@ -95,6 +98,27 @@ static header_field_info hfi_json_member_compact JSON_HFI_INIT =
 static header_field_info hfi_json_array_item_compact JSON_HFI_INIT =
 	{ "Array item compact", "json.array_item_compact", FT_NONE, BASE_NONE, NULL, 0x00, "JSON array item compact", HFILL };
 
+static header_field_info hfi_json_binary_data_compact JSON_HFI_INIT =
+	{ "Binary data compact", "json.binary_data_compact", FT_BYTES, BASE_NONE, NULL, 0x00, "JSON binary data compact", HFILL };
+
+static int hf_json_3gpp_ueepspdnconnection = -1;
+
+/* json data decoding function XXXX only works for the compact form.
+ * Callback function to further dissect jason data
+ * The first implementation is a 3GPP json element which carry an Base64 encoded GTPv2 IE
+ * https://www.etsi.org/deliver/etsi_ts/129500_129599/129502/15.01.00_60/ts_129502v150100p.pdf
+ */
+typedef void(*jason_data_decoder_func)(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo, int offset, int len);
+
+/* A struct to hold the hf and callback function stored in a hastable with the jason key as key.
+ * If the callback is null NULL the filter will be used useful to create filterable items in json.
+ * XXX Todo: Implement hte UAT from the http dissector to enable the users to create filters? and/or
+ * read config from file, similar to Diameter(filter only)?
+ */
+typedef struct {
+	int *hf_id;
+	jason_data_decoder_func jason_data_decoder;
+} jason_data_decoder_t;
 
 /* Preferences */
 static gboolean json_compact = FALSE;
@@ -125,6 +149,7 @@ typedef struct {
 									Top item: -3.
 									Object: < 0.
 									Array -1: no key, -2: has key  */
+	packet_info* pinfo;
 } json_parser_data_t;
 
 #define JSON_COMPACT_TOP_ITEM -3
@@ -166,6 +191,8 @@ dissect_json(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 	const char *data_name;
 	int offset;
 
+	/* Save pinfo*/
+	parser_data.pinfo = pinfo;
 	/* JSON dissector can be called in a JSON native file or when transported
 	 * by another protocol, will make entry in the Protocol column on summary display accordingly
 	 */
@@ -318,6 +345,33 @@ static void after_object(void *tvbparse_data, const void *wanted_data _U_, tvbpa
 	}
 }
 
+static GHashTable* header_fields_hash = NULL;
+
+static proto_item*
+json_key_lookup(proto_tree* tree, tvbparse_elem_t* tok, char* key_str, packet_info* pinfo)
+{
+	proto_item* ti;
+	int hf_id = -1;
+	header_field_info* hfi;
+	int str_len = (int)strlen(key_str);
+
+	jason_data_decoder_t* jason_data_decoder_rec = (jason_data_decoder_t *)g_hash_table_lookup(header_fields_hash, key_str);
+	if (jason_data_decoder_rec == NULL) {
+		return NULL;
+	}
+
+	hf_id = *jason_data_decoder_rec->hf_id;
+
+	hfi = proto_registrar_get_nth(hf_id);
+	DISSECTOR_ASSERT(hfi != NULL);
+
+	ti = proto_tree_add_item(tree, hfi, tok->tvb, tok->offset + (4 + str_len), tok->len - (5 + str_len), ENC_NA);
+	if (jason_data_decoder_rec->jason_data_decoder) {
+		(*jason_data_decoder_rec->jason_data_decoder)(tok->tvb, tree, pinfo, tok->offset + (4 + str_len), tok->len - (5 + str_len));
+	}
+	return ti;
+
+}
 static void before_member(void *tvbparse_data, const void *wanted_data _U_, tvbparse_elem_t *tok) {
 	json_parser_data_t *data = (json_parser_data_t *) tvbparse_data;
 
@@ -333,13 +387,16 @@ static void before_member(void *tvbparse_data, const void *wanted_data _U_, tvbp
 	if (json_compact) {
 		proto_tree *tree_compact = (proto_tree *)wmem_stack_peek(data->stack_compact);
 		proto_tree *subtree_compact;
-		proto_item *ti_compact;
+		proto_item *ti_compact = NULL;
 
 		tvbparse_elem_t *key_tok = tok->sub;
 
 		if (key_tok && key_tok->id == JSON_TOKEN_STRING) {
 			char *key_str = json_string_unescape(key_tok);
-			ti_compact = proto_tree_add_none_format(tree_compact, &hfi_json_member_compact, tok->tvb, tok->offset, tok->len, "%s:", key_str);
+			ti_compact = json_key_lookup(tree_compact, tok, key_str, data->pinfo);
+			if (!ti_compact) {
+				ti_compact = proto_tree_add_none_format(tree_compact, &hfi_json_member_compact, tok->tvb, tok->offset, tok->len, "%s:", key_str);
+			}
 		} else {
 			ti_compact = proto_tree_add_item(tree_compact, &hfi_json_member_compact, tok->tvb, tok->offset, tok->len, ENC_NA);
 		}
@@ -421,7 +478,7 @@ json_tvb_memcpy_utf8(char *buf, tvbuff_t *tvb, int offset, int offset_max)
 	}
 
 	/* assume it's valid UTF-8 */
-	tvb_memcpy(tvb, buf + 1, offset + 1, len - 1);
+	tvb_memcpy(tvb, buf + 1, offset + 1, (size_t)len - 1);
 
 	if (!g_utf8_validate(buf, len, NULL)) {
 		*buf = '?';
@@ -433,7 +490,7 @@ json_tvb_memcpy_utf8(char *buf, tvbuff_t *tvb, int offset, int offset_max)
 
 static char *json_string_unescape(tvbparse_elem_t *tok)
 {
-	char *str = (char *)wmem_alloc(wmem_packet_scope(), tok->len - 1);
+	char *str = (char *)wmem_alloc(wmem_packet_scope(), (size_t)tok->len - 1);
 	int i, j;
 
 	j = 0;
@@ -779,6 +836,58 @@ dissect_json_acdr_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 	return FALSE;
 }
 
+/* Functions to sub dissect json content */
+static void
+dissect_ueepspdnconnection(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo, int offset, int len)
+{
+	/* base64-encoded characters, encoding the
+	 * UeEpsPdnConnection IE specified in Table 7.3.1-2 or Table
+	 * 7.3.6-2 of 3GPP TS 29.274 [16] for the N26 interface.
+	 */
+	proto_item* ti;
+	proto_tree* sub_tree;
+	tvbuff_t* bin_tvb = base64_tvb_to_new_tvb(tvb, offset, len);
+	add_new_data_source(pinfo, bin_tvb, "Base64 decoded");
+	ti = proto_tree_add_item(tree, &hfi_json_binary_data_compact, bin_tvb, 0, -1, ENC_NA);
+	sub_tree = proto_item_add_subtree(ti, ett_json_ueepspdnconnection);
+	dissect_gtpv2_ie_common(bin_tvb, NULL, sub_tree, 0, 0/* Message type 0, Reserved */, NULL);
+}
+
+static void
+register_static_headers(void) {
+
+	gchar* header_name;
+
+	header_fields_hash = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, g_free);
+
+	/* Here hf[x].hfinfo.name is a header method which is used as key
+	 * for matching ids while processing HTTP2 packets */
+	static hf_register_info hf[] = {
+		{
+			&hf_json_3gpp_ueepspdnconnection,
+			{"ueEpsPdnConnection", "json.3gpp.ueepspdnconnection",
+				FT_STRING, BASE_NONE, NULL, 0x0,
+				NULL, HFILL}
+		}
+	};
+	/* Hfs with functions */
+	header_name = g_strdup(hf[0].hfinfo.name);
+	jason_data_decoder_t* jason_data_decoder_rec = g_new(jason_data_decoder_t, 1);
+	jason_data_decoder_rec->hf_id = &hf[0].hfinfo.id;
+	jason_data_decoder_rec->jason_data_decoder = dissect_ueepspdnconnection;
+	g_hash_table_insert(header_fields_hash, header_name, jason_data_decoder_rec);
+
+#define JSON_NUM_HF_WITH_FUNCTION 1
+
+	//for (guint i = JSON_NUM_HF_WITH_FUNCTION; i < G_N_ELEMENTS(hf); ++i) {
+	//	header_name = g_strdup(hf[i].hfinfo.name);
+	//	jason_data_decoder_t *jason_data_decoder_rec = g_new(jason_data_decoder_t, 1);
+	//	jason_data_decoder_rec->hf_id = &hf[i].hfinfo.id;
+	//	jason_data_decoder_rec->jason_data_decoder = NULL;
+	//	g_hash_table_insert(header_fields_hash, header_name, jason_data_decoder_rec);
+	//}
+	proto_register_field_array(proto_json_3gpp, hf, G_N_ELEMENTS(hf));
+}
 
 
 void
@@ -792,7 +901,8 @@ proto_register_json(void)
 		&ett_json_compact,
 		&ett_json_array_compact,
 		&ett_json_object_compact,
-		&ett_json_member_compact
+		&ett_json_member_compact,
+		&ett_json_ueepspdnconnection,
 	};
 
 #ifndef HAVE_HFI_SECTION_INIT
@@ -810,6 +920,7 @@ proto_register_json(void)
 		&hfi_json_object_compact,
 		&hfi_json_member_compact,
 		&hfi_json_array_item_compact,
+		&hfi_json_binary_data_compact
 	};
 #endif
 
@@ -830,6 +941,12 @@ proto_register_json(void)
 		"Display JSON in compact form",
 		"Display JSON like in browsers devtool",
 		&json_compact);
+
+	proto_json_3gpp = proto_register_protocol("JSON 3GPP", "JSON_3GPP", "json_3gpp");
+
+	/* Fill hash table with static headers */
+	register_static_headers();
+
 }
 
 void
