@@ -5002,6 +5002,8 @@ de_nas_5gs_cmn_eap_msg(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
     if (eap_handle) {
         col_append_str(pinfo->cinfo, COL_PROTOCOL, "/");
         col_set_fence(pinfo->cinfo, COL_PROTOCOL);
+        col_append_str(pinfo->cinfo, COL_INFO, ", ");
+        col_set_fence(pinfo->cinfo, COL_INFO);
         call_dissector(eap_handle, tvb_new_subset_length(tvb, offset, len), pinfo, tree);
     }
 
