@@ -104,21 +104,21 @@ static header_field_info hfi_json_binary_data_compact JSON_HFI_INIT =
 static int hf_json_3gpp_ueepspdnconnection = -1;
 
 /* json data decoding function XXXX only works for the compact form.
- * Callback function to further dissect jason data
+ * Callback function to further dissect json data
  * The first implementation is a 3GPP json element which carry an Base64 encoded GTPv2 IE
  * https://www.etsi.org/deliver/etsi_ts/129500_129599/129502/15.01.00_60/ts_129502v150100p.pdf
  */
-typedef void(*jason_data_decoder_func)(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo, int offset, int len);
+typedef void(*json_data_decoder_func)(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo, int offset, int len);
 
-/* A struct to hold the hf and callback function stored in a hastable with the jason key as key.
+/* A struct to hold the hf and callback function stored in a hastable with the json key as key.
  * If the callback is null NULL the filter will be used useful to create filterable items in json.
  * XXX Todo: Implement hte UAT from the http dissector to enable the users to create filters? and/or
  * read config from file, similar to Diameter(filter only)?
  */
 typedef struct {
 	int *hf_id;
-	jason_data_decoder_func jason_data_decoder;
-} jason_data_decoder_t;
+	json_data_decoder_func json_data_decoder;
+} json_data_decoder_t;
 
 /* Preferences */
 static gboolean json_compact = FALSE;
@@ -355,19 +355,19 @@ json_key_lookup(proto_tree* tree, tvbparse_elem_t* tok, char* key_str, packet_in
 	header_field_info* hfi;
 	int str_len = (int)strlen(key_str);
 
-	jason_data_decoder_t* jason_data_decoder_rec = (jason_data_decoder_t *)g_hash_table_lookup(header_fields_hash, key_str);
-	if (jason_data_decoder_rec == NULL) {
+	json_data_decoder_t* json_data_decoder_rec = (json_data_decoder_t *)g_hash_table_lookup(header_fields_hash, key_str);
+	if (json_data_decoder_rec == NULL) {
 		return NULL;
 	}
 
-	hf_id = *jason_data_decoder_rec->hf_id;
+	hf_id = *json_data_decoder_rec->hf_id;
 
 	hfi = proto_registrar_get_nth(hf_id);
 	DISSECTOR_ASSERT(hfi != NULL);
 
 	ti = proto_tree_add_item(tree, hfi, tok->tvb, tok->offset + (4 + str_len), tok->len - (5 + str_len), ENC_NA);
-	if (jason_data_decoder_rec->jason_data_decoder) {
-		(*jason_data_decoder_rec->jason_data_decoder)(tok->tvb, tree, pinfo, tok->offset + (4 + str_len), tok->len - (5 + str_len));
+	if (json_data_decoder_rec->json_data_decoder) {
+		(*json_data_decoder_rec->json_data_decoder)(tok->tvb, tree, pinfo, tok->offset + (4 + str_len), tok->len - (5 + str_len));
 	}
 	return ti;
 
@@ -872,19 +872,19 @@ register_static_headers(void) {
 	};
 	/* Hfs with functions */
 	header_name = g_strdup(hf[0].hfinfo.name);
-	jason_data_decoder_t* jason_data_decoder_rec = g_new(jason_data_decoder_t, 1);
-	jason_data_decoder_rec->hf_id = &hf[0].hfinfo.id;
-	jason_data_decoder_rec->jason_data_decoder = dissect_ueepspdnconnection;
-	g_hash_table_insert(header_fields_hash, header_name, jason_data_decoder_rec);
+	json_data_decoder_t* json_data_decoder_rec = g_new(json_data_decoder_t, 1);
+	json_data_decoder_rec->hf_id = &hf[0].hfinfo.id;
+	json_data_decoder_rec->json_data_decoder = dissect_ueepspdnconnection;
+	g_hash_table_insert(header_fields_hash, header_name, json_data_decoder_rec);
 
 #define JSON_NUM_HF_WITH_FUNCTION 1
 
 	//for (guint i = JSON_NUM_HF_WITH_FUNCTION; i < G_N_ELEMENTS(hf); ++i) {
 	//	header_name = g_strdup(hf[i].hfinfo.name);
-	//	jason_data_decoder_t *jason_data_decoder_rec = g_new(jason_data_decoder_t, 1);
-	//	jason_data_decoder_rec->hf_id = &hf[i].hfinfo.id;
-	//	jason_data_decoder_rec->jason_data_decoder = NULL;
-	//	g_hash_table_insert(header_fields_hash, header_name, jason_data_decoder_rec);
+	//	json_data_decoder_t *json_data_decoder_rec = g_new(json_data_decoder_t, 1);
+	//	json_data_decoder_rec->hf_id = &hf[i].hfinfo.id;
+	//	json_data_decoder_rec->json_data_decoder = NULL;
+	//	g_hash_table_insert(header_fields_hash, header_name, json_data_decoder_rec);
 	//}
 	proto_register_field_array(proto_json_3gpp, hf, G_N_ELEMENTS(hf));
 }
