@@ -598,14 +598,12 @@ static const value_string dis_field_addr_numbering_plan_vals[] = {
 void
 dis_field_addr(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, guint32 *offset_p, const gchar *title)
 {
-    static gchar digit_table[] = {"0123456789*#abc\0"};
     proto_item  *item;
     proto_tree  *subtree;
     guint8       oct, nt_mp;
     guint32      offset;
     guint32      numdigocts;
     guint32      length, addrlength;
-    guint32      i, j;
     gchar       *addrstr;
 
     offset = *offset_p;
@@ -640,7 +638,6 @@ dis_field_addr(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, guint32 *off
     proto_tree_add_item(subtree, hf_gsm_sms_dis_field_addr_num_plan, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
-    j = 0;
     switch ((oct & 0x70) >> 4)
     {
     case 0x05: /* "Alphanumeric (coded according to 3GPP TS 23.038 GSM 7-bit default alphabet)" */
@@ -649,15 +646,7 @@ dis_field_addr(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, guint32 *off
                                                  (addrlength > MAX_ADDR_SIZE) ? MAX_ADDR_SIZE : addrlength);
         break;
     default:
-        addrstr = (gchar *)wmem_alloc(wmem_packet_scope(), numdigocts*2 + 1);
-        for (i = 0; i < numdigocts; i++)
-        {
-            oct = tvb_get_guint8(tvb, offset + i);
-
-            addrstr[j++] = digit_table[oct & 0x0f];
-            addrstr[j++] = digit_table[(oct & 0xf0) >> 4];
-        }
-        addrstr[j++] = '\0';
+        addrstr = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, numdigocts, ENC_KEYPAD_ABC_TBCD|ENC_NA);
         break;
     }
 
