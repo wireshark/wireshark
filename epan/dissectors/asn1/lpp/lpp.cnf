@@ -1,6 +1,6 @@
 # lpp.cnf
 # lpp conformation file
-# Copyright 2011-2019 Pascal Quantin
+# Copyright 2011-2020 Pascal Quantin
 
 #.OPT
 PER
@@ -50,6 +50,8 @@ Velocity_PDU
 #.END
 
 #.PDU
+BDS-DifferentialCorrections-r12
+BDS-GridModelParameter-r12
 DisplacementTimeStamp-r15
 Ellipsoid-Point
 Ellipsoid-PointWithUncertaintyCircle
@@ -57,6 +59,35 @@ EllipsoidArc
 EllipsoidPointWithAltitude
 EllipsoidPointWithAltitudeAndUncertaintyEllipsoid
 EllipsoidPointWithUncertaintyEllipse
+GLO-RTK-BiasInformation-r15
+GNSS-AcquisitionAssistance
+GNSS-AuxiliaryInformation
+GNSS-Almanac
+GNSS-DataBitAssistance
+GNSS-DifferentialCorrections
+GNSS-EarthOrientationParameters
+GNSS-IonosphericModel
+GNSS-NavigationModel
+GNSS-RealTimeIntegrity
+GNSS-ReferenceTime
+GNSS-ReferenceLocation
+GNSS-RTK-AuxiliaryStationData-r15
+GNSS-RTK-CommonObservationInfo-r15
+GNSS-RTK-FKP-Gradients-r15
+GNSS-RTK-MAC-CorrectionDifferences-r15
+GNSS-RTK-Observations-r15
+GNSS-RTK-ReferenceStationInfo-r15
+GNSS-RTK-Residuals-r15
+GNSS-SSR-ClockCorrections-r15
+GNSS-SSR-CodeBias-r15
+GNSS-SSR-CorrectionPoints-r16
+GNSS-SSR-GriddedCorrection-r16
+GNSS-SSR-OrbitCorrections-r15
+GNSS-SSR-PhaseBias-r16
+GNSS-SSR-STEC-Correction-r16
+GNSS-SSR-URA-r16
+GNSS-TimeModelList
+GNSS-UTC-Model
 HorizontalVelocity
 HorizontalVelocityWithUncertainty
 HorizontalWithVerticalVelocity
@@ -64,9 +95,17 @@ LocationCoordinates
 LocationError
 LocationSource-r13
 LPP-Message
+NavIC-DifferentialCorrections-r16
+NavIC-GridModelParameter-r16
+NR-DL-PRS-AssistanceData-r16
+NR-UEB-TRP-LocationData-r16
+NR-UEB-TRP-RTD-Info-r16
+OTDOA-UE-Assisted-r15
 Polygon
+Sensor-AssistanceDataList-r14
 Sensor-MeasurementInformation-r13
 Sensor-MotionInformation-r15
+TBS-AssistanceDataList-r14
 Velocity
 #.END
 
@@ -1744,3 +1783,141 @@ BT-MeasurementElement-r13/btAddr-r13 TYPE=FT_ETHER DISPLAY=BASE_NONE
 
 #.TYPE_ATTR
 BT-MeasurementElement-r13/rssi-r13 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_dbm
+
+#.FN_HDR CipheringKeyData-r15
+  lpp_get_private_data(actx->pinfo)->is_ciphered = TRUE;
+
+#.FN_HDR SegmentationInfo-r15
+  lpp_get_private_data(actx->pinfo)->is_segmented = TRUE;
+
+#.FN_BODY AssistanceDataSIBelement-r15/assistanceDataElement-r15 VAL_PTR = &assist_data_sib_elem_tvb
+  tvbuff_t *assist_data_sib_elem_tvb = NULL;
+  struct lpp_private_data *lpp_data = lpp_get_private_data(actx->pinfo);
+
+%(DEFAULT_BODY)s
+
+  if (assist_data_sib_elem_tvb && !lpp_data->is_ciphered && !lpp_data->is_segmented) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_lpp_assistanceDataElement_r15);
+
+    switch (lpp_data->pos_sib_type) {
+    case LPP_POS_SIB_TYPE_1_1:
+      dissect_GNSS_ReferenceTime_PDU(assist_data_sib_elem_tvb, actx->pinfo, subtree, NULL);
+      break;
+    case LPP_POS_SIB_TYPE_1_2:
+      dissect_GNSS_ReferenceLocation_PDU(assist_data_sib_elem_tvb, actx->pinfo, subtree, NULL);
+      break;
+    case LPP_POS_SIB_TYPE_1_3:
+      dissect_GNSS_IonosphericModel_PDU(assist_data_sib_elem_tvb, actx->pinfo, subtree, NULL);
+      break;
+    case LPP_POS_SIB_TYPE_1_4:
+      dissect_GNSS_EarthOrientationParameters_PDU(assist_data_sib_elem_tvb, actx->pinfo, subtree, NULL);
+      break;
+    case LPP_POS_SIB_TYPE_1_5:
+      dissect_GNSS_RTK_ReferenceStationInfo_r15_PDU(assist_data_sib_elem_tvb, actx->pinfo, subtree, NULL);
+      break;
+    case LPP_POS_SIB_TYPE_1_6:
+      dissect_GNSS_RTK_CommonObservationInfo_r15_PDU(assist_data_sib_elem_tvb, actx->pinfo, subtree, NULL);
+      break;
+    case LPP_POS_SIB_TYPE_1_7:
+      dissect_GNSS_RTK_AuxiliaryStationData_r15_PDU(assist_data_sib_elem_tvb, actx->pinfo, subtree, NULL);
+      break;
+    case LPP_POS_SIB_TYPE_1_8:
+      dissect_GNSS_SSR_CorrectionPoints_r16_PDU(assist_data_sib_elem_tvb, actx->pinfo, subtree, NULL);
+      break;
+    case LPP_POS_SIB_TYPE_2_1:
+      dissect_GNSS_TimeModelList_PDU(assist_data_sib_elem_tvb, actx->pinfo, subtree, NULL);
+      break;
+    case LPP_POS_SIB_TYPE_2_2:
+      dissect_GNSS_DifferentialCorrections_PDU(assist_data_sib_elem_tvb, actx->pinfo, subtree, NULL);
+      break;
+    case LPP_POS_SIB_TYPE_2_3:
+      dissect_GNSS_NavigationModel_PDU(assist_data_sib_elem_tvb, actx->pinfo, subtree, NULL);
+      break;
+    case LPP_POS_SIB_TYPE_2_4:
+      dissect_GNSS_RealTimeIntegrity_PDU(assist_data_sib_elem_tvb, actx->pinfo, subtree, NULL);
+      break;
+    case LPP_POS_SIB_TYPE_2_5:
+      dissect_GNSS_DataBitAssistance_PDU(assist_data_sib_elem_tvb, actx->pinfo, subtree, NULL);
+      break;
+    case LPP_POS_SIB_TYPE_2_6:
+      dissect_GNSS_AcquisitionAssistance_PDU(assist_data_sib_elem_tvb, actx->pinfo, subtree, NULL);
+      break;
+    case LPP_POS_SIB_TYPE_2_7:
+      dissect_GNSS_Almanac_PDU(assist_data_sib_elem_tvb, actx->pinfo, subtree, NULL);
+      break;
+    case LPP_POS_SIB_TYPE_2_8:
+      dissect_GNSS_UTC_Model_PDU(assist_data_sib_elem_tvb, actx->pinfo, subtree, NULL);
+      break;
+    case LPP_POS_SIB_TYPE_2_9:
+      dissect_GNSS_AuxiliaryInformation_PDU(assist_data_sib_elem_tvb, actx->pinfo, subtree, NULL);
+      break;
+    case LPP_POS_SIB_TYPE_2_10:
+      dissect_BDS_DifferentialCorrections_r12_PDU(assist_data_sib_elem_tvb, actx->pinfo, subtree, NULL);
+      break;
+    case LPP_POS_SIB_TYPE_2_11:
+      dissect_BDS_GridModelParameter_r12_PDU(assist_data_sib_elem_tvb, actx->pinfo, subtree, NULL);
+      break;
+    case LPP_POS_SIB_TYPE_2_12:
+      dissect_GNSS_RTK_Observations_r15_PDU(assist_data_sib_elem_tvb, actx->pinfo, subtree, NULL);
+      break;
+    case LPP_POS_SIB_TYPE_2_13:
+      dissect_GLO_RTK_BiasInformation_r15_PDU(assist_data_sib_elem_tvb, actx->pinfo, subtree, NULL);
+      break;
+    case LPP_POS_SIB_TYPE_2_14:
+      dissect_GNSS_RTK_MAC_CorrectionDifferences_r15_PDU(assist_data_sib_elem_tvb, actx->pinfo, subtree, NULL);
+      break;
+    case LPP_POS_SIB_TYPE_2_15:
+      dissect_GNSS_RTK_Residuals_r15_PDU(assist_data_sib_elem_tvb, actx->pinfo, subtree, NULL);
+      break;
+    case LPP_POS_SIB_TYPE_2_16:
+      dissect_GNSS_RTK_FKP_Gradients_r15_PDU(assist_data_sib_elem_tvb, actx->pinfo, subtree, NULL);
+      break;
+    case LPP_POS_SIB_TYPE_2_17:
+      dissect_GNSS_SSR_OrbitCorrections_r15_PDU(assist_data_sib_elem_tvb, actx->pinfo, subtree, NULL);
+      break;
+    case LPP_POS_SIB_TYPE_2_18:
+      dissect_GNSS_SSR_ClockCorrections_r15_PDU(assist_data_sib_elem_tvb, actx->pinfo, subtree, NULL);
+      break;
+    case LPP_POS_SIB_TYPE_2_19:
+      dissect_GNSS_SSR_CodeBias_r15_PDU(assist_data_sib_elem_tvb, actx->pinfo, subtree, NULL);
+      break;
+    case LPP_POS_SIB_TYPE_2_20:
+      dissect_GNSS_SSR_URA_r16_PDU(assist_data_sib_elem_tvb, actx->pinfo, subtree, NULL);
+      break;
+    case LPP_POS_SIB_TYPE_2_21:
+      dissect_GNSS_SSR_PhaseBias_r16_PDU(assist_data_sib_elem_tvb, actx->pinfo, subtree, NULL);
+      break;
+    case LPP_POS_SIB_TYPE_2_22:
+      dissect_GNSS_SSR_STEC_Correction_r16_PDU(assist_data_sib_elem_tvb, actx->pinfo, subtree, NULL);
+      break;
+    case LPP_POS_SIB_TYPE_2_23:
+      dissect_GNSS_SSR_GriddedCorrection_r16_PDU(assist_data_sib_elem_tvb, actx->pinfo, subtree, NULL);
+      break;
+    case LPP_POS_SIB_TYPE_2_24:
+      dissect_NavIC_DifferentialCorrections_r16_PDU(assist_data_sib_elem_tvb, actx->pinfo, subtree, NULL);
+      break;
+    case LPP_POS_SIB_TYPE_2_25:
+      dissect_NavIC_GridModelParameter_r16_PDU(assist_data_sib_elem_tvb, actx->pinfo, subtree, NULL);
+      break;
+    case LPP_POS_SIB_TYPE_3_1:
+      dissect_OTDOA_UE_Assisted_r15_PDU(assist_data_sib_elem_tvb, actx->pinfo, subtree, NULL);
+      break;
+    case LPP_POS_SIB_TYPE_4_1:
+      dissect_Sensor_AssistanceDataList_r14_PDU(assist_data_sib_elem_tvb, actx->pinfo, subtree, NULL);
+      break;
+    case LPP_POS_SIB_TYPE_5_1:
+      dissect_TBS_AssistanceDataList_r14_PDU(assist_data_sib_elem_tvb, actx->pinfo, subtree, NULL);
+      break;
+    case LPP_POS_SIB_TYPE_6_1:
+      dissect_NR_DL_PRS_AssistanceData_r16_PDU(assist_data_sib_elem_tvb, actx->pinfo, subtree, NULL);
+      break;
+    case LPP_POS_SIB_TYPE_6_2:
+      dissect_NR_UEB_TRP_LocationData_r16_PDU(assist_data_sib_elem_tvb, actx->pinfo, subtree, NULL);
+      break;
+    case LPP_POS_SIB_TYPE_6_3:
+      dissect_NR_UEB_TRP_RTD_Info_r16_PDU(assist_data_sib_elem_tvb, actx->pinfo, subtree, NULL);
+      break;
+    default:
+      break;
+    }
+  }

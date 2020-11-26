@@ -1342,6 +1342,132 @@ WLAN-Identifiers-r16/hessid-r16 TYPE=FT_ETHER
 #.TYPE_ATTR
 VisitedCellInfo-r16/timeSpent-r16 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
 
+#.FN_HDR PosSystemInformation-r16-IEs/posSIB-TypeAndInfo-r16/_item
+  nr_rrc_get_private_data(actx)->pos_sib_type = LPP_POS_SIB_TYPE_UNKNOWN;
+
+#.FN_HDR PosSystemInformation-r16-IEs/posSIB-TypeAndInfo-r16/_item/posSib1-1-r16
+  nr_rrc_get_private_data(actx)->pos_sib_type = LPP_POS_SIB_TYPE_1_1;
+
+#.FN_HDR PosSystemInformation-r16-IEs/posSIB-TypeAndInfo-r16/_item/posSib1-2-r16
+  nr_rrc_get_private_data(actx)->pos_sib_type = LPP_POS_SIB_TYPE_1_2;
+
+#.FN_HDR PosSystemInformation-r16-IEs/posSIB-TypeAndInfo-r16/_item/posSib1-3-r16
+  nr_rrc_get_private_data(actx)->pos_sib_type = LPP_POS_SIB_TYPE_1_3;
+
+#.FN_HDR PosSystemInformation-r16-IEs/posSIB-TypeAndInfo-r16/_item/posSib1-4-r16
+  nr_rrc_get_private_data(actx)->pos_sib_type = LPP_POS_SIB_TYPE_1_4;
+
+#.FN_HDR PosSystemInformation-r16-IEs/posSIB-TypeAndInfo-r16/_item/posSib1-5-r16
+  nr_rrc_get_private_data(actx)->pos_sib_type = LPP_POS_SIB_TYPE_1_5;
+
+#.FN_HDR PosSystemInformation-r16-IEs/posSIB-TypeAndInfo-r16/_item/posSib1-6-r16
+  nr_rrc_get_private_data(actx)->pos_sib_type = LPP_POS_SIB_TYPE_1_6;
+
+#.FN_HDR PosSystemInformation-r16-IEs/posSIB-TypeAndInfo-r16/_item/posSib1-7-r16
+  nr_rrc_get_private_data(actx)->pos_sib_type = LPP_POS_SIB_TYPE_1_7;
+
+#.FN_HDR PosSystemInformation-r16-IEs/posSIB-TypeAndInfo-r16/_item/posSib1-8-r16
+  nr_rrc_get_private_data(actx)->pos_sib_type = LPP_POS_SIB_TYPE_1_8;
+
+#.FN_HDR PosSystemInformation-r16-IEs/posSIB-TypeAndInfo-r16/_item/posSib2-1-r16
+  nr_rrc_get_private_data(actx)->pos_sib_type = LPP_POS_SIB_TYPE_2_1;
+
+#.FN_HDR PosSystemInformation-r16-IEs/posSIB-TypeAndInfo-r16/_item/posSib2-2-r16
+  nr_rrc_get_private_data(actx)->pos_sib_type = LPP_POS_SIB_TYPE_2_2;
+
+#.FN_HDR PosSystemInformation-r16-IEs/posSIB-TypeAndInfo-r16/_item/posSib2-3-r16
+  nr_rrc_get_private_data(actx)->pos_sib_type = LPP_POS_SIB_TYPE_2_3;
+
+#.FN_HDR PosSystemInformation-r16-IEs/posSIB-TypeAndInfo-r16/_item/posSib2-4-r16
+  nr_rrc_get_private_data(actx)->pos_sib_type = LPP_POS_SIB_TYPE_2_4;
+
+#.FN_HDR PosSystemInformation-r16-IEs/posSIB-TypeAndInfo-r16/_item/posSib2-5-r16
+  nr_rrc_get_private_data(actx)->pos_sib_type = LPP_POS_SIB_TYPE_2_5;
+
+#.FN_HDR PosSystemInformation-r16-IEs/posSIB-TypeAndInfo-r16/_item/posSib2-6-r16
+  nr_rrc_get_private_data(actx)->pos_sib_type = LPP_POS_SIB_TYPE_2_6;
+
+#.FN_HDR PosSystemInformation-r16-IEs/posSIB-TypeAndInfo-r16/_item/posSib2-7-r16
+  nr_rrc_get_private_data(actx)->pos_sib_type = LPP_POS_SIB_TYPE_2_7;
+
+#.FN_HDR PosSystemInformation-r16-IEs/posSIB-TypeAndInfo-r16/_item/posSib2-8-r16
+  nr_rrc_get_private_data(actx)->pos_sib_type = LPP_POS_SIB_TYPE_2_8;
+
+#.FN_HDR PosSystemInformation-r16-IEs/posSIB-TypeAndInfo-r16/_item/posSib2-9-r16
+  nr_rrc_get_private_data(actx)->pos_sib_type = LPP_POS_SIB_TYPE_2_9;
+
+#.FN_HDR PosSystemInformation-r16-IEs/posSIB-TypeAndInfo-r16/_item/posSib2-10-r16
+  nr_rrc_get_private_data(actx)->pos_sib_type = LPP_POS_SIB_TYPE_2_10;
+
+#.FN_HDR PosSystemInformation-r16-IEs/posSIB-TypeAndInfo-r16/_item/posSib2-11-r16
+  nr_rrc_get_private_data(actx)->pos_sib_type = LPP_POS_SIB_TYPE_2_11;
+
+#.FN_HDR PosSystemInformation-r16-IEs/posSIB-TypeAndInfo-r16/_item/posSib2-12-r16
+  nr_rrc_get_private_data(actx)->pos_sib_type = LPP_POS_SIB_TYPE_2_12;
+
+#.FN_HDR PosSystemInformation-r16-IEs/posSIB-TypeAndInfo-r16/_item/posSib2-13-r16
+  nr_rrc_get_private_data(actx)->pos_sib_type = LPP_POS_SIB_TYPE_2_13;
+
+#.FN_HDR PosSystemInformation-r16-IEs/posSIB-TypeAndInfo-r16/_item/posSib2-14-r16
+  nr_rrc_get_private_data(actx)->pos_sib_type = LPP_POS_SIB_TYPE_2_14;
+
+#.FN_HDR PosSystemInformation-r16-IEs/posSIB-TypeAndInfo-r16/_item/posSib2-15-r16
+  nr_rrc_get_private_data(actx)->pos_sib_type = LPP_POS_SIB_TYPE_2_15;
+
+#.FN_HDR PosSystemInformation-r16-IEs/posSIB-TypeAndInfo-r16/_item/posSib2-16-r16
+  nr_rrc_get_private_data(actx)->pos_sib_type = LPP_POS_SIB_TYPE_2_16;
+
+#.FN_HDR PosSystemInformation-r16-IEs/posSIB-TypeAndInfo-r16/_item/posSib2-17-r16
+  nr_rrc_get_private_data(actx)->pos_sib_type = LPP_POS_SIB_TYPE_2_17;
+
+#.FN_HDR PosSystemInformation-r16-IEs/posSIB-TypeAndInfo-r16/_item/posSib2-18-r16
+  nr_rrc_get_private_data(actx)->pos_sib_type = LPP_POS_SIB_TYPE_2_18;
+
+#.FN_HDR PosSystemInformation-r16-IEs/posSIB-TypeAndInfo-r16/_item/posSib2-19-r16
+  nr_rrc_get_private_data(actx)->pos_sib_type = LPP_POS_SIB_TYPE_2_19;
+
+#.FN_HDR PosSystemInformation-r16-IEs/posSIB-TypeAndInfo-r16/_item/posSib2-20-r16
+  nr_rrc_get_private_data(actx)->pos_sib_type = LPP_POS_SIB_TYPE_2_20;
+
+#.FN_HDR PosSystemInformation-r16-IEs/posSIB-TypeAndInfo-r16/_item/posSib2-21-r16
+  nr_rrc_get_private_data(actx)->pos_sib_type = LPP_POS_SIB_TYPE_2_21;
+
+#.FN_HDR PosSystemInformation-r16-IEs/posSIB-TypeAndInfo-r16/_item/posSib2-22-r16
+  nr_rrc_get_private_data(actx)->pos_sib_type = LPP_POS_SIB_TYPE_2_22;
+
+#.FN_HDR PosSystemInformation-r16-IEs/posSIB-TypeAndInfo-r16/_item/posSib2-23-r16
+  nr_rrc_get_private_data(actx)->pos_sib_type = LPP_POS_SIB_TYPE_2_23;
+
+#.FN_HDR PosSystemInformation-r16-IEs/posSIB-TypeAndInfo-r16/_item/posSib3-1-r16
+  nr_rrc_get_private_data(actx)->pos_sib_type = LPP_POS_SIB_TYPE_3_1;
+
+#.FN_HDR PosSystemInformation-r16-IEs/posSIB-TypeAndInfo-r16/_item/posSib4-1-r16
+  nr_rrc_get_private_data(actx)->pos_sib_type = LPP_POS_SIB_TYPE_4_1;
+
+#.FN_HDR PosSystemInformation-r16-IEs/posSIB-TypeAndInfo-r16/_item/posSib5-1-r16
+  nr_rrc_get_private_data(actx)->pos_sib_type = LPP_POS_SIB_TYPE_5_1;
+
+#.FN_HDR PosSystemInformation-r16-IEs/posSIB-TypeAndInfo-r16/_item/posSib6-1-r16
+  nr_rrc_get_private_data(actx)->pos_sib_type = LPP_POS_SIB_TYPE_6_1;
+
+#.FN_HDR PosSystemInformation-r16-IEs/posSIB-TypeAndInfo-r16/_item/posSib6-2-r16
+  nr_rrc_get_private_data(actx)->pos_sib_type = LPP_POS_SIB_TYPE_6_2;
+
+#.FN_HDR PosSystemInformation-r16-IEs/posSIB-TypeAndInfo-r16/_item/posSib6-3-r16
+  nr_rrc_get_private_data(actx)->pos_sib_type = LPP_POS_SIB_TYPE_6_3;
+
+#.FN_BODY SIBpos-r16/assistanceDataSIB-Element-r16 VAL_PTR = &assist_data_sib_elem_tvb
+  tvbuff_t *assist_data_sib_elem_tvb = NULL;
+
+%(DEFAULT_BODY)s
+
+  if (assist_data_sib_elem_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_nr_rrc_assistanceDataSIB_Element_r16);
+
+    dissect_lpp_AssistanceDataSIBelement_r15_PDU(assist_data_sib_elem_tvb, actx->pinfo, subtree,
+                                                 nr_rrc_get_private_data(actx)->pos_sib_type);
+  }
+
 #.FN_BODY RLC-BearerConfig
   struct mac_nr_info *p_mac_nr_info;
   /* Get the struct and clear it out */

@@ -146,6 +146,7 @@ static gint ett_nr_rrc_sl_ParametersEUTRA1_r16 = -1;
 static gint ett_nr_rrc_sl_ParametersEUTRA2_r16 = -1;
 static gint ett_nr_rrc_sl_ParametersEUTRA3_r16 = -1;
 static gint ett_nr_rrc_absTimeInfo = -1;
+static gint ett_nr_rrc_assistanceDataSIB_Element_r16 = -1;
 
 static expert_field ei_nr_rrc_number_pages_le15 = EI_INIT;
 
@@ -164,6 +165,7 @@ typedef struct {
   guint8 warning_message_segment_type;
   guint8 warning_message_segment_number;
   nr_drb_mapping_t drb_mapping;
+  lpp_pos_sib_type_t pos_sib_type;
 } nr_rrc_private_data_t;
 
 /* Helper function to get or create a struct that will be actx->private_data */
@@ -725,7 +727,8 @@ proto_register_nr_rrc(void) {
     &ett_nr_rrc_sl_ParametersEUTRA1_r16,
     &ett_nr_rrc_sl_ParametersEUTRA2_r16,
     &ett_nr_rrc_sl_ParametersEUTRA3_r16,
-    &ett_nr_rrc_absTimeInfo
+    &ett_nr_rrc_absTimeInfo,
+    &ett_nr_rrc_assistanceDataSIB_Element_r16
   };
 
   static ei_register_info ei[] = {

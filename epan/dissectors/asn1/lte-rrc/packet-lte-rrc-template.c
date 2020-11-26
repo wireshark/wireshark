@@ -321,6 +321,7 @@ static gint ett_lte_rrc_ueAssistanceInformationNR_r16 = -1;
 static gint ett_lte_rrc_sl_ParameterNR_r16 = -1;
 static gint ett_lte_rrc_v2x_BandParametersNR_r16 = -1;
 static gint ett_lte_rrc_ueAssistanceInformationNR_SCG_r16 = -1;
+static gint ett_lte_rrc_assistanceDataSIB_Element_r15 = -1;
 
 static expert_field ei_lte_rrc_number_pages_le15 = EI_INIT;
 static expert_field ei_lte_rrc_si_info_value_changed = EI_INIT;
@@ -2740,6 +2741,7 @@ typedef struct lte_rrc_private_data_t
   meas_capabilities_item_band_mappings_t meas_capabilities_item_band_mappings;
   simult_pucch_pusch_cell_type cell_type;
   gboolean bcch_dl_sch_msg;
+  lpp_pos_sib_type_t pos_sib_type;
 } lte_rrc_private_data_t;
 
 /* Helper function to get or create a struct that will be actx->private_data */
@@ -2926,6 +2928,18 @@ static void private_data_set_bcch_dl_sch_msg(asn1_ctx_t *actx, gboolean is_bcch_
 {
   lte_rrc_private_data_t *private_data = (lte_rrc_private_data_t*)lte_rrc_get_private_data(actx);
   private_data->bcch_dl_sch_msg = is_bcch_dl_sch;
+}
+
+static lpp_pos_sib_type_t private_data_get_pos_sib_type(asn1_ctx_t *actx)
+{
+  lte_rrc_private_data_t *private_data = (lte_rrc_private_data_t*)lte_rrc_get_private_data(actx);
+  return private_data->pos_sib_type;
+}
+
+static void private_data_set_pos_sib_type(asn1_ctx_t *actx, lpp_pos_sib_type_t pos_sib_type)
+{
+  lte_rrc_private_data_t *private_data = (lte_rrc_private_data_t*)lte_rrc_get_private_data(actx);
+  private_data->pos_sib_type = pos_sib_type;
 }
 
 /*****************************************************************************/
@@ -4412,7 +4426,8 @@ void proto_register_lte_rrc(void) {
     &ett_lte_rrc_ueAssistanceInformationNR_r16,
     &ett_lte_rrc_sl_ParameterNR_r16,
     &ett_lte_rrc_v2x_BandParametersNR_r16,
-    &ett_lte_rrc_ueAssistanceInformationNR_SCG_r16
+    &ett_lte_rrc_ueAssistanceInformationNR_SCG_r16,
+    &ett_lte_rrc_assistanceDataSIB_Element_r15
   };
 
   static ei_register_info ei[] = {

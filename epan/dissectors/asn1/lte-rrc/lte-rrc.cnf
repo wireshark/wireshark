@@ -2955,6 +2955,129 @@ P0-SL-r12 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_dbm
     dissect_nr_rrc_UEAssistanceInformation_PDU(ue_assist_info_nr_tvb, actx->pinfo, subtree, NULL);
   }
 
+#.FN_HDR PosSystemInformation-r15-IEs/posSIB-TypeAndInfo-r15/_item
+  private_data_set_pos_sib_type(actx, LPP_POS_SIB_TYPE_UNKNOWN);
+
+#.FN_HDR PosSystemInformation-r15-IEs/posSIB-TypeAndInfo-r15/_item/posSib1-1-r15
+  private_data_set_pos_sib_type(actx, LPP_POS_SIB_TYPE_1_1);
+
+#.FN_HDR PosSystemInformation-r15-IEs/posSIB-TypeAndInfo-r15/_item/posSib1-2-r15
+  private_data_set_pos_sib_type(actx, LPP_POS_SIB_TYPE_1_2);
+
+#.FN_HDR PosSystemInformation-r15-IEs/posSIB-TypeAndInfo-r15/_item/posSib1-3-r15
+  private_data_set_pos_sib_type(actx, LPP_POS_SIB_TYPE_1_3);
+
+#.FN_HDR PosSystemInformation-r15-IEs/posSIB-TypeAndInfo-r15/_item/posSib1-4-r15
+  private_data_set_pos_sib_type(actx, LPP_POS_SIB_TYPE_1_4);
+
+#.FN_HDR PosSystemInformation-r15-IEs/posSIB-TypeAndInfo-r15/_item/posSib1-5-r15
+  private_data_set_pos_sib_type(actx, LPP_POS_SIB_TYPE_1_5);
+
+#.FN_HDR PosSystemInformation-r15-IEs/posSIB-TypeAndInfo-r15/_item/posSib1-6-r15
+  private_data_set_pos_sib_type(actx, LPP_POS_SIB_TYPE_1_6);
+
+#.FN_HDR PosSystemInformation-r15-IEs/posSIB-TypeAndInfo-r15/_item/posSib1-7-r15
+  private_data_set_pos_sib_type(actx, LPP_POS_SIB_TYPE_1_7);
+
+#.FN_HDR PosSystemInformation-r15-IEs/posSIB-TypeAndInfo-r15/_item/posSib2-1-r15
+  private_data_set_pos_sib_type(actx, LPP_POS_SIB_TYPE_2_1);
+
+#.FN_HDR PosSystemInformation-r15-IEs/posSIB-TypeAndInfo-r15/_item/posSib2-2-r15
+  private_data_set_pos_sib_type(actx, LPP_POS_SIB_TYPE_2_2);
+
+#.FN_HDR PosSystemInformation-r15-IEs/posSIB-TypeAndInfo-r15/_item/posSib2-3-r15
+  private_data_set_pos_sib_type(actx, LPP_POS_SIB_TYPE_2_3);
+
+#.FN_HDR PosSystemInformation-r15-IEs/posSIB-TypeAndInfo-r15/_item/posSib2-4-r15
+  private_data_set_pos_sib_type(actx, LPP_POS_SIB_TYPE_2_4);
+
+#.FN_HDR PosSystemInformation-r15-IEs/posSIB-TypeAndInfo-r15/_item/posSib2-5-r15
+  private_data_set_pos_sib_type(actx, LPP_POS_SIB_TYPE_2_5);
+
+#.FN_HDR PosSystemInformation-r15-IEs/posSIB-TypeAndInfo-r15/_item/posSib2-6-r15
+  private_data_set_pos_sib_type(actx, LPP_POS_SIB_TYPE_2_6);
+
+#.FN_HDR PosSystemInformation-r15-IEs/posSIB-TypeAndInfo-r15/_item/posSib2-7-r15
+  private_data_set_pos_sib_type(actx, LPP_POS_SIB_TYPE_2_7);
+
+#.FN_HDR PosSystemInformation-r15-IEs/posSIB-TypeAndInfo-r15/_item/posSib2-8-r15
+  private_data_set_pos_sib_type(actx, LPP_POS_SIB_TYPE_2_8);
+
+#.FN_HDR PosSystemInformation-r15-IEs/posSIB-TypeAndInfo-r15/_item/posSib2-9-r15
+  private_data_set_pos_sib_type(actx, LPP_POS_SIB_TYPE_2_9);
+
+#.FN_HDR PosSystemInformation-r15-IEs/posSIB-TypeAndInfo-r15/_item/posSib2-10-r15
+  private_data_set_pos_sib_type(actx, LPP_POS_SIB_TYPE_2_10);
+
+#.FN_HDR PosSystemInformation-r15-IEs/posSIB-TypeAndInfo-r15/_item/posSib2-11-r15
+  private_data_set_pos_sib_type(actx, LPP_POS_SIB_TYPE_2_11);
+
+#.FN_HDR PosSystemInformation-r15-IEs/posSIB-TypeAndInfo-r15/_item/posSib2-12-r15
+  private_data_set_pos_sib_type(actx, LPP_POS_SIB_TYPE_2_12);
+
+#.FN_HDR PosSystemInformation-r15-IEs/posSIB-TypeAndInfo-r15/_item/posSib2-13-r15
+  private_data_set_pos_sib_type(actx, LPP_POS_SIB_TYPE_2_13);
+
+#.FN_HDR PosSystemInformation-r15-IEs/posSIB-TypeAndInfo-r15/_item/posSib2-14-r15
+  private_data_set_pos_sib_type(actx, LPP_POS_SIB_TYPE_2_14);
+
+#.FN_HDR PosSystemInformation-r15-IEs/posSIB-TypeAndInfo-r15/_item/posSib2-15-r15
+  private_data_set_pos_sib_type(actx, LPP_POS_SIB_TYPE_2_15);
+
+#.FN_HDR PosSystemInformation-r15-IEs/posSIB-TypeAndInfo-r15/_item/posSib2-16-r15
+  private_data_set_pos_sib_type(actx, LPP_POS_SIB_TYPE_2_16);
+
+#.FN_HDR PosSystemInformation-r15-IEs/posSIB-TypeAndInfo-r15/_item/posSib2-17-r15
+  private_data_set_pos_sib_type(actx, LPP_POS_SIB_TYPE_2_17);
+
+#.FN_HDR PosSystemInformation-r15-IEs/posSIB-TypeAndInfo-r15/_item/posSib2-18-r15
+  private_data_set_pos_sib_type(actx, LPP_POS_SIB_TYPE_2_18);
+
+#.FN_HDR PosSystemInformation-r15-IEs/posSIB-TypeAndInfo-r15/_item/posSib2-19-r15
+  private_data_set_pos_sib_type(actx, LPP_POS_SIB_TYPE_2_19);
+
+#.FN_HDR PosSystemInformation-r15-IEs/posSIB-TypeAndInfo-r15/_item/posSib3-1-r15
+  private_data_set_pos_sib_type(actx, LPP_POS_SIB_TYPE_3_1);
+
+#.FN_HDR PosSystemInformation-r15-IEs/posSIB-TypeAndInfo-r15/_item/posSib1-8-v1610
+  private_data_set_pos_sib_type(actx, LPP_POS_SIB_TYPE_1_8);
+
+#.FN_HDR PosSystemInformation-r15-IEs/posSIB-TypeAndInfo-r15/_item/posSib2-20-v1610
+  private_data_set_pos_sib_type(actx, LPP_POS_SIB_TYPE_2_20);
+
+#.FN_HDR PosSystemInformation-r15-IEs/posSIB-TypeAndInfo-r15/_item/posSib2-21-v1610
+  private_data_set_pos_sib_type(actx, LPP_POS_SIB_TYPE_2_21);
+
+#.FN_HDR PosSystemInformation-r15-IEs/posSIB-TypeAndInfo-r15/_item/posSib2-22-v1610
+  private_data_set_pos_sib_type(actx, LPP_POS_SIB_TYPE_2_22);
+
+#.FN_HDR PosSystemInformation-r15-IEs/posSIB-TypeAndInfo-r15/_item/posSib2-23-v1610
+  private_data_set_pos_sib_type(actx, LPP_POS_SIB_TYPE_2_23);
+
+#.FN_HDR PosSystemInformation-r15-IEs/posSIB-TypeAndInfo-r15/_item/posSib2-24-v1610
+  private_data_set_pos_sib_type(actx, LPP_POS_SIB_TYPE_2_24);
+
+#.FN_HDR PosSystemInformation-r15-IEs/posSIB-TypeAndInfo-r15/_item/posSib2-25-v1610
+  private_data_set_pos_sib_type(actx, LPP_POS_SIB_TYPE_2_25);
+
+#.FN_HDR PosSystemInformation-r15-IEs/posSIB-TypeAndInfo-r15/_item/posSib4-1-v1610
+  private_data_set_pos_sib_type(actx, LPP_POS_SIB_TYPE_4_1);
+
+#.FN_HDR PosSystemInformation-r15-IEs/posSIB-TypeAndInfo-r15/_item/posSib5-1-v1610
+  private_data_set_pos_sib_type(actx, LPP_POS_SIB_TYPE_5_1);
+
+#.FN_BODY SystemInformationBlockPos-r15/assistanceDataSIB-Element-r15 VAL_PTR = &assist_data_sib_elem_tvb
+  tvbuff_t *assist_data_sib_elem_tvb = NULL;
+
+%(DEFAULT_BODY)s
+
+  if (assist_data_sib_elem_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_assistanceDataSIB_Element_r15);
+
+    dissect_lpp_AssistanceDataSIBelement_r15_PDU(assist_data_sib_elem_tvb, actx->pinfo,
+                                                 subtree, private_data_get_pos_sib_type(actx));
+  }
+
 #
 # EUTRA-Sidelink-Preconf
 #
