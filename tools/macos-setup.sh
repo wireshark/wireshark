@@ -2661,9 +2661,33 @@ fi
 if [ ! -z "$min_osx_target" ]
 then
     #
-    # Get the real version - strip off the "10.".
+    # Get the major and minor version of the target release.
+    # We assume it'll be a while before there's a macOS 100. :-)
     #
-    deploy_real_version=`echo "$min_osx_target" | sed -n 's/10\.\(.*\)/\1/p'`
+    case "$min_osx_target" in
+
+    [1-9][0-9].*)
+        #
+        # major.minor.
+        #
+        min_osx_target_major=`echo "$min_osx_target" | sed -n 's/\([1-9][0-9]*\)\..*/\1/p'`
+        min_osx_target_minor=`echo "$min_osx_target" | sed -n 's/[1-9][0-9]*\.\(.*\)/\1/p'`
+        ;;
+
+    [1-9][0-9])
+        #
+        # Just a major version number was specified; make the minor
+        # version 0.
+        #
+        min_osx_target_major="$min_osx_target"
+        min_osx_target_minor=0
+        ;;
+
+    *)
+        echo "macosx-setup.sh: Invalid target release $min_osx_target" 1>&2
+        exit 1
+        ;;
+    esac
 
     #
     # Search each directory that might contain SDKs.
@@ -2687,20 +2711,24 @@ then
 
         #
         # Get a list of all the SDKs in that directory, if any.
+        # We assume it'll be a while before there's a macOS 100. :-)
         #
-        sdklist=`(cd "$sdksdir"; ls -d MacOSX10.[0-9]*.sdk 2>/dev/null)`
+        sdklist=`(cd "$sdksdir"; ls -d MacOSX[1-9][0-9].[0-9]*.sdk 2>/dev/null)`
 
         for sdk in $sdklist
         do
             #
-            # Get the real version for this SDK.
+            # Get the major and minor version for this SDK.
             #
-            sdk_real_version=`echo "$sdk" | sed -n 's/MacOSX10\.\(.*\)\.sdk/\1/p'`
+            sdk_major=`echo "$sdk" | sed -n 's/MacOSX\([1-9][0-9]*\)\..*\.sdk/\1/p'`
+            sdk_minor=`echo "$sdk" | sed -n 's/MacOSX[1-9][0-9]*\.\(.*\)\.sdk/\1/p'`
 
             #
             # Is it for the deployment target or some later release?
             #
-            if test "$sdk_real_version" -ge "$deploy_real_version"
+            if test "$sdk_major" -gt "$min_osx_target_major" -o \
+                \( "$sdk_major" -eq "$min_osx_target_major" -a \
+                   "$sdk_minor" -ge "$min_osx_target_minor" \)
             then
                 #
                 # Yes, use it.
@@ -2718,7 +2746,7 @@ then
     fi
 
     SDKPATH="$sdkpath"
-    echo "Using the 10.$sdk_real_version SDK"
+    echo "Using the $sdk_major.$sdk_minor SDK"
 
     #
     # Make sure there are links to /usr/local/include and /usr/local/lib
