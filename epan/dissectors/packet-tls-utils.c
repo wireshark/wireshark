@@ -5973,7 +5973,7 @@ tls_keylog_process_lines(const ssl_master_key_map_t *mk_map, const guint8 *data,
 
             g_hash_table_insert(ht, key, pre_ms_or_ms);
 
-        } else {
+        } else if (linelen > 0 && line[0] != '#') {
             ssl_debug_printf("    unrecognized line\n");
         }
         /* always free match info even if there is no match. */
