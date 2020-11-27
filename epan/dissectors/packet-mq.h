@@ -5580,10 +5580,10 @@ typedef struct _mq_parm_t
 
 #endif
 
-extern gint32  strip_trailing_blanks(guint8 *a_str,
-                                     guint32 a_size);
+extern gint32  strip_trailing_blanks(guint8 *a_str, guint32 a_size);
+extern const guint8* dissect_mqpcf_parm_getintval(guint uPrm, guint uVal);
 extern guint32 dissect_mqpcf_parm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mq_tree,
-                                  guint offset, guint32 uCount, guint bLittleEndian, gboolean bParse);
+    guint offset, guint32 uCount, guint bLittleEndian, gboolean bParse);
 extern int dissect_mqpcf_parm_grp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* mq_tree,
     guint offset, guint bLittleEndian, gboolean bParse);
 

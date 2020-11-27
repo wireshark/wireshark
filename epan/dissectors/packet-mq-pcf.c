@@ -98,7 +98,7 @@ static guint32 dissect_mqpcf_getDigits(guint uCnt)
 * to get val_to_str value from the value of a parameter on a more
 * easier way than using switch cases.
 */
-static const guint8 *dissect_mqpcf_parm_getintval(guint uPrm, guint uVal)
+const guint8 *dissect_mqpcf_parm_getintval(guint uPrm, guint uVal)
 {
     const value_string *pVs;
     pVs = (const value_string *)try_val_to_str_ext(uPrm, GET_VALS_EXTP(MQCFINT_Parse));
@@ -127,12 +127,12 @@ static void dissect_mqpcf_parm_int(tvbuff_t *tvb, proto_tree *tree, guint offset
         if (pVal)
         {
             proto_tree_add_int_format(tree, hfindex, tvb, offset, 4, uVal,
-                                      "%s[%*d]: %8x-(%9d)-%s", hfinfo->name, iDigit, iCnt, uVal, uVal, pVal);
+                                      "%s[%*d]: 0x%08x (%d) %s", hfinfo->name, iDigit, iCnt, uVal, uVal, pVal);
         }
         else
         {
             proto_tree_add_int_format(tree, hfindex, tvb, offset, 4, uVal,
-                                      "%s[%*d]: %8x-(%9d)", hfinfo->name, iDigit, iCnt, uVal, uVal);
+                                      "%s[%*d]: 0x%08x (%d)", hfinfo->name, iDigit, iCnt, uVal, uVal);
         }
     }
     else
@@ -140,12 +140,12 @@ static void dissect_mqpcf_parm_int(tvbuff_t *tvb, proto_tree *tree, guint offset
         if (pVal)
         {
             proto_tree_add_int_format_value(tree, hfindex, tvb, offset, 4, uVal,
-                                            "%8x-(%9d)-%s", uVal, uVal, pVal);
+                                            "0x%08x (%d) %s", uVal, uVal, pVal);
         }
         else
         {
             proto_tree_add_int_format_value(tree, hfindex, tvb, offset, 4, uVal,
-                                            "%8x-(%9d)", uVal, uVal);
+                                            "0x%08x (%d)", uVal, uVal);
         }
     }
 }
@@ -271,12 +271,12 @@ guint32 dissect_mqpcf_parm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mq_tre
                 if (pVal)
                 {
                     tree = proto_tree_add_subtree_format(mq_tree, tvb, offset, uLen, ett_mqpcf_prm, NULL,
-                                                         "%s %8x-(%9d) %s", strPrm, uVal, uVal, pVal);
+                                                         "%s 0x%08x (%d) %s", strPrm, uVal, uVal, pVal);
                 }
                 else
                 {
                     tree = proto_tree_add_subtree_format(mq_tree, tvb, offset, uLen, ett_mqpcf_prm, NULL,
-                                                         "%s %8x-(%9d)", strPrm, uVal, uVal);
+                                                         "%s 0x%08x (%d)", strPrm, uVal, uVal);
                 }
 
                 proto_tree_add_item(tree, hf_mq_pcf_prmtyp, tvb, offset, 4, bLittleEndian);
@@ -449,7 +449,7 @@ guint32 dissect_mqpcf_parm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mq_tre
                 uOpe = tvb_get_guint32(tvb, offset + uLenF, bLittleEndian);
                 uVal = tvb_get_guint32(tvb, offset + uLenF + 4, bLittleEndian);
 
-                tree = proto_tree_add_subtree_format(mq_tree, tvb, offset, uLen, ett_mqpcf_prm, NULL, "%s %s %8x-(%9d)",
+                tree = proto_tree_add_subtree_format(mq_tree, tvb, offset, uLen, ett_mqpcf_prm, NULL, "%s %s 0x%08x (%d)",
                                                      strPrm, val_to_str(uOpe, GET_VALSV(FilterOP), "       Unknown (0x%02x)") + 7, uVal, uVal);
 
                 proto_tree_add_item(tree, hf_mq_pcf_prmtyp, tvb, offset, 4, bLittleEndian);
@@ -529,7 +529,7 @@ guint32 dissect_mqpcf_parm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mq_tre
             {
                 uVal64 = tvb_get_guint64(tvb, offset + uLenF + 4, bLittleEndian);
                 tree = proto_tree_add_subtree_format(mq_tree, tvb, offset, uLen, ett_mqpcf_prm, NULL,
-                                                     "%s %" G_GINT64_MODIFIER "x (%" G_GINT64_MODIFIER "d)", strPrm, uVal64, uVal64);
+                                                     "%s 0x%" G_GINT64_MODIFIER "x (%" G_GINT64_MODIFIER "d)", strPrm, uVal64, uVal64);
 
                 proto_tree_add_item(tree, hf_mq_pcf_prmtyp, tvb, offset, 4, bLittleEndian);
                 proto_tree_add_item(tree, hf_mq_pcf_prmlen, tvb, offset + 4, 4, bLittleEndian);
@@ -561,7 +561,7 @@ guint32 dissect_mqpcf_parm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mq_tre
                 {
                     uVal64 = tvb_get_guint64(tvb, offset, bLittleEndian);
                     proto_tree_add_int64_format(tree, hf_mq_pcf_int64list, tvb, offset, 8, uVal64,
-                                                "%s[%*d]: %" G_GINT64_MODIFIER "x (%" G_GINT64_MODIFIER "d)",
+                                                "%s[%*d]: 0x%" G_GINT64_MODIFIER "x (%" G_GINT64_MODIFIER "d)",
                                                 hfinfo->name, uDigit, u2 + 1, uVal64, uVal64);
                     offset += 8;
                 }
