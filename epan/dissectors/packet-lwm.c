@@ -417,6 +417,7 @@ static int dissect_lwm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
             guint8 i;
             guint32 vmic;
             guint32 nwkSecurityVector[4];
+            int gcrypt_err;
 
             ieee_packet = (ieee802154_packet *)data;
 
@@ -432,12 +433,10 @@ static int dissect_lwm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
             text = (guint8 *)tvb_memdup(pinfo->pool, new_tvb, 0, payload_length);
             payload_offset=0;
 
+            gcrypt_err = gcry_cipher_open(&cypher_hd, GCRY_CIPHER_AES128, GCRY_CIPHER_MODE_ECB, 0);
             /*Decrypt the actual data */
             while(payload_length>0)
             {
-                int gcrypt_err;
-
-                gcrypt_err = gcry_cipher_open(&cypher_hd, GCRY_CIPHER_AES128, GCRY_CIPHER_MODE_ECB, 0);
                 if(gcrypt_err == 0) {
                     gcrypt_err = gcry_cipher_setkey(cypher_hd,(guint8 *)lwmes_key, 16);
                 }
@@ -467,8 +466,9 @@ static int dissect_lwm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 
                 payload_offset += block;
                 payload_length -= block;
-                gcry_cipher_close(cypher_hd);
+                gcry_cipher_reset(cypher_hd);
             }
+            gcry_cipher_close(cypher_hd);
 
             vmic = nwkSecurityVector[0] ^ nwkSecurityVector[1] ^ nwkSecurityVector[2] ^ nwkSecurityVector[3];
             length = tvb_reported_length(new_tvb) - LWM_MIC_LEN;
