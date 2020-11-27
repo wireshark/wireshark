@@ -2586,6 +2586,13 @@ ssl_sha_final(guchar* buf, SSL_SHA_CTX* md)
     memcpy(buf, gcry_md_read(*(md),  GCRY_MD_SHA1),
            gcry_md_get_algo_dlen(GCRY_MD_SHA1));
 }
+
+static inline void
+ssl_sha_reset(SSL_SHA_CTX* md)
+{
+    gcry_md_reset(*md);
+}
+
 static inline void
 ssl_sha_cleanup(SSL_SHA_CTX* md)
 {
@@ -2608,6 +2615,13 @@ ssl_md5_final(guchar* buf, SSL_MD5_CTX* md)
     memcpy(buf, gcry_md_read(*(md),  GCRY_MD_MD5),
            gcry_md_get_algo_dlen(GCRY_MD_MD5));
 }
+
+static inline void
+ssl_md5_reset(SSL_MD5_CTX* md)
+{
+    gcry_md_reset(*md);
+}
+
 static inline void
 ssl_md5_cleanup(SSL_MD5_CTX* md)
 {
@@ -3276,6 +3290,8 @@ ssl3_prf(StringInfo* secret, const gchar* usage,
     gint         i = 0,j;
     guint8       buf[20];
 
+    ssl_sha_init(&sha);
+    ssl_md5_init(&md5);
     for (off = 0; off < out_len; off += 16) {
         guchar outbuf[16];
         i++;
@@ -3286,7 +3302,6 @@ ssl3_prf(StringInfo* secret, const gchar* usage,
             buf[j]=64+i;
         }
 
-        ssl_sha_init(&sha);
         ssl_sha_update(&sha,buf,i);
         ssl_sha_update(&sha,secret->data,secret->data_len);
 
@@ -3302,18 +3317,19 @@ ssl3_prf(StringInfo* secret, const gchar* usage,
         }
 
         ssl_sha_final(buf,&sha);
-        ssl_sha_cleanup(&sha);
+        ssl_sha_reset(&sha);
 
         ssl_debug_printf("ssl3_prf: md5_hash(%d) datalen %d\n",i,
             secret->data_len);
-        ssl_md5_init(&md5);
         ssl_md5_update(&md5,secret->data,secret->data_len);
         ssl_md5_update(&md5,buf,20);
         ssl_md5_final(outbuf,&md5);
-        ssl_md5_cleanup(&md5);
+        ssl_md5_reset(&md5);
 
         memcpy(out->data + off, outbuf, MIN(out_len - off, 16));
     }
+    ssl_sha_cleanup(&sha);
+    ssl_md5_cleanup(&md5);
     out->data_len = out_len;
 
     return TRUE;
