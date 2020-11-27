@@ -1566,7 +1566,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 proto_item_append_text(seq_item, " [OK]");
             }
             else {
-                proto_item_append_text(seq_item, " [Wrong]");
+                proto_item_append_text(seq_item, " [Retransmit]");
                 if (btle_detect_retransmit) {
                     expert_add_info(pinfo, seq_item, &ei_retransmit);
                     retransmit = TRUE;
