@@ -302,6 +302,7 @@ static expert_field ei_crc_cannot_be_determined = EI_INIT;
 static expert_field ei_crc_incorrect = EI_INIT;
 static expert_field ei_missing_fragment_start = EI_INIT;
 static expert_field ei_retransmit = EI_INIT;
+static expert_field ei_nack = EI_INIT;
 
 static dissector_handle_t btle_handle;
 static dissector_handle_t btcommon_ad_handle;
@@ -395,6 +396,7 @@ typedef struct _connection_info_t {
 /* */
 typedef struct _btle_frame_info_t {
     guint    retransmit : 1;      /* 0 = No, 1 = Retransmitted frame */
+    guint    ack : 1;             /* 0 = Nack, 1 = Ack */
     guint    more_fragments : 1;  /* 0 = Last fragment, 1 = More fragments */
     guint    missing_start : 1;   /* 0 = No, 1 = Missing fragment start */
     guint32  l2cap_index;         /* Unique identifier for each L2CAP message */
@@ -1431,7 +1433,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
         btle_frame_info_t *btle_frame_info = NULL;
         fragment_head *frag_btl2cap_msg = NULL;
-        btle_frame_info_t empty_btle_frame_info = {0, 0, 0, 0};
+        btle_frame_info_t empty_btle_frame_info = {0, 0, 0, 0, 0};
 
         key[0].length = 1;
         key[0].key = &interface_id;
@@ -1505,20 +1507,28 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                     if (!connection_info->first_data_frame_seen) {
                         connection_info->first_data_frame_seen = 1;
                         btle_frame_info->retransmit = 0;
+                        btle_frame_info->ack = 1;
                         connection_info->direction_info[BTLE_DIR_MASTER_SLAVE].prev_seq_num = 0;
                         connection_info->direction_info[BTLE_DIR_SLAVE_MASTER].prev_seq_num = 1;
                     }
                     else {
-                        guint8 seq_num = !!(oct & 0x8);
+                        guint8 seq_num = !!(oct & 0x8), next_expected_seq_num = !!(oct & 0x4);
+                        guint8 other_direction = direction == BTLE_DIR_SLAVE_MASTER ? BTLE_DIR_MASTER_SLAVE : BTLE_DIR_SLAVE_MASTER;
 
                         if (seq_num != connection_info->direction_info[direction].prev_seq_num) {
                             /* SN is not equal to previous packet (in same direction) SN */
                             btle_frame_info->retransmit = 0;
-                        }
-                        else {
+                        } else {
                             btle_frame_info->retransmit = 1;
                         }
                         connection_info->direction_info[direction].prev_seq_num = seq_num;
+
+                        if (next_expected_seq_num != connection_info->direction_info[other_direction].prev_seq_num) {
+                            /* NESN is not equal to previous packet (in other direction) SN */
+                            btle_frame_info->ack = 1;
+                        } else {
+                            btle_frame_info->ack = 0;
+                        }
                     }
                     p_add_proto_data(wmem_file_scope(), pinfo, proto_btle, pinfo->curr_layer_num, btle_frame_info);
                 }
@@ -1536,7 +1546,18 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         data_header_tree = proto_item_add_subtree(data_header_item, ett_data_header);
 
         proto_tree_add_item(data_header_tree, hf_data_header_llid, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(data_header_tree, hf_data_header_next_expected_sequence_number, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        seq_item = proto_tree_add_item(data_header_tree, hf_data_header_next_expected_sequence_number, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+
+        if (direction != BTLE_DIR_UNKNOWN) {
+            /* Unable to check valid NESN without direction */
+            if (btle_frame_info->ack == 1) {
+                proto_item_append_text(seq_item, " [ACK]");
+            } else {
+                proto_item_append_text(seq_item, " [Request retransmit]");
+                expert_add_info(pinfo, seq_item, &ei_nack);
+            }
+        }
+
         seq_item = proto_tree_add_item(data_header_tree, hf_data_header_sequence_number, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 
         if (direction != BTLE_DIR_UNKNOWN) {
@@ -2864,6 +2885,8 @@ proto_register_btle(void)
             { "btle.missing_fragment_start",    PI_SEQUENCE, PI_WARN,  "Missing Fragment Start", EXPFILL }},
         { &ei_retransmit,
             { "btle.retransmit",                PI_SEQUENCE, PI_NOTE,  "Retransmission", EXPFILL }},
+        { &ei_nack,
+            { "btle.nack",                      PI_SEQUENCE, PI_NOTE,  "Not acknowledged", EXPFILL }},
     };
 
     static gint *ett[] = {
