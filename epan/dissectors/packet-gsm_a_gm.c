@@ -4647,7 +4647,7 @@ de_sm_pco(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, g
 
 		curr_len    -= 2;
 		curr_offset += 2;
-		if (link_dir == P2P_DIR_DL && (prot == 0x0023 || prot == 0x0024 || prot == 0x0030 || prot == 0x0030)) {
+		if (link_dir == P2P_DIR_DL && (prot == 0x0023 || prot == 0x0024 || prot == 0x0030 || prot == 0x0031)) {
 			proto_tree_add_item_ret_uint(pco_tree, hf_gsm_a_gm_sm_pco_length2, tvb, curr_offset, 2, ENC_BIG_ENDIAN, &e_len);
 			curr_len    -= 2;
 			curr_offset += 2;
