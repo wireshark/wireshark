@@ -2560,6 +2560,12 @@ ssl_md_cleanup(SSL_MD* md)
     gcry_md_close(*(md));
 }
 
+static inline void
+ssl_md_reset(SSL_MD* md)
+{
+    gcry_md_reset(*md);
+}
+
 /* md5 /sha abstraction layer */
 #define SSL_SHA_CTX gcry_md_hd_t
 #define SSL_MD5_CTX gcry_md_hd_t
@@ -4435,9 +4441,7 @@ ssl3_check_mac(SslDecoder*decoder,int ct,guint8* data,
 
     /* get partial digest */
     ssl_md_final(&mc,dgst,&len);
-    ssl_md_cleanup(&mc);
-
-    ssl_md_init(&mc,md);
+    ssl_md_reset(&mc);
 
     /* hash mac key */
     ssl_md_update(&mc,decoder->mac_key.data,decoder->mac_key.data_len);
