@@ -634,22 +634,15 @@ static const value_string rr_pos_display_flag_vals[] = {
 
 GMR1_IE_FUNC(gmr1_ie_rr_pos_display)
 {
-	const unsigned char *txt_raw;
-	gchar *txt_packed, *txt_unpacked;
+	gchar *txt_unpacked;
 	tvbuff_t *txt_packed_tvb;
-	int i;
 
 	/* Flag */
 	proto_tree_add_item(tree, hf_rr_pos_display_flag,
 	                    tvb, offset, 1, ENC_BIG_ENDIAN);
 
 	/* Get text in an aligned tvbuff */
-	txt_raw = tvb_get_ptr(tvb, offset, 11);
-	txt_packed = (gchar*)wmem_alloc(wmem_packet_scope(), 11);
-	for (i=0; i<10; i++)
-		txt_packed[i] = (txt_raw[i] << 4) | (txt_raw[i+1] >> 4);
-	txt_packed[10] = txt_raw[10];
-	txt_packed_tvb = tvb_new_real_data(txt_packed, 11, 11);
+	txt_packed_tvb = tvb_new_octet_aligned(tvb, 8*offset+4, 84);
 
 	/* Unpack text */
 	txt_unpacked = tvb_get_ts_23_038_7bits_string_packed(wmem_packet_scope(), txt_packed_tvb, 0, 12);
