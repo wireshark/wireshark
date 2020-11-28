@@ -1507,12 +1507,12 @@ dissect_ipacc_test_rep(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb)
 
 /* Dissect OML FOM Attributes after OML + FOM header */
 static gint
-dissect_oml_attrs(tvbuff_t *tvb, int base_offs, packet_info *pinfo,
-		  proto_tree *tree)
+dissect_oml_attrs(tvbuff_t *tvb, int base_offs, int length,
+		  packet_info *pinfo, proto_tree *tree)
 {
 	int offset = base_offs;
 
-	while (tvb_reported_length_remaining(tvb, offset) > 0) {
+	while (offset - base_offs < length) {
 		guint i;
 		guint8 tag, val8;
 		unsigned int len, len_len, hlen;
@@ -1775,7 +1775,7 @@ dissect_oml_fom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 
 	/* dissect the TLV objects in the message body */
-	offset = dissect_oml_attrs(tvb, offset, pinfo, fom_tree);
+	offset = dissect_oml_attrs(tvb, offset, tvb_reported_length_remaining(tvb, offset), pinfo, fom_tree);
 
 	return offset;
 }
