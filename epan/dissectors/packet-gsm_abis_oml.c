@@ -677,6 +677,8 @@ static int hf_attr_chan_comb = -1;
 static int hf_attr_hsn = -1;
 static int hf_attr_maio = -1;
 static int hf_attr_list_req_attr = -1;
+static int hf_attr_ari_not_reported_cnt = -1;
+static int hf_attr_ari_not_reported_attr = -1;
 /* Ipaccess */
 static int hf_oml_ipa_tres_attr_tag = -1;
 static int hf_oml_ipa_tres_attr_len = -1;
@@ -1677,6 +1679,27 @@ dissect_oml_attrs(tvbuff_t *tvb, int base_offs, int length,
 						    ENC_LITTLE_ENDIAN);
 			}
 			break;
+		case NM_ATT_GET_ARI:
+			{
+				guint not_counted, loffset;
+				if (!len)
+					break;
+
+				loffset = offset;
+
+				not_counted = tvb_get_guint8(tvb, offset);
+				proto_tree_add_item(att_tree, hf_attr_ari_not_reported_cnt,
+						    tvb, loffset, 1,
+						    ENC_LITTLE_ENDIAN);
+				loffset++;
+				for (i = 0; i < not_counted; i++) {
+					proto_tree_add_item(att_tree, hf_attr_ari_not_reported_attr,
+							    tvb, loffset++, 1,
+							    ENC_LITTLE_ENDIAN);
+				}
+				loffset = dissect_oml_attrs(tvb, loffset, len - 1 - not_counted, pinfo, att_tree);
+			}
+			break;
 		default:
 			proto_tree_add_item(att_tree, hf_oml_fom_attr_val, tvb,
 					    offset, len, ENC_NA);
@@ -2028,6 +2051,16 @@ proto_register_abis_oml(void)
 		},
 		{ &hf_attr_list_req_attr,
 			{ "List of required Attributes", "gsm_abis_oml.fom.attr.list_req_attr",
+			  FT_UINT8, BASE_DEC, VALS(oml_fom_attr_vals), 0,
+			  NULL, HFILL }
+		},
+		{ &hf_attr_ari_not_reported_cnt,
+			{ "Count of not-reported attributes", "gsm_abis_oml.fom.attr.ari.not_reported_cnt",
+			  FT_UINT8, BASE_DEC, NULL, 0,
+			  NULL, HFILL }
+		},
+		{ &hf_attr_ari_not_reported_attr,
+			{ "Not-reported attribute", "gsm_abis_oml.fom.attr.ari.not_reported",
 			  FT_UINT8, BASE_DEC, VALS(oml_fom_attr_vals), 0,
 			  NULL, HFILL }
 		},
