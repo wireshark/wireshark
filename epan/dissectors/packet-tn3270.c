@@ -7,6 +7,9 @@
  *    http://publib.boulder.ibm.com/cgi-bin/bookmgr_OS390/BOOKS/CN7P4000
  *      (dead, not archived on the Wayback Machine)
  *    http://bitsavers.trailing-edge.com/pdf/ibm/3174/GA23-0059-07_3270_Data_Stream_Programmers_Reference_199206.pdf
+ *      (some weird format)
+ *    http://bitsavers.trailing-edge.com/pdf/ibm/3270/GA23-0059-07_3270_Data_Stream_Programmers_Reference_199206.pdf
+ *      (straightforward scanned PDF, with OCR so searching might work)
  *    (Paragraph references in the comments in this file (e.g., 6.15) are to the above document)
  *
  *  3174 Establishment Controller Functional Description
