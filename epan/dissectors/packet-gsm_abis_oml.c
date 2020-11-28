@@ -676,6 +676,7 @@ static int hf_attr_gsm_time = -1;
 static int hf_attr_chan_comb = -1;
 static int hf_attr_hsn = -1;
 static int hf_attr_maio = -1;
+static int hf_attr_list_req_attr = -1;
 /* Ipaccess */
 static int hf_oml_ipa_tres_attr_tag = -1;
 static int hf_oml_ipa_tres_attr_len = -1;
@@ -1669,6 +1670,13 @@ dissect_oml_attrs(tvbuff_t *tvb, int base_offs, int length,
 			proto_tree_add_item(att_tree, hf_attr_maio, tvb,
 					    offset, len, ENC_LITTLE_ENDIAN);
 			break;
+		case NM_ATT_LIST_REQ_ATTR:
+			for (i = 0; i < len; i++) {
+				proto_tree_add_item(att_tree, hf_attr_list_req_attr,
+						    tvb, offset + i, 1,
+						    ENC_LITTLE_ENDIAN);
+			}
+			break;
 		default:
 			proto_tree_add_item(att_tree, hf_oml_fom_attr_val, tvb,
 					    offset, len, ENC_NA);
@@ -2017,6 +2025,11 @@ proto_register_abis_oml(void)
 			{ "MAIO", "gsm_abis_oml.fom.attr.maio",
 			  FT_UINT8, BASE_DEC, NULL, 0,
 			  "Mobile Allocation Index Offset", HFILL }
+		},
+		{ &hf_attr_list_req_attr,
+			{ "List of required Attributes", "gsm_abis_oml.fom.attr.list_req_attr",
+			  FT_UINT8, BASE_DEC, VALS(oml_fom_attr_vals), 0,
+			  NULL, HFILL }
 		},
 
 		/* IP Access */
