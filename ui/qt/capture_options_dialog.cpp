@@ -188,7 +188,7 @@ CaptureOptionsDialog::CaptureOptionsDialog(QWidget *parent) :
     // in which they were provided
     ui->interfaceTree->sortByColumn(-1, Qt::AscendingOrder);
     ui->interfaceTree->setItemDelegateForColumn(col_interface_, &interface_item_delegate_);
-    ui->interfaceTree->setItemDelegateForColumn(col_traffic_, new SparkLineDelegate());
+    ui->interfaceTree->setItemDelegateForColumn(col_traffic_, new SparkLineDelegate(this));
     ui->interfaceTree->setItemDelegateForColumn(col_link_, &interface_item_delegate_);
 
     ui->interfaceTree->setItemDelegateForColumn(col_snaplen_, &interface_item_delegate_);
