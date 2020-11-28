@@ -1079,7 +1079,7 @@ extern tvbuff_t* base64_to_tvb(tvbuff_t *parent, const char *base64);
  *
  * @param parent The parent tvbuff.
  * @param offset Start of the base64 string in the tvb
- * @param offset Length of the base64 string in the tvb
+ * @param length Length of the base64 string in the tvb
  *
  * @return   A tvb with the binary representation of the base64 decoded string.
  */
