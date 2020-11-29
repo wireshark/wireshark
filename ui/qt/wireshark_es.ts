@@ -379,7 +379,7 @@
     </message>
     <message>
         <source>Ctrl-M</source>
-        <translation type="unfinished">Ctrl-M</translation>
+        <translation>Ctrl-M</translation>
     </message>
     <message>
         <source>Mark/Unmark Cell</source>
@@ -1970,7 +1970,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>Field</source>
-        <translation type="unfinished"></translation>
+        <translation>Campo</translation>
     </message>
     <message>
         <source>Value</source>
@@ -2806,7 +2806,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>Enter a filter expression to be applied</source>
-        <translation type="unfinished"></translation>
+        <translation>Introduzca una expresión de filtro para ser aplicado</translation>
     </message>
     <message>
         <source>Comment:</source>
@@ -3213,7 +3213,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     <message>
         <source>Show data as</source>
         <oldsource>Show and save data as</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Mostrar datos como</translation>
     </message>
     <message>
         <source>Stream</source>
@@ -3244,7 +3244,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>Select Font</source>
-        <translation type="unfinished"></translation>
+        <translation>Seleccionar fuente</translation>
     </message>
     <message>
         <source>Colors:</source>
@@ -10688,7 +10688,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>Time of Day</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Hora de día</translation>
     </message>
     <message>
         <source>Reset Graph</source>
@@ -10943,7 +10943,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>Prepare Filter</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Preparar filtro</translation>
     </message>
     <message>
         <source>Prepare a filter matching the selected stream(s).</source>
@@ -13218,7 +13218,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>Time of Day</source>
-        <translation type="unfinished"></translation>
+        <translation>Hora de día</translation>
     </message>
     <message>
         <source>Select &amp;All</source>
@@ -13258,7 +13258,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>Prepare Filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Preparar filtro</translation>
     </message>
     <message>
         <source>Flow Sequence</source>
@@ -13321,7 +13321,7 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>Duration</source>
-        <translation type="unfinished"></translation>
+        <translation>Duración</translation>
     </message>
     <message>
         <source>Packets</source>
@@ -13329,11 +13329,11 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>State</source>
-        <translation type="unfinished"></translation>
+        <translation>Estado</translation>
     </message>
     <message>
         <source>Comments</source>
-        <translation type="unfinished"></translation>
+        <translation>Comentarios</translation>
     </message>
 </context>
 <context>
@@ -13476,51 +13476,51 @@ a:hover {
     </message>
     <message>
         <source>Interface</source>
-        <translation type="unfinished">Interfaz</translation>
+        <translation>Interfaz</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Set the 802.11 channel.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Establece el canal 802.11&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Channel</source>
-        <translation type="unfinished">Canal</translation>
+        <translation>Canal</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;When capturing, show all frames, ones that have a valid frame check sequence (FCS), or ones with an invalid FCS.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Al capturar, muestra todas las tramas, unas que tienen una secuencia de verificación de trama válida (FCS), o unas con una FCS inválida.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>FCS Filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Filtro FCS</translation>
     </message>
     <message>
         <source>All Frames</source>
-        <translation type="unfinished"></translation>
+        <translation>Todas las tramas</translation>
     </message>
     <message>
         <source>Valid Frames</source>
-        <translation type="unfinished"></translation>
+        <translation>Tramas validas</translation>
     </message>
     <message>
         <source>Invalid Frames</source>
-        <translation type="unfinished"></translation>
+        <translation>Tramas no validas</translation>
     </message>
     <message>
         <source>Wireless controls are not supported in this version of Wireshark.</source>
-        <translation type="unfinished"></translation>
+        <translation>Los controles wireless no son compatibles en esta versión de Wireshark.</translation>
     </message>
     <message>
         <source>External Helper</source>
-        <translation type="unfinished"></translation>
+        <translation>Ayuda externa</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show the IEEE 802.11 preferences, including decryption keys.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Muestra las preferencias de IEEE 802.11, incluidas las claves de decodificación.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>802.11 Preferences</source>
-        <translation type="unfinished"></translation>
+        <translation>Preferencias de 802.11</translation>
     </message>
     <message>
         <source>AirPcap Control Panel</source>

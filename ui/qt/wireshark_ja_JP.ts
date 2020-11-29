@@ -3830,7 +3830,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>2 ms</source>
-        <translation type="unfinished">100ミリ秒 {2 ?}</translation>
+        <translation>2 ミリ秒</translation>
     </message>
     <message>
         <source>5 ms</source>
@@ -3842,11 +3842,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>20 ms</source>
-        <translation type="unfinished">100ミリ秒 {20 ?}</translation>
+        <translation>20 ミリ秒</translation>
     </message>
     <message>
         <source>50 ms</source>
-        <translation type="unfinished">100ミリ秒 {50 ?}</translation>
+        <translation>50 ミリ秒</translation>
     </message>
     <message>
         <source>100 ms</source>
@@ -3854,19 +3854,19 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>200 ms</source>
-        <translation type="unfinished">100ミリ秒 {200 ?}</translation>
+        <translation>200 ミリ秒</translation>
     </message>
     <message>
         <source>500 ms</source>
-        <translation type="unfinished">100ミリ秒 {500 ?}</translation>
+        <translation>500 ミリ秒</translation>
     </message>
     <message>
         <source>2 sec</source>
-        <translation type="unfinished">10秒 {2 ?}</translation>
+        <translation>2 秒</translation>
     </message>
     <message>
         <source>5 sec</source>
-        <translation type="unfinished">10秒 {5 ?}</translation>
+        <translation>5 秒</translation>
     </message>
     <message>
         <source>Wireshark I/O Graphs: %1</source>
