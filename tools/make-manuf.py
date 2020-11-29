@@ -243,7 +243,16 @@ def main():
             oui = prefix_to_oui(ieee_row[1].upper())
             manuf = ieee_row[2].strip()
             if oui in oui_d:
-                print(u'{} - Skipping IEEE "{}" in favor of "{}"'.format(oui, manuf, oui_d[oui]))
+                action = 'Skipping'
+                try:
+                    manuf_stripped = re.findall('[a-z]+', manuf.lower())
+                    tmpl_manuf_stripped = re.findall('[a-z]+', oui_d[oui].split('\t')[-1].strip().lower())
+                    if manuf_stripped == tmpl_manuf_stripped:
+                        action = 'Skipping duplicate'
+                except IndexError:
+                    pass
+
+                print(u'{} - {} IEEE "{}" in favor of "{}"'.format(oui, action, manuf, oui_d[oui]))
                 ieee_d[db]['skipped'] += 1
             else:
                 oui_d[oui] = shorten(manuf)
