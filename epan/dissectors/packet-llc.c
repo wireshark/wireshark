@@ -467,17 +467,17 @@ dissect_llc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 				 */
 				format = tvb_get_guint8(next_tvb, 0);
 				if (format == 0x81) {
-				    dissect_basicxid(next_tvb, pinfo, tree, data);
+					dissect_basicxid(next_tvb, pinfo, tree, data);
 				} else {
-				/*
-				 * Try the XID LLC subdissector table
-				 * with the DSAP.
-				 */
-				    if (!dissector_try_uint(
-					xid_subdissector_table, dsap, next_tvb,
-					pinfo, tree)) {
+					/*
+					 * Try the XID LLC subdissector table
+					 * with the DSAP.
+					 */
+					if (!dissector_try_uint(
+					    xid_subdissector_table, dsap,
+					    next_tvb, pinfo, tree)) {
 						call_data_dissector(next_tvb, pinfo, tree);
-				    }
+					}
 				}
 			} else {
 				call_data_dissector(next_tvb, pinfo, tree);
