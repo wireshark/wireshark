@@ -2086,6 +2086,7 @@ hydra		2374/tcp	# Hydra RPC
 docker		2375/tcp	# Docker REST API (plain text)
 docker-s	2376/tcp	# Docker REST API (ssl)
 swarm		2377/tcp	# RPC interface for Docker Swarm
+dali		2378/udp	# DALI lighting control
 etcd-client	2379/tcp	# etcd client communication
 etcd-server	2380/tcp	# etcd server to server communication
 compaq-https	2381/tcp/udp	# Compaq HTTPS
