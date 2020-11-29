@@ -381,18 +381,17 @@ dissect_llc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "LLC");
 	col_clear(pinfo->cinfo, COL_INFO);
 
+	dsap = tvb_get_guint8(tvb, 0);
+
+	ti = proto_tree_add_item(tree, proto_llc, tvb, 0, -1, ENC_NA);
+	llc_tree = proto_item_add_subtree(ti, ett_llc);
 	/* IEEE 1609.3 Ch 5.2.1
 	 * The LLC sublayer header consists solely of a 2-octet field
 	* that contains an EtherType that identifies the higher layer protocol...
 	* Check for 0x86DD too?
 	*/
-	etype = tvb_get_ntohs(tvb, 0);
-
-	dsap = tvb_get_guint8(tvb, 0);
-
-	ti = proto_tree_add_item(tree, proto_llc, tvb, 0, -1, ENC_NA);
-	llc_tree = proto_item_add_subtree(ti, ett_llc);
-	if (etype == 0x88DC) {
+	if (tvb_bytes_exist(tvb, 0, 2) &&
+	    (etype = tvb_get_ntohs(tvb, 0)) == 0x88DC) {
 		proto_tree_add_item(llc_tree, hf_llc_type, tvb, 0, 2, ENC_BIG_ENDIAN);
 		next_tvb = tvb_new_subset_remaining(tvb, 2);
 		if (!dissector_try_uint(ethertype_subdissector_table,
