@@ -25353,79 +25353,78 @@ dissect_ieee80211_common(tvbuff_t *tvb, packet_info *pinfo,
           call_dissector(llc_handle, msdu_tvb, pinfo, subframe_tree);
           msdu_offset = roundup2(msdu_offset+msdu_length, 4);
         } while (tvb_reported_length_remaining(next_tvb, msdu_offset) > 14);
+      } else {
+        /* I guess some bridges take Netware Ethernet_802_3 frames,
+           which are 802.3 frames (with a length field rather than
+           a type field, but with no 802.2 header in the payload),
+           and just stick the payload into an 802.11 frame.  I've seen
+           captures that show frames of that sort.
 
-        break;
-      }
-      /* I guess some bridges take Netware Ethernet_802_3 frames,
-         which are 802.3 frames (with a length field rather than
-         a type field, but with no 802.2 header in the payload),
-         and just stick the payload into an 802.11 frame.  I've seen
-         captures that show frames of that sort.
+           We also handle some odd form of encapsulation in which a
+           complete Ethernet frame is encapsulated within an 802.11
+           data frame, with no 802.2 header.  This has been seen
+           from some hardware.
 
-         We also handle some odd form of encapsulation in which a
-         complete Ethernet frame is encapsulated within an 802.11
-         data frame, with no 802.2 header.  This has been seen
-         from some hardware.
+           On top of that, at least at some point it appeared that
+           the OLPC XO sent out frames with two bytes of 0 between
+           the "end" of the 802.11 header and the beginning of
+           the payload. Something similar has also been observed
+           with Atheros chipsets. There the sequence control field
+           seems repeated.
 
-         On top of that, at least at some point it appeared that
-         the OLPC XO sent out frames with two bytes of 0 between
-         the "end" of the 802.11 header and the beginning of
-         the payload. Something similar has also been observed
-         with Atheros chipsets. There the sequence control field
-         seems repeated.
+           So, if the packet doesn't start with 0xaa 0xaa:
 
-         So, if the packet doesn't start with 0xaa 0xaa:
+             we first use the same scheme that linux-wlan-ng does to detect
+             those encapsulated Ethernet frames, namely looking to see whether
+             the frame either starts with 6 octets that match the destination
+             address from the 802.11 header or has 6 octets that match the
+             source address from the 802.11 header following the first 6 octets,
+             and, if so, treat it as an encapsulated Ethernet frame;
 
-           we first use the same scheme that linux-wlan-ng does to detect
-           those encapsulated Ethernet frames, namely looking to see whether
-           the frame either starts with 6 octets that match the destination
-           address from the 802.11 header or has 6 octets that match the
-           source address from the 802.11 header following the first 6 octets,
-           and, if so, treat it as an encapsulated Ethernet frame;
-
-           otherwise, we use the same scheme that we use in the Ethernet
-           dissector to recognize Netware 802.3 frames, namely checking
-           whether the packet starts with 0xff 0xff and, if so, treat it
-           as an encapsulated IPX frame, and then check whether the
-           packet starts with 0x00 0x00 and, if so, treat it as an OLPC
-           frame, or check the packet starts with the repetition of the
-           sequence control field and, if so, treat it as an Atheros frame. */
-      heur_dtbl_entry_t  *hdtbl_entry;
-      if (dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, tree, &hdtbl_entry, NULL)) {
-        pinfo->fragmented = save_fragmented;
-        goto end_of_wlan; /* heuristics dissector handled it. */
-      }
-      encap_type = ENCAP_802_2;
-      if (tvb_bytes_exist(next_tvb, 0, 2)) {
-        octet1 = tvb_get_guint8(next_tvb, 0);
-        octet2 = tvb_get_guint8(next_tvb, 1);
-        if ((octet1 != 0xaa) || (octet2 != 0xaa)) {
-          if ((tvb_memeql(next_tvb, 6, (const guint8 *)pinfo->dl_src.data, 6) == 0) ||
-              (tvb_memeql(next_tvb, 0, (const guint8 *)pinfo->dl_dst.data, 6) == 0))
-            encap_type = ENCAP_ETHERNET;
-          else if ((octet1 == 0xff) && (octet2 == 0xff))
-            encap_type = ENCAP_IPX;
-          else if (((octet1 == 0x00) && (octet2 == 0x00)) ||
-                   (((octet2 << 8) | octet1) == seq_control)) {
-            proto_tree_add_item(tree, hf_ieee80211_mysterious_olpc_stuff, next_tvb, 0, 2, ENC_NA);
-            next_tvb = tvb_new_subset_remaining(next_tvb, 2);
+             otherwise, we use the same scheme that we use in the Ethernet
+             dissector to recognize Netware 802.3 frames, namely checking
+             whether the packet starts with 0xff 0xff and, if so, treat it
+             as an encapsulated IPX frame, and then check whether the
+             packet starts with 0x00 0x00 and, if so, treat it as an OLPC
+             frame, or check the packet starts with the repetition of the
+             sequence control field and, if so, treat it as an Atheros frame. */
+        heur_dtbl_entry_t  *hdtbl_entry;
+        if (dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, tree, &hdtbl_entry, NULL)) {
+          pinfo->fragmented = save_fragmented;
+          goto end_of_wlan; /* heuristics dissector handled it. */
+        }
+        encap_type = ENCAP_802_2;
+        if (tvb_bytes_exist(next_tvb, 0, 2)) {
+          octet1 = tvb_get_guint8(next_tvb, 0);
+          octet2 = tvb_get_guint8(next_tvb, 1);
+          if ((octet1 != 0xaa) || (octet2 != 0xaa)) {
+            if ((tvb_memeql(next_tvb, 6, (const guint8 *)pinfo->dl_src.data, 6) == 0) ||
+                (tvb_memeql(next_tvb, 0, (const guint8 *)pinfo->dl_dst.data, 6) == 0))
+              encap_type = ENCAP_ETHERNET;
+            else if ((octet1 == 0xff) && (octet2 == 0xff))
+              encap_type = ENCAP_IPX;
+            else if (((octet1 == 0x00) && (octet2 == 0x00)) ||
+                     (((octet2 << 8) | octet1) == seq_control)) {
+              proto_tree_add_item(tree, hf_ieee80211_mysterious_olpc_stuff, next_tvb, 0, 2, ENC_NA);
+              next_tvb = tvb_new_subset_remaining(next_tvb, 2);
+            }
           }
         }
-      }
 
-      switch (encap_type) {
+        switch (encap_type) {
 
-      case ENCAP_802_2:
-        call_dissector(llc_handle, next_tvb, pinfo, tree);
-        break;
+        case ENCAP_802_2:
+          call_dissector(llc_handle, next_tvb, pinfo, tree);
+          break;
 
-      case ENCAP_ETHERNET:
-        call_dissector(eth_withoutfcs_handle, next_tvb, pinfo, tree);
-        break;
+        case ENCAP_ETHERNET:
+          call_dissector(eth_withoutfcs_handle, next_tvb, pinfo, tree);
+          break;
 
-      case ENCAP_IPX:
-        call_dissector(ipx_handle, next_tvb, pinfo, tree);
-        break;
+        case ENCAP_IPX:
+          call_dissector(ipx_handle, next_tvb, pinfo, tree);
+          break;
+        }
       }
       break;
 
