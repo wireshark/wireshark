@@ -1882,9 +1882,12 @@ if(WIN32)
 		list (APPEND OPTIONAL_DLLS "${CARES_DLL_DIR}/${CARES_DLL}")
 		list (APPEND OPTIONAL_PDBS "${CARES_DLL_DIR}/${CARES_PDB}")
 	endif(CARES_FOUND)
-	if (MAXMINDDB_FOUND)
-		list (APPEND OPTIONAL_DLLS "${MAXMINDDB_DLL_DIR}/${MAXMINDDB_DLL}")
-	endif(MAXMINDDB_FOUND)
+	# vcpkg's libmaxminddb is static-only for now. This can be uncommented when
+	# https://github.com/maxmind/libmaxminddb/commit/3998f42bdb6678cbaa1a543057e5c81ba1668ac2
+	# percolates up to vcpkg.
+	# if (MAXMINDDB_FOUND)
+	# 	list (APPEND OPTIONAL_DLLS "${MAXMINDDB_DLL_DIR}/${MAXMINDDB_DLL}")
+	# endif(MAXMINDDB_FOUND)
 	if (LIBSSH_FOUND)
 		list (APPEND OPTIONAL_DLLS "${LIBSSH_DLL_DIR}/${LIBSSH_DLL}")
 	endif(LIBSSH_FOUND)
@@ -2832,6 +2835,8 @@ if (MAXMINDDB_FOUND)
 	set(mmdbresolve_LIBS
 		# Note: libmaxminddb is not GPL-2 compatible.
 		${MAXMINDDB_LIBRARY}
+		# Needed for CMake-built libmaxminddb.lib <= 1.43.
+		${WIN_WS2_32_LIBRARY}
 	)
 	set(mmdbresolve_FILES
 		mmdbresolve.c
