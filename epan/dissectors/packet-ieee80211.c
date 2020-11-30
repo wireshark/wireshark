@@ -23885,8 +23885,8 @@ dissect_ieee80211_common(tvbuff_t *tvb, packet_info *pinfo,
     if (HAS_HT_CONTROL(FCF_FLAGS(fcf))) {
       /*
        * Management frames with the Order bit set have an HT Control field;
-       * see 8.2.4.1.10 "Order field".  If they're not HT frames, they should
-       * never have the Order bit set.
+       * see IEEE 802.11-2016 section 9.2.4.1.10 "+HTC/Order subfield".
+       * If they're not HT frames, they should never have the Order bit set.
        */
       hdr_len += 4;
       htc_len = 4;
@@ -23979,8 +23979,8 @@ dissect_ieee80211_common(tvbuff_t *tvb, packet_info *pinfo,
         if (HAS_HT_CONTROL(FCF_FLAGS(fcf))) {
           /*
            * QoS data frames with the Order bit set have an HT Control field;
-           * see 8.2.4.1.10 "Order field".  If they're not HT frames, they
-           * should never have the Order bit set.
+           * see IEEE 802.16 section 9.2.4.1.10 "+HTC/Order subfield".
+           * If they're not HT frames, they should never have the Order bit set.
            */
           hdr_len += 4;
           htc_len = 4;
@@ -24002,16 +24002,6 @@ dissect_ieee80211_common(tvbuff_t *tvb, packet_info *pinfo,
           }
         }
       } else {
-        if (HAS_HT_CONTROL(FCF_FLAGS(fcf))) {
-          /*
-           * QoS data frames with the Order bit set have an HT Control field;
-           * see 8.2.4.1.10 "Order field".  If they're not HT frames, they
-           * should never have the Order bit set.
-           */
-          hdr_len += 4;
-          htc_len = 4;
-        }
-
         /*
          * For locally originated mesh frames, the QoS header may be added
          * by the hardware, and no present in wireshark captures.  This
