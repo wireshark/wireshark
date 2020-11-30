@@ -629,6 +629,7 @@ static int hf_sflow_5_extended_url_direction = -1;
 static int hf_sflow_5_extended_mpls_ftn_description = -1;
 static int hf_sflow_245_ip_protocol = -1;
 
+static int hf_sflow_lag_port_padding = -1;
 static int hf_sflow_lag_port_actorsystemid = -1;
 static int hf_sflow_lag_port_partneropersystemid = -1;
 static int hf_sflow_lag_port_attachedaggid = -1;
@@ -1866,11 +1867,15 @@ static int * const sflow_5_lag_port_state_flags[] = {
 static gint
 dissect_sflow_5_lag(proto_tree *counter_data_tree, tvbuff_t *tvb, gint offset) {
     proto_tree_add_item(counter_data_tree, hf_sflow_lag_port_actorsystemid, tvb, offset, 6, ENC_NA);
+    offset += 6;
     /* XDR requires 4-byte alignment */
-    offset += 8;
+    proto_tree_add_item(counter_data_tree, hf_sflow_lag_port_padding, tvb, offset, 2, ENC_NA);
+    offset += 2;
     proto_tree_add_item(counter_data_tree, hf_sflow_lag_port_partneropersystemid, tvb, offset, 6, ENC_NA);
+    offset += 6;
     /* XDR requires 4-byte alignment */
-    offset += 8;
+    proto_tree_add_item(counter_data_tree, hf_sflow_lag_port_padding, tvb, offset, 2, ENC_NA);
+    offset += 2;
     proto_tree_add_item(counter_data_tree, hf_sflow_lag_port_attachedaggid, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
     proto_tree_add_bitmask(counter_data_tree, tvb, offset, hf_sflow_lag_port_state, ett_sflow_lag_port_state_flags, sflow_5_lag_port_state_flags, ENC_BIG_ENDIAN);
@@ -3574,7 +3579,11 @@ proto_register_sflow(void) {
           FT_UINT32, BASE_DEC, NULL, 0x0,
           NULL, HFILL }
       },
-
+      { &hf_sflow_lag_port_padding,
+        { "Padding", "sflow.lag_port.padding",
+          FT_BYTES, BASE_NONE, NULL, 0x0,
+          NULL, HFILL }
+      },
       { &hf_sflow_lag_port_actorsystemid,
         { "Actor System ID", "sflow.lag_port.actor_system_id",
           FT_ETHER, BASE_NONE, NULL, 0x0,
