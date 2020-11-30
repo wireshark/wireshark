@@ -25308,77 +25308,79 @@ dissect_ieee80211_common(tvbuff_t *tvb, packet_info *pinfo,
   case DATA_FRAME:
     hdr_len = (FCF_ADDR_SELECTOR(fcf) == DATA_ADDR_T4) ? DATA_LONG_HDR_LEN : DATA_SHORT_HDR_LEN;
 
-    if ((option_flags & IEEE80211_COMMON_OPT_NORMAL_QOS) && DATA_FRAME_IS_QOS(frame_type_subtype)) {
-      /* QoS frame */
-      qosoff = hdr_len;
-      hdr_len += 2; /* Include the QoS field in the header length */
+    if (option_flags & IEEE80211_COMMON_OPT_NORMAL_QOS) {
+      if (DATA_FRAME_IS_QOS(frame_type_subtype)) {
+        /* QoS frame */
+        qosoff = hdr_len;
+        hdr_len += 2; /* Include the QoS field in the header length */
 
-      if (HAS_HT_CONTROL(FCF_FLAGS(fcf))) {
-        /*
-         * QoS data frames with the Order bit set have an HT Control field;
-         * see 8.2.4.1.10 "Order field".  If they're not HT frames, they
-         * should never have the Order bit set.
-         */
-        hdr_len += 4;
-        htc_len = 4;
-      }
-
-      /*
-       * Does it look as if we have a mesh header?
-       * Look at the Mesh Control subfield of the QoS field and at the
-       * purported mesh flag fields.
-       */
-      qos_control = tvb_get_letohs(tvb, qosoff);
-      if (tvb_bytes_exist(tvb, hdr_len, 1)) {
-        meshoff = hdr_len;
-        mesh_flags = tvb_get_guint8(tvb, meshoff);
-        if (has_mesh_control(fcf, qos_control, mesh_flags)) {
-          /* Yes, add the length of that in as well. */
-          meshctl_len = find_mesh_control_length(mesh_flags);
-          hdr_len += meshctl_len;
+        if (HAS_HT_CONTROL(FCF_FLAGS(fcf))) {
+          /*
+           * QoS data frames with the Order bit set have an HT Control field;
+           * see 8.2.4.1.10 "Order field".  If they're not HT frames, they
+           * should never have the Order bit set.
+           */
+          hdr_len += 4;
+          htc_len = 4;
         }
-      }
-    } else if ((option_flags & IEEE80211_COMMON_OPT_NORMAL_QOS) && !DATA_FRAME_IS_QOS(frame_type_subtype)) {
 
-      if (HAS_HT_CONTROL(FCF_FLAGS(fcf))) {
         /*
-         * QoS data frames with the Order bit set have an HT Control field;
-         * see 8.2.4.1.10 "Order field".  If they're not HT frames, they
-         * should never have the Order bit set.
+         * Does it look as if we have a mesh header?
+         * Look at the Mesh Control subfield of the QoS field and at the
+         * purported mesh flag fields.
          */
-        hdr_len += 4;
-        htc_len = 4;
-      }
-
-      /*
-       * For locally originated mesh frames, the QoS header may be added by the
-       * hardware, and no present in wireshark captures.  This poses a problem
-       * as the QoS header indicates the presence of the mesh control header.
-       *
-       * Instead of QoS, we use a few heuristics to determine the presence of
-       * the mesh control header, which is tricky because it can have a
-       * variable length.
-       *
-       * Assume minimal length, and then correct if wrong.
-       */
-      meshctl_len = find_mesh_control_length(0);
-      if (tvb_bytes_exist(tvb, hdr_len, meshctl_len)) {
-        meshoff = hdr_len;
-        mesh_flags = tvb_get_guint8(tvb, meshoff);
-        /* now find correct length */
-        meshctl_len = find_mesh_control_length(mesh_flags);
-        /* ... and try to read two bytes of next header */
-        if (tvb_bytes_exist(tvb, hdr_len, meshctl_len + 2)) {
-          guint16 next_header = tvb_get_letohs(tvb, meshoff + meshctl_len);
-          if (has_mesh_control_local(fcf, mesh_flags, next_header)) {
+        qos_control = tvb_get_letohs(tvb, qosoff);
+        if (tvb_bytes_exist(tvb, hdr_len, 1)) {
+          meshoff = hdr_len;
+          mesh_flags = tvb_get_guint8(tvb, meshoff);
+          if (has_mesh_control(fcf, qos_control, mesh_flags)) {
             /* Yes, add the length of that in as well. */
+            meshctl_len = find_mesh_control_length(mesh_flags);
             hdr_len += meshctl_len;
-            break;
           }
         }
+      } else {
+        if (HAS_HT_CONTROL(FCF_FLAGS(fcf))) {
+          /*
+           * QoS data frames with the Order bit set have an HT Control field;
+           * see 8.2.4.1.10 "Order field".  If they're not HT frames, they
+           * should never have the Order bit set.
+           */
+          hdr_len += 4;
+          htc_len = 4;
+        }
+
+        /*
+         * For locally originated mesh frames, the QoS header may be added
+         * by the hardware, and no present in wireshark captures.  This
+         * poses a problem as the QoS header indicates the presence of the
+         * mesh control header.
+         *
+         * Instead of QoS, we use a few heuristics to determine the presence
+         * of the mesh control header, which is tricky because it can have a
+         * variable length.
+         *
+         * Assume minimal length, and then correct if wrong.
+         */
+        meshctl_len = find_mesh_control_length(0);
+        if (tvb_bytes_exist(tvb, hdr_len, meshctl_len)) {
+          meshoff = hdr_len;
+          mesh_flags = tvb_get_guint8(tvb, meshoff);
+          /* now find correct length */
+          meshctl_len = find_mesh_control_length(mesh_flags);
+          /* ... and try to read two bytes of next header */
+          if (tvb_bytes_exist(tvb, hdr_len, meshctl_len + 2)) {
+            guint16 next_header = tvb_get_letohs(tvb, meshoff + meshctl_len);
+            if (has_mesh_control_local(fcf, mesh_flags, next_header)) {
+              /* Yes, add the length of that in as well. */
+              hdr_len += meshctl_len;
+              break;
+            }
+          }
+        }
+        /* failed to find a mesh header */
+        meshctl_len = 0;
       }
-      /* failed to find a mesh header */
-      meshctl_len = 0;
     }
     break;
 
