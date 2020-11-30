@@ -1855,7 +1855,7 @@ void proto_register_icmp(void)
 		  "Identifier (big endian representation)", HFILL}},
 
 		{&hf_icmp_ident_le,
-		 {"Identifier (LE)", "icmp.ident", FT_UINT16, BASE_DEC_HEX,
+		 {"Identifier (LE)", "icmp.ident_le", FT_UINT16, BASE_DEC_HEX,
 		  NULL, 0x0,
 		  "Identifier (little endian representation)", HFILL}},
 
