@@ -50,8 +50,8 @@ static int ett_vxlan_flags = -1;
 
 static int * const flags_fields[] = {
         &hf_vxlan_flag_g,
-        &hf_vxlan_flag_d,
         &hf_vxlan_flag_i,
+        &hf_vxlan_flag_d,
         &hf_vxlan_flag_a,
         &hf_vxlan_flags_reserved,
         NULL
