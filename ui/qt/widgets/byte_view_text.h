@@ -119,7 +119,7 @@ private:
     bool show_hex_;             // Should we show the hex display?
     bool show_ascii_;           // Should we show the ASCII display?
     int row_width_;             // Number of bytes per line
-    qreal font_width_;          // Single character width and text margin. NOTE: Use fontMetrics::width for multiple characters.
+    int font_width_;            // Single character width and text margin. NOTE: Use fontMetrics::width for multiple characters.
     int line_height_;           // Font line spacing
     QList<QRect> hover_outlines_; // Hovered byte outlines.
 
