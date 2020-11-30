@@ -220,7 +220,7 @@ dissect_ehdlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 		tei = tei_from_ctei(ctei);
 
 		/* Add TEI to INFO column */
-		col_append_fstr(pinfo->cinfo, COL_INFO, " | TEI:1%u | ", tei);
+		col_append_fstr(pinfo->cinfo, COL_INFO, " | TEI:%02u | ", tei);
 		col_set_fence(pinfo->cinfo, COL_INFO);
 
 		if (tree) {
