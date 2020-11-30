@@ -184,7 +184,6 @@ void ByteViewText::markAppendix(int start, int length)
 void ByteViewText::setMonospaceFont(const QFont &mono_font)
 {
     QFont int_font(mono_font);
-    int_font.setStyleStrategy(QFont::ForceIntegerMetrics);
 
     setFont(int_font);
     viewport()->setFont(int_font);
