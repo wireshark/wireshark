@@ -78,6 +78,7 @@ private:
     const QByteArray data_;
 
     void updateLayoutMetrics();
+    int stringWidth(const QString &line);
     void drawLine(QPainter *painter, const int offset, const int row_y);
     bool addFormatRange(QList<QTextLayout::FormatRange> &fmt_list, int start, int length, HighlightMode mode);
     bool addHexFormatRange(QList<QTextLayout::FormatRange> &fmt_list, int mark_start, int mark_length, int tvb_offset, int max_tvb_pos, HighlightMode mode);

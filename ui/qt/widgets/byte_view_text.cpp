@@ -349,6 +349,15 @@ void ByteViewText::updateLayoutMetrics()
     line_height_ = fontMetrics().height();
 }
 
+int ByteViewText::stringWidth(const QString &line)
+{
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 11, 0))
+    return fontMetrics().horizontalAdvance(line);
+#else
+    return fontMetrics().boundingRect(line).width();
+#endif
+}
+
 // Draw a line of byte view text for a given offset.
 // Text highlighting is handled using QTextLayout::FormatRange.
 void ByteViewText::drawLine(QPainter *painter, const int offset, const int row_y)
@@ -374,7 +383,7 @@ void ByteViewText::drawLine(QPainter *painter, const int offset, const int row_y
     if (show_offset_) {
         line = QString(" %1 ").arg(offset, offsetChars(false), 16, QChar('0'));
         if (build_x_pos) {
-            x_pos_to_column_.fill(-1, fontMetrics().boundingRect(line).width());
+            x_pos_to_column_.fill(-1, stringWidth(line));
         }
     }
 
@@ -409,19 +418,19 @@ void ByteViewText::drawLine(QPainter *painter, const int offset, const int row_y
                 break;
             }
             if (build_x_pos) {
-                x_pos_to_column_ += QVector<int>().fill(tvb_pos - offset, fontMetrics().boundingRect(line).width() - x_pos_to_column_.size() + slop);
+                x_pos_to_column_ += QVector<int>().fill(tvb_pos - offset, stringWidth(line) - x_pos_to_column_.size() + slop);
             }
             if (tvb_pos == hovered_byte_offset_ || tvb_pos == marked_byte_offset_) {
                 int ho_len = recent.gui_bytes_view == BYTES_HEX ? 2 : 8;
                 QRect ho_rect = painter->boundingRect(QRect(), Qt::AlignHCenter|Qt::AlignVCenter, line.right(ho_len));
-                ho_rect.moveRight(fontMetrics().boundingRect(line).width());
+                ho_rect.moveRight(stringWidth(line));
                 ho_rect.moveTop(row_y);
                 hover_outlines_.append(ho_rect);
             }
         }
         line += QString(ascii_start - line.length(), ' ');
         if (build_x_pos) {
-            x_pos_to_column_ += QVector<int>().fill(-1, fontMetrics().boundingRect(line).width() - x_pos_to_column_.size());
+            x_pos_to_column_ += QVector<int>().fill(-1, stringWidth(line) - x_pos_to_column_.size());
         }
 
         addHexFormatRange(fmt_list, proto_start_, proto_len_, offset, max_tvb_pos, ModeProtocol);
@@ -470,11 +479,11 @@ void ByteViewText::drawLine(QPainter *painter, const int offset, const int row_y
                 }
             }
             if (build_x_pos) {
-                x_pos_to_column_ += QVector<int>().fill(tvb_pos - offset, fontMetrics().boundingRect(line).width() - x_pos_to_column_.size());
+                x_pos_to_column_ += QVector<int>().fill(tvb_pos - offset, stringWidth(line) - x_pos_to_column_.size());
             }
             if (tvb_pos == hovered_byte_offset_ || tvb_pos == marked_byte_offset_) {
                 QRect ho_rect = painter->boundingRect(QRect(), 0, line.right(1));
-                ho_rect.moveRight(fontMetrics().boundingRect(line).width());
+                ho_rect.moveRight(stringWidth(line));
                 ho_rect.moveTop(row_y);
                 hover_outlines_.append(ho_rect);
             }
