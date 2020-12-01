@@ -174,7 +174,10 @@ dissect_ssyncp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             0, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(ssyncp_tree, hf_ssyncp_seq, tvb,
             0, 8, ENC_BIG_ENDIAN);
-    proto_item *encrypted_item = proto_tree_add_item(ssyncp_tree, hf_ssyncp_encrypted,
+#ifdef GCRY_OCB_BLOCK_LEN
+    proto_item *encrypted_item =
+#endif
+       proto_tree_add_item(ssyncp_tree, hf_ssyncp_encrypted,
             tvb, 8, -1, ENC_NA);
 
     if (!ssyncp_pinfo->first_packet) {
