@@ -1598,10 +1598,13 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                             } else {
                                 /*
                                  * Missing fragment for previous L2CAP and fragment start for this.
-                                 * Increase l2cap_index.
+                                 * Set more_fragments and increase l2cap_index to avoid reassembly.
                                  */
+                                btle_frame_info->more_fragments = 1;
                                 btle_frame_info->missing_start = 1;
                                 btle_frame_info->l2cap_index = l2cap_index;
+                                connection_info->direction_info[direction].l2cap_index = l2cap_index;
+                                connection_info->direction_info[direction].segmentation_started = 0;
                                 l2cap_index++;
                             }
                             if (connection_info->direction_info[direction].segment_len_rem > 0) {
@@ -1620,6 +1623,8 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                             btle_frame_info->more_fragments = 1;
                             btle_frame_info->missing_start = 1;
                             btle_frame_info->l2cap_index = l2cap_index;
+                            connection_info->direction_info[direction].l2cap_index = l2cap_index;
+                            connection_info->direction_info[direction].segmentation_started = 0;
                             l2cap_index++;
                         }
                     }
