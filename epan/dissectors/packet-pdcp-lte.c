@@ -207,7 +207,7 @@ static void* uat_ue_keys_record_copy_cb(void* n, const void* o, size_t siz _U_) 
 }
 
 /* If raw_string is a valid key, set check_string & return TRUE */
-static gboolean check_valid_key_sring(const char* raw_string, char* checked_string)
+static gboolean check_valid_key_string(const char* raw_string, char* checked_string)
 {
     guint n;
     guint written = 0;
@@ -247,7 +247,7 @@ static void update_key_from_string(const char *stringKey, guint8 *binaryKey, gbo
     int  n;
     char cleanString[32];
 
-    if (!check_valid_key_sring(stringKey, cleanString)) {
+    if (!check_valid_key_string(stringKey, cleanString)) {
         *pKeyOK = FALSE;
     }
     else {
@@ -301,7 +301,7 @@ void set_pdcp_lte_rrc_ciphering_key(guint16 ueid, const char *key)
 {
     /* Get or create struct for this UE */
     uat_ue_keys_record_t *key_record = (uat_ue_keys_record_t*)wmem_map_lookup(pdcp_security_key_hash,
-                                                                                  GUINT_TO_POINTER((guint)ueid));
+                                                                              GUINT_TO_POINTER((guint)ueid));
     if (key_record == NULL) {
         /* Create and add to table */
         key_record = wmem_new0(wmem_file_scope(), uat_ue_keys_record_t);
@@ -311,7 +311,8 @@ void set_pdcp_lte_rrc_ciphering_key(guint16 ueid, const char *key)
 
     /* Check and convert RRC key */
     key_record->rrcCipherKeyString = g_strdup(key);
-    update_key_from_string(key_record->rrcCipherKeyString, key_record->rrcCipherBinaryKey, &key_record->rrcCipherKeyOK);}
+    update_key_from_string(key_record->rrcCipherKeyString, key_record->rrcCipherBinaryKey, &key_record->rrcCipherKeyOK);
+}
 
 void set_pdcp_lte_rrc_integrity_key(guint16 ueid, const char *key)
 {
@@ -348,11 +349,11 @@ void set_pdcp_lte_up_ciphering_key(guint16 ueid, const char *key)
 }
 
 
-/* Preference settings for deciphering and integrity checking.  Currently all default to off */
+/* Preference settings for deciphering and integrity checking. */
 static gboolean global_pdcp_decipher_signalling = TRUE;
 static gboolean global_pdcp_decipher_userplane = FALSE;  /* Can be slow, so default to FALSE */
 static gboolean global_pdcp_check_integrity = TRUE;
-static gboolean global_pdcp_ignore_sec = FALSE;  /* ignore Set Security Algo calls */
+static gboolean global_pdcp_ignore_sec = FALSE;          /* Ignore Set Security Algo calls */
 
 /* Use these values where we know the keys but may have missed the algorithm,
    e.g. when handing over and RRCReconfigurationRequest goes to target cell only */
@@ -1550,7 +1551,7 @@ static tvbuff_t *decipher_payload(tvbuff_t *tvb, packet_info *pinfo, int *offset
         return tvb;
     }
 
-    /* Don't decipher control messages */
+    /* Don't decipher user-plane control messages */
     if ((p_pdcp_info->plane == USER_PLANE) && ((tvb_get_guint8(tvb, 0) & 0x80) == 0x00)) {
         return tvb;
     }
@@ -1671,6 +1672,7 @@ static guint32 calculate_digest(pdu_security_settings_t *pdu_security_settings, 
 #ifdef HAVE_SNOW3G
         case eia1:
             {
+                /* SNOW3G */
                 guint8  *mac;
                 gint message_length = tvb_captured_length_remaining(tvb, offset) - 4;
                 guint8 *message_data = (guint8 *)wmem_alloc0(wmem_packet_scope(), message_length+5);
@@ -1695,6 +1697,7 @@ static guint32 calculate_digest(pdu_security_settings_t *pdu_security_settings, 
 #if GCRYPT_VERSION_NUMBER >= 0x010600 /* 1.6.0 */
         case eia2:
             {
+                /* AES */
                 gcry_mac_hd_t mac_hd;
                 int gcrypt_err;
                 gint message_length;
@@ -1752,7 +1755,7 @@ static guint32 calculate_digest(pdu_security_settings_t *pdu_security_settings, 
 #endif
 
         default:
-            /* Can't calculate */
+            /* Can't calculate (e.g. Zuc) */
             *calculated = FALSE;
             return 0;
     }
