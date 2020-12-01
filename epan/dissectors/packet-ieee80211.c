@@ -3933,6 +3933,23 @@ static int hf_ieee80211_gann_mesh_gate_addr = -1;
 static int hf_ieee80211_gann_seq_num = -1;
 static int hf_ieee80211_gann_interval = -1;
 
+static int hf_ieee80211_pxu_pxu_id = -1;
+static int hf_ieee80211_pxu_pxu_origin_mac = -1;
+static int hf_ieee80211_pxu_no_proxy_info = -1;
+static int hf_ieee80211_pxu_proxy_info = -1;
+static int hf_ieee80211_pxu_proxy_info_flags = -1;
+static int hf_ieee80211_pxu_proxy_info_flags_delete = -1;
+static int hf_ieee80211_pxu_proxy_info_flags_orig_is_proxy = -1;
+static int hf_ieee80211_pxu_proxy_info_flags_lifetime = -1;
+static int hf_ieee80211_pxu_proxy_info_flags_reserved = -1;
+static int hf_ieee80211_pxu_proxy_info_ext_mac = -1;
+static int hf_ieee80211_pxu_proxy_info_seq_num = -1;
+static int hf_ieee80211_pxu_proxy_info_proxy_mac = -1;
+static int hf_ieee80211_pxu_proxy_info_lifetime = -1;
+
+static int hf_ieee80211_pxuc_pxu_id = -1;
+static int hf_ieee80211_pxuc_pxu_recip_mac = -1;
+
 static int hf_ieee80211_ff_public_action = -1;
 static int hf_ieee80211_ff_protected_public_action = -1;
 static int hf_ieee80211_ff_tod = -1;
@@ -6020,6 +6037,8 @@ static gint ett_mesh_formation_info_tree = -1;
 static gint ett_bcn_timing_rctrl_tree = -1;
 static gint ett_bcn_timing_info_tree = -1;
 static gint ett_gann_flags_tree = -1;
+static gint ett_pxu_proxy_info_tree = -1;
+static gint ett_pxu_proxy_info_flags_tree = -1;
 
 static gint ett_rsn_gcs_tree = -1;
 static gint ett_rsn_pcs_tree = -1;
@@ -22949,6 +22968,94 @@ ieee80211_tag_mesh_perr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 }
 
 static int
+ieee80211_tag_pxu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+{
+  int tag_len = tvb_reported_length(tvb);
+  ieee80211_tagged_field_data_t* field_data = (ieee80211_tagged_field_data_t*)data;
+  int offset = 0;
+  guint32 pxu_count = 0, i, proxy_info_len;
+  guint8 pxu_flag;
+  proto_item *item;
+  proto_tree *subtree;
+
+  static int * const ieee80211_pxu_proxy_info_flags_byte[] = {
+    &hf_ieee80211_pxu_proxy_info_flags_delete,
+    &hf_ieee80211_pxu_proxy_info_flags_orig_is_proxy,
+    &hf_ieee80211_pxu_proxy_info_flags_lifetime,
+    &hf_ieee80211_pxu_proxy_info_flags_reserved,
+    NULL,
+  };
+
+  /* PXU element (137) */
+  if (tag_len < 8) {
+    expert_add_info_format(pinfo, field_data->item_tag_length, &ei_ieee80211_tag_length,
+                           "Tag length %u wrong, must be at least 8", tag_len);
+    return tvb_captured_length(tvb);
+  }
+
+  proto_tree_add_item(tree, hf_ieee80211_pxu_pxu_id, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+  offset += 1;
+  proto_tree_add_item(tree, hf_ieee80211_pxu_pxu_origin_mac, tvb, offset, 6, ENC_NA);
+  offset += 6;
+  proto_tree_add_item_ret_uint(tree, hf_ieee80211_pxu_no_proxy_info, tvb, offset, 1, ENC_LITTLE_ENDIAN, &pxu_count);
+  offset += 1;
+
+  for (i = 0; i < pxu_count; i++) {
+    pxu_flag = tvb_get_guint8(tvb, offset);
+    proxy_info_len = 1 + 6 + 4 + ((pxu_flag & 0x2) ? 0 : 6) + ((pxu_flag & 0x4) ? 4 : 0);
+
+    item = proto_tree_add_item(tree, hf_ieee80211_pxu_proxy_info, tvb, offset, proxy_info_len, ENC_NA);
+    subtree = proto_item_add_subtree(item, ett_pxu_proxy_info_tree);
+    proto_item_append_text(item, " #%u", (i + 1));
+
+    proto_tree_add_bitmask_with_flags(subtree, tvb, offset, hf_ieee80211_pxu_proxy_info_flags,
+        ett_pxu_proxy_info_flags_tree, ieee80211_pxu_proxy_info_flags_byte,
+        ENC_LITTLE_ENDIAN, BMT_NO_APPEND);
+    offset += 1;
+
+    proto_tree_add_item(subtree, hf_ieee80211_pxu_proxy_info_ext_mac, tvb, offset, 6, ENC_NA);
+    offset += 6;
+
+    proto_tree_add_item(subtree, hf_ieee80211_pxu_proxy_info_seq_num, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+
+    if (!(pxu_flag & 0x2)) {
+      proto_tree_add_item(subtree, hf_ieee80211_pxu_proxy_info_proxy_mac, tvb, offset, 6, ENC_NA);
+      offset += 6;
+    }
+
+    if (pxu_flag & 0x4) {
+      proto_tree_add_item(subtree, hf_ieee80211_pxu_proxy_info_lifetime, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+      offset += 4;
+    }
+  }
+
+  proto_item_append_text(field_data->item_tag, " (%d entr%s)", pxu_count, plurality(pxu_count, "y", "ies"));
+  return tvb_captured_length(tvb);
+}
+
+static int
+ieee80211_tag_pxuc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+{
+  int tag_len = tvb_reported_length(tvb);
+  ieee80211_tagged_field_data_t* field_data = (ieee80211_tagged_field_data_t*)data;
+  int offset = 0;
+
+  /* PXUC element (138) */
+  if (tag_len != 7) {
+    expert_add_info_format(pinfo, field_data->item_tag_length, &ei_ieee80211_tag_length,
+                           "Tag length %u wrong, must be = 7", tag_len);
+    return tvb_captured_length(tvb);
+  }
+
+  proto_tree_add_item(tree, hf_ieee80211_pxuc_pxu_id, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+  offset += 1;
+  proto_tree_add_item(tree, hf_ieee80211_pxuc_pxu_recip_mac, tvb, offset, 6, ENC_NA);
+
+  return tvb_captured_length(tvb);
+}
+
+static int
 ieee80211_tag_mic(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
   int tag_len = tvb_reported_length(tvb);
@@ -31310,6 +31417,81 @@ proto_register_ieee80211(void)
       FT_UINT32, BASE_DEC, NULL, 0,
       "Root Announcement Interval", HFILL }},
 
+    {&hf_ieee80211_pxu_pxu_id,
+     {"PXU ID", "wlan.pxu.pxu_id",
+      FT_UINT8, BASE_DEC, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_pxu_pxu_origin_mac,
+     {"PXU Originator MAC Address", "wlan.pxu.origin_mac",
+      FT_ETHER, BASE_NONE, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_pxu_no_proxy_info,
+     {"Number of Proxy Information", "wlan.pxu.no_proxy_info",
+      FT_UINT8, BASE_DEC, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_pxu_proxy_info,
+     {"Proxy Information", "wlan.pxu.proxy_info",
+      FT_NONE, BASE_NONE, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_pxu_proxy_info_flags,
+     {"Flags", "wlan.pxu.pxu_info.flags",
+      FT_UINT8, BASE_HEX, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_pxu_proxy_info_flags_delete,
+     {"Delete", "wlan.pxu.pxu_info.flags.delete",
+      FT_BOOLEAN, 8, NULL, 0x01,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_pxu_proxy_info_flags_orig_is_proxy,
+     {"Originator is Proxy", "wlan.pxu.pxu_info.flags.orig_is_proxy",
+      FT_BOOLEAN, 8, NULL, 0x02,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_pxu_proxy_info_flags_lifetime,
+     {"Lifetime", "wlan.pxu.pxu_info.flags.lifetime",
+      FT_BOOLEAN, 8, NULL, 0x04,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_pxu_proxy_info_flags_reserved,
+     {"Reserved", "wlan.pxu.pxu_info.flags.reserved",
+      FT_UINT8, BASE_HEX, NULL, 0xF8,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_pxu_proxy_info_ext_mac,
+     {"External MAC Address", "wlan.pxu.pxu_info.ext_mac",
+      FT_ETHER, BASE_NONE, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_pxu_proxy_info_seq_num,
+     {"Proxy Information Sequence Number", "wlan.pxu.pxu_info.seq_num",
+      FT_UINT32, BASE_DEC, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_pxu_proxy_info_proxy_mac,
+     {"Proxy MAC Address", "wlan.pxu.pxu_info.proxy_mac",
+      FT_ETHER, BASE_NONE, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_pxu_proxy_info_lifetime,
+     {"Proxy Information Lifetime", "wlan.pxu.pxu_info.lifetime",
+      FT_UINT32, BASE_DEC, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_pxuc_pxu_id,
+     {"PXU ID", "wlan.pxuc.pxu_id",
+      FT_UINT8, BASE_DEC, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_pxuc_pxu_recip_mac,
+     {"PXU Recipient MAC Address", "wlan.pxuc.recip_mac",
+      FT_BYTES, SEP_COLON, NULL, 0,
+      NULL, HFILL }},
+
     {&hf_ieee80211_ff_qos_action_code,
      {"Action code", "wlan.fixed.action_code",
       FT_UINT16, BASE_HEX, VALS(qos_action_codes), 0,
@@ -39255,6 +39437,8 @@ proto_register_ieee80211(void)
     &ett_bcn_timing_rctrl_tree,
     &ett_bcn_timing_info_tree,
     &ett_gann_flags_tree,
+    &ett_pxu_proxy_info_tree,
+    &ett_pxu_proxy_info_flags_tree,
 
     &ett_rsn_gcs_tree,
     &ett_rsn_pcs_tree,
@@ -40161,6 +40345,8 @@ proto_reg_handoff_ieee80211(void)
   dissector_add_uint("wlan.tag.number", TAG_MESH_PREQ, create_dissector_handle(ieee80211_tag_mesh_preq, -1));
   dissector_add_uint("wlan.tag.number", TAG_MESH_PREP, create_dissector_handle(ieee80211_tag_mesh_prep, -1));
   dissector_add_uint("wlan.tag.number", TAG_MESH_PERR, create_dissector_handle(ieee80211_tag_mesh_perr, -1));
+  dissector_add_uint("wlan.tag.number", TAG_PXU, create_dissector_handle(ieee80211_tag_pxu, -1));
+  dissector_add_uint("wlan.tag.number", TAG_PXUC, create_dissector_handle(ieee80211_tag_pxuc, -1));
   dissector_add_uint("wlan.tag.number", TAG_MIC, create_dissector_handle(ieee80211_tag_mic, -1));
   dissector_add_uint("wlan.tag.number", TAG_RANN, create_dissector_handle(ieee80211_tag_rann, -1));
   dissector_add_uint("wlan.tag.number", TAG_MESH_CHANNEL_SWITCH, create_dissector_handle(ieee80211_tag_mesh_channel_switch, -1));
