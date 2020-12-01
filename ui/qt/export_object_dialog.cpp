@@ -105,6 +105,7 @@ void ExportObjectDialog::currentHasChanged(QModelIndex current)
 
 void ExportObjectDialog::modelDataChanged(const QModelIndex&, int from, int to)
 {
+    bool contentTypes_changed = false;
     bool enabled = (model_.rowCount() > 0);
     if (save_bt_) save_bt_->setEnabled(enabled);
     if (save_all_bt_) save_all_bt_->setEnabled(enabled);
@@ -118,23 +119,26 @@ void ExportObjectDialog::modelDataChanged(const QModelIndex&, int from, int to)
             if (dataType.length() > 0 && ! contentTypes.contains(dataType))
             {
                 contentTypes << dataType;
-                contentTypes.sort(Qt::CaseInsensitive);
-                QString selType = eo_ui_->cmbContentType->currentText();
-                eo_ui_->cmbContentType->clear();
-                eo_ui_->cmbContentType->addItems(contentTypes);
-                if (contentTypes.contains(selType) )
-                    eo_ui_->cmbContentType->setCurrentText(selType);
+                contentTypes_changed = true;
             }
         }
+    }
+    if (contentTypes_changed) {
+        contentTypes.sort(Qt::CaseInsensitive);
+        QString selType = eo_ui_->cmbContentType->currentText();
+        eo_ui_->cmbContentType->clear();
+        eo_ui_->cmbContentType->addItem(tr("All Content-Types"));
+        eo_ui_->cmbContentType->addItems(contentTypes);
+        if (contentTypes.contains(selType) )
+            eo_ui_->cmbContentType->setCurrentText(selType);
     }
 }
 
 void ExportObjectDialog::modelRowsReset()
 {
     contentTypes.clear();
-    contentTypes << tr("All Content-Types");
     eo_ui_->cmbContentType->clear();
-    eo_ui_->cmbContentType->addItems(contentTypes);
+    eo_ui_->cmbContentType->addItem(tr("All Content-Types"));
 
     if (save_bt_) save_bt_->setEnabled(false);
     if (save_all_bt_) save_all_bt_->setEnabled(false);
