@@ -1763,7 +1763,7 @@ dissect_infiniband_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 
     /* General Variables */
     gboolean bthFollows = FALSE;    /* Tracks if we are parsing a BTH.  This is a significant decision point */
-    struct infinibandinfo info = { 0, FALSE, 0, NULL, 0, 0, 0 };
+    struct infinibandinfo info = { 0, 0, FALSE, 0, NULL, 0, 0, 0 };
     gint32 nextHeaderSequence = -1; /* defined by this dissector. #define which indicates the upcoming header sequence from OpCode */
     guint8 nxtHdr = 0;              /* Keyed off for header dissection order */
     guint16 packetLength = 0;       /* Packet Length.  We track this as tvb_length - offset.   */
@@ -1912,6 +1912,7 @@ skip_lrh:
             bthFollows = TRUE;
             /* Get the OpCode - this tells us what headers are following */
             info.opCode = tvb_get_guint8(tvb, offset);
+            info.pad_count = (tvb_get_guint8(tvb, offset+1) & 0x30) >> 4;
 
             if ((info.opCode >> 5) == 0x2) {
                 info.dctConnect = !(tvb_get_guint8(tvb, offset + 1) & 0x80);
@@ -3816,7 +3817,7 @@ static void parse_CM_DRsp(proto_tree *top_tree, packet_info *pinfo, tvbuff_t *tv
 static void parse_COM_MGT(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *tvb, gint *offset, proto_tree* top_tree)
 {
     MAD_Data    MadData;
-    struct infinibandinfo info = { 0, FALSE, 0, NULL, 0, 0, 0 };
+    struct infinibandinfo info = { 0, 0, FALSE, 0, NULL, 0, 0, 0 };
     gint        local_offset;
     const char *label;
     proto_item *CM_header_item;
@@ -5971,7 +5972,7 @@ static void dissect_general_info(tvbuff_t *tvb, gint offset, packet_info *pinfo,
     MAD_Data          MadData;
 
     /* BTH - Base Trasport Header */
-    struct infinibandinfo info = { 0, FALSE, 0, NULL, 0, 0, 0 };
+    struct infinibandinfo info = { 0, 0, FALSE, 0, NULL, 0, 0, 0 };
     gint bthSize = 12;
     void *src_addr,                 /* the address to be displayed in the source/destination columns */
          *dst_addr;                 /* (lid/gid number) will be stored here */

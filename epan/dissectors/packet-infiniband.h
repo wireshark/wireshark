@@ -114,6 +114,7 @@ typedef struct {
  */
 struct infinibandinfo {
     guint8 opCode;              /* OpCode from BTH header. */
+    guint8 pad_count;           /* PadCount from BTH header. */
     gboolean dctConnect;        /* indicator for DCT connect/disconnect */
     guint16 cm_attribute_id;    /* attribute id for CM messages */
     proto_tree* payload_tree;
