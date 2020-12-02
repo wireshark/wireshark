@@ -246,6 +246,33 @@ if(BUILD_randpktdump)
 	add_dependencies(extcaps randpktdump)
 endif()
 
+
+if(BUILD_etwdump AND WIN32)
+	set(etwdump_LIBS
+		wiretap
+		wsutil
+		tdh
+		${GLIB2_LIBRARIES}
+		${ZLIB_LIBRARIES}
+		${CMAKE_DL_LIBS}
+		${WIN_WS2_32_LIBRARY}
+	)
+	set(etwdump_FILES
+		$<TARGET_OBJECTS:cli_main>
+		$<TARGET_OBJECTS:extcap-base>
+		etwdump.c
+		etl.c
+		etw_message.c
+	)
+
+	set_executable_resources(etwdump "etwdump")
+	add_executable(etwdump ${etwdump_FILES})
+	set_extcap_executable_properties(etwdump)
+	target_link_libraries(etwdump ${etwdump_LIBS})
+	install(TARGETS etwdump RUNTIME DESTINATION ${EXTCAP_INSTALL_LIBDIR})
+	add_dependencies(extcaps etwdump)
+endif()
+
 if(BUILD_sdjournal AND SYSTEMD_FOUND)
 	set(sdjournal_LIBS
 		wiretap

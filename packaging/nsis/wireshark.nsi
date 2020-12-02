@@ -1183,6 +1183,12 @@ Section /o "Randpktdump" SecRandpktdump
 SectionEnd
 !insertmacro CheckExtrasFlag "randpktdump"
 
+Section /o "Etwdump" SecEtwdump
+;-------------------------------------------
+  !insertmacro InstallExtcap "Etwdump"
+SectionEnd
+!insertmacro CheckExtrasFlag "Etwdump"
+
 SectionGroupEnd ; "Tools"
 
 !ifdef DOCBOOK_DIR
@@ -1232,6 +1238,7 @@ SectionEnd
   !insertmacro MUI_DESCRIPTION_TEXT ${SecSshdump} "Provide remote capture through SSH"
   !insertmacro MUI_DESCRIPTION_TEXT ${SecUDPdump} "Provide capture interface that gets UDP packets from network devices"
   !insertmacro MUI_DESCRIPTION_TEXT ${SecRandpktdump} "Provide random packet generator"
+  !insertmacro MUI_DESCRIPTION_TEXT ${SecEtwdump} "Provide ETW reader"
   !insertmacro MUI_DESCRIPTION_TEXT ${SecEditCap} "Copy packets to a new file, optionally trimmming packets, omitting them, or saving to a different format."
   !insertmacro MUI_DESCRIPTION_TEXT ${SecText2Pcap} "Read an ASCII hex dump and write the data into a libpcap-style capture file."
   !insertmacro MUI_DESCRIPTION_TEXT ${SecMergecap} "Combine multiple saved capture files into a single output file"

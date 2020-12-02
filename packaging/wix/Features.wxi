@@ -89,6 +89,9 @@
       <Feature Id="Fe.Tools.Randpktdump" Title="Randpktdump" Level="2" AllowAdvertise="yes" Display="expand" Description="Provide random packet generator.">
         <ComponentGroupRef Id="CG.Tools.Randpktdump" />
       </Feature>
+      <Feature Id="Fe.Tools.Etwdump" Title="Etwdump" Level="2" AllowAdvertise="yes" Display="expand" Description="Provide ETW reader.">
+        <ComponentGroupRef Id="CG.Tools.Etwdump" />
+      </Feature>
       <Feature Id="Fe.Tools.Sshdump" Title="Sshdump" Level="1" AllowAdvertise="yes" Display="expand" Description="Provide remote capture through SSH.">
         <ComponentGroupRef Id="CG.Tools.Sshdump" />
       </Feature>

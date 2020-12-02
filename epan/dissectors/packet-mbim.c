@@ -2612,14 +2612,20 @@ static const value_string mbim_uicc_file_structure_vals[] = {
 
 static guint8
 mbim_dissect_service_id_uuid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint hf,
-                             gint *offset, struct mbim_uuid_ext **uuid_ext_info)
+                             gint *offset, struct mbim_uuid_ext **uuid_ext_info, gboolean is_net_guid)
 {
     e_guid_t uuid;
     guint i;
     guint32 uuid_ext[4];
 
-    tvb_get_ntohguid(tvb, *offset, &uuid);
-
+    if (is_net_guid)
+    {
+        tvb_get_ntohguid(tvb, *offset, &uuid);
+    }
+    else
+    {
+        tvb_get_letohguid(tvb, *offset, &uuid);
+    }
     for (i = 0; i < UUID_MAX; i++) {
         if (memcmp(&uuid, &(mbim_uuid_service_id_vals[i].uuid), sizeof(e_guid_t)) == 0) {
             break;
@@ -3483,7 +3489,7 @@ mbim_dissect_device_service_element(tvbuff_t *tvb, packet_info *pinfo, proto_tre
     guint32 i, cid_count, cid;
     struct mbim_uuid_ext *uuid_ext_info = NULL;
 
-    uuid_idx = mbim_dissect_service_id_uuid(tvb, pinfo, tree, hf_mbim_device_service_element_device_service_id, &offset, &uuid_ext_info);
+    uuid_idx = mbim_dissect_service_id_uuid(tvb, pinfo, tree, hf_mbim_device_service_element_device_service_id, &offset, &uuid_ext_info, TRUE);
     proto_tree_add_bitmask(tree, tvb, offset, hf_mbim_device_service_element_dss_payload,
                            ett_mbim_bitmap, mbim_device_service_element_dss_payload_fields, ENC_LITTLE_ENDIAN);
     offset += 4;
@@ -3555,7 +3561,7 @@ mbim_dissect_event_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gi
     guint32 i, cid_count, cid;
     struct mbim_uuid_ext *uuid_ext_info = NULL;
 
-    uuid_idx = mbim_dissect_service_id_uuid(tvb, pinfo, tree, hf_mbim_event_entry_device_service_id, &offset, &uuid_ext_info);
+    uuid_idx = mbim_dissect_service_id_uuid(tvb, pinfo, tree, hf_mbim_event_entry_device_service_id, &offset, &uuid_ext_info, TRUE);
     proto_tree_add_item_ret_uint(tree, hf_mbim_event_entry_cid_count, tvb, offset, 4, ENC_LITTLE_ENDIAN, &cid_count);
     offset += 4;
     for (i = 0; i < cid_count; i++) {
@@ -4524,7 +4530,7 @@ mbim_dissect_set_dss_connect(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
     guint32 dss_session_id;
     struct mbim_uuid_ext *uuid_ext_info = NULL;
 
-    mbim_dissect_service_id_uuid(tvb, pinfo, tree, hf_mbim_set_dss_connect_device_service_id, &offset, &uuid_ext_info);
+    mbim_dissect_service_id_uuid(tvb, pinfo, tree, hf_mbim_set_dss_connect_device_service_id, &offset, &uuid_ext_info, TRUE);
     dss_session_id = tvb_get_letohl(tvb, offset);
     dissector_delete_uint("mbim.dss_session_id", dss_session_id, NULL);
     if ((dss_session_id <= 255) && uuid_ext_info && uuid_ext_info->dss_handle) {
@@ -4540,7 +4546,7 @@ mbim_dissect_muticarrier_current_cid_list_req(tvbuff_t *tvb, packet_info *pinfo 
 {
     guint8 service_idx;
 
-    service_idx = mbim_dissect_service_id_uuid(tvb, pinfo, tree, hf_mbim_multicarrier_current_cid_list_req_uuid, &offset, NULL);
+    service_idx = mbim_dissect_service_id_uuid(tvb, pinfo, tree, hf_mbim_multicarrier_current_cid_list_req_uuid, &offset, NULL, TRUE);
     if (service_idx != UUID_MULTICARRIER) {
         expert_add_info_format(pinfo, NULL, &ei_mbim_unexpected_uuid_value,
                                "Unexpected UUID value, should be UUID_MULTICARRIER");
@@ -5574,7 +5580,7 @@ dissect_mbim_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
                     }
                 }
 
-                uuid_idx = mbim_dissect_service_id_uuid(frag_tvb, pinfo, mbim_tree, hf_mbim_device_service_id, &offset, &uuid_ext_info);
+                uuid_idx = mbim_dissect_service_id_uuid(frag_tvb, pinfo, mbim_tree, hf_mbim_device_service_id, &offset, &uuid_ext_info, pinfo->rec->rec_header.packet_header.pkt_encap != WTAP_ENCAP_ETL);
                 cid = mbim_dissect_cid(frag_tvb, pinfo, mbim_tree, &offset, uuid_idx, uuid_ext_info);
                 proto_tree_add_item_ret_uint(mbim_tree, hf_mbim_command_type, frag_tvb, offset, 4, ENC_LITTLE_ENDIAN, &cmd_type);
                 if (mbim_info) {
@@ -6462,7 +6468,7 @@ dissect_mbim_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
                     }
                 }
 
-                uuid_idx = mbim_dissect_service_id_uuid(frag_tvb, pinfo, mbim_tree, hf_mbim_device_service_id, &offset, &uuid_ext_info);
+                uuid_idx = mbim_dissect_service_id_uuid(frag_tvb, pinfo, mbim_tree, hf_mbim_device_service_id, &offset, &uuid_ext_info, pinfo->rec->rec_header.packet_header.pkt_encap != WTAP_ENCAP_ETL);
                 cid = mbim_dissect_cid(frag_tvb, pinfo, mbim_tree, &offset, uuid_idx, uuid_ext_info);
                 if (msg_type == MBIM_COMMAND_DONE) {
                     proto_tree_add_item(mbim_tree, hf_mbim_status, frag_tvb, offset, 4, ENC_LITTLE_ENDIAN);

@@ -471,6 +471,26 @@
     </ComponentGroup>
   </Fragment>
 
+  <!-- Etwdump -->
+  <Fragment>
+    <DirectoryRef Id="dirExtcap">
+      <Component Id="cmpEtwdump_exe" Guid="*">
+        <File Id="filEtwdump_exe" KeyPath="yes" Source="$(var.Extcap.Dir)\etwdump.exe" />
+      </Component>
+    </DirectoryRef>
+    <DirectoryRef Id="INSTALLFOLDER">
+      <Component Id="cmpEtwdump_html" Guid="*">
+        <File Id="filEtwdump_html" KeyPath="yes" Source="$(var.Staging.Dir)\etwdump.html" />
+      </Component>
+    </DirectoryRef>
+  </Fragment>
+  <Fragment>
+    <ComponentGroup Id="CG.Tools.Etwdump">
+      <ComponentRef Id="cmpEtwdump_exe" />
+      <ComponentRef Id="cmpEtwdump_html" />
+    </ComponentGroup>
+  </Fragment>
+
   <!-- Sshdump -->
   <Fragment>
     <DirectoryRef Id="dirExtcap">

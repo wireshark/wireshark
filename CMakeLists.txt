@@ -1816,6 +1816,7 @@ set(INSTALL_FILES
 	${CMAKE_BINARY_DIR}/doc/mergecap.html
 	${CMAKE_BINARY_DIR}/doc/randpkt.html
 	${CMAKE_BINARY_DIR}/doc/randpktdump.html
+	${CMAKE_BINARY_DIR}/doc/etwdump.html
 	${CMAKE_BINARY_DIR}/doc/rawshark.html
 	${CMAKE_BINARY_DIR}/doc/reordercap.html
 	${CMAKE_BINARY_DIR}/doc/sshdump.html
@@ -3170,6 +3171,7 @@ set(CLEAN_C_FILES
 	${dftest_FILES}
 	${randpkt_FILES}
 	${randpktdump_FILES}
+	${etwdump_FILES}
 	${udpdump_FILES}
 	${text2pcap_FILES}
 	${mergecap_FILES}

@@ -1,0 +1,130 @@
+=begin man
+
+=encoding utf8
+
+=end man
+
+=head1 NAME
+
+etwdump - Provide an interface to read ETW
+
+=head1 SYNOPSIS
+
+B<etwdump>
+S<[ B<--help> ]>
+S<[ B<--version> ]>
+S<[ B<--extcap-interfaces> ]>
+S<[ B<--extcap-dlts> ]>
+S<[ B<--extcap-interface>=E<lt>interfaceE<gt> ]>
+S<[ B<--extcap-config> ]>
+S<[ B<--capture> ]>
+S<[ B<--fifo>=E<lt>path to file or pipeE<gt> ]>
+S<[ B<--iue>=E<lt>Should undecidable events be includedE<gt> ]>
+S<[ B<--etlfile>=E<lt>etl fileE<gt> ]>
+
+=head1 DESCRIPTION
+
+B<etwdump> is a extcap tool that provides access to a etl file.
+It is only used to display event trace on Windows.
+
+=head1 OPTIONS
+
+=over 4
+
+=item --help
+
+Print program arguments.
+
+=item --version
+
+Print program version.
+
+=item --extcap-interfaces
+
+List available interfaces.
+
+=item --extcap-interface=E<lt>interfaceE<gt>
+
+Use specified interfaces.
+
+=item --extcap-dlts
+
+List DLTs of specified interface.
+
+=item --extcap-config
+
+List configuration options of specified interface.
+
+=item --capture
+
+Start capturing from specified interface save saved it in place specified by --fifo.
+
+=item --fifo=E<lt>path to file or pipeE<gt>
+
+Save captured packet to file or send it through pipe.
+
+=item --iue=E<lt>Should undecidable events be includedE<gt>
+
+Choose if the undecidable event is included.
+
+=item --etlfile=E<lt>Etl fileE<gt>
+
+Select etl file to display in Wireshark.
+
+=back
+
+=head1 EXAMPLES
+
+To see program arguments:
+
+    etwdump --help
+
+To see program version:
+
+    etwdump --version
+
+To see interfaces:
+
+    etwdump --extcap-interfaces
+
+  Example output:
+    interface {value=etwdump}{display=ETW reader}
+
+To see interface DLTs:
+
+    etwdump --extcap-interface=etwdump --extcap-dlts
+
+  Example output:
+    dlt {number=1}{name=etwdump}{display=DLT_ETW}
+
+To see interface configuration options:
+
+    etwdump --extcap-interface=etwdump --extcap-config
+
+  Example output:
+    arg {number=0}{call=--iue}{display=Should undecidable events be included}{type=boolflag}{default=false}{tooltip=Choose if the undecidable event is included}{group=Capture}
+    arg {number=1}{call=--etlfile}{display=etl file}{type=fileselect}{tooltip=Select etl file to display in Wireshark}{required=true}{group=Capture}
+
+To capture:
+
+    etwdump --extcap-interface=etwdump --fifo=/tmp/etw.pcapng --capture
+
+NOTE: To stop capturing CTRL+C/kill/terminate application.
+
+=head1 SEE ALSO
+
+wireshark(1), tshark(1), dumpcap(1), extcap(4)
+
+=head1 NOTES
+
+B<etwdump> is part of the B<Wireshark> distribution.  The latest version
+of B<Wireshark> can be found at L<https://www.wireshark.org>.
+
+HTML versions of the Wireshark project man pages are available at:
+L<https://www.wireshark.org/docs/man-pages>.
+
+=head1 AUTHORS
+
+  Original Author
+  ---------------
+  Odysseus Yang             L<wiresharkyyh@outlook.com>

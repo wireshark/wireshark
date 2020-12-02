@@ -65,6 +65,7 @@ pod2manhtml(${CMAKE_CURRENT_SOURCE_DIR}/editcap     1)
 pod2manhtml(${CMAKE_CURRENT_SOURCE_DIR}/mergecap    1)
 pod2manhtml(${CMAKE_CURRENT_SOURCE_DIR}/randpkt     1)
 pod2manhtml(${CMAKE_CURRENT_SOURCE_DIR}/randpktdump 1)
+pod2manhtml(${CMAKE_CURRENT_SOURCE_DIR}/etwdump 1)
 pod2manhtml(${CMAKE_CURRENT_SOURCE_DIR}/rawshark    1)
 pod2manhtml(${CMAKE_CURRENT_SOURCE_DIR}/reordercap  1)
 pod2manhtml(${CMAKE_CURRENT_SOURCE_DIR}/sshdump     1)
@@ -107,6 +108,7 @@ set(MAN1_INSTALL_FILES
 	${CMAKE_CURRENT_BINARY_DIR}/mergecap.1
 	${CMAKE_CURRENT_BINARY_DIR}/randpkt.1
 	${CMAKE_CURRENT_BINARY_DIR}/randpktdump.1
+	${CMAKE_CURRENT_BINARY_DIR}/etwdump.1
 	${CMAKE_CURRENT_BINARY_DIR}/rawshark.1
 	${CMAKE_CURRENT_BINARY_DIR}/reordercap.1
 	${CMAKE_CURRENT_BINARY_DIR}/sshdump.1
@@ -164,6 +166,7 @@ set(HTML_INSTALL_FILES
 	${CMAKE_CURRENT_BINARY_DIR}/mergecap.html
 	${CMAKE_CURRENT_BINARY_DIR}/randpkt.html
 	${CMAKE_CURRENT_BINARY_DIR}/randpktdump.html
+	${CMAKE_CURRENT_BINARY_DIR}/etwdump.html
 	${CMAKE_CURRENT_BINARY_DIR}/rawshark.html
 	${CMAKE_CURRENT_BINARY_DIR}/reordercap.html
 	${CMAKE_CURRENT_BINARY_DIR}/sshdump.html
