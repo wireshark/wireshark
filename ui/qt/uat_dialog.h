@@ -65,6 +65,7 @@ private:
     bool trySetErrorHintFromField(const QModelIndex &index);
     void applyChanges();
     void addRecord(bool copy_from_current = false);
+    void resizeColumns();
 };
 
 #endif // UAT_DIALOG_H

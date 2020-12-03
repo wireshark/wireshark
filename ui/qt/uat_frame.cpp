@@ -60,7 +60,7 @@ UatFrame::UatFrame(QWidget *parent) :
     // very long filenames in the TLS RSA keys dialog, it also results in a
     // vertical scrollbar. Maybe remove this since the editor is not limited to
     // the column width (and overlays other fields if more width is needed)?
-    ui->uatTreeView->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
+    ui->uatTreeView->header()->setSectionResizeMode(QHeaderView::Interactive);
 
     // start editing as soon as the field is selected or when typing starts
     ui->uatTreeView->setEditTriggers(ui->uatTreeView->editTriggers() |
@@ -96,15 +96,20 @@ void UatFrame::setUat(epan_uat *uat)
         }
 
         QString abs_path = gchar_free_to_qstring(uat_get_actual_filename(uat_, FALSE));
-        ui->pathLabel->setText(abs_path);
-        ui->pathLabel->setUrl(QUrl::fromLocalFile(abs_path).toString());
-        ui->pathLabel->setToolTip(tr("Open ") + uat->filename);
+        if (abs_path.length() > 0) {
+            ui->pathLabel->setText(abs_path);
+            ui->pathLabel->setUrl(QUrl::fromLocalFile(abs_path).toString());
+            ui->pathLabel->setToolTip(tr("Open ") + uat->filename);
+        } else {
+            ui->pathLabel->setText(uat_->filename);
+        }
         ui->pathLabel->setEnabled(true);
 
         uat_model_ = new UatModel(NULL, uat);
         uat_delegate_ = new UatDelegate;
         ui->uatTreeView->setModel(uat_model_);
         ui->uatTreeView->setItemDelegate(uat_delegate_);
+        resizeColumns();
         ui->clearToolButton->setEnabled(uat_model_->rowCount() != 0);
 
         connect(uat_model_, SIGNAL(dataChanged(QModelIndex,QModelIndex)),
@@ -222,6 +227,7 @@ void UatFrame::on_uatTreeView_currentItemChanged(const QModelIndex &current, con
 void UatFrame::modelDataChanged(const QModelIndex &topLeft)
 {
     checkForErrorHint(topLeft, QModelIndex());
+    resizeColumns();
 }
 
 // Invoked after a row has been removed from the model.
@@ -351,6 +357,19 @@ void UatFrame::on_clearToolButton_clicked()
         uat_model_->clearAll();
     }
 }
+
+void UatFrame::resizeColumns()
+{
+    ui->uatTreeView->setVisible(false);
+    for (int i = 0; i < uat_model_->columnCount(); i++) {
+        ui->uatTreeView->resizeColumnToContents(i);
+        if (i == 0) {
+            ui->uatTreeView->setColumnWidth(i, ui->uatTreeView->columnWidth(i)+ui->uatTreeView->indentation());
+        }
+    }
+    ui->uatTreeView->setVisible(true);
+}
+
 /*
  * Editor modelines
  *

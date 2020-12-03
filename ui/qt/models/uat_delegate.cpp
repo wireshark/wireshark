@@ -87,6 +87,7 @@ QWidget *UatDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &
             cb_editor->addItem(enum_vals[i].strptr);
         }
         editor = cb_editor;
+        cb_editor->setMinimumWidth(cb_editor->minimumSizeHint().width());
         break;
     }
 

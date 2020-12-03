@@ -63,7 +63,7 @@ void ElidedLabel::updateText()
     } else {
         label_text += elided_text;
     }
-    label_text += small_text_ ? "</i></small>" : "</i>";
+    label_text += small_text_ ? "</i></small> " : "</i> ";
     QLabel::setText(label_text);
 }
 
