@@ -6365,9 +6365,7 @@ proto_item_fill_display_label(field_info *finfo, gchar *display_label_str, const
 
 		case FT_NONE:
 		case FT_PROTOCOL:
-			/* prevent multiple check marks by setting result directly */
 			return protoo_strlcpy(display_label_str, UTF8_CHECK_MARK, label_str_size);
-			break;
 
 		case FT_UINT_BYTES:
 		case FT_BYTES:
@@ -6719,6 +6717,16 @@ proto_custom_set(proto_tree* tree, GSList *field_ids, gint occurrence,
 					expr[offset_e++] = ',';
 
 				switch (hfinfo->type) {
+
+					case FT_NONE:
+					case FT_PROTOCOL:
+						/* Prevent multiple check marks */
+						if (strstr(result, UTF8_CHECK_MARK ",") == NULL) {
+							offset_r += proto_item_fill_display_label(finfo, result+offset_r, size-offset_r);
+						} else {
+							result[--offset_r] = '\0'; /* Remove the added trailing ',' again */
+						}
+						break;
 
 					case FT_BOOLEAN:
 						offset_r += proto_item_fill_display_label(finfo, result+offset_r, size-offset_r);
