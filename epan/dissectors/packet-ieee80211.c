@@ -39906,11 +39906,11 @@ proto_register_ieee80211(void)
         "This TWT Setup Command is not allowed, check the TWT Request field", EXPFILL }},
 
     { &ei_ieee80211_invalid_control_word,
-      { "wlan.htc.he.a_control.invalid", PI_PROTOCOL, PI_MALFORMED,
+      { "wlan.htc.he.a_control.invalid", PI_PROTOCOL, PI_ERROR,
         "Invalid control word", EXPFILL }},
 
     { &ei_ieee80211_invalid_control_id,
-      { "wlan.htc.he.a_control.ctrl_id.invalid", PI_PROTOCOL, PI_MALFORMED,
+      { "wlan.htc.he.a_control.ctrl_id.invalid", PI_PROTOCOL, PI_ERROR,
         "Invalid control word", EXPFILL }},
   };
 
