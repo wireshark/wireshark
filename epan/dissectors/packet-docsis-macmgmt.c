@@ -5474,7 +5474,10 @@ dissect_mdd_full_duplex_descriptor(tvbuff_t * tvb, packet_info* pinfo _U_, proto
   guint32 length;
   guint32 sublength;
   proto_tree *mdd_tree;
+  proto_tree *fdx_sub_band_tree;
   proto_item *mdd_item;
+  proto_item *fdx_sub_band_item;
+  proto_item *fdx_sub_band_offset_item;
   int pos;
   guint subpos;
   guint32 sub_band_offset;
@@ -5523,36 +5526,35 @@ dissect_mdd_full_duplex_descriptor(tvbuff_t * tvb, packet_info* pinfo _U_, proto
       }
       break;
     case FDX_SUB_BAND_DESCRIPTOR:
-      mdd_tree = proto_tree_add_subtree(mdd_tree, tvb, pos, 1,
-                                            ett_docsis_mdd_full_duplex_sub_band_descriptor, &mdd_item,
-                                            val_to_str(type, mdd_full_duplex_sub_band_vals,
-                                                       "Unknown TLV (%u)"));
-      proto_tree_add_item (mdd_tree, hf_docsis_mdd_full_duplex_sub_band_descriptor, tvb, pos, 1, ENC_BIG_ENDIAN);
-      proto_tree_add_item_ret_uint (mdd_tree, hf_docsis_mdd_full_duplex_sub_band_descriptor_length, tvb, pos + 1, 1, ENC_BIG_ENDIAN, &sublength);
-      proto_item_set_len(mdd_item, length + 2);
-      subpos = pos + 2;
-      while (subpos < pos + length + 2) {
+      subpos = pos;
+      while (subpos < pos + length) {
         subtype = tvb_get_guint8 (tvb, subpos);
-        sublength = tvb_get_guint8 (tvb, subpos + 1);
+        fdx_sub_band_tree = proto_tree_add_subtree(mdd_tree, tvb, subpos, -1,
+                                                   ett_docsis_mdd_full_duplex_sub_band_descriptor, &fdx_sub_band_item,
+                                                   val_to_str(subtype, mdd_full_duplex_sub_band_vals,
+                                                   "Unknown TLV (%u)"));
+        proto_tree_add_item (fdx_sub_band_tree, hf_docsis_mdd_full_duplex_sub_band_descriptor, tvb, subpos, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item_ret_uint (fdx_sub_band_tree, hf_docsis_mdd_full_duplex_sub_band_descriptor_length, tvb, subpos + 1, 1, ENC_BIG_ENDIAN, &sublength);
+        proto_item_set_len(fdx_sub_band_item, sublength + 2);
         switch(subtype) {
           case FDX_SUB_BAND_ID:
-            if (length == 1)
+            if (sublength == 1)
             {
-              proto_tree_add_item (mdd_tree, hf_docsis_mdd_full_duplex_sub_band_id, tvb, subpos + 2, sublength, ENC_BIG_ENDIAN);
+              proto_tree_add_item (fdx_sub_band_tree, hf_docsis_mdd_full_duplex_sub_band_id, tvb, subpos + 2, sublength, ENC_BIG_ENDIAN);
             } else
             {
-              expert_add_info_format(pinfo, mdd_item, &ei_docsis_mgmt_tlvlen_bad, "Wrong TLV length: %u", length);
+              expert_add_info_format(pinfo, fdx_sub_band_item, &ei_docsis_mgmt_tlvlen_bad, "Wrong TLV length: %u", sublength);
             }
             break;
-          case FDX_SUB_BAND_OFFSET:
-            if (length == 2)
+         case FDX_SUB_BAND_OFFSET:
+            if (sublength == 2)
             {
-              mdd_item = proto_tree_add_item_ret_uint (mdd_tree, hf_docsis_mdd_full_duplex_sub_band_offset,
-                                                       tvb, subpos + 2, sublength, ENC_BIG_ENDIAN, &sub_band_offset);
-              proto_item_append_text(mdd_item, "%s", (sub_band_offset) ? " MHz" : " (108 MHz)");
+              fdx_sub_band_offset_item = proto_tree_add_item_ret_uint (fdx_sub_band_tree, hf_docsis_mdd_full_duplex_sub_band_offset,
+                                                                       tvb, subpos + 2, sublength, ENC_BIG_ENDIAN, &sub_band_offset);
+              proto_item_append_text(fdx_sub_band_offset_item, "%s", (sub_band_offset) ? " MHz" : " (108 MHz)");
             } else
             {
-              expert_add_info_format(pinfo, mdd_item, &ei_docsis_mgmt_tlvlen_bad, "Wrong TLV length: %u", length);
+              expert_add_info_format(pinfo, fdx_sub_band_item, &ei_docsis_mgmt_tlvlen_bad, "Wrong TLV length: %u", sublength);
             }
             break;
           default:
@@ -5563,7 +5565,7 @@ dissect_mdd_full_duplex_descriptor(tvbuff_t * tvb, packet_info* pinfo _U_, proto
       }
       break;
     default:
-      expert_add_info_format(pinfo, mdd_item, &ei_docsis_mgmt_tlvtype_unknown, "Unknown Diplexer Band Edge TLV type: %u", type);
+      expert_add_info_format(pinfo, mdd_item, &ei_docsis_mgmt_tlvtype_unknown, "Unknown Full Duplex Descriptor TLV type: %u", type);
       break;
     }
     pos += length;
@@ -9618,7 +9620,7 @@ proto_register_docsis_mgmt (void)
       NULL, HFILL}
     },
     {&hf_docsis_mdd_full_duplex_sub_band_offset,
-     {"Full Duplex Sub-band ID", "docsis_mdd.full_duplex_sub_band_offset",
+     {"Full Duplex Sub-band Offset", "docsis_mdd.full_duplex_sub_band_offset",
       FT_UINT16, BASE_DEC, NULL, 0x0,
       NULL, HFILL}
     },
