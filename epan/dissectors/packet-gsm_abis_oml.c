@@ -242,8 +242,7 @@ enum abis_nm_obj_class {
 
 	NM_OC_GPRS_NSE			= 0xf0,
 	NM_OC_GPRS_CELL			= 0xf1,
-	NM_OC_GPRS_NSVC0		= 0xf2,
-	NM_OC_GPRS_NSVC1		= 0xf3,
+	NM_OC_GPRS_NSVC			= 0xf2,
 
 	NM_OC_NULL			= 0xff
 };
@@ -948,8 +947,7 @@ static const value_string oml_fom_objclass_vals[] = {
 
 	{ NM_OC_GPRS_NSE,		"GPRS NSE" },
 	{ NM_OC_GPRS_CELL,		"GPRS Cell" },
-	{ NM_OC_GPRS_NSVC0,		"GPRS NSVC0" },
-	{ NM_OC_GPRS_NSVC1,		"GPRS NSVC1" },
+	{ NM_OC_GPRS_NSVC,		"GPRS NSVC" },
 
 	{ NM_OC_NULL,			"NULL" },
 	{ 0, NULL }
