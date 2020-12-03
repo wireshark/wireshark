@@ -326,7 +326,7 @@ typedef struct mimo_control
 
 /*
  * Bits from the HT Control field.
- * 802.11-2012 and 802.11ac-2013 8.2.4.6, 32 bits.
+ * 802.11-2016 9.2.4.6, and 802.11ax draft, 32 bits.
  */
 #define HTC_VHT              0x00000001
 #define HTC_HE               0x00000002
@@ -6270,6 +6270,7 @@ static expert_field ei_ieee80211_invalid_control_word = EI_INIT;
 static expert_field ei_ieee80211_invalid_control_id = EI_INIT;
 static expert_field ei_ieee80211_wfa_60g_attr_len_invalid = EI_INIT;
 static expert_field ei_ieee80211_wfa_60g_unknown_attribute = EI_INIT;
+static expert_field ei_ieee80211_htc_in_dmg_packet = EI_INIT;
 
 /* 802.11ad trees */
 static gint ett_dynamic_alloc_tree = -1;
@@ -18327,46 +18328,20 @@ dissect_ht_info_ie_1_0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
 /* 802.11n-D1.10 and 802.11n-D2.0, 7.1.3.5a */
 
 /*
- * 8.2.4.1.10 "Order field" says:
+ * IEEE 802.11-2016 section 9.2.4.6 "HT Control field" says that B0 of
+ * the field is 0 for HT and 1 for VHT, bits B1 through B29 are the
+ * "HT Control Middle" subfield, the format of which differs between
+ * HT and VHT, bit B30 is the "AC Constraint" subfield, and bit B31
+ * is the "RDG/More PPDU" subfield.
  *
- *  The Order field is 1 bit in length. It is used for two purposes:
- *
- *    -- It is set to 1 in a non-QoS data frame transmitted by a non-QoS
- *       STA to indicate that the frame contains an MSDU, or fragment
- *       thereof, that is being transferred using the StrictlyOrdered
- *       service class.
- *
- *    -- It is set to 1 in a QoS data or management frame transmitted
- *       with a value of HT_GF or HT_MF for the FORMAT parameter of the
- *       TXVECTOR to indicate that the frame contains an HT Control field.
- *
- * 802.11ac changes the second of those clauses to say "HT_GF, HT_MF,
- * or VHT", indicates that bit B0 of the field is 0 for HT and 1 for
- * VHT (stealing a reserved bit from the Link Adaptation Control field),
- * and that everything except for "AC Constraint" and "RDG/More Cowbell^W
- * PPDU" is different for the VHT version.
- *
- *  802.11ax changes the meaning of the first two bits:
+ * 802.11ax changes the meaning of the first two bits:
  *
  *     B0 = 0         means High Throughput
  *     B0 = 1, B1 = 0 means Very High Throughput
  *     B0 = 1, B1 = 1 means High Efficiency
  *
- * I read the second clause of 8.2.4.1.10 "Order field", as modified by
- * 802.11ac, as meaning that, for QoS data and management frames, the
- * Order field will *only* be set to 1 for HT or VHT frames, and therefore
- * that we do *not* have to determine, from radio metadata, whether the
- * frame was transmitted as an HT or VHT frame.
- *
- * (See bug 11351, in which a frame with an HT Control field, with a
- * radiotap header, lacks the MCS or VHT fields in the radiotap header,
- * so Wireshark has no clue that it's an HT or VHT field, and misdissected
- * the packet.  Omnipeek, which also appeared to have no clue that it was
- * an HT or VHT field - it called it an 802.11b frame - *did* dissect the
- * HT Control field.)
- *
- * 802.11ax changes the reserved bit to differentiate between the HE version
- * and the VHT version, and adds different types of Aggregate Control info.
+ * taking a reserved bit from the VHT version of the "HT Control Middle"
+ * field.
  */
 #define A_CONTROL_TRS 0
 #define A_CONTROL_OM   1
@@ -18784,7 +18759,7 @@ dissect_ht_control(packet_info* pinfo, proto_tree *tree, tvbuff_t *tvb, int offs
 
 static void
 dissect_frame_control(proto_tree *tree, tvbuff_t *tvb, guint32 option_flags,
-                      guint32 offset, packet_info *pinfo)
+                      guint32 offset, packet_info *pinfo, gboolean isDMG)
 {
   guint16 fcf, flags, frame_type_subtype;
   proto_tree *fc_tree, *flag_tree;
@@ -18847,7 +18822,55 @@ dissect_frame_control(proto_tree *tree, tvbuff_t *tvb, guint32 option_flags,
   if(IS_FRAME_EXTENSION(fcf) == 0) {
     proto_tree_add_item(flag_tree, hf_ieee80211_fc_protected, tvb, offset, 1, ENC_NA);
   }
-  proto_tree_add_item(flag_tree, hf_ieee80211_fc_order, tvb, offset, 1, ENC_NA);
+  ti = proto_tree_add_item(flag_tree, hf_ieee80211_fc_order, tvb, offset, 1, ENC_NA);
+  if (option_flags & IEEE80211_COMMON_OPT_NORMAL_QOS) {
+    if (DATA_FRAME_IS_QOS(frame_type_subtype)) {
+      if (HAS_HT_CONTROL(FCF_FLAGS(fcf))) {
+        /*
+         * IEEE 802.11-2016 section 9.2.4.1.10 "+HTC/Order subfield" says:
+         *
+         *  The +HTC/Order subfield is 1 bit in length. It is used for two
+         *  purposes:
+         *
+         *    -- It is set to 1 in a non-QoS Data frame transmitted by a
+         *       non-QoS STA to indicate that the frame contains an MSDU,
+         *       or fragment thereof, that is being transferred using the
+         *       StrictlyOrdered service class.
+         *
+         *    -- It is set to 1 in a QoS Data or Management frame transmitted
+         *       with a value of HT_GF, HT_MF, or VHT for the FORMAT parameter
+         *       of the TXVECTOR to indicate that the frame contains an
+         *       HT Control field.
+         *
+         *  Otherwise, the +HTC/Order subfield is set to 0.
+         *
+         *  NOTE -- The +HTC/Order subfield is always set to 0 for frames
+         *  transmitted by a DMG STA.
+         *
+         * and 802.11ax drafts appear to say that the +HTC/Order flag, for
+         * QoS frames, also indicates that there's an HT Control field.
+         *
+         * For DMG frames, we flag this as an error.
+         *
+         * XXX - as I read the above, this shouldn't be set except for
+         * HT, VHT, or HE PHYs; however, some QoS frames appear to have
+         * it set, and have an HT Control field, even though they don't
+         * have HT/VHT/HE radiotap fields.  That might be because the
+         * code that provided the header didn't provide those radiotap
+         * fields, or because there is no radiotap header, meaning that
+         * they might still be HT/VHT/HE frames, so we don't report it
+         * as an error.
+         */
+        if (isDMG) {
+          /*
+           * DMG, so flag this as having +HTC/Order set, as it's not supposed
+           * to be set.
+           */
+          expert_add_info(pinfo, ti, &ei_ieee80211_htc_in_dmg_packet);
+        }
+      }
+    }
+  }
 }
 
 static void
@@ -25220,14 +25243,61 @@ dissect_ieee80211_common(tvbuff_t *tvb, packet_info *pinfo,
 
   case MGT_FRAME:
     hdr_len = MGT_FRAME_HDR_LEN;
+
+    /*
+     * IEEE 802.11-2016 section 9.2.4.1.10 "+HTC/Order subfield" says:
+     *
+     *  The +HTC/Order subfield is 1 bit in length. It is used for two
+     *  purposes:
+     *
+     *    -- It is set to 1 in a non-QoS Data frame transmitted by a
+     *       non-QoS STA to indicate that the frame contains an MSDU,
+     *       or fragment thereof, that is being transferred using the
+     *       StrictlyOrdered service class.
+     *
+     *    -- It is set to 1 in a QoS Data or Management frame transmitted
+     *       with a value of HT_GF, HT_MF, or VHT for the FORMAT parameter
+     *       of the TXVECTOR to indicate that the frame contains an
+     *       HT Control field.
+     *
+     *  Otherwise, the +HTC/Order subfield is set to 0.
+     *
+     *  NOTE -- The +HTC/Order subfield is always set to 0 for frames
+     *  transmitted by a DMG STA.
+     *
+     * and 802.11ax drafts appear to say that the +HTC/Order flag, for
+     * QoS frames, also indicates that there's an HT Control field.
+     */
     if (HAS_HT_CONTROL(FCF_FLAGS(fcf))) {
       /*
-       * Management frames with the Order bit set have an HT Control field;
-       * see IEEE 802.11-2016 section 9.2.4.1.10 "+HTC/Order subfield".
-       * If they're not HT frames, they should never have the Order bit set.
+       * For the DMG PHY, do *not* treat the +HTC field as an indication
+       * that there's an HT Control field, because, in the ns-3 capture
+       * in issue 11277, it's set in packets with a channel frequency
+       * in the 60 GHz band, meaning DMG (802.11ad), but it's not
+       * supposed to be set, and those packets lack an HT Control
+       * field, so they would be dissected incorrectly if we treated
+       * them as if they had an HT Control field.
        */
-      hdr_len += 4;
-      htc_len = 4;
+      if (!isDMG) {
+        /*
+         * Non-DMG PHY; treat this field as hving an HT Control field.
+         *
+         * XXX - as I read the above, this shouldn't be set except for
+         * HT, VHT, or HE PHYs; however, in the capture in issue 13351,
+         * a frame with an HT Control field, with a radiotap header,
+         * has no MCS, VHT, or HE field in that header, so Wireshark
+         * has no clue that it's an HT, VHT, or HE field. assumed that
+         * this meant that it wouldn't have an HT Control field even
+         * if it's a QoS field with +HTC/Order set, and misdissected
+         * it.  Omnipeek, which also appeared to have no clue that it
+         * was an HT or VHT field - it called it an 802.11b frame - *did*
+         * dissect the HT Control field.  Therefore, we must not require
+         * an indication that a QoS frame is an HT, VHT, or HE frame
+         * in order to dissect it a having an HT Control field.
+         */
+        hdr_len += 4;
+        htc_len = 4;
+      }
     }
     break;
 
@@ -25309,6 +25379,30 @@ dissect_ieee80211_common(tvbuff_t *tvb, packet_info *pinfo,
     hdr_len = (FCF_ADDR_SELECTOR(fcf) == DATA_ADDR_T4) ? DATA_LONG_HDR_LEN : DATA_SHORT_HDR_LEN;
 
     if (option_flags & IEEE80211_COMMON_OPT_NORMAL_QOS) {
+      /*
+       * IEEE 802.11-2016 section 9.2.4.1.10 "+HTC/Order subfield" says:
+       *
+       *  The +HTC/Order subfield is 1 bit in length. It is used for two
+       *  purposes:
+       *
+       *    -- It is set to 1 in a non-QoS Data frame transmitted by a
+       *       non-QoS STA to indicate that the frame contains an MSDU,
+       *       or fragment thereof, that is being transferred using the
+       *       StrictlyOrdered service class.
+       *
+       *    -- It is set to 1 in a QoS Data or Management frame transmitted
+       *       with a value of HT_GF, HT_MF, or VHT for the FORMAT parameter
+       *       of the TXVECTOR to indicate that the frame contains an
+       *       HT Control field.
+       *
+       *  Otherwise, the +HTC/Order subfield is set to 0.
+       *
+       *  NOTE -- The +HTC/Order subfield is always set to 0 for frames
+       *  transmitted by a DMG STA.
+       *
+       * and 802.11ax drafts appear to say that the +HTC/Order flag, for
+       * QoS frames, also indicates that there's an HT Control field.
+       */
       if (DATA_FRAME_IS_QOS(frame_type_subtype)) {
         /* QoS frame */
         qosoff = hdr_len;
@@ -25316,12 +25410,34 @@ dissect_ieee80211_common(tvbuff_t *tvb, packet_info *pinfo,
 
         if (HAS_HT_CONTROL(FCF_FLAGS(fcf))) {
           /*
-           * QoS data frames with the Order bit set have an HT Control field;
-           * see IEEE 802.16 section 9.2.4.1.10 "+HTC/Order subfield".
-           * If they're not HT frames, they should never have the Order bit set.
+           * For the DMG PHY, do *not* treat the +HTC field as an indication
+           * that there's an HT Control field, because, in the ns-3 capture
+           * in issue 11277, it's set in packets with a channel frequency
+           * in the 60 GHz band, meaning DMG (802.11ad), but it's not
+           * supposed to be set, and those packets lack an HT Control
+           * field, so they would be dissected incorrectly if we treated
+           * them as if they had an HT Control field.
            */
-          hdr_len += 4;
-          htc_len = 4;
+          if (!isDMG) {
+            /*
+             * Non-DMG PHY; treat this field as hving an HT Control field.
+             *
+             * XXX - as I read the above, this shouldn't be set except for
+             * HT, VHT, or HE PHYs; however, in the capture in issue 13351,
+             * a frame with an HT Control field, with a radiotap header,
+             * has no MCS, VHT, or HE field in that header, so Wireshark
+             * has no clue that it's an HT, VHT, or HE field. assumed that
+             * this meant that it wouldn't have an HT Control field even
+             * if it's a QoS field with +HTC/Order set, and misdissected
+             * it.  Omnipeek, which also appeared to have no clue that it
+             * was an HT or VHT field - it called it an 802.11b frame - *did*
+             * dissect the HT Control field.  Therefore, we must not require
+             * an indication that a QoS frame is an HT, VHT, or HE frame
+             * in order to dissect it a having an HT Control field.
+             */
+            hdr_len += 4;
+            htc_len = 4;
+          }
         }
 
         /*
@@ -25407,7 +25523,7 @@ dissect_ieee80211_common(tvbuff_t *tvb, packet_info *pinfo,
                                            "IEEE 802.11 %s", fts_str);
   hdr_tree = proto_item_add_subtree(ti, ett_80211);
 
-  dissect_frame_control(hdr_tree, tvb, option_flags, 0, pinfo);
+  dissect_frame_control(hdr_tree, tvb, option_flags, 0, pinfo, isDMG);
   dissect_durid(hdr_tree, tvb, frame_type_subtype, 2);
 
   switch (phdr->fcs_len)
@@ -25577,7 +25693,7 @@ dissect_ieee80211_common(tvbuff_t *tvb, packet_info *pinfo,
         {
           cw_tree = proto_tree_add_subtree(hdr_tree, tvb, offset, 2,
                       ett_cntrl_wrapper_fc, NULL, "Contained Frame Control");
-          dissect_frame_control(cw_tree, tvb, 0, offset, pinfo);
+          dissect_frame_control(cw_tree, tvb, 0, offset, pinfo, isDMG);
           dissect_ht_control(pinfo, hdr_tree, tvb, offset + 2);
           offset += 6;
           hdr_tree = proto_tree_add_subtree(hdr_tree, tvb, offset, 2,
@@ -27858,9 +27974,9 @@ proto_register_ieee80211(void)
       NULL, HFILL }},
 
     {&hf_ieee80211_fc_order,
-     {"Order flag", "wlan.fc.order",
+     {"+HTC/Order flag", "wlan.fc.order",
       FT_BOOLEAN, 8, TFS(&order_flags), FLAG_ORDER,
-      "Strictly ordered flag", HFILL }},
+      "HT Control present/strictly ordered flag", HFILL }},
 
     {&hf_ieee80211_assoc_id,
      {"Association ID", "wlan.aid",
@@ -39646,6 +39762,10 @@ proto_register_ieee80211(void)
     { &ei_ieee80211_invalid_control_id,
       { "wlan.htc.he.a_control.ctrl_id.invalid", PI_PROTOCOL, PI_ERROR,
         "Invalid control word", EXPFILL }},
+
+    { &ei_ieee80211_htc_in_dmg_packet,
+      { "wlan.htc_in_dmg_packet", PI_PROTOCOL, PI_ERROR,
+        "DMG frame has the +HTC/Order bit set", EXPFILL }},
   };
 
   expert_module_t *expert_ieee80211;
