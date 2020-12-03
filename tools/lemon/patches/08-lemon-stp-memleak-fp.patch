@@ -1,9 +1,10 @@
 CSA thought that stp would leak if State_insert returns early: when x3a is NULL
 (memory allocation failure) or when the state existed before (cannot happen for
 the initial state). So annotate it as such.
+SPDX-License-Identifier: CC0-1.0
 --- a/lemon.c
 +++ b/lemon.c
-@@ -990,7 +990,11 @@ PRIVATE struct state *getstate(struct lemon *lemp)
+@@ -993,7 +995,13 @@ PRIVATE struct state *getstate(struct lemon *lemp)
      stp->cfp = cfp;              /* Remember the configuration closure */
      stp->statenum = lemp->nstate++; /* Every state gets a sequence number */
      stp->ap = 0;                 /* No actions, yet. */
@@ -11,7 +12,9 @@ the initial state). So annotate it as such.
 +    int ret =
 +#endif
      State_insert(stp,stp->bp);   /* Add to the state table */
++#ifndef NDEBUG
 +    assert(ret == 1);  /* CSA hint: stp did not leak, it has escaped. */
++#endif
      buildshifts(lemp,stp);       /* Recursively compute successor states */
    }
    return stp;

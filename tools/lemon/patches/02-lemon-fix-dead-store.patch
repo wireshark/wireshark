@@ -1,7 +1,8 @@
 Avoid dead store warning, the same assignment happens later in this function.
+SPDX-License-Identifier: CC0-1.0
 --- a/lemon.c
 +++ b/lemon.c
-@@ -3950,7 +3950,7 @@ void print_stack_union(
+@@ -4090,7 +4101,7 @@ void print_stack_union(
    int *plineno,               /* Pointer to the line number */
    int mhflag                  /* True if generating makeheaders output */
  ){

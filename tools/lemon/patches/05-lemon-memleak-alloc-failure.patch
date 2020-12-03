@@ -1,7 +1,8 @@
 Avoid leaking pathbuf when path==0 by marking allocation failures as fatal.
+SPDX-License-Identifier: CC0-1.0
 --- a/lemon.c
 +++ b/lemon.c
-@@ -3413,6 +3413,7 @@ PRIVATE char *pathsearch(char *argv0, char *name, int modemask)
+@@ -3538,6 +3548,7 @@ PRIVATE char *pathsearch(char *argv0, char *name, int modemask)
      if( pathlist==0 ) pathlist = ".:/bin:/usr/bin";
      pathbuf = (char *) malloc( lemonStrlen(pathlist) + 1 );
      path = (char *)malloc( lemonStrlen(pathlist)+lemonStrlen(name)+2 );

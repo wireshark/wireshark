@@ -1,7 +1,8 @@
 Assertions to avoid false null-pointer dereferences.
+SPDX-License-Identifier: CC0-1.0
 --- a/lemon.c
 +++ b/lemon.c
-@@ -690,11 +690,13 @@ int acttab_insert(acttab *p, int makeItSafe){
+@@ -695,11 +695,13 @@ int acttab_insert(acttab *p, int makeItSafe){
        fprintf(stderr,"malloc failed\n");
        exit(1);
      }
@@ -12,10 +13,10 @@ Assertions to avoid false null-pointer dereferences.
      }
    }
 +  assert(p->aAction);  /* Hint for CSA (for p->aAction[i] below) */
- 
+
    /* Scan the existing action table looking for an offset that is a
    ** duplicate of the current transaction set.  Fall out of the loop
-@@ -1078,6 +1080,7 @@ void FindLinks(struct lemon *lemp)
+@@ -1083,6 +1091,7 @@ void FindLinks(struct lemon *lemp)
    ** which the link is attached. */
    for(i=0; i<lemp->nstate; i++){
      stp = lemp->sorted[i];
@@ -23,10 +24,10 @@ Assertions to avoid false null-pointer dereferences.
      for(cfp=stp->cfp; cfp; cfp=cfp->next){
        cfp->stp = stp;
      }
-@@ -1684,6 +1687,7 @@ int main(int argc, char **argv)
+@@ -1695,6 +1704,7 @@ int main(int argc, char **argv)
    /* Parse the input file */
    Parse(&lem);
-   if( lem.errorcnt ) exit(lem.errorcnt);
+   if( lem.printPreprocessed || lem.errorcnt ) exit(lem.errorcnt);
 +  assert(lem.rule);  /* Hint for CSA (no errors => rule found). */
    if( lem.nrule==0 ){
      fprintf(stderr,"Empty grammar.\n");
