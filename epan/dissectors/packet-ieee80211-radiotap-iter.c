@@ -294,6 +294,7 @@ int ieee80211_radiotap_iterator_next(
 			}
 			if (!align) {
 				/* skip all subsequent data */
+				int skip_size = IEEE80211_RADIOTAP_RADIOTAP_NAMESPACE - (iterator->_arg_index % 32);
 				/* XXX - we should report an expert info here */
 				if (!iterator->_next_ns_data)
 					return -EINVAL;
@@ -301,6 +302,9 @@ int ieee80211_radiotap_iterator_next(
 				/* give up on this namespace */
 				iterator->current_namespace = NULL;
 				iterator->_next_ns_data = NULL;
+				// Remove 1 because jump to next_entry will also shift bitmap by 1
+				iterator->_bitmap_shifter >>= skip_size - 1;
+				iterator->_arg_index += skip_size - 1;
 				/* XXX - we should report an expert info here */
 				if (!ITERATOR_VALID(iterator, 0))
 					return -EINVAL;
