@@ -5094,6 +5094,7 @@ dissect_smb2_negotiate_context(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 
 	/* data length */
 	proto_tree_add_item_ret_uint(sub_tree, hf_smb2_negotiate_context_data_length, tvb, offset, 2, ENC_LITTLE_ENDIAN, &data_length);
+	proto_item_set_len(sub_item, data_length + 8);
 	offset += 2;
 
 	/* reserved */
