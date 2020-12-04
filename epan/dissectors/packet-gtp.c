@@ -167,6 +167,8 @@ static int hf_gtp_ms_valid = -1;
 static int hf_gtp_npdu_number = -1;
 static int hf_gtp_node_ipv4 = -1;
 static int hf_gtp_node_ipv6 = -1;
+static int hf_gtp_node_name = -1;
+static int hf_gtp_node_realm = -1;
 static int hf_gtp_nsapi = -1;
 static int hf_gtp_ptmsi = -1;
 static int hf_gtp_ptmsi_sig = -1;
@@ -1314,7 +1316,7 @@ static value_string_ext gtp_message_type_ext = VALUE_STRING_EXT_INIT(gtp_message
 #define GTP_EXT_RAN_TR_CONT           0x90    /* 3G   144 TLV RAN Transparent Container 7.7.43 */
 #define GTP_EXT_PDP_CONT_PRIO         0x91    /* 3G   145 TLV PDP Context Prioritization 7.7.45 */
 #define GTP_EXT_ADD_RAB_SETUP_INF     0x92    /* 3G   146 TLV Additional RAB Setup Information 7.7.45A */
-#define GTP_EXT_SSGN_NO               0x93    /* 3G   147 TLV SGSN Number 7.7.47 */
+#define GTP_EXT_SGSN_NO               0x93    /* 3G   147 TLV SGSN Number 7.7.47 */
 #define GTP_EXT_COMMON_FLGS           0x94    /* 3G   148 TLV Common Flags 7.7.48 */
 #define GTP_EXT_APN_RES               0x95    /* 3G   149 */
 #define GTP_EXT_RA_PRIO_LCS           0x96    /* 3G   150 TLV Radio Priority LCS 7.7.25B */
@@ -1472,7 +1474,7 @@ static const value_string gtp_val[] = {
     {GTP_EXT_RAN_TR_CONT,           "RAN Transparent Container"}, /* 7.7.43 */
     {GTP_EXT_PDP_CONT_PRIO,         "PDP Context Prioritization"},  /* 7.7.45 */
     {GTP_EXT_ADD_RAB_SETUP_INF,     "Additional RAB Setup Information"},    /* 7.7.45A */
-    {GTP_EXT_SSGN_NO,               "SGSN Number"},   /* 7.7.47 */
+    {GTP_EXT_SGSN_NO,               "SGSN Number"},   /* 7.7.47 */
     {GTP_EXT_COMMON_FLGS,           "Common Flags"},  /* 7.7.48 */
     {GTP_EXT_APN_RES,               "APN Restriction"},   /* 3G */
     {GTP_EXT_RA_PRIO_LCS,           "Radio Priority LCS"},    /* 7.7.25B */
@@ -1623,7 +1625,7 @@ static const value_string gtpv1_val[] = {
 /* 144 */  {GTP_EXT_RAN_TR_CONT,           "RAN Transparent Container"},                      /* 7.7.43 */
 /* 145 */  {GTP_EXT_PDP_CONT_PRIO,         "PDP Context Prioritization"},                     /* 7.7.45 */
 /* 146 */  {GTP_EXT_ADD_RAB_SETUP_INF,     "Additional RAB Setup Information"},               /* 7.7.45A */
-/* 147 */  {GTP_EXT_SSGN_NO,               "SGSN Number"},                                    /* 7.7.47 */
+/* 147 */  {GTP_EXT_SGSN_NO,               "SGSN Number"},                                    /* 7.7.47 */
 /* 148 */  {GTP_EXT_COMMON_FLGS,           "Common Flags"},                                   /* 7.7.48 */
 /* 149 */  {GTP_EXT_APN_RES,               "APN Restriction"},                                /* 3G */
 /* 150 */  {GTP_EXT_RA_PRIO_LCS,           "Radio Priority LCS"},                             /* 7.7.25B */
@@ -2636,7 +2638,7 @@ static int decode_gtp_omc_id(tvbuff_t * tvb, int offset, packet_info * pinfo, pr
 static int decode_gtp_ran_tr_cont(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_);
 static int decode_gtp_pdp_cont_prio(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_);
 static int decode_gtp_add_rab_setup_inf(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_);
-static int decode_gtp_ssgn_no(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_);
+static int decode_gtp_sgsn_no(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_);
 static int decode_gtp_common_flgs(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_);
 static int decode_gtp_apn_res(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_);
 static int decode_gtp_ra_prio_lcs(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_);
@@ -2701,6 +2703,7 @@ static int decode_gtp_ext_uli_timestamp(tvbuff_t * tvb, int offset, packet_info 
 static int decode_gtp_ext_lhn_id_w_sapi(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_);
 static int decode_gtp_ext_cn_op_sel_entity(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_);
 static int decode_gtp_extended_common_flgs_II(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_);
+static int decode_gtp_ext_node_id(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_);
 
 static int decode_gtp_bearer_cntrl_mod(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_);
 static int decode_gtp_mbms_flow_id(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_);
@@ -2776,7 +2779,7 @@ static const gtp_opt_t gtpopt[] = {
 /* 0x90 */  {GTP_EXT_RAN_TR_CONT, decode_gtp_ran_tr_cont},                      /* 7.7.43 */
 /* 0x91 */  {GTP_EXT_PDP_CONT_PRIO, decode_gtp_pdp_cont_prio},                  /* 7.7.45 */
 /* 0x92 */  {GTP_EXT_ADD_RAB_SETUP_INF, decode_gtp_add_rab_setup_inf},          /* 7.7.45A */
-/* 0x93 */  {GTP_EXT_SSGN_NO, decode_gtp_ssgn_no},                              /* 7.7.47 */
+/* 0x93 */  {GTP_EXT_SGSN_NO, decode_gtp_sgsn_no},                              /* 7.7.47 */
 /* 0x94 */  {GTP_EXT_COMMON_FLGS, decode_gtp_common_flgs},                      /* 7.7.48 */
 /* 0x95 */  {GTP_EXT_APN_RES, decode_gtp_apn_res},                              /* 3G */
 /* 0x96 */  {GTP_EXT_RA_PRIO_LCS, decode_gtp_ra_prio_lcs},                      /* 7.7.25B */
@@ -2848,7 +2851,8 @@ static const gtp_opt_t gtpopt[] = {
 /* 0xD7 */  {GTP_EXT_LHN_ID_W_SAPI, decode_gtp_ext_lhn_id_w_sapi },             /* 7.7.115 */
 /* 0xD8 */  {GTP_EXT_CN_OP_SEL_ENTITY, decode_gtp_ext_cn_op_sel_entity },       /* 7.7.116 */
 
-/* 0xDA */    {GTP_EXT_EXT_COMMON_FLGS_II, decode_gtp_extended_common_flgs_II},    /* 7.7.118 */
+/* 0xDA */  {GTP_EXT_EXT_COMMON_FLGS_II, decode_gtp_extended_common_flgs_II },  /* 7.7.118 */
+/* 0xDB */  {GTP_EXT_NODE_IDENTIFIER, decode_gtp_ext_node_id },                 /* 7.7.119 */
 
 /* 0xf9 */  {GTP_EXT_REL_PACK, decode_gtp_rel_pack },                           /* charging */
 /* 0xfa */  {GTP_EXT_CAN_PACK, decode_gtp_can_pack},                            /* charging */
@@ -3549,7 +3553,7 @@ static _gtp_mess_items umts_mess_items[] = {
             {GTP_EXT_TEID_CP, GTP_MANDATORY},
             {GTP_EXT_GSN_ADDR, GTP_MANDATORY},
             {GTP_EXT_GSN_ADDR, GTP_OPTIONAL},   /* Alternative SGSN Address for Control Plane Optional 7.7.32 */
-            {GTP_EXT_SSGN_NO, GTP_OPTIONAL},    /* SGSN Number Optional 7.7.47 */
+            {GTP_EXT_SGSN_NO, GTP_OPTIONAL},    /* SGSN Number Optional 7.7.47 */
             {GTP_EXT_HOP_COUNT, GTP_OPTIONAL},  /* Hop Counter Optional 7.7.63 */
             {GTP_EXT_PRIV_EXT, GTP_OPTIONAL},
             {0, 0}
@@ -3603,7 +3607,7 @@ static _gtp_mess_items umts_mess_items[] = {
             {GTP_EXT_CELL_ID, GTP_OPTIONAL},       /* Cell Identification Optional 7.7.73 */
             {GTP_EXT_BSSGP_CAUSE, GTP_OPTIONAL},   /* BSSGP Cause Optional 7.7.75 */
             {GTP_EXT_PRIV_EXT, GTP_OPTIONAL},
-            {GTP_EXT_SSGN_NO, GTP_OPTIONAL},
+            {GTP_EXT_SGSN_NO, GTP_OPTIONAL},
             {0, 0}
         }
     },
@@ -6507,21 +6511,24 @@ decode_gtp_add_rab_setup_inf(tvbuff_t * tvb, int offset, packet_info * pinfo _U_
   * UMTS:       29.060 v6.11.0, chapter 7.7.47 SGSN Number
   */
 static int
-decode_gtp_ssgn_no(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_)
+decode_gtp_sgsn_no(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_)
 {
 
     guint16     length;
     proto_tree *ext_tree;
+    tvbuff_t   *new_tvb;
 
     length = tvb_get_ntohs(tvb, offset + 1);
-    ext_tree = proto_tree_add_subtree_format(tree, tvb, offset, 3 + length, ett_gtp_ies[GTP_EXT_SSGN_NO], NULL,
-                    "%s : ", val_to_str_ext_const(GTP_EXT_SSGN_NO, &gtp_val_ext, "Unknown"));
+    ext_tree = proto_tree_add_subtree_format(tree, tvb, offset, 3 + length, ett_gtp_ies[GTP_EXT_SGSN_NO], NULL,
+                    "%s", val_to_str_ext_const(GTP_EXT_SGSN_NO, &gtp_val_ext, "Unknown"));
+    proto_tree_add_item(ext_tree, hf_gtp_ie_id, tvb, offset, 1, ENC_BIG_ENDIAN);
 
     offset++;
     proto_tree_add_item(ext_tree, hf_gtp_ext_length, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset = offset + 2;
-    /* TODO add decoding of data */
-    proto_tree_add_expert(ext_tree, pinfo, &ei_gtp_undecoded, tvb, offset, length);
+
+    new_tvb = tvb_new_subset_length(tvb, offset, length);
+    dissect_gsm_map_msisdn(new_tvb, pinfo, ext_tree);
 
     return 3 + length;
 
@@ -8765,6 +8772,35 @@ decode_gtp_extended_common_flgs_II(tvbuff_t * tvb, int offset, packet_info * pin
     return 3 + length;
 }
 
+/*
+ * 7.7.119 Node Identifier
+ */
+static int
+decode_gtp_ext_node_id(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_)
+{
+    guint16     length;
+    guint32     item_len;
+    proto_tree *ext_tree;
+
+    length = tvb_get_ntohs(tvb, offset + 1);
+    ext_tree = proto_tree_add_subtree(tree, tvb, offset, 3 + length, ett_gtp_ies[GTP_EXT_NODE_IDENTIFIER], NULL,
+        val_to_str_ext_const(GTP_EXT_NODE_IDENTIFIER, &gtpv1_val_ext, "Unknown"));
+    proto_tree_add_item(ext_tree, hf_gtp_ie_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+
+    offset++;
+    proto_tree_add_item(ext_tree, hf_gtp_ext_length, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    /* The Node Name and Node Realm are Diameter Identities, which are
+     * specified by RFC 6733 to be in ASCII for compatibility with DNS.
+     */
+    proto_tree_add_item_ret_length(ext_tree, hf_gtp_node_name, tvb, offset, 1, ENC_ASCII | ENC_NA, &item_len);
+    offset += item_len;
+    proto_tree_add_item_ret_length(ext_tree, hf_gtp_node_realm, tvb, offset, 1, ENC_ASCII | ENC_NA, &item_len);
+
+    return 3 + length;
+}
+
 
 static int
 decode_gtp_rel_pack(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_)
@@ -10469,6 +10505,16 @@ proto_register_gtp(void)
          { "Node address IPv6", "gtp.node_ipv6",
            FT_IPv6, BASE_NONE, NULL, 0,
            "Recommended node address IPv6", HFILL}
+        },
+        {&hf_gtp_node_name,
+         { "Node name", "gtp.node_name",
+           FT_UINT_STRING, STR_ASCII, NULL, 0,
+           "Diameter Identity of the node", HFILL}
+        },
+        {&hf_gtp_node_realm,
+         { "Node realm", "gtp.node_realm",
+           FT_UINT_STRING, STR_ASCII, NULL, 0,
+           "Diameter Realm Identity of the node", HFILL}
         },
         {&hf_gtp_npdu_number,
          { "N-PDU Number", "gtp.npdu_number",
