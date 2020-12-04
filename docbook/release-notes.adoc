@@ -38,6 +38,11 @@ The following features are new (or have been significantly updated) since versio
   by setting the new 'add_default_value' preference. The default values might be explicitly declared in 'proto2' files,
   or false for bools, first value for enums, zero for numeric types.
 
+* Wireshark now supports reading Event Tracing for Windows (ETW). A new extcap named ETW reader is created that now can open an etl file, convert all
+  events in the file to DLT_ETW packets and write to a specified FIFO destination. Also, a new packet_etw dissector is
+  created to dissect DLT_ETW packets so Wireshark can display the DLT_ETW packet header, its message and packet_etw dissector
+  calls packet_mbim sub_dissector if its provider matches the MBIM provider GUID.
+
 // === Removed Features and Support
 
 //=== Removed Dissectors
