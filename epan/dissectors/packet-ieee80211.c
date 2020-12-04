@@ -23945,7 +23945,7 @@ dissect_ieee80211_common(tvbuff_t *tvb, packet_info *pinfo,
          * Non-DMG PHY; treat this field as hving an HT Control field.
          *
          * XXX - as I read the above, this shouldn't be set except for
-         * HT, VHT, or HE PHYs; however, in the capture in issue 13351,
+         * HT, VHT, or HE PHYs; however, in the capture in issue 11351,
          * a frame with an HT Control field, with a radiotap header,
          * has no MCS, VHT, or HE field in that header, so Wireshark
          * has no clue that it's an HT, VHT, or HE field. assumed that
@@ -24085,7 +24085,7 @@ dissect_ieee80211_common(tvbuff_t *tvb, packet_info *pinfo,
              * Non-DMG PHY; treat this field as hving an HT Control field.
              *
              * XXX - as I read the above, this shouldn't be set except for
-             * HT, VHT, or HE PHYs; however, in the capture in issue 13351,
+             * HT, VHT, or HE PHYs; however, in the capture in issue 11351,
              * a frame with an HT Control field, with a radiotap header,
              * has no MCS, VHT, or HE field in that header, so Wireshark
              * has no clue that it's an HT, VHT, or HE field. assumed that
