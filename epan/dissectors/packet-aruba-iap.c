@@ -54,7 +54,7 @@ static int hf_iap_unknown_uint = -1;
 static int hf_iap_unknown_bytes = -1;
 
 static const value_string iap_model[] = {
-    { 0x16, "Gemini (IAP-500 Series)" },
+    { 0x10, "Gemini (IAP-500 Series)" },
     { 0x1a, "Pegasus (IAP-103/108/109/144,115)" },
     { 0x30, "Ursa (IAP-303/303H/304/305/360)" },
     { 0, NULL }
