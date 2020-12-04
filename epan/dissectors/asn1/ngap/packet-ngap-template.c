@@ -39,7 +39,6 @@
 #include "packet-ntp.h"
 #include "packet-gsm_a_common.h"
 #include "packet-http.h"
-#include "packet-ngap.h"
 
 #define PNAME  "NG Application Protocol"
 #define PSNAME "NGAP"

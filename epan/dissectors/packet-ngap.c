@@ -47,7 +47,6 @@
 #include "packet-ntp.h"
 #include "packet-gsm_a_common.h"
 #include "packet-http.h"
-#include "packet-ngap.h"
 
 #define PNAME  "NG Application Protocol"
 #define PSNAME "NGAP"
@@ -503,7 +502,7 @@ typedef enum _RAT_Information_enum {
 } RAT_Information_enum;
 
 /*--- End of included file: packet-ngap-val.h ---*/
-#line 67 "./asn1/ngap/packet-ngap-template.c"
+#line 66 "./asn1/ngap/packet-ngap-template.c"
 
 /* Initialize the protocol and registered fields */
 static int proto_ngap = -1;
@@ -1647,7 +1646,7 @@ static int hf_ngap_successfulOutcome_value = -1;  /* SuccessfulOutcome_value */
 static int hf_ngap_unsuccessfulOutcome_value = -1;  /* UnsuccessfulOutcome_value */
 
 /*--- End of included file: packet-ngap-hf.c ---*/
-#line 119 "./asn1/ngap/packet-ngap-template.c"
+#line 118 "./asn1/ngap/packet-ngap-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_ngap = -1;
@@ -2292,7 +2291,7 @@ static gint ett_ngap_SuccessfulOutcome = -1;
 static gint ett_ngap_UnsuccessfulOutcome = -1;
 
 /*--- End of included file: packet-ngap-ett.c ---*/
-#line 160 "./asn1/ngap/packet-ngap-template.c"
+#line 159 "./asn1/ngap/packet-ngap-template.c"
 
 static expert_field ei_ngap_number_pages_le15 = EI_INIT;
 
@@ -21234,7 +21233,7 @@ static int dissect_UEContextSuspendRequestTransfer_PDU(tvbuff_t *tvb _U_, packet
 
 
 /*--- End of included file: packet-ngap-fn.c ---*/
-#line 463 "./asn1/ngap/packet-ngap-template.c"
+#line 462 "./asn1/ngap/packet-ngap-template.c"
 
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
@@ -21876,7 +21875,7 @@ proto_reg_handoff_ngap(void)
 
 
 /*--- End of included file: packet-ngap-dis-tab.c ---*/
-#line 698 "./asn1/ngap/packet-ngap-template.c"
+#line 697 "./asn1/ngap/packet-ngap-template.c"
 
     dissector_add_string("media_type", "application/vnd.3gpp.ngap", ngap_media_type_handle);
   } else {
@@ -26445,7 +26444,7 @@ void proto_register_ngap(void) {
         "UnsuccessfulOutcome_value", HFILL }},
 
 /*--- End of included file: packet-ngap-hfarr.c ---*/
-#line 914 "./asn1/ngap/packet-ngap-template.c"
+#line 913 "./asn1/ngap/packet-ngap-template.c"
   };
 
   /* List of subtrees */
@@ -27092,7 +27091,7 @@ void proto_register_ngap(void) {
     &ett_ngap_UnsuccessfulOutcome,
 
 /*--- End of included file: packet-ngap-ettarr.c ---*/
-#line 957 "./asn1/ngap/packet-ngap-template.c"
+#line 956 "./asn1/ngap/packet-ngap-template.c"
   };
 
   static ei_register_info ei[] = {
