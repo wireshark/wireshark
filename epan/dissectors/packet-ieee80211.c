@@ -6414,12 +6414,14 @@ static heur_dissector_list_t heur_subdissector_list;
 static dissector_handle_t ieee80211_handle;
 static dissector_handle_t wlan_withoutfcs_handle;
 static dissector_handle_t llc_handle;
+static dissector_handle_t epd_llc_handle;
 static dissector_handle_t ipx_handle;
 static dissector_handle_t eth_withoutfcs_handle;
 
 static capture_dissector_handle_t llc_cap_handle;
 static capture_dissector_handle_t ipx_cap_handle;
 
+static dissector_table_t ethertype_subdissector_table;
 static dissector_table_t tagged_field_table;
 static dissector_table_t vendor_specific_action_table;
 static dissector_table_t wifi_alliance_action_subtype_table;
@@ -25284,7 +25286,8 @@ crc32_802_tvb_padded(tvbuff_t *tvb, guint hdr_len, guint hdr_size, guint len)
 typedef enum {
     ENCAP_802_2,
     ENCAP_IPX,
-    ENCAP_ETHERNET
+    ENCAP_ETHERNET,
+    ENCAP_EPD
 } encap_t;
 
 /* ************************************************************************* */
@@ -25321,6 +25324,7 @@ dissect_ieee80211_common(tvbuff_t *tvb, packet_info *pinfo,
   gboolean         save_fragmented;
   guint32          addr_type;
   guint8           octet1, octet2;
+  guint16          etype;
   char             out_buff[SHORT_STR];
   gint             is_iv_bad;
   guchar           iv_buff[4];
@@ -26988,6 +26992,63 @@ dissect_ieee80211_common(tvbuff_t *tvb, packet_info *pinfo,
            with Atheros chipsets. There the sequence control field
            seems repeated.
 
+           And, on top of *that*, IEEE Std 802.11-2018 section
+           5.1.4 "MSDU format" says:
+
+             Logical Link Control (LLC) sublayer entities use the MAC
+             sublayer service to exchange PDUs with peer LLC sublayer
+             entities. These PDUs are termed MAC sublayer SDUs (MSDUs)
+             when sent to the MAC sublayer. There are two LLC sublayer
+             protocols used (see IEEE Std 802-2014); LLC Protocol
+             Discrimination (LPD) (see ISO/IEC 8802-2:1998) and EtherType
+             Protocol Discrimination (EPD) (see IEEE Std 802.3-2012).
+             LPD is used for transmission of all IEEE 802.11 MSDUs with
+             the exception of the 5.9 GHz bands where EPD is used
+             (see E.2.3 and E.2.4).
+
+           and IEEE Std 1609.3-2016, section 5.2 "Logical link control",
+           subsection 5.2.1 "General", says:
+
+             A Networking Services implementation shall use EPD in the
+             LLC sublayer as described in IEEE Std 802, using an EtherType
+             in the LLC sublayer header Type9 field (see Figure 5 and
+             Figure 28). The LLC sublayer header consists solely of a
+             2-octet field that contains an EtherType that identifies
+             the higher layer protocol.
+
+           and ISO 21215, second edition, 2018-06, "Intelligent transport
+           systems -- Localized communications -- ITS-M5", section 6.3
+           "Logical link control sub-layer" says:
+
+             IEEE Std 802.11TM-2016 does not specify a logical link control
+             sub-layer protocol. Related functionality is part of the
+             communication adaptation sub-layer specified in 6.4.
+
+             The Length/Type field specified in IEEE 802.3-2015 contains
+             a 2-octet unsigned Integer number. Dependent on the value,
+             the field provides either length information or EtherType
+             information. If the value contained in this field is equal
+             to or larger than 1 536 = 0x06.00, the field contains an
+             EtherType address. Ethertype addresses are assigned by the
+             IEEE Registration Authority, and are used to identify the
+             protocol employed directly above the ITS-S access layer.
+             This method of addressing is named "EtherType Protocol
+             Discrimination" (EPD). An ITS-M5 CI shall support EPD
+             specified in IEEE Std 802.
+
+                 ...
+
+             NOTE 2    EPD replaces LLC Protocol Discrimination (LPD).
+             ETSI ITS-G5 is the only known ITS access technology still
+             using LPD.
+
+             Different to the information in IEEE Std 802.11-2016, 5.1.4,
+             EPD is applicable in all frequency bands as long as
+             dot11OCBActivated is set to true, i.e. activating the operation
+             mode "outside the context of a BSS" (OCB).
+
+           meaning that a packet might just begin with an Ethertype.
+
            So, if the packet doesn't start with 0xaa 0xaa:
 
              we first use the same scheme that linux-wlan-ng does to detect
@@ -27000,10 +27061,19 @@ dissect_ieee80211_common(tvbuff_t *tvb, packet_info *pinfo,
              otherwise, we use the same scheme that we use in the Ethernet
              dissector to recognize Netware 802.3 frames, namely checking
              whether the packet starts with 0xff 0xff and, if so, treat it
-             as an encapsulated IPX frame, and then check whether the
-             packet starts with 0x00 0x00 and, if so, treat it as an OLPC
-             frame, or check the packet starts with the repetition of the
-             sequence control field and, if so, treat it as an Atheros frame. */
+             as an encapsulated IPX frame;
+
+             otherwise, we check whether the packet starts with 0x00 0x00
+             and, if so, treat it as an OLPC frame, or check the packet
+             starts with the repetition of the sequence control field
+             and, if so, treat it as an Atheros frame, both of which
+             use LPD;
+
+             otherwise, we check whether the first two octets, treated
+             as an Ethertype, has a dissector and, if so, treat this as
+             a frame using EPD;
+
+             otherwise, we treat this as a frame using LPD. */
         heur_dtbl_entry_t  *hdtbl_entry;
         if (dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, tree, &hdtbl_entry, NULL)) {
           pinfo->fragmented = save_fragmented;
@@ -27023,6 +27093,16 @@ dissect_ieee80211_common(tvbuff_t *tvb, packet_info *pinfo,
                      (((octet2 << 8) | octet1) == seq_control)) {
               proto_tree_add_item(tree, hf_ieee80211_mysterious_olpc_stuff, next_tvb, 0, 2, ENC_NA);
               next_tvb = tvb_new_subset_remaining(next_tvb, 2);
+            } else if ((etype = ((octet1 << 8) | octet2)) > ETHERNET_II_MIN_LEN) {
+              /*
+               * This might be an Ethertype, so maybe this is 802.11
+               * using EPD rather than LPD.  Is this a *known* Ethertype?
+               */
+              if (dissector_get_uint_handle(ethertype_subdissector_table,
+                                            etype) != NULL) {
+                /* Yes. */
+                encap_type = ENCAP_EPD;
+              }
             }
           }
         }
@@ -27030,6 +27110,7 @@ dissect_ieee80211_common(tvbuff_t *tvb, packet_info *pinfo,
         switch (encap_type) {
 
         case ENCAP_802_2:
+          /* 802.2 LPD */
           call_dissector(llc_handle, next_tvb, pinfo, tree);
           break;
 
@@ -27039,6 +27120,11 @@ dissect_ieee80211_common(tvbuff_t *tvb, packet_info *pinfo,
 
         case ENCAP_IPX:
           call_dissector(ipx_handle, next_tvb, pinfo, tree);
+          break;
+
+        case ENCAP_EPD:
+          /* EPD */
+          call_dissector(epd_llc_handle, next_tvb, pinfo, tree);
           break;
         }
       }
@@ -40313,11 +40399,18 @@ proto_reg_handoff_ieee80211(void)
   capture_dissector_handle_t ieee80211_cap_handle;
 
   /*
-   * Get handles for the LLC, IPX and Ethernet  dissectors.
+   * Get handles for the 802.2 (LPD) LLC, EPD LLC, IPX and Ethernet
+   * dissectors.
    */
   llc_handle            = find_dissector_add_dependency("llc", proto_wlan);
+  epd_llc_handle        = find_dissector_add_dependency("epd_llc", proto_wlan);
   ipx_handle            = find_dissector_add_dependency("ipx", proto_wlan);
   eth_withoutfcs_handle = find_dissector_add_dependency("eth_withoutfcs", proto_wlan);
+
+  /*
+   * Get the Ethertype dissector table.
+   */
+  ethertype_subdissector_table = find_dissector_table("ethertype");
 
   llc_cap_handle = find_capture_dissector("llc");
   ipx_cap_handle = find_capture_dissector("ipx");
