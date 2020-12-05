@@ -5675,7 +5675,7 @@ static int hf_ieee80211_tag_switching_stream_new_direction = -1;
 static int hf_ieee80211_tag_switching_stream_new_valid_id = -1;
 static int hf_ieee80211_tag_switching_stream_llt_type = -1;
 
-static int hf_ieee80211_mysterious_olpc_stuff = -1;
+static int hf_ieee80211_mysterious_extra_stuff = -1;
 
 static int hf_ieee80211_esp_access_category = -1;
 static int hf_ieee80211_esp_reserved = -1;
@@ -27064,10 +27064,11 @@ dissect_ieee80211_common(tvbuff_t *tvb, packet_info *pinfo,
              as an encapsulated IPX frame;
 
              otherwise, we check whether the packet starts with 0x00 0x00
-             and, if so, treat it as an OLPC frame, or check the packet
-             starts with the repetition of the sequence control field
-             and, if so, treat it as an Atheros frame, both of which
-             use LPD;
+             or with a copy of the sequence control field and, if so, treat
+             those two octets ad mysterious extra stuff preceding the
+             payload (possibly OLPC stuff, possibly Ruckus Wireless stuff,
+             possibly Atheros stuff), and treat what follows as a frame
+             using LPD;
 
              otherwise, we check whether the first two octets, treated
              as an Ethertype, has a dissector and, if so, treat this as
@@ -27091,7 +27092,7 @@ dissect_ieee80211_common(tvbuff_t *tvb, packet_info *pinfo,
               encap_type = ENCAP_IPX;
             else if (((octet1 == 0x00) && (octet2 == 0x00)) ||
                      (((octet2 << 8) | octet1) == seq_control)) {
-              proto_tree_add_item(tree, hf_ieee80211_mysterious_olpc_stuff, next_tvb, 0, 2, ENC_NA);
+              proto_tree_add_item(tree, hf_ieee80211_mysterious_extra_stuff, next_tvb, 0, 2, ENC_NA);
               next_tvb = tvb_new_subset_remaining(next_tvb, 2);
             } else if ((etype = ((octet1 << 8) | octet2)) > ETHERNET_II_MIN_LEN) {
               /*
@@ -38335,8 +38336,8 @@ proto_register_ieee80211(void)
       FT_UINT8, BASE_DEC, NULL, 0xfe,
       NULL, HFILL }},
 
-    {&hf_ieee80211_mysterious_olpc_stuff,
-     {"Mysterious OLPC stuff", "wlan.mysterious_olpc_stuff",
+    {&hf_ieee80211_mysterious_extra_stuff,
+     {"Mysterious extra OLPC/Ruckus/Atheros/??? stuff", "wlan.mysterious_extra_stuff",
       FT_NONE, BASE_NONE, NULL, 0x0,
       NULL, HFILL }},
 
