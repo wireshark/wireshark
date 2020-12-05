@@ -2215,6 +2215,17 @@ wtap_dumper* wtap_dump_open_stdout(int file_type_subtype,
     wtap_compression_type compression_type, const wtap_dump_params *params,
     int *err, gchar **err_info);
 
+/*
+ * Add an IDB to the list of IDBs for a file we're writing.
+ * Makes a copy of the IDB, so it can be freed after this call is made.
+ *
+ * @param wdh handle for the file we're writing.
+ * @param idb the IDB to add
+ * @param[out] err Will be set to an error code on failure.
+ * @param[out] err_info for some errors, a string giving more details of
+ * the error.
+ * @return TRUE on success, FALSE on failure.
+ */
 WS_DLL_PUBLIC
 gboolean wtap_dump_add_idb(wtap_dumper *wdh, wtap_block_t idb, int *err,
      gchar **err_info);
