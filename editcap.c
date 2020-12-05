@@ -997,23 +997,49 @@ failure_message_cont(const char *msg_format, va_list ap)
 
 static wtap_dumper *
 editcap_dump_open(const char *filename, const wtap_dump_params *params,
-                  int *write_err, gchar **write_err_info)
+                  GArray *idbs_seen, int *err, gchar **err_info)
 {
     wtap_dumper *pdh;
 
     if (strcmp(filename, "-") == 0) {
         /* Write to the standard output. */
         pdh = wtap_dump_open_stdout(out_file_type_subtype, WTAP_UNCOMPRESSED,
-                                    params, write_err, write_err_info);
+                                    params, err, err_info);
     } else {
         pdh = wtap_dump_open(filename, out_file_type_subtype, WTAP_UNCOMPRESSED,
-                             params, write_err, write_err_info);
+                             params, err, err_info);
     }
+    if (pdh == NULL)
+        return NULL;
+
+    /*
+     * If the output file requires interface IDs, add all the IDBs we've
+     * seen so far.
+     */
+    if (wtap_uses_interface_ids(wtap_dump_file_type_subtype(pdh))) {
+        for (guint i = 0; i < idbs_seen->len; i++) {
+            wtap_block_t if_data = g_array_index(idbs_seen, wtap_block_t, i);
+
+            /*
+             * Add this IDB to the file to which we're currently writing.
+             */
+            if (!wtap_dump_add_idb(pdh, if_data, err, err_info)) {
+                int close_err;
+                gchar *close_err_info;
+
+                wtap_dump_close(pdh, &close_err, &close_err_info);
+                g_free(close_err_info);
+                return NULL;
+            }
+        }
+    }
+
     return pdh;
 }
 
 static gboolean
-process_new_idbs(wtap *wth, wtap_dumper *pdh, int *err, gchar **err_info)
+process_new_idbs(wtap *wth, wtap_dumper *pdh, GArray *idbs_seen,
+                 int *err, gchar **err_info)
 {
     wtap_block_t if_data;
 
@@ -1023,8 +1049,22 @@ process_new_idbs(wtap *wth, wtap_dumper *pdh, int *err, gchar **err_info)
          * otherwise, it doesn't support writing IDBs.
          */
         if (wtap_uses_interface_ids(wtap_dump_file_type_subtype(pdh))) {
+            wtap_block_t if_data_copy;
+
+            /*
+             * Add this IDB to the file to which we're currently writing.
+             */
             if (!wtap_dump_add_idb(pdh, if_data, err, err_info))
                 return FALSE;
+
+            /*
+             * Also add it to the set of IDBs we've seen, in case we
+             * start writing to another file (which would be of the
+             * same type as the current file, and thus will also require
+             * interface IDs).
+             */
+            if_data_copy = wtap_block_make_copy(if_data);
+            g_array_append_val(idbs_seen, if_data_copy);
         }
     }
     return TRUE;
@@ -1065,6 +1105,7 @@ main(int argc, char *argv[])
     chop_t        chop               = {0, 0, 0, 0, 0, 0}; /* No chop */
     gboolean      adjlen             = FALSE;
     wtap_dumper  *pdh                = NULL;
+    GArray       *idbs_seen          = NULL;
     unsigned int  count              = 1;
     unsigned int  duplicate_count    = 0;
     gint64        data_offset;
@@ -1683,6 +1724,9 @@ invalid_time:
         }
     }
 
+    /* Set up an array of all IDBs seen */
+    idbs_seen = g_array_new(FALSE, FALSE, sizeof(wtap_block_t));
+
     /* Read all of the packets in turn */
     wtap_rec_init(&read_rec);
     ws_buffer_init(&read_buf, 1514);
@@ -1719,7 +1763,7 @@ invalid_time:
                 wtap_block_add_string_option_format(g_array_index(params.shb_hdrs, wtap_block_t, 0), OPT_SHB_USERAPPL, "%s", get_appname_and_version());
             }
 
-            pdh = editcap_dump_open(filename, &params, &write_err,
+            pdh = editcap_dump_open(filename, &params, idbs_seen, &write_err,
                                     &write_err_info);
 
             if (pdh == NULL) {
@@ -1734,7 +1778,7 @@ invalid_time:
         /*
          * Process whatever IDBs we haven't seen yet.
          */
-        if (!process_new_idbs(wth, pdh, &write_err, &write_err_info)) {
+        if (!process_new_idbs(wth, pdh, idbs_seen, &write_err, &write_err_info)) {
             cfile_write_failure_message("editcap", argv[optind],
                                         filename,
                                         write_err, write_err_info,
@@ -1772,8 +1816,8 @@ invalid_time:
                     if (verbose)
                         fprintf(stderr, "Continuing writing in file %s\n", filename);
 
-                    pdh = editcap_dump_open(filename, &params, &write_err,
-                                            &write_err_info);
+                    pdh = editcap_dump_open(filename, &params, idbs_seen,
+                                            &write_err, &write_err_info);
 
                     if (pdh == NULL) {
                         cfile_dump_open_failure_message("editcap", filename,
@@ -1804,8 +1848,8 @@ invalid_time:
                 if (verbose)
                     fprintf(stderr, "Continuing writing in file %s\n", filename);
 
-                pdh = editcap_dump_open(filename, &params, &write_err,
-                                        &write_err_info);
+                pdh = editcap_dump_open(filename, &params, idbs_seen,
+                                        &write_err, &write_err_info);
                 if (pdh == NULL) {
                     cfile_dump_open_failure_message("editcap", filename,
                                                     write_err, write_err_info,
@@ -2212,7 +2256,8 @@ invalid_time:
         g_free (filename);
         filename = g_strdup(argv[optind+1]);
 
-        pdh = editcap_dump_open(filename, &params, &write_err, &write_err_info);
+        pdh = editcap_dump_open(filename, &params, idbs_seen, &write_err,
+                                &write_err_info);
         if (pdh == NULL) {
             cfile_dump_open_failure_message("editcap", filename,
                                             write_err, write_err_info,
@@ -2249,6 +2294,13 @@ clean_exit:
     if (dsb_filenames) {
         g_array_free(dsb_types, TRUE);
         g_ptr_array_free(dsb_filenames, TRUE);
+    }
+    if (idbs_seen != NULL) {
+        for (guint b = 0; b < idbs_seen->len; b++) {
+            wtap_block_t if_data = g_array_index(idbs_seen, wtap_block_t, b);
+            wtap_block_free(if_data);
+        }
+        g_array_free(idbs_seen, TRUE);
     }
     g_free(params.idb_inf);
     wtap_dump_params_cleanup(&params);
