@@ -394,6 +394,7 @@ void proto_reg_handoff_docsis_mgmt(void);
 #define DOWNSTREAM_ACTIVE_CHANNEL_LIST_CM_STATUS_EVENT_ENABLE_BITMASK 5
 #define DOWNSTREAM_ACTIVE_CHANNEL_LIST_MAP_UCD_TRANSPORT_INDICATOR 6
 #define DOWNSTREAM_ACTIVE_CHANNEL_LIST_OFDM_PLC_PARAMETERS 7
+#define DOWNSTREAM_ACTIVE_CHANNEL_LIST_FDX_SUB_BAND_ID 8
 
 /*Mac Domain Downstream Service Group*/
 #define MAC_DOMAIN_DOWNSTREAM_SERVICE_GROUP_MD_DS_SG_IDENTIFIER 1
@@ -2017,6 +2018,7 @@ static const value_string mdd_ds_active_channel_list_vals[] = {
   {DOWNSTREAM_ACTIVE_CHANNEL_LIST_CM_STATUS_EVENT_ENABLE_BITMASK, "CM-STATUS Event Enable Bitmask"},
   {DOWNSTREAM_ACTIVE_CHANNEL_LIST_MAP_UCD_TRANSPORT_INDICATOR, "MAP and UCD transport indicator"},
   {DOWNSTREAM_ACTIVE_CHANNEL_LIST_OFDM_PLC_PARAMETERS, "OFDM PLC Parameters"},
+  {DOWNSTREAM_ACTIVE_CHANNEL_LIST_FDX_SUB_BAND_ID, "Full Duplex Sub-band ID"},
   {0, NULL}
 };
 
@@ -5145,6 +5147,9 @@ dissect_mdd_ds_active_channel_list(tvbuff_t * tvb, packet_info* pinfo _U_, proto
       break;
     case DOWNSTREAM_ACTIVE_CHANNEL_LIST_OFDM_PLC_PARAMETERS:
       proto_tree_add_bitmask(mdd_tree, tvb, pos, hf_docsis_mdd_ofdm_plc_parameters, ett_sub_tlv, ofdm_plc_parameters, ENC_BIG_ENDIAN);
+      break;
+    case DOWNSTREAM_ACTIVE_CHANNEL_LIST_FDX_SUB_BAND_ID:
+      proto_tree_add_item (mdd_tree, hf_docsis_mdd_full_duplex_sub_band_id, tvb, pos, 1, ENC_BIG_ENDIAN);
       break;
     }
 
