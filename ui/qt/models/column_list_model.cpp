@@ -33,7 +33,6 @@ struct ListElement
     int originalType;
     int occurrence;
     bool displayed;
-    bool changed;
 };
 
 static QList<ListElement> store_;
