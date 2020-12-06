@@ -2272,6 +2272,8 @@ dissect_someip_payload_array_payload(tvbuff_t* tvb, packet_info* pinfo, proto_tr
     if (length != -1) {
         if (length <= tvb_captured_length_remaining(tvb, offset)) {
             subtvb = tvb_new_subset_length_caplen(tvb, offset, length, length);
+            /* created subtvb. so we set offset=0 */
+            offset = 0;
         } else {
             expert_someip_payload_truncated(tree, pinfo, tvb, offset, tvb_captured_length_remaining(tvb, offset));
             return tvb_captured_length_remaining(tvb, offset);
@@ -2280,8 +2282,6 @@ dissect_someip_payload_array_payload(tvbuff_t* tvb, packet_info* pinfo, proto_tr
         subtvb = tvb;
     }
 
-    /* created subtvb. so we set offset=0 */
-    offset = 0;
     while ((length == -1 && count < upper_limit) || ((gint)(8 * offset + offset_bits) < 8 * length)) {
         bits_parsed = dissect_someip_payload_parameter(subtvb, pinfo, tree, offset, offset_bits, (guint8)config->data_type, config->id_ref, config->name);
         if (bits_parsed == 0) {
@@ -2298,7 +2298,12 @@ dissect_someip_payload_array_payload(tvbuff_t* tvb, packet_info* pinfo, proto_tr
         col_append_str(pinfo->cinfo, COL_INFO, " [SOME/IP Payload: Dynamic array does not stay between Min and Max values]");
     }
 
-    ret = 8 * offset + offset_bits;
+    if (length != -1) {
+        ret = 8 * offset + offset_bits;
+    } else {
+        ret = 8 * (offset - offset_orig) + offset_bits;
+    }
+
     return ret;
 }
 
