@@ -5845,6 +5845,7 @@ fxuptp		19539/tcp/udp	# FXUPTP
 sxuptp		19540/tcp/udp	# SXUPTP
 jcp		19541/tcp/udp	# JCP Client
 mle		19788/udp	# Mesh Link Establishment
+faircom-db	19790/tcp	# FairCom Database
 iec-104-sec	19998/tcp	# IEC 60870-5-104 process control - secure
 dnp-sec		19999/tcp/udp	# Distributed Network Protocol - Secure
 dnp		20000/tcp/udp	# DNP
