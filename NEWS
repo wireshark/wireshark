@@ -18,11 +18,25 @@ Wireshark 3.5.0 Release Notes
    The following features are new (or have been significantly updated)
    since version 3.4.0:
 
+     • TCP conversations now support a completeness criteria, which
+       facilitates the identification of TCP streams having any of
+       opening or closing handshakes, a payload, in any combination. It
+       is accessed with the new tcp.completeness filter.
+
      • Protobuf fields that are not serialized on the wire (missing in
        capture files) can now be displayed with default values by
        setting the new 'add_default_value' preference. The default
        values might be explicitly declared in 'proto2' files, or false
        for bools, first value for enums, zero for numeric types.
+
+     • Wireshark now supports reading Event Tracing for Windows (ETW). A
+       new extcap named ETW reader is created that now can open an etl
+       file, convert all events in the file to DLT_ETW packets and write
+       to a specified FIFO destination. Also, a new packet_etw dissector
+       is created to dissect DLT_ETW packets so Wireshark can display
+       the DLT_ETW packet header, its message and packet_etw dissector
+       calls packet_mbim sub_dissector if its provider matches the MBIM
+       provider GUID.
 
   New Protocol Support
 
@@ -66,7 +80,7 @@ Wireshark 3.5.0 Release Notes
 
   A complete FAQ is available on the Wireshark web site[5].
 
-  Last updated 2020-11-29 09:04:17 UTC
+  Last updated 2020-12-06 09:04:18 UTC
 
  References
 
