@@ -778,7 +778,7 @@ tipc_v1_set_col_msgtype(packet_info *pinfo, guint8 user, guint8 msg_type)
 		case TIPC_DATA_PRIO_2:
 		case TIPC_DATA_NON_REJECTABLE:
 			/*
-			 * src and dest address will be found at different location depending on User ad hdr_size
+			 * src and dest address will be found at different location depending on User as hdr_size
 			 */
 			datatype_hdr = TRUE;
 			col_append_fstr(pinfo->cinfo, COL_INFO, "%s(%u) ", val_to_str_const(msg_type, tipc_data_msg_type_values, "unknown"), msg_type);

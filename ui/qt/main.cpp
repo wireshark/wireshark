@@ -529,7 +529,7 @@ int main(int argc, char *qt_argv[])
 
         } else {
 
-            /* select the first ad default (THIS SHOULD BE CHANGED) */
+            /* select the first as default (THIS SHOULD BE CHANGED) */
             airpcap_if_active = airpcap_get_default_if(airpcap_if_list);
         }
         break;

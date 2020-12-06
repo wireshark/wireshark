@@ -253,7 +253,7 @@ This menu structure is built using the plugin_if.h interface and its
 corresponding functions.
 
 The menu items all call a callback provided by the plugin, which takes
-a pointer to the menuitem entry ad data. This pointer may be used to
+a pointer to the menuitem entry as data. This pointer may be used to
 provide userdata to each entry. The pointer must utilize WS_DLL_PUBLIC_DEF
 and has the following structure:
 

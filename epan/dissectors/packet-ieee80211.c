@@ -27065,7 +27065,7 @@ dissect_ieee80211_common(tvbuff_t *tvb, packet_info *pinfo,
 
              otherwise, we check whether the packet starts with 0x00 0x00
              or with a copy of the sequence control field and, if so, treat
-             those two octets ad mysterious extra stuff preceding the
+             those two octets as mysterious extra stuff preceding the
              payload (possibly OLPC stuff, possibly Ruckus Wireless stuff,
              possibly Atheros stuff), and treat what follows as a frame
              using LPD;
