@@ -205,7 +205,7 @@ Requires(pre):	shadow-utils
 BuildRequires:	rpm >= 4.7.0
 %endif
 
-# NOTE: the below description has been copied to wireshark.appdata.xml (in the
+# NOTE: the below description has been copied to org.wireshark.Wireshark.metainfo.xml (in the
 # top-level directory).
 %description
 Wireshark allows you to examine protocol data stored in files or as it is
@@ -426,12 +426,12 @@ cd -
 # SUSE's packaging conventions
 # (https://en.opensuse.org/openSUSE:Packaging_Conventions_RPM_Macros#.25suse_update_desktop_file)
 # require this:
-install -Dm 0644 %{buildroot}/usr/local/share/applications/wireshark.desktop %{buildroot}/usr/share/applications/wireshark.desktop
+install -Dm 0644 %{buildroot}/usr/local/share/applications/org.wireshark.Wireshark.desktop %{buildroot}/usr/share/applications/org.wireshark.Wireshark.desktop
 %suse_update_desktop_file %{name}
 %else
 # Fedora's packaging guidelines (https://fedoraproject.org/wiki/Packaging:Guidelines)
 # require this (at least if desktop-file-install was not used to install it).
-desktop-file-validate %{buildroot}%{_datadir}/applications/wireshark.desktop
+desktop-file-validate %{buildroot}%{_datadir}/applications/org.wireshark.Wireshark.desktop
 %endif
 %endif
 
@@ -519,11 +519,11 @@ update-mime-database %{_datadir}/mime &> /dev/null || :
 %if %{with qt5}
 %files qt
 %defattr(-,root,root)
-%{_datadir}/applications/wireshark.desktop
+%{_datadir}/applications/org.wireshark.Wireshark.desktop
 %if 0%{?suse_version}
-/usr/share/applications/wireshark.desktop
+/usr/share/applications/org.wireshark.Wireshark.desktop
 %endif
-%{_datadir}/appdata/wireshark.appdata.xml
+%{_datadir}/appdata/org.wireshark.Wireshark.metainfo.xml
 %{_datadir}/icons/hicolor/*/apps/*
 %{_datadir}/icons/hicolor/*/mimetypes/*
 %{_datadir}/mime/packages/wireshark.xml

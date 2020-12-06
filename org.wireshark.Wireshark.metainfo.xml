@@ -2,7 +2,7 @@
 <!-- Copyright 2014 Richard Hughes <richard@hughsie.com> -->
 
 <application>
-    <id type="desktop">wireshark.desktop</id>
+    <id type="desktop">org.wireshark.Wireshark</id>
     <name>Wireshark</name>
     <summary>Wireshark is the world's foremost protocol analyzer</summary>
     <content_rating type="oars-1.1"/>

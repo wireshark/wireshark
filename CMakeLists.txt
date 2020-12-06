@@ -3150,7 +3150,7 @@ if(LINUXDEPLOYQT_EXECUTABLE AND APPIMAGETOOL_EXECUTABLE)
 	# https://github.com/probonopd/linuxdeployqt/wiki/Custom-wrapper-script-instead-of-AppRun
 	add_custom_target(appimage-prep
 		COMMAND ${LINUXDEPLOYQT_EXECUTABLE}
-			"${_ai_appdir}/usr/share/applications/wireshark.desktop"
+			"${_ai_appdir}/usr/share/applications/org.wireshark.Wireshark.desktop"
 			${_exe_args}
 		COMMAND rm -f "${_ai_appdir}/AppRun"
 		COMMAND install
@@ -3233,28 +3233,28 @@ install(FILES ${SHARK_PUBLIC_HEADERS}
 
 # Install icons and other desktop files for Freedesktop.org-compliant desktops.
 if((BUILD_wireshark AND QT_FOUND) AND NOT (WIN32 OR APPLE))
-	install(FILES wireshark-mime-package.xml
+	install(FILES org.wireshark.Wireshark-mime.xml
 		DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/mime/packages"
-		RENAME wireshark.xml
+		RENAME org.wireshark.Wireshark.xml
 	)
-	install(FILES wireshark.appdata.xml
-		DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/appdata"
+	install(FILES org.wireshark.Wireshark.metainfo.xml
+		DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/metainfo"
 	)
 	if(BUILD_wireshark AND QT_FOUND)
-		install(FILES wireshark.desktop
+		install(FILES org.wireshark.Wireshark.desktop
 			DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/applications")
 	endif()
 	foreach(size 16 24 32 48 64 128 256)
 		install(FILES image/wsicon${size}.png
 			DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/icons/hicolor/${size}x${size}/apps"
-			RENAME wireshark.png)
+			RENAME org.wireshark.Wireshark.png)
 		install(FILES image/WiresharkDoc-${size}.png
 			DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/icons/hicolor/${size}x${size}/mimetypes"
-			RENAME application-wireshark-doc.png)
+			RENAME org.wireshark.Wireshark-mimetype.png)
 	endforeach()
 	install(FILES image/wsicon.svg
 		DESTINATION "${CMAKE_INSTALL_DATAROOTDIR}/icons/hicolor/scalable/apps"
-		RENAME wireshark.svg)
+		RENAME org.wireshark.Wireshark.svg)
 endif()
 
 install(
