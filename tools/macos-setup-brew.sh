@@ -19,6 +19,8 @@ brew install c-ares glib libgcrypt gnutls lua@5.1 cmake python nghttp2 snappy lz
 # Uncomment to enable automatic updates using Sparkle
 # brew cask install sparkle
 
+brew doctor
+
 exit 0
 #
 #  Editor modelines
