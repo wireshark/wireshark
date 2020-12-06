@@ -1315,6 +1315,12 @@ static void snort_start(void)
     }
 #endif
 
+#ifdef _WIN32
+    report_failure("Snort dissector: not yet able to launch Snort process under Windows");
+    current_session.working = FALSE;
+    return;
+#endif
+
     /* Create snort process and set up pipes */
     snort_debug_printf("\nRunning %s with config file %s\n", pref_snort_binary_filename, pref_snort_config_filename);
     if (!g_spawn_async_with_pipes(NULL,          /* working_directory */
@@ -1536,7 +1542,7 @@ proto_register_snort(void)
 
     prefs_register_enum_preference(snort_module, "alerts_source",
         "Source of Snort alerts",
-        "Set whether dissector should run Snort itself or use user packet comments",
+        "Set whether dissector should run Snort and pass frames into it, or read alerts from user packet comments",
         &pref_snort_alerts_source, alerts_source_vals, FALSE);
 
     prefs_register_filename_preference(snort_module, "binary",
@@ -1559,7 +1565,7 @@ proto_register_snort(void)
                                    &snort_show_alert_expert_info);
     prefs_register_bool_preference(snort_module, "show_alert_in_reassembled_frame",
                                    "Try to show alerts in reassembled frame",
-                                   "Attempt to show alert in reassembled frame where possible",
+                                   "Attempt to show alert in reassembled frame where possible.  Note that this won't work during live capture",
                                    &snort_alert_in_reassembled_frame);
 
     snort_handle = create_dissector_handle(snort_dissector, proto_snort);
