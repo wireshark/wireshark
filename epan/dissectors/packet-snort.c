@@ -133,6 +133,10 @@ static gboolean snort_show_alert_expert_info = FALSE;
 /* Should we try to attach the alert to the tcp.reassembled_in frame instead of current one? */
 static gboolean snort_alert_in_reassembled_frame = FALSE;
 
+/* Should Snort ignore checksum errors (as will likely be seen because of check offloading or
+ * possibly if trying to capture live in a container)? */
+static gboolean snort_ignore_checksum_errors = TRUE;
+
 
 /********************************************************/
 /* Global variable with single parsed snort config      */
@@ -1243,8 +1247,15 @@ static void snort_start(void)
         "-A", "console", "-q",
         /* normalize time */
         "-y", /* -U", */
+        /* Optionally ignore checksum errors */
+        "-k", "none",
         NULL
     };
+
+    /* Truncate command to before -k if this pref off */
+    if (!snort_ignore_checksum_errors) {
+        argv[10] = NULL;
+    }
 
     /* Enable field priming if required. */
     if (snort_alert_in_reassembled_frame) {
@@ -1512,9 +1523,9 @@ proto_register_snort(void)
     };
 
     static const enum_val_t alerts_source_vals[] = {
-        {"from-nowhere",            "Not looking for Snort alerts", FromNowhere},
-        {"from-running-snort",      "From running Snort",           FromRunningSnort},
-        {"from-user-comments",      "From user comments",           FromUserComments},
+        {"from-nowhere",            "Not looking for Snort alerts",        FromNowhere},
+        {"from-running-snort",      "From running Snort",                  FromRunningSnort},
+        {"from-user-comments",      "From user packet comments",           FromUserComments},
         {NULL, NULL, -1}
     };
 
@@ -1567,6 +1578,11 @@ proto_register_snort(void)
                                    "Try to show alerts in reassembled frame",
                                    "Attempt to show alert in reassembled frame where possible.  Note that this won't work during live capture",
                                    &snort_alert_in_reassembled_frame);
+    prefs_register_bool_preference(snort_module, "ignore_checksum_errors",
+                                   "Tell Snort to ignore checksum errors",
+                                   "When enabled, will run Snort with '-k none'",
+                                   &snort_ignore_checksum_errors);
+
 
     snort_handle = create_dissector_handle(snort_dissector, proto_snort);
 
