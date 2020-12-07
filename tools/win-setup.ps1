@@ -154,7 +154,7 @@ if ($Platform -eq "win32") {
 
 $CleanupItems = @(
     "bcg729-1.0.4-win??ws"
-    "brotli-1.0.2-4-win??ws"
+    "brotli-1.0.*-win??ws"
     "c-ares-1.9.1-1-win??ws"
     "c-ares-1.1*-win??ws"
     "gnutls-3.?.*-*-win??ws"
@@ -166,6 +166,7 @@ $CleanupItems = @(
     "krb5-*-win??ws"
     "libgcrypt-*-win??ws"
     "libilbc-2.0.2-3-win??ws"
+    "libmaxminddb-1.4.3-1-win??ws"
     "libsmi-0.4.8"
     "libsmi-svn-40773-win??ws"
     "libssh-0.7.?-win??ws"
@@ -182,7 +183,7 @@ $CleanupItems = @(
     "portaudio_v19"
     "portaudio_v19_2"
     "sbc-1.3-win??ws"
-    "snappy-1.1.3-win??ws"
+    "snappy-1.1.*-win??ws"
     "spandsp-0.0.6-win??ws"
     "upx301w"
     "upx303w"
