@@ -914,7 +914,7 @@ dissect_rfc4675_egress_vlan_name(proto_tree *tree, tvbuff_t *tvb, packet_info *p
 static void
 radius_decrypt_avp(gchar *dest, int dest_len, tvbuff_t *tvb, int offset, int length)
 {
-	gcry_md_hd_t md5_handle, old_md5_handle;
+	gcry_md_hd_t md5_handle;
 	guint8 digest[HASH_MD5_LENGTH];
 	int i, j;
 	gint totlen = 0, returned_length, padded_length;
@@ -938,13 +938,8 @@ radius_decrypt_avp(gchar *dest, int dest_len, tvbuff_t *tvb, int offset, int len
 		return;
 	}
 	gcry_md_write(md5_handle, (const guint8 *)shared_secret, (int)strlen(shared_secret));
-	if (gcry_md_copy(&old_md5_handle, md5_handle)) {
-		gcry_md_close(md5_handle);
-		return;
-	}
 	gcry_md_write(md5_handle, authenticator, AUTHENTICATOR_LENGTH);
 	memcpy(digest, gcry_md_read(md5_handle, 0), HASH_MD5_LENGTH);
-	gcry_md_close(md5_handle);
 
 	padded_length = length + ((length % AUTHENTICATOR_LENGTH) ?
 		(AUTHENTICATOR_LENGTH - (length % AUTHENTICATOR_LENGTH)) : 0);
@@ -966,16 +961,13 @@ radius_decrypt_avp(gchar *dest, int dest_len, tvbuff_t *tvb, int offset, int len
 			}
 		}
 
-		if (gcry_md_copy(&md5_handle, old_md5_handle)) {
-			gcry_md_close(old_md5_handle);
-			return;
-		}
+		gcry_md_reset(md5_handle);
+		gcry_md_write(md5_handle, (const guint8 *)shared_secret, (int)strlen(shared_secret));
 		gcry_md_write(md5_handle, &pd[i], AUTHENTICATOR_LENGTH);
 		memcpy(digest, gcry_md_read(md5_handle, 0), HASH_MD5_LENGTH);
-		gcry_md_close(md5_handle);
 	}
 
-	gcry_md_close(old_md5_handle);
+	gcry_md_close(md5_handle);
 }
 
 static void
