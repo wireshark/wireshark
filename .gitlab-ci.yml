@@ -70,6 +70,30 @@ clang-11: &clang-11
     CC: clang-11
     CXX: clang++-11
 
+build:ubuntu-dist:
+  extends: .build-ubuntu
+  script:
+    - perl ../tools/make-version.pl --set-release || ../perl make-version.pl --set-release
+    - cmake -G Ninja $CMAKE_ARGS -DENABLE_CCACHE=ON ..
+    - ninja install
+    # - XXX The master Buildbot config built and copied the API reference
+    - packaging/source/git-export-release.sh -d .
+    - for digest in sha256 rmd160 sha1 ; do openssl $digest wireshark-*.tar.xz ; done
+    # XXX Should these be in test:ubuntu?
+    # - ninja test-programs
+    # - chown -R user .
+    # - if [ -f run/dumpcap ]; then setcap cap_net_raw,cap_net_admin+eip run/dumpcap; fi
+    # - su user -c pytest-3
+    - ninja shellcheck
+  # We're still building tarballs on Buildbot. Leave this disabled for now
+  # in order to avoid confusion.
+  # artifacts:
+  #   paths:
+  #     - wireshark-*.tar.xz
+
+# The custom CentOS 7 image pre-installs dependencies and compilers to speed up the build:
+# https://hub.docker.com/r/wireshark/wireshark-centos-7-dev
+# https://gitlab.com/wireshark/wireshark-containers/-/tree/master/dev/centos-7
 build:rpm-centos-7:
   <<: *build-rpm
   image: wireshark/wireshark-centos-7-dev
