@@ -2612,39 +2612,49 @@ s7comm_add_timestamp_to_tree(tvbuff_t *tvb,
     mt.tm_isdst = -1;
     tv.secs = mktime(&mt);
     tv.nsecs = msec * 1000000;
-    item = proto_tree_add_time_format(tree, hf_s7comm_data_ts, tvb, offset, timestamp_size, &tv,
-        "S7 Timestamp: %s %2d, %d %02d:%02d:%02d.%03d", mon_names[mt.tm_mon], mt.tm_mday,
-        mt.tm_year + 1900, mt.tm_hour, mt.tm_min, mt.tm_sec,
-        msec);
-    time_tree = proto_item_add_subtree(item, ett_s7comm_data_item);
-
-    /* timefunction: s7 timestamp */
-    if (has_ten_bytes) {
-        proto_tree_add_uint(time_tree, hf_s7comm_data_ts_reserved, tvb, offset, 1, timestamp[0]);
-        offset += 1;
-        proto_tree_add_uint(time_tree, hf_s7comm_data_ts_year1, tvb, offset, 1, year_org);
-        offset += 1;
-    }
-    proto_tree_add_uint(time_tree, hf_s7comm_data_ts_year2, tvb, offset, 1, timestamp[2]);
-    offset += 1;
-    proto_tree_add_uint(time_tree, hf_s7comm_data_ts_month, tvb, offset, 1, timestamp[3]);
-    offset += 1;
-    proto_tree_add_uint(time_tree, hf_s7comm_data_ts_day, tvb, offset, 1, timestamp[4]);
-    offset += 1;
-    proto_tree_add_uint(time_tree, hf_s7comm_data_ts_hour, tvb, offset, 1, timestamp[5]);
-    offset += 1;
-    proto_tree_add_uint(time_tree, hf_s7comm_data_ts_minute, tvb, offset, 1, timestamp[6]);
-    offset += 1;
-    proto_tree_add_uint(time_tree, hf_s7comm_data_ts_second, tvb, offset, 1, timestamp[7]);
-    offset += 1;
-    proto_tree_add_uint(time_tree, hf_s7comm_data_ts_millisecond, tvb, offset, 2, msec);
-    proto_tree_add_item(time_tree, hf_s7comm_data_ts_weekday, tvb, offset, 2, ENC_BIG_ENDIAN);
-    offset += 2;
-
-    if (append_text == TRUE) {
-        proto_item_append_text(tree, "(Timestamp: %s %2d, %d %02d:%02d:%02d.%03d)", mon_names[mt.tm_mon], mt.tm_mday,
+    if (mt.tm_mon >= 0 && mt.tm_mon <= 11) {
+        item = proto_tree_add_time_format(tree, hf_s7comm_data_ts, tvb, offset, timestamp_size, &tv,
+            "S7 Timestamp: %s %2d, %d %02d:%02d:%02d.%03d", mon_names[mt.tm_mon], mt.tm_mday,
             mt.tm_year + 1900, mt.tm_hour, mt.tm_min, mt.tm_sec,
             msec);
+        time_tree = proto_item_add_subtree(item, ett_s7comm_data_item);
+
+        /* timefunction: s7 timestamp */
+        if (has_ten_bytes) {
+            proto_tree_add_uint(time_tree, hf_s7comm_data_ts_reserved, tvb, offset, 1, timestamp[0]);
+            offset += 1;
+            proto_tree_add_uint(time_tree, hf_s7comm_data_ts_year1, tvb, offset, 1, year_org);
+            offset += 1;
+        }
+        proto_tree_add_uint(time_tree, hf_s7comm_data_ts_year2, tvb, offset, 1, timestamp[2]);
+        offset += 1;
+        proto_tree_add_uint(time_tree, hf_s7comm_data_ts_month, tvb, offset, 1, timestamp[3]);
+        offset += 1;
+        proto_tree_add_uint(time_tree, hf_s7comm_data_ts_day, tvb, offset, 1, timestamp[4]);
+        offset += 1;
+        proto_tree_add_uint(time_tree, hf_s7comm_data_ts_hour, tvb, offset, 1, timestamp[5]);
+        offset += 1;
+        proto_tree_add_uint(time_tree, hf_s7comm_data_ts_minute, tvb, offset, 1, timestamp[6]);
+        offset += 1;
+        proto_tree_add_uint(time_tree, hf_s7comm_data_ts_second, tvb, offset, 1, timestamp[7]);
+        offset += 1;
+        proto_tree_add_uint(time_tree, hf_s7comm_data_ts_millisecond, tvb, offset, 2, msec);
+        proto_tree_add_item(time_tree, hf_s7comm_data_ts_weekday, tvb, offset, 2, ENC_BIG_ENDIAN);
+        offset += 2;
+
+        if (append_text == TRUE) {
+            proto_item_append_text(tree, "(Timestamp: %s %2d, %d %02d:%02d:%02d.%03d)", mon_names[mt.tm_mon], mt.tm_mday,
+                mt.tm_year + 1900, mt.tm_hour, mt.tm_min, mt.tm_sec,
+                msec);
+        }
+    } else {
+        /* If the timestamp is invalid, continue as best as we can */
+        if (has_ten_bytes) {
+            offset += 10;
+        }
+        else {
+            offset += 8;
+        }
     }
     return offset;
 }
