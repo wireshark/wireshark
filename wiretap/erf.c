@@ -1967,7 +1967,7 @@ static gboolean erf_dump(
       /* XXX: What about ERF-in-pcapng with existing comment (that wasn't
        * modified)? */
       if(rec->has_comment_changed) {
-        memcpy(&other_phdr, pseudo_header, sizeof(union wtap_pseudo_header));
+        memmove(&other_phdr, pseudo_header, sizeof(union wtap_pseudo_header));
         if(!erf_write_anchor_meta_update_phdr(wdh, dump_priv, rec, &other_phdr, err)) return FALSE;
         pseudo_header = &other_phdr;
       }
