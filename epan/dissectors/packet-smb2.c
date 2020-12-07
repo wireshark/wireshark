@@ -2888,7 +2888,7 @@ dissect_smb2_fs_info_05(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *paren
 	}
 
 	bc = tvb_captured_length_remaining(tvb, offset);
-	offset = dissect_qfsi_FS_ATTRIBUTE_INFO(tvb, pinfo, tree, offset, &bc, TRUE);
+	offset = dissect_qfsi_FS_ATTRIBUTE_INFO(tvb, pinfo, tree, offset, &bc);
 
 	return offset;
 }
