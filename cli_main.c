@@ -26,6 +26,7 @@ wmain(int argc, wchar_t *wc_argv[])
 {
 	char **argv;
 	int i;
+	int return_code;
 
 	argv = (char **)malloc((argc + 1) * sizeof(char *));
 	if (argv == NULL) {
@@ -67,6 +68,11 @@ wmain(int argc, wchar_t *wc_argv[])
 	 * the cli_main.h header file since either "main" or "wmain" can be
 	 * defined on Windows, but not both.
 	 */
-	return real_main(argc, argv);
+	return_code = real_main(argc, argv);
+	for (i = 0; i < argc; i++) {
+		free(argv[i]);
+	}
+	free(argv);
+	return return_code;
 }
 #endif
