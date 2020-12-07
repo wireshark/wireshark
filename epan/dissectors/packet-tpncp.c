@@ -54,6 +54,8 @@ enum SpecialFieldType {
     TPNCP_OPEN_CHANNEL_START,
     TPNCP_SECURITY_START,
     TPNCP_SECURITY_OFFSET,
+    RTP_STATE_START,
+    RTP_STATE_OFFSET,
     TPNCP_CHANNEL_CONFIGURATION
 };
 
@@ -138,8 +140,9 @@ dissect_tpncp_data(guint data_id, packet_info *pinfo, tvbuff_t *tvb, proto_tree 
     tpncp_data_field_info *field = NULL;
     gint bitindex = encoding == ENC_LITTLE_ENDIAN ? 7 : 0;
     enum AddressFamily address_family = TPNCP_IPV4;
-    gint open_channel_start = -1, security_offset = 0;
+    gint open_channel_start = -1, security_offset = 0, rtp_state_offset = 0;
     gint channel_b_offset = 0;
+    const gint initial_offset = *offset;
 
     for (field = &data_fields_info[data_id]; field; field = field->p_next) {
         switch (field->special_type) {
@@ -153,12 +156,20 @@ dissect_tpncp_data(guint data_id, packet_info *pinfo, tvbuff_t *tvb, proto_tree 
             break;
         }
         case TPNCP_SECURITY_START:
-            if (open_channel_start != -1 && security_offset > 0) {
-            }
             if (*offset < security_offset)
                 *offset = security_offset;
             open_channel_start = -1;
             security_offset = 0;
+            break;
+        case RTP_STATE_OFFSET:
+            rtp_state_offset = tvb_get_gint32(tvb, *offset, encoding);
+            if (rtp_state_offset > 0)
+                rtp_state_offset += initial_offset + 4; /* The offset starts after CID */
+            break;
+        case RTP_STATE_START:
+            if (*offset < rtp_state_offset)
+                *offset = rtp_state_offset;
+            rtp_state_offset = 0;
             break;
         case TPNCP_CHANNEL_CONFIGURATION:
             if (channel_b_offset == 0) {
@@ -175,7 +186,11 @@ dissect_tpncp_data(guint data_id, packet_info *pinfo, tvbuff_t *tvb, proto_tree 
             // fall-through
         default:
             if (open_channel_start != -1 && security_offset > 0) {
-                if (*offset > security_offset)
+                if (*offset >= security_offset)
+                    continue;
+            }
+            if (rtp_state_offset > 0) {
+                if (*offset >= rtp_state_offset)
                     continue;
             }
             if (channel_b_offset > 0 && *offset >= channel_b_offset)
@@ -723,6 +738,10 @@ init_tpncp_data_fields_info(tpncp_data_field_info *data_fields_info, FILE *file)
             special_type = TPNCP_SECURITY_START;
         else if (name[0] == 's' && !strcmp(name, "security_cmd_offset"))
             special_type = TPNCP_SECURITY_OFFSET;
+        else if (name[0] == 's' && !strcmp(name, "ssrc"))
+            special_type = RTP_STATE_START;
+        else if (name[0] == 'r' && !strcmp(name, "rtp_state_offset"))
+            special_type = RTP_STATE_OFFSET;
         else if (data_id == 1611 && name[0] == 'c' && strstr(name, "configuration_type_updated"))
             special_type = TPNCP_CHANNEL_CONFIGURATION;
         sign = !!((gboolean) g_ascii_strtoll(tmp, NULL, 10));
