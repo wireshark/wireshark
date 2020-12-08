@@ -67,6 +67,8 @@ const int max_delta_col_   =  8;
 const int max_jitter_col_  =  9;
 const int mean_jitter_col_ = 10;
 const int status_col_      = 11;
+const int ssrc_fmt_col_    = 12;
+const int lost_perc_col_   = 13;
 
 enum { rtp_stream_type_ = 1000 };
 
@@ -121,33 +123,42 @@ public:
     }
     // Return a QString, int, double, or invalid QVariant representing the raw column data.
     QVariant colData(int col) const {
+        rtpstream_info_calc_t calc;
         if (!stream_info_) {
             return QVariant();
         }
 
+        rtpstream_info_calculate(stream_info_, &calc);
+
         switch(col) {
         case src_addr_col_:
-        case dst_addr_col_:
-        case payload_col_:
             return text(col);
         case src_port_col_:
-            return stream_info_->id.src_port;
+            return calc.src_port;
+        case dst_addr_col_:
+            return text(col);
         case dst_port_col_:
-            return stream_info_->id.dst_port;
+            return calc.dst_port;
         case ssrc_col_:
-            return stream_info_->id.ssrc;
+            return calc.ssrc;
+        case payload_col_:
+            return text(col);
         case packets_col_:
-            return stream_info_->packet_count;
+            return calc.packet_count;
         case lost_col_:
-            return lost_;
+            return calc.lost_num;
         case max_delta_col_:
-            return stream_info_->rtp_stats.max_delta;
+            return calc.max_delta;
         case max_jitter_col_:
-            return stream_info_->rtp_stats.max_jitter;
+            return calc.max_jitter;
         case mean_jitter_col_:
-            return stream_info_->rtp_stats.mean_jitter;
+            return calc.mean_jitter;
         case status_col_:
-            return stream_info_->problem ? "Problem" : "";
+            return calc.problem ? "Problem" : "";
+        case ssrc_fmt_col_:
+            return QString("0x%1").arg(calc.ssrc, 0, 16);
+        case lost_perc_col_:
+            return QString::number(calc.lost_perc, 'f', 1);
         default:
             break;
         }
@@ -419,6 +430,18 @@ QList<QVariant> RtpStreamDialog::streamRowData(int row) const
             if (rsti) {
                 row_data << rsti->colData(col);
             }
+        }
+    }
+
+    // Add additional columns to export
+    if (row < 0) {
+        row_data << QString("SSRC formatted");
+        row_data << QString("Lost percentage");
+    } else {
+        RtpStreamTreeWidgetItem *rsti = static_cast<RtpStreamTreeWidgetItem*>(ui->streamTreeWidget->topLevelItem(row));
+        if (rsti) {
+            row_data << rsti->colData(ssrc_fmt_col_);
+            row_data << rsti->colData(lost_perc_col_);
         }
     }
     return row_data;
