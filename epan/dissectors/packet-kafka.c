@@ -1864,7 +1864,9 @@ decompress_zstd(tvbuff_t *tvb _U_, packet_info *pinfo, int offset _U_, guint32 l
 }
 #endif /* HAVE_ZSTD */
 
-#define MAX_DECOMPRESSION_SIZE (50 * 1000 * 1000) // Arbitrary
+// Max is currently 2^22 in
+// https://github.com/apache/kafka/blob/trunk/clients/src/main/java/org/apache/kafka/common/record/KafkaLZ4BlockOutputStream.java
+#define MAX_DECOMPRESSION_SIZE (1 << 22)
 static gboolean
 decompress(tvbuff_t *tvb, packet_info *pinfo, int offset, guint32 length, int codec, tvbuff_t **decompressed_tvb, int *decompressed_offset)
 {
