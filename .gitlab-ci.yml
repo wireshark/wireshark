@@ -153,7 +153,7 @@ merge-request:ubuntu-dpkg:
     - WS_GITHOOK_PYTHON=python3 ./tools/pre-commit 'HEAD^1'
     - python3 tools/validate-commit.py
     - CC=/usr/lib/ccache/gcc CXX=/usr/lib/ccache/g++ dpkg-buildpackage -us -uc -rfakeroot -jauto -Zgzip -zfast
-    - lintian --suppress-tags library-not-linked-against-libc --display-experimental --display-info --pedantic --profile debian
+    - lintian --suppress-tags library-not-linked-against-libc,copyright-excludes-files-in-native-package --display-experimental --display-info --pedantic --profile debian
 
 merge-request:ubuntu-gcc-ctest:
   <<: *build-ubuntu
