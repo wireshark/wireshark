@@ -13,20 +13,56 @@ It is used for troubleshooting, analysis, development and education.
 
 == What’s New
 
-Many improvements have been made.
-See the “New and Updated Features” section below for more details.
+// The Windows installers now ship with Npcap 1.x.
+// They previously shipped with Npcap 1.00.
+
+// The Windows installers now ship with USBPcap 1.5.X.0.
+// They previously shipped with USBPcap 1.5.4.0.
+
+// The Windows installers now ship with Qt 5.15.x.
+// They previously shipped with Qt 5.12.1.
 
 === Bug Fixes
 
 // The following vulnerabilities have been fixed:
+//
+// https://about.gitlab.com/security/cve/#requesting-a-cve-from-gitlab
+// CWE-126: Buffer Over-read
+// CWE-401: Missing Release of Memory after Effective Lifetime
+// https://nvd.nist.gov/vuln-metrics/cvss/v3-calculator
 
-// * wssalink:2020-16[]
-// Foo dissector {crash,infinite loop}.
-// wsbuglink:xxxxx[].
-// cveidlink:2020-xxxx[].
-// Fixed in master: 3ff9406529
-// Fixed in release-3.4: 3ff9406529
-// Fixed in master-3.2: 2bdcb78afd
+* wssalink:2020-16[]
+Kafka dissector memory leak.
+wsbuglink:16739[].
+cveidlink:2020-26418[].
+// Fixed in master: f4374967bb
+// Fixed in release-3.4: fa53725469
+// Fixed in master-3.2: 4736aaae7a
+
+* wssalink:2020-17[]
+USB HID dissector crash.
+wsbuglink:16958[].
+cveidlink:2020-26421[].
+// Fixed in master: d5f2657825
+// Fixed in release-3.4: c8fedf65b2
+// Fixed in master-3.2: 61f17d3c21
+
+* wssalink:2020-18[]
+RTPS dissector memory leak.
+wsbuglink:16994[].
+cveidlink:2020-26420[].
+// Fixed in master: 33e63d19e5
+// Fixed in release-3.4: 6ece1c896d
+// Fixed in master-3.2: 53682b53da
+
+* wssalink:2020-19[]
+Multiple dissector memory leak.
+wsbuglink:17032[].
+cveidlink:2020-26419[].
+// Fixed in master: a9fc769d7b
+// Fixed in release-3.4: 5edf715c04
+// Fixed in master-3.2: n/a
+
 
 The following bugs have been fixed:
 
@@ -36,7 +72,33 @@ The following bugs have been fixed:
 //* wsbuglink:6000[Wireshark bug]
 //* cveidlink:2014-2486[]
 //* Wireshark exposed details your sordid redneck past, which were subsequently widely disseminated on social media.
-// cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log v3.2.9rc0.. | gsed -e 's/\(close\|fix\|resolv\)[^ ]* #/\nclose #/gI' | grep ^close | sed -e 's/close.*#\([1-9][0-9]*\).*/\1/' | sort -V -u` ; do "$(git rev-parse --show-toplevel)/tools/gen-bugnote" $bugnumber; pbpaste >> /tmp/buglist.txt; done
+// cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log v3.4.2rc0.. | gsed -e 's/\(close\|fix\|resolv\)[^ ]* #/\nclose #/gI' | grep ^close | sed -e 's/close.*#\([1-9][0-9]*\).*/\1/' | sort -V -u` ; do "$(git rev-parse --show-toplevel)/tools/gen-bugnote" $bugnumber; pbpaste >> /tmp/buglist.txt; done
+
+* IETF QUIC TLS decryption errors when a NAT rebinding happens for a connection wsbuglink:16915[].
+
+* IETF QUIC TLS decryption error with key update wsbuglink:16916[].
+
+* IETF QUIC TLS decryption error after the second key update wsbuglink:16920[].
+
+* SOME/IP: Wrong dissection of parameters after Array wsbuglink:16951[].
+
+* Can editcap properly corrupt pcapng file with systemd journal export block? wsbuglink:16965[].
+
+* Crash when a GIOP ior.txt file is present wsbuglink:16984[].
+
+* Protobuf: failed to parse .proto file contains negative enum values or option values of number type wsbuglink:16988[].
+
+* MMRP dissector bug wsbuglink:17005[].
+
+* QUIC: "Loss bits" capability wsbuglink:17010[].
+
+* Stdin capture fails on Windows wsbuglink:17018[].
+
+* SSTP no longer recognized wsbuglink:17024[].
+
+* RFC2190 encapsulated H.263 bitfields masked wrong in Mode A wsbuglink:17025[].
+
+* editcap fails when splitting into multiple pcapng files wsbuglink:17060[].
 
 // === Removed Features and Support
 
@@ -57,15 +119,42 @@ There are no new protocols in this release.
 // Add one protocol per line between the -- delimiters.
 [commaize]
 --
+ACDR
+DOCSIS
+Ericsson HDLC
+F5 Ethernet Trailer
+GIOP
+GSM A
+GSM RLC MAC
+HTTP
+IEEE 802.11
+Kafka
+LLC
+MBIM
+MMRP
+NAS 5GS
+NAS EPS
+Nordic BLE
+ProtoBuf
+QUIC
+Radiotap
+RFC 2190
+RTCP
+RTPS
+S1AP
+SOME/IP
+STUN
+USB Video
 --
 
 === New and Updated Capture File Support
 
-There is no new or updated capture file support in this release.
+// There is no new or updated capture file support in this release.
 // Add one file type per line between the -- delimiters.
-// [commaize]
-// --
-// --
+[commaize]
+--
+pcapng
+--
 
 // === New and Updated Capture Interfaces support
 
