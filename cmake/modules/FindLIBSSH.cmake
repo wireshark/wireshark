@@ -66,7 +66,7 @@ else ()
     if(NOT EXISTS "${_libssh_version_header}")
         set(_libssh_version_header "${LIBSSH_INCLUDE_DIR}/libssh/libssh.h")
     endif()
-        
+
     file(STRINGS "${_libssh_version_header}" LIBSSH_VERSION_MAJOR
       REGEX "#define[ ]+LIBSSH_VERSION_MAJOR[ ]+[0-9]+")
     # Older versions of libssh like libssh-0.2 have LIBSSH_VERSION but not LIBSSH_VERSION_MAJOR
@@ -91,12 +91,13 @@ else ()
 
   if(WIN32)
     set(LIBSSH_DLL_DIR "${LIBSSH_HINTS}/bin"
-      CACHE PATH "Path to libssh DLL"
+      CACHE PATH "Path to libssh DLLs"
     )
-    file(GLOB _libssh_dll RELATIVE "${LIBSSH_DLL_DIR}"
-      "${LIBSSH_DLL_DIR}/libssh.dll"
+    file(GLOB _libssh_dlls RELATIVE "${LIBSSH_DLL_DIR}"
+      "${LIBSSH_DLL_DIR}/ssh.dll"
+      "${LIBSSH_DLL_DIR}/pthreadVC3.dll"
     )
-    set(LIBSSH_DLL ${_libssh_dll}
+    set(LIBSSH_DLLS ${_libssh_dlls}
       # We're storing filenames only. Should we use STRING instead?
       CACHE FILEPATH "libssh DLL file name"
     )

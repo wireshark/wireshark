@@ -69,8 +69,8 @@ Param(
 # trouble instead of trying to catch exceptions everywhere.
 $ErrorActionPreference = "Stop"
 
-$Win64CurrentTag = "2020-12-05"
-$Win32CurrentTag = "2020-12-05"
+$Win64CurrentTag = "2020-12-09"
+$Win32CurrentTag = "2020-12-09"
 
 # Archive file / SHA256
 $Win64Archives = @{
@@ -85,7 +85,7 @@ $Win64Archives = @{
     "libmaxminddb-1.4.3-1-win64ws.zip" = "ee89944a19ab6e1c873bdecb9fc6205d317c41e6da6ec1d30bc892fddfd143da";
     "libpcap-1.9.1-1-win64ws.zip" = "5713acad1b095b0351c3b05d7c8e51351af91ae19c306bb1aa985b69c5af7f16";
     "libsmi-svn-40773-win64ws.zip" = "571fcee71d741bf847c3247d4c2e1c42388ca6a9feebe08fc0d4ce053571d15d";
-    "libssh-0.7.3-1-win64ws.zip" = "3a81b9f4a914a46f15243bbb13b6919ef1c20d4bf502c47646caeccff2cbd75c";
+    "libssh-0.9.5-win64ws.zip" = "3226fcb89969a77643bd2bca7a1ff6b5a79261b680a09a6bfedb3d40f7a187e3";
     "lua-5.2.4-unicode-win64-vc14.zip" = "e8968d2c7871ce1ea82cbd29ac1b3a2c59d3dec25e483c5e12de85df66f5d928";
     "lz4-1.9.2-1-win64ws.zip" = "751c68b81454d0b4411b9306add61847471ad4b84c40fe852d23d3d071a51268";
     "minizip-1.2.11-4-win64ws.zip" = "dd6bf24e2d946465ad19aa4f8c38e0db91da6585887935de68011982cd6fb2cb";
@@ -111,7 +111,7 @@ $Win32Archives = @{
     "libmaxminddb-1.4.3-1-win32ws.zip" = "956f33daa63ce671df4c3e9210308f105e193e7a62c2d947f786d441758ed5e4";
     "libpcap-1.9.1-1-win32ws.zip" = "431d8a6bac7a5e80ff8c7f1fc99388fb17c9555589b368577dc8c9d2f4499275";
     "libsmi-svn-40773-win32ws.zip" = "44bc81edfeb8948322ca365fc632e419383907c305cc922e6b74fdbb13827958";
-    "libssh-0.7.3-1-win32ws.zip" = "b02f0d318175194ac538a24c9c9fc280a0ecad69fb3afd4945c106b4b7c4fa6f";
+    "libssh-0.9.5-win32ws.zip" = "0cbdc1b9a65c38e601fda6df3fcdd76f8a0b83e98fa5c836764e1592d8a79194";
     "lua-5.2.4-unicode-win32-vc14.zip" = "ca2368a83f623674178e9441f71fb791e3c0b46f208e3dac28c6ac735f034bff";
     "lz4-1.9.2-1-win32ws.zip" = "9bf6398e7f3d81d3db01b27356a9f4a0930573dbf9cc46011a59f89bef3bec69";
     "minizip-1.2.11-4-win32ws.zip" = "41e113930902c2519c4644e8307a0cc51c5855e001e1e69768c48deb376142d0";
@@ -169,7 +169,7 @@ $CleanupItems = @(
     "libmaxminddb-1.4.3-1-win??ws"
     "libsmi-0.4.8"
     "libsmi-svn-40773-win??ws"
-    "libssh-0.7.?-win??ws"
+    "libssh-0.*-win??ws"
     "libxml2-*-win??ws"
     "lua5.1.4"
     "lua5.2.?"
