@@ -384,10 +384,23 @@ Port-Number TYPE = FT_UINT16 DISPLAY = BASE_DEC
   struct s1ap_private_data *s1ap_data = s1ap_get_private_data(actx->pinfo);
   s1ap_data->handover_type_value = 0xff;
 
-#.FN_HDR SourceeNB-ToTargeteNB-TransparentContainer
+#.FN_BODY SourceeNB-ToTargeteNB-TransparentContainer
   struct s1ap_private_data *s1ap_data = s1ap_get_private_data(actx->pinfo);
+  volatile guint32 _offset;
 
   s1ap_data->transparent_container_type = SOURCE_TO_TARGET_TRANSPARENT_CONTAINER;
+  _offset = offset;
+   TRY {
+
+  offset = dissect_per_sequence(tvb, _offset, actx, tree, hf_index,
+                                   ett_s1ap_SourceeNB_ToTargeteNB_TransparentContainer, SourceeNB_ToTargeteNB_TransparentContainer_sequence);
+  } CATCH_ALL {
+    show_exception(tvb, actx->pinfo, tree, EXCEPT_CODE, GET_MESSAGE);
+  }
+  ENDTRY;
+    offset = _offset;
+
+
 
 #.FN_BODY Source-ToTarget-TransparentContainer VAL_PTR = &parameter_tvb
 # I think the message is "directly encoded" into the octet string(no "double encoding")
@@ -400,7 +413,7 @@ Port-Number TYPE = FT_UINT16 DISPLAY = BASE_DEC
   tvbuff_t *parameter_tvb;
   proto_tree *subtree;
 
-%(DEFAULT_BODY)s
+  %(DEFAULT_BODY)s
 
   if ((g_s1ap_dissect_container)&&(parameter_tvb) && (tvb_reported_length(parameter_tvb) > 0)) {
     struct s1ap_private_data *s1ap_data = s1ap_get_private_data(actx->pinfo);
@@ -464,10 +477,21 @@ Port-Number TYPE = FT_UINT16 DISPLAY = BASE_DEC
     col_set_writable(actx->pinfo->cinfo, COL_INFO, TRUE);
   }
 
-#.FN_HDR TargeteNB-ToSourceeNB-TransparentContainer
-  struct s1ap_private_data *s1ap_data = s1ap_get_private_data(actx->pinfo);
+#.FN_BODY TargeteNB-ToSourceeNB-TransparentContainer
+    struct s1ap_private_data *s1ap_data = s1ap_get_private_data(actx->pinfo);
+    volatile guint32 _offset;
 
   s1ap_data->transparent_container_type = TARGET_TO_SOURCE_TRANSPARENT_CONTAINER;
+  _offset = offset;
+     TRY {
+
+  _offset = dissect_per_sequence(tvb, _offset, actx, tree, hf_index,
+                                   ett_s1ap_TargeteNB_ToSourceeNB_TransparentContainer, TargeteNB_ToSourceeNB_TransparentContainer_sequence);
+  } CATCH_ALL {
+    show_exception(tvb, actx->pinfo, tree, EXCEPT_CODE, GET_MESSAGE);
+  }
+  ENDTRY;
+    offset = _offset;
 
 #.FN_BODY Target-ToSource-TransparentContainer VAL_PTR = &parameter_tvb
 # I think the message is "directly encoded" into the octet string(no "double encoding")

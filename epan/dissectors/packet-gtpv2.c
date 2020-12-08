@@ -5116,16 +5116,19 @@ dissect_gtpv2_F_container(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, p
     tvbuff_t   *new_tvb;
     proto_tree *sub_tree;
     int         offset = 0;
-    guint8      container_type;
+    guint32      container_type;
     guint8      container_flags, xid_len;
 
     /* Octets   8   7   6   5   4   3   2   1
      * 5            Spare     | Container Type
      */
-    proto_tree_add_item(tree, hf_gtpv2_container_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-    container_type = tvb_get_guint8(tvb, offset);
+    proto_tree_add_item_ret_uint(tree, hf_gtpv2_container_type, tvb, offset, 1, ENC_BIG_ENDIAN, &container_type);
     offset += 1;
     length--;
+    if (length == 0) {
+        proto_tree_add_expert(tree, pinfo, &ei_gtpv2_ie_len_invalid, tvb, offset-3, 3);
+        return;
+    }
     if (   (message_type == GTPV2_FORWARD_RELOCATION_REQ)
         || (message_type == GTPV2_CONTEXT_RESPONSE)
         || (message_type == GTPV2_RAN_INFORMATION_RELAY)) {
@@ -5139,7 +5142,7 @@ dissect_gtpv2_F_container(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, p
              * procedure.
              */
             sub_tree = proto_tree_add_subtree(tree, tvb, offset, length, ett_gtpv2_utran_con, NULL, "UTRAN transparent container");
-            new_tvb = tvb_new_subset_remaining(tvb, offset);
+            new_tvb = tvb_new_subset_length(tvb, offset, length);
             dissect_ranap_Source_ToTarget_TransparentContainer_PDU(new_tvb, pinfo, sub_tree, NULL);
             return;
         case 2:
@@ -5188,7 +5191,7 @@ dissect_gtpv2_F_container(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, p
             * relocation procedure. The Container Type shall be set to 3.
             */
             sub_tree = proto_tree_add_subtree(tree, tvb, offset, length, ett_gtpv2_eutran_con, NULL, "E-UTRAN transparent container");
-            new_tvb = tvb_new_subset_remaining(tvb, offset);
+            new_tvb = tvb_new_subset_length(tvb, offset, length);
             dissect_s1ap_SourceeNB_ToTargeteNB_TransparentContainer_PDU(new_tvb, pinfo, sub_tree, NULL);
             return;
         default:
@@ -5199,7 +5202,7 @@ dissect_gtpv2_F_container(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, p
         switch (container_type) {
         case 3:
             /* E-UTRAN transparent container */
-            new_tvb = tvb_new_subset_remaining(tvb, offset);
+            new_tvb = tvb_new_subset_length(tvb, offset, length);
             dissect_s1ap_ENB_StatusTransfer_TransparentContainer_PDU(new_tvb, pinfo, tree, NULL);
             return;
         default:
@@ -5217,7 +5220,7 @@ dissect_gtpv2_F_container(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, p
              * If the Cause IE contains the value "Request accepted". The Container Type shall be set to 3.
              */
             sub_tree = proto_tree_add_subtree(tree, tvb, offset, length, ett_gtpv2_eutran_con, NULL, "E-UTRAN transparent container");
-            new_tvb = tvb_new_subset_remaining(tvb, offset);
+            new_tvb = tvb_new_subset_length(tvb, offset, length);
             dissect_s1ap_TargeteNB_ToSourceeNB_TransparentContainer_PDU(new_tvb, pinfo, sub_tree, NULL);
             return;
         default:
