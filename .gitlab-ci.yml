@@ -204,7 +204,7 @@ merge-req:ubuntu-dpkg:
     # build-ubuntu puts us in `build`.
     - cd ..
     - CC=/usr/lib/ccache/gcc CXX=/usr/lib/ccache/g++ dpkg-buildpackage -us -uc -rfakeroot -jauto -Zgzip -zfast
-    - lintian --suppress-tags library-not-linked-against-libc --display-experimental --display-info --pedantic --profile debian
+    - lintian --suppress-tags library-not-linked-against-libc,copyright-excludes-files-in-native-package --display-experimental --display-info --pedantic --profile debian
 
 merge-req:ubuntu-gcc-ctest:
   <<: *build-ubuntu
