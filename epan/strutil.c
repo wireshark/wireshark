@@ -208,7 +208,14 @@ get_token_len(const guchar *linep, const guchar *lineend,
  *   their universal character names;
  *
  *   shows illegal UTF-8 sequences as a sequence of bytes represented
- *   as C-style hex escapes;
+ *   as C-style hex escapes (XXX: Does not actually do this. Some illegal
+ *   sequences, such as overlong encodings, the sequences reserved for
+ *   UTF-16 surrogate halves (paired or unpaired), and values outside
+ *   Unicode (i.e., the old sequences for code points above U+10FFFF)
+ *   will be decoded in a permissive way. Other illegal sequences,
+ *   such 0xFE and 0xFF and the presence of a continuation byte where
+ *   not expected (or vice versa its absence), are replaced with
+ *   REPLACEMENT CHARACTER.)
  *
  * and return a pointer to it.
  */
@@ -294,7 +301,7 @@ format_text(wmem_allocator_t* allocator, const guchar *string, size_t len)
             gunichar uc;
             guchar first;
 
-            if ((c & 0xe8) == 0xc0) {
+            if ((c & 0xe0) == 0xc0) {
                 /* Starts a 2-byte UTF-8 sequence; 1 byte left */
                 utf8_len = 1;
                 mask = 0x1f;
@@ -315,7 +322,7 @@ format_text(wmem_allocator_t* allocator, const guchar *string, size_t len)
                 utf8_len = 5;
                 mask = 0x01;
             } else {
-                /* 0xfe or 0xff - not valid */
+                /* 0xfe or 0xff or a continuation byte - not valid */
                 utf8_len = -1;
             }
             if (utf8_len > 0) {
