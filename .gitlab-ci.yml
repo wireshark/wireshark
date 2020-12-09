@@ -35,11 +35,13 @@
     - mkdir build
     - cd build
   script:
-    - cmake -GNinja $CMAKE_ARGS ..
+    # setcap restricts our library paths
+    - CFLAGS=-Wl,-rpath=$(pwd)/run CXXFLAGS=-Wl,-rpath=$(pwd)/run cmake -GNinja $CMAKE_ARGS ..
     - ninja
     - ninja test-programs
     - chown -R user .
     - if [ -f run/dumpcap ]; then setcap cap_net_raw,cap_net_admin+eip run/dumpcap; fi
+    - if [ -f run/dumpcap ]; then su user -c "run/dumpcap -D" ; fi
     - su user -c pytest-3
 
 .build-rpm: &build-rpm
