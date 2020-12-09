@@ -1,3 +1,16 @@
+# In the interest of reliability and performance, please avoid installing
+# external dependencies here, e.g. via tools/*-setup.sh, apt, dnf, or yum.
+# Do so in the appropriate Dockerfile at
+# https://gitlab.com/wireshark/wireshark-containers/ instead.
+# The resulting images can be found at
+# https://hub.docker.com/r/wireshark/wireshark-centos-7-dev
+# https://hub.docker.com/r/wireshark/wireshark-centos-8-dev
+# https://hub.docker.com/r/wireshark/wireshark-debian-stable-dev
+# https://hub.docker.com/r/wireshark/wireshark-fedora-dev
+# https://hub.docker.com/r/wireshark/wireshark-opensuse-15.1-dev
+# https://hub.docker.com/r/wireshark/wireshark-opensuse-15.2-dev
+# https://hub.docker.com/r/wireshark/wireshark-ubuntu-dev
+
 .build: &build
   stage: build
   after_script:
@@ -5,9 +18,6 @@
     - if [[ "$CI_JOB_NAME" == "build:rpm-opensuse-"* ]]; then export LD_LIBRARY_PATH=$builddir/run; fi
     - if [ -f $builddir/run/tshark ]; then $builddir/run/tshark --version; fi
 
-# The custom Ubuntu image pre-installs dependencies and compilers to speed up the build:
-# https://hub.docker.com/r/wireshark/wireshark-ubuntu-dev
-# https://github.com/wireshark/wireshark-ubuntu-dev-docker
 .build-ubuntu: &build-ubuntu
   <<: *build
   image: wireshark/wireshark-ubuntu-dev
@@ -19,14 +29,11 @@
     paths:
       - ccache/
   before_script:
-    - apt-get update -qq
-    - ./tools/debian-setup.sh --install-optional --install-test-deps -y
     - useradd user
     - locale-gen en_US.UTF-8
     - export LANG=en_US.UTF-8
     - export PYTEST_ADDOPTS=--skip-missing-programs=dumpcap,rawshark
     - mkdir -p ccache
-    - apt-get install -y ccache
     - export CCACHE_BASEDIR=${PWD}
     - export CCACHE_DIR=${PWD}/ccache
     - ccache --show-stats
@@ -62,7 +69,6 @@ build:rpm-centos-7:
   image: centos:7
   script:
     - yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
-    - tools/rpm-setup.sh --install-optional -y
     - mkdir build
     - cd build
     - cmake3 -GNinja ..
@@ -82,9 +88,6 @@ build:rpm-opensuse-15.1:
   image: opensuse/leap:15.1
   <<: *build-rpm
   script:
-    - zypper --non-interactive install update-desktop-files
-    - tools/rpm-setup.sh --install-optional ruby
-    - gem install asciidoctor -v 1.5.8 --no-ri --no-rdoc
     - mkdir build
     - cd build
     - cmake -GNinja ..
@@ -105,8 +108,6 @@ test:rpm-opensuse-15.1:
   <<: *build-rpm
   image: fedora
   script:
-    - dnf upgrade -y
-    - tools/rpm-setup.sh --install-optional -y
     - mkdir build
     - cd build
     - cmake3 -GNinja ..
@@ -127,8 +128,6 @@ test:rpm-opensuse-15.1:
 build:debian-stable:
   <<: *build
   image: debian:stable
-  before_script:
-    - ./tools/debian-setup.sh --install-optional --install-test-deps -y --install-deb-deps
   script:
     # Shared GitLab runners limit the log size to 4M, so reduce verbosity. See
     # https://gitlab.com/gitlab-com/support-forum/issues/2790
@@ -143,7 +142,6 @@ test:debian-stable:
   image: debian:stable
   stage: test
   script:
-    - apt-get update
     - DEBIAN_FRONTEND=noninteractive apt-get install ./debian-packages/*.deb -y
     - tshark --version
   variables:
@@ -160,8 +158,6 @@ docbook:
     - changes:
       - "docbook/**"
       - "epan/wslua/**"
-  before_script:
-    - DEBIAN_FRONTEND="noninteractive" ./tools/debian-setup.sh --install-optional -y g++
   script:
     - mkdir build
     - cd build
@@ -200,7 +196,6 @@ merge-req:ubuntu-dpkg:
   rules:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
   script:
-    - apt-get install -y lintian
     # build-ubuntu puts us in `build`.
     - cd ..
     - CC=/usr/lib/ccache/gcc CXX=/usr/lib/ccache/g++ dpkg-buildpackage -us -uc -rfakeroot -jauto -Zgzip -zfast
@@ -228,7 +223,6 @@ merge-req:ubuntu-clang-other-tests:
   rules:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
   script:
-    - apt-get install -y cppcheck clang-tools python-pygments
     # build-ubuntu puts us in `build`.
     - cd ..
     - python3 tools/checklicenses.py
