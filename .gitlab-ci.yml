@@ -1,3 +1,16 @@
+# In the interest of reliability and performance, please avoid installing
+# external dependencies here, e.g. via tools/*-setup.sh, apt, dnf, or yum.
+# Do so in the appropriate Dockerfile at
+# https://gitlab.com/wireshark/wireshark-containers/ instead.
+# The resulting images can be found at
+# https://hub.docker.com/r/wireshark/wireshark-centos-7-dev
+# https://hub.docker.com/r/wireshark/wireshark-centos-8-dev
+# https://hub.docker.com/r/wireshark/wireshark-debian-stable-dev
+# https://hub.docker.com/r/wireshark/wireshark-fedora-dev
+# https://hub.docker.com/r/wireshark/wireshark-opensuse-15.1-dev
+# https://hub.docker.com/r/wireshark/wireshark-opensuse-15.2-dev
+# https://hub.docker.com/r/wireshark/wireshark-ubuntu-dev
+
 .build: &build
   stage: build
   after_script:
@@ -5,9 +18,6 @@
     - if [[ "$CI_JOB_NAME" == "build:rpm-opensuse-"* ]]; then export LD_LIBRARY_PATH=$builddir/run; fi
     - if [ -f $builddir/run/tshark ]; then $builddir/run/tshark --version; fi
 
-# The custom Ubuntu image pre-installs dependencies and compilers to speed up the build:
-# https://hub.docker.com/r/wireshark/wireshark-ubuntu-dev
-# https://gitlab.com/wireshark/wireshark-containers/-/tree/master/dev/ubuntu
 .build-ubuntu: &build-ubuntu
   <<: *build
   image: wireshark/wireshark-ubuntu-dev
@@ -19,8 +29,6 @@
     paths:
       - ccache/
   before_script:
-    #- apt-get update -qq
-    - ./tools/debian-setup.sh --install-optional --install-test-deps -y
     - useradd user
     - locale-gen en_US.UTF-8
     - export LANG=en_US.UTF-8
@@ -58,9 +66,6 @@ clang-10: &clang-10
     CC: clang-10
     CXX: clang++-10
 
-# The custom CentOS 7 image pre-installs dependencies and compilers to speed up the build:
-# https://hub.docker.com/r/wireshark/wireshark-centos-7-dev
-# https://gitlab.com/wireshark/wireshark-containers/-/tree/master/dev/centos-7
 build:rpm-centos-7:
   <<: *build-rpm
   image: wireshark/wireshark-centos-7-dev
@@ -80,9 +85,6 @@ test:rpm-centos-7:
   variables:
     GIT_STRATEGY: none
 
-# The custom CentOS 8 image pre-installs dependencies and compilers to speed up the build:
-# https://hub.docker.com/r/wireshark/wireshark-centos-8-dev
-# https://gitlab.com/wireshark/wireshark-containers/-/tree/master/dev/centos-8
 build:rpm-centos-8:
   <<: *build-rpm
   image: wireshark/wireshark-centos-8-dev
@@ -102,9 +104,6 @@ test:rpm-centos-8:
   variables:
     GIT_STRATEGY: none
 
-# The custom openSUSE 15.1 image pre-installs dependencies and compilers to speed up the build:
-# https://hub.docker.com/r/wireshark/wireshark-opensuse-15.1-dev
-# https://gitlab.com/wireshark/wireshark-containers/-/tree/master/dev/opensuse-15.1
 build:rpm-opensuse-15.1:
   image: wireshark/wireshark-opensuse-15.1-dev
   <<: *build-rpm
@@ -124,9 +123,6 @@ test:rpm-opensuse-15.1:
   dependencies:
     - build:rpm-opensuse-15.1
 
-# The custom openSUSE 15.2 image pre-installs dependencies and compilers to speed up the build:
-# https://hub.docker.com/r/wireshark/wireshark-opensuse-15.2-dev
-# https://gitlab.com/wireshark/wireshark-containers/-/tree/master/dev/opensuse-15.2
 build:rpm-opensuse-15.2:
   image: wireshark/wireshark-opensuse-15.2-dev
   <<: *build-rpm
@@ -146,14 +142,10 @@ test:rpm-opensuse-15.2:
   dependencies:
     - build:rpm-opensuse-15.2
 
-# The custom Fedora image pre-installs dependencies and compilers to speed up the build:
-# https://hub.docker.com/repository/docker/wireshark/wireshark-fedora-dev
-# https://gitlab.com/wireshark/wireshark-containers/-/tree/master/dev/fedora
 build:rpm-fedora:
   <<: *build-rpm
   image: wireshark/wireshark-fedora-dev
   script:
-    #- dnf upgrade -y
     - mkdir build
     - cd build
     - cmake3 -GNinja ..
@@ -170,9 +162,6 @@ test:rpm-fedora:
     - build:rpm-fedora
 
 # Job to generate packages for Debian stable
-# The custom Debian image pre-installs dependencies and compilers to speed up the build:
-# https://hub.docker.com/r/wireshark/wireshark-debian-stable-dev
-# https://github.com/wireshark/wireshark-debian-stable-dev-docker
 build:debian-stable:
   <<: *build
   image: wireshark/wireshark-debian-stable-dev
@@ -206,8 +195,6 @@ docbook:
     - changes:
       - "docbook/**"
       - "epan/wslua/**"
-  before_script:
-    - DEBIAN_FRONTEND="noninteractive" ./tools/debian-setup.sh --install-optional -y g++
   script:
     - mkdir build
     - cd build
@@ -230,8 +217,6 @@ docbook:
 doxygen_all:
   stage: build
   image: wireshark/wireshark-ubuntu-dev
-  before_script:
-    - ./tools/debian-setup.sh -y doxygen graphviz
   script:
     - mkdir build
     - cd build
