@@ -70,7 +70,6 @@ build:rpm-centos-7:
   <<: *build-rpm
   image: centos:7
   script:
-    - yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
     - mkdir build
     - cd build
     - cmake3 -GNinja ..
@@ -79,7 +78,6 @@ test:rpm-centos-7:
   stage: test
   image: centos:7
   script:
-    - yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
     - yum --nogpgcheck localinstall -y build/packaging/rpm/RPMS/x86_64/*.rpm
     - tshark --version
   dependencies:
