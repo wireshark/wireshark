@@ -31,12 +31,23 @@ static gint ett_git = -1;
 static gint hf_git_packet_len = -1;
 static gint hf_git_packet_data = -1;
 static gint hf_git_packet_terminator = -1;
+static gint hf_git_sideband_control_code = -1;
 
 #define PNAME  "Git Smart Protocol"
 #define PSNAME "Git"
 #define PFNAME "git"
 
 #define TCP_PORT_GIT    9418
+
+#define SIDEBAND_PACKFILE_DATA 0x01
+#define SIDEBAND_PROGRESS_INFO 0x02
+#define SIDEBAND_ERROR_INFO 0x03
+static const value_string sideband_vals[] = {
+  { SIDEBAND_PACKFILE_DATA, "Git packfile data" },
+  { SIDEBAND_PROGRESS_INFO, "Git progress data" },
+  { SIDEBAND_ERROR_INFO, "Git error data" },
+  { 0, NULL }
+};
 
 /* desegmentation of Git over TCP */
 static gboolean git_desegment = TRUE;
@@ -91,14 +102,28 @@ dissect_git_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
     return 4;
   }
 
-  if (git_tree)
-  {
-    proto_tree_add_uint(git_tree, hf_git_packet_len, tvb, offset,
-                        4, plen);
+  proto_tree_add_uint(git_tree, hf_git_packet_len, tvb, offset, 4, plen);
+  offset += 4;
+  plen -= 4;
 
-    proto_tree_add_item(git_tree, hf_git_packet_data, tvb, offset+4,
-                        plen-4, ENC_NA);
+  /*
+   * Parse out the sideband control code.
+   *
+   * Not all pkt-lines have a sideband control code. With more context from the rest of
+   * the request or response, we would be able to tell whether sideband is expected here;
+   * lacking that, let's assume for now that all pkt-lines starting with \1, \2, or \3
+   * are using sideband.
+   */
+  int sideband_code = tvb_get_guint8(tvb, offset);
+
+  if (1 <= sideband_code && sideband_code <= 3) {
+    proto_tree_add_uint(git_tree, hf_git_sideband_control_code, tvb, offset, 1,
+                        sideband_code);
+    offset++;
+    plen--;
   }
+
+  proto_tree_add_item(git_tree, hf_git_packet_data, tvb, offset, plen, ENC_NA);
 
   return tvb_captured_length(tvb);
 }
@@ -123,6 +148,10 @@ proto_register_git(void)
     },
     { &hf_git_packet_terminator,
       { "Terminator packet", "git.terminator", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL },
+    },
+    { &hf_git_sideband_control_code,
+      { "Sideband control code", "git.sideband_control_code", FT_UINT8,
+      BASE_HEX, VALS(sideband_vals), 0, NULL, HFILL },
     },
   };
 
