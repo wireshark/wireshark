@@ -5963,7 +5963,7 @@ BACnetVendorIdentifiers [] = {
     {  992, "Vanti" },
     {  993, "Cree, Inc." },
     {  994, "Richmond Heights SDN BHD" },
-    {  995, "Payne - Sparkman Lighting Mangement" },
+    {  995, "Payne - Sparkman Lighting Management" },
     {  996, "Ashcroft" },
     {  997, "Jet Controls Corp" },
     {  998, "Zumtobel Lighting GmbH" },

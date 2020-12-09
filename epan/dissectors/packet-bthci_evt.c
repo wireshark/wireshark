@@ -1885,7 +1885,7 @@ dissect_bthci_evt_read_remote_version_information_complete(tvbuff_t *tvb, int of
 }
 
 static int
-dissect_bthci_evt_flush_occured(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
+dissect_bthci_evt_flush_occurred(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
 {
     proto_tree_add_item(tree, hf_bthci_evt_connection_handle, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset += 2;
@@ -6252,7 +6252,7 @@ dissect_bthci_evt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
             break;
 
         case 0x11: /* Flush Occurred */
-            offset = dissect_bthci_evt_flush_occured(tvb, offset, pinfo, bthci_evt_tree);
+            offset = dissect_bthci_evt_flush_occurred(tvb, offset, pinfo, bthci_evt_tree);
             break;
 
         case 0x12: /* Role Change */

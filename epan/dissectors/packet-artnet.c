@@ -1630,7 +1630,7 @@ static const value_string artnet_esta_man_vals[] = {
   { 0x00B6, "DiGidot Technologies BV" },
   { 0x00B7, "Bron Elektronik AG" },
   { 0x00B8, "Shenzhen Singba Light Technology Co., Ltd." },
-  { 0x00B9, "Guangzhou Baiyun District Sanjie Eletronic Stage Lighting Audio Equipment Factory" },
+  { 0x00B9, "Guangzhou Baiyun District Sanjie Electronic Stage Lighting Audio Equipment Factory" },
   { 0x00BA, "LiteGear Inc." },
   { 0x00BB, "Digital Lighting Engineering & Design, LLC" },
   { 0x00BC, "Ambion GmbH (Ambrain)" },

@@ -95,7 +95,7 @@ UAT_VS_DEF(oscore_context_uat, algorithm, oscore_context_t, cose_aead_alg_t, COS
 #define OSCORE_KID_MAX_LEN              OSCORE_KID_MAX_LEN_CCM_STAR /* upper bound on KID coming from the default algorithm implemented */
 #define OSCORE_KID_CONTEXT_MAX_LEN      64
 
-/* Helper macros to correctly size the statically allocated buffers and verify if an overflow occured */
+/* Helper macros to correctly size the statically allocated buffers and verify if an overflow occurred */
 
 #define OSCORE_INFO_MAX_LEN             (1 + /* max return of cborencoder_put_array() */             \
                                         2 + OSCORE_KID_MAX_LEN + /* max 2 to encode length, KID following */ \

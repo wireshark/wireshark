@@ -1500,7 +1500,7 @@ static const value_string bluetooth_company_id_vals[] = {
     { 0x01A3,   "EROAD" },
     { 0x01A4,   "Mine Safety Appliances" },
     { 0x01A5,   "Icon Health and Fitness" },
-    { 0x01A6,   "Wille Engineering (formely as Asandoo GmbH)" },
+    { 0x01A6,   "Wille Engineering (formerly as Asandoo GmbH)" },
     { 0x01A7,   "ENERGOUS CORPORATION" },
     { 0x01A8,   "Taobao" },
     { 0x01A9,   "Canon Inc." },

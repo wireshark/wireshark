@@ -595,7 +595,7 @@ int run_pbl_parser(pbl_descriptor_pool_t* pool)
 
         status = protobuf_lang_lex_init(&scanner);
         if (status != 0) {
-            pbl_parser_error(&state, "Initialize Protocol Buffers Languange scanner failed!\n");
+            pbl_parser_error(&state, "Initialize Protocol Buffers Language scanner failed!\n");
             fclose(fp);
             goto finish;
         }

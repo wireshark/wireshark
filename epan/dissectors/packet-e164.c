@@ -450,7 +450,7 @@ const value_string E164_International_Networks_883_vals[] = {
 	{ 140,	"Multiregional TransitTelecom (MTT)"},
 	{ 150,	"BodyTrace Netherlands B.V"},
 	{ 5100,	"Voxbone SA"},
-	{ 5110,	"Bandwith.com Inc"},
+	{ 5110,	"Bandwidth.com Inc"},
 	{ 5120,	"MTX Connect Ltd"},
 	{ 5130,	"SIMPE Ltd"},
 	{ 5140,	"Ellipsat Inc"},

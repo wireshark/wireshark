@@ -746,13 +746,13 @@ proto_register_ebhscr(void)
 			NULL, HFILL }
 		},
 		{ &hf_eth_tx_trunc,
-			{ "If value 1 then a Truncation occured. The frame is sent truncated.", "ebhscr.eth.trc",
+			{ "If value 1 then a Truncation occurred. The frame is sent truncated.", "ebhscr.eth.trc",
 			FT_BOOLEAN, 64, NULL,
 			0x0001000000000000,
 			NULL, HFILL }
 		},
 		{ &hf_eth_trans_undrun,
-			{ "If value 1 then a Transmitter Underrun occured.", "ebhscr.eth.trudr",
+			{ "If value 1 then a Transmitter Underrun occurred.", "ebhscr.eth.trudr",
 			FT_BOOLEAN, 64, NULL,
 			0x0002000000000000,
 			NULL, HFILL }

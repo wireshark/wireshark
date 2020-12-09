@@ -237,14 +237,14 @@ typedef enum
   CONFIGITEM_DST_MODE,                    /*   36 - Determines if repeating month/date, repeating month/day, or specific month/date (dstMode_e) */
   CONFIGITEM_DST_FORWARD_MONTH,           /*   37 - Month to skip forward on (1-12) (DSTMODE_REPEATINGDATE, DSTMODE_REPEATINGDOW, DSTMODE_ONETIMEDATE) */
   CONFIGITEM_DST_FORWARD_DOM,             /*   38 - Day of month to skip forward on (1-31) (DSTMODE_REPEATINGDATE, DSTMODE_ONETIMEDATE) */
-  CONFIGITEM_DST_FORWARD_OOD,             /*   39 - Occurence number of CONFIGITEM_DST_FORWARD_DOW to skip forward on (1-5)  (DSTMODE_REPEATINGDOW) */
+  CONFIGITEM_DST_FORWARD_OOD,             /*   39 - Occurrence number of CONFIGITEM_DST_FORWARD_DOW to skip forward on (1-5)  (DSTMODE_REPEATINGDOW) */
   CONFIGITEM_DST_FORWARD_DOW,             /*   40 - Day of week to skip forward on (1-7) (DSTMODE_REPEATINGDOW) */
   CONFIGITEM_DST_FORWARD_HOUR,            /*   41 - Hour of day of month to skip forward on (0-23) (DSTMODE_REPEATINGDATE, DSTMODE_REPEATINGDOW, DSTMODE_ONETIMEDATE) */
   CONFIGITEM_DST_FORWARD_MINUTE,          /*   42 - Hour of day of month to skip forward on (0-23) (DSTMODE_REPEATINGDATE, DSTMODE_REPEATINGDOW, DSTMODE_ONETIMEDATE) */
   CONFIGITEM_DST_FORWARD_ADJUST,          /*   43 - Number of minutes to move forward */
   CONFIGITEM_DST_BACK_MONTH,              /*   44 - Month to fall back on (1-12) (DSTMODE_REPEATINGDATE, DSTMODE_REPEATINGDAY, DSTMODE_ONETIMEDATE) */
   CONFIGITEM_DST_BACK_DOM,                /*   45 - Day of month to fall back on (1-31) (DSTMODE_REPEATINGDATE, DSTMODE_ONETIMEDATE) */
-  CONFIGITEM_DST_BACK_OOD,                /*   46 - Occurence number of CONFIGITEM_DST_BACK_DOW to fall back on (1-5)  (DSTMODE_REPEATINGDOW) */
+  CONFIGITEM_DST_BACK_OOD,                /*   46 - Occurrence number of CONFIGITEM_DST_BACK_DOW to fall back on (1-5)  (DSTMODE_REPEATINGDOW) */
   CONFIGITEM_DST_BACK_DOW,                /*   47 - Day of week to fall back on (1-7) (DSTMODE_REPEATINGDATE, DSTMODE_ONETIMEDATE) */
   CONFIGITEM_DST_BACK_HOUR,               /*   48 - Hour of day of month to fall back on (0-23) (DSTMODE_REPEATINGDATE, DSTMODE_REPEATINGDOW, DSTMODE_ONETIMEDATE) */
   CONFIGITEM_DST_BACK_MINUTE,             /*   49 - Hour of day of month to fall back on (0-23) (DSTMODE_REPEATINGDATE, DSTMODE_REPEATINGDOW, DSTMODE_ONETIMEDATE) */

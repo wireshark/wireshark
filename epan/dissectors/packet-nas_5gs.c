@@ -8851,7 +8851,7 @@ proto_register_nas_5gs(void)
             NULL, HFILL }
         },
         { &hf_nas_5gs_mm_cag_info_entry_len,
-        { "Lengh of entry contents",   "nas_5gs.mm.cag_info.entry.len",
+        { "Length of entry contents",   "nas_5gs.mm.cag_info.entry.len",
             FT_UINT8, BASE_DEC, NULL, 0,
             NULL, HFILL }
         },

@@ -6170,7 +6170,7 @@ void proto_register_wassp(void)
 			&hf_lsb_wh_fc,
 			{
 				"LBS Wireless Header Frame Control", "wassp.lsb.wh_fc", FT_UINT16, BASE_HEX, NULL,
-				0x00, "LBS TAG Frame Controll", HFILL
+				0x00, "LBS TAG Frame Control", HFILL
 			}
 		},
 		{

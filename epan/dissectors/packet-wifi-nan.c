@@ -646,8 +646,8 @@ static const value_string ndl_setup_reason[] = {
 
 static const value_string unaligned_sch_ulw_type[] = {
     { 0, "Followed by a Band ID field" },
-    { 1, "Followed by a Channel Entry field without Auxilliary Channel" },
-    { 2, "Followed by a Channel Entry field with Auxilliary Channel" },
+    { 1, "Followed by a Channel Entry field without Auxiliary Channel" },
+    { 2, "Followed by a Channel Entry field with Auxiliary Channel" },
     { 3, "Reserved" },
     { 0, NULL }
 };
@@ -3638,7 +3638,7 @@ proto_register_nan(void)
         },
         { &hf_nan_attr_availability_entry_entries_aux_channel_bitmap,
             {
-            "Auxilliary Channel Bitmap",
+            "Auxiliary Channel Bitmap",
             "nan.availability.entry.entries.channel.aux_bitmap",
             FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL
             }
@@ -3988,7 +3988,7 @@ proto_register_nan(void)
         },
         { &hf_nan_attr_ranging_setup_ftm_format_bw,
              {
-             "FTM Format and Bandwith",
+             "FTM Format and Bandwidth",
              "nan.ranging_setup.ftm.format_bw",
              FT_UINT24, BASE_HEX_DEC, NULL, 0x1F8000, NULL, HFILL
              }

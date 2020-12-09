@@ -1711,7 +1711,7 @@ void QCPLayerable::mousePressEvent(QMouseEvent *event, const QVariant &details)
 
   The current pixel position of the cursor on the QCustomPlot widget is accessible via \c
   event->pos(). The parameter \a startPos indicates the position where the initial \ref
-  mousePressEvent occured, that started the mouse interaction.
+  mousePressEvent occurred, that started the mouse interaction.
 
   The default implementation does nothing.
 
@@ -1729,7 +1729,7 @@ void QCPLayerable::mouseMoveEvent(QMouseEvent *event, const QPointF &startPos)
 
   The current pixel position of the cursor on the QCustomPlot widget is accessible via \c
   event->pos(). The parameter \a startPos indicates the position where the initial \ref
-  mousePressEvent occured, that started the mouse interaction.
+  mousePressEvent occurred, that started the mouse interaction.
 
   The default implementation does nothing.
 

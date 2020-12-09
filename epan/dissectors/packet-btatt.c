@@ -12239,7 +12239,7 @@ proto_register_btatt(void)
             NULL, HFILL}
         },
         {&hf_btatt_characteristic_configuration_client_reserved,
-            {"Reseved", "btatt.characteristic_configuration_client.reserved",
+            {"Reserved", "btatt.characteristic_configuration_client.reserved",
             FT_UINT16, BASE_HEX, NULL, 0xFFFC,
             NULL, HFILL}
         },
@@ -12259,7 +12259,7 @@ proto_register_btatt(void)
             NULL, HFILL}
         },
         {&hf_btatt_characteristic_configuration_server_reserved,
-            {"Reseved", "btatt.characteristic_configuration_server.reserved",
+            {"Reserved", "btatt.characteristic_configuration_server.reserved",
             FT_UINT16, BASE_HEX, NULL, 0xFFFE,
             NULL, HFILL}
         },

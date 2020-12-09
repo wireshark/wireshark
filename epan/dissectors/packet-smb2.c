@@ -1974,7 +1974,7 @@ static const true_false_string tfs_flags_signature = {
 };
 
 static const true_false_string tfs_flags_replay_operation = {
-	"This is a REPLAY OPEARATION",
+	"This is a REPLAY OPERATION",
 	"This is NOT a replay operation"
 };
 

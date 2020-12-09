@@ -85,7 +85,7 @@ typedef struct umts_rrc_private_data_t
   enum nas_sys_info_gsm_map cn_domain;
   wmem_strbuf_t* digits_strbuf; /* A collection of digits in a string. Used for reconstructing IMSIs or MCC-MNC pairs */
   wmem_strbuf_t* last_mcc_strbuf; /* Last seen MCC digits string */
-  gboolean digits_strbuf_parsing_failed_flag; /* Whether an error occured when creating the IMSI/MCC-MNC pair string */
+  gboolean digits_strbuf_parsing_failed_flag; /* Whether an error occurred when creating the IMSI/MCC-MNC pair string */
   guint32 rbid;
   guint32 rlc_ciphering_sqn; /* Sequence number where ciphering starts in a given bearer */
   rrc_ciphering_info* ciphering_info;

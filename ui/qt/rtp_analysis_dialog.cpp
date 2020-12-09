@@ -1487,7 +1487,7 @@ void RtpAnalysisDialog::saveAudio(RtpAnalysisDialog::StreamDirection direction, 
                 QMessageBox::warning(this, tr("Warning"), tr("Codec rate is not supported, file is incomplete"));
             }
             else {
-                QMessageBox::warning(this, tr("Warning"), tr("Unknown error occured"));
+                QMessageBox::warning(this, tr("Warning"), tr("Unknown error occurred"));
             }
         }
     }

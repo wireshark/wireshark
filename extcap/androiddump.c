@@ -2260,7 +2260,7 @@ static int capture_android_logcat(char *interface, char *fifo,
 
                 result = adb_send(sock, adb_command);
                 if (result) {
-                    g_warning("WARNIG: Error while sending command <%s>", adb_command);
+                    g_warning("WARNING: Error while sending command <%s>", adb_command);
                     continue;
                 }
 
