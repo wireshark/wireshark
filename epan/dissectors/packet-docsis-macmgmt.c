@@ -412,6 +412,7 @@ void proto_reg_handoff_docsis_mgmt(void);
 /* Primary Capable */
 #define NOT_PRIMARY_CAPABLE 0
 #define PRIMARY_CAPABLE 1
+#define FDX_DOWNSTREAM_CHANNEL 2
 
 /* Can carry MAP and UCD */
 #define CANNOT_CARRY_MAP_UCD 0
@@ -1810,8 +1811,9 @@ static const value_string modulation_order_vals[] = {
 };
 
 static const value_string primary_capable_vals[] = {
-  {NOT_PRIMARY_CAPABLE, "Channel is not primary-capable"},
-  {PRIMARY_CAPABLE,     "channel is primary-capable"},
+  {NOT_PRIMARY_CAPABLE,		"Channel is not primary-capable"},
+  {PRIMARY_CAPABLE,     	"Channel is primary-capable"},
+  {FDX_DOWNSTREAM_CHANNEL,	"FDX downstream channel"},
   {0, NULL}
 };
 
