@@ -1,0 +1,701 @@
+commit c8710fafb2
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Tue Dec 8 18:21:13 2020 -0500
+
+    epan: Fix format_text treament of Greek, Arabic, etc.
+    
+    format_text uses the wrong bitmask when checking for two byte UTF-8
+    characters, resulting in rejecting half the possible two bytes characters,
+    including all of Arabic and Greek, and substituting REPLACEMENT CHARACTER
+    for them. Fixes #17070, and add some comments about the current behavior
+    that doesn't match existing comments.
+    
+    (cherry picked from commit 770746cca810f0979f4b8dc82e2b2f1150f98dcc)
+
+commit d22c542f94
+Author: Yoshihiro Ueda <uyoshihiro@users.noreply.gitlab.com>
+Date:   Sun Dec 6 12:47:04 2020 +0000
+
+    SOME/IP: Fixed incorrect resetting offset of static array.
+    
+    Fixed resetting offset of array to enable only when created tvb subset. Fixes #17057
+    
+    
+    (cherry picked from commit 2ab153527dd38ce3528b02ed25c89b54e1b4aa6c)
+
+commit 5e06e19546
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Mon Dec 7 14:10:12 2020 -0800
+
+    Prep for 3.2.9.
+
+commit d350e14268
+Author: Uli Heilmeier <uh@heilmeier.eu>
+Date:   Mon Dec 7 21:46:38 2020 +0000
+
+    SMB/SMB2: FS Name is always Unicode
+    
+    According to MS-CIFS sections 2.2.8.2.6 [1] FS Name (or Label) string
+    is in unicode.
+    
+    [1]: https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-cifs/1011206a-55c5-4dbf-aff0-119514136940
+    
+    Fixes: wireshark/wireshark#17064
+    
+    
+    (cherry picked from commit c876b34ed10399454f3c87fd17a9e57c526584de)
+
+commit 290f007ee0
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Tue Dec 8 19:44:42 2020 +0000
+
+    GitLab CI: Update lintian excludes.
+    
+    Add "copyright-excludes-files-in-native-package" to the lintian exclude
+    list. The wireshark/wireshark-ubuntu-dev image was updated to 20.04
+    recently, and its lintian added
+    https://lintian.org/tags/copyright-excludes-files-in-native-package.html.
+    
+    
+    (cherry picked from commit 7a8a3a8702d8f5c5b33173d0598ecb0cf0a1df34)
+
+commit 4736aaae7a
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Tue Dec 1 12:00:13 2020 -0800
+
+    Kafka: Limit our decompression size.
+    
+    Don't assume that the Internet has our best interests at heart when it
+    gives us the size of our decompression buffer. Assign an arbitrary limit
+    of 50 MB.
+    
+    This fixes #16739 in that it takes care of
+    
+    ** (process:17681): WARNING **: 20:03:07.440: Dissector bug, protocol Kafka, in packet 31: ../epan/proto.c:7043: failed assertion "end >= fi->start"
+    
+    which is different from the original error output. It looks like *that*
+    might have taken care of in one of the other recent Kafka bug fixes.
+    
+    The decompression routines return a success or failure status. Use
+    gbooleans instead of ints for that.
+    
+    (cherry picked from commit f4374967bbf9c12746b8ec3cd54dddada9dd353e)
+    
+    Conflicts:
+            epan/dissectors/packet-kafka.c
+
+commit 793f819a4a
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Dec 6 09:37:40 2020 +0000
+
+    [Automatic update for 2020-12-06]
+    
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit 6f1111d754
+Author: Guy Harris <gharris@sonic.net>
+Date:   Fri Dec 4 12:37:32 2020 +0000
+
+    wlan: fix a bug-number typo in comments.
+    
+    
+    (cherry picked from commit 00d45cc71a629cfad3be9aa63e5e136b4edafbd8)
+
+commit f5ce3f6bd0
+Author: Teyut <teyut@free.fr>
+Date:   Thu Dec 3 22:22:02 2020 +0000
+
+    RadioTap: skip present bits for vendor NS.
+    
+    An error messages was shown when more than 1 present bits was set for a vendor NS because these bits were not skipped properly. Closes https://gitlab.com/wireshark/wireshark/-/issues/17047
+    
+    
+    (cherry picked from commit 96e31cb1163172b61841070e7b67f44dce9b4153)
+
+commit 8256107205
+Author: Guy Harris <gharris@sonic.net>
+Date:   Thu Dec 3 12:03:54 2020 -0800
+
+    wlan: never treat DMG frames as if they have an HT Control field.
+    
+    At least one ns-3 capture has DMG frames (as indicated by the channel
+    number being in the 60 GHz band - radiotap currently has no DMG metadata
+    field) that have the +HTC/Order flag subfield set but have no HT Control
+    field, causing them to be misdissected.
+    
+    802.11-2016 says that DMG frames should never have +HTC/Order set; if it
+    *is* set in a QoS frame known to be a DMG frame, flag it with an expert
+    info item and don't treat it as having an HT Control field.
+    
+    Update a bunch of comments to give more information, put comments in the
+    appropriate places, and speak of 802.11-2016 rather than older standards.
+    
+    While we're at it, update the title and description of the +HTC/Order
+    flag to reflect its name as of 802.11-2016.
+    
+    (cherry picked from commit 3c640ca04a4710fa5d69f632c215c611572a6ff4)
+
+commit 9468559608
+Author: Guy Harris <gharris@sonic.net>
+Date:   Thu Dec 3 11:42:19 2020 +0000
+
+    PI_MALFORMED is not a valid error severity; fix it to PI_ERROR.
+    
+    
+    (cherry picked from commit ac0cf10ab08755797e7484f487cf76c8264a1f22)
+
+commit 1d600e06a1
+Author: Harald Welte <laforge@osmocom.org>
+Date:   Mon Nov 30 19:14:02 2020 +0000
+
+    packet-ehdlc: Fix TEI in COL_INFO
+    
+    Back in 2017, commit d7bab0b46e72eb30e50ad1b6a0b56275394406b4 introduced
+    printing the TEI in COL_INFO.  Unfortunatelky it contained a typo and
+    stated "TEI:1%u" instead of "TEI:%u".  So TEI 0 became TEI 10, etc. -
+    causing some confusion.
+    
+    Let's remote that extraneous '1' and at the same time print the sapi
+    with two digits for better alignment of multiple lines. It is a
+    two-digit decimal value (0..63).
+    
+    
+    (cherry picked from commit 9c5ea50b0a8ed812b9c2f24a2be215f332718ecd)
+
+commit 21237487b3
+Author: Guy Harris <gharris@sonic.net>
+Date:   Mon Nov 30 03:11:32 2020 +0000
+
+    wlan: don't treat non-QoS frames as having an HT Control field.
+    
+    That's QoS-frame only; for non-QoS frames, the +HTC/Order subfield
+    doesn't mean there's an HT Control field.
+    
+    Update the reference to the part of the 802.11 standard mentioning that
+    subfield to 802.11-2016.
+    
+    
+    (cherry picked from commit 1fa5687fad88963b8a4857a856981da8cc304678)
+
+commit c485abd702
+Author: Guy Harris <gharris@sonic.net>
+Date:   Mon Nov 30 02:23:48 2020 +0000
+
+    wlan: clean up some tests.
+    
+    It's clearer to say
+    
+        if (A) {
+            if (B) {
+                do this;
+            } else {
+                do that;
+            }
+        }
+    
+    than to say
+    
+        if (A && B) {
+            do this;
+        } else if (A && !B) {
+            do that;
+        }
+    
+    
+    (cherry picked from commit baee4a41c787080af4497d038c2b4f9794cb29fc)
+
+commit 196806d88a
+Author: Guy Harris <gharris@sonic.net>
+Date:   Sun Nov 29 10:17:47 2020 +0000
+
+    802.11: clean up data frame handling.
+    
+    Change
+    
+        case DATA_FRAME:
+            if (condition) {
+                do stuff;
+                break;
+            }
+            do other stuff;
+            break;
+    
+    to
+    
+        case DATA_FRAME:
+            if (condition) {
+                do stuff;
+            } else {
+                do other stuff;
+            }
+            break;
+    
+    to make it clearer that it's "do this if condition is true, else do
+    that".
+    
+    
+    (cherry picked from commit 258fb148212047b1b544c80dd478ac439a8fa7ee)
+
+commit a3bbeb83b0
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Nov 29 09:41:25 2020 +0000
+
+    [Automatic update for 2020-11-29]
+    
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit 752cea4361
+Author: Guy Harris <gharris@sonic.net>
+Date:   Sun Nov 29 09:28:59 2020 +0000
+
+    llc: don't fetch the etype until it's needed and if it's present.
+    
+    This avoids throwing exceptions in some cases.
+    
+    
+    (cherry picked from commit ee764b8d7dc3815df6a0003d1ffa32a31ed1a7cb)
+
+commit 09ceda7cc6
+Author: Guy Harris <gharris@sonic.net>
+Date:   Sun Nov 29 08:53:45 2020 +0000
+
+    llc: clean up indentation.
+    
+    
+    (cherry picked from commit 3f8423c26760b30ef7bf9aa3d31fa4b859f8fe0f)
+
+commit 51795d6f0a
+Author: Uli Heilmeier <uh@heilmeier.eu>
+Date:   Sat Nov 21 22:29:36 2020 +0100
+
+    tshark: set cf values when quiet and tempfile
+    
+    When there is no do_dissection cf is missing some variables
+    for cf_close() call. Therefore we have to set them explicitly.
+    
+    Fixes: wireshark/wireshark#17021
+    (cherry picked from commit 0fad19b7d93a238a12ebfaab961fb9b21e3d32f7)
+
+commit 4b8b23cd94
+Author: Pascal Quantin <pascal@wireshark.org>
+Date:   Tue Nov 24 14:05:21 2020 +0100
+
+    S1AP: fix decoding of inter eNB transparent container from NGAP
+    
+    (cherry picked from commit 74c0b2134b5e776a97db1b0927b529fe5b725a4d)
+    Conflicts:
+            epan/dissectors/packet-s1ap.c
+
+commit c4ecbf84ff
+Author: Pascal Quantin <pascal@wireshark.org>
+Date:   Mon Nov 23 22:09:30 2020 +0000
+
+    NAS 5GS: request type field is 3 bits long
+    
+    
+    (cherry picked from commit 9fdc3fb3ce6cddcc23349c729d211b2f7e0aabe8)
+
+commit 4063990b20
+Author: Pascal Quantin <pascal@wireshark.org>
+Date:   Mon Nov 23 15:42:34 2020 +0000
+
+    NAS 5GS: fix PDU address type, PDU session type and  SSC mode bit width
+    
+    
+    (cherry picked from commit 7097d817a2d91a36349050405cf0ccd2a18e1345)
+
+commit 96f5fdd1c4
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Nov 22 09:37:44 2020 +0000
+
+    [Automatic update for 2020-11-22]
+    
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit 30a77f7242
+Author: Guy Harris <gharris@sonic.net>
+Date:   Thu Nov 19 07:50:28 2020 +0000
+
+    PacketListRecord: add an ensureColorized() method and use it.
+    
+    Don't call the columnString() and discard the result in order to force
+    colorization; instead, add a separate method to force colorization and
+    use that.
+    
+    This avoids the need to choose a column; we were using 1 as the column
+    number, but column numbers are zero-origin, so that's column 2, which
+    isn't guaranteed to exist (a crash ensued if it didn't).
+    
+    
+    (cherry picked from commit 58aea1de62b9499d7b767f4aa631394f9fbb889e)
+
+commit 418e44e9e8
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Wed Nov 18 01:13:06 2020 +0000
+
+    RFC2190: Fix bitmasks for several fields in mode A
+    
+    Fixes some errors that the packet diagram helped make obvious.
+    Closes #17025.
+    
+    
+    (cherry picked from commit 5d374fed36d06d745440123944cbbeebaf7fcb20)
+
+commit 909cb1693c
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Wed Nov 18 11:22:38 2020 +0000
+
+    HTTP: Restore SSTP support
+    
+    Add exclusion for SSTP having Contents-Length and no body.
+    Closes #17024
+    
+    
+    (cherry picked from commit 0250e4e2e44a73773dbaad64cfb244a0db463d7e)
+
+commit 1830ddab48
+Author: Jason Cohen <j.cohen@f5.com>
+Date:   Mon Nov 16 15:18:00 2020 -0600
+
+    f5ethtrailer: Replace ingressslot and ingressport with reserved
+
+commit 32706ebbee
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Nov 15 14:07:16 2020 -0800
+
+    Tools: Update the usb.ids URL in make-usb.py.
+    
+    The canonical location for the usb.ids file is
+    http://www.linux-usb.org/usb.ids. Unfortunately that site isn't
+    accessible over HTTPS so we were using https://usb-ids.gowdy.us/usb.ids
+    instead. *That* site is down, so switch to the Linux USB project's
+    SourceForge repository URL, which appears to house the assets for
+    www.linux-usb.org, including the usb.ids file.
+    
+    (cherry picked from commit 01d5e8ee513cd17f2f86bcb1a2b76384e272428e)
+    
+    Conflicts:
+            tools/make-usb.py
+
+commit 55cf52f6bf
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Nov 15 19:23:49 2020 +0000
+
+    [Automatic update for 2020-11-15]
+    
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit 9dab282665
+Author: Guy Harris <gharris@sonic.net>
+Date:   Sun Nov 15 06:51:58 2020 +0000
+
+    Pass an address-family-appropriate socket length to connect().
+    
+    Some UN*Xes (4.4-lite-derived, such as the obscure, little-known macOS,
+    FreeBSD, NetBSD, OpenBSD, and DragonFly BSD) have a length field in the
+    socket address structure.
+    
+    That was originally done for OSI address support; unlike most transport
+    addresses, such as IPv4 (and IPv6) addresses, where the size of the
+    address is fixed, the size of an OSI transport layer address is *not*
+    fixed, so it cannot be inferred from the address type.
+    
+    With the dropping of OSI support, that field is no longer necessary in
+    userland.  System calls that take a socket address argument also take an
+    address length argument; in newer (all?) versions of the {macOS,
+    FreeBSD, NetBSD, OpenBSD, DragonFly BSD} kernel, the system call code
+    sets the length field in the kernel's copy of the address to the address
+    length field value.
+    
+    However, that means that you have to pass in the appropriate length; if
+    you have a sockaddr_storage that might contain an IPv4 address or an
+    IPv6 address, connect() (and bind()) calls should use the IPv4 address
+    size for IPv4 addresses and the IPv6 address size for IPv6 addresses,
+    otherwise, at least on macOS, the call fails.
+    
+    In cap_open_socket(), report socket() and connect() errors separately,
+    to make it easier to determine where TCP@ captures fail, if they do
+    fail.  (That's how I got here in the first place.)
+    
+    
+    (cherry picked from commit e3047d9b385cb4787995ed87505495fc0a54bba5)
+
+commit 755649c2fc
+Author: Pascal Quantin <pascal@wireshark.org>
+Date:   Sat Nov 14 15:02:16 2020 +0000
+
+    NAS EPS: fix inverted description of 2 N1 UE network capability IE fields
+    
+    
+    (cherry picked from commit 8c29bfe8b2118c201ed49ffe09976d8fc5244c8b)
+
+commit 4d04a0d676
+Author: Pascal Quantin <pascal@wireshark.org>
+Date:   Fri Nov 13 18:10:20 2020 +0000
+
+    NAS-EPS: remove an extra spare bit
+    
+    It has been replaced by the 15 bearers capability during R15 development
+    
+    
+    (cherry picked from commit 440d8ceff98348a476ad6fa56c9b2cf0f46c9ba0)
+
+commit 66393ca4b1
+Author: Alexis La Goutte <alexis.lagoutte@gmail.com>
+Date:   Wed Nov 11 13:31:13 2020 +0000
+
+    MMRP: Fix wrong offset for service attribute type
+    
+    Issue reported by Nils Andersen
+    
+    Close #17005
+    
+    
+    (cherry picked from commit 8b512665fcd59070b28abc91c8c6a3dac555f010)
+
+commit e1032727d6
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Thu Nov 5 13:20:06 2020 -0800
+
+    wiretap: Update pcapng systemd timestamp handling.
+    
+    It's easy to create systemd blocks with a missing or invalid
+    __REALTIME_TIMESTAMP= field when fuzz testing. If that's the case, leave
+    WTAP_HAS_TS unset instead of returning an error. Fixes #16965.
+    
+    (cherry picked from commit 51145c62e6629f1f967dd2666669a437828c898a)
+    
+    Conflicts:
+            wiretap/pcapng.c
+
+commit 53682b53da
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Mon Nov 9 23:14:18 2020 +0000
+
+    RTPS: Fixup our coherent set map.
+    
+    coherent_set_tracking.coherent_set_registry_map uses a struct as a key,
+    but the hash and comparison routines treat keys as a sequence of bytes.
+    Make sure every key byte is initialized. Fixes #16994.
+    
+    Call wmem_strong_hash on our key in coherent_set_key_hash_by_key instead
+    of creating and leaking a GBytes struct.
+    
+    
+    (cherry picked from commit 33e63d19e5496c151bad69f65cdbc7cba2b4c211)
+
+commit 61f17d3c21
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Thu Nov 5 17:37:13 2020 -0800
+
+    epan: Limit our bits in decode_bits_in_field.
+    
+    Limit the number of bits we process in decode_bits_in_field, otherwise
+    we'll overrun our buffer. Fixes #16958.
+    
+    (cherry picked from commit d5f2657825e63e4126ebd7d13a59f3c6e8a9e4e1)
+
+commit b80c2582e4
+Author: Pau Espin Pedrol <pespin@sysmocom.de>
+Date:   Mon Nov 9 10:37:13 2020 +0000
+
+    rlcmac: Fix EGPRS UL data block TLLI endianess
+    
+    According to TS 44.060, figure 10.3a.2.1, note 2, the TLLI is
+    encoded in little endian for EGPRS (while big endian is used in GPRS).
+    
+    
+    (cherry picked from commit dfa8a3fe5a1408a4355bb325d358dd1ab2c27d31)
+
+commit 871097e804
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Nov 8 09:37:09 2020 +0000
+
+    [Automatic update for 2020-11-08]
+    
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit 4f7689598c
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Thu Nov 5 15:32:55 2020 +0000
+
+    giop: free the buffer where its at
+    
+    Followup on commit 40ce72f1a8cfbc9df1fd0dd637f2b8f00b4f5042
+    
+    
+    (cherry picked from commit 57b666692051969d874a5b272258b9f3d8447949)
+
+commit 2351d61f1d
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Thu Nov 5 10:47:10 2020 +0000
+
+    giop: don't use packet scope for allocating a buffer at init time
+    
+    Followup on commit 2c2ee172eb1eadda5a418558fe35d2e3e2c03317
+    Also when reading in lines from the file don't use packet scope.
+    
+    Fixes #16984
+    
+    
+    (cherry picked from commit 40ce72f1a8cfbc9df1fd0dd637f2b8f00b4f5042)
+
+commit 4d4a0770d4
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Tue Oct 27 10:09:40 2020 -0700
+
+    CI+RPM: Disable the Fedora build for now.
+    
+    Fedora 33's RPM environent added changes that break CMake. Disable it
+    for now.
+    
+    (cherry picked from commit 05bd5cd91eeee9004efc6ea82d62cad831cda05f)
+    
+    Conflicts:
+            .gitlab-ci.yml
+
+commit 3c7308fc36
+Author: Alexis La Goutte <alexis.lagoutte@gmail.com>
+Date:   Wed Nov 4 07:16:47 2020 +0000
+
+    QUIC: Fix typo
+    
+    Reported by Martin Thomson
+
+commit 63e9771346
+Author: Huang Qiangxiong <qiangxiong.huang@qq.com>
+Date:   Wed Nov 4 12:38:23 2020 +0000
+
+    Protobuf: fix bug about parsing negative enum value number
+    
+    Change PT_DECIMALLIT, PT_OCTALLIT and PT_HEXLIT tokens to uint64
+    type, and make PT_IDENT excluding '-' numbers which will be parsed
+    in protobuf_lang.y. That negative enum number and number type of
+    constant can be correctly parsed.
+    Note, intLit is uint32 for parsing fieldNumber and enumNumber,
+    but might be uint64 as constant.
+    
+    close #16988
+    
+    
+    (cherry picked from commit 1fff3cb10654441baac206360e19e33e81ede799)
+
+commit c06681111c
+Author: Guy Harris <gharris@sonic.net>
+Date:   Thu Nov 5 00:37:30 2020 +0000
+
+    giop: don't use packet scope for allocating a buffer at init time.
+    
+    You can't use packet scope if you're not dissecting a packet;
+    read_IOR_strings_from_file() is called from giop_init(), which is called
+    when a file is opened, not when dissecting a packet.
+    
+    Use NULL as the scope, which just does a regular allocation, and free
+    the buffer when we're done.
+    
+    Expand a comment to indicate that using dissection routines is *also* a
+    bad idea in code that's not used when dissecting packets.
+    
+    Fixes #16984.
+    
+    
+    (cherry picked from commit 2c2ee172eb1eadda5a418558fe35d2e3e2c03317)
+
+commit ec89fbf28c
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Wed Nov 4 11:03:56 2020 -0800
+
+    Tools: Allow cherry pick lines in validate-commit.py.
+    
+    Cherry picking tends to add an extra blank line to the commit message.
+    Update the body check in validate-commit.py to allow for this.
+    
+    Revert "tools+CI: Re-enable commit validation." This partially reverts
+    commit 507dd98a58a7e967ef82c18abdc24d25c1c09635.
+    
+    (cherry picked from commit dd6b6f48dc4b485740edbaa286b248556c9c03d6)
+
+commit b54064109d
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Tue Nov 3 11:46:14 2020 -0800
+
+    Tools: Explicitly call "python3" in pre-commit.
+    
+    We can't depend on the existence of a "python" command in Debian
+    bullseye[1] and possibly other distributions. Call "python3" instead.
+    
+    [1]https://wiki.debian.org/Python
+
+commit 9b2be31a9d
+Author: Dr. Lars Völker <lars.voelker@technica-engineering.de>
+Date:   Thu Oct 29 15:26:37 2020 +0000
+
+    SOME/IP: Cleanup of length field parsing (BUG FIX)
+    
+    This patch makes the parsing of length fields consistent by moving them
+    below their parent element and adjusting the length of the parent
+    element. And it fixes some problems by doing this.
+    
+    Problems fixed by this:
+    - Bytes skipped after dynamic length arrays. This resolves #16951
+    - A byte was ignored before unparsed payload.
+    - Unions not marking the correct byte range.
+    - String having the length field twice.
+    
+    Signed-off-by: Dr. Lars Völker <lars.voelker@technica-engineering.de>
+    
+    
+    (cherry picked from commit 9ac8dcb3a124eb42c57d4c0aa8d626ff1fefbb4e)
+
+commit c09d72816c
+Author: Uli Heilmeier <uh@heilmeier.eu>
+Date:   Wed Oct 28 22:01:47 2020 +0100
+
+    RTCP: Extended Reports: check for padding
+    
+    Check if padding flag is set and alter length accordingly.
+    Display rtcp.xr.bl the same way as rtcp.length.
+    
+    Fixes: wireshark/wireshark#16933
+    (cherry picked from commit e07bb433b2d86b17d014ad3a2178dfdb910b490b)
+
+commit d5b8b7277b
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Nov 1 09:42:02 2020 +0000
+
+    [Automatic update for 2020-11-01]
+    
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit 87f011e220
+Author: Sylvain Munaut <tnt@246tNt.com>
+Date:   Sat Oct 31 10:06:28 2020 +0000
+
+    usbvideo: Fix dissection of PROBE infos structure
+    
+    Refer to USB Device Class Definition for Video Devices
+    document revision 1.5.
+    
+     * bmFramingInfo is 1 byte
+     * Cut & Paste error for bMaxVersion label
+    
+    Change-Id: Ib1221886f864a6ab9dbab70a8e5fca6482bf4267
+    Signed-off-by: Sylvain Munaut <tnt@246tNt.com>
+    
+    
+    (cherry picked from commit b6222766cce1befd7f696a67df57c9e63ad963b6)
+
+commit df8e5b516e
+Author: Martin Mathieson <martin.mathieson@keysight.com>
+Date:   Sat Oct 31 12:09:23 2020 +0000
+
+    GSM A: Uncertainty speed is only 1 byte.
+    
+    
+    (cherry picked from commit b925734fe29306d575347ce56ec8d4910f712d3e)
+
+commit 1478c0db12
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Thu Oct 29 14:13:09 2020 -0700
+
+    3.2.8 → 3.2.9.

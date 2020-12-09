@@ -73,6 +73,11 @@ The following bugs have been fixed:
 
 * RFC2190 encapsulated H.263 bitfields masked wrong in Mode A wsbuglink:17025[].
 
+* SOME/IP: Resetting offset of static_array wsbuglink:17057[].
+
+* SMB Dissector for TRANS2_QUERY_FS_INFO displays truncated FS Name & Label wsbuglink:17064[].
+
+* Wireshark does not display Arabic, Greek, some other characters correctly wsbuglink:17070[].
 
 === New and Updated Features
 
@@ -116,6 +121,8 @@ RTCP
 RTPS
 RFC 2190
 S1AP
+SMB
+SMB2
 SOME/IP
 USB Video
 --
