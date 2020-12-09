@@ -74,6 +74,8 @@ The following bugs have been fixed:
 //* Wireshark exposed details your sordid redneck past, which were subsequently widely disseminated on social media.
 // cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log v3.4.2rc0.. | gsed -e 's/\(close\|fix\|resolv\)[^ ]* #/\nclose #/gI' | grep ^close | sed -e 's/close.*#\([1-9][0-9]*\).*/\1/' | sort -V -u` ; do "$(git rev-parse --show-toplevel)/tools/gen-bugnote" $bugnumber; pbpaste >> /tmp/buglist.txt; done
 
+* Lua TvbRanges do not support truncated captures where tvb_captured_length < tvb_reported_length wsbuglink:15655[].
+
 * IETF QUIC TLS decryption errors when a NAT rebinding happens for a connection wsbuglink:16915[].
 
 * IETF QUIC TLS decryption error with key update wsbuglink:16916[].
@@ -83,6 +85,8 @@ The following bugs have been fixed:
 * SOME/IP: Wrong dissection of parameters after Array wsbuglink:16951[].
 
 * Can editcap properly corrupt pcapng file with systemd journal export block? wsbuglink:16965[].
+
+* Lua: abort() called in lua_tap_draw() and lua_tap_reset() on script errors wsbuglink:16974[].
 
 * Crash when a GIOP ior.txt file is present wsbuglink:16984[].
 
@@ -98,7 +102,15 @@ The following bugs have been fixed:
 
 * RFC2190 encapsulated H.263 bitfields masked wrong in Mode A wsbuglink:17025[].
 
+* Packet list bytes text character cursor is misaligned wsbuglink:17033[].
+
+* SOME/IP: Resetting offset of static_array wsbuglink:17057[].
+
 * editcap fails when splitting into multiple pcapng files wsbuglink:17060[].
+
+* SMB Dissector for TRANS2_QUERY_FS_INFO displays truncated FS Name & Label wsbuglink:17064[].
+
+* Wireshark does not display Arabic, Greek, some other characters correctly wsbuglink:17070[].
 
 // === Removed Features and Support
 
@@ -142,6 +154,8 @@ RFC 2190
 RTCP
 RTPS
 S1AP
+SMB
+SMB2
 SOME/IP
 STUN
 USB Video
