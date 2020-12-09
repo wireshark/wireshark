@@ -28,7 +28,11 @@
 #include <cli_main.h>
 
 static gchar* sshdump_extcap_interface;
+#ifdef _WIN32
+#define DEFAULT_SSHDUMP_EXTCAP_INTERFACE "sshdump.exe"
+#else
 #define DEFAULT_SSHDUMP_EXTCAP_INTERFACE "sshdump"
+#endif
 
 #define SSHDUMP_VERSION_MAJOR "1"
 #define SSHDUMP_VERSION_MINOR "0"
