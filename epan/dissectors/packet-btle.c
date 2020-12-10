@@ -482,7 +482,7 @@ static const value_string control_opcode_vals[] = {
     { 0x0E, "LL_SLAVE_FEATURE_REQ" },
     { 0x0F, "LL_CONNECTION_PARAM_REQ" },
     { 0x10, "LL_CONNECTION_PARAM_RSP" },
-    { 0x11, "LL_REJECT_IND_EXT" },
+    { 0x11, "LL_REJECT_EXT_IND" },
     { 0x12, "LL_PING_REQ" },
     { 0x13, "LL_PING_RSP" },
     { 0x14, "LL_LENGTH_REQ" },
@@ -1906,7 +1906,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 offset += 2;
 
                 break;
-            case 0x11: /* LL_REJECT_IND_EXT */
+            case 0x11: /* LL_REJECT_EXT_IND */
                 proto_tree_add_item(btle_tree, hf_control_reject_opcode, tvb, offset, 1, ENC_LITTLE_ENDIAN);
                 offset += 1;
 
