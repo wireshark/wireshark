@@ -307,10 +307,13 @@ merge-req:windows:
     - wireshark-windows-dev
   stage: build
   rules:
-    # The Windows Docker image is currently only available via a dedicated runner.
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_PROJECT_URL == "https://gitlab.com/wireshark/wireshark"'
+    # The wireshark-windows-dev image is only available via a dedicated runner.
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_PROJECT_URL =~ /.*gitlab.com\/wireshark\/wireshark/'
+      when: always
   before_script:
     # XXX Find a better location.
+    - cmd.exe /c "set CI_PIPELINE_SOURCE"
+    - cmd.exe /c "set CI_PROJECT_URL"
     - mkdir c:\Development
     - $env:WIRESHARK_BASE_DIR = "C:\Development"
     - $env:Configuration = "RelWithDebInfo"
