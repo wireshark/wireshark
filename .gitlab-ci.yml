@@ -68,7 +68,7 @@ clang-10:
 
 build:rpm-centos-7:
   <<: *build-rpm
-  image: centos:7
+  image: wireshark/wireshark-centos-7-dev
   script:
     - mkdir build
     - cd build
@@ -76,7 +76,7 @@ build:rpm-centos-7:
     - ninja-build rpm-package
 test:rpm-centos-7:
   stage: test
-  image: centos:7
+  image: wireshark/wireshark-centos-7-dev
   script:
     - yum --nogpgcheck localinstall -y build/packaging/rpm/RPMS/x86_64/*.rpm
     - tshark --version
@@ -85,7 +85,7 @@ test:rpm-centos-7:
   variables:
     GIT_STRATEGY: none
 build:rpm-opensuse-15.1:
-  image: opensuse/leap:15.1
+  image: wireshark/wireshark-opensuse-15.1-dev
   <<: *build-rpm
   script:
     - mkdir build
@@ -93,7 +93,7 @@ build:rpm-opensuse-15.1:
     - cmake -GNinja ..
     - ninja rpm-package
 test:rpm-opensuse-15.1:
-  image: opensuse/leap:15.1
+  image: wireshark/wireshark-opensuse-15.1-dev
   stage: test
   script:
     - zypper --no-gpg-checks install -y build/packaging/rpm/RPMS/x86_64/*.rpm
@@ -106,7 +106,7 @@ test:rpm-opensuse-15.1:
 # Disabled for now due to issues with Fedora 33.
 .build:rpm-fedora:
   <<: *build-rpm
-  image: fedora
+  image: wireshark/wireshark-fedora-dev
   script:
     - mkdir build
     - cd build
@@ -127,7 +127,7 @@ test:rpm-opensuse-15.1:
 # Job to generate packages for Debian stable
 build:debian-stable:
   <<: *build
-  image: debian:stable
+  image: wireshark/wireshark-debian-stable-dev
   script:
     # Shared GitLab runners limit the log size to 4M, so reduce verbosity. See
     # https://gitlab.com/gitlab-com/support-forum/issues/2790
