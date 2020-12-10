@@ -4877,7 +4877,7 @@ dissect_usb_hid_button_page(tvbuff_t *tvb, packet_info _U_ *pinfo,
             proto_item_append_text(ti, " (primary/trigger)");
         else if (usage == 2)
             proto_item_append_text(ti, " (secondary)");
-        else if (usage == 2)
+        else if (usage == 3)
             proto_item_append_text(ti, " (tertiary)");
 
         proto_item_append_text(ti, " = %s", val ? "DOWN" : "UP");
