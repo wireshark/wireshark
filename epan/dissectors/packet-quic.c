@@ -1100,6 +1100,8 @@ quic_connection_destroy(gpointer data, gpointer user_data _U_)
     quic_ciphers_reset(&conn->client_handshake_ciphers);
     quic_ciphers_reset(&conn->server_handshake_ciphers);
 
+    quic_ciphers_reset(&conn->client_0rtt_ciphers);
+
     quic_hp_cipher_reset(&conn->client_pp.hp_cipher);
     quic_pp_cipher_reset(&conn->client_pp.pp_ciphers[0]);
     quic_pp_cipher_reset(&conn->client_pp.pp_ciphers[1]);
@@ -3225,16 +3227,17 @@ check_dcid_on_coalesced_packet(tvbuff_t *tvb, const quic_datagram *dgram_info,
                                gboolean is_first_packet, quic_cid_t *first_packet_dcid)
 {
     guint offset = 0;
-    guint8 first_byte;
+    guint8 first_byte, dcid_len;
     quic_cid_t dcid = {.len=0};
 
     first_byte = tvb_get_guint8(tvb, offset);
     offset++;
     if (first_byte & 0x80) {
         offset += 4; /* Skip version */
-        dcid.len = tvb_get_guint8(tvb, offset);
+        dcid_len = tvb_get_guint8(tvb, offset);
         offset++;
-        if (dcid.len && dcid.len <= QUIC_MAX_CID_LENGTH) {
+        if (dcid_len && dcid_len <= QUIC_MAX_CID_LENGTH) {
+            dcid.len = dcid_len;
             tvb_memcpy(tvb, dcid.cid, offset, dcid.len);
         }
     } else {
