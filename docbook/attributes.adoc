@@ -1,6 +1,6 @@
 // Common attributes
 
-:wireshark-version: 3.2.9
+:wireshark-version: 3.2.10
 
 // Required for btn, kbd:, and menu: macros.
 :experimental:
