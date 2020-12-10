@@ -55,8 +55,9 @@ void dot11decrypt_construct_aad(
 		aad[0] = wh->fc[0];
 	}
 	aad[1] = (UINT8)(wh->fc[1] & FC1_AAD_MASK);
-	/* NB: we know 3 addresses are contiguous */
-	memcpy(aad + 2, (guint8 *)wh->addr1, 3 * DOT11DECRYPT_MAC_LEN);
+	memcpy(aad + 2, (guint8 *)wh->addr1, DOT11DECRYPT_MAC_LEN);
+	memcpy(aad + 8, (guint8 *)wh->addr2, DOT11DECRYPT_MAC_LEN);
+	memcpy(aad + 14, (guint8 *)wh->addr3, DOT11DECRYPT_MAC_LEN);
 	aad[20] = (UINT8)(wh->seq[0] & DOT11DECRYPT_SEQ_FRAG_MASK);
 	aad[21] = 0; /* all bits masked */
 
