@@ -37,7 +37,7 @@ variables:
     - export PYTEST_ADDOPTS=--skip-missing-programs=dumpcap,rawshark
     - mkdir -p ccache
     - ccache --show-stats
-    - export DEB_BUILD_OPTIONS=nocheck
+    - export DEB_BUILD_OPTIONS=nocheck,parallel=$(( $(getconf _NPROCESSORS_ONLN) + 2 ))
     - export DH_QUIET=1
     - export MAKEFLAGS=--silent
     - mkdir build
@@ -285,12 +285,12 @@ merge-req:ubuntu-dpkg:
   script:
     # build-ubuntu puts us in `build`.
     - cd ..
-    - CC=/usr/lib/ccache/gcc CXX=/usr/lib/ccache/g++ dpkg-buildpackage -us -uc -rfakeroot -jauto -Zgzip -zfast
+    - CC=/usr/lib/ccache/gcc CXX=/usr/lib/ccache/g++ MAKE=ninja dpkg-buildpackage -us -uc -rfakeroot -jauto -Zgzip -zfast
     - lintian --suppress-tags library-not-linked-against-libc,copyright-excludes-files-in-native-package --display-experimental --display-info --pedantic --profile debian
   after_script:
     # dpkg-buildpackage builds in obj-<triplet>, so we need to override
-    # .build-ubuntu.
-    - ccache --max-size $( du --summarize --block-size=1M --total "$CI_PROJECT_DIR"/obj-* | awk '/total$/ {printf ("%dM", $1 * 1.5)}' )
+    # .build-ubuntu. We also build more stuff, so decrease our multiplier.
+    - ccache --max-size $( du --summarize --block-size=1M --total "$CI_PROJECT_DIR"/obj-* | awk '/total$/ {printf ("%dM", $1 * 1.25)}' )
 
 merge-req:ubuntu-gcc-ctest:
   extends: .build-ubuntu

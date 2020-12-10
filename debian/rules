@@ -21,12 +21,17 @@ export DH_OPTIONS
 export DEB_BUILD_MAINT_OPTIONS = hardening=+all
 
 ifneq (,$(filter parallel=%,$(DEB_BUILD_OPTIONS)))
-	MAKE_JOBS = $(patsubst parallel=%,%,$(filter parallel=%,$(DEB_BUILD_OPTIONS)))
-else
-	MAKE_JOBS = 1
+	MAKEFLAGS += -j$(patsubst parallel=%,%,$(filter parallel=%,$(DEB_BUILD_OPTIONS)))
 endif
+
+ifeq ($(MAKE),ninja)
+	DH_BUILDSYSTEM = cmake+ninja
+else
+	DH_BUILDSYSTEM = cmake
+endif
+
 %:
-	dh $@ --with python3 --buildsystem cmake --with quilt --parallel
+	dh $@ --with python3 --buildsystem $(DH_BUILDSYSTEM) --with quilt --parallel
 
 override_dh_auto_configure:
 	dh_auto_configure -- -DBUILD_xxx2deb=ON
@@ -34,14 +39,14 @@ override_dh_auto_configure:
 override_dh_auto_build:
 	# Ignore warnings from asn2wrs.py about duplicate field names.
 	PYTHONWARNINGS='ignore:The same:UserWarning::0' \
-	$(MAKE) -C $(CURDIR)/obj-* -j$(MAKE_JOBS) asn1
+	$(MAKE) -C $(CURDIR)/obj-* asn1
 	dh_auto_build
-	$(MAKE) -C $(CURDIR)/obj-* -j$(MAKE_JOBS) user_guide_html developer_guide_html
+	$(MAKE) -C $(CURDIR)/obj-* user_guide_html developer_guide_html
 	# fix links in documentation
 	sed -i "s|$(CURDIR)/docbook|..|" obj-*/docbook/ws*g_html_chunked/*.html
 ifneq ($(filter $(DEB_BUILD_OPTIONS),nocheck),)
 	# Required for the "unittests" suite.
-	$(MAKE) -C $(CURDIR)/obj-* -j$(MAKE_JOBS) test-programs
+	$(MAKE) -C $(CURDIR)/obj-* test-programs
 endif
 
 override_dh_strip:
