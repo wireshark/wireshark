@@ -908,7 +908,7 @@ parse_line(gchar *linebuff, gint line_length,
              (linebuff[n] != '/') && (protocol_chars < MAX_PROTOCOL_NAME) && (n < line_length);
              n++, protocol_chars++) {
 
-            if (!g_ascii_isalnum(linebuff[n]) && linebuff[n] != '_') {
+            if (!g_ascii_isalnum(linebuff[n]) && (linebuff[n] != '_') && (linebuff[n] != '.')) {
                 return FALSE;
             }
             protocol_name[protocol_chars] = linebuff[n];

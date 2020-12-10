@@ -121,6 +121,7 @@ static gboolean catapult_dct2000_try_sctpprim_heuristic = TRUE;
 static gboolean catapult_dct2000_dissect_lte_rrc = TRUE;
 static gboolean catapult_dct2000_dissect_mac_lte_oob_messages = TRUE;
 static gboolean catapult_dct2000_dissect_old_protocol_names = FALSE;
+static gboolean catapult_dct2000_use_protocol_name_as_dissector_name = FALSE;
 
 /* Protocol subtree. */
 static int ett_catapult_dct2000 = -1;
@@ -3087,7 +3088,7 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
                 }
             }
 
-            /* Last chance: is there a (private) registered protocol of the form
+            /* Next chance: is there a (private) registered protocol of the form
                "dct2000.protocol" ? */
             if (protocol_handle == 0) {
                 /* TODO: only look inside if a preference enabled? */
@@ -3097,6 +3098,13 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
                 g_strlcpy(dotted_protocol_name+8, protocol_name, 128-8);
                 protocol_handle = find_dissector(dotted_protocol_name);
             }
+
+            /* Last resort: Allow any PDU to be dissected if the protocol matches with
+               a dissector name */
+            if ( !protocol_handle && catapult_dct2000_use_protocol_name_as_dissector_name) {
+                protocol_handle = find_dissector(protocol_name);
+            }
+
 
             break;
 
@@ -3677,6 +3685,16 @@ void proto_register_catapult_dct2000(void)
                                    "When set, look for some older protocol names so that"
                                    "they may be matched with wireshark dissectors.",
                                    &catapult_dct2000_dissect_old_protocol_names);
+
+    /* Determines if the protocol field in the DCT2000 shall be used to lookup for disector*/
+    prefs_register_bool_preference(catapult_dct2000_module, "use_protocol_name_as_dissector_name",
+                                   "Look for a dissector using the protocol name in the "
+                                   "DCT2000 record",
+                                   "When set, if there is a Wireshark dissector matching "
+                                   "the protocol name, it will parse the PDU using "
+                                   "that dissector. This may be slow, so should be "
+                                   "disabled unless you are using this feature.",
+                                   &catapult_dct2000_use_protocol_name_as_dissector_name);
 }
 
 /*
