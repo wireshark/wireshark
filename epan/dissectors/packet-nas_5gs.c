@@ -954,7 +954,7 @@ de_nas_5gs_mm_5gs_mobile_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
     guint8 oct, type_id, supi_fmt;
     guint32 scheme_id, fiveg_tmsi;
     tvbuff_t * new_tvb;
-    const char *digit_str, *route_id_str;
+    const char *route_id_str;
     proto_item* ti;
 
     static int * const flags_spare_tid[] = {
@@ -1076,9 +1076,7 @@ de_nas_5gs_mm_5gs_mobile_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
     case 3:
         /* IMEI */
         proto_tree_add_bitmask_list(tree, tvb, offset, 1, flags_odd_even_tid, ENC_BIG_ENDIAN);
-        new_tvb = tvb_new_subset_length(tvb, offset, len);
-        digit_str = tvb_bcd_dig_to_wmem_packet_str(new_tvb, 0, -1, NULL, TRUE);
-        proto_tree_add_string(tree, hf_nas_5gs_mm_imei, new_tvb, 0, -1, digit_str);
+        proto_tree_add_item(tree, hf_nas_5gs_mm_imei, tvb, offset, len, ENC_BCD_DIGITS_0_9 | ENC_BCD_SKIP_FIRST);
         break;
     case 4:
         /*5G-S-TMSI*/
@@ -1097,9 +1095,8 @@ de_nas_5gs_mm_5gs_mobile_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
     case 5:
         /* IMEISV */
         proto_tree_add_bitmask_list(tree, tvb, offset, 1, flags_odd_even_tid, ENC_BIG_ENDIAN);
-        new_tvb = tvb_new_subset_length(tvb, offset, len);
-        digit_str = tvb_bcd_dig_to_wmem_packet_str(new_tvb, 0, -1, NULL, TRUE);
-        proto_tree_add_string(tree, hf_nas_5gs_mm_imeisv, new_tvb, 0, -1, digit_str);
+        /* XXXX Do we need the odd/even bit?*/
+        proto_tree_add_item(tree, hf_nas_5gs_mm_imeisv, tvb, offset, len, ENC_BCD_DIGITS_0_9 | ENC_BCD_SKIP_FIRST);
         break;
     case 6:
         /* MAC address */
@@ -3475,12 +3472,10 @@ de_nas_5gs_mm_ue_radio_cap_id(tvbuff_t* tvb, proto_tree* tree, packet_info* pinf
     gchar* add_string _U_, int string_len _U_)
 {
     int curr_offset;
-    const char* digit_str;
 
     curr_offset = offset;
 
-    digit_str = tvb_bcd_dig_to_wmem_packet_str(tvb, curr_offset, len, NULL, FALSE);
-    proto_tree_add_string(tree, hf_nas_5gs_mm_ue_radio_cap_id, tvb, 0, -1, digit_str);
+    proto_tree_add_item(tree, hf_nas_5gs_mm_ue_radio_cap_id, tvb, curr_offset, len, ENC_BCD_DIGITS_0_9);
 
     return len;
 }

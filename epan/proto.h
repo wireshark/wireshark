@@ -515,7 +515,13 @@ void proto_report_dissector_bug(const char *format, ...)
 /* a convenience macro for the above */
 #define ENC_SEP_MASK    0x001F0000
 
-/*
+/* Encodings for BCD strings
+ * Depending if the BCD string has even or odd number of digits
+ * we may need to strip of the last digit/High nibble
+ */
+#define ENC_BCD_ODD_NUM_DIG     0x00010000
+#define ENC_BCD_SKIP_FIRST      0x00020000
+ /*
  * Encodings for time values.
  *
  * Historically FT_TIMEs were only timespecs; the only question was whether

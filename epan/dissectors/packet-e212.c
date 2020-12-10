@@ -3468,14 +3468,17 @@ dissect_e212_imsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offse
 {
     proto_item *item;
     proto_tree *subtree;
-    const gchar *imsi_str;
+    const guint8 *imsi_str;
 
     /* Fetch the BCD encoded digits from tvb indicated half byte, formating the digits according to
      * a default digit set of 0-9 returning "?" for overdecadic digits a pointer to the wmem
      * allocated string will be returned.
      */
-    imsi_str = tvb_bcd_dig_to_wmem_packet_str( tvb, offset, length, NULL, skip_first);
-    item = proto_tree_add_string(tree, hf_E212_imsi, tvb, offset, length, imsi_str);
+    if (skip_first) {
+        item = proto_tree_add_item_ret_string(tree, hf_E212_imsi, tvb, offset, length, ENC_BCD_DIGITS_0_9 | ENC_BCD_SKIP_FIRST, wmem_packet_scope(), &imsi_str);
+    } else {
+        item = proto_tree_add_item_ret_string(tree, hf_E212_imsi, tvb, offset, length, ENC_BCD_DIGITS_0_9, wmem_packet_scope(), &imsi_str);
+    }
     if (!is_imsi_string_valid(imsi_str)) {
         expert_add_info(pinfo, item, &ei_E212_imsi_malformed);
     }

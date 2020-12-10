@@ -951,11 +951,12 @@ WS_DLL_PUBLIC const gchar *tvb_bcd_dig_to_wmem_packet_str(tvbuff_t *tvb,
  * byte), formating the digits into characters according to the
  * input digit set, and return a pointer to a UTF-8 string, allocated
  * using the wmem scope.  A high-order nibble of 0xf is considered a
- * 'filler' and will end the conversion.
+ * 'filler' and will end the conversion. If odd is set the high order
+ * nibble in the last octet will be skipped
  */
 WS_DLL_PUBLIC gchar *tvb_get_bcd_string(wmem_allocator_t *scope, tvbuff_t *tvb,
     const gint offset, gint len, const dgt_set_t *dgt,
-    gboolean skip_first);
+    gboolean skip_first, gboolean odd);
 
 /** Locate a sub-tvbuff within another tvbuff, starting at position
  * 'haystack_offset'. Returns the index of the beginning of 'needle' within

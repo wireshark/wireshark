@@ -1343,8 +1343,6 @@ de_emm_eps_mid(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
 {
     guint32   curr_offset;
     guint8    octet;
-    const char     *digit_str;
-    tvbuff_t *new_tvb;
     proto_item* ti;
 
     curr_offset = offset;
@@ -1356,14 +1354,11 @@ de_emm_eps_mid(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
     switch (octet&0x7) {
         case 1:
             /* IMSI */
-            new_tvb = tvb_new_subset_length(tvb, curr_offset, len);
-            dissect_e212_imsi(new_tvb, pinfo, tree,  0, len, TRUE);
+            dissect_e212_imsi(tvb, pinfo, tree, curr_offset, len, TRUE);
             break;
         case 3:
             /* IMEI */
-            new_tvb = tvb_new_subset_length(tvb, curr_offset, len);
-            digit_str = tvb_bcd_dig_to_wmem_packet_str(new_tvb, 0, len, NULL, TRUE);
-            proto_tree_add_string(tree, hf_nas_eps_emm_imei, new_tvb, 0, -1, digit_str);
+            proto_tree_add_item(tree, hf_nas_eps_emm_imei, tvb, curr_offset, len, ENC_BCD_DIGITS_0_9 | ENC_BCD_SKIP_FIRST);
             break;
         case 6:
             /* GUTI */
@@ -3701,22 +3696,19 @@ de_esm_remote_ue_context_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pinf
                     break;
                 case 3:
                     {
-                        const gchar *msisdn_str = tvb_bcd_dig_to_wmem_packet_str(tvb, curr_offset, user_id_len, NULL, TRUE);
-                        proto_tree_add_string(subtree, hf_nas_eps_esm_remote_ue_context_list_ue_context_msisdn, tvb, curr_offset, user_id_len, msisdn_str);
+                        proto_tree_add_item(subtree, hf_nas_eps_esm_remote_ue_context_list_ue_context_msisdn, tvb, curr_offset, user_id_len, ENC_BCD_DIGITS_0_9 | ENC_BCD_SKIP_FIRST);
                         curr_offset += user_id_len;
                     }
                     break;
                 case 4:
                     {
-                        const gchar *imei_str = tvb_bcd_dig_to_wmem_packet_str(tvb, curr_offset, user_id_len, NULL, TRUE);
-                        proto_tree_add_string(subtree, hf_nas_eps_esm_remote_ue_context_list_ue_context_imei, tvb, curr_offset, user_id_len, imei_str);
+                        proto_tree_add_item(subtree, hf_nas_eps_esm_remote_ue_context_list_ue_context_imei, tvb, curr_offset, user_id_len, ENC_BCD_DIGITS_0_9 | ENC_BCD_SKIP_FIRST);
                         curr_offset += user_id_len;
                     }
                     break;
                 case 5:
                     {
-                        const gchar *imeisv_str = tvb_bcd_dig_to_wmem_packet_str(tvb, curr_offset, user_id_len, NULL, TRUE);
-                        proto_tree_add_string(subtree, hf_nas_eps_esm_remote_ue_context_list_ue_context_imeisv, tvb, curr_offset, user_id_len, imeisv_str);
+                        proto_tree_add_item(subtree, hf_nas_eps_esm_remote_ue_context_list_ue_context_imeisv, tvb, curr_offset, user_id_len, ENC_BCD_DIGITS_0_9 | ENC_BCD_SKIP_FIRST);
                         curr_offset += user_id_len;
                     }
                     break;
