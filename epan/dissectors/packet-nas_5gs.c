@@ -2882,7 +2882,7 @@ static const value_string nas_5gs_mm_req_type_vals[] = {
     { 0x03, "Initial emergency request" },
     { 0x04, "Existing emergency PDU session" },
     { 0x05, "Modification request" },
-    { 0x05, "MA PDU request" },
+    { 0x06, "MA PDU request" },
     { 0x07, "Reserved" },
     { 0, NULL } };
 
