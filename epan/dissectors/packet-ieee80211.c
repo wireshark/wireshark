@@ -26877,9 +26877,6 @@ dissect_ieee80211_common(tvbuff_t *tvb, packet_info *pinfo,
     next_tvb = process_reassembled_data(tvb, hdr_len, pinfo,
         "Reassembled 802.11", fd_head,
         &frag_items, NULL, hdr_tree);
-   /* If we got a next_tvb, but it has an FCS, strip the FCS */
-   if (next_tvb && has_fcs)
-     next_tvb = tvb_new_subset_length_caplen(next_tvb, 0, len, reported_len);
   } else {
     /*
      * If this is the first fragment, dissect its contents, otherwise
