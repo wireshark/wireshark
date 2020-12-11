@@ -321,6 +321,9 @@ static const range_string fault_notif_coding[] = {
         { 0x800,    0xFFF,    "Vendor Specific Fault Indication/Notification" },
         { 0,        0,        NULL                                            }
 };
+
+static dissector_handle_t oran_handle;
+
 /**************************************************************************************************/
 /* Implementation of the functions                                                                */
 /**************************************************************************************************/
@@ -443,9 +446,7 @@ static int dissect_ecpri(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
         {
             tvbuff_t *fh_tvb = tvb_new_subset_length_caplen(tvb, offset, payload_size, payload_size);
             /* See whether we have an O-RAN fronthaul sub-dissector that handles this, otherwise decode vanilla eCPRI */
-            dissector_handle_t oran_handle = find_dissector("oran_fh_cus");
-            int ret = call_dissector_only(oran_handle, fh_tvb, pinfo, tree, &msg_type);
-            if (ret) {
+            if (call_dissector_only(oran_handle, fh_tvb, pinfo, tree, &msg_type)) {
                 /* Assume that it has claimed the entire tvb */
                 offset = tvb_reported_length(tvb);
             }
@@ -873,6 +874,8 @@ void proto_reg_handoff_ecpri(void)
 {
     dissector_add_uint("ethertype", ETHERTYPE_ECPRI, ecpri_handle);             /* Ethertypes 0xAEFE */
     dissector_add_uint_range_with_preference("udp.port", "", ecpri_handle);     /* UDP Port Preference */
+
+    oran_handle = find_dissector("oran_fh_cus");
 }
 
 /*
