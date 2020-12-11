@@ -157,6 +157,8 @@ static gboolean global_udpcp_reassemble = TRUE;
 static gboolean global_udpcp_decode_payload_as_soap = TRUE;
 
 
+static dissector_handle_t xml_handle;
+
 /******************************/
 /* Main dissection function.  */
 static int
@@ -309,7 +311,6 @@ dissect_udpcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 
             if (global_udpcp_decode_payload_as_soap) {
                 /* Send to XML dissector */
-                dissector_handle_t xml_handle = find_dissector("xml");
                 tvbuff_t *next_tvb = tvb_new_subset_remaining(tvb, offset);
                 call_dissector_only(xml_handle, next_tvb, pinfo, tree, NULL);
             }
@@ -351,7 +352,6 @@ dissect_udpcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 
                     if (global_udpcp_decode_payload_as_soap) {
                         /* Send to XML dissector */
-                        dissector_handle_t xml_handle = find_dissector("xml");
                         call_dissector_only(xml_handle, next_tvb, pinfo, tree, NULL);
                     }
                 }
@@ -527,6 +527,8 @@ proto_reg_handoff_udpcp(void)
 {
     dissector_add_uint_range_with_preference("udp.port", "", udpcp_handle);
     apply_udpcp_prefs();
+
+    xml_handle = find_dissector("xml");
 }
 
 /*
