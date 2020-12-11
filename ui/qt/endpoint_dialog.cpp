@@ -200,7 +200,8 @@ QUrl EndpointDialog::createMap(bool json_only)
     g_ptr_array_add(hosts_arr, NULL);
     hostlist_talker_t **hosts = (hostlist_talker_t **)g_ptr_array_free(hosts_arr, FALSE);
 
-    QTemporaryFile tf("ipmapXXXXXX.html");
+    QString tempname = QString("%1/ipmapXXXXXX.html").arg(QDir::tempPath());
+    QTemporaryFile tf(tempname);
     if (!tf.open()) {
         QMessageBox::warning(this, tr("Map file error"), tr("Unable to create temporary file"));
         g_free(hosts);
