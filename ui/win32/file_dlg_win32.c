@@ -680,6 +680,7 @@ format_handle_wm_initdialog(HWND dlg_hwnd, print_args_t *args) {
             break;
         case print_dissections_expanded:
             SendMessage(cur_ctrl, CB_SETCURSEL, 2, 0);
+            break;
         default:
             g_assert_not_reached();
     }
