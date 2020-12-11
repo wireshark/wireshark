@@ -8,6 +8,8 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
+#ifdef _WIN32
+
 #include "config.h"
 
 #include <tchar.h>
@@ -1795,6 +1797,8 @@ export_file_hook_proc(HWND ef_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
     }
     return 0;
 }
+
+#endif // _WIN32
 
 /*
  * Editor modelines
