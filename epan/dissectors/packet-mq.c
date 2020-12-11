@@ -2649,11 +2649,7 @@ static void dissect_mq_pdu(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree)
                             const guint8* _pVal = NULL;
                             for (iSelector = 0; iSelector < iNbSelectors; iSelector++)
                             {
-                                //proto_tree_add_item(mq_tree, hf_mq_inq_sel, tvb, offset + iOffsetINQ + iSelector * 4, 4, p_mq_parm->mq_int_enc);
-                                guint _Val = tvb_get_guint32(tvb, offset + iOffsetINQ + iSelector* 4, p_mq_parm->mq_int_enc);
-                                _pVal = (const guint8*)try_val_to_str_ext(_Val, GET_VALS_EXTP(selector));
-                                proto_tree_add_uint_format(mq_tree, hf_mq_inq_sel, tvb, offset + iOffsetINQ + iSelector * 4, 4, 0,
-                                    "Selector........: 0x%08x (%d) %s", _Val, _Val, _pVal);
+                                proto_tree_add_item(mq_tree, hf_mq_inq_sel, tvb, offset + iOffsetINQ + iSelector * 4, 4, p_mq_parm->mq_int_enc);
                             }
                             iOffsetINQ += iNbSelectors * 4;
                             if (p_mq_parm->mq_opcode == MQ_TST_MQINQ_REPLY || p_mq_parm->mq_opcode == MQ_TST_MQSET)
@@ -2678,7 +2674,7 @@ static void dissect_mq_pdu(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree)
                                         _posSel += 4;
                                         if (_pVal)
                                             proto_tree_add_uint_format(mq_tree, hf_mq_inq_intvalue, tvb, offset + iOffsetINQ + iInteger * 4, 4, 0,
-                                                "Integer value...: 0x%08x (%d) %s", _lVal, _lVal, _pVal);
+                                                "Integer value...: %s (%d)", _pVal, _lVal);
                                         else
                                             proto_tree_add_item(mq_tree, hf_mq_inq_intvalue, tvb, offset + iOffsetINQ + iInteger * 4, 4, p_mq_parm->mq_int_enc);
                                     }
@@ -4175,7 +4171,7 @@ void proto_register_mq(void)
         {&hf_mq_inq_nbsel, {"Selector count..", "mq.inq.nbsel", FT_UINT32, BASE_DEC, NULL, 0x0, "INQ Selector count", HFILL}},
         {&hf_mq_inq_nbint, {"Integer count...", "mq.inq.nbint", FT_UINT32, BASE_DEC, NULL, 0x0, "INQ Integer count", HFILL}},
         {&hf_mq_inq_charlen, {"Character length", "mq.inq.charlen", FT_UINT32, BASE_DEC, NULL, 0x0, "INQ Character length", HFILL}},
-        {&hf_mq_inq_sel, {"Selector........", "mq.inq.sel", FT_UINT32, BASE_HEX_DEC | BASE_EXT_STRING, GET_VALS_EXTP(selector), 0x0, "INQ Selector", HFILL}},
+        {&hf_mq_inq_sel, {"Selector........", "mq.inq.sel", FT_UINT32, BASE_DEC | BASE_EXT_STRING, GET_VALS_EXTP(selector), 0x0, "INQ Selector", HFILL}},
         {&hf_mq_inq_intvalue, {"Integer value...", "mq.inq.intvalue", FT_UINT32, BASE_DEC, NULL, 0x0, "INQ Integer value", HFILL}},
         {&hf_mq_inq_charvalues, {"Char values.....", "mq.inq.charvalues", FT_STRING, STR_UNICODE, NULL, 0x0, "INQ Character values", HFILL}},
 

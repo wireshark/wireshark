@@ -3684,6 +3684,34 @@ typedef struct _mq_parm_t
 #define MQ_MQCFT_APP_ACTIVITY             26
 #define MQ_MQCFT_STATUS                   27
 
+/* Types of Structure reduced name for PrmTyp2 */
+#define MQ_MQCFT_NONE  0
+#define MQ_MQCFT_CMD   1
+#define MQ_MQCFT_RSP   2
+#define MQ_MQCFT_INT   3
+#define MQ_MQCFT_STR   4
+#define MQ_MQCFT_INTL  5
+#define MQ_MQCFT_STRL  6
+#define MQ_MQCFT_EVT   7
+#define MQ_MQCFT_USR   8
+#define MQ_MQCFT_BSTR  9
+#define MQ_MQCFT_TRC   10
+#define MQ_MQCFT_RPT   12
+#define MQ_MQCFT_INTF  13
+#define MQ_MQCFT_STRF  14
+#define MQ_MQCFT_BSTF  15
+#define MQ_MQCFT_CMDX  16
+#define MQ_MQCFT_XMSG  17
+#define MQ_MQCFT_XITM  18
+#define MQ_MQCFT_XSUM  19
+#define MQ_MQCFT_GRP   20
+#define MQ_MQCFT_STAT  21
+#define MQ_MQCFT_ACNT  22
+#define MQ_MQCFT_I64   23
+#define MQ_MQCFT_I64L  25
+#define MQ_MQCFT_APP_ACTIVITY             26
+#define MQ_MQCFT_STATUS                   27
+
 /* Major Release Function */
 #define MQ_MQOPMODE_COMPAT                0
 #define MQ_MQOPMODE_NEW_FUNCTION          1
@@ -5595,6 +5623,7 @@ DEF_VALS_EXTX(MQRC);
 DEF_VALS_EXTX(objtype);
 DEF_VALS_EXTX(PrmId);
 DEF_VALS_EXTX(PrmTyp);
+DEF_VALS_EXTX(PrmTyp2);
 DEF_VALS_EXTX(selector);
 DEF_VALS_EXTX(MQCFINT_Parse);
 
