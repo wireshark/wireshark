@@ -209,6 +209,12 @@ is checked so that maintainers can rebase your change and make minor edits.\
 def main():
     args = parser.parse_args()
     commit = args.commit
+
+    if(os.getenv('CI_MERGE_REQUEST_EVENT_TYPE') == 'merge_train'):
+        print("If we were on the love train, people all over the world would be joining hands for this merge request.\nInstead, we're on a merge train so we're skipping commit validation checks. ")
+        return 0
+
+
     cmd = ['git', 'show', '--no-patch',
            '--format=%h%n%an%n%ae%n%B', commit, '--']
     output = subprocess.check_output(cmd, universal_newlines=True)
