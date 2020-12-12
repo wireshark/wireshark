@@ -93,6 +93,7 @@ static int hf_oran_reserved = -1;
 /* static int hf_oran_bfwCompParam = -1; */
 static int hf_oran_bfwCompHdr_iqWidth = -1;
 static int hf_oran_bfwCompHdr_compMeth = -1;
+static int hf_oran_num_bf_weights = -1;
 static int hf_oran_symbolId = -1;
 static int hf_oran_startPrbu = -1;
 static int hf_oran_numPrbu = -1;
@@ -123,6 +124,10 @@ static gint ett_oran_u_prb = -1;
 static gint ett_oran_iq = -1;
 static gint ett_oran_c_section_extension = -1;
 static gint ett_oran_bfw = -1;
+
+/* Expert info */
+static expert_field ei_oran_invalid_bfw_iqwidth = EI_INIT;
+static expert_field ei_oran_invalid_num_bfw_weights = EI_INIT;
 
 
 static guint sample_bit_width_uplink = 14;
@@ -524,7 +529,8 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
             {
                 /* bfwCompHdr (2 subheaders - bfwIqWidth and bfwCompMeth)*/
                 guint32 bfwcomphdr_iq_width, bfwcomphdr_comp_meth;
-                proto_tree_add_item_ret_uint(extension_tree, hf_oran_bfwCompHdr_iqWidth, tvb, offset, 1, ENC_BIG_ENDIAN,  &bfwcomphdr_iq_width);
+                proto_item *iqwidth_ti = proto_tree_add_item_ret_uint(extension_tree, hf_oran_bfwCompHdr_iqWidth,
+                                                                      tvb, offset, 1, ENC_BIG_ENDIAN,  &bfwcomphdr_iq_width);
                 proto_tree_add_item_ret_uint(extension_tree, hf_oran_bfwCompHdr_compMeth, tvb, offset, 1, ENC_BIG_ENDIAN, &bfwcomphdr_comp_meth);
                 offset++;
 
@@ -541,9 +547,26 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                         iq_width = 15;
                         break;
                     default:
-                        /* TODO: error!!!!! */
+                        /* Error! */
                         break;
                 }
+
+                /* Show num_bf_weights as a generated field */
+                proto_item *num_bf_weights_ti = proto_tree_add_uint(extension_tree, hf_oran_num_bf_weights, tvb, 0, 0, num_bf_weights);
+                proto_item_set_generated(num_bf_weights_ti);
+
+                /* Must have valid values for these two... */
+                if (iq_width == 0) {
+                    expert_add_info_format(pinfo, iqwidth_ti, &ei_oran_invalid_bfw_iqwidth,
+                                           "BFW IQ Width (%u) not valid",  bfwcomphdr_iq_width);
+                    break;
+                }
+                if (num_bf_weights == 0) {
+                    expert_add_info_format(pinfo, num_bf_weights_ti, &ei_oran_invalid_num_bfw_weights,
+                                           "Number of BF weights (from preference) must not be 0!");
+                    break;
+                }
+
 
                 /* bfwCompParam */
                 switch (bfwcomphdr_comp_meth) {
@@ -567,7 +590,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                  */
 
                 /* I & Q samples
-                   TODO: don't know how many there will be, so just fill available bytes...
+                   Don't know how many there will be, so just fill available bytes...
                  */
                 guint weights_bytes = (extlen*4)-3;
                 guint num_weights_pairs = (weights_bytes*8) / (iq_width*2);
@@ -944,8 +967,7 @@ proto_register_oran(void)
           { "E Bit", "oran_fh_cus.e_bit",
             FT_UINT8, BASE_DEC,
             VALS(e_bit), 0x80,
-            "One bit (the \"E-bit\") is reserved to indi"
-            "cate the last message of a subsequence.",
+            "One bit (the \"E-bit\") is reserved to indicate the last message of a subsequence.",
             HFILL }
         },
 
@@ -1002,8 +1024,7 @@ proto_register_oran(void)
          {"Frame ID", "oran_fh_cus.frameId",
           FT_UINT8, BASE_DEC,
           NULL, 0x00,
-          "This parameter is a counter for 10 ms frames (wrapping period 2."
-          "56 seconds)",
+          "This parameter is a counter for 10 ms frames (wrapping period 2.56 seconds)",
           HFILL}},
 
         /* Section 5.4.4.5 */
@@ -1079,7 +1100,7 @@ proto_register_oran(void)
           NULL, 0x0,
           "This parameter defines the time_offset from the start of the slot "
           "to the start of the Cyclic Prefix (CP) in number of samples tsample "
-          "(=1/30.72MHz as specified in 3GPP TS38.211 section 4.1).  "
+          "(=1/30.72MHz as specified in 3GPP TS38.211 section 4.1). "
           "Because this is denominated in \"samples\" there is no fixed "
           "microsecond unit for this parameter; time_offset = \"n\" may be longer "
           "or shorter in time depending on the sampling interval (which is "
@@ -1164,7 +1185,7 @@ proto_register_oran(void)
           "the message as long as symInc is zero.  When symInc is one, the "
           "maintained symbol number should be incremented by one, and that "
           "new symbol number should be used for that section and each subsequent "
-          "section until the symInc bit is again detected to be one.  "
+          "section until the symInc bit is again detected to be one. "
           "In this manner, multiple symbols may be handled by a single C-Plane "
           "message.",
           HFILL}},
@@ -1378,10 +1399,10 @@ proto_register_oran(void)
          {"Backoff Counter", "oran_fh_cus.lbtBackoffCounter",
           FT_UINT16, BASE_DEC,
           NULL, 0x03ff,
-          "LBT backoff counter in sensing slots as described in 3GPP TS 36."
-          "213 Section 15.1.1. This parameter is used for LBT CAT 4 and can "
-          "take one of nine values: {3, 7, 15, 31, 63, 127, 255, 511, 1023"
-          "} based on the priority class. Four priority classes are defined "
+          "LBT backoff counter in sensing slots as described in 3GPP TS 36.213 "
+          "Section 15.1.1. This parameter is used for LBT CAT 4 and can "
+          "take one of nine values: {3, 7, 15, 31, 63, 127, 255, 511, 1023} "
+          "based on the priority class. Four priority classes are defined "
           "in 3GPP TS 36.213.",
           HFILL}},
 
@@ -1496,6 +1517,14 @@ proto_register_oran(void)
           "not some subset of them.",
           HFILL}},
 
+        {&hf_oran_num_bf_weights,
+         {"Number of BF weights", "oran_fh_cus.num_bf_weights",
+          FT_UINT16, BASE_DEC,
+          NULL, 0x0,
+          "This is the number of BF weights per antenna - currently set in a preference",
+          HFILL}},
+
+
 #if 0
     /* FIXME  Section 5.4.7.1.2 */
     { &hf_oran_bfwCompParam.
@@ -1602,8 +1631,8 @@ proto_register_oran(void)
           { "Exponent", "oran_fh_cus.exponent",
             FT_UINT8, BASE_DEC,
             NULL, 0x0f,
-            "This parameter exponent applicable to the I & Q mantissas."
-            "NOTE : Exponent is used for all mantissa sample sizes(i.e. 6bit"
+            "This parameter exponent applicable to the I & Q mantissas. "
+            "NOTE : Exponent is used for all mantissa sample sizes(i.e. 6bit "
             "- 16bit). Likewise, a native \"uncompressed\" format is not supported "
             "within this specification.",
             HFILL } },
@@ -1613,7 +1642,7 @@ proto_register_oran(void)
             FT_BYTES, BASE_NONE,
             NULL, 0x0,
             "This parameter is used for the In-phase and Quadrature sample "
-            "mantissa. Twelve I/Q Samples are included per resource block. The width"
+            "mantissa. Twelve I/Q Samples are included per resource block. The width "
             "of the mantissa can be between 6 and 16 bits",
             HFILL } },
 
@@ -1650,6 +1679,13 @@ proto_register_oran(void)
         &ett_oran_bfw
     };
 
+    expert_module_t* expert_oran;
+
+    static ei_register_info ei[] = {
+        { &ei_oran_invalid_bfw_iqwidth, { "oran_fh_cus.bfw_iqwidth_invalid", PI_MALFORMED, PI_ERROR, "Invalid IQ Width", EXPFILL }},
+        { &ei_oran_invalid_num_bfw_weights, { "oran_fh_cus.num_bf_weights_invalid", PI_MALFORMED, PI_ERROR, "Invalid number of BF Weights", EXPFILL }}
+    };
+
     /* Register the protocol name and description */
     proto_oran = proto_register_protocol("O-RAN Fronthaul CUS", "O-RAN FH CUS", "oran_fh_cus");
 
@@ -1659,6 +1695,9 @@ proto_register_oran(void)
     /* Required function calls to register the header fields and subtrees */
     proto_register_field_array(proto_oran, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+
+    expert_oran = expert_register_protocol(proto_oran);
+    expert_register_field_array(expert_oran, ei, array_length(ei));
 
     module_t * oran_module = prefs_register_protocol(proto_oran, NULL);
 
