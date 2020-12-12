@@ -223,7 +223,8 @@ QUrl EndpointDialog::createMap(bool json_only)
         g_free(hosts);
         return QUrl();
     }
-    FILE* fp = ws_fdopen(fd, "wb");
+    // duplicate file descriptor as it is not allowed to perform a fclose before closing QFile
+    FILE* fp = ws_fdopen(ws_dup(fd), "wb");
     if (fp == NULL) {
         QMessageBox::warning(this, tr("Map file error"), tr("Unable to create temporary file"));
         g_free(hosts);
