@@ -792,7 +792,7 @@ set -x
         #
         includedir=`xcrun --show-sdk-path 2>/dev/null`/usr/include
 	if [ ! -f ./configure ]; then
-	    ./autogen.sh
+	    LIBTOOLIZE=glibtoolize ./autogen.sh
         fi
         if grep -qs '#define.*MACOSX' $includedir/ffi/fficonfig.h
         then
