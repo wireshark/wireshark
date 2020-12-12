@@ -1372,8 +1372,24 @@ uninstall_snappy() {
     if [ ! -z "$installed_snappy_version" ] ; then
         echo "Uninstalling snappy:"
         cd snappy-$installed_snappy_version
-        $DO_MAKE_UNINSTALL || exit 1
-        make distclean || exit 1
+        #
+        # snappy uses cmake and doesn't support "make uninstall" or
+        # "make distclean"
+        #
+        # $DO_MAKE_UNINSTALL || exit 1
+        # make distclean || exit 1
+        cd build_dir
+        make clean || exit 1
+        cd ..
+        sudo rm -f /usr/local/lib/libsnappy.a \
+                   /usr/local/include/snappy-c.h \
+                   /usr/local/include/snappy-sinksource.h \
+                   /usr/local/include/snappy.h \
+                   /usr/local/include/snappy-stubs-public.h \
+                   /usr/local/lib/cmake/Snappy/SnappyTargets.cmake \
+                   /usr/local/lib/cmake/Snappy/SnappyTargets-noconfig.cmake \
+                   /usr/local/lib/cmake/Snappy/SnappyConfig.cmake \
+                   /usr/local/lib/cmake/Snappy/SnappyConfigVersion.cmake
         cd ..
         rm snappy-$installed_snappy_version-done
 
