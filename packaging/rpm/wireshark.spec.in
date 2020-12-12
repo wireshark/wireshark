@@ -427,7 +427,7 @@ cd -
 # (https://en.opensuse.org/openSUSE:Packaging_Conventions_RPM_Macros#.25suse_update_desktop_file)
 # require this:
 install -Dm 0644 %{buildroot}/usr/local/share/applications/org.wireshark.Wireshark.desktop %{buildroot}/usr/share/applications/org.wireshark.Wireshark.desktop
-%suse_update_desktop_file %{name}
+%suse_update_desktop_file org.wireshark.Wireshark
 %else
 # Fedora's packaging guidelines (https://fedoraproject.org/wiki/Packaging:Guidelines)
 # require this (at least if desktop-file-install was not used to install it).
