@@ -71,7 +71,7 @@ endif()
 if (CMAKE_INTERPROCEDURAL_OPTIMIZATION)
 	message(STATUS "LTO/IPO is enabled")
 else()
-	message(STATUS "LTO/LPO is not enabled")
+	message(STATUS "LTO/IPO is not enabled")
 endif()
 
 # If our target platform is enforced by our generator, set

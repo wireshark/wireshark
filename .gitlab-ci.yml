@@ -333,7 +333,7 @@ merge-req:windows:
     - perl tools/make-version.pl --set-release
     - mkdir build
     - cd build
-    - cmake -G "Visual Studio 16 2019" -A x64 ..
+    - cmake -G "Visual Studio 16 2019" -A x64 -DENABLE_LTO=off ..
     - msbuild "/consoleloggerparameters:PerformanceSummary;NoSummary" /maxcpucount Wireshark.sln
     - msbuild "/consoleloggerparameters:PerformanceSummary;NoSummary" test-programs.vcxproj
     - ctest -C RelWithDebInfo --parallel 3 --force-new-ctest-process --verbose
