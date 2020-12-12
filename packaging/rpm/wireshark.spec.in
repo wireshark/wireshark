@@ -523,10 +523,10 @@ update-mime-database %{_datadir}/mime &> /dev/null || :
 %if 0%{?suse_version}
 /usr/share/applications/org.wireshark.Wireshark.desktop
 %endif
-%{_datadir}/appdata/org.wireshark.Wireshark.metainfo.xml
+%{_datadir}/metainfo/org.wireshark.Wireshark.metainfo.xml
 %{_datadir}/icons/hicolor/*/apps/*
 %{_datadir}/icons/hicolor/*/mimetypes/*
-%{_datadir}/mime/packages/wireshark.xml
+%{_datadir}/mime/packages/org.wireshark.Wireshark.xml
 %{_bindir}/wireshark
 %{_mandir}/man1/wireshark.*
 %endif
