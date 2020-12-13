@@ -2497,8 +2497,9 @@ uninstall_all() {
 # (If that's not the case, this test needs to check the subdirectories
 # as well.)
 #
-# If not, do "make install", "make uninstall", the removes for Lua,
-# and the renames of [g]libtool* with sudo.
+# If not, do "make install", "make uninstall", the removes for
+# dependencies that don't support "make uninstall", and the renames
+# of [g]libtool* with sudo.
 #
 if [ -w /usr/local ]
 then
