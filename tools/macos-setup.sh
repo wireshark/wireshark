@@ -1361,7 +1361,14 @@ install_snappy() {
         cd snappy-$SNAPPY_VERSION
         mkdir build_dir
         cd build_dir
-        MACOSX_DEPLOYMENT_TARGET=$min_osx_target SDKROOT="$SDKPATH" cmake ../ || exit 1
+        #
+        # Build a shared library, because we'll be linking libwireshark,
+        # which is a C library, with libsnappy, and libsnappy is a C++
+        # library and requires the C++ run time; the shared library
+        # will carry that dependency with it, so linking with it should
+        # Just Work.
+        #
+        MACOSX_DEPLOYMENT_TARGET=$min_osx_target SDKROOT="$SDKPATH" cmake -DBUILD_SHARED_LIBS=YES ../ || exit 1
         make $MAKE_BUILD_OPTS || exit 1
         $DO_MAKE_INSTALL || exit 1
         cd ../..
