@@ -66,7 +66,8 @@ LZIP_VERSION=1.21
 PCRE_VERSION=8.44
 
 #
-# CMake is required to do the build.
+# CMake is required to do the build - and to build some of the
+# dependencies.
 #
 # Sigh.  CMake versions 3.7 and later fail on Lion due to issues with
 # Lion's libc++, and CMake 3.5 and 3.6 have an annoying "Make sure the
@@ -1380,14 +1381,10 @@ uninstall_snappy() {
         echo "Uninstalling snappy:"
         cd snappy-$installed_snappy_version
         #
-        # snappy uses cmake and doesn't support "make uninstall" or
-        # "make distclean".  For "make uninstall, we just remove
-        # what we know it installs; for "make disclean", we just
-        # remove the entire build directory.
+        # snappy uses cmake and doesn't support "make uninstall";
+        # just remove what we know it installs.
         #
         # $DO_MAKE_UNINSTALL || exit 1
-        # make distclean || exit 1
-        rm -rf build_dir || exit 1
         $DO_RM -f /usr/local/lib/libsnappy.1.1.8.dylib \
                   /usr/local/lib/libsnappy.1.dylib \
                   /usr/local/lib/libsnappy.dylib \
@@ -1399,6 +1396,12 @@ uninstall_snappy() {
                   /usr/local/lib/cmake/Snappy/SnappyConfigVersion.cmake \
                   /usr/local/lib/cmake/Snappy/SnappyTargets-noconfig.cmake \
                   /usr/local/lib/cmake/Snappy/SnappyTargets.cmake || exit 1
+        #
+        # snappy uses cmake and doesn't support "make distclean";
+        #.just remove the entire build directory.
+        #
+        # make distclean || exit 1
+        rm -rf build_dir || exit 1
         cd ..
         rm snappy-$installed_snappy_version-done
 
@@ -1537,9 +1540,12 @@ uninstall_lz4() {
         cd lz4-$installed_lz4_version
         $DO_MAKE_UNINSTALL || exit 1
         #
-        # lz4 uses cmake and doesn't support "make distclean"
+        # lz4's Makefile doesn't support "make distclean"; just do
+        # "make clean".  Perhaps not using autotools means that
+        # there's no need for "make distclean".
         #
         # make distclean || exit 1
+        make clean || exit 1
         cd ..
         rm lz4-$installed_lz4_version-done
 
@@ -1694,17 +1700,20 @@ uninstall_libssh() {
         echo "Uninstalling libssh:"
         cd libssh-$installed_libssh_version
         #
-        # libssh uses cmake and doesn't support "make uninstall"
+        # libssh uses cmake and doesn't support "make uninstall";
+        # just remove what we know it installs.
         #
         # $DO_MAKE_UNINSTALL || exit 1
-        sudo rm -rf /usr/local/lib/libssh*
-        sudo rm -rf /usr/local/include/libssh
-        sudo rm -rf /usr/local/lib/pkgconfig/libssh*
-        sudo rm -rf /usr/local/lib/cmake/libssh
+        $DO_RM -rf /usr/local/lib/libssh* \
+                   /usr/local/include/libssh \
+                   /usr/local/lib/pkgconfig/libssh* \
+                   /usr/local/lib/cmake/libssh || exit 1
         #
-        # libssh uses cmake and doesn't support "make distclean"
+        # libssh uses cmake and doesn't support "make distclean";
+        # just remove the entire build directory.
         #
         # make distclean || exit 1
+        rm -rf build || exit 1
         cd ..
         rm libssh-$installed_libssh_version-done
 
@@ -2050,17 +2059,20 @@ uninstall_brotli() {
         echo "Uninstalling brotli:"
         cd brotli-$installed_brotli_version
         #
-        # brotli uses cmake on macOS and doesn't support "make uninstall"
+        # brotli uses cmake on macOS and doesn't support "make uninstall";
+        # just remove what we know it installs.
         #
         # $DO_MAKE_UNINSTALL || exit 1
-        sudo rm -rf /usr/local/bin/brotli
-        sudo rm -rf /usr/local/lib/libbrotli*
-        sudo rm -rf /usr/local/include/brotli
-        sudo rm -rf /usr/local/lib/pkgconfig/libbrotli*
+        $DO_RM -rf /usr/local/bin/brotli \
+                   /usr/local/lib/libbrotli* \
+                   /usr/local/include/brotli \
+                   /usr/local/lib/pkgconfig/libbrotli* || exit 1
         #
-        # brotli uses cmake on macOS and doesn't support "make distclean"
+        # brotli uses cmake on macOS and doesn't support "make distclean";
+        # just remove the enire build directory.
         #
         # make distclean || exit 1
+        rm -rf build_dir || exit 1
         cd ..
         rm brotli-$installed_brotli_version-done
 
