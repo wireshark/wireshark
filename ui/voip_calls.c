@@ -286,7 +286,10 @@ voip_calls_reset_all_taps(voip_calls_tapinfo_t *tapinfo)
     g_queue_clear(tapinfo->callsinfos);
     /* free the SIP_HASH */
     if(NULL!=tapinfo->callsinfo_hashtable[SIP_HASH])
+    {
         g_hash_table_remove_all (tapinfo->callsinfo_hashtable[SIP_HASH]);
+        tapinfo->callsinfo_hashtable[SIP_HASH] = NULL;
+    }
 
     /* free the strinfo data items first */
     list = g_list_first(tapinfo->rtpstream_list);

@@ -68,7 +68,7 @@ private:
     bool voip_calls_tap_listeners_removed_;
 
     // Tap callbacks
-//    static void tapReset(void *tapinfo_ptr);
+    static void tapReset(void *tapinfo_ptr);
     static tap_packet_status tapPacket(void *tapinfo_ptr, packet_info *pinfo, epan_dissect_t *, const void *data);
     static void tapDraw(void *tapinfo_ptr);
 
