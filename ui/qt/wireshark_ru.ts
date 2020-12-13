@@ -1751,8 +1751,12 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Поля</translation>
     </message>
     <message>
+        <source>Field Occurrence</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Field Occurence</source>
-        <translation>Вхождение Поля</translation>
+        <translation type="vanished">Вхождение Поля</translation>
     </message>
     <message>
         <source>New Column</source>
@@ -10583,7 +10587,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Unknown error occured</source>
-        <translation>Произошла неизвестная ошибка</translation>
+        <translation type="vanished">Произошла неизвестная ошибка</translation>
     </message>
     <message>
         <source>SSRC value not found.</source>
@@ -10688,6 +10692,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Please select an RTPv2 packet with an SSRC value</source>
         <translation>Пожалуйста, выберите пакет RTPv2 со значением SSRC</translation>
+    </message>
+    <message>
+        <source>Unknown error occurred</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

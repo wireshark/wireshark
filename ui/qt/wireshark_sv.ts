@@ -1744,8 +1744,12 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>Fält</translation>
     </message>
     <message>
+        <source>Field Occurrence</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Field Occurence</source>
-        <translation>Fältförekomst</translation>
+        <translation type="vanished">Fältförekomst</translation>
     </message>
     <message>
         <source>New Column</source>
@@ -10556,7 +10560,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>Unknown error occured</source>
-        <translation>Okänt fel inträffade</translation>
+        <translation type="vanished">Okänt fel inträffade</translation>
     </message>
     <message>
         <source>SSRC value not found.</source>
@@ -10661,6 +10665,10 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <message>
         <source>Please select an RTPv2 packet with an SSRC value</source>
         <translation>Välj ett RTPv2-paket med ett SSRC-värde</translation>
+    </message>
+    <message>
+        <source>Unknown error occurred</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

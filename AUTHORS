@@ -3982,7 +3982,8 @@ Chidambaram Arunachalam	<carunach[AT]cisco.com>
 João Valverde		<joao.valverde[AT]tecnico.ulisboa.pt>
 Benoît Canet		<benoit[AT]scylladb.com>
 Håkon Øye Amundsen      <haakon.amundsen[AT]nordicsemi.no>
-Jeffrey Wildman		<jeffrey.wildman@ll.mit.edu>
+Jeffrey Wildman		<jeffrey.wildman[AT]ll.mit.edu>
+Jan Schiefer		<jan.schiefer[AT]keysight.com>
 
 
 = From git log =
@@ -4283,6 +4284,7 @@ Gene Cumm		<gene.cumm[AT]gmail.com>
 Georg Brandl		<georg[AT]python.org>
 Georg Richter		<georg[AT]mariadb.org>
 George Hopkins		<george-hopkins[AT]null.net>
+George Powers		<gpowers[AT]google.com>
 Gerard Garcia		<ggarcia[AT]deic.uab.cat>
 Gergely Nagy		<ngg[AT]ngg.hu>
 Gerhard KHUENY		<Gerhard.KHUENY[AT]bachmann.info>
@@ -4643,6 +4645,7 @@ Pedro Jose Marron	<pjmarron[AT]locoslab.com>
 Pedro Malagon		<malagon[AT]die.upm.es>
 Peng Li			<seudut[AT]gmail.com>
 Peng Tao		<tao.peng[AT]primarydata.com>
+Peter Eszlari		<peter.eszlari[AT]gmail.com>
 Peter Hamilton		<qmear55[AT]protonmail.com>
 Peter Krystad		<peter.krystad[AT]linux.intel.com>
 Peter Membrey		<peter[AT]membrey.hk>
@@ -4703,6 +4706,7 @@ Roman Volkov		<volkoff_roman[AT]ukr.net>
 Ronen Boazi		<ronen.boazi[AT]intel.com>
 Ross Jacobs		<rossbjacobs[AT]gmail.com>
 Roy Chateau		<chateau.royw[AT]gmail.com>
+Rubin Gerritsen		<rubin.gerritsen[AT]nordicsemi.no>
 Rudra Rugge		<rrugge[AT]juniper.net>
 Rui ZHANG		<rzhang[AT]grandstream.cn>
 Russel Howe		<russel[AT]appliedinvention.com>
@@ -4719,6 +4723,7 @@ Sanket Godbole		<sanket.godbole[AT]spirent.com>
 Sawssen Hadded		<saw.hadded[AT]gmail.com>
 Sayuri Mizushima	<yamaguchi55[AT]protonmail.ch>
 Scott Deandrea		<sdeandrea[AT]apple.com>
+Scott McKay		<smckay[AT]pathwayconnect.com>
 Sebastian Kloeppel	<sk[AT]nakedape.net>
 Sebastian Schildt	<sebastian[AT]frozenlight.de>
 Selva Kumar		<v.selvamuthukumar[AT]gmail.com>
@@ -4863,6 +4868,7 @@ Yann Pomarède		<yann.pomarede[AT]gmail.com>
 Yannik Enss		<Yannik.Enss[AT]rohde-schwarz.com>
 Yasuyuki Tanaka		<yasuyuki.tanaka[AT]inria.fr>
 Yehonatan Zecharia	<yonti95[AT]gmail.com>
+Yoshihiro Ueda		<uyoshihiro[AT]users.noreply.gitlab.com>
 Yoshiyuki Kurauchi	<ahochauwaaaaa[AT]gmail.com>
 Yuri Chislov		<yuri.chislov[AT]gmail.com>
 Yurii Lysyi		<yurii.lysyi[AT]ericsson.com>

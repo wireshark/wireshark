@@ -40,6 +40,8 @@ Wireshark 3.5.0 Release Notes
 
   New Protocol Support
 
+   O-RAN fronthaul UC-plane (O-RAN)
+
   Updated Protocol Support
 
    Too many protocols have been updated to list here.
@@ -80,7 +82,7 @@ Wireshark 3.5.0 Release Notes
 
   A complete FAQ is available on the Wireshark web site[5].
 
-  Last updated 2020-12-06 09:04:18 UTC
+  Last updated 2020-12-13 09:04:17 UTC
 
  References
 

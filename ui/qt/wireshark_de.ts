@@ -1744,8 +1744,12 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <translation>Feldname</translation>
     </message>
     <message>
+        <source>Field Occurrence</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Field Occurence</source>
-        <translation>Feldhäufigkeit</translation>
+        <translation type="vanished">Feldhäufigkeit</translation>
     </message>
     <message>
         <source>New Column</source>
@@ -10556,7 +10560,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Unknown error occured</source>
-        <translation>Unbekannter Fehler</translation>
+        <translation type="vanished">Unbekannter Fehler</translation>
     </message>
     <message>
         <source>SSRC value not found.</source>
@@ -10661,6 +10665,10 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     <message>
         <source>Please select an RTPv2 packet with an SSRC value</source>
         <translation>Bitte ein RTPv2 Paket mit einem SSRC Wert auswählen</translation>
+    </message>
+    <message>
+        <source>Unknown error occurred</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

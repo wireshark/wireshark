@@ -1156,7 +1156,7 @@
     </message>
     <message>
         <source>Stop Capture</source>
-        <translation type="unfinished"></translation>
+        <translation>Arrêter la Capture</translation>
     </message>
     <message>
         <source>%1 packets, %2:%3:%4</source>
@@ -1720,7 +1720,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Field Occurence</source>
+        <source>Field Occurrence</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -6243,7 +6243,7 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     </message>
     <message>
         <source>S&amp;top</source>
-        <translation>Arre&amp;ter</translation>
+        <translation>Arrê&amp;ter</translation>
     </message>
     <message>
         <source>Stop capturing packets</source>
@@ -6435,7 +6435,7 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     </message>
     <message>
         <source>&amp;Restart</source>
-        <translation>&amp;Redémarrager</translation>
+        <translation>&amp;Redémarrer</translation>
     </message>
     <message>
         <source>Restart current capture</source>
@@ -7222,7 +7222,7 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     </message>
     <message>
         <source>Capture &amp;Filters…</source>
-        <translation>Capture &amp;Filtres...</translation>
+        <translation>&amp;Filtres de Capture...</translation>
     </message>
     <message>
         <source>As Plain &amp;Text…</source>
@@ -7918,12 +7918,12 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     </message>
     <message>
         <source>Stop and Save</source>
-        <translation>Arreter et Sauvegarder</translation>
+        <translation>Arrêter et Sauvegarder</translation>
     </message>
     <message>
         <source>Stop and Quit &amp;without Saving</source>
         <oldsource>Stop and Quit without Saving</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>Arrêter et Quitter sans Sauvegarder</translation>
     </message>
     <message>
         <source>Quit &amp;without Saving</source>
@@ -10520,10 +10520,6 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Unknown error occured</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>SSRC value not found.</source>
         <translation>Valeur SSRC non trouvée.</translation>
     </message>
@@ -10625,6 +10621,10 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     </message>
     <message>
         <source>Please select an RTPv2 packet with an SSRC value</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unknown error occurred</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
