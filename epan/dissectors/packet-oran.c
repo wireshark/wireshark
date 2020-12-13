@@ -128,6 +128,7 @@ static gint ett_oran_bfw = -1;
 /* Expert info */
 static expert_field ei_oran_invalid_bfw_iqwidth = EI_INIT;
 static expert_field ei_oran_invalid_num_bfw_weights = EI_INIT;
+static expert_field ei_oran_unsupported_bfw_compression_method = EI_INIT;
 
 
 static guint sample_bit_width_uplink = 14;
@@ -531,7 +532,8 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                 guint32 bfwcomphdr_iq_width, bfwcomphdr_comp_meth;
                 proto_item *iqwidth_ti = proto_tree_add_item_ret_uint(extension_tree, hf_oran_bfwCompHdr_iqWidth,
                                                                       tvb, offset, 1, ENC_BIG_ENDIAN,  &bfwcomphdr_iq_width);
-                proto_tree_add_item_ret_uint(extension_tree, hf_oran_bfwCompHdr_compMeth, tvb, offset, 1, ENC_BIG_ENDIAN, &bfwcomphdr_comp_meth);
+                proto_item *comp_meth_ti = proto_tree_add_item_ret_uint(extension_tree, hf_oran_bfwCompHdr_compMeth,
+                                                                        tvb, offset, 1, ENC_BIG_ENDIAN, &bfwcomphdr_comp_meth);
                 offset++;
 
                 /* Look up width of samples. */
@@ -569,17 +571,27 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
 
 
                 /* bfwCompParam */
+                gboolean compression_method_supported = FALSE;
                 switch (bfwcomphdr_comp_meth) {
                     case 0:  /* no compression */
-                        /* absent */
+                        compression_method_supported = TRUE;
                         break;
                     case 1: /* block fl. point */
                     case 2: /* block scaling */
                     case 3: /* u-law */
                     case 4: /* beamspace */
                     default:
-                        /* TODO: not handled */
+                        /* Not handled */
                          break;
+                }
+
+                /* Can't go on if compression scheme not supported */
+                if (!compression_method_supported) {
+                    expert_add_info_format(pinfo, comp_meth_ti, &ei_oran_unsupported_bfw_compression_method,
+                                           "BFW Compression method %u (%s) not supported",
+                                           bfwcomphdr_comp_meth,
+                                           val_to_str_const(bfwcomphdr_comp_meth, bfw_comp_headers_comp_meth, "Unknown"));
+                    break;
                 }
 
                 /* We know:
@@ -1683,7 +1695,8 @@ proto_register_oran(void)
 
     static ei_register_info ei[] = {
         { &ei_oran_invalid_bfw_iqwidth, { "oran_fh_cus.bfw_iqwidth_invalid", PI_MALFORMED, PI_ERROR, "Invalid IQ Width", EXPFILL }},
-        { &ei_oran_invalid_num_bfw_weights, { "oran_fh_cus.num_bf_weights_invalid", PI_MALFORMED, PI_ERROR, "Invalid number of BF Weights", EXPFILL }}
+        { &ei_oran_invalid_num_bfw_weights, { "oran_fh_cus.num_bf_weights_invalid", PI_MALFORMED, PI_ERROR, "Invalid number of BF Weights", EXPFILL }},
+        { &ei_oran_unsupported_bfw_compression_method, { "oran_fh_cus.unsupported_bfw_compression_method", PI_UNDECODED, PI_WARN, "Unsupported BFW Compression Method", EXPFILL }}
     };
 
     /* Register the protocol name and description */
