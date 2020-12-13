@@ -81,6 +81,7 @@ VoipCallsDialog::VoipCallsDialog(QWidget &parent, CaptureFile &cf, bool all_flow
 
     memset (&tapinfo_, 0, sizeof(tapinfo_));
     tapinfo_.tap_packet = tapPacket;
+    tapinfo_.tap_reset = tapReset;
     tapinfo_.tap_draw = tapDraw;
     tapinfo_.tap_data = this;
     tapinfo_.callsinfos = g_queue_new();
@@ -176,10 +177,13 @@ void VoipCallsDialog::changeEvent(QEvent *event)
     QDialog::changeEvent(event);
 }
 
-//void VoipCallsDialog::tapReset(void *)
-//{
-//    voip_calls_tapinfo_t *tapinfo = (voip_calls_tapinfo_t *) tapinfo_ptr;
-//}
+void VoipCallsDialog::tapReset(void *tapinfo_ptr)
+{
+    voip_calls_tapinfo_t *tapinfo = static_cast<voip_calls_tapinfo_t *>(tapinfo_ptr);
+    VoipCallsDialog *voip_calls_dialog = static_cast<VoipCallsDialog *>(tapinfo->tap_data);
+    voip_calls_dialog->call_infos_model_->removeAllCalls();
+    voip_calls_reset_all_taps(tapinfo);
+}
 
 tap_packet_status VoipCallsDialog::tapPacket(void *, packet_info *, epan_dissect_t *, const void *)
 {

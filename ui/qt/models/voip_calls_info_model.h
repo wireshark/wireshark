@@ -33,6 +33,7 @@ public:
     void setTimeOfDay(bool timeOfDay);
     bool timeOfDay() const;
     void updateCalls(GQueue *callsinfos);
+    void removeAllCalls();
 
     static voip_calls_info_t *indexToCallInfo(const QModelIndex &index);
 
