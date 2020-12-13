@@ -130,20 +130,21 @@ static expert_field ei_oran_invalid_bfw_iqwidth = EI_INIT;
 static expert_field ei_oran_invalid_num_bfw_weights = EI_INIT;
 static expert_field ei_oran_unsupported_bfw_compression_method = EI_INIT;
 
-
-static guint sample_bit_width_uplink = 14;
-static guint sample_bit_width_downlink = 14;
-
 /* These are the message types handled by this dissector */
 #define ECPRI_MT_IQ_DATA            0
 #define ECPRI_MT_RT_CTRL_DATA       2
 
 
+/* Preference settings. */
+static guint sample_bit_width_uplink = 14;
+static guint sample_bit_width_downlink = 14;
+
+
 #define COMP_NONE               0
 #define COMP_BLOCK_FP           1
-#define COMP_BLOCK_SCALE	2
+#define COMP_BLOCK_SCALE        2
 #define COMP_U_LAW              3
-#define COMP_MODULATION	        4
+#define COMP_MODULATION         4
 
 static gint iqCompressionUplink = COMP_BLOCK_FP;
 static gint iqCompressionDownlink = COMP_BLOCK_FP;
@@ -151,6 +152,7 @@ static gboolean includeUdCompHeaderUplink = FALSE;
 static gboolean includeUdCompHeaderDownlink = FALSE;
 
 static guint num_bf_weights = 1;
+
 
 enum_val_t compression_options[] = {
     { "COMP_NONE",        "No Compression",                   COMP_NONE },
@@ -508,7 +510,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                                                                 tvb, offset, 0, "", "Extension");
         proto_tree *extension_tree = proto_item_add_subtree(extension_ti, ett_oran_c_section_extension);
 
-        /* ef */
+        /* ef (i.e. another extension after this one) */
         proto_tree_add_item_ret_boolean(extension_tree, hf_oran_ef, tvb, offset, 1, ENC_BIG_ENDIAN, &extension_flag);
 
         /* extType */
@@ -911,6 +913,9 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
     return tvb_captured_length(tvb);
 }
 
+
+/*****************************/
+/* Main dissection function. */
 static int
 dissect_oran(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
@@ -920,17 +925,18 @@ dissect_oran(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
             return dissect_oran_u(tvb, pinfo, tree, data);
         case ECPRI_MT_RT_CTRL_DATA:
             return dissect_oran_c(tvb, pinfo, tree, data);
-    default:
-        return 0;
+
+        default:
+            /* Not dissecting other types - assume these are handled by eCPRI dissector */
+            return 0;
     }
 }
+
 
 /* Register the protocol with Wireshark. */
 void
 proto_register_oran(void)
 {
-    /* Setup list of header fields  See Section 1.5 of README.dissector for
-     * details. */
     static hf_register_info hf[] = {
 
        /* Section 3.1.2.1.6 */
@@ -1009,7 +1015,8 @@ proto_register_oran(void)
           "This parameter defines the payload protocol version valid for the "
           "following IEs in the application layer. In this version of the "
           "specification payloadVersion=001b shall be used.",
-          HFILL}},
+          HFILL}
+        },
 
         /* Section 5.4.4.3 */
         {&hf_oran_filter_index,
@@ -1029,7 +1036,8 @@ proto_register_oran(void)
           "PRACH filter.  NOTE: Filter index is commanded from lls-CU to RU. "
           "Likewise, it is not mandatory to command special filters, and "
           "filter index = 0000b is also allowed for PRACH.",
-          HFILL}},
+          HFILL}
+        },
 
         /* Section 5.4.4.4 */
         {&hf_oran_frame_id,
@@ -1037,7 +1045,8 @@ proto_register_oran(void)
           FT_UINT8, BASE_DEC,
           NULL, 0x00,
           "This parameter is a counter for 10 ms frames (wrapping period 2.56 seconds)",
-          HFILL}},
+          HFILL}
+        },
 
         /* Section 5.4.4.5 */
         {&hf_oran_subframe_id,
@@ -1045,7 +1054,8 @@ proto_register_oran(void)
           FT_UINT16, BASE_DEC,
           NULL, 0xf000,
           "This parameter is a counter for 1 ms sub-frames within 10ms frame.",
-          HFILL}},
+          HFILL}
+        },
 
         /* Section 5.4.4.6 */
         {&hf_oran_slot_id,
@@ -1057,15 +1067,17 @@ proto_register_oran(void)
           "from 0 to Nslot-1. In this version of the specification the "
           "maximum Nslot=16, All other values of the 6 bits are reserved for "
           "future use.",
-          HFILL}},
+          HFILL}
+        },
 
         /* Section 5.4.4.6 */
         {&hf_oran_slot_within_frame,
-	 {"Slot within frame", "oran_fh_cus.slot-within-frame",
-	  FT_UINT16, BASE_DEC,
-	  NULL, 0x0,
-	  "Slot within frame, to match DT logs",
-	  HFILL}},
+         {"Slot within frame", "oran_fh_cus.slot-within-frame",
+          FT_UINT16, BASE_DEC,
+          NULL, 0x0,
+         "Slot within frame, to match DT logs",
+         HFILL}
+        },
 
         /* Section 5.4.4.7 */
         {&hf_oran_start_symbol_id,
@@ -1074,7 +1086,8 @@ proto_register_oran(void)
           NULL, 0x003f,
           "This parameter identifies the first symbol number within slot, to "
           "which the information of this message is applies.",
-          HFILL}},
+          HFILL}
+        },
 
         /* Section 5.4.4.8 */
         {&hf_oran_numberOfSections,
@@ -1083,7 +1096,8 @@ proto_register_oran(void)
           NULL, 0x00,
           "This parameter indicates the number of section IDs included in "
           "this C-Plane message.",
-          HFILL}},
+          HFILL}
+        },
 
         /* Section 5.4.4.9 */
         {&hf_oran_sectionType,
@@ -1092,7 +1106,8 @@ proto_register_oran(void)
           RVALS(section_types), 0x00,
           "This parameter determines the characteristics of U-plane data to "
           "be transferred or received from a beam with one pattern id.",
-          HFILL}},
+          HFILL}
+        },
 
         /* Section 5.4.4.11 */
         {&hf_oran_numberOfUEs,
@@ -1103,7 +1118,8 @@ proto_register_oran(void)
           "the number of UEs (for which channel information is provided) are "
           "included in the message.  This allows the parser to determine "
           "when the last UE's data has been parsed.",
-          HFILL}},
+          HFILL}
+        },
 
         /* Section 5.4.4.12 */
         {&hf_oran_timeOffset,
@@ -1118,7 +1134,8 @@ proto_register_oran(void)
           "or shorter in time depending on the sampling interval (which is "
           "a NR capability only, not applicable to LTE). time_offset = time"
           "Offset * tsample",
-          HFILL}},
+          HFILL}
+        },
 
         /* Section 5.4.4.13 */
         { &hf_oran_frameStructure_fft,
@@ -1153,7 +1170,8 @@ proto_register_oran(void)
           "TS38.211 section 4.1) and \u03bc as defined inTable 16. (\"NA\" for \u03bc "
           "shall be replaced by \"0\" in the following:) CP_length = cpLength "
           "* Ts  * 2-\u03bc",
-          HFILL}},
+          HFILL}
+        },
 
         /* Section 5.4.5.1 */
         {&hf_oran_section_id,
@@ -1172,7 +1190,8 @@ proto_register_oran(void)
           "elements.  NOTE: In case of two sections with same Section ID "
           "are combined, both sections shall have same rb, startPrbc, numPrbc "
           "and numSymbol IE fields' content.",
-          HFILL}},
+          HFILL}
+        },
 
         /* Section 5.4.5.2 */
         {&hf_oran_rb,
@@ -1183,7 +1202,8 @@ proto_register_oran(void)
           "other RB is used. The starting RB is defined by startPrbc and "
           "total number of used RBs is defined by numPrbc.  Example: RB=1, "
           "startPrb=1, numPrb=3, then the PRBs used are 1, 3, and 5.",
-          HFILL}},
+          HFILL}
+        },
 
         /* Section 5.4.5.3 */
         {&hf_oran_symInc,
@@ -1200,7 +1220,8 @@ proto_register_oran(void)
           "section until the symInc bit is again detected to be one. "
           "In this manner, multiple symbols may be handled by a single C-Plane "
           "message.",
-          HFILL}},
+          HFILL}
+        },
 
         /* Section 5.4.5.4 */
         {&hf_oran_startPrbc,
@@ -1211,7 +1232,8 @@ proto_register_oran(void)
           "C-Plane message, there may be multiple U-Plane messages associated "
           "with it and requiring defining from which PRB the control "
           "commands are applicable.",
-          HFILL}},
+          HFILL}
+        },
 
         /* Section 5.4.5.5 */
         {&hf_oran_reMask,
@@ -1222,7 +1244,8 @@ proto_register_oran(void)
           "PRB. Each bit setting in the reMask indicates if the section control "
           "is applicable to the RE sent in U-Plane messages (0=not applicable; "
           "1=applicable).",
-          HFILL}},
+          HFILL}
+        },
 
         /* Section 5.4.5.6 */
         {&hf_oran_numPrbc,
@@ -1230,7 +1253,8 @@ proto_register_oran(void)
           FT_UINT8, BASE_DEC,
           NULL, 0x0,
           "This parameter defines the PRBs where the control section is valid.",
-          HFILL}},
+          HFILL}
+        },
 
         /* Section 5.4.5.7 */
         {&hf_oran_numSymbol,
@@ -1242,7 +1266,8 @@ proto_register_oran(void)
           "applicable to at least one symbol. However, possible optimizations "
           "could allow for several (up to 14) symbols, if e.g., all 14 "
           "symbols use the same beam ID.",
-          HFILL}},
+          HFILL}
+        },
 
         /* Section 5.4.5.8 */
         {&hf_oran_ef,
@@ -1252,7 +1277,8 @@ proto_register_oran(void)
           "This parameter is used to indicate if this section will contain "
           "both beamforming index and any extension information (ef=1) or "
           "just a beamforming index ewf=0)",
-          HFILL}},
+          HFILL}
+        },
 
         /* Section 5.4.5.9 */
         {&hf_oran_beamId,
@@ -1269,7 +1295,8 @@ proto_register_oran(void)
           "to e.g. weight table, directionality, beam adjacency or any other "
           "beam attributes is specific to the RU design and must be conveyed "
           "via M-Plane from the RU to lls-CU upon startup.",
-          HFILL}},
+          HFILL}
+        },
 
         /* Section 5.4.7 */
         {&hf_oran_extension,
@@ -1277,7 +1304,8 @@ proto_register_oran(void)
           FT_STRING, BASE_NONE,
           NULL, 0x0,
           NULL,
-          HFILL}},
+          HFILL}
+        },
 
         /* Section 5.4.7 */
         {&hf_oran_exttype,
@@ -1285,7 +1313,8 @@ proto_register_oran(void)
           FT_UINT8, BASE_DEC,
           VALS(exttype_vals), 0x7f,
           NULL,
-          HFILL}},
+          HFILL}
+        },
 
         /* Section 5.4.7 */
         {&hf_oran_extlen,
@@ -1293,7 +1322,8 @@ proto_register_oran(void)
          FT_UINT8, BASE_DEC,
          NULL, 0x0,
          "Extension length in 32-bit words",
-         HFILL}},
+         HFILL}
+        },
 
         /* Section 5.4.7.1 */
         {&hf_oran_bfw,
@@ -1301,7 +1331,8 @@ proto_register_oran(void)
          FT_STRING, BASE_NONE,
          NULL, 0x0,
          "Set of weights for a particular antenna",
-         HFILL}},
+         HFILL}
+        },
 
         /* Section 5.4.7.1.3 */
         {&hf_oran_bfw_i,
@@ -1312,7 +1343,8 @@ proto_register_oran(void)
          "number of weights in the section is RU-specific and is conveyed "
          "from the RU to the lls-CU as part of the initialization procedure "
          "via the M-Plane.",
-         HFILL}},
+         HFILL}
+        },
 
         /* Section 5.4.7.1.4 */
         {&hf_oran_bfw_q,
@@ -1323,7 +1355,8 @@ proto_register_oran(void)
          "total number of weights in the section is RU-specific and is "
          "conveyed from the RU to the lls-CU as part of the initialization "
          "procedure via the M-Plane.",
-         HFILL}},
+         HFILL}
+        },
 
         /* Section 5.4.5.10 */
         {&hf_oran_ueId,
@@ -1335,7 +1368,8 @@ proto_register_oran(void)
           "sending from the lls-CU to the RU.  This is just a label and the "
           "specific value has no meaning regarding types of UEs that may be "
           "supported within the system.",
-          HFILL}},
+          HFILL}
+        },
 
         /* Section 5.4.5.11 */
         {&hf_oran_freqOffset,
@@ -1350,7 +1384,8 @@ proto_register_oran(void)
           "whether this IEs should be individual per control section to allow "
           "scheduling of several simultaneous PRACH opportunities with "
           "different individual frequency offsets",
-          HFILL}},
+          HFILL}
+        },
 
         /* Section 5.4.5.12 */
         {&hf_oran_regularizationFactor,
@@ -1360,7 +1395,8 @@ proto_register_oran(void)
           "This parameter provides a signed value to support MMSE operation "
           "within the RU when beamforming weights are supported in the RU, "
           "so related to section type 6.",
-          HFILL}},
+          HFILL}
+        },
 
         /* Section 5.4.5.14 */
         {&hf_oran_laaMsgType,
@@ -1372,7 +1408,8 @@ proto_register_oran(void)
           "applicable to at least one symbol. However, possible optimizations "
           "could allow for several (up to 14) symbols, if e.g., all 14 "
           "symbols use the same beam ID.",
-          HFILL}},
+          HFILL}
+        },
 
         /* Section 5.4.5.15 */
         {&hf_oran_laaMsgLen,
@@ -1382,7 +1419,8 @@ proto_register_oran(void)
           "This parameter defines number of 32-bit words in the LAA section, "
           "where \"0\" means one 32-bit word, \"1\" means 2 32-bit words, etc. "
           "- including the byte containing the lssMsgLen parameter.",
-          HFILL}},
+          HFILL}
+        },
 
         /* Section 5.4.5.16 */
         {&hf_oran_lbtHandle,
@@ -1393,7 +1431,8 @@ proto_register_oran(void)
           "request message (e.g., LBT_PDSCH_REQ, LBT_DRS_REQ) transmitted "
           "from the lls-CU to the RU and returned in the corresponding "
           "response message (e.g., LBT_PDSCH_RSP, LBT_DRS_RSP).",
-          HFILL}},
+          HFILL}
+         },
 
         /* Section 5.4.5.17 */
         {&hf_oran_lbtDeferFactor,
@@ -1404,7 +1443,8 @@ proto_register_oran(void)
           "Section 15.1.1. This parameter is used for LBT CAT 4 and can take "
           "one of three values: {1,3, 7} based on the priority class. Four "
           "priority classes are defined in 3GPP TS 36.213.",
-          HFILL}},
+          HFILL}
+        },
 
         /* Section 5.4.5.18 */
         {&hf_oran_lbtBackoffCounter,
@@ -1416,7 +1456,8 @@ proto_register_oran(void)
           "take one of nine values: {3, 7, 15, 31, 63, 127, 255, 511, 1023} "
           "based on the priority class. Four priority classes are defined "
           "in 3GPP TS 36.213.",
-          HFILL}},
+          HFILL}
+        },
 
         /* Section 5.4.5.19 */
         {&hf_oran_lbtOffset,
@@ -1425,7 +1466,8 @@ proto_register_oran(void)
           NULL, 0xff80,
           "LBT start time in microseconds from the beginning of the subframe "
           "scheduled by this message",
-          HFILL}},
+          HFILL}
+        },
 
         /* Section 5.4.5.20 */
         {&hf_oran_MCOT,
@@ -1436,7 +1478,8 @@ proto_register_oran(void)
           "Section 15.1.1. The maximum values for this parameter are {2, 3, 8, "
           "10} based on the priority class. Four priority classes are "
           "defined in 3GPP TS 36.213.",
-          HFILL}},
+          HFILL}
+        },
 
         /* Section 5.4.5.21 */
         {&hf_oran_txopSfnSfEnd,
@@ -1444,7 +1487,8 @@ proto_register_oran(void)
           FT_UINT16, BASE_DEC,
           NULL, 0x0fff,
           "SFN/SF by which the TXOP must end",
-          HFILL}},
+          HFILL}
+        },
 
         /* Section 5.4.5.22 */
         {&hf_oran_lbtMode,
@@ -1456,7 +1500,8 @@ proto_register_oran(void)
           "B according to 3GPP TS 36.213 Section 15.1.5.2). 0 - full LBT "
           "(regular LBT). 1 - Partial LBT (looking back 25usec prior to "
           "transmission as indicated in 3GPP TS 36.213 section 15.1.5.2)",
-          HFILL}},
+          HFILL}
+        },
 
         /* Section 5.4.5.23 */
         {&hf_oran_sfnSfEnd,
@@ -1464,7 +1509,8 @@ proto_register_oran(void)
           FT_UINT16, BASE_DEC,
           NULL, 0x0fff,
           "SFN/SF by which the DRS window must end",
-          HFILL}},
+          HFILL}
+        },
 
         /* Section 5.4.5.24 */
         {&hf_oran_lbtResult,
@@ -1474,7 +1520,8 @@ proto_register_oran(void)
           "LBT result of SFN/SF. 0 - SUCCESS - indicates that the channel was "
           "successfully acquired. 1 - FAILURE - indicates failure to "
           "acquire the channel by the end of SFN/SF",
-          HFILL}},
+          HFILL}
+        },
 
         /* Section 5.4.5.25 */
         {&hf_oran_lteTxopSymbols,
@@ -1482,7 +1529,8 @@ proto_register_oran(void)
           FT_UINT16, BASE_DEC,
           NULL, 0x3fff,
           "Actual LTE TXOP in symbols. Valid when LBT result = SUCCESS.",
-          HFILL}},
+          HFILL}
+        },
 
         /* Section 5.4.5.26 */
         {&hf_oran_initialPartialSF,
@@ -1492,7 +1540,8 @@ proto_register_oran(void)
           "Indicates whether the initial SF in the LBT process is full or "
           "partial. 0 - full SF (two slots, 14 symbols). 1 - partial SF (only "
           "second slot, last 7 symbols)",
-          HFILL}},
+          HFILL}
+        },
 
         /* Section 5.4.5.27 */
         {&hf_oran_reserved,
@@ -1501,7 +1550,8 @@ proto_register_oran(void)
           NULL, 0x7fff,
           "This parameter is reserved for future use. Transmitter shall send "
           "value \"0\", while receiver shall ignore the value received.",
-          HFILL}},
+          HFILL}
+        },
 
         /* Section 5.4.7.1.1 */
         {&hf_oran_bfwCompHdr_iqWidth,
@@ -1514,7 +1564,8 @@ proto_register_oran(void)
           "compression method. Note that for the block compression methods, "
           "the block size is the entire vector of beamforming weights, not "
           "some subset of them.",
-          HFILL}},
+          HFILL}
+        },
 
         /* Section 5.4.7.1.1 */
         {&hf_oran_bfwCompHdr_compMeth,
@@ -1527,25 +1578,28 @@ proto_register_oran(void)
           "compression method. Note that for the block compression methods, "
           "the block size is the entire vector of beamforming weights, "
           "not some subset of them.",
-          HFILL}},
+          HFILL}
+        },
 
         {&hf_oran_num_bf_weights,
          {"Number of BF weights", "oran_fh_cus.num_bf_weights",
           FT_UINT16, BASE_DEC,
           NULL, 0x0,
           "This is the number of BF weights per antenna - currently set in a preference",
-          HFILL}},
+          HFILL}
+        },
 
 
 #if 0
     /* FIXME  Section 5.4.7.1.2 */
     { &hf_oran_bfwCompParam.
-    { "beamforming weight compression parameter", "oran_fh_cus.bfwCompParam",
+     { "beamforming weight compression parameter", "oran_fh_cus.bfwCompParam",
         various, | BASE_RANGE_STRING,
         RVALS(bfw_comp_parms), 0x0,
         "This parameter applies to the compression method specified by th"
         "e associated sectionID's bfwCompMeth value.",
-        HFILL } },
+        HFILL }
+    },
 #endif
 
         /* Section 6.3.3.7 */
@@ -1554,7 +1608,8 @@ proto_register_oran(void)
           FT_UINT8, BASE_HEX,
           NULL, 0x3f,
           "This parameter identifies a symbol number within a slot",
-          HFILL}},
+          HFILL}
+        },
 
         /* Section 6.3.3.11 */
         {&hf_oran_startPrbu,
@@ -1565,7 +1620,8 @@ proto_register_oran(void)
           "one C-Plane message, there may be multiple U-Plane messages "
           "associated with it and requiring defining from which PRB the contained "
           "IQ data are applicable.",
-          HFILL}},
+          HFILL}
+        },
 
         /* Section 6.3.3.12 */
         {&hf_oran_numPrbu,
@@ -1574,7 +1630,8 @@ proto_register_oran(void)
           NULL, 0x0,
           "This parameter defines the PRBs where the user plane section is "
           "valid.",
-          HFILL}},
+          HFILL}
+        },
 
         /* Section 6.3.3.13 */
         {&hf_oran_udCompHdrMeth,
@@ -1583,7 +1640,8 @@ proto_register_oran(void)
           RVALS(ud_comp_header_meth), 0x0f,
           "This parameter defines the compression method for "
           "the user data in every section in the C-Plane message.",
-          HFILL}},
+          HFILL}
+         },
 
         /* Section 6.3.3.13 */
         {&hf_oran_udCompHdrIqWidth,
@@ -1592,7 +1650,8 @@ proto_register_oran(void)
           RVALS(ud_comp_header_width), 0xf0,
           "This parameter defines the IQ bit width "
           "for the user data in every section in the C-Plane message.",
-          HFILL}},
+          HFILL}
+        },
 
 #if 0
         /* Section 6.3.3.14 */
@@ -1602,7 +1661,8 @@ proto_register_oran(void)
           RVALS(udCompParams), 0x0,
           "This parameter applies to whatever compression method is specified "
           "by the associated sectionID's compMeth value.",
-          HFILL}},
+          HFILL}
+        },
 #endif
 
         /* Section 6.3.3.15 */
@@ -1610,34 +1670,37 @@ proto_register_oran(void)
          {"In-phase Sample", "oran_fh_cus.iSample",
           FT_UINT16, BASE_DEC,
           NULL, 0x0,
-          "This parameter is the In-phase sample value",
-          HFILL}},
+          "This parameter is the In-phase sample value", HFILL}
+        },
 
         /* Section 6.3.3.16 */
         {&hf_oran_qSample,
          {"Quadrature Sample", "oran_fh_cus.qSample",
           FT_UINT16, BASE_DEC,
           NULL, 0x0,
-          "This parameter is the Quadrature sample value.",
-          HFILL}},
+          "This parameter is the Quadrature sample value.", HFILL}
+        },
 
         { &hf_oran_rsvd4,
           { "Reserved", "oran_fh_cus.reserved4",
             FT_UINT8, BASE_DEC,
             NULL, 0xf0,
-            "Reserved for future use", HFILL } },
+            "Reserved for future use", HFILL }
+        },
 
         { &hf_oran_rsvd8,
           { "Reserved", "oran_fh_cus.reserved8",
             FT_UINT8, BASE_DEC,
             NULL, 0x00,
-            "Reserved for future use", HFILL } },
+            "Reserved for future use", HFILL }
+        },
 
         { &hf_oran_rsvd16,
           { "Reserved", "oran_fh_cus.reserved16",
             FT_UINT16, BASE_DEC,
             NULL, 0x00,
-            "Reserved for future use", HFILL } },
+            "Reserved for future use", HFILL }
+        },
 
         { &hf_oran_exponent,
           { "Exponent", "oran_fh_cus.exponent",
@@ -1647,7 +1710,8 @@ proto_register_oran(void)
             "NOTE : Exponent is used for all mantissa sample sizes(i.e. 6bit "
             "- 16bit). Likewise, a native \"uncompressed\" format is not supported "
             "within this specification.",
-            HFILL } },
+            HFILL }
+        },
 
         { &hf_oran_iq_user_data,
           { "IQ User Data", "oran_fh_cus.iq_user_data",
@@ -1656,14 +1720,14 @@ proto_register_oran(void)
             "This parameter is used for the In-phase and Quadrature sample "
             "mantissa. Twelve I/Q Samples are included per resource block. The width "
             "of the mantissa can be between 6 and 16 bits",
-            HFILL } },
+            HFILL }
+        },
 
         { &hf_oran_c_eAxC_ID,
           { "c_eAxC_ID", "oran_fh_cus.c_eaxc_id",
             FT_STRING, STR_ASCII,
             NULL, 0x0,
-            "This is a calculated field for the c_eAxC ID, which identifies the "
-            "message stream",
+            "This is a calculated field for the c_eAxC ID, which identifies the message stream",
             HFILL } },
 
         { &hf_oran_refa,
@@ -1672,7 +1736,8 @@ proto_register_oran(void)
             NULL, 0x0,
             "This is a calculated field for the RefA ID, which provides a "
             "reference in time.",
-            HFILL } }
+            HFILL }
+        }
     };
 
     /* Setup protocol subtree array */
