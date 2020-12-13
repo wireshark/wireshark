@@ -1381,22 +1381,24 @@ uninstall_snappy() {
         cd snappy-$installed_snappy_version
         #
         # snappy uses cmake and doesn't support "make uninstall" or
-        # "make distclean"
+        # "make distclean".  For "make uninstall, we just remove
+        # what we know it installs; for "make disclean", we just
+        # remove the entire build directory.
         #
         # $DO_MAKE_UNINSTALL || exit 1
         # make distclean || exit 1
-        cd build_dir
-        make clean || exit 1
-        cd ..
-        sudo rm -f /usr/local/lib/libsnappy.a \
-                   /usr/local/include/snappy-c.h \
-                   /usr/local/include/snappy-sinksource.h \
-                   /usr/local/include/snappy.h \
-                   /usr/local/include/snappy-stubs-public.h \
-                   /usr/local/lib/cmake/Snappy/SnappyTargets.cmake \
-                   /usr/local/lib/cmake/Snappy/SnappyTargets-noconfig.cmake \
-                   /usr/local/lib/cmake/Snappy/SnappyConfig.cmake \
-                   /usr/local/lib/cmake/Snappy/SnappyConfigVersion.cmake
+        rm -rf build_dir || exit 1
+        $DO_RM -f /usr/local/lib/libsnappy.1.1.8.dylib \
+                  /usr/local/lib/libsnappy.1.dylib \
+                  /usr/local/lib/libsnappy.dylib \
+                  /usr/local/include/snappy-c.h \
+                  /usr/local/include/snappy-sinksource.h \
+                  /usr/local/include/snappy-stubs-public.h \
+                  /usr/local/include/snappy.h \
+                  /usr/local/lib/cmake/Snappy/SnappyConfig.cmake \
+                  /usr/local/lib/cmake/Snappy/SnappyConfigVersion.cmake \
+                  /usr/local/lib/cmake/Snappy/SnappyTargets-noconfig.cmake \
+                  /usr/local/lib/cmake/Snappy/SnappyTargets.cmake || exit 1
         cd ..
         rm snappy-$installed_snappy_version-done
 
@@ -2850,8 +2852,9 @@ uninstall_all() {
 # (If that's not the case, this test needs to check the subdirectories
 # as well.)
 #
-# If not, do "make install", "make uninstall", the removes for Lua,
-# and the renames of [g]libtool* with sudo.
+# If not, do "make install", "make uninstall", the removes for
+# dependencies that don't support "make uninstall", and the renames
+# of [g]libtool* with sudo.
 #
 if [ -w /usr/local ]
 then
