@@ -3910,6 +3910,7 @@ pscl-mgt	4312/tcp	# Parascale Membership Manager
 perrla		4313/tcp	# PERRLA User Services
 choiceview-agt	4314/tcp	# ChoiceView Agent
 choiceview-clt	4316/tcp	# ChoiceView Client
+opentelemetry	4317/tcp	# OpenTelemetry Protocol
 fdt-rcatp	4320/tcp/udp	# FDT Remote Categorization Protocol
 rwhois		4321/tcp/udp	# Remote Who Is
 trim-event	4322/tcp/udp	# TRIM Event Service

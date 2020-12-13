@@ -1,4 +1,4 @@
-Wireshark 3.4.1 Release Notes
+Wireshark 3.4.2 Release Notes
 
  What is Wireshark?
 
@@ -9,54 +9,9 @@ Wireshark 3.4.1 Release Notes
 
   Bug Fixes
 
-     • wnpa-sec-2020-16[1] Kafka dissector memory leak. Bug 16739[2].
-       CVE-2020-26418[3].
-
-     • wnpa-sec-2020-17[4] USB HID dissector crash. Bug 16958[5].
-       CVE-2020-26421[6].
-
-     • wnpa-sec-2020-18[7] RTPS dissector memory leak. Bug 16994[8].
-       CVE-2020-26420[9].
-
-     • wnpa-sec-2020-19[10] Multiple dissector memory leak. Bug
-       17032[11]. CVE-2020-26419[12].
-
    The following bugs have been fixed:
 
   New and Updated Features
-
-     • IETF QUIC TLS decryption errors when a NAT rebinding happens for
-       a connection Bug 16915[13].
-
-     • IETF QUIC TLS decryption error with key update Bug 16916[14].
-
-     • IETF QUIC TLS decryption error after the second key update Bug
-       16920[15].
-
-     • SOME/IP: Wrong dissection of parameters after Array Bug
-       16951[16].
-
-     • Can editcap properly corrupt pcapng file with systemd journal
-       export block? Bug 16965[17].
-
-     • Crash when a GIOP ior.txt file is present Bug 16984[18].
-
-     • Protobuf: failed to parse .proto file contains negative enum
-       values or option values of number type Bug 16988[19].
-
-     • MMRP dissector bug Bug 17005[20].
-
-     • QUIC: "Loss bits" capability Bug 17010[21].
-
-     • Stdin capture fails on Windows Bug 17018[22].
-
-     • SSTP no longer recognized Bug 17024[23].
-
-     • RFC2190 encapsulated H.263 bitfields masked wrong in Mode A Bug
-       17025[24].
-
-     • editcap fails when splitting into multiple pcapng files Bug
-       17060[25].
 
   New Protocol Support
 
@@ -64,14 +19,9 @@ Wireshark 3.4.1 Release Notes
 
   Updated Protocol Support
 
-   ACDR, DOCSIS, Ericsson HDLC, F5 Ethernet Trailer, GIOP, GSM A, GSM
-   RLC MAC, HTTP, IEEE 802.11, Kafka, LLC, MBIM, MMRP, NAS 5GS, NAS EPS,
-   Nordic BLE, ProtoBuf, QUIC, Radiotap, RFC 2190, RTCP, RTPS, S1AP,
-   SOME/IP, STUN, and USB Video
-
   New and Updated Capture File Support
 
-   pcapng
+   There is no new or updated capture file support in this release.
 
  Getting Wireshark
 
@@ -83,7 +33,7 @@ Wireshark 3.4.1 Release Notes
    Most Linux and Unix vendors supply their own Wireshark packages. You
    can usually install or upgrade Wireshark using the package management
    system specific to that platform. A list of third-party packages can
-   be found on the download page[26] on the Wireshark web site.
+   be found on the download page[1] on the Wireshark web site.
 
  File Locations
 
@@ -97,47 +47,22 @@ Wireshark 3.4.1 Release Notes
   The User’s Guide, manual pages and various other documentation can be
   found at https://www.wireshark.org/docs/
 
-  Community support is available on Wireshark’sQ&A site[27] and on the
+  Community support is available on Wireshark’sQ&A site[2] and on the
   wireshark-users mailing list. Subscription information and archives
-  for all of Wireshark’s mailing lists can be found on the web site[28].
+  for all of Wireshark’s mailing lists can be found on the web site[3].
 
-  Issues and feature requests can be reported on the issue tracker[29].
+  Issues and feature requests can be reported on the issue tracker[4].
 
  Frequently Asked Questions
 
-  A complete FAQ is available on the Wireshark web site[30].
+  A complete FAQ is available on the Wireshark web site[5].
 
-  Last updated 2020-12-09 19:54:07 UTC
+  Last updated 2020-12-13 09:16:33 UTC
 
  References
 
-   1. https://www.wireshark.org/security/wnpa-sec-2020-16
-   2. https://gitlab.com/wireshark/wireshark/-/issues/16739
-   3. https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-26418
-   4. https://www.wireshark.org/security/wnpa-sec-2020-17
-   5. https://gitlab.com/wireshark/wireshark/-/issues/16958
-   6. https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-26421
-   7. https://www.wireshark.org/security/wnpa-sec-2020-18
-   8. https://gitlab.com/wireshark/wireshark/-/issues/16994
-   9. https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-26420
-  10. https://www.wireshark.org/security/wnpa-sec-2020-19
-  11. https://gitlab.com/wireshark/wireshark/-/issues/17032
-  12. https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2020-26419
-  13. https://gitlab.com/wireshark/wireshark/-/issues/16915
-  14. https://gitlab.com/wireshark/wireshark/-/issues/16916
-  15. https://gitlab.com/wireshark/wireshark/-/issues/16920
-  16. https://gitlab.com/wireshark/wireshark/-/issues/16951
-  17. https://gitlab.com/wireshark/wireshark/-/issues/16965
-  18. https://gitlab.com/wireshark/wireshark/-/issues/16984
-  19. https://gitlab.com/wireshark/wireshark/-/issues/16988
-  20. https://gitlab.com/wireshark/wireshark/-/issues/17005
-  21. https://gitlab.com/wireshark/wireshark/-/issues/17010
-  22. https://gitlab.com/wireshark/wireshark/-/issues/17018
-  23. https://gitlab.com/wireshark/wireshark/-/issues/17024
-  24. https://gitlab.com/wireshark/wireshark/-/issues/17025
-  25. https://gitlab.com/wireshark/wireshark/-/issues/17060
-  26. https://www.wireshark.org/download.html#thirdparty
-  27. https://ask.wireshark.org/
-  28. https://www.wireshark.org/lists/
-  29. https://gitlab.com/wireshark/wireshark/-/issues
-  30. https://www.wireshark.org/faq.html
+   1. https://www.wireshark.org/download.html#thirdparty
+   2. https://ask.wireshark.org/
+   3. https://www.wireshark.org/lists/
+   4. https://gitlab.com/wireshark/wireshark/-/issues
+   5. https://www.wireshark.org/faq.html
