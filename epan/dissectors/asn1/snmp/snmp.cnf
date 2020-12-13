@@ -201,8 +201,7 @@ BulkPDU/request-id bulkPDU_request-id
 #.FN_FTR SNMPv3Message
 
 	if( usm_p.authenticated
-		&& usm_p.user_assoc
-		&& usm_p.user_assoc->user.authModel ) {
+		&& usm_p.user_assoc ) {
 		const gchar* error = NULL;
 		proto_item* authen_item;
 		proto_tree* authen_tree = proto_item_add_subtree(usm_p.auth_item,ett_authParameters);
