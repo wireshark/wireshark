@@ -42,6 +42,10 @@
     - export MAKEFLAGS=--silent
     - mkdir build
     - cd build
+  after_script:
+    # The cache should be large enough to be useful but it shouldn't take
+    # too long to restore+save each run.
+    - ccache --max-size $( du --summarize --block-size=1M "$CI_PROJECT_DIR/build" | awk '{printf ("%dM", $1 * 1.5)}' )
   script:
     # setcap restricts our library paths
     - CFLAGS=-Wl,-rpath=$(pwd)/run CXXFLAGS=-Wl,-rpath=$(pwd)/run cmake -GNinja $CMAKE_ARGS ..
@@ -258,6 +262,10 @@ merge-req:ubuntu-dpkg:
     - cd ..
     - CC=/usr/lib/ccache/gcc CXX=/usr/lib/ccache/g++ dpkg-buildpackage -us -uc -rfakeroot -jauto -Zgzip -zfast
     - lintian --suppress-tags library-not-linked-against-libc,copyright-excludes-files-in-native-package --display-experimental --display-info --pedantic --profile debian
+  after_script:
+    # dpkg-buildpackage builds in obj-<triplet>, so we need to override
+    # .build-ubuntu.
+    - ccache --max-size $( du --summarize --block-size=1M --total "$CI_PROJECT_DIR"/obj-* | awk '/total$/ {printf ("%dM", $1 * 1.5)}' )
 
 merge-req:ubuntu-gcc-ctest:
   <<: *build-ubuntu
