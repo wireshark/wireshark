@@ -167,6 +167,7 @@ $CleanupItems = @(
     "libgcrypt-*-win??ws"
     "libilbc-2.0.2-3-win??ws"
     "libmaxminddb-1.4.3-1-win??ws"
+    "libpcap-1.9.1-1-win??ws"
     "libsmi-0.4.8"
     "libsmi-svn-40773-win??ws"
     "libssh-0.*-win??ws"
