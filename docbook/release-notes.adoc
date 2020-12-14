@@ -31,6 +31,9 @@ See the “New and Updated Features” section below for more details.
 
 The following features are new (or have been significantly updated) since version 3.4.0:
 
+* The Windows installers now ship with Npcap 1.10.
+They previously shipped with Npcap 1.00.
+
 * TCP conversations now support a completeness criteria, which facilitates the identification of TCP streams having any
   of opening or closing handshakes, a payload, in any combination. It is accessed with the new tcp.completeness filter.
 
