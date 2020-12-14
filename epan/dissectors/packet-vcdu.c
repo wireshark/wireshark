@@ -568,7 +568,7 @@ proto_register_vcdu(void)
         },
         { &hf_vcdu_seq,
           { "Sequence Count",           "vcdu.seq",
-            FT_UINT16, BASE_DEC, NULL, 0xffffff,
+            FT_UINT24, BASE_DEC, NULL, 0xffffff,
             "VCDU Sequence Count", HFILL }
         },
         { &hf_vcdu_replay,
