@@ -5207,11 +5207,12 @@ netlib_check_login_pkt(tvbuff_t *tvb, guint offset, packet_info *pinfo, guint8 t
     return TRUE;
 }
 
-static int
+static gboolean
 dissect_tds_prelogin_response(tvbuff_t *tvb, guint offset, proto_tree *tree, tds_conv_info_t *tds_info)
 {
     guint8 token = 0;
-    gint tokenoffset, tokenlen, cur = offset, valid = 0;
+    gint tokenoffset, tokenlen, cur = offset;
+    gboolean valid = FALSE;
 
     /*
      * Test for prelogin format compliance
@@ -5228,30 +5229,30 @@ dissect_tds_prelogin_response(tvbuff_t *tvb, guint offset, proto_tree *tree, tds
             break;
 
         if(token <= TDS7_PRELOGIN_OPTION_NONCEOPT) {
-            valid = 1;
+            valid = TRUE;
         }
         else {
-            valid = 0;
+            valid = FALSE;
             break;
         }
 
        tokenoffset = tvb_get_ntohs(tvb, cur);
        if(tokenoffset > tvb_reported_length_remaining(tvb, 0)) {
-           valid = 0;
+           valid = FALSE;
            break;
        }
        cur += 2;
 
        tokenlen = tvb_get_ntohs(tvb, cur);
        if(tokenlen > tvb_reported_length_remaining(tvb, 0)) {
-           valid = 0;
+           valid = FALSE;
            break;
        }
        cur += 2;
     }
 
     if(token != TDS7_PRELOGIN_OPTION_TERMINATOR) {
-        valid = 0;
+        valid = FALSE;
     }
 
 
@@ -6593,7 +6594,7 @@ dissect_tds_resp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, tds_conv_i
     (void) memset(&nl_data, '\0', sizeof nl_data);
 
     /* Test for pre-login response in case this response is not a token stream */
-    if(dissect_tds_prelogin_response(tvb, pos, tree, tds_info) == 1)
+    if(dissect_tds_prelogin_response(tvb, pos, tree, tds_info) == TRUE)
     {
         return;
     }
