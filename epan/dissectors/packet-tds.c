@@ -8037,7 +8037,7 @@ proto_register_tds(void)
         },
         { &hf_tds_colmetadata_results_token_flags,
           { "Flags", "tds.colmetadata.results_token_flags",
-            FT_UINT16, BASE_DEC, NULL, 0x0,
+            FT_UINT16, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_tds_colmetadata_results_token_type,
