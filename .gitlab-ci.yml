@@ -272,7 +272,7 @@ merge-req:ubuntu-gcc-ctest:
     - ninja
     - ninja test-programs
     - chown -R user .
-    - su user -c "ctest --parallel 3 --force-new-ctest-process --verbose"
+    - su user -c "ctest --parallel $(getconf _NPROCESSORS_ONLN) --force-new-ctest-process --verbose"
 
 merge-req:ubuntu-clang-other-tests:
   extends: clang-10
