@@ -2419,10 +2419,8 @@ quic_update_key(guint32 version, int hash_algo, quic_pp_state_t *pp_state)
  * the packet protection cipher. The application layer protocol is also queried.
  */
 static quic_hp_cipher *
-quic_get_1rtt_hp_cipher(packet_info *pinfo, quic_info_data_t *quic_info, gboolean from_server)
+quic_get_1rtt_hp_cipher(packet_info *pinfo, quic_info_data_t *quic_info, gboolean from_server, const char **error)
 {
-    const char *error = NULL;
-
     /* Keys were previously not available. */
     if (quic_info->skip_decryption) {
         return NULL;
@@ -2444,6 +2442,7 @@ quic_get_1rtt_hp_cipher(packet_info *pinfo, quic_info_data_t *quic_info, gboolea
             // Hello are somehow misdetected as Short Packet, then this
             // optimization should probably be removed.
             quic_info->skip_decryption = TRUE;
+            *error = "Missing TLS handshake or unsupported ciphers";
             return NULL;
         }
 
@@ -2451,18 +2450,19 @@ quic_get_1rtt_hp_cipher(packet_info *pinfo, quic_info_data_t *quic_info, gboolea
         if (!quic_get_traffic_secret(pinfo, quic_info->hash_algo, client_pp, TRUE) ||
             !quic_get_traffic_secret(pinfo, quic_info->hash_algo, server_pp, FALSE)) {
             quic_info->skip_decryption = TRUE;
+            *error = "Secrets are not available";
             return NULL;
         }
 
         // Create initial cipher handles for Key Phase 0 using the 1-RTT keys.
         if (!quic_hp_cipher_prepare(&client_pp->hp_cipher, quic_info->hash_algo,
-                                    quic_info->cipher_algo, client_pp->next_secret, &error) ||
+                                    quic_info->cipher_algo, client_pp->next_secret, error) ||
             !quic_pp_cipher_prepare(&client_pp->pp_ciphers[0], quic_info->hash_algo,
-                                    quic_info->cipher_algo, quic_info->cipher_mode, client_pp->next_secret, &error) ||
+                                    quic_info->cipher_algo, quic_info->cipher_mode, client_pp->next_secret, error) ||
             !quic_hp_cipher_prepare(&server_pp->hp_cipher, quic_info->hash_algo,
-                                    quic_info->cipher_algo, server_pp->next_secret, &error) ||
+                                    quic_info->cipher_algo, server_pp->next_secret, error) ||
             !quic_pp_cipher_prepare(&server_pp->pp_ciphers[0], quic_info->hash_algo,
-                                    quic_info->cipher_algo, quic_info->cipher_mode, server_pp->next_secret, &error)) {
+                                    quic_info->cipher_algo, quic_info->cipher_mode, server_pp->next_secret, error)) {
             quic_info->skip_decryption = TRUE;
             return NULL;
         }
@@ -3040,11 +3040,15 @@ dissect_quic_short_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tr
     }
 #ifdef HAVE_LIBGCRYPT_AEAD
     if (!PINFO_FD_VISITED(pinfo) && conn) {
+        const gchar *error = NULL;
         guint32 pkn32 = 0;
-        quic_hp_cipher *hp_cipher = quic_get_1rtt_hp_cipher(pinfo, conn, from_server);
+        quic_hp_cipher *hp_cipher = quic_get_1rtt_hp_cipher(pinfo, conn, from_server, &error);
         if (quic_is_hp_cipher_initialized(hp_cipher) && quic_decrypt_header(tvb, 1 + dcid.len, hp_cipher, conn->cipher_algo, &first_byte, &pkn32, loss_bits_negotiated)) {
             quic_set_full_packet_number(conn, quic_packet, from_server, first_byte, pkn32);
             quic_packet->first_byte = first_byte;
+        }
+        if (error) {
+            quic_packet->decryption.error = wmem_strdup(wmem_file_scope(), error);
         }
     } else if (conn && quic_packet->pkn_len) {
         first_byte = quic_packet->first_byte;
@@ -3086,6 +3090,12 @@ dissect_quic_short_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tr
         pp_cipher = quic_get_pp_cipher(key_phase, conn, from_server);
     }
 #endif /* HAVE_LIBGCRYPT_AEAD */
+
+    if (quic_packet->decryption.error) {
+        expert_add_info_format(pinfo, quic_tree, &ei_quic_decryption_failed,
+                               "Failed to create decryption context: %s", quic_packet->decryption.error);
+        return offset;
+    }
     if (!conn || conn->skip_decryption || quic_packet->pkn_len == 0) {
         return offset;
     }
