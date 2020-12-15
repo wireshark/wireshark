@@ -12,7 +12,6 @@
 #include "config.h"
 
 #include <epan/packet.h>
-#include <epan/etypes.h>
 #include <epan/proto_data.h>
 #include "packet-fc.h"
 
