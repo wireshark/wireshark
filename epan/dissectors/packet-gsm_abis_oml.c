@@ -1571,6 +1571,10 @@ dissect_oml_attrs(tvbuff_t *tvb, int base_offs, int length,
 				    offset+1, len_len, len);
 		offset += hlen;
 
+		/* Empty IE => nothing to dissect */
+		if (len == 0)
+			continue;
+
 		sub_tvb = tvb_new_subset_length(tvb, offset, len);
 
 		switch (tag) {
