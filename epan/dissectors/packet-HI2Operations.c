@@ -130,14 +130,14 @@ static int hf_HI2Operations_umtsLocation = -1;    /* UMTSLocation */
 static int hf_HI2Operations_sAI = -1;             /* OCTET_STRING_SIZE_7 */
 static int hf_HI2Operations_oldRAI = -1;          /* OCTET_STRING_SIZE_6 */
 static int hf_HI2Operations_ms_Loc = -1;          /* T_ms_Loc */
-static int hf_HI2Operations_mcc = -1;             /* INTEGER_0_1023 */
-static int hf_HI2Operations_mnc = -1;             /* INTEGER_0_16383 */
-static int hf_HI2Operations_lai = -1;             /* INTEGER_0_65535 */
+static int hf_HI2Operations_ms_Loc_mcc = -1;      /* INTEGER_0_1023 */
+static int hf_HI2Operations_ms_Loc_mnc = -1;      /* INTEGER_0_16383 */
+static int hf_HI2Operations_ms_Loc_lai = -1;      /* INTEGER_0_65535 */
 static int hf_HI2Operations_ci = -1;              /* INTEGER */
 static int hf_HI2Operations_ls_Loc = -1;          /* INTEGER */
 static int hf_HI2Operations_geoCoordinates = -1;  /* T_geoCoordinates */
-static int hf_HI2Operations_latitude = -1;        /* PrintableString_SIZE_7_10 */
-static int hf_HI2Operations_longitude = -1;       /* PrintableString_SIZE_8_11 */
+static int hf_HI2Operations_geoCoordinates_latitude = -1;  /* PrintableString_SIZE_7_10 */
+static int hf_HI2Operations_geoCoordinates_longitude = -1;  /* PrintableString_SIZE_8_11 */
 static int hf_HI2Operations_mapDatum = -1;        /* MapDatum */
 static int hf_HI2Operations_azimuth = -1;         /* INTEGER_0_359 */
 static int hf_HI2Operations_utmCoordinates = -1;  /* T_utmCoordinates */
@@ -150,8 +150,8 @@ static int hf_HI2Operations_point = -1;           /* GA_Point */
 static int hf_HI2Operations_pointWithUnCertainty = -1;  /* GA_PointWithUnCertainty */
 static int hf_HI2Operations_polygon = -1;         /* GA_Polygon */
 static int hf_HI2Operations_latitudeSign = -1;    /* T_latitudeSign */
-static int hf_HI2Operations_latitude_01 = -1;     /* INTEGER_0_8388607 */
-static int hf_HI2Operations_longitude_01 = -1;    /* INTEGER_M8388608_8388607 */
+static int hf_HI2Operations_latitude = -1;        /* INTEGER_0_8388607 */
+static int hf_HI2Operations_longitude = -1;       /* INTEGER_M8388608_8388607 */
 static int hf_HI2Operations_geographicalCoordinates = -1;  /* GeographicalCoordinates */
 static int hf_HI2Operations_uncertaintyCode = -1;  /* INTEGER_0_127 */
 static int hf_HI2Operations_GA_Polygon_item = -1;  /* GA_Polygon_item */
@@ -359,9 +359,9 @@ static int hf_HI2Operations_e164address = -1;     /* NumericString_SIZE_20 */
 static int hf_HI2Operations_tEI = -1;             /* TEIType */
 static int hf_HI2Operations_mSLoc = -1;           /* TETRACGIType */
 static int hf_HI2Operations_lSLoc = -1;           /* TETRAAddressType */
-static int hf_HI2Operations_mcc_01 = -1;          /* MCCType */
-static int hf_HI2Operations_mnc_01 = -1;          /* MNCType */
-static int hf_HI2Operations_lai_01 = -1;          /* LocationAreaType */
+static int hf_HI2Operations_mcc = -1;             /* MCCType */
+static int hf_HI2Operations_mnc = -1;             /* MNCType */
+static int hf_HI2Operations_lai = -1;             /* LocationAreaType */
 static int hf_HI2Operations_cI = -1;              /* CellIdType */
 static int hf_HI2Operations_ssi = -1;             /* SSIType */
 
@@ -547,7 +547,7 @@ dissect_HI2Operations_OCTET_STRING_SIZE_1_5(gboolean implicit_tag _U_, tvbuff_t 
 
 static int
 dissect_HI2Operations_T_e164_Format(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 78 "./asn1/HI2Operations/HI2Operations.cnf"
+#line 85 "./asn1/HI2Operations/HI2Operations.cnf"
   tvbuff_t *parameter_tvb=NULL;
 
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
@@ -891,9 +891,9 @@ dissect_HI2Operations_INTEGER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
 
 static const ber_sequence_t T_ms_Loc_sequence[] = {
-  { &hf_HI2Operations_mcc   , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_HI2Operations_INTEGER_0_1023 },
-  { &hf_HI2Operations_mnc   , BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_HI2Operations_INTEGER_0_16383 },
-  { &hf_HI2Operations_lai   , BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_HI2Operations_INTEGER_0_65535 },
+  { &hf_HI2Operations_ms_Loc_mcc, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_HI2Operations_INTEGER_0_1023 },
+  { &hf_HI2Operations_ms_Loc_mnc, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_HI2Operations_INTEGER_0_16383 },
+  { &hf_HI2Operations_ms_Loc_lai, BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_HI2Operations_INTEGER_0_65535 },
   { &hf_HI2Operations_ci    , BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_INTEGER },
   { NULL, 0, 0, 0, NULL }
 };
@@ -989,8 +989,8 @@ dissect_HI2Operations_INTEGER_0_359(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 
 
 static const ber_sequence_t T_geoCoordinates_sequence[] = {
-  { &hf_HI2Operations_latitude, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_HI2Operations_PrintableString_SIZE_7_10 },
-  { &hf_HI2Operations_longitude, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_HI2Operations_PrintableString_SIZE_8_11 },
+  { &hf_HI2Operations_geoCoordinates_latitude, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_HI2Operations_PrintableString_SIZE_7_10 },
+  { &hf_HI2Operations_geoCoordinates_longitude, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_HI2Operations_PrintableString_SIZE_8_11 },
   { &hf_HI2Operations_mapDatum, BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_MapDatum },
   { &hf_HI2Operations_azimuth, BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_INTEGER_0_359 },
   { NULL, 0, 0, 0, NULL }
@@ -1144,8 +1144,8 @@ dissect_HI2Operations_INTEGER_M8388608_8388607(gboolean implicit_tag _U_, tvbuff
 
 static const ber_sequence_t GeographicalCoordinates_sequence[] = {
   { &hf_HI2Operations_latitudeSign, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_HI2Operations_T_latitudeSign },
-  { &hf_HI2Operations_latitude_01, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_HI2Operations_INTEGER_0_8388607 },
-  { &hf_HI2Operations_longitude_01, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_HI2Operations_INTEGER_M8388608_8388607 },
+  { &hf_HI2Operations_latitude, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_HI2Operations_INTEGER_0_8388607 },
+  { &hf_HI2Operations_longitude, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_HI2Operations_INTEGER_M8388608_8388607 },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -3175,9 +3175,9 @@ dissect_HI2Operations_CellIdType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 
 
 static const ber_sequence_t TETRACGIType_sequence[] = {
-  { &hf_HI2Operations_mcc_01, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_HI2Operations_MCCType },
-  { &hf_HI2Operations_mnc_01, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_HI2Operations_MNCType },
-  { &hf_HI2Operations_lai_01, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_HI2Operations_LocationAreaType },
+  { &hf_HI2Operations_mcc   , BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_HI2Operations_MCCType },
+  { &hf_HI2Operations_mnc   , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_HI2Operations_MNCType },
+  { &hf_HI2Operations_lai   , BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_HI2Operations_LocationAreaType },
   { &hf_HI2Operations_cI    , BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_HI2Operations_CellIdType },
   { NULL, 0, 0, 0, NULL }
 };
@@ -3203,8 +3203,8 @@ dissect_HI2Operations_SSIType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
 
 static const ber_sequence_t TSIType_sequence[] = {
-  { &hf_HI2Operations_mcc_01, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_HI2Operations_MCCType },
-  { &hf_HI2Operations_mnc_01, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_HI2Operations_MNCType },
+  { &hf_HI2Operations_mcc   , BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_HI2Operations_MCCType },
+  { &hf_HI2Operations_mnc   , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_HI2Operations_MNCType },
   { &hf_HI2Operations_ssi   , BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_HI2Operations_SSIType },
   { NULL, 0, 0, 0, NULL }
 };
@@ -3799,7 +3799,7 @@ dissect_HI2Operations_Direction_Indication(gboolean implicit_tag _U_, tvbuff_t *
 
 static int
 dissect_HI2Operations_T_bearer_capability(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 87 "./asn1/HI2Operations/HI2Operations.cnf"
+#line 94 "./asn1/HI2Operations/HI2Operations.cnf"
   tvbuff_t *parameter_tvb;
 
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
@@ -3857,7 +3857,7 @@ static const ber_sequence_t UUS1_Content_sequence[] = {
 
 static int
 dissect_HI2Operations_UUS1_Content(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 34 "./asn1/HI2Operations/HI2Operations.cnf"
+#line 41 "./asn1/HI2Operations/HI2Operations.cnf"
 
 /* Heuristic test to see if it's our content */
     gint8    tmp_class;
@@ -4298,16 +4298,16 @@ void proto_register_HI2Operations(void) {
       { "ms-Loc", "HI2Operations.ms_Loc_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_HI2Operations_mcc,
-      { "mcc", "HI2Operations.mcc",
+    { &hf_HI2Operations_ms_Loc_mcc,
+      { "mcc", "HI2Operations.ms_loc.mcc",
         FT_UINT32, BASE_DEC, NULL, 0,
         "INTEGER_0_1023", HFILL }},
-    { &hf_HI2Operations_mnc,
-      { "mnc", "HI2Operations.mnc",
+    { &hf_HI2Operations_ms_Loc_mnc,
+      { "mnc", "HI2Operations.ms_loc.mnc",
         FT_UINT32, BASE_DEC, NULL, 0,
         "INTEGER_0_16383", HFILL }},
-    { &hf_HI2Operations_lai,
-      { "lai", "HI2Operations.lai",
+    { &hf_HI2Operations_ms_Loc_lai,
+      { "lai", "HI2Operations.ms_loc.lai",
         FT_UINT32, BASE_DEC, NULL, 0,
         "INTEGER_0_65535", HFILL }},
     { &hf_HI2Operations_ci,
@@ -4322,12 +4322,12 @@ void proto_register_HI2Operations(void) {
       { "geoCoordinates", "HI2Operations.geoCoordinates_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_HI2Operations_latitude,
-      { "latitude", "HI2Operations.latitude",
+    { &hf_HI2Operations_geoCoordinates_latitude,
+      { "latitude", "HI2Operations.geoCoordinates.latitude",
         FT_STRING, BASE_NONE, NULL, 0,
         "PrintableString_SIZE_7_10", HFILL }},
-    { &hf_HI2Operations_longitude,
-      { "longitude", "HI2Operations.longitude",
+    { &hf_HI2Operations_geoCoordinates_longitude,
+      { "longitude", "HI2Operations.geoCoordinates.longitude",
         FT_STRING, BASE_NONE, NULL, 0,
         "PrintableString_SIZE_8_11", HFILL }},
     { &hf_HI2Operations_mapDatum,
@@ -4378,11 +4378,11 @@ void proto_register_HI2Operations(void) {
       { "latitudeSign", "HI2Operations.latitudeSign",
         FT_UINT32, BASE_DEC, VALS(HI2Operations_T_latitudeSign_vals), 0,
         NULL, HFILL }},
-    { &hf_HI2Operations_latitude_01,
+    { &hf_HI2Operations_latitude,
       { "latitude", "HI2Operations.latitude",
         FT_UINT32, BASE_DEC, NULL, 0,
         "INTEGER_0_8388607", HFILL }},
-    { &hf_HI2Operations_longitude_01,
+    { &hf_HI2Operations_longitude,
       { "longitude", "HI2Operations.longitude",
         FT_INT32, BASE_DEC, NULL, 0,
         "INTEGER_M8388608_8388607", HFILL }},
@@ -5214,15 +5214,15 @@ void proto_register_HI2Operations(void) {
       { "lSLoc", "HI2Operations.lSLoc",
         FT_UINT32, BASE_DEC, VALS(HI2Operations_TETRAAddressType_vals), 0,
         "TETRAAddressType", HFILL }},
-    { &hf_HI2Operations_mcc_01,
+    { &hf_HI2Operations_mcc,
       { "mcc", "HI2Operations.mcc",
         FT_BYTES, BASE_NONE, NULL, 0,
         "MCCType", HFILL }},
-    { &hf_HI2Operations_mnc_01,
+    { &hf_HI2Operations_mnc,
       { "mnc", "HI2Operations.mnc",
         FT_BYTES, BASE_NONE, NULL, 0,
         "MNCType", HFILL }},
-    { &hf_HI2Operations_lai_01,
+    { &hf_HI2Operations_lai,
       { "lai", "HI2Operations.lai",
         FT_BYTES, BASE_NONE, NULL, 0,
         "LocationAreaType", HFILL }},

@@ -264,7 +264,7 @@ CallInfoFromResourceArg ::= SEQUENCE {
         FailureOutcomeArg ::= SEQUENCE{
             userID UserID,
             bearerCapability BearerCapability,
-            notificationIndicator NotificationIndicator OPTIONAL,
+            notificationIndicator  [111] IMPLICIT NotificationIndicator OPTIONAL,
             ccID                          CcID OPTIONAL,
             legID LegID OPTIONAL,
             bCMType BCMType OPTIONAL,
@@ -409,7 +409,7 @@ CallInfoFromResourceArg ::= SEQUENCE {
             sap Sap OPTIONAL,
             aMASequenceNumber AMASequenceNumber OPTIONAL,
             extensionParameter [84] IMPLICIT ExtensionParameter OPTIONAL,
-            notificationIndicator NotificationIndicator OPTIONAL,
+            notificationIndicator  [111] IMPLICIT NotificationIndicator OPTIONAL,
             prefix Prefix OPTIONAL,
             triggerInformation TriggerInformation OPTIONAL
         }
@@ -427,7 +427,7 @@ CallInfoFromResourceArg ::= SEQUENCE {
         OAnswerArg ::= SEQUENCE{
             userID                        UserID,
             bearerCapability              BearerCapability,
-            notificationIndicator         NotificationIndicator OPTIONAL,
+            notificationIndicator         [111] IMPLICIT NotificationIndicator OPTIONAL,
             amp1                          Amp1 OPTIONAL,
             amp2                          Amp2 OPTIONAL,
             extensionParameter            [84] IMPLICIT ExtensionParameter OPTIONAL
@@ -458,7 +458,7 @@ CallInfoFromResourceArg ::= SEQUENCE {
             amp1                          Amp1 OPTIONAL,
             amp2                          Amp2 OPTIONAL,
             extensionParameter            [84] IMPLICIT ExtensionParameter OPTIONAL,
-            notificationIndicator         NotificationIndicator OPTIONAL
+            notificationIndicator         [111] IMPLICIT NotificationIndicator OPTIONAL
         }
 
         oDisconnect OPERATION ::= {
@@ -484,7 +484,7 @@ CallInfoFromResourceArg ::= SEQUENCE {
         ODisconnectArg ::= SEQUENCE{
             userID                        UserID,
             bearerCapability              BearerCapability,
-            notificationIndicator         NotificationIndicator OPTIONAL,
+            notificationIndicator         [111] IMPLICIT NotificationIndicator OPTIONAL,
             amp1                          Amp1 OPTIONAL,
             amp2                          Amp2 OPTIONAL,
             extensionParameter            [84] IMPLICIT ExtensionParameter OPTIONAL,
@@ -532,7 +532,7 @@ CallInfoFromResourceArg ::= SEQUENCE {
             collectedDigits                CollectedDigits OPTIONAL,
             verticalServiceCode            VerticalServiceCode OPTIONAL,
             aCGEncountered                 ACGEncountered OPTIONAL,
-            notificationIndicator          NotificationIndicator OPTIONAL,
+            notificationIndicator          [111] IMPLICIT NotificationIndicator OPTIONAL,
             amp1                           Amp1 OPTIONAL,
             amp2                           Amp2 OPTIONAL,
             extensionParameter             [84] IMPLICIT ExtensionParameter OPTIONAL
@@ -567,7 +567,7 @@ CallInfoFromResourceArg ::= SEQUENCE {
             redirectingPartyID             RedirectingPartyID OPTIONAL,
             redirectionInformation         RedirectionInformation  OPTIONAL,
             sap                            Sap OPTIONAL,
-            notificationIndicator          NotificationIndicator OPTIONAL,
+            notificationIndicator          [111] IMPLICIT NotificationIndicator OPTIONAL,
             aCGEncountered                 ACGEncountered OPTIONAL,
             amp1                           Amp1 OPTIONAL,
             amp2                           Amp2 OPTIONAL,
@@ -600,7 +600,7 @@ CallInfoFromResourceArg ::= SEQUENCE {
        OSuspendedArg ::= SEQUENCE{
             userID                        UserID,
             bearerCapability              BearerCapability,
-            notificationIndicator         NotificationIndicator OPTIONAL,
+            notificationIndicator         [111] IMPLICIT NotificationIndicator OPTIONAL,
             amp1                          Amp1 OPTIONAL,
             amp2                          Amp2 OPTIONAL,
             extensionParameter            [84] IMPLICIT ExtensionParameter OPTIONAL,
@@ -623,7 +623,7 @@ CallInfoFromResourceArg ::= SEQUENCE {
         OTermSeizedArg ::= SEQUENCE{
             userID                        UserID,
             bearerCapability              BearerCapability,
-            notificationIndicator         NotificationIndicator OPTIONAL,
+            notificationIndicator         [111] IMPLICIT NotificationIndicator OPTIONAL,
             amp1                          Amp1 OPTIONAL,
             amp2                          Amp2 OPTIONAL,
             extensionParameter            [84] IMPLICIT ExtensionParameter OPTIONAL
@@ -659,7 +659,7 @@ CallInfoFromResourceArg ::= SEQUENCE {
             sap                            Sap OPTIONAL,
             aMASequenceNumber              AMASequenceNumber OPTIONAL,
             extensionParameter             [84] IMPLICIT ExtensionParameter OPTIONAL,
-            notificationIndicator          NotificationIndicator OPTIONAL,
+            notificationIndicator          [111] IMPLICIT NotificationIndicator OPTIONAL,
             triggerInformation             TriggerInformation OPTIONAL
         }
 
@@ -719,7 +719,7 @@ CallInfoFromResourceArg ::= SEQUENCE {
         SuccessOutcomeArg ::= SEQUENCE{
             userID                        UserID,
             bearerCapability              BearerCapability,
-            notificationIndicator         NotificationIndicator OPTIONAL,
+            notificationIndicator         [111] IMPLICIT NotificationIndicator OPTIONAL,
             ccID                          CcID OPTIONAL,
             legID                         LegID OPTIONAL,
             bCMType                       BCMType OPTIONAL,
@@ -742,7 +742,7 @@ CallInfoFromResourceArg ::= SEQUENCE {
         TAnswerArg ::= SEQUENCE{
             userID                        UserID,
             bearerCapability              BearerCapability,
-            notificationIndicator         NotificationIndicator OPTIONAL,
+            notificationIndicator         [111] IMPLICIT NotificationIndicator OPTIONAL,
             amp1                          Amp1 OPTIONAL,
             amp2                          Amp2 OPTIONAL,
             extensionParameter            [84] IMPLICIT ExtensionParameter OPTIONAL
@@ -781,7 +781,7 @@ CallInfoFromResourceArg ::= SEQUENCE {
             calledPartyStationType         CalledPartyStationType OPTIONAL,
             sap                            Sap OPTIONAL,
             genericName                    GenericName OPTIONAL,
-            notificationIndicator          NotificationIndicator OPTIONAL,
+            notificationIndicator          [111] IMPLICIT NotificationIndicator OPTIONAL,
             aCGEncountered                 ACGEncountered OPTIONAL,
             amp1                           Amp1 OPTIONAL,
             amp2                           Amp2 OPTIONAL,
@@ -821,7 +821,7 @@ CallInfoFromResourceArg ::= SEQUENCE {
             amp1                          Amp1 OPTIONAL,
             amp2                          Amp2 OPTIONAL,
             extensionParameter            [84] IMPLICIT ExtensionParameter OPTIONAL,
-            notificationIndicator         NotificationIndicator OPTIONAL,
+            notificationIndicator         [111] IMPLICIT NotificationIndicator OPTIONAL,
             aMASequenceNumber             AMASequenceNumber OPTIONAL
         }
 
@@ -848,7 +848,7 @@ CallInfoFromResourceArg ::= SEQUENCE {
             amp1                          Amp1 OPTIONAL,
             amp2                          Amp2 OPTIONAL,
             extensionParameter            [84] IMPLICIT ExtensionParameter OPTIONAL,
-            notificationIndicator         NotificationIndicator OPTIONAL
+            notificationIndicator         [111] IMPLICIT NotificationIndicator OPTIONAL
         }
 
         tMidCall OPERATION ::= {
@@ -890,7 +890,7 @@ CallInfoFromResourceArg ::= SEQUENCE {
             collectedDigits               CollectedDigits OPTIONAL,
             verticalServiceCode           VerticalServiceCode OPTIONAL,
             aCGEncountered                ACGEncountered OPTIONAL,
-            notificationIndicator         NotificationIndicator OPTIONAL,
+            notificationIndicator         [111] IMPLICIT NotificationIndicator OPTIONAL,
             amp1                          Amp1 OPTIONAL,
             amp2                          Amp2 OPTIONAL,
             extensionParameter            [84] IMPLICIT ExtensionParameter OPTIONAL,
@@ -927,7 +927,7 @@ CallInfoFromResourceArg ::= SEQUENCE {
             calledPartyStationType         CalledPartyStationType OPTIONAL,
             sap                            Sap OPTIONAL,
             genericName                    GenericName OPTIONAL,
-            notificationIndicator          NotificationIndicator OPTIONAL,
+            notificationIndicator          [111] IMPLICIT NotificationIndicator OPTIONAL,
             aCGEncountered                 ACGEncountered OPTIONAL,
             amp1                           Amp1 OPTIONAL,
             amp2                           Amp2 OPTIONAL,
@@ -1000,7 +1000,7 @@ CallInfoFromResourceArg ::= SEQUENCE {
         TermResourceAvailableArg ::= SEQUENCE{
             userID                         UserID,
             bearerCapability               BearerCapability,
-            notificationIndicator          NotificationIndicator OPTIONAL,
+            notificationIndicator          [111] IMPLICIT NotificationIndicator OPTIONAL,
             amp1                           Amp1 OPTIONAL,
             amp2                           Amp2 OPTIONAL,
             extensionParameter             [84] IMPLICIT ExtensionParameter OPTIONAL,
@@ -1052,7 +1052,7 @@ CallInfoFromResourceArg ::= SEQUENCE {
             amp1                          Amp1 OPTIONAL,
             amp2                          Amp2 OPTIONAL,
             extensionParameter            [84] IMPLICIT ExtensionParameter OPTIONAL,
-            notificationIndicator         NotificationIndicator OPTIONAL
+            notificationIndicator         [111] IMPLICIT NotificationIndicator OPTIONAL
         }
 
         analyzeRoute OPERATION ::= {

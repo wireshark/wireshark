@@ -2121,7 +2121,7 @@ void proto_register_acse(void) {
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_acse_pcontext_result,
-      { "result", "acse.result",
+      { "result", "acse.pcontext.result",
         FT_INT32, BASE_DEC, VALS(acse_Result_vals), 0,
         NULL, HFILL }},
     { &hf_acse_concrete_syntax_name,

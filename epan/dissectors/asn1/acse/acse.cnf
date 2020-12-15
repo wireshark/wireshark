@@ -169,5 +169,5 @@ PDV-list/presentation-data-values/octet-aligned		pDVList_octet_aligned
 
 #.FIELD_ATTR
 Association-data/_item NAME = "Association-data"
-
+P-context-result-list/_item/result ABBREV=pcontext.result
 #.END

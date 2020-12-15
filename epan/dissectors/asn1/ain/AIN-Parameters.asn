@@ -929,7 +929,9 @@
         tNoAnswerTimer TNoAnswerTimer,
         editListType EditListType,
         aCGGlobalOverride ACGGlobalOverride,
-        notificationIndicator NotificationIndicator,
+        notificationIndicator                  [111] IMPLICIT NotificationIndicator,
+                            -- TRUE = Switch Notification Message
+                            -- FALSE = Switch Request Message
         aMALineNumber AMALineNumber,
         aMADigitsDialedWC AMADigitsDialedWC,
         carrierUsage                                CarrierUsage,
@@ -1139,7 +1141,7 @@
 
     NotificationDuration ::= [128] IMPLICIT INTEGER(1..99)
 
-    NotificationIndicator ::= [111] IMPLICIT BOOLEAN
+    NotificationIndicator ::= BOOLEAN
     -- TRUE = Switch Notification Message
     -- FALSE = Switch Request Message
 

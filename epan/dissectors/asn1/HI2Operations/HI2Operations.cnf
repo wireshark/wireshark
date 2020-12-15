@@ -30,6 +30,13 @@ LIMODIFYconf
 LISTATUSind
 StatusType
 
+#.FIELD_RENAME
+GSMLocation/geoCoordinates/latitude geoCoordinates_latitude
+GSMLocation/geoCoordinates/longitude geoCoordinates_longitude
+TetraLocation/ms-Loc/mnc ms_Loc_mnc
+TetraLocation/ms-Loc/mcc ms_Loc_mcc
+TetraLocation/ms-Loc/lai ms_Loc_lai
+
 #.FN_HDR UUS1-Content
 
 /* Heuristic test to see if it's our content */
@@ -93,9 +100,11 @@ StatusType
 
   dissect_q931_bearer_capability_ie(parameter_tvb, 0, tvb_reported_length_remaining(parameter_tvb,0), tree);
 
-#.TYPE_RENAME
-
-#.FIELD_RENAME
-
+#.FIELD_ATTR
+GSMLocation/geoCoordinates/latitude ABBREV=geoCoordinates.latitude
+GSMLocation/geoCoordinates/longitude ABBREV=geoCoordinates.longitude
+TetraLocation/ms-Loc/mnc ABBREV=ms_loc.mnc
+TetraLocation/ms-Loc/mcc ABBREV=ms_loc.mcc
+TetraLocation/ms-Loc/lai ABBREV=ms_loc.lai
 #.END
 

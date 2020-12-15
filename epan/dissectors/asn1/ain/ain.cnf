@@ -17,6 +17,9 @@ RejectProblem
 #.TYPE_RENAME
 
 #.FIELD_RENAME
+DisplayInformation/notificationIndicator displayInformation_notificationIndicator
+Reject/problem/invoke invokeproblem
+Action8/invoke action8_invoke
 
 #.OMIT_ASSIGNMENT Remote-Operations-Information-Objects
 Bind
@@ -230,6 +233,10 @@ static const ain_err_t ain_err_tab[] = {
 
   proto_tree_add_item(subtree, hf_ain_amaslpid, parameter_tvb, 0, tvb_reported_length_remaining(parameter_tvb, 0), ENC_BCD_DIGITS_0_9);
 
+#.FIELD_ATTR
+DisplayInformation/notificationIndicator ABBREV=displayInformation.notificationIndicator
+Reject/problem/invoke ABBREV=invokeproblem
+Action8/invoke ABBREV=action8.invoke
 #.END
 
 #
