@@ -13,6 +13,7 @@
 #define __PACKET_FC_H_
 
 #include <epan/conversation.h>
+#include <epan/etypes.h>
 #include "ws_symbol_export.h"
 
 /* R_CTL upper bits creates a classification tree */

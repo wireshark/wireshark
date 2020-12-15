@@ -21,7 +21,6 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/crc32-tvb.h>
-#include <epan/etypes.h>
 #include <epan/expert.h>
 #include "packet-fc.h"
 
@@ -277,7 +276,7 @@ dissect_fcoe(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     }
 
     /* Call the FC Dissector if this is carrying an FC frame */
-    fc_data.ethertype = 0;
+    fc_data.ethertype = ETHERTYPE_UNK;
 
     if (fc_handle) {
         call_dissector_with_data(fc_handle, next_tvb, pinfo, tree, &fc_data);

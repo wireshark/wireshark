@@ -477,7 +477,7 @@ dissect_fcip (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             /* Special frame bit is not set */
             next_tvb = tvb_new_subset_remaining (tvb, FCIP_ENCAP_HEADER_LEN+4);
             if (fc_handle) {
-                fc_data.ethertype = 0;
+                fc_data.ethertype = ETHERTYPE_UNK;
                 call_dissector_with_data(fc_handle, next_tvb, pinfo, tree, &fc_data);
             }
             else {
