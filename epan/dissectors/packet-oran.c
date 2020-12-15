@@ -129,6 +129,7 @@ static gint ett_oran_bfw = -1;
 static expert_field ei_oran_invalid_bfw_iqwidth = EI_INIT;
 static expert_field ei_oran_invalid_num_bfw_weights = EI_INIT;
 static expert_field ei_oran_unsupported_bfw_compression_method = EI_INIT;
+static expert_field ei_oran_invalid_sample_bit_width = EI_INIT;
 
 /* These are the message types handled by this dissector */
 #define ECPRI_MT_IQ_DATA            0
@@ -849,6 +850,14 @@ dissect_oran_u(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
         sample_bit_width = sample_bit_width_downlink;
         compression = iqCompressionDownlink;
         includeUdCompHeader = includeUdCompHeaderDownlink;
+    }
+
+    /* Need a valid value (e.g. 9, 14).  0 definitely won't work, as won't progress around loop! */
+    if (sample_bit_width == 0) {
+        expert_add_info_format(pinfo, protocol_item, &ei_oran_invalid_sample_bit_width,
+                               "%cL Sample bit width from preference (%u) not valid, so can't decode sections",
+                               (direction == DIR_UPLINK) ? 'U' : 'D', sample_bit_width);
+        return offset;
     }
 
     guint nBytesForSamples = (sample_bit_width * 12 * 2) / 8;
@@ -1761,7 +1770,8 @@ proto_register_oran(void)
     static ei_register_info ei[] = {
         { &ei_oran_invalid_bfw_iqwidth, { "oran_fh_cus.bfw_iqwidth_invalid", PI_MALFORMED, PI_ERROR, "Invalid IQ Width", EXPFILL }},
         { &ei_oran_invalid_num_bfw_weights, { "oran_fh_cus.num_bf_weights_invalid", PI_MALFORMED, PI_ERROR, "Invalid number of BF Weights", EXPFILL }},
-        { &ei_oran_unsupported_bfw_compression_method, { "oran_fh_cus.unsupported_bfw_compression_method", PI_UNDECODED, PI_WARN, "Unsupported BFW Compression Method", EXPFILL }}
+        { &ei_oran_unsupported_bfw_compression_method, { "oran_fh_cus.unsupported_bfw_compression_method", PI_UNDECODED, PI_WARN, "Unsupported BFW Compression Method", EXPFILL }},
+        { &ei_oran_invalid_sample_bit_width, { "oran_fh_cus.invalid_sample_bit_width", PI_NOTE, PI_ERROR, "Unsupported sample bit width", EXPFILL }}
     };
 
     /* Register the protocol name and description */
