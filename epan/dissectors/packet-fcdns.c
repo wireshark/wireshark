@@ -623,7 +623,7 @@ dissect_fc4features (proto_tree *parent_tree, tvbuff_t *tvb, int offset)
         NULL
     };
 
-    proto_tree_add_bitmask(parent_tree, tvb, offset, &hfi_fcdns_fc4features_i,
+    proto_tree_add_bitmask(parent_tree, tvb, offset, &hfi_fcdns_fc4features,
                            ett_fc4features, flags, ENC_NA);
 }
 
