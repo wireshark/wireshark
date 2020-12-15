@@ -399,13 +399,63 @@ check_and_warn_user_startup(const QString &cf_name)
 // path except our application directory.
 
 static inline void
-reset_library_path(void)
+win32_reset_library_path(void)
 {
     QString app_path = QDir(get_progfile_dir()).path();
     foreach (QString path, QCoreApplication::libraryPaths()) {
         QCoreApplication::removeLibraryPath(path);
     }
     QCoreApplication::addLibraryPath(app_path);
+}
+#endif
+
+#ifdef Q_OS_MAC
+// Try to work around
+//
+//     https://gitlab.com/wireshark/wireshark/-/issues/17075
+//
+// aka
+//
+//     https://bugreports.qt.io/browse/QTBUG-87014
+//
+// The fix at
+//
+//     https://codereview.qt-project.org/c/qt/qtbase/+/322228/3/src/plugins/platforms/cocoa/qnsview_drawing.mm
+//
+// enables layer backing if we're running on Big Sur OR we're running on
+// Catalina AND we were built with the Catalina SDK. Enable layer backing
+// here by setting QT_MAC_WANTS_LAYER=1, but only if we're running on Big
+// Sur and our version of Qt doesn't have a fix for QTBUG-87014.
+#include <QOperatingSystemVersion>
+static inline void
+macos_enable_layer_backing(void)
+{
+    // At the time of this writing, the QTBUG-87014 for layerEnabledByMacOS is...
+    //
+    // ...in https://github.com/qt/qtbase/blob/5.12/src/plugins/platforms/cocoa/qnsview_drawing.mm
+    // ...not in https://github.com/qt/qtbase/blob/5.12.10/src/plugins/platforms/cocoa/qnsview_drawing.mm
+    // ...in https://github.com/qt/qtbase/blob/5.15/src/plugins/platforms/cocoa/qnsview_drawing.mm
+    // ...not in https://github.com/qt/qtbase/blob/5.15.2/src/plugins/platforms/cocoa/qnsview_drawing.mm
+    // ...not in https://github.com/qt/qtbase/blob/6.0/src/plugins/platforms/cocoa/qnsview_drawing.mm
+    // ...not in https://github.com/qt/qtbase/blob/6.0.0/src/plugins/platforms/cocoa/qnsview_drawing.mm
+    //
+    // We'll assume that it will be fixed in 5.12.11, 5.15.3, and 6.0.1.
+    // Note that we only ship LTS versions of Qt with our macOS packages.
+    // Feel free to add other versions if needed.
+#if  \
+        (QT_VERSION >= QT_VERSION_CHECK(5, 12, 0) && QT_VERSION < QT_VERSION_CHECK(5, 12, 11) \
+        || (QT_VERSION >= QT_VERSION_CHECK(5, 15, 0) &&  QT_VERSION < QT_VERSION_CHECK(5, 15, 3)) \
+        || (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0) &&  QT_VERSION < QT_VERSION_CHECK(6, 0, 1)) \
+    )
+    QOperatingSystemVersion os_ver = QOperatingSystemVersion::current();
+    int major_ver = os_ver.majorVersion();
+    int minor_ver = os_ver.minorVersion();
+    if ( (major_ver == 10 && minor_ver >= 16) || major_ver >= 11 ) {
+        if (qgetenv("QT_MAC_WANTS_LAYER").isEmpty()) {
+            qputenv("QT_MAC_WANTS_LAYER", "1");
+        }
+    }
+#endif
 }
 #endif
 
@@ -467,6 +517,10 @@ int main(int argc, char *qt_argv[])
      * see the Wireshark issue for why that value was chosen.
      */
     cf_set_max_records(53000000);
+#endif
+
+#ifdef Q_OS_MAC
+    macos_enable_layer_backing();
 #endif
 
 #ifdef DEBUG_STARTUP_TIME
@@ -602,7 +656,7 @@ int main(int argc, char *qt_argv[])
     commandline_early_options(argc, argv);
 
 #ifdef _WIN32
-    reset_library_path();
+    win32_reset_library_path();
 #endif
 
     // Handle DPI scaling on Windows. This causes problems in at least
