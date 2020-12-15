@@ -167,7 +167,7 @@ dissect_rgoose(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 			   void* data _U_)
 {
 	guint offset = 0, old_offset = 0;
-	guint32 init_v_length, payload_tag, padding_length;
+	guint32 init_v_length, payload_tag, padding_length, length;
 	guint32 payload_length, apdu_offset = 0, apdu_length;
 	proto_item *item = NULL;
 	proto_tree *tree = NULL, *sess_user_info_tree = NULL;
@@ -186,8 +186,10 @@ dissect_rgoose(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	proto_tree_add_item(tree, hf_goose_spdu_id, tvb, offset++, 1,
 						ENC_BIG_ENDIAN);
 	/* Session header length */
-	proto_tree_add_item(tree, hf_goose_session_hdr_length, tvb, offset++, 1,
-						ENC_BIG_ENDIAN);
+	proto_tree_add_item_ret_uint(tree, hf_goose_session_hdr_length, tvb, offset++, 1,
+						ENC_BIG_ENDIAN, &length);
+	proto_item_set_len(item, length + 2);
+
 	/* Header content indicator */
 	proto_tree_add_item(tree, hf_goose_content_id, tvb, offset++, 1,
 						ENC_BIG_ENDIAN);
@@ -224,6 +226,8 @@ dissect_rgoose(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	/* Initialization vector length */
 	proto_tree_add_item_ret_uint(tree, hf_goose_init_vec_length, tvb, offset++, 1,
 						ENC_BIG_ENDIAN, &init_v_length);
+	proto_item_set_len(item, init_v_length + 11);
+
 	if (init_v_length > 0) {
 		/* Initialization vector bytes */
 		proto_tree_add_item(tree, hf_goose_init_vec, tvb, offset, init_v_length,
@@ -290,6 +294,8 @@ dissect_rgoose(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 		/* Padding length */
 		proto_tree_add_item_ret_uint(tree, hf_goose_padding_length, tvb, offset++, 1,
 							ENC_BIG_ENDIAN, &padding_length);
+		proto_item_set_len(item, padding_length + 1);
+
 		/* Padding bytes */
 		proto_tree_add_item(tree, hf_goose_padding, tvb, offset, padding_length,
 							ENC_NA);
