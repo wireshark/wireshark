@@ -20,7 +20,6 @@
 #include <wiretap/wtap.h>
 #include <epan/reassemble.h>
 #include <epan/conversation_table.h>
-#include <epan/etypes.h>
 #include <epan/srt_table.h>
 #include "packet-fc.h"
 #include "packet-fclctl.h"
@@ -1007,7 +1006,7 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
      * and are never fragmented and so we ignore the frag_size assertion for
      *  these frames.
      */
-    if ((fc_data->ethertype == ETHERTYPE_UNK) || (fc_data->ethertype == ETHERTYPE_FCFT)) {
+    if (fc_data->ethertype == ETHERTYPE_FCFT) {
         if ((frag_size < MDSHDR_TRAILER_SIZE) ||
             ((frag_size == MDSHDR_TRAILER_SIZE) && (ftype != FC_FTYPE_LINKCTL) &&
              (ftype != FC_FTYPE_BLS) && (ftype != FC_FTYPE_OHMS))) {
@@ -1284,7 +1283,7 @@ dissect_fcsof(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 
     next_tvb = tvb_new_subset_length(tvb, 4, crc_offset-4);
 
-    fc_data.ethertype = 0;
+    fc_data.ethertype = ETHERTYPE_UNK;
     fc_data.sof_eof = 0;
     if (sof == FC_SOFI2 || sof == FC_SOFI3) {
         fc_data.sof_eof = FC_DATA_SOF_FIRST_FRAME;

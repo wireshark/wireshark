@@ -17,7 +17,6 @@
 #include <wsutil/pint.h>
 #include <epan/oui.h>
 #include <epan/xdlc.h>
-#include <epan/etypes.h>
 #include <epan/llcsaps.h>
 #include <epan/bridged_pids.h>
 #include <epan/ppptypes.h>

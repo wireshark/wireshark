@@ -216,7 +216,7 @@ dissect_fcoib(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
     }
 
     /* Call the FC Dissector if this is carrying an FC frame */
-    fc_data.ethertype = 0;
+    fc_data.ethertype = ETHERTYPE_UNK;
 
     if (fc_handle) {
         call_dissector_with_data(fc_handle, next_tvb, pinfo, tree, &fc_data);
