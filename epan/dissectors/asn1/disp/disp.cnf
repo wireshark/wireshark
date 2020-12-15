@@ -28,6 +28,8 @@ SubordinateChanges/changes	subordinate-changes
 ModificationParameter/secondaryShadows	modifiedSecondaryShadows
 CoordinateShadowUpdateArgumentData/updateStrategy/standard	standardUpdate
 Information/signedInformation/information	information-data
+#.FIELD_ATTR
+ModificationParameter/secondaryShadows	ABBREV=modifiedSecondaryShadows
 
 #.REGISTER
 ShadowingAgreementInfo	S dop.oid	"agreement.2.5.19.1"

@@ -3361,17 +3361,17 @@ proto_register_ansi_683(void)
             NULL, HFILL }
         },
         { &hf_ansi_683_reserved8,
-            { "Reserved",         "ansi_683.reserved",
+            { "Reserved",         "ansi_683.reserved8",
             FT_BOOLEAN, BASE_NONE, NULL, 0,
             NULL, HFILL }
         },
         { &hf_ansi_683_reserved16_f,
-            { "Reserved",         "ansi_683.reserved",
+            { "Reserved",         "ansi_683.reserved16_f",
             FT_UINT16, BASE_HEX, NULL, 0x000f,
             NULL, HFILL }
         },
         { &hf_ansi_683_reserved24_f,
-            { "Reserved",         "ansi_683.reserved",
+            { "Reserved",         "ansi_683.reserved24_f",
             FT_UINT24, BASE_HEX, NULL, 0x00000f,
             NULL, HFILL }
         },

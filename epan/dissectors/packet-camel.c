@@ -316,7 +316,7 @@ static int hf_camel_metDPCriteriaList = -1;       /* MetDPCriteriaList */
 static int hf_camel_tChangeOfPositionSpecificInfo = -1;  /* T_tChangeOfPositionSpecificInfo */
 static int hf_camel_dpSpecificInfoAlt = -1;       /* DpSpecificInfoAlt */
 static int hf_camel_o_smsFailureSpecificInfo = -1;  /* T_o_smsFailureSpecificInfo */
-static int hf_camel_smsfailureCause = -1;         /* MO_SMSCause */
+static int hf_camel_mo_smsfailureCause = -1;      /* MO_SMSCause */
 static int hf_camel_o_smsSubmissionSpecificInfo = -1;  /* T_o_smsSubmissionSpecificInfo */
 static int hf_camel_t_smsFailureSpecificInfo = -1;  /* T_t_smsFailureSpecificInfo */
 static int hf_camel_t_smsfailureCause = -1;       /* MT_SMSCause */
@@ -3982,7 +3982,7 @@ dissect_camel_MO_SMSCause(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 
 
 static const ber_sequence_t T_o_smsFailureSpecificInfo_sequence[] = {
-  { &hf_camel_smsfailureCause, BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_camel_MO_SMSCause },
+  { &hf_camel_mo_smsfailureCause, BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_camel_MO_SMSCause },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -9172,7 +9172,7 @@ void proto_register_camel(void) {
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_camel_routeSelectfailureCause,
-      { "failureCause", "camel.failureCause",
+      { "failureCause", "camel.routeSelectfailureCause",
         FT_BYTES, BASE_NONE, NULL, 0,
         "Cause", HFILL }},
     { &hf_camel_oCalledPartyBusySpecificInfo,
@@ -9307,8 +9307,8 @@ void proto_register_camel(void) {
       { "o-smsFailureSpecificInfo", "camel.o_smsFailureSpecificInfo_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_camel_smsfailureCause,
-      { "failureCause", "camel.failureCause",
+    { &hf_camel_mo_smsfailureCause,
+      { "failureCause", "camel.mo-smsfailureCause",
         FT_UINT32, BASE_DEC, VALS(camel_MO_SMSCause_vals), 0,
         "MO_SMSCause", HFILL }},
     { &hf_camel_o_smsSubmissionSpecificInfo,
@@ -9320,7 +9320,7 @@ void proto_register_camel(void) {
         FT_NONE, BASE_NONE, NULL, 0,
         "T_t_smsFailureSpecificInfo", HFILL }},
     { &hf_camel_t_smsfailureCause,
-      { "failureCause", "camel.failureCause",
+      { "failureCause", "camel.t-smsfailureCause",
         FT_BYTES, BASE_NONE, NULL, 0,
         "MT_SMSCause", HFILL }},
     { &hf_camel_t_smsDeliverySpecificInfo,

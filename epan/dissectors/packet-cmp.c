@@ -171,6 +171,7 @@ static int hf_cmp_crls_item = -1;                 /* CertificateList */
 static int hf_cmp_oldWithNew = -1;                /* CMPCertificate */
 static int hf_cmp_newWithOld = -1;                /* CMPCertificate */
 static int hf_cmp_newWithNew = -1;                /* CMPCertificate */
+static int hf_cmp_pkistatus_01 = -1;              /* PKIStatus */
 static int hf_cmp_willBeRevokedAt = -1;           /* GeneralizedTime */
 static int hf_cmp_badSinceDate = -1;              /* GeneralizedTime */
 static int hf_cmp_crlDetails = -1;                /* Extensions */
@@ -816,7 +817,7 @@ dissect_cmp_CertAnnContent(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
 
 static const ber_sequence_t RevAnnContent_sequence[] = {
-  { &hf_cmp_pkistatus       , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_cmp_PKIStatus },
+  { &hf_cmp_pkistatus_01    , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_cmp_PKIStatus },
   { &hf_cmp_certId          , BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_crmf_CertId },
   { &hf_cmp_willBeRevokedAt , BER_CLASS_UNI, BER_UNI_TAG_GeneralizedTime, BER_FLAGS_NOOWNTAG, dissect_cmp_GeneralizedTime },
   { &hf_cmp_badSinceDate    , BER_CLASS_UNI, BER_UNI_TAG_GeneralizedTime, BER_FLAGS_NOOWNTAG, dissect_cmp_GeneralizedTime },
@@ -1980,7 +1981,7 @@ void proto_register_cmp(void) {
         FT_NONE, BASE_NONE, NULL, 0,
         "AlgorithmIdentifier", HFILL }},
     { &hf_cmp_pkistatus,
-      { "status", "cmp.status",
+      { "status", "cmp.pkistatus",
         FT_INT32, BASE_DEC, VALS(cmp_PKIStatus_vals), 0,
         "PKIStatus", HFILL }},
     { &hf_cmp_statusString,
@@ -2104,7 +2105,7 @@ void proto_register_cmp(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "Extensions", HFILL }},
     { &hf_cmp_rvrpcnt_status,
-      { "status", "cmp.status",
+      { "status", "cmp.rvrpcnt_status",
         FT_UINT32, BASE_DEC, NULL, 0,
         "SEQUENCE_SIZE_1_MAX_OF_PKIStatusInfo", HFILL }},
     { &hf_cmp_rvrpcnt_status_item,
@@ -2139,6 +2140,10 @@ void proto_register_cmp(void) {
       { "newWithNew", "cmp.newWithNew",
         FT_UINT32, BASE_DEC, VALS(cmp_CMPCertificate_vals), 0,
         "CMPCertificate", HFILL }},
+    { &hf_cmp_pkistatus_01,
+      { "status", "cmp.status",
+        FT_INT32, BASE_DEC, VALS(cmp_PKIStatus_vals), 0,
+        "PKIStatus", HFILL }},
     { &hf_cmp_willBeRevokedAt,
       { "willBeRevokedAt", "cmp.willBeRevokedAt",
         FT_STRING, BASE_NONE, NULL, 0,

@@ -71,7 +71,7 @@ InbandInfo/duration			inbandInfoDuration
 Tone/duration				toneDuration
 Burst/toneDuration			burstToneDuration
 
-EventSpecificInformationSMS/o-smsFailureSpecificInfo/failureCause smsfailureCause
+EventSpecificInformationSMS/o-smsFailureSpecificInfo/failureCause mo-smsfailureCause
 EventSpecificInformationBCSM/routeSelectFailureSpecificInfo/failureCause routeSelectfailureCause
 EventSpecificInformationSMS/t-smsFailureSpecificInfo/failureCause t-smsfailureCause
 
@@ -766,4 +766,9 @@ Code/local TYPE = FT_INT32  DISPLAY = BASE_DEC  STRINGS = VALS(camel_opr_code_st
 ServiceInteractionIndicatorsTwo/holdTreatmentIndicator TYPE = FT_INT32  DISPLAY = BASE_DEC STRINGS = VALS(camel_holdTreatmentIndicator_values)
 ServiceInteractionIndicatorsTwo/cwTreatmentIndicator TYPE = FT_INT32  DISPLAY = BASE_DEC STRINGS = VALS(camel_cwTreatmentIndicator_values)
 ServiceInteractionIndicatorsTwo/ectTreatmentIndicator TYPE = FT_INT32  DISPLAY = BASE_DEC STRINGS = VALS(camel_ectTreatmentIndicator_values)
+#.FIELD_ATTR
+EventSpecificInformationSMS/o-smsFailureSpecificInfo/failureCause ABBREV=mo-smsfailureCause
+EventSpecificInformationBCSM/routeSelectFailureSpecificInfo/failureCause ABBREV=routeSelectfailureCause
+EventSpecificInformationSMS/t-smsFailureSpecificInfo/failureCause ABBREV=t-smsfailureCause
+Tone/duration ABBREV=toneDuration
 #.END

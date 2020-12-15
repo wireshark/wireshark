@@ -3307,7 +3307,7 @@ proto_register_cipmotion(void)
           "Cyclic Data Set: Actual Position", HFILL }
       },
       { &hf_cip_act_pos_64,
-        { "Actual Position", "cipm.actpos",
+        { "Actual Position", "cipm.actpos_64",
           FT_INT64, BASE_DEC, NULL, 0,
           "Cyclic Data Set: Actual Position", HFILL }
         },

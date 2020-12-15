@@ -1225,10 +1225,10 @@ proto_register_dlep(void)
       { "Code", "dlep.dataitem.extsupp.code", FT_UINT32, BASE_DEC|BASE_RANGE_STRING, RVALS(extension_code_vals), 0x0, NULL, HFILL }
     },
     { &hf_dlep_dataitem_macaddr_eui48,
-      { "MAC Address", "dlep.dataitem.macaddr", FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL }
+      { "MAC Address", "dlep.dataitem.macaddr_eui48", FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL }
     },
     { &hf_dlep_dataitem_macaddr_eui64,
-      { "MAC Address", "dlep.dataitem.macaddr", FT_EUI64, BASE_NONE, NULL, 0x0, NULL, HFILL }
+      { "MAC Address", "dlep.dataitem.macaddr_eui64", FT_EUI64, BASE_NONE, NULL, 0x0, NULL, HFILL }
     },
     { &hf_dlep_dataitem_v4addr,
       { "IPv4 Address", "dlep.dataitem.v4addr", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }

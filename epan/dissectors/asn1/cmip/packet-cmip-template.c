@@ -38,10 +38,7 @@ static int hf_cmip_actionType_OID = -1;
 static int hf_cmip_eventType_OID = -1;
 static int hf_cmip_attributeId_OID = -1;
 static int hf_cmip_errorId_OID = -1;
-static int hf_DiscriminatorConstruct = -1;
-static int hf_Destination = -1;
-static int hf_NameBinding = -1;
-static int hf_ObjectClass = -1;
+
 #include "packet-cmip-hf.c"
 
 /* Initialize the subtree pointers */
@@ -142,22 +139,6 @@ void proto_register_cmip(void) {
     { &hf_cmip_errorId_OID,
       { "errorId", "cmip.errorId_OID",
         FT_STRING, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-   { &hf_DiscriminatorConstruct,
-      { "DiscriminatorConstruct", "cmip.DiscriminatorConstruct",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        NULL, HFILL }},
-    { &hf_Destination,
-      { "Destination", "cmip.Destination",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        NULL, HFILL }},
-    { &hf_NameBinding,
-      { "NameBinding", "cmip.NameBinding",
-        FT_STRING, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_ObjectClass,
-      { "ObjectClass", "cmip.ObjectClass",
-        FT_UINT32, BASE_DEC, VALS(cmip_ObjectClass_vals), 0,
         NULL, HFILL }},
 
 #include "packet-cmip-hfarr.c"

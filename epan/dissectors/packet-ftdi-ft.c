@@ -1511,12 +1511,12 @@ proto_register_ftdi_ft(void)
             NULL, HFILL }
         },
         { &hf_setup_hindex_baud_high,
-          { "Baud High", "ftdi-ft.hIndex.b0",
+          { "Baud High", "ftdi-ft.baud_high.b0",
             FT_UINT8, BASE_HEX, NULL, (1 << 0),
             NULL, HFILL }
         },
         { &hf_setup_hindex_baud_clock_divide,
-          { "Baud Clock Divide off", "ftdi-ft.hIndex.b1",
+          { "Baud Clock Divide off", "ftdi-ft.baud_clock_divide.b1",
             FT_BOOLEAN, 8, NULL, (1 << 1),
             "When active 120 MHz is max frequency instead of 48 MHz", HFILL }
         },

@@ -10,7 +10,11 @@
 #.NO_EMIT ONLY_VALS
 GOOSEpdu
 
-#.TYPE_RENAME
+#.FIELD_RENAME
+GetReferenceRequestPdu/offset getReferenceRequest_offset
+
+#.FIELD_ATTR
+GetReferenceRequestPdu/offset ABBREV=getReferenceRequest.offset
 
 
 #.FN_BODY UtcTime

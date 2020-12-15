@@ -46,10 +46,7 @@ static int hf_cmip_actionType_OID = -1;
 static int hf_cmip_eventType_OID = -1;
 static int hf_cmip_attributeId_OID = -1;
 static int hf_cmip_errorId_OID = -1;
-static int hf_DiscriminatorConstruct = -1;
-static int hf_Destination = -1;
-static int hf_NameBinding = -1;
-static int hf_ObjectClass = -1;
+
 
 /*--- Included file: packet-cmip-hf.c ---*/
 #line 1 "./asn1/cmip/packet-cmip-hf.c"
@@ -331,7 +328,7 @@ static int hf_cmip_T_daysOfWeek_friday = -1;
 static int hf_cmip_T_daysOfWeek_saturday = -1;
 
 /*--- End of included file: packet-cmip-hf.c ---*/
-#line 46 "./asn1/cmip/packet-cmip-template.c"
+#line 43 "./asn1/cmip/packet-cmip-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_cmip = -1;
@@ -461,7 +458,7 @@ static gint ett_cmip_T_modificationList = -1;
 static gint ett_cmip_T_modificationList_item = -1;
 
 /*--- End of included file: packet-cmip-ett.c ---*/
-#line 50 "./asn1/cmip/packet-cmip-template.c"
+#line 47 "./asn1/cmip/packet-cmip-template.c"
 
 static expert_field ei_wrong_spdu_type = EI_INIT;
 
@@ -524,7 +521,7 @@ static const value_string cmip_error_code_vals[] = {
 
 
 /*--- End of included file: packet-cmip-table.c ---*/
-#line 61 "./asn1/cmip/packet-cmip-template.c"
+#line 58 "./asn1/cmip/packet-cmip-template.c"
 
 static int opcode_type;
 #define OPCODE_INVOKE        1
@@ -623,7 +620,7 @@ static const char *object_identifier_id;
 #define noInvokeId                     NULL
 
 /*--- End of included file: packet-cmip-val.h ---*/
-#line 71 "./asn1/cmip/packet-cmip-template.c"
+#line 68 "./asn1/cmip/packet-cmip-template.c"
 
 /*--- Included file: packet-cmip-fn.c ---*/
 #line 1 "./asn1/cmip/packet-cmip-fn.c"
@@ -3315,7 +3312,6 @@ dissect_cmip_T_featureInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
 
 
-
   return offset;
 }
 
@@ -4458,7 +4454,7 @@ static int dissect_WeekMask_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto
 
 
 /*--- End of included file: packet-cmip-fn.c ---*/
-#line 72 "./asn1/cmip/packet-cmip-template.c"
+#line 69 "./asn1/cmip/packet-cmip-template.c"
 
 
 
@@ -4532,22 +4528,6 @@ void proto_register_cmip(void) {
     { &hf_cmip_errorId_OID,
       { "errorId", "cmip.errorId_OID",
         FT_STRING, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-   { &hf_DiscriminatorConstruct,
-      { "DiscriminatorConstruct", "cmip.DiscriminatorConstruct",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        NULL, HFILL }},
-    { &hf_Destination,
-      { "Destination", "cmip.Destination",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        NULL, HFILL }},
-    { &hf_NameBinding,
-      { "NameBinding", "cmip.NameBinding",
-        FT_STRING, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_ObjectClass,
-      { "ObjectClass", "cmip.ObjectClass",
-        FT_UINT32, BASE_DEC, VALS(cmip_ObjectClass_vals), 0,
         NULL, HFILL }},
 
 
@@ -4858,7 +4838,7 @@ void proto_register_cmip(void) {
         FT_INT32, BASE_DEC, NULL, 0,
         "INTEGER", HFILL }},
     { &hf_cmip_attributeid,
-      { "id", "cmip.id",
+      { "id", "cmip.attributeid",
         FT_UINT32, BASE_DEC, VALS(cmip_AttributeId_vals), 0,
         "AttributeId", HFILL }},
     { &hf_cmip_value,
@@ -5030,7 +5010,7 @@ void proto_register_cmip(void) {
         FT_NONE, BASE_NONE, NULL, 0,
         "Attribute", HFILL }},
     { &hf_cmip_filterItempresent,
-      { "present", "cmip.present",
+      { "present", "cmip.filterItempresent",
         FT_UINT32, BASE_DEC, VALS(cmip_AttributeId_vals), 0,
         "AttributeId", HFILL }},
     { &hf_cmip_subsetOf,
@@ -5510,7 +5490,7 @@ void proto_register_cmip(void) {
         FT_UINT32, BASE_DEC, VALS(cmip_T_linkedId_vals), 0,
         NULL, HFILL }},
     { &hf_cmip_linkedIdPresent,
-      { "present", "cmip.present",
+      { "present", "cmip.linkedIdPresent",
         FT_INT32, BASE_DEC, NULL, 0,
         "T_linkedIdPresent", HFILL }},
     { &hf_cmip_absent,
@@ -5655,7 +5635,7 @@ void proto_register_cmip(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-cmip-hfarr.c ---*/
-#line 164 "./asn1/cmip/packet-cmip-template.c"
+#line 145 "./asn1/cmip/packet-cmip-template.c"
   };
 
   /* List of subtrees */
@@ -5787,7 +5767,7 @@ void proto_register_cmip(void) {
     &ett_cmip_T_modificationList_item,
 
 /*--- End of included file: packet-cmip-ettarr.c ---*/
-#line 170 "./asn1/cmip/packet-cmip-template.c"
+#line 151 "./asn1/cmip/packet-cmip-template.c"
   };
 
   static ei_register_info ei[] = {
@@ -5882,7 +5862,7 @@ void proto_register_cmip(void) {
 
 
 /*--- End of included file: packet-cmip-dis-tab.c ---*/
-#line 189 "./asn1/cmip/packet-cmip-template.c"
+#line 170 "./asn1/cmip/packet-cmip-template.c"
     oid_add_from_string("discriminatorId(1)","2.9.3.2.7.1");
 
   attribute_id_dissector_table = register_dissector_table("cmip.attribute_id", "CMIP Attribute Id", proto_cmip, FT_UINT32, BASE_DEC);

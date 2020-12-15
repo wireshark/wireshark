@@ -838,6 +838,7 @@ dissect_dap_Name(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, a
 	col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %s", (dn && *dn) ? dn : "(root)");
 
 
+
   return offset;
 }
 
@@ -5433,7 +5434,7 @@ void proto_register_dap(void) {
         FT_UINT32, BASE_DEC, VALS(x509sat_DirectoryString_vals), 0,
         "DirectoryString", HFILL }},
     { &hf_dap_saslCredentials,
-      { "credentials", "dap.credentials",
+      { "credentials", "dap.saslCredentials",
         FT_BYTES, BASE_NONE, NULL, 0,
         "OCTET_STRING", HFILL }},
     { &hf_dap_saslAbort,
@@ -5445,7 +5446,7 @@ void proto_register_dap(void) {
         FT_NONE, BASE_NONE, NULL, 0,
         "AlgorithmIdentifier", HFILL }},
     { &hf_dap_utctime,
-      { "time", "dap.time",
+      { "time", "dap.utctime",
         FT_STRING, BASE_NONE, NULL, 0,
         "UTCTime", HFILL }},
     { &hf_dap_bindIntAlgorithm,
@@ -6193,7 +6194,7 @@ void proto_register_dap(void) {
         FT_INT32, BASE_DEC, VALS(dap_NameProblem_vals), 0,
         "NameProblem", HFILL }},
     { &hf_dap_matched_name,
-      { "matched", "dap.matched",
+      { "matched", "dap.matched_name",
         FT_UINT32, BASE_DEC, VALS(x509if_Name_vals), 0,
         "Name", HFILL }},
     { &hf_dap_unsignedNameError,

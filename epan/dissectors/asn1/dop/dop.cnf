@@ -70,6 +70,10 @@ TerminateOperationalBindingArgumentData/initiator/symmetric		terminateSymmetric
 TerminateOperationalBindingArgumentData/terminateAt			terminateAtTime
 TerminateOperationalBindingResultData/terminateAt			terminateAtGeneralizedTime
 
+#.FIELD_ATTR
+TerminateOperationalBindingArgumentData/terminateAt		ABBREV=terminateAtTime
+TerminateOperationalBindingResultData/terminateAt		ABBREV=terminateAtGeneralizedTime
+
 
 #.REGISTER
 DSEType					B "2.5.12.0" "id-doa-dseType"

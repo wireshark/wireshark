@@ -181,6 +181,11 @@ EntryInformationSelection/extraAttributes/select	extraSelect
 
 SaslCredentials/credentials				saslCredentials
 
+#.FIELD_ATTR
+SaslCredentials/credentials ABBREV=saslCredentials
+TokenData/time				ABBREV=utctime
+NameErrorData/matched		ABBREV=matched_name
+
 # This table creates the value_sting to name DAP operation codes and errors
 # in file packet-dap-table.c which is included in the template file
 #
@@ -361,4 +366,5 @@ OPERATION.&ResultType
 
 	dn = x509if_get_last_dn();
 	col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %%s", (dn && *dn) ? dn : "(root)");
+
 

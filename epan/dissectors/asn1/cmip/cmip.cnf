@@ -499,5 +499,9 @@ RejectProblem
 #.FN_BODY SupportedFeatures/_item/featureInfo
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree, actx->private_data);
 
+#.FIELD_ATTR
+Attribute/id ABBREV=attributeid
+FilterItem/present ABBREV=filterItempresent
+Invoke/linkedId/present ABBREV=linkedIdPresent
 
 #.END
