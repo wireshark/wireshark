@@ -155,7 +155,8 @@ known_non_contiguous_fields = { 'wlan.fixed.capabilities.cfpoll.sta',
                                 'wlan.wfa.ie.wme.tspec.ts_info.reserved', # matches other fields in same sequence
                                 'zbee_zcl_se.pp.attr.payment_control_configuration.reserved', # matches other fields in same sequence
                                 'zbee_zcl_se.pp.snapshot_payload_cause.reserved',  # matches other fields in same sequence
-                                'ebhscr.eth.rsv'  # matches other fields in same sequence
+                                'ebhscr.eth.rsv',  # matches other fields in same sequence
+                                'v120.lli'  # non-contiguous field (http://www.acacia-net.com/wwwcla/protocol/v120_l2.htm)
                               }
 ##################################################################################################
 
@@ -172,6 +173,10 @@ field_widths = {
     'FT_INT32'   : 32,
     'FT_UINT40'  : 40,
     'FT_INT40'   : 40,
+    'FT_UINT48'  : 48,
+    'FT_INT48'   : 48,
+    'FT_UINT56'  : 56,
+    'FT_INT56'   : 56,
     'FT_UINT64'  : 64,
     'FT_INT64'   : 64
 }
@@ -269,7 +274,8 @@ class Item:
         # Its a problem is the mask_width is > field_width - some of the bits won't get looked at!?
         mask_width = n-1-mask_start
         if mask_width > field_width:
-            print('Error: ', self.filename, 'filter=', self.filter, self.item_type, 'so field_width=', field_width,
+            # N.B. No call, so no line number.
+            print(self.filename + ':', 'filter=', self.filter, self.item_type, 'so field_width=', field_width,
                   'but mask is', mask, 'which is', mask_width, 'bits wide!')
             global issues_found
             issues_found += 1
@@ -378,7 +384,7 @@ def find_items(filename, check_mask=False, check_label=False, check_consecutive=
         contents = f.read()
         # Remove comments so as not to trip up RE.
         contents = removeComments(contents)
-        matches = re.finditer(r'.*\{\s*\&(hf_.*),\s*{\s*\"(.+)\",\s*\"([a-zA-Z0-9_\-\.]+)\",\s*([A-Z0-9_]*),\s*.*,\s*([A-Z0-9x]*)\s*,', contents)
+        matches = re.finditer(r'.*\{\s*\&(hf_.*),\s*{\s*\"(.+)\",\s*\"([a-zA-Z0-9_\-\.]+)\",\s*([A-Z0-9_]*),\s*.*,\s*([A-Za-z0-9x]*)\s*,', contents)
         for m in matches:
             # Store this item.
             hf = m.group(1)
