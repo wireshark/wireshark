@@ -192,6 +192,24 @@ stat_tap_table* stat_tap_init_table(const char *name, int num_fields, int num_el
     return new_table;
 }
 
+stat_tap_table *stat_tap_find_table(stat_tap_table_ui *ui, const char *name)
+{
+    guint i = 0;
+    stat_tap_table *stat_table;
+
+    if (ui->tables == NULL)
+        return NULL;
+
+    for (i = 0; i < ui->tables->len; i++) {
+        stat_table = g_array_index(ui->tables, stat_tap_table *, i);
+        if (!g_strcmp0(stat_table->title, name)) {
+            return stat_table;
+        }
+    }
+
+    return NULL;
+}
+
 void stat_tap_add_table(stat_tap_table_ui* new_stat, stat_tap_table* table)
 {
     if (new_stat->tables == NULL)

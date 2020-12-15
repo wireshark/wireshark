@@ -1519,6 +1519,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  stat_node_array_sortcmp@Base 1.12.0~rc1
  stat_tap_add_table@Base 2.5.1
  stat_tap_by_name@Base 2.5.1
+ stat_tap_find_table@Base 3.5.0
  stat_tap_get_field_data@Base 2.5.1
  stat_tap_get_filter@Base 2.5.1
  stat_tap_init_table@Base 2.5.1
