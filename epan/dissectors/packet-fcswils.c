@@ -621,7 +621,7 @@ dissect_swils_ess_capability_obj(tvbuff_t *tvb, proto_tree *tree, int offset)
 
     if (tree) {
         /*
-         * Structure of capability object is: WK type (2B), WK subtype(2),
+         * Structure of capability object is: WK type (1B), WK subtype(1),
          * rsvd (1), num_cap_entries (1), entry_1 (8) ... entry_n (8)
          */
         /* Compute length first to create subtree of cap object */
