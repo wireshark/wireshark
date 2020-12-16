@@ -10604,14 +10604,14 @@ ansi_a_dtap_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *e
     const ansi_a_tap_rec_t      *data_p = (const ansi_a_tap_rec_t *)data;
     stat_tap_table_item_type* dtap_data;
     stat_tap_table* table;
-    guint i = 0, idx;
+    guint idx;
 
     if (data_p->pdu_type == BSSAP_PDU_TYPE_DTAP)
     {
         if (my_try_val_to_str_idx(data_p->message_type, ansi_a_dtap_strings, &idx) == NULL)
             return TAP_PACKET_DONT_REDRAW;
 
-        table = g_array_index(stat_data->stat_tap_data->tables, stat_tap_table*, i);
+        table = g_array_index(stat_data->stat_tap_data->tables, stat_tap_table*, 0);
 
         dtap_data = stat_tap_get_field_data(table, data_p->message_type, COUNT_COLUMN);
         dtap_data->value.uint_value++;
@@ -10672,14 +10672,14 @@ ansi_a_bsmap_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *
     const ansi_a_tap_rec_t      *data_p = (const ansi_a_tap_rec_t *)data;
     stat_tap_table_item_type* dtap_data;
     stat_tap_table* table;
-    guint i = 0, idx;
+    guint idx;
 
     if (data_p->pdu_type == BSSAP_PDU_TYPE_BSMAP)
     {
         if (my_try_val_to_str_idx(data_p->message_type, ansi_a_bsmap_strings, &idx) == NULL)
             return TAP_PACKET_DONT_REDRAW;
 
-        table = g_array_index(stat_data->stat_tap_data->tables, stat_tap_table*, i);
+        table = g_array_index(stat_data->stat_tap_data->tables, stat_tap_table*, 0);
 
         dtap_data = stat_tap_get_field_data(table, data_p->message_type, COUNT_COLUMN);
         dtap_data->value.uint_value++;
