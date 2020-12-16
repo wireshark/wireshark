@@ -7283,14 +7283,13 @@ dhcp_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U_,
 	const char* value = (const char*)data;
 	stat_tap_table* table;
 	stat_tap_table_item_type* msg_data;
-	guint i = 0;
 	gint idx;
 
 	idx = str_to_val_idx(value, opt53_text);
 	if (idx < 0)
 		return TAP_PACKET_DONT_REDRAW;
 
-	table = g_array_index(stat_data->stat_tap_data->tables, stat_tap_table*, i);
+	table = g_array_index(stat_data->stat_tap_data->tables, stat_tap_table*, 0);
 	msg_data = stat_tap_get_field_data(table, idx, PACKET_COLUMN);
 	msg_data->value.uint_value++;
 	stat_tap_set_field_data(table, idx, PACKET_COLUMN, msg_data);
