@@ -6452,6 +6452,9 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         {
             conv = other_conv;
             tcpd=get_tcp_conversation_data(conv,pinfo);
+
+            /* the retrieved conversation might have a different base_seq (issue 16944) */
+            tcpd->fwd->base_seq = tcph->th_seq;
         }
 
         if(!tcpd->ta)
