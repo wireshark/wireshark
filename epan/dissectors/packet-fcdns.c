@@ -446,7 +446,7 @@ static header_field_info hfi_fcdns_num_fc4desc FCDNS_HFI_INIT =
            FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL};
 
 static header_field_info hfi_fcdns_rply_ownerid FCDNS_HFI_INIT =
-          {"Owner Id", "fcdns.rply.ownerid", FT_STRING, BASE_NONE, NULL, 0x0, NULL,
+          {"Owner Id", "fcdns.rply.ownerid", FT_BYTES, SEP_DOT, NULL, 0x0, NULL,
            HFILL};
 
 static header_field_info hfi_fcdns_maxres_size FCDNS_HFI_INIT =
