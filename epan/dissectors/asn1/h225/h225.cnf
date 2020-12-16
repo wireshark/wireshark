@@ -109,16 +109,38 @@ Alerting-UUIE/h245Address        H245TransportAddress
 Facility-UUIE/h245Address        H245TransportAddress
 Progress-UUIE/h245Address        H245TransportAddress
 #.FIELD_RENAME
-H245TransportAddress/ipAddress       h245IpAddress
-H245TransportAddress/ipAddress/ip    h245Ip
-H245TransportAddress/ipAddress/port  h245IpPort
+H245TransportAddress/ipAddress              h245IpAddress
+H245TransportAddress/ipAddress/ip           h245Ip
+H245TransportAddress/ipAddress/port         h245IpPort
 H245TransportAddress/ipSourceRoute          h245IpSourceRoute
 H245TransportAddress/ipSourceRoute/route    h245Route
 H245TransportAddress/ipSourceRoute/routing  h245Routing
-H245TransportAddress/ipxAddress       h245IpxAddress
-H245TransportAddress/ipxAddress/port  h245IpxPort
-H245TransportAddress/ip6Address     h245Ip6Address
-H245TransportAddress/ip6Address/ip  h245Ip6
+H245TransportAddress/ipxAddress             h245IpxAddress
+H245TransportAddress/ipxAddress/port        h245IpxPort
+H245TransportAddress/ip6Address             h245Ip6Address
+H245TransportAddress/ip6Address/ip          h245Ip6
+H245TransportAddress/ip6Address/port        h245Ip6port
+DisplayName/language                        displayName_language
+Endpoint/remoteExtensionAddress/_item       ep_remoteExtensionAddress_item
+AdmissionConfirm/remoteExtensionAddress/_item ac_remoteExtensionAddress_item
+
+#.FIELD_ATTR
+H245TransportAddress/ipAddress/ip             ABBREV=h245Ip
+H245TransportAddress/ipAddress/port           ABBREV=h245IpPort
+H245TransportAddress/ip6Address/ip            ABBREV=h245Ip6
+H245TransportAddress/ip6Address/port          ABBREV=h245Ip6port
+H245TransportAddress/ipxAddress/port          ABBREV=h245IpxPort
+TransportAddress/ipSourceRoute/ip             ABBREV=src_route_ipV4
+TransportAddress/ipSourceRoute/port           ABBREV=ipV4_src_port
+TransportAddress/ipAddress/ip                 ABBREV=ipV4
+TransportAddress/ipAddress/port               ABBREV=ipV4_port
+TransportAddress/ip6Address/ip                ABBREV=ipV6
+TransportAddress/ip6Address/port              ABBREV=ipV6_port
+TransportAddress/ipxAddress/port              ABBREV=ipx_port
+DisplayName/language                          ABBREV=displayName_language
+ExtendedAliasAddress/address                  ABBREV=extAliasAddress
+Endpoint/remoteExtensionAddress/_item         ABBREV=remoteExtensionAddress.item
+AdmissionConfirm/remoteExtensionAddress/_item ABBREV=ac_remoteExtensionAddress_item
 
 #.VIRTUAL_ASSGN
 Language           Setup-UUIE/language

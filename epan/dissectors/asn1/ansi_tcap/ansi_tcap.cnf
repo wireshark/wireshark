@@ -9,6 +9,15 @@ PackageType
 Priority
 #.END
 
+#.FIELD_RENAME
+Invoke/parameter                        invoke_parameter
+ReturnResult/parameter                  returnResult_parameter
+ReturnError/parameter                   returnError_parameter
+Reject/parameter                        reject_parameter
+Abort/causeInformation/userInformation  abort_userInformation
+ErrorCode/private                       ec_private
+#.FIELD_ATTR
+ErrorCode/private ABBREV=ec_private
 #--- OperationCode ---
 
 #.FN_PARS

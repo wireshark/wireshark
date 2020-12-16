@@ -771,4 +771,7 @@ EventSpecificInformationSMS/o-smsFailureSpecificInfo/failureCause ABBREV=mo-smsf
 EventSpecificInformationBCSM/routeSelectFailureSpecificInfo/failureCause ABBREV=routeSelectfailureCause
 EventSpecificInformationSMS/t-smsFailureSpecificInfo/failureCause ABBREV=t-smsfailureCause
 Tone/duration ABBREV=toneDuration
+GapIndicators/duration		ABBREV=gapIndicatorsDuration
+InbandInfo/duration			ABBREV=inbandInfoDuration
+
 #.END

@@ -7585,7 +7585,7 @@ proto_register_ccp(void)
     ccp_option_table = register_dissector_table("ccp.option", "PPP CCP Options", proto_ccp, FT_UINT8, BASE_DEC);
 
     /* Register CCP options as their own protocols so we can get the name of the option */
-    proto_ccp_option_oui = proto_register_protocol_in_name_only("OUI", "OUI", "ccp.opt.oui", proto_ccp, FT_BYTES);
+    proto_ccp_option_oui = proto_register_protocol_in_name_only("OUI", "OUI", "ccp.opt_oui", proto_ccp, FT_BYTES);
     proto_ccp_option_predict1 = proto_register_protocol_in_name_only("Predictor type 1", "Predictor type 1", "ccp.opt.predict1", proto_ccp, FT_BYTES);
     proto_ccp_option_predict2 = proto_register_protocol_in_name_only("Predictor type 2", "Predictor type 2", "ccp.opt.predict2", proto_ccp, FT_BYTES);
     proto_ccp_option_puddle = proto_register_protocol_in_name_only("Puddle Jumper", "Puddle Jumper", "ccp.opt.puddle", proto_ccp, FT_BYTES);

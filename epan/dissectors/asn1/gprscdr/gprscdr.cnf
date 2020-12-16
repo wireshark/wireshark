@@ -37,6 +37,11 @@ GPRSRecord_PDU
 &id                    ObjectIdentifierType
 &Value
 
+#.FIELD_RENAME
+IPBinaryAddress/iPBinV6Address iPBinV6Address_choice
+#.FIELD_ATTR
+IPBinaryAddress/iPBinV6Address ABBREV=iPBinV6Address_choice
+
 #.PDU
 GPRSCallEventRecord
 GPRSRecord
