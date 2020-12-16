@@ -1191,7 +1191,7 @@ dissect_ieee1609dot2_Psid(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 
 static int
 dissect_ieee1609dot2_T_psPsid(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 108 "./asn1/ieee1609dot2/ieee1609dot2.cnf"
+#line 111 "./asn1/ieee1609dot2/ieee1609dot2.cnf"
   offset = dissect_oer_constrained_integer_64b_no_ub(tvb, offset, actx, tree, hf_index,
                                                0U, NO_BOUND, &((ieee1609_private_data_t*)actx->private_data)->psidssp, FALSE);
 
@@ -1204,7 +1204,7 @@ dissect_ieee1609dot2_T_psPsid(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
 
 static int
 dissect_ieee1609dot2_T_opaque(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 112 "./asn1/ieee1609dot2/ieee1609dot2.cnf"
+#line 115 "./asn1/ieee1609dot2/ieee1609dot2.cnf"
   tvbuff_t *ssp;
   ieee1609_private_data_t *my_private_data = (ieee1609_private_data_t*)actx->private_data;
 
@@ -1469,7 +1469,7 @@ dissect_ieee1609dot2_GroupLinkageValue(tvbuff_t *tvb _U_, int offset _U_, asn1_c
 
 static int
 dissect_ieee1609dot2_T_unsecuredData(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 74 "./asn1/ieee1609dot2/ieee1609dot2.cnf"
+#line 77 "./asn1/ieee1609dot2/ieee1609dot2.cnf"
   ieee1609_private_data_t *my_private_data = (ieee1609_private_data_t*)actx->private_data;
 
   offset = dissect_oer_octet_string(tvb, offset, actx, tree, hf_index,
@@ -1495,7 +1495,7 @@ dissect_ieee1609dot2_T_unsecuredData(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
 
 static int
 dissect_ieee1609dot2_T_hiPsid(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 93 "./asn1/ieee1609dot2/ieee1609dot2.cnf"
+#line 96 "./asn1/ieee1609dot2/ieee1609dot2.cnf"
   guint64 psid;
   ieee1609_private_data_t *my_private_data = (ieee1609_private_data_t*)actx->private_data;
 
@@ -2058,7 +2058,7 @@ static const oer_sequence_t Ieee1609Dot2Data_sequence[] = {
 
 static int
 dissect_ieee1609dot2_Ieee1609Dot2Data(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 70 "./asn1/ieee1609dot2/ieee1609dot2.cnf"
+#line 73 "./asn1/ieee1609dot2/ieee1609dot2.cnf"
   actx->private_data = (void*)wmem_new0(wmem_packet_scope(), ieee1609_private_data_t);
 
   offset = dissect_oer_sequence(tvb, offset, actx, tree, hf_index,
@@ -2434,7 +2434,7 @@ void proto_register_ieee1609dot2(void) {
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_ieee1609dot2_srRange,
-      { "opaque", "ieee1609dot2.opaque",
+      { "opaque", "ieee1609dot2.srRange.opaque",
         FT_UINT32, BASE_DEC, NULL, 0,
         "SequenceOfOctetString", HFILL }},
     { &hf_ieee1609dot2_all,

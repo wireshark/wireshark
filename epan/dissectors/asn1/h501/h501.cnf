@@ -14,6 +14,16 @@ ALIGNED
 Message
 #.END
 
+#.FIELD_RENAME
+DescriptorRejection/descriptorID descriptorRejection_descriptorID
+UpdateInformation/descriptorInfo/descriptorID updateInformation_descriptorID
+DescriptorInfo/descriptorID descriptorInfo_descriptorID
+#.FIELD_ATTR
+DescriptorRejection/descriptorID               ABBREV=descriptorRejection_descriptorID
+UpdateInformation/descriptorInfo/descriptorID  ABBREV=updateInformation_descriptorID
+DescriptorInfo/descriptorID                    ABBREV=descriptorInfo_descriptorID
+
+
 #.FN_PARS MessageBody
   VAL_PTR = &msg_type
 #.FN_HDR

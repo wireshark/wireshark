@@ -1302,7 +1302,7 @@ DataMode/bitRate bitRate_0_4294967295
 H223Capability/bitRate bitRate_1_19200
 H261VideoMode/bitRate bitRate_1_19200
 H263VideoMode/bitRate bitRate_1_19200
-DialingInformationNumber/networkAddress networkAddressNum
+DialingInformationNumber/networkAddress din_networkAddress
 NewATMVCCommand/aal/aal1/clockRecovery/adaptiveClockRecovery adaptiveClockRecoveryFlag
 NewATMVCIndication/aal/aal1/clockRecovery/adaptiveClockRecovery adaptiveClockRecoveryFlag
 NewATMVCCommand/aal/aal1/clockRecovery/nullClockRecovery nullClockRecoveryflag
@@ -1403,6 +1403,23 @@ ParameterValue/octetString  TYPE = FT_UINT32 DISPLAY = BASE_DEC
 #----------------------------------------------------------------------------------------
 #.FIELD_ATTR
 AlternativeCapabilitySet/_item NAME = "alternativeCapability"
+CapabilityIdentifier/standard ABBREV=standardOid
+UnicastAddress/iPXAddress/tsapIdentifier ABBREV=ipx.tsapIdentifier
+UnicastAddress/iP6Address/tsapIdentifier ABBREV=ipv6.tsapIdentifier
+UnicastAddress/iPSourceRouteAddress/tsapIdentifier ABBREV=iPSrcRoute.tsapIdentifier
+MulticastAddress/iPAddress/tsapIdentifier ABBREV=multicast.tsapIdentifier
+MulticastAddress/iP6Address/tsapIdentifier ABBREV=multicast_IPv6.tsapIdentifier
+UnicastAddress/iPAddress/network ABBREV=ip4_network
+UnicastAddress/iP6Address/network ABBREV=ip6_network
+MulticastAddress/iP6Address/network ABBREV=mip6_network
+MulticastAddress/iPAddress ABBREV=mIPAddress
+MulticastAddress/iP6Address ABBREV=mIP6Address
+MulticastAddress/iPAddress/network ABBREV=mip4_network
+Criteria/value ABBREV=criteriaValue
+DialingInformationNumber/networkAddress ABBREV=din_networkAddress
+SendTerminalCapabilitySet/specificRequest/multiplexCapability ABBREV=multiplexCapabilityBool
+H263Version3Options/pictureNumber ABBREV=pictureNumberBoolean
+H223Capability/mobileOperationTransmitCapability/h223AnnexADoubleFlag ABBREV=h223AnnexADoubleFlagFlag
 
 #----------------------------------------------------------------------------------------
 # vim:set ts=4 sts=2 sw=2:

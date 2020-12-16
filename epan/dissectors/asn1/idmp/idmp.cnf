@@ -23,6 +23,9 @@ IDM-PDU/result		idm_result
 
 IdmResult/invokeID	idm_invokeID
 
+#.FIELD_ATTR
+IdmResult/invokeID ABBREV=idmResult.invokeID
+
 #.FN_BODY	IdmBind/argument
 	struct SESSION_DATA_STRUCTURE *session = (struct SESSION_DATA_STRUCTURE*)actx->private_data;
 

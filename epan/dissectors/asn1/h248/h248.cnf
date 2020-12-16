@@ -90,6 +90,18 @@ EventParameterV1/value		event_param_value
 SigParameterV1/value		sig_param_value
 AuditReplyV1/auditResult	audit_result
 
+#.FIELD_ATTR
+IP4Address/address                  ABBREV=iP4Address
+IP6Address/address                  ABBREV=iP6Address
+TransactionRequest/transactionId    ABBREV=transactionRequest.transactionId
+SegmentReply/transactionId          ABBREV=segmentreply.transactionId
+TransactionReply/transactionId      ABBREV=transactionreply.transactionId
+TransactionPending/transactionId    ABBREV=transactionpending.transactionId
+DomainName/name                     ABBREV=domainname
+TerminationID/id                    ABBREV=terminationId
+PropertyParm/value                  ABBREV=propertyParamValue
+EventParameterV1/value              ABBREV=event_param_value
+SigParameterV1/value                ABBREV=sig_param_value
 
 #.FN_HDR Message
     curr_info.msg = gcp_msg(actx->pinfo,tvb_raw_offset(tvb),keep_persistent_data);

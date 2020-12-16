@@ -92,7 +92,7 @@ static int hf_h282_maxNumberOfFilters = -1;       /* INTEGER_2_255 */
 static int hf_h282_filterTextLabel = -1;          /* T_filterTextLabel */
 static int hf_h282_filterTextLabel_item = -1;     /* T_filterTextLabel_item */
 static int hf_h282_filterNumber = -1;             /* INTEGER_1_255 */
-static int hf_h282_filterTextLabel_01 = -1;       /* DeviceText */
+static int hf_h282_filterTextLabel_deviceText = -1;  /* DeviceText */
 static int hf_h282_maxNumberOfLens = -1;          /* INTEGER_2_255 */
 static int hf_h282_accessoryTextLabel = -1;       /* T_accessoryTextLabel */
 static int hf_h282_accessoryTextLabel_item = -1;  /* T_accessoryTextLabel_item */
@@ -1235,7 +1235,7 @@ dissect_h282_INTEGER_1_255(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 
 static const per_sequence_t T_filterTextLabel_item_sequence[] = {
   { &hf_h282_filterNumber   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_h282_INTEGER_1_255 },
-  { &hf_h282_filterTextLabel_01, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_h282_DeviceText },
+  { &hf_h282_filterTextLabel_deviceText, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_h282_DeviceText },
   { NULL, 0, 0, NULL }
 };
 
@@ -4244,7 +4244,7 @@ static const per_choice_t RequestPDU_choice[] = {
 
 static int
 dissect_h282_RequestPDU(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 22 "./asn1/h282/h282.cnf"
+#line 28 "./asn1/h282/h282.cnf"
   gint32 msg_type = -1;
   const gchar *p = NULL;
 
@@ -4252,7 +4252,7 @@ dissect_h282_RequestPDU(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_,
                                  ett_h282_RequestPDU, RequestPDU_choice,
                                  &msg_type);
 
-#line 25 "./asn1/h282/h282.cnf"
+#line 31 "./asn1/h282/h282.cnf"
   p = try_val_to_str(msg_type, VALS(h282_RequestPDU_vals));
   if (p)
     col_add_fstr(actx->pinfo->cinfo, COL_INFO, "RequestPDU/%s", p);
@@ -4287,7 +4287,7 @@ static const per_choice_t ResponsePDU_choice[] = {
 
 static int
 dissect_h282_ResponsePDU(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 33 "./asn1/h282/h282.cnf"
+#line 39 "./asn1/h282/h282.cnf"
   gint32 msg_type = -1;
   const gchar *p = NULL;
 
@@ -4295,7 +4295,7 @@ dissect_h282_ResponsePDU(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
                                  ett_h282_ResponsePDU, ResponsePDU_choice,
                                  &msg_type);
 
-#line 36 "./asn1/h282/h282.cnf"
+#line 42 "./asn1/h282/h282.cnf"
   p = try_val_to_str(msg_type, VALS(h282_ResponsePDU_vals));
   if (p)
     col_add_fstr(actx->pinfo->cinfo, COL_INFO, "ResponsePDU/%s", p);
@@ -4322,7 +4322,7 @@ static const per_choice_t IndicationPDU_choice[] = {
 
 static int
 dissect_h282_IndicationPDU(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 44 "./asn1/h282/h282.cnf"
+#line 50 "./asn1/h282/h282.cnf"
   gint32 msg_type = -1;
   const gchar *p = NULL;
 
@@ -4330,7 +4330,7 @@ dissect_h282_IndicationPDU(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
                                  ett_h282_IndicationPDU, IndicationPDU_choice,
                                  &msg_type);
 
-#line 47 "./asn1/h282/h282.cnf"
+#line 53 "./asn1/h282/h282.cnf"
   p = try_val_to_str(msg_type, VALS(h282_IndicationPDU_vals));
   if (p)
     col_add_fstr(actx->pinfo->cinfo, COL_INFO, "IndicationPDU/%s", p);
@@ -4627,8 +4627,8 @@ void proto_register_h282(void) {
       { "filterNumber", "h282.filterNumber",
         FT_UINT32, BASE_DEC, NULL, 0,
         "INTEGER_1_255", HFILL }},
-    { &hf_h282_filterTextLabel_01,
-      { "filterTextLabel", "h282.filterTextLabel",
+    { &hf_h282_filterTextLabel_deviceText,
+      { "filterTextLabel", "h282.filterTextLabel.deviceText",
         FT_BYTES, BASE_NONE, NULL, 0,
         "DeviceText", HFILL }},
     { &hf_h282_maxNumberOfLens,

@@ -16,6 +16,12 @@ RDCPDU
 NonCollapsingCapabilities
 #.END
 
+#.FIELD_RENAME
+CameraFilterCapability/filterTextLabel/_item/filterTextLabel filterTextLabel_deviceText
+
+#.FIELD_ATTR
+CameraFilterCapability/filterTextLabel/_item/filterTextLabel ABBREV=filterTextLabel.deviceText
+
 #.FN_PARS RequestPDU
   VAL_PTR = &msg_type
 #.FN_HDR

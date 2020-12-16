@@ -126,7 +126,7 @@ static int hf_h501_descriptorID_item = -1;        /* DescriptorID */
 static int hf_h501_descriptor = -1;               /* SEQUENCE_OF_Descriptor */
 static int hf_h501_descriptor_item = -1;          /* Descriptor */
 static int hf_h501_reason_02 = -1;                /* DescriptorRejectionReason */
-static int hf_h501_descriptorID_01 = -1;          /* DescriptorID */
+static int hf_h501_descriptorRejection_descriptorID = -1;  /* DescriptorID */
 static int hf_h501_packetSizeExceeded = -1;       /* NULL */
 static int hf_h501_illegalID = -1;                /* NULL */
 static int hf_h501_hopCountExceeded = -1;         /* NULL */
@@ -139,6 +139,7 @@ static int hf_h501_sender = -1;                   /* AliasAddress */
 static int hf_h501_updateInfo = -1;               /* SEQUENCE_OF_UpdateInformation */
 static int hf_h501_updateInfo_item = -1;          /* UpdateInformation */
 static int hf_h501_descriptorInfo_01 = -1;        /* T_descriptorInfo */
+static int hf_h501_updateInformation_descriptorID = -1;  /* DescriptorID */
 static int hf_h501_descriptor_01 = -1;            /* Descriptor */
 static int hf_h501_updateType = -1;               /* T_updateType */
 static int hf_h501_added = -1;                    /* NULL */
@@ -250,6 +251,7 @@ static int hf_h501_minimum = -1;                  /* NULL */
 static int hf_h501_maximum = -1;                  /* NULL */
 static int hf_h501_descriptorInfo_02 = -1;        /* DescriptorInfo */
 static int hf_h501_gatekeeperID = -1;             /* GatekeeperIdentifier */
+static int hf_h501_descriptorInfo_descriptorID = -1;  /* DescriptorID */
 static int hf_h501_lastChanged = -1;              /* GlobalTimeStamp */
 static int hf_h501_alternatePE = -1;              /* SEQUENCE_OF_AlternatePE */
 static int hf_h501_alternatePE_item = -1;         /* AlternatePE */
@@ -810,7 +812,7 @@ dissect_h501_GlobalTimeStamp(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
 
 
 static const per_sequence_t DescriptorInfo_sequence[] = {
-  { &hf_h501_descriptorID_01, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h501_DescriptorID },
+  { &hf_h501_descriptorInfo_descriptorID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h501_DescriptorID },
   { &hf_h501_lastChanged    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h501_GlobalTimeStamp },
   { NULL, 0, 0, NULL }
 };
@@ -1298,7 +1300,7 @@ dissect_h501_DescriptorRejectionReason(tvbuff_t *tvb _U_, int offset _U_, asn1_c
 
 static const per_sequence_t DescriptorRejection_sequence[] = {
   { &hf_h501_reason_02      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_h501_DescriptorRejectionReason },
-  { &hf_h501_descriptorID_01, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h501_DescriptorID },
+  { &hf_h501_descriptorRejection_descriptorID, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_h501_DescriptorID },
   { NULL, 0, 0, NULL }
 };
 
@@ -1406,7 +1408,7 @@ static const value_string h501_T_descriptorInfo_vals[] = {
 };
 
 static const per_choice_t T_descriptorInfo_choice[] = {
-  {   0, &hf_h501_descriptorID_01, ASN1_EXTENSION_ROOT    , dissect_h501_DescriptorID },
+  {   0, &hf_h501_updateInformation_descriptorID, ASN1_EXTENSION_ROOT    , dissect_h501_DescriptorID },
   {   1, &hf_h501_descriptor_01  , ASN1_EXTENSION_ROOT    , dissect_h501_Descriptor },
   { 0, NULL, 0, NULL }
 };
@@ -2342,7 +2344,7 @@ static const per_choice_t MessageBody_choice[] = {
 
 static int
 dissect_h501_MessageBody(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 20 "./asn1/h501/h501.cnf"
+#line 30 "./asn1/h501/h501.cnf"
   gint32 msg_type = -1;
   const gchar *p = NULL;
 
@@ -2350,7 +2352,7 @@ dissect_h501_MessageBody(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
                                  ett_h501_MessageBody, MessageBody_choice,
                                  &msg_type);
 
-#line 23 "./asn1/h501/h501.cnf"
+#line 33 "./asn1/h501/h501.cnf"
   p = try_val_to_str(msg_type, VALS(h501_MessageBody_vals));
   if (p )
     col_set_str(actx->pinfo->cinfo, COL_INFO, p);
@@ -2884,8 +2886,8 @@ void proto_register_h501(void) {
       { "reason", "h501.reason",
         FT_UINT32, BASE_DEC, VALS(h501_DescriptorRejectionReason_vals), 0,
         "DescriptorRejectionReason", HFILL }},
-    { &hf_h501_descriptorID_01,
-      { "descriptorID", "h501.descriptorID",
+    { &hf_h501_descriptorRejection_descriptorID,
+      { "descriptorID", "h501.descriptorRejection_descriptorID",
         FT_GUID, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_h501_packetSizeExceeded,
@@ -2935,6 +2937,10 @@ void proto_register_h501(void) {
     { &hf_h501_descriptorInfo_01,
       { "descriptorInfo", "h501.descriptorInfo",
         FT_UINT32, BASE_DEC, VALS(h501_T_descriptorInfo_vals), 0,
+        NULL, HFILL }},
+    { &hf_h501_updateInformation_descriptorID,
+      { "descriptorID", "h501.updateInformation_descriptorID",
+        FT_GUID, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_h501_descriptor_01,
       { "descriptor", "h501.descriptor_element",
@@ -3380,6 +3386,10 @@ void proto_register_h501(void) {
       { "gatekeeperID", "h501.gatekeeperID",
         FT_STRING, BASE_NONE, NULL, 0,
         "GatekeeperIdentifier", HFILL }},
+    { &hf_h501_descriptorInfo_descriptorID,
+      { "descriptorID", "h501.descriptorInfo_descriptorID",
+        FT_GUID, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
     { &hf_h501_lastChanged,
       { "lastChanged", "h501.lastChanged",
         FT_STRING, BASE_NONE, NULL, 0,

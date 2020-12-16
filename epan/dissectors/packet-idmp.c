@@ -879,7 +879,7 @@ void proto_register_idmp(void)
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_idmp_idm_invokeID,
-      { "invokeID", "idmp.invokeID",
+      { "invokeID", "idmp.idmResult.invokeID",
         FT_UINT32, BASE_DEC, VALS(idmp_InvokeId_vals), 0,
         NULL, HFILL }},
     { &hf_idmp_result,
