@@ -738,7 +738,7 @@ install_glib() {
         # will be set to /usr/include (in those older versions of the
         # developer tools, there is a /usr/include directory).
         #
-        includedir=`xcrun --show-sdk-path 2>/dev/null`/usr/include
+        includedir=`SDKROOT="$SDKPATH" xcrun --show-sdk-path 2>/dev/null`/usr/include
         if grep -qs '#define.*MACOSX' $includedir/ffi/fficonfig.h
         then
             # It's defined, nothing to do
