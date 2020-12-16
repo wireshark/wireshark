@@ -242,14 +242,14 @@ static void sf_netsh_port_new(GString *rtxt, gchar *addr _U_, guint32 port, port
 /* IPv4 + port */
 static void sf_ios_ext_ipv4_port(GString *rtxt, gchar *addr, guint32 port _U_, port_type ptype, gboolean inbound, gboolean deny) {
     if (inbound)
-        g_string_append_printf(rtxt, "access-list NUMBER %s %s host %s any eq %u", IOS_RULE(deny), RT_TCP_UDP(ptype), addr, port);
+        g_string_append_printf(rtxt, "access-list NUMBER %s %s host %s eq %u any", IOS_RULE(deny), RT_TCP_UDP(ptype), addr, port);
     else
         g_string_append_printf(rtxt, "access-list NUMBER %s %s any host %s eq %u", IOS_RULE(deny), RT_TCP_UDP(ptype), addr, port);
 }
 
 static void sf_ipfilter_ipv4_port(GString *rtxt, gchar *addr, guint32 port, port_type ptype, gboolean inbound, gboolean deny) {
     if (inbound)
-        g_string_append_printf(rtxt, "%s %s on le0 proto %s from %s to any port = %u",
+        g_string_append_printf(rtxt, "%s %s on le0 proto %s from %s port = %u to any",
             IPFILTER_RULE(deny), IPFILTER_DIR(inbound), RT_TCP_UDP(ptype), addr, port);
     else
         g_string_append_printf(rtxt, "%s %s on le0 proto %s from any to %s port = %u",
@@ -257,7 +257,7 @@ static void sf_ipfilter_ipv4_port(GString *rtxt, gchar *addr, guint32 port, port
 }
 
 static void sf_ipfw_ipv4_port(GString *rtxt, gchar *addr, guint32 port, port_type ptype, gboolean inbound, gboolean deny) {
-    g_string_append_printf(rtxt, "add %s %s from %s to any %u %s",
+    g_string_append_printf(rtxt, "add %s %s from %s %u to any %s",
         IPFW_RULE(deny), RT_TCP_UDP(ptype), addr, port, IPFW_DIR(inbound));
 }
 
