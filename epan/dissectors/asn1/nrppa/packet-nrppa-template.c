@@ -8,7 +8,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
- * Ref 3GPP TS 38.455 V15.2.1 (2019-01-14)
+ * Ref 3GPP TS 38.455 V16.1.0 (2020-09)
  * http://www.3gpp.org
  */
 
@@ -41,6 +41,7 @@ static guint32 ProtocolIE_ID;
 
 /* Dissector tables */
 static dissector_table_t nrppa_ies_dissector_table;
+static dissector_table_t nrppa_extension_dissector_table;
 static dissector_table_t nrppa_proc_imsg_dissector_table;
 static dissector_table_t nrppa_proc_sout_dissector_table;
 static dissector_table_t nrppa_proc_uout_dissector_table;
@@ -49,6 +50,7 @@ static dissector_table_t nrppa_proc_uout_dissector_table;
 #include "packet-nrppa-val.h"
 
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *);
+static int dissect_ProtocolExtensionFieldExtensionValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *);
 static int dissect_InitiatingMessageValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *);
 static int dissect_SuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *);
 static int dissect_UnsuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *);
@@ -58,6 +60,11 @@ static int dissect_UnsuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, p
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
   return (dissector_try_uint_new(nrppa_ies_dissector_table, ProtocolIE_ID, tvb, pinfo, tree, FALSE, NULL)) ? tvb_captured_length(tvb) : 0;
+}
+
+static int dissect_ProtocolExtensionFieldExtensionValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+  return (dissector_try_uint_new(nrppa_extension_dissector_table, ProtocolIE_ID, tvb, pinfo, tree, FALSE, NULL)) ? tvb_captured_length(tvb) : 0;
 }
 
 static int dissect_InitiatingMessageValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
@@ -100,6 +107,7 @@ void proto_register_nrppa(void) {
 
    /* Register dissector tables */
   nrppa_ies_dissector_table = register_dissector_table("nrppa.ies", "NRPPA-PROTOCOL-IES", proto_nrppa, FT_UINT32, BASE_DEC);
+  nrppa_extension_dissector_table = register_dissector_table("nrppa.extension", "NRPPA-PROTOCOL-EXTENSION", proto_nrppa, FT_UINT32, BASE_DEC);
   nrppa_proc_imsg_dissector_table = register_dissector_table("nrppa.proc.imsg", "NRPPA-ELEMENTARY-PROCEDURE InitiatingMessage", proto_nrppa, FT_UINT32, BASE_DEC);
   nrppa_proc_sout_dissector_table = register_dissector_table("nrppa.proc.sout", "NRPPA-ELEMENTARY-PROCEDURE SuccessfulOutcome", proto_nrppa, FT_UINT32, BASE_DEC);
   nrppa_proc_uout_dissector_table = register_dissector_table("nrppa.proc.uout", "NRPPA-ELEMENTARY-PROCEDURE UnsuccessfulOutcome", proto_nrppa, FT_UINT32, BASE_DEC);

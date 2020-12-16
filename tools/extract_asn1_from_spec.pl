@@ -35,7 +35,7 @@ close(INPUT_FILE);
 sub extract_spec_version {
   my $line;
   while($line = <INPUT_FILE>){
-    if($line =~ m/3GPP TS ((25|36|38)\.331|(36|37)\.355|(36|38)\.413|(36|38).423|38\.463|38\.473) V/){
+    if($line =~ m/3GPP TS ((25|36|38)\.331|(36|37)\.355|(36|38)\.413|(36|38)\.423|38\.455|38\.463|38\.473) V/){
       $version = $line;
       return;
     }

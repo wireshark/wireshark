@@ -1,4 +1,4 @@
--- 3GPP TS 38.455 V15.2.1 (2019-01-14)
+-- 3GPP TS 38.455 V16.1.0 (2020-09)﻿
 -- 9.3.7	Constant definitions
 -- **************************************************************
 --
@@ -33,6 +33,18 @@ id-e-CIDMeasurementFailureIndication							ProcedureCode ::= 3
 id-e-CIDMeasurementReport										ProcedureCode ::= 4
 id-e-CIDMeasurementTermination									ProcedureCode ::= 5
 id-oTDOAInformationExchange										ProcedureCode ::= 6
+id-assistanceInformationControl									ProcedureCode ::= 7
+id-assistanceInformationFeedback								ProcedureCode ::= 8
+id-positioningInformationExchange								ProcedureCode ::= 9
+id-positioningInformationUpdate									ProcedureCode ::= 10
+id-Measurement													ProcedureCode ::= 11
+id-MeasurementReport											ProcedureCode ::= 12
+id-MeasurementUpdate											ProcedureCode ::= 13
+id-MeasurementAbort												ProcedureCode ::= 14
+id-MeasurementFailureIndication									ProcedureCode ::= 15
+id-tRPInformationExchange										ProcedureCode ::= 16
+id-positioningActivation										ProcedureCode ::= 17
+id-positioningDeactivation										ProcedureCode ::= 18
 
 -- **************************************************************
 --
@@ -42,14 +54,47 @@ id-oTDOAInformationExchange										ProcedureCode ::= 6
 
 maxNrOfErrors								INTEGER ::= 256
 maxCellinRANnode							INTEGER ::= 3840
-maxNoMeas									INTEGER ::= 63
+maxIndexesReport							INTEGER ::= 64
+maxNoMeas									INTEGER ::= 64
 maxCellReport								INTEGER ::= 9
+maxCellReportNR								INTEGER ::= 9
 maxnoOTDOAtypes								INTEGER ::= 63
 maxServCell									INTEGER ::= 5
+maxEUTRAMeas								INTEGER ::= 8
 maxGERANMeas								INTEGER ::= 8
+maxNRMeas									INTEGER ::= 8
 maxUTRANMeas								INTEGER ::= 8
-maxWLANchannels								INTEGER ::= 16 
+maxWLANchannels								INTEGER ::= 16
 maxnoFreqHoppingBandsMinusOne				INTEGER ::= 7
+maxNoPath									INTEGER ::= 2
+maxNrOfPosSImessage							INTEGER ::= 32
+maxnoAssistInfoFailureListItems				INTEGER ::= 32
+maxNrOfSegments								INTEGER ::= 64
+maxNrOfPosSIBs								INTEGER ::= 32 
+maxNoOfMeasTRPs								INTEGER ::= 64
+maxnoTRPs									INTEGER ::= 65535
+maxnoTRPInfoTypes							INTEGER ::= 64
+maxnoofAngleInfo							INTEGER ::= 65535
+maxnolcs-gcs-translation					INTEGER ::= 3
+maxnoBcastCell								INTEGER ::= 16384
+maxnoSRSTriggerStates						INTEGER ::= 3
+maxnoSpatialRelations						INTEGER ::= 64
+maxnoPosMeas								INTEGER ::= 16384
+maxnoSRS-Carriers							INTEGER ::= 32
+maxnoSCSs									INTEGER ::= 5
+maxnoSRS-Resources							INTEGER ::= 64
+maxnoSRS-PosResources						INTEGER ::= 64
+maxnoSRS-ResourceSets						INTEGER ::= 16
+maxnoSRS-ResourcePerSet						INTEGER ::= 16
+maxnoSRS-PosResourceSets					INTEGER ::= 16
+maxnoSRS-PosResourcePerSet					INTEGER ::= 16
+maxPRS-ResourceSets							INTEGER ::= 2
+maxPRS-ResourcesPerSet						INTEGER ::= 64
+maxNoSSBs									INTEGER ::= 255
+maxnoofPRSresourceSet						INTEGER ::= 8
+maxnoofPRSresource							INTEGER ::= 64
+
+
 
 -- **************************************************************
 --
@@ -78,5 +123,39 @@ id-WLANMeasurementQuantities									ProtocolIE-ID ::= 19
 id-WLANMeasurementQuantities-Item								ProtocolIE-ID ::= 20
 id-WLANMeasurementResult										ProtocolIE-ID ::= 21
 id-TDD-Config-EUTRA-Item										ProtocolIE-ID ::= 22
+id-Assistance-Information										ProtocolIE-ID ::= 23
+id-Broadcast													ProtocolIE-ID ::= 24
+id-AssistanceInformationFailureList								ProtocolIE-ID ::= 25
+id-SRSConfiguration												ProtocolIE-ID ::= 26
+id-MeasurementResult											ProtocolIE-ID ::= 27
+id-TRP-ID														ProtocolIE-ID ::= 28
+id-TRPInformationTypeList										ProtocolIE-ID ::= 29
+id-TRPInformationList											ProtocolIE-ID ::= 30
+id-MeasurementBeamInfoRequest									ProtocolIE-ID ::= 31
+id-ResultSS-RSRP												ProtocolIE-ID ::= 32
+id-ResultSS-RSRQ												ProtocolIE-ID ::= 33
+id-ResultCSI-RSRP												ProtocolIE-ID ::= 34
+id-ResultCSI-RSRQ												ProtocolIE-ID ::= 35
+id-AngleOfArrivalNR												ProtocolIE-ID ::= 36
+id-GeographicalCoordinates										ProtocolIE-ID ::= 37
+id-PositioningBroadcastCells									ProtocolIE-ID ::= 38
+id-LMF-Measurement-ID											ProtocolIE-ID ::= 39
+id-RAN-Measurement-ID											ProtocolIE-ID ::= 40
+id-TRP-MeasurementRequestList									ProtocolIE-ID ::= 41
+id-TRP-MeasurementResponseList									ProtocolIE-ID ::= 42
+id-TRP-MeasurementReportList									ProtocolIE-ID ::= 43
+id-SRSType														ProtocolIE-ID ::= 44
+id-ActivationTime												ProtocolIE-ID ::= 45
+id-SRSResourceSetID												ProtocolIE-ID ::= 46
+id-TRPList														ProtocolIE-ID ::= 47
+id-SRSSpatialRelation											ProtocolIE-ID ::= 48
+id-SystemFrameNumber											ProtocolIE-ID ::= 49
+id-SlotNumber													ProtocolIE-ID ::= 50
+id-SRSResourceTrigger											ProtocolIE-ID ::= 51
+id-TRPMeasurementQuantities										ProtocolIE-ID ::= 52
+id-AbortTransmission											ProtocolIE-ID ::= 53 
+id-SFNInitialisationTime										ProtocolIE-ID ::= 54
+id-ResultNR														ProtocolIE-ID ::= 55
+id-ResultEUTRA													ProtocolIE-ID ::= 56
 
 END

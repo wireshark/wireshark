@@ -14,9 +14,7 @@ ProtocolIE-ID
 #.OMIT_ASSIGNMENT
 Presence
 ProtocolIE-ContainerList
-ProtocolIE-ContainerPairList
-ProtocolIE-FieldPair
-RequestedSRSTransmissionCharacteristics
+PRS-ID
 
 #.PDU
 NRPPA-PDU
@@ -31,6 +29,7 @@ InitiatingMessage/value initiatingMessagevalue
 UnsuccessfulOutcome/value unsuccessfulOutcome_value
 SuccessfulOutcome/value successfulOutcome_value
 ProtocolIE-Field/value ie_field_value
+ProtocolExtensionField/id ext_id
 
 #.FN_PARS ProtocolIE-ID  VAL_PTR=&ProtocolIE_ID
 #.FN_FTR ProtocolIE-ID
@@ -47,6 +46,8 @@ ProtocolIE-Field/value ie_field_value
 #.END
 
 #.FN_PARS ProtocolIE-Field/value  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_ProtocolIEFieldValue
+
+#.FN_PARS ProtocolExtensionField/extensionValue  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_ProtocolExtensionFieldExtensionValue
 
 #.FN_PARS InitiatingMessage/value  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_InitiatingMessageValue
 
@@ -74,6 +75,18 @@ id-e-CIDMeasurementFailureIndication ProcedureCode
 id-e-CIDMeasurementReport            ProcedureCode
 id-e-CIDMeasurementTermination       ProcedureCode
 id-oTDOAInformationExchange          ProcedureCode
+id-assistanceInformationControl      ProcedureCode
+id-assistanceInformationFeedback     ProcedureCode
+id-positioningInformationExchange    ProcedureCode
+id-positioningInformationUpdate      ProcedureCode
+id-Measurement                       ProcedureCode
+id-MeasurementReport                 ProcedureCode
+id-MeasurementUpdate                 ProcedureCode
+id-MeasurementAbort                  ProcedureCode
+id-MeasurementFailureIndication      ProcedureCode
+id-tRPInformationExchange            ProcedureCode
+id-positioningActivation             ProcedureCode
+id-positioningDeactivation           ProcedureCode
 
 # ProtocolIE-ID
 
@@ -98,23 +111,57 @@ id-WLANMeasurementQuantities               ProtocolIE-ID
 id-WLANMeasurementQuantities-Item          ProtocolIE-ID
 id-WLANMeasurementResult                   ProtocolIE-ID
 id-TDD-Config-EUTRA-Item                   ProtocolIE-ID
+id-Assistance-Information                  ProtocolIE-ID
+id-Broadcast                               ProtocolIE-ID
+id-AssistanceInformationFailureList        ProtocolIE-ID
+id-SRSConfiguration                        ProtocolIE-ID
+id-MeasurementResult                       ProtocolIE-ID
+id-TRP-ID                                  ProtocolIE-ID
+id-TRPInformationTypeList                  ProtocolIE-ID
+id-TRPInformationList                      ProtocolIE-ID
+id-MeasurementBeamInfoRequest              ProtocolIE-ID
+id-ResultSS-RSRP                           ProtocolIE-ID
+id-ResultSS-RSRQ                           ProtocolIE-ID
+id-ResultCSI-RSRP                          ProtocolIE-ID
+id-ResultCSI-RSRQ                          ProtocolIE-ID
+id-AngleOfArrivalNR                        ProtocolIE-ID
+id-GeographicalCoordinates                 ProtocolIE-ID
+id-PositioningBroadcastCells               ProtocolIE-ID
+id-LMF-Measurement-ID                      ProtocolIE-ID
+id-RAN-Measurement-ID                      ProtocolIE-ID
+id-TRP-MeasurementRequestList              ProtocolIE-ID
+id-TRP-MeasurementResponseList             ProtocolIE-ID
+id-TRP-MeasurementReportList               ProtocolIE-ID
+id-SRSType                                 ProtocolIE-ID
+id-ActivationTime                          ProtocolIE-ID
+id-SRSResourceSetID                        ProtocolIE-ID
+id-TRPList                                 ProtocolIE-ID
+id-SRSSpatialRelation                      ProtocolIE-ID
+id-SystemFrameNumber                       ProtocolIE-ID
+id-SlotNumber                              ProtocolIE-ID
+id-SRSResourceTrigger                      ProtocolIE-ID
+id-TRPMeasurementQuantities                ProtocolIE-ID
+id-AbortTransmission                       ProtocolIE-ID
+id-SFNInitialisationTime                   ProtocolIE-ID
+id-ResultNR                                ProtocolIE-ID
+id-ResultEUTRA                             ProtocolIE-ID
 
 #.REGISTER
 #NRPPA-PROTOCOL-IES
 
 Cause                                      N nrppa.ies id-Cause
 CriticalityDiagnostics                     N nrppa.ies id-CriticalityDiagnostics
-Measurement-ID                             N nrppa.ies id-LMF-UE-Measurement-ID
+UE-Measurement-ID                          N nrppa.ies id-LMF-UE-Measurement-ID
 ReportCharacteristics                      N nrppa.ies id-ReportCharacteristics
 MeasurementPeriodicity                     N nrppa.ies id-MeasurementPeriodicity
 MeasurementQuantities                      N nrppa.ies id-MeasurementQuantities
-Measurement-ID                             N nrppa.ies id-RAN-UE-Measurement-ID
+UE-Measurement-ID                          N nrppa.ies id-RAN-UE-Measurement-ID
 E-CID-MeasurementResult                    N nrppa.ies id-E-CID-MeasurementResult
 OTDOACells                                 N nrppa.ies id-OTDOACells
 OTDOA-Information-Type                     N nrppa.ies id-OTDOA-Information-Type-Group
 OTDOA-Information-Type-Item                N nrppa.ies id-OTDOA-Information-Type-Item
 MeasurementQuantities-Item                 N nrppa.ies id-MeasurementQuantities-Item
-# N nrppa.ies id-RequestedSRSTransmissionCharacteristics
+RequestedSRSTransmissionCharacteristics    N nrppa.ies id-RequestedSRSTransmissionCharacteristics
 Cell-Portion-ID                            N nrppa.ies id-Cell-Portion-ID
 OtherRATMeasurementQuantities              N nrppa.ies id-OtherRATMeasurementQuantities
 OtherRATMeasurementQuantities-Item         N nrppa.ies id-OtherRATMeasurementQuantities-Item
@@ -123,6 +170,39 @@ WLANMeasurementQuantities                  N nrppa.ies id-WLANMeasurementQuantit
 WLANMeasurementQuantities-Item             N nrppa.ies id-WLANMeasurementQuantities-Item
 WLANMeasurementResult                      N nrppa.ies id-WLANMeasurementResult
 TDD-Config-EUTRA-Item                      N nrppa.ies id-TDD-Config-EUTRA-Item
+Assistance-Information                     N nrppa.ies id-Assistance-Information
+Broadcast                                  N nrppa.ies id-Broadcast
+AssistanceInformationFailureList           N nrppa.ies id-AssistanceInformationFailureList
+SRSConfiguration                           N nrppa.ies id-SRSConfiguration
+TRPInformationTypeList                     N nrppa.ies id-TRPInformationTypeList
+TRPInformationList                         N nrppa.ies id-TRPInformationList
+MeasurementBeamInfoRequest                 N nrppa.ies id-MeasurementBeamInfoRequest
+ResultSS-RSRP                              N nrppa.ies id-ResultSS-RSRP
+ResultSS-RSRQ                              N nrppa.ies id-ResultSS-RSRQ
+ResultCSI-RSRP                             N nrppa.ies id-ResultCSI-RSRP
+ResultCSI-RSRQ                             N nrppa.ies id-ResultCSI-RSRQ
+UL-AoA                                     N nrppa.ies id-AngleOfArrivalNR
+PositioningBroadcastCells                  N nrppa.ies id-PositioningBroadcastCells
+Measurement-ID                             N nrppa.ies id-LMF-Measurement-ID
+Measurement-ID                             N nrppa.ies id-RAN-Measurement-ID
+TRP-MeasurementRequestList                 N nrppa.ies id-TRP-MeasurementRequestList
+TRP-MeasurementResponseList                N nrppa.ies id-TRP-MeasurementResponseList
+SRSType                                    N nrppa.ies id-SRSType
+ActivationTime                             N nrppa.ies id-ActivationTime
+TRPList                                    N nrppa.ies id-TRPList
+SystemFrameNumber                          N nrppa.ies id-SystemFrameNumber
+SlotNumber                                 N nrppa.ies id-SlotNumber
+TRPMeasurementQuantities                   N nrppa.ies id-TRPMeasurementQuantities
+AbortTransmission                          N nrppa.ies id-AbortTransmission
+SFNInitialisationTime                      N nrppa.ies id-SFNInitialisationTime
+ResultNR                                   N nrppa.ies id-ResultNR
+ResultEUTRA                                N nrppa.ies id-ResultEUTRA
+
+
+#NRPPA-PROTOCOL-EXTENSION
+
+GeographicalCoordinates                    N nrppa.extension id-GeographicalCoordinates
+SRSSpatialRelation                         N nrppa.extension id-SRSSpatialRelation
 
 
 #LPPA-ELEMENTARY-PROCEDURE
@@ -144,3 +224,34 @@ OTDOAInformationRequest                    N nrppa.proc.imsg id-oTDOAInformation
 OTDOAInformationResponse                   N nrppa.proc.sout id-oTDOAInformationExchange
 OTDOAInformationFailure                    N nrppa.proc.uout id-oTDOAInformationExchange
 
+AssistanceInformationControl               N nrppa.proc.imsg id-assistanceInformationControl
+
+AssistanceInformationFeedback              N nrppa.proc.imsg id-assistanceInformationFeedback
+
+PositioningInformationRequest              N nrppa.proc.imsg id-positioningInformationExchange
+PositioningInformationResponse             N nrppa.proc.sout id-positioningInformationExchange
+PositioningInformationFailure              N nrppa.proc.uout id-positioningInformationExchange
+
+PositioningInformationUpdate               N nrppa.proc.imsg id-positioningInformationUpdate
+
+MeasurementRequest                         N nrppa.proc.imsg id-Measurement
+MeasurementResponse                        N nrppa.proc.sout id-Measurement
+MeasurementFailure                         N nrppa.proc.uout id-Measurement
+
+MeasurementReport                          N nrppa.proc.imsg id-MeasurementReport
+
+MeasurementUpdate                          N nrppa.proc.imsg id-MeasurementUpdate
+
+MeasurementAbort                           N nrppa.proc.imsg id-MeasurementAbort
+
+MeasurementFailureIndication               N nrppa.proc.imsg id-MeasurementFailureIndication
+
+TRPInformationRequest                      N nrppa.proc.imsg id-tRPInformationExchange
+TRPInformationResponse                     N nrppa.proc.sout id-tRPInformationExchange
+TRPInformationFailure                      N nrppa.proc.uout id-tRPInformationExchange
+
+PositioningActivationRequest               N nrppa.proc.imsg id-positioningActivation
+PositioningActivationResponse              N nrppa.proc.sout id-positioningActivation
+PositioningActivationFailure               N nrppa.proc.uout id-positioningActivation
+
+PositioningDeactivation                    N nrppa.proc.imsg id-positioningDeactivation
