@@ -1152,7 +1152,7 @@ uninstall_libtasn1() {
         uninstall_p11_kit "$@"
 
         echo "Uninstalling libtasn1:"
-        cd nettle-$installed_libtasn1_version
+        cd libtasn1-$installed_libtasn1_version
         $DO_MAKE_UNINSTALL || exit 1
         make distclean || exit 1
         cd ..
