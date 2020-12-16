@@ -176,6 +176,9 @@ while $endl; do
 	#    @rpath/libssh.4.dylib, rather than /usr/local/lib/libssh.4.dylib,
 	#    when built by tools/macos-setup.sh;
 	#
+	#    replace "@rpath/libsnappy" with "/usr/local/lib/libssnappy" so that
+	#    it isn't excluded from subsequent filtering.
+
 	#    replace "\tlibbrotli" with "\t/usr/local/lib/libbrotli" so that
 	#    it isn't excluded from subsequent filtering.
 	#    libbrotli, for some reason, doesn't have a path prefix in its
@@ -186,11 +189,18 @@ while $endl; do
 	#
 	#    eliminate duplicates.
 	#
+	# We might want to let dyld do some of the work for us, e.g. by
+	# parsing the output of
+	#
+	#    `DYLD_PRINT_LIBRARIES=1 $bundle_binary`
+	#
+	# instead.
 	libs="$(
 		# shellcheck disable=SC2086
 		otool -L $bundle_binary_list "$pkglib"/*.dylib 2>/dev/null \
 		| grep -F compatibility \
 		| cut -d\( -f1 \
+		| sed '1,$s;^	@rpath/libsnappy;	/usr/local/lib/libsnappy;' \
 		| sed '1,$s;^	@rpath/libssh;	/usr/local/lib/libssh;' \
 		| sed '1,$s;^	libbrotli;	/usr/local/lib/libbrotli;' \
 		| grep -E -v "$exclude_prefixes" \
