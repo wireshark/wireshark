@@ -791,7 +791,7 @@ set -x
         # will be set to /usr/include (in those older versions of the
         # developer tools, there is a /usr/include directory).
         #
-        includedir=`xcrun --show-sdk-path 2>/dev/null`/usr/include
+        includedir=`SDKROOT="$SDKPATH" xcrun --show-sdk-path 2>/dev/null`/usr/include
 	if [ ! -f ./configure ]; then
 	    LIBTOOLIZE=glibtoolize ./autogen.sh
         fi
