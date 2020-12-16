@@ -43,7 +43,7 @@ static int proto_nrppa = -1;
 static int hf_nrppa_NRPPA_PDU_PDU = -1;           /* NRPPA_PDU */
 static int hf_nrppa_AbortTransmission_PDU = -1;   /* AbortTransmission */
 static int hf_nrppa_ActivationTime_PDU = -1;      /* ActivationTime */
-static int hf_nrppa_Assistance_Information_PDU = -1;  /* Assistance_Information */
+static int hf_nrppa_nrppa_Assistance_Information_PDU = -1;  /* Assistance_Information */
 static int hf_nrppa_AssistanceInformationFailureList_PDU = -1;  /* AssistanceInformationFailureList */
 static int hf_nrppa_Broadcast_PDU = -1;           /* Broadcast */
 static int hf_nrppa_PositioningBroadcastCells_PDU = -1;  /* PositioningBroadcastCells */
@@ -1131,7 +1131,7 @@ dissect_nrppa_ProcedureCode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 255U, &ProcedureCode, FALSE);
 
-#line 43 "./asn1/nrppa/nrppa.cnf"
+#line 47 "./asn1/nrppa/nrppa.cnf"
      col_add_fstr(actx->pinfo->cinfo, COL_INFO, "%s ",
                  val_to_str(ProcedureCode, nrppa_ProcedureCode_vals,
                             "unknown message"));
@@ -1205,7 +1205,7 @@ dissect_nrppa_ProtocolIE_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, maxProtocolIEs, &ProtocolIE_ID, FALSE);
 
-#line 36 "./asn1/nrppa/nrppa.cnf"
+#line 40 "./asn1/nrppa/nrppa.cnf"
   if (tree) {
     proto_item_append_text(proto_item_get_parent_nth(actx->created_item, 2), ": %s", val_to_str(ProtocolIE_ID, VALS(nrppa_ProtocolIE_ID_vals), "unknown (%d)"));
   }
@@ -1451,7 +1451,7 @@ static const per_choice_t NRPPA_PDU_choice[] = {
 
 static int
 dissect_nrppa_NRPPA_PDU(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 59 "./asn1/nrppa/nrppa.cnf"
+#line 63 "./asn1/nrppa/nrppa.cnf"
 
   proto_tree_add_item(tree, proto_nrppa, tvb, 0, -1, ENC_NA);
 
@@ -8399,11 +8399,11 @@ static int dissect_ActivationTime_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
   offset += 7; offset >>= 3;
   return offset;
 }
-static int dissect_Assistance_Information_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+int dissect_nrppa_Assistance_Information_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
-  offset = dissect_nrppa_Assistance_Information(tvb, offset, &asn1_ctx, tree, hf_nrppa_Assistance_Information_PDU);
+  offset = dissect_nrppa_Assistance_Information(tvb, offset, &asn1_ctx, tree, hf_nrppa_nrppa_Assistance_Information_PDU);
   offset += 7; offset >>= 3;
   return offset;
 }
@@ -9066,7 +9066,7 @@ void proto_register_nrppa(void) {
       { "ActivationTime", "nrppa.ActivationTime",
         FT_BYTES, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_nrppa_Assistance_Information_PDU,
+    { &hf_nrppa_nrppa_Assistance_Information_PDU,
       { "Assistance-Information", "nrppa.Assistance_Information_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
@@ -11673,7 +11673,7 @@ proto_reg_handoff_nrppa(void)
   dissector_add_uint("nrppa.ies", id_WLANMeasurementQuantities_Item, create_dissector_handle(dissect_WLANMeasurementQuantities_Item_PDU, proto_nrppa));
   dissector_add_uint("nrppa.ies", id_WLANMeasurementResult, create_dissector_handle(dissect_WLANMeasurementResult_PDU, proto_nrppa));
   dissector_add_uint("nrppa.ies", id_TDD_Config_EUTRA_Item, create_dissector_handle(dissect_TDD_Config_EUTRA_Item_PDU, proto_nrppa));
-  dissector_add_uint("nrppa.ies", id_Assistance_Information, create_dissector_handle(dissect_Assistance_Information_PDU, proto_nrppa));
+  dissector_add_uint("nrppa.ies", id_Assistance_Information, create_dissector_handle(dissect_nrppa_Assistance_Information_PDU, proto_nrppa));
   dissector_add_uint("nrppa.ies", id_Broadcast, create_dissector_handle(dissect_Broadcast_PDU, proto_nrppa));
   dissector_add_uint("nrppa.ies", id_AssistanceInformationFailureList, create_dissector_handle(dissect_AssistanceInformationFailureList_PDU, proto_nrppa));
   dissector_add_uint("nrppa.ies", id_SRSConfiguration, create_dissector_handle(dissect_SRSConfiguration_PDU, proto_nrppa));

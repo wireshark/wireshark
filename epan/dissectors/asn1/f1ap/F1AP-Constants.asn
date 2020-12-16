@@ -1,4 +1,4 @@
--- 3GPP TS 38.473 V16.2.0 (2020-07)
+-- 3GPP TS 38.473 V16.3.1 (2020-10)
 -- 9.4.7	Constant Definitions
 -- **************************************************************
 --
@@ -6,11 +6,11 @@
 --
 -- **************************************************************
 
-F1AP-Constants { 
-itu-t (0) identified-organization (4) etsi (0) mobileDomain (0) 
-ngran-access (22) modules (3) f1ap (3) version1 (1) f1ap-Constants (4) } 
+F1AP-Constants {
+itu-t (0) identified-organization (4) etsi (0) mobileDomain (0)
+ngran-access (22) modules (3) f1ap (3) version1 (1) f1ap-Constants (4) }
 
-DEFINITIONS AUTOMATIC TAGS ::= 
+DEFINITIONS AUTOMATIC TAGS ::=
 
 BEGIN
 
@@ -74,6 +74,25 @@ id-resourceStatusReporting					ProcedureCode ::= 37
 id-accessAndMobilityIndication				ProcedureCode ::= 38
 id-accessSuccess							ProcedureCode ::= 39
 id-cellTrafficTrace 						ProcedureCode ::= 40
+id-PositioningMeasurementExchange			ProcedureCode ::= 41
+id-PositioningAssistanceInformationControl	ProcedureCode ::= 42
+id-PositioningAssistanceInformationFeedback	ProcedureCode ::= 43
+id-PositioningMeasurementReport				ProcedureCode ::= 44
+id-PositioningMeasurementAbort				ProcedureCode ::= 45
+id-PositioningMeasurementFailureIndication	ProcedureCode ::= 46
+id-PositioningMeasurementUpdate				ProcedureCode ::= 47
+id-TRPInformationExchange					ProcedureCode ::= 48
+id-PositioningInformationExchange			ProcedureCode ::= 49
+id-PositioningActivation					ProcedureCode ::= 50
+id-PositioningDeactivation					ProcedureCode ::= 51
+id-E-CIDMeasurementInitiation				ProcedureCode ::= 52
+id-E-CIDMeasurementFailureIndication		ProcedureCode ::= 53
+id-E-CIDMeasurementReport					ProcedureCode ::= 54
+id-E-CIDMeasurementTermination				ProcedureCode ::= 55
+id-PositioningInformationUpdate				ProcedureCode ::= 56
+id-ReferenceTimeInformationReport			ProcedureCode ::= 57
+id-ReferenceTimeInformationReportingControl	ProcedureCode ::= 58
+
 
 
 -- **************************************************************
@@ -117,7 +136,7 @@ maxnoofBPLMNsNR							INTEGER ::= 12
 maxnoofUACPLMNs							INTEGER ::= 12
 maxnoofUACperPLMN						INTEGER ::= 64
 maxnoofAdditionalSIBs					INTEGER ::= 63
-maxnoofslots							INTEGER ::= 320
+maxnoofslots							INTEGER ::= 5120
 maxnoofTLAs								INTEGER ::=	16
 maxnoofGTPTLAs							INTEGER ::=	16
 maxnoofBHRLCChannels					INTEGER ::= 65536
@@ -127,7 +146,7 @@ maxnoofSymbols							INTEGER ::= 14
 maxnoofServingCells						INTEGER ::= 32
 maxnoofDUFSlots							INTEGER ::= 320
 maxnoofHSNASlots						INTEGER ::= 5120
-maxnoofServedCellsIAB					INTEGER ::= 512 
+maxnoofServedCellsIAB					INTEGER ::= 512
 maxnoofChildIABNodes					INTEGER ::= 1024
 maxnoofNonUPTrafficMappings				INTEGER ::= 32
 maxnoofTLAsIAB							INTEGER ::= 1024
@@ -147,12 +166,38 @@ maxnoofRACHReports						INTEGER ::= 64
 maxnoofRLFReports						INTEGER ::= 64
 maxnoofAdditionalPDCPDuplicationTNL		INTEGER ::=	2
 maxnoofRLCDuplicationState				INTEGER ::=	3
-maxnoofCHOcells							INTEGER ::= 16
+maxnoofCHOcells							INTEGER ::= 8
 maxnoofMDTPLMNs							INTEGER ::=	16
 maxnoofCAGsupported						INTEGER ::= 12
 maxnoofNIDsupported						INTEGER ::= 12
 maxnoofNRSCSs							INTEGER ::= 5
 maxnoofExtSliceItems					INTEGER ::= 65535
+maxnoofPosMeas							INTEGER ::=	16384
+maxnoofTRPInfoTypes						INTEGER ::=	64
+maxnoofTRPs								INTEGER ::=	65535
+maxnoofSRSTriggerStates					INTEGER ::= 3
+maxnoofSpatialRelations					INTEGER ::= 64
+maxnoBcastCell							INTEGER ::= 16384
+maxnoofAngleInfo						INTEGER ::= 65535
+maxnooflcs-gcs-translation				INTEGER ::= 3
+maxnoofPath								INTEGER ::= 2
+maxnoofMeasE-CID						INTEGER ::= 64
+maxnoofSSBs								INTEGER ::= 255
+maxnoSRS-ResourceSets					INTEGER ::= 16
+maxnoSRS-ResourcePerSet					INTEGER ::= 16
+maxnoSRS-Carriers						INTEGER ::= 32
+maxnoSCSs								INTEGER ::= 5
+maxnoSRS-Resources						INTEGER ::= 64
+maxnoSRS-PosResources					INTEGER ::= 64
+maxnoSRS-PosResourceSets				INTEGER ::= 16
+maxnoSRS-PosResourcePerSet				INTEGER ::= 16
+maxnoofPRS-ResourceSets					INTEGER ::= 2
+maxnoofPRS-ResourcesPerSet				INTEGER ::= 64
+maxNoOfMeasTRPs							INTEGER ::= 64
+maxnoofPRSresourceSets					INTEGER ::= 8
+maxnoofPRSresources						INTEGER ::= 64
+
+
 
 -- **************************************************************
 --
@@ -268,7 +313,7 @@ id-Unknown-103										ProtocolIE-ID ::= 103
 id-Unknown-104										ProtocolIE-ID ::= 104
 id-Protected-EUTRA-Resources-List					ProtocolIE-ID ::= 105
 id-RequestType 										ProtocolIE-ID ::= 106
-id-ServCellIndex									ProtocolIE-ID ::= 107 
+id-ServCellIndex									ProtocolIE-ID ::= 107
 id-RAT-FrequencyPriorityInformation					ProtocolIE-ID ::= 108
 id-ExecuteDuplication								ProtocolIE-ID ::= 109
 -- WS extension
@@ -533,8 +578,11 @@ id-ExtendedPacketDelayBudget						ProtocolIE-ID ::= 363
 id-TSCTrafficCharacteristics						ProtocolIE-ID ::= 364
 id-ReportingRequestType								ProtocolIE-ID ::= 365
 id-TimeReferenceInformation							ProtocolIE-ID ::= 366
-id-ReferenceTimeInformationReport					ProtocolIE-ID ::= 367
-id-ReferenceTimeInformationReportingControl			ProtocolIE-ID ::= 368
+-- WS modification: rename items to avoid conflict with ProcedureCode
+-- id-ReferenceTimeInformationReport					ProtocolIE-ID ::= 367
+-- id-ReferenceTimeInformationReportingControl			ProtocolIE-ID ::= 368
+id-ReferenceTimeInformationReport-IE					ProtocolIE-ID ::= 367
+id-ReferenceTimeInformationReportingControl-IE			ProtocolIE-ID ::= 368
 id-CNPacketDelayBudgetUplink						ProtocolIE-ID ::= 369
 id-AdditionalPDCPDuplicationTNL-List				ProtocolIE-ID ::= 370
 id-RLCDuplicationInformation						ProtocolIE-ID ::= 371
@@ -558,5 +606,43 @@ id-SIB10-message									ProtocolIE-ID ::= 387
 id-Unknown-388										ProtocolIE-ID ::= 388
 id-DLCarrierList									ProtocolIE-ID ::= 389
 	id-ExtendedTAISliceSupportList					ProtocolIE-ID ::= 390
+id-RequestedSRSTransmissionCharacteristics			ProtocolIE-ID ::= 391
+id-PosAssistance-Information						ProtocolIE-ID ::= 392
+id-PosBroadcast										ProtocolIE-ID ::= 393
+id-RoutingID										ProtocolIE-ID ::= 394
+id-PosAssistanceInformationFailureList				ProtocolIE-ID ::= 395
+id-PosMeasurementQuantities							ProtocolIE-ID ::= 396
+id-PosMeasurementResultList							ProtocolIE-ID ::= 397
+id-TRPInformationTypeListTRPReq						ProtocolIE-ID ::= 398
+id-TRPInformationTypeItem							ProtocolIE-ID ::= 399
+id-TRPInformationListTRPResp						ProtocolIE-ID ::= 400
+id-TRPInformationItem								ProtocolIE-ID ::= 401
+id-LMF-MeasurementID								ProtocolIE-ID ::= 402
+id-SRSType											ProtocolIE-ID ::= 403
+id-ActivationTime									ProtocolIE-ID ::= 404
+id-AbortTransmission								ProtocolIE-ID ::= 405
+id-PositioningBroadcastCells						ProtocolIE-ID ::= 406
+id-SRSConfiguration									ProtocolIE-ID ::= 407
+id-PosReportCharacteristics						ProtocolIE-ID ::= 408
+id-PosMeasurementPeriodicity						ProtocolIE-ID ::= 409
+id-TRPList											ProtocolIE-ID ::= 410
+id-RAN-MeasurementID								ProtocolIE-ID ::= 411
+id-LMF-UE-MeasurementID								ProtocolIE-ID ::= 412
+id-RAN-UE-MeasurementID								ProtocolIE-ID ::= 413
+id-E-CID-MeasurementQuantities						ProtocolIE-ID ::= 414
+id-E-CID-MeasurementQuantities-Item					ProtocolIE-ID ::= 415
+id-E-CID-MeasurementPeriodicity						ProtocolIE-ID ::= 416
+id-E-CID-MeasurementResult							ProtocolIE-ID ::= 417
+id-Cell-Portion-ID									ProtocolIE-ID ::= 418
+id-SFNInitialisationTime							ProtocolIE-ID ::= 419
+id-SystemFrameNumber								ProtocolIE-ID ::= 420
+id-SlotNumber										ProtocolIE-ID ::= 421
+id-TRP-MeasurementRequestList						ProtocolIE-ID ::= 422
+id-MeasurementBeamInfoRequest						ProtocolIE-ID ::= 423
+id-E-CID-ReportCharacteristics						ProtocolIE-ID ::= 424
+id-ConfiguredTACIndication							ProtocolIE-ID ::= 425
+id-Extended-GNB-DU-Name								ProtocolIE-ID ::= 426
+id-Extended-GNB-CU-Name								ProtocolIE-ID ::= 427
+
 
 END

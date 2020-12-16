@@ -1,4 +1,4 @@
--- 3GPP TS 38.473 V16.2.0 (2020-07)
+-- 3GPP TS 38.473 V16.3.1 (2020-10)
 -- 9.4.4	PDU Definitions
 -- **************************************************************
 --
@@ -69,6 +69,7 @@ IMPORTS
 	UEContextNotRetrievable,
 	Potential-SpCell-Item,
 	RAT-FrequencyPriorityInformation,
+	RequestedSRSTransmissionCharacteristics,
 	ResourceCoordinationTransferContainer,
 	RRCContainer,
 	RRCContainer-RRCSetupComplete,
@@ -227,7 +228,41 @@ IMPORTS
 	PrivacyIndicator,
 	TransportLayerAddress,
 	URI-address,
-	NID
+	NID,
+	PosAssistance-Information,
+	PosBroadcast,
+	PositioningBroadcastCells,
+	RoutingID,
+	PosAssistanceInformationFailureList,
+	PosMeasurementQuantities,
+	PosMeasurementResultList,
+	PosMeasurementPeriodicity,
+	PosReportCharacteristics,
+	TRPInformationTypeItem,
+	TRPInformationItem,
+	LMF-MeasurementID,
+	RAN-MeasurementID,
+	SRSResourceSetID,
+	SRSSpatialRelation,
+	SRSResourceTrigger,
+	SRSConfiguration,
+	TRPList,
+	E-CID-MeasurementQuantities,
+	E-CID-MeasurementPeriodicity,
+	E-CID-MeasurementResult,
+	Cell-Portion-ID,
+	LMF-UE-MeasurementID,
+	RAN-UE-MeasurementID,
+	SFNInitialisationTime,
+	SystemFrameNumber,
+	SlotNumber,
+	AbortTransmission,
+	TRP-MeasurementRequestList,
+	MeasurementBeamInfoRequest,
+	E-CID-ReportCharacteristics,
+	Extended-GNB-CU-Name,
+	Extended-GNB-DU-Name
+
 
 
 FROM F1AP-IEs
@@ -301,6 +336,8 @@ FROM F1AP-Containers
 	id-gNB-DU-Served-Cells-List, 
 	id-gNB-CU-Name,
 	id-gNB-DU-Name,
+	id-Extended-GNB-CU-Name,
+	id-Extended-GNB-DU-Name,
 	id-InactivityMonitoringRequest,
 	id-InactivityMonitoringResponse,
 	id-new-gNB-CU-UE-F1AP-ID,
@@ -312,6 +349,7 @@ FROM F1AP-Containers
 	id-RAT-FrequencyPriorityInformation, 
 	id-RedirectedRRCmessage,
 	id-ResetType,
+	id-RequestedSRSTransmissionCharacteristics,
 	id-ResourceCoordinationTransferContainer,
 	id-RRCContainer,
 	id-RRCContainer-RRCSetupComplete,
@@ -537,6 +575,39 @@ FROM F1AP-Containers
 	id-PrivacyIndicator,
 	id-TraceCollectionEntityURI,
 	id-ServingNID,
+	id-PosAssistance-Information,
+	id-PosBroadcast,
+	id-PositioningBroadcastCells,
+	id-RoutingID,
+	id-PosAssistanceInformationFailureList,
+	id-PosMeasurementQuantities,
+	id-PosMeasurementResultList,
+	id-PosMeasurementPeriodicity,
+	id-PosReportCharacteristics,
+	id-TRPInformationTypeListTRPReq,
+	id-TRPInformationTypeItem,
+	id-TRPInformationListTRPResp,
+	id-TRPInformationItem,
+	id-LMF-MeasurementID,
+	id-RAN-MeasurementID,
+	id-SRSType,
+	id-ActivationTime,
+	id-AbortTransmission,
+	id-SRSConfiguration,
+	id-TRPList,
+	id-E-CID-MeasurementQuantities,
+	id-E-CID-MeasurementPeriodicity,
+	id-E-CID-MeasurementResult,
+	id-Cell-Portion-ID,
+	id-LMF-UE-MeasurementID,
+	id-RAN-UE-MeasurementID,
+	id-SFNInitialisationTime,
+	id-SystemFrameNumber,
+	id-SlotNumber,
+	id-TRP-MeasurementRequestList,
+	id-MeasurementBeamInfoRequest,
+	id-E-CID-ReportCharacteristics,
+
 	maxCellingNBDU,
 	maxnoofCandidateSpCells,
 	maxnoofDRBs,
@@ -556,7 +627,9 @@ FROM F1AP-Containers
 	maxnoofTLAsIAB,
 	maxnoofULUPTNLInformationforIAB,
 	maxnoofUPTNLAddresses,
-	maxnoofSLDRBs
+	maxnoofSLDRBs,
+	maxnoofTRPInfoTypes,
+	maxnoofTRPs
 
 
 
@@ -686,7 +759,8 @@ F1SetupRequestIEs F1AP-PROTOCOL-IES ::= {
 	{ ID id-gNB-DU-Served-Cells-List		CRITICALITY reject	TYPE GNB-DU-Served-Cells-List			PRESENCE optional	}|
 	{ ID id-GNB-DU-RRC-Version				CRITICALITY reject	TYPE RRC-Version						PRESENCE mandatory	}|
 	{ ID id-Transport-Layer-Address-Info	CRITICALITY ignore	TYPE Transport-Layer-Address-Info		PRESENCE optional	}|
-	{ ID id-BAPAddress						CRITICALITY ignore	TYPE BAPAddress							PRESENCE optional	},
+	{ ID id-BAPAddress						CRITICALITY ignore	TYPE BAPAddress							PRESENCE optional	}|
+	{ ID id-Extended-GNB-CU-Name			CRITICALITY ignore	TYPE Extended-GNB-CU-Name				PRESENCE optional	},
 	...
 } 
 
@@ -718,7 +792,8 @@ F1SetupResponseIEs F1AP-PROTOCOL-IES ::= {
 	{ ID id-GNB-CU-RRC-Version				CRITICALITY reject	TYPE RRC-Version						PRESENCE mandatory	}|
 	{ ID id-Transport-Layer-Address-Info	CRITICALITY ignore	TYPE Transport-Layer-Address-Info		PRESENCE optional	}|
 	{ ID id-UL-BH-Non-UP-Traffic-Mapping	CRITICALITY reject	TYPE UL-BH-Non-UP-Traffic-Mapping		PRESENCE optional	}|
-	{ ID id-BAPAddress						CRITICALITY ignore	TYPE BAPAddress							PRESENCE optional	},
+	{ ID id-BAPAddress						CRITICALITY ignore	TYPE BAPAddress							PRESENCE optional	}|
+	{ ID id-Extended-GNB-DU-Name			CRITICALITY ignore	TYPE Extended-GNB-DU-Name				PRESENCE optional	},
 	...
 }
 
@@ -2875,6 +2950,691 @@ AccessSuccessIEs F1AP-PROTOCOL-IES ::= {
 	{ ID id-NRCGI								CRITICALITY reject	TYPE NRCGI									PRESENCE mandatory	},
 	...
 }
+
+
+-- **************************************************************
+--
+-- POSITIONING ASSISTANCE INFORMATION CONTROL ELEMENTARY PROCEDURE
+--
+-- **************************************************************
+
+-- **************************************************************
+--
+-- Positioning Assistance Information Control
+--
+-- **************************************************************
+
+PositioningAssistanceInformationControl ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container       {{ PositioningAssistanceInformationControlIEs}},
+	...
+}
+
+PositioningAssistanceInformationControlIEs F1AP-PROTOCOL-IES ::= {
+		{ ID id-TransactionID					CRITICALITY reject	TYPE TransactionID				PRESENCE mandatory	}|
+		{ ID id-PosAssistance-Information		CRITICALITY reject	TYPE PosAssistance-Information		PRESENCE optional}|
+		{ ID id-PosBroadcast					CRITICALITY reject	TYPE PosBroadcast				PRESENCE optional}|
+		{ ID id-PositioningBroadcastCells		CRITICALITY reject	TYPE PositioningBroadcastCells		PRESENCE optional}|
+		{ ID id-RoutingID						CRITICALITY reject	TYPE RoutingID				PRESENCE optional},
+	...
+}
+
+-- **************************************************************
+--
+-- POSITIONING ASSISTANCE INFORMATION FEEDBACK ELEMENTARY PROCEDURE
+--
+-- **************************************************************
+
+-- **************************************************************
+--
+-- Positioning Assistance Information Feedback
+--
+-- **************************************************************
+
+PositioningAssistanceInformationFeedback ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container       {{ PositioningAssistanceInformationFeedbackIEs}},
+	...
+}
+
+PositioningAssistanceInformationFeedbackIEs F1AP-PROTOCOL-IES ::= {
+	{ ID id-TransactionID							CRITICALITY reject	TYPE TransactionID							PRESENCE mandatory	}|
+	{ ID id-PosAssistanceInformationFailureList	CRITICALITY reject	TYPE PosAssistanceInformationFailureList	PRESENCE optional}|
+	{ ID id-PositioningBroadcastCells				CRITICALITY reject	TYPE PositioningBroadcastCells				PRESENCE optional}|
+	{ ID id-RoutingID								CRITICALITY reject	TYPE RoutingID									PRESENCE optional}|
+	{ ID id-CriticalityDiagnostics				CRITICALITY ignore	TYPE CriticalityDiagnostics						PRESENCE optional},
+	...
+}
+
+-- **************************************************************
+--
+-- POSITONING MEASUREMENT EXCHANGE ELEMENTARY PROCEDURE
+--
+-- **************************************************************
+
+-- **************************************************************
+--
+-- Positioning Measurement Request
+--
+-- **************************************************************
+
+PositioningMeasurementRequest ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container       { { PositioningMeasurementRequestIEs} },
+	...
+}
+
+PositioningMeasurementRequestIEs F1AP-PROTOCOL-IES ::= {
+	{ ID id-TransactionID							CRITICALITY reject	TYPE TransactionID									PRESENCE mandatory}|
+	{ ID id-LMF-MeasurementID						CRITICALITY reject	TYPE LMF-MeasurementID								PRESENCE mandatory}|
+	{ ID id-RAN-MeasurementID						CRITICALITY reject	TYPE RAN-MeasurementID								PRESENCE mandatory}|
+	{ ID id-TRP-MeasurementRequestList				CRITICALITY reject	TYPE TRP-MeasurementRequestList					PRESENCE mandatory}|
+	{ ID id-PosReportCharacteristics				CRITICALITY reject	TYPE PosReportCharacteristics				PRESENCE mandatory}|
+	{ ID id-PosMeasurementPeriodicity				CRITICALITY reject	TYPE PosMeasurementPeriodicity					PRESENCE conditional }|
+	-- The above IE shall be present if the PosReportCharacteristics IE is set to “periodic” --
+	{ ID id-PosMeasurementQuantities				CRITICALITY reject	TYPE PosMeasurementQuantities					PRESENCE mandatory}|
+	{ ID id-SFNInitialisationTime					CRITICALITY ignore	TYPE SFNInitialisationTime	PRESENCE optional	}|
+	{ ID id-SRSConfiguration						CRITICALITY ignore	TYPE SRSConfiguration								PRESENCE optional}|
+	{ ID id-MeasurementBeamInfoRequest				CRITICALITY ignore	TYPE MeasurementBeamInfoRequest	PRESENCE optional	}|
+	{ ID id-SystemFrameNumber						CRITICALITY ignore	TYPE SystemFrameNumber		PRESENCE optional}|
+	{ ID id-SlotNumber								CRITICALITY ignore	TYPE SlotNumber				PRESENCE optional},
+	...
+} 
+
+
+-- **************************************************************
+--
+-- Positioning Measurement Response
+--
+-- **************************************************************
+
+PositioningMeasurementResponse ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container       { { PositioningMeasurementResponseIEs} },
+	...
+}
+
+
+PositioningMeasurementResponseIEs F1AP-PROTOCOL-IES ::= {
+	{ ID id-TransactionID							CRITICALITY reject	TYPE TransactionID									PRESENCE mandatory}|
+	{ ID id-LMF-MeasurementID						CRITICALITY reject	TYPE LMF-MeasurementID								PRESENCE mandatory}|
+	{ ID id-RAN-MeasurementID						CRITICALITY reject	TYPE RAN-MeasurementID								PRESENCE mandatory}|
+	{ ID id-PosMeasurementResultList				CRITICALITY reject	TYPE PosMeasurementResultList					PRESENCE optional	}|
+	{ ID id-CriticalityDiagnostics					CRITICALITY ignore	TYPE CriticalityDiagnostics						PRESENCE optional	},
+	...
+}
+
+
+-- **************************************************************
+--
+-- Positioning Measurement Failure
+--
+-- **************************************************************
+
+PositioningMeasurementFailure ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container       { { PositioningMeasurementFailureIEs} },
+	...
+}
+
+PositioningMeasurementFailureIEs F1AP-PROTOCOL-IES ::= {
+	{ ID id-TransactionID					CRITICALITY reject	TYPE TransactionID				PRESENCE mandatory	}|
+	{ ID id-LMF-MeasurementID				CRITICALITY reject	TYPE LMF-MeasurementID			PRESENCE mandatory	}|
+	{ ID id-RAN-MeasurementID				CRITICALITY reject	TYPE RAN-MeasurementID				PRESENCE mandatory	}|
+	{ ID id-Cause							CRITICALITY ignore	TYPE Cause							PRESENCE mandatory	}|
+	{ ID id-CriticalityDiagnostics			CRITICALITY ignore	TYPE CriticalityDiagnostics			PRESENCE optional	},
+	...
+}
+
+
+-- **************************************************************
+--
+-- POSITIONING MEASUREMENT REPORT ELEMENTARY PROCEDURE
+--
+-- **************************************************************
+
+-- **************************************************************
+--
+-- Positioning Measurement Report
+--
+-- **************************************************************
+
+PositioningMeasurementReport ::= SEQUENCE {
+	protocolIEs		ProtocolIE-Container		{ { PositioningMeasurementReportIEs} },
+	...
+}
+
+PositioningMeasurementReportIEs F1AP-PROTOCOL-IES ::= {
+	{ ID id-TransactionID				CRITICALITY reject	TYPE TransactionID				PRESENCE mandatory	}|
+	{ ID id-LMF-MeasurementID			CRITICALITY reject	TYPE LMF-MeasurementID			PRESENCE mandatory	}|
+	{ ID id-RAN-MeasurementID			CRITICALITY reject	TYPE RAN-MeasurementID			PRESENCE mandatory	}|
+	{ ID id-PosMeasurementResultList	CRITICALITY reject	TYPE PosMeasurementResultList	PRESENCE mandatory	},
+	...
+}
+
+-- **************************************************************
+--
+-- POSITIONING MEASUREMENT ABORT ELEMENTARY PROCEDURE
+--
+-- **************************************************************
+
+-- **************************************************************
+--
+-- Positioning Measurement Abort
+--
+-- **************************************************************
+
+PositioningMeasurementAbort ::= SEQUENCE {
+	protocolIEs		ProtocolIE-Container		{ { PositioningMeasurementAbortIEs} },
+	...
+}
+
+PositioningMeasurementAbortIEs F1AP-PROTOCOL-IES ::= {
+	{ ID id-TransactionID					CRITICALITY reject	TYPE TransactionID					PRESENCE mandatory	}|	
+	{ ID id-LMF-MeasurementID				CRITICALITY reject	TYPE LMF-MeasurementID				PRESENCE mandatory	}|
+	{ ID id-RAN-MeasurementID				CRITICALITY reject	TYPE RAN-MeasurementID				PRESENCE mandatory	},
+	...
+}
+
+-- **************************************************************
+--
+-- POSITIONING MEASUREMENT FAILURE INDICATION ELEMENTARY PROCEDURE
+--
+-- **************************************************************
+
+-- **************************************************************
+--
+-- Positioning Measurement Failure Indication
+--
+-- **************************************************************
+
+PositioningMeasurementFailureIndication ::= SEQUENCE {
+	protocolIEs		ProtocolIE-Container		{ { PositioningMeasurementFailureIndicationIEs} },
+	...
+}
+
+PositioningMeasurementFailureIndicationIEs F1AP-PROTOCOL-IES ::= {
+	{ ID id-TransactionID				CRITICALITY reject	TYPE TransactionID					PRESENCE mandatory	}|
+	{ ID id-LMF-MeasurementID			CRITICALITY reject	TYPE LMF-MeasurementID				PRESENCE mandatory	}|
+	{ ID id-RAN-MeasurementID			CRITICALITY reject	TYPE RAN-MeasurementID				PRESENCE mandatory	}|
+	{ ID id-Cause						CRITICALITY ignore	TYPE Cause							PRESENCE mandatory	},
+	...
+}
+
+-- **************************************************************
+--
+-- POSITIONING MEASUREMENT UPDATE ELEMENTARY PROCEDURE
+--
+-- **************************************************************
+
+-- **************************************************************
+--
+-- Positioning Measurement Update
+--
+-- **************************************************************
+
+PositioningMeasurementUpdate ::= SEQUENCE {
+	protocolIEs		ProtocolIE-Container		{ { PositioningMeasurementUpdateIEs} },
+	...
+}
+
+PositioningMeasurementUpdateIEs F1AP-PROTOCOL-IES ::= {
+	{ ID id-TransactionID				CRITICALITY reject	TYPE TransactionID				PRESENCE mandatory	}|
+	{ ID id-LMF-MeasurementID			CRITICALITY reject	TYPE LMF-MeasurementID			PRESENCE mandatory	}|
+	{ ID id-RAN-MeasurementID			CRITICALITY reject	TYPE RAN-MeasurementID			PRESENCE mandatory	}|
+	{ ID id-SRSConfiguration			CRITICALITY ignore	TYPE SRSConfiguration			PRESENCE optional},
+	...
+}
+
+
+-- **************************************************************
+--
+-- TRP INFORMATION EXCHANGE ELEMENTARY PROCEDURE
+--
+-- **************************************************************
+
+-- **************************************************************
+--
+-- TRP Information Request
+--
+-- **************************************************************
+
+TRPInformationRequest ::= SEQUENCE {
+	protocolIEs		ProtocolIE-Container		{ { TRPInformationRequestIEs} },
+	...
+}
+
+TRPInformationRequestIEs F1AP-PROTOCOL-IES ::= {
+	{ ID id-TransactionID						CRITICALITY reject	TYPE TransactionID								PRESENCE mandatory	}|
+	{ ID id-TRPList								CRITICALITY ignore	TYPE TRPList									PRESENCE optional	}|
+	{ ID id-TRPInformationTypeListTRPReq		CRITICALITY reject	TYPE TRPInformationTypeListTRPReq			PRESENCE mandatory	},
+	...
+}
+
+TRPInformationTypeListTRPReq ::= SEQUENCE (SIZE(1.. maxnoofTRPInfoTypes)) OF ProtocolIE-SingleContainer { { TRPInformationTypeItemTRPReq } }
+
+TRPInformationTypeItemTRPReq 	F1AP-PROTOCOL-IES ::= {
+	{ ID id-TRPInformationTypeItem	 CRITICALITY reject		TYPE TRPInformationTypeItem  	PRESENCE mandatory },
+	...
+}
+
+
+-- **************************************************************
+--
+-- TRP Information Response
+--
+-- **************************************************************
+
+TRPInformationResponse ::= SEQUENCE {
+	protocolIEs		ProtocolIE-Container		{ { TRPInformationResponseIEs} },
+	...
+}
+
+TRPInformationResponseIEs F1AP-PROTOCOL-IES ::= {
+	{ ID id-TransactionID					CRITICALITY reject	TYPE TransactionID					PRESENCE mandatory	}|
+	{ ID id-TRPInformationListTRPResp		CRITICALITY ignore	TYPE TRPInformationListTRPResp		PRESENCE mandatory	}|
+	{ ID id-CriticalityDiagnostics			CRITICALITY ignore	TYPE CriticalityDiagnostics			PRESENCE optional	},
+	...
+}
+
+TRPInformationListTRPResp ::= SEQUENCE (SIZE(1.. maxnoofTRPs)) OF ProtocolIE-SingleContainer { { TRPInformationItemTRPResp } }
+
+TRPInformationItemTRPResp 	F1AP-PROTOCOL-IES ::= {
+	{ ID id-TRPInformationItem	 CRITICALITY ignore		TYPE TRPInformationItem  	PRESENCE mandatory },
+	...
+}
+
+
+-- **************************************************************
+--
+-- TRP Information Failure
+--
+-- **************************************************************
+
+TRPInformationFailure ::= SEQUENCE {
+	protocolIEs		ProtocolIE-Container		{ { TRPInformationFailureIEs} },
+	...
+}
+
+TRPInformationFailureIEs F1AP-PROTOCOL-IES ::= {
+	{ ID id-TransactionID				CRITICALITY reject	TYPE TransactionID				PRESENCE mandatory	}|
+	{ ID id-Cause						CRITICALITY ignore	TYPE Cause						PRESENCE mandatory	}|
+	{ ID id-CriticalityDiagnostics		CRITICALITY ignore	TYPE CriticalityDiagnostics		PRESENCE optional	},
+	...
+}
+
+
+-- **************************************************************
+--
+-- POSITIONING INFORMATION EXCHANGE ELEMENTARY PROCEDURE
+--
+-- **************************************************************
+
+-- **************************************************************
+--
+-- Positioning Information Request
+--
+-- **************************************************************
+
+PositioningInformationRequest ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container       { { PositioningInformationRequestIEs} },
+	...
+}
+
+PositioningInformationRequestIEs F1AP-PROTOCOL-IES ::= {
+	{ ID id-gNB-CU-UE-F1AP-ID		CRITICALITY reject	TYPE GNB-CU-UE-F1AP-ID			PRESENCE mandatory	}|
+	{ ID id-gNB-DU-UE-F1AP-ID		CRITICALITY reject	TYPE GNB-DU-UE-F1AP-ID			PRESENCE mandatory	}|
+	{ ID id-RequestedSRSTransmissionCharacteristics	CRITICALITY ignore	TYPE RequestedSRSTransmissionCharacteristics	PRESENCE optional},
+	...
+} 
+
+
+-- **************************************************************
+--
+-- Positioning Information Response
+--
+-- **************************************************************
+
+PositioningInformationResponse ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container       { { PositioningInformationResponseIEs} },
+	...
+}
+
+
+PositioningInformationResponseIEs F1AP-PROTOCOL-IES ::= {
+	{ ID id-gNB-CU-UE-F1AP-ID			CRITICALITY reject	TYPE GNB-CU-UE-F1AP-ID			PRESENCE mandatory	}|
+	{ ID id-gNB-DU-UE-F1AP-ID			CRITICALITY reject	TYPE GNB-DU-UE-F1AP-ID			PRESENCE mandatory	}|	
+	{ ID id-SRSConfiguration			CRITICALITY ignore	TYPE SRSConfiguration			PRESENCE optional}|
+	{ ID id-SFNInitialisationTime		CRITICALITY ignore	TYPE SFNInitialisationTime		PRESENCE optional}|
+	{ ID id-CriticalityDiagnostics		CRITICALITY ignore	TYPE CriticalityDiagnostics		PRESENCE optional },
+	...
+}
+
+
+-- **************************************************************
+--
+-- Positioning Information Failure
+--
+-- **************************************************************
+
+PositioningInformationFailure ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container       { { PositioningInformationFailureIEs} },
+	...
+}
+
+PositioningInformationFailureIEs F1AP-PROTOCOL-IES ::= {
+	
+	{ ID id-gNB-CU-UE-F1AP-ID		CRITICALITY reject	TYPE GNB-CU-UE-F1AP-ID			PRESENCE mandatory	}|
+	{ ID id-gNB-DU-UE-F1AP-ID		CRITICALITY reject	TYPE GNB-DU-UE-F1AP-ID			PRESENCE mandatory	}|
+	{ ID id-Cause						CRITICALITY ignore	TYPE Cause						PRESENCE mandatory	}|
+	{ ID id-CriticalityDiagnostics		CRITICALITY ignore	TYPE CriticalityDiagnostics		PRESENCE optional },
+	...
+}
+
+
+-- **************************************************************
+--
+-- POSITIONING ACTIVATION PROCEDURE
+--
+-- **************************************************************
+
+-- **************************************************************
+--
+-- Positioning Activation Request
+--
+-- **************************************************************
+
+PositioningActivationRequest ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container       { { PositioningActivationRequestIEs} },
+	...
+}
+
+PositioningActivationRequestIEs F1AP-PROTOCOL-IES ::= {
+	{ ID id-gNB-CU-UE-F1AP-ID		CRITICALITY reject	TYPE GNB-CU-UE-F1AP-ID			PRESENCE mandatory	}|
+	{ ID id-gNB-DU-UE-F1AP-ID		CRITICALITY reject	TYPE GNB-DU-UE-F1AP-ID			PRESENCE mandatory	}|
+	{ ID id-SRSType					CRITICALITY reject	TYPE SRSType					PRESENCE mandatory	}|
+	{ ID id-ActivationTime			CRITICALITY ignore	TYPE SFNInitialisationTime		PRESENCE optional	},
+	...
+} 
+
+SRSType ::= CHOICE {
+	semipersistentSRS				SemipersistentSRS,
+	aperiodicSRS					AperiodicSRS, 
+	choice-extension				ProtocolIE-SingleContainer { { SRSType-ExtIEs} }
+}
+
+SRSType-ExtIEs F1AP-PROTOCOL-IES ::= {
+	...
+}
+
+SemipersistentSRS ::= SEQUENCE {
+	sRSResourceSetID			SRSResourceSetID,
+	sRSSpatialRelation			SRSSpatialRelation	OPTIONAL,
+	iE-Extensions				ProtocolExtensionContainer { {SemipersistentSRS-ExtIEs} } OPTIONAL,
+	...
+}
+
+SemipersistentSRS-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+AperiodicSRS ::= SEQUENCE {
+	aperiodic					ENUMERATED {true, ...},
+	sRSResourceTrigger			SRSResourceTrigger		OPTIONAL,
+	iE-Extensions				ProtocolExtensionContainer { {AperiodicSRS-ExtIEs} } OPTIONAL,
+	...
+}
+
+AperiodicSRS-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+
+-- **************************************************************
+--
+-- Positioning Activation Response
+--
+-- **************************************************************
+
+PositioningActivationResponse ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container       { { PositioningActivationResponseIEs} },
+	...
+}
+
+
+PositioningActivationResponseIEs F1AP-PROTOCOL-IES ::= {
+	{ ID id-gNB-CU-UE-F1AP-ID		CRITICALITY reject	TYPE GNB-CU-UE-F1AP-ID			PRESENCE mandatory	}|
+	{ ID id-gNB-DU-UE-F1AP-ID		CRITICALITY reject	TYPE GNB-DU-UE-F1AP-ID			PRESENCE mandatory	}|
+	{ ID id-SystemFrameNumber		CRITICALITY ignore	TYPE SystemFrameNumber			PRESENCE optional }|
+	{ ID id-SlotNumber				CRITICALITY ignore	TYPE SlotNumber					PRESENCE optional }|
+	{ ID id-CriticalityDiagnostics	CRITICALITY ignore	TYPE CriticalityDiagnostics		PRESENCE optional },
+	...
+}
+
+
+
+
+-- **************************************************************
+--
+-- Positioning Activation Failure
+--
+-- **************************************************************
+
+PositioningActivationFailure ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container       { { PositioningActivationFailureIEs} },
+	...
+}
+
+PositioningActivationFailureIEs F1AP-PROTOCOL-IES ::= {
+	{ ID id-gNB-CU-UE-F1AP-ID		CRITICALITY reject	TYPE GNB-CU-UE-F1AP-ID				PRESENCE mandatory	}|
+	{ ID id-gNB-DU-UE-F1AP-ID		CRITICALITY reject	TYPE GNB-DU-UE-F1AP-ID				PRESENCE mandatory	}|
+	{ ID id-Cause						CRITICALITY ignore	TYPE Cause						PRESENCE mandatory	}|
+	{ ID id-CriticalityDiagnostics		CRITICALITY ignore	TYPE CriticalityDiagnostics		PRESENCE optional },
+	...
+}
+
+
+-- **************************************************************
+--
+-- POSITIONING DEACTIVATION PROCEDURE
+--
+-- **************************************************************
+
+-- **************************************************************
+--
+-- Positioning Deactivation
+--
+-- **************************************************************
+
+PositioningDeactivation ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container       { { PositioningDeactivationIEs} },
+	...
+}
+
+PositioningDeactivationIEs F1AP-PROTOCOL-IES ::= {
+	{ ID id-gNB-CU-UE-F1AP-ID		CRITICALITY reject	TYPE GNB-CU-UE-F1AP-ID			PRESENCE mandatory	}|
+	{ ID id-gNB-DU-UE-F1AP-ID		CRITICALITY reject	TYPE GNB-DU-UE-F1AP-ID			PRESENCE mandatory	}|
+	{ ID id-AbortTransmission		CRITICALITY ignore	TYPE AbortTransmission			PRESENCE mandatory	},
+	...
+} 
+
+-- **************************************************************
+--
+-- POSITIONING INFORMATION UPDATE PROCEDURE
+--
+-- **************************************************************
+
+-- **************************************************************
+--
+-- Positioning Information Update
+--
+-- **************************************************************
+
+PositioningInformationUpdate ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container       { { PositioningInformationUpdateIEs} },
+	...
+}
+
+
+PositioningInformationUpdateIEs F1AP-PROTOCOL-IES ::= {
+	{ ID id-gNB-CU-UE-F1AP-ID		CRITICALITY reject	TYPE GNB-CU-UE-F1AP-ID			PRESENCE mandatory	}|
+	{ ID id-gNB-DU-UE-F1AP-ID		CRITICALITY reject	TYPE GNB-DU-UE-F1AP-ID			PRESENCE mandatory	}|
+	{ ID id-SRSConfiguration		CRITICALITY ignore	TYPE SRSConfiguration			PRESENCE optional}|
+	{ ID id-SFNInitialisationTime	CRITICALITY ignore	TYPE SFNInitialisationTime		PRESENCE optional},
+	...
+}
+
+-- **************************************************************
+--
+-- E-CID MEASUREMENT PROCEDURE
+--
+-- **************************************************************
+
+-- **************************************************************
+--
+-- E-CID Measurement Initiation Request
+--
+-- **************************************************************
+
+E-CIDMeasurementInitiationRequest ::= SEQUENCE {
+	protocolIEs		ProtocolIE-Container	{{E-CIDMeasurementInitiationRequest-IEs}},
+	...
+}
+
+E-CIDMeasurementInitiationRequest-IEs F1AP-PROTOCOL-IES ::= {
+	{ ID id-gNB-CU-UE-F1AP-ID				CRITICALITY reject	TYPE GNB-CU-UE-F1AP-ID					PRESENCE mandatory	}|
+	{ ID id-gNB-DU-UE-F1AP-ID				CRITICALITY reject	TYPE GNB-DU-UE-F1AP-ID					PRESENCE mandatory	}|
+	{ ID id-LMF-UE-MeasurementID			CRITICALITY reject	TYPE LMF-UE-MeasurementID				PRESENCE mandatory	}|
+	{ ID id-RAN-UE-MeasurementID			CRITICALITY reject	TYPE RAN-UE-MeasurementID				PRESENCE mandatory	}|
+	{ ID id-E-CID-ReportCharacteristics		CRITICALITY reject	TYPE E-CID-ReportCharacteristics		PRESENCE mandatory	}|
+	{ ID id-E-CID-MeasurementPeriodicity	CRITICALITY reject	TYPE E-CID-MeasurementPeriodicity		PRESENCE conditional	}|
+-- The above IE shall be present if the E-CID-ReportCharacteristics IE is set to “periodic” –-
+	{ ID id-E-CID-MeasurementQuantities		CRITICALITY reject	TYPE E-CID-MeasurementQuantities		PRESENCE mandatory},
+	...
+}
+
+-- **************************************************************
+--
+-- E-CID Measurement Initiation Response
+--
+-- **************************************************************
+
+E-CIDMeasurementInitiationResponse ::= SEQUENCE {
+	protocolIEs		ProtocolIE-Container	{{E-CIDMeasurementInitiationResponse-IEs}},
+	...
+}
+
+E-CIDMeasurementInitiationResponse-IEs F1AP-PROTOCOL-IES ::= {
+	{ ID id-gNB-CU-UE-F1AP-ID			CRITICALITY ignore	TYPE GNB-CU-UE-F1AP-ID				PRESENCE mandatory	}|
+	{ ID id-gNB-DU-UE-F1AP-ID			CRITICALITY ignore	TYPE GNB-DU-UE-F1AP-ID				PRESENCE mandatory	}|
+	{ ID id-LMF-UE-MeasurementID		CRITICALITY reject	TYPE LMF-UE-MeasurementID				PRESENCE mandatory	}|
+	{ ID id-RAN-UE-MeasurementID		CRITICALITY reject	TYPE RAN-UE-MeasurementID				PRESENCE mandatory	}|
+	{ ID id-E-CID-MeasurementResult		CRITICALITY ignore	TYPE E-CID-MeasurementResult		PRESENCE optional}|
+	{ ID id-Cell-Portion-ID				CRITICALITY ignore	TYPE Cell-Portion-ID				PRESENCE optional}|
+	{ ID id-CriticalityDiagnostics		CRITICALITY ignore	TYPE CriticalityDiagnostics		PRESENCE optional},
+	...
+}
+
+-- **************************************************************
+--
+-- E-CID Measurement Initiation Failure
+--
+-- **************************************************************
+
+E-CIDMeasurementInitiationFailure ::= SEQUENCE {
+	protocolIEs						ProtocolIE-Container		{{E-CIDMeasurementInitiationFailure-IEs}},
+	...
+}
+
+
+E-CIDMeasurementInitiationFailure-IEs F1AP-PROTOCOL-IES ::= {
+	{ ID id-gNB-CU-UE-F1AP-ID			CRITICALITY ignore	TYPE GNB-CU-UE-F1AP-ID				PRESENCE mandatory	}|
+	{ ID id-gNB-DU-UE-F1AP-ID			CRITICALITY ignore	TYPE GNB-DU-UE-F1AP-ID				PRESENCE mandatory	}|
+	{ ID id-LMF-UE-MeasurementID		CRITICALITY reject	TYPE LMF-UE-MeasurementID			PRESENCE mandatory	}|
+	{ ID id-RAN-UE-MeasurementID		CRITICALITY reject	TYPE RAN-UE-MeasurementID			PRESENCE mandatory	}|
+	{ ID id-Cause						CRITICALITY ignore	TYPE Cause							PRESENCE mandatory	}|
+	{ ID id-CriticalityDiagnostics		CRITICALITY ignore	TYPE CriticalityDiagnostics			PRESENCE optional},
+	...
+}
+
+-- **************************************************************
+--
+-- E-CID MEASUREMENT FAILURE INDICATION PROCEDURE
+--
+-- **************************************************************
+
+-- **************************************************************
+--
+-- E-CID Measurement Failure Indication
+--
+-- **************************************************************
+
+E-CIDMeasurementFailureIndication ::= SEQUENCE {
+	protocolIEs						ProtocolIE-Container		{{E-CIDMeasurementFailureIndication-IEs}},
+	...
+}
+
+
+E-CIDMeasurementFailureIndication-IEs F1AP-PROTOCOL-IES ::= {
+	{ ID id-gNB-CU-UE-F1AP-ID			CRITICALITY ignore	TYPE GNB-CU-UE-F1AP-ID			PRESENCE mandatory	}|
+	{ ID id-gNB-DU-UE-F1AP-ID			CRITICALITY ignore	TYPE GNB-DU-UE-F1AP-ID			PRESENCE mandatory	}|
+	{ ID id-LMF-UE-MeasurementID		CRITICALITY reject	TYPE LMF-UE-MeasurementID		PRESENCE mandatory	}|
+	{ ID id-RAN-UE-MeasurementID		CRITICALITY reject	TYPE RAN-UE-MeasurementID		PRESENCE mandatory	}|
+	{ ID id-Cause						CRITICALITY ignore	TYPE Cause						PRESENCE mandatory},
+	...
+}
+
+-- **************************************************************
+--
+-- E-CID MEASUREMENT REPORT PROCEDURE
+--
+-- **************************************************************
+
+-- **************************************************************
+--
+-- E-CID Measurement Report
+--
+-- **************************************************************
+
+E-CIDMeasurementReport ::= SEQUENCE {
+	protocolIEs						ProtocolIE-Container		{{E-CIDMeasurementReport-IEs}},
+	...
+}
+
+
+E-CIDMeasurementReport-IEs F1AP-PROTOCOL-IES ::= {
+	{ ID id-gNB-CU-UE-F1AP-ID			CRITICALITY ignore	TYPE GNB-CU-UE-F1AP-ID				PRESENCE mandatory	}|
+	{ ID id-gNB-DU-UE-F1AP-ID			CRITICALITY ignore	TYPE GNB-DU-UE-F1AP-ID				PRESENCE mandatory	}|
+	{ ID id-LMF-UE-MeasurementID		CRITICALITY reject	TYPE LMF-UE-MeasurementID				PRESENCE mandatory	}|
+	{ ID id-RAN-UE-MeasurementID		CRITICALITY reject	TYPE RAN-UE-MeasurementID				PRESENCE mandatory	}|
+	{ ID id-E-CID-MeasurementResult		CRITICALITY ignore	TYPE E-CID-MeasurementResult		PRESENCE mandatory }|
+	{ ID id-Cell-Portion-ID				CRITICALITY ignore	TYPE Cell-Portion-ID				PRESENCE optional},
+
+	...
+}
+
+-- **************************************************************
+--
+-- E-CID MEASUREMENT TERMINATION PROCEDURE
+--
+-- **************************************************************
+
+-- **************************************************************
+--
+-- E-CID Measurement Termination Command
+--
+-- **************************************************************
+
+
+E-CIDMeasurementTerminationCommand ::= SEQUENCE {
+	protocolIEs						ProtocolIE-Container		{{E-CIDMeasurementTerminationCommand-IEs}},
+	...
+}
+
+
+E-CIDMeasurementTerminationCommand-IEs F1AP-PROTOCOL-IES ::= {
+	{ ID id-gNB-CU-UE-F1AP-ID			CRITICALITY ignore	TYPE GNB-CU-UE-F1AP-ID					PRESENCE mandatory	}|
+	{ ID id-gNB-DU-UE-F1AP-ID			CRITICALITY ignore	TYPE GNB-DU-UE-F1AP-ID					PRESENCE mandatory	}|
+	{ ID id-LMF-UE-MeasurementID		CRITICALITY reject	TYPE LMF-UE-MeasurementID				PRESENCE mandatory	}|
+	{ ID id-RAN-UE-MeasurementID		CRITICALITY reject	TYPE RAN-UE-MeasurementID				PRESENCE mandatory	},
+	...
+}
+
 
 
 END

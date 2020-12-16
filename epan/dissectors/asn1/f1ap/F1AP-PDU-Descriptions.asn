@@ -1,4 +1,4 @@
--- 3GPP TS 38.473 V16.2.0 (2020-07)
+-- 3GPP TS 38.473 V16.3.1 (2020-10)
 -- 9.4.3	Elementary Procedure Definitions
 -- **************************************************************
 --
@@ -92,7 +92,34 @@ FROM F1AP-CommonDataTypes
 	ReferenceTimeInformationReportingControl,
 	ReferenceTimeInformationReport,
 	AccessSuccess,
-	CellTrafficTrace
+	CellTrafficTrace,
+	PositioningMeasurementRequest,
+	PositioningMeasurementResponse,
+	PositioningMeasurementFailure,
+	PositioningAssistanceInformationControl,
+	PositioningAssistanceInformationFeedback,
+	PositioningMeasurementReport,
+	PositioningMeasurementAbort,
+	PositioningMeasurementFailureIndication,
+	PositioningMeasurementUpdate,
+	TRPInformationRequest,
+	TRPInformationResponse,
+	TRPInformationFailure,
+	PositioningInformationRequest,
+	PositioningInformationResponse,
+	PositioningInformationFailure,
+	PositioningActivationRequest,
+	PositioningActivationResponse,
+	PositioningActivationFailure,
+	PositioningDeactivation,
+	PositioningInformationUpdate,
+	E-CIDMeasurementInitiationRequest,
+	E-CIDMeasurementInitiationResponse,
+	E-CIDMeasurementInitiationFailure,
+	E-CIDMeasurementFailureIndication,
+	E-CIDMeasurementReport,
+	E-CIDMeasurementTerminationCommand
+
 
 
 FROM F1AP-PDU-Contents
@@ -137,7 +164,23 @@ FROM F1AP-PDU-Contents
 	id-ReferenceTimeInformationReportingControl,
 	id-ReferenceTimeInformationReport,
 	id-accessSuccess,
-	id-cellTrafficTrace
+	id-cellTrafficTrace,
+	id-PositioningMeasurementExchange,
+	id-PositioningAssistanceInformationControl,
+	id-PositioningAssistanceInformationFeedback,
+	id-PositioningMeasurementReport,
+	id-PositioningMeasurementAbort,
+	id-PositioningMeasurementFailureIndication,
+	id-PositioningMeasurementUpdate,
+	id-TRPInformationExchange,
+	id-PositioningInformationExchange,
+	id-PositioningActivation,
+	id-PositioningDeactivation,
+	id-PositioningInformationUpdate,
+	id-E-CIDMeasurementInitiation,
+	id-E-CIDMeasurementFailureIndication,
+	id-E-CIDMeasurementReport,
+	id-E-CIDMeasurementTermination
 
 
 FROM F1AP-Constants
@@ -234,7 +277,12 @@ F1AP-ELEMENTARY-PROCEDURES-CLASS-1 F1AP-ELEMENTARY-PROCEDURE ::= {
 	gNBDUResourceConfiguration		|
 	iABTNLAddressAllocation			|
 	iABUPConfigurationUpdate		|
-	resourceStatusReportingInitiation,
+	resourceStatusReportingInitiation	|
+	positioningMeasurementExchange	|
+	tRPInformationExchange			|
+	positioningInformationExchange	|
+	positioningActivation			|
+	e-CIDMeasurementInitiation,
 	...
 }
 
@@ -263,7 +311,18 @@ F1AP-ELEMENTARY-PROCEDURES-CLASS-2 F1AP-ELEMENTARY-PROCEDURE ::= {
 	referenceTimeInformationReportingControl|
 	referenceTimeInformationReport			|
 	accessSuccess							|
-	cellTrafficTrace						,
+	cellTrafficTrace						|
+	positioningAssistanceInformationControl		|
+	positioningAssistanceInformationFeedback	|
+	positioningMeasurementReport				|
+	positioningMeasurementAbort					|
+	positioningMeasurementFailureIndication		|
+	positioningMeasurementUpdate				|
+	positioningDeactivation						|
+	e-CIDMeasurementFailureIndication			|
+	e-CIDMeasurementReport						|
+	e-CIDMeasurementTermination					|
+	positioningInformationUpdate,
 	...
 }
 -- **************************************************************
@@ -554,5 +613,113 @@ cellTrafficTrace F1AP-ELEMENTARY-PROCEDURE ::= {
 	PROCEDURE CODE			id-cellTrafficTrace
 	CRITICALITY				ignore
 }
+
+positioningAssistanceInformationControl F1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		PositioningAssistanceInformationControl
+	PROCEDURE CODE			id-PositioningAssistanceInformationControl
+	CRITICALITY				ignore
+}
+
+positioningAssistanceInformationFeedback F1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		PositioningAssistanceInformationFeedback
+	PROCEDURE CODE			id-PositioningAssistanceInformationFeedback
+	CRITICALITY				ignore
+}
+
+positioningMeasurementExchange F1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		PositioningMeasurementRequest
+	SUCCESSFUL OUTCOME		PositioningMeasurementResponse
+	UNSUCCESSFUL OUTCOME	PositioningMeasurementFailure
+	PROCEDURE CODE			id-PositioningMeasurementExchange
+	CRITICALITY				reject
+}
+
+positioningMeasurementReport F1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		PositioningMeasurementReport
+	PROCEDURE CODE			id-PositioningMeasurementReport
+	CRITICALITY				ignore
+}
+
+positioningMeasurementAbort F1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		PositioningMeasurementAbort
+	PROCEDURE CODE			id-PositioningMeasurementAbort
+	CRITICALITY				ignore
+}
+
+positioningMeasurementFailureIndication F1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		PositioningMeasurementFailureIndication
+	PROCEDURE CODE			id-PositioningMeasurementFailureIndication
+	CRITICALITY				ignore
+}
+
+positioningMeasurementUpdate F1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		PositioningMeasurementUpdate
+	PROCEDURE CODE			id-PositioningMeasurementUpdate
+	CRITICALITY				ignore
+}
+
+
+tRPInformationExchange F1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		TRPInformationRequest
+	SUCCESSFUL OUTCOME		TRPInformationResponse
+	UNSUCCESSFUL OUTCOME	TRPInformationFailure
+	PROCEDURE CODE			id-TRPInformationExchange
+	CRITICALITY				reject
+}
+
+positioningInformationExchange F1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		PositioningInformationRequest
+	SUCCESSFUL OUTCOME		PositioningInformationResponse
+	UNSUCCESSFUL OUTCOME	PositioningInformationFailure
+	PROCEDURE CODE			id-PositioningInformationExchange
+	CRITICALITY				reject
+}
+
+positioningActivation F1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		PositioningActivationRequest
+	SUCCESSFUL OUTCOME		PositioningActivationResponse
+	UNSUCCESSFUL OUTCOME	PositioningActivationFailure
+	PROCEDURE CODE			id-PositioningActivation
+	CRITICALITY				reject
+}
+
+positioningDeactivation F1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		PositioningDeactivation
+	PROCEDURE CODE			id-PositioningDeactivation
+	CRITICALITY				ignore
+}
+
+e-CIDMeasurementInitiation F1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		E-CIDMeasurementInitiationRequest
+	SUCCESSFUL OUTCOME		E-CIDMeasurementInitiationResponse
+	UNSUCCESSFUL OUTCOME	E-CIDMeasurementInitiationFailure
+	PROCEDURE CODE			id-E-CIDMeasurementInitiation
+	CRITICALITY				reject
+}
+
+e-CIDMeasurementFailureIndication F1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		E-CIDMeasurementFailureIndication
+	PROCEDURE CODE			id-E-CIDMeasurementFailureIndication
+	CRITICALITY				ignore
+}
+
+e-CIDMeasurementReport F1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		E-CIDMeasurementReport
+	PROCEDURE CODE			id-E-CIDMeasurementReport
+	CRITICALITY				ignore
+}
+
+e-CIDMeasurementTermination F1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		E-CIDMeasurementTerminationCommand
+	PROCEDURE CODE			id-E-CIDMeasurementTermination
+	CRITICALITY				ignore
+}
+
+positioningInformationUpdate F1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		PositioningInformationUpdate
+	PROCEDURE CODE			id-PositioningInformationUpdate
+	CRITICALITY				ignore
+}
+
 
 END

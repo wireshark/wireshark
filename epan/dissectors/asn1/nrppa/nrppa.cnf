@@ -16,7 +16,11 @@ Presence
 ProtocolIE-ContainerList
 PRS-ID
 
+#.EXPORTS
+Assistance-Information_PDU
+
 #.PDU
+Assistance-Information
 NRPPA-PDU
 
 #.TYPE_RENAME

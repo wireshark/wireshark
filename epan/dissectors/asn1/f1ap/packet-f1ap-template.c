@@ -8,7 +8,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
- * References: 3GPP TS 38.473 V16.2.0 (2020-07)
+ * References: 3GPP TS 38.473 V16.3.1 (2020-07)
  */
 
 #include "config.h"
@@ -25,6 +25,7 @@
 #include "packet-e212.h"
 #include "packet-pdcp-nr.h"
 #include "packet-lte-rrc.h"
+#include "packet-nrppa.h"
 
 #define PNAME  "F1 Application Protocol"
 #define PSNAME "F1AP"
@@ -122,6 +123,7 @@ static gint ett_f1ap_SL_PHY_MAC_RLC_Config = -1;
 static gint ett_f1ap_SL_ConfigDedicatedEUTRA = -1;
 static gint ett_f1ap_TDD_UL_DLConfigCommonNR = -1;
 static gint ett_f1ap_UEAssistanceInformationEUTRA = -1;
+static gint ett_f1ap_PosAssistance_Information = -1;
 #include "packet-f1ap-ett.c"
 
 enum{
@@ -452,6 +454,7 @@ void proto_register_f1ap(void) {
     &ett_f1ap_SL_ConfigDedicatedEUTRA,
     &ett_f1ap_TDD_UL_DLConfigCommonNR,
     &ett_f1ap_UEAssistanceInformationEUTRA,
+    &ett_f1ap_PosAssistance_Information,
 #include "packet-f1ap-ettarr.c"
   };
 

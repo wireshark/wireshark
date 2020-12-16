@@ -109,47 +109,65 @@ ProtocolIE-Field/value ie_field_value
 #.ASSIGN_VALUE_TO_TYPE  # F1AP does not have constants assigned to types, they are pure INTEGER
 # ProcedureCode
 
-id-Reset                             ProcedureCode
-id-F1Setup                           ProcedureCode
-id-ErrorIndication                   ProcedureCode
-id-gNBDUConfigurationUpdate          ProcedureCode
-id-gNBCUConfigurationUpdate          ProcedureCode
-id-UEContextSetup                    ProcedureCode
-id-UEContextRelease                  ProcedureCode
-id-UEContextModification             ProcedureCode
-id-UEContextModificationRequired     ProcedureCode
-id-UEMobilityCommand                 ProcedureCode
-id-UEContextReleaseRequest           ProcedureCode
-id-InitialULRRCMessageTransfer       ProcedureCode
-id-DLRRCMessageTransfer              ProcedureCode
-id-ULRRCMessageTransfer              ProcedureCode
-id-privateMessage                    ProcedureCode
-id-UEInactivityNotification          ProcedureCode
-id-GNBDUResourceCoordination         ProcedureCode
-id-SystemInformationDeliveryCommand  ProcedureCode
-id-Paging                            ProcedureCode
-id-Notify                            ProcedureCode
-id-WriteReplaceWarning               ProcedureCode
-id-PWSCancel                         ProcedureCode
-id-PWSRestartIndication              ProcedureCode
-id-PWSFailureIndication              ProcedureCode
-id-GNBDUStatusIndication             ProcedureCode
-id-RRCDeliveryReport                 ProcedureCode
-id-F1Removal                         ProcedureCode
-id-NetworkAccessRateReduction        ProcedureCode
-id-TraceStart                        ProcedureCode
-id-DeactivateTrace                   ProcedureCode
-id-DUCURadioInformationTransfer      ProcedureCode
-id-CUDURadioInformationTransfer      ProcedureCode
-id-BAPMappingConfiguration           ProcedureCode
-id-GNBDUResourceConfiguration        ProcedureCode
-id-IABTNLAddressAllocation           ProcedureCode
-id-IABUPConfigurationUpdate          ProcedureCode
-id-resourceStatusReportingInitiation ProcedureCode
-id-resourceStatusReporting           ProcedureCode
-id-accessAndMobilityIndication       ProcedureCode
-id-accessSuccess                     ProcedureCode
-id-cellTrafficTrace                  ProcedureCode
+id-Reset                                    ProcedureCode
+id-F1Setup                                  ProcedureCode
+id-ErrorIndication                          ProcedureCode
+id-gNBDUConfigurationUpdate                 ProcedureCode
+id-gNBCUConfigurationUpdate                 ProcedureCode
+id-UEContextSetup                           ProcedureCode
+id-UEContextRelease                         ProcedureCode
+id-UEContextModification                    ProcedureCode
+id-UEContextModificationRequired            ProcedureCode
+id-UEMobilityCommand                        ProcedureCode
+id-UEContextReleaseRequest                  ProcedureCode
+id-InitialULRRCMessageTransfer              ProcedureCode
+id-DLRRCMessageTransfer                     ProcedureCode
+id-ULRRCMessageTransfer                     ProcedureCode
+id-privateMessage                           ProcedureCode
+id-UEInactivityNotification                 ProcedureCode
+id-GNBDUResourceCoordination                ProcedureCode
+id-SystemInformationDeliveryCommand         ProcedureCode
+id-Paging                                   ProcedureCode
+id-Notify                                   ProcedureCode
+id-WriteReplaceWarning                      ProcedureCode
+id-PWSCancel                                ProcedureCode
+id-PWSRestartIndication                     ProcedureCode
+id-PWSFailureIndication                     ProcedureCode
+id-GNBDUStatusIndication                    ProcedureCode
+id-RRCDeliveryReport                        ProcedureCode
+id-F1Removal                                ProcedureCode
+id-NetworkAccessRateReduction               ProcedureCode
+id-TraceStart                               ProcedureCode
+id-DeactivateTrace                          ProcedureCode
+id-DUCURadioInformationTransfer             ProcedureCode
+id-CUDURadioInformationTransfer             ProcedureCode
+id-BAPMappingConfiguration                  ProcedureCode
+id-GNBDUResourceConfiguration               ProcedureCode
+id-IABTNLAddressAllocation                  ProcedureCode
+id-IABUPConfigurationUpdate                 ProcedureCode
+id-resourceStatusReportingInitiation        ProcedureCode
+id-resourceStatusReporting                  ProcedureCode
+id-accessAndMobilityIndication              ProcedureCode
+id-accessSuccess                            ProcedureCode
+id-cellTrafficTrace                         ProcedureCode
+id-PositioningMeasurementExchange           ProcedureCode
+id-PositioningAssistanceInformationControl  ProcedureCode
+id-PositioningAssistanceInformationFeedback ProcedureCode
+id-PositioningMeasurementReport             ProcedureCode
+id-PositioningMeasurementAbort              ProcedureCode
+id-PositioningMeasurementFailureIndication  ProcedureCode
+id-PositioningMeasurementUpdate             ProcedureCode
+id-TRPInformationExchange                   ProcedureCode
+id-PositioningInformationExchange           ProcedureCode
+id-PositioningActivation                    ProcedureCode
+id-PositioningDeactivation                  ProcedureCode
+id-E-CIDMeasurementInitiation               ProcedureCode
+id-E-CIDMeasurementFailureIndication        ProcedureCode
+id-E-CIDMeasurementReport                   ProcedureCode
+id-E-CIDMeasurementTermination              ProcedureCode
+id-PositioningInformationUpdate             ProcedureCode
+id-ReferenceTimeInformationReport           ProcedureCode
+id-ReferenceTimeInformationReportingControl ProcedureCode
 
 # ProtocolIE-ID
 id-Cause                                             ProtocolIE-ID
@@ -508,8 +526,8 @@ id-ExtendedPacketDelayBudget                         ProtocolIE-ID
 id-TSCTrafficCharacteristics                         ProtocolIE-ID
 id-ReportingRequestType                              ProtocolIE-ID
 id-TimeReferenceInformation                          ProtocolIE-ID
-id-ReferenceTimeInformationReport                    ProtocolIE-ID
-id-ReferenceTimeInformationReportingControl          ProtocolIE-ID
+id-ReferenceTimeInformationReport-IE                 ProtocolIE-ID
+id-ReferenceTimeInformationReportingControl-IE       ProtocolIE-ID
 id-CNPacketDelayBudgetUplink                         ProtocolIE-ID
 id-AdditionalPDCPDuplicationTNL-List                 ProtocolIE-ID
 id-RLCDuplicationInformation                         ProtocolIE-ID
@@ -531,6 +549,43 @@ id-AvailableSNPN-ID-List                             ProtocolIE-ID
 id-SIB10-message                                     ProtocolIE-ID
 id-DLCarrierList                                     ProtocolIE-ID
 id-ExtendedTAISliceSupportList                       ProtocolIE-ID
+id-RequestedSRSTransmissionCharacteristics           ProtocolIE-ID
+id-PosAssistance-Information                         ProtocolIE-ID
+id-PosBroadcast                                      ProtocolIE-ID
+id-RoutingID                                         ProtocolIE-ID
+id-PosAssistanceInformationFailureList               ProtocolIE-ID
+id-PosMeasurementQuantities                          ProtocolIE-ID
+id-PosMeasurementResultList                          ProtocolIE-ID
+id-TRPInformationTypeListTRPReq                      ProtocolIE-ID
+id-TRPInformationTypeItem                            ProtocolIE-ID
+id-TRPInformationListTRPResp                         ProtocolIE-ID
+id-TRPInformationItem                                ProtocolIE-ID
+id-LMF-MeasurementID                                 ProtocolIE-ID
+id-SRSType                                           ProtocolIE-ID
+id-ActivationTime                                    ProtocolIE-ID
+id-AbortTransmission                                 ProtocolIE-ID
+id-PositioningBroadcastCells                         ProtocolIE-ID
+id-SRSConfiguration                                  ProtocolIE-ID
+id-PosReportCharacteristics                          ProtocolIE-ID
+id-PosMeasurementPeriodicity                         ProtocolIE-ID
+id-TRPList                                           ProtocolIE-ID
+id-RAN-MeasurementID                                 ProtocolIE-ID
+id-LMF-UE-MeasurementID                              ProtocolIE-ID
+id-RAN-UE-MeasurementID                              ProtocolIE-ID
+id-E-CID-MeasurementQuantities                       ProtocolIE-ID
+id-E-CID-MeasurementQuantities-Item                  ProtocolIE-ID
+id-E-CID-MeasurementPeriodicity                      ProtocolIE-ID
+id-E-CID-MeasurementResult                           ProtocolIE-ID
+id-Cell-Portion-ID                                   ProtocolIE-ID
+id-SFNInitialisationTime                             ProtocolIE-ID
+id-SystemFrameNumber                                 ProtocolIE-ID
+id-SlotNumber                                        ProtocolIE-ID
+id-TRP-MeasurementRequestList                        ProtocolIE-ID
+id-MeasurementBeamInfoRequest                        ProtocolIE-ID
+id-E-CID-ReportCharacteristics                       ProtocolIE-ID
+id-ConfiguredTACIndication                           ProtocolIE-ID
+id-Extended-GNB-DU-Name                              ProtocolIE-ID
+id-Extended-GNB-CU-Name                              ProtocolIE-ID
 #.END
 
 #.REGISTER
@@ -826,6 +881,42 @@ TransportLayerAddress                             N f1ap.ies id-TraceCollectionE
 PrivacyIndicator                                  N f1ap.ies id-PrivacyIndicator
 URI-address                                       N f1ap.ies id-TraceCollectionEntityURI
 NID                                               N f1ap.ies id-ServingNID
+RequestedSRSTransmissionCharacteristics           N f1ap.ies id-RequestedSRSTransmissionCharacteristics
+PosAssistance-Information                         N f1ap.ies id-PosAssistance-Information
+PosBroadcast                                      N f1ap.ies id-PosBroadcast
+RoutingID                                         N f1ap.ies id-RoutingID
+PosAssistanceInformationFailureList               N f1ap.ies id-PosAssistanceInformationFailureList
+PosMeasurementQuantities                          N f1ap.ies id-PosMeasurementQuantities
+PosMeasurementResultList                          N f1ap.ies id-PosMeasurementResultList
+TRPInformationTypeListTRPReq                      N f1ap.ies id-TRPInformationTypeListTRPReq
+TRPInformationTypeItem                            N f1ap.ies id-TRPInformationTypeItem
+TRPInformationListTRPResp                         N f1ap.ies id-TRPInformationListTRPResp
+TRPInformationItem                                N f1ap.ies id-TRPInformationItem
+LMF-MeasurementID                                 N f1ap.ies id-LMF-MeasurementID
+SRSType                                           N f1ap.ies id-SRSType
+SFNInitialisationTime                             N f1ap.ies id-ActivationTime
+AbortTransmission                                 N f1ap.ies id-AbortTransmission
+PositioningBroadcastCells                         N f1ap.ies id-PositioningBroadcastCells
+SRSConfiguration                                  N f1ap.ies id-SRSConfiguration
+PosReportCharacteristics                          N f1ap.ies id-PosReportCharacteristics
+PosMeasurementPeriodicity                         N f1ap.ies id-PosMeasurementPeriodicity
+TRPList                                           N f1ap.ies id-TRPList
+RAN-MeasurementID                                 N f1ap.ies id-RAN-MeasurementID
+LMF-UE-MeasurementID                              N f1ap.ies id-LMF-UE-MeasurementID
+RAN-UE-MeasurementID                              N f1ap.ies id-RAN-UE-MeasurementID
+E-CID-MeasurementQuantities                       N f1ap.ies id-E-CID-MeasurementQuantities
+E-CID-MeasurementQuantities-Item                  N f1ap.ies id-E-CID-MeasurementQuantities-Item
+E-CID-MeasurementPeriodicity                      N f1ap.ies id-E-CID-MeasurementPeriodicity
+E-CID-MeasurementResult                           N f1ap.ies id-E-CID-MeasurementResult
+Cell-Portion-ID                                   N f1ap.ies id-Cell-Portion-ID
+SFNInitialisationTime                             N f1ap.ies id-SFNInitialisationTime
+SystemFrameNumber                                 N f1ap.ies id-SystemFrameNumber
+SlotNumber                                        N f1ap.ies id-SlotNumber
+TRP-MeasurementRequestList                        N f1ap.ies id-TRP-MeasurementRequestList
+MeasurementBeamInfoRequest                        N f1ap.ies id-MeasurementBeamInfoRequest
+E-CID-ReportCharacteristics                       N f1ap.ies id-E-CID-ReportCharacteristics
+Extended-GNB-DU-Name                              N f1ap.ies id-Extended-GNB-DU-Name
+Extended-GNB-CU-Name                              N f1ap.ies id-Extended-GNB-CU-Name
 
 #F1AP-PROTOCOL-EXTENSION
 GNB-CUSystemInformation                           N f1ap.extension id-gNB-CUSystemInformation
@@ -913,6 +1004,7 @@ AvailableSNPN-ID-List                             N f1ap.extension id-AvailableS
 SIB10-message                                     N f1ap.extension id-SIB10-message
 NRCarrierList                                     N f1ap.extension id-DLCarrierList
 ExtendedSliceSupportList                          N f1ap.extension id-ExtendedTAISliceSupportList
+ConfiguredTACIndication                           N f1ap.extension id-ConfiguredTACIndication
 
 #F1AP-ELEMENTARY-PROCEDURE
 Reset                                    N f1ap.proc.imsg id-Reset
@@ -1024,6 +1116,48 @@ ReferenceTimeInformationReport           N f1ap.proc.imsg id-ReferenceTimeInform
 AccessSuccess                            N f1ap.proc.imsg id-accessSuccess
 
 CellTrafficTrace                         N f1ap.proc.imsg id-cellTrafficTrace
+
+PositioningAssistanceInformationControl  N f1ap.proc.imsg id-PositioningAssistanceInformationControl
+
+PositioningAssistanceInformationFeedback N f1ap.proc.imsg id-PositioningAssistanceInformationFeedback
+
+PositioningMeasurementRequest            N f1ap.proc.imsg id-PositioningMeasurementExchange
+PositioningMeasurementResponse           N f1ap.proc.sout id-PositioningMeasurementExchange
+PositioningMeasurementFailure            N f1ap.proc.uout id-PositioningMeasurementExchange
+
+PositioningMeasurementReport             N f1ap.proc.imsg id-PositioningMeasurementReport
+
+PositioningMeasurementAbort              N f1ap.proc.imsg id-PositioningMeasurementAbort
+
+PositioningMeasurementFailureIndication  N f1ap.proc.imsg id-PositioningMeasurementFailureIndication
+
+PositioningMeasurementUpdate             N f1ap.proc.imsg id-PositioningMeasurementUpdate
+
+TRPInformationRequest                    N f1ap.proc.imsg id-TRPInformationExchange
+TRPInformationResponse                   N f1ap.proc.sout id-TRPInformationExchange
+TRPInformationFailure                    N f1ap.proc.uout id-TRPInformationExchange
+
+PositioningInformationRequest            N f1ap.proc.imsg id-PositioningInformationExchange
+PositioningInformationResponse           N f1ap.proc.sout id-PositioningInformationExchange
+PositioningInformationFailure            N f1ap.proc.uout id-PositioningInformationExchange
+
+PositioningActivationRequest             N f1ap.proc.imsg id-PositioningActivation
+PositioningActivationResponse            N f1ap.proc.sout id-PositioningActivation
+PositioningActivationFailure             N f1ap.proc.uout id-PositioningActivation
+
+PositioningDeactivation                  N f1ap.proc.imsg id-PositioningDeactivation
+
+E-CIDMeasurementInitiationRequest        N f1ap.proc.imsg id-E-CIDMeasurementInitiation
+E-CIDMeasurementInitiationResponse       N f1ap.proc.sout id-E-CIDMeasurementInitiation
+E-CIDMeasurementInitiationFailure        N f1ap.proc.uout id-E-CIDMeasurementInitiation
+
+E-CIDMeasurementFailureIndication        N f1ap.proc.imsg id-E-CIDMeasurementFailureIndication
+
+E-CIDMeasurementReport                   N f1ap.proc.imsg id-E-CIDMeasurementReport
+
+E-CIDMeasurementTerminationCommand       N f1ap.proc.imsg id-E-CIDMeasurementTermination
+
+PositioningInformationUpdate             N f1ap.proc.imsg id-PositioningInformationUpdate
 
 #.FN_BODY AdditionalSIBMessageList-Item/additionalSIB VAL_PTR = &param_tvb
   tvbuff_t *param_tvb = NULL;
@@ -1779,6 +1913,22 @@ Periodicity DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_microseconds
     dissect_lte_rrc_UEAssistanceInformation_r11_PDU(param_tvb, actx->pinfo, subtree, NULL);
   }
 
+#.FN_BODY PosAssistance-Information VAL_PTR = &param_tvb
+  tvbuff_t *param_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (param_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_f1ap_PosAssistance_Information);
+    dissect_nrppa_Assistance_Information_PDU(param_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.FN_BODY PosAssistanceInformationFailureList VAL_PTR = &param_tvb
+  tvbuff_t *param_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (param_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_f1ap_PosAssistance_Information);
+    dissect_nrppa_Assistance_Information_PDU(param_tvb, actx->pinfo, subtree, NULL);
+  }
+
 #.FN_HDR Reset
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "Reset");
 #.FN_HDR ResetAcknowledge
@@ -1940,6 +2090,84 @@ Periodicity DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_microseconds
 #.END
 #.FN_HDR CellTrafficTrace
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "CellTrafficTrace");
+#.END
+#.FN_HDR PositioningAssistanceInformationControl
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "PositioningAssistanceInformationControl");
+#.END
+#.FN_HDR PositioningAssistanceInformationFeedback
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "PositioningAssistanceInformationFeedback");
+#.END
+#.FN_HDR PositioningMeasurementRequest
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "PositioningMeasurementRequest");
+#.END
+#.FN_HDR PositioningMeasurementResponse
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "PositioningMeasurementResponse");
+#.END
+#.FN_HDR PositioningMeasurementFailure
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "PositioningMeasurementFailure");
+#.END
+#.FN_HDR PositioningMeasurementReport
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "PositioningMeasurementReport");
+#.END
+#.FN_HDR PositioningMeasurementAbort
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "PositioningMeasurementAbort");
+#.END
+#.FN_HDR PositioningMeasurementFailureIndication
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "PositioningMeasurementFailureIndication");
+#.END
+#.FN_HDR PositioningMeasurementUpdate
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "PositioningMeasurementUpdate");
+#.END
+#.FN_HDR TRPInformationRequest
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "TRPInformationRequest");
+#.END
+#.FN_HDR TRPInformationResponse
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "TRPInformationResponse");
+#.END
+#.FN_HDR TRPInformationFailure
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "TRPInformationFailure");
+#.END
+#.FN_HDR PositioningInformationRequest
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "PositioningInformationRequest");
+#.END
+#.FN_HDR PositioningInformationResponse
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "PositioningInformationResponse");
+#.END
+#.FN_HDR PositioningInformationFailure
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "PositioningInformationFailure");
+#.END
+#.FN_HDR PositioningActivationRequest
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "PositioningActivationRequest");
+#.END
+#.FN_HDR PositioningActivationResponse
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "PositioningActivationResponse");
+#.END
+#.FN_HDR PositioningActivationFailure
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "PositioningActivationFailure");
+#.END
+#.FN_HDR PositioningDeactivation
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "PositioningDeactivation");
+#.END
+#.FN_HDR E-CIDMeasurementInitiationRequest
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "E-CIDMeasurementInitiationRequest");
+#.END
+#.FN_HDR E-CIDMeasurementInitiationResponse
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "E-CIDMeasurementInitiationResponse");
+#.END
+#.FN_HDR E-CIDMeasurementInitiationFailure
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "E-CIDMeasurementInitiationFailure");
+#.END
+#.FN_HDR E-CIDMeasurementFailureIndication
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "E-CIDMeasurementFailureIndication");
+#.END
+#.FN_HDR E-CIDMeasurementReport
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "E-CIDMeasurementReport");
+#.END
+#.FN_HDR E-CIDMeasurementTerminationCommand
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "E-CIDMeasurementTerminationCommand");
+#.END
+#.FN_HDR PositioningInformationUpdate
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "PositioningInformationUpdate");
 #.END
 
 #
