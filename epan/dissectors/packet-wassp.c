@@ -1256,7 +1256,7 @@ static const value_string wassp_tlv_types[] =
 	{ EID_MU_ASSOC_TIME, "MU Associated Time"},
 	{ EID_MU_ACTIVE_TIME, "MU Active Time"},
 	{ EID_REPORT_REQ, "Report Request"},
-	{ EID_MU_URL, "MU Capive Portal Url"},
+	{ EID_MU_URL, "MU Captive Portal Url"},
 	{ EID_MU_SESSION_LIFETIME, "MU Session Life Time"},
 	{ EID_MU_REAUTH_TIMER, "MU Re-Authentication Timer"},
 	{ EID_MU_ACCT_SESSION_ID_STRING, "MU Acct Session ID String"},
@@ -1495,7 +1495,7 @@ const TLV_PARSER_ENTRY tlvMainTable[]  =
 	{ EID_SIAPP_PACKET_RETRIES, "SIAPP Packet Retries", TLV_TYPE_UINT, 0, 0, 0, 0, 0, 0, 0, 0},
 	{ EID_SIAPP_ASSOC_IN_WLAN, "SIAPP MU Association With In Same WLAN", TLV_TYPE_UINT, 0, 0, 0, 0, 0, 0, 0, 0},
 	{ EID_SIAPP_ASSOC_IN_CLUSTER, "SIAPP MU Association With In Same Cluster", TLV_TYPE_UINT, 0, 0, 0, 0, 0, 0, 0, 0},
-	{ EID_SIAPP_REASSOC_IN_CLUSTER, "SIAPP MU Ressociation With In Same Cluster", TLV_TYPE_UINT, 0, 0, 0, 0, 0, 0, 0, 0},
+	{ EID_SIAPP_REASSOC_IN_CLUSTER, "SIAPP MU Reassociation With In Same Cluster", TLV_TYPE_UINT, 0, 0, 0, 0, 0, 0, 0, 0},
 	{ EID_SIAPP_THIN_BLOCK, "SIAPP Thin Access Points Block", TLV_TYPE_BLOCK_TLV, TAB_SIAPP_THIN_BLOCK, 0, 0, 0, 0, 0, 0, 0},
 	{ EID_SIAPP_NEWAP_BSSID, "SIAPP New Access Points BSSID", TLV_TYPE_UINT, 0, 0, 0, 0, 0, 0, 0, 0},
 	{ EID_SIAPP_OLDAP_BSSID, "SIAPP Old Access Points BSSID", TLV_TYPE_UINT, 0, 0, 0, 0, 0, 0, 0, 0},
@@ -2118,7 +2118,7 @@ const TLV_PARSER_ENTRY tlvGlobalConfigTable[]  =
 	{ EID_IOT_BLE_SCAN_WINDOW, "IOT BLE Scan Window In Milliseconds", TLV_TYPE_UINT, 0, 0, 0, 0, 0, 0, 0, 0},
 	{ EID_IOT_BLE_SCAN_MIN_RSSI, "IOT BLE Scan Min RSSI", TLV_TYPE_INT, 0, 0, 0, 0, 0, 0, 0, 0},
 	{ EID_LISENSE_SERVER, "License Server", TLV_TYPE_STRING, 0, 0, 0, 0, 0, 0, 0, 0},
-	{ EID_LISENSE_MIN_RSSI, "Lisense Min RSSI", TLV_TYPE_INT, 0, 0, 0, 0, 0, 0, 0, 0},
+	{ EID_LISENSE_MIN_RSSI, "License Min RSSI", TLV_TYPE_INT, 0, 0, 0, 0, 0, 0, 0, 0},
 	{ EID_LISENSE_REP_FREQ, "License Report Frequency", TLV_TYPE_UINT, 0, 0, 0, 0, 0, 0, 0, 0},
 	{ EID_DPI_SIG_HASH, "Deep Packet Inspection Signature Hash", TLV_TYPE_STRING, 0, 0, 0, 0, 0, 0, 0, 0},
 	{ EID_ANT_MODELS_IOT, "Antanna Type for IOT Radio", TLV_TYPE_UINT, 0, 0, 0, 0, 0, 0, 0, 0},
@@ -3665,7 +3665,7 @@ const TLV_PARSER_ENTRY tlvHS2_blockTable[]  =
 	{ EID_HS2_WIDTH, "HS2 Width", TLV_TYPE_UINT, 0, 0, 0, 0, 0, 0, 0, 0},
 	{ EID_HS2_DOWLINK_LOAD, "HS2 Downlink Load", TLV_TYPE_UINT, 0, 0, 0, 0, 0, 0, 0, 0},
 	{ EID_HS2_DOWLINK_SPEED, "HS2 Downlink Speed", TLV_TYPE_UINT, 0, 0, 0, 0, 0, 0, 0, 0},
-	{ EID_HS2_HIGHT, "HS2 Hight", TLV_TYPE_UINT, 0, 0, 0, 0, 0, 0, 0, 0}
+	{ EID_HS2_HIGHT, "HS2 Height", TLV_TYPE_UINT, 0, 0, 0, 0, 0, 0, 0, 0}
 
 
 };
@@ -6596,7 +6596,7 @@ void proto_register_wassp(void)
 			&hf_wassp_tlv_value_string,
 			{
 				"Value", "wassp.tlv.valuestr", FT_STRING, BASE_NONE, NULL,
-				0x00, "Wassp TLV Value in string formst", HFILL
+				0x00, "Wassp TLV Value in string format", HFILL
 			}
 		},
 		{

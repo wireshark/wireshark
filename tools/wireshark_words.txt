@@ -16,6 +16,7 @@ acp133
 activations
 actuator
 additionsr
+administrable
 adwin
 aes128
 aes256
@@ -38,7 +39,10 @@ annexc
 anonsvn
 appdata
 appid
+arbitrated
+arduino
 arfcn
+asciidoc
 asn1cnf
 asn2wrs
 assymetric
@@ -54,6 +58,7 @@ authenticator
 authenticators
 authn
 authntransitioning
+authorizer
 authtoken
 authtype
 autoconfiguration
@@ -111,6 +116,7 @@ canonicalize
 canonicalized
 capinfos
 capsa
+captioning
 capwap
 carrierfreq
 carrierid
@@ -123,8 +129,10 @@ celcius
 cellid
 cellidentity
 centiseconds
+centrino
 chan1
 chan2
+changelog
 channelisation
 channelized
 charset
@@ -159,6 +167,7 @@ colorizing
 combiner
 combiners
 communication
+computable
 concatenate
 concatenated
 concatenates
@@ -221,6 +230,7 @@ defragmented
 defragmenting
 dehumidification
 deinterleaved
+delimited
 delimiters
 demodulator
 demultiplexer
@@ -228,6 +238,9 @@ demultiplexers
 deobfuscated
 deprecated
 dequeued
+dereference
+dereferenced
+dereferencing
 dereg
 deregister
 deregistered
@@ -342,6 +355,7 @@ gboolean
 gchar
 gcrypt
 gendc
+gentoo
 geoip
 geonw
 geran
@@ -407,6 +421,7 @@ infos
 initialise
 initialising
 initialization
+initializations
 initialize
 initialized
 initializer
@@ -438,6 +453,8 @@ jetds
 kademlia
 keepalive
 kerberos
+keydes
+keygen
 keylen
 keylog
 keypress
@@ -453,6 +470,7 @@ libgcrypt
 libpcap
 linkaddr
 linkinfo
+linksys
 linux
 list1
 lithionics
@@ -472,8 +490,10 @@ mailto
 malloc
 manuf
 mappable
+maybefcs
 mcast
 measurements
+megabit
 megaco
 mellanox
 memcache
@@ -547,6 +567,7 @@ nettl
 newpw
 nexthop
 nfs4err
+nghttp
 ngsniffer
 niagra
 noauth
@@ -562,6 +583,7 @@ notused
 npcap
 nprach
 nsapi
+nssai
 nstime
 nstrace
 ntlmssp
@@ -583,8 +605,10 @@ onoff
 ontime
 opcode
 opcodes
+openssl
 openstreetmap
 openvpn
+oplock
 opnum
 optimizations
 optimizer
@@ -593,6 +617,7 @@ outhdr
 packetcable
 packetization
 packetized
+parallelization
 param
 parameterization
 parameterized
@@ -669,6 +694,7 @@ randpkt
 reachability
 readme
 realloc
+realtek
 realtime
 reassembles
 reassigning
@@ -689,6 +715,7 @@ recalculate
 recalculating
 recalibrate
 recognizer
+recompiling
 recomputed
 reconf
 reconfig
@@ -769,6 +796,7 @@ roamer
 routable
 rpcap
 rtpmidi
+rtpmux
 sanitize
 satisfiable
 scaler
@@ -815,6 +843,7 @@ spare7
 spare8
 spare9
 spcell
+spectrograph
 speex
 spnego
 spoofing
@@ -867,6 +896,7 @@ subtrees
 switchinfo
 synchronizing
 synphasor
+syntaxes
 sysdig
 sysex
 sysframe
@@ -891,9 +921,11 @@ toggling
 toolongfragment
 tooltip
 touchlink
+touchpad
 traceroute
 transcoder
 transitioning
+traveler
 truncatable
 truncate
 truncates
@@ -956,8 +988,10 @@ unignore
 unimplemented
 uninitialized
 uninstall
+uninstallation
 uninstalled
 uninstaller
+uninterruptable
 unjoin
 unjoined
 unjoining
@@ -966,8 +1000,10 @@ unlink
 unlinked
 unmappable
 unmarshal
+unmerged
 unoptimized
 unparsable
+unparseable
 unparsed
 unprocessable
 unpunctuated

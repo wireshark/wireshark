@@ -264,7 +264,7 @@ static const value_string stanag4607_target_vals[] = {
 	{   3, "Rotary Wing Aircraft, Live Target" },
 	{   4, "Fixed Wing Aircraft, Live Target" },
 	{   5, "Stationary Rotator, Live Target" },
-	{   6, "Maritme, Live Target" },
+	{   6, "Maritime, Live Target" },
 	{   7, "Beacon, Live Target" },
 	{   8, "Amphibious, Live Target" },
 	{   9, "Person, Live Target" },

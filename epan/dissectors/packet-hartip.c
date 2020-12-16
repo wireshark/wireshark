@@ -2099,7 +2099,7 @@ proto_register_hartip(void)
         NULL, HFILL }
     },
     { &hf_hartip_pt_rsp_embedded_cmd_delimiter,
-      { "Embedded Command Delimiter",  "hart_ip.pt.rsp.embedded_command_delimter",
+      { "Embedded Command Delimiter",  "hart_ip.pt.rsp.embedded_command_delimiter",
         FT_UINT8, BASE_HEX, NULL, 0x0,
         NULL, HFILL }
     },

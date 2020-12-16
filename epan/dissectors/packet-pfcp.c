@@ -12384,7 +12384,7 @@ proto_register_pfcp(void)
             NULL, HFILL }
         },
         { &hf_pfcp_data_status_flags_b1_buff,
-        { "BUFF (First DL packet is reveived and buffered by UP function)", "pfcp.data_status.flags.buff",
+        { "BUFF (First DL packet is received and buffered by UP function)", "pfcp.data_status.flags.buff",
             FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x02,
             NULL, HFILL }
         },

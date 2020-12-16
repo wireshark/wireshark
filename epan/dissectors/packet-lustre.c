@@ -8177,7 +8177,7 @@ proto_register_lustre(void)
         { &hf_lustre_obj_update_params_count,
           { "Ou Param Count", "lustre.obj_update.params_count", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
         { &hf_lustre_obj_update_result_size,
-          { "Ou Reult Sz", "lustre.obj_update.result_size", FT_UINT32, BASE_DEC_HEX, NULL, 0, NULL, HFILL }},
+          { "Ou Result Sz", "lustre.obj_update.result_size", FT_UINT32, BASE_DEC_HEX, NULL, 0, NULL, HFILL }},
         { &hf_lustre_obj_update_flags,
           { "Ou Flags", "lustre.obj_update.flags", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
         { &hf_lustre_obj_update_padding,

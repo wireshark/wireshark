@@ -2197,7 +2197,7 @@ static void dissect_prach_root_sequence_index_value(ptvcursor_t * ptvc, packet_i
 
 	if (test_value > 837)
 	{
-		expert_add_info_format(pinfo, item, &ei_invalid_range, "Invalid prach root sequency Index [0..837]");
+		expert_add_info_format(pinfo, item, &ei_invalid_range, "Invalid prach root sequence Index [0..837]");
 	}
 }
 static void dissect_prach_zero_correlation_zone_configuration_value(ptvcursor_t * ptvc, packet_info* pinfo)
