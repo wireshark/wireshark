@@ -1,7 +1,7 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-lppa.h                                                              */
-/* asn2wrs.py -p lppa -c ./lppa.cnf -s ./packet-lppa-template -D . -O ../.. LPPA-Common.asn LPPA-Constant.asn LPPA-Container.asn LPPA-ElementaryProcedure.asn LPPA-InformationElement.asn LPPA-PDU.asn */
+/* asn2wrs.py -p lppa -c ./lppa.cnf -s ./packet-lppa-template -D . -O ../.. LPPA-CommonDataTypes.asn LPPA-Constants.asn LPPA-Containers.asn LPPA-IEs.asn LPPA-PDU-Contents.asn LPPA-PDU-Descriptions.asn */
 
 /* Input file: packet-lppa-template.h */
 

@@ -1,4 +1,4 @@
--- 3GPP TS 36.455 V15.2.1 (2019-04)
+-- ﻿3GPP TS 36.455 V16.1.0 (2020-09)
 --
 
 -- **************************************************************
@@ -18,6 +18,9 @@ BEGIN
 IMPORTS	
 	
 	id-MeasurementQuantities-Item,
+	id-ResultsPerSSB-Index-List,
+	id-ResultsPerSSB-Index-Item,
+	id-NR-CGI,
 	maxCellineNB,
 	maxCellReport,
 	maxNrOfErrors,
@@ -28,6 +31,8 @@ IMPORTS
 	id-WLANMeasurementQuantities-Item,
 	maxGERANMeas,
 	maxUTRANMeas,
+	maxNRmeas,
+	maxResultsPerSSBIndex,
 	maxCellineNB-ext,
 	maxWLANchannels,
 	maxMBSFN-Allocations,
@@ -91,7 +96,7 @@ AssistanceInformationFailureList-ExtIEs LPPA-PROTOCOL-EXTENSION ::= {
 
 AssistanceInformationMetaData ::= SEQUENCE {
 	encrypted			ENUMERATED {true, ...}	OPTIONAL,
-	gNSSID				ENUMERATED {gps, sbas, gzss, galileo, glonass, bds, ...}	OPTIONAL,
+	gNSSID				ENUMERATED {gps, sbas, gzss, galileo, glonass, bds, ..., navic}	OPTIONAL,
 	sBASID				ENUMERATED {waas, egnos, msas, gagan, ...}				OPTIONAL,
 	iE-Extensions						ProtocolExtensionContainer { { AssistanceInformationMetaData-ExtIEs} }	OPTIONAL,
 	...
@@ -279,7 +284,8 @@ InterRATMeasurementQuantitiesValue-ExtIEs LPPA-PROTOCOL-EXTENSION ::= {
 InterRATMeasurementQuantitiesValue ::= ENUMERATED {
 	geran,
 	utran,
-	...
+	...,
+	nr
 }
 
 InterRATMeasurementResult ::= SEQUENCE (SIZE (1.. maxNoMeas)) OF InterRATMeasuredResultsValue
@@ -287,7 +293,8 @@ InterRATMeasurementResult ::= SEQUENCE (SIZE (1.. maxNoMeas)) OF InterRATMeasure
 InterRATMeasuredResultsValue ::= CHOICE {
 	resultGERAN			ResultGERAN,
 	resultUTRAN			ResultUTRAN,
-	...
+	...,
+	resultNR			ResultNR
 }
 
 -- J
@@ -365,6 +372,19 @@ MBSFNsubframeConfigurationValue ::=			SEQUENCE {
 
 NarrowBandIndex ::= INTEGER (0..15,...)
 
+NRCellIdentity ::= BIT STRING (SIZE(36))
+
+NR-CGI ::= SEQUENCE {
+	pLMN-Identity		PLMN-Identity,
+	nRCellIdentity		NRCellIdentity,
+	iE-Extensions		ProtocolExtensionContainer { {NR-CGI-ExtIEs} } OPTIONAL,
+	...
+}
+
+NR-CGI-ExtIEs LPPA-PROTOCOL-EXTENSION ::= {
+	...
+}
+
 NPRSConfiguration ::=			SEQUENCE {
 	nPRSSubframePartA			NPRSSubframePartA 		OPTIONAL,
 	nPRSSubframePartB			NPRSSubframePartB 		OPTIONAL,
@@ -419,6 +439,11 @@ NumberOfFrequencyHoppingBands ::= ENUMERATED {
 }
 
 NPRSSequenceInfo ::= INTEGER (0..174,...)
+
+
+NRARFCN ::= INTEGER (0.. 3279165)
+
+NRPCI ::= INTEGER (0..1007)
 
 -- O
 
@@ -601,7 +626,11 @@ PosSIB-Type ::= ENUMERATED {
 	posSibType2-18, 
 	posSibType2-19,
 	posSibType3-1,
-	...
+	...,
+	posSibType4-1,
+	posSibType5-1,
+	posSibType2-24,
+	posSibType2-25
 }
 
 PRS-Bandwidth ::= ENUMERATED {
@@ -738,7 +767,40 @@ ResultUTRAN-Item-ExtIEs LPPA-PROTOCOL-EXTENSION ::= {
 	...
 }
 
+ResultNR ::= SEQUENCE (SIZE (1.. maxNRmeas)) OF ResultNR-Item
+
+ResultNR-Item ::= SEQUENCE {
+	nRARFCN				NRARFCN,
+	nRPCI				NRPCI,
+	sS-NRRSRP			SS-NRRSRP	OPTIONAL,
+	sS-NRRSRQ			SS-NRRSRQ	OPTIONAL,
+	iE-Extensions		ProtocolExtensionContainer { { ResultNR-Item-ExtIEs} } OPTIONAL,
+	...
+}
+
+ResultNR-Item-ExtIEs LPPA-PROTOCOL-EXTENSION ::= {
+	{ ID id-ResultsPerSSB-Index-List							CRITICALITY ignore	EXTENSION ResultsPerSSB-Index-List					PRESENCE optional}|
+	{ ID id-NR-CGI												CRITICALITY ignore	EXTENSION NR-CGI											PRESENCE optional},
+	...
+}
+
+
+ResultsPerSSB-Index-List ::= SEQUENCE (SIZE(1..maxResultsPerSSBIndex)) OF ResultsPerSSB-Index-Item
+
+ResultsPerSSB-Index-Item ::=SEQUENCE {
+	sSB-Index					SSB-Index,
+	sS-NRRSRPBeamValue			SS-NRRSRP			OPTIONAL,
+	sS-NRRSRQBeamValue			SS-NRRSRQ 				OPTIONAL,
+	iE-Extensions				ProtocolExtensionContainer { { ResultsPerSSB-Index-Item-ExtIEs} }	OPTIONAL,
+	...
+}
+
+ResultsPerSSB-Index-Item-ExtIEs LPPA-PROTOCOL-EXTENSION ::= {
+	...
+}
+
 RSSI ::= INTEGER (0..63, ...)
+
 
 -- S
 
@@ -772,6 +834,11 @@ Subframeallocation ::= CHOICE {
 	fourFrames						BIT STRING (SIZE(24))
 }
 
+SS-NRRSRP ::= INTEGER (0..127)
+
+SS-NRRSRQ ::= INTEGER (0..127)
+
+SSB-Index ::= INTEGER (0..63)
 
 SSID ::= OCTET STRING (SIZE(1..32))
 

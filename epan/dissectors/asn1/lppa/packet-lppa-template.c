@@ -8,7 +8,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
- * Ref 3GPP TS 36.455 version 15.2.1 Release 15
+ * Ref 3GPP TS 36.455 version 16.1.0 (2020-09)
  * http://www.3gpp.org
  */
 
@@ -45,6 +45,7 @@ enum {
 
 /* Dissector tables */
 static dissector_table_t lppa_ies_dissector_table;
+static dissector_table_t lppa_extension_dissector_table;
 static dissector_table_t lppa_proc_imsg_dissector_table;
 static dissector_table_t lppa_proc_sout_dissector_table;
 static dissector_table_t lppa_proc_uout_dissector_table;
@@ -53,6 +54,7 @@ static dissector_table_t lppa_proc_uout_dissector_table;
 #include "packet-lppa-val.h"
 
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *);
+static int dissect_ProtocolExtensionFieldExtensionValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *);
 static int dissect_InitiatingMessageValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *);
 static int dissect_SuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *);
 static int dissect_UnsuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *);
@@ -90,6 +92,19 @@ static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto
     lppa_ctx.ProtocolExtensionID = lppa_data->protocol_extension_id;
 
   return (dissector_try_uint_new(lppa_ies_dissector_table, lppa_ctx.ProtocolIE_ID, tvb, pinfo, tree, FALSE, &lppa_ctx)) ? tvb_captured_length(tvb) : 0;
+}
+
+static int dissect_ProtocolExtensionFieldExtensionValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+    lppa_ctx_t lppa_ctx;
+    struct lppa_private_data* lppa_data = lppa_get_private_data(pinfo);
+
+    lppa_ctx.message_type = lppa_data->message_type;
+    lppa_ctx.ProcedureCode = lppa_data->procedure_code;
+    lppa_ctx.ProtocolIE_ID = lppa_data->protocol_ie_id;
+    lppa_ctx.ProtocolExtensionID = lppa_data->protocol_extension_id;
+
+  return (dissector_try_uint_new(lppa_extension_dissector_table, lppa_ctx.ProtocolExtensionID, tvb, pinfo, tree, FALSE, &lppa_ctx)) ? tvb_captured_length(tvb) : 0;
 }
 
 static int dissect_InitiatingMessageValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
@@ -136,6 +151,7 @@ void proto_register_lppa(void) {
 
     /* Register dissector tables */
     lppa_ies_dissector_table = register_dissector_table("lppa.ies", "LPPA-PROTOCOL-IES", proto_lppa, FT_UINT32, BASE_DEC);
+    lppa_extension_dissector_table = register_dissector_table("lppa.extension", "LPPA-PROTOCOL-EXTENSION", proto_lppa, FT_UINT32, BASE_DEC);
     lppa_proc_imsg_dissector_table = register_dissector_table("lppa.proc.imsg", "LPPA-ELEMENTARY-PROCEDURE InitiatingMessage", proto_lppa, FT_UINT32, BASE_DEC);
     lppa_proc_sout_dissector_table = register_dissector_table("lppa.proc.sout", "LPPA-ELEMENTARY-PROCEDURE SuccessfulOutcome", proto_lppa, FT_UINT32, BASE_DEC);
     lppa_proc_uout_dissector_table = register_dissector_table("lppa.proc.uout", "LPPA-ELEMENTARY-PROCEDURE UnsuccessfulOutcome", proto_lppa, FT_UINT32, BASE_DEC);

@@ -15,12 +15,12 @@ set( EXT_ASN_FILE_LIST
 )
 
 set( ASN_FILE_LIST
-	LPPA-Common.asn
-	LPPA-Constant.asn
-	LPPA-Container.asn
-	LPPA-ElementaryProcedure.asn
-	LPPA-InformationElement.asn
-	LPPA-PDU.asn
+	LPPA-CommonDataTypes.asn
+	LPPA-Constants.asn
+	LPPA-Containers.asn
+	LPPA-IEs.asn
+	LPPA-PDU-Contents.asn
+	LPPA-PDU-Descriptions.asn
 )
 
 set( EXTRA_DIST

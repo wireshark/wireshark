@@ -1,6 +1,6 @@
 # lppa.cnf
 # llpa conformation file
-# Copyright 2011-2019 Pascal Quantin
+# Copyright 2011-2020 Pascal Quantin
 
 #.OPT
 PER
@@ -31,6 +31,7 @@ InitiatingMessage/value initiatingMessagevalue
 UnsuccessfulOutcome/value unsuccessfulOutcome_value
 SuccessfulOutcome/value successfulOutcome_value
 ProtocolIE-Field/value ie_field_value
+ProtocolExtensionField/id ext_id
 
 #.FN_BODY ProtocolIE-ID VAL_PTR=&lppa_data->protocol_ie_id
   struct lppa_private_data *lppa_data = lppa_get_private_data(actx->pinfo);
@@ -53,6 +54,8 @@ ProtocolIE-Field/value ie_field_value
 #.END
 
 #.FN_PARS ProtocolIE-Field/value  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_ProtocolIEFieldValue
+
+#.FN_PARS ProtocolExtensionField/extensionValue  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_ProtocolExtensionFieldExtensionValue
 
 #.FN_PARS InitiatingMessage/value  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_InitiatingMessageValue
 #.FN_HDR InitiatingMessage/value
@@ -120,6 +123,9 @@ id-WLANMeasurementResult                   ProtocolIE-ID
 id-Assistance-Information                  ProtocolIE-ID
 id-Broadcast                               ProtocolIE-ID
 id-AssistanceInformationFailureList        ProtocolIE-ID
+id-ResultsPerSSB-Index-List                ProtocolIE-ID
+id-ResultsPerSSB-Index-Item                ProtocolIE-ID
+id-NR-CGI                                  ProtocolIE-ID
 
 #.REGISTER
 #LPPA-PROTOCOL-IES
@@ -148,6 +154,10 @@ WLANMeasurementQuantities-Item          N lppa.ies id-WLANMeasurementQuantities-
 Assistance-Information                  N lppa.ies id-Assistance-Information
 Broadcast                               N lppa.ies id-Broadcast
 AssistanceInformationFailureList        N lppa.ies id-AssistanceInformationFailureList
+
+#LPPA-PROTOCOL-EXTENSION
+ResultsPerSSB-Index-List                N lppa.extension id-ResultsPerSSB-Index-List
+NR-CGI                                  N lppa.extension id-NR-CGI
 
 #LPPA-ELEMENTARY-PROCEDURE
 E-CIDMeasurementInitiationRequest  N lppa.proc.imsg id-e-CIDMeasurementInitiation

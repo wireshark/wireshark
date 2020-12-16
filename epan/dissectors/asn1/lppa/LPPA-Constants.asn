@@ -1,4 +1,4 @@
--- 3GPP TS 36.455 V15.2.1 (2019-04)
+-- ﻿3GPP TS 36.455 V16.1.0 (2020-09)
 --
 
 -- **************************************************************
@@ -60,6 +60,8 @@ maxNrOfPosSImessage							INTEGER ::= 32
 maxnoAssistInfoFailureListItems				INTEGER ::= 32
 maxNrOfSegments								INTEGER ::= 64
 maxNrOfPosSIBs								INTEGER ::= 32
+maxNRmeas									INTEGER ::= 32
+maxResultsPerSSBIndex						INTEGER	::=	64
 
 -- **************************************************************
 --
@@ -92,5 +94,8 @@ id-WLANMeasurementResult													ProtocolIE-ID ::= 21
 id-Assistance-Information													ProtocolIE-ID ::= 22
 id-Broadcast																ProtocolIE-ID ::= 23
 id-AssistanceInformationFailureList											ProtocolIE-ID ::= 24
+id-ResultsPerSSB-Index-List													ProtocolIE-ID ::= 25
+id-ResultsPerSSB-Index-Item													ProtocolIE-ID ::= 26
+id-NR-CGI																	ProtocolIE-ID ::= 27
 
 END
