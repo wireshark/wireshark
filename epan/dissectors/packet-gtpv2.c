@@ -50,7 +50,10 @@ static int hf_gtpv2_response_to = -1;
 static int hf_gtpv2_response_time = -1;
 static int hf_gtpv2_spare_half_octet = -1;
 //static int hf_gtpv2_spare_b7_b1 = -1;
+static int hf_gtpv2_spare_b7_b2 = -1;
 static int hf_gtpv2_spare_b7_b3 = -1;
+static int hf_gtpv2_spare_b7_b5 = -1;
+
 static int hf_gtpv2_spare_bits = -1;
 static int hf_gtpv2_flags = -1;
 static int hf_gtpv2_version = -1;
@@ -159,11 +162,18 @@ static int hf_gtpv2_ltempi = -1;
 static int hf_gtpv2_enbcrsi = -1;
 static int hf_gtpv2_tspcmi = -1;
 static int hf_gtpv2_ethpdn = -1;
+
+static int hf_gtpv2_csrmfi = -1;
+static int hf_gtpv2_mtedtn = -1;
+static int hf_gtpv2_mtedta = -1;
 static int hf_gtpv2_n5gnmi = -1;
 static int hf_gtpv2_5gcnrs = -1;
 static int hf_gtpv2_5gcnri = -1;
 static int hf_gtpv2_5srhoi = -1;
 
+static int hf_gtpv2_nsenbi = -1;
+static int hf_gtpv2_idfupf = -1;
+static int hf_gtpv2_emci = -1;
 
 static int hf_gtpv2_pdn_type = -1;
 static int hf_gtpv2_pdn_ipv4 = -1;
@@ -781,8 +791,6 @@ static int hf_gtpv2_max_pkt_loss_rte_dl_flg = -1;
 static int hf_gtpv2_max_pkt_loss_rte_ul = -1;
 static int hf_gtpv2_max_pkt_loss_rte_dl = -1;
 
-static int hf_gtpv2_spare_b7_b2 = -1;
-static int hf_gtpv2_spare_b7_b5 = -1;
 static int hf_gtpv2_mm_context_iov_updates_counter = -1;
 static int hf_gtpv2_mm_context_ear_len = -1;
 static int hf_gtpv2_node_number_len = -1;
@@ -2339,7 +2347,6 @@ dissect_gtpv2_ind(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_ite
 
     /* Octet 5 DAF DTF HI DFI OI ISRSI ISRAI SGWCI */
     proto_tree_add_bitmask_list(tree, tvb, offset, 1, oct5_flags, ENC_NA);
-
     if (length == 1) {
         proto_tree_add_expert_format(tree, pinfo, &ei_gtpv2_ie_len_invalid, tvb, 0, length, "Older version?, should be 2 octets in 8.0.0");
         return;
@@ -2468,7 +2475,9 @@ dissect_gtpv2_ind(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_ite
     }
 
     static int* const oct12_flags[] = {
-        &hf_gtpv2_spare_b7_b5,
+        &hf_gtpv2_csrmfi,
+        &hf_gtpv2_mtedtn,
+        &hf_gtpv2_mtedta,
         &hf_gtpv2_n5gnmi,
         &hf_gtpv2_5gcnrs,
         &hf_gtpv2_5gcnri,
@@ -2476,13 +2485,31 @@ dissect_gtpv2_ind(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_ite
         &hf_gtpv2_ethpdn,
         NULL
     };
-    /*Octet 12 Spare ETHPDN */
+    /* Octet 12 CSRMFI MTEDTN MTEDTA N5GNMI 5GCNRS 5GCNRI 5SRHOI ETHPDN */
+
     proto_tree_add_bitmask_list(tree, tvb, offset, 1, oct12_flags, ENC_NA);
     offset += 1;
 
     if (length == 8) {
         return;
     }
+
+    static int* const oct13_flags[] = {
+        &hf_gtpv2_spare_b7_b3,
+        &hf_gtpv2_nsenbi,
+        &hf_gtpv2_idfupf,
+        &hf_gtpv2_emci,
+        NULL
+    };
+
+    /* Octet 13 Spare Spare Spare Spare Spare NSENBI IDFUPF EMCI */
+    proto_tree_add_bitmask_list(tree, tvb, offset, 1, oct13_flags, ENC_NA);
+    offset += 1;
+
+    if (length == 9) {
+        return;
+    }
+
 
     proto_tree_add_expert_format(tree, pinfo, &ei_gtpv2_ie_data_not_dissected, tvb, offset, -1, "The rest of the IE not dissected yet");
 
@@ -3083,7 +3110,7 @@ static const value_string geographic_location_type_vals[] = {
     {137, "5GS TAI and NCGI"},
     {138, "NG-RAN Node ID"},
     {139, "5GS TAI and NG-RAN Node ID"},
-    /* 140-255	Spare for future use */
+    /* 140-255    Spare for future use */
     {0, NULL}
 };
 
@@ -4486,14 +4513,14 @@ dissect_gtpv2_mm_context_utms_q(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
         return;
     }
 
-    /* s+3	IOV_updates counter */
+    /* s+3    IOV_updates counter */
     if (offset < (gint)length) {
         proto_tree_add_item(tree, hf_gtpv2_mm_context_iov_updates_counter, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
     } else {
         return;
     }
-    /* s+4	Length of Extended Access Restriction Data */
+    /* s+4    Length of Extended Access Restriction Data */
     if (offset < (gint)length) {
         ear_len = tvb_get_guint8(tvb, offset);
         proto_tree_add_item(tree, hf_gtpv2_mm_context_ear_len, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -4785,7 +4812,7 @@ dissect_gtpv2_mm_context_eps_qq(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
     proto_tree_add_item_ret_uint(tree, hf_gtpv2_mm_context_cnr_len, tvb, offset, 1, ENC_BIG_ENDIAN, &ie_len);
     offset += 1;
     if (ie_len) {
-        /* (l+2) to (l+5)	Core Network Restrictions */
+        /* (l+2) to (l+5)    Core Network Restrictions */
         /* The Core Network Restrictions coding is specified in clause 7.2.230 of 3GPP TS 29.272 [70].
            If Length of Core Network Restrictions is zero, then the field of Core Network Restrictions
            in octets "(l+2) to (l+5)" shall not be present.
@@ -9288,9 +9315,23 @@ void proto_register_gtpv2(void)
          {"TSPCMI (Triggering SGSN Initiated PDP Context Creation/Modification Indication)", "gtpv2.tspcmi",
           FT_BOOLEAN, 8, NULL, 0x01, NULL, HFILL}
         },
+        {&hf_gtpv2_csrmfi,
+         { "CSRMFI (Create Session Request Message Forwarded Indication)", "gtpv2.csrmfi",
+          FT_BOOLEAN, 8, NULL, 0x80, NULL, HFILL }
+        },
+        {&hf_gtpv2_mtedtn,
+         { "MTEDTN (MT-EDT Not Applicable)", "gtpv2.mtedtn",
+          FT_BOOLEAN, 8, TFS(&tfs_applicable_not_applicable), 0x40, NULL, HFILL }
+        },
+
+        {&hf_gtpv2_mtedta,
+         { "MTEDTA (MT-EDT Applicable)", "gtpv2.mtedta",
+          FT_BOOLEAN, 8, TFS(&tfs_applicable_not_applicable), 0x20, NULL, HFILL }
+        },
+
         {&hf_gtpv2_n5gnmi,
-        { "N5GNMI (No 5GS N26 Mobility Indication", "gtpv2.n5gnmi",
-         FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x10, NULL, HFILL }
+        { "N5GNMI (No 5GS N26 Mobility Indication)", "gtpv2.n5gnmi",
+         FT_BOOLEAN, 8, NULL, 0x10, NULL, HFILL }
         },
         { &hf_gtpv2_5gcnrs,
         { "5GCNRS (5GC Not Restricted Support)", "gtpv2.5gcnrs",
@@ -9307,6 +9348,20 @@ void proto_register_gtpv2(void)
         { &hf_gtpv2_ethpdn,
          {"ETHPDN (Ethernet PDN Support Indication)", "gtpv2.ethpdn",
           FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x01, NULL, HFILL}
+        },
+        { &hf_gtpv2_nsenbi,
+         {"NSENBI (Notify Source eNodeB Indication)", "gtpv2.nsenbi",
+          FT_BOOLEAN, 8, NULL, 0x04, NULL, HFILL}
+        },
+
+        { &hf_gtpv2_idfupf,
+         {"IDFUPF (Indirect Data Forwarding with UPF Indication)", "gtpv2.idfupf",
+          FT_BOOLEAN, 8, NULL, 0x02, NULL, HFILL}
+        },
+
+        { &hf_gtpv2_emci,
+         {"EMCI (Emergency PDU Session Indication)", "gtpv2.emci",
+          FT_BOOLEAN, 8, NULL, 0x01, NULL, HFILL}
         },
         { &hf_gtpv2_pdn_type,
           {"PDN Type", "gtpv2.pdn_type",

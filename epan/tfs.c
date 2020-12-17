@@ -107,6 +107,7 @@ const true_false_string tfs_selected_not_selected = { "Selected", "Not Selected"
 const true_false_string tfs_add_drop = { "Add", "Drop" };
 const true_false_string tfs_no_extension_extension = { "No Extension", "Extension" };
 const true_false_string tfs_user_provider = { "User", "Provider" };
+const true_false_string tfs_applicable_not_applicable = { "Applicable", "Not Applicable" };
 
 /*
  * Editor modelines  -  https://www.wireshark.org/tools/modelines.html

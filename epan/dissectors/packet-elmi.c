@@ -141,8 +141,6 @@ static const value_string elmi_evc_type[] = {
     { 0, NULL }
 };
 
-const true_false_string tfs_applicable_not_applicable = { "Applicable", "Not Applicable" };
-
 static gint
 dissect_elmi_sub_info_elem(
         tvbuff_t *tvb, gint offset, proto_tree *tree)

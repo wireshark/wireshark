@@ -1595,6 +1595,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  tfs_allocated_by_receiver_sender@Base 1.99.1
  tfs_allow_block@Base 1.9.1
  tfs_allowed_not_allowed@Base 1.9.1
+ tfs_applicable_not_applicable@Base 3.5.0
  tfs_asynchronous_synchronous@Base 1.99.1
  tfs_available_not_available@Base 1.9.1
  tfs_c2s_s2c@Base 2.5.0
