@@ -28,6 +28,8 @@
 void proto_reg_handoff_autosar_nm(void);
 void proto_register_autosar_nm(void);
 
+#define AUTOSAR_NM_NAME "AUTOSAR NM"
+
 typedef struct _user_data_field_t {
   gchar*  udf_name;
   gchar*  udf_desc;
@@ -398,27 +400,22 @@ dissect_autosar_nm(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void
     const int prev_proto = GPOINTER_TO_INT(wmem_list_frame_data(prev_layer));
 
     if (prev_proto != proto_udp) {
-      const struct can_info *can_info       = (struct can_info *)data;
-      const gboolean          is_can_frame =
-        (prev_proto == proto_can) ||
-        (prev_proto == proto_canfd) ||
-        (wmem_list_find(pinfo->layers, GINT_TO_POINTER(proto_caneth)) != NULL);
+      const gboolean is_can_frame = (prev_proto == proto_can) || (prev_proto == proto_canfd) ||
+                                    (wmem_list_find(pinfo->layers, GINT_TO_POINTER(proto_caneth)) != NULL);
 
-      if (!is_can_frame) {
-        /* Only UDP and CAN transports are supported. */
-        return 0;
-      }
+      if (is_can_frame) {
+          const struct can_info *can_info = (struct can_info *)data;
+          DISSECTOR_ASSERT(can_info);
 
-      DISSECTOR_ASSERT(can_info);
+          if (can_info->id & (CAN_ERR_FLAG | CAN_RTR_FLAG)) {
+              /* Error and RTR frames are not for us. */
+              return 0;
+          }
 
-      if (can_info->id & (CAN_ERR_FLAG | CAN_RTR_FLAG)) {
-        /* Error and RTR frames are not for us. */
-        return 0;
-      }
-
-      if ((can_info->id & g_autosar_nm_can_id_mask) != (g_autosar_nm_can_id & g_autosar_nm_can_id_mask)) {
-        /* Id doesn't match. The frame is not for us. */
-        return 0;
+          if ((can_info->id & g_autosar_nm_can_id_mask) != (g_autosar_nm_can_id & g_autosar_nm_can_id_mask)) {
+              /* Id doesn't match. The frame is not for us. */
+              return 0;
+          }
       }
     }
   }
@@ -428,7 +425,7 @@ dissect_autosar_nm(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void
     offset_src_node_id = 1;
   }
 
-  col_set_str(pinfo->cinfo, COL_PROTOCOL, "AUTOSAR NM");
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, AUTOSAR_NM_NAME);
   col_clear(pinfo->cinfo, COL_INFO);
 
   msg_length = tvb_reported_length(tvb);
@@ -448,7 +445,7 @@ dissect_autosar_nm(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void
     proto_tree_add_item_ret_uint(autosar_nm_tree, hf_autosar_nm_source_node_identifier, tvb, offset_src_node_id, 1, ENC_BIG_ENDIAN, &src_node_id);
   }
 
-  col_add_fstr(pinfo->cinfo, COL_INFO, "Control Bit Vector: 0x%02x, Source Node: 0x%02x", ctrl_bit_vector, src_node_id);
+  col_add_fstr(pinfo->cinfo, COL_INFO, "NM (CBV: 0x%02x, Src: 0x%02x)", ctrl_bit_vector, src_node_id);
   proto_item_append_text(ti, ", Control Bit Vector: 0x%02x, Source Node: %i", ctrl_bit_vector, src_node_id);
 
   offset = 2;
@@ -469,21 +466,22 @@ dissect_autosar_nm(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void
       if (user_data_fields[i].udf_mask == 0) {
         ti = proto_tree_add_item(autosar_nm_tree, *hf_id, tvb, offset, length, ENC_BIG_ENDIAN);
         autosar_nm_subtree = proto_item_add_subtree(ti, ett_id);
-      }
-      else {
+      } else {
         if (autosar_nm_subtree != NULL) {
           proto_tree_add_item(autosar_nm_subtree, *hf_id, tvb, offset, length, ENC_BIG_ENDIAN);
         }
       }
-    }
-    else {
+      offset += length;
+    } else {
       /* should we warn? */
     }
 
     g_free(tmp);
   }
 
-  return 8;
+  col_set_fence(pinfo->cinfo, COL_INFO);
+
+  return offset;
 }
 
 void proto_register_autosar_nm(void)
@@ -538,7 +536,7 @@ void proto_register_autosar_nm(void)
   };
 
   /* Register the protocol name and description */
-  proto_autosar_nm = proto_register_protocol("AUTOSAR Network Management", "AUTOSAR NM", "autosar-nm");
+  proto_autosar_nm = proto_register_protocol("AUTOSAR Network Management", AUTOSAR_NM_NAME, "autosar-nm");
   proto_register_field_array(proto_autosar_nm, hf_autosar_nm, array_length(hf_autosar_nm));
   proto_register_alias(proto_autosar_nm, "nm");
   proto_register_subtree_array(ett, array_length(ett));
@@ -559,25 +557,10 @@ void proto_register_autosar_nm(void)
     "Using this parameter one may switch to a mode compatible with revision 3.2 of the specification.",
     &g_autosar_nm_interpret_coord_id);
 
-  prefs_register_uint_preference(
-    autosar_nm_module, "can_id",
-    "CAN id",
-    "Identifier that is used to filter packets that should be dissected. "
-    "Set bit 31 when defining an extended id. "
-    "(works with the mask defined below)",
-    16, &g_autosar_nm_can_id);
-
-  prefs_register_uint_preference(
-    autosar_nm_module, "can_id_mask",
-    "CAN id mask",
-    "Mask applied to CAN identifiers when decoding whether a packet should dissected. "
-    "Use 0xFFFFFFFF mask to require exact match.",
-    16, &g_autosar_nm_can_id_mask);
-
   /* UAT */
   user_data_fields_uat = uat_new("NM User Data Fields Table",
-    sizeof(user_data_field_t),       /* record size            */
-    "NM_user_data_fields",        /* filename              */
+    sizeof(user_data_field_t),        /* record size           */
+    "NM_user_data_fields",            /* filename              */
     TRUE,                             /* from_profile          */
     &user_data_fields,                /* data_ptr              */
     &num_user_data_fields,            /* numitems_ptr          */
@@ -593,6 +576,21 @@ void proto_register_autosar_nm(void)
   prefs_register_uat_preference(autosar_nm_module, "autosar_nm_user_data_fields", "User Data Field Configuration",
     "A table to define user defined fields in the NM payload",
     user_data_fields_uat);
+
+  prefs_register_uint_preference(
+      autosar_nm_module, "can_id",
+      "AUTOSAR NM CAN id",
+      "Identifier that is used to filter packets that should be dissected. "
+      "Set bit 31 when defining an extended id. "
+      "(works with the mask defined below)",
+      16, &g_autosar_nm_can_id);
+
+  prefs_register_uint_preference(
+      autosar_nm_module, "can_id_mask",
+      "AUTOSAR NM CAN id mask",
+      "Mask applied to CAN identifiers when decoding whether a packet should dissected. "
+      "Use 0xFFFFFFFF mask to require exact match.",
+      16, &g_autosar_nm_can_id_mask);
 }
 
 void proto_reg_handoff_autosar_nm(void)
@@ -601,6 +599,7 @@ void proto_reg_handoff_autosar_nm(void)
 
   dissector_add_for_decode_as_with_preference("udp.port", nm_handle);
   dissector_add_for_decode_as("can.subdissector", nm_handle);
+  dissector_add_for_decode_as_with_preference("pdu_transport.id", nm_handle);
 
   proto_can    = proto_get_id_by_filter_name("can");
   proto_canfd  = proto_get_id_by_filter_name("canfd");
