@@ -1176,9 +1176,22 @@ install_p11_kit() {
         $no_build && echo "Skipping installation" && return
         xzcat p11-kit-$P11KIT_VERSION.tar.xz | tar xf - || exit 1
         cd p11-kit-$P11KIT_VERSION
-        # Same hack for libffi missing pkg-config files as GLib
-        includedir=`xcrun --show-sdk-path 2>/dev/null`/usr/include
-        LIBFFI_CFLAGS="-I $includedir/ffi" LIBFFI_LIBS="-lffi" CFLAGS="$CFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" CXXFLAGS="$CXXFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" ./configure --without-trust-paths || exit 1
+        #
+        # Prior to Catalina, the libffi that's supplied with macOS
+        # doesn't support ffi_closure_alloc() or ffi_prep_closure_loc(),
+        # both of which are required by p11-kit if built with libffi.
+        #
+        # According to
+        #
+        #    https://p11-glue.github.io/p11-glue/p11-kit/manual/devel-building.html
+        #
+        # libffi is used "for sharing of PKCS#11 modules between
+        # multiple callers in the same process. It is highly recommended
+        # that this dependency be treated as a required dependency.",
+        # but it's not clear that this matters to us, so we just
+        # configure p11-kit not to use libffi.
+        #
+        CXXFLAGS="$CXXFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" ./configure --without-libffi --without-trust-paths || exit 1
         make $MAKE_BUILD_OPTS || exit 1
         $DO_MAKE_INSTALL || exit 1
         cd ..
