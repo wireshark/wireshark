@@ -324,8 +324,8 @@ uninstall_autoconf() {
         #
         # automake and libtool depend on this, so uninstall them.
         #
-        uninstall_libtool
-        uninstall_automake
+        uninstall_libtool "$@"
+        uninstall_automake "$@"
 
         echo "Uninstalling GNU autoconf:"
         cd autoconf-$installed_autoconf_version
@@ -444,6 +444,7 @@ uninstall_ninja() {
     if [ ! -z "$installed_ninja_version" ]; then
         echo "Uninstalling Ninja:"
         sudo rm /usr/local/bin/ninja
+        rm ninja-$installed_ninja_version-done
         if [ "$#" -eq 1 -a "$1" = "-r" ] ; then
             rm -f ninja-mac-v$installed_ninja_version.zip
         fi
