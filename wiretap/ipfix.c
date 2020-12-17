@@ -135,7 +135,7 @@ ipfix_read_message_header(ipfix_message_header_t *pfx_hdr, FILE_T fh, int *err, 
 }
 
 
-/* Read IPFIX message header from file and fill in the struct wtap_pkthdr
+/* Read IPFIX message header from file and fill in the struct wtap_rec
  * for the packet, and, if that succeeds, read the packet data.
  * Return true on success.  Set *err to 0 on EOF, any other value for "real"
  * errors (EOF is ok, since return value is still FALSE).

@@ -246,9 +246,9 @@ typedef struct {
  * A handler has a "read" routine and a "write" routine.
  *
  * A "read" routine returns a block as a libwiretap record, filling
- * in the wtap_pkthdr structure with the appropriate record type and
+ * in the wtap_rec structure with the appropriate record type and
  * other information, and filling in the supplied Buffer with
- * data for which there's no place in the wtap_pkthdr structure.
+ * data for which there's no place in the wtap_rec structure.
  *
  * A "write" routine takes a libwiretap record and Buffer and writes
  * out a block.

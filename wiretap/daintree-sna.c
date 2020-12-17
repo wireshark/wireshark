@@ -141,7 +141,7 @@ daintree_sna_seek_read(wtap *wth, gint64 seek_off, wtap_rec *rec,
 	    err_info);
 }
 
-/* Read a header line, scan it, and fill in a struct wtap_pkthdr.
+/* Read a header line, scan it, and fill in a struct wtap_rec.
  * Then convert packet data from ASCII hex string to binary in place,
  * sanity-check its length against what we assume is the packet length field,
  * and copy it into a Buffer. */

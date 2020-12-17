@@ -1727,7 +1727,7 @@ static gboolean nstrace_seek_read_v10(wtap *wth, gint64 seek_off,
     }
 
     /*
-    ** Fill in what part of the struct wtap_pkthdr we can.
+    ** Fill in what part of the struct wtap_rec we can.
     */
 #define GENERATE_CASE_FULL(rec,type,HEADERVER) \
         case NSPR_PDPKTRACEFULLTX_V##type:\

@@ -1843,7 +1843,7 @@ gboolean wtap_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err,
  * reading.
  * @seek_off a gint64 giving an offset value returned by a previous
  * wtap_read() call.
- * @phdr a pointer to a struct wtap_pkthdr, filled in with information
+ * @rec a pointer to a struct wtap_rec, filled in with information
  * about the record.
  * @buf a pointer to a Buffer, filled in with data from the record.
  * @param err a positive "errno" value, or a negative number indicating

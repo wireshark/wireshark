@@ -308,7 +308,7 @@ pppdump_open(wtap *wth, int *err, gchar **err_info)
 	return WTAP_OPEN_MINE;
 }
 
-/* Set part of the struct wtap_pkthdr. */
+/* Set part of the struct wtap_rec. */
 static void
 pppdump_set_phdr(wtap_rec *rec, int num_bytes,
     direction_enum direction)
