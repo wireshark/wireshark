@@ -792,8 +792,8 @@ install_glib() {
         # developer tools, there is a /usr/include directory).
         #
         includedir=`SDKROOT="$SDKPATH" xcrun --show-sdk-path 2>/dev/null`/usr/include
-	if [ ! -f ./configure ]; then
-	    LIBTOOLIZE=glibtoolize ./autogen.sh
+        if [ ! -f ./configure ]; then
+            LIBTOOLIZE=glibtoolize ./autogen.sh
         fi
         if grep -qs '#define.*MACOSX' $includedir/ffi/fficonfig.h
         then
