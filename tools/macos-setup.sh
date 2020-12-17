@@ -807,7 +807,6 @@ install_glib() {
         $DO_MAKE_INSTALL || exit 1
         cd ..
         touch glib-$GLIB_VERSION-done
-set +x
     fi
 }
 
