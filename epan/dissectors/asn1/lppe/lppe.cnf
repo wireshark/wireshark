@@ -15,6 +15,18 @@ OMA-LPPe-MessageExtension
 
 #.OMIT_ASSIGNMENT
 
+#.FIELD_RENAME
+OMA-LPPe-MapDataReferenceElement/mapDataUrl mapDataUrl_choice
+OMA-LPPe-WLAN-LocationDataLCI/latitude oma-LPPe-WLAN-LocationDataLCI_latitude
+OMA-LPPe-WLAN-LocationDataLCI/longitude oma-LPPe-WLAN-LocationDataLCI_longitude
+OMA-LPPe-WLAN-LocationDataLCI/altitude oma-LPPe-WLAN-LocationDataLCI_altitude
+
+#.FIELD_ATTR
+OMA-LPPe-MapDataReferenceElement/mapDataUrl     ABBREV=mapDataUrl_choice
+OMA-LPPe-WLAN-LocationDataLCI/latitude          ABBREV=oMA-LPPe-WLAN-LocationDataLCI.latitude
+OMA-LPPe-WLAN-LocationDataLCI/longitude         ABBREV=oMA-LPPe-WLAN-LocationDataLCI.longitude
+OMA-LPPe-WLAN-LocationDataLCI/altitude          ABBREV=oMA-LPPe-WLAN-LocationDataLCI.altitude
+
 #.FN_HDR OMA-LPPe-MessageExtension
 
   proto_tree_add_item(tree, proto_lppe, tvb, 0, -1, ENC_NA);

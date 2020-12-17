@@ -283,6 +283,13 @@ Node-XY-26b/y                     n26bY
 Node-XY-28b/y                     n28bY
 Node-XY-32b/y                     n32bY
 
+#.FIELD_ATTR
+IntersectionState/status          ABBREV=intersectionState.status
+SignalStatusPackage/status        ABBREV=signalStatusPackage.status
+SignalStatusMessage/status        ABBREV=signalStatusMessage.status
+FullPositionVector/elevation      ABBREV=fullPositionVector.elevation
+PositionConfidenceSet/elevation   ABBREV=positionConfidenceSet.elevation
+Position3D/elevation              ABBREV=position3D.elevation
 
 #.END
 

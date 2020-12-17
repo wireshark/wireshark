@@ -107,7 +107,16 @@ Sensor-MeasurementInformation-r13
 Sensor-MotionInformation-r15
 TBS-AssistanceDataList-r14
 Velocity
-#.END
+
+#.FIELD_RENAME
+CellGlobalIdGERAN/cellIdentity cellGlobalIdGERAN_cellIdentity
+LocationCoordinates/polygon locationCoordinates_polygon
+UTC-ModelSet4/utcDN UTC-ModelSet4_utcDN
+
+#.FIELD_ATTR
+CellGlobalIdGERAN/cellIdentity  ABBREV=cellGlobalIdGERAN.cellIdentity
+LocationCoordinates/polygon     ABBREV=locationCoordinates.polygon
+UTC-ModelSet4/utcDN             ABBREV=uTC-ModelSet4.utcDN
 
 #.MAKE_ENUM
 GNSS-ID/gnss-id TYPE_PREFIX UPPER_CASE

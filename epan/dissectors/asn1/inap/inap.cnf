@@ -27,14 +27,31 @@ RejectProblem
 #.END
 
 #.TYPE_RENAME
-ReturnResult/result/result		ResultArgument
+ReturnResult/result/result          ResultArgument
 
 #.FIELD_RENAME
-Invoke/linkedId/present			linkedIdPresent
-Reject/problem/invoke			invokeProblem
-Reject/problem/returnError		returnErrorProblem
-ReturnResult/result/result		resultArgument
-Reject/problem/returnResult		problemReturnResult
+Invoke/linkedId/present             inkedIdPresent
+Reject/problem/invoke               invokeProblem
+Reject/problem/returnError          returnErrorProblem
+ReturnResult/result/result          resultArgument
+Reject/problem/returnResult         problemReturnResult
+Trigger/tDPIdentifier               trigger_tDPIdentifier
+InbandInfo/duration                 inbandInfo_duration
+Tone/duration                       tone_duration
+FilteringCharacteristics/interval   filteringCharacteristics_interval
+InbandInfo/interval                 inbandInfo_interval
+ScfTaskRefusedParameter/reason      scfTaskRefusedParameter_reason
+Code/local                          code_local
+
+#.FIELD_ATTR
+Trigger/tDPIdentifier               ABBREV=trigger.tdpidentifier
+InbandInfo/duration                 ABBREV=inbandInfo.duration
+Tone/duration                       ABBREV=tone.duration
+FilteringCharacteristics/interval   ABBREV=filteringCharacteristics.interval
+InbandInfo/interval                 ABBREV=inbandInfo.interval
+ScfTaskRefusedParameter/reason      ABBREV=scfTaskRefusedParameter.reason
+Code/local                          ABBREV=code.local
+
 
 #.OMIT_ASSIGNMENT Remote-Operations-Information-Objects
 Bind

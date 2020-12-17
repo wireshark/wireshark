@@ -37,6 +37,11 @@ AP-REQ/_untag/authenticator authenticator_enc_part
 PA-FX-FAST-REQUEST/armored-data armored_data_request
 PA-FX-FAST-REPLY/armored-data armored_data_reply
 
+#.FIELD_ATTR
+KDC-REQ-BODY/etype      ABBREV=kdc-req-body.etype
+ETYPE-INFO-ENTRY/salt   ABBREV=info_salt
+ETYPE-INFO2-ENTRY/salt  ABBREV=info2_salt
+
 #.OMIT_ASSIGNMENT
 AD-AND-OR
 AD-KDCIssued

@@ -345,7 +345,7 @@ static int hf_ilp_cellGlobalId = -1;              /* CellGlobalIdEUTRA */
 static int hf_ilp_measResult = -1;                /* T_measResult */
 static int hf_ilp_neighbourInformation5G = -1;    /* NeighbourInformation5G */
 static int hf_ilp_plmn_Identity = -1;             /* PLMN_Identity */
-static int hf_ilp_cellIdentity = -1;              /* CellIdentity */
+static int hf_ilp_eutra_cellIdentity = -1;        /* CellIdentity */
 static int hf_ilp_mcc = -1;                       /* MCC */
 static int hf_ilp_mnc = -1;                       /* MNC */
 static int hf_ilp_MCC_item = -1;                  /* MCC_MNC_Digit */
@@ -383,12 +383,12 @@ static int hf_ilp_locationValue = -1;             /* OCTET_STRING_SIZE_1_128 */
 static int hf_ilp_lciLocData = -1;                /* LciLocData */
 static int hf_ilp_locationDataLCI = -1;           /* LocationDataLCI */
 static int hf_ilp_latitudeResolution = -1;        /* BIT_STRING_SIZE_6 */
-static int hf_ilp_latitude_01 = -1;               /* BIT_STRING_SIZE_34 */
+static int hf_ilp_LocationDataLCI_latitude = -1;  /* BIT_STRING_SIZE_34 */
 static int hf_ilp_longitudeResolution = -1;       /* BIT_STRING_SIZE_6 */
-static int hf_ilp_longitude_01 = -1;              /* BIT_STRING_SIZE_34 */
+static int hf_ilp_LocationDataLCI_longitude = -1;  /* BIT_STRING_SIZE_34 */
 static int hf_ilp_altitudeType = -1;              /* BIT_STRING_SIZE_4 */
 static int hf_ilp_altitudeResolution = -1;        /* BIT_STRING_SIZE_6 */
-static int hf_ilp_altitude_01 = -1;               /* BIT_STRING_SIZE_30 */
+static int hf_ilp_LocationDataLCI_altitude = -1;  /* BIT_STRING_SIZE_30 */
 static int hf_ilp_datum = -1;                     /* BIT_STRING_SIZE_8 */
 static int hf_ilp_wimaxBsID = -1;                 /* WimaxBsID */
 static int hf_ilp_wimaxRTD = -1;                  /* WimaxRTD */
@@ -434,7 +434,7 @@ static int hf_ilp_MeasuredResultsList_item = -1;  /* MeasuredResults */
 static int hf_ilp_utra_CarrierRSSI = -1;          /* UTRA_CarrierRSSI */
 static int hf_ilp_cellMeasuredResultsList = -1;   /* CellMeasuredResultsList */
 static int hf_ilp_CellMeasuredResultsList_item = -1;  /* CellMeasuredResults */
-static int hf_ilp_cellIdentity_01 = -1;           /* INTEGER_0_268435455 */
+static int hf_ilp_cellIdentity = -1;              /* INTEGER_0_268435455 */
 static int hf_ilp_modeSpecificInfo_02 = -1;       /* T_modeSpecificInfo_02 */
 static int hf_ilp_fdd_02 = -1;                    /* T_fdd_02 */
 static int hf_ilp_primaryCPICH_Info = -1;         /* PrimaryCPICH_Info */
@@ -818,7 +818,7 @@ dissect_ilp_SlcSessionID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
 
 static int
 dissect_ilp_T_msisdn(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 70 "./asn1/ilp/ilp.cnf"
+#line 83 "./asn1/ilp/ilp.cnf"
   tvbuff_t *msisdn_tvb;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        8, 8, FALSE, &msisdn_tvb);
@@ -839,7 +839,7 @@ dissect_ilp_T_msisdn(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pr
 
 static int
 dissect_ilp_T_mdn(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 80 "./asn1/ilp/ilp.cnf"
+#line 93 "./asn1/ilp/ilp.cnf"
   tvbuff_t *mdn_tvb;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        8, 8, FALSE, &mdn_tvb);
@@ -870,7 +870,7 @@ dissect_ilp_BIT_STRING_SIZE_34(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 
 static int
 dissect_ilp_T_imsi(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 90 "./asn1/ilp/ilp.cnf"
+#line 103 "./asn1/ilp/ilp.cnf"
   tvbuff_t *imsi_tvb;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        8, 8, FALSE, &imsi_tvb);
@@ -1521,7 +1521,7 @@ dissect_ilp_T_modeSpecificInfo_02(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
 
 
 static const per_sequence_t CellMeasuredResults_sequence[] = {
-  { &hf_ilp_cellIdentity_01 , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_ilp_INTEGER_0_268435455 },
+  { &hf_ilp_cellIdentity    , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_ilp_INTEGER_0_268435455 },
   { &hf_ilp_modeSpecificInfo_02, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ilp_T_modeSpecificInfo_02 },
   { NULL, 0, 0, NULL }
 };
@@ -1834,7 +1834,7 @@ dissect_ilp_CellIdentity(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
 
 static const per_sequence_t CellGlobalIdEUTRA_sequence[] = {
   { &hf_ilp_plmn_Identity   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ilp_PLMN_Identity },
-  { &hf_ilp_cellIdentity    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ilp_CellIdentity },
+  { &hf_ilp_eutra_cellIdentity, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ilp_CellIdentity },
   { NULL, 0, 0, NULL }
 };
 
@@ -2270,12 +2270,12 @@ dissect_ilp_BIT_STRING_SIZE_8(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
 
 static const per_sequence_t LocationDataLCI_sequence[] = {
   { &hf_ilp_latitudeResolution, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ilp_BIT_STRING_SIZE_6 },
-  { &hf_ilp_latitude_01     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ilp_BIT_STRING_SIZE_34 },
+  { &hf_ilp_LocationDataLCI_latitude, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ilp_BIT_STRING_SIZE_34 },
   { &hf_ilp_longitudeResolution, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ilp_BIT_STRING_SIZE_6 },
-  { &hf_ilp_longitude_01    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ilp_BIT_STRING_SIZE_34 },
+  { &hf_ilp_LocationDataLCI_longitude, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ilp_BIT_STRING_SIZE_34 },
   { &hf_ilp_altitudeType    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ilp_BIT_STRING_SIZE_4 },
   { &hf_ilp_altitudeResolution, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ilp_BIT_STRING_SIZE_6 },
-  { &hf_ilp_altitude_01     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ilp_BIT_STRING_SIZE_30 },
+  { &hf_ilp_LocationDataLCI_altitude, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ilp_BIT_STRING_SIZE_30 },
   { &hf_ilp_datum           , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ilp_BIT_STRING_SIZE_8 },
   { NULL, 0, 0, NULL }
 };
@@ -3965,7 +3965,7 @@ dissect_ilp_OCTET_STRING_SIZE_1_8192(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
 
 static int
 dissect_ilp_T_rrlpPayload(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 52 "./asn1/ilp/ilp.cnf"
+#line 65 "./asn1/ilp/ilp.cnf"
   tvbuff_t *rrlp_tvb;
 
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
@@ -3985,7 +3985,7 @@ dissect_ilp_T_rrlpPayload(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 
 static int
 dissect_ilp_T_lPPPayload_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 61 "./asn1/ilp/ilp.cnf"
+#line 74 "./asn1/ilp/ilp.cnf"
   tvbuff_t *lpp_tvb;
 
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
@@ -4655,7 +4655,7 @@ static const per_choice_t IlpMessage_choice[] = {
 
 static int
 dissect_ilp_IlpMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 42 "./asn1/ilp/ilp.cnf"
+#line 55 "./asn1/ilp/ilp.cnf"
 
 guint32 IlpMessage;
 
@@ -4682,7 +4682,7 @@ static const per_sequence_t ILP_PDU_sequence[] = {
 
 static int
 dissect_ilp_ILP_PDU(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 27 "./asn1/ilp/ilp.cnf"
+#line 40 "./asn1/ilp/ilp.cnf"
   proto_item *it;
   proto_tree *ilp_tree;
 
@@ -4692,7 +4692,7 @@ dissect_ilp_ILP_PDU(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pro
   col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, PSNAME);
   col_clear(actx->pinfo->cinfo, COL_INFO);
 
-#line 38 "./asn1/ilp/ilp.cnf"
+#line 51 "./asn1/ilp/ilp.cnf"
   offset = dissect_per_sequence(tvb, offset, actx, ilp_tree, hf_index,
                                    ett_ilp_ILP_PDU, ILP_PDU_sequence);
 
@@ -5260,7 +5260,7 @@ void proto_register_ilp(void) {
         FT_BYTES, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_ilp_minsi,
-      { "min", "ilp.min",
+      { "min", "ilp.minsi",
         FT_BYTES, BASE_NONE, NULL, 0,
         "BIT_STRING_SIZE_34", HFILL }},
     { &hf_ilp_imsi,
@@ -5883,8 +5883,8 @@ void proto_register_ilp(void) {
       { "plmn-Identity", "ilp.plmn_Identity_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_ilp_cellIdentity,
-      { "cellIdentity", "ilp.cellIdentity",
+    { &hf_ilp_eutra_cellIdentity,
+      { "cellIdentity", "ilp.cellglobalideutra.cellIdentity",
         FT_BYTES, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_ilp_mcc,
@@ -6035,15 +6035,15 @@ void proto_register_ilp(void) {
       { "latitudeResolution", "ilp.latitudeResolution",
         FT_BYTES, BASE_NONE, NULL, 0,
         "BIT_STRING_SIZE_6", HFILL }},
-    { &hf_ilp_latitude_01,
-      { "latitude", "ilp.latitude",
+    { &hf_ilp_LocationDataLCI_latitude,
+      { "latitude", "ilp.locationdatalci.latitude",
         FT_BYTES, BASE_NONE, NULL, 0,
         "BIT_STRING_SIZE_34", HFILL }},
     { &hf_ilp_longitudeResolution,
       { "longitudeResolution", "ilp.longitudeResolution",
         FT_BYTES, BASE_NONE, NULL, 0,
         "BIT_STRING_SIZE_6", HFILL }},
-    { &hf_ilp_longitude_01,
+    { &hf_ilp_LocationDataLCI_longitude,
       { "longitude", "ilp.longitude",
         FT_BYTES, BASE_NONE, NULL, 0,
         "BIT_STRING_SIZE_34", HFILL }},
@@ -6055,8 +6055,8 @@ void proto_register_ilp(void) {
       { "altitudeResolution", "ilp.altitudeResolution",
         FT_BYTES, BASE_NONE, NULL, 0,
         "BIT_STRING_SIZE_6", HFILL }},
-    { &hf_ilp_altitude_01,
-      { "altitude", "ilp.altitude",
+    { &hf_ilp_LocationDataLCI_altitude,
+      { "altitude", "ilp.locationdatalci.altitude",
         FT_BYTES, BASE_NONE, NULL, 0,
         "BIT_STRING_SIZE_30", HFILL }},
     { &hf_ilp_datum,
@@ -6239,7 +6239,7 @@ void proto_register_ilp(void) {
       { "CellMeasuredResults", "ilp.CellMeasuredResults_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_ilp_cellIdentity_01,
+    { &hf_ilp_cellIdentity,
       { "cellIdentity", "ilp.cellIdentity",
         FT_UINT32, BASE_DEC, NULL, 0,
         "INTEGER_0_268435455", HFILL }},

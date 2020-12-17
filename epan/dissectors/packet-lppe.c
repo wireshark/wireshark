@@ -210,8 +210,8 @@ static int hf_lppe_relatedReferencePoints = -1;   /* SEQUENCE_SIZE_1_8_OF_OMA_LP
 static int hf_lppe_relatedReferencePoints_item = -1;  /* OMA_LPPe_ReferencePointRelationship */
 static int hf_lppe_mapDataInformation = -1;       /* OMA_LPPe_MapDataInformation */
 static int hf_lppe_OMA_LPPe_MapDataInformation_item = -1;  /* OMA_LPPe_MapDataReferenceElement */
-static int hf_lppe_mapDataUrl = -1;               /* T_mapDataUrl */
-static int hf_lppe_mapDataUrl_01 = -1;            /* OMA_LPPe_Uri */
+static int hf_lppe_mapDataUrl_choice = -1;        /* T_mapDataUrl_choice */
+static int hf_lppe_mapDataUrl = -1;               /* OMA_LPPe_Uri */
 static int hf_lppe_mapDataRef = -1;               /* OMA_LPPe_MapDataReference */
 static int hf_lppe_mapProvider = -1;              /* T_mapProvider */
 static int hf_lppe_sameAsRefPointProvider = -1;   /* NULL */
@@ -1156,12 +1156,12 @@ static int hf_lppe_rTDUnits = -1;                 /* OMA_LPPe_WLAN_RTDUnits */
 static int hf_lppe_rTDAccuracy = -1;              /* INTEGER_0_255 */
 static int hf_lppe_locationDataLCI = -1;          /* OMA_LPPe_WLAN_LocationDataLCI */
 static int hf_lppe_latitudeResolution = -1;       /* BIT_STRING_SIZE_6 */
-static int hf_lppe_latitude_01 = -1;              /* BIT_STRING_SIZE_34 */
+static int hf_lppe_oma_LPPe_WLAN_LocationDataLCI_latitude = -1;  /* BIT_STRING_SIZE_34 */
 static int hf_lppe_longitudeResolution = -1;      /* BIT_STRING_SIZE_6 */
-static int hf_lppe_longitude_01 = -1;             /* BIT_STRING_SIZE_34 */
+static int hf_lppe_oma_LPPe_WLAN_LocationDataLCI_longitude = -1;  /* BIT_STRING_SIZE_34 */
 static int hf_lppe_altitudeType = -1;             /* BIT_STRING_SIZE_4 */
 static int hf_lppe_altitudeResolution = -1;       /* BIT_STRING_SIZE_6 */
-static int hf_lppe_altitude_01 = -1;              /* BIT_STRING_SIZE_30 */
+static int hf_lppe_oma_LPPe_WLAN_LocationDataLCI_altitude = -1;  /* BIT_STRING_SIZE_30 */
 static int hf_lppe_datum = -1;                    /* BIT_STRING_SIZE_8 */
 static int hf_lppe_requestedMeasurements_03 = -1;  /* T_requestedMeasurements_03 */
 static int hf_lppe_additionalRequestedMeasurements = -1;  /* T_additionalRequestedMeasurements */
@@ -1705,7 +1705,7 @@ static gint ett_lppe_T_referencePointGeographicLocation = -1;
 static gint ett_lppe_SEQUENCE_SIZE_1_8_OF_OMA_LPPe_ReferencePointRelationship = -1;
 static gint ett_lppe_OMA_LPPe_MapDataInformation = -1;
 static gint ett_lppe_OMA_LPPe_MapDataReferenceElement = -1;
-static gint ett_lppe_T_mapDataUrl = -1;
+static gint ett_lppe_T_mapDataUrl_choice = -1;
 static gint ett_lppe_T_mapProvider = -1;
 static gint ett_lppe_T_mapAssociation = -1;
 static gint ett_lppe_OMA_LPPe_ReferencePointRelationship = -1;
@@ -6461,7 +6461,7 @@ dissect_lppe_SEQUENCE_SIZE_1_8_OF_OMA_LPPe_ReferencePointRelationship(tvbuff_t *
 
 static int
 dissect_lppe_OMA_LPPe_Uri(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 25 "./asn1/lppe/lppe.cnf"
+#line 37 "./asn1/lppe/lppe.cnf"
   offset = dissect_per_restricted_character_string(tvb, offset, actx, tree, hf_index,
                                                       NO_BOUND, NO_BOUND, FALSE, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789:/?#[]@!$&'()*+,;=-._~%", 85,
                                                       NULL);
@@ -6498,22 +6498,22 @@ dissect_lppe_OMA_LPPe_MapDataReference(tvbuff_t *tvb _U_, int offset _U_, asn1_c
 }
 
 
-static const value_string lppe_T_mapDataUrl_vals[] = {
+static const value_string lppe_T_mapDataUrl_choice_vals[] = {
   {   0, "mapDataUrl" },
   {   1, "mapDataRef" },
   { 0, NULL }
 };
 
-static const per_choice_t T_mapDataUrl_choice[] = {
-  {   0, &hf_lppe_mapDataUrl_01  , ASN1_NO_EXTENSIONS     , dissect_lppe_OMA_LPPe_Uri },
+static const per_choice_t T_mapDataUrl_choice_choice[] = {
+  {   0, &hf_lppe_mapDataUrl     , ASN1_NO_EXTENSIONS     , dissect_lppe_OMA_LPPe_Uri },
   {   1, &hf_lppe_mapDataRef     , ASN1_NO_EXTENSIONS     , dissect_lppe_OMA_LPPe_MapDataReference },
   { 0, NULL, 0, NULL }
 };
 
 static int
-dissect_lppe_T_mapDataUrl(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lppe_T_mapDataUrl_choice(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
-                                 ett_lppe_T_mapDataUrl, T_mapDataUrl_choice,
+                                 ett_lppe_T_mapDataUrl_choice, T_mapDataUrl_choice_choice,
                                  NULL);
 
   return offset;
@@ -6589,7 +6589,7 @@ dissect_lppe_INTEGER_0_359(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 
 
 static const per_sequence_t OMA_LPPe_MapDataReferenceElement_sequence[] = {
-  { &hf_lppe_mapDataUrl     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lppe_T_mapDataUrl },
+  { &hf_lppe_mapDataUrl_choice, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lppe_T_mapDataUrl_choice },
   { &hf_lppe_mapProvider    , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lppe_T_mapProvider },
   { &hf_lppe_mapAssociation , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lppe_T_mapAssociation },
   { &hf_lppe_mapHorizontalOrientation, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lppe_INTEGER_0_359 },
@@ -14812,12 +14812,12 @@ dissect_lppe_BIT_STRING_SIZE_30(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 
 static const per_sequence_t OMA_LPPe_WLAN_LocationDataLCI_sequence[] = {
   { &hf_lppe_latitudeResolution, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lppe_BIT_STRING_SIZE_6 },
-  { &hf_lppe_latitude_01    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lppe_BIT_STRING_SIZE_34 },
+  { &hf_lppe_oma_LPPe_WLAN_LocationDataLCI_latitude, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lppe_BIT_STRING_SIZE_34 },
   { &hf_lppe_longitudeResolution, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lppe_BIT_STRING_SIZE_6 },
-  { &hf_lppe_longitude_01   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lppe_BIT_STRING_SIZE_34 },
+  { &hf_lppe_oma_LPPe_WLAN_LocationDataLCI_longitude, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lppe_BIT_STRING_SIZE_34 },
   { &hf_lppe_altitudeType   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lppe_BIT_STRING_SIZE_4 },
   { &hf_lppe_altitudeResolution, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lppe_BIT_STRING_SIZE_6 },
-  { &hf_lppe_altitude_01    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lppe_BIT_STRING_SIZE_30 },
+  { &hf_lppe_oma_LPPe_WLAN_LocationDataLCI_altitude, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lppe_BIT_STRING_SIZE_30 },
   { &hf_lppe_datum          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lppe_BIT_STRING_SIZE_8 },
   { NULL, 0, 0, NULL }
 };
@@ -15784,7 +15784,7 @@ static const per_sequence_t OMA_LPPe_MessageExtension_sequence[] = {
 
 static int
 dissect_lppe_OMA_LPPe_MessageExtension(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 19 "./asn1/lppe/lppe.cnf"
+#line 31 "./asn1/lppe/lppe.cnf"
 
   proto_tree_add_item(tree, proto_lppe, tvb, 0, -1, ENC_NA);
 
@@ -16482,11 +16482,11 @@ void proto_register_lppe(void) {
       { "OMA-LPPe-MapDataReferenceElement", "lppe.OMA_LPPe_MapDataReferenceElement_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+    { &hf_lppe_mapDataUrl_choice,
+      { "mapDataUrl", "lppe.mapDataUrl_choice",
+        FT_UINT32, BASE_DEC, VALS(lppe_T_mapDataUrl_choice_vals), 0,
+        "T_mapDataUrl_choice", HFILL }},
     { &hf_lppe_mapDataUrl,
-      { "mapDataUrl", "lppe.mapDataUrl",
-        FT_UINT32, BASE_DEC, VALS(lppe_T_mapDataUrl_vals), 0,
-        NULL, HFILL }},
-    { &hf_lppe_mapDataUrl_01,
       { "mapDataUrl", "lppe.mapDataUrl",
         FT_STRING, BASE_NONE, NULL, 0,
         "OMA_LPPe_Uri", HFILL }},
@@ -20266,16 +20266,16 @@ void proto_register_lppe(void) {
       { "latitudeResolution", "lppe.latitudeResolution",
         FT_BYTES, BASE_NONE, NULL, 0,
         "BIT_STRING_SIZE_6", HFILL }},
-    { &hf_lppe_latitude_01,
-      { "latitude", "lppe.latitude",
+    { &hf_lppe_oma_LPPe_WLAN_LocationDataLCI_latitude,
+      { "latitude", "lppe.oMA-LPPe-WLAN-LocationDataLCI.latitude",
         FT_BYTES, BASE_NONE, NULL, 0,
         "BIT_STRING_SIZE_34", HFILL }},
     { &hf_lppe_longitudeResolution,
       { "longitudeResolution", "lppe.longitudeResolution",
         FT_BYTES, BASE_NONE, NULL, 0,
         "BIT_STRING_SIZE_6", HFILL }},
-    { &hf_lppe_longitude_01,
-      { "longitude", "lppe.longitude",
+    { &hf_lppe_oma_LPPe_WLAN_LocationDataLCI_longitude,
+      { "longitude", "lppe.oMA-LPPe-WLAN-LocationDataLCI.longitude",
         FT_BYTES, BASE_NONE, NULL, 0,
         "BIT_STRING_SIZE_34", HFILL }},
     { &hf_lppe_altitudeType,
@@ -20286,8 +20286,8 @@ void proto_register_lppe(void) {
       { "altitudeResolution", "lppe.altitudeResolution",
         FT_BYTES, BASE_NONE, NULL, 0,
         "BIT_STRING_SIZE_6", HFILL }},
-    { &hf_lppe_altitude_01,
-      { "altitude", "lppe.altitude",
+    { &hf_lppe_oma_LPPe_WLAN_LocationDataLCI_altitude,
+      { "altitude", "lppe.oMA-LPPe-WLAN-LocationDataLCI.altitude",
         FT_BYTES, BASE_NONE, NULL, 0,
         "BIT_STRING_SIZE_30", HFILL }},
     { &hf_lppe_datum,
@@ -22298,7 +22298,7 @@ void proto_register_lppe(void) {
     &ett_lppe_SEQUENCE_SIZE_1_8_OF_OMA_LPPe_ReferencePointRelationship,
     &ett_lppe_OMA_LPPe_MapDataInformation,
     &ett_lppe_OMA_LPPe_MapDataReferenceElement,
-    &ett_lppe_T_mapDataUrl,
+    &ett_lppe_T_mapDataUrl_choice,
     &ett_lppe_T_mapProvider,
     &ett_lppe_T_mapAssociation,
     &ett_lppe_OMA_LPPe_ReferencePointRelationship,

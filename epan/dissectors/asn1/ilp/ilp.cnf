@@ -21,6 +21,19 @@ FrequencyInfo/modeSpecificInfo  modeSpecificFrequencyInfo
 FrequencyInfo/modeSpecificInfo/fdd  fdd_fr
 FrequencyInfo/modeSpecificInfo/tdd  tdd_fr
 SETId/min  minsi
+LocationDataLCI/latitude LocationDataLCI_latitude
+LocationDataLCI/longitude LocationDataLCI_longitude
+LocationDataLCI/altitude LocationDataLCI_altitude
+CellGlobalIdEUTRA/cellIdentity eutra_cellIdentity
+
+#.FIELD_ATTR
+SETId/min  ABBREV=minsi
+LocationDataLCI/latitude ABBREV=locationdatalci.latitude
+LocationDataLCI/latitude ABBREV=locationdatalci.longitude
+LocationDataLCI/altitude ABBREV=locationdatalci.altitude
+CellGlobalIdEUTRA/cellIdentity ABBREV=cellglobalideutra.cellIdentity
+
+
 #.END
 
 #.FN_HDR ILP-PDU
