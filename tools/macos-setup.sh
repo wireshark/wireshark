@@ -754,7 +754,6 @@ uninstall_pkg_config() {
 
 install_glib() {
     if [ ! -f glib-$GLIB_VERSION-done ] ; then
-set -x
         echo "Downloading, building, and installing GLib:"
         glib_dir=`expr $GLIB_VERSION : '\([0-9][0-9]*\.[0-9][0-9]*\).*'`
         #
