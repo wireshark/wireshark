@@ -54,9 +54,19 @@ static int hf_iap_unknown_uint = -1;
 static int hf_iap_unknown_bytes = -1;
 
 static const value_string iap_model[] = {
-    { 0x10, "Gemini (IAP-500 Series)" },
-    { 0x1a, "Pegasus (IAP-103/108/109/144,115)" },
-    { 0x30, "Ursa (IAP-303/303H/304/305/360)" },
+    { 0x0a, "Orion (IAP-104, IAP-105, IAP-175, RAP-3WN and RAP-3WNP )" },
+    { 0x0f, "Cassiopeia (IAP-130 Series )" },
+    { 0x17, "Aries   (RAP-155 and RAP-155P )" },
+    { 0x19, "Centaurus (IAP-224, IAP-225, IAP-214/215, IAP-274, IAP-275 and IAP-277 )" },
+    { 0x1a, "Pegasus (RAP-108, RAP-109, IAP-114, IAP-115 and IAP-103 )" },
+    { 0x1e, "Taurus (IAP-204/205, IAP-205H )" },
+    { 0x28, "Hercules (IAP-314/315, IAP-324/325, IAP 318 and IAP 374/375/377 )" },
+    { 0x2b, "Lupus (IAP-334/335 )" },
+    { 0x2e, "Vela (IAP-203H, IAP-207, IAP-203R and IAP-203RP )" },
+    { 0x30, "Ursa (IAP-303, IAP-304/305, IAP-365/367 and IAP-303H )" },
+    { 0x37, "Draco (IAP-344/345 )" },
+    { 0x39, "Scorpio (IAP-514 and IAP-515 )" },
+    { 0x40, "Gemini (IAP-500 Series )" },
     { 0, NULL }
 };
 
@@ -111,13 +121,13 @@ dissect_aruba_iap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
         col_append_fstr(pinfo->cinfo, COL_INFO, " VC IP: %s", tvb_ip_to_str(tvb, offset));
         offset += 4;
 
-        proto_tree_add_item(aruba_iap_tree, hf_iap_unknown_uint, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(aruba_iap_tree, hf_iap_model, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
 
         proto_tree_add_item(aruba_iap_tree, hf_iap_pvid, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
 
-        proto_tree_add_item(aruba_iap_tree, hf_iap_model, tvb, offset, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(aruba_iap_tree, hf_iap_unknown_uint, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
 
         proto_tree_add_item(aruba_iap_tree, hf_iap_unknown_bytes, tvb, offset, -1, ENC_NA);
@@ -170,7 +180,7 @@ proto_register_aruba_iap(void)
         "Vlan ID (of Uplink)", HFILL}},
 
         { &hf_iap_model,
-        { "Model", "aruba_iap.model", FT_UINT32, BASE_DEC_HEX, VALS(iap_model), 0x0,
+        { "Model", "aruba_iap.model", FT_UINT8, BASE_DEC_HEX, VALS(iap_model), 0x0,
         NULL, HFILL}},
 
         { &hf_iap_unknown_bytes,
@@ -178,7 +188,7 @@ proto_register_aruba_iap(void)
         "Unknown Data...", HFILL}},
 
         { &hf_iap_unknown_uint,
-        { "Unknown", "aruba_iap.unknown.uint", FT_UINT8, BASE_DEC_HEX, NULL, 0x0,
+        { "Unknown", "aruba_iap.unknown.uint", FT_UINT32, BASE_DEC_HEX, NULL, 0x0,
         "Unknown (UINT) Data...", HFILL}},
 
 
