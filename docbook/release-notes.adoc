@@ -29,15 +29,15 @@ It is used for troubleshooting, analysis, development and education.
 // CWE-126: Buffer Over-read
 // CWE-401: Missing Release of Memory after Effective Lifetime
 
-The following vulnerabilities have been fixed:
+// The following vulnerabilities have been fixed:
 
-* wssalink:2020-20[]
-QUIC dissector crash
-wsbuglink:17073[].
+// * wssalink:2020-21[]
+// Foo dissector {crash,infinite loop}.
+// wsbuglink:xxxxx[].
 // cveidlink:2020-xxxxx[].
-// Fixed in master: 4227e5a1ad
-// Fixed in release-3.4: a2ceb50866
-// Fixed in master-3.2: n/a
+// Fixed in master: xxxxx
+// Fixed in release-3.4: xxxxx
+// Fixed in master-3.2: xxxxx
 
 The following bugs have been fixed:
 
@@ -47,21 +47,7 @@ The following bugs have been fixed:
 //* wsbuglink:6000[Wireshark bug]
 //* cveidlink:2014-2486[]
 //* Wireshark exposed details your sordid redneck past, which were subsequently widely disseminated on social media.
-// cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log v3.4.2rc0.. | gsed -e 's/\(close\|fix\|resolv\)[^ ]* #/\nclose #/gI' | grep ^close | sed -e 's/close.*#\([1-9][0-9]*\).*/\1/' | sort -V -u` ; do "$(git rev-parse --show-toplevel)/tools/gen-bugnote" $bugnumber; pbpaste >> /tmp/buglist.txt; done
-
-* IETF QUIC TLS decryption errors when packets are coalesced with random data wsbuglink:16914[].
-
-* QUIC: missing dissection of some coalesced SH packets wsbuglink:17011[].
-
-* macos-setup.sh can't find SDK on macOS Big Sur, as it went to 11 wsbuglink:17043[].
-
-* Mapping endpoints in browser => Map file error wsbuglink:17074[].
-
-* Wireshark 3.4.1 hangs on startup on macOS Big Sur 11.0.1 wsbuglink:17075[].
-
-* False expect error seen on FCoE frames (not seen with older release wireshark 1.2.18) wsbuglink:17084[].
-
-* Several libraries missing in 3.4.1 and 3.2.9 installers for macOS wsbuglink:17086[].
+// cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log v3.4.3rc0.. | gsed -e 's/\(close\|fix\|resolv\)[^ ]* #/\nclose #/gI' | grep ^close | sed -e 's/close.*#\([1-9][0-9]*\).*/\1/' | sort -V -u` ; do "$(git rev-parse --show-toplevel)/tools/gen-bugnote" $bugnumber; pbpaste >> /tmp/buglist.txt; done
 
 // === Removed Features and Support
 
@@ -82,13 +68,6 @@ There are no new protocols in this release.
 // Add one protocol per line between the -- delimiters.
 [commaize]
 --
-DOCSIS
-FCoE
-FC-dNS
-FC-SWILS
-QUIC
-SNMP
-USBHID
 --
 
 === New and Updated Capture File Support
