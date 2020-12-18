@@ -1109,6 +1109,10 @@ dissect_routing6_srh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
                                "IPv6 Type 4 Routing Header segments left field must not exceed address count (%u)", addr_count);
     }
 
+    if (pinfo->dst.type == AT_IPv6 && rt->hdr.ip6r_segleft > 0) {
+        alloc_address_wmem_ipv6(pinfo->pool, &pinfo->dst, tvb_get_ptr_ipv6(tvb, offset));
+    }
+
     for (unsigned i = 0; i < addr_count; i++) {
         addr_offset = offset + i * IPv6_ADDR_SIZE;
         _proto_tree_add_ipv6_vector_address(tree, hf_ipv6_routing_srh_addr, tvb,
