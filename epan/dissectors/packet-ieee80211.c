@@ -620,6 +620,7 @@ static value_string_ext tag_num_vals_ext = VALUE_STRING_EXT_INIT(ie_tag_num_vals
 #define ETAG_BSS_COLOR_CHANGE_ANNOUNCEMENT     42
 #define ETAG_QUIET_TIME_PERIOD_SETUP           43
 #define ETAG_ESS_REPORT                        44
+#define ETAG_HE_6GHZ_BAND_CAPABILITIES         59
 #define ETAG_REJECTED_GROUPS                   92
 #define ETAG_ANTI_CLOGGING_TOKEN               93
 
@@ -649,6 +650,7 @@ static const value_string tag_num_vals_eid_ext[] = {
   { ETAG_BSS_COLOR_CHANGE_ANNOUNCEMENT,       "BSS Color Change Announcement" },
   { ETAG_QUIET_TIME_PERIOD_SETUP,             "Quiet Time Period Setup" },
   { ETAG_ESS_REPORT,                          "ESS Report" },
+  { ETAG_HE_6GHZ_BAND_CAPABILITIES,           "HE 6Ghz Band Capabilities" },
   { ETAG_REJECTED_GROUPS,                     "Rejected Groups" },
   { ETAG_ANTI_CLOGGING_TOKEN,                 "Anti-Clogging Token Container" },
   { 0, NULL }
@@ -4035,6 +4037,31 @@ static int hf_ieee80211_tag_extended_request_id = -1;
 static int hf_ieee80211_tag_extended_request_extension = -1;
 static int hf_ieee80211_tag_challenge_text = -1;
 
+static int hf_ieee80211_tag_he_6ghz_cap_inf = -1;
+static int hf_ieee80211_tag_he_6ghz_cap_inf_b0_b2 = -1;
+static int hf_ieee80211_tag_he_6ghz_cap_inf_b3_b5 = -1;
+static int hf_ieee80211_tag_he_6ghz_cap_inf_b6_b7 = -1;
+static int hf_ieee80211_tag_he_6ghz_cap_inf_b8 = -1;
+static int hf_ieee80211_tag_he_6ghz_cap_inf_b9_b10 = -1;
+static int hf_ieee80211_tag_he_6ghz_cap_inf_b11 = -1;
+static int hf_ieee80211_tag_he_6ghz_cap_inf_b12 = -1;
+static int hf_ieee80211_tag_he_6ghz_cap_inf_b13 = -1;
+static int hf_ieee80211_tag_he_6ghz_cap_inf_b14_b15 = -1;
+
+static int * const ieee80211_tag_he_6ghz_cap_inf[] = {
+  &hf_ieee80211_tag_he_6ghz_cap_inf_b0_b2,
+  &hf_ieee80211_tag_he_6ghz_cap_inf_b3_b5,
+  &hf_ieee80211_tag_he_6ghz_cap_inf_b6_b7,
+  &hf_ieee80211_tag_he_6ghz_cap_inf_b8,
+  &hf_ieee80211_tag_he_6ghz_cap_inf_b9_b10,
+  &hf_ieee80211_tag_he_6ghz_cap_inf_b11,
+  &hf_ieee80211_tag_he_6ghz_cap_inf_b12,
+  &hf_ieee80211_tag_he_6ghz_cap_inf_b13,
+  &hf_ieee80211_tag_he_6ghz_cap_inf_b14_b15,
+  NULL
+};
+
+
 static int hf_ieee80211_wep_iv = -1;
 static int hf_ieee80211_wep_iv_weak = -1;
 static int hf_ieee80211_tkip_extiv = -1;
@@ -6170,6 +6197,8 @@ static gint ett_tag_wapi_param_set_mcast_tree = -1;
 static gint ett_tag_wapi_param_set_preauth_tree = -1;
 
 static gint ett_tag_time_adv_tree = -1;
+
+static gint ett_tag_he_6ghz_cap_inf_tree = -1;
 
 static gint ett_ff_ba_param_tree = -1;
 static gint ett_ff_ba_ssc_tree = -1;
@@ -19151,6 +19180,22 @@ dissect_extended_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
   }
 }
 
+static void
+dissect_he_6ghz_band_capabilities(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int len)
+{
+  if (len != 2) {
+    expert_add_info_format(pinfo, tree, &ei_ieee80211_tag_length,
+                           "HE 6Ghz Band Capabilities must be at 2 octets long");
+    return;
+  }
+
+  proto_tree_add_bitmask(tree, tvb, offset, hf_ieee80211_tag_he_6ghz_cap_inf,
+                         ett_tag_he_6ghz_cap_inf_tree,
+                         ieee80211_tag_he_6ghz_cap_inf,
+                         ENC_LITTLE_ENDIAN);
+
+}
+
 /* ************************************************************************* */
 /*           Dissect and add tagged (optional) fields to proto tree          */
 /* ************************************************************************* */
@@ -22661,6 +22706,9 @@ ieee80211_tag_element_id_extension(tvbuff_t *tvb, packet_info *pinfo, proto_tree
       break;
     case ETAG_EXTENDED_REQUEST:
       dissect_extended_request(tvb, pinfo, tree, offset, ext_tag_len);
+      break;
+    case ETAG_HE_6GHZ_BAND_CAPABILITIES:
+      dissect_he_6ghz_band_capabilities(tvb, pinfo, tree, offset, ext_tag_len);
       break;
     default:
       break;
@@ -32891,6 +32939,56 @@ proto_register_ieee80211(void)
       FT_BYTES, BASE_NONE, NULL, 0,
       NULL, HFILL }},
 
+    {&hf_ieee80211_tag_he_6ghz_cap_inf,
+     {"Capabilities Information", "wlan.tag.he_6ghz.cap_inf",
+      FT_UINT16, BASE_HEX, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_he_6ghz_cap_inf_b0_b2,
+     {"Minimum MPDU Start Spacing", "wlan.tag.he_6ghz.cap_inf.b0_b2",
+      FT_UINT16, BASE_HEX, NULL, 0x0007,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_he_6ghz_cap_inf_b3_b5,
+     {"Maximum A-MPDU Start Spacing", "wlan.tag.he_6ghz.cap_inf.b3_b5",
+      FT_UINT16, BASE_HEX, NULL, 0x0038,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_he_6ghz_cap_inf_b6_b7,
+     {"Maximum MPDU Length", "wlan.tag.he_6ghz.cap_inf.b6_b7",
+      FT_UINT16, BASE_HEX, NULL, 0x00C0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_he_6ghz_cap_inf_b8,
+     {"Reserved", "wlan.tag.he_6ghz.cap_inf.b8",
+      FT_UINT16, BASE_HEX, NULL, 0x0100,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_he_6ghz_cap_inf_b9_b10,
+     {"SM Power Save", "wlan.tag.he_6ghz.cap_inf.b9b_b10",
+      FT_UINT16, BASE_HEX, NULL, 0x0600,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_he_6ghz_cap_inf_b11,
+     {"RD Responder", "wlan.tag.he_6ghz.cap_inf.b11",
+      FT_UINT16, BASE_HEX, NULL, 0x0800,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_he_6ghz_cap_inf_b12,
+     {"Rx Antenna Pattern Consistency", "wlan.tag.he_6ghz.cap_inf.b12",
+      FT_UINT16, BASE_HEX, NULL, 0x1000,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_he_6ghz_cap_inf_b13,
+     {"Tx Antenna Pattern Consistency", "wlan.tag.he_6ghz.cap_inf.b13",
+      FT_UINT16, BASE_HEX, NULL, 0x2000,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_he_6ghz_cap_inf_b14_b15,
+     {"Reserved", "wlan.tag.he_6ghz.cap_inf.b14_b15",
+      FT_UINT16, BASE_HEX, NULL, 0xC000,
+      NULL, HFILL }},
+
     {&hf_ieee80211_rsn_version,
      {"RSN Version", "wlan.rsn.version",
       FT_UINT16, BASE_DEC, NULL, 0,
@@ -39775,6 +39873,8 @@ proto_register_ieee80211(void)
     &ett_tag_wapi_param_set_preauth_tree,
 
     &ett_tag_time_adv_tree,
+
+    &ett_tag_he_6ghz_cap_inf_tree,
 
     &ett_ff_ba_param_tree,
     &ett_ff_ba_ssc_tree,
