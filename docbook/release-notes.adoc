@@ -43,6 +43,14 @@ The following bugs have been fixed:
 //* Wireshark is solely responsible for the decline of shopping malls in your area.
 // cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log v3.2.10rc0.. | gsed -e 's/\(close\|fix\|resolv\)[^ ]* #/\nclose #/gI' | grep ^close | sed -e 's/close.*#\([1-9][0-9]*\).*/\1/' | sort -V -u` ; do "$(git rev-parse --show-toplevel)/tools/gen-bugnote" $bugnumber; pbpaste >> /tmp/buglist.txt; done
 
+* macos-setup.sh can't find SDK on macOS Big Sur, as it went to 11 wsbuglink:17043[].
+
+* Wireshark 3.4.1 hangs on startup on macOS Big Sur 11.0.1 wsbuglink:17075[].
+
+* False expect error seen on FCoE frames (not seen with older release wireshark 1.2.18) wsbuglink:17084[].
+
+* Several libraries missing in 3.4.1 and 3.2.9 installers for macOS wsbuglink:17086[].
+
 === New and Updated Features
 
 There are no new features in this release.
@@ -66,6 +74,9 @@ There are no new protocols in this release.
 // Add one protocol per line between the -- delimiters.
 [commaize]
 --
+FCoE
+FC-dNS
+SNMP
 --
 
 === New and Updated Capture File Support
