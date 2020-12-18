@@ -1,0 +1,395 @@
+commit 7ac76765fc
+Author: Nardi Ivan <nardi.ivan@gmail.com>
+Date:   Mon Dec 14 12:33:19 2020 +0000
+
+    QUIC: update to draft-33
+    
+    QUIC (final?) constants for v1 are defined in draft-33
+    
+    
+    (cherry picked from commit 91bd291b90ab78fa2ccb1eaca27fc1685f6ad0ab)
+
+commit 2437f45a49
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Thu Dec 17 09:19:17 2020 -0800
+
+    Prep for 3.4.2.
+
+commit bd4259557b
+Author: Guy Harris <gharris@sonic.net>
+Date:   Sat Dec 12 23:47:27 2020 -0800
+
+    macos-setup: Update a comment.
+    
+    Lua isn't the only dependency that doesn't support "make uninstall".
+    
+    (backported from commit 7d01e3a74ec24d1e9748674bda5d109d2336dd3e)
+
+commit d1be8e80e2
+Author: Guy Harris <gharris@sonic.net>
+Date:   Thu Nov 26 02:23:06 2020 +0000
+
+    Don't assume macOS version numbers are of the form 10.N.
+    
+    Big Sur goes to 11, and it appears that next year's (San Juan Capistrano?)
+    will go to 12, and so on.
+    
+    Split version numbers into major and minor, and do version-number
+    comparison (alas, whilst CMake has that built in, the Bourne shell
+    doesn't, and neither does the Bourne-again shell).
+    
+    This should fix issue #17043.
+    
+    
+    (cherry picked from commit 8e2815bfc0aa08a5e9ab83de8b8b2ed56e698cf9)
+
+commit e1535a9aa3
+Author: Guy Harris <gharris@sonic.net>
+Date:   Thu Dec 17 02:14:30 2020 +0000
+
+    macos-setup: various cleanups.
+    
+    In uninstall_autoconf, when running uninstall subfunctions, pass the
+    arguments to the subfunctions.
+    
+    When uninstalling Ninja, remove the "we've finished installing this"
+    indicator file.
+    
+    Get rid of a debugging "set +x".
+    
+    
+    (cherry picked from commit 9fbf79c0453952ed48f9ed31f7004aab73c92e8e)
+
+commit 7901947b11
+Author: Guy Harris <gharris@sonic.net>
+Date:   Wed Dec 16 14:09:22 2020 -0800
+
+    macos-setup: set SDKROOT when running xcrun.
+    
+    That lets it find the right SDK path if you're not using the default
+    SDK.
+    
+    (backported from commit 190442d76ebdd77626d03b6aad31a9bee20b2f9c)
+
+commit 67f0d0ed73
+Author: Guy Harris <gharris@sonic.net>
+Date:   Sun Dec 13 00:44:24 2020 -0800
+
+    macos-setup: more cleanups.
+    
+    Fix/update/expand some comments.
+    
+    Do uninstalls for dependencies using CMake more similarly.
+    
+    For LZ4, as it comes with a Makefile rather than any
+    autotools/CMake/etc. configuration, "make distclean" might not be
+    necessary, so, as it's not supported, just do "make clean".
+    
+    For libssh, do all removes in the uninstall in a single command, and use
+    $DO_RM, so that it uses sudo iff /usr/local isn't writable by us.  In
+    addition, remove the build directory as the equivalent of "make
+    distclean".
+    
+    As with libssh, so with brotli.
+    
+    (backported from commit 02c5f500090261947b3e9a65dafff83a71edb17b)
+
+commit 6b950fe6f0
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Tue Dec 15 19:14:17 2020 +0000
+
+    Qt: Force layer backing on Big Sur when needed.
+    
+    Make sure NSView.wantsLayer is true by setting QT_MAC_WANTS_LAYER=1 at
+    startup if we're running on Big Sur and we were built with a version of
+    Qt susceptible to QTBUG-87014. Fixes #17075?
+    
+    
+    (cherry picked from commit d4b40c00472d0d1eb032725f27f1c827943d8546)
+
+commit 4a102163d0
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Wed Dec 16 21:04:18 2020 +0000
+
+    macOS: Add a workaround for libsnappy.
+    
+    Work around an issue with libsnappy similar to what we do with libssh.
+    
+    
+    (cherry picked from commit bf45e8c3f1ee600b42cee186e81f1a3ad0b61cb3)
+
+commit 64578cba75
+Author: Guy Harris <gharris@sonic.net>
+Date:   Wed Dec 16 10:04:09 2020 +0000
+
+    fcdns: the Owner Id field is a 3-octet FC address, not a text string.
+    
+    Make it FT_BYTES with SEP_DOT, like other 3-octet FC addresses.
+    
+    
+    (cherry picked from commit 19ffed19bd338c1f179e2fc260816b19b328261c)
+
+commit 9bb44ac156
+Author: Guy Harris <gharris@sonic.net>
+Date:   Wed Dec 16 05:57:04 2020 +0000
+
+    fcswils: fix a comment.
+    
+    In an ESS capability object, the well-known type and well-known subtype
+    fields are 1 byte, not 2 bytes.
+    
+    
+    (cherry picked from commit ed6f6a49aa59525e7ef032976ce34904c27e4393)
+
+commit 564ec58f6d
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Tue Dec 15 18:14:32 2020 +0000
+
+    FC: use ETHERTYPE_UNK when applicable, no excuses
+    
+    Two interlocking problems cause the dissection of FC to fail in some cases,
+    as shown in the capture of the related issue.
+    
+    The FC dissector assumes that ETHERTYPE_UNK in the data structure passed
+    to it is coming from the MDS header dissector only, and thus that header
+    sizes have to be taken into account. This is not / no longer the case.
+    It always passes down ETHERTYPE_FCFT. Therefore the MDS header size
+    checking does not apply to ETHERTYP_UNK, so is removed as condition.
+    
+    The other FC related dissectors were forced to setup a data structure to
+    pass to FC for it to handle that part of the frame. Because these weren't
+    related to ethernet, these lazily set the ethertype field in the data
+    structure to 0. This unfortunately matches ETHERTYPE_UNK, triggering the
+    MDS header size checking in FC, leading to this issue. With the first
+    problem resolved, now make it explicit that unknown ethertype is indicated
+    by ETHERTYPE_UNK, not '0'.
+    
+    Addresses primary part of issue #17084
+    
+    
+    (cherry picked from commit 3f0fc1b232493815161b345368c7c41500e0153c)
+
+commit e228784c4e
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Tue Dec 15 18:42:43 2020 +0000
+
+    FCdNS: use correct header field for field of flags
+    
+    closes #17084
+    
+    
+    (cherry picked from commit 354a6fd0154c284b5c1b86987fde1e58cc73dbbb)
+
+commit a2ceb50866
+Author: Nardi Ivan <nardi.ivan@gmail.com>
+Date:   Thu Dec 10 19:30:05 2020 +0000
+
+    QUIC: fix a stack overflow
+    
+    While at it, fix also a memory leak
+    Close #17073
+    
+    
+    (cherry picked from commit 4227e5a1adef8ccce29fba0e272a13bc7c312041)
+
+commit f53f5e64d5
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Dec 13 09:29:39 2020 +0000
+
+    [Automatic update for 2020-12-13]
+    
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit c865975463
+Author: j.novak@netsystem.cz <j.novak@netsystem.cz>
+Date:   Sun Dec 13 15:28:36 2020 +0000
+
+    SNMP: Fix checking of SNMP v3 auth if MD5 method is used
+    
+    When the user enters row to SNMP Users table in wireshark and Authentication model is set to MD5, row is ignored in processing. The reason is that constant for MD5 is 0, but the code checks if the value is defined by simple 'usm_p.user_assoc' condition. Therefore 0 never succeeds.
+    As item can have only listed values, I think the check can be removed.
+    Function verified on sample.
+    
+    I propose to cherry pick the change to all stable branches.
+    
+    
+    (cherry picked from commit 7f376c7ced445c6373098b8f7f8790a78822fe0a)
+
+commit a16388824b
+Author: Nardi Ivan <nardi.ivan@gmail.com>
+Date:   Sat Nov 7 16:40:04 2020 +0000
+
+    QUIC: fix handling of unencrypted padding data
+    
+    We must be able to correctly detect valid coalesced packets and
+    recognize them from random padding.
+    
+    Close #17011
+    Close #16914
+    
+    
+    (cherry picked from commit 0af60377b44f87d8e055788467c4e248ffc3bca9)
+
+commit 4908474b1f
+Author: Andrii Vladyka <a.vladyka@ukr.net>
+Date:   Wed Dec 9 06:28:14 2020 +0000
+
+    DOCSIS: Add FDX support to Downstream Active Channel List MDD TLV
+    
+    
+    (cherry picked from commit 37f11e9a364c4b3684db52c3f4ad4773034a90a0)
+
+commit b621801877
+Author: Pascal Quantin <pascal@wireshark.org>
+Date:   Sat Dec 12 11:27:51 2020 +0000
+
+    Qt: fix crash when opening/saving IP map on Windows
+    
+    According to https://bugreports.qt.io/browse/QTBUG-20372 you need to close
+    a QFile before calling fclose, otherwise it leads to an unexpected behavior.
+    Let's duplicate the file handle to avoid this issue as suggested in
+    https://stackoverflow.com/questions/9465727/convert-qfile-to-file
+    
+    Closes #17074
+    
+    
+    (cherry picked from commit 746051d09978626a704f2c6cba650c505fca65f1)
+
+commit 747a03de06
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Fri Dec 11 10:05:29 2020 +0000
+
+    Qt: Add missing break in Win32 file export init dialog function
+    
+    
+    (cherry picked from commit b09161d758807a6a08b5afcbfdb416ca0781a946)
+
+commit 862a55ae54
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Fri Dec 11 21:38:14 2020 +0000
+
+    Win32: Add an include guard.
+    
+    Add "#ifdef _WIN32" to file_dlg_win32.c so that it's ignored by
+    tools/validate-clang-check.sh.
+    
+    
+    (cherry picked from commit 6e1142c33a98d2a880dfc80d5fae7d47145b40a6)
+
+commit bf311c44a5
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Fri Dec 11 23:54:55 2020 +0000
+
+    Tools: skip commit validation for merge trains.
+    
+    Skip commit validation if it looks like we're in a GitLab merge train.
+    
+    
+    (cherry picked from commit 404802dc3457e922e28423cf6cdf46c9c6e3c9d6)
+
+commit 81bcbf0ed6
+Author: Pascal Quantin <pascal@wireshark.org>
+Date:   Fri Dec 11 11:24:23 2020 +0000
+
+    Qt: create endpoint IP map in temp folder
+    
+    Closes #17074
+    
+    
+    (cherry picked from commit 9fb03566c25e74fafb796bf9888d393238423cc0)
+
+commit 18ada21232
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Thu Dec 10 21:35:43 2020 +0000
+
+    USB-HID: Tertiery is usually three
+    
+    
+    (cherry picked from commit 976738cd6c29c2ca60cecd8896ae250bd75265ca)
+
+commit 655cb724fd
+Author: Pascal Quantin <pascal@wireshark.org>
+Date:   Wed Dec 9 20:55:56 2020 +0000
+
+    sshdump: fix detection of custom version in Windows
+    
+    
+    (cherry picked from commit 10377c4d92f9ac310f7e7878890e066d17cb37ba)
+
+commit 19cf6c5600
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Wed Dec 9 19:00:27 2020 -0800
+
+    GitLab CI: Use our images.
+
+commit 273eb0efcc
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Wed Dec 9 15:42:23 2020 -0800
+
+    GitLab CI: Remove more external dependencies.
+
+commit 1bf7c9a693
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Wed Dec 9 17:13:42 2020 +0000
+
+    CI: Fix Ubuntu tests.
+    
+    The wireshark/wireshark-ubuntu-dev image was recently upgraded to Ubuntu
+    20.04. Since then the following tests have been failing:
+    
+    ---- FAILED
+    test/suite_capture.py::case_wireshark_capture::test_wireshark_capture_from_fifo
+    FAILED
+    test/suite_capture.py::case_wireshark_capture::test_wireshark_capture_from_stdin
+    FAILED
+    test/suite_capture.py::case_tshark_capture::test_tshark_capture_from_fifo
+    FAILED
+    test/suite_capture.py::case_tshark_capture::test_tshark_capture_from_stdin
+    FAILED
+    test/suite_capture.py::case_dumpcap_capture::test_dumpcap_capture_from_fifo
+    FAILED
+    test/suite_capture.py::case_dumpcap_capture::test_dumpcap_capture_from_stdin
+    FAILED
+    test/suite_capture.py::case_dumpcap_autostop::test_dumpcap_autostop_filesize
+    FAILED
+    test/suite_capture.py::case_dumpcap_autostop::test_dumpcap_autostop_packets
+    FAILED
+    test/suite_capture.py::case_dumpcap_ringbuffer::test_dumpcap_ringbuffer_filesize
+    FAILED
+    test/suite_capture.py::case_dumpcap_ringbuffer::test_dumpcap_ringbuffer_packets
+    FAILED
+    test/suite_capture.py::case_dumpcap_pcapng_sections::test_dumpcap_pcapng_multi_in_multi_out
+    FAILED
+    test/suite_capture.py::case_dumpcap_pcapng_sections::test_dumpcap_pcapng_multi_in_single_out
+    FAILED
+    test/suite_capture.py::case_dumpcap_pcapng_sections::test_dumpcap_pcapng_single_in_multi_out
+    FAILED
+    test/suite_capture.py::case_dumpcap_pcapng_sections::test_dumpcap_pcapng_single_in_single_out
+    FAILED
+    test/suite_clopts.py::case_dumpcap_options::test_dumpcap_interface_chars
+    FAILED
+    test/suite_clopts.py::case_dumpcap_options::test_dumpcap_invalid_chars
+    FAILED
+    test/suite_clopts.py::case_dumpcap_options::test_dumpcap_valid_chars
+    ----
+    
+    This is because dumpcap can't load our local libraries after setting cap_net_raw+cap_net_admin:
+    
+    ----
+    -- Begin stderr for command ('/builds/wireshark/wireshark/build/run/dumpcap', '-D') --
+    /builds/wireshark/wireshark/build/run/dumpcap: error while loading shared libraries: libwsutil.so.0: cannot open shared object file: No such file or directory
+    -- End stderr for command ('/builds/wireshark/wireshark/build/run/dumpcap', '-D') --
+    ----
+    
+    Add $(pwd)/run to our rpath.
+    
+    
+    (cherry picked from commit ef10cc74d1bb73b82418c71eabc77c0f4381eb7d)
+
+commit 10a02a65d7
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Wed Dec 9 17:55:02 2020 -0800
+
+    Version: 3.4.1 → 3.4.2.
+    
+    [skip ci]
