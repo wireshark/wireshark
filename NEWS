@@ -11,6 +11,18 @@ Wireshark 3.2.10 Release Notes
 
    The following bugs have been fixed:
 
+     • macos-setup.sh can’t find SDK on macOS Big Sur, as it went to 11
+       Bug 17043[1].
+
+     • Wireshark 3.4.1 hangs on startup on macOS Big Sur 11.0.1 Bug
+       17075[2].
+
+     • False expect error seen on FCoE frames (not seen with older
+       release wireshark 1.2.18) Bug 17084[3].
+
+     • Several libraries missing in 3.4.1 and 3.2.9 installers for macOS
+       Bug 17086[4].
+
   New and Updated Features
 
    There are no new features in this release.
@@ -20,6 +32,8 @@ Wireshark 3.2.10 Release Notes
    There are no new protocols in this release.
 
   Updated Protocol Support
+
+   FC-dNS, FCoE, and SNMP
 
   New and Updated Capture File Support
 
@@ -35,7 +49,7 @@ Wireshark 3.2.10 Release Notes
    Most Linux and Unix vendors supply their own Wireshark packages. You
    can usually install or upgrade Wireshark using the package management
    system specific to that platform. A list of third-party packages can
-   be found on the download page[1] on the Wireshark web site.
+   be found on the download page[5] on the Wireshark web site.
 
  File Locations
 
@@ -49,22 +63,26 @@ Wireshark 3.2.10 Release Notes
   The User’s Guide, manual pages and various other documentation can be
   found at https://www.wireshark.org/docs/
 
-  Community support is available on Wireshark’s Q&A site[2] and on the
+  Community support is available on Wireshark’s Q&A site[6] and on the
   wireshark-users mailing list. Subscription information and archives
-  for all of Wireshark’s mailing lists can be found on the web site[3].
+  for all of Wireshark’s mailing lists can be found on the web site[7].
 
-  Issues and feature requests can be reported on the issue tracker[4].
+  Issues and feature requests can be reported on the issue tracker[8].
 
  Frequently Asked Questions
 
-  A complete FAQ is available on the Wireshark web site[5].
+  A complete FAQ is available on the Wireshark web site[9].
 
-  Last updated 2020-12-13 09:31:43 UTC
+  Last updated 2020-12-18 18:22:35 UTC
 
  References
 
-   1. https://www.wireshark.org/download.html#thirdparty
-   2. https://ask.wireshark.org/
-   3. https://www.wireshark.org/lists/
-   4. https://gitlab.com/wireshark/wireshark/-/issues
-   5. https://www.wireshark.org/faq.html
+   1. https://gitlab.com/wireshark/wireshark/-/issues/17043
+   2. https://gitlab.com/wireshark/wireshark/-/issues/17075
+   3. https://gitlab.com/wireshark/wireshark/-/issues/17084
+   4. https://gitlab.com/wireshark/wireshark/-/issues/17086
+   5. https://www.wireshark.org/download.html#thirdparty
+   6. https://ask.wireshark.org/
+   7. https://www.wireshark.org/lists/
+   8. https://gitlab.com/wireshark/wireshark/-/issues
+   9. https://www.wireshark.org/faq.html
