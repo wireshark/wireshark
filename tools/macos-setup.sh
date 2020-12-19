@@ -816,7 +816,14 @@ uninstall_glib() {
         echo "Uninstalling GLib:"
         cd glib-$installed_glib_version
         $DO_MAKE_UNINSTALL || exit 1
-        make distclean || exit 1
+        #
+        # This appears to delete dependencies out from under other
+        # Makefiles in the tree, causing it to fail.  At least until
+        # that gets fixed, if it ever gets fixed, we just ignore the
+        # exit status of "make distclean"
+        #
+        # make distclean || exit 1
+        make distclean || echo "Ignoring make distclean failure" 1>&2
         cd ..
         rm glib-$installed_glib_version-done
 
