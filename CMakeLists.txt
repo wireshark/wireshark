@@ -456,16 +456,15 @@ if( CMAKE_C_COMPILER_ID MATCHES "MSVC")
 
 else() # ! MSVC
 	if(APPLE)
-		set(MIN_MACOS_VERSION 10.6) # Arbitrary.
+		# MIN_MACOS_VERSION is used to set LSMinimumSystemVersion
+		# in Info.plist, so start with something low.
+		set(MIN_MACOS_VERSION 10.6)
 		if(CMAKE_OSX_DEPLOYMENT_TARGET)
 			if(CMAKE_OSX_DEPLOYMENT_TARGET VERSION_LESS MIN_MACOS_VERSION)
 				message(FATAL_ERROR "We don't support building for macOS < ${MIN_MACOS_VERSION}")
 			endif()
 			set(MIN_MACOS_VERSION ${CMAKE_OSX_DEPLOYMENT_TARGET})
-			message(STATUS "Building for Mac OS X/OS X/macOS ${CMAKE_OSX_DEPLOYMENT_TARGET}")
 		endif()
-	elseif(CMAKE_OSX_DEPLOYMENT_TARGET)
-		message(FATAL_ERROR "CMAKE_OSX_DEPLOYMENT_TARGET only applies when building for macOS")
 	endif()
 
 	#
@@ -1298,8 +1297,12 @@ if (QT_FOUND)
 		)
 		# https://doc.qt.io/qt-5/supported-platforms.html
 		# https://doc.qt.io/qt-5.11/supported-platforms-and-configurations.html
+		# https://doc.qt.io/qt-5.15/supported-platforms.html
+		# https://doc-snapshots.qt.io/qt6-dev/supported-platforms.html
 		# CMake < 3.7 doesn't support VERSION_GREATER_EQUAL.
-		if(Qt5Widgets_VERSION VERSION_GREATER "5.14.999")
+		if(Qt5Widgets_VERSION VERSION_GREATER "5.999.999")
+			set(MIN_MACOS_VERSION 10.14)
+		elseif(Qt5Widgets_VERSION VERSION_GREATER "5.14.999")
 			set(MIN_MACOS_VERSION 10.13)
 		elseif(Qt5Widgets_VERSION VERSION_GREATER "5.11.999")
 			set(MIN_MACOS_VERSION 10.12)
@@ -1343,6 +1346,8 @@ if(APPLE)
 	FIND_LIBRARY (APPLE_APPKIT_LIBRARY AppKit)
 	FIND_LIBRARY (APPLE_CORE_FOUNDATION_LIBRARY CoreFoundation)
 	FIND_LIBRARY (APPLE_SYSTEM_CONFIGURATION_LIBRARY SystemConfiguration)
+
+	message(STATUS "Building for Mac OS X/OS X/macOS ${MIN_MACOS_VERSION} using SDK ${CMAKE_OSX_SYSROOT}")
 endif()
 
 include(ConfigureChecks.cmake)
