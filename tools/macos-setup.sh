@@ -1933,6 +1933,17 @@ install_minizip() {
         [ -f zlib-$ZLIB_VERSION.tar.gz ] || curl -L -o zlib-$ZLIB_VERSION.tar.gz https://zlib.net/zlib-$ZLIB_VERSION.tar.gz || exit 1
         $no_build && echo "Skipping installation" && return
         gzcat zlib-$ZLIB_VERSION.tar.gz | tar xf - || exit 1
+        #
+        # minizip ships both with a minimal Makefile that doesn't
+        # support "make install", "make uninstall", or "make distclean",
+        # and with a Makefile.am file that, if we do an autoreconf,
+        # gives us a configure script, and a Makefile.in that, if we run
+        # the configure script, gives us a Makefile that supports ll of
+        # those targets, and that installs a pkg-config .pc file for
+        # minizip.
+        #
+        # So that's what we do.
+        #
         cd zlib-$ZLIB_VERSION/contrib/minizip || exit 1
         LIBTOOLIZE=glibtoolize autoreconf --force --install
         CFLAGS="$CFLAGS -D_FORTIFY_SOURCE=0 $VERSION_MIN_FLAGS $SDKFLAGS" CXXFLAGS="$CXXFLAGS -D_FORTIFY_SOURCE=0 $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" ./configure || exit 1
