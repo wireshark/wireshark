@@ -250,6 +250,12 @@ get_gui_compiled_info(GString *str)
 #else
     g_string_append(str, ", with SpeexDSP (using bundled resampler)");
 #endif
+
+#ifdef HAVE_MINIZIP
+    g_string_append(str, ", with Minizip");
+#else
+    g_string_append(str, ", without Minizip");
+#endif
 }
 
 // xxx copied from ../gtk/main.c
