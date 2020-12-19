@@ -3629,6 +3629,15 @@ dissct_rsl_ipaccess_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
         case RSL_IE_MS_POW:
             dissect_rsl_ie_ms_pow(tvb, pinfo, tree, offset, FALSE);
             break;
+        case RSL_IE_BS_POW:
+            dissect_rsl_ie_bs_power(tvb, pinfo, tree, offset, FALSE);
+            break;
+        case RSL_IE_MS_POWER_PARAM:
+            dissect_rsl_ie_ms_pow_params(tvb, pinfo, tree, offset, FALSE);
+            break;
+        case RSL_IE_BS_POWER_PARAM:
+            dissect_rsl_ie_bs_power_params(tvb, pinfo, tree, offset, FALSE);
+            break;
         case RSL_IE_CAUSE:
             dissect_rsl_ie_cause(tvb, pinfo, tree, offset, FALSE);
             break;
