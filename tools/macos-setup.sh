@@ -1951,7 +1951,7 @@ uninstall_minizip() {
         make distclean || exit 1
         cd ../../..
 
-        rm zlib-$installed_minizip_version-done
+        rm minizip-$installed_minizip_version-done
 
         if [ "$#" -eq 1 ] && [ "$1" = "-r" ] ; then
             #
