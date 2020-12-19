@@ -1270,7 +1270,12 @@ uninstall_zstd() {
         echo "Uninstalling zstd:"
         cd zstd-$installed_zstd_version
         $DO_MAKE_UNINSTALL || exit 1
-        make distclean || exit 1
+        #
+        # zstd has no configure script, so there's no need for
+        # "make distclean", and the Makefile supplied with it
+        # has no "make distclean" rule; just do "make clean".
+        #
+        make clean || exit 1
         cd ..
         rm zstd-$installed_zstd_version-done
 
