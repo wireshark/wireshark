@@ -1745,11 +1745,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Field Occurrence</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Field Occurence</source>
-        <translation type="vanished">Feldhäufigkeit</translation>
+        <translation>Feld-Auftrittsreihenfolge</translation>
     </message>
     <message>
         <source>New Column</source>
@@ -10559,10 +10555,6 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <translation>Codecrate wird nicht unterstützt. Datei ist unvollständig</translation>
     </message>
     <message>
-        <source>Unknown error occured</source>
-        <translation type="vanished">Unbekannter Fehler</translation>
-    </message>
-    <message>
         <source>SSRC value not found.</source>
         <translation>SSRC Wert nicht gefunden</translation>
     </message>
@@ -10643,6 +10635,10 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <translation>Fehler</translation>
     </message>
     <message>
+        <source>Unknown error occurred</source>
+        <translation>Unbekannter Fehler</translation>
+    </message>
+    <message>
         <source>Save forward stream CSV</source>
         <translation>Hinweg Stream als CSV speichern</translation>
     </message>
@@ -10665,10 +10661,6 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     <message>
         <source>Please select an RTPv2 packet with an SSRC value</source>
         <translation>Bitte ein RTPv2 Paket mit einem SSRC Wert auswählen</translation>
-    </message>
-    <message>
-        <source>Unknown error occurred</source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

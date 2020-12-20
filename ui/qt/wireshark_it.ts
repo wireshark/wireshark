@@ -1745,11 +1745,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Field Occurrence</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Field Occurence</source>
-        <translation type="vanished">Occorrenza del campo</translation>
+        <translation>Occorrenze del campo</translation>
     </message>
     <message>
         <source>New Column</source>
@@ -10559,10 +10555,6 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>La velocità di codifica non è supportata, il file è incompleto</translation>
     </message>
     <message>
-        <source>Unknown error occured</source>
-        <translation type="vanished">Si è verificato un errore sconosciuto</translation>
-    </message>
-    <message>
         <source>SSRC value not found.</source>
         <translation>Valore SSRC non trovato.</translation>
     </message>
@@ -10643,6 +10635,10 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Errore</translation>
     </message>
     <message>
+        <source>Unknown error occurred</source>
+        <translation>Si è verificato un errore sconosciuto</translation>
+    </message>
+    <message>
         <source>Save forward stream CSV</source>
         <translation>Salva CSV del flusso diretto</translation>
     </message>
@@ -10665,10 +10661,6 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <message>
         <source>Please select an RTPv2 packet with an SSRC value</source>
         <translation>Seleziona un pacchetto RTPv2 con un valore SSRC</translation>
-    </message>
-    <message>
-        <source>Unknown error occurred</source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

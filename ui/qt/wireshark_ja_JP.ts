@@ -1740,10 +1740,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Field Occurence</source>
-        <translation type="vanished">フィールド出現位置</translation>
-    </message>
-    <message>
         <source>New Column</source>
         <translation>新規列</translation>
     </message>
@@ -10535,10 +10531,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>コーデック速度はサポートされていません。ファイルは不完全です。</translation>
     </message>
     <message>
-        <source>Unknown error occured</source>
-        <translation type="vanished">不明なエラーが起きました</translation>
-    </message>
-    <message>
         <source>SSRC value not found.</source>
         <translation>SSRC値が見つかりませんでした</translation>
     </message>
@@ -10619,6 +10611,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>エラー</translation>
     </message>
     <message>
+        <source>Unknown error occurred</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Save forward stream CSV</source>
         <translation>順方向ストリームをCSVで保存</translation>
     </message>
@@ -10641,10 +10637,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Please select an RTPv2 packet with an SSRC value</source>
         <translation>SSRC値をもつRTPv2パケットを選んでください</translation>
-    </message>
-    <message>
-        <source>Unknown error occurred</source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
