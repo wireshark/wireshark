@@ -2702,24 +2702,17 @@ mptcp_analysis_add_subflows(packet_info *pinfo _U_,  tvbuff_t *tvb,
     proto_tree *parent_tree, struct mptcp_analysis* mptcpd)
 {
     wmem_list_frame_t *it;
-    proto_tree *tree;
     proto_item *item;
 
-    item=proto_tree_add_item(parent_tree, hf_mptcp_analysis_subflows, tvb, 0, 0, ENC_NA);
-    proto_item_set_generated(item);
-
-    tree=proto_item_add_subtree(item, ett_mptcp_analysis_subflows);
+    wmem_strbuf_t *val = wmem_strbuf_new(wmem_packet_scope(), "");
 
     /* for the analysis, we set each subflow tcp stream id */
     for(it = wmem_list_head(mptcpd->subflows); it != NULL; it = wmem_list_frame_next(it)) {
         struct tcp_analysis *sf = (struct tcp_analysis *)wmem_list_frame_data(it);
-        proto_item *subflow_item;
-        subflow_item=proto_tree_add_uint(tree, hf_mptcp_analysis_subflows_stream_id, tvb, 0, 0, sf->stream);
-        proto_item_set_hidden(subflow_item);
-
-        proto_item_append_text(item, " %d", sf->stream);
+        wmem_strbuf_append_printf(val, "%u ", sf->stream);
     }
 
+    item = proto_tree_add_string(parent_tree, hf_mptcp_analysis_subflows, tvb, 0, 0, wmem_strbuf_get_str(val));
     proto_item_set_generated(item);
 }
 
@@ -8040,7 +8033,7 @@ proto_register_tcp(void)
             "This was retransmitted on another subflow", HFILL }},
 
         { &hf_mptcp_analysis_subflows,
-          { "TCP subflow stream id(s):", "mptcp.analysis.subflows", FT_NONE, BASE_NONE, NULL, 0x0,
+          { "TCP subflow stream id(s)", "mptcp.analysis.subflows", FT_STRING, BASE_NONE, NULL, 0x0,
             "List all TCP connections mapped to this MPTCP connection", HFILL }},
 
         { &hf_mptcp_stream,
