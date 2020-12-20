@@ -1400,14 +1400,10 @@ uninstall_snappy() {
         echo "Uninstalling snappy:"
         cd snappy-$installed_snappy_version
         #
-        # snappy uses cmake and doesn't support "make uninstall" or
-        # "make distclean".  For "make uninstall, we just remove
-        # what we know it installs; for "make disclean", we just
-        # remove the entire build directory.
+        # snappy uses cmake and doesn't support "make uninstall";
+        # just remove what we know it installs.
         #
         # $DO_MAKE_UNINSTALL || exit 1
-        # make distclean || exit 1
-        rm -rf build_dir || exit 1
         $DO_RM -f /usr/local/lib/libsnappy.1.1.8.dylib \
                   /usr/local/lib/libsnappy.1.dylib \
                   /usr/local/lib/libsnappy.dylib \
@@ -1419,6 +1415,12 @@ uninstall_snappy() {
                   /usr/local/lib/cmake/Snappy/SnappyConfigVersion.cmake \
                   /usr/local/lib/cmake/Snappy/SnappyTargets-noconfig.cmake \
                   /usr/local/lib/cmake/Snappy/SnappyTargets.cmake || exit 1
+        #
+        # snappy uses cmake and doesn't support "make distclean";
+        #.just remove the entire build directory.
+        #
+        # make distclean || exit 1
+        rm -rf build_dir || exit 1
         cd ..
         rm snappy-$installed_snappy_version-done
 
