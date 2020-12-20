@@ -8767,12 +8767,12 @@ void proto_register_nfapi(void)
 		},
 		{ &hf_nfapi_error_code,
 			{ "Error Code", "nfapi.error.code",
-			FT_UINT8, BASE_DEC, VALS(nfapi_error_vals), 0x0,
+			FT_UINT32, BASE_DEC, VALS(nfapi_error_vals), 0x0,
 			NULL, HFILL }
 		},
 		{ &hf_nfapi_p4_error_code,
 			{ "Error Code", "nfapi.p4_error.code",
-			FT_UINT8, BASE_DEC, VALS(nfapi_p4_error_vals), 0x0,
+			FT_UINT32, BASE_DEC, VALS(nfapi_p4_error_vals), 0x0,
 			NULL, HFILL }
 		},
 		{ &hf_nfapi_rat_type,

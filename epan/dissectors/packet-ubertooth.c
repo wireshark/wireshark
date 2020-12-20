@@ -2653,8 +2653,8 @@ proto_register_ubertooth(void)
             NULL, HFILL }
         },
         { &hf_cc2400_rssi_rssi_val,
-            { "Avarage RSSI Value",                        "ubertooth.register.value.rssi.rssi_val",
-            FT_INT8, BASE_DEC, NULL, 0xFF00,
+            { "Average RSSI Value",                        "ubertooth.register.value.rssi.rssi_val",
+            FT_INT16, BASE_DEC, NULL, 0xFF00,
             NULL, HFILL }
         },
         { &hf_cc2400_rssi_rssi_cs_thres,
