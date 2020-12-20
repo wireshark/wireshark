@@ -739,7 +739,7 @@ static int dissect_idn_dmx_dictionary(tvbuff_t *tvb, int offset, proto_tree *idn
 
 		if(i == config->word_count && !words_found) {
 			curr_size = dictionary_size;
-			while(curr_size%4 != 0) {
+			while(curr_size%4 != 0 && i > 0) {
 				i -= 1;
 				curr_size += 1;
 			}
