@@ -317,6 +317,8 @@ merge-req:ubuntu-clang-other-tests:
     - cd ..
     - python3 tools/checklicenses.py
     - ./tools/cppcheck/cppcheck.sh -l 1 -x | tee cppcheck_report.xml
+    - ./tools/check_typed_item_calls.py --commits 1 | tee item_calls_check.txt
+    - ./tools/check_tfs.py --commits 1 | tee tfs_check.txt
     - if [[ -s "cppcheck_report.xml" ]]; then cppcheck-htmlreport --file cppcheck_report.xml  --report-dir . ; fi
     - cd build
     - cmake -DENABLE_EXTRA_COMPILER_WARNINGS=on -DENABLE_CHECKHF_CONFLICT=on -DCMAKE_EXPORT_COMPILE_COMMANDS=on -DENABLE_CCACHE=ON -G Ninja ..
@@ -328,6 +330,8 @@ merge-req:ubuntu-clang-other-tests:
     paths:
       - cppcheck_report.xml
       - cppcheck_report.html
+      - item_calls_check.txt
+      - tfs_check.txt
 
 # XXX This is still beta:
 # https://docs.gitlab.com/ee/user/gitlab_com/index.html#windows-shared-runners-beta
