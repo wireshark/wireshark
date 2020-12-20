@@ -94,6 +94,19 @@ set(CMAKE_REQUIRED_LIBRARIES ${M_LIBRARIES})
 check_symbol_exists("floorl" "math.h"    HAVE_FLOORL)
 cmake_pop_check_state()
 
+#
+# Check whether we have clock_gettime().
+# It's not on Windows, so don't waste time checking for it.
+# It's in newer POSIX, so some, but not all, UN*Xes have it.
+#
+if (NOT WIN32)
+	#
+	# POSIX - don't bother checking on Windows, as checks
+	# take time.
+	#
+	check_function_exists("clock_gettime"    HAVE_CLOCK_GETTIME)
+endif (NOT WIN32)
+
 check_function_exists("getopt_long"      HAVE_GETOPT_LONG)
 if(HAVE_GETOPT_LONG)
 	#
