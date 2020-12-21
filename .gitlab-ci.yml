@@ -80,7 +80,7 @@ build:ubuntu-dist:
     - packaging/source/git-export-release.sh -d .
     - mv -v wireshark-*.tar.* "$CI_PROJECT_DIR"/
   after_script:
-    - ccache --max-size $( du --summarize --block-size=1M "$CI_PROJECT_DIR/build" | awk '{printf ("%dM", $1 * 1.5)}' )
+    # - ccache --max-size $( du --summarize --block-size=1M "$CI_PROJECT_DIR/build" | awk '{printf ("%dM", $1 * 1.5)}' )
     - for digest in sha256 rmd160 sha1 ; do openssl $digest wireshark-*.tar.* ; done
     # This will break if we produce multiple tarballs, which is arguably a good thing.
     - if [ -n "$AWS_ACCESS_KEY_ID" ] && [ -n "$AWS_SECRET_ACCESS_KEY" ] && [ -n "$S3_DESTINATION_DIST" ] ; then aws s3 cp wireshark-*.tar.* "$S3_DESTINATION_DIST/" ; fi
