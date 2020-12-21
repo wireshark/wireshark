@@ -97,7 +97,7 @@ process_stat_cmd_arg(const char *optstr)
     for (entry = wmem_list_tail(stat_cmd_arg_list); entry; entry = wmem_list_frame_prev(entry)) {
         sca = (stat_cmd_arg*)wmem_list_frame_data(entry);
         if (!strncmp(sca->cmd, stat_command, strlen(sca->cmd))) {
-            tr=(stat_requested *)g_malloc(sizeof (stat_requested));
+            tr=g_new(stat_requested, 1);
             tr->sca = sca;
             tr->arg = stat_command;
             stats_requested = g_slist_append(stats_requested, tr);

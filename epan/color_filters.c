@@ -61,7 +61,7 @@ color_filter_new(const gchar *name,          /* The name of the filter to create
 {
     color_filter_t *colorf;
 
-    colorf                      = (color_filter_t *)g_malloc0(sizeof (color_filter_t));
+    colorf                      = g_new0(color_filter_t, 1);
     colorf->filter_name         = g_strdup(name);
     colorf->filter_text         = g_strdup(filter_string);
     colorf->bg_color            = *bg_color;
@@ -261,7 +261,7 @@ color_filter_clone(color_filter_t *colorf)
 {
     color_filter_t *new_colorf;
 
-    new_colorf                      = (color_filter_t *)g_malloc(sizeof (color_filter_t));
+    new_colorf                      = g_new(color_filter_t, 1);
     new_colorf->filter_name         = g_strdup(colorf->filter_name);
     new_colorf->filter_text         = g_strdup(colorf->filter_text);
     new_colorf->bg_color            = colorf->bg_color;

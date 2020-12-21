@@ -973,11 +973,11 @@ header_fields_post_update_cb (void)
 
   if (num_header_fields) {
     custom_field_table = g_hash_table_new_full (g_str_hash, g_str_equal, NULL, free_imf_field);
-    dynamic_hf = (hf_register_info *)g_malloc0 (sizeof (hf_register_info) * num_header_fields);
+    dynamic_hf = g_new0(hf_register_info, num_header_fields);
     dynamic_hf_size = num_header_fields;
 
     for (guint i = 0; i < dynamic_hf_size; i++) {
-      hf_id = (gint *)g_malloc (sizeof (gint));
+      hf_id = g_new(gint, 1);
       *hf_id = -1;
       header_name = g_strdup (header_fields[i].header_name);
 
@@ -991,7 +991,7 @@ header_fields_post_update_cb (void)
       dynamic_hf[i].hfinfo.blurb = g_strdup (header_fields[i].description);
       HFILL_INIT(dynamic_hf[i]);
 
-      imffield = (struct imf_field *)g_malloc (sizeof (struct imf_field));
+      imffield = g_new(struct imf_field, 1);
       imffield->hf_id = hf_id;
       imffield->name = g_ascii_strdown(header_name, -1);
       switch (header_fields[i].header_format) {

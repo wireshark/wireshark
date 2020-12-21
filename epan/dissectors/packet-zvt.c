@@ -477,8 +477,7 @@ dissect_zvt_tlv_seq(tvbuff_t *tvb, gint offset, guint16 seq_max_len,
     gint            ret;
 
     if (!seq_info) {
-        seq_info = (tlv_seq_info_t *)wmem_alloc(
-                wmem_packet_scope(), sizeof(tlv_seq_info_t));
+        seq_info = wmem_new(wmem_packet_scope(), tlv_seq_info_t);
 
         /* by default, text lines are using the CP437 charset
            there's an object to change the encoding

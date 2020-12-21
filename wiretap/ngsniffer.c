@@ -691,7 +691,7 @@ ngsniffer_open(wtap *wth, int *err, gchar **err_info)
 	}
 
 	/* This is a ngsniffer file */
-	ngsniffer = (ngsniffer_t *)g_malloc(sizeof(ngsniffer_t));
+	ngsniffer = g_new(ngsniffer_t, 1);
 	wth->priv = (void *)ngsniffer;
 	ngsniffer->maj_vers = maj_vers;
 	ngsniffer->min_vers = pletoh16(&version.min_vers);
@@ -2030,7 +2030,7 @@ ngsniffer_dump_open(wtap_dumper *wdh, int *err, gchar **err_info _U_)
 	wdh->subtype_write = ngsniffer_dump;
 	wdh->subtype_finish = ngsniffer_dump_finish;
 
-	ngsniffer = (ngsniffer_dump_t *)g_malloc(sizeof(ngsniffer_dump_t));
+	ngsniffer = g_new(ngsniffer_dump_t, 1);
 	wdh->priv = (void *)ngsniffer;
 	ngsniffer->first_frame = TRUE;
 	ngsniffer->start = 0;

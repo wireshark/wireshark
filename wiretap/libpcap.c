@@ -294,7 +294,7 @@ wtap_open_return_val libpcap_open(wtap *wth, int *err, gchar **err_info)
 	}
 
 	/* This is a libpcap file */
-	libpcap = (libpcap_t *)g_malloc(sizeof(libpcap_t));
+	libpcap = g_new(libpcap_t, 1);
 	libpcap->byte_swapped = byte_swapped;
 	libpcap->version_major = hdr.version_major;
 	libpcap->version_minor = hdr.version_minor;

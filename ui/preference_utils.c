@@ -164,7 +164,7 @@ column_prefs_add_custom(gint fmt, const gchar *title, const gchar *custom_fields
     fmt_data *cfmt, *last_cfmt;
     gint colnr;
 
-    cfmt = (fmt_data *) g_malloc(sizeof(fmt_data));
+    cfmt = g_new(fmt_data, 1);
     /*
      * Because a single underscore is interpreted as a signal that the next character
      * is going to be marked as accelerator for this header (i.e. is going to be

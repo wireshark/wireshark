@@ -78,7 +78,7 @@ static void destroy_scs_collection(SCS_collection* c) {
 }
 
 static SCS_collection* scs_init(void) {
-	SCS_collection* c = (SCS_collection *)g_malloc(sizeof(SCS_collection));
+	SCS_collection* c = g_new(SCS_collection, 1);
 
 	c->hash =  g_hash_table_new(g_str_hash,g_str_equal);
 

@@ -98,7 +98,7 @@ register_codec(const char *name, codec_init_fn init_fn, codec_release_fn release
     if (g_hash_table_lookup(registered_codecs, name) != NULL)
         return FALSE;    /* report an error, or have our caller do it? */
 
-    handle = (struct codec_handle *)g_malloc(sizeof (struct codec_handle));
+    handle = g_new(struct codec_handle, 1);
     handle->name = name;
     handle->init_fn = init_fn;
     handle->release_fn = release_fn;

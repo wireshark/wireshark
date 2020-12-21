@@ -741,7 +741,7 @@ static gboolean parse_rule(SnortConfig_t *snort_config, char *line, const char *
     }
 
     /* Allocate the rule itself */
-    rule = (Rule_t*)g_malloc(sizeof(Rule_t));
+    rule = g_new(Rule_t, 1);
 
     snort_debug_printf("looks like a rule: %s\n", line);
     memset(rule, 0, sizeof(Rule_t));
@@ -905,7 +905,7 @@ void create_config(SnortConfig_t **snort_config, const char *snort_config_file)
 
     snort_debug_printf("create_config (%s)\n", snort_config_file);
 
-    *snort_config = (SnortConfig_t*)g_malloc(sizeof(SnortConfig_t));
+    *snort_config = g_new(SnortConfig_t, 1);
     memset(*snort_config, 0, sizeof(SnortConfig_t));
 
     /* Create rule table */

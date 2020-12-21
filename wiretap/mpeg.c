@@ -252,7 +252,7 @@ good_magic:
 	wth->subtype_seek_read = mpeg_seek_read;
 	wth->snapshot_length = 0;
 
-	mpeg = (mpeg_t *)g_malloc(sizeof(mpeg_t));
+	mpeg = g_new(mpeg_t, 1);
 	wth->priv = (void *)mpeg;
 	mpeg->now.secs = 0;
 	mpeg->now.nsecs = 0;

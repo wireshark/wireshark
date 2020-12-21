@@ -251,7 +251,7 @@ dissect_twamp_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
             /* try to find session from past visits */
             if ((list = g_slist_find_custom(ct->sessions, &sender_port,
                     (GCompareFunc) find_twamp_session_by_sender_port)) == NULL) {
-                session = (twamp_session_t *) g_malloc0(sizeof(twamp_session_t));
+                session = g_new0(twamp_session_t, 1);
                 session->sender_port = sender_port;
                 session->receiver_port = receiver_port;
                 session->accepted = 0;

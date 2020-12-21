@@ -377,7 +377,7 @@ wtap_open_return_val peektagged_open(wtap *wth, int *err, gchar **err_info)
     wth->subtype_seek_read = peektagged_seek_read;
     wth->file_tsprec = WTAP_TSPREC_NSEC;
 
-    peektagged = (peektagged_t *)g_malloc(sizeof(peektagged_t));
+    peektagged = g_new(peektagged_t, 1);
     wth->priv = (void *)peektagged;
     switch (mediaSubType) {
 

@@ -1677,7 +1677,7 @@ dissect_attribute_value_pairs(proto_tree *tree, packet_info *pinfo, tvbuff_t *tv
 
 					if (avp_vsa_flags & 0x80) {
 						if (!vsa_buffer) {
-							vsa_buffer = (radius_vsa_buffer *)g_malloc(sizeof(radius_vsa_buffer));
+							vsa_buffer = g_new(radius_vsa_buffer, 1);
 							vsa_buffer->key.vendor_id = vendor_id;
 							vsa_buffer->key.vsa_type = avp_vsa_type;
 							vsa_buffer->len = avp_vsa_len;
@@ -2482,7 +2482,7 @@ radius_register_avp_dissector(guint32 vendor_id, guint32 _attribute_id, radius_a
 		vendor = (radius_vendor_info_t *)g_hash_table_lookup(dict->vendors_by_id, GUINT_TO_POINTER(vendor_id));
 
 		if (!vendor) {
-			vendor = (radius_vendor_info_t *)g_malloc(sizeof(radius_vendor_info_t));
+			vendor = g_new(radius_vendor_info_t, 1);
 
 			vendor->name = g_strdup_printf("%s-%u",
 						       enterprises_lookup(vendor_id, "Unknown"),
@@ -2508,7 +2508,7 @@ radius_register_avp_dissector(guint32 vendor_id, guint32 _attribute_id, radius_a
 	}
 
 	if (!dictionary_entry) {
-		dictionary_entry = (radius_attr_info_t *)g_malloc(sizeof(radius_attr_info_t));
+		dictionary_entry = g_new(radius_attr_info_t, 1);
 
 		dictionary_entry->name = g_strdup_printf("Unknown-Attribute-%u", attribute_id.value);
 		dictionary_entry->code = attribute_id;
@@ -2849,7 +2849,7 @@ proto_register_radius(void)
 	radius_tap = register_tap("radius");
 	proto_register_prefix("radius", register_radius_fields);
 
-	dict = (radius_dictionary_t *)g_malloc(sizeof(radius_dictionary_t));
+	dict = g_new(radius_dictionary_t, 1);
 	/*
 	 * IDs map to names and vice versa. The attribute and vendor is stored
 	 * only once, but referenced by both name and ID mappings.

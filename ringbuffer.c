@@ -324,7 +324,7 @@ ringbuf_init(const char *capfile_name, guint num_files, gboolean group_read_acce
     rb_data.num_files = 1;
   }
 
-  rb_data.files = (rb_file *)g_malloc(rb_data.num_files * sizeof(rb_file));
+  rb_data.files = g_new(rb_file, rb_data.num_files);
   if (rb_data.files == NULL) {
     return -1;
   }

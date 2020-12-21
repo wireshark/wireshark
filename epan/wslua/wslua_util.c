@@ -512,7 +512,7 @@ WSLUA_FUNCTION wslua_register_stat_cmd_arg(lua_State* L) {
 #define WSLUA_ARG_register_stat_cmd_arg_ARGUMENT 1 /* The name of the option argument. */
 #define WSLUA_OPTARG_register_stat_cmd_arg_ACTION 2 /* The function to be called when the command is invoked. */
     const char* arg = luaL_checkstring(L,WSLUA_ARG_register_stat_cmd_arg_ARGUMENT);
-    statcmd_t* sc = (statcmd_t *)g_malloc0(sizeof(statcmd_t)); /* XXX leaked */
+    statcmd_t* sc = g_new0(statcmd_t, 1); /* XXX leaked */
     stat_tap_ui ui_info;
 
     sc->L = L;

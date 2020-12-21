@@ -316,7 +316,7 @@ wtap_open_return_val peekclassic_open(wtap *wth, int *err, gchar **err_info)
 	 * At this point we have recognised the file type and have populated
 	 * the whole ep_hdr structure in host byte order.
 	 */
-	peekclassic = (peekclassic_t *)g_malloc(sizeof(peekclassic_t));
+	peekclassic = g_new(peekclassic_t, 1);
 	wth->priv = (void *)peekclassic;
 	peekclassic->reference_time = reference_time;
 	wth->file_encap = file_encap;

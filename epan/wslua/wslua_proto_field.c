@@ -411,7 +411,7 @@ static true_false_string* true_false_string_from_table(lua_State* L, int idx) {
         lua_pop(L, 1);
     }
 
-    tfs = (true_false_string *) g_malloc(sizeof(true_false_string));
+    tfs = g_new(true_false_string, 1);
     tfs->true_string = true_string;
     tfs->false_string = false_string;
 
@@ -428,7 +428,7 @@ static unit_name_string* unit_name_string_from_table(lua_State* L, int idx) {
         return NULL;
     }
 
-    units = (unit_name_string *) g_malloc0(sizeof(unit_name_string));
+    units = g_new0(unit_name_string, 1);
 
     lua_pushnil(L);
 

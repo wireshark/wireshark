@@ -266,7 +266,7 @@ dissect_exported_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
                 break;
             case EXP_PDU_TAG_SS7_OPC:
                 proto_tree_add_item(tag_tree, hf_exported_pdu_ss7_opc, tvb, offset, 4, ENC_BIG_ENDIAN);
-                mtp3_addr = (mtp3_addr_pc_t *)wmem_alloc0(pinfo->pool, sizeof(mtp3_addr_pc_t));
+                mtp3_addr = wmem_new0(pinfo->pool, mtp3_addr_pc_t);
                 mtp3_addr->pc = tvb_get_ntohl(tvb, offset);
                 mtp3_addr->type = (Standard_Type)tvb_get_ntohs(tvb, offset+4);
                 mtp3_addr->ni = tvb_get_guint8(tvb, offset+6);
@@ -274,7 +274,7 @@ dissect_exported_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
                 break;
             case EXP_PDU_TAG_SS7_DPC:
                 proto_tree_add_item(tag_tree, hf_exported_pdu_ss7_dpc, tvb, offset, 4, ENC_BIG_ENDIAN);
-                mtp3_addr = (mtp3_addr_pc_t *)wmem_alloc0(pinfo->pool, sizeof(mtp3_addr_pc_t));
+                mtp3_addr = wmem_new0(pinfo->pool, mtp3_addr_pc_t);
                 mtp3_addr->pc = tvb_get_ntohl(tvb, offset);
                 mtp3_addr->type = (Standard_Type)tvb_get_ntohs(tvb, offset+4);
                 mtp3_addr->ni = tvb_get_guint8(tvb, offset+6);

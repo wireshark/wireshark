@@ -1337,12 +1337,12 @@ void register_giop_user_module(giop_sub_dissector_t *sub, const gchar *name, con
   ws_debug_printf("giop:register_module: Module sub dissector name is %s \n", name);
 #endif
 
-  new_module_key = (struct giop_module_key *)wmem_alloc(wmem_epan_scope(), sizeof(struct giop_module_key));
+  new_module_key = wmem_new(wmem_epan_scope(), struct giop_module_key);
   new_module_key->module = module; /* save Module or interface name from IDL */
 
-  module_val = (struct giop_module_val *)wmem_alloc(wmem_epan_scope(), sizeof(struct giop_module_val));
+  module_val = wmem_new(wmem_epan_scope(), struct giop_module_val);
 
-  module_val->subh = (giop_sub_handle_t *)wmem_alloc(wmem_epan_scope(), sizeof (giop_sub_handle_t)); /* init subh  */
+  module_val->subh = wmem_new(wmem_epan_scope(), giop_sub_handle_t); /* init subh  */
 
   module_val->subh->sub_name = name;    /* save dissector name */
   module_val->subh->sub_fn = sub;       /* save subdissector*/
@@ -1615,7 +1615,7 @@ void register_giop_user(giop_sub_dissector_t *sub, const gchar *name, int sub_pr
 
   giop_sub_handle_t *subh;
 
-  subh = (giop_sub_handle_t *)wmem_alloc(wmem_epan_scope(), sizeof (giop_sub_handle_t));
+  subh = wmem_new(wmem_epan_scope(), giop_sub_handle_t);
 
   subh->sub_name = name;
   subh->sub_fn = sub;

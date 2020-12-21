@@ -755,7 +755,7 @@ static struct message_data *find_or_create_message_data(struct mswsp_ct *conv_da
 	result = g_slist_find_custom(conv_data->GSL_message_data,
 								 &to_find, (GCompareFunc)msg_data_find);
 	if (!result) {
-		msg_data = (struct message_data *)wmem_alloc(wmem_file_scope(), sizeof(struct message_data));
+		msg_data = wmem_new(wmem_file_scope(), struct message_data);
 		*msg_data = to_find;
 		conv_data->GSL_message_data = g_slist_prepend(conv_data->GSL_message_data, msg_data);
 	} else {

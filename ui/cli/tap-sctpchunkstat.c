@@ -190,7 +190,7 @@ sctpstat_init(const char *opt_arg, void *userdata _U_)
 	sctpstat_t *hs;
 	GString	   *error_string;
 
-	hs = (sctpstat_t *)g_malloc(sizeof(sctpstat_t));
+	hs = g_new(sctpstat_t, 1);
 	if (!strncmp(opt_arg, "sctp,stat,", 11)) {
 		hs->filter = g_strdup(opt_arg+11);
 	} else {

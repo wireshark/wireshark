@@ -801,8 +801,7 @@ init_tpncp_data_fields_info(tpncp_data_field_info *data_fields_info, FILE *file)
             field = &data_fields_info[data_id];
             current_data_id = data_id;
         } else {
-            field->p_next = (tpncp_data_field_info *) wmem_alloc(
-                wmem_epan_scope(), sizeof (tpncp_data_field_info));
+            field->p_next = wmem_new(wmem_epan_scope(), tpncp_data_field_info);
             if (!field->p_next)
                 return (-1);
             field = field->p_next;

@@ -937,7 +937,7 @@ static int dissect_idn_message_header(tvbuff_t *tvb, int offset, proto_tree *idn
 static int dissect_idn_message(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *idn_tree) {
 	int scm;
 	configuration_info *config = NULL;
-	message_info *minfo = (message_info *)wmem_alloc(wmem_file_scope(), sizeof(message_info));
+	message_info *minfo = wmem_new(wmem_file_scope(), message_info);
 
 	offset = dissect_idn_message_header(tvb, offset, idn_tree, minfo);
 	determine_message_type(pinfo, minfo);
@@ -945,7 +945,7 @@ static int dissect_idn_message(tvbuff_t *tvb, packet_info *pinfo, int offset, pr
 		return offset;
 
 	if(minfo->has_config_header && minfo->chunk_type != IDNCT_LP_FRAME_SF) {
-		config = (configuration_info *)wmem_alloc0(wmem_file_scope(), sizeof(configuration_info));
+		config = wmem_new0(wmem_file_scope(), configuration_info);
 		offset = dissect_idn_channel_configuration(tvb, pinfo, offset, idn_tree, minfo, config);
 	}else if(minfo->chunk_type != IDNCT_VOID) {
 		config = get_configuration_info(pinfo, minfo->channel_id);

@@ -836,7 +836,7 @@ netxray_open(wtap *wth, int *err, gchar **err_info)
 
 	/* This is a netxray file */
 	wth->file_type_subtype = file_type;
-	netxray = (netxray_t *)g_malloc(sizeof(netxray_t));
+	netxray = g_new(netxray_t, 1);
 	wth->priv = (void *)netxray;
 	wth->subtype_read = netxray_read;
 	wth->subtype_seek_read = netxray_seek_read;
@@ -1714,7 +1714,7 @@ netxray_dump_open_1_1(wtap_dumper *wdh, int *err, gchar **err_info _U_)
 		return FALSE;
 	wdh->bytes_dumped += CAPTUREFILE_HEADER_SIZE;
 
-	netxray = (netxray_dump_t *)g_malloc(sizeof(netxray_dump_t));
+	netxray = g_new(netxray_dump_t, 1);
 	wdh->priv = (void *)netxray;
 	netxray->first_frame = TRUE;
 	netxray->start.secs = 0;
@@ -1901,7 +1901,7 @@ netxray_dump_open_2_0(wtap_dumper *wdh, int *err, gchar **err_info _U_)
 
 	wdh->bytes_dumped += CAPTUREFILE_HEADER_SIZE;
 
-	netxray = (netxray_dump_t *)g_malloc(sizeof(netxray_dump_t));
+	netxray = g_new(netxray_dump_t, 1);
 	wdh->priv = (void *)netxray;
 	netxray->first_frame = TRUE;
 	netxray->start.secs = 0;

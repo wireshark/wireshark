@@ -2487,7 +2487,7 @@ parse_key_string(gchar* input_string, guint8 key_type)
        if (res && key_ba->len > 0) {
            /* Key is correct! It was probably an 'old style' WEP key */
            /* Create the decryption_key_t structure, fill it and return it*/
-           dk = (decryption_key_t *)g_malloc(sizeof(decryption_key_t));
+           dk = g_new(decryption_key_t, 1);
 
            dk->type = DOT11DECRYPT_KEY_TYPE_WEP;
            /* XXX - The current key handling code in the GUI requires
@@ -2579,7 +2579,7 @@ parse_key_string(gchar* input_string, guint8 key_type)
         }
 
         /* Key was correct!!! Create the new decryption_key_t ... */
-        dk = (decryption_key_t*)g_malloc(sizeof(decryption_key_t));
+        dk = g_new(decryption_key_t, 1);
 
         dk->type = DOT11DECRYPT_KEY_TYPE_WPA_PWD;
         dk->key  = g_string_new(key);
@@ -2613,7 +2613,7 @@ parse_key_string(gchar* input_string, guint8 key_type)
         }
 
         /* Key was correct!!! Create the new decryption_key_t ... */
-        dk = (decryption_key_t*)g_malloc(sizeof(decryption_key_t));
+        dk = g_new(decryption_key_t, 1);
 
         dk->type = DOT11DECRYPT_KEY_TYPE_WPA_PSK;
         dk->key  = g_string_new(input_string);
@@ -2647,7 +2647,7 @@ parse_key_string(gchar* input_string, guint8 key_type)
                 g_byte_array_free(key_ba, TRUE);
                 return NULL;
             }
-            dk = (decryption_key_t*)g_malloc(sizeof(decryption_key_t));
+            dk = g_new(decryption_key_t, 1);
             dk->type = DOT11DECRYPT_KEY_TYPE_TK;
             dk->key  = g_string_new(input_string);
             dk->bits = (guint) dk->key->len * 4;

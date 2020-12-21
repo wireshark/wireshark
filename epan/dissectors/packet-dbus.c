@@ -698,8 +698,7 @@ reader_next(dbus_type_reader_t *reader, int hf, int ett, dbus_val_t *value) {
 			is_single_complete_type = TRUE;
 		} else if (array_len <= DBUS_MAX_ARRAY_LEN) {
 			int end_offset = ptvcursor_current_offset(packet->cursor) + array_len;
-			dbus_type_reader_t *child = (dbus_type_reader_t *)wmem_alloc(
-					wmem_packet_scope(), sizeof(dbus_type_reader_t));
+			dbus_type_reader_t *child = wmem_new(wmem_packet_scope(), dbus_type_reader_t);
 			*child = (dbus_type_reader_t){
 				.packet = reader->packet,
 				.signature = reader->signature,
@@ -722,8 +721,7 @@ reader_next(dbus_type_reader_t *reader, int hf, int ett, dbus_val_t *value) {
 		is_single_complete_type = FALSE;
 		ptvcursor_add_with_subtree(packet->cursor, hf != -1 ? hf : hf_dbus_type_struct,
 				SUBTREE_UNDEFINED_LENGTH, ENC_NA, ett != -1 ? ett : ett_dbus_type_struct);
-		dbus_type_reader_t *child = (dbus_type_reader_t *)wmem_alloc(
-				wmem_packet_scope(), sizeof(dbus_type_reader_t));
+		dbus_type_reader_t *child = wmem_new(wmem_packet_scope(), dbus_type_reader_t);
 		*child = (dbus_type_reader_t){
 			.packet = reader->packet,
 			.signature = reader->signature,
@@ -742,8 +740,7 @@ reader_next(dbus_type_reader_t *reader, int hf, int ett, dbus_val_t *value) {
 		const char *variant_signature = add_dbus_string(packet, hf_dbus_type_variant_signature, 1);
 		value->string = variant_signature;
 		if (variant_signature && is_dbus_signature_valid(variant_signature)) {
-			dbus_type_reader_t *child = (dbus_type_reader_t *)wmem_alloc(
-					wmem_packet_scope(), sizeof(dbus_type_reader_t));
+			dbus_type_reader_t *child = wmem_new(wmem_packet_scope(), dbus_type_reader_t);
 			*child = (dbus_type_reader_t){
 				.packet = reader->packet,
 				.signature = variant_signature,
@@ -770,8 +767,7 @@ reader_next(dbus_type_reader_t *reader, int hf, int ett, dbus_val_t *value) {
 		proto_item *dict_entry = ptvcursor_add_with_subtree(packet->cursor,
 				hf != -1 ? hf : hf_dbus_type_dict_entry,
 				SUBTREE_UNDEFINED_LENGTH, ENC_NA, ett != -1 ? ett : ett_dbus_type_dict_entry);
-		dbus_type_reader_t *child = (dbus_type_reader_t *)wmem_alloc(
-				wmem_packet_scope(), sizeof(dbus_type_reader_t));
+		dbus_type_reader_t *child = wmem_new(wmem_packet_scope(), dbus_type_reader_t);
 		*child = (dbus_type_reader_t){
 			.packet = reader->packet,
 			.signature = reader->signature,

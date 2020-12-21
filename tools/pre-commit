@@ -68,6 +68,9 @@ else
     CHECK_FILES="$COMMIT_FILES"
 fi
 
+bad_alloc_patterns=${PWD}/tools/detect_bad_alloc_patterns.py
+echo "$COMMIT_FILES" | $PYBIN "$bad_alloc_patterns"
+
 # On windows python will output \r\n line endings - we don't want that.
 #
 # Do not use sed, as not all versions of sed support \r as meaning CR

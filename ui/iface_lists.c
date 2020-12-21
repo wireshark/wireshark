@@ -227,7 +227,7 @@ scan_local_interfaces(void (*update_cb)(void))
         monitor_mode = prefs_capture_device_monitor_mode(if_info->name);
         caps = capture_get_if_capabilities(if_info->name, monitor_mode, NULL, NULL, update_cb);
         for (; (curr_addr = g_slist_nth(if_info->addrs, ips)) != NULL; ips++) {
-            temp_addr = (if_addr_t *)g_malloc0(sizeof(if_addr_t));
+            temp_addr = g_new0(if_addr_t, 1);
             if (ips != 0) {
                 g_string_append(ip_str, "\n");
             }
@@ -290,7 +290,7 @@ scan_local_interfaces(void (*update_cb)(void))
              */
             for (lt_entry = caps->data_link_types; lt_entry != NULL; lt_entry = g_list_next(lt_entry)) {
                 data_link_info = (data_link_info_t *)lt_entry->data;
-                link = (link_row *)g_malloc(sizeof(link_row));
+                link = g_new(link_row, 1);
                 if (data_link_info->description != NULL) {
                     link->dlt = data_link_info->dlt;
                     link->name = g_strdup(data_link_info->description);

@@ -191,7 +191,7 @@ wtap_open_return_val packetlogger_open(wtap *wth, int *err, gchar **err_info)
 		return WTAP_OPEN_ERROR;
 
 	/* This is a PacketLogger file */
-	packetlogger = (packetlogger_t *)g_malloc(sizeof(packetlogger_t));
+	packetlogger = g_new(packetlogger_t, 1);
 	packetlogger->byte_swapped = byte_swapped;
 	wth->priv = (void *)packetlogger;
 

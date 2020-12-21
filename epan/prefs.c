@@ -3728,7 +3728,7 @@ prefs_get_string_list(const gchar *str)
     GList    *sl = NULL;
 
     /* Allocate a buffer for the first string.   */
-    slstr = (gchar *) g_malloc(sizeof(gchar) * COL_MAX_LEN);
+    slstr = g_new(gchar, COL_MAX_LEN);
     j = 0;
 
     for (;;) {
@@ -3785,7 +3785,7 @@ prefs_get_string_list(const gchar *str)
             slstr[j] = '\0';
             if (j > 0) {
                 sl = g_list_append(sl, slstr);
-                slstr = (gchar *) g_malloc(sizeof(gchar) * COL_MAX_LEN);
+                slstr = g_new(gchar, COL_MAX_LEN);
             }
 
             /* ...and the beginning of a new string.  */

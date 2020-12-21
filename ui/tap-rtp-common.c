@@ -57,7 +57,7 @@ rtpstream_info_t *rtpstream_info_malloc_and_init(void)
 {
     rtpstream_info_t *dest;
 
-    dest = (rtpstream_info_t *)g_malloc(sizeof(rtpstream_info_t));
+    dest = g_new(rtpstream_info_t, 1);
     rtpstream_info_init(dest);
 
     return dest;
@@ -80,7 +80,7 @@ rtpstream_info_t *rtpstream_info_malloc_and_copy_deep(const rtpstream_info_t *sr
 {
     rtpstream_info_t *dest;
 
-    dest = (rtpstream_info_t *)g_malloc(sizeof(rtpstream_info_t));
+    dest = g_new(rtpstream_info_t, 1);
     rtpstream_info_copy_deep(dest, src);
 
     return dest;

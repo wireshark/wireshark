@@ -179,8 +179,7 @@ dissect_dpaux_from_source(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     conversation = conversation_new(pinfo->num,  &pinfo->src, &pinfo->dst,
         ENDPOINT_NONE, pinfo->srcport, pinfo->destport, 0);
 
-    transaction = (struct dpaux_transaction*)wmem_alloc(wmem_file_scope(),
-        sizeof(struct dpaux_transaction));
+    transaction = wmem_new(wmem_file_scope(), struct dpaux_transaction);
     transaction->is_native = type;
     transaction->addr = addr;
 

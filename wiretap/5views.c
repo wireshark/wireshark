@@ -335,7 +335,7 @@ gboolean _5views_dump_open(wtap_dumper *wdh, int *err, gchar **err_info _U_)
 	/* This is a 5Views file */
 	wdh->subtype_write = _5views_dump;
 	wdh->subtype_finish = _5views_dump_finish;
-	_5views = (_5views_dump_t *)g_malloc(sizeof(_5views_dump_t));
+	_5views = g_new(_5views_dump_t, 1);
 	wdh->priv = (void *)_5views;
 	_5views->nframes = 0;
 

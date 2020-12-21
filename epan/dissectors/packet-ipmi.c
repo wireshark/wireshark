@@ -1122,7 +1122,7 @@ ipmi_register_netfn_cmdtab(guint32 netfn, guint oem_selector,
 		return;
 	}
 
-	inh = (struct ipmi_netfn_handler *)wmem_alloc(wmem_epan_scope(), sizeof(struct ipmi_netfn_handler));
+	inh = wmem_new(wmem_epan_scope(), struct ipmi_netfn_handler);
 	inh->desc = desc;
 	inh->oem_selector = oem_selector;
 	inh->sig = sig;

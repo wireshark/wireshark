@@ -332,7 +332,7 @@ iseries_check_file_type (wtap * wth, int *err, gchar **err_info, int format)
   iseries_t *iseries;
 
   /* Save trace format for passing between packets */
-  iseries                = (iseries_t *) g_malloc (sizeof (iseries_t));
+  iseries                = g_new(iseries_t, 1);
   iseries->have_date     = FALSE;
   iseries->format        = format;
 

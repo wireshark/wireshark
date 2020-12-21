@@ -743,7 +743,7 @@ static int dissect_nano_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     session_state = (struct nano_session_state *)conversation_get_proto_data(conversation, proto_nano);
     if (!session_state) {
         // create new session state
-        session_state = (struct nano_session_state *)wmem_alloc0(wmem_file_scope(), sizeof(struct nano_session_state));
+        session_state = wmem_new0(wmem_file_scope(), struct nano_session_state);
         session_state->client_packet_type = NANO_PACKET_TYPE_INVALID;
         session_state->server_port = pinfo->match_uint;
         conversation_add_proto_data(conversation, proto_nano, session_state);
@@ -753,7 +753,7 @@ static int dissect_nano_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     packet_session_state = (struct nano_session_state *)p_get_proto_data(wmem_file_scope(), pinfo, proto_nano, 0);
     if (!packet_session_state) {
         // this packet does not have a stored session state, get it from the conversation
-        packet_session_state = (struct nano_session_state *)wmem_alloc0(wmem_file_scope(), sizeof(struct nano_session_state));
+        packet_session_state = wmem_new0(wmem_file_scope(), struct nano_session_state);
         memcpy(packet_session_state, session_state, sizeof(struct nano_session_state));
         p_add_proto_data(wmem_file_scope(), pinfo, proto_nano, 0, packet_session_state);
     } else {
@@ -827,7 +827,7 @@ static gboolean dissect_nano_heur_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_t
     session_state = (struct nano_session_state *)conversation_get_proto_data(conversation, proto_nano);
     if (!session_state) {
         // create new session state
-        session_state = (struct nano_session_state *)wmem_alloc0(wmem_file_scope(), sizeof(struct nano_session_state));
+        session_state = wmem_new0(wmem_file_scope(), struct nano_session_state);
         session_state->client_packet_type = NANO_PACKET_TYPE_INVALID;
         session_state->server_port = pinfo->destport;
         conversation_add_proto_data(conversation, proto_nano, session_state);

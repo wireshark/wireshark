@@ -134,7 +134,7 @@ usbdump_open(wtap *wth, int *err, char **err_info)
     }
 
     /* Create a private structure to track the multiframe */
-    usbdump_info = (usbdump_info_t *)g_malloc(sizeof(usbdump_info_t));
+    usbdump_info = g_new(usbdump_info_t, 1);
     usbdump_info->version = GUINT16_FROM_BE(version);
     usbdump_info->multiframe_size = GUINT32_FROM_LE(multiframe_size);
     usbdump_info->multiframe_overrun = FALSE;

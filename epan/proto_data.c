@@ -72,7 +72,7 @@ p_add_proto_data(wmem_allocator_t *tmp_scope, struct _packet_info* pinfo, int pr
     DISSECTOR_ASSERT(!"invalid wmem scope");
   }
 
-  p1 = (proto_data_t *)wmem_alloc(scope, sizeof(proto_data_t));
+  p1 = wmem_new(scope, proto_data_t);
 
   p1->proto = proto;
   p1->key = key;

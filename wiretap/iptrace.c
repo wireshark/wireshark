@@ -119,7 +119,7 @@ wtap_open_return_val iptrace_open(wtap *wth, int *err, gchar **err_info)
 
 	/* This is an iptrace file */
 	wth->subtype_close = iptrace_close;
-	iptrace = (iptrace_t *)g_malloc(sizeof(iptrace_t));
+	iptrace = g_new(iptrace_t, 1);
 	iptrace->interface_ids = g_hash_table_new(if_info_hash, if_info_equal);
 	iptrace->num_interface_ids = 0;
 	wth->priv = (void *)iptrace;
@@ -137,7 +137,7 @@ static void iptrace_close(wtap *wth)
 
 static void add_new_if_info(iptrace_t *iptrace, if_info *info, gpointer *result)
 {
-	if_info *new_info = (if_info *)g_malloc(sizeof (if_info));
+	if_info *new_info = g_new(if_info, 1);
 	*new_info = *info;
 	*result = GUINT_TO_POINTER(iptrace->num_interface_ids);
 	g_hash_table_insert(iptrace->interface_ids, (gpointer)new_info, *result);

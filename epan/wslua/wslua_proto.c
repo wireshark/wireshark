@@ -109,7 +109,7 @@ WSLUA_CONSTRUCTOR Proto_new(lua_State* L) { /* Creates a new <<lua_class_Proto,`
         return 0;
     }
 
-    proto = (wslua_proto_t *)g_malloc(sizeof(wslua_proto_t));
+    proto = g_new(wslua_proto_t, 1);
 
     proto->name = hiname;
     proto->loname = loname;

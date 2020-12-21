@@ -820,7 +820,7 @@ wtap_open_offline(const char *filename, unsigned int type, int *err, char **err_
 	}
 
 	errno = ENOMEM;
-	wth = (wtap *)g_malloc0(sizeof(wtap));
+	wth = g_new0(wtap, 1);
 
 	/* Open the file */
 	errno = WTAP_ERR_CANT_OPEN;
@@ -2636,7 +2636,7 @@ wtap_dump_alloc_wdh(int file_type_subtype, int encap, int snaplen,
 {
 	wtap_dumper *wdh;
 
-	wdh = (wtap_dumper *)g_malloc0(sizeof (wtap_dumper));
+	wdh = g_new0(wtap_dumper, 1);
 	if (wdh == NULL) {
 		*err = errno;
 		return NULL;

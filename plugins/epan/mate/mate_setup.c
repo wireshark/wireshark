@@ -31,7 +31,7 @@ static void report_error(mate_config* mc, const gchar* fmt, ...) {
      is going to be called only by the grammar
 	 which will set all those elements that aren't set here */
 extern mate_cfg_pdu* new_pducfg(mate_config* mc, gchar* name) {
-	mate_cfg_pdu* cfg = (mate_cfg_pdu *)g_malloc(sizeof(mate_cfg_pdu));
+	mate_cfg_pdu* cfg = g_new(mate_cfg_pdu, 1);
 
 	cfg->name = g_strdup(name);
 	cfg->last_id = 0;
@@ -62,7 +62,7 @@ extern mate_cfg_pdu* new_pducfg(mate_config* mc, gchar* name) {
 }
 
 extern mate_cfg_gop* new_gopcfg(mate_config* mc, gchar* name) {
-	mate_cfg_gop* cfg = (mate_cfg_gop *)g_malloc(sizeof(mate_cfg_gop));
+	mate_cfg_gop* cfg = g_new(mate_cfg_gop, 1);
 
 	cfg->name = g_strdup(name);
 	cfg->last_id = 0;
@@ -146,7 +146,7 @@ extern gboolean add_hfid(mate_config* mc, header_field_info*  hfi, gchar* how, G
 
 	while (hfi) {
 		exists = TRUE;
-		ip = (int *)g_malloc(sizeof(int));
+		ip = g_new(int, 1);
 
 		*ip = hfi->id;
 
@@ -189,7 +189,7 @@ extern gchar* add_ranges(mate_config* mc, gchar* range,GPtrArray* range_ptr_arr)
 		for (i=0; ranges[i]; i++) {
 			hfi = proto_registrar_get_byname(ranges[i]);
 			if (hfi) {
-				hfidp = (int *)g_malloc(sizeof(int));
+				hfidp = g_new(int, 1);
 				*hfidp = hfi->id;
 				g_ptr_array_add(range_ptr_arr,(gpointer)hfidp);
 			} else {
@@ -206,7 +206,7 @@ extern gchar* add_ranges(mate_config* mc, gchar* range,GPtrArray* range_ptr_arr)
 #endif
 
 static void new_attr_hfri(mate_config* mc, gchar* item_name, GHashTable* hfids, gchar* name) {
-	int* p_id = (int *)g_malloc(sizeof(int));
+	int* p_id = g_new(int, 1);
 	hf_register_info hfri;
 
 	memset(&hfri, 0, sizeof hfri);
@@ -575,7 +575,7 @@ extern mate_config* mate_make_config(const gchar* filename, int mate_hfid) {
 	gint* ett;
 	avp_init();
 
-	mc = (mate_config *)g_malloc(sizeof(mate_config));
+	mc = g_new(mate_config, 1);
 
 	mc->hfid_mate = mate_hfid;
 

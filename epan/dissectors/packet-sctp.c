@@ -2762,7 +2762,7 @@ add_fragment(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 tsn,
   msg = find_message(stream_id, stream_seq_num, u_bit);
 
   if (!msg) {
-    msg = (sctp_frag_msg *)g_malloc (sizeof (sctp_frag_msg));
+    msg = g_new(sctp_frag_msg, 1);
     msg->begins = NULL;
     msg->ends = NULL;
     msg->fragments = NULL;
@@ -2776,7 +2776,7 @@ add_fragment(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 tsn,
     else
       msg->ppi = ppi;
 
-    key = (frag_key *)g_malloc(sizeof (frag_key));
+    key = g_new(frag_key, 1);
     key->sport = sctp_info.sport;
     key->dport = sctp_info.dport;
     key->verification_tag = sctp_info.verification_tag;
@@ -2820,7 +2820,7 @@ add_fragment(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 tsn,
     return NULL;
 
   /* create new fragment */
-  fragment = (sctp_fragment *)g_malloc (sizeof (sctp_fragment));
+  fragment = g_new(sctp_fragment, 1);
   fragment->frame_num = pinfo->num;
   fragment->tsn = tsn;
   fragment->len = tvb_captured_length(tvb);
@@ -2850,7 +2850,7 @@ add_fragment(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 tsn,
 
   /* save begin or end if necessary */
   if (b_bit && !e_bit) {
-    beginend = (sctp_frag_be *)g_malloc (sizeof (sctp_frag_be));
+    beginend = g_new(sctp_frag_be, 1);
     beginend->fragment = fragment;
     beginend->next = NULL;
 
@@ -2875,7 +2875,7 @@ add_fragment(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 tsn,
   }
 
   if (!b_bit && e_bit) {
-    beginend = (sctp_frag_be *)g_malloc (sizeof (sctp_frag_be));
+    beginend = g_new(sctp_frag_be, 1);
     beginend->fragment = fragment;
     beginend->next = NULL;
 

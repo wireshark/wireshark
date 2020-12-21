@@ -419,7 +419,7 @@ if_info_new(const char *name, const char *description, gboolean loopback)
 	GUID guid;
 #endif
 
-	if_info = (if_info_t *)g_malloc(sizeof (if_info_t));
+	if_info = g_new(if_info_t, 1);
 	if_info->name = g_strdup(name);
 	if_info->friendly_name = NULL;	/* default - unknown */
 	if_info->vendor_description = NULL;
@@ -909,7 +909,7 @@ create_data_link_info(int dlt)
 	data_link_info_t *data_link_info;
 	const char *text;
 
-	data_link_info = (data_link_info_t *)g_malloc(sizeof (data_link_info_t));
+	data_link_info = g_new(data_link_info_t, 1);
 	data_link_info->dlt = dlt;
 	text = pcap_datalink_val_to_name(dlt);
 	if (text != NULL)

@@ -204,7 +204,7 @@ sharkd_session_filter_data(const char *filter)
 		if (ret == -1)
 			return NULL;
 
-		l = (struct sharkd_filter_item *) g_malloc(sizeof(struct sharkd_filter_item));
+		l = g_new(struct sharkd_filter_item, 1);
 		l->filtered = filtered;
 
 		g_hash_table_insert(filter_table, g_strdup(filter), l);
@@ -1339,7 +1339,7 @@ sharkd_session_packet_tap_rtp_analyse_cb(void *tapdata, packet_info *pinfo, epan
 
 		rtppacket_analyse(statinfo, pinfo, rtp_info);
 
-		item = (struct sharkd_analyse_rtp_items *) g_malloc(sizeof(struct sharkd_analyse_rtp_items));
+		item = g_new(struct sharkd_analyse_rtp_items, 1);
 
 		if (!rtp_req->packets)
 			rtp_req->start_time = nstime_to_sec(&pinfo->abs_ts);
@@ -2296,7 +2296,7 @@ sharkd_session_process_tap(char *buf, const jsmntok_t *tokens, int count)
 
 			ct_tapname = proto_get_protocol_filter_name(get_conversation_proto_id(ct));
 
-			ct_data = (struct sharkd_conv_tap_data *) g_malloc0(sizeof(struct sharkd_conv_tap_data));
+			ct_data = g_new0(struct sharkd_conv_tap_data, 1);
 			ct_data->type = tok_tap;
 			ct_data->hash.user_data = ct_data;
 
@@ -2957,7 +2957,7 @@ sharkd_iograph_packet(void *g, packet_info *pinfo, epan_dissect_t *edt, const vo
 		}
 		else if (graph->items == NULL)
 		{
-			graph->items = (io_graph_item_t *) g_malloc(sizeof(io_graph_item_t) * graph->space_items);
+			graph->items = g_new(io_graph_item_t, graph->space_items);
 			reset_io_graph_items(graph->items, graph->space_items);
 		}
 

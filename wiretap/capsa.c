@@ -199,7 +199,7 @@ wtap_open_return_val capsa_open(wtap *wth, int *err, gchar **err_info)
 		return WTAP_OPEN_ERROR;
 
 	wth->file_type_subtype = file_type_subtype;
-	capsa = (capsa_t *)g_malloc(sizeof(capsa_t));
+	capsa = g_new(capsa_t, 1);
 	capsa->format_indicator = format_indicator;
 	capsa->number_of_frames = number_of_frames;
 	capsa->frame_count = 0;

@@ -182,7 +182,7 @@ static tap_packet_status rlc_lte_tap_for_graph_data(void *pct, packet_info *pinf
                             rlchdr->isControlPDU)) {
 
         /* It matches.  Copy segment details out of tap struct */
-        struct rlc_segment *segment = (struct rlc_segment *)g_malloc(sizeof(struct rlc_segment));
+        struct rlc_segment *segment = g_new(struct rlc_segment, 1);
         segment->next = NULL;
         segment->num = pinfo->num;
         segment->rel_secs = (guint32) pinfo->rel_ts.secs;

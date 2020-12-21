@@ -464,7 +464,7 @@ wtap_open_return_val netmon_open(wtap *wth, int *err, gchar **err_info)
 
 	/* This is a netmon file */
 	wth->file_type_subtype = file_type;
-	netmon = (netmon_t *)g_malloc0(sizeof(netmon_t));
+	netmon = g_new0(netmon_t, 1);
 	wth->priv = (void *)netmon;
 	wth->subtype_read = netmon_read;
 	wth->subtype_seek_read = netmon_seek_read;
@@ -1633,7 +1633,7 @@ gboolean netmon_dump_open(wtap_dumper *wdh, int *err, gchar **err_info _U_)
 	wdh->subtype_write = netmon_dump;
 	wdh->subtype_finish = netmon_dump_finish;
 
-	netmon = (netmon_dump_t *)g_malloc(sizeof(netmon_dump_t));
+	netmon = g_new(netmon_dump_t, 1);
 	wdh->priv = (void *)netmon;
 	netmon->frame_table_offset = CAPTUREFILE_HEADER_SIZE;
 	netmon->got_first_record_time = FALSE;

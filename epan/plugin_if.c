@@ -72,7 +72,7 @@ extern ext_menu_t * ext_menubar_register_menu(int proto_id, const gchar * menula
     /* For now, a protocol may only register one main menu */
     g_assert(g_list_find(menubar_menunames, name) == NULL);
 
-    entry = (ext_menubar_t *)g_malloc0(sizeof(ext_menubar_t));
+    entry = g_new0(ext_menubar_t, 1);
     entry->type = EXT_MENUBAR_MENU;
     entry->proto = proto_id;
     entry->is_plugin = is_plugin;
@@ -117,7 +117,7 @@ extern ext_menu_t * ext_menubar_add_submenu(ext_menu_t * parent, const gchar *me
     parent->submenu_cnt++;
 
     /* Create submenu entry */
-    entry = (ext_menubar_t *)g_malloc0(sizeof(ext_menubar_t));
+    entry = g_new0(ext_menubar_t, 1);
     entry->type = EXT_MENUBAR_MENU;
     entry->parent = parent;
     /* Just a convenience */
@@ -147,7 +147,7 @@ static void ext_menubar_add_generic_entry (
     parent->item_cnt++;
 
     /* Create menu entry */
-    entry = (ext_menubar_t*)g_malloc0(sizeof(ext_menubar_t));
+    entry = g_new0(ext_menubar_t, 1);
     entry->type = type;
     /* Create unique name, which is used by GTK to provide the menu */
     entry->name = g_strdup_printf("%sI%02d", parent->name, parent->item_cnt);

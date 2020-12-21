@@ -124,7 +124,7 @@ void initialize_mate_runtime(mate_config* mc) {
 
 	if (mc) {
 		if (rd == NULL ) {
-			rd = (mate_runtime_data *)g_malloc(sizeof(mate_runtime_data));
+			rd = g_new(mate_runtime_data, 1);
 		} else {
 			g_hash_table_foreach(mc->pducfgs,destroy_pdus_in_cfg,NULL);
 			g_hash_table_foreach(mc->gopcfgs,destroy_gops_in_cfg,NULL);
@@ -322,7 +322,7 @@ static void reanalyze_gop(mate_config* mc, mate_gop* gop) {
 
 			if (( gogkey_match = new_avpl_pairs_match(gop_cfg->name, gog->avpl, curr_gogkey, TRUE, FALSE) )) {
 
-				gog_key = (gogkey *)g_malloc(sizeof(gogkey));
+				gog_key = g_new(gogkey, 1);
 
 				gog_key->key = avpl_to_str(gogkey_match);
 				delete_avpl(gogkey_match,FALSE);
@@ -734,7 +734,7 @@ static mate_pdu* new_pdu(mate_cfg_pdu* cfg, guint32 framenum, field_info* proto,
 	data.tree = tree;
 
 	/* first we create the proto range */
-	proto_range = (mate_range *)g_malloc(sizeof(mate_range));
+	proto_range = g_new(mate_range, 1);
 	proto_range->start = proto->start;
 	proto_range->end = proto->start + proto->length;
 	g_ptr_array_add(data.ranges,proto_range);

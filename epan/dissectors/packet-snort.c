@@ -211,7 +211,7 @@ static void add_alert_to_session_tree(guint frame_number, Alert_t *alert)
     Alerts_t *alerts = (Alerts_t*)wmem_tree_lookup32(current_session.alerts_tree, frame_number);
     if (alerts == NULL) {
         /* Create a new entry for the table */
-        alerts = (Alerts_t*)g_malloc(sizeof(Alerts_t));
+        alerts = g_new(Alerts_t, 1);
         /* Deep copy of alert */
         alerts->alerts[0] = *alert;
         alerts->num_alerts = 1;

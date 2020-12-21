@@ -246,7 +246,7 @@ wtap_open_return_val visual_open(wtap *wth, int *err, gchar **err_info)
     wth->file_tsprec = WTAP_TSPREC_MSEC;
 
     /* Add Visual-specific information to the wiretap struct for later use. */
-    visual = (struct visual_read_info *)g_malloc(sizeof(struct visual_read_info));
+    visual = g_new(struct visual_read_info, 1);
     wth->priv = (void *)visual;
     visual->num_pkts = pletoh32(&vfile_hdr.num_pkts);
     visual->start_time = pletoh32(&vfile_hdr.start_time);
@@ -612,7 +612,7 @@ gboolean visual_dump_open(wtap_dumper *wdh, int *err, gchar **err_info _U_)
 
     /* Create a struct to hold file information for the duration
        of the write */
-    visual = (struct visual_write_info *)g_malloc(sizeof(struct visual_write_info));
+    visual = g_new(struct visual_write_info, 1);
     wdh->priv = (void *)visual;
     visual->index_table_index = 0;
     visual->index_table_size = 1024;

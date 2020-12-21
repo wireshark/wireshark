@@ -3630,10 +3630,10 @@ uat_btmesh_record_update_cb(void *r, char **err _U_)
         g_free(rec->network_key);
         rec->network_key_length = compute_ascii_key(&rec->network_key, rec->network_key_string);
         g_free(rec->encryptionkey);
-        rec->encryptionkey = (guint8 *)g_malloc(16 * sizeof(guint8));
+        rec->encryptionkey = g_new(guint8, 16);
         memset(rec->encryptionkey, 0, 16 * sizeof(guint8));
         g_free(rec->privacykey);
-        rec->privacykey = (guint8 *)g_malloc(16 * sizeof(guint8));
+        rec->privacykey = g_new(guint8, 16);
         if (create_master_security_keys(rec)) {
             rec->valid++;
         }

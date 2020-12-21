@@ -368,7 +368,7 @@ dissect_preemption(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 
             if (!PINFO_FD_VISITED(pinfo)) {
                 // Fist delete previous conversation
                 drop_conversation(conv);
-                ctx = (struct _fpp_ctx_t *)wmem_alloc(wmem_file_scope(), sizeof(struct _fpp_ctx_t));
+                ctx = wmem_new(wmem_file_scope(), struct _fpp_ctx_t);
                 init_fpp_ctx(ctx, get_cont_by_start(smd2));
                 ctx->size = frag_size;
                 conversation_add_proto_data(conv, proto_fpp, ctx);

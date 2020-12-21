@@ -1300,7 +1300,7 @@ protocolinfo_init(char *field)
             ftenum_to_string(hfi),
             hfibuf);
 
-    rs=(pci_t *)g_malloc(sizeof(pci_t));
+    rs=g_new(pci_t, 1);
     rs->hf_index=hfi->id;
     rs->filter=field;
     rs->cmd_line_index = g_cmd_line_index++;
@@ -1327,7 +1327,7 @@ protocolinfo_init(char *field)
 
 static void
 add_string_fmt(string_fmt_e format, gchar *plain) {
-    string_fmt_t *sf = (string_fmt_t *)g_malloc(sizeof(string_fmt_t));
+    string_fmt_t *sf = g_new(string_fmt_t, 1);
 
     sf->format = format;
     sf->plain = g_strdup(plain);

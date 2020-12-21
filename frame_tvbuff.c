@@ -67,7 +67,7 @@ frame_cache(struct tvb_frame *frame_tvb)
 		if (buffer_cache->len > 0) {
 			frame_tvb->buf = (struct Buffer *) g_ptr_array_remove_index(buffer_cache, buffer_cache->len - 1);
 		} else {
-			frame_tvb->buf = (struct Buffer *) g_malloc(sizeof(struct Buffer));
+			frame_tvb->buf = g_new(struct Buffer, 1);
 		}
 
 		ws_buffer_init(frame_tvb->buf, frame_tvb->tvb.length + frame_tvb->offset);

@@ -187,7 +187,7 @@ log3gpp_open(wtap *wth, int *err, gchar **err_info _U_)
     }
 
     /* Allocate struct and fill in timestamp (netmon re used)*/
-    log3gpp = (log3gpp_t *)g_malloc(sizeof(log3gpp_t));
+    log3gpp = g_new(log3gpp_t, 1);
     log3gpp->start_secs = timestamp;
     log3gpp->start_usecs = usecs;
     wth->priv = (void *)log3gpp;

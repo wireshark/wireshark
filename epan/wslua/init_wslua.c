@@ -417,7 +417,7 @@ static void wslua_add_plugin(const gchar *name, const gchar *version, const gcha
     wslua_plugin *new_plug, *lua_plug;
 
     lua_plug = wslua_plugin_list;
-    new_plug = (wslua_plugin *)g_malloc(sizeof(wslua_plugin));
+    new_plug = g_new(wslua_plugin, 1);
 
     if (!lua_plug) { /* the list is empty */
         wslua_plugin_list = new_plug;

@@ -741,7 +741,7 @@ WSLUA_FUNCTION wslua_register_filehandler(lua_State* L) {
             fh->finfo.additional_file_extensions = extra_extensions;
         }
         fh->finfo.can_write_encap = wslua_dummy_can_write_encap;
-        fh->finfo.wslua_info = (wtap_wslua_file_info_t*) g_malloc0(sizeof(wtap_wslua_file_info_t));
+        fh->finfo.wslua_info = g_new0(wtap_wslua_file_info_t, 1);
         fh->finfo.wslua_info->wslua_can_write_encap = wslua_filehandler_can_write_encap;
         fh->finfo.wslua_info->wslua_data = (void*)(fh);
         fh->finfo.dump_open = wslua_filehandler_dump_open;

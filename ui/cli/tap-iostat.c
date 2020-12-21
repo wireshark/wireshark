@@ -115,7 +115,7 @@ iostat_packet(void *arg, packet_info *pinfo, epan_dissect_t *edt, const void *du
     *  struct will be created for it. */
     rt = relative_time;
     while (rt >= it->start_time + parent->interval) {
-        it->next = (io_stat_item_t *)g_malloc(sizeof(io_stat_item_t));
+        it->next = g_new(io_stat_item_t, 1);
         it->next->prev = it;
         it->next->next = NULL;
         it = it->next;
@@ -572,7 +572,7 @@ iostat_draw(void *arg)
     mit = (io_stat_item_t *)arg;
     iot = mit->parent;
     num_cols = iot->num_cols;
-    col_w = (column_width *)g_malloc(sizeof(column_width) * num_cols);
+    col_w = g_new(column_width, num_cols);
     fmts = (char **)g_malloc(sizeof(char *) * num_cols);
     duration = ((guint64)cfile.elapsed_time.secs * G_GUINT64_CONSTANT(1000000)) +
                 (guint64)((cfile.elapsed_time.nsecs + 500) / 1000);
@@ -1423,7 +1423,7 @@ iostat_init(const char *opt_arg, void *userdata _U_)
         break;
     }
 
-    io = (io_stat_t *)g_malloc(sizeof(io_stat_t));
+    io = g_new(io_stat_t, 1);
 
     /* If interval is 0, calculate statistics over the whole file by setting the interval to
     *  G_MAXUINT64 */
@@ -1484,10 +1484,10 @@ iostat_init(const char *opt_arg, void *userdata _U_)
         }
     }
 
-    io->items     = (io_stat_item_t *)g_malloc(sizeof(io_stat_item_t) * io->num_cols);
+    io->items     = g_new(io_stat_item_t, io->num_cols);
     io->filters   = (const char **)g_malloc(sizeof(char *) * io->num_cols);
-    io->max_vals  = (guint64 *)g_malloc(sizeof(guint64) * io->num_cols);
-    io->max_frame = (guint32 *)g_malloc(sizeof(guint32) * io->num_cols);
+    io->max_vals  = g_new(guint64, io->num_cols);
+    io->max_frame = g_new(guint32, io->num_cols);
 
     for (i=0; i<io->num_cols; i++) {
         io->max_vals[i]  = 0;

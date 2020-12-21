@@ -2562,8 +2562,8 @@ cf_print_packets(capture_file *cf, print_args_t *print_args,
        width of the title and the width of the data - and construct
        a buffer with a line containing the column titles. */
     callback_args.num_visible_cols = num_visible_col;
-    callback_args.col_widths = (gint *) g_malloc(sizeof(gint) * num_visible_col);
-    callback_args.visible_cols = (gint *) g_malloc(sizeof(gint) * num_visible_col);
+    callback_args.col_widths = g_new(gint, num_visible_col);
+    callback_args.visible_cols = g_new(gint, num_visible_col);
     cp = &callback_args.header_line_buf[0];
     line_len = 0;
     visible_col_count = 0;

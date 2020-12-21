@@ -778,7 +778,7 @@ dcerpc_add_conv_to_bind_table(decode_dcerpc_bind_values_t *binding)
             0);
     }
 
-    bind_value = (dcerpc_bind_value *)wmem_alloc(wmem_file_scope(), sizeof (dcerpc_bind_value));
+    bind_value = wmem_new(wmem_file_scope(), dcerpc_bind_value);
     bind_value->uuid = binding->uuid;
     bind_value->ver = binding->ver;
     /* For now, assume all DCE/RPC we pick from "decode as" is using
@@ -787,7 +787,7 @@ dcerpc_add_conv_to_bind_table(decode_dcerpc_bind_values_t *binding)
     */
     bind_value->transport = uuid_data_repr_proto;
 
-    key = (dcerpc_bind_key *)wmem_alloc(wmem_file_scope(), sizeof (dcerpc_bind_key));
+    key = wmem_new(wmem_file_scope(), dcerpc_bind_key);
     key->conv = conv;
     key->ctx_id = binding->ctx_id;
     key->transport_salt = binding->transport_salt;
@@ -1195,7 +1195,7 @@ void register_dcerpc_auth_subdissector(guint8 auth_level, guint8 auth_type,
     if (get_auth_subdissector_fns(auth_level, auth_type))
         return;
 
-    d = (dcerpc_auth_subdissector *)g_malloc(sizeof(dcerpc_auth_subdissector));
+    d = g_new(dcerpc_auth_subdissector, 1);
 
     d->auth_level = auth_level;
     d->auth_type = auth_type;
@@ -3172,7 +3172,7 @@ add_pointer_to_list(packet_info *pinfo, proto_tree *tree, proto_item *item,
         }
     }
 
-    npd = (ndr_pointer_data_t *)g_malloc(sizeof(ndr_pointer_data_t));
+    npd = g_new(ndr_pointer_data_t, 1);
     npd->id   = id;
     npd->tree = tree;
     npd->item = item;
@@ -3803,7 +3803,7 @@ static dcerpc_auth_context *find_or_create_dcerpc_auth_context(packet_info *pinf
         goto return_value;
     }
 
-    auth_value = (dcerpc_auth_context *)wmem_alloc(wmem_file_scope(), sizeof (dcerpc_auth_context));
+    auth_value = wmem_new(wmem_file_scope(), dcerpc_auth_context);
     if (auth_value == NULL) {
         return NULL;
     }
@@ -4155,12 +4155,12 @@ dissect_dcerpc_cn_bind(tvbuff_t *tvb, gint offset, packet_info *pinfo,
             dcerpc_bind_key   *key;
             dcerpc_bind_value *value;
 
-            key = (dcerpc_bind_key *)wmem_alloc(wmem_file_scope(), sizeof (dcerpc_bind_key));
+            key = wmem_new(wmem_file_scope(), dcerpc_bind_key);
             key->conv = conv;
             key->ctx_id = ctx_id;
             key->transport_salt = dcerpc_get_transport_salt(pinfo);
 
-            value = (dcerpc_bind_value *)wmem_alloc(wmem_file_scope(), sizeof (dcerpc_bind_value));
+            value = wmem_new(wmem_file_scope(), dcerpc_bind_value);
             value->uuid = if_id;
             value->ver = if_ver;
             value->transport = trans_id;
@@ -4636,7 +4636,7 @@ dissect_dcerpc_cn_rqst(tvbuff_t *tvb, gint offset, packet_info *pinfo,
                     call_key.call_id = hdr->call_id;
                     call_key.transport_salt = dcerpc_get_transport_salt(pinfo);
                     if ((call_value = (dcerpc_call_value *)wmem_map_lookup(dcerpc_cn_calls, &call_key))) {
-                        new_matched_key = (dcerpc_matched_key *)wmem_alloc(wmem_file_scope(), sizeof (dcerpc_matched_key));
+                        new_matched_key = wmem_new(wmem_file_scope(), dcerpc_matched_key);
                         *new_matched_key = matched_key;
                         wmem_map_insert(dcerpc_matched, new_matched_key, call_value);
                         value = call_value;
@@ -4650,7 +4650,7 @@ dissect_dcerpc_cn_rqst(tvbuff_t *tvb, gint offset, packet_info *pinfo,
                        the call to both the call table and the
                        matched table
                     */
-                    call_key = (dcerpc_cn_call_key *)wmem_alloc(wmem_file_scope(), sizeof (dcerpc_cn_call_key));
+                    call_key = wmem_new(wmem_file_scope(), dcerpc_cn_call_key);
                     call_key->conv = conv;
                     call_key->call_id = hdr->call_id;
                     call_key->transport_salt = dcerpc_get_transport_salt(pinfo);
@@ -4661,7 +4661,7 @@ dissect_dcerpc_cn_rqst(tvbuff_t *tvb, gint offset, packet_info *pinfo,
                         wmem_map_remove(dcerpc_cn_calls, call_key);
                     }
 
-                    call_value = (dcerpc_call_value *)wmem_alloc(wmem_file_scope(), sizeof (dcerpc_call_value));
+                    call_value = wmem_new(wmem_file_scope(), dcerpc_call_value);
                     call_value->uuid = bind_value->uuid;
                     call_value->ver = bind_value->ver;
                     call_value->object_uuid = obj_id;
@@ -4680,7 +4680,7 @@ dissect_dcerpc_cn_rqst(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
                     wmem_map_insert(dcerpc_cn_calls, call_key, call_value);
 
-                    new_matched_key = (dcerpc_matched_key *)wmem_alloc(wmem_file_scope(), sizeof (dcerpc_matched_key));
+                    new_matched_key = wmem_new(wmem_file_scope(), dcerpc_matched_key);
                     *new_matched_key = matched_key;
                     wmem_map_insert(dcerpc_matched, new_matched_key, call_value);
                     value = call_value;
@@ -4796,7 +4796,7 @@ dissect_dcerpc_cn_resp(tvbuff_t *tvb, gint offset, packet_info *pinfo,
                 /* extra sanity check,  only match them if the reply
                    came after the request */
                 if (call_value->req_frame<pinfo->num) {
-                    new_matched_key = (dcerpc_matched_key *)wmem_alloc(wmem_file_scope(), sizeof (dcerpc_matched_key));
+                    new_matched_key = wmem_new(wmem_file_scope(), dcerpc_matched_key);
                     *new_matched_key = matched_key;
                     wmem_map_insert(dcerpc_matched, new_matched_key, call_value);
                     value = call_value;
@@ -4960,7 +4960,7 @@ dissect_dcerpc_cn_fault(tvbuff_t *tvb, gint offset, packet_info *pinfo,
             call_key.transport_salt = dcerpc_get_transport_salt(pinfo);
 
             if ((call_value = (dcerpc_call_value *)wmem_map_lookup(dcerpc_cn_calls, &call_key))) {
-                new_matched_key = (dcerpc_matched_key *)wmem_alloc(wmem_file_scope(), sizeof (dcerpc_matched_key));
+                new_matched_key = wmem_new(wmem_file_scope(), dcerpc_matched_key);
                 *new_matched_key = matched_key;
                 wmem_map_insert(dcerpc_matched, new_matched_key, call_value);
 
@@ -6207,12 +6207,12 @@ dissect_dcerpc_dg_rqst(tvbuff_t *tvb, int offset, packet_info *pinfo,
         dcerpc_call_value *call_value;
         dcerpc_dg_call_key *call_key;
 
-        call_key = (dcerpc_dg_call_key *)wmem_alloc(wmem_file_scope(), sizeof (dcerpc_dg_call_key));
+        call_key = wmem_new(wmem_file_scope(), dcerpc_dg_call_key);
         call_key->conv = conv;
         call_key->seqnum = hdr->seqnum;
         call_key->act_id = hdr->act_id;
 
-        call_value = (dcerpc_call_value *)wmem_alloc(wmem_file_scope(), sizeof (dcerpc_call_value));
+        call_value = wmem_new(wmem_file_scope(), dcerpc_call_value);
         call_value->uuid = hdr->if_id;
         call_value->ver = hdr->if_ver;
         call_value->object_uuid = hdr->obj_id;
@@ -6291,7 +6291,7 @@ dissect_dcerpc_dg_resp(tvbuff_t *tvb, int offset, packet_info *pinfo,
         call_key.act_id = hdr->act_id;
 
         if ((call_value = (dcerpc_call_value *)wmem_map_lookup(dcerpc_dg_calls, &call_key))) {
-            new_matched_key = (dcerpc_matched_key *)wmem_alloc(wmem_file_scope(), sizeof (dcerpc_matched_key));
+            new_matched_key = wmem_new(wmem_file_scope(), dcerpc_matched_key);
             new_matched_key->frame = pinfo->num;
             new_matched_key->call_id = hdr->seqnum;
             wmem_map_insert(dcerpc_matched, new_matched_key, call_value);

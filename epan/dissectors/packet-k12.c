@@ -301,7 +301,7 @@ k12_update_cb(void* r, char** err)
 
 	g_free(h->handles);
 	/* Allocate extra space for NULL marker */
-	h->handles = (dissector_handle_t *)g_malloc0(sizeof(dissector_handle_t)*(num_protos+1));
+	h->handles = g_new0(dissector_handle_t, (num_protos+1));
 
 	for (i = 0; i < num_protos; i++) {
 		if ( ! (h->handles[i] = find_dissector(protos[i])) ) {

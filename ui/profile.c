@@ -45,7 +45,7 @@ add_profile_entry(GList *fl, const char *profilename, const char *reference, int
 {
     profile_def *profile;
 
-    profile = (profile_def *) g_malloc0(sizeof(profile_def));
+    profile = g_new0(profile_def, 1);
     profile->name = g_strdup(profilename);
     profile->reference = g_strdup(reference);
     profile->status = status;

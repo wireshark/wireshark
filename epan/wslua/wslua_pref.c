@@ -87,7 +87,7 @@ static int new_pref(lua_State* L, pref_type_t type) {
     const gchar* label = luaL_optstring(L,1,NULL);
     const gchar* descr = luaL_optstring(L,3,"");
 
-    Pref pref = (wslua_pref_t *)g_malloc0(sizeof(wslua_pref_t));
+    Pref pref = g_new0(wslua_pref_t, 1);
     pref->label = g_strdup(label);
     pref->desc = g_strdup(descr);
     pref->type = type;

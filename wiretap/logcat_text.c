@@ -581,7 +581,7 @@ static gboolean logcat_text_dump_text(wtap_dumper *wdh,
 static gboolean logcat_text_dump_open(wtap_dumper *wdh, guint dump_type) {
     struct dumper_t *dumper;
 
-    dumper = (struct dumper_t *) g_malloc(sizeof(struct dumper_t));
+    dumper = g_new(struct dumper_t, 1);
     dumper->type = dump_type;
 
     wdh->priv = dumper;

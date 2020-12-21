@@ -185,7 +185,7 @@ wtap_open_return_val stanag4607_open(wtap *wth, int *err, gchar **err_info)
   wth->file_encap = WTAP_ENCAP_STANAG_4607;
   wth->snapshot_length = 0; /* not known */
 
-  stanag4607 = (stanag4607_t *)g_malloc(sizeof(stanag4607_t));
+  stanag4607 = g_new(stanag4607_t, 1);
   wth->priv = (void *)stanag4607;
   stanag4607->base_secs = 0; /* unknown as of yet */
 

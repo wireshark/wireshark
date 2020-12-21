@@ -51,7 +51,7 @@ static int dissect_mac_lte_framed(tvbuff_t *tvb, packet_info *pinfo,
     p_mac_lte_info = (struct mac_lte_info*)p_get_proto_data(wmem_file_scope(), pinfo, proto_mac_lte, 0);
     if (p_mac_lte_info == NULL) {
         /* Allocate new info struct for this frame */
-        p_mac_lte_info = (struct mac_lte_info*)wmem_alloc0(wmem_file_scope(), sizeof(struct mac_lte_info));
+        p_mac_lte_info = wmem_new0(wmem_file_scope(), struct mac_lte_info);
         infoAlreadySet = FALSE;
     }
     else {

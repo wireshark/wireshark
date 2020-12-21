@@ -28,7 +28,7 @@ static GPtrArray* outstanding_TreeItem = NULL;
 
 /* pushing a TreeItem with a NULL item or subtree is completely valid for this function */
 TreeItem push_TreeItem(lua_State *L, proto_tree *tree, proto_item *item) {
-    TreeItem ti = (struct _wslua_treeitem *)g_malloc(sizeof(struct _wslua_treeitem));
+    TreeItem ti = g_new(struct _wslua_treeitem, 1);
 
     ti->tree = tree;
     ti->item = item;
@@ -103,7 +103,7 @@ try_add_packet_field(lua_State *L, TreeItem tree_item, TvbRange tvbr, const int 
         case FT_RELATIVE_TIME:
             {
                /* nstime_t will be g_free'd by Lua */
-                nstime_t *nstime = (nstime_t *) g_malloc0(sizeof(nstime_t));
+                nstime_t *nstime = g_new0(nstime_t, 1);
                 item = proto_tree_add_time_item(tree_item->tree, hfid, tvbr->tvb->ws_tvb,
                                                    tvbr->offset, tvbr->len, encoding,
                                                    nstime, &endoff, &err);

@@ -378,7 +378,7 @@ rlc_channel_create(enum rlc_mode mode, packet_info *pinfo, struct atm_phdr *atm)
     struct rlc_channel *ch;
     int rv;
 
-    ch = (struct rlc_channel *)g_malloc0(sizeof(struct rlc_channel));
+    ch = g_new0(struct rlc_channel, 1);
     rv = rlc_channel_assign(ch, mode, pinfo, atm);
 
     if (rv != 0) {
@@ -423,7 +423,7 @@ rlc_sdu_create(void)
 {
     struct rlc_sdu *sdu;
 
-    sdu = (struct rlc_sdu *)wmem_alloc0(wmem_file_scope(), sizeof(struct rlc_sdu));
+    sdu = wmem_new0(wmem_file_scope(), struct rlc_sdu);
     return sdu;
 }
 
@@ -484,7 +484,7 @@ rlc_frag_create(tvbuff_t *tvb, enum rlc_mode mode, packet_info *pinfo,
 {
     struct rlc_frag *frag;
 
-    frag = (struct rlc_frag *)wmem_alloc0(wmem_file_scope(), sizeof(struct rlc_frag));
+    frag = wmem_new0(wmem_file_scope(), struct rlc_frag);
     rlc_frag_assign(frag, mode, pinfo, seq, li, atm);
     rlc_frag_assign_data(frag, tvb, offset, length);
 
@@ -1302,7 +1302,7 @@ rlc_is_duplicate(enum rlc_mode mode, packet_info *pinfo, guint16 seq,
     }
     if(is_unseen) {
         /* Add to list for the first time this frame is checked */
-        seq_new = (struct rlc_seq *)wmem_alloc0(wmem_file_scope(), sizeof(struct rlc_seq));
+        seq_new = wmem_new0(wmem_file_scope(), struct rlc_seq);
         *seq_new = seq_item;
         seq_new->arrival = pinfo->abs_ts;
         list->list = g_list_append(list->list, seq_new); /* insert in order of arrival */
@@ -1603,7 +1603,7 @@ rlc_decipher(tvbuff_t *tvb, packet_info * pinfo, proto_tree * tree, fp_info * fp
             if(!tree){
                 /*Preserve counter value for next dissection round*/
                 guint32 * ciph;
-                ciph = (guint32 *)g_malloc(sizeof(guint32)*2);
+                ciph = g_new(guint32, 2);
                 ciph[0] = ps_counter[rlcinf->rbid[pos]][0];
                 ciph[1] = ps_counter[rlcinf->rbid[pos]][1];
                 g_tree_insert(counter_map, GINT_TO_POINTER((gint)pinfo->num), ciph);
@@ -1643,7 +1643,7 @@ rlc_decipher(tvbuff_t *tvb, packet_info * pinfo, proto_tree * tree, fp_info * fp
 
             if(!tree){/*Preserve counter for second packet analysis run*/
                 guint32 * ciph;
-                ciph = (guint32 *)g_malloc(sizeof(guint32)*2);
+                ciph = g_new(guint32, 2);
                 ciph[0] = ps_counter[rlcinf->rbid[pos]][0];
                 ciph[1] = ps_counter[rlcinf->rbid[pos]][1];
                 g_tree_insert(counter_map, GINT_TO_POINTER((gint)pinfo->num+1), ciph);

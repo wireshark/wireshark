@@ -355,7 +355,7 @@ read_protos_list_file(const char *ff_path, FILE *ff, GList **flp)
     prot_name[prot_name_index] = '\0';
 
     /* Add the new protocol to the list of disabled protocols */
-    prot         = (protocol_def *) g_malloc(sizeof(protocol_def));
+    prot         = g_new(protocol_def, 1);
     prot->name   = g_strdup(prot_name);
     *flp = g_list_append(*flp, prot);
   }
@@ -671,7 +671,7 @@ read_heur_dissector_list_file(const char *ff_path, FILE *ff, GList **flp)
     heuristic_name[name_index] = '\0';
 
     /* Add the new protocol to the list of protocols */
-    heur         = (heur_protocol_def *) g_malloc(sizeof(heur_protocol_def));
+    heur         = g_new(heur_protocol_def, 1);
     heur->name   = g_strdup(heuristic_name);
     heur->enabled = enabled;
     *flp = g_list_append(*flp, heur);

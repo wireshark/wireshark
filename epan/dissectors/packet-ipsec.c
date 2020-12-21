@@ -404,7 +404,7 @@ void esp_sa_record_add_from_dissector(guint8 protocol, const gchar *srcIP, const
 {
    uat_esp_sa_record_t* record = NULL;
    if (extra_esp_sa_records.num_records == 0) {
-      extra_esp_sa_records.records = (uat_esp_sa_record_t *)g_malloc(sizeof(uat_esp_sa_record_t)*MAX_EXTRA_SA_RECORDS);
+      extra_esp_sa_records.records = g_new(uat_esp_sa_record_t, MAX_EXTRA_SA_RECORDS);
    }
    if (extra_esp_sa_records.num_records < MAX_EXTRA_SA_RECORDS) {
       record = &extra_esp_sa_records.records[extra_esp_sa_records.num_records++];

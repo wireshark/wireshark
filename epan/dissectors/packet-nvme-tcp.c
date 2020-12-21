@@ -1118,8 +1118,7 @@ dissect_nvme_tcp_pdu(tvbuff_t *tvb,
             conversation_get_proto_data(conversation, proto_nvme_tcp);
 
     if (!q_ctx) {
-        q_ctx = (struct nvme_tcp_q_ctx *) wmem_alloc0(wmem_file_scope(),
-                sizeof(struct nvme_tcp_q_ctx));
+        q_ctx = wmem_new0(wmem_file_scope(), struct nvme_tcp_q_ctx);
         q_ctx->n_q_ctx.pending_cmds = wmem_tree_new(wmem_file_scope());
         q_ctx->n_q_ctx.done_cmds = wmem_tree_new(wmem_file_scope());
         q_ctx->n_q_ctx.data_requests = wmem_tree_new(wmem_file_scope());

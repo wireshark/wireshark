@@ -205,7 +205,7 @@ dissect_soupbintcp_common(
                                 0);
 
         /* Store starting sequence number for session's packets */
-        conv_data = (struct conv_data *)wmem_alloc(wmem_file_scope(), sizeof(struct conv_data));
+        conv_data = wmem_new(wmem_file_scope(), struct conv_data);
         conv_data->next_seq = next_seq;
         conversation_add_proto_data(conv, proto_soupbintcp, conv_data);
     }
@@ -226,9 +226,7 @@ dissect_soupbintcp_common(
                     this_seq = 0;
                 }
 
-                pdu_data = (struct pdu_data *)wmem_alloc(
-                    wmem_file_scope(),
-                    sizeof(struct pdu_data));
+                pdu_data = wmem_new(wmem_file_scope(), struct pdu_data);
                 pdu_data->seq_num = this_seq;
                 p_add_proto_data(wmem_file_scope(), pinfo, proto_soupbintcp, key, pdu_data);
             }

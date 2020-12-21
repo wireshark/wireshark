@@ -822,7 +822,7 @@ wtap_open_return_val vwr_open(wtap *wth, int *err, gchar **err_info)
     }
 
     /* This is a vwr file */
-    vwr = (vwr_t *)g_malloc0(sizeof(vwr_t));
+    vwr = g_new0(vwr_t, 1);
     wth->priv = (void *)vwr;
 
     vwr->FPGA_VERSION = fpgaVer;

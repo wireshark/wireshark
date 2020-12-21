@@ -521,7 +521,7 @@ rpc_init_prog(int proto, guint32 prog, int ett, size_t nvers,
 	size_t versidx;
 	const vsff *proc;
 
-	value = (rpc_prog_info_value *) g_malloc(sizeof(rpc_prog_info_value));
+	value = g_new(rpc_prog_info_value, 1);
 	value->proto = find_protocol_by_id(proto);
 	value->proto_id = proto;
 	value->ett = ett;

@@ -196,7 +196,7 @@ DIAG_OFF_PEDANTIC
         ((plugin_register_func)symbol)();
 DIAG_ON_PEDANTIC
 
-        new_plug = (plugin *)g_malloc(sizeof(plugin));
+        new_plug = g_new(plugin, 1);
         new_plug->handle = handle;
         new_plug->name = g_strdup(name);
         new_plug->version = plug_version;

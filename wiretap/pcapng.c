@@ -2893,7 +2893,7 @@ pcapng_open(wtap *wth, int *err, gchar **err_info)
     wth->file_encap = WTAP_ENCAP_UNKNOWN;
     wth->snapshot_length = 0;
     wth->file_tsprec = WTAP_TSPREC_UNKNOWN;
-    pcapng = (pcapng_t *)g_malloc(sizeof(pcapng_t));
+    pcapng = g_new(pcapng_t, 1);
     wth->priv = (void *)pcapng;
     *pcapng = pn;
     /*

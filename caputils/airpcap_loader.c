@@ -537,7 +537,7 @@ airpcap_if_info_new(char *name, char *description)
     ad = airpcap_if_open(name, ebuf);
     if (ad)
     {
-        if_info = (airpcap_if_info_t *)g_malloc0(sizeof (airpcap_if_info_t));
+        if_info = g_new0(airpcap_if_info_t, 1);
         if_info->name = g_strdup(name);
         if (description == NULL){
             if_info->description = NULL;
@@ -595,7 +595,7 @@ airpcap_driver_fake_if_info_new(void)
     ad = airpcap_if_open(if_info->name, ebuf);
     if (ad)
     {
-        fake_if_info = (airpcap_if_info_t *)g_malloc0(sizeof (airpcap_if_info_t));
+        fake_if_info = g_new0(airpcap_if_info_t, 1);
         fake_if_info->name = g_strdup(if_info->name);
         fake_if_info->description = g_strdup(if_info->description);
         fake_if_info->loopback = FALSE;
@@ -946,7 +946,7 @@ airpcap_get_if_string_number_from_description(gchar* description)
     gchar* number;
     gchar* pointer;
 
-    number = (gchar*)g_malloc(sizeof(gchar)*3);
+    number = g_new(gchar, 3);
 
     pointer = g_strrstr(description,"#\0");
 

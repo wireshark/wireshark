@@ -267,7 +267,7 @@ wtap_open_return_val ascend_open(wtap *wth, int *err, gchar **err_info)
     wth->snapshot_length = ASCEND_MAX_PKT_LEN;
     wth->subtype_read = ascend_read;
     wth->subtype_seek_read = ascend_seek_read;
-    ascend = (ascend_t *)g_malloc(sizeof(ascend_t));
+    ascend = g_new(ascend_t, 1);
     wth->priv = (void *)ascend;
 
     /* The first packet we want to read is the one that

@@ -623,7 +623,7 @@ catapult_dct2000_dump(wtap_dumper *wdh, const wtap_rec *rec,
         }
 
         /* Allocate the dct2000-specific dump structure */
-        dct2000 = (dct2000_dump_t *)g_malloc(sizeof(dct2000_dump_t));
+        dct2000 = g_new(dct2000_dump_t, 1);
         wdh->priv = (void *)dct2000;
 
         /* Copy time of beginning of file */

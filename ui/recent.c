@@ -214,7 +214,7 @@ window_geom_save(const gchar *name, window_geometry_t *geom)
     }
 
     /* g_malloc and insert the new one */
-    work = (window_geometry_t *)g_malloc(sizeof(window_geometry_t));
+    work = g_new(window_geometry_t, 1);
     *work = *geom;
     key = g_strdup(name);
     work->key = key;
@@ -1155,7 +1155,7 @@ read_set_recent_pair_static(gchar *key, const gchar *value,
         col_l_elt = g_list_first(col_l);
         while (col_l_elt) {
             gchar *fmt = g_strdup((const gchar *)col_l_elt->data);
-            cfmt = (col_width_data *) g_malloc(sizeof(col_width_data));
+            cfmt = g_new(col_width_data, 1);
             if (strncmp(fmt, cust_format, cust_format_len) != 0) {
                 cfmt->cfmt   = get_column_format_from_str(fmt);
                 cfmt->cfield = NULL;
@@ -1511,7 +1511,7 @@ recent_set_column_width(gint col, gint width)
     }
 
     if (!found) {
-        col_w = (col_width_data *) g_malloc(sizeof(col_width_data));
+        col_w = g_new(col_width_data, 1);
         col_w->cfmt = cfmt;
         col_w->cfield = g_strdup(cfield);
         col_w->width = width;
@@ -1577,7 +1577,7 @@ recent_set_column_xalign(gint col, gchar xalign)
     }
 
     if (!found) {
-        col_w = (col_width_data *) g_malloc(sizeof(col_width_data));
+        col_w = g_new(col_width_data, 1);
         col_w->cfmt = cfmt;
         col_w->cfield = g_strdup(cfield);
         col_w->width = 40;

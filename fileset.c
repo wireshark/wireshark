@@ -222,7 +222,7 @@ fileset_add_file(const char *dirname, const char *fname, gboolean current)
 
         /* Show statistics if they are valid */
         if( result == 0 ) {
-            entry = (fileset_entry *)g_malloc(sizeof(fileset_entry));
+            entry = g_new(fileset_entry, 1);
 
             entry->fullname = g_strdup(path);
             entry->name     = g_strdup(fname);

@@ -796,7 +796,7 @@ wtap_open_return_val nstrace_open(wtap *wth, int *err, gchar **err_info)
     }
     wth->subtype_close = nstrace_close;
 
-    nstrace = (nstrace_t *)g_malloc(sizeof(nstrace_t));
+    nstrace = g_new(nstrace_t, 1);
     wth->priv = (void *)nstrace;
     nstrace->pnstrace_buf = nstrace_buf;
     nstrace->xxx_offset = 0;
@@ -2045,7 +2045,7 @@ gboolean nstrace_dump_open(wtap_dumper *wdh, int *err _U_, gchar **err_info _U_)
 
     wdh->subtype_write = nstrace_dump;
 
-    nstrace = (nstrace_dump_t *)g_malloc(sizeof(nstrace_dump_t));
+    nstrace = g_new(nstrace_dump_t, 1);
     wdh->priv = (void *)nstrace;
     nstrace->page_offset = 0;
     if ((wdh->file_type_subtype == WTAP_FILE_TYPE_SUBTYPE_NETSCALER_3_0) ||

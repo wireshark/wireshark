@@ -84,7 +84,7 @@ capture_callback_add(capture_callback_t func, gpointer user_data)
 {
     capture_callback_data_t *cb;
 
-    cb = (capture_callback_data_t *)g_malloc(sizeof(capture_callback_data_t));
+    cb = g_new(capture_callback_data_t, 1);
     cb->cb_fct = func;
     cb->user_data = user_data;
 
@@ -860,7 +860,7 @@ capture_stat_start(capture_options *capture_opts)
         for (i = 0; i < capture_opts->all_ifaces->len; i++) {
             device = &g_array_index(capture_opts->all_ifaces, interface_t, i);
             if (device->type != IF_PIPE) {
-                sc_item = (if_stat_cache_item_t *)g_malloc0(sizeof(if_stat_cache_item_t));
+                sc_item = g_new0(if_stat_cache_item_t, 1);
                 g_assert(device->if_info.name);
                 sc_item->name = g_strdup(device->if_info.name);
                 sc->cache_list = g_list_prepend(sc->cache_list, sc_item);

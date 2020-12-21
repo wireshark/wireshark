@@ -176,7 +176,7 @@ reset_stat_node(stat_node *node)
         node->bh = bucket->next;
         g_free(bucket);
     }
-    node->bh = (burst_bucket*)g_malloc0(sizeof(burst_bucket));
+    node->bh = g_new0(burst_bucket, 1);
     node->bt = node->bh;
     node->bcount = 0;
     node->max_burst = 0;
@@ -231,7 +231,7 @@ stats_tree_reinit(void *p)
     }
     st->root.st_flags = 0;
 
-    st->root.bh = (burst_bucket*)g_malloc0(sizeof(burst_bucket));
+    st->root.bh = g_new0(burst_bucket, 1);
     st->root.bt = st->root.bh;
     st->root.bcount = 0;
     st->root.max_burst = 0;
@@ -325,7 +325,7 @@ stats_tree_register_plugin(const char *tapname, const char *abbr, const char *na
 extern stats_tree*
 stats_tree_new(stats_tree_cfg *cfg, tree_pres *pr, const char *filter)
 {
-    stats_tree *st = (stats_tree *)g_malloc0(sizeof(stats_tree));
+    stats_tree *st = g_new0(stats_tree, 1);
 
     st->cfg = cfg;
     st->pr = pr;
@@ -349,7 +349,7 @@ stats_tree_new(stats_tree_cfg *cfg, tree_pres *pr, const char *filter)
         break;
     }
 
-    st->root.bh = (burst_bucket*)g_malloc0(sizeof(burst_bucket));
+    st->root.bh = g_new0(burst_bucket, 1);
     st->root.bt = st->root.bh;
     st->root.burst_time = -1.0;
 
@@ -462,7 +462,7 @@ new_stat_node(stats_tree *st, const gchar *name, int parent_id, stat_node_dataty
           gboolean with_hash, gboolean as_parent_node)
 {
 
-    stat_node *node = (stat_node *)g_malloc0(sizeof(stat_node));
+    stat_node *node = g_new0(stat_node, 1);
     stat_node *last_chld = NULL;
 
     node->datatype = datatype;
@@ -479,7 +479,7 @@ new_stat_node(stats_tree *st, const gchar *name, int parent_id, stat_node_dataty
     }
     node->st_flags = parent_id?0:ST_FLG_ROOTCHILD;
 
-    node->bh = (burst_bucket*)g_malloc0(sizeof(burst_bucket));
+    node->bh = g_new0(burst_bucket, 1);
     node->bt = node->bh;
     node->burst_time = -1.0;
 
@@ -572,7 +572,7 @@ update_burst_calc(stat_node *node, gint value)
     burstwin = prefs.st_burst_windowlen/prefs.st_burst_resolution;
     if (current_bucket>node->bt->bucket_no) {
         /* Must add a new bucket at the burst list tail */
-        bn = (burst_bucket*)g_malloc0(sizeof(burst_bucket));
+        bn = g_new0(burst_bucket, 1);
         bn->count = value;
         bn->bucket_no = current_bucket;
         bn->start_time = node->st->now;
@@ -595,7 +595,7 @@ update_burst_calc(stat_node *node, gint value)
         /* Packet must be added at head of burst list - check if not too old */
         if ((current_bucket+burstwin)>node->bt->bucket_no) {
             /* packet still within the window */
-            bn = (burst_bucket*)g_malloc0(sizeof(burst_bucket));
+            bn = g_new0(burst_bucket, 1);
             bn->count = value;
             bn->bucket_no = current_bucket;
             bn->start_time = node->st->now;
@@ -622,7 +622,7 @@ update_burst_calc(stat_node *node, gint value)
         }
         else {
             /* must add a new bucket after bn. */
-            bn = (burst_bucket*)g_malloc0(sizeof(burst_bucket));
+            bn = g_new0(burst_bucket, 1);
             bn->count = value;
             bn->bucket_no = current_bucket;
             bn->start_time = node->st->now;
@@ -805,7 +805,7 @@ get_range(char *rngstr)
         return NULL;
     }
 
-    rng = (range_pair_t *)g_malloc(sizeof(range_pair_t));
+    rng = g_new(range_pair_t, 1);
 
     if (split[1] == NULL) {
         /* means we have a non empty string with no delimiter

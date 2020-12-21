@@ -277,7 +277,7 @@ wtap_open_return_val logcat_open(wtap *wth, int *err, gchar **err_info)
     if (file_seek(wth->fh, 0, SEEK_SET, err) == -1)
         return WTAP_OPEN_ERROR;
 
-    logcat = (struct logcat_phdr *) g_malloc(sizeof(struct logcat_phdr));
+    logcat = g_new(struct logcat_phdr, 1);
     logcat->version = version;
 
     wth->priv = logcat;

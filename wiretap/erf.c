@@ -237,7 +237,7 @@ static struct erf_if_mapping* erf_if_mapping_create(guint64 host_id, guint8 sour
   int i = 0;
   struct erf_if_mapping *if_map = NULL;
 
-  if_map = (struct erf_if_mapping*) g_malloc0(sizeof(struct erf_if_mapping));
+  if_map = g_new0(struct erf_if_mapping, 1);
 
   if_map->host_id = host_id;
   if_map->source_id = source_id;
@@ -259,7 +259,7 @@ erf_t *erf_priv_create(void)
 {
   erf_t *erf_priv;
 
-  erf_priv = (erf_t*) g_malloc(sizeof(erf_t));
+  erf_priv = g_new(erf_t, 1);
   erf_priv->anchor_map = g_hash_table_new_full(erf_anchor_mapping_hash, erf_anchor_mapping_equal, erf_anchor_mapping_destroy, NULL);
   erf_priv->if_map = g_hash_table_new_full(erf_if_mapping_hash, erf_if_mapping_equal, erf_if_mapping_destroy, NULL);
   erf_priv->implicit_host_id = ERF_META_HOST_ID_IMPLICIT;
@@ -993,7 +993,7 @@ static void erf_write_wtap_option_to_capture_tag(wtap_block_t block _U_,
   struct erf_meta_section *section_ptr = (struct erf_meta_section*) user_data;
   struct erf_meta_tag *tag_ptr = NULL;
 
-  tag_ptr = (struct erf_meta_tag*) g_malloc0(sizeof(struct erf_meta_tag));
+  tag_ptr = g_new0(struct erf_meta_tag, 1);
 
   switch(option_id) {
     case OPT_SHB_USERAPPL:
@@ -1025,7 +1025,7 @@ static void erf_write_wtap_option_to_host_tag(wtap_block_t block _U_,
   struct erf_meta_section *section_ptr = (struct erf_meta_section*) user_data;
   struct erf_meta_tag *tag_ptr = NULL;
 
-  tag_ptr = (struct erf_meta_tag*) g_malloc0(sizeof(struct erf_meta_tag));
+  tag_ptr = g_new0(struct erf_meta_tag, 1);
 
   switch(option_id) {
     case OPT_SHB_HARDWARE:
@@ -1057,7 +1057,7 @@ static void erf_write_wtap_option_to_interface_tag(wtap_block_t block _U_,
   struct erf_meta_section *section_ptr = (struct erf_meta_section*) user_data;
   struct erf_meta_tag *tag_ptr = NULL;
 
-  tag_ptr = (struct erf_meta_tag*) g_malloc0(sizeof(struct erf_meta_tag));
+  tag_ptr = g_new0(struct erf_meta_tag, 1);
 
   switch(option_id) {
     case OPT_COMMENT:
@@ -1186,7 +1186,7 @@ static gboolean erf_wtap_blocks_to_erf_sections(wtap_block_t block, GPtrArray *s
 
   struct erf_meta_section *section_ptr;
 
-  section_ptr = (struct erf_meta_section*) g_malloc(sizeof(struct erf_meta_section));
+  section_ptr = g_new(struct erf_meta_section, 1);
   section_ptr->tags = g_ptr_array_new_with_free_func(erf_meta_tag_free);
   section_ptr->type = section_type;
   section_ptr->section_id = section_id;
@@ -1275,13 +1275,13 @@ static gboolean erf_comment_to_sections(wtap_dumper *wdh _U_, guint16 section_ty
   const gchar *user = NULL;
 
   /* Generate the section */
-  section_ptr = (struct erf_meta_section*) g_malloc(sizeof(struct erf_meta_section));
+  section_ptr = g_new(struct erf_meta_section, 1);
   section_ptr->type = section_type;
   section_ptr->section_id = section_id;
   section_ptr->tags = g_ptr_array_new_with_free_func(erf_meta_tag_free);
 
   /* Generate the comment tag */
-  comment_tag_ptr = (struct erf_meta_tag*) g_malloc(sizeof(struct erf_meta_tag));
+  comment_tag_ptr = g_new(struct erf_meta_tag, 1);
   comment_tag_ptr->type = ERF_META_TAG_comment;
   /* XXX: if the comment has been cleared write the empty string (which
    * conveniently is all a zero length tag which means the value is
@@ -1293,7 +1293,7 @@ static gboolean erf_comment_to_sections(wtap_dumper *wdh _U_, guint16 section_ty
   user = g_get_user_name();
   if (user) {
     /* Generate username tag */
-    user_tag_ptr = (struct erf_meta_tag*) g_malloc(sizeof(struct erf_meta_tag));
+    user_tag_ptr = g_new(struct erf_meta_tag, 1);
     user_tag_ptr->type = ERF_META_TAG_user;
     user_tag_ptr->value = (guint8*)g_strdup(user);
     user_tag_ptr->length = (guint16)strlen((char*)user_tag_ptr->value);
@@ -1733,7 +1733,7 @@ static gboolean erf_write_meta_record(wtap_dumper *wdh, erf_dump_t *dump_priv, g
 static erf_dump_t *erf_dump_priv_create(void) {
   erf_dump_t *dump_priv;
 
-  dump_priv = (erf_dump_t*)g_malloc(sizeof(erf_dump_t));
+  dump_priv = g_new(erf_dump_t, 1);
   dump_priv->write_next_extra_meta = FALSE;
   dump_priv->last_meta_periodic = FALSE;
   dump_priv->gen_time = 0;
@@ -2218,7 +2218,7 @@ static int erf_update_anchors_from_header(erf_t *erf_priv, wtap_rec *rec, union 
              */
             /* Only Provenance record can contain the information we need */
             struct erf_anchor_mapping *mapping_ptr =
-              (struct erf_anchor_mapping*)g_malloc0(sizeof(struct erf_anchor_mapping));
+              g_new0(struct erf_anchor_mapping, 1);
             /* May be ERF_META_HOST_ID_IMPLICIT */
             mapping_ptr->host_id = host_id_current;
             mapping_ptr->anchor_id = anchor_id_current;
@@ -3079,7 +3079,7 @@ static int populate_anchor_info(erf_t *erf_priv, wtap *wth, union wtap_pseudo_he
       else {
         /* !lookup_result */
         struct erf_anchor_mapping *new_mapping;
-        new_mapping = (struct erf_anchor_mapping *)g_malloc0(sizeof(struct erf_anchor_mapping));
+        new_mapping = g_new0(struct erf_anchor_mapping, 1);
         new_mapping->anchor_id = mapping->anchor_id;
         new_mapping->host_id = mapping->host_id;
         new_mapping->gen_time = state->gen_time;

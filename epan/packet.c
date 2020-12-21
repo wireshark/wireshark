@@ -1074,7 +1074,7 @@ dissector_add_uint(const char *name, const guint32 pattern, dissector_handle_t h
 	dissector_add_uint_sanity_check(name, pattern, handle, sub_dissectors);
 #endif
 
-	dtbl_entry = (dtbl_entry_t *)g_malloc(sizeof (dtbl_entry_t));
+	dtbl_entry = g_new(dtbl_entry_t, 1);
 	dtbl_entry->current = handle;
 	dtbl_entry->initial = dtbl_entry->current;
 
@@ -1330,7 +1330,7 @@ dissector_change_uint(const char *name, const guint32 pattern, dissector_handle_
 	if (handle == NULL)
 		return;
 
-	dtbl_entry = (dtbl_entry_t *)g_malloc(sizeof (dtbl_entry_t));
+	dtbl_entry = g_new(dtbl_entry_t, 1);
 	dtbl_entry->initial = NULL;
 	dtbl_entry->current = handle;
 
@@ -1554,7 +1554,7 @@ dissector_add_string(const char *name, const gchar *pattern,
 		g_assert_not_reached();
 	}
 
-	dtbl_entry = (dtbl_entry_t *)g_malloc(sizeof (dtbl_entry_t));
+	dtbl_entry = g_new(dtbl_entry_t, 1);
 	dtbl_entry->current = handle;
 	dtbl_entry->initial = dtbl_entry->current;
 
@@ -1638,7 +1638,7 @@ dissector_change_string(const char *name, const gchar *pattern,
 	if (handle == NULL)
 		return;
 
-	dtbl_entry = (dtbl_entry_t *)g_malloc(sizeof (dtbl_entry_t));
+	dtbl_entry = g_new(dtbl_entry_t, 1);
 	dtbl_entry->initial = NULL;
 	dtbl_entry->current = handle;
 
@@ -1800,7 +1800,7 @@ void dissector_add_custom_table_handle(const char *name, void *pattern, dissecto
 
 	g_assert(sub_dissectors->type == FT_BYTES);
 
-	dtbl_entry = (dtbl_entry_t *)g_malloc(sizeof (dtbl_entry_t));
+	dtbl_entry = g_new(dtbl_entry_t, 1);
 	dtbl_entry->current = handle;
 	dtbl_entry->initial = dtbl_entry->current;
 
@@ -1858,7 +1858,7 @@ void dissector_add_guid(const char *name, guid_key* guid_val, dissector_handle_t
 		g_assert_not_reached();
 	}
 
-	dtbl_entry = (dtbl_entry_t *)g_malloc(sizeof (dtbl_entry_t));
+	dtbl_entry = g_new(dtbl_entry_t, 1);
 	dtbl_entry->current = handle;
 	dtbl_entry->initial = dtbl_entry->current;
 

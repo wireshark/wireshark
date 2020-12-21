@@ -24,7 +24,7 @@ codec_sbc_init(void)
 {
     sbc_t *sbc;
 
-    sbc = (sbc_t *) g_malloc(sizeof(sbc_t));
+    sbc = g_new(sbc_t, 1);
     sbc_init(sbc, 0L);
 
     return sbc;

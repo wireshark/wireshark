@@ -912,7 +912,7 @@ print_statistics_loop(gboolean machine_readable)
 #endif
 
         if (pch) {
-            if_stat = (if_stat_t *)g_malloc(sizeof(if_stat_t));
+            if_stat = g_new(if_stat_t, 1);
             if_stat->name = g_strdup(if_info->name);
             if_stat->pch = pch;
             stat_list = g_list_append(stat_list, if_stat);
@@ -2760,7 +2760,7 @@ capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
     int pcapng_src_count = 0;
     for (i = 0; i < capture_opts->ifaces->len; i++) {
         interface_opts = &g_array_index(capture_opts->ifaces, interface_options, i);
-        pcap_src = (capture_src *)g_malloc0(sizeof (capture_src));
+        pcap_src = g_new0(capture_src, 1);
         if (pcap_src == NULL) {
             g_snprintf(errmsg, (gulong) errmsg_len,
                    "Could not allocate memory.");
@@ -4509,7 +4509,7 @@ capture_loop_queue_packet_cb(u_char *pcap_src_p, const struct pcap_pkthdr *phdr,
         return;
     }
 
-    queue_element = (pcap_queue_element *)g_malloc(sizeof(pcap_queue_element));
+    queue_element = g_new(pcap_queue_element, 1);
     if (queue_element == NULL) {
        pcap_src->dropped++;
        return;
@@ -4569,7 +4569,7 @@ capture_loop_queue_pcapng_cb(capture_src *pcap_src, const pcapng_block_header_t 
         return;
     }
 
-    queue_element = (pcap_queue_element *)g_malloc(sizeof(pcap_queue_element));
+    queue_element = g_new(pcap_queue_element, 1);
     if (queue_element == NULL) {
        pcap_src->dropped++;
        return;

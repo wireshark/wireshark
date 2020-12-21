@@ -453,7 +453,7 @@ done:
        * Let's get some info from it. Note that we get wth->snapshot_length
        * from a record later in the file. */
       wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_LANALYZER;
-      lanalyzer = (lanalyzer_t *)g_malloc(sizeof(lanalyzer_t));
+      lanalyzer = g_new(lanalyzer_t, 1);
       lanalyzer->start = start;
       wth->priv = (void *)lanalyzer;
       wth->subtype_read = lanalyzer_read;

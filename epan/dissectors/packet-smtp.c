@@ -429,7 +429,7 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     /*
      * No - create one and attach it.
      */
-    session_state                    = (struct smtp_session_state *)wmem_alloc0(wmem_file_scope(), sizeof(struct smtp_session_state));
+    session_state                    = wmem_new0(wmem_file_scope(), struct smtp_session_state);
     session_state->smtp_state        = SMTP_STATE_START;
     session_state->auth_state        = SMTP_AUTH_STATE_NONE;
     session_state->msg_last          = TRUE;
@@ -455,7 +455,7 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
       /*
        * Create a frame data structure and attach it to the packet.
        */
-      spd_frame_data = (struct smtp_proto_data *)wmem_alloc0(wmem_file_scope(), sizeof(struct smtp_proto_data));
+      spd_frame_data = wmem_new0(wmem_file_scope(), struct smtp_proto_data);
 
       spd_frame_data->conversation_id = conversation->conv_index;
       spd_frame_data->more_frags = TRUE;

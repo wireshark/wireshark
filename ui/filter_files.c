@@ -45,7 +45,7 @@ add_filter_entry(GList *fl, const char *filt_name, const char *filt_expr)
 {
     filter_def *filt;
 
-    filt         = (filter_def *) g_malloc(sizeof(filter_def));
+    filt         = g_new(filter_def, 1);
     filt->name   = g_strdup(filt_name);
     filt->strval = g_strdup(filt_expr);
     return g_list_prepend(fl, filt);

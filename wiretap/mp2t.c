@@ -381,7 +381,7 @@ found:
     wth->subtype_seek_read = mp2t_seek_read;
     wth->snapshot_length = 0;
 
-    mp2t = (mp2t_filetype_t*) g_malloc(sizeof(mp2t_filetype_t));
+    mp2t = g_new(mp2t_filetype_t, 1);
 
     wth->priv = mp2t;
     mp2t->start_offset = first;

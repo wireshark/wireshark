@@ -664,7 +664,7 @@ print_stream_text_alloc(gboolean to_file, FILE *fh)
         output->color_type = COLOR_NONE;
     }
 
-    stream          = (print_stream_t *)g_malloc(sizeof (print_stream_t));
+    stream          = g_new(print_stream_t, 1);
     stream->ops     = &print_text_ops;
     stream->data    = output;
 
@@ -834,7 +834,7 @@ print_stream_ps_alloc(gboolean to_file, FILE *fh)
     output->to_file = to_file;
     output->fh      = fh;
 
-    stream          = (print_stream_t *)g_malloc(sizeof (print_stream_t));
+    stream          = g_new(print_stream_t, 1);
     stream->ops     = &print_ps_ops;
     stream->data    = output;
 

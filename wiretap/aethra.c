@@ -131,7 +131,7 @@ wtap_open_return_val aethra_open(wtap *wth, int *err, gchar **err_info)
 	    sizeof hdr - sizeof hdr.magic, err, err_info))
 		return WTAP_OPEN_ERROR;
 	wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_AETHRA;
-	aethra = (aethra_t *)g_malloc(sizeof(aethra_t));
+	aethra = g_new(aethra_t, 1);
 	wth->priv = (void *)aethra;
 	wth->subtype_read = aethra_read;
 	wth->subtype_seek_read = aethra_seek_read;

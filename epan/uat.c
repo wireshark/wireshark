@@ -54,7 +54,7 @@ uat_t* uat_new(const char* name,
                uat_reset_cb_t reset_cb,
                uat_field_t* flds_array) {
     /* Create new uat */
-    uat_t* uat = (uat_t *)g_malloc(sizeof(uat_t));
+    uat_t* uat = g_new(uat_t, 1);
     guint i;
 
     /* Add to global array of uats */
@@ -96,7 +96,7 @@ uat_t* uat_new(const char* name,
     uat->flags = flags;
 
     for (i=0;flds_array[i].title;i++) {
-        fld_data_t* f = (fld_data_t *)g_malloc(sizeof(fld_data_t));
+        fld_data_t* f = g_new(fld_data_t, 1);
 
         f->colnum = i+1;
         f->rep = NULL;

@@ -24,7 +24,7 @@ void register_conversation_filter(const char *proto_name, const char *display_na
                                         is_filter_valid_func is_filter_valid, build_filter_string_func build_filter_string) {
     conversation_filter_t *entry;
 
-    entry = (conversation_filter_t *)g_malloc(sizeof(conversation_filter_t));
+    entry = g_new(conversation_filter_t, 1);
 
     entry->proto_name           = proto_name;
     entry->display_name         = display_name;

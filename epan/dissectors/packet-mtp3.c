@@ -781,8 +781,8 @@ dissect_mtp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
   /* create display subtree for the protocol */
   mtp3_tree = proto_item_add_subtree(mtp3_item, ett_mtp3);
 
-  mtp3_addr_opc = (mtp3_addr_pc_t *)wmem_alloc0(pinfo->pool, sizeof(mtp3_addr_pc_t));
-  mtp3_addr_dpc = (mtp3_addr_pc_t *)wmem_alloc0(pinfo->pool, sizeof(mtp3_addr_pc_t));
+  mtp3_addr_opc = wmem_new0(pinfo->pool, mtp3_addr_pc_t);
+  mtp3_addr_dpc = wmem_new0(pinfo->pool, mtp3_addr_pc_t);
 
   /* Dissect the packet (even if !tree so can call sub-dissectors and update
    * the source and destination address columns) */

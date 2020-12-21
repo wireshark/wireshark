@@ -159,7 +159,7 @@ wtap_open_return_val network_instruments_open(wtap *wth, int *err, gchar **err_i
     }
 
     /* initialize the private state */
-    private_state = (observer_dump_private_state *) g_malloc(sizeof(observer_dump_private_state));
+    private_state = g_new(observer_dump_private_state, 1);
     private_state->time_format = TIME_INFO_LOCAL;
     wth->priv = (void *) private_state;
 
@@ -675,7 +675,7 @@ gboolean network_instruments_dump_open(wtap_dumper *wdh, int *err,
     time_t system_time;
 
     /* initialize the private state */
-    private_state = (observer_dump_private_state *) g_malloc(sizeof(observer_dump_private_state));
+    private_state = g_new(observer_dump_private_state, 1);
     private_state->packet_count = 0;
     private_state->network_type = wtap_to_observer_encap(wdh->encap);
     private_state->time_format = TIME_INFO_GMT;

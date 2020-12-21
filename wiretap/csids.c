@@ -109,7 +109,7 @@ wtap_open_return_val csids_open(wtap *wth, int *err, gchar **err_info)
   if (file_seek(wth->fh, 0, SEEK_SET, err) == -1)
     return WTAP_OPEN_ERROR;
 
-  csids = (csids_t *)g_malloc(sizeof(csids_t));
+  csids = g_new(csids_t, 1);
   wth->priv = (void *)csids;
   csids->byteswapped = byteswap;
   wth->file_encap = WTAP_ENCAP_RAW_IP;

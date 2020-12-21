@@ -1380,7 +1380,7 @@ gboolean k12_dump_open(wtap_dumper *wdh, int *err, gchar **err_info _U_) {
     wdh->subtype_write = k12_dump;
     wdh->subtype_finish = k12_dump_finish;
 
-    k12 = (k12_dump_t *)g_malloc(sizeof(k12_dump_t));
+    k12 = g_new(k12_dump_t, 1);
     wdh->priv = (void *)k12;
     k12->file_len = K12_FILE_HDR_LEN;
     k12->num_of_records = 0;

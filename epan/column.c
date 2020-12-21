@@ -846,17 +846,17 @@ col_finalize(column_info *cinfo)
       col_item->col_custom_dfilter = NULL;
     }
 
-    col_item->fmt_matx = (gboolean *) g_malloc0(sizeof(gboolean) * NUM_COL_FMTS);
+    col_item->fmt_matx = g_new0(gboolean, NUM_COL_FMTS);
     get_column_format_matches(col_item->fmt_matx, col_item->col_fmt);
     col_item->col_data = NULL;
 
     if (col_item->col_fmt == COL_INFO)
-      col_item->col_buf = (gchar *) g_malloc(sizeof(gchar) * COL_MAX_INFO_LEN);
+      col_item->col_buf = g_new(gchar, COL_MAX_INFO_LEN);
     else
-      col_item->col_buf = (gchar *) g_malloc(sizeof(gchar) * COL_MAX_LEN);
+      col_item->col_buf = g_new(gchar, COL_MAX_LEN);
 
     cinfo->col_expr.col_expr[i] = "";
-    cinfo->col_expr.col_expr_val[i] = (gchar *) g_malloc(sizeof(gchar) * COL_MAX_LEN);
+    cinfo->col_expr.col_expr_val[i] = g_new(gchar, COL_MAX_LEN);
   }
 
   cinfo->col_expr.col_expr[i] = NULL;

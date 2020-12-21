@@ -3325,10 +3325,10 @@ static void save_conversation_info(packet_info *pinfo, guint8 *local_gid, guint8
         connection_context *connection;
         conversation_infiniband_data *proto_data;
         conversation_t *conv;
-        guint64 *hash_key = (guint64 *)g_malloc(sizeof(guint64));
+        guint64 *hash_key = g_new(guint64, 1);
 
         /* create a new connection context and store it in the hash table */
-        connection = (connection_context *)g_malloc(sizeof(connection_context));
+        connection = g_new(connection_context, 1);
 
         if (pinfo->dst.type == AT_IPv4) {
             memcpy(&(connection->req_gid), local_gid, 4);
