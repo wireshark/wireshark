@@ -235,10 +235,9 @@
 	<string>NSApplication</string>
 	<key>NSHighResolutionCapable</key>
 	<true/>
-	<!-- "true" disables dark mode support.
+	<!-- Force dark mode support. -->
 	<key>NSRequiresAquaSystemAppearance</key>
-	<true/>
-	-->
+	<false/>
 	<key>LSMinimumSystemVersion</key>
 	<string>@MIN_MACOS_VERSION@</string>
 
