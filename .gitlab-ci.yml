@@ -11,6 +11,9 @@
 # https://hub.docker.com/r/wireshark/wireshark-opensuse-15.2-dev
 # https://hub.docker.com/r/wireshark/wireshark-ubuntu-dev
 
+variables:
+  CCACHE_DIR: "${CI_PROJECT_DIR}/ccache"
+
 .build: &build
   stage: build
   after_script:
@@ -34,8 +37,6 @@
     - export LANG=en_US.UTF-8
     - export PYTEST_ADDOPTS=--skip-missing-programs=dumpcap,rawshark
     - mkdir -p ccache
-    - export CCACHE_BASEDIR=${PWD}
-    - export CCACHE_DIR=${PWD}/ccache
     - ccache --show-stats
     - export DEB_BUILD_OPTIONS=nocheck
     - export DH_QUIET=1
