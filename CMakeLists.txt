@@ -1044,7 +1044,7 @@ find_package(GMODULE2)
 reset_find_package(GTHREAD2)
 find_package(GTHREAD2 REQUIRED)
 reset_find_package(GCRYPT GCRYPT_ERROR_LIBRARY)
-find_package(GCRYPT "1.4.2" REQUIRED)
+find_package(GCRYPT "1.5.0" REQUIRED)
 # C Asynchronous resolver
 reset_find_package(CARES)
 find_package(CARES "1.5.0" REQUIRED)
