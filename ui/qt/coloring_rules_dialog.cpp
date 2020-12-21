@@ -174,16 +174,11 @@ bool ColoringRulesDialog::isValidFilter(QString filter, QString * error)
 {
     dfilter_t *dfp = NULL;
     gchar *err_msg;
+
     if (dfilter_compile(filter.toUtf8().constData(), &dfp, &err_msg)) {
-        GPtrArray *depr = NULL;
-        if (dfp) {
-            depr = dfilter_deprecated_tokens(dfp);
-        }
-        if (! depr) {
-            return true;
-        }
+        dfilter_free(dfp);
+        return true;
     }
-    dfilter_free(dfp);
 
     if (err_msg)
     {
