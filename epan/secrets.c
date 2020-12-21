@@ -186,15 +186,11 @@ get_pkcs11_token_uris(void)
             continue;
         }
 
-#if GNUTLS_VERSION_NUMBER >= 0x030300
         // The "Trust module" is useless for decryption, so do not return it.
-        // We can only check this in GnuTLS 3.3.0, older versions lack this flag
-        // and thus we will just return some useless keys.
         if ((flags & GNUTLS_PKCS11_TOKEN_TRUSTED)) {
             gnutls_free(uri);
             continue;
         }
-#endif
 
         tokens = g_slist_prepend(tokens, g_strdup(uri));
         gnutls_free(uri);

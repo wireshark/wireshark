@@ -1132,7 +1132,7 @@ reset_find_package(SMI SMI_SHARE_DIR)
 ws_find_package(SMI ENABLE_SMI HAVE_LIBSMI)
 
 # Support for TLS decryption using RSA private keys.
-ws_find_package(GNUTLS ENABLE_GNUTLS HAVE_LIBGNUTLS "3.2.0")
+ws_find_package(GNUTLS ENABLE_GNUTLS HAVE_LIBGNUTLS "3.3.0")
 
 # Kerberos
 ws_find_package(KERBEROS ENABLE_KERBEROS HAVE_KERBEROS)
@@ -1239,7 +1239,7 @@ if(GNUTLS_FOUND AND NOT GNUTLS_VERSION VERSION_LESS "3.4.0")
 	# 3.4.0 or greater.
 	#
 	# Check that the support is present in case GnuTLS was compiled
-	# --without-p11-kit as macos-setup.sh did until recently.
+	# --without-p11-kit as macos-setup.sh did until December 2020.
 	include(CheckSymbolExists)
 	cmake_push_check_state()
 	if(WIN32)
