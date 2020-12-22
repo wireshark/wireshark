@@ -71,8 +71,8 @@ build:ubuntu-dist:
   script:
     - perl ../tools/make-version.pl --set-release || ../perl make-version.pl --set-release
     - cmake -G Ninja $CMAKE_ARGS -DENABLE_CCACHE=ON ..
-    - packaging/source/git-export-release.sh -d .
-    - mv -v wireshark-*.tar.* "$CI_PROJECT_DIR"/
+    - cd $CI_PROJECT_DIR
+    - build/packaging/source/git-export-release.sh -d .
   after_script:
     # - ccache --max-size $( du --summarize --block-size=1M "$CI_PROJECT_DIR/build" | awk '{printf ("%dM", $1 * 1.5)}' )
     - for digest in sha256 rmd160 sha1 ; do openssl $digest wireshark-*.tar.* ; done
