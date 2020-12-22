@@ -188,7 +188,7 @@ sub read_repo_info {
 			if ($? == 0 && length($line) > 1) {
 				my @parts = split(/-/, $line);
 				$git_description = $line;
-				$num_commits = $parts[-2];
+				$num_commits = $parts[-2] ? $parts[-2] : "0";
 				$commit_id = $parts[-1];
 
 				if ($line =~ /v\d+\.\d+\.\d+(rc\d+)-/) {
