@@ -2152,13 +2152,19 @@ tcp_analyze_sequence_number(packet_info *pinfo, guint32 seq, guint32 ack, guint3
     &&  seq==tcpd->fwd->tcp_analyze_seq_info->nextseq
     &&  ack==tcpd->fwd->tcp_analyze_seq_info->lastack
     &&  (flags&(TH_SYN|TH_FIN|TH_RST))==0 ) {
-        tcpd->fwd->tcp_analyze_seq_info->dupacknum++;
-        if(!tcpd->ta) {
-            tcp_analyze_get_acked_struct(pinfo->num, seq, ack, TRUE, tcpd);
-        }
-        tcpd->ta->flags|=TCP_A_DUPLICATE_ACK;
-        tcpd->ta->dupack_num=tcpd->fwd->tcp_analyze_seq_info->dupacknum;
-        tcpd->ta->dupack_frame=tcpd->fwd->tcp_analyze_seq_info->lastnondupack;
+
+        /* MPTCP tolerates duplicate acks in some circumstances, see RFC 8684 4. */
+        if(tcpd->mptcp_analysis && (tcpd->mptcp_analysis->mp_operations!=tcpd->fwd->mp_operations)) {
+            /* just ignore this DUPLICATE ACK */
+        } else {
+            tcpd->fwd->tcp_analyze_seq_info->dupacknum++;
+            if(!tcpd->ta) {
+                tcp_analyze_get_acked_struct(pinfo->num, seq, ack, TRUE, tcpd);
+            }
+            tcpd->ta->flags|=TCP_A_DUPLICATE_ACK;
+            tcpd->ta->dupack_num=tcpd->fwd->tcp_analyze_seq_info->dupacknum;
+            tcpd->ta->dupack_frame=tcpd->fwd->tcp_analyze_seq_info->lastnondupack;
+       }
     }
 
 
@@ -2343,6 +2349,10 @@ finished_checking_retransmission_type:
     tcpd->fwd->tcp_analyze_seq_info->lastacktime.secs=pinfo->abs_ts.secs;
     tcpd->fwd->tcp_analyze_seq_info->lastacktime.nsecs=pinfo->abs_ts.nsecs;
 
+    /* remember the MPTCP operations if any */
+    if( tcpd->mptcp_analysis ) {
+        tcpd->fwd->mp_operations=tcpd->mptcp_analysis->mp_operations;
+    }
 
     /* if there were any flags set for this segment we need to remember them
      * we only remember the flags for the very last segment though.
@@ -2954,6 +2964,42 @@ mptcp_add_analysis_subtree(packet_info *pinfo, tvbuff_t *tvb, proto_tree *parent
     }
 
     proto_item_set_generated(item);
+
+    /* store the TCP Options related to MPTCP then we will avoid false DUP ACKs later */
+    guint8 nbOptionsChanged = 0;
+    if((tcpd->mptcp_analysis->mp_operations&(0x01))!=tcph->th_mptcp->mh_mpc) {
+        tcpd->mptcp_analysis->mp_operations |= 0x01;
+        nbOptionsChanged++;
+    }
+    if((tcpd->mptcp_analysis->mp_operations&(0x02))!=tcph->th_mptcp->mh_join) {
+        tcpd->mptcp_analysis->mp_operations |= 0x02;
+        nbOptionsChanged++;
+    }
+    if((tcpd->mptcp_analysis->mp_operations&(0x04))!=tcph->th_mptcp->mh_dss) {
+        tcpd->mptcp_analysis->mp_operations |= 0x04;
+        nbOptionsChanged++;
+    }
+    if((tcpd->mptcp_analysis->mp_operations&(0x08))!=tcph->th_mptcp->mh_add) {
+        tcpd->mptcp_analysis->mp_operations |= 0x08;
+        nbOptionsChanged++;
+    }
+    if((tcpd->mptcp_analysis->mp_operations&(0x10))!=tcph->th_mptcp->mh_remove) {
+        tcpd->mptcp_analysis->mp_operations |= 0x10;
+        nbOptionsChanged++;
+    }
+    if((tcpd->mptcp_analysis->mp_operations&(0x20))!=tcph->th_mptcp->mh_prio) {
+        tcpd->mptcp_analysis->mp_operations |= 0x20;
+        nbOptionsChanged++;
+    }
+    if((tcpd->mptcp_analysis->mp_operations&(0x40))!=tcph->th_mptcp->mh_fail) {
+        tcpd->mptcp_analysis->mp_operations |= 0x40;
+        nbOptionsChanged++;
+    }
+    if((tcpd->mptcp_analysis->mp_operations&(0x80))!=tcph->th_mptcp->mh_fastclose) {
+        tcpd->mptcp_analysis->mp_operations |= 0x80;
+        nbOptionsChanged++;
+    }
+    /* we could track MPTCP option changes here, with nbOptionsChanged */
 
     item = proto_tree_add_uint(tree, hf_mptcp_stream, tvb, 0, 0, mptcpd->stream);
     proto_item_set_generated(item);
@@ -4890,6 +4936,7 @@ dissect_tcpopt_mptcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
             break;
 
         case TCPOPT_MPTCP_ADD_ADDR:
+            mph->mh_add = TRUE;
             ipver = tvb_get_guint8(tvb, offset) & 0x0F;
             if (ipver == 4 || ipver == 6)
                 proto_tree_add_item(mptcp_tree,
@@ -4928,6 +4975,7 @@ dissect_tcpopt_mptcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
             break;
 
         case TCPOPT_MPTCP_REMOVE_ADDR:
+            mph->mh_remove = TRUE;
             item = proto_tree_add_uint(mptcp_tree, hf_mptcp_number_of_removed_addresses, tvb, start_offset+2,
                 1, optlen - 3);
             proto_item_set_generated(item);
@@ -4940,6 +4988,7 @@ dissect_tcpopt_mptcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
             break;
 
         case TCPOPT_MPTCP_MP_PRIO:
+            mph->mh_prio = TRUE;
             proto_tree_add_bitmask(mptcp_tree, tvb, offset, hf_tcp_option_mptcp_flags,
                          ett_tcp_option_mptcp, tcp_option_mptcp_join_flags,
                          ENC_BIG_ENDIAN);

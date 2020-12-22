@@ -49,8 +49,11 @@ struct mptcpheader {
 	gboolean mh_mpc;         /* true if seen an mp_capable option */
 	gboolean mh_join;        /* true if seen an mp_join option */
 	gboolean mh_dss;         /* true if seen a dss */
-	gboolean mh_fastclose;   /* true if seen a fastclose */
+	gboolean mh_add;         /* true if seen an MP_ADD */
+	gboolean mh_remove;      /* true if seen an MP_REMOVE */
+	gboolean mh_prio;        /* true if seen an MP_PRIO */
 	gboolean mh_fail;        /* true if seen an MP_FAIL */
+	gboolean mh_fastclose;   /* true if seen a fastclose */
 
 	guint8  mh_capable_flags; /* to get hmac version for instance */
 	guint8  mh_dss_flags; /* data sequence signal flag */
@@ -332,6 +335,7 @@ typedef struct _tcp_flow_t {
 	gboolean valid_bif;     /* if lost pkts, disable BiF until ACK is recvd */
 	guint32 push_bytes_sent; /* bytes since the last PSH flag */
 	gboolean push_set_last; /* tracking last time PSH flag was set */
+	guint8 mp_operations; /* tracking of the MPTCP operations */
 
 	tcp_analyze_seq_flow_info_t* tcp_analyze_seq_info;
 
@@ -378,6 +382,9 @@ struct mptcp_analysis {
 
 	/* identifier of the tcp stream that saw the initial 3WHS with MP_CAPABLE option */
 	struct tcp_analysis *master;
+
+	/* Keep track of the last TCP operations seen in order to avoid false DUP ACKs */
+	guint8 mp_operations;
 };
 
 struct tcp_analysis {
