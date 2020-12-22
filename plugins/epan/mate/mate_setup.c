@@ -97,7 +97,7 @@ extern mate_cfg_gop* new_gopcfg(mate_config* mc, gchar* name) {
 }
 
 extern mate_cfg_gog* new_gogcfg(mate_config* mc, gchar* name) {
-	mate_cfg_gog* cfg = (mate_cfg_gog *)g_malloc(sizeof(mate_cfg_gop));
+	mate_cfg_gog* cfg = g_new(mate_cfg_gog, 1);
 
 	cfg->name = g_strdup(name);
 	cfg->last_id = 0;
