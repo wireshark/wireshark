@@ -266,6 +266,8 @@ merge-req:commit-checks:
     - docker
   rules:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+  variables:
+    GIT_DEPTH: 10
   script:
     # build-ubuntu puts us in `build`.
     - cd ..
@@ -278,6 +280,8 @@ merge-req:ubuntu-dpkg:
     - docker
   rules:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+  variables:
+    GIT_DEPTH: 10
   script:
     # build-ubuntu puts us in `build`.
     - cd ..
@@ -294,9 +298,10 @@ merge-req:ubuntu-gcc-ctest:
     - docker
   rules:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+  variables:
+    GIT_DEPTH: 10
   script:
     # build-ubuntu puts us in `build`.
-    - perl ../tools/make-version.pl --set-release || ../perl make-version.pl --set-release
     - CC=gcc CXX=g++ cmake -DENABLE_EXTRA_COMPILER_WARNINGS=on -DCMAKE_EXPORT_COMPILE_COMMANDS=on -DENABLE_CCACHE=ON -G Ninja ..
     - ninja
     - ninja test-programs
@@ -309,6 +314,8 @@ merge-req:ubuntu-clang-other-tests:
     - docker
   rules:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+  variables:
+    GIT_DEPTH: 10
   script:
     # build-ubuntu puts us in `build`.
     - cd ..
@@ -343,6 +350,8 @@ merge-req:windows:
     # The wireshark-windows-dev image is only available via a dedicated runner.
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_PROJECT_URL =~ /.*gitlab.com\/wireshark\/wireshark/'
       when: always
+  variables:
+    GIT_DEPTH: 10
   before_script:
     # XXX Find a better location.
     - cmd.exe /c "set CI_PIPELINE_SOURCE"
@@ -363,7 +372,6 @@ merge-req:windows:
     #- cmd.exe /c "set"
     #- Get-Location
   script:
-    - perl tools/make-version.pl --set-release
     - mkdir build
     - cd build
     - cmake -G "Visual Studio 16 2019" -A x64 -DENABLE_LTO=off ..
