@@ -33,7 +33,6 @@ variables:
       - ccache/
   before_script:
     - useradd user
-    - locale-gen en_US.UTF-8
     - export LANG=en_US.UTF-8
     - export PYTEST_ADDOPTS=--skip-missing-programs=dumpcap,rawshark
     - mkdir -p ccache
