@@ -1432,6 +1432,7 @@ print_usage (FILE *output)
             "\n"
             "Miscellaneous:\n"
             "  -h                     display this help and exit.\n"
+            "  -v                     print version information and exit.\n"
             "  -d                     show detailed debug of parser states.\n"
             "  -q                     generate no output at all (automatically disables -d).\n"
             "",

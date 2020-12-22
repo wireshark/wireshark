@@ -855,6 +855,7 @@ print_usage(FILE *output)
     fprintf(output, "                         If -v is used with any of the 'Duplicate Packet\n");
     fprintf(output, "                         Removal' options (-d, -D or -w) then Packet lengths\n");
     fprintf(output, "                         and MD5 hashes are printed to standard-error.\n");
+    fprintf(output, "  -V, --version          print version information and exit.\n");
 }
 
 struct string_elem {
