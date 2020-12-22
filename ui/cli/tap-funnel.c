@@ -159,7 +159,7 @@ static void register_menu_cb(const char *name,
                              void (*callback)(gpointer),
                              gpointer callback_data,
                              gboolean retap _U_) {
-    menu_cb_t *mcb = g_malloc(sizeof(menu_cb_t));
+    menu_cb_t* mcb = g_new(menu_cb_t, 1);
     stat_tap_ui ui_info;
 
     mcb->callback = callback;

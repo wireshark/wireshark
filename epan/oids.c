@@ -665,7 +665,7 @@ static void register_mibs(void) {
 #if 0 /* packet-snmp does not handle bits yet */
 			} else if (smiType->basetype == SMI_BASETYPE_BITS && ( smiEnum = smiGetFirstNamedNumber(smiType) )) {
 				guint n = 0;
-				oid_bits_info_t* bits = g_malloc(sizeof(oid_bits_info_t));
+				oid_bits_info_t* bits = g_new(oid_bits_info_t, 1);
 				gint* ettp = &(bits->ett);
 
 				bits->num = 0;
