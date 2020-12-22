@@ -2792,7 +2792,7 @@ capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
         pcap_src->cap_pipe_state = STATE_EXPECT_REC_HDR;
         pcap_src->cap_pipe_err = PIPOK;
 #ifdef _WIN32
-        pcap_src->cap_pipe_read_mtx = g_malloc(sizeof(GMutex));
+        pcap_src->cap_pipe_read_mtx = g_new(GMutex, 1);
         g_mutex_init(pcap_src->cap_pipe_read_mtx);
         pcap_src->cap_pipe_pending_q = g_async_queue_new();
         pcap_src->cap_pipe_done_q = g_async_queue_new();

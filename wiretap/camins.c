@@ -429,7 +429,7 @@ wtap_open_return_val camins_open(wtap *wth, int *err, gchar **err_info _U_)
 
    /* wth->priv stores a pointer to the global time counter. we update
       it as we go through the file sequentially. */
-   wth->priv = g_malloc0(sizeof(guint64));
+   wth->priv = g_new0(guint64, 1);
 
    wth->subtype_read = camins_read;
    wth->subtype_seek_read = camins_seek_read;

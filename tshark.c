@@ -2393,7 +2393,7 @@ pipe_input_set_handler(gint source, gpointer user_data, ws_process_id *child_pro
   pipe_input.input_cb       = input_cb;
 
 #ifdef _WIN32
-  pipe_input.callback_running = g_malloc(sizeof(GMutex));
+  pipe_input.callback_running = g_new(GMutex, 1);
   g_mutex_init(pipe_input.callback_running);
   /* Tricky to use pipes in win9x, as no concept of wait.  NT can
      do this but that doesn't cover all win32 platforms.  GTK can do
