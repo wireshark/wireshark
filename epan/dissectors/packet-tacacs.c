@@ -792,7 +792,7 @@ mkipv4_address( address **addr, const char *str_addr )
 	int   ret;
 	char *addr_data;
 
-	*addr=(address *)g_malloc( sizeof(address) );
+	*addr=g_new(address, 1);
 	addr_data=(char *)g_malloc( 4 );
 	ret = str_to_ip(str_addr, addr_data);
 	if (ret)
@@ -804,7 +804,7 @@ static void
 parse_tuple( char *key_from_option )
 {
 	char *client,*key;
-	tacplus_key_entry *tacplus_data=(tacplus_key_entry *)g_malloc( sizeof(tacplus_key_entry) );
+	tacplus_key_entry *tacplus_data=g_new(tacplus_key_entry, 1);
 	/*
 	ws_debug_printf("keys: %s\n", key_from_option );
 	*/

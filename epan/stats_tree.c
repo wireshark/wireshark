@@ -270,7 +270,7 @@ stats_tree_register_with_group(const char *tapname, const char *abbr, const char
             stat_tree_packet_cb packet, stat_tree_init_cb init,
             stat_tree_cleanup_cb cleanup, register_stat_group_t stat_group)
 {
-    stats_tree_cfg *cfg = (stats_tree_cfg *)g_malloc0( sizeof(stats_tree_cfg) );
+    stats_tree_cfg *cfg = g_new0(stats_tree_cfg, 1);
 
     /* at the very least the abbrev and the packet function should be given */
     g_assert( tapname && abbr && packet );

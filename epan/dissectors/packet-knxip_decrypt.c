@@ -334,7 +334,7 @@ static void add_mca_key( const guint8 mca[ IPA_SIZE ], const gchar* text, guint8
       fprintf_hex( f2, key, KNX_KEY_LENGTH );
     }
 
-    mca_key = (struct knx_keyring_mca_keys*) wmem_alloc( wmem_epan_scope(), sizeof( struct knx_keyring_mca_keys ) );
+    mca_key = wmem_new(wmem_epan_scope(), struct knx_keyring_mca_keys);
 
     if( mca_key )
     {
@@ -381,7 +381,7 @@ static void add_ga_key( guint16 ga, const gchar* text, guint8 password_hash[], g
       fprintf_hex( f2, key, KNX_KEY_LENGTH );
     }
 
-    ga_key = (struct knx_keyring_ga_keys*) wmem_alloc( wmem_epan_scope(), sizeof( struct knx_keyring_ga_keys ) );
+    ga_key = wmem_new(wmem_epan_scope(), struct knx_keyring_ga_keys);
 
     if( ga_key )
     {
@@ -419,7 +419,7 @@ static void add_ga_sender( guint16 ga, const gchar* text, FILE* f2 )
     fprintf( f2, "GA %u/%u/%u sender %u.%u.%u\n", (ga >> 11) & 0x1F, (ga >> 8) & 0x7, ga & 0xFF, (ia >> 12) & 0xF, (ia >> 8) & 0xF, ia & 0xFF );
   }
 
-  ga_sender = (struct knx_keyring_ga_senders*) wmem_alloc( wmem_epan_scope(), sizeof( struct knx_keyring_ga_senders ) );
+  ga_sender = wmem_new(wmem_epan_scope(), struct knx_keyring_ga_senders);
 
   if( ga_sender )
   {
@@ -465,7 +465,7 @@ static void add_ia_key( guint16 ia, const gchar* text, guint8 password_hash[], g
       fprintf_hex( f2, key, KNX_KEY_LENGTH );
     }
 
-    ia_key = (struct knx_keyring_ia_keys*) wmem_alloc( wmem_epan_scope(), sizeof( struct knx_keyring_ia_keys ) );
+    ia_key = wmem_new(wmem_epan_scope(), struct knx_keyring_ia_keys);
 
     if( ia_key )
     {
@@ -504,7 +504,7 @@ static void add_ia_seq( guint16 ia, const gchar* text, FILE* f2 )
     fprintf( f2, "IA %u.%u.%u SeqNr %" G_GINT64_MODIFIER "u\n", (ia >> 12) & 0xF, (ia >> 8) & 0xF, ia & 0xFF, seq );
   }
 
-  ia_seq = (struct knx_keyring_ia_seqs*) wmem_alloc( wmem_epan_scope(), sizeof( struct knx_keyring_ia_seqs ) );
+  ia_seq = wmem_new(wmem_epan_scope(), struct knx_keyring_ia_seqs);
 
   if( ia_seq )
   {

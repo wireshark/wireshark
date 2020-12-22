@@ -231,7 +231,7 @@ rtspstat_init(const char *opt_arg, void *userdata _U_)
 		filter = NULL;
 	}
 
-	sp = (rtspstat_t *)g_malloc( sizeof(rtspstat_t) );
+	sp = g_new(rtspstat_t, 1);
 	sp->filter = g_strdup(filter);
 	/*g_hash_table_foreach( rtsp_status, (GHFunc)rtsp_reset_hash_responses, NULL);*/
 
