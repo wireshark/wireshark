@@ -76,6 +76,7 @@ print_usage(FILE *output)
   fprintf(output, "Miscellaneous:\n");
   fprintf(output, "  -h                display this help and exit.\n");
   fprintf(output, "  -v                verbose output.\n");
+  fprintf(output, "  -V                print version information and exit.\n");
 }
 
 /*

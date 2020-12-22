@@ -55,6 +55,7 @@ print_usage(FILE *output)
     fprintf(output, "Options:\n");
     fprintf(output, "  -n        don't write to output file if the input file is ordered.\n");
     fprintf(output, "  -h        display this help and exit.\n");
+    fprintf(output, "  -v        print version information and exit.\n");
 }
 
 /* Remember where this frame was in the file */
