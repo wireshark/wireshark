@@ -54,6 +54,9 @@ private:
     ModulePrefsModel modulePrefsModel_;
     gboolean saved_capture_no_extcap_;
 
+    QTimer *searchLineEditTimer;
+    QString searchLineEditText;
+
 private slots:
     void selectPane(QString pane);
     void on_advancedSearchLineEdit_textEdited(const QString &search_re);
@@ -61,6 +64,14 @@ private slots:
     void on_buttonBox_accepted();
     void on_buttonBox_rejected();
     void on_buttonBox_helpRequested();
+
+    /**
+     * Update search results from the advancedSearchLineEdit field
+     *
+     * This is performed separately from on_advancedSearchLineEdit_textEdited
+     * to support debouncing.
+     */
+    void updateSearchLineEdit();
 };
 
 #endif // PREFERENCES_DIALOG_H

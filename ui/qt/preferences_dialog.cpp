@@ -130,6 +130,12 @@ PreferencesDialog::PreferencesDialog(QWidget *parent) :
     pd_ui_->expertFrame->setUat(uat_get_table_by_name("Expert Info Severity Level Configuration"));
 
     connect(pd_ui_->prefsView, SIGNAL(goToPane(QString)), this, SLOT(selectPane(QString)));
+
+    /* Create a single-shot timer for debouncing calls to
+     * updateSearchLineEdit() */
+    searchLineEditTimer = new QTimer(this);
+    searchLineEditTimer->setSingleShot(true);
+    connect(searchLineEditTimer, &QTimer::timeout, this, &PreferencesDialog::updateSearchLineEdit);
 }
 
 PreferencesDialog::~PreferencesDialog()
@@ -194,12 +200,27 @@ void PreferencesDialog::selectPane(QString pane)
     }
 }
 
-void PreferencesDialog::on_advancedSearchLineEdit_textEdited(const QString &search_re)
+void PreferencesDialog::updateSearchLineEdit()
 {
-    advancedPrefsModel_.setFilter(search_re);
-    /* If items are filtered out, then filtered back in, the tree remains colapsed
+    advancedPrefsModel_.setFilter(searchLineEditText);
+    /* If items are filtered out, then filtered back in, the tree remains collapsed
        Force an expansion */
     pd_ui_->advancedView->expandAll();
+}
+
+void PreferencesDialog::on_advancedSearchLineEdit_textEdited(const QString &text)
+{
+    /* As running pd_ui_->advancedView->expandAll() takes a noticeable amount
+     * of time and so would introduce significant lag while typing a string
+     * into the Search box, we instead debounce the call to
+     * updateSearchLineEdit(), so that it doesn't run until a set amount of
+     * time has elapsed with no updates to the Search field.
+     *
+     * If the user types something before the timer elapses, the timer restarts
+     * the countdown.
+     */
+    searchLineEditText = text;
+    searchLineEditTimer->start(200);
 }
 
 void PreferencesDialog::on_buttonBox_accepted()
