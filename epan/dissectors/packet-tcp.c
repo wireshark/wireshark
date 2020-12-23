@@ -2094,7 +2094,7 @@ tcp_analyze_sequence_number(packet_info *pinfo, guint32 seq, guint32 ack, guint3
      */
     if( seglen>0
     &&  tcpd->rev->win_scale!=-1
-    &&  (seq+seglen)==(tcpd->rev->tcp_analyze_seq_info->lastack+(tcpd->rev->window<<(tcpd->rev->win_scale==-2?0:tcpd->rev->win_scale)))
+    &&  (seq+seglen)==(tcpd->rev->tcp_analyze_seq_info->lastack+(tcpd->rev->window<<(tcpd->rev->is_first_ack?0:(tcpd->rev->win_scale==-2?0:tcpd->rev->win_scale))))
     &&  (flags&(TH_SYN|TH_FIN|TH_RST))==0 ) {
         if(!tcpd->ta) {
             tcp_analyze_get_acked_struct(pinfo->num, seq, ack, TRUE, tcpd);
@@ -6769,6 +6769,8 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
                 tcpd->fwd->maxnextseq = tcph->th_seq + 1;
             }
         }
+        /* Initiliaze the is_first_ack */
+        tcpd->fwd->is_first_ack = TRUE;
     }
     if(tcph->th_flags & TH_FIN) {
         /* XXX - find a way to know the server port and output only that one */
@@ -6791,6 +6793,17 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
          * RTT time
          */
         nstime_delta(&(tcpd->ts_first_rtt), &(pinfo->abs_ts), &(tcpd->ts_mru_syn));
+    }
+
+    /*
+     * Remember if we have already seen at least one ACK,
+     * then we can neutralize the Window Scale side-effect at the beginning (issue 14690)
+     */
+    if(tcp_analyze_seq
+            && (tcph->th_flags & (TH_SYN|TH_ACK)) == TH_ACK) {
+        if(tcpd->fwd->is_first_ack) {
+            tcpd->fwd->is_first_ack = FALSE;
+        }
     }
 
     /* Supply the sequence number of the first byte and of the first byte
