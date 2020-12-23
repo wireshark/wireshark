@@ -1096,6 +1096,8 @@ Here is a mechanism to produce statistics from the above TAP interface.
 .Initialising a stats interface
 [source,c]
 ----
+#include <epan/stats_tree.h>
+
 /* register all http trees */
 static void register_foo_stat_trees(void) {
     stats_tree_register_plugin("foo", "foo", "Foo/Packet Types", 0,
@@ -1141,7 +1143,7 @@ static int st_node_packet_types = -1;
 
 static void foo_stats_tree_init(stats_tree* st)
 {
-    st_node_packets = stats_tree_create_node(st, st_str_packets, 0, TRUE);
+    st_node_packets = stats_tree_create_node(st, st_str_packets, 0, STAT_DT_INT, TRUE);
     st_node_packet_types = stats_tree_create_pivot(st, st_str_packet_types, st_node_packets);
 }
 ----
@@ -1154,13 +1156,13 @@ different packet types.
 .Generating the stats
 [source,c]
 ----
-static int foo_stats_tree_packet(stats_tree* st, packet_info* pinfo, epan_dissect_t* edt, const void* p)
+static tap_packet_status foo_stats_tree_packet(stats_tree* st, packet_info* pinfo, epan_dissect_t* edt, const void* p)
 {
     struct FooTap *pi = (struct FooTap *)p;
     tick_stat_node(st, st_str_packets, 0, FALSE);
     stats_tree_tick_pivot(st, st_node_packet_types,
-            val_to_str(pi->packet_type, msgtypevalues, "Unknown packet type (%d)"));
-    return 1;
+            val_to_str(pi->packet_type, packettypenames, "Unknown packet type (%d)"));
+    return TAP_PACKET_REDRAW;
 }
 ----
 
