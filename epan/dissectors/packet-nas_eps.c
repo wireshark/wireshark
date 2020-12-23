@@ -9,7 +9,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
- * References: 3GPP TS 24.301 V16.6.0 (2020-09)
+ * References: 3GPP TS 24.301 V16.7.0 (2020-12)
  */
 
 #include "config.h"
@@ -296,7 +296,7 @@ static int hf_nas_eps_emm_5g_hc_cp_ciot = -1;
 static int hf_nas_eps_emm_n3_data = -1;
 static int hf_nas_eps_emm_5g_cp_ciot = -1;
 static int hf_nas_eps_emm_ue_radio_cap_id_available = -1;
-static int hf_nas_eps_emm_ue_radio_cap_id_availability = -1;
+static int hf_nas_eps_emm_ue_radio_cap_id_request = -1;
 static int hf_nas_eps_emm_wus_assist_info_type = -1;
 static int hf_nas_eps_emm_wus_assist_info_ue_paging_prob = -1;
 static int hf_nas_eps_emm_nb_s1_drx_param = -1;
@@ -2892,12 +2892,12 @@ static const value_string nas_eps_emm_ue_radio_cap_id_avail_vals[] = {
 
 static guint16
 de_emm_ue_radio_cap_id_avail(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo _U_,
-    guint32 offset, guint len _U_, gchar* add_string _U_, int string_len _U_)
+    guint32 offset, guint len, gchar* add_string _U_, int string_len _U_)
 {
-    proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, (offset<<3)+4, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, (offset<<3), 5, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_nas_eps_emm_ue_radio_cap_id_available, tvb, offset, 1, ENC_BIG_ENDIAN);
 
-    return 1;
+    return len;
 }
 
 /*
@@ -2905,12 +2905,12 @@ de_emm_ue_radio_cap_id_avail(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo
  */
 static guint16
 de_emm_ue_radio_cap_id_req(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo _U_,
-    guint32 offset, guint len _U_, gchar* add_string _U_, int string_len _U_)
+    guint32 offset, guint len, gchar* add_string _U_, int string_len _U_)
 {
     proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, (offset<<3), 7, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_nas_eps_emm_ue_radio_cap_id_availability, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_nas_eps_emm_ue_radio_cap_id_request, tvb, offset, 1, ENC_BIG_ENDIAN);
 
-    return 1;
+    return len;
 }
 
 /* 9.9.3.60    UE radio capability ID
@@ -2979,11 +2979,12 @@ static const value_string nas_eps_emm_nb_s1_drx_params_vals[] = {
 
 static guint16
 de_emm_nb_s1_drx_param(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo _U_,
-    guint32 offset, guint len _U_, gchar* add_string _U_, int string_len _U_)
+    guint32 offset, guint len, gchar* add_string _U_, int string_len _U_)
 {
+    proto_tree_add_bits_item(tree, hf_nas_eps_spare_bits, tvb, (offset<<3), 4, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_nas_eps_emm_nb_s1_drx_param, tvb, offset, 1, ENC_BIG_ENDIAN);
 
-    return 1;
+    return len;
 }
 
 /*
@@ -4425,10 +4426,10 @@ nas_emm_attach_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 
     ELEM_OPT_TLV(0x66, NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_UE_RADIO_CAP_ID, NULL);
     /* B-   UE radio capability ID deletion indication UE radio capability ID deletion indication O   TV  1 */
     ELEM_OPT_TV_SHORT(0xB0, NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_UE_RADIO_CAP_ID_DEL_IND, NULL);
-    /* XX   Negotiated WUS assistance information WUS assistance information 9.9.3.62 O TLV 3-n */
-    //ELEM_OPT_TLV(0xXX, NAS_PDU_TYPE_EMM, DE_EMM_WUS_ASSIST_INFO, " - Negotiated");
-    /* K-   Negotiated DRX parameter in NB-S1 mode NB-S1 DRX parameter 9.9.3.63 O TC 1 */
-    //ELEM_OPT_TV_SHORT(0xK0, NAS_PDU_TYPE_EMM, DE_EMM_NB_S1_DRX_PARAM, " - Negotiated DRX parameter in NB-S1 mode");
+    /* 35   Negotiated WUS assistance information WUS assistance information 9.9.3.62 O TLV 3-n */
+    ELEM_OPT_TLV(0x35, NAS_PDU_TYPE_EMM, DE_EMM_WUS_ASSIST_INFO, " - Negotiated");
+    /* 36   Negotiated DRX parameter in NB-S1 mode NB-S1 DRX parameter 9.9.3.63 O TLV 3 */
+    ELEM_OPT_TLV(0x36, NAS_PDU_TYPE_EMM, DE_EMM_NB_S1_DRX_PARAM, " - Negotiated");
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_eps_extraneous_data);
 }
@@ -4567,15 +4568,16 @@ nas_emm_attach_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 
     ELEM_OPT_TV(0x17, NAS_PDU_TYPE_EMM, DE_EMM_ADD_INFO_REQ, NULL);
     /* 32   N1 UE network capability    N1 UE network capability 9.9.3.57    O    TLV    3-15 */
     ELEM_OPT_TLV(0x32, NAS_PDU_TYPE_EMM, DE_EMM_N1_UE_NETWORK_CAP, NULL);
-    /* TBC  UE radio capability ID availability UE radio capability ID availability O TLV 3 */
-    //ELEM_OPT_TLV(TBC, NAS_PDU_TYPE_EMM, DE_EMM_UE_RADIO_CAP_ID_AVAIL, NULL);
-    /* XX   Requested WUS assistance WUS assistance information O TLV 3-n */
-    //ELEM_OPT_TLV(0xXX, NAS_PDU_TYPE_EMM, DE_EMM_WUS_ASSIST_INFO, " - Requested");
-    /* K-   DRX parameter in NB-S1 mode NB-S1 DRX parameter 9.9.3.63 O TC 1 */
-    //ELEM_OPT_TV_SHORT(0xK0, NAS_PDU_TYPE_EMM, DE_EMM_NB_S1_DRX_PARAM, NULL);
+    /* 34   UE radio capability ID availability UE radio capability ID availability O TLV 3 */
+    ELEM_OPT_TLV(0x34, NAS_PDU_TYPE_EMM, DE_EMM_UE_RADIO_CAP_ID_AVAIL, NULL);
+    /* 35   Requested WUS assistance WUS assistance information O TLV 3-n */
+    ELEM_OPT_TLV(0x35, NAS_PDU_TYPE_EMM, DE_EMM_WUS_ASSIST_INFO, " - Requested");
+    /* 36   DRX parameter in NB-S1 mode NB-S1 DRX parameter 9.9.3.63 O TLV 3 */
+    ELEM_OPT_TLV(0x36, NAS_PDU_TYPE_EMM, DE_EMM_NB_S1_DRX_PARAM, NULL);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_eps_extraneous_data);
 }
+
 /*
  * 8.2.5    Authentication failure
  */
@@ -5039,8 +5041,8 @@ nas_emm_sec_mode_cmd(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint3
     ELEM_OPT_TLV(0x4F, NAS_PDU_TYPE_EMM, DE_EMM_HASH_MME, NULL);
     /* 6F   Replayed UE additional security capability UE additional security capability 9.9.3.53 O TLV 6 */
     ELEM_OPT_TLV(0x6F, NAS_PDU_TYPE_EMM, DE_EMM_UE_ADD_SEC_CAP, " - Replayed UE additional security capability");
-    /* D-   UE radio capability ID request UE radio capability ID request 9.9.3.59 O TV 1 */
-    ELEM_OPT_TV_SHORT(0xD0, NAS_PDU_TYPE_EMM, DE_EMM_UE_RADIO_CAP_ID_REQ, NULL);
+    /* 37   UE radio capability ID request UE radio capability ID request 9.9.3.59 O TLV 3 */
+    ELEM_OPT_TLV(0x37, NAS_PDU_TYPE_EMM, DE_EMM_UE_RADIO_CAP_ID_REQ, NULL);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_eps_extraneous_data);
 }
@@ -5229,10 +5231,10 @@ nas_emm_trac_area_upd_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, g
     ELEM_OPT_TLV(0x66, NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_UE_RADIO_CAP_ID, NULL);
     /* B-   UE radio capability ID deletion indication UE radio capability ID deletion indication O   TV  1 */
     ELEM_OPT_TV_SHORT(0xB0, NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_UE_RADIO_CAP_ID_DEL_IND, NULL);
-    /* XX   Negotiated WUS assistance information WUS assistance information 9.9.3.62 O TLV 3-n */
-    //ELEM_OPT_TLV(0xXX, NAS_PDU_TYPE_EMM, DE_EMM_WUS_ASSIST_INFO, " - Negotiated");
-    /* K-   Negotiated DRX parameter in NB-S1 mode NB-S1 DRX parameter 9.9.3.63 O TC 1 */
-    //ELEM_OPT_TV_SHORT(0xK0, NAS_PDU_TYPE_EMM, DE_EMM_NB_S1_DRX_PARAM, " - Negotiated DRX parameter in NB-S1 mode");
+    /* 35   Negotiated WUS assistance information WUS assistance information 9.9.3.62 O TLV 3-n */
+    ELEM_OPT_TLV(0x35, NAS_PDU_TYPE_EMM, DE_EMM_WUS_ASSIST_INFO, " - Negotiated");
+    /* 36   Negotiated DRX parameter in NB-S1 mode NB-S1 DRX parameter 9.9.3.63 O TLV 3 */
+    ELEM_OPT_TLV(0x36, NAS_PDU_TYPE_EMM, DE_EMM_NB_S1_DRX_PARAM, " - Negotiated");
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_eps_extraneous_data);
 }
@@ -5357,12 +5359,12 @@ nas_emm_trac_area_upd_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, g
     ELEM_OPT_TV(0x17, NAS_PDU_TYPE_EMM, DE_EMM_ADD_INFO_REQ, NULL);
     /* 32   N1 UE network capability    N1 UE network capability 9.9.3.57    O    TLV    3-15 */
     ELEM_OPT_TLV(0x32, NAS_PDU_TYPE_EMM, DE_EMM_N1_UE_NETWORK_CAP, NULL);
-    /* TBC  UE radio capability ID availability UE radio capability ID availability O TLV 3 */
-    //ELEM_OPT_TLV(TBC, NAS_PDU_TYPE_EMM, DE_EMM_UE_RADIO_CAP_ID_AVAIL, NULL);
-    /* XX   Requested WUS assistance WUS assistance information O TLV 3-n */
-    //ELEM_OPT_TLV(0xXX, NAS_PDU_TYPE_EMM, DE_EMM_WUS_ASSIST_INFO, " - Requested");
-    /* K-   DRX parameter in NB-S1 mode NB-S1 DRX parameter 9.9.3.63 O TC 1 */
-    //ELEM_OPT_TV_SHORT(0xK0, NAS_PDU_TYPE_EMM, DE_EMM_NB_S1_DRX_PARAM, NULL);
+    /* 34   UE radio capability ID availability UE radio capability ID availability O TLV 3 */
+    ELEM_OPT_TLV(0x34, NAS_PDU_TYPE_EMM, DE_EMM_UE_RADIO_CAP_ID_AVAIL, NULL);
+    /* 35   Requested WUS assistance WUS assistance information O TLV 3-n */
+    ELEM_OPT_TLV(0x35, NAS_PDU_TYPE_EMM, DE_EMM_WUS_ASSIST_INFO, " - Requested");
+    /* 36   DRX parameter in NB-S1 mode NB-S1 DRX parameter 9.9.3.63 O TLV 3 */
+    ELEM_OPT_TLV(0x36, NAS_PDU_TYPE_EMM, DE_EMM_NB_S1_DRX_PARAM, NULL);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_eps_extraneous_data);
 }
@@ -8493,9 +8495,9 @@ proto_register_nas_eps(void)
         FT_UINT8, BASE_DEC, VALS(nas_eps_emm_ue_radio_cap_id_avail_vals), 0x07,
         NULL, HFILL }
     },
-    { &hf_nas_eps_emm_ue_radio_cap_id_availability,
-        { "UE radio capability ID availability", "nas_eps.emm.ue_radio_cap_id.availability",
-        FT_BOOLEAN, 8, TFS(&tfs_available_not_available), 0x01,
+    { &hf_nas_eps_emm_ue_radio_cap_id_request,
+        { "UE radio capability ID request", "nas_eps.emm.ue_radio_cap_id_request",
+        FT_BOOLEAN, 8, TFS(&tfs_requested_not_requested), 0x01,
         NULL, HFILL }
     },
     { &hf_nas_eps_emm_wus_assist_info_type,
