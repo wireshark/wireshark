@@ -154,7 +154,7 @@ GTree *frames_user_comments = NULL;
 #define MAX_SELECTIONS 512
 static struct select_item     selectfrm[MAX_SELECTIONS];
 static guint                  max_selected              = 0;
-static int                    keep_em                   = 0;
+static gboolean               keep_em                   = FALSE;
 #ifdef PCAP_NG_DEFAULT
 static int                    out_file_type_subtype     = WTAP_FILE_TYPE_SUBTYPE_PCAPNG; /* default to pcapng   */
 #else
@@ -1343,7 +1343,7 @@ main(int argc, char *argv[])
             break;
 
         case 'r':
-            keep_em = !keep_em;  /* Just invert */
+            keep_em = TRUE;
             break;
 
         case 's':
@@ -1577,7 +1577,7 @@ main(int argc, char *argv[])
         if (add_selection(argv[i], &max_packet_number) == FALSE)
             break;
 
-    if (keep_em == FALSE)
+    if (!keep_em)
         max_packet_number = G_MAXUINT;
 
     if (dup_detect || dup_detect_by_time) {
