@@ -4576,6 +4576,7 @@ get_or_create_mptcpd_from_key(struct tcp_analysis* tcpd, tcp_flow_t *fwd, guint8
 
     DISSECTOR_ASSERT(fwd->mptcp_subflow->meta);
 
+    fwd->mptcp_subflow->meta->version = version;
     fwd->mptcp_subflow->meta->key = key;
     fwd->mptcp_subflow->meta->static_flags |= MPTCP_META_HAS_KEY;
     fwd->mptcp_subflow->meta->base_dsn = expected_idsn;
@@ -4786,6 +4787,13 @@ dissect_tcpopt_mptcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
                     offset += 4;
 
                     mptcpd = mptcp_get_meta_from_token(tcpd, tcpd->rev, mph->mh_token);
+                    if (tcpd->fwd->mptcp_subflow->meta->version == 1) {
+                        mptcp_meta_flow_t *tmp = tcpd->fwd->mptcp_subflow->meta;
+
+                        /* if the negotiated version is v1 the first key was exchanged on SYN/ACK packet: we must swap the meta */
+                        tcpd->fwd->mptcp_subflow->meta = tcpd->rev->mptcp_subflow->meta;
+                        tcpd->rev->mptcp_subflow->meta = tmp;
+                    }
 
                     proto_tree_add_item_ret_uint(mptcp_tree, hf_tcp_option_mptcp_sender_rand, tvb, offset,
                             4, ENC_BIG_ENDIAN, &tcpd->fwd->mptcp_subflow->nonce);
