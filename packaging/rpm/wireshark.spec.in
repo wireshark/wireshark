@@ -125,6 +125,12 @@ Requires:	lua < 5.3
 %endif
 %endif
 
+# Fedora complains about double dash in version.
+# Shut it up just for it.
+%if 0%{?fedora}
+%define _wrong_version_format_terminate_build 0
+%endif
+
 %if %{with nghttp2}
 BuildRequires:	libnghttp2-devel
 %if 0%{?suse_version}
