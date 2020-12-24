@@ -328,7 +328,7 @@ add_selection(char *sel, guint* max_selection)
 
 /* Was the packet selected? */
 
-static int
+static gboolean
 selected(guint recno)
 {
     guint i;
@@ -336,14 +336,14 @@ selected(guint recno)
     for (i = 0; i < max_selected; i++) {
         if (selectfrm[i].inclusive) {
             if (selectfrm[i].first <= recno && selectfrm[i].second >= recno)
-                return 1;
+                return TRUE;
         } else {
             if (recno == selectfrm[i].first)
-                return 1;
+                return TRUE;
         }
     }
 
-    return 0;
+    return FALSE;
 }
 
 static gboolean
