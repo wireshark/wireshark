@@ -161,7 +161,7 @@ static int                    out_file_type_subtype     = WTAP_FILE_TYPE_SUBTYPE
 static int                    out_file_type_subtype     = WTAP_FILE_TYPE_SUBTYPE_PCAP; /* default to pcap     */
 #endif
 static int                    out_frame_type            = -2; /* Leave frame type alone */
-static int                    verbose                   = 0;  /* Not so verbose         */
+static gboolean               verbose                   = FALSE; /* Not so verbose         */
 static struct time_adjustment time_adj                  = {NSTIME_INIT_ZERO, 0}; /* no adjustment */
 static nstime_t               relative_time_window      = NSTIME_INIT_ZERO; /* de-dup time window */
 static double                 err_prob                  = -1.0;
@@ -1343,6 +1343,11 @@ main(int argc, char *argv[])
             break;
 
         case 'r':
+            if (keep_em) {
+                cmdarg_err("-r was specified twice");
+                ret = INVALID_OPTION;
+                goto clean_exit;
+            }
             keep_em = TRUE;
             break;
 
@@ -1377,7 +1382,12 @@ main(int argc, char *argv[])
             break;
 
         case 'v':
-            verbose = !verbose;  /* Just invert */
+            if (verbose) {
+                cmdarg_err("-v was specified twice");
+                ret = INVALID_OPTION;
+                goto clean_exit;
+            }
+            verbose = TRUE;
             break;
 
         case 'V':
