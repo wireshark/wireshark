@@ -20,6 +20,7 @@ variables:
     - for builddir in build/packaging/rpm/BUILD/wireshark-*/build build/packaging/rpm/BUILD/wireshark-* build obj-*; do [ ! -d "$builddir/run" ] || break; done
     - if [[ "$CI_JOB_NAME" == "build:rpm-opensuse-"* ]]; then export LD_LIBRARY_PATH=$builddir/run; fi
     - if [ -f $builddir/run/tshark ]; then $builddir/run/tshark --version; fi
+  needs: []
 
 .build-ubuntu:
   extends: .build
@@ -60,6 +61,12 @@ variables:
 
 .build-rpm:
   extends: .build
+  before_script:
+    - git config --global user.email "you@example.com"
+    - git config --global user.name "Your Name"
+    - mkdir build
+    - cd build
+    - perl ../tools/make-version.pl --set-release
   artifacts:
     paths:
       - build/packaging/rpm/RPMS
@@ -73,6 +80,7 @@ clang-11:
     CXX: clang++-11
 
 build:ubuntu-dist:
+  stage: .pre
   extends: .build-ubuntu
   script:
     - perl ../tools/make-version.pl --set-release || ../perl make-version.pl --set-release
@@ -95,17 +103,17 @@ build:rpm-centos-7:
   extends: .build-rpm
   image: wireshark/wireshark-centos-7-dev
   script:
-    - mkdir build
-    - cd build
     - cmake3 -GNinja ..
     - ninja-build rpm-package
+  needs:
+    - build:ubuntu-dist
 test:rpm-centos-7:
   stage: test
   image: wireshark/wireshark-centos-7-dev
   script:
     - yum --nogpgcheck localinstall -y build/packaging/rpm/RPMS/x86_64/*.rpm
     - tshark --version
-  dependencies:
+  needs:
     - build:rpm-centos-7
   variables:
     GIT_STRATEGY: none
@@ -114,17 +122,17 @@ build:rpm-centos-8:
   extends: .build-rpm
   image: wireshark/wireshark-centos-8-dev
   script:
-    - mkdir build
-    - cd build
     - cmake -GNinja ..
     - ninja-build rpm-package
+  needs:
+    - build:ubuntu-dist
 test:rpm-centos-8:
   stage: test
   image: wireshark/wireshark-centos-8-dev
   script:
     - dnf --nogpgcheck localinstall -y build/packaging/rpm/RPMS/x86_64/*.rpm
     - tshark --version
-  dependencies:
+  needs:
     - build:rpm-centos-8
   variables:
     GIT_STRATEGY: none
@@ -133,10 +141,10 @@ build:rpm-opensuse-15.1:
   image: wireshark/wireshark-opensuse-15.1-dev
   extends: .build-rpm
   script:
-    - mkdir build
-    - cd build
     - cmake -GNinja ..
     - ninja rpm-package
+  needs:
+    - build:ubuntu-dist
 test:rpm-opensuse-15.1:
   image: wireshark/wireshark-opensuse-15.1-dev
   stage: test
@@ -145,17 +153,17 @@ test:rpm-opensuse-15.1:
     - tshark --version
   variables:
     GIT_STRATEGY: none
-  dependencies:
+  needs:
     - build:rpm-opensuse-15.1
 
 build:rpm-opensuse-15.2:
   image: wireshark/wireshark-opensuse-15.2-dev
   extends: .build-rpm
   script:
-    - mkdir build
-    - cd build
     - cmake -GNinja ..
     - ninja rpm-package
+  needs:
+    - build:ubuntu-dist
 test:rpm-opensuse-15.2:
   image: wireshark/wireshark-opensuse-15.2-dev
   stage: test
@@ -164,17 +172,17 @@ test:rpm-opensuse-15.2:
     - tshark --version
   variables:
     GIT_STRATEGY: none
-  dependencies:
+  needs:
     - build:rpm-opensuse-15.2
 
 build:rpm-fedora:
   extends: .build-rpm
   image: wireshark/wireshark-fedora-dev
   script:
-    - mkdir build
-    - cd build
     - cmake3 -GNinja ..
     - ninja rpm-package
+  needs:
+    - build:ubuntu-dist
 test:rpm-fedora:
   image: fedora
   stage: test
@@ -183,7 +191,7 @@ test:rpm-fedora:
     - tshark --version
   variables:
     GIT_STRATEGY: none
-  dependencies:
+  needs:
     - build:rpm-fedora
 
 # Job to generate packages for Debian stable
@@ -208,7 +216,7 @@ test:debian-stable:
     - tshark --version
   variables:
     GIT_STRATEGY: none
-  dependencies:
+  needs:
     - build:debian-stable
 
 # Build Wireshark manuals
@@ -236,6 +244,7 @@ docbook:
       - wsug_html_chunked/
       - wsdg_html/
       - wsdg_html_chunked/
+  needs: []
 
 
 # Build all doxygen docs
@@ -257,6 +266,7 @@ doxygen_all:
     - doxygen_errors.txt
     - doxygen_output.txt
     - wsar_html
+  needs: []
 
 # https://docs.gitlab.com/ee/user/gitlab_com/index.html#linux-shared-runners
 
