@@ -3093,14 +3093,9 @@ if(RPMBUILD_EXECUTABLE)
 			${CMAKE_SOURCE_DIR}
 	)
 
-	# XXX Replace with the "dist" target?
-	set(_export_tarball "${PROJECT_NAME}-${VERSION}.tar.xz")
-	add_custom_command(
-		OUTPUT "${CMAKE_BINARY_DIR}/packaging/rpm/SOURCES/${_export_tarball}"
-		COMMAND ${CMAKE_BINARY_DIR}/packaging/source/git-export-release.sh
-			-d "${CMAKE_BINARY_DIR}/packaging/rpm/SOURCES"
-			"${VERSION}"
-		WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+	add_custom_target(copy-dist
+		COMMAND cp ${CMAKE_BINARY_DIR}/wireshark*tar* ${CMAKE_BINARY_DIR}/packaging/rpm/SOURCES/
+		DEPENDS dist
 	)
 	add_custom_target(rpm-package
 		COMMAND ${RPMBUILD_EXECUTABLE}
@@ -3109,7 +3104,7 @@ if(RPMBUILD_EXECUTABLE)
 			${_rpmbuild_with_args}
 			-v
 			-ba SPECS/wireshark.spec
-		DEPENDS "${CMAKE_BINARY_DIR}/packaging/rpm/SOURCES/${_export_tarball}"
+		DEPENDS copy-dist
 		WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/packaging/rpm"
 		COMMENT "Create a rpm from the current git commit."
 	)
