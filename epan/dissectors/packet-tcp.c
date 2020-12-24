@@ -405,6 +405,8 @@ static expert_field ei_tcp_connection_synack = EI_INIT;
 static expert_field ei_tcp_connection_syn = EI_INIT;
 static expert_field ei_tcp_connection_fin = EI_INIT;
 static expert_field ei_tcp_connection_rst = EI_INIT;
+static expert_field ei_tcp_connection_fin_active = EI_INIT;
+static expert_field ei_tcp_connection_fin_passive = EI_INIT;
 static expert_field ei_tcp_checksum_ffff = EI_INIT;
 static expert_field ei_tcp_checksum_bad = EI_INIT;
 static expert_field ei_tcp_urgent_pointer_non_zero = EI_INIT;
@@ -1545,6 +1547,8 @@ init_tcp_conversation_data(packet_info *pinfo)
     tcpd->flow2.push_bytes_sent = 0;
     tcpd->flow1.push_set_last = FALSE;
     tcpd->flow2.push_set_last = FALSE;
+    tcpd->flow1.closing_initiator = FALSE;
+    tcpd->flow2.closing_initiator = FALSE;
     tcpd->stream = tcp_stream_count++;
     tcpd->server_port = 0;
 
@@ -6775,6 +6779,15 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     if(tcph->th_flags & TH_FIN) {
         /* XXX - find a way to know the server port and output only that one */
         expert_add_info(pinfo, tf_fin, &ei_tcp_connection_fin);
+
+        /* Track closing initiator.
+           If it was not already closed by the reverse flow, it means we are the first */
+        if(!tcpd->rev->closing_initiator) {
+            tcpd->fwd->closing_initiator = TRUE;
+            expert_add_info(pinfo, tf, &ei_tcp_connection_fin_active);
+        } else {
+            expert_add_info(pinfo, tf, &ei_tcp_connection_fin_passive);
+        }
     }
     if(tcph->th_flags & TH_RST)
         /* XXX - find a way to know the server port and output only that one */
@@ -8026,6 +8039,8 @@ proto_register_tcp(void)
         { &ei_tcp_analysis_tfo_syn, { "tcp.analysis.tfo_syn", PI_SEQUENCE, PI_NOTE, "TCP SYN with TFO Cookie", EXPFILL }},
         { &ei_tcp_analysis_tfo_ack, { "tcp.analysis.tfo_ack", PI_SEQUENCE, PI_NOTE, "TCP SYN-ACK accepting TFO data", EXPFILL }},
         { &ei_tcp_analysis_tfo_ignored, { "tcp.analysis.tfo_ignored", PI_SEQUENCE, PI_NOTE, "TCP SYN-ACK ignoring TFO data", EXPFILL }},
+        { &ei_tcp_connection_fin_active, { "tcp.connection.fin_active", PI_SEQUENCE, PI_NOTE, "This frame initiates the connection closing", EXPFILL }},
+        { &ei_tcp_connection_fin_passive, { "tcp.connection.fin_passive", PI_SEQUENCE, PI_NOTE, "This frame undergoes the connection closing", EXPFILL }},
         { &ei_tcp_scps_capable, { "tcp.analysis.zero_window_probe_ack", PI_SEQUENCE, PI_NOTE, "Connection establish request (SYN-ACK): SCPS Capabilities Negotiated", EXPFILL }},
         { &ei_tcp_option_sack_dsack, { "tcp.options.sack.dsack", PI_SEQUENCE, PI_WARN, "D-SACK Sequence", EXPFILL }},
         { &ei_tcp_option_snack_sequence, { "tcp.options.snack.sequence", PI_SEQUENCE, PI_NOTE, "SNACK Sequence", EXPFILL }},

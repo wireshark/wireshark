@@ -337,6 +337,7 @@ typedef struct _tcp_flow_t {
 	gboolean push_set_last; /* tracking last time PSH flag was set */
 	guint8 mp_operations; /* tracking of the MPTCP operations */
 	gboolean is_first_ack;  /* indicates if this is the first ACK */
+	gboolean closing_initiator; /* tracking who is responsible of the connection end */
 
 	tcp_analyze_seq_flow_info_t* tcp_analyze_seq_info;
 
