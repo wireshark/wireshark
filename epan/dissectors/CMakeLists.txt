@@ -530,7 +530,6 @@ set(DISSECTOR_PUBLIC_HEADERS
 	packet-rsvp.h
 	packet-rtcp.h
 	packet-rtp.h
-	packet-rtps.h
 	packet-rtp-events.h
 	packet-rtse.h
 	packet-rtsp.h
