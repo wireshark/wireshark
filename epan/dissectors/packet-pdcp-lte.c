@@ -47,6 +47,7 @@ void proto_reg_handoff_pdcp_lte(void);
      CTR will need to be applied before each frame.
    - Add Relay Node user plane data PDU dissection
    - Add SLRB user data plane data PDU dissection
+   - Support Zuc decryption and integrity support (TS 35.221)
    - Break out security and sequence analysis into a separate common file to be
      shared with pdcp-nr
 */
@@ -1572,6 +1573,8 @@ static tvbuff_t *decipher_payload(tvbuff_t *tvb, packet_info *pinfo, int *offset
         gcry_cipher_hd_t cypher_hd;
         int gcrypt_err;
 
+        /* TS 33.401 B.1.3 */
+
         /* Set CTR */
         memset(ctr_block, 0, 16);
         /* Only first 5 bytes set */
@@ -1676,6 +1679,9 @@ static guint32 calculate_digest(pdu_security_settings_t *pdu_security_settings, 
                 guint8  *mac;
                 gint message_length = tvb_captured_length_remaining(tvb, offset) - 4;
                 guint8 *message_data = (guint8 *)wmem_alloc0(wmem_packet_scope(), message_length+5);
+
+                /* TS 33.401 B.2.2 */
+
                 /* Data is header byte */
                 message_data[0] = header;
                 /* Followed by the decrypted message (but not the digest bytes) */
@@ -1717,6 +1723,8 @@ static guint32 calculate_digest(pdu_security_settings_t *pdu_security_settings, 
                     gcry_mac_close(mac_hd);
                     return 0;
                 }
+
+                /* TS 33.401 B.2.3 */
 
                 /* Extract the encrypted data into a buffer */
                 message_length = tvb_captured_length_remaining(tvb, offset) - 4;
