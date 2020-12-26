@@ -28,7 +28,6 @@
 
 /* TODO:
 - add sequence analysis
-- add AM reassembly
 - take configuration of reordering timer, and stop reassembly if timeout exceeded?
 - add tap info
 - call more upper layer dissectors once they appear
@@ -61,8 +60,9 @@ static gboolean global_rlc_nr_call_rrc_for_ccch = TRUE;
 /* Preference to expect RLC headers without payloads */
 static gboolean global_rlc_nr_headers_expected = FALSE;
 
-/* Attempt reassembly of UM frames.  TODO: if add AM reassembly, might prefer just one preference? */
+/* Attempt reassembly. */
 static gboolean global_rlc_nr_reassemble_um_pdus = FALSE;
+static gboolean global_rlc_nr_reassemble_am_pdus = TRUE;
 
 /* Tree storing UE related parameters */
 typedef struct rlc_ue_parameters {
@@ -604,6 +604,7 @@ static void dissect_rlc_nr_um(tvbuff_t *tvb, packet_info *pinfo,
     /* Segmentation Info */
     proto_tree_add_item_ret_uint(um_header_tree, hf_rlc_nr_um_si, tvb, offset, 1, ENC_BIG_ENDIAN, &seg_info);
     if (seg_info == 0) {
+        /* Have all bytes of SDU, so no SN. */
         reserved_ti = proto_tree_add_bits_ret_val(um_header_tree, hf_rlc_nr_um_reserved,
                                                   tvb, (offset<<3)+2, 6, &reserved, ENC_BIG_ENDIAN);
         offset++;
@@ -612,6 +613,7 @@ static void dissect_rlc_nr_um(tvbuff_t *tvb, packet_info *pinfo,
         }
         write_pdu_label_and_info(top_ti, um_header_ti, pinfo, "                             ");
     } else {
+        /* Add sequence number */
         if (p_rlc_nr_info->sequenceNumberLength == UM_SN_LENGTH_6_BITS) {
             proto_tree_add_item_ret_uint(um_header_tree, hf_rlc_nr_um_sn6, tvb, offset, 1, ENC_BIG_ENDIAN, &sn);
             offset++;
@@ -631,14 +633,16 @@ static void dissect_rlc_nr_um(tvbuff_t *tvb, packet_info *pinfo,
             return;
         }
         if (seg_info >= 2) {
+            /* Segment offset */
             proto_tree_add_item_ret_uint(um_header_tree, hf_rlc_nr_um_so, tvb, offset, 2, ENC_BIG_ENDIAN, &so);
             offset += 2;
             write_pdu_label_and_info(top_ti, um_header_ti, pinfo, "            SN=%-6u SO=%-4u", sn, so);
         } else {
+            /* Seg info is 1, so start of SDU - no SO */
             write_pdu_label_and_info(top_ti, um_header_ti, pinfo, "            SN=%-6u        ", sn);
         }
     }
-
+    /* End of header */
     proto_item_set_len(um_header_ti, offset-start_offset);
 
     if (global_rlc_nr_headers_expected) {
@@ -656,8 +660,10 @@ static void dissect_rlc_nr_um(tvbuff_t *tvb, packet_info *pinfo,
         }
     }
 
+    /* Data */
+
+    /* Handle any reassembly. */
     tvbuff_t *next_tvb = NULL;
-    /* Handle reassembly. */
     if (global_rlc_nr_reassemble_um_pdus && seg_info && tvb_reported_length_remaining(tvb, offset) > 0) {
         // Set fragmented flag.
         gboolean save_fragmented = pinfo->fragmented;
@@ -689,7 +695,8 @@ static void dissect_rlc_nr_um(tvbuff_t *tvb, packet_info *pinfo,
         show_PDU_in_tree(pinfo, tree, tvb, offset, tvb_reported_length_remaining(tvb, offset),
                          p_rlc_nr_info, seg_info, FALSE);
         show_PDU_in_info(pinfo, top_ti, tvb_reported_length_remaining(tvb, offset), seg_info);
-        /* Also add reassembled PDU */
+
+        /* Also add any reassembled PDU */
         if (next_tvb) {
             add_new_data_source(pinfo, next_tvb, "Reassembled RLC-NR PDU");
             show_PDU_in_tree(pinfo, tree, next_tvb, 0, tvb_captured_length(next_tvb),
@@ -911,6 +918,7 @@ static void dissect_rlc_nr_am(tvbuff_t *tvb, packet_info *pinfo,
     gboolean is_truncated = FALSE;
     proto_item *truncated_ti;
     proto_item *reserved_ti;
+    guint32 so = 0;
 
     /* Hidden AM root */
     am_ti = proto_tree_add_string_format(tree, hf_rlc_nr_am,
@@ -978,10 +986,8 @@ static void dissect_rlc_nr_am(tvbuff_t *tvb, packet_info *pinfo,
         return;
     }
 
-    /* Segmentation Information */
+    /* Segment Offset */
     if (seg_info >= 2) {
-        guint32 so;
-
         proto_tree_add_item_ret_uint(am_header_tree, hf_rlc_nr_am_so, tvb,
                                      offset, 2, ENC_BIG_ENDIAN, &so);
         offset += 2;
@@ -1009,10 +1015,48 @@ static void dissect_rlc_nr_am(tvbuff_t *tvb, packet_info *pinfo,
     }
 
     /* Data */
+
+    /* Handle any reassembly. */
+    tvbuff_t *next_tvb = NULL;
+    if (global_rlc_nr_reassemble_am_pdus && seg_info && tvb_reported_length_remaining(tvb, offset) > 0) {
+        // Set fragmented flag.
+        gboolean save_fragmented = pinfo->fragmented;
+        pinfo->fragmented = TRUE;
+        fragment_head *fh;
+        gboolean more_frags = seg_info & 0x01;
+        /* TODO: This should be unique enough, but is there a way to get frame number of first frame in reassembly table? */
+        guint32 id = p_rlc_nr_info->direction +       /* 1 bit */
+                    (p_rlc_nr_info->ueid<<1) +        /* 7 bits */
+                    (p_rlc_nr_info->bearerId<<8) +    /* 5 bits */
+                    (sn<<13);                         /* Leave 19 bits for SN - overlaps with other fields but room to overflow into msb */
+
+        fh = fragment_add(&pdu_reassembly_table, tvb, offset, pinfo,
+                          id,                                         /* id */
+                          GUINT_TO_POINTER(id),                       /* data */
+                          so,                                         /* frag_offset */
+                          tvb_reported_length_remaining(tvb, offset), /* frag_data_len */
+                          more_frags                                  /* more_frags */
+                          );
+
+        gboolean update_col_info = TRUE;
+        next_tvb = process_reassembled_data(tvb, offset, pinfo, "Reassembled RLC SDU",
+                                            fh, &rlc_nr_frag_items,
+                                            &update_col_info, tree);
+        pinfo->fragmented = save_fragmented;
+    }
+
+
     if (tvb_reported_length_remaining(tvb, offset) > 0) {
         show_PDU_in_tree(pinfo, tree, tvb, offset, tvb_reported_length_remaining(tvb, offset),
                          p_rlc_nr_info, seg_info, FALSE);
         show_PDU_in_info(pinfo, top_ti, tvb_reported_length_remaining(tvb, offset), seg_info);
+
+        /* Also add any reassembled PDU */
+        if (next_tvb) {
+            add_new_data_source(pinfo, next_tvb, "Reassembled RLC-NR PDU");
+            show_PDU_in_tree(pinfo, tree, next_tvb, 0, tvb_captured_length(next_tvb),
+                             p_rlc_nr_info, seg_info, TRUE);
+        }
     } else if (!global_rlc_nr_headers_expected) {
         /* Report that expected data was missing (unless we know it might happen) */
         expert_add_info(pinfo, am_header_ti, &ei_rlc_nr_am_data_no_data);
@@ -1670,6 +1714,12 @@ void proto_register_rlc_nr(void)
         "When enabled, if data is not present, don't report as an error, but instead "
         "add expert info to indicate that headers were omitted",
         &global_rlc_nr_headers_expected);
+
+    prefs_register_bool_preference(rlc_nr_module, "reassemble_am_frames",
+        "Try to reassemble AM frames",
+        "N.B. This should be considered experimental/incomplete, in that it doesn't try to discard reassembled state "
+        "when reestablishment happens, or in certain packet-loss cases",
+        &global_rlc_nr_reassemble_am_pdus);
 
     prefs_register_bool_preference(rlc_nr_module, "reassemble_um_frames",
         "Try to reassemble UM frames",
