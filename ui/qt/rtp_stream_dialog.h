@@ -13,6 +13,7 @@
 #include "wireshark_dialog.h"
 
 #include "ui/rtp_stream.h"
+#include "rtp_player_dialog.h"
 
 #include <QAbstractButton>
 #include <QMenu>
@@ -48,6 +49,7 @@ private:
     QPushButton *export_button_;
     QPushButton *copy_button_;
     QPushButton *analyze_button_;
+    QPushButton *player_button_;
     QMenu ctx_menu_;
     bool need_redraw_;
 
@@ -57,6 +59,7 @@ private:
 
     void updateStreams();
     void updateWidgets();
+    void showPlayer();
 
     QList<QVariant> streamRowData(int row) const;
 
