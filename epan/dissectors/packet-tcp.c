@@ -358,6 +358,13 @@ static int hf_tcp_reset_cause = -1;
 static int hf_tcp_fin_retransmission = -1;
 static int hf_tcp_option_rvbd_probe_reserved = -1;
 static int hf_tcp_option_scps_binding_data = -1;
+static int hf_tcp_syncookie_time = -1;
+static int hf_tcp_syncookie_mss = -1;
+static int hf_tcp_syncookie_hash = -1;
+static int hf_tcp_syncookie_option_timestamp = -1;
+static int hf_tcp_syncookie_option_ecn = -1;
+static int hf_tcp_syncookie_option_sack = -1;
+static int hf_tcp_syncookie_option_wscale = -1;
 
 static gint ett_tcp = -1;
 static gint ett_tcp_flags = -1;
@@ -394,6 +401,8 @@ static gint ett_tcp_opt_recbound = -1;
 static gint ett_tcp_opt_scpscor = -1;
 static gint ett_tcp_unknown_opt = -1;
 static gint ett_tcp_option_other = -1;
+static gint ett_tcp_syncookie = -1;
+static gint ett_tcp_syncookie_option = -1;
 static gint ett_mptcp_analysis = -1;
 static gint ett_mptcp_analysis_subflows = -1;
 
@@ -475,6 +484,9 @@ static gboolean tcp_fastrt_precedence = TRUE;
 
 /* Process info, currently discovered via IPFIX */
 static gboolean tcp_display_process_info = FALSE;
+
+/* Read the sequence number as syn cookie */
+static gboolean read_seq_as_syn_cookie = FALSE;
 
 /*
  *  TCP option
@@ -4624,18 +4636,27 @@ dissect_tcpopt_timestamp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
     if (!tcp_option_len_check(length_item, pinfo, len, TCPOLEN_TIMESTAMP))
         return tvb_captured_length(tvb);
 
-    proto_tree_add_item_ret_uint(ts_tree, hf_tcp_option_timestamp_tsval, tvb, offset,
+    ti = proto_tree_add_item_ret_uint(ts_tree, hf_tcp_option_timestamp_tsval, tvb, offset,
                         4, ENC_BIG_ENDIAN, &ts_val);
-    offset += 4;
 
-    proto_tree_add_item_ret_uint(ts_tree, hf_tcp_option_timestamp_tsecr, tvb, offset,
+    proto_tree_add_item_ret_uint(ts_tree, hf_tcp_option_timestamp_tsecr, tvb, offset + 4,
                         4, ENC_BIG_ENDIAN, &ts_ecr);
-    /* offset += 4; */
 
     proto_item_append_text(ti, ": TSval %u, TSecr %u", ts_val, ts_ecr);
     if (tcp_ignore_timestamps == FALSE) {
         tcp_info_append_uint(pinfo, "TSval", ts_val);
         tcp_info_append_uint(pinfo, "TSecr", ts_ecr);
+    }
+
+    if (read_seq_as_syn_cookie) {
+      proto_item_append_text(ti, " (syn cookie)");
+      proto_item* syncookie_ti = proto_item_add_subtree(ti, ett_tcp_syncookie_option);
+      guint32 timestamp = tvb_get_bits32(tvb, offset * 8, 26, ENC_NA) << 6;
+      proto_tree_add_uint_bits_format_value(syncookie_ti, hf_tcp_syncookie_option_timestamp, tvb, offset * 8,
+        26, timestamp, ENC_TIME_SECS, "%s", abs_time_secs_to_str(wmem_packet_scope(), timestamp, ABSOLUTE_TIME_LOCAL, TRUE));
+      proto_tree_add_bits_item(syncookie_ti, hf_tcp_syncookie_option_ecn, tvb, offset * 8 + 26, 1, ENC_NA);
+      proto_tree_add_bits_item(syncookie_ti, hf_tcp_syncookie_option_sack, tvb, offset * 8 + 27, 1, ENC_NA);
+      proto_tree_add_bits_item(syncookie_ti, hf_tcp_syncookie_option_wscale, tvb, offset * 8 + 28, 4, ENC_NA);
     }
 
     return tvb_captured_length(tvb);
@@ -6833,7 +6854,16 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     if (!icmp_ip) {
         if(tcp_relative_seq && tcp_analyze_seq) {
             proto_tree_add_uint_format_value(tcp_tree, hf_tcp_seq, tvb, offset + 4, 4, tcph->th_seq, "%u    (relative sequence number)", tcph->th_seq);
-            proto_tree_add_uint(tcp_tree, hf_tcp_seq_abs, tvb, offset + 4, 4, tcph->th_rawseq);
+            item = proto_tree_add_uint(tcp_tree, hf_tcp_seq_abs, tvb, offset + 4, 4, tcph->th_rawseq);
+            if (read_seq_as_syn_cookie) {
+              proto_item* syncookie_ti = NULL;
+              proto_item_append_text(item, " (syn cookie)");
+              syncookie_ti = proto_item_add_subtree(item, ett_tcp_syncookie);
+              proto_tree_add_bits_item(syncookie_ti, hf_tcp_syncookie_time, tvb, (offset + 4) * 8, 5, ENC_NA);
+              proto_tree_add_bits_item(syncookie_ti, hf_tcp_syncookie_mss, tvb, (offset + 4) * 8 + 5, 3, ENC_NA);
+              proto_tree_add_item(syncookie_ti, hf_tcp_syncookie_hash, tvb, offset + 4 + 1, 3, ENC_NA);
+            }
+
         } else {
             proto_tree_add_uint(tcp_tree, hf_tcp_seq, tvb, offset + 4, 4, tcph->th_seq);
             hide_seqack_abs_item = proto_tree_add_uint(tcp_tree, hf_tcp_seq_abs, tvb, offset + 4, 4, tcph->th_rawseq);
@@ -8239,6 +8269,34 @@ proto_register_tcp(void)
         { &hf_tcp_reset_cause,
           { "Reset cause", "tcp.reset_cause", FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
+
+        { &hf_tcp_syncookie_time,
+          { "SYN Cookie Time", "tcp.syncookie.time", FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_tcp_syncookie_mss,
+          { "SYN Cookie Maximum Segment Size", "tcp.syncookie.mss", FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_tcp_syncookie_hash,
+          { "SYN Cookie hash", "tcp.syncookie.hash", FT_UINT24, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_tcp_syncookie_option_timestamp,
+          { "SYN Cookie Timestamp", "tcp.options.timestamp.tsval.syncookie.timestamp", FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_tcp_syncookie_option_ecn,
+          { "SYN Cookie ECN", "tcp.options.timestamp.tsval.syncookie.ecn", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_tcp_syncookie_option_sack,
+          { "SYN Cookie SACK", "tcp.options.timestamp.tsval.syncookie.sack", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_tcp_syncookie_option_wscale,
+          { "SYN Cookie WScale", "tcp.options.timestamp.tsval.syncookie.wscale", FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
     };
 
     static gint *ett[] = {
@@ -8276,7 +8334,9 @@ proto_register_tcp(void)
         &ett_tcp_unknown_opt,
         &ett_tcp_opt_recbound,
         &ett_tcp_opt_scpscor,
-        &ett_tcp_option_other
+        &ett_tcp_option_other,
+        &ett_tcp_syncookie,
+        &ett_tcp_syncookie_option
     };
 
     static gint *mptcp_ett[] = {
@@ -8558,6 +8618,11 @@ proto_register_tcp(void)
         "Display process information via IPFIX",
         "Collect and store process information retrieved from IPFIX dissector",
         &tcp_display_process_info);
+
+    prefs_register_bool_preference(tcp_module, "read_seq_as_syn_cookie",
+        "Read the seq no. as syn cookie",
+        "Read the sequence number as it was a syn cookie",
+        &read_seq_as_syn_cookie);
 
     register_init_routine(tcp_init);
     reassembly_table_register(&tcp_reassembly_table,
