@@ -1,4 +1,4 @@
-Text2pcap (Wireshark) 3.4.3 (v3.4.3rc0-19-ge898cf72574b)
+Text2pcap (Wireshark) 3.4.3 (v3.4.3rc0-32-gc92409657d7e)
 Generate a capture file from an ASCII hexdump of packets.
 See https://www.wireshark.org for more information.
 
@@ -77,5 +77,6 @@ Prepend dummy header:
 
 Miscellaneous:
   -h                     display this help and exit.
+  -v                     print version information and exit.
   -d                     show detailed debug of parser states.
   -q                     generate no output at all (automatically disables -d).
