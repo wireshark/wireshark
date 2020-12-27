@@ -8346,7 +8346,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Byte %1</source>
-        <translation>%1 バイト </translation>
+        <translation>%1 バイト&#xa0;</translation>
     </message>
     <message>
         <source>Bytes %1-%2</source>

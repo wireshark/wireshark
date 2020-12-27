@@ -1,4 +1,4 @@
-Mergecap (Wireshark) 3.2.11 (v3.2.11rc0-9-g929b2aedbe60)
+Mergecap (Wireshark) 3.2.11 (v3.2.11rc0-32-gac6da0c37cac)
 Merge two or more capture files into one.
 See https://www.wireshark.org for more information.
 
@@ -17,3 +17,4 @@ Output:
 Miscellaneous:
   -h                display this help and exit.
   -v                verbose output.
+  -V                print version information and exit.
