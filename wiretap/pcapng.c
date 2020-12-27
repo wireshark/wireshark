@@ -676,9 +676,11 @@ pcapng_read_section_header_block(FILE_T fh, pcapng_block_header_t *bh,
             case(OPT_EOFOPT):
                 if (to_read != 0) {
                     pcapng_debug("pcapng_read_section_header_block: %u bytes after opt_endofopt", to_read);
+                    /* padding should be ok here, just get out of this */
+                    to_read = 0;
+                } else {
+                    pcapng_debug("pcapng_read_section_header_block: opt_endofopt");
                 }
-                /* padding should be ok here, just get out of this */
-                to_read = 0;
                 break;
             case(OPT_COMMENT):
                 if (oh.option_length > 0 && oh.option_length < opt_cont_buf_len) {
@@ -2745,10 +2747,10 @@ pcapng_read_block(wtap *wth, FILE_T fh, pcapng_t *pn,
                 if (!pcapng_read_sysdig_event_block(fh, &bh, section_info, wblock, err, err_info))
                     return PCAPNG_BLOCK_ERROR;
                 break;
-        case(BLOCK_TYPE_SYSTEMD_JOURNAL):
-            if (!pcapng_read_systemd_journal_export_block(wth, fh, &bh, pn, wblock, err, err_info))
-                return PCAPNG_BLOCK_ERROR;
-            break;
+            case(BLOCK_TYPE_SYSTEMD_JOURNAL):
+                if (!pcapng_read_systemd_journal_export_block(wth, fh, &bh, pn, wblock, err, err_info))
+                    return PCAPNG_BLOCK_ERROR;
+                break;
             default:
                 pcapng_debug("pcapng_read_block: Unknown block_type: 0x%x (block ignored), block total length %d", bh.block_type, bh.block_total_length);
                 if (!pcapng_read_unknown_block(fh, &bh, section_info, wblock, err, err_info))
@@ -2934,7 +2936,7 @@ pcapng_open(wtap *wth, int *err, gchar **err_info)
                 pcapng_debug("No more IDBs available...");
                 break;
             }
-            pcapng_debug("pcapng_open:  Check for more IDB:s, wtap_read_bytes_or_eof() failed, err = %d.", *err);
+            pcapng_debug("pcapng_open:  Check for more IDBs, wtap_read_bytes_or_eof() failed, err = %d.", *err);
             return WTAP_OPEN_ERROR;
         }
 
@@ -2951,7 +2953,7 @@ pcapng_open(wtap *wth, int *err, gchar **err_info)
             bh.block_type         = GUINT32_SWAP_LE_BE(bh.block_type);
         }
 
-        pcapng_debug("pcapng_open: Check for more IDB:s block_type 0x%x", bh.block_type);
+        pcapng_debug("pcapng_open: Check for more IDBs, block_type 0x%x", bh.block_type);
 
         if (bh.block_type != BLOCK_TYPE_IDB) {
             break;  /* No more IDB:s */
