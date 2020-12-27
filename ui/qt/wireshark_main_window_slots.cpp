@@ -1547,6 +1547,7 @@ void WiresharkMainWindow::reloadLuaPlugins()
     mainApp->setReloadingLua(true);
 
     wslua_reload_plugins(NULL, NULL);
+    this->clearAddedPacketMenus();
     funnel_statistics_reload_menus();
     reloadDynamicMenus();
     closePacketDialogs();

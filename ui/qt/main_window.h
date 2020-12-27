@@ -41,6 +41,7 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 public:
     explicit MainWindow(QWidget *parent = nullptr);
+    ~MainWindow();
     bool hasSelection();
     QList<int> selectedRows(bool useFrameNum = false);
     void insertColumn(QString name, QString abbrev, gint pos = -1);
@@ -49,6 +50,12 @@ public:
 
     QString getFilter();
     MainStatusBar *statusBar();
+
+    // Used for managing custom packet menus
+    void appendPacketMenu(QAction* funnel_action);
+    QList<QAction*> getPacketMenuActions();
+    void clearAddedPacketMenus();
+    bool addPacketMenus(QMenu * ctx_menu, GPtrArray *finfo_array);
 
 public slots:
     void setDisplayFilter(QString filter, FilterAction::Action action, FilterAction::ActionType filterType);

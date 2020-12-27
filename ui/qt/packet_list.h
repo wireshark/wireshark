@@ -40,6 +40,7 @@ class PacketList : public QTreeView
     Q_OBJECT
 public:
     explicit PacketList(QWidget *parent = 0);
+    ~PacketList();
 
     enum SummaryCopyType {
         CopyAsText,
@@ -142,6 +143,7 @@ private:
     QVector<int> selection_history_;
     int cur_history_;
     bool in_history_;
+    GPtrArray *finfo_array; // Packet data from the last selected packet entry
 
     void setFrameReftime(gboolean set, frame_data *fdata);
     void setColumnVisibility();

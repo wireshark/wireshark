@@ -34,6 +34,36 @@ static funnel_menu_t* added_menus = NULL;
 static funnel_menu_t* removed_menus = NULL;
 static gboolean menus_registered = FALSE;
 
+/**
+ * Represents a single packet menu entry and callback
+ */
+typedef struct _funnel_packet_menu_t {
+    char *name;                           /**< Name to display in the GUI */
+    char *required_fields;                /**< comma-separated list of fields
+                                               that must be present for the
+                                               packet menu to be displayed */
+    funnel_packet_menu_callback callback; /**< Lua function to be called on
+                                               menu item selection. */
+    gpointer callback_data;               /**< Lua state for the callback
+                                               function */
+    gboolean retap;                       /**< Whether or not to rescan the
+                                               capture file's packets */
+    struct _funnel_packet_menu_t* next;   /**< Pointer to the next
+                                               _funnel_packet_menu_t for the
+                                               singly-linked list
+                                               implemenation */
+} funnel_packet_menu_t;
+
+/*
+ * List of all registered funnel_packet_menu_t's
+ */
+static funnel_packet_menu_t* registered_packet_menus = NULL;
+/*
+ * TRUE if the packet menus were modified since the last registration
+ */
+static gboolean packet_menus_modified = FALSE;
+static void funnel_clear_packet_menu (funnel_packet_menu_t** menu_list);
+
 const funnel_ops_t* funnel_get_funnel_ops(void) { return ops;  }
 void funnel_set_funnel_ops(const funnel_ops_t* o) { ops = o; }
 
@@ -120,6 +150,10 @@ void funnel_deregister_menus(funnel_menu_callback callback)
 
     funnel_remove_menu(&registered_menus, m);
     funnel_insert_menu(&removed_menus, m);
+
+    // Clear and free memory of packet menus
+    funnel_clear_packet_menu(&registered_packet_menus);
+    packet_menus_modified = TRUE;
 }
 
 void funnel_register_all_menus(funnel_registration_cb_t r_cb)
@@ -146,9 +180,103 @@ void funnel_reload_menus(funnel_deregistration_cb_t d_cb,
     funnel_clear_menu(&added_menus);
 }
 
+
+/*
+ * Inserts a funnel_packet_menu_t into a list of funnel_packet_menu_t's
+ *
+ * @param menu_list the list of menus that the menu will be added to
+ * @param menu the menu to add to the list of menus
+ */
+static void funnel_insert_packet_menu (funnel_packet_menu_t** menu_list, funnel_packet_menu_t *menu)
+{
+    if (!(*menu_list))  {
+        *menu_list = menu;
+    } else {
+        funnel_packet_menu_t* c;
+        for (c = *menu_list; c->next; c = c->next);
+        c->next = menu;
+    }
+}
+
+/**
+ * Entry point for Lua code to register a packet menu
+ *
+ * Stores the menu name and callback from the Lua code
+ * into registered_packet_menus so that the
+ * Wireshark GUI code can retrieve it with
+ * funnel_register_all_packet_menus().
+ */
+void funnel_register_packet_menu(const char *name,
+                                 const char *required_fields,
+                                 funnel_packet_menu_callback callback,
+                                 gpointer callback_data,
+                                 gboolean retap)
+{
+    funnel_packet_menu_t* m = g_new0(funnel_packet_menu_t, 1);
+    m->name = g_strdup(name);
+    m->required_fields = g_strdup(required_fields);
+    m->callback = callback;
+    m->callback_data = callback_data;
+    m->retap = retap;
+    m->next = NULL;
+
+    funnel_insert_packet_menu(&registered_packet_menus, m);
+    packet_menus_modified = TRUE;
+}
+
+/**
+ * Clears a list of funnel_packet_menu_t's and free()s all associated memory
+ *
+ * @param menu_list the list of menus to clear
+ */
+static void funnel_clear_packet_menu (funnel_packet_menu_t** menu_list)
+{
+    funnel_packet_menu_t *m;
+
+    while (*menu_list) {
+        m = *menu_list;
+        *menu_list = m->next;
+        g_free(m->name);
+        g_free(m->required_fields);
+        if (m->callback_data) {
+            g_free(m->callback_data);
+        }
+        g_free(m);
+    }
+    *menu_list = NULL;
+}
+
+/**
+ * Entry point for Wireshark GUI to obtain all registered packet menus
+ *
+ * Calls the supplied callback for each packet menu registered with
+ * funnel_register_packet_menu().
+ *
+ * @param r_cb the callback function to call with each registered packet menu
+ */
+void funnel_register_all_packet_menus(funnel_registration_packet_cb_t r_cb)
+{
+    funnel_packet_menu_t* c;
+    for (c = registered_packet_menus; c; c = c->next) {
+        r_cb(c->name,c->required_fields,c->callback,c->callback_data,c->retap);
+    }
+    packet_menus_modified = FALSE;
+}
+
+/**
+ * Returns whether the packet menus have been modified since they were last registered
+ *
+ * @return TRUE if the packet menus were modified since the last registration
+ */
+gboolean funnel_packet_menus_modified(void)
+{
+    return packet_menus_modified;
+}
+
 void funnel_cleanup(void)
 {
     funnel_clear_menu(&registered_menus);
+    funnel_clear_packet_menu(&registered_packet_menus);
 }
 
 /*

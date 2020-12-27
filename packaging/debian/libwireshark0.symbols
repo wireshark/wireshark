@@ -748,8 +748,11 @@ libwireshark.so.0 libwireshark0 #MINVER#
  ftype_pretty_name@Base 1.9.1
  funnel_cleanup@Base 2.9.1
  funnel_get_funnel_ops@Base 1.9.1
+ funnel_packet_menus_modified@Base 4.1.0
  funnel_register_all_menus@Base 1.9.1
+ funnel_register_all_packet_menus@Base 4.1.0
  funnel_register_menu@Base 1.9.1
+ funnel_register_packet_menu@Base 4.1.0
  funnel_reload_menus@Base 1.99.9
  funnel_set_funnel_ops@Base 1.9.1
  fvalue_from_literal@Base 3.7.0

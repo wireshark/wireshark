@@ -11,12 +11,20 @@
 #define FUNNELSTATISTICS_H
 
 #include <QObject>
+#include <QAction>
+#include <QSet>
 
+#include <epan/funnel.h>
 #include "capture_file.h"
 #include <ui/qt/filter_action.h>
 
 struct _funnel_ops_t;
 struct progdlg;
+
+/**
+ * Signature of function that can be called from a custom packet menu entry
+ */
+typedef void (* funnel_packet_menu_callback)(gpointer, GPtrArray*);
 
 class FunnelStatistics : public QObject
 {
@@ -53,8 +61,42 @@ private:
     QString prepared_filter_;
 };
 
+class FunnelAction : public QAction
+{
+    Q_OBJECT
+public:
+    FunnelAction(QString title, funnel_menu_callback callback, gpointer callback_data, gboolean retap, QObject *parent);
+    FunnelAction(QString title, funnel_packet_menu_callback callback, gpointer callback_data, gboolean retap, const char *packet_required_fields, QObject *parent);
+    ~FunnelAction();
+    funnel_menu_callback callback() const;
+    QString title() const;
+    void triggerCallback();
+    void setPacketCallback(funnel_packet_menu_callback packet_callback);
+    void setPacketData(GPtrArray* finfos);
+    void addToMenu(QMenu * ctx_menu, QHash<QString, QMenu *> menuTextToMenus);
+    void setPacketRequiredFields(const char *required_fields_str);
+    const QSet<QString> getPacketRequiredFields();
+    bool retap();
+    QString getPacketSubmenus();
+
+public slots:
+    void triggerPacketCallback();
+
+private:
+    QString title_;
+    QString packetSubmenu_;
+    funnel_menu_callback callback_;
+    gpointer callback_data_;
+    gboolean retap_;
+    funnel_packet_menu_callback packetCallback_;
+    GPtrArray* packetData_;
+    QSet<QString> packetRequiredFields_;
+};
+
 extern "C" {
     void funnel_statistics_reload_menus(void);
+    void funnel_statistics_load_packet_menus(void);
+    gboolean funnel_statistics_packet_menus_modified(void);
 } // extern "C"
 
 #endif // FUNNELSTATISTICS_H
