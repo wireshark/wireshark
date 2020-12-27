@@ -600,12 +600,7 @@ relinquish_all_capabilities(void)
 
 static const char *
 get_pcap_failure_secondary_error_message(cap_device_open_err open_err,
-#ifdef __hpux
-                                         const char *open_err_str
-#else
-                                         const char* open_err_str _U_
-#endif
-                                         )
+                                         const char *open_err_str)
 {
 #ifdef _WIN32
     /*
@@ -651,13 +646,33 @@ get_pcap_failure_secondary_error_message(cap_device_open_err open_err,
      */
     if (open_err == CAP_DEVICE_OPEN_ERR_GENERIC) {
         /*
-         * We don't know what kind of error it is, so throw all the
-         * suggestions at the user.
+         * We don't know what kind of error it is.  See if there's a hint
+         * in the error string; if not, throw all generic suggestions at
+         * the user.
          */
-        return
-               "Please check to make sure you have sufficient permissions, and that you have "
-               "the proper interface or pipe specified."
-               PLATFORM_PERMISSIONS_SUGGESTION;
+        static const char promisc_failed[] =
+            "failed to set hardware filter to promiscuous mode";
+
+        /*
+         * Does the error string begin with the error produced by WinPcap
+         * and Npcap if attempting to set promiscuous mode fails?
+         * (Note that this string could have a specific error message
+         * from an NDIS error after the initial part, so we do a prefix
+         * check rather than an exact match check.)
+         */
+        if (strncmp(open_err_str, promisc_failed, sizeof promisc_failed - 1) == 0) {
+            /*
+             * Yes.  Suggest that the user turn off promiscuous mode on that
+             * device.
+             */
+            return
+                   "Please turn off promiscuous mode for this device";
+        } else {
+            return
+                   "Please check to make sure you have sufficient permissions, and that you have "
+                   "the proper interface or pipe specified."
+                   PLATFORM_PERMISSIONS_SUGGESTION;
+        }
     } else if (open_err == CAP_DEVICE_OPEN_ERR_PERMISSIONS) {
         /*
          * This is a permissions error, so no need to specify any other
