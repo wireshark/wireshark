@@ -1377,7 +1377,7 @@ if(state_dec >= 0 && state_dec <= 3) {
                 /*If it doesn't exists, insert it*/
                 if( (cur_val=(gint *)g_tree_lookup(hsdsch_muxed_flows, GUINT_TO_POINTER((guint)rrcinf->hrnti[actx->pinfo->fd->subnum]))) == NULL ){
 
-                    flowd_p = (guint*)g_malloc0(sizeof(gint));
+                    flowd_p = g_new0(guint, 1);
                     *flowd_p = (1U<<flowd);    /*Set the bit to mark it as true*/
                     g_tree_insert(hsdsch_muxed_flows, GUINT_TO_POINTER((guint)rrcinf->hrnti[actx->pinfo->fd->subnum]), flowd_p);
 
@@ -1413,7 +1413,7 @@ if(state_dec >= 0 && state_dec <= 3) {
                 /*If it doesn't exists, insert it*/
                 if( (cur_val=(gint *)g_tree_lookup(hsdsch_muxed_flows, GUINT_TO_POINTER((guint)rrcinf->hrnti[actx->pinfo->fd->subnum]))) == NULL ){
 
-                    flowd_p = (guint*)g_malloc0(sizeof(gint));
+                    flowd_p = g_new0(guint, 1);
                     *flowd_p = (1U<<flowd);    /* Set the bit to mark it as true*/
                     g_tree_insert(hsdsch_muxed_flows, GUINT_TO_POINTER((guint)rrcinf->hrnti[actx->pinfo->fd->subnum]), flowd_p);
 
