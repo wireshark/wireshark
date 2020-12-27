@@ -466,7 +466,7 @@ payload_statement(A) ::= PAYLOAD_KW proto_stack(B) SEMICOLON. { A = B; }
 
 criteria_statement(A) ::= . { A = NULL; }
 criteria_statement(A) ::= CRITERIA_KW accept_mode(B) match_mode(C) avpl(D) SEMICOLON. {
-	A = (pdu_criteria_t *)g_malloc(sizeof(pdu_criteria_t));
+	A = g_new(pdu_criteria_t, 1);
 	A->criterium_avpl = D;
 	A->criterium_match_mode = C;
 	A->criterium_accept_mode = B;
@@ -480,7 +480,7 @@ extraction_statements(A) ::= extraction_statements(B) extraction_statement(C). {
 extraction_statements(A) ::= extraction_statement(B). { A = B; A->last = A; }
 
 extraction_statement(A) ::= EXTRACT_KW NAME(NAME) FROM_KW field(FIELD) SEMICOLON. {
-	A = (extraction_t *)g_malloc(sizeof(extraction_t));
+	A = g_new(extraction_t, 1);
 	A->as = NAME;
 	A->hfi = FIELD;
 	A->next = A->last = NULL;
@@ -497,7 +497,7 @@ last_extracted_statement(A) ::= LAST_PDU_KW true_false(B) SEMICOLON. { A = B; }
 last_extracted_statement(A) ::= . { A = mc->defaults.pdu.last_extracted; }
 
 proto_stack(A) ::= proto_stack(B) SLASH field(C). {
-	int* hfidp = (int *)g_malloc(sizeof(int));
+	int* hfidp = g_new(int, 1);
 
 	*hfidp = C->id;
 	g_ptr_array_add(B,hfidp);
@@ -505,7 +505,7 @@ proto_stack(A) ::= proto_stack(B) SLASH field(C). {
 }
 
 proto_stack(A) ::= field(B). {
-	int* hfidp = (int *)g_malloc(sizeof(int));
+	int* hfidp = g_new(int, 1);
 	*hfidp = B->id;
 
 	A = g_ptr_array_new();

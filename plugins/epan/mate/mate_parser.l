@@ -236,7 +236,7 @@ blk_cmnt_stop  "*/"
 
 	} else {
 
-		yyextra->current_frame = (mate_config_frame *)g_malloc(sizeof(mate_config_frame));
+		yyextra->current_frame = g_new(mate_config_frame, 1);
 		yyextra->current_frame->filename = g_strdup(yytext);
 		yyextra->current_frame->linenum = 1;
 
@@ -369,7 +369,7 @@ extern gboolean mate_load_config(const gchar* filename, mate_config* mc) {
 
 	state.mc = mc;
 
-	state.current_frame = (mate_config_frame *)g_malloc(sizeof(mate_config_frame));
+	state.current_frame = g_new(mate_config_frame, 1);
 	state.current_frame->filename = g_strdup(filename);
 	state.current_frame->linenum = 1;
 
