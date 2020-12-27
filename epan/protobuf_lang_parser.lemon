@@ -190,11 +190,17 @@ option ::= PT_OPTION optionName PT_ASSIGN constant PT_SEMICOLON.
 option ::= PT_OPTION optionName PT_ASSIGN customOptionValue PT_SEMICOLON.
 
 /* v2/v3: optionName = ( ident | "(" fullIdent ")" ) { "." ident } */
-optionName ::= exIdent.
-optionName(A) ::= PT_LPAREN exIdent(B) PT_RPAREN.
+/* Offical PBL bugfix: optionName = ( ident | "(" fullIdent ")" ) { "." ( ident | "(" fullIdent ")" ) } */
+extIdentInParentheses(A) ::= PT_LPAREN exIdent(B) PT_RPAREN.
     { A = B; A->v = pbl_store_string_token(state, g_strconcat("(", B->v, ")", NULL)); }
-optionName(A) ::= PT_LPAREN exIdent(B) PT_RPAREN exIdent(C).  /* Note that the exIdent contains "." */
-    { A = B; A->v = pbl_store_string_token(state, g_strconcat("(", B->v, ")", C->v, NULL)); }
+optionName ::= exIdent.
+optionName ::= extIdentInParentheses.
+optionName(A) ::= optionName(B) exIdent(C). // Note that the exIdent contains "."
+    { A = B; A->v = pbl_store_string_token(state, g_strconcat(B->v, C->v, NULL)); }
+optionName(A) ::= optionName(B) PT_DOT extIdentInParentheses(C).
+    { A = B; A->v = pbl_store_string_token(state, g_strconcat(B->v, ".", C->v, NULL)); }
+optionName(A) ::= optionName(B) extIdentInParentheses(C).
+    { A = B; A->v = pbl_store_string_token(state, g_strconcat(B->v, ".", C->v, NULL)); }
 
 /* Allow format which not defined in offical PBL specification like:
     option (google.api.http) = { post: "/v3alpha/kv/put" body: "*" };
@@ -203,9 +209,30 @@ optionName(A) ::= PT_LPAREN exIdent(B) PT_RPAREN exIdent(C).  /* Note that the e
 */
 customOptionValue ::= PT_LCURLY customOptionBody PT_RCURLY.
 
+/* The formal EBNF of customOptionBody seems to be */
+/*
+customOptionBody ::= .
+customOptionBody ::= customOptionBody optionField.
+customOptionBody ::= customOptionBody PT_COMMA optionField.
+customOptionBody ::= customOptionBody PT_SEMICOLON optionField.
+
+optionField ::= optionName PT_COLON constant.
+optionField ::= optionName PT_COLON customOptionValue.
+optionField ::= optionName customOptionValue.
+optionField ::= optionName PT_COLON array.
+
+array ::= PT_LBRACKET arrayBody PT_RBRACKET.
+arrayBodyConst ::= constant.
+arrayBodyConst ::= arrayBody PT_COMMA constant.
+arrayBodyCustom ::= customOptionValue.
+arrayBodyCustom ::= arrayBody PT_COMMA customOptionValue.
+arrayBody ::= arrayBodyConst.
+arrayBody ::= arrayBodyCustom.
+*/
+/* but for handling unexpected situations, we still use following EBNF  */
 customOptionBody ::= .
 customOptionBody ::= customOptionBody exIdent.
-customOptionBody ::= customOptionBody strLit.
+customOptionBody ::= customOptionBody PT_STRLIT.
 customOptionBody ::= customOptionBody symbolsWithoutCurly.
 customOptionBody ::= customOptionBody intLit.
 customOptionBody ::= customOptionBody customOptionValue.
@@ -275,7 +302,9 @@ enum(A) ::= PT_ENUM enumName(B) PT_LCURLY enumBody(C) PT_RCURLY.
     { A = C; pbl_set_node_name(A, B->ln, B->v); }
 
 /* v2/v3: enumBody = "{" { option | enumField | emptyStatement } "}" */
+/* Offical PBL bugfix: enumBody = "{" { reserved | option | enumField | emptyStatement } "}" */
 enumBody(A) ::= .  { A = pbl_create_node(state->file, CUR_LINENO, PBL_ENUM, NAME_TO_BE_SET); }
+enumBody ::= enumBody reserved.
 enumBody ::= enumBody option.
 enumBody(A) ::= enumBody(B) enumField(C).  { A = B; pbl_add_child(A, C); }
 enumBody ::= enumBody emptyStatement.
@@ -296,7 +325,9 @@ enumValueOptions ::= enumValueOption.
 enumValueOptions ::= enumValueOptions PT_COMMA enumValueOption.
 
 /* v2/v3: enumValueOption = optionName "=" constant */
+/* Offical PBL bugfix: enumValueOption = optionName  "=" ( constant | customOptionValue ) ";" */
 enumValueOption ::= optionName PT_ASSIGN constant.
+enumValueOption ::= optionName PT_ASSIGN customOptionValue.
 
 /* v2: service = "service" serviceName "{" { option | rpc | stream | emptyStatement } "}" */
 /* v3: service = "service" serviceName "{" { option | rpc | emptyStatement } "}" */
@@ -373,21 +404,30 @@ fieldOptions(A) ::= fieldOptions(B) PT_COMMA fieldOption(C).
     { A = B; pbl_add_child(A, C); }
 
 /* v2/v3: fieldOption = optionName "=" constant */
+/* Offical PBL bugfix: fieldOption = optionName  "=" ( constant | customOptionValue ) ";" */
 fieldOption(A) ::= optionName(B) PT_ASSIGN constant(C).
     { A = pbl_create_option_node(state->file, B->ln, B->v, C); }
+fieldOption(A) ::= optionName(B) PT_ASSIGN customOptionValue.
+    { A = pbl_create_option_node(state->file, B->ln, B->v, pbl_store_string_token(state, g_strdup("{ ... }"))); }
 
 /* v2 only: group = label "group" groupName "=" fieldNumber messageBody */
+/* Offical PBL bugfix: there is no label if the 'group' is a member of oneof body */
+group(A) ::= PT_GROUP groupName(B) PT_ASSIGN fieldNumber PT_LCURLY messageBody(C) PT_RCURLY.
+    { A = C; pbl_set_node_name(A, B->ln, B->v); }
 group(A) ::= label PT_GROUP groupName(B) PT_ASSIGN fieldNumber PT_LCURLY messageBody(C) PT_RCURLY.
     { A = C; pbl_set_node_name(A, B->ln, B->v); }
 
 groupName ::= exIdent.
 
 /* v2/v3: oneof = "oneof" oneofName "{" { oneofField | emptyStatement } "}" */
+/* Offical PBL bugfix: oneof = "oneof" oneofName "{" { oneofField | option | group | emptyStatement } "}" */
 oneof(A) ::= PT_ONEOF oneofName(B) PT_LCURLY oneofBody(C) PT_RCURLY.
     { A = C; pbl_set_node_name(A, B->ln, B->v); }
 
 oneofBody(A) ::= .  { A = pbl_create_node(state->file, CUR_LINENO, PBL_ONEOF, NAME_TO_BE_SET); }
 oneofBody(A) ::= oneofBody(B) oneofField(C). { A = B; pbl_add_child(A, C); }
+oneofBody ::= oneofBody option.
+oneofBody ::= oneofBody group.
 oneofBody ::= oneofBody emptyStatement.
 
 /* v2/v3: oneofField = type fieldName "=" fieldNumber [ "[" fieldOptions "]" ] ";" */
@@ -436,11 +476,13 @@ Note that there is an error in BNF definition about reserved fieldName. It's str
 quoteFieldNames ::= strLit.
 quoteFieldNames ::= quoteFieldNames PT_COMMA strLit.
 
-/* v2 only: extend = "extend" messageType "{" {field | group | emptyStatement} "}" */
-extend(A) ::= PT_EXTEND(X) messageType(B) PT_LCURLY extendBody(C) PT_RCURLY.
-    { A = C; pbl_set_node_name(A, X->ln, pbl_store_string_token(state, g_strconcat(B, "Extend", NULL))); }
+/* v2/v3: extend = "extend" messageType "{" {field | group | emptyStatement} "}"
+Note that creating custom options uses extensions, which are permitted only for custom options in proto3.
+We don't use custom options while parsing packet, so we just ignore the 'extend'.
+*/
+extend(A) ::= PT_EXTEND messageType PT_LCURLY extendBody(B) PT_RCURLY.
+    { A = NULL; pbl_free_node(B); }
 
-/* v2 only */
 extendBody(A) ::= .  { A = pbl_create_node(state->file, CUR_LINENO, PBL_MESSAGE, NAME_TO_BE_SET); }
 extendBody(A) ::= extendBody(B) field(C). { A = B; pbl_add_child(A, C); }
 extendBody(A) ::= extendBody(B) group(C). { A = B; pbl_add_child(A, C); }
@@ -481,6 +523,8 @@ constant(A) ::= PT_MINUS exIdent(B). { A = pbl_store_string_token(state, g_strco
 exIdent ::= PT_IDENT.
 
 strLit(A) ::= PT_STRLIT(B).  { A = pbl_store_string_token(state, g_strndup(B->v + 1, strlen(B->v) - 2)); }
+/* support one string being splitted into multi-lines */
+strLit(A) ::= strLit(B) PT_STRLIT(C). { A = pbl_store_string_token(state, g_strconcat(B, g_strndup(C->v + 1, strlen(C->v) - 2), NULL)); }
 
 %code {
 

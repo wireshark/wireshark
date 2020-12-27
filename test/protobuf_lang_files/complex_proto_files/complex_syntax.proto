@@ -1,0 +1,82 @@
+// Test more complex syntax of *.proto files.
+syntax = "proto3";
+package wireshark.protobuf.test.complex.syntax;
+import "google/protobuf/descriptor.proto";
+
+// equal to "testing.multiline.strings"
+option java_package = "testing."
+                      'multiline.'
+"strings";
+
+// user defined options for messages
+extend google.protobuf.MessageOptions {
+  bool disabled = 1071;
+  bool ignored = 1072;
+  TestMultiLinesOption mlinemsg = 1073;
+}
+
+// user defined options for oneof types
+extend google.protobuf.OneofOptions {
+  bool required = 1071;
+}
+
+// user defined options for fields
+extend google.protobuf.FieldOptions {
+  FieldRules rules = 1071;
+}
+// test extend google.protobuf.FieldOptions twice
+extend google.protobuf.FieldOptions {
+  string multilines = 1072;
+}
+
+message FieldRules {
+  oneof type {
+    BoolRules     bool     = 13;
+    StringRules   string   = 14;
+  }
+  repeated uint32 repeated_uint = 15;
+}
+
+message StringRules {
+  uint64 min_bytes = 2;
+  BoolRules morebool = 3;
+  string astr = 4;
+}
+
+message BoolRules {
+  bool const = 1;
+  repeated bool repeated_bool = 2;
+  repeated int32 repeated_int = 3;
+}
+
+message TestMultiLinesOption {
+  string mlines = 1;
+}
+
+message ComplexDefinedMessage {
+  option (mlinemsg).mlines = "first line"
+  "second line";
+
+  // test complex field options
+  string fieldWithComplexOption1 = 1 [(wireshark.protobuf.test.complex.syntax.rules).string = {min_bytes: 1}];
+  string fieldWithComplexOption2 = 2 [(rules).string = {min_bytes: 2 astr: "abc" }];
+  string fieldWithComplexOption3 = 3 [(rules).string.morebool = {const: true, repeated_bool: [false, true], repeated_int: [1, 2]}];
+  string fieldWithComplexOption4 = 4 [(rules).string = {min_bytes: 1; morebool { const: true }}];
+  string fieldWithComplexOption5 = 5 [(rules).repeated_uint = 1, (rules).repeated_uint = 2];
+
+  // test oneof custom option
+  oneof oneofWithOption {
+    option (wireshark.protobuf.test.complex.syntax.required) = true;
+    int32 field1 = 11;
+    string field2 = 12;
+  }
+
+  // test multilines strings
+  uint32 fieldWithMultilineStringOption = 20 [(wireshark.protobuf.test.complex.syntax.multilines) = "first line"
+  'Second line' ];
+}
+
+// add this message for testing whether this file was successfully parsed
+message TestFileParsed {
+  optional int32 last_field_for_wireshark_test = 1;
+}

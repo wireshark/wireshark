@@ -1009,7 +1009,17 @@ pbl_add_child(pbl_node_t* parent, pbl_node_t* child)
     }
 
     node = (pbl_node_t*) g_hash_table_lookup(parent->children_by_name, child->name);
-    if (node && child->file && parent->file
+    if (node && node->nodetype == PBL_OPTION && child->nodetype == PBL_OPTION
+        && ((pbl_option_descriptor_t*)node)->value && ((pbl_option_descriptor_t*)child)->value) {
+        /* repeated option can be set many times like:
+             string fieldWithComplexOption5 = 5 [(rules).repeated_int = 1, (rules).repeated_int = 2];
+           we just merge the old value and new value in format /old_value "," new_value/.
+        */
+        gchar* oval = ((pbl_option_descriptor_t*)node)->value;
+        gchar* nval = ((pbl_option_descriptor_t*)child)->value;
+        ((pbl_option_descriptor_t*)child)->value = g_strconcat(oval, ",", nval, NULL);
+        g_free(nval);
+    } else if (node && child->file && parent->file
         && child->file->pool && child->file->pool->error_cb) {
         child->file->pool->error_cb(
             "Protobuf: Warning: \"%s\" of [%s:%d] is already defined in file [%s:%d].\n",

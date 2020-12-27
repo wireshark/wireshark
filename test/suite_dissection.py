@@ -225,6 +225,26 @@ class case_dissect_protobuf(subprocesstest.SubprocessTestCase):
             ))
         self.assertTrue(self.grepOutput('tutorial.AddressBook'))
 
+    def test_protobuf_complex_syntax(self, cmd_tshark, features, dirs, capture_file):
+        '''Test Protobuf parsing complex syntax .proto files'''
+        well_know_types_dir = os.path.join(dirs.protobuf_lang_files_dir, 'well_know_types').replace('\\', '/')
+        complex_proto_files_dir = os.path.join(dirs.protobuf_lang_files_dir, 'complex_proto_files').replace('\\', '/')
+        self.assertRun((cmd_tshark,
+                '-r', capture_file('protobuf_udp_addressbook_with_image_ts.pcapng'),
+                '-o', 'uat:protobuf_search_paths: "{}","{}"'.format(well_know_types_dir, 'FALSE'),
+                '-o', 'uat:protobuf_search_paths: "{}","{}"'.format(complex_proto_files_dir, 'TRUE'),
+                '-o', 'protobuf.preload_protos: TRUE',
+                '-o', 'protobuf.pbf_as_hf: TRUE',
+                '-Y', 'pbf.wireshark.protobuf.test.complex.syntax.TestFileParsed.last_field_for_wireshark_test'
+                      ' && pbf.protobuf_unittest.TestFileParsed.last_field_for_wireshark_test',
+            ))
+        # the output must be empty and not contain something like:
+        #   tshark: "pbf.xxx.TestFileParsed.last_field_for_wireshark_test" is neither a field nor a protocol name.
+        # or
+        #   tshark: Protobuf: Error(s)
+        self.assertFalse(self.grepOutput('.last_field_for_wireshark_test'))
+        self.assertFalse(self.grepOutput('Protobuf: Error'))
+
 @fixtures.mark_usefixtures('test_env')
 @fixtures.uses_fixtures
 class case_dissect_tcp(subprocesstest.SubprocessTestCase):
