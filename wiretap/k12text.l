@@ -452,7 +452,7 @@ k12text_open(wtap *wth, int *err, gchar **err_info)
 		return WTAP_OPEN_ERROR;
 	}
 
-	k12text = (k12text_t *)g_malloc(sizeof(k12text_t));
+	k12text = g_new(k12text_t, 1);
 	wth->priv = (void *)k12text;
 	k12text->next_frame_offset = 0;
 	wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_K12TEXT;
