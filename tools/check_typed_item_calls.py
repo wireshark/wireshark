@@ -467,20 +467,20 @@ if args.file:
         files.append(args.file)
 elif args.commits:
     # Get files affected by specified number of commits.
-    command = ['git', 'diff', '--name-only', 'HEAD~' + args.commits]
+    command = ['git', 'diff', '--name-only', '--diff-filter=d', 'HEAD~' + args.commits]
     files = [f.decode('utf-8')
              for f in subprocess.check_output(command).splitlines()]
     # Will examine dissector files only
     files = list(filter(lambda f : is_dissector_file(f), files))
 elif args.open:
     # Unstaged changes.
-    command = ['git', 'diff', '--name-only']
+    command = ['git', 'diff', '--name-only', '--diff-filter=d']
     files = [f.decode('utf-8')
              for f in subprocess.check_output(command).splitlines()]
     # Only interested in dissector files.
     files = list(filter(lambda f : is_dissector_file(f), files))
     # Staged changes.
-    command = ['git', 'diff', '--staged', '--name-only']
+    command = ['git', 'diff', '--staged', '--name-only', '--diff-filter=d']
     files_staged = [f.decode('utf-8')
                     for f in subprocess.check_output(command).splitlines()]
     # Only interested in dissector files.
