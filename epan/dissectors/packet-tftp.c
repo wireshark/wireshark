@@ -24,6 +24,16 @@
  * RFC 2348: TFTP Blocksize Option
  * RFC 2349: TFTP Timeout Interval and Transfer Size Options
  *           (not yet implemented)
+ * RFC 7440: TFTP Windowsize Option
+ *
+ * "msftwindow" reverse-engineered from Windows Deployment Services traffic:
+ *  - Requested by RRQ (or WRQ?) including "msftwindow" option, with value
+ *    "31416" (round(M_PI * 10000)).
+ *  - Granted by OACK including "msftwindow" option, with value "27812"
+ *    (floor(e * 10000)).
+ *  - Each subsequent ACK will include an extra byte carrying the next
+ *    windowsize -- the number of DATA blocks expected before another ACK will
+ *    be sent.
  */
 
 #include "config.h"
@@ -47,6 +57,8 @@ typedef struct _tftp_conv_info_t {
   guint16      blocksize;
   const guint8 *source_file, *destination_file;
   gboolean     tsize_requested;
+  gboolean     dynamic_windowing_active;
+  guint16      windowsize;
   guint16      prev_opcode;
 
   /* Sequence analysis */
@@ -75,6 +87,7 @@ static int hf_tftp_destination_file = -1;
 static int hf_tftp_transfer_type = -1;
 static int hf_tftp_blocknum = -1;
 static int hf_tftp_full_blocknum = -1;
+static int hf_tftp_nextwindowsize = -1;
 static int hf_tftp_error_code = -1;
 static int hf_tftp_error_string = -1;
 static int hf_tftp_option_name = -1;
@@ -103,10 +116,14 @@ static expert_field ei_tftp_error = EI_INIT;
 static expert_field ei_tftp_likely_tsize_probe = EI_INIT;
 static expert_field ei_tftp_blocksize_range = EI_INIT;
 static expert_field ei_tftp_blocknum_will_wrap = EI_INIT;
+static expert_field ei_tftp_windowsize_range = EI_INIT;
+static expert_field ei_tftp_msftwindow_unrecognized = EI_INIT;
+static expert_field ei_tftp_windowsize_change = EI_INIT;
 
 #define LIKELY_TSIZE_PROBE_KEY 0
 #define FULL_BLOCKNUM_KEY 1
 #define CONVERSATION_KEY 2
+#define WINDOWSIZE_CHANGE_KEY 3
 
 static dissector_handle_t tftp_handle;
 
@@ -266,13 +283,38 @@ tftp_dissect_options(tvbuff_t *tvb, packet_info *pinfo, int offset,
                     optionname, optionvalue);
 
     /* Special code to handle individual options */
-    if (!g_ascii_strcasecmp((const char *)optionname, "blksize") &&
-        opcode == TFTP_OACK) {
-      gint blocksize = (gint)strtol((const char *)optionvalue, NULL, 10);
-      if (blocksize < 8 || blocksize > 65464) {
-        expert_add_info(pinfo, NULL, &ei_tftp_blocksize_range);
-      } else {
-        tftp_info->blocksize = blocksize;
+    if ((opcode == TFTP_RRQ || opcode == TFTP_WRQ)) {
+      if (!g_ascii_strcasecmp((const char *)optionname, "msftwindow")) {
+        if (g_strcmp0((const char *)optionvalue, "31416")) {
+          expert_add_info(pinfo, opt_tree, &ei_tftp_msftwindow_unrecognized);
+        }
+      } else if (!g_ascii_strcasecmp((const char *)optionname, "windowsize")) {
+        gint windowsize = (gint)strtol((const char *)optionvalue, NULL, 10);
+        if (windowsize < 1 || windowsize > 65535) {
+          expert_add_info(pinfo, opt_tree, &ei_tftp_windowsize_range);
+        }
+      }
+    } else if (opcode == TFTP_OACK) {
+      if (!g_ascii_strcasecmp((const char *)optionname, "blksize")) {
+        gint blocksize = (gint)strtol((const char *)optionvalue, NULL, 10);
+        if (blocksize < 8 || blocksize > 65464) {
+          expert_add_info(pinfo, opt_tree, &ei_tftp_blocksize_range);
+        } else {
+          tftp_info->blocksize = blocksize;
+        }
+      } else if (!g_ascii_strcasecmp((const char *)optionname, "windowsize")) {
+        gint windowsize = (gint)strtol((const char *)optionvalue, NULL, 10);
+        if (windowsize < 1 || windowsize > 65535) {
+          expert_add_info(pinfo, opt_tree, &ei_tftp_windowsize_range);
+        } else {
+          tftp_info->windowsize = windowsize;
+        }
+      } else if (!g_ascii_strcasecmp((const char *)optionname, "msftwindow")) {
+        if (!g_strcmp0((const char *)optionvalue, "27182")) {
+          tftp_info->dynamic_windowing_active = TRUE;
+        } else {
+          expert_add_info(pinfo, opt_tree, &ei_tftp_msftwindow_unrecognized);
+        }
       }
     } else if (!g_ascii_strcasecmp((const char *)optionname, "tsize") &&
                opcode == TFTP_RRQ) {
@@ -598,6 +640,33 @@ static void dissect_tftp_message(tftp_conv_info_t *tftp_info,
 
     col_append_fstr(pinfo->cinfo, COL_INFO, ", Block: %u",
                     blocknum);
+    offset += 2;
+
+    if (tftp_info->dynamic_windowing_active && tvb_bytes_exist(tvb, offset, 1)) {
+      gboolean windowsize_changed;
+      guint8 windowsize = tvb_get_guint8(tvb, offset);
+      ti = proto_tree_add_uint(tftp_tree, hf_tftp_nextwindowsize, tvb,
+                               offset, 1, windowsize);
+      if (!PINFO_FD_VISITED(pinfo)) {
+        /*
+         * Note changes in window size, but ignore the final ACK which includes
+         * an unnecessary (and seemingly bogus) window size.
+         */
+        windowsize_changed = windowsize != tftp_info->windowsize &&
+                             !tftp_info->last_package_available;
+        if (windowsize_changed) {
+          p_add_proto_data(wmem_file_scope(), pinfo, proto_tftp,
+                           WINDOWSIZE_CHANGE_KEY, GUINT_TO_POINTER(1));
+          tftp_info->windowsize = windowsize;
+        }
+      } else {
+        windowsize_changed = p_get_proto_data(wmem_file_scope(), pinfo, proto_tftp, WINDOWSIZE_CHANGE_KEY) != NULL;
+      }
+
+      if (windowsize_changed) {
+        expert_add_info(pinfo, ti, &ei_tftp_windowsize_change);
+      }
+    }
     break;
 
   case TFTP_ERROR:
@@ -661,6 +730,7 @@ tftp_info_for_conversation(conversation_t *conversation)
     tftp_info->destination_file = NULL;
     tftp_info->tsize_requested = FALSE;
     tftp_info->prev_opcode = TFTP_NO_OPCODE;
+    tftp_info->dynamic_windowing_active = FALSE;
     tftp_info->next_block_num = 1;
     tftp_info->blocks_missing = FALSE;
     tftp_info->next_tap_block_num = 1;
@@ -849,6 +919,11 @@ proto_register_tftp(void)
         FT_UINT32, BASE_DEC, NULL, 0x0,
         "Block number, adjusted for wrapping", HFILL }},
 
+    { &hf_tftp_nextwindowsize,
+      { "Next Window Size", "tftp.nextwindowsize",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        "Number of blocks in next transfer window", HFILL }},
+
     { &hf_tftp_error_code,
       { "Error code",         "tftp.error.code",
         FT_UINT16, BASE_DEC, VALS(tftp_error_code_vals), 0x0,
@@ -942,6 +1017,9 @@ proto_register_tftp(void)
      { &ei_tftp_likely_tsize_probe, { "tftp.likely_tsize_probe", PI_REQUEST_CODE, PI_CHAT, "Likely transfer size (tsize) probe", EXPFILL }},
      { &ei_tftp_blocksize_range, { "tftp.blocksize_range", PI_RESPONSE_CODE, PI_WARN, "TFTP blocksize out of range", EXPFILL }},
      { &ei_tftp_blocknum_will_wrap, { "tftp.block.wrap", PI_SEQUENCE, PI_NOTE, "TFTP block number is about to wrap", EXPFILL }},
+     { &ei_tftp_windowsize_range, { "tftp.windowsize_range", PI_RESPONSE_CODE, PI_WARN, "TFTP windowsize out of range", EXPFILL }},
+     { &ei_tftp_msftwindow_unrecognized, { "tftp.msftwindow.unrecognized", PI_RESPONSE_CODE, PI_WARN, "Unrecognized msftwindow option", EXPFILL }},
+     { &ei_tftp_windowsize_change, { "tftp.windowsize.change", PI_SEQUENCE, PI_CHAT, "TFTP window size is changing", EXPFILL }},
   };
 
   module_t *tftp_module;
