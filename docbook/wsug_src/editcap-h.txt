@@ -1,4 +1,4 @@
-Editcap (Wireshark) 3.5.0 (v3.5.0rc0-21-gce47866a4337)
+Editcap (Wireshark) 3.5.0 (v3.5.0rc0-461-g969c1c0271bf)
 Edit and/or translate the format of capture files.
 See https://www.wireshark.org for more information.
 
@@ -106,3 +106,4 @@ Miscellaneous:
                          If -v is used with any of the 'Duplicate Packet
                          Removal' options (-d, -D or -w) then Packet lengths
                          and MD5 hashes are printed to standard-error.
+  -V, --version          print version information and exit.
