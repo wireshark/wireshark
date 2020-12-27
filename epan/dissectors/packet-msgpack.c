@@ -236,7 +236,7 @@ static void dissect_msgpack_string(tvbuff_t* tvb, proto_tree* tree, int type, vo
 		lensize = 4;
 	}
 
-	lvalue = tvb_get_string_enc(wmem_packet_scope(), tvb, *offset + 1 + lensize, len, ENC_NA);
+	lvalue = (char*)tvb_get_string_enc(wmem_packet_scope(), tvb, *offset + 1 + lensize, len, ENC_NA);
 	label = (data ? (char*)data : "MsgPack String");
 
 	ti = proto_tree_add_string_format(tree, hf_msgpack_string, tvb, *offset, 1 + lensize + len, lvalue, "%s: %s", label, lvalue);
@@ -287,7 +287,7 @@ static void dissect_msgpack_ext(tvbuff_t* tvb, proto_tree* tree, int type, void*
 {
 	char* label;
 	int bytes;
-	const char* start;
+	const guint8* start;
 	proto_tree* ext_tree;
 	guint offset_start = *offset;
 
@@ -302,7 +302,7 @@ static void dissect_msgpack_ext(tvbuff_t* tvb, proto_tree* tree, int type, void*
 		proto_tree_add_item(ext_tree, hf_msgpack_ext_type, tvb, *offset, 1, ENC_NA);
 		*offset += 1;
 		bytes = 1 << (type - 0xd4);
-		start = tvb_get_ptr(tvb, *offset, bytes);
+		start = (const guint8*)tvb_get_ptr(tvb, *offset, bytes);
 		proto_tree_add_bytes(ext_tree, hf_msgpack_ext_bytes, tvb, *offset, bytes, start);
 		if (value)
 			*value = bytes_to_hexstr(*value, start, bytes);
