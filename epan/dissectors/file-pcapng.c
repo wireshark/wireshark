@@ -73,6 +73,10 @@ static int hf_pcapng_option_data_interface_os = -1;
 static int hf_pcapng_option_data_interface_hardware = -1;
 static int hf_pcapng_option_data_interface_fcs_length = -1;
 static int hf_pcapng_option_data_interface_timestamp_offset = -1;
+static int hf_pcapng_option_data_packet_verdict_type = -1;
+static int hf_pcapng_option_data_packet_verdict_data = -1;
+static int hf_pcapng_option_data_packet_queue = -1;
+static int hf_pcapng_option_data_packet_id = -1;
 static int hf_pcapng_option_data_packet_drop_count = -1;
 static int hf_pcapng_option_data_packet_hash_algorithm = -1;
 static int hf_pcapng_option_data_packet_hash_data = -1;
@@ -485,6 +489,9 @@ static const value_string option_code_enhanced_packet_vals[] = {
     { 2,  "Flags" },
     { 3,  "Hash" },
     { 4,  "Drop Count" },
+    { 5,  "Packet ID" },
+    { 6,  "Queue" },
+    { 7,  "Verdict" },
     { 32769,   "Darwin DPEB ID" },
     { 32770,   "Darwin Service Class" },
     { 32771,   "Darwin Effective DPEB ID" },
@@ -558,6 +565,13 @@ static const value_string record_code_vals[] = {
 static const value_string timestamp_resolution_base_vals[] = {
     { 0x0000,  "Power of 10" },
     { 0x0001,  "Power of 2" },
+    { 0, NULL }
+};
+
+static const value_string packet_verdict_type_vals[] = {
+    { 0,  "Hardware" },
+    { 1,  "Linux eBPF TC" },
+    { 2,  "Linux eBPF XDP" },
     { 0, NULL }
 };
 
@@ -1200,6 +1214,55 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
                 value.u64 = tvb_get_guint64(tvb, offset, encoding);
                 str = (const guint8*)wmem_strdup_printf(wmem_packet_scope(), "%"G_GUINT64_FORMAT, value.u64);
                 offset += 8;
+
+                break;
+            case 5:
+                if (option_length != 8) {
+                    expert_add_info(pinfo, option_length_item, &ei_invalid_option_length);
+                    offset += option_length;
+                    break;
+                }
+
+                proto_tree_add_item(option_tree, hf_pcapng_option_data_packet_id, tvb, offset, 8, encoding);
+                value.u64 = tvb_get_guint64(tvb, offset, encoding);
+                str = (const guint8*)wmem_strdup_printf(wmem_packet_scope(), "0x%016"G_GINT64_MODIFIER"x", value.u64);
+                offset += 8;
+
+                break;
+            case 6:
+                if (option_length != 4) {
+                    expert_add_info(pinfo, option_length_item, &ei_invalid_option_length);
+                    offset += option_length;
+                    break;
+                }
+
+                proto_tree_add_item(option_tree, hf_pcapng_option_data_packet_queue, tvb, offset, 4, encoding);
+                value.u32 = tvb_get_guint32(tvb, offset, encoding);
+                str = (const guint8*)wmem_strdup_printf(wmem_packet_scope(), "%u", value.u32);
+                offset += 4;
+
+                break;
+            case 7:
+                if (option_length < 1) {
+                    expert_add_info(pinfo, option_length_item, &ei_invalid_option_length);
+                    break;
+                }
+
+                switch (tvb_get_guint8(tvb, offset)) {
+                case 1:
+                case 2:
+                    if (option_length != 9) {
+                        expert_add_info(pinfo, option_length_item, &ei_invalid_option_length);
+                    }
+                    break;
+                default:
+                    break;
+                }
+
+                proto_tree_add_item(option_tree, hf_pcapng_option_data_packet_verdict_type, tvb, offset, 1, ENC_NA);
+                if (option_length > 1)
+                    proto_tree_add_item(option_tree, hf_pcapng_option_data_packet_verdict_data, tvb, offset + 1, option_length - 1, ENC_NA);
+                offset += option_length;
 
                 break;
             case 32769: /* Darwin DPEB ID */
@@ -2095,6 +2158,26 @@ proto_register_pcapng(void)
         { &hf_pcapng_option_data_interface_timestamp_offset,
             { "Timestamp Offset",                          "pcapng.options.option.data.interface.timestamp_offset",
             FT_UINT64, BASE_DEC, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_pcapng_option_data_packet_verdict_type,
+            { "Verdict type",                              "pcapng.options.option.data.packet.verdict.type",
+            FT_UINT8, BASE_DEC, VALS(packet_verdict_type_vals), 0x00,
+            NULL, HFILL }
+        },
+        { &hf_pcapng_option_data_packet_verdict_data,
+            { "Verdict data",                              "pcapng.options.option.data.packet.verdict.data",
+            FT_BYTES, BASE_NONE, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_pcapng_option_data_packet_queue,
+            { "Queue",                                     "pcapng.options.option.data.packet.queue",
+            FT_UINT32, BASE_DEC, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_pcapng_option_data_packet_id,
+            { "Packet ID",                                 "pcapng.options.option.data.packet.id",
+            FT_UINT64, BASE_HEX, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_pcapng_option_data_packet_drop_count,
