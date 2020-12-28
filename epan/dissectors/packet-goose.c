@@ -27,15 +27,20 @@
 #include "packet-ber.h"
 #include "packet-acse.h"
 
-#define PNAME  "GOOSE"
-#define PSNAME "GOOSE"
-#define PFNAME "goose"
+#define GOOSE_PNAME  "GOOSE"
+#define GOOSE_PSNAME "GOOSE"
+#define GOOSE_PFNAME "goose"
+
+#define R_GOOSE_PNAME  "R-GOOSE"
+#define R_GOOSE_PSNAME "R-GOOSE"
+#define R_GOOSE_PFNAME "r-goose"
 
 void proto_register_goose(void);
 void proto_reg_handoff_goose(void);
 
 /* Initialize the protocol and registered fields */
 static int proto_goose = -1;
+static int proto_r_goose = -1;
 
 static int hf_goose_session_header = -1;
 static int hf_goose_spdu_id = -1;
@@ -134,9 +139,10 @@ static int hf_goose_mMSString = -1;               /* MMSString */
 static int hf_goose_utc_time = -1;                /* UtcTime */
 
 /*--- End of included file: packet-goose-hf.c ---*/
-#line 66 "./asn1/goose/packet-goose-template.c"
+#line 71 "./asn1/goose/packet-goose-template.c"
 
 /* Initialize the subtree pointers */
+static int ett_r_goose = -1;
 static int ett_session_header = -1;
 static int ett_security_info = -1;
 static int ett_session_user_info = -1;
@@ -166,7 +172,7 @@ static gint ett_goose_SEQUENCE_OF_Data = -1;
 static gint ett_goose_Data = -1;
 
 /*--- End of included file: packet-goose-ett.c ---*/
-#line 76 "./asn1/goose/packet-goose-template.c"
+#line 82 "./asn1/goose/packet-goose-template.c"
 
 
 /*--- Included file: packet-goose-fn.c ---*/
@@ -723,7 +729,7 @@ dissect_goose_GOOSEpdu(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
 
 /*--- End of included file: packet-goose-fn.c ---*/
-#line 78 "./asn1/goose/packet-goose-template.c"
+#line 84 "./asn1/goose/packet-goose-template.c"
 
 static dissector_handle_t goose_handle = NULL;
 static dissector_handle_t ositp_handle = NULL;
@@ -772,7 +778,7 @@ dissect_goose(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	asn1_ctx_t asn1_ctx;
 	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
 
-	col_set_str(pinfo->cinfo, COL_PROTOCOL, PNAME);
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, GOOSE_PNAME);
 	col_clear(pinfo->cinfo, COL_INFO);
 
 	item = proto_tree_add_item(parent_tree, proto_goose, tvb, 0, -1, ENC_NA);
@@ -819,15 +825,18 @@ dissect_rgoose(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	guint32 init_v_length, payload_tag, padding_length, length;
 	guint32 payload_length, apdu_offset = 0, apdu_length;
 	proto_item *item = NULL;
-	proto_tree *tree = NULL, *sess_user_info_tree = NULL;
+	proto_tree *tree = NULL, *r_goose_tree = NULL, *sess_user_info_tree = NULL;
 	asn1_ctx_t asn1_ctx;
 	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
 
-	col_set_str(pinfo->cinfo, COL_PROTOCOL, "R-GOOSE");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, R_GOOSE_PNAME);
 	col_clear(pinfo->cinfo, COL_INFO);
 
+	item = proto_tree_add_item(parent_tree, proto_r_goose, tvb, 0, -1, ENC_NA);
+	r_goose_tree = proto_item_add_subtree(item, ett_r_goose);
+
 	/* Session header subtree */
-	item = proto_tree_add_item(parent_tree, hf_goose_session_header, tvb, 0,
+	item = proto_tree_add_item(r_goose_tree, hf_goose_session_header, tvb, 0,
 							   -1, ENC_NA);
 	tree = proto_item_add_subtree(item, ett_session_header);
 
@@ -885,7 +894,7 @@ dissect_rgoose(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	offset += init_v_length;
 
 	/* Session user information subtree */
-	item = proto_tree_add_item(parent_tree, hf_goose_session_user_info, tvb,
+	item = proto_tree_add_item(r_goose_tree, hf_goose_session_user_info, tvb,
 							   offset, -1, ENC_NA);
 	sess_user_info_tree = proto_item_add_subtree(item, ett_payload);
 
@@ -1380,11 +1389,12 @@ void proto_register_goose(void) {
         "UtcTime", HFILL }},
 
 /*--- End of included file: packet-goose-hfarr.c ---*/
-#line 494 "./asn1/goose/packet-goose-template.c"
+#line 503 "./asn1/goose/packet-goose-template.c"
 	};
 
 	/* List of subtrees */
 	static gint *ett[] = {
+		&ett_r_goose,
 		&ett_session_header,
 		&ett_security_info,
 		&ett_session_user_info,
@@ -1413,7 +1423,7 @@ void proto_register_goose(void) {
     &ett_goose_Data,
 
 /*--- End of included file: packet-goose-ettarr.c ---*/
-#line 505 "./asn1/goose/packet-goose-template.c"
+#line 515 "./asn1/goose/packet-goose-template.c"
 	};
 
 	static ei_register_info ei[] = {
@@ -1428,7 +1438,9 @@ void proto_register_goose(void) {
 	expert_module_t* expert_goose;
 
 	/* Register protocol */
-	proto_goose = proto_register_protocol(PNAME, PSNAME, PFNAME);
+	proto_goose = proto_register_protocol(GOOSE_PNAME, GOOSE_PSNAME, GOOSE_PFNAME);
+	proto_r_goose = proto_register_protocol(R_GOOSE_PNAME, R_GOOSE_PSNAME, R_GOOSE_PFNAME);
+
 	goose_handle = register_dissector("goose", dissect_goose, proto_goose);
 
 	/* Register fields and subtrees */
