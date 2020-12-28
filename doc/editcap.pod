@@ -58,6 +58,9 @@ resulting packets to the capture I<outfile> (or outfiles).
 By default, it reads all packets from the I<infile> and writes them to the
 I<outfile> in pcapng file format.
 
+The B<-A> and B<-B> option allow you to limit the time range from which packets
+are read from the I<infile>.
+
 An optional list of packet numbers can be specified on the command tail;
 individual packet numbers separated by whitespace and/or ranges of packet
 numbers can be specified as I<start>-I<end>, referring to all packets from
@@ -97,13 +100,13 @@ strings that include spaces.
 
 =item -A  E<lt>start timeE<gt>
 
-Saves only the packets whose timestamp is on or after start time.
+Reads only the packets whose timestamp is on or after start time.
 The time is given in the following format YYYY-MM-DD HH:MM:SS[.nnnnnnnnn]
 (the decimal and fractional seconds are optional).
 
 =item -B  E<lt>stop timeE<gt>
 
-Saves only the packets whose timestamp is before stop time.
+Reads only the packets whose timestamp is before stop time.
 The time is given in the following format YYYY-MM-DD HH:MM:SS[.nnnnnnnnn]
 (the decimal and fractional seconds are optional).
 

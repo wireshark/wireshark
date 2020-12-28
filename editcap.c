@@ -758,9 +758,9 @@ print_usage(FILE *output)
     fprintf(output, "\n");
     fprintf(output, "Packet selection:\n");
     fprintf(output, "  -r                     keep the selected packets; default is to delete them.\n");
-    fprintf(output, "  -A <start time>        only output packets whose timestamp is after (or equal\n");
+    fprintf(output, "  -A <start time>        only read packets whose timestamp is after (or equal\n");
     fprintf(output, "                         to) the given time (format as YYYY-MM-DD hh:mm:ss[.nnnnnnnnn]).\n");
-    fprintf(output, "  -B <stop time>         only output packets whose timestamp is before the\n");
+    fprintf(output, "  -B <stop time>         only read packets whose timestamp is before the\n");
     fprintf(output, "                         given time (format as YYYY-MM-DD hh:mm:ss[.nnnnnnnnn]).\n");
     fprintf(output, "\n");
     fprintf(output, "Duplicate packet removal:\n");
