@@ -3784,6 +3784,7 @@ proto_tree_add_item_ret_display_string_and_length(proto_tree *tree, int hfindex,
 	case FT_UINT_BYTES:
 		proto_tree_set_bytes(new_fi, value, n);
 		break;
+
 	default:
 		g_assert_not_reached();
 	}
@@ -10038,7 +10039,7 @@ hfinfo_char_value_format_display(int display, char buf[7], guint32 value)
 				break;
 
 			default:
-				g_assert_not_reached();
+				REPORT_DISSECTOR_BUG("Invalid base: %d", FIELD_DISPLAY(display));
 			}
 		}
 		*(--ptr) = '\\';
@@ -10111,7 +10112,7 @@ hfinfo_number_value_format_display(const header_field_info *hfinfo, int display,
 			}
 
 		default:
-			g_assert_not_reached();
+			REPORT_DISSECTOR_BUG("Invalid base: %d", FIELD_DISPLAY(display));
 	}
 	return ptr;
 }
@@ -10151,7 +10152,7 @@ hfinfo_number_value_format_display64(const header_field_info *hfinfo, int displa
 			return ptr;
 
 		default:
-			g_assert_not_reached();
+			REPORT_DISSECTOR_BUG("Invalid base: %d", FIELD_DISPLAY(display));
 	}
 
 	return ptr;
@@ -11586,7 +11587,7 @@ proto_item_add_bitmask_tree(proto_item *item, tvbuff_t *tvb, const int offset,
 		REPORT_DISSECTOR_BUG("Illegal call of proto_item_add_bitmask_tree without fields");
 
 	if (len < 0 || len > 8)
-		g_assert_not_reached();
+		REPORT_DISSECTOR_BUG("Invalid len: %d", len);
 	/**
 	 * packet-frame.c uses len=0 since the value is taken from the packet
 	 * metadata, not the packet bytes. In that case, assume that all bits
