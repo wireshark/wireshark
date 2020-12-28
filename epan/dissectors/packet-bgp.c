@@ -9298,8 +9298,11 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo)
             ti = proto_tree_add_item(tree, hf_bgp_update_nlri, tvb, o, len, ENC_NA);
             subtree = proto_item_add_subtree(ti, ett_bgp_nlri);
             end = o + len;
-            /* Heuristic to detect if IPv4 prefix are using Path Identifiers */
-            if( detect_add_path_prefix4(tvb, o, end) ) {
+            /*
+             * Heuristic to detect if IPv4 prefix are using Path Identifiers
+             * we need at least 5 bytes for Add-path prefixes
+             */
+            if( len > 4 && detect_add_path_prefix4(tvb, o, end) ) {
                 /* IPv4 prefixes with Path Id */
                 while (o < end) {
                     i = decode_path_prefix4(subtree, pinfo, hf_bgp_nlri_path_id, hf_bgp_nlri_prefix, tvb, o,
