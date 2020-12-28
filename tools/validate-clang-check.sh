@@ -13,8 +13,10 @@
 COMMIT_FILES=$( git diff-index --cached --name-status HEAD^ | grep -v "^D" | cut -f2 | grep "\\.c$\|cpp$" )
 
 for FILE in $COMMIT_FILES; do
+    # Skip some special cases
+    # iLBC: the file is not even compiled when ilbc is not installed
+    [[ $FILE =~ /iLBC/ ]] && continue
 
     clang-check ../$FILE
     clang-check -analyze ../$FILE
-
 done
