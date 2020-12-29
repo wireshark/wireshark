@@ -918,7 +918,7 @@
   </action>
   <action name="actionHelpFAQ">
    <property name="text">
-    <string>FAQ's</string>
+    <string>FAQs</string>
    </property>
   </action>
   <action name="actionHelpDownloads">
