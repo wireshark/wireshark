@@ -989,6 +989,7 @@ static const value_string pn_io_block_type[] = {
     { 0x0231, "MrpInstanceDataAdjust"},
     { 0x0232, "MrpInstanceDataReal"},
     { 0x0233, "MrpInstanceDataCheck"},
+    { 0x0241, "PDRsiInstances"},
     { 0x0240, "PDInterfaceDataReal"},
     { 0x0250, "PDInterfaceAdjust"},
     { 0x0251, "PDPortStatistic"},
@@ -1643,6 +1644,7 @@ static const value_string pn_io_index[] = {
     { 0xF871, "PE_EntityStatusData" },
     { 0xF880, "AssetManagementData" },
     /*0xF851 - 0xFBFF reserved except 0xF880*/
+    { 0xF8F1, "PDRsiInstances" },
     /*0xFC00 - 0xFFFF reserved for profiles */
     { 0, NULL }
 };
@@ -10291,6 +10293,9 @@ dissect_block(tvbuff_t *tvb, int offset,
     case(0x0240):
         dissect_PDInterfaceDataReal_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow);
         break;
+    case(0x0241) :
+        dissect_PDRsiInstances_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow);
+        break;
     case(0x0250):
         dissect_PDInterfaceAdjust_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow);
         break;
@@ -10773,6 +10778,7 @@ dissect_RecordDataRead(tvbuff_t *tvb, int offset,
     case(0xf870):   /* PE_EntityFilterData*/
     case(0xf871):   /* PE_EntityStatusData*/
     case(0xf880) : /* AssetManagementData */
+    case(0xf8f1):   /* PDRsiInstances */
         offset = dissect_block(tvb, offset, pinfo, tree, drep, &u16Index, &u32RecDataLen, &ar);
         break;
 
@@ -11535,6 +11541,12 @@ dissect_PNIO_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         col_set_str(pinfo->cinfo, COL_INFO, "Alarm Low");
 
         dissect_PNIO_RTA(tvb, 0, pinfo, tree, drep);
+        return TRUE;
+    }
+
+    /* is this a Remote Service Interface (RSI) packet*/
+    if (u16FrameID == 0xfe02) {
+        dissect_PNIO_RSI(tvb, 0, pinfo, tree, drep);
         return TRUE;
     }
 
@@ -14562,6 +14574,9 @@ proto_register_pn_io (void)
 
     /* Initialise RTC1 dissection */
     init_pn_io_rtc1(proto_pn_io);
+
+    /* Initialise RSI dissection */
+    init_pn_rsi(proto_pn_io);
 
     /* Init functions of PNIO protocol */
     register_init_routine(pnio_setup);

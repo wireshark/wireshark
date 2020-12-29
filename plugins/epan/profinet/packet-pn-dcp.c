@@ -86,6 +86,15 @@ static int hf_pn_dcp_suboption_device_instance_low = -1;
 static int hf_pn_dcp_suboption_device_oem_ven_id = -1;
 static int hf_pn_dcp_suboption_device_oem_dev_id = -1;
 
+static int hf_pn_dcp_rsi_properties_value = -1;
+static int hf_pn_dcp_rsi_properties_value_bit0 = -1;
+static int hf_pn_dcp_rsi_properties_value_bit1 = -1;
+static int hf_pn_dcp_rsi_properties_value_bit2 = -1;
+static int hf_pn_dcp_rsi_properties_value_bit3 = -1;
+static int hf_pn_dcp_rsi_properties_value_bit4 = -1;
+static int hf_pn_dcp_rsi_properties_value_bit5 = -1;
+static int hf_pn_dcp_rsi_properties_value_otherbits = -1;
+
 static int hf_pn_dcp_suboption_dhcp = -1;
 static int hf_pn_dcp_suboption_dhcp_option_code = -1;
 static int hf_pn_dcp_suboption_dhcp_parameter_length = -1;
@@ -104,9 +113,17 @@ static int hf_pn_dcp_suboption_all = -1;
 
 static int hf_pn_dcp_suboption_manuf = -1;
 
+static int hf_pn_dcp_vendor_id_high = -1;
+static int hf_pn_dcp_vendor_id_low = -1;
+static int hf_pn_dcp_device_id_high = -1;
+static int hf_pn_dcp_device_id_low = -1;
+static int hf_pn_dcp_instance_id_high = -1;
+static int hf_pn_dcp_instance_id_low = -1;
 
 static gint ett_pn_dcp = -1;
 static gint ett_pn_dcp_block = -1;
+
+static gint ett_pn_dcp_rsi_properties_value = -1;
 
 static expert_field ei_pn_dcp_block_parse_error = EI_INIT;
 static expert_field ei_pn_dcp_block_error_unknown = EI_INIT;
@@ -251,6 +268,7 @@ static const value_string pn_dcp_suboption_control_signal_value[] = {
 #define PNDCP_SUBOPTION_DEVICE_ALIAS_NAME       0x06
 #define PNDCP_SUBOPTION_DEVICE_DEV_INSTANCE     0x07
 #define PNDCP_SUBOPTION_DEVICE_OEM_DEV_ID       0x08
+#define PNDCP_SUBOPTION_DEVICE_RSI_PROPERTIES   0x0A
 
 static const value_string pn_dcp_suboption_device[] = {
     { 0x00, "Reserved" },
@@ -262,9 +280,13 @@ static const value_string pn_dcp_suboption_device[] = {
     { PNDCP_SUBOPTION_DEVICE_ALIAS_NAME,    "Alias Name" },
     { PNDCP_SUBOPTION_DEVICE_DEV_INSTANCE,  "Device Instance" },
     { PNDCP_SUBOPTION_DEVICE_OEM_DEV_ID,    "OEM Device ID"},
+    { PNDCP_SUBOPTION_DEVICE_RSI_PROPERTIES,"RSI Properties" },
     /*0x09 - 0xff reserved */
     { 0, NULL }
 };
+
+static const true_false_string pn_dcp_rsi_properties_value_bit[] =
+    { { "Available", "Not available" } };
 
 #define PNDCP_SUBOPTION_DHCP_CLIENT_ID  61
 #define PNDCP_SUBOPTION_DHCP_CONTROL_FOR_ADDRESS_RES  255
@@ -597,6 +619,10 @@ dissect_PNDCP_Suboption_Device(tvbuff_t *tvb, int offset, packet_info *pinfo,
     guint8    device_instance_low;
     guint16   oem_vendor_id;
     guint16   oem_device_id;
+    proto_item *sub_item;
+    proto_tree *sub_tree;
+    guint8    instance_id_high;
+    guint8    instance_id_low;
     conversation_t    *conversation;
     stationInfo       *station_info;
 
@@ -885,6 +911,64 @@ dissect_PNDCP_Suboption_Device(tvbuff_t *tvb, int offset, packet_info *pinfo,
                                    rval_to_str(block_info, pn_dcp_block_info, "Unknown"));
         }
         proto_item_append_text(block_item, ", OEMVendorID: 0x%04x / OEMDeviceID: 0x%04x", oem_vendor_id, oem_device_id);
+        break;
+    case PNDCP_SUBOPTION_DEVICE_RSI_PROPERTIES:
+        sub_item = proto_tree_add_item(tree, hf_pn_dcp_rsi_properties_value, tvb, offset, 2, ENC_BIG_ENDIAN);
+        sub_tree = proto_item_add_subtree(sub_item, ett_pn_dcp_rsi_properties_value);
+
+        static int* const flags[] = {
+            &hf_pn_dcp_rsi_properties_value_bit0,
+            &hf_pn_dcp_rsi_properties_value_bit1,
+            &hf_pn_dcp_rsi_properties_value_bit2,
+            &hf_pn_dcp_rsi_properties_value_bit3,
+            &hf_pn_dcp_rsi_properties_value_bit4,
+            &hf_pn_dcp_rsi_properties_value_bit5,
+            &hf_pn_dcp_rsi_properties_value_otherbits,
+            NULL
+        };
+
+        proto_tree_add_bitmask(sub_tree, tvb, offset, hf_pn_dcp_rsi_properties_value, ett_pn_dcp_rsi_properties_value, flags, ENC_BIG_ENDIAN);
+
+        offset = offset + 2;
+
+        // CIMVDIValue
+        dissect_pn_uint16(tvb, offset, pinfo, tree, hf_pn_dcp_vendor_id_high, &vendor_id);
+        offset = dissect_pn_uint16(tvb, offset, pinfo, tree, hf_pn_dcp_vendor_id_low, &vendor_id);
+
+        dissect_pn_uint16(tvb, offset, pinfo, tree, hf_pn_dcp_device_id_high, &device_id);
+        offset = dissect_pn_uint16(tvb, offset, pinfo, tree, hf_pn_dcp_device_id_low, &device_id);
+
+        offset = dissect_pn_uint8(tvb, offset, pinfo, tree, hf_pn_dcp_instance_id_high, &instance_id_high);
+        offset = dissect_pn_uint8(tvb, offset, pinfo, tree, hf_pn_dcp_instance_id_low, &instance_id_low);
+
+        if (pinfo->fd->visited == FALSE) {
+            /* Create a conversation between the MAC addresses */
+            conversation = find_conversation(pinfo->num, &pinfo->dl_src, &pinfo->dl_dst, ENDPOINT_NONE, 0, 0, 0);
+            if (conversation == NULL) {
+                conversation = conversation_new(pinfo->num, &pinfo->dl_src, &pinfo->dl_dst, ENDPOINT_NONE, 0, 0, 0);
+            }
+
+            station_info = (stationInfo*)conversation_get_proto_data(conversation, proto_pn_dcp);
+            if (station_info == NULL) {
+                station_info = wmem_new0(wmem_file_scope(), stationInfo);
+                init_pnio_rtc1_station(station_info);
+                conversation_add_proto_data(conversation, proto_pn_dcp, station_info);
+            }
+
+            station_info->u16Vendor_id = vendor_id;
+            station_info->u16Device_id = device_id;
+        }
+
+        pn_append_info(pinfo, dcp_item, ", RSI-Properties");
+        proto_item_append_text(block_item, "Device/RSI Properties");
+        if (have_block_qualifier) {
+            proto_item_append_text(block_item, ", BlockQualifier: %s",
+                val_to_str(block_qualifier, pn_dcp_block_qualifier, "Unknown"));
+        }
+        if (have_block_info) {
+            proto_item_append_text(block_item, ", BlockInfo: %s",
+                rval_to_str(block_info, pn_dcp_block_info, "Unknown"));
+        }
         break;
     default:
         offset = dissect_pn_undecoded(tvb, offset, pinfo, tree, block_length);
@@ -1535,6 +1619,76 @@ proto_register_pn_dcp (void)
             FT_UINT16, BASE_HEX, NULL, 0x0,
             NULL, HFILL }},
 
+        { &hf_pn_dcp_rsi_properties_value,
+          { "RsiPropertiesValue", "pn_dcp.suboption_device_rsi_properties_value",
+            FT_UINT16, BASE_HEX, 0, 0x0,
+            NULL, HFILL } },
+
+        { &hf_pn_dcp_rsi_properties_value_bit0,
+          { "IP Stack", "pn_dcp.suboption_device_rsi_properties_value.bit0",
+            FT_BOOLEAN, 16, TFS(pn_dcp_rsi_properties_value_bit), 0x0001,
+            NULL, HFILL } },
+
+        { &hf_pn_dcp_rsi_properties_value_bit1,
+          { "CLRPC Interface", "pn_dcp.suboption_device_rsi_properties_value.bit1",
+            FT_BOOLEAN, 16, TFS(pn_dcp_rsi_properties_value_bit), 0x0002,
+            NULL, HFILL } },
+
+        { &hf_pn_dcp_rsi_properties_value_bit2,
+          { "RSI AR Interface", "pn_dcp.suboption_device_rsi_properties_value.bit2",
+            FT_BOOLEAN, 16, TFS(pn_dcp_rsi_properties_value_bit), 0x0004,
+            NULL, HFILL } },
+
+        { &hf_pn_dcp_rsi_properties_value_bit3,
+          { "RSI AR Read Implicit Interface", "pn_dcp.suboption_device_rsi_properties_value.bit3",
+            FT_BOOLEAN, 16, TFS(pn_dcp_rsi_properties_value_bit), 0x0008,
+            NULL, HFILL } },
+
+        { &hf_pn_dcp_rsi_properties_value_bit4,
+          { "RSI CIM Interface", "pn_dcp.suboption_device_rsi_properties_value.bit4",
+            FT_BOOLEAN, 16, TFS(pn_dcp_rsi_properties_value_bit), 0x0010,
+            NULL, HFILL } },
+
+        { &hf_pn_dcp_rsi_properties_value_bit5,
+          { "RSI CIM Read Implicit Interface", "pn_dcp.suboption_device_rsi_properties_value.bit5",
+            FT_BOOLEAN, 16, TFS(pn_dcp_rsi_properties_value_bit), 0x0020,
+            NULL, HFILL } },
+
+        { &hf_pn_dcp_rsi_properties_value_otherbits,
+          { "RsiPropertiesValue.Bit6-15", "pn_dcp.suboption_device_rsi_properties_value.otherbits",
+            FT_UINT16, BASE_HEX, NULL, 0xFFC0,
+            NULL, HFILL } },
+
+        { &hf_pn_dcp_vendor_id_high,
+          { "VendorIDHigh", "pn_dcp.vendor_id_high",
+            FT_UINT16, BASE_HEX, NULL, 0xFF00,
+            NULL, HFILL } },
+
+        { &hf_pn_dcp_vendor_id_low,
+          { "VendorIDLow", "pn_dcp.vendor_id_low",
+            FT_UINT16, BASE_HEX, NULL, 0x00FF,
+            NULL, HFILL } },
+
+        { &hf_pn_dcp_device_id_high,
+          { "DeviceIDHigh", "pn_dcp.device_id_high",
+            FT_UINT16, BASE_HEX, NULL, 0xFF00,
+            NULL, HFILL } },
+
+        { &hf_pn_dcp_device_id_low,
+          { "DeviceIDLow", "pn_dcp.device_id_low",
+            FT_UINT16, BASE_HEX, NULL, 0x00FF,
+            NULL, HFILL } },
+
+        { &hf_pn_dcp_instance_id_high,
+          { "InstanceHigh", "pn_dcp.instance_id_high",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL } },
+
+        { &hf_pn_dcp_instance_id_low,
+          { "InstanceLow", "pn_dcp.instance_id_low",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL } },
+
         { &hf_pn_dcp_suboption_dhcp,
           { "Suboption", "pn_dcp.suboption_dhcp",
             FT_UINT8, BASE_DEC, VALS(pn_dcp_suboption_dhcp), 0x0,
@@ -1604,7 +1758,8 @@ proto_register_pn_dcp (void)
 
     static gint *ett[] = {
         &ett_pn_dcp,
-        &ett_pn_dcp_block
+        &ett_pn_dcp_block,
+        &ett_pn_dcp_rsi_properties_value
     };
 
     static ei_register_info ei[] = {

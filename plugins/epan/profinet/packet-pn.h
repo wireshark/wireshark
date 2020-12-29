@@ -111,6 +111,8 @@ extern wmem_list_t *aruuid_frame_setup_list;
 
 extern void init_pn(int proto);
 extern void init_pn_io_rtc1(int proto);
+extern void init_pn_rsi(int proto);
+extern void pn_rsi_reassemble_init(void);
 
 extern void init_pnio_rtc1_station(stationInfo *station_info);
 
@@ -165,6 +167,12 @@ extern int dissect_PNIO_status(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 extern int dissect_PNIO_C_SDU_RTC1(tvbuff_t* tvb, int offset, packet_info* pinfo,
                     proto_tree* tree, guint8* drep _U_, guint16 frameid);
+
+extern int dissect_PNIO_RSI(tvbuff_t *tvb, int offset, packet_info *pinfo,
+                    proto_tree *tree, guint8 *drep);
+					
+extern int dissect_PDRsiInstances_block(tvbuff_t *tvb, int offset,
+                    packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint8 *drep, guint8 u8BlockVersionHigh, guint8 u8BlockVersionLow);
 
 extern void pn_append_info(packet_info *pinfo, proto_item *dcp_item, const char *text);
 
