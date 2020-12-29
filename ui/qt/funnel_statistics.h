@@ -17,7 +17,6 @@
 #include <ui/qt/filter_action.h>
 
 struct _funnel_ops_t;
-struct _funnel_progress_window_t;
 struct progdlg;
 
 class FunnelStatistics : public QObject

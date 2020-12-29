@@ -23,10 +23,7 @@ extern "C" {
 #endif /* __cplusplus */
 
 typedef struct _funnel_ops_id_t funnel_ops_id_t; /* Opaque pointer to ops instance */
-typedef struct _funnel_progress_window_t funnel_progress_window_t ;
 typedef struct _funnel_text_window_t funnel_text_window_t ;
-typedef struct _funnel_tree_window_t funnel_tree_window_t ; /* XXX Unused? */
-typedef struct _funnel_node_t funnel_node_t ; /* XXX Unused? */
 
 typedef void (*text_win_close_cb_t)(void*);
 
