@@ -615,7 +615,7 @@ You can combine filter expressions in Wireshark using the logical operators show
 |===
 |English |C-like    |Description    | Example
 |and     |&amp;&amp;| Logical AND   | `ip.src==10.0.0.5 and tcp.flags.fin`
-|or      |\|\|      | Logical OR    |`ip.src==10.0.0.5 or ip.src==192.1.1.1`
+|or      |\|\|      | Logical OR    | `ip.src==10.0.0.5 or ip.src==192.1.1.1`
 |xor     |^^        | Logical XOR   | `tr.dst[0:3] == 0.6.29 xor tr.src[0:3] == 0.6.29`
 |not     |!         | Logical NOT   | `not llc`
 |[...]   |          | Subsequence   | See “Slice Operator” below.
