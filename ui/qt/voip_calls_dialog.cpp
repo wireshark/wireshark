@@ -173,6 +173,12 @@ void VoipCallsDialog::tapReset(void *tapinfo_ptr)
     VoipCallsDialog *voip_calls_dialog = static_cast<VoipCallsDialog *>(tapinfo->tap_data);
     voip_calls_dialog->call_infos_model_->removeAllCalls();
     voip_calls_reset_all_taps(tapinfo);
+
+    // Leave old graph_analysis as is and allocate new one
+    voip_calls_dialog->sequence_info_->unref();
+    voip_calls_dialog->tapinfo_.graph_analysis = sequence_analysis_info_new();
+    voip_calls_dialog->tapinfo_.graph_analysis->name = "voip";
+    voip_calls_dialog->sequence_info_ = new SequenceInfo(voip_calls_dialog->tapinfo_.graph_analysis);
 }
 
 tap_packet_status VoipCallsDialog::tapPacket(void *, packet_info *, epan_dissect_t *, const void *)
