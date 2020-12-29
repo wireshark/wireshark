@@ -1302,7 +1302,7 @@ static const range_string dns_ext_err_info_code[] = {
  * of labels
  */
 static guint
-qname_labels_count(const guchar* name, gint name_len)
+qname_labels_count(const gchar* name, gint name_len)
 {
     guint labels = 0;
     gint i;
@@ -1530,7 +1530,7 @@ get_dns_name(tvbuff_t *tvb, int offset, int max_len, int dns_data_offset,
 
 static int
 get_dns_name_type_class(tvbuff_t *tvb, int offset, int dns_data_offset,
-    const gchar **name, int *name_len, int *type, int *dns_class)
+    const gchar **name, int *name_len, guint16 *type, guint16 *dns_class)
 {
   int start_offset = offset;
 
@@ -1607,8 +1607,8 @@ dissect_dns_query(tvbuff_t *tvb, int offset, int dns_data_offset,
   const gchar  *name;
   gchar        *name_out;
   int           name_len;
-  int           type;
-  int           dns_class;
+  guint16       type;
+  guint16       dns_class;
   int           qu;
   const char   *type_name;
   int           data_start;
@@ -1974,8 +1974,8 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
   const gchar  *name;
   gchar        *name_out;
   int           name_len;
-  int           dns_type;
-  int           dns_class;
+  guint16       dns_type;
+  guint16       dns_class;
   int           flush;
   const char   *class_name;
   const char   *type_name;
@@ -3790,9 +3790,9 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       tag = (const char*)tvb_get_string_enc(wmem_packet_scope(), tvb, cur_offset + 1, tag_len, ENC_ASCII|ENC_NA);
 
       value_len = data_len - (tag_len + 2);
-      value = tvb_get_string_enc(wmem_packet_scope(), tvb, cur_offset + 1 + tag_len, value_len, ENC_ASCII|ENC_NA);
+      value = (guchar*)tvb_get_string_enc(wmem_packet_scope(), tvb, cur_offset + 1 + tag_len, value_len, ENC_ASCII|ENC_NA);
 
-      value = format_text(wmem_packet_scope(), value, value_len);
+      value = (guchar*)format_text(wmem_packet_scope(), value, value_len);
 
       if (strncmp(tag, "issue", tag_len) == 0) {
         cur_hf = hf_dns_caa_issue;
@@ -3804,12 +3804,12 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
         cur_hf = hf_dns_caa_unknown;
       }
 
-      caa_item = proto_tree_add_string(rr_tree, cur_hf, tvb, cur_offset, 1 + tag_len + value_len, value);
+      caa_item = proto_tree_add_string(rr_tree, cur_hf, tvb, cur_offset, 1 + tag_len + value_len, (const gchar*)value);
       caa_tree = proto_item_add_subtree(caa_item, ett_caa_data);
 
       proto_tree_add_uint(caa_tree, hf_dns_caa_tag_length, tvb, cur_offset, 1, tag_len);
       proto_tree_add_string(caa_tree, hf_dns_caa_tag, tvb, cur_offset + 1, tag_len, tag);
-      proto_tree_add_string(caa_tree, hf_dns_caa_value, tvb, cur_offset + 1 + tag_len, value_len, value);
+      proto_tree_add_string(caa_tree, hf_dns_caa_value, tvb, cur_offset + 1 + tag_len, value_len, (const gchar*)value);
     }
     break;
 
@@ -4040,10 +4040,10 @@ dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   dns_transaction_t *dns_trans;
   wmem_tree_key_t    key[3];
   struct DnsTap     *dns_stats;
-  guint              qtype = 0;
-  gint               qclass = 0;
+  guint16            qtype = 0;
+  guint16            qclass = 0;
   gboolean           retransmission = FALSE;
-  const gchar      *name;
+  const gchar       *name;
   int                name_len;
   nstime_t           delta = NSTIME_INIT_ZERO;
 
@@ -4139,7 +4139,7 @@ dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
         /* Has not enough time elapsed that we consider this request a retransmission? */
         nstime_delta(&request_delta, &pinfo->abs_ts, &dns_trans->req_time);
-        if ((guint32)nstime_to_sec(&request_delta) < retransmission_timer) {
+        if (nstime_to_sec(&request_delta) < (double)retransmission_timer) {
           retransmission = TRUE;
         } else {
           new_transaction = TRUE;
