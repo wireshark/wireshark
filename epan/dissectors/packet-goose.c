@@ -515,7 +515,7 @@ dissect_goose_GSEMngtPdu(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 
 static int
 dissect_goose_UtcTime(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 37 "./asn1/goose/goose.cnf"
+#line 31 "./asn1/goose/goose.cnf"
 
 	guint32 len;
 	guint32 seconds;
@@ -563,7 +563,7 @@ dissect_goose_UtcTime(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 
 static int
 dissect_goose_T_simulation(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 20 "./asn1/goose/goose.cnf"
+#line 14 "./asn1/goose/goose.cnf"
 	gboolean value;
 	guint32 len = tvb_reported_length_remaining(tvb, offset);
 	int origin_offset = offset;

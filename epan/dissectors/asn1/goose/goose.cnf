@@ -10,12 +10,6 @@
 #.NO_EMIT ONLY_VALS
 GOOSEpdu
 
-#.FIELD_RENAME
-GetReferenceRequestPdu/offset getReferenceRequest_offset
-
-#.FIELD_ATTR
-GetReferenceRequestPdu/offset ABBREV=getReferenceRequest.offset
-
 #.FN_BODY IECGoosePdu/simulation VAL_PTR = &value
 	gboolean value;
 	guint32 len = tvb_reported_length_remaining(tvb, offset);
@@ -77,7 +71,7 @@ UtcTime	TYPE = FT_STRING DISPLAY = BASE_NONE
 
 
 #.FIELD_RENAME
-GetReferenceRequestPdu/offset getReferenceRequestPDU_offset
+GetReferenceRequestPdu/offset getReferenceRequest_offset
 GSEMngtResponses/getGsReference gseMngtResponses_GetGSReference
 GSEMngtResponses/getGoReference gseMngtResponses_GetGOReference
 GSEMngtResponses/getGSSEDataOffset gseMngtResponses_GetGSSEDataOffset
@@ -86,5 +80,6 @@ GSEMngtResponses/getGOOSEElementNumber gseMngtResponses_GetGOOSEElementNumber
 #.FIELD_ATTR
 IECGoosePdu/stNum  TYPE = FT_UINT32  DISPLAY = BASE_DEC
 IECGoosePdu/sqNum  TYPE = FT_UINT32  DISPLAY = BASE_DEC
+GetReferenceRequestPdu/offset ABBREV=getReferenceRequest.offset
 
 #.END
