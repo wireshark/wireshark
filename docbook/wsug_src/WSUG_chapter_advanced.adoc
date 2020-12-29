@@ -628,7 +628,7 @@ For example, a conversation containing only a three-way handshake will be found
 with the filter 'tcp.completeness==7' (1+2+4) while a complete conversation with
 data transfer will be found with a longer filter as closing a connection can be
 associated with FIN or RST packets, or even both :
-'tcp.completeness==31 or tcp.completeness==47 tcp.completeness==63' 
+'tcp.completeness==31 or tcp.completeness==47 or tcp.completeness==63' 
 
 [[ChAdvTimestamps]]
 
