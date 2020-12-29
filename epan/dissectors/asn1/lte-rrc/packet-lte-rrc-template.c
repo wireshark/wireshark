@@ -2737,7 +2737,7 @@ typedef struct lte_rrc_private_data_t
   guint8 warning_message_segment_number;
   drb_mapping_t drb_mapping;
   drx_config_t  drx_config;
-  pdcp_security_info_t pdcp_security;
+  pdcp_lte_security_info_t pdcp_security;
   meas_capabilities_item_band_mappings_t meas_capabilities_item_band_mappings;
   simult_pucch_pusch_cell_type cell_type;
   gboolean bcch_dl_sch_msg;
@@ -2873,7 +2873,7 @@ static void private_data_set_ra_preambles(asn1_ctx_t *actx, guint8 ra_preambles)
 
 
 /* PDCP Security info */
-static pdcp_security_info_t* private_data_pdcp_security_algorithms(asn1_ctx_t *actx)
+static pdcp_lte_security_info_t* private_data_pdcp_security_algorithms(asn1_ctx_t *actx)
 {
   lte_rrc_private_data_t *private_data = (lte_rrc_private_data_t*)lte_rrc_get_private_data(actx);
   return &private_data->pdcp_security;

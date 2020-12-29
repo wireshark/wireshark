@@ -50,7 +50,9 @@ typedef struct rlc_nr_info
 /* Configure number of PDCP SN bits to use for DRB channels. */
 void set_rlc_nr_drb_pdcp_seqnum_length(packet_info *pinfo, guint16 ueid, guint8 drbid,
                                        guint8 userplane_seqnum_length_ul,
-                                       guint8 userplane_seqnum_length_dl);
+                                       guint8 userplane_seqnum_length_dl,
+                                       gboolean sdap_ul, gboolean sdap_dl,
+                                       gboolean integrity);
 
 /*****************************************************************/
 /* UDP framing format                                            */

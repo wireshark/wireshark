@@ -31,6 +31,7 @@
 #include "packet-cell_broadcast.h"
 #include "packet-mac-nr.h"
 #include "packet-rlc-nr.h"
+#include "packet-pdcp-nr.h"
 #include "packet-rrc.h"
 #include "packet-lte-rrc.h"
 #include "packet-nr-rrc.h"
@@ -56,6 +57,7 @@ static reassembly_table nr_rrc_sib7_reassembly_table;
 static reassembly_table nr_rrc_sib8_reassembly_table;
 
 extern int proto_mac_nr;
+extern int proto_pdcp_nr;
 
 /* Include constants */
 #include "packet-nr-rrc-val.h"
@@ -166,6 +168,7 @@ typedef struct {
   guint8 warning_message_segment_number;
   nr_drb_mapping_t drb_mapping;
   lpp_pos_sib_type_t pos_sib_type;
+  pdcp_nr_security_info_t pdcp_security;
 } nr_rrc_private_data_t;
 
 /* Helper function to get or create a struct that will be actx->private_data */

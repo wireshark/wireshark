@@ -37,6 +37,23 @@ typedef enum NRBearerType
 #define PDCP_NR_UL_SDAP_HEADER_PRESENT 0x01
 #define PDCP_NR_DL_SDAP_HEADER_PRESENT 0x02
 
+enum nr_security_integrity_algorithm_e { nia0, nia1, nia2, nia3 };
+enum nr_security_ciphering_algorithm_e { nea0, nea1, nea2, nea3 };
+
+typedef struct pdcp_nr_security_info_t
+{
+    guint32                                configuration_frame;
+    gboolean                               seen_next_ul_pdu;  /* i.e. have we seen SecurityModeResponse */
+    enum nr_security_integrity_algorithm_e integrity;
+    enum nr_security_ciphering_algorithm_e ciphering;
+
+    /* Store previous settings so can revert if get SecurityModeFailure */
+    guint32                                previous_configuration_frame;
+    enum nr_security_integrity_algorithm_e previous_integrity;
+    enum nr_security_ciphering_algorithm_e previous_ciphering;
+} pdcp_nr_security_info_t;
+
+
 /* Info attached to each nr PDCP/RoHC packet */
 typedef struct pdcp_nr_info
 {
@@ -78,7 +95,7 @@ void set_pdcp_nr_proto_data(packet_info *pinfo, pdcp_nr_info *p_pdcp_nr_info);
 /* and implemented by this dissector, using the definitions      */
 /* below.                                                        */
 /*                                                               */
-/* A heuristic dissecter (enabled by a preference) will          */
+/* A heuristic dissector (enabled by a preference) will          */
 /* recognise a signature at the beginning of these frames.       */
 /* Until someone is using this format, suggestions for changes   */
 /* are welcome.                                                  */
@@ -153,6 +170,21 @@ void set_pdcp_nr_proto_data(packet_info *pinfo, pdcp_nr_info *p_pdcp_nr_info);
    continues until the end of the frame) */
 #define PDCP_NR_PAYLOAD_TAG                0x01
 
+
+/* Called by RRC, or other configuration protocols */
+
+/* Function to configure ciphering & integrity algorithms */
+void set_pdcp_nr_security_algorithms(guint16 ueid, pdcp_nr_security_info_t *security_info);
+
+/* Function to indicate securityModeCommand did not complete */
+void set_pdcp_nr_security_algorithms_failed(guint16 ueid);
+
+
+/* Called by external dissectors */
+void set_pdcp_nr_rrc_ciphering_key(guint16 ueid, const char *key);
+void set_pdcp_nr_rrc_integrity_key(guint16 ueid, const char *key);
+void set_pdcp_nr_up_ciphering_key(guint16 ueid, const char *key);
+void set_pdcp_nr_up_integrity_key(guint16 ueid, const char *key);
 
 /*
  * Editor modelines  -  https://www.wireshark.org/tools/modelines.html

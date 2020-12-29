@@ -470,7 +470,17 @@ RAT-Type TYPE_PREFIX
 #.FN_HDR SecurityModeComplete
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "Security Mode Complete");
 
-#.FN_HDR SecurityModeFailure
+#.FN_BODY SecurityModeFailure
+  mac_nr_info *p_mac_nr_info;
+%(DEFAULT_BODY)s
+  /* Look for UE identifier */
+  p_mac_nr_info = (mac_nr_info *)p_get_proto_data(wmem_file_scope(), actx->pinfo, proto_mac_nr, 0);
+
+  if (p_mac_nr_info != NULL) {
+    /* Inform PDCP that the UE failed to execute the securityModeCommand */
+    set_pdcp_nr_security_algorithms_failed(p_mac_nr_info->ueid);
+  }
+
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "Security Mode Failure");
 
 #.FN_HDR ULInformationTransfer
@@ -1549,6 +1559,23 @@ VisitedCellInfo-r16/timeSpent-r16 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&uni
     mapping->rlcDlSnLength = (value=0) ? 12 : 18;
   }
 
+#.FN_BODY SDAP-Config/sdap-HeaderDL VAL_PTR=&value
+  guint32 value;
+%(DEFAULT_BODY)s
+  nr_drb_mapping_t *mapping = &nr_rrc_get_private_data(actx)->drb_mapping;
+  mapping->pdcpDlSdap = !value;
+
+#.FN_BODY SDAP-Config/sdap-HeaderUL VAL_PTR=&value
+  guint32 value;
+%(DEFAULT_BODY)s
+  nr_drb_mapping_t *mapping = &nr_rrc_get_private_data(actx)->drb_mapping;
+  mapping->pdcpUlSdap = !value;
+
+#.FN_BODY PDCP-Config/drb/integrityProtection
+%(DEFAULT_BODY)s
+  nr_drb_mapping_t *mapping = &nr_rrc_get_private_data(actx)->drb_mapping;
+  mapping->pdcpIntegrityProtection = TRUE;
+
 #.FN_BODY DRB-ToAddMod
   nr_drb_mapping_t *mapping = &nr_rrc_get_private_data(actx)->drb_mapping;
   memset(mapping, 0, sizeof(*mapping));
@@ -1559,7 +1586,9 @@ VisitedCellInfo-r16/timeSpent-r16 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&uni
     /* Configure PDCP SN length(s) for this DRB */
     if (mapping->pdcpUlSnLength_present || mapping->pdcpDlSnLength_present) {
       set_rlc_nr_drb_pdcp_seqnum_length(actx->pinfo, p_mac_nr_info->ueid, mapping->drbid,
-                                        mapping->pdcpUlSnLength, mapping->pdcpDlSnLength);
+                                        mapping->pdcpUlSnLength, mapping->pdcpDlSnLength,
+                                        mapping->pdcpUlSdap, mapping->pdcpDlSdap,
+                                        mapping->pdcpIntegrityProtection);
     }
   }
 
@@ -1679,6 +1708,38 @@ CA-ParametersEUTRA-v1570/dl-1024QAM-TotalWeightedLayers DISPLAY=BASE_CUSTOM STRI
     dissect_lte_rrc_MeasResultSCG_FailureMRDC_r15_PDU(meas_result_scg_fail_mrdc_tvb, actx->pinfo, subtree, NULL);
   }
 
+#.FN_BODY SecurityAlgorithmConfig
+  pdcp_nr_info *p_pdcp_nr_info;
+  pdcp_nr_security_info_t *p_security_algorithms;
+%(DEFAULT_BODY)s
+  p_security_algorithms = &(nr_rrc_get_private_data(actx)->pdcp_security);
+  p_security_algorithms->configuration_frame = actx->pinfo->num;
+  p_security_algorithms->previous_configuration_frame = 0;
+  p_security_algorithms->previous_integrity = nia0;
+  p_security_algorithms->previous_ciphering = nea0;
+
+  /* Look for UE identifier */
+  p_pdcp_nr_info = (pdcp_nr_info *)p_get_proto_data(wmem_file_scope(), actx->pinfo, proto_pdcp_nr, 0);
+  if (p_pdcp_nr_info != NULL) {
+    /* Configure algorithms */
+    set_pdcp_nr_security_algorithms(p_pdcp_nr_info->ueid, p_security_algorithms);
+  }
+
+#.FN_BODY CipheringAlgorithm VAL_PTR=&value
+  guint32 value;
+  pdcp_nr_security_info_t *p_security_algorithms;
+%(DEFAULT_BODY)s
+  p_security_algorithms = &(nr_rrc_get_private_data(actx)->pdcp_security);
+  p_security_algorithms->ciphering = (enum nr_security_ciphering_algorithm_e)value;
+
+#.FN_BODY IntegrityProtAlgorithm VAL_PTR=&value
+  guint32 value;
+  pdcp_nr_security_info_t *p_security_algorithms;
+%(DEFAULT_BODY)s
+  p_security_algorithms = &(nr_rrc_get_private_data(actx)->pdcp_security);
+  p_security_algorithms->integrity = (enum nr_security_integrity_algorithm_e)value;
+
+
 #.FN_HDR SBCCH-SL-BCH-Message
   proto_item *ti;
 
@@ -1717,3 +1778,6 @@ CA-ParametersEUTRA-v1570/dl-1024QAM-TotalWeightedLayers DISPLAY=BASE_CUSTOM STRI
 
 #.FN_HDR UECapabilityInformationSidelink
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "UE Capability Information Sidelink");
+
+
+

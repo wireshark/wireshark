@@ -66,9 +66,12 @@ static gboolean global_rlc_nr_reassemble_am_pdus = TRUE;
 
 /* Tree storing UE related parameters */
 typedef struct rlc_ue_parameters {
-    guint32 id;
-    guint8 pdcp_sn_bits_ul;
-    guint8 pdcp_sn_bits_dl;
+    guint32   id;
+    guint8    pdcp_sn_bits_ul;
+    guint8    pdcp_sn_bits_dl;
+    gboolean  pdcp_sdap_ul;
+    gboolean  pdcp_sdap_dl;
+    gboolean  pdcp_integrity;
 } rlc_ue_parameters;
 static wmem_tree_t *ue_parameters_tree;
 
@@ -471,10 +474,17 @@ static void show_PDU_in_tree(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb
                             if (params) {
                                 if (p_pdcp_nr_info->direction == DIRECTION_UPLINK) {
                                     p_pdcp_nr_info->seqnum_length = params->pdcp_sn_bits_ul;
+                                    if (params->pdcp_sdap_ul) {
+                                        p_pdcp_nr_info->sdap_header &= PDCP_NR_UL_SDAP_HEADER_PRESENT;
+                                    }
                                 }
                                 else {
                                     p_pdcp_nr_info->seqnum_length = params->pdcp_sn_bits_dl;
+                                    if (params->pdcp_sdap_dl) {
+                                        p_pdcp_nr_info->sdap_header &= PDCP_NR_DL_SDAP_HEADER_PRESENT;
+                                    }
                                 }
+                                p_pdcp_nr_info->maci_present = params->pdcp_integrity;
                             }
                             break;
 
@@ -1294,7 +1304,10 @@ static void dissect_rlc_nr_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 /* Configure number of PDCP SN bits to use for DRB channels */
 void set_rlc_nr_drb_pdcp_seqnum_length(packet_info *pinfo, guint16 ueid, guint8 drbid,
                                        guint8 userplane_seqnum_length_ul,
-                                       guint8 userplane_seqnum_length_dl)
+                                       guint8 userplane_seqnum_length_dl,
+                                       gboolean sdap_ul,
+                                       gboolean sdap_dl,
+                                       gboolean integrity)
 {
     wmem_tree_key_t key[3];
     guint32 id;
@@ -1312,17 +1325,24 @@ void set_rlc_nr_drb_pdcp_seqnum_length(packet_info *pinfo, guint16 ueid, guint8 
     key[2].length = 0;
     key[2].key = NULL;
 
+    /* Look up entry for this UEId/drbid */
     params = (rlc_ue_parameters *)wmem_tree_lookup32_array_le(ue_parameters_tree, key);
     if (params && (params->id != id)) {
         params = NULL;
     }
     if (params == NULL) {
+        /* Not found so create new entry */
         params = (rlc_ue_parameters *)wmem_new(wmem_file_scope(), rlc_ue_parameters);
         params->id = id;
         wmem_tree_insert32_array(ue_parameters_tree, key, (void *)params);
     }
+
+    /* Populate params */
     params->pdcp_sn_bits_ul = userplane_seqnum_length_ul;
     params->pdcp_sn_bits_dl = userplane_seqnum_length_dl;
+    params->pdcp_sdap_ul = sdap_ul;
+    params->pdcp_sdap_dl = sdap_dl;
+    params->pdcp_integrity = integrity;
 }
 
 

@@ -2512,7 +2512,7 @@ DRX-Config/setup/shortDRX/drxShortCycleTimer DISPLAY=BASE_DEC|BASE_UNIT_STRING S
 
 #.FN_BODY SecurityAlgorithmConfig
   pdcp_lte_info *p_pdcp_lte_info;
-  pdcp_security_info_t *p_security_algorithms;
+  pdcp_lte_security_info_t *p_security_algorithms;
 %(DEFAULT_BODY)s
   p_security_algorithms = private_data_pdcp_security_algorithms(actx);
   p_security_algorithms->configuration_frame = actx->pinfo->num;
@@ -2529,17 +2529,17 @@ DRX-Config/setup/shortDRX/drxShortCycleTimer DISPLAY=BASE_DEC|BASE_UNIT_STRING S
 
 #.FN_BODY CipheringAlgorithm-r12 VAL_PTR=&value
   guint32 value;
-  pdcp_security_info_t *p_security_algorithms;
+  pdcp_lte_security_info_t *p_security_algorithms;
 %(DEFAULT_BODY)s
   p_security_algorithms = private_data_pdcp_security_algorithms(actx);
-  p_security_algorithms->ciphering = (enum security_ciphering_algorithm_e)value;
+  p_security_algorithms->ciphering = (enum lte_security_ciphering_algorithm_e)value;
 
 #.FN_BODY SecurityAlgorithmConfig/integrityProtAlgorithm VAL_PTR=&value
   guint32 value;
-  pdcp_security_info_t *p_security_algorithms;
+  pdcp_lte_security_info_t *p_security_algorithms;
 %(DEFAULT_BODY)s
   p_security_algorithms = private_data_pdcp_security_algorithms(actx);
-  p_security_algorithms->integrity = (enum security_integrity_algorithm_e)value;
+  p_security_algorithms->integrity = (enum lte_security_integrity_algorithm_e)value;
 
 #.FN_BODY SchedulingRequestConfig/setup/sr-ConfigIndex VAL_PTR=&value
   guint32 value;

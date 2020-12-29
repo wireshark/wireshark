@@ -45,21 +45,21 @@ typedef enum
 #define PDCP_SN_LENGTH_15_BITS 15
 #define PDCP_SN_LENGTH_18_BITS 18
 
-enum security_integrity_algorithm_e { eia0, eia1, eia2, eia3 };
-enum security_ciphering_algorithm_e { eea0, eea1, eea2, eea3 };
+enum lte_security_integrity_algorithm_e { eia0, eia1, eia2, eia3 };
+enum lte_security_ciphering_algorithm_e { eea0, eea1, eea2, eea3 };
 
-typedef struct pdcp_security_info_t
+typedef struct pdcp_lte_security_info_t
 {
-    guint32                             configuration_frame;
-    gboolean                            seen_next_ul_pdu;  /* i.e. have we seen SecurityModeResponse */
-    enum security_integrity_algorithm_e integrity;
-    enum security_ciphering_algorithm_e ciphering;
+    guint32                                 configuration_frame;
+    gboolean                                seen_next_ul_pdu;  /* i.e. have we seen SecurityModeResponse */
+    enum lte_security_integrity_algorithm_e integrity;
+    enum lte_security_ciphering_algorithm_e ciphering;
 
     /* Store previous settings so can revert if get SecurityModeFailure */
-    guint32                             previous_configuration_frame;
-    enum security_integrity_algorithm_e previous_integrity;
-    enum security_ciphering_algorithm_e previous_ciphering;
-} pdcp_security_info_t;
+    guint32                                 previous_configuration_frame;
+    enum lte_security_integrity_algorithm_e previous_integrity;
+    enum lte_security_ciphering_algorithm_e previous_ciphering;
+} pdcp_lte_security_info_t;
 
 
 /* Info attached to each LTE PDCP/RoHC packet */
@@ -174,7 +174,7 @@ typedef struct pdcp_lte_info
 /* Called by RRC, or other configuration protocols */
 
 /* Function to configure ciphering & integrity algorithms */
-void set_pdcp_lte_security_algorithms(guint16 ueid, pdcp_security_info_t *security_info);
+void set_pdcp_lte_security_algorithms(guint16 ueid, pdcp_lte_security_info_t *security_info);
 
 /* Function to indicate securityModeCommand did not complete */
 void set_pdcp_lte_security_algorithms_failed(guint16 ueid);
