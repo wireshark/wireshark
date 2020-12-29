@@ -137,6 +137,7 @@ signals:
 
 public slots:
     void startPlaying();
+    void pausePlaying();
     void stopPlaying();
 
 private:

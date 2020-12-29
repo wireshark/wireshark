@@ -648,6 +648,17 @@ void RtpAudioStream::startPlaying()
     }
 }
 
+void RtpAudioStream::pausePlaying()
+{
+    if (audio_output_) {
+        if (QAudio::ActiveState == audio_output_->state()) {
+            audio_output_->suspend();
+        } else if (QAudio::SuspendedState == audio_output_->state()) {
+            audio_output_->resume();
+        }
+    }
+}
+
 void RtpAudioStream::stopPlaying()
 {
     if (audio_output_) {

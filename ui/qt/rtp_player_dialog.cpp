@@ -153,6 +153,8 @@ RtpPlayerDialog::RtpPlayerDialog(QWidget &parent, CaptureFile &cf) :
     ui->audioPlot->yAxis->setVisible(false);
 
     ui->playButton->setIcon(StockIcon("media-playback-start"));
+    ui->pauseButton->setIcon(StockIcon("media-playback-pause"));
+    ui->pauseButton->setCheckable(true);
     ui->stopButton->setIcon(StockIcon("media-playback-stop"));
 
     // Ordered, unique device names starting with the system default
@@ -173,6 +175,7 @@ RtpPlayerDialog::RtpPlayerDialog(QWidget &parent, CaptureFile &cf) :
     if (ui->outputDeviceComboBox->count() < 1) {
         ui->outputDeviceComboBox->setEnabled(false);
         ui->playButton->setEnabled(false);
+        ui->pauseButton->setEnabled(false);
         ui->stopButton->setEnabled(false);
         ui->outputDeviceComboBox->addItem(tr("No devices available"));
     }
@@ -458,6 +461,7 @@ void RtpPlayerDialog::addRtpStream(rtpstream_info_t *rtpstream)
         }
 
         connect(ui->playButton, SIGNAL(clicked(bool)), audio_stream, SLOT(startPlaying()));
+        connect(ui->pauseButton, SIGNAL(clicked(bool)), audio_stream, SLOT(pausePlaying()));
         connect(ui->stopButton, SIGNAL(clicked(bool)), audio_stream, SLOT(stopPlaying()));
 
         connect(audio_stream, SIGNAL(startedPlaying()), this, SLOT(updateWidgets()));
@@ -545,6 +549,7 @@ void RtpPlayerDialog::keyPressEvent(QKeyEvent *event)
 void RtpPlayerDialog::updateWidgets()
 {
     bool enable_play = true;
+    bool enable_pause = false;
     bool enable_stop = false;
     bool enable_timing = true;
 
@@ -554,13 +559,22 @@ void RtpPlayerDialog::updateWidgets()
         RtpAudioStream *audio_stream = ti->data(src_addr_col_, Qt::UserRole).value<RtpAudioStream*>();
         if (audio_stream->outputState() != QAudio::IdleState) {
             enable_play = false;
+            enable_pause = true;
             enable_stop = true;
             enable_timing = false;
         }
     }
 
     ui->playButton->setEnabled(enable_play);
+    if (enable_play) {
+        ui->playButton->setVisible(true);
+        ui->pauseButton->setVisible(false);
+    } else if (enable_pause) {
+        ui->playButton->setVisible(false);
+        ui->pauseButton->setVisible(true);
+    }
     ui->outputDeviceComboBox->setEnabled(enable_play);
+    ui->pauseButton->setEnabled(enable_pause);
     ui->stopButton->setEnabled(enable_stop);
     cur_play_pos_->setVisible(enable_stop);
 
@@ -716,6 +730,8 @@ void RtpPlayerDialog::panXAxis(int x_pixels)
 void RtpPlayerDialog::on_playButton_clicked()
 {
     double start_time;
+
+    ui->pauseButton->setChecked(false);
 
     cur_play_pos_->point1->setCoords(start_marker_time_, 0.0);
     cur_play_pos_->point2->setCoords(start_marker_time_, 1.0);
