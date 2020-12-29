@@ -11582,6 +11582,9 @@ proto_item_add_bitmask_tree(proto_item *item, tvbuff_t *tvb, const int offset,
 	gint               bit_offset;
 	gint               no_of_bits;
 
+	if (!*fields)
+		REPORT_DISSECTOR_BUG("Illegal call of proto_item_add_bitmask_tree without fields");
+
 	if (len < 0 || len > 8)
 		g_assert_not_reached();
 	/**
