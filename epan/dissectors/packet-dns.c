@@ -5034,7 +5034,7 @@ proto_register_dns(void)
         NULL, HFILL }},
 
     { &hf_dns_soa_minimum_ttl,
-      { "Minimum TTL", "dns.soa.mininum_ttl",
+      { "Minimum TTL", "dns.soa.minimum_ttl",
         FT_UINT32, BASE_DEC, NULL, 0x0,
         NULL, HFILL }},
 
