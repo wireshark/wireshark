@@ -278,6 +278,31 @@ RtpStreamDialog::~RtpStreamDialog()
     remove_tap_listener_rtpstream(&tapinfo_);
 }
 
+void RtpStreamDialog::setRtpStreamSelection(rtpstream_id_t *id, bool state)
+{
+    QTreeWidgetItemIterator iter(ui->streamTreeWidget);
+    while (*iter) {
+        RtpStreamTreeWidgetItem *rsti = static_cast<RtpStreamTreeWidgetItem*>(*iter);
+        rtpstream_info_t *stream_info = rsti->streamInfo();
+        if (stream_info) {
+            if (rtpstream_id_equal(id,&stream_info->id,RTPSTREAM_ID_EQUAL_SSRC)) {
+                (*iter)->setSelected(state);
+            }
+        }
+        ++iter;
+    }
+}
+
+void RtpStreamDialog::selectRtpStream(rtpstream_id_t *id)
+{
+    setRtpStreamSelection(id, true);
+}
+
+void RtpStreamDialog::deselectRtpStream(rtpstream_id_t *id)
+{
+    setRtpStreamSelection(id, false);
+}
+
 bool RtpStreamDialog::eventFilter(QObject *, QEvent *event)
 {
     if (ui->streamTreeWidget->hasFocus() && event->type() == QEvent::KeyPress) {

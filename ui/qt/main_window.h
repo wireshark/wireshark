@@ -75,6 +75,8 @@
 #include "filter_action.h"
 #include "follow_stream_dialog.h"
 #include <ui/qt/models/pref_models.h>
+#include "rtp_stream_dialog.h"
+#include "voip_calls_dialog.h"
 
 class AccordionFrame;
 class ByteViewTab;
@@ -243,6 +245,11 @@ private:
     QPoint dragStartPosition;
 
     QWidget* getLayoutWidget(layout_pane_content_e type);
+
+    QPointer<RtpStreamDialog> rtp_stream_dialog_;       // Singleton pattern used
+    QPointer<VoipCallsDialog> voip_calls_dialog_;       // Singleton pattern used
+
+    void interconnectRtpStreamDialogToVoipCallsDialog(RtpStreamDialog *rtp_stream_dialog, VoipCallsDialog *voip_calls_dialog);
 
     void freeze();
     void thaw();

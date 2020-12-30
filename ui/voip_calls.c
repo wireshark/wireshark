@@ -747,6 +747,9 @@ rtp_draw(void *tap_offset_ptr)
                 new_gai->comment = g_strdup_printf(comment_fmt,
                         (rtp_listinfo->is_srtp)?"SRTP":"RTP", rtp_listinfo->packet_count,
                         duration/1000,(duration%1000), rtp_listinfo->id.ssrc);
+                new_gai->info_type=GA_INFO_TYPE_RTP;
+                new_gai->info_ptr=g_new(rtpstream_id_t, 1);
+                rtpstream_id_copy(&rtp_listinfo->id, (rtpstream_id_t *)new_gai->info_ptr);
                 new_gai->conv_num = conv_num;
                 set_fd_time(tapinfo->session, rtp_listinfo->start_fd, time_str);
                 new_gai->time_str = g_strdup(time_str);

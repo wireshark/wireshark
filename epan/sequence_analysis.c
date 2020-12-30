@@ -192,6 +192,9 @@ static void sequence_analysis_item_free(gpointer data)
     g_free(seq_item->comment);
     free_address(&seq_item->src_addr);
     free_address(&seq_item->dst_addr);
+    if (seq_item->info_ptr) {
+        g_free(seq_item->info_ptr);
+    }
     g_free(data);
 }
 

@@ -16,6 +16,7 @@
 #include "epan/dissectors/packet-h225.h"
 
 #include "ui/rtp_stream.h"
+#include "ui/rtp_stream_id.h"
 
 #include <ui/qt/utils/qt_ui_utils.h>
 #include "rtp_player_dialog.h"
@@ -416,6 +417,9 @@ void VoipCallsDialog::showSequence()
     }
 
     SequenceDialog *sequence_dialog = new SequenceDialog(parent_, cap_file_, sequence_info_);
+    connect(sequence_dialog, SIGNAL(selectRtpStream(rtpstream_id_t *)), this, SLOT(selectRtpStreamPassIn(rtpstream_id_t *)));
+    connect(sequence_dialog, SIGNAL(deselectRtpStream(rtpstream_id_t *)), this, SLOT(deselectRtpStreamPassIn(rtpstream_id_t *)));
+    connect(sequence_dialog, SIGNAL(openRtpStreamDialog()), this, SLOT(openRtpStreamDialogPassIn()));
     sequence_dialog->setAttribute(Qt::WA_DeleteOnClose);
     sequence_dialog->show();
 }
@@ -539,6 +543,22 @@ void VoipCallsDialog::switchTimeOfDay()
     ui->callTreeView->resizeColumnToContents(VoipCallsInfoModel::StartTime);
     ui->callTreeView->resizeColumnToContents(VoipCallsInfoModel::StopTime);
 }
+
+void VoipCallsDialog::selectRtpStreamPassIn(rtpstream_id_t *id)
+{
+    emit selectRtpStreamPassOut(id);
+}
+
+void VoipCallsDialog::deselectRtpStreamPassIn(rtpstream_id_t *id)
+{
+    emit deselectRtpStreamPassOut(id);
+}
+
+void VoipCallsDialog::openRtpStreamDialogPassIn()
+{
+    emit openRtpStreamDialogPassOut();
+}
+
 
 /*
  * Editor modelines

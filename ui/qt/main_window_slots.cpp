@@ -3290,14 +3290,29 @@ void MainWindow::on_actionStatisticsHTTP2_triggered()
 
 // Telephony Menu
 
+void MainWindow::interconnectRtpStreamDialogToVoipCallsDialog(RtpStreamDialog *rtp_stream_dialog, VoipCallsDialog *voip_calls_dialog)
+{
+    if (rtp_stream_dialog && voip_calls_dialog) {
+        // Connect signals between dialogs
+        connect(voip_calls_dialog, SIGNAL(selectRtpStreamPassOut(rtpstream_id_t *)), rtp_stream_dialog, SLOT(selectRtpStream(rtpstream_id_t *)));
+        connect(voip_calls_dialog, SIGNAL(deselectRtpStreamPassOut(rtpstream_id_t *)), rtp_stream_dialog, SLOT(deselectRtpStream(rtpstream_id_t *)));
+    }
+}
+
 void MainWindow::openVoipCallsDialog(bool all_flows)
 {
-    VoipCallsDialog *voip_calls_dialog = new VoipCallsDialog(*this, capture_file_, all_flows);
-    connect(voip_calls_dialog, SIGNAL(goToPacket(int)),
+    if (!voip_calls_dialog_) {
+        voip_calls_dialog_ = new VoipCallsDialog(*this, capture_file_, all_flows);
+    }
+    connect(voip_calls_dialog_, SIGNAL(goToPacket(int)),
             packet_list_, SLOT(goToPacket(int)));
-    connect(voip_calls_dialog, SIGNAL(updateFilter(QString, bool)),
+    connect(voip_calls_dialog_, SIGNAL(updateFilter(QString, bool)),
             this, SLOT(filterPackets(QString, bool)));
-    voip_calls_dialog->show();
+    connect(voip_calls_dialog_, SIGNAL(openRtpStreamDialogPassOut()),
+            this, SLOT(on_actionTelephonyRTPStreams_triggered()));
+    interconnectRtpStreamDialogToVoipCallsDialog(rtp_stream_dialog_, voip_calls_dialog_);
+    voip_calls_dialog_->show();
+    voip_calls_dialog_->raise();
 }
 
 void MainWindow::on_actionTelephonyVoipCalls_triggered()
@@ -3389,14 +3404,18 @@ void MainWindow::on_actionTelephonyOsmuxPacketCounter_triggered()
 
 void MainWindow::on_actionTelephonyRTPStreams_triggered()
 {
-    RtpStreamDialog *rtp_stream_dialog = new  RtpStreamDialog(*this, capture_file_);
-    connect(rtp_stream_dialog, SIGNAL(packetsMarked()),
+    if (!rtp_stream_dialog_) {
+        rtp_stream_dialog_ = new RtpStreamDialog(*this, capture_file_);
+    }
+    connect(rtp_stream_dialog_, SIGNAL(packetsMarked()),
             packet_list_, SLOT(redrawVisiblePackets()));
-    connect(rtp_stream_dialog, SIGNAL(goToPacket(int)),
+    connect(rtp_stream_dialog_, SIGNAL(goToPacket(int)),
             packet_list_, SLOT(goToPacket(int)));
-    connect(rtp_stream_dialog, SIGNAL(updateFilter(QString, bool)),
+    connect(rtp_stream_dialog_, SIGNAL(updateFilter(QString, bool)),
             this, SLOT(filterPackets(QString, bool)));
-    rtp_stream_dialog->show();
+    interconnectRtpStreamDialogToVoipCallsDialog(rtp_stream_dialog_, voip_calls_dialog_);
+    rtp_stream_dialog_->show();
+    rtp_stream_dialog_->raise();
 }
 
 void MainWindow::on_actionTelephonyRTPStreamAnalysis_triggered()

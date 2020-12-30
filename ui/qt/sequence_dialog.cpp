@@ -27,6 +27,8 @@
 #include <ui/qt/utils/variant_pointer.h>
 #include <ui/alert_box.h>
 #include "ui/qt/widgets/wireshark_file_dialog.h"
+#include <ui/voip_calls.h>
+#include "rtp_stream_dialog.h"
 
 #include <QDir>
 #include <QFontMetrics>
@@ -72,6 +74,8 @@ SequenceDialog::SequenceDialog(QWidget &parent, CaptureFile &cf, SequenceInfo *i
     packet_num_(0),
     sequence_w_(1)
 {
+    QAction *action;
+
     ui->setupUi(this);
 
     QCustomPlot *sp = ui->sequencePlot;
@@ -130,7 +134,7 @@ SequenceDialog::SequenceDialog(QWidget &parent, CaptureFile &cf, SequenceInfo *i
 
     ctx_menu_.addAction(ui->actionZoomIn);
     ctx_menu_.addAction(ui->actionZoomOut);
-    QAction * action = ctx_menu_.addAction(tr("Reset Diagram"), this, SLOT(resetView()));
+    action = ctx_menu_.addAction(tr("Reset Diagram"), this, SLOT(resetView()));
     action->setToolTip(tr("Reset the diagram to its initial state."));
     ctx_menu_.addSeparator();
     ctx_menu_.addAction(ui->actionMoveRight10);
@@ -145,6 +149,13 @@ SequenceDialog::SequenceDialog(QWidget &parent, CaptureFile &cf, SequenceInfo *i
     ctx_menu_.addAction(ui->actionGoToPacket);
     ctx_menu_.addAction(ui->actionGoToNextPacket);
     ctx_menu_.addAction(ui->actionGoToPreviousPacket);
+    ctx_menu_.addSeparator();
+    action = ui->actionSelectRtpStream;
+    ctx_menu_.addAction(action);
+    action->setEnabled(false);
+    action = ui->actionDeselectRtpStream;
+    ctx_menu_.addAction(action);
+    action->setEnabled(false);
     set_action_shortcuts_visible_in_context_menu(ctx_menu_.actions());
 
     ui->addressComboBox->setCurrentIndex(0);
@@ -269,6 +280,12 @@ void SequenceDialog::keyPressEvent(QKeyEvent *event)
     case Qt::Key_P:
         on_actionGoToPreviousPacket_triggered();
         break;
+    case Qt::Key_S:
+        on_actionSelectRtpStream_triggered();
+        break;
+    case Qt::Key_D:
+        on_actionDeselectRtpStream_triggered();
+        break;
     }
 
     QDialog::keyPressEvent(event);
@@ -311,6 +328,19 @@ void SequenceDialog::diagramClicked(QMouseEvent *event)
     case Qt::RightButton:
         // XXX We should find some way to get sequenceDiagram to handle a
         // contextMenuEvent instead.
+        current_rtp_sai_ = NULL;
+        if (event) {
+            seq_analysis_item_t *sai = seq_diagram_->itemForPosY(event->pos().y());
+            ui->actionSelectRtpStream->setEnabled(false);
+            ui->actionDeselectRtpStream->setEnabled(false);
+            if (sai) {
+                if (GA_INFO_TYPE_RTP == sai->info_type) {
+                    ui->actionSelectRtpStream->setEnabled(true);
+                    ui->actionDeselectRtpStream->setEnabled(true);
+                    current_rtp_sai_ = sai;
+                }
+            }
+        }
         ctx_menu_.exec(event->globalPos());
         break;
     default:
@@ -320,11 +350,17 @@ void SequenceDialog::diagramClicked(QMouseEvent *event)
 
 void SequenceDialog::mouseMoved(QMouseEvent *event)
 {
+    current_rtp_sai_ = NULL;
     packet_num_ = 0;
     QString hint;
     if (event) {
         seq_analysis_item_t *sai = seq_diagram_->itemForPosY(event->pos().y());
         if (sai) {
+            if (GA_INFO_TYPE_RTP == sai->info_type) {
+                ui->actionSelectRtpStream->setEnabled(true);
+                ui->actionDeselectRtpStream->setEnabled(true);
+                current_rtp_sai_ = sai;
+            }
             packet_num_ = sai->frame_number;
             QString raw_comment = html_escape(sai->comment);
             hint = QString("Packet %1: %2").arg(packet_num_).arg(raw_comment);
@@ -684,6 +720,24 @@ void SequenceDialog::on_actionZoomIn_triggered()
 void SequenceDialog::on_actionZoomOut_triggered()
 {
     zoomXAxis(false);
+}
+
+void SequenceDialog::on_actionSelectRtpStream_triggered()
+{
+    if (current_rtp_sai_ && GA_INFO_TYPE_RTP == current_rtp_sai_->info_type) {
+        emit openRtpStreamDialog();
+        emit selectRtpStream((rtpstream_id_t *)current_rtp_sai_->info_ptr);
+        raise();
+    }
+}
+
+void SequenceDialog::on_actionDeselectRtpStream_triggered()
+{
+    if (current_rtp_sai_ && GA_INFO_TYPE_RTP == current_rtp_sai_->info_type) {
+        emit openRtpStreamDialog();
+        emit deselectRtpStream((rtpstream_id_t *)current_rtp_sai_->info_ptr);
+        raise();
+    }
 }
 
 void SequenceDialog::zoomXAxis(bool in)

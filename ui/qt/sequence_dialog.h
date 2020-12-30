@@ -21,6 +21,7 @@
 
 #include <ui/qt/widgets/qcustomplot.h>
 #include "wireshark_dialog.h"
+#include "rtp_stream_dialog.h"
 
 #include <QMenu>
 
@@ -56,6 +57,11 @@ protected:
     void resizeEvent(QResizeEvent *event);
     void keyPressEvent(QKeyEvent *event);
 
+signals:
+    void selectRtpStream(rtpstream_id_t *id);
+    void deselectRtpStream(rtpstream_id_t *id);
+    void openRtpStreamDialog();
+
 private slots:
     void updateWidgets();
     void hScrollBarChanged(int value);
@@ -86,6 +92,8 @@ private slots:
     void on_actionMoveDown1_triggered();
     void on_actionZoomIn_triggered();
     void on_actionZoomOut_triggered();
+    void on_actionSelectRtpStream_triggered();
+    void on_actionDeselectRtpStream_triggered();
 
 private:
     Ui::SequenceDialog *ui;
@@ -98,6 +106,8 @@ private:
     QMenu ctx_menu_;
     QCPItemText *key_text_;
     QCPItemText *comment_text_;
+    seq_analysis_item_t *current_rtp_sai_;     // Used for passing current sai to rtp processing
+    QPointer<RtpStreamDialog> rtp_stream_dialog_;       // Singleton pattern used
 
     void zoomXAxis(bool in);
     void panAxes(int x_pixels, int y_pixels);

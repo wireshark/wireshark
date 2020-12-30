@@ -138,6 +138,12 @@ typedef struct _skinny_calls_info {
     guint32 callId;
 } skinny_calls_info_t;
 
+/** defines info types for graph analysis additional information */
+typedef enum _ga_info_type {
+    GA_INFO_TYPE_NONE=0,
+    GA_INFO_TYPE_RTP
+} ga_info_type;
+
 /** defines a voip call */
 typedef struct _voip_calls_info {
     voip_call_state         call_state;

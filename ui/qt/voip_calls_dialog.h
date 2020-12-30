@@ -20,6 +20,7 @@
 
 #include <ui/qt/models/voip_calls_info_model.h>
 #include <ui/qt/models/cache_proxy_model.h>
+#include "ui/rtp_stream_id.h"
 #include "wireshark_dialog.h"
 
 #include <QMenu>
@@ -44,6 +45,9 @@ signals:
     void updateFilter(QString filter, bool force = false);
     void captureFileChanged(capture_file *cf);
     void goToPacket(int packet_num);
+    void selectRtpStreamPassOut(rtpstream_id_t *id);
+    void deselectRtpStreamPassOut(rtpstream_id_t *id);
+    void openRtpStreamDialogPassOut();
 
 protected:
     void contextMenuEvent(QContextMenuEvent *event);
@@ -89,6 +93,9 @@ private slots:
     void on_buttonBox_clicked(QAbstractButton *button);
     void on_buttonBox_helpRequested();
     void updateWidgets();
+    void selectRtpStreamPassIn(rtpstream_id_t *id);
+    void deselectRtpStreamPassIn(rtpstream_id_t *id);
+    void openRtpStreamDialogPassIn();
 };
 
 #endif // VOIP_CALLS_DIALOG_H

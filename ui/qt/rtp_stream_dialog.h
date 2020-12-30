@@ -38,6 +38,10 @@ signals:
     void updateFilter(QString filter, bool force = false);
     void goToPacket(int packet_num);
 
+public slots:
+    void selectRtpStream(rtpstream_id_t *id);
+    void deselectRtpStream(rtpstream_id_t *id);
+
 protected:
     bool eventFilter(QObject *obj, QEvent *event);
 
@@ -60,6 +64,8 @@ private:
     void updateStreams();
     void updateWidgets();
     void showPlayer();
+
+    void setRtpStreamSelection(rtpstream_id_t *id, bool state);
 
     QList<QVariant> streamRowData(int row) const;
 
