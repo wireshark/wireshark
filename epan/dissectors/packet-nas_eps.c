@@ -2740,10 +2740,6 @@ de_emm_add_info_req(tvbuff_t *tvb , proto_tree *tree, packet_info *pinfo _U_,
 /*
  * 9.9.3.56 Ciphering key data
  */
-static const true_false_string emm_applicable_not_applicable = {
-    "Applicable",
-    "Not applicable"
-};
 
 static guint16
 de_emm_ciph_key_data(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset,
@@ -7851,137 +7847,137 @@ proto_register_nas_eps(void)
     },
     { &hf_nas_eps_emm_ciph_key_data_pos_sib_type_1_1,
         { "Ciphering data set for positioning SIB type 1-1","nas_eps.emm.ciph_key_data.pos_sib_type_1_1",
-        FT_BOOLEAN, 8, TFS(&emm_applicable_not_applicable), 0x80,
+        FT_BOOLEAN, 8, TFS(&tfs_applicable_not_applicable), 0x80,
         NULL, HFILL }
     },
     { &hf_nas_eps_emm_ciph_key_data_pos_sib_type_1_2,
         { "Ciphering data set for positioning SIB type 1-2","nas_eps.emm.ciph_key_data.pos_sib_type_1_2",
-        FT_BOOLEAN, 8, TFS(&emm_applicable_not_applicable), 0x40,
+        FT_BOOLEAN, 8, TFS(&tfs_applicable_not_applicable), 0x40,
         NULL, HFILL }
     },
     { &hf_nas_eps_emm_ciph_key_data_pos_sib_type_1_3,
         { "Ciphering data set for positioning SIB type 1-3","nas_eps.emm.ciph_key_data.pos_sib_type_1_3",
-        FT_BOOLEAN, 8, TFS(&emm_applicable_not_applicable), 0x20,
+        FT_BOOLEAN, 8, TFS(&tfs_applicable_not_applicable), 0x20,
         NULL, HFILL }
     },
     { &hf_nas_eps_emm_ciph_key_data_pos_sib_type_1_4,
         { "Ciphering data set for positioning SIB type 1-4","nas_eps.emm.ciph_key_data.pos_sib_type_1_4",
-        FT_BOOLEAN, 8, TFS(&emm_applicable_not_applicable), 0x10,
+        FT_BOOLEAN, 8, TFS(&tfs_applicable_not_applicable), 0x10,
         NULL, HFILL }
     },
     { &hf_nas_eps_emm_ciph_key_data_pos_sib_type_1_5,
         { "Ciphering data set for positioning SIB type 1-5","nas_eps.emm.ciph_key_data.pos_sib_type_1_5",
-        FT_BOOLEAN, 8, TFS(&emm_applicable_not_applicable), 0x08,
+        FT_BOOLEAN, 8, TFS(&tfs_applicable_not_applicable), 0x08,
         NULL, HFILL }
     },
     { &hf_nas_eps_emm_ciph_key_data_pos_sib_type_1_6,
         { "Ciphering data set for positioning SIB type 1-6","nas_eps.emm.ciph_key_data.pos_sib_type_1_6",
-        FT_BOOLEAN, 8, TFS(&emm_applicable_not_applicable), 0x04,
+        FT_BOOLEAN, 8, TFS(&tfs_applicable_not_applicable), 0x04,
         NULL, HFILL }
     },
     { &hf_nas_eps_emm_ciph_key_data_pos_sib_type_1_7,
         { "Ciphering data set for positioning SIB type 1-7","nas_eps.emm.ciph_key_data.pos_sib_type_1_7",
-        FT_BOOLEAN, 8, TFS(&emm_applicable_not_applicable), 0x02,
+        FT_BOOLEAN, 8, TFS(&tfs_applicable_not_applicable), 0x02,
         NULL, HFILL }
     },
     { &hf_nas_eps_emm_ciph_key_data_pos_sib_type_2_1,
         { "Ciphering data set for positioning SIB type 2-1","nas_eps.emm.ciph_key_data.pos_sib_type_2_1",
-        FT_BOOLEAN, 8, TFS(&emm_applicable_not_applicable), 0x01,
+        FT_BOOLEAN, 8, TFS(&tfs_applicable_not_applicable), 0x01,
         NULL, HFILL }
     },
     { &hf_nas_eps_emm_ciph_key_data_pos_sib_type_2_2,
         { "Ciphering data set for positioning SIB type 2-2","nas_eps.emm.ciph_key_data.pos_sib_type_2_2",
-        FT_BOOLEAN, 8, TFS(&emm_applicable_not_applicable), 0x80,
+        FT_BOOLEAN, 8, TFS(&tfs_applicable_not_applicable), 0x80,
         NULL, HFILL }
     },
     { &hf_nas_eps_emm_ciph_key_data_pos_sib_type_2_3,
         { "Ciphering data set for positioning SIB type 2-3","nas_eps.emm.ciph_key_data.pos_sib_type_2_3",
-        FT_BOOLEAN, 8, TFS(&emm_applicable_not_applicable), 0x40,
+        FT_BOOLEAN, 8, TFS(&tfs_applicable_not_applicable), 0x40,
         NULL, HFILL }
     },
     { &hf_nas_eps_emm_ciph_key_data_pos_sib_type_2_4,
         { "Ciphering data set for positioning SIB type 2-4","nas_eps.emm.ciph_key_data.pos_sib_type_2_4",
-        FT_BOOLEAN, 8, TFS(&emm_applicable_not_applicable), 0x20,
+        FT_BOOLEAN, 8, TFS(&tfs_applicable_not_applicable), 0x20,
         NULL, HFILL }
     },
     { &hf_nas_eps_emm_ciph_key_data_pos_sib_type_2_5,
         { "Ciphering data set for positioning SIB type 2-5","nas_eps.emm.ciph_key_data.pos_sib_type_2_5",
-        FT_BOOLEAN, 8, TFS(&emm_applicable_not_applicable), 0x10,
+        FT_BOOLEAN, 8, TFS(&tfs_applicable_not_applicable), 0x10,
         NULL, HFILL }
     },
     { &hf_nas_eps_emm_ciph_key_data_pos_sib_type_2_6,
         { "Ciphering data set for positioning SIB type 2-6","nas_eps.emm.ciph_key_data.pos_sib_type_2_6",
-        FT_BOOLEAN, 8, TFS(&emm_applicable_not_applicable), 0x08,
+        FT_BOOLEAN, 8, TFS(&tfs_applicable_not_applicable), 0x08,
         NULL, HFILL }
     },
     { &hf_nas_eps_emm_ciph_key_data_pos_sib_type_2_7,
         { "Ciphering data set for positioning SIB type 2-7","nas_eps.emm.ciph_key_data.pos_sib_type_2_7",
-        FT_BOOLEAN, 8, TFS(&emm_applicable_not_applicable), 0x04,
+        FT_BOOLEAN, 8, TFS(&tfs_applicable_not_applicable), 0x04,
         NULL, HFILL }
     },
     { &hf_nas_eps_emm_ciph_key_data_pos_sib_type_2_8,
         { "Ciphering data set for positioning SIB type 2-8","nas_eps.emm.ciph_key_data.pos_sib_type_2_8",
-        FT_BOOLEAN, 8, TFS(&emm_applicable_not_applicable), 0x02,
+        FT_BOOLEAN, 8, TFS(&tfs_applicable_not_applicable), 0x02,
         NULL, HFILL }
     },
     { &hf_nas_eps_emm_ciph_key_data_pos_sib_type_2_9,
         { "Ciphering data set for positioning SIB type 2-9","nas_eps.emm.ciph_key_data.pos_sib_type_2_9",
-        FT_BOOLEAN, 8, TFS(&emm_applicable_not_applicable), 0x01,
+        FT_BOOLEAN, 8, TFS(&tfs_applicable_not_applicable), 0x01,
         NULL, HFILL }
     },
     { &hf_nas_eps_emm_ciph_key_data_pos_sib_type_2_10,
         { "Ciphering data set for positioning SIB type 2-10","nas_eps.emm.ciph_key_data.pos_sib_type_2_10",
-        FT_BOOLEAN, 8, TFS(&emm_applicable_not_applicable), 0x80,
+        FT_BOOLEAN, 8, TFS(&tfs_applicable_not_applicable), 0x80,
         NULL, HFILL }
     },
     { &hf_nas_eps_emm_ciph_key_data_pos_sib_type_2_11,
         { "Ciphering data set for positioning SIB type 2-11","nas_eps.emm.ciph_key_data.pos_sib_type_2_11",
-        FT_BOOLEAN, 8, TFS(&emm_applicable_not_applicable), 0x40,
+        FT_BOOLEAN, 8, TFS(&tfs_applicable_not_applicable), 0x40,
         NULL, HFILL }
     },
     { &hf_nas_eps_emm_ciph_key_data_pos_sib_type_2_12,
         { "Ciphering data set for positioning SIB type 2-12","nas_eps.emm.ciph_key_data.pos_sib_type_2_12",
-        FT_BOOLEAN, 8, TFS(&emm_applicable_not_applicable), 0x20,
+        FT_BOOLEAN, 8, TFS(&tfs_applicable_not_applicable), 0x20,
         NULL, HFILL }
     },
     { &hf_nas_eps_emm_ciph_key_data_pos_sib_type_2_13,
         { "Ciphering data set for positioning SIB type 2-13","nas_eps.emm.ciph_key_data.pos_sib_type_2_13",
-        FT_BOOLEAN, 8, TFS(&emm_applicable_not_applicable), 0x10,
+        FT_BOOLEAN, 8, TFS(&tfs_applicable_not_applicable), 0x10,
         NULL, HFILL }
     },
     { &hf_nas_eps_emm_ciph_key_data_pos_sib_type_2_14,
         { "Ciphering data set for positioning SIB type 2-14","nas_eps.emm.ciph_key_data.pos_sib_type_2_14",
-        FT_BOOLEAN, 8, TFS(&emm_applicable_not_applicable), 0x08,
+        FT_BOOLEAN, 8, TFS(&tfs_applicable_not_applicable), 0x08,
         NULL, HFILL }
     },
     { &hf_nas_eps_emm_ciph_key_data_pos_sib_type_2_15,
         { "Ciphering data set for positioning SIB type 2-15","nas_eps.emm.ciph_key_data.pos_sib_type_2_15",
-        FT_BOOLEAN, 8, TFS(&emm_applicable_not_applicable), 0x04,
+        FT_BOOLEAN, 8, TFS(&tfs_applicable_not_applicable), 0x04,
         NULL, HFILL }
     },
     { &hf_nas_eps_emm_ciph_key_data_pos_sib_type_2_16,
         { "Ciphering data set for positioning SIB type 2-16","nas_eps.emm.ciph_key_data.pos_sib_type_2_16",
-        FT_BOOLEAN, 8, TFS(&emm_applicable_not_applicable), 0x02,
+        FT_BOOLEAN, 8, TFS(&tfs_applicable_not_applicable), 0x02,
         NULL, HFILL }
     },
     { &hf_nas_eps_emm_ciph_key_data_pos_sib_type_2_17,
         { "Ciphering data set for positioning SIB type 2-17","nas_eps.emm.ciph_key_data.pos_sib_type_2_17",
-        FT_BOOLEAN, 8, TFS(&emm_applicable_not_applicable), 0x01,
+        FT_BOOLEAN, 8, TFS(&tfs_applicable_not_applicable), 0x01,
         NULL, HFILL }
     },
     { &hf_nas_eps_emm_ciph_key_data_pos_sib_type_2_18,
         { "Ciphering data set for positioning SIB type 2-18","nas_eps.emm.ciph_key_data.pos_sib_type_2_18",
-        FT_BOOLEAN, 8, TFS(&emm_applicable_not_applicable), 0x80,
+        FT_BOOLEAN, 8, TFS(&tfs_applicable_not_applicable), 0x80,
         NULL, HFILL }
     },
     { &hf_nas_eps_emm_ciph_key_data_pos_sib_type_2_19,
         { "Ciphering data set for positioning SIB type 2-19","nas_eps.emm.ciph_key_data.pos_sib_type_2_19",
-        FT_BOOLEAN, 8, TFS(&emm_applicable_not_applicable), 0x40,
+        FT_BOOLEAN, 8, TFS(&tfs_applicable_not_applicable), 0x40,
         NULL, HFILL }
     },
     { &hf_nas_eps_emm_ciph_key_data_pos_sib_type_3_1,
         { "Ciphering data set for positioning SIB type 3-1","nas_eps.emm.ciph_key_data.pos_sib_type_3_1",
-        FT_BOOLEAN, 8, TFS(&emm_applicable_not_applicable), 0x20,
+        FT_BOOLEAN, 8, TFS(&tfs_applicable_not_applicable), 0x20,
         NULL, HFILL }
     },
     { &hf_nas_eps_emm_ciph_key_data_validity_start_time,
