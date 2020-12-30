@@ -41,6 +41,7 @@
 
 void proto_register_tcp(void);
 void proto_reg_handoff_tcp(void);
+void conversation_completeness_fill(gchar*, guint32);
 
 static int tcp_tap = -1;
 static int tcp_follow_tap = -1;
@@ -652,14 +653,14 @@ static int * const tcp_option_mptcp_dss_flags[] = {
 static const unit_name_string units_64bit_version = { " (64bits version)", NULL };
 
 
-static const char *
+static char *
 tcp_flags_to_str(wmem_allocator_t *scope, const struct tcpheader *tcph)
 {
     static const char flags[][4] = { "FIN", "SYN", "RST", "PSH", "ACK", "URG", "ECN", "CWR", "NS" };
     const int maxlength = 64; /* upper bounds, max 53B: 8 * 3 + 2 + strlen("Reserved") + 9 * 2 + 1 */
 
     char *pbuf;
-    const char *buf;
+    char *buf;
 
     int i;
 
@@ -685,7 +686,7 @@ tcp_flags_to_str(wmem_allocator_t *scope, const struct tcpheader *tcph)
 
     return buf;
 }
-static const char *
+static char *
 tcp_flags_to_str_first_letter(const struct tcpheader *tcph)
 {
     wmem_strbuf_t *buf = wmem_strbuf_new(wmem_packet_scope(), "");
@@ -901,7 +902,7 @@ tcp_seq_analysis_packet( void *ptr, packet_info *pinfo, epan_dissect_t *edt _U_,
 {
     seq_analysis_info_t *sainfo = (seq_analysis_info_t *) ptr;
     const struct tcpheader *tcph = (const struct tcpheader *)tcp_info;
-    const char* flags;
+    char* flags;
     seq_analysis_item_t *sai = sequence_analysis_create_sai_with_addresses(pinfo, sainfo);
 
     if (!sai)
@@ -921,7 +922,7 @@ tcp_seq_analysis_packet( void *ptr, packet_info *pinfo, epan_dissect_t *edt _U_,
         sai->frame_label = g_strdup(flags);
     }
 
-    wmem_free(NULL, (void*)flags);
+    wmem_free(NULL, flags);
 
     if (tcph->th_flags & TH_ACK)
         sai->comment = g_strdup_printf("Seq = %u Ack = %u",tcph->th_seq, tcph->th_ack);
@@ -1094,7 +1095,7 @@ check_follow_fragments(follow_info_t *follow_info, gboolean is_server, guint32 a
         follow_record = g_new0(follow_record_t,1);
 
         follow_record->data = g_byte_array_append(g_byte_array_new(),
-                                                  dummy_str,
+                                                  (guchar*)dummy_str,
                                                   (guint)strlen(dummy_str)+1);
         g_free(dummy_str);
         follow_record->is_server = is_server;
@@ -1352,7 +1353,7 @@ handle_export_pdu_conversation(packet_info *pinfo, tvbuff_t *tvb, int src_port, 
  * we of course pay much attention on complete conversations but also incomplete ones which
  * have a regular start, as in practice we are often looking for such thing
  */
-void conversation_completeness_fill (gchar *buf, guint32 value)
+void conversation_completeness_fill(gchar *buf, guint32 value)
 {
     switch(value) {
         case TCP_COMPLETENESS_SYNSENT:
@@ -4158,7 +4159,7 @@ dissect_tcpopt_exp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
     proto_item *item;
     proto_tree *exp_tree;
     guint16 magic;
-    int offset = 0, optlen = tvb_reported_length(tvb);
+    gint offset = 0, optlen = tvb_reported_length(tvb);
 
     item = proto_tree_add_item(tree, proto_tcp_option_exp, tvb, offset, -1, ENC_NA);
     exp_tree = proto_item_add_subtree(item, ett_tcp_option_exp);
@@ -6295,7 +6296,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     proto_item *options_item, *hide_seqack_abs_item;
     proto_tree *options_tree;
     int        offset = 0;
-    const char *flags_str, *flags_str_first_letter;
+    char       *flags_str, *flags_str_first_letter;
     guint      optlen;
     guint32    nxtseq = 0;
     guint      reported_len;
