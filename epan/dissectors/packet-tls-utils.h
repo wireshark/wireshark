@@ -2224,7 +2224,7 @@ ssl_common_dissect_t name = {   \
     },                                                                  \
     { & name .hf.hs_ext_quictp_parameter_google_quic_version,           \
       { "Google QUIC version", prefix ".quic.parameter.google.quic_version", \
-        FT_STRING, BASE_NONE, NULL, 0x00,                               \
+        FT_UINT32, BASE_HEX, VALS(quic_version_vals), 0x00,             \
         NULL, HFILL }                                                   \
     },                                                                  \
     { & name .hf.hs_ext_quictp_parameter_google_initial_rtt,            \

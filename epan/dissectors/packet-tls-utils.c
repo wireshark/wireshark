@@ -7528,7 +7528,7 @@ ssl_dissect_hnd_hello_ext_quic_transport_parameters(ssl_common_dissect_t *hf, tv
             case SSL_HND_QUIC_TP_GOOGLE_QUIC_VERSION:
                 for (i = 0; i < parameter_length; i += 4) {
                     proto_tree_add_item(parameter_tree, hf->hf.hs_ext_quictp_parameter_google_quic_version,
-                                        tvb, offset + i, 4, ENC_ASCII|ENC_NA);
+                                        tvb, offset + i, 4, ENC_BIG_ENDIAN);
 		}
                 offset += parameter_length;
             break;
