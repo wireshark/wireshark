@@ -34,8 +34,8 @@ struct HpfeedsTap {
 
 static int hpfeeds_tap = -1;
 
-static const guint8* st_str_channels_payload = "Payload size per channel";
-static const guint8* st_str_opcodes = "Opcodes";
+static const gchar* st_str_channels_payload = "Payload size per channel";
+static const gchar* st_str_opcodes = "Opcodes";
 
 static int st_node_channels_payload = -1;
 static int st_node_opcodes = -1;
@@ -189,7 +189,7 @@ dissect_hpfeeds_publish_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         /* save the current match_string before calling the subdissectors */
         if (pinfo->match_string)
             save_match_string = pinfo->match_string;
-        pinfo->match_string = channelname;
+        pinfo->match_string = (const char*)channelname;
 
         next_tvb = tvb_new_subset_remaining(tvb, offset);
 
@@ -223,7 +223,7 @@ static tap_packet_status hpfeeds_stats_tree_packet(stats_tree* st _U_, packet_in
         /* search an existing channel node and create it if it does not */
         while(cur != NULL) {
             ch_node = (struct channel_node*)wmem_list_frame_data(cur);
-            if (strncmp(ch_node->channel, pi->channel, strlen(pi->channel)) == 0) {
+            if (strncmp((gchar*)ch_node->channel, (gchar*)pi->channel, strlen((gchar*)pi->channel)) == 0) {
                 break;
             }
             cur = wmem_list_frame_next(cur);
@@ -231,14 +231,14 @@ static tap_packet_status hpfeeds_stats_tree_packet(stats_tree* st _U_, packet_in
 
         if (cur == NULL) {
             ch_node = wmem_new0(wmem_file_scope(), struct channel_node);
-            ch_node->channel = wmem_strdup(wmem_file_scope(), pi->channel);
-            ch_node->st_node_channel_payload = stats_tree_create_node(st, ch_node->channel,
+            ch_node->channel = (guchar*)wmem_strdup(wmem_file_scope(), (gchar*)pi->channel);
+            ch_node->st_node_channel_payload = stats_tree_create_node(st, (gchar*)ch_node->channel,
                 st_node_channels_payload, STAT_DT_INT, FALSE);
             wmem_list_append(channels_list, ch_node);
         }
 
         avg_stat_node_add_value_int(st, st_str_channels_payload, 0, FALSE, pi->payload_size);
-        avg_stat_node_add_value_int(st, ch_node->channel, 0, FALSE, pi->payload_size);
+        avg_stat_node_add_value_int(st, (gchar*)ch_node->channel, 0, FALSE, pi->payload_size);
     }
 
     stats_tree_tick_pivot(st, st_node_opcodes,

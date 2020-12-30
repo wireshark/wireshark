@@ -22,7 +22,7 @@ static int proto_hcrt = -1;
 
 #define HCRT_UDP_PORTS_DEFAULT "47000"
 
-static gint ethertype_pref = 0xf052;
+static guint ethertype_pref = 0xf052;
 
 static int hf_hcrt_header = -1;
 static int hf_hcrt_message_tag = -1;
@@ -115,7 +115,7 @@ static const value_string response_codes[] = {
 };
 
 
-static void dissect_hcrt_body(tvbuff_t* tvb, proto_tree* tree , int* offset,
+static void dissect_hcrt_body(tvbuff_t* tvb, proto_tree* tree , guint* offset,
     int type, int addr_mode, int adl, int body_len)
 {
     proto_item* ti_body;
@@ -179,7 +179,7 @@ static void dissect_hcrt_body(tvbuff_t* tvb, proto_tree* tree , int* offset,
 
 /* Returns true if this is the last message */
 static gboolean dissect_hcrt_header(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree,
-    int* offset, guint8 b0_first, guint8 b0_current)
+    guint* offset, guint8 b0_first, guint8 b0_current)
 {
     proto_item* ti_hdr;
     proto_tree* hcrt_hdr_tree;
@@ -244,7 +244,7 @@ static gboolean dissect_hcrt_header(tvbuff_t* tvb, packet_info* pinfo, proto_tre
 
 /* Return true if this is the last message */
 static gboolean dissect_hcrt_message(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree,
-    int* offset, guint8 b0_first, int i)
+    guint* offset, guint8 b0_first, int i)
 {
     gboolean last;
     guint adl;
