@@ -54,6 +54,10 @@
 /* see UCA Implementation Guideline for IEC 61850-9-2 */
 #define Q_DERIVED			(1U << 13)
 
+/* Bit fields in the Reserved attributes */
+#define F_RESERVE1_S_BIT  0x8000
+
+
 void proto_register_sv(void);
 void proto_reg_handoff_sv(void);
 
@@ -66,6 +70,7 @@ static int proto_sv = -1;
 static int hf_sv_appid = -1;
 static int hf_sv_length = -1;
 static int hf_sv_reserve1 = -1;
+static int hf_sv_reserve1_s_bit = -1;
 static int hf_sv_reserve2 = -1;
 static int hf_sv_phmeas_instmag_i = -1;
 static int hf_sv_phsmeas_q = -1;
@@ -92,6 +97,8 @@ static int ett_sv = -1;
 static int ett_phsmeas = -1;
 static int ett_phsmeas_q = -1;
 static int ett_gmidentity = -1;
+static int ett_reserve1 = -1;
+
 
 #include "packet-sv-ett.c"
 
@@ -189,6 +196,12 @@ dissect_sv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* dat
 	guint sv_length = 0;
 	proto_item *item;
 	proto_tree *tree;
+
+	static int * const reserve1_flags[] = {
+		&hf_sv_reserve1_s_bit,
+		NULL
+	};
+
 	asn1_ctx_t asn1_ctx;
 
 	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
@@ -206,7 +219,9 @@ dissect_sv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* dat
 	proto_tree_add_item_ret_uint(tree, hf_sv_length, tvb, offset + 2, 2, ENC_BIG_ENDIAN, &sv_length);
 
 	/* Reserved 1 */
-	proto_tree_add_item(tree, hf_sv_reserve1, tvb, offset + 4, 2, ENC_BIG_ENDIAN);
+	proto_tree_add_bitmask(tree, tvb, offset + 4, hf_sv_reserve1, ett_reserve1,
+						reserve1_flags, ENC_BIG_ENDIAN);
+
 
 	/* Reserved 2 */
 	proto_tree_add_item(tree, hf_sv_reserve2, tvb, offset + 6, 2, ENC_BIG_ENDIAN);
@@ -239,6 +254,10 @@ void proto_register_sv(void) {
 
 		{ &hf_sv_reserve1,
 		{ "Reserved 1",	"sv.reserve1", FT_UINT16, BASE_HEX_DEC, NULL, 0x0, NULL, HFILL }},
+
+		{ &hf_sv_reserve1_s_bit,
+		{ "Simulated",	"sv.reserve1.s_bit",
+		  FT_BOOLEAN, 16, NULL, F_RESERVE1_S_BIT, NULL, HFILL } },
 
 		{ &hf_sv_reserve2,
 		{ "Reserved 2",	"sv.reserve2", FT_UINT16, BASE_HEX_DEC, NULL, 0x0, NULL, HFILL }},
@@ -304,6 +323,7 @@ void proto_register_sv(void) {
 		&ett_phsmeas,
 		&ett_phsmeas_q,
 		&ett_gmidentity,
+		&ett_reserve1,
 #include "packet-sv-ettarr.c"
 	};
 
