@@ -7371,13 +7371,6 @@ dissect_akm_suite_capabilities(tvbuff_t *tvb, packet_info *pinfo _U_,
     return offset;
 }
 
-/*
- * Dissect a 1905 Encap DPP TLV:
- */
-int
-dissect_wifi_dpp_public_action(tvbuff_t *tvb, packet_info *pinfo,
-                               proto_tree *tree, void *data _U_);
-
 static const true_false_string tfs_dpp_frame_indicator = {
     "GAS frame",
     "DPP public action frame"
