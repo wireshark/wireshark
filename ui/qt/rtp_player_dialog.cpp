@@ -329,9 +329,9 @@ void RtpPlayerDialog::rescanPackets(bool rescale_axes)
         RTP_STREAM_DEBUG("Plotting %s, %d samples", ti->text(src_addr_col_).toUtf8().constData(), audio_graph->data()->size());
 
         QString span_str = QString("%1 - %2 (%3)")
-                .arg(QString::number(audio_stream->startRelTime(), 'g', 3))
-                .arg(QString::number(audio_stream->stopRelTime(), 'g', 3))
-                .arg(QString::number(audio_stream->stopRelTime() - audio_stream->startRelTime(), 'g', 3));
+                .arg(QString::number(audio_stream->startRelTime(), 'f', prefs.gui_decimal_places1))
+                .arg(QString::number(audio_stream->stopRelTime(), 'f', prefs.gui_decimal_places1))
+                .arg(QString::number(audio_stream->stopRelTime() - audio_stream->startRelTime(), 'f', prefs.gui_decimal_places1));
         ti->setText(time_span_col_, span_str);
         ti->setText(sample_rate_col_, QString::number(audio_stream->sampleRate()));
         ti->setText(payload_col_, audio_stream->payloadNames().join(", "));
@@ -834,7 +834,7 @@ const QString RtpPlayerDialog::getFormatedTime(double f_time)
         QDateTime date_time = QDateTime::fromMSecsSinceEpoch(f_time * 1000.0);
         time_str = date_time.toString("yyyy-MM-dd hh:mm:ss.zzz");
     } else {
-        time_str = QString::number(f_time, 'f', 3);
+        time_str = QString::number(f_time, 'f', 6);
         time_str += " s";
     }
 

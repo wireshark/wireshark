@@ -140,10 +140,10 @@ public:
 
         setText(packet_col_, QString::number(frame_num_));
         setText(sequence_col_, QString::number(sequence_num_));
-        setText(delta_col_, QString::number(delta_, 'f', 2));
-        setText(jitter_col_, QString::number(jitter_, 'f', 2));
-        setText(skew_col_, QString::number(skew_, 'f', 2));
-        setText(bandwidth_col_, QString::number(bandwidth_, 'f', 2));
+        setText(delta_col_, QString::number(delta_, 'f', prefs.gui_decimal_places3));
+        setText(jitter_col_, QString::number(jitter_, 'f', prefs.gui_decimal_places3));
+        setText(skew_col_, QString::number(skew_, 'f', prefs.gui_decimal_places3));
+        setText(bandwidth_col_, QString::number(bandwidth_, 'f', prefs.gui_decimal_places1));
         if (marker_) {
             setText(marker_col_, UTF8_BULLET);
         }
@@ -909,27 +909,27 @@ void RtpAnalysisDialog::updateStatistics()
     stats_tables += QString("<tr><th align=\"left\">SSRC</th><td>%1</td></tr>")
             .arg(int_to_qstring(fwd_statinfo_.id.ssrc, 8, 16));
     stats_tables += QString("<tr><th align=\"left\">Max Delta</th><td>%1 ms @ %2</td></tr>")
-            .arg(fwd_statinfo_.rtp_stats.max_delta, 0, 'f', 2)
+            .arg(fwd_statinfo_.rtp_stats.max_delta, 0, 'f', prefs.gui_decimal_places3)
             .arg(fwd_statinfo_.rtp_stats.max_nr);
     stats_tables += QString("<tr><th align=\"left\">Max Jitter</th><td>%1 ms</td></tr>")
-            .arg(fwd_statinfo_.rtp_stats.max_jitter, 0, 'f', 2);
+            .arg(fwd_statinfo_.rtp_stats.max_jitter, 0, 'f', prefs.gui_decimal_places3);
     stats_tables += QString("<tr><th align=\"left\">Mean Jitter</th><td>%1 ms</td></tr>")
-            .arg(fwd_statinfo_.rtp_stats.mean_jitter, 0, 'f', 2);
+            .arg(fwd_statinfo_.rtp_stats.mean_jitter, 0, 'f', prefs.gui_decimal_places3);
     stats_tables += QString("<tr><th align=\"left\">Max Skew</th><td>%1 ms</td></tr>")
-            .arg(fwd_statinfo_.rtp_stats.max_skew, 0, 'f', 2);
+            .arg(fwd_statinfo_.rtp_stats.max_skew, 0, 'f', prefs.gui_decimal_places3);
     stats_tables += QString("<tr><th align=\"left\">RTP Packets</th><td>%1</td></tr>")
             .arg(f_total_nr);
     stats_tables += QString("<tr><th align=\"left\">Expected</th><td>%1</td></tr>")
             .arg(f_expected);
     stats_tables += QString("<tr><th align=\"left\">Lost</th><td>%1 (%2 %)</td></tr>")
-            .arg(f_lost).arg(f_perc, 0, 'f', 2);
+            .arg(f_lost).arg(f_perc, 0, 'f', prefs.gui_decimal_places1);
     stats_tables += QString("<tr><th align=\"left\">Seq Errs</th><td>%1</td></tr>")
             .arg(fwd_statinfo_.rtp_stats.sequence);
     stats_tables += QString("<tr><th align=\"left\">Start at</th><td>%1 s @ %2</td></tr>")
             .arg(fwd_statinfo_.rtp_stats.start_time / 1000.0, 0, 'f', 6)
             .arg(fwd_statinfo_.rtp_stats.first_packet_num);
     stats_tables += QString("<tr><th align=\"left\">Duration</th><td>%1 s</td></tr>")
-            .arg(f_duration / 1000.0, 0, 'f', 2);
+            .arg(f_duration / 1000.0, 0, 'f', prefs.gui_decimal_places1);
     stats_tables += QString("<tr><th align=\"left\">Clock Drift</th><td>%1 ms</td></tr>")
             .arg(f_duration * (f_clock_drift - 1.0), 0, 'f', 0);
     stats_tables += QString("<tr><th align=\"left\">Freq Drift</th><td>%1 Hz (%2 %)</td></tr>") // XXX Terminology?
@@ -947,27 +947,27 @@ void RtpAnalysisDialog::updateStatistics()
     stats_tables += QString("<tr><th align=\"left\">SSRC</th><td>%1</td></tr>")
             .arg(int_to_qstring(rev_statinfo_.id.ssrc, 8, 16));
     stats_tables += QString("<tr><th align=\"left\">Max Delta</th><td>%1 ms @ %2</td></tr>")
-            .arg(rev_statinfo_.rtp_stats.max_delta, 0, 'f', 2)
+            .arg(rev_statinfo_.rtp_stats.max_delta, 0, 'f', prefs.gui_decimal_places3)
             .arg(rev_statinfo_.rtp_stats.max_nr);
     stats_tables += QString("<tr><th align=\"left\">Max Jitter</th><td>%1 ms</td></tr>")
-            .arg(rev_statinfo_.rtp_stats.max_jitter, 0, 'f', 2);
+            .arg(rev_statinfo_.rtp_stats.max_jitter, 0, 'f', prefs.gui_decimal_places3);
     stats_tables += QString("<tr><th align=\"left\">Mean Jitter</th><td>%1 ms</td></tr>")
-            .arg(rev_statinfo_.rtp_stats.mean_jitter, 0, 'f', 2);
+            .arg(rev_statinfo_.rtp_stats.mean_jitter, 0, 'f', prefs.gui_decimal_places3);
     stats_tables += QString("<tr><th align=\"left\">Max Skew</th><td>%1 ms</td></tr>")
-            .arg(rev_statinfo_.rtp_stats.max_skew, 0, 'f', 2);
+            .arg(rev_statinfo_.rtp_stats.max_skew, 0, 'f', prefs.gui_decimal_places3);
     stats_tables += QString("<tr><th align=\"left\">RTP Packets</th><td>%1</td></tr>")
             .arg(r_total_nr);
     stats_tables += QString("<tr><th align=\"left\">Expected</th><td>%1</td></tr>")
             .arg(r_expected);
     stats_tables += QString("<tr><th align=\"left\">Lost</th><td>%1 (%2 %)</td></tr>")
-            .arg(r_lost).arg(r_perc, 0, 'f', 2);
+            .arg(r_lost).arg(r_perc, 0, 'f', prefs.gui_decimal_places1);
     stats_tables += QString("<tr><th align=\"left\">Seq Errs</th><td>%1</td></tr>")
             .arg(rev_statinfo_.rtp_stats.sequence);
     stats_tables += QString("<tr><th align=\"left\">Start at</th><td>%1 s @ %2</td></tr>")
             .arg(rev_statinfo_.rtp_stats.start_time / 1000.0, 0, 'f', 6)
             .arg(rev_statinfo_.rtp_stats.first_packet_num);
     stats_tables += QString("<tr><th align=\"left\">Duration</th><td>%1 s</td></tr>")
-            .arg(r_duration / 1000.0, 0, 'f', 2);
+            .arg(r_duration / 1000.0, 0, 'f', prefs.gui_decimal_places1);
     stats_tables += QString("<tr><th align=\"left\">Clock Drift</th><td>%1 ms</td></tr>")
             .arg(r_duration * (r_clock_drift - 1.0), 0, 'f', 0);
     stats_tables += QString("<tr><th align=\"left\">Freq Drift</th><td>%1 Hz (%2 %)</td></tr>") // XXX Terminology?

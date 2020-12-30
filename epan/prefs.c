@@ -2384,6 +2384,25 @@ gui_callback(void)
     /* Ensure there is at least one display filter entry */
     if (prefs.gui_recent_df_entries_max == 0)
       prefs.gui_recent_df_entries_max = 10;
+
+    /* number of decimal places should be between 2 and 10 */
+    if (prefs.gui_decimal_places1 < 2) {
+        prefs.gui_decimal_places1 = 2;
+    } else if (prefs.gui_decimal_places1 > 10) {
+        prefs.gui_decimal_places1 = 10;
+    }
+    /* number of decimal places should be between 2 and 10 */
+    if (prefs.gui_decimal_places2 < 2) {
+        prefs.gui_decimal_places2 = 2;
+    } else if (prefs.gui_decimal_places2 > 10) {
+        prefs.gui_decimal_places2 = 10;
+    }
+    /* number of decimal places should be between 2 and 10 */
+    if (prefs.gui_decimal_places3 < 2) {
+        prefs.gui_decimal_places3 = 2;
+    } else if (prefs.gui_decimal_places3 > 10) {
+        prefs.gui_decimal_places3 = 10;
+    }
 }
 
 static void
@@ -3424,6 +3443,27 @@ prefs_register_modules(void)
                        "Elide mode",
                        "The position of \"...\" in packet list text.",
                        (gint*)(void*)(&prefs.gui_packet_list_elide_mode), gui_packet_list_elide_mode, FALSE);
+    prefs_register_uint_preference(gui_module, "decimal_places1",
+            "Count of decimal places for values of type 1",
+            "Sets the count of decimal places for values of type 1."
+            "Type 1 values are defined by authors."
+            "Value can be in range 2 to 10.",
+            10,&prefs.gui_decimal_places1);
+
+    prefs_register_uint_preference(gui_module, "decimal_places2",
+            "Count of decimal places for values of type 2",
+            "Sets the count of decimal places for values of type 2."
+            "Type 2 values are defined by authors."
+            "Value can be in range 2 to 10.",
+            10,&prefs.gui_decimal_places2);
+
+    prefs_register_uint_preference(gui_module, "decimal_places3",
+            "Count of decimal places for values of type 3",
+            "Sets the count of decimal places for values of type 3."
+            "Type 3 values are defined by authors."
+            "Value can be in range 2 to 10.",
+            10,&prefs.gui_decimal_places3);
+
 
     prefs_register_bool_preference(gui_layout_module, "packet_list_show_related",
                                    "Show Related Packets",
@@ -4159,6 +4199,9 @@ pre_init_prefs(void)
     prefs.gui_max_export_objects     = 1000;
     prefs.gui_max_tree_items = 1 * 1000 * 1000;
     prefs.gui_max_tree_depth = 5 * 100;
+    prefs.gui_decimal_places1 = DEF_GUI_DECIMAL_PLACES1;
+    prefs.gui_decimal_places2 = DEF_GUI_DECIMAL_PLACES2;
+    prefs.gui_decimal_places3 = DEF_GUI_DECIMAL_PLACES3;
 
     if (prefs.col_list) {
         free_col_info(prefs.col_list);

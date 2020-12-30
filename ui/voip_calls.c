@@ -710,7 +710,7 @@ rtp_draw(void *tap_offset_ptr)
     seq_analysis_item_t  *gai     = NULL;
     seq_analysis_item_t  *new_gai;
     guint16               conv_num;
-    guint32               duration;
+    gdouble               duration;
     gchar                 time_str[COL_MAX_LEN];
 
     /* add each rtp stream to the graph */
@@ -725,17 +725,18 @@ rtp_draw(void *tap_offset_ptr)
             gai = (seq_analysis_item_t *)g_hash_table_lookup(tapinfo->graph_analysis->ht, GUINT_TO_POINTER(rtp_listinfo->setup_frame_number));
         }
         if(gai != NULL) {
-            const char *comment_fmt = "%s, %u packets. Duration: %u.%03us SSRC: 0x%X";
+            const char *comment_fmt_src = "%%s, %%u packets. Duration: %%.%dfs SSRC: 0x%%X";
+            char *comment_fmt = g_strdup_printf(comment_fmt_src, prefs.gui_decimal_places1);
             /* Found the setup frame*/
             conv_num = gai->conv_num;
             /* if RTP was already in the Graph, just update the comment information */
             gai = (seq_analysis_item_t *)g_hash_table_lookup(tapinfo->graph_analysis->ht, GUINT_TO_POINTER(rtp_listinfo->start_fd->num));
             if (gai != NULL) {
-                duration = (guint32)(nstime_to_msec(&rtp_listinfo->stop_rel_time) - nstime_to_msec(&rtp_listinfo->start_rel_time));
+                duration = (gdouble)(nstime_to_msec(&rtp_listinfo->stop_rel_time) - nstime_to_msec(&rtp_listinfo->start_rel_time));
                 g_free(gai->comment);
                 gai->comment = g_strdup_printf(comment_fmt,
                         (rtp_listinfo->is_srtp)?"SRTP":"RTP", rtp_listinfo->packet_count,
-                        duration/1000,(duration%1000), rtp_listinfo->id.ssrc);
+                        duration/1000, rtp_listinfo->id.ssrc);
             } else {
                 new_gai = g_new0(seq_analysis_item_t, 1);
                 new_gai->frame_number = rtp_listinfo->start_fd->num;
@@ -743,7 +744,7 @@ rtp_draw(void *tap_offset_ptr)
                 copy_address(&(new_gai->dst_addr),&(rtp_listinfo->id.dst_addr));
                 new_gai->port_src = rtp_listinfo->id.src_port;
                 new_gai->port_dst = rtp_listinfo->id.dst_port;
-                duration = (guint32)(nstime_to_msec(&rtp_listinfo->stop_rel_time) - nstime_to_msec(&rtp_listinfo->start_rel_time));
+                duration = (gdouble)(nstime_to_msec(&rtp_listinfo->stop_rel_time) - nstime_to_msec(&rtp_listinfo->start_rel_time));
                 new_gai->frame_label = g_strdup_printf("%s (%s) %s%s%s",
                         (rtp_listinfo->is_srtp)?"SRTP":"RTP",
                         rtp_listinfo->first_payload_type_name,
@@ -754,7 +755,7 @@ rtp_draw(void *tap_offset_ptr)
                 );
                 new_gai->comment = g_strdup_printf(comment_fmt,
                         (rtp_listinfo->is_srtp)?"SRTP":"RTP", rtp_listinfo->packet_count,
-                        duration/1000,(duration%1000), rtp_listinfo->id.ssrc);
+                        duration/1000, rtp_listinfo->id.ssrc);
                 new_gai->info_type=GA_INFO_TYPE_RTP;
                 new_gai->info_ptr=g_new(rtpstream_id_t, 1);
                 rtpstream_id_copy(&rtp_listinfo->id, (rtpstream_id_t *)new_gai->info_ptr);
@@ -766,6 +767,7 @@ rtp_draw(void *tap_offset_ptr)
                 g_queue_push_tail(tapinfo->graph_analysis->items, new_gai);
                 g_hash_table_insert(tapinfo->graph_analysis->ht, GUINT_TO_POINTER(rtp_listinfo->start_fd->num), new_gai);
             }
+            g_free(comment_fmt);
         }
         rtpstreams_list = g_list_next(rtpstreams_list);
     } /* while (rtpstreams_list) */
@@ -907,7 +909,7 @@ t38_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt, const 
     seq_analysis_item_t  *tmp_gai, *gai         = NULL;
     gchar                *tmp_str1, *tmp_str2;
     guint16               line_style            = 2;
-    double                duration;
+    gdouble               duration;
     int                   conv_num              = -1;
 
     const t38_packet_info *t38_info = (const t38_packet_info *)t38_info_ptr;
@@ -1022,11 +1024,14 @@ t38_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt, const 
                 duration = nstime_to_sec(&pinfo->rel_ts) - t38_info->time_first_t4_data;
                 tmp_str1    = val_to_str_wmem(NULL, t38_info->data_value, t38_T30_data_vals, "Ukn (0x%02X)");
                 frame_label = g_strdup_printf("t4-non-ecm-data:%s", tmp_str1);
-                comment     = g_strdup_printf("t38:t4-non-ecm-data:%s Duration: %.2fs %s",
+                const char *comment_fmt_src = "t38:t4-non-ecm-data:%%s Duration: %%.%dfs %%s";
+                char *comment_fmt = g_strdup_printf(comment_fmt_src, prefs.gui_decimal_places1);
+                comment = g_strdup_printf(comment_fmt,
                         tmp_str1, duration, t38_info->desc_comment );
                 insert_to_graph_t38(tapinfo, pinfo, edt, frame_label, comment,
                         (guint16)conv_num, &(pinfo->src), &(pinfo->dst),
                         line_style, t38_info->frame_num_first_t4_data);
+                g_free(comment_fmt);
                 wmem_free(NULL, tmp_str1);
                 break;
         }

@@ -34,6 +34,9 @@ extern "C" {
 #define ST_DEF_BURSTLEN 100
 #define ST_MAX_BURSTRES 600000 /* somewhat arbirary limit of 10 minutes */
 #define ST_MAX_BURSTBUCKETS 100 /* somewhat arbirary limit - more buckets degrade performance */
+#define DEF_GUI_DECIMAL_PLACES1 2
+#define DEF_GUI_DECIMAL_PLACES2 4
+#define DEF_GUI_DECIMAL_PLACES3 6
 
 struct epan_uat;
 struct _e_addr_resolve;
@@ -221,6 +224,9 @@ typedef struct _e_prefs {
   elide_mode_e gui_packet_list_elide_mode;
   gboolean     gui_packet_list_show_related;
   gboolean     gui_packet_list_show_minimap;
+  gint         gui_decimal_places1; /* Used for type 1 calculations */
+  gint         gui_decimal_places2; /* Used for type 2 calculations */
+  gint         gui_decimal_places3; /* Used for type 3 calculations */
   gboolean     st_enable_burstinfo;
   gboolean     st_burst_showcount;
   gint         st_burst_resolution;

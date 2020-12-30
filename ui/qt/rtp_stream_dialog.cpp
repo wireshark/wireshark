@@ -100,13 +100,13 @@ public:
         setText(dst_port_col_, QString::number(calc.dst_port));
         setText(ssrc_col_, QString("0x%1").arg(calc.ssrc, 0, 16));
         setText(start_time_col_, QString::number(calc.start_time_ms, 'f', 6));
-        setText(duration_col_, QString::number(calc.duration_ms, 'f', 2));
+        setText(duration_col_, QString::number(calc.duration_ms, 'f', prefs.gui_decimal_places1));
         setText(payload_col_, calc.all_payload_type_names);
         setText(packets_col_, QString::number(calc.packet_count));
         setText(lost_col_, QObject::tr("%1 (%L2%)").arg(calc.lost_num).arg(QString::number(calc.lost_perc, 'f', 1)));
-        setText(max_delta_col_, QString::number(calc.max_delta, 'f', 3)); // This is RTP. Do we need nanoseconds?
-        setText(max_jitter_col_, QString::number(calc.max_jitter, 'f', 3));
-        setText(mean_jitter_col_, QString::number(calc.mean_jitter, 'f', 3));
+        setText(max_delta_col_, QString::number(calc.max_delta, 'f', prefs.gui_decimal_places3)); // This is RTP. Do we need nanoseconds?
+        setText(max_jitter_col_, QString::number(calc.max_jitter, 'f', prefs.gui_decimal_places3));
+        setText(mean_jitter_col_, QString::number(calc.mean_jitter, 'f', prefs.gui_decimal_places3));
 
         if (calc.problem) {
             setText(status_col_, UTF8_BULLET);
@@ -166,7 +166,7 @@ public:
         case ssrc_fmt_col_:
             return QString("0x%1").arg(calc.ssrc, 0, 16);
         case lost_perc_col_:
-            return QString::number(calc.lost_perc, 'f', 1);
+            return QString::number(calc.lost_perc, 'f', prefs.gui_decimal_places1);
         default:
             break;
         }
