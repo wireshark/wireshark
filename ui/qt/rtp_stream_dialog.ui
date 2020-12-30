@@ -67,6 +67,16 @@
      </column>
      <column>
       <property name="text">
+       <string>Start Time</string>
+      </property>
+     </column>
+     <column>
+      <property name="text">
+       <string>Duration</string>
+      </property>
+     </column>
+     <column>
+      <property name="text">
        <string>Payload</string>
       </property>
      </column>

@@ -60,15 +60,17 @@ const int src_port_col_    =  1;
 const int dst_addr_col_    =  2;
 const int dst_port_col_    =  3;
 const int ssrc_col_        =  4;
-const int payload_col_     =  5;
-const int packets_col_     =  6;
-const int lost_col_        =  7;
-const int max_delta_col_   =  8;
-const int max_jitter_col_  =  9;
-const int mean_jitter_col_ = 10;
-const int status_col_      = 11;
-const int ssrc_fmt_col_    = 12;
-const int lost_perc_col_   = 13;
+const int start_time_col_  =  5;
+const int duration_col_    =  6;
+const int payload_col_     =  7;
+const int packets_col_     =  8;
+const int lost_col_        =  9;
+const int max_delta_col_   = 10;
+const int max_jitter_col_  = 11;
+const int mean_jitter_col_ = 12;
+const int status_col_      = 13;
+const int ssrc_fmt_col_    = 14;
+const int lost_perc_col_   = 15;
 
 enum { rtp_stream_type_ = 1000 };
 
@@ -97,6 +99,8 @@ public:
         setText(dst_addr_col_, calc.dst_addr_str);
         setText(dst_port_col_, QString::number(calc.dst_port));
         setText(ssrc_col_, QString("0x%1").arg(calc.ssrc, 0, 16));
+        setText(start_time_col_, QString::number(calc.start_time_ms, 'f', 6));
+        setText(duration_col_, QString::number(calc.duration_ms, 'f', 2));
         setText(payload_col_, calc.all_payload_type_names);
         setText(packets_col_, QString::number(calc.packet_count));
         setText(lost_col_, QObject::tr("%1 (%L2%)").arg(calc.lost_num).arg(QString::number(calc.lost_perc, 'f', 1)));
@@ -141,6 +145,10 @@ public:
             return calc.dst_port;
         case ssrc_col_:
             return calc.ssrc;
+        case start_time_col_:
+            return calc.start_time_ms;
+        case duration_col_:
+            return calc.duration_ms;
         case payload_col_:
             return text(col);
         case packets_col_:
@@ -167,6 +175,9 @@ public:
 
     bool operator< (const QTreeWidgetItem &other) const
     {
+        rtpstream_info_calc_t calc1;
+        rtpstream_info_calc_t calc2;
+
         if (other.type() != rtp_stream_type_) return QTreeWidgetItem::operator <(other);
         const RtpStreamTreeWidgetItem &other_rstwi = dynamic_cast<const RtpStreamTreeWidgetItem&>(other);
 
@@ -181,6 +192,14 @@ public:
             return stream_info_->id.dst_port < other_rstwi.stream_info_->id.dst_port;
         case ssrc_col_:
             return stream_info_->id.ssrc < other_rstwi.stream_info_->id.ssrc;
+        case start_time_col_:
+            rtpstream_info_calculate(stream_info_, &calc1);
+            rtpstream_info_calculate(other_rstwi.stream_info_, &calc2);
+            return calc1.start_time_ms < calc2.start_time_ms;
+        case duration_col_:
+            rtpstream_info_calculate(stream_info_, &calc1);
+            rtpstream_info_calculate(other_rstwi.stream_info_, &calc2);
+            return calc1.duration_ms < calc2.duration_ms;
         case payload_col_:
             return g_strcmp0(stream_info_->all_payload_type_names, other_rstwi.stream_info_->all_payload_type_names);
         case packets_col_:
