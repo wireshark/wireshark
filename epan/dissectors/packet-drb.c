@@ -25,7 +25,7 @@ static gint ett_ref = -1;
 void proto_register_drb(void);
 void proto_reg_handoff_drb(void);
 
-static void dissect_drb_object(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, gint* offset, const gchar* label)
+static void dissect_drb_object(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, guint* offset, const gchar* label)
 {
 	guint32 len;
 	proto_tree* obj_tree;
@@ -43,14 +43,14 @@ static void dissect_drb_object(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tr
 		proto_item_append_text(obj_tree, "Value: %s", value);
 }
 
-static void dissect_drb_response(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, gint* offset)
+static void dissect_drb_response(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, guint* offset)
 {
 	col_append_str(pinfo->cinfo, COL_INFO, " (response)");
 	dissect_drb_object(tvb, pinfo, tree, offset, "Success");
 	dissect_drb_object(tvb, pinfo, tree, offset, "Response");
 }
 
-static void dissect_drb_request(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, gint* offset)
+static void dissect_drb_request(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, guint* offset)
 {
 	gint32 nargs;
 	gint32 i;
@@ -71,7 +71,7 @@ static void dissect_drb_request(tvbuff_t* tvb, packet_info* pinfo, proto_tree* t
 
 static int dissect_drb(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data _U_)
 {
-	int offset = 0;
+	guint offset = 0;
 	proto_tree* ti;
 	proto_tree* drb_tree;
 	guint8 type;
