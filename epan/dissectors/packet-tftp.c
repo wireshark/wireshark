@@ -56,6 +56,7 @@ void proto_register_tftp(void);
 typedef struct _tftp_conv_info_t {
   guint16      blocksize;
   const guint8 *source_file, *destination_file;
+  guint32      request_frame;
   gboolean     tsize_requested;
   gboolean     dynamic_windowing_active;
   guint16      windowsize;
@@ -84,6 +85,7 @@ static int proto_tftp = -1;
 static int hf_tftp_opcode = -1;
 static int hf_tftp_source_file = -1;
 static int hf_tftp_destination_file = -1;
+static int hf_tftp_request_frame = -1;
 static int hf_tftp_transfer_type = -1;
 static int hf_tftp_blocknum = -1;
 static int hf_tftp_full_blocknum = -1;
@@ -412,7 +414,7 @@ static void dissect_tftp_message(tftp_conv_info_t *tftp_info,
 
   /* read and write requests contain file names
      for other messages, we add the filenames from the conversation */
-  if (opcode!=TFTP_RRQ && opcode!=TFTP_WRQ) {
+  if (tftp_info->request_frame != 0 && opcode != TFTP_RRQ && opcode != TFTP_WRQ) {
     if (tftp_info->source_file) {
       filename = tftp_info->source_file;
     } else if (tftp_info->destination_file) {
@@ -420,6 +422,13 @@ static void dissect_tftp_message(tftp_conv_info_t *tftp_info,
     }
 
     ti = proto_tree_add_string(tftp_tree, hf_tftp_destination_file, tvb, 0, 0, filename);
+    proto_item_set_generated(ti);
+
+    ti = proto_tree_add_uint_format(tftp_tree, hf_tftp_request_frame,
+                                    tvb, 0, 0, tftp_info->request_frame,
+                                    "%s in frame %u",
+                                    tftp_info->source_file ? "Read Request" : "Write Request",
+                                    tftp_info->request_frame);
     proto_item_set_generated(ti);
   }
 
@@ -434,6 +443,7 @@ static void dissect_tftp_message(tftp_conv_info_t *tftp_info,
        destination file name (for write requests)
        when we set one of the names, we clear the other */
     tftp_info->destination_file = NULL;
+    tftp_info->request_frame = pinfo->num;
 
     col_append_fstr(pinfo->cinfo, COL_INFO, ", File: %s",
                     tvb_format_stringzpad(tvb, offset, i1));
@@ -459,6 +469,7 @@ static void dissect_tftp_message(tftp_conv_info_t *tftp_info,
                         tvb, offset, i1, ENC_ASCII|ENC_NA, wmem_file_scope(), &tftp_info->destination_file);
 
     tftp_info->source_file = NULL; /* see above */
+    tftp_info->request_frame = pinfo->num;
 
     col_append_fstr(pinfo->cinfo, COL_INFO, ", File: %s",
                     tvb_format_stringzpad(tvb, offset, i1));
@@ -728,18 +739,20 @@ tftp_info_for_conversation(conversation_t *conversation)
     tftp_info->blocksize = 512; /* TFTP default block size */
     tftp_info->source_file = NULL;
     tftp_info->destination_file = NULL;
+    tftp_info->request_frame = 0;
     tftp_info->tsize_requested = FALSE;
-    tftp_info->prev_opcode = TFTP_NO_OPCODE;
     tftp_info->dynamic_windowing_active = FALSE;
+    tftp_info->windowsize = 0;
+    tftp_info->prev_opcode = TFTP_NO_OPCODE;
     tftp_info->next_block_num = 1;
     tftp_info->blocks_missing = FALSE;
-    tftp_info->next_tap_block_num = 1;
     tftp_info->file_length = 0;
+    tftp_info->last_package_available = FALSE;
+    tftp_info->next_tap_block_num = 1;
+    tftp_info->payload_data = NULL;
     tftp_info->reassembly_id = conversation->conv_index;
     tftp_info->last_reassembly_package = G_MAXUINT32;
     tftp_info->is_simple_file = TRUE;
-    tftp_info->payload_data = NULL;
-    tftp_info->last_package_available = FALSE;
     conversation_add_proto_data(conversation, proto_tftp, tftp_info);
   }
   return tftp_info;
@@ -903,6 +916,11 @@ proto_register_tftp(void)
       { "Destination File",   "tftp.destination_file",
         FT_STRINGZ, BASE_NONE, NULL, 0x0,
         "TFTP destination file name", HFILL }},
+
+    { &hf_tftp_request_frame,
+      { "Request frame",        "tftp.request_frame",
+        FT_FRAMENUM, BASE_NONE, NULL, 0x00,
+        "TFTP request is in frame", HFILL }},
 
     { &hf_tftp_transfer_type,
       { "Type",               "tftp.type",
