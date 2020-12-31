@@ -209,7 +209,7 @@ def removeContractions(code_string):
                      "you’d", "developer’s", "doesn’t", "what’s", "let’s", "haven’t", "can’t", "you’ve",
                      "shouldn’t", "didn’t", "wouldn’t", "aren’t", "there’s", "packet’s", "couldn’t", "world’s",
                      "needn’t", "graph’s", "table’s", "parent’s", "entity’s", "server’s", "node’s",
-                     "querier’s", "sender’s", "receiver’s"]
+                     "querier’s", "sender’s", "receiver’s", "computer’s"]
     for c in contractions:
         code_string = code_string.replace(c, "")
         code_string = code_string.replace(c.capitalize(), "")
@@ -320,6 +320,11 @@ def findFilesInFolder(folder):
 
 # Check the given dissector file.
 def checkFile(filename):
+    # Check file exists - e.g. may have been deleted in a recent commit.
+    if not os.path.exists(filename):
+        print(filename, 'does not exist!')
+        return
+
     file = findStrings(filename)
     file.spellCheck()
 

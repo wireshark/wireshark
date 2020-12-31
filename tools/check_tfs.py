@@ -110,6 +110,11 @@ issues_found = 0
 def checkFile(filename, tfs_items, look_for_common=False):
     global issues_found
 
+    # Check file exists - e.g. may have been deleted in a recent commit.
+    if not os.path.exists(filename):
+        print(filename, 'does not exist!')
+        return
+
     # Find items.
     items = findItems(filename)
 

@@ -424,6 +424,11 @@ def findDissectorFilesInFolder(folder, dissector_files=[], recursive=False):
 
 # Run checks on the given dissector file.
 def checkFile(filename, check_mask=False, check_label=False, check_consecutive=False):
+    # Check file exists - e.g. may have been deleted in a recent commit.
+    if not os.path.exists(filename):
+        print(filename, 'does not exist!')
+        return
+
     # Find important parts of items.
     items = find_items(filename, check_mask, check_label, check_consecutive)
 
