@@ -237,16 +237,12 @@ void VoipCallsDialog::tapDraw(void *tapinfo_ptr)
     }
 }
 
-gint VoipCallsDialog::compareCallid(gconstpointer a, gconstpointer b)
+gint VoipCallsDialog::compareCallNums(gconstpointer a, gconstpointer b)
 {
     voip_calls_info_t *call_a = (voip_calls_info_t *)a;
     voip_calls_info_t *call_b = (voip_calls_info_t *)b;
 
-    if (call_a->call_id && call_b->call_id) {
-        return strcmp(call_a->call_id, call_b->call_id);
-    }
-
-    return -1;
+    return (call_a->call_num != call_b->call_num);
 }
 
 void VoipCallsDialog::updateCalls()
@@ -263,7 +259,7 @@ void VoipCallsDialog::updateCalls()
     while (list) {
         // Find new callsinfo
         new_callsinfo = gxx_list_data(voip_calls_info_t*, list);
-        found = g_queue_find_custom(shown_callsinfos_, new_callsinfo, VoipCallsDialog::compareCallid);
+        found = g_queue_find_custom(shown_callsinfos_, new_callsinfo, VoipCallsDialog::compareCallNums);
         if (!found) {
             // New call, add it to list for show
             g_queue_push_tail(shown_callsinfos_, new_callsinfo);

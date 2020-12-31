@@ -2016,8 +2016,6 @@ h225_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt,
 
     /* not in the list? then create a new entry */
     if (callsinfo==NULL) {
-        char *guid_str;
-
         callsinfo = g_new0(voip_calls_info_t, 1);
         callsinfo->call_active_state = VOIP_ACTIVE;
         callsinfo->call_state = VOIP_UNKNOWN;
@@ -2034,9 +2032,6 @@ h225_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt,
         g_assert(tmp_h323info != NULL);
         tmp_h323info->guid = (e_guid_t *)g_memdup(&pi->guid, sizeof pi->guid);
         /* DUMP_PTR1(tmp_h323info->guid); */
-        guid_str = guid_to_str(NULL, tmp_h323info->guid);
-        callsinfo->call_id = g_strdup(guid_str);
-        wmem_free(NULL, guid_str);
 
         clear_address(&tmp_h323info->h225SetupAddr);
         tmp_h323info->h245_list = NULL;
@@ -2685,7 +2680,6 @@ mgcp_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt,
         tmp_mgcpinfo->fromEndpoint = fromEndpoint;
         callsinfo->npackets = 0;
         callsinfo->call_num = tapinfo->ncalls++;
-        callsinfo->call_id=g_strdup_printf("%s --- %s --- %d", callsinfo->from_identity, callsinfo->to_identity, callsinfo->call_num);
         g_queue_push_tail(tapinfo->callsinfos, callsinfo);
     }
 
@@ -2895,7 +2889,6 @@ actrace_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *e
             tmp_actrace_cas_info->trunk=tapinfo->actrace_trunk;
             callsinfo->npackets = 0;
             callsinfo->call_num = tapinfo->ncalls++;
-            callsinfo->call_id=g_strdup_printf("%s --- %s --- %d", callsinfo->from_identity, callsinfo->to_identity, callsinfo->call_num);
             g_queue_push_tail(tapinfo->callsinfos, callsinfo);
         }
 
@@ -3027,7 +3020,6 @@ h248_calls_packet_common(voip_calls_tapinfo_t *tapinfo, packet_info *pinfo, epan
 
         callsinfo->protocol = TEL_H248;
         callsinfo->call_num = tapinfo->ncalls++;
-        callsinfo->call_id=g_strdup_printf("%s --- %s --- %d", callsinfo->from_identity, callsinfo->to_identity, callsinfo->call_num);
         callsinfo->start_fd = pinfo->fd;
         callsinfo->start_rel_ts = pinfo->rel_ts;
         callsinfo->stop_fd = pinfo->fd;
@@ -3208,7 +3200,6 @@ sccp_calls(voip_calls_tapinfo_t *tapinfo, packet_info *pinfo, epan_dissect_t *ed
         callsinfo->stop_rel_ts = pinfo->rel_ts;
 
         callsinfo->call_num = tapinfo->ncalls++;
-        callsinfo->call_id=g_strdup_printf("%s --- %s --- %d", callsinfo->from_identity, callsinfo->to_identity, callsinfo->call_num);
 
         g_queue_push_tail(tapinfo->callsinfos, callsinfo);
     } else {
@@ -3461,7 +3452,6 @@ unistim_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *e
                 callsinfo->free_prot_info = g_free;
                 callsinfo->npackets = 0;
                 callsinfo->call_num = tapinfo->ncalls++;
-                callsinfo->call_id=g_strdup_printf("%s --- %s --- %d", callsinfo->from_identity, callsinfo->to_identity, callsinfo->call_num);
                 g_queue_push_tail(tapinfo->callsinfos, callsinfo);
 
             } else {
@@ -3717,7 +3707,6 @@ unistim_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *e
             callsinfo->free_prot_info = g_free;
             callsinfo->npackets = 0;
             callsinfo->call_num = tapinfo->ncalls++;
-            callsinfo->call_id=g_strdup_printf("%s --- %s --- %d", callsinfo->from_identity, callsinfo->to_identity, callsinfo->call_num);
             g_queue_push_tail(tapinfo->callsinfos, callsinfo);
 
             /* Open stream */
@@ -3929,7 +3918,6 @@ skinny_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *ed
 
         callsinfo->protocol = VOIP_SKINNY;
         callsinfo->call_num = tapinfo->ncalls++;
-        callsinfo->call_id=g_strdup_printf("%s --- %s --- %d", callsinfo->from_identity, callsinfo->to_identity, callsinfo->call_num);
         callsinfo->start_fd = pinfo->fd;
         callsinfo->start_rel_ts = pinfo->rel_ts;
         callsinfo->stop_fd = pinfo->fd;
@@ -4089,7 +4077,6 @@ iax2_calls_packet( void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt
 
         callsinfo->protocol = VOIP_IAX2;
         callsinfo->call_num = tapinfo->ncalls++;
-        callsinfo->call_id=g_strdup_printf("%s --- %s --- %d", callsinfo->from_identity, callsinfo->to_identity, callsinfo->call_num);
         callsinfo->start_fd=pinfo->fd;
         callsinfo->start_rel_ts=pinfo->rel_ts;
         callsinfo->stop_fd = pinfo->fd;
@@ -4211,7 +4198,6 @@ voip_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt,
         callsinfo->free_prot_info = NULL;
 
         callsinfo->call_num = tapinfo->ncalls++;
-        callsinfo->call_id=g_strdup_printf("%s --- %s --- %d", callsinfo->from_identity, callsinfo->to_identity, callsinfo->call_num);
         callsinfo->npackets = 0;
 
         g_queue_push_tail(tapinfo->callsinfos, callsinfo);

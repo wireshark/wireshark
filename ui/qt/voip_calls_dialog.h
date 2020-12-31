@@ -76,7 +76,7 @@ private:
     static void tapReset(void *tapinfo_ptr);
     static tap_packet_status tapPacket(void *tapinfo_ptr, packet_info *pinfo, epan_dissect_t *, const void *data);
     static void tapDraw(void *tapinfo_ptr);
-    static gint compareCallid(gconstpointer a, gconstpointer b);
+    static gint compareCallNums(gconstpointer a, gconstpointer b);
 
     void updateCalls();
     void prepareFilter();
