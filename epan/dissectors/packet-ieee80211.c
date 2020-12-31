@@ -7073,6 +7073,18 @@ capture_ieee80211_common(const guchar * pd, int offset, int len,
           hdr_length += 4;
         }
 
+        if (datapad) {
+          /*
+           * Include the padding between the 802.11 header and the body,
+           * as "helpfully" provided by some Atheros adapters.
+           *
+           * In the Atheros mesh capture sample we have, the padding
+           * is before the mesh header, possibly because it doesn't
+           * recognize the mesh header.
+           */
+          hdr_length = roundup2(hdr_length, 4);
+        }
+
         /*
          * Does it look as if we have a mesh header?
          * Look at the Mesh Control subfield of the QoS field and at the
@@ -7085,18 +7097,6 @@ capture_ieee80211_common(const guchar * pd, int offset, int len,
         if (has_mesh_control(fcf, pletoh16(&pd[qosoff]), mesh_flags)) {
           /* Yes, add the length of that in as well. */
           hdr_length += find_mesh_control_length(mesh_flags);
-        }
-
-        if (datapad) {
-          /*
-           * Include the padding between the 802.11 header and the body,
-           * as "helpfully" provided by some Atheros adapters.
-           *
-           * XXX - would the mesh header be part of the header or the body
-           * from the point of view of the Atheros adapters that insert
-           * the padding, assuming they even recognize a mesh header?
-           */
-          hdr_length = roundup2(hdr_length, 4);
         }
       }
       /* I guess some bridges take Netware Ethernet_802_3 frames,
@@ -25563,6 +25563,7 @@ dissect_ieee80211_common(tvbuff_t *tvb, packet_info *pinfo,
       if (DATA_FRAME_IS_QOS(frame_type_subtype)) {
         /* QoS frame */
         qosoff = hdr_len;
+        qos_control = tvb_get_letohs(tvb, qosoff);
         hdr_len += 2; /* Include the QoS field in the header length */
 
         if (HAS_HT_CONTROL(FCF_FLAGS(fcf))) {
@@ -25596,53 +25597,6 @@ dissect_ieee80211_common(tvbuff_t *tvb, packet_info *pinfo,
             htc_len = 4;
           }
         }
-
-        /*
-         * Does it look as if we have a mesh header?
-         * Look at the Mesh Control subfield of the QoS field and at the
-         * purported mesh flag fields.
-         */
-        qos_control = tvb_get_letohs(tvb, qosoff);
-        if (tvb_bytes_exist(tvb, hdr_len, 1)) {
-          meshoff = hdr_len;
-          mesh_flags = tvb_get_guint8(tvb, meshoff);
-          if (has_mesh_control(fcf, qos_control, mesh_flags)) {
-            /* Yes, add the length of that in as well. */
-            meshctl_len = find_mesh_control_length(mesh_flags);
-            hdr_len += meshctl_len;
-          }
-        }
-      } else {
-        /*
-         * For locally originated mesh frames, the QoS header may be added
-         * by the hardware, and no present in wireshark captures.  This
-         * poses a problem as the QoS header indicates the presence of the
-         * mesh control header.
-         *
-         * Instead of QoS, we use a few heuristics to determine the presence
-         * of the mesh control header, which is tricky because it can have a
-         * variable length.
-         *
-         * Assume minimal length, and then correct if wrong.
-         */
-        meshctl_len = find_mesh_control_length(0);
-        if (tvb_bytes_exist(tvb, hdr_len, meshctl_len)) {
-          meshoff = hdr_len;
-          mesh_flags = tvb_get_guint8(tvb, meshoff);
-          /* now find correct length */
-          meshctl_len = find_mesh_control_length(mesh_flags);
-          /* ... and try to read two bytes of next header */
-          if (tvb_bytes_exist(tvb, hdr_len, meshctl_len + 2)) {
-            guint16 next_header = tvb_get_letohs(tvb, meshoff + meshctl_len);
-            if (has_mesh_control_local(fcf, mesh_flags, next_header)) {
-              /* Yes, add the length of that in as well. */
-              hdr_len += meshctl_len;
-              break;
-            }
-          }
-        }
-        /* failed to find a mesh header */
-        meshctl_len = 0;
       }
     }
     break;
@@ -25668,11 +25622,61 @@ dissect_ieee80211_common(tvbuff_t *tvb, packet_info *pinfo,
     /*
      * Add in Atheros padding between the 802.11 header and body.
      *
-     * XXX - would the mesh header be part of the header or the body
-     * from the point of view of the Atheros adapters that insert
-     * the padding, assuming they even recognize a mesh header?
+     * In the Atheros mesh capture sample we have, the padding
+     * is before the mesh header, possibly because it doesn't
+     * recognize the mesh header.
      */
     hdr_len = roundup2(hdr_len, 4);
+  }
+
+  if (FCF_FRAME_TYPE (fcf) == DATA_FRAME) {
+    /*
+     * Does it look as if we have a mesh header?
+     *
+     * For locally originated mesh frames, the QoS header may be added
+     * by the hardware, and no present in wireshark captures.  This
+     * poses a problem as the QoS header indicates the presence of the
+     * mesh control header.
+     *
+     * In addition, we have examples of mesh captures where the QoS
+     * field indicates that there is no mesh control header, yet there
+     * is one.
+     *
+     * Instead of QoS, we use a few heuristics to determine the presence
+     * of the mesh control header, which is tricky because it can have a
+     * variable length. We fall back to using the QoS field if it exists
+     * and the packet isn't long enough (due to truncation or something
+     * malformed that should be flagged.)
+     *
+     * Assume minimal length, and then correct if wrong.
+     */
+    if (tvb_bytes_exist(tvb, hdr_len, 1)) {
+      meshoff = hdr_len;
+      mesh_flags = tvb_get_guint8(tvb, meshoff);
+      meshctl_len = find_mesh_control_length(mesh_flags);
+      /* ... and try to read two bytes of next header */
+      if (tvb_bytes_exist(tvb, hdr_len, meshctl_len + 2)) {
+        guint16 next_header = tvb_get_letohs(tvb, meshoff + meshctl_len);
+        if (!has_mesh_control_local(fcf, mesh_flags, next_header)) {
+          meshctl_len = 0;
+        }
+      } else {
+        if (DATA_FRAME_IS_QOS(frame_type_subtype)) {
+          /* QoS frame */
+          /*
+           * Look at the Mesh Control subfield of the QoS field and at the
+           * purported mesh flag fields.
+           */
+          if (!has_mesh_control(fcf, qos_control, mesh_flags)) {
+            meshctl_len = 0;
+          }
+        } else {
+          /* Not QoS frame, can't do the other heuristic, so assume no mesh */
+          meshctl_len = 0;
+        }
+      }
+    }
+    hdr_len += meshctl_len;
   }
 
   /* Add the FC and duration/id to the current tree */
