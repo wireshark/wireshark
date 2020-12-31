@@ -472,6 +472,8 @@ RAT-Type TYPE_PREFIX
 
 #.FN_BODY SecurityModeFailure
   mac_nr_info *p_mac_nr_info;
+
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "Security Mode Failure");
 %(DEFAULT_BODY)s
   /* Look for UE identifier */
   p_mac_nr_info = (mac_nr_info *)p_get_proto_data(wmem_file_scope(), actx->pinfo, proto_mac_nr, 0);
@@ -480,8 +482,6 @@ RAT-Type TYPE_PREFIX
     /* Inform PDCP that the UE failed to execute the securityModeCommand */
     set_pdcp_nr_security_algorithms_failed(p_mac_nr_info->ueid);
   }
-
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "Security Mode Failure");
 
 #.FN_HDR ULInformationTransfer
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "UL Information Transfer");
@@ -1778,6 +1778,3 @@ CA-ParametersEUTRA-v1570/dl-1024QAM-TotalWeightedLayers DISPLAY=BASE_CUSTOM STRI
 
 #.FN_HDR UECapabilityInformationSidelink
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "UE Capability Information Sidelink");
-
-
-
