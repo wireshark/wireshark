@@ -251,6 +251,12 @@ void voip_calls_remove_all_tap_listeners(voip_calls_tapinfo_t *tap_id_base);
  */
 void voip_calls_reset_all_taps(voip_calls_tapinfo_t *tapinfo);
 
+/**
+ * Frees one callsinfo
+ */
+void
+voip_calls_free_callsinfo(voip_calls_info_t *callsinfo);
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

@@ -184,7 +184,23 @@ bool VoipCallsInfoModel::timeOfDay() const
 void VoipCallsInfoModel::updateCalls(GQueue *callsinfos)
 {
     if (callsinfos) {
-        GList *cur_call = g_queue_peek_nth_link(callsinfos, rowCount());
+        int calls = callinfos_.count();
+        int cnt = 0;
+        GList *cur_call;
+
+        // Iterate new callsinfos and replace data in mode if required
+        cur_call = g_queue_peek_nth_link(callsinfos, 0);
+        while (cur_call && (cnt < calls)) {
+            if (callinfos_.at(cnt) != cur_call->data) {
+                // Data changed, use it
+                callinfos_.replace(cnt, cur_call->data);
+            }
+            cur_call = gxx_list_next(cur_call);
+            cnt++;
+        }
+
+        // Add new rows
+        cur_call = g_queue_peek_nth_link(callsinfos, rowCount());
         guint extra = g_list_length(cur_call);
         if (extra > 0) {
             beginInsertRows(QModelIndex(), rowCount(), rowCount() + extra - 1);
@@ -196,13 +212,6 @@ void VoipCallsInfoModel::updateCalls(GQueue *callsinfos)
             endInsertRows();
         }
     }
-}
-
-void VoipCallsInfoModel::removeAllCalls()
-{
-    beginRemoveRows(QModelIndex(), 0, rowCount() - 1);
-    callinfos_.clear();
-    endRemoveRows();
 }
 
 

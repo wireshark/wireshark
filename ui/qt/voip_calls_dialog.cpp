@@ -91,6 +91,7 @@ VoipCallsDialog::VoipCallsDialog(QWidget &parent, CaptureFile &cf, bool all_flow
     tapinfo_.graph_analysis = sequence_analysis_info_new();
     tapinfo_.graph_analysis->name = "voip";
     sequence_info_ = new SequenceInfo(tapinfo_.graph_analysis);
+    shown_callsinfos_ = g_queue_new();
 
     voip_calls_init_all_taps(&tapinfo_);
 
@@ -113,6 +114,10 @@ VoipCallsDialog::~VoipCallsDialog()
     }
     sequence_info_->unref();
     g_queue_free(tapinfo_.callsinfos);
+    // We don't need to clear shown_callsinfos_ data, it was shared
+    // with tapinfo_.callsinfos and was cleared
+    // during voip_calls_reset_all_taps
+    g_queue_free(shown_callsinfos_);
 }
 
 void VoipCallsDialog::removeTapListeners()
@@ -182,7 +187,10 @@ void VoipCallsDialog::tapReset(void *tapinfo_ptr)
 {
     voip_calls_tapinfo_t *tapinfo = static_cast<voip_calls_tapinfo_t *>(tapinfo_ptr);
     VoipCallsDialog *voip_calls_dialog = static_cast<VoipCallsDialog *>(tapinfo->tap_data);
-    voip_calls_dialog->call_infos_model_->removeAllCalls();
+
+    // Create new callsinfos queue in tapinfo. Current callsinfos are
+    // in shown_callsinfos_.
+    voip_calls_dialog->tapinfo_.callsinfos = g_queue_new();
     voip_calls_reset_all_taps(tapinfo);
 
     // Leave old graph_analysis as is and allocate new one
@@ -229,12 +237,51 @@ void VoipCallsDialog::tapDraw(void *tapinfo_ptr)
     }
 }
 
+gint VoipCallsDialog::compareCallid(gconstpointer a, gconstpointer b)
+{
+    voip_calls_info_t *call_a = (voip_calls_info_t *)a;
+    voip_calls_info_t *call_b = (voip_calls_info_t *)b;
+
+    if (call_a->call_id && call_b->call_id) {
+        return strcmp(call_a->call_id, call_b->call_id);
+    }
+
+    return -1;
+}
+
 void VoipCallsDialog::updateCalls()
 {
+    voip_calls_info_t *new_callsinfo;
+    voip_calls_info_t *old_callsinfo;
+    GList *found;
+
     ui->callTreeView->setSortingEnabled(false);
 
-    // Add any missing items
-    call_infos_model_->updateCalls(tapinfo_.callsinfos);
+    // Merge new callsinfos with old ones
+    // It keeps list of calls visible including selected items
+    GList *list = g_queue_peek_nth_link(tapinfo_.callsinfos, 0);
+    while (list) {
+        // Find new callsinfo
+        new_callsinfo = gxx_list_data(voip_calls_info_t*, list);
+        found = g_queue_find_custom(shown_callsinfos_, new_callsinfo, VoipCallsDialog::compareCallid);
+        if (!found) {
+            // New call, add it to list for show
+            g_queue_push_tail(shown_callsinfos_, new_callsinfo);
+        } else {
+            // Existing call
+            old_callsinfo = (voip_calls_info_t *)found->data;
+            if (new_callsinfo != old_callsinfo) {
+                // Replace it
+                voip_calls_free_callsinfo(old_callsinfo);
+                found->data = new_callsinfo;
+            }
+        }
+
+        list = gxx_list_next(list);
+    }
+
+    // Update model
+    call_infos_model_->updateCalls(shown_callsinfos_);
 
     // Resize columns
     for (int i = 0; i < call_infos_model_->columnCount(); i++) {
