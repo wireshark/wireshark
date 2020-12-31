@@ -621,8 +621,6 @@ dissect_PNDCP_Suboption_Device(tvbuff_t *tvb, int offset, packet_info *pinfo,
     guint16   oem_device_id;
     proto_item *sub_item;
     proto_tree *sub_tree;
-    guint8    instance_id_high;
-    guint8    instance_id_low;
     conversation_t    *conversation;
     stationInfo       *station_info;
 
@@ -931,16 +929,6 @@ dissect_PNDCP_Suboption_Device(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
         offset = offset + 2;
 
-        // CIMVDIValue
-        dissect_pn_uint16(tvb, offset, pinfo, tree, hf_pn_dcp_vendor_id_high, &vendor_id);
-        offset = dissect_pn_uint16(tvb, offset, pinfo, tree, hf_pn_dcp_vendor_id_low, &vendor_id);
-
-        dissect_pn_uint16(tvb, offset, pinfo, tree, hf_pn_dcp_device_id_high, &device_id);
-        offset = dissect_pn_uint16(tvb, offset, pinfo, tree, hf_pn_dcp_device_id_low, &device_id);
-
-        offset = dissect_pn_uint8(tvb, offset, pinfo, tree, hf_pn_dcp_instance_id_high, &instance_id_high);
-        offset = dissect_pn_uint8(tvb, offset, pinfo, tree, hf_pn_dcp_instance_id_low, &instance_id_low);
-
         if (pinfo->fd->visited == FALSE) {
             /* Create a conversation between the MAC addresses */
             conversation = find_conversation(pinfo->num, &pinfo->dl_src, &pinfo->dl_dst, ENDPOINT_NONE, 0, 0, 0);
@@ -954,9 +942,6 @@ dissect_PNDCP_Suboption_Device(tvbuff_t *tvb, int offset, packet_info *pinfo,
                 init_pnio_rtc1_station(station_info);
                 conversation_add_proto_data(conversation, proto_pn_dcp, station_info);
             }
-
-            station_info->u16Vendor_id = vendor_id;
-            station_info->u16Device_id = device_id;
         }
 
         pn_append_info(pinfo, dcp_item, ", RSI-Properties");
