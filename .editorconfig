@@ -50,6 +50,11 @@ indent_size = 2
 indent_style = space
 indent_size = 4
 
+# manuf
+[manuf.tmpl]
+indent_style = tab
+indent_size = 8
+
 # C/C++
 [*.{c,cpp,h}]
 indent_style = space
