@@ -113,6 +113,7 @@ PADATA-TYPE ::= INTEGER {
 	pA-PKINIT-KX(147),		-- [RFC6112]
 	pA-PKU2U-NAME(148),		-- [PKU2U]
 	pA-REQ-ENC-PA-REP(149), 	-- [RFC6806]
+	pA-SPAKE(151),			-- draft-ietf-kitten-krb-spake-preauth-09
 	pA-SUPPORTED-ETYPES(165),	-- [MS-KILE]
 	pA-EXTENDED-ERROR(166),		-- [MS-KILE]
 	pA-PAC-OPTIONS(167),		-- [MS-KILE]

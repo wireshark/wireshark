@@ -250,6 +250,9 @@ KrbFastArmorTypes PROT_PREFIX UPPER_CASE
   case KERBEROS_PA_REQ_ENC_PA_REP:
     offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset,hf_index, dissect_kerberos_Checksum);
     break;
+  case KERBEROS_PA_SPAKE:
+    offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset,hf_index, dissect_kerberos_PA_SPAKE);
+    break;
   default:
     offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset,hf_index, NULL);
     break;
@@ -623,4 +626,14 @@ KrbFastArmorTypes PROT_PREFIX UPPER_CASE
   default:
     offset=dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index, NULL);
     break;
+  }
+
+#.FN_BODY PA-SPAKE VAL_PTR=&(private_data->padata_type)
+  kerberos_private_data_t* private_data = kerberos_get_private_data(actx);
+%(DEFAULT_BODY)s
+#.FN_FTR PA-SPAKE
+  if(tree){
+    proto_item_append_text(tree, " %s",
+      val_to_str(private_data->padata_type, kerberos_PA_SPAKE_vals,
+      "Unknown:%d"));
   }

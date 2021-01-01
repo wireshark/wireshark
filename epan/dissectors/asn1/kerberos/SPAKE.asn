@@ -1,0 +1,86 @@
+-- Adapted from
+-- https://tools.ietf.org/id/draft-ietf-kitten-krb-spake-preauth-09.txt
+-- Appendix A.
+
+-- Copyright (c) 2019 IETF Trust and the persons identified as authors of the
+-- code. All rights reserved.
+--
+-- Redistribution and use in source and binary forms, with or without
+-- modification, is permitted pursuant to, and subject to the license terms
+-- contained in, the Simplified BSD License set forth in Section 4.c of the
+-- IETF Trust’s Legal Provisions Relating to IETF Documents
+-- (http://trustee.ietf.org/license-info).
+
+KerberosV5SPAKE {
+        iso(1) identified-organization(3) dod(6) internet(1)
+        security(5) kerberosV5(2) modules(4) spake(8)
+} DEFINITIONS EXPLICIT TAGS ::= BEGIN
+
+IMPORTS
+    EncryptedData, Int32
+      FROM KerberosV5Spec2 { iso(1) identified-organization(3)
+        dod(6) internet(1) security(5) kerberosV5(2) modules(4)
+        krb5spec2(2) };
+        -- as defined in RFC 4120.
+
+EncryptedSpakeData   ::= SEQUENCE {
+    etype   [0] ENCTYPE -- EncryptionType --,
+    kvno    [1] UInt32 OPTIONAL,
+    cipher  [2] OCTET STRING -- ciphertext
+}
+
+EncryptedSpakeResponseData   ::= SEQUENCE {
+    etype   [0] ENCTYPE -- EncryptionType --,
+    kvno    [1] UInt32 OPTIONAL,
+    cipher  [2] OCTET STRING -- ciphertext
+}
+
+SPAKEGroup ::= INTEGER {
+    sPAKEGroup-edwards25519(1),
+    sPAKEGroup-P-256(2),
+    sPAKEGroup-P-384(3),
+    sPAKEGroup-P-521(4)
+}
+
+SPAKESecondFactorType ::= INTEGER {
+    sPAKESecondFactor-SF-NONE(1)
+}
+
+SPAKESupport ::= SEQUENCE {
+    groups      [0] SEQUENCE (SIZE(1..MAX)) OF SPAKEGroup,
+    ...
+}
+
+SPAKEChallenge ::= SEQUENCE {
+    group       [0] SPAKEGroup,
+    pubkey      [1] OCTET STRING,
+    factors     [2] SEQUENCE (SIZE(1..MAX)) OF SPAKESecondFactor,
+    ...
+}
+
+SPAKESecondFactor ::= SEQUENCE {
+    type        [0] SPAKESecondFactorType,
+    data        [1] OCTET STRING OPTIONAL
+}
+
+SPAKEResponse ::= SEQUENCE {
+    pubkey      [0] OCTET STRING,
+    factor      [1] EncryptedSpakeResponseData, -- SPAKESecondFactor
+    ...
+}
+
+PA-SPAKE ::= CHOICE {
+    support     [0] SPAKESupport,
+    challenge   [1] SPAKEChallenge,
+    response    [2] SPAKEResponse,
+    encdata     [3] EncryptedSpakeData,
+    ...
+}
+
+-- PA-SPAKE-HINT ::= SEQUENCE {
+--     groups      [0] SEQUENCE (SIZE(1..MAX)) OF Int32,
+--     factors     [1] SEQUENCE (SIZE(1..MAX)) OF SPAKESecondFactor
+-- }
+
+END
+
