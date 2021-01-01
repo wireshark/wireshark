@@ -49,6 +49,9 @@ signals:
     void deselectRtpStreamPassOut(rtpstream_id_t *id);
     void openRtpStreamDialogPassOut();
 
+public slots:
+    void displayFilterSuccess(bool success);
+
 protected:
     void contextMenuEvent(QContextMenuEvent *event);
     virtual void removeTapListeners();
@@ -82,6 +85,7 @@ private:
     void prepareFilter();
     void showSequence();
     void showPlayer();
+    void removeAllCalls();
 
     QList<QVariant> streamRowData(int row) const;
 
@@ -98,6 +102,8 @@ private slots:
     void selectRtpStreamPassIn(rtpstream_id_t *id);
     void deselectRtpStreamPassIn(rtpstream_id_t *id);
     void openRtpStreamDialogPassIn();
+    void captureEvent(CaptureEvent e);
+    void on_displayFilterCheckBox_toggled(bool checked);
 };
 
 #endif // VOIP_CALLS_DIALOG_H

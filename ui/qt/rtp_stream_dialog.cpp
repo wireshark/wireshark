@@ -275,6 +275,8 @@ RtpStreamDialog::RtpStreamDialog(QWidget &parent, CaptureFile &cf) :
     ca->setToolTip(ui->actionCopyAsYaml->toolTip());
     connect(ca, SIGNAL(triggered()), this, SLOT(on_actionCopyAsYaml_triggered()));
     copy_button_->setMenu(copy_menu);
+    connect(&cap_file_, SIGNAL(captureEvent(CaptureEvent)),
+            this, SLOT(captureEvent(CaptureEvent)));
 
     /* Register the tap listener */
     memset(&tapinfo_, 0, sizeof(rtpstream_tapinfo_t));
@@ -285,6 +287,12 @@ RtpStreamDialog::RtpStreamDialog(QWidget &parent, CaptureFile &cf) :
     tapinfo_.mode = TAP_ANALYSE;
 
     register_tap_listener_rtpstream(&tapinfo_, NULL, show_tap_registration_error);
+    if (cap_file_.capFile()->dfilter) {
+        // Activate display filter checking
+        tapinfo_.apply_display_filter = true;
+        ui->displayFilterCheckBox->setChecked(true);
+    }
+
     /* Scan for RTP streams (redissect all packets) */
     rtpstream_scan(&tapinfo_, cf.capFile(), NULL);
 
@@ -351,6 +359,25 @@ bool RtpStreamDialog::eventFilter(QObject *, QEvent *event)
         }
     }
     return false;
+}
+
+void RtpStreamDialog::captureEvent(CaptureEvent e)
+{
+    if (e.captureContext() == CaptureEvent::Retap)
+    {
+        switch (e.eventType())
+        {
+        case CaptureEvent::Started:
+            ui->displayFilterCheckBox->setEnabled(false);
+            break;
+        case CaptureEvent::Finished:
+            ui->displayFilterCheckBox->setEnabled(true);
+            break;
+        default:
+            break;
+        }
+    }
+
 }
 
 void RtpStreamDialog::tapReset(rtpstream_tapinfo_t *tapinfo)
@@ -716,6 +743,17 @@ void RtpStreamDialog::on_buttonBox_helpRequested()
     wsApp->helpTopicAction(HELP_RTP_ANALYSIS_DIALOG);
 }
 
+void RtpStreamDialog::on_displayFilterCheckBox_toggled(bool checked _U_)
+{
+    if (!cap_file_.isValid()) {
+        return;
+    }
+
+    tapinfo_.apply_display_filter = checked;
+
+    cap_file_.retapPackets();
+}
+
 void RtpStreamDialog::showPlayer()
 {
     rtpstream_info_t stream_info;
@@ -748,6 +786,13 @@ void RtpStreamDialog::showPlayer()
     rtp_player_dialog->setMarkers();
     rtp_player_dialog->show();
 #endif // QT_MULTIMEDIA_LIB
+}
+
+void RtpStreamDialog::displayFilterSuccess(bool success)
+{
+    if (success && ui->displayFilterCheckBox->isChecked()) {
+        cap_file_.retapPackets();
+    }
 }
 
 /*

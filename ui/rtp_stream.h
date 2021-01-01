@@ -96,6 +96,7 @@ struct _rtpstream_tapinfo {
     rtpstream_info_t  *filter_stream_rev; /**< used as filter in some tap modes */
     FILE              *save_file;
     gboolean           is_registered; /**< if the tap listener is currently registered or not */
+    gboolean           apply_display_filter; /**< if apply display filter during analyse */
 };
 
 #if 0

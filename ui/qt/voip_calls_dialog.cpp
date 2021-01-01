@@ -79,6 +79,8 @@ VoipCallsDialog::VoipCallsDialog(QWidget &parent, CaptureFile &cf, bool all_flow
     ca = copy_menu->addAction(tr("as YAML"));
     connect(ca, SIGNAL(triggered()), this, SLOT(copyAsYAML()));
     copy_button_->setMenu(copy_menu);
+    connect(&cap_file_, SIGNAL(captureEvent(CaptureEvent)),
+            this, SLOT(captureEvent(CaptureEvent)));
 
     memset (&tapinfo_, 0, sizeof(tapinfo_));
     tapinfo_.tap_packet = tapPacket;
@@ -94,6 +96,11 @@ VoipCallsDialog::VoipCallsDialog(QWidget &parent, CaptureFile &cf, bool all_flow
     shown_callsinfos_ = g_queue_new();
 
     voip_calls_init_all_taps(&tapinfo_);
+    if (cap_file_.capFile()->dfilter) {
+        // Activate display filter checking
+        tapinfo_.apply_display_filter = true;
+        ui->displayFilterCheckBox->setChecked(true);
+    }
 
     updateWidgets();
 
@@ -181,6 +188,25 @@ void VoipCallsDialog::changeEvent(QEvent *event)
         }
     }
     QDialog::changeEvent(event);
+}
+
+void VoipCallsDialog::captureEvent(CaptureEvent e)
+{
+    if (e.captureContext() == CaptureEvent::Retap)
+    {
+        switch (e.eventType())
+        {
+        case CaptureEvent::Started:
+            ui->displayFilterCheckBox->setEnabled(false);
+            break;
+        case CaptureEvent::Finished:
+            ui->displayFilterCheckBox->setEnabled(true);
+            break;
+        default:
+            break;
+        }
+    }
+
 }
 
 void VoipCallsDialog::tapReset(void *tapinfo_ptr)
@@ -572,6 +598,36 @@ void VoipCallsDialog::on_buttonBox_clicked(QAbstractButton *button)
     }
 }
 
+void VoipCallsDialog::removeAllCalls()
+{
+    voip_calls_info_t *callsinfo;
+    GList *list = NULL;
+
+    call_infos_model_->removeAllCalls();
+
+    /* Free shown callsinfos */
+    list = g_queue_peek_nth_link(shown_callsinfos_, 0);
+    while (list)
+    {
+        callsinfo = (voip_calls_info_t *)list->data;
+        voip_calls_free_callsinfo(callsinfo);
+        list = g_list_next(list);
+    }
+    g_queue_clear(shown_callsinfos_);
+}
+
+void VoipCallsDialog::on_displayFilterCheckBox_toggled(bool checked)
+{
+    if (!cap_file_.isValid()) {
+        return;
+    }
+
+    tapinfo_.apply_display_filter = checked;
+    removeAllCalls();
+
+    cap_file_.retapPackets();
+}
+
 void VoipCallsDialog::on_buttonBox_helpRequested()
 {
     wsApp->helpTopicAction(HELP_TELEPHONY_VOIP_CALLS_DIALOG);
@@ -602,6 +658,13 @@ void VoipCallsDialog::openRtpStreamDialogPassIn()
     emit openRtpStreamDialogPassOut();
 }
 
+void VoipCallsDialog::displayFilterSuccess(bool success)
+{
+    if (success && ui->displayFilterCheckBox->isChecked()) {
+        removeAllCalls();
+        cap_file_.retapPackets();
+    }
+}
 
 /*
  * Editor modelines

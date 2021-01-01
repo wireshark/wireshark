@@ -216,6 +216,7 @@ typedef struct _voip_calls_tapinfo {
     gint32                actrace_direction;
     flow_show_options     fs_option;
     guint32               redraw;
+    gboolean              apply_display_filter;
 } voip_calls_tapinfo_t;
 
 #if 0

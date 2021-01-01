@@ -380,6 +380,11 @@ tap_packet_status rtpstream_packet_cb(void *arg, packet_info *pinfo, epan_dissec
     new_stream_info.first_payload_type_name = rtpinfo->info_payload_type_str;
 
     if (tapinfo->mode == TAP_ANALYSE) {
+        /* if display filtering activated and packet do not match, ignore it */
+        if (tapinfo->apply_display_filter && (pinfo->fd->passed_dfilter == 0)) {
+            return TAP_PACKET_DONT_REDRAW;
+        }
+
         /* check whether we already have a stream with these parameters in the list */
         list = g_list_first(tapinfo->strinfo_list);
         while (list)

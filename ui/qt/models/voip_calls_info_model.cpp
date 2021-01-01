@@ -214,6 +214,12 @@ void VoipCallsInfoModel::updateCalls(GQueue *callsinfos)
     }
 }
 
+void VoipCallsInfoModel::removeAllCalls()
+{
+    beginRemoveRows(QModelIndex(), 0, rowCount() - 1);
+    callinfos_.clear();
+    endRemoveRows();
+}
 
 // Proxy model that allows columns to be sorted.
 VoipCallsInfoSortedModel::VoipCallsInfoSortedModel(QObject *parent) :

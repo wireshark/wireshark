@@ -3310,6 +3310,8 @@ void MainWindow::openVoipCallsDialog(bool all_flows)
             this, SLOT(filterPackets(QString, bool)));
     connect(voip_calls_dialog_, SIGNAL(openRtpStreamDialogPassOut()),
             this, SLOT(on_actionTelephonyRTPStreams_triggered()));
+    connect(this, SIGNAL(displayFilterSuccess(bool)),
+            voip_calls_dialog_, SLOT(displayFilterSuccess(bool)));
     interconnectRtpStreamDialogToVoipCallsDialog(rtp_stream_dialog_, voip_calls_dialog_);
     voip_calls_dialog_->show();
     voip_calls_dialog_->raise();
@@ -3413,6 +3415,8 @@ void MainWindow::on_actionTelephonyRTPStreams_triggered()
             packet_list_, SLOT(goToPacket(int)));
     connect(rtp_stream_dialog_, SIGNAL(updateFilter(QString, bool)),
             this, SLOT(filterPackets(QString, bool)));
+    connect(this, SIGNAL(displayFilterSuccess(bool)),
+            rtp_stream_dialog_, SLOT(displayFilterSuccess(bool)));
     interconnectRtpStreamDialogToVoipCallsDialog(rtp_stream_dialog_, voip_calls_dialog_);
     rtp_stream_dialog_->show();
     rtp_stream_dialog_->raise();

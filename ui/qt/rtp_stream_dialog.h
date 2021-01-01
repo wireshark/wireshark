@@ -41,6 +41,7 @@ signals:
 public slots:
     void selectRtpStream(rtpstream_id_t *id);
     void deselectRtpStream(rtpstream_id_t *id);
+    void displayFilterSuccess(bool success);
 
 protected:
     bool eventFilter(QObject *obj, QEvent *event);
@@ -85,6 +86,8 @@ private slots:
     void on_buttonBox_clicked(QAbstractButton *button);
     void on_actionExportAsRtpDump_triggered();
     void on_actionAnalyze_triggered();
+    void captureEvent(CaptureEvent e);
+    void on_displayFilterCheckBox_toggled(bool checked);
 };
 
 #endif // RTP_STREAM_DIALOG_H
