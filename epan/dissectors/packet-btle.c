@@ -204,6 +204,9 @@ static int hf_btle_ea_host_advertising_data_fragment_count = -1;
 static int hf_btle_ea_host_advertising_data_reassembled_in = -1;
 static int hf_btle_ea_host_advertising_data_reassembled_length = -1;
 
+static int hf_request_in_frame = -1;
+static int hf_response_in_frame = -1;
+
 static gint ett_btle = -1;
 static gint ett_advertising_header = -1;
 static gint ett_link_layer_data = -1;
@@ -304,6 +307,8 @@ static expert_field ei_crc_incorrect = EI_INIT;
 static expert_field ei_missing_fragment_start = EI_INIT;
 static expert_field ei_retransmit = EI_INIT;
 static expert_field ei_nack = EI_INIT;
+static expert_field ei_control_proc_overlapping = EI_INIT;
+static expert_field ei_control_proc_wrong_seq = EI_INIT;
 
 static dissector_handle_t btle_handle;
 static dissector_handle_t btcommon_ad_handle;
@@ -372,12 +377,34 @@ typedef struct _ae_had_info_t {
     guint32 first_frame_num;
 } ae_had_info_t;
 
+typedef struct _control_proc_info_t {
+    /* Sequence of frame numbers of the control procedure used for request/response matching.
+     * The first entry corresponds to the request, the remaining frames are responses.
+     * The longest sequence is needed for the encryption start procedure,
+     * which consists of 5 frames. */
+    guint  frames[5];
+
+    /* Opcode of the first control procedure packet. */
+    guint8 proc_opcode;
+
+    /* The frame where the procedure completes. Set to 0 when not yet known.
+     * This is used to avoid adding another frame to the control procedure
+     * sequence after the procedure was aborted early.
+     *
+     * This frame number may be ignored in the case where an LL_UNKNOWN_RSP is
+     * received after a procedure involving only one packet, like the
+     * LL_MIN_USED_CHANNELS_IND. */
+    guint  last_frame;
+} control_proc_info_t;
+
 /* Store information about a connection direction */
 typedef struct _direction_info_t {
     guint    prev_seq_num : 1;          /* Previous sequence number for this direction */
     guint    segmentation_started : 1;  /* 0 = No, 1 = Yes */
     guint    segment_len_rem;           /* The remaining segment length, used to find last segment */
     guint32  l2cap_index;               /* Unique identifier for each L2CAP message */
+
+    wmem_tree_t *control_procs;         /* Control procedures initiated from this direction. */
 } direction_info_t;
 
 typedef struct _connection_parameter_info_t {
@@ -800,6 +827,127 @@ dissect_ctrl_pdu_without_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *btl
     return offset;
 }
 
+/* Mark the start of a new control procedure.
+ * At first visit it will create a new control procedure context.
+ * Otherwise it will update the existing context.
+ *
+ * If there is already an ongoing control procedure context, control procedure
+ * contexts will not be created or modified.
+ *
+ * It returns the procedure context in case it exists, otherwise NULL.
+ */
+control_proc_info_t *
+control_proc_start(tvbuff_t *tvb,
+                   packet_info *pinfo,
+                   proto_tree *btle_tree,
+                   proto_item *control_proc_item,
+                   wmem_tree_t *control_proc_tree,
+                   guint8 opcode)
+{
+    control_proc_info_t *proc_info;
+    if (!pinfo->fd->visited) {
+        /* Check the if there is an existing ongoing procedure. */
+        proc_info = (control_proc_info_t *)wmem_tree_lookup32_le(control_proc_tree, pinfo->num);
+        if (proc_info && proc_info->last_frame == 0) {
+            /* Control procedure violation - initiating new procedure before previous was complete */
+            return NULL;
+        } else {
+            /* Create a new control procedure context. */
+            proc_info = wmem_new0(wmem_file_scope(), control_proc_info_t);
+            memset(proc_info, 0, sizeof(control_proc_info_t));
+            proc_info->frames[0] = pinfo->num;
+            proc_info->proc_opcode = opcode;
+            wmem_tree_insert32(control_proc_tree, pinfo->num, proc_info);
+        }
+    } else {
+        /* Match the responses with this request. */
+        proc_info = (control_proc_info_t *)wmem_tree_lookup32(control_proc_tree, pinfo->num);
+
+        if (proc_info && proc_info->proc_opcode == opcode) {
+            proto_item *sub_item;
+            for (guint i = 1; i < sizeof(proc_info->frames)/sizeof(proc_info->frames[0]); i++) {
+                if (proc_info->frames[i]) {
+                    sub_item = proto_tree_add_uint(btle_tree, hf_response_in_frame, tvb, 0, 0, proc_info->frames[i]);
+                    proto_item_set_generated(sub_item);
+                }
+            }
+        } else {
+            /* The found control procedure does not match the last one.
+             * This indicates a protocol violation. */
+            expert_add_info(pinfo, control_proc_item, &ei_control_proc_overlapping);
+
+            return NULL;
+        }
+    }
+
+    return proc_info;
+}
+
+/* Checks if it is possible to add the frame at the given index
+ * to the given control procedure context.
+ *
+ * It does not care if the procedure is already marked as completed.
+ * Therefore this function can be used to add an LL_UNKNOWN_RSP to
+ * a completed connection parameter update procedure.
+ */
+static gboolean
+control_proc_can_add_frame_even_if_complete(packet_info *pinfo,
+                                            control_proc_info_t *last_control_proc_info,
+                                            guint8 proc_opcode,
+                                            guint frame_num)
+{
+    if (frame_num == 0)
+        return FALSE; /* This function must be used to add a frame to an ongoing procedure */
+
+    /* We need to check if the control procedure has been initiated. */
+    if (!last_control_proc_info)
+        return FALSE;
+
+    /* And that the new frame belongs to this control procedure */
+    if (last_control_proc_info->proc_opcode != proc_opcode)
+        return FALSE;
+
+    /* Previous frame has not yet been added. */
+    if (last_control_proc_info->frames[frame_num - 1] == 0)
+        return FALSE;
+
+    /* We need to check if we can add this frame at this index
+     * in the control procedure sequence. */
+
+    /* The first time we visit the frame, we just need to check that the
+     * spot is empty. */
+    if (!pinfo->fd->visited && last_control_proc_info->frames[frame_num])
+        return FALSE; /* Another opcode has already been added to the procedure at this index */
+
+    /* At later visits, we need to check that we are not replacing the frame with
+     * another frame. */
+    if (pinfo->fd->visited && (last_control_proc_info->frames[frame_num] != pinfo->num))
+        return FALSE;
+
+    return TRUE;
+}
+
+
+static gboolean
+control_proc_can_add_frame(packet_info *pinfo,
+                           control_proc_info_t *last_control_proc_info,
+                           guint8 proc_opcode,
+                           guint frame_num)
+{
+    if (!control_proc_can_add_frame_even_if_complete(pinfo,
+                                                     last_control_proc_info,
+                                                     proc_opcode,
+                                                     frame_num))
+        return FALSE;
+
+    /* We check that we are not adding a frame to a completed procedure. */
+    if (last_control_proc_info->last_frame != 0 &&
+        pinfo->num > last_control_proc_info->last_frame)
+        return FALSE;
+
+    return TRUE;
+}
+
 static gint
 dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
@@ -1213,6 +1361,13 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 memcpy(connection_info->master_bd_addr, src_bd_addr, 6);
                 memcpy(connection_info->slave_bd_addr,  dst_bd_addr, 6);
 
+                /* We don't create control procedure context trees for BTLE_DIR_UNKNOWN,
+                 * as the direction must be known for request/response matching. */
+                connection_info->direction_info[BTLE_DIR_MASTER_SLAVE].control_procs =
+                        wmem_tree_new(wmem_file_scope());
+                connection_info->direction_info[BTLE_DIR_SLAVE_MASTER].control_procs =
+                        wmem_tree_new(wmem_file_scope());
+
                 wmem_tree_insert32_array(connection_info_tree, key, connection_info);
 
                 connection_parameter_info = wmem_new0(wmem_file_scope(), connection_parameter_info_t);
@@ -1541,17 +1696,23 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             }
         }
     } else if (btle_pdu_type == BTLE_PDU_TYPE_DATA) {
-        proto_item  *data_header_item, *seq_item;
+        proto_item  *data_header_item, *seq_item, *control_proc_item;
         proto_tree  *data_header_tree;
         guint8       oct;
         guint8       llid;
         guint8       control_opcode;
         guint32      direction = BTLE_DIR_UNKNOWN;
+        guint8       other_direction = BTLE_DIR_UNKNOWN;
+
         gboolean     add_l2cap_index = FALSE;
         gboolean     retransmit = FALSE;
 
+        /* Holds the last initiated control procedures for a given direction. */
+        control_proc_info_t *last_control_proc[3] = {0};
+
         if (btle_context) {
             direction = btle_context->direction;
+            other_direction = (direction == BTLE_DIR_SLAVE_MASTER) ? BTLE_DIR_MASTER_SLAVE : BTLE_DIR_SLAVE_MASTER;
         }
 
         btle_frame_info_t *btle_frame_info = NULL;
@@ -1613,6 +1774,12 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 set_address(&pinfo->net_dst, AT_STRINGZ, (int)strlen(str_addr_dst)+1, str_addr_dst);
                 copy_address_shallow(&pinfo->dst, &pinfo->net_dst);
 
+                /* Retrieve the last initiated control procedures. */
+                last_control_proc[BTLE_DIR_MASTER_SLAVE] =
+                        (control_proc_info_t *)wmem_tree_lookup32_le(connection_info->direction_info[BTLE_DIR_MASTER_SLAVE].control_procs, pinfo->num);
+                last_control_proc[BTLE_DIR_SLAVE_MASTER] =
+                        (control_proc_info_t *)wmem_tree_lookup32_le(connection_info->direction_info[BTLE_DIR_SLAVE_MASTER].control_procs, pinfo->num);
+
                 if (!pinfo->fd->visited) {
                     address *addr;
 
@@ -1636,7 +1803,6 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                     }
                     else {
                         guint8 seq_num = !!(oct & 0x8), next_expected_seq_num = !!(oct & 0x4);
-                        guint8 other_direction = direction == BTLE_DIR_SLAVE_MASTER ? BTLE_DIR_MASTER_SLAVE : BTLE_DIR_SLAVE_MASTER;
 
                         if (seq_num != connection_info->direction_info[direction].prev_seq_num) {
                             /* SN is not equal to previous packet (in same direction) SN */
@@ -1876,7 +2042,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             }
             break;
         case 0x03: /* Control PDU */
-            proto_tree_add_item(btle_tree, hf_control_opcode, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            control_proc_item = proto_tree_add_item(btle_tree, hf_control_opcode, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             control_opcode = tvb_get_guint8(tvb, offset);
             offset += 1;
 
@@ -1884,7 +2050,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                     val_to_str_ext_const(control_opcode, &control_opcode_vals_ext, "Unknown"));
 
             switch (control_opcode) {
-            case 0x00: /* LL_CONNECTION_UPDATE_REQ */
+            case 0x00: /* LL_CONNECTION_UPDATE_IND */
                 item = proto_tree_add_item_ret_uint(btle_tree, hf_control_window_size, tvb, offset, 1, ENC_LITTLE_ENDIAN, &item_value);
                 proto_item_append_text(item, " (%g msec)", item_value*1.25);
                 offset += 1;
@@ -1936,6 +2102,45 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                         }
                     }
                 }
+
+                if (!btle_frame_info->retransmit) {
+                    /* The LL_CONNECTION_UPDATE_IND can only be sent from master to slave.
+                     * It can either be sent as the first packet of the connection update procedure,
+                     * or as the last packet in the connection parameter request procedure. */
+                    if (direction == BTLE_DIR_MASTER_SLAVE) {
+                        if (control_proc_can_add_frame(pinfo,
+                                                       last_control_proc[BTLE_DIR_MASTER_SLAVE],
+                                                       0x0F, 2)) {
+                            last_control_proc[BTLE_DIR_MASTER_SLAVE]->frames[2] = pinfo->num;
+                            last_control_proc[BTLE_DIR_MASTER_SLAVE]->last_frame = pinfo->num;
+
+                            sub_item = proto_tree_add_uint(btle_tree, hf_request_in_frame, tvb, 0, 0,
+                                                           last_control_proc[BTLE_DIR_MASTER_SLAVE]->frames[0]);
+                            proto_item_set_generated(sub_item);
+                        } else if (control_proc_can_add_frame(pinfo,
+                                                              last_control_proc[BTLE_DIR_SLAVE_MASTER],
+                                                              0x0F, 1)) {
+                            last_control_proc[BTLE_DIR_SLAVE_MASTER]->frames[1] = pinfo->num;
+                            last_control_proc[BTLE_DIR_SLAVE_MASTER]->last_frame = pinfo->num;
+
+                            sub_item = proto_tree_add_uint(btle_tree, hf_request_in_frame, tvb, 0, 0,
+                                                           last_control_proc[BTLE_DIR_SLAVE_MASTER]->frames[0]);
+                            proto_item_set_generated(sub_item);
+                        } else {
+                            control_proc_info_t *proc_info;
+                            proc_info = control_proc_start(tvb, pinfo, btle_tree, control_proc_item,
+                                                           connection_info->direction_info[direction].control_procs,
+                                                           0x00);
+
+                            /* Procedure completes in the same frame. */
+                            if (proc_info)
+                                proc_info->last_frame = pinfo->num;
+                        }
+                    } else if (direction == BTLE_DIR_SLAVE_MASTER) {
+                        expert_add_info(pinfo, control_proc_item, &ei_control_proc_wrong_seq);
+                    }
+                }
+
                 break;
             case 0x01: /* LL_CHANNEL_MAP_REQ */
                 sub_item = proto_tree_add_item(btle_tree, hf_control_channel_map, tvb, offset, 5, ENC_NA);
@@ -1947,10 +2152,43 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 proto_tree_add_item(btle_tree, hf_control_instant, tvb, offset, 2, ENC_LITTLE_ENDIAN);
                 offset += 2;
 
+
+                if (!btle_frame_info->retransmit) {
+                    /* The LL_CHANNEL_MAP_REQ can only be sent from master to slave.
+                     * It can either be sent as the first packet of the channel map update procedure,
+                     * or as the last packet in the minimum number of used channels procedure. */
+                    if (direction == BTLE_DIR_MASTER_SLAVE) {
+                        if (control_proc_can_add_frame(pinfo,
+                                                       last_control_proc[BTLE_DIR_SLAVE_MASTER],
+                                                       0x19, 1)) {
+                            last_control_proc[BTLE_DIR_SLAVE_MASTER]->frames[1] = pinfo->num;
+                            last_control_proc[BTLE_DIR_SLAVE_MASTER]->last_frame = pinfo->num;
+
+                            sub_item = proto_tree_add_uint(btle_tree, hf_request_in_frame, tvb, 0, 0,
+                                                           last_control_proc[BTLE_DIR_SLAVE_MASTER]->frames[0]);
+                            proto_item_set_generated(sub_item);
+                        } else {
+                            control_proc_info_t *proc_info;
+                            proc_info = control_proc_start(tvb, pinfo, btle_tree, control_proc_item,
+                                                           connection_info->direction_info[direction].control_procs,
+                                                           0x01);
+
+                            /* Procedure completes in the same frame. */
+                            if (proc_info)
+                                proc_info->last_frame = pinfo->num;
+                        }
+                    } else if (direction == BTLE_DIR_SLAVE_MASTER) {
+                        expert_add_info(pinfo, control_proc_item, &ei_control_proc_wrong_seq);
+                    }
+                }
+
                 break;
             case 0x02: /* LL_TERMINATE_IND */
                 proto_tree_add_item(btle_tree, hf_control_error_code, tvb, offset, 1, ENC_LITTLE_ENDIAN);
                 offset += 1;
+
+                /* No need to mark procedure as started, as the procedure only consist
+                 * of one packet which may be sent at any time, */
 
                 break;
             case 0x03: /* LL_ENC_REQ */
@@ -1966,6 +2204,17 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 proto_tree_add_item(btle_tree, hf_control_master_session_initialization_vector, tvb, offset, 4, ENC_LITTLE_ENDIAN);
                 offset += 4;
 
+                if (!btle_frame_info->retransmit) {
+                    /* The LL_ENC_REQ can only be sent from master to slave. */
+                    if (direction == BTLE_DIR_MASTER_SLAVE) {
+                        control_proc_start(tvb, pinfo, btle_tree, control_proc_item,
+                                           connection_info->direction_info[BTLE_DIR_MASTER_SLAVE].control_procs,
+                                           0x03);
+                    } else if (direction == BTLE_DIR_SLAVE_MASTER) {
+                        expert_add_info(pinfo, control_proc_item, &ei_control_proc_wrong_seq);
+                    }
+                }
+
                 break;
             case 0x04: /* LL_ENC_RSP */
                 proto_tree_add_item(btle_tree, hf_control_slave_session_key_diversifier, tvb, offset, 8, ENC_LITTLE_ENDIAN);
@@ -1974,14 +2223,76 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 proto_tree_add_item(btle_tree, hf_control_slave_session_initialization_vector, tvb, offset, 4, ENC_LITTLE_ENDIAN);
                 offset += 4;
 
+                if (!btle_frame_info->retransmit) {
+                    /* The LL_ENC_REQ can only be sent from slave to master. */
+                    if (direction == BTLE_DIR_SLAVE_MASTER) {
+                        if (control_proc_can_add_frame(pinfo,
+                                                       last_control_proc[BTLE_DIR_MASTER_SLAVE],
+                                                       0x3, 1)) {
+                            last_control_proc[BTLE_DIR_MASTER_SLAVE]->frames[1] = pinfo->num;
+
+                            sub_item = proto_tree_add_uint(btle_tree, hf_request_in_frame, tvb, 0, 0,
+                                                           last_control_proc[BTLE_DIR_MASTER_SLAVE]->frames[0]);
+                            proto_item_set_generated(sub_item);
+                        } else {
+                            expert_add_info(pinfo, control_proc_item, &ei_control_proc_wrong_seq);
+                        }
+                    } else if (direction == BTLE_DIR_MASTER_SLAVE) {
+                        expert_add_info(pinfo, control_proc_item, &ei_control_proc_wrong_seq);
+                    }
+                }
+
                 break;
             case 0x05: /* LL_START_ENC_REQ */
                 offset = dissect_ctrl_pdu_without_data(tvb, pinfo, btle_tree, offset);
+                if (!btle_frame_info->retransmit) {
+                    /* The LL_START_ENC_REQ can only be sent from slave to master. */
+                    if (direction == BTLE_DIR_SLAVE_MASTER) {
+                        if (control_proc_can_add_frame(pinfo,
+                                                       last_control_proc[BTLE_DIR_MASTER_SLAVE],
+                                                       0x3, 2)) {
+                            last_control_proc[BTLE_DIR_MASTER_SLAVE]->frames[2] = pinfo->num;
+
+                            sub_item = proto_tree_add_uint(btle_tree, hf_request_in_frame, tvb, 0, 0,
+                                                           last_control_proc[BTLE_DIR_MASTER_SLAVE]->frames[0]);
+                            proto_item_set_generated(sub_item);
+                        } else {
+                            expert_add_info(pinfo, control_proc_item, &ei_control_proc_wrong_seq);
+                        }
+                    } else if (direction == BTLE_DIR_MASTER_SLAVE) {
+                        expert_add_info(pinfo, control_proc_item, &ei_control_proc_wrong_seq);
+                    }
+                }
 
                 break;
 
             case 0x06: /* LL_START_ENC_RSP */
                 offset = dissect_ctrl_pdu_without_data(tvb, pinfo, btle_tree, offset);
+                if (!btle_frame_info->retransmit && direction != BTLE_DIR_UNKNOWN) {
+                    /* This is either frame 4 or 5 of the procedure */
+                    if (direction == BTLE_DIR_MASTER_SLAVE &&
+                        control_proc_can_add_frame(pinfo,
+                                                   last_control_proc[BTLE_DIR_MASTER_SLAVE],
+                                                   0x3, 3)) {
+                        last_control_proc[BTLE_DIR_MASTER_SLAVE]->frames[3] = pinfo->num;
+
+                        sub_item = proto_tree_add_uint(btle_tree, hf_request_in_frame, tvb, 0, 0,
+                                                       last_control_proc[BTLE_DIR_MASTER_SLAVE]->frames[0]);
+                        proto_item_set_generated(sub_item);
+                    } else if (direction == BTLE_DIR_SLAVE_MASTER &&
+                               control_proc_can_add_frame(pinfo,
+                                                          last_control_proc[BTLE_DIR_MASTER_SLAVE],
+                                                          0x3, 4)) {
+                        last_control_proc[BTLE_DIR_MASTER_SLAVE]->frames[4] = pinfo->num;
+                        last_control_proc[BTLE_DIR_MASTER_SLAVE]->last_frame = pinfo->num;
+
+                        sub_item = proto_tree_add_uint(btle_tree, hf_request_in_frame, tvb, 0, 0,
+                                                       last_control_proc[BTLE_DIR_MASTER_SLAVE]->frames[0]);
+                        proto_item_set_generated(sub_item);
+                    } else {
+                        expert_add_info(pinfo, control_proc_item, &ei_control_proc_wrong_seq);
+                    }
+                }
 
                 break;
 
@@ -1989,13 +2300,58 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 proto_tree_add_item(btle_tree, hf_control_unknown_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
                 offset += 1;
 
+                if (!btle_frame_info->retransmit && direction != BTLE_DIR_UNKNOWN) {
+                    /* LL_UNKNOWN_RSP can only be sent as the second frame of a procedure. */
+                    if (last_control_proc[other_direction] &&
+                        control_proc_can_add_frame_even_if_complete(pinfo,
+                                                   last_control_proc[other_direction],
+                                                   last_control_proc[other_direction]->proc_opcode,
+                                                   1)) {
+                        last_control_proc[other_direction]->frames[1] = pinfo->num;
+                        last_control_proc[other_direction]->last_frame = pinfo->num;
+
+                        sub_item = proto_tree_add_uint(btle_tree, hf_request_in_frame, tvb, 0, 0,
+                                                       last_control_proc[other_direction]->frames[0]);
+                        proto_item_set_generated(sub_item);
+                    } else {
+                        expert_add_info(pinfo, control_proc_item, &ei_control_proc_wrong_seq);
+                    }
+                }
+
                 break;
             case 0x08: /* LL_FEATURE_REQ */
                 offset = dissect_feature_set(tvb, btle_tree, offset);
+                if (!btle_frame_info->retransmit) {
+                    /* The LL_FEATURE_REQ can only be sent from master to slave. */
+                    if (direction == BTLE_DIR_MASTER_SLAVE) {
+                        control_proc_start(tvb, pinfo, btle_tree, control_proc_item,
+                                             connection_info->direction_info[direction].control_procs,
+                                             0x08);
+                    } else if (direction == BTLE_DIR_SLAVE_MASTER) {
+                        expert_add_info(pinfo, control_proc_item, &ei_control_proc_wrong_seq);
+                    }
+                }
 
                 break;
             case 0x09: /* LL_FEATURE_RSP */
                 offset = dissect_feature_set(tvb, btle_tree, offset);
+                if (!btle_frame_info->retransmit && direction != BTLE_DIR_UNKNOWN) {
+                    if (control_proc_can_add_frame(pinfo,
+                                                   last_control_proc[other_direction],
+                                                   0x08, 1) ||
+                        control_proc_can_add_frame(pinfo,
+                                                   last_control_proc[other_direction],
+                                                   0x0E, 1)) {
+                        last_control_proc[other_direction]->frames[1] = pinfo->num;
+                        last_control_proc[other_direction]->last_frame = pinfo->num;
+
+                        sub_item = proto_tree_add_uint(btle_tree, hf_request_in_frame, tvb, 0, 0,
+                                                       last_control_proc[other_direction]->frames[0]);
+                        proto_item_set_generated(sub_item);
+                    } else {
+                        expert_add_info(pinfo, control_proc_item, &ei_control_proc_wrong_seq);
+                    }
+                }
 
                 break;
             case 0x0A: /* LL_PAUSE_ENC_REQ */
@@ -2004,9 +2360,45 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                     offset += tvb_reported_length_remaining(tvb, offset) - 3;
                 }
 
+                if (!btle_frame_info->retransmit) {
+                    /* The LL_PAUSE_ENC_REQ can only be sent from master to slave. */
+                    if (direction == BTLE_DIR_MASTER_SLAVE) {
+                        control_proc_start(tvb, pinfo, btle_tree, control_proc_item,
+                                           connection_info->direction_info[BTLE_DIR_MASTER_SLAVE].control_procs,
+                                           0x0A);
+                    } else if (direction == BTLE_DIR_SLAVE_MASTER) {
+                        expert_add_info(pinfo, control_proc_item, &ei_control_proc_wrong_seq);
+                    }
+                }
+
                 break;
             case 0x0B: /* LL_PAUSE_ENC_RSP */
                 offset = dissect_ctrl_pdu_without_data(tvb, pinfo, btle_tree, offset);
+
+                if (!btle_frame_info->retransmit && direction != BTLE_DIR_UNKNOWN) {
+                    if (direction == BTLE_DIR_SLAVE_MASTER &&
+                        control_proc_can_add_frame(pinfo,
+                                                   last_control_proc[BTLE_DIR_MASTER_SLAVE],
+                                                   0x0A, 1)) {
+                        last_control_proc[BTLE_DIR_MASTER_SLAVE]->frames[1] = pinfo->num;
+
+                        sub_item = proto_tree_add_uint(btle_tree, hf_request_in_frame, tvb, 0, 0,
+                                                       last_control_proc[BTLE_DIR_MASTER_SLAVE]->frames[0]);
+                        proto_item_set_generated(sub_item);
+                    } else if (direction == BTLE_DIR_MASTER_SLAVE &&
+                               control_proc_can_add_frame(pinfo,
+                                                          last_control_proc[BTLE_DIR_MASTER_SLAVE],
+                                                          0x0A, 2)) {
+                        last_control_proc[BTLE_DIR_MASTER_SLAVE]->frames[2] = pinfo->num;
+                        last_control_proc[BTLE_DIR_MASTER_SLAVE]->last_frame = pinfo->num;
+
+                        sub_item = proto_tree_add_uint(btle_tree, hf_request_in_frame, tvb, 0, 0,
+                                                       last_control_proc[BTLE_DIR_MASTER_SLAVE]->frames[0]);
+                        proto_item_set_generated(sub_item);
+                    } else {
+                        expert_add_info(pinfo, control_proc_item, &ei_control_proc_wrong_seq);
+                    }
+                }
 
                 break;
             case 0x0C: /* LL_VERSION_IND */
@@ -2019,23 +2411,109 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 proto_tree_add_item(btle_tree, hf_control_subversion_number, tvb, offset, 2, ENC_LITTLE_ENDIAN);
                 offset += 2;
 
+                if (!btle_frame_info->retransmit && direction != BTLE_DIR_UNKNOWN) {
+                    /* The LL_VERSION_IND can be sent as a request or response.
+                     * We first check if it is a response. */
+                    if (control_proc_can_add_frame(pinfo,
+                                                   last_control_proc[other_direction],
+                                                   0x0C, 1)) {
+                        last_control_proc[other_direction]->frames[1] = pinfo->num;
+                        last_control_proc[other_direction]->last_frame = pinfo->num;
+
+                        sub_item = proto_tree_add_uint(btle_tree, hf_request_in_frame, tvb, 0, 0,
+                                                       last_control_proc[other_direction]->frames[0]);
+                        proto_item_set_generated(sub_item);
+                    } else {
+                        control_proc_start(tvb, pinfo, btle_tree, control_proc_item,
+                                           connection_info->direction_info[direction].control_procs,
+                                           0x0C);
+                    }
+                }
+
                 break;
             case 0x0D: /* LL_REJECT_IND */
                 proto_tree_add_item(btle_tree, hf_control_error_code, tvb, offset, 1, ENC_LITTLE_ENDIAN);
                 offset += 1;
 
+                /* LL_REJECT_IND my be sent as:
+                 *  - A response to the LL_ENQ_REQ from the master
+                 *  - After the LL_ENC_RSP from the slave */
+                if (!btle_frame_info->retransmit) {
+                    if (direction == BTLE_DIR_SLAVE_MASTER) {
+                        if (control_proc_can_add_frame(pinfo,
+                                                       last_control_proc[BTLE_DIR_MASTER_SLAVE],
+                                                       0x03, 1)) {
+                            last_control_proc[BTLE_DIR_MASTER_SLAVE]->frames[1] = pinfo->num;
+                            last_control_proc[BTLE_DIR_MASTER_SLAVE]->last_frame = pinfo->num;
+
+                            sub_item = proto_tree_add_uint(btle_tree, hf_request_in_frame, tvb, 0, 0,
+                                                           last_control_proc[BTLE_DIR_MASTER_SLAVE]->frames[0]);
+                            proto_item_set_generated(sub_item);
+                        } else if (control_proc_can_add_frame(pinfo,
+                                                              last_control_proc[BTLE_DIR_MASTER_SLAVE],
+                                                              0x03, 2)) {
+                            last_control_proc[BTLE_DIR_MASTER_SLAVE]->frames[2] = pinfo->num;
+                            last_control_proc[BTLE_DIR_MASTER_SLAVE]->last_frame = pinfo->num;
+
+                            sub_item = proto_tree_add_uint(btle_tree, hf_request_in_frame, tvb, 0, 0,
+                                                           last_control_proc[BTLE_DIR_MASTER_SLAVE]->frames[0]);
+                            proto_item_set_generated(sub_item);
+                        } else {
+                            expert_add_info(pinfo, control_proc_item, &ei_control_proc_wrong_seq);
+                        }
+                    } else if (direction == BTLE_DIR_MASTER_SLAVE) {
+                        expert_add_info(pinfo, control_proc_item, &ei_control_proc_wrong_seq);
+                    }
+                }
+
                 break;
             case 0x0E: /* LL_SLAVE_FEATURE_REQ */
                 offset = dissect_feature_set(tvb, btle_tree, offset);
-
+                if (!btle_frame_info->retransmit) {
+                    /* The LL_SLAVE_FEATURE_REQ can only be sent from slave to master. */
+                    if (direction == BTLE_DIR_SLAVE_MASTER) {
+                        control_proc_start(tvb, pinfo, btle_tree, control_proc_item,
+                                           connection_info->direction_info[direction].control_procs,
+                                           0x0E);
+                    } else if (direction == BTLE_DIR_MASTER_SLAVE) {
+                        expert_add_info(pinfo, control_proc_item, &ei_control_proc_wrong_seq);
+                    }
+                }
                 break;
 
             case 0x0F: /* LL_CONNECTION_PARAM_REQ */
                 offset = dissect_conn_param_req_rsp(tvb, btle_tree, offset);
+                if (!btle_frame_info->retransmit) {
+                    if (direction != BTLE_DIR_UNKNOWN) {
+                        control_proc_start(tvb, pinfo, btle_tree, control_proc_item,
+                                           connection_info->direction_info[direction].control_procs,
+                                           0x0F);
+                    }
+                }
 
                 break;
             case 0x10: /* LL_CONNECTION_PARAM_RSP */
                 offset = dissect_conn_param_req_rsp(tvb, btle_tree, offset);
+
+                if (!btle_frame_info->retransmit) {
+                    /* The LL_CONNECTION_PARAM_RSP can only be sent from slave to master
+                     * as a response to a master initiated procedure */
+                    if (direction == BTLE_DIR_SLAVE_MASTER) {
+                        if (control_proc_can_add_frame(pinfo,
+                                                       last_control_proc[BTLE_DIR_MASTER_SLAVE],
+                                                       0x0F, 1)) {
+                            last_control_proc[BTLE_DIR_MASTER_SLAVE]->frames[1] = pinfo->num;
+
+                            sub_item = proto_tree_add_uint(btle_tree, hf_request_in_frame, tvb, 0, 0,
+                                                           last_control_proc[BTLE_DIR_MASTER_SLAVE]->frames[0]);
+                            proto_item_set_generated(sub_item);
+                        } else {
+                            expert_add_info(pinfo, control_proc_item, &ei_control_proc_wrong_seq);
+                        }
+                    } else if (direction == BTLE_DIR_MASTER_SLAVE) {
+                        expert_add_info(pinfo, control_proc_item, &ei_control_proc_wrong_seq);
+                    }
+                }
 
                 break;
             case 0x11: /* LL_REJECT_EXT_IND */
@@ -2045,30 +2523,137 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 proto_tree_add_item(btle_tree, hf_control_error_code, tvb, offset, 1, ENC_LITTLE_ENDIAN);
                 offset += 1;
 
+                /* LL_REJECT_EXT_IND my be sent as:
+                 *  - A response to the LL_ENQ_REQ from the master
+                 *  - After the LL_ENC_RSP from the slave
+                 *  - As a response to LL_CONNECTION_PARAM_REQ
+                 *  - As a response to LL_CONNECTION_PARAM_RSP
+                 *  - As a response during the phy update procedure.
+                 */
+                if (!btle_frame_info->retransmit && direction != BTLE_DIR_UNKNOWN) {
+                    if (direction == BTLE_DIR_SLAVE_MASTER &&
+                        control_proc_can_add_frame(pinfo,
+                                                   last_control_proc[BTLE_DIR_MASTER_SLAVE],
+                                                   0x03, 1)) {
+                        last_control_proc[BTLE_DIR_MASTER_SLAVE]->frames[1] = pinfo->num;
+                        last_control_proc[BTLE_DIR_MASTER_SLAVE]->last_frame = pinfo->num;
+
+                        sub_item = proto_tree_add_uint(btle_tree, hf_request_in_frame, tvb, 0, 0,
+                                                       last_control_proc[BTLE_DIR_MASTER_SLAVE]->frames[0]);
+                        proto_item_set_generated(sub_item);
+                    } else if (direction == BTLE_DIR_SLAVE_MASTER &&
+                               control_proc_can_add_frame(pinfo,
+                                                          last_control_proc[BTLE_DIR_MASTER_SLAVE],
+                                                          0x03, 2)) {
+                        last_control_proc[BTLE_DIR_MASTER_SLAVE]->frames[2] = pinfo->num;
+                        last_control_proc[BTLE_DIR_MASTER_SLAVE]->last_frame = pinfo->num;
+
+                        sub_item = proto_tree_add_uint(btle_tree, hf_request_in_frame, tvb, 0, 0,
+                                                       last_control_proc[BTLE_DIR_MASTER_SLAVE]->frames[0]);
+                        proto_item_set_generated(sub_item);
+
+                    } else if (control_proc_can_add_frame(pinfo,
+                                                          last_control_proc[other_direction],
+                                                          0x0F, 1)) {
+                        last_control_proc[other_direction]->frames[1] = pinfo->num;
+                        last_control_proc[other_direction]->last_frame = pinfo->num;
+
+                        sub_item = proto_tree_add_uint(btle_tree, hf_request_in_frame, tvb, 0, 0,
+                                                       last_control_proc[other_direction]->frames[0]);
+                        proto_item_set_generated(sub_item);
+                    } else if (control_proc_can_add_frame(pinfo,
+                                                          last_control_proc[other_direction],
+                                                          0x16, 1)) {
+                        last_control_proc[other_direction]->frames[1] = pinfo->num;
+                        last_control_proc[other_direction]->last_frame = pinfo->num;
+
+                        sub_item = proto_tree_add_uint(btle_tree, hf_request_in_frame, tvb, 0, 0,
+                                                       last_control_proc[other_direction]->frames[0]);
+                        proto_item_set_generated(sub_item);
+                    } else {
+                        expert_add_info(pinfo, control_proc_item, &ei_control_proc_wrong_seq);
+                    }
+                }
+
                 break;
             case 0x12: /* LL_PING_REQ */
                 offset = dissect_ctrl_pdu_without_data(tvb, pinfo, btle_tree, offset);
-
+                if (!btle_frame_info->retransmit && direction != BTLE_DIR_UNKNOWN)
+                    control_proc_start(tvb, pinfo, btle_tree, control_proc_item,
+                                       connection_info->direction_info[direction].control_procs,
+                                       0x12);
                 break;
             case 0x13: /* LL_PING_RSP */
                 offset = dissect_ctrl_pdu_without_data(tvb, pinfo, btle_tree, offset);
+                if (!btle_frame_info->retransmit && direction != BTLE_DIR_UNKNOWN) {
+                    if (control_proc_can_add_frame(pinfo,
+                                                   last_control_proc[other_direction],
+                                                   0x12, 1)) {
+                        last_control_proc[other_direction]->frames[1] = pinfo->num;
+                        last_control_proc[other_direction]->last_frame = pinfo->num;
 
+                        sub_item = proto_tree_add_uint(btle_tree, hf_request_in_frame, tvb, 0, 0,
+                                                       last_control_proc[other_direction]->frames[0]);
+                        proto_item_set_generated(sub_item);
+                    } else {
+                        expert_add_info(pinfo, control_proc_item, &ei_control_proc_wrong_seq);
+                    }
+                }
                 break;
 
             case 0x14: /* LL_LENGTH_REQ */
                 dissect_length_req_rsp(tvb, btle_tree, offset);
+                if (!btle_frame_info->retransmit && direction != BTLE_DIR_UNKNOWN)
+                    control_proc_start(tvb, pinfo, btle_tree, control_proc_item,
+                                       connection_info->direction_info[direction].control_procs,
+                                       0x14);
 
                 break;
             case 0x15: /* LL_LENGTH_RSP */
                 dissect_length_req_rsp(tvb, btle_tree, offset);
+                if (!btle_frame_info->retransmit && direction != BTLE_DIR_UNKNOWN) {
+                    if (control_proc_can_add_frame(pinfo,
+                                                   last_control_proc[other_direction],
+                                                   0x14, 1)) {
+                        last_control_proc[other_direction]->frames[1] = pinfo->num;
+                        last_control_proc[other_direction]->last_frame = pinfo->num;
 
+                        sub_item = proto_tree_add_uint(btle_tree, hf_request_in_frame, tvb, 0, 0,
+                                                       last_control_proc[other_direction]->frames[0]);
+                        proto_item_set_generated(sub_item);
+                    } else {
+                        expert_add_info(pinfo, control_proc_item, &ei_control_proc_wrong_seq);
+                    }
+                }
                 break;
             case 0x16: /* LL_PHY_REQ */
                 dissect_phy_req_rsp(tvb, btle_tree, offset);
+                if (!btle_frame_info->retransmit && direction != BTLE_DIR_UNKNOWN)
+                    control_proc_start(tvb, pinfo, btle_tree, control_proc_item,
+                                       connection_info->direction_info[direction].control_procs,
+                                       0x16);
 
                 break;
             case 0x17: /* LL_PHY_RSP */
                 dissect_phy_req_rsp(tvb, btle_tree, offset);
+                if (!btle_frame_info->retransmit) {
+                    /* The LL_PHY_RSP can only be sent from slave to master. */
+                    if (direction == BTLE_DIR_SLAVE_MASTER) {
+                        if (control_proc_can_add_frame(pinfo,
+                                                       last_control_proc[BTLE_DIR_MASTER_SLAVE],
+                                                       0x16, 1)) {
+                            last_control_proc[BTLE_DIR_MASTER_SLAVE]->frames[1] = pinfo->num;
+
+                            sub_item = proto_tree_add_uint(btle_tree, hf_request_in_frame, tvb, 0, 0,
+                                                           last_control_proc[BTLE_DIR_MASTER_SLAVE]->frames[0]);
+                            proto_item_set_generated(sub_item);
+                        } else {
+                            expert_add_info(pinfo, control_proc_item, &ei_control_proc_wrong_seq);
+                        }
+                    } else if (direction == BTLE_DIR_MASTER_SLAVE) {
+                        expert_add_info(pinfo, control_proc_item, &ei_control_proc_wrong_seq);
+                    }
+                }
 
                 break;
             case 0x18: /* LL_PHY_UPDATE_IND */
@@ -2081,6 +2666,37 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 proto_tree_add_item(btle_tree, hf_control_instant, tvb, offset, 2, ENC_LITTLE_ENDIAN);
                 offset += 2;
 
+                if (!btle_frame_info->retransmit) {
+                    /* The LL_PHY_UPDATE_IND can only be sent from master to slave. */
+                    if (direction == BTLE_DIR_MASTER_SLAVE) {
+                        if (control_proc_can_add_frame(pinfo,
+                                                       last_control_proc[BTLE_DIR_MASTER_SLAVE],
+                                                       0x16, 2)) {
+
+                            last_control_proc[BTLE_DIR_MASTER_SLAVE]->frames[2] = pinfo->num;
+                            last_control_proc[BTLE_DIR_MASTER_SLAVE]->last_frame = pinfo->num;
+
+
+                            sub_item = proto_tree_add_uint(btle_tree, hf_request_in_frame, tvb, 0, 0,
+                                                       last_control_proc[BTLE_DIR_MASTER_SLAVE]->frames[0]);
+                            proto_item_set_generated(sub_item);
+                        } else if (control_proc_can_add_frame(pinfo,
+                                                              last_control_proc[BTLE_DIR_SLAVE_MASTER],
+                                                              0x16, 1)){
+                            last_control_proc[BTLE_DIR_SLAVE_MASTER]->frames[1] = pinfo->num;
+                            last_control_proc[BTLE_DIR_SLAVE_MASTER]->last_frame = pinfo->num;
+
+                            sub_item = proto_tree_add_uint(btle_tree, hf_request_in_frame, tvb, 0, 0,
+                                                           last_control_proc[BTLE_DIR_SLAVE_MASTER]->frames[0]);
+                            proto_item_set_generated(sub_item);
+                        } else {
+                            expert_add_info(pinfo, control_proc_item, &ei_control_proc_wrong_seq);
+                        }
+                    } else if (direction == BTLE_DIR_SLAVE_MASTER) {
+                        expert_add_info(pinfo, control_proc_item, &ei_control_proc_wrong_seq);
+                    }
+                }
+
                 break;
             case 0x19: /* LL_MIN_USED_CHANNELS_IND */
                 proto_tree_add_bitmask(btle_tree, tvb, offset, hf_control_phys, ett_phys, hfx_control_phys, ENC_NA);
@@ -2089,6 +2705,22 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 proto_tree_add_item(btle_tree, hf_control_min_used_channels, tvb, offset, 1, ENC_LITTLE_ENDIAN);
                 offset += 1;
 
+                if (!btle_frame_info->retransmit) {
+                    /* The LL_MIN_USED_CHANNELS_IND can only be sent from slave to master. */
+                    if (direction == BTLE_DIR_SLAVE_MASTER) {
+
+                        control_proc_info_t *proc_info;
+                        proc_info = control_proc_start(tvb, pinfo, btle_tree, control_proc_item,
+                                                       connection_info->direction_info[direction].control_procs,
+                                                       0x19);
+
+                        /* Procedure completes in the same frame. */
+                        if (proc_info)
+                            proc_info->last_frame = pinfo->num;
+                    } else if (direction == BTLE_DIR_MASTER_SLAVE) {
+                        expert_add_info(pinfo, control_proc_item, &ei_control_proc_wrong_seq);
+                    }
+                }
                 break;
             default:
                 offset = dissect_ctrl_pdu_without_data(tvb, pinfo, btle_tree, offset);
@@ -3032,6 +3664,16 @@ proto_register_btle(void)
             FT_UINT32, BASE_DEC, NULL, 0x00,
             NULL, HFILL }
         },
+        { &hf_request_in_frame,
+        {"Request in Frame", "btle.request_in_frame",
+            FT_FRAMENUM, BASE_NONE, FRAMENUM_TYPE(FT_FRAMENUM_REQUEST), 0x0,
+            NULL, HFILL}
+        },
+        { &hf_response_in_frame,
+        {"Response in Frame", "btle.response_in_frame",
+            FT_FRAMENUM, BASE_NONE, FRAMENUM_TYPE(FT_FRAMENUM_RESPONSE), 0x0,
+            NULL, HFILL}
+        },
     };
 
     static ei_register_info ei[] = {
@@ -3043,6 +3685,10 @@ proto_register_btle(void)
             { "btle.access_address.bit_errors", PI_PROTOCOL, PI_WARN,  "AccessAddress has errors present at capture", EXPFILL }},
         { &ei_access_address_illegal,
             { "btle.access_address.illegal",    PI_PROTOCOL, PI_ERROR, "AccessAddress has illegal value", EXPFILL }},
+        { &ei_control_proc_overlapping,
+            { "btle.control_proc_overlapping",  PI_PROTOCOL, PI_ERROR, "Initiating a new control procedure before the previous was complete", EXPFILL }},
+        { &ei_control_proc_wrong_seq,
+            { "btle.control_proc_unknown_seq",  PI_PROTOCOL, PI_ERROR, "Incorrect control procedure packet sequencing or direction", EXPFILL }},
         { &ei_crc_cannot_be_determined,
             { "btle.crc.indeterminate",         PI_CHECKSUM, PI_NOTE,  "CRC unchecked, not all data available", EXPFILL }},
         { &ei_crc_incorrect,
