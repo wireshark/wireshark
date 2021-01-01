@@ -56,6 +56,7 @@ enum SpecialFieldType {
     TPNCP_SECURITY_OFFSET,
     RTP_STATE_START,
     RTP_STATE_OFFSET,
+    RTP_STATE_END,
     TPNCP_CHANNEL_CONFIGURATION
 };
 
@@ -69,6 +70,7 @@ typedef struct tpncp_data_field_info
     enum SpecialFieldType special_type;
     guchar size;
     guchar sign;
+    gint   since;
     struct tpncp_data_field_info *p_next;
 } tpncp_data_field_info;
 
@@ -132,7 +134,7 @@ enum AddressFamily {
 
 static void
 dissect_tpncp_data(guint data_id, packet_info *pinfo, tvbuff_t *tvb, proto_tree *ltree,
-                   gint *offset, tpncp_data_field_info *data_fields_info, guint encoding)
+                   gint *offset, tpncp_data_field_info *data_fields_info, gint ver, guint encoding)
 {
     gint8 g_char;
     guint8 g_uchar;
@@ -141,10 +143,12 @@ dissect_tpncp_data(guint data_id, packet_info *pinfo, tvbuff_t *tvb, proto_tree 
     gint bitindex = encoding == ENC_LITTLE_ENDIAN ? 7 : 0;
     enum AddressFamily address_family = TPNCP_IPV4;
     gint open_channel_start = -1, security_offset = 0, rtp_state_offset = 0;
-    gint channel_b_offset = 0;
+    gint channel_b_offset = 0, rtp_tx_state_offset = 0, rtp_state_size = 0;
     const gint initial_offset = *offset;
 
     for (field = &data_fields_info[data_id]; field; field = field->p_next) {
+        if (field->since > 0 && field->since > ver)
+            continue;
         switch (field->special_type) {
         case TPNCP_OPEN_CHANNEL_START:
             open_channel_start = *offset;
@@ -156,8 +160,7 @@ dissect_tpncp_data(guint data_id, packet_info *pinfo, tvbuff_t *tvb, proto_tree 
             break;
         }
         case TPNCP_SECURITY_START:
-            if (*offset < security_offset)
-                *offset = security_offset;
+            *offset = security_offset;
             open_channel_start = -1;
             security_offset = 0;
             break;
@@ -167,17 +170,25 @@ dissect_tpncp_data(guint data_id, packet_info *pinfo, tvbuff_t *tvb, proto_tree 
                 rtp_state_offset += initial_offset + 4; /* The offset starts after CID */
             break;
         case RTP_STATE_START:
-            if (*offset < rtp_state_offset)
-                *offset = rtp_state_offset;
+            *offset = rtp_state_offset;
             rtp_state_offset = 0;
+            if (rtp_tx_state_offset == 0) {
+                rtp_state_size = (tvb_reported_length_remaining(tvb, *offset) - 4) / 2;
+                rtp_tx_state_offset = *offset + rtp_state_size;
+            } else {
+                *offset = rtp_tx_state_offset;
+                rtp_tx_state_offset += rtp_state_size;
+            }
+            break;
+        case RTP_STATE_END:
+            rtp_tx_state_offset = 0;
             break;
         case TPNCP_CHANNEL_CONFIGURATION:
             if (channel_b_offset == 0) {
                 gint channel_configuration_size = tvb_reported_length_remaining(tvb, *offset) / 2;
                 channel_b_offset = *offset + channel_configuration_size;
             } else {
-                if (*offset < channel_b_offset)
-                    *offset = channel_b_offset;
+                *offset = channel_b_offset;
                 channel_b_offset = 0;
             }
             break;
@@ -185,14 +196,12 @@ dissect_tpncp_data(guint data_id, packet_info *pinfo, tvbuff_t *tvb, proto_tree 
             address_family = (enum AddressFamily)tvb_get_guint32(tvb, *offset, encoding);
             // fall-through
         default:
-            if (open_channel_start != -1 && security_offset > 0) {
-                if (*offset >= security_offset)
-                    continue;
-            }
-            if (rtp_state_offset > 0) {
-                if (*offset >= rtp_state_offset)
-                    continue;
-            }
+            if (open_channel_start != -1 && security_offset > 0 && *offset >= security_offset)
+                continue;
+            if (rtp_state_offset > 0 && *offset >= rtp_state_offset)
+                continue;
+            if (rtp_tx_state_offset > 0 && *offset >= rtp_tx_state_offset)
+                continue;
             if (channel_b_offset > 0 && *offset >= channel_b_offset)
                 continue;
             break;
@@ -301,35 +310,32 @@ dissect_tpncp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
             proto_tree_add_uint(tpncp_tree, hf_tpncp_event_id, tvb, 8, 4, id);
             proto_tree_add_int(tpncp_tree, hf_tpncp_cid, tvb, 12, 4, cid);
             offset += 16;
-            if (tpncp_events_info_db[id].size) {
+            if (tpncp_events_info_db[id].size && tvb_reported_length_remaining(tvb, offset) > 0) {
                 event_tree = proto_tree_add_subtree_format(
                     tree, tvb, offset, -1, ett_tpncp_body, NULL,
                     "TPNCP Event: %s (%d)",
                     val_to_str_const(id, tpncp_events_id_vals, "Unknown"), id);
                 dissect_tpncp_data(id, pinfo, tvb, event_tree, &offset, tpncp_events_info_db,
-                                   encoding);
+                                   ver, encoding);
             }
         }
-    } else  if (try_val_to_str(id, tpncp_commands_id_vals)) {
-        proto_tree_add_uint(tpncp_tree, hf_tpncp_command_id, tvb, 8, 4, id);
-        offset += 12;
-        if (tpncp_commands_info_db[id].size) {
-            command_tree = proto_tree_add_subtree_format(
-                tree, tvb, offset, -1, ett_tpncp_body, NULL,
-                "TPNCP Command: %s (%d)",
-                val_to_str_const(id, tpncp_commands_id_vals, "Unknown"), id);
-            dissect_tpncp_data(id, pinfo, tvb, command_tree, &offset, tpncp_commands_info_db,
-                               encoding);
-        }
-    }
-
-    if (pinfo->srcport == UDP_PORT_TPNCP_TRUNKPACK ||
-        pinfo->srcport == HA_PORT_TPNCP_TRUNKPACK) {
         col_add_fstr(pinfo->cinfo, COL_INFO,
                      "EvID=%s(%d), SeqNo=%d, CID=%d, Len=%d, Ver=%d",
                      val_to_str_const(id, tpncp_events_id_vals, "Unknown"),
                      id, seq_number, cid, fullLength, ver);
     } else {
+        if (try_val_to_str(id, tpncp_commands_id_vals)) {
+            proto_tree_add_uint(tpncp_tree, hf_tpncp_command_id, tvb, 8, 4, id);
+            offset += 12;
+            if (tpncp_commands_info_db[id].size && tvb_reported_length_remaining(tvb, offset) > 0) {
+                command_tree = proto_tree_add_subtree_format(
+                    tree, tvb, offset, -1, ett_tpncp_body, NULL,
+                    "TPNCP Command: %s (%d)",
+                    val_to_str_const(id, tpncp_commands_id_vals, "Unknown"), id);
+                dissect_tpncp_data(id, pinfo, tvb, command_tree, &offset, tpncp_commands_info_db,
+                                   ver, encoding);
+            }
+        }
         col_add_fstr(pinfo->cinfo, COL_INFO,
                      "CmdID=%s(%d), SeqNo=%d, CID=%d, Len=%d, Ver=%d",
                      val_to_str_const(id, tpncp_commands_id_vals, "Unknown"),
@@ -565,7 +571,7 @@ init_tpncp_data_fields_info(tpncp_data_field_info *data_fields_info, FILE *file)
     guchar size;
     enum SpecialFieldType special_type;
     gboolean sign, is_address_family;
-    guint idx;
+    guint idx, since, ip_addr_field;
     tpncp_data_field_info *field = NULL;
     hf_register_info hf_entr;
     gboolean* registered_struct_ids = wmem_alloc0_array(wmem_epan_scope(), gboolean, MAX_TPNCP_DB_SIZE);
@@ -694,10 +700,12 @@ init_tpncp_data_fields_info(tpncp_data_field_info *data_fields_info, FILE *file)
         hf_size++;
 
     is_address_family = FALSE;
+    ip_addr_field = 0;
 
     /* Register standard data. */
     while (fgetline(tpncp_db_entry, MAX_TPNCP_DB_ENTRY_LEN, file)) {
         special_type = TPNCP_NORMAL;
+        since = 0;
         g_snprintf(entry_copy, MAX_TPNCP_DB_ENTRY_LEN, "%s", tpncp_db_entry);
         if (!strncmp(tpncp_db_entry, "#####", 5)) {
             hf_size--;
@@ -738,12 +746,20 @@ init_tpncp_data_fields_info(tpncp_data_field_info *data_fields_info, FILE *file)
             special_type = TPNCP_SECURITY_START;
         else if (name[0] == 's' && !strcmp(name, "security_cmd_offset"))
             special_type = TPNCP_SECURITY_OFFSET;
-        else if (name[0] == 's' && !strcmp(name, "ssrc"))
+        else if (data_id != 1611 && name[0] == 's' && !strcmp(name, "ssrc"))
+            special_type = RTP_STATE_START;
+        else if (name[0] == 'r' && !strcmp(name, "rtp_tx_state_ssrc"))
             special_type = RTP_STATE_START;
         else if (name[0] == 'r' && !strcmp(name, "rtp_state_offset"))
             special_type = RTP_STATE_OFFSET;
+        else if (name[0] == 's' && !strcmp(name, "state_update_time_stamp"))
+            special_type = RTP_STATE_END;
         else if (data_id == 1611 && name[0] == 'c' && strstr(name, "configuration_type_updated"))
             special_type = TPNCP_CHANNEL_CONFIGURATION;
+        else if ((data_id == 4 && strstr(name, "secondary_rtp_seq_num")) ||
+                 (data_id == 1611 && strstr(name, "dtls_remote_fingerprint_alg"))) {
+            since = 7401;
+        }
         sign = !!((gboolean) g_ascii_strtoll(tmp, NULL, 10));
         if ((tmp = strtok(NULL, " ")) == NULL) {
             report_failure(
@@ -774,10 +790,11 @@ init_tpncp_data_fields_info(tpncp_data_field_info *data_fields_info, FILE *file)
             continue;
         }
 
-        if (special_type == TPNCP_IP_ADDR) {
+        if (ip_addr_field > 0) {
             // ip address that comes after address family has 4 fields: ip_addr_0, ip_addr_1, 2 and 3
             // On these cases, ignore 1, 2 and 3 and enlarge the field size of 0 to 128
             char *seq = (char*)name + strlen(name) - 2;
+            --ip_addr_field;
             if (seq > name && *seq == '_') {
                 if (seq[1] >= '1' && seq[1] <= '3')
                     continue;
@@ -785,6 +802,10 @@ init_tpncp_data_fields_info(tpncp_data_field_info *data_fields_info, FILE *file)
                 if (is_address_family) {
                     *seq = 0;
                     size = 128;
+                    special_type = TPNCP_IP_ADDR;
+                } else {
+                    report_warning("Bad address form. Field name: %s", name);
+                    ip_addr_field = 0;
                 }
             }
         }
@@ -815,8 +836,10 @@ init_tpncp_data_fields_info(tpncp_data_field_info *data_fields_info, FILE *file)
                 hf_entr.hfinfo.strings = NULL;
             } else {
                 hf_entr.hfinfo.strings = VALS(tpncp_enums_id_vals[enum_val]);
-                if (!strcmp(tmp, "AddressFamily"))
+                if (!strcmp(tmp, "AddressFamily")) {
                     is_address_family = TRUE;
+                    ip_addr_field = 4;
+                }
             }
         } else {
             hf_entr.hfinfo.strings = NULL;
@@ -869,6 +892,7 @@ init_tpncp_data_fields_info(tpncp_data_field_info *data_fields_info, FILE *file)
         field->size = size;
         field->array_dim = array_dim;
         field->special_type = is_address_family ? TPNCP_ADDRESS_FAMILY : special_type;
+        field->since = since;
     }
 
     return 0;

@@ -1,4 +1,4 @@
-Audiocodes TrunkPack Network Control Protocol (TPNCP) Version L7.40.012.001
+Audiocodes TrunkPack Network Control Protocol (TPNCP) Version L7.40.016.001
 acEV_NONE 0
 acEV_ERROR 1
 acEV_DIGIT 2
@@ -510,10 +510,11 @@ acEV_MPE_NETWORK_GROUP_INFO 676
 acEV_GAUGE_PM 677
 acEV_HTTP_STREAMING_PLAY_ENDED 678
 acEV_HTTP_STREAMING_RECORD_ENDED 679
-acEV_MPE_DEVICE_INFO 680
-acEV_DTLS_FAILED 681
-acEV_DTLS_SRTP_SUITES 682
-acEV_MPC_DTLS_PACKAGE 683
+acEV_DTLS_FAILED 680
+acEV_DTLS_SRTP_SUITES 681
+acEV_MPC_DTLS_PACKAGE 682
+acEV_MPE_DEVICE_INFO 683
+acEV_SECURITY_LOG 684
 acEV_IP_ADDRESS_CHANGED 1202
 acEV_SMDI_MWI_NEGATIVE 1204
 acEV_VOICE_MENU_START 1206
@@ -567,6 +568,9 @@ acEV_MPC_MPE_NAME_CHANGED 1621
 acEV_AUPD_FILE 1622
 acEV_MPC_MPE_TRANSCODING_OVERLOAD 1623
 acEV_HTTP_STREAMING_BACK_TO_NORMAL 1624
+acEV_FAULTY_DSP_DURING_BOOT 1625
+acEV_FAULTY_DSP 1626
+acEV_SUCCESSFUL_DSPS_BOOT 1627
 acEV_CLOUD_PUBLIC_IP_CHANGED 1700
 acEV_TLS_CONTEXT_CHANGED 1800
 #####
@@ -993,7 +997,7 @@ acCMD_MTC_HA_INTEGRITY_CHECK_COMMAND 1605
 acCMD_MTC_DR_SET_STATE 1606
 acCMD_MTC_DR_SET_DEFAULT_IP_TARGET 1607
 acCMD_MTC_DR_ADD_REMOVE_SYSTEM_TRACE_RULE 1608
-acCMD_MTC_DR_SET_CID_SESSION_ID_IP_TRACE_DATA 1609
+acCMD_MTC_DR_SET_CID_SESSION_ID_TRACE_DATA 1609
 acCMD_MTC_UPLOAD_FILE 1610
 acCMD_OPEN_OR_UPDATE_SBC_SESSION 1611
 acCMD_CLOSE_OR_DISCONNECT_SBC_SESSION 1612
@@ -3824,6 +3828,7 @@ FirmwareModule HA_MODULE_BOUNDARY 29
 65 hour 0 32 0 0 primitive
 65 minute 0 32 0 0 primitive
 65 second 0 32 0 0 primitive
+65 slot_map_format 1 8 0 0 primitive
 66 call_handle 0 32 0 0 primitive
 66 trunk_id 0 32 0 0 primitive
 66 conn_id 0 32 0 0 primitive
@@ -3868,7 +3873,8 @@ FirmwareModule HA_MODULE_BOUNDARY 29
 66 mlpp_domain_2 1 8 0 0 primitive
 66 mlpp_domain_3 1 8 0 0 primitive
 66 mlpp_domain_4 1 8 0 0 primitive
-66 align 0 8 3 0 primitive
+66 slot_map_format 1 8 0 0 primitive
+66 align 0 8 2 0 primitive
 66 isdn_progress_ind_description 0 32 0 0 ISDNProgressIndDescription
 66 isdn_progress_ind_location 0 32 0 0 ISDNProgressIndLocation
 66 emergency_call_coding_standard 0 32 0 0 EmergencyCallCodingStandard
@@ -3949,6 +3955,7 @@ FirmwareModule HA_MODULE_BOUNDARY 29
 69 isdn_progress_ind_location_1 0 32 0 0 ISDNProgressIndLocation
 69 isdn_progress_ind_description_2 0 32 0 0 ISDNProgressIndDescription
 69 isdn_progress_ind_location_2 0 32 0 0 ISDNProgressIndLocation
+69 slot_map_format 1 8 0 0 primitive
 72 call_handle 0 32 0 0 primitive
 72 trunk_id 0 32 0 0 primitive
 72 conn_id 0 32 0 0 primitive
@@ -3983,6 +3990,7 @@ FirmwareModule HA_MODULE_BOUNDARY 29
 73 isdn_progress_ind_location_1 0 32 0 0 ISDNProgressIndLocation
 73 isdn_progress_ind_description_2 0 32 0 0 ISDNProgressIndDescription
 73 isdn_progress_ind_location_2 0 32 0 0 ISDNProgressIndLocation
+73 slot_map_format 1 8 0 0 primitive
 74 trunk_id 0 32 0 0 primitive
 74 comment 0 32 0 0 primitive
 74 los 0 32 0 0 primitive
@@ -10964,6 +10972,7 @@ FirmwareModule HA_MODULE_BOUNDARY 29
 84 isdn_progress_ind_location_1 0 32 0 0 ISDNProgressIndLocation
 84 isdn_progress_ind_description_2 0 32 0 0 ISDNProgressIndDescription
 84 isdn_progress_ind_location_2 0 32 0 0 ISDNProgressIndLocation
+84 slot_map_format 1 8 0 0 primitive
 56 pattern_index 0 32 0 0 primitive
 56 time_sec 0 32 0 0 primitive
 56 time_milli_sec 0 16 0 0 primitive
@@ -12951,13 +12960,6 @@ FirmwareModule HA_MODULE_BOUNDARY 29
 1607 dest_udp_port 1 16 0 0 primitive
 1608 remove_or_add 1 32 0 0 primitive
 1608 packet_type 0 32 0 0 primitive
-1609 cid 0 32 0 0 primitive
-1609 ip_packet_type 1 8 0 0 primitive
-1609 send_to_syslog 1 8 0 0 primitive
-1609 reset_counter 1 8 0 0 primitive
-1609 not_in_use 1 8 0 0 primitive
-1609 session_id_high 1 32 0 0 primitive
-1609 session_id_low 1 32 0 0 primitive
 112 channel_id 0 32 0 0 primitive
 112 dns_resolved 0 32 0 0 primitive
 112 url 0 8 257 0 primitive
@@ -13983,7 +13985,7 @@ FirmwareModule HA_MODULE_BOUNDARY 29
 4 ssrtp_esn_0 1 16 0 0 primitive
 4 ssrtp_esn_1 1 16 0 0 primitive
 4 ssrtp_esn_2 1 16 0 0 primitive
-4 l_intercept_rtp_seq_num 1 16 0 0 primitive
+4 secondary_rtp_seq_num 1 16 0 0 primitive
 4 rtp_tx_state_ssrc 1 32 0 0 primitive
 4 rtp_tx_state_srtp_rtcp_index 1 32 0 0 primitive
 4 rtp_tx_state_srtp_roc 1 32 0 0 primitive
@@ -13992,7 +13994,7 @@ FirmwareModule HA_MODULE_BOUNDARY 29
 4 rtp_tx_state_ssrtp_esn_0 1 16 0 0 primitive
 4 rtp_tx_state_ssrtp_esn_1 1 16 0 0 primitive
 4 rtp_tx_state_ssrtp_esn_2 1 16 0 0 primitive
-4 rtp_tx_state_l_intercept_rtp_seq_num 1 16 0 0 primitive
+4 rtp_tx_state_secondary_rtp_seq_num 1 16 0 0 primitive
 4 state_update_time_stamp 1 32 0 0 primitive
 610 channel_id 0 32 0 0 primitive
 610 address_family 0 32 0 0 AddressFamily
@@ -14068,7 +14070,7 @@ FirmwareModule HA_MODULE_BOUNDARY 29
 610 ssrtp_esn_0 1 16 0 0 primitive
 610 ssrtp_esn_1 1 16 0 0 primitive
 610 ssrtp_esn_2 1 16 0 0 primitive
-610 l_intercept_rtp_seq_num 1 16 0 0 primitive
+610 secondary_rtp_seq_num 1 16 0 0 primitive
 610 rtp_tx_state_ssrc 1 32 0 0 primitive
 610 rtp_tx_state_srtp_rtcp_index 1 32 0 0 primitive
 610 rtp_tx_state_srtp_roc 1 32 0 0 primitive
@@ -14077,7 +14079,7 @@ FirmwareModule HA_MODULE_BOUNDARY 29
 610 rtp_tx_state_ssrtp_esn_0 1 16 0 0 primitive
 610 rtp_tx_state_ssrtp_esn_1 1 16 0 0 primitive
 610 rtp_tx_state_ssrtp_esn_2 1 16 0 0 primitive
-610 rtp_tx_state_l_intercept_rtp_seq_num 1 16 0 0 primitive
+610 rtp_tx_state_secondary_rtp_seq_num 1 16 0 0 primitive
 610 state_update_time_stamp 1 32 0 0 primitive
 611 channel_id 0 32 0 0 primitive
 611 address_family 0 32 0 0 AddressFamily
@@ -14153,7 +14155,7 @@ FirmwareModule HA_MODULE_BOUNDARY 29
 611 ssrtp_esn_0 1 16 0 0 primitive
 611 ssrtp_esn_1 1 16 0 0 primitive
 611 ssrtp_esn_2 1 16 0 0 primitive
-611 l_intercept_rtp_seq_num 1 16 0 0 primitive
+611 secondary_rtp_seq_num 1 16 0 0 primitive
 611 rtp_tx_state_ssrc 1 32 0 0 primitive
 611 rtp_tx_state_srtp_rtcp_index 1 32 0 0 primitive
 611 rtp_tx_state_srtp_roc 1 32 0 0 primitive
@@ -14162,7 +14164,7 @@ FirmwareModule HA_MODULE_BOUNDARY 29
 611 rtp_tx_state_ssrtp_esn_0 1 16 0 0 primitive
 611 rtp_tx_state_ssrtp_esn_1 1 16 0 0 primitive
 611 rtp_tx_state_ssrtp_esn_2 1 16 0 0 primitive
-611 rtp_tx_state_l_intercept_rtp_seq_num 1 16 0 0 primitive
+611 rtp_tx_state_secondary_rtp_seq_num 1 16 0 0 primitive
 611 state_update_time_stamp 1 32 0 0 primitive
 35 channel_id 0 32 0 0 primitive
 35 de_activation_option 1 32 0 0 primitive
@@ -14195,6 +14197,7 @@ FirmwareModule HA_MODULE_BOUNDARY 29
 34 reserved2 0 32 0 0 primitive
 34 remote_t38_port 1 16 0 0 primitive
 34 ip_tos_field_in_udp_packet 1 8 0 0 primitive
+34 alignment1 1 8 0 0 primitive
 34 address_family 0 32 0 0 AddressFamily
 34 addr_0 1 32 0 0 primitive
 34 addr_1 1 32 0 0 primitive
@@ -14206,6 +14209,7 @@ FirmwareModule HA_MODULE_BOUNDARY 29
 34 i_pvx_addr32_addr_2 1 32 0 0 primitive
 34 i_pvx_addr32_addr_3 1 32 0 0 primitive
 34 t38_fax_session_immediate_start 1 8 0 0 primitive
+34 alignment2 1 8 0 0 primitive
 34 local_port 1 16 0 0 primitive
 34 local_interface_id 0 32 0 0 primitive
 34 mpe_handle 1 16 0 0 primitive
@@ -14399,7 +14403,7 @@ FirmwareModule HA_MODULE_BOUNDARY 29
 1611 evs_build_cmr 1 8 0 0 primitive
 1611 http_streaming 1 8 0 0 primitive
 1611 evs_tx_bit_rate 1 16 0 0 primitive
-1611 media_stun_forking_operation_mode 0 32 0 0 primitive
+1611 media_stun_forking_operation_mode 1 8 0 0 primitive
 1611 unused_alignment 1 8 0 0 primitive
 1611 tls_context 0 32 0 0 primitive
 1611 dtls_remote_fingerprint_alg 0 32 0 0 primitive
@@ -14590,7 +14594,7 @@ FirmwareModule HA_MODULE_BOUNDARY 29
 1611 open_sbc_channel_evs_build_cmr 1 8 0 0 primitive
 1611 open_sbc_channel_http_streaming 1 8 0 0 primitive
 1611 open_sbc_channel_evs_tx_bit_rate 1 16 0 0 primitive
-1611 open_sbc_channel_media_stun_forking_operation_mode 0 32 0 0 primitive
+1611 open_sbc_channel_media_stun_forking_operation_mode 1 8 0 0 primitive
 1611 open_sbc_channel_unused_alignment 1 8 0 0 primitive
 1611 open_sbc_channel_tls_context 0 32 0 0 primitive
 1611 open_sbc_channel_dtls_remote_fingerprint_alg 0 32 0 0 primitive
