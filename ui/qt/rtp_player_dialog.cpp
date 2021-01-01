@@ -328,10 +328,22 @@ void RtpPlayerDialog::rescanPackets(bool rescale_axes)
         ti->setData(graph_data_col_, Qt::UserRole, QVariant::fromValue<QCPGraph *>(audio_graph));
         RTP_STREAM_DEBUG("Plotting %s, %d samples", ti->text(src_addr_col_).toUtf8().constData(), audio_graph->data()->size());
 
-        QString span_str = QString("%1 - %2 (%3)")
+        QString span_str;
+        if (ui->todCheckBox->isChecked()) {
+            QDateTime date_time1 = QDateTime::fromMSecsSinceEpoch((audio_stream->startRelTime() + first_stream_abs_start_time_ - audio_stream->startRelTime()) * 1000.0);
+            QDateTime date_time2 = QDateTime::fromMSecsSinceEpoch((audio_stream->stopRelTime() + first_stream_abs_start_time_ - audio_stream->startRelTime()) * 1000.0);
+            QString time_str1 = date_time1.toString("yyyy-MM-dd hh:mm:ss.zzz");
+            QString time_str2 = date_time2.toString("yyyy-MM-dd hh:mm:ss.zzz");
+            span_str = QString("%1 - %2 (%3)")
+                .arg(time_str1)
+                .arg(time_str2)
+                .arg(QString::number(audio_stream->stopRelTime() - audio_stream->startRelTime(), 'f', prefs.gui_decimal_places1));
+        } else {
+            span_str = QString("%1 - %2 (%3)")
                 .arg(QString::number(audio_stream->startRelTime(), 'f', prefs.gui_decimal_places1))
                 .arg(QString::number(audio_stream->stopRelTime(), 'f', prefs.gui_decimal_places1))
                 .arg(QString::number(audio_stream->stopRelTime() - audio_stream->startRelTime(), 'f', prefs.gui_decimal_places1));
+        }
         ti->setText(time_span_col_, span_str);
         ti->setText(sample_rate_col_, QString::number(audio_stream->sampleRate()));
         ti->setText(payload_col_, audio_stream->payloadNames().join(", "));
