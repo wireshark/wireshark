@@ -686,11 +686,8 @@ tap_packet_status RtpPlayerDialog::tapPacket(void *tapinfo_ptr, packet_info *pin
     const struct _rtp_info *rtpinfo = (const struct _rtp_info *)rtpinfo_ptr;
     if (!rtpinfo) return TAP_PACKET_DONT_REDRAW;
 
-    /* we ignore packets that are not displayed */
-    if (pinfo->fd->passed_dfilter == 0)
-        return TAP_PACKET_DONT_REDRAW;
-    /* also ignore RTP Version != 2 */
-    else if (rtpinfo->info_version != 2)
+    /* ignore RTP Version != 2 */
+    if (rtpinfo->info_version != 2)
         return TAP_PACKET_DONT_REDRAW;
 
     rtp_player_dialog->addPacket(pinfo, rtpinfo);
