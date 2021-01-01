@@ -2025,17 +2025,18 @@ dissect_sip_contact_item(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gi
 
     /* Check if we have contact parameters, the uri should be followed by a ';' */
     contact_params_start_offset = tvb_find_guint8(tvb, uri_offsets.uri_end, line_end_offset - uri_offsets.uri_end, ';');
+
+    if (queried_offset != -1 && (queried_offset < contact_params_start_offset || contact_params_start_offset == -1)) {
+        /* no expires param */
+        (*contacts_expires_unknown)++;
+        return queried_offset;
+    }
+
     /* check if contact-params is present */
     if(contact_params_start_offset == -1) {
         /* no expires param */
         (*contacts_expires_unknown)++;
         return line_end_offset;
-    }
-
-    if (queried_offset != -1 && queried_offset < contact_params_start_offset) {
-        /* no expires param */
-        (*contacts_expires_unknown)++;
-        return queried_offset;
     }
 
     /* Move current offset to the start of the first param */
