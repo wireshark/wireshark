@@ -49,6 +49,7 @@
  * RFC 4388: Dynamic Host Configuration Protocol (DHCP) Leasequery
  * RFC 4578: Dynamic Host Configuration Protocol (DHCP) Options for PXE
  * RFC 4776: Dynamic Host Configuration Protocol (DHCPv4 and DHCPv6) Option for Civic Addresses Configuration Information
+ * RFC 5192: DHCP Options for Protocol for Carrying Authentication for Network Access (PANA) Authentication Agent
  * RFC 5223: Discovering Location-to-Service Translation (LoST) Servers Using the Dynamic Host Configuration Protocol (DHCP)
  * RFC 5417: CAPWAP Access Controller DHCP Option
  * RFC 5969: IPv6 Rapid Deployment on IPv4 Infrastructures (6rd)
@@ -580,6 +581,7 @@ static int hf_dhcp_option125_cl_mib_environment_indicator_option = -1; /* 125:CL
 static int hf_dhcp_option125_cl_modem_capabilities = -1;		/* 125:CL 5 */
 
 static int hf_dhcp_option_subnet_selection_option = -1;			/* 118 */
+static int hf_dhcp_option_pana_agent = -1;				/* 136 */
 static int hf_dhcp_option_lost_server_domain_name = -1;			/* 137 */
 static int hf_dhcp_option_capwap_access_controller = -1;		/* 138 */
 static int hf_dhcp_option_andsf_server = -1;				/* 142 */
@@ -1369,7 +1371,7 @@ static const string_string option242_avaya_static_vals[] = {
 #define DHCP_OPT_NUM	256
 
 /* All of the options that have a "basic" type that can be handled by dissect_dhcpopt_basic_type() */
-#define DHCP_OPTION_BASICTYPE_RANGE "1-20,22-32,34-42,44-51,53-54,56-59,64-76,86-87,91-92,100-101,112-113,116,118,137-138,142,150,153,156-157,161,209-210,252"
+#define DHCP_OPTION_BASICTYPE_RANGE "1-20,22-32,34-42,44-51,53-54,56-59,64-76,86-87,91-92,100-101,112-113,116,118,136-138,142,150,153,156-157,161,209-210,252"
 
 /* Re-define structure.	 Values to be updated by dhcp_init_protocol */
 static struct opt_info dhcp_opt[DHCP_OPT_NUM];
@@ -1511,7 +1513,7 @@ static struct opt_info default_dhcp_opt[DHCP_OPT_NUM] = {
 /* 133 */ { "PXE - undefined (vendor specific)",	opaque, NULL },
 /* 134 */ { "PXE - undefined (vendor specific)",	opaque, NULL },
 /* 135 */ { "PXE - undefined (vendor specific)",	opaque, NULL },
-/* 136 */ { "OPTION_PANA_AGENT [TODO:RFC5192]",		opaque, NULL },
+/* 136 */ { "PANA Authentication Agent",		ipv4_list, &hf_dhcp_option_pana_agent },
 /* 137 */ { "LoST Server Domain Name",			string, &hf_dhcp_option_lost_server_domain_name },
 /* 138 */ { "CAPWAP Access Controllers",		ipv4_list, &hf_dhcp_option_capwap_access_controller },
 /* 139 */ { "IPv4 Address-MoS",				opaque, NULL },
@@ -9675,6 +9677,11 @@ proto_register_dhcp(void)
 		  { "Subnet Selection Option", "dhcp.option.subnet_selection_option",
 		    FT_IPv4, BASE_NONE, NULL, 0x00,
 		    "Option 118: Subnet Selection Option", HFILL }},
+
+		{ &hf_dhcp_option_pana_agent,
+		  { "PAA IPv4 Address", "dhcp.option.pana_agent",
+		    FT_IPv4, BASE_NONE, NULL, 0x0,
+		    "Protocol for Carrying Authentication for Network Access (PANA) Authentication Agents IPv4 Address", HFILL }},
 
 		{ &hf_dhcp_option_lost_server_domain_name,
 		  { "LoST Server Domain Name", "dhcp.option.lost_server_domain_name",
