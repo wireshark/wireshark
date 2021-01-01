@@ -19,6 +19,7 @@
 #include <epan/proto_data.h>
 
 #include <wsutil/wsgcrypt.h>
+#include <wsutil/report_message.h>
 
 /* Define this symbol if you have a working implementation of SNOW3G f8() and f9() available.
    Note that the use of this algorithm is restricted, and that an administrative charge
@@ -41,8 +42,9 @@ void proto_reg_handoff_pdcp_nr(void);
 
 
 /* TODO:
+   - take into account 'cipheringDisabled' field from RRC (per SRB or DRB)
+   - if RLC layer is not present (e.g. F1), need to lookup RLC table from here to complete setting of p_pdcp_nr_info
    - look into refactoring/sharing parts of deciphering/integrity with LTE implementation
-   - call e.g. report_failure() if fail to configure security keys
  */
 
 
@@ -167,8 +169,9 @@ static guchar hex_ascii_to_binary(gchar c)
     else if ((c >= 'A') && (c <= 'F')) {
         return 10 + c - 'A';
     }
-    else
+    else {
         return 0;
+    }
 }
 
 static void* uat_ue_keys_record_copy_cb(void* n, const void* o, size_t siz _U_) {
@@ -184,15 +187,22 @@ static void* uat_ue_keys_record_copy_cb(void* n, const void* o, size_t siz _U_) 
     return new_rec;
 }
 
-/* If raw_string is a valid key, set check_string & return TRUE */
-static gboolean check_valid_key_string(const char* raw_string, char* checked_string)
+/* If raw_string is a valid key, set check_string & return TRUE.  Can be spaced out with ' ' or '-' */
+static gboolean check_valid_key_string(const char* raw_string, char* checked_string, char **error)
 {
     guint n;
     guint written = 0;
     guint length = (gint)strlen(raw_string);
 
+    char error_str[256];
+
     /* Can't be valid if not long enough. */
     if (length < 32) {
+        if (length > 0) {
+            g_snprintf(error_str, 256, "PDCP NR: Invalid key string (%s) - should include 32 ASCII hex characters (16 bytes) but only %u chars given",
+                       raw_string, length);
+            *error = g_strdup(error_str);
+        }
         return FALSE;
     }
 
@@ -211,21 +221,35 @@ static gboolean check_valid_key_string(const char* raw_string, char* checked_str
             checked_string[written++] = c;
         }
         else {
+            g_snprintf(error_str, 256, "PDCP-NR: Invalid char '%c' given in key", c);
+            *error = g_strdup(error_str);
             return FALSE;
         }
     }
 
     /* Must have found exactly 32 hex ascii chars for 16-byte key */
-    return (written == 32);
+    if (n<length) {
+        g_snprintf(error_str, 256, "PDCP-NR: Key (%s) should contain 32 hex characters (16 bytes) but more detected", raw_string);
+        *error = g_strdup(error_str);
+        return FALSE;
+    }
+    if (written != 32) {
+        g_snprintf(error_str, 256, "PDCP-NR: Key (%s) should contain 32 hex characters (16 bytes) but %u detected", raw_string, written);
+        *error = g_strdup(error_str);
+        return FALSE;
+    }
+    else {
+        return TRUE;
+    }
 }
 
 /* Write binary key by converting each nibble from the string version */
-static void update_key_from_string(const char *stringKey, guint8 *binaryKey, gboolean *pKeyOK)
+static void update_key_from_string(const char *stringKey, guint8 *binaryKey, gboolean *pKeyOK, char **error)
 {
     int  n;
     char cleanString[32];
 
-    if (!check_valid_key_string(stringKey, cleanString)) {
+    if (!check_valid_key_string(stringKey, cleanString, error)) {
         *pKeyOK = FALSE;
     }
     else {
@@ -238,23 +262,23 @@ static void update_key_from_string(const char *stringKey, guint8 *binaryKey, gbo
 }
 
 /* Update by checking whether the 3 key strings are valid or not, and storing result */
-static gboolean uat_ue_keys_record_update_cb(void* record, char** error _U_) {
+static gboolean uat_ue_keys_record_update_cb(void* record, char** error) {
     uat_ue_keys_record_t* rec = (uat_ue_keys_record_t *)record;
 
     /* Check and convert RRC cipher key */
-    update_key_from_string(rec->rrcCipherKeyString, rec->rrcCipherBinaryKey, &rec->rrcCipherKeyOK);
+    update_key_from_string(rec->rrcCipherKeyString, rec->rrcCipherBinaryKey, &rec->rrcCipherKeyOK, error);
 
     /* Check and convert User-plane cipher key */
-    update_key_from_string(rec->upCipherKeyString, rec->upCipherBinaryKey, &rec->upCipherKeyOK);
+    update_key_from_string(rec->upCipherKeyString, rec->upCipherBinaryKey, &rec->upCipherKeyOK, error);
 
     /* Check and convert RRC Integrity key */
-    update_key_from_string(rec->rrcIntegrityKeyString, rec->rrcIntegrityBinaryKey, &rec->rrcIntegrityKeyOK);
+    update_key_from_string(rec->rrcIntegrityKeyString, rec->rrcIntegrityBinaryKey, &rec->rrcIntegrityKeyOK, error);
 
     /* Check and convert User-plane Integrity key */
-    update_key_from_string(rec->upIntegrityKeyString, rec->upIntegrityBinaryKey, &rec->upIntegrityKeyOK);
+    update_key_from_string(rec->upIntegrityKeyString, rec->upIntegrityBinaryKey, &rec->upIntegrityKeyOK, error);
 
-    /* Return TRUE regardless, as user might only specify one, or get it wrong and want to edit it later */
-    return TRUE;
+    /* Return TRUE only if *error has not been set by checking code. */
+    return *error == NULL;
 }
 
 /* Free heap parts of record */
@@ -281,6 +305,8 @@ static wmem_map_t *pdcp_security_key_hash = NULL;
 
 void set_pdcp_nr_rrc_ciphering_key(guint16 ueid, const char *key)
 {
+    char **err = NULL;
+
     /* Get or create struct for this UE */
     uat_ue_keys_record_t *key_record = (uat_ue_keys_record_t*)wmem_map_lookup(pdcp_security_key_hash,
                                                                               GUINT_TO_POINTER((guint)ueid));
@@ -293,11 +319,17 @@ void set_pdcp_nr_rrc_ciphering_key(guint16 ueid, const char *key)
 
     /* Check and convert RRC key */
     key_record->rrcCipherKeyString = g_strdup(key);
-    update_key_from_string(key_record->rrcCipherKeyString, key_record->rrcCipherBinaryKey, &key_record->rrcCipherKeyOK);
+    update_key_from_string(key_record->rrcCipherKeyString, key_record->rrcCipherBinaryKey, &key_record->rrcCipherKeyOK, err);
+    if (err) {
+        report_failure("%s: (RRC Ciphering Key)", *err);
+        g_free(*err);
+    }
 }
 
 void set_pdcp_nr_rrc_integrity_key(guint16 ueid, const char *key)
 {
+    char **err = NULL;
+
     /* Get or create struct for this UE */
     uat_ue_keys_record_t *key_record = (uat_ue_keys_record_t*)wmem_map_lookup(pdcp_security_key_hash,
                                                                               GUINT_TO_POINTER((guint)ueid));
@@ -310,11 +342,17 @@ void set_pdcp_nr_rrc_integrity_key(guint16 ueid, const char *key)
 
     /* Check and convert RRC integrity key */
     key_record->rrcIntegrityKeyString = g_strdup(key);
-    update_key_from_string(key_record->rrcIntegrityKeyString, key_record->rrcIntegrityBinaryKey, &key_record->rrcIntegrityKeyOK);
+    update_key_from_string(key_record->rrcIntegrityKeyString, key_record->rrcIntegrityBinaryKey, &key_record->rrcIntegrityKeyOK, err);
+    if (err) {
+        report_failure("%s: (RRC Integrity Key)", *err);
+        g_free(*err);
+    }
 }
 
 void set_pdcp_nr_up_ciphering_key(guint16 ueid, const char *key)
 {
+    char **err = NULL;
+
     /* Get or create struct for this UE */
     uat_ue_keys_record_t *key_record = (uat_ue_keys_record_t*)wmem_map_lookup(pdcp_security_key_hash,
                                                                               GUINT_TO_POINTER((guint)ueid));
@@ -327,11 +365,17 @@ void set_pdcp_nr_up_ciphering_key(guint16 ueid, const char *key)
 
     /* Check and convert UP key */
     key_record->upCipherKeyString = g_strdup(key);
-    update_key_from_string(key_record->upCipherKeyString, key_record->upCipherBinaryKey, &key_record->upCipherKeyOK);
+    update_key_from_string(key_record->upCipherKeyString, key_record->upCipherBinaryKey, &key_record->upCipherKeyOK, err);
+    if (err) {
+        report_failure("%s: (UserPlane Ciphering Key)", *err);
+        g_free(*err);
+    }
 }
 
 void set_pdcp_nr_up_integrity_key(guint16 ueid, const char *key)
 {
+    char **err = NULL;
+
     /* Get or create struct for this UE */
     uat_ue_keys_record_t *key_record = (uat_ue_keys_record_t*)wmem_map_lookup(pdcp_security_key_hash,
                                                                               GUINT_TO_POINTER((guint)ueid));
@@ -344,7 +388,11 @@ void set_pdcp_nr_up_integrity_key(guint16 ueid, const char *key)
 
     /* Check and convert RRC integrity key */
     key_record->upIntegrityKeyString = g_strdup(key);
-    update_key_from_string(key_record->upIntegrityKeyString, key_record->upIntegrityBinaryKey, &key_record->upIntegrityKeyOK);
+    update_key_from_string(key_record->upIntegrityKeyString, key_record->upIntegrityBinaryKey, &key_record->upIntegrityKeyOK, err);
+    if (err) {
+        report_failure("%s: (UserPlane Integrity Key)", *err);
+        g_free(*err);
+    }
 }
 
 
@@ -1889,6 +1937,7 @@ static int dissect_pdcp_nr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
                                  tvb, 0, 0, pdu_security->integrity);
         proto_item_set_generated(ti);
 
+        /* Show algorithms in security root */
         proto_item_append_text(security_ti, " (ciphering=%s, integrity=%s)",
                                val_to_str_const(pdu_security->ciphering, ciphering_algorithm_vals, "Unknown"),
                                val_to_str_const(pdu_security->integrity, integrity_algorithm_vals, "Unknown"));
