@@ -38,7 +38,7 @@ typedef enum NRBearerType
 #define PDCP_NR_DL_SDAP_HEADER_PRESENT 0x02
 
 enum nr_security_integrity_algorithm_e { nia0, nia1, nia2, nia3 };
-enum nr_security_ciphering_algorithm_e { nea0, nea1, nea2, nea3 };
+enum nr_security_ciphering_algorithm_e { nea0, nea1, nea2, nea3, nea_disabled=999};
 
 typedef struct pdcp_nr_security_info_t
 {
@@ -67,6 +67,7 @@ typedef struct pdcp_nr_info
     enum pdcp_nr_plane plane;
     guint8             seqnum_length;
     gboolean           maci_present;
+    gboolean           ciphering_disabled;
     /* PDCP_NR_(U|D)L_SDAP_HEADER_PRESENT bitmask */
     guint8             sdap_header;
 
@@ -165,6 +166,9 @@ void set_pdcp_nr_proto_data(packet_info *pinfo, pdcp_nr_info *p_pdcp_nr_info);
 
 #define PDCP_NR_SDAP_HEADER_TAG            0x10
 /* 1 byte, bitmask with PDCP_NR_UL_SDAP_HEADER_PRESENT and/or PDCP_NR_DL_SDAP_HEADER_PRESENT */
+
+#define PDCP_NR_CIPHER_DISABLED_TAG        0x11
+/* 0 byte */
 
 /* PDCP PDU. Following this tag comes the actual PDCP PDU (there is no length, the PDU
    continues until the end of the frame) */

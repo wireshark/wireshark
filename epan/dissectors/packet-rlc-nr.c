@@ -72,6 +72,7 @@ typedef struct rlc_ue_parameters {
     gboolean  pdcp_sdap_ul;
     gboolean  pdcp_sdap_dl;
     gboolean  pdcp_integrity;
+    gboolean  pdcp_ciphering_disabled;
 } rlc_ue_parameters;
 static wmem_tree_t *ue_parameters_tree;
 
@@ -467,6 +468,7 @@ static void show_PDU_in_tree(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb
                             key[2].length = 0;
                             key[2].key = NULL;
 
+                            /* Look up configured params for this PDCP DRB. */
                             params = (rlc_ue_parameters *)wmem_tree_lookup32_array_le(ue_parameters_tree, key);
                             if (params && (params->id != id)) {
                                 params = NULL;
@@ -485,6 +487,7 @@ static void show_PDU_in_tree(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb
                                     }
                                 }
                                 p_pdcp_nr_info->maci_present = params->pdcp_integrity;
+                                p_pdcp_nr_info->ciphering_disabled = params->pdcp_ciphering_disabled;
                             }
                             break;
 
@@ -1302,12 +1305,8 @@ static void dissect_rlc_nr_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
 
 /* Configure number of PDCP SN bits to use for DRB channels */
-void set_rlc_nr_drb_pdcp_seqnum_length(packet_info *pinfo, guint16 ueid, guint8 drbid,
-                                       guint8 userplane_seqnum_length_ul,
-                                       guint8 userplane_seqnum_length_dl,
-                                       gboolean sdap_ul,
-                                       gboolean sdap_dl,
-                                       gboolean integrity)
+void set_rlc_nr_drb_pdcp_seqnum_length(packet_info *pinfo,
+                                       nr_drb_rlc_pdcp_mapping_t *drb_mapping)
 {
     wmem_tree_key_t key[3];
     guint32 id;
@@ -1317,7 +1316,7 @@ void set_rlc_nr_drb_pdcp_seqnum_length(packet_info *pinfo, guint16 ueid, guint8 
         return;
     }
 
-    id = (drbid << 16) | ueid;
+    id = (drb_mapping->drbid << 16) | drb_mapping->ueid;
     key[0].length = 1;
     key[0].key = &id;
     key[1].length = 1;
@@ -1338,11 +1337,12 @@ void set_rlc_nr_drb_pdcp_seqnum_length(packet_info *pinfo, guint16 ueid, guint8 
     }
 
     /* Populate params */
-    params->pdcp_sn_bits_ul = userplane_seqnum_length_ul;
-    params->pdcp_sn_bits_dl = userplane_seqnum_length_dl;
-    params->pdcp_sdap_ul = sdap_ul;
-    params->pdcp_sdap_dl = sdap_dl;
-    params->pdcp_integrity = integrity;
+    params->pdcp_sn_bits_ul = drb_mapping->pdcpUlSnLength;
+    params->pdcp_sn_bits_dl = drb_mapping->pdcpDlSnLength;
+    params->pdcp_sdap_ul = drb_mapping->pdcpUlSdap;
+    params->pdcp_sdap_dl = drb_mapping->pdcpDlSdap;
+    params->pdcp_integrity = drb_mapping->pdcpIntegrityProtection;
+    params->pdcp_ciphering_disabled = drb_mapping->pdcpCipheringDisabled;
 }
 
 

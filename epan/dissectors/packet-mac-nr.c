@@ -2788,7 +2788,7 @@ static void set_bearer_type(dynamic_lcid_drb_mapping_t *mapping, guint8 rlcMode,
 
 
 /* Set LCID -> RLC channel mappings from signalling protocol (i.e. RRC or similar). */
-void set_mac_nr_bearer_mapping(nr_drb_mapping_t *drb_mapping)
+void set_mac_nr_bearer_mapping(nr_drb_mac_rlc_mapping_t *drb_mapping)
 {
     ue_dynamic_drb_mappings_t *ue_mappings;
     guint8 lcid = 0;

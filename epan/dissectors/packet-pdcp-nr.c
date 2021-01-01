@@ -386,7 +386,7 @@ void set_pdcp_nr_up_integrity_key(guint16 ueid, const char *key)
         wmem_map_insert(pdcp_security_key_hash, GUINT_TO_POINTER((guint)ueid), key_record);
     }
 
-    /* Check and convert RRC integrity key */
+    /* Check and convert UP integrity key */
     key_record->upIntegrityKeyString = g_strdup(key);
     update_key_from_string(key_record->upIntegrityKeyString, key_record->upIntegrityBinaryKey, &key_record->upIntegrityKeyOK, err);
     if (err) {
@@ -457,18 +457,19 @@ static const value_string control_pdu_type_vals[] = {
 };
 
 static const value_string integrity_algorithm_vals[] = {
-    { 0,   "NIA0 (NULL)" },
-    { 1,   "NIA1 (SNOW3G)" },
-    { 2,   "NIA2 (AES)" },
-    { 3,   "NIA3 (ZUC)" },
+    { nia0,         "NIA0 (NULL)" },
+    { nia1,         "NIA1 (SNOW3G)" },
+    { nia2,         "NIA2 (AES)" },
+    { nia3,         "NIA3 (ZUC)" },
     { 0,   NULL }
 };
 
 static const value_string ciphering_algorithm_vals[] = {
-    { 0,   "NEA0 (NULL)" },
-    { 1,   "NEA1 (SNOW3G)" },
-    { 2,   "NEA2 (AES)" },
-    { 3,   "NEA3 (ZUC)" },
+    { nea0,         "NEA0 (NULL)" },
+    { nea1,         "NEA1 (SNOW3G)" },
+    { nea2,         "NEA2 (AES)" },
+    { nea3,         "NEA3 (ZUC)" },
+    { nea_disabled, "Ciphering disabled" },
     { 0,   NULL }
 };
 
@@ -1396,7 +1397,7 @@ static tvbuff_t *decipher_payload(tvbuff_t *tvb, packet_info *pinfo, int *offset
     tvbuff_t *decrypted_tvb;
 
     /* Nothing to do if NULL ciphering */
-    if (pdu_security_settings->ciphering == nea0) {
+    if (pdu_security_settings->ciphering == nea0 || pdu_security_settings->ciphering == nea_disabled) {
         return tvb;
     }
 
@@ -1765,6 +1766,10 @@ static gboolean dissect_pdcp_nr_heur(tvbuff_t *tvb, packet_info *pinfo,
                     p_pdcp_nr_info->sdap_header = tvb_get_guint8(tvb, offset) & 0x03;
                     offset++;
                     break;
+                case PDCP_NR_CIPHER_DISABLED_TAG:
+                    p_pdcp_nr_info->ciphering_disabled = TRUE;
+                    break;
+
 
                 case PDCP_NR_PAYLOAD_TAG:
                     /* Have reached data, so get out of loop */
@@ -1888,6 +1893,11 @@ static int dissect_pdcp_nr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
             pdcp_nr_security_info_t *security_to_store = wmem_new(wmem_file_scope(), pdcp_nr_security_info_t);
             /* Take a deep copy of the settings */
             *security_to_store = *current_security;
+
+            /* But ciphering may be turned off for this channel */
+            if (p_pdcp_info->ciphering_disabled) {
+                security_to_store->ciphering = nea_disabled;
+            }
             wmem_map_insert(pdcp_security_result_hash,
                             get_ueid_frame_hash_key(p_pdcp_info->ueid, pinfo->num, TRUE),
                             security_to_store);
@@ -2731,10 +2741,10 @@ void proto_register_pdcp_nr(void)
 
   static uat_field_t ue_keys_uat_flds[] = {
       UAT_FLD_DEC(uat_ue_keys_records, ueid, "UEId", "UE Identifier of UE associated with keys"),
-      UAT_FLD_CSTRING(uat_ue_keys_records, rrcCipherKeyString,    "RRC Cipher Key",        "Key for deciphering signalling messages"),
-      UAT_FLD_CSTRING(uat_ue_keys_records, upCipherKeyString,     "User-Plane Cipher Key", "Key for deciphering user-plane messages"),
-      UAT_FLD_CSTRING(uat_ue_keys_records, rrcIntegrityKeyString, "RRC Integrity Key",     "Key for calculating signalling integrity MAC"),
-      UAT_FLD_CSTRING(uat_ue_keys_records, upIntegrityKeyString,  "RRC Integrity Key",     "Key for calculating user-plane integrity MAC"),
+      UAT_FLD_CSTRING(uat_ue_keys_records, rrcCipherKeyString,    "RRC Cipher Key",           "Key for deciphering signalling messages"),
+      UAT_FLD_CSTRING(uat_ue_keys_records, upCipherKeyString,     "User-Plane Cipher Key",    "Key for deciphering user-plane messages"),
+      UAT_FLD_CSTRING(uat_ue_keys_records, rrcIntegrityKeyString, "RRC Integrity Key",        "Key for calculating signalling integrity MAC"),
+      UAT_FLD_CSTRING(uat_ue_keys_records, upIntegrityKeyString,  "User-Plane Integrity Key", "Key for calculating user-plane integrity MAC"),
       UAT_END_FIELDS
     };
 

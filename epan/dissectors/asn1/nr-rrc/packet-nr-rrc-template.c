@@ -166,7 +166,8 @@ typedef struct {
   guint16 message_identifier;
   guint8 warning_message_segment_type;
   guint8 warning_message_segment_number;
-  nr_drb_mapping_t drb_mapping;
+  nr_drb_mac_rlc_mapping_t drb_rlc_mapping;
+  nr_drb_rlc_pdcp_mapping_t drb_pdcp_mapping;
   lpp_pos_sib_type_t pos_sib_type;
   pdcp_nr_security_info_t pdcp_security;
 } nr_rrc_private_data_t;

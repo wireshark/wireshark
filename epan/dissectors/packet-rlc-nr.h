@@ -47,12 +47,25 @@ typedef struct rlc_nr_info
     guint16         pduLength;
 } rlc_nr_info;
 
+typedef struct nr_drb_rlc_pdcp_mapping_t
+{
+    guint16    ueid;                /* Mandatory */
+    guint8     drbid;               /* Mandatory */
+
+    gboolean   pdcpUlSnLength_present;
+    guint8     pdcpUlSnLength;        /* Part of PDCP config - optional */
+    gboolean   pdcpDlSnLength_present;
+    guint8     pdcpDlSnLength;        /* Part of PDCP config - optional */
+    gboolean   pdcpUlSdap;
+    gboolean   pdcpDlSdap;
+    gboolean   pdcpIntegrityProtection;
+    gboolean   pdcpCipheringDisabled;
+
+} nr_drb_rlc_pdcp_mapping_t;
+
 /* Configure number of PDCP SN bits to use for DRB channels. */
-void set_rlc_nr_drb_pdcp_seqnum_length(packet_info *pinfo, guint16 ueid, guint8 drbid,
-                                       guint8 userplane_seqnum_length_ul,
-                                       guint8 userplane_seqnum_length_dl,
-                                       gboolean sdap_ul, gboolean sdap_dl,
-                                       gboolean integrity);
+void set_rlc_nr_drb_pdcp_seqnum_length(packet_info *pinfo,
+                                       nr_drb_rlc_pdcp_mapping_t *drb_mapping);
 
 /*****************************************************************/
 /* UDP framing format                                            */
