@@ -88,6 +88,7 @@ private slots:
     void on_actionAnalyze_triggered();
     void captureEvent(CaptureEvent e);
     void on_displayFilterCheckBox_toggled(bool checked);
+    void on_todCheckBox_toggled(bool checked);
 };
 
 #endif // RTP_STREAM_DIALOG_H

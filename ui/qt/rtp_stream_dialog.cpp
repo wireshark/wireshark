@@ -29,6 +29,7 @@
 #include <QTextStream>
 #include <QTreeWidgetItem>
 #include <QTreeWidgetItemIterator>
+#include <QDateTime>
 
 #include <ui/qt/utils/color_utils.h>
 
@@ -79,7 +80,8 @@ class RtpStreamTreeWidgetItem : public QTreeWidgetItem
 public:
     RtpStreamTreeWidgetItem(QTreeWidget *tree, rtpstream_info_t *stream_info) :
         QTreeWidgetItem(tree, rtp_stream_type_),
-        stream_info_(stream_info)
+        stream_info_(stream_info),
+        tod_(0)
     {
         drawData();
     }
@@ -99,7 +101,13 @@ public:
         setText(dst_addr_col_, calc.dst_addr_str);
         setText(dst_port_col_, QString::number(calc.dst_port));
         setText(ssrc_col_, QString("0x%1").arg(calc.ssrc, 0, 16));
-        setText(start_time_col_, QString::number(calc.start_time_ms, 'f', 6));
+        if (tod_) {
+            QDateTime abs_dt = QDateTime::fromMSecsSinceEpoch(nstime_to_msec(&stream_info_->start_fd->abs_ts));
+            setText(start_time_col_, QString("%1")
+                .arg(abs_dt.toString("yyyy-MM-dd hh:mm:ss.zzz")));
+        } else {
+          setText(start_time_col_, QString::number(calc.start_time_ms, 'f', 6));
+        }
         setText(duration_col_, QString::number(calc.duration_ms, 'f', prefs.gui_decimal_places1));
         setText(payload_col_, calc.all_payload_type_names);
         setText(packets_col_, QString::number(calc.packet_count));
@@ -220,9 +228,15 @@ public:
         return QTreeWidgetItem::operator <(other);
     }
 
+    void setTOD(gboolean tod)
+    {
+      tod_ = tod;
+    }
+
 private:
     rtpstream_info_t *stream_info_;
     guint32 lost_;
+    gboolean tod_;
 };
 
 RtpStreamDialog::RtpStreamDialog(QWidget &parent, CaptureFile &cf) :
@@ -752,6 +766,18 @@ void RtpStreamDialog::on_displayFilterCheckBox_toggled(bool checked _U_)
     tapinfo_.apply_display_filter = checked;
 
     cap_file_.retapPackets();
+}
+
+void RtpStreamDialog::on_todCheckBox_toggled(bool checked)
+{
+    QTreeWidgetItemIterator iter(ui->streamTreeWidget);
+    while (*iter) {
+        RtpStreamTreeWidgetItem *rsti = static_cast<RtpStreamTreeWidgetItem*>(*iter);
+        rsti->setTOD(checked);
+        rsti->drawData();
+        ++iter;
+    }
+    ui->streamTreeWidget->resizeColumnToContents(start_time_col_);
 }
 
 void RtpStreamDialog::showPlayer()
