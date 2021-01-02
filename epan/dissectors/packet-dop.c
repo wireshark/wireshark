@@ -2465,7 +2465,7 @@ void proto_register_dop(void) {
         FT_NONE, BASE_NONE, NULL, 0,
         "TerminateRoleBInitiates", HFILL }},
     { &hf_dop_terminateAtTime,
-      { "terminateAt", "dop.terminateAt",
+      { "terminateAt", "dop.terminateAtTime",
         FT_UINT32, BASE_DEC, VALS(dop_Time_vals), 0,
         "Time", HFILL }},
     { &hf_dop_unsignedTerminateOperationalBindingArgument,
