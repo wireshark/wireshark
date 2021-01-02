@@ -663,14 +663,13 @@ void RtpPlayerDialog::updateHintLabel()
 void RtpPlayerDialog::resetXAxis()
 {
     QCustomPlot *ap = ui->audioPlot;
-    QCPRange x_range = ap->xAxis->range();
 
     double pixel_pad = 10.0; // per side
 
     ap->rescaleAxes(true);
 
     double axis_pixels = ap->xAxis->axisRect()->width();
-    ap->xAxis->scaleRange((axis_pixels + (pixel_pad * 2)) / axis_pixels, x_range.center());
+    ap->xAxis->scaleRange((axis_pixels + (pixel_pad * 2)) / axis_pixels, ap->xAxis->range().center());
 
     axis_pixels = ap->yAxis->axisRect()->height();
     ap->yAxis->scaleRange((axis_pixels + (pixel_pad * 2)) / axis_pixels, ap->yAxis->range().center());
