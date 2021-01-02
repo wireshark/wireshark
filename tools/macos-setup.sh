@@ -49,7 +49,7 @@ fi
 
 #
 # Some packages need xz to unpack their current source.
-# While tar, in newer versions of macOS, can uncompress xz'ed tarballs,
+# While tar, since macOS 10.9, can uncompress xz'ed tarballs,
 # it can't do so in older versions, and xz isn't provided with macOS.
 #
 XZ_VERSION=5.2.5
