@@ -847,136 +847,92 @@ void RtpAnalysisDialog::savePayload(QTemporaryFile *tmpfile, tap_rtp_stat_t *sta
 
 void RtpAnalysisDialog::updateStatistics()
 {
-    unsigned int f_clock_rate = fwd_statinfo_.rtp_stats.clock_rate;
-    unsigned int r_clock_rate = rev_statinfo_.rtp_stats.clock_rate;
-    unsigned int f_expected = (fwd_statinfo_.rtp_stats.stop_seq_nr + fwd_statinfo_.rtp_stats.cycles*65536)
-            - fwd_statinfo_.rtp_stats.start_seq_nr + 1;
-    unsigned int r_expected = (rev_statinfo_.rtp_stats.stop_seq_nr + rev_statinfo_.rtp_stats.cycles*65536)
-            - rev_statinfo_.rtp_stats.start_seq_nr + 1;
-    unsigned int f_total_nr = fwd_statinfo_.rtp_stats.total_nr;
-    unsigned int r_total_nr = rev_statinfo_.rtp_stats.total_nr;
-    int f_lost = f_expected - f_total_nr;
-    int r_lost = r_expected - r_total_nr;
-    double f_sumt = fwd_statinfo_.rtp_stats.sumt;
-    double f_sumTS = fwd_statinfo_.rtp_stats.sumTS;
-    double f_sumt2 = fwd_statinfo_.rtp_stats.sumt2;
-    double f_sumtTS = fwd_statinfo_.rtp_stats.sumtTS;
-    double r_sumt = rev_statinfo_.rtp_stats.sumt;
-    double r_sumTS = rev_statinfo_.rtp_stats.sumTS;
-    double r_sumt2 = rev_statinfo_.rtp_stats.sumt2;
-    double r_sumtTS = rev_statinfo_.rtp_stats.sumtTS;
-    double f_perc, r_perc;
-    double f_clock_drift = 1.0;
-    double r_clock_drift = 1.0;
-    double f_duration = fwd_statinfo_.rtp_stats.time - fwd_statinfo_.rtp_stats.start_time;
-    double r_duration = rev_statinfo_.rtp_stats.time - rev_statinfo_.rtp_stats.start_time;
+    rtpstream_info_calc_t f_calc;
+    rtpstream_info_calc_t r_calc;
 
-    if (f_clock_rate == 0) {
-        f_clock_rate = 1;
-    }
-
-    if (r_clock_rate == 0) {
-        r_clock_rate = 1;
-    }
-
-    if (f_expected) {
-        f_perc = (double)(f_lost*100)/(double)f_expected;
-    } else {
-        f_perc = 0;
-    }
-    if (r_expected) {
-        r_perc = (double)(r_lost*100)/(double)r_expected;
-    } else {
-        r_perc = 0;
-    }
-
-    if ((f_total_nr >0) && (f_sumt2 > 0)) {
-        f_clock_drift = (f_total_nr * f_sumtTS - f_sumt * f_sumTS) / (f_total_nr * f_sumt2 - f_sumt * f_sumt);
-    }
-    if ((r_total_nr >0) && (r_sumt2 > 0)) {
-        r_clock_drift = (r_total_nr * r_sumtTS - r_sumt * r_sumTS) / (r_total_nr * r_sumt2 - r_sumt * r_sumt);
-    }
+    rtpstream_info_calculate(&fwd_statinfo_, &f_calc);
+    rtpstream_info_calculate(&rev_statinfo_, &r_calc);
 
     QString stats_tables = "<html><head><style>td{vertical-align:bottom;}</style></head><body>\n";
     stats_tables += "<h4>Forward</h4>\n";
     stats_tables += QString("<p>%1:%2 " UTF8_RIGHTWARDS_ARROW)
-            .arg(address_to_qstring(&fwd_statinfo_.id.src_addr, true))
-            .arg(fwd_statinfo_.id.src_port);
+            .arg(f_calc.src_addr_str)
+            .arg(f_calc.src_port);
     stats_tables += QString("<br>%1:%2</p>\n")
-            .arg(address_to_qstring(&fwd_statinfo_.id.dst_addr, true))
-            .arg(fwd_statinfo_.id.dst_port);
+            .arg(f_calc.dst_addr_str)
+            .arg(f_calc.dst_port);
     stats_tables += "<p><table>\n";
     stats_tables += QString("<tr><th align=\"left\">SSRC</th><td>%1</td></tr>")
-            .arg(int_to_qstring(fwd_statinfo_.id.ssrc, 8, 16));
+            .arg(int_to_qstring(f_calc.ssrc, 8, 16));
     stats_tables += QString("<tr><th align=\"left\">Max Delta</th><td>%1 ms @ %2</td></tr>")
-            .arg(fwd_statinfo_.rtp_stats.max_delta, 0, 'f', prefs.gui_decimal_places3)
-            .arg(fwd_statinfo_.rtp_stats.max_nr);
+            .arg(f_calc.max_delta, 0, 'f', prefs.gui_decimal_places3)
+            .arg(f_calc.last_packet_num);
     stats_tables += QString("<tr><th align=\"left\">Max Jitter</th><td>%1 ms</td></tr>")
-            .arg(fwd_statinfo_.rtp_stats.max_jitter, 0, 'f', prefs.gui_decimal_places3);
+            .arg(f_calc.max_jitter, 0, 'f', prefs.gui_decimal_places3);
     stats_tables += QString("<tr><th align=\"left\">Mean Jitter</th><td>%1 ms</td></tr>")
-            .arg(fwd_statinfo_.rtp_stats.mean_jitter, 0, 'f', prefs.gui_decimal_places3);
+            .arg(f_calc.mean_jitter, 0, 'f', prefs.gui_decimal_places3);
     stats_tables += QString("<tr><th align=\"left\">Max Skew</th><td>%1 ms</td></tr>")
-            .arg(fwd_statinfo_.rtp_stats.max_skew, 0, 'f', prefs.gui_decimal_places3);
+            .arg(f_calc.max_skew, 0, 'f', prefs.gui_decimal_places3);
     stats_tables += QString("<tr><th align=\"left\">RTP Packets</th><td>%1</td></tr>")
-            .arg(f_total_nr);
+            .arg(f_calc.total_nr);
     stats_tables += QString("<tr><th align=\"left\">Expected</th><td>%1</td></tr>")
-            .arg(f_expected);
+            .arg(f_calc.packet_expected);
     stats_tables += QString("<tr><th align=\"left\">Lost</th><td>%1 (%2 %)</td></tr>")
-            .arg(f_lost).arg(f_perc, 0, 'f', prefs.gui_decimal_places1);
+            .arg(f_calc.lost_num).arg(f_calc.lost_perc, 0, 'f', prefs.gui_decimal_places1);
     stats_tables += QString("<tr><th align=\"left\">Seq Errs</th><td>%1</td></tr>")
-            .arg(fwd_statinfo_.rtp_stats.sequence);
+            .arg(f_calc.sequence_err);
     stats_tables += QString("<tr><th align=\"left\">Start at</th><td>%1 s @ %2</td></tr>")
-            .arg(fwd_statinfo_.rtp_stats.start_time / 1000.0, 0, 'f', 6)
-            .arg(fwd_statinfo_.rtp_stats.first_packet_num);
+            .arg(f_calc.start_time_ms, 0, 'f', 6)
+            .arg(f_calc.first_packet_num);
     stats_tables += QString("<tr><th align=\"left\">Duration</th><td>%1 s</td></tr>")
-            .arg(f_duration / 1000.0, 0, 'f', prefs.gui_decimal_places1);
+            .arg(f_calc.duration_ms, 0, 'f', prefs.gui_decimal_places1);
     stats_tables += QString("<tr><th align=\"left\">Clock Drift</th><td>%1 ms</td></tr>")
-            .arg(f_duration * (f_clock_drift - 1.0), 0, 'f', 0);
+            .arg(f_calc.clock_drift_ms, 0, 'f', 0);
     stats_tables += QString("<tr><th align=\"left\">Freq Drift</th><td>%1 Hz (%2 %)</td></tr>") // XXX Terminology?
-            .arg(f_clock_drift * f_clock_rate, 0, 'f', 0).arg(100.0 * (f_clock_drift - 1.0), 0, 'f', 2);
+            .arg(f_calc.freq_drift_hz, 0, 'f', 0).arg(f_calc.freq_drift_perc, 0, 'f', 2);
     stats_tables += "</table></p>\n";
 
     stats_tables += "<h4>Reverse</h4>\n";
     stats_tables += QString("<p>%1:%2 " UTF8_RIGHTWARDS_ARROW)
-            .arg(address_to_qstring(&rev_statinfo_.id.src_addr, true))
-            .arg(rev_statinfo_.id.src_port);
+            .arg(r_calc.src_addr_str)
+            .arg(r_calc.src_port);
     stats_tables += QString("<br>%1:%2</p>\n")
-            .arg(address_to_qstring(&rev_statinfo_.id.dst_addr, true))
-            .arg(rev_statinfo_.id.dst_port);
+            .arg(r_calc.dst_addr_str)
+            .arg(r_calc.dst_port);
     stats_tables += "<p><table>\n";
     stats_tables += QString("<tr><th align=\"left\">SSRC</th><td>%1</td></tr>")
-            .arg(int_to_qstring(rev_statinfo_.id.ssrc, 8, 16));
+            .arg(int_to_qstring(r_calc.ssrc, 8, 16));
     stats_tables += QString("<tr><th align=\"left\">Max Delta</th><td>%1 ms @ %2</td></tr>")
-            .arg(rev_statinfo_.rtp_stats.max_delta, 0, 'f', prefs.gui_decimal_places3)
-            .arg(rev_statinfo_.rtp_stats.max_nr);
+            .arg(r_calc.max_delta, 0, 'f', prefs.gui_decimal_places3)
+            .arg(r_calc.last_packet_num);
     stats_tables += QString("<tr><th align=\"left\">Max Jitter</th><td>%1 ms</td></tr>")
-            .arg(rev_statinfo_.rtp_stats.max_jitter, 0, 'f', prefs.gui_decimal_places3);
+            .arg(r_calc.max_jitter, 0, 'f', prefs.gui_decimal_places3);
     stats_tables += QString("<tr><th align=\"left\">Mean Jitter</th><td>%1 ms</td></tr>")
-            .arg(rev_statinfo_.rtp_stats.mean_jitter, 0, 'f', prefs.gui_decimal_places3);
+            .arg(r_calc.mean_jitter, 0, 'f', prefs.gui_decimal_places3);
     stats_tables += QString("<tr><th align=\"left\">Max Skew</th><td>%1 ms</td></tr>")
-            .arg(rev_statinfo_.rtp_stats.max_skew, 0, 'f', prefs.gui_decimal_places3);
+            .arg(r_calc.max_skew, 0, 'f', prefs.gui_decimal_places3);
     stats_tables += QString("<tr><th align=\"left\">RTP Packets</th><td>%1</td></tr>")
-            .arg(r_total_nr);
+            .arg(r_calc.total_nr);
     stats_tables += QString("<tr><th align=\"left\">Expected</th><td>%1</td></tr>")
-            .arg(r_expected);
+            .arg(r_calc.packet_expected);
     stats_tables += QString("<tr><th align=\"left\">Lost</th><td>%1 (%2 %)</td></tr>")
-            .arg(r_lost).arg(r_perc, 0, 'f', prefs.gui_decimal_places1);
+            .arg(r_calc.lost_num).arg(r_calc.lost_perc, 0, 'f', prefs.gui_decimal_places1);
     stats_tables += QString("<tr><th align=\"left\">Seq Errs</th><td>%1</td></tr>")
-            .arg(rev_statinfo_.rtp_stats.sequence);
+            .arg(r_calc.sequence_err);
     stats_tables += QString("<tr><th align=\"left\">Start at</th><td>%1 s @ %2</td></tr>")
-            .arg(rev_statinfo_.rtp_stats.start_time / 1000.0, 0, 'f', 6)
-            .arg(rev_statinfo_.rtp_stats.first_packet_num);
+            .arg(r_calc.start_time_ms, 0, 'f', 6)
+            .arg(r_calc.first_packet_num);
     stats_tables += QString("<tr><th align=\"left\">Duration</th><td>%1 s</td></tr>")
-            .arg(r_duration / 1000.0, 0, 'f', prefs.gui_decimal_places1);
+            .arg(r_calc.duration_ms, 0, 'f', prefs.gui_decimal_places1);
     stats_tables += QString("<tr><th align=\"left\">Clock Drift</th><td>%1 ms</td></tr>")
-            .arg(r_duration * (r_clock_drift - 1.0), 0, 'f', 0);
+            .arg(r_calc.clock_drift_ms, 0, 'f', 0);
     stats_tables += QString("<tr><th align=\"left\">Freq Drift</th><td>%1 Hz (%2 %)</td></tr>") // XXX Terminology?
-            .arg(r_clock_drift * r_clock_rate, 0, 'f', 0).arg(100.0 * (r_clock_drift - 1.0), 0, 'f', 2);
+            .arg(r_calc.freq_drift_hz, 0, 'f', 0).arg(r_calc.freq_drift_perc, 0, 'f', 2);
     stats_tables += "</table></p>";
     if (rev_statinfo_.rtp_stats.total_nr) {
         stats_tables += QString("<h4>Forward to reverse<br/>start diff %1 s @ %2</h4>")
-            .arg((rev_statinfo_.rtp_stats.start_time - fwd_statinfo_.rtp_stats.start_time) / 1000.0, 0, 'f', 6)
-            .arg((int64_t)rev_statinfo_.rtp_stats.first_packet_num - (int64_t)fwd_statinfo_.rtp_stats.first_packet_num);
+            .arg(abs(r_calc.start_time_ms - f_calc.start_time_ms), 0, 'f', 6)
+            .arg(abs((int64_t)r_calc.first_packet_num - (int64_t)f_calc.first_packet_num));
     }
     stats_tables += "</body></html>\n";
 
