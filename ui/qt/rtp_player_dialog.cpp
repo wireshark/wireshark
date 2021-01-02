@@ -102,6 +102,7 @@ RtpPlayerDialog::RtpPlayerDialog(QWidget &parent, CaptureFile &cf) :
     , number_ticker_(new QCPAxisTicker)
     , datetime_ticker_(new QCPAxisTickerDateTime)
     , stereo_available_(false)
+    , listener_removed_(false)
 {
     ui->setupUi(this);
     setWindowTitle(wsApp->windowTitleString(tr("RTP Player")));
@@ -212,6 +213,11 @@ RtpPlayerDialog::~RtpPlayerDialog()
 
 void RtpPlayerDialog::accept()
 {
+    if (!listener_removed_) {
+        remove_tap_listener(this);
+        listener_removed_ = true;
+    }
+
     int row_count = ui->streamTreeWidget->topLevelItemCount();
     // Stop all streams before the dialogs are closed.
     for (int row = 0; row < row_count; row++) {
@@ -229,6 +235,10 @@ void RtpPlayerDialog::reject()
 
 void RtpPlayerDialog::retapPackets()
 {
+    // destroyCheck is protection againts destroying dialog during recap.
+    // It stores dialog pointer in data() and if dialog destroyed, it
+    // returns null
+    QPointer<RtpPlayerDialog> destroyCheck=this;
     GString *error_string;
 
     error_string = register_tap_listener("rtp", this, NULL, 0, NULL, tapPacket, NULL, NULL);
@@ -238,9 +248,15 @@ void RtpPlayerDialog::retapPackets()
         return;
     }
     cap_file_.retapPackets();
-    remove_tap_listener(this);
 
-    rescanPackets(true);
+    // Check if dialog exists still
+    if (destroyCheck.data()) {
+        if (!listener_removed_) {
+            remove_tap_listener(this);
+            listener_removed_ = true;
+        }
+        rescanPackets(true);
+    }
 }
 
 void RtpPlayerDialog::rescanPackets(bool rescale_axes)

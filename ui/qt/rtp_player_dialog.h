@@ -135,6 +135,8 @@ private:
     QSharedPointer<QCPAxisTickerDateTime> datetime_ticker_;
     bool stereo_available_;
 
+    bool listener_removed_;
+
 //    const QString streamKey(const rtpstream_info_t *rtpstream);
 //    const QString streamKey(const packet_info *pinfo, const struct _rtp_info *rtpinfo);
 
