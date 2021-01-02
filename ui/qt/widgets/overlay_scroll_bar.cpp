@@ -79,6 +79,7 @@ OverlayScrollBar::OverlayScrollBar(Qt::Orientation orientation, QWidget *parent)
     connect(this, &OverlayScrollBar::valueChanged, &child_sb_, &QScrollBar::setValue);
 
     connect(&child_sb_, &QScrollBar::valueChanged, this, &OverlayScrollBar::setValue);
+    connect(&child_sb_, &QScrollBar::actionTriggered, this, &OverlayScrollBar::actionTriggered);
 }
 
 OverlayScrollBar::~OverlayScrollBar()
