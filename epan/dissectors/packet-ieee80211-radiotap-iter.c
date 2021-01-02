@@ -52,6 +52,7 @@ static const struct radiotap_align_size rtap_namespace_sizes[] = {
 	/* [IEEE80211_RADIOTAP_HE_MU_USER = 25 notdef */	{ 0, 0 },
 	/* [IEEE80211_RADIOTAP_0_LENGTH_PSDU = 26 */		{ 1, 1 },
 	/* [IEEE80211_RADIOTAP_L_SIG = 27 */			{ 2, 4 },
+	/* [IEEE80211_RADIOTAP_TLV = 28 */                      { 4, 10 },
 	/*
 	 * add more here as they are defined in
 	 * include/net/ieee80211_radiotap.h

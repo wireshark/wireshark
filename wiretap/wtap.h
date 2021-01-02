@@ -882,6 +882,7 @@ struct ieee_802_11_phdr {
  */
 #define PHDR_802_11_SOUNDING_PSDU                 0 /* sounding PPDU */
 #define PHDR_802_11_DATA_NOT_CAPTURED             1 /* data not captured, (e.g. multi-user PPDU) */
+#define PHDR_802_11_0_LENGTH_PSDU_S1G_NDP         2 /* S1G NDP CMAC */
 #define PHDR_802_11_0_LENGTH_PSDU_VENDOR_SPECIFIC 0xff
 
 /* Packet "pseudo-header" for the output from CoSine L2 debug output. */
