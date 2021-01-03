@@ -50,6 +50,13 @@ DecodeAsModel::DecodeAsModel(QObject *parent, capture_file *cf) :
 {
 }
 
+DecodeAsModel::~DecodeAsModel()
+{
+    foreach(DecodeAsItem* item, decode_as_items_)
+        delete item;
+    decode_as_items_.clear();
+}
+
 Qt::ItemFlags DecodeAsModel::flags(const QModelIndex &index) const
 {
     if (!index.isValid())
@@ -400,6 +407,8 @@ void DecodeAsModel::clearAll()
         return;
 
     beginResetModel();
+    foreach(DecodeAsItem* item, decode_as_items_)
+        delete item;
     decode_as_items_.clear();
     endResetModel();
 }

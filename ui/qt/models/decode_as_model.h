@@ -48,6 +48,7 @@ class DecodeAsModel : public QAbstractTableModel
 
 public:
     DecodeAsModel(QObject *parent, capture_file *cf = NULL);
+    virtual ~DecodeAsModel();
 
     enum DecodeAsColumn {
         colTable = 0, // aka "Field" (or dissector table like "TCP Port")
