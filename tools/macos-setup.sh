@@ -193,7 +193,19 @@ fi
 BCG729_VERSION=1.0.2
 ILBC_VERSION=2.0.2
 OPUS_VERSION=1.3.1
-PYTHON3_VERSION=3.7.1
+
+# 3.7.6 is the final version of Python to have official packages for the
+# 64-bit/32-bit variant that supports 10.6 (Snow Leopard) through 10.8
+# (Mountain Lion), and 3.9.1 is the first version of Python to support
+# macOS 11 Big Sur and Apple Silicon (arm-based Macs).
+
+# So on Snow Leopard through Mountain Lion, choose 3.7.6, otherwise
+# get the latest stable version (3.9.1).
+if [[ $DARWIN_MAJOR_VERSION -gt 12 ]]; then
+    PYTHON3_VERSION=3.9.1
+else
+    PYTHON3_VERSION=3.7.6
+fi
 BROTLI_VERSION=1.0.9
 # minizip
 ZLIB_VERSION=1.2.11
@@ -2005,17 +2017,24 @@ uninstall_opus() {
 }
 
 install_python3() {
-    local macver=10.9
-    if [[ $DARWIN_MAJOR_VERSION -lt 13 ]]; then
+    # The macos11.0 installer can be deployed to older versions, down to
+    # 10.9 (Mavericks), but is still considered experimental so continue
+    # to use the 64-bit installer (10.9) on earlier releases for now.
+    local macver=x10.9
+    if [[ $DARWIN_MAJOR_VERSION -gt 19 ]]; then
+        # The macos11.0 installer is required for arm-based macs, which require
+        # macOS 11 Big Sur. Note that the 'x' was removed from the package name.
+        macver=11.0
+    elif [[ $DARWIN_MAJOR_VERSION -lt 13 ]]; then
         # The 64-bit installer requires 10.9 (Mavericks), use the 64-bit/32-bit
-        # variant for 10.6 (Snow Leopard) and newer.
-        macver=10.6
+        # variant for 10.6 (Snow Leopard) through 10.8 (Mountain Lion).
+        macver=x10.6
     fi
     if [ "$PYTHON3_VERSION" -a ! -f python3-$PYTHON3_VERSION-done ] ; then
         echo "Downloading and installing python3:"
-        [ -f python-$PYTHON3_VERSION-macosx$macver.pkg ] || curl -L -O https://www.python.org/ftp/python/$PYTHON3_VERSION/python-$PYTHON3_VERSION-macosx$macver.pkg || exit 1
+        [ -f python-$PYTHON3_VERSION-macos$macver.pkg ] || curl -L -O https://www.python.org/ftp/python/$PYTHON3_VERSION/python-$PYTHON3_VERSION-macos$macver.pkg || exit 1
         $no_build && echo "Skipping installation" && return
-        sudo installer -target / -pkg python-$PYTHON3_VERSION-macosx$macver.pkg || exit 1
+        sudo installer -target / -pkg python-$PYTHON3_VERSION-macos$macver.pkg || exit 1
         touch python3-$PYTHON3_VERSION-done
     fi
 }
@@ -2046,6 +2065,7 @@ uninstall_python3() {
             #
             # Get rid of the previously downloaded and unpacked version.
             #
+            rm -f python-$installed_python3_version-macos11.0.pkg
             rm -f python-$installed_python3_version-macosx10.9.pkg
             rm -f python-$installed_python3_version-macosx10.6.pkg
         fi
