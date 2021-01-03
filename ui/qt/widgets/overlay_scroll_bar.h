@@ -22,6 +22,7 @@ public:
     virtual ~OverlayScrollBar();
 
     virtual QSize sizeHint() const;
+    virtual int sliderPosition();
 
     /** Set the "near" overlay image.
      * @param overlay_image An image containing a 1:1 mapping of nearby
