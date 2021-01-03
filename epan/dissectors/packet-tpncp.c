@@ -596,7 +596,7 @@ init_tpncp_data_fields_info(tpncp_data_field_info *data_fields_info, FILE *file)
             &hf_tpncp_length_ext,
             {
                 "Length Extension",
-                "tpncp.lengthextention",
+                "tpncp.lengthextension",
                 FT_UINT8,
                 BASE_DEC,
                 NULL,
