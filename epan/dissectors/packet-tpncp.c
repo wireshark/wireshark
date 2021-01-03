@@ -279,7 +279,7 @@ dissect_tpncp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
 {
     proto_item *item = NULL;
     proto_tree *tpncp_tree = NULL, *event_tree, *command_tree;
-    gint offset = 0, cid = 0;
+    gint offset = 0, cid = -1;
     guint id;
     guint seq_number, len, ver;
     guint len_ext, reserved, encoding;
@@ -303,14 +303,16 @@ dissect_tpncp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
     fullLength = 0xffff * len_ext + len;
 
     id = tvb_get_guint32(tvb, 8, encoding);
-    cid = tvb_get_gint32(tvb, 12, encoding);
+    if (len > 8)
+        cid = tvb_get_gint32(tvb, 12, encoding);
     if (pinfo->srcport == UDP_PORT_TPNCP_TRUNKPACK ||
         pinfo->srcport == HA_PORT_TPNCP_TRUNKPACK) {
         if (try_val_to_str(id, tpncp_events_id_vals)) {
             proto_tree_add_uint(tpncp_tree, hf_tpncp_event_id, tvb, 8, 4, id);
-            proto_tree_add_int(tpncp_tree, hf_tpncp_cid, tvb, 12, 4, cid);
+            if (len > 8)
+                proto_tree_add_int(tpncp_tree, hf_tpncp_cid, tvb, 12, 4, cid);
             offset += 16;
-            if (tpncp_events_info_db[id].size && tvb_reported_length_remaining(tvb, offset) > 0) {
+            if (tpncp_events_info_db[id].size && len > 12) {
                 event_tree = proto_tree_add_subtree_format(
                     tree, tvb, offset, -1, ett_tpncp_body, NULL,
                     "TPNCP Event: %s (%d)",
@@ -327,7 +329,7 @@ dissect_tpncp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
         if (try_val_to_str(id, tpncp_commands_id_vals)) {
             proto_tree_add_uint(tpncp_tree, hf_tpncp_command_id, tvb, 8, 4, id);
             offset += 12;
-            if (tpncp_commands_info_db[id].size && tvb_reported_length_remaining(tvb, offset) > 0) {
+            if (tpncp_commands_info_db[id].size && len > 8) {
                 command_tree = proto_tree_add_subtree_format(
                     tree, tvb, offset, -1, ett_tpncp_body, NULL,
                     "TPNCP Command: %s (%d)",
