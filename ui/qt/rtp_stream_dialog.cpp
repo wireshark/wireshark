@@ -301,7 +301,7 @@ RtpStreamDialog::RtpStreamDialog(QWidget &parent, CaptureFile &cf) :
     tapinfo_.mode = TAP_ANALYSE;
 
     register_tap_listener_rtpstream(&tapinfo_, NULL, show_tap_registration_error);
-    if (cap_file_.capFile()->dfilter) {
+    if (cap_file_.isValid() && cap_file_.capFile()->dfilter) {
         // Activate display filter checking
         tapinfo_.apply_display_filter = true;
         ui->displayFilterCheckBox->setChecked(true);

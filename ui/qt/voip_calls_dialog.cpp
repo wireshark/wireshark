@@ -96,7 +96,7 @@ VoipCallsDialog::VoipCallsDialog(QWidget &parent, CaptureFile &cf, bool all_flow
     shown_callsinfos_ = g_queue_new();
 
     voip_calls_init_all_taps(&tapinfo_);
-    if (cap_file_.capFile()->dfilter) {
+    if (cap_file_.isValid() && cap_file_.capFile()->dfilter) {
         // Activate display filter checking
         tapinfo_.apply_display_filter = true;
         ui->displayFilterCheckBox->setChecked(true);
