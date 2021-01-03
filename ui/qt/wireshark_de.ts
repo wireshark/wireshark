@@ -6314,8 +6314,9 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <translation>Webseite</translation>
     </message>
     <message>
-        <source>FAQ&apos;s</source>
-        <translation>Häufige Fragen (en)</translation>
+        <source>FAQs</source>
+        <oldsource>FAQ&apos;s</oldsource>
+        <translation type="unfinished">Häufige Fragen (en)</translation>
     </message>
     <message>
         <source>Downloads</source>
@@ -11003,6 +11004,14 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <translation>SSRC</translation>
     </message>
     <message>
+        <source>Start Time</source>
+        <translation type="unfinished">Startzeitpunkt</translation>
+    </message>
+    <message>
+        <source>Duration</source>
+        <translation type="unfinished">Dauer</translation>
+    </message>
+    <message>
         <source>Payload</source>
         <translation>Nutzdaten</translation>
     </message>
@@ -11033,6 +11042,18 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     <message>
         <source>&lt;small&gt;&lt;i&gt;A hint.&lt;/i&gt;&lt;/small&gt;</source>
         <translation>&lt;small&gt;&lt;i&gt;Hinweis&lt;/i&gt;&lt;/small&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Only show conversations matching the current display filter&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Nur Verbindungen anzeigen, die dem aktuellen Anzeigenfilter entsprechen&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <source>Limit to display filter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Time of Day</source>
+        <translation type="unfinished">Uhrzeit</translation>
     </message>
     <message>
         <source>Find Reverse</source>
@@ -11153,6 +11174,10 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     <message>
         <source>, %1 selected, %2 total packets</source>
         <translation>, %1 ausgewählt, %2 Pakete insgesamt</translation>
+    </message>
+    <message>
+        <source>No Audio</source>
+        <translation type="unfinished">Kein Ton</translation>
     </message>
     <message>
         <source>Save RTPDump As…</source>
@@ -12292,6 +12317,30 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <source>P</source>
         <translation>P</translation>
     </message>
+    <message>
+        <source>Select RTP Stream</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Select RTP stream in RTP Streams dialog</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>S</source>
+        <translation type="unfinished">S</translation>
+    </message>
+    <message>
+        <source>Deselect RTP Stream</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Deselect RTP stream in RTP Streams dialog</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>D</source>
+        <translation type="unfinished">D</translation>
+    </message>
 </context>
 <context>
     <name>ShortcutListModel</name>
@@ -13414,6 +13463,14 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     <message>
         <source>&lt;small&gt;&lt;/small&gt;</source>
         <translation>&lt;small&gt;&lt;/small&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Only show conversations matching the current display filter&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Nur Verbindungen anzeigen, die dem aktuellen Anzeigenfilter entsprechen&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <source>Limit to display filter</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Time of Day</source>

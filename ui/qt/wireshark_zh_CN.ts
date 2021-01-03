@@ -6291,8 +6291,9 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>网站</translation>
     </message>
     <message>
-        <source>FAQ&apos;s</source>
-        <translation>常见问题</translation>
+        <source>FAQs</source>
+        <oldsource>FAQ&apos;s</oldsource>
+        <translation type="unfinished">常见问题</translation>
     </message>
     <message>
         <source>Downloads</source>
@@ -10965,6 +10966,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>SSRC</translation>
     </message>
     <message>
+        <source>Start Time</source>
+        <translation type="unfinished">开始时间</translation>
+    </message>
+    <message>
+        <source>Duration</source>
+        <translation type="unfinished">持续时间</translation>
+    </message>
+    <message>
         <source>Payload</source>
         <translation>载荷</translation>
     </message>
@@ -10995,6 +11004,18 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>&lt;small&gt;&lt;i&gt;A hint.&lt;/i&gt;&lt;/small&gt;</source>
         <translation>&lt;small&gt;&lt;i&gt;提示&lt;/i&gt;&lt;/small&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Only show conversations matching the current display filter&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;只显示匹配当前显示过滤器的对话&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <source>Limit to display filter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Time of Day</source>
+        <translation type="unfinished">当天时间</translation>
     </message>
     <message>
         <source>Find Reverse</source>
@@ -11115,6 +11136,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>, %1 selected, %2 total packets</source>
         <translation>, %1 项已选中, 总计 %2 项分组</translation>
+    </message>
+    <message>
+        <source>No Audio</source>
+        <translation type="unfinished">无音频</translation>
     </message>
     <message>
         <source>Save RTPDump As…</source>
@@ -12252,6 +12277,30 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <source>P</source>
         <translation>P</translation>
     </message>
+    <message>
+        <source>Select RTP Stream</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Select RTP stream in RTP Streams dialog</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>S</source>
+        <translation type="unfinished">S</translation>
+    </message>
+    <message>
+        <source>Deselect RTP Stream</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Deselect RTP stream in RTP Streams dialog</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>D</source>
+        <translation type="unfinished">D</translation>
+    </message>
 </context>
 <context>
     <name>ShortcutListModel</name>
@@ -13368,6 +13417,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>&lt;small&gt;&lt;/small&gt;</source>
         <translation>&lt;small&gt;&lt;/small&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Only show conversations matching the current display filter&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;只显示匹配当前显示过滤器的对话&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <source>Limit to display filter</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Time of Day</source>

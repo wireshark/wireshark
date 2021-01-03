@@ -3677,7 +3677,6 @@ opswagent	3976/tcp/udp	# Server Automation Agent
 opswmanager	3977/tcp/udp	# Opsware Manager
 secure-cfg-svr	3978/tcp/udp	# Secured Configuration Server
 smwan		3979/tcp/udp	# Smith Micro Wide Area Network Service
-acms		3980/tcp/udp	# Aircraft Cabin Management System
 starfish	3981/tcp/udp	# Starfish System Admin
 eis		3982/tcp/udp	# ESRI Image Server
 eisp		3983/tcp/udp	# ESRI Image Service

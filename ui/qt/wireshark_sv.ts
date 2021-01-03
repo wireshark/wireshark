@@ -6314,8 +6314,9 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>Webbsida</translation>
     </message>
     <message>
-        <source>FAQ&apos;s</source>
-        <translation>Frågor och svar</translation>
+        <source>FAQs</source>
+        <oldsource>FAQ&apos;s</oldsource>
+        <translation type="unfinished">Frågor och svar</translation>
     </message>
     <message>
         <source>Downloads</source>
@@ -11003,6 +11004,14 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>SSRC</translation>
     </message>
     <message>
+        <source>Start Time</source>
+        <translation type="unfinished">Starttid</translation>
+    </message>
+    <message>
+        <source>Duration</source>
+        <translation type="unfinished">Varaktighet</translation>
+    </message>
+    <message>
         <source>Payload</source>
         <translation>Last</translation>
     </message>
@@ -11033,6 +11042,18 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <message>
         <source>&lt;small&gt;&lt;i&gt;A hint.&lt;/i&gt;&lt;/small&gt;</source>
         <translation>&lt;small&gt;&lt;i&gt;Ett tips.&lt;/i&gt;&lt;/small&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Only show conversations matching the current display filter&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Visa endast konversationer som matchar det aktuella visningsfiltret&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <source>Limit to display filter</source>
+        <translation type="unfinished">Begränsa till visningsfilter</translation>
+    </message>
+    <message>
+        <source>Time of Day</source>
+        <translation type="unfinished">Tid på dagen</translation>
     </message>
     <message>
         <source>Find Reverse</source>
@@ -11153,6 +11174,10 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <message>
         <source>, %1 selected, %2 total packets</source>
         <translation>, %1 valda, %2 paket totalt</translation>
+    </message>
+    <message>
+        <source>No Audio</source>
+        <translation type="unfinished">Inget ljud</translation>
     </message>
     <message>
         <source>Save RTPDump As…</source>
@@ -12292,6 +12317,30 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <source>P</source>
         <translation>P</translation>
     </message>
+    <message>
+        <source>Select RTP Stream</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Select RTP stream in RTP Streams dialog</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>S</source>
+        <translation type="unfinished">S</translation>
+    </message>
+    <message>
+        <source>Deselect RTP Stream</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Deselect RTP stream in RTP Streams dialog</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>D</source>
+        <translation type="unfinished">D</translation>
+    </message>
 </context>
 <context>
     <name>ShortcutListModel</name>
@@ -13414,6 +13463,14 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <message>
         <source>&lt;small&gt;&lt;/small&gt;</source>
         <translation>&lt;small&gt;&lt;/small&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Only show conversations matching the current display filter&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Visa endast konversationer som matchar det aktuella visningsfiltret&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <source>Limit to display filter</source>
+        <translation type="unfinished">Begränsa till visningsfilter</translation>
     </message>
     <message>
         <source>Time of Day</source>

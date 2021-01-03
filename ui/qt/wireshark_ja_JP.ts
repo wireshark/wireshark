@@ -1737,7 +1737,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Field Occurrence</source>
-        <translation type="unfinished"></translation>
+        <translation>フィールド出現位置</translation>
     </message>
     <message>
         <source>New Column</source>
@@ -6298,8 +6298,9 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>ウェブサイト</translation>
     </message>
     <message>
-        <source>FAQ&apos;s</source>
-        <translation>FAQ&apos;s</translation>
+        <source>FAQs</source>
+        <oldsource>FAQ&apos;s</oldsource>
+        <translation type="unfinished">FAQ&apos;s</translation>
     </message>
     <message>
         <source>Downloads</source>
@@ -10612,7 +10613,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Unknown error occurred</source>
-        <translation type="unfinished"></translation>
+        <translation>不明なエラーが起きました</translation>
     </message>
     <message>
         <source>Save forward stream CSV</source>
@@ -10979,6 +10980,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>SSRC</translation>
     </message>
     <message>
+        <source>Start Time</source>
+        <translation type="unfinished">開始時間</translation>
+    </message>
+    <message>
+        <source>Duration</source>
+        <translation type="unfinished">時間</translation>
+    </message>
+    <message>
         <source>Payload</source>
         <translation>ペイロード</translation>
     </message>
@@ -11009,6 +11018,18 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>&lt;small&gt;&lt;i&gt;A hint.&lt;/i&gt;&lt;/small&gt;</source>
         <translation>&lt;small&gt;&lt;i&gt;ヒント&lt;/i&gt;&lt;/small&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Only show conversations matching the current display filter&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;現在の表示フィルタに合致した対話のみ表示します&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <source>Limit to display filter</source>
+        <translation type="unfinished">表示フィルタに制限</translation>
+    </message>
+    <message>
+        <source>Time of Day</source>
+        <translation type="unfinished">時刻</translation>
     </message>
     <message>
         <source>Find Reverse</source>
@@ -11129,6 +11150,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>, %1 selected, %2 total packets</source>
         <translation>, %1 選択, %2 全パケット</translation>
+    </message>
+    <message>
+        <source>No Audio</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Save RTPDump As…</source>
@@ -12266,6 +12291,30 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <source>P</source>
         <translation>P</translation>
     </message>
+    <message>
+        <source>Select RTP Stream</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Select RTP stream in RTP Streams dialog</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>S</source>
+        <translation type="unfinished">S</translation>
+    </message>
+    <message>
+        <source>Deselect RTP Stream</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Deselect RTP stream in RTP Streams dialog</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>D</source>
+        <translation type="unfinished">D</translation>
+    </message>
 </context>
 <context>
     <name>ShortcutListModel</name>
@@ -13386,6 +13435,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>&lt;small&gt;&lt;/small&gt;</source>
         <translation>&lt;small&gt;&lt;/small&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Only show conversations matching the current display filter&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;現在の表示フィルタに合致した対話のみ表示します&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <source>Limit to display filter</source>
+        <translation type="unfinished">表示フィルタに制限</translation>
     </message>
     <message>
         <source>Time of Day</source>

@@ -6333,8 +6333,9 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Веб-сайт</translation>
     </message>
     <message>
-        <source>FAQ&apos;s</source>
-        <translation>ЧАВО</translation>
+        <source>FAQs</source>
+        <oldsource>FAQ&apos;s</oldsource>
+        <translation type="unfinished">ЧАВО</translation>
     </message>
     <message>
         <source>Downloads</source>
@@ -11030,6 +11031,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>SSRC</translation>
     </message>
     <message>
+        <source>Start Time</source>
+        <translation type="unfinished">Время Старта</translation>
+    </message>
+    <message>
+        <source>Duration</source>
+        <translation type="unfinished">Длительность</translation>
+    </message>
+    <message>
         <source>Payload</source>
         <translation>Полезная Нагрузка</translation>
     </message>
@@ -11060,6 +11069,18 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>&lt;small&gt;&lt;i&gt;A hint.&lt;/i&gt;&lt;/small&gt;</source>
         <translation>&lt;small&gt;&lt;i&gt;Совет.&lt;/i&gt;&lt;/small&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Only show conversations matching the current display filter&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Показывать только диалоги, соответствующие текущему дисплейному фильтру&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <source>Limit to display filter</source>
+        <translation type="unfinished">Ограничить соответственно дисплейному фильтру </translation>
+    </message>
+    <message>
+        <source>Time of Day</source>
+        <translation type="unfinished">Время Дня</translation>
     </message>
     <message>
         <source>Find Reverse</source>
@@ -11180,6 +11201,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>, %1 selected, %2 total packets</source>
         <translation>, %1 выбрано, %2 всего пакетов</translation>
+    </message>
+    <message>
+        <source>No Audio</source>
+        <translation type="unfinished">Нет Аудио</translation>
     </message>
     <message>
         <source>Save RTPDump As…</source>
@@ -12321,6 +12346,30 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <source>P</source>
         <translation>P</translation>
     </message>
+    <message>
+        <source>Select RTP Stream</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Select RTP stream in RTP Streams dialog</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>S</source>
+        <translation type="unfinished">S</translation>
+    </message>
+    <message>
+        <source>Deselect RTP Stream</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Deselect RTP stream in RTP Streams dialog</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>D</source>
+        <translation type="unfinished">D</translation>
+    </message>
 </context>
 <context>
     <name>ShortcutListModel</name>
@@ -13445,6 +13494,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>&lt;small&gt;&lt;/small&gt;</source>
         <translation>&lt;small&gt;&lt;/small&gt;</translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Only show conversations matching the current display filter&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Показывать только диалоги, соответствующие текущему дисплейному фильтру&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+    </message>
+    <message>
+        <source>Limit to display filter</source>
+        <translation type="unfinished">Ограничить соответственно дисплейному фильтру </translation>
     </message>
     <message>
         <source>Time of Day</source>

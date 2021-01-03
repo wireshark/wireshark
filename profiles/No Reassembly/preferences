@@ -104,6 +104,7 @@ q931.desegment_h323_messages: FALSE
 q931.reassembly: FALSE
 rlc.perform_reassembly: FALSE
 rlc-lte.reassembly: FALSE
+rlc-nr.reassemble_am_frames: FALSE
 rpc.desegment_rpc_over_tcp: FALSE
 rpcap.desegment_pdus: FALSE
 rsync.desegment: FALSE
