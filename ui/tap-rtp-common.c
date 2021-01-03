@@ -487,7 +487,7 @@ void rtpstream_info_calculate(const rtpstream_info_t *strinfo, rtpstream_info_ca
 
         calc->packet_count = strinfo->packet_count;
         /* packet count, lost packets */
-        calc->packet_expected = (strinfo->rtp_stats.stop_seq_nr + strinfo->rtp_stats.cycles*65536)
+        calc->packet_expected = (strinfo->rtp_stats.stop_seq_nr + strinfo->rtp_stats.seq_cycles*0x10000)
             - strinfo->rtp_stats.start_seq_nr + 1;
         calc->total_nr = strinfo->rtp_stats.total_nr;
         calc->lost_num = calc->packet_expected - strinfo->rtp_stats.total_nr;

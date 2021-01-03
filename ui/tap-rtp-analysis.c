@@ -156,6 +156,8 @@ get_dyn_pt_clock_rate(const gchar *payload_type_str)
     return 0;
 }
 
+#define TIMESTAMP_DIFFERENCE(v1,v2) ((gint64)v2-(gint64)v1)
+
 /****************************************************************************/
 void
 rtppacket_analyse(tap_rtp_stat_t *statinfo,
@@ -170,6 +172,7 @@ rtppacket_analyse(tap_rtp_stat_t *statinfo,
     double expected_time;
     double absskew;
     guint32 clock_rate;
+    gboolean in_time_sequence;
 
     /* Store the current time */
     current_time = nstime_to_msec(&pinfo->rel_ts);
@@ -177,9 +180,6 @@ rtppacket_analyse(tap_rtp_stat_t *statinfo,
     /*  Is this the first packet we got in this direction? */
     if (statinfo->first_packet) {
         /* Save the MAC address of the first RTP frame */
-        if( pinfo->dl_src.type == AT_ETHER){
-            copy_address(&(statinfo->first_packet_mac_addr), &(pinfo->dl_src));
-        }
         statinfo->start_seq_nr = rtpinfo->info_seq_num;
         statinfo->stop_seq_nr = rtpinfo->info_seq_num;
         statinfo->seq_num = rtpinfo->info_seq_num;
@@ -220,23 +220,10 @@ rtppacket_analyse(tap_rtp_stat_t *statinfo,
 
     /* Reset flags */
     statinfo->flags = 0;
-#if 0
-    /*According to bug https://gitlab.com/wireshark/wireshark/-/issues/11478
-     * this code causes problems. A better solution is needed if there is need for the functionality */
-    /* Try to detect duplicated packets due to mirroring/span ports by comparing src MAC addresses.
-     * Check for duplicates (src mac differs from first_packet_mac_addr) */
-    */
-        if( pinfo->dl_src.type == AT_ETHER){
-            if(!addresses_equal(&(statinfo->first_packet_mac_addr), &(pinfo->dl_src))){
-                statinfo->flags |= STAT_FLAG_DUP_PKT;
-                statinfo->delta = current_time-(statinfo->time);
-                return;
-            }
-        }
-#endif
+
     /* When calculating expected rtp packets the seq number can wrap around
      * so we have to count the number of cycles
-     * Variable cycles counts the wraps around in forwarding connection and
+     * Variable seq_cycles counts the wraps around in forwarding connection and
      * under is flag that indicates where we are
      *
      * XXX How to determine number of cycles with all possible lost, late
@@ -248,11 +235,32 @@ rtppacket_analyse(tap_rtp_stat_t *statinfo,
      * where below code won't work correctly - statistic may be wrong then.
      */
 
+    /* Check if time sequence of packets is in order. We check whether
+     * timestamp difference is below 1/2 of timestamp range (hours or days).
+     * Packets can be in pure sequence or sequence can be wrapped arround
+     * 0xFFFFFFFF.
+     */
+    if ((statinfo->first_timestamp <= rtpinfo->info_timestamp) &&
+        TIMESTAMP_DIFFERENCE(statinfo->first_timestamp, rtpinfo->info_timestamp) < 0x80000000) {
+        // Normal timestamp sequence
+        in_time_sequence = TRUE;
+    } else if ((statinfo->first_timestamp > rtpinfo->info_timestamp) &&
+        (TIMESTAMP_DIFFERENCE(0x00000000,statinfo->first_timestamp) + TIMESTAMP_DIFFERENCE(rtpinfo->info_timestamp, 0xFFFFFFFF)) < 0x80000000) {
+        // Normal timestamp sequence with wraparound
+        in_time_sequence = TRUE;
+    } else {
+        // New packet is not in sequence (is in past)
+        in_time_sequence = FALSE;
+        statinfo->flags |= STAT_FLAG_WRONG_TIMESTAMP;
+    }
+
     /* So if the current sequence number is less than the start one
      * we assume, that there is another cycle running
      */
-    if ((rtpinfo->info_seq_num < statinfo->start_seq_nr) && (statinfo->under == FALSE)){
-        statinfo->cycles++;
+    if ((rtpinfo->info_seq_num < statinfo->start_seq_nr) &&
+        in_time_sequence &&
+        (statinfo->under == FALSE)) {
+        statinfo->seq_cycles++;
         statinfo->under = TRUE;
     }
     /* what if the start seq nr was 0? Then the above condition will never
@@ -260,12 +268,15 @@ rtppacket_analyse(tap_rtp_stat_t *statinfo,
      * if one of the packets with seq nr 0 or 65535 would be lost or late
      */
     else if ((rtpinfo->info_seq_num == 0) && (statinfo->stop_seq_nr == 65535) &&
-            (statinfo->under == FALSE)) {
-        statinfo->cycles++;
+             in_time_sequence &&
+             (statinfo->under == FALSE)) {
+        statinfo->seq_cycles++;
         statinfo->under = TRUE;
     }
     /* the whole round is over, so reset the flag */
-    else if ((rtpinfo->info_seq_num > statinfo->start_seq_nr) && (statinfo->under != FALSE)) {
+    else if ((rtpinfo->info_seq_num > statinfo->start_seq_nr) &&
+             in_time_sequence &&
+             (statinfo->under != FALSE)) {
         statinfo->under = FALSE;
     }
 
@@ -276,17 +287,25 @@ rtppacket_analyse(tap_rtp_stat_t *statinfo,
     /* If the current seq number equals the last one or if we are here for
      * the first time, then it is ok, we just store the current one as the last one
      */
-    if ( (statinfo->seq_num+1 == rtpinfo->info_seq_num) || (statinfo->flags & STAT_FLAG_FIRST) )
+    if ( in_time_sequence &&
+         ( (statinfo->seq_num+1 == rtpinfo->info_seq_num) || (statinfo->flags & STAT_FLAG_FIRST) )
+       ) {
         statinfo->seq_num = rtpinfo->info_seq_num;
+    }
     /* If the first one is 65535 we wrap */
-    else if ( (statinfo->seq_num == 65535) && (rtpinfo->info_seq_num == 0) )
+    else if ( in_time_sequence &&
+              ( (statinfo->seq_num == 65535) && (rtpinfo->info_seq_num == 0) )
+            ) {
         statinfo->seq_num = rtpinfo->info_seq_num;
+    }
     /* Lost packets. If the prev seq is enormously larger than the cur seq
      * we assume that instead of being massively late we lost the packet(s)
      * that would have indicated the sequence number wrapping. An imprecise
      * heuristic at best, but it seems to work well enough.
      * https://gitlab.com/wireshark/wireshark/-/issues/5958 */
-    else if (statinfo->seq_num+1 < rtpinfo->info_seq_num || statinfo->seq_num - rtpinfo->info_seq_num > 0xFF00) {
+    else if ( in_time_sequence &&
+              (statinfo->seq_num+1 < rtpinfo->info_seq_num || statinfo->seq_num - rtpinfo->info_seq_num > 0xFF00)
+            ) {
         statinfo->seq_num = rtpinfo->info_seq_num;
         statinfo->sequence++;
         statinfo->flags |= STAT_FLAG_WRONG_SEQ;
@@ -336,56 +355,60 @@ rtppacket_analyse(tap_rtp_stat_t *statinfo,
         }
     }
 
-    /* Handle wraparound ? */
-    arrivaltime = current_time - statinfo->start_time;
+    /* diff/jitter/skew calculations are done just for in sequence packets */
+    if ( in_time_sequence ) {
 
-    nominaltime = (double)(guint32_wraparound_diff(rtpinfo->info_timestamp, statinfo->first_timestamp));
+        /* Handle wraparound ? */
+        arrivaltime = current_time - statinfo->start_time;
 
-    /* Can only analyze defined sampling rates */
-    if (clock_rate != 0) {
-        statinfo->clock_rate = clock_rate;
-        /* Convert from sampling clock to ms */
-        nominaltime = nominaltime /(clock_rate/1000);
+        nominaltime = (double)(guint32_wraparound_diff(rtpinfo->info_timestamp, statinfo->first_timestamp));
 
-        /* Calculate the current jitter(in ms) */
-        if (!statinfo->first_packet) {
-            expected_time = statinfo->time + (nominaltime - statinfo->lastnominaltime);
-            current_diff = fabs(current_time - expected_time);
-            current_jitter = (15 * statinfo->jitter + current_diff) / 16;
+        /* Can only analyze defined sampling rates */
+        if (clock_rate != 0) {
+            statinfo->clock_rate = clock_rate;
+            /* Convert from sampling clock to ms */
+            nominaltime = nominaltime /(clock_rate/1000);
 
-            statinfo->delta = current_time-(statinfo->time);
-            statinfo->jitter = current_jitter;
-            statinfo->diff = current_diff;
-        }
-        statinfo->lastnominaltime = nominaltime;
-        /* Calculate skew, i.e. absolute jitter that also catches clock drift
-         * Skew is positive if TS (nominal) is too fast
-         */
-        statinfo->skew    = nominaltime - arrivaltime;
-        absskew = fabs(statinfo->skew);
-        if(absskew > fabs(statinfo->max_skew)) {
-            statinfo->max_skew = statinfo->skew;
-        }
-        /* Gather data for calculation of average, minimum and maximum framerate based on timestamp */
-#if 0
-        if (numPackets > 0 && (!hardPayloadType || !alternatePayloadType)) {
-            /* Skip first packet and possibly alternate payload type packets */
-            double dt;
-            dt     = nominaltime - statinfo->lastnominaltime;
-            sumdt += 1.0 * dt;
-            numdt += (dt != 0 ? 1 : 0);
-            mindt  = (dt < mindt ? dt : mindt);
-            maxdt  = (dt > maxdt ? dt : maxdt);
-        }
-#endif
-        /* Gather data for calculation of skew least square */
-        statinfo->sumt   += 1.0 * arrivaltime;
-        statinfo->sumTS  += 1.0 * nominaltime;
-        statinfo->sumt2  += 1.0 * arrivaltime * arrivaltime;
-        statinfo->sumtTS += 1.0 * arrivaltime * nominaltime;
-    } else {
-        if (!statinfo->first_packet) {
-            statinfo->delta = current_time-(statinfo->time);
+            /* Calculate the current jitter(in ms) */
+            if (!statinfo->first_packet) {
+                expected_time = statinfo->time + (nominaltime - statinfo->lastnominaltime);
+                current_diff = fabs(current_time - expected_time);
+                current_jitter = (15 * statinfo->jitter + current_diff) / 16;
+
+                statinfo->delta = current_time-(statinfo->time);
+                statinfo->jitter = current_jitter;
+                statinfo->diff = current_diff;
+            }
+            statinfo->lastnominaltime = nominaltime;
+            /* Calculate skew, i.e. absolute jitter that also catches clock drift
+             * Skew is positive if TS (nominal) is too fast
+             */
+            statinfo->skew = nominaltime - arrivaltime;
+            absskew = fabs(statinfo->skew);
+            if (absskew > fabs(statinfo->max_skew)) {
+                statinfo->max_skew = statinfo->skew;
+            }
+            /* Gather data for calculation of average, minimum and maximum framerate based on timestamp */
+    #if 0
+            if (numPackets > 0 && (!hardPayloadType || !alternatePayloadType)) {
+                /* Skip first packet and possibly alternate payload type packets */
+                double dt;
+                dt     = nominaltime - statinfo->lastnominaltime;
+                sumdt += 1.0 * dt;
+                numdt += (dt != 0 ? 1 : 0);
+                mindt  = (dt < mindt ? dt : mindt);
+                maxdt  = (dt > maxdt ? dt : maxdt);
+            }
+    #endif
+            /* Gather data for calculation of skew least square */
+            statinfo->sumt   += 1.0 * arrivaltime;
+            statinfo->sumTS  += 1.0 * nominaltime;
+            statinfo->sumt2  += 1.0 * arrivaltime * arrivaltime;
+            statinfo->sumtTS += 1.0 * arrivaltime * nominaltime;
+        } else {
+            if (!statinfo->first_packet) {
+                statinfo->delta = current_time-(statinfo->time);
+            }
         }
     }
 
@@ -414,19 +437,11 @@ rtppacket_analyse(tap_rtp_stat_t *statinfo,
     if (statinfo->bw_index == BUFF_BW) statinfo->bw_index = 0;
 
 
-    /* Used by GTK code only */
-    statinfo->delta_timestamp = guint32_wraparound_diff(rtpinfo->info_timestamp, statinfo->timestamp);
-
     /* Is it a packet with the mark bit set? */
     if (rtpinfo->info_marker_set) {
         statinfo->flags |= STAT_FLAG_MARKER;
     }
 
-    /* Difference can be negative. We don't expect difference bigger than 31 bits. Difference don't care about wrap around. */
-    gint32 tsdelta=rtpinfo->info_timestamp - statinfo->timestamp;
-    if (tsdelta < 0) {
-        statinfo->flags |= STAT_FLAG_WRONG_TIMESTAMP;
-    }
     /* Is it a regular packet? */
     if (!(statinfo->flags & STAT_FLAG_FIRST)
             && !(statinfo->flags & STAT_FLAG_MARKER)
@@ -460,7 +475,12 @@ rtppacket_analyse(tap_rtp_stat_t *statinfo,
         statinfo->reg_pt = statinfo->pt;
     }
 
-    statinfo->time = current_time;
+    if (in_time_sequence) {
+        /* We remember last time just for in_time sequence packets
+         * therefore diff calculations are correct for it
+         */
+        statinfo->time = current_time;
+    }
     statinfo->timestamp = rtpinfo->info_timestamp;
     statinfo->stop_seq_nr = rtpinfo->info_seq_num;
     statinfo->total_nr++;
