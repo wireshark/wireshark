@@ -144,6 +144,7 @@ void OverlayScrollBar::resizeEvent(QResizeEvent *event)
 
     child_sb_.move(packet_map_width_, 0);
     child_sb_.resize(child_sb_.sizeHint().width(), height());
+    child_sb_.setPageStep(height());
 }
 
 void OverlayScrollBar::paintEvent(QPaintEvent *event)
