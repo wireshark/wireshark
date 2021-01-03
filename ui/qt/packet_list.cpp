@@ -1830,7 +1830,7 @@ void PacketList::vScrollBarActionTriggered(int)
 {
     // If we're scrolling with a mouse wheel or trackpad sliderPosition can end up
     // past the end.
-    tail_at_end_ = (verticalScrollBar()->sliderPosition() >= verticalScrollBar()->maximum());
+    tail_at_end_ = (overlay_sb_->sliderPosition() >= overlay_sb_->maximum());
 
     scrollViewChanged(tail_at_end_);
 }

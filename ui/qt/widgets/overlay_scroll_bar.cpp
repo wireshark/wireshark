@@ -94,6 +94,11 @@ QSize OverlayScrollBar::sizeHint() const
                  QScrollBar::sizeHint().height());
 }
 
+int OverlayScrollBar::sliderPosition()
+{
+    return child_sb_.sliderPosition();
+}
+
 void OverlayScrollBar::setNearOverlayImage(QImage &overlay_image, int packet_count, int start_pos, int end_pos, QList<int> positions)
 {
     int old_width = packet_map_img_.width();
