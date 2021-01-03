@@ -126,7 +126,7 @@ uid_rows = [get_texts_in_row(x) for x in uid_trs]
 def uid_define_name(uid):
     if uid[1] == "(Retired)":
         return f'"{uid[0]}"'
-    uid_type = uid[2]
+    uid_type = uid[3]
     uid_name = uid[1]
     uid_name = re.sub(":.*", "", uid[1])
     if uid_name.endswith(uid_type):
@@ -237,7 +237,7 @@ typedef struct dcm_uid {
                 for uid in uid_rows if uid[1] != '(Retired)') + """
 
 static dcm_uid_t dcm_uid_data[] = {
-""" + "\n".join(f'    {{ {uid_define_name(uid)}, "{uid[1]}", "{uid[2]}"}},'
+""" + "\n".join(f'    {{ {uid_define_name(uid)}, "{uid[1]}", "{uid[3]}"}},'
                             for uid in uid_rows)+ """
 };
 

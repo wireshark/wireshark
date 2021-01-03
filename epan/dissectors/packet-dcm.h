@@ -7,9 +7,9 @@
  *
  * Generated automatically by make-packet-dcm.py from the following sources:
  *
- * DICOM PS3.5 2020c - Data Structures and Encoding
- * DICOM PS3.6 2020c - Data Dictionary
- * DICOM PS3.7 2020c - Message Exchange
+ * DICOM PS3.5 2020e - Data Structures and Encoding
+ * DICOM PS3.6 2020e - Data Dictionary
+ * DICOM PS3.7 2020e - Message Exchange
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -181,7 +181,7 @@ static dcm_tag_t dcm_tag_data[] = {
     { 0x00080052, "Query/Retrieve Level", "CS", "1", 0, 0},
     { 0x00080053, "Query/Retrieve View", "CS", "1", 0, 0},
     { 0x00080054, "Retrieve AE Title", "AE", "1-n", 0, 0},
-    { 0x00080055, "Station  AE Title", "AE", "1", 0, 0},
+    { 0x00080055, "Station AE Title", "AE", "1", 0, 0},
     { 0x00080056, "Instance Availability", "CS", "1", 0, 0},
     { 0x00080058, "Failed SOP Instance UID List", "UI", "1-n", 0, 0},
     { 0x00080060, "Modality", "CS", "1", 0, 0},
@@ -761,6 +761,11 @@ static dcm_tag_t dcm_tag_data[] = {
     { 0x0016008C, "GPS Area Information", "OB", "1", 0, 0},
     { 0x0016008D, "GPS Date Stamp", "DT", "1", 0, 0},
     { 0x0016008E, "GPS Differential", "IS", "1", 0, 0},
+    { 0x00161001, "Light Source Polarization", "CS", "1", 0, 0},
+    { 0x00161002, "Emitter Color Temperature", "DS", "1", 0, 0},
+    { 0x00161003, "Contact Method", "CS", "1", 0, 0},
+    { 0x00161004, "Immersion Media", "CS", "1-n", 0, 0},
+    { 0x00161005, "Optical Magnification Factor", "DS", "1", 0, 0},
     { 0x00180010, "Contrast/Bolus Agent", "LO", "1", 0, 0},
     { 0x00180012, "Contrast/Bolus Agent Sequence", "SQ", "1", 0, 0},
     { 0x00180013, "Contrast/Bolus T1 Relaxivity", "FL", "1", 0, 0},
@@ -1037,6 +1042,7 @@ static dcm_tag_t dcm_tag_data[] = {
     { 0x00184000, "Acquisition Comments", "LT", "1", -1, 0},
     { 0x00185000, "Output Power", "SH", "1-n", 0, 0},
     { 0x00185010, "Transducer Data", "LO", "1-n", 0, 0},
+    { 0x00185011, "Transducer Identification Sequence", "SQ", "1", 0, 0},
     { 0x00185012, "Focus Depth", "DS", "1", 0, 0},
     { 0x00185020, "Processing Function", "LO", "1", 0, 0},
     { 0x00185021, "Postprocessing Function", "LO", "1", -1, 0},
@@ -2670,6 +2676,14 @@ static dcm_tag_t dcm_tag_data[] = {
     { 0x0040A731, "Relationship Sequence (Trial)", "SQ", "1", -1, 0},
     { 0x0040A732, "Relationship Type Code Sequence (Trial)", "SQ", "1", -1, 0},
     { 0x0040A744, "Language Code Sequence (Trial)", "SQ", "1", -1, 0},
+    { 0x0040A801, "Tabulated Values Sequence", "SQ", "1", 0, 0},
+    { 0x0040A802, "Number of Table Rows", "UL", "1", 0, 0},
+    { 0x0040A803, "Number of Table Columns", "UL", "1", 0, 0},
+    { 0x0040A804, "Table Row Number", "UL", "1", 0, 0},
+    { 0x0040A805, "Table Column Number", "UL", "1", 0, 0},
+    { 0x0040A806, "Table Row Definition Sequence", "SQ", "1", 0, 0},
+    { 0x0040A807, "Table Column Definition Sequence", "SQ", "1", 0, 0},
+    { 0x0040A808, "Cell Values Sequence", "SQ", "1", 0, 0},
     { 0x0040A992, "Uniform Resource Locator (Trial)", "ST", "1", -1, 0},
     { 0x0040B020, "Waveform Annotation Sequence", "SQ", "1", 0, 0},
     { 0x0040DB00, "Template Identifier", "CS", "1", 0, 0},
@@ -3393,6 +3407,9 @@ static dcm_tag_t dcm_tag_data[] = {
     { 0x0072007E, "Selector SS Value", "SS", "1-n", 0, 0},
     { 0x0072007F, "Selector UI Value", "UI", "1-n", 0, 0},
     { 0x00720080, "Selector Code Sequence Value", "SQ", "1", 0, 0},
+    { 0x00720081, "Selector OV Value", "OV", "1", 0, 0},
+    { 0x00720082, "Selector SV Value", "SV", "1-n", 0, 0},
+    { 0x00720083, "Selector UV Value", "UV", "1-n", 0, 0},
     { 0x00720100, "Number of Screens", "US", "1", 0, 0},
     { 0x00720102, "Nominal Screen Definition Sequence", "SQ", "1", 0, 0},
     { 0x00720104, "Number of Vertical Pixels", "US", "1", 0, 0},
@@ -5086,6 +5103,11 @@ typedef struct dcm_uid {
 #define DCM_UID_WELL_KNOWN_FRAME_OF_REFERENCE_ICBM_SINGLE_SUBJECT_MRI_FRAME_OF_REFERENCE "1.2.840.10008.1.4.2.2"
 #define DCM_UID_WELL_KNOWN_FRAME_OF_REFERENCE_IEC_61217_FIXED_COORDINATE_SYSTEM_FRAME_OF_REFERENCE "1.2.840.10008.1.4.3.1"
 #define DCM_UID_WELL_KNOWN_FRAME_OF_REFERENCE_STANDARD_ROBOTIC_ARM_COORDINATE_SYSTEM_FRAME_OF_REFERENCE "1.2.840.10008.1.4.3.2"
+#define DCM_UID_WELL_KNOWN_FRAME_OF_REFERENCE_SRI24_FRAME_OF_REFERENCE "1.2.840.10008.1.4.4.1"
+#define DCM_UID_WELL_KNOWN_FRAME_OF_REFERENCE_COLIN27_FRAME_OF_REFERENCE "1.2.840.10008.1.4.5.1"
+#define DCM_UID_WELL_KNOWN_FRAME_OF_REFERENCE_LPBA40AIR_FRAME_OF_REFERENCE "1.2.840.10008.1.4.6.1"
+#define DCM_UID_WELL_KNOWN_FRAME_OF_REFERENCE_LPBA40FLIRT_FRAME_OF_REFERENCE "1.2.840.10008.1.4.6.2"
+#define DCM_UID_WELL_KNOWN_FRAME_OF_REFERENCE_LPBA40SPM5_FRAME_OF_REFERENCE "1.2.840.10008.1.4.6.3"
 #define DCM_UID_WELL_KNOWN_SOP_INSTANCE_HOT_IRON_COLOR_PALETTE_SOP_INSTANCE "1.2.840.10008.1.5.1"
 #define DCM_UID_WELL_KNOWN_SOP_INSTANCE_PET_COLOR_PALETTE_SOP_INSTANCE "1.2.840.10008.1.5.2"
 #define DCM_UID_WELL_KNOWN_SOP_INSTANCE_HOT_METAL_BLUE_COLOR_PALETTE_SOP_INSTANCE "1.2.840.10008.1.5.3"
@@ -5111,12 +5133,13 @@ typedef struct dcm_uid {
 #define DCM_UID_CODING_SCHEME_INTEGRATED_TAXONOMIC_INFORMATION_SYSTEM_ITIS_TAXONOMIC_SERIAL_NUMBER_TSN "1.2.840.10008.2.16.7"
 #define DCM_UID_CODING_SCHEME_MOUSE_GENOME_INITIATIVE_MGI "1.2.840.10008.2.16.8"
 #define DCM_UID_CODING_SCHEME_PUBCHEM_COMPOUND_CID "1.2.840.10008.2.16.9"
-#define DCM_UID_CODING_SCHEME_ICD_11 "1.2.840.10008.2.16.10"
+#define DCM_UID_CODING_SCHEME_DUBLIN_CORE "1.2.840.10008.2.16.10"
 #define DCM_UID_CODING_SCHEME_NEW_YORK_UNIVERSITY_MELANOMA_CLINICAL_COOPERATIVE_GROUP "1.2.840.10008.2.16.11"
 #define DCM_UID_CODING_SCHEME_MAYO_CLINIC_NON_RADIOLOGICAL_IMAGES_SPECIFIC_BODY_STRUCTURE_ANATOMICAL_SURFACE_REGION_GUIDE "1.2.840.10008.2.16.12"
 #define DCM_UID_CODING_SCHEME_IMAGE_BIOMARKER_STANDARDISATION_INITIATIVE "1.2.840.10008.2.16.13"
 #define DCM_UID_CODING_SCHEME_RADIOMICS_ONTOLOGY "1.2.840.10008.2.16.14"
 #define DCM_UID_CODING_SCHEME_RADELEMENT "1.2.840.10008.2.16.15"
+#define DCM_UID_CODING_SCHEME_ICD_11 "1.2.840.10008.2.16.16"
 #define DCM_UID_APPLICATION_CONTEXT_NAME_DICOM "1.2.840.10008.3.1.1.1"
 #define DCM_UID_SOP_CLASS_DETACHED_PATIENT_MANAGEMENT_SOP_CLASS_RETIRED "1.2.840.10008.3.1.2.1.1"
 #define DCM_UID_META_SOP_CLASS_DETACHED_PATIENT_MANAGEMENT_META_SOP_CLASS_RETIRED "1.2.840.10008.3.1.2.1.4"
@@ -5258,6 +5281,7 @@ typedef struct dcm_uid {
 #define DCM_UID_SOP_CLASS_OPHTHALMIC_OPTICAL_COHERENCE_TOMOGRAPHY_EN_FACE_IMAGE_STORAGE "1.2.840.10008.5.1.4.1.1.77.1.5.7"
 #define DCM_UID_SOP_CLASS_OPHTHALMIC_OPTICAL_COHERENCE_TOMOGRAPHY_B_SCAN_VOLUME_ANALYSIS_STORAGE "1.2.840.10008.5.1.4.1.1.77.1.5.8"
 #define DCM_UID_SOP_CLASS_VL_WHOLE_SLIDE_MICROSCOPY_IMAGE_STORAGE "1.2.840.10008.5.1.4.1.1.77.1.6"
+#define DCM_UID_SOP_CLASS_DERMOSCOPIC_PHOTOGRAPHY_IMAGE_STORAGE "1.2.840.10008.5.1.4.1.1.77.1.7"
 #define DCM_UID_SOP_CLASS_VL_MULTI_FRAME_IMAGE_STORAGE_TRIAL_RETIRED "1.2.840.10008.5.1.4.1.1.77.2"
 #define DCM_UID_SOP_CLASS_LENSOMETRY_MEASUREMENTS_STORAGE "1.2.840.10008.5.1.4.1.1.78.1"
 #define DCM_UID_SOP_CLASS_AUTOREFRACTION_MEASUREMENTS_STORAGE "1.2.840.10008.5.1.4.1.1.78.2"
@@ -5523,6 +5547,11 @@ static dcm_uid_t dcm_uid_data[] = {
     { DCM_UID_WELL_KNOWN_FRAME_OF_REFERENCE_ICBM_SINGLE_SUBJECT_MRI_FRAME_OF_REFERENCE, "ICBM Single Subject MRI Frame of Reference", "Well-known frame of reference"},
     { DCM_UID_WELL_KNOWN_FRAME_OF_REFERENCE_IEC_61217_FIXED_COORDINATE_SYSTEM_FRAME_OF_REFERENCE, "IEC 61217 Fixed Coordinate System Frame of Reference", "Well-known frame of reference"},
     { DCM_UID_WELL_KNOWN_FRAME_OF_REFERENCE_STANDARD_ROBOTIC_ARM_COORDINATE_SYSTEM_FRAME_OF_REFERENCE, "Standard Robotic-Arm Coordinate System Frame of Reference", "Well-known frame of reference"},
+    { DCM_UID_WELL_KNOWN_FRAME_OF_REFERENCE_SRI24_FRAME_OF_REFERENCE, "SRI24 Frame of Reference", "Well-known frame of reference"},
+    { DCM_UID_WELL_KNOWN_FRAME_OF_REFERENCE_COLIN27_FRAME_OF_REFERENCE, "Colin27 Frame of Reference", "Well-known frame of reference"},
+    { DCM_UID_WELL_KNOWN_FRAME_OF_REFERENCE_LPBA40AIR_FRAME_OF_REFERENCE, "LPBA40/AIR Frame of Reference", "Well-known frame of reference"},
+    { DCM_UID_WELL_KNOWN_FRAME_OF_REFERENCE_LPBA40FLIRT_FRAME_OF_REFERENCE, "LPBA40/FLIRT Frame of Reference", "Well-known frame of reference"},
+    { DCM_UID_WELL_KNOWN_FRAME_OF_REFERENCE_LPBA40SPM5_FRAME_OF_REFERENCE, "LPBA40/SPM5 Frame of Reference", "Well-known frame of reference"},
     { DCM_UID_WELL_KNOWN_SOP_INSTANCE_HOT_IRON_COLOR_PALETTE_SOP_INSTANCE, "Hot Iron Color Palette SOP Instance", "Well-known SOP Instance"},
     { DCM_UID_WELL_KNOWN_SOP_INSTANCE_PET_COLOR_PALETTE_SOP_INSTANCE, "PET Color Palette SOP Instance", "Well-known SOP Instance"},
     { DCM_UID_WELL_KNOWN_SOP_INSTANCE_HOT_METAL_BLUE_COLOR_PALETTE_SOP_INSTANCE, "Hot Metal Blue Color Palette SOP Instance", "Well-known SOP Instance"},
@@ -5548,12 +5577,13 @@ static dcm_uid_t dcm_uid_data[] = {
     { DCM_UID_CODING_SCHEME_INTEGRATED_TAXONOMIC_INFORMATION_SYSTEM_ITIS_TAXONOMIC_SERIAL_NUMBER_TSN, "Integrated Taxonomic Information System (ITIS) Taxonomic Serial Number (TSN)", "Coding Scheme"},
     { DCM_UID_CODING_SCHEME_MOUSE_GENOME_INITIATIVE_MGI, "Mouse Genome Initiative (MGI)", "Coding Scheme"},
     { DCM_UID_CODING_SCHEME_PUBCHEM_COMPOUND_CID, "PubChem Compound CID", "Coding Scheme"},
-    { DCM_UID_CODING_SCHEME_ICD_11, "ICD-11", "Coding Scheme"},
+    { DCM_UID_CODING_SCHEME_DUBLIN_CORE, "Dublin Core", "Coding Scheme"},
     { DCM_UID_CODING_SCHEME_NEW_YORK_UNIVERSITY_MELANOMA_CLINICAL_COOPERATIVE_GROUP, "New York University Melanoma Clinical Cooperative Group", "Coding Scheme"},
     { DCM_UID_CODING_SCHEME_MAYO_CLINIC_NON_RADIOLOGICAL_IMAGES_SPECIFIC_BODY_STRUCTURE_ANATOMICAL_SURFACE_REGION_GUIDE, "Mayo Clinic Non-radiological Images Specific Body Structure Anatomical Surface Region Guide", "Coding Scheme"},
     { DCM_UID_CODING_SCHEME_IMAGE_BIOMARKER_STANDARDISATION_INITIATIVE, "Image Biomarker Standardisation Initiative", "Coding Scheme"},
     { DCM_UID_CODING_SCHEME_RADIOMICS_ONTOLOGY, "Radiomics Ontology", "Coding Scheme"},
     { DCM_UID_CODING_SCHEME_RADELEMENT, "RadElement", "Coding Scheme"},
+    { DCM_UID_CODING_SCHEME_ICD_11, "ICD-11", "Coding Scheme"},
     { DCM_UID_APPLICATION_CONTEXT_NAME_DICOM, "DICOM Application Context Name", "Application Context Name"},
     { DCM_UID_SOP_CLASS_DETACHED_PATIENT_MANAGEMENT_SOP_CLASS_RETIRED, "Detached Patient Management SOP Class (Retired)", "SOP Class"},
     { DCM_UID_META_SOP_CLASS_DETACHED_PATIENT_MANAGEMENT_META_SOP_CLASS_RETIRED, "Detached Patient Management Meta SOP Class (Retired)", "Meta SOP Class"},
@@ -5697,6 +5727,7 @@ static dcm_uid_t dcm_uid_data[] = {
     { DCM_UID_SOP_CLASS_OPHTHALMIC_OPTICAL_COHERENCE_TOMOGRAPHY_EN_FACE_IMAGE_STORAGE, "Ophthalmic Optical Coherence Tomography En Face Image Storage", "SOP Class"},
     { DCM_UID_SOP_CLASS_OPHTHALMIC_OPTICAL_COHERENCE_TOMOGRAPHY_B_SCAN_VOLUME_ANALYSIS_STORAGE, "Ophthalmic Optical Coherence Tomography B-scan Volume Analysis Storage", "SOP Class"},
     { DCM_UID_SOP_CLASS_VL_WHOLE_SLIDE_MICROSCOPY_IMAGE_STORAGE, "VL Whole Slide Microscopy Image Storage", "SOP Class"},
+    { DCM_UID_SOP_CLASS_DERMOSCOPIC_PHOTOGRAPHY_IMAGE_STORAGE, "Dermoscopic Photography Image Storage", "SOP Class"},
     { DCM_UID_SOP_CLASS_VL_MULTI_FRAME_IMAGE_STORAGE_TRIAL_RETIRED, "VL Multi-frame Image Storage - Trial (Retired)", "SOP Class"},
     { DCM_UID_SOP_CLASS_LENSOMETRY_MEASUREMENTS_STORAGE, "Lensometry Measurements Storage", "SOP Class"},
     { DCM_UID_SOP_CLASS_AUTOREFRACTION_MEASUREMENTS_STORAGE, "Autorefraction Measurements Storage", "SOP Class"},
