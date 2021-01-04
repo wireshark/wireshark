@@ -3290,36 +3290,36 @@ void MainWindow::on_actionStatisticsHTTP2_triggered()
 
 // Telephony Menu
 
-void MainWindow::interconnectRtpStreamDialogToVoipCallsDialog(RtpStreamDialog *rtp_stream_dialog, VoipCallsDialog *voip_calls_dialog)
+void MainWindow::interconnectRtpStreamDialogToTelephonyCallsDialog(RtpStreamDialog *rtp_stream_dialog, VoipCallsDialog *dlg)
 {
-    if (rtp_stream_dialog && voip_calls_dialog) {
+    if (rtp_stream_dialog && dlg) {
         // Connect signals between dialogs
-        connect(voip_calls_dialog, SIGNAL(selectRtpStreamPassOut(rtpstream_id_t *)), rtp_stream_dialog, SLOT(selectRtpStream(rtpstream_id_t *)));
-        connect(voip_calls_dialog, SIGNAL(deselectRtpStreamPassOut(rtpstream_id_t *)), rtp_stream_dialog, SLOT(deselectRtpStream(rtpstream_id_t *)));
+        connect(dlg, SIGNAL(selectRtpStreamPassOut(rtpstream_id_t *)), rtp_stream_dialog, SLOT(selectRtpStream(rtpstream_id_t *)));
+        connect(dlg, SIGNAL(deselectRtpStreamPassOut(rtpstream_id_t *)), rtp_stream_dialog, SLOT(deselectRtpStream(rtpstream_id_t *)));
     }
 }
 
-void MainWindow::openVoipCallsDialog(bool all_flows)
+void MainWindow::openTelephonyVoipCallsDialog(VoipCallsDialog *dlg)
 {
-    if (!voip_calls_dialog_) {
-        voip_calls_dialog_ = new VoipCallsDialog(*this, capture_file_, all_flows);
-    }
-    connect(voip_calls_dialog_, SIGNAL(goToPacket(int)),
+    connect(dlg, SIGNAL(goToPacket(int)),
             packet_list_, SLOT(goToPacket(int)));
-    connect(voip_calls_dialog_, SIGNAL(updateFilter(QString, bool)),
+    connect(dlg, SIGNAL(updateFilter(QString, bool)),
             this, SLOT(filterPackets(QString, bool)));
-    connect(voip_calls_dialog_, SIGNAL(openRtpStreamDialogPassOut()),
+    connect(dlg, SIGNAL(openRtpStreamDialogPassOut()),
             this, SLOT(on_actionTelephonyRTPStreams_triggered()));
     connect(this, SIGNAL(displayFilterSuccess(bool)),
-            voip_calls_dialog_, SLOT(displayFilterSuccess(bool)));
-    interconnectRtpStreamDialogToVoipCallsDialog(rtp_stream_dialog_, voip_calls_dialog_);
-    voip_calls_dialog_->show();
-    voip_calls_dialog_->raise();
+            dlg, SLOT(displayFilterSuccess(bool)));
+    interconnectRtpStreamDialogToTelephonyCallsDialog(rtp_stream_dialog_, dlg);
+    dlg->show();
+    dlg->raise();
 }
 
 void MainWindow::on_actionTelephonyVoipCalls_triggered()
 {
-    openVoipCallsDialog();
+    if (!voip_calls_dialog_) {
+        voip_calls_dialog_ = new VoipCallsDialog(*this, capture_file_, false);
+    }
+    openTelephonyVoipCallsDialog(voip_calls_dialog_);
 }
 
 void MainWindow::on_actionTelephonyGsmMapSummary_triggered()
@@ -3417,7 +3417,8 @@ void MainWindow::on_actionTelephonyRTPStreams_triggered()
             this, SLOT(filterPackets(QString, bool)));
     connect(this, SIGNAL(displayFilterSuccess(bool)),
             rtp_stream_dialog_, SLOT(displayFilterSuccess(bool)));
-    interconnectRtpStreamDialogToVoipCallsDialog(rtp_stream_dialog_, voip_calls_dialog_);
+    interconnectRtpStreamDialogToTelephonyCallsDialog(rtp_stream_dialog_, voip_calls_dialog_);
+    interconnectRtpStreamDialogToTelephonyCallsDialog(rtp_stream_dialog_, sip_calls_dialog_);
     rtp_stream_dialog_->show();
     rtp_stream_dialog_->raise();
 }
@@ -3447,7 +3448,10 @@ void MainWindow::on_actionTelephonyUCPMessages_triggered()
 
 void MainWindow::on_actionTelephonySipFlows_triggered()
 {
-    openVoipCallsDialog(true);
+    if (!sip_calls_dialog_) {
+        sip_calls_dialog_ = new VoipCallsDialog(*this, capture_file_, true);
+    }
+    openTelephonyVoipCallsDialog(voip_calls_dialog_);
 }
 
 // Wireless Menu

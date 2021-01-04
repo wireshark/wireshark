@@ -248,8 +248,9 @@ private:
 
     QPointer<RtpStreamDialog> rtp_stream_dialog_;       // Singleton pattern used
     QPointer<VoipCallsDialog> voip_calls_dialog_;       // Singleton pattern used
+    QPointer<VoipCallsDialog> sip_calls_dialog_;        // Singleton pattern used
 
-    void interconnectRtpStreamDialogToVoipCallsDialog(RtpStreamDialog *rtp_stream_dialog, VoipCallsDialog *voip_calls_dialog);
+    void interconnectRtpStreamDialogToTelephonyCallsDialog(RtpStreamDialog *rtp_stream_dialog, VoipCallsDialog *dlg);
 
     void freeze();
     void thaw();
@@ -670,7 +671,7 @@ private slots:
     void on_actionStatisticsHpfeeds_triggered();
     void on_actionStatisticsHTTP2_triggered();
 
-    void openVoipCallsDialog(bool all_flows = false);
+    void openTelephonyVoipCallsDialog(VoipCallsDialog *dlg);
     void on_actionTelephonyVoipCalls_triggered();
     void on_actionTelephonyGsmMapSummary_triggered();
     void statCommandLteMacStatistics(const char *arg, void *);
