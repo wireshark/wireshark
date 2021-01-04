@@ -107,7 +107,9 @@ direction and control PDUs in the opposite direction.
 
 === MTP3
 
-{missing}
+The Message Transfer Part level 3 (MTP3) protocol is a part of the Signaling System 7 (SS7). The Public Switched Telephone Networks use it for reliable, unduplicated and in-sequence transport of SS7 messaging between communication partners.
+
+This menu shows MTP3 Statistics and MTP3 Summary windows.
 
 [[ChTelOsmux]]
 
