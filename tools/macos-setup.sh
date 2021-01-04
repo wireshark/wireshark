@@ -74,11 +74,19 @@ PCRE_VERSION=8.44
 # combination of SDK and Deployment Target are allowed" check that fails
 # in some cases.
 #
-# So if you're on Lion, we choose version 3.5.2, otherwise we choose
-# the latest stable version (currently 3.12.4).
+# 3.19.2 is the first version to support Apple Silicon, but the precompiled
+# binary on cmake.org is only a universal binary that requires macOS 10.0
+# (Yosemite) or newer.
 #
-if [[ $DARWIN_MAJOR_VERSION -gt 11 ]]; then
-    CMAKE_VERSION=${CMAKE_VERSION-3.12.4}
+# So if you're on Lion, we choose version 3.5.2, otherwise on Mountain
+# Lion and Mavericks we choose the last stable release that works on
+# them (3.18.5), and on Yosemite and later we choose the latest stable
+# version (currently 3.19.2).
+#
+if [[ $DARWIN_MAJOR_VERSION -gt 13 ]]; then
+    CMAKE_VERSION=${CMAKE_VERSION-3.19.2}
+elif [[ $DARWIN_MAJOR_VERSION -gt 11 ]]; then
+    CMAKE_VERSION=${CMAKE_VERSION-3.18.5}
 else
     CMAKE_VERSION=${CMAKE_VERSION-3.5.2}
 fi
@@ -572,19 +580,8 @@ install_cmake() {
         #
         case "$CMAKE_MAJOR_VERSION" in
 
-        0|1)
+        0|1|2)
             echo "CMake $CMAKE_VERSION" is too old 1>&2
-            ;;
-
-        2)
-            #
-            # Download the DMG, run the installer.
-            #
-            [ -f cmake-$CMAKE_VERSION-Darwin64-universal.dmg ] || curl -L -O https://cmake.org/files/v$CMAKE_MAJOR_MINOR_VERSION/cmake-$CMAKE_VERSION-Darwin64-universal.dmg || exit 1
-            $no_build && echo "Skipping installation" && return
-            sudo hdiutil attach cmake-$CMAKE_VERSION-Darwin64-universal.dmg || exit 1
-            sudo installer -target / -pkg /Volumes/cmake-$CMAKE_VERSION-Darwin64-universal/cmake-$CMAKE_VERSION-Darwin64-universal.pkg || exit 1
-            sudo hdiutil detach /Volumes/cmake-$CMAKE_VERSION-Darwin64-universal
             ;;
 
         3)
@@ -594,14 +591,19 @@ install_cmake() {
             #
             # 3.0.* and 3.1.0 have a Darwin64-universal DMG.
             # 3.1.1 and later have a Darwin-x86_64 DMG.
+	    # 3.19.2 and later have a macos-universal DMG.
             # Probably not many people are still developing on 32-bit
             # Macs, so we don't worry about them.
             #
             if [ "$CMAKE_MINOR_VERSION" = 0 -o \
                  "$CMAKE_VERSION" = 3.1.0 ]; then
                 type="Darwin64-universal"
-            else
+	    elif [ "$CMAKE_MINOR_VERSION" -lt 19 -o \
+		 "$CMAKE_VERSION" = 3.19.0 -o \
+		 "$CMAKE_VERSION" = 3.19.1 ]; then
                 type="Darwin-x86_64"
+	    else
+		type="macos-universal"
             fi
             [ -f cmake-$CMAKE_VERSION-$type.dmg ] || curl -L -O https://cmake.org/files/v$CMAKE_MAJOR_MINOR_VERSION/cmake-$CMAKE_VERSION-$type.dmg || exit 1
             $no_build && echo "Skipping installation" && return
@@ -639,18 +641,8 @@ uninstall_cmake() {
         installed_cmake_major_version="`expr $installed_cmake_version : '\([0-9][0-9]*\).*'`"
         case "$installed_cmake_major_version" in
 
-        0|1)
+        0|1|2)
             echo "CMake $installed_cmake_version" is too old 1>&2
-            ;;
-
-        2)
-            sudo rm -rf "/Applications/CMake "`echo "$installed_cmake_version" | sed 's/\([0-9][0-9]*\)\.\([0-9][0-9]*\)\.\([0-9][0-9]*\).*/\1.\2-\3/'`.app
-            for i in ccmake cmake cmake-gui cmakexbuild cpack ctest
-            do
-                sudo rm -f /usr/bin/$i /usr/local/bin/$i
-            done
-            sudo pkgutil --forget com.Kitware.CMake
-            rm cmake-$installed_cmake_version-done
             ;;
 
         3)
@@ -670,6 +662,7 @@ uninstall_cmake() {
             #
             rm -f cmake-$installed_cmake_version-Darwin64-universal.dmg
             rm -f cmake-$installed_cmake_version-Darwin-x86_64.dmg
+            rm -f cmake-$installed_cmake_version-macos-universal.dmg
         fi
 
         installed_cmake_version=""
