@@ -229,12 +229,15 @@ are required, besides the dissector source in _packet-foo.c_:
 
 * _plugin.rc.in_ - Contains the DLL resource template for Windows. (optional)
 
-You can find a good example for these files in the gryphon plugin directory.
-_CMakeLists.txt_ has to be modified with the correct plugin name and version
-info, along with the relevant files to compile.
-In the main top-level source directory, copy CMakeListsCustom.txt.example to
-CMakeListsCustom.txt and add the path of your plugin to the list in
-CUSTOM_PLUGIN_SRC_DIR.
+Samples of these files are available in the gryphon plugin directory
+(plugins/epan/gryphon).
+If you copy the files from the gryphon plugin, _CMakeLists.txt_ will need
+to be updated with the correct plugin name, version
+info, and the relevant files to compile.
+
+In the main top-level source directory, copy _CMakeListsCustom.txt.example_ to
+_CMakeListsCustom.txt_ and add the path of your plugin to the list in
+`CUSTOM_PLUGIN_SRC_DIR`.
 
 Compile the dissector to a DLL or shared library and either run Wireshark from
 the build directory as detailed in <<ChSrcRunFirstTime>> or copy the plugin
@@ -245,11 +248,12 @@ binary into the plugin directory of your Wireshark installation and run that.
 ==== Dissecting the protocol's details
 
 Now that we have our basic dissector up and running, let’s do something with it.
-The simplest thing to do to start with is to just label the payload.
-This will allow us to set up some of the parts we will need.
+The simplest thing to start with is labeling the payload. We can label the
+payload by building a subtree to decode our results into.
+This subtree will hold all the protocol's details and
+helps keep things looking nice in the detailed display.
 
-The first thing we will do is to build a subtree to decode our results into.
-This helps to keep things looking nice in the detailed display.
+We add the new subtree with `proto_tree_add_item()`, as is depicted below:
 
 .Plugin Packet Dissection.
 [source,c]
@@ -267,32 +271,36 @@ dissect_foo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 }
 ----
 
-What we're doing here is adding a subtree to the dissection.
-This subtree will hold all the details of this protocol and so not clutter
-up the display when not required.
+As the `FOO` protocol does not encapsulate another protocol, we
+consume all of the tvb's data, from `0` to the end (`-1`).
 
-We are also marking the area of data that is being consumed by this
-protocol. In this case it’s all of the passed data, as
-this protocol does not encapsulate another.
-Therefore, we add the new tree node with `proto_tree_add_item()`,
-adding it to the passed in tree, label it with the protocol, use the passed in
-tvb buffer as the data, and consume from 0 to the end (-1) of this data.
-ENC_NA ("not applicable") is specified as the "encoding" parameter.
+The final parameter specifies the "encoding" and is set to
+`ENC_NA` ("not applicable"), as the protocol doesn't specifically
+use big endian (`ENC_BIG_ENDIAN`) or little endian (`ENC_LITTLE_ENDIAN`).
 
-After this change, there should be a label in the detailed display for the protocol,
-and selecting this will highlight the remaining contents of the packet.
+After adding the call to
+`proto_tree_add_item()`
+, there should be a label `FOO` in the protocol's detailed display.
+Selecting this label will highlight the remaining contents of the packet.
 
-Now let’s go to the next step and add some protocol dissection. For this step
-we'll need to construct a few tables to help with dissection. This needs
-some additions to the `proto_register_foo()` function shown previously.
-
-Two statically allocated arrays are added at the beginning of
-`proto_register_foo()`. The arrays are then registered after the call to
-`proto_register_protocol()`.
+Now let’s go to the next step and add some protocol dissection. To do this
+we'll need to construct tables to define which fields will be present in the
+packet and to store the opened/closed state of the subtree. We'll 
+add these statically allocated arrays to the beginning of the file
+and name them
+`hf_register_info` ('hf' is short for 'header field') and `ett`.
+The arrays wil then registered after the call to
+`proto_register_protocol()` by calling `proto_register_field_array()`
+and `proto_register_subtree_array()`:
 
 .Registering data structures.
 [source,c]
 ----
+static int hf_foo_pdu_type = -1;
+static gint ett_foo = -1;
+
+/* ... */
+
 void
 proto_register_foo(void)
 {
@@ -321,17 +329,13 @@ proto_register_foo(void)
 }
 ----
 
-The variables `hf_foo_pdu_type` and `ett_foo` also need to be declared somewhere near the top of the file.
+As you can see, a field `foo.type` was defined inside the array of
+header fields.
 
-.Dissector data structure globals.
-[source,c]
-----
-static int hf_foo_pdu_type = -1;
-
-static gint ett_foo = -1;
-----
-
-Now we can enhance the protocol display with some packet detail.
+Now we can dissect the `FOO PDU Type` (referenced as `foo.type`)
+field in `dissect_foo()` by adding
+the FOO Protocol's subtree with `proto_item_add_subtree()` and
+then calling `proto_tree_add_item()` to add the field:
 
 .Dissector starting to dissect the packets.
 [source,c]
