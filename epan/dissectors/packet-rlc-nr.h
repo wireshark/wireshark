@@ -49,6 +49,7 @@ typedef struct rlc_nr_info
 
 typedef struct nr_drb_rlc_pdcp_mapping_t
 {
+    gboolean   active;
     guint16    ueid;                /* Mandatory */
     guint8     drbid;               /* Mandatory */
 
@@ -63,9 +64,22 @@ typedef struct nr_drb_rlc_pdcp_mapping_t
 
 } nr_drb_rlc_pdcp_mapping_t;
 
-/* Configure number of PDCP SN bits to use for DRB channels. */
-void set_rlc_nr_drb_pdcp_seqnum_length(packet_info *pinfo,
-                                       nr_drb_rlc_pdcp_mapping_t *drb_mapping);
+/* TODO: could probably merge this struct with above */
+typedef struct pdcp_ue_parameters {
+    guint32   id;
+    guint8    pdcp_sn_bits_ul;
+    guint8    pdcp_sn_bits_dl;
+    gboolean  pdcp_sdap_ul;
+    gboolean  pdcp_sdap_dl;
+    gboolean  pdcp_integrity;
+    gboolean  pdcp_ciphering_disabled;
+} pdcp_bearer_parameters;
+
+/* Configure DRB PDCP channel properties. */
+void set_rlc_nr_drb_pdcp_mapping(packet_info *pinfo,
+                                 nr_drb_rlc_pdcp_mapping_t *drb_mapping);
+
+pdcp_bearer_parameters* get_rlc_nr_drb_pdcp_mapping(guint16 ue_id, guint8 drb_id);
 
 /*****************************************************************/
 /* UDP framing format                                            */

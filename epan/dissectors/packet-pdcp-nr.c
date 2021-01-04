@@ -1844,6 +1844,30 @@ static int dissect_pdcp_nr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
         p_pdcp_info = (struct pdcp_nr_info *)data;
     }
 
+    /* If no RLC layer in this frame, query RLC table for configured drb settings */
+    if (!p_get_proto_data(wmem_file_scope(), pinfo, proto_rlc_nr, 0)) {
+        /* If DRB channel, query rlc table */
+        if (p_pdcp_info->plane == NR_USER_PLANE) {
+            pdcp_bearer_parameters *params = get_rlc_nr_drb_pdcp_mapping(p_pdcp_info->ueid, p_pdcp_info->bearerId);
+            if (params) {
+                if (p_pdcp_info->direction == DIRECTION_UPLINK) {
+                    p_pdcp_info->seqnum_length = params->pdcp_sn_bits_ul;
+                    if (params->pdcp_sdap_ul) {
+                        p_pdcp_info->sdap_header |= PDCP_NR_UL_SDAP_HEADER_PRESENT;
+                    }
+                }
+                else {
+                    p_pdcp_info->seqnum_length = params->pdcp_sn_bits_dl;
+                    if (params->pdcp_sdap_dl) {
+                        p_pdcp_info->sdap_header |= PDCP_NR_DL_SDAP_HEADER_PRESENT;
+                    }
+                }
+                p_pdcp_info->maci_present = params->pdcp_integrity;
+                p_pdcp_info->ciphering_disabled = params->pdcp_ciphering_disabled;
+            }
+        }
+    }
+
     /* Don't want to overwrite the RLC Info column if configured not to */
     if ((global_pdcp_nr_layer_to_show == ShowRLCLayer) &&
         (p_get_proto_data(wmem_file_scope(), pinfo, proto_rlc_nr, 0) != NULL)) {

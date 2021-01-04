@@ -116,6 +116,7 @@ void set_mac_nr_proto_data(packet_info *pinfo, mac_nr_info *p_mac_nr_info);
 /* Some are optional, and may not be seen (e.g. on reestablishment) */
 typedef struct nr_drb_mac_rlc_mapping_t
 {
+    gboolean   active;
     guint16    ueid;                /* Mandatory */
     guint8     drbid;               /* Mandatory */
 

@@ -64,16 +64,7 @@ static gboolean global_rlc_nr_headers_expected = FALSE;
 static gboolean global_rlc_nr_reassemble_um_pdus = FALSE;
 static gboolean global_rlc_nr_reassemble_am_pdus = TRUE;
 
-/* Tree storing UE related parameters */
-typedef struct rlc_ue_parameters {
-    guint32   id;
-    guint8    pdcp_sn_bits_ul;
-    guint8    pdcp_sn_bits_dl;
-    gboolean  pdcp_sdap_ul;
-    gboolean  pdcp_sdap_dl;
-    gboolean  pdcp_integrity;
-    gboolean  pdcp_ciphering_disabled;
-} rlc_ue_parameters;
+/* Tree storing UE related parameters (ueid, drbid) -> pdcp_bearer_parameters */
 static wmem_tree_t *ue_parameters_tree;
 
 
@@ -401,9 +392,9 @@ static void show_PDU_in_info(packet_info *pinfo,
 static void show_PDU_in_tree(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, gint offset, gint length,
                              rlc_nr_info *rlc_info, guint32 seg_info, gboolean is_reassembled)
 {
-    wmem_tree_key_t key[3];
+    wmem_tree_key_t key[2];
     guint32 id;
-    rlc_ue_parameters *params;
+    pdcp_bearer_parameters *params;
 
     /* Add raw data (according to mode) */
     if (!is_reassembled) {
@@ -463,13 +454,11 @@ static void show_PDU_in_tree(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb
                             id = (rlc_info->bearerId << 16) | rlc_info->ueid;
                             key[0].length = 1;
                             key[0].key = &id;
-                            key[1].length = 1;
-                            key[1].key = &pinfo->num;
-                            key[2].length = 0;
-                            key[2].key = NULL;
+                            key[1].length = 0;
+                            key[1].key = NULL;
 
                             /* Look up configured params for this PDCP DRB. */
-                            params = (rlc_ue_parameters *)wmem_tree_lookup32_array_le(ue_parameters_tree, key);
+                            params = (pdcp_bearer_parameters *)wmem_tree_lookup32_array_le(ue_parameters_tree, key);
                             if (params && (params->id != id)) {
                                 params = NULL;
                             }
@@ -1304,13 +1293,13 @@ static void dissect_rlc_nr_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 }
 
 
-/* Configure number of PDCP SN bits to use for DRB channels */
-void set_rlc_nr_drb_pdcp_seqnum_length(packet_info *pinfo,
-                                       nr_drb_rlc_pdcp_mapping_t *drb_mapping)
+/* Configure DRB PDCP channel properties. */
+void set_rlc_nr_drb_pdcp_mapping(packet_info *pinfo,
+                                 nr_drb_rlc_pdcp_mapping_t *drb_mapping)
 {
-    wmem_tree_key_t key[3];
+    wmem_tree_key_t key[2];
     guint32 id;
-    rlc_ue_parameters *params;
+    pdcp_bearer_parameters *params;
 
     if (PINFO_FD_VISITED(pinfo)) {
         return;
@@ -1319,19 +1308,17 @@ void set_rlc_nr_drb_pdcp_seqnum_length(packet_info *pinfo,
     id = (drb_mapping->drbid << 16) | drb_mapping->ueid;
     key[0].length = 1;
     key[0].key = &id;
-    key[1].length = 1;
-    key[1].key = &pinfo->num;
-    key[2].length = 0;
-    key[2].key = NULL;
+    key[1].length = 0;
+    key[1].key = NULL;
 
     /* Look up entry for this UEId/drbid */
-    params = (rlc_ue_parameters *)wmem_tree_lookup32_array_le(ue_parameters_tree, key);
+    params = (pdcp_bearer_parameters *)wmem_tree_lookup32_array_le(ue_parameters_tree, key);
     if (params && (params->id != id)) {
         params = NULL;
     }
     if (params == NULL) {
         /* Not found so create new entry */
-        params = (rlc_ue_parameters *)wmem_new(wmem_file_scope(), rlc_ue_parameters);
+        params = (pdcp_bearer_parameters *)wmem_new(wmem_file_scope(), pdcp_bearer_parameters);
         params->id = id;
         wmem_tree_insert32_array(ue_parameters_tree, key, (void *)params);
     }
@@ -1343,6 +1330,27 @@ void set_rlc_nr_drb_pdcp_seqnum_length(packet_info *pinfo,
     params->pdcp_sdap_dl = drb_mapping->pdcpDlSdap;
     params->pdcp_integrity = drb_mapping->pdcpIntegrityProtection;
     params->pdcp_ciphering_disabled = drb_mapping->pdcpCipheringDisabled;
+}
+
+pdcp_bearer_parameters* get_rlc_nr_drb_pdcp_mapping(guint16 ue_id, guint8 drb_id)
+{
+    wmem_tree_key_t key[2];
+    guint32 id;
+    pdcp_bearer_parameters *params;
+
+    id = (drb_id << 16) | ue_id;
+    key[0].length = 1;
+    key[0].key = &id;
+    key[1].length = 0;
+    key[1].key = NULL;
+
+    /* Look up configured params for this PDCP DRB. */
+    params = (pdcp_bearer_parameters *)wmem_tree_lookup32_array_le(ue_parameters_tree, key);
+    if (params && (params->id != id)) {
+        params = NULL;
+    }
+
+    return params;
 }
 
 

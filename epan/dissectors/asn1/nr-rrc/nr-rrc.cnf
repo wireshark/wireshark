@@ -1480,6 +1480,7 @@ VisitedCellInfo-r16/timeSpent-r16 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&uni
   struct mac_nr_info *p_mac_nr_info;
   /* Get the struct and clear it out */
   nr_drb_mac_rlc_mapping_t *drb_mapping = &nr_rrc_get_private_data(actx)->drb_rlc_mapping;
+  drb_mapping->active = TRUE;
   memset(drb_mapping, 0, sizeof(nr_drb_mac_rlc_mapping_t));
 %(DEFAULT_BODY)s
   /* Need UE identifier */
@@ -1489,12 +1490,17 @@ VisitedCellInfo-r16/timeSpent-r16 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&uni
     /* Tell MAC about this mapping */
     set_mac_nr_bearer_mapping(drb_mapping);
   }
+  drb_mapping->active = FALSE;
 
 #.FN_BODY DRB-Identity VAL_PTR=&value
   guint32 value;
-  nr_drb_mac_rlc_mapping_t *mapping = &nr_rrc_get_private_data(actx)->drb_rlc_mapping;
 %(DEFAULT_BODY)s
-  mapping->drbid = (guint8)value;
+  if (nr_rrc_get_private_data(actx)->drb_rlc_mapping.active) {
+    nr_rrc_get_private_data(actx)->drb_rlc_mapping.drbid = (guint8)value;
+  }
+  else if (nr_rrc_get_private_data(actx)->drb_pdcp_mapping.active) {
+    nr_rrc_get_private_data(actx)->drb_pdcp_mapping.drbid = (guint8)value;
+  }
 
 #.FN_BODY RLC-Config VAL_PTR=&value
   guint32 value;
@@ -1560,6 +1566,7 @@ VisitedCellInfo-r16/timeSpent-r16 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&uni
 
 #.FN_BODY DRB-ToAddMod
   nr_drb_rlc_pdcp_mapping_t *mapping = &nr_rrc_get_private_data(actx)->drb_pdcp_mapping;
+  mapping->active = TRUE;
   memset(mapping, 0, sizeof(*mapping));
 %(DEFAULT_BODY)s
   /* Need UE identifier. Use mac-nr. */
@@ -1567,10 +1574,11 @@ VisitedCellInfo-r16/timeSpent-r16 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&uni
   if (p_mac_nr_info) {
     /* Configure PDCP SN length(s) for this DRB */
     if (mapping->pdcpUlSnLength_present || mapping->pdcpDlSnLength_present) {
-      set_rlc_nr_drb_pdcp_seqnum_length(actx->pinfo, //p_mac_nr_info->ueid, mapping->drbid,
-                                        mapping);
+      mapping->ueid = p_mac_nr_info->ueid;
+      set_rlc_nr_drb_pdcp_mapping(actx->pinfo, mapping);
     }
   }
+  mapping->active = FALSE;
 
 #.FN_BODY SDAP-Config/sdap-HeaderDL VAL_PTR=&value
   guint32 value;
