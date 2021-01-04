@@ -1878,8 +1878,11 @@ libwireshark.so.0 libwireshark0 #MINVER#
  uat_fld_chk_bool@Base 2.5.0
  uat_fld_chk_color@Base 2.5.0
  uat_fld_chk_enum@Base 1.9.1
+ uat_fld_chk_num_dec64@Base 3.5.0
  uat_fld_chk_num_dec@Base 1.9.1
+ uat_fld_chk_num_hex64@Base 3.5.0
  uat_fld_chk_num_hex@Base 1.9.1
+ uat_fld_chk_num_signed_dec64@Base 3.5.0
  uat_fld_chk_num_signed_dec@Base 2.9.0
  uat_fld_chk_proto@Base 1.9.1
  uat_fld_chk_range@Base 1.9.1

@@ -604,6 +604,32 @@ gboolean uat_fld_chk_proto(void* u1 _U_, const char* strptr, guint len, const vo
     }
 }
 
+static gboolean uat_fld_chk_num_check_result(gboolean result, const char* strn, char** err) {
+    if (result && ((*strn != '\0') && (*strn != ' '))) {
+        /* string valid, but followed by something other than a space */
+        result = FALSE;
+        errno = EINVAL;
+    }
+    if (!result) {
+        switch (errno) {
+
+        case EINVAL:
+            *err = g_strdup("Invalid value");
+            break;
+
+        case ERANGE:
+            *err = g_strdup("Value too large");
+            break;
+
+        default:
+            *err = g_strdup(g_strerror(errno));
+            break;
+        }
+    }
+
+    return result;
+}
+
 static gboolean uat_fld_chk_num(int base, const char* strptr, guint len, char** err) {
     if (len > 0) {
         char* str = g_strndup(strptr, len);
@@ -612,29 +638,25 @@ static gboolean uat_fld_chk_num(int base, const char* strptr, guint len, char** 
         guint32 value;
 
         result = ws_basestrtou32(str, &strn, &value, base);
-        if (result && ((*strn != '\0') && (*strn != ' '))) {
-            /* string valid, but followed by something other than a space */
-            result = FALSE;
-            errno = EINVAL;
-        }
-        if (!result) {
-            switch (errno) {
-
-            case EINVAL:
-                *err = g_strdup("Invalid value");
-                break;
-
-            case ERANGE:
-                *err = g_strdup("Value too large");
-                break;
-
-            default:
-                *err = g_strdup(g_strerror(errno));
-                break;
-            }
-        }
+        result = uat_fld_chk_num_check_result(result, strn, err);
         g_free(str);
+        return result;
+    }
 
+    *err = NULL;
+    return TRUE;
+}
+
+static gboolean uat_fld_chk_num64(int base, const char* strptr, guint len, char** err) {
+    if (len > 0) {
+        char* str = g_strndup(strptr, len);
+        const char* strn;
+        gboolean result;
+        guint64 value64;
+
+        result = ws_basestrtou64(str, &strn, &value64, base);
+        result = uat_fld_chk_num_check_result(result, strn, err);
+        g_free(str);
         return result;
     }
 
@@ -650,6 +672,14 @@ gboolean uat_fld_chk_num_hex(void* u1 _U_, const char* strptr, guint len, const 
     return uat_fld_chk_num(16, strptr, len, err);
 }
 
+gboolean uat_fld_chk_num_dec64(void* u1 _U_, const char* strptr, guint len, const void* u2 _U_, const void* u3 _U_, char** err) {
+    return uat_fld_chk_num64(10, strptr, len, err);
+}
+
+gboolean uat_fld_chk_num_hex64(void* u1 _U_, const char* strptr, guint len, const void* u2 _U_, const void* u3 _U_, char** err) {
+    return uat_fld_chk_num64(16, strptr, len, err);
+}
+
 gboolean uat_fld_chk_num_signed_dec(void* u1 _U_, const char* strptr, guint len, const void* u2 _U_, const void* u3 _U_, char** err) {
     if (len > 0) {
         char* str = g_strndup(strptr,len);
@@ -658,27 +688,25 @@ gboolean uat_fld_chk_num_signed_dec(void* u1 _U_, const char* strptr, guint len,
         gint32 value;
 
         result = ws_strtoi32(str, &strn, &value);
-        if (result && ((*strn != '\0') && (*strn != ' '))) {
-            /* string valid, but followed by something other than a space */
-            result = FALSE;
-            errno = EINVAL;
-        }
-        if (!result) {
-            switch (errno) {
+        result = uat_fld_chk_num_check_result(result, strn, err);
+        g_free(str);
 
-            case EINVAL:
-                *err = g_strdup("Invalid value");
-                break;
+        return result;
+    }
 
-            case ERANGE:
-                *err = g_strdup("Value too large");
-                break;
+    *err = NULL;
+    return TRUE;
+}
 
-            default:
-                *err = g_strdup(g_strerror(errno));
-                break;
-            }
-        }
+gboolean uat_fld_chk_num_signed_dec64(void* u1 _U_, const char* strptr, guint len, const void* u2 _U_, const void* u3 _U_, char** err) {
+    if (len > 0) {
+        char* str = g_strndup(strptr, len);
+        const char* strn;
+        gboolean result;
+        gint64 value;
+
+        result = ws_strtoi64(str, &strn, &value);
+        result = uat_fld_chk_num_check_result(result, strn, err);
         g_free(str);
 
         return result;

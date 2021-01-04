@@ -342,9 +342,15 @@ gboolean uat_fld_chk_proto(void*, const char*, unsigned, const void*, const void
 WS_DLL_PUBLIC
 gboolean uat_fld_chk_num_dec(void*, const char*, unsigned, const void*, const void*, char** err);
 WS_DLL_PUBLIC
+gboolean uat_fld_chk_num_dec64(void*, const char*, unsigned, const void*, const void*, char** err);
+WS_DLL_PUBLIC
 gboolean uat_fld_chk_num_hex(void*, const char*, unsigned, const void*, const void*, char** err);
 WS_DLL_PUBLIC
+gboolean uat_fld_chk_num_hex64(void*, const char*, unsigned, const void*, const void*, char** err);
+WS_DLL_PUBLIC
 gboolean uat_fld_chk_num_signed_dec(void*, const char*, unsigned, const void*, const void*, char** err);
+WS_DLL_PUBLIC
+gboolean uat_fld_chk_num_signed_dec64(void*, const char*, unsigned, const void*, const void*, char** err);
 WS_DLL_PUBLIC
 gboolean uat_fld_chk_bool(void*, const char*, unsigned, const void*, const void*, char** err);
 WS_DLL_PUBLIC
@@ -525,8 +531,23 @@ static void basename ## _ ## field_name ## _tostr_cb(void* rec, char** out_ptr, 
 #define UAT_FLD_DEC(basename,field_name,title,desc) \
 	{#field_name, title, PT_TXTMOD_STRING,{uat_fld_chk_num_dec,basename ## _ ## field_name ## _set_cb,basename ## _ ## field_name ## _tostr_cb},{0,0,0},0,desc,FLDFILL}
 
+ /*
+  *   an unsigned 64bit decimal number contained in (((rec_t*)rec)->(field_name))
+  */
+#define UAT_DEC64_CB_DEF(basename,field_name,rec_t) \
+static void basename ## _ ## field_name ## _set_cb(void* rec, const char* buf, guint len, const void* UNUSED_PARAMETER(u1), const void* UNUSED_PARAMETER(u2)) {\
+	char* tmp_str = g_strndup(buf,len); \
+	ws_strtou64(tmp_str, NULL, &((rec_t*)rec)->field_name); \
+	g_free(tmp_str); } \
+static void basename ## _ ## field_name ## _tostr_cb(void* rec, char** out_ptr, unsigned* out_len, const void* UNUSED_PARAMETER(u1), const void* UNUSED_PARAMETER(u2)) {\
+	*out_ptr = g_strdup_printf("%" G_GINT64_MODIFIER "u",((rec_t*)rec)->field_name); \
+	*out_len = (unsigned)strlen(*out_ptr); }
+
+#define UAT_FLD_DEC64(basename,field_name,title,desc) \
+	{#field_name, title, PT_TXTMOD_STRING,{uat_fld_chk_num_dec64,basename ## _ ## field_name ## _set_cb,basename ## _ ## field_name ## _tostr_cb},{0,0,0},0,desc,FLDFILL}
+
 /*
- *   and a *signed* decimal number contained in (((rec_t*)rec)->(field_name))
+ *   a *signed* decimal number contained in (((rec_t*)rec)->(field_name))
  */
 #define UAT_SIGNED_DEC_CB_DEF(basename,field_name,rec_t) \
 static void basename ## _ ## field_name ## _set_cb(void* rec, const char* buf, guint len, const void* UNUSED_PARAMETER(u1), const void* UNUSED_PARAMETER(u2)) {\
@@ -539,6 +560,21 @@ static void basename ## _ ## field_name ## _tostr_cb(void* rec, char** out_ptr, 
 
 #define UAT_FLD_SIGNED_DEC(basename,field_name,title,desc) \
 	{#field_name, title, PT_TXTMOD_STRING,{uat_fld_chk_num_signed_dec,basename ## _ ## field_name ## _set_cb,basename ## _ ## field_name ## _tostr_cb},{0,0,0},0,desc,FLDFILL}
+
+ /*
+  *   and a *signed* 64bit decimal number contained in (((rec_t*)rec)->(field_name))
+  */
+#define UAT_SIGNED_DEC64_CB_DEF(basename,field_name,rec_t) \
+static void basename ## _ ## field_name ## _set_cb(void* rec, const char* buf, guint len, const void* UNUSED_PARAMETER(u1), const void* UNUSED_PARAMETER(u2)) {\
+	char* tmp_str = g_strndup(buf,len); \
+	ws_strtoi64(tmp_str, NULL, &((rec_t*)rec)->field_name); \
+	g_free(tmp_str); } \
+static void basename ## _ ## field_name ## _tostr_cb(void* rec, char** out_ptr, unsigned* out_len, const void* UNUSED_PARAMETER(u1), const void* UNUSED_PARAMETER(u2)) {\
+	*out_ptr = g_strdup_printf("%" G_GINT64_MODIFIER "d",((rec_t*)rec)->field_name); \
+	*out_len = (unsigned)strlen(*out_ptr); }
+
+#define UAT_FLD_SIGNED_DEC64(basename,field_name,title,desc) \
+	{#field_name, title, PT_TXTMOD_STRING,{uat_fld_chk_num_signed_dec64,basename ## _ ## field_name ## _set_cb,basename ## _ ## field_name ## _tostr_cb},{0,0,0},0,desc,FLDFILL}
 
 #define UAT_FLD_NONE(basename,field_name,title,desc) \
 	{#field_name, title, PT_TXTMOD_NONE,{uat_fld_chk_num_dec,basename ## _ ## field_name ## _set_cb,basename ## _ ## field_name ## _tostr_cb},{0,0,0},0,desc,FLDFILL}
@@ -559,6 +595,22 @@ static void basename ## _ ## field_name ## _tostr_cb(void* rec, char** out_ptr, 
 
 #define UAT_FLD_HEX(basename,field_name,title,desc) \
 {#field_name, title, PT_TXTMOD_STRING,{uat_fld_chk_num_hex,basename ## _ ## field_name ## _set_cb,basename ## _ ## field_name ## _tostr_cb},{0,0,0},0,desc,FLDFILL}
+
+ /*
+  * HEX Macros for 64bit,
+  *   an unsigned long long hexadecimal number contained in (((rec_t*)rec)->(field_name))
+  */
+#define UAT_HEX64_CB_DEF(basename,field_name,rec_t) \
+static void basename ## _ ## field_name ## _set_cb(void* rec, const char* buf, guint len, const void* UNUSED_PARAMETER(u1), const void* UNUSED_PARAMETER(u2)) {\
+	char* tmp_str = g_strndup(buf,len); \
+	ws_hexstrtou64(tmp_str, NULL, &((rec_t*)rec)->field_name); \
+	g_free(tmp_str); } \
+static void basename ## _ ## field_name ## _tostr_cb(void* rec, char** out_ptr, unsigned* out_len, const void* UNUSED_PARAMETER(u1), const void* UNUSED_PARAMETER(u2)) {\
+	*out_ptr = g_strdup_printf("%" G_GINT64_MODIFIER "x",((rec_t*)rec)->field_name); \
+	*out_len = (unsigned)strlen(*out_ptr); }
+
+#define UAT_FLD_HEX64(basename,field_name,title,desc) \
+{#field_name, title, PT_TXTMOD_STRING,{uat_fld_chk_num_hex64,basename ## _ ## field_name ## _set_cb,basename ## _ ## field_name ## _tostr_cb},{0,0,0},0,desc,FLDFILL}
 
 /*
  * BOOL Macros,
