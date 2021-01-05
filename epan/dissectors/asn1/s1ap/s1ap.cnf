@@ -1865,6 +1865,7 @@ id-eNB-EarlyStatusTransfer-TransparentContainer     ProtocolIE-ID
 id-Bearers-SubjectToEarlyStatusTransfer-Item        ProtocolIE-ID
 id-WUS-Assistance-Information                       ProtocolIE-ID
 id-NB-IoT-PagingDRX                                 ProtocolIE-ID
+id-TraceCollectionEntityURI                         ProtocolIE-ID
 
 #.END
 
@@ -2182,6 +2183,7 @@ NB-IoT-RLF-Report-Container             N s1ap.extension id-NB-IoT-RLF-Report-Co
 MDT-ConfigurationNR                     N s1ap.extension id-MDTConfigurationNR
 DAPSRequestInfo                         N s1ap.extension id-DAPSRequestInfo
 DAPSResponseInfoList                    N s1ap.extension id-DAPSResponseInfoList
+URI-Address                             N s1ap.extension id-TraceCollectionEntityURI
 
 #S1AP-ELEMENTARY-PROCEDURE
 HandoverRequired                        N s1ap.proc.imsg id-HandoverPreparation

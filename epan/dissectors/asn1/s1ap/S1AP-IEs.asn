@@ -1,4 +1,4 @@
--- 3GPP TS 36.413 V16.3.0 (2020-09)﻿
+-- 3GPP TS 36.413 V16.4.0 (2021-01)﻿
 -- 9.3.4	Information Element Definitions
 -- **************************************************************
 --
@@ -82,6 +82,7 @@ IMPORTS
 	id-DAPSResponseInfoList,
 	id-DAPSResponseInfoItem,
 	id-Bearers-SubjectToEarlyStatusTransfer-Item,
+	id-TraceCollectionEntityURI,
 	maxnoofCSGs,
 	maxnoofE-RABs,
 	maxnoofErrors,
@@ -2789,7 +2790,8 @@ TraceActivation-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
 	{ ID id-MDTConfiguration	CRITICALITY ignore	EXTENSION MDT-Configuration		PRESENCE optional }|
 -- Extension for Rel-15 to support QMC –
 	{ ID id-UEAppLayerMeasConfig	CRITICALITY ignore	EXTENSION UEAppLayerMeasConfig		PRESENCE optional }|
-	{ ID id-MDTConfigurationNR		CRITICALITY ignore	EXTENSION MDT-ConfigurationNR		PRESENCE optional },
+	{ ID id-MDTConfigurationNR		CRITICALITY ignore	EXTENSION MDT-ConfigurationNR		PRESENCE optional }|
+	{ ID id-TraceCollectionEntityURI	CRITICALITY ignore	EXTENSION URI-Address			PRESENCE optional	},
 	...
 }
 
@@ -2960,6 +2962,8 @@ UnlicensedSpectrumRestriction ::= ENUMERATED {
 	...
 }
 
+
+URI-Address ::= VisibleString
 
 UserLocationInformation ::= SEQUENCE {
 	eutran-cgi 				EUTRAN-CGI,

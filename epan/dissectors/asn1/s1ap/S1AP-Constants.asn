@@ -1,4 +1,4 @@
--- 3GPP TS 36.413 V16.3.0 (2020-09)﻿
+-- 3GPP TS 36.413 V16.4.0 (2021-01)﻿
 -- 9.3.6	Constant Definitions
 -- **************************************************************
 --
@@ -510,5 +510,6 @@ id-eNB-EarlyStatusTransfer-TransparentContainer		ProtocolIE-ID ::= 321
 id-Bearers-SubjectToEarlyStatusTransfer-Item		ProtocolIE-ID ::= 322
 id-WUS-Assistance-Information						ProtocolIE-ID ::= 323
 id-NB-IoT-PagingDRX									ProtocolIE-ID ::= 324
+id-TraceCollectionEntityURI							ProtocolIE-ID ::= 325
 
 END
