@@ -1,4 +1,4 @@
--- 3GPP TS 38.463 V16.3.0 (2020-09)﻿
+-- 3GPP TS 38.463 V16.4.0 (2021-01)
 -- **************************************************************
 --
 -- Information Element Definitions
@@ -25,6 +25,7 @@ IMPORTS
 	id-TNLAssociationTransportLayerAddressgNBCUUP,
 	id-Cause,
 	id-QoSMonitoringRequest,
+	id-QosMonitoringReportingFrequency,
 	id-PDCP-StatusReportIndication,
 	id-RedundantCommonNetworkInstance,
 	id-redundant-nG-UL-UP-TNL-Information,
@@ -47,6 +48,7 @@ IMPORTS
 	id-AlternativeQoSParaSetList,
 	id-MCG-OfferedGBRQoSFlowInfo,
 	id-Number-of-tunnels,
+	id-DataForwardingtoE-UTRANInformationList,
 	maxnoofQoSParaSets,
 	maxnoofErrors,
 	maxnoofSliceItems,
@@ -63,7 +65,8 @@ IMPORTS
 	maxnoofGTPTLAs,
 	maxnoofSPLMNs,
 	maxnoofMDTPLMNs,
-	maxnoofExtSliceItems
+	maxnoofExtSliceItems,
+	maxnoofDataForwardingTunneltoE-UTRAN
 
 FROM E1AP-Constants
 
@@ -349,6 +352,19 @@ Data-Forwarding-Request ::= ENUMERATED	{
 	uL,
 	dL,
 	both,
+	...
+}
+
+DataForwardingtoE-UTRANInformationList ::= SEQUENCE (SIZE(1.. maxnoofDataForwardingTunneltoE-UTRAN)) OF DataForwardingtoE-UTRANInformationListItem
+
+DataForwardingtoE-UTRANInformationListItem ::= SEQUENCE {
+	data-forwarding-tunnel-information							UP-TNL-Information,
+	qoS-Flows-to-be-forwarded-List						QoS-Flows-to-be-forwarded-List,
+	iE-Extensions		ProtocolExtensionContainer { { DataForwardingtoE-UTRANInformationListItem-ExtIEs} }	OPTIONAL,
+	...
+}
+
+DataForwardingtoE-UTRANInformationListItem-ExtIEs E1AP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
@@ -1863,7 +1879,8 @@ PDU-Session-Resource-To-Modify-Item-ExtIEs		E1AP-PROTOCOL-EXTENSION ::= {
 	{ID id-SNSSAI		CRITICALITY reject	EXTENSION SNSSAI		PRESENCE optional}|
 	{ ID id-CommonNetworkInstance						CRITICALITY ignore	EXTENSION CommonNetworkInstance								PRESENCE optional	}|
 	{ID id-redundant-nG-UL-UP-TNL-Information		CRITICALITY ignore	EXTENSION 	UP-TNL-Information			PRESENCE optional	}|
-	{ID id-RedundantCommonNetworkInstance				CRITICALITY ignore	EXTENSION 	CommonNetworkInstance		PRESENCE optional	},
+	{ID id-RedundantCommonNetworkInstance				CRITICALITY ignore	EXTENSION 	CommonNetworkInstance		PRESENCE optional	}|
+	{ID id-DataForwardingtoE-UTRANInformationList				CRITICALITY ignore	EXTENSION 	DataForwardingtoE-UTRANInformationList		PRESENCE optional	},
 	...
 }
 
@@ -2076,11 +2093,14 @@ QoSFlowLevelQoSParameters	::= SEQUENCE {
 
 QoSFlowLevelQoSParameters-ExtIEs 	E1AP-PROTOCOL-EXTENSION ::= {
 	{ID id-QoSMonitoringRequest	CRITICALITY ignore	EXTENSION QosMonitoringRequest	PRESENCE optional}|
-	{ID id-MCG-OfferedGBRQoSFlowInfo		CRITICALITY ignore	EXTENSION GBR-QoSFlowInformation	PRESENCE optional},
+	{ID id-MCG-OfferedGBRQoSFlowInfo		CRITICALITY ignore	EXTENSION GBR-QoSFlowInformation	PRESENCE optional}|
+	{ID id-QosMonitoringReportingFrequency	CRITICALITY ignore	EXTENSION QosMonitoringReportingFrequency	PRESENCE optional},
 	...
 }
 
 QosMonitoringRequest ::= ENUMERATED {ul, dl, both}
+
+QosMonitoringReportingFrequency ::= INTEGER (1..1800, ...)
 
 QoS-Flow-Removed-Item	::=	SEQUENCE {
 	qoS-Flow-Identifier						QoS-Flow-Identifier,
@@ -2091,6 +2111,18 @@ QoS-Flow-Removed-Item	::=	SEQUENCE {
 }
 
 QoS-Flow-Removed-Item-ExtIEs		E1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+QoS-Flows-to-be-forwarded-List ::= SEQUENCE (SIZE(1.. maxnoofQoSFlows)) OF QoS-Flows-to-be-forwarded-Item
+
+QoS-Flows-to-be-forwarded-Item ::=	SEQUENCE {
+	qoS-Flow-Identifier						QoS-Flow-Identifier,
+	iE-Extensions							ProtocolExtensionContainer { { QoS-Flows-to-be-forwarded-Item-ExtIEs } }	OPTIONAL,
+	...
+}
+
+QoS-Flows-to-be-forwarded-Item-ExtIEs E1AP-PROTOCOL-EXTENSION ::= {
 	...
 }
 

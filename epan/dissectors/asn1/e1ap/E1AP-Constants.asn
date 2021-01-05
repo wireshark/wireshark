@@ -1,4 +1,4 @@
--- 3GPP TS 38.463 V16.3.0 (2020-09)﻿
+-- 3GPP TS 38.463 V16.4.0 (2021-01)
 -- **************************************************************
 --
 -- Constant definitions
@@ -82,6 +82,7 @@ maxnoofTNLAddresses							INTEGER ::= 8
 maxnoofMDTPLMNs								INTEGER ::= 16
 maxnoofQoSParaSets							INTEGER ::= 8
 maxnoofExtSliceItems						INTEGER ::= 65535
+maxnoofDataForwardingTunneltoE-UTRAN		INTEGER ::= 256
 
 
 -- **************************************************************
@@ -221,6 +222,8 @@ id-Number-of-tunnels											ProtocolIE-ID ::= 127
 id-DRB-Measurement-Results-Information-List						ProtocolIE-ID ::= 128
 id-Extended-GNB-CU-CP-Name										ProtocolIE-ID ::= 129
 id-Extended-GNB-CU-UP-Name										ProtocolIE-ID ::= 130
+id-DataForwardingtoE-UTRANInformationList						ProtocolIE-ID ::= 131
+id-QosMonitoringReportingFrequency								ProtocolIE-ID ::= 132
 
 
 END
