@@ -54,7 +54,7 @@ streams of a selected IAX2 call along with a graph.
 
 === ISUP Messages
 
-{missing}
+Integrated Service User Part (ISUP) protocol provides voice and non-voice signalling for telephone communications. ISUP Messages menu opens the window which shows the related statistics. The user can filter, copy or save the data into a file.
 
 [[ChTelLTE]]
 
