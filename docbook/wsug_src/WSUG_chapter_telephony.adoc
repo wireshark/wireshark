@@ -123,7 +123,7 @@ This menu shows MTP3 Statistics and MTP3 Summary windows.
 
 === Osmux
 
-{missing}
+OSmux is a multiplex protocol which benefits satellite based GSM back-haul systems by reducing the bandwidth consumption of the voice proxying (RTP-AMR) and signalling traffic. The OSmux menu opens the packet counter window with the related statistic data. The user can filter, copy or save the data into a file.
 
 [[ChTelRTPAnalysis]]
 
