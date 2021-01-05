@@ -10,7 +10,7 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
  * Ref:
- * 3GPP TS 38.423 V16.3.0 (2020-09)
+ * 3GPP TS 38.423 V16.4.0 (2021-01)
  */
 
 #include "config.h"
@@ -103,6 +103,15 @@ static gint ett_xnap_UERLFReportContainerNR = -1;
 static gint ett_xnap_burstArrivalTime = -1;
 static gint ett_xnap_ReportCharacteristics = -1;
 static gint ett_xnap_NRCellPRACHConfig = -1;
+static gint ett_xnap_anchorCarrier_NPRACHConfig = -1;
+static gint ett_xnap_anchorCarrier_EDT_NPRACHConfig = -1;
+static gint ett_xnap_anchorCarrier_Format2_NPRACHConfig = -1;
+static gint ett_xnap_anchorCarrier_Format2_EDT_NPRACHConfig = -1;
+static gint ett_xnap_non_anchorCarrier_NPRACHConfig = -1;
+static gint ett_xnap_non_anchorCarrier_Format2_NPRACHConfig = -1;
+static gint ett_xnap_anchorCarrier_NPRACHConfigTDD = -1;
+static gint ett_xnap_non_anchorCarrier_NPRACHConfigTDD = -1;
+static gint ett_xnap_non_anchorCarrierFrequency = -1;
 #include "packet-xnap-ett.c"
 
 enum {
@@ -447,6 +456,15 @@ void proto_register_xnap(void) {
     &ett_xnap_burstArrivalTime,
     &ett_xnap_ReportCharacteristics,
     &ett_xnap_NRCellPRACHConfig,
+    &ett_xnap_anchorCarrier_NPRACHConfig,
+    &ett_xnap_anchorCarrier_EDT_NPRACHConfig,
+    &ett_xnap_anchorCarrier_Format2_NPRACHConfig,
+    &ett_xnap_anchorCarrier_Format2_EDT_NPRACHConfig,
+    &ett_xnap_non_anchorCarrier_NPRACHConfig,
+    &ett_xnap_non_anchorCarrier_Format2_NPRACHConfig,
+    &ett_xnap_anchorCarrier_NPRACHConfigTDD,
+    &ett_xnap_non_anchorCarrier_NPRACHConfigTDD,
+    &ett_xnap_non_anchorCarrierFrequency,
 #include "packet-xnap-ettarr.c"
   };
 

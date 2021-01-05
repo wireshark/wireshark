@@ -1,4 +1,4 @@
--- 3GPP TS 38.423 V16.3.0 (2020-09)﻿
+-- 3GPP TS 38.423 V16.4.0 (2021-01)
 -- 9.3.7	Constant definitions
 -- **************************************************************
 --
@@ -136,6 +136,7 @@ maxnoofPhysicalResourceBlocks				INTEGER ::= 275
 maxnoofAdditionalPDCPDuplicationTNL			INTEGER ::= 2
 maxnoofRLCDuplicationstate					INTEGER ::= 3
 maxnoofWLANName								INTEGER ::= 4
+maxnoofNonAnchorCarrierFreqConfig			INTEGER ::= 15
 
 -- **************************************************************
 --
@@ -322,7 +323,7 @@ id-AlternativeQoSParaSetList																		ProtocolIE-ID ::= 174
 id-CurrentQoSParaSetIndex																			ProtocolIE-ID ::= 175
 id-MobilityInformation 																				ProtocolIE-ID ::= 176
 id-InitiatingCondition-FailureIndication															ProtocolIE-ID ::= 177
-id-UEHistoryInformationFromTheUE																		ProtocolIE-ID ::= 178
+id-UEHistoryInformationFromTheUE																ProtocolIE-ID ::= 178
 id-HandoverReportType																				ProtocolIE-ID ::= 179
 id-HandoverCause																					ProtocolIE-ID ::= 180
 id-SourceCellCGI																					ProtocolIE-ID ::= 181
@@ -381,6 +382,11 @@ id-ConfiguredTACIndication																			ProtocolIE-ID ::= 233
 id-secondary-SN-UL-PDCP-UP-TNLInfo																	ProtocolIE-ID ::= 234
 id-pdcpDuplicationConfiguration																		ProtocolIE-ID ::= 235
 id-duplicationActivation																			ProtocolIE-ID ::= 236
+id-NPRACHConfiguration																				ProtocolIE-ID ::= 237
+id-QosMonitoringReportingFrequency																	ProtocolIE-ID ::= 238
+id-QoSFlowsMappedtoDRB-SetupResponse-MNterminated														ProtocolIE-ID ::= 239
+id-DL-scheduling-PDCCH-CCE-usage																	ProtocolIE-ID ::= 240
+id-UL-scheduling-PDCCH-CCE-usage																	ProtocolIE-ID ::= 241
 
 
 END

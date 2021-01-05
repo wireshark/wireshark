@@ -1,4 +1,4 @@
--- 3GPP TS 38.423 V16.3.0 (2020-09)﻿
+-- 3GPP TS 38.423 V16.4.0 (2021-01)
 -- 9.3.4	PDU Definitions
 -- **************************************************************
 --
@@ -430,7 +430,7 @@ UEContextInfoHORequest-ExtIEs XNAP-PROTOCOL-EXTENSION ::={
 	{ ID id-FiveGCMobilityRestrictionListContainer	CRITICALITY ignore	EXTENSION FiveGCMobilityRestrictionListContainer		PRESENCE optional }|
 	{ ID id-NRUESidelinkAggregateMaximumBitRate		CRITICALITY ignore	EXTENSION NRUESidelinkAggregateMaximumBitRate			PRESENCE optional }|
 	{ ID id-LTEUESidelinkAggregateMaximumBitRate	CRITICALITY ignore	EXTENSION LTEUESidelinkAggregateMaximumBitRate			PRESENCE optional }|
-	{ ID id-MDTPLMNList								CRITICALITY reject	EXTENSION MDTPLMNList											PRESENCE optional }|
+	{ ID id-MDTPLMNList								CRITICALITY ignore	EXTENSION MDTPLMNList											PRESENCE optional }|
 	{ ID id-UERadioCapabilityID						CRITICALITY reject	EXTENSION UERadioCapabilityID								PRESENCE optional },
 	...
 }
