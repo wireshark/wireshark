@@ -295,11 +295,6 @@ Port-Number TYPE = FT_UINT16 DISPLAY = BASE_DEC
   else if (x2ap_data->protocol_ie_id == id_FastMCGRecovery_MN_to_SN)
     x2ap_data->rrc_container_type = RRC_CONTAINER_TYPE_FAST_MCG_RECOVERY_MeNB_TO_SgNB;
 
-#.FN_HDR IABInformation
-  struct x2ap_private_data *x2ap_data = x2ap_get_private_data(actx->pinfo);
-
-  x2ap_data->rrc_container_type = RRC_CONTAINER_TYPE_IAB_INFO;
-
 #.FN_BODY RRCContainer VAL_PTR = &parameter_tvb
   tvbuff_t *parameter_tvb;
   proto_tree *subtree = NULL;
@@ -309,7 +304,6 @@ Port-Number TYPE = FT_UINT16 DISPLAY = BASE_DEC
     return offset;
   switch (x2ap_data->rrc_container_type) {
     case RRC_CONTAINER_TYPE_NR_UE_MEAS_REPORT:
-    case RRC_CONTAINER_TYPE_IAB_INFO:
       subtree = proto_item_add_subtree(actx->created_item, ett_x2ap_RRCContainer);
       dissect_nr_rrc_UL_DCCH_Message_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
       break;
@@ -1535,16 +1529,20 @@ id-ULCarrierList						ProtocolIE-ID
 id-FrequencyShift7p5khz						ProtocolIE-ID
 id-SSB-PositionsInBurst						ProtocolIE-ID
 id-NRCellPRACHConfig						ProtocolIE-ID
-id-CellToReport-ENDC						ProtocolIE-ID
-id-CellToReport-ENDC-Item					ProtocolIE-ID
-id-CellMeasurementResult-ENDC					ProtocolIE-ID
-id-CellMeasurementResult-ENDC-Item				ProtocolIE-ID
+id-CellToReport-NR-ENDC						ProtocolIE-ID
+id-CellToReport-NR-ENDC-Item					ProtocolIE-ID
+id-CellMeasurementResult-NR-ENDC				ProtocolIE-ID
+id-CellMeasurementResult-NR-ENDC-Item				ProtocolIE-ID
 id-IABNodeIndication						ProtocolIE-ID
 id-QoS-Mapping-Information					ProtocolIE-ID
 id-F1CTrafficContainer						ProtocolIE-ID
-id-IABInformation						ProtocolIE-ID
 id-IntendedTDD-DL-ULConfiguration-NR				ProtocolIE-ID
 id-UERadioCapability						ProtocolIE-ID
+id-CellMeasurementResult-E-UTRA-ENDC				ProtocolIE-ID
+id-CellMeasurementResult-E-UTRA-ENDC-Item			ProtocolIE-ID
+id-CellToReport-E-UTRA-ENDC					ProtocolIE-ID
+id-CellToReport-E-UTRA-ENDC-Item				ProtocolIE-ID
+id-TraceCollectionEntityURI					ProtocolIE-ID
 
 #.REGISTER
 
@@ -1815,14 +1813,17 @@ SNtriggered							N x2ap.ies id-SNtriggered
 TargetCellInNGRAN						N x2ap.ies id-TargetCellInNGRAN
 Measurement-ID-ENDC						N x2ap.ies id-eNB-Measurement-ID-ENDC
 Measurement-ID-ENDC						N x2ap.ies id-engNB-Measurement-ID-ENDC
-CellToReport-ENDC-List						N x2ap.ies id-CellToReport-ENDC
-CellToReport-ENDC-Item						N x2ap.ies id-CellToReport-ENDC-Item
-CellMeasurementResult-ENDC-List					N x2ap.ies id-CellMeasurementResult-ENDC
-CellMeasurementResult-ENDC-Item					N x2ap.ies id-CellMeasurementResult-ENDC-Item
+CellToReport-NR-ENDC-List					N x2ap.ies id-CellToReport-NR-ENDC
+CellToReport-NR-ENDC-Item					N x2ap.ies id-CellToReport-NR-ENDC-Item
+CellMeasurementResult-NR-ENDC-List				N x2ap.ies id-CellMeasurementResult-NR-ENDC
+CellMeasurementResult-NR-ENDC-Item				N x2ap.ies id-CellMeasurementResult-NR-ENDC-Item
 IABNodeIndication						N x2ap.ies id-IABNodeIndication
 F1CTrafficContainer						N x2ap.ies id-F1CTrafficContainer
-IABInformation							N x2ap.ies id-IABInformation
 UERadioCapability						N x2ap.ies id-UERadioCapability
+CellMeasurementResult-E-UTRA-ENDC-List				N x2ap.ies id-CellMeasurementResult-E-UTRA-ENDC
+CellMeasurementResult-E-UTRA-ENDC-Item				N x2ap.ies id-CellMeasurementResult-E-UTRA-ENDC-Item
+CellToReport-E-UTRA-ENDC-List					N x2ap.ies id-CellToReport-E-UTRA-ENDC
+CellToReport-E-UTRA-ENDC-Item					N x2ap.ies id-CellToReport-E-UTRA-ENDC-Item
 
 #X2AP-PROTOCOL-EXTENSION
 Number-of-Antennaports						N x2ap.extension id-Number-of-Antennaports
@@ -1942,6 +1943,7 @@ SSB-PositionsInBurst						N x2ap.extension id-SSB-PositionsInBurst
 NRCellPRACHConfig						N x2ap.extension id-NRCellPRACHConfig
 QoS-Mapping-Information						N x2ap.extension id-QoS-Mapping-Information
 IntendedTDD-DL-ULConfiguration-NR				N x2ap.extension id-IntendedTDD-DL-ULConfiguration-NR
+URI-Address							N x2ap.extension id-TraceCollectionEntityURI
 
 # X2AP-PDU-Descriptions.asn  Interface Elementary Procedures
 #X2AP-ELEMENTARY-PROCEDURE

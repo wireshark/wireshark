@@ -1,4 +1,4 @@
--- 3GPP TS 36.423 V16.3.0 (2020-09)﻿
+-- 3GPP TS 36.423 V16.4.0 (2021-01)﻿
 -- 9.3.5	Information Element definitions
 -- **************************************************************
 --
@@ -84,6 +84,7 @@ IMPORTS
 	id-CSI-RSTransmissionIndication,
 	id-QoS-Mapping-Information,
 	id-IntendedTDD-DL-ULConfiguration-NR,
+	id-TraceCollectionEntityURI,
 
 	maxnoofBearers,
 	maxCellineNB,
@@ -1371,15 +1372,6 @@ HWLoadIndicator-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
 
 -- I
 
-IABInformation ::= SEQUENCE {
-	rrcContainer	RRCContainer 		OPTIONAL,
-	ie-Extensions	ProtocolExtensionContainer { {IABInformation-ExtIEs} } OPTIONAL,
-	...
-}
-
-IABInformation-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
-	...
-}
 
 IABNodeIndication ::= ENUMERATED {true,...}
 
@@ -3082,7 +3074,8 @@ traceCollectionEntityIPAddress		TraceCollectionEntityIPAddress,
 TraceActivation-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
 	{ ID id-MDTConfiguration			CRITICALITY ignore	EXTENSION MDT-Configuration			PRESENCE optional}|
 	{ ID id-UEAppLayerMeasConfig		CRITICALITY ignore	EXTENSION UEAppLayerMeasConfig		PRESENCE optional}|
-	{ ID id-MDTConfigurationNR			CRITICALITY ignore	EXTENSION MDT-ConfigurationNR		PRESENCE optional},
+	{ ID id-MDTConfigurationNR			CRITICALITY ignore	EXTENSION MDT-ConfigurationNR		PRESENCE optional}|
+	{ ID id-TraceCollectionEntityURI	CRITICALITY ignore	EXTENSION URI-Address				PRESENCE optional},
 	...
 }
 
@@ -3303,11 +3296,14 @@ UnlicensedSpectrumRestriction ::= ENUMERATED {
 	...
 }
 
+URI-Address ::= VisibleString
+
 UsableABSInformation ::= CHOICE {
 	fdd					UsableABSInformationFDD,
 	tdd					UsableABSInformationTDD,
 	...
 }
+
 
 UsableABSInformationFDD ::= SEQUENCE {
 	usable-abs-pattern-info				BIT STRING (SIZE(40)),

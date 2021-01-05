@@ -1,4 +1,4 @@
--- 3GPP TS 36.423 V16.3.0 (2020-09)﻿
+-- 3GPP TS 36.423 V16.4.0 (2021-01)﻿
 -- 9.3.4	PDU Definitions
 -- **************************************************************
 --
@@ -205,7 +205,6 @@ IMPORTS
 	CHOinformation-ACK,
 	DAPSRequestInfo,
 	DAPSResponseInfo,
-	LowerLayerPresenceStatusChange,
 	CandidateCellsToBeCancelledList,
 	CHO-DC-Indicator,
 	Ethernet-Type,
@@ -230,7 +229,6 @@ IMPORTS
 	CSI-RSTransmissionIndication,
 	IABNodeIndication,
 	F1CTrafficContainer,
-	IABInformation,
 	IntendedTDD-DL-ULConfiguration-NR,
 	UERadioCapability
 
@@ -258,13 +256,17 @@ FROM X2AP-Containers
 	id-CellInformation,
 	id-CellInformation-Item,
 	id-CellMeasurementResult,
-	id-CellMeasurementResult-ENDC,
+	id-CellMeasurementResult-NR-ENDC,
 	id-CellMeasurementResult-Item,
-	id-CellMeasurementResult-ENDC-Item,
+	id-CellMeasurementResult-NR-ENDC-Item,
+	id-CellMeasurementResult-E-UTRA-ENDC,
+	id-CellMeasurementResult-E-UTRA-ENDC-Item,
 	id-CellToReport,
-	id-CellToReport-ENDC,
+	id-CellToReport-E-UTRA-ENDC,
+	id-CellToReport-NR-ENDC,
 	id-CellToReport-Item,
-	id-CellToReport-ENDC-Item,
+	id-CellToReport-E-UTRA-ENDC-Item,
+	id-CellToReport-NR-ENDC-Item,
 	id-CompositeAvailableCapacityGroup,
 	id-AerialUEsubscriptionInformation,
 	id-CriticalityDiagnostics,
@@ -577,7 +579,6 @@ FROM X2AP-Containers
 	id-DLCarrierList,
 	id-IABNodeIndication,
 	id-F1CTrafficContainer,
-	id-IABInformation,
 	id-IntendedTDD-DL-ULConfiguration-NR,
 	id-UERadioCapability,
 	maxCellineNB,
@@ -3801,8 +3802,7 @@ RRCTransfer-IEs X2AP-PROTOCOL-IES ::= {
 	{ ID id-NRUeReport							CRITICALITY reject	TYPE NRUeReport					PRESENCE optional}|
 	{ ID id-MeNB-UE-X2AP-ID-Extension			CRITICALITY reject	TYPE UE-X2AP-ID-Extension		PRESENCE optional}|
 	{ ID id-FastMCGRecovery-SN-to-MN				CRITICALITY ignore 	TYPE FastMCGRecovery				PRESENCE optional}|
-	{ ID id-FastMCGRecovery-MN-to-SN				CRITICALITY ignore 	TYPE FastMCGRecovery				PRESENCE optional}|
-	{ ID id-IABInformation						CRITICALITY ignore  TYPE IABInformation				PRESENCE optional},
+	{ ID id-FastMCGRecovery-MN-to-SN				CRITICALITY ignore 	TYPE FastMCGRecovery				PRESENCE optional},
 	...
 }
 
@@ -4257,31 +4257,48 @@ ENDCResourceStatusRequest ::= SEQUENCE {
 
 ENDCResourceStatusRequest-IEs X2AP-PROTOCOL-IES ::= {
 	{ ID id-eNB-Measurement-ID-ENDC			CRITICALITY reject	TYPE Measurement-ID-ENDC			PRESENCE mandatory  }|
-	{ ID id-engNB-Measurement-ID-ENDC		CRITICALITY ignore	TYPE Measurement-ID-ENDC		PRESENCE conditional}| -- The IE shall be present if the Registration Request IE is set to “Stop” or to “Add”
+	{ ID id-engNB-Measurement-ID-ENDC		CRITICALITY ignore	TYPE Measurement-ID-ENDC		PRESENCE conditional}| -- The IE shall be present if the Registration Request EN-DC IE is set to “Stop” or to “Add”
 	{ ID id-Registration-Request			CRITICALITY reject	TYPE Registration-Request-ENDC		PRESENCE mandatory  }|
 	{ ID id-ReportingPeriodicity			CRITICALITY ignore	TYPE ReportingPeriodicity-ENDC		PRESENCE optional   }|
-	{ ID id-ReportCharacteristics			CRITICALITY ignore	TYPE ReportCharacteristics-ENDC		PRESENCE conditional}| -- The IE shall be present if the Registration Request IE is set to “Start”
-	{ ID id-CellToReport-ENDC				CRITICALITY ignore	TYPE CellToReport-ENDC-List			PRESENCE optional   } |
-	{ ID id-InterfaceInstanceIndication		CRITICALITY reject 	TYPE InterfaceInstanceIndication	PRESENCE optional   },
+	{ ID id-ReportCharacteristics			CRITICALITY ignore	TYPE ReportCharacteristics-ENDC		PRESENCE conditional}| -- The IE shall be present if the Registration Request EN-DC IE is set to “Start”
+	{ ID id-CellToReport-NR-ENDC		CRITICALITY ignore	TYPE CellToReport-NR-ENDC-List			PRESENCE optional   } |
+	{ ID id-InterfaceInstanceIndication	CRITICALITY reject 	TYPE InterfaceInstanceIndication	PRESENCE optional   }|
+	{ ID id-CellToReport-E-UTRA-ENDC	CRITICALITY ignore	TYPE CellToReport-E-UTRA-ENDC-List		PRESENCE optional},
 	...
 }
 
 ReportingPeriodicity-ENDC ::= ENUMERATED {ms500, ms1000, ms2000, ms5000, ms10000, ...}
 
-CellToReport-ENDC-List	::= SEQUENCE (SIZE (1..maxCellinengNB)) OF ProtocolIE-Single-Container { {CellToReport-ENDC-ItemIEs} }
+CellToReport-NR-ENDC-List	::= SEQUENCE (SIZE (1..maxCellinengNB)) OF ProtocolIE-Single-Container { {CellToReport-NR-ENDC-ItemIEs} }
 
-CellToReport-ENDC-ItemIEs X2AP-PROTOCOL-IES ::= {
-	{ ID id-CellToReport-ENDC-Item			CRITICALITY ignore	TYPE CellToReport-ENDC-Item		PRESENCE mandatory}
+CellToReport-NR-ENDC-ItemIEs X2AP-PROTOCOL-IES ::= {
+	{ ID id-CellToReport-NR-ENDC-Item			CRITICALITY ignore	TYPE CellToReport-NR-ENDC-Item		PRESENCE mandatory}
 }
 
-CellToReport-ENDC-Item				::= SEQUENCE {
-	cell-ID								NRCGI,
+CellToReport-NR-ENDC-Item				::= SEQUENCE {
+	nr-cell-ID								NRCGI,
 	ssbToReport-List					SSBToReport-List									OPTIONAL,
-	iE-Extensions						ProtocolExtensionContainer { {CellToReport-ENDC-Item-ExtIEs} } OPTIONAL,
+	iE-Extensions						ProtocolExtensionContainer { {CellToReport-NR-ENDC-Item-ExtIEs} } OPTIONAL,
 	...
 }
 
-CellToReport-ENDC-Item-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
+CellToReport-NR-ENDC-Item-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+CellToReport-E-UTRA-ENDC-List 		::= SEQUENCE (SIZE (1..maxCellineNB)) OF ProtocolIE-Single-Container { {CellToReport-E-UTRA-ENDC-Item-IEs} }
+
+CellToReport-E-UTRA-ENDC-Item-IEs X2AP-PROTOCOL-IES ::= {
+	{ ID id-CellToReport-E-UTRA-ENDC-Item	CRITICALITY ignore	TYPE CellToReport-E-UTRA-ENDC-Item 	PRESENCE mandatory}
+}
+
+CellToReport-E-UTRA-ENDC-Item ::= SEQUENCE {
+	e-utra-cell-ID							ECGI,
+	iE-Extensions							ProtocolExtensionContainer { {CellToReport-E-UTRA-ENDC-Item-ExtIEs} } OPTIONAL,
+	...
+}
+
+CellToReport-E-UTRA-ENDC-Item-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
@@ -4348,30 +4365,52 @@ ENDCResourceStatusUpdate ::= SEQUENCE {
 }
 
 ENDCResourceStatusUpdate-IEs X2AP-PROTOCOL-IES ::= {
-	{ ID id-eNB-Measurement-ID-ENDC		CRITICALITY reject	TYPE Measurement-ID-ENDC				PRESENCE mandatory}|
-	{ ID id-engNB-Measurement-ID-ENDC	CRITICALITY reject	TYPE Measurement-ID-ENDC				PRESENCE mandatory}|
-	{ ID id-CellMeasurementResult-ENDC	CRITICALITY ignore	TYPE CellMeasurementResult-ENDC-List	PRESENCE optional }|
-	{ ID id-InterfaceInstanceIndication	CRITICALITY reject 	TYPE InterfaceInstanceIndication		PRESENCE optional },
+	{ ID id-eNB-Measurement-ID-ENDC				CRITICALITY reject	TYPE Measurement-ID-ENDC							PRESENCE mandatory}|
+	{ ID id-engNB-Measurement-ID-ENDC			CRITICALITY reject	TYPE Measurement-ID-ENDC							PRESENCE mandatory}|
+	{ ID id-CellMeasurementResult-NR-ENDC		CRITICALITY ignore	TYPE CellMeasurementResult-NR-ENDC-List		PRESENCE optional }|
+	{ ID id-InterfaceInstanceIndication			CRITICALITY reject 	TYPE InterfaceInstanceIndication					PRESENCE optional }|
+	{ ID id-CellMeasurementResult-E-UTRA-ENDC	CRITICALITY ignore	TYPE CellMeasurementResult-E-UTRA-ENDC-List	PRESENCE optional},
 	...
 }
 
-CellMeasurementResult-ENDC-List ::= SEQUENCE (SIZE (1..maxCellinengNB)) OF ProtocolIE-Single-Container { {CellMeasurementResult-ENDC-ItemIEs} }
+CellMeasurementResult-NR-ENDC-List ::= SEQUENCE (SIZE (1..maxCellinengNB)) OF ProtocolIE-Single-Container { {CellMeasurementResult-NR-ENDC-ItemIEs} }
 
-CellMeasurementResult-ENDC-ItemIEs X2AP-PROTOCOL-IES ::= {
-	{ ID id-CellMeasurementResult-ENDC-Item	CRITICALITY ignore	TYPE CellMeasurementResult-ENDC-Item	PRESENCE mandatory}
+CellMeasurementResult-NR-ENDC-ItemIEs X2AP-PROTOCOL-IES ::= {
+	{ ID id-CellMeasurementResult-NR-ENDC-Item	CRITICALITY ignore	TYPE CellMeasurementResult-NR-ENDC-Item	PRESENCE mandatory}
 }
 
-CellMeasurementResult-ENDC-Item ::= SEQUENCE {
-	cell-ID								NRCGI,
-	radioResourceStatus					NRRadioResourceStatus								OPTIONAL,
+CellMeasurementResult-NR-ENDC-Item ::= SEQUENCE {
+	nr-cell-ID							NRCGI,
+	nr-radioResourceStatus				NRRadioResourceStatus								OPTIONAL,
 	tnlCapacityIndicator				TNLCapacityIndicator								OPTIONAL,
-	compositeAvailableCapacityGroup		NRCompositeAvailableCapacityGroup					OPTIONAL,
+	nr-compositeAvailableCapacityGroup	NRCompositeAvailableCapacityGroup					OPTIONAL,
 	numberofActiveUEs					INTEGER (0..16777215, ...)							OPTIONAL,
-	iE-Extensions						ProtocolExtensionContainer { {CellMeasurementResult-ENDC-Item-ExtIEs} }	OPTIONAL,
+	iE-Extensions						ProtocolExtensionContainer { {CellMeasurementResult-NR-ENDC-Item-ExtIEs} }	OPTIONAL,
 	...
 }
 
-CellMeasurementResult-ENDC-Item-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
+CellMeasurementResult-NR-ENDC-Item-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+CellMeasurementResult-E-UTRA-ENDC-List ::= SEQUENCE (SIZE (1..maxCellineNB))
+														OF ProtocolIE-Single-Container { {CellMeasurementResult-E-UTRA-ENDC-ItemIEs} }
+
+CellMeasurementResult-E-UTRA-ENDC-ItemIEs X2AP-PROTOCOL-IES ::= {
+	{ ID id-CellMeasurementResult-E-UTRA-ENDC-Item	CRITICALITY ignore	TYPE CellMeasurementResult-E-UTRA-ENDC-Item	PRESENCE mandatory}
+}
+
+CellMeasurementResult-E-UTRA-ENDC-Item ::= SEQUENCE {
+	e-utra-cell-ID				ECGI,
+	hWLoadIndicator				HWLoadIndicator		OPTIONAL,
+	s1TNLLoadIndicator			S1TNLLoadIndicator	OPTIONAL,
+	radioResourceStatus			RadioResourceStatus	OPTIONAL,
+	compositeAvailableCapacityGroup	CompositeAvailableCapacityGroup	OPTIONAL,
+	iE-Extensions				ProtocolExtensionContainer { {CellMeasurementResult-E-UTRA-ENDC-Item-ExtIEs} }	OPTIONAL,
+	...
+}
+
+CellMeasurementResult-E-UTRA-ENDC-Item-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
