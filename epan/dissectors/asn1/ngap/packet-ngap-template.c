@@ -8,7 +8,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
- * References: 3GPP TS 38.413 v16.3.0 (2020-09)
+ * References: 3GPP TS 38.413 v16.4.0 (2021-01)
  */
 
 #include "config.h"
@@ -114,6 +114,7 @@ static int hf_ngap_MeasurementsToActivate_M1_from_event = -1;
 static int hf_ngap_MeasurementsToActivate_reserved = -1;
 static int hf_ngap_MDT_Location_Information_GNSS = -1;
 static int hf_ngap_MDT_Location_Information_reserved = -1;
+static int hf_ngap_GlobalCable_ID_str = -1;
 #include "packet-ngap-hf.c"
 
 /* Initialize the subtree pointers */
@@ -155,6 +156,7 @@ static gint ett_ngap_LTEUERLFReportContainer = -1;
 static gint ett_ngap_NRUERLFReportContainer = -1;
 static gint ett_ngap_TargettoSource_Failure_TransparentContainer = -1;
 static gint ett_ngap_UERadioCapabilityForPagingOfNB_IoT = -1;
+static gint ett_ngap_GlobalCable_ID = -1;
 #include "packet-ngap-ett.c"
 
 static expert_field ei_ngap_number_pages_le15 = EI_INIT;
@@ -909,6 +911,10 @@ void proto_register_ngap(void) {
       { "Reserved", "ngap.MDT_Location_Information.reserved",
         FT_UINT8, BASE_HEX, NULL, 0x7f,
         NULL, HFILL }},
+    { &hf_ngap_GlobalCable_ID_str,
+      { "GlobalCable-ID", "ngap.GlobalCable_ID.str",
+        FT_STRING, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
 #include "packet-ngap-hfarr.c"
   };
 
@@ -952,6 +958,7 @@ void proto_register_ngap(void) {
     &ett_ngap_NRUERLFReportContainer,
     &ett_ngap_TargettoSource_Failure_TransparentContainer,
     &ett_ngap_UERadioCapabilityForPagingOfNB_IoT,
+    &ett_ngap_GlobalCable_ID,
 #include "packet-ngap-ettarr.c"
   };
 

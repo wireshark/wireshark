@@ -1103,6 +1103,17 @@ FiveG-TMSI TYPE = FT_UINT32 DISPLAY = BASE_DEC_HEX
     proto_item_set_hidden(ti);
   }
 
+#.FN_BODY GlobalCable-ID VAL_PTR=&parameter_tvb
+  tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (parameter_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_ngap_GlobalCable_ID);
+    proto_tree_add_item(subtree, hf_ngap_GlobalCable_ID_str, parameter_tvb, 0, -1, ENC_UTF_8 | ENC_NA);
+  }
+
+#.TYPE_ATTR
+QosMonitoringReportingFrequency DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
+
 #.ASSIGN_VALUE_TO_TYPE  # NGAP does not have constants assigned to types, they are pure INTEGER
 # ProcedureCode
 
@@ -1448,6 +1459,9 @@ id-ExtendedTAISliceSupportList                   ProtocolIE-ID
 id-ConfiguredTACIndication                       ProtocolIE-ID
 id-Extended-RANNodeName                          ProtocolIE-ID
 id-Extended-AMFName                              ProtocolIE-ID
+id-GlobalCable-ID                                ProtocolIE-ID
+id-QosMonitoringReportingFrequency               ProtocolIE-ID
+id-QosFlowParametersList                         ProtocolIE-ID
 #.END
 
 
@@ -1677,6 +1691,7 @@ EarlyStatusTransfer-TransparentContainer    N ngap.ies id-EarlyStatusTransfer-Tr
 NotifySourceNGRANNode                       N ngap.ies id-NotifySourceNGRANNode
 Extended-RANNodeName                        N ngap.ies id-Extended-RANNodeName
 Extended-AMFName                            N ngap.ies id-Extended-AMFName
+GlobalCable-ID                              N ngap.ies id-GlobalCable-ID
 
 #NGAP-PROTOCOL-EXTENSION
 
@@ -1735,6 +1750,8 @@ DAPSResponseInfoList                                   N ngap.extension id-DAPSR
 ExtendedSliceSupportList                               N ngap.extension id-ExtendedSliceSupportList
 ExtendedSliceSupportList                               N ngap.extension id-ExtendedTAISliceSupportList
 ConfiguredTACIndication                                N ngap.extension id-ConfiguredTACIndication
+QosMonitoringReportingFrequency                        N ngap.extension id-QosMonitoringReportingFrequency
+QosFlowParametersList                                  N ngap.extension id-QosFlowParametersList
 
 #NGAP-ELEMENTARY-PROCEDURE
 

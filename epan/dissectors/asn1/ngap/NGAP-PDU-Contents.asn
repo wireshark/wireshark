@@ -1,4 +1,4 @@
--- 3GPP TS 38.413 V16.3.0 (2020-09)﻿
+-- 3GPP TS 38.413 V16.4.0 (2021-01)
 -- 9.4.4	PDU Definitions
 -- **************************************************************
 --
@@ -365,7 +365,6 @@ FROM NGAP-Containers
 	id-RRCInactiveTransitionReportRequest,
 	id-RRC-Resume-Cause,
 	id-RRCState,
-	id-S-NSSAI,
 	id-SecurityContext,
 	id-SecurityKey,
 	id-SelectedPLMNIdentity,
@@ -840,7 +839,9 @@ UEContextResumeRequestIEs NGAP-PROTOCOL-IES ::= {
 	{ ID id-RRC-Resume-Cause						CRITICALITY ignore	TYPE RRCEstablishmentCause							PRESENCE mandatory	}|
 	{ ID id-PDUSessionResourceResumeListRESReq		CRITICALITY reject	TYPE PDUSessionResourceResumeListRESReq			PRESENCE optional		}|
 	{ ID id-PDUSessionResourceFailedToResumeListRESReq		CRITICALITY reject	TYPE PDUSessionResourceFailedToResumeListRESReq			PRESENCE optional		}|
-	{ ID id-Suspend-Request-Indication				CRITICALITY ignore	TYPE Suspend-Request-Indication						PRESENCE optional		},
+	{ ID id-Suspend-Request-Indication				CRITICALITY ignore	TYPE Suspend-Request-Indication						PRESENCE optional		}|
+	{ ID id-InfoOnRecommendedCellsAndRANNodesForPaging	CRITICALITY ignore	TYPE InfoOnRecommendedCellsAndRANNodesForPaging		PRESENCE optional		}|
+	{ ID id-PagingAssisDataforCEcapabUE					CRITICALITY ignore	TYPE PagingAssisDataforCEcapabUE							PRESENCE optional		},
 	...
 }
 
@@ -988,7 +989,8 @@ UEContextModificationRequestIEs NGAP-PROTOCOL-IES ::= {
 	{ ID id-NRUESidelinkAggregateMaximumBitrate		CRITICALITY ignore	TYPE NRUESidelinkAggregateMaximumBitrate		PRESENCE optional		}|
 	{ ID id-LTEUESidelinkAggregateMaximumBitrate	CRITICALITY ignore	TYPE LTEUESidelinkAggregateMaximumBitrate	PRESENCE optional		}|
 	{ ID id-PC5QoSParameters						CRITICALITY ignore	TYPE PC5QoSParameters								PRESENCE optional 	}|
-	{ ID id-UERadioCapabilityID						CRITICALITY reject	TYPE UERadioCapabilityID							PRESENCE optional		},
+	{ ID id-UERadioCapabilityID						CRITICALITY reject	TYPE UERadioCapabilityID							PRESENCE optional		}|
+	{ ID id-RGLevelWirelineAccessCharacteristics	CRITICALITY ignore	TYPE RGLevelWirelineAccessCharacteristics	PRESENCE optional		},
 	...
 }
 
@@ -1238,7 +1240,8 @@ HandoverRequestIEs NGAP-PROTOCOL-IES ::= {
 	{ ID id-CEmodeBrestricted						CRITICALITY ignore	TYPE CEmodeBrestricted								PRESENCE optional		}|
 	{ ID id-UE-UP-CIoT-Support						CRITICALITY ignore	TYPE UE-UP-CIoT-Support								PRESENCE optional		}|
 	{ ID id-ManagementBasedMDTPLMNList				CRITICALITY ignore	TYPE MDTPLMNList									PRESENCE optional		}|
-	{ ID id-UERadioCapabilityID						CRITICALITY reject	TYPE UERadioCapabilityID							PRESENCE optional		},
+	{ ID id-UERadioCapabilityID						CRITICALITY reject	TYPE UERadioCapabilityID							PRESENCE optional		}|
+	{ ID id-Extended-ConnectedTime					CRITICALITY ignore	TYPE Extended-ConnectedTime						PRESENCE optional		},
 	...
 }
 
@@ -2675,7 +2678,10 @@ ConnectionEstablishmentIndicationIEs NGAP-PROTOCOL-IES ::= {
 	{ ID id-AllowedNSSAI					CRITICALITY ignore	TYPE AllowedNSSAI					PRESENCE optional		}|
 	{ ID id-UE-DifferentiationInfo			CRITICALITY ignore	TYPE UE-DifferentiationInfo			PRESENCE optional		}|
 	{ ID id-DL-CP-SecurityInformation		CRITICALITY ignore	TYPE DL-CP-SecurityInformation		PRESENCE optional		}|
-	{ ID id-NB-IoT-UEPriority				CRITICALITY ignore	TYPE NB-IoT-UEPriority				PRESENCE optional		},
+	{ ID id-NB-IoT-UEPriority				CRITICALITY ignore	TYPE NB-IoT-UEPriority				PRESENCE optional		}|
+	{ ID id-Enhanced-CoverageRestriction	CRITICALITY ignore	TYPE Enhanced-CoverageRestriction	PRESENCE optional		}|
+	{ ID id-CEmodeBrestricted				CRITICALITY ignore	TYPE CEmodeBrestricted				PRESENCE optional		}|
+	{ ID id-UERadioCapabilityID				CRITICALITY reject	TYPE UERadioCapabilityID			PRESENCE optional		},
 	...
 }
 

@@ -1,4 +1,4 @@
--- 3GPP TS 38.413 V16.3.0 (2020-09)﻿
+-- 3GPP TS 38.413 V16.4.0 (2021-01)
 -- 9.4.5	Information Element Definitions
 -- **************************************************************
 --
@@ -46,6 +46,7 @@ IMPORTS
 	id-ExtendedRATRestrictionInformation,
 	id-ExtendedSliceSupportList,
 	id-ExtendedTAISliceSupportList,
+	id-GlobalCable-ID,
 	id-GlobalRANNodeID,
 	id-GlobalTNGF-ID,
  	id-GlobalTWIF-ID,
@@ -69,9 +70,11 @@ IMPORTS
 	id-PDUSessionType,
 	id-PSCellInformation,
 	id-QosFlowAddOrModifyRequestList,
+	id-QosFlowParametersList,
 	id-QosFlowSetupRequestList,
 	id-QosFlowToReleaseList,
 	id-QosMonitoringRequest,
+	id-QosMonitoringReportingFrequency,
 	id-RAT-Information,
 	id-RedundantCommonNetworkInstance,
 	id-RedundantDL-NGU-TNLInformationReused,
@@ -1715,6 +1718,8 @@ GBR-QosInformation-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
+GlobalCable-ID ::= OCTET STRING
+
 GlobalENB-ID ::= SEQUENCE {
 	pLMNidentity			PLMNIdentity,
 	eNB-ID					ENB-ID,
@@ -2930,7 +2935,8 @@ PathSwitchRequestAcknowledgeTransfer ::= SEQUENCE {
 PathSwitchRequestAcknowledgeTransfer-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
 	{ ID id-AdditionalNGU-UP-TNLInformation				CRITICALITY ignore	EXTENSION UPTransportLayerInformationPairList		PRESENCE optional	}|
 	{ ID id-RedundantUL-NGU-UP-TNLInformation			CRITICALITY ignore	EXTENSION UPTransportLayerInformation				PRESENCE optional	}|
-	{ ID id-AdditionalRedundantNGU-UP-TNLInformation	CRITICALITY ignore	EXTENSION UPTransportLayerInformationPairList		PRESENCE optional	},
+	{ ID id-AdditionalRedundantNGU-UP-TNLInformation	CRITICALITY ignore	EXTENSION UPTransportLayerInformationPairList		PRESENCE optional	}|
+	{ ID id-QosFlowParametersList						CRITICALITY ignore	EXTENSION QosFlowParametersList						PRESENCE optional },
 	...
 }
 
@@ -3867,12 +3873,15 @@ QosFlowLevelQosParameters ::= SEQUENCE {
 }
 
 QosFlowLevelQosParameters-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
-	{ID id-QosMonitoringRequest	CRITICALITY ignore	EXTENSION QosMonitoringRequest	PRESENCE optional},
+	{ID id-QosMonitoringRequest	CRITICALITY ignore	EXTENSION QosMonitoringRequest	PRESENCE optional}|
+	{ID id-QosMonitoringReportingFrequency	CRITICALITY ignore	EXTENSION QosMonitoringReportingFrequency	PRESENCE optional},
 	...
 }
 
 
 QosMonitoringRequest ::= ENUMERATED {ul, dl, both, ...}
+
+QosMonitoringReportingFrequency ::= INTEGER (1..1800, ...)
 
 QosFlowListWithCause ::= SEQUENCE (SIZE(1..maxnoofQosFlows)) OF QosFlowWithCauseItem
 
@@ -3910,6 +3919,18 @@ QosFlowNotifyItem ::= SEQUENCE {
 
 QosFlowNotifyItem-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
 	{ ID id-CurrentQoSParaSetIndex	CRITICALITY ignore	EXTENSION AlternativeQoSParaSetNotifyIndex	PRESENCE optional	},
+	...
+}
+QosFlowParametersList ::= SEQUENCE (SIZE(1..maxnoofQosFlows)) OF QosFlowParametersItem
+
+QosFlowParametersItem ::= SEQUENCE {
+	qosFlowIdentifier				QosFlowIdentifier,
+	alternativeQoSParaSetList		AlternativeQoSParaSetList							OPTIONAL,	
+	iE-Extensions		ProtocolExtensionContainer { {QosFlowParametersItem-ExtIEs} }	OPTIONAL,
+	...
+}
+
+QosFlowParametersItem-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
@@ -5220,6 +5241,7 @@ UserLocationInformationW-AGF ::= CHOICE {
 }
 
 UserLocationInformationW-AGF-ExtIEs NGAP-PROTOCOL-IES ::= {
+	{ ID id-GlobalCable-ID 	CRITICALITY 	ignore 	TYPE 	GlobalCable-ID 	PRESENCE 	mandatory },
 	...
 }
 

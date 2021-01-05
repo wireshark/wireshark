@@ -1,4 +1,4 @@
--- 3GPP TS 38.413 V16.3.0 (2020-09)﻿
+-- 3GPP TS 38.413 V16.4.0 (2021-01)
 -- 9.4.7	Constant Definitions
 -- **************************************************************
 --
@@ -425,7 +425,7 @@ maxProtocolIEs							INTEGER ::= 65535
 	id-GlobalTNGF-ID										ProtocolIE-ID ::= 240
 	id-GlobalTWIF-ID										ProtocolIE-ID ::= 241
 	id-GlobalW-AGF-ID										ProtocolIE-ID ::= 242
-	id-UserLocationInformationW-AGF                   		ProtocolIE-ID ::= 243
+	id-UserLocationInformationW-AGF							ProtocolIE-ID ::= 243
 	id-UserLocationInformationTNGF							ProtocolIE-ID ::= 244
 	id-AuthenticatedIndication								ProtocolIE-ID ::= 245
 	id-TNGFIdentityInformation								ProtocolIE-ID ::= 246
@@ -457,5 +457,8 @@ maxProtocolIEs							INTEGER ::= 65535
 	id-ConfiguredTACIndication								ProtocolIE-ID ::= 272
 	id-Extended-RANNodeName									ProtocolIE-ID ::= 273
 	id-Extended-AMFName										ProtocolIE-ID ::= 274
+	id-GlobalCable-ID										ProtocolIE-ID ::= 275
+	id-QosMonitoringReportingFrequency						ProtocolIE-ID ::= 276
+	id-QosFlowParametersList									ProtocolIE-ID ::= 277
 
 END
