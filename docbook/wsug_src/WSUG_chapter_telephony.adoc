@@ -153,8 +153,6 @@ More details can be found on the
 
 In the Real Time Streaming Protocol (RTSP) menu the user can check the Packet Counter window. It shows Total RTCP Packets and divided into RTSP Response Packets, RTSP Request Packets and Other RTSP packets. The user can filter, copy or save the data into a file.
 
-{missing}
-
 [[ChTelSCTP]]
 
 === SCTP
