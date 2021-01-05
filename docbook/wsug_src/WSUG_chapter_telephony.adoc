@@ -175,7 +175,7 @@ In the Real Time Streaming Protocol (RTSP) menu the user can check the Packet Co
 
 === H.225
 
-{missing}
+H.225 telecommunication protocol which is responsible for messages in call signalling and media stream packetization for packet-based multimedia communication systems. The H.225 window shows the counted messages by types and reasons. The user can filter, copy or save the data into a file.
 
 [[ChTelSIPFlows]]
 
