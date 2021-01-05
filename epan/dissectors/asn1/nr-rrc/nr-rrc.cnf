@@ -101,6 +101,7 @@ SIB13-r16_PDU
 SIB14-r16_PDU
 SidelinkParametersNR-r16_PDU
 SidelinkUEInformationNR-r16_PDU
+SL-ConfigDedicatedEUTRA-Info-r16_PDU
 SL-PHY-MAC-RLC-Config-r16_PDU
 TDD-UL-DL-ConfigCommon_PDU
 UE-CapabilityRAT-ContainerList_PDU
@@ -154,6 +155,7 @@ SCCH-Message                       @scch
 SchedulingRequestResourceConfig
 SidelinkParametersNR-r16
 SidelinkUEInformationNR-r16
+SL-ConfigDedicatedEUTRA-Info-r16
 SL-PHY-MAC-RLC-Config-r16
 SIB1
 SIB2

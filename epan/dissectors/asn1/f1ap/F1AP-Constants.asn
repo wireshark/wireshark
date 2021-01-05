@@ -1,4 +1,4 @@
--- 3GPP TS 38.473 V16.3.1 (2020-10)
+-- 3GPP TS 38.473 V16.4.0 (2021-01)
 -- 9.4.7	Constant Definitions
 -- **************************************************************
 --
@@ -553,7 +553,7 @@ id-SLDRBs-ModifiedConf-Item							ProtocolIE-ID ::= 338
 id-UEAssistanceInformationEUTRA						ProtocolIE-ID ::= 339
 id-PC5LinkAMBR										ProtocolIE-ID ::= 340
 id-SL-PHY-MAC-RLC-Config							ProtocolIE-ID ::= 341
-id-SL-ConfigDedicatedEUTRA							ProtocolIE-ID ::= 342
+id-SL-ConfigDedicatedEUTRA-Info						ProtocolIE-ID ::= 342
 id-AlternativeQoSParaSetList						ProtocolIE-ID ::= 343
 id-CurrentQoSParaSetIndex							ProtocolIE-ID ::= 344
 id-gNBCUMeasurementID								ProtocolIE-ID ::= 345
@@ -578,11 +578,9 @@ id-ExtendedPacketDelayBudget						ProtocolIE-ID ::= 363
 id-TSCTrafficCharacteristics						ProtocolIE-ID ::= 364
 id-ReportingRequestType								ProtocolIE-ID ::= 365
 id-TimeReferenceInformation							ProtocolIE-ID ::= 366
--- WS modification: rename items to avoid conflict with ProcedureCode
--- id-ReferenceTimeInformationReport					ProtocolIE-ID ::= 367
--- id-ReferenceTimeInformationReportingControl			ProtocolIE-ID ::= 368
-id-ReferenceTimeInformationReport-IE					ProtocolIE-ID ::= 367
-id-ReferenceTimeInformationReportingControl-IE			ProtocolIE-ID ::= 368
+-- WS extension
+id-Unknown-367									ProtocolIE-ID ::= 367
+id-Unknown-368									ProtocolIE-ID ::= 368
 id-CNPacketDelayBudgetUplink						ProtocolIE-ID ::= 369
 id-AdditionalPDCPDuplicationTNL-List				ProtocolIE-ID ::= 370
 id-RLCDuplicationInformation						ProtocolIE-ID ::= 371
@@ -643,6 +641,7 @@ id-E-CID-ReportCharacteristics						ProtocolIE-ID ::= 424
 id-ConfiguredTACIndication							ProtocolIE-ID ::= 425
 id-Extended-GNB-DU-Name								ProtocolIE-ID ::= 426
 id-Extended-GNB-CU-Name								ProtocolIE-ID ::= 427
+id-F1CTransferPath									ProtocolIE-ID ::= 428
 
 
 END

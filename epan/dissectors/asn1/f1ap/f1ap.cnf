@@ -501,7 +501,7 @@ id-SLDRBs-ModifiedConf-Item                          ProtocolIE-ID
 id-UEAssistanceInformationEUTRA                      ProtocolIE-ID
 id-PC5LinkAMBR                                       ProtocolIE-ID
 id-SL-PHY-MAC-RLC-Config                             ProtocolIE-ID
-id-SL-ConfigDedicatedEUTRA                           ProtocolIE-ID
+id-SL-ConfigDedicatedEUTRA-Info                      ProtocolIE-ID
 id-AlternativeQoSParaSetList                         ProtocolIE-ID
 id-CurrentQoSParaSetIndex                            ProtocolIE-ID
 id-gNBCUMeasurementID                                ProtocolIE-ID
@@ -526,8 +526,6 @@ id-ExtendedPacketDelayBudget                         ProtocolIE-ID
 id-TSCTrafficCharacteristics                         ProtocolIE-ID
 id-ReportingRequestType                              ProtocolIE-ID
 id-TimeReferenceInformation                          ProtocolIE-ID
-id-ReferenceTimeInformationReport-IE                 ProtocolIE-ID
-id-ReferenceTimeInformationReportingControl-IE       ProtocolIE-ID
 id-CNPacketDelayBudgetUplink                         ProtocolIE-ID
 id-AdditionalPDCPDuplicationTNL-List                 ProtocolIE-ID
 id-RLCDuplicationInformation                         ProtocolIE-ID
@@ -586,6 +584,7 @@ id-E-CID-ReportCharacteristics                       ProtocolIE-ID
 id-ConfiguredTACIndication                           ProtocolIE-ID
 id-Extended-GNB-DU-Name                              ProtocolIE-ID
 id-Extended-GNB-CU-Name                              ProtocolIE-ID
+id-F1CTransferPath                                   ProtocolIE-ID
 #.END
 
 #.REGISTER
@@ -899,14 +898,14 @@ AbortTransmission                                 N f1ap.ies id-AbortTransmissio
 PositioningBroadcastCells                         N f1ap.ies id-PositioningBroadcastCells
 SRSConfiguration                                  N f1ap.ies id-SRSConfiguration
 PosReportCharacteristics                          N f1ap.ies id-PosReportCharacteristics
-PosMeasurementPeriodicity                         N f1ap.ies id-PosMeasurementPeriodicity
+MeasurementPeriodicity                            N f1ap.ies id-PosMeasurementPeriodicity
 TRPList                                           N f1ap.ies id-TRPList
 RAN-MeasurementID                                 N f1ap.ies id-RAN-MeasurementID
 LMF-UE-MeasurementID                              N f1ap.ies id-LMF-UE-MeasurementID
 RAN-UE-MeasurementID                              N f1ap.ies id-RAN-UE-MeasurementID
 E-CID-MeasurementQuantities                       N f1ap.ies id-E-CID-MeasurementQuantities
 E-CID-MeasurementQuantities-Item                  N f1ap.ies id-E-CID-MeasurementQuantities-Item
-E-CID-MeasurementPeriodicity                      N f1ap.ies id-E-CID-MeasurementPeriodicity
+MeasurementPeriodicity                            N f1ap.ies id-E-CID-MeasurementPeriodicity
 E-CID-MeasurementResult                           N f1ap.ies id-E-CID-MeasurementResult
 Cell-Portion-ID                                   N f1ap.ies id-Cell-Portion-ID
 SFNInitialisationTime                             N f1ap.ies id-SFNInitialisationTime
@@ -917,6 +916,7 @@ MeasurementBeamInfoRequest                        N f1ap.ies id-MeasurementBeamI
 E-CID-ReportCharacteristics                       N f1ap.ies id-E-CID-ReportCharacteristics
 Extended-GNB-DU-Name                              N f1ap.ies id-Extended-GNB-DU-Name
 Extended-GNB-CU-Name                              N f1ap.ies id-Extended-GNB-CU-Name
+F1CTransferPath                                   N f1ap.ies id-F1CTransferPath
 
 #F1AP-PROTOCOL-EXTENSION
 GNB-CUSystemInformation                           N f1ap.extension id-gNB-CUSystemInformation
@@ -979,7 +979,7 @@ SIB13-message                                     N f1ap.extension id-SIB13-mess
 SIB14-message                                     N f1ap.extension id-SIB14-message
 UEAssistanceInformationEUTRA                      N f1ap.extension id-UEAssistanceInformationEUTRA
 SL-PHY-MAC-RLC-Config                             N f1ap.extension id-SL-PHY-MAC-RLC-Config
-SL-ConfigDedicatedEUTRA                           N f1ap.extension id-SL-ConfigDedicatedEUTRA
+SL-ConfigDedicatedEUTRA-Info                      N f1ap.extension id-SL-ConfigDedicatedEUTRA-Info
 AlternativeQoSParaSetList                         N f1ap.extension id-AlternativeQoSParaSetList
 QoSParaSetNotifyIndex                             N f1ap.extension id-CurrentQoSParaSetIndex
 NRCarrierList                                     N f1ap.extension id-CarrierList
@@ -1005,6 +1005,7 @@ SIB10-message                                     N f1ap.extension id-SIB10-mess
 NRCarrierList                                     N f1ap.extension id-DLCarrierList
 ExtendedSliceSupportList                          N f1ap.extension id-ExtendedTAISliceSupportList
 ConfiguredTACIndication                           N f1ap.extension id-ConfiguredTACIndication
+NRCGI                                             N f1ap.extension id-NRCGI
 
 #F1AP-ELEMENTARY-PROCEDURE
 Reset                                    N f1ap.proc.imsg id-Reset
@@ -1090,12 +1091,15 @@ CUDURadioInformationTransfer             N f1ap.proc.imsg id-CUDURadioInformatio
 
 BAPMappingConfiguration                  N f1ap.proc.imsg id-BAPMappingConfiguration
 BAPMappingConfigurationAcknowledge       N f1ap.proc.sout id-BAPMappingConfiguration
+BAPMappingConfigurationFailure           N f1ap.proc.uout id-BAPMappingConfiguration
 
 GNBDUResourceConfiguration               N f1ap.proc.imsg id-GNBDUResourceConfiguration
 GNBDUResourceConfigurationAcknowledge    N f1ap.proc.sout id-GNBDUResourceConfiguration
+GNBDUResourceConfigurationFailure        N f1ap.proc.uout id-GNBDUResourceConfiguration
 
 IABTNLAddressRequest                     N f1ap.proc.imsg id-IABTNLAddressAllocation
 IABTNLAddressResponse                    N f1ap.proc.sout id-IABTNLAddressAllocation
+IABTNLAddressFailure                     N f1ap.proc.uout id-IABTNLAddressAllocation
 
 IABUPConfigurationUpdateRequest          N f1ap.proc.imsg id-IABUPConfigurationUpdate
 IABUPConfigurationUpdateResponse         N f1ap.proc.sout id-IABUPConfigurationUpdate
@@ -1887,13 +1891,13 @@ Periodicity DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_microseconds
     dissect_nr_rrc_SL_PHY_MAC_RLC_Config_r16_PDU(param_tvb, actx->pinfo, subtree, NULL);
   }
 
-#.FN_BODY SL-ConfigDedicatedEUTRA VAL_PTR = &param_tvb
+#.FN_BODY SL-ConfigDedicatedEUTRA-Info VAL_PTR = &param_tvb
   tvbuff_t *param_tvb = NULL;
   proto_tree *subtree;
 %(DEFAULT_BODY)s
   if (param_tvb && lte_rrc_conn_reconf_handle) {
-    subtree = proto_item_add_subtree(actx->created_item, ett_f1ap_SL_ConfigDedicatedEUTRA);
-    call_dissector(lte_rrc_conn_reconf_handle, param_tvb, actx->pinfo, subtree);
+    subtree = proto_item_add_subtree(actx->created_item, ett_f1ap_SL_ConfigDedicatedEUTRA_Info);
+    dissect_nr_rrc_SL_ConfigDedicatedEUTRA_Info_r16_PDU(param_tvb, actx->pinfo, subtree, NULL);
   }
 
 #.FN_BODY TDD-UL-DLConfigCommonNR VAL_PTR = &param_tvb
@@ -2043,17 +2047,26 @@ Periodicity DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_microseconds
 #.FN_HDR BAPMappingConfigurationAcknowledge
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "BAPMappingConfigurationAcknowledge");
 #.END
+#.FN_HDR BAPMappingConfigurationFailure
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "BAPMappingConfigurationFailure");
+#.END
 #.FN_HDR GNBDUResourceConfiguration
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "GNBDUResourceConfiguration");
 #.END
 #.FN_HDR GNBDUResourceConfigurationAcknowledge
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "GNBDUResourceConfigurationAcknowledge");
 #.END
+#.FN_HDR GNBDUResourceConfigurationFailure
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "GNBDUResourceConfigurationFailure");
+#.END
 #.FN_HDR IABTNLAddressRequest
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "IABTNLAddressRequest");
 #.END
 #.FN_HDR IABTNLAddressResponse
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "IABTNLAddressResponse");
+#.END
+#.FN_HDR IABTNLAddressFailure
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "IABTNLAddressFailure");
 #.END
 #.FN_HDR IABUPConfigurationUpdateRequest
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "IABUPConfigurationUpdateRequest");

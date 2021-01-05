@@ -1,4 +1,4 @@
--- 3GPP TS 38.473 V16.3.1 (2020-10)
+-- 3GPP TS 38.473 V16.4.0 (2021-01)
 -- 9.4.3	Elementary Procedure Definitions
 -- **************************************************************
 --
@@ -77,10 +77,13 @@ FROM F1AP-CommonDataTypes
 	CUDURadioInformationTransfer,
 	BAPMappingConfiguration,
 	BAPMappingConfigurationAcknowledge,
+	BAPMappingConfigurationFailure,
 	GNBDUResourceConfiguration,
 	GNBDUResourceConfigurationAcknowledge,
+	GNBDUResourceConfigurationFailure,
 	IABTNLAddressRequest,
 	IABTNLAddressResponse,
+	IABTNLAddressFailure,
 	IABUPConfigurationUpdateRequest,
 	IABUPConfigurationUpdateResponse,
 	IABUPConfigurationUpdateFailure,
@@ -544,6 +547,7 @@ cUDURadioInformationTransfer F1AP-ELEMENTARY-PROCEDURE ::= {
 bAPMappingConfiguration F1AP-ELEMENTARY-PROCEDURE ::= {
 	INITIATING MESSAGE		BAPMappingConfiguration
 	SUCCESSFUL OUTCOME		BAPMappingConfigurationAcknowledge
+	UNSUCCESSFUL OUTCOME	BAPMappingConfigurationFailure
 	PROCEDURE CODE			id-BAPMappingConfiguration
 	CRITICALITY				reject
 }
@@ -551,6 +555,7 @@ bAPMappingConfiguration F1AP-ELEMENTARY-PROCEDURE ::= {
 gNBDUResourceConfiguration F1AP-ELEMENTARY-PROCEDURE ::= { 
 	INITIATING MESSAGE		GNBDUResourceConfiguration
 	SUCCESSFUL OUTCOME		GNBDUResourceConfigurationAcknowledge
+	UNSUCCESSFUL OUTCOME	GNBDUResourceConfigurationFailure
 	PROCEDURE CODE			id-GNBDUResourceConfiguration
 	CRITICALITY				reject
 }
@@ -558,6 +563,7 @@ gNBDUResourceConfiguration F1AP-ELEMENTARY-PROCEDURE ::= {
 iABTNLAddressAllocation F1AP-ELEMENTARY-PROCEDURE ::= {
 	INITIATING MESSAGE		IABTNLAddressRequest
 	SUCCESSFUL OUTCOME		IABTNLAddressResponse
+	UNSUCCESSFUL OUTCOME	IABTNLAddressFailure
 	PROCEDURE CODE			id-IABTNLAddressAllocation
 	CRITICALITY				reject
 }
