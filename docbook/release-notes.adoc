@@ -60,9 +60,12 @@ They previously shipped with Npcap 1.00.
 
 // Add one protocol per line between the -- delimiters in the format
 // "Full protocol name (Abbreviation)"
-O-RAN fronthaul UC-plane (O-RAN)
 [commaize]
 --
+Kerberos SPAKE
+O-RAN fronthaul UC-plane (O-RAN)
+PDU Transport Protocol
+State Synchronization Protocol (SSyncP)
 --
 
 === Updated Protocol Support
