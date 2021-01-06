@@ -22,6 +22,7 @@
 #include <epan/to_str.h>
 #include <epan/strutil.h>
 
+#include "dot11decrypt_util.h"
 #include "dot11decrypt_system.h"
 #include "dot11decrypt_int.h"
 
@@ -35,6 +36,7 @@ static int Dot11DecryptGetKckLen(int akm);
 static int Dot11DecryptGetTkLen(int cipher);
 static int Dot11DecryptGetKekLen(int akm);
 static int Dot11DecryptGetPtkLen(int akm, int cipher);
+static int Dot11DecryptGetHashAlgoFromAkm(int akm);
 
 /****************************************************************************/
 /*      Constant definitions                                                    */
@@ -75,6 +77,9 @@ static int Dot11DecryptGetPtkLen(int akm, int cipher);
 #define DOT11DECRYPT_RSN_WPA_KEY_DESCRIPTOR 254
 #define DOT11DECRYPT_RSN_WPA2_KEY_DESCRIPTOR 2
 
+/* PMK to PTK derive functions */
+#define DOT11DECRYPT_DERIVE_USING_PRF 0
+#define DOT11DECRYPT_DERIVE_USING_KDF 1
 /****************************************************************************/
 
 
@@ -217,28 +222,11 @@ static void
 Dot11DecryptDerivePtk(
     DOT11DECRYPT_SEC_ASSOCIATION *sa,
     const UCHAR *pmk,
+    size_t pmk_len,
     const UCHAR snonce[32],
     int key_version,
     int akm,
     int cipher);
-
-static void
-Dot11DecryptRsnaPrfX(
-    DOT11DECRYPT_SEC_ASSOCIATION *sa,
-    const UCHAR *pmk,
-    const UCHAR snonce[32],
-    const INT x,        /*      for TKIP 512, for CCMP 384      */
-    UCHAR *ptk,
-    int hash_algo);
-
-static void
-Dot11DecryptRsnaKdfX(
-    DOT11DECRYPT_SEC_ASSOCIATION *sa,
-    const UCHAR *pmk,
-    const UCHAR snonce[32],
-    const INT x,
-    UCHAR *ptk,
-    int hash_algo);
 
 /**
  * @param sa  [IN/OUT] pointer to SA that will hold the key
@@ -280,14 +268,6 @@ const guint8 broadcast_mac[] = { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
 
 #define TKIP_GROUP_KEY_LEN 32
 #define CCMP_GROUP_KEY_LEN 16
-
-typedef void (*DOT11DECRYPT_PTK_DERIVE_FUNC)(
-    DOT11DECRYPT_SEC_ASSOCIATION *sa,
-    const UCHAR *pmk,
-    const UCHAR snonce[32],
-    const INT x,
-    UCHAR *ptk,
-    int hash_algo);
 
 #define EAPOL_RSN_KEY_LEN 95
 
@@ -1644,6 +1624,7 @@ Dot11DecryptRsna4WHandshake(
                 /* derive the PTK from the BSSID, STA MAC, PMK, SNonce, ANonce */
                 Dot11DecryptDerivePtk(sa,                            /* authenticator nonce, bssid, station mac */
                                       tmp_pkt_key->KeyData.Wpa.Psk,  /* PSK == PMK */
+                                      tmp_pkt_key->KeyData.Wpa.PskLen,
                                       eapol_parsed->nonce,           /* supplicant nonce */
                                       eapol_parsed->key_version,
                                       akm,
@@ -2089,14 +2070,14 @@ static int Dot11DecryptGetPtkLen(int akm, int cipher)
 }
 
 /* From IEEE 802.11-2016 12.7.1.2 PRF and Table 9-133 AKM suite selectors */
-static DOT11DECRYPT_PTK_DERIVE_FUNC
+static int
 Dot11DecryptGetDeriveFuncFromAkm(int akm)
 {
-    DOT11DECRYPT_PTK_DERIVE_FUNC func = NULL;
+    int func = -1;
     switch (akm) {
         case 1:
         case 2:
-            func = Dot11DecryptRsnaPrfX;
+            func = DOT11DECRYPT_DERIVE_USING_PRF;
             break;
         case 3:
         case 4:
@@ -2110,7 +2091,7 @@ Dot11DecryptGetDeriveFuncFromAkm(int akm)
         case 12:
         case 13:
         case 18:
-            func = Dot11DecryptRsnaKdfX;
+            func = DOT11DECRYPT_DERIVE_USING_KDF;
             break;
         default:
             /* Unknown / Not supported yet */
@@ -2121,7 +2102,7 @@ Dot11DecryptGetDeriveFuncFromAkm(int akm)
 
 /* From IEEE 802.11-2016 12.7.1.2 PRF and Table 9-133 AKM suite selectors */
 static int
-Dot11DecryptGetDeriveAlgoFromAkm(int akm)
+Dot11DecryptGetHashAlgoFromAkm(int akm)
 {
     int algo = -1;
     switch (akm) {
@@ -2153,10 +2134,16 @@ Dot11DecryptGetDeriveAlgoFromAkm(int akm)
 }
 
 /* derive the PTK from the BSSID, STA MAC, PMK, SNonce, ANonce */
+/** From IEEE 802.11-2016 12.7.1.3 Pairwise key hierarchy:
+ *  PRF-Length(PMK, “Pairwise key expansion”,
+ *      Min(AA, SPA) || Max(AA, SPA) ||
+ *      Min(ANonce, SNonce) || Max(ANonce, SNonce))
+ */
 static void
 Dot11DecryptDerivePtk(
     DOT11DECRYPT_SEC_ASSOCIATION *sa,
     const UCHAR *pmk,
+    size_t pmk_len,
     const UCHAR snonce[32],
     int key_version,
     int akm,
@@ -2168,17 +2155,18 @@ Dot11DecryptDerivePtk(
 #endif
     int algo = -1;
     int ptk_len_bits = -1;
-    DOT11DECRYPT_PTK_DERIVE_FUNC DerivePtk = NULL;
+    int derive_func;
+
     if (key_version == DOT11DECRYPT_WPA_KEY_VER_NOT_CCMP) {
         /* TKIP */
         ptk_len_bits = 512;
-        DerivePtk = Dot11DecryptRsnaPrfX;
+        derive_func = DOT11DECRYPT_DERIVE_USING_PRF;
         algo = GCRY_MD_SHA1;
     } else {
         /* From IEEE 802.11-2016 Table 12-8 Integrity and key-wrap algorithms */
         ptk_len_bits = Dot11DecryptGetPtkLen(akm, cipher);
-        DerivePtk = Dot11DecryptGetDeriveFuncFromAkm(akm);
-        algo = Dot11DecryptGetDeriveAlgoFromAkm(akm);
+        algo = Dot11DecryptGetHashAlgoFromAkm(akm);
+        derive_func = Dot11DecryptGetDeriveFuncFromAkm(akm);
 
 #ifdef DOT11DECRYPT_DEBUG
         g_snprintf(msgbuf, MSGBUF_LEN, "ptk_len_bits: %d, algo: %d, cipher: %d", ptk_len_bits, algo, cipher);
@@ -2186,138 +2174,52 @@ Dot11DecryptDerivePtk(
 #endif /* DOT11DECRYPT_DEBUG */
     }
 
-    if (ptk_len_bits == -1 || !DerivePtk || algo == -1) {
+    if (ptk_len_bits == -1 || algo == -1) {
         return;
     }
-    DerivePtk(sa, pmk, snonce, ptk_len_bits, sa->wpa.ptk, algo);
-}
 
-/* Function used to derive the PTK. Refer to IEEE 802.11I-2004, pag. 74
- * and IEEE 802.11i-2004, pag. 164 */
-static void
-Dot11DecryptRsnaPrfX(
-    DOT11DECRYPT_SEC_ASSOCIATION *sa,
-    const UCHAR *pmk,
-    const UCHAR snonce[32],
-    const INT x,        /*      for TKIP 512, for CCMP 384 */
-    UCHAR *ptk,
-    int hash_algo)
-{
-    UINT8 i;
-    UCHAR R[100];
-    INT offset=sizeof("Pairwise key expansion");
-    UCHAR output[80]; /* allow for sha1 overflow. */
-    int hash_len = 20;
-
-    memset(R, 0, 100);
-
-    memcpy(R, "Pairwise key expansion", offset);
-
-    /* Min(AA, SPA) || Max(AA, SPA) */
-    if (memcmp(sa->saId.sta, sa->saId.bssid, DOT11DECRYPT_MAC_LEN) < 0)
-    {
-        memcpy(R + offset, sa->saId.sta, DOT11DECRYPT_MAC_LEN);
-        memcpy(R + offset+DOT11DECRYPT_MAC_LEN, sa->saId.bssid, DOT11DECRYPT_MAC_LEN);
-    }
-    else
-    {
-        memcpy(R + offset, sa->saId.bssid, DOT11DECRYPT_MAC_LEN);
-        memcpy(R + offset+DOT11DECRYPT_MAC_LEN, sa->saId.sta, DOT11DECRYPT_MAC_LEN);
-    }
-
-    offset+=DOT11DECRYPT_MAC_LEN*2;
-
-    /* Min(ANonce,SNonce) || Max(ANonce,SNonce) */
-    if( memcmp(snonce, sa->wpa.nonce, 32) < 0 )
-    {
-        memcpy(R + offset, snonce, 32);
-        memcpy(R + offset + 32, sa->wpa.nonce, 32);
-    }
-    else
-    {
-        memcpy(R + offset, sa->wpa.nonce, 32);
-        memcpy(R + offset + 32, snonce, 32);
-    }
-
-    offset+=32*2;
-
-    for(i = 0; i < (x+159)/160; i++)
-    {
-        R[offset] = i;
-        if (ws_hmac_buffer(hash_algo, &output[hash_len * i], R, 100, pmk, 32)) {
-          return;
-        }
-    }
-    memcpy(ptk, output, x/8);
-}
-
-/* From IEEE 802.11-2016 12.7.1.7.2 Key derivation function (KDF) */
-static void
-Dot11DecryptRsnaKdfX(
-    DOT11DECRYPT_SEC_ASSOCIATION *sa,
-    const UCHAR *pmk,
-    const UCHAR snonce[32],
-    const INT x,
-    UCHAR *ptk,
-    int hash_algo)
-{
     static const char *const label = "Pairwise key expansion";
-    /* LABEL_LEN = strlen("Pairwise key expansion") */
-    #define LABEL_LEN (22)
-    /* R_LEN = "i || Label || Context || Length" */
-    #define R_LEN (2 + LABEL_LEN + DOT11DECRYPT_MAC_LEN * 2 + 2 * 32 + 2)
-
-    UCHAR R[R_LEN];
-    guint16 i;
-    INT offset = 0;
-    UCHAR output[48 * 2]; /* Big enough for largest algo results (SHA-384) */
-    guint16 hash_len = (hash_algo == GCRY_MD_SHA384) ? 48 : 32;
-    memset(R, 0, R_LEN);
-
-    offset += 2; /* i */
-    memcpy(R + offset, label, LABEL_LEN);
-    offset += LABEL_LEN;
+    guint8 context[DOT11DECRYPT_MAC_LEN * 2 + 32 * 2];
+    int offset = 0;
 
     /* Min(AA, SPA) || Max(AA, SPA) */
     if (memcmp(sa->saId.sta, sa->saId.bssid, DOT11DECRYPT_MAC_LEN) < 0)
     {
-        memcpy(R + offset, sa->saId.sta, DOT11DECRYPT_MAC_LEN);
-        memcpy(R + offset+DOT11DECRYPT_MAC_LEN, sa->saId.bssid, DOT11DECRYPT_MAC_LEN);
+        memcpy(context + offset, sa->saId.sta, DOT11DECRYPT_MAC_LEN);
+        offset += DOT11DECRYPT_MAC_LEN;
+        memcpy(context + offset, sa->saId.bssid, DOT11DECRYPT_MAC_LEN);
+        offset += DOT11DECRYPT_MAC_LEN;
     }
     else
     {
-        memcpy(R + offset, sa->saId.bssid, DOT11DECRYPT_MAC_LEN);
-        memcpy(R + offset+DOT11DECRYPT_MAC_LEN, sa->saId.sta, DOT11DECRYPT_MAC_LEN);
+        memcpy(context + offset, sa->saId.bssid, DOT11DECRYPT_MAC_LEN);
+        offset += DOT11DECRYPT_MAC_LEN;
+        memcpy(context + offset, sa->saId.sta, DOT11DECRYPT_MAC_LEN);
+        offset += DOT11DECRYPT_MAC_LEN;
     }
-    offset += DOT11DECRYPT_MAC_LEN * 2;
 
-    /* Min(ANonce,SNonce) || Max(ANonce,SNonce) */
-    if( memcmp(snonce, sa->wpa.nonce, 32) < 0 )
+    /* Min(ANonce, SNonce) || Max(ANonce, SNonce) */
+    if (memcmp(snonce, sa->wpa.nonce, 32) < 0 )
     {
-        memcpy(R + offset, snonce, 32);
-        memcpy(R + offset + 32, sa->wpa.nonce, 32);
+        memcpy(context + offset, snonce, 32);
+        offset += 32;
+        memcpy(context + offset, sa->wpa.nonce, 32);
+        offset += 32;
     }
     else
     {
-        memcpy(R + offset, sa->wpa.nonce, 32);
-        memcpy(R + offset + 32, snonce, 32);
+        memcpy(context + offset, sa->wpa.nonce, 32);
+        offset += 32;
+        memcpy(context + offset, snonce, 32);
+        offset += 32;
     }
-    offset += 32 * 2;
-
-    guint16 len_le = GUINT16_TO_LE(x);
-    memcpy(R + offset, &len_le, 2);
-    offset += 2;
-
-    for (i = 0; i < (x + 255) / (hash_len * 8) ; i++)
-    {
-        guint16 count_le = GUINT16_TO_LE(i + 1);
-        memcpy(R, &count_le, 2);
-
-        if (ws_hmac_buffer(hash_algo, &output[hash_len * i], R, offset, pmk, hash_len)) {
-            return;
-        }
+    if (derive_func == DOT11DECRYPT_DERIVE_USING_PRF) {
+        dot11decrypt_prf(pmk, pmk_len, label, context, offset, algo,
+                         sa->wpa.ptk, ptk_len_bits / 8);
+    } else {
+        dot11decrypt_kdf(pmk, pmk_len, label, context, offset, algo,
+                         sa->wpa.ptk, ptk_len_bits / 8);
     }
-    memcpy(ptk, output, x / 8);
 }
 
 #define MAX_SSID_LENGTH 32 /* maximum SSID length */

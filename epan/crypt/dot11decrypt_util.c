@@ -88,6 +88,128 @@ void dot11decrypt_construct_aad(
     *aad_len = alen;
 }
 
+/**
+ * IEEE 802.11-2016 12.7.1.2 PRF (Pseudo Random Function)
+ *
+ * @param key Derivation input key.
+ * @param key_len Length of the key in bytes.
+ * @param label Unique label for each different purpose of the PRF (named 'A' in the standard).
+ * @param context Provides context to identify the derived key (named 'B' in the standard).
+ * @param context_len Length of context in bytes.
+ * @param hash_algo Hash algorithm to use for the PRF.
+ *        See gcrypt available hash algorithms:
+ *        https://gnupg.org/documentation/manuals/gcrypt/Available-hash-algorithms.html
+ * @param[out] output Derived key.
+ * @param output_len Length of derived key in bytes.
+ * @return FALSE on error
+ */
+#define MAX_R_LEN 256
+#define MAX_TMP_LEN 1024
+#define MAX_CONTEXT_LEN 256
+
+gboolean
+dot11decrypt_prf(const guint8 *key, size_t key_len,
+                 const char *label,
+                 const guint8 *context, size_t context_len,
+                 int hash_algo,
+                 guint8 *output, size_t output_len)
+{
+    guint8 R[MAX_R_LEN]; /* Will hold "label || 0 || context || i" */
+    size_t label_len = strlen(label);
+    guint8 tmp[MAX_TMP_LEN];
+    guint16 hash_len = gcry_md_get_algo_dlen(hash_algo);
+    size_t offset = 0;
+    guint8 i;
+
+    if (!key || !label || !context || !output) {
+        return FALSE;
+    }
+    if (label_len + 1 + context_len + 1 > MAX_R_LEN ||
+        output_len > 64) {
+        DEBUG_PRINT_LINE("Invalid input or output sizes", DEBUG_LEVEL_3);
+        return FALSE;
+    }
+
+    /* Fill R with "label || 0 || context || i" */
+    memcpy(R + offset, label, label_len);
+    offset += label_len;
+    R[offset++] = 0;
+    memcpy(R + offset, context, context_len);
+    offset += context_len;
+
+    for (i = 0; i <= output_len * 8 / 160; i++)
+    {
+        R[offset] = i;
+        if (ws_hmac_buffer(hash_algo, tmp + hash_len * i, R, offset + 1, key, key_len)) {
+            return FALSE;
+        }
+    }
+    memcpy(output, tmp, output_len);
+    return TRUE;
+}
+
+/**
+ * 12.7.1.7.2 Key derivation function (KDF)
+ *
+ * @param key Derivation input key.
+ * @param key_len Length of the key in bytes.
+ * @param label A string identifying the purpose of the keys derived using this KDF.
+ * @param context Provides context to identify the derived key.
+ * @param context_len Length of context in bytes.
+ * @param hash_algo Hash algorithm to use for the KDF.
+ *        See gcrypt available hash algorithms:
+ *        https://gnupg.org/documentation/manuals/gcrypt/Available-hash-algorithms.html
+ * @param[out] output Derived key.
+ * @param output_len Length of derived key in bytes.
+ * @return FALSE on error
+ */
+gboolean
+dot11decrypt_kdf(const guint8 *key, size_t key_len,
+                 const char *label,
+                 const guint8 *context, size_t context_len,
+                 int hash_algo,
+                 guint8 *output, size_t output_len)
+{
+    guint8 R[MAX_R_LEN]; /* Will hold "i || Label || Context || Length" */
+    guint8 tmp[MAX_TMP_LEN];
+    size_t label_len = strlen(label);
+    guint16 hash_len = gcry_md_get_algo_dlen(hash_algo);
+    guint iterations = (guint)output_len * 8 / hash_len;
+    guint16 len_le = GUINT16_TO_LE(output_len * 8);
+    size_t offset = 0;
+    guint16 i;
+
+    if (!key || !label || !context || !output) {
+        return FALSE;
+    }
+    if (2 + label_len + context_len + 2 > MAX_R_LEN ||
+        iterations * hash_len > MAX_TMP_LEN) {
+        DEBUG_PRINT_LINE("Invalid input sizes", DEBUG_LEVEL_3);
+        return FALSE;
+    }
+
+    /* Fill tmp with "i || Label || Context || Length" */
+    offset += 2; /* Skip "i" (will be copied in for loop below) */
+    memcpy(R + offset, label, label_len);
+    offset += label_len;
+    memcpy(R + offset, context, context_len);
+    offset += context_len;
+    memcpy(R + offset, &len_le, 2);
+    offset += 2;
+
+    for (i = 0; i < iterations; i++)
+    {
+        guint16 count_le = GUINT16_TO_LE(i + 1);
+        memcpy(R, &count_le, 2);
+
+        if (ws_hmac_buffer(hash_algo, tmp + hash_len * i, R, offset, key, key_len)) {
+            return FALSE;
+        }
+    }
+    memcpy(output, tmp, output_len);
+    return TRUE;
+}
+
 /*
  * Editor modelines
  *

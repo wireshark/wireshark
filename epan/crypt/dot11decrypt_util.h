@@ -18,6 +18,20 @@ void dot11decrypt_construct_aad(
     guint8 *aad,
     size_t *aad_len);
 
+gboolean
+dot11decrypt_prf(const guint8 *key, size_t key_len,
+                 const char *label,
+                 const guint8 *context, size_t context_len,
+                 int hash_algo,
+                 guint8 *output, size_t output_len);
+
+gboolean
+dot11decrypt_kdf(const guint8 *key, size_t key_len,
+                 const char *label,
+                 const guint8 *context, size_t context_len,
+                 int hash_algo,
+                 guint8 *output, size_t output_len);
+
 #endif /* _DOT11DECRYPT_UTIL_H */
 
 /*
