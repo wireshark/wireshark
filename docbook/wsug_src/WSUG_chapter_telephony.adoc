@@ -87,7 +87,14 @@ individual channel.
 
 ==== LTE RLC Graph
 
-{missing}
+The LTE RLC Graph menu launches a graph which shows LTE Radio Link Control protocol sequence numbers changing over time along with acknowledgements which are received in the opposite direction.
+
+NOTE: That graph shows data of a single bearer and direction. The user can also launch it from the `RLC Statistics` window.
+
+.The RLC Graph window
+image::wsug_graphics/ws-rlc-graph.png[{screenshot-attrs}]
+
+[.small]#_The image of the RLC Graph is borrowed from link:https://gitlab.com/wireshark/wireshark/-/wikis/RLC-LTE[Wireshark wiki]._#
 
 [[ChTelLTERLCTraffic]]
 
