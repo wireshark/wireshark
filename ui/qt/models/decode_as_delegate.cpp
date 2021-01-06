@@ -125,7 +125,7 @@ void DecodeAsDelegate::decodeAddProtocol(const gchar *, const gchar *proto_name,
     if (!proto_list)
         return;
 
-    dissector_info_t  *dissector_info = new dissector_info_t();
+    dissector_info_t *dissector_info = new dissector_info_t();
     dissector_info->proto_name = proto_name;
     dissector_info->dissector_handle = (dissector_handle_t) value;
 
@@ -274,6 +274,7 @@ QWidget* DecodeAsDelegate::createEditor(QWidget *parentWidget, const QStyleOptio
         for (protocol = protocols.begin(); protocol != protocols.end(); ++protocol)
         {
             cb_editor->addItem(protocol.key(), VariantPointer<dissector_info_t>::asQVariant(protocol.value()));
+            delete *protocol;
         }
 
         //Make sure the combo box is at least as wide as the column
