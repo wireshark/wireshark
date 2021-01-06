@@ -789,7 +789,7 @@ dissect_tecmp_status_cm_vendor_data(tvbuff_t *tvb, packet_info *pinfo _U_, proto
         offset += 3;
 
         tmp = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN);
-        proto_tree_add_string_format(tree, hf_tecmp_payload_status_cm_vendor_technica_hw, tvb, offset, 3, NULL,
+        proto_tree_add_string_format(tree, hf_tecmp_payload_status_cm_vendor_technica_hw, tvb, offset, 2, NULL,
                                      "Hardware Version: v.%d.%d",
                                      (tmp & 0x0000ff00) >> 8, tmp & 0x000000ff);
         offset += 2;
