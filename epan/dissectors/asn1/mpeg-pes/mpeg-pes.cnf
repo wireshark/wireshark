@@ -1,6 +1,12 @@
 # mpeg-pes.cnf
 # mpeg-pes conformation file
 
+#.FIELD_RENAME
+Stream/must-be-zero stream_must-be-zero
+
+#.FIELD_ATTR
+Stream/must-be-zero ABBREV=stream.must-be-zero
+
 #.TYPE_ATTR
 PES/stream TYPE=FT_UINT8 DISPLAY=BASE_HEX
 Pack/program-mux-rate TYPE=FT_UINT32 DISPLAY=BASE_DEC

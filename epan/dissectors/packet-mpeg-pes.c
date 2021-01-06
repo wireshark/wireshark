@@ -33,7 +33,7 @@ static int hf_mpeg_pes_prefix = -1;               /* OCTET_STRING_SIZE_3 */
 static int hf_mpeg_pes_stream = -1;               /* T_stream */
 static int hf_mpeg_pes_length = -1;               /* INTEGER_0_65535 */
 static int hf_mpeg_pes_must_be_one = -1;          /* BOOLEAN */
-static int hf_mpeg_pes_must_be_zero = -1;         /* BOOLEAN */
+static int hf_mpeg_pes_stream_must_be_zero = -1;  /* BOOLEAN */
 static int hf_mpeg_pes_scrambling_control = -1;   /* T_scrambling_control */
 static int hf_mpeg_pes_priority = -1;             /* BOOLEAN */
 static int hf_mpeg_pes_data_alignment = -1;       /* BOOLEAN */
@@ -75,7 +75,7 @@ static int hf_mpeg_pes_second = -1;               /* INTEGER_0_64 */
 static int hf_mpeg_pes_frame = -1;                /* INTEGER_0_64 */
 static int hf_mpeg_pes_closed_gop = -1;           /* BOOLEAN */
 static int hf_mpeg_pes_broken_gop = -1;           /* BOOLEAN */
-static int hf_mpeg_pes_must_be_zero_01 = -1;      /* BIT_STRING_SIZE_5 */
+static int hf_mpeg_pes_must_be_zero = -1;         /* BIT_STRING_SIZE_5 */
 static int hf_mpeg_pes_temporal_sequence_number = -1;  /* BIT_STRING_SIZE_10 */
 static int hf_mpeg_pes_frame_type = -1;           /* T_frame_type */
 static int hf_mpeg_pes_vbv_delay = -1;            /* BIT_STRING_SIZE_16 */
@@ -197,7 +197,7 @@ dissect_mpeg_pes_INTEGER_0_255(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 static const per_sequence_t Stream_sequence[] = {
   { &hf_mpeg_pes_length     , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_mpeg_pes_INTEGER_0_65535 },
   { &hf_mpeg_pes_must_be_one, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_mpeg_pes_BOOLEAN },
-  { &hf_mpeg_pes_must_be_zero, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_mpeg_pes_BOOLEAN },
+  { &hf_mpeg_pes_stream_must_be_zero, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_mpeg_pes_BOOLEAN },
   { &hf_mpeg_pes_scrambling_control, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_mpeg_pes_T_scrambling_control },
   { &hf_mpeg_pes_priority   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_mpeg_pes_BOOLEAN },
   { &hf_mpeg_pes_data_alignment, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_mpeg_pes_BOOLEAN },
@@ -403,7 +403,7 @@ static const per_sequence_t Group_of_pictures_sequence[] = {
   { &hf_mpeg_pes_frame      , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_mpeg_pes_INTEGER_0_64 },
   { &hf_mpeg_pes_closed_gop , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_mpeg_pes_BOOLEAN },
   { &hf_mpeg_pes_broken_gop , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_mpeg_pes_BOOLEAN },
-  { &hf_mpeg_pes_must_be_zero_01, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_mpeg_pes_BIT_STRING_SIZE_5 },
+  { &hf_mpeg_pes_must_be_zero, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_mpeg_pes_BIT_STRING_SIZE_5 },
   { NULL, 0, 0, NULL }
 };
 
@@ -1033,8 +1033,8 @@ proto_register_mpeg_pes(void)
       { "must-be-one", "mpeg-pes.must_be_one",
         FT_BOOLEAN, BASE_NONE, NULL, 0,
         "BOOLEAN", HFILL }},
-    { &hf_mpeg_pes_must_be_zero,
-      { "must-be-zero", "mpeg-pes.must_be_zero",
+    { &hf_mpeg_pes_stream_must_be_zero,
+      { "must-be-zero", "mpeg-pes.stream.must-be-zero",
         FT_BOOLEAN, BASE_NONE, NULL, 0,
         "BOOLEAN", HFILL }},
     { &hf_mpeg_pes_scrambling_control,
@@ -1201,7 +1201,7 @@ proto_register_mpeg_pes(void)
       { "broken-gop", "mpeg-pes.broken_gop",
         FT_BOOLEAN, BASE_NONE, NULL, 0,
         "BOOLEAN", HFILL }},
-    { &hf_mpeg_pes_must_be_zero_01,
+    { &hf_mpeg_pes_must_be_zero,
       { "must-be-zero", "mpeg-pes.must_be_zero",
         FT_BYTES, BASE_NONE, NULL, 0,
         "BIT_STRING_SIZE_5", HFILL }},

@@ -118,17 +118,17 @@ static int hf_mms_kill = -1;                      /* Kill_Request */
 static int hf_mms_getProgramInvocationAttributes = -1;  /* GetProgramInvocationAttributes_Request */
 static int hf_mms_obtainFile = -1;                /* ObtainFile_Request */
 static int hf_mms_defineEventCondition = -1;      /* DefineEventCondition_Request */
-static int hf_mms_deleteEventCondition = -1;      /* DeleteEventCondition_Request */
+static int hf_mms_confirmedServiceRequest_deleteEventCondition = -1;  /* DeleteEventCondition_Request */
 static int hf_mms_getEventConditionAttributes = -1;  /* GetEventConditionAttributes_Request */
 static int hf_mms_reportEventConditionStatus = -1;  /* ReportEventConditionStatus_Request */
 static int hf_mms_alterEventConditionMonitoring = -1;  /* AlterEventConditionMonitoring_Request */
 static int hf_mms_triggerEvent = -1;              /* TriggerEvent_Request */
 static int hf_mms_defineEventAction = -1;         /* DefineEventAction_Request */
-static int hf_mms_deleteEventAction = -1;         /* DeleteEventAction_Request */
+static int hf_mms_confirmedServiceRequest_deleteEventAction = -1;  /* DeleteEventAction_Request */
 static int hf_mms_getEventActionAttributes = -1;  /* GetEventActionAttributes_Request */
 static int hf_mms_reportEventActionStatus = -1;   /* ReportEventActionStatus_Request */
 static int hf_mms_defineEventEnrollment = -1;     /* DefineEventEnrollment_Request */
-static int hf_mms_deleteEventEnrollment = -1;     /* DeleteEventEnrollment_Request */
+static int hf_mms_confirmedServiceRequest_deleteEventEnrollment = -1;  /* DeleteEventEnrollment_Request */
 static int hf_mms_alterEventEnrollment = -1;      /* AlterEventEnrollment_Request */
 static int hf_mms_reportEventEnrollmentStatus = -1;  /* ReportEventEnrollmentStatus_Request */
 static int hf_mms_getEventEnrollmentAttributes = -1;  /* GetEventEnrollmentAttributes_Request */
@@ -198,17 +198,17 @@ static int hf_mms_getProgramInvocationAttributes_01 = -1;  /* GetProgramInvocati
 static int hf_mms_obtainFile_01 = -1;             /* ObtainFile_Response */
 static int hf_mms_fileOpen_01 = -1;               /* FileOpen_Response */
 static int hf_mms_defineEventCondition_01 = -1;   /* DefineEventCondition_Response */
-static int hf_mms_deleteEventCondition_01 = -1;   /* DeleteEventCondition_Response */
+static int hf_mms_confirmedServiceResponse_deleteEventCondition = -1;  /* DeleteEventCondition_Response */
 static int hf_mms_getEventConditionAttributes_01 = -1;  /* GetEventConditionAttributes_Response */
 static int hf_mms_reportEventConditionStatus_01 = -1;  /* ReportEventConditionStatus_Response */
 static int hf_mms_alterEventConditionMonitoring_01 = -1;  /* AlterEventConditionMonitoring_Response */
 static int hf_mms_triggerEvent_01 = -1;           /* TriggerEvent_Response */
 static int hf_mms_defineEventAction_01 = -1;      /* DefineEventAction_Response */
-static int hf_mms_deleteEventAction_01 = -1;      /* DeleteEventAction_Response */
+static int hf_mms_deleteEventAction = -1;         /* DeleteEventAction_Response */
 static int hf_mms_getEventActionAttributes_01 = -1;  /* GetEventActionAttributes_Response */
 static int hf_mms_reportActionStatus = -1;        /* ReportEventActionStatus_Response */
 static int hf_mms_defineEventEnrollment_01 = -1;  /* DefineEventEnrollment_Response */
-static int hf_mms_deleteEventEnrollment_01 = -1;  /* DeleteEventEnrollment_Response */
+static int hf_mms_confirmedServiceResponse_deleteEventEnrollment = -1;  /* DeleteEventEnrollment_Response */
 static int hf_mms_alterEventEnrollment_01 = -1;   /* AlterEventEnrollment_Response */
 static int hf_mms_reportEventEnrollmentStatus_01 = -1;  /* ReportEventEnrollmentStatus_Response */
 static int hf_mms_getEventEnrollmentAttributes_01 = -1;  /* GetEventEnrollmentAttributes_Response */
@@ -319,7 +319,7 @@ static int hf_mms_objectScope = -1;               /* T_objectScope */
 static int hf_mms_vmdSpecific = -1;               /* NULL */
 static int hf_mms_domainSpecific = -1;            /* Identifier */
 static int hf_mms_aaSpecific = -1;                /* NULL */
-static int hf_mms_continueAfter = -1;             /* Identifier */
+static int hf_mms_getNameList_Request_continueAfter = -1;  /* Identifier */
 static int hf_mms_listOfIdentifier = -1;          /* SEQUENCE_OF_Identifier */
 static int hf_mms_listOfIdentifier_item = -1;     /* Identifier */
 static int hf_mms_moreFollows = -1;               /* BOOLEAN */
@@ -332,7 +332,7 @@ static int hf_mms_extendedObjectClass_01 = -1;    /* T_extendedObjectClass_01 */
 static int hf_mms_objectClass_01 = -1;            /* T_objectClass_01 */
 static int hf_mms_currentName = -1;               /* ObjectName */
 static int hf_mms_newIdentifier = -1;             /* Identifier */
-static int hf_mms_continueAfter_01 = -1;          /* VisibleString */
+static int hf_mms_getCapabilityList_Request_continueAfter = -1;  /* VisibleString */
 static int hf_mms_listOfCapabilities = -1;        /* T_listOfCapabilities */
 static int hf_mms_listOfCapabilities_item = -1;   /* VisibleString */
 static int hf_mms_domainName = -1;                /* Identifier */
@@ -351,7 +351,7 @@ static int hf_mms_listOfCapabilities_04 = -1;     /* T_listOfCapabilities_04 */
 static int hf_mms_thirdParty = -1;                /* ApplicationReference */
 static int hf_mms_filenName = -1;                 /* FileName */
 static int hf_mms_listOfCapabilities_05 = -1;     /* T_listOfCapabilities_05 */
-static int hf_mms_state = -1;                     /* DomainState */
+static int hf_mms_getDomainAttributes_Response_state = -1;  /* DomainState */
 static int hf_mms_mmsDeletable = -1;              /* BOOLEAN */
 static int hf_mms_listOfProgramInvocations = -1;  /* SEQUENCE_OF_Identifier */
 static int hf_mms_listOfProgramInvocations_item = -1;  /* Identifier */
@@ -364,7 +364,7 @@ static int hf_mms_executionArgument = -1;         /* T_executionArgument */
 static int hf_mms_simpleString = -1;              /* VisibleString */
 static int hf_mms_encodedString = -1;             /* EXTERNALt */
 static int hf_mms_executionArgument_01 = -1;      /* T_executionArgument_01 */
-static int hf_mms_state_01 = -1;                  /* ProgramInvocationState */
+static int hf_mms_getProgramInvocationAttributes_Response_state = -1;  /* ProgramInvocationState */
 static int hf_mms_listOfDomainNames = -1;         /* SEQUENCE_OF_Identifier */
 static int hf_mms_listOfDomainNames_item = -1;    /* Identifier */
 static int hf_mms_monitor = -1;                   /* BOOLEAN */
@@ -381,13 +381,13 @@ static int hf_mms_components_item = -1;           /* T_components_item */
 static int hf_mms_componentName = -1;             /* Identifier */
 static int hf_mms_componentType = -1;             /* TypeSpecification */
 static int hf_mms_boolean = -1;                   /* NULL */
-static int hf_mms_bit_string = -1;                /* Integer32 */
+static int hf_mms_typeSpecification_bit_string = -1;  /* Integer32 */
 static int hf_mms_integer = -1;                   /* Unsigned8 */
 static int hf_mms_unsigned = -1;                  /* Unsigned8 */
-static int hf_mms_octet_string = -1;              /* Integer32 */
-static int hf_mms_visible_string = -1;            /* Integer32 */
+static int hf_mms_typeSpecification_octet_string = -1;  /* Integer32 */
+static int hf_mms_typeSpecification_visible_string = -1;  /* Integer32 */
 static int hf_mms_generalized_time = -1;          /* NULL */
-static int hf_mms_binary_time = -1;               /* BOOLEAN */
+static int hf_mms_typeSpecification_binary_time = -1;  /* BOOLEAN */
 static int hf_mms_bcd = -1;                       /* Unsigned8 */
 static int hf_mms_objId = -1;                     /* NULL */
 static int hf_mms_AlternateAccess_item = -1;      /* AlternateAccess_item */
@@ -444,13 +444,13 @@ static int hf_mms_array_item = -1;                /* Data */
 static int hf_mms_structure_01 = -1;              /* SEQUENCE_OF_Data */
 static int hf_mms_structure_item = -1;            /* Data */
 static int hf_mms_boolean_01 = -1;                /* BOOLEAN */
-static int hf_mms_bit_string_01 = -1;             /* BIT_STRING */
+static int hf_mms_data_bit_string = -1;           /* BIT_STRING */
 static int hf_mms_integer_01 = -1;                /* INTEGER */
 static int hf_mms_unsigned_01 = -1;               /* INTEGER */
 static int hf_mms_floating_point = -1;            /* FloatingPoint */
-static int hf_mms_octet_string_01 = -1;           /* OCTET_STRING */
-static int hf_mms_visible_string_01 = -1;         /* VisibleString */
-static int hf_mms_binary_time_01 = -1;            /* TimeOfDay */
+static int hf_mms_data_octet_string = -1;         /* OCTET_STRING */
+static int hf_mms_data_visible_string = -1;       /* VisibleString */
+static int hf_mms_data_binary_time = -1;          /* TimeOfDay */
 static int hf_mms_bcd_01 = -1;                    /* INTEGER */
 static int hf_mms_booleanArray = -1;              /* BIT_STRING */
 static int hf_mms_objId_01 = -1;                  /* OBJECT_IDENTIFIER */
@@ -484,7 +484,7 @@ static int hf_mms_listOfNamedTokens_item = -1;    /* T_listOfNamedTokens_item */
 static int hf_mms_freeNamedToken = -1;            /* Identifier */
 static int hf_mms_ownedNamedToken = -1;           /* Identifier */
 static int hf_mms_hungNamedToken = -1;            /* Identifier */
-static int hf_mms_state_02 = -1;                  /* T_state */
+static int hf_mms_reportSemaphoreEntryStatus_Request_state = -1;  /* T_reportSemaphoreEntryStatus_Request_state */
 static int hf_mms_entryIdToStartAfter = -1;       /* OCTET_STRING */
 static int hf_mms_listOfSemaphoreEntry = -1;      /* SEQUENCE_OF_SemaphoreEntry */
 static int hf_mms_listOfSemaphoreEntry_item = -1;  /* SemaphoreEntry */
@@ -528,7 +528,7 @@ static int hf_mms_ea = -1;                        /* ObjectName */
 static int hf_mms_scopeOfRequest = -1;            /* T_scopeOfRequest */
 static int hf_mms_eventEnrollmentNames = -1;      /* SEQUENCE_OF_ObjectName */
 static int hf_mms_eventEnrollmentNames_item = -1;  /* ObjectName */
-static int hf_mms_continueAfter_02 = -1;          /* ObjectName */
+static int hf_mms_getEventEnrollmentAttributes_Request_continueAfter = -1;  /* ObjectName */
 static int hf_mms_eventConditionName_01 = -1;     /* T_eventConditionName */
 static int hf_mms_eventActionName_01 = -1;        /* T_eventActionName */
 static int hf_mms_eventAction = -1;               /* ObjectName */
@@ -542,7 +542,7 @@ static int hf_mms_notificationLost = -1;          /* BOOLEAN */
 static int hf_mms_alarmAcknowledgmentRule = -1;   /* AlarmAckRule */
 static int hf_mms_currentState_01 = -1;           /* EE_State */
 static int hf_mms_currentState_02 = -1;           /* T_currentState */
-static int hf_mms_state_03 = -1;                  /* EE_State */
+static int hf_mms_alterEventEnrollment_Response_currentState_state = -1;  /* EE_State */
 static int hf_mms_transitionTime = -1;            /* EventTime */
 static int hf_mms_acknowledgedState = -1;         /* EC_State */
 static int hf_mms_timeOfAcknowledgedTransition = -1;  /* EventTime */
@@ -552,11 +552,13 @@ static int hf_mms_acknowledgmentFilter = -1;      /* T_acknowledgmentFilter */
 static int hf_mms_severityFilter = -1;            /* T_severityFilter */
 static int hf_mms_mostSevere = -1;                /* Unsigned8 */
 static int hf_mms_leastSevere = -1;               /* Unsigned8 */
+static int hf_mms_continueAfter = -1;             /* ObjectName */
 static int hf_mms_listOfAlarmSummary = -1;        /* SEQUENCE_OF_AlarmSummary */
 static int hf_mms_listOfAlarmSummary_item = -1;   /* AlarmSummary */
 static int hf_mms_unacknowledgedState = -1;       /* T_unacknowledgedState */
 static int hf_mms_acknowledgmentFilter_01 = -1;   /* T_acknowledgmentFilter_01 */
 static int hf_mms_severityFilter_01 = -1;         /* T_severityFilter_01 */
+static int hf_mms_getAlarmEnrollmentSummary_Request_continueAfter = -1;  /* ObjectName */
 static int hf_mms_listOfAlarmEnrollmentSummary = -1;  /* SEQUENCE_OF_AlarmEnrollmentSummary */
 static int hf_mms_listOfAlarmEnrollmentSummary_item = -1;  /* AlarmEnrollmentSummary */
 static int hf_mms_enrollementState = -1;          /* EE_State */
@@ -614,7 +616,7 @@ static int hf_mms_fileData = -1;                  /* OCTET_STRING */
 static int hf_mms_currentFileName = -1;           /* FileName */
 static int hf_mms_newFileName = -1;               /* FileName */
 static int hf_mms_fileSpecification = -1;         /* FileName */
-static int hf_mms_continueAfter_03 = -1;          /* FileName */
+static int hf_mms_fileDirectory_Request_continueAfter = -1;  /* FileName */
 static int hf_mms_listOfDirectoryEntry = -1;      /* SEQUENCE_OF_DirectoryEntry */
 static int hf_mms_listOfDirectoryEntry_item = -1;  /* DirectoryEntry */
 static int hf_mms_filename = -1;                  /* FileName */
@@ -1059,7 +1061,7 @@ static int dissect_mms_Data(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
 static int
 dissect_mms_Unsigned32(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 140 "./asn1/mms/mms.cnf"
+#line 189 "./asn1/mms/mms.cnf"
 	guint32 val;
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                                 &val);
@@ -1076,7 +1078,7 @@ dissect_mms_Unsigned32(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
 static int
 dissect_mms_Identifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 150 "./asn1/mms/mms.cnf"
+#line 199 "./asn1/mms/mms.cnf"
 	int offset_id = offset;
   offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_VisibleString,
                                             actx, tree, tvb, offset, hf_index,
@@ -1342,7 +1344,7 @@ dissect_mms_T_objectScope(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 static const ber_sequence_t GetNameList_Request_sequence[] = {
   { &hf_mms_extendedObjectClass, BER_CLASS_CON, 0, 0, dissect_mms_T_extendedObjectClass },
   { &hf_mms_objectScope     , BER_CLASS_CON, 1, 0, dissect_mms_T_objectScope },
-  { &hf_mms_continueAfter   , BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_mms_Identifier },
+  { &hf_mms_getNameList_Request_continueAfter, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_mms_Identifier },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -1562,13 +1564,13 @@ static const ber_choice_t TypeSpecification_choice[] = {
   {   1, &hf_mms_array           , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_mms_T_array },
   {   2, &hf_mms_structure       , BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_mms_T_structure },
   {   3, &hf_mms_boolean         , BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_mms_NULL },
-  {   4, &hf_mms_bit_string      , BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_mms_Integer32 },
+  {   4, &hf_mms_typeSpecification_bit_string, BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_mms_Integer32 },
   {   5, &hf_mms_integer         , BER_CLASS_CON, 5, BER_FLAGS_IMPLTAG, dissect_mms_Unsigned8 },
   {   6, &hf_mms_unsigned        , BER_CLASS_CON, 6, BER_FLAGS_IMPLTAG, dissect_mms_Unsigned8 },
-  {   9, &hf_mms_octet_string    , BER_CLASS_CON, 9, BER_FLAGS_IMPLTAG, dissect_mms_Integer32 },
-  {  10, &hf_mms_visible_string  , BER_CLASS_CON, 10, BER_FLAGS_IMPLTAG, dissect_mms_Integer32 },
+  {   9, &hf_mms_typeSpecification_octet_string, BER_CLASS_CON, 9, BER_FLAGS_IMPLTAG, dissect_mms_Integer32 },
+  {  10, &hf_mms_typeSpecification_visible_string, BER_CLASS_CON, 10, BER_FLAGS_IMPLTAG, dissect_mms_Integer32 },
   {  11, &hf_mms_generalized_time, BER_CLASS_CON, 11, BER_FLAGS_IMPLTAG, dissect_mms_NULL },
-  {  12, &hf_mms_binary_time     , BER_CLASS_CON, 12, BER_FLAGS_IMPLTAG, dissect_mms_BOOLEAN },
+  {  12, &hf_mms_typeSpecification_binary_time, BER_CLASS_CON, 12, BER_FLAGS_IMPLTAG, dissect_mms_BOOLEAN },
   {  13, &hf_mms_bcd             , BER_CLASS_CON, 13, BER_FLAGS_IMPLTAG, dissect_mms_Unsigned8 },
   {  15, &hf_mms_objId           , BER_CLASS_CON, 15, BER_FLAGS_IMPLTAG, dissect_mms_NULL },
   { 0, NULL, 0, 0, 0, NULL }
@@ -1927,7 +1929,7 @@ dissect_mms_INTEGER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_
 
 static int
 dissect_mms_FloatingPoint(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 146 "./asn1/mms/mms.cnf"
+#line 195 "./asn1/mms/mms.cnf"
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
                                        NULL);
 
@@ -1942,7 +1944,7 @@ dissect_mms_FloatingPoint(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 
 static int
 dissect_mms_TimeOfDay(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 51 "./asn1/mms/mms.cnf"
+#line 100 "./asn1/mms/mms.cnf"
 
 	guint32 len;
 	guint32 milliseconds;
@@ -2022,7 +2024,7 @@ dissect_mms_MMSString(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 
 static int
 dissect_mms_UtcTime(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 102 "./asn1/mms/mms.cnf"
+#line 151 "./asn1/mms/mms.cnf"
 
 	guint32 len;
 	guint32 seconds;
@@ -2089,13 +2091,13 @@ static const ber_choice_t Data_choice[] = {
   {   1, &hf_mms_array_01        , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_mms_SEQUENCE_OF_Data },
   {   2, &hf_mms_structure_01    , BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_mms_SEQUENCE_OF_Data },
   {   3, &hf_mms_boolean_01      , BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_mms_BOOLEAN },
-  {   4, &hf_mms_bit_string_01   , BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_mms_BIT_STRING },
+  {   4, &hf_mms_data_bit_string , BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_mms_BIT_STRING },
   {   5, &hf_mms_integer_01      , BER_CLASS_CON, 5, BER_FLAGS_IMPLTAG, dissect_mms_INTEGER },
   {   6, &hf_mms_unsigned_01     , BER_CLASS_CON, 6, BER_FLAGS_IMPLTAG, dissect_mms_INTEGER },
   {   7, &hf_mms_floating_point  , BER_CLASS_CON, 7, BER_FLAGS_IMPLTAG, dissect_mms_FloatingPoint },
-  {   9, &hf_mms_octet_string_01 , BER_CLASS_CON, 9, BER_FLAGS_IMPLTAG, dissect_mms_OCTET_STRING },
-  {  10, &hf_mms_visible_string_01, BER_CLASS_CON, 10, BER_FLAGS_IMPLTAG, dissect_mms_VisibleString },
-  {  12, &hf_mms_binary_time_01  , BER_CLASS_CON, 12, BER_FLAGS_IMPLTAG, dissect_mms_TimeOfDay },
+  {   9, &hf_mms_data_octet_string, BER_CLASS_CON, 9, BER_FLAGS_IMPLTAG, dissect_mms_OCTET_STRING },
+  {  10, &hf_mms_data_visible_string, BER_CLASS_CON, 10, BER_FLAGS_IMPLTAG, dissect_mms_VisibleString },
+  {  12, &hf_mms_data_binary_time, BER_CLASS_CON, 12, BER_FLAGS_IMPLTAG, dissect_mms_TimeOfDay },
   {  13, &hf_mms_bcd_01          , BER_CLASS_CON, 13, BER_FLAGS_IMPLTAG, dissect_mms_INTEGER },
   {  14, &hf_mms_booleanArray    , BER_CLASS_CON, 14, BER_FLAGS_IMPLTAG, dissect_mms_BIT_STRING },
   {  15, &hf_mms_objId_01        , BER_CLASS_CON, 15, BER_FLAGS_IMPLTAG, dissect_mms_OBJECT_IDENTIFIER },
@@ -2443,7 +2445,7 @@ dissect_mms_Output_Request(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
 static int
 dissect_mms_T_ap_title(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 25 "./asn1/mms/mms.cnf"
+#line 74 "./asn1/mms/mms.cnf"
 	offset=dissect_acse_AP_title(FALSE, tvb, offset, actx, tree, hf_mms_ap_title);
 
 
@@ -2455,7 +2457,7 @@ dissect_mms_T_ap_title(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 
 static int
 dissect_mms_T_ap_invocation_id(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 28 "./asn1/mms/mms.cnf"
+#line 77 "./asn1/mms/mms.cnf"
 	offset=dissect_acse_AP_invocation_identifier(FALSE, tvb, offset, actx, tree, hf_mms_ap_invocation_id);
 
 
@@ -2467,7 +2469,7 @@ dissect_mms_T_ap_invocation_id(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 
 static int
 dissect_mms_T_ae_qualifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 31 "./asn1/mms/mms.cnf"
+#line 80 "./asn1/mms/mms.cnf"
 	offset=dissect_acse_AE_qualifier(FALSE, tvb, offset, actx, tree, hf_mms_ae_qualifier);
 
 
@@ -2479,7 +2481,7 @@ dissect_mms_T_ae_qualifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 
 static int
 dissect_mms_T_ae_invocation_id(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 34 "./asn1/mms/mms.cnf"
+#line 83 "./asn1/mms/mms.cnf"
 	offset=dissect_acse_AE_invocation_identifier(FALSE, tvb, offset, actx, tree, hf_mms_ae_invocation_id);
 
 
@@ -2599,7 +2601,7 @@ dissect_mms_ReportPoolSemaphoreStatus_Request(gboolean implicit_tag _U_, tvbuff_
 }
 
 
-static const value_string mms_T_state_vals[] = {
+static const value_string mms_T_reportSemaphoreEntryStatus_Request_state_vals[] = {
   {   0, "queued" },
   {   1, "owner" },
   {   2, "hung" },
@@ -2608,7 +2610,7 @@ static const value_string mms_T_state_vals[] = {
 
 
 static int
-dissect_mms_T_state(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_mms_T_reportSemaphoreEntryStatus_Request_state(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                                 NULL);
 
@@ -2618,7 +2620,7 @@ dissect_mms_T_state(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_
 
 static const ber_sequence_t ReportSemaphoreEntryStatus_Request_sequence[] = {
   { &hf_mms_semaphoreName   , BER_CLASS_CON, 0, BER_FLAGS_NOTCHKTAG, dissect_mms_ObjectName },
-  { &hf_mms_state_02        , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_mms_T_state },
+  { &hf_mms_reportSemaphoreEntryStatus_Request_state, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_mms_T_reportSemaphoreEntryStatus_Request_state },
   { &hf_mms_entryIdToStartAfter, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_mms_OCTET_STRING },
   { NULL, 0, 0, 0, NULL }
 };
@@ -3950,7 +3952,7 @@ static const ber_sequence_t GetEventEnrollmentAttributes_Request_sequence[] = {
   { &hf_mms_clientApplication, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL, dissect_mms_ApplicationReference },
   { &hf_mms_eventConditionName, BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_NOTCHKTAG, dissect_mms_ObjectName },
   { &hf_mms_eventActionName , BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_NOTCHKTAG, dissect_mms_ObjectName },
-  { &hf_mms_continueAfter_02, BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_NOTCHKTAG, dissect_mms_ObjectName },
+  { &hf_mms_getEventEnrollmentAttributes_Request_continueAfter, BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_NOTCHKTAG, dissect_mms_ObjectName },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -4055,7 +4057,7 @@ static const ber_sequence_t GetAlarmSummary_Request_sequence[] = {
   { &hf_mms_activeAlarmsOnly, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_mms_BOOLEAN },
   { &hf_mms_acknowledgmentFilter, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_mms_T_acknowledgmentFilter },
   { &hf_mms_severityFilter  , BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_mms_T_severityFilter },
-  { &hf_mms_continueAfter_02, BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_NOTCHKTAG, dissect_mms_ObjectName },
+  { &hf_mms_continueAfter   , BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_NOTCHKTAG, dissect_mms_ObjectName },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -4105,7 +4107,7 @@ static const ber_sequence_t GetAlarmEnrollmentSummary_Request_sequence[] = {
   { &hf_mms_activeAlarmsOnly, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_mms_BOOLEAN },
   { &hf_mms_acknowledgmentFilter_01, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_mms_T_acknowledgmentFilter_01 },
   { &hf_mms_severityFilter_01, BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_mms_T_severityFilter_01 },
-  { &hf_mms_continueAfter_02, BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_NOTCHKTAG, dissect_mms_ObjectName },
+  { &hf_mms_getAlarmEnrollmentSummary_Request_continueAfter, BER_CLASS_CON, 5, BER_FLAGS_OPTIONAL|BER_FLAGS_NOTCHKTAG, dissect_mms_ObjectName },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -4409,7 +4411,7 @@ dissect_mms_DeleteJournal_Request(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 
 
 static const ber_sequence_t GetCapabilityList_Request_sequence[] = {
-  { &hf_mms_continueAfter_01, BER_CLASS_UNI, BER_UNI_TAG_VisibleString, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_mms_VisibleString },
+  { &hf_mms_getCapabilityList_Request_continueAfter, BER_CLASS_UNI, BER_UNI_TAG_VisibleString, BER_FLAGS_OPTIONAL|BER_FLAGS_NOOWNTAG, dissect_mms_VisibleString },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -4481,7 +4483,7 @@ dissect_mms_FileDelete_Request(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 
 static const ber_sequence_t FileDirectory_Request_sequence[] = {
   { &hf_mms_fileSpecification, BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_mms_FileName },
-  { &hf_mms_continueAfter_03, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_mms_FileName },
+  { &hf_mms_fileDirectory_Request_continueAfter, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_mms_FileName },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -4625,17 +4627,17 @@ static const ber_choice_t ConfirmedServiceRequest_choice[] = {
   {  45, &hf_mms_getProgramInvocationAttributes, BER_CLASS_CON, 45, BER_FLAGS_IMPLTAG, dissect_mms_GetProgramInvocationAttributes_Request },
   {  46, &hf_mms_obtainFile      , BER_CLASS_CON, 46, BER_FLAGS_IMPLTAG, dissect_mms_ObtainFile_Request },
   {  47, &hf_mms_defineEventCondition, BER_CLASS_CON, 47, BER_FLAGS_IMPLTAG, dissect_mms_DefineEventCondition_Request },
-  {  48, &hf_mms_deleteEventCondition, BER_CLASS_CON, 48, 0, dissect_mms_DeleteEventCondition_Request },
+  {  48, &hf_mms_confirmedServiceRequest_deleteEventCondition, BER_CLASS_CON, 48, 0, dissect_mms_DeleteEventCondition_Request },
   {  49, &hf_mms_getEventConditionAttributes, BER_CLASS_CON, 49, 0, dissect_mms_GetEventConditionAttributes_Request },
   {  50, &hf_mms_reportEventConditionStatus, BER_CLASS_CON, 50, 0, dissect_mms_ReportEventConditionStatus_Request },
   {  51, &hf_mms_alterEventConditionMonitoring, BER_CLASS_CON, 51, BER_FLAGS_IMPLTAG, dissect_mms_AlterEventConditionMonitoring_Request },
   {  52, &hf_mms_triggerEvent    , BER_CLASS_CON, 52, BER_FLAGS_IMPLTAG, dissect_mms_TriggerEvent_Request },
   {  53, &hf_mms_defineEventAction, BER_CLASS_CON, 53, BER_FLAGS_IMPLTAG, dissect_mms_DefineEventAction_Request },
-  {  54, &hf_mms_deleteEventAction, BER_CLASS_CON, 54, 0, dissect_mms_DeleteEventAction_Request },
+  {  54, &hf_mms_confirmedServiceRequest_deleteEventAction, BER_CLASS_CON, 54, 0, dissect_mms_DeleteEventAction_Request },
   {  55, &hf_mms_getEventActionAttributes, BER_CLASS_CON, 55, 0, dissect_mms_GetEventActionAttributes_Request },
   {  56, &hf_mms_reportEventActionStatus, BER_CLASS_CON, 56, 0, dissect_mms_ReportEventActionStatus_Request },
   {  57, &hf_mms_defineEventEnrollment, BER_CLASS_CON, 57, BER_FLAGS_IMPLTAG, dissect_mms_DefineEventEnrollment_Request },
-  {  58, &hf_mms_deleteEventEnrollment, BER_CLASS_CON, 58, 0, dissect_mms_DeleteEventEnrollment_Request },
+  {  58, &hf_mms_confirmedServiceRequest_deleteEventEnrollment, BER_CLASS_CON, 58, 0, dissect_mms_DeleteEventEnrollment_Request },
   {  59, &hf_mms_alterEventEnrollment, BER_CLASS_CON, 59, BER_FLAGS_IMPLTAG, dissect_mms_AlterEventEnrollment_Request },
   {  60, &hf_mms_reportEventEnrollmentStatus, BER_CLASS_CON, 60, 0, dissect_mms_ReportEventEnrollmentStatus_Request },
   {  61, &hf_mms_getEventEnrollmentAttributes, BER_CLASS_CON, 61, BER_FLAGS_IMPLTAG, dissect_mms_GetEventEnrollmentAttributes_Request },
@@ -5551,7 +5553,7 @@ dissect_mms_Integer8(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 
 static const ber_sequence_t GetDomainAttributes_Response_sequence[] = {
   { &hf_mms_listOfCapabilities_05, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_mms_T_listOfCapabilities_05 },
-  { &hf_mms_state           , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_mms_DomainState },
+  { &hf_mms_getDomainAttributes_Response_state, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_mms_DomainState },
   { &hf_mms_mmsDeletable    , BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_mms_BOOLEAN },
   { &hf_mms_sharable        , BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_mms_BOOLEAN },
   { &hf_mms_listOfProgramInvocations, BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_mms_SEQUENCE_OF_Identifier },
@@ -5654,7 +5656,7 @@ dissect_mms_T_executionArgument_02(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
 
 
 static const ber_sequence_t GetProgramInvocationAttributes_Response_sequence[] = {
-  { &hf_mms_state_01        , BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_mms_ProgramInvocationState },
+  { &hf_mms_getProgramInvocationAttributes_Response_state, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_mms_ProgramInvocationState },
   { &hf_mms_listOfDomainNames, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_mms_SEQUENCE_OF_Identifier },
   { &hf_mms_mmsDeletable    , BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_mms_BOOLEAN },
   { &hf_mms_reusable        , BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_mms_BOOLEAN },
@@ -5906,7 +5908,7 @@ static const value_string mms_T_currentState_vals[] = {
 };
 
 static const ber_choice_t T_currentState_choice[] = {
-  {   0, &hf_mms_state_03        , BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_mms_EE_State },
+  {   0, &hf_mms_alterEventEnrollment_Response_currentState_state, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_mms_EE_State },
   {   1, &hf_mms_undefined       , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_mms_NULL },
   { 0, NULL, 0, 0, 0, NULL }
 };
@@ -6546,17 +6548,17 @@ static const ber_choice_t ConfirmedServiceResponse_choice[] = {
   {  46, &hf_mms_obtainFile_01   , BER_CLASS_CON, 46, BER_FLAGS_IMPLTAG, dissect_mms_ObtainFile_Response },
   {  72, &hf_mms_fileOpen_01     , BER_CLASS_CON, 72, BER_FLAGS_IMPLTAG, dissect_mms_FileOpen_Response },
   {  47, &hf_mms_defineEventCondition_01, BER_CLASS_CON, 47, BER_FLAGS_IMPLTAG, dissect_mms_DefineEventCondition_Response },
-  {  48, &hf_mms_deleteEventCondition_01, BER_CLASS_CON, 48, BER_FLAGS_IMPLTAG, dissect_mms_DeleteEventCondition_Response },
+  {  48, &hf_mms_confirmedServiceResponse_deleteEventCondition, BER_CLASS_CON, 48, BER_FLAGS_IMPLTAG, dissect_mms_DeleteEventCondition_Response },
   {  49, &hf_mms_getEventConditionAttributes_01, BER_CLASS_CON, 49, BER_FLAGS_IMPLTAG, dissect_mms_GetEventConditionAttributes_Response },
   {  50, &hf_mms_reportEventConditionStatus_01, BER_CLASS_CON, 50, BER_FLAGS_IMPLTAG, dissect_mms_ReportEventConditionStatus_Response },
   {  51, &hf_mms_alterEventConditionMonitoring_01, BER_CLASS_CON, 51, BER_FLAGS_IMPLTAG, dissect_mms_AlterEventConditionMonitoring_Response },
   {  52, &hf_mms_triggerEvent_01 , BER_CLASS_CON, 52, BER_FLAGS_IMPLTAG, dissect_mms_TriggerEvent_Response },
   {  53, &hf_mms_defineEventAction_01, BER_CLASS_CON, 53, BER_FLAGS_IMPLTAG, dissect_mms_DefineEventAction_Response },
-  {  54, &hf_mms_deleteEventAction_01, BER_CLASS_CON, 54, BER_FLAGS_IMPLTAG, dissect_mms_DeleteEventAction_Response },
+  {  54, &hf_mms_deleteEventAction, BER_CLASS_CON, 54, BER_FLAGS_IMPLTAG, dissect_mms_DeleteEventAction_Response },
   {  55, &hf_mms_getEventActionAttributes_01, BER_CLASS_CON, 55, BER_FLAGS_IMPLTAG, dissect_mms_GetEventActionAttributes_Response },
   {  56, &hf_mms_reportActionStatus, BER_CLASS_CON, 56, BER_FLAGS_IMPLTAG, dissect_mms_ReportEventActionStatus_Response },
   {  57, &hf_mms_defineEventEnrollment_01, BER_CLASS_CON, 57, BER_FLAGS_IMPLTAG, dissect_mms_DefineEventEnrollment_Response },
-  {  58, &hf_mms_deleteEventEnrollment_01, BER_CLASS_CON, 58, BER_FLAGS_IMPLTAG, dissect_mms_DeleteEventEnrollment_Response },
+  {  58, &hf_mms_confirmedServiceResponse_deleteEventEnrollment, BER_CLASS_CON, 58, BER_FLAGS_IMPLTAG, dissect_mms_DeleteEventEnrollment_Response },
   {  59, &hf_mms_alterEventEnrollment_01, BER_CLASS_CON, 59, BER_FLAGS_IMPLTAG, dissect_mms_AlterEventEnrollment_Response },
   {  60, &hf_mms_reportEventEnrollmentStatus_01, BER_CLASS_CON, 60, BER_FLAGS_IMPLTAG, dissect_mms_ReportEventEnrollmentStatus_Response },
   {  61, &hf_mms_getEventEnrollmentAttributes_01, BER_CLASS_CON, 61, BER_FLAGS_IMPLTAG, dissect_mms_GetEventEnrollmentAttributes_Response },
@@ -7324,7 +7326,7 @@ static const ber_choice_t MMSpdu_choice[] = {
 
 int
 dissect_mms_MMSpdu(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 37 "./asn1/mms/mms.cnf"
+#line 86 "./asn1/mms/mms.cnf"
 	gint branch_taken;
 
   offset = dissect_ber_choice(actx, tree, tvb, offset,
@@ -7695,8 +7697,8 @@ void proto_register_mms(void) {
       { "defineEventCondition", "mms.defineEventCondition_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "DefineEventCondition_Request", HFILL }},
-    { &hf_mms_deleteEventCondition,
-      { "deleteEventCondition", "mms.deleteEventCondition",
+    { &hf_mms_confirmedServiceRequest_deleteEventCondition,
+      { "deleteEventCondition", "mms.confirmedServiceRequest.deleteEventCondition",
         FT_UINT32, BASE_DEC, VALS(mms_DeleteEventCondition_Request_vals), 0,
         "DeleteEventCondition_Request", HFILL }},
     { &hf_mms_getEventConditionAttributes,
@@ -7719,8 +7721,8 @@ void proto_register_mms(void) {
       { "defineEventAction", "mms.defineEventAction_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "DefineEventAction_Request", HFILL }},
-    { &hf_mms_deleteEventAction,
-      { "deleteEventAction", "mms.deleteEventAction",
+    { &hf_mms_confirmedServiceRequest_deleteEventAction,
+      { "deleteEventAction", "mms.confirmedServiceRequest.deleteEventAction",
         FT_UINT32, BASE_DEC, VALS(mms_DeleteEventAction_Request_vals), 0,
         "DeleteEventAction_Request", HFILL }},
     { &hf_mms_getEventActionAttributes,
@@ -7735,8 +7737,8 @@ void proto_register_mms(void) {
       { "defineEventEnrollment", "mms.defineEventEnrollment_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "DefineEventEnrollment_Request", HFILL }},
-    { &hf_mms_deleteEventEnrollment,
-      { "deleteEventEnrollment", "mms.deleteEventEnrollment",
+    { &hf_mms_confirmedServiceRequest_deleteEventEnrollment,
+      { "deleteEventEnrollment", "mms.confirmedServiceRequest.deleteEventEnrollment",
         FT_UINT32, BASE_DEC, VALS(mms_DeleteEventEnrollment_Request_vals), 0,
         "DeleteEventEnrollment_Request", HFILL }},
     { &hf_mms_alterEventEnrollment,
@@ -8015,8 +8017,8 @@ void proto_register_mms(void) {
       { "defineEventCondition", "mms.defineEventCondition_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "DefineEventCondition_Response", HFILL }},
-    { &hf_mms_deleteEventCondition_01,
-      { "deleteEventCondition", "mms.deleteEventCondition",
+    { &hf_mms_confirmedServiceResponse_deleteEventCondition,
+      { "deleteEventCondition", "mms.confirmedServiceResponse.deleteEventCondition",
         FT_INT32, BASE_DEC, NULL, 0,
         "DeleteEventCondition_Response", HFILL }},
     { &hf_mms_getEventConditionAttributes_01,
@@ -8039,7 +8041,7 @@ void proto_register_mms(void) {
       { "defineEventAction", "mms.defineEventAction_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "DefineEventAction_Response", HFILL }},
-    { &hf_mms_deleteEventAction_01,
+    { &hf_mms_deleteEventAction,
       { "deleteEventAction", "mms.deleteEventAction",
         FT_INT32, BASE_DEC, NULL, 0,
         "DeleteEventAction_Response", HFILL }},
@@ -8055,8 +8057,8 @@ void proto_register_mms(void) {
       { "defineEventEnrollment", "mms.defineEventEnrollment_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "DefineEventEnrollment_Response", HFILL }},
-    { &hf_mms_deleteEventEnrollment_01,
-      { "deleteEventEnrollment", "mms.deleteEventEnrollment",
+    { &hf_mms_confirmedServiceResponse_deleteEventEnrollment,
+      { "deleteEventEnrollment", "mms.confirmedServiceResponse.deleteEventEnrollment",
         FT_INT32, BASE_DEC, NULL, 0,
         "DeleteEventEnrollment_Response", HFILL }},
     { &hf_mms_alterEventEnrollment_01,
@@ -8499,8 +8501,8 @@ void proto_register_mms(void) {
       { "aaSpecific", "mms.aaSpecific_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_mms_continueAfter,
-      { "continueAfter", "mms.continueAfter",
+    { &hf_mms_getNameList_Request_continueAfter,
+      { "continueAfter", "mms.getNameList-Request_continueAfter",
         FT_STRING, BASE_NONE, NULL, 0,
         "Identifier", HFILL }},
     { &hf_mms_listOfIdentifier,
@@ -8551,8 +8553,8 @@ void proto_register_mms(void) {
       { "newIdentifier", "mms.newIdentifier",
         FT_STRING, BASE_NONE, NULL, 0,
         "Identifier", HFILL }},
-    { &hf_mms_continueAfter_01,
-      { "continueAfter", "mms.continueAfter",
+    { &hf_mms_getCapabilityList_Request_continueAfter,
+      { "continueAfter", "mms.getCapabilityList-Request_continueAfter",
         FT_STRING, BASE_NONE, NULL, 0,
         "VisibleString", HFILL }},
     { &hf_mms_listOfCapabilities,
@@ -8627,8 +8629,8 @@ void proto_register_mms(void) {
       { "listOfCapabilities", "mms.listOfCapabilities",
         FT_UINT32, BASE_DEC, NULL, 0,
         "T_listOfCapabilities_05", HFILL }},
-    { &hf_mms_state,
-      { "state", "mms.state",
+    { &hf_mms_getDomainAttributes_Response_state,
+      { "state", "mms.getDomainAttributes-Response_state",
         FT_INT32, BASE_DEC, VALS(mms_DomainState_vals), 0,
         "DomainState", HFILL }},
     { &hf_mms_mmsDeletable,
@@ -8679,8 +8681,8 @@ void proto_register_mms(void) {
       { "executionArgument", "mms.executionArgument",
         FT_UINT32, BASE_DEC, VALS(mms_T_executionArgument_01_vals), 0,
         "T_executionArgument_01", HFILL }},
-    { &hf_mms_state_01,
-      { "state", "mms.state",
+    { &hf_mms_getProgramInvocationAttributes_Response_state,
+      { "state", "mms.getProgramInvocationAttributes-Response_state",
         FT_INT32, BASE_DEC, VALS(mms_ProgramInvocationState_vals), 0,
         "ProgramInvocationState", HFILL }},
     { &hf_mms_listOfDomainNames,
@@ -8747,8 +8749,8 @@ void proto_register_mms(void) {
       { "boolean", "mms.boolean_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_mms_bit_string,
-      { "bit-string", "mms.bit_string",
+    { &hf_mms_typeSpecification_bit_string,
+      { "bit-string", "mms.typeSpecification_bit-string",
         FT_INT32, BASE_DEC, NULL, 0,
         "Integer32", HFILL }},
     { &hf_mms_integer,
@@ -8759,20 +8761,20 @@ void proto_register_mms(void) {
       { "unsigned", "mms.unsigned",
         FT_INT32, BASE_DEC, NULL, 0,
         "Unsigned8", HFILL }},
-    { &hf_mms_octet_string,
-      { "octet-string", "mms.octet_string",
+    { &hf_mms_typeSpecification_octet_string,
+      { "octet-string", "mms.typeSpecification.octet-string",
         FT_INT32, BASE_DEC, NULL, 0,
         "Integer32", HFILL }},
-    { &hf_mms_visible_string,
-      { "visible-string", "mms.visible_string",
+    { &hf_mms_typeSpecification_visible_string,
+      { "visible-string", "mms.typeSpecification.visible-string",
         FT_INT32, BASE_DEC, NULL, 0,
         "Integer32", HFILL }},
     { &hf_mms_generalized_time,
       { "generalized-time", "mms.generalized_time_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_mms_binary_time,
-      { "binary-time", "mms.binary_time",
+    { &hf_mms_typeSpecification_binary_time,
+      { "binary-time", "mms.typeSpecification.binary-time",
         FT_BOOLEAN, BASE_NONE, NULL, 0,
         "BOOLEAN", HFILL }},
     { &hf_mms_bcd,
@@ -8999,8 +9001,8 @@ void proto_register_mms(void) {
       { "boolean", "mms.boolean",
         FT_BOOLEAN, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_mms_bit_string_01,
-      { "bit-string", "mms.bit_string",
+    { &hf_mms_data_bit_string,
+      { "bit-string", "mms.data_bit-string",
         FT_BYTES, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_mms_integer_01,
@@ -9015,16 +9017,16 @@ void proto_register_mms(void) {
       { "floating-point", "mms.floating_point",
         FT_BYTES, BASE_NONE, NULL, 0,
         "FloatingPoint", HFILL }},
-    { &hf_mms_octet_string_01,
-      { "octet-string", "mms.octet_string",
+    { &hf_mms_data_octet_string,
+      { "octet-string", "mms.data.octet-string",
         FT_BYTES, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_mms_visible_string_01,
-      { "visible-string", "mms.visible_string",
+    { &hf_mms_data_visible_string,
+      { "visible-string", "mms.data.visible-string",
         FT_STRING, BASE_NONE, NULL, 0,
         "VisibleString", HFILL }},
-    { &hf_mms_binary_time_01,
-      { "binary-time", "mms.binary_time",
+    { &hf_mms_data_binary_time,
+      { "binary-time", "mms.data.binary-time",
         FT_STRING, BASE_NONE, NULL, 0,
         "TimeOfDay", HFILL }},
     { &hf_mms_bcd_01,
@@ -9159,10 +9161,10 @@ void proto_register_mms(void) {
       { "hungNamedToken", "mms.hungNamedToken",
         FT_STRING, BASE_NONE, NULL, 0,
         "Identifier", HFILL }},
-    { &hf_mms_state_02,
-      { "state", "mms.state",
-        FT_INT32, BASE_DEC, VALS(mms_T_state_vals), 0,
-        NULL, HFILL }},
+    { &hf_mms_reportSemaphoreEntryStatus_Request_state,
+      { "state", "mms.reportSemaphoreEntryStatus-Request_state",
+        FT_INT32, BASE_DEC, VALS(mms_T_reportSemaphoreEntryStatus_Request_state_vals), 0,
+        "T_reportSemaphoreEntryStatus_Request_state", HFILL }},
     { &hf_mms_entryIdToStartAfter,
       { "entryIdToStartAfter", "mms.entryIdToStartAfter",
         FT_BYTES, BASE_NONE, NULL, 0,
@@ -9335,8 +9337,8 @@ void proto_register_mms(void) {
       { "ObjectName", "mms.ObjectName",
         FT_UINT32, BASE_DEC, VALS(mms_ObjectName_vals), 0,
         NULL, HFILL }},
-    { &hf_mms_continueAfter_02,
-      { "continueAfter", "mms.continueAfter",
+    { &hf_mms_getEventEnrollmentAttributes_Request_continueAfter,
+      { "continueAfter", "mms.getEventEnrollmentAttributes-Request_continueAfter",
         FT_UINT32, BASE_DEC, VALS(mms_ObjectName_vals), 0,
         "ObjectName", HFILL }},
     { &hf_mms_eventConditionName_01,
@@ -9391,8 +9393,8 @@ void proto_register_mms(void) {
       { "currentState", "mms.currentState",
         FT_UINT32, BASE_DEC, VALS(mms_T_currentState_vals), 0,
         NULL, HFILL }},
-    { &hf_mms_state_03,
-      { "state", "mms.state",
+    { &hf_mms_alterEventEnrollment_Response_currentState_state,
+      { "state", "mms.alterEventEnrollment-Response_currentState_state",
         FT_INT32, BASE_DEC, VALS(mms_EE_State_vals), 0,
         "EE_State", HFILL }},
     { &hf_mms_transitionTime,
@@ -9431,6 +9433,10 @@ void proto_register_mms(void) {
       { "leastSevere", "mms.leastSevere",
         FT_INT32, BASE_DEC, NULL, 0,
         "Unsigned8", HFILL }},
+    { &hf_mms_continueAfter,
+      { "continueAfter", "mms.continueAfter",
+        FT_UINT32, BASE_DEC, VALS(mms_ObjectName_vals), 0,
+        "ObjectName", HFILL }},
     { &hf_mms_listOfAlarmSummary,
       { "listOfAlarmSummary", "mms.listOfAlarmSummary",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -9451,6 +9457,10 @@ void proto_register_mms(void) {
       { "severityFilter", "mms.severityFilter_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "T_severityFilter_01", HFILL }},
+    { &hf_mms_getAlarmEnrollmentSummary_Request_continueAfter,
+      { "continueAfter", "mms.getAlarmEnrollmentSummary-Request_continueAfter",
+        FT_UINT32, BASE_DEC, VALS(mms_ObjectName_vals), 0,
+        "ObjectName", HFILL }},
     { &hf_mms_listOfAlarmEnrollmentSummary,
       { "listOfAlarmEnrollmentSummary", "mms.listOfAlarmEnrollmentSummary",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -9679,8 +9689,8 @@ void proto_register_mms(void) {
       { "fileSpecification", "mms.fileSpecification",
         FT_UINT32, BASE_DEC, NULL, 0,
         "FileName", HFILL }},
-    { &hf_mms_continueAfter_03,
-      { "continueAfter", "mms.continueAfter",
+    { &hf_mms_fileDirectory_Request_continueAfter,
+      { "continueAfter", "mms.fileDirectory-Request_continueAfter",
         FT_UINT32, BASE_DEC, NULL, 0,
         "FileName", HFILL }},
     { &hf_mms_listOfDirectoryEntry,

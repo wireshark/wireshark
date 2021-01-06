@@ -399,28 +399,28 @@ void proto_register_msgpack(void)
 			{ "Length", "msgpack.string.len", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
 		},
 		{ &hf_msgpack_uint_8,
-			{ "Integer", "msgpack.integer", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }
+			{ "Integer", "msgpack.integer.u8", FT_UINT8, BASE_DEC, NULL, 0x00, NULL, HFILL }
 		},
 		{ &hf_msgpack_uint_16,
-			{ "Integer", "msgpack.integer", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+			{ "Integer", "msgpack.integer.u16", FT_UINT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
 		},
 		{ &hf_msgpack_uint_32,
-			{ "Integer", "msgpack.integer", FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }
+			{ "Integer", "msgpack.integer.u32", FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }
 		},
 		{ &hf_msgpack_uint_64,
-			{ "Integer", "msgpack.integer", FT_UINT64, BASE_DEC, NULL, 0x00, NULL, HFILL }
+			{ "Integer", "msgpack.integer.u64", FT_UINT64, BASE_DEC, NULL, 0x00, NULL, HFILL }
 		},
 		{ &hf_msgpack_int_8,
-			{ "Integer", "msgpack.integer", FT_INT8, BASE_DEC, NULL, 0x00, NULL, HFILL }
+			{ "Integer", "msgpack.integer.8", FT_INT8, BASE_DEC, NULL, 0x00, NULL, HFILL }
 		},
 		{ &hf_msgpack_int_16,
-			{ "Integer", "msgpack.integer", FT_INT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
+			{ "Integer", "msgpack.integer.16", FT_INT16, BASE_DEC, NULL, 0x00, NULL, HFILL }
 		},
 		{ &hf_msgpack_int_32,
-			{ "Integer", "msgpack.integer", FT_INT32, BASE_DEC, NULL, 0x00, NULL, HFILL }
+			{ "Integer", "msgpack.integer.32", FT_INT32, BASE_DEC, NULL, 0x00, NULL, HFILL }
 		},
 		{ &hf_msgpack_int_64,
-			{ "Integer", "msgpack.integer", FT_INT64, BASE_DEC, NULL, 0x00, NULL, HFILL }
+			{ "Integer", "msgpack.integer.64", FT_INT64, BASE_DEC, NULL, 0x00, NULL, HFILL }
 		},
 		{ &hf_msgpack_bool,
 			{ "Boolean", "msgpack.boolean", FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL }
@@ -435,7 +435,7 @@ void proto_register_msgpack(void)
 			{ "Ext type", "msgpack.ext.type", FT_INT8, BASE_DEC, NULL, 0x00, NULL, HFILL }
 		},
 		{ &hf_msgpack_ext_bytes,
-			{ "Ext", "msgpack.float", FT_BYTES, BASE_NONE, NULL, 0x00, NULL, HFILL }
+			{ "Ext", "msgpack.ext", FT_BYTES, BASE_NONE, NULL, 0x00, NULL, HFILL }
 		}
 	};
 

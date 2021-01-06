@@ -20,6 +20,55 @@ TimeOfDay	TYPE = FT_STRING DISPLAY = BASE_NONE
 UtcTime	TYPE = FT_STRING DISPLAY = BASE_NONE
 
 #.FIELD_RENAME
+ConfirmedServiceRequest/deleteEventCondition        confirmedServiceRequest_deleteEventCondition
+ConfirmedServiceResponse/deleteEventCondition       confirmedServiceResponse_deleteEventCondition
+ConfirmedServiceRequest/deleteEventAction           confirmedServiceRequest_deleteEventAction
+ConfirmedServiceRequest/deleteEventAction           confirmedServiceRequest_deleteEventAction
+ConfirmedServiceRequest/deleteEventEnrollment       confirmedServiceRequest_deleteEventEnrollment
+ConfirmedServiceResponse/deleteEventEnrollment      confirmedServiceResponse_deleteEventEnrollment
+TypeSpecification/bit-string                        typeSpecification_bit-string
+Data/bit-string                                     data_bit-string
+TypeSpecification/octet-string                      typeSpecification_octet-string
+Data/octet-string                                   data_octet-string
+TypeSpecification/visible-string                    typeSpecification_visible-string
+Data/visible-string                                 data_visible-string
+TypeSpecification/binary-time                       typeSpecification_binary-time
+Data/binary-time                                    data_binary-time
+GetNameList-Request/continueAfter                   getNameList-Request_continueAfter
+GetCapabilityList-Request/continueAfter             getCapabilityList-Request_continueAfter
+GetEventEnrollmentAttributes-Request/continueAfter  getEventEnrollmentAttributes-Request_continueAfter
+GetAlarmEnrollmentSummary-Request/continueAfter     getAlarmEnrollmentSummary-Request_continueAfter
+FileDirectory-Request/continueAfter                 fileDirectory-Request_continueAfter
+GetDomainAttributes-Response/state                  getDomainAttributes-Response_state
+GetProgramInvocationAttributes-Response/state       getProgramInvocationAttributes-Response_state
+ReportSemaphoreEntryStatus-Request/state            reportSemaphoreEntryStatus-Request_state
+AlterEventEnrollment-Response/currentState/state    alterEventEnrollment-Response_currentState_state
+
+#.FIELD_ATTR
+ConfirmedServiceRequest/deleteEventCondition        ABBREV=confirmedServiceRequest.deleteEventCondition
+ConfirmedServiceResponse/deleteEventCondition       ABBREV=confirmedServiceResponse.deleteEventCondition
+ConfirmedServiceRequest/deleteEventAction           ABBREV=confirmedServiceRequest.deleteEventAction
+ConfirmedServiceRequest/deleteEventAction           ABBREV=confirmedServiceRequest.deleteEventAction
+ConfirmedServiceRequest/deleteEventEnrollment       ABBREV=confirmedServiceRequest.deleteEventEnrollment
+ConfirmedServiceResponse/deleteEventEnrollment      ABBREV=confirmedServiceResponse.deleteEventEnrollment
+TypeSpecification/bit-string                        ABBREV=typeSpecification_bit-string
+Data/bit-string                                     ABBREV=data_bit-string
+TypeSpecification/octet-string                      ABBREV=typeSpecification.octet-string
+Data/octet-string                                   ABBREV=data.octet-string
+TypeSpecification/visible-string                    ABBREV=typeSpecification.visible-string
+Data/visible-string                                 ABBREV=data.visible-string
+TypeSpecification/binary-time                       ABBREV=typeSpecification.binary-time
+Data/binary-time                                    ABBREV=data.binary-time
+GetNameList-Request/continueAfter                   ABBREV=getNameList-Request_continueAfter
+GetCapabilityList-Request/continueAfter             ABBREV=getCapabilityList-Request_continueAfter
+GetEventEnrollmentAttributes-Request/continueAfter  ABBREV=getEventEnrollmentAttributes-Request_continueAfter
+GetAlarmEnrollmentSummary-Request/continueAfter     ABBREV=getAlarmEnrollmentSummary-Request_continueAfter
+FileDirectory-Request/continueAfter                 ABBREV=fileDirectory-Request_continueAfter
+GetDomainAttributes-Response/state                  ABBREV=getDomainAttributes-Response_state
+GetProgramInvocationAttributes-Response/state       ABBREV=getProgramInvocationAttributes-Response_state
+ReportSemaphoreEntryStatus-Request/state            ABBREV=reportSemaphoreEntryStatus-Request_state
+AlterEventEnrollment-Response/currentState/state    ABBREV=alterEventEnrollment-Response_currentState_state
+
 
 #.FN_BODY ApplicationReference/ap-title
 	offset=dissect_acse_AP_title(FALSE, tvb, offset, actx, tree, hf_mms_ap_title);
