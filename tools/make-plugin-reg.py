@@ -2,6 +2,7 @@
 #
 # Looks for registration routines in the plugins
 # and assembles C code to call all the routines.
+# A new "plugin.c" file will be written in the current directory.
 #
 
 import os
@@ -28,7 +29,7 @@ preamble = """\
  *
  * Generated automatically from %s.
  */
-""" % (sys.argv[0])
+""" % (os.path.basename(sys.argv[0]))
 
 # Create the proper list of filenames
 filenames = []
@@ -165,7 +166,6 @@ try:
     fh = open(final_filename, 'w')
     fh.write(reg_code)
     fh.close()
-    print('Generated {} for {}.'.format(final_filename, os.path.basename(srcdir)))
 except OSError:
     sys.exit('Unable to write ' + final_filename + '.\n')
 
