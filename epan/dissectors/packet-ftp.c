@@ -26,6 +26,7 @@
 #include "packet-acdr.h"
 
 #include <tap.h>
+#include <epan/export_object.h>
 #include <ui/tap-credentials.h>
 
 #include "packet-tls.h"
@@ -81,6 +82,8 @@ static expert_field ei_ftp_eprt_args_invalid = EI_INIT;
 static expert_field ei_ftp_epsv_args_invalid = EI_INIT;
 static expert_field ei_ftp_response_code_invalid = EI_INIT;
 static expert_field ei_ftp_pwd_response_invalid = EI_INIT;
+
+static int ftp_eo_tap = -1;
 
 static dissector_handle_t ftpdata_handle;
 static dissector_handle_t ftp_handle;
@@ -158,6 +161,147 @@ static const value_string eprt_af_vals[] = {
     { EPRT_AF_IPv6, "IPv6" },
     { 0, NULL }
 };
+
+/* Used for FTP-DATA's Export Object feature
+   This will be controlled by the preferences setting "export.maxsize".
+   It will be used to set the maximum file size for FTP's export
+   objects (in megabytes). Use 0 for no limit.
+ */
+static guint pref_export_maxsize = 0;
+
+typedef struct _ftp_eo_t {
+    gchar    *command;      /* Command this data stream answers (e.g., RETR foo.txt) */
+    guint32  command_frame; /* Where command for this data was seen */
+    guint32  payload_len;   /* Length of packet's data */
+    gchar    *payload_data; /* Packet's data */
+} ftp_eo_t;
+
+/* Stores mappings of the command packet number to the export object
+   table's row number, so we can append data from later FTP packets
+   to the entries.
+ */
+GHashTable *command_packet_to_eo_row = NULL;
+
+/* Track which row number in the export object table we're up to */
+guint32 eo_row_count = 0;
+
+/**
+ * This is the callback passed to register_export_object()
+ * as the tap processing function. It will be called each time
+ * tap_queue_packet() sends a packet to the export objects tap.
+ *
+ * The general approach is that when a file transfer begins,
+ * besides storing the standard export object data, like
+ * the source system, filename, data, and length,
+ * an entry is added to the command_packet_to_eo_row hashtable,
+ * mapping the FTP command packet's number to the
+ * export object list's row number.
+ *
+ * When a later packet has a command packet number
+ * that's already present in the command_packet_to_eo_row hashtable,
+ * we detect that's it's a continuation of a previous
+ * file transfer, so we look up the associated entry in the export
+ * object list and append the data to there.
+ *
+ * FTP is complex in that there's no guarantee that the file transmission
+ * was completely captured. It might be possible to infer a successful
+ * transfer with either the "SIZE" command or with a 226 response code
+ * (indicating that the STOR or RETR command was succesful), but there
+ * is no guarantee that either of these are present. As such, this
+ * implementation takes a best-effort approach of simply appending
+ * all associated ftp-data packets to the export objects entry.
+ */
+static tap_packet_status
+ftp_eo_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt _U_, const void *data)
+{
+    export_object_list_t *object_list = (export_object_list_t *)tapdata;
+    const ftp_eo_t *eo_info = (const ftp_eo_t *)data;
+
+    if(eo_info) { /* We have data waiting for us */
+        /* Only export files transferred with STOR or RETR*/
+        if (strncmp(eo_info->command, "STOR", 4) != 0 && strncmp(eo_info->command, "RETR", 4) != 0) {
+            return TAP_PACKET_DONT_REDRAW; /* State unchanged - no window updates needed */
+        }
+        /* Create the command_packet_to_eo_row hashtable for mapping the FTP
+          command packet's number to the export object list's row number */
+        if(command_packet_to_eo_row == NULL) {
+            command_packet_to_eo_row = g_hash_table_new(g_direct_hash, g_direct_equal);
+        }
+        if (!g_hash_table_contains(command_packet_to_eo_row, GUINT_TO_POINTER(eo_info->command_frame))) {
+            /* Command packet not previously seen. Create the new entry in the hashtable. */
+            export_object_entry_t *entry = g_new(export_object_entry_t, 1);
+            entry->pkt_num = pinfo->num;
+            /* If the command is STOR, the transfer is from the client to the server
+               If the command is RETR, the transfer is from the server to the client
+               However, ftp-data will always have the file's origin as pinfo->src */
+            entry->hostname = g_strdup(address_to_str(pinfo->pool, &pinfo->src));
+            entry->content_type = g_strdup("FTP file");
+
+            /* Remove the "STOR " or "RETR " to extract the filename */
+            if (strlen(eo_info->command) > 5){
+                entry->filename = g_strdup(eo_info->command + 5);
+            } else {
+                entry->filename = g_strdup("(MISSING)");
+            }
+
+            gsize bytes_to_copy;
+            if (pref_export_maxsize != 0 && (eo_info->payload_len > pref_export_maxsize*1024*1024)) {
+                bytes_to_copy = pref_export_maxsize*1024*1024;
+            }
+            else {
+                bytes_to_copy = eo_info->payload_len;
+            }
+            entry->payload_len = bytes_to_copy;
+            entry->payload_data = (guint8 *)g_memdup2(eo_info->payload_data, bytes_to_copy);
+
+            /* Add the mapping of the command frame and the export object
+               list's row number to the hash table */
+            g_hash_table_insert(command_packet_to_eo_row, GUINT_TO_POINTER(eo_info->command_frame), GUINT_TO_POINTER(eo_row_count));
+            eo_row_count += 1;
+            object_list->add_entry(object_list->gui_data, entry);
+        } else {
+            /* This command packet number is already present in the
+               command_packet_to_eo_row hashtable, so it's a continuation of
+               a previous. Let's look up the entry in the export
+               object list and append the data to there */
+            guint32 row_num = GPOINTER_TO_UINT(g_hash_table_lookup(command_packet_to_eo_row, GUINT_TO_POINTER(eo_info->command_frame)));
+            export_object_entry_t *entry = object_list->get_entry(object_list->gui_data, row_num);
+
+            gsize bytes_to_copy;
+            if (pref_export_maxsize != 0 && (entry->payload_len + eo_info->payload_len) > pref_export_maxsize*1024*1024) {
+                bytes_to_copy = pref_export_maxsize*1024*1024 - entry->payload_len;
+            }
+            else {
+                bytes_to_copy = eo_info->payload_len;
+            }
+
+            entry->payload_data = (guint8 *) g_realloc(entry->payload_data, entry->payload_len + bytes_to_copy);
+            memcpy(entry->payload_data + entry->payload_len, eo_info->payload_data, bytes_to_copy);
+            entry->payload_len = entry->payload_len + bytes_to_copy;
+        }
+        /* payload_data will be freed when the Export Object window is closed. */
+        return TAP_PACKET_REDRAW; /* State changed - window should be redrawn */
+    } else {
+        return TAP_PACKET_DONT_REDRAW; /* State unchanged - no window updates needed */
+    }
+}
+
+/**
+ * This is the callback passed to register_export_object()
+ * as the reset_cb. This will be used in the export_object module
+ * to cleanup any previous private data of the export object functionality
+ * before performing the eo_reset function or when the window closes */
+static void
+ftp_eo_cleanup(void)
+{
+    if(command_packet_to_eo_row != NULL) {
+        g_hash_table_destroy(command_packet_to_eo_row);
+        command_packet_to_eo_row = NULL;
+    }
+    eo_row_count = 0;
+}
+
+
 
 /********************************************************************/
 /* Storing session state and linking between control (ftp) and data */
@@ -1432,6 +1576,16 @@ dissect_ftpdata(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
                                            tvb, 0, 0, wmem_strbuf_get_str(p_ftp_data_conv->current_working_directory));
                 proto_item_set_generated(ti);
             }
+            if (have_tap_listener(ftp_eo_tap)) {
+                if (p_ftp_data_conv->command_frame) {
+                    ftp_eo_t *eo_info = wmem_new0(wmem_packet_scope(), ftp_eo_t);
+                    eo_info->command = wmem_strdup(wmem_packet_scope(), p_ftp_data_conv->command);
+                    eo_info->command_frame = p_ftp_data_conv->command_frame;
+                    eo_info->payload_len = tvb_reported_length(tvb);
+                    eo_info->payload_data = (gchar *) tvb_memdup(wmem_packet_scope(), tvb, 0, tvb_reported_length(tvb));
+                    tap_queue_packet(ftp_eo_tap, pinfo, eo_info);
+                }
+            }
         }
     }
 
@@ -1671,6 +1825,14 @@ proto_register_ftp(void)
     register_cleanup_routine(&ftp_cleanup_protocol);
 
     credentials_tap = register_tap("credentials");
+
+    module_t *ftp_prefs_module = prefs_register_protocol(proto_ftp_data, NULL);
+    prefs_register_uint_preference(ftp_prefs_module, "export.maxsize",
+                             "Max file size (in MB) for export objects (use 0 for unlimited)", /* Title */
+                             "Maximum file size (in megabytes) for export objects  (use 0 for unlimited).", /* Description */
+                             10,
+                             &pref_export_maxsize);
+    ftp_eo_tap = register_export_object(proto_ftp_data, ftp_eo_packet, ftp_eo_cleanup);
 }
 
 void
