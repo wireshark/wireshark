@@ -376,8 +376,6 @@ RtpAnalysisDialog::RtpAnalysisDialog(QWidget &parent, CaptureFile &cf, rtpstream
             this, SLOT(updateWidgets()));
     connect(ui->reverseTreeWidget, SIGNAL(itemSelectionChanged()),
             this, SLOT(updateWidgets()));
-    connect(&cap_file_, SIGNAL(captureFileClosing()),
-            this, SLOT(updateWidgets()));
     updateWidgets();
 
     updateStatistics();
@@ -393,9 +391,9 @@ RtpAnalysisDialog::~RtpAnalysisDialog()
     delete rev_tempfile_;
 }
 
+// TODO: Can be removed if not used to fix issue with disabling buttons
 void RtpAnalysisDialog::captureFileClosing()
 {
-    updateWidgets();
     WiresharkDialog::captureFileClosing();
 }
 
@@ -428,8 +426,8 @@ void RtpAnalysisDialog::updateWidgets()
         hint.append(tr(" G: Go to packet, N: Next problem packet"));
     }
 
-    bool enable_save_fwd_audio = fwd_statinfo_.rtp_stats.total_nr && (save_payload_error_ == TAP_RTP_NO_ERROR);
-    bool enable_save_rev_audio = rev_statinfo_.rtp_stats.total_nr && (save_payload_error_ == TAP_RTP_NO_ERROR);
+    bool enable_save_fwd_audio = fwd_statinfo_.rtp_stats.total_nr && (save_payload_error_ == TAP_RTP_NO_ERROR) && !file_closed_;
+    bool enable_save_rev_audio = rev_statinfo_.rtp_stats.total_nr && (save_payload_error_ == TAP_RTP_NO_ERROR) && !file_closed_;
     ui->actionSaveAudioUnsync->setEnabled(enable_save_fwd_audio && enable_save_rev_audio);
     ui->actionSaveForwardAudioUnsync->setEnabled(enable_save_fwd_audio);
     ui->actionSaveReverseAudioUnsync->setEnabled(enable_save_rev_audio);
@@ -447,7 +445,7 @@ void RtpAnalysisDialog::updateWidgets()
     ui->actionSaveReverseCsv->setEnabled(enable_save_rev_csv);
 
 #if defined(QT_MULTIMEDIA_LIB)
-    player_button_->setEnabled(num_streams_ > 0);
+    player_button_->setEnabled(num_streams_ > 0 && !file_closed_);
 #else
     player_button_->setEnabled(false);
     player_button_->setText(tr("No Audio"));

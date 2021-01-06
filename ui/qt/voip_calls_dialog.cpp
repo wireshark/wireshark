@@ -142,11 +142,13 @@ void VoipCallsDialog::captureFileClosing()
     // the cache is active, the ToD cannot be modified.
     ui->todCheckBox->setEnabled(false);
     cache_model_->setSourceModel(NULL);
+    ui->displayFilterCheckBox->setEnabled(false);
     if (!voip_calls_tap_listeners_removed_) {
         voip_calls_remove_all_tap_listeners(&tapinfo_);
         voip_calls_tap_listeners_removed_ = true;
     }
     tapinfo_.session = NULL;
+
     WiresharkDialog::captureFileClosing();
 }
 
@@ -158,13 +160,17 @@ void VoipCallsDialog::contextMenuEvent(QContextMenuEvent *event)
         return;
 
     QMenu popupMenu;
+    QAction *action;
 
-    QAction * action = popupMenu.addAction(tr("Select &All"), this, SLOT(selectAll()));
+    action = popupMenu.addAction(tr("Select &All"), this, SLOT(selectAll()));
     action->setToolTip(tr("Select all calls"));
+    action = popupMenu.addAction(tr("Select &None"), this, SLOT(selectNone()));
+    action->setToolTip(tr("Clear selection"));
     popupMenu.addSeparator();
     action = popupMenu.addAction(tr("Display time as time of day"), this, SLOT(switchTimeOfDay()));
     action->setCheckable(true);
     action->setChecked(call_infos_model_->timeOfDay());
+    action->setEnabled(!file_closed_);
     popupMenu.addSeparator();
     action = popupMenu.addAction(tr("Copy as CSV"), this, SLOT(copyAsCSV()));
     action->setToolTip(tr("Copy stream list as CSV."));
@@ -324,14 +330,18 @@ void VoipCallsDialog::updateWidgets()
         have_ga_items = true;
     }
 
-    prepare_button_->setEnabled(selected && have_ga_items);
-    sequence_button_->setEnabled(selected && have_ga_items);
+    bool enable = selected && have_ga_items && !file_closed_;
+
+    prepare_button_->setEnabled(enable);
+    sequence_button_->setEnabled(enable);
 #if defined(QT_MULTIMEDIA_LIB)
-    player_button_->setEnabled(selected && have_ga_items);
+    player_button_->setEnabled(enable);
 #else
     player_button_->setEnabled(false);
     player_button_->setText(tr("No Audio"));
 #endif
+
+    WiresharkDialog::updateWidgets();
 }
 
 void VoipCallsDialog::prepareFilter()
@@ -555,6 +565,11 @@ void VoipCallsDialog::on_callTreeView_activated(const QModelIndex &index)
 void VoipCallsDialog::selectAll()
 {
     ui->callTreeView->selectAll();
+}
+
+void VoipCallsDialog::selectNone()
+{
+    ui->callTreeView->clearSelection();
 }
 
 void VoipCallsDialog::copyAsCSV()

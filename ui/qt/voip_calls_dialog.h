@@ -92,6 +92,7 @@ private:
 private slots:
     void captureFileClosing();
     void selectAll();
+    void selectNone();
     void copyAsCSV();
     void copyAsYAML();
     void switchTimeOfDay();

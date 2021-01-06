@@ -335,8 +335,8 @@ void SequenceDialog::diagramClicked(QMouseEvent *event)
             ui->actionDeselectRtpStream->setEnabled(false);
             if (sai) {
                 if (GA_INFO_TYPE_RTP == sai->info_type) {
-                    ui->actionSelectRtpStream->setEnabled(true);
-                    ui->actionDeselectRtpStream->setEnabled(true);
+                    ui->actionSelectRtpStream->setEnabled(true && !file_closed_);
+                    ui->actionDeselectRtpStream->setEnabled(true && !file_closed_);
                     current_rtp_sai_ = sai;
                 }
             }

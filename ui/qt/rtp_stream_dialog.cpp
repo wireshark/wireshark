@@ -487,7 +487,7 @@ void RtpStreamDialog::updateWidgets()
     prepare_button_->setEnabled(enable);
     export_button_->setEnabled(enable);
     copy_button_->setEnabled(has_data);
-    analyze_button_->setEnabled(selected);
+    analyze_button_->setEnabled(enable);
 
     ui->actionFindReverse->setEnabled(enable);
     ui->actionGoToSetup->setEnabled(enable);
@@ -496,10 +496,10 @@ void RtpStreamDialog::updateWidgets()
     ui->actionExportAsRtpDump->setEnabled(enable);
     ui->actionCopyAsCsv->setEnabled(has_data);
     ui->actionCopyAsYaml->setEnabled(has_data);
-    ui->actionAnalyze->setEnabled(selected);
+    ui->actionAnalyze->setEnabled(enable);
 
 #if defined(QT_MULTIMEDIA_LIB)
-    player_button_->setEnabled(selected);
+    player_button_->setEnabled(enable);
 #else
     player_button_->setEnabled(false);
     player_button_->setText(tr("No Audio"));
@@ -543,12 +543,21 @@ QList<QVariant> RtpStreamDialog::streamRowData(int row) const
 
 void RtpStreamDialog::captureFileClosing()
 {
+    ui->todCheckBox->setEnabled(false);
+    ui->displayFilterCheckBox->setEnabled(false);
+
     remove_tap_listener_rtpstream(&tapinfo_);
+
     WiresharkDialog::captureFileClosing();
 }
 
 void RtpStreamDialog::showStreamMenu(QPoint pos)
 {
+    ui->actionGoToSetup->setEnabled(!file_closed_);
+    ui->actionMarkPackets->setEnabled(!file_closed_);
+    ui->actionPrepareFilter->setEnabled(!file_closed_);
+    ui->actionExportAsRtpDump->setEnabled(!file_closed_);
+    ui->actionAnalyze->setEnabled(!file_closed_);
     ctx_menu_.popup(ui->streamTreeWidget->viewport()->mapToGlobal(pos));
 }
 
