@@ -184,7 +184,7 @@ In the Real Time Streaming Protocol (RTSP) menu the user can check the Packet Co
 
 === UCP Messages
 
-{missing}
+The Universal Computer Protocol (UCP) plays role in transferring Short Messages between a Short Message Service Centre (SMSC) and an application, which is using transport protocol, such as TCP or X.25. The UCP Messages window displays the related statistical data. The user can filter, copy or save the data into a file.
 
 [[ChTelH225]]
 
