@@ -161,6 +161,13 @@ typedef struct _DOT11DECRYPT_EAPOL_PARSED {
 	guint16 mic_len;
 	guint8 *gtk;
 	guint16 gtk_len;
+
+	/* For fast bss transition akms */
+	guint8 *mdid;
+	guint8 *r0kh_id;
+	guint8 r0kh_id_len;
+	guint8 *r1kh_id;
+	guint8 r1kh_id_len;
 } DOT11DECRYPT_EAPOL_PARSED, *PDOT11DECRYPT_EAPOL_PARSED;
 
 /************************************************************************/

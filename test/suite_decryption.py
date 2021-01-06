@@ -223,6 +223,17 @@ class case_decrypt_80211(subprocesstest.SubprocessTestCase):
         self.assertTrue(self.grepOutput('DHCP Request'))        # Verifies TK is correct
         self.assertTrue(self.grepOutput(r'Echo \(ping\) request')) # Verifies TK is correct
 
+    def test_80211_wpa2_ft_psk(self, cmd_tshark, capture_file):
+        '''IEEE 802.11 decode WPA2 FT PSK'''
+        # Included in git sources test/captures/wpa2-ft-psk.pcapng.gz
+        self.assertRun((cmd_tshark,
+                '-o', 'wlan.enable_decryption: TRUE',
+                '-r', capture_file('wpa2-ft-psk.pcapng.gz'),
+                '-Y', 'wlan.analysis.tk == 58f564fd078c3cc8ceb8c8be8e51d30d || wlan.analysis.gtk == a2e4ae32e73603f12ecbce89992de9df',
+                ))
+        self.assertTrue(self.grepOutput('DHCP Request'))           # Verifies GTK decryption
+        self.assertTrue(self.grepOutput(r'Echo \(ping\) request')) # Verifies TK decryption
+
 @fixtures.mark_usefixtures('test_env_80211_user_tk')
 @fixtures.uses_fixtures
 class case_decrypt_80211_user_tk(subprocesstest.SubprocessTestCase):

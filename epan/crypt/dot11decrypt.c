@@ -1472,6 +1472,19 @@ Dot11DecryptWepMng(
     return DOT11DECRYPT_RET_SUCCESS;
 }
 
+/* From IEEE 802.11-2016 Table 9-133—AKM suite selectors */
+static gboolean Dot11DecryptIsFtAkm(int akm)
+{
+    switch (akm) {
+        case 3:
+        case 4:
+        case 9:
+        case 13:
+            return TRUE;
+    }
+    return FALSE;
+}
+
 /* Refer to IEEE 802.11i-2004, 8.5.3, pag. 85 */
 static INT
 Dot11DecryptRsna4WHandshake(
@@ -1621,14 +1634,54 @@ Dot11DecryptRsna4WHandshake(
                     return DOT11DECRYPT_RET_NO_VALID_HANDSHAKE;
                 }
 
-                /* derive the PTK from the BSSID, STA MAC, PMK, SNonce, ANonce */
-                Dot11DecryptDerivePtk(sa,                            /* authenticator nonce, bssid, station mac */
-                                      tmp_pkt_key->KeyData.Wpa.Psk,  /* PSK == PMK */
-                                      tmp_pkt_key->KeyData.Wpa.PskLen,
-                                      eapol_parsed->nonce,           /* supplicant nonce */
-                                      eapol_parsed->key_version,
-                                      akm,
-                                      cipher);
+                if (Dot11DecryptIsFtAkm(akm)) {
+                    int hash_algo = Dot11DecryptGetHashAlgoFromAkm(akm);
+                    guint8 pmk_r0[DOT11DECRYPT_WPA_PMK_MAX_LEN];
+                    guint8 pmk_r1[DOT11DECRYPT_WPA_PMK_MAX_LEN];
+                    guint8 pmk_r0_name[16];
+                    guint8 pmk_r1_name[16];
+                    guint8 ptk_name[16];
+                    size_t pmk_r0_len;
+                    size_t pmk_r1_len;
+                    size_t ptk_len = Dot11DecryptGetPtkLen(akm, cipher) / 8;
+
+                    if (!eapol_parsed->mdid || !eapol_parsed->r0kh_id || !eapol_parsed->r1kh_id) {
+                        DEBUG_PRINT_LINE("Fields missing for FT", DEBUG_LEVEL_3);
+                        return DOT11DECRYPT_RET_NO_VALID_HANDSHAKE;
+                    }
+                    /* TODO Handle other AKMS (xxkey == PSK is only valid for FT PSK) */
+                    dot11decrypt_derive_pmk_r0(tmp_pkt_key->KeyData.Wpa.Psk,
+                                               tmp_pkt_key->KeyData.Wpa.PskLen,
+                                               ctx->pkt_ssid, ctx->pkt_ssid_len,
+                                               eapol_parsed->mdid,
+                                               eapol_parsed->r0kh_id, eapol_parsed->r0kh_id_len,
+                                               id->sta, hash_algo,
+                                               pmk_r0, &pmk_r0_len, pmk_r0_name);
+                    DEBUG_DUMP("PMK-R0", pmk_r0, pmk_r0_len);
+                    DEBUG_DUMP("PMKR0Name", pmk_r0_name, 16);
+
+                    dot11decrypt_derive_pmk_r1(pmk_r0, pmk_r0_len, pmk_r0_name,
+                                               eapol_parsed->r1kh_id, id->sta, hash_algo,
+                                               pmk_r1, &pmk_r1_len, pmk_r1_name);
+                    DEBUG_DUMP("PMK-R1", pmk_r1, pmk_r1_len);
+                    DEBUG_DUMP("PMKR1Name", pmk_r1_name, 16);
+
+                    dot11decrypt_derive_ft_ptk(pmk_r1, pmk_r1_len, pmk_r1_name,
+                                               eapol_parsed->nonce, sa->wpa.nonce,
+                                               id->bssid, id->sta, hash_algo,
+                                               sa->wpa.ptk, ptk_len, ptk_name);
+                    DEBUG_DUMP("PTK", sa->wpa.ptk, ptk_len);
+                } else {
+                    /* derive the PTK from the BSSID, STA MAC, PMK, SNonce, ANonce */
+                    Dot11DecryptDerivePtk(sa, /* authenticator nonce, bssid, station mac */
+                                          tmp_pkt_key->KeyData.Wpa.Psk, /* PSK == PMK */
+                                          tmp_pkt_key->KeyData.Wpa.PskLen,
+                                          eapol_parsed->nonce, /* supplicant nonce */
+                                          eapol_parsed->key_version,
+                                          akm,
+                                          cipher);
+                }
+
                 DEBUG_DUMP("TK", DOT11DECRYPT_GET_TK(sa->wpa.ptk, akm), Dot11DecryptGetTkLen(cipher) / 8);
 
                 ret = Dot11DecryptRsnaMicCheck(eapol_parsed,

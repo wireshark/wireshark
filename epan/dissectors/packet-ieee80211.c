@@ -284,6 +284,11 @@ typedef struct mimo_control
 #define KEY_DATA_LEN_KEY 18
 #define GTK_KEY 19
 #define GTK_LEN_KEY 20
+#define MDID_KEY 21
+#define FTE_R0KH_ID_KEY 22
+#define FTE_R0KH_ID_LEN_KEY 23
+#define FTE_R1KH_ID_KEY 24
+#define FTE_R1KH_ID_LEN_KEY 25
 
 /* ************************************************************************* */
 /*  Define some very useful macros that are used to analyze frame types etc. */
@@ -16424,6 +16429,7 @@ dissect_mobility_domain(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     return 1;
   }
 
+  save_proto_data(tvb, pinfo, offset, 2, MDID_KEY);
   proto_tree_add_item(tree, hf_ieee80211_tag_mobility_domain_mdid,
                       tvb, offset, 2, ENC_LITTLE_ENDIAN);
   proto_tree_add_item(tree, hf_ieee80211_tag_mobility_domain_ft_capab,
@@ -16616,6 +16622,8 @@ dissect_fast_bss_transition(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     s_end = offset + len;
     switch (id) {
     case 1:
+      save_proto_data(tvb, pinfo, offset, len, FTE_R1KH_ID_KEY);
+      save_proto_data_value(pinfo, len, FTE_R1KH_ID_LEN_KEY);
       proto_tree_add_item(tree, hf_ieee80211_tag_ft_subelem_r1kh_id,
                           tvb, offset, len, ENC_NA);
       break;
@@ -16641,6 +16649,8 @@ dissect_fast_bss_transition(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                           tvb, offset, s_end - offset, ENC_NA);
       break;
     case 3:
+      save_proto_data(tvb, pinfo, offset, len, FTE_R0KH_ID_KEY);
+      save_proto_data_value(pinfo, len, FTE_R0KH_ID_LEN_KEY);
       proto_tree_add_item(tree, hf_ieee80211_tag_ft_subelem_r0kh_id,
                           tvb, offset, len, ENC_NA);
       break;
@@ -27612,6 +27622,17 @@ get_eapol_parsed(packet_info *pinfo, PDOT11DECRYPT_EAPOL_PARSED eapol_parsed)
   eapol_parsed->gtk = (guint8 *)p_get_proto_data(pinfo->pool, pinfo, proto_wlan, GTK_KEY);
   eapol_parsed->gtk_len = (guint16)
     GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_wlan, GTK_LEN_KEY));
+
+  /* For fast bss transition akms */
+  eapol_parsed->mdid = (guint8 *)p_get_proto_data(pinfo->pool, pinfo, proto_wlan, MDID_KEY);
+  eapol_parsed->r0kh_id =
+    (guint8 *)p_get_proto_data(pinfo->pool, pinfo, proto_wlan, FTE_R0KH_ID_KEY);
+  eapol_parsed->r0kh_id_len = (guint8)
+    GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_wlan, FTE_R0KH_ID_LEN_KEY));
+  eapol_parsed->r1kh_id =
+    (guint8 *)p_get_proto_data(pinfo->pool, pinfo, proto_wlan, FTE_R1KH_ID_KEY);
+  eapol_parsed->r1kh_id_len = (guint8)
+    GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_wlan, FTE_R1KH_ID_LEN_KEY));
 }
 
 static void
