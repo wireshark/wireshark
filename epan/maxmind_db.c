@@ -99,6 +99,8 @@ UAT_DIRECTORYNAME_CB_DEF(maxmind_mod, path, maxmind_db_path_t)
 
 static GPtrArray *mmdb_file_arr; // .mmdb files
 
+static gboolean resolve_synchronously = FALSE;
+
 #if 0
 #define MMDB_DEBUG(...) { \
     char *MMDB_DEBUG_MSG = g_strdup_printf(__VA_ARGS__); \
@@ -346,7 +348,15 @@ read_mmdbr_stdout_worker(gpointer data _U_) {
                 g_async_queue_push(mmdbr_response_q, response); // Will be freed by maxmind_db_lookup_process.
                 response = g_new0(mmdb_response_t, 1);
             } else if (strcmp(cur_addr, "init") != 0) {
-                MMDB_DEBUG("Discarded previous values due to bad address");
+                if (resolve_synchronously) {
+                    // Synchronous lookups expect a 1-in 1-out resolution.
+                    MMDB_DEBUG("Pushing not-found result due to bad address");
+                    g_async_queue_push(mmdbr_response_q, response); // Will be freed by maxmind_db_lookup_process.
+                    response = g_new0(mmdb_response_t, 1);
+                }
+                else {
+                    MMDB_DEBUG("Discarded previous values due to bad address");
+                }
             }
             cur_addr[0] = '\0';
             init_lookup(&response->mmdb_val);
@@ -607,6 +617,51 @@ void maxmind_db_pref_cleanup(void)
     mmdb_resolve_stop();
 }
 
+static void maxmind_db_pop_response(mmdb_response_t *response)
+{
+    mmdb_lookup_t *mmdb_val = (mmdb_lookup_t *) g_memdup2(&response->mmdb_val, sizeof(mmdb_lookup_t));
+    if (response->mmdb_val.country_iso) {
+        char *country_iso = (char *) response->mmdb_val.country_iso;
+        mmdb_val->country_iso = chunkify_string(country_iso);
+        g_free(country_iso);
+    }
+    if (response->mmdb_val.country) {
+        char *country = (char *) response->mmdb_val.country;
+        mmdb_val->country = chunkify_string(country);
+        g_free(country);
+    }
+    if (response->mmdb_val.city) {
+        char *city = (char *) response->mmdb_val.city;
+        mmdb_val->city = chunkify_string(city);
+        g_free(city);
+    }
+    if (response->mmdb_val.as_org) {
+        char *as_org = (char *) response->mmdb_val.as_org;
+        mmdb_val->as_org = chunkify_string(as_org);
+        g_free(as_org);
+    }
+    MMDB_DEBUG("popped response %s city %s country %s", response->is_ipv4 ? "v4" : "v6", mmdb_val->city, mmdb_val->country);
+
+    if (response->is_ipv4) {
+        wmem_map_insert(mmdb_ipv4_map, GUINT_TO_POINTER(response->ipv4_addr), mmdb_val);
+    } else {
+        wmem_map_insert(mmdb_ipv6_map, chunkify_v6_addr(&response->ipv6_addr), mmdb_val);
+    }
+    g_free(response);
+}
+
+static void maxmind_db_await_response(void)
+{
+    mmdb_response_t *response;
+
+    if (mmdbr_response_q != NULL) {
+        MMDB_DEBUG("entering blocking wait for response");
+        response = (mmdb_response_t *) g_async_queue_pop(mmdbr_response_q);
+        MMDB_DEBUG("exiting blocking wait for response");
+        maxmind_db_pop_response(response);
+    }
+}
+
 /**
  * Public API
  */
@@ -617,36 +672,8 @@ gboolean maxmind_db_lookup_process(void)
     mmdb_response_t *response;
 
     while (mmdbr_response_q && (response = (mmdb_response_t *) g_async_queue_try_pop(mmdbr_response_q)) != NULL) {
-        mmdb_lookup_t *mmdb_val = (mmdb_lookup_t *) g_memdup2(&response->mmdb_val, sizeof(mmdb_lookup_t));
-        if (response->mmdb_val.country_iso) {
-            char *country_iso = (char *) response->mmdb_val.country_iso;
-            mmdb_val->country_iso = chunkify_string(country_iso);
-            g_free(country_iso);
-        }
-        if (response->mmdb_val.country) {
-            char *country = (char *) response->mmdb_val.country;
-            mmdb_val->country = chunkify_string(country);
-            g_free(country);
-        }
-        if (response->mmdb_val.city) {
-            char *city = (char *) response->mmdb_val.city;
-            mmdb_val->city = chunkify_string(city);
-            g_free(city);
-        }
-        if (response->mmdb_val.as_org) {
-            char *as_org = (char *) response->mmdb_val.as_org;
-            mmdb_val->as_org = chunkify_string(as_org);
-            g_free(as_org);
-        }
-        MMDB_DEBUG("popped response %s city %s country %s", response->is_ipv4 ? "v4" : "v6", mmdb_val->city, mmdb_val->country);
-
-        if (response->is_ipv4) {
-            wmem_map_insert(mmdb_ipv4_map, GUINT_TO_POINTER(response->ipv4_addr), mmdb_val);
-        } else {
-            wmem_map_insert(mmdb_ipv6_map, chunkify_v6_addr(&response->ipv6_addr), mmdb_val);
-        }
         new_entries = TRUE;
-        g_free(response);
+        maxmind_db_pop_response(response);
     }
 
     return new_entries;
@@ -665,6 +692,10 @@ maxmind_db_lookup_ipv4(const ws_in4_addr *addr) {
             ws_inet_ntop4(addr, addr_str, WS_INET_ADDRSTRLEN);
             MMDB_DEBUG("looking up %s", addr_str);
             g_async_queue_push(mmdbr_request_q, g_strdup_printf("%s\n", addr_str));
+            if (resolve_synchronously) {
+                maxmind_db_await_response();
+                result = (mmdb_lookup_t *) wmem_map_lookup(mmdb_ipv4_map, GUINT_TO_POINTER(*addr));
+            }
         }
     }
 
@@ -684,6 +715,10 @@ maxmind_db_lookup_ipv6(const ws_in6_addr *addr) {
             ws_inet_ntop6(addr, addr_str, WS_INET6_ADDRSTRLEN);
             MMDB_DEBUG("looking up %s", addr_str);
             g_async_queue_push(mmdbr_request_q, g_strdup_printf("%s\n", addr_str));
+            if (resolve_synchronously) {
+                maxmind_db_await_response();
+                result = (mmdb_lookup_t *) wmem_map_lookup(mmdb_ipv6_map, addr->bytes);
+            }
         }
     }
 
@@ -712,6 +747,11 @@ maxmind_db_get_paths(void) {
     g_string_truncate(path_str, path_str->len-1);
 
     return g_string_free(path_str, FALSE);
+}
+
+void
+maxmind_db_set_synchrony(gboolean synchronous) {
+    resolve_synchronously = synchronous;
 }
 
 #else // HAVE_MAXMINDDB
@@ -743,6 +783,12 @@ gchar *
 maxmind_db_get_paths(void) {
     return g_strdup("");
 }
+
+void
+maxmind_db_set_synchrony(gboolean synchronous _U_) {
+    /* Nothing to set. */
+}
+
 #endif // HAVE_MAXMINDDB
 
 
