@@ -85,6 +85,18 @@ static inline gboolean maxmind_db_has_coords(const mmdb_lookup_t *result)
         result->longitude != DBL_MAX && result->latitude != DBL_MAX;
 }
 
+/**
+ * Select whether lookups should be performed synchronously.
+ * Default is asynchronous lookups.
+ *
+ * @param synchronous Whether maxmind lookups should be synchronous.
+ *
+ * XXX - if we ever have per-session host name etc. information, we
+ * should probably have the "resolve synchronously or asynchronously"
+ * flag be per-session, set with an epan API.
+ */
+WS_DLL_PUBLIC void maxmind_db_set_synchrony(gboolean synchronous);
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

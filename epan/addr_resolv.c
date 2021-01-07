@@ -550,6 +550,7 @@ void
 set_resolution_synchrony(gboolean synchronous)
 {
     resolve_synchronously = synchronous;
+    maxmind_db_set_synchrony(synchronous);
 }
 
 static void
