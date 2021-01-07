@@ -1,4 +1,4 @@
--- 3GPP TS 36.331 V16.2.0 (2020-09)
+-- 3GPP TS 36.331 V16.3.0 (2020-12)
 
 NBIOT-RRC-Definitions DEFINITIONS AUTOMATIC TAGS ::=
 
@@ -285,7 +285,7 @@ GuardbandTDD-NB-r15 ::=				SEQUENCE {
 		sib-GuardbandGuardband-r15			SIB-GuardbandGuardbandTDD-NB-r15,
 		sib-GuardbandInbandSamePCI-r15		SIB-GuardbandInbandSamePCI-TDD-NB-r15,
 		sib-GuardbandinbandDiffPCI-r15		SIB-GuardbandInbandDiffPCI-TDD-NB-r15
-	},	
+	},
 	eutra-Bandwitdh-r15					ENUMERATED {bw5or10, bw15or20}
 }
 
@@ -1544,11 +1544,11 @@ DL-CarrierConfigDedicated-NB-r13 ::=	SEQUENCE {
 				eutra-NumCRS-Ports-r13					ENUMERATED {same, four}
 			}
 		}							OPTIONAL,		-- Cond anchor-guardband-or-standalone
-		eutraControlRegionSize-r13				ENUMERATED {n1, n2, n3}	
+		eutraControlRegionSize-r13				ENUMERATED {n1, n2, n3}
 	}								OPTIONAL,		-- Cond non-anchor-inband
 	...,
 	[[	nrs-PowerOffsetNonAnchor-v1330		ENUMERATED {dB-12, dB-10, dB-8, dB-6,
-														dB-4, dB-2, dB0, dB3}	
+														dB-4, dB-2, dB0, dB3}
 									OPTIONAL	-- Need ON
 	]],
 	[[	dl-GapNonAnchor-v1530				DL-GapConfig-NB-v1530	OPTIONAL	-- Cond TDD1
@@ -1598,7 +1598,7 @@ DL-CarrierConfigCommon-NB-r14 ::=	SEQUENCE {
 		useNoGap-r14						NULL,
 		useAnchorGapConfig-r14				NULL,
 		explicitGapConfiguration-r14		DL-GapConfig-NB-r13
-	},	
+	},
 	inbandCarrierInfo-r14				SEQUENCE {
 		samePCI-Indicator-r14				CHOICE	{
 			samePCI-r14							SEQUENCE {
@@ -1608,7 +1608,7 @@ DL-CarrierConfigCommon-NB-r14 ::=	SEQUENCE {
 				eutra-NumCRS-Ports-r14				ENUMERATED {same, four}
 			}
 		}	OPTIONAL,		-- Cond anchor-guardband-or-standalone
-		eutraControlRegionSize-r14			ENUMERATED {n1, n2, n3}	
+		eutraControlRegionSize-r14			ENUMERATED {n1, n2, n3}
 	}	OPTIONAL,		-- Cond non-anchor-inband
 	nrs-PowerOffsetNonAnchor-r14		ENUMERATED {dB-12, dB-10, dB-8, dB-6,
 													dB-4, dB-2, dB0, dB3}	DEFAULT dB0,
@@ -1640,7 +1640,7 @@ GWUS-Config-NB-r16 ::= 			SEQUENCE {
 	resourceConfig-eDRX-Short-r16	GWUS-ResourceConfig-NB-r16	OPTIONAL, -- Need OP
 	resourceConfig-eDRX-Long-r16	GWUS-ResourceConfig-NB-r16	OPTIONAL, -- Cond timeOffset
 	probThreshList-r16				GWUS-ProbThreshList-NB-r16	OPTIONAL, -- Cond probabilityBased
-	...	
+	...
 }
 
 GWUS-ResourceConfig-NB-r16 ::= 	SEQUENCE {
@@ -2391,7 +2391,7 @@ UplinkPowerControlCommon-NB-r13 ::=	SEQUENCE {
 	alpha-r13							ENUMERATED {al0, al04, al05, al06, al07, al08, al09, al1},
 	deltaPreambleMsg3-r13				INTEGER (-1..6)
 }
-   
+
 UplinkPowerControlDedicated-NB-r13 ::=	SEQUENCE {
 	p0-UE-NPUSCH-r13						INTEGER (-8..7)
 }
@@ -2399,12 +2399,12 @@ UplinkPowerControlDedicated-NB-r13 ::=	SEQUENCE {
 
 WUS-Config-NB-r15 ::=			SEQUENCE {
 	maxDurationFactor-r15			WUS-MaxDurationFactor-NB-r15,
-	numPOs-r15						ENUMERATED {n1, n2, n4}		DEFAULT n1,	
-	numDRX-CyclesRelaxed-r15			ENUMERATED {n1, n2, n4, n8},	
+	numPOs-r15						ENUMERATED {n1, n2, n4}		DEFAULT n1,
+	numDRX-CyclesRelaxed-r15			ENUMERATED {n1, n2, n4, n8},
 	timeOffsetDRX-r15				ENUMERATED {ms40, ms80, ms160, ms240},
 	timeOffset-eDRX-Short-r15		ENUMERATED {ms40, ms80, ms160, ms240},
 	timeOffset-eDRX-Long-r15		ENUMERATED {ms1000, ms2000}	OPTIONAL,	-- Need OP
-	...	
+	...
 }
 
 WUS-ConfigPerCarrier-NB-r15 ::=	SEQUENCE {

@@ -3404,7 +3404,7 @@ P0-SL-r12 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_dbm
     dissect_nr_rrc_SidelinkParametersNR_r16_PDU(sl_params_nr_tvb, actx->pinfo, subtree, NULL);
   }
 
-#.FN_BODY V2X-BandCombinationParametersNR-r16/nr/v2x-BandParametersNR-r16 VAL_PTR = &v2x_band_params_nr_tvb
+#.FN_BODY V2X-BandParametersEUTRA-NR-r16/nr/v2x-BandParametersNR-r16 VAL_PTR = &v2x_band_params_nr_tvb
   tvbuff_t *v2x_band_params_nr_tvb = NULL;
 
 %(DEFAULT_BODY)s

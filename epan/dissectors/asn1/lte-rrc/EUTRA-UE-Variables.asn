@@ -1,4 +1,4 @@
--- 3GPP TS 36.331 V16.2.0 (2020-09)
+-- 3GPP TS 36.331 V16.3.0 (2020-12)
 
 EUTRA-UE-Variables DEFINITIONS AUTOMATIC TAGS ::=
 
@@ -182,7 +182,8 @@ VarMeasIdleReport-r15 ::=	SEQUENCE {
 }
 
 VarMeasIdleReport-r16 ::=	SEQUENCE {
-	measReportIdle-r16				MeasResultListExtIdle-r16					OPTIONAL,	measReportIdleNR-r16			MeasResultListIdleNR-r16						OPTIONAL
+	measReportIdle-r16				MeasResultListExtIdle-r16					OPTIONAL,
+	measReportIdleNR-r16			MeasResultListIdleNR-r16						OPTIONAL
 }
 
 

@@ -1,4 +1,4 @@
--- 3GPP TS 36.331 V16.2.0 (2020-09)
+-- 3GPP TS 36.331 V16.3.0 (2020-12)
 
 EUTRA-InterNodeDefinitions DEFINITIONS AUTOMATIC TAGS ::=
 
@@ -12,6 +12,7 @@ IMPORTS
 	ARFCN-ValueEUTRA-r9,
 	CellIdentity,
 	C-RNTI,
+	DAPS-PowerCoordinationInfo-r16,
 	DL-DCCH-Message,
 	DRB-Identity,
 	DRB-ToReleaseList,
@@ -204,6 +205,11 @@ HandoverPreparationInformation-v1610-IEs ::= SEQUENCE {
 
 HandoverPreparationInformation-v1620-IEs ::= SEQUENCE {
 	as-Context-v1620			AS-Context-v1620						OPTIONAL, 	--Cond HO2
+	nonCriticalExtension		HandoverPreparationInformation-v1630-IEs	OPTIONAL
+}
+
+HandoverPreparationInformation-v1630-IEs ::= SEQUENCE {
+	as-Context-v1630			AS-Context-v1630						OPTIONAL, 	--Cond HO2
 	nonCriticalExtension		SEQUENCE {}								OPTIONAL
 }
 
@@ -526,7 +532,7 @@ AS-Context-v1130 ::=					SEQUENCE {
 											InDeviceCoexIndication-r11)	OPTIONAL,	-- Cond HO2
 	mbmsInterestIndication-r11				OCTET STRING (CONTAINING
 											MBMSInterestIndication-r11)	OPTIONAL,	-- Cond HO2
-	powerPrefIndication-r11					OCTET STRING (CONTAINING
+	ueAssistanceInformation-r11					OCTET STRING (CONTAINING
 											UEAssistanceInformation-r11)	OPTIONAL,	-- Cond HO2
 	...,
 	[[	sidelinkUEInformation-r12				OCTET STRING (CONTAINING
@@ -553,9 +559,17 @@ AS-Context-v1620 ::=					SEQUENCE {
 	ueAssistanceInformationNR-SCG-r16		OCTET STRING	OPTIONAL  -- Cond HO2
 }
 
+AS-Context-v1630 ::=					SEQUENCE {
+	configRestrictInfoDAPS-v1630			ConfigRestrictInfoDAPS-v1630		OPTIONAL -- Cond HO2
+}
+
 ConfigRestrictInfoDAPS-r16 ::=		SEQUENCE {
 	maxSCH-TB-BitsDL-r16					INTEGER (1..100)			OPTIONAL,	-- Cond HO2
 	maxSCH-TB-BitsUL-r16					INTEGER (1..100)			OPTIONAL	-- Cond HO2
+}
+
+ConfigRestrictInfoDAPS-v1630 ::=	SEQUENCE {
+	daps-PowerCoordinationInfo-r16		DAPS-PowerCoordinationInfo-r16	OPTIONAL	-- Cond HO2
 }
 
 
