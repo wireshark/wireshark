@@ -943,6 +943,7 @@ libwireshark.so.14 libwireshark14 #MINVER#
  maxmind_db_get_paths@Base 2.5.1
  maxmind_db_lookup_ipv4@Base 2.5.1
  maxmind_db_lookup_ipv6@Base 2.5.1
+ maxmind_db_set_synchrony@Base 3.4.5
  mbim_register_uuid_ext@Base 1.12.0~rc1
  memory_usage_component_register@Base 1.12.0~rc1
  memory_usage_gc@Base 1.12.0~rc1
