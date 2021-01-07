@@ -19,7 +19,8 @@ set( EXT_ASN_FILE_LIST
 )
 
 set( ASN_FILE_LIST
-	LPP.asn
+	LPP-PDU-Definitions.asn
+	LPP-Broadcast-Definitions.asn
 )
 
 set( EXTRA_DIST

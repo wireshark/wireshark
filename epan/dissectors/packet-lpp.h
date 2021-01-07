@@ -1,14 +1,14 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-lpp.h                                                               */
-/* asn2wrs.py -p lpp -c ./lpp.cnf -s ./packet-lpp-template -D . -O ../.. LPP.asn */
+/* asn2wrs.py -p lpp -c ./lpp.cnf -s ./packet-lpp-template -D . -O ../.. LPP-PDU-Definitions.asn LPP-Broadcast-Definitions.asn */
 
 /* Input file: packet-lpp-template.h */
 
 #line 1 "./asn1/lpp/packet-lpp-template.h"
 /* packet-lpp.h
  * Routines for 3GPP LTE Positioning Protocol (LPP) packet dissection
- * Copyright 2011-2019 Pascal Quantin <pascal@wireshark.org>
+ * Copyright 2011-2021 Pascal Quantin <pascal@wireshark.org>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -16,8 +16,6 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
- * Ref 3GPP TS 37.355 version 16.2.0 Release 16
- * http://www.3gpp.org
  */
 
 #ifndef PACKET_LPP_H
@@ -110,6 +108,6 @@ int dissect_lpp_Sensor_MotionInformation_r15_PDU(tvbuff_t *tvb _U_, packet_info 
 int dissect_lpp_DisplacementTimeStamp_r15_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
 
 /*--- End of included file: packet-lpp-exp.h ---*/
-#line 64 "./asn1/lpp/packet-lpp-template.h"
+#line 62 "./asn1/lpp/packet-lpp-template.h"
 
 #endif  /* PACKET_LPP_H */

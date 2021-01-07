@@ -1,5 +1,4 @@
--- 3GPP TS 37.355 V16.2.0 (2020-09)
-
+-- 3GPP TS 37.355 V16.3.0 (2020-12)
 
 LPP-PDU-Definitions {
 itu-t (0) identified-organization (4) etsi (0) mobileDomain (0)
@@ -881,7 +880,7 @@ NR-DL-PRS-AssistanceDataPerTRP-r16 ::= SEQUENCE {
 	dl-PRS-ID-r16					INTEGER (0..255),
 	nr-PhysCellID-r16				NR-PhysCellID-r16			OPTIONAL,	-- Need ON
 	nr-CellGlobalID-r16				NCGI-r15					OPTIONAL,	-- Need ON
-	nr-ARFCN-r16					ARFCN-ValueNR-r15			OPTIONAL,	-- Cond NotSameAsRefServ
+	nr-ARFCN-r16					ARFCN-ValueNR-r15			OPTIONAL,	-- Need ON
 	nr-DL-PRS-SFN0-Offset-r16		NR-DL-PRS-SFN0-Offset-r16,
 	nr-DL-PRS-ExpectedRSTD-r16		INTEGER (-3841..3841),
 	nr-DL-PRS-ExpectedRSTD-Uncertainty-r16
@@ -916,7 +915,7 @@ NR-DL-PRS-BeamInfoPerTRP-r16 ::= SEQUENCE {
 	dl-PRS-ID-r16						INTEGER (0..255),
 	nr-PhysCellID-r16					NR-PhysCellID-r16		OPTIONAL,	-- Need ON
 	nr-CellGlobalID-r16					NCGI-r15				OPTIONAL,	-- Need ON
-	nr-ARFCN-r16						ARFCN-ValueNR-r15		OPTIONAL,	-- Cond NotSameAsRefServ
+	nr-ARFCN-r16						ARFCN-ValueNR-r15		OPTIONAL,	-- Need ON
 	associated-DL-PRS-ID-r16			INTEGER (0..255)		OPTIONAL,
 	lcs-GCS-TranslationParameter-r16	LCS-GCS-TranslationParameter-r16
 																OPTIONAL,	-- Need OP
@@ -1125,7 +1124,7 @@ PRS-ProcessingCapabilityPerBand-r16 ::= SEQUENCE {
 	},
 	dl-PRS-BufferType-r16		 		ENUMERATED {type1, type2, ...},
 	durationOfPRS-Processing-r16		SEQUENCE {
-		durationOfPRS-ProcessingSysmbols-r16	ENUMERATED {nDot125, nDot25, nDot5, n1,
+		durationOfPRS-ProcessingSymbols-r16	ENUMERATED {nDot125, nDot25, nDot5, n1,
 															 n2, n4, n6, n8, n12, n16, n20, n25,
 															 n30, n32, n35, n40, n45, n50},
 		durationOfPRS-ProcessingSymbolsInEveryTms-r16
@@ -1309,7 +1308,7 @@ NR-TimeStamp-r16 ::= SEQUENCE {
 	dl-PRS-ID-r16				INTEGER (0..255),
 	nr-PhysCellID-r16			NR-PhysCellID-r16			OPTIONAL,	-- Need ON
 	nr-CellGlobalID-r16			NCGI-r15					OPTIONAL,	-- Need ON
-	nr-ARFCN-r16				ARFCN-ValueNR-r15			OPTIONAL,	-- Cond NotSameAsRefServ
+	nr-ARFCN-r16				ARFCN-ValueNR-r15			OPTIONAL,	-- Need ON
 	nr-SFN-r16					INTEGER (0..1023),
 	nr-Slot-r16 				CHOICE {
 			scs15-r16				INTEGER (0..9),
@@ -1342,7 +1341,7 @@ TRP-LocationInfoElement-r16 ::= SEQUENCE {
 	dl-PRS-ID-r16					INTEGER (0..255),
 	nr-PhysCellID-r16				NR-PhysCellID-r16			OPTIONAL,	-- Need ON
 	nr-CellGlobalID-r16				NCGI-r15					OPTIONAL,	-- Need ON
-	nr-ARFCN-r16					ARFCN-ValueNR-r15			OPTIONAL,	-- Cond NotSameAsRefServ
+	nr-ARFCN-r16					ARFCN-ValueNR-r15			OPTIONAL,	-- Need ON
 	associated-DL-PRS-ID-r16		INTEGER (0..255)			OPTIONAL,
 	trp-Location-r16				RelativeLocation-r16					OPTIONAL,	-- Need OP
 	trp-DL-PRS-ResourceSets-r16		SEQUENCE (SIZE(1..nrMaxSetsPerTrp-r16)) OF
@@ -4028,7 +4027,7 @@ GNSS-GenericAssistanceDataSupport ::=
 
 GNSS-GenericAssistDataSupportElement ::= SEQUENCE {
 	gnss-ID								GNSS-ID,
-	sbas-ID								SBAS-ID						OPTIONAL, -- Cond GNSS-ID-SBAS
+	sbas-ID								SBAS-ID						OPTIONAL, -- Cond GNSS‑ID‑SBAS
 	gnss-TimeModelsSupport				GNSS-TimeModelListSupport
 																	OPTIONAL, -- Cond TimeModSup
 	gnss-DifferentialCorrectionsSupport	GNSS-DifferentialCorrectionsSupport
@@ -5728,49 +5727,6 @@ maxSimultaneousBands-r16				INTEGER ::= 4		-- Maximum number of simultaneously
 															-- measured bands
 maxBandComb-r16							INTEGER ::= 1024
 nrMaxConfiguredBands-r16				INTEGER ::= 16
-
-
-AssistanceDataSIBelement-r15 ::= SEQUENCE {
-	valueTag-r15						INTEGER (0..63)								OPTIONAL,
-	expirationTime-r15					UTCTime										OPTIONAL,
-	cipheringKeyData-r15				CipheringKeyData-r15 						OPTIONAL,
-	segmentationInfo-r15				SegmentationInfo-r15						OPTIONAL,
-	assistanceDataElement-r15			OCTET STRING,
-	...
-}
-
-CipheringKeyData-r15 ::= SEQUENCE {
-	cipherSetID-r15 					INTEGER (0..65535),
-	d0-r15 								BIT STRING (SIZE (1..128)),
-	...
-}
-
-SegmentationInfo-r15 ::= SEQUENCE {
-	segmentationOption-r15				ENUMERATED {pseudo-seg, octet-string-seg},
-	assistanceDataSegmentType-r15		ENUMERATED {notLastSegment, lastSegment},
-	assistanceDataSegmentNumber-r15		INTEGER (0..63),
-	...
-}
-
-
-OTDOA-UE-Assisted-r15 ::= SEQUENCE {
-	otdoa-ReferenceCellInfo-r15			OTDOA-ReferenceCellInfo,
-	otdoa-NeighbourCellInfo-r15			OTDOA-NeighbourCellInfoList,
-	...
-}
-
-
-NR-UEB-TRP-LocationData-r16 ::= SEQUENCE {
-	nr-trp-LocationInfo-r16 			NR-TRP-LocationInfo-r16,
-	nr-dl-prs-BeamInfo-r16				NR-DL-PRS-BeamInfo-r16			OPTIONAL,	-- Need ON
-	...
-}
-
-
-NR-UEB-TRP-RTD-Info-r16 ::= SEQUENCE {
-	nr-rtd-Info-r16						NR-RTD-Info-r16,
-	...
-}
 
 
 END

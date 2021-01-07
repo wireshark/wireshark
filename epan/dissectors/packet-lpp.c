@@ -1,14 +1,14 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-lpp.c                                                               */
-/* asn2wrs.py -p lpp -c ./lpp.cnf -s ./packet-lpp-template -D . -O ../.. LPP.asn */
+/* asn2wrs.py -p lpp -c ./lpp.cnf -s ./packet-lpp-template -D . -O ../.. LPP-PDU-Definitions.asn LPP-Broadcast-Definitions.asn */
 
 /* Input file: packet-lpp-template.c */
 
 #line 1 "./asn1/lpp/packet-lpp-template.c"
 /* packet-lpp.c
  * Routines for 3GPP LTE Positioning Protocol (LPP) packet dissection
- * Copyright 2011-2019 Pascal Quantin <pascal@wireshark.org>
+ * Copyright 2011-2021 Pascal Quantin <pascal@wireshark.org>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -16,7 +16,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
- * Ref 3GPP TS 37.355 version 16.2.0 Release 16
+ * Ref 3GPP TS 37.355 version 16.3.0 Release 16
  * http://www.3gpp.org
  */
 
@@ -510,7 +510,7 @@ static int hf_lpp_fr1 = -1;                       /* T_fr1 */
 static int hf_lpp_fr2 = -1;                       /* T_fr2 */
 static int hf_lpp_dl_PRS_BufferType_r16 = -1;     /* T_dl_PRS_BufferType_r16 */
 static int hf_lpp_durationOfPRS_Processing_r16 = -1;  /* T_durationOfPRS_Processing_r16 */
-static int hf_lpp_durationOfPRS_ProcessingSysmbols_r16 = -1;  /* T_durationOfPRS_ProcessingSysmbols_r16 */
+static int hf_lpp_durationOfPRS_ProcessingSymbols_r16 = -1;  /* T_durationOfPRS_ProcessingSymbols_r16 */
 static int hf_lpp_durationOfPRS_ProcessingSymbolsInEveryTms_r16 = -1;  /* T_durationOfPRS_ProcessingSymbolsInEveryTms_r16 */
 static int hf_lpp_maxNumOfDL_PRS_ResProcessedPerSlot_r16 = -1;  /* T_maxNumOfDL_PRS_ResProcessedPerSlot_r16 */
 static int hf_lpp_scs15_r16_01 = -1;              /* T_scs15_r16_01 */
@@ -8530,7 +8530,7 @@ dissect_lpp_T_dl_PRS_BufferType_r16(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
 }
 
 
-static const value_string lpp_T_durationOfPRS_ProcessingSysmbols_r16_vals[] = {
+static const value_string lpp_T_durationOfPRS_ProcessingSymbols_r16_vals[] = {
   {   0, "nDot125" },
   {   1, "nDot25" },
   {   2, "nDot5" },
@@ -8554,7 +8554,7 @@ static const value_string lpp_T_durationOfPRS_ProcessingSysmbols_r16_vals[] = {
 
 
 static int
-dissect_lpp_T_durationOfPRS_ProcessingSysmbols_r16(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lpp_T_durationOfPRS_ProcessingSymbols_r16(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
                                      18, NULL, FALSE, 0, NULL);
 
@@ -8587,7 +8587,7 @@ dissect_lpp_T_durationOfPRS_ProcessingSymbolsInEveryTms_r16(tvbuff_t *tvb _U_, i
 
 
 static const per_sequence_t T_durationOfPRS_Processing_r16_sequence[] = {
-  { &hf_lpp_durationOfPRS_ProcessingSysmbols_r16, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lpp_T_durationOfPRS_ProcessingSysmbols_r16 },
+  { &hf_lpp_durationOfPRS_ProcessingSymbols_r16, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lpp_T_durationOfPRS_ProcessingSymbols_r16 },
   { &hf_lpp_durationOfPRS_ProcessingSymbolsInEveryTms_r16, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lpp_T_durationOfPRS_ProcessingSymbolsInEveryTms_r16 },
   { NULL, 0, 0, NULL }
 };
@@ -28398,9 +28398,9 @@ void proto_register_lpp(void) {
       { "durationOfPRS-Processing-r16", "lpp.durationOfPRS_Processing_r16_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_lpp_durationOfPRS_ProcessingSysmbols_r16,
-      { "durationOfPRS-ProcessingSysmbols-r16", "lpp.durationOfPRS_ProcessingSysmbols_r16",
-        FT_UINT32, BASE_DEC, VALS(lpp_T_durationOfPRS_ProcessingSysmbols_r16_vals), 0,
+    { &hf_lpp_durationOfPRS_ProcessingSymbols_r16,
+      { "durationOfPRS-ProcessingSymbols-r16", "lpp.durationOfPRS_ProcessingSymbols_r16",
+        FT_UINT32, BASE_DEC, VALS(lpp_T_durationOfPRS_ProcessingSymbols_r16_vals), 0,
         NULL, HFILL }},
     { &hf_lpp_durationOfPRS_ProcessingSymbolsInEveryTms_r16,
       { "durationOfPRS-ProcessingSymbolsInEveryTms-r16", "lpp.durationOfPRS_ProcessingSymbolsInEveryTms_r16",
