@@ -1,8 +1,8 @@
 /* packet-nr-rrc-template.c
  * NR;
  * Radio Resource Control (RRC) protocol specification
- * (3GPP TS 38.331 V16.2.0 Release 16) packet dissection
- * Copyright 2018-2020, Pascal Quantin
+ * (3GPP TS 38.331 V16.3.0 Release 16) packet dissection
+ * Copyright 2018-2021, Pascal Quantin
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -149,6 +149,8 @@ static gint ett_nr_rrc_sl_ParametersEUTRA2_r16 = -1;
 static gint ett_nr_rrc_sl_ParametersEUTRA3_r16 = -1;
 static gint ett_nr_rrc_absTimeInfo = -1;
 static gint ett_nr_rrc_assistanceDataSIB_Element_r16 = -1;
+static gint ett_nr_sl_V2X_ConfigCommon_r16 = -1;
+static gint ett_nr_tdd_Config_r16 = -1;
 
 static expert_field ei_nr_rrc_number_pages_le15 = EI_INIT;
 
@@ -732,7 +734,9 @@ proto_register_nr_rrc(void) {
     &ett_nr_rrc_sl_ParametersEUTRA2_r16,
     &ett_nr_rrc_sl_ParametersEUTRA3_r16,
     &ett_nr_rrc_absTimeInfo,
-    &ett_nr_rrc_assistanceDataSIB_Element_r16
+    &ett_nr_rrc_assistanceDataSIB_Element_r16,
+    &ett_nr_sl_V2X_ConfigCommon_r16,
+    &ett_nr_tdd_Config_r16
   };
 
   static ei_register_info ei[] = {

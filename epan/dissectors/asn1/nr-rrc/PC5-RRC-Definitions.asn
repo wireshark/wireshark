@@ -1,4 +1,4 @@
--- ﻿3GPP TS 38.331 V16.2.0 (2020-09)
+-- 3GPP TS 38.331 V16.3.0 (2020-12)
 
 PC5-RRC-Definitions DEFINITIONS AUTOMATIC TAGS ::=
 
@@ -21,7 +21,8 @@ IMPORTS
     maxSimultaneousBands,
     maxBandComb,
     maxBands,
-    BandParametersSidelink-r16
+    BandParametersSidelink-r16,
+    RLC-ParametersSidelink-r16
 
 FROM NR-RRC-Definitions;
 
@@ -244,11 +245,9 @@ UECapabilityInformationSidelink ::=         SEQUENCE {
 UECapabilityInformationSidelink-IEs-r16 ::= SEQUENCE {
     accessStratumReleaseSidelink-r16            AccessStratumReleaseSidelink-r16,
     pdcp-ParametersSidelink-r16                 PDCP-ParametersSidelink-r16                                             OPTIONAL,
--- WS modification: rename to avoid conflict with NR-RRC-Definitions.asn
-    rlc-ParametersSidelink-r16                  PC5-RLC-ParametersSidelink-r16                                              OPTIONAL,
+    rlc-ParametersSidelink-r16                  RLC-ParametersSidelink-r16                                              OPTIONAL,
     supportedBandCombinationListSidelinkNR-r16  BandCombinationListSidelinkNR-r16                                       OPTIONAL,
--- WS modification: rename to avoid conflict with NR-RRC-Definitions.asn
-    supportedBandListSidelink-r16               SEQUENCE (SIZE (1..maxBands)) OF PC5-BandSidelink-r16                       OPTIONAL,
+    supportedBandListSidelink-r16               SEQUENCE (SIZE (1..maxBands)) OF BandSidelinkPC5-r16                    OPTIONAL,
     appliedFreqBandListFilter-r16               FreqBandList                                                            OPTIONAL,
     lateNonCriticalExtension                    OCTET STRING                                                            OPTIONAL,
     nonCriticalExtension                        SEQUENCE{}                                                              OPTIONAL
@@ -261,19 +260,11 @@ PDCP-ParametersSidelink-r16 ::= SEQUENCE {
     ...
 }
 
--- WS modification: rename to avoid conflict with NR-RRC-Definitions.asn
-PC5-RLC-ParametersSidelink-r16 ::= SEQUENCE {
-    am-WithLongSN-Sidelink-r16                  ENUMERATED {supported}      OPTIONAL,
-    um-WithLongSN-Sidelink-r16                  ENUMERATED {supported}      OPTIONAL,
-    ...
-}
-
 BandCombinationListSidelinkNR-r16 ::= SEQUENCE (SIZE (1..maxBandComb)) OF BandCombinationParametersSidelinkNR-r16
 
 BandCombinationParametersSidelinkNR-r16 ::= SEQUENCE (SIZE (1..maxSimultaneousBands)) OF BandParametersSidelink-r16
 
--- WS modification: rename to avoid conflict with NR-RRC-Definitions.asn
-PC5-BandSidelink-r16 ::=              SEQUENCE {
+BandSidelinkPC5-r16 ::=           SEQUENCE {
     freqBandSidelink-r16              FreqBandIndicatorNR,
     --15-1
     sl-Reception-r16                  SEQUENCE {
@@ -296,7 +287,19 @@ PC5-BandSidelink-r16 ::=              SEQUENCE {
     sl-Tx-256QAM-r16                  ENUMERATED {supported}                                        OPTIONAL,
     --15-12
     lowSE-64QAM-MCS-TableSidelink-r16 ENUMERATED {supported}                                        OPTIONAL,
-    ...
+    ...,
+    [[
+    --15-14
+    csi-ReportSidelink-r16                SEQUENCE {
+        csi-RS-PortsSidelink-r16              ENUMERATED {p1, p2}
+    }                                                                                               OPTIONAL,
+    --15-19
+    rankTwoReception-r16                  ENUMERATED {supported}                                    OPTIONAL,
+    --15-23
+    sl-openLoopPC-RSRP-ReportSidelink-r16 ENUMERATED {supported}                                    OPTIONAL,
+    --13-1
+    sl-Rx-256QAM-r16                      ENUMERATED {supported}                                    OPTIONAL
+    ]]
 }
 
 -- TAG-UECAPABILITYINFORMATIONSIDELINK-STOP

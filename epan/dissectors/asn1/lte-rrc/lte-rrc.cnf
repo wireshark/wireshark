@@ -635,6 +635,8 @@ SL-Parameters-v1530_PDU
 SL-Parameters-v1540_PDU
 SS-RSSI-Measurement-r15_PDU
 SSB-ToMeasure-r15_PDU
+SystemInformationBlockType21-r14_PDU
+TDD-Config_PDU
 ThresholdListNR-r15_PDU
 UEAssistanceInformation-r11_PDU
 UECapabilityEnquiry_PDU
@@ -681,6 +683,8 @@ SL-Parameters-v1530
 SL-Parameters-v1540
 SS-RSSI-Measurement-r15
 SSB-ToMeasure-r15
+SystemInformationBlockType21-r14
+TDD-Config
 ThresholdListNR-r15
 UEAssistanceInformation-r11
 UECapabilityEnquiry

@@ -1,6 +1,6 @@
 # nr-rrc.cnf
 # nr-rrc conformation file
-# Copyright 2018-2020 Pascal Quantin
+# Copyright 2018-2021 Pascal Quantin
 
 #.OPT
 PER
@@ -1751,6 +1751,23 @@ CA-ParametersEUTRA-v1570/dl-1024QAM-TotalWeightedLayers DISPLAY=BASE_CUSTOM STRI
   p_security_algorithms = &(nr_rrc_get_private_data(actx)->pdcp_security);
   p_security_algorithms->integrity = (enum nr_security_integrity_algorithm_e)value;
 
+#.FN_BODY SIB13-r16/sl-V2X-ConfigCommon-r16 VAL_PTR = &sl_v2x_configcommon_tvb
+  tvbuff_t *sl_v2x_configcommon_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (sl_v2x_configcommon_tvb) {
+    proto_tree *subtree;
+    subtree = proto_item_add_subtree(actx->created_item, ett_nr_sl_V2X_ConfigCommon_r16);
+    dissect_lte_rrc_SystemInformationBlockType21_r14_PDU(sl_v2x_configcommon_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.FN_BODY SIB13-r16/tdd-Config-r16 VAL_PTR = &tdd_config_tvb
+  tvbuff_t *tdd_config_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (tdd_config_tvb) {
+    proto_tree *subtree;
+    subtree = proto_item_add_subtree(actx->created_item, ett_nr_tdd_Config_r16);
+    dissect_lte_rrc_TDD_Config_PDU(tdd_config_tvb, actx->pinfo, subtree, NULL);
+  }
 
 #.FN_HDR SBCCH-SL-BCH-Message
   proto_item *ti;

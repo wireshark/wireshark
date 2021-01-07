@@ -1,4 +1,4 @@
--- ﻿3GPP TS 38.331 V16.2.0 (2020-09)
+-- 3GPP TS 38.331 V16.3.0 (2020-12)
 
 NR-InterNodeDefinitions DEFINITIONS AUTOMATIC TAGS ::=
 
@@ -239,6 +239,11 @@ CG-Config-v1610-IEs ::=             SEQUENCE {
 
 CG-Config-v1620-IEs ::=             SEQUENCE {
     ueAssistanceInformationSCG-r16      OCTET STRING (CONTAINING UEAssistanceInformation)  OPTIONAL,
+    nonCriticalExtension                CG-Config-v1630-IEs                                OPTIONAL
+}
+
+CG-Config-v1630-IEs ::=             SEQUENCE {
+    selectedToffset-r16                 T-Offset-r16                                       OPTIONAL,
     nonCriticalExtension                SEQUENCE {}                                        OPTIONAL
 }
 
@@ -600,7 +605,7 @@ MeasTiming ::= SEQUENCE {
         ss-RSSI-Measurement                     SS-RSSI-Measurement                             OPTIONAL
     }                                                                                           OPTIONAL,
     ...,
-    [[ 
+    [[
     ssb-ToMeasure                           SSB-ToMeasure                                       OPTIONAL,
     physCellId                              PhysCellId                                          OPTIONAL
     ]]
