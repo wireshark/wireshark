@@ -28,6 +28,7 @@ static int proto_git = -1;
 
 static gint ett_git = -1;
 
+static gint hf_git_protocol_version = -1;
 static gint hf_git_packet_len = -1;
 static gint hf_git_packet_data = -1;
 static gint hf_git_packet_terminator = -1;
@@ -38,6 +39,12 @@ static gint hf_git_sideband_control_code = -1;
 #define PFNAME "git"
 
 #define TCP_PORT_GIT    9418
+
+static const value_string version_vals[] = {
+  { '1', "Git protocol version 1" },
+  { '2', "Git protocol version 2" },
+  { 0, NULL }
+};
 
 #define SIDEBAND_PACKFILE_DATA 0x01
 #define SIDEBAND_PROGRESS_INFO 0x02
@@ -107,6 +114,18 @@ dissect_git_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
   plen -= 4;
 
   /*
+   * Parse out the version of the Git Protocol
+   *
+   * The initial server response contains the version of the Git Protocol in use;
+   * 1 or 2. Parsing out this information helps identify the capabilities and
+   * information that can be used with the protocol.
+  */
+  if (plen >= 9 && !tvb_strneql(tvb, offset, "version ", 8)) {
+    proto_tree_add_item(git_tree, hf_git_protocol_version, tvb, offset + 8,
+                        1, ENC_NA);
+  }
+
+  /*
    * Parse out the sideband control code.
    *
    * Not all pkt-lines have a sideband control code. With more context from the rest of
@@ -140,6 +159,10 @@ void
 proto_register_git(void)
 {
   static hf_register_info hf[] = {
+    { &hf_git_protocol_version,
+      { "Git Protocol Version", "git.version", FT_UINT8, BASE_NONE, VALS(version_vals),
+      0, NULL, HFILL },
+    },
     { &hf_git_packet_len,
       { "Packet length", "git.length", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL },
     },
