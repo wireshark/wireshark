@@ -18,8 +18,20 @@ extern "C" {
 
 #include <time.h>
 
+/** Converts a broken down date representation, relative to UTC,
+ * to a timestamp
+ */
 WS_DLL_PUBLIC
 time_t mktime_utc(struct tm *tm);
+
+/** Validate the values in a time_t.
+ * Currently checks tm_year, tm_mon, tm_mday, tm_hour, tm_min, and tm_sec;
+ * disregards tm_wday, tm_yday, and tm_isdst.
+ *
+ * @param tm The struct tm to validate.
+ */
+WS_DLL_PUBLIC
+gboolean tm_is_valid(struct tm *tm);
 
 /** Fetch the process CPU time.
  *

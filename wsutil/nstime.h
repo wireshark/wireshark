@@ -11,6 +11,7 @@
 #ifndef __NSTIME_H__
 #define __NSTIME_H__
 
+#include <glib.h>
 #include <time.h>
 
 #include "ws_symbol_export.h"
@@ -121,6 +122,11 @@ WS_DLL_PUBLIC gboolean filetime_to_nstime(nstime_t *nstime, guint64 filetime);
     rather than tenths of microseconds, to nstime, returns TRUE on success,
     FALSE on failure */
 WS_DLL_PUBLIC gboolean nsfiletime_to_nstime(nstime_t *nstime, guint64 nsfiletime);
+
+/** parse an ISO 8601 format datetime string to nstime, returns number of
+    chars parsed on success, 0 on failure.
+    Note that nstime is set to unset in the case of failure */
+WS_DLL_PUBLIC guint8 iso8601_to_nstime(nstime_t *nstime, const char *ptr);
 
 #ifdef __cplusplus
 }

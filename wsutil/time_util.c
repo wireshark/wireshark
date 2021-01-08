@@ -23,6 +23,9 @@
 #include <windows.h>
 #endif
 
+/* Test if the given year is a leap year */
+#define isleap(y) (((y) % 4) == 0 && (((y) % 100) != 0 || ((y) % 400) == 0))
+
 /* converts a broken down date representation, relative to UTC,
  * to a timestamp; it uses timegm() if it's available.
  * Copied from Glib source gtimer.c
@@ -47,7 +50,7 @@ mktime_utc(struct tm *tm)
 
 	/* count number of leap years */
 	yr  = tm->tm_year + 1900;
-	if (tm->tm_mon + 1 < 3 && (yr % 4) == 0 && ((yr % 100) != 0 || (yr % 400) == 0))
+	if (tm->tm_mon + 1 < 3 && isleap(yr))
 		yr--;
 	retval += (((yr / 4) - (yr / 100) + (yr / 400)) - 477); /* 477 = ((1970 / 4) - (1970 / 100) + (1970 / 400)) */
 
@@ -59,6 +62,42 @@ mktime_utc(struct tm *tm)
 #else
 	return timegm(tm);
 #endif /* !HAVE_TIMEGM */
+}
+
+/* Validate the values in a time_t
+ * Currently checks tm_year, tm_mon, tm_mday, tm_hour, tm_min, and tm_sec;
+ * disregards tm_wday, tm_yday, and tm_isdst.
+ * Use this in situations where you wish to return an error rather than
+ * normalizing invalid dates; otherwise you could specify, for example,
+ * 2020-10-40 (to quote the macOS and probably *BSD manual
+ * page for ctime()/localtime()/mktime()/etc., "October 40
+ * is changed into November 9").
+ */
+gboolean
+tm_is_valid(struct tm *tm)
+{
+	static const gint8 days_in_month[12] = {
+		31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31
+	};
+
+	if (tm->tm_mon < 0 || tm->tm_mon > 11) {
+		return FALSE;
+	}
+	if (tm->tm_mday < 0 || tm->tm_mday >
+			((tm->tm_mon == 1 && isleap(tm->tm_year)) ? 29 : days_in_month[tm->tm_mon])) {
+		return FALSE;
+	}
+	if (tm->tm_hour < 0 || tm->tm_hour > 23) {
+		return FALSE;
+	}
+	if (tm->tm_min < 0 || tm->tm_min > 59) {
+		return FALSE;
+	}
+	if (tm->tm_sec < 0 || tm->tm_sec > 60) {
+		/* 60, not 59, to account for leap seconds */
+		return FALSE;
+	}
+	return TRUE;
 }
 
 void get_resource_usage(double *user_time, double *sys_time) {

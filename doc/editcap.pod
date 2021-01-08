@@ -101,14 +101,20 @@ strings that include spaces.
 =item -A  E<lt>start timeE<gt>
 
 Reads only the packets whose timestamp is on or after start time.
-The time is given in the following format YYYY-MM-DD HH:MM:SS[.nnnnnnnnn]
-(the decimal and fractional seconds are optional).
+The time is given in ISO 8601 format, either
+YYYY-MM-DD HH:MM:SS[.nnnnnnnnn][Z|±hh:mm] or
+YYYY-MM-DDTHH:MM:SS[.nnnnnnnnn][Z|±hh:mm] .
+The fractional seconds are optional, as is the time zone offset from UTC
+(in which case local time is assumed).
 
 =item -B  E<lt>stop timeE<gt>
 
 Reads only the packets whose timestamp is before stop time.
-The time is given in the following format YYYY-MM-DD HH:MM:SS[.nnnnnnnnn]
-(the decimal and fractional seconds are optional).
+The time is given in ISO 8601 format, either
+YYYY-MM-DD HH:MM:SS[.nnnnnnnnn][Z|±hh:mm] or
+YYYY-MM-DDTHH:MM:SS[.nnnnnnnnn][Z|±hh:mm] .
+The fractional seconds are optional, as is the time zone offset from UTC
+(in which case local time is assumed).
 
 =item -c  E<lt>packets per fileE<gt>
 

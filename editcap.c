@@ -759,9 +759,11 @@ print_usage(FILE *output)
     fprintf(output, "Packet selection:\n");
     fprintf(output, "  -r                     keep the selected packets; default is to delete them.\n");
     fprintf(output, "  -A <start time>        only read packets whose timestamp is after (or equal\n");
-    fprintf(output, "                         to) the given time (format as YYYY-MM-DD hh:mm:ss[.nnnnnnnnn]).\n");
+    fprintf(output, "                         to) the given time.\n");
     fprintf(output, "  -B <stop time>         only read packets whose timestamp is before the\n");
-    fprintf(output, "                         given time (format as YYYY-MM-DD hh:mm:ss[.nnnnnnnnn]).\n");
+    fprintf(output, "                         given time.\n");
+    fprintf(output, "                         Time format for -A/-B options is\n");
+    fprintf(output, "                         YYYY-MM-DDThh:mm:ss[.nnnnnnnnn][Z|+-hh:mm]\n");
     fprintf(output, "\n");
     fprintf(output, "Duplicate packet removal:\n");
     fprintf(output, "  --novlan               remove vlan info from packets before checking for duplicates.\n");
@@ -1279,77 +1281,25 @@ main(int argc, char *argv[])
         case 'A':
         case 'B':
         {
-#define NSEC_MAXLEN 9
-            struct tm st_tm;
-            guint32 nsec = 0;
-            char *och;
-
-            memset(&st_tm,0,sizeof(struct tm));
-
-            if (!(och=strptime(optarg,"%Y-%m-%d %T", &st_tm))) {
-                goto invalid_time;
-            }
-
-            /* Sub-second support: see if the time is followed by a '.' */
-            if (och != NULL && *och != '\0') {
-                char *c;
-                char subsec[NSEC_MAXLEN+1] = "";
-                int nchars;
-
-                if (*och != '.') {
-                    goto invalid_time;
-                }
-                och++;
-                c = subsec;
-
-                /* Ensure that only 1-9 digits follow the '.' */
-                for (nchars = 0; *och != '\0' && nchars < NSEC_MAXLEN; nchars++) {
-                    if (!g_ascii_isdigit(*och)) {
-                        goto invalid_time;
-                    }
-                    *c++ = *och++;
-                }
-                if (*och != '\0') {
-                    goto invalid_time;
-                }
-                /* Right-pad what we do have, so eg. 5 = 500,000,000 ns */
-                for (; nchars < NSEC_MAXLEN; nchars++) {
-                    *c++ = '0';
-                }
-                *c = '\0';
-                if (!ws_strtou32(subsec, NULL, &nsec) || nsec >= NANOSECS_PER_SEC) {
-                    goto invalid_time;
-                }
-            }
+            nstime_t in_time;
 
             check_startstop = TRUE;
-            st_tm.tm_isdst = -1;
-
-            /*
-             * XXX - this will normalize invalid dates rather than
-             * returning an error, so you could specify, for example,
-             * 2020-10-40 (to quote the macOS and probably *BSD manual
-             * page for ctime()/localtime()/mktime()/etc., "October 40
-             * is changed into November 9").
-             *
-             * Is that a bug or a feature?
-             */
-            if (opt == 'A') {
-                starttime.secs = mktime(&st_tm);
-                starttime.nsecs = nsec;
-                have_starttime = TRUE;
-            } else {
-                stoptime.secs = mktime(&st_tm);
-                stoptime.nsecs = nsec;
-                have_stoptime = TRUE;
+            if (0 < iso8601_to_nstime(&in_time, optarg)) {
+                if (opt == 'A') {
+                    nstime_copy(&starttime, &in_time);
+                    have_starttime = TRUE;
+                } else {
+                    nstime_copy(&stoptime, &in_time);
+                    have_stoptime = TRUE;
+                }
+                break;
             }
-            break;
-
-invalid_time:
-            fprintf(stderr, "editcap: \"%s\" isn't a valid date and time\n\n",
-                    optarg);
-            ret = INVALID_OPTION;
-            goto clean_exit;
+            else {
+                fprintf(stderr, "editcap: \"%s\" isn't a valid date and time\n\n",
+                        optarg);
+                ret = INVALID_OPTION;
+                goto clean_exit;
+            }
         }
 
         case 'c':

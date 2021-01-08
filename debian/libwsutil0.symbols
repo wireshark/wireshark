@@ -104,6 +104,7 @@ libwsutil.so.0 libwsutil0 #MINVER#
  init_report_message@Base 2.3.0
  is_default_profile@Base 1.12.0~rc1
  isdigit_string@Base 1.10.0
+ iso8601_to_nstime@Base 3.5.0
  isprint_string@Base 1.10.0
  isprint_utf8_string@Base 2.6.1
  json_decode_string_inplace@Base 2.9.0
@@ -181,6 +182,7 @@ libwsutil.so.0 libwsutil0 #MINVER#
  started_with_special_privs@Base 1.10.0
  test_for_directory@Base 1.12.0~rc1
  test_for_fifo@Base 1.12.0~rc1
+ tm_is_valid@Base 3.5.0
  type_util_gdouble_to_guint64@Base 1.10.0
  type_util_guint64_to_gdouble@Base 1.10.0
  ulaw2linear@Base 1.12.0~rc1

@@ -762,125 +762,6 @@ nettrace_close(wtap *wth)
 	}
 }
 
-/* This attribute specification contains a timestamp that refers to the start of the
-* first trace data that is stored in this file.
-*
-* It is a complete timestamp including day, time and delta UTC hour. E.g.
-* "2001-09-11T09:30:47-05:00".
-*/
-
-#define isleap(y) (((y) % 4) == 0 && (((y) % 100) != 0 || ((y) % 400) == 0))
-
-static char*
-nettrace_parse_begin_time(char *curr_pos, size_t n, nstime_t *ts)
-{
-	/* Time vars */
-	guint year, month, day, hour, minute, second, frac;
-	int UTCdiffh, UTCdiffm = 0;
-	int time_length = 0;
-	int scan_found;
-	static const guint days_in_month[12] = {
-	    31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31
-	};
-	struct tm tm;
-	char *end_pos;
-	int length;
-
-	nstime_set_unset(ts); /* mark time as invalid, until successful converted */
-
-	end_pos = g_strstr_len(curr_pos, n, "\"/>");
-	length = (int)(end_pos - curr_pos);
-
-	if (length < 2) {
-		return end_pos + 3;
-	}
-
-	/* Scan for this format: 2001-09-11T09:30:47 Then we will parse any fractions and UTC offset */
-	scan_found = sscanf(curr_pos, "%4u-%2u-%2uT%2u:%2u:%2u%n",
-		&year, &month, &day, &hour, &minute, &second, &time_length);
-	if (scan_found == 6 && time_length == 19) {
-		/* Fill in the fields and return it in a time_t */
-		tm.tm_year = year - 1900;
-		if (month < 1 || month > 12) {
-			/* g_warning("Failed to parse time, month is %u", month); */
-			return curr_pos;
-		}
-		tm.tm_mon = month - 1; /* Zero count*/
-		if (day > ((month == 2 && isleap(year)) ? 29 : days_in_month[month - 1])) {
-			/* g_warning("Failed to parse time, %u-%02u-%2u is not a valid day", year, month, day); */
-			return curr_pos;
-		}
-		tm.tm_mday = day;
-		if (hour > 23) {
-			/* g_warning("Failed to parse time, hour is %u", hour); */
-			return curr_pos;
-		}
-		tm.tm_hour = hour;
-		if (minute > 59) {
-			/* g_warning("Failed to parse time, minute is %u", minute); */
-			return curr_pos;
-		}
-		tm.tm_min = minute;
-		if (second > 60) {
-			/*
-			 * Yes, 60, for leap seconds - POSIX's and Windows'
-			 * refusal to believe in them nonwithstanding.
-			 */
-			/* g_warning("Failed to parse time, second is %u", second); */
-			return curr_pos;
-		}
-		tm.tm_sec = second;
-		tm.tm_isdst = -1;    /* daylight saving time info not known */
-
-		/* Move curr_pos to end of parsed object and get that character 2019-01-10T10:14:56 */
-		curr_pos += time_length;
-		if (*curr_pos == '.' || *curr_pos == ',') {
-			/* We have fractions */
-			curr_pos++;
-			if (1 == sscanf(curr_pos, "%u%n", &frac, &time_length)) {
-				if ((frac >= 1000000000) || (frac == 0)) {
-					ts->nsecs = 0;
-				} else {
-					switch (time_length) { /* including leading zeros */
-					case 1: ts->nsecs = frac * 100000000; break;
-					case 2: ts->nsecs = frac * 10000000; break;
-					case 3: ts->nsecs = frac * 1000000; break;
-					case 4: ts->nsecs = frac * 100000; break;
-					case 5: ts->nsecs = frac * 10000; break;
-					case 6: ts->nsecs = frac * 1000; break;
-					case 7: ts->nsecs = frac * 100; break;
-					case 8: ts->nsecs = frac * 10; break;
-					default: ts->nsecs = frac;
-					}
-				}
-				curr_pos += time_length;
-			}
-		}
-
-		if (*curr_pos == '-' || *curr_pos == '+' || *curr_pos == 'Z') {
-			/* We have UTC offset */
-			if (1 <= sscanf(curr_pos, "%3d:%2d", &UTCdiffh, &UTCdiffm)) {
-				/* adjust for timezone */
-				tm.tm_hour -= UTCdiffh;
-				tm.tm_min  -= UTCdiffh < 0 ? -UTCdiffm: UTCdiffm;
-			} /* else 'Z' for Zero time */
-			/* convert to UTC time */
-#ifdef _WIN32
-			ts->secs = _mkgmtime(&tm);
-#else
-			ts->secs = timegm(&tm);
-#endif
-		} else {
-			/* no UTC offset means localtime in ISO 8601 */
-			ts->secs = mktime(&tm);
-		}
-	/* } else {
-		g_warning("Failed to parse time, only %u fields", scan_found); */
-	}
-
-	return curr_pos;
-}
-
 /* Test the current file to see if it's one we can read.
  * Set in file_access.c as the function to be called for this file type.
  */
@@ -929,7 +810,7 @@ nettrace_3gpp_32_423_file_open(wtap *wth, int *err, gchar **err_info)
 
 	/* Ok it's our file. From here we'll need to free memory */
 	file_info = g_new0(nettrace_3gpp_32_423_file_info_t, 1);
-	curr_pos = nettrace_parse_begin_time(curr_pos, (guint)(bytes_read - (curr_pos - magic_buf)), &file_info->start_time);
+	curr_pos += iso8601_to_nstime(&file_info->start_time, curr_pos);
 	file_info->start_offset = start_offset + (curr_pos - magic_buf);
 	file_info->buffer = g_byte_array_sized_new(RINGBUFFER_START_SIZE);
 	g_byte_array_append(file_info->buffer, curr_pos, (guint)(bytes_read - (curr_pos - magic_buf)));

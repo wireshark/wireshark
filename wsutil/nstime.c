@@ -10,9 +10,12 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
+#include <stdio.h>
+#include <string.h>
 #include <glib.h>
 #include "nstime.h"
 #include "epochs.h"
+#include "time_util.h"
 
 /* this is #defined so that we can clearly see that we have the right number of
    zeros, rather than as a guard against the number of nanoseconds in a second
@@ -262,6 +265,192 @@ nsfiletime_to_nstime(nstime_t *nstime, guint64 nsfiletime)
     nsecs = (int)(nsfiletime % NS_PER_S);
 
     return common_filetime_to_nstime(nstime, ftsecs, nsecs);
+}
+
+/*
+ * function: iso8601_to_nstime
+ * parses a character string for a date and time given in
+ * ISO 8601 date-time format (eg: 2014-04-07T05:41:56.782+00:00)
+ * and converts to an nstime_t
+ * returns number of chars parsed on success, or 0 on failure
+ *
+ * NB. ISO 8601 is actually a lot more flexible than the above format,
+ * much to a developer's chagrin. The -/T/: separators are technically
+ * optional.
+ * Code is here to allow for that, but short-circuited for now since
+ * our callers assume they're there.
+ *
+ * Future improvements could parse other ISO 8601 formats, such as
+ * YYYY-Www-D, YYYY-DDD, etc. For a relatively easy introduction to
+ * these formats, see wikipedia: https://en.wikipedia.org/wiki/ISO_8601
+ */
+guint8
+iso8601_to_nstime(nstime_t *nstime, const char *ptr)
+{
+    struct tm tm;
+    gint n_scanned = 0;
+    gint n_chars = 0;
+    guint frac = 0;
+    gint off_hr = 0;
+    gint off_min = 0;
+    guint8 ret_val = 0;
+    const char *start = ptr;
+    gboolean has_separator = FALSE;
+    gboolean have_offset = FALSE;
+
+    memset(&tm, 0, sizeof(tm));
+    tm.tm_isdst = -1;
+    nstime_set_unset(nstime);
+
+    /* There may be 2 or 0 dashes between the date parts */
+    has_separator = (*(ptr+4) == '-');
+
+    /* For now we require the separator to remove ambiguity */
+    if (!has_separator) return 0;
+
+    /* Note: sscanf is known to be inconsistent across platforms with respect
+       to whether a %n is counted as a return value or not, so we use '<'/'>='
+     */
+    n_scanned = sscanf(ptr, has_separator ? "%4u-%2u-%2u%n" : "%4u%2u%2u%n",
+            &tm.tm_year,
+            &tm.tm_mon,
+            &tm.tm_mday,
+            &n_chars);
+    if (n_scanned >= 3) {
+        /* Got year, month, and day */
+        tm.tm_mon--; /* struct tm expects 0-based month */
+        tm.tm_year -= 1900; /* struct tm expects number of years since 1900 */
+        ptr += n_chars;
+    }
+    else {
+        return 0;
+    }
+
+    if (*ptr == 'T' || *ptr == ' ') {
+        /* The 'T' between date and time is optional if the meaning is
+           unambiguous. We also allow for ' ' here to support formats
+           such as editcap's -A/-B options */
+        ptr++;
+    }
+    else {
+        /* For now we require the separator to remove ambiguity;
+           remove this entire 'else' when we wish to change that */
+        return 0;
+    }
+
+    /* Now we're on to the time part. We'll require a minimum of hours and
+       minutes.
+       Test for a possible ':' */
+    has_separator = (*(ptr+2) == ':');
+    if (!has_separator) return 0;
+
+    n_scanned = sscanf(ptr, has_separator ? "%2u:%2u%n" : "%2u%2u%n",
+            &tm.tm_hour,
+            &tm.tm_min,
+            &n_chars);
+    if (n_scanned >= 2) {
+        ptr += n_chars;
+    }
+    else {
+        /* didn't get hours and minutes */
+        return 0;
+    }
+
+    /* Test for (whole) seconds */
+    if ((has_separator && *ptr == ':') ||
+            (!has_separator && g_ascii_isdigit(*ptr))) {
+        /* Looks like we should have them */
+        if (1 > sscanf(ptr, has_separator ? ":%2u%n" : "%2u%n",
+                &tm.tm_sec, &n_chars)) {
+            /* Couldn't get them */
+            return 0;
+        }
+        ptr += n_chars;
+
+        /* Now let's test for fractional seconds */
+        if (*ptr == '.' || *ptr == ',') {
+            /* Get fractional seconds */
+            ptr++;
+            if (1 <= sscanf(ptr, "%u%n", &frac, &n_chars)) {
+                /* normalize frac to nanoseconds */
+                if ((frac >= 1000000000) || (frac == 0)) {
+                    frac = 0;
+                } else {
+                    switch (n_chars) { /* including leading zeros */
+                        case 1: frac *= 100000000; break;
+                        case 2: frac *= 10000000; break;
+                        case 3: frac *= 1000000; break;
+                        case 4: frac *= 100000; break;
+                        case 5: frac *= 10000; break;
+                        case 6: frac *= 1000; break;
+                        case 7: frac *= 100; break;
+                        case 8: frac *= 10; break;
+                        default: break;
+                    }
+                }
+                ptr += n_chars;
+            }
+            /* If we didn't get frac, it's still its default of 0 */
+        }
+    }
+    else {
+        tm.tm_sec = 0;
+    }
+
+    /* Validate what we got so far. mktime() doesn't care about strange
+       values (and we use this to our advantage when calculating the
+       time zone offset) but we should at least start with something valid */
+    if (!tm_is_valid(&tm)) {
+        return 0;
+    }
+
+    /* Check for a time zone offset */
+    if (*ptr == '-' || *ptr == '+' || *ptr == 'Z') {
+        /* We have a UTC-relative offset */
+        if (*ptr == 'Z') {
+            off_hr = off_min = n_scanned = 0;
+            have_offset = TRUE;
+            ptr++;
+        }
+        else {
+            has_separator = (*(ptr+3) == ':');
+            if (!has_separator) return 0;
+            n_scanned = sscanf(ptr, has_separator ? "%3d:%2d%n" : "%3d%2d%n",
+                    &off_hr,
+                    &off_min,
+                    &n_chars);
+            if (n_scanned >= 1) {
+                /* Definitely got hours */
+                have_offset = TRUE;
+                if (n_scanned >= 2) {
+                    /* Got minutes too */
+                    ptr += n_chars;
+                }
+                else {
+                    /* Only got hours, just move ptr past the +hh or whatever */
+                    off_min = 0;
+                    ptr += 3;
+                }
+            }
+            else {
+                /* Didn't get a valid offset, treat as if there's none at all */
+                off_hr = off_min = n_scanned = 0;
+                have_offset = FALSE;
+            }
+        }
+    }
+    if (have_offset) {
+        tm.tm_hour -= off_hr;
+        tm.tm_min -= (off_hr < 0 ? -off_min : off_min);
+        nstime->secs = mktime_utc(&tm);
+    }
+    else {
+        /* No UTC offset given; ISO 8601 says this means localtime */
+        nstime->secs = mktime(&tm);
+    }
+    nstime->nsecs = frac;
+    ret_val = (guint)(ptr-start);
+    return ret_val;
 }
 
 /*
