@@ -62,11 +62,14 @@ variables:
 .build-rpm:
   extends: .build
   before_script:
+    # It might make sense to set "GIT_STRATEGY: none" and build from
+    # the tarball.
     - git config --global user.email "you@example.com"
     - git config --global user.name "Your Name"
     - mkdir build
     - cd build
     - perl ../tools/make-version.pl --set-release
+    - mv -v ../wireshark-*.tar.* .
   artifacts:
     paths:
       - build/packaging/rpm/RPMS

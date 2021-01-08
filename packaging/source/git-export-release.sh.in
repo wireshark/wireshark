@@ -19,7 +19,7 @@
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 
-set -e
+set -e -u -o pipefail
 
 DESTDIR=.
 
@@ -35,8 +35,13 @@ shift $(( OPTIND - 1 ))
 # or 3.4.5-67-gabcd4321
 # By default the version from make-version.pl + CMake is used.
 VERSION=@VERSION@
-if test -n "$1"; then
+if test -n "${1-}"; then
     VERSION="$1"
+fi
+
+if [ -f "${DESTDIR}/wireshark-$VERSION.tar.xz" ] ; then
+    echo "${DESTDIR}/wireshark-$VERSION.tar.xz exists."
+    exit 0
 fi
 
 STASH_POP=false
@@ -49,7 +54,7 @@ if ! git diff-index --quiet HEAD ; then
     STASH_POP=true
 fi
 
-echo "Creating wireshark-$VERSION.tar.xz"
+echo "Creating ${DESTDIR}/wireshark-$VERSION.tar.xz"
 
 echo . | xz --threads=0 > /dev/null 2>&1 && XZ_OPTS=--threads=0
 
