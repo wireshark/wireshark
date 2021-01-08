@@ -854,7 +854,7 @@ install_qt() {
         # 5.2.0:      qt-mac-opensource-{version}.dmg
         # 5.2.1:      qt-opensource-mac-x64-clang-{version}.dmg
         # 5.3 - 5.8:  qt-opensource-mac-x64-clang-{version}.dmg
-        # 5.9 - 5.13: qt-opensource-mac-x64-{version}.dmg
+        # 5.9 - 5.14: qt-opensource-mac-x64-{version}.dmg
         #
         case $QT_MAJOR_VERSION in
 
@@ -865,28 +865,15 @@ install_qt() {
         5*)
             case $QT_MINOR_VERSION in
 
-            0|1)
+            0|1|2)
                 echo "Qt $QT_VERSION" is too old 1>&2
-                ;;
-
-            2)
-                case $QT_DOTDOT_VERSION in
-
-                0)
-                    QT_VOLUME=qt-mac-opensource-$QT_VERSION
-                    ;;
-
-                1)
-                    QT_VOLUME=qt-opensource-mac-x64-clang-$QT_VERSION
-                    ;;
-                esac
                 ;;
 
             3|4|5|6|7|8)
                 QT_VOLUME=qt-opensource-mac-x64-clang-$QT_VERSION
                 ;;
 
-            9|10|11|12|13)
+            9|10|11|12|13|14)
                 QT_VOLUME=qt-opensource-mac-x64-$QT_VERSION
                 ;;
             esac
@@ -919,7 +906,7 @@ uninstall_qt() {
             # 5.2.0:      qt-mac-opensource-{version}.dmg
             # 5.2.1:      qt-opensource-mac-x64-clang-{version}.dmg
             # 5.3 - 5.8:  qt-opensource-mac-x64-clang-{version}.dmg
-            # 5.9 - 5.13: qt-opensource-mac-x64-{version}.dmg
+            # 5.9 - 5.14: qt-opensource-mac-x64-{version}.dmg
             #
             installed_qt_major_version="`expr $installed_qt_version : '\([0-9][0-9]*\).*'`"
             installed_qt_minor_version="`expr $installed_qt_version : '[0-9][0-9]*\.\([0-9][0-9]*\).*'`"
@@ -934,7 +921,7 @@ uninstall_qt() {
                 case $installed_qt_minor_version in
 
                 0|1)
-                    installed_qt_volume=qt-mac-opensource-$installed_qt_version-clang-offline.dmg
+                    echo "Qt $installed_qt_version" is too old 1>&2
                     ;;
 
                 2)
