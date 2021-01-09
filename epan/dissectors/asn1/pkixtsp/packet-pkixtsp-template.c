@@ -103,6 +103,11 @@ void proto_register_pkixtsp(void) {
   proto_register_field_array(proto_pkixtsp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
+  register_ber_syntax_dissector("TimeStampReq", proto_pkixtsp, dissect_TimeStampReq_PDU);
+  register_ber_syntax_dissector("TimeStampResp", proto_pkixtsp, dissect_TimeStampResp_PDU);
+
+  register_ber_oid_syntax(".tsq", NULL, "TimeStampReq");
+  register_ber_oid_syntax(".tsr", NULL, "TimeStampResp");
 }
 
 

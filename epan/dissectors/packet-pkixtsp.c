@@ -40,6 +40,8 @@ static int proto_pkixtsp = -1;
 
 /*--- Included file: packet-pkixtsp-hf.c ---*/
 #line 1 "./asn1/pkixtsp/packet-pkixtsp-hf.c"
+static int hf_pkixtsp_TimeStampReq_PDU = -1;      /* TimeStampReq */
+static int hf_pkixtsp_TimeStampResp_PDU = -1;     /* TimeStampResp */
 static int hf_pkixtsp_TSTInfo_PDU = -1;           /* TSTInfo */
 static int hf_pkixtsp_SignatureTimeStampToken_PDU = -1;  /* SignatureTimeStampToken */
 static int hf_pkixtsp_version = -1;               /* T_version */
@@ -385,6 +387,20 @@ dissect_pkixtsp_SignatureTimeStampToken(gboolean implicit_tag _U_, tvbuff_t *tvb
 
 /*--- PDUs ---*/
 
+static int dissect_TimeStampReq_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_pkixtsp_TimeStampReq(FALSE, tvb, offset, &asn1_ctx, tree, hf_pkixtsp_TimeStampReq_PDU);
+  return offset;
+}
+static int dissect_TimeStampResp_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_pkixtsp_TimeStampResp(FALSE, tvb, offset, &asn1_ctx, tree, hf_pkixtsp_TimeStampResp_PDU);
+  return offset;
+}
 static int dissect_TSTInfo_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
@@ -456,6 +472,14 @@ void proto_register_pkixtsp(void) {
 
 /*--- Included file: packet-pkixtsp-hfarr.c ---*/
 #line 1 "./asn1/pkixtsp/packet-pkixtsp-hfarr.c"
+    { &hf_pkixtsp_TimeStampReq_PDU,
+      { "TimeStampReq", "pkixtsp.TimeStampReq_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_pkixtsp_TimeStampResp_PDU,
+      { "TimeStampResp", "pkixtsp.TimeStampResp_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
     { &hf_pkixtsp_TSTInfo_PDU,
       { "TSTInfo", "pkixtsp.TSTInfo_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -686,6 +710,11 @@ void proto_register_pkixtsp(void) {
   proto_register_field_array(proto_pkixtsp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
+  register_ber_syntax_dissector("TimeStampReq", proto_pkixtsp, dissect_TimeStampReq_PDU);
+  register_ber_syntax_dissector("TimeStampResp", proto_pkixtsp, dissect_TimeStampResp_PDU);
+
+  register_ber_oid_syntax(".tsq", NULL, "TimeStampReq");
+  register_ber_oid_syntax(".tsr", NULL, "TimeStampResp");
 }
 
 
@@ -708,6 +737,6 @@ void proto_reg_handoff_pkixtsp(void) {
 
 
 /*--- End of included file: packet-pkixtsp-dis-tab.c ---*/
-#line 121 "./asn1/pkixtsp/packet-pkixtsp-template.c"
+#line 126 "./asn1/pkixtsp/packet-pkixtsp-template.c"
 }
 
