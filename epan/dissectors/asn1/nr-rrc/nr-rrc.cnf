@@ -1482,12 +1482,12 @@ VisitedCellInfo-r16/timeSpent-r16 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&uni
   struct mac_nr_info *p_mac_nr_info;
   /* Get the struct and clear it out */
   nr_drb_mac_rlc_mapping_t *drb_mapping = &nr_rrc_get_private_data(actx)->drb_rlc_mapping;
-  drb_mapping->active = TRUE;
   memset(drb_mapping, 0, sizeof(nr_drb_mac_rlc_mapping_t));
+  drb_mapping->active = TRUE;
 %(DEFAULT_BODY)s
   /* Need UE identifier */
   p_mac_nr_info = (mac_nr_info *)p_get_proto_data(wmem_file_scope(), actx->pinfo, proto_mac_nr, 0);
-  if (p_mac_nr_info) {
+  if (p_mac_nr_info && drb_mapping->drbid) {
     drb_mapping->ueid = p_mac_nr_info->ueid;
     /* Tell MAC about this mapping */
     set_mac_nr_bearer_mapping(drb_mapping);
@@ -1568,8 +1568,8 @@ VisitedCellInfo-r16/timeSpent-r16 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&uni
 
 #.FN_BODY DRB-ToAddMod
   nr_drb_rlc_pdcp_mapping_t *mapping = &nr_rrc_get_private_data(actx)->drb_pdcp_mapping;
-  mapping->active = TRUE;
   memset(mapping, 0, sizeof(*mapping));
+  mapping->active = TRUE;
 %(DEFAULT_BODY)s
   /* Need UE identifier. Use mac-nr. */
   mac_nr_info *p_mac_nr_info = (mac_nr_info *)p_get_proto_data(wmem_file_scope(), actx->pinfo, proto_mac_nr, 0);
