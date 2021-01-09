@@ -1227,8 +1227,7 @@ if(BUILD_wireshark OR BUILD_sharkd)
 	endif()
 endif()
 
-# dist target that prepares source dir
-# XXX Duplicated in the RPM section below.
+# Generate the distribution tarball.
 add_custom_target(dist
 	COMMAND ${CMAKE_BINARY_DIR}/packaging/source/git-export-release.sh -d "${CMAKE_BINARY_DIR}"
 	WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
@@ -3041,6 +3040,9 @@ if(RPMBUILD_EXECUTABLE)
 	endforeach()
 
 	set(_rpmbuild_with_args)
+	if(NOT CMAKE_VERBOSE_MAKEFILE)
+		list(APPEND _rpmbuild_with_args --quiet)
+	endif()
 	if(CMAKE_GENERATOR STREQUAL "Ninja")
 		list(APPEND _rpmbuild_with_args --with ninja)
 	endif()
