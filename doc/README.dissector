@@ -3347,7 +3347,7 @@ dissect_PROTO_tcp when the reassembly is complete and from
 dissect_PROTO_udp (or dissect_PROTO_other).
 
 To register the distinct dissector functions, consider the following
-example, stolen from packet-dns.c:
+example, stolen from packet-hartip.c:
 
     #include "packet-tcp.h"
 
