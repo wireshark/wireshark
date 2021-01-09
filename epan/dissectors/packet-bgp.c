@@ -1041,18 +1041,28 @@ static const value_string bgpnotify_minor_state_machine[] = {
     { 0, NULL }
 };
 
+#define BGP_CEASE_MINOR_MAX_REACHED       1
+#define BGP_CEASE_MINOR_ADMIN_SHUTDOWN    2
+#define BGP_CEASE_MINOR_PEER_DE_CONF      3
+#define BGP_CEASE_MINOR_ADMIN_RESET       4
+#define BGP_CEASE_MINOR_CONN_RESET        5
+#define BGP_CEASE_MINOR_OTHER_CONF_CHANGE 6
+#define BGP_CEASE_MINOR_CONN_COLLISION    7
+#define BGP_CEASE_MINOR_OUT_RESOURCES     8
+#define BGP_CEASE_MINOR_HARD_RESET        9
+
 /* RFC4486 Subcodes for BGP Cease Notification Message */
 static const value_string bgpnotify_minor_cease[] = {
-    { 1, "Maximum Number of Prefixes Reached"},
-    { 2, "Administratively Shutdown"},
-    { 3, "Peer De-configured"},
-    { 4, "Administratively Reset"},
-    { 5, "Connection Rejected"},
-    { 6, "Other Configuration Change"},
-    { 7, "Connection Collision Resolution"},
-    { 8, "Out of Resources"},
-    { 9, "Hard Reset"},
-    { 0, NULL }
+    { BGP_CEASE_MINOR_MAX_REACHED,       "Maximum Number of Prefixes Reached"},
+    { BGP_CEASE_MINOR_ADMIN_SHUTDOWN,    "Administratively Shutdown"},
+    { BGP_CEASE_MINOR_PEER_DE_CONF,      "Peer De-configured"},
+    { BGP_CEASE_MINOR_ADMIN_RESET,       "Administratively Reset"},
+    { BGP_CEASE_MINOR_CONN_RESET,        "Connection Rejected"},
+    { BGP_CEASE_MINOR_OTHER_CONF_CHANGE, "Other Configuration Change"},
+    { BGP_CEASE_MINOR_CONN_COLLISION,    "Connection Collision Resolution"},
+    { BGP_CEASE_MINOR_OUT_RESOURCES,     "Out of Resources"},
+    { BGP_CEASE_MINOR_HARD_RESET,        "Hard Reset"},
+    { 0,                                 NULL }
 };
 
 static const value_string bgpnotify_minor_cap_msg[] = {
@@ -9397,11 +9407,12 @@ dissect_bgp_notification(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo)
     if (hlen > BGP_MIN_NOTIFICATION_MSG_SIZE) {
         minor_cease = tvb_get_guint8(tvb, offset - 1);
         clen = tvb_get_guint8(tvb, offset);
-        /* Might be a idr-shutdown communication, first byte is length, max length being 128) */
-        if (clen <= 128 && hlen - BGP_MIN_NOTIFICATION_MSG_SIZE - 1 == clen && major_error == BGP_MAJOR_ERROR_CEASE && (minor_cease == 2 || minor_cease == 4) ) {
+        /* Might be a idr-shutdown communication, first byte is length */
+        if (hlen - BGP_MIN_NOTIFICATION_MSG_SIZE - 1 == clen && major_error == BGP_MAJOR_ERROR_CEASE &&
+                (minor_cease == BGP_CEASE_MINOR_ADMIN_SHUTDOWN || minor_cease == BGP_CEASE_MINOR_ADMIN_RESET) ) {
             proto_tree_add_item(tree, hf_bgp_notify_communication_length, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset += 1;
-            proto_tree_add_item(tree, hf_bgp_notify_communication, tvb, offset, hlen - BGP_MIN_NOTIFICATION_MSG_SIZE - 1, ENC_UTF_8|ENC_NA);
+            proto_tree_add_item(tree, hf_bgp_notify_communication, tvb, offset, clen, ENC_UTF_8|ENC_NA);
         /* otherwise just dump the hex data */
         } else if ( major_error == BGP_MAJOR_ERROR_OPEN_MSG && minor_cease == 7 ) {
             while (offset < hlen) {
@@ -9954,7 +9965,7 @@ proto_register_bgp(void)
         { "BGP Shutdown Communication Length", "bgp.notify.communication_length", FT_UINT8, BASE_DEC,
           NULL, 0x0, NULL, HFILL }},
       { &hf_bgp_notify_communication,
-        { "Shutdown Communication", "bgp.notify.communication", FT_STRING, BASE_NONE,
+        { "Shutdown Communication", "bgp.notify.communication", FT_STRING, STR_UNICODE,
           NULL, 0x0, NULL, HFILL }},
 
         /* Route Refresh */
