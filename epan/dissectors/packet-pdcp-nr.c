@@ -305,7 +305,7 @@ static wmem_map_t *pdcp_security_key_hash = NULL;
 
 void set_pdcp_nr_rrc_ciphering_key(guint16 ueid, const char *key)
 {
-    char **err = NULL;
+    char *err = NULL;
 
     /* Get or create struct for this UE */
     uat_ue_keys_record_t *key_record = (uat_ue_keys_record_t*)wmem_map_lookup(pdcp_security_key_hash,
@@ -319,16 +319,16 @@ void set_pdcp_nr_rrc_ciphering_key(guint16 ueid, const char *key)
 
     /* Check and convert RRC key */
     key_record->rrcCipherKeyString = g_strdup(key);
-    update_key_from_string(key_record->rrcCipherKeyString, key_record->rrcCipherBinaryKey, &key_record->rrcCipherKeyOK, err);
+    update_key_from_string(key_record->rrcCipherKeyString, key_record->rrcCipherBinaryKey, &key_record->rrcCipherKeyOK, &err);
     if (err) {
-        report_failure("%s: (RRC Ciphering Key)", *err);
-        g_free(*err);
+        report_failure("%s: (RRC Ciphering Key)", err);
+        g_free(err);
     }
 }
 
 void set_pdcp_nr_rrc_integrity_key(guint16 ueid, const char *key)
 {
-    char **err = NULL;
+    char *err = NULL;
 
     /* Get or create struct for this UE */
     uat_ue_keys_record_t *key_record = (uat_ue_keys_record_t*)wmem_map_lookup(pdcp_security_key_hash,
@@ -342,16 +342,16 @@ void set_pdcp_nr_rrc_integrity_key(guint16 ueid, const char *key)
 
     /* Check and convert RRC integrity key */
     key_record->rrcIntegrityKeyString = g_strdup(key);
-    update_key_from_string(key_record->rrcIntegrityKeyString, key_record->rrcIntegrityBinaryKey, &key_record->rrcIntegrityKeyOK, err);
+    update_key_from_string(key_record->rrcIntegrityKeyString, key_record->rrcIntegrityBinaryKey, &key_record->rrcIntegrityKeyOK, &err);
     if (err) {
-        report_failure("%s: (RRC Integrity Key)", *err);
-        g_free(*err);
+        report_failure("%s: (RRC Integrity Key)", err);
+        g_free(err);
     }
 }
 
 void set_pdcp_nr_up_ciphering_key(guint16 ueid, const char *key)
 {
-    char **err = NULL;
+    char *err = NULL;
 
     /* Get or create struct for this UE */
     uat_ue_keys_record_t *key_record = (uat_ue_keys_record_t*)wmem_map_lookup(pdcp_security_key_hash,
@@ -365,16 +365,16 @@ void set_pdcp_nr_up_ciphering_key(guint16 ueid, const char *key)
 
     /* Check and convert UP key */
     key_record->upCipherKeyString = g_strdup(key);
-    update_key_from_string(key_record->upCipherKeyString, key_record->upCipherBinaryKey, &key_record->upCipherKeyOK, err);
+    update_key_from_string(key_record->upCipherKeyString, key_record->upCipherBinaryKey, &key_record->upCipherKeyOK, &err);
     if (err) {
-        report_failure("%s: (UserPlane Ciphering Key)", *err);
-        g_free(*err);
+        report_failure("%s: (UserPlane Ciphering Key)", err);
+        g_free(err);
     }
 }
 
 void set_pdcp_nr_up_integrity_key(guint16 ueid, const char *key)
 {
-    char **err = NULL;
+    char *err = NULL;
 
     /* Get or create struct for this UE */
     uat_ue_keys_record_t *key_record = (uat_ue_keys_record_t*)wmem_map_lookup(pdcp_security_key_hash,
@@ -388,10 +388,10 @@ void set_pdcp_nr_up_integrity_key(guint16 ueid, const char *key)
 
     /* Check and convert UP integrity key */
     key_record->upIntegrityKeyString = g_strdup(key);
-    update_key_from_string(key_record->upIntegrityKeyString, key_record->upIntegrityBinaryKey, &key_record->upIntegrityKeyOK, err);
+    update_key_from_string(key_record->upIntegrityKeyString, key_record->upIntegrityBinaryKey, &key_record->upIntegrityKeyOK, &err);
     if (err) {
-        report_failure("%s: (UserPlane Integrity Key)", *err);
-        g_free(*err);
+        report_failure("%s: (UserPlane Integrity Key)", err);
+        g_free(err);
     }
 }
 
@@ -1881,7 +1881,6 @@ static int dissect_pdcp_nr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     }
 
     /* MACI always present for SRBs */
-    /* TODO: should get configured from RRC for DRBs */
     if (p_pdcp_info->plane == NR_SIGNALING_PLANE) {
         p_pdcp_info->maci_present = TRUE;
     }
@@ -2299,9 +2298,10 @@ static int dissect_pdcp_nr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
         if (payload_length > 0) {
             /* If not compressed with ROHC, show as user-plane data */
             if (!p_pdcp_info->rohc.rohc_compression) {
-                /* Not attempting to decode payload if ciphering is enabled
-                  (and NULL ciphering is not being used) */
-                if (global_pdcp_dissect_user_plane_as_ip) {
+                /* Not attempting to decode payload if payload ciphered and we did decipher */
+                if (global_pdcp_dissect_user_plane_as_ip &&
+                   ((pdu_security == NULL) || (pdu_security->ciphering == nea0) || payload_deciphered)) {
+
                     tvbuff_t *ip_payload_tvb = tvb_new_subset_length(payload_tvb, offset, payload_length);
 
                     /* Don't update info column for ROHC unless configured to */
