@@ -579,7 +579,7 @@ dissect_imap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
             int username_offset = next_token;
             int username_next_token;
             int username_tokenlen = tvb_get_token_len(tvb, next_token, usernamelen, &username_next_token, FALSE);
-            char *username = (char*)tvb_get_string_enc(wmem_packet_scope(), tvb, username_offset + 1, username_tokenlen - 2, ENC_ASCII | ENC_NA);
+            char *username = (char*)tvb_get_string_enc(wmem_packet_scope(), tvb, username_offset, username_tokenlen, ENC_ASCII | ENC_NA);
             proto_tree_add_string(reqresp_tree, hf_imap_request_username, tvb, username_offset, username_tokenlen, username);
 
             int passwordlen = linelen - (username_next_token - offset);
