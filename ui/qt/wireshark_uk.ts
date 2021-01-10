@@ -6250,11 +6250,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Веб-сайт</translation>
     </message>
     <message>
-        <source>FAQs</source>
-        <oldsource>FAQ&apos;s</oldsource>
-        <translation type="unfinished">ЧаПи</translation>
-    </message>
-    <message>
         <source>Downloads</source>
         <translation>Завантаження</translation>
     </message>
@@ -6481,6 +6476,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Help contents</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>FAQs</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -13322,6 +13321,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Select all calls</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Select &amp;None</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Clear selection</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

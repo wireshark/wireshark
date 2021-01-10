@@ -6250,11 +6250,6 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
         <translation>Página web</translation>
     </message>
     <message>
-        <source>FAQs</source>
-        <oldsource>FAQ&apos;s</oldsource>
-        <translation type="unfinished">FAQ&apos;s</translation>
-    </message>
-    <message>
         <source>Downloads</source>
         <translation>Descargas</translation>
     </message>
@@ -6481,6 +6476,10 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>Help contents</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>FAQs</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -13312,6 +13311,14 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>Select all calls</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Select &amp;None</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Clear selection</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

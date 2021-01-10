@@ -6290,11 +6290,6 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
         <translation>Site Web</translation>
     </message>
     <message>
-        <source>FAQs</source>
-        <oldsource>FAQ&apos;s</oldsource>
-        <translation type="unfinished">FAQ&apos;s</translation>
-    </message>
-    <message>
         <source>Downloads</source>
         <translation>Téléchargements</translation>
     </message>
@@ -6522,6 +6517,10 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     <message>
         <source>Help contents</source>
         <translation>Contenu de l&apos;aide</translation>
+    </message>
+    <message>
+        <source>FAQs</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Next Packet in Conversation</source>
@@ -13422,6 +13421,14 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     <message>
         <source>Select all calls</source>
         <translation>Sélectionner tous les appels</translation>
+    </message>
+    <message>
+        <source>Select &amp;None</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Clear selection</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Display time as time of day</source>

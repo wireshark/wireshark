@@ -6298,11 +6298,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>ウェブサイト</translation>
     </message>
     <message>
-        <source>FAQs</source>
-        <oldsource>FAQ&apos;s</oldsource>
-        <translation type="unfinished">FAQ&apos;s</translation>
-    </message>
-    <message>
         <source>Downloads</source>
         <translation>ダウンロード</translation>
     </message>
@@ -6530,6 +6525,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Help contents</source>
         <translation>ヘルプ目次</translation>
+    </message>
+    <message>
+        <source>FAQs</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Next Packet in Conversation</source>
@@ -13455,6 +13454,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Select all calls</source>
         <translation>すべての通話を選択します</translation>
+    </message>
+    <message>
+        <source>Select &amp;None</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Clear selection</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Display time as time of day</source>

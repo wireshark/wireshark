@@ -6314,11 +6314,6 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>Webbsida</translation>
     </message>
     <message>
-        <source>FAQs</source>
-        <oldsource>FAQ&apos;s</oldsource>
-        <translation type="unfinished">Frågor och svar</translation>
-    </message>
-    <message>
         <source>Downloads</source>
         <translation>Hämtningar</translation>
     </message>
@@ -6546,6 +6541,10 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <message>
         <source>Help contents</source>
         <translation>Hjälpinnehåll</translation>
+    </message>
+    <message>
+        <source>FAQs</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Next Packet in Conversation</source>
@@ -13483,6 +13482,14 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <message>
         <source>Select all calls</source>
         <translation>Välj alla anrop</translation>
+    </message>
+    <message>
+        <source>Select &amp;None</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Clear selection</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Display time as time of day</source>

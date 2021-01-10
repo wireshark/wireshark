@@ -6291,11 +6291,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>网站</translation>
     </message>
     <message>
-        <source>FAQs</source>
-        <oldsource>FAQ&apos;s</oldsource>
-        <translation type="unfinished">常见问题</translation>
-    </message>
-    <message>
         <source>Downloads</source>
         <translation>下载</translation>
     </message>
@@ -6523,6 +6518,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Help contents</source>
         <translation>帮助内容</translation>
+    </message>
+    <message>
+        <source>FAQs</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Next Packet in Conversation</source>
@@ -13437,6 +13436,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Select all calls</source>
         <translation>选择所有呼叫</translation>
+    </message>
+    <message>
+        <source>Select &amp;None</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Clear selection</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Display time as time of day</source>

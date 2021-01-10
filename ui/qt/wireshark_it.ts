@@ -6314,11 +6314,6 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Sito web</translation>
     </message>
     <message>
-        <source>FAQs</source>
-        <oldsource>FAQ&apos;s</oldsource>
-        <translation type="unfinished">FAQ</translation>
-    </message>
-    <message>
         <source>Downloads</source>
         <translation>Download</translation>
     </message>
@@ -6546,6 +6541,10 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <message>
         <source>Help contents</source>
         <translation>Contenuti della guida</translation>
+    </message>
+    <message>
+        <source>FAQs</source>
+        <translation>FAQ</translation>
     </message>
     <message>
         <source>Next Packet in Conversation</source>
@@ -11005,11 +11004,11 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Start Time</source>
-        <translation type="unfinished">Ora di inizio</translation>
+        <translation>Ora di inizio</translation>
     </message>
     <message>
         <source>Duration</source>
-        <translation type="unfinished">Durata</translation>
+        <translation>Durata</translation>
     </message>
     <message>
         <source>Payload</source>
@@ -11045,15 +11044,15 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Only show conversations matching the current display filter&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Mostra solo le conversazioni che corrispondono al filtro di visualizzazione attuale&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Mostra solo le conversazioni che corrispondono al filtro di visualizzazione attuale&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Limit to display filter</source>
-        <translation type="unfinished">Limita al filtro di visualizzazione</translation>
+        <translation>Limita al filtro di visualizzazione</translation>
     </message>
     <message>
         <source>Time of Day</source>
-        <translation type="unfinished">Ora del giorno</translation>
+        <translation>Ora del giorno</translation>
     </message>
     <message>
         <source>Find Reverse</source>
@@ -11177,7 +11176,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>No Audio</source>
-        <translation type="unfinished">Nessun audio</translation>
+        <translation>Nessun audio</translation>
     </message>
     <message>
         <source>Save RTPDump As…</source>
@@ -12319,27 +12318,27 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Select RTP Stream</source>
-        <translation type="unfinished"></translation>
+        <translation>Seleziona flusso RTP</translation>
     </message>
     <message>
         <source>Select RTP stream in RTP Streams dialog</source>
-        <translation type="unfinished"></translation>
+        <translation>Seleziona flusso RTP nella finestra Flussi RTP</translation>
     </message>
     <message>
         <source>S</source>
-        <translation type="unfinished">S</translation>
+        <translation>S</translation>
     </message>
     <message>
         <source>Deselect RTP Stream</source>
-        <translation type="unfinished"></translation>
+        <translation>Deseleziona flusso RTP</translation>
     </message>
     <message>
         <source>Deselect RTP stream in RTP Streams dialog</source>
-        <translation type="unfinished"></translation>
+        <translation>Deseleziona flusso RTP nella finestra Flussi RTP</translation>
     </message>
     <message>
         <source>D</source>
-        <translation type="unfinished">D</translation>
+        <translation>D</translation>
     </message>
 </context>
 <context>
@@ -13461,11 +13460,11 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Only show conversations matching the current display filter&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Mostra solo le conversazioni che corrispondono al filtro di visualizzazione attuale&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Mostra solo le conversazioni che corrispondono al filtro di visualizzazione attuale&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Limit to display filter</source>
-        <translation type="unfinished">Limita al filtro di visualizzazione</translation>
+        <translation>Limita al filtro di visualizzazione</translation>
     </message>
     <message>
         <source>Time of Day</source>
@@ -13478,6 +13477,14 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <message>
         <source>Select all calls</source>
         <translation>Seleziona tutte le chiamate</translation>
+    </message>
+    <message>
+        <source>Select &amp;None</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Clear selection</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Display time as time of day</source>

@@ -1,4 +1,4 @@
-Editcap (Wireshark) 3.5.0 (v3.5.0rc0-536-gb9e5b58ee93f)
+Editcap (Wireshark) 3.5.0 (v3.5.0rc0-595-g0d820ddc8d2d)
 Edit and/or translate the format of capture files.
 See https://www.wireshark.org for more information.
 
@@ -10,9 +10,11 @@ A single packet or a range of packets can be selected.
 Packet selection:
   -r                     keep the selected packets; default is to delete them.
   -A <start time>        only read packets whose timestamp is after (or equal
-                         to) the given time (format as YYYY-MM-DD hh:mm:ss[.nnnnnnnnn]).
+                         to) the given time.
   -B <stop time>         only read packets whose timestamp is before the
-                         given time (format as YYYY-MM-DD hh:mm:ss[.nnnnnnnnn]).
+                         given time.
+                         Time format for -A/-B options is
+                         YYYY-MM-DDThh:mm:ss[.nnnnnnnnn][Z|+-hh:mm]
 
 Duplicate packet removal:
   --novlan               remove vlan info from packets before checking for duplicates.

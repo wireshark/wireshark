@@ -6314,11 +6314,6 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <translation>Webseite</translation>
     </message>
     <message>
-        <source>FAQs</source>
-        <oldsource>FAQ&apos;s</oldsource>
-        <translation type="unfinished">Häufige Fragen (en)</translation>
-    </message>
-    <message>
         <source>Downloads</source>
         <translation>Downloads</translation>
     </message>
@@ -6546,6 +6541,10 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     <message>
         <source>Help contents</source>
         <translation>Hilfe Inhalt</translation>
+    </message>
+    <message>
+        <source>FAQs</source>
+        <translation>Häufige Fragen (en)</translation>
     </message>
     <message>
         <source>Next Packet in Conversation</source>
@@ -11005,11 +11004,11 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Start Time</source>
-        <translation type="unfinished">Startzeitpunkt</translation>
+        <translation>Startzeitpunkt</translation>
     </message>
     <message>
         <source>Duration</source>
-        <translation type="unfinished">Dauer</translation>
+        <translation>Dauer</translation>
     </message>
     <message>
         <source>Payload</source>
@@ -11045,15 +11044,15 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Only show conversations matching the current display filter&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Nur Verbindungen anzeigen, die dem aktuellen Anzeigenfilter entsprechen&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Nur Verbindungen anzeigen, die dem aktuellen Anzeigenfilter entsprechen&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Limit to display filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Auf Anzeigefilter einschränken</translation>
     </message>
     <message>
         <source>Time of Day</source>
-        <translation type="unfinished">Uhrzeit</translation>
+        <translation>Uhrzeit</translation>
     </message>
     <message>
         <source>Find Reverse</source>
@@ -11177,7 +11176,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>No Audio</source>
-        <translation type="unfinished">Kein Ton</translation>
+        <translation>Kein Ton</translation>
     </message>
     <message>
         <source>Save RTPDump As…</source>
@@ -12319,27 +12318,27 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Select RTP Stream</source>
-        <translation type="unfinished"></translation>
+        <translation>RTP Stream auswählen</translation>
     </message>
     <message>
         <source>Select RTP stream in RTP Streams dialog</source>
-        <translation type="unfinished"></translation>
+        <translation>RTP Stream im RTP Streams Dialog auswählen</translation>
     </message>
     <message>
         <source>S</source>
-        <translation type="unfinished">S</translation>
+        <translation>S</translation>
     </message>
     <message>
         <source>Deselect RTP Stream</source>
-        <translation type="unfinished"></translation>
+        <translation>RTP Stream abwählen</translation>
     </message>
     <message>
         <source>Deselect RTP stream in RTP Streams dialog</source>
-        <translation type="unfinished"></translation>
+        <translation>RTP Stream im RTP Streams Dialog abwählen</translation>
     </message>
     <message>
         <source>D</source>
-        <translation type="unfinished">D</translation>
+        <translation>D</translation>
     </message>
 </context>
 <context>
@@ -13466,11 +13465,11 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Only show conversations matching the current display filter&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Nur Verbindungen anzeigen, die dem aktuellen Anzeigenfilter entsprechen&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Nur Verbindungen anzeigen, die dem aktuellen Anzeigenfilter entsprechen&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Limit to display filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Auf Anzeigefilter einschränken</translation>
     </message>
     <message>
         <source>Time of Day</source>
@@ -13483,6 +13482,14 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     <message>
         <source>Select all calls</source>
         <translation>Alle Anrufe auswählen</translation>
+    </message>
+    <message>
+        <source>Select &amp;None</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Clear selection</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Display time as time of day</source>

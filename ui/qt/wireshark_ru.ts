@@ -6333,11 +6333,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Веб-сайт</translation>
     </message>
     <message>
-        <source>FAQs</source>
-        <oldsource>FAQ&apos;s</oldsource>
-        <translation type="unfinished">ЧАВО</translation>
-    </message>
-    <message>
         <source>Downloads</source>
         <translation>Загрузки</translation>
     </message>
@@ -6565,6 +6560,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Help contents</source>
         <translation>Содержание системы помощи</translation>
+    </message>
+    <message>
+        <source>FAQs</source>
+        <translation>ЧАВО</translation>
     </message>
     <message>
         <source>Next Packet in Conversation</source>
@@ -11032,11 +11031,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Start Time</source>
-        <translation type="unfinished">Время Старта</translation>
+        <translation>Время Старта</translation>
     </message>
     <message>
         <source>Duration</source>
-        <translation type="unfinished">Длительность</translation>
+        <translation>Длительность</translation>
     </message>
     <message>
         <source>Payload</source>
@@ -11072,15 +11071,15 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Only show conversations matching the current display filter&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Показывать только диалоги, соответствующие текущему дисплейному фильтру&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Показывать только диалоги, соответствующие текущему дисплейному фильтру&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Limit to display filter</source>
-        <translation type="unfinished">Ограничить соответственно дисплейному фильтру </translation>
+        <translation>Ограничить соответственно дисплейному фильтру</translation>
     </message>
     <message>
         <source>Time of Day</source>
-        <translation type="unfinished">Время Дня</translation>
+        <translation>Время Дня</translation>
     </message>
     <message>
         <source>Find Reverse</source>
@@ -11204,7 +11203,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>No Audio</source>
-        <translation type="unfinished">Нет Аудио</translation>
+        <translation>Нет Аудио</translation>
     </message>
     <message>
         <source>Save RTPDump As…</source>
@@ -12348,27 +12347,27 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Select RTP Stream</source>
-        <translation type="unfinished"></translation>
+        <translation>Выбрать поток RTP</translation>
     </message>
     <message>
         <source>Select RTP stream in RTP Streams dialog</source>
-        <translation type="unfinished"></translation>
+        <translation>Выбрать поток RTP в диалоге RTP пакеты</translation>
     </message>
     <message>
         <source>S</source>
-        <translation type="unfinished">S</translation>
+        <translation>S</translation>
     </message>
     <message>
         <source>Deselect RTP Stream</source>
-        <translation type="unfinished"></translation>
+        <translation>Отменить выбор потока RTP</translation>
     </message>
     <message>
         <source>Deselect RTP stream in RTP Streams dialog</source>
-        <translation type="unfinished"></translation>
+        <translation>Отменить выбор потока RTP в диалоге RTP пакеты</translation>
     </message>
     <message>
         <source>D</source>
-        <translation type="unfinished">D</translation>
+        <translation>D</translation>
     </message>
 </context>
 <context>
@@ -13497,11 +13496,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Only show conversations matching the current display filter&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Показывать только диалоги, соответствующие текущему дисплейному фильтру&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Показывать только диалоги, соответствующие текущему дисплейному фильтру&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Limit to display filter</source>
-        <translation type="unfinished">Ограничить соответственно дисплейному фильтру </translation>
+        <translation>Ограничить соответственно дисплейному фильтру </translation>
     </message>
     <message>
         <source>Time of Day</source>
@@ -13514,6 +13513,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Select all calls</source>
         <translation>Выбрать все звонки</translation>
+    </message>
+    <message>
+        <source>Select &amp;None</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Clear selection</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Display time as time of day</source>

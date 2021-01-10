@@ -6323,11 +6323,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Strona www</translation>
     </message>
     <message>
-        <source>FAQs</source>
-        <oldsource>FAQ&apos;s</oldsource>
-        <translation type="unfinished">FAQ</translation>
-    </message>
-    <message>
         <source>Downloads</source>
         <translation>Ściągnij</translation>
     </message>
@@ -6555,6 +6550,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Help contents</source>
         <translation>Pomoc</translation>
+    </message>
+    <message>
+        <source>FAQs</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Next Packet in Conversation</source>
@@ -13490,6 +13489,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Select all calls</source>
         <translation>Zaznacz wszystkie połączenia</translation>
+    </message>
+    <message>
+        <source>Select &amp;None</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Clear selection</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Display time as time of day</source>
