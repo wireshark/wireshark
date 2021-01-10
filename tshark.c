@@ -160,12 +160,13 @@ static gboolean epan_auto_reset = FALSE;
  * The way the packet decode is to be written.
  */
 typedef enum {
-  WRITE_TEXT,   /* summary or detail text */
-  WRITE_XML,    /* PDML or PSML */
-  WRITE_FIELDS, /* User defined list of fields */
-  WRITE_JSON,   /* JSON */
-  WRITE_JSON_RAW,   /* JSON only raw hex */
-  WRITE_EK      /* JSON bulk insert to Elasticsearch */
+  WRITE_NONE,     /* dummy initial state */
+  WRITE_TEXT,     /* summary or detail text */
+  WRITE_XML,      /* PDML or PSML */
+  WRITE_FIELDS,   /* User defined list of fields */
+  WRITE_JSON,     /* JSON */
+  WRITE_JSON_RAW, /* JSON only raw hex */
+  WRITE_EK        /* JSON bulk insert to Elasticsearch */
   /* Add CSV and the like here */
 } output_action_e;
 
@@ -1309,6 +1310,12 @@ main(int argc, char *argv[])
       separator = optarg;
       break;
     case 'T':        /* printing Type */
+      /* output_action has been already set. It means multiple -T. */
+      if (output_action > WRITE_NONE) {
+        cmdarg_err("Multiple -T parameters are unsupported");
+        exit_status = INVALID_OPTION;
+        goto clean_exit;
+      }
       print_packet_info = TRUE;
       if (strcmp(optarg, "text") == 0) {
         output_action = WRITE_TEXT;
@@ -1487,6 +1494,10 @@ main(int argc, char *argv[])
       break;
     }
   }
+
+  /* set the default output action to TEXT */
+  if (output_action == WRITE_NONE)
+    output_action = WRITE_TEXT;
 
   /*
    * Print packet summary information is the default if neither -V or -x
@@ -4247,6 +4258,9 @@ print_packet(capture_file *cf, epan_dissect_t *edt)
     write_ek_proto_tree(output_fields, print_summary, print_hex, protocolfilter,
                         protocolfilter_flags, edt, &cf->cinfo, stdout);
     return !ferror(stdout);
+
+  default:
+    g_assert_not_reached();
   }
 
   if (print_hex) {
