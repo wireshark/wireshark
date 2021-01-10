@@ -324,7 +324,7 @@ static wmem_map_t *pdcp_security_key_hash = NULL;
 
 void set_pdcp_lte_rrc_ciphering_key(guint16 ueid, const char *key)
 {
-    char **err = NULL;
+    char *err = NULL;
 
     /* Get or create struct for this UE */
     uat_ue_keys_record_t *key_record = (uat_ue_keys_record_t*)wmem_map_lookup(pdcp_security_key_hash,
@@ -338,16 +338,16 @@ void set_pdcp_lte_rrc_ciphering_key(guint16 ueid, const char *key)
 
     /* Check and convert RRC key */
     key_record->rrcCipherKeyString = g_strdup(key);
-    update_key_from_string(key_record->rrcCipherKeyString, key_record->rrcCipherBinaryKey, &key_record->rrcCipherKeyOK, err);
+    update_key_from_string(key_record->rrcCipherKeyString, key_record->rrcCipherBinaryKey, &key_record->rrcCipherKeyOK, &err);
     if (err) {
-        report_failure("%s: (RRC Ciphering Key)", *err);
-        g_free(*err);
+        report_failure("%s: (RRC Ciphering Key)", err);
+        g_free(err);
     }
 }
 
 void set_pdcp_lte_rrc_integrity_key(guint16 ueid, const char *key)
 {
-    char **err = NULL;
+    char *err = NULL;
 
     /* Get or create struct for this UE */
     uat_ue_keys_record_t *key_record = (uat_ue_keys_record_t*)wmem_map_lookup(pdcp_security_key_hash,
@@ -361,16 +361,16 @@ void set_pdcp_lte_rrc_integrity_key(guint16 ueid, const char *key)
 
     /* Check and convert RRC integrity key */
     key_record->rrcIntegrityKeyString = g_strdup(key);
-    update_key_from_string(key_record->rrcIntegrityKeyString, key_record->rrcIntegrityBinaryKey, &key_record->rrcIntegrityKeyOK, err);
+    update_key_from_string(key_record->rrcIntegrityKeyString, key_record->rrcIntegrityBinaryKey, &key_record->rrcIntegrityKeyOK, &err);
     if (err) {
-        report_failure("%s: (RRC Integrity Key)", *err);
-        g_free(*err);
+        report_failure("%s: (RRC Integrity Key)", err);
+        g_free(err);
     }
 }
 
 void set_pdcp_lte_up_ciphering_key(guint16 ueid, const char *key)
 {
-    char **err = NULL;
+    char *err = NULL;
 
     /* Get or create struct for this UE */
     uat_ue_keys_record_t *key_record = (uat_ue_keys_record_t*)wmem_map_lookup(pdcp_security_key_hash,
@@ -384,10 +384,10 @@ void set_pdcp_lte_up_ciphering_key(guint16 ueid, const char *key)
 
     /* Check and convert UP key */
     key_record->upCipherKeyString = g_strdup(key);
-    update_key_from_string(key_record->upCipherKeyString, key_record->upCipherBinaryKey, &key_record->upCipherKeyOK, err);
+    update_key_from_string(key_record->upCipherKeyString, key_record->upCipherBinaryKey, &key_record->upCipherKeyOK, &err);
     if (err) {
-        report_failure("%s: (UserPlane Ciphering Key)", *err);
-        g_free(*err);
+        report_failure("%s: (UserPlane Ciphering Key)", err);
+        g_free(err);
     }
 }
 
