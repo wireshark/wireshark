@@ -524,7 +524,7 @@ WS_DLL_PUBLIC marine_result *marine_dissect_packet(int filter_id, unsigned char 
         int *key = packet_filter_keys[filter_id];
         packet_filter *filter = (packet_filter *) g_hash_table_lookup(packet_filters, key);
         unsigned int output_count = filter->expected_output_len;
-        char **output = filter->output_fields == NULL ? NULL : (char **) g_malloc0(sizeof(char *) * output_count); // TODO export to const
+        char **output = filter->output_fields == NULL ? NULL : (char **) g_malloc0(sizeof(char *) * output_count);
         int passed = marine_inner_dissect_packet(&cfile, filter, data, len, output);
         result->result = passed;
         result->output = output;
