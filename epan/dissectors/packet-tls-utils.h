@@ -107,7 +107,8 @@ typedef enum {
 #define SSL_HND_HELLO_EXT_CACHED_INFO                   25
 #define SSL_HND_HELLO_EXT_COMPRESS_CERTIFICATE          27
 #define SSL_HND_HELLO_EXT_RECORD_SIZE_LIMIT             28
-/* 26-34  Unassigned*/
+/* 26-33  Unassigned*/
+#define SSL_HND_HELLO_EXT_DELEGATED_CREDENTIALS         34 /* draft-ietf-tls-subcerts-09.txt */
 #define SSL_HND_HELLO_EXT_SESSION_TICKET_TLS            35
 /* RFC 8446 (TLS 1.3) */
 #define SSL_HND_HELLO_EXT_KEY_SHARE_OLD                 40 /* draft-ietf-tls-tls13-22 (removed in -23) */

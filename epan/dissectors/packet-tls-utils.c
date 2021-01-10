@@ -1147,6 +1147,7 @@ const value_string tls_hello_extension_types[] = {
     { SSL_HND_HELLO_EXT_CACHED_INFO, "cached_info" }, /* RFC 7924 */
     { SSL_HND_HELLO_EXT_COMPRESS_CERTIFICATE, "compress_certificate" }, /* https://tools.ietf.org/html/draft-ietf-tls-certificate-compression-03 */
     { SSL_HND_HELLO_EXT_RECORD_SIZE_LIMIT, "record_size_limit" }, /* RFC 8449 */
+    { SSL_HND_HELLO_EXT_DELEGATED_CREDENTIALS, "delegated_credentials" }, /* draft-ietf-tls-subcerts-09.txt */
     { SSL_HND_HELLO_EXT_SESSION_TICKET_TLS, "session_ticket" }, /* RFC 5077 / RFC 8447 */
     { SSL_HND_HELLO_EXT_KEY_SHARE_OLD, "Reserved (key_share)" }, /* https://tools.ietf.org/html/draft-ietf-tls-tls13-22 (removed in -23) */
     { SSL_HND_HELLO_EXT_PRE_SHARED_KEY, "pre_shared_key" }, /* RFC 8446 */
@@ -6591,6 +6592,13 @@ ssl_dissect_hnd_hello_ext_sig_hash_algs(ssl_common_dissect_t *hf, tvbuff_t *tvb,
 }
 
 static gint
+ssl_dissect_hnd_ext_delegated_credentials(ssl_common_dissect_t *hf, tvbuff_t *tvb,
+                                          proto_tree *tree, packet_info* pinfo, guint32 offset, guint32 offset_end)
+{
+    return ssl_dissect_hash_alg_list(hf, tvb, tree, pinfo, offset, offset_end);
+}
+
+static gint
 ssl_dissect_hnd_hello_ext_alpn(ssl_common_dissect_t *hf, tvbuff_t *tvb,
                                packet_info *pinfo, proto_tree *tree,
                                guint32 offset, guint32 offset_end,
@@ -9257,6 +9265,9 @@ ssl_dissect_hnd_extension(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *t
         case SSL_HND_HELLO_EXT_SIGNATURE_ALGORITHMS:
         case SSL_HND_HELLO_EXT_SIGNATURE_ALGORITHMS_CERT: /* since TLS 1.3 draft -23 */
             offset = ssl_dissect_hnd_hello_ext_sig_hash_algs(hf, tvb, ext_tree, pinfo, offset, next_offset);
+            break;
+        case SSL_HND_HELLO_EXT_DELEGATED_CREDENTIALS:
+            offset = ssl_dissect_hnd_ext_delegated_credentials(hf, tvb, ext_tree, pinfo, offset, next_offset);
             break;
         case SSL_HND_HELLO_EXT_USE_SRTP:
             if (is_dtls) {
