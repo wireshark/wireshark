@@ -550,6 +550,7 @@ const value_string ie_tag_num_vals[] = {
   { TAG_VHT_TX_PWR_ENVELOPE,                  "VHT Tx Power Envelope" },
   { TAG_CHANNEL_SWITCH_WRAPPER,               "Channel Switch Wrapper" },
   { TAG_OPERATING_MODE_NOTIFICATION,          "Operating Mode Notification" },
+  { TAG_REDUCED_NEIGHBOR_REPORT,              "Reduced Neighbor Report" },
   { TAG_FINE_TIME_MEASUREMENT_PARAM,          "Fine Time Measurement Params" },
   { TAG_S1G_OPEN_LOOP_LINK_MARGIN_INDEX,      "S1G Open-Loop Link Margin Index" },
   { TAG_RPS,                                  "RPS" },
@@ -4154,6 +4155,17 @@ static int hf_ieee80211_operat_mode_field_channel_width = -1;
 static int hf_ieee80211_operat_mode_field_reserved = -1;
 static int hf_ieee80211_operat_mode_field_rxnss = -1;
 static int hf_ieee80211_operat_mode_field_rxnsstype= -1;
+
+static int hf_ieee80211_rnr_tbtt_information_field_header = -1;
+static int hf_ieee80211_rnr_tbtt_information_field_type = -1;
+static int hf_ieee80211_rnr_tbtt_information_filtered_neighbor_ap = -1;
+static int hf_ieee80211_rnr_tbtt_information_reserved = -1;
+static int hf_ieee80211_rnr_tbtt_information_count = -1;
+static int hf_ieee80211_rnr_tbtt_information_length = -1;
+static int hf_ieee80211_rnr_operating_class = -1;
+static int hf_ieee80211_rnr_channel_number = -1;
+static int hf_ieee80211_rnr_neighbor_ap_tbtt_offset = -1;
+
 static int hf_ieee80211_ampduparam = -1;
 static int hf_ieee80211_ampduparam_vs = -1;
 static int hf_ieee80211_ampduparam_mpdu = -1;
@@ -6406,6 +6418,8 @@ static gint ett_he_ndp_annc_sta_info = -1;
 /* 802.11ai trees */
 static gint ett_fils_indication_realm_list = -1;
 static gint ett_fils_indication_public_key_list = -1;
+
+static gint ett_rnr_tbtt_information_tree = -1;
 
 static const fragment_items frag_items = {
   &ett_fragment,
@@ -17049,6 +17063,41 @@ dissect_operating_mode_notification(tvbuff_t *tvb, packet_info *pinfo _U_, proto
                                     ett_mcsbit_tree, ieee80211_operat_mode_field,
                                     ENC_LITTLE_ENDIAN, BMT_NO_APPEND);
   offset += 1;
+  return offset;
+}
+
+static int
+dissect_reduced_neighbor_report(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
+{
+  int offset = 0;
+  guint8 tbbt_length, i;
+  static int * const ieee80211_rnr_tbtt_information_header[] = {
+    &hf_ieee80211_rnr_tbtt_information_field_type,
+    &hf_ieee80211_rnr_tbtt_information_filtered_neighbor_ap,
+    &hf_ieee80211_rnr_tbtt_information_reserved,
+    &hf_ieee80211_rnr_tbtt_information_count,
+    &hf_ieee80211_rnr_tbtt_information_length,
+    NULL
+  };
+
+  /* TBTT Information Header */
+  proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_ieee80211_rnr_tbtt_information_field_header,
+                                    ett_rnr_tbtt_information_tree, ieee80211_rnr_tbtt_information_header,
+                                    ENC_LITTLE_ENDIAN, BMT_NO_APPEND);
+  tbbt_length = tvb_get_guint8(tvb, offset+1);
+  offset += 2;
+
+  proto_tree_add_item(tree, hf_ieee80211_rnr_operating_class, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+  offset += 1;
+
+  proto_tree_add_item(tree, hf_ieee80211_rnr_channel_number, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+  offset += 1;
+
+  for (i=1; i <= tbbt_length; i++) {
+    proto_tree_add_item(tree, hf_ieee80211_rnr_neighbor_ap_tbtt_offset, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
+  }
+
   return offset;
 }
 
@@ -33352,6 +33401,51 @@ proto_register_ieee80211(void)
       FT_UINT8, BASE_HEX, NULL, 0x80,
       "Indicate that the Rx NSS subfield carries the maximum number of spatial streams that the STA can receive", HFILL }},
 
+    {&hf_ieee80211_rnr_tbtt_information_field_header,
+     {"TBBT Information Field Header", "wlan.rnr.tbbt_information.field_header",
+      FT_UINT16, BASE_HEX, NULL, 0x0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_rnr_tbtt_information_field_type,
+     {"TBBT Information Field type", "wlan.rnr.tbtt_information.field_type",
+      FT_UINT16, BASE_DEC, NULL, 0x0003,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_rnr_tbtt_information_filtered_neighbor_ap,
+     {"Filtered Neighbor AP", "wlan.rnr.tbtt_information.filtered_neighbor_ap",
+      FT_UINT16, BASE_DEC, NULL, 0x0004,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_rnr_tbtt_information_reserved,
+     {"Reserved", "wlan.rnr.tbbt_information.reserved",
+      FT_UINT16, BASE_HEX, NULL, 0x0008,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_rnr_tbtt_information_count,
+     {"TBBT Information Count", "wlan.rnr.tbtt_information.count",
+      FT_UINT16, BASE_DEC, NULL, 0x00F0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_rnr_tbtt_information_length,
+     {"TBBT Information Length", "wlan.rnr.tbtt_information.length",
+      FT_UINT16, BASE_DEC, NULL, 0xFF00,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_rnr_operating_class,
+     {"Operating Class", "wlan.rnr.operating_class",
+      FT_UINT8, BASE_DEC, NULL, 0x0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_rnr_channel_number,
+     {"Channel Number", "wlan.rnr.channel_number",
+      FT_UINT8, BASE_DEC, NULL, 0x0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_rnr_neighbor_ap_tbtt_offset,
+     {"Neighbor AP TTBT Offset", "wlan.rnr.neighbor_ap_tbtt_offset",
+      FT_UINT8, BASE_HEX, NULL, 0x0,
+      NULL, HFILL }},
+
     {&hf_ieee80211_ampduparam,
      {"A-MPDU Parameters", "wlan.ht.ampduparam",
       FT_UINT8, BASE_HEX, NULL, 0,
@@ -40079,6 +40173,8 @@ proto_register_ieee80211(void)
     /* 802.11ai trees */
     &ett_fils_indication_realm_list,
     &ett_fils_indication_public_key_list,
+
+    &ett_rnr_tbtt_information_tree,
   };
 
   static ei_register_info ei[] = {
@@ -40671,6 +40767,7 @@ proto_reg_handoff_ieee80211(void)
   dissector_add_uint("wlan.tag.number", TAG_VHT_TX_PWR_ENVELOPE, create_dissector_handle(dissect_vht_tx_pwr_envelope, -1));
   dissector_add_uint("wlan.tag.number", TAG_CHANNEL_SWITCH_WRAPPER, create_dissector_handle(dissect_channel_switch_wrapper, -1));
   dissector_add_uint("wlan.tag.number", TAG_OPERATING_MODE_NOTIFICATION, create_dissector_handle(dissect_operating_mode_notification, -1));
+  dissector_add_uint("wlan.tag.number", TAG_REDUCED_NEIGHBOR_REPORT, create_dissector_handle(dissect_reduced_neighbor_report, -1));
   dissector_add_uint("wlan.tag.number", TAG_FINE_TIME_MEASUREMENT_PARAM, create_dissector_handle(dissect_ftm_params, -1));
   /* 7.3.2.26 Vendor Specific information element (221) */
   dissector_add_uint("wlan.tag.number", TAG_VENDOR_SPECIFIC_IE, create_dissector_handle(ieee80211_tag_vendor_specific_ie, -1));

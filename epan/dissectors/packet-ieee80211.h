@@ -477,6 +477,7 @@ typedef struct anqp_info_dissector_data {
 #define TAG_VHT_TX_PWR_ENVELOPE      195  /* IEEE Std 802.11ac/D5.0 */
 #define TAG_CHANNEL_SWITCH_WRAPPER   196  /* IEEE Std 802.11ac */
 #define TAG_OPERATING_MODE_NOTIFICATION 199  /* IEEE Std 802.11ac */
+#define TAG_REDUCED_NEIGHBOR_REPORT  201
 #define TAG_FINE_TIME_MEASUREMENT_PARAM 206  /* IEEE Std 802.11-REVmd/D2.0 */
 #define TAG_S1G_OPEN_LOOP_LINK_MARGIN_INDEX 207 /* IEEE Std 802.11ah */
 #define TAG_RPS                      208  /* IEEE Stf 802.11ah */
