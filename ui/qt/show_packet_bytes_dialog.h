@@ -40,12 +40,11 @@ public:
 
     void addCodecs(const QMap<QString, QTextCodec *> &codecMap);
 
-public slots:
-    void captureFileClosing();
-
 protected:
     bool eventFilter(QObject *obj, QEvent *event);
     void keyPressEvent(QKeyEvent *event);
+    void captureFileClosing();
+    void captureFileClosed();
 
 private slots:
     void on_sbStart_valueChanged(int value);

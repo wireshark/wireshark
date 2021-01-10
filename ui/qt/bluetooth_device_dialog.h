@@ -67,6 +67,7 @@ signals:
 
 protected:
     void keyPressEvent(QKeyEvent *event);
+    void captureFileClosing();
 
 protected slots:
     void changeEvent(QEvent* event);
@@ -84,7 +85,6 @@ private:
     static void saveItemData(QTableWidgetItem *item, bluetooth_device_tap_t *tap_device, packet_info *pinfo);
 
 private slots:
-    void captureFileClosing();
     void setTitle(QString bdAddr, QString name);
     void on_tableWidget_itemActivated(QTableWidgetItem *item);
     void on_buttonBox_clicked(QAbstractButton *button);

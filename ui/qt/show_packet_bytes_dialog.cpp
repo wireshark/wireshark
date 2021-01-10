@@ -760,6 +760,13 @@ void ShowPacketBytesDialog::updatePacketBytes(void)
 
 void ShowPacketBytesDialog::captureFileClosing()
 {
+    finfo_ = NULL;  // This will invalidate the source backend
+
+    WiresharkDialog::captureFileClosing();
+}
+
+void ShowPacketBytesDialog::captureFileClosed()
+{
     // We have lost the source backend and must disable all functions
     // for manipulating decoding and displayed range.
 
@@ -771,9 +778,7 @@ void ShowPacketBytesDialog::captureFileClosing()
     ui->lEnd->setEnabled(false);
     ui->sbEnd->setEnabled(false);
 
-    finfo_ = NULL;  // This will invalidate the source backend
-
-    WiresharkDialog::captureFileClosing();
+    WiresharkDialog::captureFileClosed();
 }
 
 void ShowPacketBytesTextEdit::contextMenuEvent(QContextMenuEvent *event)

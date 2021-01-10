@@ -24,6 +24,7 @@ public:
     ~WlanStatisticsDialog();
 
 protected:
+    void captureFileClosing();
 
 private:
     int packet_count_;
@@ -46,7 +47,6 @@ private slots:
     virtual void fillTree();
     void addStationTreeItems();
     void updateHeaderLabels();
-    void captureFileClosing();
     void filterUpdated(QString filter);
 };
 

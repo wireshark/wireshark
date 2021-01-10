@@ -33,6 +33,9 @@ public:
     explicit PacketDialog(QWidget &parent, CaptureFile &cf, frame_data *fdata);
     ~PacketDialog();
 
+protected:
+    void captureFileClosing();
+
 signals:
     void showProtocolPreferences(const QString module_name);
     void editProtocolPreference(struct preference *pref, struct pref_module *module);
@@ -40,7 +43,6 @@ signals:
 private slots:
     void on_buttonBox_helpRequested();
 
-    void captureFileClosing();
     void setHintText(FieldInformation *);
 
 private:

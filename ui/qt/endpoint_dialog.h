@@ -59,8 +59,9 @@ public:
 
 signals:
 
-public slots:
+protected:
     void captureFileClosing();
+    void captureFileClosed();
 
 private:
 #ifdef HAVE_MAXMINDDB

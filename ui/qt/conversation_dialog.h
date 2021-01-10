@@ -52,8 +52,9 @@ public:
     explicit ConversationDialog(QWidget &parent, CaptureFile &cf, int cli_proto_id = -1, const char *filter = NULL);
     ~ConversationDialog();
 
-public slots:
+protected:
     void captureFileClosing();
+    void captureFileClosed();
 
 signals:
     void filterAction(QString filter, FilterAction::Action action, FilterAction::ActionType type);

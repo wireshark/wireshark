@@ -23,6 +23,9 @@ public:
     MulticastStatisticsDialog(QWidget &parent, CaptureFile &cf, const char *filter = NULL);
     ~MulticastStatisticsDialog();
 
+protected:
+    void captureFileClosing();
+
 private:
     struct _mcaststream_tapinfo *tapinfo_;
     SyntaxLineEdit *burst_measurement_interval_le_;
@@ -43,7 +46,6 @@ private slots:
     void updateWidgets();
     void updateMulticastParameters();
     virtual void fillTree();
-    void captureEvent(CaptureEvent e);
 };
 
 #endif // MULTICASTSTATISTICSDIALOG_H

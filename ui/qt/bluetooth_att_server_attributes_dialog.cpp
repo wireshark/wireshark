@@ -96,13 +96,13 @@ BluetoothAttServerAttributesDialog::~BluetoothAttServerAttributesDialog()
 }
 
 
-void BluetoothAttServerAttributesDialog::captureFileClosing()
+void BluetoothAttServerAttributesDialog::captureFileClosed()
 {
     ui->interfaceComboBox->setEnabled(FALSE);
     ui->deviceComboBox->setEnabled(FALSE);
     ui->removeDuplicatesCheckBox->setEnabled(FALSE);
 
-    WiresharkDialog::captureFileClosing();
+    WiresharkDialog::captureFileClosed();
 }
 
 

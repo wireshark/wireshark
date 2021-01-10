@@ -43,6 +43,7 @@ public:
     ~LteMacStatisticsDialog();
 
 protected:
+    void captureFileClosing();
 
 private:
     // Extra controls needed for this dialog.
@@ -73,7 +74,6 @@ private:
 private slots:
     virtual void fillTree();
     void updateHeaderLabels();
-    void captureFileClosing();
     void filterUpdated(QString filter);
 };
 

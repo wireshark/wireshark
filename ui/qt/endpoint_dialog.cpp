@@ -117,9 +117,14 @@ void EndpointDialog::captureFileClosing()
         disconnect(cur_tree, SIGNAL(filterAction(QString,FilterAction::Action,FilterAction::ActionType)),
                    this, SIGNAL(filterAction(QString,FilterAction::Action,FilterAction::ActionType)));
     }
+    TrafficTableDialog::captureFileClosing();
+}
+
+void EndpointDialog::captureFileClosed()
+{
     displayFilterCheckBox()->setEnabled(false);
     enabledTypesPushButton()->setEnabled(false);
-    TrafficTableDialog::captureFileClosing();
+    TrafficTableDialog::captureFileClosed();
 }
 
 bool EndpointDialog::addTrafficTable(register_ct_t *table)

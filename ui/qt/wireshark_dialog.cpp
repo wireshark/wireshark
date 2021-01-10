@@ -135,8 +135,8 @@ void WiresharkDialog::captureEvent(CaptureEvent e)
             captureFileClosing();
             break;
         case CaptureEvent::Closed:
-            captureFileClosing();
             file_closed_ = true;
+            captureFileClosed();
             break;
         default:
             break;
@@ -168,10 +168,12 @@ void WiresharkDialog::removeTapListeners()
 
 void WiresharkDialog::captureFileClosing()
 {
-    if (file_closed_)
-        return;
-
     removeTapListeners();
+    updateWidgets();
+}
+
+void WiresharkDialog::captureFileClosed()
+{
     updateWidgets();
 }
 

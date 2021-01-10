@@ -55,6 +55,8 @@ public slots:
 protected:
     void contextMenuEvent(QContextMenuEvent *event);
     virtual void removeTapListeners();
+    void captureFileClosing();
+    void captureFileClosed();
 
 protected slots:
     void changeEvent(QEvent* event);
@@ -90,7 +92,6 @@ private:
     QList<QVariant> streamRowData(int row) const;
 
 private slots:
-    void captureFileClosing();
     void selectAll();
     void selectNone();
     void copyAsCSV();

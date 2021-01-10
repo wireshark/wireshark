@@ -110,12 +110,12 @@ BluetoothDevicesDialog::~BluetoothDevicesDialog()
 }
 
 
-void BluetoothDevicesDialog::captureFileClosing()
+void BluetoothDevicesDialog::captureFileClosed()
 {
     ui->interfaceComboBox->setEnabled(FALSE);
     ui->showInformationStepsCheckBox->setEnabled(FALSE);
 
-    WiresharkDialog::captureFileClosing();
+    WiresharkDialog::captureFileClosed();
 }
 
 

@@ -144,8 +144,6 @@ FollowStreamDialog::FollowStreamDialog(QWidget &parent, CaptureFile &cf, follow_
             this, SLOT(fillHintLabel(int)));
     connect(ui->teStreamContent, SIGNAL(mouseClickedOnTextCursorPosition(int)),
             this, SLOT(goToPacketForTextPos(int)));
-    connect(&cap_file_, SIGNAL(captureEvent(CaptureEvent)),
-            this, SLOT(captureEvent(CaptureEvent)));
 
     fillHintLabel(-1);
 }
@@ -1061,15 +1059,12 @@ bool FollowStreamDialog::follow(QString previous_filter, bool use_stream_index, 
     return true;
 }
 
-void FollowStreamDialog::captureEvent(CaptureEvent e)
+void FollowStreamDialog::captureFileClosed()
 {
-    if ((e.captureContext() == CaptureEvent::File) &&
-            (e.eventType() == CaptureEvent::Closing)) {
-            QString tooltip = tr("File closed.");
-            ui->streamNumberSpinBox->setToolTip(tooltip);
-            ui->streamNumberLabel->setToolTip(tooltip);
-            WiresharkDialog::captureFileClosing();
-    }
+    QString tooltip = tr("File closed.");
+    ui->streamNumberSpinBox->setToolTip(tooltip);
+    ui->streamNumberLabel->setToolTip(tooltip);
+    WiresharkDialog::captureFileClosed();
 }
 
 /*

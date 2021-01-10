@@ -391,8 +391,6 @@ Iax2AnalysisDialog::Iax2AnalysisDialog(QWidget &parent, CaptureFile &cf) :
             this, SLOT(updateWidgets()));
     connect(ui->reverseTreeWidget, SIGNAL(itemSelectionChanged()),
             this, SLOT(updateWidgets()));
-    connect(&cap_file_, SIGNAL(captureEvent(CaptureEvent)),
-            this, SLOT(captureEvent(CaptureEvent)));
     updateWidgets();
 
     registerTapListener("IAX2", this, Q_NULLPTR, 0, tapReset, tapPacket, tapDraw);
@@ -408,15 +406,6 @@ Iax2AnalysisDialog::~Iax2AnalysisDialog()
 //    remove_tap_listener_rtpstream(&tapinfo);
     delete fwd_tempfile_;
     delete rev_tempfile_;
-}
-
-void Iax2AnalysisDialog::captureEvent(CaptureEvent e)
-{
-    if ((e.captureContext() == CaptureEvent::File) &&
-            (e.eventType() == CaptureEvent::Closing))
-    {
-        updateWidgets();
-    }
 }
 
 void Iax2AnalysisDialog::updateWidgets()

@@ -117,10 +117,19 @@ protected:
 
     /**
      * @brief Called when the capture file is about to close. This can be
-     * used to enable or disable widgets according to the state of
-     * file_closed_.
+     * used to disconnect taps and similar actions.
+     * updateWidgets() is called at the end.
+     * To enable/disable widgets captureFileClosed() is more suitable.
      */
     virtual void captureFileClosing();
+
+    /**
+     * @brief Called when the capture file was closed. This can be
+     * used to enable or disable widgets according to the state of
+     * file_closed_.
+     * updateWidgets() is called at the end.
+     */
+    virtual void captureFileClosed();
 
 protected slots:
     void captureEvent(CaptureEvent);

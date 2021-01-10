@@ -53,6 +53,8 @@ signals:
 
 protected:
     void keyPressEvent(QKeyEvent *event);
+    void captureFileClosing();
+    void captureFileClosed();
 
 protected slots:
     void changeEvent(QEvent* event);
@@ -82,7 +84,6 @@ private:
     static tap_packet_status tapPacket(void *tapinfo_ptr, packet_info *pinfo, epan_dissect_t *, const void *data);
 
 private slots:
-    void captureFileClosing();
     void recursiveCopyTreeItems(QTreeWidgetItem *item, QString &copy, int ident_level);
     void on_tableTreeWidget_itemActivated(QTreeWidgetItem *item, int);
     void on_buttonBox_clicked(QAbstractButton *button);

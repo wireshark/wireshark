@@ -151,10 +151,16 @@ void BluetoothHciSummaryDialog::captureFileClosing()
 {
     remove_tap_listener(&tapinfo_);
 
+    WiresharkDialog::captureFileClosing();
+}
+
+
+void BluetoothHciSummaryDialog::captureFileClosed()
+{
     ui->interfaceComboBox->setEnabled(FALSE);
     ui->adapterComboBox->setEnabled(FALSE);
 
-    WiresharkDialog::captureFileClosing();
+    WiresharkDialog::captureFileClosed();
 }
 
 

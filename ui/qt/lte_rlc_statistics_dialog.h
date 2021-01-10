@@ -26,6 +26,7 @@ public:
     void     incFrameCount() { ++packet_count_; }
 
 protected:
+    void captureFileClosing();
 
 signals:
     void launchRLCGraph(bool channelKnown,
@@ -59,8 +60,6 @@ private:
 private slots:
     virtual void fillTree();
     void updateItemSelectionChanged();
-
-    void captureFileClosing();
 
     void useRLCFramesFromMacCheckBoxToggled(bool state);
     void launchULGraphButtonClicked();

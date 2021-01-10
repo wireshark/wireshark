@@ -44,9 +44,6 @@ public:
 signals:
     void goToPacket(int packet_num);
 
-protected:
-    virtual void captureFileClosing();
-
 protected slots:
     virtual void updateWidgets();
 

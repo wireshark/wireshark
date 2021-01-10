@@ -45,12 +45,10 @@ public:
     void addCodecs(const QMap<QString, QTextCodec *> &codecMap);
     bool follow(QString previous_filter = QString(), bool use_stream_index = false, guint stream_num = 0, guint sub_stream_num = 0);
 
-public slots:
-    void captureEvent(CaptureEvent e);
-
 protected:
     bool eventFilter(QObject *obj, QEvent *event);
     void keyPressEvent(QKeyEvent *event);
+    void captureFileClosed();
 
 private slots:
     void on_cbCharset_currentIndexChanged(int idx);

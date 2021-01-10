@@ -391,12 +391,6 @@ RtpAnalysisDialog::~RtpAnalysisDialog()
     delete rev_tempfile_;
 }
 
-// TODO: Can be removed if not used to fix issue with disabling buttons
-void RtpAnalysisDialog::captureFileClosing()
-{
-    WiresharkDialog::captureFileClosing();
-}
-
 void RtpAnalysisDialog::updateWidgets()
 {
     bool enable_tab = false;

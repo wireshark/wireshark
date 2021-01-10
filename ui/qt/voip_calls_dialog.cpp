@@ -140,9 +140,7 @@ void VoipCallsDialog::captureFileClosing()
 {
     // The time formatting is currently provided by VoipCallsInfoModel, but when
     // the cache is active, the ToD cannot be modified.
-    ui->todCheckBox->setEnabled(false);
     cache_model_->setSourceModel(NULL);
-    ui->displayFilterCheckBox->setEnabled(false);
     if (!voip_calls_tap_listeners_removed_) {
         voip_calls_remove_all_tap_listeners(&tapinfo_);
         voip_calls_tap_listeners_removed_ = true;
@@ -150,6 +148,16 @@ void VoipCallsDialog::captureFileClosing()
     tapinfo_.session = NULL;
 
     WiresharkDialog::captureFileClosing();
+}
+
+void VoipCallsDialog::captureFileClosed()
+{
+    // The time formatting is currently provided by VoipCallsInfoModel, but when
+    // the cache is active, the ToD cannot be modified.
+    ui->todCheckBox->setEnabled(false);
+    ui->displayFilterCheckBox->setEnabled(false);
+
+    WiresharkDialog::captureFileClosed();
 }
 
 void VoipCallsDialog::contextMenuEvent(QContextMenuEvent *event)

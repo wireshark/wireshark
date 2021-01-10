@@ -135,11 +135,16 @@ void ConversationDialog::captureFileClosing()
         disconnect(cur_tree, SIGNAL(filterAction(QString,FilterAction::Action,FilterAction::ActionType)),
                    this, SIGNAL(filterAction(QString,FilterAction::Action,FilterAction::ActionType)));
     }
+    TrafficTableDialog::captureFileClosing();
+}
+
+void ConversationDialog::captureFileClosed()
+{
     displayFilterCheckBox()->setEnabled(false);
     enabledTypesPushButton()->setEnabled(false);
     follow_bt_->setEnabled(false);
     graph_bt_->setEnabled(false);
-    TrafficTableDialog::captureFileClosing();
+    TrafficTableDialog::captureFileClosed();
 }
 
 bool ConversationDialog::addTrafficTable(register_ct_t* table)

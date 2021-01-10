@@ -866,7 +866,6 @@ void LteMacStatisticsDialog::updateHeaderLabels()
 void LteMacStatisticsDialog::captureFileClosing()
 {
     remove_tap_listener(this);
-    updateWidgets();
 
     WiresharkDialog::captureFileClosing();
 }

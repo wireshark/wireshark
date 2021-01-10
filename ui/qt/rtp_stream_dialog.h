@@ -45,6 +45,8 @@ public slots:
 
 protected:
     bool eventFilter(QObject *obj, QEvent *event);
+    void captureFileClosing();
+    void captureFileClosed();
 
 private:
     Ui::RtpStreamDialog *ui;
@@ -72,7 +74,6 @@ private:
 
 
 private slots:
-    void captureFileClosing();
     void showStreamMenu(QPoint pos);
     void on_actionCopyAsCsv_triggered();
     void on_actionCopyAsYaml_triggered();

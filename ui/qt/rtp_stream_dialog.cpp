@@ -543,12 +543,17 @@ QList<QVariant> RtpStreamDialog::streamRowData(int row) const
 
 void RtpStreamDialog::captureFileClosing()
 {
-    ui->todCheckBox->setEnabled(false);
-    ui->displayFilterCheckBox->setEnabled(false);
-
     remove_tap_listener_rtpstream(&tapinfo_);
 
     WiresharkDialog::captureFileClosing();
+}
+
+void RtpStreamDialog::captureFileClosed()
+{
+    ui->todCheckBox->setEnabled(false);
+    ui->displayFilterCheckBox->setEnabled(false);
+
+    WiresharkDialog::captureFileClosed();
 }
 
 void RtpStreamDialog::showStreamMenu(QPoint pos)
