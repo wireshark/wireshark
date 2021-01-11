@@ -30,11 +30,13 @@
 #define	DOT11DECRYPT_KEY_TYPE_WPA_PSK	4
 #define	DOT11DECRYPT_KEY_TYPE_WPA_PMK	5
 #define	DOT11DECRYPT_KEY_TYPE_TK		6
-#define	DOT11DECRYPT_KEY_TYPE_TKIP		7
-#define	DOT11DECRYPT_KEY_TYPE_CCMP		8
-#define	DOT11DECRYPT_KEY_TYPE_CCMP_256	9
-#define	DOT11DECRYPT_KEY_TYPE_GCMP		10
-#define	DOT11DECRYPT_KEY_TYPE_GCMP_256	11
+#define DOT11DECRYPT_KEY_TYPE_MSK		7
+
+#define	DOT11DECRYPT_KEY_TYPE_TKIP		100
+#define	DOT11DECRYPT_KEY_TYPE_CCMP		101
+#define	DOT11DECRYPT_KEY_TYPE_CCMP_256	102
+#define	DOT11DECRYPT_KEY_TYPE_GCMP		103
+#define	DOT11DECRYPT_KEY_TYPE_GCMP_256	104
 #define	DOT11DECRYPT_KEY_TYPE_UNKNOWN   -1
 
 /*	Decryption algorithms fields size definition (bytes)								*/
@@ -50,6 +52,8 @@
 #define	DOT11DECRYPT_WPA_PMK_MAX_LEN				48
 #define	DOT11DECRYPT_WPA_PWD_PSK_LEN				32
 #define	DOT11DECRYPT_TK_MAX_LEN					32
+#define DOT11DECRYPT_MSK_MIN_LEN				64
+#define DOT11DECRYPT_MSK_MAX_LEN				128
 /*																										*/
 /*																										*/
 /******************************************************************************/
@@ -144,6 +148,11 @@ typedef struct _DOT11DECRYPT_KEY_ITEM {
 		guint8 Tk[DOT11DECRYPT_TK_MAX_LEN];
 		guint8 Len;
 	} Tk;
+
+	struct DOT11DECRYPT_KEY_ITEMDATA_MSK {
+		guint8 Msk[DOT11DECRYPT_MSK_MAX_LEN];
+		guint8 Len;
+	} Msk;
 
         struct DOT11DECRYPT_KEY_ITEMDATA_PWD {
                 /**

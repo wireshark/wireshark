@@ -202,6 +202,12 @@ uat_wep_key_record_update_cb(void* r, char** err)
           return FALSE;
         }
         break;
+      case DOT11DECRYPT_KEY_TYPE_MSK:
+        if (rec->key != DOT11DECRYPT_KEY_TYPE_MSK) {
+          *err = g_strdup("Invalid MSK key format");
+          return FALSE;
+        }
+        break;
       default:
         *err = g_strdup("Invalid key format");
         return FALSE;
@@ -2861,6 +2867,7 @@ static const value_string wep_type_vals[] = {
   { DOT11DECRYPT_KEY_TYPE_WPA_PWD, STRING_KEY_TYPE_WPA_PWD },
   { DOT11DECRYPT_KEY_TYPE_WPA_PSK, STRING_KEY_TYPE_WPA_PSK },
   { DOT11DECRYPT_KEY_TYPE_TK, STRING_KEY_TYPE_TK },
+  { DOT11DECRYPT_KEY_TYPE_MSK, STRING_KEY_TYPE_MSK },
   { 0x00, NULL }
 };
 
@@ -28216,6 +28223,18 @@ set_dot11decrypt_keys(void)
         keys->Keys[keys->nKeys] = key;
         keys->nKeys += 1;
       }
+      else if (dk->type == DOT11DECRYPT_KEY_TYPE_MSK)
+      {
+        key.KeyType = DOT11DECRYPT_KEY_TYPE_MSK;
+
+        bytes = g_byte_array_new();
+        hex_str_to_bytes(dk->key->str, bytes, FALSE);
+
+        memcpy(key.Msk.Msk, bytes->data, bytes->len);
+        key.Msk.Len = bytes->len;
+        keys->Keys[keys->nKeys] = key;
+        keys->nKeys += 1;
+      }
       free_key_string(dk);
       if (bytes) {
         g_byte_array_free(bytes, TRUE);
@@ -39928,7 +39947,8 @@ proto_register_ieee80211(void)
                         "wep:<wep hexadecimal key>\n"
                         "wpa-pwd:<passphrase>[:<ssid>]\n"
                         "wpa-psk:<wpa hexadecimal key>\n"
-                        "tk:<hexadecimal key>\n"),
+                        "tk:<hexadecimal key>\n"
+                        "msk:<hexadecimal key>\n"),
       UAT_END_FIELDS
     };
 

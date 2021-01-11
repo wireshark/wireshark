@@ -1485,6 +1485,57 @@ static gboolean Dot11DecryptIsFtAkm(int akm)
     return FALSE;
 }
 
+/* Get xxkey portion of MSK */
+/* From IEEE 802.11-2016 12.7.1.7.3 PMK-R0 */
+static const guint8 *
+Dot11DecryptGetXXKeyFromMSK(const guint8 *msk, size_t msk_len,
+                            int akm, size_t *xxkey_len)
+{
+    if (!xxkey_len) {
+        return NULL;
+    }
+    switch (akm) {
+    case 3:
+        if (msk_len < 64) {
+            return NULL;
+        }
+        *xxkey_len = 32;
+        return msk + 32;
+    case 13:
+        if (msk_len < 48) {
+            return NULL;
+        }
+        *xxkey_len = 48;
+        return msk;
+    default:
+        return NULL;
+    }
+}
+
+/* From IEEE 802.11-2016 12.7.1.3 Pairwise key hierarchy */
+static void
+Dot11DecryptDerivePmkFromMsk(const guint8 *msk, guint8 msk_len, int akm,
+                             guint8 *pmk, guint8 *pmk_len)
+{
+    if (!msk || !pmk || !pmk_len) {
+        return;
+    }
+    // When using AKM suite selector 00-0F-AC:12, the length of the PMK, PMK_bits,
+    // shall be 384 bits. With all other AKM suite selectors, the length of the PMK,
+    // PMK_bits, shall be 256 bits.
+    if (akm == 12) {
+        *pmk_len = 384 / 8;
+    } else {
+        *pmk_len = 256 / 8;
+    }
+    if (msk_len + *pmk_len < msk_len) {
+        *pmk_len = 0;
+        return;
+    }
+    // PMK = L(MSK, 0, PMK_bits).
+    memcpy(pmk, msk, *pmk_len);
+}
+
 /* Refer to IEEE 802.11i-2004, 8.5.3, pag. 85 */
 static INT
 Dot11DecryptRsna4WHandshake(
@@ -1589,7 +1640,8 @@ Dot11DecryptRsna4WHandshake(
                 if (sa->key!=NULL &&
                     (sa->key->KeyType==DOT11DECRYPT_KEY_TYPE_WPA_PWD ||
                     sa->key->KeyType==DOT11DECRYPT_KEY_TYPE_WPA_PSK ||
-                    sa->key->KeyType==DOT11DECRYPT_KEY_TYPE_WPA_PMK)) {
+                    sa->key->KeyType == DOT11DECRYPT_KEY_TYPE_WPA_PMK ||
+                    sa->key->KeyType == DOT11DECRYPT_KEY_TYPE_MSK)) {
                         DEBUG_PRINT_LINE("Try cached WPA key...", DEBUG_LEVEL_3);
                         tmp_key=sa->key;
                 } else {
@@ -1601,7 +1653,8 @@ Dot11DecryptRsna4WHandshake(
             /* obviously, try only WPA keys... */
             if (tmp_key->KeyType==DOT11DECRYPT_KEY_TYPE_WPA_PWD ||
                 tmp_key->KeyType==DOT11DECRYPT_KEY_TYPE_WPA_PSK ||
-                tmp_key->KeyType==DOT11DECRYPT_KEY_TYPE_WPA_PMK)
+                tmp_key->KeyType == DOT11DECRYPT_KEY_TYPE_WPA_PMK ||
+                tmp_key->KeyType == DOT11DECRYPT_KEY_TYPE_MSK)
             {
                 if (tmp_key->KeyType == DOT11DECRYPT_KEY_TYPE_WPA_PWD && tmp_key->UserPwd.SsidLen == 0 && ctx->pkt_ssid_len > 0 && ctx->pkt_ssid_len <= DOT11DECRYPT_WPA_SSID_MAX_LEN) {
                     /* We have a "wildcard" SSID.  Use the one from the packet. */
@@ -1634,6 +1687,12 @@ Dot11DecryptRsna4WHandshake(
                     return DOT11DECRYPT_RET_NO_VALID_HANDSHAKE;
                 }
 
+                if (tmp_key->KeyType == DOT11DECRYPT_KEY_TYPE_MSK) {
+                    Dot11DecryptDerivePmkFromMsk(tmp_key->Msk.Msk, tmp_key->Msk.Len, akm,
+                                                 tmp_key->KeyData.Wpa.Psk,
+                                                 &tmp_key->KeyData.Wpa.PskLen);
+                }
+
                 if (Dot11DecryptIsFtAkm(akm)) {
                     int hash_algo = Dot11DecryptGetHashAlgoFromAkm(akm);
                     guint8 pmk_r0[DOT11DECRYPT_WPA_PMK_MAX_LEN];
@@ -1644,14 +1703,29 @@ Dot11DecryptRsna4WHandshake(
                     size_t pmk_r0_len;
                     size_t pmk_r1_len;
                     size_t ptk_len = Dot11DecryptGetPtkLen(akm, cipher) / 8;
+                    const guint8 *xxkey = NULL;
+                    size_t xxkey_len;
 
                     if (!eapol_parsed->mdid || !eapol_parsed->r0kh_id || !eapol_parsed->r1kh_id) {
                         DEBUG_PRINT_LINE("Fields missing for FT", DEBUG_LEVEL_3);
                         return DOT11DECRYPT_RET_NO_VALID_HANDSHAKE;
                     }
-                    /* TODO Handle other AKMS (xxkey == PSK is only valid for FT PSK) */
-                    dot11decrypt_derive_pmk_r0(tmp_pkt_key->KeyData.Wpa.Psk,
-                                               tmp_pkt_key->KeyData.Wpa.PskLen,
+                    if (tmp_key->KeyType == DOT11DECRYPT_KEY_TYPE_MSK)
+                    {
+                        xxkey = Dot11DecryptGetXXKeyFromMSK(tmp_key->Msk.Msk,
+                                                            tmp_key->Msk.Len,
+                                                            akm,
+                                                            &xxkey_len);
+                    }
+                    if (!xxkey && tmp_pkt_key->KeyData.Wpa.PskLen > 0) {
+                        xxkey = tmp_pkt_key->KeyData.Wpa.Psk;
+                        xxkey_len = tmp_pkt_key->KeyData.Wpa.PskLen;
+                    }
+                    if (!xxkey) {
+                        DEBUG_PRINT_LINE("no xxkey. Skipping", DEBUG_LEVEL_3);
+                        continue;
+                    }
+                    dot11decrypt_derive_pmk_r0(xxkey, xxkey_len,
                                                ctx->pkt_ssid, ctx->pkt_ssid_len,
                                                eapol_parsed->mdid,
                                                eapol_parsed->r0kh_id, eapol_parsed->r0kh_id_len,
@@ -1918,6 +1992,9 @@ Dot11DecryptValidateKey(
             break;
 
         case DOT11DECRYPT_KEY_TYPE_TK:
+            break;
+
+        case DOT11DECRYPT_KEY_TYPE_MSK:
             break;
 
         default:
@@ -2553,6 +2630,25 @@ parse_key_string(gchar* input_string, guint8 key_type)
             dk->bits = (guint) dk->key->len * 4;
             dk->ssid = NULL;
 
+            g_byte_array_free(key_ba, TRUE);
+            return dk;
+        }
+    case DOT11DECRYPT_KEY_TYPE_MSK:
+        {
+            key_ba = g_byte_array_new();
+            res = hex_str_to_bytes(input_string, key_ba, FALSE);
+
+            if (!res || key_ba->len < DOT11DECRYPT_MSK_MIN_LEN ||
+                key_ba->len > DOT11DECRYPT_MSK_MAX_LEN)
+            {
+                g_byte_array_free(key_ba, TRUE);
+                return NULL;
+            }
+            dk = g_new(decryption_key_t, 1);
+            dk->type = DOT11DECRYPT_KEY_TYPE_MSK;
+            dk->key  = g_string_new(input_string);
+            dk->bits = (guint)dk->key->len * 4;
+            dk->ssid = NULL;
             g_byte_array_free(key_ba, TRUE);
             return dk;
         }
