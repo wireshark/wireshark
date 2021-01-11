@@ -83,6 +83,19 @@ ProtocolExtensionField/id ext_id
 PrivateIE-Field/value private_value
 ProtocolIE-Field/value ie_field_value
 
+GlobalGNB-ID/gNB-ID globalGNB-ID_gNB-ID
+GlobalN3IWF-ID/n3IWF-ID globalN3IWF-ID_n3IWF-ID
+GlobalTNGF-ID/tNGF-ID globalTNGF-ID_tNGF-ID
+GlobalTWIF-ID/tWIF-ID globalTWIF-ID_tWIF-ID
+GlobalW-AGF-ID/w-AGF-ID globalW-AGF-ID_w-AGF-ID
+
+#.FIELD_ATTR
+GlobalGNB-ID/gNB-ID       ABBREV=globalGNB-ID.gNB-ID
+GlobalN3IWF-ID/n3IWF-ID   ABBREV=globalN3IWF-ID_n3IWF-ID
+GlobalTNGF-ID/tNGF-ID     ABBREV=globalTNGF-ID.tNGF-ID
+GlobalTWIF-ID/tWIF-ID     ABBREV=globalTWIF-ID.tWIF-ID
+GlobalW-AGF-ID/w-AGF-ID   ABBREV=globalW-AGF-ID.w-AGF-ID
+
 #.FN_BODY ProtocolIE-ID VAL_PTR=&ngap_data->protocol_ie_id
   struct ngap_private_data *ngap_data = ngap_get_private_data(actx->pinfo);
 %(DEFAULT_BODY)s

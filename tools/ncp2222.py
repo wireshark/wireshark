@@ -8503,7 +8503,7 @@ proto_register_ncp2222(void)
     { "Subject", "ncp.nds_acl_subject", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
     { &hf_nds_acl_privileges,
-    { "Subject", "ncp.nds_acl_subject", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+    { "Subject", "ncp.nds_acl_privileges", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
 """)
     # Print the registration code for the hf variables

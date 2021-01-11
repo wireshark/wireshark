@@ -67,6 +67,10 @@ DL-HS-PDSCH-Timeslot-InformationItem-LCR-PSCH-ReconfRqst/timeSlot timeSlotLCR
 E-PUCH-Timeslot-Item-InfoLCR/timeSlot timeSlotLCR
 
 CellSyncBurstTiming/initialPhase initialPhase_0_1048575
+GANSS-GenericDataInfoReqItem/ganss-Real-Time-Integrity gANSS-GenericDataInfoReqItem_ganss-Real-Time-Integrity
+
+#.FIELD_ATTR
+GANSS-GenericDataInfoReqItem/ganss-Real-Time-Integrity ABBREV=gANSS-GenericDataInfoReqItem.ganss-Real-Time-Integrity
 
 #.OMIT_ASSIGNMENT
 Presence
