@@ -923,7 +923,7 @@ tool is only needed, if you want to apply a patch (diff file) from someone else
 (probably from the developer mailing list) to try out in your own private source
 tree.
 
-It most cases you may not need the patch tool installed. Git and Gerrit should
+It most cases you may not need the patch tool installed. Git should
 handle patches for you.
 
 // You will find more instructions in <<ChSrcPatchApply>>on how to use the patch tool.
