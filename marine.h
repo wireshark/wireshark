@@ -7,7 +7,8 @@
 #define ARRAY_SIZE(arr)     (sizeof(arr) / sizeof((arr)[0]))
 
 typedef struct {
-    char *output;
+    char **output;
+    unsigned int len;
     int result;
 } marine_result;
 

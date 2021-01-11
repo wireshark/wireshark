@@ -138,6 +138,7 @@ typedef struct {
     output_fields_t *output_fields;
     int *macro_ids;
     gboolean *last_in_macro;
+    unsigned int expected_output_len;
     int wtap_encap;
 } packet_filter;
 
@@ -242,8 +243,19 @@ static void proto_tree_get_node_field_values(proto_node *node, gpointer data) {
     }
 }
 
-static char *
-marine_write_specified_fields(packet_filter *filter, epan_dissect_t *edt, char *output) {
+gsize get_field_length(GPtrArray *field) {
+    gsize i;
+    gsize len = 1;
+
+    for (i = 0; i < g_ptr_array_len(field); i++) {
+        len += strlen((gchar *) g_ptr_array_index(field, i));        
+    }
+
+    return len;
+}
+
+static char **
+marine_write_specified_fields(packet_filter *filter, epan_dissect_t *edt, char **output) {
     gsize i;
     output_fields_t *fields = filter->output_fields;
     write_field_data_t data;
@@ -281,7 +293,6 @@ marine_write_specified_fields(packet_filter *filter, epan_dissect_t *edt, char *
 
     //char *output = (char *) g_malloc0(4096); // todo this can overflow
     int counter = 0;
-    gboolean has_value = FALSE;
     for (i = 0; i < fields->fields->len; ++i) {
         gchar *field = (gchar *) g_ptr_array_index(fields->fields, i);
         unsigned int fixed_index = GPOINTER_TO_UINT(g_hash_table_lookup(fields->field_indicies, field)) - 1;
@@ -289,30 +300,24 @@ marine_write_specified_fields(packet_filter *filter, epan_dissect_t *edt, char *
         if (filter->macro_ids != NULL && (g_hash_table_contains(used_macros, filter->macro_ids + i) || (g_ptr_array_len(fields->field_values[fixed_index]) == 0 && !filter->last_in_macro[i]))) {
             continue;
         }
-        if (has_value) {
-            output[counter++] = fields->separator;
-        }
 
         if (NULL != fields->field_values[fixed_index]) {
             GPtrArray *fv_p;
             gchar *str;
             gsize j;
             fv_p = fields->field_values[fixed_index];
-            if (fields->quote != '\0') {
-                output[counter++] = fields->quote;
-            }
+            output[counter] = (gchar *) g_malloc0(get_field_length(fv_p));
+            int field_counter = 0;
 
             /* Output the array of (partial) field values */
             for (j = 0; j < g_ptr_array_len(fv_p); j++) {
                 str = (gchar *) g_ptr_array_index(fv_p, j);
                 for (char *p = str; *p != '\0'; p++) {
-                    output[counter++] = *p;
+                    output[counter][field_counter++] = *p;
                 }
             }
 
-            if (fields->quote != '\0') {
-                output[counter++] = fields->quote;
-            }
+            output[counter++][field_counter] = '\0';
 
             if (filter->macro_ids != NULL) {
                 int *key = g_new(gint, 1);
@@ -320,7 +325,6 @@ marine_write_specified_fields(packet_filter *filter, epan_dissect_t *edt, char *
                 g_hash_table_add(used_macros, key);
             }
         }
-        has_value = TRUE;
     }
 
     /* get ready for the next packet
@@ -342,7 +346,6 @@ marine_write_specified_fields(packet_filter *filter, epan_dissect_t *edt, char *
 
     g_hash_table_destroy(used_macros);
 
-    output[counter] = '\0';
     return output;
 }
 
@@ -378,7 +381,7 @@ marine_frame_data_init(frame_data *fdata, guint32 num, int len) {
 
 static gboolean
 marine_process_packet(capture_file *cf, epan_dissect_t *edt, packet_filter *filter, Buffer *buf, wtap_rec *rec,
-                      int len, char *output) {
+                      int len, char **output) {
     frame_data fdata;
     column_info *cinfo;
     gboolean passed;
@@ -449,7 +452,7 @@ marine_process_packet(capture_file *cf, epan_dissect_t *edt, packet_filter *filt
 }
 
 static int
-marine_inner_dissect_packet(capture_file *cf, packet_filter *filter, const unsigned char *data, int len, char *output) {
+marine_inner_dissect_packet(capture_file *cf, packet_filter *filter, const unsigned char *data, int len, char **output) {
     wtap_rec rec;
     Buffer buf;
     epan_dissect_t *edt = NULL;
@@ -520,17 +523,12 @@ WS_DLL_PUBLIC marine_result *marine_dissect_packet(int filter_id, unsigned char 
     } else {
         int *key = packet_filter_keys[filter_id];
         packet_filter *filter = (packet_filter *) g_hash_table_lookup(packet_filters, key);
-        char *output = filter->output_fields == NULL ? NULL : (char *) g_malloc0(4096); // TODO export to const
+        unsigned int output_count = filter->expected_output_len;
+        char **output = filter->output_fields == NULL ? NULL : (char **) g_malloc0(sizeof(char *) * output_count);
         int passed = marine_inner_dissect_packet(&cfile, filter, data, len, output);
-        if (passed) {
-            result->result = 1;
-            result->output = output;
-        } else {
-            if (output != NULL) {
-                free(output);
-            }
-            result->result = 0;
-        }
+        result->result = passed;
+        result->output = output;
+        result->len = output_count;
     }
     return result;
 }
@@ -638,6 +636,23 @@ gboolean* last_seen(const int* arr, int len) {
     return ret_arr;
 }
 
+unsigned int count_distinct(const int* arr, int len) {
+    unsigned int count = 0;
+    GHashTable *seen_values = g_hash_table_new_full(g_int_hash, g_int_equal, g_free, NULL);
+
+    for (int i = len - 1; i >= 0; i--) {
+        if (!g_hash_table_contains(seen_values, (arr + i))) {
+            int *key = g_new(gint, 1);
+            *key = arr[i];
+            g_hash_table_add(seen_values, key);
+            count++;
+        }
+    }
+
+    g_hash_table_destroy(seen_values);
+    return count;
+}
+
 WS_DLL_PUBLIC int marine_add_filter(char *bpf, char *dfilter, char **fields, int* macro_indices, unsigned int fields_len, int wtap_encap, char **err_msg) {
     // TODO make the error codes consts
     struct bpf_program fcode;
@@ -679,6 +694,11 @@ WS_DLL_PUBLIC int marine_add_filter(char *bpf, char *dfilter, char **fields, int
         last_in_macro = last_seen(macro_indices_copy, fields_len);
     }
 
+    unsigned int output_count = 0;
+    if (packet_output_fields != NULL) {
+        output_count = macro_indices_copy == NULL ? (fields_len) : count_distinct(macro_indices_copy, fields_len);
+    }
+
     int size = g_hash_table_size(packet_filters);
     int *key = g_new0(gint, 1);
     *key = size;
@@ -689,6 +709,7 @@ WS_DLL_PUBLIC int marine_add_filter(char *bpf, char *dfilter, char **fields, int
     filter->output_fields = packet_output_fields;
     filter->macro_ids = macro_indices_copy;
     filter->last_in_macro = last_in_macro;
+    filter->expected_output_len = output_count;
     filter->wtap_encap = wtap_encap;
     g_hash_table_insert(packet_filters, key, filter);
     packet_filter_keys[size] = key;
@@ -910,6 +931,12 @@ WS_DLL_PUBLIC void destroy_marine(void) {
 WS_DLL_PUBLIC void marine_free(marine_result *ptr) {
     if (ptr != NULL) {
         if (ptr->output != NULL) {
+            unsigned int i;
+            for (i = 0; i < ptr->len; i++) {
+                if (ptr->output[i]) {
+                    free(ptr->output[i]);    
+                }
+            }
             free(ptr->output);
         }
         free(ptr);
