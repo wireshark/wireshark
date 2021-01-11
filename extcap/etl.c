@@ -17,8 +17,12 @@
 
 #include "config.h"
 #include "etl.h"
-
+#include "wsutil/wsgetopt.h"
+#include "wsutil/strtoi.h"
 #include "etw_message.h"
+
+#include <rpc.h>
+#include <winevt.h>
 
 #define MAX_PACKET_SIZE 0xFFFF
 #define G_NSEC_PER_SEC 1000000000
@@ -34,6 +38,7 @@ EXTERN_C const GUID DECLSPEC_SELECTANY EventTraceGuid = { 0x68fdd900, 0x4a3e, 0x
 EXTERN_C const GUID DECLSPEC_SELECTANY ImageIdGuid = { 0xb3e675d7, 0x2554, 0x4f18, { 0x83, 0xb, 0x27, 0x62, 0x73, 0x25, 0x60, 0xde } };
 EXTERN_C const GUID DECLSPEC_SELECTANY SystemConfigExGuid = { 0x9b79ee91, 0xb5fd, 0x41c0, { 0xa2, 0x43, 0x42, 0x48, 0xe2, 0x66, 0xe9, 0xd0 } };
 EXTERN_C const GUID DECLSPEC_SELECTANY EventMetadataGuid = { 0xbbccf6c1, 0x6cd1, 0x48c4, {0x80, 0xff, 0x83, 0x94, 0x82, 0xe3, 0x76, 0x71 } };
+EXTERN_C const GUID DECLSPEC_SELECTANY ZeroGuid = { 0 };
 
 typedef struct _WTAP_ETL_RECORD {
     EVENT_HEADER        EventHeader;            // Event header
@@ -43,10 +48,31 @@ typedef struct _WTAP_ETL_RECORD {
     ULONG               ProviderLength;
 } WTAP_ETL_RECORD;
 
+enum {
+    OPT_PROVIDER,
+    OPT_KEYWORD,
+    OPT_LEVEL,
+};
+
+static struct option longopts[] = {
+    { "p", required_argument, NULL, OPT_PROVIDER},
+    { "k", required_argument, NULL, OPT_KEYWORD},
+    { "l", required_argument, NULL, OPT_LEVEL},
+    { 0, 0, 0, 0 }
+};
+
+typedef struct _PROVIDER_FILTER {
+    GUID ProviderId;
+    ULONG64 Keyword;
+    UCHAR Level;
+} PROVIDER_FILTER;
+
 static gchar g_err_info[FILENAME_MAX] = { 0 };
 static int g_err = ERROR_SUCCESS;
 static wtap_dumper* g_pdh = NULL;
 extern ULONGLONG g_num_events;
+static PROVIDER_FILTER g_provider_filters[32] = { 0 };
+static BOOL g_is_live_session = FALSE;
 
 static void WINAPI event_callback(PEVENT_RECORD ev);
 void etw_dump_write_opn_event(PEVENT_RECORD ev, ULARGE_INTEGER timestamp);
@@ -55,33 +81,263 @@ void etw_dump_write_event_head_only(PEVENT_RECORD ev, ULARGE_INTEGER timestamp);
 void wtap_etl_rec_dump(ULARGE_INTEGER timestamp, WTAP_ETL_RECORD* etl_record, ULONG total_packet_length, BOOLEAN is_inbound);
 wtap_dumper* etw_dump_open(const char* pcapng_filename, int* err, gchar** err_info);
 
-wtap_open_return_val etw_dump(const char* etl_filename, const char* pcapng_filename, int* err, gchar** err_info)
+DWORD GetPropertyValue(WCHAR* ProviderId, EVT_PUBLISHER_METADATA_PROPERTY_ID PropertyId, PEVT_VARIANT* Value)
 {
-    EVENT_TRACE_LOGFILE log_file;
-    TRACEHANDLE trace_handle = INVALID_PROCESSTRACE_HANDLE;
+    BOOL bRet;
+    DWORD err = ERROR_SUCCESS;
+    PEVT_VARIANT value = NULL;
+    DWORD bufSize = 0;
+    DWORD bufUsedOrReqd = 0;
+
+    EVT_HANDLE pubHandle = EvtOpenPublisherMetadata(NULL, ProviderId, NULL, GetThreadLocale(), 0);
+    if (pubHandle == NULL)
+    {
+        return GetLastError();
+    }
+
+    /*
+     * Get required size for property
+     */
+    bRet = EvtGetPublisherMetadataProperty(
+        pubHandle,
+        PropertyId,
+        0,
+        bufSize,
+        value,
+        &bufUsedOrReqd);
+
+    if (!bRet && ((err = GetLastError()) != ERROR_INSUFFICIENT_BUFFER))
+    {
+        return err;
+    }
+    else if (bRet) /* Didn't expect this to succeed */
+    {
+        return ERROR_INVALID_STATE;
+    }
+
+    value = (PEVT_VARIANT)g_malloc(bufUsedOrReqd);
+    if (!value)
+    {
+        return ERROR_INSUFFICIENT_BUFFER;
+    }
+    bufSize = bufUsedOrReqd;
+
+    /*
+     * Get the property value
+     */
+    bRet = EvtGetPublisherMetadataProperty(
+        pubHandle,
+        PropertyId,
+        0,
+        bufSize,
+        value,
+        &bufUsedOrReqd);
+    if (!bRet)
+    {
+        g_free(value);
+        return GetLastError();
+    }
+
+    *Value = value;
+    return ERROR_SUCCESS;
+}
+
+wtap_open_return_val etw_dump(const char* etl_filename, const char* pcapng_filename, const char* params, int* err, gchar** err_info)
+{
+    EVENT_TRACE_LOGFILE log_file = { 0 };
     WCHAR w_etl_filename[FILENAME_MAX] = { 0 };
-    WCHAR w_pcapng_filename[FILENAME_MAX] = { 0 };
-    ULONG trace_error;
     wtap_open_return_val returnVal = WTAP_OPEN_MINE;
 
+    SUPER_EVENT_TRACE_PROPERTIES super_trace_properties = { 0 };
+    super_trace_properties.prop.Wnode.BufferSize = sizeof(SUPER_EVENT_TRACE_PROPERTIES);
+    super_trace_properties.prop.Wnode.ClientContext = 2;
+    super_trace_properties.prop.Wnode.Flags = WNODE_FLAG_TRACED_GUID;
+    super_trace_properties.prop.LoggerNameOffset = sizeof(EVENT_TRACE_PROPERTIES);
+    super_trace_properties.prop.LogFileMode = EVENT_TRACE_REAL_TIME_MODE;
+    TRACEHANDLE traceControllerHandle = (TRACEHANDLE)INVALID_HANDLE_VALUE;
+    TRACEHANDLE trace_handle = INVALID_PROCESSTRACE_HANDLE;
+
+    SecureZeroMemory(g_provider_filters, sizeof(g_provider_filters));
     SecureZeroMemory(g_err_info, FILENAME_MAX);
     g_err = ERROR_SUCCESS;
     g_num_events = 0;
+    g_is_live_session = FALSE;
+
+    if (params)
+    {
+        int opt_result = 0;
+        int option_idx = 0;
+        int provider_idx = 0;
+        char** params_array = NULL;
+        int params_array_num = 0;
+        WCHAR provider_id[FILENAME_MAX] = { 0 };
+        ULONG convert_level = 0;
+
+        params_array = g_strsplit(params, " ", -1);
+        while (params_array[params_array_num])
+        {
+            params_array_num++;
+        }
+
+        optind = 0;
+        while ((opt_result = getopt_long(params_array_num, params_array, ":", longopts, &option_idx)) != -1) {
+            switch (opt_result) {
+            case OPT_PROVIDER:
+                mbstowcs(provider_id, optarg, FILENAME_MAX);
+                if (UuidFromString(provider_id, &g_provider_filters[provider_idx].ProviderId) == RPC_S_INVALID_STRING_UUID)
+                {
+                    PEVT_VARIANT value = NULL;
+
+                    *err = GetPropertyValue(
+                        provider_id,
+                        EvtPublisherMetadataPublisherGuid,
+                        &value);
+
+                    /*
+                     * Copy returned GUID locally
+                     */
+                    if (*err == ERROR_SUCCESS)
+                    {
+                        if (value->Type == EvtVarTypeGuid && value->GuidVal)
+                        {
+                            g_provider_filters[provider_idx].ProviderId = *(value->GuidVal);
+                        }
+                        else
+                        {
+                            *err = ERROR_INVALID_DATA;
+                        }
+                    }
+                    else
+                    {
+                        *err_info = g_strdup_printf("Cannot convert provider %s to a GUID, err is 0x%x", optarg, *err);
+                        return WTAP_OPEN_ERROR;
+                    }
+
+                    g_free(value);
+                }
+
+                if (IsEqualGUID(&g_provider_filters[0].ProviderId, &ZeroGuid))
+                {
+                    *err = ERROR_INVALID_PARAMETER;
+                    *err_info = g_strdup_printf("Provider %s is zero, err is 0x%x", optarg, *err);
+                    return WTAP_OPEN_ERROR;
+                }
+                provider_idx++;
+                break;
+            case OPT_KEYWORD:
+                if (provider_idx == 0)
+                {
+                    *err = ERROR_INVALID_PARAMETER;
+                    *err_info = g_strdup_printf("-k parameter must follow -p, err is 0x%x", *err);
+                    return WTAP_OPEN_ERROR;
+                }
+
+                g_provider_filters[provider_idx - 1].Keyword = _strtoui64(optarg, NULL, 0);
+                if (!g_provider_filters[provider_idx - 1].Keyword)
+                {
+                    *err = ERROR_INVALID_PARAMETER;
+                    *err_info = g_strdup_printf("Keyword %s cannot be converted, err is 0x%x", optarg, *err);
+                    return WTAP_OPEN_ERROR;
+                }
+                break;
+            case OPT_LEVEL:
+                if (provider_idx == 0)
+                {
+                    *err = ERROR_INVALID_PARAMETER;
+                    *err_info = g_strdup_printf("-l parameter must follow -p, err is 0x%x", *err);
+                    return WTAP_OPEN_ERROR;
+                }
+
+                convert_level = strtoul(optarg, NULL, 0);
+                if (convert_level > UCHAR_MAX)
+                {
+                    *err = ERROR_INVALID_PARAMETER;
+                    *err_info = g_strdup_printf("Level %s is bigger than 0xff, err is 0x%x", optarg, *err);
+                    return WTAP_OPEN_ERROR;
+                }
+                if (!convert_level)
+                {
+                    *err = ERROR_INVALID_PARAMETER;
+                    *err_info = g_strdup_printf("Level %s cannot be converted, err is 0x%x", optarg, *err);
+                    return WTAP_OPEN_ERROR;
+                }
+
+                g_provider_filters[provider_idx - 1].Level = (UCHAR)convert_level;
+                break;
+            }
+        }
+        g_strfreev(params_array);
+    }
 
     /* do/while(FALSE) is used to jump out of loop so no complex nested if/else is needed */
     do
     {
-        mbstowcs(w_etl_filename, etl_filename, FILENAME_MAX);
-        mbstowcs(w_pcapng_filename, pcapng_filename, FILENAME_MAX);
+        /* Read ETW from an etl file */
+        if (etl_filename)
+        {
+            mbstowcs(w_etl_filename, etl_filename, FILENAME_MAX);
 
-        SecureZeroMemory(&log_file, sizeof(log_file));
-        log_file.LogFileName = w_etl_filename;
-        log_file.ProcessTraceMode = PROCESS_TRACE_MODE_EVENT_RECORD;
-        log_file.EventRecordCallback = event_callback;
-        log_file.Context = NULL;
+            log_file.LogFileName = w_etl_filename;
+            log_file.ProcessTraceMode = PROCESS_TRACE_MODE_EVENT_RECORD;
+            log_file.EventRecordCallback = event_callback;
+            log_file.Context = NULL;
+        }
+        else
+        {
+            /*
+             * Try the best to stop the leftover session since extcap has no way to cleanup when stop capturing. See issue
+             * https://gitlab.com/wireshark/wireshark/-/issues/17131
+             */
+            ControlTrace((TRACEHANDLE)NULL, LOGGER_NAME, &super_trace_properties.prop, EVENT_TRACE_CONTROL_STOP);
+
+            g_is_live_session = TRUE;
+
+            log_file.LoggerName = LOGGER_NAME;
+            log_file.LogFileName = NULL;
+            log_file.ProcessTraceMode = PROCESS_TRACE_MODE_REAL_TIME | PROCESS_TRACE_MODE_EVENT_RECORD;
+            log_file.EventRecordCallback = event_callback;
+            log_file.BufferCallback = NULL;
+            log_file.Context = NULL;
+
+            *err = StartTrace(
+                &traceControllerHandle,
+                log_file.LoggerName,
+                &super_trace_properties.prop);
+            if (*err != ERROR_SUCCESS)
+            {
+                *err_info = g_strdup_printf("StartTrace failed with %u", *err);
+                returnVal = WTAP_OPEN_ERROR;
+                break;
+            }
+
+            for (int i = 0; i < ARRAYSIZE(g_provider_filters); i++)
+            {
+                if (IsEqualGUID(&g_provider_filters[i].ProviderId, &ZeroGuid))
+                {
+                    break;
+                }
+                *err = EnableTraceEx(
+                    &g_provider_filters[i].ProviderId,
+                    NULL,
+                    traceControllerHandle,
+                    TRUE,
+                    g_provider_filters[i].Level,
+                    g_provider_filters[i].Keyword,
+                    0,
+                    0,
+                    NULL);
+                if (*err != ERROR_SUCCESS)
+                {
+                    *err_info = g_strdup_printf("EnableTraceEx failed with %u", *err);
+                    returnVal = WTAP_OPEN_ERROR;
+                    break;
+                }
+            }
+        }
 
         trace_handle = OpenTrace(&log_file);
         if (trace_handle == INVALID_PROCESSTRACE_HANDLE) {
+            *err = GetLastError();
             *err_info = g_strdup_printf("OpenTrace failed with %u", err);
             returnVal = WTAP_OPEN_NOT_MINE;
             break;
@@ -94,9 +350,10 @@ wtap_open_return_val etw_dump(const char* etl_filename, const char* pcapng_filen
             break;
         }
 
-        trace_error = ProcessTrace(&trace_handle, 1, 0, 0);
-        if (trace_error != ERROR_SUCCESS) {
+        *err = ProcessTrace(&trace_handle, 1, 0, 0);
+        if (*err != ERROR_SUCCESS) {
             returnVal = WTAP_OPEN_ERROR;
+            *err_info = g_strdup_printf("ProcessTrace failed with %u", err);
             break;
         }
 
@@ -109,6 +366,7 @@ wtap_open_return_val etw_dump(const char* etl_filename, const char* pcapng_filen
         }
 
         if (!g_num_events) {
+            *err = ERROR_NO_DATA;
             *err_info = g_strdup_printf("Didn't find any etw event");
             returnVal = WTAP_OPEN_NOT_MINE;
             break;
@@ -121,18 +379,64 @@ wtap_open_return_val etw_dump(const char* etl_filename, const char* pcapng_filen
     }
     if (g_pdh != NULL)
     {
-        if (!wtap_dump_close(g_pdh, err, err_info))
+        if (*err == ERROR_SUCCESS)
         {
-            returnVal = WTAP_OPEN_ERROR;
+            if (!wtap_dump_close(g_pdh, err, err_info))
+            {
+                returnVal = WTAP_OPEN_ERROR;
+            }
+        }
+        else
+        {
+            int err_ignore;
+            gchar* err_info_ignore = NULL;
+            if (!wtap_dump_close(g_pdh, &err_ignore, &err_info_ignore))
+            {
+                returnVal = WTAP_OPEN_ERROR;
+                g_free(err_info_ignore);
+            }
         }
     }
     return returnVal;
+}
+
+BOOL is_event_filtered_out(PEVENT_RECORD ev)
+{
+    if (g_is_live_session)
+    {
+        return FALSE;
+    }
+
+    if (IsEqualGUID(&g_provider_filters[0].ProviderId, &ZeroGuid))
+    {
+        return FALSE;
+    }
+
+    for (int i = 0; i < ARRAYSIZE(g_provider_filters); i++)
+    {
+        if (IsEqualGUID(&g_provider_filters[i].ProviderId, &ev->EventHeader.ProviderId))
+        {
+            return FALSE;
+        }
+        if (IsEqualGUID(&g_provider_filters[i].ProviderId, &ZeroGuid))
+        {
+            break;
+        }
+    }
+
+    return TRUE;
 }
 
 static void WINAPI event_callback(PEVENT_RECORD ev)
 {
     ULARGE_INTEGER timestamp;
     g_num_events++;
+
+    if (is_event_filtered_out(ev))
+    {
+        return;
+    }
+
     /*
     * 100ns since 1/1/1601 -> usec since 1/1/1970.
     * The offset of 11644473600 seconds can be calculated with a couple of calls to SystemTimeToFileTime.
@@ -294,6 +598,12 @@ void wtap_etl_rec_dump(ULARGE_INTEGER timestamp, WTAP_ETL_RECORD* etl_record, UL
         g_err = err;
         sprintf_s(g_err_info, sizeof(g_err_info), "wtap_dump failed, %s", err_info);
         g_free(err_info);
+    }
+
+    /* Only flush when live session */
+    if (g_is_live_session && !wtap_dump_flush(g_pdh, &err)) {
+        g_err = err;
+        sprintf_s(g_err_info, sizeof(g_err_info), "wtap_dump failed, %d", err);
     }
     wtap_rec_cleanup(&rec);
 }

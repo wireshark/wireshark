@@ -21,6 +21,7 @@ S<[ B<--capture> ]>
 S<[ B<--fifo>=E<lt>path to file or pipeE<gt> ]>
 S<[ B<--iue>=E<lt>Should undecidable events be includedE<gt> ]>
 S<[ B<--etlfile>=E<lt>etl fileE<gt> ]>
+S<[ B<--params>=E<lt>filter parametersE<gt> ]>
 
 =head1 DESCRIPTION
 
@@ -71,6 +72,10 @@ Choose if the undecidable event is included.
 
 Select etl file to display in Wireshark.
 
+=item --params=E<lt>filter parametersE<gt>
+
+Input providers, keyword and level filters for the etl file and live session.
+
 =back
 
 =head1 EXAMPLES
@@ -102,12 +107,13 @@ To see interface configuration options:
     etwdump --extcap-interface=etwdump --extcap-config
 
   Example output:
-    arg {number=0}{call=--iue}{display=Should undecidable events be included}{type=boolflag}{default=false}{tooltip=Choose if the undecidable event is included}{group=Capture}
-    arg {number=1}{call=--etlfile}{display=etl file}{type=fileselect}{tooltip=Select etl file to display in Wireshark}{required=true}{group=Capture}
+    arg {number=0}{call=--etlfile}{display=etl file}{type=fileselect}{tooltip=Select etl file to display in Wireshark}{group=Capture}
+    arg {number=1}{call=--params}{display=filter parmeters}{type=string}{tooltip=Input providers, keyword and level filters for the etl file and live session}{group=Capture}
+    arg {number=2}{call=--iue}{display=Should undecidable events be included}{type=boolflag}{default=false}{tooltip=Choose if the undecidable event is included}{group=Capture}
 
 To capture:
 
-    etwdump --extcap-interface=etwdump --fifo=/tmp/etw.pcapng --capture
+    etwdump --extcap-interface etwdump --fifo=/tmp/etw.pcapng --capture --params "--p=Microsoft-Windows-Wmbclass-Opn --p=Microsoft-Windows-wmbclass --k=0xff --l=4"
 
 NOTE: To stop capturing CTRL+C/kill/terminate application.
 

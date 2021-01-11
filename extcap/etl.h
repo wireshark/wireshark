@@ -18,12 +18,18 @@
 
 #include <glib.h>
 #include <stdlib.h>
-#include <windows.h>
-#include <strsafe.h>
 #include <tdh.h>
 #include <guiddef.h>
 
-wtap_open_return_val etw_dump(const char* etl_filename, const char* pcapng_filename, int* err, gchar** err_info);
+#define LOGGER_NAME L"wireshark etwdump"
+
+typedef struct
+{
+    EVENT_TRACE_PROPERTIES prop;
+    char padding[64];
+} SUPER_EVENT_TRACE_PROPERTIES;
+
+wtap_open_return_val etw_dump(const char* etl_filename, const char* pcapng_filename, const char* params, int* err, gchar** err_info);
 
 #endif
 

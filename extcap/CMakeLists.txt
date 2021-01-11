@@ -255,6 +255,8 @@ if(BUILD_etwdump AND WIN32)
 		wiretap
 		wsutil
 		tdh
+		wevtapi
+		rpcrt4
 		${GLIB2_LIBRARIES}
 		${ZLIB_LIBRARIES}
 		${CMAKE_DL_LIBS}
