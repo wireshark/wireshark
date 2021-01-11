@@ -638,7 +638,7 @@ gboolean* last_seen(const int* arr, int len) {
 
 unsigned int count_distinct(const int* arr, int len) {
     unsigned int count = 0;
-    GHashTable *seen_values = g_hash_table_new(g_int_hash, g_int_equal);
+    GHashTable *seen_values = g_hash_table_new_full(g_int_hash, g_int_equal, g_free, NULL);
 
     for (int i = len - 1; i >= 0; i--) {
         if (!g_hash_table_contains(seen_values, (arr + i))) {
