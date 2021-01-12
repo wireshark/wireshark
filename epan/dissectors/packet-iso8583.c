@@ -550,7 +550,7 @@ static gchar* bin2hex(const guint8 *bin, enum bin2hex_enum type, guint32 len)
       str++;
       size--;
     }
-    size = len/=2;
+    size = len/2;
   }
 
   while(size-- > 0)
