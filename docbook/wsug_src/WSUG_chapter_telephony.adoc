@@ -49,7 +49,7 @@ The A-Interface Direct Transfer Application Part (DTAP) Statistics widow shows t
 
 === GSM
 
-The Global System for Mobile Communications (GSM) is a standard for mibile network. This menu shows a group of statistic data for mobile communication protocols according to ETSI GSM standard.
+The Global System for Mobile Communications (GSM) is a standard for mobile networks. This menu shows a group of statistic data for mobile communication protocols according to ETSI GSM standard.
 
 [[ChTelIAX2Analysis]]
 

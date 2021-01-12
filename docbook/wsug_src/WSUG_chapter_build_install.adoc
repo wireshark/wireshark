@@ -269,7 +269,7 @@ The official macOS packages are distributed as disk images (.dmg) containing the
 To install Wireshark simply open the disk image and drag _Wireshark_ to your _/Applications_ folder.
 
 In order to capture packets, you must install the “ChmodBPF” launch daemon.
-You can do so by opening the _Install ChmodBPF.pkg_ file in the Wireshark .dmg or from Wireshark iself by opening menu:Wireshark[About Wireshark] selecting the “Folders” tab, and double-clicking “macOS Extras”.
+You can do so by opening the _Install ChmodBPF.pkg_ file in the Wireshark .dmg or from Wireshark itself by opening menu:Wireshark[About Wireshark] selecting the “Folders” tab, and double-clicking “macOS Extras”.
 
 The installer package includes Wireshark along with ChmodBPF and system path packages.
 See the included _Read me first.html_ file for more details.
