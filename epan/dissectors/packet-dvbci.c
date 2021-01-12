@@ -438,59 +438,59 @@ typedef struct _apdu_info_t {
 
 static void
 dissect_dvbci_payload_rm(guint32 tag, gint len_field,
-        tvbuff_t *tvb, gint offset, conversation_t *circuit _U_,
+        tvbuff_t *tvb, gint offset, conversation_t *conv _U_,
         packet_info *pinfo, proto_tree *tree);
 static void
 dissect_dvbci_payload_ap(guint32 tag, gint len_field _U_,
-        tvbuff_t *tvb, gint offset, conversation_t *circuit _U_,
+        tvbuff_t *tvb, gint offset, conversation_t *conv _U_,
         packet_info *pinfo, proto_tree *tree);
 static void
 dissect_dvbci_payload_ca(guint32 tag, gint len_field,
-        tvbuff_t *tvb, gint offset, conversation_t *circuit _U_,
+        tvbuff_t *tvb, gint offset, conversation_t *conv _U_,
         packet_info *pinfo, proto_tree *tree);
 static void
 dissect_dvbci_payload_aut(guint32 tag, gint len_field _U_,
-        tvbuff_t *tvb, gint offset, conversation_t *circuit _U_,
+        tvbuff_t *tvb, gint offset, conversation_t *conv _U_,
         packet_info *pinfo _U_, proto_tree *tree);
 static void
 dissect_dvbci_payload_hc(guint32 tag, gint len_field _U_,
-        tvbuff_t *tvb, gint offset, conversation_t *circuit _U_,
+        tvbuff_t *tvb, gint offset, conversation_t *conv _U_,
         packet_info *pinfo, proto_tree *tree);
 static void
 dissect_dvbci_payload_dt(guint32 tag, gint len_field,
-        tvbuff_t *tvb, gint offset, conversation_t *circuit _U_,
+        tvbuff_t *tvb, gint offset, conversation_t *conv _U_,
         packet_info *pinfo, proto_tree *tree);
 static void
 dissect_dvbci_payload_mmi(guint32 tag, gint len_field,
-        tvbuff_t *tvb, gint offset, conversation_t *circuit _U_,
+        tvbuff_t *tvb, gint offset, conversation_t *conv _U_,
         packet_info *pinfo, proto_tree *tree);
 static void
 dissect_dvbci_payload_hlc(guint32 tag, gint len_field _U_,
-        tvbuff_t *tvb, gint offset, conversation_t *circuit _U_,
+        tvbuff_t *tvb, gint offset, conversation_t *conv _U_,
         packet_info *pinfo, proto_tree *tree);
 static void
 dissect_dvbci_payload_cup(guint32 tag, gint len_field _U_,
-        tvbuff_t *tvb, gint offset, conversation_t *circuit _U_,
+        tvbuff_t *tvb, gint offset, conversation_t *conv _U_,
         packet_info *pinfo, proto_tree *tree);
 static void
 dissect_dvbci_payload_cc(guint32 tag, gint len_field _U_,
-        tvbuff_t *tvb, gint offset, conversation_t *circuit _U_,
+        tvbuff_t *tvb, gint offset, conversation_t *conv _U_,
         packet_info *pinfo, proto_tree *tree);
 static void
 dissect_dvbci_payload_ami(guint32 tag, gint len_field _U_,
-        tvbuff_t *tvb, gint offset, conversation_t *circuit _U_,
+        tvbuff_t *tvb, gint offset, conversation_t *conv _U_,
         packet_info *pinfo, proto_tree *tree);
 static void
 dissect_dvbci_payload_lsc(guint32 tag, gint len_field,
-        tvbuff_t *tvb, gint offset, conversation_t *circuit,
+        tvbuff_t *tvb, gint offset, conversation_t *conv,
         packet_info *pinfo, proto_tree *tree);
 static void
 dissect_dvbci_payload_opp(guint32 tag, gint len_field _U_,
-        tvbuff_t *tvb, gint offset, conversation_t *circuit _U_,
+        tvbuff_t *tvb, gint offset, conversation_t *conv _U_,
         packet_info *pinfo, proto_tree *tree);
 static void
 dissect_dvbci_payload_sas(guint32 tag, gint len_field _U_,
-        tvbuff_t *tvb, gint offset, conversation_t *circuit,
+        tvbuff_t *tvb, gint offset, conversation_t *conv,
         packet_info *pinfo, proto_tree *tree);
 
 
