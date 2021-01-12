@@ -1240,8 +1240,9 @@ static guint16 dissect_ot( tvbuff_t *tvb, packet_info *pinfo, proto_item *node, 
     proto_item_append_text( node, ", OT=%u", ot );
 
     proto_tree_add_item( list, hf_cemi_ot, tvb, offset, 2, ENC_BIG_ENDIAN );
+    offset += 2;
 
-    *p_offset = offset += 2;
+    *p_offset = offset;
     return ot;
   }
 
