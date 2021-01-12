@@ -64,6 +64,7 @@ void proto_reg_handoff_doip(void);
 #define RESERVED_VER                               0x00
 #define ISO13400_2010                              0x01
 #define ISO13400_2012                              0x02
+#define ISO13400_2019                              0x03
 #define DEFAULT_VALUE                              0xFF
 
 
@@ -177,6 +178,7 @@ static const value_string doip_versions[] = {
     { RESERVED_VER,  "Reserved" },
     { ISO13400_2010, "DoIP ISO/DIS 13400-2:2010" },
     { ISO13400_2012, "DoIP ISO 13400-2:2012" },
+    { ISO13400_2019, "DoIP ISO 13400-2:2019" },
     { DEFAULT_VALUE, "Default value for vehicle identification request messages" },
     { 0, NULL }
 };
