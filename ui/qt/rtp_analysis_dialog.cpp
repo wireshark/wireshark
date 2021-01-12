@@ -923,8 +923,8 @@ void RtpAnalysisDialog::updateStatistics()
     stats_tables += "</table></p>";
     if (rev_statinfo_.rtp_stats.total_nr) {
         stats_tables += QString("<h4>Forward to reverse<br/>start diff %1 s @ %2</h4>")
-            .arg(abs(r_calc.start_time_ms - f_calc.start_time_ms), 0, 'f', 6)
-            .arg(abs((int64_t)r_calc.first_packet_num - (int64_t)f_calc.first_packet_num));
+            .arg(qAbs(r_calc.start_time_ms - f_calc.start_time_ms), 0, 'f', 6)
+            .arg(qAbs((int64_t)r_calc.first_packet_num - (int64_t)f_calc.first_packet_num));
     }
     stats_tables += "</body></html>\n";
 
