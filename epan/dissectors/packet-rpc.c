@@ -368,13 +368,12 @@ rpcstat_init(struct register_srt* srt, GArray* srt_array)
 static tap_packet_status
 rpcstat_packet(void *pss, packet_info *pinfo, epan_dissect_t *edt _U_, const void *prv)
 {
-	guint i = 0;
 	srt_stat_table *rpc_srt_table;
 	srt_data_t *data = (srt_data_t *)pss;
 	const rpc_call_info_value *ri = (const rpc_call_info_value *)prv;
 	rpcstat_tap_data_t* tap_data;
 
-	rpc_srt_table = g_array_index(data->srt_array, srt_stat_table*, i);
+	rpc_srt_table = g_array_index(data->srt_array, srt_stat_table*, 0);
 	tap_data = (rpcstat_tap_data_t*)rpc_srt_table->table_specific_data;
 
 	if ((int)ri->proc >= rpc_srt_table->num_procs) {
