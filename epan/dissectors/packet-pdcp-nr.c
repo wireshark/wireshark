@@ -42,8 +42,6 @@ void proto_reg_handoff_pdcp_nr(void);
 
 
 /* TODO:
-   - take into account 'cipheringDisabled' field from RRC (per SRB or DRB)
-   - if RLC layer is not present (e.g. F1), need to lookup RLC table from here to complete setting of p_pdcp_nr_info
    - look into refactoring/sharing parts of deciphering/integrity with LTE implementation
  */
 
@@ -317,7 +315,7 @@ void set_pdcp_nr_rrc_ciphering_key(guint16 ueid, const char *key)
         wmem_map_insert(pdcp_security_key_hash, GUINT_TO_POINTER((guint)ueid), key_record);
     }
 
-    /* Check and convert RRC key */
+    /* Check and convert RRC ciphering key */
     key_record->rrcCipherKeyString = g_strdup(key);
     update_key_from_string(key_record->rrcCipherKeyString, key_record->rrcCipherBinaryKey, &key_record->rrcCipherKeyOK, &err);
     if (err) {
@@ -363,7 +361,7 @@ void set_pdcp_nr_up_ciphering_key(guint16 ueid, const char *key)
         wmem_map_insert(pdcp_security_key_hash, GUINT_TO_POINTER((guint)ueid), key_record);
     }
 
-    /* Check and convert UP key */
+    /* Check and convert ciphering UP key */
     key_record->upCipherKeyString = g_strdup(key);
     update_key_from_string(key_record->upCipherKeyString, key_record->upCipherBinaryKey, &key_record->upCipherKeyOK, &err);
     if (err) {
@@ -515,7 +513,6 @@ static gboolean global_pdcp_dissect_user_plane_as_ip = TRUE;
 static gboolean global_pdcp_dissect_signalling_plane_as_rrc = TRUE;
 static gint     global_pdcp_check_sequence_numbers = TRUE;
 static gboolean global_pdcp_dissect_rohc = FALSE;
-
 
 /* Preference settings for deciphering and integrity checking. */
 static gboolean global_pdcp_decipher_signalling = TRUE;
@@ -1125,7 +1122,7 @@ static wmem_map_t *pdcp_security_result_hash = NULL;
 
 /* Write the given formatted text to:
    - the info column
-   - the top-level RLC PDU item */
+   - the top-level PDCP PDU item */
 static void write_pdu_label_and_info(proto_item *pdu_ti,
                                      packet_info *pinfo, const char *format, ...)
 {
@@ -1151,7 +1148,6 @@ static void write_pdu_label_and_info(proto_item *pdu_ti,
 
 
 /* Show in the tree the config info attached to this frame, as generated fields */
-/* TODO: add imac_present field */
 static void show_pdcp_config(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree,
                              pdcp_nr_info *p_pdcp_info)
 {
@@ -1185,13 +1181,13 @@ static void show_pdcp_config(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree
                              p_pdcp_info->bearerType);
     proto_item_set_generated(ti);
     if (p_pdcp_info->bearerId != 0) {
-        /* Bearer type */
+        /* Bearer id */
         ti = proto_tree_add_uint(configuration_tree, hf_pdcp_nr_bearer_id, tvb, 0, 0,
                                  p_pdcp_info->bearerId);
         proto_item_set_generated(ti);
     }
 
-    /* Show channel type in root/Info */
+    /* Show bearer type in root/Info */
     if (p_pdcp_info->bearerType == Bearer_DCCH) {
         write_pdu_label_and_info(configuration_ti, pinfo, "   %s-%u  ",
                                  (p_pdcp_info->plane == NR_SIGNALING_PLANE) ? "SRB" : "DRB",
@@ -1363,6 +1359,7 @@ void set_pdcp_nr_security_algorithms(guint16 ueid, pdcp_nr_security_info_t *secu
     /* Also add an entry for this PDU already to use these settings, as otherwise it won't be present
        when we query it on the first pass. */
     p_frame_security = wmem_new(wmem_file_scope(), pdcp_nr_security_info_t);
+    /* Deep copy*/
     *p_frame_security = *ue_security;
     wmem_map_insert(pdcp_security_result_hash,
                     get_ueid_frame_hash_key(ueid, ue_security->configuration_frame, TRUE),
