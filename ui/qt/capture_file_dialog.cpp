@@ -117,11 +117,10 @@ check_savability_t CaptureFileDialog::checkSaveAsWithComments(QWidget *parent, c
         return SAVE;
     }
 
-    QMessageBox msg_dialog;
+    QMessageBox msg_dialog(parent);
     QPushButton *save_button;
     QPushButton *discard_button;
 
-    msg_dialog.setParent(parent);
     msg_dialog.setIcon(QMessageBox::Question);
     msg_dialog.setText(tr("This capture file contains comments."));
     msg_dialog.setStandardButtons(QMessageBox::Cancel);
