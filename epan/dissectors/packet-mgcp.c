@@ -853,18 +853,18 @@ static gint tvb_parse_param(tvbuff_t* tvb, gint offset, gint len, int** hf, mgcp
 				/* XRM/MCR */
 				else
 				if (len > (tvb_current_offset - offset) &&
-				   (tempchar = (guint8)g_ascii_toupper(tvb_get_guint8(tvb,tvb_current_offset))) == 'R')
+				   ((guint8)g_ascii_toupper(tvb_get_guint8(tvb,tvb_current_offset))) == 'R')
 				{
 					/* Move past 'R' */
 					tvb_current_offset += 3;
 					if (len > (tvb_current_offset - offset) &&
-						(tempchar = (guint8)g_ascii_toupper(tvb_get_guint8(tvb,tvb_current_offset))) == 'R')
+						((guint8)g_ascii_toupper(tvb_get_guint8(tvb,tvb_current_offset))) == 'R')
 					{
 						*hf = &hf_mgcp_param_remotevoicemetrics;
 					}
 					else
 					if (len > (tvb_current_offset - offset) &&
-					   (tempchar = (guint8)g_ascii_toupper(tvb_get_guint8(tvb,tvb_current_offset))) == 'L')
+					   ((guint8)g_ascii_toupper(tvb_get_guint8(tvb,tvb_current_offset))) == 'L')
 					{
 						*hf = &hf_mgcp_param_localvoicemetrics;
 					}
