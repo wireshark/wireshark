@@ -67,6 +67,7 @@ static int hf_gsmtap_antenna = -1;
 
 static int hf_sacch_l1h_power_lev = -1;
 static int hf_sacch_l1h_fpc = -1;
+static int hf_sacch_l1h_sro_srr = -1;
 static int hf_sacch_l1h_ta = -1;
 
 static int hf_ptcch_spare = -1;
@@ -487,6 +488,8 @@ dissect_sacch_l1h(tvbuff_t *tvb, proto_tree *tree)
 	proto_tree_add_item(l1h_tree, hf_sacch_l1h_power_lev, tvb, 0, 1, ENC_BIG_ENDIAN);
 	/* Fast Power Control */
 	proto_tree_add_item(l1h_tree, hf_sacch_l1h_fpc, tvb, 0, 1, ENC_BIG_ENDIAN);
+	/* SRO/SRR (SACCH Repetition) bit */
+	proto_tree_add_item(l1h_tree, hf_sacch_l1h_sro_srr, tvb, 0, 1, ENC_BIG_ENDIAN);
 	/* Acutal Timing Advance */
 	proto_tree_add_item(l1h_tree, hf_sacch_l1h_ta, tvb, 1, 1, ENC_BIG_ENDIAN);
 }
@@ -1154,9 +1157,10 @@ proto_register_gsmtap(void)
 
 		{ &hf_sacch_l1h_power_lev, { "MS power level", "gsmtap.sacch_l1.power_lev",
 		  FT_UINT8, BASE_DEC, NULL, 0x1f, NULL, HFILL } },
-		{ &hf_sacch_l1h_fpc, { "FPC", "gsmtap.sacch_l1.fpc",
-		  FT_BOOLEAN, 8, TFS(&sacch_l1h_fpc_mode_vals), 0x20,
-		  NULL, HFILL } },
+		{ &hf_sacch_l1h_fpc, { "FPC (Fast Power Control)", "gsmtap.sacch_l1.fpc",
+		  FT_BOOLEAN, 8, TFS(&sacch_l1h_fpc_mode_vals), 0x20, NULL, HFILL } },
+		{ &hf_sacch_l1h_sro_srr, { "SRO/SRR (SACCH Repetition)", "gsmtap.sacch_l1.sro_srr",
+		  FT_BOOLEAN, 8, TFS(&tfs_required_not_required), 0x40, NULL, HFILL } },
 		{ &hf_sacch_l1h_ta, { "Actual Timing Advance", "gsmtap.sacch_l1.ta",
 		  FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL } },
 		{ &hf_um_voice_type, { "GSM Um Voice Type", "gsmtap.um_voice_type",

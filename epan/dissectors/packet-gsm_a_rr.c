@@ -5072,7 +5072,7 @@ static const true_false_string gsm_a_rr_pow_cmd_epc_value  = {
  */
 static const true_false_string gsm_a_rr_pow_cmd_fpcepc_value  = {
     "FPC in use/EPC in use for uplink power control",
-    "FPC not in use/C not in use for uplink power control"
+    "FPC not in use/EPC not in use for uplink power control"
 };
 
 /*

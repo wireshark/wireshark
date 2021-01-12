@@ -56,6 +56,7 @@ static int hf_rsl_timing_adv           = -1;
 static int hf_rsl_ho_ref               = -1;
 static int hf_rsl_l1inf_power_lev      = -1;
 static int hf_rsl_l1inf_fpc            = -1;
+static int hf_rsl_l1inf_srr            = -1;
 static int hf_rsl_ms_power_lev         = -1;
 static int hf_rsl_ms_fpc               = -1;
 static int hf_rsl_act_timing_adv       = -1;
@@ -1352,6 +1353,8 @@ dissect_rsl_ie_l1_inf(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, i
     proto_tree_add_item(ie_tree, hf_rsl_l1inf_power_lev, tvb, offset, 1, ENC_BIG_ENDIAN);
     /* FPC */
     proto_tree_add_item(ie_tree, hf_rsl_l1inf_fpc, tvb, offset, 1, ENC_BIG_ENDIAN);
+    /* SRR (SACCH Repetition Request) bit */
+    proto_tree_add_item(ie_tree, hf_rsl_l1inf_srr, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
     /* Actual Timing Advance */
     proto_tree_add_item(ie_tree, hf_rsl_act_timing_adv, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -4632,6 +4635,11 @@ void proto_register_rsl(void)
         { &hf_rsl_l1inf_fpc,
           { "FPC/EPC",           "gsm_abis_rsl.ms_fpc",
             FT_BOOLEAN, 8, TFS(&tfs_inuse_not_inuse), 0x04,
+            NULL, HFILL }
+        },
+        { &hf_rsl_l1inf_srr,
+          { "SRR (SACCH Repetition)",           "gsm_abis_rsl.srr",
+            FT_BOOLEAN, 8, TFS(&tfs_required_not_required), 0x08,
             NULL, HFILL }
         },
         { &hf_rsl_ms_power_lev,
