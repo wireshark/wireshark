@@ -1,7 +1,7 @@
 /* packet-autosar-nm.c
  * AUTOSAR-NM Dissector
- * By Dr. Lars Voelker <lars.voelker@bmw.de>
- * Copyright 2014-2017 Dr. Lars Voelker, BMW
+ * By Dr. Lars Voelker <lars.voelker@technica-engineering.de> / <lars.voelker@bmw.de>
+ * Copyright 2014-2021 Dr. Lars Voelker
  * Copyright 2019 Maksim Salau <maksim.salau@gmail.com>
  *
  * Wireshark - Network traffic analyzer
@@ -44,6 +44,9 @@ static int proto_can = -1;
 static int proto_canfd = -1;
 static int proto_caneth = -1;
 static int proto_udp = -1;
+
+static dissector_handle_t nm_handle;
+static dissector_handle_t nm_handle_can;
 
 /*** header fields ***/
 static int hf_autosar_nm_source_node_identifier = -1;
@@ -88,11 +91,12 @@ static gboolean g_autosar_nm_interpret_coord_id = FALSE;
 static guint32 g_autosar_nm_can_id = 0;
 static guint32 g_autosar_nm_can_id_mask = 0;
 
+/* Relevant PDUs */
+static range_t *g_autosar_nm_pdus = NULL;
+
 /*******************************
  ****** User data fields  ******
  *******************************/
-
-/*** stolen from the HTTP disector ;-) ***/
 
 static user_data_field_t* user_data_fields;
 static guint num_user_data_fields;
@@ -139,9 +143,7 @@ user_data_fields_update_cb(void *r, char **err)
     return (*err == NULL);
   }
 
-  /* Check for invalid characters (to avoid asserting out when
-   * registering the field).
-   */
+  /* Check for invalid characters (to avoid asserting out when registering the field). */
   c = proto_check_field_name(rec->udf_name);
   if (c) {
     *err = g_strdup_printf("Name of user data field can't contain '%c'", c);
@@ -152,7 +154,7 @@ user_data_fields_update_cb(void *r, char **err)
 }
 
 static void *
-user_data_fields_copy_cb(void* n, const void* o, size_t siz _U_)
+user_data_fields_copy_cb(void* n, const void* o, size_t size _U_)
 {
   user_data_field_t* new_rec = (user_data_field_t*)n;
   const user_data_field_t* old_rec = (const user_data_field_t*)o;
@@ -204,7 +206,7 @@ calc_hf_key(user_data_field_t udf)
 }
 
 /*
- *
+ * Lookup the hf for the user data based on the key
  */
 static gint*
 get_hf_for_user_data(gchar* key)
@@ -222,7 +224,7 @@ get_hf_for_user_data(gchar* key)
 }
 
 /*
- *
+ * Lookup the ett for the user data based on the key
  */
 static gint*
 get_ett_for_user_data(guint32 offset, guint32 length)
@@ -242,7 +244,7 @@ get_ett_for_user_data(guint32 offset, guint32 length)
 }
 
 /*
- *
+ * clean up user data
  */
 static void
 deregister_user_data(void)
@@ -280,7 +282,7 @@ user_data_post_update_cb(void)
 
   deregister_user_data();
 
-  // we cannot unregister ETTs, so we should try to limit the damage of an update
+  /* we cannot unregister ETTs, so we should try to limit the damage of an update */
   if (num_user_data_fields) {
     user_data_fields_hash_hf = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, NULL);
     dynamic_hf = g_new0(hf_register_info, num_user_data_fields);
@@ -313,14 +315,14 @@ user_data_post_update_cb(void)
         dynamic_hf[i].hfinfo.abbrev = g_strdup_printf("nm.user_data.%s.%s", user_data_fields[i].udf_name, user_data_fields[i].udf_value_desc);
         dynamic_hf[i].hfinfo.type = FT_BOOLEAN;
         dynamic_hf[i].hfinfo.display = 8 * (user_data_fields[i].udf_length);
-        // dynamic_hf[i].hfinfo.bitmask = 0;
+        /* dynamic_hf[i].hfinfo.bitmask = 0; */
         dynamic_hf[i].hfinfo.blurb = g_strdup(user_data_fields[i].udf_value_desc);
       }
 
       tmp = calc_hf_key(user_data_fields[i]);
       g_hash_table_insert(user_data_fields_hash_hf, tmp, hf_id);
 
-      // generate etts for new fields only
+      /* generate etts for new fields only */
       if (get_ett_for_user_data(user_data_fields[i].udf_offset, user_data_fields[i].udf_length) == NULL) {
         ett_dummy = -1;
         proto_register_subtree_array(ett, array_length(ett));
@@ -350,10 +352,28 @@ user_data_reset_cb(void)
  ****** The dissector itself ******
  **********************************/
 
-static int
-dissect_autosar_nm(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data)
+static gboolean
+is_relevant_can_message(void *data)
 {
-  wmem_list_frame_t *prev_layer;
+    const struct can_info *can_info = (struct can_info *)data;
+    DISSECTOR_ASSERT(can_info);
+
+    if (can_info->id & (CAN_ERR_FLAG | CAN_RTR_FLAG)) {
+        /* Error and RTR frames are not for us. */
+        return FALSE;
+    }
+
+    if ((can_info->id & g_autosar_nm_can_id_mask) != (g_autosar_nm_can_id & g_autosar_nm_can_id_mask)) {
+        /* Id doesn't match. The frame is not for us. */
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+static int
+dissect_autosar_nm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
   proto_item *ti;
   proto_tree *autosar_nm_tree;
   proto_tree *autosar_nm_subtree = NULL;
@@ -367,7 +387,7 @@ dissect_autosar_nm(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void
   int* hf_id;
   int ett_id;
 
-  // AUTOSAR says default is Source Node ID first and Ctrl Bit Vector second but this can be also swapped
+  /* AUTOSAR says default is Source Node ID first and Ctrl Bit Vector second but this can be also swapped */
   guint32 offset_ctrl_bit_vector = 1;
   guint32 offset_src_node_id = 0;
 
@@ -393,32 +413,6 @@ dissect_autosar_nm(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void
     &hf_autosar_nm_control_bit_vector_reserved7,
     NULL
   };
-
-  prev_layer = wmem_list_frame_prev(wmem_list_tail(pinfo->layers));
-
-  if (prev_layer) {
-    const int prev_proto = GPOINTER_TO_INT(wmem_list_frame_data(prev_layer));
-
-    if (prev_proto != proto_udp) {
-      const gboolean is_can_frame = (prev_proto == proto_can) || (prev_proto == proto_canfd) ||
-                                    (wmem_list_find(pinfo->layers, GINT_TO_POINTER(proto_caneth)) != NULL);
-
-      if (is_can_frame) {
-          const struct can_info *can_info = (struct can_info *)data;
-          DISSECTOR_ASSERT(can_info);
-
-          if (can_info->id & (CAN_ERR_FLAG | CAN_RTR_FLAG)) {
-              /* Error and RTR frames are not for us. */
-              return 0;
-          }
-
-          if ((can_info->id & g_autosar_nm_can_id_mask) != (g_autosar_nm_can_id & g_autosar_nm_can_id_mask)) {
-              /* Id doesn't match. The frame is not for us. */
-              return 0;
-          }
-      }
-    }
-  }
 
   if (g_autosar_nm_swap_first_fields == TRUE) {
     offset_ctrl_bit_vector = 0;
@@ -484,6 +478,25 @@ dissect_autosar_nm(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void
   return offset;
 }
 
+static int
+dissect_autosar_nm_can(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+    if (!is_relevant_can_message(data)) {
+        return 0;
+    }
+    return dissect_autosar_nm(tvb, pinfo, tree, data);
+}
+
+static gboolean
+dissect_autosar_nm_can_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+    if (!is_relevant_can_message(data)) {
+        return FALSE;
+    }
+    dissect_autosar_nm(tvb, pinfo, tree, data);
+    return TRUE;
+}
+
 void proto_register_autosar_nm(void)
 {
   module_t *autosar_nm_module;
@@ -542,7 +555,7 @@ void proto_register_autosar_nm(void)
   proto_register_subtree_array(ett, array_length(ett));
 
   /* Register configuration options */
-  autosar_nm_module = prefs_register_protocol(proto_autosar_nm, NULL);
+  autosar_nm_module = prefs_register_protocol(proto_autosar_nm, proto_reg_handoff_autosar_nm);
 
   prefs_register_bool_preference(autosar_nm_module, "swap_ctrl_and_src",
     "Swap Source Node Identifier and Control Bit Vector",
@@ -591,20 +604,38 @@ void proto_register_autosar_nm(void)
       "Mask applied to CAN identifiers when decoding whether a packet should dissected. "
       "Use 0xFFFFFFFF mask to require exact match.",
       16, &g_autosar_nm_can_id_mask);
+
+  range_convert_str(wmem_epan_scope(), &g_autosar_nm_pdus, "", 0xffffffff);
+  prefs_register_range_preference(autosar_nm_module, "pdu_transport.ids", "AUTOSAR NM PDU IDs",
+      "PDU Transport IDs.",
+      &g_autosar_nm_pdus, 0xffffffff);
 }
 
 void proto_reg_handoff_autosar_nm(void)
 {
-  dissector_handle_t nm_handle = create_dissector_handle(dissect_autosar_nm, proto_autosar_nm);
+  static gboolean initialized = FALSE;
 
-  dissector_add_for_decode_as_with_preference("udp.port", nm_handle);
-  dissector_add_for_decode_as("can.subdissector", nm_handle);
-  dissector_add_for_decode_as_with_preference("pdu_transport.id", nm_handle);
+  if (!initialized) {
+      nm_handle = create_dissector_handle(dissect_autosar_nm, proto_autosar_nm);
+      dissector_add_for_decode_as_with_preference("udp.port", nm_handle);
 
-  proto_can    = proto_get_id_by_filter_name("can");
-  proto_canfd  = proto_get_id_by_filter_name("canfd");
-  proto_caneth = proto_get_id_by_filter_name("caneth");
-  proto_udp    = proto_get_id_by_filter_name("udp");
+      nm_handle_can = create_dissector_handle(dissect_autosar_nm_can, proto_autosar_nm);
+      dissector_add_for_decode_as("can.subdissector", nm_handle_can);
+
+      proto_can = proto_get_id_by_filter_name("can");
+      proto_canfd = proto_get_id_by_filter_name("canfd");
+      proto_caneth = proto_get_id_by_filter_name("caneth");
+      proto_udp = proto_get_id_by_filter_name("udp");
+
+      /* heuristics default on since they do nothing without IDs being configured */
+      heur_dissector_add("can", dissect_autosar_nm_can_heur, "AUTOSAR_NM_Heuristic", "autosar_nm_can_heur", proto_autosar_nm, HEURISTIC_ENABLE);
+
+      initialized = TRUE;
+  } else {
+      dissector_delete_all("pdu_transport.id", nm_handle);
+  }
+
+  dissector_add_uint_range("pdu_transport.id", g_autosar_nm_pdus, nm_handle);
 }
 
 /*
