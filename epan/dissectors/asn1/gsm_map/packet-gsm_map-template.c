@@ -2762,9 +2762,8 @@ gsm_map_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _
   stat_tap_table* table;
   stat_tap_table_item_type *invoke_data, *fwd_bytes_data, *result_data, *rev_bytes_data, *avg_data;
   guint invokes, fwd_bytes, results, rev_bytes;
-  guint i = 0;
 
-  table = g_array_index(stat_data->stat_tap_data->tables, stat_tap_table*, i);
+  table = g_array_index(stat_data->stat_tap_data->tables, stat_tap_table*, 0);
 
   invoke_data = stat_tap_get_field_data(table, gmtr->opcode, INVOKES_COLUMN);
   fwd_bytes_data = stat_tap_get_field_data(table, gmtr->opcode, NUM_BYTES_FWD_COLUMN);
