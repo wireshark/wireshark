@@ -253,6 +253,7 @@ static lwm2m_resource_t lwm2m_oma_resources[] =
 	{ 4, 9,  "SMNC", DATA_TYPE_INTEGER, RESOURCE_FILL },
 	{ 4, 10, "SMCC", DATA_TYPE_INTEGER, RESOURCE_FILL },
 	{ 4, 11, "SignalSNR", DATA_TYPE_INTEGER, RESOURCE_FILL },
+	{ 5, 12, "LAC", DATA_TYPE_INTEGER, RESOURCE_FILL },
 
 	/* Firmware Update (5) */
 	{ 5, 0,  "Package", DATA_TYPE_OPAQUE, RESOURCE_FILL },
