@@ -855,6 +855,9 @@ install_qt() {
         # 5.2.1:      qt-opensource-mac-x64-clang-{version}.dmg
         # 5.3 - 5.8:  qt-opensource-mac-x64-clang-{version}.dmg
         # 5.9 - 5.14: qt-opensource-mac-x64-{version}.dmg
+        # 5.15 - 6.0: Offline installers no longer provided.
+        # ( http://download.qt.io/archive/qt/5.15/5.15.0/OFFLINE_README.txt )
+        # XXX: We need a different approach for QT >= 5.15
         #
         case $QT_MAJOR_VERSION in
 
@@ -941,7 +944,7 @@ uninstall_qt() {
                     installed_qt_volume=qt-opensource-mac-x64-clang-$installed_qt_version.dmg
                     ;;
 
-                9|10)
+                9|10|11|12|13|14)
                     installed_qt_volume=qt-opensource-mac-x64-$installed_qt_version.dmg
                     ;;
                 esac
