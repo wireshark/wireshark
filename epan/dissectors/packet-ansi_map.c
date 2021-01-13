@@ -16120,13 +16120,13 @@ ansi_map_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt 
     const ansi_map_tap_rec_t    *data_p = (const ansi_map_tap_rec_t *)data;
     stat_tap_table* table;
     stat_tap_table_item_type* item_data;
-    guint i = 0, count, total_bytes;
+    guint count, total_bytes;
 
     /* Only tracking field values we know */
     if (try_val_to_str(data_p->message_type, ansi_map_opr_code_strings) == NULL)
         return TAP_PACKET_DONT_REDRAW;
 
-    table = g_array_index(stat_data->stat_tap_data->tables, stat_tap_table*, i);
+    table = g_array_index(stat_data->stat_tap_data->tables, stat_tap_table*, 0);
 
     item_data = stat_tap_get_field_data(table, data_p->message_type, COUNT_COLUMN);
     item_data->value.uint_value++;
