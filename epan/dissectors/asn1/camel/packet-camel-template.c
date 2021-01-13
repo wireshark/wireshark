@@ -1192,9 +1192,8 @@ camel_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U_
   const struct camelsrt_info_t *csi = (const struct camelsrt_info_t *) csi_ptr;
   stat_tap_table* table;
   stat_tap_table_item_type* msg_data;
-  guint i = 0;
 
-  table = g_array_index(stat_data->stat_tap_data->tables, stat_tap_table*, i);
+  table = g_array_index(stat_data->stat_tap_data->tables, stat_tap_table*, 0);
   if (csi->opcode >= table->num_elements)
     return TAP_PACKET_DONT_REDRAW;
   msg_data = stat_tap_get_field_data(table, csi->opcode, COUNT_COLUMN);
