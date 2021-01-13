@@ -75,7 +75,7 @@ static const true_false_string tfs_autosar_nm_control_active_wakeup = {
   "Node has woken up the network", "Node has not woken up the network" };
 
 static const true_false_string tfs_autosar_nm_control_pni = {
-  "NM message contains no Partial Network request information", "NM message contains Partial Network request information" };
+  "NM message contains Partial Network request information", "NM message contains no Partial Network request information" };
 
 /*** Configuration items ***/
 /* Set the order of the first two fields (Source Node Identifier and Control Bit Vector */
