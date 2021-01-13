@@ -96,7 +96,7 @@ static const value_string nfapi_error_vals[] = {
 	{ 0x3, "SFN_OUT_OF_SYNC" },
 	{ 0x4, "MSG_SUBFRAME_ERR" },
 	{ 0x5, "MSG_BCH_MISSING" },
-	{ 0x6, "MSG_BCH_MISSING" },
+	{ 0x6, "MSG_INVALID_SFN" },
 	{ 0x7, "MSG_HI_ERR" },
 	{ 0x8, "MSG_TX_ERR" },
 	{ 0, NULL },
@@ -328,7 +328,7 @@ static const value_string nfapi_dl_config_pdu_type_vals[] = {
 	{ 5, "DL_CONFIG_PRS_PDU" },
 	{ 6, "DL_CONFIG_CSI_RS_PDU" },
 	{ 7, "DL_CONFIG_EPDCCH_DL_PDU" },
-	{ 8, "DL_CONFIG_EPDCCH_DL_PDU" },
+	{ 8, "DL_MPDCCH" },
 	{ 0, NULL }
 };
 

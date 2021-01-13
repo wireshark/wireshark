@@ -146,6 +146,12 @@ typedef enum {
   MIP_REGIONAL_REG_REP = 19,
   MIP_FAST_BINDING_UPD = 20,
   MIP_FAST_BINDING_ACK = 21,
+  MIP_GENERIC_NOTIFICATION = 22,
+  MIP_GENERIC_NOTIICATION_ACK = 23,
+  MIP_HOME_TEST_INIT = 24,
+  MIP_CAREOF_TEST_INIT = 25,
+  MIP_HOME_TEST = 26,
+  MIP_CAREOF_TEST = 27,
   MIP_EXPERIMENTAL_MESSAGE = 255
 } mipMessageTypes;
 
@@ -155,12 +161,18 @@ static const value_string mip_types[] = {
   {MIP_NATT_TUNNEL_DATA,                "NAT Traversal Tunnel Data"},
   {MIP_REGISTRATION_REVOCATION,         "Registration Revocation"},
   {MIP_REGISTRATION_REVOCATION_ACK,     "Registration Revocation Acknowledgement"},
-  {MIP_HANDOFF_REQUEST,                 "NAT Traversal Tunnel Data"},
-  {MIP_HANDOFF_REPLY,                   "NAT Traversal Tunnel Data"},
-  {MIP_REGIONAL_REG_REQ,                "NAT Traversal Tunnel Data"},
-  {MIP_REGIONAL_REG_REP,                "NAT Traversal Tunnel Data"},
-  {MIP_FAST_BINDING_UPD,                "NAT Traversal Tunnel Data"},
-  {MIP_FAST_BINDING_ACK,                "NAT Traversal Tunnel Data"},
+  {MIP_HANDOFF_REQUEST,                 "Handoff Request"},
+  {MIP_HANDOFF_REPLY,                   "Handoff Reply"},
+  {MIP_REGIONAL_REG_REQ,                "Regional Registration Request"},
+  {MIP_REGIONAL_REG_REP,                "Regional Registration Reply"},
+  {MIP_FAST_BINDING_UPD,                "Fast Binding Update"},
+  {MIP_FAST_BINDING_ACK,                "Fast Binding Acknowledgement"},
+  {MIP_GENERIC_NOTIFICATION,            "Generic Notification"},
+  {MIP_GENERIC_NOTIICATION_ACK,         "Generic Notification Acknowledgement"},
+  {MIP_HOME_TEST_INIT,                  "Home Test Init message"},
+  {MIP_CAREOF_TEST_INIT,                "Care-of Test Init message"},
+  {MIP_HOME_TEST,                       "Home Test message"},
+  {MIP_CAREOF_TEST,                     "Care-of Test message"},
   {MIP_EXPERIMENTAL_MESSAGE,            "Message for Experimental Use"},
   {0, NULL}
 };

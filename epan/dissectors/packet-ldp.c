@@ -561,7 +561,6 @@ static const value_string tlv_type_names[] = {
     { TLV_RSVP_TE_P2MP_LSP,                    "RSVP-TE P2MP LSP TLV"                   },
     { TLV_LDP_P2MP_LSP,                        "LDP P2MP LSP TLV"                       },
     { TLV_IP_MULTICAST_TUNNEL,                 "IP Multicast Tunnel TLV"                },
-    { TLV_IP_MULTICAST_TUNNEL,                 "IP Multicast Tunnel TLV"                },
 
     { 0, NULL}
 };

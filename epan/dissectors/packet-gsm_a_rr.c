@@ -2746,7 +2746,7 @@ static const value_string gsm_a_rr_cbq3_vals[] = {
     { 0, "Iu mode not supported"},
     { 1, "Iu mode capable MSs barred"},
     { 2, "Iu mode supported, cell not barred"},
-    { 3, "Iu mode supported, cell not barred"},
+    { 3, "Iu mode supported, cell not barred. The network shall not use this value"},
     { 0, NULL }
 };
 
