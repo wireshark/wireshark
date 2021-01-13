@@ -1,0 +1,47 @@
+= WiX (.msi) Installer For Wireshark
+
+This is an experimental feature to provide Wireshark with an .msi installer as requested in https://gitlab.com/wireshark/wireshark/-/issues/8814[issue 8814].
+It might one day replace the NSIS installer, but needs to be a little more complete before doing so.
+
+== Differences/Notes Compared To The NSIS Installer
+
+. You need the https://wixtoolset.org/[WiX toolset] to build the .msi installer.
+Version 3.10 or later is recommended.
+
+. SNMP, Radius, Diameter, and Qt translations files are harvested to be included in
+the installer.  Any custom/additional files just need to be written to the appropriate
+build output directory and the installer will pick them up.  NSIS required modifying
+a file (custom_mibs.txt, etc) for inclusion
+
+. Plugin DLLs are not automatically harvested. To include your DLL, modify Plugins.wxi.
+
+. To build the WiX installer run:
+----
+> msbuild /m /p:Configuration=RelWithDebInfo wix_package_prep.vcxproj
+> msbuild /m /p:Configuration=RelWithDebInfo wix_package.vcxproj
+----
+
+== Known Issues
+
+. The .msi installer does not include and install Npcap or USBPcap like the NSIS installer does.
+These currently come as NSIS-generated .exe installers.
+We might be able to bundle them as https://wixtoolset.org/documentation/manual/v3/xsd/wix/exepackage.html[ExePackage elements].
+
+// This appears to be fixed in the MERGE_MODULE_DIR code in CMakeLists.txt?
+// . Needs more flexible handling of VC CRT Merge module (need build script to provide appropriate macros).
+// Something like (or modifying existing) FindMSVC_REDIST.cmake.
+// Currently only VS2013 / CRT120 and VS 2015 / CRT140 are supported.
+
+. Transitioning, upgrading, downgrading, and reinstalling is more tricky.
+The NSIS-based installer handles previously-installed versions by running any existing uninstaller prior to installation, which empties the installation directory and removes registry entries.
+These are subsequently filled back in by the installer.
+The Windows Installer architecture keeps track of installed items in a https://docs.microsoft.com/en-us/windows/win32/msi/installer-database[database] and uses the https://docs.microsoft.com/en-us/windows/win32/msi/upgradecode[UpgradeCode property] to identify installed products and the https://wixtoolset.org/documentation/manual/v3/xsd/wix/majorupgrade.html[MajorUpgrade property] to control upgrade behavior.
+As a result,
+  * We can't easily upgrade from an NSIS-based installation to a .msi installation, and vice versa.
+  * We have to be careful about setting things like UpgradeCode, MajorUpgrade, and REINSTALLMODE in our WiX configuration.
+
+. The lax behavior of the NSIS-based installer lets you install more than one copy of Wireshark if you specify different installation directories.
+(The most recently installed version "wins" as far as registry entries and file associations go).
+The .msi installer doesn't allow this.
+
+Patches welcome to address any of the issues above or improvements you think can be made.

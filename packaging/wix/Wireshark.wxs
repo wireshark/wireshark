@@ -27,7 +27,8 @@
     <!-- We set AllowSameVersionUpgrade so that automated builds (which
          only differ by micro version numbers) won't get installed side
          by side. The WiX documentation seems to warn against this, so we
-         might want to find a better fix.
+         might want to find a better fix, e.g. REINSTALLMODE + AllowDowngrades:
+         https://stackoverflow.com/questions/1544990/wix-major-upgrade-doesnt-completely-install-app-on-downgrade
     -->
     <MajorUpgrade
       DowngradeErrorMessage="A newer version of $(var.WiresharkName) is already installed."
