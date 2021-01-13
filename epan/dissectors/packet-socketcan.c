@@ -316,9 +316,26 @@ dissect_socketcan_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		}
 
 		next_tvb = tvb_new_subset_length(tvb, CAN_DATA_OFFSET, can_info.len);
-		if (!dissector_try_payload_new(subdissector_table, next_tvb, pinfo, tree, TRUE, &can_info))
+
+		if (!heuristic_first)
 		{
-			call_data_dissector(next_tvb, pinfo, tree);
+			if (!dissector_try_payload_new(subdissector_table, next_tvb, pinfo, tree, TRUE, &can_info))
+			{
+				if (!dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, tree, &heur_dtbl_entry, &can_info))
+				{
+					call_data_dissector(next_tvb, pinfo, tree);
+				}
+			}
+		}
+		else
+		{
+			if (!dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, tree, &heur_dtbl_entry, &can_info))
+			{
+				if (!dissector_try_payload_new(subdissector_table, next_tvb, pinfo, tree, FALSE, &can_info))
+				{
+					call_data_dissector(next_tvb, pinfo, tree);
+				}
+			}
 		}
 	}
 
