@@ -1,7 +1,7 @@
 /* packet-tecmp.c
  * Technically Enhanced Capture Module Protocol (TECMP) dissector.
  * By <lars.voelker@technica-engineering.de>
- * Copyright 2019-2020 Dr. Lars Voelker
+ * Copyright 2019-2021 Dr. Lars Voelker
  * Copyright 2020      Ayoub Kaanich
  *
  * Wireshark - Network traffic analyzer
@@ -35,11 +35,20 @@ void proto_reg_handoff_tecmp_payload(void);
 
 static int proto_tecmp = -1;
 static int proto_tecmp_payload = -1;
+
 static dissector_handle_t eth_handle;
 static int proto_vlan;
 
+static gboolean heuristic_first = FALSE;
+
 static dissector_table_t can_subdissector_table;
+static heur_dissector_list_t can_heur_subdissector_list;
+static heur_dtbl_entry_t *can_heur_dtbl_entry;
+
 static dissector_table_t fr_subdissector_table;
+static heur_dissector_list_t fr_heur_subdissector_list;
+static heur_dtbl_entry_t *fr_heur_dtbl_entry;
+
 
 /* Header fields */
 /* TECMP */
@@ -1060,8 +1069,7 @@ dissect_tecmp_log_or_replay_stream(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                 }
 
                 if (length2 > 0) {
-                    proto_tree_add_item(tecmp_tree, hf_tecmp_payload_data_payload, sub_tvb, offset2, (gint)length2,
-                                        ENC_NA);
+                    proto_tree_add_item(tecmp_tree, hf_tecmp_payload_data_payload, sub_tvb, offset2, (gint)length2, ENC_NA);
                     offset2 += (gint)length2;
                     proto_tree_add_item(tecmp_tree, hf_tecmp_payload_data_checksum_8bit, sub_tvb, offset2, 1, ENC_NA);
                 }
@@ -1104,9 +1112,18 @@ dissect_tecmp_log_or_replay_stream(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                         can_info.id |= CAN_ERR_FLAG;
                     }
 
-                    if (!dissector_try_payload_new(can_subdissector_table, payload_tvb, pinfo, tree, TRUE, &can_info))
-                    {
-                        proto_tree_add_item(tecmp_tree, hf_tecmp_payload_data_payload, payload_tvb, 0, (gint)length2, ENC_NA);
+                    if (!heuristic_first) {
+                        if (!dissector_try_payload_new(can_subdissector_table, payload_tvb, pinfo, tree, TRUE, &can_info)) {
+                            if (!dissector_try_heuristic(can_heur_subdissector_list, payload_tvb, pinfo, tree, &can_heur_dtbl_entry, &can_info)) {
+                                proto_tree_add_item(tecmp_tree, hf_tecmp_payload_data_payload, payload_tvb, 0, (gint)length2, ENC_NA);
+                            }
+                        }
+                    } else {
+                        if (!dissector_try_heuristic(can_heur_subdissector_list, payload_tvb, pinfo, tree, &can_heur_dtbl_entry, &can_info)) {
+                            if (!dissector_try_payload_new(can_subdissector_table, payload_tvb, pinfo, tree, FALSE, &can_info)) {
+                                proto_tree_add_item(tecmp_tree, hf_tecmp_payload_data_payload, payload_tvb, 0, (gint)length2, ENC_NA);
+                            }
+                        }
                     }
                 }
                 break;
@@ -1121,8 +1138,7 @@ dissect_tecmp_log_or_replay_stream(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                 proto_tree_add_item_ret_uint(tecmp_tree, hf_tecmp_payload_data_frame_id, sub_tvb, offset2 + 1, 2, ENC_NA, &tmp);
                 fr_info.id = (guint16)tmp;
 
-                ti = proto_tree_add_item_ret_uint(tecmp_tree, hf_tecmp_payload_data_length, sub_tvb, offset2 + 3, 1, ENC_NA,
-                                                  &length2);
+                ti = proto_tree_add_item_ret_uint(tecmp_tree, hf_tecmp_payload_data_length, sub_tvb, offset2 + 3, 1, ENC_NA, &length2);
                 offset2 += 4;
 
                 if (tvb_captured_length_remaining(sub_tvb, offset2) < (gint)length2) {
@@ -1133,9 +1149,18 @@ dissect_tecmp_log_or_replay_stream(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                 if (length2 > 0) {
                     payload_tvb = tvb_new_subset_length(sub_tvb, offset2, tvb_captured_length_remaining(sub_tvb, offset2));
 
-                    if (!dissector_try_payload_new(fr_subdissector_table, payload_tvb, pinfo, tree, TRUE, &fr_info))
-                    {
-                        proto_tree_add_item(tecmp_tree, hf_tecmp_payload_data_payload, payload_tvb, 0, (gint)length2, ENC_NA);
+                    if (!heuristic_first) {
+                        if (!dissector_try_payload_new(fr_subdissector_table, payload_tvb, pinfo, tree, TRUE, &fr_info)) {
+                            if (!dissector_try_heuristic(fr_heur_subdissector_list, payload_tvb, pinfo, tree, &fr_heur_dtbl_entry, &fr_info)) {
+                                proto_tree_add_item(tecmp_tree, hf_tecmp_payload_data_payload, payload_tvb, 0, (gint)length2, ENC_NA);
+                            }
+                        }
+                    } else {
+                        if (!dissector_try_heuristic(fr_heur_subdissector_list, payload_tvb, pinfo, tree, &fr_heur_dtbl_entry, &fr_info)) {
+                            if (!dissector_try_payload_new(fr_subdissector_table, payload_tvb, pinfo, tree, FALSE, &fr_info)) {
+                                proto_tree_add_item(tecmp_tree, hf_tecmp_payload_data_payload, payload_tvb, 0, (gint)length2, ENC_NA);
+                            }
+                        }
                     }
                 }
                 break;
@@ -1631,6 +1656,12 @@ proto_register_tecmp(void) {
 
     prefs_register_uat_preference(tecmp_module, "_udf_tecmp_cms", "Capture Modules",
         "A table to define names of Capture Modules, which override default names.", tecmp_cmid_uat);
+
+    prefs_register_bool_preference(tecmp_module, "try_heuristic_first",
+        "Try heuristic sub-dissectors first",
+        "Try to decode a packet using an heuristic sub-dissector"
+        " before using a sub-dissector registered to \"decode as\"",
+        &heuristic_first);
 }
 
 void
@@ -1641,7 +1672,10 @@ proto_reg_handoff_tecmp(void) {
     dissector_add_uint("ethertype", ETHERTYPE_TECMP, tecmp_handle);
 
     can_subdissector_table = find_dissector_table("can.subdissector");
+    can_heur_subdissector_list = find_heur_dissector_list("can");
+
     fr_subdissector_table  = find_dissector_table("flexray.subdissector");
+    fr_heur_subdissector_list = find_heur_dissector_list("flexray");
 }
 
 /*
