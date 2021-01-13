@@ -81,7 +81,6 @@ static expert_field ei_per_field_not_integer = EI_INIT;
 static expert_field ei_per_external_type = EI_INIT;
 static expert_field ei_per_open_type = EI_INIT;
 static expert_field ei_per_open_type_len = EI_INIT;
-static expert_field ei_per_dissect_per_constrained_sequence_of = EI_INIT;
 
 static dissector_table_t per_oid_dissector_table = NULL;
 
@@ -2866,9 +2865,7 @@ proto_register_per(void)
 		{ &ei_per_open_type,
 		  { "per.open_type.unknown", PI_PROTOCOL, PI_WARN, "Unknown Open Type", EXPFILL }},
 		{ &ei_per_open_type_len,
-		  { "per.open_type.len", PI_PROTOCOL, PI_ERROR, "Open Type length > available data(tvb)", EXPFILL }},
-		{ &ei_per_dissect_per_constrained_sequence_of,
-		  { "per.dissect_per_constrained_sequence_of", PI_UNDECODED, PI_WARN, "dissect_per_constrained_sequence_of with extension is not handled", EXPFILL }},
+		  { "per.open_type.len", PI_PROTOCOL, PI_ERROR, "Open Type length > available data(tvb)", EXPFILL }}
 	};
 
 	module_t *per_module;
