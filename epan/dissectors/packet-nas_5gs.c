@@ -2249,6 +2249,14 @@ de_nas_5gs_mm_ma_pdu_ses_inf(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo
 /*
  * 9.11.3.31B   Mapped NSSAI
  */
+static const value_string nas_5gs_mm_sst_vals[] = {
+    { 0x1, "eMBB"},
+    { 0x2, "URLLC"},
+    { 0x3, "MIoT"},
+    { 0x4, "V2X"},
+    {   0, NULL }
+};
+
 static guint16
 de_nas_5gs_mm_mapped_nssai(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo _U_,
     guint32 offset, guint len,
@@ -8782,7 +8790,7 @@ proto_register_nas_5gs(void)
         },
         { &hf_nas_5gs_mm_sst,
         { "Slice/service type (SST)",   "nas_5gs.mm.sst",
-            FT_UINT8, BASE_DEC, NULL, 0x0,
+            FT_UINT8, BASE_DEC, VALS(nas_5gs_mm_sst_vals), 0x0,
             NULL, HFILL }
         },
         { &hf_nas_5gs_mm_sd,
