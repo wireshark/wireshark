@@ -80,6 +80,7 @@ static expert_field ei_per_undecoded = EI_INIT;
 static expert_field ei_per_field_not_integer = EI_INIT;
 static expert_field ei_per_external_type = EI_INIT;
 static expert_field ei_per_open_type = EI_INIT;
+static expert_field ei_per_open_type_len = EI_INIT;
 static expert_field ei_per_dissect_per_constrained_sequence_of = EI_INIT;
 
 static dissector_table_t per_oid_dissector_table = NULL;
@@ -155,11 +156,12 @@ void dissect_per_not_decoded_yet(proto_tree* tree, packet_info* pinfo, tvbuff_t 
 static guint32
 dissect_per_open_type_internal(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, void* type_cb, asn1_cb_variant variant)
 {
-	guint32 type_length, start_offset, end_offset, fragmented_length = 0, pdu_length, pdu_offset;
+	int type_length, start_offset, end_offset, fragmented_length = 0, pdu_length, pdu_offset;
 	tvbuff_t *val_tvb = NULL, *pdu_tvb = NULL;
 	header_field_info *hfi;
 	proto_tree *subtree = tree;
 	gboolean is_fragmented;
+	int captured_pdu_length;
 
 	hfi = (hf_index == -1) ? NULL : proto_registrar_get_nth(hf_index);
 
@@ -196,9 +198,19 @@ dissect_per_open_type_internal(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, 
 		if (fragmented_length) {
 			val_tvb = pdu_tvb;
 		} else {
-			if (!pdu_length)
+			if (!pdu_length) {
 				return end_offset;
-			val_tvb = tvb_new_octet_aligned(pdu_tvb, pdu_offset, pdu_length * 8);
+			}
+			/* Check if we have a tvb that holds the whole PDU */
+			captured_pdu_length = tvb_captured_length(pdu_tvb) - (pdu_offset>>3);
+			if(captured_pdu_length < pdu_length){
+				val_tvb = tvb_new_octet_aligned(pdu_tvb, pdu_offset, captured_pdu_length * 8);
+				actx->created_item = proto_tree_add_expert_format(tree, actx->pinfo, &ei_per_open_type_len, tvb, pdu_offset >> 3,
+					captured_pdu_length,"Open type length(%i) > avalable data(%i)", pdu_length, captured_pdu_length);
+				pdu_length = captured_pdu_length;
+			} else {
+				val_tvb = tvb_new_octet_aligned(pdu_tvb, pdu_offset, pdu_length * 8);
+			}
 			/* Add new data source if the offet was unaligned */
 			if ((pdu_offset & 7) != 0) {
 				add_new_data_source(actx->pinfo, val_tvb, "Unaligned OCTET STRING");
@@ -2853,6 +2865,8 @@ proto_register_per(void)
 		  { "per.external_type.unknown", PI_PROTOCOL, PI_WARN, "Unknown EXTERNAL Type", EXPFILL }},
 		{ &ei_per_open_type,
 		  { "per.open_type.unknown", PI_PROTOCOL, PI_WARN, "Unknown Open Type", EXPFILL }},
+		{ &ei_per_open_type_len,
+		  { "per.open_type.len", PI_PROTOCOL, PI_ERROR, "Open Type length > available data(tvb)", EXPFILL }},
 		{ &ei_per_dissect_per_constrained_sequence_of,
 		  { "per.dissect_per_constrained_sequence_of", PI_UNDECODED, PI_WARN, "dissect_per_constrained_sequence_of with extension is not handled", EXPFILL }},
 	};
