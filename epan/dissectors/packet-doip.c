@@ -678,6 +678,15 @@ dissect_doip_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static guint
 get_doip_message_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *p _U_)
 {
+    guint8 ver1 = tvb_get_guint8(tvb, DOIP_VERSION_OFFSET);
+    guint8 ver2 = tvb_get_guint8(tvb, DOIP_INV_VERSION_OFFSET);
+
+    if (ver1 != ((~ver2) & 0xff)) {
+        /* if ver2 is not the inverse of ver1, we are not at the start of a DoIP message! */
+        /* bounds_error: (0 < return < DOIP_HEADER_LEN) */
+        return 1;
+    }
+
     /* PDU Length = length field value + header length */
     return (guint)tvb_get_ntohl(tvb, offset + DOIP_LENGTH_OFFSET) + DOIP_HEADER_LEN;
 }
