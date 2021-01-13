@@ -34,6 +34,12 @@ set(PLUGIN_FILES
 )
 
 set_source_files_properties(
+	plugin.c
+	PROPERTIES
+	SKIP_AUTOGEN ON
+)
+
+set_source_files_properties(
 	${PLUGIN_FILES}
 	PROPERTIES
 	COMPILE_FLAGS "${WERROR_COMMON_FLAGS}"
