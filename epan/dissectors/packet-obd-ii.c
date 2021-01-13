@@ -1367,6 +1367,12 @@ dissect_obdii(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 	return tvb_captured_length(tvb);
 }
 
+static int
+dissect_obdii_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+    return dissect_obdii(tvb, pinfo, tree, data) != 0;
+}
+
 void
 proto_register_obdii(void)
 {
@@ -1598,6 +1604,9 @@ proto_reg_handoff_obdii(void)
 	obdii_handle = create_dissector_handle(dissect_obdii, proto_obdii);
 
 	dissector_add_for_decode_as("can.subdissector", obdii_handle);
+
+	/* heuristics default off since these standardized IDs might be reused outside automotive systems */
+	heur_dissector_add("can", dissect_obdii_heur, "OBD-II Heuristic", "obd-ii_can_heur", proto_obdii, HEURISTIC_DISABLE);
 }
 
 /*
