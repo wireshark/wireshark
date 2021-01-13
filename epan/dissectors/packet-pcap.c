@@ -901,7 +901,7 @@ static int hf_pcap_almanacSatInfoList = -1;       /* AlmanacSatInfoList */
 static int hf_pcap_svGlobalHealth = -1;           /* BIT_STRING_SIZE_364 */
 static int hf_pcap_AlmanacSatInfoList_item = -1;  /* AlmanacSatInfo */
 static int hf_pcap_e = -1;                        /* BIT_STRING_SIZE_16 */
-static int hf_pcap_t_oa_01 = -1;                  /* BIT_STRING_SIZE_8 */
+static int hf_pcap_almanacSatInfo_t_oa = -1;      /* BIT_STRING_SIZE_8 */
 static int hf_pcap_deltaI = -1;                   /* BIT_STRING_SIZE_16 */
 static int hf_pcap_omegaDot = -1;                 /* BIT_STRING_SIZE_16 */
 static int hf_pcap_satHealth = -1;                /* BIT_STRING_SIZE_8 */
@@ -1014,7 +1014,7 @@ static int hf_pcap_clockModelID = -1;             /* INTEGER_0_7 */
 static int hf_pcap_utcModelID = -1;               /* INTEGER_0_7 */
 static int hf_pcap_almanacModelID = -1;           /* INTEGER_0_7 */
 static int hf_pcap_dataBitAssistancelist_01 = -1;  /* ReqDataBitAssistanceList */
-static int hf_pcap_ganssSignalID_01 = -1;         /* BIT_STRING_SIZE_8 */
+static int hf_pcap_reqDataBitAssistanceList_ganssSignalID = -1;  /* BIT_STRING_SIZE_8 */
 static int hf_pcap_ganssDataBitInterval = -1;     /* INTEGER_0_15 */
 static int hf_pcap_ganssSatelliteInfo = -1;       /* T_ganssSatelliteInfo */
 static int hf_pcap_ganssSatelliteInfo_item = -1;  /* INTEGER_0_63 */
@@ -1140,7 +1140,7 @@ static int hf_pcap_supportForUEAGPSinCellPCH = -1;  /* BOOLEAN */
 static int hf_pcap_supportForSFNSFNTimeDiff = -1;  /* BOOLEAN */
 static int hf_pcap_NetworkAssistedGANSSSupport_item = -1;  /* NetworkAssistedGANSSSupport_item */
 static int hf_pcap_ganssMode = -1;                /* T_ganssMode */
-static int hf_pcap_ganssSignalID_02 = -1;         /* GANSS_SignalID */
+static int hf_pcap_networkAssistedGANSSSupport_item_ganssSignalID = -1;  /* GANSS_SignalID */
 static int hf_pcap_supportGANSSTimingOfCellFrame = -1;  /* BOOLEAN */
 static int hf_pcap_supportGANSSCarrierPhaseMeasurement = -1;  /* BOOLEAN */
 static int hf_pcap_ganss_sbas_ids = -1;           /* BIT_STRING_SIZE_8 */
@@ -1154,7 +1154,7 @@ static int hf_pcap_gpsTimingOfCellWanted = -1;    /* BOOLEAN */
 static int hf_pcap_additionalAssistanceDataRequest = -1;  /* BOOLEAN */
 static int hf_pcap_ganssPositioningInstructions = -1;  /* GANSS_PositioningInstructions */
 static int hf_pcap_ganssTimingOfCellWanted = -1;  /* BIT_STRING_SIZE_8 */
-static int hf_pcap_additionalAssistanceDataRequest_01 = -1;  /* BIT_STRING_SIZE_8 */
+static int hf_pcap_gANSS_PositioningInstructions_additionalAssistanceDataRequest = -1;  /* BIT_STRING_SIZE_8 */
 static int hf_pcap_uE_Positioning_OTDOA_AssistanceData = -1;  /* UE_Positioning_OTDOA_AssistanceData */
 static int hf_pcap_ue_positioning_OTDOA_ReferenceCellInfo = -1;  /* UE_Positioning_OTDOA_ReferenceCellInfo */
 static int hf_pcap_ue_positioning_OTDOA_NeighbourCellList = -1;  /* UE_Positioning_OTDOA_NeighbourCellList */
@@ -2340,7 +2340,7 @@ static const per_sequence_t AlmanacSatInfo_sequence[] = {
   { &hf_pcap_dataID         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_pcap_BIT_STRING_SIZE_2 },
   { &hf_pcap_satID          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_pcap_INTEGER_0_63 },
   { &hf_pcap_e              , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_pcap_BIT_STRING_SIZE_16 },
-  { &hf_pcap_t_oa_01        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_pcap_BIT_STRING_SIZE_8 },
+  { &hf_pcap_almanacSatInfo_t_oa, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_pcap_BIT_STRING_SIZE_8 },
   { &hf_pcap_deltaI         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_pcap_BIT_STRING_SIZE_16 },
   { &hf_pcap_omegaDot       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_pcap_BIT_STRING_SIZE_16 },
   { &hf_pcap_satHealth      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_pcap_BIT_STRING_SIZE_8 },
@@ -7325,7 +7325,7 @@ dissect_pcap_T_ganssSatelliteInfo(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
 
 
 static const per_sequence_t ReqDataBitAssistanceList_sequence[] = {
-  { &hf_pcap_ganssSignalID_01, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_pcap_BIT_STRING_SIZE_8 },
+  { &hf_pcap_reqDataBitAssistanceList_ganssSignalID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_pcap_BIT_STRING_SIZE_8 },
   { &hf_pcap_ganssDataBitInterval, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_pcap_INTEGER_0_15 },
   { &hf_pcap_ganssSatelliteInfo, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_pcap_T_ganssSatelliteInfo },
   { &hf_pcap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_pcap_ProtocolExtensionContainer },
@@ -9074,7 +9074,7 @@ dissect_pcap_T_ganssMode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
 static const per_sequence_t NetworkAssistedGANSSSupport_item_sequence[] = {
   { &hf_pcap_ganssID        , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_pcap_GANSSID },
   { &hf_pcap_ganssMode      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_pcap_T_ganssMode },
-  { &hf_pcap_ganssSignalID_02, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_pcap_GANSS_SignalID },
+  { &hf_pcap_networkAssistedGANSSSupport_item_ganssSignalID, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_pcap_GANSS_SignalID },
   { &hf_pcap_supportGANSSTimingOfCellFrame, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_pcap_BOOLEAN },
   { &hf_pcap_supportGANSSCarrierPhaseMeasurement, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_pcap_BOOLEAN },
   { &hf_pcap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_pcap_ProtocolExtensionContainer },
@@ -9244,7 +9244,7 @@ static const per_sequence_t GANSS_PositioningInstructions_sequence[] = {
   { &hf_pcap_horizontalAccuracyCode, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_pcap_HorizontalAccuracyCode },
   { &hf_pcap_verticalAccuracyCode, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_pcap_VerticalAccuracyCode },
   { &hf_pcap_ganssTimingOfCellWanted, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_pcap_BIT_STRING_SIZE_8 },
-  { &hf_pcap_additionalAssistanceDataRequest_01, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_pcap_BIT_STRING_SIZE_8 },
+  { &hf_pcap_gANSS_PositioningInstructions_additionalAssistanceDataRequest, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_pcap_BIT_STRING_SIZE_8 },
   { &hf_pcap_measurementValidity, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_pcap_MeasurementValidity },
   { &hf_pcap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_pcap_ProtocolExtensionContainer },
   { NULL, 0, 0, NULL }
@@ -16363,8 +16363,8 @@ void proto_register_pcap(void) {
       { "e", "pcap.e",
         FT_BYTES, BASE_NONE, NULL, 0,
         "BIT_STRING_SIZE_16", HFILL }},
-    { &hf_pcap_t_oa_01,
-      { "t-oa", "pcap.t_oa",
+    { &hf_pcap_almanacSatInfo_t_oa,
+      { "t-oa", "pcap.almanacSatInfo.t-oa",
         FT_BYTES, BASE_NONE, NULL, 0,
         "BIT_STRING_SIZE_8", HFILL }},
     { &hf_pcap_deltaI,
@@ -16815,8 +16815,8 @@ void proto_register_pcap(void) {
       { "dataBitAssistancelist", "pcap.dataBitAssistancelist_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "ReqDataBitAssistanceList", HFILL }},
-    { &hf_pcap_ganssSignalID_01,
-      { "ganssSignalID", "pcap.ganssSignalID",
+    { &hf_pcap_reqDataBitAssistanceList_ganssSignalID,
+      { "ganssSignalID", "pcap.reqDataBitAssistanceList.ganssSignalID",
         FT_BYTES, BASE_NONE, NULL, 0,
         "BIT_STRING_SIZE_8", HFILL }},
     { &hf_pcap_ganssDataBitInterval,
@@ -17319,8 +17319,8 @@ void proto_register_pcap(void) {
       { "ganssMode", "pcap.ganssMode",
         FT_UINT32, BASE_DEC, VALS(pcap_T_ganssMode_vals), 0,
         NULL, HFILL }},
-    { &hf_pcap_ganssSignalID_02,
-      { "ganssSignalID", "pcap.ganssSignalID_element",
+    { &hf_pcap_networkAssistedGANSSSupport_item_ganssSignalID,
+      { "ganssSignalID", "pcap.networkAssistedGANSSSupport.item.ganssSignalID_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "GANSS_SignalID", HFILL }},
     { &hf_pcap_supportGANSSTimingOfCellFrame,
@@ -17375,8 +17375,8 @@ void proto_register_pcap(void) {
       { "ganssTimingOfCellWanted", "pcap.ganssTimingOfCellWanted",
         FT_BYTES, BASE_NONE, NULL, 0,
         "BIT_STRING_SIZE_8", HFILL }},
-    { &hf_pcap_additionalAssistanceDataRequest_01,
-      { "additionalAssistanceDataRequest", "pcap.additionalAssistanceDataRequest",
+    { &hf_pcap_gANSS_PositioningInstructions_additionalAssistanceDataRequest,
+      { "additionalAssistanceDataRequest", "pcap.gANSS-PositioningInstructions.additionalAssistanceDataRequest",
         FT_BYTES, BASE_NONE, NULL, 0,
         "BIT_STRING_SIZE_8", HFILL }},
     { &hf_pcap_uE_Positioning_OTDOA_AssistanceData,

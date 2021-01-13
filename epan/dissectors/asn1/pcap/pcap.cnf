@@ -56,6 +56,16 @@ ProtocolExtensionField/id ext_id
 PrivateIE-Field/value private_value
 ProtocolIE-Field/value ie_field_value
 
+AlmanacSatInfo/t-oa almanacSatInfo_t-oa
+ReqDataBitAssistanceList/ganssSignalID reqDataBitAssistanceList_ganssSignalID
+NetworkAssistedGANSSSupport/_item/ganssSignalID networkAssistedGANSSSupport_item_ganssSignalID
+GANSS-PositioningInstructions/additionalAssistanceDataRequest gANSS-PositioningInstructions_additionalAssistanceDataRequest
+
+#.FIELD_ATTR
+AlmanacSatInfo/t-oa					ABBREV=almanacSatInfo.t-oa
+ReqDataBitAssistanceList/ganssSignalID ABBREV=reqDataBitAssistanceList.ganssSignalID
+NetworkAssistedGANSSSupport/_item/ganssSignalID ABBREV=networkAssistedGANSSSupport.item.ganssSignalID
+GANSS-PositioningInstructions/additionalAssistanceDataRequest ABBREV=gANSS-PositioningInstructions.additionalAssistanceDataRequest
 
 #.FN_PARS ProtocolIE-ID  VAL_PTR=&ProtocolIE_ID
 #.FN_FTR ProtocolIE-ID

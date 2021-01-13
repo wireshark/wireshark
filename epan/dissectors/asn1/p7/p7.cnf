@@ -156,6 +156,20 @@ PAR-fetch-restriction-error/problems/_item/restriction/content-type	extended-con
 PAR-auto-action-request-error/problems/_item/type	auto-action-type
 PAR-attribute-error/problems/_item/value		attr-value
 
+#.FIELD_ATTR
+TimeRange/from					ABBREV=timeRange.time
+NumberRange/from				ABBREV=numberRange.number
+TimeRange/to					ABBREV=timeRange.to
+NumberRange/to					ABBREV=NumberRange.to
+Summary/present					ABBREV=summary.present
+PAR-fetch-restriction-error/problems/_item/restriction/content-type		ABBREV=extended-content-type
+PAR-fetch-restriction-error/problems/_item/problem						ABBREV=fetch-restriction-problem
+PAR-range-error/problem													ABBREV=pAR-range-error.problem
+EntryClassErrorParameter/problem										ABBREV=entryClassErrorParameter.problem
+MessageGroupErrorParameter/problem										ABBREV=messageGroupErrorParameter.group-problem
+ServiceErrorParameter/problem											ABBREV=serviceErrorParameter.problem
+ModifyErrorParameter/problem											ABBREV=modifyErrorParameter.problem
+
 # This table creates the value_sting to name P7 operation codes and errors
 # in file packet-p7-table.c which is included in the template file
 #

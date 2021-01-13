@@ -81,6 +81,17 @@ ForwardedContentToken/_item/body-part-choice/message-or-content-body-part	forwar
 
 ForwardedContentToken/_item/body-part-choice	T_body_part_token_choice
 
+#.FIELD_ATTR
+G3FacsimileBodyPart/data				ABBREV=g3facsimile.data
+VideotexBodyPart/data					ABBREV=videotex.data
+ExtendedBodyPart/data					ABBREV=extended.data
+TeletexBodyPart/data					ABBREV=teletex.data
+IA5TextBodyPart/data					ABBREV=ia5text.data
+MessageBodyPart/data					ABBREV=message.data
+EncryptedBodyPart/data					ABBREV=encrypted.data
+Account-Attribute/actual-values			ABBREV=account.actual-values
+User-Identity-Attribute/actual-values	ABBREV=identity.actual-values
+
 #.REGISTER
 AbsenceAdvice				B "2.6.1.19.0"  "id-on-absence-advice"
 ChangeOfAddressAdvice		B "2.6.1.19.1"  "id-on-change-of-address-advice"

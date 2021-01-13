@@ -295,6 +295,24 @@ AsymmetricTokenData/name/recipient-name			token-recipient-name
 
 TokenData/type						token-data-type
 CertificateSelectors/content-integrity-check		selectors-content-integrity-check
+PerMessageTransferFields/originator-name			perMessageTransferFields_originator-name
+PerProbeTransferFields/originator-name				perProbeTransferFields_originator-name
+PerMessageSubmissionFields/originator-name			perMessageSubmissionFields_originator-name
+PerProbeSubmissionFields/originator-name			perProbeSubmissionFields_originator-name
+
+#.FIELD_ATTR
+PerMessageTransferFields/originator-name			ABBREV=perMessageTransferFields.originator-name
+PerProbeTransferFields/originator-name				ABBREV=perProbeTransferFields.originator-name
+PerMessageSubmissionFields/originator-name			ABBREV=perMessageSubmissionFields.originator-name
+PerProbeSubmissionFields/originator-name			ABBREV=perProbeSubmissionFields.originator-name
+MTABindArgument/authenticated/initiator-name		ABBREV=authenticated.initiator-name
+MTABindResult/authenticated/responder-name			ABBREV=authenticated.responder-name
+DeliveryQueue/octets								ABBREV=delivery-queue.octets
+BuiltInDomainDefinedAttribute/type					ABBREV=printable.type
+UniversalDomainDefinedAttribute/type				ABBREV=universal.type
+SecurityCategory/type								ABBREV=category.type
+ExtensionField/type									ABBREV=extension.type
+TokenData/type										ABBREV=token-data-type
 
 # This table creates the value_sting to name P3 operation codes and errors
 # in file packet-p3-table.c which is included in the template file
@@ -1257,47 +1275,19 @@ MessageToken						B	"2.6.1.7.36"	"id-hat-forwarded-token"
 
 #.TYPE_ATTR
 RecipientNumberForAdvice DISPLAY = STR_UNICODE
-
-#.TYPE_ATTR
 TeletexCommonName DISPLAY = STR_UNICODE
-
-#.TYPE_ATTR
 TeletexOrganizationName DISPLAY = STR_UNICODE
-
-#.TYPE_ATTR
 TeletexPersonalName/surname DISPLAY = STR_UNICODE
-
-#.TYPE_ATTR
 TeletexPersonalName/given-name DISPLAY = STR_UNICODE
-
-#.TYPE_ATTR
 TeletexPersonalName/initials DISPLAY = STR_UNICODE
-
-#.TYPE_ATTR
 TeletexPersonalName/generation-qualifier DISPLAY = STR_UNICODE
-
-#.TYPE_ATTR
 TeletexOrganizationalUnitName DISPLAY = STR_UNICODE
-
-#.TYPE_ATTR
 UnformattedPostalAddress/teletex-string DISPLAY = STR_UNICODE
-
-#.TYPE_ATTR
 PDSParameter/teletex-string DISPLAY = STR_UNICODE
-
-#.TYPE_ATTR
 TeletexDomainDefinedAttribute/type DISPLAY = STR_UNICODE
-
-#.TYPE_ATTR
 TeletexDomainDefinedAttribute/value DISPLAY = STR_UNICODE
-
-#.TYPE_ATTR
 TeletexNonBasicParameters/graphic-character-sets DISPLAY = STR_UNICODE
-
-#.TYPE_ATTR
 TeletexNonBasicParameters/control-character-sets DISPLAY = STR_UNICODE
-
-#.TYPE_ATTR
 TeletexNonBasicParameters/miscellaneous-terminal-capabilities DISPLAY = STR_UNICODE
 
 #.END
