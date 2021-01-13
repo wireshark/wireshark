@@ -3779,13 +3779,12 @@ gsm_a_stat_packet(void *tapdata, const void *gatr_ptr, guint8 pdu_type, int prot
     const gsm_a_tap_rec_t *gatr = (const gsm_a_tap_rec_t *) gatr_ptr;
     stat_tap_table* table;
     stat_tap_table_item_type* msg_data;
-    guint i = 0;
 
     if (gatr->pdu_type != pdu_type) return TAP_PACKET_DONT_REDRAW;
     if (pdu_type == BSSAP_PDU_TYPE_DTAP && (int)gatr->protocol_disc != protocol_disc) return TAP_PACKET_DONT_REDRAW;
     if (pdu_type == GSM_A_PDU_TYPE_SACCH && gatr->protocol_disc != 0) return TAP_PACKET_DONT_REDRAW;
 
-    table = g_array_index(stat_data->stat_tap_data->tables, stat_tap_table*, i);
+    table = g_array_index(stat_data->stat_tap_data->tables, stat_tap_table*, 0);
     msg_data = stat_tap_get_field_data(table, gatr->message_type, COUNT_COLUMN);
     msg_data->value.uint_value++;
     stat_tap_set_field_data(table, gatr->message_type, COUNT_COLUMN, msg_data);
