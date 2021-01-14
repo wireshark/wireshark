@@ -486,13 +486,6 @@ unix_epoch_to_nstime(nstime_t *nstime, const char *ptr)
         return 0;
     }
 
-    /* Validate what we got so far. mktime() doesn't care about strange
-       values (and we use this to our advantage when calculating the
-       time zone offset) but we should at least start with something valid */
-    if (!tm_is_valid(&tm)) {
-        return 0;
-    }
-
     /* No UTC offset given; ISO 8601 says this means localtime */
     nstime->secs = mktime(&tm);
 
