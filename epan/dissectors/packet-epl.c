@@ -4205,7 +4205,6 @@ dissect_epl_sdo_command_write_by_index(struct epl_convo *convo, proto_tree *epl_
 					/* add reassemble field => Reassembled in: */
 					process_reassembled_data(tvb, 0, pinfo, "Reassembled Message", frag_msg, &epl_frag_items, NULL, payload_tree );
 				}
-				first_write = TRUE;
 				ct = 0;
 			}
 		}
@@ -5170,8 +5169,6 @@ dissect_epl_sdo_command_read_by_index(struct epl_convo *convo, proto_tree *epl_t
 					/* add reassemble field => Reassembled in: */
 					process_reassembled_data(tvb, 0, pinfo, "Reassembled Message", frag_msg, &epl_frag_items, NULL, payload_tree );
 				}
-
-				first_read = TRUE;
 				count = 0;
 			}
 		}
