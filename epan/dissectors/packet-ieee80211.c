@@ -5070,9 +5070,11 @@ static int hf_ieee80211_vs_sgdsn_tag = -1;
 static int hf_ieee80211_vs_sgdsn_type = -1;
 static int hf_ieee80211_vs_sgdsn_length = -1;
 static int hf_ieee80211_vs_sgdsn_version = -1;
+static int hf_ieee80211_vs_sgdsn_icaomfrcode = -1;
 static int hf_ieee80211_vs_sgdsn_manufacturer = -1;
 static int hf_ieee80211_vs_sgdsn_model = -1;
 static int hf_ieee80211_vs_sgdsn_serialnumber = -1;
+static int hf_ieee80211_vs_sgdsn_serialnumber_len = -1;
 static int hf_ieee80211_vs_sgdsn_gpscoord = -1;
 static int hf_ieee80211_vs_sgdsn_altitude = -1;
 static int hf_ieee80211_vs_sgdsn_speed = -1;
@@ -6320,6 +6322,8 @@ static expert_field ei_ieee80211_mesh_peering_unexpected = EI_INIT;
 static expert_field ei_ieee80211_fcs = EI_INIT;
 static expert_field ei_ieee80211_mismatched_akm_suite = EI_INIT;
 static expert_field ei_ieee80211_vs_routerboard_unexpected_len = EI_INIT;
+static expert_field ei_ieee80211_vs_sgdsn_serialnumber_invalid_len_val = EI_INIT;
+static expert_field ei_ieee80211_vs_sgdsn_serialnumber_unexpected_len_val = EI_INIT;
 static expert_field ei_ieee80211_twt_tear_down_bad_neg_type = EI_INIT;
 static expert_field ei_ieee80211_twt_setup_not_supported_neg_type = EI_INIT;
 static expert_field ei_ieee80211_twt_setup_bad_command = EI_INIT;
@@ -6761,6 +6765,19 @@ he_ru_allocation_base_custom(gchar *result, guint32 ru_allocation)
     g_snprintf(result, ITEM_LABEL_LENGTH, "%d (%d tones)", ru_allocation, tones);
   else
     g_snprintf(result, ITEM_LABEL_LENGTH, "%d (bogus number of tones)", ru_allocation);
+}
+
+/*
+ * We use this to display the ANSI/CTA-2063 Serial number length
+ */
+static void
+vs_sgdsn_serialnumber_len_custom(gchar *result, guint32 val)
+{
+  if(val >= 0x30 && val <= 0x39) {
+    g_snprintf(result, ITEM_LABEL_LENGTH, "%d byte(s)", val-0x30);
+  } else if(val >= 0x41 && val <= 0x46) {
+    g_snprintf(result, ITEM_LABEL_LENGTH, "%d byte(s)", val-0x37);
+  }
 }
 
 /* ************************************************************************* */
@@ -15369,6 +15386,28 @@ dissect_vendor_ie_sgdsn(proto_item *item _U_, proto_tree *ietree,
           proto_item_append_text(tree, ": %s %s %s", string1, string2, string3);
         } else {
           expert_add_info_format(pinfo, tree, &ei_ieee80211_tag_length, "Value length must be 30");
+        }
+        break;
+      case SGDSN_IDANSI:
+        if (tlv_len >= 6 && tlv_len <= 20) {
+          // ANSI/CTA-2063 Small UAS Serial Number.
+          // Doc (free): https://shop.cta.tech/products/small-unmanned-aerial-systems-serial-numbers
+          const guint8* icao_mfr_code;
+          guint32 sn_len;
+          const guint8* serial_number;
+          proto_tree_add_item_ret_string(tree, hf_ieee80211_vs_sgdsn_icaomfrcode, tvb, offset, 4, ENC_ASCII|ENC_NA, wmem_packet_scope(), &icao_mfr_code);
+          proto_tree_add_item_ret_uint(tree, hf_ieee80211_vs_sgdsn_serialnumber_len, tvb, offset+4, 1, ENC_NA, &sn_len);
+          if(sn_len < 0x30 || (sn_len > 0x39 && sn_len < 0x41) || sn_len > 0x46) {
+            expert_add_info_format(pinfo, tree, &ei_ieee80211_vs_sgdsn_serialnumber_invalid_len_val, "Serial Number Length must be '0' to '9', or 'A' to 'F'");
+          } else if (sn_len != (guint32)tlv_len+(sn_len>0x39 ? 0x32 : 0x2A)) {
+            // Check that sn_len equals tlv_len - 5 + ( 0x37 if sn_len is 'A' to 'F', 0x30 otherwise).
+            // We suppressed the minus 5 in the check above to avoid a compilation warning
+            expert_add_info_format(pinfo, tree, &ei_ieee80211_vs_sgdsn_serialnumber_unexpected_len_val, "Expected %d byte(s), got %d byte(s)", tlv_len-5, (sn_len>0x39?sn_len-0x37:sn_len-0x30));
+          }
+          proto_tree_add_item_ret_string(tree, hf_ieee80211_vs_sgdsn_serialnumber, tvb, offset+5, tlv_len-5, ENC_ASCII|ENC_NA, wmem_packet_scope(), &serial_number);
+          proto_item_append_text(tree, ": %s %s", icao_mfr_code, serial_number);
+        } else {
+          expert_add_info_format(pinfo, tree, &ei_ieee80211_tag_length, "Value length must be between 6 and 20");
         }
         break;
       case SGDSN_LATITUDE_TAKEOFF:
@@ -36574,6 +36613,11 @@ proto_register_ieee80211(void)
       FT_UINT8, BASE_DEC, NULL, 0,
       NULL, HFILL }},
 
+    {&hf_ieee80211_vs_sgdsn_icaomfrcode,
+     {"ICAO Manufacturer Code", "wlan.vs.sgdsn.tag.icaomfrcode",
+      FT_STRING, BASE_NONE, NULL, 0,
+      NULL, HFILL }},
+
     {&hf_ieee80211_vs_sgdsn_manufacturer,
      {"Manufacturer", "wlan.vs.sgdsn.tag.manufacturer",
       FT_STRING, BASE_NONE, NULL, 0,
@@ -36587,6 +36631,11 @@ proto_register_ieee80211(void)
     {&hf_ieee80211_vs_sgdsn_serialnumber,
      {"Serial number", "wlan.vs.sgdsn.tag.serialnumber",
       FT_STRING, BASE_NONE, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_vs_sgdsn_serialnumber_len,
+     {"Serial number length", "wlan.vs.sgdsn.tag.serialnumber.len",
+      FT_UINT8, BASE_CUSTOM, CF_FUNC(vs_sgdsn_serialnumber_len_custom), 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_vs_sgdsn_gpscoord,
@@ -40196,6 +40245,14 @@ proto_register_ieee80211(void)
     { &ei_ieee80211_vs_routerboard_unexpected_len,
       { "wlan.vs.routerboard.unexpected_len", PI_PROTOCOL, PI_WARN,
         "Unexpected IE Length", EXPFILL }},
+
+    { &ei_ieee80211_vs_sgdsn_serialnumber_invalid_len_val,
+      { "wlan.vs.sgdsn.tag.serialnumber.invalid_len_val", PI_PROTOCOL, PI_ERROR,
+        "Invalid serial number length value", EXPFILL }},
+
+    { &ei_ieee80211_vs_sgdsn_serialnumber_unexpected_len_val,
+      { "wlan.vs.sgdsn.tag.serialnumber.unexpected_len_val", PI_PROTOCOL, PI_WARN,
+        "Unexpected serial number length", EXPFILL }},
 
     { &ei_ieee80211_twt_tear_down_bad_neg_type,
       { "wlan.twt.tear_down_bad_neg_type", PI_PROTOCOL, PI_ERROR,
