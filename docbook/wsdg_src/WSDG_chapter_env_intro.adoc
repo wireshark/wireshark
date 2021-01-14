@@ -8,12 +8,11 @@
 
 === Introduction
 
-This chapter will provide you with information about Wireshark
-development in general.
+This chapter will provide a general overview of Wireshark development.
 
 [[ChIntroWhatIs]]
 
-=== What is Wireshark?
+=== What Is Wireshark?
 
 Well, if you want to start Wireshark development, you might already
 know what Wireshark is doing. If not, please have a look at the
@@ -39,7 +38,7 @@ to mailto:{wireshark-dev-list-email}[].
 Binary packages are available for the following platforms along with many
 others:
 
-==== Unix and Unix-like platforms
+==== Unix And Unix-like Platforms
 
 * Apple macOS
 
@@ -99,7 +98,7 @@ We don’t officially support building or running Wireshark in this environment,
 
 [[ChIntroDevelopment]]
 
-=== Development and maintenance of Wireshark
+=== Development And Maintenance Of Wireshark
 
 Wireshark was initially developed by Gerald Combs. Ongoing development
 and maintenance of Wireshark is handled by the Wireshark core developers,
@@ -121,31 +120,23 @@ It is strongly recommended to join the developer mailing list, if you are going
 to do any Wireshark development. See <<ChIntroMailingLists>> about the different
 Wireshark mailing lists available.
 
-==== Programming languages used
+==== Programming Languages Used
 
-Most of Wireshark is implemented in plain ANSI C. A notable exception is
-the code in _ui/qt_, which is written in {cpp}.
+Most of Wireshark is implemented in C99.
+A notable exception is the code in _ui/qt_, which is written in {cpp}.
 
-The typical task for a new Wireshark developer is to extend an existing,
-or write a new dissector for a specific network protocol. As (almost) any
-dissector is written in plain old ANSI C, a good knowledge about ANSI C
-will be sufficient for Wireshark development in almost any case.
+The typical task for a new Wireshark developer is to extend an existing dissector, or write a new dissector for a specific network protocol.
+Most dissectors are written in C99, so a good knowledge of C will be sufficient for Wireshark development in almost any case.
+Dissectors can also be written in Lua, which might be more suitable for your specific needs.
+As noted above, if you’re going to modify Wireshark’s user interface you will need a knowledge of {cpp}.
 
-So unless you are going to change the build process of Wireshark
-itself, you won't come in touch with any other programming language than
-ANSI C (such as Perl or Python, which are used only in the Wireshark build
-process).
-
-Beside the usual tools for developing a program in C (compiler, make, ...),
-the build process uses some additional helper tools (Perl, Python, Sed,
-...), which are needed for the build process when Wireshark
-is to be build and installed from the released source packages. If Wireshark
-is installed from a binary package, none of these helper tools are needed on
-the target system.
+Modifying the build system and support tooling might requires knowledge of CMake, Python, PowerShell, Bash, or Perl.
+Note that these are required to build Wireshark, but not to run it.
+If Wireshark is installed from a binary package, none of these helper tools are needed on the target system.
 
 ==== Open Source Software
 
-Wireshark is an open source software (OSS) project, and is released under
+Wireshark is an https://opensource.org/[open source] software (OSS) project, and is released under
 the link:{gplv2-url}[GNU General Public License] (GPL).
 You can freely use Wireshark on any number of computers you like, without
 worrying about license keys or fees or such. In addition, all source
@@ -155,7 +146,6 @@ into the source, and they often do!
 
 You are welcome to modify Wireshark to suit your own needs, and it would be
 appreciated if you contribute your improvements back to the Wireshark community.
-
 
 You gain three benefits by contributing your improvements back to the
 community:
@@ -182,117 +172,95 @@ available on the download page of the Wireshark website:
 
 [[ChIntroReleases]]
 
-=== Releases and distributions
+=== Releases And Distributions
 
-The officially released files can be found at {wireshark-download-url}.
-A new Wireshark version is released after significant changes compared
-to the last release are completed or a serious security issue is
-encountered. The typical release schedule is about every 4-8 weeks
-(although this may vary).  There are two kinds of distributions: binary
-and source; both have their advantages and disadvantages.
+Official Wireshark releases can be found at {wireshark-download-url}.
+Minor releases typically happen every six weeks and typically include bug fixes and security updates.
+Major releases happen about once a year and include new features and new protocol support.
+Official releases include binary packages for Windows and macOS along with source code.
 
 [[ChIntroReleaseBinary]]
 
-==== Binary distributions
+==== Binary Distributions
 
-Binary distributions are usually easy to install (as simply starting
-the appropriate file is usually the only thing to do). They are available
-for the following systems:
+The Wireshark development team would like to make it as easy as possible for people to obtain and use Wireshark.
+This means that we need to support the software installation systems that different operating systems provide.
+We currently offer the following types of precompiled packages as part of each official release:
 
-* Windows (.exe file). The typical Windows end user is used to getting
-  a setup.exe file which will install all the required things for him.
+* Windows .exe installer.
+  This is an executable file that installs Wireshark, and optionally Npcap and USBPcap, created using https://nsis.sourceforge.io/Main_Page[NSIS].
+  It is the most popular installation method on Windows.
 
-* Win32 PAF (.paf.exe file). Another Windows end user method is to get a
-  portable application file which will install all the required things for him.
+* Windows https://portableapps.com/[PortableApps] .paf.exe file.
+  This is a self-contained package that can be run from anywere, either standalone or under the PortableApps.com Platform.
 
-* Debian (.deb file). A user of a Debian Package Manager (DPKG) based system
-  obtains a .deb file from which the package manager checks the dependencies and
-  installs the software.
+* Windows .msi installer.
+  This installs Wireshark using Microsoft’s https://docs.microsoft.com/en-us/windows/win32/msi/installer-database[Installer Database], created using the https://wixtoolset.org/[WiX toolset].
+  It does not yet include Npcap or USBPcap and is somewhat https://gitlab.com/wireshark/wireshark/-/issues/8814[experimental].
 
-* Red Hat (.rpm file). A user of a RPM Package Manager (RPM) based system
-  obtains an .rpm file from which the package manager checks the dependencies
-  and installs the software.
+* macOS .dmg.
+  This is a disk image which includes a drag-installable Wireshark application bundle along with utility packages for installing ChmodBPF and adding Wireshark to your PATH environment variable.
 
-* macOS (.dmg file). The typical macOS end user is used to getting a .dmg file
-  which will install all the required things for him.
+Most Linux and UNIX distributions have their own packaging systems which usually include Wireshark.
+The Wireshark sources include support for creating the following types of packages:
 
-* Solaris. A Solaris user obtains a file from which the package manager (PKG)
-  checks the dependencies and installs the software.
+* Debian .deb files.
+  Packaging assets can be found in the _debian_ directory in the Wireshark sources.
 
-However, if you want to start developing with Wireshark, the binary
-distributions won't be too helpful, as you need the source files, of
-course.
+* Red Hat .rpm files.
+  Packaging assets can be found in the _packaging/rpm_ directory in the Wireshark sources.
 
-For details about how to build these binary distributions yourself,
-e.g. if you need a distribution for a special audience, see
-<<ChSrcBinary>>.
+You can also create your own binary packages. See <<ChSrcBinary>> for details.
 
 [[ChIntroReleaseSource]]
 
-==== Source code distributions
+==== The Source Code Distribution
 
-It's still common for developers for UNIX-like platforms to give the
-end user a source tarball and let the user compile it on their target
-machine (configure make make install). However, for different UNIX
-and UNIX-like systems, such as Linux distributions, it's becoming more
-common to release binary packages (e.g., .deb or .rpm files) these days.
+Wireshark is and will always be https://opensource.org/[open source].
+You’re welcome to download a source tarball, build it, and modify it under the terms of the {gplv2-url}[GPLv2].
+However, it’s usually much easier to use a binary package if you want to get up and running quickly in a production environment.
 
-You should use the released sources if you want to build Wireshark from
-source on your platform for productive use. However, if you going to
-develop changes to the Wireshark sources, it might be better to use the
-latest Git sources. For details about the different ways to get the
-Wireshark source code see <<ChSrcObtain>>.
+Source tarballs are commonly used for building the binary packages for UNIX and UNIX-like platforms.
+However, if you are going to modify the Wireshark sources, e.g. to contribute changes back or to develop an in-house version of Wireshark we recommend that you use the latest Git sources.
+For details about the different ways to get the Wireshark source code see <<ChSrcObtain>>.
 
-Before building Wireshark from a source distribution, make sure you have
-all the tools and libraries required to build. The following chapters will
-describe the required tools and libraries in detail.
+Before building Wireshark from a source distribution, make sure you have all the tools and libraries required to build.
+Later chapters describe the required tools and libraries in detail.
 
 [[ChIntroAutomated]]
 
-=== Automated Builds (Buildbot)
+=== Automated Builds (GitLab CI And Buildbot)
 
-The Wireshark Buildbot automatically rebuilds Wireshark on every
-change of the source code repository and indicates problematic changes.
-This frees the developers from repeating (and annoying) work, so time can
-be spent on more interesting tasks.
+The Wireshark devlopment team uses GitLab’s continuous integration (CI) system and Buildbot to automatically build Wireshark for each Git merge request and commit. Automated builds provide several useful services:
 
-==== Advantages
+* Cross-platform testing.
+  Inbound merge requests and commits can be tested on each of our supported plaforms, which ensures that a developer on one platform doesn’t break the build on other platforms.
 
-* Recognizing (cross platform) build problems - early. Compilation problems can
-  be narrowed down to a few commits, making a fix much easier.
+* A health indicator for the source code.
+  The CI badges at https://gitlab.com/wireshark/wireshark/ and the waterfall status at https://buildbot.wireshark.org/wireshark-master/ can quickly tell you how healthy the latest code is. Green is good, red is bad.
 
-* "Health status" overview of the sources. A quick look at:
-  https://buildbot.wireshark.org/wireshark-master/[] gives a good "feeling" if the sources
-  are currently "well". On the other hand, if all is "red", an update of a
-  personal source tree might better be done later ...
+* Fast code delivery.
+  After a change is committed to the repository, an installer is usually available within an hour at https://www.wireshark.org/download/automated/.
+  This can be quite helpful for resolving issues, e.g. a bug reporter can easily verify a bugfix by installing a recent build.
 
-* "Up to date" binary packages are available. After a change was committed to
-  the repository, a binary package / installer is usually available within a few
-  hours at: https://www.wireshark.org/download/automated/[]. This can be quite
-  helpful, e.g. a bug reporter can easily verify a bugfix by installing a recent
-  build.
+* Automated regression tests.
+  We run a comprehensive test suite as part of each build and continuously run fuzz tests that try to crash the dissection engine.
 
-* Automated regression tests. In particular, the fuzz tests often indicate "real
-  life" problems that are otherwise hard to find.
+==== What Do The Automated Builds Do?
 
-==== What does the Buildbot do?
+GitLab’s CI and Buildbot operate by running a series of steps and reporting success or failure. A typical CI job might do the following:
 
-The Buildbot will do the following (to a different degree on the different
-platforms):
+. Check out Wireshark from the source repository.
 
-* Check out from the source repository
+. Build Wireshark.
 
-* Build
+. Create a source tarball, binary package, or installer.
 
-* Create binary packages and installers
+. Run regression tests.
 
-* Create source packages and run distribution checks
-
-* Run regression tests
-
-Each step is represented at the status page by a rectangle, green if it
-succeeded or red if it failed. Most steps provide a link to the corresponding
-console logfile, to get additional information.
+GitLab’s CI marks successful jobs with a green checkmark and failed jobs with a red “X”.
+Buildbot similarly colors successful jobs and steps green and failed ones red.
+Jobs and steps provide a link to the corresponding console logfile which provides additional information.
 
 Release packages are built on the following platforms:
 
@@ -310,8 +278,7 @@ Static code analysis and fuzz tests are run on the following platforms:
 
 * Clang Code Analysis, Coverity Scan, and fuzz tests (Linux, little endian, Clang)
 
-Each platform is represented at the status page by a single column, the
-most recent entries are at the top.
+Each platform is represented at the status page by a single column, the most recent entries are at the top.
 
 [[ChIntroHelp]]
 
