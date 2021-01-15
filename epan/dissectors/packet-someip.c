@@ -1526,7 +1526,7 @@ post_update_someip_parameter_union_cb(void) {
 UAT_HEX_CB_DEF(someip_parameter_base_type_list, id, someip_parameter_base_type_list_uat_t)
 UAT_CSTRING_CB_DEF(someip_parameter_base_type_list, name, someip_parameter_base_type_list_uat_t)
 UAT_CSTRING_CB_DEF(someip_parameter_base_type_list, data_type, someip_parameter_base_type_list_uat_t)
-UAT_DEC_CB_DEF(someip_parameter_base_type_list, big_endian, someip_parameter_base_type_list_uat_t)
+UAT_BOOL_CB_DEF(someip_parameter_base_type_list, big_endian, someip_parameter_base_type_list_uat_t)
 UAT_DEC_CB_DEF(someip_parameter_base_type_list, bitlength_base_type, someip_parameter_base_type_list_uat_t)
 UAT_DEC_CB_DEF(someip_parameter_base_type_list, bitlength_encoded_type, someip_parameter_base_type_list_uat_t)
 
@@ -1561,11 +1561,6 @@ update_someip_parameter_base_type_list(void *r, char **err) {
 
     if (rec->id > 0xffffffff) {
         *err = g_strdup_printf("We currently only support 32 bit IDs (%i) Name: %s", rec->id, rec->name);
-        return FALSE;
-    }
-
-    if (rec->big_endian != 0 && rec->big_endian != 1) {
-        *err = g_strdup_printf("Big Endian can be only 0 or 1 but not %d (IDs: %i Name: %s)", rec->big_endian, rec->id, rec->name);
         return FALSE;
     }
 
@@ -1610,10 +1605,10 @@ post_update_someip_parameter_base_type_list_cb(void) {
 UAT_HEX_CB_DEF(someip_parameter_strings, id, someip_parameter_string_uat_t)
 UAT_CSTRING_CB_DEF(someip_parameter_strings, name, someip_parameter_string_uat_t)
 UAT_CSTRING_CB_DEF(someip_parameter_strings, encoding, someip_parameter_string_uat_t)
-UAT_DEC_CB_DEF(someip_parameter_strings, dynamic_length, someip_parameter_string_uat_t)
+UAT_BOOL_CB_DEF(someip_parameter_strings, dynamic_length, someip_parameter_string_uat_t)
 UAT_DEC_CB_DEF(someip_parameter_strings, max_length, someip_parameter_string_uat_t)
 UAT_DEC_CB_DEF(someip_parameter_strings, length_of_length, someip_parameter_string_uat_t)
-UAT_DEC_CB_DEF(someip_parameter_strings, big_endian, someip_parameter_string_uat_t)
+UAT_BOOL_CB_DEF(someip_parameter_strings, big_endian, someip_parameter_string_uat_t)
 UAT_DEC_CB_DEF(someip_parameter_strings, pad_to, someip_parameter_string_uat_t)
 
 static void *
@@ -1649,16 +1644,6 @@ update_someip_parameter_string_list(void *r, char **err) {
 
     if (rec->id > 0xffffffff) {
         *err = g_strdup_printf("We currently only support 32 bit IDs (%i) Name: %s", rec->id, rec->name);
-        return FALSE;
-    }
-
-    if (rec->dynamic_length != 0 && rec->dynamic_length != 1) {
-        *err = g_strdup_printf("Dynamic Length can be only 0 or 1 but not %d (IDs: %i Name: %s)", rec->dynamic_length, rec->id, rec->name);
-        return FALSE;
-    }
-
-    if (rec->big_endian != 0 && rec->big_endian != 1) {
-        *err = g_strdup_printf("Big Endian can be only 0 or 1 but not %d (IDs: %i Name: %s)", rec->big_endian, rec->id, rec->name);
         return FALSE;
     }
 
@@ -3100,7 +3085,7 @@ proto_register_someip(void) {
         UAT_FLD_HEX(someip_parameter_base_type_list, id,                        "ID ",                  "ID  (32bit hex)"),
         UAT_FLD_CSTRING(someip_parameter_base_type_list, name,                  "Name",                 "Name of type (string)"),
         UAT_FLD_CSTRING(someip_parameter_base_type_list, data_type,             "Data Type",            "Data type (string)"),
-        UAT_FLD_DEC(someip_parameter_base_type_list, big_endian,                "Big Endian",           "Encoded Big Endian 0=no 1=yes"),
+        UAT_FLD_BOOL(someip_parameter_base_type_list, big_endian,               "Big Endian",           "Encoded Big Endian"),
         UAT_FLD_DEC(someip_parameter_base_type_list, bitlength_base_type,       "Bitlength base type",  "Bitlength base type (uint32 dec)"),
         UAT_FLD_DEC(someip_parameter_base_type_list, bitlength_encoded_type,    "Bitlength enc. type",  "Bitlength encoded type (uint32 dec)"),
         UAT_END_FIELDS
@@ -3110,11 +3095,11 @@ proto_register_someip(void) {
         UAT_FLD_HEX(someip_parameter_strings, id,                   "ID ",                  "ID  (32bit hex)"),
         UAT_FLD_CSTRING(someip_parameter_strings, name,             "Name",                 "Name of string (string)"),
         UAT_FLD_CSTRING(someip_parameter_strings, encoding,         "Encoding",             "String Encoding (ascii, utf-8, utf-16)"),
-        UAT_FLD_DEC(someip_parameter_strings, dynamic_length,       "Dynamic Length",       "Dynamic length of string 0=no 1=yes"),
+        UAT_FLD_BOOL(someip_parameter_strings, dynamic_length,      "Dynamic Length",       "Dynamic length of string"),
         UAT_FLD_DEC(someip_parameter_strings, max_length,           "Max. Length",          "Maximum length/Length (uint32 dec)"),
         UAT_FLD_DEC(someip_parameter_strings, length_of_length,     "Length of Len Field",  "Length of the length field (uint8 dec)"),
-        UAT_FLD_DEC(someip_parameter_strings, big_endian,           "Big Endian",           "Encoded Big Endian 0=no 1=yes"),
-        UAT_FLD_DEC(someip_parameter_strings, pad_to,               "Pad to"            ,   "Padding pads to reach alignment (8bit dec)"),
+        UAT_FLD_BOOL(someip_parameter_strings, big_endian,          "Big Endian",           "Encoded Big Endian"),
+        UAT_FLD_DEC(someip_parameter_strings, pad_to,               "Pad to",               "Padding pads to reach alignment (8bit dec)"),
         UAT_END_FIELDS
     };
 
