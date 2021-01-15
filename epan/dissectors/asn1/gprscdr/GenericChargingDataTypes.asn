@@ -1,4 +1,4 @@
--- 3GPP TS 32.298 v16.6.1 (2020-09-30)
+-- 3GPP TS 32.298 v16.7.0 (2020-12-17)
 GenericChargingDataTypes {itu-t (0) identified-organization (4) etsi(0) mobileDomain (0) charging (5) genericChargingDataTypes (0) asn1Module (0) version2 (1)}  
 
 DEFINITIONS IMPLICIT TAGS	::=
@@ -327,13 +327,15 @@ InvolvedParty ::= CHOICE
 	sIP-URI		[0] GraphicString, -- refer to rfc3261 [401]
 	tEL-URI		[1] GraphicString,	-- refer to rfc3966 [402]
 	uRN			[2] GraphicString,	-- refer to rfc5031 [407]
-	iSDN-E164 	[3] GraphicString	-- refer to ITU-T Recommendation E.164[308]
+	iSDN-E164 	[3] GraphicString,	-- refer to ITU-T Recommendation E.164[308]
+	externalId 	[4] UTF8String		-- refer to clause 19.7.2 TS 23.003 [200]
+
 }
 
 IPAddress	::= CHOICE
 {
-	iPBinaryAddress	 IPBinaryAddress,
-	iPTextRepresentedAddress	 IPTextRepresentedAddress
+	iPBinaryAddress				IPBinaryAddress,
+	iPTextRepresentedAddress	IPTextRepresentedAddress
 }
 
 IPBinaryAddress	::= CHOICE
@@ -347,15 +349,15 @@ IPBinV4Address	::= OCTET STRING (SIZE(4))
 IPBinV6Address	::= OCTET STRING (SIZE(16))
 
 IPBinV6AddressWithOrWithoutPrefixLength ::= CHOICE
-{      
-       iPBinV6Address             [1] IPBinV6Address,
-       iPBinV6AddressWithPrefix   [4] IPBinV6AddressWithPrefixLength
+{ 
+	iPBinV6Address				[1] IPBinV6Address,
+	iPBinV6AddressWithPrefix	[4] IPBinV6AddressWithPrefixLength
 }
 
 IPBinV6AddressWithPrefixLength ::= SEQUENCE
 {
-       iPBinV6Address                    IPBinV6Address,
-       pDPAddressPrefixLength            PDPAddressPrefixLength DEFAULT 64
+	iPBinV6Address				IPBinV6Address,
+	pDPAddressPrefixLength		PDPAddressPrefixLength DEFAULT 64
 }
 
 IPTextRepresentedAddress	::= CHOICE
@@ -477,6 +479,9 @@ MessageClass		::= ENUMERATED
 }
 
 MessageReference		::= OCTET STRING
+--
+-- The default value shall be one octet set to 0
+--
 
 MSCAddress		::= AddressString
 
@@ -492,7 +497,7 @@ MSISDN					::= ISDN-AddressString
 
 MSTimeZone	::= OCTET STRING (SIZE (2))
 --
--- 1.Octet: Time Zone and 2. Octet: Daylight saving time, see TS 29.060 [215]
+-- 1. Octet: Time Zone and 2. Octet: Daylight saving time, see TS 29.060 [215]
 --
 
 NodeID		::= IA5String (SIZE(1..20))
@@ -505,7 +510,7 @@ NodeAddress ::= CHOICE
 
 PDPAddressPrefixLength		::=INTEGER (1..64)
 --
--- This is an interger indicating the leght of the PDP/PDN IPv6 address prefix
+-- This is an integer indicating the length of the PDP/PDN IPv6 address prefix
 -- and the default value is 64 bits.
 --
 
@@ -518,8 +523,8 @@ PDPAddress		::= CHOICE
 
 PLMN-Id		::= OCTET STRING (SIZE (3))
 --
---	This is in the same format as octets 2,3,and 4 of the Routing Area Identity (RAI) IE specified
---	in TS 29.060 [215]
+-- This is in the same format as octets 2, 3 and 4 of the Routing Area Identity (RAI) IE specified
+-- in TS 29.060 [215]
 --
 
 PositioningData	::= OCTET STRING (SIZE(1..33))
@@ -552,100 +557,100 @@ RecordType 	::= INTEGER
 {
 	moCallRecord			(0),
 	mtCallRecord			(1),
-	roamingRecord		(2),
+	roamingRecord			(2),
 	incGatewayRecord		(3),
 	outGatewayRecord		(4),
-	transitCallRecord	(5),
-	moSMSRecord			(6),
-	mtSMSRecord			(7),
-	moSMSIWRecord		(8),
-	mtSMSGWRecord		(9),
-	ssActionRecord		(10),
+	transitCallRecord		(5),
+	moSMSRecord				(6),
+	mtSMSRecord				(7),
+	moSMSIWRecord			(8),
+	mtSMSGWRecord			(9),
+	ssActionRecord			(10),
 	hlrIntRecord			(11),
-	locUpdateHLRRecord	(12),
-	locUpdateVLRRecord	(13),
-	commonEquipRecord	(14),
-	moTraceRecord		(15),	-- used in earlier releases
-	mtTraceRecord		(16),	-- used in earlier releases
-	termCAMELRecord	    (17),
+	locUpdateHLRRecord		(12),
+	locUpdateVLRRecord		(13),
+	commonEquipRecord		(14),
+	moTraceRecord			(15),	-- used in earlier releases
+	mtTraceRecord			(16),	-- used in earlier releases
+	termCAMELRecord			(17),
 --
 --	Record values 18..22 are GPRS specific. The contents are defined in TS 32.251 [11]
 --
-	sgsnPDPRecord		(18),
+	sgsnPDPRecord			(18),
 	sgsnMMRecord			(20),
-	sgsnSMORecord		(21),	-- also MME UE originated SMS record
-	sgsnSMTRecord		(22),	-- also MME UE terminated SMS record
+	sgsnSMORecord			(21),	-- also MME UE originated SMS record
+	sgsnSMTRecord			(22),	-- also MME UE terminated SMS record
 -- 
 --  Record values 23..25 are CS-LCS specific. The contents are defined in TS 32.250 [10]
 --
-	mtLCSRecord			(23),
-	moLCSRecord			(24),
-	niLCSRecord			(25),
+	mtLCSRecord				(23),
+	moLCSRecord				(24),
+	niLCSRecord				(25),
 -- 
 --  Record values 26..28 are GPRS-LCS specific. The contents are defined in TS 32.251 [11]
 --
-	sgsnMTLCSRecord		(26),
-	sgsnMOLCSRecord		(27),
-	sgsnNILCSRecord		(28),
+	sgsnMTLCSRecord			(26),
+	sgsnMOLCSRecord			(27),
+	sgsnNILCSRecord			(28),
 --
 --  Record values 30..62 are MMS specific. The contents are defined in TS 32.270 [30]
 --
-	mMO1SRecord			(30),
-	mMO4FRqRecord		(31),
-	mMO4FRsRecord		(32),
-	mMO4DRecord			(33),
-	mMO1DRecord			(34),
-	mMO4RRecord			(35),
-	mMO1RRecord			(36),
-	mMOMDRecord			(37),
-	mMR4FRecord			(38),
-	mMR1NRqRecord		(39),
-	mMR1NRsRecord		(40),
+	mMO1SRecord				(30),
+	mMO4FRqRecord			(31),
+	mMO4FRsRecord			(32),
+	mMO4DRecord				(33),
+	mMO1DRecord				(34),
+	mMO4RRecord				(35),
+	mMO1RRecord				(36),
+	mMOMDRecord				(37),
+	mMR4FRecord				(38),
+	mMR1NRqRecord			(39),
+	mMR1NRsRecord			(40),
 	mMR1RtRecord			(41),
 	mMR1AFRecord			(42),
-	mMR4DRqRecord		(43),
-	mMR4DRsRecord		(44),
+	mMR4DRqRecord			(43),
+	mMR4DRsRecord			(44),
 	mMR1RRRecord			(45),
-	mMR4RRqRecord		(46),
-	mMR4RRsRecord		(47),
-	mMRMDRecord			(48),
-	mMFRecord			(49),
+	mMR4RRqRecord			(46),
+	mMR4RRsRecord			(47),
+	mMRMDRecord				(48),
+	mMFRecord				(49),
 	mMBx1SRecord			(50),
 	mMBx1VRecord			(51),
 	mMBx1URecord			(52),
 	mMBx1DRecord			(53),
-	mM7SRecord			(54),
+	mM7SRecord				(54),
 	mM7DRqRecord			(55),
 	mM7DRsRecord			(56),
-	mM7CRecord			(57),
-	mM7RRecord			(58),
-	mM7DRRqRecord		(59),
-	mM7DRRsRecord		(60),
+	mM7CRecord				(57),
+	mM7RRecord				(58),
+	mM7DRRqRecord			(59),
+	mM7DRRsRecord			(60),
 	mM7RRqRecord			(61),
 	mM7RRsRecord			(62),
 --
 --  Record values 63..70, 82, 89..91 are IMS specific.
 --  The contents are defined in TS 32.260 [20]
 --
-	sCSCFRecord			(63),
-	pCSCFRecord			(64),
-	iCSCFRecord			(65),
-	mRFCRecord			(66),
-	mGCFRecord			(67),
-	bGCFRecord			(68),
+	sCSCFRecord				(63),
+	pCSCFRecord				(64),
+	iCSCFRecord				(65),
+	mRFCRecord				(66),
+	mGCFRecord				(67),
+	bGCFRecord				(68),
 	aSRecord				(69),
-	eCSCFRecord			(70),
-	iBCFRecord			(82),
-	tRFRecord			(89),
+	eCSCFRecord				(70),
+	iBCFRecord				(82),
+	tRFRecord				(89),
 	tFRecord				(90),
-aTCFRecord			(91),
+	aTCFRecord				(91),
 --
 --  Record values 71..75 are LCS specific. The contents are defined in TS 32.271 [31]
 --
 	lCSGMORecord			(71),
-	lCSRGMTRecord		(72),
-	lCSHGMTRecord		(73),
-	lCSVGMTRecord		(74),
+	lCSRGMTRecord			(72),
+	lCSHGMTRecord			(73),
+	lCSVGMTRecord			(74),
 	lCSGNIRecord			(75),
 --
 --  Record values 76..79,86 are MBMS specific.
@@ -653,56 +658,56 @@ aTCFRecord			(91),
 --
 --  Record values 76,77 and 86 are MBMS bearer context specific
 --
-	sgsnMBMSRecord		(76),
-	ggsnMBMSRecord		(77), 
-	gwMBMSRecord		(86),
+	sgsnMBMSRecord			(76),
+	ggsnMBMSRecord			(77), 
+	gwMBMSRecord			(86),
 --
 --  Record values 78 and 79 are MBMS service specific and defined in TS 32.273 [33]
 --
-	sUBBMSCRecord		(78),
-	cONTENTBMSCRecord	(79),
+	sUBBMSCRecord			(78),
+	cONTENTBMSCRecord		(79),
 --
 --  Record Values 80..81 are PoC specific. The contents are defined in TS 32.272 [32]
 --
-	pPFRecord			(80),
-	cPFRecord			(81),
+	pPFRecord				(80),
+	cPFRecord				(81),
 --  
 --	Record values 84,85 and 92,95,96, 97 are EPC specific.
 --  The contents are defined in TS 32.251 [11]
 --
-	sGWRecord			(84),
-	pGWRecord			(85),
-	tDFRecord			(92),
-	iPERecord			(95),
-	ePDGRecord			(96),
-	tWAGRecord			(97),
+	sGWRecord				(84),
+	pGWRecord				(85),
+	tDFRecord				(92),
+	iPERecord				(95),
+	ePDGRecord				(96),
+	tWAGRecord				(97),
 --
 --  Record Value 83 is MMTel specific. The contents are defined in TS 32.275 [35]
 --
-	mMTelRecord			(83),
+	mMTelRecord				(83),
 --
 --  Record value  87,88 and 89 are CS specific. The contents are defined in TS 32.250 [10]
 --
-	mSCsRVCCRecord		(87),
-	mMTRFRecord			(88),
-	iCSRegisterRecord	(99),
+	mSCsRVCCRecord			(87),
+	mMTRFRecord				(88),
+	iCSRegisterRecord		(99),
 --
 --  Record values 93 and 94 are SMS specific. The contents are defined in TS 32.274 [34]
 --
-	sCSMORecord			(93),
-	sCSMTRecord			(94),
+	sCSMORecord				(93),
+	sCSMTRecord				(94),
 --
 --  Record values 100, 101 and 102 are ProSe specific. The contents are defined in TS 32.277 [36]
 --
-	pFDDRecord			(100),
-	pFEDRecord			(101),
-	pFDCRecord			(102),
+	pFDDRecord				(100),
+	pFEDRecord				(101),
+	pFDCRecord				(102),
 --
 --  Record values103 and 104 are Monitoring Event specific. The contents are defined in TS 
 --	32.278 [38]
 --
-	mECORecord			(103),
-	mERERecord			(104),
+	mECORecord				(103),
+	mERERecord				(104),
 --
 --  Record values 105 to 106 are CP data transfer specific. The contents are defined in TS 
 --	32.253 [13]
@@ -720,7 +725,7 @@ aTCFRecord			(91),
 --  Record values 120 are Exposure Function API specific. The contents are defined in TS 
 --	32.254 [14]
 --
-	eASCERecord			(120),
+	eASCERecord				(120),
 --
 --  Record values from 200 are specific to Charging Function domain 
 --
@@ -732,7 +737,7 @@ aTCFRecord			(91),
 
 RequiredMBMSBearerCapabilities		::= OCTET STRING (SIZE (3..14))
 --
--- This  octet string is a 1:1 copy of the contents (i.e. starting with octet 5) of the 
+-- This octet string is a 1:1 copy of the contents (i.e. starting with octet 5) of the 
 -- "Quality of service Profile" information element specified in TS 29.060 [75].
 --
 
@@ -746,7 +751,7 @@ SCSASAddress		::= SET
 -- 
 --
 {
-	sCSAddress	[1] IPAddress,
+	sCSAddress		[1] IPAddress,
 	sCSRealm		[2] DiameterIdentity
 }
 
@@ -787,7 +792,12 @@ SubscriberEquipmentType	::= ENUMERATED
 --
 -- It should be noted that depending on the services, not all equipment types are applicable.
 -- For IMS equipment types 0 and 3 are applicable.
---
+-- In 5GS, for PEI defined as: 
+--        - IMEI or IMEISV, iMEISV type is used and the data is per TS 23.003 [200] format.
+--        - MAC address, mAC type is used, and the data is converted from JSON format of the PEI 
+--          described in TS 29.571 [249].
+--        - EUI-64, uEI64 type is used, and the data is converted from JSON format of the PEI 
+--          described in TS 29.571 [249].
 {
 	iMEISV			(0),
 	mAC				(1),
@@ -814,7 +824,7 @@ SubscriptionIDType	::= ENUMERATED
 
 --
 -- eND-USER-IMSI can be used for 5G BRG or 5G CRG. 
--- eND-USER-NAI can be used to contain GLI or GCI for wireless access network scenarios
+-- eND-USER-NAI can be used to contain GLI or GCI for wireline access network scenarios
 -- NAI format containing a GCI or GLI is specified in 28.15.5 and 28.15.6 of TS 23.003 [200]. 
 --
 

@@ -14,7 +14,7 @@
  * Copyright 1998 Gerald Combs
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
- * References: 3GPP TS 32.298 V14.0.0
+ * References: 3GPP TS 32.298 V16.7.0
  */
 
 #include "config.h"
@@ -59,6 +59,7 @@ static int hf_gprscdr_sIP_URI = -1;               /* GraphicString */
 static int hf_gprscdr_tEL_URI = -1;               /* GraphicString */
 static int hf_gprscdr_uRN = -1;                   /* GraphicString */
 static int hf_gprscdr_iSDN_E164 = -1;             /* GraphicString */
+static int hf_gprscdr_externalId = -1;            /* UTF8String */
 static int hf_gprscdr_iPBinaryAddress = -1;       /* IPBinaryAddress */
 static int hf_gprscdr_iPTextRepresentedAddress = -1;  /* IPTextRepresentedAddress */
 static int hf_gprscdr_iPBinV4Address = -1;        /* IPBinV4Address */
@@ -1238,11 +1239,23 @@ dissect_gprscdr_GraphicString(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 }
 
 
+
+static int
+dissect_gprscdr_UTF8String(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_UTF8String,
+                                            actx, tree, tvb, offset, hf_index,
+                                            NULL);
+
+  return offset;
+}
+
+
 static const value_string gprscdr_InvolvedParty_vals[] = {
   {   0, "sIP-URI" },
   {   1, "tEL-URI" },
   {   2, "uRN" },
   {   3, "iSDN-E164" },
+  {   4, "externalId" },
   { 0, NULL }
 };
 
@@ -1251,6 +1264,7 @@ static const ber_choice_t InvolvedParty_choice[] = {
   {   1, &hf_gprscdr_tEL_URI     , BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_gprscdr_GraphicString },
   {   2, &hf_gprscdr_uRN         , BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_gprscdr_GraphicString },
   {   3, &hf_gprscdr_iSDN_E164   , BER_CLASS_CON, 3, BER_FLAGS_IMPLTAG, dissect_gprscdr_GraphicString },
+  {   4, &hf_gprscdr_externalId  , BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_gprscdr_UTF8String },
   { 0, NULL, 0, 0, 0, NULL }
 };
 
@@ -1838,17 +1852,6 @@ static int
 dissect_gprscdr_SubscriptionIDType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
                                   NULL);
-
-  return offset;
-}
-
-
-
-static int
-dissect_gprscdr_UTF8String(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_UTF8String,
-                                            actx, tree, tvb, offset, hf_index,
-                                            NULL);
 
   return offset;
 }
@@ -5127,6 +5130,10 @@ proto_register_gprscdr(void)
       { "iSDN-E164", "gprscdr.iSDN_E164",
         FT_STRING, BASE_NONE, NULL, 0,
         "GraphicString", HFILL }},
+    { &hf_gprscdr_externalId,
+      { "externalId", "gprscdr.externalId",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "UTF8String", HFILL }},
     { &hf_gprscdr_iPBinaryAddress,
       { "iPBinaryAddress", "gprscdr.iPBinaryAddress",
         FT_UINT32, BASE_DEC, VALS(gprscdr_IPBinaryAddress_vals), 0,

@@ -6,7 +6,7 @@
  * Copyright 1998 Gerald Combs
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
- * References: 3GPP TS 32.298 V14.0.0
+ * References: 3GPP TS 32.298 V16.7.0
  */
 
 #include "config.h"
