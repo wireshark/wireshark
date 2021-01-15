@@ -3390,7 +3390,7 @@ proto_reg_handoff_someip(void) {
         initialized = TRUE;
     } else {
         /* delete all my ports even the dynamically registered ones */
-        dissector_delete_all("udp.port", someip_handle_tcp);
+        dissector_delete_all("udp.port", someip_handle_udp);
         dissector_delete_all("tcp.port", someip_handle_tcp);
     }
     dissector_add_uint_range("udp.port", someip_ports_udp, someip_handle_udp);
