@@ -1,7 +1,7 @@
 /* packet-someip.c
  * SOME/IP dissector.
  * By Dr. Lars Voelker <lars.voelker@technica-engineering.de> / <lars.voelker@bmw.de>
- * Copyright 2012-2020 Dr. Lars Voelker
+ * Copyright 2012-2021 Dr. Lars Voelker
  * Copyright 2019      Ana Pantar
  * Copyright 2019      Guenter Ebermann
   *
@@ -2753,8 +2753,14 @@ dissect_someip_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 
     if (subtvb!=NULL) {
         tvb_length = tvb_captured_length_remaining(subtvb, 0);
+        someip_info_t someip_data;
+        someip_data.service_id = (guint16)someip_serviceid;
+        someip_data.method_id = (guint16)someip_methodid;
+        someip_data.message_type = (guint8)msgtype;
+        someip_data.major_version = (guint8)version;
+
         if (tvb_length > 0) {
-            tmp = dissector_try_uint(someip_dissector_table, someip_messageid, subtvb, pinfo, tree);
+            tmp = dissector_try_uint_new(someip_dissector_table, someip_messageid, subtvb, pinfo, tree, FALSE, &someip_data);
 
             /* if no subdissector was found, the generic payload dissector takes over. */
             if (tmp==0) {

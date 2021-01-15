@@ -1,7 +1,7 @@
 /* packet-someip.h
  * Definitions for SOME/IP packet disassembly structures and routines
- * By Dr. Lars Voelker <lars-github@larsvoelker.de> / <lars.voelker@bmw.de>
- * Copyright 2012-2019 Dr. Lars Voelker
+ * By Dr. Lars Voelker <lars.voelker@technica-engineering.de> / <lars.voelker@bmw.de>
+ * Copyright 2012-2021 Dr. Lars Voelker
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -17,6 +17,14 @@ void register_someip_port_tcp(guint32 portnumber);
 /* look up names for SD */
 char* someip_lookup_service_name(guint16 serviceid);
 char* someip_lookup_eventgroup_name(guint16 serviceid, guint16 eventgroupid);
+
+typedef struct _someip_info
+{
+    guint16 service_id;
+    guint16 method_id;
+    guint8  message_type;
+    guint8  major_version;
+} someip_info_t;
 
 /*
  * Editor modelines

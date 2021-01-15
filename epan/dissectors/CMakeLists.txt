@@ -563,6 +563,7 @@ set(DISSECTOR_PUBLIC_HEADERS
 	packet-smrse.h
 	packet-snmp.h
 	packet-socketcan.h
+	packet-someip.h
 	packet-spice.h
 	packet-sprt.h
 	packet-sscop.h
