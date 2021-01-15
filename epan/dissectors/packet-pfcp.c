@@ -149,7 +149,6 @@ static int hf_pfcp_urr_id = -1;
 static int hf_pfcp_qer_id_flg = -1;
 static int hf_pfcp_qer_id = -1;
 static int hf_pfcp_predef_rules_name = -1;
-static int hf_pfcp_predef_rules_name_str = -1;
 
 
 static int hf_pfcp_apply_action_flags_o5_b7_dfrt = -1;
@@ -431,10 +430,8 @@ static int hf_pfcp_adnp_len = -1;
 static int hf_pfcp_header_type = -1;
 static int hf_pfcp_hf_len = -1;
 static int hf_pfcp_hf_name = -1;
-static int hf_pfcp_hf_name_str = -1;
 static int hf_pfcp_hf_val_len = -1;
 static int hf_pfcp_hf_val = -1;
-static int hf_pfcp_hf_val_str = -1;
 
 static int hf_pfcp_measurement_info = -1;
 static int hf_pfcp_measurement_info_b0_mbqe = -1;
@@ -4603,10 +4600,7 @@ dissect_pfcp_header_enrichment(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
     /* 7 to m Header Field Name
      * Header Field Name shall be encoded as an OctetString
      */
-    if (tvb_ascii_isprint(tvb, offset, len))
-        proto_tree_add_item(tree, hf_pfcp_hf_name_str, tvb, offset, len, ENC_ASCII | ENC_NA);
-    else
-        proto_tree_add_item(tree, hf_pfcp_hf_name, tvb, offset, len, ENC_NA);
+    proto_tree_add_item(tree, hf_pfcp_hf_name, tvb, offset, len, ENC_NA);
     offset+= len;
 
     /* p    Length of Header Field Value*/
@@ -4614,10 +4608,7 @@ dissect_pfcp_header_enrichment(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
     offset++;
 
     /* (p+1) to q   Header Field Value */
-    if (tvb_ascii_isprint(tvb, offset, len))
-        proto_tree_add_item(tree, hf_pfcp_hf_val_str, tvb, offset, len, ENC_ASCII | ENC_NA);
-    else
-        proto_tree_add_item(tree, hf_pfcp_hf_val, tvb, offset, len, ENC_NA);
+    proto_tree_add_item(tree, hf_pfcp_hf_val, tvb, offset, len, ENC_NA);
     offset += len;
 
     if (offset < length) {
@@ -4766,10 +4757,7 @@ dissect_pfcp_act_predef_rules(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
     /* Octet 5 to (n+4) Predefined Rules Name
     * The Predefined Rules Name field shall be encoded as an OctetString
     */
-    if (tvb_ascii_isprint(tvb, offset, length))
-        proto_tree_add_item(tree, hf_pfcp_predef_rules_name_str, tvb, offset, length, ENC_ASCII | ENC_NA);
-    else
-        proto_tree_add_item(tree, hf_pfcp_predef_rules_name, tvb, offset, length, ENC_NA);
+    proto_tree_add_item(tree, hf_pfcp_predef_rules_name, tvb, offset, length, ENC_NA);
 }
 /*
  * 8.2.73   Deactivate Predefined Rules
@@ -4781,10 +4769,7 @@ dissect_pfcp_deact_predef_rules(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
     /* Octet 5 to (n+4) Predefined Rules Name
     * The Predefined Rules Name field shall be encoded as an OctetString
     */
-    if (tvb_ascii_isprint(tvb, offset, length))
-        proto_tree_add_item(tree, hf_pfcp_predef_rules_name_str, tvb, offset, length, ENC_ASCII | ENC_NA);
-    else
-        proto_tree_add_item(tree, hf_pfcp_predef_rules_name, tvb, offset, length, ENC_NA);
+    proto_tree_add_item(tree, hf_pfcp_predef_rules_name, tvb, offset, length, ENC_NA);
 }
 /*
  * 8.2.74   FAR ID
@@ -9703,12 +9688,7 @@ proto_register_pfcp(void)
         },
         { &hf_pfcp_predef_rules_name,
         { "Predefined Rules Name", "pfcp.predef_rules_name",
-            FT_BYTES, BASE_NONE, NULL, 0x0,
-            NULL, HFILL }
-        },
-        { &hf_pfcp_predef_rules_name_str,
-        { "Predefined Rules Name", "pfcp.predef_rules_name",
-            FT_STRING, BASE_NONE, NULL, 0x0,
+            FT_BYTES, BASE_SHOW_ASCII_PRINTABLE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_pfcp_apply_action_flags_o5_b0_drop,
@@ -10839,7 +10819,7 @@ proto_register_pfcp(void)
             NULL, HFILL }
         },
         { &hf_pfcp_ppi,
-        { "Paging Policy Indication", "pfcp.dl_data_service_inf.ppi",
+        { "Paging Policy Indication", "pfcp.ppi",
             FT_UINT16, BASE_DEC, NULL, 0x7f,
             NULL, HFILL }
         },
@@ -10985,12 +10965,7 @@ proto_register_pfcp(void)
         },
         { &hf_pfcp_hf_name,
         { "Header Field Name", "pfcp.hf_name",
-            FT_BYTES, BASE_NONE, NULL, 0x0,
-            NULL, HFILL }
-        },
-        { &hf_pfcp_hf_name_str,
-        { "Header Field Name", "pfcp.hf_name_str",
-            FT_STRING, BASE_NONE, NULL, 0x0,
+            FT_BYTES, BASE_SHOW_ASCII_PRINTABLE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_pfcp_hf_val_len,
@@ -11000,14 +10975,10 @@ proto_register_pfcp(void)
         },
         { &hf_pfcp_hf_val,
         { "Header Field Value", "pfcp.hf_val",
-            FT_BYTES, BASE_NONE, NULL, 0x0,
+            FT_BYTES, BASE_SHOW_ASCII_PRINTABLE, NULL, 0x0,
             NULL, HFILL }
         },
-        { &hf_pfcp_hf_val_str,
-        { "Header Field Value", "pfcp.hf_val_str",
-            FT_STRING, BASE_NONE, NULL, 0x0,
-            NULL, HFILL }
-        },
+
         { &hf_pfcp_measurement_info,
         { "Flags", "pfcp.measurement_info",
             FT_UINT8, BASE_HEX, NULL, 0x0,
