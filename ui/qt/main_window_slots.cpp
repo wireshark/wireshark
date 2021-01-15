@@ -3451,7 +3451,7 @@ void MainWindow::on_actionTelephonySipFlows_triggered()
     if (!sip_calls_dialog_) {
         sip_calls_dialog_ = new VoipCallsDialog(*this, capture_file_, true);
     }
-    openTelephonyVoipCallsDialog(voip_calls_dialog_);
+    openTelephonyVoipCallsDialog(sip_calls_dialog_);
 }
 
 // Wireless Menu
