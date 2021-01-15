@@ -52,6 +52,7 @@ static int hf_gtpv2_spare_half_octet = -1;
 //static int hf_gtpv2_spare_b7_b1 = -1;
 static int hf_gtpv2_spare_b7_b2 = -1;
 static int hf_gtpv2_spare_b7_b3 = -1;
+static int hf_gtpv2_spare_b7_b4 = -1;
 static int hf_gtpv2_spare_b7_b5 = -1;
 
 static int hf_gtpv2_spare_bits = -1;
@@ -171,6 +172,7 @@ static int hf_gtpv2_5gcnrs = -1;
 static int hf_gtpv2_5gcnri = -1;
 static int hf_gtpv2_5srhoi = -1;
 
+static int hf_gtpv2_sissme = -1;
 static int hf_gtpv2_nsenbi = -1;
 static int hf_gtpv2_idfupf = -1;
 static int hf_gtpv2_emci = -1;
@@ -2495,14 +2497,15 @@ dissect_gtpv2_ind(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_ite
     }
 
     static int* const oct13_flags[] = {
-        &hf_gtpv2_spare_b7_b3,
+        &hf_gtpv2_spare_b7_b4,
+        &hf_gtpv2_sissme,
         &hf_gtpv2_nsenbi,
         &hf_gtpv2_idfupf,
         &hf_gtpv2_emci,
         NULL
     };
 
-    /* Octet 13 Spare Spare Spare Spare Spare NSENBI IDFUPF EMCI */
+    /* Octet 13 Spare Spare Spare Spare SISSME NSENBI IDFUPF EMCI */
     proto_tree_add_bitmask_list(tree, tvb, offset, 1, oct13_flags, ENC_NA);
     offset += 1;
 
@@ -6997,9 +7000,9 @@ dissect_gtpv2_node_identifier(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
     - the Node Name shall be coded as the 3GPP-AAA-Server-Name as defined in subclause 8.2.3.24 of 3GPP TS 29.273 [68] and;
         8.2.3.24    3GPP-AAA-Server-Name
         The 3GPP-AAA-Server-Name AVP is of type DiameterIdentity
-
     - the Node Realm shall be coded as the Diameter realm of the 3GPP AAA server in the format of a Diameter identity as defined in IETF RFC 3588 [39].
-    If the Node Identifier contains an SCEF information, then:
+
+    If the Node Identifier contains an SCEF/IWK-SCEF information, then:
     - the Node Name shall be coded as the SCEF-ID as defined in subclause 8.4.5 of 3GPP TS 29.336 [69] and;
         8.4.5 SCEF-ID
         The SCEF- ID AVP is of type DiameterIdentity
@@ -8807,20 +8810,35 @@ void proto_register_gtpv2(void)
            FT_UINT8, BASE_DEC, NULL, 0x0,
            NULL, HFILL }
         },
-        { &hf_gtpv2_spare_b7_b3,
-          {"Spare bit(s)", "gtpv2.spare_b7_b3",
-           FT_UINT8, BASE_DEC, NULL, 0xf8,
-           NULL, HFILL }
-        },
-        //{ &hf_gtpv2_spare_b7_b1,
-        //  {"Spare bit(s)", "gtpv2.spare_b7_b3",
-        //   FT_UINT8, BASE_DEC, NULL, 0xfe,
-        //   NULL, HFILL }
-        //},
         { &hf_gtpv2_spare_bits,
           {"Spare bit(s)", "gtpv2.spare_bits",
            FT_UINT8, BASE_DEC, NULL, 0x0,
            NULL, HFILL }
+        },
+        //{ &hf_gtpv2_spare_b7_b1,
+        //  {"Spare bit(s)", "gtpv2.spare_b7_b1",
+        //   FT_UINT8, BASE_DEC, NULL, 0xfe,
+        //   NULL, HFILL }
+        //},
+        { &hf_gtpv2_spare_b7_b2,
+        { "Spare", "gtpv2.spare.b7_b2",
+            FT_UINT8, BASE_HEX, NULL, 0xfc,
+            NULL, HFILL }
+        },
+        { &hf_gtpv2_spare_b7_b3,
+        {"Spare bit(s)", "gtpv2.spare_b7_b3",
+            FT_UINT8, BASE_DEC, NULL, 0xf8,
+            NULL, HFILL }
+        },
+        { &hf_gtpv2_spare_b7_b4,
+        { "Spare", "gtpv2.spare.b7_b4",
+            FT_UINT8, BASE_HEX, NULL, 0xf0,
+            NULL, HFILL }
+        },
+        { &hf_gtpv2_spare_b7_b5,
+        { "Spare", "gtpv2.spare.b7_b5",
+            FT_UINT8, BASE_HEX, NULL, 0xe0,
+            NULL, HFILL }
         },
         {&hf_gtpv2_flags,
          {"Flags", "gtpv2.flags",
@@ -9349,20 +9367,23 @@ void proto_register_gtpv2(void)
          {"ETHPDN (Ethernet PDN Support Indication)", "gtpv2.ethpdn",
           FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x01, NULL, HFILL}
         },
+        { &hf_gtpv2_sissme,
+         {"SISSME (Same IWK-SCEF Selected for Monitoring Event Indication)", "gtpv2.sissme",
+          FT_BOOLEAN, 8, NULL, 0x08, NULL, HFILL}
+        },
         { &hf_gtpv2_nsenbi,
          {"NSENBI (Notify Source eNodeB Indication)", "gtpv2.nsenbi",
           FT_BOOLEAN, 8, NULL, 0x04, NULL, HFILL}
         },
-
         { &hf_gtpv2_idfupf,
          {"IDFUPF (Indirect Data Forwarding with UPF Indication)", "gtpv2.idfupf",
           FT_BOOLEAN, 8, NULL, 0x02, NULL, HFILL}
         },
-
         { &hf_gtpv2_emci,
          {"EMCI (Emergency PDU Session Indication)", "gtpv2.emci",
           FT_BOOLEAN, 8, NULL, 0x01, NULL, HFILL}
         },
+
         { &hf_gtpv2_pdn_type,
           {"PDN Type", "gtpv2.pdn_type",
            FT_UINT8, BASE_DEC, VALS(gtpv2_pdn_type_vals), 0x07,
@@ -11970,16 +11991,6 @@ void proto_register_gtpv2(void)
       { &hf_gtpv2_max_pkt_loss_rte_dl,
       { "Maximum Packet Loss Rate DL", "gtpv2.max_pkt_loss_rte_dl",
           FT_UINT16, BASE_CUSTOM, CF_FUNC(value_in_tenth_of_percent_fmt), 0x0,
-          NULL, HFILL }
-      },
-      { &hf_gtpv2_spare_b7_b2,
-      { "Spare", "gtpv2.spare.b7_b2",
-          FT_UINT8, BASE_HEX, NULL, 0xfc,
-          NULL, HFILL }
-      },
-      { &hf_gtpv2_spare_b7_b5,
-      { "Spare", "gtpv2.spare.b7_b5",
-          FT_UINT8, BASE_HEX, NULL, 0xe0,
           NULL, HFILL }
       },
       { &hf_gtpv2_mm_context_iov_updates_counter,
