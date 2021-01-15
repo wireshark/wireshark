@@ -2120,17 +2120,17 @@ dissect_someip_payload_string(tvbuff_t* tvb, packet_info* pinfo, proto_tree *tre
     }
 
     if (strcmp(config->encoding, "utf-8") == 0) {
-        str_encoding = ENC_UTF_8;
+        str_encoding = ENC_UTF_8 | ENC_NA;
     } else if (strcmp(config->encoding, "utf-16") == 0) {
-        str_encoding = ENC_UTF_16;
+        str_encoding = ENC_UTF_16 | (config->big_endian ? ENC_BIG_ENDIAN : ENC_LITTLE_ENDIAN);
     } else {
-        str_encoding = ENC_ASCII;
+        str_encoding = ENC_ASCII | ENC_NA;
     }
 
     buf = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, length, str_encoding);
 
     /* sanitizing buffer */
-    if (str_encoding == ENC_ASCII || str_encoding == ENC_UTF_8) {
+    if (str_encoding & ENC_ASCII || str_encoding & ENC_UTF_8) {
         for (i = 0; i < length; i++) {
             if (buf[i] > 0x00 && buf[i] < 0x20) {
                 buf[i] = 0x20;
@@ -2140,6 +2140,8 @@ dissect_someip_payload_string(tvbuff_t* tvb, packet_info* pinfo, proto_tree *tre
 
     proto_item_append_text(ti, ": %s", buf);
     offset += length;
+
+    proto_item_set_end(ti, tvb, offset);
 
     ret = 8 * (offset - offset_orig) + (offset_bits - offset_bits_orig);
 
