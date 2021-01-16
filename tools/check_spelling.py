@@ -272,6 +272,9 @@ def findStrings(filename):
 
 # Test for whether the given file was automatically generated.
 def isGeneratedFile(filename):
+    if not filename.endswith('.c'):
+        return False
+
     # Open file
     f_read = open(os.path.join(filename), 'r')
     lines_tested = 0
@@ -363,7 +366,7 @@ elif args.commits:
     files = [f.decode('utf-8')
              for f in subprocess.check_output(command).splitlines()]
     # Will examine dissector files only
-    files = list(filter(lambda f : isAppropriateFile(f), files))
+    files = list(filter(lambda f : isAppropriateFile(f) and not isGeneratedFile(f), files))
 elif args.open:
     # Unstaged changes.
     command = ['git', 'diff', '--name-only']
