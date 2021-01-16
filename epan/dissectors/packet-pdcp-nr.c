@@ -21,11 +21,12 @@
 #include <wsutil/wsgcrypt.h>
 #include <wsutil/report_message.h>
 
-/* Define this symbol if you have a working implementation of SNOW3G f8() and f9() available.
-   Note that the use of this algorithm is restricted, and that an administrative charge
-   may be applicable if you use it (see e.g. http://www.gsma.com/technicalprojects/fraud-security/security-algorithms).
-   A version of Wireshark with this enabled would not be distributable. */
+/* Define these symbols if you have working implementations of SNOW3G/ZUC f8() and f9() available.
+   Note that the use of these algorithms is restricted, so a version of Wireshark with these
+   ciphering algorithms enabled would not be distributable. */
 /* #define HAVE_SNOW3G */
+/* #define HAVE_ZUC */
+
 
 #include "packet-rlc-nr.h"
 #include "packet-pdcp-nr.h"
@@ -1409,6 +1410,11 @@ static tvbuff_t *decipher_payload(tvbuff_t *tvb, packet_info *pinfo, int *offset
         return tvb;
 #endif
     }
+    else if (pdu_security_settings->ciphering == nea3) {
+#ifndef HAVE_ZUC
+        return tvb;
+#endif
+    }
     else
     if (pdu_security_settings->ciphering != nea2) {
         /* An algorithm we don't support at all! */
@@ -1505,6 +1511,23 @@ static tvbuff_t *decipher_payload(tvbuff_t *tvb, packet_info *pinfo, int *offset
                   pdu_security_settings->bearer,
                   pdu_security_settings->direction,
                   decrypted_data, payload_length*8);
+    }
+#endif
+
+#ifdef HAVE_ZUC
+    /* ZUC */
+    if (pdu_security_settings->ciphering == nea3) {
+        /* Extract the encrypted data into a buffer */
+        payload_length = tvb_captured_length_remaining(tvb, *offset+sdap_length);
+        decrypted_data = (guint8 *)tvb_memdup(pinfo->pool, tvb, *offset+sdap_length, payload_length);
+
+        /* Do the algorithm.  Assuming implementation works in-place */
+        zuc_f8(pdu_security_settings->cipherKey,
+               pdu_security_settings->count,
+               pdu_security_settings->bearer,
+               pdu_security_settings->direction,
+               payload_length*8,                   /* Length is in bits */
+               (guint32*)decrypted_data, (guint32*)decrypted_data);
     }
 #endif
 
@@ -1634,9 +1657,34 @@ static guint32 calculate_digest(pdu_security_settings_t *pdu_security_settings, 
                 return ((mac[0] << 24) | (mac[1] << 16) | (mac[2] << 8) | mac[3]);
             }
 #endif
+#ifdef HAVE_ZUC
+        case nia3:
+            {
+                /* ZUC */
+                guint32  mac;
+                gint message_length = tvb_captured_length_remaining(tvb, offset) - 4;
+                guint8 *message_data = (guint8 *)wmem_alloc0(wmem_packet_scope(), header_length+message_length-sdap_length+4);
+
+                /* Data is header bytes */
+                tvb_memcpy(header_tvb, message_data, 0, header_length);
+                /* Followed by the decrypted message (but not the digest bytes) */
+                tvb_memcpy(tvb, message_data+header_length, offset+sdap_length, message_length-sdap_length);
+
+                zuc_f9(pdu_security_settings->integrityKey,
+                       pdu_security_settings->count,
+                       pdu_security_settings->direction,
+                       pdu_security_settings->bearer,
+                       (message_length+header_length)*8,
+                       (guint32*)message_data,
+                       &mac);
+
+                *calculated = TRUE;
+                return mac;
+            }
+#endif
 
         default:
-            /* Can't calculate (e.g. Zuc) */
+            /* Can't calculate */
             *calculated = FALSE;
             return 0;
     }
@@ -1843,8 +1891,12 @@ static int dissect_pdcp_nr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 
     /* If no RLC layer in this frame, query RLC table for configured drb settings */
     if (!p_get_proto_data(wmem_file_scope(), pinfo, proto_rlc_nr, 0)) {
-        /* If DRB channel, query rlc table */
-        if (p_pdcp_info->plane == NR_USER_PLANE) {
+        /* Signalling plane is always 12 bits SN */
+        if (p_pdcp_info->plane == NR_SIGNALING_PLANE) {
+            p_pdcp_info->seqnum_length = PDCP_NR_SN_LENGTH_12_BITS;
+        }
+        /* If DRB channel, query rlc mappings (from RRC) */
+        else if (p_pdcp_info->plane == NR_USER_PLANE) {
             pdcp_bearer_parameters *params = get_rlc_nr_drb_pdcp_mapping(p_pdcp_info->ueid, p_pdcp_info->bearerId);
             if (params) {
                 if (p_pdcp_info->direction == DIRECTION_UPLINK) {
@@ -2116,7 +2168,7 @@ static int dissect_pdcp_nr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
                         for (l=0, j=0; l<8; l++) {
                             if ((bits << l) & 0x80) {
                                 if (bitmap_tree) {
-                                    // TODO: better to do mod and show as SN instead?
+                                    /* TODO: better to do mod and show as SN instead? */
                                     j += g_snprintf(&buff[j], BUFF_SIZE-j, "%10u,", (unsigned)(fmc+(8*i)+l+1));
                                 }
                             } else {
