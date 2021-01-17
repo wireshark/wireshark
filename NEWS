@@ -7,6 +7,9 @@ Wireshark 3.4.3 Release Notes
 
  What’s New
 
+  The Windows installers now ship with Npcap 1.10. They previously
+  shipped with Npcap 1.00.
+
   Bug Fixes
 
    The following bugs have been fixed:
@@ -57,7 +60,7 @@ Wireshark 3.4.3 Release Notes
 
   A complete FAQ is available on the Wireshark web site[5].
 
-  Last updated 2021-01-10 09:50:56 UTC
+  Last updated 2021-01-17 09:50:01 UTC
 
  References
 
