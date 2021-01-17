@@ -12,13 +12,26 @@ while getopts "n" OPTCHAR ; do
 done
 shift $((OPTIND - 1))
 
+TOP_LEVEL=$(git rev-parse --show-toplevel)
+if ! cd "$TOP_LEVEL" ; then
+    echo "Can't change to the top-level source directory."
+    exit 1
+fi
+
+LUPDATE_INCLUDES=(-I .)
+while read -r ; do
+    LUPDATE_INCLUDES+=(-I "$REPLY")
+done < <(find "$TOP_LEVEL/ui/qt" -type d)
+
 # All .cpp, .h, and .ui files under ui/qt
-LUPDATE_FILES=$(find ui/qt -name '*.cpp' -o -name '*.h' -o -name '*.ui')
+LUPDATE_FILES=()
+while read -r ; do
+    LUPDATE_FILES+=("$REPLY")
+done < <(find ui/qt -name '*.cpp' -o -name '*.h' -o -name '*.ui')
 
 # Add line numbers
 for i in ui/qt/*.ts ; do
-    # shellcheck disable=SC2086
-    lupdate -locations absolute ${LUPDATE_FILES} -ts "$i"
+    lupdate -locations absolute "${LUPDATE_INCLUDES[@]}" "${LUPDATE_FILES[@]}" -ts "$i"
 done
 
 # Get last translation for Transifex
@@ -26,8 +39,7 @@ tx pull -f
 
 # Regenerate last translation for repo
 for i in ui/qt/*.ts ; do
-    # shellcheck disable=SC2086
-    lupdate -locations absolute ${LUPDATE_FILES} -ts "$i"
+    lupdate -locations absolute "${LUPDATE_INCLUDES[@]}" "${LUPDATE_FILES[@]}" -ts "$i"
 done
 
 # Push last change tranlastion on Transifex
@@ -37,8 +49,7 @@ fi
 
 # Remove line numbers
 for i in ui/qt/*.ts ; do
-    # shellcheck disable=SC2086
-    lupdate -locations none -no-ui-lines ${LUPDATE_FILES} -ts "$i"
+    lupdate -locations none -no-ui-lines "${LUPDATE_INCLUDES[@]}" "${LUPDATE_FILES[@]}" -ts "$i"
 done
 
 #Add new commit with last translation update

@@ -25,8 +25,8 @@
 //: These are pangrams. Feel free to replace with nonsense text that spans your alphabet.
 //: https://en.wikipedia.org/wiki/Pangram
 static const char *font_pangrams_[] = {
-    QT_TR_NOOP("Example GIF query packets have jumbo window sizes"),
-    QT_TR_NOOP("Lazy badgers move unique waxy jellyfish packets")
+    QT_TRANSLATE_NOOP("FontColorPreferencesFrame", "Example GIF query packets have jumbo window sizes"),
+    QT_TRANSLATE_NOOP("FontColorPreferencesFrame", "Lazy badgers move unique waxy jellyfish packets")
 };
 const int num_font_pangrams_ = (sizeof font_pangrams_ / sizeof font_pangrams_[0]);
 
