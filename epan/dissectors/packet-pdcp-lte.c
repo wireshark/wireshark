@@ -21,11 +21,12 @@
 #include <wsutil/wsgcrypt.h>
 #include <wsutil/report_message.h>
 
-/* Define this symbol if you have a working implementation of SNOW3G f8() and f9() available.
-   Note that the use of this algorithm is restricted, and that an administrative charge
-   may be applicable if you use it (see e.g. http://www.gsma.com/technicalprojects/fraud-security/security-algorithms).
-   A version of Wireshark with this enabled would not be distributable. */
+/* Define these symbols if you have working implementations of SNOW3G/ZUC f8() and f9() available.
+   Note that the use of these algorithms is restricted, so a version of Wireshark with these
+   ciphering algorithms enabled would not be distributable. */
+
 /* #define HAVE_SNOW3G */
+/* #define HAVE_ZUC */
 
 #include "packet-rlc-lte.h"
 #include "packet-pdcp-lte.h"
@@ -47,7 +48,6 @@ void proto_reg_handoff_pdcp_lte(void);
      CTR will need to be applied before each frame.
    - Add Relay Node user plane data PDU dissection
    - Add SLRB user data plane data PDU dissection
-   - Support Zuc decryption and integrity support (TS 35.221)
    - Break out security and sequence analysis into a separate common file to be
      shared with pdcp-nr
 */
@@ -1576,8 +1576,12 @@ static tvbuff_t *decipher_payload(tvbuff_t *tvb, packet_info *pinfo, int *offset
         return tvb;
 #endif
     }
-    else
-    if (pdu_security_settings->ciphering != eea2) {
+    else if (pdu_security_settings->ciphering == eea3) {
+#ifndef HAVE_ZUC
+        return tvb;
+#endif
+    }
+    else if (pdu_security_settings->ciphering != eea2) {
         /* An algorithm we don't support at all! */
         return tvb;
     }
@@ -1670,6 +1674,23 @@ static tvbuff_t *decipher_payload(tvbuff_t *tvb, packet_info *pinfo, int *offset
                   pdu_security_settings->bearer,
                   pdu_security_settings->direction,
                   decrypted_data, payload_length*8);
+    }
+#endif
+
+#ifdef HAVE_ZUC
+    /* ZUC */
+    if (pdu_security_settings->ciphering == eea3) {
+        /* Extract the encrypted data into a buffer */
+        payload_length = tvb_captured_length_remaining(tvb, *offset);
+        decrypted_data = (guint8 *)tvb_memdup(pinfo->pool, tvb, *offset, payload_length);
+
+        /* Do the algorithm.  Assuming implementation works in-place */
+        zuc_f8(pdu_security_settings->cipherKey,
+               pdu_security_settings->count,
+               pdu_security_settings->bearer,
+               pdu_security_settings->direction,
+               payload_length*8,                   /* Length is in bits */
+               (guint32*)decrypted_data, (guint32*)decrypted_data);
     }
 #endif
 
@@ -1797,9 +1818,34 @@ static guint32 calculate_digest(pdu_security_settings_t *pdu_security_settings, 
                 return ((mac[0] << 24) | (mac[1] << 16) | (mac[2] << 8) | mac[3]);
             }
 #endif
+#ifdef HAVE_ZUC
+        case eia3:
+            {
+                /* ZUC */
+                guint32  mac;
+                gint message_length = tvb_captured_length_remaining(tvb, offset) - 4;
+                guint8 *message_data = (guint8 *)wmem_alloc0(wmem_packet_scope(), message_length+5);
+
+                /* Data is header byte */
+                message_data[0] = header;
+                /* Followed by the decrypted message (but not the digest bytes) */
+                tvb_memcpy(tvb, message_data+1, offset, message_length);
+
+                zuc_f9(pdu_security_settings->integrityKey,
+                       pdu_security_settings->count,
+                       pdu_security_settings->direction,
+                       pdu_security_settings->bearer,
+                       (message_length+1)*8,
+                       (guint32*)message_data,
+                       &mac);
+
+                *calculated = TRUE;
+                return mac;
+            }
+#endif
 
         default:
-            /* Can't calculate (e.g. Zuc) */
+            /* Can't calculate */
             *calculated = FALSE;
             return 0;
     }
