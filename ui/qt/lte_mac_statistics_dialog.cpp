@@ -909,7 +909,7 @@ lte_mac_statistics_init(const char *args, void*) {
 
 static stat_tap_ui lte_mac_statistics_ui = {
     REGISTER_STAT_GROUP_TELEPHONY_LTE,
-    QT_TR_NOOP("MAC Statistics"),
+    QT_TRANSLATE_NOOP("LteMacStatisticsDialog", "MAC Statistics"),
     "mac-lte,stat",
     lte_mac_statistics_init,
     0,
