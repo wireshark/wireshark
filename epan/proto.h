@@ -799,7 +799,7 @@ typedef struct
 } crumb_spec_t;
 
 /*
- * Flag fields.  Do not assign values greater than 0x00000080 unless you
+ * Flag fields.  Do not assign values greater than 0x000FFFFF unless you
  * shuffle the expert information upward; see below.
  */
 
