@@ -164,6 +164,15 @@ static int hf_payload_str_struct                                        = -1;
 static int hf_payload_str_array                                         = -1;
 static int hf_payload_str_union                                         = -1;
 
+static hf_register_info* dynamic_hf_param                               = NULL;
+static guint dynamic_hf_param_size                                      = 0;
+static hf_register_info* dynamic_hf_array                               = NULL;
+static guint dynamic_hf_array_size                                      = 0;
+static hf_register_info* dynamic_hf_struct                              = NULL;
+static guint dynamic_hf_struct_size                                     = 0;
+static hf_register_info* dynamic_hf_union                               = NULL;
+static guint dynamic_hf_union_size                                      = 0;
+
 static gint ett_someip_tp_fragment                                      = -1;
 static gint ett_someip_tp_fragments                                     = -1;
 static gint ett_someip_payload                                          = -1;
@@ -266,13 +275,18 @@ typedef struct _someip_payload_parameter_item {
     gchar      *name;
     guint32     data_type;
     guint32     id_ref;
+    int        *hf_id;
+    gchar      *filter_string;
+
 } someip_payload_parameter_item_t;
 
 #define INIT_SOMEIP_PAYLOAD_PARAMETER_ITEM(NAME) \
     (NAME)->pos = 0; \
     (NAME)->name = NULL; \
     (NAME)->data_type = 0; \
-    (NAME)->id_ref = 0;
+    (NAME)->id_ref = 0; \
+    (NAME)->hf_id = NULL; \
+    (NAME)->filter_string = NULL;
 
 
 typedef struct _someip_payload_parameter_base_type_list {
@@ -381,6 +395,8 @@ typedef struct _someip_parameter_union_item {
     gchar      *name;
     guint32     data_type;
     guint32     id_ref;
+    int        *hf_id;
+    gchar      *filter_string;
 } someip_parameter_union_item_t;
 
 typedef struct _someip_parameter_union {
@@ -405,6 +421,7 @@ typedef struct _someip_parameter_union_uat {
     gchar              *type_name;
     guint32             data_type;
     guint32             id_ref;
+    gchar              *filter_string;
 } someip_parameter_union_uat_t;
 
 typedef struct _someip_parameter_enum_uat {
@@ -431,6 +448,8 @@ typedef struct _someip_parameter_array {
     guint32             data_type;
     guint32             id_ref;
     guint32             num_of_dims;
+    int                *hf_id;
+    char               *filter_string;
 
     someip_parameter_array_dim_t *dims;
 } someip_parameter_array_t;
@@ -441,6 +460,7 @@ typedef struct _someip_parameter_array_uat {
     guint32             data_type;
     guint32             id_ref;
     guint32             num_of_dims;
+    gchar              *filter_string;
 
     guint32             num;
     guint32             lower_limit;
@@ -472,6 +492,7 @@ typedef struct _someip_parameter_list_uat {
     gchar              *name;
     guint32             data_type;
     guint32             id_ref;
+    gchar              *filter_string;
 } someip_parameter_list_uat_t;
 
 typedef struct _someip_parameter_struct_uat {
@@ -486,6 +507,7 @@ typedef struct _someip_parameter_struct_uat {
     gchar              *name;
     guint32             data_type;
     guint32             id_ref;
+    gchar              *filter_string;
 } someip_parameter_struct_uat_t;
 
 typedef someip_payload_parameter_base_type_list_t someip_parameter_base_type_list_uat_t;
@@ -552,6 +574,26 @@ register_someip_port_tcp(guint32 portnumber) {
 }
 
 /*** UAT Callbacks and Helpers ***/
+
+static char*
+check_filter_string(gchar *filter_string, guint32 id) {
+    char *err = NULL;
+    guchar c;
+
+    c = proto_check_field_name(filter_string);
+    if (c) {
+        if (c == '.') {
+            err = g_strdup_printf("Filter String contains illegal chars '.' (ID: %i )", id);
+        } else if (g_ascii_isprint(c)) {
+            err = g_strdup_printf("Filter String contains illegal chars '%c' (ID: %i)", c, id);
+        } else {
+            err = g_strdup_printf("Filter String contains invalid byte \\%03o (ID: %i)", c, id);
+        }
+    }
+
+    return err;
+}
+
 static void
 someip_free_key(gpointer key) {
     wmem_free(wmem_epan_scope(), key);
@@ -578,7 +620,7 @@ static gboolean
 update_generic_one_identifier_16bit(void *r, char **err) {
     generic_one_id_string_t *rec = (generic_one_id_string_t *)r;
 
-    if ( rec->id>0xffff ) {
+    if (rec->id > 0xffff) {
         *err = g_strdup_printf("We currently only support 16 bit identifiers (ID: %i  Name: %s)", rec->id, rec->name);
         return FALSE;
     }
@@ -639,7 +681,7 @@ update_generic_two_identifier_16bit(void *r, char **err) {
         return FALSE;
     }
 
-    if  (rec->name == NULL || rec->name[0] == 0 ) {
+    if (rec->name == NULL || rec->name[0] == 0) {
         *err = g_strdup("Name cannot be empty");
         return FALSE;
     }
@@ -862,6 +904,7 @@ UAT_DEC_CB_DEF(someip_parameter_list, pos, someip_parameter_list_uat_t)
 UAT_CSTRING_CB_DEF(someip_parameter_list, name, someip_parameter_list_uat_t)
 UAT_DEC_CB_DEF(someip_parameter_list, data_type, someip_parameter_list_uat_t)
 UAT_HEX_CB_DEF(someip_parameter_list, id_ref, someip_parameter_list_uat_t)
+UAT_CSTRING_CB_DEF(someip_parameter_list, filter_string, someip_parameter_list_uat_t)
 
 static void *
 copy_someip_parameter_list_cb(void* n, const void* o, size_t size _U_) {
@@ -872,6 +915,12 @@ copy_someip_parameter_list_cb(void* n, const void* o, size_t size _U_) {
         new_rec->name = g_strdup(old_rec->name);
     } else {
         new_rec->name = NULL;
+    }
+
+    if (old_rec->filter_string) {
+        new_rec->filter_string = g_strdup(old_rec->filter_string);
+    } else {
+        new_rec->filter_string = NULL;
     }
 
     new_rec->service_id = old_rec->service_id;
@@ -889,6 +938,7 @@ copy_someip_parameter_list_cb(void* n, const void* o, size_t size _U_) {
 static gboolean
 update_someip_parameter_list(void *r, char **err) {
     someip_parameter_list_uat_t *rec = (someip_parameter_list_uat_t *)r;
+    guchar c;
 
     if (rec->service_id > 0xffff) {
         *err = g_strdup_printf("We currently only support 16 bit Service IDs (Service-ID: %i  Name: %s)", rec->service_id, rec->name);
@@ -917,6 +967,23 @@ update_someip_parameter_list(void *r, char **err) {
 
     if (rec->pos >= rec->num_of_params) {
         *err = g_strdup_printf("Position >= Number of Parameters");
+        return FALSE;
+    }
+
+    if (rec->filter_string == NULL || rec->filter_string[0] == 0) {
+        *err = g_strdup_printf("Name cannot be empty");
+        return FALSE;
+    }
+
+    c = proto_check_field_name(rec->filter_string);
+    if (c) {
+        if (c == '.') {
+            *err = g_strdup_printf("Filter String contains illegal chars '.' (Service-ID: %i  Method-ID: %i)", rec->service_id, rec->method_id);
+        } else if (g_ascii_isprint(c)) {
+            *err = g_strdup_printf("Filter String contains illegal chars '%c' (Service-ID: %i  Method-ID: %i)", c, rec->service_id, rec->method_id);
+        } else {
+            *err = g_strdup_printf("Filter String contains invalid byte \\%03o (Service-ID: %i  Method-ID: %i)", c, rec->service_id, rec->method_id);
+        }
         return FALSE;
     }
 
@@ -979,6 +1046,7 @@ post_update_someip_parameter_list_read_in_data(someip_parameter_list_uat_t *data
             item->id_ref = data[i].id_ref;
             item->pos = data[i].pos;
             item->data_type = data[i].data_type;
+            item->filter_string = data[i].filter_string;
         }
     }
 }
@@ -1032,6 +1100,8 @@ copy_someip_parameter_enum_cb(void* n, const void* o, size_t size _U_) {
 static gboolean
 update_someip_parameter_enum(void *r, char **err) {
     someip_parameter_enum_uat_t *rec = (someip_parameter_enum_uat_t *)r;
+
+    /* enum name is not used in a filter yet. */
 
     if (rec->name == NULL || rec->name[0] == 0) {
         *err = g_strdup_printf("Name cannot be empty");
@@ -1131,6 +1201,7 @@ UAT_CSTRING_CB_DEF(someip_parameter_arrays, name, someip_parameter_array_uat_t)
 UAT_DEC_CB_DEF(someip_parameter_arrays, data_type, someip_parameter_array_uat_t)
 UAT_HEX_CB_DEF(someip_parameter_arrays, id_ref, someip_parameter_array_uat_t)
 UAT_DEC_CB_DEF(someip_parameter_arrays, num_of_dims, someip_parameter_array_uat_t)
+UAT_CSTRING_CB_DEF(someip_parameter_arrays, filter_string, someip_parameter_array_uat_t)
 
 UAT_DEC_CB_DEF(someip_parameter_arrays, num, someip_parameter_array_uat_t)
 UAT_DEC_CB_DEF(someip_parameter_arrays, lower_limit, someip_parameter_array_uat_t)
@@ -1152,6 +1223,11 @@ copy_someip_parameter_array_cb(void* n, const void* o, size_t size _U_) {
     new_rec->data_type = old_rec->data_type;
     new_rec->id_ref = old_rec->id_ref;
     new_rec->num_of_dims = old_rec->num_of_dims;
+    if (old_rec->filter_string) {
+        new_rec->filter_string = g_strdup(old_rec->filter_string);
+    } else {
+        new_rec->filter_string = NULL;
+    }
 
     new_rec->num = old_rec->num;
     new_rec->lower_limit = old_rec->lower_limit;
@@ -1165,6 +1241,7 @@ copy_someip_parameter_array_cb(void* n, const void* o, size_t size _U_) {
 static gboolean
 update_someip_parameter_array(void *r, char **err) {
     someip_parameter_array_uat_t *rec = (someip_parameter_array_uat_t *)r;
+    char *tmp;
 
     if (rec->name == NULL || rec->name[0] == 0) {
         *err = g_strdup_printf("Name cannot be empty");
@@ -1173,6 +1250,17 @@ update_someip_parameter_array(void *r, char **err) {
 
     if (rec->num >= rec->num_of_dims) {
         *err = g_strdup_printf("Dimension >= Number of Dimensions");
+        return FALSE;
+    }
+
+    if (rec->filter_string == NULL || rec->filter_string[0] == 0) {
+        *err = g_strdup_printf("Filter String cannot be empty");
+        return FALSE;
+    }
+
+    tmp = check_filter_string(rec->filter_string, rec->id);
+    if (tmp != NULL) {
+        *err = tmp;
         return FALSE;
     }
 
@@ -1211,6 +1299,7 @@ post_update_someip_parameter_array_read_in_data(someip_parameter_array_uat_t *da
             list->data_type = data[i].data_type;
             list->id_ref = data[i].id_ref;
             list->num_of_dims = data[i].num_of_dims;
+            list->filter_string = data[i].filter_string;
 
             items = (someip_parameter_array_dim_t *)wmem_alloc_array(wmem_epan_scope(), someip_parameter_array_dim_t, data[i].num_of_dims);
             memset(items, 0, sizeof(someip_parameter_array_dim_t) * data[i].num_of_dims);
@@ -1258,6 +1347,7 @@ UAT_DEC_CB_DEF(someip_parameter_structs, pos, someip_parameter_struct_uat_t)
 UAT_CSTRING_CB_DEF(someip_parameter_structs, name, someip_parameter_struct_uat_t)
 UAT_DEC_CB_DEF(someip_parameter_structs, data_type, someip_parameter_struct_uat_t)
 UAT_HEX_CB_DEF(someip_parameter_structs, id_ref, someip_parameter_struct_uat_t)
+UAT_CSTRING_CB_DEF(someip_parameter_structs, filter_string, someip_parameter_struct_uat_t)
 
 static void *
 copy_someip_parameter_struct_cb(void* n, const void* o, size_t size _U_) {
@@ -1288,15 +1378,33 @@ copy_someip_parameter_struct_cb(void* n, const void* o, size_t size _U_) {
     new_rec->data_type = old_rec->data_type;
     new_rec->id_ref = old_rec->id_ref;
 
+    if (old_rec->filter_string) {
+        new_rec->struct_name = g_strdup(old_rec->filter_string);
+    } else {
+        new_rec->filter_string = NULL;
+    }
+
     return new_rec;
 }
 
 static gboolean
 update_someip_parameter_struct(void *r, char **err) {
     someip_parameter_struct_uat_t *rec = (someip_parameter_struct_uat_t *)r;
+    char *tmp = NULL;
 
     if (rec->struct_name == NULL || rec->struct_name[0] == 0) {
         *err = g_strdup_printf("Struct name cannot be empty");
+        return FALSE;
+    }
+
+    if (rec->filter_string == NULL || rec->filter_string[0] == 0) {
+        *err = g_strdup_printf("Struct name cannot be empty");
+        return FALSE;
+    }
+
+    tmp = check_filter_string(rec->filter_string, rec->id);
+    if (tmp != NULL) {
+        *err = tmp;
         return FALSE;
     }
 
@@ -1342,7 +1450,7 @@ post_update_someip_parameter_struct_read_in_data(someip_parameter_struct_uat_t *
             list = wmem_new(wmem_epan_scope(), someip_payload_parameter_struct_t);
             INIT_SOMEIP_PAYLOAD_PARAMETER_STRUCT(list)
 
-                list->id = data[i].id;
+            list->id = data[i].id;
             list->struct_name = data[i].struct_name;
             list->length_of_length = data[i].length_of_length;
             list->pad_to = data[i].pad_to;
@@ -1362,11 +1470,12 @@ post_update_someip_parameter_struct_read_in_data(someip_parameter_struct_uat_t *
             item = &(list->items[data[i].pos]);
             INIT_SOMEIP_PAYLOAD_PARAMETER_ITEM(item)
 
-                /* we do not care if we overwrite param */
-                item->name = data[i].name;
+            /* we do not care if we overwrite param */
+            item->name = data[i].name;
             item->id_ref = data[i].id_ref;
             item->pos = data[i].pos;
             item->data_type = data[i].data_type;
+            item->filter_string = data[i].filter_string;
         }
     }
 }
@@ -1395,6 +1504,7 @@ UAT_DEC_CB_DEF(someip_parameter_unions, type_id, someip_parameter_union_uat_t)
 UAT_CSTRING_CB_DEF(someip_parameter_unions, type_name, someip_parameter_union_uat_t)
 UAT_DEC_CB_DEF(someip_parameter_unions, data_type, someip_parameter_union_uat_t)
 UAT_HEX_CB_DEF(someip_parameter_unions, id_ref, someip_parameter_union_uat_t)
+UAT_CSTRING_CB_DEF(someip_parameter_unions, filter_string, someip_parameter_union_uat_t)
 
 static void *
 copy_someip_parameter_union_cb(void* n, const void* o, size_t size _U_) {
@@ -1426,15 +1536,28 @@ copy_someip_parameter_union_cb(void* n, const void* o, size_t size _U_) {
     new_rec->data_type = old_rec->data_type;
     new_rec->id_ref = old_rec->id_ref;
 
+    if (old_rec->filter_string) {
+        new_rec->filter_string = g_strdup(old_rec->filter_string);
+    } else {
+        new_rec->filter_string = NULL;
+    }
+
     return new_rec;
 }
 
 static gboolean
 update_someip_parameter_union(void *r, char **err) {
     someip_parameter_union_uat_t *rec = (someip_parameter_union_uat_t *)r;
+    gchar *tmp;
 
     if (rec->name == NULL || rec->name[0] == 0) {
         *err = g_strdup_printf("Union name cannot be empty");
+        return FALSE;
+    }
+
+    tmp = check_filter_string(rec->filter_string, rec->id);
+    if (tmp != NULL) {
+        *err = tmp;
         return FALSE;
     }
 
@@ -1506,6 +1629,7 @@ post_update_someip_parameter_union_read_in_data(someip_parameter_union_uat_t *da
                 item->name = data[i].type_name;
                 item->data_type = data[i].data_type;
                 item->id_ref = data[i].id_ref;
+                item->filter_string = data[i].filter_string;
             }
         }
     }
@@ -1558,6 +1682,11 @@ copy_someip_parameter_base_type_list_cb(void* n, const void* o, size_t size _U_)
 static gboolean
 update_someip_parameter_base_type_list(void *r, char **err) {
     someip_parameter_base_type_list_uat_t *rec = (someip_parameter_base_type_list_uat_t *)r;
+
+    if (rec->name == NULL || rec->name[0] == 0) {
+        *err = g_strdup_printf("Name cannot be empty");
+        return FALSE;
+    }
 
     if (rec->id > 0xffffffff) {
         *err = g_strdup_printf("We currently only support 32 bit IDs (%i) Name: %s", rec->id, rec->name);
@@ -1642,6 +1771,11 @@ static gboolean
 update_someip_parameter_string_list(void *r, char **err) {
     someip_parameter_string_uat_t *rec = (someip_parameter_string_uat_t *)r;
 
+    if (rec->name == NULL || rec->name[0] == 0) {
+        *err = g_strdup_printf("Name cannot be empty");
+        return FALSE;
+    }
+
     if (rec->id > 0xffffffff) {
         *err = g_strdup_printf("We currently only support 32 bit IDs (%i) Name: %s", rec->id, rec->name);
         return FALSE;
@@ -1656,7 +1790,6 @@ update_someip_parameter_string_list(void *r, char **err) {
         *err = g_strdup_printf("length_of_length can be only 0, 8, 16, or 32 but not %d (IDs: %i Name: %s)", rec->length_of_length, rec->id, rec->name);
         return FALSE;
     }
-
 
     return TRUE;
 }
@@ -1765,6 +1898,325 @@ post_update_someip_parameter_typedef_list_cb(void) {
     }
 }
 
+
+static void
+deregister_dynamic_hf_data(hf_register_info **hf_array, guint *hf_size) {
+    if (*hf_array) {
+        /* Unregister all fields used before */
+        for (guint i = 0; i < *hf_size; i++) {
+            if ((*hf_array)[i].p_id != NULL) {
+                proto_deregister_field(proto_someip, *((*hf_array)[i].p_id));
+                g_free((*hf_array)[i].p_id);
+            }
+        }
+        proto_add_deregistered_data(*hf_array);
+        *hf_array = NULL;
+        *hf_size = 0;
+    }
+}
+
+static void
+allocate_dynamic_hf_data(hf_register_info **hf_array, guint *hf_size, guint new_size) {
+    *hf_array = g_new0(hf_register_info, new_size);
+    *hf_size = new_size;
+}
+
+typedef struct _param_return_attibutes_t {
+    enum ftenum     type;
+    int             display_base;
+    gchar          *base_type_name;
+} param_return_attributes_t;
+
+static param_return_attributes_t
+get_param_attributes(guint8 data_type, guint32 id_ref) {
+    gint count = 10;
+
+    param_return_attributes_t ret;
+    ret.type = FT_NONE;
+    ret.display_base = BASE_NONE;
+    ret.base_type_name = NULL;
+
+    /* we limit the number of typedef recursion to "count" */
+    while (data_type == SOMEIP_PAYLOAD_PARAMETER_DATA_TYPE_TYPEDEF && count > 0) {
+        someip_payload_parameter_typedef_t *tmp = get_typedef_config(id_ref);
+        /* this should not be a typedef since we dont support recursion of typedefs */
+        if (tmp != NULL) {
+            data_type = tmp->data_type;
+            id_ref = tmp->id_ref;
+        }
+        count--;
+    }
+
+    if (data_type == SOMEIP_PAYLOAD_PARAMETER_DATA_TYPE_ENUM) {
+        someip_payload_parameter_enum_t *tmp = get_enum_config(id_ref);
+        /* this can only be a base type ... */
+        if (tmp != NULL) {
+            data_type = tmp->data_type;
+            id_ref = tmp->id_ref;
+        }
+    }
+
+    if (data_type == SOMEIP_PAYLOAD_PARAMETER_DATA_TYPE_STRING) {
+        someip_payload_parameter_string_t *tmp = get_string_config(id_ref);
+        ret.type = FT_STRING;
+        ret.display_base = BASE_NONE;
+        if (tmp != NULL) {
+            ret.base_type_name = tmp->name;
+        }
+        return ret;
+    }
+
+    if (data_type == SOMEIP_PAYLOAD_PARAMETER_DATA_TYPE_BASE_TYPE) {
+        someip_payload_parameter_base_type_list_t *tmp = get_base_type_config(id_ref);
+
+        ret.display_base = BASE_DEC;
+
+        if (tmp != NULL) {
+            ret.base_type_name = tmp->name;
+
+            if (g_strcmp0(tmp->data_type, "uint8") == 0) {
+                ret.type = FT_UINT8;
+            } else if (g_strcmp0(tmp->data_type, "uint16") == 0) {
+                ret.type = FT_UINT16;
+            } else if (g_strcmp0(tmp->data_type, "uint24") == 0) {
+                ret.type = FT_UINT24;
+            } else if (g_strcmp0(tmp->data_type, "uint32") == 0) {
+                ret.type = FT_UINT32;
+            } else if (g_strcmp0(tmp->data_type, "uint40") == 0) {
+                ret.type = FT_UINT40;
+            } else if (g_strcmp0(tmp->data_type, "uint48") == 0) {
+                ret.type = FT_UINT48;
+            } else if (g_strcmp0(tmp->data_type, "uint56") == 0) {
+                ret.type = FT_UINT56;
+            } else if (g_strcmp0(tmp->data_type, "uint64") == 0) {
+                ret.type = FT_UINT64;
+            } else if (g_strcmp0(tmp->data_type, "int8") == 0) {
+                ret.type = FT_INT8;
+            } else if (g_strcmp0(tmp->data_type, "int16") == 0) {
+                ret.type = FT_INT16;
+            } else if (g_strcmp0(tmp->data_type, "int24") == 0) {
+                ret.type = FT_INT24;
+            } else if (g_strcmp0(tmp->data_type, "int32") == 0) {
+                ret.type = FT_INT32;
+            } else if (g_strcmp0(tmp->data_type, "int40") == 0) {
+                ret.type = FT_INT40;
+            } else if (g_strcmp0(tmp->data_type, "int48") == 0) {
+                ret.type = FT_INT48;
+            } else if (g_strcmp0(tmp->data_type, "int56") == 0) {
+                ret.type = FT_INT56;
+            } else if (g_strcmp0(tmp->data_type, "int64") == 0) {
+                ret.type = FT_INT64;
+            } else if (g_strcmp0(tmp->data_type, "float32") == 0) {
+                ret.type = FT_FLOAT;
+                ret.display_base = BASE_FLOAT;
+            } else if (g_strcmp0(tmp->data_type, "float64") == 0) {
+                ret.type = FT_DOUBLE;
+                ret.display_base = BASE_FLOAT;
+            } else {
+                ret.type = FT_NONE;
+            }
+        } else {
+            ret.type = FT_NONE;
+        }
+    }
+
+    /* all other types are handled or dont need a type! */
+    return ret;
+}
+
+static gint*
+update_dynamic_hf_entry(hf_register_info* hf_array, int pos, guint32 data_type, guint id_ref, char* param_name, char* abbrev) {
+    param_return_attributes_t attribs;
+    gint *hf_id;
+
+    attribs = get_param_attributes(data_type, id_ref);
+    if (hf_array == NULL || attribs.type == FT_NONE) {
+        return NULL;
+    }
+
+    hf_id = g_new(gint, 1);
+    *hf_id = -1;
+    hf_array[pos].p_id = hf_id;
+
+    hf_array[pos].hfinfo.strings = NULL;
+    hf_array[pos].hfinfo.bitmask = 0;
+    hf_array[pos].hfinfo.blurb = NULL;
+
+    if (attribs.base_type_name == NULL) {
+        hf_array[pos].hfinfo.name = g_strdup(param_name);
+    } else {
+        hf_array[pos].hfinfo.name = g_strdup_printf("%s [%s]", param_name, attribs.base_type_name);
+    }
+
+    hf_array[pos].hfinfo.abbrev = abbrev;
+    hf_array[pos].hfinfo.type = attribs.type;
+    hf_array[pos].hfinfo.display = attribs.display_base;
+
+    HFILL_INIT(hf_array[pos]);
+
+    return hf_id;
+}
+
+static void
+update_dynamic_param_hf_entry(gpointer key _U_, gpointer value, gpointer data) {
+    guint32 *pos = (guint32*)data;
+    someip_parameter_list_t *list = (someip_parameter_list_t*)value;
+    guint i = 0;
+
+    if (*pos >= dynamic_hf_param_size) {
+        return;
+    }
+
+    for (i = 0; i < list->num_of_items ; i++) {
+        someip_payload_parameter_item_t *item = &(list->items[i]);
+
+        gboolean service_name_needs_free = FALSE;
+        gboolean method_name_needs_free  = FALSE;
+
+        guchar c;
+        char *service_name = someip_lookup_service_name(list->service_id);
+        char *method_name = someip_lookup_method_name(list->service_id, list->method_id);
+
+        if (service_name != NULL) {
+            c = proto_check_field_name(service_name);
+            if (c) {
+                service_name = NULL;
+            }
+        }
+
+        if (service_name == NULL) {
+            service_name_needs_free = TRUE;
+            service_name = g_strdup_printf("0x%04x", list->service_id);
+        }
+
+        if (method_name != NULL) {
+            c = proto_check_field_name(method_name);
+            if (c) {
+                service_name = NULL;
+            }
+        }
+
+        if (method_name == NULL) {
+            method_name_needs_free = TRUE;
+            method_name = g_strdup_printf("0x%04x", list->method_id);
+        }
+
+        char *abbrev = g_strdup_printf("someip.payload.%s", item->filter_string);
+        item->hf_id = update_dynamic_hf_entry(dynamic_hf_param, *pos, item->data_type, item->id_ref, item->name, abbrev);
+
+        if (service_name_needs_free) {
+            g_free(service_name);
+        }
+
+        if (method_name_needs_free) {
+            g_free(method_name);
+        }
+
+        if (item->hf_id != NULL) {
+            (*pos)++;
+        }
+    }
+}
+
+static void
+update_dynamic_array_hf_entry(gpointer key _U_, gpointer value, gpointer data) {
+    guint32 *pos = (guint32*)data;
+    someip_parameter_array_t *item = (someip_parameter_array_t*)value;
+    char *abbrev = NULL;
+
+    if (*pos >= dynamic_hf_array_size) {
+        return;
+    }
+
+    abbrev = g_strdup_printf("someip.payload.%s", item->filter_string);
+    item->hf_id = update_dynamic_hf_entry(dynamic_hf_array, *pos, item->data_type, item->id_ref, item->name, abbrev);
+
+    if (item->hf_id != NULL) {
+        (*pos)++;
+    }
+}
+
+static void
+update_dynamic_struct_hf_entry(gpointer key _U_, gpointer value, gpointer data) {
+    guint32 *pos = (guint32*)data;
+    someip_payload_parameter_struct_t *list = (someip_payload_parameter_struct_t*)value;
+    guint i = 0;
+
+    if (*pos >= dynamic_hf_struct_size) {
+        return;
+    }
+
+    for (i = 0; i < list->num_of_items; i++) {
+        someip_payload_parameter_item_t *item = &(list->items[i]);
+
+        char *abbrev = g_strdup_printf("someip.payload.%s", item->filter_string);
+        item->hf_id = update_dynamic_hf_entry(dynamic_hf_struct, *pos, item->data_type, item->id_ref, item->name, abbrev);
+
+        if (item->hf_id != NULL) {
+            (*pos)++;
+        }
+    }
+}
+
+static void
+update_dynamic_union_hf_entry(gpointer key _U_, gpointer value, gpointer data) {
+    guint32 *pos = (guint32*)data;
+    someip_parameter_union_t *list = (someip_parameter_union_t*)value;
+    guint i = 0;
+
+    if (*pos >= dynamic_hf_union_size) {
+        return;
+    }
+
+    for (i = 0; i < list->num_of_items; i++) {
+        someip_parameter_union_item_t *item = &(list->items[i]);
+
+        char *abbrev = g_strdup_printf("someip.payload.%s", item->filter_string);
+        item->hf_id = update_dynamic_hf_entry(dynamic_hf_union, *pos, item->data_type, item->id_ref, item->name, abbrev);
+
+        if (item->hf_id != NULL) {
+            (*pos)++;
+        }
+    }
+}
+
+static void
+update_dynamic_hf_entries(void) {
+    guint32 pos;
+
+    if (data_someip_parameter_list != NULL) {
+        deregister_dynamic_hf_data(&dynamic_hf_param, &dynamic_hf_param_size);
+        allocate_dynamic_hf_data(&dynamic_hf_param, &dynamic_hf_param_size, someip_parameter_list_num);
+        pos = 0;
+        g_hash_table_foreach(data_someip_parameter_list, update_dynamic_param_hf_entry, &pos);
+        proto_register_field_array(proto_someip, dynamic_hf_param, pos);
+    }
+
+    if (data_someip_parameter_arrays != NULL) {
+        deregister_dynamic_hf_data(&dynamic_hf_array, &dynamic_hf_array_size);
+        allocate_dynamic_hf_data(&dynamic_hf_array, &dynamic_hf_array_size, someip_parameter_arrays_num);
+        pos = 0;
+        g_hash_table_foreach(data_someip_parameter_arrays, update_dynamic_array_hf_entry, &pos);
+        proto_register_field_array(proto_someip, dynamic_hf_array, pos);
+    }
+
+    if (data_someip_parameter_structs != NULL) {
+        deregister_dynamic_hf_data(&dynamic_hf_struct, &dynamic_hf_struct_size);
+        allocate_dynamic_hf_data(&dynamic_hf_struct, &dynamic_hf_struct_size, someip_parameter_structs_num);
+        pos = 0;
+        g_hash_table_foreach(data_someip_parameter_structs, update_dynamic_struct_hf_entry, &pos);
+        proto_register_field_array(proto_someip, dynamic_hf_struct, pos);
+    }
+
+    if (data_someip_parameter_unions != NULL) {
+        deregister_dynamic_hf_data(&dynamic_hf_union, &dynamic_hf_union_size);
+        allocate_dynamic_hf_data(&dynamic_hf_union, &dynamic_hf_union_size, someip_parameter_unions_num);
+        pos = 0;
+        g_hash_table_foreach(data_someip_parameter_unions, update_dynamic_union_hf_entry, &pos);
+        proto_register_field_array(proto_someip, dynamic_hf_union, pos);
+    }
+}
+
 static void
 expert_someip_payload_truncated(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, gint offset, gint length) {
     proto_tree_add_expert(tree, pinfo, &ef_someip_payload_truncated, tvb, offset, length);
@@ -1794,7 +2246,7 @@ expert_someip_payload_alignment_error(proto_tree *tree, packet_info *pinfo, tvbu
  *******************************************/
 
 static int
-dissect_someip_payload_parameter(tvbuff_t* tvb, packet_info* pinfo, proto_tree *tree, gint offset, gint offset_bits, guint8 data_type, guint32 idref, gchar *name);
+dissect_someip_payload_parameter(tvbuff_t* tvb, packet_info* pinfo, proto_tree *tree, gint offset, gint offset_bits, guint8 data_type, guint32 idref, gchar *name, int *hf_id_ptr);
 
 /* add a flexible size length field, -1 for error*/
 static gint64
@@ -1846,8 +2298,66 @@ dissect_someip_payload_type_field(tvbuff_t* tvb, packet_info* pinfo, proto_tree 
     return (gint64)tmp;
 }
 
+static guint64
+dissect_shifted_and_shortened_uint(tvbuff_t *tvb, gint offset, gint offset_bits, gint offset_end, gint offset_end_bits, gboolean big_endian) {
+    gint32      i = 0;
+    guint8      tmp = 0;
+    gint        tmp_bit_count = 8;
+    guint64     value_guint64 = 0;
+
+    if (!big_endian) {
+        /* offset and offset_end need to be included */
+        for (i = offset_end; i >= offset; i--) {
+
+            if (i != offset_end || offset_end_bits != 0) {
+                tmp = tvb_get_guint8(tvb, i);
+                tmp_bit_count = 8;
+
+                if (i == offset_end) {
+                    tmp = tmp & (0xff >> (8 - offset_end_bits));
+                    /* don't need to shift value, in the first round */
+                    tmp_bit_count = 0;
+                }
+
+                if (i == offset) {
+                    tmp >>= offset_bits;
+                    tmp_bit_count = 8 - offset_bits;
+                }
+
+                value_guint64 <<= (guint)tmp_bit_count;
+                value_guint64 |= tmp;
+            }
+        }
+    } else {
+        /* offset_end needs to be included. */
+        for (i = offset; i <= offset_end; i++) {
+
+            /* Do not read the last byte, if you do not need any bit of it. Else we read behind buffer! */
+            if (i != offset_end || offset_end_bits != 0) {
+                tmp = tvb_get_guint8(tvb, i);
+                tmp_bit_count = 8;
+
+                if (i == offset) {
+                    tmp = tmp & (0xff >> offset_bits);
+                    /* don't need to shift value, in the first round */
+                    tmp_bit_count = 0;
+                }
+
+                if (i == offset_end) {
+                    tmp >>= 8 - offset_end_bits;
+                    tmp_bit_count = offset_end_bits;
+                }
+
+                value_guint64 <<= (guint)tmp_bit_count;
+                value_guint64 |= tmp;
+            }
+        }
+    }
+    return value_guint64;
+}
+
 static gint
-dissect_someip_payload_base_type(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree *tree, gint offset, gint offset_bits, guint8 data_type, guint32 id, gchar* name) {
+dissect_someip_payload_base_type(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree *tree, gint offset, gint offset_bits, guint8 data_type, guint32 id, gchar* name, int *hf_id_ptr) {
     someip_payload_parameter_base_type_list_t *base_type = NULL;
     someip_payload_parameter_enum_t *enum_config = NULL;
 
@@ -1861,18 +2371,22 @@ dissect_someip_payload_base_type(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tr
     proto_item *ti = NULL;
 
     guint64     value = 0;
-    guint8      tmp = 0;
-    gint        tmp_bit_count = 8;
+    guint32     value32 = 0;
     gboolean    value_set = FALSE;
 
-    gint32      i = 0;
-    guint32     j = 0;
+    guint32     i = 0;
     gchar      *value_name = NULL;
 
     gint        offset_end = 0;
     gint        offset_end_bits = 0;
 
     gboolean    big_endian = TRUE;
+
+    int         hf_id = -1;
+
+    if (hf_id_ptr != NULL) {
+        hf_id = *hf_id_ptr;
+    }
 
     if (offset_bits < 0) {
         return 0;
@@ -1900,152 +2414,65 @@ dissect_someip_payload_base_type(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tr
     }
 
     big_endian = base_type->big_endian;
-
     buf_length = tvb_captured_length_remaining(tvb, 0);
-
     bit_length = base_type->bitlength_encoded_type;
+
     /* +7 to round up, if more than 0 bits */
     param_length = (gint)((offset_bits + bit_length + 7) / 8);
 
     if (param_length <= buf_length - offset) {
-
-        if (name == NULL) {
-            ti = proto_tree_add_string_format(tree, hf_payload_str_base, tvb, offset, param_length, base_type->name, "[%s]", base_type->name);
-        } else {
-            ti = proto_tree_add_string_format(tree, hf_payload_str_base, tvb, offset, param_length, base_type->name, "%s [%s]", name, base_type->name);
-        }
-
-        /* Regular (non-shortened!) SOME/IP types! */
         if (offset_bits == 0 && base_type->bitlength_base_type == bit_length && bit_length % 8 == 0) {
-            if (strcmp(base_type->data_type, "uint8") == 0 && base_type->bitlength_base_type == 8) {
-                value = tvb_get_guint8(tvb, offset);
-                value_set = TRUE;
-                proto_item_append_text(ti, ": %u", (guint8)value);
-            } else if (strcmp(base_type->data_type, "uint16") == 0 && base_type->bitlength_base_type == 16) {
-                if (big_endian) {
-                    value = tvb_get_ntohs(tvb, offset);
+            /* Regular (non-shortened!) SOME/IP types! */
+            if (hf_id != -1) {
+                if (strncmp(base_type->data_type, "uint", 4) == 0) {
+                    if (base_type->bitlength_base_type > 32) {
+                        ti = proto_tree_add_item_ret_uint64(tree, hf_id, tvb, offset, param_length, big_endian ? ENC_BIG_ENDIAN : ENC_LITTLE_ENDIAN, &value);
+                    } else {
+                        ti = proto_tree_add_item_ret_uint(tree, hf_id, tvb, offset, param_length, big_endian ? ENC_BIG_ENDIAN : ENC_LITTLE_ENDIAN, &value32);
+                        value = (guint64)value32;
+                    }
+                    value_set = TRUE;
                 } else {
-                    value = tvb_get_letohs(tvb, offset);
+                    proto_tree_add_item(tree, hf_id, tvb, offset, param_length, big_endian ? ENC_BIG_ENDIAN : ENC_LITTLE_ENDIAN);
                 }
-                value_set = TRUE;
-                proto_item_append_text(ti, ": %u", (guint16)value);
-            } else if (strcmp(base_type->data_type, "uint32") == 0 && base_type->bitlength_base_type == 32) {
-                if (big_endian) {
-                    value = tvb_get_ntohl(tvb, offset);
+            } else {
+                if (name == NULL) {
+                    ti = proto_tree_add_string_format(tree, hf_payload_str_base, tvb, offset, param_length, base_type->name, "[%s]", base_type->name);
                 } else {
-                    value = tvb_get_letohl(tvb, offset);
-                }
-                value_set = TRUE;
-                proto_item_append_text(ti, ": %u", (guint32)value);
-            } else if (strcmp(base_type->data_type, "uint64") == 0 && base_type->bitlength_base_type == 64) {
-                if (big_endian) {
-                    value = tvb_get_ntoh64(tvb, offset);
-                } else {
-                    value = tvb_get_letoh64(tvb, offset);
-                }
-                value_set = TRUE;
-                proto_item_append_text(ti, ": %" G_GUINT64_FORMAT, value);
-            } else if (strcmp(base_type->data_type, "int8") == 0 && base_type->bitlength_base_type == 8) {
-                proto_item_append_text(ti, ": %d", (gint8)tvb_get_guint8(tvb, offset));
-            } else if (strcmp(base_type->data_type, "int16") == 0 && base_type->bitlength_base_type == 16) {
-                if (big_endian) {
-                    proto_item_append_text(ti, ": %d", (gint16)tvb_get_ntohs(tvb, offset));
-                } else {
-                    proto_item_append_text(ti, ": %d", (gint16)tvb_get_letohs(tvb, offset));
-                }
-            } else if (strcmp(base_type->data_type, "int32") == 0 && base_type->bitlength_base_type == 32) {
-                if (big_endian) {
-                    proto_item_append_text(ti, ": %d", (gint32)tvb_get_ntohl(tvb, offset));
-                } else {
-                    proto_item_append_text(ti, ": %d", (gint32)tvb_get_letohl(tvb, offset));
-                }
-            } else if (strcmp(base_type->data_type, "int64") == 0 && base_type->bitlength_base_type == 64) {
-                if (big_endian) {
-                    proto_item_append_text(ti, ": %" G_GINT64_FORMAT, (gint64)tvb_get_ntoh64(tvb, offset));
-                } else {
-                    proto_item_append_text(ti, ": %" G_GINT64_FORMAT, (gint64)tvb_get_letoh64(tvb, offset));
-                }
-            } else if (strcmp(base_type->data_type, "float32") == 0 && base_type->bitlength_base_type == 32) {
-                if (big_endian) {
-                    proto_item_append_text(ti, ": %f", (float)tvb_get_ntohieee_float(tvb, offset));
-                } else {
-                    proto_item_append_text(ti, ": %f", (float)tvb_get_letohieee_float(tvb, offset));
-                }
-            } else if (strcmp(base_type->data_type, "float64") == 0 && base_type->bitlength_base_type == 64) {
-                if (big_endian) {
-                    proto_item_append_text(ti, ": %f", (double)tvb_get_ntohieee_double(tvb, offset));
-                } else {
-                    proto_item_append_text(ti, ": %f", (double)tvb_get_letohieee_double(tvb, offset));
+                    ti = proto_tree_add_string_format(tree, hf_payload_str_base, tvb, offset, param_length, base_type->name, "%s [%s]", name, base_type->name);
                 }
             }
         } else {
-            /* Shortened datatypes (e.g.CAN over SOME/IP) */
-
+            /* Shortened datatypes (e.g. CAN over SOME/IP) */
             offset_end = (gint)((8 * offset + offset_bits + bit_length) / 8);
             offset_end_bits = (gint)((8 * offset + offset_bits + bit_length) % 8);
+            value = dissect_shifted_and_shortened_uint(tvb, offset, offset_bits, offset_end, offset_end_bits, big_endian);
 
-            if (!big_endian) {
-                /* offset and offset_end need to be included */
-                for (i = offset_end; i >= offset; i--) {
-
-                    if (i != offset_end || offset_end_bits != 0) {
-                        tmp = tvb_get_guint8(tvb, i);
-                        tmp_bit_count = 8;
-
-                        if (i == offset_end) {
-                            tmp = tmp & (0xff >> (8 - offset_end_bits));
-                            /* don't need to shift value, in the first round */
-                            tmp_bit_count = 0;
-                        }
-
-                        if (i == offset) {
-                            tmp >>= offset_bits;
-                            tmp_bit_count = 8 - offset_bits;
-                        }
-
-                        value <<= (guint)tmp_bit_count;
-                        value |= tmp;
-                    }
+            if (hf_id != -1) {
+                if (base_type->bitlength_base_type > 32) {
+                    ti = proto_tree_add_uint64(tree, hf_id, tvb, offset, param_length, value);
+                } else {
+                    ti = proto_tree_add_uint(tree, hf_id, tvb, offset, param_length, (guint32)value);
                 }
-
             } else {
-                /* offset_end needs to be included. */
-                for (i = offset; i <= offset_end; i++) {
-
-                    /* Do not read the last byte, if you do not need any bit of it. Else we read behind buffer! */
-                    if (i != offset_end || offset_end_bits != 0) {
-                        tmp = tvb_get_guint8(tvb, i);
-                        tmp_bit_count = 8;
-
-                        if (i == offset) {
-                            tmp = tmp & (0xff >> offset_bits);
-                            /* don't need to shift value, in the first round */
-                            tmp_bit_count = 0;
-                        }
-
-                        if (i == offset_end) {
-                            tmp >>= 8 - offset_end_bits;
-                            tmp_bit_count = offset_end_bits;
-                        }
-
-                        value <<= (guint)tmp_bit_count;
-                        value |= tmp;
-                    }
+                if (name == NULL) {
+                    ti = proto_tree_add_string_format(tree, hf_payload_str_base, tvb, offset, param_length, base_type->name, "[%s]: %" G_GUINT64_FORMAT " (0x%" G_GINT64_MODIFIER "x)",
+                        base_type->name, value, value);
+                } else {
+                    ti = proto_tree_add_string_format(tree, hf_payload_str_base, tvb, offset, param_length, base_type->name, "%s [%s]: %" G_GUINT64_FORMAT " (0x%" G_GINT64_MODIFIER "x)",
+                        name, base_type->name, value, value);
                 }
             }
-
             value_set = TRUE;
-            proto_item_append_text(ti, ": %" G_GUINT64_FORMAT " (0x%" G_GINT64_MODIFIER "x)", value, value);
-
         }
     } else {
         return 0;
     }
 
     if (enum_config != NULL && value_set == TRUE) {
-        for (j = 0; j < enum_config->num_of_items; j++) {
-            if (enum_config->items[j].value == value) {
-                value_name = enum_config->items[j].name;
+        for (i = 0; i < enum_config->num_of_items; i++) {
+            if (enum_config->items[i].value == value) {
+                value_name = enum_config->items[i].name;
                 break;
             }
         }
@@ -2058,7 +2485,7 @@ dissect_someip_payload_base_type(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tr
 }
 
 static int
-dissect_someip_payload_string(tvbuff_t* tvb, packet_info* pinfo, proto_tree *tree, gint offset, gint offset_bits, guint32 id, gchar* name) {
+dissect_someip_payload_string(tvbuff_t* tvb, packet_info* pinfo, proto_tree *tree, gint offset, gint offset_bits, guint32 id, gchar* name, int *hf_id_ptr) {
     someip_payload_parameter_string_t *config = NULL;
 
     guint8     *buf = NULL;
@@ -2073,6 +2500,12 @@ dissect_someip_payload_string(tvbuff_t* tvb, packet_info* pinfo, proto_tree *tre
     gint        offset_bits_orig = offset_bits;
 
     guint       str_encoding = 0;
+    int         hf_id = hf_payload_str_string;
+
+    if (hf_id_ptr != NULL) {
+        hf_id = *hf_id_ptr;
+    }
+
     config = get_string_config(id);
 
     if (config == NULL || offset_bits != 0) {
@@ -2084,7 +2517,7 @@ dissect_someip_payload_string(tvbuff_t* tvb, packet_info* pinfo, proto_tree *tre
         return 0;
     };
 
-    ti = proto_tree_add_string_format(tree, hf_payload_str_string, tvb, offset, 0, name, "%s [%s]", name, config->name);
+    ti = proto_tree_add_string_format(tree, hf_id, tvb, offset, 0, name, "%s [%s]", name, config->name);
     subtree = proto_item_add_subtree(ti, ett_someip_string);
 
     if (config->length_of_length == 0) {
@@ -2173,7 +2606,7 @@ dissect_someip_payload_struct(tvbuff_t* tvb, packet_info* pinfo, proto_tree *tre
 
     for (i = 0; i < config->num_of_items; i++) {
         item = &(config->items[i]);
-        bits_parsed = dissect_someip_payload_parameter(tvb, pinfo, subtree, offset, offset_bits, (guint8)item->data_type, item->id_ref, item->name);
+        bits_parsed = dissect_someip_payload_parameter(tvb, pinfo, subtree, offset, offset_bits, (guint8)item->data_type, item->id_ref, item->name, item->hf_id);
         offset = (8 * offset + offset_bits + bits_parsed) / 8;
         offset_bits = (8 * offset + offset_bits + bits_parsed) % 8;
     }
@@ -2192,7 +2625,7 @@ dissect_someip_payload_struct(tvbuff_t* tvb, packet_info* pinfo, proto_tree *tre
 }
 
 static int
-dissect_someip_payload_typedef(tvbuff_t* tvb, packet_info* pinfo, proto_tree *tree, gint offset, gint offset_bits, guint32 id, gchar* name _U_) {
+dissect_someip_payload_typedef(tvbuff_t* tvb, packet_info* pinfo, proto_tree *tree, gint offset, gint offset_bits, guint32 id, gchar* name _U_, int *hf_id) {
     gint bits_parsed = 0;
     someip_payload_parameter_typedef_t *config = NULL;
 
@@ -2203,7 +2636,7 @@ dissect_someip_payload_typedef(tvbuff_t* tvb, packet_info* pinfo, proto_tree *tr
     }
 
     /* we basically skip over the typedef for now */
-    bits_parsed = dissect_someip_payload_parameter(tvb, pinfo, tree, offset, offset_bits, (guint8)config->data_type, config->id_ref, config->name);
+    bits_parsed = dissect_someip_payload_parameter(tvb, pinfo, tree, offset, offset_bits, (guint8)config->data_type, config->id_ref, config->name, hf_id);
 
     return bits_parsed;
 }
@@ -2269,7 +2702,7 @@ dissect_someip_payload_array_payload(tvbuff_t* tvb, packet_info* pinfo, proto_tr
     }
 
     while ((length == -1 && count < upper_limit) || ((gint)(8 * offset + offset_bits) < 8 * length)) {
-        bits_parsed = dissect_someip_payload_parameter(subtvb, pinfo, tree, offset, offset_bits, (guint8)config->data_type, config->id_ref, config->name);
+        bits_parsed = dissect_someip_payload_parameter(subtvb, pinfo, tree, offset, offset_bits, (guint8)config->data_type, config->id_ref, config->name, config->hf_id);
         if (bits_parsed == 0) {
             return 1;
         }
@@ -2481,7 +2914,7 @@ dissect_someip_payload_union(tvbuff_t* tvb, packet_info* pinfo, proto_tree *tree
 
     if (item != NULL) {
         subtvb = tvb_new_subset_length_caplen(tvb, offset, length, length);
-        dissect_someip_payload_parameter(subtvb, pinfo, subtree, 0, 0, (guint8)item->data_type, item->id_ref, item->name);
+        dissect_someip_payload_parameter(subtvb, pinfo, subtree, 0, 0, (guint8)item->data_type, item->id_ref, item->name, item->hf_id);
     } else {
         expert_someip_payload_config_error(tree, pinfo, tvb, offset, 0, "Union type not configured");
     }
@@ -2491,19 +2924,19 @@ dissect_someip_payload_union(tvbuff_t* tvb, packet_info* pinfo, proto_tree *tree
 }
 
 static int
-dissect_someip_payload_parameter(tvbuff_t* tvb, packet_info* pinfo, proto_tree *tree, gint offset, gint offset_bits, guint8 data_type, guint32 idref, gchar *name) {
+dissect_someip_payload_parameter(tvbuff_t* tvb, packet_info* pinfo, proto_tree *tree, gint offset, gint offset_bits, guint8 data_type, guint32 idref, gchar *name, int *hf_id_ptr) {
     gint bits_parsed = 0;
 
     switch (data_type) {
     case SOMEIP_PAYLOAD_PARAMETER_DATA_TYPE_TYPEDEF:
-        bits_parsed = dissect_someip_payload_typedef(tvb, pinfo, tree, offset, offset_bits, idref, name);
+        bits_parsed = dissect_someip_payload_typedef(tvb, pinfo, tree, offset, offset_bits, idref, name, hf_id_ptr);
         break;
     case SOMEIP_PAYLOAD_PARAMETER_DATA_TYPE_BASE_TYPE:
     case SOMEIP_PAYLOAD_PARAMETER_DATA_TYPE_ENUM:
-        bits_parsed = dissect_someip_payload_base_type(tvb, pinfo, tree, offset, offset_bits, data_type, idref, name);
+        bits_parsed = dissect_someip_payload_base_type(tvb, pinfo, tree, offset, offset_bits, data_type, idref, name, hf_id_ptr);
         break;
     case SOMEIP_PAYLOAD_PARAMETER_DATA_TYPE_STRING:
-        bits_parsed = dissect_someip_payload_string(tvb, pinfo, tree, offset, offset_bits, idref, name);
+        bits_parsed = dissect_someip_payload_string(tvb, pinfo, tree, offset, offset_bits, idref, name, hf_id_ptr);
         break;
     case SOMEIP_PAYLOAD_PARAMETER_DATA_TYPE_ARRAY:
         bits_parsed = dissect_someip_payload_array(tvb, pinfo, tree, offset, offset_bits, idref, name);
@@ -2548,7 +2981,7 @@ dissect_someip_payload(tvbuff_t* tvb, packet_info* pinfo, proto_item *ti, guint1
 
     for (i = 0; i < paramlist->num_of_items; i++) {
         item = &(paramlist->items[i]);
-        bits_parsed = dissect_someip_payload_parameter(tvb, pinfo, tree, offset, offset_bits, (guint8)item->data_type, item->id_ref, item->name);
+        bits_parsed = dissect_someip_payload_parameter(tvb, pinfo, tree, offset, offset_bits, (guint8)item->data_type, item->id_ref, item->name, item->hf_id);
         offset = (8 * offset + offset_bits + bits_parsed) / 8;
         offset_bits = (8 * offset + offset_bits + bits_parsed) % 8;
     }
@@ -3020,6 +3453,7 @@ proto_register_someip(void) {
         UAT_FLD_CSTRING(someip_parameter_list, name,                "Parameter Name",           "Name of parameter (string)"),
         UAT_FLD_DEC(someip_parameter_list, data_type,               "Parameter Type",           "Type of parameter (1: base, 2: string, 3: array, 4: struct, 5: union, 6: typedef, 7: enum)"),
         UAT_FLD_HEX(someip_parameter_list, id_ref,                  "ID Reference",             "ID Reference (32bit hex)"),
+        UAT_FLD_CSTRING(someip_parameter_list, filter_string,       "Filter String",            "Unique filter string that will be prepended with someip.payload. (string)"),
         UAT_END_FIELDS
     };
 
@@ -3029,6 +3463,7 @@ proto_register_someip(void) {
         UAT_FLD_DEC(someip_parameter_arrays, data_type,             "Parameter Type",           "Type of parameter (1: base, 2: string, 3: array, 4: struct, 5: union, 6: typedef, 7: enum)"),
         UAT_FLD_HEX(someip_parameter_arrays, id_ref,                "ID Reference",             "ID Reference (32bit hex)"),
         UAT_FLD_DEC(someip_parameter_arrays, num_of_dims,           "Number of Items",          "Number of Dimensions (16bit dec)"),
+        UAT_FLD_CSTRING(someip_parameter_arrays, filter_string,     "Filter String",            "Unique filter string that will be prepended with someip.payload. (string)"),
 
         UAT_FLD_DEC(someip_parameter_arrays, num,                   "Dimension",                "Dimension (16bit dec, starting with 0)"),
         UAT_FLD_DEC(someip_parameter_arrays, lower_limit,           "Lower Limit",              "Dimension (32bit dec)"),
@@ -3050,6 +3485,7 @@ proto_register_someip(void) {
         UAT_FLD_CSTRING(someip_parameter_structs, name,             "Parameter Name",           "Name of parameter (string)"),
         UAT_FLD_DEC(someip_parameter_structs, data_type,            "Parameter Type",           "Type of parameter (1: base, 2: string, 3: array, 4: struct, 5: union, 6: typedef, 7: enum)"),
         UAT_FLD_HEX(someip_parameter_structs, id_ref,               "ID Reference",             "ID Reference (32bit hex)"),
+        UAT_FLD_CSTRING(someip_parameter_structs, filter_string,    "Filter String",            "Unique filter string that will be prepended with someip.payload. (string)"),
         UAT_END_FIELDS
     };
 
@@ -3066,6 +3502,7 @@ proto_register_someip(void) {
         UAT_FLD_CSTRING(someip_parameter_unions, type_name,         "Type Name",                "Name of Type (string)"),
         UAT_FLD_DEC(someip_parameter_unions, data_type,             "Data Type",                "Type of payload (1: base, 2: string, 3: array, 4: struct, 5: union, 6: typedef, 7: enum)"),
         UAT_FLD_HEX(someip_parameter_unions, id_ref,                "ID Reference",             "ID Reference (32bit hex)"),
+        UAT_FLD_CSTRING(someip_parameter_unions, filter_string,     "Filter String",            "Unique filter string that will be prepended with someip.payload. (string)"),
         UAT_END_FIELDS
     };
 
@@ -3380,6 +3817,8 @@ proto_reg_handoff_someip(void) {
     }
     dissector_add_uint_range("udp.port", someip_ports_udp, someip_handle_udp);
     dissector_add_uint_range("tcp.port", someip_ports_tcp, someip_handle_tcp);
+
+    update_dynamic_hf_entries();
 }
 
 /*
