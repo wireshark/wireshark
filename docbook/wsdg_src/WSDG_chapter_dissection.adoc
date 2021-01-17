@@ -607,6 +607,125 @@ isn't found we provide a fallback which just prints the value in hex. We use
 this twice, once in the INFO field of the columns -- if it’s displayed, and
 similarly we append this data to the base of our dissecting tree.
 
+[[ChDissectExpertInfo]]
+
+=== How to add an expert item
+
+A dissector showing the protocol fields and interpretation of their values is
+very informative. It can be even more helpful if the dissector can draw your
+attention to fields where something noteworthy can be seen. This can be something
+as simple as the start flag of a session, or something more severe as an invalid
+value.
+
+Here we take our dissector for `FOO` and add an expert item for the sequence
+number being zero (assuming that's a noteworthy thing for this protocol).
+
+.Expert item setup.
+[source,c]
+----
+#include <epan/expert.h>
+
+static expert_field ei_foo_seqn_zero = EI_INIT;
+
+/* ... */
+
+void
+proto_register_foo(void)
+{
+    /* ... */
+    expert_module_t* expert_foo;
+
+    /* ... */
+    static ei_register_info ei[] = {
+        {
+            &ei_foo_seqn_zero,
+            { "foo.seqn_zero", PI_SEQUENCE, PI_CHAT,
+              "Sequence number is zero", EXPFILL }
+        }
+    };
+
+    /* ... */
+    expert_foo = expert_register_protocol(proto_foo);
+    expert_register_field_array(expert_foo, ei, array_length(ei));
+}
+----
+
+Let's go through this step by step. The data structures and functions needed for
+expert items are found in epan/expert.h, so we have to include that file.
+
+Next we have to allocate an `expert_field` structure for every type of expert item
+we would like to add to the dissection. This structure is initialised with `EI_INIT`.
+
+Now we have to register with the protocol we are providing expert info for. Since
+we already have a function to register our protocol, we add the expert info
+registration there too. This is done by calling `expert_register_protocol()` with
+the handle for the protocol we received earlier in this function.
+
+Next we need to register an array of definitions of expert items that we would
+like to add to the dissection. This array, not unlike the array of header fields
+before, contains all the data the dissection engine needs to create and handle
+the expert items.
+
+The expert item definition consists of a pointer to the `expert_field` structure
+we defined before and a structure with data elements of the expert item itself.
+
+* _"foo.seqn_zero"_ - The expert items display filter
+
+* _PI_SEQUENCE_ - The group to which the expert item belongs
+
+* _PI_CHAT_ - The severity of the expert item
+
+* _"Sequence number is zero"_ - The text string added to the dissection
+
+We'll ignore the rest of the structure for now.
+
+To keep an overview of lots of expert items it helps to categorize them into groups.
+Currently there are several types of groups defined, e.g. `checksum`, `sequence`,
+`protocol`, etc. All these are defined in the epan/proto.h header file.
+
+Not every noteworthy field value is of equal severity. The start of a session
+is nice to know, while an invalid value may be significant error in the protocol.
+To differentiate between these severties the expert item is assigned one of them:
+`comment`, `chat`, `note`, `warn` or `error`. Try to choose the lowest one which
+is suitable. The topic you're currently working on seems probably more important
+than it will look like in a few weeks.
+
+With the expert item array setup, we add this to the dissection engine with a
+call to `expert_register_field_array()`.
+
+Now that all information of the expert item is defined and registered it's time
+to actually add the expert item to the dissection.
+
+.Expert item use.
+[source,c]
+----
+static int
+dissect_foo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+    guint32 sequenceno = 0xFFFF;
+
+    /* ... */
+
+    ti = proto_tree_add_item_ret_uint(foo_tree, hf_foo_sequenceno,
+                                      tvb, offset, 2, ENC_BIG_ENDIAN, &sequenceno);
+    if (sequenceno == 0) {
+        expert_add_info(pinfo, ti, &ei_foo_seqn_zero);
+    }
+
+    /* ... */
+}
+----
+
+There's been a slight alteration to the function used to add the sequence number
+dissection. First the proto_item created by the function is saved in previously
+defined variable `ti`, and the actual value of the field is stored in the variable
+`sequenceno`. We can now use the value of this field to determine wether to add
+the expert item.
+
+Adding the expert item is simply done by calling `expert_add_info()` with reference
+to the `packet_info` structure, the proto item `ti` to add the expert item to and
+the previously defined and registered expert item information.
+
 [[ChDissectTransformed]]
 
 === How to handle transformed data
