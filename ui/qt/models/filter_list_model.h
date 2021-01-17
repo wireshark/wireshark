@@ -19,6 +19,7 @@
 
 class FilterListModel : public QAbstractListModel
 {
+    Q_OBJECT
 
 public:
     enum FilterListType {

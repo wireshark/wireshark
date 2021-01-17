@@ -993,7 +993,7 @@ lte_rlc_statistics_init(const char *args, void*) {
 
 static stat_tap_ui lte_rlc_statistics_ui = {
     REGISTER_STAT_GROUP_TELEPHONY_LTE,
-    QT_TR_NOOP("RLC Statistics"),
+    QT_TRANSLATE_NOOP("LteRlcStatisticsDialog", "RLC Statistics"),
     "rlc-lte,stat",
     lte_rlc_statistics_init,
     0,
