@@ -1,4 +1,4 @@
-Editcap (Wireshark) 3.5.0 (v3.5.0rc0-595-g0d820ddc8d2d)
+Editcap (Wireshark) 3.5.0 (v3.5.0rc0-663-g9faf6d4e7b67)
 Edit and/or translate the format of capture files.
 See https://www.wireshark.org for more information.
 
@@ -15,6 +15,7 @@ Packet selection:
                          given time.
                          Time format for -A/-B options is
                          YYYY-MM-DDThh:mm:ss[.nnnnnnnnn][Z|+-hh:mm]
+                         Unix epoch timestamps are also supported.
 
 Duplicate packet removal:
   --novlan               remove vlan info from packets before checking for duplicates.

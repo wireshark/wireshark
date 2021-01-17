@@ -13516,11 +13516,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Select &amp;None</source>
-        <translation type="unfinished"></translation>
+        <translation>Не &amp;Выбирать Ничего</translation>
     </message>
     <message>
         <source>Clear selection</source>
-        <translation type="unfinished"></translation>
+        <translation>Очистить выбор</translation>
     </message>
     <message>
         <source>Display time as time of day</source>

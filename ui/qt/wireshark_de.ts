@@ -13485,11 +13485,11 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Select &amp;None</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Nichts auswählen</translation>
     </message>
     <message>
         <source>Clear selection</source>
-        <translation type="unfinished"></translation>
+        <translation>Auswahl löschen</translation>
     </message>
     <message>
         <source>Display time as time of day</source>

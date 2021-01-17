@@ -13480,11 +13480,11 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Select &amp;None</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Nessuna selezione</translation>
     </message>
     <message>
         <source>Clear selection</source>
-        <translation type="unfinished"></translation>
+        <translation>Cancella la selezione</translation>
     </message>
     <message>
         <source>Display time as time of day</source>
