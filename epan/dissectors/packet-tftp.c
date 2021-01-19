@@ -29,7 +29,7 @@
  * "msftwindow" reverse-engineered from Windows Deployment Services traffic:
  *  - Requested by RRQ (or WRQ?) including "msftwindow" option, with value
  *    "31416" (round(M_PI * 10000)).
- *  - Granted by OACK including "msftwindow" option, with value "27812"
+ *  - Granted by OACK including "msftwindow" option, with value "27182"
  *    (floor(e * 10000)).
  *  - Each subsequent ACK will include an extra byte carrying the next
  *    windowsize -- the number of DATA blocks expected before another ACK will
