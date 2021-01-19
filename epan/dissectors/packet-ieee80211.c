@@ -1163,6 +1163,20 @@ static value_string_ext aruba_mgt_typevals_ext = VALUE_STRING_EXT_INIT(aruba_mgt
 #define PA_LOCATION_TRACK_NOTIFICATION     15
 #define PA_QAB_REQUEST                     16
 #define PA_QAB_RESPONSE                    17
+#define PA_QMF_POLICY                      18
+#define PA_QMF_POLICY_CHANGE               19
+#define PA_QLOAD_REQUEST                   20
+#define PA_QLOAD_REPORT                    21
+#define PA_HCCA_TXOP_ADVERTISEMENT         22
+#define PA_HCCA_TXOP_RESPONSE              23
+#define PA_PUBLIC_KEY                      24
+#define PA_CHANNEL_AVAILABILITY_QUERY      25
+#define PA_CHANNEL_SCHEDULE_MANAGEMENT     26
+#define PA_CONTACT_VERIFICATION_SIGNAL     27
+#define PA_GDD_ENABLEMENT_REQUEST          28
+#define PA_GDD_ENABLEMENT_RESPONSE         29
+#define PA_NETWORK_CHANNEL_CONTROL         30
+#define PA_WHITE_SPACE_MAP_ANNOUNCEMENT    31
 #define PA_FTM_REQUEST                     32
 #define PA_FTM_RESPONSE                    33
 
@@ -2019,6 +2033,20 @@ static const value_string ff_pa_action_codes[] = {
   {PA_LOCATION_TRACK_NOTIFICATION,     "Location Track Notification"},
   {PA_QAB_REQUEST,                     "QAB Request"},
   {PA_QAB_RESPONSE,                    "QAB Response"},
+  {PA_QMF_POLICY,                      "QMF Policy"},
+  {PA_QMF_POLICY_CHANGE,               "QMF Policy Change"},
+  {PA_QLOAD_REQUEST,                   "QLoad Request"},
+  {PA_QLOAD_REPORT,                    "QLoad Report"},
+  {PA_HCCA_TXOP_ADVERTISEMENT,         "HCCA TXOP Advertisement"},
+  {PA_HCCA_TXOP_RESPONSE,              "HCCA TXOP Response"},
+  {PA_PUBLIC_KEY,                      "Public Key"},
+  {PA_CHANNEL_AVAILABILITY_QUERY,      "Channel Availability Query"},
+  {PA_CHANNEL_SCHEDULE_MANAGEMENT,     "Channel Schedule Management"},
+  {PA_CONTACT_VERIFICATION_SIGNAL,     "Contact Verification Signal"},
+  {PA_GDD_ENABLEMENT_REQUEST,          "GDD Enablement Request"},
+  {PA_GDD_ENABLEMENT_RESPONSE,         "GDD Enablement Response"},
+  {PA_NETWORK_CHANNEL_CONTROL,         "Network Channel Control"},
+  {PA_WHITE_SPACE_MAP_ANNOUNCEMENT,    "White Space Map Announcement"},
   {PA_FTM_REQUEST,                     "FTM Request"},
   {PA_FTM_RESPONSE,                    "FTM Response"},
   {0x00, NULL}
