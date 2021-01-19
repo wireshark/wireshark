@@ -974,7 +974,7 @@ capture_opts_print_if_capabilities(if_capabilities_t *caps, char *name, int quer
     if (queries & CAPS_QUERY_LINK_TYPES) {
         if (caps->can_set_rfmon)
             printf("Data link types of interface %s when %sin monitor mode (use option -y to set):\n",
-                   name, queries & CAPS_MONITOR_MODE ? "" : "not ");
+                   name, (queries & CAPS_MONITOR_MODE) ? "" : "not ");
         else
             printf("Data link types of interface %s (use option -y to set):\n", name);
         for (lt_entry = caps->data_link_types; lt_entry != NULL;
