@@ -175,7 +175,7 @@ read_eyesdn_rec(FILE_T fh, wtap_rec *rec, Buffer *buf, int *err,
 	guint8		hdr[EYESDN_HDR_LENGTH];
 	time_t		secs;
 	int		usecs;
-	int		pkt_len;
+	guint		pkt_len;
 	guint8		channel, direction;
 	guint8		*pd;
 

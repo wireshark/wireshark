@@ -426,10 +426,10 @@ extern "C" {
  * greater than 262144 if we don't have to, as software reading those
  * files might allocate a buffer much larger than necessary, wasting memory.
  */
-#define WTAP_MAX_PACKET_SIZE_STANDARD    262144
-#define WTAP_MAX_PACKET_SIZE_USBPCAP     (128*1024*1024)
-#define WTAP_MAX_PACKET_SIZE_EBHSCR      (8*1024*1024)
-#define WTAP_MAX_PACKET_SIZE_DBUS        (128*1024*1024)
+#define WTAP_MAX_PACKET_SIZE_STANDARD    262144U
+#define WTAP_MAX_PACKET_SIZE_USBPCAP     (128U*1024U*1024U)
+#define WTAP_MAX_PACKET_SIZE_EBHSCR      (8U*1024U*1024U)
+#define WTAP_MAX_PACKET_SIZE_DBUS        (128U*1024U*1024U)
 
 /*
  * "Pseudo-headers" are used to supply to the clients of wiretap

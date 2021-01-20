@@ -25,7 +25,7 @@ static gboolean hcidump_read_packet(FILE_T fh, wtap_rec *rec,
     Buffer *buf, int *err, gchar **err_info)
 {
 	struct dump_hdr dh;
-	int packet_size;
+	guint packet_size;
 
 	if (!wtap_read_bytes_or_eof(fh, &dh, DUMP_HDR_SIZE, err, err_info))
 		return FALSE;

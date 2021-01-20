@@ -731,7 +731,7 @@ iseries_parse_packet (wtap * wth, FILE_T fh, wtap_rec *rec,
            * Check the length first, just in case it's *so* big that, after
            * adding the Ethernet header length, it overflows.
            */
-          if (pkt_len > WTAP_MAX_PACKET_SIZE_STANDARD - 14)
+          if ((guint)pkt_len > WTAP_MAX_PACKET_SIZE_STANDARD - 14)
             {
               /*
                * Probably a corrupt capture file; don't blow up trying

@@ -298,14 +298,14 @@ parse_toshiba_packet(FILE_T fh, wtap_rec *rec, Buffer *buf,
 		*err_info = g_strdup("toshiba: packet header has a negative packet length");
 		return FALSE;
 	}
-	if (pkt_len > WTAP_MAX_PACKET_SIZE_STANDARD) {
+	if ((guint)pkt_len > WTAP_MAX_PACKET_SIZE_STANDARD) {
 		/*
 		 * Probably a corrupt capture file; don't blow up trying
 		 * to allocate space for an immensely-large packet.
 		 */
 		*err = WTAP_ERR_BAD_FILE;
 		*err_info = g_strdup_printf("toshiba: File has %u-byte packet, bigger than maximum of %u",
-		    pkt_len, WTAP_MAX_PACKET_SIZE_STANDARD);
+		    (guint)pkt_len, WTAP_MAX_PACKET_SIZE_STANDARD);
 		return FALSE;
 	}
 
