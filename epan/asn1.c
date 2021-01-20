@@ -235,7 +235,7 @@ double asn1_get_real(const guint8 *real_ptr, gint len) {
     /* Ensure the buffer len and its content are coherent */
     DISSECTOR_ASSERT(lenE < len - 1);
 
-    Eneg = (*p) & 0x80 ? TRUE : FALSE;
+    Eneg = ((*p) & 0x80) ? TRUE : FALSE;
     for (i = 0; i < lenE; i++) {
       if(Eneg) {
         /* 2's complement: inverse bits */
