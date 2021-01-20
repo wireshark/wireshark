@@ -14,7 +14,13 @@ The Wireless menu provides access to statistics related to wireless traffic.
 
 === Bluetooth ATT Server Attributes
 
-{missing}
+Bluetooth ATT Server Attributes window displays a list of captured Attribute Protocol (ATT) packets. The user can filter the list by the interfaces or devices, and also exclude repetitions by checking the `Remove duplicates` check box.
+
+`Handle` is a unique attribute which is specific to the device.
+
+`UUID` is a value which defines a type of an attribute.
+
+`UUID Name` is a specified name for the captured packet.
 
 [[ChWirelessBluetoothDevices]]
 
