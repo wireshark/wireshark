@@ -35,4 +35,22 @@ typedef guint32 ws_in4_addr;	/* 32 bit IPv4 address, in network byte order */
 #define in4_addr_is_multicast(addr) \
   ((addr & 0xf0000000) == 0xe0000000)
 
+/**
+ * Private address
+ * Returns true if the address is in one of the three blocks reserved
+ * for private IPv4 addresses by section 3 of RFC 1918, namely:
+ * 10/8, 172.16/12, and 192.168/16
+ */
+#define in4_addr_is_private(addr) \
+  (((addr & 0xff000000) == 0x0a000000) || \
+   ((addr & 0xfff00000) == 0xac100000) || \
+   ((addr & 0xffff0000) == 0xc0a80000))
+
+/**
+ * Link-local address
+ * Returns true if the address is in the 169.254/16 network block
+ */
+#define in4_addr_is_link_local(addr) \
+  ((addr & 0xffff0000) == 0xa9fe0000)
+
 #endif

@@ -3771,8 +3771,8 @@ prefs_register_modules(void)
 
     prefs_register_bool_preference(protocols_module, "strict_conversation_tracking_heuristics",
                                    "Enable stricter conversation tracking heuristics",
-                                   "Protocols may use things like VLAN ID or interface ID to narrow the potential for duplicate conversations."
-                                   "Currently only ICMP and ICMPv6 use this preference to add VLAN ID to conversation tracking",
+                                   "Protocols may use things like VLAN ID or interface ID to narrow the potential for duplicate conversations. "
+                                   "Currently ICMP and ICMPv6 use this preference to add VLAN ID to conversation tracking, and IPv4 uses this preference to take VLAN ID into account during reassembly",
                                    &prefs.strict_conversation_tracking_heuristics);
 
     /* Obsolete preferences

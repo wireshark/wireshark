@@ -2230,9 +2230,20 @@ dissect_ip_v4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
       iph->ip_len > hlen &&
       tvb_bytes_exist(tvb, offset, iph->ip_len - hlen) &&
       ipsum == 0) {
+    guint32 frag_id;
+    frag_id = iph->ip_proto ^ iph->ip_id ^ src32 ^ dst32;
+    /* XXX: Should there be a way to force the VLAN ID not to
+     * be taken into account for reassembly even with non publicly
+     * routable IP addresses?
+     */
+    if (in4_addr_is_private(dst32) || in4_addr_is_private(src32) ||
+        in4_addr_is_link_local(dst32) || in4_addr_is_link_local(src32) ||
+        prefs.strict_conversation_tracking_heuristics) {
+      frag_id ^= pinfo->vlan_id;
+    }
     ipfd_head = fragment_add_check(&ip_reassembly_table, tvb, offset,
                                    pinfo,
-                                   iph->ip_proto ^ iph->ip_id ^ src32 ^ dst32 ^ pinfo->vlan_id,
+                                   frag_id,
                                    NULL,
                                    (iph->ip_off & IP_OFFSET) * 8,
                                    iph->ip_len - hlen,

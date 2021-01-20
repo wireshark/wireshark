@@ -72,6 +72,8 @@ They previously shipped with Npcap 1.20.
 * Follow stream YAML output format’s has been changed to add timestamps and peers information (for more details see the user’s guide,
 {wireshark-users-guide-url}/ChAdvFollowStreamSection.html[Following Protocol Streams])
 
+* IP fragments between public IPv4 addresses are now reassembled even if they have different VLAN IDs. Reassembly of IP fragments where one endpoint is a private (RFC 1918 section 3) or link-local (RFC 3927) IPv4 address continues to take the VLAN ID into account, as those addresses can be reused. To revert to the previous behavior and not reassemble fragments with different VLAN IDs, turn on the "Enable stricter conversation tracking heuristics" top level protocol preference.
+
 // === Removed Features and Support
 
 // === Removed Dissectors
