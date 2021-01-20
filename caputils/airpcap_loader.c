@@ -213,7 +213,7 @@ Dot11Channel*
 airpcap_if_get_device_supported_channels_array(PAirpcapHandle ah, guint * pNumSupportedChannels)
 {
     AirpcapChannelInfo *chanInfo;
-    guint i=0, j=0, numInfo = 0;
+    guint numInfo = 0;
 
     if (!AirpcapLoaded)
         return NULL;
@@ -229,14 +229,14 @@ airpcap_if_get_device_supported_channels_array(PAirpcapHandle ah, guint * pNumSu
 
     pSupportedChannels = (Dot11Channel *)g_malloc(numInfo * (sizeof *pSupportedChannels));
 
-    for (i = 0; i < numInfo; i++)
+    for (guint i = 0; i < numInfo; i++)
     {
         guint supportedChannel = G_MAXUINT;
 
         /*
          * search if we have it already
          */
-        for (j = 0; j < numSupportedChannels; j++)
+        for (guint j = 0; j < numSupportedChannels; j++)
         {
             if (pSupportedChannels[j].Frequency == chanInfo[i].Frequency)
             {
@@ -301,9 +301,9 @@ airpcap_if_get_device_supported_channels_array(PAirpcapHandle ah, guint * pNumSu
     /*
      * Now sort the list by frequency
      */
-    for (i = 0 ; i < numSupportedChannels - 1; i++)
+    for (guint i = 0; i < numSupportedChannels - 1; i++)
     {
-        for (j = i + 1; j < numSupportedChannels; j++)
+        for (guint j = i + 1; j < numSupportedChannels; j++)
         {
             if (pSupportedChannels[i].Frequency > pSupportedChannels[j].Frequency)
             {
