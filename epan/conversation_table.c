@@ -583,7 +583,6 @@ add_conversation_table_data_with_conv_id(
     const address *addr1, *addr2;
     guint32 port1, port2;
     conv_item_t *conv_item = NULL;
-    unsigned int conversation_idx = 0;
 
     if (src_port > dst_port) {
         addr1 = src;
@@ -636,6 +635,7 @@ add_conversation_table_data_with_conv_id(
     if (conv_item == NULL) {
         conv_key_t *new_key;
         conv_item_t new_conv_item;
+        unsigned int conversation_idx;
 
         copy_address(&new_conv_item.src_address, addr1);
         copy_address(&new_conv_item.dst_address, addr2);
@@ -730,7 +730,6 @@ void
 add_hostlist_table_data(conv_hash_t *ch, const address *addr, guint32 port, gboolean sender, int num_frames, int num_bytes, hostlist_dissector_info_t *host_info, endpoint_type etype)
 {
     hostlist_talker_t *talker=NULL;
-    int talker_idx=0;
 
     /* XXX should be optimized to allocate n extra entries at a time
        instead of just one */
@@ -760,6 +759,7 @@ add_hostlist_table_data(conv_hash_t *ch, const address *addr, guint32 port, gboo
     if(talker==NULL){
         host_key_t *new_key;
         hostlist_talker_t host;
+        int talker_idx;
 
         copy_address(&host.myaddress, addr);
         host.dissector_info = host_info;
