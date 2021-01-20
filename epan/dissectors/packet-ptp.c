@@ -1473,6 +1473,7 @@ static int hf_ptp_v2_sdr_origintimestamp_nanoseconds = -1;
 /* static int hf_ptp_v2_fu_preciseorigintimestamp = -1; */    /* Field for seconds & nanoseconds */
 static int hf_ptp_v2_fu_preciseorigintimestamp_seconds = -1;
 static int hf_ptp_v2_fu_preciseorigintimestamp_nanoseconds = -1;
+static int hf_ptp_v2_fu_preciseorigintimestamp_32bit = -1;
 /* Fields for the Follow_Up Information TLV */
 static int hf_ptp_as_fu_tlv_tlvtype = -1;
 static int hf_ptp_as_fu_tlv_lengthfield = -1;
@@ -3060,12 +3061,20 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean ptp
             case PTP_V2_FOLLOWUP_MESSAGE:{
                 guint16     tlv_length;
                 proto_tree *ptp_tlv_tree;
+                proto_item *ti_tstamp;
+                guint64     ts_sec;
+                guint32     ts_ns;
 
-                proto_tree_add_item(ptp_tree, hf_ptp_v2_fu_preciseorigintimestamp_seconds, tvb,
-                    PTP_V2_FU_PRECISEORIGINTIMESTAMPSECONDS_OFFSET, 6, ENC_BIG_ENDIAN);
+                proto_tree_add_item_ret_uint64(ptp_tree, hf_ptp_v2_fu_preciseorigintimestamp_seconds, tvb,
+                    PTP_V2_FU_PRECISEORIGINTIMESTAMPSECONDS_OFFSET, 6, ENC_BIG_ENDIAN, &ts_sec);
 
-                proto_tree_add_item(ptp_tree, hf_ptp_v2_fu_preciseorigintimestamp_nanoseconds, tvb,
-                    PTP_V2_FU_PRECISEORIGINTIMESTAMPNANOSECONDS_OFFSET, 4, ENC_BIG_ENDIAN);
+                proto_tree_add_item_ret_uint(ptp_tree, hf_ptp_v2_fu_preciseorigintimestamp_nanoseconds, tvb,
+                    PTP_V2_FU_PRECISEORIGINTIMESTAMPNANOSECONDS_OFFSET, 4, ENC_BIG_ENDIAN, &ts_ns);
+
+                ti_tstamp = proto_tree_add_uint(ptp_tree, hf_ptp_v2_fu_preciseorigintimestamp_32bit, tvb,
+                    PTP_V2_FU_PRECISEORIGINTIMESTAMP_OFFSET, 10, (guint32)(ts_sec * 1000 * 1000 * 1000 + ts_ns) % 0x100000000);
+
+                proto_item_set_hidden(ti_tstamp);
 
                 /* In 802.1AS there is a Follow_UP information TLV in the Follow Up Message */
                 if(is_802_1as){
@@ -5621,7 +5630,12 @@ proto_register_ptp(void)
         },
         { &hf_ptp_v2_fu_preciseorigintimestamp_nanoseconds,
           { "preciseOriginTimestamp (nanoseconds)",           "ptp.v2.fu.preciseorigintimestamp.nanoseconds",
-            FT_INT32, BASE_DEC, NULL, 0x00,
+            FT_UINT32, BASE_DEC, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_ptp_v2_fu_preciseorigintimestamp_32bit,
+          { "preciseOriginTimestamp (32bit)",           "ptp.v2.fu.preciseorigintimestamp.32bit",
+            FT_UINT32, BASE_DEC, NULL, 0x00,
             NULL, HFILL }
         },
         /* Fields for PTP_Follow_up TLVs */
