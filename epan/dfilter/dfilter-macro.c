@@ -612,6 +612,7 @@ void dump_dfilter_macro_t(const dfilter_macro_t *m, const char *function, const 
 	if(m == NULL) {
 		ws_debug_printf("  dfilter_macro_t * == NULL! (via: %s(): %s:%d)\n", function, file, line);
 		ws_debug_printf("\n>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\n");
+		return;
 	}
 
 	ws_debug_printf("DUMP of dfilter_macro_t: %p (via: %s(): %s:%d)\n", m, function, file, line);
