@@ -50,9 +50,10 @@ static const guint8 crctable[256] = { /*reversed, 8-bit, poly=0x07*/
 gboolean check_fcs(tvbuff_t *p, guint8 len, guint8 offset, guint8 received_fcs){
 	/*Init*/
 	guint8 FCS = 0xFF;
-	guint8 tmp = 0;
 	/*len is the number of bytes in the message, p points to message*/
 	while (len--) {
+		guint8 tmp;
+
 		tmp = FCS^tvb_get_guint8(p,offset);
 		offset++;
 		FCS=crctable[tmp];
@@ -72,9 +73,10 @@ gboolean check_fcs(tvbuff_t *p, guint8 len, guint8 offset, guint8 received_fcs){
 
 guint8 get_crc8_ieee8023_epon(tvbuff_t *p, guint8 len, guint8 offset) {
 	guint8 FCS = 0x00;
-	guint8 tmp = 0;
 
-  while (len--) {
+	while (len--) {
+		guint8 tmp;
+
 		tmp = FCS^tvb_get_guint8(p,offset);
 		offset++;
 		FCS=crctable[tmp];
