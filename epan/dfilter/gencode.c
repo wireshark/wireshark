@@ -295,7 +295,7 @@ gen_relation_in(dfwork_t *dfw, stnode_t *st_arg1, stnode_t *st_arg2)
 	dfvm_insn_t	*insn;
 	dfvm_value_t	*val1, *val2, *val3;
 	dfvm_value_t	*jmp1 = NULL, *jmp2 = NULL, *jmp3 = NULL;
-	int		reg1 = -1, reg2 = -1, reg3 = -1;
+	int		reg1;
 	stnode_t	*node1, *node2;
 	GSList		*nodelist_head, *nodelist;
 	GSList		*jumplist = NULL;
@@ -312,6 +312,8 @@ gen_relation_in(dfwork_t *dfw, stnode_t *st_arg1, stnode_t *st_arg2)
 		nodelist = g_slist_next(nodelist);
 
 		if (node2) {
+			int	reg2, reg3;
+
 			/* Range element: add lower/upper bound test. */
 			reg2 = gen_entity(dfw, node1, &jmp2);
 			reg3 = gen_entity(dfw, node2, &jmp3);
@@ -329,6 +331,8 @@ gen_relation_in(dfwork_t *dfw, stnode_t *st_arg1, stnode_t *st_arg2)
 			insn->arg3 = val3;
 			dfw_append_insn(dfw, insn);
 		} else {
+			int	reg2;
+
 			/* Normal element: add equality test. */
 			reg2 = gen_entity(dfw, node1, &jmp2);
 
