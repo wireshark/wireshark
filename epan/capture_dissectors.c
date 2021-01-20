@@ -126,7 +126,6 @@ void capture_dissector_add_uint(const char *name, const guint32 pattern, capture
                     abort();
             return;
     }
-    g_assert(sub_dissectors != NULL);
 
     /* Make sure the registration is unique */
     g_assert(g_hash_table_lookup(sub_dissectors->hash_table, GUINT_TO_POINTER(pattern)) == NULL);
