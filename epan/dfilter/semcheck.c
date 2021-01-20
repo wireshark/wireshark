@@ -33,7 +33,7 @@
 
 #ifdef DEBUG_dfilter
 #define DebugLog(x) \
-	ws_debug_printf("%s:%u: ", __FILE__, __LINE__); \
+	ws_debug_printf("%s:%u: ", __FILE__, (unsigned int)__LINE__); \
 	ws_debug_printf x; \
 	fflush(stdout)
 #else
