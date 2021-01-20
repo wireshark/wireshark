@@ -57,7 +57,7 @@ dot11decrypt_derive_ft_ptk(const guint8 *pmk_r1, size_t pmk_r1_len,
                            const guint8 *snonce, const guint8 *anonce,
                            const guint8 *bssid, const guint8 *sta_addr,
                            int hash_algo,
-                           guint8 *ptk, size_t ptk_len, guint8 *ptk_name);
+                           guint8 *ptk, const size_t ptk_len, guint8 *ptk_name);
 #endif /* _DOT11DECRYPT_UTIL_H */
 
 /*
