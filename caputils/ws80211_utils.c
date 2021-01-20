@@ -666,7 +666,7 @@ static int ws80211_populate_devices(GArray *interfaces)
 			continue;
 		*t = 0;
 		t = line;
-		while (*t && *t == ' ')
+		while (*t == ' ')
 			t++;
 		memset(&iface_info, 0, sizeof(iface_info));
 		iface_info.pub = &pub;
