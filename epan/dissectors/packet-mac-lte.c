@@ -2428,7 +2428,7 @@ get_mac_lte_ue_simult_pucch_pusch(mac_lte_info *p_mac_lte_info)
 }
 
 /* Forward declarations */
-int dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*);
+static int dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*);
 
 static guint8 get_mac_lte_channel_priority(guint16 ueid _U_, guint8 lcid,
                                            guint8 direction);
@@ -7101,7 +7101,7 @@ static void dissect_slsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
    multiple MAC PDUs logged in the same frame (e.g. in the LTE eNB LI API definition from
    the Small Cell Forum)
 */
-int dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
+static int dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
     proto_tree          *mac_lte_tree;
     proto_item          *pdu_ti;
