@@ -836,9 +836,11 @@ print_stats_table_header(void)
   if (cap_file_type)      print_stats_table_header_label("File type");
   if (cap_file_encap)     print_stats_table_header_label("File encapsulation");
   if (cap_file_more_info) print_stats_table_header_label("File time precision");
-  if (cap_snaplen)        print_stats_table_header_label("Packet size limit");
-  if (cap_snaplen)        print_stats_table_header_label("Packet size limit min (inferred)");
-  if (cap_snaplen)        print_stats_table_header_label("Packet size limit max (inferred)");
+  if (cap_snaplen) {
+    print_stats_table_header_label("Packet size limit");
+    print_stats_table_header_label("Packet size limit min (inferred)");
+    print_stats_table_header_label("Packet size limit max (inferred)");
+  }
   if (cap_packet_count)   print_stats_table_header_label("Number of packets");
   if (cap_file_size)      print_stats_table_header_label("File size (bytes)");
   if (cap_data_size)      print_stats_table_header_label("Data size (bytes)");
