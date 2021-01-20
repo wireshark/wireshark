@@ -3312,9 +3312,9 @@ get_ether_name_if_known(const guint8 *addr)
     if (!gbl_resolv_flags.mac_name)
         return NULL;
 
-    /* eth_name_lookup will create a (resolved) hash entry if it doesn't exist */
+    /* eth_name_lookup will create a (resolved) hash entry
+     * if it doesn't exist, so it never returns NULL */
     tp = eth_name_lookup(addr, TRUE);
-    g_assert(tp != NULL);
 
     if (tp->status == HASHETHER_STATUS_RESOLVED_NAME) {
         /* Name is from an ethers file */
