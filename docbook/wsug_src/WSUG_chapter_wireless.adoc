@@ -26,7 +26,10 @@ The Wireless menu provides access to statistics related to wireless traffic.
 
 === Bluetooth HCI Summary
 
-{missing}
+The Bluetooth HCI Summary window displays the summary for the captured Host Controller Interface (HCI) layer packets. This window allows users to apply filters and choose to display information about specific interfaces or devices.
+
+.Bluetooth HCI Summary window
+image::wsug_graphics/ws-bt-hci-summary.png[{screenshot-attrs}]
 
 [[ChWirelessWLANTraffic]]
 
