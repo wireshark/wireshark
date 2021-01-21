@@ -26,7 +26,10 @@ Bluetooth ATT Server Attributes window displays a list of captured Attribute Pro
 
 === Bluetooth Devices
 
-{missing}
+The Bluetooth Devices window displays the list of the captured information about devices, such as MAC address, Organizationally Unique Identifier (OUI), Name and other. Users can filter it by interface.
+
+.Bluetooth Devices window
+image::wsug_graphics/ws-bluetooth-devices.png[{screenshot-attrs}]
 
 [[ChWirelessBluetoothHCISummary]]
 
