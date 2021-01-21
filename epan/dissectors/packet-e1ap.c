@@ -1163,6 +1163,7 @@ typedef struct {
 
 /* Global variables */
 static dissector_handle_t e1ap_handle;
+static dissector_handle_t e1ap_tcp_handle;
 
 /* Dissector tables */
 static dissector_table_t e1ap_ies_dissector_table;
@@ -10207,7 +10208,7 @@ static int dissect_E1AP_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto
 
 
 /*--- End of included file: packet-e1ap-fn.c ---*/
-#line 134 "./asn1/e1ap/packet-e1ap-template.c"
+#line 135 "./asn1/e1ap/packet-e1ap-template.c"
 
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
@@ -10273,6 +10274,14 @@ dissect_e1ap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
   return tvb_captured_length(tvb);
 }
 
+static int
+dissect_e1ap_tcp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data)
+{
+    tvbuff_t *new_tvb = tvb_new_subset_remaining(tvb, 4);
+
+  return dissect_e1ap(new_tvb, pinfo, tree, data);
+
+}
 void proto_register_e1ap(void) {
 
   /* List of fields */
@@ -12619,7 +12628,7 @@ void proto_register_e1ap(void) {
         "UnsuccessfulOutcome_value", HFILL }},
 
 /*--- End of included file: packet-e1ap-hfarr.c ---*/
-#line 269 "./asn1/e1ap/packet-e1ap-template.c"
+#line 278 "./asn1/e1ap/packet-e1ap-template.c"
   };
 
   /* List of subtrees */
@@ -12935,7 +12944,7 @@ void proto_register_e1ap(void) {
     &ett_e1ap_UnsuccessfulOutcome,
 
 /*--- End of included file: packet-e1ap-ettarr.c ---*/
-#line 281 "./asn1/e1ap/packet-e1ap-template.c"
+#line 290 "./asn1/e1ap/packet-e1ap-template.c"
   };
 
   /* Register protocol */
@@ -12946,6 +12955,7 @@ void proto_register_e1ap(void) {
 
   /* Register dissector */
   e1ap_handle = register_dissector("e1ap", dissect_e1ap, proto_e1ap);
+  e1ap_tcp_handle = register_dissector("e1ap_tcp", dissect_e1ap_tcp, proto_e1ap);
 
   /* Register dissector tables */
   e1ap_ies_dissector_table = register_dissector_table("e1ap.ies", "E1AP-PROTOCOL-IES", proto_e1ap, FT_UINT32, BASE_DEC);
@@ -12959,6 +12969,7 @@ void
 proto_reg_handoff_e1ap(void)
 {
   dissector_add_uint_with_preference("sctp.port", SCTP_PORT_E1AP, e1ap_handle);
+  dissector_add_uint_with_preference("tcp.port", 0, e1ap_tcp_handle);
   dissector_add_uint("sctp.ppi", E1AP_PROTOCOL_ID, e1ap_handle);
 
 /*--- Included file: packet-e1ap-dis-tab.c ---*/
@@ -13147,7 +13158,7 @@ proto_reg_handoff_e1ap(void)
 
 
 /*--- End of included file: packet-e1ap-dis-tab.c ---*/
-#line 306 "./asn1/e1ap/packet-e1ap-template.c"
+#line 317 "./asn1/e1ap/packet-e1ap-template.c"
 }
 
 /*

@@ -55,6 +55,7 @@ static int hf_e1ap_MeasurementsToActivate_M7 = -1;
 static int hf_e1ap_ReportCharacteristics_TNLAvailableCapacityIndPeriodic = -1;
 static int hf_e1ap_ReportCharacteristics_HWCapacityIndPeriodic = -1;
 static int hf_e1ap_ReportCharacteristics_Reserved = -1;
+static int hf_e1ap_tcp_pdu_len = -1;
 #include "packet-e1ap-hf.c"
 
 /* Initialize the subtree pointers */
@@ -82,6 +83,7 @@ typedef struct {
 
 /* Global variables */
 static dissector_handle_t e1ap_handle;
+static dissector_handle_t e1ap_tcp_handle;
 
 /* Dissector tables */
 static dissector_table_t e1ap_ies_dissector_table;
@@ -196,6 +198,16 @@ dissect_e1ap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
   return tvb_captured_length(tvb);
 }
 
+static int
+dissect_e1ap_tcp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data)
+{
+  tvbuff_t *new_tvb;
+
+  proto_tree_add_item(tree, hf_e1ap_tcp_pdu_len, tvb, 0, 4, ENC_NA);
+  new_tvb = tvb_new_subset_remaining(tvb, 4);
+
+  return dissect_e1ap(new_tvb, pinfo, tree, data);
+}
 void proto_register_e1ap(void) {
 
   /* List of fields */
@@ -265,6 +277,10 @@ void proto_register_e1ap(void) {
       { "Reserved", "e1ap.ReportCharacteristics.Reserved",
         FT_UINT40, BASE_HEX, NULL, 0x3ffffffff0,
         NULL, HFILL }},
+    { &hf_e1ap_tcp_pdu_len,
+      { "TCP PDU length", "e1ap.tcp_pdu_len",
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }},
 #include "packet-e1ap-hfarr.c"
   };
 
@@ -288,6 +304,7 @@ void proto_register_e1ap(void) {
 
   /* Register dissector */
   e1ap_handle = register_dissector("e1ap", dissect_e1ap, proto_e1ap);
+  e1ap_tcp_handle = register_dissector("e1ap_tcp", dissect_e1ap_tcp, proto_e1ap);
 
   /* Register dissector tables */
   e1ap_ies_dissector_table = register_dissector_table("e1ap.ies", "E1AP-PROTOCOL-IES", proto_e1ap, FT_UINT32, BASE_DEC);
@@ -301,6 +318,7 @@ void
 proto_reg_handoff_e1ap(void)
 {
   dissector_add_uint_with_preference("sctp.port", SCTP_PORT_E1AP, e1ap_handle);
+  dissector_add_uint_with_preference("tcp.port", 0, e1ap_tcp_handle);
   dissector_add_uint("sctp.ppi", E1AP_PROTOCOL_ID, e1ap_handle);
 #include "packet-e1ap-dis-tab.c"
 }
