@@ -311,7 +311,7 @@ dissect_gif(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     proto_item *ti;
     proto_tree *gif_tree; /* Main GIF tree */
     proto_tree *subtree;
-    guint offset = 0, len = 0;
+    guint offset = 0;
     guint8 peek;
     gboolean color_map_present;
     guint8 color_resolution;
@@ -408,6 +408,8 @@ dissect_gif(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
      * that contain the Red, Green and Blue intensity of the colors
      * in the Global Color Map */
     if (color_map_present) {
+        guint len;
+
         len = 3 * (1 << image_bpp);
         proto_tree_add_item(gif_tree, &hfi_global_color_map,
                 tvb, offset, len, ENC_NA);
@@ -536,6 +538,8 @@ dissect_gif(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
              * that contain the Red, Green and Blue intensity of the colors
              * in the Local Color Map */
             if (color_map_present) {
+                guint len;
+
                 len = 3 * (1 << image_bpp);
                 proto_tree_add_item(subtree, &hfi_local_color_map,
                         tvb, offset, len, ENC_NA);
