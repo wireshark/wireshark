@@ -24,6 +24,7 @@
 #include "packet-e212.h"
 #include "packet-ntp.h"
 #include "packet-nr-rrc.h"
+#include "packet-tcp.h"
 
 #define PNAME  "E1 Application Protocol"
 #define PSNAME "E1AP"
@@ -198,8 +199,15 @@ dissect_e1ap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
   return tvb_captured_length(tvb);
 }
 
+static guint
+get_e1ap_tcp_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb,
+                     int offset, void *data _U_)
+{
+  return tvb_get_ntohl(tvb, offset)+4;
+}
+
 static int
-dissect_e1ap_tcp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data)
+dissect_e1ap_tcp_pdu(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data)
 {
   tvbuff_t *new_tvb;
 
@@ -208,6 +216,15 @@ dissect_e1ap_tcp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data
 
   return dissect_e1ap(new_tvb, pinfo, tree, data);
 }
+
+static int
+dissect_e1ap_tcp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data)
+{
+  tcp_dissect_pdus(tvb, pinfo, tree, TRUE, 4,
+                   get_e1ap_tcp_pdu_len, dissect_e1ap_tcp_pdu, data);
+  return tvb_captured_length(tvb);
+}
+
 void proto_register_e1ap(void) {
 
   /* List of fields */

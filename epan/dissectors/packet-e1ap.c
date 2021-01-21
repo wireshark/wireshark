@@ -32,6 +32,7 @@
 #include "packet-e212.h"
 #include "packet-ntp.h"
 #include "packet-nr-rrc.h"
+#include "packet-tcp.h"
 
 #define PNAME  "E1 Application Protocol"
 #define PSNAME "E1AP"
@@ -238,7 +239,7 @@ typedef enum _ProtocolIE_ID_enum {
 } ProtocolIE_ID_enum;
 
 /*--- End of included file: packet-e1ap-val.h ---*/
-#line 38 "./asn1/e1ap/packet-e1ap-template.c"
+#line 39 "./asn1/e1ap/packet-e1ap-template.c"
 
 /* Initialize the protocol and registered fields */
 static int proto_e1ap = -1;
@@ -259,6 +260,7 @@ static int hf_e1ap_MeasurementsToActivate_M7 = -1;
 static int hf_e1ap_ReportCharacteristics_TNLAvailableCapacityIndPeriodic = -1;
 static int hf_e1ap_ReportCharacteristics_HWCapacityIndPeriodic = -1;
 static int hf_e1ap_ReportCharacteristics_Reserved = -1;
+static int hf_e1ap_tcp_pdu_len = -1;
 
 /*--- Included file: packet-e1ap-hf.c ---*/
 #line 1 "./asn1/e1ap/packet-e1ap-hf.c"
@@ -832,7 +834,7 @@ static int hf_e1ap_successfulOutcome_value = -1;  /* SuccessfulOutcome_value */
 static int hf_e1ap_unsuccessfulOutcome_value = -1;  /* UnsuccessfulOutcome_value */
 
 /*--- End of included file: packet-e1ap-hf.c ---*/
-#line 59 "./asn1/e1ap/packet-e1ap-template.c"
+#line 61 "./asn1/e1ap/packet-e1ap-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_e1ap = -1;
@@ -1146,7 +1148,7 @@ static gint ett_e1ap_SuccessfulOutcome = -1;
 static gint ett_e1ap_UnsuccessfulOutcome = -1;
 
 /*--- End of included file: packet-e1ap-ett.c ---*/
-#line 69 "./asn1/e1ap/packet-e1ap-template.c"
+#line 71 "./asn1/e1ap/packet-e1ap-template.c"
 
 enum{
   INITIATING_MESSAGE,
@@ -10208,7 +10210,7 @@ static int dissect_E1AP_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto
 
 
 /*--- End of included file: packet-e1ap-fn.c ---*/
-#line 135 "./asn1/e1ap/packet-e1ap-template.c"
+#line 137 "./asn1/e1ap/packet-e1ap-template.c"
 
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
@@ -10274,14 +10276,32 @@ dissect_e1ap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
   return tvb_captured_length(tvb);
 }
 
+static guint
+get_e1ap_tcp_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb,
+                     int offset, void *data _U_)
+{
+  return tvb_get_ntohl(tvb, offset)+4;
+}
+
+static int
+dissect_e1ap_tcp_pdu(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data)
+{
+  tvbuff_t *new_tvb;
+
+  proto_tree_add_item(tree, hf_e1ap_tcp_pdu_len, tvb, 0, 4, ENC_NA);
+  new_tvb = tvb_new_subset_remaining(tvb, 4);
+
+  return dissect_e1ap(new_tvb, pinfo, tree, data);
+}
+
 static int
 dissect_e1ap_tcp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data)
 {
-    tvbuff_t *new_tvb = tvb_new_subset_remaining(tvb, 4);
-
-  return dissect_e1ap(new_tvb, pinfo, tree, data);
-
+  tcp_dissect_pdus(tvb, pinfo, tree, TRUE, 4,
+                   get_e1ap_tcp_pdu_len, dissect_e1ap_tcp_pdu, data);
+  return tvb_captured_length(tvb);
 }
+
 void proto_register_e1ap(void) {
 
   /* List of fields */
@@ -10350,6 +10370,10 @@ void proto_register_e1ap(void) {
     { &hf_e1ap_ReportCharacteristics_Reserved,
       { "Reserved", "e1ap.ReportCharacteristics.Reserved",
         FT_UINT40, BASE_HEX, NULL, 0x3ffffffff0,
+        NULL, HFILL }},
+    { &hf_e1ap_tcp_pdu_len,
+      { "TCP PDU length", "e1ap.tcp_pdu_len",
+        FT_UINT32, BASE_DEC, NULL, 0x0,
         NULL, HFILL }},
 
 /*--- Included file: packet-e1ap-hfarr.c ---*/
@@ -12628,7 +12652,7 @@ void proto_register_e1ap(void) {
         "UnsuccessfulOutcome_value", HFILL }},
 
 /*--- End of included file: packet-e1ap-hfarr.c ---*/
-#line 278 "./asn1/e1ap/packet-e1ap-template.c"
+#line 302 "./asn1/e1ap/packet-e1ap-template.c"
   };
 
   /* List of subtrees */
@@ -12944,7 +12968,7 @@ void proto_register_e1ap(void) {
     &ett_e1ap_UnsuccessfulOutcome,
 
 /*--- End of included file: packet-e1ap-ettarr.c ---*/
-#line 290 "./asn1/e1ap/packet-e1ap-template.c"
+#line 314 "./asn1/e1ap/packet-e1ap-template.c"
   };
 
   /* Register protocol */
@@ -13158,7 +13182,7 @@ proto_reg_handoff_e1ap(void)
 
 
 /*--- End of included file: packet-e1ap-dis-tab.c ---*/
-#line 317 "./asn1/e1ap/packet-e1ap-template.c"
+#line 341 "./asn1/e1ap/packet-e1ap-template.c"
 }
 
 /*
