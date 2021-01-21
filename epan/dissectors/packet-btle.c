@@ -113,6 +113,7 @@ static int hf_data_header_next_expected_sequence_number = -1;
 static int hf_control_opcode = -1;
 static int hf_l2cap_index = -1;
 static int hf_l2cap_fragment = -1;
+static int hf_connection_parameters_in = -1;
 static int hf_control_reject_opcode = -1;
 static int hf_control_error_code = -1;
 static int hf_control_unknown_type = -1;
@@ -310,6 +311,7 @@ static dissector_handle_t btcommon_le_channel_map_handle;
 static dissector_handle_t btl2cap_handle;
 
 static wmem_tree_t *connection_info_tree;
+static wmem_tree_t *connection_parameter_info_tree;
 static wmem_tree_t *adi_to_first_frame_tree;
 static guint32 l2cap_index;
 
@@ -378,6 +380,10 @@ typedef struct _direction_info_t {
     guint32  l2cap_index;               /* Unique identifier for each L2CAP message */
 } direction_info_t;
 
+typedef struct _connection_parameter_info_t {
+    guint32 parameters_frame;
+} connection_parameter_info_t;
+
 /* Store information about a connection */
 typedef struct _connection_info_t {
     /* Address information */
@@ -387,6 +393,10 @@ typedef struct _connection_info_t {
 
     guint8   master_bd_addr[6];
     guint8   slave_bd_addr[6];
+
+    guint16  connection_parameter_update_instant;
+    connection_parameter_info_t *connection_parameter_update_info;
+
     /* Connection information */
     /* Data used on the first pass to get info from previous frame, result will be in per_packet_data */
     guint    first_data_frame_seen : 1;
@@ -822,10 +832,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     gint                   previous_proto;
     wmem_list_frame_t     *list_data;
     proto_item            *item;
-    guint                  window_size;
-    guint                  window_offset;
-    guint                  data_interval;
-    guint                  data_timeout;
+    guint                  item_value;
     guint8                 btle_pdu_type = BTLE_PDU_TYPE_UNKNOWN;
 
     list_data = wmem_list_frame_prev(wmem_list_tail(pinfo->layers));
@@ -1155,23 +1162,23 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             proto_tree_add_item(link_layer_data_tree, hf_link_layer_data_crc_init, tvb, offset, 3, ENC_LITTLE_ENDIAN);
             offset += 3;
 
-            item = proto_tree_add_item_ret_uint(link_layer_data_tree, hf_link_layer_data_window_size, tvb, offset, 1, ENC_LITTLE_ENDIAN, &window_size);
-            proto_item_append_text(item, " (%g msec)", window_size*1.25);
+            item = proto_tree_add_item_ret_uint(link_layer_data_tree, hf_link_layer_data_window_size, tvb, offset, 1, ENC_LITTLE_ENDIAN, &item_value);
+            proto_item_append_text(item, " (%g msec)", item_value*1.25);
             offset += 1;
 
-            item = proto_tree_add_item_ret_uint(link_layer_data_tree, hf_link_layer_data_window_offset, tvb, offset, 2, ENC_LITTLE_ENDIAN, &window_offset);
-            proto_item_append_text(item, " (%g msec)", window_offset*1.25);
+            item = proto_tree_add_item_ret_uint(link_layer_data_tree, hf_link_layer_data_window_offset, tvb, offset, 2, ENC_LITTLE_ENDIAN, &item_value);
+            proto_item_append_text(item, " (%g msec)", item_value*1.25);
             offset += 2;
 
-            item = proto_tree_add_item_ret_uint(link_layer_data_tree, hf_link_layer_data_interval, tvb, offset, 2, ENC_LITTLE_ENDIAN, &data_interval);
-            proto_item_append_text(item, " (%g msec)", data_interval*1.25);
+            item = proto_tree_add_item_ret_uint(link_layer_data_tree, hf_link_layer_data_interval, tvb, offset, 2, ENC_LITTLE_ENDIAN, &item_value);
+            proto_item_append_text(item, " (%g msec)", item_value*1.25);
             offset += 2;
 
-            proto_tree_add_item(link_layer_data_tree, hf_link_layer_data_latency, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            item = proto_tree_add_item(link_layer_data_tree, hf_link_layer_data_latency, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             offset += 2;
 
-            item = proto_tree_add_item_ret_uint(link_layer_data_tree, hf_link_layer_data_timeout, tvb, offset, 2, ENC_LITTLE_ENDIAN, &data_timeout);
-            proto_item_append_text(item, " (%u msec)", data_timeout*10);
+            item = proto_tree_add_item_ret_uint(link_layer_data_tree, hf_link_layer_data_timeout, tvb, offset, 2, ENC_LITTLE_ENDIAN, &item_value);
+            proto_item_append_text(item, " (%u msec)", item_value*10);
             offset += 2;
 
             sub_item = proto_tree_add_item(link_layer_data_tree, hf_link_layer_data_channel_map, tvb, offset, 5, ENC_NA);
@@ -1185,6 +1192,8 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             offset += 1;
 
             if (!pinfo->fd->visited) {
+                connection_parameter_info_t *connection_parameter_info;
+
                 key[0].length = 1;
                 key[0].key = &interface_id;
                 key[1].length = 1;
@@ -1205,6 +1214,13 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 memcpy(connection_info->slave_bd_addr,  dst_bd_addr, 6);
 
                 wmem_tree_insert32_array(connection_info_tree, key, connection_info);
+
+                connection_parameter_info = wmem_new0(wmem_file_scope(), connection_parameter_info_t);
+                connection_parameter_info->parameters_frame = pinfo->num;
+
+                key[3].length = 1;
+                key[3].key = &pinfo->num;
+                wmem_tree_insert32_array(connection_parameter_info_tree, key, connection_parameter_info);
             }
 
             break;
@@ -1869,24 +1885,57 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
             switch (control_opcode) {
             case 0x00: /* LL_CONNECTION_UPDATE_REQ */
-                proto_tree_add_item(btle_tree, hf_control_window_size, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+                item = proto_tree_add_item_ret_uint(btle_tree, hf_control_window_size, tvb, offset, 1, ENC_LITTLE_ENDIAN, &item_value);
+                proto_item_append_text(item, " (%g msec)", item_value*1.25);
                 offset += 1;
 
-                proto_tree_add_item(btle_tree, hf_control_window_offset, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                item = proto_tree_add_item_ret_uint(btle_tree, hf_control_window_offset, tvb, offset, 2, ENC_LITTLE_ENDIAN, &item_value);
+                proto_item_append_text(item, " (%g msec)", item_value*1.25);
                 offset += 2;
 
-                proto_tree_add_item(btle_tree, hf_control_interval, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                item = proto_tree_add_item_ret_uint(btle_tree, hf_control_interval, tvb, offset, 2, ENC_LITTLE_ENDIAN, &item_value);
+                proto_item_append_text(item, " (%g msec)", item_value*1.25);
                 offset += 2;
 
                 proto_tree_add_item(btle_tree, hf_control_latency, tvb, offset, 2, ENC_LITTLE_ENDIAN);
                 offset += 2;
 
-                proto_tree_add_item(btle_tree, hf_control_timeout, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                item = proto_tree_add_item_ret_uint(btle_tree, hf_control_timeout, tvb, offset, 2, ENC_LITTLE_ENDIAN, &item_value);
+                proto_item_append_text(item, " (%u msec)", item_value*10);
                 offset += 2;
 
-                proto_tree_add_item(btle_tree, hf_control_instant, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item_ret_uint(btle_tree, hf_control_instant, tvb, offset, 2, ENC_LITTLE_ENDIAN, &item_value);
                 offset += 2;
 
+                if (!pinfo->fd->visited) {
+                    if (connection_info) {
+                        connection_parameter_info_t *connection_parameter_info;
+
+                        connection_parameter_info = wmem_new0(wmem_file_scope(), connection_parameter_info_t);
+                        connection_parameter_info->parameters_frame = pinfo->num;
+
+                        if (btle_context && btle_context->event_counter_valid) {
+                            connection_info->connection_parameter_update_instant = item_value;
+                            connection_info->connection_parameter_update_info = connection_parameter_info;
+                        } else {
+                            /* We don't have event counter information needed to determine the exact time the new
+                             * connection parameters will be applied.
+                             * Instead just set it as active immediately.
+                             */
+                            key[0].length = 1;
+                            key[0].key = &interface_id;
+                            key[1].length = 1;
+                            key[1].key = &adapter_id;
+                            key[2].length = 1;
+                            key[2].key = &access_address;
+                            key[3].length = 1;
+                            key[3].key = &pinfo->num;
+                            key[4].length = 0;
+                            key[4].key = NULL;
+                            wmem_tree_insert32_array(connection_parameter_info_tree, key, connection_parameter_info);
+                        }
+                    }
+                }
                 break;
             case 0x01: /* LL_CHANNEL_MAP_REQ */
                 sub_item = proto_tree_add_item(btle_tree, hf_control_channel_map, tvb, offset, 5, ENC_NA);
@@ -2056,6 +2105,31 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
         if (add_l2cap_index) {
             item = proto_tree_add_uint(btle_tree, hf_l2cap_index, tvb, 0, 0, btle_frame_info->l2cap_index);
+            proto_item_set_generated(item);
+        }
+
+        key[0].length = 1;
+        key[0].key = &interface_id;
+        key[1].length = 1;
+        key[1].key = &adapter_id;
+        key[2].length = 1;
+        key[2].key = &access_address;
+        key[3].length = 0;
+        key[3].key = NULL;
+        wmem_tree = (wmem_tree_t *) wmem_tree_lookup32_array(connection_parameter_info_tree, key);
+        if (wmem_tree) {
+            connection_parameter_info_t *connection_parameter_info;
+
+            if (connection_info->connection_parameter_update_info != NULL &&
+                btle_context && btle_context->event_counter_valid) {
+                if ( ((gint16)btle_context->event_counter - connection_info->connection_parameter_update_instant) >= 0) {
+                    wmem_tree_insert32(wmem_tree, pinfo->num, connection_info->connection_parameter_update_info);
+                    connection_info->connection_parameter_update_info = NULL;
+                }
+            }
+
+            connection_parameter_info = (connection_parameter_info_t *) wmem_tree_lookup32_le(wmem_tree, pinfo->num);
+            item = proto_tree_add_uint(btle_tree, hf_connection_parameters_in, tvb, 0, 0, connection_parameter_info->parameters_frame);
             proto_item_set_generated(item);
         }
 
@@ -2848,6 +2922,11 @@ proto_register_btle(void)
             FT_NONE, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
+        { &hf_connection_parameters_in,
+          { "Connection Parameters in",     "btle.connection_parameters_in",
+            FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
         { &hf_crc,
             { "CRC",                             "btle.crc",
             FT_UINT24, BASE_HEX, NULL, 0x0,
@@ -3003,6 +3082,7 @@ proto_register_btle(void)
     };
 
     connection_info_tree = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
+    connection_parameter_info_tree = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
     adi_to_first_frame_tree = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
 
     proto_btle = proto_register_protocol("Bluetooth Low Energy Link Layer",

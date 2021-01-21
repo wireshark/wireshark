@@ -619,7 +619,7 @@ static gint
 dissect_packet(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree, nordic_ble_context_t *nordic_ble_context, btle_context_t *context)
 {
     gint32 rssi;
-    guint32 channel;
+    guint32 channel, event_counter;
 
     if (nordic_ble_context->protover == 0) {
         // Event packet length is fixed for the legacy version
@@ -642,8 +642,11 @@ dissect_packet(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree,
     proto_tree_add_int(tree, hf_nordic_ble_rssi, tvb, offset, 1, rssi);
     offset += 1;
 
-    proto_tree_add_item(tree, hf_nordic_ble_event_counter, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item_ret_uint(tree, hf_nordic_ble_event_counter, tvb, offset, 2, ENC_LITTLE_ENDIAN, &event_counter);
     offset += 2;
+
+    context->event_counter = event_counter;
+    context->event_counter_valid = 1;
 
     if (nordic_ble_context->protover < 3) {
         offset = dissect_ble_delta_time(tvb, offset, pinfo, tree, nordic_ble_context);
