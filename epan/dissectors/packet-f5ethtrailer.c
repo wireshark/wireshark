@@ -2858,39 +2858,46 @@ dissect_f5ethtrailer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
     }
 
     trailer_length = tvb_reported_length_remaining(tvb, offset);
-    if (trailer_length < F5_DPT_V1_HDR_MAGIC_LEN + F5_DPT_V1_HDR_LEN) {
-        /* New format trailers at least have a magic, trailer length, version
-           for 8 bytes.  Old format trailers are at least that long. */
+    if (trailer_length < F5_LOWV1_LENMIN) {
+        /* There must be at least enough bytes for a legacy low ver1 trailer.  New format
+           trailers will be longer */
         return 0;
     }
 
     while (found == NONE) {
         /* Check if this is a new format trailer. */
-        if (tvb_get_ntohl(tvb, offset) == F5_DPT_V1_HDR_MAGIC) {
-            if (tvb_get_ntohs(tvb, offset + F5_DPT_V1_HDR_LENGTH_OFF) > trailer_length) {
-                /* we have the right magic, but the length doesn't match up.
-                assume we're not an f5ethtrailer, or it is corrupt.
-                Either way, don't try and dissect. */
-                return 0;
+        if (trailer_length - offset >= F5_DPT_V1_HDR_MAGIC_LEN + F5_DPT_V1_HDR_LEN) {
+            if (tvb_get_ntohl(tvb, offset) == F5_DPT_V1_HDR_MAGIC) {
+                if (tvb_get_ntohs(tvb, offset + F5_DPT_V1_HDR_LENGTH_OFF) > trailer_length) {
+                    /* we have the right magic, but the length doesn't match up.
+                    assume we're not an f5ethtrailer, or it is corrupt.
+                    Either way, don't try and dissect. */
+                    return 0;
+                }
+                /* Looks like a new format trailer  */
+                found = NEW_FORMAT;
+                goto found_trailer;
             }
-            /* Looks like a new format trailer  */
-            found = NEW_FORMAT;
-            break;
-        }
-        /* It's possible to have the trailer added after the FCS has already been added.
-           Let's move in 4 bytes and check there.  If so, display the Original FCS.
+            /* It's possible to have the trailer added after the FCS has already been added.
+            Let's move in 4 bytes and check there.  However, it is also possible for the FCS
+            to start with a sequence of zeros that would have been already been skipped.  If so,
+            we need to back up.  If there is an FCS display the Original.
 
-           Only add this check for new format trailers.  Old format trailers are all but extinct
-           and likely wouldn't have been added after FCS anyway.  The walk trailer prefernce could
-           find it anyway, and that seems reasonable enough for old format. */
-        if (tvb_get_ntohl(tvb, offset + 4) == F5_DPT_V1_HDR_MAGIC) {
-            if (tvb_get_ntohs(tvb, offset + 4 + F5_DPT_V1_HDR_LENGTH_OFF) > trailer_length) {
-                return 0;
+            Only add this check for new format trailers.  Old format trailers are becoming less
+            common and likely wouldn't have been added after FCS anyway.
+            If needed, the walk trailer prefernce would find the old format trailer after an FCS.
+            This seems reasonable enough for old format trailers. */
+            for (guint i = 0; i <= offset && i <= 4; i++) {
+                if (tvb_get_ntohl(tvb, offset + 4 - i) == F5_DPT_V1_HDR_MAGIC) {
+                    if (tvb_get_ntohs(tvb, offset + 4 - i + F5_DPT_V1_HDR_LENGTH_OFF) > trailer_length) {
+                        return 0;
+                    }
+                    found = NEW_FORMAT;
+                    has_fcs = TRUE;
+                    offset += 4 - i;
+                    goto found_trailer;
+                }
             }
-            found = NEW_FORMAT;
-            has_fcs = TRUE;
-            offset += 4;
-            break;
         }
 
         /* Not new format? Are we old format? */
@@ -2906,15 +2913,17 @@ dissect_f5ethtrailer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
             tlv_ver <= F5TRAILER_VER_MAX) {
             /* Found at least one old format TLV */
             found = OLD_FORMAT;
-            break;
+            goto found_trailer;
         }
-        if (!pref_walk_trailer || tvb_reported_length_remaining(tvb, offset) <= F5_DPT_V1_HDR_MAGIC_LEN + F5_DPT_V1_HDR_LEN)
+        if (!pref_walk_trailer || tvb_reported_length_remaining(tvb, offset) <= F5_LOWV1_LENMIN)
             /* Didn't find an f5ethtrailer, and we're not going to keep looking. */
             return 0;
 
         offset++;
     }
 
+found_trailer:
+;
     /* Good to go, start dissection */
     f5eth_tap_data_t *tdata;
     proto_item *trailer_item = NULL;
