@@ -943,6 +943,7 @@ main(int argc, char *argv[])
 #ifdef HAVE_PLUGINS
   register_all_plugin_tap_listeners();
 #endif
+  extcap_register_preferences();
   /* Register all tap listeners. */
   for (tap_reg_t *t = tap_reg_listener; t->cb_func != NULL; t++) {
     t->cb_func();
@@ -970,7 +971,6 @@ main(int argc, char *argv[])
       if (strcmp(argv[2], "column-formats") == 0)
         column_dump_column_formats();
       else if (strcmp(argv[2], "currentprefs") == 0) {
-        extcap_register_preferences();
         epan_load_settings();
         write_prefs(NULL);
       }
