@@ -3040,8 +3040,8 @@ if(RPMBUILD_EXECUTABLE)
 	endforeach()
 
 	set(_rpmbuild_with_args)
-	if(NOT CMAKE_VERBOSE_MAKEFILE)
-		list(APPEND _rpmbuild_with_args --quiet)
+	if(CMAKE_VERBOSE_MAKEFILE)
+		list(APPEND _rpmbuild_with_args -v)
 	endif()
 	if(CMAKE_GENERATOR STREQUAL "Ninja")
 		list(APPEND _rpmbuild_with_args --with ninja)
@@ -3104,7 +3104,6 @@ if(RPMBUILD_EXECUTABLE)
 			--define "_topdir ${CMAKE_BINARY_DIR}/packaging/rpm"
 			--define "_prefix ${CMAKE_INSTALL_PREFIX}"
 			${_rpmbuild_with_args}
-			-v
 			-ba SPECS/wireshark.spec
 		DEPENDS copy-dist
 		WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/packaging/rpm"
