@@ -4639,7 +4639,7 @@ void proto_register_rsl(void)
         },
         { &hf_rsl_l1inf_srr,
           { "SRR (SACCH Repetition)",           "gsm_abis_rsl.srr",
-            FT_BOOLEAN, 8, TFS(&tfs_required_not_required), 0x08,
+            FT_BOOLEAN, 8, TFS(&tfs_required_not_required), 0x02,
             NULL, HFILL }
         },
         { &hf_rsl_ms_power_lev,
