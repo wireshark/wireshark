@@ -549,7 +549,7 @@ btn:[Close] will close this dialog.
 
 === DHCP (BOOTP) Statistics
 
-{missing}
+The Dynamic Host Configuration Protocol (DHCP) is an option of the Bootstrap Protocol (BOOTP). It dynamically assigns IP addresses and other parameters to a DHCP client. The DHCP (BOOTP) Statistics window displays a table over the number of occurrences of a DHCP message type. The user can filter, copy or save the data into a file.
 
 [[ChStatONCRPC]]
 
