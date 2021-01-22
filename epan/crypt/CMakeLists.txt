@@ -30,6 +30,7 @@ set(CRYPT_HEADER_FILES
 set(CRYPT_FILES
 	dot11decrypt.c
 	dot11decrypt_tkip.c
+	dot11decrypt_util.c
 	${CUSTOM_CRYPT_SRC}
 )
 
@@ -40,7 +41,6 @@ if (GCRYPT_VERSION VERSION_LESS 1.6.0)
 else()
 	list(APPEND CRYPT_FILES
 		dot11decrypt_ccmp.c
-		dot11decrypt_util.c
 		dot11decrypt_gcmp.c
 	)
 endif()
