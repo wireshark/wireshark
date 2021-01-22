@@ -4205,6 +4205,17 @@ static int hf_ieee80211_rnr_tbtt_information_length = -1;
 static int hf_ieee80211_rnr_operating_class = -1;
 static int hf_ieee80211_rnr_channel_number = -1;
 static int hf_ieee80211_rnr_neighbor_ap_tbtt_offset = -1;
+static int hf_ieee80211_rnr_bssid = -1;
+static int hf_ieee80211_rnr_short_ssid = -1;
+static int hf_ieee80211_rnr_bss_parameters = -1;
+static int hf_ieee80211_rnr_bss_parameters_b0 = -1;
+static int hf_ieee80211_rnr_bss_parameters_b1 = -1;
+static int hf_ieee80211_rnr_bss_parameters_b2 = -1;
+static int hf_ieee80211_rnr_bss_parameters_b3 = -1;
+static int hf_ieee80211_rnr_bss_parameters_b4 = -1;
+static int hf_ieee80211_rnr_bss_parameters_b5 = -1;
+static int hf_ieee80211_rnr_bss_parameters_b6 = -1;
+static int hf_ieee80211_rnr_bss_parameters_b7 = -1;
 
 static int hf_ieee80211_ampduparam = -1;
 static int hf_ieee80211_ampduparam_vs = -1;
@@ -6478,6 +6489,7 @@ static gint ett_fils_indication_realm_list = -1;
 static gint ett_fils_indication_public_key_list = -1;
 
 static gint ett_rnr_tbtt_information_tree = -1;
+static gint ett_rnr_bss_parameters = -1;
 
 static const fragment_items frag_items = {
   &ett_fragment,
@@ -17139,13 +17151,25 @@ static int
 dissect_reduced_neighbor_report(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
   int offset = 0;
-  guint8 tbbt_length, i;
+  guint8 tbbt_length;
   static int * const ieee80211_rnr_tbtt_information_header[] = {
     &hf_ieee80211_rnr_tbtt_information_field_type,
     &hf_ieee80211_rnr_tbtt_information_filtered_neighbor_ap,
     &hf_ieee80211_rnr_tbtt_information_reserved,
     &hf_ieee80211_rnr_tbtt_information_count,
     &hf_ieee80211_rnr_tbtt_information_length,
+    NULL
+  };
+
+  static int * const ieee80211_rnr_bss_parameters[] = {
+    &hf_ieee80211_rnr_bss_parameters_b0,
+    &hf_ieee80211_rnr_bss_parameters_b1,
+    &hf_ieee80211_rnr_bss_parameters_b2,
+    &hf_ieee80211_rnr_bss_parameters_b3,
+    &hf_ieee80211_rnr_bss_parameters_b4,
+    &hf_ieee80211_rnr_bss_parameters_b5,
+    &hf_ieee80211_rnr_bss_parameters_b6,
+    &hf_ieee80211_rnr_bss_parameters_b7,
     NULL
   };
 
@@ -17162,8 +17186,26 @@ dissect_reduced_neighbor_report(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
   proto_tree_add_item(tree, hf_ieee80211_rnr_channel_number, tvb, offset, 1, ENC_LITTLE_ENDIAN);
   offset += 1;
 
-  for (i=1; i <= tbbt_length; i++) {
-    proto_tree_add_item(tree, hf_ieee80211_rnr_neighbor_ap_tbtt_offset, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(tree, hf_ieee80211_rnr_neighbor_ap_tbtt_offset, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+  offset += 1;
+
+  /* BSSID */
+  if(tbbt_length == 7 || tbbt_length == 8 || tbbt_length >= 11){
+    proto_tree_add_item(tree, hf_ieee80211_rnr_bssid, tvb, offset, 6, ENC_NA);
+    offset += 6;
+  }
+
+  /* Short SSID */
+  if(tbbt_length == 5 || tbbt_length == 6 || tbbt_length >= 11){
+    proto_tree_add_item(tree, hf_ieee80211_rnr_short_ssid, tvb, offset, 4, ENC_NA);
+    offset += 4;
+  }
+
+  /* BSS Parameters */
+  if(tbbt_length == 2 || tbbt_length == 6 || tbbt_length == 8 || tbbt_length >= 12){
+    proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_ieee80211_rnr_bss_parameters,
+                                      ett_rnr_bss_parameters, ieee80211_rnr_bss_parameters,
+                                      ENC_LITTLE_ENDIAN, BMT_NO_APPEND);
     offset += 1;
   }
 
@@ -33538,6 +33580,61 @@ proto_register_ieee80211(void)
       FT_UINT8, BASE_HEX, NULL, 0x0,
       NULL, HFILL }},
 
+    {&hf_ieee80211_rnr_bssid,
+     {"BSSID", "wlan.rnr.bssid",
+      FT_ETHER, BASE_NONE, NULL, 0x0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_rnr_short_ssid,
+     {"Short SSID", "wlan.rnr.short_ssid",
+      FT_BYTES, BASE_NONE, NULL, 0x0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_rnr_bss_parameters,
+     {"BSS Parameters", "wlan.rnr.bss_parameters",
+      FT_UINT8, BASE_HEX, NULL, 0x0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_rnr_bss_parameters_b0,
+     {"OCT Recommended", "wlan.rnr.bss_parameters.b0",
+      FT_BOOLEAN, 8, NULL, 0x01,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_rnr_bss_parameters_b1,
+     {"Same SSID", "wlan.rnr.bss_parameters.b1",
+      FT_BOOLEAN, 8, NULL, 0x02,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_rnr_bss_parameters_b2,
+     {"Mutiple SSID", "wlan.rnr.bss_parameters.b2",
+      FT_BOOLEAN, 8, NULL, 0x04,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_rnr_bss_parameters_b3,
+     {"Transmitted SSID", "wlan.rnr.bss_parameters.b3",
+      FT_BOOLEAN, 8, NULL, 0x08,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_rnr_bss_parameters_b4,
+     {"Member of ESS with 2.4/5 Ghz Co-Located AP", "wlan.rnr.bss_parameters.b4",
+      FT_BOOLEAN, 8, NULL, 0x10,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_rnr_bss_parameters_b5,
+     {"Unsolicated Probe Responses Active", "wlan.rnr.bss_parameters.b5",
+      FT_BOOLEAN, 8, NULL, 0x20,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_rnr_bss_parameters_b6,
+     {"Co-located AP", "wlan.rnr.bss_parameters.b6",
+      FT_BOOLEAN, 8, NULL, 0x40,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_rnr_bss_parameters_b7,
+     {"Reserved", "wlan.rnr.bss_parameters.b7",
+      FT_BOOLEAN, 8, NULL, 0x80,
+      NULL, HFILL }},
+
     {&hf_ieee80211_ampduparam,
      {"A-MPDU Parameters", "wlan.ht.ampduparam",
       FT_UINT8, BASE_HEX, NULL, 0,
@@ -40284,6 +40381,7 @@ proto_register_ieee80211(void)
     &ett_fils_indication_public_key_list,
 
     &ett_rnr_tbtt_information_tree,
+    &ett_rnr_bss_parameters,
   };
 
   static ei_register_info ei[] = {
