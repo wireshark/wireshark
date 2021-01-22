@@ -144,6 +144,17 @@ typedef enum _DOT11DECRYPT_HS_MSG_TYPE {
 	DOT11DECRYPT_HS_MSG_TYPE_GHS_2
 } DOT11DECRYPT_HS_MSG_TYPE;
 
+typedef struct _DOT11DECRYPT_FTE {
+	guint8 *mic;
+	guint8 mic_len;
+	guint8 *anonce;
+	guint8 *snonce;
+	guint8 *r0kh_id;
+	guint8 r0kh_id_len;
+	guint8 *r1kh_id;
+	guint8 r1kh_id_len;
+} DOT11DECRYPT_FTE, *PDOT11DECRYPT_FTE;
+
 typedef struct _DOT11DECRYPT_EAPOL_PARSED {
 	DOT11DECRYPT_HS_MSG_TYPE msg_type;
 	guint16 len;
@@ -164,11 +175,28 @@ typedef struct _DOT11DECRYPT_EAPOL_PARSED {
 
 	/* For fast bss transition akms */
 	guint8 *mdid;
-	guint8 *r0kh_id;
-	guint8 r0kh_id_len;
-	guint8 *r1kh_id;
-	guint8 r1kh_id_len;
+	DOT11DECRYPT_FTE fte;
 } DOT11DECRYPT_EAPOL_PARSED, *PDOT11DECRYPT_EAPOL_PARSED;
+
+typedef struct _DOT11DECRYPT_ASSOC_PARSED
+{
+	guint8 frame_subtype;
+	guint8 group_cipher;
+	guint8 cipher;
+	guint8 akm;
+	guint8 *mdid;
+	DOT11DECRYPT_FTE fte;
+	guint8* rsne_tag;
+	guint8* mde_tag;
+	guint8* fte_tag;
+	guint8* rde_tag;
+	guint8 *gtk;
+	guint16 gtk_len;
+	guint16 gtk_subelem_key_len;
+	guint8 bssid[DOT11DECRYPT_MAC_LEN];
+	guint8 sa[DOT11DECRYPT_MAC_LEN];
+	guint8 da[DOT11DECRYPT_MAC_LEN];
+} DOT11DECRYPT_ASSOC_PARSED, *PDOT11DECRYPT_ASSOC_PARSED;
 
 /************************************************************************/
 /*	Function prototype declarations					*/
@@ -288,6 +316,10 @@ extern INT Dot11DecryptScanEapolForKeys(
     const UCHAR sta[DOT11DECRYPT_MAC_LEN])
 	;
 
+gint
+Dot11DecryptScanFtAssocForKeys(
+    const PDOT11DECRYPT_CONTEXT ctx,
+    const PDOT11DECRYPT_ASSOC_PARSED assoc_parsed);
 /**
  * This will try to extract keys from a TDLS action frame (without MAC headers)
  * and add corresponding SAs to current context.

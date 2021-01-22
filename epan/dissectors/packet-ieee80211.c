@@ -290,6 +290,8 @@ save_proto_data_value(packet_info *pinfo, guint value, int key);
 
 static void try_scan_tdls_keys(tvbuff_t *tvb, packet_info *pinfo, int offset);
 
+static void try_scan_ft_assoc_keys(packet_info *pinfo, const wlan_hdr_t *whdr);
+
 static tvbuff_t *
 try_decrypt(tvbuff_t *tvb, packet_info *pinfo, guint offset, guint len,
             guint8 *algorithm, guint32 *sec_trailer,
@@ -341,6 +343,15 @@ typedef enum {
   FTE_R0KH_ID_LEN_KEY,
   FTE_R1KH_ID_KEY,
   FTE_R1KH_ID_LEN_KEY,
+  FTE_ANONCE_KEY,
+  FTE_SNONCE_KEY,
+  FTE_MIC_KEY,
+  FTE_MIC_LEN_KEY,
+  FTE_TAG_KEY,
+  MDE_TAG_KEY,
+  RSNE_TAG_KEY,
+  RDE_TAG_KEY,
+  GTK_SUBELEM_KEY_LEN_KEY,
 } wlan_proto_key_t;
 
 /* ************************************************************************* */
@@ -17367,6 +17378,36 @@ save_proto_data_value(packet_info *pinfo, guint value, int key)
 }
 
 static void
+save_tag_for_dot11decrypt(tvbuff_t *tvb, packet_info *pinfo, int offset)
+{
+  guint8 tag_no;
+  guint8 tag_len;
+
+  if (!enable_decryption) {
+    return;
+  }
+  tag_no  = tvb_get_guint8(tvb, offset);
+  tag_len = tvb_get_guint8(tvb, offset + 1);
+
+  switch (tag_no) {
+    case TAG_MOBILITY_DOMAIN:
+      save_proto_data(tvb, pinfo, offset, tag_len + 2, MDE_TAG_KEY);
+      break;
+    case TAG_FAST_BSS_TRANSITION:
+      save_proto_data(tvb, pinfo, offset, tag_len + 2, FTE_TAG_KEY);
+      break;
+    case TAG_RIC_DATA:
+      save_proto_data(tvb, pinfo, offset, tag_len + 2, RDE_TAG_KEY);
+      break;
+    case TAG_RSN_IE:
+      save_proto_data(tvb, pinfo, offset, tag_len + 2, RSNE_TAG_KEY);
+      break;
+    default:
+      break;
+  }
+}
+
+static void
 set_packet_data_last_akm_suite(ieee80211_packet_data_t *packet_data,
                                guint32 last_akm_suite)
 {
@@ -18287,12 +18328,18 @@ dissect_fast_bss_transition(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
   gboolean defaulted_mic_len = FALSE;
   int mic_len = determine_mic_len(pinfo, assoc_frame, &defaulted_mic_len);
+  save_proto_data(tvb, pinfo, offset, mic_len, FTE_MIC_KEY);
+  save_proto_data_value(pinfo, mic_len, FTE_MIC_LEN_KEY);
   proto_tree_add_item(tree, hf_ieee80211_tag_ft_mic,
                       tvb, offset, mic_len, ENC_NA);
   offset += mic_len;
+
+  save_proto_data(tvb, pinfo, offset, 32, FTE_ANONCE_KEY);
   proto_tree_add_item(tree, hf_ieee80211_tag_ft_anonce,
                       tvb, offset, 32, ENC_NA);
   offset += 32;
+
+  save_proto_data(tvb, pinfo, offset, 32, FTE_SNONCE_KEY);
   proto_tree_add_item(tree, hf_ieee80211_tag_ft_snonce,
                       tvb, offset, 32, ENC_NA);
   offset += 32;
@@ -18341,6 +18388,7 @@ dissect_fast_bss_transition(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       offset += 2;
       if (offset > s_end)
         break;
+      save_proto_data_value(pinfo, tvb_get_guint8(tvb, offset), GTK_SUBELEM_KEY_LEN_KEY);
       proto_tree_add_item(subtree, hf_ieee80211_tag_ft_subelem_gtk_key_length,
                           tvb, offset, 1, ENC_LITTLE_ENDIAN);
       offset += 1;
@@ -18351,6 +18399,8 @@ dissect_fast_bss_transition(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       offset += 8;
       if (offset > s_end)
         break;
+      save_proto_data_value(pinfo, s_end - offset, GTK_LEN_KEY);
+      save_proto_data(tvb, pinfo, offset, s_end - offset, GTK_KEY);
       proto_tree_add_item(subtree, hf_ieee80211_tag_ft_subelem_gtk_key,
                           tvb, offset, s_end - offset, ENC_NA);
       break;
@@ -23532,6 +23582,7 @@ add_tagged_field(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset
     }
   }
 
+  save_tag_for_dot11decrypt(tvb, pinfo, offset);
   tag_tvb = tvb_new_subset_length(tvb, offset+2, tag_len);
   field_data.sanity_check = association_sanity_check;
   field_data.ftype = ftype;
@@ -32350,6 +32401,7 @@ dissect_ieee80211_common(tvbuff_t *tvb, packet_info *pinfo,
 
     case MGT_FRAME:
       dissect_ieee80211_mgt(fcf, next_tvb, pinfo, tree);
+      try_scan_ft_assoc_keys(pinfo, whdr);
       break;
 
     case DATA_FRAME:
@@ -32881,14 +32933,58 @@ get_eapol_parsed(packet_info *pinfo, PDOT11DECRYPT_EAPOL_PARSED eapol_parsed)
 
   /* For fast bss transition akms */
   eapol_parsed->mdid = (guint8 *)p_get_proto_data(pinfo->pool, pinfo, proto_wlan, MDID_KEY);
-  eapol_parsed->r0kh_id =
+  eapol_parsed->fte.r0kh_id =
     (guint8 *)p_get_proto_data(pinfo->pool, pinfo, proto_wlan, FTE_R0KH_ID_KEY);
-  eapol_parsed->r0kh_id_len = (guint8)
+  eapol_parsed->fte.r0kh_id_len = (guint8)
     GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_wlan, FTE_R0KH_ID_LEN_KEY));
-  eapol_parsed->r1kh_id =
+  eapol_parsed->fte.r1kh_id =
     (guint8 *)p_get_proto_data(pinfo->pool, pinfo, proto_wlan, FTE_R1KH_ID_KEY);
-  eapol_parsed->r1kh_id_len = (guint8)
+  eapol_parsed->fte.r1kh_id_len = (guint8)
     GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_wlan, FTE_R1KH_ID_LEN_KEY));
+}
+
+static void
+get_assoc_parsed(packet_info *pinfo, PDOT11DECRYPT_ASSOC_PARSED assoc_parsed)
+{
+  if (!assoc_parsed) {
+    return;
+  }
+
+  assoc_parsed->group_cipher = (guint8)
+    GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_wlan, GROUP_CIPHER_KEY));
+  assoc_parsed->cipher = (guint8)
+    GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_wlan, CIPHER_KEY));
+  assoc_parsed->akm = (guint8)
+    GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_wlan, AKM_KEY));
+  assoc_parsed->fte.mic = (guint8 *)p_get_proto_data(pinfo->pool, pinfo, proto_wlan, FTE_MIC_KEY);
+  assoc_parsed->fte.mic_len =
+    GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_wlan, FTE_MIC_LEN_KEY));
+  assoc_parsed->mdid = (guint8 *)p_get_proto_data(pinfo->pool, pinfo, proto_wlan, MDID_KEY);
+  assoc_parsed->fte.anonce =
+    (guint8 *)p_get_proto_data(pinfo->pool, pinfo, proto_wlan, FTE_ANONCE_KEY);
+  assoc_parsed->fte.snonce =
+    (guint8 *)p_get_proto_data(pinfo->pool, pinfo, proto_wlan, FTE_SNONCE_KEY);
+  assoc_parsed->fte.r0kh_id =
+    (guint8 *)p_get_proto_data(pinfo->pool, pinfo, proto_wlan, FTE_R0KH_ID_KEY);
+  assoc_parsed->fte.r0kh_id_len = (guint8)
+    GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_wlan, FTE_R0KH_ID_LEN_KEY));
+  assoc_parsed->fte.r1kh_id =
+    (guint8 *)p_get_proto_data(pinfo->pool, pinfo, proto_wlan, FTE_R1KH_ID_KEY);
+  assoc_parsed->fte.r1kh_id_len = (guint8)
+    GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_wlan, FTE_R1KH_ID_LEN_KEY));
+  assoc_parsed->rsne_tag =
+    (guint8 *)p_get_proto_data(pinfo->pool, pinfo, proto_wlan, RSNE_TAG_KEY);
+  assoc_parsed->mde_tag =
+    (guint8 *)p_get_proto_data(pinfo->pool, pinfo, proto_wlan, MDE_TAG_KEY);
+  assoc_parsed->fte_tag =
+    (guint8 *)p_get_proto_data(pinfo->pool, pinfo, proto_wlan, FTE_TAG_KEY);
+  assoc_parsed->rde_tag =
+    (guint8 *)p_get_proto_data(pinfo->pool, pinfo, proto_wlan, RDE_TAG_KEY);
+  assoc_parsed->gtk = (guint8 *)p_get_proto_data(pinfo->pool, pinfo, proto_wlan, GTK_KEY);
+  assoc_parsed->gtk_len = (guint16)
+    GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_wlan, GTK_LEN_KEY));
+  assoc_parsed->gtk_subelem_key_len = (guint16)
+    GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_wlan, GTK_SUBELEM_KEY_LEN_KEY));
 }
 
 static void
@@ -32955,6 +33051,30 @@ try_scan_eapol_keys(packet_info *pinfo, DOT11DECRYPT_HS_MSG_TYPE msg_type)
                                &eapol_parsed,
                                eapol_key->data, eapol_key->len,
                                bssid, sta);
+}
+
+static void
+try_scan_ft_assoc_keys(packet_info *pinfo, const wlan_hdr_t *whdr)
+{
+  DOT11DECRYPT_ASSOC_PARSED assoc_parsed;
+
+  if (!enable_decryption || pinfo->fd->visited || !whdr) {
+    return;
+  }
+  if (whdr->type != MGT_ASSOC_REQ && whdr->type != MGT_ASSOC_RESP &&
+      whdr->type != MGT_REASSOC_REQ && whdr->type != MGT_REASSOC_RESP) {
+    return;
+  }
+
+  memset(&assoc_parsed, 0, sizeof(assoc_parsed));
+  get_assoc_parsed(pinfo, &assoc_parsed);
+  /* Implicit conversion from MGT_ASSOC_xxx to DOT11DECRYPT_SUBTYPE_xxx */
+  assoc_parsed.frame_subtype = (guint8)whdr->type;
+  memcpy(assoc_parsed.bssid, whdr->bssid.data, 6);
+  memcpy(assoc_parsed.sa, whdr->src.data, 6);
+  memcpy(assoc_parsed.da, whdr->dst.data, 6);
+
+  Dot11DecryptScanFtAssocForKeys(&dot11decrypt_ctx, &assoc_parsed);
 }
 
 /*
