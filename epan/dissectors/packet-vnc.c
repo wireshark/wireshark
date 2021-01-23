@@ -679,7 +679,9 @@ static int hf_vnc_server_message_type = -1; /* Subtree */
 
 /* Tunneling capabilities (TightVNC extension) */
 static int hf_vnc_tight_num_tunnel_types = -1;
-static int hf_vnc_tight_tunnel_type = -1;
+static int hf_vnc_tight_tunnel_type_code = -1;
+static int hf_vnc_tight_tunnel_type_vendor = -1;
+static int hf_vnc_tight_tunnel_type_signature = -1;
 
 /* Authentication capabilities (TightVNC extension) */
 static int hf_vnc_tight_num_auth_types = -1;
@@ -1286,7 +1288,9 @@ vnc_startup_messages(tvbuff_t *tvb, packet_info *pinfo, gint offset,
 			 * is 16 bytes, so skip them.
 			 */
 
-			proto_tree_add_item(tree, hf_vnc_tight_tunnel_type, tvb, offset, 16, ENC_BIG_ENDIAN);
+			proto_tree_add_item(tree, hf_vnc_tight_tunnel_type_code, tvb, offset, 4, ENC_BIG_ENDIAN);
+			proto_tree_add_item(tree, hf_vnc_tight_tunnel_type_vendor, tvb, offset + 4, 4, ENC_ASCII|ENC_NA);
+			proto_tree_add_item(tree, hf_vnc_tight_tunnel_type_signature, tvb, offset + 8, 8, ENC_ASCII|ENC_NA);
 			offset += 16;
 		}
 
@@ -3607,10 +3611,20 @@ proto_register_vnc(void)
 		    FT_UINT32, BASE_DEC, NULL, 0x0,
 		    "Number of tunnel types for TightVNC", HFILL }
 		},
-		{ &hf_vnc_tight_tunnel_type,
-		  { "Tunnel type", "vnc.tunnel_type",
-		    FT_UINT8, BASE_DEC, NULL, 0x0,
-		    "Tunnel type specific to TightVNC", HFILL }
+		{ &hf_vnc_tight_tunnel_type_code,
+		  { "Tunnel type code", "vnc.tunnel_type_code",
+		    FT_UINT32, BASE_DEC, NULL, 0x0,
+		    "Tunnel type code specific to TightVNC", HFILL }
+		},
+		{ &hf_vnc_tight_tunnel_type_vendor,
+		  { "Tunnel type vendor", "vnc.tunnel_type_vendor",
+		    FT_STRING, STR_ASCII, NULL, 0x0,
+		    "Tunnel type vendor specific to TightVNC", HFILL }
+		},
+		{ &hf_vnc_tight_tunnel_type_signature,
+		  { "Tunnel type signature", "vnc.tunnel_type_signature",
+		    FT_STRING, STR_ASCII, NULL, 0x0,
+		    "Tunnel type signature specific to TightVNC", HFILL }
 		},
 		{ &hf_vnc_tight_num_auth_types,
 		  { "Number of supported authentication types", "vnc.num_auth_types",
@@ -3814,7 +3828,7 @@ proto_register_vnc(void)
 		},
 		{ &hf_vnc_vencrypt_auth_type,
 		  { "VeNCrypt authentication type", "vnc.vencrypt_auth_type",
-		    FT_UINT8, BASE_DEC, VALS(vnc_vencrypt_auth_types_vs), 0x0,
+		    FT_UINT32, BASE_DEC, VALS(vnc_vencrypt_auth_types_vs), 0x0,
 		    "Authentication type specific to VeNCrypt", HFILL }
 		},
 		{ &hf_vnc_vencrypt_num_auth_types,
