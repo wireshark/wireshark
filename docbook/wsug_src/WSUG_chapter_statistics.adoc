@@ -585,7 +585,18 @@ Collectd is a system statistics collection daemon. It collects various statistic
 
 === DNS
 
-{missing}
+The Domain Name System (DNS) associates different information, such as IP addresses, with domain names. DNS returns different codes, request-response and counters for various aggregations. The DNS statistics window enlists a total count of DNS messages, which are divided into groups by request types (opcodes), response code (rcode), query type, and others.
+
+.DNS statistics window
+image::wsug_graphics/ws-dns.png[{screenshot-attrs}]
+
+You might find these statistics useful for quickly examining the health of a DNS service or other investigations. See the few possible scenarios below:
+
+* The DNS server might have issues if you see that DNS queries have a long request-response time or, if there are too many unanswered queries.
+* DNS requests with abnormally large requests and responses might be indicative of DNS tunneling or command and control traffic.
+* The order of magnitude more DNS responses than requests and the responses are very large might indicate that the target is being attacked with a DNS-based DDoS.
+
+You can filter, copy or save the data into a file.
 
 [[ChStatFlowGraph]]
 
