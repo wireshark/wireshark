@@ -3279,6 +3279,15 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>样本警告过滤器</translation>
     </message>
     <message>
+        <source>Example GIF query packets have jumbo window sizes</source>
+        <extracomment>These are pangrams. Feel free to replace with nonsense text that spans your alphabet. https://en.wikipedia.org/wiki/Pangram</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Lazy badgers move unique waxy jellyfish packets</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Font</source>
         <translation>字体</translation>
     </message>
@@ -5446,6 +5455,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <source>Include RACH frames in filter</source>
         <translation>过滤器中包括 RACH 帧</translation>
     </message>
+    <message>
+        <source>MAC Statistics</source>
+        <translation type="unfinished">MAC 统计</translation>
+    </message>
 </context>
 <context>
     <name>LteRlcGraphDialog</name>
@@ -5857,6 +5870,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>DL Missing</source>
         <translation>DL 缺失</translation>
+    </message>
+    <message>
+        <source>RLC Statistics</source>
+        <translation type="unfinished">RLC 统计</translation>
     </message>
 </context>
 <context>
