@@ -1831,6 +1831,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-tnef.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-tns.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-tpkt.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-tplink-smarthome.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-tpm20.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-tpncp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-tr.c
