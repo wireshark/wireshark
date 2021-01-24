@@ -567,7 +567,7 @@ The Dynamic Host Configuration Protocol (DHCP) is an option of the Bootstrap Pro
 
 === ANCP
 
-{missing}
+The Access Node Control Protocol (ANCP) is an TCP based protocol, which operates between an Access Node and Network Access Server. The ANCP window shows the related statistical data. The user can filter, copy or save the data into a file.
 
 [[ChStatBACnet]]
 
