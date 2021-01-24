@@ -1379,7 +1379,7 @@ copy_someip_parameter_struct_cb(void* n, const void* o, size_t size _U_) {
     new_rec->id_ref = old_rec->id_ref;
 
     if (old_rec->filter_string) {
-        new_rec->struct_name = g_strdup(old_rec->filter_string);
+        new_rec->filter_string = g_strdup(old_rec->filter_string);
     } else {
         new_rec->filter_string = NULL;
     }
