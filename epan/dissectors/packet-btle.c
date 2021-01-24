@@ -308,6 +308,7 @@ static expert_field ei_missing_fragment_start = EI_INIT;
 static expert_field ei_retransmit = EI_INIT;
 static expert_field ei_nack = EI_INIT;
 static expert_field ei_control_proc_overlapping = EI_INIT;
+static expert_field ei_control_proc_invalid_collision = EI_INIT;
 static expert_field ei_control_proc_wrong_seq = EI_INIT;
 
 static dissector_handle_t btle_handle;
@@ -395,6 +396,16 @@ typedef struct _control_proc_info_t {
      * received after a procedure involving only one packet, like the
      * LL_MIN_USED_CHANNELS_IND. */
     guint  last_frame;
+
+    /* The frame number of the packet containing the instant value.
+     * If set to 0, there is no such frame.
+     *
+     * We need to store this frame number, as any event counter is
+     * a valid instant. */
+    guint   frame_with_instant_value;
+
+    /* The event counter corresponding to the instant of the control procedure. */
+    guint16 instant;
 } control_proc_info_t;
 
 /* Store information about a connection direction */
@@ -927,6 +938,15 @@ control_proc_can_add_frame_even_if_complete(packet_info *pinfo,
     return TRUE;
 }
 
+static gboolean
+control_proc_is_complete(guint32 frame_num, control_proc_info_t const *last_control_proc_info)
+{
+    if (last_control_proc_info->last_frame != 0 &&
+        frame_num > last_control_proc_info->last_frame)
+        return TRUE;
+
+    return FALSE;
+}
 
 static gboolean
 control_proc_can_add_frame(packet_info *pinfo,
@@ -941,11 +961,83 @@ control_proc_can_add_frame(packet_info *pinfo,
         return FALSE;
 
     /* We check that we are not adding a frame to a completed procedure. */
-    if (last_control_proc_info->last_frame != 0 &&
-        pinfo->num > last_control_proc_info->last_frame)
+    if (control_proc_is_complete(pinfo->num, last_control_proc_info))
         return FALSE;
 
     return TRUE;
+}
+
+static void
+control_proc_complete_if_instant_reached(guint frame_num,
+                                         guint16 event_counter,
+                                         control_proc_info_t *last_control_proc_info)
+{
+    /* We need to check if the control procedure has been initiated. */
+    if (!last_control_proc_info)
+        return;
+
+    if (control_proc_is_complete(frame_num, last_control_proc_info))
+        return;
+
+    /* The instant can only be reached if the current frame is after
+     * the one containing the instant value. */
+    if ((last_control_proc_info->frame_with_instant_value == 0)||
+        (frame_num < last_control_proc_info->frame_with_instant_value))
+        return;
+
+    if (last_control_proc_info->instant == event_counter) {
+        /* Frame matches event counter, mark procedure as complete. */
+        last_control_proc_info->last_frame = frame_num;
+    }
+}
+
+static gboolean
+control_proc_contains_instant(guint8 proc_opcode)
+{
+    switch (proc_opcode)
+    {
+        case 0x00: /* LL_CONNECTION_UPDATE_IND */
+        case 0x01: /* LL_CHANNEL_MAP_UPDATE_IND */
+        case 0x0F: /* LL_CONNECTION_PARAM_REQ */
+        case 0x16: /* LL_PHY_REQ */
+            return TRUE;
+        default:
+            return FALSE;
+    }
+}
+
+/* Returns true if this frame contains an collision violating the specification.
+ *
+ * See Core_v5.2, Vol 6, Part B, Section 5.3 */
+static gboolean
+control_proc_invalid_collision(packet_info const *pinfo,
+                               control_proc_info_t const *control_proc_other,
+                               guint8 proc_opcode)
+{
+    if (!control_proc_other)
+        return FALSE;
+
+    if (control_proc_is_complete(pinfo->num, control_proc_other))
+        return FALSE;
+
+    /* Both procedures must contain an instant to be marked as incompatible. */
+    if (!control_proc_contains_instant(control_proc_other->proc_opcode) ||
+        !control_proc_contains_instant(proc_opcode))
+        return FALSE;
+
+    /* From the Core Spec:
+     *
+     * If the peer has already sent at least one PDU as part of procedure A, the
+     * device should immediately exit the Connection State and transition to the
+     * Standby State.
+     *
+     * That is, if there exists are response in the other procedure at this point in
+     * time, there is a procedure violation.
+     */
+    if (control_proc_other->frames[1] < pinfo->num)
+        return TRUE;
+    else
+        return FALSE;
 }
 
 static gint
@@ -1780,6 +1872,15 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 last_control_proc[BTLE_DIR_SLAVE_MASTER] =
                         (control_proc_info_t *)wmem_tree_lookup32_le(connection_info->direction_info[BTLE_DIR_SLAVE_MASTER].control_procs, pinfo->num);
 
+                if (!pinfo->fd->visited && btle_context && btle_context->event_counter_valid) {
+                    control_proc_complete_if_instant_reached(pinfo->num,
+                                                             btle_context->event_counter,
+                                                             last_control_proc[BTLE_DIR_MASTER_SLAVE]);
+                    control_proc_complete_if_instant_reached(pinfo->num,
+                                                             btle_context->event_counter,
+                                                             last_control_proc[BTLE_DIR_SLAVE_MASTER]);
+                }
+
                 if (!pinfo->fd->visited) {
                     address *addr;
 
@@ -2127,14 +2228,27 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                                                            last_control_proc[BTLE_DIR_SLAVE_MASTER]->frames[0]);
                             proto_item_set_generated(sub_item);
                         } else {
+                            if (control_proc_invalid_collision(pinfo,
+                                                               last_control_proc[other_direction],
+                                                               control_opcode)) {
+                                expert_add_info(pinfo, control_proc_item, &ei_control_proc_invalid_collision);
+                            }
+
                             control_proc_info_t *proc_info;
                             proc_info = control_proc_start(tvb, pinfo, btle_tree, control_proc_item,
                                                            connection_info->direction_info[direction].control_procs,
-                                                           0x00);
+                                                           control_opcode);
 
-                            /* Procedure completes in the same frame. */
-                            if (proc_info)
-                                proc_info->last_frame = pinfo->num;
+                            if (proc_info) {
+                                if (btle_context && btle_context->event_counter_valid) {
+                                    proc_info->instant = item_value;
+                                    proc_info->frame_with_instant_value = pinfo->num;
+                                } else {
+                                    /* Event counter is not available, assume the procedure completes now. */
+                                    proc_info->last_frame = pinfo->num;
+                                }
+                            }
+
                         }
                     } else if (direction == BTLE_DIR_SLAVE_MASTER) {
                         expert_add_info(pinfo, control_proc_item, &ei_control_proc_wrong_seq);
@@ -2149,9 +2263,8 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 call_dissector(btcommon_le_channel_map_handle, tvb_new_subset_length(tvb, offset, 5), pinfo, sub_tree);
                 offset += 5;
 
-                proto_tree_add_item(btle_tree, hf_control_instant, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item_ret_uint(btle_tree, hf_control_instant, tvb, offset, 2, ENC_LITTLE_ENDIAN, &item_value);
                 offset += 2;
-
 
                 if (!btle_frame_info->retransmit) {
                     /* The LL_CHANNEL_MAP_REQ can only be sent from master to slave.
@@ -2162,20 +2275,39 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                                                        last_control_proc[BTLE_DIR_SLAVE_MASTER],
                                                        0x19, 1)) {
                             last_control_proc[BTLE_DIR_SLAVE_MASTER]->frames[1] = pinfo->num;
-                            last_control_proc[BTLE_DIR_SLAVE_MASTER]->last_frame = pinfo->num;
+
+                            if (btle_context && btle_context->event_counter_valid) {
+                                last_control_proc[BTLE_DIR_SLAVE_MASTER]->instant = item_value;
+                                last_control_proc[BTLE_DIR_SLAVE_MASTER]->frame_with_instant_value = pinfo->num;
+                            } else {
+                                /* Event counter is not available, assume the procedure completes now. */
+                                last_control_proc[BTLE_DIR_SLAVE_MASTER]->last_frame = pinfo->num;
+                            }
 
                             sub_item = proto_tree_add_uint(btle_tree, hf_request_in_frame, tvb, 0, 0,
                                                            last_control_proc[BTLE_DIR_SLAVE_MASTER]->frames[0]);
                             proto_item_set_generated(sub_item);
                         } else {
+                            if (control_proc_invalid_collision(pinfo,
+                                                               last_control_proc[other_direction],
+                                                               control_opcode)) {
+                                expert_add_info(pinfo, control_proc_item, &ei_control_proc_invalid_collision);
+                            }
+
                             control_proc_info_t *proc_info;
                             proc_info = control_proc_start(tvb, pinfo, btle_tree, control_proc_item,
                                                            connection_info->direction_info[direction].control_procs,
-                                                           0x01);
+                                                           control_opcode);
 
-                            /* Procedure completes in the same frame. */
-                            if (proc_info)
-                                proc_info->last_frame = pinfo->num;
+                            if (proc_info) {
+                                if (btle_context && btle_context->event_counter_valid) {
+                                    proc_info->instant = item_value;
+                                    proc_info->frame_with_instant_value = pinfo->num;
+                                } else {
+                                    /* Event counter is not available, assume the procedure completes now. */
+                                    proc_info->last_frame = pinfo->num;
+                                }
+                            }
                         }
                     } else if (direction == BTLE_DIR_SLAVE_MASTER) {
                         expert_add_info(pinfo, control_proc_item, &ei_control_proc_wrong_seq);
@@ -2207,9 +2339,15 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 if (!btle_frame_info->retransmit) {
                     /* The LL_ENC_REQ can only be sent from master to slave. */
                     if (direction == BTLE_DIR_MASTER_SLAVE) {
+                        if (control_proc_invalid_collision(pinfo,
+                                                           last_control_proc[other_direction],
+                                                           control_opcode)) {
+                            expert_add_info(pinfo, control_proc_item, &ei_control_proc_invalid_collision);
+                        }
+
                         control_proc_start(tvb, pinfo, btle_tree, control_proc_item,
                                            connection_info->direction_info[BTLE_DIR_MASTER_SLAVE].control_procs,
-                                           0x03);
+                                           control_opcode);
                     } else if (direction == BTLE_DIR_SLAVE_MASTER) {
                         expert_add_info(pinfo, control_proc_item, &ei_control_proc_wrong_seq);
                     }
@@ -2324,9 +2462,15 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 if (!btle_frame_info->retransmit) {
                     /* The LL_FEATURE_REQ can only be sent from master to slave. */
                     if (direction == BTLE_DIR_MASTER_SLAVE) {
+                        if (control_proc_invalid_collision(pinfo,
+                                                           last_control_proc[other_direction],
+                                                           control_opcode)) {
+                            expert_add_info(pinfo, control_proc_item, &ei_control_proc_invalid_collision);
+                        }
+
                         control_proc_start(tvb, pinfo, btle_tree, control_proc_item,
-                                             connection_info->direction_info[direction].control_procs,
-                                             0x08);
+                                           connection_info->direction_info[direction].control_procs,
+                                           control_opcode);
                     } else if (direction == BTLE_DIR_SLAVE_MASTER) {
                         expert_add_info(pinfo, control_proc_item, &ei_control_proc_wrong_seq);
                     }
@@ -2363,9 +2507,15 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 if (!btle_frame_info->retransmit) {
                     /* The LL_PAUSE_ENC_REQ can only be sent from master to slave. */
                     if (direction == BTLE_DIR_MASTER_SLAVE) {
+                        if (control_proc_invalid_collision(pinfo,
+                                                           last_control_proc[other_direction],
+                                                           control_opcode)) {
+                            expert_add_info(pinfo, control_proc_item, &ei_control_proc_invalid_collision);
+                        }
+
                         control_proc_start(tvb, pinfo, btle_tree, control_proc_item,
                                            connection_info->direction_info[BTLE_DIR_MASTER_SLAVE].control_procs,
-                                           0x0A);
+                                           control_opcode);
                     } else if (direction == BTLE_DIR_SLAVE_MASTER) {
                         expert_add_info(pinfo, control_proc_item, &ei_control_proc_wrong_seq);
                     }
@@ -2424,9 +2574,15 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                                                        last_control_proc[other_direction]->frames[0]);
                         proto_item_set_generated(sub_item);
                     } else {
+                        if (control_proc_invalid_collision(pinfo,
+                                                           last_control_proc[other_direction],
+                                                           control_opcode)) {
+                            expert_add_info(pinfo, control_proc_item, &ei_control_proc_invalid_collision);
+                        }
+
                         control_proc_start(tvb, pinfo, btle_tree, control_proc_item,
                                            connection_info->direction_info[direction].control_procs,
-                                           0x0C);
+                                           control_opcode);
                     }
                 }
 
@@ -2472,9 +2628,15 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 if (!btle_frame_info->retransmit) {
                     /* The LL_SLAVE_FEATURE_REQ can only be sent from slave to master. */
                     if (direction == BTLE_DIR_SLAVE_MASTER) {
+                        if (control_proc_invalid_collision(pinfo,
+                                                           last_control_proc[other_direction],
+                                                           control_opcode)) {
+                            expert_add_info(pinfo, control_proc_item, &ei_control_proc_invalid_collision);
+                        }
+
                         control_proc_start(tvb, pinfo, btle_tree, control_proc_item,
                                            connection_info->direction_info[direction].control_procs,
-                                           0x0E);
+                                           control_opcode);
                     } else if (direction == BTLE_DIR_MASTER_SLAVE) {
                         expert_add_info(pinfo, control_proc_item, &ei_control_proc_wrong_seq);
                     }
@@ -2485,9 +2647,15 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 offset = dissect_conn_param_req_rsp(tvb, btle_tree, offset);
                 if (!btle_frame_info->retransmit) {
                     if (direction != BTLE_DIR_UNKNOWN) {
+                        if (control_proc_invalid_collision(pinfo,
+                                                           last_control_proc[other_direction],
+                                                           control_opcode)) {
+                            expert_add_info(pinfo, control_proc_item, &ei_control_proc_invalid_collision);
+                        }
+
                         control_proc_start(tvb, pinfo, btle_tree, control_proc_item,
                                            connection_info->direction_info[direction].control_procs,
-                                           0x0F);
+                                           control_opcode);
                     }
                 }
 
@@ -2578,10 +2746,17 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 break;
             case 0x12: /* LL_PING_REQ */
                 offset = dissect_ctrl_pdu_without_data(tvb, pinfo, btle_tree, offset);
-                if (!btle_frame_info->retransmit && direction != BTLE_DIR_UNKNOWN)
+                if (!btle_frame_info->retransmit && direction != BTLE_DIR_UNKNOWN) {
+                    if (control_proc_invalid_collision(pinfo,
+                                                       last_control_proc[other_direction],
+                                                       control_opcode)) {
+                        expert_add_info(pinfo, control_proc_item, &ei_control_proc_invalid_collision);
+                    }
+
                     control_proc_start(tvb, pinfo, btle_tree, control_proc_item,
                                        connection_info->direction_info[direction].control_procs,
-                                       0x12);
+                                       control_opcode);
+                }
                 break;
             case 0x13: /* LL_PING_RSP */
                 offset = dissect_ctrl_pdu_without_data(tvb, pinfo, btle_tree, offset);
@@ -2603,10 +2778,17 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
             case 0x14: /* LL_LENGTH_REQ */
                 dissect_length_req_rsp(tvb, btle_tree, offset);
-                if (!btle_frame_info->retransmit && direction != BTLE_DIR_UNKNOWN)
+                if (!btle_frame_info->retransmit && direction != BTLE_DIR_UNKNOWN) {
+                    if (control_proc_invalid_collision(pinfo,
+                                                       last_control_proc[other_direction],
+                                                       control_opcode)) {
+                        expert_add_info(pinfo, control_proc_item, &ei_control_proc_invalid_collision);
+                    }
+
                     control_proc_start(tvb, pinfo, btle_tree, control_proc_item,
                                        connection_info->direction_info[direction].control_procs,
-                                       0x14);
+                                       control_opcode);
+                }
 
                 break;
             case 0x15: /* LL_LENGTH_RSP */
@@ -2628,10 +2810,17 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 break;
             case 0x16: /* LL_PHY_REQ */
                 dissect_phy_req_rsp(tvb, btle_tree, offset);
-                if (!btle_frame_info->retransmit && direction != BTLE_DIR_UNKNOWN)
+                if (!btle_frame_info->retransmit && direction != BTLE_DIR_UNKNOWN) {
+                    if (control_proc_invalid_collision(pinfo,
+                                                       last_control_proc[other_direction],
+                                                       control_opcode)) {
+                        expert_add_info(pinfo, control_proc_item, &ei_control_proc_invalid_collision);
+                    }
+
                     control_proc_start(tvb, pinfo, btle_tree, control_proc_item,
                                        connection_info->direction_info[direction].control_procs,
-                                       0x16);
+                                       control_opcode);
+                }
 
                 break;
             case 0x17: /* LL_PHY_RSP */
@@ -2663,7 +2852,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 proto_tree_add_bitmask(btle_tree, tvb, offset, hf_control_s_to_m_phy, ett_s_to_m_phy, hfx_control_phys_update, ENC_NA);
                 offset += 1;
 
-                proto_tree_add_item(btle_tree, hf_control_instant, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item_ret_uint(btle_tree, hf_control_instant, tvb, offset, 2, ENC_LITTLE_ENDIAN, &item_value);
                 offset += 2;
 
                 if (!btle_frame_info->retransmit) {
@@ -2674,8 +2863,14 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                                                        0x16, 2)) {
 
                             last_control_proc[BTLE_DIR_MASTER_SLAVE]->frames[2] = pinfo->num;
-                            last_control_proc[BTLE_DIR_MASTER_SLAVE]->last_frame = pinfo->num;
 
+                            if (btle_context && btle_context->event_counter_valid) {
+                                last_control_proc[BTLE_DIR_MASTER_SLAVE]->instant = item_value;
+                                last_control_proc[BTLE_DIR_MASTER_SLAVE]->frame_with_instant_value = pinfo->num;
+                            } else {
+                                /* Event counter is not available, assume the procedure completes now. */
+                                last_control_proc[BTLE_DIR_MASTER_SLAVE]->last_frame = pinfo->num;
+                            }
 
                             sub_item = proto_tree_add_uint(btle_tree, hf_request_in_frame, tvb, 0, 0,
                                                        last_control_proc[BTLE_DIR_MASTER_SLAVE]->frames[0]);
@@ -2684,7 +2879,14 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                                                               last_control_proc[BTLE_DIR_SLAVE_MASTER],
                                                               0x16, 1)){
                             last_control_proc[BTLE_DIR_SLAVE_MASTER]->frames[1] = pinfo->num;
-                            last_control_proc[BTLE_DIR_SLAVE_MASTER]->last_frame = pinfo->num;
+
+                            if (btle_context && btle_context->event_counter_valid) {
+                                last_control_proc[BTLE_DIR_SLAVE_MASTER]->instant = item_value;
+                                last_control_proc[BTLE_DIR_SLAVE_MASTER]->frame_with_instant_value = pinfo->num;
+                            } else {
+                                /* Event counter is not available, assume the procedure completes now. */
+                                last_control_proc[BTLE_DIR_SLAVE_MASTER]->last_frame = pinfo->num;
+                            }
 
                             sub_item = proto_tree_add_uint(btle_tree, hf_request_in_frame, tvb, 0, 0,
                                                            last_control_proc[BTLE_DIR_SLAVE_MASTER]->frames[0]);
@@ -2708,11 +2910,16 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 if (!btle_frame_info->retransmit) {
                     /* The LL_MIN_USED_CHANNELS_IND can only be sent from slave to master. */
                     if (direction == BTLE_DIR_SLAVE_MASTER) {
+                        if (control_proc_invalid_collision(pinfo,
+                                                           last_control_proc[other_direction],
+                                                           control_opcode)) {
+                            expert_add_info(pinfo, control_proc_item, &ei_control_proc_invalid_collision);
+                        }
 
                         control_proc_info_t *proc_info;
                         proc_info = control_proc_start(tvb, pinfo, btle_tree, control_proc_item,
                                                        connection_info->direction_info[direction].control_procs,
-                                                       0x19);
+                                                       control_opcode);
 
                         /* Procedure completes in the same frame. */
                         if (proc_info)
@@ -3687,6 +3894,8 @@ proto_register_btle(void)
             { "btle.access_address.illegal",    PI_PROTOCOL, PI_ERROR, "AccessAddress has illegal value", EXPFILL }},
         { &ei_control_proc_overlapping,
             { "btle.control_proc_overlapping",  PI_PROTOCOL, PI_ERROR, "Initiating a new control procedure before the previous was complete", EXPFILL }},
+        { &ei_control_proc_invalid_collision,
+            { "btle.control_proc_incompatible", PI_PROTOCOL, PI_ERROR, "Initiating a new incompatible control procedure after having sent a response to an incompatible control procedure", EXPFILL }},
         { &ei_control_proc_wrong_seq,
             { "btle.control_proc_unknown_seq",  PI_PROTOCOL, PI_ERROR, "Incorrect control procedure packet sequencing or direction", EXPFILL }},
         { &ei_crc_cannot_be_determined,
