@@ -3343,6 +3343,15 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Esempio di filtro di avviso</translation>
     </message>
     <message>
+        <source>Example GIF query packets have jumbo window sizes</source>
+        <extracomment>These are pangrams. Feel free to replace with nonsense text that spans your alphabet. https://en.wikipedia.org/wiki/Pangram</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Lazy badgers move unique waxy jellyfish packets</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Font</source>
         <translation>Carattere</translation>
     </message>
@@ -5540,6 +5549,10 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <source>Include RACH frames in filter</source>
         <translation>Includi i frame RACH nel filtro</translation>
     </message>
+    <message>
+        <source>MAC Statistics</source>
+        <translation type="unfinished">Statistiche MAC</translation>
+    </message>
 </context>
 <context>
     <name>LteRlcGraphDialog</name>
@@ -5951,6 +5964,10 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <message>
         <source>DL Missing</source>
         <translation>DL Mancanti</translation>
+    </message>
+    <message>
+        <source>RLC Statistics</source>
+        <translation type="unfinished">Statistiche RLC</translation>
     </message>
 </context>
 <context>
