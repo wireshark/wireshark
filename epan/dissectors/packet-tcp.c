@@ -2423,6 +2423,7 @@ finished_checking_retransmission_type:
     ual=tcpd->fwd->tcp_analyze_seq_info->segments;
     if (tcp_track_bytes_in_flight && seglen!=0 && ual && tcpd->fwd->valid_bif) {
         guint32 first_seq, last_seq, in_flight;
+        guint32 delivered = 0;
 
         first_seq = ual->seq - tcpd->fwd->base_seq;
         last_seq = ual->nextseq - tcpd->fwd->base_seq;
@@ -2436,6 +2437,16 @@ finished_checking_retransmission_type:
             ual = ual->next;
         }
         in_flight = last_seq-first_seq;
+
+        /* subtract any SACK block */
+        if(tcpd->rev->tcp_analyze_seq_info->num_sack_ranges > 0) {
+            int i;
+            for(i = 0; i<tcpd->rev->tcp_analyze_seq_info->num_sack_ranges; i++) {
+                delivered += (tcpd->rev->tcp_analyze_seq_info->sack_right_edge[i+1] -
+                              tcpd->rev->tcp_analyze_seq_info->sack_left_edge[i+1]);
+            }
+            in_flight -= delivered;
+        }
 
         if (in_flight>0 && in_flight<2000000000) {
             if(!tcpd->ta) {
@@ -4304,12 +4315,26 @@ dissect_tcpopt_sack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
     int sackoffset;
     int optlen = tvb_reported_length(tvb);
 
-    if(tcp_analyze_seq && tcp_relative_seq) {
+    /*
+     * SEQ analysis is the condition for both relative analysis obviously,
+     * and SACK handling for the in-flight update
+     */
+    if(tcp_analyze_seq) {
         /* find(or create if needed) the conversation for this tcp session */
         tcpd=get_tcp_conversation_data(NULL,pinfo);
 
         if (tcpd) {
-            base_ack=tcpd->rev->base_seq;
+            if (tcp_relative_seq) {
+                base_ack=tcpd->rev->base_seq;
+            }
+
+            /*
+             * initialize the number of SACK blocks to 0, it will be
+             * updated some lines later
+             */
+            if (tcp_track_bytes_in_flight) {
+                tcpd->fwd->tcp_analyze_seq_info->num_sack_ranges = 0;
+            }
         }
     }
 
@@ -4351,6 +4376,13 @@ dissect_tcpopt_sack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
         tcp_info_append_uint(pinfo, "SRE", rightedge);
         num_sack_ranges++;
 
+        /* Store blocks for BiF analysis */
+        if (tcpd && tcp_track_bytes_in_flight) {
+            tcpd->fwd->tcp_analyze_seq_info->num_sack_ranges = num_sack_ranges;
+            tcpd->fwd->tcp_analyze_seq_info->sack_left_edge[num_sack_ranges] = leftedge;
+            tcpd->fwd->tcp_analyze_seq_info->sack_right_edge[num_sack_ranges] = rightedge;
+        }
+
         /* Update tap info */
         if (tcph != NULL && (tcph->num_sack_ranges < MAX_TCP_SACK_RANGES)) {
             tcph->sack_left_edge[tcph->num_sack_ranges] = leftedge;
@@ -4361,6 +4393,7 @@ dissect_tcpopt_sack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
         proto_item_append_text(field_tree, " %u-%u", leftedge, rightedge);
         offset += 8;
     }
+
 
     /* Show number of SACK ranges in this option as a generated field */
     tf = proto_tree_add_uint(field_tree, hf_tcp_option_sack_range_count,
@@ -6479,6 +6512,9 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
          * to tap listeners.
          */
         tcph->th_stream = tcpd->stream;
+
+        /* initialize the SACK blocks seen to 0 */
+        tcpd->fwd->tcp_analyze_seq_info->num_sack_ranges = 0;
     }
 
     /* Do we need to calculate timestamps relative to the tcp-stream? */
@@ -6978,20 +7014,6 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
     tcph->num_sack_ranges = 0;
 
-    /* handle TCP seq# analysis, print any extra SEQ/ACK data for this segment*/
-    if(tcp_analyze_seq) {
-        guint32 use_seq = tcph->th_seq;
-        guint32 use_ack = tcph->th_ack;
-        /* May need to recover absolute values here... */
-        if (tcp_relative_seq) {
-            use_seq += tcpd->fwd->base_seq;
-            if (tcph->th_flags & TH_ACK) {
-                use_ack += tcpd->rev->base_seq;
-            }
-        }
-        tcp_print_sequence_number_analysis(pinfo, tvb, tcp_tree, tcpd, use_seq, use_ack);
-    }
-
     /* handle conversation timestamps */
     if(tcp_calculate_ts) {
         tcp_print_timestamps(pinfo, tvb, tcp_tree, tcpd, tcppd);
@@ -7018,6 +7040,20 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
             }
         }
 
+    }
+
+    /* handle TCP seq# analysis, print any extra SEQ/ACK data for this segment*/
+    if(tcp_analyze_seq) {
+        guint32 use_seq = tcph->th_seq;
+        guint32 use_ack = tcph->th_ack;
+        /* May need to recover absolute values here... */
+        if (tcp_relative_seq) {
+            use_seq += tcpd->fwd->base_seq;
+            if (tcph->th_flags & TH_ACK) {
+                use_ack += tcpd->rev->base_seq;
+            }
+        }
+        tcp_print_sequence_number_analysis(pinfo, tvb, tcp_tree, tcpd, use_seq, use_ack);
     }
 
     if(!pinfo->fd->visited) {

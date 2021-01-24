@@ -312,6 +312,14 @@ typedef struct tcp_analyze_seq_flow_info_t {
 				 * fast retransmissions and outoforder
 				 */
 
+	/*
+	 * Handling of SACK blocks
+	 * Copied from tcpheader
+	 */
+	guint8  num_sack_ranges;
+	guint32 sack_left_edge[MAX_TCP_SACK_RANGES];
+	guint32 sack_right_edge[MAX_TCP_SACK_RANGES];
+
 } tcp_analyze_seq_flow_info_t;
 
 	/* Process info, currently discovered via IPFIX */
