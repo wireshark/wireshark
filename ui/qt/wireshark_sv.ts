@@ -3268,6 +3268,15 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>Exempel på varningsfilter</translation>
     </message>
     <message>
+        <source>Example GIF query packets have jumbo window sizes</source>
+        <extracomment>These are pangrams. Feel free to replace with nonsense text that spans your alphabet. https://en.wikipedia.org/wiki/Pangram</extracomment>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Lazy badgers move unique waxy jellyfish packets</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Font</source>
         <translation>Typsnitt</translation>
     </message>
@@ -5414,6 +5423,10 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <source>Include RACH frames in filter</source>
         <translation>Inkludera RACH-ramar i filter</translation>
     </message>
+    <message>
+        <source>MAC Statistics</source>
+        <translation type="unfinished">MAC-statistik</translation>
+    </message>
 </context>
 <context>
     <name>LteRlcGraphDialog</name>
@@ -5825,6 +5838,10 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <message>
         <source>DL Missing</source>
         <translation>DL saknade</translation>
+    </message>
+    <message>
+        <source>RLC Statistics</source>
+        <translation type="unfinished">RLC-statistik</translation>
     </message>
 </context>
 <context>
