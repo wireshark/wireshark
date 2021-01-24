@@ -97,7 +97,7 @@ def main():
 
     for line in input:
         #line = line.rstrip()
-        if state is STATE_NULL:
+        if state == STATE_NULL:
             if line.startswith("% ---- wireshark preamble start ---- %"):
                 state = STATE_PREAMBLE
                 start_code(output, "preamble")
@@ -106,14 +106,14 @@ def main():
                 state = STATE_FINALE
                 start_code(output, "finale")
                 continue
-        elif state is STATE_PREAMBLE:
+        elif state == STATE_PREAMBLE:
             if line.startswith("% ---- wireshark preamble end ---- %"):
                 state = STATE_NULL
                 end_code(output)
                 continue
             else:
                 write_code(output, line)
-        elif state is STATE_FINALE:
+        elif state == STATE_FINALE:
             if line.startswith("% ---- wireshark finale end ---- %"):
                 state = STATE_NULL
                 end_code(output)
