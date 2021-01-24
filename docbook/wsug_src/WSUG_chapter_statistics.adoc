@@ -104,7 +104,20 @@ Opens this section of the User’s Guide.
 
 === Resolved Addresses
 
-{missing}
+The Resolved Addresses window shows the list of resolved addresses and their host names. Users can choose the `Hosts` field to display IPv4 and IPv6 addresses only. In this case, the dialog displays host names for each IP address in a capture file with a known host. This host is typically taken from DNS answers in a capture file. In case of an unknown host name, users can populate it based on a reverse DNS lookup. To do so, follow these steps:
+
+. Enable `Resolve Network Addresses` in the menu:View[Name Resolution] menu as this option is disabled by default.
+
+. Select `Use an external network name resolver` in the menu:Preferences[Name Resolution] menu. This option is enabled by default.
+
+NOTE: The resolved addresses are not updated automatically after users change the settings. To display newly available names user have to reopen the dialog.
+
+The `Ports` tab shows the list of service names, ports and types. 
+
+Wireshark reads the entries for port mappings from the `hosts` service configuration files. See <<ChAppFilesConfigurationSection>> section for more information.
+
+.Resolved Addresses window
+image::wsug_graphics/ws-resolved-addr.png[{screenshot-attrs}]
 
 [[ChStatHierarchy]]
 
