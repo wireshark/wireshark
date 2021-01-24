@@ -403,7 +403,9 @@ def is_dissector_file(filename):
     return p.match(filename)
 
 
-def findDissectorFilesInFolder(folder, dissector_files=[], recursive=False):
+def findDissectorFilesInFolder(folder, dissector_files=None, recursive=False):
+    if dissector_files is None:
+        dissector_files = []
     if recursive:
         for root, subfolders, files in os.walk(folder):
             for f in files:
