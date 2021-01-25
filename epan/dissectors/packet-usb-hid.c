@@ -3721,7 +3721,7 @@ get_usage_page_item_string(guint32 usage_page, guint32 id)
     if (!str)
         str = "Reserved";
 
-    return g_strdup_printf(str, id);
+    return wmem_strdup_printf(wmem_packet_scope(), str, id);
 }
 
 /* Dissector for the data in a HID main report. */
@@ -3945,8 +3945,6 @@ dissect_usb_hid_report_localitem_data(packet_info *pinfo _U_, proto_tree *tree, 
             break;
     }
     offset += bSize;
-
-    g_free(str);
 
     return offset;
 }
