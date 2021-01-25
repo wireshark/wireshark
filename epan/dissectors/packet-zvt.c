@@ -282,7 +282,7 @@ static const value_string bitmap[] = {
     { BMP_T2_DAT,        "Track 2 data" },
     { BMP_T3_DAT,        "Track 3 data" },
     { BMP_RES_CODE,      "Result code" },
-    { BMP_TID,           "Transaction ID" },
+    { BMP_TID,           "Terminal ID" },
     { BMP_T1_DAT,        "Track 1 data" },
     { BMP_CVV_CVC,       "CVV / CVC" },
     { BMP_ADD_DATA,      "Additional data" },
