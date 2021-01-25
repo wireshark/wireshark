@@ -152,7 +152,7 @@ typedef struct _amqp_channel_t {
 #define AMQP_0_9_METHOD_EXCHANGE_BIND                                  30
 #define AMQP_0_9_METHOD_EXCHANGE_BIND_OK                               31
 #define AMQP_0_9_METHOD_EXCHANGE_UNBIND                                40
-#define AMQP_0_9_METHOD_EXCHANGE_UNBIND_OK                             41
+#define AMQP_0_9_METHOD_EXCHANGE_UNBIND_OK                             51
 
 #define AMQP_0_9_METHOD_QUEUE_DECLARE                                  10
 #define AMQP_0_9_METHOD_QUEUE_DECLARE_OK                               11
