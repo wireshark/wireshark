@@ -2337,13 +2337,15 @@ pcapng_read_systemd_journal_export_block(wtap *wth, FILE_T fh, pcapng_block_head
                                 entry_length, err, err_info)) {
         return FALSE;
     }
-    ws_buffer_increase_length(wblock->frame_buffer, entry_length);
 
-    /* We don't have memmem available everywhere, so we get to use strstr. */
-    ws_buffer_append(wblock->frame_buffer, (guint8 * ) "", 1);
+    /*
+     * We don't have memmem available everywhere, so we get to add space for
+     * a trailing \0 for strstr below.
+     */
+    ws_buffer_assure_space(wblock->frame_buffer, entry_length+1);
 
     gchar *buf_ptr = (gchar *) ws_buffer_start_ptr(wblock->frame_buffer);
-    while (entry_length > 0 && buf_ptr[entry_length] == '\0') {
+    while (entry_length > 0 && buf_ptr[entry_length-1] == '\0') {
         entry_length--;
     }
 
@@ -2357,6 +2359,8 @@ pcapng_read_systemd_journal_export_block(wtap *wth, FILE_T fh, pcapng_block_head
     pcapng_debug("%s: entry_length %u", G_STRFUNC, entry_length);
 
     size_t rt_ts_len = strlen(SDJ__REALTIME_TIMESTAMP);
+
+    buf_ptr[entry_length] = '\0';
     char *ts_pos = strstr(buf_ptr, SDJ__REALTIME_TIMESTAMP);
 
     if (!ts_pos) {
