@@ -3339,6 +3339,7 @@ hid_unpack_signed(guint8 *data, unsigned int idx, unsigned int size, gint32 *val
 }
 
 
+#define MAX_REPORT_DESCRIPTOR_COUNT 100000 // Arbitrary
 static gboolean
 parse_report_descriptor(report_descriptor_t *rdesc)
 {
@@ -3493,6 +3494,10 @@ parse_report_descriptor(report_descriptor_t *rdesc)
 
                         usage_max = hid_unpack_value(data, i, size);
                         if (usage_min > usage_max) {
+                            goto err;
+                        }
+
+                        if (wmem_array_get_count(field.usages) + usage_max - usage_min >= MAX_REPORT_DESCRIPTOR_COUNT) {
                             goto err;
                         }
 
