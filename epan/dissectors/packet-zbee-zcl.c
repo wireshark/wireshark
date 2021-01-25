@@ -47,6 +47,8 @@ static void  zcl_dump_data(tvbuff_t *tvb, guint offset, packet_info *pinfo, prot
 static void dissect_zcl_array_type(tvbuff_t *tvb, proto_tree *tree, guint *offset, guint8 elements_type, guint16 elements_num, gboolean client_attr);
 static void dissect_zcl_set_type(tvbuff_t *tvb, proto_tree *tree, guint *offset, guint8 elements_type, guint16 elements_num, gboolean client_attr);
 
+static zbee_zcl_cluster_desc *zbee_zcl_get_cluster_desc(guint16 cluster_id, guint16 mfr_code);
+
 /********************
  * Global Variables *
  ********************
@@ -2660,7 +2662,7 @@ zbee_zcl_init_cluster(const char *proto_abbrev, int proto, gint ett, guint16 clu
  *@param  mfr_code manufacturer code
  *@return cluster descriptor pointer
 */
-zbee_zcl_cluster_desc
+static zbee_zcl_cluster_desc
 *zbee_zcl_get_cluster_desc(guint16 cluster_id, guint16 mfr_code)
 {
     GList *gl;

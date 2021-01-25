@@ -208,7 +208,6 @@ extern void dissect_zcl_attr_data_type_val(tvbuff_t *tvb, proto_tree *tree, guin
 extern guint dissect_zcl_attr_uint8 (tvbuff_t *tvb, proto_tree *tree, guint *offset, int *length);
 
 /* Helper functions */
-zbee_zcl_cluster_desc *zbee_zcl_get_cluster_desc(guint16 cluster_id, guint16 mfr_code);
 
 /* Exported DLL functions */
 WS_DLL_PUBLIC void decode_zcl_time_in_100ms (gchar *s, guint16 value);

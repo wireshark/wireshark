@@ -137,7 +137,6 @@ static int hf_zbee_zdp_complex = -1;
        int hf_zbee_zdp_target = -1;
        int hf_zbee_zdp_replacement = -1;
        int hf_zbee_zdp_replacement_ep = -1;
-       int hf_zbee_zdp_bind_src = -1;
        int hf_zbee_zdp_bind_src64 = -1;
        int hf_zbee_zdp_bind_src_ep = -1;
        int hf_zbee_zdp_bind_dst = -1;
@@ -164,7 +163,6 @@ static int hf_zbee_zdp_complex = -1;
        int hf_zbee_zdp_pan_eui64 = -1;
        int hf_zbee_zdp_pan_uint = -1;
        int hf_zbee_zdp_channel = -1;
-       int hf_zbee_zdp_nwk_desc_profile = -1;
        int hf_zbee_zdp_profile_version = -1;
        int hf_zbee_zdp_beacon = -1;
        int hf_zbee_zdp_superframe = -1;
@@ -223,7 +221,7 @@ static gint ett_zbee_zdp_bind_table = -1;
        gint ett_zbee_zdp_cache = -1;
        gint ett_zbee_zdp_nwk_desc = -1;
        gint ett_zbee_zdp_table_entry = -1;
-       gint ett_zbee_zdp_descriptor_capability_field = -1;
+static gint ett_zbee_zdp_descriptor_capability_field = -1;
 
 /**************************************
  * Value Strings
@@ -400,7 +398,7 @@ const value_string zbee_zdp_rtg_status_vals[] = {
     { 0, NULL }
 };
 
-const value_string zbee_zdp_ieee_join_policy_vals[] = {
+static const value_string zbee_zdp_ieee_join_policy_vals[] = {
     { 0x00,  "All Join" },
     { 0x01,  "IEEE Join" },
     { 0x02,  "No Join" },
@@ -412,20 +410,20 @@ const value_string zbee_zdp_ieee_join_policy_vals[] = {
    than 0x01, and it's intentional that those other values be
    "Unknown" (which is what value_string will give us)
  */
-const value_string zbee_zdp_true_false_plus_vals[] = {
+static const value_string zbee_zdp_true_false_plus_vals[] = {
     { 0x00,  "False" },
     { 0x01,  "True" },
     { 0, NULL }
 };
 
-const value_string zbee_zdp_table_entry_type_vals[] = {
+static const value_string zbee_zdp_table_entry_type_vals[] = {
     { 0x00,  "Coordinator" },
     { 0x01,  "Router" },
     { 0x02,  "End Device" },
     { 0, NULL }
 };
 
-const value_string zbee_zdp_relationship_vals[] = {
+static const value_string zbee_zdp_relationship_vals[] = {
     { 0x00,  "Parent" },
     { 0x01,  "Child" },
     { 0x02,  "Sibling" },
@@ -1652,10 +1650,6 @@ void proto_register_zbee_zdp(void)
         { "Replacement Endpoint",       "zbee_zdp.replacement_ep", FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }},
 
-        { &hf_zbee_zdp_bind_src,
-        { "Source",                     "zbee_zdp.bind.src", FT_UINT16, BASE_HEX, NULL, 0x0,
-            NULL, HFILL }},
-
         { &hf_zbee_zdp_bind_src64,
         { "Source",                     "zbee_zdp.bind.src64", FT_EUI64, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
@@ -1750,10 +1744,6 @@ void proto_register_zbee_zdp(void)
 
         { &hf_zbee_zdp_channel,
         { "Channel",         "zbee_zdp.channel", FT_UINT8, BASE_DEC, NULL, 0x0,
-            NULL, HFILL }},
-
-        { &hf_zbee_zdp_nwk_desc_profile,
-        { "Profile",         "zbee_zdp.profile", FT_UINT16, BASE_HEX, NULL, 0x0F,
             NULL, HFILL }},
 
         { &hf_zbee_zdp_profile_version,
