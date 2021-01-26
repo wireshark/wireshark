@@ -2204,7 +2204,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                     }
                 }
 
-                if (!btle_frame_info->retransmit) {
+                if (connection_info && !btle_frame_info->retransmit) {
                     /* The LL_CONNECTION_UPDATE_IND can only be sent from master to slave.
                      * It can either be sent as the first packet of the connection update procedure,
                      * or as the last packet in the connection parameter request procedure. */
@@ -2266,7 +2266,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 proto_tree_add_item_ret_uint(btle_tree, hf_control_instant, tvb, offset, 2, ENC_LITTLE_ENDIAN, &item_value);
                 offset += 2;
 
-                if (!btle_frame_info->retransmit) {
+                if (connection_info && !btle_frame_info->retransmit) {
                     /* The LL_CHANNEL_MAP_REQ can only be sent from master to slave.
                      * It can either be sent as the first packet of the channel map update procedure,
                      * or as the last packet in the minimum number of used channels procedure. */
@@ -2336,7 +2336,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 proto_tree_add_item(btle_tree, hf_control_master_session_initialization_vector, tvb, offset, 4, ENC_LITTLE_ENDIAN);
                 offset += 4;
 
-                if (!btle_frame_info->retransmit) {
+                if (connection_info && !btle_frame_info->retransmit) {
                     /* The LL_ENC_REQ can only be sent from master to slave. */
                     if (direction == BTLE_DIR_MASTER_SLAVE) {
                         if (control_proc_invalid_collision(pinfo,
@@ -2361,7 +2361,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 proto_tree_add_item(btle_tree, hf_control_slave_session_initialization_vector, tvb, offset, 4, ENC_LITTLE_ENDIAN);
                 offset += 4;
 
-                if (!btle_frame_info->retransmit) {
+                if (connection_info && !btle_frame_info->retransmit) {
                     /* The LL_ENC_REQ can only be sent from slave to master. */
                     if (direction == BTLE_DIR_SLAVE_MASTER) {
                         if (control_proc_can_add_frame(pinfo,
@@ -2383,7 +2383,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 break;
             case 0x05: /* LL_START_ENC_REQ */
                 offset = dissect_ctrl_pdu_without_data(tvb, pinfo, btle_tree, offset);
-                if (!btle_frame_info->retransmit) {
+                if (connection_info && !btle_frame_info->retransmit) {
                     /* The LL_START_ENC_REQ can only be sent from slave to master. */
                     if (direction == BTLE_DIR_SLAVE_MASTER) {
                         if (control_proc_can_add_frame(pinfo,
@@ -2406,7 +2406,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
             case 0x06: /* LL_START_ENC_RSP */
                 offset = dissect_ctrl_pdu_without_data(tvb, pinfo, btle_tree, offset);
-                if (!btle_frame_info->retransmit && direction != BTLE_DIR_UNKNOWN) {
+                if (connection_info && !btle_frame_info->retransmit && direction != BTLE_DIR_UNKNOWN) {
                     /* This is either frame 4 or 5 of the procedure */
                     if (direction == BTLE_DIR_MASTER_SLAVE &&
                         control_proc_can_add_frame(pinfo,
@@ -2438,7 +2438,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 proto_tree_add_item(btle_tree, hf_control_unknown_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
                 offset += 1;
 
-                if (!btle_frame_info->retransmit && direction != BTLE_DIR_UNKNOWN) {
+                if (connection_info && !btle_frame_info->retransmit && direction != BTLE_DIR_UNKNOWN) {
                     /* LL_UNKNOWN_RSP can only be sent as the second frame of a procedure. */
                     if (last_control_proc[other_direction] &&
                         control_proc_can_add_frame_even_if_complete(pinfo,
@@ -2459,7 +2459,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 break;
             case 0x08: /* LL_FEATURE_REQ */
                 offset = dissect_feature_set(tvb, btle_tree, offset);
-                if (!btle_frame_info->retransmit) {
+                if (connection_info && !btle_frame_info->retransmit) {
                     /* The LL_FEATURE_REQ can only be sent from master to slave. */
                     if (direction == BTLE_DIR_MASTER_SLAVE) {
                         if (control_proc_invalid_collision(pinfo,
@@ -2479,7 +2479,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 break;
             case 0x09: /* LL_FEATURE_RSP */
                 offset = dissect_feature_set(tvb, btle_tree, offset);
-                if (!btle_frame_info->retransmit && direction != BTLE_DIR_UNKNOWN) {
+                if (connection_info && !btle_frame_info->retransmit && direction != BTLE_DIR_UNKNOWN) {
                     if (control_proc_can_add_frame(pinfo,
                                                    last_control_proc[other_direction],
                                                    0x08, 1) ||
@@ -2504,7 +2504,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                     offset += tvb_reported_length_remaining(tvb, offset) - 3;
                 }
 
-                if (!btle_frame_info->retransmit) {
+                if (connection_info && !btle_frame_info->retransmit) {
                     /* The LL_PAUSE_ENC_REQ can only be sent from master to slave. */
                     if (direction == BTLE_DIR_MASTER_SLAVE) {
                         if (control_proc_invalid_collision(pinfo,
@@ -2525,7 +2525,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             case 0x0B: /* LL_PAUSE_ENC_RSP */
                 offset = dissect_ctrl_pdu_without_data(tvb, pinfo, btle_tree, offset);
 
-                if (!btle_frame_info->retransmit && direction != BTLE_DIR_UNKNOWN) {
+                if (connection_info && !btle_frame_info->retransmit && direction != BTLE_DIR_UNKNOWN) {
                     if (direction == BTLE_DIR_SLAVE_MASTER &&
                         control_proc_can_add_frame(pinfo,
                                                    last_control_proc[BTLE_DIR_MASTER_SLAVE],
@@ -2561,7 +2561,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 proto_tree_add_item(btle_tree, hf_control_subversion_number, tvb, offset, 2, ENC_LITTLE_ENDIAN);
                 offset += 2;
 
-                if (!btle_frame_info->retransmit && direction != BTLE_DIR_UNKNOWN) {
+                if (connection_info && !btle_frame_info->retransmit && direction != BTLE_DIR_UNKNOWN) {
                     /* The LL_VERSION_IND can be sent as a request or response.
                      * We first check if it is a response. */
                     if (control_proc_can_add_frame(pinfo,
@@ -2594,7 +2594,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 /* LL_REJECT_IND my be sent as:
                  *  - A response to the LL_ENQ_REQ from the master
                  *  - After the LL_ENC_RSP from the slave */
-                if (!btle_frame_info->retransmit) {
+                if (connection_info && !btle_frame_info->retransmit) {
                     if (direction == BTLE_DIR_SLAVE_MASTER) {
                         if (control_proc_can_add_frame(pinfo,
                                                        last_control_proc[BTLE_DIR_MASTER_SLAVE],
@@ -2625,7 +2625,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 break;
             case 0x0E: /* LL_SLAVE_FEATURE_REQ */
                 offset = dissect_feature_set(tvb, btle_tree, offset);
-                if (!btle_frame_info->retransmit) {
+                if (connection_info && !btle_frame_info->retransmit) {
                     /* The LL_SLAVE_FEATURE_REQ can only be sent from slave to master. */
                     if (direction == BTLE_DIR_SLAVE_MASTER) {
                         if (control_proc_invalid_collision(pinfo,
@@ -2645,7 +2645,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
             case 0x0F: /* LL_CONNECTION_PARAM_REQ */
                 offset = dissect_conn_param_req_rsp(tvb, btle_tree, offset);
-                if (!btle_frame_info->retransmit) {
+                if (connection_info && !btle_frame_info->retransmit) {
                     if (direction != BTLE_DIR_UNKNOWN) {
                         if (control_proc_invalid_collision(pinfo,
                                                            last_control_proc[other_direction],
@@ -2663,7 +2663,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             case 0x10: /* LL_CONNECTION_PARAM_RSP */
                 offset = dissect_conn_param_req_rsp(tvb, btle_tree, offset);
 
-                if (!btle_frame_info->retransmit) {
+                if (connection_info && !btle_frame_info->retransmit) {
                     /* The LL_CONNECTION_PARAM_RSP can only be sent from slave to master
                      * as a response to a master initiated procedure */
                     if (direction == BTLE_DIR_SLAVE_MASTER) {
@@ -2698,7 +2698,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                  *  - As a response to LL_CONNECTION_PARAM_RSP
                  *  - As a response during the phy update procedure.
                  */
-                if (!btle_frame_info->retransmit && direction != BTLE_DIR_UNKNOWN) {
+                if (connection_info && !btle_frame_info->retransmit && direction != BTLE_DIR_UNKNOWN) {
                     if (direction == BTLE_DIR_SLAVE_MASTER &&
                         control_proc_can_add_frame(pinfo,
                                                    last_control_proc[BTLE_DIR_MASTER_SLAVE],
@@ -2746,7 +2746,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 break;
             case 0x12: /* LL_PING_REQ */
                 offset = dissect_ctrl_pdu_without_data(tvb, pinfo, btle_tree, offset);
-                if (!btle_frame_info->retransmit && direction != BTLE_DIR_UNKNOWN) {
+                if (connection_info && !btle_frame_info->retransmit && direction != BTLE_DIR_UNKNOWN) {
                     if (control_proc_invalid_collision(pinfo,
                                                        last_control_proc[other_direction],
                                                        control_opcode)) {
@@ -2760,7 +2760,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 break;
             case 0x13: /* LL_PING_RSP */
                 offset = dissect_ctrl_pdu_without_data(tvb, pinfo, btle_tree, offset);
-                if (!btle_frame_info->retransmit && direction != BTLE_DIR_UNKNOWN) {
+                if (connection_info && !btle_frame_info->retransmit && direction != BTLE_DIR_UNKNOWN) {
                     if (control_proc_can_add_frame(pinfo,
                                                    last_control_proc[other_direction],
                                                    0x12, 1)) {
@@ -2793,7 +2793,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 break;
             case 0x15: /* LL_LENGTH_RSP */
                 dissect_length_req_rsp(tvb, btle_tree, offset);
-                if (!btle_frame_info->retransmit && direction != BTLE_DIR_UNKNOWN) {
+                if (connection_info && !btle_frame_info->retransmit && direction != BTLE_DIR_UNKNOWN) {
                     if (control_proc_can_add_frame(pinfo,
                                                    last_control_proc[other_direction],
                                                    0x14, 1)) {
@@ -2810,7 +2810,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 break;
             case 0x16: /* LL_PHY_REQ */
                 dissect_phy_req_rsp(tvb, btle_tree, offset);
-                if (!btle_frame_info->retransmit && direction != BTLE_DIR_UNKNOWN) {
+                if (connection_info && !btle_frame_info->retransmit && direction != BTLE_DIR_UNKNOWN) {
                     if (control_proc_invalid_collision(pinfo,
                                                        last_control_proc[other_direction],
                                                        control_opcode)) {
@@ -2825,7 +2825,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 break;
             case 0x17: /* LL_PHY_RSP */
                 dissect_phy_req_rsp(tvb, btle_tree, offset);
-                if (!btle_frame_info->retransmit) {
+                if (connection_info && !btle_frame_info->retransmit) {
                     /* The LL_PHY_RSP can only be sent from slave to master. */
                     if (direction == BTLE_DIR_SLAVE_MASTER) {
                         if (control_proc_can_add_frame(pinfo,
@@ -2855,7 +2855,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 proto_tree_add_item_ret_uint(btle_tree, hf_control_instant, tvb, offset, 2, ENC_LITTLE_ENDIAN, &item_value);
                 offset += 2;
 
-                if (!btle_frame_info->retransmit) {
+                if (connection_info && !btle_frame_info->retransmit) {
                     /* The LL_PHY_UPDATE_IND can only be sent from master to slave. */
                     if (direction == BTLE_DIR_MASTER_SLAVE) {
                         if (control_proc_can_add_frame(pinfo,
@@ -2907,7 +2907,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 proto_tree_add_item(btle_tree, hf_control_min_used_channels, tvb, offset, 1, ENC_LITTLE_ENDIAN);
                 offset += 1;
 
-                if (!btle_frame_info->retransmit) {
+                if (connection_info && !btle_frame_info->retransmit) {
                     /* The LL_MIN_USED_CHANNELS_IND can only be sent from slave to master. */
                     if (direction == BTLE_DIR_SLAVE_MASTER) {
                         if (control_proc_invalid_collision(pinfo,
@@ -2959,7 +2959,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         if (wmem_tree) {
             connection_parameter_info_t *connection_parameter_info;
 
-            if (connection_info->connection_parameter_update_info != NULL &&
+            if (connection_info && connection_info->connection_parameter_update_info != NULL &&
                 btle_context && btle_context->event_counter_valid) {
                 if ( ((gint16)btle_context->event_counter - connection_info->connection_parameter_update_instant) >= 0) {
                     wmem_tree_insert32(wmem_tree, pinfo->num, connection_info->connection_parameter_update_info);
