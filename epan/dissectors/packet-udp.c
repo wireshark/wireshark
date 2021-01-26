@@ -161,6 +161,9 @@ static gboolean udp_summary_in_tree = TRUE;
 /* Check UDP checksums */
 static gboolean udp_check_checksum = FALSE;
 
+/*  Ignore zero-value UDP checksums over IPv6 */
+static gboolean udp_ignore_ipv6_zero_checksum = FALSE;
+
 /* Collect IPFIX process flow information */
 static gboolean udp_process_info = FALSE;
 
@@ -1087,7 +1090,9 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
   udph->uh_sum = tvb_get_ntohs(tvb, offset + 6);
   if (udph->uh_sum == 0) {
     /* No checksum supplied in the packet. */
-    if (((ip_proto == IP_PROTO_UDP) && (pinfo->src.type == AT_IPv4)) || pinfo->flags.in_error_pkt) {
+    if (((ip_proto == IP_PROTO_UDP) &&
+              ((pinfo->src.type == AT_IPv4) || ((pinfo->src.type == AT_IPv6) && udp_ignore_ipv6_zero_checksum))) ||
+        pinfo->flags.in_error_pkt) {
       proto_tree_add_checksum(udp_tree, tvb, offset + 6, &hfi_udp_checksum, hfi_udp_checksum_status.id, &ei_udp_checksum_bad,
                               pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NOT_PRESENT);
     } else {
@@ -1380,6 +1385,10 @@ proto_register_udp(void)
                                  "Validate the UDP checksum if possible",
                                  "Whether to validate the UDP checksum",
                                  &udp_check_checksum);
+  prefs_register_bool_preference(udp_module, "ignore_ipv6_zero_checksum",
+                                 "Ignore zero-value UDP checksums over IPv6",
+                                 "Whether to ignore zero-value UDP checksums over IPv6",
+                                 &udp_ignore_ipv6_zero_checksum);
   prefs_register_bool_preference(udp_module, "process_info",
                                  "Collect process flow information",
                                  "Collect process flow information from IPFIX",
