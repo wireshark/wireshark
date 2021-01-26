@@ -9084,7 +9084,7 @@ proto_register_bthci_evt(void)
             NULL, HFILL }
         },
         { &hf_bthci_evt_codecs,
-          { "Vendor Codecs", "bthci_evt.codecs",
+          { "Codecs", "bthci_evt.codecs",
             FT_NONE, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
