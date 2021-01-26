@@ -47,7 +47,6 @@ extern gint hf_xmpp_query_identity;
 extern gint hf_xmpp_query_identity_category;
 extern gint hf_xmpp_query_identity_type;
 extern gint hf_xmpp_query_identity_name;
-extern gint hf_xmpp_query_identity_lang;
 
 extern gint hf_xmpp_query_feature;
 
@@ -201,8 +200,6 @@ extern gint hf_xmpp_conf_info_sid;
 extern gint hf_xmpp_unknown;
 extern gint hf_xmpp_unknown_attr;
 
-extern gint hf_xmpp_out;
-extern gint hf_xmpp_in;
 extern gint hf_xmpp_response_in;
 extern gint hf_xmpp_response_to;
 extern gint hf_xmpp_jingle_session;
@@ -214,18 +211,15 @@ extern gint hf_xmpp_hashes;
 extern gint hf_xmpp_jitsi_inputevt;
 extern gint hf_xmpp_jitsi_inputevt_rmt_ctrl;
 
-extern gint ett_xmpp;
 extern gint ett_xmpp_iq;
 extern gint ett_xmpp_query;
 extern gint ett_xmpp_query_item;
 extern gint ett_xmpp_query_identity;
-extern gint ett_xmpp_query_feature;
 
 extern gint ett_xmpp_query_streamhost;
 extern gint ett_xmpp_query_streamhost_used;
 extern gint ett_xmpp_query_udpsuccess;
 
-extern gint ett_xmpp_iq_error;
 extern gint ett_xmpp_iq_bind;
 extern gint ett_xmpp_iq_session;
 extern gint ett_xmpp_vcard;
@@ -284,9 +278,6 @@ extern gint ett_xmpp_presence_status;
 extern gint ett_xmpp_presence_caps;
 
 extern gint ett_xmpp_auth;
-extern gint ett_xmpp_challenge;
-extern gint ett_xmpp_response;
-extern gint ett_xmpp_success;
 extern gint ett_xmpp_failure;
 extern gint ett_xmpp_stream;
 extern gint ett_xmpp_features;
@@ -339,8 +330,6 @@ extern gint ett_unknown[ETT_UNKNOWN_LEN];
 
 extern expert_field ei_xmpp_starttls_missing;
 extern expert_field ei_xmpp_response;
-extern expert_field ei_xmpp_challenge;
-extern expert_field ei_xmpp_success;
 extern expert_field ei_xmpp_proceed_already_in_frame;
 extern expert_field ei_xmpp_starttls_already_in_frame;
 extern expert_field ei_xmpp_packet_without_response;

@@ -32,6 +32,8 @@ static void xmpp_bytestreams_udpsuccess(proto_tree *tree, tvbuff_t *tvb, packet_
 static void xmpp_si_file(proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo, xmpp_element_t* element);
 static void xmpp_si_file_range(proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo, xmpp_element_t* element);
 
+static void xmpp_x_data(proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo, xmpp_element_t* element);
+
 static void xmpp_x_data_field(proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo, xmpp_element_t* element);
 static void xmpp_x_data_field_option(proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo, xmpp_element_t* element);
 static void xmpp_x_data_field_value(proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo, xmpp_element_t* element);
@@ -46,6 +48,9 @@ static void xmpp_muc_user_invite(proto_tree *tree, tvbuff_t *tvb, packet_info *p
 static void xmpp_hashes_hash(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_element_t *element);
 
 static void xmpp_jitsi_inputevt_rmt_ctrl(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_element_t *element);
+
+static void xmpp_feature_neg(proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo, xmpp_element_t* element);
+
 
 void
 xmpp_iq_bind(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_element_t *element)
@@ -535,7 +540,7 @@ xmpp_si_file_range(proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo, xmpp_ele
 }
 
 /*Feature Negotiation*/
-void
+static void
 xmpp_feature_neg(proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo, xmpp_element_t* element)
 {
     proto_item *feature_item;
@@ -562,7 +567,7 @@ xmpp_feature_neg(proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo, xmpp_eleme
 
 
 /*jabber:x:data*/
-void
+static void
 xmpp_x_data(proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo, xmpp_element_t* element)
 {
     proto_item *x_item;

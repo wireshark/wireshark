@@ -19,6 +19,22 @@
 #include "packet-xmpp-core.h"
 #include "packet-xmpp-utils.h"
 
+static void
+xmpp_copy_hash_table_func(gpointer key, gpointer value, gpointer user_data)
+{
+    GHashTable *dst = (GHashTable *)user_data;
+    g_hash_table_insert(dst, key, value);
+}
+
+static void xmpp_copy_hash_table(GHashTable *src, GHashTable *dst)
+{
+    g_hash_table_foreach(src, xmpp_copy_hash_table_func, dst);
+}
+
+static GList* xmpp_find_element_by_name(xmpp_element_t *packet,const gchar *name);
+static gchar* xmpp_ep_string_upcase(const gchar* string);
+static void xmpp_unknown_attrs(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, xmpp_element_t *element, gboolean displ_short_list);
+
 
 void
 xmpp_iq_reqresp_track(packet_info *pinfo, xmpp_element_t *packet, xmpp_conv_info_t *xmpp_info)
@@ -236,7 +252,7 @@ xmpp_unknown(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_element_t
     }
 }
 
-void
+static void
 xmpp_unknown_attrs(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, xmpp_element_t *element, gboolean displ_short_list)
 {
     proto_item *item = proto_tree_get_parent(tree);
@@ -347,7 +363,7 @@ xmpp_ep_init_attr_t(const gchar *value, gint offset, gint length)
     return result;
 }
 
-gchar*
+static gchar*
 xmpp_ep_string_upcase(const gchar* string)
 {
     gint len = (int)strlen(string);
@@ -364,7 +380,7 @@ xmpp_ep_string_upcase(const gchar* string)
     return result;
 }
 
-gint
+static gint
 xmpp_element_t_cmp(gconstpointer a, gconstpointer b)
 {
     gint result = strcmp(((const xmpp_element_t*)a)->name,((const xmpp_element_t*)b)->name);
@@ -375,7 +391,7 @@ xmpp_element_t_cmp(gconstpointer a, gconstpointer b)
     return result;
 }
 
-GList*
+static GList*
 xmpp_find_element_by_name(xmpp_element_t *packet,const gchar *name)
 {
     GList *found_elements;
@@ -705,18 +721,6 @@ xmpp_element_to_string(tvbuff_t *tvb, xmpp_element_t *element)
     return buff;
 }
 
-gchar*
-xmpp_attr_to_string(tvbuff_t *tvb, xmpp_attr_t *attr)
-{
-    gchar *buff = NULL;
-
-    if(tvb_offset_exists(tvb, attr->offset + attr->length-1))
-    {
-        buff = tvb_get_string_enc(wmem_packet_scope(), tvb, attr->offset, attr->length, ENC_ASCII);
-    }
-    return buff;
-}
-
 static void
 children_foreach_hide_func(proto_node *node, gpointer data)
 {
@@ -1030,18 +1034,6 @@ xmpp_transform_func_cdata(xmpp_element_t *elem)
 {
     xmpp_attr_t *result = xmpp_ep_init_attr_t(elem->data?elem->data->value:"", elem->offset, elem->length);
     return result;
-}
-
-static void
-xmpp_copy_hash_table_func(gpointer key, gpointer value, gpointer user_data)
-{
-    GHashTable *dst = (GHashTable *)user_data;
-    g_hash_table_insert(dst, key, value);
-}
-
-void xmpp_copy_hash_table(GHashTable *src, GHashTable *dst)
-{
-    g_hash_table_foreach(src, xmpp_copy_hash_table_func, dst);
 }
 
 #if 0

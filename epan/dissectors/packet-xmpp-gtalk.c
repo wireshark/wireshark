@@ -29,7 +29,6 @@ static void xmpp_gtalk_jingleinfo_stun(proto_tree* tree, tvbuff_t* tvb, packet_i
 static void xmpp_gtalk_jingleinfo_server(proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo, xmpp_element_t* element);
 static void xmpp_gtalk_jingleinfo_relay(proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo, xmpp_element_t* element);
 static void xmpp_gtalk_jingleinfo_relay_serv(proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo, xmpp_element_t* element);
-static void xmpp_gtalk_nosave_item(proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo, xmpp_element_t* element);
 static void xmpp_gtalk_mail_mail_info(proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo, xmpp_element_t* element);
 static void xmpp_gtalk_mail_senders(proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo, xmpp_element_t* element);
 static void xmpp_gtalk_mail_sender(proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo, xmpp_element_t* element);
@@ -307,47 +306,6 @@ xmpp_gtalk_usersetting(proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo, xmpp
                             "%s [%s]",elem->name,val?val->value:"");
         }
     }
-}
-
-void
-xmpp_gtalk_nosave_query(proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo, xmpp_element_t* element) {
-    proto_item *query_item;
-    proto_tree *query_tree;
-
-    xmpp_attr_info attrs_info[] = {
-        {"xmlns", &hf_xmpp_xmlns, TRUE, TRUE, NULL, NULL}
-    };
-
-    xmpp_elem_info elems_info [] = {
-        {NAME, "item", xmpp_gtalk_nosave_item, MANY},
-    };
-
-    col_append_str(pinfo->cinfo, COL_INFO, "QUERY(google:nosave) ");
-
-    query_item = proto_tree_add_item(tree, hf_xmpp_query, tvb, element->offset, element->length,
-        ENC_BIG_ENDIAN);
-    query_tree = proto_item_add_subtree(query_item, ett_xmpp_query);
-
-    xmpp_display_attrs(query_tree, element, pinfo, tvb, attrs_info, array_length(attrs_info));
-    xmpp_display_elems(query_tree, element, pinfo, tvb, elems_info, array_length(elems_info));
-}
-
-static void
-xmpp_gtalk_nosave_item(proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo, xmpp_element_t* element)
-{
-    proto_tree *item_tree;
-
-    xmpp_attr_info attrs_info[] = {
-        {"xmlns", &hf_xmpp_xmlns, TRUE, FALSE, NULL,NULL},
-        {"jid", NULL, TRUE, TRUE, NULL, NULL},
-        {"source", NULL, FALSE, TRUE, NULL, NULL},
-        {"value", NULL, TRUE, TRUE, NULL, NULL}
-    };
-
-    item_tree = proto_tree_add_subtree(tree, tvb, element->offset, element->length, ett_xmpp_query_item, NULL, "ITEM");
-
-    xmpp_display_attrs(item_tree, element, pinfo, tvb, attrs_info, array_length(attrs_info));
-    xmpp_display_elems(item_tree, element, pinfo, tvb, NULL, 0);
 }
 
 void

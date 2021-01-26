@@ -144,8 +144,6 @@ extern void xmpp_gtalk_session_track(packet_info *pinfo, xmpp_element_t *packet,
  */
 extern void xmpp_unknown(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_element_t *element);
 
-extern void xmpp_unknown_attrs(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_element_t *element, gboolean displ_short_list);
-
 /** Displays CDATA from element in tree. You can use your own header field hf or
  * pass -1. If you pass -1 then CDATA will be display as text:
  * ELEMENT_NAME: CDATA
@@ -173,15 +171,6 @@ extern xmpp_array_t* xmpp_ep_init_array_t(const gchar** array, gint len);
 /*Allocs ephemeral memory for xmpp_attr_t struct*/
 extern xmpp_attr_t* xmpp_ep_init_attr_t(const gchar *value, gint offset, gint length);
 
-/*Allocs ephemeral memory for upcased string*/
-extern gchar* xmpp_ep_string_upcase(const gchar* string);
-
-/*Compares 2 xmpp_element_t struct by names. Returns value is similar to the returned by strcmp*/
-extern gint xmpp_element_t_cmp(gconstpointer a, gconstpointer b);
-
-/*Searches child element in parent element by name. GList element is returned.*/
-extern GList* xmpp_find_element_by_name(xmpp_element_t *packet,const gchar *name);
-
 /** steal_*
  * Functions searches and marks as read found elements.
  * If element is set as read, it is invisible for these functions.*/
@@ -196,9 +185,6 @@ extern xmpp_element_t* xmpp_get_first_element(xmpp_element_t *packet);
 
 /*Converts element to string. Returns memory allocated as ephemeral.*/
 extern gchar* xmpp_element_to_string(tvbuff_t *tvb, xmpp_element_t *element);
-
-/*Converts attribute to string. Returns memory allocated as ephemeral.*/
-extern gchar* xmpp_attr_to_string(tvbuff_t *tvb, xmpp_attr_t *attr);
 
 /* Returns attribute by name and set as read. If attrib is set as read, it may be found
  * one more time, but it is invisible for function xmpp_unknown_attrib*/
@@ -261,9 +247,5 @@ extern void xmpp_change_elem_to_attrib(const gchar *elem_name, const gchar *attr
 /** transform_func that creates attribute with element's cdata as value
  */
 extern xmpp_attr_t* xmpp_transform_func_cdata(xmpp_element_t *elem);
-
-/*Copys keys and values from one hash table to another.
- Hash tables must be initialized.*/
-extern void xmpp_copy_hash_table(GHashTable *src, GHashTable *dst);
 
 #endif /* XMPP_UTILS_H */

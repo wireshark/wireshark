@@ -56,7 +56,7 @@ gint hf_xmpp_query_identity = -1;
 gint hf_xmpp_query_identity_category = -1;
 gint hf_xmpp_query_identity_type = -1;
 gint hf_xmpp_query_identity_name = -1;
-gint hf_xmpp_query_identity_lang = -1;
+static gint hf_xmpp_query_identity_lang = -1;
 
 gint hf_xmpp_query_feature = -1;
 
@@ -208,8 +208,8 @@ gint hf_xmpp_conf_info_sid = -1;
 gint hf_xmpp_unknown = -1;
 gint hf_xmpp_unknown_attr = -1;
 
-gint hf_xmpp_out = -1;
-gint hf_xmpp_in = -1;
+static gint hf_xmpp_out = -1;
+static gint hf_xmpp_in = -1;
 gint hf_xmpp_response_in = -1;
 gint hf_xmpp_response_to = -1;
 gint hf_xmpp_jingle_session = -1;
@@ -221,18 +221,18 @@ gint hf_xmpp_hashes = -1;
 gint hf_xmpp_jitsi_inputevt = -1;
 gint hf_xmpp_jitsi_inputevt_rmt_ctrl = -1;
 
-gint ett_xmpp = -1;
+static gint ett_xmpp = -1;
 gint ett_xmpp_iq = -1;
 gint ett_xmpp_query = -1;
 gint ett_xmpp_query_item = -1;
 gint ett_xmpp_query_identity = -1;
-gint ett_xmpp_query_feature = -1;
+static gint ett_xmpp_query_feature = -1;
 
 gint ett_xmpp_query_streamhost = -1;
 gint ett_xmpp_query_streamhost_used = -1;
 gint ett_xmpp_query_udpsuccess = -1;
 
-gint ett_xmpp_iq_error = -1;
+static gint ett_xmpp_iq_error = -1;
 gint ett_xmpp_iq_bind = -1;
 gint ett_xmpp_iq_session = -1;
 gint ett_xmpp_vcard = -1;
@@ -292,9 +292,9 @@ gint ett_xmpp_presence_status = -1;
 gint ett_xmpp_presence_caps = -1;
 
 gint ett_xmpp_auth = -1;
-gint ett_xmpp_challenge = -1;
-gint ett_xmpp_response = -1;
-gint ett_xmpp_success = -1;
+static gint ett_xmpp_challenge = -1;
+static gint ett_xmpp_response = -1;
+static gint ett_xmpp_success = -1;
 gint ett_xmpp_failure = -1;
 gint ett_xmpp_stream = -1;
 gint ett_xmpp_features = -1;
@@ -348,8 +348,8 @@ static expert_field ei_xmpp_xml_disabled = EI_INIT;
 static expert_field ei_xmpp_packet_unknown = EI_INIT;
 expert_field ei_xmpp_starttls_missing = EI_INIT;
 expert_field ei_xmpp_response = EI_INIT;
-expert_field ei_xmpp_challenge = EI_INIT;
-expert_field ei_xmpp_success = EI_INIT;
+static expert_field ei_xmpp_challenge = EI_INIT;
+static expert_field ei_xmpp_success = EI_INIT;
 expert_field ei_xmpp_proceed_already_in_frame = EI_INIT;
 expert_field ei_xmpp_starttls_already_in_frame = EI_INIT;
 expert_field ei_xmpp_packet_without_response = EI_INIT;

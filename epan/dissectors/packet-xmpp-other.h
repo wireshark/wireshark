@@ -25,9 +25,6 @@ extern void xmpp_bytestreams_query(proto_tree *tree,  tvbuff_t *tvb, packet_info
 
 extern void xmpp_si(proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo, xmpp_element_t* element);
 
-extern void xmpp_feature_neg(proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo, xmpp_element_t* element);
-extern void xmpp_x_data(proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo, xmpp_element_t* element);
-
 extern void xmpp_ibb_open(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_element_t *element);
 extern void xmpp_ibb_close(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_element_t *element);
 extern void xmpp_ibb_data(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_element_t *element);
