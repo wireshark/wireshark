@@ -746,21 +746,25 @@ reader_next(dbus_type_reader_t *reader, int hf, int ett, dbus_val_t *value) {
 		const char *variant_signature = add_dbus_string(packet, hf_dbus_type_variant_signature, 1);
 		value->string = variant_signature;
 		if (variant_signature && is_dbus_signature_valid(variant_signature)) {
-			dbus_type_reader_t *child = wmem_new(wmem_packet_scope(), dbus_type_reader_t);
-			*child = (dbus_type_reader_t){
-				.packet = reader->packet,
-				.signature = variant_signature,
-				.level = reader->level + 1,
-				.is_in_variant = TRUE,
-				.is_basic_variant = is_basic_type(*variant_signature)
-					&& *(variant_signature + 1) == '\0',
-				.container = variant,
-				.parent = reader,
-			};
-			if (reader->is_in_dict_entry && child->is_basic_variant) {
-				reader->is_basic_dict_entry = TRUE;
+			if (variant_signature[0] != '\0') {
+				dbus_type_reader_t *child = wmem_new(wmem_packet_scope(), dbus_type_reader_t);
+				*child = (dbus_type_reader_t){
+					.packet = reader->packet,
+					.signature = variant_signature,
+					.level = reader->level + 1,
+					.is_in_variant = TRUE,
+					.is_basic_variant = is_basic_type(*variant_signature)
+						&& *(variant_signature + 1) == '\0',
+					.container = variant,
+					.parent = reader,
+				};
+				if (reader->is_in_dict_entry && child->is_basic_variant) {
+					reader->is_basic_dict_entry = TRUE;
+				}
+				reader = child;
+			} else {
+				ptvcursor_pop_subtree(packet->cursor);
 			}
-			reader = child;
 		} else {
 			add_expert(packet, &ei_dbus_type_variant_signature_invalid);
 			err = 1;
