@@ -5580,7 +5580,7 @@ dissect_mbim_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
                     }
                 }
 
-                uuid_idx = mbim_dissect_service_id_uuid(frag_tvb, pinfo, mbim_tree, hf_mbim_device_service_id, &offset, &uuid_ext_info, pinfo->rec->rec_header.packet_header.pkt_encap != WTAP_ENCAP_ETL);
+                uuid_idx = mbim_dissect_service_id_uuid(frag_tvb, pinfo, mbim_tree, hf_mbim_device_service_id, &offset, &uuid_ext_info, pinfo->rec->rec_header.packet_header.pkt_encap != WTAP_ENCAP_ETW);
                 cid = mbim_dissect_cid(frag_tvb, pinfo, mbim_tree, &offset, uuid_idx, uuid_ext_info);
                 proto_tree_add_item_ret_uint(mbim_tree, hf_mbim_command_type, frag_tvb, offset, 4, ENC_LITTLE_ENDIAN, &cmd_type);
                 if (mbim_info) {
@@ -6468,7 +6468,7 @@ dissect_mbim_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
                     }
                 }
 
-                uuid_idx = mbim_dissect_service_id_uuid(frag_tvb, pinfo, mbim_tree, hf_mbim_device_service_id, &offset, &uuid_ext_info, pinfo->rec->rec_header.packet_header.pkt_encap != WTAP_ENCAP_ETL);
+                uuid_idx = mbim_dissect_service_id_uuid(frag_tvb, pinfo, mbim_tree, hf_mbim_device_service_id, &offset, &uuid_ext_info, pinfo->rec->rec_header.packet_header.pkt_encap != WTAP_ENCAP_ETW);
                 cid = mbim_dissect_cid(frag_tvb, pinfo, mbim_tree, &offset, uuid_idx, uuid_ext_info);
                 if (msg_type == MBIM_COMMAND_DONE) {
                     proto_tree_add_item(mbim_tree, hf_mbim_status, frag_tvb, offset, 4, ENC_LITTLE_ENDIAN);

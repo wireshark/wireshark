@@ -482,8 +482,9 @@ static const struct {
 	/* USB 2.0/1.1/1.0 packets as transmitted over the cable */
 	{ 288,		WTAP_ENCAP_USB_2_0 },
 
-	/* windows ETL*/
-	{ 290,		WTAP_ENCAP_ETL},
+	/* Event Tracing for Windows records */
+	{ 290,		WTAP_ENCAP_ETW },
+
 	/*
 	 * To repeat:
 	 *

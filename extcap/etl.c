@@ -9,8 +9,10 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
- /*
- https://docs.microsoft.com/en-us/windows/win32/etw/event-tracing-portal
+/*
+ * Reads an ETL file and writes out a pcap file with LINKTYPE_ETW.
+ *
+ * https://docs.microsoft.com/en-us/windows/win32/etw/event-tracing-portal
  */
 
 #include "config.h"
@@ -178,13 +180,13 @@ wtap_dumper* etw_dump_open(const char* pcapng_filename, int* err, gchar** err_in
     idb_data = wtap_block_create(WTAP_BLOCK_IF_DESCR);
     descr_mand = (wtapng_if_descr_mandatory_t*)wtap_block_get_mandatory_data(idb_data);
     descr_mand->tsprecision = WTAP_TSPREC_USEC;
-    descr_mand->wtap_encap = WTAP_ENCAP_ETL;
+    descr_mand->wtap_encap = WTAP_ENCAP_ETW;
     /* Timestamp for each pcapng packet is usec units, so time_units_per_second need be set to 10^6 */
     descr_mand->time_units_per_second = G_USEC_PER_SEC;
     g_array_append_val(idb_datas, idb_data);
     idb_info->interface_data = idb_datas;
 
-    params.encap = WTAP_ENCAP_ETL;
+    params.encap = WTAP_ENCAP_ETW;
     params.snaplen = 0;
     params.tsprec = WTAP_TSPREC_USEC;
     params.shb_hdrs = shb_hdrs;
@@ -280,7 +282,7 @@ void wtap_etl_rec_dump(ULARGE_INTEGER timestamp, WTAP_ETL_RECORD* etl_record, UL
     wtap_rec_init(&rec);
     rec.rec_header.packet_header.caplen = total_packet_length;
     rec.rec_header.packet_header.len = total_packet_length;
-    rec.rec_header.packet_header.pkt_encap = WTAP_ENCAP_ETL;
+    rec.rec_header.packet_header.pkt_encap = WTAP_ENCAP_ETW;
     rec.presence_flags = rec.presence_flags | WTAP_HAS_PACK_FLAGS;
     rec.rec_header.packet_header.pack_flags = is_inbound ? 1 : 2;
     /* Convert usec of the timestamp into nstime_t */

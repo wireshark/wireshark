@@ -315,7 +315,7 @@ proto_reg_handoff_etw(void)
     static dissector_handle_t etw_handle;
 
     etw_handle = create_dissector_handle(dissect_etw, proto_etw);
-    dissector_add_uint("wtap_encap", WTAP_ENCAP_ETL, etw_handle);
+    dissector_add_uint("wtap_encap", WTAP_ENCAP_ETW, etw_handle);
 
     mbim_dissector = find_dissector("mbim.control");
 }
