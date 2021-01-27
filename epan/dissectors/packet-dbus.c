@@ -476,7 +476,6 @@ add_dbus_string(dbus_packet_t *packet, int hf, gint uint_length) {
 	packet->current_pi = pi;
 
 	if ((strlen(string) != (size_t)(item_length - uint_length)) || (term_byte != '\0')) {
-		col_add_fstr(packet->pinfo->cinfo, COL_INFO, "%zu %zu %s", strlen(string), (size_t)(item_length - uint_length), string);
 		return NULL;
 	}
 	return string;
@@ -583,6 +582,13 @@ skip_single_complete_type(const char *signature) {
 		default:
 			return NULL;
 		}
+	}
+}
+
+static void
+reader_cleanup(dbus_type_reader_t *reader) {
+	for (dbus_type_reader_t *r = reader; r->parent; r = r->parent) {
+		ptvcursor_pop_subtree(r->packet->cursor);
 	}
 }
 
@@ -850,14 +856,14 @@ reader_next(dbus_type_reader_t *reader, int hf, int ett, dbus_val_t *value) {
 	}
 
 	if (err) {
-		for (dbus_type_reader_t *r = reader; r->parent; r = r->parent) {
-			ptvcursor_pop_subtree(packet->cursor);
-		}
+		reader_cleanup(reader);
+		return NULL;
 	}
-	return !err ? reader : NULL;
+	return reader;
 }
 
-static gboolean reader_is_finished(dbus_type_reader_t *reader) {
+static gboolean
+reader_is_finished(dbus_type_reader_t *reader) {
 	return *reader->signature == '\0' && reader->parent == NULL;
 }
 
@@ -914,6 +920,7 @@ dissect_dbus_header_fields(dbus_packet_t *packet) {
 		proto_item_append_text(reader->container, ", %s", field_code_str);
 		if (field_code == DBUS_HEADER_FIELD_INVALID) {
 			add_expert(packet, &ei_dbus_field_code_invalid);
+			reader_cleanup(reader);
 			return 1;
 		}
 
@@ -948,6 +955,7 @@ dissect_dbus_header_fields(dbus_packet_t *packet) {
 
 		if (expected_signature && strcmp(header_field_signature, expected_signature) != 0) {
 			add_expert(packet, &ei_dbus_field_signature_wrong);
+			reader_cleanup(reader);
 			return 1;
 		}
 
@@ -962,6 +970,7 @@ dissect_dbus_header_fields(dbus_packet_t *packet) {
 			packet->interface = value.string;
 			if (!is_dbus_interface_valid(packet->interface)) {
 				add_expert(packet, &ei_dbus_interface_invalid);
+				reader_cleanup(reader);
 				return 1;
 			}
 			break;
@@ -970,6 +979,7 @@ dissect_dbus_header_fields(dbus_packet_t *packet) {
 			packet->member = value.string;
 			if (!is_dbus_member_name_valid(packet->member)) {
 				add_expert(packet, &ei_dbus_member_invalid);
+				reader_cleanup(reader);
 				return 1;
 			}
 			break;
@@ -978,6 +988,7 @@ dissect_dbus_header_fields(dbus_packet_t *packet) {
 			packet->error_name = value.string;
 			if (!is_dbus_interface_valid(packet->error_name)) {
 				add_expert(packet, &ei_dbus_error_name_invalid);
+				reader_cleanup(reader);
 				return 1;
 			}
 			break;
@@ -986,6 +997,7 @@ dissect_dbus_header_fields(dbus_packet_t *packet) {
 			packet->destination = value.string;
 			if (!is_dbus_bus_name_valid(packet->destination)) {
 				add_expert(packet, &ei_dbus_bus_name_invalid);
+				reader_cleanup(reader);
 				return 1;
 			}
 			set_address(&packet->pinfo->dst, AT_STRINGZ, (int)strlen(packet->destination)+1,
@@ -996,6 +1008,7 @@ dissect_dbus_header_fields(dbus_packet_t *packet) {
 			packet->sender = value.string;
 			if (!is_dbus_bus_name_valid(packet->sender)) {
 				add_expert(packet, &ei_dbus_bus_name_invalid);
+				reader_cleanup(reader);
 				return 1;
 			}
 			set_address(&packet->pinfo->src, AT_STRINGZ, (int)strlen(packet->sender)+1,
@@ -1010,6 +1023,7 @@ dissect_dbus_header_fields(dbus_packet_t *packet) {
 			packet->reply_serial = value.uint;
 			if (packet->reply_serial == 0) {
 				add_expert(packet, &ei_dbus_serial_invalid);
+				reader_cleanup(reader);
 				return 1;
 			}
 			break;
