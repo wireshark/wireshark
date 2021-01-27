@@ -2778,7 +2778,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
             case 0x14: /* LL_LENGTH_REQ */
                 dissect_length_req_rsp(tvb, btle_tree, offset);
-                if (!btle_frame_info->retransmit && direction != BTLE_DIR_UNKNOWN) {
+                if (connection_info && !btle_frame_info->retransmit && direction != BTLE_DIR_UNKNOWN) {
                     if (control_proc_invalid_collision(pinfo,
                                                        last_control_proc[other_direction],
                                                        control_opcode)) {
