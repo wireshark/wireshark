@@ -1135,6 +1135,9 @@ static struct encap_type_info encap_table_base[] = {
 
 	/* WTAP_ENCAP_ZWAVE_SERIAL */
 	{ "zwave-serial", "Z-Wave Serial API packets" },
+
+	/* WTAP_ENCAP_ETW */
+	{ "etw", "Event Tracing for Windows messages" },
 };
 
 WS_DLL_LOCAL
