@@ -3436,7 +3436,7 @@ static const value_string parameter_type_vals[] = {
     { 0x00, NULL }
 };
 
-value_string_ext parameter_type_vals_ext = VALUE_STRING_EXT_INIT(parameter_type_vals);
+static value_string_ext parameter_type_vals_ext = VALUE_STRING_EXT_INIT(parameter_type_vals);
 
 /* Parameter = Untyped-parameter | Typed-parameter
  * Untyped-parameter = Token-text ( Integer-value | Text-value )

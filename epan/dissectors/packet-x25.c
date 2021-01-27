@@ -382,7 +382,7 @@ static const value_string x25_clear_diag_vals[] = {
     { 0, NULL}
 };
 
-value_string_ext x25_clear_diag_vals_ext = VALUE_STRING_EXT_INIT(x25_clear_diag_vals);
+static value_string_ext x25_clear_diag_vals_ext = VALUE_STRING_EXT_INIT(x25_clear_diag_vals);
 
 static const value_string x25_registration_code_vals[] = {
     { 0x03, "Invalid facility request" },

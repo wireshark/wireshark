@@ -6248,7 +6248,7 @@ static const value_string dri2_extension_minor[] = {
     { 13, "GetParam" },
     { 0, NULL }
 };
-const x11_event_info dri2_events[] = {
+static const x11_event_info dri2_events[] = {
     { "dri2-InvalidateBuffers", dri2InvalidateBuffers },
     { NULL, NULL }
 };
@@ -9557,7 +9557,7 @@ static const value_string glx_extension_minor[] = {
     { 166, "GetQueryObjectuivARB" },
     { 0, NULL }
 };
-const x11_event_info glx_events[] = {
+static const x11_event_info glx_events[] = {
     { "glx-BufferSwapComplete", glxBufferSwapComplete },
     { NULL, NULL }
 };
@@ -12087,7 +12087,7 @@ static const value_string randr_extension_minor[] = {
     { 46, "FreeLease" },
     { 0, NULL }
 };
-const x11_event_info randr_events[] = {
+static const x11_event_info randr_events[] = {
     { "randr-Notify", randrNotify },
     { NULL, NULL }
 };
@@ -14961,7 +14961,7 @@ static const value_string sync_extension_minor[] = {
     { 19, "AwaitFence" },
     { 0, NULL }
 };
-const x11_event_info sync_events[] = {
+static const x11_event_info sync_events[] = {
     { "sync-AlarmNotify", syncAlarmNotify },
     { NULL, NULL }
 };
@@ -17289,7 +17289,7 @@ static const value_string xfixes_extension_minor[] = {
     { 32, "DeletePointerBarrier" },
     { 0, NULL }
 };
-const x11_event_info xfixes_events[] = {
+static const x11_event_info xfixes_events[] = {
     { "xfixes-CursorNotify", xfixesCursorNotify },
     { NULL, NULL }
 };
@@ -20825,7 +20825,7 @@ static const value_string xinput_extension_minor[] = {
     { 61, "XIBarrierReleasePointer" },
     { 0, NULL }
 };
-const x11_event_info xinput_events[] = {
+static const x11_event_info xinput_events[] = {
     { "xinput-DeviceKeyPress", xinputDeviceKeyPress },
     { "xinput-DeviceFocusIn", xinputDeviceFocusIn },
     { "xinput-DeviceStateNotify", xinputDeviceStateNotify },
@@ -26872,7 +26872,7 @@ static const value_string xkb_extension_minor[] = {
     { 101, "SetDebuggingFlags" },
     { 0, NULL }
 };
-const x11_event_info xkb_events[] = {
+static const x11_event_info xkb_events[] = {
     { "xkb-MapNotify", xkbMapNotify },
     { "xkb-StateNotify", xkbStateNotify },
     { "xkb-ControlsNotify", xkbControlsNotify },
@@ -27547,7 +27547,7 @@ static const value_string xprint_extension_minor[] = {
     { 24, "PrintGetImageResolution" },
     { 0, NULL }
 };
-const x11_event_info xprint_events[] = {
+static const x11_event_info xprint_events[] = {
     { "xprint-AttributNotify", xprintAttributNotify },
     { NULL, NULL }
 };
@@ -29266,7 +29266,7 @@ static const value_string xv_extension_minor[] = {
     { 19, "ShmPutImage" },
     { 0, NULL }
 };
-const x11_event_info xv_events[] = {
+static const x11_event_info xv_events[] = {
     { "xv-PortNotify", xvPortNotify },
     { NULL, NULL }
 };

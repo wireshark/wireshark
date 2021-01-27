@@ -19,7 +19,7 @@ const char *composite_errors[] = {
   NULL
 };
 
-const char *damage_errors[] = {
+static const char *damage_errors[] = {
   "damage-BadDamage",
   NULL
 };
@@ -40,7 +40,7 @@ const char *ge_errors[] = {
   NULL
 };
 
-const char *glx_errors[] = {
+static const char *glx_errors[] = {
   "glx-BadContext",
   "glx-BadContextState",
   "glx-BadDrawable",
@@ -62,7 +62,7 @@ const char *present_errors[] = {
   NULL
 };
 
-const char *randr_errors[] = {
+static const char *randr_errors[] = {
   "randr-BadOutput",
   "randr-BadCrtc",
   "randr-BadMode",
@@ -70,12 +70,12 @@ const char *randr_errors[] = {
   NULL
 };
 
-const char *record_errors[] = {
+static const char *record_errors[] = {
   "record-BadContext",
   NULL
 };
 
-const char *render_errors[] = {
+static const char *render_errors[] = {
   "render-PictFormat",
   "render-Picture",
   "render-PictOp",
@@ -96,12 +96,12 @@ const char *shape_errors[] = {
   NULL
 };
 
-const char *shm_errors[] = {
+static const char *shm_errors[] = {
   "shm-BadSeg",
   NULL
 };
 
-const char *sync_errors[] = {
+static const char *sync_errors[] = {
   "sync-Counter",
   "sync-Alarm",
   NULL
@@ -119,7 +119,7 @@ const char *xf86dri_errors[] = {
   NULL
 };
 
-const char *xf86vidmode_errors[] = {
+static const char *xf86vidmode_errors[] = {
   "xf86vidmode-BadClock",
   "xf86vidmode-BadHTimings",
   "xf86vidmode-BadVTimings",
@@ -130,7 +130,7 @@ const char *xf86vidmode_errors[] = {
   NULL
 };
 
-const char *xfixes_errors[] = {
+static const char *xfixes_errors[] = {
   "xfixes-BadRegion",
   NULL
 };
@@ -139,7 +139,7 @@ const char *xinerama_errors[] = {
   NULL
 };
 
-const char *xinput_errors[] = {
+static const char *xinput_errors[] = {
   "xinput-Device",
   "xinput-Event",
   "xinput-Mode",
@@ -148,12 +148,12 @@ const char *xinput_errors[] = {
   NULL
 };
 
-const char *xkb_errors[] = {
+static const char *xkb_errors[] = {
   "xkb-Keyboard",
   NULL
 };
 
-const char *xprint_errors[] = {
+static const char *xprint_errors[] = {
   "xprint-BadContext",
   "xprint-BadSequence",
   NULL
@@ -167,7 +167,7 @@ const char *xtest_errors[] = {
   NULL
 };
 
-const char *xv_errors[] = {
+static const char *xv_errors[] = {
   "xv-BadPort",
   "xv-BadEncoding",
   "xv-BadControl",
