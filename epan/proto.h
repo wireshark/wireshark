@@ -3256,7 +3256,8 @@ typedef enum
     PROTO_CHECKSUM_E_BAD = 0,
     PROTO_CHECKSUM_E_GOOD,
     PROTO_CHECKSUM_E_UNVERIFIED,
-    PROTO_CHECKSUM_E_NOT_PRESENT
+    PROTO_CHECKSUM_E_NOT_PRESENT,
+    PROTO_CHECKSUM_E_ILLEGAL
 } proto_checksum_enum_e;
 
 #define PROTO_CHECKSUM_NO_FLAGS     0x00    /**< Don't use any flags */

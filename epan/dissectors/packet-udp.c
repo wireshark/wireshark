@@ -161,7 +161,7 @@ static gboolean udp_summary_in_tree = TRUE;
 /* Check UDP checksums */
 static gboolean udp_check_checksum = FALSE;
 
-/*  Ignore zero-value UDP checksums over IPv6 */
+/* Ignore zero-value UDP checksums over IPv6 */
 static gboolean udp_ignore_ipv6_zero_checksum = FALSE;
 
 /* Collect IPFIX process flow information */
@@ -1090,23 +1090,24 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
   udph->uh_sum = tvb_get_ntohs(tvb, offset + 6);
   if (udph->uh_sum == 0) {
     /* No checksum supplied in the packet. */
-    if (((ip_proto == IP_PROTO_UDP) &&
-              ((pinfo->src.type == AT_IPv4) || ((pinfo->src.type == AT_IPv6) && udp_ignore_ipv6_zero_checksum))) ||
-        pinfo->flags.in_error_pkt) {
-      proto_tree_add_checksum(udp_tree, tvb, offset + 6, &hfi_udp_checksum, hfi_udp_checksum_status.id, &ei_udp_checksum_bad,
-                              pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NOT_PRESENT);
-    } else {
-      item = proto_tree_add_uint_format_value(udp_tree, &hfi_udp_checksum, tvb, offset + 6, 2, 0, "0 (Illegal)%s", "");
-      checksum_tree = proto_item_add_subtree(item, ett_udp_checksum);
 
+    gboolean ignore_zero_checksum = (ip_proto == IP_PROTO_UDP) &&
+      ((pinfo->src.type == AT_IPv4) || ((pinfo->src.type == AT_IPv6) && udp_ignore_ipv6_zero_checksum));
+    proto_checksum_enum_e checksum_status;
+
+    item = proto_tree_add_item(udp_tree, &hfi_udp_checksum, tvb, offset + 6, 2, ENC_BIG_ENDIAN);
+    if (ignore_zero_checksum || pinfo->flags.in_error_pkt) {
+      proto_item_append_text(item, " [zero-value ignored]");
+      checksum_status = PROTO_CHECKSUM_E_NOT_PRESENT;
+    } else {
+      proto_item_append_text(item, " [zero-value illegal]");
+      checksum_status = PROTO_CHECKSUM_E_ILLEGAL;
       expert_add_info(pinfo, item, &ei_udp_checksum_zero);
       col_append_str(pinfo->cinfo, COL_INFO, " [ILLEGAL CHECKSUM (0)]");
-
-      /* XXX - What should this special status be? */
-      item = proto_tree_add_uint(checksum_tree, &hfi_udp_checksum_status, tvb,
-                                        offset + 6, 0, 4);
-      proto_item_set_generated(item);
     }
+    checksum_tree = proto_item_add_subtree(item, ett_udp_checksum);
+    item = proto_tree_add_uint(checksum_tree, &hfi_udp_checksum_status, tvb, offset + 6, 2, checksum_status);
+    proto_item_set_generated(item);
   } else if (!pinfo->fragmented && (len >= reported_len) &&
              (len >= udph->uh_sum_cov) && (reported_len >= udph->uh_sum_cov) &&
              (udph->uh_sum_cov >= 8)) {
@@ -1333,7 +1334,7 @@ proto_register_udp(void)
     { &ei_udp_possible_traceroute, { "udp.possible_traceroute", PI_SEQUENCE, PI_CHAT, "Possible traceroute", EXPFILL }},
     { &ei_udp_length_bad, { "udp.length.bad", PI_MALFORMED, PI_ERROR, "Bad length value", EXPFILL }},
     { &ei_udplite_checksum_coverage_bad, { "udplite.checksum_coverage.bad", PI_MALFORMED, PI_ERROR, "Bad checksum coverage length value", EXPFILL }},
-    { &ei_udp_checksum_zero, { "udp.checksum.zero", PI_CHECKSUM, PI_ERROR, "Illegal Checksum value (0)", EXPFILL }},
+    { &ei_udp_checksum_zero, { "udp.checksum.zero", PI_CHECKSUM, PI_ERROR, "Illegal checksum value (0)", EXPFILL }},
     { &ei_udp_checksum_bad, { "udp.checksum.bad", PI_CHECKSUM, PI_ERROR, "Bad checksum", EXPFILL }},
     { &ei_udp_length_bad_zero, { "udp.length.bad_zero", PI_PROTOCOL, PI_WARN, "Length is zero but payload < 65536", EXPFILL }},
   };

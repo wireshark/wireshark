@@ -12950,6 +12950,7 @@ const value_string proto_checksum_vals[] = {
 	{ PROTO_CHECKSUM_E_GOOD,       "Good" },
 	{ PROTO_CHECKSUM_E_UNVERIFIED, "Unverified" },
 	{ PROTO_CHECKSUM_E_NOT_PRESENT, "Not present" },
+	{ PROTO_CHECKSUM_E_ILLEGAL,    "Illegal" },
 
 	{ 0,        NULL }
 };
