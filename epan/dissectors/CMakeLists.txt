@@ -779,6 +779,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-btl2cap.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-btle.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-btle_rf.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-btlmp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-btmesh.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-btmesh-pbadv.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-btmesh-provisioning.c
