@@ -4078,7 +4078,7 @@ dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   gboolean           isupdate;
   conversation_t    *conversation;
   dns_conv_info_t   *dns_info;
-  dns_transaction_t *dns_trans;
+  dns_transaction_t *dns_trans = NULL;
   wmem_tree_key_t    key[3];
   struct DnsTap     *dns_stats;
   guint16            qtype = 0;
@@ -4166,63 +4166,65 @@ dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   key[2].length = 0;
   key[2].key = NULL;
 
-  if (!pinfo->fd->visited) {
-    if (!(flags&F_RESPONSE)) {
-      /* This is a request */
-      gboolean new_transaction = FALSE;
+  if (!pinfo->flags.in_error_pkt) {
+    if (!pinfo->fd->visited) {
+      if (!(flags&F_RESPONSE)) {
+        /* This is a request */
+        gboolean new_transaction = FALSE;
 
-      /* Check if we've seen this transaction before */
-      dns_trans=(dns_transaction_t *)wmem_tree_lookup32_array_le(dns_info->pdus, key);
-      if ((dns_trans == NULL) || (dns_trans->id != reqresp_id) || (dns_trans->rep_frame > 0)) {
-        new_transaction = TRUE;
-      } else {
-        nstime_t request_delta;
-
-        /* Has not enough time elapsed that we consider this request a retransmission? */
-        nstime_delta(&request_delta, &pinfo->abs_ts, &dns_trans->req_time);
-        if (nstime_to_sec(&request_delta) < (double)retransmission_timer) {
-          retransmission = TRUE;
-        } else {
+        /* Check if we've seen this transaction before */
+        dns_trans=(dns_transaction_t *)wmem_tree_lookup32_array_le(dns_info->pdus, key);
+        if ((dns_trans == NULL) || (dns_trans->id != reqresp_id) || (dns_trans->rep_frame > 0)) {
           new_transaction = TRUE;
-        }
-      }
+        } else {
+          nstime_t request_delta;
 
-      if (new_transaction) {
-        dns_trans=wmem_new(wmem_file_scope(), dns_transaction_t);
-        dns_trans->req_frame=pinfo->num;
-        dns_trans->rep_frame=0;
-        dns_trans->req_time=pinfo->abs_ts;
-        dns_trans->id = reqresp_id;
-        wmem_tree_insert32_array(dns_info->pdus, key, (void *)dns_trans);
+          /* Has not enough time elapsed that we consider this request a retransmission? */
+          nstime_delta(&request_delta, &pinfo->abs_ts, &dns_trans->req_time);
+          if (nstime_to_sec(&request_delta) < (double)retransmission_timer) {
+            retransmission = TRUE;
+          } else {
+            new_transaction = TRUE;
+          }
+        }
+
+        if (new_transaction) {
+          dns_trans=wmem_new(wmem_file_scope(), dns_transaction_t);
+          dns_trans->req_frame=pinfo->num;
+          dns_trans->rep_frame=0;
+          dns_trans->req_time=pinfo->abs_ts;
+          dns_trans->id = reqresp_id;
+          wmem_tree_insert32_array(dns_info->pdus, key, (void *)dns_trans);
+        }
+      } else {
+        dns_trans=(dns_transaction_t *)wmem_tree_lookup32_array_le(dns_info->pdus, key);
+        if (dns_trans) {
+          if (dns_trans->id != reqresp_id) {
+            dns_trans = NULL;
+          } else if (dns_trans->rep_frame == 0) {
+            dns_trans->rep_frame=pinfo->num;
+          } else {
+            retransmission = TRUE;
+          }
+        }
       }
     } else {
       dns_trans=(dns_transaction_t *)wmem_tree_lookup32_array_le(dns_info->pdus, key);
       if (dns_trans) {
         if (dns_trans->id != reqresp_id) {
           dns_trans = NULL;
-        } else if (dns_trans->rep_frame == 0) {
-          dns_trans->rep_frame=pinfo->num;
-        } else {
+        } else if ((!(flags & F_RESPONSE)) && (dns_trans->req_frame != pinfo->num)) {
+          /* This is a request retransmission, create a "fake" dns_trans structure*/
+          dns_transaction_t *retrans_dns = wmem_new(wmem_packet_scope(), dns_transaction_t);
+          retrans_dns->req_frame=dns_trans->req_frame;
+          retrans_dns->rep_frame=0;
+          retrans_dns->req_time=pinfo->abs_ts;
+          dns_trans = retrans_dns;
+
+          retransmission = TRUE;
+        } else if ((flags & F_RESPONSE) && (dns_trans->rep_frame != pinfo->num)) {
           retransmission = TRUE;
         }
-      }
-    }
-  } else {
-    dns_trans=(dns_transaction_t *)wmem_tree_lookup32_array_le(dns_info->pdus, key);
-    if (dns_trans) {
-      if (dns_trans->id != reqresp_id) {
-        dns_trans = NULL;
-      } else if ((!(flags & F_RESPONSE)) && (dns_trans->req_frame != pinfo->num)) {
-        /* This is a request retransmission, create a "fake" dns_trans structure*/
-        dns_transaction_t *retrans_dns = wmem_new(wmem_packet_scope(), dns_transaction_t);
-        retrans_dns->req_frame=dns_trans->req_frame;
-        retrans_dns->rep_frame=0;
-        retrans_dns->req_time=pinfo->abs_ts;
-        dns_trans = retrans_dns;
-
-        retransmission = TRUE;
-      } else if ((flags & F_RESPONSE) && (dns_trans->rep_frame != pinfo->num)) {
-        retransmission = TRUE;
       }
     }
   }
@@ -4371,16 +4373,14 @@ dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   if (!(flags&F_RESPONSE)) {
     proto_item *it;
     /* This is a request */
-    if ((retransmission) && (dns_trans->req_frame)) {
+    if ((retransmission) && (dns_trans->req_frame) && (!pinfo->flags.in_error_pkt)) {
       expert_add_info_format(pinfo, transaction_item, &ei_dns_retransmit_request, "DNS query retransmission. Original request in frame %d", dns_trans->req_frame);
 
       it=proto_tree_add_uint(dns_tree, hf_dns_retransmit_request_in, tvb, 0, 0, dns_trans->req_frame);
       proto_item_set_generated(it);
 
-      if (!pinfo->flags.in_error_pkt) {
-        it=proto_tree_add_boolean(dns_tree, hf_dns_retransmission, tvb, 0, 0, TRUE);
-        proto_item_set_generated(it);
-      }
+      it=proto_tree_add_boolean(dns_tree, hf_dns_retransmission, tvb, 0, 0, TRUE);
+      proto_item_set_generated(it);
     } else if (dns_trans->rep_frame) {
 
       it=proto_tree_add_uint(dns_tree, hf_dns_response_in, tvb, 0, 0, dns_trans->rep_frame);
@@ -4390,16 +4390,14 @@ dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     /* This is a reply */
     proto_item *it;
     if (dns_trans->req_frame) {
-      if ((retransmission) && (dns_trans->rep_frame)) {
+      if ((retransmission) && (dns_trans->rep_frame) && (!pinfo->flags.in_error_pkt)) {
         expert_add_info_format(pinfo, transaction_item, &ei_dns_retransmit_response, "DNS response retransmission. Original response in frame %d", dns_trans->rep_frame);
 
         it=proto_tree_add_uint(dns_tree, hf_dns_retransmit_response_in, tvb, 0, 0, dns_trans->rep_frame);
         proto_item_set_generated(it);
 
-        if (!pinfo->flags.in_error_pkt) {
-          it=proto_tree_add_boolean(dns_tree, hf_dns_retransmission, tvb, 0, 0, TRUE);
-          proto_item_set_generated(it);
-        }
+        it=proto_tree_add_boolean(dns_tree, hf_dns_retransmission, tvb, 0, 0, TRUE);
+        proto_item_set_generated(it);
       } else {
         it=proto_tree_add_uint(dns_tree, hf_dns_response_to, tvb, 0, 0, dns_trans->req_frame);
         proto_item_set_generated(it);
