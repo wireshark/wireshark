@@ -1274,6 +1274,7 @@ ek_write_field_value(field_info *fi, write_json_data* pdata)
     char *dfilter_string;
     const nstime_t *t;
     struct tm tm_time;
+    gboolean success;
     char time_string[sizeof("YYYY-MM-DDTHH:MM:SS")];
 
     /* Text label */
@@ -1303,11 +1304,15 @@ ek_write_field_value(field_info *fi, write_json_data* pdata)
         case FT_ABSOLUTE_TIME:
             t = (const nstime_t *)fvalue_get(&fi->value);
 #ifdef _WIN32
-            gmtime_s(&tm_time, &t->secs);
+            success = (gmtime_s(&tm_time, &t->secs) == 0);
 #else
-            gmtime_r(&t->secs, &tm_time);
+            success = (gmtime_r(&t->secs, &tm_time) != NULL);
 #endif
-            strftime(time_string, sizeof(time_string), "%FT%T", &tm_time);
+            if (success) {
+                strftime(time_string, sizeof(time_string), "%FT%T", &tm_time);
+            } else {
+                g_snprintf(time_string, sizeof(time_string), "Not representable");
+            }
             json_dumper_value_anyf(pdata->dumper, "\"%s.%uZ\"", time_string, t->nsecs);
             break;
         default:
