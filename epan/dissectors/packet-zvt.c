@@ -12,7 +12,7 @@
 /* ZVT is a manufacturer-independent protocol between payment terminals and
  * electronic cash-register systems / vending machines
  *
- * the specifications are available from http://www.zvt-kassenschnittstelle.de
+ * the specifications are available from https://www.terminalhersteller.de
  *
  * ZVT defines a "serial transport protocol" and a "TCP/IP transport
  * protocol"
@@ -94,6 +94,7 @@ typedef struct _apdu_info_t {
 #define CTRL_DIAG          0x0670
 #define CTRL_INIT          0x0693
 #define CTRL_PRINT_LINE    0x06D1
+#define CTRL_PRINT_TEXT    0x06D3
 
 static void dissect_zvt_int_status(tvbuff_t *tvb, gint offset, guint16 len,
         packet_info *pinfo, proto_tree *tree, zvt_transaction_t *zvt_trans);
@@ -113,9 +114,10 @@ static const apdu_info_t apdu_info[] = {
     { CTRL_COMPLETION,    0, DIRECTION_PT_TO_ECR, dissect_zvt_bitmap_seq },
     { CTRL_ABORT,         0, DIRECTION_PT_TO_ECR, NULL },
     { CTRL_END_OF_DAY,    0, DIRECTION_ECR_TO_PT, NULL },
-    { CTRL_DIAG,          0,  DIRECTION_ECR_TO_PT, NULL },
+    { CTRL_DIAG,          0, DIRECTION_ECR_TO_PT, NULL },
     { CTRL_INIT,          0, DIRECTION_ECR_TO_PT, dissect_zvt_init },
-    { CTRL_PRINT_LINE,    0, DIRECTION_PT_TO_ECR, NULL }
+    { CTRL_PRINT_LINE,    0, DIRECTION_PT_TO_ECR, NULL },
+    { CTRL_PRINT_TEXT,    0, DIRECTION_PT_TO_ECR, NULL }
 };
 
 
@@ -247,11 +249,12 @@ static const value_string ctrl_field[] = {
     { CTRL_DIAG, "Diagnosis" },
     { CTRL_INIT, "Initialisation" },
     { CTRL_PRINT_LINE, "Print Line" },
-    { 0x06D3, "Print Text Block" },
+    { CTRL_PRINT_TEXT, "Print Text Block" },
     { 0, NULL }
 };
 static value_string_ext ctrl_field_ext = VALUE_STRING_EXT_INIT(ctrl_field);
 
+/* ISO 4217 currency codes */
 static const value_string zvt_cc[] = {
     { 0x0978, "EUR" },
     { 0, NULL }
