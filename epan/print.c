@@ -1261,8 +1261,10 @@ ek_write_field_value(field_info *fi, write_json_data* pdata)
     gchar label_str[ITEM_LABEL_LENGTH];
     char *dfilter_string;
     const nstime_t *t;
+    struct tm *tm;
+#ifndef _WIN32
     struct tm tm_time;
-    gboolean success;
+#endif
     char time_string[sizeof("YYYY-MM-DDTHH:MM:SS")];
 
     /* Text label */
@@ -1292,12 +1294,32 @@ ek_write_field_value(field_info *fi, write_json_data* pdata)
         case FT_ABSOLUTE_TIME:
             t = (const nstime_t *)fvalue_get(&fi->value);
 #ifdef _WIN32
-            success = (gmtime_s(&tm_time, &t->secs) == 0);
+            /*
+             * Do not use gmtime_s(), as it will call and
+             * exception handler if the time we're providing
+             * is < 0, and that will, by default, exit.
+             * ("Programmers not bothering to check return
+             * values?  Try new Microsoft Visual Studio,
+             * with Parameter Validation(R)!  Kill insufficiently
+             * careful programs - *and* the processes running them -
+             * fast!")
+             *
+             * We just want to report this as an unrepresentable
+             * time.  It fills in a per-thread structure, which
+             * is sufficiently thread-safe for our purposes.
+             */
+            tm = gmtime(&t->secs);
 #else
-            success = (gmtime_r(&t->secs, &tm_time) != NULL);
+            /*
+             * Use gmtime_r(), because the Single UNIX Specification
+             * does *not* guarantee that gmtime() is thread-safe.
+             * Perhaps it is on all platforms on which we run, but
+             * this way we don't have to check.
+             */
+            tm = gmtime_r(&t->secs, &tm_time);
 #endif
-            if (success) {
-                strftime(time_string, sizeof(time_string), "%FT%T", &tm_time);
+            if (tm != NULL) {
+                strftime(time_string, sizeof(time_string), "%FT%T", tm);
             } else {
                 g_snprintf(time_string, sizeof(time_string), "Not representable");
             }
