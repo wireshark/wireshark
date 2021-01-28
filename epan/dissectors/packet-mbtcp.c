@@ -58,6 +58,7 @@
 #include <epan/expert.h>
 #include <epan/crc16-tvb.h> /* For CRC verification */
 #include <epan/proto_data.h>
+#include "packet-tls.h"
 
 void proto_register_modbus(void);
 void proto_reg_handoff_mbtcp(void);
@@ -163,6 +164,7 @@ static expert_field ei_mbtcp_cannot_classify = EI_INIT;
 
 static dissector_handle_t modbus_handle;
 static dissector_handle_t mbtcp_handle;
+static dissector_handle_t mbtls_handle;
 static dissector_handle_t mbudp_handle;
 static dissector_handle_t mbrtu_handle;
 
@@ -174,6 +176,7 @@ static dissector_table_t   modbus_dissector_table;
 static gboolean mbtcp_desegment = TRUE;
 static guint global_mbus_tcp_port = PORT_MBTCP; /* Port 502, by default */
 static guint global_mbus_udp_port = PORT_MBTCP; /* Port 502, by default */
+static guint global_mbus_tls_port = PORT_MBTLS; /* Port 802, by default */
 
 /* Globals for Modbus RTU over TCP Preferences */
 static gboolean mbrtu_desegment = TRUE;
@@ -538,6 +541,16 @@ dissect_mbtcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
     return dissect_mbtcp_pdu_common(tvb, pinfo, tree, proto_mbtcp, global_mbus_tcp_port);
 }
 
+static int
+dissect_mbtls_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+{
+    /* Make entries in Protocol column on summary display */
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "Modbus/TCP Security");
+    col_clear(pinfo->cinfo, COL_INFO);
+
+    return dissect_mbtcp_pdu_common(tvb, pinfo, tree, proto_mbtcp, global_mbus_tls_port);
+}
+
 /* Code to dissect Modbus RTU */
 static int
 dissect_mbrtu_pdu_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint port)
@@ -768,7 +781,7 @@ get_mbrtu_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb,
 
 /* Code to dissect Modbus/TCP messages */
 static int
-dissect_mbtcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+dissect_mbtcp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data, dissector_t dissect_pdu)
 {
 
     /* Make sure there's at least enough data to determine it's a Modbus TCP packet */
@@ -787,9 +800,21 @@ dissect_mbtcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
     /* build up protocol tree and iterate over multiple packets */
     tcp_dissect_pdus(tvb, pinfo, tree, mbtcp_desegment, 6,
-                     get_mbtcp_pdu_len, dissect_mbtcp_pdu, data);
+                     get_mbtcp_pdu_len, dissect_pdu, data);
 
     return tvb_captured_length(tvb);
+}
+
+static int
+dissect_mbtcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+    return dissect_mbtcp_common(tvb, pinfo, tree, data, dissect_mbtcp_pdu);
+}
+
+static int
+dissect_mbtls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+    return dissect_mbtcp_common(tvb, pinfo, tree, data, dissect_mbtls_pdu);
 }
 
 static int
@@ -1677,6 +1702,7 @@ apply_mbtcp_prefs(void)
     /* Modbus/RTU uses the port preference to determine request/response */
     global_mbus_tcp_port = prefs_get_uint_value("mbtcp", "tcp.port");
     global_mbus_udp_port = prefs_get_uint_value("mbudp", "udp.port");
+    global_mbus_tls_port = prefs_get_uint_value("mbtcp", "tls.port");
 }
 
 static void
@@ -2130,6 +2156,7 @@ proto_register_modbus(void)
     /* Registering protocol to be called by another dissector */
     modbus_handle = register_dissector("modbus", dissect_modbus, proto_modbus);
     mbtcp_handle = register_dissector("mbtcp", dissect_mbtcp, proto_mbtcp);
+    mbtls_handle = register_dissector("mbtls", dissect_mbtls, proto_mbtcp);
     mbrtu_handle = register_dissector("mbrtu", dissect_mbrtu, proto_mbrtu);
     mbudp_handle = register_dissector("mbudp", dissect_mbudp, proto_mbudp);
 
@@ -2199,10 +2226,12 @@ proto_reg_handoff_mbtcp(void)
 {
     dissector_add_uint_with_preference("tcp.port", PORT_MBTCP, mbtcp_handle);
     dissector_add_uint_with_preference("udp.port", PORT_MBTCP, mbudp_handle);
+    dissector_add_uint_with_preference("tls.port", PORT_MBTLS, mbtls_handle);
     apply_mbtcp_prefs();
 
     dissector_add_uint("mbtcp.prot_id", MODBUS_PROTOCOL_ID, modbus_handle);
 
+    ssl_dissector_add(PORT_MBTLS, mbtls_handle);
 }
 
 void

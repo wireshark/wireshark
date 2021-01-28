@@ -14,6 +14,7 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 #define PORT_MBTCP        502    /* Modbus/TCP located on port 502, with IANA registration */
+#define PORT_MBTLS        802    /* Modbus/TCP Security protocol (Modbus/TCP over TLS) is registered on port 802 */
 #define PORT_MBRTU        0    /* Modbus RTU over TCP does not have a standard port, default to zero */
 
 /* Modbus protocol function codes */
