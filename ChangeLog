@@ -1,0 +1,815 @@
+commit 9e43743613
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Thu Jan 28 13:32:57 2021 -0800
+
+    Prep for 3.2.11.
+
+commit 2104a5a9ea
+Author: Guy Harris <gharris@sonic.net>
+Date:   Thu Jan 28 07:56:22 2021 +0000
+
+    epan: don't print nanoseconds if seconds isn't representable.
+    
+    Fix for previous fixes to #17179.
+    
+    
+    (cherry picked from commit 4715f5021cb44fcf672b9f8d23efa8e4601a8d1f)
+
+commit 565de9c3c3
+Author: Guy Harris <gharris@sonic.net>
+Date:   Thu Jan 28 06:15:31 2021 +0000
+
+    epan: don't use gmtime_s().
+    
+    It has the "feature" that, if handed a negative value, it might just
+    exit.  gmtime() doesn't have that "feature", and is sufficiently
+    thread-safe for our purposes; use it instead, and check to make sure it
+    doesn't return a null pointer.
+    
+    The previous fix for #17179 still used gmtime_s(); this doesn't, so it's
+    a better fix for #17179.
+    
+    
+    (cherry picked from commit bf265d7e7aa8c69841291a20ab9c9f5ac189135b)
+
+commit 2ac6196dde
+Author: Guy Harris <gharris@sonic.net>
+Date:   Thu Jan 28 05:46:11 2021 +0000
+
+    epan: don't assume gmtime_s() or gmtime_r() succeed.
+    
+    At least on Windows, gmtime_s() will *not* succeed if passed a negative
+    value.
+    
+    Fixes #17179.
+    
+    
+    (cherry picked from commit 4e4a7c11c744cf0d9ad83a575f9a3bcc60aa35c5)
+
+commit 51c33149b5
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Wed Jan 27 21:06:11 2021 +0000
+
+    ZVT: Use standard TCP segment reassemble support function
+    
+    Fixes #17177
+    
+    
+    (cherry picked from commit 616d44cbb651fd53273946fc04d4653aa69584fb)
+
+commit 762dad0658
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Mon Jan 25 22:32:11 2021 +0000
+
+    wiretap: Fixup the sdjournal block length in pcapng.
+    
+    Fix our entry length check and put our trailing '\0' in the right
+    location. Fixes #17174.
+    
+    
+    (cherry picked from commit cd278f5fd9bc77426f060170605e3ada39c6bb6a)
+
+commit 0df03b7acc
+Author: Grzegorz Niemirowski <grzegorz@grzegorz.net>
+Date:   Mon Jan 25 21:50:37 2021 +0000
+
+    Fix TID bitmap name
+    
+    
+    (cherry picked from commit 6a860c979a8339088e5ae2e49ce5bc084626ccc6)
+
+commit f69227df28
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Jan 24 11:12:07 2021 +0000
+
+    [Automatic update for 2021-01-24]
+    
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit 318241807f
+Author: Jim Young <jyoung@gsu.edu>
+Date:   Sun Jan 24 04:50:36 2021 +0000
+
+    tshark: Fix typo in comment from ascci to ascii
+    
+    
+    (cherry picked from commit a7ad6c271fc59ed64494c5d17b37697b6034f69a)
+
+commit 4ed7cdfd1a
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Thu Jan 21 09:40:38 2021 +0000
+
+    FC ELS: Fix address length of FCWWN address in logout message
+    
+    Closes #17168
+    
+    
+    (cherry picked from commit 13e04a21926524ed996f95a7cc350287383f1461)
+
+commit a6be4ce3d4
+Author: Guy Harris <gharris@sonic.net>
+Date:   Wed Jan 20 09:07:18 2021 +0000
+
+    Don't dereference a known-to-be-null pointer.
+    
+    In dump_dfilter_macro_t(), if the dfilter_macro_t pointer is null, just
+    give up after printing the message that indicates that.
+    
+    This should squelch several nullPointerRedundantCheck warnings from
+    cppcheck.
+    
+    
+    (cherry picked from commit 05b9e5377753cb7463294bf17f3f2cc6faec6ba4)
+
+commit 6cf565f83b
+Author: Guy Harris <gharris@sonic.net>
+Date:   Wed Jan 20 07:12:03 2021 +0000
+
+    Squelch "Clarify calculation precedence" warning from cppcheck.
+    
+    For
+    
+            A & B ? C : D
+    
+    put "A & B" in parentheses, to clarify the precedence.
+    
+    
+    (cherry picked from commit 138041b545e1191e0218142dfd6d1a15f4007f7e)
+
+commit c1b4117c1d
+Author: Guy Harris <gharris@sonic.net>
+Date:   Tue Jan 19 23:46:10 2021 +0000
+
+    Squelch "Clarify calculation precedence" warning from cppcheck.
+    
+    For
+    
+            A & B ? C : D
+    
+    put "A & B" in parentheses, to clarify the precedence.
+    
+    
+    (cherry picked from commit 6b85987e4aa9171d7a275abba7433ed05549d89a)
+
+commit ce0b5a4487
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Jan 17 18:38:27 2021 +0000
+
+    Qt+tools: Fix most of our lupdate warnings.
+    
+    Fix various warnings with the following changes:
+    
+    Pass a list of include directories to lupdate. Fixes:
+    
+        ui/qt/proto_tree.cpp:57: Qualifying with unknown namespace/class ::ProtoTree
+    
+    and similar warnings.
+    
+    Use QT_TRANSLATE_NOOP instead of QT_TR_NOOP. Fixes:
+    
+        ui/qt/lte_rlc_statistics_dialog.cpp:993: tr() cannot be called without context
+        ui/qt/lte_mac_statistics_dialog.cpp:911: tr() cannot be called without context
+        ui/qt/font_color_preferences_frame.cpp:28: tr() cannot be called without context
+        ui/qt/font_color_preferences_frame.cpp:29: tr() cannot be called without context
+        ui/qt/font_color_preferences_frame.cpp:30: Discarding unconsumed meta data
+    
+    Add Q_OBJECT to the class definition. Fixes:
+    
+        ui/qt/models/filter_list_model.cpp:120: Class 'FilterListModel' lacks Q_OBJECT macro
+    
+    The following warnings were not fixed. This might require moving IOGraph
+    to its own file:
+    
+        ui/qt/io_graph_dialog.cpp:320: Qualifying with unknown namespace/class ::IOGraphDialog
+        ui/qt/io_graph_dialog.cpp:555: Qualifying with unknown namespace/class ::IOGraphDialog
+        ui/qt/io_graph_dialog.cpp:1059: Qualifying with unknown namespace/class ::IOGraphDialog
+        ui/qt/io_graph_dialog.cpp:1485: Qualifying with unknown namespace/class ::IOGraphDialog
+    
+    
+    (cherry picked from commit 85a793892520c0f2152bc26c1287236762c69e85)
+
+commit ac7c060940
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Jan 17 11:10:27 2021 +0000
+
+    [Automatic update for 2021-01-17]
+    
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit cb04d85494
+Author: Dr. Lars Völker <lars.voelker@technica-engineering.de>
+Date:   Wed Jan 13 22:41:54 2021 +0000
+
+    AUTOSAR-NM: True-False-String wrong way around for PNI (BUGFIX)
+    
+    This patch fixes the PNI TFString, which was wrong. Correct is:
+    0 = "... contains no Partial Network ..."
+    1 = "... contains Partial Network ..."
+    
+    Fixes #17154
+    
+    
+    (cherry picked from commit 238446dc91cd39bbe56d8aea2bb0f782399f77a6)
+
+commit 6ad518aebc
+Author: Dr. Lars Völker <lars.voelker@technica-engineering.de>
+Date:   Tue Jan 12 18:03:00 2021 +0000
+
+    DoIP: Adding 2019 DoIP Type
+    
+    Adding ISO13400-2019 DoIP Version 3.
+    
+    
+    (cherry picked from commit 69710ff1177179719b75904c46e0c2ee4faed292)
+
+commit 8d7cbb8213
+Author: Uli Heilmeier <uh@heilmeier.eu>
+Date:   Fri Jan 1 21:09:02 2021 +0100
+
+    SIP: Fix parsing of multiple contact-param
+    
+    contact-params are optional (s. https://tools.ietf.org/html/rfc3261#section-20.10).
+    Therefore, independently of contact-params, we should also check for additional contact-param.
+    
+    Fixes: wireshark/wireshark#13752
+    (cherry picked from commit 02f2d18b2ee6dbb650193689b0d4ed2d01566426)
+
+commit c2c77e2c6f
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Jan 10 11:13:01 2021 +0000
+
+    [Automatic update for 2021-01-10]
+    
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit a4af174499
+Author: Eugene Adell <eugene.adell@gmail.com>
+Date:   Sat Jan 9 18:07:30 2021 +0000
+
+    Just correct the documentation for this obvious mistake. Closes #17141.
+    
+    
+    (cherry picked from commit 9b0c3f5eaf2d91596b1c6769b7e44666a641fa07)
+
+commit 2f08c327a9
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Mon Jan 4 00:35:25 2021 +0000
+
+    macos-setup: Update CMake for Apple Silicon
+    
+    Apple Silicon requires CMake 3.19.2, but the binaries provided
+    for 3.19.2 only run on MacOS 10.10 and later, so we have more
+    bifurcation of the CMake we try to install. Get rid of some of
+    the old 2.x paths to compensate.
+    
+    
+    (cherry picked from commit d74bfc569ec80ec90a07d99ca267468d3d5d0589)
+
+commit 11bca797f6
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Jan 3 11:11:05 2021 +0000
+
+    [Automatic update for 2021-01-03]
+    
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit 8abbb26173
+Author: Stig Bjørlykke <stig@bjorlykke.org>
+Date:   Sat Jan 2 16:36:50 2021 +0000
+
+    Qt: Connect QScrollbar::actionTriggered to OverlayScrollBar
+    
+    This will fix the issue where auto scroll during capture is not turned
+    off when the scroll bar position is changed.
+    
+    
+    (cherry picked from commit a42ab09b72c9f19525b63742dd5142bc81abef58)
+
+commit a91789a3df
+Author: Stig Bjørlykke <stig@bjorlykke.org>
+Date:   Fri Jan 1 10:11:59 2021 +0000
+
+    Happy New Year 2021
+    
+    
+    (cherry picked from commit 85bf15fd7614cf3291b0c9d0cb682bdba5ad920b)
+
+commit c8dd5f4b01
+Author: Jirka Novak <j.novak@netsystem.cz>
+Date:   Tue Dec 29 15:52:33 2020 +0000
+
+    voip_calls_dialog/voip_calls: Fix for #16952
+    
+    The fix solves issue #16952. It reverts commit 88813716 which introduced memory leak which causes the issue. The original issue with duplicating entries is solved too.
+    Because commit was cherry picked to 3.4.0 (might be in more branches), this patch should be cherry picked too.
+    
+    
+    (cherry picked from commit 71e3969d63d70e1e57b58568926534e963bd3b31)
+
+commit c8c0e4d587
+Author: Jirka Novak <j.novak@netsystem.cz>
+Date:   Sun Dec 13 13:04:11 2020 +0000
+
+    VoIP: VoIP calls statistics are cleared when retap is issued
+    
+    Every press of Play Stream or Prepare Filter caused incorrect increasing
+    of Packets count and added Comments.
+    The reason was that callinfo statistics were not clear before recap
+    therefore all new values were added to exiting ones.
+    Patch solves it.
+    
+    
+    (cherry picked from commit ff3fffcf5cc6a72ff6e37354cf5abafe0987fec0)
+
+commit bf4a0c426f
+Author: Valerii Zapodovnikov <val.zapod.vz@gmail.com>
+Date:   Tue Dec 29 15:43:39 2020 +0000
+
+    DHCPv6: typo
+    
+    (cherry picked from commit fbccfe99969ad47c60affadc1c06627dbde3c814)
+
+commit 98e0e7e466
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Dec 27 20:22:12 2020 +0000
+
+    [Automatic update for 2020-12-27]
+    
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit 367ff6fbbe
+Author: Guy Harris <gharris@sonic.net>
+Date:   Sun Dec 27 12:55:31 2020 -0800
+
+    dumpcap: Improve the secondary error for promiscuous mode failure.
+    
+    On Windows, some devices don't let promiscuous mode be enabled, and
+    return an error rather than silently ignoring the request to use
+    promiscuous mode (as UN*X devices tend to do).  Check for the error
+    message from that error, and suggest that the user turn off promiscuous
+    mode on that device.
+    
+    (backported from commit c15a37db5155566cf548b8406133b3c9e43471e0)
+
+commit ac6da0c37c
+Author: Guy Harris <gharris@sonic.net>
+Date:   Thu Dec 24 07:09:19 2020 +0000
+
+    editcap: one more integer -> Boolean.
+    
+    selected() returns a Boolean value indicating whether the packet with a
+    given number was selected by the packet-range arguments or not.
+    
+    
+    (cherry picked from commit f75e2e5956ffb3e26ef68813e382cc5b5afe60cb)
+
+commit c7231c10e1
+Author: Guy Harris <gharris@sonic.net>
+Date:   Thu Dec 24 01:55:20 2020 +0000
+
+    editcap: make verbose a Boolean as well.
+    
+    And, to catch people habituated to -r and -v toggling the flag, fail if
+    it's already been set, to dishabituate them.
+    
+    Not having them toggle makes it easier to document their semantics.
+    
+    
+    (cherry picked from commit 0d0071a3023d19f54c02b6edaa37c20429f8da92)
+
+commit 24d8999c10
+Author: Guy Harris <gharris@sonic.net>
+Date:   Wed Dec 23 15:49:07 2020 -0800
+
+    editcap: treat the "keep packets" flag as a Boolean.
+    
+    Give it the type gboolean, initialize it to FALSE, and have -r set it to
+    TRUE.
+    
+    This makes it a little clearer what it's doing.
+    
+    (cherry picked from commit d98106876c333bdc9a0c947aa8eaba62cd10aafc)
+
+commit 75dd3499e4
+Author: Moshe Kaplan <me@moshekaplan.com>
+Date:   Tue Dec 22 18:36:46 2020 +0000
+
+    mate_setup: allocate correct amount of memory
+    
+    When creating a _mate_cfg_gog, instead of
+    allocating space for a `_mate_cfg_gop`,
+    allocate space for a _mate_cfg_gog. Also, use
+    `g_new` instead of `gmalloc`.
+    
+    
+    (cherry picked from commit 1c7edf49f83815b56367e6d0441445e8a4981a72)
+
+commit 8f8cfebc83
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Tue Dec 22 14:57:14 2020 +0000
+
+    Let the CLI programs tell about how to show their version
+    
+    Add to the help text the option to show the version of the CLI program.
+    
+    
+    (cherry picked from commit 38ab00a094e476cdb93bf1c6a1f27246b6cba179)
+
+commit 5325fc7ebf
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Mon Dec 21 21:12:01 2020 +0000
+
+    macOS: Force dark mode support.
+    
+    We initially disabled dark mode support in Info.plist when we didn't
+    support it very well, and later passively enabled it depending on our
+    SDK version. Go ahead and force it on since we officially support dark
+    mode. Closes #17098.
+    
+    
+    (cherry picked from commit b3352bd639ba2cffd204d6e0b63bc72d34513077)
+
+commit 4d542099fc
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sat Dec 19 11:23:57 2020 -0800
+
+    CMake: macOS version updates.
+    
+    Set MIN_MACOS_VERSION to 10.14 if we're building with Qt 6.0 or later.
+    Print both our deployment target and our base SDK at configure time.
+    
+    (cherry picked from commit 2c303c725f1122fdc55c3ff8b56e75f77f43163f)
+    
+    Conflicts:
+            CMakeLists.txt
+
+commit 374d7a94f8
+Author: Dario Lombardo <lomato@gmail.com>
+Date:   Tue Dec 22 10:59:00 2020 +0000
+
+    gitlab-ci: fix build:ubuntu-dist.
+    
+    
+    (cherry picked from commit 33ab986589684398a656e37463df71631a0710d3)
+
+commit 670725297c
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Tue Dec 22 00:05:27 2020 +0000
+
+    GitLab CI: Copy over the build:ubuntu-dist job from master.
+    
+    
+    (cherry picked from commit bab5339f3a14a451191c52167ab32547d8fd00a4)
+
+commit 2ba2800fdf
+Author: Guy Harris <gharris@sonic.net>
+Date:   Sun Dec 20 15:38:54 2020 -0800
+
+    macos-setup: get rid of a debugging "set +x".
+
+commit ec8c994c3a
+Author: Guy Harris <gharris@sonic.net>
+Date:   Sun Dec 20 05:15:30 2020 +0000
+
+    macos-setup: clean up snappy uninstall to match the trunk version.
+    
+    [skip ci]
+    
+    
+    (cherry picked from commit e898cf72574bf4f97fa3a7ceb55a0677bf20b410)
+
+commit 6781a58ec5
+Author: Guy Harris <gharris@sonic.net>
+Date:   Sat Dec 19 22:21:15 2020 +0000
+
+    macos-setup: work around a botch in GLib "make distclean".
+    
+    [skip ci]
+    
+    
+    (cherry picked from commit f3dc269df64d11763e76370c5b413dc15c11235b)
+
+commit 8cdd5ad8ab
+Author: Guy Harris <gharris@sonic.net>
+Date:   Thu Dec 17 21:21:38 2020 +0000
+
+    macos-setup: don't configure p11-kit to use libffi.
+    
+    See comment for an explanation.
+    
+    
+    (cherry picked from commit 1949b6a5eed9e2725df68b77616a6f0523058bb3)
+
+commit 8ebdbcffff
+Author: Guy Harris <gharris@sonic.net>
+Date:   Thu Dec 17 20:43:43 2020 +0000
+
+    macos-setup: remove tabs.
+    
+    Consistenly use spaces for indentation.
+    
+    
+    (cherry picked from commit 2db0c640349643ea745b698b918f1ce561bb9551)
+
+commit f64b0d2aa2
+Author: Guy Harris <gharris@sonic.net>
+Date:   Thu Dec 17 07:23:13 2020 +0000
+
+    macos-setup: get rid of a debugging "set -x".
+    
+    
+    (cherry picked from commit ca13c3ce49d94c09a36f1696e42bd37a4412e44a)
+
+commit 9ccf6f8008
+Author: Guy Harris <gharris@sonic.net>
+Date:   Wed Dec 16 19:54:53 2020 +0000
+
+    macos-setup: fix uninstallation of libtasn1.
+    
+    Fix a copy-and-pasteo.
+    
+    
+    (cherry picked from commit f2af1ea66d195c39d8e81a80afe3332c9fcc2fd3)
+
+commit e579fd5f6c
+Author: Guy Harris <gharris@sonic.net>
+Date:   Sun Dec 13 07:47:27 2020 +0000
+
+    macos-setup: clean up uninstallation of snappy.
+    
+    For a CMake build done in a subdirectory of the source directory, the
+    equivalent of "make distclean" is "rm -rf {that subdirectory}".  Make it
+    so.
+    
+    When uninstalling the stuff snappy installs with "rm -rf", use $DO_RM,
+    so it's done with sudo iff /usr/local isn't writable by us, just as
+    "make uninstall" is done with $DO_MAKE_UNINSTALL so it's done with sudo
+    iff /usr/local isn't writable by us.
+    
+    Fix up the list of what to remove, now that we're building snappy as a
+    shared library, so that it removes shared libraries rather than the
+    non-existent static library.
+    
+    Update a comment while we're at it, as Lua isn't the only dependency
+    that doesn't support "make uninstall".
+    
+    
+    (cherry picked from commit 7d01e3a74ec24d1e9748674bda5d109d2336dd3e)
+
+commit 0f9c1884a1
+Author: Guy Harris <gharris@sonic.net>
+Date:   Sun Dec 13 05:30:51 2020 +0000
+
+    macos-setup: build snappy as a shared library.
+    
+    The older versions of snappy apparently used autotools and build a
+    shared library by default; for example, Wireshark 3.2.6 for macOS is
+    built with snappy, and includes a snappy dynamic library in the app
+    bundle.
+    
+    The current version uses CMake and does *not* build a shared library by
+    default.  Instead, it builds a static library, which, when you try to
+    link it to a C-only shared library...
+    
+    ...does not work.
+    
+    The linker sees that you're statically linking in a bunch of C++ .o
+    files and gets upset because it can't find C++ standard library routines
+    used by that code.
+    
+    If it's a dynamic library, the library was itself already linked with
+    the C++ standard library, so the external references to that library
+    from the snappy library are already marked as having been resolved to
+    the extent that they're expected to be in the C++ standard library at
+    run time - and, when the dynamic snappy library is built, it's marked as
+    depending on the C++ standard library, so the run time linker will, when
+    it loads the snappy dynamic library, see that the C++ standard library
+    is required and will load it if it hasn't already been loaded.
+    
+    
+    (cherry picked from commit e92119c60895fd4586548e84ef3434bba3dbe0d8)
+
+commit d4acf71fb8
+Author: Guy Harris <gharris@sonic.net>
+Date:   Sat Dec 12 23:51:10 2020 +0000
+
+    Snappy uses CMake, and they didn't bother to provide an unintall target.
+    
+    Or a distclean target, for that matter.
+    
+    Do the best we can.
+    
+    (libpcap and tcpdump support both autotools and CMake, and Wireshark
+    uses only CMake; all of them support an uninstall target in CMake.  Go
+    forth, read what they did, and sin no more.)
+    
+    
+    (cherry picked from commit 504f2ea42ab1fe6730f349860b083eabdaaaaebb)
+
+commit 1191fa54dd
+Author: Guy Harris <gharris@sonic.net>
+Date:   Sat Dec 12 21:53:46 2020 +0000
+
+    Work around more NeXTStEP-induced pain.
+    
+    GNU libtool has a libtool program and a libtoolize program.
+    
+    The development tools for NeXTStEP, apparently, had a libtool program as
+    well, and the current version of the development tools for the current
+    version of NeXTStEP, generally known as "Xcode for macOS", still have
+    that program.
+    
+    This means that we do some renaming after installing GNU libtool, so
+    that its "libtool" becomes "glibtool" and its "libtoolize" becomes
+    "glibtoolize".
+    
+    That meant we had to compensate for that when running autoreconf when
+    building and installing minizip.
+    
+    It turns out we have to do that when running autogen.sh when building
+    and installing GLib as well.
+    
+    
+    (cherry picked from commit 2ecb6061422ca933db2422e9ecb03bb0544a6492)
+
+commit 4c2d22af99
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Thu Nov 26 06:10:34 2020 +0000
+
+    macOS: Enable PKCS #11 support when building with macos-setup.sh
+    
+    Enable PKCS #11 support in macOS builds with macos-setup.sh (already
+    supported on macOS via Homebrew and on all other OSes with GnuTLS 3.4
+    or greater) by installing p11-kit (and its dependency libtasn1) and
+    building nettle and GnuTLS against it.
+    
+    
+    (cherry picked from commit fe1f9475409f252b6ca2dccc71187868e168c74b)
+
+commit cc5bbf2803
+Author: Jörg Mayer <jmayer@loplof.de>
+Date:   Tue Dec 1 17:44:13 2020 +0100
+
+    macos-setup.sh: Update various software versions
+    
+    Update versions of xz, lzip, gettext, libgpg, libgpg-error, libgcrypt, gnutls and gmp
+    to newest releases.
+    
+    Also update glib but only to last version with autotools support - meson build is left
+    for another time.
+    
+    Current versions of glib require a libpcre with unicode enabled which the Catalina system
+    version does not provide, so install the current version of libpcre as well.
+    
+    Update some additional tools to commit 3a42bf0de2b9e35efcc3cea38153ab95cb71b352:
+    brotli, libmaxminddb, lz4, and snappy
+    
+    (backported from commit 77e9d7d3f9ba64e27481710ff3effc1d5e2fbbac)
+    
+    These are the versions being used to build 3.2, so we're updating this
+    so that the 3.2 source tree's macos-setup.sh can be used to set up the
+    build environment for 3.2, except for some support libraries used by 3.4
+    and later, but not by 3.2.
+    
+    [skip ci]
+
+commit 6a7b38776f
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Dec 20 09:37:47 2020 +0000
+
+    [Automatic update for 2020-12-20]
+    
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit 929b2aedbe
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Mon Jun 1 22:21:57 2020 +0000
+
+    macos-setup: Add iLBC.
+    
+    Change-Id: Ibdea3918a24b4c248fd5f3d524b8546e917e4ea0
+    Reviewed-on: https://code.wireshark.org/review/37356
+    Reviewed-by: Jörg Mayer <jmayer@loplof.de>
+    
+    
+    (cherry picked from commit d6d4f71f29b028d47875013bd9193f72f3139b7b)
+
+commit 6d0503ded9
+Author: Jörg Mayer <jmayer@loplof.de>
+Date:   Wed May 27 12:27:19 2020 +0000
+
+    macos-setup.sh: Update GNUTLS, NETTLE and GMP versions
+    
+    Fix patch location for non-default build directory
+    
+    Change-Id: I8454e77de1cec53609bd7ab7f565b06b1ad79923
+    Reviewed-on: https://code.wireshark.org/review/37325
+    Reviewed-by: Jörg Mayer <jmayer@loplof.de>
+    
+    
+    (cherry picked from commit ec65f1d9e203ae0a01107941abff7e57b6b4180a)
+
+commit e3650c4c29
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Tue Feb 18 18:14:55 2020 +0000
+
+    macos-setup: Update Gcrypt to 1.8.5.
+    
+    This is required for WireGuard decryption.
+    
+    Change-Id: I8d27ac198a8bac161c1675e87c3685c8d73c9246
+    Reviewed-on: https://code.wireshark.org/review/36129
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+    
+    
+    (cherry picked from commit ae1d5693228224aa9972886f5a1a1c813c9b3c2c)
+
+commit be741b01b4
+Author: Jörg Mayer <jmayer@loplof.de>
+Date:   Mon Jan 13 21:48:10 2020 +0000
+
+    macos-setup.sh: Add SpeexDSP setup and install
+    
+    Change-Id: I3558d398970d919b8e12992ad4c97789aac79129
+    Reviewed-on: https://code.wireshark.org/review/35785
+    Reviewed-by: Jörg Mayer <jmayer@loplof.de>
+    
+    
+    (cherry picked from commit fc0cca091103d1bbc58095bc7bc54b05f09b9d90)
+
+commit fc0404dc40
+Author: Dr. Lars Völker <lars.voelker@technica-engineering.de>
+Date:   Wed Dec 16 23:39:23 2020 +0000
+
+    SOME/IP-SD: hidden fields for entries are 16 bytes off (Bugfix)
+    
+    This patch fixes a bug that lead to 7 hidden fields being off by
+    16 bytes.
+    
+    Closes #17091
+    
+    
+    (cherry picked from commit ff23fb9f0cba69f3fa202bf6125fcbbc60f581f1)
+
+commit 96fb823538
+Author: Guy Harris <gharris@sonic.net>
+Date:   Sat Dec 19 07:53:47 2020 +0000
+
+    macos-setup: explain why we're running autoreconf on minizip.
+    
+    [skip ci]
+    
+    
+    (cherry picked from commit 8b0d19c63433ec89c84139f6fee298dc32994741)
+
+commit 116bb16268
+Author: Guy Harris <gharris@sonic.net>
+Date:   Sat Dec 19 07:45:28 2020 +0000
+
+    macos-setup: fix the name of the -done file for Minizip.
+    
+    It's minizip-$installed_minizip_version-done, not
+    zlib-$installed_minizip_version-done; the tarball is
+    zlib-$installed_minizip_version.tar.gz, because it's a contributed file
+    in the zlib package, but we don't use zlib in the name of the -done
+    file.
+    
+    [skip ci]
+    
+    
+    (cherry picked from commit 0cdbdcc5a40f01117aa277120c97cda3c8107dfe)
+
+commit 1c60e5929d
+Author: Guy Harris <gharris@sonic.net>
+Date:   Sat Dec 19 07:19:12 2020 +0000
+
+    macos-setup: do "make clean", not "make distclean", for zstd.
+    
+    It has no configure script, so there's no need for "make distclean", and
+    the Makefile supplied with it has no "make distclean" rule; just do
+    "make clean".
+    
+    [skip ci]
+    
+    
+    (cherry picked from commit 806f524a108280f48af58b41ee7ee9f1f4265a0d)
+
+commit af65171603
+Author: Guy Harris <gharris@sonic.net>
+Date:   Fri Dec 18 22:16:04 2020 -0800
+
+    In Wireshark's version info, indicate whether we were built with Minizip.
+    
+    We can't determine the version number, as there's nothing in the header
+    to indicate the version with which we were compiled, nor is there an API
+    to determine the version with which we're running.
+    
+    (backported from commit 6498bde741afdd55904fc80b692a5590471a5069)
+
+commit 145c706970
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Fri Dec 18 13:56:16 2020 -0800
+
+    Version: 3.2.10 → 3.2.11.
+    
+    [skip ci]
