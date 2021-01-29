@@ -13,8 +13,6 @@
 #ifndef _WS_NETLINK_H
 #define _WS_NETLINK_H
 
-#include "config.h"
-
 #if defined(HAVE_LIBNL)
 
 /*
