@@ -3926,12 +3926,15 @@ static stat_tap_table_item rpc_prog_stat_fields[] = {
 
 static void rpc_prog_stat_init(stat_tap_table_ui* new_stat)
 {
+	const char *table_name = "ONC-RPC Program Statistics";
 	int num_fields = sizeof(rpc_prog_stat_fields)/sizeof(stat_tap_table_item);
-	stat_tap_table* table;
+	stat_tap_table *table;
 
-	table = stat_tap_init_table("ONC-RPC Program Statistics", num_fields, 0, NULL);
-	stat_tap_add_table(new_stat, table);
-
+	table = stat_tap_find_table(new_stat, table_name);
+	if (!table) {
+		table = stat_tap_init_table(table_name, num_fields, 0, NULL);
+		stat_tap_add_table(new_stat, table);
+	}
 }
 
 static tap_packet_status
