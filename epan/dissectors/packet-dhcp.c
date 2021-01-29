@@ -7256,12 +7256,17 @@ static stat_tap_table_item dhcp_stat_fields[] = {{TABLE_ITEM_STRING, TAP_ALIGN_L
 
 static void dhcp_stat_init(stat_tap_table_ui* new_stat)
 {
+	const char *table_name = "DHCP Statistics";
 	int num_fields = sizeof(dhcp_stat_fields)/sizeof(stat_tap_table_item);
-	stat_tap_table* table = stat_tap_init_table("DHCP Statistics", num_fields, 0, NULL);
+	stat_tap_table *table;
 	int i = 0;
 	stat_tap_table_item_type items[sizeof(dhcp_stat_fields)/sizeof(stat_tap_table_item)];
 
-	stat_tap_add_table(new_stat, table);
+	table = stat_tap_find_table(new_stat, table_name);
+	if (!table) {
+		table = stat_tap_init_table(table_name, num_fields, 0, NULL);
+		stat_tap_add_table(new_stat, table);
+	}
 
 	/* Add a row for each value type */
 	while (opt53_text[i].strptr)
