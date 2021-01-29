@@ -13,8 +13,8 @@ It is used for troubleshooting, analysis, development and education.
 
 == What’s New
 
-The Windows installers now ship with Npcap 1.10.
-They previously shipped with Npcap 1.00.
+// The Windows installers now ship with Npcap 1.10.
+// They previously shipped with Npcap 1.00.
 
 // The Windows installers now ship with USBPcap 1.5.X.0.
 // They previously shipped with USBPcap 1.5.4.0.
@@ -26,24 +26,13 @@ They previously shipped with Npcap 1.00.
 
 The following vulnerabilities have been fixed:
 
-* wssalink:2021-01[]
-USB HID dissector memory leak.
-wsbuglink:17124[].
-cveidlink:2021-22173[].
-// Fixed in master: 26f0db01a7
-// Fixed in release-3.4: 24f56bec53
-// Fixed in master-3.2: n/a
-// * Buildbot crash output: fuzz-2020-12-31-3467971.pcap wsbuglink:17124[].
-
-* wssalink:2021-02[]
-USB HID dissector crash.
-wsbuglink:17165[].
-cveidlink:2021-22174[].
-// Fixed in master: 785e291c1b
-// Fixed in release-3.4: 57e14a4190
-// Fixed in master-3.2: n/a
-// * Buildbot crash output: fuzz-2021-01-18-1999268.pcap wsbuglink:17165[].
-
+// * wssalink:2021-03[]
+// Foo dissector {crash,infinite loop,memory leak}.
+// wsbuglink:xxxx[].
+// cveidlink:2021-xxxx[].
+// Fixed in master: xxxx
+// Fixed in release-3.4: xxxx
+// Fixed in master-3.2: xxxx
 
 The following bugs have been fixed:
 
@@ -51,42 +40,7 @@ The following bugs have been fixed:
 //* wsbuglink:6000[Wireshark bug]
 //* cveidlink:2014-2486[]
 //* Wireshark exposed details your sordid redneck past, which were subsequently widely disseminated on social media.
-// cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log v3.4.3rc0.. | gsed -e 's/\(close\|fix\|resolv\)[^ ]* #/\nclose #/gI' | grep ^close | sed -e 's/close.*#\([1-9][0-9]*\).*/\1/' | sort -V -u` ; do "$(git rev-parse --show-toplevel)/tools/gen-bugnote" $bugnumber; pbpaste >> /tmp/buglist.txt; done
-
-* SIP response single-line multiple Contact-URIs decoding error wsbuglink:13752[].
-
-* Adding filter while "Telephony->VoIP Calls->Flow Sequence" open causes OOB memory reads and potential crashes. wsbuglink:16952[].
-
-* QUIC packet not fully dissected wsbuglink:17077[].
-
-* SOMEIP-SD hidden entries are off wsbuglink:17091[].
-
-* Problem with calculation on UDP checksum in SRv6 wsbuglink:17097[].
-
-* Dark mode not working in Wireshark 3.4.2 on macOS wsbuglink:17098[].
-
-* Wireshark 3.4.0: build failure on older MacOS releases, due to 'CLOCK_REALTIME' wsbuglink:17101[].
-
-* TECMP: Status Capture Module messages shows 3 instead of 2 bytes for HW version wsbuglink:17133[].
-
-* Documentation - editorial error - README.dissector bad reference wsbuglink:17141[].
-
-* Cannot save capture with comments to a format that doesn't support it (no pop-up) wsbuglink:17146[].
-
-* AUTOSAR-NM: PNI TF-String wrong way around wsbuglink:17154[].
-
-* Fibre Channel parsing errors even with the fix for #17084 wsbuglink:17168[].
-
-* f5ethtrailer: Won't find a trailer after an FCS that begins with a 0x00 byte wsbuglink:17171[].
-
-* f5ethtrailer: legacy format, low noise only, no vip name trailers no longer detected wsbuglink:17172[].
-
-* Buildbot crash output: fuzz-2021-01-22-3387835.pcap wsbuglink:17174[].
-// No crash or DoS.
-
-* Dissection error on large ZVT packets wsbuglink:17177[].
-
-* TShark crashes with -T ek option wsbuglink:17179[].
+// cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log v3.4.4rc0.. | gsed -e 's/\(close\|fix\|resolv\)[^ ]* #/\nclose #/gI' | grep ^close | sed -e 's/close.*#\([1-9][0-9]*\).*/\1/' | sort -V -u` ; do "$(git rev-parse --show-toplevel)/tools/gen-bugnote" $bugnumber; pbpaste >> /tmp/buglist.txt; done
 
 === New and Updated Features
 
@@ -109,33 +63,15 @@ There are no new protocols in this release.
 // Add one protocol per line between the -- delimiters.
 [commaize]
 --
-AUTOSAR-NM
-DHCPv6
-DoIP
-FC ELS
-GQUIC
-IPv6
-NAS 5GS
-NAS EPS
-QUIC
-SIP
-SOME/IP-SD
-TECMP
-TLS
-TPNCP
-USB HID
-ZVT
 --
 
 === New and Updated Capture File Support
 
-// There is no new or updated capture file support in this release.
+There is no new or updated capture file support in this release.
 // Add one file type per line between the -- delimiters.
-[commaize]
---
-f5ethtrailer
-pcapng
---
+// [commaize]
+// --
+// --
 
 // === New and Updated Capture Interfaces support
 
