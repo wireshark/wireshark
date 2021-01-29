@@ -48,9 +48,9 @@ static const value_string EVsipMessageType_vals[] =
    {0, NULL}
 };
 
-value_string_ext EVsipMessageType_vals_ext = VALUE_STRING_EXT_INIT(EVsipMessageType_vals);
+static value_string_ext EVsipMessageType_vals_ext = VALUE_STRING_EXT_INIT(EVsipMessageType_vals);
 
-const value_string EVsipVendorID_vals[] =
+static const value_string EVsipVendorID_vals[] =
 {
    {8192, "Unknown Vendor"},
    {8193, "Verint"},
@@ -64,7 +64,7 @@ const value_string EVsipVendorID_vals[] =
    {0, NULL}
 };
 
-const value_string EVsipEntityType_vals[] =
+static const value_string EVsipEntityType_vals[] =
 {
    { 0, "Device"},
    { 1, "Video decoder"},
@@ -84,7 +84,7 @@ const value_string EVsipEntityType_vals[] =
    {0, NULL}
 };
 
-const value_string EVsipContentType_vals[] =
+static const value_string EVsipContentType_vals[] =
 {
    {0, "None"},
    {1, "Command and Control"},
@@ -96,7 +96,7 @@ const value_string EVsipContentType_vals[] =
    {0, NULL}
 };
 
-const value_string EVsipValueType_vals[] =
+static const value_string EVsipValueType_vals[] =
 {
    {1, "Character - 8 bits"},
    {2, "Short - 16 bits"},
@@ -109,7 +109,7 @@ const value_string EVsipValueType_vals[] =
    {0, NULL}
 };
 
-const value_string EVsipConnectionType_vals[] =
+static const value_string EVsipConnectionType_vals[] =
 {
    {  0, "VSIP_CONN_TYPE_NULL"},
    {  1, "VSIP_CONN_TYPE_UDP_UNICAST"},
@@ -128,7 +128,7 @@ const value_string EVsipConnectionType_vals[] =
    {0, NULL}
 };
 
-const value_string EVsipCommand_vals[] =
+static const value_string EVsipCommand_vals[] =
 {
    { 1, "Send Key Frame"},
    { 2, "VSIP Proprietary Command"},
@@ -158,9 +158,9 @@ const value_string EVsipCommand_vals[] =
    {0, NULL}
 };
 
-value_string_ext EVsipCommand_vals_ext = VALUE_STRING_EXT_INIT(EVsipCommand_vals);
+static value_string_ext EVsipCommand_vals_ext = VALUE_STRING_EXT_INIT(EVsipCommand_vals);
 
-const value_string EVsipConfigItem_vals[] =
+static const value_string EVsipConfigItem_vals[] =
 {
    {   1, "CONFIG_NETWORK_PORT/CONFIG_NETWORK_RX_PORT"},
    {   2, "CONFIG_NETWORK_CONNECTION_TYPE"},
@@ -627,9 +627,9 @@ const value_string EVsipConfigItem_vals[] =
    {0, NULL}
 };
 
-value_string_ext EVsipConfigItem_vals_ext = VALUE_STRING_EXT_INIT(EVsipConfigItem_vals);
+static value_string_ext EVsipConfigItem_vals_ext = VALUE_STRING_EXT_INIT(EVsipConfigItem_vals);
 
-const value_string EVsipEventType_vals[] =
+static const value_string EVsipEventType_vals[] =
 {
    { 1, "Input Pin State Change"},
    { 2, "Analog Video Input State Change"},
@@ -644,7 +644,7 @@ const value_string EVsipEventType_vals[] =
    {0, NULL}
 };
 
-const value_string EVsipErrorCode_vals[] =
+static const value_string EVsipErrorCode_vals[] =
 {
    {   0, "VSIP_ERROR_CODE_SUCCESS"},
    {   1, "VSIP_ERROR_CODE_FAILURE"},
@@ -671,7 +671,7 @@ const value_string EVsipErrorCode_vals[] =
    {0, NULL}
 };
 
-value_string_ext EVsipErrorCode_vals_ext = VALUE_STRING_EXT_INIT(EVsipErrorCode_vals);
+static value_string_ext EVsipErrorCode_vals_ext = VALUE_STRING_EXT_INIT(EVsipErrorCode_vals);
 
 
 /* Global module variables. */

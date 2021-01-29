@@ -1783,7 +1783,7 @@ dissect_nt_sid(tvbuff_t *tvb, int offset, proto_tree *parent_tree,
 }
 
 /* Dissect SYSTEM_RESOURCE_ATTRIBUTE_ACE Value, see [MS-DTYP] v20180912 section 2.4.4.15 */
-int
+static int
 dissect_nt_ace_system_resource_attribute_value(tvbuff_t *tvb, int value_offset, proto_tree *tree,
 					       guint16 value_type, proto_item *sra_item)
 {
@@ -1866,7 +1866,7 @@ dissect_nt_ace_system_resource_attribute_value(tvbuff_t *tvb, int value_offset, 
 }
 
 /* Dissect SYSTEM_RESOURCE_ATTRIBUTE_ACE, see [MS-DTYP] v20180912 section 2.4.4.15 */
-int
+static int
 dissect_nt_ace_system_resource_attribute(tvbuff_t *tvb, int offset, guint16 size, proto_tree *parent_tree)
 {
 	/* The caller has already dissected Header, Mask and Sid. Therefore
@@ -1979,7 +1979,7 @@ dissect_nt_ace_system_resource_attribute(tvbuff_t *tvb, int offset, guint16 size
 }
 
 /* Dissect Condition ACE token, see [MS-DTYP] v20180912 section 2.4.4.17.4 */
-int
+static int
 dissect_nt_conditional_ace_token(tvbuff_t *tvb, int offset, guint16 size, proto_tree *parent_tree)
 {
 	int start_offset = offset;
@@ -2160,7 +2160,7 @@ dissect_nt_conditional_ace_token(tvbuff_t *tvb, int offset, guint16 size, proto_
 
 
 /* Dissect Conditional ACE (if present), see [MS-DTYP] v20180912 section 2.4.4.17.4 */
-int
+static int
 dissect_nt_conditional_ace(tvbuff_t *tvb, int offset, guint16 size, proto_tree *parent_tree)
 {
 	int start_offset = offset;
