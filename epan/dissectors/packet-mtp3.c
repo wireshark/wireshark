@@ -826,11 +826,15 @@ static stat_tap_table_item mtp3_stat_fields[] = {
 
 static void mtp3_stat_init(stat_tap_table_ui* new_stat)
 {
+  const char *table_name = "MTP3 Statistics";
   int num_fields = sizeof(mtp3_stat_fields)/sizeof(stat_tap_table_item);
-  stat_tap_table* table;
+  stat_tap_table *table;
 
-  table = stat_tap_init_table("MTP3 Statistics", num_fields, 0, NULL);
-  stat_tap_add_table(new_stat, table);
+  table = stat_tap_find_table(new_stat, table_name);
+  if (!table) {
+    table = stat_tap_init_table(table_name, num_fields, 0, NULL);
+    stat_tap_add_table(new_stat, table);
+  }
 }
 
 static tap_packet_status
