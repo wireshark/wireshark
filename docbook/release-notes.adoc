@@ -24,18 +24,12 @@ They previously shipped with Npcap 1.00.
 
 === Bug Fixes
 
-// https://about.gitlab.com/security/cve/#requesting-a-cve-from-gitlab
-// CWE-120: Buffer Copy without Checking Size of Input ('Classic Buffer Overflow')
-// CWE-126: Buffer Over-read
-// CWE-401: Missing Release of Memory after Effective Lifetime
-// CWE-789: Memory Allocation with Excessive Size Value
-
 The following vulnerabilities have been fixed:
 
 * wssalink:2021-01[]
 USB HID dissector memory leak.
 wsbuglink:17124[].
-// cveidlink:2020-xxxxx[].
+cveidlink:2021-22173[].
 // Fixed in master: 26f0db01a7
 // Fixed in release-3.4: 24f56bec53
 // Fixed in master-3.2: n/a
@@ -44,7 +38,7 @@ wsbuglink:17124[].
 * wssalink:2021-02[]
 USB HID dissector crash.
 wsbuglink:17165[].
-// cveidlink:2020-xxxxx[].
+cveidlink:2021-22174[].
 // Fixed in master: 785e291c1b
 // Fixed in release-3.4: 57e14a4190
 // Fixed in master-3.2: n/a

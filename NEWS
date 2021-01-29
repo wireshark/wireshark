@@ -12,7 +12,59 @@ Wireshark 3.4.3 Release Notes
 
   Bug Fixes
 
+   The following vulnerabilities have been fixed:
+
+     • wnpa-sec-2021-01[1] USB HID dissector memory leak. Bug 17124[2].
+       CVE-2021-22173[3].
+
+     • wnpa-sec-2021-02[4] USB HID dissector crash. Bug 17165[5].
+       CVE-2021-22174[6].
+
    The following bugs have been fixed:
+
+     • SIP response single-line multiple Contact-URIs decoding error Bug
+       13752[7].
+
+     • Adding filter while "Telephony→VoIP Calls→Flow Sequence" open
+       causes OOB memory reads and potential crashes. Bug 16952[8].
+
+     • QUIC packet not fully dissected Bug 17077[9].
+
+     • SOMEIP-SD hidden entries are off Bug 17091[10].
+
+     • Problem with calculation on UDP checksum in SRv6 Bug 17097[11].
+
+     • Dark mode not working in Wireshark 3.4.2 on macOS Bug 17098[12].
+
+     • Wireshark 3.4.0: build failure on older MacOS releases, due to
+       'CLOCK_REALTIME' Bug 17101[13].
+
+     • TECMP: Status Capture Module messages shows 3 instead of 2 bytes
+       for HW version Bug 17133[14].
+
+     • Documentation - editorial error - README.dissector bad reference
+       Bug 17141[15].
+
+     • Cannot save capture with comments to a format that doesn’t
+       support it (no pop-up) Bug 17146[16].
+
+     • AUTOSAR-NM: PNI TF-String wrong way around Bug 17154[17].
+
+     • Fibre Channel parsing errors even with the fix for #17084 Bug
+       17168[18].
+
+     • f5ethtrailer: Won’t find a trailer after an FCS that begins with
+       a 0x00 byte Bug 17171[19].
+
+     • f5ethtrailer: legacy format, low noise only, no vip name trailers
+       no longer detected Bug 17172[20].
+
+     • Buildbot crash output: fuzz-2021-01-22-3387835.pcap Bug
+       17174[21].
+
+     • Dissection error on large ZVT packets Bug 17177[22].
+
+     • TShark crashes with -T ek option Bug 17179[23].
 
   New and Updated Features
 
@@ -22,9 +74,12 @@ Wireshark 3.4.3 Release Notes
 
   Updated Protocol Support
 
+   AUTOSAR-NM, DHCPv6, DoIP, FC ELS, GQUIC, IPv6, NAS 5GS, NAS EPS,
+   QUIC, SIP, SOME/IP-SD, TECMP, TLS, TPNCP, USB HID, and ZVT
+
   New and Updated Capture File Support
 
-   There is no new or updated capture file support in this release.
+   f5ethtrailer and pcapng
 
  Getting Wireshark
 
@@ -36,7 +91,7 @@ Wireshark 3.4.3 Release Notes
    Most Linux and Unix vendors supply their own Wireshark packages. You
    can usually install or upgrade Wireshark using the package management
    system specific to that platform. A list of third-party packages can
-   be found on the download page[1] on the Wireshark web site.
+   be found on the download page[24] on the Wireshark web site.
 
  File Locations
 
@@ -50,22 +105,45 @@ Wireshark 3.4.3 Release Notes
   The User’s Guide, manual pages and various other documentation can be
   found at https://www.wireshark.org/docs/
 
-  Community support is available on Wireshark’sQ&A site[2] and on the
+  Community support is available on Wireshark’sQ&A site[25] and on the
   wireshark-users mailing list. Subscription information and archives
-  for all of Wireshark’s mailing lists can be found on the web site[3].
+  for all of Wireshark’s mailing lists can be found on the web site[26].
 
-  Issues and feature requests can be reported on the issue tracker[4].
+  Issues and feature requests can be reported on the issue tracker[27].
 
  Frequently Asked Questions
 
-  A complete FAQ is available on the Wireshark web site[5].
+  A complete FAQ is available on the Wireshark web site[28].
 
-  Last updated 2021-01-24 09:50:36 UTC
+  Last updated 2021-01-29 18:02:26 UTC
 
  References
 
-   1. https://www.wireshark.org/download.html#thirdparty
-   2. https://ask.wireshark.org/
-   3. https://www.wireshark.org/lists/
-   4. https://gitlab.com/wireshark/wireshark/-/issues
-   5. https://www.wireshark.org/faq.html
+   1. https://www.wireshark.org/security/wnpa-sec-2021-01
+   2. https://gitlab.com/wireshark/wireshark/-/issues/17124
+   3. https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2021-22173
+   4. https://www.wireshark.org/security/wnpa-sec-2021-02
+   5. https://gitlab.com/wireshark/wireshark/-/issues/17165
+   6. https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2021-22174
+   7. https://gitlab.com/wireshark/wireshark/-/issues/13752
+   8. https://gitlab.com/wireshark/wireshark/-/issues/16952
+   9. https://gitlab.com/wireshark/wireshark/-/issues/17077
+  10. https://gitlab.com/wireshark/wireshark/-/issues/17091
+  11. https://gitlab.com/wireshark/wireshark/-/issues/17097
+  12. https://gitlab.com/wireshark/wireshark/-/issues/17098
+  13. https://gitlab.com/wireshark/wireshark/-/issues/17101
+  14. https://gitlab.com/wireshark/wireshark/-/issues/17133
+  15. https://gitlab.com/wireshark/wireshark/-/issues/17141
+  16. https://gitlab.com/wireshark/wireshark/-/issues/17146
+  17. https://gitlab.com/wireshark/wireshark/-/issues/17154
+  18. https://gitlab.com/wireshark/wireshark/-/issues/17168
+  19. https://gitlab.com/wireshark/wireshark/-/issues/17171
+  20. https://gitlab.com/wireshark/wireshark/-/issues/17172
+  21. https://gitlab.com/wireshark/wireshark/-/issues/17174
+  22. https://gitlab.com/wireshark/wireshark/-/issues/17177
+  23. https://gitlab.com/wireshark/wireshark/-/issues/17179
+  24. https://www.wireshark.org/download.html#thirdparty
+  25. https://ask.wireshark.org/
+  26. https://www.wireshark.org/lists/
+  27. https://gitlab.com/wireshark/wireshark/-/issues
+  28. https://www.wireshark.org/faq.html
