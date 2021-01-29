@@ -4332,7 +4332,7 @@ dissect_tcpopt_sack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
              * initialize the number of SACK blocks to 0, it will be
              * updated some lines later
              */
-            if (tcp_track_bytes_in_flight) {
+            if (tcp_track_bytes_in_flight && tcpd->fwd->tcp_analyze_seq_info) {
                 tcpd->fwd->tcp_analyze_seq_info->num_sack_ranges = 0;
             }
         }
@@ -4377,7 +4377,7 @@ dissect_tcpopt_sack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
         num_sack_ranges++;
 
         /* Store blocks for BiF analysis */
-        if (tcpd && tcp_track_bytes_in_flight) {
+        if (tcp_analyze_seq && tcpd->fwd->tcp_analyze_seq_info && tcp_track_bytes_in_flight) {
             tcpd->fwd->tcp_analyze_seq_info->num_sack_ranges = num_sack_ranges;
             tcpd->fwd->tcp_analyze_seq_info->sack_left_edge[num_sack_ranges] = leftedge;
             tcpd->fwd->tcp_analyze_seq_info->sack_right_edge[num_sack_ranges] = rightedge;
@@ -6514,7 +6514,9 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         tcph->th_stream = tcpd->stream;
 
         /* initialize the SACK blocks seen to 0 */
-        tcpd->fwd->tcp_analyze_seq_info->num_sack_ranges = 0;
+        if(tcp_analyze_seq && tcpd->fwd->tcp_analyze_seq_info) {
+            tcpd->fwd->tcp_analyze_seq_info->num_sack_ranges = 0;
+        }
     }
 
     /* Do we need to calculate timestamps relative to the tcp-stream? */
