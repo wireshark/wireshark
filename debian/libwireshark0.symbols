@@ -1424,8 +1424,6 @@ libwireshark.so.0 libwireshark0 #MINVER#
  rtp_dyn_payload_get_name@Base 1.12.0~rc1
  rtp_dyn_payload_insert@Base 1.12.0~rc1
  rtp_dyn_payload_new@Base 1.12.0~rc1
- rtp_dyn_payload_remove@Base 1.12.0~rc1
- rtp_dyn_payload_replace@Base 1.12.0~rc1
  rtp_event_type_values_ext@Base 1.12.0~rc1
  rtp_payload_type_short_vals_ext@Base 1.9.1
  rtp_payload_type_vals_ext@Base 1.9.1
