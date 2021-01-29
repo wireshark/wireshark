@@ -108,6 +108,8 @@ INIT_FIELD(identifyflow_magicnumber,    8,  8)
 INIT_FIELD(identifyflow_measurementid, 16,  8)
 INIT_FIELD(identifyflow_streamid,      24,  2)
 
+#define NETPERFMETER_IDENTIFY_FLOW_MAGIC_NUMBER 0x4bcdf3aa303c6774ULL
+
 INIT_FIELD(data_flowid,           4,  4)
 INIT_FIELD(data_measurementid,    8,  8)
 INIT_FIELD(data_streamid,        16,  2)
@@ -412,6 +414,40 @@ dissect_npmp(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree, void *
   proto_item *npmp_item;
   proto_tree *npmp_tree;
 
+  const guint length = tvb_reported_length(message_tvb);
+  if (length < 4)
+    return(0);
+  if( (pinfo->ptype == PT_TCP) ||
+      (pinfo->ptype == PT_UDP) ||
+      (pinfo->ptype == PT_DCCP) ) {
+     /* For TCP, UDP or DCCP:
+        Type must either be NETPERFMETER_DATA or NETPERFMETER_IDENTIFY_FLOW */
+     const guint8 type = tvb_get_guint8(message_tvb, offset_message_type);
+     switch(type) {
+       case NETPERFMETER_DATA:
+         if (length < offset_data_payload + 8)
+           return(0);
+         /* Identify NetPerfMeter flow by payload pattern */
+         for(int i = 0; i < 8; i++) {
+           guint8 d = tvb_get_guint8(message_tvb, offset_data_payload + i);
+           if(d != 30 + i)
+             return(0);
+         }
+         break;
+       case NETPERFMETER_IDENTIFY_FLOW:
+         if (length < offset_identifyflow_streamid + length_identifyflow_streamid)
+           return(0);
+         if (tvb_get_ntoh64(message_tvb, offset_identifyflow_magicnumber) != NETPERFMETER_IDENTIFY_FLOW_MAGIC_NUMBER) {
+           /* Identify NetPerfMeter flow by NETPERFMETER_IDENTIFY_FLOW_MAGIC_NUMBER */
+           return(0);
+         }
+         break;
+       default:
+         /* Not a NetPerfMeter packet */
+         break;
+     }
+  }
+
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "NetPerfMeterProtocol");
 
   /* In the interest of speed, if "tree" is NULL, don't do any work not
@@ -453,11 +489,18 @@ proto_reg_handoff_npmp(void)
 {
   dissector_handle_t npmp_handle;
 
+  /* NetPerfMeterProtocol over SCTP is detected by PPIDs */
   npmp_handle = create_dissector_handle(dissect_npmp, proto_npmp);
   dissector_add_uint("sctp.ppi", PPID_NETPERFMETER_CONTROL_LEGACY, npmp_handle);
   dissector_add_uint("sctp.ppi", PPID_NETPERFMETER_DATA_LEGACY,    npmp_handle);
   dissector_add_uint("sctp.ppi", NPMP_CTRL_PAYLOAD_PROTOCOL_ID,    npmp_handle);
   dissector_add_uint("sctp.ppi", NPMP_DATA_PAYLOAD_PROTOCOL_ID,    npmp_handle);
+
+  /* NetPerfMeterProtocol over TCP, UDP and DCCP is deteced by
+     check of payload in dissect_npmp() */
+  dissector_add_uint_range_with_preference("tcp.port",  "1024-65535", npmp_handle);
+  dissector_add_uint_range_with_preference("dccp.port", "1024-65535", npmp_handle);
+  dissector_add_uint_range_with_preference("udp.port",  "1024-65535", npmp_handle);
 }
 
 /*
