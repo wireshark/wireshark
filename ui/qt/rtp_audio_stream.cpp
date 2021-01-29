@@ -622,10 +622,6 @@ void RtpAudioStream::startPlaying()
         emit playbackError(playback_error);
     }
 
-    audio_output_ = new QAudioOutput(cur_out_device, format, this);
-    audio_output_->setNotifyInterval(65); // ~15 fps
-    connect(audio_output_, SIGNAL(stateChanged(QAudio::State)), this, SLOT(outputStateChanged(QAudio::State)));
-    connect(audio_output_, SIGNAL(notify()), this, SLOT(outputNotify()));
     start_pos = (qint64)(start_play_time_ * sample_bytes_ * audio_out_rate_);
     // Round to sample_bytes_ boundary
     start_pos = (start_pos / sample_bytes_) * sample_bytes_;
@@ -634,7 +630,21 @@ void RtpAudioStream::startPlaying()
         start_pos *= 2;
     }
     if (start_pos < tempfile_->size()) {
+        int bufferSize;
+
+        // Start and stop audio with no connection to UI and store buffer size
         tempfile_->seek(start_pos);
+        audio_output_ = new QAudioOutput(cur_out_device, format, this);
+        audio_output_->start(tempfile_);
+        bufferSize = audio_output_->bufferSize();
+        audio_output_->stop();
+
+        // Start audio again with doubled buffer size, UI is updated
+        tempfile_->seek(start_pos);
+        audio_output_->setBufferSize(bufferSize*2);
+        audio_output_->setNotifyInterval(100); // ~15 fps
+        connect(audio_output_, SIGNAL(stateChanged(QAudio::State)), this, SLOT(outputStateChanged(QAudio::State)));
+        connect(audio_output_, SIGNAL(notify()), this, SLOT(outputNotify()));
         audio_output_->start(tempfile_);
         emit startedPlaying();
         // QTBUG-6548 StoppedState is not always emitted on error, force a cleanup
