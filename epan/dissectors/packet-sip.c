@@ -5810,15 +5810,24 @@ static stat_tap_table_item sip_stat_fields[] = {
 static void sip_stat_init(stat_tap_table_ui* new_stat)
 {
     /* XXX Should we have a single request + response table instead? */
+    const char *req_table_name = "SIP Requests";
+    const char *resp_table_name = "SIP Responses";
     int num_fields = sizeof(sip_stat_fields)/sizeof(stat_tap_table_item);
-    stat_tap_table *req_table = stat_tap_init_table("SIP Requests", num_fields, 0, NULL);
-    stat_tap_table *resp_table = stat_tap_init_table("SIP Responses", num_fields, 0, NULL);
+    stat_tap_table *req_table;
+    stat_tap_table *resp_table;
     stat_tap_table_item_type items[sizeof(sip_stat_fields)/sizeof(stat_tap_table_item)];
     guint i;
 
-    stat_tap_add_table(new_stat, resp_table);
-    stat_tap_add_table(new_stat, req_table);
-
+    req_table = stat_tap_find_table(new_stat, req_table_name);
+    if (!req_table) {
+        req_table = stat_tap_init_table(req_table_name, num_fields, 0, NULL);
+        stat_tap_add_table(new_stat, req_table);
+    }
+    resp_table = stat_tap_find_table(new_stat, resp_table_name);
+    if (!resp_table) {
+        resp_table = stat_tap_init_table(resp_table_name, num_fields, 0, NULL);
+        stat_tap_add_table(new_stat, resp_table);
+    }
 
     // These values are fixed for all entries.
     items[REQ_RESP_METHOD_COLUMN].type = TABLE_ITEM_STRING;
