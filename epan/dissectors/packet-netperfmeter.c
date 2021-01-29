@@ -496,7 +496,7 @@ proto_reg_handoff_npmp(void)
   dissector_add_uint("sctp.ppi", NPMP_CTRL_PAYLOAD_PROTOCOL_ID,    npmp_handle);
   dissector_add_uint("sctp.ppi", NPMP_DATA_PAYLOAD_PROTOCOL_ID,    npmp_handle);
 
-  /* NetPerfMeterProtocol over TCP, UDP and DCCP is deteced by
+  /* NetPerfMeterProtocol over TCP, UDP and DCCP is detected by
      check of payload in dissect_npmp() */
   dissector_add_uint_range_with_preference("tcp.port",  "1024-65535", npmp_handle);
   dissector_add_uint_range_with_preference("dccp.port", "1024-65535", npmp_handle);
