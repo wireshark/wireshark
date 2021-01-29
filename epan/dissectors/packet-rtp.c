@@ -843,6 +843,7 @@ rtp_dyn_payload_insert(rtp_dyn_payload_t *rtp_dyn_payload,
 /* Replaces the given payload type key in the hash table, with the encoding name and sample rate.
    This makes copies of the encoding name, scoped to the life of the capture file or sooner if
    rtp_dyn_payload_free is called. */
+/* Not used anymore
 void
 rtp_dyn_payload_replace(rtp_dyn_payload_t *rtp_dyn_payload,
                         const guint pt,
@@ -857,14 +858,17 @@ rtp_dyn_payload_replace(rtp_dyn_payload_t *rtp_dyn_payload,
         g_hash_table_replace(rtp_dyn_payload->table, GUINT_TO_POINTER(pt), encoding_name_and_rate_pt);
     }
 }
+*/
 
 /* removes the given payload type */
+/* Not used anymore
 gboolean
 rtp_dyn_payload_remove(rtp_dyn_payload_t *rtp_dyn_payload, const guint pt)
 {
     return (rtp_dyn_payload && rtp_dyn_payload->table &&
             g_hash_table_remove(rtp_dyn_payload->table, GUINT_TO_POINTER(pt)));
 }
+*/
 
 /* retrieves the encoding name for the given payload type */
 const gchar*

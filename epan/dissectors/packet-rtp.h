@@ -133,15 +133,19 @@ void rtp_dyn_payload_insert(rtp_dyn_payload_t *rtp_dyn_payload,
 /* Replaces the given payload type key in the hash table, with the encoding name and sample rate.
    This makes copies of the encoding name, scoped to the life of the capture file or sooner if
    rtp_dyn_payload_free is called. The replaced encoding name is free'd immediately. */
+/* Not used anymore
 WS_DLL_PUBLIC
 void rtp_dyn_payload_replace(rtp_dyn_payload_t *rtp_dyn_payload,
 							const guint pt,
 							const gchar* encoding_name,
 							const int sample_rate);
+*/
 
 /* removes the given payload type */
+/* Not used anymore
 WS_DLL_PUBLIC
 gboolean rtp_dyn_payload_remove(rtp_dyn_payload_t *rtp_dyn_payload, const guint pt);
+*/
 
 /* retrieves the encoding name for the given payload type; the string returned is only valid
    until the entry is replaced, removed, or the hash table is destroyed, so duplicate it if
