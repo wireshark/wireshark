@@ -144,7 +144,7 @@ typedef enum {
     WTAP_OPTTYPE_STRING,
     WTAP_OPTTYPE_IPv4,
     WTAP_OPTTYPE_IPv6,
-    WTAP_OPTTYPE_STRUCTURED
+    WTAP_OPTTYPE_STRUCTURED     /* option-dependent non-simple format */
 } wtap_opttype_e;
 
 typedef enum {
@@ -446,7 +446,7 @@ wtap_block_get_string_option_value(wtap_block_t block, guint option_id, char** v
 WS_DLL_PUBLIC wtap_opttype_return_val
 wtap_block_get_nth_string_option_value(wtap_block_t block, guint option_id, guint idx, char** value) G_GNUC_WARN_UNUSED_RESULT;
 
-/** Add a "custom" option value to a block
+/** Add a structured option value to a block
  *
  * @param[in] block Block to which to add the option
  * @param[in] option_id Identifier value for option
@@ -458,7 +458,7 @@ wtap_block_get_nth_string_option_value(wtap_block_t block, guint option_id, guin
 WS_DLL_PUBLIC wtap_opttype_return_val
 wtap_block_add_structured_option(wtap_block_t block, guint option_id, void* value, size_t value_size);
 
-/** Set a "custom" option value in a block
+/** Set a structured option value in a block
  *
  * @param[in] block Block in which to set the option value
  * @param[in] option_id Identifier value for option
@@ -469,7 +469,7 @@ wtap_block_add_structured_option(wtap_block_t block, guint option_id, void* valu
 WS_DLL_PUBLIC wtap_opttype_return_val
 wtap_block_set_structured_option_value(wtap_block_t block, guint option_id, void* value);
 
-/** Get a "custom" option value from a block
+/** Get a structured option value from a block
  *
  * @param[in] block Block from which to get the option value
  * @param[in] option_id Identifier value for option
@@ -534,4 +534,3 @@ WS_DLL_PUBLIC void wtap_opttypes_cleanup(void);
 #endif /* __cplusplus */
 
 #endif /* WTAP_OPT_TYPES_H */
-
