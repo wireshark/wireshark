@@ -62,6 +62,46 @@ ATTRIBUTE	Ruckus-Wispr-Redirect-Policy		132	string
 ATTRIBUTE	Ruckus-Eth-Profile-Id			133	integer
 ATTRIBUTE	Ruckus-Zone-Name			134	string
 ATTRIBUTE	Ruckus-Wlan-Name			135	string
+ATTRIBUTE Ruckus-AP-Roamed                   136    integer
+ATTRIBUTE Ruckus-Read-Preference             137    string
+ATTRIBUTE Ruckus-Client-Host-Name            138    string
+ATTRIBUTE Ruckus-Client-Os-Type              139    string
+ATTRIBUTE Ruckus-Client-Os-Class             140    string
+ATTRIBUTE Ruckus-Vlan-Pool                   141    string
+ATTRIBUTE Ruckus-Dpsk                        142    octets
+ATTRIBUTE Ruckus-CP-Token                    143    string
+ATTRIBUTE Ruckus-Max-DL-UL-Quota             144    integer
+ATTRIBUTE Ruckus-Traffic-Class-Attribute-Ids 145    string
+ATTRIBUTE Ruckus-TC-Attr-Ids-With-Quota      146    tlv 
+ATTRIBUTE Ruckus-Nat-Pool-Name               147    string
+ATTRIBUTE Ruckus-Sta-SVlan-Id                148    integer
+ATTRIBUTE Ruckus-TC-Acct-Ctrs                149  tlv   
+ATTRIBUTE Ruckus-AAA-Id                      152    string 
+ATTRIBUTE Ruckus-DPSK-Params                 153 tlv
+
+#
+#  TLV Sub parameters
+#
+
+BEGIN-TLV Ruckus-TC-Attr-Ids-With-Quota
+	ATTRIBUTE Ruckus-TC-Name-Quota           1     string
+	ATTRIBUTE Ruckus-TC-Quota      2     octets
+END-TLV Ruckus-TC-Attr-Ids-With-Quota  
+
+BEGIN-TLV Ruckus-TC-Acct-Ctrs
+	ATTRIBUTE Ruckus-Acct-Ctrs_TC-Name           1     string
+	ATTRIBUTE Ruckus-Acct-Ctrs_Input-Octets      2     integer
+	ATTRIBUTE Ruckus-Acct-Ctrs_Output-Octets     3     integer
+	ATTRIBUTE Ruckus-Acct-Ctrs_Input-Packets     4     integer
+	ATTRIBUTE Ruckus-Acct-Ctrs_Output-Packets    5     integer
+END-TLV Ruckus-TC-Acct-Ctrs 
+
+BEGIN-TLV Ruckus-DPSK-Params
+	ATTRIBUTE Ruckus-DPSK-AKM-Suite              1   octets              
+	ATTRIBUTE Ruckus-DPSK-Cipher                 2   byte                
+	ATTRIBUTE Ruckus-DPSK-Anonce                 3   octets            
+	ATTRIBUTE Ruckus-DPSK-EAPOL-Key-Frame        4   octets 
+END-TLV Ruckus-DPSK-Params  
 
 #
 #  Integer Translations
