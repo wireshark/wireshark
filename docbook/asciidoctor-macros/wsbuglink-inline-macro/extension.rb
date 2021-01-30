@@ -7,8 +7,8 @@ include ::Asciidoctor
 #
 # Usage
 #
-#   wsbuglink:<number>[<bug text>]
-#   Default bug text is "Bug".
+#   wsbuglink:<number>[<issue text>]
+#   Default bug text is "Issue <number>".
 #
 class WSBugLinkInlineMacro < Extensions::InlineMacroProcessor
   include WsUtils
@@ -19,7 +19,7 @@ class WSBugLinkInlineMacro < Extensions::InlineMacroProcessor
   name_positional_attributes 'bugtext'
 
   def process(parent, issueid, attrs)
-    bugtext = attrs['bugtext'] || %(Bug #{issueid})
+    bugtext = attrs['bugtext'] || %(Issue #{issueid})
     target = %(https://gitlab.com/wireshark/wireshark/-/issues/#{issueid})
     create_doc_links(parent, target, bugtext)
   end
