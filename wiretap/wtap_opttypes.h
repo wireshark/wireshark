@@ -435,7 +435,7 @@ wtap_block_set_string_option_value_format(wtap_block_t block, guint option_id, c
  */
 WS_DLL_PUBLIC wtap_opttype_return_val
 wtap_block_set_nth_string_option_value_format(wtap_block_t block, guint option_id, guint idx, const char *format, ...)
-                                          G_GNUC_PRINTF(4,5);
+                                              G_GNUC_PRINTF(4,5);
 
 /** Get string option value from a block
  *
