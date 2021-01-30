@@ -7,7 +7,6 @@
 # https://hub.docker.com/r/wireshark/wireshark-centos-8-dev
 # https://hub.docker.com/r/wireshark/wireshark-debian-stable-dev
 # https://hub.docker.com/r/wireshark/wireshark-fedora-dev
-# https://hub.docker.com/r/wireshark/wireshark-opensuse-15.1-dev
 # https://hub.docker.com/r/wireshark/wireshark-opensuse-15.2-dev
 # https://hub.docker.com/r/wireshark/wireshark-ubuntu-dev
 
@@ -139,25 +138,6 @@ test:rpm-centos-8:
     - build:rpm-centos-8
   variables:
     GIT_STRATEGY: none
-
-build:rpm-opensuse-15.1:
-  image: wireshark/wireshark-opensuse-15.1-dev
-  extends: .build-rpm
-  script:
-    - cmake -GNinja ..
-    - ninja rpm-package
-  needs:
-    - build:ubuntu-dist
-test:rpm-opensuse-15.1:
-  image: wireshark/wireshark-opensuse-15.1-dev
-  stage: test
-  script:
-    - zypper --no-gpg-checks install -y build/packaging/rpm/RPMS/x86_64/*.rpm
-    - tshark --version
-  variables:
-    GIT_STRATEGY: none
-  needs:
-    - build:rpm-opensuse-15.1
 
 build:rpm-opensuse-15.2:
   image: wireshark/wireshark-opensuse-15.2-dev
