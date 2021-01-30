@@ -423,6 +423,20 @@ WS_DLL_PUBLIC wtap_opttype_return_val
 wtap_block_set_string_option_value_format(wtap_block_t block, guint option_id, const char *format, ...)
                                           G_GNUC_PRINTF(3,4);
 
+/** Set string option value for nth instance of a particular option in a block
+ * to a printf-formatted string
+ *
+ * @param[in] block Block in which to set the option value
+ * @param[in] option_id Identifier value for option
+ * @param[in] idx Instance number of option with that ID
+ * @param[in] format printf-like format string
+ * @return wtap_opttype_return_val - WTAP_OPTTYPE_SUCCESS if successful,
+ * error code otherwise
+ */
+WS_DLL_PUBLIC wtap_opttype_return_val
+wtap_block_set_nth_string_option_value_format(wtap_block_t block, guint option_id, guint idx, const char *format, ...)
+                                          G_GNUC_PRINTF(4,5);
+
 /** Get string option value from a block
  *
  * @param[in] block Block from which to get the option value

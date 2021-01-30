@@ -48,6 +48,7 @@ libwiretap.so.0 libwiretap0 #MINVER#
  wtap_block_set_ipv4_option_value@Base 2.1.2
  wtap_block_set_ipv6_option_value@Base 2.1.2
  wtap_block_set_nth_string_option_value@Base 2.1.2
+ wtap_block_set_nth_string_option_value_format@Base 3.5.0
  wtap_block_set_string_option_value@Base 2.1.2
  wtap_block_set_string_option_value_format@Base 2.1.2
  wtap_block_set_uint64_option_value@Base 2.1.2

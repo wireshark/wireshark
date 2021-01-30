@@ -727,6 +727,23 @@ wtap_block_set_string_option_value_format(wtap_block_t block, guint option_id, c
 }
 
 wtap_opttype_return_val
+wtap_block_set_nth_string_option_value_format(wtap_block_t block, guint option_id, guint idx, const char *format, ...)
+{
+    wtap_opttype_return_val ret;
+    wtap_optval_t *optval;
+    va_list va;
+
+    ret = wtap_block_get_nth_option_common(block, option_id, WTAP_OPTTYPE_STRING, idx, &optval);
+    if (ret != WTAP_OPTTYPE_SUCCESS)
+        return ret;
+    g_free(optval->stringval);
+    va_start(va, format);
+    optval->stringval = g_strdup_vprintf(format, va);
+    va_end(va);
+    return WTAP_OPTTYPE_SUCCESS;
+}
+
+wtap_opttype_return_val
 wtap_block_get_string_option_value(wtap_block_t block, guint option_id, char** value)
 {
     wtap_opttype_return_val ret;
