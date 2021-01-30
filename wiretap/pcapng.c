@@ -950,7 +950,7 @@ pcapng_read_if_descr_block(wtap *wth, FILE_T fh, pcapng_block_header_t *bh,
                         if_filter.if_filter_bpf_bytes = option_content+1;
                     }
                     /* Fails with multiple options; we silently ignore the failure */
-                    wtap_block_add_custom_option(wblock->block, oh.option_code, &if_filter, sizeof if_filter);
+                    wtap_block_add_structured_option(wblock->block, oh.option_code, &if_filter, sizeof if_filter);
                     g_free(if_filter.if_filter_str);
                 } else {
                     pcapng_debug("pcapng_read_if_descr_block: if_filter length %u seems strange", oh.option_length);
@@ -4541,7 +4541,7 @@ static void compute_idb_option_size(wtap_block_t block _U_, guint option_id, wta
         break;
     case OPT_IDB_FILTER:
         {
-            wtapng_if_descr_filter_t* filter = (wtapng_if_descr_filter_t*)optval->customval.data;
+            wtapng_if_descr_filter_t* filter = (wtapng_if_descr_filter_t*)optval->structuredval.data;
             guint32 pad;
             if (filter->if_filter_str != NULL) {
                 size = (guint32)(strlen(filter->if_filter_str) + 1) & 0xffff;
@@ -4631,7 +4631,7 @@ static void write_wtap_idb_option(wtap_block_t block _U_, guint option_id, wtap_
         break;
     case OPT_IDB_FILTER:
         {
-            wtapng_if_descr_filter_t* filter = (wtapng_if_descr_filter_t*)optval->customval.data;
+            wtapng_if_descr_filter_t* filter = (wtapng_if_descr_filter_t*)optval->structuredval.data;
             guint32 size, pad;
             if (filter->if_filter_str != NULL) {
                 size = (guint32)(strlen(filter->if_filter_str) + 1) & 0xffff;

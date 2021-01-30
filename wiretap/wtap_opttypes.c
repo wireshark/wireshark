@@ -36,19 +36,19 @@ typedef struct {
     GArray *options;                 /**< array of known options */
 } wtap_blocktype_t;
 
-typedef void *(*wtap_opttype_dup_custom_func)(void* src);
-typedef void (*wtap_opttype_free_custom_func)(void* data);
+typedef void *(*wtap_opttype_dup_structured_func)(void* src);
+typedef void (*wtap_opttype_free_structured_func)(void* data);
 
 /*
  * Structure describing a type of option.
  */
 typedef struct {
-    const char *name;                        /**< name of option */
-    const char *description;                 /**< human-readable description of option */
-    wtap_opttype_e data_type;                /**< data type of that option */
-    guint flags;                             /**< flags for the option */
-    wtap_opttype_dup_custom_func dup_func;   /**< function to duplicate custom option data */
-    wtap_opttype_free_custom_func free_func; /**< function to free custom option data */
+    const char *name;                            /**< name of option */
+    const char *description;                     /**< human-readable description of option */
+    wtap_opttype_e data_type;                    /**< data type of that option */
+    guint flags;                                 /**< flags for the option */
+    wtap_opttype_dup_structured_func dup_func;   /**< function to duplicate structured option data */
+    wtap_opttype_free_structured_func free_func; /**< function to free structured option data */
 } wtap_opttype_t;
 
 /* Flags */
@@ -204,9 +204,9 @@ static void wtap_block_free_option(wtap_block_t block, wtap_option_t *opt)
         g_free(opt->value.stringval);
         break;
 
-    case WTAP_OPTTYPE_CUSTOM:
-        opttype->free_func(opt->value.customval.data);
-        g_free(opt->value.customval.data);
+    case WTAP_OPTTYPE_STRUCTURED:
+        opttype->free_func(opt->value.structuredval.data);
+        g_free(opt->value.structuredval.data);
         break;
 
     default:
@@ -298,8 +298,8 @@ wtap_block_copy(wtap_block_t dest_block, wtap_block_t src_block)
             wtap_block_add_string_option(dest_block, src_opt->option_id, src_opt->value.stringval, strlen(src_opt->value.stringval));
             break;
 
-        case WTAP_OPTTYPE_CUSTOM:
-            wtap_block_add_custom_option(dest_block, src_opt->option_id, src_opt->value.customval.data, src_opt->value.customval.size);
+        case WTAP_OPTTYPE_STRUCTURED:
+            wtap_block_add_structured_option(dest_block, src_opt->option_id, src_opt->value.structuredval.data, src_opt->value.structuredval.size);
             break;
         }
     }
@@ -753,50 +753,50 @@ wtap_block_get_nth_string_option_value(wtap_block_t block, guint option_id, guin
 }
 
 wtap_opttype_return_val
-wtap_block_add_custom_option(wtap_block_t block, guint option_id, void *value, size_t value_size)
+wtap_block_add_structured_option(wtap_block_t block, guint option_id, void *value, size_t value_size)
 {
     wtap_opttype_return_val ret;
     wtap_option_t *opt;
     wtap_opttype_t *opttype;
 
-    ret = wtap_block_add_option_common(block, option_id, WTAP_OPTTYPE_CUSTOM, &opt);
+    ret = wtap_block_add_option_common(block, option_id, WTAP_OPTTYPE_STRUCTURED, &opt);
     if (ret != WTAP_OPTTYPE_SUCCESS)
         return ret;
     opttype = &g_array_index(block->info->options, wtap_opttype_t, opt->option_id);
-    opt->value.customval.size = (guint)value_size;
-    opt->value.customval.data = opttype->dup_func(value);
+    opt->value.structuredval.size = (guint)value_size;
+    opt->value.structuredval.data = opttype->dup_func(value);
     return WTAP_OPTTYPE_SUCCESS;
 }
 
 wtap_opttype_return_val
-wtap_block_get_custom_option_value(wtap_block_t block, guint option_id, void** value)
+wtap_block_get_structured_option_value(wtap_block_t block, guint option_id, void** value)
 {
     wtap_opttype_return_val ret;
     wtap_optval_t *optval;
 
-    ret = wtap_block_get_option_common(block, option_id, WTAP_OPTTYPE_CUSTOM, &optval);
+    ret = wtap_block_get_option_common(block, option_id, WTAP_OPTTYPE_STRUCTURED, &optval);
     if (ret != WTAP_OPTTYPE_SUCCESS)
         return ret;
-    *value = optval->customval.data;
+    *value = optval->structuredval.data;
     return WTAP_OPTTYPE_SUCCESS;
 }
 
 wtap_opttype_return_val
-wtap_block_set_custom_option_value(wtap_block_t block, guint option_id, void *value)
+wtap_block_set_structured_option_value(wtap_block_t block, guint option_id, void *value)
 {
     wtap_opttype_return_val ret;
     wtap_optval_t *optval;
     void *prev_value;
 
-    ret = wtap_block_get_option_common(block, option_id, WTAP_OPTTYPE_CUSTOM, &optval);
+    ret = wtap_block_get_option_common(block, option_id, WTAP_OPTTYPE_STRUCTURED, &optval);
     if (ret != WTAP_OPTTYPE_SUCCESS)
         return ret;
-    prev_value = optval->customval.data;
+    prev_value = optval->structuredval.data;
     /*
      * XXX - a custom value can be a structure that points to other data,
      * but we're doing a shallow copy here.
      */
-    optval->customval.data = g_memdup(value, optval->customval.size);
+    optval->structuredval.data = g_memdup(value, optval->structuredval.size);
     /* Free after memory is duplicated in case structure was manipulated with a "get then set" */
     g_free(prev_value);
 
@@ -1081,7 +1081,7 @@ void wtap_opttypes_initialize(void)
     static wtap_opttype_t if_filter = {
         "filter",
         "IDB Filter",
-        WTAP_OPTTYPE_CUSTOM,
+        WTAP_OPTTYPE_STRUCTURED,
         0,
         idb_filter_dup,
         idb_filter_free

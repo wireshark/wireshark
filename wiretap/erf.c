@@ -1109,7 +1109,7 @@ static void erf_write_wtap_option_to_interface_tag(wtap_block_t block _U_,
       {
         wtapng_if_descr_filter_t *filter;
         tag_ptr->type = 0xF800;
-        filter = (wtapng_if_descr_filter_t*)&optval->customval;
+        filter = (wtapng_if_descr_filter_t*)&optval->structuredval;
         if(filter->if_filter_str) {
           tag_ptr->type = ERF_META_TAG_filter;
           tag_ptr->value = (guint8*)g_strdup(filter->if_filter_str);
@@ -2841,7 +2841,7 @@ static int populate_interface_info(erf_t *erf_priv, wtap *wth, union wtap_pseudo
         break;
       case ERF_META_TAG_filter:
         if_filter.if_filter_str = g_strndup((gchar*) tag.value, tag.length);
-        wtap_block_add_custom_option(int_data, OPT_IDB_FILTER, &if_filter, sizeof if_filter);
+        wtap_block_add_structured_option(int_data, OPT_IDB_FILTER, &if_filter, sizeof if_filter);
         g_free(if_filter.if_filter_str);
         if_info->set_flags.filter = 1;
         break;
@@ -2867,7 +2867,7 @@ static int populate_interface_info(erf_t *erf_priv, wtap *wth, union wtap_pseudo
     if (state->if_map->module_filter_str) {
       /* Duplicate because might use with multiple interfaces */
       if_filter.if_filter_str = state->if_map->module_filter_str;
-      wtap_block_add_custom_option(int_data, OPT_IDB_FILTER, &if_filter, sizeof if_filter);
+      wtap_block_add_structured_option(int_data, OPT_IDB_FILTER, &if_filter, sizeof if_filter);
       /*
        * Don't set flag because stream is more specific than module.
        */
@@ -2875,7 +2875,7 @@ static int populate_interface_info(erf_t *erf_priv, wtap *wth, union wtap_pseudo
       /* TODO: display separately? Note that we could have multiple captures
        * from multiple hosts in the file */
       if_filter.if_filter_str = state->if_map->capture_filter_str;
-      wtap_block_add_custom_option(int_data, OPT_IDB_FILTER, &if_filter, sizeof if_filter);
+      wtap_block_add_structured_option(int_data, OPT_IDB_FILTER, &if_filter, sizeof if_filter);
     }
   }
 
@@ -3012,7 +3012,7 @@ static int populate_stream_info(erf_t *erf_priv _U_, wtap *wth, union wtap_pseud
           /* Override only if not set */
           if (!if_info->set_flags.filter) {
             if_filter.if_filter_str = g_strndup((gchar*) tag.value, tag.length);
-            wtap_block_add_custom_option(int_data, OPT_IDB_FILTER, &if_filter, sizeof if_filter);
+            wtap_block_add_structured_option(int_data, OPT_IDB_FILTER, &if_filter, sizeof if_filter);
             g_free(if_filter.if_filter_str);
             if_info->set_flags.filter = 1;
           }

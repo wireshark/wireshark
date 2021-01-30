@@ -171,7 +171,7 @@ summary_fill_in(capture_file *cf, summary_tally *st)
   for (i = 0; i < idb_info->interface_data->len; i++) {
     wtapng_if_descr = g_array_index(idb_info->interface_data, wtap_block_t, i);
     wtapng_if_descr_mand = (wtapng_if_descr_mandatory_t*)wtap_block_get_mandatory_data(wtapng_if_descr);
-    if (wtap_block_get_custom_option_value(wtapng_if_descr, OPT_IDB_FILTER, (void**)&if_filter) == WTAP_OPTTYPE_SUCCESS) {
+    if (wtap_block_get_structured_option_value(wtapng_if_descr, OPT_IDB_FILTER, (void**)&if_filter) == WTAP_OPTTYPE_SUCCESS) {
       iface.cfilter = g_strdup(if_filter->if_filter_str);
     } else {
       iface.cfilter = NULL;

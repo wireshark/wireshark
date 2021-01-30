@@ -365,7 +365,7 @@ wtap_get_debug_if_descr(const wtap_block_t if_descr,
 				line_end);
 	}
 
-	if (wtap_block_get_custom_option_value(if_descr, OPT_IDB_FILTER, (void**)&if_filter) == WTAP_OPTTYPE_SUCCESS) {
+	if (wtap_block_get_structured_option_value(if_descr, OPT_IDB_FILTER, (void**)&if_filter) == WTAP_OPTTYPE_SUCCESS) {
 		g_string_append_printf(info,
 				"%*cFilter string = %s%s", indent, ' ',
 				if_filter->if_filter_str ? if_filter->if_filter_str : "NONE",
