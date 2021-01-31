@@ -36,6 +36,7 @@ editcap: The available encapsulation types for the "-T" flag are:
     ether - Ethernet
     ether-mpacket - IEEE 802.3br mPackets
     ether-nettl - Ethernet with nettl headers
+    etw - Event Tracing for Windows messages
     fc2 - Fibre Channel FC-2
     fc2sof - Fibre Channel FC-2 With Frame Delimiter
     fddi - FDDI
