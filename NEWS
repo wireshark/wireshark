@@ -1,4 +1,4 @@
-Wireshark 3.2.11 Release Notes
+Wireshark 3.2.12 Release Notes
 
  What is Wireshark?
 
@@ -9,28 +9,9 @@ Wireshark 3.2.11 Release Notes
 
   Bug Fixes
 
+   The following vulnerabilities have been fixed:
+
    The following bugs have been fixed:
-
-     • Adding filter while "Telephony→VoIP Calls→Flow Sequence" open
-       causes OOB memory reads and potential crashes. Bug 16952[1].
-
-     • SOMEIP-SD hidden entries are off Bug 17091[2].
-
-     • Dark mode not working in Wireshark 3.4.2 on macOS Bug 17098[3].
-
-     • Documentation - editorial error - README.dissector bad reference
-       Bug 17141[4].
-
-     • AUTOSAR-NM: PNI TF-String wrong way around Bug 17154[5].
-
-     • Fibre Channel parsing errors even with the fix for #17084 Bug
-       17168[6].
-
-     • Buildbot crash output: fuzz-2021-01-22-3387835.pcap Bug 17174[7].
-
-     • Dissection error on large ZVT packets Bug 17177[8].
-
-     • TShark crashes with -T ek option Bug 17179[9].
 
   New and Updated Features
 
@@ -42,11 +23,9 @@ Wireshark 3.2.11 Release Notes
 
   Updated Protocol Support
 
-   AUTOSAR-NM, DHCPv6, DoIP, FC ELS, SIP, SOME/IP-SD, and ZVT
-
   New and Updated Capture File Support
 
-   pcapng
+   There is no new or updated capture file support in this release.
 
  Getting Wireshark
 
@@ -58,7 +37,7 @@ Wireshark 3.2.11 Release Notes
    Most Linux and Unix vendors supply their own Wireshark packages. You
    can usually install or upgrade Wireshark using the package management
    system specific to that platform. A list of third-party packages can
-   be found on the download page[10] on the Wireshark web site.
+   be found on the download page[1] on the Wireshark web site.
 
  File Locations
 
@@ -72,31 +51,22 @@ Wireshark 3.2.11 Release Notes
   The User’s Guide, manual pages and various other documentation can be
   found at https://www.wireshark.org/docs/
 
-  Community support is available on Wireshark’s Q&A site[11] and on the
+  Community support is available on Wireshark’s Q&A site[2] and on the
   wireshark-users mailing list. Subscription information and archives
-  for all of Wireshark’s mailing lists can be found on the web site[12].
+  for all of Wireshark’s mailing lists can be found on the web site[3].
 
-  Issues and feature requests can be reported on the issue tracker[13].
+  Issues and feature requests can be reported on the issue tracker[4].
 
  Frequently Asked Questions
 
-  A complete FAQ is available on the Wireshark web site[14].
+  A complete FAQ is available on the Wireshark web site[5].
 
-  Last updated 2021-01-29 17:59:08 UTC
+  Last updated 2021-01-31 10:33:02 UTC
 
  References
 
-   1. https://gitlab.com/wireshark/wireshark/-/issues/16952
-   2. https://gitlab.com/wireshark/wireshark/-/issues/17091
-   3. https://gitlab.com/wireshark/wireshark/-/issues/17098
-   4. https://gitlab.com/wireshark/wireshark/-/issues/17141
-   5. https://gitlab.com/wireshark/wireshark/-/issues/17154
-   6. https://gitlab.com/wireshark/wireshark/-/issues/17168
-   7. https://gitlab.com/wireshark/wireshark/-/issues/17174
-   8. https://gitlab.com/wireshark/wireshark/-/issues/17177
-   9. https://gitlab.com/wireshark/wireshark/-/issues/17179
-  10. https://www.wireshark.org/download.html#thirdparty
-  11. https://ask.wireshark.org/
-  12. https://www.wireshark.org/lists/
-  13. https://gitlab.com/wireshark/wireshark/-/issues
-  14. https://www.wireshark.org/faq.html
+   1. https://www.wireshark.org/download.html#thirdparty
+   2. https://ask.wireshark.org/
+   3. https://www.wireshark.org/lists/
+   4. https://gitlab.com/wireshark/wireshark/-/issues
+   5. https://www.wireshark.org/faq.html
