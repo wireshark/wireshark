@@ -4668,6 +4668,26 @@ static int hf_ieee80211_tag_extended_capabilities_b76 = -1;
 static int hf_ieee80211_tag_extended_capabilities_b77 = -1;
 static int hf_ieee80211_tag_extended_capabilities_b78 = -1;
 static int hf_ieee80211_tag_extended_capabilities_b79 = -1;
+static int hf_ieee80211_tag_extended_capabilities_b80 = -1;
+static int hf_ieee80211_tag_extended_capabilities_b81 = -1;
+static int hf_ieee80211_tag_extended_capabilities_b82 = -1;
+static int hf_ieee80211_tag_extended_capabilities_b83 = -1;
+static int hf_ieee80211_tag_extended_capabilities_b84 = -1;
+static int hf_ieee80211_tag_extended_capabilities_b85 = -1;
+static int hf_ieee80211_tag_extended_capabilities_reserved = -1;
+
+static int hf_ieee80211_tag_extended_capabilities_b88 = -1;
+static int hf_ieee80211_tag_extended_capabilities_b89 = -1;
+static int hf_ieee80211_tag_extended_capabilities_b90 = -1;
+static int hf_ieee80211_tag_extended_capabilities_b91 = -1;
+static int hf_ieee80211_tag_extended_capabilities_b92 = -1;
+static int hf_ieee80211_tag_extended_capabilities_b93 = -1;
+static int hf_ieee80211_tag_extended_capabilities_b94 = -1;
+static int hf_ieee80211_tag_extended_capabilities_b95 = -1;
+
+static int hf_ieee80211_tag_extended_capabilities_b96 = -1;
+static int hf_ieee80211_tag_extended_capabilities_b97 = -1;
+static int hf_ieee80211_tag_extended_capabilities_reserved2 = -1;
 
 static int hf_ieee80211_tag_cisco_ccx1_unknown = -1;
 static int hf_ieee80211_tag_cisco_ccx1_name = -1;
@@ -6364,6 +6384,9 @@ static gint ett_tag_ex_cap7 = -1;
 static gint ett_tag_ex_cap8 = -1;
 static gint ett_tag_ex_cap89 = -1;
 static gint ett_tag_ex_cap10 = -1;
+static gint ett_tag_ex_cap11 = -1;
+static gint ett_tag_ex_cap12 = -1;
+static gint ett_tag_ex_cap13 = -1;
 
 static gint ett_tag_rm_cap1 = -1;
 static gint ett_tag_rm_cap2 = -1;
@@ -16361,6 +16384,36 @@ dissect_extended_capabilities_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     NULL
   };
 
+  static int * const ieee80211_tag_extended_capabilities_byte11[] = {
+    &hf_ieee80211_tag_extended_capabilities_b80,
+    &hf_ieee80211_tag_extended_capabilities_b81,
+    &hf_ieee80211_tag_extended_capabilities_b82,
+    &hf_ieee80211_tag_extended_capabilities_b83,
+    &hf_ieee80211_tag_extended_capabilities_b84,
+    &hf_ieee80211_tag_extended_capabilities_b85,
+    &hf_ieee80211_tag_extended_capabilities_reserved,
+    NULL
+  };
+
+  static int * const ieee80211_tag_extended_capabilities_byte12[] = {
+    &hf_ieee80211_tag_extended_capabilities_b88,
+    &hf_ieee80211_tag_extended_capabilities_b89,
+    &hf_ieee80211_tag_extended_capabilities_b90,
+    &hf_ieee80211_tag_extended_capabilities_b91,
+    &hf_ieee80211_tag_extended_capabilities_b92,
+    &hf_ieee80211_tag_extended_capabilities_b93,
+    &hf_ieee80211_tag_extended_capabilities_b94,
+    &hf_ieee80211_tag_extended_capabilities_b95,
+    NULL
+  };
+
+  static int * const ieee80211_tag_extended_capabilities_byte13[] = {
+    &hf_ieee80211_tag_extended_capabilities_b96,
+    &hf_ieee80211_tag_extended_capabilities_b97,
+    &hf_ieee80211_tag_extended_capabilities_reserved2,
+    NULL
+  };
+
   if (tag_len < 1)
   {
     expert_add_info_format(pinfo, field_data->item_tag_length, &ei_ieee80211_tag_length, "Tag length %u too short, must be greater than 0", tag_len);
@@ -16466,6 +16519,57 @@ dissect_extended_capabilities_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
                                     ett_tag_ex_cap10, ieee80211_tag_extended_capabilities_byte10,
                                     ENC_LITTLE_ENDIAN, BMT_NO_APPEND);
   proto_item_append_text(ti_ex_cap, " (octet 10)");
+  offset += 1;
+
+  if (offset >= tag_len) {
+    return offset;
+  }
+
+  /* Extended Capability octet 11 */
+#if 0
+  /* Added for SAE support */
+  sae_byte = tvb_get_guint8(tvb, offset);
+  /*
+   * If one of the SAE bits is set, assume we will see Password identifiers
+   */
+  if (sae_byte & 0x6) {
+    gboolean sae_val = TRUE;
+    guint64 *key = NULL;
+
+    /* Must be for the source of the request */
+    key = (guint64 *)wmem_new(wmem_file_scope(), guint64);
+    *key = *(guint64 *)pinfo->src.data;
+    wmem_map_insert(sae_prop_hash, key, GINT_TO_POINTER(sae_val));
+  }
+#endif
+  ti_ex_cap = proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_ieee80211_tag_extended_capabilities,
+                                    ett_tag_ex_cap11, ieee80211_tag_extended_capabilities_byte11,
+                                    ENC_LITTLE_ENDIAN, BMT_NO_APPEND);
+  proto_item_append_text(ti_ex_cap, " (octet 11)");
+  offset += 1;
+
+  if (offset >= tag_len) {
+    return offset;
+  }
+
+  ti_ex_cap = proto_tree_add_bitmask_with_flags(tree, tvb, offset,
+                                    hf_ieee80211_tag_extended_capabilities,
+                                    ett_tag_ex_cap12,
+                                    ieee80211_tag_extended_capabilities_byte12,
+                                    ENC_LITTLE_ENDIAN, BMT_NO_APPEND);
+  proto_item_append_text(ti_ex_cap, " (octet 12)");
+  offset += 1;
+
+  if (offset >= tag_len) {
+    return offset;
+  }
+
+  ti_ex_cap = proto_tree_add_bitmask_with_flags(tree, tvb, offset,
+                                    hf_ieee80211_tag_extended_capabilities,
+                                    ett_tag_ex_cap13,
+                                    ieee80211_tag_extended_capabilities_byte13,
+                                    ENC_LITTLE_ENDIAN, BMT_NO_APPEND);
+  proto_item_append_text(ti_ex_cap, " (octet 13)");
   offset += 1;
 
   return offset;
@@ -36348,6 +36452,85 @@ proto_register_ieee80211(void)
       FT_BOOLEAN, 8, NULL, 0x80,
       NULL, HFILL }},
 
+    {&hf_ieee80211_tag_extended_capabilities_b80,
+     {"Complete List of NonTxBSSID Profiles", "wlan.extcap.b80",
+      FT_BOOLEAN, 8, NULL, 0x01,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_extended_capabilities_b81,
+     {"SAE Password Identifiers In Use", "wlan.extcap.b81",
+      FT_BOOLEAN, 8, NULL, 0x02,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_extended_capabilities_b82,
+     {"SAE Passwords Used Exclusively", "wlan.extcap.b82",
+      FT_BOOLEAN, 8, NULL, 0x04,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_extended_capabilities_b83,
+     {"Reserved", "wlan.extcap.b83",
+      FT_BOOLEAN, 8, NULL, 0x08,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_extended_capabilities_b84,
+     {"Beacon Protection Enabled", "wlan.extcap.b84",
+      FT_BOOLEAN, 8, NULL, 0x10,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_extended_capabilities_b85,
+     {"Mirrored SCS", "wlan.extcap.b85",
+      FT_BOOLEAN, 8, NULL, 0x20,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_extended_capabilities_reserved,
+     {"Reserved", "wlan.extcap.reserved",
+      FT_UINT8, BASE_HEX, NULL, 0xC0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_extended_capabilities_b88,
+     {"SAE-PK Passwords Used Exclusively", "wlan.extcap.b88",
+      FT_BOOLEAN, 8, NULL, 0x01,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_extended_capabilities_b89,
+     {"Reserved", "wlan.extcap.b89",
+      FT_UINT8, BASE_HEX, NULL, 0x02, NULL, HFILL }},
+
+    {&hf_ieee80211_tag_extended_capabilities_b90,
+     {"non-TB Ranging Responder", "wlan.extcap.b90",
+      FT_BOOLEAN, 8, NULL, 0x04, NULL, HFILL }},
+
+    {&hf_ieee80211_tag_extended_capabilities_b91,
+     {"TB Ranging Responder", "wlan.extcap.b91",
+      FT_BOOLEAN, 8, NULL, 0x08, NULL, HFILL }},
+
+    {&hf_ieee80211_tag_extended_capabilities_b92,
+     {"TB Ranging Responder Measurement Support", "wlan.extcap.b92",
+      FT_BOOLEAN, 8, NULL, 0x10, NULL, HFILL }},
+
+    {&hf_ieee80211_tag_extended_capabilities_b93,
+     {"TB Ranging Initiator Measurement Support", "wlan.extcap.b93",
+      FT_BOOLEAN, 8, NULL, 0x20, NULL, HFILL }},
+
+    {&hf_ieee80211_tag_extended_capabilities_b94,
+     {"AOA Measurement Available", "wlan.extcap.b94",
+      FT_BOOLEAN, 8, NULL, 0x40, NULL, HFILL }},
+
+    {&hf_ieee80211_tag_extended_capabilities_b95,
+     {"Phase Shift Feedback Support", "wlan.extcap.b95",
+      FT_BOOLEAN, 8, NULL, 0x80, NULL, HFILL }},
+
+    {&hf_ieee80211_tag_extended_capabilities_b96,
+     {"DMG/location supporting APs in the area", "wlan.extcap.dmg_location",
+      FT_BOOLEAN, 8, NULL, 0x01, NULL, HFILL }},
+
+    {&hf_ieee80211_tag_extended_capabilities_b97,
+     {"I2R LMR Feedback Policy", "wlan.extcap.i2r_lmr_feedback_policy",
+      FT_BOOLEAN, 8, NULL, 0x02, NULL, HFILL }},
+
+    {&hf_ieee80211_tag_extended_capabilities_reserved2,
+     {"Reserved", "wlan.extcap.reserved2",
+      FT_UINT8, BASE_HEX, NULL, 0xFC, NULL, HFILL }},
 
     {&hf_ieee80211_tag_cisco_ccx1_unknown,
      {"Unknown", "wlan.cisco.ccx1.unknown",
@@ -40607,6 +40790,9 @@ proto_register_ieee80211(void)
     &ett_tag_ex_cap8,
     &ett_tag_ex_cap89,
     &ett_tag_ex_cap10,
+    &ett_tag_ex_cap11,
+    &ett_tag_ex_cap12,
+    &ett_tag_ex_cap13,
 
     &ett_tag_rm_cap1,
     &ett_tag_rm_cap2,
