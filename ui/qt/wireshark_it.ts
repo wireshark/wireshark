@@ -3333,11 +3333,11 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <message>
         <source>Example GIF query packets have jumbo window sizes</source>
         <extracomment>These are pangrams. Feel free to replace with nonsense text that spans your alphabet. https://en.wikipedia.org/wiki/Pangram</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>I pacchetti di query GIF zelanti hanno dimensioni di finestra jumbo</translation>
     </message>
     <message>
         <source>Lazy badgers move unique waxy jellyfish packets</source>
-        <translation type="unfinished"></translation>
+        <translation>Quel vituperabile xenofobo zelante sposta pacchetti mentre assaggia il whisky ed esclama: alleluja!</translation>
     </message>
     <message>
         <source>Font</source>
@@ -5511,7 +5511,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>MAC Statistics</source>
-        <translation type="unfinished">Statistiche MAC</translation>
+        <translation>Statistiche MAC</translation>
     </message>
 </context>
 <context>
@@ -5927,7 +5927,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>RLC Statistics</source>
-        <translation type="unfinished">Statistiche RLC</translation>
+        <translation>Statistiche RLC</translation>
     </message>
 </context>
 <context>

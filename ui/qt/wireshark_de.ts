@@ -3333,11 +3333,11 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     <message>
         <source>Example GIF query packets have jumbo window sizes</source>
         <extracomment>These are pangrams. Feel free to replace with nonsense text that spans your alphabet. https://en.wikipedia.org/wiki/Pangram</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>Example GIF query packets have jumbo window sizes</translation>
     </message>
     <message>
         <source>Lazy badgers move unique waxy jellyfish packets</source>
-        <translation type="unfinished"></translation>
+        <translation>Lazy badgers move unique waxy jellyfish packets</translation>
     </message>
     <message>
         <source>Font</source>
@@ -5511,7 +5511,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>MAC Statistics</source>
-        <translation type="unfinished">MAC Statistiken</translation>
+        <translation>MAC Statistiken</translation>
     </message>
 </context>
 <context>
@@ -5927,7 +5927,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>RLC Statistics</source>
-        <translation type="unfinished">RLC Statistiken</translation>
+        <translation>RLC Statistiken</translation>
     </message>
 </context>
 <context>
