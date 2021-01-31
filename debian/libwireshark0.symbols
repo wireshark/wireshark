@@ -1350,7 +1350,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  reassembly_table_destroy@Base 1.9.1
  reassembly_table_init@Base 1.9.1
  reassembly_table_register@Base 2.3.0
- register_all_plugin_tap_listeners@Base 2.5.0
+ register_all_tap_listeners@Base 3.5.0
  register_ber_oid_dissector@Base 2.1.0
  register_ber_oid_dissector_handle@Base 1.9.1
  register_ber_oid_syntax@Base 1.9.1

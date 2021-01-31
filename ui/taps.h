@@ -17,10 +17,7 @@ extern "C" {
 
 #include <glib.h>
 
-typedef struct _tap_reg {
-    const char *cb_name;
-    void (*cb_func)(void);
-} tap_reg_t;
+#include <epan/tap.h>
 
 extern tap_reg_t tap_reg_listener[];
 

@@ -938,17 +938,10 @@ main(int argc, char *argv[])
   /* Register all tap listeners; we do this before we parse the arguments,
      as the "-z" argument can specify a registered tap. */
 
-  /* we register the plugin taps before the other taps because
-     stats_tree taps plugins will be registered as tap listeners
-     by stats_tree_stat.c and need to registered before that */
-#ifdef HAVE_PLUGINS
-  register_all_plugin_tap_listeners();
-#endif
+  register_all_tap_listeners(tap_reg_listener);
+
   extcap_register_preferences();
-  /* Register all tap listeners. */
-  for (tap_reg_t *t = tap_reg_listener; t->cb_func != NULL; t++) {
-    t->cb_func();
-  }
+
   conversation_table_set_gui_info(init_iousers);
   hostlist_table_set_gui_info(init_hostlists);
   srt_table_iterate_tables(register_srt_tables, NULL);

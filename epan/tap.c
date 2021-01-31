@@ -111,16 +111,29 @@ call_plugin_register_tap_listener(gpointer data, gpointer user_data _U_)
 		plug->register_tap_listener();
 	}
 }
+#endif /* HAVE_PLUGINS */
 
 /*
- * For all tap plugins, call their register routines.
+ * For all taps, call their register routines.
+ *
+ * The table of register routines is part of the main program, not
+ * part of libwireshark, so it must be passed to us as an argument.
  */
 void
-register_all_plugin_tap_listeners(void)
+register_all_tap_listeners(tap_reg_t *tap_reg_listeners)
 {
+#ifdef HAVE_PLUGINS
+	/* we register the plugin taps before the other taps because
+         * stats_tree taps plugins will be registered as tap listeners
+         * by stats_tree_stat.c and need to registered before that */
 	g_slist_foreach(tap_plugins, call_plugin_register_tap_listener, NULL);
+#endif
+
+	/* Register all builtin listeners. */
+	for (tap_reg_t *t = &tap_reg_listeners[0]; t->cb_func != NULL; t++) {
+		t->cb_func();
+	}
 }
-#endif /* HAVE_PLUGINS */
 
 /* **********************************************************************
  * Init routine only called from epan at application startup

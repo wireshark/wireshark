@@ -494,9 +494,6 @@ main(int argc, char *argv[])
 
   /* XXX Disable tap registration for now until we can get tfshark set up with
    * its own set of taps and the necessary registration function etc.
-#ifdef HAVE_PLUGINS
-  register_all_plugin_tap_listeners();
-#endif
   register_all_tap_listeners();
   */
 

@@ -57,14 +57,22 @@ WS_DLL_PUBLIC void tap_register_plugin(const tap_plugin *plug);
 #endif
 
 /*
- * For all tap plugins, call their register routines.
- * Must be called after plugins_init(), and must be called only once in
- * a program.
+ * Entry in the table of built-in taps to register.
+ */
+typedef struct _tap_reg {
+    const char *cb_name;
+    void (*cb_func)(void);
+} tap_reg_t;
+
+/*
+ * For all taps, call their register routines.
+ * Must be called after plugins_init(), if plugins are supported,
+ * and must be called only once in a program.
  *
  * XXX - should probably be handled by epan_init(), as the tap mechanism
  * is part of libwireshark.
  */
-WS_DLL_PUBLIC void register_all_plugin_tap_listeners(void);
+WS_DLL_PUBLIC void register_all_tap_listeners(tap_reg_t *tap_reg_listeners);
 
 extern void tap_init(void);
 
