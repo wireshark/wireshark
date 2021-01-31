@@ -12,15 +12,24 @@ include(WiresharkPlugin)
 # Plugin name and version info (major minor micro extra)
 set_module_info(stats_tree 0 0 1 0)
 
-set(PLUGIN_FILES
-	stats_tree_plugin.c
+set(TAP_SRC
 	pinfo_stats_tree.c
+)
+
+set(PLUGIN_FILES
+	plugin.c
+	${TAP_SRC}
 )
 
 set_source_files_properties(
 	${PLUGIN_FILES}
 	PROPERTIES
 	COMPILE_FLAGS "${WERROR_COMMON_FLAGS}"
+)
+
+register_plugin_files(plugin.c
+	plugin_tap
+	${TAP_SRC}
 )
 
 add_plugin_library(stats_tree epan)

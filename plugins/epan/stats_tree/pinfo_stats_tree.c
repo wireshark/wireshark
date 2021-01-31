@@ -271,7 +271,8 @@ static tap_packet_status plen_stats_tree_packet(stats_tree *st, packet_info *pin
 }
 
 /* register all pinfo trees */
-void register_pinfo_stat_trees(void) {
+void register_tap_listener_pinfo_stat_tree(void)
+{
 	module_t *stat_module;
 
 	static uat_field_t plen_uat_flds[] = {
