@@ -18,6 +18,7 @@ srcdir = sys.argv[1]
 # or "plugin_tap".
 #
 registertype = sys.argv[2]
+#
 # All subsequent arguments are the files to scan.
 #
 files = sys.argv[3:]
