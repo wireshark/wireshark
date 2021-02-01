@@ -508,6 +508,8 @@ typedef struct anqp_info_dissector_data {
 #define TAG_QUIET_PERIOD_RES         177  /* IEEE Std 802.11ad */
 #define TAG_ECAPC_POLICY             182  /* IEEE Std 802.11ad */
 #define TAG_CLUSTER_TIME_OFFSET      183  /* IEEE Std 802.11ad */
+#define TAG_INTRA_ACCESS_CAT_PRIO    184
+#define TAG_SCS_DESCRIPTOR           185  /* IEEE Std 802.11   */
 #define TAG_ANTENNA_SECTOR_ID        190  /* IEEE Std 802.11ad */
 #define TAG_VHT_CAPABILITY           191  /* IEEE Std 802.11ac/D3.1 */
 #define TAG_VHT_OPERATION            192  /* IEEE Std 802.11ac/D3.1 */

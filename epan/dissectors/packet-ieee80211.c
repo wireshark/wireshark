@@ -596,6 +596,7 @@ const value_string ie_tag_num_vals[] = {
   { TAG_QUIET_PERIOD_RES,                     "Quiet Period Response" },
   { TAG_ECAPC_POLICY,                         "ECAPC Policy" },
   { TAG_CLUSTER_TIME_OFFSET,                  "Cluster Time Offset" },
+  { TAG_SCS_DESCRIPTOR,                       "SCS Descriptor" },
   { TAG_ANTENNA_SECTOR_ID,                    "Antenna Sector ID" },
   { TAG_VHT_CAPABILITY,                       "VHT Capabilities" },
   { TAG_VHT_OPERATION,                        "VHT Operation" },
@@ -682,6 +683,8 @@ static value_string_ext tag_num_vals_ext = VALUE_STRING_EXT_INIT(ie_tag_num_vals
 #define ETAG_SHORT_SSID                        58
 #define ETAG_HE_6GHZ_BAND_CAPABILITIES         59
 #define ETAG_UL_MU_POWER_CAPABILITIES          60
+#define ETAG_MSCS_DESCRIPTOR_ELEMENT           88
+#define ETAG_TCLAS_MASK                        89
 #define ETAG_REJECTED_GROUPS                   92
 #define ETAG_ANTI_CLOGGING_TOKEN               93
 
@@ -718,6 +721,8 @@ static const value_string tag_num_vals_eid_ext[] = {
   { ETAG_SHORT_SSID,                          "Short SSID" },
   { ETAG_HE_6GHZ_BAND_CAPABILITIES,           "HE 6Ghz Band Capabilities" },
   { ETAG_UL_MU_POWER_CAPABILITIES,            "UL MU Power Capabilities" },
+  { ETAG_MSCS_DESCRIPTOR_ELEMENT,             "MSCS Descriptor Element" },
+  { ETAG_TCLAS_MASK,                          "TCLAS Mask" },
   { ETAG_REJECTED_GROUPS,                     "Rejected Groups" },
   { ETAG_ANTI_CLOGGING_TOKEN,                 "Anti-Clogging Token Container" },
   { 0, NULL }
@@ -1320,6 +1325,14 @@ static value_string_ext aruba_mgt_typevals_ext = VALUE_STRING_EXT_INIT(aruba_mgt
 #define FST_ACK_REQUEST                          3
 #define FST_ACK_RESPONSE                         4
 #define FST_ON_CHANNEL_TUNNEL_REQUEST            5
+
+#define ROBUST_AV_STREAMING_SCS_REQUEST          0
+#define ROBUST_AV_STREAMING_SCS_RESPONSE         1
+#define ROBUST_AV_STREAMING_GROUP_MEMBERSHIP_REQ 2
+#define ROBUST_AV_STREAMING_GROUP_MEMBERSHIP_RSP 3
+#define ROBUST_AV_STREAMING_MSCS_REQUEST         4
+#define ROBUST_AV_STREAMING_MSCS_RESPONSE        5
+
 
 /* IEEE Std 802.11r-2008, 7.4.8, Table 7-57g */
 #define FT_ACTION_REQUEST               1
@@ -2019,6 +2032,16 @@ static const value_string ff_fst_action_flags[] = {
   {FST_ACK_REQUEST,               "FST Ack Request"},
   {FST_ACK_RESPONSE,              "FST Ack Response"},
   {FST_ON_CHANNEL_TUNNEL_REQUEST, "FST On-channel Tunnel Request"},
+  {0x00, NULL}
+};
+
+static const value_string ff_robust_av_streaming_action_flags[] = {
+  {ROBUST_AV_STREAMING_SCS_REQUEST,          "SCS Request"},
+  {ROBUST_AV_STREAMING_SCS_RESPONSE,         "SCS Response"},
+  {ROBUST_AV_STREAMING_GROUP_MEMBERSHIP_REQ, "Group Membership  Request"},
+  {ROBUST_AV_STREAMING_GROUP_MEMBERSHIP_RSP, "SCS Request"},
+  {ROBUST_AV_STREAMING_MSCS_REQUEST,         "MSCS Request"},
+  {ROBUST_AV_STREAMING_MSCS_RESPONSE,        "MSCS Response"},
   {0x00, NULL}
 };
 
@@ -5848,6 +5871,7 @@ static int hf_ieee80211_sched_spec_int = -1;
 static int hf_ieee80211_tclas_up = -1;
 static int hf_ieee80211_tclas_class_type = -1;
 static int hf_ieee80211_tclas_class_mask = -1;
+static int hf_ieee80211_tclas_mask_reserved = -1;
 static int hf_ieee80211_tclas_class_mask0_src_addr = -1;
 static int hf_ieee80211_tclas_class_mask0_dst_addr = -1;
 static int hf_ieee80211_tclas_class_mask0_type = -1;
@@ -5858,6 +5882,7 @@ static int hf_ieee80211_tclas_class_mask1_src_port = -1;
 static int hf_ieee80211_tclas_class_mask1_dst_port = -1;
 static int hf_ieee80211_tclas_class_mask1_ipv4_dscp = -1;
 static int hf_ieee80211_tclas_class_mask1_ipv4_proto = -1;
+static int hf_ieee80211_tclas_class_mask1_reserved = -1;
 static int hf_ieee80211_tclas_class_mask1_ipv6_flow = -1;
 static int hf_ieee80211_tclas_class_mask2_tci = -1;
 static int hf_ieee80211_tclas_src_mac_addr = -1;
@@ -5874,6 +5899,129 @@ static int hf_ieee80211_tclas_ipv6_src = -1;
 static int hf_ieee80211_tclas_ipv6_dst = -1;
 static int hf_ieee80211_tclas_flow = -1;
 static int hf_ieee80211_tclas_tag_type = -1;
+static int hf_ieee80211_tclas_filter_offset = -1;
+static int hf_ieee80211_tclas_filter_value = -1;
+static int hf_ieee80211_tclas_filter_mask = -1;
+static int hf_ieee80211_tclas4_version = -1;
+static int hf_ieee80211_tclas_class_mask4_ver = -1;
+static int hf_ieee80211_tclas_class_mask4_4_src_ip = -1;
+static int hf_ieee80211_tclas_class_mask4_4_dst_ip = -1;
+static int hf_ieee80211_tclas_class_mask4_src_port = -1;
+static int hf_ieee80211_tclas_class_mask4_dst_port = -1;
+static int hf_ieee80211_tclas_class_mask4_dscp = -1;
+static int hf_ieee80211_tclas_class_mask4_ipv4_proto = -1;
+static int hf_ieee80211_tclas_class_mask4_reserved = -1;
+static int hf_ieee80211_tclas_class_mask4_6_src_ip = -1;
+static int hf_ieee80211_tclas_class_mask4_6_dst_ip = -1;
+static int hf_ieee80211_tclas_reserved_bytes = -1;
+static int hf_ieee80211_tclas_class_mask4_next_hdr = -1;
+static int hf_ieee80211_tclas_class_mask4_flow_label = -1;
+static int hf_ieee80211_tclas4_ipv4_src = -1;
+static int hf_ieee80211_tclas4_ipv4_dst = -1;
+static int hf_ieee80211_tclas4_src_port = -1;
+static int hf_ieee80211_tclas4_dst_port = -1;
+static int hf_ieee80211_tclas4_dscp = -1;
+static int hf_ieee80211_tclas4_protocol = -1;
+static int hf_ieee80211_tclas4_reserved = -1;
+static int hf_ieee80211_tclas4_ipv6_src = -1;
+static int hf_ieee80211_tclas4_ipv6_dst = -1;
+static int hf_ieee80211_tclas4_next_hdr = -1;
+static int hf_ieee80211_tclas4_flow = -1;
+static int hf_ieee80211_tclas_tclas_8021d_up_pcp = -1;
+static int hf_ieee80211_tclas_8021q_dei = -1;
+static int hf_ieee80211_tclas_8021q_vid = -1;
+
+static int hf_ieee80211_tclas_class_mask5_up_prio = -1;
+static int hf_ieee80211_tclas_class_mask5_dei = -1;
+static int hf_ieee80211_tclas_class_mask5_vid = -1;
+static int hf_ieee80211_tclas_class_mask5_reserved = -1;
+
+static int hf_ieee80211_tclas_class_mask6_a_above = -1;
+static int hf_ieee80211_tclas_class_mask6_frame_control_match_spec = -1;
+static int hf_ieee80211_tclas_class_mask6_duration_id_match_spec = -1;
+static int hf_ieee80211_tclas_class_mask6_address_1_match_spec = -1;
+static int hf_ieee80211_tclas_class_mask6_address_2_match_spec = -1;
+static int hf_ieee80211_tclas_class_mask6_address_3_match_spec = -1;
+static int hf_ieee80211_tclas_class_mask6_sequence_control_spec = -1;
+static int hf_ieee80211_tclas_class_mask6_address_4_match_spec = -1;
+static int hf_ieee80211_tclas_class_mask6_qos_control_spec = -1;
+static int hf_ieee80211_tclas_class_mask6_ht_control_spec = -1;
+static int hf_ieee80211_tclas_class_mask6_reserved = -1;
+static int hf_ieee80211_tclas6_frame_control_spec = -1;
+static int hf_ieee80211_tclas6_frame_control_mask = -1;
+static int hf_ieee80211_tclas6_duration_spec = -1;
+static int hf_ieee80211_tclas6_duration_mask = -1;
+static int hf_ieee80211_tclas6_address_1_spec = -1;
+static int hf_ieee80211_tclas6_address_1_mask = -1;
+static int hf_ieee80211_tclas6_address_2_spec = -1;
+static int hf_ieee80211_tclas6_address_2_mask = -1;
+static int hf_ieee80211_tclas6_address_3_spec = -1;
+static int hf_ieee80211_tclas6_address_3_mask = -1;
+static int hf_ieee80211_tclas6_sequence_control_spec = -1;
+static int hf_ieee80211_tclas6_sequence_control_mask = -1;
+static int hf_ieee80211_tclas6_address_4_spec = -1;
+static int hf_ieee80211_tclas6_address_4_mask = -1;
+static int hf_ieee80211_tclas6_qos_control_spec = -1;
+static int hf_ieee80211_tclas6_qos_control_mask = -1;
+static int hf_ieee80211_tclas6_ht_control_spec = -1;
+static int hf_ieee80211_tclas6_ht_control_mask = -1;
+
+static int hf_ieee80211_tclas_class_mask7_frame_control_match_spec = -1;
+static int hf_ieee80211_tclas_class_mask7_address_1_sid_match_spec = -1;
+static int hf_ieee80211_tclas_class_mask7_address_2_match_spec = -1;
+static int hf_ieee80211_tclas_class_mask7_sequence_control_spec = -1;
+static int hf_ieee80211_tclas_class_mask7_address_3_match_spec = -1;
+static int hf_ieee80211_tclas_class_mask7_address_4_match_spec = -1;
+static int hf_ieee80211_tclas_class_mask7_reserved = -1;
+static int hf_ieee80211_tclas7_frame_control_spec = -1;
+static int hf_ieee80211_tclas7_frame_control_mask = -1;
+static int hf_ieee80211_tclas7_address_1_sid_spec = -1;
+static int hf_ieee80211_tclas7_address_1_sid_mask = -1;
+static int hf_ieee80211_tclas7_address_2_spec = -1;
+static int hf_ieee80211_tclas7_address_2_mask = -1;
+static int hf_ieee80211_tclas7_sequence_control_spec = -1;
+static int hf_ieee80211_tclas7_sequence_control_mask = -1;
+static int hf_ieee80211_tclas7_address_3_spec = -1;
+static int hf_ieee80211_tclas7_address_3_mask = -1;
+static int hf_ieee80211_tclas7_address_4_spec = -1;
+static int hf_ieee80211_tclas7_address_4_mask = -1;
+
+static int hf_ieee80211_tclas_class_mask8_frame_control_match_spec = -1;
+static int hf_ieee80211_tclas_class_mask8_address_1_bssid_match_spec = -1;
+static int hf_ieee80211_tclas_class_mask8_address_2_sid_match_spec = -1;
+static int hf_ieee80211_tclas_class_mask8_sequence_control_spec = -1;
+static int hf_ieee80211_tclas_class_mask8_address_3_match_spec = -1;
+static int hf_ieee80211_tclas_class_mask8_address_4_match_spec = -1;
+static int hf_ieee80211_tclas_class_mask8_reserved = -1;
+static int hf_ieee80211_tclas8_frame_control_spec = -1;
+static int hf_ieee80211_tclas8_frame_control_mask = -1;
+static int hf_ieee80211_tclas8_address_1_bssid_spec = -1;
+static int hf_ieee80211_tclas8_address_1_bssid_mask = -1;
+static int hf_ieee80211_tclas8_address_2_sid_spec = -1;
+static int hf_ieee80211_tclas8_address_2_sid_mask = -1;
+static int hf_ieee80211_tclas8_sequence_control_spec = -1;
+static int hf_ieee80211_tclas8_sequence_control_mask = -1;
+static int hf_ieee80211_tclas8_address_3_spec = -1;
+static int hf_ieee80211_tclas8_address_3_mask = -1;
+static int hf_ieee80211_tclas8_address_4_spec = -1;
+static int hf_ieee80211_tclas8_address_4_mask = -1;
+
+static int hf_ieee80211_tclas_class_mask9_frame_control_match_spec = -1;
+static int hf_ieee80211_tclas_class_mask9_address_1_match_spec = -1;
+static int hf_ieee80211_tclas_class_mask9_address_2_match_spec = -1;
+static int hf_ieee80211_tclas_class_mask9_sequence_control_spec = -1;
+static int hf_ieee80211_tclas_class_mask9_reserved = -1;
+static int hf_ieee80211_tclas9_frame_control_spec = -1;
+static int hf_ieee80211_tclas9_frame_control_mask = -1;
+static int hf_ieee80211_tclas9_address_1_spec = -1;
+static int hf_ieee80211_tclas9_address_1_mask = -1;
+static int hf_ieee80211_tclas9_address_2_spec = -1;
+static int hf_ieee80211_tclas9_address_2_mask = -1;
+static int hf_ieee80211_tclas9_sequence_control_spec = -1;
+static int hf_ieee80211_tclas9_sequence_control_mask = -1;
+
+static int hf_ieee80211_tclas10_protocol_instance = -1;
+static int hf_ieee80211_tclas10_protocol_num_next_hdr = -1;
 
 static int hf_ieee80211_aruba = -1;
 static int hf_ieee80211_aruba_hb_seq = -1;
@@ -6175,11 +6323,15 @@ static int hf_ieee80211_ff_internal_angle = -1;
 static int hf_ieee80211_ff_recommend = -1;
 static int hf_ieee80211_ff_unprotected_dmg_action_code = -1;
 static int hf_ieee80211_ff_fst_action_code = -1;
+static int hf_ieee80211_ff_robust_av_streaming_action_code = -1;
 static int hf_ieee80211_ff_llt = -1;
 static int hf_ieee80211_ff_fsts_id = -1;
 static int hf_ieee80211_ff_mmpdu_len = -1;
 static int hf_ieee80211_ff_mmpdu_ctrl = -1;
 static int hf_ieee80211_ff_oct_mmpdu = -1;
+static int hf_ieee80211_ff_scs_scsid = -1;
+static int hf_ieee80211_ff_scs_status = -1;
+
 #if 0
 static int hf_ieee80211_ff_rcsi = -1;
 static int hf_ieee80211_ff_rcsi_aid = -1;
@@ -6361,6 +6513,34 @@ static int hf_ieee80211_tag_switching_stream_new_valid_id = -1;
 static int hf_ieee80211_tag_switching_stream_llt_type = -1;
 
 static int hf_ieee80211_mysterious_extra_stuff = -1;
+
+static int hf_ieee80211_scs_descriptor_scsid = -1;
+static int hf_ieee80211_mscs_descriptor_type = -1;
+static int hf_ieee80211_mscs_user_prio_control_reserved = -1;
+static int hf_ieee80211_user_prio_bitmap = -1;
+static int hf_ieee80211_user_prio_bitmap_bit0 = -1;
+static int hf_ieee80211_user_prio_bitmap_bit1 = -1;
+static int hf_ieee80211_user_prio_bitmap_bit2 = -1;
+static int hf_ieee80211_user_prio_bitmap_bit3 = -1;
+static int hf_ieee80211_user_prio_bitmap_bit4 = -1;
+static int hf_ieee80211_user_prio_bitmap_bit5 = -1;
+static int hf_ieee80211_user_prio_bitmap_bit6 = -1;
+static int hf_ieee80211_user_prio_bitmap_bit7 = -1;
+static int hf_ieee80211_user_prio_limit = -1;
+static int hf_ieee80211_user_prio_reserved = -1;
+static int hf_ieee80211_stream_timeout_reserved = -1;
+static int hf_ieee80211_stream_timeout = -1;
+static int hf_ieee80211_mscs_subelement_id = -1;
+static int hf_ieee80211_mscs_subelement_len = -1;
+static int hf_ieee80211_mscs_subelement_data = -1;
+
+static int hf_ieee80211_intra_access_prio = -1;
+static int hf_ieee80211_intra_access_prio_user_prio = -1;
+static int hf_ieee80211_intra_access_prio_alt_queue = -1;
+static int hf_ieee80211_intra_access_prio_drop_elig = -1;
+static int hf_ieee80211_intra_access_prio_reserved = -1;
+
+static int hf_ieee80211_scs_descriptor_type = -1;
 
 static int hf_ieee80211_esp_access_category = -1;
 static int hf_ieee80211_esp_reserved = -1;
@@ -7134,6 +7314,9 @@ static gint ett_he_operation_params = -1;
 static gint ett_he_bss_color_information = -1;
 static gint ett_he_oper_basic_mcs = -1;
 static gint ett_he_operation_vht_op_info = -1;
+static gint ett_mscs_user_prio = -1;
+static gint ett_ieee80211_user_prio_bitmap = -1;
+static gint ett_ieee80211_intra_access_prio = -1;
 static gint ett_he_mu_edca_param = -1;
 static gint ett_he_trigger_common_info = -1;
 static gint ett_he_trigger_base_common_info = -1;
@@ -12741,6 +12924,15 @@ add_ff_fst_action_code(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, 
 }
 
 static guint
+add_ff_robust_av_streaming_action_code(proto_tree *tree, tvbuff_t *tvb,
+                                       packet_info *pinfo _U_, int offset)
+{
+  proto_tree_add_item(tree, hf_ieee80211_ff_robust_av_streaming_action_code,
+                      tvb, offset, 1, ENC_NA);
+  return 1;
+}
+
+static guint
 add_ff_llt(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int offset)
 {
   proto_tree_add_item(tree, hf_ieee80211_ff_llt, tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -14407,6 +14599,83 @@ add_ff_action_fst(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offse
   return offset - start;
 }
 
+static int
+add_ff_scs_descriptor_list(proto_tree *tree, tvbuff_t *tvb,
+                           packet_info *pinfo _U_, int offset)
+{
+  guint start = offset;
+
+  /*
+   * This is could be a list, so it needs change.
+   */
+  offset += add_tagged_field(pinfo, tree, tvb, offset, 0, NULL, 0, NULL);
+  return offset - start;
+}
+
+static int
+add_ff_scs_status_list(proto_tree *tree, tvbuff_t *tvb,
+                       packet_info *pinfo _U_, int offset)
+{
+  guint start = offset;
+
+  while (tvb_reported_length_remaining(tvb, offset) >= 3) {
+    proto_tree_add_item(tree, hf_ieee80211_ff_scs_scsid, tvb, offset, 1,
+                        ENC_NA);
+    offset += 1;
+
+    proto_tree_add_item(tree, hf_ieee80211_ff_scs_status, tvb, offset, 2,
+                        ENC_LITTLE_ENDIAN);
+    offset += 2;
+  }
+
+  return offset - start;
+}
+
+static int
+add_ff_mscs_descriptor_elt(proto_tree *tree, tvbuff_t *tvb,
+                           packet_info *pinfo _U_, int offset)
+{
+  guint start = offset;
+
+  offset += add_tagged_field(pinfo, tree, tvb, offset, 0, NULL, 0, NULL);
+  return offset - start;
+}
+
+static guint
+add_ff_action_robust_av_streaming(proto_tree *tree, tvbuff_t *tvb,
+                                  packet_info *pinfo, int offset)
+{
+  guint8 code;
+  guint  start = offset;
+
+  offset += add_ff_category_code(tree, tvb, pinfo, offset);
+  code    = tvb_get_guint8(tvb, offset);
+  offset += add_ff_robust_av_streaming_action_code(tree, tvb, pinfo, offset);
+
+  switch (code) {
+    case ROBUST_AV_STREAMING_SCS_REQUEST:
+      offset += add_ff_dialog_token(tree, tvb, pinfo, offset);
+      offset += add_ff_scs_descriptor_list(tree, tvb, pinfo, offset);
+      break;
+    case ROBUST_AV_STREAMING_SCS_RESPONSE:
+      offset += add_ff_dialog_token(tree, tvb, pinfo, offset);
+      offset += add_ff_scs_status_list(tree, tvb, pinfo, offset);
+      break;
+    case ROBUST_AV_STREAMING_MSCS_REQUEST:
+      offset += add_ff_dialog_token(tree, tvb, pinfo, offset);
+      offset += add_ff_mscs_descriptor_elt(tree, tvb, pinfo, offset);
+    break;
+    case ROBUST_AV_STREAMING_MSCS_RESPONSE:
+      offset += add_ff_dialog_token(tree, tvb, pinfo, offset);
+      offset += add_ff_status_code(tree, tvb, pinfo, offset);
+      /* If there is any more data it is probably an mscs descriptor */
+      if (tvb_reported_length_remaining(tvb, offset) > 0)
+        offset += add_ff_mscs_descriptor_elt(tree, tvb, pinfo, offset);
+    break;
+  }
+  return offset - start;
+}
+
 static guint
 add_ff_action_dmg(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset)
 {
@@ -14561,8 +14830,8 @@ add_ff_action(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset,
     return add_ff_action_mgmt_notification(tree, tvb, pinfo, offset);
   case CAT_FAST_SESSION_TRANSFER: /* 18 */
     return add_ff_action_fst(tree, tvb, pinfo, offset);
-/* case CAT_ROBUST_AV_STREAMING:  19 */
-/*   return add_ff_action_robust_av_streaming(tree, tvb, pinfo, offset); */
+  case CAT_ROBUST_AV_STREAMING: /* 19 */
+    return add_ff_action_robust_av_streaming(tree, tvb, pinfo, offset);
   case CAT_UNPROTECTED_DMG: /* 20 */
     return add_ff_action_unprotected_dmg(tree, tvb, pinfo, offset);
   case CAT_VHT: /* 21 */
@@ -23085,55 +23354,227 @@ ieee80211_tag_tspec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
 }
 
 /* 7.3.2.31 TCLAS element (14) */
+static const range_string user_prio_rvals[] = {
+  { 0,  7,  "The User Priority value of an MSDU" },
+  { 8,  8,  "The AC value of an MPDU is AC-VO" },
+  { 9,  9,  "The AC value of an MPDU is AC-VI" },
+  { 10, 10, "The AC value of an MPDU is AC-BE" },
+  { 11, 11, "The AC value of an MPDU is AC-BK" },
+  { 0, 0, NULL }
+};
+
+static int * const ieee80211_tclas_class_mask0[] = {
+  &hf_ieee80211_tclas_class_mask0_src_addr,
+  &hf_ieee80211_tclas_class_mask0_dst_addr,
+  &hf_ieee80211_tclas_class_mask0_type,
+  NULL
+};
+
+static int * const ieee80211_tclas_class_mask1[] = {
+  &hf_ieee80211_tclas_class_mask1_ver,
+  &hf_ieee80211_tclas_class_mask1_src_ip,
+  &hf_ieee80211_tclas_class_mask1_dst_ip,
+  &hf_ieee80211_tclas_class_mask1_src_port,
+  &hf_ieee80211_tclas_class_mask1_dst_port,
+  &hf_ieee80211_tclas_class_mask1_ipv6_flow,
+  NULL
+};
+
+static int * const ieee80211_tclas_class_mask1_4[] = {
+  &hf_ieee80211_tclas_class_mask1_ver,
+  &hf_ieee80211_tclas_class_mask1_src_ip,
+  &hf_ieee80211_tclas_class_mask1_dst_ip,
+  &hf_ieee80211_tclas_class_mask1_src_port,
+  &hf_ieee80211_tclas_class_mask1_dst_port,
+  &hf_ieee80211_tclas_class_mask1_ipv4_dscp,
+  &hf_ieee80211_tclas_class_mask1_ipv4_proto,
+  &hf_ieee80211_tclas_class_mask1_reserved,
+  NULL
+};
+
+static int * const ieee80211_tclas_class_mask2[] = {
+  &hf_ieee80211_tclas_class_mask2_tci,
+  NULL
+};
+
+static int * const ieee80211_tclas_class_mask4_4[] = {
+  &hf_ieee80211_tclas_class_mask4_ver,
+  &hf_ieee80211_tclas_class_mask4_4_src_ip,
+  &hf_ieee80211_tclas_class_mask4_4_dst_ip,
+  &hf_ieee80211_tclas_class_mask4_src_port,
+  &hf_ieee80211_tclas_class_mask4_dst_port,
+  &hf_ieee80211_tclas_class_mask4_dscp,
+  &hf_ieee80211_tclas_class_mask4_ipv4_proto,
+  &hf_ieee80211_tclas_class_mask4_reserved,
+  NULL
+};
+
+static int * const ieee80211_tclas_class_mask4_6[] = {
+  &hf_ieee80211_tclas_class_mask4_ver,
+  &hf_ieee80211_tclas_class_mask4_6_src_ip,
+  &hf_ieee80211_tclas_class_mask4_6_dst_ip,
+  &hf_ieee80211_tclas_class_mask4_src_port,
+  &hf_ieee80211_tclas_class_mask4_dst_port,
+  &hf_ieee80211_tclas_class_mask4_dscp,
+  &hf_ieee80211_tclas_class_mask4_next_hdr,
+  &hf_ieee80211_tclas_class_mask4_flow_label,
+  NULL
+};
+
+static int * const ieee80211_tclas_class_mask5[] = {
+  &hf_ieee80211_tclas_class_mask5_up_prio,
+  &hf_ieee80211_tclas_class_mask5_dei,
+  &hf_ieee80211_tclas_class_mask5_vid,
+  &hf_ieee80211_tclas_class_mask5_reserved,
+  NULL
+};
+
+/*
+ * Two control bits in the next few. Lower bit specifies if the classifier
+ * uses the field (the match value is present, upper bit specifies is a
+ * mask is present.
+ */
+static const value_string frame_control_mask_vals[] = {
+  { 0x0 , "Frame Control is not included in the Classifier" },
+  { 0x1 , "Frame Control is included in the Classifier. A Match Spec is not included" },
+  { 0x2 , "Invalid Frame Control Classifier Mask Control value" },
+  { 0x3 , "Frame Control is included in the Classifier. A Match Spec is included" },
+  { 0,    NULL }
+};
+
+static const value_string duration_id_mask_vals[] = {
+  { 0x0 , "Duration/ID is not included in the Classifier" },
+  { 0x1 , "Duration/ID is included in the Classifier. A Match Spec is not included" },
+  { 0x2 , "Invalid Duration/ID Classifier Mask Control value" },
+  { 0x3 , "Duration/ID is included in the Classifier. A Match Spec is included" },
+  { 0,    NULL }
+};
+
+static const value_string address_1_mask_vals[] = {
+  { 0x0 , "Address 1 is not included in the Classifier" },
+  { 0x1 , "Address 1 is included in the Classifier. A Match Spec is not included" },
+  { 0x2 , "Invalid Address 1 Classifier Mask Control value" },
+  { 0x3 , "Address 1 is included in the Classifier. A Match Spec is included" },
+  { 0,    NULL }
+};
+
+static const value_string address_2_mask_vals[] = {
+  { 0x0 , "Address 2 is not included in the Classifier" },
+  { 0x1 , "Address 2 is included in the Classifier. A Match Spec is not included" },
+  { 0x2 , "Invalid Address 2 Classifier Mask Control value" },
+  { 0x3 , "Address 2 is included in the Classifier. A Match Spec is included" },
+  { 0,    NULL }
+};
+
+static const value_string address_3_mask_vals[] = {
+  { 0x0 , "Address 3 is not included in the Classifier" },
+  { 0x1 , "Address 3 is included in the Classifier. A Match Spec is not included" },
+  { 0x2 , "Invalid Address 3 Classifier Mask Control value" },
+  { 0x3 , "Address 3 is included in the Classifier. A Match Spec is included" },
+  { 0,    NULL }
+};
+
+static const value_string sequence_control_mask_vals[] = {
+  { 0x0 , "Sequence Control is not included in the Classifier" },
+  { 0x1 , "Sequence Control is included in the Classifier. A Match Spec is not included" },
+  { 0x2 , "Invalid Sequence Control Classifier Mask Control value" },
+  { 0x3 , "Sequence Control is included in the Classifier. A Match Spec is included" },
+  { 0,    NULL }
+};
+
+static const value_string address_4_mask_vals[] = {
+  { 0x0 , "Address 4 is not included in the Classifier" },
+  { 0x1 , "Address 4 is included in the Classifier. A Match Spec is not included" },
+  { 0x2 , "Invalid Address 4 Classifier Mask Control value" },
+  { 0x3 , "Address 4 is included in the Classifier. A Match Spec is included" },
+  { 0,    NULL }
+};
+
+static const value_string qos_control_mask_vals[] = {
+  { 0x0 , "QoS Control is not included in the Classifier" },
+  { 0x1 , "QoS Control is included in the Classifier. A Match Spec is not included" },
+  { 0x2 , "Invalid QoS Control Classifier Mask Control value" },
+  { 0x3 , "QoS Control is included in the Classifier. A Match Spec is included" },
+  { 0,    NULL }
+};
+
+static const value_string ht_control_mask_vals[] = {
+  { 0x0 , "HT Control is not included in the Classifier" },
+  { 0x1 , "HT Control is included in the Classifier. A Match Spec is not included" },
+  { 0x2 , "Invalid HT Control Classifier Mask Control value" },
+  { 0x3 , "HT Control is included in the Classifier. A Match Spec is included" },
+  { 0,    NULL }
+};
+
+static const value_string address_1_sid_mask_vals[] = {
+  { 0x0 , "Address 1 (SID) is not included in the Classifier" },
+  { 0x1 , "Address 1 (SID) is included in the Classifier. A Match Spec is not included" },
+  { 0x2 , "Invalid Address 1 (SID) Classifier Mask Control value" },
+  { 0x3 , "Address 1 (SID) is included in the Classifier. A match spec is included" },
+  { 0,    NULL }
+};
+
+static const value_string address_1_bssid_mask_vals[] = {
+  { 0x0 , "Address 1 (BSSID) is not included in the Classifier" },
+  { 0x1 , "Address 1 (BSSID) is included in the Classifier. A Match Spec is not included" },
+  { 0x2 , "Invalid Address 1 (SID) Classifier Mask Control value" },
+  { 0x3 , "Address 1 (BSSID) is included in the Classifier. A match spec is included" },
+  { 0,    NULL }
+};
+
+static int * const ieee80211_tclas_class_mask6[] = {
+  &hf_ieee80211_tclas_class_mask6_frame_control_match_spec,
+  &hf_ieee80211_tclas_class_mask6_duration_id_match_spec,
+  &hf_ieee80211_tclas_class_mask6_address_1_match_spec,
+  &hf_ieee80211_tclas_class_mask6_address_2_match_spec,
+  &hf_ieee80211_tclas_class_mask6_address_3_match_spec,
+  &hf_ieee80211_tclas_class_mask6_sequence_control_spec,
+  &hf_ieee80211_tclas_class_mask6_address_4_match_spec,
+  &hf_ieee80211_tclas_class_mask6_qos_control_spec,
+  &hf_ieee80211_tclas_class_mask6_ht_control_spec,
+  &hf_ieee80211_tclas_class_mask6_reserved,
+  NULL
+};
+
+static int * const ieee80211_tclas_class_mask7[] = {
+  &hf_ieee80211_tclas_class_mask7_frame_control_match_spec,
+  &hf_ieee80211_tclas_class_mask7_address_1_sid_match_spec,
+  &hf_ieee80211_tclas_class_mask7_address_2_match_spec,
+  &hf_ieee80211_tclas_class_mask7_sequence_control_spec,
+  &hf_ieee80211_tclas_class_mask7_address_3_match_spec,
+  &hf_ieee80211_tclas_class_mask7_address_4_match_spec,
+  &hf_ieee80211_tclas_class_mask7_reserved,
+  NULL
+};
+
+static int * const ieee80211_tclas_class_mask8[] = {
+  &hf_ieee80211_tclas_class_mask8_frame_control_match_spec,
+  &hf_ieee80211_tclas_class_mask8_address_1_bssid_match_spec,
+  &hf_ieee80211_tclas_class_mask8_address_2_sid_match_spec,
+  &hf_ieee80211_tclas_class_mask8_sequence_control_spec,
+  &hf_ieee80211_tclas_class_mask8_address_3_match_spec,
+  &hf_ieee80211_tclas_class_mask8_address_4_match_spec,
+  &hf_ieee80211_tclas_class_mask8_reserved,
+  NULL
+};
+
+static int * const ieee80211_tclas_class_mask9[] = {
+  &hf_ieee80211_tclas_class_mask9_frame_control_match_spec,
+  &hf_ieee80211_tclas_class_mask9_address_1_match_spec,
+  &hf_ieee80211_tclas_class_mask9_address_2_match_spec,
+  &hf_ieee80211_tclas_class_mask9_sequence_control_spec,
+  &hf_ieee80211_tclas_class_mask9_reserved,
+  NULL
+};
+
 static int
-ieee80211_tag_tclas(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
+ieee80211_frame_classifier(tvbuff_t *tvb, packet_info *pinfo _U_,
+                           proto_tree *tree, int offset, int tag_len)
 {
-  int tag_len = tvb_reported_length(tvb);
-  ieee80211_tagged_field_data_t* field_data = (ieee80211_tagged_field_data_t*)data;
-  int offset = 0;
   guint8 type;
   guint8 version;
-  static int * const ieee80211_tclas_class_mask0[] = {
-    &hf_ieee80211_tclas_class_mask0_src_addr,
-    &hf_ieee80211_tclas_class_mask0_dst_addr,
-    &hf_ieee80211_tclas_class_mask0_type,
-    NULL
-  };
-
-  static int * const ieee80211_tclas_class_mask1[] = {
-    &hf_ieee80211_tclas_class_mask1_ver,
-    &hf_ieee80211_tclas_class_mask1_src_ip,
-    &hf_ieee80211_tclas_class_mask1_dst_ip,
-    &hf_ieee80211_tclas_class_mask1_src_port,
-    &hf_ieee80211_tclas_class_mask1_dst_port,
-    &hf_ieee80211_tclas_class_mask1_ipv6_flow,
-    NULL
-  };
-
-  static int * const ieee80211_tclas_class_mask1_4[] = {
-    &hf_ieee80211_tclas_class_mask1_ver,
-    &hf_ieee80211_tclas_class_mask1_src_ip,
-    &hf_ieee80211_tclas_class_mask1_dst_ip,
-    &hf_ieee80211_tclas_class_mask1_src_port,
-    &hf_ieee80211_tclas_class_mask1_dst_port,
-    &hf_ieee80211_tclas_class_mask1_ipv4_dscp,
-    &hf_ieee80211_tclas_class_mask1_ipv4_proto,
-    NULL
-  };
-
-  static int * const ieee80211_tclas_class_mask2[] = {
-    &hf_ieee80211_tclas_class_mask2_tci,
-    NULL
-  };
-
-  if (tag_len < 5)
-  {
-    expert_add_info_format(pinfo, field_data->item_tag_length, &ei_ieee80211_tag_length, "Tag length %u too short, must be >= 5", tag_len);
-    return 1;
-  }
-
-  proto_tree_add_item(tree, hf_ieee80211_tclas_up, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-  offset += 1;
+  guint8 filter_field_len;
+  guint32 class_mask;
 
   type = tvb_get_guint8(tvb, offset);
   proto_tree_add_item(tree, hf_ieee80211_tclas_class_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -23182,9 +23623,9 @@ ieee80211_tag_tclas(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
       offset += 2;
       proto_tree_add_item(tree, hf_ieee80211_tclas_dst_port, tvb, offset, 2, ENC_BIG_ENDIAN);
       offset += 2;
-      proto_tree_add_item(tree, hf_ieee80211_tclas_dscp, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(tree, hf_ieee80211_tclas_dscp, tvb, offset, 1, ENC_NA);
       offset += 1;
-      proto_tree_add_item(tree, hf_ieee80211_tclas_protocol, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(tree, hf_ieee80211_tclas_protocol, tvb, offset, 1, ENC_NA);
       /*offset += 1;*/
     }
     else if (version == 6)
@@ -23212,11 +23653,535 @@ ieee80211_tag_tclas(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
     /*offset += 2;*/
     break;
 
+  case 3:
+    proto_tree_add_item(tree, hf_ieee80211_tclas_mask_reserved, tvb, offset,
+                        1, ENC_NA);
+    offset += 1;
+
+    proto_tree_add_item(tree, hf_ieee80211_tclas_filter_offset, tvb, offset,
+                        2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+
+    filter_field_len = (tag_len - 4) / 2;
+
+    proto_tree_add_item(tree, hf_ieee80211_tclas_filter_value, tvb, offset,
+                        filter_field_len, ENC_NA);
+    offset += filter_field_len;
+
+    proto_tree_add_item(tree, hf_ieee80211_tclas_filter_mask, tvb, offset,
+                        filter_field_len, ENC_NA);
+    /*offset += filter_field_len;*/
+    break;
+
+  case 4:
+    version = tvb_get_guint8(tvb, offset+1);
+    if (version == 4) {
+      proto_tree_add_bitmask_with_flags(tree, tvb, offset,
+                                    hf_ieee80211_tclas_class_mask,
+                                    ett_tag_tclas_mask_tree,
+                                    ieee80211_tclas_class_mask4_4,
+                                    ENC_BIG_ENDIAN, BMT_NO_APPEND);
+    } else if (version == 6) {
+      proto_tree_add_bitmask_with_flags(tree, tvb, offset,
+                                    hf_ieee80211_tclas_class_mask,
+                                    ett_tag_tclas_mask_tree,
+                                    ieee80211_tclas_class_mask4_6,
+                                    ENC_BIG_ENDIAN, BMT_NO_APPEND);
+    } else {
+      proto_tree_add_item(tree, hf_ieee80211_tclas_class_mask, tvb, offset, 1,
+                          ENC_NA);
+      offset += 1;
+
+      proto_tree_add_item(tree, hf_ieee80211_tclas_reserved_bytes, tvb, offset,
+                          tag_len - offset + 1, ENC_NA);
+      break;
+    }
+
+    offset += 1;
+
+    proto_tree_add_item(tree, hf_ieee80211_tclas4_version, tvb, offset, 1, ENC_NA);
+    offset += 1;
+
+    if (version == 4)
+    {
+      proto_tree_add_item(tree, hf_ieee80211_tclas4_ipv4_src, tvb, offset, 4, ENC_BIG_ENDIAN);
+      offset += 4;
+      proto_tree_add_item(tree, hf_ieee80211_tclas4_ipv4_dst, tvb, offset, 4, ENC_BIG_ENDIAN);
+      offset += 4;
+      proto_tree_add_item(tree, hf_ieee80211_tclas4_src_port, tvb, offset, 2, ENC_BIG_ENDIAN);
+      offset += 2;
+      proto_tree_add_item(tree, hf_ieee80211_tclas4_dst_port, tvb, offset, 2, ENC_BIG_ENDIAN);
+      offset += 2;
+      proto_tree_add_item(tree, hf_ieee80211_tclas4_dscp, tvb, offset, 1, ENC_NA);
+      offset += 1;
+      proto_tree_add_item(tree, hf_ieee80211_tclas4_protocol, tvb, offset, 1, ENC_NA);
+      offset += 1;
+      proto_tree_add_item(tree, hf_ieee80211_tclas4_reserved, tvb, offset, 1, ENC_NA);
+      /*offset += 1;*/
+    }
+    else if (version == 6)
+    {
+      proto_tree_add_item(tree, hf_ieee80211_tclas4_ipv6_src, tvb, offset, 16, ENC_NA);
+      offset += 16;
+      proto_tree_add_item(tree, hf_ieee80211_tclas4_ipv6_dst, tvb, offset, 16, ENC_NA);
+      offset += 16;
+      proto_tree_add_item(tree, hf_ieee80211_tclas4_src_port, tvb, offset, 2, ENC_BIG_ENDIAN);
+      offset += 2;
+      proto_tree_add_item(tree, hf_ieee80211_tclas4_dst_port, tvb, offset, 2, ENC_BIG_ENDIAN);
+      offset += 2;
+      proto_tree_add_item(tree, hf_ieee80211_tclas4_dscp, tvb, offset, 1, ENC_NA);
+      offset += 1;
+      proto_tree_add_item(tree, hf_ieee80211_tclas4_next_hdr, tvb, offset, 1, ENC_NA);
+      proto_tree_add_item(tree, hf_ieee80211_tclas4_flow, tvb, offset, 3, ENC_BIG_ENDIAN);
+      /*offset += 3;*/
+    }
+    break;
+
+  case 5:
+    /* Note, BIG Endian where more than one byte. */
+    proto_tree_add_bitmask_with_flags(tree, tvb, offset,
+                                    hf_ieee80211_tclas_class_mask,
+                                    ett_tag_tclas_mask_tree,
+                                    ieee80211_tclas_class_mask5,
+                                    ENC_LITTLE_ENDIAN, BMT_NO_APPEND);
+    offset++;
+
+    proto_tree_add_item(tree, hf_ieee80211_tclas_tclas_8021d_up_pcp, tvb,
+                        offset, 1, ENC_NA);
+    offset += 1;
+
+    proto_tree_add_item(tree, hf_ieee80211_tclas_8021q_dei, tvb, offset, 1,
+                        ENC_NA);
+    offset += 1;
+
+    proto_tree_add_item(tree, hf_ieee80211_tclas_8021q_vid, tvb, offset, 2,
+                        ENC_BIG_ENDIAN);
+    offset += 1;
+
+    break;
+
+  case 6:
+    class_mask = tvb_get_letoh24(tvb, offset);
+    proto_tree_add_bitmask_with_flags(tree, tvb, offset,
+                                    hf_ieee80211_tclas_class_mask6_a_above,
+                                    ett_tag_tclas_mask_tree,
+                                    ieee80211_tclas_class_mask6,
+                                    ENC_LITTLE_ENDIAN, BMT_NO_APPEND);
+    offset += 3;
+
+    /* Is the Frame Control info there? */
+    if (class_mask & 0x01) {
+      proto_tree_add_item(tree, hf_ieee80211_tclas6_frame_control_spec, tvb,
+                          offset, 2, ENC_LITTLE_ENDIAN);
+      offset += 2;
+
+      if (class_mask & 0x02) {
+        proto_tree_add_item(tree, hf_ieee80211_tclas6_frame_control_mask, tvb,
+                            offset, 2, ENC_LITTLE_ENDIAN);
+        offset += 2;
+      }
+    }
+    class_mask = class_mask >> 2; /* Get the next two bits */
+
+    /* Is the Duration info there? */
+    if (class_mask & 0x01) {
+      proto_tree_add_item(tree, hf_ieee80211_tclas6_duration_spec, tvb,
+                          offset, 2, ENC_LITTLE_ENDIAN);
+      offset += 2;
+
+      if (class_mask & 0x02) {
+        proto_tree_add_item(tree, hf_ieee80211_tclas6_duration_mask, tvb,
+                            offset, 2, ENC_LITTLE_ENDIAN);
+        offset += 2;
+      }
+    }
+    class_mask = class_mask >> 2; /* Get the next two bits */
+
+    /* Is the Address 1 info there? */
+    if (class_mask & 0x01) {
+      proto_tree_add_item(tree, hf_ieee80211_tclas6_address_1_spec, tvb,
+                          offset, 6, ENC_NA);
+      offset += 6;
+
+      if (class_mask & 0x02) {
+        proto_tree_add_item(tree, hf_ieee80211_tclas6_address_1_mask, tvb,
+                            offset, 6, ENC_LITTLE_ENDIAN);
+        offset += 6;
+      }
+    }
+    class_mask = class_mask >> 2; /* Get the next two bits */
+
+    /* Is the Address 2 info there? */
+    if (class_mask & 0x01) {
+      proto_tree_add_item(tree, hf_ieee80211_tclas6_address_2_spec, tvb,
+                          offset, 6, ENC_NA);
+      offset += 6;
+
+      if (class_mask & 0x02) {
+        proto_tree_add_item(tree, hf_ieee80211_tclas6_address_2_mask, tvb,
+                            offset, 6, ENC_LITTLE_ENDIAN);
+        offset += 6;
+      }
+    }
+    class_mask = class_mask >> 2; /* Get the next two bits */
+
+    /* Is the Address 3 info there? */
+    if (class_mask & 0x01) {
+      proto_tree_add_item(tree, hf_ieee80211_tclas6_address_3_spec, tvb,
+                          offset, 6, ENC_NA);
+      offset += 6;
+
+      if (class_mask & 0x02) {
+        proto_tree_add_item(tree, hf_ieee80211_tclas6_address_3_mask, tvb,
+                            offset, 6, ENC_LITTLE_ENDIAN);
+        offset += 6;
+      }
+    }
+    class_mask = class_mask >> 2; /* Get the next two bits */
+
+    /* Is the Sequence Control info there? */
+    if (class_mask & 0x01) {
+      proto_tree_add_item(tree, hf_ieee80211_tclas6_sequence_control_spec, tvb,
+                          offset, 2, ENC_LITTLE_ENDIAN);
+      offset += 2;
+
+      if (class_mask & 0x02) {
+        proto_tree_add_item(tree, hf_ieee80211_tclas6_sequence_control_mask,
+                            tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset += 2;
+      }
+    }
+    class_mask = class_mask >> 2; /* Get the next two bits */
+
+    /* Is the Address 4 info there? */
+    if (class_mask & 0x01) {
+      proto_tree_add_item(tree, hf_ieee80211_tclas6_address_4_spec, tvb,
+                          offset, 6, ENC_NA);
+      offset += 6;
+
+      if (class_mask & 0x02) {
+        proto_tree_add_item(tree, hf_ieee80211_tclas6_address_4_mask, tvb,
+                            offset, 6, ENC_LITTLE_ENDIAN);
+        offset += 6;
+      }
+    }
+    class_mask = class_mask >> 2; /* Get the next two bits */
+
+    /* Is the QoS Control info there? */
+    if (class_mask & 0x01) {
+      proto_tree_add_item(tree, hf_ieee80211_tclas6_qos_control_spec, tvb,
+                          offset, 2, ENC_LITTLE_ENDIAN);
+      offset += 2;
+
+      if (class_mask & 0x02) {
+        proto_tree_add_item(tree, hf_ieee80211_tclas6_qos_control_mask, tvb,
+                            offset, 2, ENC_LITTLE_ENDIAN);
+        offset += 2;
+      }
+    }
+    class_mask = class_mask >> 2; /* Get the next two bits */
+
+    /* Is the HT Control info there? */
+    if (class_mask & 0x01) {
+      proto_tree_add_item(tree, hf_ieee80211_tclas6_ht_control_spec, tvb,
+                          offset, 4, ENC_LITTLE_ENDIAN);
+      offset += 4;
+
+      if (class_mask & 0x02) {
+        proto_tree_add_item(tree, hf_ieee80211_tclas6_ht_control_mask, tvb,
+                            offset, 4, ENC_LITTLE_ENDIAN);
+        offset += 4;
+      }
+    }
+    /* class_mask = class_mask >> 2; Get the next two bits */
+
+    break;
+
+  case 7:
+    class_mask = tvb_get_letohs(tvb, offset);
+    proto_tree_add_bitmask_with_flags(tree, tvb, offset,
+                                    hf_ieee80211_tclas_class_mask6_a_above,
+                                    ett_tag_tclas_mask_tree,
+                                    ieee80211_tclas_class_mask7,
+                                    ENC_LITTLE_ENDIAN, BMT_NO_APPEND);
+    offset += 3;
+
+    /* Is the Frame Control info there */
+    if (class_mask & 0x01) {
+      proto_tree_add_item(tree, hf_ieee80211_tclas7_frame_control_spec, tvb,
+                          offset, 2, ENC_LITTLE_ENDIAN);
+      offset += 2;
+      if (class_mask & 0x02) {
+        proto_tree_add_item(tree, hf_ieee80211_tclas7_frame_control_mask, tvb,
+                            offset, 2, ENC_LITTLE_ENDIAN);
+        offset += 2;
+      }
+    }
+    class_mask = class_mask >> 2; /* Get the next two bits */
+
+    /* Is the Address 1 (SID) info there */
+    if (class_mask & 0x01) {
+      proto_tree_add_item(tree, hf_ieee80211_tclas7_address_1_sid_spec, tvb,
+                          offset, 2, ENC_LITTLE_ENDIAN);
+      offset += 2;
+      if (class_mask & 0x02) {
+        proto_tree_add_item(tree, hf_ieee80211_tclas7_address_1_sid_mask, tvb,
+                            offset, 2, ENC_LITTLE_ENDIAN);
+        offset += 2;
+      }
+    }
+    class_mask = class_mask >> 2; /* Get the next two bits */
+
+    /* Is the Address 2 info there */
+    if (class_mask & 0x01) {
+      proto_tree_add_item(tree, hf_ieee80211_tclas7_address_2_spec, tvb,
+                          offset, 6, ENC_NA);
+      offset += 6;
+      if (class_mask & 0x02) {
+        proto_tree_add_item(tree, hf_ieee80211_tclas7_address_2_mask, tvb,
+                            offset, 6, ENC_LITTLE_ENDIAN);
+        offset += 6;
+      }
+    }
+    class_mask = class_mask >> 2; /* Get the next two bits */
+
+    /* Is the Sequence Control info there */
+    if (class_mask & 0x01) {
+      proto_tree_add_item(tree, hf_ieee80211_tclas7_sequence_control_spec, tvb,
+                          offset, 2, ENC_LITTLE_ENDIAN);
+      offset += 2;
+      if (class_mask & 0x02) {
+        proto_tree_add_item(tree, hf_ieee80211_tclas7_sequence_control_mask,
+                            tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset += 2;
+      }
+    }
+    class_mask = class_mask >> 2; /* Get the next two bits */
+
+    /* Is the Address 3 info there */
+    if (class_mask & 0x01) {
+      proto_tree_add_item(tree, hf_ieee80211_tclas7_address_3_spec, tvb,
+                          offset, 6, ENC_NA);
+      offset += 6;
+      if (class_mask & 0x02) {
+        proto_tree_add_item(tree, hf_ieee80211_tclas7_address_3_mask, tvb,
+                            offset, 6, ENC_LITTLE_ENDIAN);
+        offset += 6;
+      }
+    }
+    class_mask = class_mask >> 2; /* Get the next two bits */
+
+    /* Is the Address 4 info there */
+    if (class_mask & 0x01) {
+      proto_tree_add_item(tree, hf_ieee80211_tclas7_address_4_spec, tvb,
+                          offset, 6, ENC_NA);
+      offset += 6;
+      if (class_mask & 0x02) {
+        proto_tree_add_item(tree, hf_ieee80211_tclas7_address_4_mask, tvb,
+                            offset, 6, ENC_LITTLE_ENDIAN);
+        offset += 6;
+      }
+    }
+    /*class_mask = class_mask >> 2; Get the next two bits */
+
+    break;
+
+  case 8:
+    class_mask = tvb_get_letohs(tvb, offset);
+    proto_tree_add_bitmask_with_flags(tree, tvb, offset,
+                                    hf_ieee80211_tclas_class_mask6_a_above,
+                                    ett_tag_tclas_mask_tree,
+                                    ieee80211_tclas_class_mask8,
+                                    ENC_LITTLE_ENDIAN, BMT_NO_APPEND);
+    offset += 3;
+
+    /* Is the Frame Control info there */
+    if (class_mask & 0x01) {
+      proto_tree_add_item(tree, hf_ieee80211_tclas8_frame_control_spec, tvb,
+                          offset, 2, ENC_LITTLE_ENDIAN);
+      offset += 2;
+      if (class_mask & 0x02) {
+        proto_tree_add_item(tree, hf_ieee80211_tclas8_frame_control_mask, tvb,
+                            offset, 2, ENC_LITTLE_ENDIAN);
+        offset += 2;
+      }
+    }
+    class_mask = class_mask >> 2; /* Get the next two bits */
+
+    /* Is the Address 1 (BSSID) info there */
+    if (class_mask & 0x01) {
+      proto_tree_add_item(tree, hf_ieee80211_tclas8_address_1_bssid_spec, tvb,
+                          offset, 6, ENC_NA);
+      offset += 6;
+      if (class_mask & 0x02) {
+        proto_tree_add_item(tree, hf_ieee80211_tclas8_address_1_bssid_mask, tvb,
+                            offset, 6, ENC_LITTLE_ENDIAN);
+        offset += 6;
+      }
+    }
+    class_mask = class_mask >> 2; /* Get the next two bits */
+
+    /* Is the Address 2 (SID) info there */
+    if (class_mask & 0x01) {
+      proto_tree_add_item(tree, hf_ieee80211_tclas8_address_2_sid_spec, tvb,
+                          offset, 2, ENC_LITTLE_ENDIAN);
+      offset += 2;
+      if (class_mask & 0x02) {
+        proto_tree_add_item(tree, hf_ieee80211_tclas8_address_2_sid_mask, tvb,
+                            offset, 2, ENC_LITTLE_ENDIAN);
+        offset += 2;
+      }
+    }
+    class_mask = class_mask >> 2; /* Get the next two bits */
+
+    /* Is the Sequence Control info there */
+    if (class_mask & 0x01) {
+      proto_tree_add_item(tree, hf_ieee80211_tclas8_sequence_control_spec, tvb,
+                          offset, 2, ENC_LITTLE_ENDIAN);
+      offset += 2;
+      if (class_mask & 0x02) {
+        proto_tree_add_item(tree, hf_ieee80211_tclas8_sequence_control_mask,
+                            tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset += 2;
+      }
+    }
+    class_mask = class_mask >> 2; /* Get the next two bits */
+
+    /* Is the Address 3 info there */
+    if (class_mask & 0x01) {
+      proto_tree_add_item(tree, hf_ieee80211_tclas8_address_3_spec, tvb,
+                          offset, 6, ENC_NA);
+      offset += 6;
+      if (class_mask & 0x02) {
+        proto_tree_add_item(tree, hf_ieee80211_tclas8_address_3_mask, tvb,
+                            offset, 6, ENC_LITTLE_ENDIAN);
+        offset += 6;
+      }
+    }
+    class_mask = class_mask >> 2; /* Get the next two bits */
+
+    /* Is the Address 4 info there */
+    if (class_mask & 0x01) {
+      proto_tree_add_item(tree, hf_ieee80211_tclas8_address_4_spec, tvb,
+                          offset, 6, ENC_NA);
+      offset += 6;
+      if (class_mask & 0x02) {
+        proto_tree_add_item(tree, hf_ieee80211_tclas8_address_4_mask, tvb,
+                            offset, 6, ENC_LITTLE_ENDIAN);
+        offset += 6;
+      }
+    }
+    /* class_mask = class_mask >> 2; Get the next two bits */
+
+    break;
+
+  case 9:
+    class_mask = tvb_get_letohs(tvb, offset);
+    proto_tree_add_bitmask_with_flags(tree, tvb, offset,
+                                    hf_ieee80211_tclas_class_mask6_a_above,
+                                    ett_tag_tclas_mask_tree,
+                                    ieee80211_tclas_class_mask9,
+                                    ENC_LITTLE_ENDIAN, BMT_NO_APPEND);
+    offset += 3;
+
+    /* Is the Frame Control info there */
+    if (class_mask & 0x01) {
+      proto_tree_add_item(tree, hf_ieee80211_tclas9_frame_control_spec, tvb,
+                          offset, 2, ENC_LITTLE_ENDIAN);
+      offset += 2;
+      if (class_mask & 0x02) {
+        proto_tree_add_item(tree, hf_ieee80211_tclas9_frame_control_mask, tvb,
+                            offset, 2, ENC_LITTLE_ENDIAN);
+        offset += 2;
+      }
+    }
+    class_mask = class_mask >> 2; /* Get the next two bits */
+
+    /* Is the Address 1 info there */
+    if (class_mask & 0x01) {
+      proto_tree_add_item(tree, hf_ieee80211_tclas9_address_1_spec, tvb,
+                          offset, 6, ENC_NA);
+      offset += 6;
+      if (class_mask & 0x02) {
+        proto_tree_add_item(tree, hf_ieee80211_tclas9_address_1_mask, tvb,
+                            offset, 6, ENC_LITTLE_ENDIAN);
+        offset += 6;
+      }
+    }
+    class_mask = class_mask >> 2; /* Get the next two bits */
+
+    /* Is the Address 2 info there */
+    if (class_mask & 0x01) {
+      proto_tree_add_item(tree, hf_ieee80211_tclas9_address_2_spec, tvb,
+                          offset, 6, ENC_NA);
+      offset += 6;
+      if (class_mask & 0x02) {
+        proto_tree_add_item(tree, hf_ieee80211_tclas9_address_2_mask, tvb,
+                            offset, 6, ENC_LITTLE_ENDIAN);
+        offset += 6;
+      }
+    }
+    class_mask = class_mask >> 2; /* Get the next two bits */
+
+    /* Is the Sequence Control info there */
+    if (class_mask & 0x01) {
+      proto_tree_add_item(tree, hf_ieee80211_tclas9_sequence_control_spec, tvb,
+                          offset, 2, ENC_LITTLE_ENDIAN);
+      offset += 2;
+      if (class_mask & 0x02) {
+        proto_tree_add_item(tree, hf_ieee80211_tclas9_sequence_control_mask,
+                            tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset += 2;
+      }
+    }
+    /* class_mask = class_mask >> 2; Get the next two bits */
+
+    break;
+
+  case 0x0A:
+    proto_tree_add_item(tree, hf_ieee80211_tclas10_protocol_instance, tvb,
+                        offset, 1, ENC_NA);
+    offset += 1;
+
+    proto_tree_add_item(tree, hf_ieee80211_tclas10_protocol_num_next_hdr, tvb,
+                        offset, 1, ENC_NA);
+    offset += 1;
+
+    filter_field_len = (tag_len - 5) / 2;
+
+    proto_tree_add_item(tree, hf_ieee80211_tclas_filter_value, tvb, offset,
+                        filter_field_len, ENC_NA);
+    offset += filter_field_len;
+
+    proto_tree_add_item(tree, hf_ieee80211_tclas_filter_mask, tvb, offset,
+                        filter_field_len, ENC_NA);
+    /*offset += filter_field_len;*/
+    break;
+
   default:
     break;
   }
 
   return tvb_captured_length(tvb);
+}
+
+static int
+ieee80211_tag_tclas(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
+{
+  int tag_len = tvb_reported_length(tvb);
+  ieee80211_tagged_field_data_t* field_data = (ieee80211_tagged_field_data_t*)data;
+  int offset = 0;
+
+  if (tag_len < 5)
+  {
+    expert_add_info_format(pinfo, field_data->item_tag_length, &ei_ieee80211_tag_length, "Tag length %u too short, must be >= 5", tag_len);
+    return 1;
+  }
+
+  proto_tree_add_item(tree, hf_ieee80211_tclas_up, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+  offset += 1;
+
+  return ieee80211_frame_classifier(tvb, pinfo, tree, offset, tag_len);
 }
 
 /* 7.3.2.34 Schedule element (15) */
@@ -25315,6 +26280,183 @@ dissect_password_identifier(tvbuff_t *tvb, packet_info *pinfo _U_,
   return offset;
 }
 
+#define SCS_ADD    0
+#define SCS_REMOVE 1
+#define SCS_CHANGE 2
+
+static const range_string scs_request_type_rvals[] = {
+  { SCS_ADD,    SCS_ADD,      "Add" },
+  { SCS_REMOVE, SCS_REMOVE,   "Remove" },
+  { SCS_CHANGE, SCS_CHANGE,   "Change" },
+  { 3,          255, "Reserved" },
+  { 0,          0, NULL }
+};
+
+static int * const user_prio_bitmap_headers[] = {
+  &hf_ieee80211_user_prio_bitmap_bit0,
+  &hf_ieee80211_user_prio_bitmap_bit1,
+  &hf_ieee80211_user_prio_bitmap_bit2,
+  &hf_ieee80211_user_prio_bitmap_bit3,
+  &hf_ieee80211_user_prio_bitmap_bit4,
+  &hf_ieee80211_user_prio_bitmap_bit5,
+  &hf_ieee80211_user_prio_bitmap_bit6,
+  &hf_ieee80211_user_prio_bitmap_bit7,
+  NULL
+};
+
+static void
+dissect_mscs_descriptor_element(tvbuff_t *tvb, packet_info *pinfo _U_,
+  proto_tree *tree, int offset, int len _U_)
+{
+  guint8 request_type = tvb_get_guint8(tvb, offset);
+
+  proto_tree_add_item(tree, hf_ieee80211_mscs_descriptor_type, tvb, offset, 1,
+                      ENC_NA);
+  offset += 1;
+
+  if (request_type == SCS_REMOVE) {
+    proto_tree_add_item(tree, hf_ieee80211_mscs_user_prio_control_reserved,
+                        tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+  } else {
+    proto_tree *user_prio_tree = NULL;
+
+    user_prio_tree = proto_tree_add_subtree(tree, tvb, offset, 2,
+                                            ett_mscs_user_prio, NULL,
+                                            "User Priority Control");
+    proto_tree_add_bitmask_with_flags(user_prio_tree, tvb, offset,
+                                      hf_ieee80211_user_prio_bitmap,
+                                      ett_ieee80211_user_prio_bitmap,
+                                      user_prio_bitmap_headers,
+                                      ENC_NA, BMT_NO_APPEND);
+    offset += 1;
+
+    proto_tree_add_item(user_prio_tree, hf_ieee80211_user_prio_limit, tvb,
+                        offset, 1, ENC_NA);
+    proto_tree_add_item(user_prio_tree, hf_ieee80211_user_prio_reserved, tvb,
+                        offset, 1, ENC_NA);
+    offset += 1;
+  }
+
+  if (request_type == SCS_REMOVE) {
+    proto_tree_add_item(tree, hf_ieee80211_stream_timeout_reserved, tvb,
+                        offset, 4, ENC_LITTLE_ENDIAN);
+  } else {
+    proto_tree_add_item(tree, hf_ieee80211_stream_timeout, tvb,
+                        offset, 4, ENC_LITTLE_ENDIAN);
+  }
+  offset += 4;
+
+  /*
+   * If there is nothing more in the TVB we are done.
+   */
+  if (tvb_reported_length_remaining(tvb, offset) == 0)
+    return;
+
+  /*
+   * There may be tclas elements following and optional MSCS elements.
+   * A TCLAS Mask element will start with 0xFF <len> 0x89
+   */
+  while (tvb_reported_length_remaining(tvb, offset) &&
+         tvb_get_guint8(tvb, offset) == 0xFF) {
+    offset += add_tagged_field(pinfo, tree, tvb, offset, 0, NULL, 0, NULL);
+  }
+
+  /*
+   * Any optional MSCS elements come next. Should be 1 byte ID, 1 byte len
+   * and len bytes.
+   */
+  if (offset < len) {
+    guint8 sub_elt_len;
+
+    proto_tree_add_item(tree, hf_ieee80211_mscs_subelement_id, tvb, offset, 1,
+                        ENC_NA);
+    offset += 1;
+
+    sub_elt_len = tvb_get_guint8(tvb, offset);
+    proto_tree_add_item(tree, hf_ieee80211_mscs_subelement_len, tvb, offset, 1,
+                        ENC_NA);
+    offset += 1;
+
+    proto_tree_add_item(tree, hf_ieee80211_mscs_subelement_data, tvb, offset,
+                        sub_elt_len, ENC_NA);
+  }
+}
+
+static void
+dissect_tclas_mask_element(tvbuff_t *tvb, packet_info *pinfo _U_,
+                           proto_tree *tree, int offset, int len _U_)
+{
+  ieee80211_frame_classifier(tvb, pinfo, tree, offset, len);
+}
+
+static int * const intra_access_prio_headers[] = {
+  &hf_ieee80211_intra_access_prio_user_prio,
+  &hf_ieee80211_intra_access_prio_alt_queue,
+  &hf_ieee80211_intra_access_prio_drop_elig,
+  &hf_ieee80211_intra_access_prio_reserved,
+  NULL
+};
+
+static int
+ieee80211_tag_intra_access_cat_prio(tvbuff_t *tvb, packet_info *pinfo,
+                                    proto_tree *tree, void *data)
+{
+  int tag_len = tvb_reported_length(tvb);
+  ieee80211_tagged_field_data_t* field_data = (ieee80211_tagged_field_data_t *)data;
+  int offset = 0;
+
+  if (tag_len != 1) {
+    expert_add_info_format(pinfo, field_data->item_tag_length, &ei_ieee80211_tag_length, "Tag Length %u wrong, must be 1", tag_len);
+    return tvb_captured_length(tvb);
+  }
+
+  proto_tree_add_bitmask_with_flags(tree, tvb, offset,
+                                    hf_ieee80211_intra_access_prio,
+                                    ett_ieee80211_intra_access_prio,
+                                    intra_access_prio_headers,
+                                    ENC_NA, BMT_NO_APPEND);
+
+  return tvb_captured_length(tvb);
+}
+
+static int
+ieee80211_tag_scs_descriptor(tvbuff_t *tvb, packet_info *pinfo,
+                             proto_tree *tree, void *data _U_)
+{
+  int offset = 0;
+  guint8 request_type = tvb_get_guint8(tvb, offset + 1);
+
+  proto_tree_add_item(tree, hf_ieee80211_scs_descriptor_scsid, tvb, offset, 1,
+                      ENC_NA);
+  offset += 1;
+
+  proto_tree_add_item(tree, hf_ieee80211_scs_descriptor_type, tvb, offset, 1,
+                      ENC_NA);
+  offset += 1;
+
+  if (request_type == SCS_ADD || request_type == SCS_CHANGE) {
+    /* There will only be one intra access priority */
+    offset += add_tagged_field(pinfo, tree, tvb, offset, 0, NULL, 0, NULL);
+
+    /* There will be at least one tclass element ... */
+    while ((tvb_captured_length_remaining(tvb, offset) > 0) &&
+           tvb_get_guint8(tvb, offset) == TAG_TCLAS) {
+      offset += add_tagged_field(pinfo, tree, tvb, offset, 0, NULL, 0, NULL);
+    }
+    /* There could be a TCLAS PROCESS element ... */
+    if ((tvb_captured_length_remaining(tvb, offset) > 0) &&
+        tvb_get_guint8(tvb, offset) == TAG_TCLAS_PROCESS) {
+      offset += add_tagged_field(pinfo, tree, tvb, offset, 0, NULL, 0, NULL);
+    }
+
+  }
+
+  /* There could be Optional subelements here too ... */
+
+  return tvb_captured_length(tvb);
+}
+
 /*
  * Just a list of finite cyclic group numbers as 16-bit uints.
  */
@@ -25789,6 +26931,12 @@ ieee80211_tag_element_id_extension(tvbuff_t *tvb, packet_info *pinfo, proto_tree
       break;
     case ETAG_SHORT_SSID:
       dissect_short_ssid(tvb, pinfo, tree, offset, ext_tag_len);
+      break;
+    case ETAG_MSCS_DESCRIPTOR_ELEMENT:
+      dissect_mscs_descriptor_element(tvb, pinfo, tree, offset, ext_tag_len);
+      break;
+    case ETAG_TCLAS_MASK:
+      dissect_tclas_mask_element(tvb, pinfo, tree, offset, ext_tag_len);
       break;
     case ETAG_REJECTED_GROUPS:
       dissect_rejected_groups(tvb, pinfo, tree, offset, ext_tag_len);
@@ -34266,6 +35414,11 @@ proto_register_ieee80211(void)
        FT_UINT8, BASE_HEX, VALS(ff_fst_action_flags), 0,
        "Action Code", HFILL }},
 
+    {&hf_ieee80211_ff_robust_av_streaming_action_code,
+     {"Robust AV Streaming Action Code", "wlan.robust_av_stremaing.action_code",
+      FT_UINT8, BASE_HEX, VALS(ff_robust_av_streaming_action_flags), 0,
+      "Action Code", HFILL }},
+
     {&hf_ieee80211_ff_llt,
       {"Link Loss Timeout", "wlan.fst.llt",
        FT_UINT32, BASE_DEC, NULL, 0,
@@ -34290,6 +35443,15 @@ proto_register_ieee80211(void)
       {"OCT MMPDU", "wlan.fst.oct_mmpdu",
        FT_BYTES, BASE_NONE, NULL, 0,
        NULL, HFILL }},
+
+    {&hf_ieee80211_ff_scs_scsid,
+     {"SCSID", "wlan.scs.scs_status_list.scsid",
+      FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+    {&hf_ieee80211_ff_scs_status,
+     {"Status", "wlan.scs.scs_status_list.status",
+      FT_UINT16, BASE_DEC|BASE_EXT_STRING, &ieee80211_status_code_ext, 0,
+      NULL, HFILL }},
 
     {&hf_ieee80211_ff_vht_mimo_cntrl,
      {"VHT MIMO Control", "wlan.vht.mimo_control.control",
@@ -37049,7 +38211,7 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_tclas_up,
      {"User Priority", "wlan.tclas.user_priority",
-      FT_UINT8, BASE_DEC, NULL, 0,
+      FT_UINT8, BASE_DEC|BASE_RANGE_STRING, RVALS(user_prio_rvals), 0,
       "Contains the value of the UP of the associated MSDUs", HFILL }},
 
     {&hf_ieee80211_tclas_class_type,
@@ -37061,6 +38223,10 @@ proto_register_ieee80211(void)
      {"Classifier Mask", "wlan.tclas.class_mask",
       FT_UINT8, BASE_HEX,  NULL, 0,
       "Specifies a bitmap where bits that are set to 1 identify a subset of the classifier parameters", HFILL }},
+
+    {&hf_ieee80211_tclas_mask_reserved,
+     {"Reserved", "wlan.tclas.class_mask.reserved",
+      FT_UINT8, BASE_HEX, NULL, 0, "Class mask is reserved", HFILL }},
 
     {&hf_ieee80211_tclas_class_mask0_src_addr,
      {"Source Address", "wlan.tclas.class_mask.src_addr",
@@ -37104,7 +38270,11 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_tclas_class_mask1_ipv6_flow,
      {"Flow Label", "wlan.tclas.class_mask.flow_label",
-      FT_UINT8, BASE_HEX, NULL, 0x20, NULL, HFILL }},
+      FT_UINT24, BASE_HEX, NULL, 0x20, NULL, HFILL }},
+
+    {&hf_ieee80211_tclas_class_mask1_reserved,
+     {"Reserved", "wlan.tclas.class_mask.reserved",
+      FT_UINT8, BASE_HEX, NULL, 0x80, NULL, HFILL }},
 
     {&hf_ieee80211_tclas_class_mask2_tci,
      {"802.1Q CLAN TCI", "wlan.tclas.class_mask.tci",
@@ -37179,6 +38349,486 @@ proto_register_ieee80211(void)
      {"802.1Q Tag Type", "wlan.tclas.tag_type",
       FT_UINT16, BASE_HEX, NULL, 0,
       NULL, HFILL }},
+
+    {&hf_ieee80211_tclas_filter_offset,
+     {"Filter Offset", "wlan.tclas.filter_offset",
+      FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_tclas_filter_value,
+     {"Filter Value", "wlan.tclas.filter_value",
+      FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_tclas_filter_mask,
+     {"Filter Mask", "wlan.tclas.filter_mask",
+      FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_tclas4_version,
+     {"Version", "wlan.tclas.class4.version",
+      FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_tclas_class_mask4_ver,
+     {"Version", "wlan.tclas.class4.mask.version",
+      FT_BOOLEAN, 8, TFS(&tfs_used_notused), 0x01, NULL, HFILL }},
+
+    {&hf_ieee80211_tclas_class_mask4_4_src_ip,
+     {"Source IP (IPv4)", "wlan.tclas.class4.mask.ipv4_src",
+      FT_BOOLEAN, 8, TFS(&tfs_used_notused), 0x02, NULL, HFILL }},
+
+    {&hf_ieee80211_tclas_class_mask4_4_dst_ip,
+     {"Destination IP (IPv4)", "wlan.tclas.class4.mask.ipv4_dst",
+      FT_BOOLEAN, 8, TFS(&tfs_used_notused), 0x04, NULL, HFILL }},
+
+    {&hf_ieee80211_tclas_class_mask4_src_port,
+     {"Source Port", "wlan.tclas.class4.mask.src_port",
+      FT_BOOLEAN, 8, TFS(&tfs_used_notused), 0x08, NULL, HFILL }},
+
+    {&hf_ieee80211_tclas_class_mask4_dst_port,
+     {"Destination Port", "wlan.tclas.class4.mask.dst_port",
+      FT_BOOLEAN, 8, TFS(&tfs_used_notused), 0x10, NULL, HFILL }},
+
+    {&hf_ieee80211_tclas_class_mask4_dscp,
+     {"DSCP", "wlan.tclas.class4.mask.dscp",
+      FT_BOOLEAN, 8, TFS(&tfs_used_notused), 0x20, NULL, HFILL }},
+
+    {&hf_ieee80211_tclas_class_mask4_ipv4_proto,
+     {"Protocol", "wlan.tclas.class4.mask.protocol",
+      FT_BOOLEAN, 8, TFS(&tfs_used_notused), 0x40, NULL, HFILL }},
+
+    {&hf_ieee80211_tclas_class_mask4_reserved,
+     {"Reserved", "wlan.tclas.class4.mask.reserved",
+      FT_UINT8, BASE_HEX, NULL, 0x80, NULL, HFILL }},
+
+    {&hf_ieee80211_tclas_class_mask4_6_src_ip,
+     {"Source IP (IPv6)", "wlan.tclas.class4.mask.ipv6_src",
+      FT_BOOLEAN, 8, TFS(&tfs_used_notused), 0x02, NULL, HFILL }},
+
+    {&hf_ieee80211_tclas_class_mask4_6_dst_ip,
+     {"Destination IP (IPv6)", "wlan.tclas.class4.mask.ipv6_dst",
+      FT_BOOLEAN, 8, TFS(&tfs_used_notused), 0x04, NULL, HFILL }},
+
+    {&hf_ieee80211_tclas_reserved_bytes,
+     {"Reserved", "wlan.tclas.reserved",
+      FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
+    {&hf_ieee80211_tclas_class_mask4_next_hdr,
+     {"Next Header", "wlan.tclas.class4.mask.next_header",
+      FT_BOOLEAN, 8, TFS(&tfs_used_notused), 0x40, NULL, HFILL }},
+
+    {&hf_ieee80211_tclas_class_mask4_flow_label,
+     {"Flow Label", "wlan.tclas.class4.mask.flow_label",
+      FT_BOOLEAN, 8, TFS(&tfs_used_notused), 0x80, NULL, HFILL }},
+
+    {&hf_ieee80211_tclas4_ipv4_src,
+     {"Source IP (IPv4)", "wlan.tclas.class4.ipv4_src_ip",
+      FT_IPv4, BASE_NONE, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_tclas4_ipv4_dst,
+     {"Destination IP (IPv4)", "wlan.tclas.class4.ipv4_dst_ip",
+      FT_IPv4, BASE_NONE, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_tclas4_src_port,
+     {"Source Port", "wlan.tclas.class4.src_port",
+      FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_tclas4_dst_port,
+     {"Destination Port", "wlan.tclas.class4.dst_port",
+      FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_tclas4_dscp,
+     {"DSCP", "wlan.tclas.class4.dscp",
+      FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_tclas4_protocol,
+     {"Protocol", "wlan.tclas.class4.protocol",
+      FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_tclas4_reserved,
+     {"Reserved", "wlan.tclas.class4.reserved",
+      FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_tclas4_ipv6_src,
+     {"Source IP (IPv6)", "wlan.tclas.class4.ipv6_src_ip",
+      FT_IPv6, BASE_NONE, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_tclas4_ipv6_dst,
+     {"Destination IP (IPv6)", "wlan.tclas.class4.ipv6_dst_ip",
+      FT_IPv6, BASE_NONE, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_tclas4_next_hdr,
+     {"Next Header", "wlan.tclas.class4.next_header",
+      FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_tclas4_flow,
+     {"Flow Label", "wlan.tclas.class4.flow_label",
+      FT_UINT24, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_tclas_tclas_8021d_up_pcp,
+     {"802.1D UP/802.1Q Priority Code Point", "wlan.tclas.class4.8021dq_up_pcp",
+      FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_tclas_8021q_dei,
+     {"802.1Q DEI", "wlan.tclas.class4.8021q_dei",
+      FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_tclas_8021q_vid,
+     {"802.1Q VID", "wlan.tclas.class4.8021q_vid",
+      FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_tclas_class_mask5_up_prio,
+     {"802.1D UP/802.1Q PCP", "wlan.tclas.class5.mask.8021dq_up_pcp",
+      FT_BOOLEAN, 8, TFS(&tfs_used_notused), 0x01, NULL, HFILL }},
+
+    {&hf_ieee80211_tclas_class_mask5_dei,
+     {"802.1Q DEI", "wlan.tclas.class4.802.1q_dei",
+      FT_BOOLEAN, 8, TFS(&tfs_used_notused), 0x02, NULL, HFILL }},
+
+    {&hf_ieee80211_tclas_class_mask5_vid,
+     {"802.1Q VID", "wlan.tclas.class4.8021q_vid",
+      FT_BOOLEAN, 8, NULL, 0x04, NULL, HFILL }},
+
+    {&hf_ieee80211_tclas_class_mask5_reserved,
+     {"Reserved", "wlan.tclas.class5.reserved",
+      FT_UINT8, BASE_HEX, NULL, 0xF8, NULL, HFILL }},
+
+    {&hf_ieee80211_tclas_class_mask6_a_above,
+     {"Classifier Mask", "wlan.tclas.class6-9.mask",
+      FT_UINT24, BASE_HEX, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_tclas_class_mask6_frame_control_match_spec,
+     {"Frame Control", "wlan.tclas.class6.mask.frame_control",
+      FT_UINT24, BASE_HEX, VALS(frame_control_mask_vals),
+      0x000003, NULL, HFILL }},
+
+    {&hf_ieee80211_tclas_class_mask6_duration_id_match_spec,
+     {"Duration ID", "wlan.tclas.class6.mask.duration_id",
+      FT_UINT24, BASE_HEX, VALS(duration_id_mask_vals),
+      0x0000C0, NULL, HFILL }},
+
+    {&hf_ieee80211_tclas_class_mask6_address_1_match_spec,
+     {"Address 1", "wlan.tclas.class6.mask.address_1",
+      FT_UINT24, BASE_HEX, VALS(address_1_mask_vals), 0x000300, NULL, HFILL }},
+
+    {&hf_ieee80211_tclas_class_mask6_address_2_match_spec,
+     {"Address 2", "wlan.tclas.class6.mask.address_2",
+      FT_UINT24, BASE_HEX, VALS(address_2_mask_vals), 0x000C00, NULL, HFILL }},
+
+    {&hf_ieee80211_tclas_class_mask6_address_3_match_spec,
+     {"Address 3", "wlan.tclas.class6.mask.address_3",
+      FT_UINT24, BASE_HEX, VALS(address_3_mask_vals), 0x003000, NULL, HFILL }},
+
+    {&hf_ieee80211_tclas_class_mask6_sequence_control_spec,
+     {"Sequence Control", "wlan.tclas.class6.mask.sequence_control",
+      FT_UINT24, BASE_HEX, VALS(sequence_control_mask_vals),
+      0x00C000, NULL, HFILL }},
+
+    {&hf_ieee80211_tclas_class_mask6_address_4_match_spec,
+     {"Address 4", "wlan.tclas.class6.mask.address_4",
+      FT_UINT24, BASE_HEX, VALS(address_4_mask_vals), 0x030000, NULL, HFILL }},
+
+    {&hf_ieee80211_tclas_class_mask6_qos_control_spec,
+     {"QoS Control", "wlan.tclas.class6.mask.qos_control",
+      FT_UINT24, BASE_HEX, VALS(qos_control_mask_vals),
+      0x0C0000, NULL, HFILL }},
+
+    {&hf_ieee80211_tclas_class_mask6_ht_control_spec,
+     {"HT Control", "wlan.tclas.class6.mask.ht_control",
+      FT_UINT24, BASE_HEX, VALS(ht_control_mask_vals), 0x300000, NULL, HFILL }},
+
+    {&hf_ieee80211_tclas_class_mask6_reserved,
+     {"Reserved", "wlan.tclas.class6.mask.reserved",
+      FT_UINT24, BASE_HEX, NULL, 0xC00000, NULL, HFILL }},
+
+    {&hf_ieee80211_tclas6_frame_control_spec,
+     {"Frame Control Spec", "wlan.tclas.class6.frame_control_spec",
+      FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_tclas6_frame_control_mask,
+     {"Frame Control Mask", "wlan.tclas.class6.frame_control_mask",
+      FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_tclas6_duration_spec,
+     {"Duration Spec", "wlan.tclas.class6.duration_spec",
+      FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_tclas6_duration_mask,
+     {"Duration Mask", "wlan.tclas.class6.duration_mask",
+      FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_tclas6_address_1_spec,
+     {"Address 1 Spec", "wlan.tclas.class6.address_1_spec",
+      FT_ETHER, BASE_NONE, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_tclas6_address_1_mask,
+     {"Address 1 Mask", "wlan.tclas.class6.address_1_mask",
+      FT_UINT48, BASE_HEX, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_tclas6_address_2_spec,
+     {"Address 2 Spec", "wlan.tclas.class6.address_2_spec",
+      FT_ETHER, BASE_NONE, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_tclas6_address_2_mask,
+     {"Address 2 Mask", "wlan.tclas.class6.address_2_mask",
+      FT_UINT48, BASE_HEX, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_tclas6_address_3_spec,
+     {"Address 3 Spec", "wlan.tclas.class6.address_3_spec",
+      FT_ETHER, BASE_NONE, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_tclas6_address_3_mask,
+     {"Address 3 Mask", "wlan.tclas.class6.address_3_mask",
+      FT_UINT48, BASE_HEX, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_tclas6_sequence_control_spec,
+     {"Sequence Control Spec", "wlan.tclas.class6.sequence_control_spec",
+      FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_tclas6_sequence_control_mask,
+     {"Sequence Control Mask", "wlan.tclas.class6.sequence_control_mask",
+      FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_tclas6_address_4_spec,
+     {"Address 4 Spec", "wlan.tclas.class6.address_4_spec",
+      FT_ETHER, BASE_NONE, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_tclas6_address_4_mask,
+     {"Address 4 Mask", "wlan.tclas.class6.address_4_mask",
+      FT_UINT48, BASE_HEX, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_tclas6_qos_control_spec,
+     {"QoS Control Spec", "wlan.tclas.class6.qos_control_spes",
+      FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_tclas6_qos_control_mask,
+     {"QoS Control Mask", "wlan.tclas.class6.qos_control_mask",
+      FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_tclas6_ht_control_spec,
+     {"HT Control Spec", "wlan.tclas.class6.ht_control_spec",
+      FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_tclas6_ht_control_mask,
+     {"HT Control Mask", "wlan.tclas.class6.ht_control_mask",
+      FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_tclas_class_mask7_frame_control_match_spec,
+     {"Frame Control Match", "wlan.tclas.class7.frame_control_spec",
+      FT_UINT24, BASE_HEX, VALS(frame_control_mask_vals),
+      0x000003, NULL, HFILL }},
+
+    {&hf_ieee80211_tclas_class_mask7_address_1_sid_match_spec,
+     {"Address 1 (SID) Spec", "wlan.tclas.class4.address_1_sid_spec",
+      FT_UINT24, BASE_HEX, VALS(address_1_sid_mask_vals),
+      0x00000C, NULL, HFILL }},
+
+    {&hf_ieee80211_tclas_class_mask7_address_2_match_spec,
+     {"Address 2 Spec", "wlan.tclas.class7.address_2_spec",
+      FT_UINT24, BASE_HEX, VALS(address_2_mask_vals), 0x00030, NULL, HFILL }},
+
+    {&hf_ieee80211_tclas_class_mask7_sequence_control_spec,
+     {"Sequence Control Spec", "wlan.tclas.class7.sequence_control_spec",
+      FT_UINT24, BASE_HEX, VALS(sequence_control_mask_vals),
+      0x0000C0, NULL, HFILL }},
+
+    {&hf_ieee80211_tclas_class_mask7_address_3_match_spec,
+     {"Address 3 Spec", "wlan.tclas.class7.address_3_spec",
+      FT_UINT24, BASE_HEX, VALS(address_3_mask_vals), 0x000c00, NULL, HFILL }},
+
+    {&hf_ieee80211_tclas_class_mask7_address_4_match_spec,
+     {"Address 4 Spec", "wlan.tclas.class7.address_4_spec",
+      FT_UINT24, BASE_HEX, VALS(address_4_mask_vals), 0x003000, NULL, HFILL }},
+
+    {&hf_ieee80211_tclas_class_mask7_reserved,
+     {"Reserved", "wlan.tclas.class7.reserved",
+      FT_UINT24, BASE_HEX, NULL, 0xFFC0000, NULL, HFILL }},
+
+    {&hf_ieee80211_tclas7_frame_control_spec,
+     {"Frame Control Spec", "wlan.tclas.class7.frame_control_spec",
+      FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_tclas7_frame_control_mask,
+     {"Frame Control Mask", "wlan.tclas.class7.frame_control_mask",
+      FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_tclas7_address_1_sid_spec,
+     {"Address 1 (SID) Spec", "wlan.tclas.class7.address_1_sid_spec",
+      FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_tclas7_address_1_sid_mask,
+     {"Address 1 (SID) Mask", "wlan.tclas.class7.address_1_sid_mask",
+      FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_tclas7_address_2_spec,
+     {"Address 2 Spec", "wlan.tclas.class7.address_2_spec",
+      FT_ETHER, BASE_NONE, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_tclas7_address_2_mask,
+     {"Address 2 Mask", "wlan.tclas.class7.address_2_mask",
+      FT_UINT48, BASE_HEX, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_tclas7_sequence_control_spec,
+     {"Sequence Control Spec", "wlan.tclas.class7.sequence_control_spec",
+      FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_tclas7_sequence_control_mask,
+     {"Sequence Control Mask", "wlan.tclas.class7.sequence_control_mask",
+      FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_tclas7_address_3_spec,
+     {"Address 3 Spec", "wlan.tclas.class7.address_3_spec",
+      FT_ETHER, BASE_NONE, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_tclas7_address_3_mask,
+     {"Address 3 Mask", "wlan.tclas.class7.address_3_mask",
+      FT_UINT48, BASE_HEX, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_tclas7_address_4_spec,
+     {"Address 4 Spec", "wlan.tclas.class4.address_4_spec",
+      FT_ETHER, BASE_NONE, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_tclas7_address_4_mask,
+     {"Address 4 Mask", "wlan.tclas.class4.address_4_mask",
+      FT_UINT48, BASE_HEX, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_tclas_class_mask8_frame_control_match_spec,
+     {"Frame Control Spec", "wlan.tclas.class8.mask.frame_control_spec",
+      FT_UINT24, BASE_HEX, VALS(frame_control_mask_vals),
+      0x000003, NULL, HFILL }},
+
+    {&hf_ieee80211_tclas_class_mask8_address_1_bssid_match_spec,
+     {"Address 1 (BSSID) Spec", "wlan.tclas.class8.mask.address_1_bssid_spec",
+      FT_UINT24, BASE_HEX, VALS(address_1_bssid_mask_vals),
+      0x00000C, NULL, HFILL }},
+
+    {&hf_ieee80211_tclas_class_mask8_address_2_sid_match_spec,
+     {"Address 2 (SID) Spec", "wlan.tclas.class8.mask.address_2_sid_spec",
+      FT_UINT24, BASE_HEX, VALS(address_2_mask_vals), 0x000030, NULL, HFILL }},
+
+    {&hf_ieee80211_tclas_class_mask8_sequence_control_spec,
+     {"Sequence Control Spec", "wlan.tclas.class8.mask.sequence_contol_spec",
+      FT_UINT24, BASE_HEX, VALS(sequence_control_mask_vals),
+      0x0000C0, NULL, HFILL }},
+
+    {&hf_ieee80211_tclas_class_mask8_address_3_match_spec,
+     {"Address 3 Spec", "wlan.tclas.class8.mask.address_3_spec",
+      FT_UINT24, BASE_HEX, VALS(address_3_mask_vals), 0x000300, NULL, HFILL }},
+
+    {&hf_ieee80211_tclas_class_mask8_address_4_match_spec,
+     {"Address 4 Spec", "wlan.tclas.class8.mask.address_4_spec",
+      FT_UINT24, BASE_HEX, VALS(address_4_mask_vals), 0x000C00, NULL, HFILL }},
+
+    {&hf_ieee80211_tclas_class_mask8_reserved,
+     {"Reserved", "wlan.tclas.class8.reserved",
+      FT_UINT24, BASE_HEX, NULL, 0xFFF000, NULL, HFILL }},
+
+    {&hf_ieee80211_tclas8_frame_control_spec,
+     {"Frame Control Spec", "wlan.tclas.class8.frame_control_spec",
+      FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_tclas8_frame_control_mask,
+     {"Frame Control Mask", "wlan.tclas.class8.frame_control_mask",
+      FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_tclas8_address_1_bssid_spec,
+     {"Address 1 (BSSID) Spec", "wlan.tclas.class8.address_1_bssid_spec",
+      FT_ETHER, BASE_NONE, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_tclas8_address_1_bssid_mask,
+     {"Address 1 (BSSID) Mask", "wlan.tclas.class8.address_1_bssid_mask",
+      FT_UINT48, BASE_HEX, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_tclas8_address_2_sid_spec,
+     {"Address 2 (SID) Spec", "wlan.tclas.class8.address_2_sid_spec",
+      FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_tclas8_address_2_sid_mask,
+     {"Address 2 (SID) Spec", "wlan.tclas.class8.address_2_sid_spec",
+      FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_tclas8_sequence_control_spec,
+     {"Sequence Control Spec", "wlan.tclas.class8.sequence_control_spec",
+      FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_tclas8_sequence_control_mask,
+     {"Sequence Control Mask", "wlan.tclas.class8.sequence_control_mask",
+      FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_tclas8_address_3_spec,
+     {"Address 3 Spec", "wlan.tclas.class8.address_3_spec",
+      FT_ETHER, BASE_NONE, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_tclas8_address_3_mask,
+     {"Address 3 Mask", "wlan.tclas.class8.address_3_mask",
+      FT_UINT48, BASE_HEX, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_tclas8_address_4_spec,
+     {"Address 4 Spec", "wlan.tclas.class8.address_4_spec",
+      FT_ETHER, BASE_NONE, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_tclas8_address_4_mask,
+     {"Address 4 Mask", "wlan.tclas.class8.address_4_mask",
+      FT_UINT48, BASE_HEX, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_tclas_class_mask9_frame_control_match_spec,
+     {"Frame Control Spec", "wlan.tclas.class9.frame_control_spec",
+      FT_UINT16, BASE_HEX, VALS(frame_control_mask_vals), 0x000003, NULL, HFILL }},
+
+    {&hf_ieee80211_tclas_class_mask9_address_1_match_spec,
+     {"Address 1 Spec", "wlan.tclas.class9.mask.address_1_spec",
+      FT_UINT16, BASE_HEX, VALS(address_1_mask_vals), 0x000003, NULL, HFILL }},
+
+    {&hf_ieee80211_tclas_class_mask9_address_2_match_spec,
+     {"Address 2 Spec", "wlan.tclas.class9.mask.address_2_spec",
+      FT_UINT16, BASE_HEX, VALS(address_2_mask_vals), 0x00000C, NULL, HFILL }},
+
+    {&hf_ieee80211_tclas_class_mask9_sequence_control_spec,
+     {"Sequence Control Spec", "wlan.tclas.class9.mask.sequence_contro_spec",
+      FT_UINT16, BASE_HEX, VALS(sequence_control_mask_vals),
+      0x000030, NULL, HFILL }},
+
+    {&hf_ieee80211_tclas_class_mask9_reserved,
+     {"Reserved", "wlan.tclas.class9.mask.reserved",
+      FT_UINT16, BASE_HEX, NULL, 0xFFFFC0, NULL, HFILL }},
+
+    {&hf_ieee80211_tclas9_frame_control_spec,
+     {"Frame Control Spec", "wlan.tclas.class9.frame_control_spec",
+      FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_tclas9_frame_control_mask,
+     {"Frame Control Mask", "wlan.tclas.class9.frame_control_mask",
+      FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_tclas9_address_1_spec,
+     {"Address 1 Spec", "wlan.tclas.class9.address_1_spec",
+      FT_ETHER, BASE_NONE, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_tclas9_address_1_mask,
+     {"Address 1 Mask", "wlan.tclas.class9.address_1_mask",
+      FT_UINT48, BASE_HEX, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_tclas9_address_2_spec,
+     {"Address 2 Spec", "wlan.tclas.class9.address_2_spec",
+      FT_ETHER, BASE_NONE, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_tclas9_address_2_mask,
+     {"Address 2 Mask", "wlan.tclas.class9.address_2_mask",
+      FT_UINT48, BASE_HEX, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_tclas9_sequence_control_spec,
+     {"Sequence Control Spec", "wlan.tclas.class9.sequence_control_spec",
+      FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_tclas9_sequence_control_mask,
+     {"Sequence Control Mask", "wlan.tclas.class9.sequence_control_mask",
+      FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_tclas10_protocol_instance,
+     {"Protocol Instance", "wlan.tclas.class10.protocol_instance",
+      FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_tclas10_protocol_num_next_hdr,
+     {"Protocol Number or Next Header",
+       "wlan.tclas.class10.proto_num_or_next_hdr",
+      FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
 
     {&hf_ieee80211_tag_challenge_text,
      {"Challenge Text", "wlan.tag.challenge_text",
@@ -44023,6 +45673,118 @@ proto_register_ieee80211(void)
       FT_NONE, BASE_NONE, NULL, 0x0,
       NULL, HFILL }},
 
+    {&hf_ieee80211_mscs_descriptor_type,
+     {"Request Type", "wlan.ext_tag.mscs_descriptor.request_type",
+      FT_UINT8, BASE_DEC|BASE_RANGE_STRING, RVALS(scs_request_type_rvals),
+      0x0, NULL, HFILL }},
+
+    {&hf_ieee80211_mscs_user_prio_control_reserved,
+     {"Reserved", "wlan.ext_tag.mscs_descriptor.reserved1",
+      FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
+    {&hf_ieee80211_user_prio_bitmap,
+     {"User Priority Bitmap",
+       "wlan.ext_tag.mscs_descriptor.user_prio_control.upbm",
+       FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
+    {&hf_ieee80211_user_prio_bitmap_bit0,
+     {"User Priority 0",
+       "wlan.ext_tag.mscs_descriptor.user_prio_control.user_prio_0",
+       FT_BOOLEAN, 8, TFS(&tfs_used_notused), 0x01, NULL, HFILL }},
+
+    {&hf_ieee80211_user_prio_bitmap_bit1,
+     {"User Priority 1",
+       "wlan.ext_tag.mscs_descriptor.user_prio_control.user_prio_1",
+       FT_BOOLEAN, 8, TFS(&tfs_used_notused), 0x02, NULL, HFILL }},
+
+    {&hf_ieee80211_user_prio_bitmap_bit2,
+     {"User Priority 2",
+       "wlan.ext_tag.mscs_descriptor.user_prio_control.user_prio_2",
+       FT_BOOLEAN, 8, TFS(&tfs_used_notused), 0x04, NULL, HFILL }},
+
+    {&hf_ieee80211_user_prio_bitmap_bit3,
+     {"User Priority 3",
+       "wlan.ext_tag.mscs_descriptor.user_prio_control.user_prio_3",
+       FT_BOOLEAN, 8, TFS(&tfs_used_notused), 0x08, NULL, HFILL }},
+
+    {&hf_ieee80211_user_prio_bitmap_bit4,
+     {"User Priority 4",
+       "wlan.ext_tag.mscs_descriptor.user_prio_control.user_prio_4",
+       FT_BOOLEAN, 8, TFS(&tfs_used_notused), 0x10, NULL, HFILL }},
+
+    {&hf_ieee80211_user_prio_bitmap_bit5,
+     {"User Priority 5",
+       "wlan.ext_tag.mscs_descriptor.user_prio_control.user_prio_5",
+       FT_BOOLEAN, 8, TFS(&tfs_used_notused), 0x20, NULL, HFILL }},
+
+    {&hf_ieee80211_user_prio_bitmap_bit6,
+     {"User Priority 6",
+       "wlan.ext_tag.mscs_descriptor.user_prio_control.user_prio_6",
+       FT_BOOLEAN, 8, TFS(&tfs_used_notused), 0x40, NULL, HFILL }},
+
+    {&hf_ieee80211_user_prio_bitmap_bit7,
+     {"User Priority 7",
+       "wlan.ext_tag.mscs_descriptor.user_prio_control.user_prio_7",
+       FT_BOOLEAN, 8, TFS(&tfs_used_notused), 0x80, NULL, HFILL }},
+
+    {&hf_ieee80211_user_prio_limit,
+     {"User Priority Limit",
+      "wlan.ext_tag.mscs_descriptor.user_prio_control.user_prio_limit",
+      FT_UINT8, BASE_DEC, NULL, 0x07, NULL, HFILL }},
+
+    {&hf_ieee80211_user_prio_reserved,
+     {"Reserved", "wlan.ext_tag.mscs_descriptor.user_prio_control.reserved",
+      FT_UINT8, BASE_HEX, NULL, 0xF8, NULL, HFILL }},
+
+    {&hf_ieee80211_stream_timeout_reserved,
+     {"Reserved", "wlan.ext_tag.mscs_descriptor.reserved2",
+      FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
+    {&hf_ieee80211_stream_timeout,
+     {"Stream Timeout", "wlan.ext_tag.mscs_descriptor.stream_timeout",
+      FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_tu_tus, 0x0, NULL, HFILL }},
+
+    {&hf_ieee80211_mscs_subelement_id,
+     {"MSCS Subelement ID", "wlan.ext_tag.mscs_descriptor.subelement_id",
+      FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
+    {&hf_ieee80211_mscs_subelement_len,
+     {"MSCS Subelement Length", "wlan.ext_tag.mscs_descriptor.subelement_len",
+      FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+    {&hf_ieee80211_mscs_subelement_data,
+     {"MSCS Subelement Data", "wlan.ext_tag.mscs_descriptor.subelement_data",
+      FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
+    {&hf_ieee80211_intra_access_prio,
+     {"Intra-Access Priority", "wlan.tag.scs_intra_access_prio",
+      FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
+    {&hf_ieee80211_intra_access_prio_user_prio,
+     {"User Priority", "wlan.tag.scs_intra_access_prio.user_prio",
+      FT_UINT8, BASE_DEC, NULL, 0x07, NULL, HFILL }},
+
+    {&hf_ieee80211_intra_access_prio_alt_queue,
+     {"Alternate Queue", "wlan.tag.scs_intra_access_prio.alt_queue",
+      FT_BOOLEAN, 8, NULL, 0x08, NULL, HFILL }},
+
+    {&hf_ieee80211_intra_access_prio_drop_elig,
+     {"Drop Eligibility", "wlan.tag.scs_intra_access_prio.drop_elig",
+      FT_BOOLEAN, 8, NULL, 0x10, NULL, HFILL }},
+
+    {&hf_ieee80211_intra_access_prio_reserved,
+     {"Reserved", "wlan.tag.scs_intra_access_prio.reserved",
+      FT_UINT8, BASE_HEX, NULL, 0xE0, NULL, HFILL }},
+
+    {&hf_ieee80211_scs_descriptor_scsid,
+     {"SCSID", "wlan.tag.scs_descriptor.scsid",
+      FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+    {&hf_ieee80211_scs_descriptor_type,
+     {"Request Type", "wlan.tag.scs_descriptor.request_type",
+      FT_UINT8, BASE_DEC|BASE_RANGE_STRING, RVALS(scs_request_type_rvals),
+      0x0, NULL, HFILL }},
+
     {&hf_ieee80211_estimated_service_params,
      {"Estimated Service Parameters", "wlan.ext_tag.estimated_service_params",
       FT_UINT24, BASE_HEX, NULL, 0, NULL, HFILL }},
@@ -45849,6 +47611,10 @@ proto_register_ieee80211(void)
     &ett_he_ndp_annc_sta_list,
     &ett_he_ndp_annc_sta_item,
     &ett_he_ndp_annc_sta_info,
+    &ett_mscs_user_prio,
+    &ett_ieee80211_user_prio_bitmap,
+    &ett_ieee80211_intra_access_prio,
+
     &ett_ieee80211_3gpp_plmn,
 
     /* 802.11ai trees */
@@ -46562,6 +48328,8 @@ proto_reg_handoff_ieee80211(void)
   dissector_add_uint("wlan.tag.number", TAG_PCP_HANDOVER, create_dissector_handle(ieee80211_tag_pcp_handover, -1));
   dissector_add_uint("wlan.tag.number", TAG_BEAMLINK_MAINTENANCE, create_dissector_handle(ieee80211_tag_beamlink_maintenance, -1));
   dissector_add_uint("wlan.tag.number", TAG_QUIET_PERIOD_RES, create_dissector_handle(ieee80211_tag_quiet_period_res, -1));
+  dissector_add_uint("wlan.tag.number", TAG_INTRA_ACCESS_CAT_PRIO, create_dissector_handle(ieee80211_tag_intra_access_cat_prio, -1));
+  dissector_add_uint("wlan.tag.number", TAG_SCS_DESCRIPTOR, create_dissector_handle(ieee80211_tag_scs_descriptor, -1));
   dissector_add_uint("wlan.tag.number", TAG_RELAY_TRANSFER_PARAM, create_dissector_handle(ieee80211_tag_relay_transfer_param, -1));
   dissector_add_uint("wlan.tag.number", TAG_DMG_BEAM_REFINEMENT, create_dissector_handle(ieee80211_tag_dmg_beam_refinement, -1));
   dissector_add_uint("wlan.tag.number", TAG_WAKEUP_SCHEDULE_AD, create_dissector_handle(ieee80211_tag_wakeup_schedule_ad, -1));
