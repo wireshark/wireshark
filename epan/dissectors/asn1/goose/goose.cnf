@@ -62,9 +62,21 @@ GOOSEpdu
 		proto_tree_add_string(tree, hf_index, tvb, offset, len, ptime);
 	}
 
-	return offset;
+#.END
 
+#.FN_BODY FloatingPoint
 
+	int len = tvb_reported_length_remaining(tvb, offset);
+
+	if ((len == FLOAT_ENC_LENGTH) && (tvb_get_guint8(tvb,0) == SINGLE_FLOAT_EXP_BITS) ){
+		/* IEEE 754 single precision floating point */
+		proto_tree_add_item(tree, hf_goose_float_value, tvb, 1, (FLOAT_ENC_LENGTH-1), ENC_BIG_ENDIAN);
+		offset = len;
+	}else{
+		%(DEFAULT_BODY)s
+	}
+
+#.END
 
 #.TYPE_ATTR
 UtcTime	TYPE = FT_STRING DISPLAY = BASE_NONE
@@ -81,5 +93,5 @@ GSEMngtResponses/getGOOSEElementNumber gseMngtResponses_GetGOOSEElementNumber
 IECGoosePdu/stNum  TYPE = FT_UINT32  DISPLAY = BASE_DEC
 IECGoosePdu/sqNum  TYPE = FT_UINT32  DISPLAY = BASE_DEC
 GetReferenceRequestPdu/offset ABBREV=getReferenceRequest.offset
-
+IECGoosePdu/simulation BLURB = "BOOLEAN"
 #.END

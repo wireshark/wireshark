@@ -67,6 +67,8 @@ static int hf_goose_length = -1;
 static int hf_goose_reserve1 = -1;
 static int hf_goose_reserve1_s_bit = -1;
 static int hf_goose_reserve2 = -1;
+static int hf_goose_float_value = -1;
+
 
 /* Bit fields in the Reserved fields */
 #define F_RESERVE1_S_BIT  0x8000
@@ -80,6 +82,9 @@ typedef struct _goose_chk_data{
 static expert_field ei_goose_mal_utctime = EI_INIT;
 static expert_field ei_goose_zero_pdu = EI_INIT;
 static expert_field ei_goose_invalid_sim = EI_INIT;
+
+#define SINGLE_FLOAT_EXP_BITS	8
+#define FLOAT_ENC_LENGTH		5
 
 #include "packet-goose-hf.c"
 
@@ -547,11 +552,15 @@ void proto_register_goose(void) {
 
 		{ &hf_goose_reserve1_s_bit,
 		{ "Simulated",	"goose.reserve1.s_bit",
-		  FT_BOOLEAN, 16, NULL, F_RESERVE1_S_BIT, "BOOLEAN", HFILL } },
+		  FT_BOOLEAN, 16, NULL, F_RESERVE1_S_BIT, NULL, HFILL } },
 
 		{ &hf_goose_reserve2,
 		{ "Reserved 2", "goose.reserve2",
 		  FT_UINT16, BASE_HEX_DEC, NULL, 0x0, NULL, HFILL }},
+
+		{ &hf_goose_float_value,
+		{ "float value", "goose.float_value",
+		  FT_FLOAT, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
 		#include "packet-goose-hfarr.c"
 	};
@@ -595,6 +604,7 @@ void proto_register_goose(void) {
 	proto_register_subtree_array(ett, array_length(ett));
 	expert_goose = expert_register_protocol(proto_goose);
 	expert_register_field_array(expert_goose, ei, array_length(ei));
+
 }
 
 /*--- proto_reg_handoff_goose --- */
