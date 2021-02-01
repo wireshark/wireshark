@@ -2190,6 +2190,14 @@ dissect_rtmpt_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rtmpt_
                                         tp->chunkwant = tp->want - tp->have;
                         }
                 } else {
+                        if (header_type == 3 && tp->resident && tp->have > tp->bhlen + 3
+                            && pntoh24(tp->data.p+tp->bhlen) == 0xffffff) {
+                                /* Header type 3 resends the extended time stamp if the last message on the chunk
+                                 * stream had an extended timestamp.
+                                 * See: https://gitlab.com/wireshark/wireshark/-/issues/15718
+                                 */
+                                message_hlen += 4;
+                        }
                         RTMPT_DEBUG("Old packet cdir=%d seq=%d ti=%p tp=%p header_len=%d id=%d tph=%d tpw=%d len=%d cs=%d\n",
                                     cdir, seq+offset,
                                     ti, tp, basic_hlen+message_hlen, id, tp?tp->have:0, tp?tp->want:0, body_len, chunk_size);
