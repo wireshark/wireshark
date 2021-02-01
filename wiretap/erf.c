@@ -1107,12 +1107,12 @@ static void erf_write_wtap_option_to_interface_tag(wtap_block_t block _U_,
       break;
     case OPT_IDB_FILTER:
       {
-        wtapng_if_descr_filter_t *filter;
+        if_filter_opt_t *filter;
+        filter = &optval->if_filterval;
         tag_ptr->type = 0xF800;
-        filter = (wtapng_if_descr_filter_t*)&optval->structuredval;
-        if(filter->if_filter_str) {
+        if(filter->type == if_filter_pcap) {
           tag_ptr->type = ERF_META_TAG_filter;
-          tag_ptr->value = (guint8*)g_strdup(filter->if_filter_str);
+          tag_ptr->value = (guint8*)g_strdup(filter->data.filter_str);
           tag_ptr->length = (guint16)strlen((char*)tag_ptr->value);
         }
       }
@@ -2710,7 +2710,7 @@ static int populate_interface_info(erf_t *erf_priv, wtap *wth, union wtap_pseudo
   int interface_index = -1;
   wtap_block_t int_data = NULL;
   wtapng_if_descr_mandatory_t* int_data_mand = NULL;
-  wtapng_if_descr_filter_t if_filter = {0};
+  if_filter_opt_t if_filter;
   guint32 if_num = 0;
   struct erf_if_info* if_info = NULL;
 
@@ -2840,9 +2840,10 @@ static int populate_interface_info(erf_t *erf_priv, wtap *wth, union wtap_pseudo
         wtap_block_add_string_option(int_data, OPT_COMMENT, tag.value, tag.length);
         break;
       case ERF_META_TAG_filter:
-        if_filter.if_filter_str = g_strndup((gchar*) tag.value, tag.length);
-        wtap_block_add_structured_option(int_data, OPT_IDB_FILTER, &if_filter, sizeof if_filter);
-        g_free(if_filter.if_filter_str);
+        if_filter.type = if_filter_pcap;
+        if_filter.data.filter_str = g_strndup((gchar*) tag.value, tag.length);
+        wtap_block_add_if_filter_option(int_data, OPT_IDB_FILTER, &if_filter);
+        g_free(if_filter.data.filter_str);
         if_info->set_flags.filter = 1;
         break;
       default:
@@ -2866,16 +2867,18 @@ static int populate_interface_info(erf_t *erf_priv, wtap *wth, union wtap_pseudo
   if (!if_info->set_flags.filter) {
     if (state->if_map->module_filter_str) {
       /* Duplicate because might use with multiple interfaces */
-      if_filter.if_filter_str = state->if_map->module_filter_str;
-      wtap_block_add_structured_option(int_data, OPT_IDB_FILTER, &if_filter, sizeof if_filter);
+      if_filter.type = if_filter_pcap;
+      if_filter.data.filter_str = state->if_map->module_filter_str;
+      wtap_block_add_if_filter_option(int_data, OPT_IDB_FILTER, &if_filter);
       /*
        * Don't set flag because stream is more specific than module.
        */
     } else if (state->if_map->capture_filter_str) {
       /* TODO: display separately? Note that we could have multiple captures
        * from multiple hosts in the file */
-      if_filter.if_filter_str = state->if_map->capture_filter_str;
-      wtap_block_add_structured_option(int_data, OPT_IDB_FILTER, &if_filter, sizeof if_filter);
+      if_filter.type = if_filter_pcap;
+      if_filter.data.filter_str = state->if_map->capture_filter_str;
+      wtap_block_add_if_filter_option(int_data, OPT_IDB_FILTER, &if_filter);
     }
   }
 
@@ -2901,7 +2904,7 @@ static int populate_stream_info(erf_t *erf_priv _U_, wtap *wth, union wtap_pseud
   int interface_index = -1;
   wtap_block_t int_data = NULL;
   wtapng_if_descr_mandatory_t* int_data_mand = NULL;
-  wtapng_if_descr_filter_t if_filter = {0};
+  if_filter_opt_t if_filter;
   guint32 if_num = 0;
   gint32 stream_num = -1;
   guint8 *tag_ptr_tmp;
@@ -3011,9 +3014,10 @@ static int populate_stream_info(erf_t *erf_priv _U_, wtap *wth, union wtap_pseud
         case ERF_META_TAG_filter:
           /* Override only if not set */
           if (!if_info->set_flags.filter) {
-            if_filter.if_filter_str = g_strndup((gchar*) tag.value, tag.length);
-            wtap_block_add_structured_option(int_data, OPT_IDB_FILTER, &if_filter, sizeof if_filter);
-            g_free(if_filter.if_filter_str);
+            if_filter.type = if_filter_pcap;
+            if_filter.data.filter_str = g_strndup((gchar*) tag.value, tag.length);
+            wtap_block_add_if_filter_option(int_data, OPT_IDB_FILTER, &if_filter);
+            g_free(if_filter.data.filter_str);
             if_info->set_flags.filter = 1;
           }
           break;

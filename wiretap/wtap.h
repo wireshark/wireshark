@@ -1515,15 +1515,6 @@ typedef struct wtapng_dsb_mandatory_s {
     guint8                *secrets_data;            /** Buffer of secrets (not NUL-terminated) */
 } wtapng_dsb_mandatory_t;
 
-/* Interface description data - Option 11 structure */
-typedef struct wtapng_if_descr_filter_s {
-    gchar                 *if_filter_str;         /**< NULL if not available
-                                                   *  libpcap string.
-                                                   */
-    guint16                bpf_filter_len;        /** variant II BPF filter len 0 if not used*/
-    guint8                *if_filter_bpf_bytes;   /** BPF filter or NULL */
-} wtapng_if_descr_filter_t;
-
 /**
  * Holds the required data for pcapng Interface Statistics Block (ISB).
  */

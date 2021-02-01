@@ -937,21 +937,55 @@ pcapng_read_if_descr_block(wtap *wth, FILE_T fh, pcapng_block_header_t *bh,
                  */
             case(OPT_IDB_FILTER): /* if_filter */
                 if (oh.option_length > 0 && oh.option_length < opt_cont_buf_len) {
-                    wtapng_if_descr_filter_t if_filter = {0};
+                    if_filter_opt_t if_filter;
 
                     /* The first byte of the Option Data keeps a code of the filter used (e.g. if this is a libpcap string,
                      * or BPF bytecode.
                      */
                     if (option_content[0] == 0) {
-                        if_filter.if_filter_str = g_strndup((char *)option_content+1, oh.option_length-1);
-                        pcapng_debug("pcapng_read_if_descr_block: if_filter_str %s oh.option_length %u", if_filter.if_filter_str, oh.option_length);
+                        if_filter.type = if_filter_pcap;
+                        if_filter.data.filter_str = g_strndup((char *)option_content+1, oh.option_length-1);
+                        pcapng_debug("pcapng_read_if_descr_block: filter_str %s oh.option_length %u", if_filter.filter_str, oh.option_length);
                     } else if (option_content[0] == 1) {
-                        if_filter.bpf_filter_len = oh.option_length-1;
-                        if_filter.if_filter_bpf_bytes = option_content+1;
+                        /*
+                         * XXX - byte-swap the code and k fields
+                         * of each instruction as needed!
+                         *
+                         * XXX - what if oh.option_length-1 is not a
+                         * multiple of the size of a BPF instruction?
+                         */
+                        guint num_insns;
+                        const guint8 *insn_in;
+
+                        if_filter.type = if_filter_bpf;
+                        num_insns = (oh.option_length-1)/8;
+                        insn_in = option_content+1;
+                        if_filter.data.bpf_prog.bpf_prog_len = num_insns;
+                        if_filter.data.bpf_prog.bpf_prog = g_new(wtap_bpf_insn_t, num_insns);
+                        for (guint i = 0; i < num_insns; i++) {
+                            wtap_bpf_insn_t *insn = &if_filter.data.bpf_prog.bpf_prog[i];
+
+                            memcpy(&insn->code, insn_in, 2);
+                            if (section_info->byte_swapped)
+                                insn->code = GUINT16_SWAP_LE_BE(insn->code);
+                            insn_in += 2;
+                            memcpy(&insn->jt, insn_in, 1);
+                            insn_in += 1;
+                            memcpy(&insn->jf, insn_in, 1);
+                            insn_in += 1;
+                            memcpy(&insn->k, insn_in, 4);
+                            if (section_info->byte_swapped)
+                                insn->code = GUINT32_SWAP_LE_BE(insn->code);
+                            insn_in += 4;
+                        }
                     }
                     /* Fails with multiple options; we silently ignore the failure */
-                    wtap_block_add_structured_option(wblock->block, oh.option_code, &if_filter, sizeof if_filter);
-                    g_free(if_filter.if_filter_str);
+                    wtap_block_add_if_filter_option(wblock->block, oh.option_code, &if_filter);
+                    if (if_filter.type == if_filter_pcap) {
+                        g_free(if_filter.data.filter_str);
+                    } else if (if_filter.type == if_filter_bpf) {
+                        g_free(if_filter.data.bpf_prog.bpf_prog);
+                    }
                 } else {
                     pcapng_debug("pcapng_read_if_descr_block: if_filter length %u seems strange", oh.option_length);
                 }
@@ -3294,12 +3328,21 @@ pcapng_write_block_t;
 static gboolean pcapng_write_option_string(wtap_dumper *wdh, guint option_id, char *str, int *err)
 {
     struct pcapng_option_header option_hdr;
-    guint32 size = (guint32)strlen(str) & 0xffff;
+    size_t size = strlen(str);
     const guint32 zero_pad = 0;
     guint32 pad;
 
     if (size == 0)
         return TRUE;
+    if (size > 65535) {
+        /*
+         * Too big to fit in the option.
+         * Don't write anything.
+         *
+         * XXX - truncate it?  Report an error?
+         */
+        return TRUE;
+    }
 
     /* String options don't consider pad bytes part of the length */
     option_hdr.type         = (guint16)option_id;
@@ -4541,18 +4584,22 @@ static void compute_idb_option_size(wtap_block_t block _U_, guint option_id, wta
         break;
     case OPT_IDB_FILTER:
         {
-            wtapng_if_descr_filter_t* filter = (wtapng_if_descr_filter_t*)optval->structuredval.data;
+            if_filter_opt_t* filter = &optval->if_filterval;
             guint32 pad;
-            if (filter->if_filter_str != NULL) {
-                size = (guint32)(strlen(filter->if_filter_str) + 1) & 0xffff;
-                if ((size % 4)) {
-                    pad = 4 - (size % 4);
-                } else {
-                    pad = 0;
-                }
-
-                size += pad;
+            if (filter->type == if_filter_pcap) {
+                size = (guint32)(strlen(filter->data.filter_str) + 1) & 0xffff;
+            } else if (filter->type == if_filter_bpf) {
+                size = (guint32)((filter->data.bpf_prog.bpf_prog_len * 8) + 1) & 0xffff;
+            } else {
+                /* Unknown type; don't write it */
+                size = 0;
             }
+            if ((size % 4)) {
+                pad = 4 - (size % 4);
+            } else {
+                pad = 0;
+            }
+            size += pad;
         }
         break;
     case OPT_IDB_FCSLEN:
@@ -4631,47 +4678,98 @@ static void write_wtap_idb_option(wtap_block_t block _U_, guint option_id, wtap_
         break;
     case OPT_IDB_FILTER:
         {
-            wtapng_if_descr_filter_t* filter = (wtapng_if_descr_filter_t*)optval->structuredval.data;
+            if_filter_opt_t* filter = &optval->if_filterval;
             guint32 size, pad;
-            if (filter->if_filter_str != NULL) {
-                size = (guint32)(strlen(filter->if_filter_str) + 1) & 0xffff;
-                if ((size % 4)) {
-                    pad = 4 - (size % 4);
-                } else {
-                    pad = 0;
-                }
+            guint8 filter_type;
+            size_t filter_data_len;
+            switch (filter->type) {
 
-                option_hdr.type         = option_id;
-                option_hdr.value_length = size;
-                if (!wtap_dump_file_write(write_block->wdh, &option_hdr, 4, write_block->err)) {
+            case if_filter_pcap:
+                filter_type = 0; /* pcap filter string */
+                filter_data_len = strlen(filter->data.filter_str);
+                if (filter_data_len > 65534) {
+                    /*
+                     * Too big to fit in the option.
+                     * Don't write anything.
+                     *
+                     * XXX - truncate it?  Report an error?
+                     */
+                    return;
+                }
+                break;
+
+            case if_filter_bpf:
+                filter_type = 1; /* BPF filter program */
+                filter_data_len = filter->data.bpf_prog.bpf_prog_len*8;
+                if (filter_data_len > 65528) {
+                    /*
+                     * Too big to fit in the option.  (The filter length
+                     * must be a multiple of 8, as that's the length
+                     * of a BPF instruction.)  Don't write anything.
+                     *
+                     * XXX - truncate it?  Report an error?
+                     */
+                    return;
+                }
+                break;
+
+            default:
+                /* Unknown filter type; don't write anything. */
+                return;
+            }
+            size = (guint32)(filter_data_len + 1);
+            if ((size % 4)) {
+                pad = 4 - (size % 4);
+            } else {
+                pad = 0;
+            }
+
+            option_hdr.type         = option_id;
+            option_hdr.value_length = size;
+            if (!wtap_dump_file_write(write_block->wdh, &option_hdr, 4, write_block->err)) {
+                write_block->success = FALSE;
+                return;
+            }
+            write_block->wdh->bytes_dumped += 4;
+
+            /* Write the filter type */
+            if (!wtap_dump_file_write(write_block->wdh, &filter_type, 1, write_block->err)) {
+                write_block->success = FALSE;
+                return;
+            }
+            write_block->wdh->bytes_dumped += 1;
+
+            switch (filter->type) {
+
+            case if_filter_pcap:
+                /* Write the filter string */
+                if (!wtap_dump_file_write(write_block->wdh, filter->data.filter_str, filter_data_len, write_block->err)) {
                     write_block->success = FALSE;
                     return;
                 }
-                write_block->wdh->bytes_dumped += 4;
+                write_block->wdh->bytes_dumped += filter_data_len;
+                break;
 
-                /* Write the zero indicating libpcap filter variant */
-                if (!wtap_dump_file_write(write_block->wdh, &zero_pad, 1, write_block->err)) {
+            case if_filter_bpf:
+                if (!wtap_dump_file_write(write_block->wdh, filter->data.bpf_prog.bpf_prog, filter_data_len, write_block->err)) {
                     write_block->success = FALSE;
                     return;
                 }
-                write_block->wdh->bytes_dumped += 1;
+                write_block->wdh->bytes_dumped += filter_data_len;
+                break;
 
-                /* if_filter_str_len includes the leading byte indicating filter type (libpcap str or BPF code) */
-                if (!wtap_dump_file_write(write_block->wdh, filter->if_filter_str, size-1, write_block->err)) {
+            default:
+                g_assert_not_reached();
+                return;
+            }
+
+            /* write padding (if any) */
+            if (pad != 0) {
+                if (!wtap_dump_file_write(write_block->wdh, &zero_pad, pad, write_block->err)) {
                     write_block->success = FALSE;
                     return;
                 }
-                write_block->wdh->bytes_dumped += size - 1;
-
-                /* write padding (if any) */
-                if (pad != 0) {
-                    if (!wtap_dump_file_write(write_block->wdh, &zero_pad, pad, write_block->err)) {
-                        write_block->success = FALSE;
-                        return;
-                    }
-                    write_block->wdh->bytes_dumped += pad;
-                }
-
+                write_block->wdh->bytes_dumped += pad;
             }
         }
         break;

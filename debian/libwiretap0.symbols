@@ -21,7 +21,7 @@ libwiretap.so.0 libwiretap0 #MINVER#
  register_pcapng_option_handler@Base 1.99.2
  wtap_add_generated_idb@Base 3.3.0
  wtap_addrinfo_list_empty@Base 2.5.0
- wtap_block_add_structured_option@Base 3.5.0
+ wtap_block_add_if_filter_option@Base 3.5.0
  wtap_block_add_ipv4_option@Base 2.1.2
  wtap_block_add_ipv6_option@Base 2.1.2
  wtap_block_add_string_option@Base 2.1.2
@@ -33,7 +33,7 @@ libwiretap.so.0 libwiretap0 #MINVER#
  wtap_block_create@Base 2.1.2
  wtap_block_foreach_option@Base 2.1.2
  wtap_block_free@Base 2.1.2
- wtap_block_get_structured_option_value@Base 3.5.0
+ wtap_block_get_if_filter_option_value@Base 3.5.0
  wtap_block_get_ipv4_option_value@Base 2.1.2
  wtap_block_get_ipv6_option_value@Base 2.1.2
  wtap_block_get_mandatory_data@Base 2.1.2
@@ -44,7 +44,7 @@ libwiretap.so.0 libwiretap0 #MINVER#
  wtap_block_make_copy@Base 3.3.2
  wtap_block_remove_nth_option_instance@Base 2.2.0
  wtap_block_remove_option@Base 2.2.0
- wtap_block_set_structured_option_value@Base 3.5.0
+ wtap_block_set_if_filter_option_value@Base 3.5.0
  wtap_block_set_ipv4_option_value@Base 2.1.2
  wtap_block_set_ipv6_option_value@Base 2.1.2
  wtap_block_set_nth_string_option_value@Base 2.1.2

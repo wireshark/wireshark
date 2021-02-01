@@ -36,9 +36,6 @@ typedef struct {
     GArray *options;                 /**< array of known options */
 } wtap_blocktype_t;
 
-typedef void *(*wtap_opttype_dup_structured_func)(void* src);
-typedef void (*wtap_opttype_free_structured_func)(void* data);
-
 /*
  * Structure describing a type of option.
  */
@@ -47,8 +44,6 @@ typedef struct {
     const char *description;                     /**< human-readable description of option */
     wtap_opttype_e data_type;                    /**< data type of that option */
     guint flags;                                 /**< flags for the option */
-    wtap_opttype_dup_structured_func dup_func;   /**< function to duplicate structured option data */
-    wtap_opttype_free_structured_func free_func; /**< function to free structured option data */
 } wtap_opttype_t;
 
 /* Flags */
@@ -75,9 +70,7 @@ static void wtap_opttype_block_register(wtap_block_type_t block_type, wtap_block
         "opt_comment",
         "Comment",
         WTAP_OPTTYPE_STRING,
-        WTAP_OPTTYPE_FLAG_MULTIPLE_ALLOWED,
-        NULL,
-        NULL
+        WTAP_OPTTYPE_FLAG_MULTIPLE_ALLOWED
     };
 
     /* Check input */
@@ -204,9 +197,21 @@ static void wtap_block_free_option(wtap_block_t block, wtap_option_t *opt)
         g_free(opt->value.stringval);
         break;
 
-    case WTAP_OPTTYPE_STRUCTURED:
-        opttype->free_func(opt->value.structuredval.data);
-        g_free(opt->value.structuredval.data);
+    case WTAP_OPTTYPE_IF_FILTER:
+        switch (opt->value.if_filterval.type) {
+
+        case if_filter_pcap:
+            /* pcap filter string */
+            g_free(opt->value.if_filterval.data.filter_str);
+            break;
+
+        case if_filter_bpf:
+            g_free(opt->value.if_filterval.data.bpf_prog.bpf_prog);
+            break;
+
+        default:
+            break;
+        }
         break;
 
     default:
@@ -298,8 +303,8 @@ wtap_block_copy(wtap_block_t dest_block, wtap_block_t src_block)
             wtap_block_add_string_option(dest_block, src_opt->option_id, src_opt->value.stringval, strlen(src_opt->value.stringval));
             break;
 
-        case WTAP_OPTTYPE_STRUCTURED:
-            wtap_block_add_structured_option(dest_block, src_opt->option_id, src_opt->value.structuredval.data, src_opt->value.structuredval.size);
+        case WTAP_OPTTYPE_IF_FILTER:
+            wtap_block_add_if_filter_option(dest_block, src_opt->option_id, &src_opt->value.if_filterval);
             break;
         }
     }
@@ -769,54 +774,95 @@ wtap_block_get_nth_string_option_value(wtap_block_t block, guint option_id, guin
     return WTAP_OPTTYPE_SUCCESS;
 }
 
+static if_filter_opt_t if_filter_dup(if_filter_opt_t* filter_src)
+{
+    if_filter_opt_t filter_dest;
+
+    /* Deep copy. */
+    filter_dest.type = filter_src->type;
+    switch (filter_src->type) {
+
+    case if_filter_pcap:
+        /* pcap filter string */
+        filter_dest.data.filter_str =
+            g_strdup(filter_src->data.filter_str);
+        break;
+
+    case if_filter_bpf:
+        /* BPF program */
+        filter_dest.data.bpf_prog.bpf_prog_len =
+            filter_src->data.bpf_prog.bpf_prog_len;
+        filter_dest.data.bpf_prog.bpf_prog =
+            (wtap_bpf_insn_t *)g_memdup(filter_src->data.bpf_prog.bpf_prog,
+                                        filter_src->data.bpf_prog.bpf_prog_len * sizeof (wtap_bpf_insn_t));
+        break;
+
+    default:
+        break;
+    }
+    return filter_dest;
+}
+
+static void if_filter_free(if_filter_opt_t* filter_src)
+{
+    switch (filter_src->type) {
+
+    case if_filter_pcap:
+        /* pcap filter string */
+        g_free(filter_src->data.filter_str);
+        break;
+
+    case if_filter_bpf:
+        /* BPF program */
+        g_free(filter_src->data.bpf_prog.bpf_prog);
+        break;
+
+    default:
+        break;
+    }
+}
+
 wtap_opttype_return_val
-wtap_block_add_structured_option(wtap_block_t block, guint option_id, void *value, size_t value_size)
+wtap_block_add_if_filter_option(wtap_block_t block, guint option_id, if_filter_opt_t* value)
 {
     wtap_opttype_return_val ret;
     wtap_option_t *opt;
-    wtap_opttype_t *opttype;
 
-    ret = wtap_block_add_option_common(block, option_id, WTAP_OPTTYPE_STRUCTURED, &opt);
+    ret = wtap_block_add_option_common(block, option_id, WTAP_OPTTYPE_IF_FILTER, &opt);
     if (ret != WTAP_OPTTYPE_SUCCESS)
         return ret;
-    opttype = &g_array_index(block->info->options, wtap_opttype_t, opt->option_id);
-    opt->value.structuredval.size = (guint)value_size;
-    opt->value.structuredval.data = opttype->dup_func(value);
+    opt->value.if_filterval = if_filter_dup(value);
     return WTAP_OPTTYPE_SUCCESS;
 }
 
 wtap_opttype_return_val
-wtap_block_get_structured_option_value(wtap_block_t block, guint option_id, void** value)
+wtap_block_set_if_filter_option_value(wtap_block_t block, guint option_id, if_filter_opt_t* value)
 {
     wtap_opttype_return_val ret;
     wtap_optval_t *optval;
+    if_filter_opt_t prev_value;
 
-    ret = wtap_block_get_option_common(block, option_id, WTAP_OPTTYPE_STRUCTURED, &optval);
+    ret = wtap_block_get_option_common(block, option_id, WTAP_OPTTYPE_IF_FILTER, &optval);
     if (ret != WTAP_OPTTYPE_SUCCESS)
         return ret;
-    *value = optval->structuredval.data;
-    return WTAP_OPTTYPE_SUCCESS;
-}
-
-wtap_opttype_return_val
-wtap_block_set_structured_option_value(wtap_block_t block, guint option_id, void *value)
-{
-    wtap_opttype_return_val ret;
-    wtap_optval_t *optval;
-    void *prev_value;
-
-    ret = wtap_block_get_option_common(block, option_id, WTAP_OPTTYPE_STRUCTURED, &optval);
-    if (ret != WTAP_OPTTYPE_SUCCESS)
-        return ret;
-    prev_value = optval->structuredval.data;
-    /*
-     * XXX - a custom value can be a structure that points to other data,
-     * but we're doing a shallow copy here.
-     */
-    optval->structuredval.data = g_memdup(value, optval->structuredval.size);
+    prev_value = optval->if_filterval;
+    optval->if_filterval = if_filter_dup(value);
     /* Free after memory is duplicated in case structure was manipulated with a "get then set" */
-    g_free(prev_value);
+    if_filter_free(&prev_value);
 
+    return WTAP_OPTTYPE_SUCCESS;
+}
+
+wtap_opttype_return_val
+wtap_block_get_if_filter_option_value(wtap_block_t block, guint option_id, if_filter_opt_t* value)
+{
+    wtap_opttype_return_val ret;
+    wtap_optval_t *optval;
+
+    ret = wtap_block_get_option_common(block, option_id, WTAP_OPTTYPE_IF_FILTER, &optval);
+    if (ret != WTAP_OPTTYPE_SUCCESS)
+        return ret;
+    *value = optval->if_filterval;
     return WTAP_OPTTYPE_SUCCESS;
 }
 
@@ -933,26 +979,6 @@ static void isb_copy_mand(wtap_block_t dest_block, wtap_block_t src_block)
     memcpy(dest_block->mandatory_data, src_block->mandatory_data, sizeof(wtapng_if_stats_mandatory_t));
 }
 
-static void *idb_filter_dup(void* src)
-{
-    wtapng_if_descr_filter_t* filter_src = (wtapng_if_descr_filter_t*)src;
-    wtapng_if_descr_filter_t* filter_dest;
-
-    /* Deep copy. */
-    filter_dest = g_new(wtapng_if_descr_filter_t, 1);
-    filter_dest->if_filter_str = g_strdup(filter_src->if_filter_str);
-    filter_dest->bpf_filter_len = filter_src->bpf_filter_len;
-    filter_dest->if_filter_bpf_bytes = (guint8 *)g_memdup(filter_src->if_filter_bpf_bytes, filter_src->bpf_filter_len);
-    return (void *)filter_dest;
-}
-
-static void idb_filter_free(void* data)
-{
-    wtapng_if_descr_filter_t* filter = (wtapng_if_descr_filter_t*)data;
-    g_free(filter->if_filter_str);
-    g_free(filter->if_filter_bpf_bytes);
-}
-
 static void idb_create(wtap_block_t block)
 {
     block->mandatory_data = g_new0(wtapng_if_descr_mandatory_t, 1);
@@ -1033,25 +1059,19 @@ void wtap_opttypes_initialize(void)
         "hardware",
         "SHB Hardware",
         WTAP_OPTTYPE_STRING,
-        0,
-        NULL,
-        NULL
+        0
     };
     static wtap_opttype_t shb_os = {
         "os",
         "SHB Operating System",
         WTAP_OPTTYPE_STRING,
-        0,
-        NULL,
-        NULL
+        0
     };
     static wtap_opttype_t shb_userappl = {
         "user_appl",
         "SHB User Application",
         WTAP_OPTTYPE_STRING,
-        0,
-        NULL,
-        NULL
+        0
     };
 
     static wtap_blocktype_t idb_block = {
@@ -1067,65 +1087,49 @@ void wtap_opttypes_initialize(void)
         "name",
         "IDB Name",
         WTAP_OPTTYPE_STRING,
-        0,
-        NULL,
-        NULL
+        0
     };
     static wtap_opttype_t if_description = {
         "description",
         "IDB Description",
         WTAP_OPTTYPE_STRING,
-        0,
-        NULL,
-        NULL
+        0
     };
     static wtap_opttype_t if_speed = {
         "speed",
         "IDB Speed",
         WTAP_OPTTYPE_UINT64,
-        0,
-        NULL,
-        NULL
+        0
     };
     static wtap_opttype_t if_tsresol = {
         "tsresol",
         "IDB Time Stamp Resolution",
         WTAP_OPTTYPE_UINT8, /* XXX - signed? */
-        0,
-        NULL,
-        NULL
+        0
     };
     static wtap_opttype_t if_filter = {
         "filter",
         "IDB Filter",
-        WTAP_OPTTYPE_STRUCTURED,
-        0,
-        idb_filter_dup,
-        idb_filter_free
+        WTAP_OPTTYPE_IF_FILTER,
+        0
     };
     static wtap_opttype_t if_os = {
         "os",
         "IDB Operating System",
         WTAP_OPTTYPE_STRING,
-        0,
-        NULL,
-        NULL
+        0
     };
     static wtap_opttype_t if_fcslen = {
         "fcslen",
         "IDB FCS Length",
         WTAP_OPTTYPE_UINT8,
-        0,
-        NULL,
-        NULL
+        0
     };
     static wtap_opttype_t if_hardware = {
         "hardware",
         "IDB Hardware",
         WTAP_OPTTYPE_STRING,
-        0,
-        NULL,
-        NULL
+        0
     };
 
     static wtap_blocktype_t dsb_block = {
@@ -1151,25 +1155,19 @@ void wtap_opttypes_initialize(void)
         "dnsname",
         "NRB DNS server name",
         WTAP_OPTTYPE_STRING,
-        0,
-        NULL,
-        NULL
+        0
     };
     static wtap_opttype_t ns_dnsIP4addr = {
         "dnsIP4addr",
         "NRB DNS server IPv4 address",
         WTAP_OPTTYPE_IPv4,
-        0,
-        NULL,
-        NULL
+        0
     };
     static wtap_opttype_t ns_dnsIP6addr = {
         "dnsIP6addr",
         "NRB DNS server IPv6 address",
         WTAP_OPTTYPE_IPv6,
-        0,
-        NULL,
-        NULL
+        0
     };
 
     static wtap_blocktype_t isb_block = {
@@ -1185,57 +1183,43 @@ void wtap_opttypes_initialize(void)
         "starttime",
         "ISB Start Time",
         WTAP_OPTTYPE_UINT64,
-        0,
-        NULL,
-        NULL
+        0
     };
     static wtap_opttype_t isb_endtime = {
         "endtime",
         "ISB End Time",
         WTAP_OPTTYPE_UINT64,
-        0,
-        NULL,
-        NULL
+        0
     };
     static wtap_opttype_t isb_ifrecv = {
         "ifrecv",
         "ISB Received Packets",
         WTAP_OPTTYPE_UINT64,
-        0,
-        NULL,
-        NULL
+        0
     };
     static wtap_opttype_t isb_ifdrop = {
         "ifdrop",
         "ISB Dropped Packets",
         WTAP_OPTTYPE_UINT64,
-        0,
-        NULL,
-        NULL
+        0
     };
     static wtap_opttype_t isb_filteraccept = {
         "filteraccept",
         "ISB Packets Accepted By Filter",
         WTAP_OPTTYPE_UINT64,
-        0,
-        NULL,
-        NULL
+        0
     };
     static wtap_opttype_t isb_osdrop = {
         "osdrop",
         "ISB Packets Dropped By The OS",
         WTAP_OPTTYPE_UINT64,
-        0,
-        NULL,
-        NULL
+        0
     };
     static wtap_opttype_t isb_usrdeliv = {
         "usrdeliv",
         "ISB Packets Delivered To The User",
         WTAP_OPTTYPE_UINT64,
-        0,
-        NULL,
-        NULL
+        0
     };
 
     /* Initialize the custom block array.  This is for future proofing

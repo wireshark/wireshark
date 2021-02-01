@@ -295,7 +295,7 @@ wtap_get_debug_if_descr(const wtap_block_t if_descr,
 	guint64 tmp64;
 	gint8 itmp8;
 	guint8 tmp8;
-	wtapng_if_descr_filter_t* if_filter;
+	if_filter_opt_t if_filter;
 
 	g_assert(if_descr);
 
@@ -365,16 +365,30 @@ wtap_get_debug_if_descr(const wtap_block_t if_descr,
 				line_end);
 	}
 
-	if (wtap_block_get_structured_option_value(if_descr, OPT_IDB_FILTER, (void**)&if_filter) == WTAP_OPTTYPE_SUCCESS) {
-		g_string_append_printf(info,
-				"%*cFilter string = %s%s", indent, ' ',
-				if_filter->if_filter_str ? if_filter->if_filter_str : "NONE",
-				line_end);
+	if (wtap_block_get_if_filter_option_value(if_descr, OPT_IDB_FILTER, &if_filter) == WTAP_OPTTYPE_SUCCESS) {
+		switch (if_filter.type) {
 
-		g_string_append_printf(info,
-				"%*cBPF filter length = %u%s", indent, ' ',
-				if_filter->bpf_filter_len,
-				line_end);
+		case if_filter_pcap:
+			g_string_append_printf(info,
+					"%*cFilter string = %s%s", indent, ' ',
+					if_filter.data.filter_str,
+					line_end);
+			break;
+
+		case if_filter_bpf:
+			g_string_append_printf(info,
+					"%*cBPF filter length = %u%s", indent, ' ',
+					if_filter.data.bpf_prog.bpf_prog_len,
+					line_end);
+			break;
+
+		default:
+			g_string_append_printf(info,
+					"%*cUnknown filter type %u%s", indent, ' ',
+					if_filter.type,
+					line_end);
+			break;
+		}
 	}
 
 	if (wtap_block_get_string_option_value(if_descr, OPT_IDB_OS, &tmp_content) == WTAP_OPTTYPE_SUCCESS) {
