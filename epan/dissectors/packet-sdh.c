@@ -69,7 +69,7 @@ static const enum_val_t data_rates[] = {
   {NULL, NULL, -1}
 };
 
-const value_string sdh_s1_vals[] = {
+static const value_string sdh_s1_vals[] = {
   { 0, "Quality unknown" },
   { 1, "Reserved" },
   { 2, "Rec G.811" },

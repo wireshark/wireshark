@@ -135,7 +135,7 @@ static void udpcp_free_persistent_key(gpointer ptr _U_)
 {
 }
 
-reassembly_table_functions udpcp_reassembly_table_functions =
+static reassembly_table_functions udpcp_reassembly_table_functions =
 {
     g_direct_hash,
     g_direct_equal,

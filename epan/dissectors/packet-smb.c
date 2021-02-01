@@ -1907,7 +1907,7 @@ smb_file_specific_rights(tvbuff_t *tvb, gint offset, proto_tree *tree, guint32 m
 
 	proto_tree_add_bitmask_list_value(tree, tvb, offset, 4, mask_flags, mask);
 }
-struct access_mask_info smb_file_access_mask_info = {
+static struct access_mask_info smb_file_access_mask_info = {
 	"FILE",				/* Name of specific rights */
 	smb_file_specific_rights,	/* Dissection function */
 	NULL,				/* Generic mapping table */
@@ -1938,7 +1938,7 @@ smb_dir_specific_rights(tvbuff_t *tvb, gint offset, proto_tree *tree, guint32 ma
 
 	proto_tree_add_bitmask_list_value(tree, tvb, offset, 4, mask_flags, mask);
 }
-struct access_mask_info smb_dir_access_mask_info = {
+static struct access_mask_info smb_dir_access_mask_info = {
 	"DIR",				/* Name of specific rights */
 	smb_dir_specific_rights,	/* Dissection function */
 	NULL,				/* Generic mapping table */
@@ -2487,7 +2487,7 @@ dissect_file_ext_attr_bits(tvbuff_t *tvb, proto_tree *parent_tree, int offset,
 }
 
 /* 3.11 */
-int
+static int
 dissect_file_ext_attr(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 {
 	guint32 mask;

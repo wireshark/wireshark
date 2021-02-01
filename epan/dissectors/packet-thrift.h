@@ -45,7 +45,7 @@ typedef struct _thrift_struct_t {
 } thrift_struct_t;
 
 /*
-These functions are to be used by dissectors dissecting Thrift based protocols sinilar to packet-ber.c
+These functions are to be used by dissectors dissecting Thrift based protocols similar to packet-ber.c
 
 */
 WS_DLL_PUBLIC int dissect_thrift_t_stop(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, int offset);

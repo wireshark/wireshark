@@ -3310,7 +3310,7 @@ static const value_string keycode_vals[] = {
 
     {0, NULL}
 };
-value_string_ext keycode_vals_ext = VALUE_STRING_EXT_INIT(keycode_vals);
+static value_string_ext keycode_vals_ext = VALUE_STRING_EXT_INIT(keycode_vals);
 
 static guint32
 hid_unpack_value(guint8 *data, unsigned int idx, unsigned int size)

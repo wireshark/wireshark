@@ -960,6 +960,7 @@ reassemble_sequence(struct rlc_frag ** frags, struct rlc_seqlist * endlist,
 
 /* Reset the specified channel's reassembly data, useful for when a sequence
  * resets on transport channel swap. */
+/* TODO: not currently called */
 void
 rlc_reset_channel(enum rlc_mode mode, guint8 rbid, guint8 dir, guint32 ueid,
                   struct atm_phdr *atm)

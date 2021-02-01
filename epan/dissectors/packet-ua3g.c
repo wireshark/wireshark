@@ -831,7 +831,7 @@ decode_super_msg(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_,
 /*-----------------------------------------------------------------------------
     SEGMENT MESSAGE - 0Ch (MESSAGE FROM THE TERMINAL AND FROM THE SYSTEM)
     ---------------------------------------------------------------------------*/
-const true_false_string tfs_segment_msg_segment = { "First Segment", "Subsequent Segment" };
+static const true_false_string tfs_segment_msg_segment = { "First Segment", "Subsequent Segment" };
 
 static void
 decode_segment_msg(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_,
@@ -2712,8 +2712,8 @@ static const value_string str_device_configuration[] = {
     { 0, NULL }
 };
 
-const true_false_string tfs_audio_config_handsfree_return = { "Return Loss Active", "Return Loss Normal" };
-const true_false_string tfs_audio_config_handsfree_handsfree = { "More Full Duplex", "Handsfree Normal" };
+static const true_false_string tfs_audio_config_handsfree_return = { "Return Loss Active", "Return Loss Normal" };
+static const true_false_string tfs_audio_config_handsfree_handsfree = { "More Full Duplex", "Handsfree Normal" };
 
 static void
 decode_audio_config(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
@@ -3964,9 +3964,9 @@ decode_i_m_here(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, guint o
     RESPONSE STATUS INQUIRY - 23h (MESSAGE FROM THE TERMINAL)
     SPECIAL KEY STATUS - 29h (MESSAGE FROM THE TERMINAL)
     ---------------------------------------------------------------------------*/
-const true_false_string tfs_special_key_parameters = { "Not Received Default In Effect", "Downloaded Values In Effect" };
-const true_false_string tfs_hookswitch_status = {"On Hook", "Off Hook"};
-const true_false_string tfs_released_pressed = { "Released", "Pressed" };
+static const true_false_string tfs_special_key_parameters = { "Not Received Default In Effect", "Downloaded Values In Effect" };
+static const true_false_string tfs_hookswitch_status = {"On Hook", "Off Hook"};
+static const true_false_string tfs_released_pressed = { "Released", "Pressed" };
 
 static void
 decode_special_key(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_,

@@ -75,10 +75,10 @@ typedef struct _s101_fragment_t {
 /* (Required to prevent [-Wmissing-prototypes] warnings */
 void proto_reg_handoff_S101(void);
 void proto_register_S101(void);
-tvbuff_t *decode_s101_escaped_buffer(tvbuff_t *tvb, packet_info *pinfo, int *offset, guint16 *crc);
-guint32 get_fragment_pdu_id(packet_info *pinfo);
-s101_fragment_t* new_fragment_info(packet_info *pinfo);
-void display_expert_info(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset, int len);
+static tvbuff_t *decode_s101_escaped_buffer(tvbuff_t *tvb, packet_info *pinfo, int *offset, guint16 *crc);
+static guint32 get_fragment_pdu_id(packet_info *pinfo);
+static s101_fragment_t* new_fragment_info(packet_info *pinfo);
+static void display_expert_info(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset, int len);
 
 /* Initialize the protocol and registered fields */
 static int proto_S101 = -1;
@@ -141,7 +141,7 @@ static const fragment_items msg_frag_items = {
  | SRCPORT (16) | SRC_ADDRESS (16) |
  SRC_ADDRESS is last 2 bytes of the src address.
  */
-guint32 get_fragment_pdu_id(packet_info *pinfo) {
+static guint32 get_fragment_pdu_id(packet_info *pinfo) {
     guint32 id = pinfo->srcport << 16;
     const guint8 *data = (const guint8*)pinfo->src.data;
     if (pinfo->src.len >= 2) {
@@ -152,7 +152,7 @@ guint32 get_fragment_pdu_id(packet_info *pinfo) {
 
 static wmem_map_t* s101_fragment_info_hash = NULL;
 
-s101_fragment_t* new_fragment_info(packet_info *pinfo) {
+static s101_fragment_t* new_fragment_info(packet_info *pinfo) {
     s101_fragment_t* fi = wmem_new(wmem_file_scope(), s101_fragment_t);
     if (NULL == fi) { return fi; }
     fi->id = pinfo->num;
@@ -212,7 +212,7 @@ static const value_string dtd_type_vs[] = {
 
 
 
-void
+static void
 display_expert_info(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset, int len) {
     proto_item* pi;
     proto_tree *error_tree;
@@ -287,7 +287,7 @@ find_s101_packet_header(tvbuff_t *tvb, int* offset, guint8 *start, guint8 *slot,
     return 1;
 }
 
-tvbuff_t *
+static tvbuff_t *
 decode_s101_escaped_buffer(tvbuff_t *tvb, packet_info *pinfo, int *offset, guint16 *crc) {
     tvbuff_t *next_tvb;
     int len;

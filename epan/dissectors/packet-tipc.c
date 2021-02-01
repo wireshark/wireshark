@@ -250,7 +250,7 @@ static const fragment_items tipc_msg_frag_items = {
 
 #define TIPC_LINK_PROTOCO_STATE_MSG 0
 
-const value_string tipc_user_values[] = {
+static const value_string tipc_user_values[] = {
 	{ TIPC_DATA_PRIO_0,          "DATA_PRIO_0"},
 	{ TIPC_DATA_PRIO_1,          "DATA_PRIO_1"},
 	{ TIPC_DATA_PRIO_2,          "DATA_PRIO_2"},
@@ -284,7 +284,7 @@ const value_string tipc_user_values[] = {
 #define TIPCv2_USER_FRAGMENT		1
 #define TIPCv2_USER_LAST_FRAGMENT	2
 
-const value_string tipcv2_user_values[] = {
+static const value_string tipcv2_user_values[] = {
 	{ TIPCv2_DATA_LOW,            "Low Priority Payload Data"},
 	{ TIPCv2_DATA_NORMAL,         "Normal Priority Payload Data"},
 	{ TIPCv2_DATA_HIGH,           "High Priority Payload Data"},
@@ -301,7 +301,7 @@ const value_string tipcv2_user_values[] = {
 	{ 0, NULL}
 };
 
-const value_string tipcv2_user_short_str_vals[] = {
+static const value_string tipcv2_user_short_str_vals[] = {
 	{ TIPCv2_DATA_LOW,            "Payld:Low"},
 	{ TIPCv2_DATA_NORMAL,         "Payld:Normal"},
 	{ TIPCv2_DATA_HIGH,           "Payld:High"},
@@ -427,7 +427,7 @@ static const value_string tipc_cng_prot_msg_type_values[] = {
 /* SEGMENTATION_MANAGER */
 #define TIPC_FIRST_SEGMENT	1
 #define TIPC_SEGMENT		2
-const value_string tipc_sm_msg_type_values[] = {
+static const value_string tipc_sm_msg_type_values[] = {
 	{ 1, "FIRST_SEGMENT"},
 	{ 2, "SEGMENT"},
 	{ 0, NULL}

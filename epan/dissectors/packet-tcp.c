@@ -41,7 +41,7 @@
 
 void proto_register_tcp(void);
 void proto_reg_handoff_tcp(void);
-void conversation_completeness_fill(gchar*, guint32);
+static void conversation_completeness_fill(gchar*, guint32);
 
 static int tcp_tap = -1;
 static int tcp_follow_tap = -1;
@@ -1353,7 +1353,7 @@ handle_export_pdu_conversation(packet_info *pinfo, tvbuff_t *tvb, int src_port, 
  * we of course pay much attention on complete conversations but also incomplete ones which
  * have a regular start, as in practice we are often looking for such thing
  */
-void conversation_completeness_fill(gchar *buf, guint32 value)
+static void conversation_completeness_fill(gchar *buf, guint32 value)
 {
     switch(value) {
         case TCP_COMPLETENESS_SYNSENT:
