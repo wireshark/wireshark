@@ -6649,6 +6649,9 @@ static int hf_ieee80211_he_uora_eocwmin = -1;
 static int hf_ieee80211_he_uora_owcwmax = -1;
 static int hf_ieee80211_he_uora_reserved = -1;
 
+static int hf_ieee80211_multiple_bssid_configuration_bssid_count = -1;
+static int hf_ieee80211_multiple_bssid_configuration_full_set_rx_periodicity = -1;
+
 static int hf_ieee80211_rejected_groups_group = -1;
 
 static int hf_ieee80211_twt_bcast_flow = -1;
@@ -25260,6 +25263,19 @@ dissect_ess_report(tvbuff_t *tvb, packet_info *pinfo _U_,
                         bss_trans_thresh, -100 + bss_trans_thresh);
 }
 
+static void
+dissect_multiple_bssid_configuration(tvbuff_t *tvb, packet_info *pinfo _U_,
+  proto_tree *tree, int offset, int len _U_)
+{
+
+  proto_tree_add_item(tree, hf_ieee80211_multiple_bssid_configuration_bssid_count, tvb, offset, 1, ENC_NA);
+  offset += 1;
+
+  proto_tree_add_item(tree, hf_ieee80211_multiple_bssid_configuration_full_set_rx_periodicity, tvb, offset, 1, ENC_NA);
+  /*offset += 1;*/
+
+}
+
 static int
 dissect_password_identifier(tvbuff_t *tvb, packet_info *pinfo _U_,
   proto_tree *tree, int offset, int len _U_)
@@ -25736,6 +25752,9 @@ ieee80211_tag_element_id_extension(tvbuff_t *tvb, packet_info *pinfo, proto_tree
       break;
     case ETAG_ESS_REPORT:
       dissect_ess_report(tvb, pinfo, tree, offset, ext_tag_len);
+      break;
+    case ETAG_MULTIPLE_BSSID_CONFIGURATION:
+      dissect_multiple_bssid_configuration(tvb, pinfo, tree, offset, ext_tag_len);
       break;
     case ETAG_REJECTED_GROUPS:
       dissect_rejected_groups(tvb, pinfo, tree, offset, ext_tag_len);
@@ -45104,6 +45123,14 @@ proto_register_ieee80211(void)
     {&hf_ieee80211_he_uora_reserved,
      {"Reserved", "wlan.ext_tag.uora_parameter_set.reserved",
       FT_UINT8, BASE_DEC, NULL, 0xC0, NULL, HFILL }},
+
+    {&hf_ieee80211_multiple_bssid_configuration_bssid_count,
+     {"BSSID Count", "wlan.ext_tag.multiple_bssid_configuration.bssid_count",
+     FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+    {&hf_ieee80211_multiple_bssid_configuration_full_set_rx_periodicity,
+     {"Full Set Rx Periodicity", "wlan.ext_tag.multiple_bssid_configuration.full_set_rx_periodicity",
+     FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
     {&hf_ieee80211_rejected_groups_group,
      {"Rejected Finite Cyclic Group", "wlan.ext_tag.rejected_groups.group",
