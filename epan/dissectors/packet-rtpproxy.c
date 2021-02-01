@@ -469,7 +469,6 @@ rtpproxy_add_notify_addr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *rtpproxy
     gint tmp = 0;
     gboolean ipv6 = FALSE;
     guint32 ipaddr[4]; /* Enough room for IPv4 or IPv6 */
-    proto_item *ti;
 
     /* Check for at least one colon */
     offset = tvb_find_guint8(tvb, begin, end, ':');
@@ -496,15 +495,19 @@ rtpproxy_add_notify_addr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *rtpproxy
             (guint16) g_ascii_strtoull((gchar*)tvb_get_string_enc(wmem_packet_scope(), tvb, offset+1, end - (offset+1), ENC_ASCII), NULL, 10));
     }
     else{
+        proto_item *ti = NULL;
         /* Only port is supplied - take IPv4/IPv6 from  ip.src/ipv6.src respectively */
         expert_add_info(pinfo, rtpproxy_tree, &ei_rtpproxy_notify_no_ip);
-        if (pinfo->src.type == AT_IPv4)
+        if (pinfo->src.type == AT_IPv4) {
             ti = proto_tree_add_ipv4(rtpproxy_tree, hf_rtpproxy_notify_ipv4, tvb, begin, 0, *(const guint32*)(pinfo->src.data));
-        else
+        } else if (pinfo->src.type == AT_IPv6) {
             ti = proto_tree_add_ipv6(rtpproxy_tree, hf_rtpproxy_notify_ipv6, tvb, begin, 0, (const ws_in6_addr *)(pinfo->src.data));
-        proto_item_set_generated(ti);
-        proto_tree_add_uint(rtpproxy_tree, hf_rtpproxy_notify_port, tvb, begin, end - begin,
-            (guint16) g_ascii_strtoull((gchar*)tvb_get_string_enc(wmem_packet_scope(), tvb, begin, end - begin, ENC_ASCII), NULL, 10));
+        }
+        if (ti) {
+            proto_item_set_generated(ti);
+            proto_tree_add_uint(rtpproxy_tree, hf_rtpproxy_notify_port, tvb, begin, end - begin,
+                (guint16) g_ascii_strtoull((gchar*)tvb_get_string_enc(wmem_packet_scope(), tvb, begin, end - begin, ENC_ASCII), NULL, 10));
+        }
     }
 }
 
