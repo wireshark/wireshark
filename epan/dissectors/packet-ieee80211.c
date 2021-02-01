@@ -674,8 +674,14 @@ static value_string_ext tag_num_vals_ext = VALUE_STRING_EXT_INIT(ie_tag_num_vals
 #define ETAG_NDP_FEEDBACK_REPORT_PARAMETER_SET 41
 #define ETAG_BSS_COLOR_CHANGE_ANNOUNCEMENT     42
 #define ETAG_QUIET_TIME_PERIOD_SETUP           43
-#define ETAG_ESS_REPORT                        44
+#define ETAG_ESS_REPORT                        45
+#define ETAG_OPS                               46
+#define ETAG_HE_BSS_LOAD                       47
+#define ETAG_MULTIPLE_BSSID_CONFIGURATION      55
+#define ETAG_KNOWN_BSSID                       57
+#define ETAG_SHORT_SSID                        58
 #define ETAG_HE_6GHZ_BAND_CAPABILITIES         59
+#define ETAG_UL_MU_POWER_CAPABILITIES          60
 #define ETAG_REJECTED_GROUPS                   92
 #define ETAG_ANTI_CLOGGING_TOKEN               93
 
@@ -705,7 +711,13 @@ static const value_string tag_num_vals_eid_ext[] = {
   { ETAG_BSS_COLOR_CHANGE_ANNOUNCEMENT,       "BSS Color Change Announcement" },
   { ETAG_QUIET_TIME_PERIOD_SETUP,             "Quiet Time Period Setup" },
   { ETAG_ESS_REPORT,                          "ESS Report" },
+  { ETAG_OPS,                                 "OPS" },
+  { ETAG_HE_BSS_LOAD,                         "HE BSS Load" },
+  { ETAG_MULTIPLE_BSSID_CONFIGURATION,        "Multiple BSSID Configuration" },
+  { ETAG_KNOWN_BSSID,                         "Known BSSID" },
+  { ETAG_SHORT_SSID,                          "Short SSID" },
   { ETAG_HE_6GHZ_BAND_CAPABILITIES,           "HE 6Ghz Band Capabilities" },
+  { ETAG_UL_MU_POWER_CAPABILITIES,            "UL MU Power Capabilities" },
   { ETAG_REJECTED_GROUPS,                     "Rejected Groups" },
   { ETAG_ANTI_CLOGGING_TOKEN,                 "Anti-Clogging Token Container" },
   { 0, NULL }
