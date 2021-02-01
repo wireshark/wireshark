@@ -1708,6 +1708,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  tvb_address_var_to_str@Base 1.99.2
  tvb_ascii_isprint@Base 2.9.0
  tvb_bcd_dig_to_wmem_packet_str@Base 1.12.0~rc1
+ tvb_bcd_dig_to_wmem_packet_str_be@Base 3.5.0
  tvb_bytes_exist@Base 1.9.1
  tvb_bytes_to_str@Base 1.99.2
  tvb_bytes_to_str_punct@Base 1.99.2

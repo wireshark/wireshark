@@ -153,11 +153,19 @@ typedef struct _bitmap_info_t {
 
 #define BMP_PLD_LEN_UNKNOWN 0  /* unknown/variable bitmap payload len */
 
+static gint dissect_zvt_amount(
+        tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree);
 static gint dissect_zvt_tlv_container(
         tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree);
 static inline gint dissect_zvt_res_code(
         tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree);
 static inline gint dissect_zvt_cc(
+        tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree);
+static inline gint dissect_zvt_terminal_id(
+        tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree);
+static inline gint dissect_zvt_time(
+        tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree);
+static inline gint dissect_zvt_date(
         tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree);
 static inline gint dissect_zvt_card_type(
         tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree);
@@ -166,12 +174,12 @@ static const bitmap_info_t bitmap_info[] = {
     { BMP_TIMEOUT,                         1, NULL },
     { BMP_MAX_STAT_INFO,                   1, NULL },
     { BMP_SVC_BYTE,                        1, NULL },
-    { BMP_AMOUNT,                          6, NULL },
+    { BMP_AMOUNT,                          6, dissect_zvt_amount },
     { BMP_PUMP_NR,                         1, NULL },
     { BMP_TLV_CONTAINER, BMP_PLD_LEN_UNKNOWN, dissect_zvt_tlv_container },
     { BMP_TRACE_NUM,                       3, NULL },
-    { BMP_TIME,                            3, NULL },
-    { BMP_DATE,                            2, NULL },
+    { BMP_TIME,                            3, dissect_zvt_time },
+    { BMP_DATE,                            2, dissect_zvt_date },
     { BMP_EXP_DATE,                        2, NULL },
     { BMP_CARD_SEQ_NUM,                    2, NULL },
     { BMP_PAYMENT_TYPE,                    1, NULL },
@@ -179,7 +187,7 @@ static const bitmap_info_t bitmap_info[] = {
     { BMP_T2_DAT,        BMP_PLD_LEN_UNKNOWN, NULL },
     { BMP_T3_DAT,        BMP_PLD_LEN_UNKNOWN, NULL },
     { BMP_RES_CODE,                        1, dissect_zvt_res_code },
-    { BMP_TID,                             4, NULL },
+    { BMP_TID,                             4, dissect_zvt_terminal_id },
     { BMP_T1_DAT,        BMP_PLD_LEN_UNKNOWN, NULL },
     { BMP_CVV_CVC,                         2, NULL },
     { BMP_ADD_DATA,      BMP_PLD_LEN_UNKNOWN, NULL },
@@ -215,6 +223,10 @@ static int hf_zvt_pwd = -1;
 static int hf_zvt_reg_cfg = -1;
 static int hf_zvt_res_code = -1;
 static int hf_zvt_cc = -1;
+static int hf_zvt_amount = -1;
+static int hf_zvt_terminal_id = -1;
+static int hf_zvt_time = -1;
+static int hf_zvt_date = -1;
 static int hf_zvt_card_type = -1;
 static int hf_zvt_reg_svc_byte = -1;
 static int hf_zvt_bmp = -1;
@@ -364,7 +376,6 @@ static const value_string tlv_tags[] = {
     { 0, NULL }
 };
 static value_string_ext tlv_tags_ext = VALUE_STRING_EXT_INIT(tlv_tags);
-
 
 static inline gint dissect_zvt_tlv_text_lines(
         tvbuff_t *tvb, gint offset, gint len,
@@ -578,6 +589,59 @@ static inline gint dissect_zvt_card_type(
 }
 
 
+static inline gint dissect_zvt_terminal_id(
+        tvbuff_t *tvb, gint offset, packet_info *pinfo _U_, proto_tree *tree)
+{
+    const gchar *str = tvb_bcd_dig_to_wmem_packet_str_be(tvb, offset, 4, NULL, FALSE);
+    proto_tree_add_string(tree, hf_zvt_terminal_id, tvb, offset, 4, str);
+    return 4;
+}
+
+
+static inline gint dissect_zvt_amount(
+        tvbuff_t *tvb, gint offset, packet_info *pinfo _U_, proto_tree *tree)
+{
+    const gchar *str = tvb_bcd_dig_to_wmem_packet_str_be(tvb, offset, 6, NULL, FALSE);
+    proto_tree_add_uint64(tree, hf_zvt_amount, tvb, offset, 6, atol(str));
+    return 6;
+}
+
+
+static inline gint dissect_zvt_time(
+        tvbuff_t *tvb, gint offset, packet_info *pinfo _U_, proto_tree *tree)
+{
+    const gchar *str = tvb_bcd_dig_to_wmem_packet_str_be(tvb, offset, 3, NULL, FALSE);
+    gchar  *fstr = (char *)wmem_alloc(wmem_packet_scope(), 9);
+    fstr[0] = str[0];
+    fstr[1] = str[1];
+    fstr[2] = ':';
+    fstr[3] = str[2];
+    fstr[4] = str[3];
+    fstr[5] = ':';
+    fstr[6] = str[4];
+    fstr[7] = str[5];
+    fstr[8] = 0;
+    proto_tree_add_string(tree, hf_zvt_time, tvb, offset, 3, fstr);
+    return 3;
+}
+
+
+static inline gint dissect_zvt_date(
+        tvbuff_t *tvb, gint offset, packet_info *pinfo _U_, proto_tree *tree)
+{
+    const gchar *str = tvb_bcd_dig_to_wmem_packet_str_be(tvb, offset, 2, NULL, FALSE);
+    gchar  *fstr = (char *)wmem_alloc(wmem_packet_scope(), 6);
+    fstr[0] = str[0];
+    fstr[1] = str[1];
+    fstr[2] = '/';
+    fstr[3] = str[2];
+    fstr[4] = str[3];
+    fstr[5] = 0;
+    proto_tree_add_string(tree, hf_zvt_date, tvb, offset, 2, fstr);
+    return 2;
+}
+
+
 /* dissect one "bitmap", i.e BMP and the corresponding data */
 static gint
 dissect_zvt_bitmap(tvbuff_t *tvb, gint offset,
@@ -648,17 +712,9 @@ dissect_zvt_reg(tvbuff_t *tvb, gint offset, guint16 len _U_,
             tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
-    /* check for the optional part CC|0x03|service byte */
-    if (tvb_captured_length_remaining(tvb, offset)>=4 &&
-            tvb_get_guint8(tvb, offset+2)==0x03) {
-
+    /* check for the optional part CC|0x03|service byte|TLV */
+    if (tvb_captured_length_remaining(tvb, offset)>=2) {
         offset += dissect_zvt_cc(tvb, offset, pinfo, tree);
-
-        offset++; /* 0x03 */
-
-        proto_tree_add_item(tree, hf_zvt_reg_svc_byte,
-            tvb, offset, 1, ENC_BIG_ENDIAN);
-        offset++;
     }
 
     /* it's ok if the remaining len is 0 */
@@ -1043,6 +1099,18 @@ proto_register_zvt(void)
         { &hf_zvt_card_type,
             { "Card Type", "zvt.card_type", FT_UINT8,
                 BASE_DEC|BASE_EXT_STRING, &card_type_ext, 0, NULL, HFILL } },
+        { &hf_zvt_terminal_id,
+            { "Terminal ID", "zvt.terminal_id", FT_STRING,
+                BASE_NONE, NULL, 0, NULL, HFILL } },
+        { &hf_zvt_amount,
+            { "Amount", "zvt.amount", FT_UINT48,
+                BASE_DEC, NULL, 0, NULL, HFILL } },
+        { &hf_zvt_time,
+            { "Time", "zvt.time", FT_STRING,
+                BASE_NONE, NULL, 0, NULL, HFILL } },
+        { &hf_zvt_date,
+            { "Date", "zvt.date", FT_STRING,
+                BASE_NONE, NULL, 0, NULL, HFILL } },
         { &hf_zvt_reg_svc_byte,
             { "Service byte", "zvt.reg.service_byte",
                 FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL } },

@@ -3056,7 +3056,7 @@ tvb_get_string_enc(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset,
 		 */
 		odd = (encoding & ENC_BCD_ODD_NUM_DIG) >> 16;
 		skip_first = (encoding & ENC_BCD_SKIP_FIRST) >> 17;
-		strptr = tvb_get_bcd_string(scope, tvb, offset, length, &Dgt0_9_bcd, skip_first, odd);
+		strptr = tvb_get_bcd_string(scope, tvb, offset, length, &Dgt0_9_bcd, skip_first, odd, FALSE);
 		break;
 
 	case ENC_KEYPAD_ABC_TBCD:
@@ -3066,7 +3066,7 @@ tvb_get_string_enc(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset,
 		 */
 		odd = (encoding & ENC_BCD_ODD_NUM_DIG) >> 16;
 		skip_first = (encoding & ENC_BCD_SKIP_FIRST) >> 17;
-		strptr = tvb_get_bcd_string(scope, tvb, offset, length, &Dgt_keypad_abc_tbcd, skip_first, odd);
+		strptr = tvb_get_bcd_string(scope, tvb, offset, length, &Dgt_keypad_abc_tbcd, skip_first, odd, FALSE);
 		break;
 
 	case ENC_KEYPAD_BC_TBCD:
@@ -3076,7 +3076,7 @@ tvb_get_string_enc(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset,
 		 */
 		odd = (encoding & ENC_BCD_ODD_NUM_DIG) >> 16;
 		skip_first = (encoding & ENC_BCD_SKIP_FIRST) >> 17;
-		strptr = tvb_get_bcd_string(scope, tvb, offset, length, &Dgt_ansi_tbcd, skip_first, odd);
+		strptr = tvb_get_bcd_string(scope, tvb, offset, length, &Dgt_ansi_tbcd, skip_first, odd, FALSE);
 		break;
 
 	case ENC_3GPP_TS_23_038_7BITS_UNPACKED:
@@ -4137,11 +4137,11 @@ tvb_bytes_to_str_punct(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset
  * byte), formating the digits into characters according to the
  * input digit set, and return a pointer to a UTF-8 string, allocated
  * using the wmem scope.  A high-order nibble of 0xf is considered a
- * 'filler' and will end the conversion. Similarrily if odd is set thje last
+ * 'filler' and will end the conversion. Similarrily if odd is set the last
  * high nibble will be omitted.
  */
 gchar *
-tvb_get_bcd_string(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, gint len, const dgt_set_t *dgt, gboolean skip_first, gboolean odd)
+tvb_get_bcd_string(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, gint len, const dgt_set_t *dgt, gboolean skip_first, gboolean odd, gboolean bigendian)
 {
 	const guint8 *ptr;
 	int           i = 0;
@@ -4176,7 +4176,11 @@ tvb_get_bcd_string(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, gi
 	while (len > 0) {
 		octet = *ptr;
 		if (!skip_first) {
-			digit_str[i] = dgt->out[octet & 0x0f];
+			if (bigendian) {
+				digit_str[i] = dgt->out[(octet >> 4) & 0x0f];
+			} else {
+				digit_str[i] = dgt->out[octet & 0x0f];
+			}
 			i++;
 		}
 		skip_first = FALSE;
@@ -4184,7 +4188,9 @@ tvb_get_bcd_string(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, gi
 		/*
 		 * unpack second value in byte
 		 */
-		octet = octet >> 4;
+		if (!bigendian) {
+			octet = octet >> 4;
+		}
 
 		if (octet == 0x0f) {
 			/*
@@ -4194,7 +4200,7 @@ tvb_get_bcd_string(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, gi
 			break;
 		}
 		if ((len == 1) && (odd == TRUE )){
-			/* Last octet, skipp last high nibble incase of odd number digits*/
+			/* Last octet, skipp last high nibble incase of odd number of digits*/
 			break;
 		}
 		digit_str[i] = dgt->out[octet & 0x0f];
@@ -4214,7 +4220,16 @@ tvb_bcd_dig_to_wmem_packet_str(tvbuff_t *tvb, const gint offset, const gint len,
 	if (!dgt)
 		dgt = &Dgt0_9_bcd;
 
-	return tvb_get_bcd_string(wmem_packet_scope(), tvb, offset, len, dgt, skip_first, FALSE);
+	return tvb_get_bcd_string(wmem_packet_scope(), tvb, offset, len, dgt, skip_first, FALSE, FALSE);
+}
+
+const gchar *
+tvb_bcd_dig_to_wmem_packet_str_be(tvbuff_t *tvb, const gint offset, const gint len, const dgt_set_t *dgt, gboolean skip_first)
+{
+	if (!dgt)
+		dgt = &Dgt0_9_bcd;
+
+	return tvb_get_bcd_string(wmem_packet_scope(), tvb, offset, len, dgt, skip_first, FALSE, TRUE);
 }
 
 /*

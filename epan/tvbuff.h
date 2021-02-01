@@ -942,6 +942,21 @@ WS_DLL_PUBLIC const gchar *tvb_bcd_dig_to_wmem_packet_str(tvbuff_t *tvb,
     gboolean skip_first);
 
 /**
+ * Given a tvbuff, an offset into the tvbuff, and a length that starts
+ * at that offset (which may be -1 for "all the way to the end of the
+ * tvbuff"), fetch BCD encoded digits from a tvbuff starting from either
+ * the low or high half byte, formatting the digits according to an input digit
+ * set, if NUL a default digit set of 0-9 returning "?" for overdecadic digits
+ * will be used.  A pointer to the packet-scope (WMEM-allocated) string will
+ * be returned. Note a tvbuff content of 0xf is considered a 'filler' and will
+ * end the conversion. Function uses big endian convetion: first digit is based
+ * on high order nibble, second digit is based on low order nibble.
+ */
+WS_DLL_PUBLIC const gchar *tvb_bcd_dig_to_wmem_packet_str_be(tvbuff_t *tvb,
+    const gint offset, const gint len, const dgt_set_t *dgt,
+    gboolean skip_first);
+
+/**
  * Given a wmem scope, a tvbuff, an offset, a length, an input digit
  * set, and a boolean indicator, fetch BCD-encoded digits from a
  * tvbuff starting from either the low or high half byte of the
@@ -952,11 +967,13 @@ WS_DLL_PUBLIC const gchar *tvb_bcd_dig_to_wmem_packet_str(tvbuff_t *tvb,
  * input digit set, and return a pointer to a UTF-8 string, allocated
  * using the wmem scope.  A high-order nibble of 0xf is considered a
  * 'filler' and will end the conversion. If odd is set the high order
- * nibble in the last octet will be skipped
+ * nibble in the last octet will be skipped. If bigendian is set then
+ * high order nibble is taken as first digit of a byte and low order
+ * nibble as second digit.
  */
 WS_DLL_PUBLIC gchar *tvb_get_bcd_string(wmem_allocator_t *scope, tvbuff_t *tvb,
     const gint offset, gint len, const dgt_set_t *dgt,
-    gboolean skip_first, gboolean odd);
+    gboolean skip_first, gboolean odd, gboolean bigendian);
 
 /** Locate a sub-tvbuff within another tvbuff, starting at position
  * 'haystack_offset'. Returns the index of the beginning of 'needle' within
