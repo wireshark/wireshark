@@ -6382,6 +6382,8 @@ static int hf_ieee80211_tag_fils_indication_public_key_indicator = -1;
 static int hf_ieee80211_ext_tag = -1;
 static int hf_ieee80211_ext_tag_number = -1;
 static int hf_ieee80211_ext_tag_length = -1;
+static int hf_ieee80211_ext_tag_data = -1;
+
 static int hf_ieee80211_fils_session = -1;
 static int hf_ieee80211_fils_encrypted_data = -1;
 static int hf_ieee80211_fils_wrapped_data = -1;
@@ -25736,6 +25738,13 @@ ieee80211_tag_element_id_extension(tvbuff_t *tvb, packet_info *pinfo, proto_tree
       dissect_he_6ghz_band_capabilities(tvb, pinfo, tree, offset, ext_tag_len);
       break;
     default:
+      proto_tree_add_item(tree, hf_ieee80211_ext_tag_data, tvb, offset, ext_tag_len, ENC_NA);
+      expert_add_info_format(pinfo, field_data->item_tag, &ei_ieee80211_tag_data,
+                             "Dissector for 802.11 Extension Tag"
+                             " (%s) code not implemented, Contact"
+                             " Wireshark developers if you want this supported", val_to_str_ext(ext_tag_no,
+                                            &tag_num_vals_eid_ext_ext, "%d"));
+      proto_item_append_text(field_data->item_tag, ": Undecoded");
       break;
   }
 
@@ -44074,6 +44083,11 @@ proto_register_ieee80211(void)
      {"Ext Tag length", "wlan.ext_tag.length",
       FT_UINT32, BASE_DEC, NULL, 0,
       "Length of tag", HFILL }},
+
+    {&hf_ieee80211_ext_tag_data,
+     {"Ext Tag Data", "wlan.ext_tag.data",
+      FT_BYTES, BASE_NONE, 0x0, 0,
+      NULL, HFILL }},
 
     {&hf_ieee80211_fils_session,
      {"FILS Session", "wlan.ext_tag.fils.session",
