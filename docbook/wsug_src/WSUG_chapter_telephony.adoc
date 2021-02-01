@@ -188,7 +188,7 @@ image::wsug_graphics/ws-sctp.png[{screenshot-attrs}]
 
 === SMPP Operations
 
-{missing}
+Short Message Peer-to-Peer (SMPP) protocol uses TCP protocol as its transfer for exchanging Short Message Service (SMS) Messages, mainly between Short Message Service Centers (SMSC). The dissector determines whether the captured packet is SMPP or not by using the heuristics in the fixed header. The SMPP Operations window displays the related statistical data. The user can filter, copy or save the data into a file.
 
 [[ChTelUCPMessages]]
 
