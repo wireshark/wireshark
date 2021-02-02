@@ -227,7 +227,7 @@ static const value_string dlm_magic[] = {
 	{ 0x0000, NULL }
 };
 
-value_string_ext ext_dlm_magic = VALUE_STRING_EXT_INIT(dlm_magic);
+static value_string_ext ext_dlm_magic = VALUE_STRING_EXT_INIT(dlm_magic);
 
 
 enum {

@@ -2696,8 +2696,8 @@ static dissector_table_t ethertype_dissector_table;
 
 static reassembly_table opa_mad_rmpp_reassembly_table;
 
-gboolean pref_parse_on_mad_status_error = FALSE;
-gboolean pref_attempt_rmpp_defragment = TRUE;
+static gboolean pref_parse_on_mad_status_error = FALSE;
+static gboolean pref_attempt_rmpp_defragment = TRUE;
 
 static range_t *global_mad_vendor_class = NULL;
 static range_t *global_mad_vendor_rmpp_class = NULL;

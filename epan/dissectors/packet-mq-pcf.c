@@ -40,8 +40,8 @@ void proto_reg_handoff_mqpcf(void);
 #define PCF_MAX_PARM 999
 #define PCF_MAX_LIST 20000
 
-guint mq_pcf_maxprm = PCF_MAX_PARM;
-guint mq_pcf_maxlst = PCF_MAX_LIST;
+static guint mq_pcf_maxprm = PCF_MAX_PARM;
+static guint mq_pcf_maxlst = PCF_MAX_LIST;
 
 static int proto_mqpcf = -1;
 

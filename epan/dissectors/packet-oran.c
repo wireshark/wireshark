@@ -155,7 +155,7 @@ static gboolean includeUdCompHeaderDownlink = FALSE;
 static guint num_bf_weights = 1;
 
 
-enum_val_t compression_options[] = {
+static const enum_val_t compression_options[] = {
     { "COMP_NONE",        "No Compression",                   COMP_NONE },
     { "COMP_BLOCK_FP",    "Block Floating Point Compression", COMP_BLOCK_FP },
     { "COMP_BLOCK_SCALE", "Block Scaling Compression",        COMP_BLOCK_SCALE },

@@ -438,7 +438,7 @@ static dissector_handle_t eth_withoutfcs_handle;
 static dissector_handle_t http_handle;
 
 
-void add35records(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree *ns_tree);
+static void add35records(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree *ns_tree);
 
 #define CL_FP 	0x01
 #define CL_FR 	0x02
@@ -622,7 +622,7 @@ static gboolean no_record_header(int rec_type)
 	return FALSE;
 }
 
-void add35records(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree *ns_tree)
+static void add35records(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree *ns_tree)
 {
 	tvbuff_t  *next_tvb;
 	guint     nsheaderlen=0;

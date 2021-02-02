@@ -3563,12 +3563,12 @@ static const value_string nas_eps_esm_pdn_type_values[] = {
 /*
  * 9.9.4.13a Re-attempt indicator
  */
-const true_false_string nas_eps_esm_eplmnc_value = {
+static const true_false_string nas_eps_esm_eplmnc_value = {
     "UE is not allowed to re-attempt the procedure in an equivalent PLMN",
     "UE is allowed to re-attempt the procedure in an equivalent PLMN"
 };
 
-const true_false_string nas_eps_esm_ratc_value = {
+static const true_false_string nas_eps_esm_ratc_value = {
     "UE is not allowed to re-attempt the procedure in A/Gb mode or Iu mode or N1 mode",
     "UE is allowed to re-attempt the procedure in A/Gb mode or Iu mode or N1 mode"
 };

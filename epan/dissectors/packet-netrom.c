@@ -104,7 +104,7 @@ static const netrom_tf_items netrom_type_items = {
 };
 
 
-const value_string op_code_vals_abbrev[] = {
+static const value_string op_code_vals_abbrev[] = {
 	{ NETROM_PROTOEXT	, "PROTOEXT"},
 	{ NETROM_CONNREQ	, "CONNREQ"},
 	{ NETROM_CONNACK	, "CONNACK"},
@@ -115,7 +115,7 @@ const value_string op_code_vals_abbrev[] = {
 	{ 0			, NULL}
 };
 
-const value_string op_code_vals_text[] = {
+static const value_string op_code_vals_text[] = {
 	{ NETROM_PROTOEXT	, "Protocol extension"},
 	{ NETROM_CONNREQ	, "Connect request"},
 	{ NETROM_CONNACK	, "Connect acknowledge"},

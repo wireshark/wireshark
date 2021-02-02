@@ -103,7 +103,7 @@ static const value_string nlb_address_family_vals[] = {
   { 0, NULL }
 };
 
-true_false_string tfs_reverse_normal = { "Reverse", "Normal" };
+static true_false_string tfs_reverse_normal = { "Reverse", "Normal" };
 
 static void
 version_base_custom(gchar *result, guint32 version)

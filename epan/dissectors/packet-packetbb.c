@@ -100,19 +100,19 @@ enum rfc7181_mpr_bitmask {
 };
 
 /* Message types defined by IANA in RFC5444 */
-const value_string msgheader_type_vals[] = {
+static const value_string msgheader_type_vals[] = {
   { 0, "HELLO (NHDP)"                   },
   { 1, "TC (OLSRv2)"                    },
   { 0, NULL                             }};
 
 /* Packet TLV types defined by IANA in RFC7182 */
-const value_string pkttlv_type_vals[] = {
+static const value_string pkttlv_type_vals[] = {
   { RFC7182_TLV_ICV              , "Integrity Check Value"         },
   { RFC7182_TLV_TIMESTAMP        , "Timestamp"                     },
   { 0                            , NULL                            }};
 
 /* Message TLV types defined by IANA in RFC5497,7181,7182 */
-const value_string msgtlv_type_vals[] = {
+static const value_string msgtlv_type_vals[] = {
   { RFC5497_TLV_INTERVAL_TIME    , "Signaling message interval"    },
   { RFC5497_TLV_VALIDITY_TIME    , "Message validity time"         },
   { RFC7182_TLV_ICV              , "Integrity Check Value"         },
@@ -122,7 +122,7 @@ const value_string msgtlv_type_vals[] = {
   { 0                            , NULL                            }};
 
 /* Address TLV types defined by IANA in RFC5497,6130,7181,7182 */
-const value_string addrtlv_type_vals[] = {
+static const value_string addrtlv_type_vals[] = {
   { RFC5497_TLV_INTERVAL_TIME    , "Signaling message interval"    },
   { RFC5497_TLV_VALIDITY_TIME    , "Message validity time"         },
   { RFC6130_ADDRTLV_LOCAL_IF     , "Local interface status"        },
@@ -137,33 +137,33 @@ const value_string addrtlv_type_vals[] = {
   { 0                            , NULL                            }};
 
 /* Values of LOCALIF TLV of RFC6130 */
-const value_string localif_vals[] = {
+static const value_string localif_vals[] = {
   { 0, "THIS_IF"                        },
   { 1, "OTHER_IF"                       },
   { 0, NULL                             }};
 
 /* Values of LINKSTATUS TLV of RFC6130 */
-const value_string linkstatus_vals[] = {
+static const value_string linkstatus_vals[] = {
   { 0, "LOST"                           },
   { 1, "SYMMETRIC"                      },
   { 2, "HEARD"                          },
   { 0, NULL                             }};
 
 /* Values of OTHERNEIGH TLV of RFC6130 */
-const value_string otherneigh_vals[] = {
+static const value_string otherneigh_vals[] = {
   { 0, "LOST"                           },
   { 1, "SYMMETRIC"                      },
   { 0, NULL                             }};
 
 /* Values of MPR TLV of RFC7181 */
-const value_string mpr_vals[] = {
+static const value_string mpr_vals[] = {
   { 1, "FLOODING"                       },
   { 2, "ROUTING"                        },
   { 3, "FLOOD_ROUTE"                    },
   { 0, NULL                             }};
 
 /* Values of NBRADDRTYPE TLV of RFC7181 */
-const value_string nbraddrtype_vals[] = {
+static const value_string nbraddrtype_vals[] = {
   { 1, "ORIGINATOR"                     },
   { 2, "ROUTABLE"                       },
   { 3, "ROUTABLE_ORIG"                  },

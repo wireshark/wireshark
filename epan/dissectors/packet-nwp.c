@@ -81,7 +81,7 @@ static dissector_handle_t nwp_handle;
 #define NWPH_NLST		4
 #define NWPH_HWAD		4
 
-const value_string nwp_type_vals[] = {
+static const value_string nwp_type_vals[] = {
 	{ NWP_TYPE_ANNOUNCEMENT,	"NWP Announcement" },
 	{ NWP_TYPE_NEIGH_LIST,		"NWP Neighbor List" },
 	{ 0,				NULL }

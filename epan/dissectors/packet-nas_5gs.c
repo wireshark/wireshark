@@ -3652,7 +3652,7 @@ de_nas_5gs_mm_extended_rejected_nssai(tvbuff_t* tvb, proto_tree* tree, packet_in
 /*
  * 9.11.4.1 5GSM capability
  */
-const value_string nas_5gs_sm_atsss_st_b3_b6_vals[] = {
+static const value_string nas_5gs_sm_atsss_st_b3_b6_vals[] = {
     { 0x0, "ATSSS not supported" },
     { 0x1, "ATSSS Low-Layer functionality with any steering mode supported" },
     { 0x2, "MPTCP functionality with any steering mode and ATSSS-LL functionality with only active-standby steering mode supported" },
