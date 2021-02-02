@@ -559,6 +559,10 @@ guint
 add_ff_action(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset,
               association_sanity_check_t *association_sanity_check );
 
+guint
+add_ff_action_public_fields(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
+                            int offset, guint8 code);
+
 /*
  * Editor modelines
  *

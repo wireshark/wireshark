@@ -31,6 +31,7 @@
 #include <epan/reassemble.h>
 #include "packet-wps.h"
 #include "packet-wifi-dpp.h"
+#include "packet-ieee80211.h"
 
 static dissector_handle_t eapol_handle;
 
@@ -7383,9 +7384,6 @@ static int * const ieee1905_encap_dpp_flags[] = {
   &hf_ieee1905_dpp_encap_reserved2,
   NULL
 };
-
-guint
-add_ff_action_public_fields(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset, guint8 code);
 
 static int
 dissect_1905_encap_dpp(tvbuff_t *tvb, packet_info *pinfo _U_,
