@@ -172,7 +172,17 @@ In the Real Time Streaming Protocol (RTSP) menu the user can check the Packet Co
 
 === SCTP
 
-{missing}
+Stream Control Transmission Protocol (SCTP) is a computer network protocol which provides a message transfer in telecommunication in the transport layer. It overcomes some lacks of User Datagram Protocol (UDP) and Transmission Control Protocol (TCP). The SCTP packets consist of the _common header_ and the _data chunks_.
+
+The SCTP Analyze Association window shows the statistics of the captured packets between two Endpoints. You can check the different chunk types by pressing btn:[Chunk Statistics] button in the `Statistics` tab. In the `Endpoint` tabs you can see various statistics, such as IP addresses, ports and others. Also you can check different graphs here.
+
+.SCTP Analyze Association window
+image::wsug_graphics/ws-sctp-1-association.png[{screenshot-attrs}]
+
+The SCTP Associations window shows the table with the data for captured packets, such as port and counter. You can also call for the SCTP Analyze Association window by pressing the btn:[Analyze] button.
+
+.SCTP Associations window
+image::wsug_graphics/ws-sctp.png[{screenshot-attrs}]
 
 [[ChTelSMPPOperations]]
 
