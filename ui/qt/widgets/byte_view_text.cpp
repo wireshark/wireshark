@@ -607,7 +607,7 @@ int ByteViewText::offsetPixels()
     if (show_offset_) {
         // One pad space before and after
         QString zeroes = QString(offsetChars(), '0');
-        return fontMetrics().boundingRect(zeroes).width();
+        return stringWidth(zeroes);
     }
     return 0;
 }
@@ -618,7 +618,7 @@ int ByteViewText::hexPixels()
     if (show_hex_) {
         // One pad space before and after
         QString zeroes = QString(DataPrinter::hexChars() + 2, '0');
-        return fontMetrics().boundingRect(zeroes).width();
+        return stringWidth(zeroes);
     }
     return 0;
 }
@@ -629,7 +629,7 @@ int ByteViewText::asciiPixels()
         // Two pad spaces before, one after
         int ascii_chars = (row_width_ + ((row_width_ - 1) / separator_interval_));
         QString zeroes = QString(ascii_chars + 3, '0');
-        return fontMetrics().boundingRect(zeroes).width();
+        return stringWidth(zeroes);
     }
     return 0;
 }
