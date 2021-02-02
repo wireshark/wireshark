@@ -1179,7 +1179,7 @@ static int dissect_routing6_crh(tvbuff_t* tvb, packet_info* pinfo, proto_tree* t
             tvb, offset + (octets_per_sid * segments_left), octets_per_sid, ENC_BIG_ENDIAN);
         proto_item_set_generated(current_sid_item);
     } else {
-        proto_item* current_sid_item = proto_tree_add_item(tree, hf_ipv6_routing_crh16_current_sid,
+        proto_item* current_sid_item = proto_tree_add_item(tree, hf_ipv6_routing_crh32_current_sid,
             tvb, offset + (octets_per_sid * segments_left), octets_per_sid, ENC_BIG_ENDIAN);
         proto_item_set_generated(current_sid_item);
     }
