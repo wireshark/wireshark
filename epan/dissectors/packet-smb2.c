@@ -8891,7 +8891,7 @@ struct create_context_data_tag_dissectors {
 	create_context_data_dissectors_t dissectors;
 };
 
-struct create_context_data_tag_dissectors create_context_dissectors_array[] = {
+static struct create_context_data_tag_dissectors create_context_dissectors_array[] = {
 	{ "ExtA", "SMB2_CREATE_EA_BUFFER",
 	  { dissect_smb2_ExtA_buffer_request, dissect_smb2_ExtA_buffer_response } },
 	{ "SecD", "SMB2_CREATE_SD_BUFFER",

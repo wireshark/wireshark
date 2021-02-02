@@ -1243,7 +1243,7 @@ static const value_string etc_param_id_vals[] = {
   { 0, NULL },
 };
 
-value_string_ext etc_param_id_vals_ext = VALUE_STRING_EXT_INIT(etc_param_id_vals);
+static value_string_ext etc_param_id_vals_ext = VALUE_STRING_EXT_INIT(etc_param_id_vals);
 
 #define ETC_LED_CURVE_STANDARD      0x00
 #define ETC_LED_CURVE_INCANDESCENT  0x01

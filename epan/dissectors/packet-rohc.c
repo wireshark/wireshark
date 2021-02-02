@@ -1293,7 +1293,7 @@ dissect_rohc_feedback_data(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, 
 }
 
 
-const true_false_string rohc_cmp_lst_mask_size_vals = { "15-bit mask", "7-bit mask" };
+static const true_false_string rohc_cmp_lst_mask_size_vals = { "15-bit mask", "7-bit mask" };
 
 
 /* 5.8.6.  Compressed list formats */

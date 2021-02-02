@@ -66,17 +66,6 @@ static expert_field ef_pdu_transport_message_truncated = EI_INIT;
 static range_t *pdu_transport_ports_udp = NULL;
 static range_t *pdu_transport_ports_tcp = NULL;
 
-/* register a UDP SOME/IP port */
-void
-register_pdu_transport_port_udp(guint32 portnumber) {
-    dissector_add_uint("udp.port", portnumber, pdu_transport_handle_udp);
-}
-
-/* register a TCP SOME/IP port */
-void
-register_pdu_transport_port_tcp(guint32 portnumber) {
-    dissector_add_uint("tcp.port", portnumber, pdu_transport_handle_tcp);
-}
 
 /********* UATs *********/
 

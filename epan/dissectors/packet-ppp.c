@@ -2733,7 +2733,7 @@ static const value_string charset_vals[] = {
     {2260, "CP50220"},
     {0,    NULL}
 };
-value_string_ext charset_vals_ext = VALUE_STRING_EXT_INIT(charset_vals);
+static value_string_ext charset_vals_ext = VALUE_STRING_EXT_INIT(charset_vals);
 
 static int
 dissect_lcp_internationalization_opt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)

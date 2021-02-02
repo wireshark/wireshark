@@ -1846,7 +1846,7 @@ static const value_string ndds_transport_class_id_vals[] = {
   { 0, NULL }
 };
 
-const value_string class_id_enum_names[] = {
+static const value_string class_id_enum_names[] = {
   { RTI_OSAPI_COMPRESSION_CLASS_ID_NONE,  "NONE" },
   { RTI_OSAPI_COMPRESSION_CLASS_ID_ZLIB,  "ZLIB" },
   { RTI_OSAPI_COMPRESSION_CLASS_ID_BZIP2, "BZIP2" },

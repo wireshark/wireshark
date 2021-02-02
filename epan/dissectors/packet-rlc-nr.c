@@ -309,7 +309,7 @@ static void pdu_free_persistent_key(gpointer ptr _U_)
 {
 }
 
-reassembly_table_functions pdu_reassembly_table_functions =
+static reassembly_table_functions pdu_reassembly_table_functions =
 {
     pdu_hash,
     pdu_equal,

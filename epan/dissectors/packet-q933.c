@@ -745,7 +745,7 @@ l3_done:
  */
 
 
-const value_string q933_cause_location_vals[] = {
+static const value_string q933_cause_location_vals[] = {
 	{ 0x00, "User (U)" },
 	{ 0x01, "Private network serving the local user (LPN)" },
 	{ 0x02, "Public network serving the local user (LN)" },
@@ -783,7 +783,7 @@ static const value_string q933_cause_recommendation_vals[] = {
 #define	Q933_CAUSE_MSG_INCOMPAT_W_CS	0x65
 #define	Q933_CAUSE_REC_TIMER_EXP	0x66
 
-const value_string q933_cause_code_vals[] = {
+static const value_string q933_cause_code_vals[] = {
 	{ 0x00,				"Valid cause code not yet received" },
 	{ Q933_CAUSE_UNALLOC_NUMBER,	"Unallocated (unassigned) number" },
 	{ 0x02,				"No route to specified transit network" },

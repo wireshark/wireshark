@@ -331,7 +331,7 @@ static const value_string pp_pid_vals[] = {
     {0, NULL}
 };
 
-value_string_ext pp_pid_vals_ext = VALUE_STRING_EXT_INIT(pp_pid_vals);
+static value_string_ext pp_pid_vals_ext = VALUE_STRING_EXT_INIT(pp_pid_vals);
 
 /** Unknown type format. */
 #define TYPE_UNKNOWN "Unknown (%04x)"
