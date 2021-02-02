@@ -5117,7 +5117,8 @@ static int hf_ieee80211_tag_extended_capabilities_b82 = -1;
 static int hf_ieee80211_tag_extended_capabilities_b83 = -1;
 static int hf_ieee80211_tag_extended_capabilities_b84 = -1;
 static int hf_ieee80211_tag_extended_capabilities_b85 = -1;
-static int hf_ieee80211_tag_extended_capabilities_reserved = -1;
+static int hf_ieee80211_tag_extended_capabilities_b86 = -1;
+static int hf_ieee80211_tag_extended_capabilities_b87 = -1;
 
 static int hf_ieee80211_tag_extended_capabilities_b88 = -1;
 static int hf_ieee80211_tag_extended_capabilities_b89 = -1;
@@ -17151,7 +17152,8 @@ dissect_extended_capabilities_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     &hf_ieee80211_tag_extended_capabilities_b83,
     &hf_ieee80211_tag_extended_capabilities_b84,
     &hf_ieee80211_tag_extended_capabilities_b85,
-    &hf_ieee80211_tag_extended_capabilities_reserved,
+    &hf_ieee80211_tag_extended_capabilities_b86,
+    &hf_ieee80211_tag_extended_capabilities_b87,
     NULL
   };
 
@@ -41070,7 +41072,7 @@ proto_register_ieee80211(void)
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_extended_capabilities_b83,
-     {"Reserved", "wlan.extcap.b83",
+     {"Enhanced Multi-BSSID Advertisement Support", "wlan.extcap.b83",
       FT_BOOLEAN, 8, NULL, 0x08,
       NULL, HFILL }},
 
@@ -41084,9 +41086,14 @@ proto_register_ieee80211(void)
       FT_BOOLEAN, 8, NULL, 0x20,
       NULL, HFILL }},
 
-    {&hf_ieee80211_tag_extended_capabilities_reserved,
-     {"Reserved", "wlan.extcap.reserved",
-      FT_UINT8, BASE_HEX, NULL, 0xC0,
+    {&hf_ieee80211_tag_extended_capabilities_b86,
+     {"OCT", "wlan.extcap.b86",
+      FT_BOOLEAN, 8, NULL, 0x40,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_extended_capabilities_b87,
+     {"Reserved", "wlan.extcap.b87",
+      FT_UINT8, BASE_HEX, NULL, 0x80,
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_extended_capabilities_b88,
@@ -41095,7 +41102,7 @@ proto_register_ieee80211(void)
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_extended_capabilities_b89,
-     {"Reserved", "wlan.extcap.b89",
+     {"TWT Parameters Range Support", "wlan.extcap.b89",
       FT_UINT8, BASE_HEX, NULL, 0x02, NULL, HFILL }},
 
     {&hf_ieee80211_tag_extended_capabilities_b90,
