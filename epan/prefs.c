@@ -4813,15 +4813,15 @@ prefs_set_pref(char *prefarg, char **errmsg)
      */
     while (g_ascii_isspace(*p))
         p++;
-    if (*p == '\0') {
-        /*
-         * Put the colon back, so if our caller uses, in an
-         * error message, the string they passed us, the message
-         * looks correct.
-         */
-        *colonp = ':';
-        return PREFS_SET_SYNTAX_ERR;
-    }
+    /* The empty string is a legal value for range preferences (PREF_RANGE,
+     * PREF_DECODE_AS_RANGE), and string-like preferences (PREF_STRING,
+     * PREF_SAVE_FILENAME, PREF_OPEN_FILENAME, PREF_DIRNAME), indeed often
+     * not just useful but the default. A user might have a value saved
+     * to their preference file but want to override it to default behavior.
+     * Individual preference handlers of those types should be prepared to
+     * deal with an empty string. For other types, it is up to set_pref() to
+     * test for the empty string and set PREFS_SET_SYNTAX_ERROR there.
+     */
     if (strcmp(prefarg, "uat")) {
         ret = set_pref(prefarg, p, NULL, TRUE);
     } else {
