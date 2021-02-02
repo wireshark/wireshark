@@ -875,6 +875,7 @@ static const value_string ieee80211_reason_code[] = {
   { 64, "The Deauthentication frame was sent because the MAC address of the STA already exists in the mesh BSS. See 11.3.3 (Additional mechanisms for an AP collocated with a mesh STA)" },
   { 65, "The mesh STA performs channel switch to meet regulatory requirements" },
   { 66, "The mesh STA performs channel switch with unspecified reason" },
+  { 71, "Disassociated due to poor RSSI." },
   { 0,    NULL}
 };
 value_string_ext ieee80211_reason_code_ext = VALUE_STRING_EXT_INIT(ieee80211_reason_code);
