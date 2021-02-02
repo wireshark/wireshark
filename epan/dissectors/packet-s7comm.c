@@ -3141,7 +3141,7 @@ s7comm_decode_pistart_parameters(tvbuff_t *tvb,
                                  proto_tree *param_tree,
                                  const guint8 *servicename,
                                  guint8 nfields,      /* number of fields used */
-                                 guint hf[12],        /* array with header fields */
+                                 guint hf[],          /* array with header fields */
                                  guint32 offset)
 {
     guint8 i;
