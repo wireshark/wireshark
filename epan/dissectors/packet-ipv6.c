@@ -70,6 +70,7 @@ void proto_reg_handoff_ipv6(void);
 #define IP6OPT_QUICKSTART               0x26    /* 00 1 00110 =  38 */
 #define IP6OPT_PMTU                     0x30    /* 00 1 10000 =  48 */
 #define IP6OPT_EXP_3E                   0x3E    /* 00 1 11110 =  62 */
+#define IP6OPT_TPF                      0x41    /* 01 0 00001 =  65 */
 #define IP6OPT_EXP_5E                   0x5E    /* 01 0 11110 =  94 */
 #define IP6OPT_RPL                      0x63    /* 01 1 00011 =  99 */
 #define IP6OPT_MPL                      0x6D    /* 01 1 01101 = 109 */
@@ -190,6 +191,7 @@ static int hf_ipv6_opt_qs_ttl_diff              = -1;
 static int hf_ipv6_opt_qs_unused                = -1;
 static int hf_ipv6_opt_qs_nonce                 = -1;
 static int hf_ipv6_opt_qs_reserved              = -1;
+static int hf_ipv6_opt_tpf_information          = -1;
 static int hf_ipv6_opt_mipv6_home_address       = -1;
 static int hf_ipv6_opt_rpl_flag                 = -1;
 static int hf_ipv6_opt_rpl_flag_o               = -1;
@@ -559,6 +561,7 @@ static const value_string ipv6_opt_type_vals[] = {
     { IP6OPT_QUICKSTART,    "Quick-Start"                   },
     { IP6OPT_PMTU,          "Path MTU Option"               },
     { IP6OPT_EXP_3E,        "Experimental (0x3E)"           },
+    { IP6OPT_TPF,           "Tunnel Payload Forwarding (TPF) Information" },
     { IP6OPT_EXP_5E,        "Experimental (0x5E)"           },
     { IP6OPT_RPL,           "RPL Option"                    },
     { IP6OPT_MPL,           "MPL Option"                    },
@@ -628,6 +631,7 @@ static const gint _ipv6_opt_type_hdr[][2] = {
     { IP6OPT_SMF_DPD,       IPv6_OPT_HDR_HBH },
     { IP6OPT_PDM,           IPv6_OPT_HDR_DST },
     { IP6OPT_QUICKSTART,    IPv6_OPT_HDR_HBH },
+    { IP6OPT_TPF,           IPv6_OPT_HDR_DST },
     { IP6OPT_RPL,           IPv6_OPT_HDR_HBH },
     { IP6OPT_MPL,           IPv6_OPT_HDR_HBH },
     { IP6OPT_ILNP_NONCE,    IPv6_OPT_HDR_DST },
@@ -1621,6 +1625,31 @@ dissect_opt_quickstart(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tre
 }
 
 /*
+ * Tunnel Payload Forwarding Option for IPv6
+ *
+      0                   1                   2                   3
+      0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+                                     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+                                     |  Option Type  | Option Length |
+     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+     |                        TPF Information                        |
+     +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+*/
+static gint
+dissect_opt_tpf(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *opt_tree,
+                        struct opt_proto_item *opt_ti, guint8 opt_len)
+{
+    if (opt_len != 4) {
+        expert_add_info_format(pinfo, opt_ti->len, &ei_ipv6_opt_invalid_len,
+                "TPF: Invalid Length (%u bytes)", opt_len);
+    }
+    proto_tree_add_item(opt_tree, hf_ipv6_opt_tpf_information, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    return offset;
+}
+
+/*
    ------------------------------------------------------------
    | Next Header | Hdr Ext Len   | Option Type | Option Length|
    +-------------+---------------+-------------+--------------+
@@ -2072,6 +2101,9 @@ dissect_opts(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info *pinfo, ws
             break;
         case IP6OPT_QUICKSTART:
             offset = dissect_opt_quickstart(tvb, offset, pinfo, opt_tree, &opt_ti, opt_len, iph);
+            break;
+        case IP6OPT_TPF:
+            offset = dissect_opt_tpf(tvb, offset, pinfo, opt_tree, &opt_ti, opt_len);
             break;
         case IP6OPT_CALIPSO:
             offset = dissect_opt_calipso(tvb, offset, pinfo, opt_tree, &opt_ti, opt_len);
@@ -3088,6 +3120,11 @@ proto_register_ipv6(void)
             { "Reserved", "ipv6.opt.qs_reserved",
                 FT_UINT32, BASE_HEX, NULL, 0x0003,
                 NULL, HFILL }
+        },
+        { &hf_ipv6_opt_tpf_information,
+            { "TPF Information", "ipv6.opt.tpf_information",
+                FT_UINT32, BASE_HEX, NULL, 0x0,
+                "Tunnel Payload Forwarding Information", HFILL }
         },
         { &hf_ipv6_opt_mipv6_home_address,
             { "MIPv6 Home Address", "ipv6.opt.mipv6.home_address",
