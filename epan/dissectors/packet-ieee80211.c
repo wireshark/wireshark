@@ -45246,15 +45246,15 @@ proto_register_ieee80211(void)
       FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
     {&hf_ieee80211_s1g_twt_next_twt_32,
-     {"Next TWT", "wlan.s1g.twt_information.next_twt",
+     {"Next TWT", "wlan.s1g.twt_information.next_twt32",
       FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
     {&hf_ieee80211_s1g_twt_next_twt_48,
-     {"Next TWT", "wlan.s1g.twt_information.next_twt",
+     {"Next TWT", "wlan.s1g.twt_information.next_twt48",
       FT_UINT48, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
     {&hf_ieee80211_s1g_twt_next_twt_64,
-     {"Next TWT", "wlan.s1g.twt_information.next_twt",
+     {"Next TWT", "wlan.s1g.twt_information.next_twt64",
       FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
     {&hf_ieee80211_s1g_twt_flow_identifier,
