@@ -565,8 +565,6 @@ An example is shown in <<ChCapExFilt1>>.
 [[ChCapExFilt1]]
 .A capture filter for telnet that captures traffic to and from a particular host
 ====
-A capture filter for telnet that captures traffic to and from a particular host
-
 ----
 tcp port 23 and host 10.0.0.5
 ----
@@ -580,8 +578,6 @@ from 10.0.0.5.
 [[ChCapExFilt2]]
 .Capturing all telnet traffic not from 10.0.0.5
 ====
-Capturing all telnet traffic not from 10.0.0.5
-
 ----
 tcp port 23 and not src host 10.0.0.5
 ----
