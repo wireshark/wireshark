@@ -6654,6 +6654,8 @@ static int hf_ieee80211_he_uora_reserved = -1;
 
 static int hf_ieee80211_multiple_bssid_configuration_bssid_count = -1;
 static int hf_ieee80211_multiple_bssid_configuration_full_set_rx_periodicity = -1;
+static int hf_ieee80211_known_bssid_bitmap = -1;
+static int hf_ieee80211_short_ssid = -1;
 
 static int hf_ieee80211_rejected_groups_group = -1;
 
@@ -25280,6 +25282,28 @@ dissect_multiple_bssid_configuration(tvbuff_t *tvb, packet_info *pinfo _U_,
 
 }
 
+static void
+dissect_known_bssid(tvbuff_t *tvb, packet_info *pinfo _U_,
+  proto_tree *tree, int offset, int len)
+{
+
+  proto_tree_add_item(tree, hf_ieee80211_known_bssid_bitmap, tvb, offset, len, ENC_NA);
+
+}
+
+static void
+dissect_short_ssid(tvbuff_t *tvb, packet_info *pinfo _U_,
+  proto_tree *tree, int offset, int len _U_)
+{
+
+  while(len > 0){
+
+    proto_tree_add_item(tree, hf_ieee80211_short_ssid, tvb, offset, 4, ENC_NA);
+    offset += 4;
+    len -=4;
+  }
+}
+
 static int
 dissect_password_identifier(tvbuff_t *tvb, packet_info *pinfo _U_,
   proto_tree *tree, int offset, int len _U_)
@@ -25759,6 +25783,12 @@ ieee80211_tag_element_id_extension(tvbuff_t *tvb, packet_info *pinfo, proto_tree
       break;
     case ETAG_MULTIPLE_BSSID_CONFIGURATION:
       dissect_multiple_bssid_configuration(tvb, pinfo, tree, offset, ext_tag_len);
+      break;
+    case ETAG_KNOWN_BSSID:
+      dissect_known_bssid(tvb, pinfo, tree, offset, ext_tag_len);
+      break;
+    case ETAG_SHORT_SSID:
+      dissect_short_ssid(tvb, pinfo, tree, offset, ext_tag_len);
       break;
     case ETAG_REJECTED_GROUPS:
       dissect_rejected_groups(tvb, pinfo, tree, offset, ext_tag_len);
@@ -45140,6 +45170,14 @@ proto_register_ieee80211(void)
     {&hf_ieee80211_multiple_bssid_configuration_full_set_rx_periodicity,
      {"Full Set Rx Periodicity", "wlan.ext_tag.multiple_bssid_configuration.full_set_rx_periodicity",
      FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+    {&hf_ieee80211_known_bssid_bitmap,
+     {"Bitmap", "wlan.ext_tag.known_bssid.bitmap",
+     FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
+    {&hf_ieee80211_short_ssid,
+     {"Short BSSID", "wlan.ext_tag.short_bssid",
+     FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
     {&hf_ieee80211_rejected_groups_group,
      {"Rejected Finite Cyclic Group", "wlan.ext_tag.rejected_groups.group",
