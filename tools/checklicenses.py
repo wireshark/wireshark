@@ -70,6 +70,9 @@ PATH_SPECIFIC_ALLOWED_LICENSES = {
     'wimaxasncp/dictionary.dtd': [
         'UNKNOWN',
     ],
+    'CONTRIBUTING.md': [
+        'UNKNOWN',
+    ],
     'doc/': [
         'UNKNOWN',
     ],
