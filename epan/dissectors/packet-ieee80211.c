@@ -2987,6 +2987,7 @@ static const value_string band_id[] = {
   {0x4, "4.9 and 5 GHz"},
   {0x5, "60 GHz"},
   {0x6, "45 GHz"},
+  {0x7, "6 Ghz"},
   {0,   NULL}
 };
 
