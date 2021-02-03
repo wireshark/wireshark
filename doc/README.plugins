@@ -163,11 +163,11 @@ make install
 
 5.1 How to update an "old style" plugin (since Wireshark 2.5)
 
-Plugins need exactly three visible symbols: plugin_version, plugin_release and
-plugin_register. Each plugin is either a codec plugin, libwiretap plugin or
-libwireshark plugin and the library will call "plugin_register" after
-loading the plugin. "plugin_register" in turn calls all the hooks necessary
-to enable the plugin. So if you had two function like so:
+Plugins need exactly four visible symbols: plugin_version, plugin_want_major,
+plugin_want_minor and plugin_register. Each plugin is either a codec plugin,
+libwiretap plugin or libwireshark plugin and the library will call
+"plugin_register" after loading the plugin. "plugin_register" in turn calls all
+the hooks necessary to enable the plugin. So if you had two function like so:
 
     WS_DLL_PUBLIC void plugin_register(void);
     WS_DLL_PUBLIC void plugin_reg_handoff(void);
