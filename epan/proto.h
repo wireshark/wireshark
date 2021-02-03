@@ -571,6 +571,13 @@ void proto_report_dissector_bug(const char *format, ...)
  *  ENC_TIME_MSEC_NTP - 4-8 bytes, representing a count of milliseconds since
  *  the NTP epoch.  (I.e., milliseconds since the NTP epoch.)
  *
+ *  ENC_MIP6 - 8 bytes; the first 48 bits are seconds since the UN*X epoch
+ *  and the remaining 16 bits indicate the number of 1/65536's of a second
+ *  since that second.
+ *
+ *  ENC_TIME_CLASSIC_MAC_OS_SECS - 4-8 bytes, representing a count of seconds
+ *  since January 1, 1904, 00:00:00 UTC.
+ *
  * The backwards-compatibility names are defined as hex numbers so that
  * the script to generate init.lua will add them as global variables,
  * along with the new names.
