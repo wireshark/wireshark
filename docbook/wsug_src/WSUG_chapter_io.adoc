@@ -828,7 +828,26 @@ NOTE: You can add any dissector to the existing list, or define a new entry in t
 
 ==== The “Export TLS Session Keys...” Dialog Box
 
-{missing}
+Transport Layer Security (TLS) encrypts the communication between a client and a server. The most common use for it is web browsing via HTTPS.
+
+Decryption of TLS traffic requires TLS secrets. You can get them in the form of stored session keys in a "key log file", or by using an RSA private key file. For more details, see the link:{wireshark-wiki-url}TLS[TLS wiki page].
+
+The menu:File[Export TLS Session Keys…] menu option generates a new "key log file" which contains TLS session secrets known by Wireshark. This feature is useful if you typically decrypt TLS sessions using the RSA private key file. The RSA private key is very sensitive because it can be used to decrypt other TLS sessions and impersonate the server. Session keys can be used only to decrypt sessions from the packet capture file. However, session keys are the preferred mechanism for sharing data over the Internet.
+
+To export captured TLS session keys, follow the steps below:
+
+. In the main menu select menu:File[Export TLS Session Keys...]. Wireshark will open a corresponding dialog <<TlsSessionKeys>>.
++
+[[TlsSessionKeys]]
++
+.Export TLS Session Keys window
+image::wsug_graphics/ws-tls-session-keys.png[{screenshot-attrs}]
+
+. Type the desired file name in the `Save As` field.
+
+. Choose the destination folder for your file in the `Where` field.
+
+. Press the btn:[Save] button to complete the export file procedure.
 
 [[ChIOExportObjectsDialog]]
 
