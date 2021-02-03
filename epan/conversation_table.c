@@ -580,31 +580,8 @@ add_conversation_table_data_with_conv_id(
     ct_dissector_info_t *ct_info,
     endpoint_type etype)
 {
-    const address *addr1, *addr2;
-    guint32 port1, port2;
     conv_item_t *conv_item = NULL;
-
-    if (src_port > dst_port) {
-        addr1 = src;
-        addr2 = dst;
-        port1 = src_port;
-        port2 = dst_port;
-    } else if (src_port < dst_port) {
-        addr2 = src;
-        addr1 = dst;
-        port2 = src_port;
-        port1 = dst_port;
-    } else if (cmp_address(src, dst) < 0) {
-        addr1 = src;
-        addr2 = dst;
-        port1 = src_port;
-        port2 = dst_port;
-    } else {
-        addr2 = src;
-        addr1 = dst;
-        port2 = src_port;
-        port1 = dst_port;
-    }
+    gboolean is_fwd_direction = FALSE; /* direction of any conversation found */
 
     /* if we don't have any entries at all yet */
     if (ch->conv_array == NULL) {
@@ -615,18 +592,31 @@ add_conversation_table_data_with_conv_id(
                                               g_free,             /* key_destroy_func */
                                               NULL);              /* value_destroy_func */
 
-    } else {
-        /* try to find it among the existing known conversations */
+    } else { /* try to find it among the existing known conversations */
+        /* first, check in the fwd conversations */
         conv_key_t existing_key;
         gpointer conversation_idx_hash_val;
 
-        existing_key.addr1 = *addr1;
-        existing_key.addr2 = *addr2;
-        existing_key.port1 = port1;
-        existing_key.port2 = port2;
+        existing_key.addr1 = *src;
+        existing_key.addr2 = *dst;
+        existing_key.port1 = src_port;
+        existing_key.port2 = dst_port;
         existing_key.conv_id = conv_id;
         if (g_hash_table_lookup_extended(ch->hashtable, &existing_key, NULL, &conversation_idx_hash_val)) {
             conv_item = &g_array_index(ch->conv_array, conv_item_t, GPOINTER_TO_UINT(conversation_idx_hash_val));
+        }
+        if (conv_item == NULL) {
+            /* then, check in the rev conversations if not found in 'fwd' */
+            existing_key.addr1 = *dst;
+            existing_key.addr2 = *src;
+            existing_key.port1 = dst_port;
+            existing_key.port2 = src_port;
+            if (g_hash_table_lookup_extended(ch->hashtable, &existing_key, NULL, &conversation_idx_hash_val)) {
+                conv_item = &g_array_index(ch->conv_array, conv_item_t, GPOINTER_TO_UINT(conversation_idx_hash_val));
+            }
+        } else {
+            /* a conversation was found in this same fwd direction */
+            is_fwd_direction = TRUE;
         }
     }
 
@@ -637,12 +627,12 @@ add_conversation_table_data_with_conv_id(
         conv_item_t new_conv_item;
         unsigned int conversation_idx;
 
-        copy_address(&new_conv_item.src_address, addr1);
-        copy_address(&new_conv_item.dst_address, addr2);
+        copy_address(&new_conv_item.src_address, src);
+        copy_address(&new_conv_item.dst_address, dst);
         new_conv_item.dissector_info = ct_info;
         new_conv_item.etype = etype;
-        new_conv_item.src_port = port1;
-        new_conv_item.dst_port = port2;
+        new_conv_item.src_port = src_port;
+        new_conv_item.dst_port = dst_port;
         new_conv_item.conv_id = conv_id;
         new_conv_item.rx_frames = 0;
         new_conv_item.tx_frames = 0;
@@ -666,19 +656,26 @@ add_conversation_table_data_with_conv_id(
         new_key = g_new(conv_key_t, 1);
         set_address(&new_key->addr1, conv_item->src_address.type, conv_item->src_address.len, conv_item->src_address.data);
         set_address(&new_key->addr2, conv_item->dst_address.type, conv_item->dst_address.len, conv_item->dst_address.data);
-        new_key->port1 = port1;
-        new_key->port2 = port2;
+        new_key->port1 = src_port;
+        new_key->port2 = dst_port;
         new_key->conv_id = conv_id;
         g_hash_table_insert(ch->hashtable, new_key, GUINT_TO_POINTER(conversation_idx));
-    }
 
-    /* update the conversation struct */
-    if ( (!cmp_address(src, addr1)) && (!cmp_address(dst, addr2)) && (src_port==port1) && (dst_port==port2) ) {
+        /* update the conversation struct */
         conv_item->tx_frames += num_frames;
         conv_item->tx_bytes += num_bytes;
     } else {
-        conv_item->rx_frames += num_frames;
-        conv_item->rx_bytes += num_bytes;
+        /*
+         * update an existing conversation
+         * update the conversation struct
+         */
+        if (is_fwd_direction) {
+            conv_item->tx_frames += num_frames;
+            conv_item->tx_bytes += num_bytes;
+        } else {
+            conv_item->rx_frames += num_frames;
+            conv_item->rx_bytes += num_bytes;
+        }
     }
 
     if (ts) {
