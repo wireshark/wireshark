@@ -29,9 +29,9 @@ static int proto_git = -1;
 static gint ett_git = -1;
 
 static gint hf_git_protocol_version = -1;
+static gint hf_git_packet_type = -1;
 static gint hf_git_packet_len = -1;
 static gint hf_git_packet_data = -1;
-static gint hf_git_packet_terminator = -1;
 static gint hf_git_sideband_control_code = -1;
 
 #define PNAME  "Git Smart Protocol"
@@ -39,6 +39,13 @@ static gint hf_git_sideband_control_code = -1;
 #define PFNAME "git"
 
 #define TCP_PORT_GIT    9418
+
+static const value_string packet_type_vals[] = {
+  { 0, "Flush" },
+  { 1, "Delimiter" },
+  { 2, "Response end" },
+  { 0, NULL }
+};
 
 static const value_string version_vals[] = {
   { '1', "Git protocol version 1" },
@@ -77,8 +84,8 @@ get_git_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U
   if (!get_packet_length(tvb, offset, &plen))
     return 0; /* No idea what this is */
 
-  if (plen == 0) {
-    /* Terminator packet */
+  if (plen == 0 || plen == 1 || plen == 2) {
+    /* Terminator, Delimiter, or Response_end packets */
     return 4;
   }
 
@@ -100,11 +107,11 @@ dissect_git_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
   ti = proto_tree_add_item(tree, proto_git, tvb, offset, -1, ENC_NA);
   git_tree = proto_item_add_subtree(ti, ett_git);
 
+  // what type of pkt-line is it?
   if (!get_packet_length(tvb, 0, &plen))
     return 0;
-
-  if (plen == 0) {
-    proto_tree_add_uint(git_tree, hf_git_packet_terminator, tvb, offset,
+  if (plen == 0 || plen == 1 || plen == 2) {
+    proto_tree_add_uint(git_tree, hf_git_packet_type, tvb, offset,
                         4, plen);
     return 4;
   }
@@ -163,14 +170,15 @@ proto_register_git(void)
       { "Git Protocol Version", "git.version", FT_UINT8, BASE_NONE, VALS(version_vals),
       0, NULL, HFILL },
     },
+    { &hf_git_packet_type,
+      { "Git Packet Type", "git.packet_type", FT_UINT8, BASE_NONE, VALS(packet_type_vals),
+      0, NULL, HFILL },
+    },
     { &hf_git_packet_len,
       { "Packet length", "git.length", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL },
     },
     { &hf_git_packet_data,
       { "Packet data", "git.data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL },
-    },
-    { &hf_git_packet_terminator,
-      { "Terminator packet", "git.terminator", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL },
     },
     { &hf_git_sideband_control_code,
       { "Sideband control code", "git.sideband_control_code", FT_UINT8,
