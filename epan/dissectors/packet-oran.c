@@ -101,6 +101,12 @@ static int hf_oran_numPrbu = -1;
 static int hf_oran_iSample = -1;
 static int hf_oran_qSample = -1;
 
+static  int hf_oran_noncontig_res1 = -1;
+static int hf_oran_rbgSize = -1;
+static int hf_oran_rbgMask = -1;
+static  int hf_oran_noncontig_res2 = -1;
+static int hf_oran_symbolMask = -1;
+
 static int hf_oran_rsvd4 = -1;
 static int hf_oran_rsvd8 = -1;
 static int hf_oran_rsvd16 = -1;
@@ -320,6 +326,19 @@ static const value_string bfw_comp_headers_comp_meth[] = {
     {2,     "block scaling"},
     {3,     "u-law"},
     {4,     "beamspace compression"},
+    {0, NULL}
+};
+
+/* 5.4.7.6.1 */
+static const value_string rbg_size_vals[] = {
+    {0,     "reserved"},
+    {1,     "1"},
+    {2,     "2"},
+    {3,     "3"},
+    {4,     "4"},
+    {5,     "6"},
+    {6,     "8"},
+    {7,     "16"},
     {0, NULL}
 };
 
@@ -648,8 +667,21 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                 /* pad */
                 break;
             }
+            case 6: /* Non-contiguous PRB allocation in time and frequency domain */
+                proto_tree_add_item(extension_tree, hf_oran_noncontig_res1, tvb, offset, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(extension_tree, hf_oran_rbgSize, tvb, offset, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(extension_tree, hf_oran_rbgMask, tvb, offset, 4, ENC_BIG_ENDIAN);
+                offset += 4;
+                proto_tree_add_item(extension_tree, hf_oran_noncontig_res2, tvb, offset, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(extension_tree, hf_oran_symbolMask, tvb, offset, 2, ENC_BIG_ENDIAN);
+                offset += 2;
+                break;
+
             default:
                 /* TODO: Support other extension types. */
+
+                /* Skip those not yet supported */
+                offset += ((extlen*4)-2);
                 break;
         }
 
@@ -1610,6 +1642,43 @@ proto_register_oran(void)
         HFILL }
     },
 #endif
+
+        /* Section 5.4.7.6 */
+        {&hf_oran_noncontig_res1,
+         {"reserved", "oran_fh_cus.reserved",
+          FT_UINT8, BASE_HEX,
+          NULL, 0x80,
+          NULL,
+          HFILL}
+        },
+        {&hf_oran_rbgSize,
+         {"rbgSize", "oran_fh_cus.rbgSize",
+          FT_UINT8, BASE_HEX,
+          VALS(rbg_size_vals), 0x70,
+          "Number of PRBs of the resource block groups allocated by the bit mask",
+          HFILL}
+        },
+        {&hf_oran_rbgMask,
+         {"rbgMask", "oran_fh_cus.rbgMask",
+          FT_UINT32, BASE_HEX,
+          NULL, 0x0fffffff,
+          "Each bit indicates whether a corresponding resource block group is present",
+          HFILL}
+        },
+        {&hf_oran_noncontig_res2,
+         {"reserved", "oran_fh_cus.reserved",
+          FT_UINT8, BASE_HEX,
+          NULL, 0xc0,
+          NULL,
+          HFILL}
+        },
+        {&hf_oran_symbolMask,
+         {"symbolMask", "oran_fh_cus.symbolMask",
+          FT_UINT16, BASE_HEX,
+          NULL, 0x03fff,
+          "Each bit indicates whether the rbgMask applies to a given symbol in the slot",
+          HFILL}
+        },
 
         /* Section 6.3.3.7 */
         {&hf_oran_symbolId,
