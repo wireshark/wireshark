@@ -12097,16 +12097,34 @@ static const FieldPart *I240_030_PARTS[] = { &I240_030_CHAR, NULL };
 /* Video Header Nano */
 static const FieldPart I240_040_START_AZ = { 16, 360.0/65536.0, FIELD_PART_UFLOAT, &hf_240_040_START_AZ, NULL };
 static const FieldPart I240_040_END_AZ = { 16, 360.0/65536.0, FIELD_PART_UFLOAT, &hf_240_040_END_AZ, NULL };
-static const FieldPart I240_040_START_RG = { 16, 1.0, FIELD_PART_UINT, &hf_240_040_START_RG, NULL};
-static const FieldPart I240_040_CELL_DUR = { 32, 1e-9, FIELD_PART_UFLOAT, &hf_240_040_CELL_DUR, NULL};
+static const FieldPart I240_040_START_RG = { 32, 1.0, FIELD_PART_UINT, &hf_240_040_START_RG, NULL};
+static const FieldPart I240_040_CELL_DUR = { 32, 1.0, FIELD_PART_UINT, &hf_240_040_CELL_DUR, NULL};
 static const FieldPart *I240_040_PARTS[] = { &I240_040_START_AZ, &I240_040_END_AZ, &I240_040_START_RG, &I240_040_CELL_DUR, NULL };
 
 /* Video Header Femto */
 static const FieldPart I240_041_START_AZ = { 16, 360.0/65536.0, FIELD_PART_UFLOAT, &hf_240_041_START_AZ, NULL };
 static const FieldPart I240_041_END_AZ = { 16, 360.0/65536.0, FIELD_PART_UFLOAT, &hf_240_041_END_AZ, NULL };
-static const FieldPart I240_041_START_RG = { 16, 1.0, FIELD_PART_UINT, &hf_240_041_START_RG, NULL};
-static const FieldPart I240_041_CELL_DUR = { 32, 1e-15, FIELD_PART_UFLOAT, &hf_240_041_CELL_DUR, NULL};
+static const FieldPart I240_041_START_RG = { 32, 1.0, FIELD_PART_UINT, &hf_240_041_START_RG, NULL};
+static const FieldPart I240_041_CELL_DUR = { 32, 1.0, FIELD_PART_UINT, &hf_240_041_CELL_DUR, NULL};
 static const FieldPart *I240_041_PARTS[] = { &I240_041_START_AZ, &I240_041_END_AZ, &I240_041_START_RG, &I240_041_CELL_DUR, NULL };
+
+/* Format Cell duration in Femto Seconds*/
+static void formatCellDurationNanoSeconds(gchar *s, guint32 value)
+{
+    gdouble nanoSeconds = (gdouble)value * 1e-9;
+    gdouble meters =  nanoSeconds  * 299792458.;
+
+    g_snprintf(s, ITEM_LABEL_LENGTH, "%g ns (%g m)", nanoSeconds, meters);
+}
+
+/* Format Cell duration in Femto Seconds*/
+static void formatCellDurationFemtoSeconds(gchar *s, guint32 value)
+{
+    gdouble femtoSeconds = (gdouble)value * 1e-15;
+    gdouble meters =  femtoSeconds  * 299792458.;
+
+    g_snprintf(s, ITEM_LABEL_LENGTH, "%g fs (%g m)", femtoSeconds, meters);
+}
 
 /* Video Cells Resolution & Data Compression Indicator */
 static const value_string valstr_240_048_C[] = {
@@ -12116,12 +12134,12 @@ static const value_string valstr_240_048_C[] = {
 };
 
 static const value_string valstr_240_048_RES[] = {
-    { 1, "Monobit Resolution" },
-    { 2, "Low Resolution" },
-    { 3, "Medium Resolution" },
-    { 4, "High Resolution" },
-    { 5, "Very High Resolution" },
-    { 6, "Ultra High Resolution" },
+    { 1, "Monobit Resolution - 1 bit" },
+    { 2, "Low Resolution - 2 bit" },
+    { 3, "Medium Resolution - 4 bit" },
+    { 4, "High Resolution - 8 bit" },
+    { 5, "Very High Resolution - 16 bit" },
+    { 6, "Ultra High Resolution - 32 bit" },
     { 0, NULL }
 };
 
@@ -15454,12 +15472,12 @@ void proto_register_asterix (void)
         { &hf_240_040_START_AZ, { "START_AZ", "asterix.240_040_START_AZ", FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_240_040_END_AZ, { "END_AZ", "asterix.240_040_END_AZ", FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_240_040_START_RG, { "START_RG", "asterix.240_040_START_RG", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-        { &hf_240_040_CELL_DUR, { "CELL_DUR", "asterix.240_040_CELL_DUR", FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_240_040_CELL_DUR, { "CELL_DUR", "asterix.240_040_CELL_DUR", FT_UINT32, BASE_CUSTOM, formatCellDurationNanoSeconds, 0x0, NULL, HFILL } },
         { &hf_240_041, { "041, Video Header Femto", "asterix.240_041", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_240_041_START_AZ, { "START_AZ", "asterix.240_041_START_AZ", FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_240_041_END_AZ, { "END_AZ", "asterix.240_041_END_AZ", FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_240_041_START_RG, { "START_RG", "asterix.240_041_START_RG", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-        { &hf_240_041_CELL_DUR, { "CELL_DUR", "asterix.240_041_CELL_DUR", FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_240_041_CELL_DUR, { "CELL_DUR", "asterix.240_041_CELL_DUR", FT_UINT32, BASE_CUSTOM, formatCellDurationFemtoSeconds, 0x0, NULL, HFILL } },
         { &hf_240_048, { "048, Video Cells Resolution & Data Compression Indicator", "asterix.240_048", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_240_048_C, { "C", "asterix.240_048_C", FT_UINT8, BASE_DEC, VALS(valstr_240_048_C), 0x80, NULL, HFILL } },
         { &hf_240_048_RES, { "RES", "asterix.240_048_RES", FT_UINT8, BASE_DEC, VALS(valstr_240_048_RES), 0x0, NULL, HFILL } },
