@@ -975,7 +975,7 @@ pcapng_read_if_descr_block(wtap *wth, FILE_T fh, pcapng_block_header_t *bh,
                             insn_in += 1;
                             memcpy(&insn->k, insn_in, 4);
                             if (section_info->byte_swapped)
-                                insn->code = GUINT32_SWAP_LE_BE(insn->code);
+                                insn->k = GUINT32_SWAP_LE_BE(insn->k);
                             insn_in += 4;
                         }
                     }
