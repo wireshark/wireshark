@@ -2223,6 +2223,27 @@ get_time_value(proto_tree *tree, tvbuff_t *tvb, const gint start,
 			}
 			break;
 
+		case ENC_TIME_NSECS|ENC_BIG_ENDIAN:
+		case ENC_TIME_NSECS|ENC_LITTLE_ENDIAN:
+			/*
+			 * nanoseconds, 1 to 8 bytes.
+			 * For absolute times, it's nanoseconds since the
+			 * UN*X epoch.
+			 */
+
+			if (length >= 1 && length <= 8) {
+				guint64 nsecs;
+
+				nsecs = get_uint64_value(tree, tvb, start, length, encoding);
+				time_stamp->secs  = (time_t)(nsecs / 1000000000);
+				time_stamp->nsecs = (int)(nsecs % 1000000000);
+			} else {
+				time_stamp->secs  = 0;
+				time_stamp->nsecs = 0;
+				report_type_length_mismatch(tree, "a time-in-nanoseconds time stamp", length, (length < 4));
+			}
+			break;
+
 		case ENC_TIME_RFC_3971|ENC_BIG_ENDIAN:
 			/*
 			 * 1/64ths of a second since the UN*X epoch,

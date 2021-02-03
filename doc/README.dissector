@@ -1820,6 +1820,9 @@ encodings that are currently supported are:
     ENC_TIME_MSECS - 6 to 8 bytes, representing a value in milliseconds
         since the UN*X epoch.
 
+    ENC_TIME_NSECS - 8 bytes, representing a value in nanoseconds since
+        the UN*X epoch.
+
     ENC_TIME_SECS_NTP - 4 bytes, representing a count of seconds since
         the NTP epoch.
 
@@ -1853,6 +1856,8 @@ encodings that are currently supported are:
     ENC_TIME_SECS - 4 to 8 bytes, representing a value in seconds.
 
     ENC_TIME_MSECS - 6 to 8 bytes, representing a value in milliseconds.
+
+    ENC_TIME_NSECS - 8 bytes, representing a value in nanoseconds.
 
 For other types, there is no support for proto_tree_add_item().
 

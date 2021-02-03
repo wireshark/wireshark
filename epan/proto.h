@@ -581,6 +581,9 @@ void proto_report_dissector_bug(const char *format, ...)
  *  ENC_TIME_CLASSIC_MAC_OS_SECS - 4-8 bytes, representing a count of seconds
  *  since January 1, 1904, 00:00:00 UTC.
  *
+ *  ENC_TIME_NSECS - 8 bytes, representing a value in nanoseconds.
+ *  If the time is absolute, it's nanoseconds since the UN*X epoch.
+ *
  * The backwards-compatibility names are defined as hex numbers so that
  * the script to generate init.lua will add them as global variables,
  * along with the new names.
@@ -600,6 +603,7 @@ void proto_report_dissector_bug(const char *format, ...)
 #define ENC_TIME_MSEC_NTP            0x00000022
 #define ENC_TIME_MIP6                0x00000024
 #define ENC_TIME_CLASSIC_MAC_OS_SECS 0x00000026
+#define ENC_TIME_NSECS               0x00000028
 
 /*
  * For cases where a string encoding contains a timestamp, use one
