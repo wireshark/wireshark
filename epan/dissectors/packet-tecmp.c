@@ -116,6 +116,11 @@ static int hf_tecmp_payload_data_flags_unit = -1;
 static int hf_tecmp_payload_data_flags_threshold_u = -1;
 static int hf_tecmp_payload_data_flags_threshold_o = -1;
 
+#define TECMP_DATAFLAGS_FACTOR_MASK         0x0180
+#define TECMP_DATAFLAGS_FACTOR_SHIFT        7
+#define TECMP_DATAFLAGS_UNIT_MASK           0x000c
+#define TECMP_DATAFLAGS_UNIT_SHIFT          2
+
 /* TECMP Payload Fields*/
 /* LIN */
 static int hf_tecmp_payload_data_id_field_8bit = -1;
@@ -132,7 +137,9 @@ static int hf_tecmp_payload_data_cycle = -1;
 static int hf_tecmp_payload_data_frame_id = -1;
 
 /* Analog */
-static int hf_tecmp_payload_data_analog_value = -1;
+static int hf_tecmp_payload_data_analog_value_raw = -1;
+static int hf_tecmp_payload_data_analog_value_volt = -1;
+static int hf_tecmp_payload_data_analog_value_amp = -1;
 
 /* TECMP Status Messsages */
 /* Status Capture Module */
@@ -370,7 +377,14 @@ static const value_string tecmp_payload_analog_sample_time_types[] = {
     {0, NULL}
 };
 
-static const value_string tecmp_payload_analog_factor_types[] = {
+static const gdouble tecmp_payload_analog_scale_factor_values[] = {
+    0.1,
+    0.01,
+    0.001,
+    0.0001,
+};
+
+static const value_string tecmp_payload_analog_scale_factor_types[] = {
     {0x0, "0.1"},
     {0x1, "0.01"},
     {0x2, "0.001"},
@@ -1019,6 +1033,8 @@ dissect_tecmp_log_or_replay_stream(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     tvbuff_t *payload_tvb;
     gboolean first = TRUE;
 
+    gdouble analog_value_scale_factor;
+
     struct can_info can_info;
     flexray_identifier fr_info;
 
@@ -1172,9 +1188,23 @@ dissect_tecmp_log_or_replay_stream(tvbuff_t *tvb, packet_info *pinfo, proto_tree
             case TECMP_DATA_TYPE_ANALOG:
                 ti_tecmp = proto_tree_add_item(tecmp_tree, hf_tecmp_payload_data, sub_tvb, offset2, length, ENC_NA);
                 tecmp_tree = proto_item_add_subtree(ti_tecmp, ett_tecmp_payload_data);
+
+                analog_value_scale_factor = tecmp_payload_analog_scale_factor_values[((dataflags & TECMP_DATAFLAGS_FACTOR_MASK) >> TECMP_DATAFLAGS_FACTOR_SHIFT)];
+
                 tmp = offset2 + length;
                 while (offset2 + 2 <= tmp) {
-                    proto_tree_add_item(tecmp_tree, hf_tecmp_payload_data_analog_value, sub_tvb, offset2, 2, ENC_NA);
+                    guint value = tvb_get_guint16(sub_tvb, offset2, ENC_BIG_ENDIAN);
+                    switch ((dataflags & TECMP_DATAFLAGS_UNIT_MASK) >> TECMP_DATAFLAGS_UNIT_SHIFT) {
+                    case 0x0:
+                        proto_tree_add_double(tecmp_tree, hf_tecmp_payload_data_analog_value_volt, sub_tvb, offset2, 2, (analog_value_scale_factor * value));
+                        break;
+                    case 0x01:
+                        proto_tree_add_double(tecmp_tree, hf_tecmp_payload_data_analog_value_amp, sub_tvb, offset2, 2, (analog_value_scale_factor * value));
+                        break;
+                    default:
+                        ti = proto_tree_add_item(tecmp_tree, hf_tecmp_payload_data_analog_value_raw, sub_tvb, offset2, 2, ENC_BIG_ENDIAN);
+                        proto_item_append_text(ti, "%s", " (raw)");
+                    }
                     offset2 += 2;
                 }
                 break;
@@ -1530,19 +1560,25 @@ proto_register_tecmp_payload(void) {
             FT_UINT16, BASE_DEC, VALS(tecmp_payload_analog_sample_time_types), 0x7800, NULL, HFILL }},
         { &hf_tecmp_payload_data_flags_factor,
             { "Factor", "tecmp.payload.data_flags.factor",
-            FT_UINT16, BASE_DEC, VALS(tecmp_payload_analog_factor_types), 0x0180, NULL, HFILL }},
+            FT_UINT16, BASE_DEC, VALS(tecmp_payload_analog_scale_factor_types), TECMP_DATAFLAGS_FACTOR_MASK, NULL, HFILL }},
         { &hf_tecmp_payload_data_flags_unit,
             { "Unit", "tecmp.payload.data_flags.unit",
-            FT_UINT16, BASE_DEC, VALS(tecmp_payload_analog_unit_types), 0x000c, NULL, HFILL }},
+            FT_UINT16, BASE_DEC, VALS(tecmp_payload_analog_unit_types), TECMP_DATAFLAGS_UNIT_MASK, NULL, HFILL }},
         { &hf_tecmp_payload_data_flags_threshold_u,
             { "Threshold Undershot", "tecmp.payload.data_flags.threshold_undershot",
             FT_BOOLEAN, 16, NULL, 0x0002, NULL, HFILL }},
         { &hf_tecmp_payload_data_flags_threshold_o,
             { "Threshold Exceeded", "tecmp.payload.data_flags.threshold_exceeded",
             FT_BOOLEAN, 16, NULL, 0x0001, NULL, HFILL }},
-        { &hf_tecmp_payload_data_analog_value,
+        { &hf_tecmp_payload_data_analog_value_raw,
             { "Analog Value", "tecmp.payload.data.analog_value",
             FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        { &hf_tecmp_payload_data_analog_value_volt,
+            { "Analog Value", "tecmp.payload.data.analog_value_volt",
+            FT_DOUBLE, BASE_NONE | BASE_UNIT_STRING, &units_volt, 0x0, NULL, HFILL } },
+        { &hf_tecmp_payload_data_analog_value_amp,
+            { "Analog Value", "tecmp.payload.data.analog_value_amp",
+            FT_DOUBLE, BASE_NONE | BASE_UNIT_STRING, &units_amp, 0x0, NULL, HFILL } },
     };
 
     static gint *ett[] = {
