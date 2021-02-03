@@ -687,7 +687,9 @@ image::wsug_graphics/ws-stats-http-requestsequences.png[{screenshot-attrs}]
 
 === HTTP2
 
-{missing}
+Hypertext Transfer Protocol version 2 (HTTP/2) allows multiplexing various HTTP requests and responses over a single connection. It uses a binary encoding which is consisting of frames. The HTTP/2 statistics window shows the total number of HTTP/2 frames and also provides a breakdown per frame types, such as `HEADERS`, `DATA`, and others.
+
+As HTTP/2 traffic is typically encrypted with TLS, you must configure decryption to observe HTTP/2 traffic. For more details, see the link:{wireshark-wiki-url}TLS[TLS wiki page].
 
 [[ChStatSametime]]
 
