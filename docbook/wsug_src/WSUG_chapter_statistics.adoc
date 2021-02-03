@@ -579,7 +579,7 @@ Building Automation and Control Networks (BACnet) is a communication protocol wh
 
 === Collectd
 
-{missing}
+Collectd is a system statistics collection daemon. It collects various statistics from your system and converts it for the network use. The Collectd statistics window shows counts for values, which split into type, plugin, and host as well as total packets counter. You can filter, copy or save the data to a file.
 
 [[ChStatDNS]]
 
