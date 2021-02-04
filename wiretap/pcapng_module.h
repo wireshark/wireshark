@@ -66,7 +66,11 @@ void register_pcapng_block_type_handler(guint block_type, block_reader reader,
 /*
  * Handler routine for pcapng option type.
  */
-typedef gboolean (*option_handler_fn)(gboolean, guint, guint8 *, int *, gchar **);
+typedef gboolean (*option_handler_fn)(wtap_block_t wblock,
+                                      gboolean byte_swapped,
+                                      guint option_length,
+                                      guint8 *option_content,
+                                      int *err, gchar **err_info);
 
 /*
  * Register a handler for a pcapng option code for a particular block
