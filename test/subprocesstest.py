@@ -55,6 +55,7 @@ class LoggingPopen(subprocess.Popen):
     '''
     def __init__(self, proc_args, *args, **kwargs):
         self.log_fd = kwargs.pop('log_fd', None)
+        self.max_lines = kwargs.pop('max_lines', None)
         kwargs['stdout'] = subprocess.PIPE
         kwargs['stderr'] = subprocess.PIPE
         # Make sure communicate() gives us bytes.
@@ -63,11 +64,24 @@ class LoggingPopen(subprocess.Popen):
         super().__init__(proc_args, *args, **kwargs)
         self.stdout_str = ''
         self.stderr_str = ''
+    
+    @staticmethod
+    def trim_output(out_log, max_lines):
+        lines = out_log.splitlines(True)
+        if not len(lines) > max_lines * 2 + 1:
+            return out_log
+        header = lines[:max_lines]
+        body = lines[max_lines:-max_lines]
+        body = "<<< trimmed {} lines of output >>>\n".format(len(body))
+        footer = lines[-max_lines:]
+        return ''.join(header) + body + ''.join(footer)
 
     def wait_and_log(self):
         '''Wait for the process to finish and log its output.'''
         out_data, err_data = self.communicate(timeout=process_timeout)
         out_log = out_data.decode('UTF-8', 'replace')
+        if self.max_lines and self.max_lines > 0:
+            out_log = self.trim_output(out_log, self.max_lines)
         err_log = err_data.decode('UTF-8', 'replace')
         self.log_fd.flush()
         self.log_fd.write('-- Begin stdout for {} --\n'.format(self.cmd_str))
@@ -249,7 +263,7 @@ class SubprocessTestCase(unittest.TestCase):
             return False
         return True
 
-    def startProcess(self, proc_args, stdin=None, env=None, shell=False, cwd=None):
+    def startProcess(self, proc_args, stdin=None, env=None, shell=False, cwd=None, max_lines=None):
         '''Start a process in the background. Returns a subprocess.Popen object.
 
         You typically wait for it using waitProcess() or assertWaitProcess().'''
@@ -261,7 +275,7 @@ class SubprocessTestCase(unittest.TestCase):
             # fixture (via a test method parameter or class decorator).
             assert not (env is None and hasattr(self, '_fixture_request')), \
                 "Decorate class with @fixtures.mark_usefixtures('test_env')"
-        proc = LoggingPopen(proc_args, stdin=stdin, env=env, shell=shell, log_fd=self.log_fd, cwd=cwd)
+        proc = LoggingPopen(proc_args, stdin=stdin, env=env, shell=shell, log_fd=self.log_fd, cwd=cwd, max_lines=max_lines)
         self.processes.append(proc)
         return proc
 
@@ -278,14 +292,14 @@ class SubprocessTestCase(unittest.TestCase):
         process.wait_and_log()
         self.assertEqual(process.returncode, expected_return)
 
-    def runProcess(self, args, env=None, shell=False, cwd=None):
+    def runProcess(self, args, env=None, shell=False, cwd=None, max_lines=None):
         '''Start a process and wait for it to finish.'''
-        process = self.startProcess(args, env=env, shell=shell, cwd=cwd)
+        process = self.startProcess(args, env=env, shell=shell, cwd=cwd, max_lines=max_lines)
         process.wait_and_log()
         return process
 
-    def assertRun(self, args, env=None, shell=False, expected_return=0, cwd=None):
+    def assertRun(self, args, env=None, shell=False, expected_return=0, cwd=None, max_lines=None):
         '''Start a process and wait for it to finish. Check its return code.'''
-        process = self.runProcess(args, env=env, shell=shell, cwd=cwd)
+        process = self.runProcess(args, env=env, shell=shell, cwd=cwd, max_lines=max_lines)
         self.assertEqual(process.returncode, expected_return)
         return process
