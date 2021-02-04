@@ -597,7 +597,7 @@ Building Automation and Control Networks (BACnet) is a communication protocol wh
 
 === HART-IP
 
-{missing}
+Highway Addressable Remote Transducer over IP (HART-IP) is an application layer protocol. It sends and receives digital information between smart devices and control or monitoring systems. The HART-IP statistics window shows the counter for response, request, publish and error packets. You can filter, copy or save the data to a file.
 
 [[ChStatHPFEEDS]]
 
