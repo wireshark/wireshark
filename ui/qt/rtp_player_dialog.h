@@ -21,6 +21,7 @@
 #include <QMap>
 #include <QTreeWidgetItem>
 #include <QMetaType>
+#include <ui/qt/widgets/qcustomplot.h>
 
 namespace Ui {
 class RtpPlayerDialog;
@@ -104,6 +105,7 @@ private slots:
     void updateWidgets();
     void graphClicked(QMouseEvent *event);
     void graphDoubleClicked(QMouseEvent *event);
+    void plotClicked(QCPAbstractPlottable *plottable, int dataIndex, QMouseEvent *event);
     void updateHintLabel();
     void resetXAxis();
 

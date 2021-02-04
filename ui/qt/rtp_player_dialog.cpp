@@ -136,6 +136,8 @@ RtpPlayerDialog::RtpPlayerDialog(QWidget &parent, CaptureFile &cf) :
             this, SLOT(graphClicked(QMouseEvent*)));
     connect(ui->audioPlot, SIGNAL(mouseDoubleClick(QMouseEvent*)),
             this, SLOT(graphDoubleClicked(QMouseEvent*)));
+    connect(ui->audioPlot, SIGNAL(plottableClick(QCPAbstractPlottable*,int,QMouseEvent*)),
+            this, SLOT(plotClicked(QCPAbstractPlottable*,int,QMouseEvent*)));
 
     cur_play_pos_ = new QCPItemStraightLine(ui->audioPlot);
     cur_play_pos_->setVisible(false);
@@ -648,6 +650,18 @@ void RtpPlayerDialog::graphDoubleClicked(QMouseEvent *event)
     ui->audioPlot->setFocus();
 }
 
+void RtpPlayerDialog::plotClicked(QCPAbstractPlottable *plottable, int dataIndex _U_, QMouseEvent *event _U_)
+{
+    ui->streamTreeWidget->clearSelection();
+    for (int row = 0; row < ui->streamTreeWidget->topLevelItemCount(); row++) {
+        QTreeWidgetItem *ti = ui->streamTreeWidget->topLevelItem(row);
+        QCPGraph *audio_graph = ti->data(graph_data_col_, Qt::UserRole).value<QCPGraph*>();
+        if (plottable == audio_graph) {
+            ui->streamTreeWidget->setCurrentItem(ti);
+        }
+    }
+}
+
 void RtpPlayerDialog::updateHintLabel()
 {
     int packet_num = getHoveredPacket();
@@ -843,6 +857,13 @@ void RtpPlayerDialog::on_streamTreeWidget_itemSelectionChanged()
         QCPGraph *audio_graph = ti->data(graph_data_col_, Qt::UserRole).value<QCPGraph*>();
         if (audio_graph) {
             audio_graph->setSelection(ti->isSelected() ? QCPDataSelection(QCPDataRange()) : QCPDataSelection());
+            QPen p = audio_graph->pen();
+            if (ti->isSelected()) {
+                p.setWidthF(wf_graph_normal_width_*2);
+            } else {
+                p.setWidthF(wf_graph_normal_width_);
+            }
+            audio_graph->setPen(p);
         }
     }
     ui->audioPlot->replot();
