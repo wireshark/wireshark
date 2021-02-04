@@ -536,7 +536,7 @@ void proto_report_dissector_bug(const char *format, ...)
  *  8-byte time_t and an 8-byte nanoseconds field.)
  *
  *  ENC_TIME_NTP - 8 bytes; the first 4 bytes are seconds since the NTP
- *  epoch (1901-01-01 00:00:00 GMT) and the next 4 bytes are 1/2^32's of
+ *  epoch (1900-01-01 00:00:00 GMT) and the next 4 bytes are 1/2^32's of
  *  a second since that second.  (I.e., a 64-bit count of 1/2^32's of a
  *  second since the NTP epoch, with the upper 32 bits first and the
  *  lower 32 bits second, even when little-endian.)
@@ -545,9 +545,9 @@ void proto_report_dissector_bug(const char *format, ...)
  *  and z/Architecture epoch (1900-01-01 00:00:00 GMT).
  *
  *  ENC_TIME_RTPS - 8 bytes; the first 4 bytes are seconds since the UN*X
- *  epoch and the next 4 bytes are are 1/2^32's of a second since that
+ *  epoch and the next 4 bytes are 1/2^32's of a second since that
  *  second.  (I.e., it's the offspring of a mating between UN*X time and
- *  NTP time.)  It's used by the Object Management Group's Real-Time
+ *  NTP time).  It's used by the Object Management Group's Real-Time
  *  Publish-Subscribe Wire Protocol for the Data Distribution Service.
  *
  *  ENC_TIME_SECS_USECS - 8 bytes; the first 4 bytes are seconds and the
@@ -562,14 +562,14 @@ void proto_report_dissector_bug(const char *format, ...)
  *  If the time is absolute, it's milliseconds since the UN*X epoch.
  *
  *  ENC_TIME_SECS_NTP - 4 bytes, representing a count of seconds since
- *  the NTP epoch.  (I.e., seconds since the NTP epoch.)
+ *  the NTP epoch.
  *
  *  ENC_TIME_RFC_3971 - 8 bytes, representing a count of 1/64ths of a
  *  second since the UN*X epoch; see section 5.3.1 "Timestamp Option"
  *  in RFC 3971.
  *
  *  ENC_TIME_MSEC_NTP - 4-8 bytes, representing a count of milliseconds since
- *  the NTP epoch.  (I.e., milliseconds since the NTP epoch.)
+ *  the NTP epoch.
  *
  *  ENC_MIP6 - 8 bytes; the first 48 bits are seconds since the UN*X epoch
  *  and the remaining 16 bits indicate the number of 1/65536's of a second
