@@ -603,7 +603,7 @@ Building Automation and Control Networks (BACnet) is a communication protocol wh
 
 === HPFEEDS
 
-{missing}
+Hpfeeds protocol provides a lightweight authenticated publishing and subscription. It supports arbitrary binary payloads which can be separated into different channels. HPFEEDS statistics window shows a counter for payload size per channel and opcodes. You can filter, copy or save the data to a file.
 
 [[ChStatHTTP]]
 
