@@ -649,7 +649,7 @@ image::wsug_graphics/ws-stats-http-requestsequences.png[{screenshot-attrs}]
 
 === Sametime
 
-{missing}
+Sametime is a protocol for the IBM Sametime software. The Sametime statistics window shows the counter for message type, send type, and user status.
 
 [[ChStatTCPStreamGraphs]]
 
