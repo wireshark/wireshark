@@ -126,6 +126,7 @@ private slots:
     void on_actionMoveLeft1_triggered();
     void on_actionMoveRight1_triggered();
     void on_actionGoToPacket_triggered();
+    void on_actionRemoveStream_triggered();
     void on_actionAudioRoutingM_triggered();
     void on_actionAudioRoutingP_triggered();
     void on_actionAudioRoutingL_triggered();

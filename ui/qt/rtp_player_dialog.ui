@@ -488,6 +488,14 @@
     <string>Invert muting of all channels</string>
    </property>
   </action>
+  <action name="actionRemoveStream">
+   <property name="text">
+    <string>Remove Stream</string>
+   </property>
+   <property name="toolTip">
+    <string>Remove stream from the list</string>
+   </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>
