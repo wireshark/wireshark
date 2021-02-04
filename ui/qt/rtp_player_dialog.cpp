@@ -261,6 +261,10 @@ void RtpPlayerDialog::retapPackets()
 
 void RtpPlayerDialog::rescanPackets(bool rescale_axes)
 {
+    // Show information for a user - it can last long time...
+    ui->hintLabel->setText("<i><small>" + tr("Decoding streams...") + "</i></small>");
+    wsApp->processEvents();
+
     int row_count = ui->streamTreeWidget->topLevelItemCount();
     // Clear existing graphs and reset stream values
     for (int row = 0; row < row_count; row++) {
