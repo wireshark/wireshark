@@ -573,7 +573,7 @@ The Dynamic Host Configuration Protocol (DHCP) is an option of the Bootstrap Pro
 
 === BACnet
 
-{missing}
+Building Automation and Control Networks (BACnet) is a communication protocol which provides control for various building automated facilities, such as light control, fire alarm control, and others. Wireshark provides the BACnet statistics which is a packet counter. You can sort packets by instance ID, IP address, object type or service.
 
 [[ChStatCollectd]]
 
