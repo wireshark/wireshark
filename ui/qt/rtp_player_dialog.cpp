@@ -272,28 +272,34 @@ void RtpPlayerDialog::rescanPackets(bool rescale_axes)
 
         QTreeWidgetItem *ti = ui->streamTreeWidget->topLevelItem(row);
         RtpAudioStream *audio_stream = ti->data(stream_data_col_, Qt::UserRole).value<RtpAudioStream*>();
-        channel_mode_t channel_mode = (channel_mode_t)ti->data(channel_data_col_, Qt::UserRole).toUInt();
-        switch (channel_mode) {
-            case channel_none:
-                left = false;
-                right = false;
-                break;
-            case channel_mono:
-                left = true;
-                right = false;
-                break;
-            case channel_stereo_left:
-                left = true;
-                right = false;
-                break;
-            case channel_stereo_right:
-                left = false;
-                right = true;
-                break;
-            case channel_stereo_both:
-                left = true;
-                right = true;
-                break;
+        channel_mode_t channel_mode = (channel_mode_t)ti->data(channel_data_col_, Qt::UserRole).value<channel_mode_t>();
+        if (channel_mode.muted) {
+            left = false;
+            right = false;
+        } else {
+            switch (channel_mode.channel) {
+                case channel_any:
+                    // Should not happen ever
+                    left = false;
+                    right = false;
+                    break;
+                case channel_mono:
+                    left = true;
+                    right = false;
+                    break;
+                case channel_stereo_left:
+                    left = true;
+                    right = false;
+                    break;
+                case channel_stereo_right:
+                    left = false;
+                    right = true;
+                    break;
+                case channel_stereo_both:
+                    left = true;
+                    right = true;
+                    break;
+            }
         }
         audio_stream->reset(first_stream_rel_start_time_, stereo_available_, left, right);
 
@@ -313,7 +319,7 @@ void RtpPlayerDialog::rescanPackets(bool rescale_axes)
     for (int row = 0; row < row_count; row++) {
         QTreeWidgetItem *ti = ui->streamTreeWidget->topLevelItem(row);
         RtpAudioStream *audio_stream = ti->data(stream_data_col_, Qt::UserRole).value<RtpAudioStream*>();
-        channel_mode_t channel_mode = (channel_mode_t)ti->data(channel_data_col_, Qt::UserRole).toUInt();
+        channel_mode_t channel_mode = (channel_mode_t)ti->data(channel_data_col_, Qt::UserRole).value<channel_mode_t>();
         int y_offset = row_count - row - 1;
 
         audio_stream->setJitterBufferSize((int) ui->jitterSpinBox->value());
@@ -337,7 +343,7 @@ void RtpPlayerDialog::rescanPackets(bool rescale_axes)
         QCPGraph *audio_graph = ui->audioPlot->addGraph();
         QPen wf_pen(audio_stream->color());
         wf_pen.setWidthF(wf_graph_normal_width_);
-        if (channel_mode == channel_none) {
+        if (channel_mode.muted) {
             // Indicate that audio will not be hearable
             wf_pen.setStyle(Qt::DotLine);
         }
@@ -442,7 +448,7 @@ void RtpPlayerDialog::rescanPackets(bool rescale_axes)
 
 void RtpPlayerDialog::addRtpStream(rtpstream_info_t *rtpstream)
 {
-    channel_mode_t channel_mode = channel_none;
+    channel_mode_t channel_mode = { AUDIO_UNMUTED, channel_mono };
 
     if (!rtpstream) return;
 
@@ -476,12 +482,12 @@ void RtpPlayerDialog::addRtpStream(rtpstream_info_t *rtpstream)
         ti->setData(stream_data_col_, Qt::UserRole, QVariant::fromValue(audio_stream));
         if (stereo_available_) {
             if (tli_count%2) {
-                channel_mode = channel_stereo_right;
+                channel_mode.channel = channel_stereo_right;
             } else {
-                channel_mode = channel_stereo_left;
+                channel_mode.channel = channel_stereo_left;
             }
         } else {
-            channel_mode = channel_mono;
+            channel_mode.channel = channel_mono;
         }
         ti->setToolTip(channel_data_col_, QString(tr("Double click to change audio routing")));
         setChannelMode(ti, channel_mode);
@@ -843,11 +849,11 @@ void RtpPlayerDialog::on_streamTreeWidget_itemSelectionChanged()
     ui->audioPlot->setFocus();
 }
 
-// Change channel if clicked channel column
+// Change channel if double clicked channel column
 void RtpPlayerDialog::on_streamTreeWidget_itemDoubleClicked(QTreeWidgetItem *item, const int column)
 {
     if (column == channel_col_) {
-        channel_mode_t channel_mode = (channel_mode_t)item->data(channel_data_col_, Qt::UserRole).toUInt();
+        channel_mode_t channel_mode = (channel_mode_t)item->data(channel_data_col_, Qt::UserRole).value<channel_mode_t>();
         channel_mode = changeChannelMode(channel_mode);
         setChannelMode(item, channel_mode);
         rescanPackets();
@@ -884,7 +890,7 @@ int RtpPlayerDialog::getHoveredPacket()
     QTreeWidgetItem *ti = ui->streamTreeWidget->currentItem();
     if (!ti) return 0;
 
-    RtpAudioStream *audio_stream = ti->data(src_addr_col_, Qt::UserRole).value<RtpAudioStream*>();
+    RtpAudioStream *audio_stream = ti->data(stream_data_col_, Qt::UserRole).value<RtpAudioStream*>();
 
     double ts = ui->audioPlot->xAxis->pixelToCoord(ui->audioPlot->mapFromGlobal(QCursor::pos()).x());
 
@@ -1000,23 +1006,28 @@ void RtpPlayerDialog::setChannelMode(QTreeWidgetItem *ti, channel_mode_t channel
 {
     QString t;
 
-    ti->setData(channel_data_col_, Qt::UserRole, QVariant(channel_mode));
-    switch (channel_mode) {
-        case channel_none:
-            t=QString("Mute");
-            break;
-        case channel_mono:
-            t=QString("Play");
-            break;
-        case channel_stereo_left:
-            t=QString("L");
-            break;
-        case channel_stereo_right:
-            t=QString("R");
-            break;
-        case channel_stereo_both:
-            t=QString("L+R");
-            break;
+    ti->setData(channel_data_col_, Qt::UserRole, QVariant::fromValue(channel_mode));
+    if (channel_mode.muted) {
+        t=QString("Mute");
+    } else {
+        switch (channel_mode.channel) {
+            case channel_any:
+                // Should not happen ever
+                t=QString("ERR");
+                break;
+            case channel_mono:
+                t=QString(tr("Play"));
+                break;
+            case channel_stereo_left:
+                t=QString(tr("L"));
+                break;
+            case channel_stereo_right:
+                t=QString(tr("R"));
+                break;
+            case channel_stereo_both:
+                t=QString(tr("L+R"));
+                break;
+        }
     }
 
     ti->setText(channel_col_, t);
@@ -1026,27 +1037,26 @@ channel_mode_t RtpPlayerDialog::changeChannelMode(channel_mode_t channel_mode)
 {
     if (stereo_available_) {
         // Stereo
-        switch (channel_mode) {
-            case channel_stereo_left:
-                return channel_stereo_both;
-            case channel_stereo_both:
-                return channel_stereo_right;
-            case channel_stereo_right:
-                return channel_none;
-            case channel_none:
-                return channel_stereo_left;
-            default:
-                return channel_stereo_left;
+        if (channel_mode.muted) {
+            return {AUDIO_UNMUTED, channel_stereo_left};
+        } else {
+            switch (channel_mode.channel) {
+                case channel_stereo_left:
+                    return {AUDIO_UNMUTED, channel_stereo_both};
+                case channel_stereo_both:
+                    return {AUDIO_UNMUTED, channel_stereo_right};
+                case channel_stereo_right:
+                    return {AUDIO_MUTED, channel_stereo_right};
+                default:
+                    return {AUDIO_UNMUTED, channel_stereo_left};
+            }
         }
     } else {
         // Mono
-        switch (channel_mode) {
-            case channel_none:
-                return channel_mono;
-            case channel_mono:
-                return channel_none;
-            default:
-                return channel_mono;
+        if (channel_mode.muted) {
+            return {AUDIO_UNMUTED, channel_mono};
+        } else {
+            return {AUDIO_MUTED, channel_mono};
         }
     }
 }
