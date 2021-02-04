@@ -525,6 +525,8 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
     /* Section extension commands */
     while (extension_flag) {
 
+        gint extension_start_offset = offset;
+
         /* Create subtree for each extension (with summary) */
         proto_item *extension_ti = proto_tree_add_string_format(oran_tree, hf_oran_extension,
                                                                 tvb, offset, 0, "", "Extension");
@@ -679,16 +681,20 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
 
             default:
                 /* TODO: Support other extension types. */
-
-                /* Skip those not yet supported */
-                offset += ((extlen*4)-2);
                 break;
         }
+
+        /* Move offset to beyond signalled length of extension */
+        offset = extension_start_offset + (extlen*4);
 
         /* Set length of extension header. */
         proto_item_set_len(extension_ti, extlen*4);
         proto_item_append_text(extension_ti, " (%s)", val_to_str_const(exttype, exttype_vals, "Unknown"));
     }
+
+    /* Set extent of overall section */
+    proto_item_set_len(sectionHeading, offset);
+    proto_item_append_text(sectionHeading, ")");
 
     return offset;
 }
