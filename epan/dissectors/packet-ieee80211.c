@@ -118,23 +118,16 @@ static wmem_map_t *sta_prop_hash = NULL;
 static guint
 sta_prop_hash_fn(gconstpointer k)
 {
-  guint8 *key = (guint8 *)k;
-  guint result = 0;
-
-  result = key[0] + (key[1] << 8) + (key[2] << 16);
-
-  result += key[3] + (key[4] << 8) + (key[5] << 16);
-
-  return result;
+  return wmem_strong_hash((const guint8 *)k, 6);
 }
 
-static gint
+static gboolean
 sta_prop_equal_fn(gconstpointer v, gconstpointer w)
 {
   const guint8 *k1 = (const guint8 *)v;
   const guint8 *k2 = (const guint8 *)w;
 
-  return !memcmp(k1, k2, 6); /* Compare each address for equality */
+  return memcmp(k1, k2, 6) == 0; /* Compare each address for equality */
 }
 
 #ifndef roundup2
@@ -28435,13 +28428,11 @@ crc32_802_tvb_padded(tvbuff_t *tvb, guint hdr_len, guint hdr_size, guint len)
 static void
 check_s1g_setting(packet_info *pinfo, tvbuff_t *tvb, int offset)
 {
-  guint64 src_addr = tvb_get_letoh64(tvb, offset);
-  guint *result;
-
-  result = (guint *)wmem_map_lookup(sta_prop_hash, &src_addr);
-  if (result != NULL) {
-    gboolean is_s1g = TRUE;
-    p_add_proto_data(wmem_file_scope(), pinfo, proto_wlan, IS_S1G_KEY, GINT_TO_POINTER(is_s1g));
+  guint8 *src_addr[6];
+  tvb_memcpy(tvb, src_addr, offset, 6);
+  guint result = GPOINTER_TO_UINT(wmem_map_lookup(sta_prop_hash, &src_addr));
+  if (result == STA_IS_S1G) {
+    p_add_proto_data(wmem_file_scope(), pinfo, proto_wlan, IS_S1G_KEY, GINT_TO_POINTER(TRUE));
   }
 }
 
@@ -30050,13 +30041,13 @@ dissect_ieee80211_common(tvbuff_t *tvb, packet_info *pinfo,
           break;
         }
         case EXTENSION_S1G_BEACON: {
-          guint64 src_addr;
-          guint s1g_val = STA_IS_S1G;
-
-          src_addr = tvb_get_letoh48(tvb, 4);
+          guint8 *src_addr[6];
+          tvb_memcpy(tvb, src_addr, 4, 6);
 
           /* Insert this src_addr into the s1g sta hash */
-          wmem_map_insert(sta_prop_hash, &src_addr, &s1g_val);
+          if (!wmem_map_lookup(sta_prop_hash, src_addr)) {
+            wmem_map_insert(sta_prop_hash, wmem_memdup(wmem_file_scope(), src_addr, 6), GUINT_TO_POINTER(STA_IS_S1G));
+          }
 
           check_s1g_setting(pinfo, tvb, 4);
 
