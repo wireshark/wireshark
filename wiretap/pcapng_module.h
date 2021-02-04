@@ -51,10 +51,12 @@ typedef struct wtapng_block_s {
 /*
  * Reader and writer routines for pcapng block types.
  */
-typedef gboolean (*block_reader)(FILE_T, guint32, gboolean, wtapng_block_t *,
-                                 int *, gchar **);
-typedef gboolean (*block_writer)(wtap_dumper *, const wtap_rec *,
-                                 const guint8 *, int *);
+typedef gboolean (*block_reader)(FILE_T fh, guint32 block_read,
+                                 gboolean byte_swapped,
+                                 wtapng_block_t *wblock,
+                                 int *err, gchar **err_info);
+typedef gboolean (*block_writer)(wtap_dumper *wdh, const wtap_rec *rec,
+                                 const guint8 *pd, int *err);
 
 /*
  * Register a handler for a pcapng block type.
@@ -64,13 +66,16 @@ void register_pcapng_block_type_handler(guint block_type, block_reader reader,
                                         block_writer writer);
 
 /*
- * Handler routine for pcapng option type.
+ * Handler routines for pcapng option type.
  */
-typedef gboolean (*option_handler_fn)(wtap_block_t wblock,
-                                      gboolean byte_swapped,
-                                      guint option_length,
-                                      guint8 *option_content,
-                                      int *err, gchar **err_info);
+typedef gboolean (*option_parser)(wtap_block_t block,
+                                  gboolean byte_swapped,
+                                  guint option_length,
+                                  const guint8 *option_content,
+                                  int *err, gchar **err_info);
+typedef guint32 (*option_sizer)(guint option_id, wtap_optval_t *optval);
+typedef gboolean (*option_writer)(wtap_dumper *wdh, guint option_id,
+                  wtap_optval_t *optval, int *err);
 
 /*
  * Register a handler for a pcapng option code for a particular block
@@ -78,6 +83,8 @@ typedef gboolean (*option_handler_fn)(wtap_block_t wblock,
  */
 WS_DLL_PUBLIC
 void register_pcapng_option_handler(guint block_type, guint option_code,
-                                    option_handler_fn hfunc);
+                                    option_parser parser,
+                                    option_sizer sizer,
+                                    option_writer writer);
 
 #endif /* __PCAP_MODULE_H__ */

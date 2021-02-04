@@ -344,18 +344,42 @@ register_pcapng_block_type_handler(guint block_type, block_reader reader,
  * Tables for plugins to handle particular options for particular block
  * types.
  *
- * An option has a handler routine, which is passed an indication of
- * whether this section of the file is byte-swapped, the length of the
- * option, the data of the option, a pointer to an error code, and a
- * pointer to a pointer variable for an error string.
+ * An option has three handler routines:
  *
- * It checks whether the length and option are valid, and, if they aren't,
- * returns FALSE, setting the error code to the appropriate error (normally
- * WTAP_ERR_BAD_FILE) and the error string to an appropriate string
- * indicating the problem.
+ *   An option parser, used when reading an option from a file:
  *
- * Otherwise, if this section of the file is byte-swapped, it byte-swaps
- * multi-byte numerical values, so that it's in the host byte order.
+ *     The option parser is passed an indication of whether this section
+ *     of the file is byte-swapped, the length of the option, the data of
+ *     the option, a pointer to an error code, and a pointer to a pointer
+ *     variable for an error string.
+ *
+ *     It checks whether the length and option are valid, and, if they
+ *     aren't, returns FALSE, setting the error code to the appropriate
+ *     error (normally WTAP_ERR_BAD_FILE) and the error string to an
+ *     appropriate string indicating the problem.
+ *
+ *     Otherwise, if this section of the file is byte-swapped, it byte-swaps
+ *     multi-byte numerical values, so that it's in the host byte order.
+ *
+ *   An option sizer, used when writing an option to a file:
+ *
+ *     The option sizer is passed the option identifier for the option
+ *     and a wtap_optval_t * that points to the data for the option.
+ *
+ *     It calculates how many bytes the option's data requires, not
+ *     including any padding bytes, and returns that value.
+ *
+ *   An option writer, used when writing an option to a file:
+ *
+ *     The option writer is passed a wtap_dumper * to which the
+ *     option data should be written, the option identifier for
+ *     the option, a wtap_optval_t * that points to the data for
+ *     the option, and an int * into which an error code should
+ *     be stored if an error occurs when writing the option.
+ *
+ *     It returns a gboolean value of TRUE if the attempt to
+ *     write the option succeeds and FALSE if the attempt to
+ *     write the option gets an error.
  */
 
 /*
@@ -376,7 +400,9 @@ register_pcapng_block_type_handler(guint block_type, block_reader reader,
 #define NUM_BT_INDICES      7
 
 typedef struct {
-    option_handler_fn hfunc;
+    option_parser parser;
+    option_sizer sizer;
+    option_writer writer;
 } option_handler;
 
 static GHashTable *option_handlers[NUM_BT_INDICES];
@@ -436,7 +462,9 @@ get_block_type_index(guint block_type, guint *bt_index)
 
 void
 register_pcapng_option_handler(guint block_type, guint option_code,
-                               option_handler_fn hfunc)
+                               option_parser parser,
+                               option_sizer sizer,
+                               option_writer writer)
 {
     guint bt_index;
     option_handler *handler;
@@ -456,9 +484,11 @@ register_pcapng_option_handler(guint block_type, guint option_code,
                                                           NULL, g_free);
     }
     handler = g_new(option_handler, 1);
-    handler->hfunc = hfunc;
+    handler->parser = parser;
+    handler->sizer = sizer;
+    handler->writer = writer;
     g_hash_table_insert(option_handlers[bt_index],
-                              GUINT_TO_POINTER(option_code), handler);
+                        GUINT_TO_POINTER(option_code), handler);
 }
 #endif /* HAVE_PLUGINS */
 
@@ -623,8 +653,8 @@ pcap_process_unhandled_option(wtapng_block_t *wblock,
         (handler = (option_handler *)g_hash_table_lookup(option_handlers[bt_index],
                                                          GUINT_TO_POINTER((guint)ohp->option_code))) != NULL) {
         /* Yes - call the handler. */
-        if (!handler->hfunc(wblock->block, section_info->byte_swapped,
-                            ohp->option_length, option_content, err, err_info))
+        if (!handler->parser(wblock->block, section_info->byte_swapped,
+                             ohp->option_length, option_content, err, err_info))
             /* XXX - free anything? */
             return FALSE;
     }
