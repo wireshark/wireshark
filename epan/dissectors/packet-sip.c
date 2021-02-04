@@ -450,10 +450,10 @@ static const sip_header_t sip_headers[] = {
 #define POS_P_ASSERTED_SERV             46
     { "P-Associated-URI",               NULL },  /*  47 RFC3455  */
 #define POS_P_ASSOCIATED_URI            47
-    { "P-Called-Party-ID",              NULL },  /*  49 RFC3455  */
-#define POS_P_CHARGE_INFO               48
-    { "P-Charge-Info",                  NULL },  /*  48 RFC8496  */
-#define POS_P_CALLED_PARTY_ID           49
+    { "P-Called-Party-ID",              NULL },  /*  48 RFC3455  */
+#define POS_P_CALLED_PARTY_ID           48
+    { "P-Charge-Info",                  NULL },  /*  49 RFC8496  */
+#define POS_P_CHARGE_INFO               49
     { "P-Charging-Function-Addresses",  NULL },  /*  50 RFC3455  */
 #define POS_P_CHARGING_FUNC_ADDRESSES   50
     { "P-Charging-Vector",              NULL },  /*  51 RFC3455  */
