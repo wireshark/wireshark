@@ -666,6 +666,10 @@ static const value_string ieee_802_1_subtypes[] = {
 	{ 0x0E, "CDCP" },				/* 802.1Q - D.2.14 */
 	{ 0x0F, "Port extension" },			/* 802.1BR - B.2 */
 	{ 0x10, "Application VLAN" },			/* 802.1Q - D.2.15 */
+	{ 0x11, "LRP ECP Discovery" },			/* 802.1CS - C.2.1 */
+	{ 0x12, "LRP TCP Discovery" },			/* 802.1CS - C.2.2 */
+	{ 0x13, "Congestion Isolation" },		/* 802.1Qcz - D.2.15 */
+	{ 0x14, "Topology Recognition" },		/* 802.1Qcz - D.2.16 */
 	{ 0, NULL }
 };
 
