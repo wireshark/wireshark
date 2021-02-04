@@ -17344,7 +17344,12 @@ static gboolean is_ft_akm_suite(guint32 akm_suite)
 static void
 save_proto_data(tvbuff_t *tvb, packet_info *pinfo, int offset, size_t size, int key)
 {
-  guint8 *data = (guint8 *)wmem_alloc(pinfo->pool, size);
+  guint8 *data;
+
+  if (!enable_decryption) {
+    return;
+  }
+  data = (guint8 *)wmem_alloc(pinfo->pool, size);
   tvb_memcpy(tvb, data, offset, size);
   p_add_proto_data(pinfo->pool, pinfo, proto_wlan, key, data);
 }
@@ -17352,6 +17357,9 @@ save_proto_data(tvbuff_t *tvb, packet_info *pinfo, int offset, size_t size, int 
 static void
 save_proto_data_value(packet_info *pinfo, guint value, int key)
 {
+  if (!enable_decryption) {
+    return;
+  }
   p_add_proto_data(pinfo->pool, pinfo, proto_wlan, key, GUINT_TO_POINTER(value));
 }
 
