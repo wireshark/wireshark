@@ -105,7 +105,7 @@ static dissector_handle_t data_handle;
 static dissector_handle_t ansi_tcap_handle;
 
 static int dissect_tcap_param(asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int offset);
-static int dissect_tcap_ITU_ComponentPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index _U_);
+static gboolean dissect_tcap_ITU_ComponentPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index _U_);
 
 static dissector_table_t ansi_sub_dissectors = NULL;
 static dissector_table_t itu_sub_dissectors = NULL;
@@ -2195,8 +2195,8 @@ dissect_tcap_param(asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int offset
 /*
  * Call ITU Subdissector to decode the Tcap Component
  */
-static int
-dissect_tcap_ITU_ComponentPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index _U_)
+static gboolean
+dissect_tcap_ITU_ComponentPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset _U_, asn1_ctx_t *actx, proto_tree *tree, int hf_index _U_)
 {
   dissector_handle_t subdissector_handle=NULL;
   gboolean is_subdissector=FALSE;
@@ -2223,107 +2223,109 @@ dissect_tcap_ITU_ComponentPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offs
     }
   }
   if (p_tcap_context) {
-    if (cur_oid) {
-      if (p_tcap_context->oid_present) {
-        /* We have already an Application Context, check if we have
-           to fallback to a lower version */
-        if ( strncmp(p_tcap_context->oid, cur_oid, sizeof(p_tcap_context->oid))!=0) {
-          /* ACN, changed, Fallback to lower version
-           * and update the subdissector (purely formal)
-           */
-          g_strlcpy(p_tcap_context->oid,cur_oid, sizeof(p_tcap_context->oid));
-          if ( (subdissector_handle = dissector_get_string_handle(ber_oid_dissector_table, cur_oid)) ) {
-            p_tcap_context->subdissector_handle=subdissector_handle;
-            p_tcap_context->subdissector_present=TRUE;
-          }
-        }
+      if (cur_oid) {
+          if (p_tcap_context->oid_present) {
+              /* We have already an Application Context, check if we have
+                 to fallback to a lower version */
+              if (strncmp(p_tcap_context->oid, cur_oid, sizeof(p_tcap_context->oid)) != 0) {
+                  /* ACN, changed, Fallback to lower version
+                   * and update the subdissector (purely formal)
+                   */
+                  g_strlcpy(p_tcap_context->oid, cur_oid, sizeof(p_tcap_context->oid));
+                  if ((subdissector_handle = dissector_get_string_handle(ber_oid_dissector_table, cur_oid))) {
+                      p_tcap_context->subdissector_handle = subdissector_handle;
+                      p_tcap_context->subdissector_present = TRUE;
+                  }
+              }
+          } else {
+              /* We do not have the OID in the TCAP context, so store it */
+              g_strlcpy(p_tcap_context->oid, cur_oid, sizeof(p_tcap_context->oid));
+              p_tcap_context->oid_present = TRUE;
+              /* Try to find a subdissector according to OID */
+              if ((subdissector_handle
+                  = dissector_get_string_handle(ber_oid_dissector_table, cur_oid))) {
+                  p_tcap_context->subdissector_handle = subdissector_handle;
+                  p_tcap_context->subdissector_present = TRUE;
+              } else {
+                  /* Not found, so try to find a subdissector according to SSN */
+                  if ((subdissector_handle = get_itu_tcap_subdissector(actx->pinfo->match_uint))) {
+                      /* Found according to SSN */
+                      p_tcap_context->subdissector_handle = subdissector_handle;
+                      p_tcap_context->subdissector_present = TRUE;
+                  }
+              }
+          } /* context OID */
       } else {
-        /* We do not have the OID in the TCAP context, so store it */
-        g_strlcpy(p_tcap_context->oid, cur_oid, sizeof(p_tcap_context->oid));
-        p_tcap_context->oid_present=TRUE;
-        /* Try to find a subdissector according to OID */
-        if ( (subdissector_handle
-          = dissector_get_string_handle(ber_oid_dissector_table, cur_oid)) ) {
-          p_tcap_context->subdissector_handle=subdissector_handle;
-          p_tcap_context->subdissector_present=TRUE;
-        } else {
-          /* Not found, so try to find a subdissector according to SSN */
-          if ( (subdissector_handle = get_itu_tcap_subdissector(actx->pinfo->match_uint))) {
-            /* Found according to SSN */
-            p_tcap_context->subdissector_handle=subdissector_handle;
-            p_tcap_context->subdissector_present=TRUE;
+          /* Copy the OID from the TCAP context to the current oid */
+          if (p_tcap_context->oid_present) {
+              p_tcap_private->oid = (void*)p_tcap_context->oid;
+              p_tcap_private->acv = TRUE;
           }
-        }
-      } /* context OID */
-    } else {
-      /* Copy the OID from the TCAP context to the current oid */
-      if (p_tcap_context->oid_present) {
-        p_tcap_private->oid= (void*) p_tcap_context->oid;
-        p_tcap_private->acv=TRUE;
-      }
-    } /* no OID */
+      } /* no OID */
   } /* no TCAP context */
 
 
-  if ( p_tcap_context
-       && p_tcap_context->subdissector_present) {
-    /* Take the subdissector from the context */
-    subdissector_handle=p_tcap_context->subdissector_handle;
-    is_subdissector=TRUE;
+  if (p_tcap_context
+      && p_tcap_context->subdissector_present) {
+      /* Take the subdissector from the context */
+      subdissector_handle = p_tcap_context->subdissector_handle;
+      is_subdissector = TRUE;
   }
 
   /* Have SccpUsersTable protocol taking precedence over sccp.ssn table */
   if (!is_subdissector && requested_subdissector_handle) {
-    is_subdissector = TRUE;
-    subdissector_handle = requested_subdissector_handle;
+      is_subdissector = TRUE;
+      subdissector_handle = requested_subdissector_handle;
   }
 
   if (!is_subdissector) {
-    /*
-     * If we do not currently know the subdissector, we have to find it
-     * - first, according to the OID
-     * - then according to the SSN
-     * - and at least, take the default Data handler
-     */
-    if (ber_oid_dissector_table && cur_oid) {
-      /* Search if we can find the sub protocol according to the A.C.N */
-      if ( (subdissector_handle
-        = dissector_get_string_handle(ber_oid_dissector_table, cur_oid)) ) {
-        /* found */
-        is_subdissector=TRUE;
+      /*
+       * If we do not currently know the subdissector, we have to find it
+       * - first, according to the OID
+       * - then according to the SSN
+       * - and at least, take the default Data handler
+       */
+      if (ber_oid_dissector_table && cur_oid) {
+          /* Search if we can find the sub protocol according to the A.C.N */
+          if ((subdissector_handle
+              = dissector_get_string_handle(ber_oid_dissector_table, cur_oid))) {
+              /* found */
+              is_subdissector = TRUE;
+          } else {
+              /* Search if we can found the sub protocol according to the SSN table */
+              if ((subdissector_handle
+                  = get_itu_tcap_subdissector(actx->pinfo->match_uint))) {
+                  /* Found according to SSN */
+                  is_subdissector = TRUE;
+              } else {
+                  /* Nothing found, take the Data handler */
+                  subdissector_handle = data_handle;
+                  is_subdissector = TRUE;
+              } /* SSN */
+          } /* ACN */
       } else {
-        /* Search if we can found the sub protocol according to the SSN table */
-        if ( (subdissector_handle
-          = get_itu_tcap_subdissector(actx->pinfo->match_uint))) {
-          /* Found according to SSN */
-          is_subdissector=TRUE;
-        } else {
-          /* Nothing found, take the Data handler */
-          subdissector_handle = data_handle;
-          is_subdissector=TRUE;
-        } /* SSN */
-      } /* ACN */
-    } else {
-      /* There is no A.C.N for this transaction, so search in the SSN table */
-      if ( (subdissector_handle = get_itu_tcap_subdissector(actx->pinfo->match_uint))) {
-        /* Found according to SSN */
-        is_subdissector=TRUE;
-      } else {
-        subdissector_handle = data_handle;
-        is_subdissector=TRUE;
-      }
-    } /* OID */
+          /* There is no A.C.N for this transaction, so search in the SSN table */
+          if ((subdissector_handle = get_itu_tcap_subdissector(actx->pinfo->match_uint))) {
+              /* Found according to SSN */
+              is_subdissector = TRUE;
+          } else {
+              subdissector_handle = data_handle;
+              is_subdissector = TRUE;
+          }
+      } /* OID */
   } else {
-    /* We have it already */
+      /* We have it already */
   }
 
   /* Call the sub dissector if present, and not already called */
   if (is_subdissector) {
-    call_dissector_with_data(subdissector_handle, tvb, actx->pinfo, tree, actx->value_ptr);
-    col_set_fence(actx->pinfo->cinfo, COL_INFO);
+      gboolean is_active = call_dissector_only(subdissector_handle, tvb, actx->pinfo, tree, actx->value_ptr);
+      col_set_fence(actx->pinfo->cinfo, COL_INFO);
+      if(!is_active){
+          return FALSE;
+    }
   }
-
-  return offset;
+  return TRUE;
 }
 
 void
