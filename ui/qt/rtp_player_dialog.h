@@ -39,7 +39,7 @@ typedef struct {
     bool muted;
     channel_mode_audio_t channel;
 } channel_mode_t;
-Q_DECLARE_METATYPE(channel_mode_t);
+Q_DECLARE_METATYPE(channel_mode_t)
 
 #define AUDIO_MUTED true
 #define AUDIO_UNMUTED false
