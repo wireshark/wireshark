@@ -1,8 +1,6 @@
 name: Docker
 
-on:
-  push:
-    branches: [ marine ]
+on: push
 
 jobs:
   build:
@@ -11,17 +9,6 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-
-    - name: "Cache docker build"
-      uses: actions/cache@v2
-      id: cache-docker
-      with:
-        path: '/var/lib/docker/'
-        key: 'constant-because-docker-handles-cache'
-
-    - name: "Build docker image"
-      run: docker build -t marine-core .
-
 
     - uses: docker/build-push-action@v1
       with:

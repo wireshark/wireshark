@@ -1,42 +1,15 @@
-FROM ubuntu:latest
+FROM quay.io/pypa/manylinux2014_x86_64
 
-ENV DEBIAN_FRONTEND=noninteractive
+RUN yum install -y epel-release centos-release-scl
 
-RUN apt update && apt install -y \
-    build-essential \
-    cmake \
-    ninja-build \
-    libpcap-dev \
-    libglib2.0-dev \
-    libgcrypt20-dev \
-    libc-ares-dev \
-    bison \
-    flex \
-    liblz4-dev \
-    libsmi2-dev \
-    libgnutls28-dev \
-    libminizip-dev \
-    libbrotli-dev \
-    libsnappy-dev \
-    libzstd-dev \
-    libnghttp2-dev \
-    lua5.1 \
-    luajit \
-    libspandsp-dev \
-    libxml2-dev \
-    liblua5.1-dev \
-    libluajit-5.1-dev \
-    libkrb5-dev \
-    python3-pip \
-    python3-setuptools \
-  && rm -rf /var/lib/apt/lists/*
+COPY redhat/rpms.txt /tmp/
+
+RUN xargs --arg-file /tmp/rpms.txt yum install -y && yum clean all && rm -rf /var/yum/cache
+
+ENV CC=/opt/rh/devtoolset-9/root/usr/bin/gcc
 
 COPY . /marine
 
-WORKDIR /marine
+WORKDIR /build
 
-RUN mkdir -p build && cd build && cmake -DCMAKE_INSTALL_PREFIX=/usr -GNinja ..
-
-RUN ninja -C build marine
-
-RUN ninja -C build install
+RUN cmake3 -DCMAKE_INSTALL_PREFIX=/usr -GNinja /marine && ninja marine
