@@ -93,6 +93,7 @@ signals:
 protected:
     virtual void showEvent(QShowEvent *);
     virtual void keyPressEvent(QKeyEvent *event);
+    void contextMenuEvent(QContextMenuEvent *event);
 
 private slots:
     /** Retap the capture file, adding RTP packets that match the
@@ -114,6 +115,7 @@ private slots:
         playback_error_ = playback_error;
         updateHintLabel();
     }
+    void changeAudioRouting(channel_mode_t channel_mode);
     void on_playButton_clicked();
     void on_stopButton_clicked();
     void on_actionReset_triggered();
@@ -124,6 +126,12 @@ private slots:
     void on_actionMoveLeft1_triggered();
     void on_actionMoveRight1_triggered();
     void on_actionGoToPacket_triggered();
+    void on_actionAudioRoutingM_triggered();
+    void on_actionAudioRoutingP_triggered();
+    void on_actionAudioRoutingL_triggered();
+    void on_actionAudioRoutingLR_triggered();
+    void on_actionAudioRoutingR_triggered();
+    void on_actionAudioRoutingI_triggered();
     void on_streamTreeWidget_itemSelectionChanged();
     void on_streamTreeWidget_itemDoubleClicked(QTreeWidgetItem *item, const int column);
     void on_outputDeviceComboBox_currentIndexChanged(const QString &);
@@ -134,7 +142,8 @@ private slots:
 
 private:
     Ui::RtpPlayerDialog *ui;
-    QMenu *ctx_menu_;
+    QMenu *graph_ctx_menu_;
+    QMenu *list_ctx_menu_;
     double first_stream_rel_start_time_;  // Relative start time of first stream
     double first_stream_abs_start_time_;  // Absolute start time of first stream
     double first_stream_rel_stop_time_;  // Relative end time of first stream (ued for streams_length_ calculation

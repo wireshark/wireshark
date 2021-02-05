@@ -440,6 +440,54 @@
     <string>Space</string>
    </property>
   </action>
+  <action name="actionAudioRoutingM">
+   <property name="text">
+    <string>Mute</string>
+   </property>
+   <property name="toolTip">
+    <string>Mute the stream</string>
+   </property>
+  </action>
+  <action name="actionAudioRoutingP">
+   <property name="text">
+    <string>Play</string>
+   </property>
+   <property name="toolTip">
+    <string>Play the stream</string>
+   </property>
+  </action>
+  <action name="actionAudioRoutingL">
+   <property name="text">
+    <string>To Left</string>
+   </property>
+   <property name="toolTip">
+    <string>Route audio to left channel</string>
+   </property>
+  </action>
+  <action name="actionAudioRoutingLR">
+   <property name="text">
+    <string>Left + Right</string>
+   </property>
+   <property name="toolTip">
+    <string>Route audio to left and right channel</string>
+   </property>
+  </action>
+  <action name="actionAudioRoutingR">
+   <property name="text">
+    <string>To Right</string>
+   </property>
+   <property name="toolTip">
+    <string>Route audio to right channel</string>
+   </property>
+  </action>
+  <action name="actionAudioRoutingI">
+   <property name="text">
+    <string>Invert Muting</string>
+   </property>
+   <property name="toolTip">
+    <string>Invert muting of all channels</string>
+   </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>

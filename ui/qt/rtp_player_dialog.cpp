@@ -81,7 +81,11 @@ enum {
     payload_col_,
 
     stream_data_col_ = src_addr_col_, // RtpAudioStream
-    graph_data_col_ = src_port_col_, // QCPGraph
+    graph_audio_data_col_ = src_port_col_, // QCPGraph (wave)
+    graph_sequence_data_col_ = dst_addr_col_, // QCPGraph (sequence)
+    graph_jitter_data_col_ = dst_port_col_, // QCPGraph (jitter)
+    graph_timestamp_data_col_ = ssrc_col_, // QCPGraph (timestamp)
+    graph_silence_data_col_ = first_pkt_col_, // QCPGraph (silence)
     channel_data_col_ = channel_col_, // channel_mode_t
 };
 
@@ -112,23 +116,23 @@ RtpPlayerDialog::RtpPlayerDialog(QWidget &parent, CaptureFile &cf) :
     ui->splitter->setStretchFactor(0, 3);
     ui->splitter->setStretchFactor(1, 1);
 
-    ctx_menu_ = new QMenu(this);
+    graph_ctx_menu_ = new QMenu(this);
 
-    ctx_menu_->addAction(ui->actionZoomIn);
-    ctx_menu_->addAction(ui->actionZoomOut);
-    ctx_menu_->addAction(ui->actionReset);
-    ctx_menu_->addSeparator();
-    ctx_menu_->addAction(ui->actionMoveRight10);
-    ctx_menu_->addAction(ui->actionMoveLeft10);
-    ctx_menu_->addAction(ui->actionMoveRight1);
-    ctx_menu_->addAction(ui->actionMoveLeft1);
-    ctx_menu_->addSeparator();
-    ctx_menu_->addAction(ui->actionGoToPacket);
-    ctx_menu_->addSeparator();
-    ctx_menu_->addAction(ui->actionDragZoom);
-    ctx_menu_->addAction(ui->actionToggleTimeOrigin);
-//    ctx_menu_->addAction(ui->actionCrosshairs);
-    set_action_shortcuts_visible_in_context_menu(ctx_menu_->actions());
+    graph_ctx_menu_->addAction(ui->actionZoomIn);
+    graph_ctx_menu_->addAction(ui->actionZoomOut);
+    graph_ctx_menu_->addAction(ui->actionReset);
+    graph_ctx_menu_->addSeparator();
+    graph_ctx_menu_->addAction(ui->actionMoveRight10);
+    graph_ctx_menu_->addAction(ui->actionMoveLeft10);
+    graph_ctx_menu_->addAction(ui->actionMoveRight1);
+    graph_ctx_menu_->addAction(ui->actionMoveLeft1);
+    graph_ctx_menu_->addSeparator();
+    graph_ctx_menu_->addAction(ui->actionGoToPacket);
+    graph_ctx_menu_->addSeparator();
+    graph_ctx_menu_->addAction(ui->actionDragZoom);
+    graph_ctx_menu_->addAction(ui->actionToggleTimeOrigin);
+//    graph_ctx_menu_->addAction(ui->actionCrosshairs);
+    set_action_shortcuts_visible_in_context_menu(graph_ctx_menu_->actions());
 
     connect(ui->audioPlot, SIGNAL(mouseMove(QMouseEvent*)),
             this, SLOT(updateHintLabel()));
@@ -192,6 +196,29 @@ RtpPlayerDialog::RtpPlayerDialog(QWidget &parent, CaptureFile &cf) :
     ui->audioPlot->setFocus();
 
     stereo_available_ = isStereoAvailable();
+
+    graph_ctx_menu_->addSeparator();
+    list_ctx_menu_ = new QMenu(this);
+    QMenu *audio_routing_menu1 = list_ctx_menu_->addMenu(tr("Audio Routing"));
+    QMenu *audio_routing_menu2 = graph_ctx_menu_->addMenu(tr("Audio Routing"));
+    if (stereo_available_) {
+        audio_routing_menu1->addAction(ui->actionAudioRoutingM);
+        audio_routing_menu2->addAction(ui->actionAudioRoutingM);
+        audio_routing_menu1->addAction(ui->actionAudioRoutingL);
+        audio_routing_menu2->addAction(ui->actionAudioRoutingL);
+        audio_routing_menu1->addAction(ui->actionAudioRoutingLR);
+        audio_routing_menu2->addAction(ui->actionAudioRoutingLR);
+        audio_routing_menu1->addAction(ui->actionAudioRoutingR);
+        audio_routing_menu2->addAction(ui->actionAudioRoutingR);
+    } else {
+        audio_routing_menu1->addAction(ui->actionAudioRoutingM);
+        audio_routing_menu2->addAction(ui->actionAudioRoutingM);
+        audio_routing_menu1->addAction(ui->actionAudioRoutingP);
+        audio_routing_menu2->addAction(ui->actionAudioRoutingP);
+    }
+    audio_routing_menu1->addAction(ui->actionAudioRoutingI);
+    audio_routing_menu2->addAction(ui->actionAudioRoutingI);
+    set_action_shortcuts_visible_in_context_menu(list_ctx_menu_->actions());
 
     QTimer::singleShot(0, this, SLOT(retapPackets()));
 #endif // QT_MULTIMEDIA_LIB
@@ -305,7 +332,11 @@ void RtpPlayerDialog::rescanPackets(bool rescale_axes)
         }
         audio_stream->reset(first_stream_rel_start_time_, stereo_available_, left, right);
 
-        ti->setData(graph_data_col_, Qt::UserRole, QVariant());
+        ti->setData(graph_audio_data_col_, Qt::UserRole, QVariant());
+        ti->setData(graph_sequence_data_col_, Qt::UserRole, QVariant());
+        ti->setData(graph_jitter_data_col_, Qt::UserRole, QVariant());
+        ti->setData(graph_timestamp_data_col_, Qt::UserRole, QVariant());
+        ti->setData(graph_silence_data_col_, Qt::UserRole, QVariant());
     }
     ui->audioPlot->clearGraphs();
 
@@ -353,7 +384,7 @@ void RtpPlayerDialog::rescanPackets(bool rescale_axes)
         audio_graph->setSelectable(QCP::stNone);
         audio_graph->setData(audio_stream->visualTimestamps(relative_timestamps), audio_stream->visualSamples(y_offset));
         audio_graph->removeFromLegend();
-        ti->setData(graph_data_col_, Qt::UserRole, QVariant::fromValue<QCPGraph *>(audio_graph));
+        ti->setData(graph_audio_data_col_, Qt::UserRole, QVariant::fromValue<QCPGraph *>(audio_graph));
         RTP_STREAM_DEBUG("Plotting %s, %d samples", ti->text(src_addr_col_).toUtf8().constData(), audio_graph->data()->size());
 
         QString span_str;
@@ -383,6 +414,7 @@ void RtpPlayerDialog::rescanPackets(bool rescale_axes)
             seq_graph->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssSquare, tango_aluminium_6, Qt::white, wsApp->font().pointSize())); // Arbitrary
             seq_graph->setSelectable(QCP::stNone);
             seq_graph->setData(audio_stream->outOfSequenceTimestamps(relative_timestamps), audio_stream->outOfSequenceSamples(y_offset));
+            ti->setData(graph_sequence_data_col_, Qt::UserRole, QVariant::fromValue<QCPGraph *>(seq_graph));
             if (row < 1) {
                 seq_graph->setName(tr("Out of Sequence"));
                 show_legend = true;
@@ -398,6 +430,7 @@ void RtpPlayerDialog::rescanPackets(bool rescale_axes)
             seq_graph->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssCircle, tango_scarlet_red_5, Qt::white, wsApp->font().pointSize())); // Arbitrary
             seq_graph->setSelectable(QCP::stNone);
             seq_graph->setData(audio_stream->jitterDroppedTimestamps(relative_timestamps), audio_stream->jitterDroppedSamples(y_offset));
+            ti->setData(graph_jitter_data_col_, Qt::UserRole, QVariant::fromValue<QCPGraph *>(seq_graph));
             if (row < 1) {
                 seq_graph->setName(tr("Jitter Drops"));
                 show_legend = true;
@@ -413,6 +446,7 @@ void RtpPlayerDialog::rescanPackets(bool rescale_axes)
             seq_graph->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssDiamond, tango_sky_blue_5, Qt::white, wsApp->font().pointSize())); // Arbitrary
             seq_graph->setSelectable(QCP::stNone);
             seq_graph->setData(audio_stream->wrongTimestampTimestamps(relative_timestamps), audio_stream->wrongTimestampSamples(y_offset));
+            ti->setData(graph_timestamp_data_col_, Qt::UserRole, QVariant::fromValue<QCPGraph *>(seq_graph));
             if (row < 1) {
                 seq_graph->setName(tr("Wrong Timestamps"));
                 show_legend = true;
@@ -428,6 +462,7 @@ void RtpPlayerDialog::rescanPackets(bool rescale_axes)
             seq_graph->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssTriangle, tango_butter_5, Qt::white, wsApp->font().pointSize())); // Arbitrary
             seq_graph->setSelectable(QCP::stNone);
             seq_graph->setData(audio_stream->insertedSilenceTimestamps(relative_timestamps), audio_stream->insertedSilenceSamples(y_offset));
+            ti->setData(graph_silence_data_col_, Qt::UserRole, QVariant::fromValue<QCPGraph *>(seq_graph));
             if (row < 1) {
                 seq_graph->setName(tr("Inserted Silence"));
                 show_legend = true;
@@ -586,6 +621,15 @@ void RtpPlayerDialog::keyPressEvent(QKeyEvent *event)
     QDialog::keyPressEvent(event);
 }
 
+void RtpPlayerDialog::contextMenuEvent(QContextMenuEvent *event)
+{
+    QTreeWidgetItem *ti = ui->streamTreeWidget->currentItem();
+    if (!ti)
+        return;
+
+    list_ctx_menu_->exec(event->globalPos());
+}
+
 void RtpPlayerDialog::updateWidgets()
 {
     bool enable_play = true;
@@ -596,7 +640,7 @@ void RtpPlayerDialog::updateWidgets()
     for (int row = 0; row < ui->streamTreeWidget->topLevelItemCount(); row++) {
         QTreeWidgetItem *ti = ui->streamTreeWidget->topLevelItem(row);
 
-        RtpAudioStream *audio_stream = ti->data(src_addr_col_, Qt::UserRole).value<RtpAudioStream*>();
+        RtpAudioStream *audio_stream = ti->data(stream_data_col_, Qt::UserRole).value<RtpAudioStream*>();
         if (audio_stream->outputState() != QAudio::IdleState) {
             enable_play = false;
             enable_pause = true;
@@ -630,7 +674,7 @@ void RtpPlayerDialog::graphClicked(QMouseEvent *event)
 {
     updateWidgets();
     if (event->button() == Qt::RightButton) {
-        ctx_menu_->exec(event->globalPos());
+        graph_ctx_menu_->exec(event->globalPos());
     }
     ui->audioPlot->setFocus();
 }
@@ -655,7 +699,7 @@ void RtpPlayerDialog::plotClicked(QCPAbstractPlottable *plottable, int dataIndex
     ui->streamTreeWidget->clearSelection();
     for (int row = 0; row < ui->streamTreeWidget->topLevelItemCount(); row++) {
         QTreeWidgetItem *ti = ui->streamTreeWidget->topLevelItem(row);
-        QCPGraph *audio_graph = ti->data(graph_data_col_, Qt::UserRole).value<QCPGraph*>();
+        QCPGraph *audio_graph = ti->data(graph_audio_data_col_, Qt::UserRole).value<QCPGraph*>();
         if (plottable == audio_graph) {
             ui->streamTreeWidget->setCurrentItem(ti);
         }
@@ -854,7 +898,7 @@ void RtpPlayerDialog::on_streamTreeWidget_itemSelectionChanged()
 {
     for (int row = 0; row < ui->streamTreeWidget->topLevelItemCount(); row++) {
         QTreeWidgetItem *ti = ui->streamTreeWidget->topLevelItem(row);
-        QCPGraph *audio_graph = ti->data(graph_data_col_, Qt::UserRole).value<QCPGraph*>();
+        QCPGraph *audio_graph = ti->data(graph_audio_data_col_, Qt::UserRole).value<QCPGraph*>();
         if (audio_graph) {
             audio_graph->setSelection(ti->isSelected() ? QCPDataSelection(QCPDataRange()) : QCPDataSelection());
             QPen p = audio_graph->pen();
@@ -879,6 +923,67 @@ void RtpPlayerDialog::on_streamTreeWidget_itemDoubleClicked(QTreeWidgetItem *ite
         setChannelMode(item, channel_mode);
         rescanPackets();
     }
+}
+
+void RtpPlayerDialog::changeAudioRouting(channel_mode_t channel_mode)
+{
+    QTreeWidgetItem *ti = ui->streamTreeWidget->currentItem();
+    if (!ti)
+        return;
+
+    channel_mode_t ti_mode = (channel_mode_t)ti->data(channel_data_col_, Qt::UserRole).value<channel_mode_t>();
+    if (ti_mode.muted != channel_mode.muted) {
+      ti_mode.muted = channel_mode.muted;
+    } else {
+      if (channel_mode.channel != channel_any) {
+          ti_mode.channel = channel_mode.channel;
+      }
+    }
+    setChannelMode(ti, ti_mode);
+    rescanPackets();
+}
+
+void RtpPlayerDialog::on_actionAudioRoutingM_triggered()
+{
+    changeAudioRouting({AUDIO_MUTED, channel_any});
+}
+
+void RtpPlayerDialog::on_actionAudioRoutingP_triggered()
+{
+    changeAudioRouting({AUDIO_UNMUTED, channel_mono});
+}
+
+void RtpPlayerDialog::on_actionAudioRoutingL_triggered()
+{
+    changeAudioRouting({AUDIO_UNMUTED, channel_stereo_left});
+}
+
+void RtpPlayerDialog::on_actionAudioRoutingLR_triggered()
+{
+    changeAudioRouting({AUDIO_UNMUTED, channel_stereo_both});
+}
+
+void RtpPlayerDialog::on_actionAudioRoutingR_triggered()
+{
+    changeAudioRouting({AUDIO_UNMUTED, channel_stereo_right});
+}
+
+void RtpPlayerDialog::on_actionAudioRoutingI_triggered()
+{
+    QTreeWidgetItem *ti = ui->streamTreeWidget->currentItem();
+    if (!ti)
+        return;
+
+    for (int row = 0; row < ui->streamTreeWidget->topLevelItemCount(); row++) {
+        QTreeWidgetItem *ti = ui->streamTreeWidget->topLevelItem(row);
+        channel_mode_t ti_mode = (channel_mode_t)ti->data(channel_data_col_, Qt::UserRole).value<channel_mode_t>();
+        if (ti_mode.muted) {
+            setChannelMode(ti, {AUDIO_UNMUTED, ti_mode.channel});
+        } else {
+            setChannelMode(ti, {AUDIO_MUTED, ti_mode.channel});
+        }
+    }
+    rescanPackets();
 }
 
 const QString RtpPlayerDialog::getFormatedTime(double f_time)
