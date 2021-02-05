@@ -424,13 +424,19 @@ void RtpStreamDialog::tapMarkPacket(rtpstream_tapinfo_t *tapinfo, frame_data *fd
 
 void RtpStreamDialog::updateStreams()
 {
-    GList *cur_stream = g_list_nth(tapinfo_.strinfo_list, static_cast<guint>(ui->streamTreeWidget->topLevelItemCount()));
+    // string_list is reverse ordered, so we must add
+    // just first "to_insert_count" of streams
+    GList *cur_stream = g_list_first(tapinfo_.strinfo_list);
+    guint tap_len = g_list_length(tapinfo_.strinfo_list);
+    guint tree_len = static_cast<guint>(ui->streamTreeWidget->topLevelItemCount());
+    guint to_insert_count = tap_len - tree_len;
 
     // Add any missing items
-    while (cur_stream && cur_stream->data) {
+    while (cur_stream && cur_stream->data && to_insert_count) {
         rtpstream_info_t *stream_info = gxx_list_data(rtpstream_info_t*, cur_stream);
         new RtpStreamTreeWidgetItem(ui->streamTreeWidget, stream_info);
         cur_stream = gxx_list_next(cur_stream);
+        to_insert_count--;
     }
 
     // Recalculate values
