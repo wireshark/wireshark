@@ -57,6 +57,7 @@ wireshark-tap-register.c
 
 # CMake #
 ##################
+build/
 cmake-build-*/
 CMakeCache.txt
 CMakeFiles
