@@ -111,7 +111,7 @@ static int hf_mpls_pm_timestamp4_unk = -1;
  * http://www.iana.org/assignments/mpls-lsp-ping-parameters
  * Registry Name: 'Loss/Delay Measurement Control Code: Query Codes'
  */
-const range_string mpls_pm_query_ctrl_code_rvals[] = {
+static const range_string mpls_pm_query_ctrl_code_rvals[] = {
     { 0x00, 0x00, "In-band Response Requested"     },
     { 0x01, 0x01, "Out-of-band Response Requested" },
     { 0x02, 0x02, "No Response Requested"          },
@@ -124,7 +124,7 @@ const range_string mpls_pm_query_ctrl_code_rvals[] = {
  * http://www.iana.org/assignments/mpls-lsp-ping-parameters
  * Registry Name: 'Loss/Delay Measurement Control Code: Response Codes'
  */
-const range_string mpls_pm_response_ctrl_code_rvals[] = {
+static const range_string mpls_pm_response_ctrl_code_rvals[] = {
     { 0x00, 0x00, "Reserved"                            },
     { 0x01, 0x01, "Success"                             },
     { 0x02, 0x02, "Data Format Invalid"                 },
@@ -174,7 +174,7 @@ static const value_string pmt_vals[] = {
 #define MPLS_PM_TSF_SEQ 1
 #define MPLS_PM_TSF_NTP 2
 #define MPLS_PM_TSF_PTP 3
-const range_string mpls_pm_time_stamp_format_rvals[] = {
+static const range_string mpls_pm_time_stamp_format_rvals[] = {
     { MPLS_PM_TSF_NULL, MPLS_PM_TSF_NULL,
       "Null Timestamp"                                   },
     { MPLS_PM_TSF_SEQ, MPLS_PM_TSF_SEQ,

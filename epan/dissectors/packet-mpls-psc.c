@@ -39,7 +39,7 @@ static int hf_mpls_psc_tlvlen = -1;
  * http://www.iana.org/assignments/mpls-oam-parameters/mpls-oam-parameters.xml
  * Registry Name: 'MPLS PSC Request'
  */
-const range_string mpls_psc_req_rvals[] = {
+static const range_string mpls_psc_req_rvals[] = {
     {  0,  0, "No Request"            },
     {  1,  1, "Do Not Revert"         },
     {  2,  3, "Unassigned"            },
@@ -57,7 +57,7 @@ const range_string mpls_psc_req_rvals[] = {
     { 0,   0, NULL                    }
 };
 
-const value_string mpls_psc_req_short_vals[] = {
+static const value_string mpls_psc_req_short_vals[] = {
     {  0, "NR"  },
     {  1, "DNR" },
     {  4, "WTR" },
@@ -69,7 +69,7 @@ const value_string mpls_psc_req_short_vals[] = {
     {  0, NULL  }
 };
 
-const range_string mpls_psc_pt_rvals[] = {
+static const range_string mpls_psc_pt_rvals[] = {
     { 0, 0, "for future extensions"                             },
     { 1, 1, "unidirectional switching using a permanent bridge" },
     { 2, 2, "bidirectional switching using a selector bridge"   },
@@ -77,20 +77,20 @@ const range_string mpls_psc_pt_rvals[] = {
     { 0, 0, NULL                                                }
 };
 
-const range_string mpls_psc_rev_rvals[] = {
+static const range_string mpls_psc_rev_rvals[] = {
     { 0, 0, "non-revertive mode" },
     { 1, 1, "revertive mode"     },
     { 0, 0, NULL                 }
 };
 
-const range_string mpls_psc_fpath_rvals[] = {
+static const range_string mpls_psc_fpath_rvals[] = {
     { 0,   0, "protection"            },
     { 1,   1, "working"               },
     { 2, 255, "for future extensions" },
     { 0,   0, NULL                    }
 };
 
-const range_string mpls_psc_dpath_rvals[] = {
+static const range_string mpls_psc_dpath_rvals[] = {
     { 0,   0, "protection is not in use" },
     { 1,   1, "protection is in use"     },
     { 2, 255, "for future extensions"    },

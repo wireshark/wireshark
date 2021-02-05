@@ -1011,7 +1011,7 @@ VALUE_STRING_ARRAY2(lustre_op_codes);
 VALUE_STRING_ENUM(lustre_LMTypes);
 VALUE_STRING_ARRAY(lustre_LMTypes);
 
-const true_false_string lnet_flags_set_truth = { "Set", "Unset" };
+static const true_false_string lnet_flags_set_truth = { "Set", "Unset" };
 
 #define lustre_layout_intent_opc_vals_VALUE_STRING_LIST(XXX)    \
     XXX(LAYOUT_INTENT_ACCESS,     0, "ACCESS")                  \
@@ -1202,7 +1202,8 @@ VALUE_STRING_ARRAY2(lustre_barrier_status_vals);
 #define LDLM_FL_RESENT                  0x0100000000000000ULL
 #define LDLM_FL_COS_ENABLED             0x0200000000000000ULL
 
-const value_string lustre_ldlm_flags_vals[] = {
+#if 0
+static const value_string lustre_ldlm_flags_vals[] = {
   {LDLM_FL_LOCK_CHANGED,        "LDLM_FL_LOCK_CHANGED"},
   {LDLM_FL_BLOCK_GRANTED,       "LDLM_FL_BLOCK_GRANTED"},
   {LDLM_FL_BLOCK_CONV,          "LDLM_FL_BLOCK_CONV"},
@@ -1222,6 +1223,7 @@ const value_string lustre_ldlm_flags_vals[] = {
   {LDLM_FL_AST_DISCARD_DATA,    "LDLM_FL_AST_DISCARD_DATA"},
   { 0, NULL }
 };
+#endif
 
 /********************************************************************
  *
@@ -1480,7 +1482,7 @@ VALUE_STRING_ARRAY(fld_op_vals);
 #define UPDATE_REQUEST_MAGIC_V1 0xBDDE0001
 #define UPDATE_REQUEST_MAGIC_V2 0xBDDE0002
 
-const value_string update_request_magic_vals[] = {
+static const value_string update_request_magic_vals[] = {
     {UPDATE_REQUEST_MAGIC_V1, "UPDATE_REQUEST_MAGIC_V1"},
     {UPDATE_REQUEST_MAGIC_V2, "UPDATE_REQUEST_MAGIC_V2"},
     {0, NULL}

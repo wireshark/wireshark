@@ -420,7 +420,7 @@ static dissector_handle_t ipv6_handle;
 static gboolean encapsulated = FALSE;
 static gboolean ddt_originated = FALSE;
 
-const value_string lisp_typevals[] = {
+static const value_string lisp_typevals[] = {
     { LISP_MAP_REQUEST,     "Map-Request" },
     { LISP_MAP_REPLY,       "Map-Reply" },
     { LISP_MAP_REGISTER,    "Map-Register" },
@@ -431,7 +431,7 @@ const value_string lisp_typevals[] = {
     { 0,                    NULL}
 };
 
-const value_string mapping_actions[] = {
+static const value_string mapping_actions[] = {
     { LISP_ACT_NONE,        "No-Action" },
     { LISP_ACT_FWD_NATIVE,  "Natively-Forward" },
     { LISP_ACT_MREQ,        "Send-Map-Request" },
@@ -442,7 +442,7 @@ const value_string mapping_actions[] = {
     { 0,                    NULL}
 };
 
-const value_string referral_actions[] = {
+static const value_string referral_actions[] = {
     { DDT_NODE_REF,         "Node Referral" },
     { DDT_MS_REF,           "Map-Server Referral" },
     { DDT_MS_ACK,           "Map-Server ACK" },
@@ -452,7 +452,7 @@ const value_string referral_actions[] = {
     { 0,                    NULL}
 };
 
-const value_string lcaf_typevals[] = {
+static const value_string lcaf_typevals[] = {
     { LCAF_NULL,            "Null Body" },
     { LCAF_AFI_LIST,        "AFI List" },
     { LCAF_IID,             "Instance ID" },
@@ -473,20 +473,20 @@ const value_string lcaf_typevals[] = {
     { 0,                    NULL}
 };
 
-const value_string lat_typevals[] = {
+static const value_string lat_typevals[] = {
     { 0,                    "S" },
     { 1,                    "N" },
     { 0,                    NULL}
 };
 
-const value_string lon_typevals[] = {
+static const value_string lon_typevals[] = {
     { 0,                    "W" },
     { 1,                    "E" },
     { 0,                    NULL}
 };
 
 /* Add your company OUI here if you're developing a vendor LCAF dissector */
-const value_string oui_vals[] = {
+static const value_string oui_vals[] = {
     { OUI_CISCO,            "Cisco" },
     { 0,                    NULL}
 };

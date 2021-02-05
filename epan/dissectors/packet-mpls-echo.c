@@ -448,7 +448,7 @@ static const value_string mpls_echo_multipathtlv_type[] = {
 #define SUB_TLV_FEC_PUSH     1
 #define SUB_TLV_FEC_POP      2
 
-const value_string mpls_echo_subtlv_op_types[] = {
+static const value_string mpls_echo_subtlv_op_types[] = {
     { SUB_TLV_FEC_PUSH,    "Push"},
     { SUB_TLV_FEC_POP,     "Pop"},
     { 0, NULL}
@@ -459,7 +459,7 @@ const value_string mpls_echo_subtlv_op_types[] = {
 #define SUB_TLV_FEC_IPV4            1
 #define SUB_TLV_FEC_IPV6            2
 
-const value_string mpls_echo_subtlv_addr_types[] = {
+static const value_string mpls_echo_subtlv_addr_types[] = {
     { SUB_TLV_FEC_UNSPECIFIED,    "Unspecified"},
     { SUB_TLV_FEC_IPV4,           "IPv4"},
     { SUB_TLV_FEC_IPV6,           "IPv6"},
@@ -471,7 +471,7 @@ const value_string mpls_echo_subtlv_addr_types[] = {
 #define SUB_TLV_FEC_SR_PROTO_OSPF    1
 #define SUB_TLV_FEC_SR_PROTO_ISIS    2
 
-const value_string mpls_echo_subtlv_sr_protocol_types[] = {
+static const value_string mpls_echo_subtlv_sr_protocol_types[] = {
     { SUB_TLV_FEC_SR_PROTO_ANY,  "Any IGP protocol"},
     { SUB_TLV_FEC_SR_PROTO_OSPF, "OSPF"},
     { SUB_TLV_FEC_SR_PROTO_ISIS, "IS-IS"},
@@ -484,7 +484,7 @@ const value_string mpls_echo_subtlv_sr_protocol_types[] = {
 #define SUB_TLV_FEC_SR_IGP_ADJ_IPv4          4
 #define SUB_TLV_FEC_SR_IGP_ADJ_IPv6          6
 
-const value_string mpls_echo_subtlv_igp_adjacency_types[] = {
+static const value_string mpls_echo_subtlv_igp_adjacency_types[] = {
     { SUB_TLV_FEC_SR_IGP_ADJ_UNNUMBERED, "Unnumbered Interface Adjacency"},
     { SUB_TLV_FEC_SR_IGP_ADJ_PARALLEL,   "Parallel Adjacency"},
     { SUB_TLV_FEC_SR_IGP_ADJ_IPv4,       "IPv4, Non-parallel Adjacency"},

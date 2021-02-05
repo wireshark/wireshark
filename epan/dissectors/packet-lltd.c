@@ -304,7 +304,7 @@ static const value_string lltd_qos_error_vals[] = {
 };
 
 
-const true_false_string tfs_full_half_duplex = { "Full Duplex", "Half Duplex" };
+static const true_false_string tfs_full_half_duplex = { "Full Duplex", "Half Duplex" };
 
 
 static int

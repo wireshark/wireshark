@@ -534,7 +534,7 @@ static const value_string mausb_transfer_type_string[] = {
     { 0, NULL}
 };
 
-const true_false_string tfs_ep_handle_resp_dir = { "IN", "OUT or Control" };
+static const true_false_string tfs_ep_handle_resp_dir = { "IN", "OUT or Control" };
 
 #define MAUSB_TRANSFER_TYPE_OFFSET 3 /* Offset from start of TFlags Field */
                                      /* (EPS not included) */

@@ -92,7 +92,7 @@ typedef struct
    the purpose is to match a protocol name with a dissector,
    and to store the dissector handle the first time to avoid looking it up every time.
    This table should contain all 3GPP specified protocols */
-lookup_dissector_element_t dissector_lookup_table[] = {
+static lookup_dissector_element_t dissector_lookup_table[] = {
   {"DATA","data","data",0,0,NULL},
   {"GAN.TCP","umatcp","umatcp",0,0,NULL},
   {"GAN.UDP","umaudp","umaudp",0,0,NULL},

@@ -936,9 +936,9 @@ static const value_string status_code[] = {
 static value_string_ext status_code_ext = VALUE_STRING_EXT_INIT(status_code);
 
 /* C1G2 tag inventory state aware singulation action */
-const true_false_string tfs_state_a_b = { "State B", "State A" };
-const true_false_string tfs_sl =        { "~SL",     "SL"      };
-const true_false_string tfs_all_no =    { "All",     "No"      };
+static const true_false_string tfs_state_a_b = { "State B", "State A" };
+static const true_false_string tfs_sl =        { "~SL",     "SL"      };
+static const true_false_string tfs_all_no =    { "All",     "No"      };
 
 /* Vendors */
 #define LLRP_VENDOR_IMPINJ 25882
