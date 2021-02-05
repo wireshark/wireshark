@@ -33,8 +33,11 @@ typedef struct {
     wtap_block_create_func create;
     wtap_mand_free_func free_mand;
     wtap_mand_copy_func copy_mand;
-    GArray *options;                 /**< array of known options */
+    GHashTable *options;             /**< hash table of known options */
 } wtap_blocktype_t;
+
+#define GET_OPTION_TYPE(options, option_id) \
+    (const wtap_opttype_t *)g_hash_table_lookup((options), GUINT_TO_POINTER(option_id))
 
 /*
  * Structure describing a type of option.
@@ -89,11 +92,13 @@ static void wtap_opttype_block_register(wtap_block_type_t block_type, wtap_block
     /*
      * Initialize the set of supported options.
      * All blocks that support options at all support OPT_COMMENT.
+     *
+     * XXX - there's no "g_uint_hash()" or "g_uint_equal()",
+     * so we use "g_direct_hash()" and "g_direct_equal()".
      */
-    blocktype->options = g_array_sized_new(FALSE, TRUE, sizeof (wtap_opttype_t), OPT_COMMENT + 1);
-    if (OPT_COMMENT + 1 > blocktype->options->len)
-        g_array_set_size(blocktype->options, OPT_COMMENT + 1);
-    g_array_insert_val(blocktype->options, OPT_COMMENT, opt_comment);
+    blocktype->options = g_hash_table_new(g_direct_hash, g_direct_equal);
+    g_hash_table_insert(blocktype->options, GUINT_TO_POINTER(OPT_COMMENT),
+                        (gpointer)&opt_comment);
 
     blocktype_list[block_type] = blocktype;
 }
@@ -124,11 +129,10 @@ int wtap_opttype_register_custom_block_type(const char* name, const char* descri
     return block_type;
 }
 
-static void wtap_opttype_option_register(wtap_blocktype_t *blocktype, int opttype, wtap_opttype_t *option)
+static void wtap_opttype_option_register(wtap_blocktype_t *blocktype, guint opttype, const wtap_opttype_t *option)
 {
-    if ((guint)opttype + 1 > blocktype->options->len)
-        g_array_set_size(blocktype->options, opttype + 1);
-    g_array_insert_val(blocktype->options, opttype, *option);
+    g_hash_table_insert(blocktype->options, GUINT_TO_POINTER(opttype),
+                        (gpointer) option);
 }
 
 void* wtap_block_get_mandatory_data(wtap_block_t block)
@@ -188,9 +192,9 @@ wtap_block_t wtap_block_create(wtap_block_type_t block_type)
 
 static void wtap_block_free_option(wtap_block_t block, wtap_option_t *opt)
 {
-    wtap_opttype_t *opttype;
+    const wtap_opttype_t *opttype;
 
-    opttype = &g_array_index(block->info->options, wtap_opttype_t, opt->option_id);
+    opttype = GET_OPTION_TYPE(block->info->options, opt->option_id);
     switch (opttype->data_type) {
 
     case WTAP_OPTTYPE_STRING:
@@ -265,7 +269,7 @@ wtap_block_copy(wtap_block_t dest_block, wtap_block_t src_block)
 {
     guint i;
     wtap_option_t *src_opt;
-    wtap_opttype_t *opttype;
+    const wtap_opttype_t *opttype;
 
     /*
      * Copy the mandatory data.
@@ -279,7 +283,7 @@ wtap_block_copy(wtap_block_t dest_block, wtap_block_t src_block)
     for (i = 0; i < src_block->options->len; i++)
     {
         src_opt = &g_array_index(src_block->options, wtap_option_t, i);
-        opttype = &g_array_index(src_block->info->options, wtap_opttype_t, src_opt->option_id);
+        opttype = GET_OPTION_TYPE(src_block->info->options, src_opt->option_id);
 
         switch(opttype->data_type) {
 
@@ -323,11 +327,11 @@ void wtap_block_foreach_option(wtap_block_t block, wtap_block_foreach_func func,
 {
     guint i;
     wtap_option_t *opt;
-    wtap_opttype_t *opttype;
+    const wtap_opttype_t *opttype;
 
     for (i = 0; i < block->options->len; i++) {
         opt = &g_array_index(block->options, wtap_option_t, i);
-        opttype = &g_array_index(block->info->options, wtap_opttype_t, opt->option_id);
+        opttype = GET_OPTION_TYPE(block->info->options, opt->option_id);
         func(block, opt->option_id, opttype->data_type, &opt->value, user_data);
     }
 }
@@ -336,14 +340,14 @@ static wtap_opttype_return_val
 wtap_block_add_option_common(wtap_block_t block, guint option_id, wtap_opttype_e type, wtap_option_t **optp)
 {
     wtap_option_t *opt;
-    wtap_opttype_t *opttype;
+    const wtap_opttype_t *opttype;
     guint i;
 
-    if (option_id >= block->info->options->len) {
+    opttype = GET_OPTION_TYPE(block->info->options, option_id);
+    if (opttype == NULL) {
         /* There's no option for this block with that option ID */
         return WTAP_OPTTYPE_NO_SUCH_OPTION;
     }
-    opttype = &g_array_index(block->info->options, wtap_opttype_t, option_id);
 
     /*
      * Is this an option of the specified data type?
@@ -384,15 +388,14 @@ wtap_block_add_option_common(wtap_block_t block, guint option_id, wtap_opttype_e
 static wtap_opttype_return_val
 wtap_block_get_option_common(wtap_block_t block, guint option_id, wtap_opttype_e type, wtap_optval_t **optvalp)
 {
-    wtap_opttype_t *opttype;
+    const wtap_opttype_t *opttype;
     wtap_optval_t *optval;
 
-    if (option_id >= block->info->options->len) {
+    opttype = GET_OPTION_TYPE(block->info->options, option_id);
+    if (opttype == NULL) {
         /* There's no option for this block with that option ID */
         return WTAP_OPTTYPE_NO_SUCH_OPTION;
     }
-
-    opttype = &g_array_index(block->info->options, wtap_opttype_t, option_id);
 
     /*
      * Is this an option of the specified data type?
@@ -427,15 +430,14 @@ wtap_block_get_option_common(wtap_block_t block, guint option_id, wtap_opttype_e
 static wtap_opttype_return_val
 wtap_block_get_nth_option_common(wtap_block_t block, guint option_id, wtap_opttype_e type, guint idx, wtap_optval_t **optvalp)
 {
-    wtap_opttype_t *opttype;
+    const wtap_opttype_t *opttype;
     wtap_optval_t *optval;
 
-    if (option_id >= block->info->options->len) {
+    opttype = GET_OPTION_TYPE(block->info->options, option_id);
+    if (opttype == NULL) {
         /* There's no option for this block with that option ID */
         return WTAP_OPTTYPE_NO_SUCH_OPTION;
     }
-
-    opttype = &g_array_index(block->info->options, wtap_opttype_t, option_id);
 
     /*
      * Is this an option of the specified data type?
@@ -869,16 +871,15 @@ wtap_block_get_if_filter_option_value(wtap_block_t block, guint option_id, if_fi
 wtap_opttype_return_val
 wtap_block_remove_option(wtap_block_t block, guint option_id)
 {
-    wtap_opttype_t *opttype;
+    const wtap_opttype_t *opttype;
     guint i;
     wtap_option_t *opt;
 
-    if (option_id >= block->info->options->len) {
+    opttype = GET_OPTION_TYPE(block->info->options, option_id);
+    if (opttype == NULL) {
         /* There's no option for this block with that option ID */
         return WTAP_OPTTYPE_NO_SUCH_OPTION;
     }
-
-    opttype = &g_array_index(block->info->options, wtap_opttype_t, option_id);
 
     /*
      * Can there be more than one instance of this option?
@@ -909,17 +910,16 @@ wtap_opttype_return_val
 wtap_block_remove_nth_option_instance(wtap_block_t block, guint option_id,
                                       guint idx)
 {
-    wtap_opttype_t *opttype;
+    const wtap_opttype_t *opttype;
     guint i;
     wtap_option_t *opt;
     guint opt_idx;
 
-    if (option_id >= block->info->options->len) {
+    opttype = GET_OPTION_TYPE(block->info->options, option_id);
+    if (opttype == NULL) {
         /* There's no option for this block with that option ID */
         return WTAP_OPTTYPE_NO_SUCH_OPTION;
     }
-
-    opttype = &g_array_index(block->info->options, wtap_opttype_t, option_id);
 
     /*
      * Can there be more than one instance of this option?
@@ -1055,19 +1055,19 @@ void wtap_opttypes_initialize(void)
         shb_copy_mand,          /* copy_mand */
         NULL                    /* options */
     };
-    static wtap_opttype_t shb_hardware = {
+    static const wtap_opttype_t shb_hardware = {
         "hardware",
         "SHB Hardware",
         WTAP_OPTTYPE_STRING,
         0
     };
-    static wtap_opttype_t shb_os = {
+    static const wtap_opttype_t shb_os = {
         "os",
         "SHB Operating System",
         WTAP_OPTTYPE_STRING,
         0
     };
-    static wtap_opttype_t shb_userappl = {
+    static const wtap_opttype_t shb_userappl = {
         "user_appl",
         "SHB User Application",
         WTAP_OPTTYPE_STRING,
@@ -1083,49 +1083,49 @@ void wtap_opttypes_initialize(void)
         idb_copy_mand,                 /* copy_mand */
         NULL                           /* options */
     };
-    static wtap_opttype_t if_name = {
+    static const wtap_opttype_t if_name = {
         "name",
         "IDB Name",
         WTAP_OPTTYPE_STRING,
         0
     };
-    static wtap_opttype_t if_description = {
+    static const wtap_opttype_t if_description = {
         "description",
         "IDB Description",
         WTAP_OPTTYPE_STRING,
         0
     };
-    static wtap_opttype_t if_speed = {
+    static const wtap_opttype_t if_speed = {
         "speed",
         "IDB Speed",
         WTAP_OPTTYPE_UINT64,
         0
     };
-    static wtap_opttype_t if_tsresol = {
+    static const wtap_opttype_t if_tsresol = {
         "tsresol",
         "IDB Time Stamp Resolution",
         WTAP_OPTTYPE_UINT8, /* XXX - signed? */
         0
     };
-    static wtap_opttype_t if_filter = {
+    static const wtap_opttype_t if_filter = {
         "filter",
         "IDB Filter",
         WTAP_OPTTYPE_IF_FILTER,
         0
     };
-    static wtap_opttype_t if_os = {
+    static const wtap_opttype_t if_os = {
         "os",
         "IDB Operating System",
         WTAP_OPTTYPE_STRING,
         0
     };
-    static wtap_opttype_t if_fcslen = {
+    static const wtap_opttype_t if_fcslen = {
         "fcslen",
         "IDB FCS Length",
         WTAP_OPTTYPE_UINT8,
         0
     };
-    static wtap_opttype_t if_hardware = {
+    static const wtap_opttype_t if_hardware = {
         "hardware",
         "IDB Hardware",
         WTAP_OPTTYPE_STRING,
@@ -1151,19 +1151,19 @@ void wtap_opttypes_initialize(void)
         NULL,                    /* copy_mand */
         NULL                     /* options */
     };
-    static wtap_opttype_t ns_dnsname = {
+    static const wtap_opttype_t ns_dnsname = {
         "dnsname",
         "NRB DNS server name",
         WTAP_OPTTYPE_STRING,
         0
     };
-    static wtap_opttype_t ns_dnsIP4addr = {
+    static const wtap_opttype_t ns_dnsIP4addr = {
         "dnsIP4addr",
         "NRB DNS server IPv4 address",
         WTAP_OPTTYPE_IPv4,
         0
     };
-    static wtap_opttype_t ns_dnsIP6addr = {
+    static const wtap_opttype_t ns_dnsIP6addr = {
         "dnsIP6addr",
         "NRB DNS server IPv6 address",
         WTAP_OPTTYPE_IPv6,
@@ -1179,43 +1179,43 @@ void wtap_opttypes_initialize(void)
         isb_copy_mand,                /* copy_mand */
         NULL                          /* options */
     };
-    static wtap_opttype_t isb_starttime = {
+    static const wtap_opttype_t isb_starttime = {
         "starttime",
         "ISB Start Time",
         WTAP_OPTTYPE_UINT64,
         0
     };
-    static wtap_opttype_t isb_endtime = {
+    static const wtap_opttype_t isb_endtime = {
         "endtime",
         "ISB End Time",
         WTAP_OPTTYPE_UINT64,
         0
     };
-    static wtap_opttype_t isb_ifrecv = {
+    static const wtap_opttype_t isb_ifrecv = {
         "ifrecv",
         "ISB Received Packets",
         WTAP_OPTTYPE_UINT64,
         0
     };
-    static wtap_opttype_t isb_ifdrop = {
+    static const wtap_opttype_t isb_ifdrop = {
         "ifdrop",
         "ISB Dropped Packets",
         WTAP_OPTTYPE_UINT64,
         0
     };
-    static wtap_opttype_t isb_filteraccept = {
+    static const wtap_opttype_t isb_filteraccept = {
         "filteraccept",
         "ISB Packets Accepted By Filter",
         WTAP_OPTTYPE_UINT64,
         0
     };
-    static wtap_opttype_t isb_osdrop = {
+    static const wtap_opttype_t isb_osdrop = {
         "osdrop",
         "ISB Packets Dropped By The OS",
         WTAP_OPTTYPE_UINT64,
         0
     };
-    static wtap_opttype_t isb_usrdeliv = {
+    static const wtap_opttype_t isb_usrdeliv = {
         "usrdeliv",
         "ISB Packets Delivered To The User",
         WTAP_OPTTYPE_UINT64,
@@ -1281,7 +1281,7 @@ void wtap_opttypes_cleanup(void)
     for (block_type = 0; block_type < (WTAP_BLOCK_END_OF_LIST+num_custom_blocks); block_type++) {
         if (blocktype_list[block_type]) {
             if (blocktype_list[block_type]->options)
-                g_array_free(blocktype_list[block_type]->options, TRUE);
+                g_hash_table_destroy(blocktype_list[block_type]->options);
             blocktype_list[block_type] = NULL;
         }
     }
