@@ -14,6 +14,5 @@ jobs:
       with:
         username: ${{ secrets.DOCKERHUB_USERNAME }}
         password: ${{ secrets.DOCKERHUB_TOKEN }}
-        # TODO: Check if can change docker prefix
         repository: tomlegkov/marine-core
         tag_with_ref: true
