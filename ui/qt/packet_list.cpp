@@ -884,6 +884,10 @@ void PacketList::mouseMoveEvent (QMouseEvent *event)
 
             drag->exec(Qt::CopyAction);
         }
+        else
+        {
+            delete mimeData;
+        }
     }
 }
 
