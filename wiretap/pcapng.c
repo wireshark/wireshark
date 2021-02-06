@@ -239,7 +239,6 @@ typedef struct {
     wtap_new_ipv6_callback_t add_new_ipv6;
 } pcapng_t;
 
-#ifdef HAVE_PLUGINS
 /*
  * Table for plugins to handle particular block types.
  *
@@ -490,7 +489,6 @@ register_pcapng_option_handler(guint block_type, guint option_code,
     g_hash_table_insert(option_handlers[bt_index],
                         GUINT_TO_POINTER(option_code), handler);
 }
-#endif /* HAVE_PLUGINS */
 
 static int
 pcapng_read_option(FILE_T fh, const section_info_t *section_info,
