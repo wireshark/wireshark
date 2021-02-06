@@ -1699,7 +1699,7 @@ dissect_oml_attrs(tvbuff_t *tvb, int base_offs, int length,
 							    tvb, loffset++, 1,
 							    ENC_LITTLE_ENDIAN);
 				}
-				loffset = dissect_oml_attrs(tvb, loffset, len - 1 - not_counted, pinfo, att_tree);
+				dissect_oml_attrs(tvb, loffset, len - 1 - not_counted, pinfo, att_tree);
 			}
 			break;
 		default:
