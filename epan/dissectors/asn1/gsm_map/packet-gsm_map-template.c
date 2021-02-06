@@ -2716,6 +2716,7 @@ static stat_tap_table_item gsm_map_stat_fields[] = {
 
 static void gsm_map_stat_init(stat_tap_table_ui* new_stat)
 {
+  const char *table_name = "GSM MAP Operation Statistics";
   int num_fields = sizeof(gsm_map_stat_fields)/sizeof(stat_tap_table_item);
   stat_tap_table* table;
   guint i;
@@ -2734,7 +2735,15 @@ static void gsm_map_stat_init(stat_tap_table_ui* new_stat)
   items[TOT_BYTES_COLUMN].type = TABLE_ITEM_UINT;
   items[AVG_BYTES_COLUMN].type = TABLE_ITEM_FLOAT;
 
-  table = stat_tap_init_table("GSM MAP Operation Statistics", num_fields, 0, NULL);
+  table = stat_tap_find_table(new_stat, table_name);
+  if (table) {
+    if (new_stat->stat_tap_reset_table_cb) {
+      new_stat->stat_tap_reset_table_cb(table);
+    }
+    return;
+  }
+
+  table = stat_tap_init_table(table_name, num_fields, 0, NULL);
   stat_tap_add_table(new_stat, table);
 
   /* Add a row for each value type */

@@ -24069,6 +24069,7 @@ static stat_tap_table_item gsm_map_stat_fields[] = {
 
 static void gsm_map_stat_init(stat_tap_table_ui* new_stat)
 {
+  const char *table_name = "GSM MAP Operation Statistics";
   int num_fields = sizeof(gsm_map_stat_fields)/sizeof(stat_tap_table_item);
   stat_tap_table* table;
   guint i;
@@ -24087,7 +24088,15 @@ static void gsm_map_stat_init(stat_tap_table_ui* new_stat)
   items[TOT_BYTES_COLUMN].type = TABLE_ITEM_UINT;
   items[AVG_BYTES_COLUMN].type = TABLE_ITEM_FLOAT;
 
-  table = stat_tap_init_table("GSM MAP Operation Statistics", num_fields, 0, NULL);
+  table = stat_tap_find_table(new_stat, table_name);
+  if (table) {
+    if (new_stat->stat_tap_reset_table_cb) {
+      new_stat->stat_tap_reset_table_cb(table);
+    }
+    return;
+  }
+
+  table = stat_tap_init_table(table_name, num_fields, 0, NULL);
   stat_tap_add_table(new_stat, table);
 
   /* Add a row for each value type */
@@ -31999,7 +32008,7 @@ void proto_register_gsm_map(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-gsm_map-hfarr.c ---*/
-#line 3320 "./asn1/gsm_map/packet-gsm_map-template.c"
+#line 3329 "./asn1/gsm_map/packet-gsm_map-template.c"
   };
 
   /* List of subtrees */
@@ -32754,7 +32763,7 @@ void proto_register_gsm_map(void) {
     &ett_NokiaMAP_Extensions_AllowedServiceData,
 
 /*--- End of included file: packet-gsm_map-ettarr.c ---*/
-#line 3359 "./asn1/gsm_map/packet-gsm_map-template.c"
+#line 3368 "./asn1/gsm_map/packet-gsm_map-template.c"
   };
 
   static ei_register_info ei[] = {
@@ -32898,7 +32907,7 @@ void proto_register_gsm_map(void) {
 
 
 /*--- End of included file: packet-gsm_map-dis-tab.c ---*/
-#line 3419 "./asn1/gsm_map/packet-gsm_map-template.c"
+#line 3428 "./asn1/gsm_map/packet-gsm_map-template.c"
   oid_add_from_string("ericsson-gsm-Map-Ext","1.2.826.0.1249.58.1.0" );
   oid_add_from_string("accessTypeNotAllowed-id","1.3.12.2.1107.3.66.1.2");
   /*oid_add_from_string("map-ac networkLocUp(1) version3(3)","0.4.0.0.1.0.1.3" );
