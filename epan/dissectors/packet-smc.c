@@ -592,7 +592,7 @@ disect_smcd_accept(tvbuff_t* tvb, proto_tree* tree)
 			offset += FLAG_BYTE_LEN;
 			offset += TWO_BYTE_RESERVED;
 			proto_tree_add_item(tree, hf_smcd_accept_peer_name, tvb, offset, 32, ENC_ASCII | ENC_NA);
-			offset += 32;
+			/* offset += 32; */
 		}
 	}
 }
@@ -661,7 +661,7 @@ disect_smcd_confirm(tvbuff_t* tvb, proto_tree* tree)
 			offset += FLAG_BYTE_LEN;
 			offset += TWO_BYTE_RESERVED;
 			proto_tree_add_item(tree, hf_smcd_confirm_peer_name, tvb, offset, 32, ENC_ASCII | ENC_NA);
-			offset += 32;
+			/* offset += 32; */
 		}
 	}
 }
