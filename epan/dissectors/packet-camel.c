@@ -8188,11 +8188,21 @@ static stat_tap_table_item camel_stat_fields[] = {{TABLE_ITEM_STRING, TAP_ALIGN_
 
 static void camel_stat_init(stat_tap_table_ui* new_stat)
 {
+  const char *table_name = "CAMEL Message Counters";
   int num_fields = sizeof(camel_stat_fields)/sizeof(stat_tap_table_item);
-  stat_tap_table* table = stat_tap_init_table("CAMEL Message Counters", num_fields, 0, NULL);
+  stat_tap_table *table;
   int i;
   stat_tap_table_item_type items[sizeof(camel_stat_fields)/sizeof(stat_tap_table_item)];
 
+  table = stat_tap_find_table(new_stat, table_name);
+  if (table) {
+    if (new_stat->stat_tap_reset_table_cb) {
+      new_stat->stat_tap_reset_table_cb(table);
+    }
+    return;
+  }
+
+  table = stat_tap_init_table(table_name, num_fields, 0, NULL);
   stat_tap_add_table(new_stat, table);
 
   items[MESSAGE_TYPE_COLUMN].type = TABLE_ITEM_STRING;
@@ -8306,7 +8316,7 @@ void proto_reg_handoff_camel(void) {
 
 
 /*--- End of included file: packet-camel-dis-tab.c ---*/
-#line 1272 "./asn1/camel/packet-camel-template.c"
+#line 1282 "./asn1/camel/packet-camel-template.c"
   } else {
     range_foreach(ssn_range, range_delete_callback, NULL);
     wmem_free(wmem_epan_scope(), ssn_range);
@@ -10428,7 +10438,7 @@ void proto_register_camel(void) {
         "InvokeId_present", HFILL }},
 
 /*--- End of included file: packet-camel-hfarr.c ---*/
-#line 1445 "./asn1/camel/packet-camel-template.c"
+#line 1455 "./asn1/camel/packet-camel-template.c"
   };
 
   /* List of subtrees */
@@ -10656,7 +10666,7 @@ void proto_register_camel(void) {
     &ett_camel_InvokeId,
 
 /*--- End of included file: packet-camel-ettarr.c ---*/
-#line 1472 "./asn1/camel/packet-camel-template.c"
+#line 1482 "./asn1/camel/packet-camel-template.c"
   };
 
   static ei_register_info ei[] = {
