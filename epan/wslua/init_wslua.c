@@ -923,7 +923,30 @@ void wslua_init(register_cb cb, gpointer client_data) {
 
     lua_atpanic(L,wslua_panic);
 
-    /* the init_routines table (accessible by the user) */
+    /*
+     * The init_routines table (accessible by the user).
+     *
+     * For a table a, a.init is syntactic sugar for a["init"], and
+     *
+     *    function t.a.b.c.f () body end
+     *
+     * is syntactic sugar for
+     *
+     *    t.a.b.c.f = function () body end
+     *
+     * so
+     *
+     *    function proto.init () body end
+     *
+     * means
+     *
+     *    proto["init"] = function () body end
+     *
+     * and the Proto class has an "init" method, with Proto_set_init()
+     * being the setter for that method; that routine adds the Lua
+     * function passed to it as a Lua argument to the WSLUA_INIT_ROUTINES
+     * table - i.e., "init_routines".
+     */
     lua_newtable (L);
     lua_setglobal(L, WSLUA_INIT_ROUTINES);
 
