@@ -10655,10 +10655,15 @@ static void ansi_a_bsmap_stat_init(stat_tap_table_ui* new_stat)
     stat_tap_table_item_type items[sizeof(bsmap_stat_fields)/sizeof(stat_tap_table_item)];
 
     table = stat_tap_find_table(new_stat, table_name);
-    if (!table) {
-        table = stat_tap_init_table(table_name, num_fields, 0, NULL);
-        stat_tap_add_table(new_stat, table);
+    if (table) {
+        if (new_stat->stat_tap_reset_table_cb) {
+            new_stat->stat_tap_reset_table_cb(table);
+        }
+        return;
     }
+
+    table = stat_tap_init_table(table_name, num_fields, 0, NULL);
+    stat_tap_add_table(new_stat, table);
 
     /* Add a row for each value type */
     while (ansi_a_bsmap_strings[i].strptr)
