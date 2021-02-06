@@ -6687,7 +6687,9 @@ dissect_nfs_aceflags4(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_t
     };
 
     proto_tree_add_bitmask(ace_tree, tvb, offset, hf_nfs4_aceflags, ett_nfs4_aceflag, flags, ENC_BIG_ENDIAN);
-	return offset += 4;
+
+    offset += 4;
+    return offset;
 }
 
 
@@ -6837,7 +6839,9 @@ dissect_nfs4_acemask(tvbuff_t *tvb, int offset, proto_tree *ace_tree, guint32 ac
 	}
 	proto_item_append_text(acemask_item, ")");
 
-	return offset += 4;
+	offset += 4;
+
+	return offset;
 }
 
 /* Decode exactly one ACE (type, flags, mask, permissions, and who) */
