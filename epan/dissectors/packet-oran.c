@@ -676,7 +676,7 @@ static int dissect_oran_c_section(tvbuff_t *tvb, proto_tree *tree, packet_info *
                 offset += 4;
                 proto_tree_add_item(extension_tree, hf_oran_noncontig_res2, tvb, offset, 1, ENC_BIG_ENDIAN);
                 proto_tree_add_item(extension_tree, hf_oran_symbolMask, tvb, offset, 2, ENC_BIG_ENDIAN);
-                offset += 2;
+                /* offset += 2; */
                 break;
 
             default:

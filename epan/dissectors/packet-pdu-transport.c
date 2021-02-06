@@ -241,7 +241,7 @@ dissect_pdu_transport(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
         pdu_transport_info_t pdu_t_info;
         pdu_t_info.id = pdu_id;
 
-        tmp = dissector_try_uint_new(subdissector_table, pdu_id, subtvb, pinfo, tree, FALSE, (void *)(&pdu_t_info));
+        dissector_try_uint_new(subdissector_table, pdu_id, subtvb, pinfo, tree, FALSE, (void *)(&pdu_t_info));
     }
     offset += (gint)length;
 
