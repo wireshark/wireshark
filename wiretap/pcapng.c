@@ -4522,7 +4522,7 @@ static void compute_idb_option_size(wtap_block_t block _U_, guint option_id, wta
         }
         break;
     case OPT_IDB_FCSLEN:
-        /* XXX - Not currently writing value */
+        size = 1;
         break;
     default:
         /* Unknown options - size by datatype? */
@@ -4669,7 +4669,10 @@ static void write_wtap_idb_option(wtap_block_t block _U_, guint option_id, wtap_
         }
         break;
     case OPT_IDB_FCSLEN:
-        /* XXX - Not currently writing value */
+        if (!pcapng_write_option_uint8(write_block->wdh, option_id, optval->uint8val, write_block->err)) {
+            write_block->success = FALSE;
+            return;
+        }
         break;
     default:
         /* Unknown options - size by datatype? */
