@@ -2187,7 +2187,6 @@ dissect_s1g_ndp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
                         5, ENC_NA);
   }
 
-  offset += 6;
   return tvb_captured_length(tvb);
 }
 
