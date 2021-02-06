@@ -40,9 +40,6 @@
 #include "register.h"
 #include "ws_symbol_export.h"
 #include "ws_attributes.h"
-#ifdef HAVE_PLUGINS
-#include "wsutil/plugins.h"
-#endif
 
 #ifdef __cplusplus
 extern "C" {
@@ -1038,7 +1035,6 @@ extern gboolean proto_tree_traverse_post_order(proto_tree *tree,
 WS_DLL_PUBLIC void proto_tree_children_foreach(proto_tree *tree,
     proto_tree_foreach_func func, gpointer data);
 
-#ifdef HAVE_PLUGINS
 typedef struct {
     void (*register_protoinfo)(void);   /* routine to call to register protocol information */
     void (*register_handoff)(void);     /* routine to call to register dissector handoff */
@@ -1046,7 +1042,6 @@ typedef struct {
 
 /** Register dissector plugin with the plugin system. */
 WS_DLL_PUBLIC void proto_register_plugin(const proto_plugin *plugin);
-#endif
 
 /** Sets up memory used by proto routines. Called at program startup */
 void proto_init(GSList *register_all_plugin_protocols_list,

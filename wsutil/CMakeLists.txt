@@ -50,7 +50,6 @@ set(WSUTIL_PUBLIC_HEADERS
 	os_version_info.h
 	pint.h
 	please_report_bug.h
-	plugins.h
 	pow2.h
 	privileges.h
 	processes.h

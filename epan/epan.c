@@ -103,9 +103,12 @@ gboolean wireshark_abort_on_dissector_bug = FALSE;
 gboolean wireshark_abort_on_too_many_items = FALSE;
 
 #ifdef HAVE_PLUGINS
-plugins_t *libwireshark_plugins = NULL;
-static GSList *epan_plugins = NULL;
+/* Used for bookkeeping, includes all libwireshark plugin types (dissector, tap, epan). */
+static plugins_t *libwireshark_plugins = NULL;
 #endif
+
+/* "epan_plugins" are a specific type of libwireshark plugin (the name isn't the best for clarity). */
+static GSList *epan_plugins = NULL;
 
 const gchar*
 epan_get_version(void) {
@@ -149,7 +152,6 @@ quiet_gcrypt_logger (void *dummy _U_, int level, const char *format, va_list arg
 }
 #endif // _WIN32
 
-#ifdef HAVE_PLUGINS
 static void
 epan_plugin_init(gpointer data, gpointer user_data _U_)
 {
@@ -174,6 +176,7 @@ epan_plugin_cleanup(gpointer data, gpointer user_data _U_)
 	((epan_plugin *)data)->cleanup();
 }
 
+#ifdef HAVE_PLUGINS
 void epan_register_plugin(const epan_plugin *plug)
 {
 	epan_plugins = g_slist_prepend(epan_plugins, (epan_plugin *)plug);
@@ -182,14 +185,28 @@ void epan_register_plugin(const epan_plugin *plug)
 	if (plug->register_all_handoffs)
 		epan_plugin_register_all_handoffs = g_slist_prepend(epan_plugin_register_all_handoffs, plug->register_all_handoffs);
 }
+#else /* HAVE_PLUGINS */
+void epan_register_plugin(const epan_plugin *plug _U_)
+{
+	g_warning("epan_register_plugin: built without support for binary plugins");
+}
+#endif /* HAVE_PLUGINS */
 
-void epan_plugin_register_all_tap_listeners(gpointer data, gpointer user_data _U_)
+int epan_plugins_supported(void)
+{
+#ifdef HAVE_PLUGINS
+	return g_module_supported() ? 0 : 1;
+#else
+	return -1;
+#endif
+}
+
+static void epan_plugin_register_all_tap_listeners(gpointer data, gpointer user_data _U_)
 {
 	epan_plugin *plug = (epan_plugin *)data;
 	if (plug->register_all_tap_listeners)
 		plug->register_all_tap_listeners();
 }
-#endif
 
 gboolean
 epan_init(register_cb cb, gpointer client_data, gboolean load_plugins)
@@ -265,13 +282,9 @@ epan_init(register_cb cb, gpointer client_data, gboolean load_plugins)
 		conversation_init();
 		capture_dissector_init();
 		reassembly_tables_init();
-#ifdef HAVE_PLUGINS
 		g_slist_foreach(epan_plugins, epan_plugin_init, NULL);
-#endif
 		proto_init(epan_plugin_register_all_procotols, epan_plugin_register_all_handoffs, cb, client_data);
-#ifdef HAVE_PLUGINS
 		g_slist_foreach(epan_plugins, epan_plugin_register_all_tap_listeners, NULL);
-#endif
 		packet_cache_proto_handles();
 		dfilter_init();
 		final_registration_all_protocols();
@@ -329,11 +342,9 @@ epan_load_settings(void)
 void
 epan_cleanup(void)
 {
-#ifdef HAVE_PLUGINS
 	g_slist_foreach(epan_plugins, epan_plugin_cleanup, NULL);
 	g_slist_free(epan_plugins);
 	epan_plugins = NULL;
-#endif
 	g_slist_free(epan_plugin_register_all_procotols);
 	epan_plugin_register_all_procotols = NULL;
 	g_slist_free(epan_plugin_register_all_handoffs);
@@ -520,9 +531,7 @@ epan_dissect_init(epan_dissect_t *edt, epan_t *session, const gboolean create_pr
 
 	edt->tvb = NULL;
 
-#ifdef HAVE_PLUGINS
 	g_slist_foreach(epan_plugins, epan_plugin_dissect_init, edt);
-#endif
 }
 
 void
@@ -634,9 +643,7 @@ epan_dissect_cleanup(epan_dissect_t* edt)
 {
 	g_assert(edt);
 
-#ifdef HAVE_PLUGINS
 	g_slist_foreach(epan_plugins, epan_plugin_dissect_cleanup, edt);
-#endif
 
 	g_slist_free(edt->pi.proto_data);
 	g_slist_free(edt->pi.dependent_frames);

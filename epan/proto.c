@@ -444,18 +444,21 @@ proto_compare_name(gconstpointer p1_arg, gconstpointer p2_arg)
 	return g_ascii_strcasecmp(p1->short_name, p2->short_name);
 }
 
-#ifdef HAVE_PLUGINS
 static GSList *dissector_plugins = NULL;
 
+#ifdef HAVE_PLUGINS
 void
 proto_register_plugin(const proto_plugin *plug)
 {
-	if (!plug) {
-		/* XXX print useful warning */
-		return;
-	}
 	dissector_plugins = g_slist_prepend(dissector_plugins, (proto_plugin *)plug);
 }
+#else /* HAVE_PLUGINS */
+void
+proto_register_plugin(const proto_plugin *plug _U_)
+{
+	g_warning("proto_register_plugin: built without support for binary plugins");
+}
+#endif /* HAVE_PLUGINS */
 
 static void
 call_plugin_register_protoinfo(gpointer data, gpointer user_data _U_)
@@ -476,7 +479,6 @@ call_plugin_register_handoff(gpointer data, gpointer user_data _U_)
 		plug->register_handoff();
 	}
 }
-#endif /* HAVE_PLUGINS */
 
 /* initialize data structures and register protocols and fields */
 void
@@ -527,12 +529,10 @@ proto_init(GSList *register_all_plugin_protocols_list,
 		((void (*)(register_cb, gpointer))l->data)(cb, client_data);
 	}
 
-#ifdef HAVE_PLUGINS
 	/* Now call the registration routines for all dissector plugins. */
 	if (cb)
 		(*cb)(RA_PLUGIN_REGISTER, NULL, client_data);
 	g_slist_foreach(dissector_plugins, call_plugin_register_protoinfo, NULL);
-#endif
 
 	/* Now call the "handoff registration" routines of all built-in
 	   dissectors; those routines register the dissector in other
@@ -545,12 +545,10 @@ proto_init(GSList *register_all_plugin_protocols_list,
 		((void (*)(register_cb, gpointer))l->data)(cb, client_data);
 	}
 
-#ifdef HAVE_PLUGINS
 	/* Now do the same with dissector plugins. */
 	if (cb)
 		(*cb)(RA_PLUGIN_HANDOFF, NULL, client_data);
 	g_slist_foreach(dissector_plugins, call_plugin_register_handoff, NULL);
-#endif
 
 	/* sort the protocols by protocol name */
 	protocols = g_list_sort(protocols, proto_compare_name);
@@ -643,10 +641,8 @@ proto_cleanup(void)
 	proto_free_deregistered_fields();
 	proto_cleanup_base();
 
-#ifdef HAVE_PLUGINS
 	g_slist_free(dissector_plugins);
 	dissector_plugins = NULL;
-#endif
 }
 
 static gboolean

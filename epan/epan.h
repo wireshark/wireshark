@@ -52,10 +52,6 @@ struct packet_provider_funcs {
 	const char *(*get_user_comment)(struct packet_provider_data *prov, const frame_data *fd);
 };
 
-#ifdef HAVE_PLUGINS
-extern plugins_t *libwireshark_plugins;
-#endif
-
 /**
 	@section Epan The Enhanced Packet ANalyzer
 
@@ -118,7 +114,6 @@ e_prefs *epan_load_settings(void);
 WS_DLL_PUBLIC
 void epan_cleanup(void);
 
-#ifdef HAVE_PLUGINS
 typedef struct {
 	void (*init)(void);
 	void (*dissect_init)(epan_dissect_t *);
@@ -130,7 +125,14 @@ typedef struct {
 } epan_plugin;
 
 WS_DLL_PUBLIC void epan_register_plugin(const epan_plugin *plugin);
-#endif
+
+/** Returns_
+ *     0 if plugins can be loaded for all of libwireshark (tap, dissector, epan).
+ *     1 if plugins are not supported by the platform.
+ *    -1 if plugins were disabled in the build configuration.
+ */
+WS_DLL_PUBLIC int epan_plugins_supported(void);
+
 /**
  * Initialize the table of conversations.  Conversations are identified by
  * their endpoints; they are used for protocols such as IP, TCP, and UDP,

@@ -17,9 +17,6 @@
 #include "wtap_opttypes.h"
 #include "ws_symbol_export.h"
 #include "ws_attributes.h"
-#ifdef HAVE_PLUGINS
-#include "wsutil/plugins.h"
-#endif
 
 #ifdef __cplusplus
 extern "C" {
@@ -2323,14 +2320,20 @@ GSList *wtap_get_file_extension_type_extensions(guint extension_type);
 WS_DLL_PUBLIC
 void wtap_register_file_type_extension(const struct file_extension_info *ei);
 
-#ifdef HAVE_PLUGINS
 typedef struct {
 	void (*register_wtap_module)(void);  /* routine to call to register a wiretap module */
 } wtap_plugin;
 
 WS_DLL_PUBLIC
 void wtap_register_plugin(const wtap_plugin *plug);
-#endif
+
+/** Returns_
+ *     0 if plugins can be loaded for libwiretap (file type).
+ *     1 if plugins are not supported by the platform.
+ *    -1 if plugins were disabled in the build configuration.
+ */
+WS_DLL_PUBLIC
+int wtap_plugins_supported(void);
 
 WS_DLL_PUBLIC
 void wtap_register_open_info(struct open_info *oi, const gboolean first_routine);

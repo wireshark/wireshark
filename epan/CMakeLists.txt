@@ -320,10 +320,6 @@ add_library(epan
 	${CMAKE_BINARY_DIR}/image/libwireshark.rc
 )
 
-if(ENABLE_PLUGINS)
-	target_compile_definitions(epan PUBLIC HAVE_PLUGINS)
-endif()
-
 set_target_properties(epan PROPERTIES
 	COMPILE_DEFINITIONS "WS_BUILD_DLL"
 	LINK_FLAGS "${WS_LINK_FLAGS}"

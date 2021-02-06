@@ -450,8 +450,10 @@ get_runtime_version_info(void (*additional_info)(GString *))
 		g_string_append_printf(str, ", binary plugins supported (%d loaded)", plugins_get_count());
 	}
 	else {
-		g_string_append(str, ", binary plugins not supported");
+		g_string_append(str, ", binary plugins not supported by the platform");
 	}
+#else
+	g_string_append(str, ", built without support for binary plugins");
 #endif
 
 	g_string_append(str, ".");

@@ -21,6 +21,8 @@
 #include "wtap.h"
 #include "wtap_opttypes.h"
 
+#define wtap_warn(...) g_warning(__VA_ARGS__)
+
 WS_DLL_PUBLIC
 int wtap_fstat(wtap *wth, ws_statb64 *statb, int *err);
 

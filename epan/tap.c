@@ -93,14 +93,21 @@ typedef struct _tap_listener_t {
 
 static tap_listener_t *tap_listener_queue=NULL;
 
-#ifdef HAVE_PLUGINS
 static GSList *tap_plugins = NULL;
 
+#ifdef HAVE_PLUGINS
 void
 tap_register_plugin(const tap_plugin *plug)
 {
 	tap_plugins = g_slist_prepend(tap_plugins, (tap_plugin *)plug);
 }
+#else /* HAVE_PLUGINS */
+void
+tap_register_plugin(const tap_plugin *plug _U_)
+{
+	g_warning("tap_register_plugin: built without support for binary plugins");
+}
+#endif /* HAVE_PLUGINS */
 
 static void
 call_plugin_register_tap_listener(gpointer data, gpointer user_data _U_)
@@ -111,7 +118,6 @@ call_plugin_register_tap_listener(gpointer data, gpointer user_data _U_)
 		plug->register_tap_listener();
 	}
 }
-#endif /* HAVE_PLUGINS */
 
 /*
  * For all taps, call their register routines.
@@ -122,12 +128,10 @@ call_plugin_register_tap_listener(gpointer data, gpointer user_data _U_)
 void
 register_all_tap_listeners(tap_reg_t *tap_reg_listeners)
 {
-#ifdef HAVE_PLUGINS
 	/* we register the plugin taps before the other taps because
          * stats_tree taps plugins will be registered as tap listeners
          * by stats_tree_stat.c and need to registered before that */
 	g_slist_foreach(tap_plugins, call_plugin_register_tap_listener, NULL);
-#endif
 
 	/* Register all builtin listeners. */
 	for (tap_reg_t *t = &tap_reg_listeners[0]; t->cb_func != NULL; t++) {
@@ -770,10 +774,8 @@ void tap_cleanup(void)
 		g_free((gpointer)elem_dl);
 	}
 
-#ifdef HAVE_PLUGINS
 	g_slist_free(tap_plugins);
 	tap_plugins = NULL;
-#endif /* HAVE_PLUGINS */
 }
 
 /*

@@ -128,6 +128,7 @@ libwiretap.so.0 libwiretap0 #MINVER#
  wtap_opttypes_initialize@Base 2.1.2
  wtap_opttypes_cleanup@Base 2.3.0
  wtap_pcap_encap_to_wtap_encap@Base 1.9.1
+ wtap_plugins_supported@Base 3.5.0
  wtap_read@Base 1.9.1
  wtap_read_bytes@Base 1.99.1
  wtap_read_bytes_or_eof@Base 1.99.1

@@ -15,7 +15,7 @@ project(Hello VERSION 0.0.1 DESCRIPTION "Wireshark Hello Plugin" LANGUAGES C)
 find_package(Wireshark CONFIG REQUIRED)
 
 if(NOT Wireshark_PLUGINS_ENABLED)
-	message(FATAL_ERROR "Wireshark was compiled without support for plugins")
+	message(WARNING "Wireshark was compiled without support for plugins")
 endif()
 
 set(CMAKE_C_VISIBILITY_PRESET hidden)

@@ -14,15 +14,28 @@
 #include "codecs.h"
 
 #ifdef HAVE_PLUGINS
+#include <wsutil/plugins.h>
+#endif
 
-static plugins_t *libwscodecs_plugins;
+#ifdef HAVE_PLUGINS
+static plugins_t *libwscodecs_plugins = NULL;
+#endif
+
 static GSList *codecs_plugins = NULL;
 
+#ifdef HAVE_PLUGINS
 void
 codecs_register_plugin(const codecs_plugin *plug)
 {
     codecs_plugins = g_slist_prepend(codecs_plugins, (codecs_plugin *)plug);
 }
+#else /* HAVE_PLUGINS */
+void
+codecs_register_plugin(const codecs_plugin *plug _U_)
+{
+	g_warning("codecs_register_plugin: built without support for binary plugins");
+}
+#endif /* HAVE_PLUGINS */
 
 static void
 call_plugin_register_codec_module(gpointer data, gpointer user_data _U_)
@@ -33,7 +46,6 @@ call_plugin_register_codec_module(gpointer data, gpointer user_data _U_)
         plug->register_codec_module();
     }
 }
-#endif /* HAVE_PLUGINS */
 
 
 /*
@@ -44,16 +56,16 @@ codecs_init(void)
 {
 #ifdef HAVE_PLUGINS
     libwscodecs_plugins = plugins_init(WS_PLUGIN_CODEC);
+#endif
     g_slist_foreach(codecs_plugins, call_plugin_register_codec_module, NULL);
-#endif /* HAVE_PLUGINS */
 }
 
 void
 codecs_cleanup(void)
 {
-#ifdef HAVE_PLUGINS
     g_slist_free(codecs_plugins);
     codecs_plugins = NULL;
+#ifdef HAVE_PLUGINS
     plugins_cleanup(libwscodecs_plugins);
     libwscodecs_plugins = NULL;
 #endif
