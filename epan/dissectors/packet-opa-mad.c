@@ -2813,7 +2813,8 @@ static gint parse_MAD_AttributeModifier(proto_tree *MAD_tree, tvbuff_t *tvb, gin
     default:
         break;
     }
-    return local_offset += 4;
+    local_offset += 4;
+    return local_offset;
 }
 /* Parse the common MAD Header */
 static gboolean parse_MAD_Common(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *tvb, gint *offset, MAD_t *MAD)
