@@ -5818,17 +5818,6 @@ static void sip_stat_init(stat_tap_table_ui* new_stat)
     stat_tap_table_item_type items[sizeof(sip_stat_fields)/sizeof(stat_tap_table_item)];
     guint i;
 
-    req_table = stat_tap_find_table(new_stat, req_table_name);
-    if (!req_table) {
-        req_table = stat_tap_init_table(req_table_name, num_fields, 0, NULL);
-        stat_tap_add_table(new_stat, req_table);
-    }
-    resp_table = stat_tap_find_table(new_stat, resp_table_name);
-    if (!resp_table) {
-        resp_table = stat_tap_init_table(resp_table_name, num_fields, 0, NULL);
-        stat_tap_add_table(new_stat, resp_table);
-    }
-
     // These values are fixed for all entries.
     items[REQ_RESP_METHOD_COLUMN].type = TABLE_ITEM_STRING;
     items[COUNT_COLUMN].type = TABLE_ITEM_UINT;
@@ -5842,19 +5831,39 @@ static void sip_stat_init(stat_tap_table_ui* new_stat)
     items[MAX_SETUP_COLUMN].type = TABLE_ITEM_FLOAT;
     items[MAX_SETUP_COLUMN].value.float_value = 0.0f;
 
-    // For req_table, first column value is method.
-    for (i = 1; i < array_length(sip_methods); i++) {
-        items[REQ_RESP_METHOD_COLUMN].value.string_value = g_strdup(sip_methods[i]);
-        stat_tap_init_table_row(req_table, i-1, num_fields, items);
+    req_table = stat_tap_find_table(new_stat, req_table_name);
+    if (req_table) {
+        if (new_stat->stat_tap_reset_table_cb)
+            new_stat->stat_tap_reset_table_cb(req_table);
+    }
+    else {
+        req_table = stat_tap_init_table(req_table_name, num_fields, 0, NULL);
+        stat_tap_add_table(new_stat, req_table);
+
+        // For req_table, first column value is method.
+        for (i = 1; i < array_length(sip_methods); i++) {
+            items[REQ_RESP_METHOD_COLUMN].value.string_value = g_strdup(sip_methods[i]);
+            stat_tap_init_table_row(req_table, i-1, num_fields, items);
+        }
     }
 
-    // For responses entries, first column gets code and description.
-    for (i = 1; sip_response_code_vals[i].strptr; i++) {
-        unsigned response_code = sip_response_code_vals[i].value;
-        items[REQ_RESP_METHOD_COLUMN].value.string_value =
+    resp_table = stat_tap_find_table(new_stat, resp_table_name);
+    if (resp_table) {
+        if (new_stat->stat_tap_reset_table_cb)
+            new_stat->stat_tap_reset_table_cb(resp_table);
+    }
+    else {
+        resp_table = stat_tap_init_table(resp_table_name, num_fields, 0, NULL);
+        stat_tap_add_table(new_stat, resp_table);
+
+        // For responses entries, first column gets code and description.
+        for (i = 1; sip_response_code_vals[i].strptr; i++) {
+            unsigned response_code = sip_response_code_vals[i].value;
+            items[REQ_RESP_METHOD_COLUMN].value.string_value =
                 g_strdup_printf("%u %s", response_code, sip_response_code_vals[i].strptr);
-        items[REQ_RESP_METHOD_COLUMN].user_data.uint_value = response_code;
-        stat_tap_init_table_row(resp_table, i-1, num_fields, items);
+            items[REQ_RESP_METHOD_COLUMN].user_data.uint_value = response_code;
+            stat_tap_init_table_row(resp_table, i-1, num_fields, items);
+        }
     }
 }
 
