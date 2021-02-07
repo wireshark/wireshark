@@ -6404,11 +6404,11 @@ void proto_register_infiniband(void)
         },
         { &hf_infiniband_virtual_address, {
                 "Virtual Address", "infiniband.reth.va",
-                FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL}
+                FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL}
         },
         { &hf_infiniband_remote_key, {
                 "Remote Key", "infiniband.reth.r_key",
-                FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}
+                FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}
         },
         { &hf_infiniband_dma_length, {
                 "DMA Length", "infiniband.reth.dmalen",
