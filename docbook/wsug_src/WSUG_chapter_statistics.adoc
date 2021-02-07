@@ -555,8 +555,7 @@ The Dynamic Host Configuration Protocol (DHCP) is an option of the Bootstrap Pro
 
 === ONC-RPC Programs
 
-{missing}
-
+Open Network Computing (ONC) Remote Procedure Call (RPC) uses TCP or UDP protocols to map a program number to a specific port on a remote machine and call a required service at that port. The ONC-RPC Programs window shows the description for captured program calls, such as program name, its number, version, and other data.
 [[ChStat29West]]
 
 === 29West
