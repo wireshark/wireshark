@@ -309,7 +309,8 @@ dissect_net_dm_attrs(tvbuff_t *tvb, void *data, struct packet_netlink_data *nl_d
 {
 	enum ws_net_dm_attrs type = (enum ws_net_dm_attrs) nla_type & NLA_TYPE_MASK;
 	struct netlink_net_dm_info *info = (struct netlink_net_dm_info *) data;
-	guint64 pc;
+	guint64 pc, timestamp;
+	nstime_t ts_nstime;
 	guint32 value;
 	tvbuff_t *next_tvb;
 	const guint8 *str;
@@ -331,7 +332,10 @@ dissect_net_dm_attrs(tvbuff_t *tvb, void *data, struct packet_netlink_data *nl_d
 		return dissect_netlink_attributes(tvb, &hfi_net_dm_attrs_port, ett_net_dm_attrs_in_port, info, nl_data, tree, offset, len,
 						  dissect_net_dm_attrs_port);
 	case WS_NET_DM_ATTR_TIMESTAMP:
-		proto_tree_add_item(tree, &hfi_net_dm_timestamp, tvb, offset, 8, ENC_TIME_SECS_NSECS | nl_data->encoding);
+		timestamp = tvb_get_guint64(tvb, offset, nl_data->encoding);
+		ts_nstime.secs = timestamp / 1000000000;
+		ts_nstime.nsecs = timestamp % 1000000000;
+		proto_tree_add_time(tree, &hfi_net_dm_timestamp, tvb, offset, 8, &ts_nstime);
 		return 1;
 	case WS_NET_DM_ATTR_PROTO:
 		info->protocol = tvb_get_guint16(tvb, offset, nl_data->encoding);
