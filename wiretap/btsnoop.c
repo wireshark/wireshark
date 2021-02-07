@@ -16,6 +16,11 @@
 /*
  * Symbian's btsnoop format is derived from Sun's snoop format.
  * See RFC 1761 for a description of the "snoop" file format.
+ * See
+ *
+ *    https://gitlab.com/wireshark/wireshark/uploads/6d44fa94c164b58516e8577f44a6ccdc/btmodified_rfc1761.txt
+ *
+ * for a description of the btsnoop format.
  */
 
 /* Magic number in "btsnoop" files. */
@@ -237,141 +242,34 @@ int btsnoop_dump_can_write_encap(int encap)
     if (encap == WTAP_ENCAP_PER_PACKET)
         return WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED;
 
-    /* XXX - for now we only support WTAP_ENCAP_BLUETOOTH_H4_WITH_PHDR and WTAP_ENCAP_BLUETOOTH_LINUX_MONITOR */
-    if (encap != WTAP_ENCAP_BLUETOOTH_H4_WITH_PHDR && encap != WTAP_ENCAP_BLUETOOTH_LINUX_MONITOR)
+    /*
+     * XXX - for now we only support WTAP_ENCAP_BLUETOOTH_HCI,
+     * WTAP_ENCAP_BLUETOOTH_H4_WITH_PHDR, and
+     * WTAP_ENCAP_BLUETOOTH_LINUX_MONITOR.
+     */
+    if (encap != WTAP_ENCAP_BLUETOOTH_HCI &&
+        encap != WTAP_ENCAP_BLUETOOTH_H4_WITH_PHDR &&
+        encap != WTAP_ENCAP_BLUETOOTH_LINUX_MONITOR)
         return WTAP_ERR_UNWRITABLE_ENCAP;
 
     return 0;
 }
 
-struct hci_flags_mapping
-{
-    guint8 hci_type;
-    guint8 sent;
-    guint8 flags;
-};
-
-static const struct hci_flags_mapping hci_flags[] =
-{
-    { 0x02, TRUE,   KHciLoggerHostToController|KHciLoggerACLDataFrame   }, /* HCI_H4_TYPE_ACL */
-    { 0x02, FALSE,  KHciLoggerControllerToHost|KHciLoggerACLDataFrame   }, /* HCI_H4_TYPE_ACL */
-    { 0x01, TRUE,   KHciLoggerHostToController|KHciLoggerCommandOrEvent }, /* HCI_H4_TYPE_CMD */
-    { 0x04, FALSE,  KHciLoggerControllerToHost|KHciLoggerCommandOrEvent }, /* HCI_H4_TYPE_EVT */
-};
-
-static guint8 btsnoop_lookup_flags(guint8 hci_type, gboolean sent, guint8 *flags)
-{
-    guint8 i;
-
-    for (i=0; i < G_N_ELEMENTS(hci_flags); ++i)
-    {
-        if (hci_flags[i].hci_type == hci_type &&
-            hci_flags[i].sent == sent)
-        {
-            *flags = hci_flags[i].flags;
-            return TRUE;
-        }
-    }
-    return FALSE;
-}
-
-static gboolean btsnoop_format_partial_rec_hdr(
+static gboolean btsnoop_dump(wtap_dumper *wdh,
     const wtap_rec *rec,
-    const union wtap_pseudo_header *pseudo_header,
-    const guint8 *pd, int *err, gchar **err_info,
-    struct btsnooprec_hdr *rec_hdr)
+    const guint8 *pd, int *err, gchar **err_info)
 {
-    gint64 ts_usec;
+    const union wtap_pseudo_header *pseudo_header = &rec->rec_header.packet_header.pseudo_header;
+    struct btsnooprec_hdr rec_hdr;
+    guint32 flags;
     gint64 nsecs;
-    guint8 flags = 0;
-
-    if (!btsnoop_lookup_flags(*pd, pseudo_header->p2p.sent, &flags)) {
-        *err = WTAP_ERR_UNWRITABLE_REC_DATA;
-        *err_info = g_strdup_printf("btsnoop: hci_type 0x%02x for %s data isn't supported",
-                                    *pd,
-                                    pseudo_header->p2p.sent ? "sent" : "received");
-        return FALSE;
-    }
-
-    nsecs = rec->ts.nsecs;
-    ts_usec  = ((gint64) rec->ts.secs * 1000000) + (nsecs / 1000);
-    ts_usec += KUnixTimeBase;
-
-    rec_hdr->flags = GUINT32_TO_BE(flags);
-    rec_hdr->cum_drops = GUINT32_TO_BE(0);
-    rec_hdr->ts_usec = GINT64_TO_BE(ts_usec);
-
-    return TRUE;
-}
-
-/* FIXME: How do we support multiple backends?*/
-static gboolean btsnoop_dump_h1(wtap_dumper *wdh,
-    const wtap_rec *rec,
-    const guint8 *pd, int *err, gchar **err_info)
-{
-    const union wtap_pseudo_header *pseudo_header = &rec->rec_header.packet_header.pseudo_header;
-    struct btsnooprec_hdr rec_hdr;
+    gint64 ts_usec;
 
     /* We can only write packet records. */
     if (rec->rec_type != REC_TYPE_PACKET) {
         *err = WTAP_ERR_UNWRITABLE_REC_TYPE;
         return FALSE;
     }
-
-    /*
-     * Make sure this packet doesn't have a link-layer type that
-     * differs from the one for the file.
-     */
-    if (wdh->encap != rec->rec_header.packet_header.pkt_encap) {
-        *err = WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED;
-        return FALSE;
-    }
-
-    /*
-     * Don't write out anything bigger than we can read.
-     * (This will also fail on a caplen of 0, as it should.)
-     */
-    if (rec->rec_header.packet_header.caplen-1 > WTAP_MAX_PACKET_SIZE_STANDARD) {
-        *err = WTAP_ERR_PACKET_TOO_LARGE;
-        return FALSE;
-    }
-
-    if (!btsnoop_format_partial_rec_hdr(rec, pseudo_header, pd, err, err_info,
-                                        &rec_hdr))
-        return FALSE;
-
-    rec_hdr.incl_len = GUINT32_TO_BE(rec->rec_header.packet_header.caplen-1);
-    rec_hdr.orig_len = GUINT32_TO_BE(rec->rec_header.packet_header.len-1);
-
-    if (!wtap_dump_file_write(wdh, &rec_hdr, sizeof rec_hdr, err))
-        return FALSE;
-
-    wdh->bytes_dumped += sizeof rec_hdr;
-
-    /* Skip HCI packet type */
-    ++pd;
-
-    if (!wtap_dump_file_write(wdh, pd, rec->rec_header.packet_header.caplen-1, err))
-        return FALSE;
-
-    wdh->bytes_dumped += rec->rec_header.packet_header.caplen-1;
-
-    return TRUE;
-}
-
-static gboolean btsnoop_dump_h4(wtap_dumper *wdh,
-    const wtap_rec *rec,
-    const guint8 *pd, int *err, gchar **err_info)
-{
-    const union wtap_pseudo_header *pseudo_header = &rec->rec_header.packet_header.pseudo_header;
-    struct btsnooprec_hdr rec_hdr;
-
-    /* We can only write packet records. */
-    if (rec->rec_type != REC_TYPE_PACKET) {
-        *err = WTAP_ERR_UNWRITABLE_REC_TYPE;
-        return FALSE;
-    }
-
 
     /*
      * Make sure this packet doesn't have a link-layer type that
@@ -388,12 +286,76 @@ static gboolean btsnoop_dump_h4(wtap_dumper *wdh,
         return FALSE;
     }
 
-    if (!btsnoop_format_partial_rec_hdr(rec, pseudo_header, pd, err, err_info,
-                                        &rec_hdr))
-        return FALSE;
-
     rec_hdr.incl_len = GUINT32_TO_BE(rec->rec_header.packet_header.caplen);
     rec_hdr.orig_len = GUINT32_TO_BE(rec->rec_header.packet_header.len);
+
+    switch (wdh->encap) {
+
+    case WTAP_ENCAP_BLUETOOTH_HCI:
+        switch (pseudo_header->bthci.channel) {
+
+        case BTHCI_CHANNEL_COMMAND:
+            if (!pseudo_header->bthci.sent) {
+                *err = WTAP_ERR_UNWRITABLE_REC_DATA;
+                *err_info = g_strdup_printf("btsnoop: Command channel, sent FALSE");
+                return FALSE;
+            }
+            flags = KHciLoggerCommandOrEvent|KHciLoggerHostToController;
+            break;
+
+        case BTHCI_CHANNEL_EVENT:
+            if (pseudo_header->bthci.sent) {
+                *err = WTAP_ERR_UNWRITABLE_REC_DATA;
+                *err_info = g_strdup_printf("btsnoop: Event channel, sent TRUE");
+                return FALSE;
+            }
+            flags = KHciLoggerCommandOrEvent|KHciLoggerControllerToHost;
+            break;
+
+        case BTHCI_CHANNEL_ACL:
+            if (pseudo_header->bthci.sent)
+                flags = KHciLoggerACLDataFrame|KHciLoggerHostToController;
+            else
+                flags = KHciLoggerACLDataFrame|KHciLoggerControllerToHost;
+            break;
+
+        default:
+            *err = WTAP_ERR_UNWRITABLE_REC_DATA;
+            *err_info = g_strdup_printf("btsnoop: Unknown channel %u",
+                                        pseudo_header->bthci.channel);
+            return FALSE;
+        }
+        break;
+
+    case WTAP_ENCAP_BLUETOOTH_H4_WITH_PHDR:
+        if (pseudo_header->p2p.sent)
+            flags = KHciLoggerHostToController;
+        else
+            flags = KHciLoggerControllerToHost;
+        if (rec->rec_header.packet_header.caplen >= 1 &&
+            (pd[0] == 0x01 || pd[0] == 0x04))
+            flags |= KHciLoggerCommandOrEvent;
+        break;
+
+    case WTAP_ENCAP_BLUETOOTH_LINUX_MONITOR:
+        flags = (pseudo_header->btmon.adapter_id << 16) | pseudo_header->btmon.opcode;
+        break;
+
+    default:
+        /* We should never get here - our open routine should only get
+           called for the types above. */
+        *err = WTAP_ERR_INTERNAL;
+        *err_info = g_strdup_printf("btsnoop: invalid encapsulation %u",
+                                    wdh->encap);
+        return FALSE;
+    }
+    rec_hdr.flags = GUINT32_TO_BE(flags);
+    rec_hdr.cum_drops = GUINT32_TO_BE(0);
+
+    nsecs = rec->ts.nsecs;
+    ts_usec  = ((gint64) rec->ts.secs * 1000000) + (nsecs / 1000);
+    ts_usec += KUnixTimeBase;
+    rec_hdr.ts_usec = GINT64_TO_BE(ts_usec);
 
     if (!wtap_dump_file_write(wdh, &rec_hdr, sizeof rec_hdr, err))
         return FALSE;
@@ -408,41 +370,38 @@ static gboolean btsnoop_dump_h4(wtap_dumper *wdh,
     return TRUE;
 }
 
-/* FIXME: How do we support multiple backends?*/
-gboolean btsnoop_dump_open_h1(wtap_dumper *wdh, int *err, gchar **err_info _U_)
-{
-    struct btsnoop_hdr file_hdr;
-
-    /* This is a btsnoop file */
-    wdh->subtype_write = btsnoop_dump_h1;
-
-    /* Write the file header. */
-    if (!wtap_dump_file_write(wdh, btsnoop_magic, sizeof btsnoop_magic, err))
-        return FALSE;
-
-    wdh->bytes_dumped += sizeof btsnoop_magic;
-
-    /* current "btsnoop" format is 1 */
-    file_hdr.version  = GUINT32_TO_BE(1);
-    /* HCI type encoded in first byte */
-    file_hdr.datalink = GUINT32_TO_BE(KHciLoggerDatalinkTypeH1);
-
-    if (!wtap_dump_file_write(wdh, &file_hdr, sizeof file_hdr, err))
-        return FALSE;
-
-    wdh->bytes_dumped += sizeof file_hdr;
-
-    return TRUE;
-}
-
 /* Returns TRUE on success, FALSE on failure; sets "*err" to an error code on
    failure */
-gboolean btsnoop_dump_open_h4(wtap_dumper *wdh, int *err, gchar **err_info _U_)
+gboolean btsnoop_dump_open(wtap_dumper *wdh, int *err, gchar **err_info _U_)
 {
     struct btsnoop_hdr file_hdr;
+    guint32 datalink;
 
     /* This is a btsnoop file */
-    wdh->subtype_write = btsnoop_dump_h4;
+    wdh->subtype_write = btsnoop_dump;
+
+    switch (wdh->encap) {
+
+    case WTAP_ENCAP_BLUETOOTH_HCI:
+        datalink = KHciLoggerDatalinkTypeH1;
+        break;
+
+    case WTAP_ENCAP_BLUETOOTH_H4_WITH_PHDR:
+        datalink = KHciLoggerDatalinkTypeH4;
+        break;
+
+    case WTAP_ENCAP_BLUETOOTH_LINUX_MONITOR:
+        datalink = KHciLoggerDatalinkLinuxMonitor;
+        break;
+
+    default:
+        /* We should never get here - our open routine should only get
+           called for the types above. */
+        *err = WTAP_ERR_INTERNAL;
+        *err_info = g_strdup_printf("btsnoop: invalid encapsulation %u",
+                                    wdh->encap);
+        return FALSE;
+    }
 
     /* Write the file header. */
     if (!wtap_dump_file_write(wdh, btsnoop_magic, sizeof btsnoop_magic, err))
@@ -453,7 +412,7 @@ gboolean btsnoop_dump_open_h4(wtap_dumper *wdh, int *err, gchar **err_info _U_)
     /* current "btsnoop" format is 1 */
     file_hdr.version  = GUINT32_TO_BE(1);
     /* HCI type encoded in first byte */
-    file_hdr.datalink = GUINT32_TO_BE(KHciLoggerDatalinkTypeH4);
+    file_hdr.datalink = GUINT32_TO_BE(datalink);
 
     if (!wtap_dump_file_write(wdh, &file_hdr, sizeof file_hdr, err))
         return FALSE;
