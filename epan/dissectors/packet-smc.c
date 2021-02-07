@@ -1,3 +1,6 @@
+
+
+
 /* packet-smc.c
  * SMC dissector for wireshark
  * By Joe Fowler <fowlerja@us.ibm.com>
@@ -190,6 +193,8 @@ static int hf_smc_proposal_rocev2_gid_ipv6_addr = -1;
 static int hf_smc_proposal_outgoing_subnet_mask_signifcant_bits = -1;
 static int hf_smc_proposal_ipv6_prefix = -1;
 static int hf_smc_proposal_ipv6_prefix_length = -1;
+
+static int hf_smc_reserved = -1;
 
 /* SMC-R Accept */
 static int ett_accept_flag = -1;
@@ -427,6 +432,8 @@ disect_smc_proposal(tvbuff_t *tvb, proto_tree *tree, bool is_ipv6)
 
 	if (mask_offset != 0) {
 		suboffset = offset;
+		proto_tree_add_item(tree, hf_smc_reserved, tvb,
+					suboffset, TWO_BYTE_RESERVED, ENC_NA);
 		suboffset += TWO_BYTE_RESERVED;
 		if (is_smcdv1 || is_smcdv2) {
 			proto_tree_add_item(tree, hf_smc_proposal_ism_gid, tvb,
@@ -439,6 +446,8 @@ disect_smc_proposal(tvbuff_t *tvb, proto_tree *tree, bool is_ipv6)
 						LENGTH_BYTE_LEN, ENC_BIG_ENDIAN);
 			}
 			suboffset += LENGTH_BYTE_LEN;
+			proto_tree_add_item(tree, hf_smc_reserved, tvb,
+						suboffset, TWO_BYTE_RESERVED, ENC_NA);
 			v2_ext_offset = tvb_get_ntohs(tvb, suboffset);
 			v2_ext_pos = suboffset + TWO_BYTE_RESERVED + v2_ext_offset;
 		}
@@ -451,7 +460,8 @@ disect_smc_proposal(tvbuff_t *tvb, proto_tree *tree, bool is_ipv6)
 	proto_tree_add_item(tree, hf_smc_proposal_outgoing_subnet_mask_signifcant_bits, tvb,
 		offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
-	/* Bump past reserved bytes */
+	proto_tree_add_item(tree, hf_smc_reserved, tvb,
+				offset, TWO_BYTE_RESERVED, ENC_NA);
 	offset += TWO_BYTE_RESERVED;
 	ipv6_prefix_count = tvb_get_guint8(tvb, offset);
 	offset += 1;
@@ -472,7 +482,8 @@ disect_smc_proposal(tvbuff_t *tvb, proto_tree *tree, bool is_ipv6)
 		offset += FLAG_BYTE_LEN;
 		num_of_gids = tvb_get_guint8(tvb, offset);
 		offset += FLAG_BYTE_LEN;
-		/*Skip reserved flag 1*/
+		proto_tree_add_item(tree, hf_smc_reserved, tvb,
+					offset, 1, ENC_NA);
 		offset += 1;
 		proposal_flag_item = proto_tree_add_item(tree, hf_smc_proposal_ext_flags, tvb,
 							offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
@@ -482,7 +493,8 @@ disect_smc_proposal(tvbuff_t *tvb, proto_tree *tree, bool is_ipv6)
 		proto_tree_add_item(proposal_flag_tree, hf_proposal_smc_version_seid, tvb,
 				offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
 		offset += FLAG_BYTE_LEN;
-		/*Skip not used 2 bytes*/
+		proto_tree_add_item(tree, hf_smc_reserved, tvb,
+					offset, 2, ENC_NA);
 		offset += 2;
 		smcd_v2_ext_offset = tvb_get_ntohs(tvb, offset);
 		offset += 2;
@@ -499,7 +511,8 @@ disect_smc_proposal(tvbuff_t *tvb, proto_tree *tree, bool is_ipv6)
 				offset, IPV4_SUBNET_MASK_LEN, ENC_BIG_ENDIAN);
 			offset += IPV4_SUBNET_MASK_LEN;
 		}
-		/*Skip reserved 16 bytes*/
+		proto_tree_add_item(tree, hf_smc_reserved, tvb,
+					offset, 16, ENC_NA);
 		offset += 16;
 		while (num_of_eids != 0) {
 			proto_tree_add_item(tree, hf_smc_proposal_eid, tvb,
@@ -512,7 +525,8 @@ disect_smc_proposal(tvbuff_t *tvb, proto_tree *tree, bool is_ipv6)
 			proto_tree_add_item(tree, hf_smc_proposal_system_eid, tvb,
 					offset, EID_LEN, ENC_ASCII | ENC_NA);
 			offset += EID_LEN;
-			/*Skip reserved 16 bytes*/
+			proto_tree_add_item(tree, hf_smc_reserved, tvb,
+						offset, 16, ENC_NA);
 			offset += 16;
 			while (num_of_gids != 0) {
 				proto_tree_add_item(tree, hf_smc_proposal_ism_gid, tvb,
@@ -580,16 +594,21 @@ disect_smcd_accept(tvbuff_t* tvb, proto_tree* tree)
 
 		proto_tree_add_item(tree, hf_smcd_accept_eid, tvb, offset, 32, ENC_ASCII | ENC_NA);
 		offset += 32;
-		/* Reserved bytes */
+		proto_tree_add_item(tree, hf_smc_reserved, tvb,
+					offset, 8, ENC_NA);
 		offset += 8;
 
 		if (first_contact) {
+			proto_tree_add_item(tree, hf_smc_reserved, tvb,
+						offset, ONE_BYTE_RESERVED, ENC_NA);
 			offset += ONE_BYTE_RESERVED;
 			accept_flag_item = proto_tree_add_item(tree, hf_smcd_accept_fce_flags, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
 			accept_flag_tree = proto_item_add_subtree(accept_flag_item, ett_smcd_accept_fce_flag);
 			proto_tree_add_item(accept_flag_tree, hf_accept_os_type, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
 			proto_tree_add_item(accept_flag_tree, hf_accept_smc_version_release_number, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
 			offset += FLAG_BYTE_LEN;
+			proto_tree_add_item(tree, hf_smc_reserved, tvb,
+						offset, TWO_BYTE_RESERVED, ENC_NA);
 			offset += TWO_BYTE_RESERVED;
 			proto_tree_add_item(tree, hf_smcd_accept_peer_name, tvb, offset, 32, ENC_ASCII | ENC_NA);
 			/* offset += 32; */
@@ -637,6 +656,8 @@ disect_smcd_confirm(tvbuff_t* tvb, proto_tree* tree)
 	confirm_flag2_tree = proto_item_add_subtree(confirm_flag2_item, ett_smcd_confirm_flag2);
 	proto_tree_add_item(confirm_flag2_tree, hf_smcd_confirm_dmb_buffer_size, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
 	offset += FLAG_BYTE_LEN;
+	proto_tree_add_item(tree, hf_smc_reserved, tvb,
+				offset, ONE_BYTE_RESERVED, ENC_NA);
 	offset += TWO_BYTE_RESERVED;
 	proto_tree_add_item(tree, hf_smcd_confirm_client_link_id, tvb,
 		offset, ALERT_TOKEN_LEN, ENC_BIG_ENDIAN);
@@ -649,16 +670,21 @@ disect_smcd_confirm(tvbuff_t* tvb, proto_tree* tree)
 
 		proto_tree_add_item(tree, hf_smcd_confirm_eid, tvb, offset, 32, ENC_ASCII | ENC_NA);
 		offset += 32;
-		/* Reserved bytes */
+		proto_tree_add_item(tree, hf_smc_reserved, tvb,
+					offset, 8, ENC_NA);
 		offset += 8;
 
 		if (first_contact) {
+			proto_tree_add_item(tree, hf_smc_reserved, tvb,
+						offset, ONE_BYTE_RESERVED, ENC_NA);
 			offset += ONE_BYTE_RESERVED;
 			confirm_flag_item = proto_tree_add_item(tree, hf_smcd_accept_fce_flags, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
 			confirm_flag_tree = proto_item_add_subtree(confirm_flag_item, ett_smcd_confirm_fce_flag);
 			proto_tree_add_item(confirm_flag_tree, hf_confirm_os_type, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
 			proto_tree_add_item(confirm_flag_tree, hf_confirm_smc_version_release_number, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
 			offset += FLAG_BYTE_LEN;
+			proto_tree_add_item(tree, hf_smc_reserved, tvb,
+						offset, TWO_BYTE_RESERVED, ENC_NA);
 			offset += TWO_BYTE_RESERVED;
 			proto_tree_add_item(tree, hf_smcd_confirm_peer_name, tvb, offset, 32, ENC_ASCII | ENC_NA);
 			/* offset += 32; */
@@ -711,12 +737,14 @@ disect_smcr_accept(tvbuff_t *tvb, proto_tree *tree)
 	proto_tree_add_item(accept_flag2_tree, hf_accept_rmb_buffer_size, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
 	proto_tree_add_item(accept_flag2_tree, hf_accept_qp_mtu_value, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
 	offset += FLAG_BYTE_LEN;
-	/* Bump past reserved byte */
+	proto_tree_add_item(tree, hf_smc_reserved, tvb,
+				offset, ONE_BYTE_RESERVED, ENC_NA);
 	offset += ONE_BYTE_RESERVED;
 	proto_tree_add_item(tree, hf_smcr_accept_server_rmb_virtual_address, tvb,
 			offset, VIRTUAL_ADDR_LEN, ENC_BIG_ENDIAN);
 	offset += VIRTUAL_ADDR_LEN;
-	/* Bump past reserved byte */
+	proto_tree_add_item(tree, hf_smc_reserved, tvb,
+				offset, ONE_BYTE_RESERVED, ENC_NA);
 	offset += ONE_BYTE_RESERVED;
 	proto_tree_add_item(tree, hf_smcr_accept_initial_psn, tvb,
 			offset, PSN_LEN, ENC_BIG_ENDIAN);
@@ -765,12 +793,14 @@ disect_smcr_confirm(tvbuff_t *tvb, proto_tree *tree)
 	proto_tree_add_item(confirm_flag2_tree, hf_confirm_rmb_buffer_size, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
 	proto_tree_add_item(confirm_flag2_tree, hf_confirm_qp_mtu_value, tvb, offset, FLAG_BYTE_LEN, ENC_BIG_ENDIAN);
 	offset += FLAG_BYTE_LEN;
-	/* Bump past reserved byte */
+	proto_tree_add_item(tree, hf_smc_reserved, tvb,
+			offset, ONE_BYTE_RESERVED, ENC_NA);
 	offset += ONE_BYTE_RESERVED;
 	proto_tree_add_item(tree, hf_smcr_confirm_client_rmb_virtual_address, tvb,
 			offset, VIRTUAL_ADDR_LEN, ENC_BIG_ENDIAN);
 	offset += VIRTUAL_ADDR_LEN;
-	/* Bump past reserved byte */
+	proto_tree_add_item(tree, hf_smc_reserved, tvb,
+			offset, ONE_BYTE_RESERVED, ENC_NA);
 	offset += ONE_BYTE_RESERVED;
 	proto_tree_add_item(tree, hf_smcr_confirm_initial_psn, tvb,
 			offset, PSN_LEN, ENC_BIG_ENDIAN);
@@ -866,7 +896,8 @@ disect_smcr_add_link(tvbuff_t *tvb, proto_tree *tree)
 	proto_tree_add_item(tree, hf_smcr_add_link_mac, tvb,
 			offset, MAC_ADDR_LEN, ENC_NA);
 	offset += MAC_ADDR_LEN;
-	/* Bump past reserved bytes */
+	proto_tree_add_item(tree, hf_smc_reserved, tvb,
+			offset, TWO_BYTE_RESERVED, ENC_NA);
 	offset += TWO_BYTE_RESERVED;
 	proto_tree_add_item(tree, hf_smcr_add_link_gid, tvb,
 			offset, GID_LEN, ENC_NA);
@@ -1084,12 +1115,13 @@ disect_smcr_rmbe_ctrl(tvbuff_t *tvb, proto_tree *tree)
 	offset += SEQNO_LEN;
 	proto_tree_add_item(tree, hf_smcr_rmbe_ctrl_alert_token, tvb, offset, ALERT_TOKEN_LEN, ENC_BIG_ENDIAN);
 	offset += ALERT_TOKEN_LEN;
+	proto_tree_add_item(tree, hf_smc_reserved, tvb, offset, TWO_BYTE_RESERVED, ENC_NA);
 	offset += TWO_BYTE_RESERVED;
 	proto_tree_add_item(tree, hf_smcr_rmbe_ctrl_prod_wrap_seqno, tvb, offset, SEQNO_LEN, ENC_BIG_ENDIAN);
 	offset += SEQNO_LEN;
 	proto_tree_add_item(tree, hf_smcr_rmbe_ctrl_peer_prod_curs, tvb, offset, CURSOR_LEN, ENC_BIG_ENDIAN);
 	offset += CURSOR_LEN;
-	/* Bump past reserved bytes */
+	proto_tree_add_item(tree, hf_smc_reserved, tvb, offset, TWO_BYTE_RESERVED, ENC_NA);
 	offset += TWO_BYTE_RESERVED;
 	proto_tree_add_item(tree, hf_smcr_rmbe_ctrl_cons_wrap_seqno, tvb, offset, SEQNO_LEN, ENC_BIG_ENDIAN);
 	offset += SEQNO_LEN;
@@ -2053,7 +2085,11 @@ proto_register_smcr(void)
 
 		{ &hf_smcd_accept_fce_flags, {
 		"Flags", "smc.accept.fce.flags",
-		FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL} }
+		FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL} },
+
+		{ &hf_smc_reserved, {
+		"Reserved", "smc.reserved",
+		FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL} }
 	};
 
 	/* Setup protocol subtree arrays */
