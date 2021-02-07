@@ -5559,134 +5559,134 @@ add_multipart_data (proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo)
 /* TAP STAT INFO */
 typedef enum
 {
-	MESSAGE_TYPE_COLUMN = 0,
-	PACKET_COLUMN
+    MESSAGE_TYPE_COLUMN = 0,
+    PACKET_COLUMN
 } wsp_stat_columns;
 
 static stat_tap_table_item wsp_stat_fields[] = {
-	{TABLE_ITEM_STRING, TAP_ALIGN_LEFT, "Type / Code", "%-25s"},
-	{TABLE_ITEM_UINT, TAP_ALIGN_RIGHT, "Packets", "%d"}
-	};
+    {TABLE_ITEM_STRING, TAP_ALIGN_LEFT, "Type / Code", "%-25s"},
+    {TABLE_ITEM_UINT, TAP_ALIGN_RIGHT, "Packets", "%d"}
+};
 
 static int unknown_pt_idx;
 static int unknown_sc_idx;
 
 static void wsp_stat_init(stat_tap_table_ui* new_stat)
 {
-	int num_fields = sizeof(wsp_stat_fields)/sizeof(stat_tap_table_item);
-	stat_tap_table* pt_table = stat_tap_init_table("PDU Types", num_fields, 0, NULL);
-	stat_tap_table_item_type pt_items[sizeof(wsp_stat_fields)/sizeof(stat_tap_table_item)];
-	stat_tap_table* sc_table = stat_tap_init_table("Status Codes", num_fields, 0, NULL);
-	stat_tap_table_item_type sc_items[sizeof(wsp_stat_fields)/sizeof(stat_tap_table_item)];
-	int table_idx;
+    int num_fields = sizeof(wsp_stat_fields)/sizeof(stat_tap_table_item);
+    stat_tap_table* pt_table = stat_tap_init_table("PDU Types", num_fields, 0, NULL);
+    stat_tap_table_item_type pt_items[sizeof(wsp_stat_fields)/sizeof(stat_tap_table_item)];
+    stat_tap_table* sc_table = stat_tap_init_table("Status Codes", num_fields, 0, NULL);
+    stat_tap_table_item_type sc_items[sizeof(wsp_stat_fields)/sizeof(stat_tap_table_item)];
+    int table_idx;
 
-	stat_tap_add_table(new_stat, pt_table);
-	stat_tap_add_table(new_stat, sc_table);
+    stat_tap_add_table(new_stat, pt_table);
+    stat_tap_add_table(new_stat, sc_table);
 
-	/* Add a row for each PDU type and status code */
-	table_idx = 0;
-	memset(pt_items, 0, sizeof(pt_items));
-	pt_items[MESSAGE_TYPE_COLUMN].type = TABLE_ITEM_STRING;
-	pt_items[PACKET_COLUMN].type = TABLE_ITEM_UINT;
-	while (wsp_vals_pdu_type[table_idx].strptr)
-	{
-		pt_items[MESSAGE_TYPE_COLUMN].value.string_value = g_strdup(wsp_vals_pdu_type[table_idx].strptr);
-		pt_items[MESSAGE_TYPE_COLUMN].user_data.uint_value = wsp_vals_pdu_type[table_idx].value;
+    /* Add a row for each PDU type and status code */
+    table_idx = 0;
+    memset(pt_items, 0, sizeof(pt_items));
+    pt_items[MESSAGE_TYPE_COLUMN].type = TABLE_ITEM_STRING;
+    pt_items[PACKET_COLUMN].type = TABLE_ITEM_UINT;
+    while (wsp_vals_pdu_type[table_idx].strptr)
+    {
+        pt_items[MESSAGE_TYPE_COLUMN].value.string_value = g_strdup(wsp_vals_pdu_type[table_idx].strptr);
+        pt_items[MESSAGE_TYPE_COLUMN].user_data.uint_value = wsp_vals_pdu_type[table_idx].value;
 
-		stat_tap_init_table_row(pt_table, table_idx, num_fields, pt_items);
-		table_idx++;
-	}
-	pt_items[MESSAGE_TYPE_COLUMN].value.string_value = g_strdup("Unknown PDU type");
-	pt_items[MESSAGE_TYPE_COLUMN].user_data.uint_value = 0;
-	stat_tap_init_table_row(pt_table, table_idx, num_fields, pt_items);
-	unknown_pt_idx = table_idx;
+        stat_tap_init_table_row(pt_table, table_idx, num_fields, pt_items);
+        table_idx++;
+    }
+    pt_items[MESSAGE_TYPE_COLUMN].value.string_value = g_strdup("Unknown PDU type");
+    pt_items[MESSAGE_TYPE_COLUMN].user_data.uint_value = 0;
+    stat_tap_init_table_row(pt_table, table_idx, num_fields, pt_items);
+    unknown_pt_idx = table_idx;
 
-	table_idx = 0;
-	memset(sc_items, 0, sizeof(sc_items));
-	sc_items[MESSAGE_TYPE_COLUMN].type = TABLE_ITEM_STRING;
-	sc_items[PACKET_COLUMN].type = TABLE_ITEM_UINT;
-	while (wsp_vals_status[table_idx].strptr)
-	{
-		sc_items[MESSAGE_TYPE_COLUMN].value.string_value = g_strdup(wsp_vals_status[table_idx].strptr);
-		sc_items[MESSAGE_TYPE_COLUMN].user_data.uint_value = wsp_vals_status[table_idx].value;
+    table_idx = 0;
+    memset(sc_items, 0, sizeof(sc_items));
+    sc_items[MESSAGE_TYPE_COLUMN].type = TABLE_ITEM_STRING;
+    sc_items[PACKET_COLUMN].type = TABLE_ITEM_UINT;
+    while (wsp_vals_status[table_idx].strptr)
+    {
+        sc_items[MESSAGE_TYPE_COLUMN].value.string_value = g_strdup(wsp_vals_status[table_idx].strptr);
+        sc_items[MESSAGE_TYPE_COLUMN].user_data.uint_value = wsp_vals_status[table_idx].value;
 
-		stat_tap_init_table_row(sc_table, table_idx, num_fields, sc_items);
-		table_idx++;
-	}
-	sc_items[MESSAGE_TYPE_COLUMN].value.string_value = g_strdup("Unknown status code");
-	sc_items[MESSAGE_TYPE_COLUMN].user_data.uint_value = 0;
-	stat_tap_init_table_row(sc_table, table_idx, num_fields, sc_items);
-	unknown_sc_idx = table_idx;
+        stat_tap_init_table_row(sc_table, table_idx, num_fields, sc_items);
+        table_idx++;
+    }
+    sc_items[MESSAGE_TYPE_COLUMN].value.string_value = g_strdup("Unknown status code");
+    sc_items[MESSAGE_TYPE_COLUMN].user_data.uint_value = 0;
+    stat_tap_init_table_row(sc_table, table_idx, num_fields, sc_items);
+    unknown_sc_idx = table_idx;
 }
 
 static tap_packet_status
 wsp_stat_packet(void *tapdata, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *wiv_ptr)
 {
-	stat_data_t* stat_data = (stat_data_t*)tapdata;
-	const wsp_info_value_t *value = (const wsp_info_value_t *)wiv_ptr;
-	stat_tap_table *pt_table, *sc_table;
-	guint element;
-	stat_tap_table_item_type* item_data;
-	gboolean found;
+    stat_data_t* stat_data = (stat_data_t*)tapdata;
+    const wsp_info_value_t *value = (const wsp_info_value_t *)wiv_ptr;
+    stat_tap_table *pt_table, *sc_table;
+    guint element;
+    stat_tap_table_item_type* item_data;
+    gboolean found;
 
-	pt_table = g_array_index(stat_data->stat_tap_data->tables, stat_tap_table*, 0);
-	sc_table = g_array_index(stat_data->stat_tap_data->tables, stat_tap_table*, 1);
+    pt_table = g_array_index(stat_data->stat_tap_data->tables, stat_tap_table*, 0);
+    sc_table = g_array_index(stat_data->stat_tap_data->tables, stat_tap_table*, 1);
 
-	found = FALSE;
-	for (element = 0; element < pt_table->num_elements; element++) {
-		item_data = stat_tap_get_field_data(pt_table, element, MESSAGE_TYPE_COLUMN);
-		if (value->pdut == item_data->user_data.uint_value) {
-			found = TRUE;
-			break;
-		}
-	}
-	if (!found) {
-		element = unknown_pt_idx;
-	}
-	item_data = stat_tap_get_field_data(pt_table, element, PACKET_COLUMN);
-	item_data->value.uint_value++;
-	stat_tap_set_field_data(pt_table, element, PACKET_COLUMN, item_data);
+    found = FALSE;
+    for (element = 0; element < pt_table->num_elements; element++) {
+        item_data = stat_tap_get_field_data(pt_table, element, MESSAGE_TYPE_COLUMN);
+        if (value->pdut == item_data->user_data.uint_value) {
+            found = TRUE;
+            break;
+        }
+    }
+    if (!found) {
+        element = unknown_pt_idx;
+    }
+    item_data = stat_tap_get_field_data(pt_table, element, PACKET_COLUMN);
+    item_data->value.uint_value++;
+    stat_tap_set_field_data(pt_table, element, PACKET_COLUMN, item_data);
 
-	if (value->status_code != 0) {
-		found = FALSE;
-		for (element = 0; element < sc_table->num_elements; element++) {
-			item_data = stat_tap_get_field_data(sc_table, element, MESSAGE_TYPE_COLUMN);
-			if (value->status_code == (int) item_data->user_data.uint_value) {
-				found = TRUE;
-				break;
-			}
-		}
-		if (!found) {
-			element = unknown_sc_idx;
-		}
-		item_data = stat_tap_get_field_data(sc_table, element, PACKET_COLUMN);
-		item_data->value.uint_value++;
-		stat_tap_set_field_data(sc_table, element, PACKET_COLUMN, item_data);
-	}
+    if (value->status_code != 0) {
+        found = FALSE;
+        for (element = 0; element < sc_table->num_elements; element++) {
+            item_data = stat_tap_get_field_data(sc_table, element, MESSAGE_TYPE_COLUMN);
+            if (value->status_code == (int) item_data->user_data.uint_value) {
+                found = TRUE;
+                break;
+            }
+        }
+        if (!found) {
+            element = unknown_sc_idx;
+        }
+        item_data = stat_tap_get_field_data(sc_table, element, PACKET_COLUMN);
+        item_data->value.uint_value++;
+        stat_tap_set_field_data(sc_table, element, PACKET_COLUMN, item_data);
+    }
 
-	return found? TAP_PACKET_REDRAW : TAP_PACKET_DONT_REDRAW;
+    return found? TAP_PACKET_REDRAW : TAP_PACKET_DONT_REDRAW;
 }
 
 static void
 wsp_stat_reset(stat_tap_table* table)
 {
-	guint element;
-	stat_tap_table_item_type* item_data;
+    guint element;
+    stat_tap_table_item_type* item_data;
 
-	for (element = 0; element < table->num_elements; element++)
-	{
-		item_data = stat_tap_get_field_data(table, element, PACKET_COLUMN);
-		item_data->value.uint_value = 0;
-		stat_tap_set_field_data(table, element, PACKET_COLUMN, item_data);
-	}
+    for (element = 0; element < table->num_elements; element++)
+    {
+        item_data = stat_tap_get_field_data(table, element, PACKET_COLUMN);
+        item_data->value.uint_value = 0;
+        stat_tap_set_field_data(table, element, PACKET_COLUMN, item_data);
+    }
 }
 
 static void
 wsp_stat_free_table_item(stat_tap_table* table _U_, guint row _U_, guint column, stat_tap_table_item_type* field_data)
 {
-	if (column != MESSAGE_TYPE_COLUMN) return;
-	g_free((char*)field_data->value.string_value);
-	field_data->value.string_value = NULL;
+    if (column != MESSAGE_TYPE_COLUMN) return;
+    g_free((char*)field_data->value.string_value);
+    field_data->value.string_value = NULL;
 }
 
 /* Register the protocol with Wireshark */
