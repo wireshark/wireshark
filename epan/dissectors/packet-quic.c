@@ -15,6 +15,7 @@
  * https://tools.ietf.org/html/draft-ietf-quic-transport-33
  * https://tools.ietf.org/html/draft-ietf-quic-tls-33
  * https://tools.ietf.org/html/draft-ietf-quic-invariants-12
+ * https://tools.ietf.org/html/draft-ietf-quic-version-negotiation-03
  *
  * Extension:
  * https://tools.ietf.org/html/draft-ferrieuxhamchaoui-quic-lossbits-03
@@ -621,6 +622,7 @@ static const range_string quic_transport_error_code_vals[] = {
     { 0x0010, 0x0010, "NO_VIABLE_PATH" },
     { 0x0100, 0x01ff, "CRYPTO_ERROR" },
     /* 0x40 - 0x3fff Assigned via Specification Required policy. */
+    { 0x53F8, 0x53F8, "VERSION_NEGOTIATION_ERROR" },
     { 0, 0, NULL }
 };
 
@@ -3322,13 +3324,23 @@ dissect_quic_short_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tr
     return offset;
 }
 
+void
+quic_proto_tree_add_version(tvbuff_t *tvb, proto_tree *tree, int hfindex, guint offset)
+{
+    guint32 version;
+    proto_item *ti;
+
+    ti = proto_tree_add_item_ret_uint(tree, hfindex, tvb, offset, 4, ENC_BIG_ENDIAN, &version);
+    if ((version & 0x0F0F0F0F) == 0x0a0a0a0a) {
+        proto_item_append_text(ti, " (GREASE)");
+    }
+}
+
 static int
 dissect_quic_version_negotiation(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree, const quic_packet_info_t *quic_packet)
 {
     guint       offset = 0;
     quic_cid_t  dcid = {.len=0}, scid = {.len=0};
-    guint32 supported_version;
-    proto_item *ti;
 
     col_set_str(pinfo->cinfo, COL_INFO, "Version Negotiation");
 
@@ -3339,10 +3351,7 @@ dissect_quic_version_negotiation(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 
     /* Supported Version */
     while(tvb_reported_length_remaining(tvb, offset) > 0){
-        ti = proto_tree_add_item_ret_uint(quic_tree, hf_quic_supported_version, tvb, offset, 4, ENC_BIG_ENDIAN, &supported_version);
-        if ((supported_version & 0x0F0F0F0F) == 0x0a0a0a0a) {
-            proto_item_append_text(ti, " (GREASE)");
-        }
+        quic_proto_tree_add_version(tvb, quic_tree, hf_quic_supported_version, offset);
         offset += 4;
     }
 

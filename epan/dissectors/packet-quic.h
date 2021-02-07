@@ -77,7 +77,8 @@ void
 quic_add_connection(packet_info *pinfo, const quic_cid_t *cid);
 void
 quic_add_loss_bits(packet_info *pinfo, guint64 value);
-
+void
+quic_proto_tree_add_version(tvbuff_t *tvb, proto_tree *tree, int hfindex, guint offset);
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
