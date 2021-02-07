@@ -1692,7 +1692,6 @@ static void
 nas_5gs_decode_user_data_cont(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo,
                               guint32 offset, guint len, int hfindex)
 {
-    proto_tree *subtree;
     proto_item *item;
 
     item = proto_tree_add_item(tree, hfindex, tvb, offset, len, ENC_NA);
@@ -1700,7 +1699,6 @@ nas_5gs_decode_user_data_cont(tvbuff_t* tvb, proto_tree* tree, packet_info* pinf
         tvbuff_t *user_data_cont_tvb;
         volatile dissector_handle_t handle;
 
-        subtree = proto_item_add_subtree(item, ett_nas_5gs_user_data_cont);
         user_data_cont_tvb = tvb_new_subset_length(tvb, offset, len);
         if (g_nas_5gs_decode_user_data_container_as == DECODE_USER_DATA_AS_IP) {
             guint8 first_byte = tvb_get_guint8(user_data_cont_tvb, 0);
@@ -1721,9 +1719,11 @@ nas_5gs_decode_user_data_cont(tvbuff_t* tvb, proto_tree* tree, packet_info* pinf
             col_append_str(pinfo->cinfo, COL_INFO, ", ");
             col_set_fence(pinfo->cinfo, COL_INFO);
             TRY {
-                call_dissector_only(handle, user_data_cont_tvb, pinfo, subtree, NULL);
+                proto_tree *toptree = proto_tree_get_root(tree);
+                call_dissector_only(handle, user_data_cont_tvb, pinfo, toptree, NULL);
             } CATCH_BOUNDS_ERRORS {
                 /* Dissection exception: message was probably non IP and heuristic was too weak */
+                proto_tree *subtree = proto_item_add_subtree(item, ett_nas_5gs_user_data_cont);
                 show_exception(user_data_cont_tvb, pinfo, subtree, EXCEPT_CODE, GET_MESSAGE);
             } ENDTRY
         }
