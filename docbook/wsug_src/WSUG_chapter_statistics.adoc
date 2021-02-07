@@ -746,11 +746,20 @@ segment.
 
 Window Scaling:: Window size and outstanding bytes.
 
-[[ChStatUDPMulticastGraphs]]
+[[ChStatUDPMulticastStreams]]
 
-=== UDP Multicast Graphs
+=== UDP Multicast Streams
 
-{missing}
+The UDP Multicast Streams window shows statistics for all UDP multicast streams. It includes source addresses and ports, destination addresses and ports, packets counter and other data. You can specify the burst interval, the alarm limits and output speeds. To apply new settings, press btn:[Enter].
+
+With this statistics you can:
+
+* Measure the burst size for a video stream. This uses the sliding window algorithm.
+* Measure of the output buffer size limit, that no packet drop will occur. This uses the Leaky bucket algorithm.
+* Detect the packet loss inside the MPEG2 video stream.
+
+.UDP Multicast Streams window
+image::wsug_graphics/ws-udp-multicast-stream.png[{screenshot-attrs}]
 
 [[ChStatF5]]
 
