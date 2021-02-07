@@ -721,6 +721,6 @@ You can see similar statistics in the menu:Statistics[Conversations] and menu:St
 
 === IPv6 Statistics
 
-{missing}
+Internet Protocol version 6 (IPv6) is a core protocol for the internet layer. It uses 128-bit addresses and routes internet traffic. Similar to <<ChStatIPv4>>, the menu:Statistics[IPv6] menu shows the packet counter in each submenu.
 
 // End of WSUG Chapter Statistics
