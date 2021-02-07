@@ -69,6 +69,9 @@ static int hf_nvme_cmd_rsvd3 = -1;
 static int hf_nvme_identify_cntid = -1;
 static int hf_nvme_identify_rsvd = -1;
 static int hf_nvme_identify_cns = -1;
+static int hf_nvme_identify_nvmesetid = -1;
+static int hf_nvme_identify_rsvd1 = -1;
+static int hf_nvme_identify_uuid_index = -1;
 static int hf_nvme_identify_ns_nsze = -1;
 static int hf_nvme_identify_ns_ncap = -1;
 static int hf_nvme_identify_ns_nuse = -1;
@@ -253,6 +256,23 @@ static const value_string sgl_sub_type_tbl[] = {
     { 0, NULL}
 };
 
+
+static const value_string cns_table[] = {
+    { 0, "Identify Namespace"},
+    { 1, "Identify Controller"},
+    { 2, "Active Namespace List"},
+    { 3, "Namespace Identification Descriptor"},
+    {4, "NVM Set List"},
+    {0x10, "Allocated Namespace ID List"},
+    {0x11, "Identify Namespace Data Structure"},
+    {0x12, "Controller List Attached to NSID"},
+    {0x13, "Existing Controllers List"},
+    {0x14, "Primary Controller Capabilities"},
+    {0x15, "Secondary Controller List"},
+    {0x16, "Namespace Granularity List"},
+    {0x17, "UUID List"},
+    {0, NULL}
+};
 
 static const value_string dsm_acc_freq_tbl[] = {
     { 0, "No frequency"},
@@ -747,13 +767,23 @@ static void dissect_nvme_identify_resp(tvbuff_t *cmd_tvb, proto_tree *cmd_tree,
 static void dissect_nvme_identify_cmd(tvbuff_t *cmd_tvb, proto_tree *cmd_tree,
                                       struct nvme_cmd_ctx *cmd_ctx)
 {
+    guint32 val;
+    proto_item *item;
+
     cmd_ctx->resp_type = tvb_get_guint16(cmd_tvb, 40, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(cmd_tree, hf_nvme_identify_cns, cmd_tvb,
-                        40, 2, ENC_LITTLE_ENDIAN);
+    item = proto_tree_add_item_ret_uint(cmd_tree, hf_nvme_identify_cns, cmd_tvb,
+                        40, 1, ENC_LITTLE_ENDIAN, &val);
+    proto_item_append_text(item, " %s", val_to_str(val, cns_table, "Reserved"));
     proto_tree_add_item(cmd_tree, hf_nvme_identify_rsvd, cmd_tvb,
-                        42, 2, ENC_NA);
+                        41, 1, ENC_NA);
     proto_tree_add_item(cmd_tree, hf_nvme_identify_cntid, cmd_tvb,
-                        44, 4, ENC_NA);
+                        42, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(cmd_tree, hf_nvme_identify_nvmesetid, cmd_tvb,
+                        44, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(cmd_tree, hf_nvme_identify_rsvd1, cmd_tvb,
+                        46, 2, ENC_NA);
+    proto_tree_add_item(cmd_tree, hf_nvme_identify_uuid_index, cmd_tvb,
+                        56, 1, ENC_LITTLE_ENDIAN);
 }
 
 static void dissect_nvme_rw_cmd(tvbuff_t *cmd_tvb, proto_tree *cmd_tree)
@@ -1098,7 +1128,7 @@ proto_register_nvme(void)
         },
         { &hf_nvme_identify_cntid,
             { "Controller Identifier (CNTID)", "nvme.cmd.identify.cntid",
-               FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
+               FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}
         },
         { &hf_nvme_identify_rsvd,
             { "Reserved", "nvme.cmd.identify.rsvd",
@@ -1106,7 +1136,19 @@ proto_register_nvme(void)
         },
         { &hf_nvme_identify_cns,
             { "Controller or Namespace Structure (CNS)", "nvme.cmd.identify.cns",
+               FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_identify_nvmesetid,
+            { "NVM Set Identifier (NVMSETID)", "nvme.cmd.identify.nvmesetid",
                FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_identify_rsvd1,
+            { "Reserved", "nvme.cmd.identify.rsvd1",
+               FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_identify_uuid_index,
+            { "UUID Index", "nvme.cmd.identify.uuid_index",
+               FT_UINT8, BASE_HEX, NULL, 0x7f, NULL, HFILL}
         },
 
         /* Identify NS response */
