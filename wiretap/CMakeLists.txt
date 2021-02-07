@@ -14,92 +14,109 @@ set(WIRETAP_PUBLIC_HEADERS
 	pcapng_module.h
 	secrets-types.h
 	wtap.h
+	wtap_modules.h
 	wtap_opttypes.h
 )
 
 set(WIRETAP_NONGENERATED_FILES
-	5views.c
-	aethra.c
-	ascendtext.c
-	atm.c
-	ber.c
-	btsnoop.c
-	busmaster.c
-	camins.c
-	candump.c
-	capsa.c
-	catapult_dct2000.c
-	commview.c
-	cosine.c
-	csids.c
-	daintree-sna.c
-	dbs-etherwatch.c
-	dpa400.c
-	dct3trace.c
-	erf.c
-	eyesdn.c
-	file_access.c
-	file_wrappers.c
-	hcidump.c
-	i4btrace.c
-	ipfix.c
-	iptrace.c
-	iseries.c
-	json.c
-	k12.c
-	lanalyzer.c
-	libpcap.c
-	log3gpp.c
-	logcat.c
-	logcat_text.c
-	merge.c
-	mp4.c
-	mpeg.c
-	mplog.c
-	mime_file.c
-	mp2t.c
-	netmon.c
-	netscaler.c
-	netscreen.c
-	nettl.c
-	nettrace_3gpp_32_423.c
-	network_instruments.c
-	netxray.c
-	ngsniffer.c
-	packetlogger.c
-	pcap-common.c
-	pcapng.c
-	peekclassic.c
-	peektagged.c
-	rfc7468.c
-	pppdump.c
-	radcom.c
-	ruby_marshal.c
-	snoop.c
-	stanag4607.c
-	systemd_journal.c
-	tnef.c
-	toshiba.c
-	visual.c
-	vms.c
-	vwr.c
-	wtap.c
-	wtap_opttypes.c
+	${CMAKE_CURRENT_SOURCE_DIR}/5views.c
+	${CMAKE_CURRENT_SOURCE_DIR}/aethra.c
+	${CMAKE_CURRENT_SOURCE_DIR}/ascendtext.c
+	${CMAKE_CURRENT_SOURCE_DIR}/atm.c
+	${CMAKE_CURRENT_SOURCE_DIR}/ber.c
+	${CMAKE_CURRENT_SOURCE_DIR}/btsnoop.c
+	${CMAKE_CURRENT_SOURCE_DIR}/busmaster.c
+	${CMAKE_CURRENT_SOURCE_DIR}/camins.c
+	${CMAKE_CURRENT_SOURCE_DIR}/candump.c
+	${CMAKE_CURRENT_SOURCE_DIR}/capsa.c
+	${CMAKE_CURRENT_SOURCE_DIR}/catapult_dct2000.c
+	${CMAKE_CURRENT_SOURCE_DIR}/commview.c
+	${CMAKE_CURRENT_SOURCE_DIR}/cosine.c
+	${CMAKE_CURRENT_SOURCE_DIR}/csids.c
+	${CMAKE_CURRENT_SOURCE_DIR}/daintree-sna.c
+	${CMAKE_CURRENT_SOURCE_DIR}/dbs-etherwatch.c
+	${CMAKE_CURRENT_SOURCE_DIR}/dpa400.c
+	${CMAKE_CURRENT_SOURCE_DIR}/dct3trace.c
+	${CMAKE_CURRENT_SOURCE_DIR}/erf.c
+	${CMAKE_CURRENT_SOURCE_DIR}/eyesdn.c
+	${CMAKE_CURRENT_SOURCE_DIR}/file_access.c
+	${CMAKE_CURRENT_SOURCE_DIR}/file_wrappers.c
+	${CMAKE_CURRENT_SOURCE_DIR}/hcidump.c
+	${CMAKE_CURRENT_SOURCE_DIR}/i4btrace.c
+	${CMAKE_CURRENT_SOURCE_DIR}/ipfix.c
+	${CMAKE_CURRENT_SOURCE_DIR}/iptrace.c
+	${CMAKE_CURRENT_SOURCE_DIR}/iseries.c
+	${CMAKE_CURRENT_SOURCE_DIR}/json.c
+	${CMAKE_CURRENT_SOURCE_DIR}/k12.c
+	${CMAKE_CURRENT_SOURCE_DIR}/lanalyzer.c
+	${CMAKE_CURRENT_SOURCE_DIR}/libpcap.c
+	${CMAKE_CURRENT_SOURCE_DIR}/log3gpp.c
+	${CMAKE_CURRENT_SOURCE_DIR}/logcat.c
+	${CMAKE_CURRENT_SOURCE_DIR}/logcat_text.c
+	${CMAKE_CURRENT_SOURCE_DIR}/merge.c
+	${CMAKE_CURRENT_SOURCE_DIR}/mp4.c
+	${CMAKE_CURRENT_SOURCE_DIR}/mpeg.c
+	${CMAKE_CURRENT_SOURCE_DIR}/mplog.c
+	${CMAKE_CURRENT_SOURCE_DIR}/mime_file.c
+	${CMAKE_CURRENT_SOURCE_DIR}/mp2t.c
+	${CMAKE_CURRENT_SOURCE_DIR}/netmon.c
+	${CMAKE_CURRENT_SOURCE_DIR}/netscaler.c
+	${CMAKE_CURRENT_SOURCE_DIR}/netscreen.c
+	${CMAKE_CURRENT_SOURCE_DIR}/nettl.c
+	${CMAKE_CURRENT_SOURCE_DIR}/nettrace_3gpp_32_423.c
+	${CMAKE_CURRENT_SOURCE_DIR}/network_instruments.c
+	${CMAKE_CURRENT_SOURCE_DIR}/netxray.c
+	${CMAKE_CURRENT_SOURCE_DIR}/ngsniffer.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packetlogger.c
+	${CMAKE_CURRENT_SOURCE_DIR}/pcap-common.c
+	${CMAKE_CURRENT_SOURCE_DIR}/pcapng.c
+	${CMAKE_CURRENT_SOURCE_DIR}/peekclassic.c
+	${CMAKE_CURRENT_SOURCE_DIR}/peektagged.c
+	${CMAKE_CURRENT_SOURCE_DIR}/rfc7468.c
+	${CMAKE_CURRENT_SOURCE_DIR}/pppdump.c
+	${CMAKE_CURRENT_SOURCE_DIR}/radcom.c
+	${CMAKE_CURRENT_SOURCE_DIR}/ruby_marshal.c
+	${CMAKE_CURRENT_SOURCE_DIR}/snoop.c
+	${CMAKE_CURRENT_SOURCE_DIR}/stanag4607.c
+	${CMAKE_CURRENT_SOURCE_DIR}/systemd_journal.c
+	${CMAKE_CURRENT_SOURCE_DIR}/tnef.c
+	${CMAKE_CURRENT_SOURCE_DIR}/toshiba.c
+	${CMAKE_CURRENT_SOURCE_DIR}/visual.c
+	${CMAKE_CURRENT_SOURCE_DIR}/vms.c
+	${CMAKE_CURRENT_SOURCE_DIR}/vwr.c
+	${CMAKE_CURRENT_SOURCE_DIR}/wtap.c
+	${CMAKE_CURRENT_SOURCE_DIR}/wtap_opttypes.c
 )
 
-set(WIRETAP_FILES ${WIRETAP_NONGENERATED_FILES})
+set(WIRETAP_FILES ${WIRETAP_NONGENERATED_FILES} wtap_modules.c)
 
 add_lex_files(LEX_FILES WIRETAP_FILES
-	ascend_scanner.l
-	busmaster_scanner.l
-	candump_scanner.l
-	k12text.l
+	${CMAKE_CURRENT_SOURCE_DIR}/ascend_scanner.l
+	${CMAKE_CURRENT_SOURCE_DIR}/busmaster_scanner.l
+	${CMAKE_CURRENT_SOURCE_DIR}/candump_scanner.l
+	${CMAKE_CURRENT_SOURCE_DIR}/k12text.l
 )
 
 add_lemon_files(LEMON_FILES WIRETAP_FILES
-	ascend_parser.lemon
-	busmaster_parser.lemon
-	candump_parser.lemon
+	${CMAKE_CURRENT_SOURCE_DIR}/ascend_parser.lemon
+	${CMAKE_CURRENT_SOURCE_DIR}/busmaster_parser.lemon
+	${CMAKE_CURRENT_SOURCE_DIR}/candump_parser.lemon
+)
+
+#
+# We pass the arguments to make-regs.py in a file to avoid limitations
+# with the number of arguments handled by main().
+#
+file(GENERATE
+	OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/wtap_modules.in.txt"
+	CONTENT "$<JOIN:${WIRETAP_NONGENERATED_FILES},\n>\n"
+)
+add_custom_command(
+	OUTPUT wtap_modules.c
+	COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tools/make-regs.py wtap_modules wtap_modules.c @wtap_modules.in.txt
+	DEPENDS ${CMAKE_SOURCE_DIR}/tools/make-regs.py ${WIRETAP_NONGENERATED_FILES}
+		"${CMAKE_CURRENT_BINARY_DIR}/wtap_modules.in.txt"
+	COMMENT "Making wtap_modules.c"
 )
 
 #

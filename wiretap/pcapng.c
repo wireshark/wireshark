@@ -52,6 +52,8 @@ pcapng_close(wtap *wth);
 static gboolean
 pcapng_encap_is_ft_specific(int encap);
 
+void register_pcapng(void);
+
 /*
  * Minimum block size = size of block header + size of block trailer.
  */
@@ -4980,6 +4982,10 @@ gboolean pcapng_encap_is_ft_specific(int encap)
         return TRUE;
     }
     return FALSE;
+}
+
+void register_pcapng(void)
+{
 }
 
 /*

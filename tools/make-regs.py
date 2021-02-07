@@ -75,6 +75,34 @@ const gulong dissector_reg_handoff_count = {1};
 
     print("Found {0} registrations and {1} handoffs.".format(len(protos), len(handoffs)))
 
+def make_wtap_modules(outfile, infiles):
+    wtap_modules = []
+    wtap_modules_regex = r"void\s+(register_[\w]+)\s*\(\s*void\s*\)\s*{"
+
+    scan_files(infiles, [(wtap_modules, wtap_modules_regex)])
+
+    if len(wtap_modules) < 1:
+        sys.exit("No wiretap registrations found.")
+
+    wtap_modules.sort()
+
+    output = preamble
+    output += """\
+#include "wtap_modules.h"
+
+const gulong wtap_module_count = {0};
+
+""".format(len(wtap_modules))
+
+    output += gen_prototypes(wtap_modules)
+    output += "\n"
+    output += gen_array(wtap_modules, "wtap_module_reg_t wtap_module_reg")
+
+    with open(outfile, "w") as f:
+        f.write(output)
+
+    print("Found {0} registrations.".format(len(wtap_modules)))
+
 def make_taps(outfile, infiles):
     taps = []
     taps_regex = r"void\s+(register_tap_listener_[\w]+)\s*\(\s*void\s*\)\s*{"
@@ -121,6 +149,8 @@ if __name__ == "__main__":
 
     if mode == "dissectors":
         make_dissectors(outfile, infiles)
+    elif mode == "wtap_modules":
+        make_wtap_modules(outfile, infiles)
     elif mode == "taps":
         make_taps(outfile, infiles)
     else:

@@ -2013,7 +2013,7 @@ set(ALL_DISSECTOR_SRC
 )
 
 #
-# We pass the arguments to make-dissectors in a file to avoid limitations
+# We pass the arguments to make-regs.py in a file to avoid limitations
 # with the number of arguments handled by main().
 #
 file(GENERATE

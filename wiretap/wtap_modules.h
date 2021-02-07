@@ -1,5 +1,5 @@
-/* taps.h
- * Definitions for tap registration
+/* wtap_modules.h
+ * Definitions for wiretap module registration
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -8,8 +8,8 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-#ifndef __TAPS_H__
-#define __TAPS_H__
+#ifndef __WTAP_MODULES_H__
+#define __WTAP_MODULES_H__
 
 #ifdef __cplusplus
 extern "C" {
@@ -17,17 +17,24 @@ extern "C" {
 
 #include <glib.h>
 
-#include <epan/tap.h>
 
-extern tap_reg_t tap_reg_listener[];
+/*
+ * Entry in the table of built-in wiretap modules to register.
+ */
+typedef struct _wtap_module_reg {
+    const char *cb_name;
+    void (*cb_func)(void);
+} wtap_module_reg_t;
 
-extern const gulong tap_reg_listener_count;
+extern wtap_module_reg_t wtap_module_reg[];
+
+extern const gulong wtap_module_count;
 
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
 
-#endif /* __TAPS_H__ */
+#endif /* __WTAP_MODULES_H__ */
 
 /*
  * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
