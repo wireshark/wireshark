@@ -444,11 +444,21 @@ static guint other_idx;
 
 static void h225_stat_init(stat_tap_table_ui* new_stat)
 {
+  const char *table_name = "H.225 Messages and Message Reasons";
   int num_fields = sizeof(h225_stat_fields)/sizeof(stat_tap_table_item);
-  stat_tap_table* table = stat_tap_init_table("H.225 Messages and Message Reasons", num_fields, 0, NULL);
+  stat_tap_table *table;
   int row_idx = 0, msg_idx;
   stat_tap_table_item_type items[sizeof(h225_stat_fields)/sizeof(stat_tap_table_item)];
 
+  table = stat_tap_find_table(new_stat, table_name);
+  if (table) {
+    if (new_stat->stat_tap_reset_table_cb) {
+      new_stat->stat_tap_reset_table_cb(table);
+    }
+    return;
+  }
+
+  table = stat_tap_init_table(table_name, num_fields, 0, NULL);
   stat_tap_add_table(new_stat, table);
 
   items[MESSAGE_TYPE_COLUMN].type = TABLE_ITEM_STRING;
