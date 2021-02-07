@@ -10915,12 +10915,72 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>空格键</translation>
     </message>
     <message>
+        <source>Mute</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Mute the stream</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Play the stream</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>To Left</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Route audio to left channel</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Left + Right</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Route audio to left and right channel</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>To Right</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Route audio to right channel</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Invert Muting</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Invert muting of all channels</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Remove Stream</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Remove stream from the list</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>No devices available</source>
         <translation>无可用设备</translation>
     </message>
     <message>
+        <source>Audio Routing</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Play Streams</source>
         <translation>播放流</translation>
+    </message>
+    <message>
+        <source>Decoding streams...</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Out of Sequence</source>
@@ -10953,6 +11013,18 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Unknown</source>
         <translation>未知</translation>
+    </message>
+    <message>
+        <source>L</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>R</source>
+        <translation type="unfinished">R</translation>
+    </message>
+    <message>
+        <source>L+R</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

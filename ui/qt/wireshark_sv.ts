@@ -10953,12 +10953,72 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>Mellanslag</translation>
     </message>
     <message>
+        <source>Mute</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Mute the stream</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Play the stream</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>To Left</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Route audio to left channel</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Left + Right</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Route audio to left and right channel</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>To Right</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Route audio to right channel</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Invert Muting</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Invert muting of all channels</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Remove Stream</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Remove stream from the list</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>No devices available</source>
         <translation>Inga enheter tillgängliga</translation>
     </message>
     <message>
+        <source>Audio Routing</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Play Streams</source>
         <translation>Spela strömmar</translation>
+    </message>
+    <message>
+        <source>Decoding streams...</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Out of Sequence</source>
@@ -10991,6 +11051,18 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <message>
         <source>Unknown</source>
         <translation>Okänd</translation>
+    </message>
+    <message>
+        <source>L</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>R</source>
+        <translation type="unfinished">R</translation>
+    </message>
+    <message>
+        <source>L+R</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
