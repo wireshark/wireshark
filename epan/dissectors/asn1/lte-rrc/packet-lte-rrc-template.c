@@ -17,6 +17,7 @@
 #include <stdlib.h>
 
 #include <epan/packet.h>
+#include <epan/prefs.h>
 #include <epan/to_str.h>
 #include <epan/asn1.h>
 #include <epan/expert.h>
@@ -63,6 +64,7 @@ static wmem_map_t *lte_rrc_system_info_value_changed_hash = NULL;
 static guint8     system_info_value_current;
 static gboolean   system_info_value_current_set;
 
+static gboolean lte_rrc_nas_in_root_tree;
 
 extern int proto_mac_lte;
 extern int proto_rlc_lte;
@@ -4444,6 +4446,7 @@ void proto_register_lte_rrc(void) {
   };
 
   expert_module_t* expert_lte_rrc;
+  module_t *lte_rrc_module;
 
   /* Register protocol */
   proto_lte_rrc = proto_register_protocol(PNAME, PSNAME, PFNAME);
@@ -4491,6 +4494,12 @@ void proto_register_lte_rrc(void) {
   reassembly_table_register(&lte_rrc_sib12_reassembly_table,
                         &addresses_reassembly_table_functions);
 
+  /* Register configuration preferences */
+  lte_rrc_module = prefs_register_protocol(proto_lte_rrc, NULL);
+  prefs_register_bool_preference(lte_rrc_module, "nas_in_root_tree",
+                                 "Show NAS PDU in root packet details",
+                                 "Whether the NAS PDU should be shown in the root packet details tree",
+                                 &lte_rrc_nas_in_root_tree);
 }
 
 
