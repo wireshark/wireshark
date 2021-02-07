@@ -648,7 +648,20 @@ You can filter, copy or save the data into a file.
 
 === Flow Graph
 
-{missing}
+The Flow Graph window shows connections between hosts. It displays the packet time, direction, ports and comments for each captured connection. You can filter all connections by ICMP Flows, ICMPv6 Flows, UIM Flows and TCP Flows.
+
+.Flow Graph window
+image::wsug_graphics/ws-flow-graph.png[{screenshot-attrs}]
+
+Each vertical line represents the specific host, which you can see in the top of the window.
+
+The numbers in each row at the very left of the window represent the time packet. You can change the time format in the menu:View[Time Display Format]. If you change the time format, you must relaunch the Flow Graph window to observe the time in a new format.
+
+The numbers at the both ends of each arrow between hosts represent the port numbers.
+
+Left-click a row to select a corresponding packet in the packet list.
+
+Right-click on the graph for additional options, such as selecting the previous, current, or next packet in the packet list. This menu also contains shortcuts for moving the diagram.
 
 [[ChStatHARTIP]]
 
