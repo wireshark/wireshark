@@ -5573,50 +5573,72 @@ static int unknown_sc_idx;
 
 static void wsp_stat_init(stat_tap_table_ui* new_stat)
 {
+    const char *pt_table_name = "PDU Types";
+    const char *sc_table_name = "Status Codes";
     int num_fields = sizeof(wsp_stat_fields)/sizeof(stat_tap_table_item);
-    stat_tap_table* pt_table = stat_tap_init_table("PDU Types", num_fields, 0, NULL);
+    stat_tap_table *pt_table;
     stat_tap_table_item_type pt_items[sizeof(wsp_stat_fields)/sizeof(stat_tap_table_item)];
-    stat_tap_table* sc_table = stat_tap_init_table("Status Codes", num_fields, 0, NULL);
+    stat_tap_table *sc_table;
     stat_tap_table_item_type sc_items[sizeof(wsp_stat_fields)/sizeof(stat_tap_table_item)];
     int table_idx;
 
-    stat_tap_add_table(new_stat, pt_table);
-    stat_tap_add_table(new_stat, sc_table);
+    pt_table = stat_tap_find_table(new_stat, pt_table_name);
+    if (pt_table) {
+        if (new_stat->stat_tap_reset_table_cb) {
+            new_stat->stat_tap_reset_table_cb(pt_table);
+        }
+    }
+    else {
+        pt_table = stat_tap_init_table(pt_table_name, num_fields, 0, NULL);
+        stat_tap_add_table(new_stat, pt_table);
 
-    /* Add a row for each PDU type and status code */
-    table_idx = 0;
-    memset(pt_items, 0, sizeof(pt_items));
-    pt_items[MESSAGE_TYPE_COLUMN].type = TABLE_ITEM_STRING;
-    pt_items[PACKET_COLUMN].type = TABLE_ITEM_UINT;
-    while (wsp_vals_pdu_type[table_idx].strptr)
-    {
-        pt_items[MESSAGE_TYPE_COLUMN].value.string_value = g_strdup(wsp_vals_pdu_type[table_idx].strptr);
-        pt_items[MESSAGE_TYPE_COLUMN].user_data.uint_value = wsp_vals_pdu_type[table_idx].value;
+        /* Add a row for each PDU type */
+        table_idx = 0;
+        memset(pt_items, 0, sizeof(pt_items));
+        pt_items[MESSAGE_TYPE_COLUMN].type = TABLE_ITEM_STRING;
+        pt_items[PACKET_COLUMN].type = TABLE_ITEM_UINT;
+        while (wsp_vals_pdu_type[table_idx].strptr)
+        {
+            pt_items[MESSAGE_TYPE_COLUMN].value.string_value = g_strdup(wsp_vals_pdu_type[table_idx].strptr);
+            pt_items[MESSAGE_TYPE_COLUMN].user_data.uint_value = wsp_vals_pdu_type[table_idx].value;
 
+            stat_tap_init_table_row(pt_table, table_idx, num_fields, pt_items);
+            table_idx++;
+        }
+        pt_items[MESSAGE_TYPE_COLUMN].value.string_value = g_strdup("Unknown PDU type");
+        pt_items[MESSAGE_TYPE_COLUMN].user_data.uint_value = 0;
         stat_tap_init_table_row(pt_table, table_idx, num_fields, pt_items);
-        table_idx++;
+        unknown_pt_idx = table_idx;
     }
-    pt_items[MESSAGE_TYPE_COLUMN].value.string_value = g_strdup("Unknown PDU type");
-    pt_items[MESSAGE_TYPE_COLUMN].user_data.uint_value = 0;
-    stat_tap_init_table_row(pt_table, table_idx, num_fields, pt_items);
-    unknown_pt_idx = table_idx;
 
-    table_idx = 0;
-    memset(sc_items, 0, sizeof(sc_items));
-    sc_items[MESSAGE_TYPE_COLUMN].type = TABLE_ITEM_STRING;
-    sc_items[PACKET_COLUMN].type = TABLE_ITEM_UINT;
-    while (wsp_vals_status[table_idx].strptr)
-    {
-        sc_items[MESSAGE_TYPE_COLUMN].value.string_value = g_strdup(wsp_vals_status[table_idx].strptr);
-        sc_items[MESSAGE_TYPE_COLUMN].user_data.uint_value = wsp_vals_status[table_idx].value;
+    sc_table = stat_tap_find_table(new_stat, sc_table_name);
+    if (sc_table) {
+        if (new_stat->stat_tap_reset_table_cb) {
+            new_stat->stat_tap_reset_table_cb(sc_table);
+        }
+    }
+    else {
+        sc_table = stat_tap_init_table(sc_table_name, num_fields, 0, NULL);
+        stat_tap_add_table(new_stat, sc_table);
 
+        /* Add a row for each status code */
+        table_idx = 0;
+        memset(sc_items, 0, sizeof(sc_items));
+        sc_items[MESSAGE_TYPE_COLUMN].type = TABLE_ITEM_STRING;
+        sc_items[PACKET_COLUMN].type = TABLE_ITEM_UINT;
+        while (wsp_vals_status[table_idx].strptr)
+        {
+            sc_items[MESSAGE_TYPE_COLUMN].value.string_value = g_strdup(wsp_vals_status[table_idx].strptr);
+            sc_items[MESSAGE_TYPE_COLUMN].user_data.uint_value = wsp_vals_status[table_idx].value;
+
+            stat_tap_init_table_row(sc_table, table_idx, num_fields, sc_items);
+            table_idx++;
+        }
+        sc_items[MESSAGE_TYPE_COLUMN].value.string_value = g_strdup("Unknown status code");
+        sc_items[MESSAGE_TYPE_COLUMN].user_data.uint_value = 0;
         stat_tap_init_table_row(sc_table, table_idx, num_fields, sc_items);
-        table_idx++;
+        unknown_sc_idx = table_idx;
     }
-    sc_items[MESSAGE_TYPE_COLUMN].value.string_value = g_strdup("Unknown status code");
-    sc_items[MESSAGE_TYPE_COLUMN].user_data.uint_value = 0;
-    stat_tap_init_table_row(sc_table, table_idx, num_fields, sc_items);
-    unknown_sc_idx = table_idx;
 }
 
 static tap_packet_status
