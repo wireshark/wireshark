@@ -706,7 +706,16 @@ Window Scaling:: Window size and outstanding bytes.
 
 === IPv4 Statistics
 
-{missing}
+Internet Protocol version 4 (IPv4) is a core protocol for the internet layer. It uses 32-bit addresses and allows packets routing from one source host to the next one.
+
+The menu:Statistics[IPv4] menu provides the packet counter by submenus:
+
+* `All Addresses`. Divides data by IP address.
+* `Destination and Ports`. Divides data by IP address, and further by IP protocol type, such as TCP, UDP, and others. It also shows port number.
+* `IP Protocol Types`. Divides data by IP protocol type.
+* `Source and Destination addresses`. Divides data by source and destination IP address.
+
+You can see similar statistics in the menu:Statistics[Conversations] and menu:Statistics[Endpoints] menus. 
 
 [[ChStatIPv6]]
 
