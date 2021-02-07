@@ -327,28 +327,29 @@ static void dissect_rdma_cm_req_packet(tvbuff_t *tvb, proto_tree *tree)
 {
     proto_tree *cm_tree;
     proto_item *ti, *qid_item;
-    /* private data is at offset of 36 bytes */
-    int offset = 36;
+    /* NVME-RDMA connect private data starts at offset 0 of RDMA-CM
+     * private data
+     */
     guint16 qid;
 
     /* create display subtree for private data */
-    ti = proto_tree_add_item(tree, proto_nvme_rdma, tvb, offset, 32, ENC_NA);
+    ti = proto_tree_add_item(tree, proto_nvme_rdma, tvb, 0, 32, ENC_NA);
     cm_tree = proto_item_add_subtree(ti, ett_cm);
 
     proto_tree_add_item(cm_tree, hf_nvme_rdma_cm_req_recfmt, tvb,
-                        offset + 0, 2, ENC_LITTLE_ENDIAN);
+                        0, 2, ENC_LITTLE_ENDIAN);
 
     qid_item = proto_tree_add_item(cm_tree, hf_nvme_rdma_cm_req_qid, tvb,
-                                   offset + 2, 2, ENC_LITTLE_ENDIAN);
-    qid = tvb_get_guint16(tvb, offset + 2, ENC_LITTLE_ENDIAN);
+                                   2, 2, ENC_LITTLE_ENDIAN);
+    qid = tvb_get_guint16(tvb, 2, ENC_LITTLE_ENDIAN);
     proto_item_append_text(qid_item, " %s", qid ? "IOQ" : "AQ");
 
     proto_tree_add_item(cm_tree, hf_nvme_rdma_cm_req_hrqsize, tvb,
-                        offset + 4, 2, ENC_LITTLE_ENDIAN);
+                        4, 2, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(cm_tree, hf_nvme_rdma_cm_req_hsqsize, tvb,
-                        offset + 6, 2, ENC_LITTLE_ENDIAN);
+                        6, 2, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(cm_tree, hf_nvme_rdma_cm_req_reserved, tvb,
-                        offset + 8, 24, ENC_NA);
+                        8, 24, ENC_NA);
 }
 
 static void dissect_rdma_cm_rsp_packet(tvbuff_t *tvb, proto_tree *tree)
@@ -408,6 +409,10 @@ static int
 dissect_nvme_ib_cm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         void *data)
 {
+    /* infiniband dissector dissects RDMA-CM header and passes RDMA-CM
+     * private data for further decoding, so we start at RDMA-CM
+     * private data here
+     */
     conversation_infiniband_data *conv_data = NULL;
     struct infinibandinfo *info = (struct infinibandinfo *)data;
 
