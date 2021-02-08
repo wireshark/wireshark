@@ -66,6 +66,9 @@ set(WIRESHARK_UTILS_HEADERS
 	utils/idata_printable.h
 	utils/proto_node.h
 	utils/qt_ui_utils.h
+	utils/rtp_audio_routing.h
+	utils/rtp_audio_routing_filter.h
+	utils/rtp_audio_silence_generator.h
 	utils/stock_icon.h
 	utils/tango_colors.h
 	utils/variant_pointer.h
@@ -305,6 +308,9 @@ set(WIRESHARK_UTILS_SRCS
 	utils/frame_information.cpp
 	utils/proto_node.cpp
 	utils/qt_ui_utils.cpp
+	utils/rtp_audio_routing.cpp
+	utils/rtp_audio_routing_filter.cpp
+	utils/rtp_audio_silence_generator.cpp
 	utils/stock_icon.cpp
 	utils/wireshark_mime_data.cpp
 	utils/wireshark_zip_helper.cpp

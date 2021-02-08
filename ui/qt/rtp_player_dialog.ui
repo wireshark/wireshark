@@ -442,10 +442,10 @@
   </action>
   <action name="actionAudioRoutingM">
    <property name="text">
-    <string>Mute</string>
+    <string>Mute/Unmute</string>
    </property>
    <property name="toolTip">
-    <string>Mute the stream</string>
+    <string>Mute or unmute the stream</string>
    </property>
   </action>
   <action name="actionAudioRoutingP">

@@ -17,32 +17,17 @@
 #include "ui/rtp_stream.h"
 
 #include "wireshark_dialog.h"
+#include "rtp_audio_stream.h"
 
 #include <QMap>
 #include <QTreeWidgetItem>
 #include <QMetaType>
 #include <ui/qt/widgets/qcustomplot.h>
+#include <QAudioDeviceInfo>
 
 namespace Ui {
 class RtpPlayerDialog;
 }
-
-typedef enum {
-    channel_any,          // Used just for changes of mute
-    channel_mono,         // Play
-    channel_stereo_left,  // L
-    channel_stereo_right, // R
-    channel_stereo_both   // L+R
-} channel_mode_audio_t;
-
-typedef struct {
-    bool muted;
-    channel_mode_audio_t channel;
-} channel_mode_t;
-Q_DECLARE_METATYPE(channel_mode_t)
-
-#define AUDIO_MUTED true
-#define AUDIO_UNMUTED false
 
 class QCPItemStraightLine;
 class QDialogButtonBox;
@@ -103,20 +88,22 @@ private slots:
     /** Clear, decode, and redraw each stream.
      */
     void rescanPackets(bool rescale_axes = false);
+    void createPlot(bool rescale_axes = false);
     void updateWidgets();
     void graphClicked(QMouseEvent *event);
     void graphDoubleClicked(QMouseEvent *event);
     void plotClicked(QCPAbstractPlottable *plottable, int dataIndex, QMouseEvent *event);
     void updateHintLabel();
     void resetXAxis();
+    void playFinished(RtpAudioStream *stream);
 
     void setPlayPosition(double secs);
-    void setPlaybackError(const QString playback_error) {
-        playback_error_ = playback_error;
-        updateHintLabel();
-    }
-    void changeAudioRouting(channel_mode_t channel_mode);
+    void setPlaybackError(const QString playback_error);
+    void changeAudioRoutingOnItem(QTreeWidgetItem *ti, AudioRouting new_audio_routing);
+    void changeAudioRouting(AudioRouting new_audio_routing);
+    void invertAudioMutingOnItem(QTreeWidgetItem *ti);
     void on_playButton_clicked();
+    void on_pauseButton_clicked();
     void on_stopButton_clicked();
     void on_actionReset_triggered();
     void on_actionZoomIn_triggered();
@@ -140,6 +127,7 @@ private slots:
     void on_timingComboBox_currentIndexChanged(int);
     void on_todCheckBox_toggled(bool checked);
     void on_buttonBox_helpRequested();
+    void outputNotify();
 
 private:
     Ui::RtpPlayerDialog *ui;
@@ -150,12 +138,15 @@ private:
     double first_stream_rel_stop_time_;  // Relative end time of first stream (ued for streams_length_ calculation
     double streams_length_;  // Difference between start of first stream and end of last stream
     double start_marker_time_;    // Always relative time to start of the capture
+    double start_marker_time_play_;    // Copy when play started
     QCPItemStraightLine *cur_play_pos_;
     QCPItemStraightLine *start_marker_pos_;
     QString playback_error_;
     QSharedPointer<QCPAxisTicker> number_ticker_;
     QSharedPointer<QCPAxisTickerDateTime> datetime_ticker_;
     bool stereo_available_;
+    QList<RtpAudioStream *> playing_streams_;
+    QAudioOutput *marker_stream_;
 
     bool listener_removed_;
 
@@ -178,9 +169,10 @@ private:
     void drawStartPlayMarker();
     void setStartPlayMarker(double new_time);
     void updateStartStopTime(rtpstream_info_t *rtpstream, int tli_count);
-    void setChannelMode(QTreeWidgetItem *ti, channel_mode_t channel_mode);
-    channel_mode_t changeChannelMode(channel_mode_t channel_mode);
+    void formatAudioRouting(QTreeWidgetItem *ti, AudioRouting audio_routing);
     bool isStereoAvailable();
+    QAudioOutput *getSilenceAudioOutput();
+    QAudioDeviceInfo getCurrentDeviceInfo();
 
 #else // QT_MULTIMEDIA_LIB
 private:

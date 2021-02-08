@@ -26,6 +26,8 @@
 
 #include <wsutil/nstime.h>
 
+#include <ui/qt/utils/rtp_audio_routing_filter.h>
+
 #include <QAudioFormat>
 #include <QAudioOutput>
 #include <QDir>
@@ -38,16 +40,14 @@
 static spx_int16_t default_audio_sample_rate_ = 8000;
 static const spx_int16_t visual_sample_rate_ = 1000;
 
-RtpAudioStream::RtpAudioStream(QObject *parent, rtpstream_info_t *rtpstream) :
+RtpAudioStream::RtpAudioStream(QObject *parent, rtpstream_info_t *rtpstream, bool stereo_required) :
     QObject(parent),
     decoders_hash_(rtp_decoder_hash_table_new()),
     global_start_rel_time_(0.0),
     start_abs_offset_(0.0),
     start_rel_time_(0.0),
     stop_rel_time_(0.0),
-    audio_stereo_(false),
-    audio_left_(false),
-    audio_right_(false),
+    stereo_required_(stereo_required),
     audio_out_rate_(0),
     audio_resampler_(0),
     audio_output_(0),
@@ -65,8 +65,8 @@ RtpAudioStream::RtpAudioStream(QObject *parent, rtpstream_info_t *rtpstream) :
     speex_resampler_skip_zeros(visual_resampler_);
 
     QString tempname = QString("%1/wireshark_rtp_stream").arg(QDir::tempPath());
-    tempfile_ = new QTemporaryFile(tempname, this);
-    tempfile_->open();
+    samplefile_ = new QTemporaryFile(tempname, this);
+    samplefile_->open();
 
     // RTP_STREAM_DEBUG("Writing to %s", tempname.toUtf8().constData());
 }
@@ -83,6 +83,9 @@ RtpAudioStream::~RtpAudioStream()
     if (audio_resampler_) speex_resampler_destroy (audio_resampler_);
     speex_resampler_destroy (visual_resampler_);
     rtpstream_id_free(&id_);
+    if (samplefile_) delete samplefile_;
+    // tempfile_ is released by audio_output_
+    if (audio_output_) delete audio_output_;
 }
 
 bool RtpAudioStream::isMatch(const rtpstream_info_t *rtpstream) const
@@ -137,13 +140,10 @@ void RtpAudioStream::addRtpPacket(const struct _packet_info *pinfo, const struct
     rtp_packets_ << rtp_packet;
 }
 
-void RtpAudioStream::reset(double global_start_time, bool stereo, bool left, bool right)
+void RtpAudioStream::reset(double global_start_time)
 {
     global_start_rel_time_ = global_start_time;
     stop_rel_time_ = start_rel_time_;
-    audio_stereo_ = stereo;
-    audio_left_ = left;
-    audio_right_ = right;
     audio_out_rate_ = 0;
     max_sample_val_ = 1;
     packet_timestamps_.clear();
@@ -157,7 +157,17 @@ void RtpAudioStream::reset(double global_start_time, bool stereo, bool left, boo
     if (visual_resampler_) {
         speex_resampler_reset_mem(visual_resampler_);
     }
-    tempfile_->seek(0);
+    samplefile_->seek(0);
+}
+
+AudioRouting RtpAudioStream::getAudioRouting()
+{
+    return audio_routing_;
+}
+
+void RtpAudioStream::setAudioRouting(AudioRouting audio_routing)
+{
+    audio_routing_ = audio_routing;
 }
 
 /* Fix for bug 4119/5902: don't insert too many silence frames.
@@ -165,7 +175,7 @@ void RtpAudioStream::reset(double global_start_time, bool stereo, bool left, boo
  */
 static const qint64 max_silence_samples_ = MAX_SILENCE_FRAMES;
 
-void RtpAudioStream::decode()
+void RtpAudioStream::decode(QAudioDeviceInfo out_device)
 {
     if (rtp_packets_.size() < 1) return;
 
@@ -232,34 +242,26 @@ void RtpAudioStream::decode()
 
         if (audio_out_rate_ == 0) {
             // Use the first non-zero rate we find. Ajust it to match our audio hardware.
-            QAudioDeviceInfo cur_out_device = QAudioDeviceInfo::defaultOutputDevice();
-            QString cur_out_name = parent()->property("currentOutputDeviceName").toString();
-            foreach (QAudioDeviceInfo out_device, QAudioDeviceInfo::availableDevices(QAudio::AudioOutput)) {
-                if (cur_out_name == out_device.deviceName()) {
-                    cur_out_device = out_device;
-                }
-            }
-
             QAudioFormat format;
             format.setSampleRate(sample_rate);
             format.setSampleSize(SAMPLE_BYTES * 8); // bits
             format.setSampleType(QAudioFormat::SignedInt);
-            if (audio_stereo_) {
+            if (stereo_required_) {
                 format.setChannelCount(2);
             } else {
                 format.setChannelCount(1);
             }
             format.setCodec("audio/pcm");
 
-            if (!cur_out_device.isFormatSupported(format)) {
-                sample_rate = cur_out_device.nearestFormat(format).sampleRate();
+            if (!out_device.isFormatSupported(format)) {
+                sample_rate = out_device.nearestFormat(format).sampleRate();
             }
 
             audio_out_rate_ = sample_rate;
             RTP_STREAM_DEBUG("Audio sample rate is %u", audio_out_rate_);
 
             // Prepend silence to match our sibling streams.
-            tempfile_->seek(0);
+            samplefile_->seek(0);
             qint64 prepend_samples = (start_rel_time_ - global_start_rel_time_) * audio_out_rate_;
             if (prepend_samples > 0) {
                 writeSilence(prepend_samples);
@@ -375,29 +377,7 @@ void RtpAudioStream::decode()
         }
 
         // Write the decoded, possibly-resampled audio to our temp file.
-        gint64 silence = 0;
-        if (audio_stereo_) {
-            // Process audio mute/left/right settings
-            for(qint64 i=0; i<write_bytes; i+=SAMPLE_BYTES) {
-                if (audio_left_) {
-                    tempfile_->write(write_buff+i, SAMPLE_BYTES);
-                } else {
-                    tempfile_->write((char *)&silence, SAMPLE_BYTES);
-                }
-                if (audio_right_) {
-                    tempfile_->write(write_buff+i, SAMPLE_BYTES);
-                } else {
-                    tempfile_->write((char *)&silence, SAMPLE_BYTES);
-                }
-            }
-        } else {
-            // Process audio mute/unmute settings
-            if (audio_left_) {
-                tempfile_->write(write_buff, write_bytes);
-            } else {
-                writeSilence(write_bytes / SAMPLE_BYTES);
-            }
-        }
+        samplefile_->write(write_buff, write_bytes);
 
         // Collect our visual samples.
         spx_uint32_t in_len = (spx_uint32_t)rtp_packet->info->info_payload_len;
@@ -579,30 +559,27 @@ const QString RtpAudioStream::formatDescription(const QAudioFormat &format)
     return fmt_descr;
 }
 
-void RtpAudioStream::startPlaying()
+bool RtpAudioStream::prepareForPlay(QAudioDeviceInfo out_device)
 {
     qint64 start_pos;
+    qint64 size;
 
-    if (audio_output_) return;
+    if (audio_routing_.isMuted())
+        return false;
+
+    if (audio_output_)
+        return false;
 
     if (audio_out_rate_ == 0) {
         emit playbackError(tr("RTP stream is empty or codec is unsupported."));
-        return;
-    }
-
-    QAudioDeviceInfo cur_out_device = QAudioDeviceInfo::defaultOutputDevice();
-    QString cur_out_name = parent()->property("currentOutputDeviceName").toString();
-    foreach (QAudioDeviceInfo out_device, QAudioDeviceInfo::availableDevices(QAudio::AudioOutput)) {
-        if (cur_out_name == out_device.deviceName()) {
-            cur_out_device = out_device;
-        }
+        return false;
     }
 
     QAudioFormat format;
     format.setSampleRate(audio_out_rate_);
     format.setSampleSize(SAMPLE_BYTES * 8); // bits
     format.setSampleType(QAudioFormat::SignedInt);
-    if (audio_stereo_) {
+    if (stereo_required_) {
         format.setChannelCount(2);
     } else {
         format.setChannelCount(1);
@@ -610,55 +587,67 @@ void RtpAudioStream::startPlaying()
     format.setCodec("audio/pcm");
 
     // RTP_STREAM_DEBUG("playing %s %d samples @ %u Hz",
-    //                 tempfile_->fileName().toUtf8().constData(),
-    //                 (int) tempfile_->size(), audio_out_rate_);
+    //                 samplefile_->fileName().toUtf8().constData(),
+    //                 (int) samplefile_->size(), audio_out_rate_);
 
-    if (!cur_out_device.isFormatSupported(format)) {
+    if (!out_device.isFormatSupported(format)) {
         QString playback_error = tr("%1 does not support PCM at %2. Preferred format is %3")
-                .arg(cur_out_device.deviceName())
+                .arg(out_device.deviceName())
                 .arg(formatDescription(format))
-                .arg(formatDescription(cur_out_device.nearestFormat(format)));
+                .arg(formatDescription(out_device.nearestFormat(format)));
         emit playbackError(playback_error);
     }
 
     start_pos = (qint64)(start_play_time_ * SAMPLE_BYTES * audio_out_rate_);
     // Round to SAMPLE_BYTES boundary
     start_pos = (start_pos / SAMPLE_BYTES) * SAMPLE_BYTES;
-    if (audio_stereo_) {
+    size = samplefile_->size();
+    if (stereo_required_) {
         // There is 2x more samples for stereo
         start_pos *= 2;
+        size *= 2;
     }
-    if (start_pos < tempfile_->size()) {
-        int bufferSize;
+    if (start_pos < size) {
+        int buffer_size;
 
         // Start and stop audio with no connection to UI and store buffer size
+        tempfile_ = new AudioRoutingFilter(samplefile_, stereo_required_, audio_routing_);
         tempfile_->seek(start_pos);
-        audio_output_ = new QAudioOutput(cur_out_device, format, this);
+        audio_output_ = new QAudioOutput(out_device, format, this);
         audio_output_->start(tempfile_);
-        bufferSize = audio_output_->bufferSize();
+        buffer_size = audio_output_->bufferSize();
         audio_output_->stop();
 
-        // Start audio again with doubled buffer size, UI is updated
+        // Start audio again with trippled buffer size
         tempfile_->seek(start_pos);
-        audio_output_->setBufferSize(bufferSize*2);
+        audio_output_->setBufferSize(buffer_size*3);
         audio_output_->setNotifyInterval(100); // ~15 fps
         connect(audio_output_, SIGNAL(stateChanged(QAudio::State)), this, SLOT(outputStateChanged(QAudio::State)));
-        connect(audio_output_, SIGNAL(notify()), this, SLOT(outputNotify()));
-        audio_output_->start(tempfile_);
-        emit startedPlaying();
-        // QTBUG-6548 StoppedState is not always emitted on error, force a cleanup
-        // in case playback fails immediately.
-        if (audio_output_ && audio_output_->state() == QAudio::StoppedState) {
-            outputStateChanged(QAudio::StoppedState);
-        }
+        return true;
     } else {
         // Report stopped audio if start position is later than stream ends
         outputStateChanged(QAudio::StoppedState);
+        return false;
     }
+
+    return false;
+}
+
+void RtpAudioStream::startPlaying()
+{
+   audio_output_->start(tempfile_);
+   // QTBUG-6548 StoppedState is not always emitted on error, force a cleanup
+   // in case playback fails immediately.
+   if (audio_output_ && audio_output_->state() == QAudio::StoppedState) {
+       outputStateChanged(QAudio::StoppedState);
+   }
 }
 
 void RtpAudioStream::pausePlaying()
 {
+    if (audio_routing_.isMuted())
+        return;
+
     if (audio_output_) {
         if (QAudio::ActiveState == audio_output_->state()) {
             audio_output_->suspend();
@@ -670,6 +659,9 @@ void RtpAudioStream::pausePlaying()
 
 void RtpAudioStream::stopPlaying()
 {
+    if (audio_routing_.isMuted())
+        return;
+
     if (audio_output_) {
         audio_output_->stop();
     }
@@ -683,13 +675,7 @@ void RtpAudioStream::writeSilence(qint64 samples)
     char *silence_buff = (char *) g_malloc0(silence_bytes);
 
     RTP_STREAM_DEBUG("Writing " G_GUINT64_FORMAT " silence samples", samples);
-    if (audio_stereo_) {
-        // Silence for left and right channel
-        tempfile_->write(silence_buff, silence_bytes);
-        tempfile_->write(silence_buff, silence_bytes);
-    } else {
-        tempfile_->write(silence_buff, silence_bytes);
-    }
+    samplefile_->write(silence_buff, silence_bytes);
     g_free(silence_buff);
 
     // Silence is inserted to audio file only.
@@ -714,7 +700,7 @@ void RtpAudioStream::outputStateChanged(QAudio::State new_state)
         audio_output_->disconnect();
         audio_output_->deleteLater();
         audio_output_ = NULL;
-        emit finishedPlaying();
+        emit finishedPlaying(this);
         break;
     case QAudio::IdleState:
         audio_output_->stop();
@@ -722,11 +708,6 @@ void RtpAudioStream::outputStateChanged(QAudio::State new_state)
     default:
         break;
     }
-}
-
-void RtpAudioStream::outputNotify()
-{
-    emit processedSecs((audio_output_->processedUSecs() / 1000000.0) + start_play_time_);
 }
 
 #endif // QT_MULTIMEDIA_LIB

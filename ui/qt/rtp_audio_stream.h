@@ -18,6 +18,7 @@
 
 #include <epan/address.h>
 #include <ui/rtp_stream.h>
+#include <ui/qt/utils/rtp_audio_routing.h>
 
 #include <QAudio>
 #include <QColor>
@@ -25,6 +26,8 @@
 #include <QObject>
 #include <QSet>
 #include <QVector>
+#include <QIODevice>
+#include <QAudioOutput>
 
 class QAudioFormat;
 class QAudioOutput;
@@ -39,14 +42,16 @@ class RtpAudioStream : public QObject
 public:
     enum TimingMode { JitterBuffer, RtpTimestamp, Uninterrupted };
 
-    explicit RtpAudioStream(QObject *parent, rtpstream_info_t *rtpstream);
+    explicit RtpAudioStream(QObject *parent, rtpstream_info_t *rtpstream, bool stereo_required);
     ~RtpAudioStream();
     bool isMatch(const rtpstream_info_t *rtpstream) const;
     bool isMatch(const struct _packet_info *pinfo, const struct _rtp_info *rtp_info) const;
     //void addRtpStream(const rtpstream_info_t *rtpstream);
     void addRtpPacket(const struct _packet_info *pinfo, const struct _rtp_info *rtp_info);
-    void reset(double global_start_time, bool stereo, bool left, bool right);
-    void decode();
+    void reset(double global_start_time);
+    AudioRouting getAudioRouting();
+    void setAudioRouting(AudioRouting audio_routing);
+    void decode(QAudioDeviceInfo out_device);
 
     double startRelTime() const { return start_rel_time_; }
     double stopRelTime() const { return stop_rel_time_; }
@@ -128,17 +133,16 @@ public:
     void setJitterBufferSize(int jitter_buffer_size) { jitter_buffer_size_ = jitter_buffer_size; }
     void setTimingMode(TimingMode timing_mode) { timing_mode_ = timing_mode; }
     void setStartPlayTime(double start_play_time) { start_play_time_ = start_play_time; }
-
-signals:
-    void startedPlaying();
-    void processedSecs(double secs);
-    void playbackError(const QString error_msg);
-    void finishedPlaying();
-
-public slots:
+    bool prepareForPlay(QAudioDeviceInfo out_device);
     void startPlaying();
     void pausePlaying();
     void stopPlaying();
+    void setStereoRequired(bool stereo_required) { stereo_required_ = stereo_required; }
+
+signals:
+    void processedSecs(double secs);
+    void playbackError(const QString error_msg);
+    void finishedPlaying(RtpAudioStream *stream);
 
 private:
     // Used to identify unique streams.
@@ -146,7 +150,8 @@ private:
     rtpstream_id_t id_;
 
     QVector<struct _rtp_packet *>rtp_packets_;
-    QTemporaryFile *tempfile_;
+    QTemporaryFile *samplefile_;
+    QIODevice *tempfile_;
     struct _GHashTable *decoders_hash_;
     // TODO: It is not used
     //QList<const rtpstream_info_t *>rtpstreams_;
@@ -154,9 +159,8 @@ private:
     double start_abs_offset_;
     double start_rel_time_;
     double stop_rel_time_;
-    bool audio_stereo_;
-    bool audio_left_;
-    bool audio_right_;
+    AudioRouting audio_routing_;
+    bool stereo_required_;
     quint32 audio_out_rate_;
     QSet<QString> payload_names_;
     struct SpeexResamplerState_ *audio_resampler_;
@@ -181,7 +185,6 @@ private:
 
 private slots:
     void outputStateChanged(QAudio::State new_state);
-    void outputNotify();
 };
 
 #endif // QT_MULTIMEDIA_LIB
