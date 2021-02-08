@@ -4025,12 +4025,17 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
                "PacketReceivePacket error: The device has been removed. (1617)".
 
                Newer versions of libpcap map some or all of those to just
+               "The interface disappeared" or something beginning with
                "The interface disappeared".
 
-               These should *not* be reported to the Wireshark developers. */
+               These should *not* be reported to the Wireshark developers,
+               although, with Npcap, "The interface disappeared" messages
+               should perhaps be reported to the Npcap developers, at least
+               until errors of that sort that shouldn't happen are fixed,
+               if that's possible. */
             char *cap_err_str;
             char *primary_msg;
-            const char *secondary_msg;
+            char *secondary_msg;
 
             interface_opts = &g_array_index(capture_opts->ifaces, interface_options, i);
             cap_err_str = pcap_geterr(pcap_src->pcap_h);
@@ -4040,7 +4045,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
                                               "is no longer running; the "
                                               "capture has stopped.",
                                               interface_opts->name);
-                secondary_msg = "";
+                secondary_msg = g_strdup("");
             } else if (strcmp(cap_err_str, "The interface disappeared") == 0 ||
                        strcmp(cap_err_str, "read: Device not configured") == 0 ||
                        strcmp(cap_err_str, "read: I/O error") == 0 ||
@@ -4049,8 +4054,41 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
                                               "is no longer attached; the "
                                               "capture has stopped.",
                                               interface_opts->name);
-                secondary_msg = "";
-                report_capture_error(primary_msg, secondary_msg);
+                secondary_msg = g_strdup("");
+            } else if (g_str_has_prefix(cap_err_str, "The interface disappeared ")) {
+                /*
+                 * Npcap, if it picks up a recent commit to libpcap, will
+                 * report an error *beginning* with "The interface
+                 * disappeared", with the name of the Windows status code,
+                 * and the corresponding NT status code, after it.
+                 *
+                 * Those should be reported as Npcap issues.
+                 */
+                primary_msg = g_strdup_printf("The network adapter \"%s\" "
+                                              "is no longer attached; the "
+                                              "capture has stopped.",
+                                              interface_opts->name);
+                secondary_msg = g_strdup_printf("If you have not removed that "
+                                                "adapter, this may be a bug "
+                                                "in Npcap: please report it "
+                                                "as an issue at https://github.com/nmap/npcap/issues\n\n"
+                                                "Give all details, such as "
+                                                "the name of the adapter on "
+                                                "which the error occurred, "
+                                                "the error message \"%s\", "
+                                                "the full version of Windows "
+                                                "on which this occurred, "
+                                                "the version of Npcap with "
+                                                "which this occurred, any "
+                                                "indication of whether the "
+                                                "machine went to sleep "
+                                                "during the capture, "
+                                                "and any indication of "
+                                                "whether any other interfaces "
+                                                "were added to or removed "
+                                                "from the machine while the "
+                                                "capture was taking place.",
+                                                cap_err_str);
             } else if (g_str_has_prefix(cap_err_str, "PacketReceivePacket error:") &&
                        g_str_has_suffix(cap_err_str, "(1617)")) {
                 /*
@@ -4074,20 +4112,40 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
                                               "is no longer attached; the "
                                               "capture has stopped.",
                                               interface_opts->name);
-                secondary_msg = "If you have not removed that adapter, "
-                                "this may be a bug in Npcap: please report it "
-                                "as an issue at https://github.com/nmap/npcap/issues";
+                secondary_msg = g_strdup_printf("If you have not removed that "
+                                                "adapter, this may be a bug "
+                                                "in Npcap: please report it "
+                                                "as an issue at https://github.com/nmap/npcap/issues\n\n"
+                                                "Give all details, such as "
+                                                "the name of the adapter on "
+                                                "which the error occurred, "
+                                                "the error message \"%s\", "
+                                                "the full version of Windows "
+                                                "on which this occurred, "
+                                                "the version of Npcap with "
+                                                "which this occurred, any "
+                                                "indication of whether the "
+                                                "machine went to sleep "
+                                                "during the capture, "
+                                                "and any indication of "
+                                                "whether any other interfaces "
+                                                "were added to or removed "
+                                                "from the machine while the "
+                                                "capture was taking place.",
+                                                "(ERROR_DEVICE_REMOVED/STATUS_DEVICE_REMOVED)");
             } else if (strcmp(cap_err_str, "The other host terminated the connection") == 0) {
                 primary_msg = g_strdup(cap_err_str);
-                secondary_msg = "This may be a problem with the remote host "
-                                "on which you are capturing packets.";
+                secondary_msg = g_strdup("This may be a problem with the "
+                                         "remote host on which you are "
+                                         "capturing packets.");
             } else {
                 primary_msg = g_strdup_printf("Error while capturing packets: %s",
                                               cap_err_str);
-                secondary_msg = please_report_bug();
+                secondary_msg = g_strdup(please_report_bug());
             }
             report_capture_error(primary_msg, secondary_msg);
             g_free(primary_msg);
+            g_free(secondary_msg);
             break;
         } else if (pcap_src->from_cap_pipe && pcap_src->cap_pipe_err == PIPERR) {
             report_capture_error(errmsg, "");
