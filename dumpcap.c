@@ -4174,7 +4174,25 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
                 report_capture_error("The network adapter on which the capture was being done "
                                      "is no longer attached; the capture has stopped.",
                                      "");
-            } else if (strcmp(cap_err_str, "PacketReceivePacket error: The device has been removed. (1617)") == 0) {
+            } else if (g_str_has_prefix(cap_err_str, "PacketReceivePacket error:") &&
+                       g_str_has_suffix(cap_err_str, "(1617)")) {
+                /*
+                 * "PacketReceivePacket error: {message in arbitrary language} (1617)",
+                 * which is ERROR_DEVICE_REMOVED.
+                 *
+                 * Current libpcap/Npcap treat ERROR_GEN_FAILURE as
+                 * "the device is no longer attached"; users are also
+                 * getting ERROR_DEVICE_REMOVED.
+                 *
+                 * For now, some users appear to be getg ERROR_DEVICE_REMOVED
+                 * in cases where the device *wasn't* removed, so tell
+                 * them to report this as an Npcap issue; I seem to
+                 * remember some discussion between Daniel and somebody
+                 * at Microsoft about the Windows 10 network stack setup/
+                 * teardown code being modified to try to prevent those
+                 * sort of problems popping up, but I can't find that
+                 * discussion.
+                 */
                 report_capture_error(cap_err_str,
                                      "The network adapter on which the capture was being done "
                                      "is no longer attached; the capture has stopped.\n\n"
