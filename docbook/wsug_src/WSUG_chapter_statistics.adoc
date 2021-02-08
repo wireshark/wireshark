@@ -700,7 +700,24 @@ Window Scaling:: Window size and outstanding bytes.
 
 === F5
 
-{missing}
+In F5 Networks, *TMM* stands for Traffic Management Microkernel. It processes all load-balanced traffic on the BIG-IP system.
+
+The F5 statistics menu shows packet and byte counts for both `Virtual Server Distribution` and `tmm Distribution` submenus.
+
+Each `Virtual Server Distribution` window contains the statistics for the following data:
+
+* A line for each named virtual server name.
+* A line for traffic with a flow ID and no virtual server name.
+* A line for traffic without a flow ID.
+
+Each `tmm Distribution` window contains the statistics for the following data:
+
+* A line for each tmm, which contains:
+** A line for each ingress and egress (should add to tmm total), which contains:
+*** Traffic with a virtual server name.
+*** Traffic with a flow ID and no virtual server name.
+*** Traffic without a flow ID.
+ 
 
 [[ChStatIPv4]]
 
