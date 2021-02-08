@@ -4161,20 +4161,28 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
 
                These should *not* be reported to the Wireshark developers. */
             char *cap_err_str;
+            char *primary_msg;
+            const char *secondary_msg;
 
+            interface_opts = &g_array_index(capture_opts->ifaces, interface_options, i);
             cap_err_str = pcap_geterr(pcap_src->pcap_h);
             if (strcmp(cap_err_str, "The interface went down") == 0 ||
                 strcmp(cap_err_str, "recvfrom: Network is down") == 0) {
-                report_capture_error("The network adapter on which the capture was being done "
-                                     "is no longer running; the capture has stopped.",
-                                     "");
+                primary_msg = g_strdup_printf("The network adapter \"%s\" "
+                                              "is no longer running; the "
+                                              "capture has stopped.",
+                                              interface_opts->name);
+                secondary_msg = "";
             } else if (strcmp(cap_err_str, "The interface disappeared") == 0 ||
                        strcmp(cap_err_str, "read: Device not configured") == 0 ||
                        strcmp(cap_err_str, "read: I/O error") == 0 ||
                        strcmp(cap_err_str, "read error: PacketReceivePacket failed") == 0) {
-                report_capture_error("The network adapter on which the capture was being done "
-                                     "is no longer attached; the capture has stopped.",
-                                     "");
+                primary_msg = g_strdup_printf("The network adapter \"%s\" "
+                                              "is no longer attached; the "
+                                              "capture has stopped.",
+                                              interface_opts->name);
+                secondary_msg = "";
+                report_capture_error(primary_msg, secondary_msg);
             } else if (g_str_has_prefix(cap_err_str, "PacketReceivePacket error:") &&
                        g_str_has_suffix(cap_err_str, "(1617)")) {
                 /*
@@ -4194,21 +4202,24 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
                  * sort of problems popping up, but I can't find that
                  * discussion.
                  */
-                report_capture_error(cap_err_str,
-                                     "The network adapter on which the capture was being done "
-                                     "is no longer attached; the capture has stopped.\n\n"
-                                     "If you have not removed that adapter, "
-                                     "this may be a bug in Npcap: please report it "
-                                     "as an issue at https://github.com/nmap/npcap/issues");
+                primary_msg = g_strdup_printf("The network adapter \"%s\" "
+                                              "is no longer attached; the "
+                                              "capture has stopped.",
+                                              interface_opts->name);
+                secondary_msg = "If you have not removed that adapter, "
+                                "this may be a bug in Npcap: please report it "
+                                "as an issue at https://github.com/nmap/npcap/issues";
             } else if (strcmp(cap_err_str, "The other host terminated the connection") == 0) {
-                report_capture_error(cap_err_str,
-                                     "This may be a problem with the remote host "
-                                     "on which you are capturing packets.");
+                primary_msg = g_strdup(cap_err_str);
+                secondary_msg = "This may be a problem with the remote host "
+                                "on which you are capturing packets.";
             } else {
-                g_snprintf(errmsg, sizeof(errmsg), "Error while capturing packets: %s",
-                           cap_err_str);
-                report_capture_error(errmsg, please_report_bug());
+                primary_msg = g_strdup_printf("Error while capturing packets: %s",
+                                              cap_err_str);
+                secondary_msg = please_report_bug();
             }
+            report_capture_error(primary_msg, secondary_msg);
+            g_free(primary_msg);
             break;
         } else if (pcap_src->from_cap_pipe && pcap_src->cap_pipe_err == PIPERR) {
             report_capture_error(errmsg, "");
