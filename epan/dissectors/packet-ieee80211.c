@@ -6781,7 +6781,8 @@ static int hf_ieee80211_he_operation_txop_duration_rts_threshold = -1;
 static int hf_ieee80211_he_operation_vht_operation_information_present = -1;
 static int hf_ieee80211_he_operation_co_located_bss = -1;
 static int hf_ieee80211_he_operation_er_su_disable = -1;
-static int hf_ieee80211_he_operation_reserved_b17_b23 = -1;
+static int hf_ieee80211_he_operation_6ghz_operation_information = -1;
+static int hf_ieee80211_he_operation_reserved_b16_b23 = -1;
 static int hf_ieee80211_he_bss_color_information = -1;
 static int hf_ieee80211_he_bss_color_info_bss_color = -1;
 static int hf_ieee80211_he_bss_color_partial_bss_color = -1;
@@ -6799,6 +6800,15 @@ static int hf_ieee80211_he_operation_channel_width = -1;
 static int hf_ieee80211_he_operation_channel_center_freq_0 = -1;
 static int hf_ieee80211_he_operation_channel_center_freq_1 = -1;
 static int hf_ieee80211_he_operation_max_colocated_bssid_indicator = -1;
+static int hf_ieee80211_he_operation_6ghz_primary_channel = -1;
+static int hf_ieee80211_he_operation_6ghz_control = -1;
+static int hf_ieee80211_he_operation_6ghz_control_channel_width = -1;
+static int hf_ieee80211_he_operation_6ghz_control_duplicate_beacon = -1;
+static int hf_ieee80211_he_operation_6ghz_control_regulatory_info = -1;
+static int hf_ieee80211_he_operation_6ghz_control_reserved = -1;
+static int hf_ieee80211_he_operation_6ghz_channel_center_freq_0 = -1;
+static int hf_ieee80211_he_operation_6ghz_channel_center_freq_1 = -1;
+static int hf_ieee80211_he_operation_6ghz_minimum_rate = -1;
 static int hf_ieee80211_he_muac_aci_aifsn = -1;
 static int hf_ieee80211_he_muac_aifsn = -1;
 static int hf_ieee80211_he_muac_acm = -1;
@@ -7317,6 +7327,8 @@ static gint ett_he_operation_vht_op_info = -1;
 static gint ett_mscs_user_prio = -1;
 static gint ett_ieee80211_user_prio_bitmap = -1;
 static gint ett_ieee80211_intra_access_prio = -1;
+static gint ett_he_operation_6ghz = -1;
+static gint ett_he_operation_6ghz_control = -1;
 static gint ett_he_mu_edca_param = -1;
 static gint ett_he_trigger_common_info = -1;
 static gint ett_he_trigger_base_common_info = -1;
@@ -25958,7 +25970,8 @@ static int * const he_operation_headers[] = {
   &hf_ieee80211_he_operation_vht_operation_information_present,
   &hf_ieee80211_he_operation_co_located_bss,
   &hf_ieee80211_he_operation_er_su_disable,
-  &hf_ieee80211_he_operation_reserved_b17_b23,
+  &hf_ieee80211_he_operation_6ghz_operation_information,
+  &hf_ieee80211_he_operation_reserved_b16_b23,
   NULL
 };
 
@@ -25966,6 +25979,14 @@ static int * const he_bss_color_info_headers[] = {
   &hf_ieee80211_he_bss_color_info_bss_color,
   &hf_ieee80211_he_bss_color_partial_bss_color,
   &hf_ieee80211_he_bss_color_bss_color_disabled,
+  NULL
+};
+
+static int * const he_operation_6ghz_control[] = {
+  &hf_ieee80211_he_operation_6ghz_control_channel_width,
+  &hf_ieee80211_he_operation_6ghz_control_duplicate_beacon,
+  &hf_ieee80211_he_operation_6ghz_control_regulatory_info,
+  &hf_ieee80211_he_operation_6ghz_control_reserved,
   NULL
 };
 
@@ -25991,6 +26012,7 @@ static int * const he_basic_he_mcs_header[] = {
 
 #define VHT_OPERATION_INFORMATION_PRESENT 0x004000
 #define CO_LOCATED_BSS                    0x008000
+#define SIXGHZ_OPERATION_INFORMATION_PRESENT 0x020000
 
 static const value_string channel_width_vals[] = {
   { 0, "20 MHz or 40 MHz BSS Bandwidth" },
@@ -26048,6 +26070,34 @@ dissect_he_operation(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     if (op_params & CO_LOCATED_BSS) {
       proto_tree_add_item(tree, hf_ieee80211_he_operation_max_colocated_bssid_indicator,
                         tvb, offset, 1, ENC_NA);
+      offset++;
+    }
+
+    if (op_params & SIXGHZ_OPERATION_INFORMATION_PRESENT) {
+      proto_tree *sixghz_tree = NULL;
+
+      sixghz_tree = proto_tree_add_subtree(tree, tvb, offset, 5,
+                        ett_he_operation_6ghz, NULL,
+                        "6GHZ Operation Information");
+      proto_tree_add_item(sixghz_tree, hf_ieee80211_he_operation_6ghz_primary_channel, tvb,
+                          offset, 1, ENC_NA);
+      offset++;
+
+      proto_tree_add_bitmask_with_flags(sixghz_tree, tvb, offset,
+                          hf_ieee80211_he_operation_6ghz_control, ett_he_operation_6ghz_control,
+                          he_operation_6ghz_control, ENC_LITTLE_ENDIAN, BMT_NO_APPEND);
+      offset++;
+
+      proto_tree_add_item(sixghz_tree, hf_ieee80211_he_operation_6ghz_channel_center_freq_0,
+                          tvb, offset, 1, ENC_NA);
+      offset++;
+
+      proto_tree_add_item(sixghz_tree, hf_ieee80211_he_operation_6ghz_channel_center_freq_1,
+                          tvb, offset, 1, ENC_NA);
+      offset++;
+
+      proto_tree_add_item(sixghz_tree, hf_ieee80211_he_operation_6ghz_minimum_rate,
+                          tvb, offset, 1, ENC_NA);
       offset++;
     }
 }
@@ -46721,9 +46771,13 @@ proto_register_ieee80211(void)
      {"ER SU Disable", "wlan.ext_tag.he_operation.er_su_disable",
       FT_BOOLEAN, 24, NULL, 0x010000, NULL, HFILL }},
 
-    {&hf_ieee80211_he_operation_reserved_b17_b23,
-     {"Reserved", "wlan.ext_tag.he_operation.reserved_b17_b32",
-      FT_UINT24, BASE_HEX, NULL, 0xFE0000, NULL, HFILL }},
+    {&hf_ieee80211_he_operation_6ghz_operation_information,
+     {"6Ghz Operation Information", "wlan.ext_tag.he_operation.6ghz_operation_information",
+      FT_BOOLEAN, 24, NULL, 0x020000, NULL, HFILL }},
+
+    {&hf_ieee80211_he_operation_reserved_b16_b23,
+     {"Reserved", "wlan.ext_tag.he_operation.reserved_b16_b32",
+      FT_UINT24, BASE_HEX, NULL, 0xFC0000, NULL, HFILL }},
 
     {&hf_ieee80211_he_bss_color_information,
      {"BSS Color Information", "wlan.ext_tag.bss_color_information",
@@ -46791,6 +46845,42 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_he_operation_max_colocated_bssid_indicator,
      {"Max Co-Located BSSID Indicator", "wlan.ext_tag.he_operation.max_colocated_bssid_indicator",
+      FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_he_operation_6ghz_primary_channel,
+     {"Primary Channel", "wlan.ext_tag.he_operation.6ghz.primary_channel",
+      FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_he_operation_6ghz_control,
+     {"Control", "wlan.ext_tag.he_operation.6ghz.control",
+      FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_he_operation_6ghz_control_channel_width,
+     {"Channel Width", "wlan.ext_tag.he_operation.6ghz.control.channel_width",
+      FT_UINT8, BASE_DEC, VALS(operating_mode_field_channel_width), 0x03, NULL, HFILL }},
+
+    {&hf_ieee80211_he_operation_6ghz_control_duplicate_beacon,
+     {"Duplicate Beacon", "wlan.ext_tag.he_operation.6ghz.control.duplicate_beacon",
+      FT_BOOLEAN, 8, NULL, 0x04, NULL, HFILL }},
+
+    {&hf_ieee80211_he_operation_6ghz_control_regulatory_info,
+     {"Regulatory Info", "wlan.ext_tag.he_operation.6ghz.control.regulatory_info",
+      FT_UINT8, BASE_DEC, NULL, 0x38, NULL, HFILL }},
+
+    {&hf_ieee80211_he_operation_6ghz_control_reserved,
+     {"Reserved", "wlan.ext_tag.he_operation.6ghz.control.reserved",
+      FT_UINT8, BASE_DEC, NULL, 0xC0, NULL, HFILL }},
+
+    {&hf_ieee80211_he_operation_6ghz_channel_center_freq_0,
+     {"Channel Center Frequency Segment 0", "wlan.ext_tag.he_operation.6ghz.chan_center_freq_seg_0",
+      FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_he_operation_6ghz_channel_center_freq_1,
+     {"Channel Center Frequency Segment 1", "wlan.ext_tag.he_operation.6ghz.chan_center_freq_seg_1",
+      FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_he_operation_6ghz_minimum_rate,
+     {"Minimum Rate", "wlan.ext_tag.he_operation.6ghz.minimum_rate",
       FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
 
     {&hf_ieee80211_he_muac_aci_aifsn,
@@ -47593,6 +47683,8 @@ proto_register_ieee80211(void)
     &ett_he_bss_color_information,
     &ett_he_oper_basic_mcs,
     &ett_he_operation_vht_op_info,
+    &ett_he_operation_6ghz,
+    &ett_he_operation_6ghz_control,
     &ett_he_mu_edca_param,
     &ett_he_uora_tree,
     &ett_he_aic_aifsn,
