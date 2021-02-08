@@ -4153,7 +4153,8 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
                On OpenBSD, you get "read: I/O error" (EIO) in the same case.
 
                With WinPcap and Npcap, you'll get
-               "read error: PacketReceivePacket failed".
+               "read error: PacketReceivePacket failed" or
+               "PacketReceivePacket error: The device has been removed. (1617)".
 
                Newer versions of libpcap map some or all of those to just
                "The interface disappeared".
@@ -4196,7 +4197,8 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
                 report_capture_error(cap_err_str,
                                      "The network adapter on which the capture was being done "
                                      "is no longer attached; the capture has stopped.\n\n"
-                                     "This may be a bug in Npcap: please report it "
+                                     "If you have not removed that adapter, "
+                                     "this may be a bug in Npcap: please report it "
                                      "as an issue at https://github.com/nmap/npcap/issues");
             } else if (strcmp(cap_err_str, "The other host terminated the connection") == 0) {
                 report_capture_error(cap_err_str,
