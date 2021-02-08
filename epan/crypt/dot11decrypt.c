@@ -1667,7 +1667,7 @@ Dot11DecryptRsna4WHandshake(
         int cipher = -1;
         int group_cipher = -1;
         guint8 ptk[DOT11DECRYPT_WPA_PTK_MAX_LEN];
-        size_t ptk_len;
+        size_t ptk_len = 0;
 
         /* now you can derive the PTK */
         for (key_index=0; key_index<(INT)ctx->keys_nr || useCache; key_index++) {
