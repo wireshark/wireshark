@@ -26045,17 +26045,12 @@ dissect_he_operation(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 
     if (op_params & VHT_OPERATION_INFORMATION_PRESENT) {
       proto_tree *vht_op_info = NULL;
-      proto_item *pi = NULL;
 
       vht_op_info = proto_tree_add_subtree(tree, tvb, offset, 3,
                         ett_he_operation_vht_op_info, NULL,
                         "VHT Operation Information");
-      pi = proto_tree_add_item(vht_op_info, hf_ieee80211_he_operation_channel_width, tvb,
+      proto_tree_add_item(vht_op_info, hf_ieee80211_he_operation_channel_width, tvb,
                         offset, 1, ENC_NA);
-      proto_item_append_text(pi, ": %s",
-                        val_to_str(tvb_get_guint8(tvb, offset),
-                                channel_width_vals,
-                                "Reserved %u"));
       offset++;
 
       proto_tree_add_item(vht_op_info, hf_ieee80211_he_operation_channel_center_freq_0,
@@ -46832,8 +46827,8 @@ proto_register_ieee80211(void)
       FT_UINT16, BASE_DEC, VALS(he_mcs_map_vals), 0xC000, NULL, HFILL }},
 
     {&hf_ieee80211_he_operation_channel_width,
-     {"channel Width", "wlan.ext_tag.he_operation.vht_op_info.channel_width",
-      FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+     {"Channel Width", "wlan.ext_tag.he_operation.vht_op_info.channel_width",
+      FT_UINT8, BASE_DEC, VALS(channel_width_vals), 0, NULL, HFILL }},
 
     {&hf_ieee80211_he_operation_channel_center_freq_0,
      {"Channel Center Frequency Segment 0", "wlan.ext_tag.he_operation.vht_op_info.chan_center_freq_seg_0",
