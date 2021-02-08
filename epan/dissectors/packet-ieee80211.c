@@ -4915,6 +4915,8 @@ static int hf_ieee80211_tag_rm_enabled_capabilities_b30 = -1;
 static int hf_ieee80211_tag_rm_enabled_capabilities_b31 = -1;
 static int hf_ieee80211_tag_rm_enabled_capabilities_b32 = -1;
 static int hf_ieee80211_tag_rm_enabled_capabilities_b33 = -1;
+static int hf_ieee80211_tag_rm_enabled_capabilities_b34 = -1;
+static int hf_ieee80211_tag_rm_enabled_capabilities_b35 = -1;
 static int hf_ieee80211_tag_rm_enabled_capabilities_o5 = -1;
 
 static int hf_ieee80211_tag_rcpi = -1;
@@ -20971,6 +20973,8 @@ dissect_rm_enabled_capabilities_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree
   static int * const ieee80211_tag_rm_enabled_capabilities_octet5[] = {
     &hf_ieee80211_tag_rm_enabled_capabilities_b32,
     &hf_ieee80211_tag_rm_enabled_capabilities_b33,
+    &hf_ieee80211_tag_rm_enabled_capabilities_b34,
+    &hf_ieee80211_tag_rm_enabled_capabilities_b35,
     &hf_ieee80211_tag_rm_enabled_capabilities_o5,
     NULL
   };
@@ -41631,9 +41635,19 @@ proto_register_ieee80211(void)
       FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x02,
       NULL, HFILL }},
 
+    {&hf_ieee80211_tag_rm_enabled_capabilities_b34,
+     {"FTM Range Report Capability", "wlan.rmcap.b34",
+      FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x04,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_rm_enabled_capabilities_b35,
+     {"Civic Location Measurement Capability", "wlan.rmcap.b35",
+      FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x08,
+      NULL, HFILL }},
+
     {&hf_ieee80211_tag_rm_enabled_capabilities_o5,
      {"Reserved", "wlan.rmcap.o5",
-      FT_UINT8, BASE_HEX, NULL, 0xFC,
+      FT_UINT8, BASE_HEX, NULL, 0xF0,
       "Must be zero", HFILL }},
 
     {&hf_ieee80211_tag_rcpi,
