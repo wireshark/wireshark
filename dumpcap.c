@@ -4044,7 +4044,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
                 primary_msg = g_strdup_printf("The network adapter \"%s\" "
                                               "is no longer running; the "
                                               "capture has stopped.",
-                                              interface_opts->name);
+                                              interface_opts->display_name);
                 secondary_msg = g_strdup("");
             } else if (strcmp(cap_err_str, "The interface disappeared") == 0 ||
                        strcmp(cap_err_str, "read: Device not configured") == 0 ||
@@ -4053,7 +4053,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
                 primary_msg = g_strdup_printf("The network adapter \"%s\" "
                                               "is no longer attached; the "
                                               "capture has stopped.",
-                                              interface_opts->name);
+                                              interface_opts->display_name);
                 secondary_msg = g_strdup("");
             } else if (g_str_has_prefix(cap_err_str, "The interface disappeared ")) {
                 /*
@@ -4067,7 +4067,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
                 primary_msg = g_strdup_printf("The network adapter \"%s\" "
                                               "is no longer attached; the "
                                               "capture has stopped.",
-                                              interface_opts->name);
+                                              interface_opts->display_name);
                 secondary_msg = g_strdup_printf("If you have not removed that "
                                                 "adapter, this may be a bug "
                                                 "in Npcap: please report it "
@@ -4111,7 +4111,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
                 primary_msg = g_strdup_printf("The network adapter \"%s\" "
                                               "is no longer attached; the "
                                               "capture has stopped.",
-                                              interface_opts->name);
+                                              interface_opts->display_name);
                 secondary_msg = g_strdup_printf("If you have not removed that "
                                                 "adapter, this may be a bug "
                                                 "in Npcap: please report it "
