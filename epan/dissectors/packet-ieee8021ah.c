@@ -28,8 +28,8 @@ static dissector_handle_t ethertype_handle;
 static capture_dissector_handle_t ipx_cap_handle;
 static capture_dissector_handle_t llc_cap_handle;
 
-void dissect_ieee8021ah_common(tvbuff_t *tvb, packet_info *pinfo,
-                               proto_tree *tree, proto_tree *parent, int tree_index);
+static void dissect_ieee8021ah_common(tvbuff_t *tvb, packet_info *pinfo,
+                                      proto_tree *tree, proto_tree *parent, int tree_index);
 
 /* GLOBALS ************************************************************/
 
@@ -216,7 +216,7 @@ int dissect_ieee8021ad(tvbuff_t *tvb, packet_info *pinfo,
     return tvb_captured_length(tvb);
 }
 
-void
+static void
 dissect_ieee8021ah_common(tvbuff_t *tvb, packet_info *pinfo,
                           proto_tree *tree, proto_tree *parent, int tree_index) {
     guint32           tci;

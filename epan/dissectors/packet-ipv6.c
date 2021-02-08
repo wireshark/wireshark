@@ -578,7 +578,7 @@ static const value_string ipv6_opt_type_vals[] = {
     { IP6OPT_EXP_FE,        "Experimental (0xFE)"           },
     { 0, NULL }
 };
-value_string_ext ipv6_opt_type_vals_ext = VALUE_STRING_EXT_INIT(ipv6_opt_type_vals);
+static value_string_ext ipv6_opt_type_vals_ext = VALUE_STRING_EXT_INIT(ipv6_opt_type_vals);
 
 static const value_string ipv6_opt_rtalert_vals[] = {
     { IP6OPT_RTALERT_MLD,       "MLD"            },

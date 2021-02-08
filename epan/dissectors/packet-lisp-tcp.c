@@ -89,7 +89,7 @@ static expert_field ei_lisp_tcp_unexpected_afi = EI_INIT;
 
 static dissector_handle_t lisp_tcp_handle;
 
-const value_string lisp_tcp_typevals[] = {
+static const value_string lisp_tcp_typevals[] = {
     { TRANSPORT_BASE,         "Error Notification" },
     { TRANSPORT_BASE + 1,     "Registration" },
     { TRANSPORT_BASE + 2,     "Registration ACK" },
@@ -108,7 +108,7 @@ const value_string lisp_tcp_typevals[] = {
     { 0,        NULL}
 };
 
-const value_string lisp_tcp_membership_subscribe_errors[] = {
+static const value_string lisp_tcp_membership_subscribe_errors[] = {
     { 0,        "Undefined" },
     { 1,        "Instance not found" },
     { 2,        "Distribution not enabled" },
@@ -116,7 +116,7 @@ const value_string lisp_tcp_membership_subscribe_errors[] = {
     { 0,        NULL}
 };
 
-const value_string lisp_tcp_registration_reject_reason[] = {
+static const value_string lisp_tcp_registration_reject_reason[] = {
     { 1,        "Not a valid site EID prefix" },
     { 2,        "Authentication failure" },
     { 3,        "Locator set not allowed" },
@@ -124,7 +124,7 @@ const value_string lisp_tcp_registration_reject_reason[] = {
     { 0,        NULL}
 };
 
-const value_string lisp_tcp_registration_refresh_scope[] = {
+static const value_string lisp_tcp_registration_refresh_scope[] = {
     { 0,        "All prefixes under all address families under all EID instances" },
     { 1,        "All prefixes under all address families under a single EID instance" },
     { 2,        "All prefixes under a single address family under a single EID instance" },

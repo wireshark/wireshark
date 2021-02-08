@@ -800,7 +800,7 @@ static const value_string french_isup_message_type_value_acro[] = {
   { FRENCH_CHARGING_PULSE,                    "CHP"},
   { FRENCH_CHARGING_ACK,                      "CHA"},
   { 0,                                  NULL}};
-value_string_ext french_isup_message_type_value_acro_ext = VALUE_STRING_EXT_INIT(french_isup_message_type_value_acro);
+static value_string_ext french_isup_message_type_value_acro_ext = VALUE_STRING_EXT_INIT(french_isup_message_type_value_acro);
 
 static const value_string israeli_isup_message_type_value_acro[] = {
   { MESSAGE_TYPE_INITIAL_ADDR,                "IAM"},
@@ -887,7 +887,7 @@ static const value_string israeli_isup_message_type_value_acro[] = {
   { ISRAELI_TRAFFIC_CHANGE,                   "TCM"},
   { ISRAELI_CHARGE_ACK,                       "CAM"},
   { 0,                                  NULL}};
-value_string_ext israeli_isup_message_type_value_acro_ext = VALUE_STRING_EXT_INIT(israeli_isup_message_type_value_acro);
+static value_string_ext israeli_isup_message_type_value_acro_ext = VALUE_STRING_EXT_INIT(israeli_isup_message_type_value_acro);
 
 /* Same as above but in acronym form (for the Info column) */
 static const value_string russian_isup_message_type_value_acro[] = {
@@ -974,7 +974,7 @@ static const value_string russian_isup_message_type_value_acro[] = {
   { RUSSIAN_CLEAR_CALLING_LINE,               "CCL"},  /* 252 */
   { RUSSIAN_RINGING,                          "RNG"},  /* 255 */
   { 0,                                  NULL}};
-value_string_ext russian_isup_message_type_value_acro_ext = VALUE_STRING_EXT_INIT(russian_isup_message_type_value_acro);
+static value_string_ext russian_isup_message_type_value_acro_ext = VALUE_STRING_EXT_INIT(russian_isup_message_type_value_acro);
 
 static const value_string japan_isup_message_type_value_acro[] = {
   { MESSAGE_TYPE_INITIAL_ADDR,                "IAM"},
@@ -1059,7 +1059,7 @@ static const value_string japan_isup_message_type_value_acro[] = {
   { MESSAGE_TYPE_SUBSEQUENT_DIR_NUM,          "SDN"},
   { MESSAGE_TYPE_JAPAN_CHARG_INF,             "CHG"},  /* 254 */
   { 0,                                  NULL}};
-value_string_ext japan_isup_message_type_value_acro_ext = VALUE_STRING_EXT_INIT(japan_isup_message_type_value_acro);
+static value_string_ext japan_isup_message_type_value_acro_ext = VALUE_STRING_EXT_INIT(japan_isup_message_type_value_acro);
 
   /* Same as above but in acronym form (for the Info column) */
 static const value_string ansi_isup_message_type_value_acro[] = {
@@ -1833,7 +1833,7 @@ static const value_string russian_isup_calling_partys_category_value[] = {
   { 0xf7,                               "Semiautomatic call of category IV"},
 
   { 0,                                 NULL}};
-value_string_ext russian_isup_calling_partys_category_value_ext = VALUE_STRING_EXT_INIT(russian_isup_calling_partys_category_value);
+static value_string_ext russian_isup_calling_partys_category_value_ext = VALUE_STRING_EXT_INIT(russian_isup_calling_partys_category_value);
 
 #define CVR_RSP_IND_FAILURE     0
 #define CVR_RSP_IND_SUCCESS     1

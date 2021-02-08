@@ -110,7 +110,7 @@ struct ippusb_multisegment_pdu {
     #define MSP_FLAGS_MISSING_FIRST_SEGMENT     0x00000004
 };
 
-struct ippusb_multisegment_pdu *
+static struct ippusb_multisegment_pdu *
 pdu_store(packet_info *pinfo, wmem_tree_t *multisegment_pdus, guint32 first_frame, gboolean is_ipp, guint document)
 {
     struct ippusb_multisegment_pdu *msp;
@@ -143,7 +143,7 @@ init_ippusb_conversation_data(void)
     return ippusbd;
 }
 
-struct ippusb_analysis *
+static struct ippusb_analysis *
 get_ippusb_conversation_data(conversation_t *conv, packet_info *pinfo)
 {
     struct ippusb_analysis *ippusbd;
@@ -177,7 +177,7 @@ static void ippusb_free_temporary_key(gpointer ptr _U_) { }
 
 static void ippusb_free_persistent_key(gpointer ptr _U_) { }
 
-reassembly_table_functions ippusb_reassembly_table_functions =
+static reassembly_table_functions ippusb_reassembly_table_functions =
 {
     g_direct_hash,
     g_direct_equal,

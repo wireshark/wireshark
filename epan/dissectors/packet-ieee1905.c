@@ -8410,7 +8410,7 @@ ieee1905_fragment_free_persistent_key(gpointer ptr)
 
 static reassembly_table g_ieee1905_reassembly_table;
 
-const reassembly_table_functions ieee1905_reassembly_table_functions = {
+static reassembly_table_functions ieee1905_reassembly_table_functions = {
     ieee1905_fragment_hash,
     ieee1905_fragment_equal,
     ieee1905_fragment_temporary_key,

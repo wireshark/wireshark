@@ -213,7 +213,7 @@ static const value_string isi_sim_cause[] = {
 	{0x00, NULL }
 };
 
-value_string_ext isi_sim_cause_ext = VALUE_STRING_EXT_INIT(isi_sim_cause);
+static value_string_ext isi_sim_cause_ext = VALUE_STRING_EXT_INIT(isi_sim_cause);
 
 static const value_string isi_sim_pb_subblock[] = {
 	{0xE4, "SIM_PB_INFO_REQUEST"},
