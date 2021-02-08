@@ -312,33 +312,36 @@ typedef struct mimo_control
 /*                          Miscellaneous Constants                          */
 /* ************************************************************************* */
 #define SHORT_STR 256
-#define IS_DMG_KEY 1
-#define IS_AP_KEY 2
-#define IS_CTRL_GRANT_OR_GRANT_ACK_KEY 2
-#define EAPOL_KEY 3
-#define PACKET_DATA_KEY 4
-#define ASSOC_COUNTER_KEY 5
-#define STA_KEY 6
-#define BSSID_KEY 7
-#define NONCE_KEY 8
-#define GROUP_CIPHER_KEY 9
-#define CIPHER_KEY 10
-#define AKM_KEY 11
-#define MIC_KEY 12
-#define MIC_LEN_KEY 13
-#define KEY_VERSION_KEY 14
-#define KEY_LEN_KEY 15
-#define KEY_IV_KEY 16
-#define KEY_DATA_KEY 17
-#define KEY_DATA_LEN_KEY 18
-#define GTK_KEY 19
-#define GTK_LEN_KEY 20
-#define MDID_KEY 21
-#define FTE_R0KH_ID_KEY 22
-#define FTE_R0KH_ID_LEN_KEY 23
-#define FTE_R1KH_ID_KEY 24
-#define FTE_R1KH_ID_LEN_KEY 25
-#define IS_S1G_KEY 26
+
+typedef enum {
+  IS_DMG_KEY = 1,
+  IS_AP_KEY,
+  IS_CTRL_GRANT_OR_GRANT_ACK_KEY,
+  IS_S1G_KEY,
+  DECRYPTED_EAPOL_KEY,
+  PACKET_DATA_KEY,
+  ASSOC_COUNTER_KEY,
+  STA_KEY,
+  BSSID_KEY,
+  NONCE_KEY,
+  GROUP_CIPHER_KEY,
+  CIPHER_KEY,
+  AKM_KEY,
+  MIC_KEY,
+  MIC_LEN_KEY,
+  KEY_VERSION_KEY,
+  KEY_LEN_KEY,
+  KEY_IV_KEY,
+  KEY_DATA_KEY,
+  KEY_DATA_LEN_KEY,
+  GTK_KEY,
+  GTK_LEN_KEY,
+  MDID_KEY,
+  FTE_R0KH_ID_KEY,
+  FTE_R0KH_ID_LEN_KEY,
+  FTE_R1KH_ID_KEY,
+  FTE_R1KH_ID_LEN_KEY,
+} wlan_proto_key_t;
 
 /* ************************************************************************* */
 /*  Define some very useful macros that are used to analyze frame types etc. */
@@ -32921,7 +32924,7 @@ try_decrypt_keydata(packet_info *pinfo)
     eapol->keydata = (guint8 *)wmem_memdup(wmem_file_scope(), dec_data, dec_caplen);
 
     /* Save decrypted eapol keydata for rsna dissector */
-    p_add_proto_data(wmem_file_scope(), pinfo, proto_wlan, EAPOL_KEY, eapol);
+    p_add_proto_data(wmem_file_scope(), pinfo, proto_wlan, DECRYPTED_EAPOL_KEY, eapol);
   }
 }
 
@@ -33222,7 +33225,8 @@ dissect_wlan_rsna_eapol_wpa_or_rsn_key(tvbuff_t *tvb, packet_info *pinfo, proto_
       }
 
       proto_eapol_keydata_t *eapol;
-      eapol = (proto_eapol_keydata_t*)p_get_proto_data(wmem_file_scope(), pinfo, proto_wlan, EAPOL_KEY);
+      eapol = (proto_eapol_keydata_t*)
+        p_get_proto_data(wmem_file_scope(), pinfo, proto_wlan, DECRYPTED_EAPOL_KEY);
 
       if (eapol) {
         int keydata_len = eapol->keydata_len;
