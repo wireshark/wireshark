@@ -293,7 +293,6 @@ static int hf_mptcp_stream = -1;
 static int hf_mptcp_expected_token = -1;
 static int hf_mptcp_analysis = -1;
 static int hf_mptcp_analysis_master = -1;
-static int hf_mptcp_analysis_subflows_stream_id = -1;
 static int hf_mptcp_analysis_subflows = -1;
 static int hf_mptcp_number_of_removed_addresses = -1;
 static int hf_mptcp_related_mapping = -1;
@@ -8138,10 +8137,6 @@ proto_register_tcp(void)
         { &hf_mptcp_expected_idsn,
           { "Subflow expected IDSN", "mptcp.expected_idsn", FT_UINT64,
             BASE_DEC|BASE_UNIT_STRING, &units_64bit_version, 0x0, NULL, HFILL}},
-
-        { &hf_mptcp_analysis_subflows_stream_id,
-          { "List subflow Stream IDs", "mptcp.analysis.subflows.streamid", FT_UINT16,
-            BASE_DEC, NULL, 0x0, NULL, HFILL}},
 
         { &hf_mptcp_analysis,
           { "MPTCP analysis",   "mptcp.analysis", FT_NONE, BASE_NONE, NULL, 0x0,
