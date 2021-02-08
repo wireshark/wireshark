@@ -160,7 +160,6 @@ void RtpAudioStream::reset(double global_start_time, bool stereo, bool left, boo
     tempfile_->seek(0);
 }
 
-static const int sample_bytes_ = sizeof(SAMPLE) / sizeof(char);
 /* Fix for bug 4119/5902: don't insert too many silence frames.
  * XXX - is there a better thing to do here?
  */
@@ -243,7 +242,7 @@ void RtpAudioStream::decode()
 
             QAudioFormat format;
             format.setSampleRate(sample_rate);
-            format.setSampleSize(sample_bytes_ * 8); // bits
+            format.setSampleSize(SAMPLE_BYTES * 8); // bits
             format.setSampleType(QAudioFormat::SignedInt);
             if (audio_stereo_) {
                 format.setChannelCount(2);
@@ -292,7 +291,7 @@ void RtpAudioStream::decode()
                 qint64 silence_samples;
                 RTP_STREAM_DEBUG("Resync...");
 
-                silence_samples = (qint64)((arrive_time - arrive_time_prev)*sample_rate - decoded_bytes_prev / sample_bytes_);
+                silence_samples = (qint64)((arrive_time - arrive_time_prev)*sample_rate - decoded_bytes_prev / SAMPLE_BYTES);
                 /* Fix for bug 4119/5902: don't insert too many silence frames.
                  * XXX - is there a better thing to do here?
                  */
@@ -317,7 +316,7 @@ void RtpAudioStream::decode()
             if (timing_mode_ == Uninterrupted) {
                 silence_samples = 0;
             } else {
-                silence_samples = (int)((rtp_time - rtp_time_prev)*sample_rate - decoded_bytes_prev / sample_bytes_);
+                silence_samples = (int)((rtp_time - rtp_time_prev)*sample_rate - decoded_bytes_prev / SAMPLE_BYTES);
             }
 
             if (silence_samples != 0) {
@@ -336,7 +335,7 @@ void RtpAudioStream::decode()
             // XXX rtp_player.c:696 adds audio here.
 
             rtp_time_prev = rtp_time;
-            pack_period = (double) decoded_bytes / sample_bytes_ / sample_rate;
+            pack_period = (double) decoded_bytes / SAMPLE_BYTES / sample_rate;
             decoded_bytes_prev = decoded_bytes;
             arrive_time_prev = arrive_time;
         }
@@ -364,31 +363,31 @@ void RtpAudioStream::decode()
             }
             spx_uint32_t in_len = (spx_uint32_t)rtp_packet->info->info_payload_len;
             spx_uint32_t out_len = (audio_out_rate_ * (spx_uint32_t)rtp_packet->info->info_payload_len / sample_rate) + (audio_out_rate_ % sample_rate != 0);
-            if (out_len * sample_bytes_ > resample_buff_len) {
-                while ((out_len * sample_bytes_ > resample_buff_len))
+            if (out_len * SAMPLE_BYTES > resample_buff_len) {
+                while ((out_len * SAMPLE_BYTES > resample_buff_len))
                     resample_buff_len *= 2;
                 resample_buff = (SAMPLE *) g_realloc(resample_buff, resample_buff_len);
             }
 
             speex_resampler_process_int(audio_resampler_, 0, decode_buff, &in_len, resample_buff, &out_len);
             write_buff = (char *) resample_buff;
-            write_bytes = out_len * sample_bytes_;
+            write_bytes = out_len * SAMPLE_BYTES;
         }
 
         // Write the decoded, possibly-resampled audio to our temp file.
         gint64 silence = 0;
         if (audio_stereo_) {
             // Process audio mute/left/right settings
-            for(qint64 i=0; i<write_bytes; i+=sample_bytes_) {
+            for(qint64 i=0; i<write_bytes; i+=SAMPLE_BYTES) {
                 if (audio_left_) {
-                    tempfile_->write(write_buff+i, sample_bytes_);
+                    tempfile_->write(write_buff+i, SAMPLE_BYTES);
                 } else {
-                    tempfile_->write((char *)&silence, sample_bytes_);
+                    tempfile_->write((char *)&silence, SAMPLE_BYTES);
                 }
                 if (audio_right_) {
-                    tempfile_->write(write_buff+i, sample_bytes_);
+                    tempfile_->write(write_buff+i, SAMPLE_BYTES);
                 } else {
-                    tempfile_->write((char *)&silence, sample_bytes_);
+                    tempfile_->write((char *)&silence, SAMPLE_BYTES);
                 }
             }
         } else {
@@ -396,15 +395,15 @@ void RtpAudioStream::decode()
             if (audio_left_) {
                 tempfile_->write(write_buff, write_bytes);
             } else {
-                writeSilence(write_bytes / sample_bytes_);
+                writeSilence(write_bytes / SAMPLE_BYTES);
             }
         }
 
         // Collect our visual samples.
         spx_uint32_t in_len = (spx_uint32_t)rtp_packet->info->info_payload_len;
         spx_uint32_t out_len = (visual_out_rate * in_len / sample_rate) + (visual_out_rate % sample_rate != 0);
-        if (out_len * sample_bytes_ > resample_buff_len) {
-            while ((out_len * sample_bytes_ > resample_buff_len))
+        if (out_len * SAMPLE_BYTES > resample_buff_len) {
+            while ((out_len * SAMPLE_BYTES > resample_buff_len))
                 resample_buff_len *= 2;
             resample_buff = (SAMPLE *) g_realloc(resample_buff, resample_buff_len);
         }
@@ -601,7 +600,7 @@ void RtpAudioStream::startPlaying()
 
     QAudioFormat format;
     format.setSampleRate(audio_out_rate_);
-    format.setSampleSize(sample_bytes_ * 8); // bits
+    format.setSampleSize(SAMPLE_BYTES * 8); // bits
     format.setSampleType(QAudioFormat::SignedInt);
     if (audio_stereo_) {
         format.setChannelCount(2);
@@ -622,9 +621,9 @@ void RtpAudioStream::startPlaying()
         emit playbackError(playback_error);
     }
 
-    start_pos = (qint64)(start_play_time_ * sample_bytes_ * audio_out_rate_);
-    // Round to sample_bytes_ boundary
-    start_pos = (start_pos / sample_bytes_) * sample_bytes_;
+    start_pos = (qint64)(start_play_time_ * SAMPLE_BYTES * audio_out_rate_);
+    // Round to SAMPLE_BYTES boundary
+    start_pos = (start_pos / SAMPLE_BYTES) * SAMPLE_BYTES;
     if (audio_stereo_) {
         // There is 2x more samples for stereo
         start_pos *= 2;
@@ -680,7 +679,7 @@ void RtpAudioStream::writeSilence(qint64 samples)
 {
     if (samples < 1 || audio_out_rate_ == 0) return;
 
-    qint64 silence_bytes = samples * sample_bytes_;
+    qint64 silence_bytes = samples * SAMPLE_BYTES;
     char *silence_buff = (char *) g_malloc0(silence_bytes);
 
     RTP_STREAM_DEBUG("Writing " G_GUINT64_FORMAT " silence samples", samples);
