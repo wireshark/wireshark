@@ -4174,6 +4174,16 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
                 report_capture_error("The network adapter on which the capture was being done "
                                      "is no longer attached; the capture has stopped.",
                                      "");
+            } else if (strcmp(cap_err_str, "PacketReceivePacket error: The device has been removed. (1617)") == 0) {
+                report_capture_error(cap_err_str,
+                                     "The network adapter on which the capture was being done "
+                                     "is no longer attached; the capture has stopped.\n\n"
+                                     "This may be a bug in Npcap: please report it "
+                                     "as an issue at https://github.com/nmap/npcap/issues");
+            } else if (strcmp(cap_err_str, "The other host terminated the connection") == 0) {
+                report_capture_error(cap_err_str,
+                                     "This may be a problem with the remote host "
+                                     "on which you are capturing packets.");
             } else {
                 g_snprintf(errmsg, sizeof(errmsg), "Error while capturing packets: %s",
                            cap_err_str);
