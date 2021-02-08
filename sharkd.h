@@ -20,6 +20,11 @@
 #define SHARKD_DISSECT_FLAG_PROTO_TREE 0x04u
 #define SHARKD_DISSECT_FLAG_COLOR      0x08u
 
+#define SHARKD_MODE_CLASSIC_CONSOLE    1
+#define SHARKD_MODE_CLASSIC_DAEMON     2
+#define SHARKD_MODE_GOLD_CONSOLE       3
+#define SHARKD_MODE_GOLD_DAEMON        4
+
 typedef void (*sharkd_dissect_func_t)(epan_dissect_t *edt, proto_tree *tree, struct epan_column_info *cinfo, const GSList *data_src, void *data);
 
 /* sharkd.c */
@@ -36,10 +41,10 @@ const char *sharkd_version(void);
 
 /* sharkd_daemon.c */
 int sharkd_init(int argc, char **argv);
-int sharkd_loop(void);
+int sharkd_loop(int argc _U_, char* argv[] _U_);
 
 /* sharkd_session.c */
-int sharkd_session_main(void);
+int sharkd_session_main(int mode_setting);
 
 #endif /* __SHARKD_H */
 

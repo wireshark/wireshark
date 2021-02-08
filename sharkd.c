@@ -187,7 +187,7 @@ main(int argc, char *argv[])
   uat_clear(uat_get_table_by_name("MaxMind Database Paths"));
 #endif
 
-  ret = sharkd_loop();
+  ret = sharkd_loop(argc, argv);
 clean_exit:
   col_cleanup(&cfile.cinfo);
   free_filter_lists();

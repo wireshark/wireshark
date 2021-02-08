@@ -19,19 +19,16 @@
 #include <stdlib.h>
 #include <signal.h>
 
-#ifdef HAVE_UNISTD_H
-#include <unistd.h>
-#endif
-
 #ifdef _WIN32
 #include <wsutil/unicode-utils.h>
-#include <wsutil/filesystem.h>
 #include <wsutil/win32-utils.h>
 #endif
 
+#include <wsutil/filesystem.h>
 #include <wsutil/socket.h>
 #include <wsutil/inet_addr.h>
 #include <wsutil/please_report_bug.h>
+#include <wsutil/wsgetopt.h>
 
 #ifndef _WIN32
 #include <sys/un.h>
@@ -39,6 +36,7 @@
 #endif
 
 #include <wsutil/strtoi.h>
+#include <version_info.h>
 
 #include "sharkd.h"
 
@@ -50,7 +48,7 @@
 # define SHARKD_UNIX_SUPPORT
 #endif
 
-static int _use_stdinout = 0;
+static int mode = 0;
 static socket_handle_t _server_fd = INVALID_SOCKET;
 
 static socket_handle_t
@@ -157,47 +155,186 @@ socket_init(char *path)
 	return fd;
 }
 
+static void
+print_usage(FILE* output)
+{
+	fprintf(output, "\n");
+	fprintf(output, "Usage: sharkd [<classic_options>|<gold_options>]\n");
+
+	fprintf(output, "\n");
+	fprintf(output, "Classic (classic_options):\n");
+	fprintf(output, "  [-|<socket>]\n");
+	fprintf(output, "\n");
+	fprintf(output, "  <socket> examples:\n");
+#ifdef SHARKD_UNIX_SUPPORT
+	fprintf(output, "  - unix:/tmp/sharkd.sock - listen on unix file /tmp/sharkd.sock\n");
+#endif
+#ifdef SHARKD_TCP_SUPPORT
+	fprintf(output, "  - tcp:127.0.0.1:4446 - listen on TCP port 4446\n");
+#endif
+
+	fprintf(output, "\n");
+	fprintf(output, "Gold (gold_options):\n");
+	fprintf(output, "  -a <socket>, --api <socket>\n");
+	fprintf(output, "                           listen on this socket\n");
+	fprintf(output, "  -h, --help               show this help information\n");
+	fprintf(output, "  -v, --version            show version information\n");
+	fprintf(output, "  -C <config profile>, --config-profile <config profile>\n");
+	fprintf(output, "                           start with specified configuration profile\n");
+
+	fprintf(output, "\n");
+	fprintf(output, "  Examples:\n");
+	fprintf(output, "    sharkd -C myprofile\n");
+	fprintf(output, "    sharkd -a tcp:127.0.0.1:4446 -C myprofile\n");
+
+	fprintf(output, "\n");
+	fprintf(output, "See the sharkd page of the Wireshark wiki for full details.\n");
+	fprintf(output, "\n");
+}
+
 int
 sharkd_init(int argc, char **argv)
 {
+	/*
+	 * The leading + ensures that getopt_long() does not permute the argv[]
+	 * entries.
+	 *
+	 * We have to make sure that the first getopt_long() preserves the content
+	 * of argv[] for the subsequent getopt_long() call.
+	 *
+	 * We use getopt_long() in both cases to ensure that we're using a routine
+	 * whose permutation behavior we can control in the same fashion on all
+	 * platforms, and so that, if we ever need to process a long argument before
+	 * doing further initialization, we can do so.
+	 *
+	 * Glibc and Solaris libc document that a leading + disables permutation
+	 * of options, regardless of whether POSIXLY_CORRECT is set or not; *BSD
+	 * and macOS don't document it, but do so anyway.
+	 *
+	 * We do *not* use a leading - because the behavior of a leading - is
+	 * platform-dependent.
+	 */
+
+#define OPTSTRING "+" "a:hmvC:"
+
+	static const char    optstring[] = OPTSTRING;
+
+	// right now we don't have any long options
+	static const struct option long_options[] = {
+	  {"api", required_argument, NULL, 'a'},
+	  {"help", no_argument, NULL, 'h'},
+	  {"version", no_argument, NULL, 'v'},
+	  {"config-profile", required_argument, NULL, 'C'},
+	  {0, 0, 0, 0 }
+	};
+
+	int opt;
+
 #ifndef _WIN32
 	pid_t pid;
 #endif
 	socket_handle_t fd;
 
-	if (argc != 2)
+	if (argc < 2)
 	{
-		fprintf(stderr, "Usage: %s <-|socket>\n", argv[0]);
-		fprintf(stderr, "\n");
-
-		fprintf(stderr, "<socket> examples:\n");
-#ifdef SHARKD_UNIX_SUPPORT
-		fprintf(stderr, " - unix:/tmp/sharkd.sock - listen on unix file /tmp/sharkd.sock\n");
-#endif
-#ifdef SHARKD_TCP_SUPPORT
-		fprintf(stderr, " - tcp:127.0.0.1:4446 - listen on TCP port 4446\n");
-#endif
-		fprintf(stderr, "\n");
+		print_usage(stderr);
 		return -1;
 	}
 
+	// check for classic command line
+	if (!strcmp(argv[1], "-") || argv[1][0] == 't' || argv[1][0] == 'u')
+	{
+		mode = SHARKD_MODE_CLASSIC_CONSOLE;
+
 #ifndef _WIN32
-	signal(SIGCHLD, SIG_IGN);
+		signal(SIGCHLD, SIG_IGN);
 #endif
 
-	if (!strcmp(argv[1], "-"))
-	{
-		_use_stdinout = 1;
+		if (!strcmp(argv[1], "-"))
+		{
+			mode = SHARKD_MODE_CLASSIC_CONSOLE;
+		}
+		else
+		{
+			fd = socket_init(argv[1]);
+			if (fd == INVALID_SOCKET)
+				return -1;
+			_server_fd = fd;
+			mode = SHARKD_MODE_CLASSIC_DAEMON;
+		}
 	}
 	else
+		mode = SHARKD_MODE_GOLD_CONSOLE;  // assume we are running as gold console
+
+	if (mode >= SHARKD_MODE_GOLD_CONSOLE)
 	{
-		fd = socket_init(argv[1]);
-		if (fd == INVALID_SOCKET)
-			return -1;
-		_server_fd = fd;
+		/*
+			In Daemon Mode, we will come through here twice; once when we start the Daemon and
+			once again after we have forked the session process.  The second time through, the
+			session process has already had its stdin and stdout wired up to the TCP or UNIX
+			socket and so in the orignal version of sharkd the session process is invoked with
+			the command line: sharkd -
+
+			When not using the classic command line, we want to spawn the session process with
+			the complete command line with all the new options but with the -a option and
+			parameter removed.  Invoking a second time with the -a option will cause a loop
+			where we repeatedly spawn a new session process.
+		*/
+
+		do {
+			if (optind > (argc - 1))
+				break;
+
+			opt = getopt_long(argc, argv, optstring, long_options, NULL);
+
+			switch (opt) {
+			case 'C':        /* Configuration Profile */
+				if (profile_exists(optarg, FALSE)) {
+					set_profile_name(optarg);  // In Daemon Mode, we may need to do this again in the child process
+				}
+				else {
+					fprintf(stderr, "Configuration Profile \"%s\" does not exist\n", optarg);
+					return -1;
+				}
+				break;
+
+			case 'a':
+				fd = socket_init(optarg);
+				if (fd == INVALID_SOCKET)
+					return -1;
+				_server_fd = fd;
+
+				fprintf(stderr, "Sharkd listening on: %s\n", optarg);
+
+				mode = SHARKD_MODE_GOLD_DAEMON;
+				break;
+
+			case 'h':
+				print_usage(stderr);
+				exit(0);
+				break;
+
+			case 'm':
+				// m is an internal-only option used when the daemon session process is created
+				mode = SHARKD_MODE_GOLD_CONSOLE;
+				break;
+
+			case 'v':         /* Show version and exit */
+				show_version();
+				exit(0);
+				break;
+
+			default:
+				if (!optopt)
+					fprintf(stderr, "This option isn't supported: %s\n", argv[optind]);
+				fprintf(stderr, "Use sharkd -h for details of supported options\n");
+				exit(0);
+				break;
+			}
+		} while (opt != -1);
 	}
 
-	if (!_use_stdinout)
+	if (mode == SHARKD_MODE_CLASSIC_DAEMON || mode == SHARKD_MODE_GOLD_DAEMON)
 	{
 		/* all good - try to daemonize */
 #ifndef _WIN32
@@ -217,11 +354,11 @@ sharkd_init(int argc, char **argv)
 }
 
 int
-sharkd_loop(void)
+sharkd_loop(int argc _U_, char* argv[])
 {
-	if (_use_stdinout)
+	if (mode == SHARKD_MODE_CLASSIC_CONSOLE || mode == SHARKD_MODE_GOLD_CONSOLE)
 	{
-		return sharkd_session_main();
+		return sharkd_session_main(mode);
 	}
 
 	while (1)
@@ -232,6 +369,7 @@ sharkd_loop(void)
 		PROCESS_INFORMATION pi;
 		STARTUPINFO si;
 		char *exename;
+		char command_line[2048];
 #endif
 		socket_handle_t fd;
 
@@ -253,7 +391,7 @@ sharkd_loop(void)
 			dup2(fd, 1);
 			close(fd);
 
-			exit(sharkd_session_main());
+			exit(sharkd_session_main(mode));
 		}
 
 		if (pid == -1)
@@ -273,7 +411,38 @@ sharkd_loop(void)
 
 		exename = g_strdup_printf("%s\\%s", get_progfile_dir(), "sharkd.exe");
 
-		if (!win32_create_process(exename, "sharkd.exe -", NULL, NULL, TRUE, 0, NULL, NULL, &si, &pi))
+		// we need to pass in all of the command line parameters except the -a parameter
+		// passing in -a at this point would could a loop, each iteration of which would generate a new session process
+		memset(&command_line, 0, sizeof(command_line));
+
+		if (mode <= SHARKD_MODE_CLASSIC_DAEMON)
+		{
+			g_strlcat(command_line, "sharkd.exe -", sizeof(command_line));
+		}
+		else
+		{
+			// The -m option used here is an internal-only option that notifies the child process that it should
+			// run in Gold Console mode
+			g_strlcat(command_line, "sharkd.exe -m", sizeof(command_line));
+
+			for (size_t i = 1; i < argc; i++)
+			{
+				if (
+					!g_ascii_strncasecmp(argv[i], "-a", (guint)strlen(argv[i]))
+					|| !g_ascii_strncasecmp(argv[i], "--api", (guint)strlen(argv[i]))
+					)
+				{
+					i++;  // skip the socket details
+				}
+				else
+				{
+					g_strlcat(command_line, " ", sizeof(command_line));
+					g_strlcat(command_line, argv[i], sizeof(command_line));
+				}
+			}
+		}
+
+		if (!win32_create_process(exename, command_line, NULL, NULL, TRUE, 0, NULL, NULL, &si, &pi))
 		{
 			fprintf(stderr, "win32_create_process(%s) failed\n", exename);
 		}
