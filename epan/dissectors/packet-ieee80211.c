@@ -23772,8 +23772,6 @@ ieee80211_frame_classifier(tvbuff_t *tvb, packet_info *pinfo _U_,
 
     proto_tree_add_item(tree, hf_ieee80211_tclas_8021q_vid, tvb, offset, 2,
                         ENC_BIG_ENDIAN);
-    offset += 1;
-
     break;
 
   case 6:
@@ -23906,7 +23904,6 @@ ieee80211_frame_classifier(tvbuff_t *tvb, packet_info *pinfo _U_,
       if (class_mask & 0x02) {
         proto_tree_add_item(tree, hf_ieee80211_tclas6_ht_control_mask, tvb,
                             offset, 4, ENC_LITTLE_ENDIAN);
-        offset += 4;
       }
     }
     /* class_mask = class_mask >> 2; Get the next two bits */
@@ -23995,7 +23992,6 @@ ieee80211_frame_classifier(tvbuff_t *tvb, packet_info *pinfo _U_,
       if (class_mask & 0x02) {
         proto_tree_add_item(tree, hf_ieee80211_tclas7_address_4_mask, tvb,
                             offset, 6, ENC_LITTLE_ENDIAN);
-        offset += 6;
       }
     }
     /*class_mask = class_mask >> 2; Get the next two bits */
@@ -24084,7 +24080,6 @@ ieee80211_frame_classifier(tvbuff_t *tvb, packet_info *pinfo _U_,
       if (class_mask & 0x02) {
         proto_tree_add_item(tree, hf_ieee80211_tclas8_address_4_mask, tvb,
                             offset, 6, ENC_LITTLE_ENDIAN);
-        offset += 6;
       }
     }
     /* class_mask = class_mask >> 2; Get the next two bits */
@@ -24147,7 +24142,6 @@ ieee80211_frame_classifier(tvbuff_t *tvb, packet_info *pinfo _U_,
       if (class_mask & 0x02) {
         proto_tree_add_item(tree, hf_ieee80211_tclas9_sequence_control_mask,
                             tvb, offset, 2, ENC_LITTLE_ENDIAN);
-        offset += 2;
       }
     }
     /* class_mask = class_mask >> 2; Get the next two bits */
@@ -26496,7 +26490,7 @@ ieee80211_tag_scs_descriptor(tvbuff_t *tvb, packet_info *pinfo,
     /* There could be a TCLAS PROCESS element ... */
     if ((tvb_captured_length_remaining(tvb, offset) > 0) &&
         tvb_get_guint8(tvb, offset) == TAG_TCLAS_PROCESS) {
-      offset += add_tagged_field(pinfo, tree, tvb, offset, 0, NULL, 0, NULL);
+      add_tagged_field(pinfo, tree, tvb, offset, 0, NULL, 0, NULL);
     }
 
   }
