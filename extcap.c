@@ -866,14 +866,12 @@ static gboolean cb_preference(extcap_callback_info_t cb_info)
 
                 if (arg->save)
                 {
-                    struct preference *pref = NULL;
-
                     gchar *pref_name = g_regex_replace(regex_name, arg->call, strlen(arg->call), 0, "", (GRegexMatchFlags) 0, NULL);
                     gchar *ifname_underscore = g_regex_replace(regex_ifname, cb_info.ifname, strlen(cb_info.ifname), 0, "_", (GRegexMatchFlags) 0, NULL);
                     gchar *ifname_lowercase = g_ascii_strdown(ifname_underscore, -1);
                     gchar *pref_ifname = g_strconcat(ifname_lowercase, ".", pref_name, NULL);
 
-                    if ((pref = prefs_find_preference(dev_module, pref_ifname)) == NULL)
+                    if (prefs_find_preference(dev_module, pref_ifname) == NULL)
                     {
                         char *pref_name_for_prefs;
                         char *pref_title = wmem_strdup(wmem_epan_scope(), arg->display);
