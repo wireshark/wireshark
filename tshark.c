@@ -712,6 +712,7 @@ main(int argc, char *argv[])
     {0, 0, 0, 0 }
   };
   gboolean             arg_error = FALSE;
+  gboolean             has_extcap_options = FALSE;
 
   int                  err;
   gchar               *err_info;
@@ -835,6 +836,11 @@ main(int argc, char *argv[])
    * *after* epan_init() gets called, so that the dissectors have had a
    * chance to register their preferences.
    *
+   * Spawning a bunch of extcap processes can delay program startup,
+   * particularly on Windows. Check to see if we have any options that
+   * might require extcap and set has_extcap_options = TRUE if that's
+   * the case.
+   *
    * XXX - can we do this all with one getopt_long() call, saving the
    * arguments we can't handle until after initializing libwireshark,
    * and then process them after initializing libwireshark?
@@ -852,9 +858,25 @@ main(int argc, char *argv[])
         goto clean_exit;
       }
       break;
+    case 'G':
+      if (g_str_has_suffix(optarg, "prefs") || strcmp(optarg, "folders") == 0) {
+        has_extcap_options = TRUE;
+      }
+      break;
+    case 'i':
+      has_extcap_options = TRUE;
+      break;
+    case 'o':
+      if (g_str_has_prefix(optarg, "extcap.")) {
+        has_extcap_options = TRUE;
+      }
+      break;
     case 'P':        /* Print packet summary info even when writing to a file */
       print_packet_info = TRUE;
       print_summary = TRUE;
+      break;
+    case 'r':        /* Read capture file x */
+      cf_name = g_strdup(optarg);
       break;
     case 'O':        /* Only output these protocols */
       output_only = g_strdup(optarg);
@@ -940,7 +962,13 @@ main(int argc, char *argv[])
 
   register_all_tap_listeners(tap_reg_listener);
 
-  extcap_register_preferences();
+  /*
+   * An empty cf_name indicates that we're capturing, and we might
+   * be doing so on an extcap interface.
+   */
+  if (has_extcap_options || !cf_name) {
+    extcap_register_preferences();
+  }
 
   conversation_table_set_gui_info(init_iousers);
   hostlist_table_set_gui_info(init_hostlists);
@@ -1290,8 +1318,8 @@ main(int argc, char *argv[])
       quiet = TRUE;
       really_quiet = TRUE;
       break;
-    case 'r':        /* Read capture file x */
-      cf_name = g_strdup(optarg);
+    case 'r':
+      /* already processed; just ignore it now */
       break;
     case 'R':        /* Read file filter */
       rfilter = optarg;

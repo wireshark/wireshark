@@ -5892,8 +5892,16 @@ set_pref(gchar *pref_name, const gchar *value, void *private_data _U_,
                 }
             }
         }
-        if (pref == NULL)
-            return PREFS_SET_NO_SUCH_PREF;        /* no such preference */
+        if (pref == NULL ) {
+            if (strcmp(module->name, "extcap") == 0 && g_list_length(module->prefs) <= 1) {
+                /*
+                 * Assume that we've skipped extcap preference registration
+                 * and that only extcap.gui_save_on_start is loaded.
+                 */
+                return PREFS_SET_OK;
+            }
+            return PREFS_SET_NO_SUCH_PREF;    /* no such preference */
+        }
 
         type = pref->type;
         if (IS_PREF_OBSOLETE(type)) {
