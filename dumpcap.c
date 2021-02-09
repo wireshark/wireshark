@@ -3710,12 +3710,22 @@ capture_loop_dequeue_packet(void) {
 static char *
 please_report_npcap_bug(char *adapter_name, char *cap_err_str)
 {
-    GString *windows_info_str = g_string_new("");
-    GString *pcap_info_str = g_string_new("");
+    GString *pcap_info_str;
+    GString *windows_info_str;
     char *msg;
 
-    get_os_version_info(windows_info_str);
+    pcap_info_str = g_string_new("");
     get_runtime_caplibs_version(pcap_info_str);
+    if (!g_str_has_prefix(pcap_info_str->str, "with Npcap")) {
+        /*
+         * We're not using Npcap, so don't recomment a user
+         * file a bug against Npcap.
+         */
+        g_string_free(pcap_info_str, TRUE);
+        return g_strdup("");
+    }
+    windows_info_str = g_string_new("");
+    get_os_version_info(windows_info_str);
     msg = g_strdup_printf("If you have not removed that adapter, this "
                           "may be a bug in Npcap: please report it "
                           "as an issue at https://github.com/nmap/npcap/issues\n\n"
