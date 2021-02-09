@@ -4749,10 +4749,6 @@ again:
                 tvb = new_tvb;
                 goto again;
             }
-            else
-            { /* make a new subset */
-                tvb = tvb_new_subset_remaining(tvb, offset);
-            }
             return offset;
         }
     }
