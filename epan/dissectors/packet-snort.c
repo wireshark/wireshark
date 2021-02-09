@@ -512,7 +512,7 @@ static gboolean snort_parse_fast_line(const char *line, Alert_t *alert)
             return FALSE;
         }
 
-        if (!(line = strstr(line, "] "))) {
+        if (!strstr(line, "] ")) {
             return FALSE;
         }
     } else {
