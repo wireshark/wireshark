@@ -315,6 +315,7 @@ RtpStreamDialog::RtpStreamDialog(QWidget &parent, CaptureFile &cf) :
 
 RtpStreamDialog::~RtpStreamDialog()
 {
+    freeLastSelected();
     delete ui;
     remove_tap_listener_rtpstream(&tapinfo_);
 }
@@ -398,6 +399,19 @@ void RtpStreamDialog::tapReset(rtpstream_tapinfo_t *tapinfo)
 {
     RtpStreamDialog *rtp_stream_dialog = dynamic_cast<RtpStreamDialog *>((RtpStreamDialog *)tapinfo->tap_data);
     if (rtp_stream_dialog) {
+        rtp_stream_dialog->freeLastSelected();
+        /* Copy currently selected rtpstream_ids */
+        QTreeWidgetItemIterator iter(rtp_stream_dialog->ui->streamTreeWidget);
+        while (*iter) {
+            RtpStreamTreeWidgetItem *rsti = static_cast<RtpStreamTreeWidgetItem*>(*iter);
+            rtpstream_info_t *stream_info = rsti->streamInfo();
+            if ((*iter)->isSelected()) {
+                rtpstream_id_t *i = (rtpstream_id_t *)g_malloc0(sizeof(rtpstream_id_t));
+                rtpstream_id_copy(&stream_info->id, i);
+                rtp_stream_dialog->last_selected_.append(*i);
+            }
+            ++iter;
+        }
         /* invalidate items which refer to old strinfo_list items. */
         rtp_stream_dialog->ui->streamTreeWidget->clear();
     }
@@ -422,6 +436,12 @@ void RtpStreamDialog::tapMarkPacket(rtpstream_tapinfo_t *tapinfo, frame_data *fd
     }
 }
 
+/* Operator == for rtpstream_id_t */
+bool operator==(rtpstream_id_t const& a, rtpstream_id_t const& b)
+{
+    return rtpstream_id_equal(&a, &b, RTPSTREAM_ID_EQUAL_SSRC);
+}
+
 void RtpStreamDialog::updateStreams()
 {
     // string_list is reverse ordered, so we must add
@@ -434,9 +454,14 @@ void RtpStreamDialog::updateStreams()
     // Add any missing items
     while (cur_stream && cur_stream->data && to_insert_count) {
         rtpstream_info_t *stream_info = gxx_list_data(rtpstream_info_t*, cur_stream);
-        new RtpStreamTreeWidgetItem(ui->streamTreeWidget, stream_info);
+        RtpStreamTreeWidgetItem *rsti = new RtpStreamTreeWidgetItem(ui->streamTreeWidget, stream_info);
         cur_stream = gxx_list_next(cur_stream);
         to_insert_count--;
+
+        // Check if item was selected last time. If so, select it
+        if (-1 != last_selected_.indexOf(stream_info->id)) {
+           rsti->setSelected(true);
+        }
     }
 
     // Recalculate values
@@ -545,6 +570,17 @@ QList<QVariant> RtpStreamDialog::streamRowData(int row) const
         }
     }
     return row_data;
+}
+
+void RtpStreamDialog::freeLastSelected()
+{
+    /* Free old IDs */
+    for(int i=0; i<last_selected_.length(); i++) {
+        rtpstream_id_t id = last_selected_.at(i);
+        rtpstream_id_free(&id);
+    }
+    /* Clear list and reuse it */
+    last_selected_.clear();
 }
 
 void RtpStreamDialog::captureFileClosing()

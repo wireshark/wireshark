@@ -59,6 +59,7 @@ private:
     QPushButton *player_button_;
     QMenu ctx_menu_;
     bool need_redraw_;
+    QList<rtpstream_id_t> last_selected_;
 
     static void tapReset(rtpstream_tapinfo_t *tapinfo);
     static void tapDraw(rtpstream_tapinfo_t *tapinfo);
@@ -71,6 +72,7 @@ private:
     void setRtpStreamSelection(rtpstream_id_t *id, bool state);
 
     QList<QVariant> streamRowData(int row) const;
+    void freeLastSelected();
 
 
 private slots:
