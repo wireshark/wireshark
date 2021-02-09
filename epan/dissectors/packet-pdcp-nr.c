@@ -1563,8 +1563,6 @@ static guint32 calculate_digest(pdu_security_settings_t *pdu_security_settings, 
         return 0;
     }
 
-    guint header_length = tvb_reported_length(header_tvb);
-
     switch (pdu_security_settings->integrity) {
 
 #ifdef HAVE_SNOW3G
@@ -1572,6 +1570,7 @@ static guint32 calculate_digest(pdu_security_settings_t *pdu_security_settings, 
             {
                 /* SNOW3G */
                 guint8  *mac;
+                guint header_length = tvb_reported_length(header_tvb);
                 gint message_length = tvb_captured_length_remaining(tvb, offset) - 4;
                 guint8 *message_data = (guint8 *)wmem_alloc0(wmem_packet_scope(), header_length+message_length-sdap_length+4);
 
@@ -1601,6 +1600,7 @@ static guint32 calculate_digest(pdu_security_settings_t *pdu_security_settings, 
                 /* AES */
                 gcry_mac_hd_t mac_hd;
                 int gcrypt_err;
+                guint header_length;
                 gint message_length;
                 guint8 *message_data;
                 guint8  mac[4];
@@ -1622,6 +1622,7 @@ static guint32 calculate_digest(pdu_security_settings_t *pdu_security_settings, 
                 /* TS 33.501 D.4.3 defers to TS 33.401 B.2.3 */
 
                 /* Extract the encrypted data into a buffer */
+                header_length = tvb_reported_length(header_tvb);
                 message_length = tvb_captured_length_remaining(tvb, offset) - 4;
                 message_data = (guint8 *)wmem_alloc0(wmem_packet_scope(), 8+header_length+message_length-sdap_length);
                 message_data[0] = (pdu_security_settings->count & 0xff000000) >> 24;
@@ -1662,6 +1663,7 @@ static guint32 calculate_digest(pdu_security_settings_t *pdu_security_settings, 
             {
                 /* ZUC */
                 guint32  mac;
+                guint header_length = tvb_reported_length(header_tvb);
                 gint message_length = tvb_captured_length_remaining(tvb, offset) - 4;
                 guint8 *message_data = (guint8 *)wmem_alloc0(wmem_packet_scope(), header_length+message_length-sdap_length+4);
 
