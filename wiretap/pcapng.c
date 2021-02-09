@@ -784,7 +784,7 @@ pcapng_read_section_header_block(FILE_T fh, pcapng_block_header_t *bh,
     section_info->version_major = version_major;
     section_info->version_minor = version_minor;
 
-    wblock->block = wtap_block_create(WTAP_BLOCK_NG_SECTION);
+    wblock->block = wtap_block_create(WTAP_BLOCK_SECTION);
     section_data = (wtapng_mandatory_section_t*)wtap_block_get_mandatory_data(wblock->block);
     /* 64bit section_length (currently unused) */
     if (section_info->byte_swapped) {
@@ -891,7 +891,7 @@ pcapng_read_if_descr_block(wtap *wth, FILE_T fh, pcapng_block_header_t *bh,
     }
 
     /* mandatory values */
-    wblock->block = wtap_block_create(WTAP_BLOCK_IF_DESCR);
+    wblock->block = wtap_block_create(WTAP_BLOCK_IF_DESCRIPTION);
     if_descr_mand = (wtapng_if_descr_mandatory_t*)wtap_block_get_mandatory_data(wblock->block);
     if (section_info->byte_swapped) {
         link_type = GUINT16_SWAP_LE_BE(idb.linktype);
@@ -1195,7 +1195,7 @@ pcapng_read_decryption_secrets_block(FILE_T fh, pcapng_block_header_t *bh,
     }
 
     /* mandatory values */
-    wblock->block = wtap_block_create(WTAP_BLOCK_DSB);
+    wblock->block = wtap_block_create(WTAP_BLOCK_DECRYPTION_SECRETS);
     dsb_mand = (wtapng_dsb_mandatory_t *)wtap_block_get_mandatory_data(wblock->block);
     if (section_info->byte_swapped) {
       dsb_mand->secrets_type = GUINT32_SWAP_LE_BE(dsb.secrets_type);
@@ -1905,7 +1905,7 @@ pcapng_read_name_resolution_block(FILE_T fh, pcapng_block_header_t *bh,
 
     /* Ensure we have a name resolution block */
     if (wblock->block == NULL) {
-        wblock->block = wtap_block_create(WTAP_BLOCK_NG_NRB);
+        wblock->block = wtap_block_create(WTAP_BLOCK_NAME_RESOLUTION);
     }
 
     /*
@@ -2181,7 +2181,7 @@ pcapng_read_interface_statistics_block(FILE_T fh, pcapng_block_header_t *bh,
         return FALSE;
     }
 
-    wblock->block = wtap_block_create(WTAP_BLOCK_IF_STATS);
+    wblock->block = wtap_block_create(WTAP_BLOCK_IF_STATISTICS);
     if_stats_mand = (wtapng_if_stats_mandatory_t*)wtap_block_get_mandatory_data(wblock->block);
     if (section_info->byte_swapped) {
         if_stats_mand->interface_id = GUINT32_SWAP_LE_BE(isb.interface_id);
@@ -2712,7 +2712,7 @@ static void
 pcapng_process_idb(wtap *wth, section_info_t *section_info,
                    wtapng_block_t *wblock)
 {
-    wtap_block_t int_data = wtap_block_create(WTAP_BLOCK_IF_DESCR);
+    wtap_block_t int_data = wtap_block_create(WTAP_BLOCK_IF_DESCRIPTION);
     interface_info_t iface_info;
     wtapng_if_descr_mandatory_t *if_descr_mand = (wtapng_if_descr_mandatory_t*)wtap_block_get_mandatory_data(int_data),
                                 *wblock_if_descr_mand = (wtapng_if_descr_mandatory_t*)wtap_block_get_mandatory_data(wblock->block);
@@ -3037,7 +3037,7 @@ pcapng_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err,
                         wtapng_if_descr_mand->interface_statistics = g_array_new(FALSE, FALSE, sizeof(wtap_block_t));
                     }
 
-                    if_stats = wtap_block_create(WTAP_BLOCK_IF_STATS);
+                    if_stats = wtap_block_create(WTAP_BLOCK_IF_STATISTICS);
                     if_stats_mand = (wtapng_if_stats_mandatory_t*)wtap_block_get_mandatory_data(if_stats);
                     if_stats_mand->interface_id  = if_stats_mand_block->interface_id;
                     if_stats_mand->ts_high       = if_stats_mand_block->ts_high;
@@ -4768,7 +4768,7 @@ static gboolean pcapng_add_idb(wtap_dumper *wdh, wtap_block_t idb,
 	/*
 	 * Add a copy of this IDB to our array of IDBs.
 	 */
-	idb_copy = wtap_block_create(WTAP_BLOCK_IF_DESCR);
+	idb_copy = wtap_block_create(WTAP_BLOCK_IF_DESCRIPTION);
 	wtap_block_copy(idb_copy, idb);
 	g_array_append_val(wdh->interface_data, idb_copy);
 

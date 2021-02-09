@@ -877,7 +877,7 @@ wtap_open_offline(const char *filename, unsigned int type, int *err, char **err_
 	wth->priv = NULL;
 	wth->wslua_data = NULL;
 	wth->shb_hdrs = g_array_new(FALSE, FALSE, sizeof(wtap_block_t));
-	shb = wtap_block_create(WTAP_BLOCK_NG_SECTION);
+	shb = wtap_block_create(WTAP_BLOCK_SECTION);
 	if (shb)
 		g_array_append_val(wth->shb_hdrs, shb);
 
@@ -2349,7 +2349,7 @@ wtap_dump_init_dumper(int file_type_subtype, wtap_compression_type compression_t
 		int snaplen;
 
 		// XXX IDBs should be optional.
-		descr = wtap_block_create(WTAP_BLOCK_IF_DESCR);
+		descr = wtap_block_create(WTAP_BLOCK_IF_DESCRIPTION);
 		descr_mand = (wtapng_if_descr_mandatory_t*)wtap_block_get_mandatory_data(descr);
 		descr_mand->wtap_encap = params->encap;
 		descr_mand->tsprecision = params->tsprec;

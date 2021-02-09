@@ -713,7 +713,7 @@ static guint
 add_idb_to_merged_file(wtapng_iface_descriptions_t *merged_idb_list,
                        const wtap_block_t input_file_idb)
 {
-    wtap_block_t idb = wtap_block_create(WTAP_BLOCK_IF_DESCR);
+    wtap_block_t idb = wtap_block_create(WTAP_BLOCK_IF_DESCRIPTION);
     wtapng_if_descr_mandatory_t* idb_mand;
 
     g_assert(merged_idb_list != NULL);

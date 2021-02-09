@@ -171,13 +171,13 @@ wtap_dumper* etw_dump_open(const char* pcapng_filename, int* err, gchar** err_in
     wtap_dumper* pdh = NULL;
 
     shb_hdrs = g_array_new(FALSE, FALSE, sizeof(wtap_block_t));
-    shb_hdr = wtap_block_create(WTAP_BLOCK_NG_SECTION);
+    shb_hdr = wtap_block_create(WTAP_BLOCK_SECTION);
     g_array_append_val(shb_hdrs, shb_hdr);
 
-    /* In the future, may create multiple WTAP_BLOCK_IF_DESCR separately for IP packet */
+    /* In the future, may create multiple WTAP_BLOCK_IF_DESCRIPTION separately for IP packet */
     idb_info = g_new(wtapng_iface_descriptions_t, 1);
     idb_datas = g_array_new(FALSE, FALSE, sizeof(wtap_block_t));
-    idb_data = wtap_block_create(WTAP_BLOCK_IF_DESCR);
+    idb_data = wtap_block_create(WTAP_BLOCK_IF_DESCRIPTION);
     descr_mand = (wtapng_if_descr_mandatory_t*)wtap_block_get_mandatory_data(idb_data);
     descr_mand->tsprecision = WTAP_TSPREC_USEC;
     descr_mand->wtap_encap = WTAP_ENCAP_ETW;

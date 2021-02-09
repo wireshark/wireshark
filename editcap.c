@@ -1640,7 +1640,7 @@ main(int argc, char *argv[])
             /* Warn for badly formatted files, but proceed anyway. */
             validate_secrets_file(secrets_filename, secrets_type_id, data);
 
-            block = wtap_block_create(WTAP_BLOCK_DSB);
+            block = wtap_block_create(WTAP_BLOCK_DECRYPTION_SECRETS);
             dsb = (wtapng_dsb_mandatory_t *)wtap_block_get_mandatory_data(block);
             dsb->secrets_type = secrets_type_id;
             dsb->secrets_len = (guint)data_len;

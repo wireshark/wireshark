@@ -126,14 +126,20 @@ typedef struct wtap_block *wtap_block_t;
 
 /*
  * Currently supported blocks; these are not the pcapng block type values
- * for them, they're identifiers used internally.
+ * for them, they're identifiers used internally, and more than one
+ * pcapng block type may use a given block type.
+ *
+ * WTAP_BLOCK_PACKET (which corresponds to the Enhanced Packet Block,
+ * the Simple Packet Block, and the deprecated Packet Block) is not
+ * currently used; it's reserved for future use.
  */
 typedef enum {
-    WTAP_BLOCK_NG_SECTION = 0,
-    WTAP_BLOCK_IF_DESCR,
-    WTAP_BLOCK_NG_NRB,
-    WTAP_BLOCK_IF_STATS,
-    WTAP_BLOCK_DSB,
+    WTAP_BLOCK_SECTION = 0,
+    WTAP_BLOCK_IF_DESCRIPTION,
+    WTAP_BLOCK_NAME_RESOLUTION,
+    WTAP_BLOCK_IF_STATISTICS,
+    WTAP_BLOCK_DECRYPTION_SECRETS,
+    WTAP_BLOCK_PACKET,
     WTAP_BLOCK_END_OF_LIST
 } wtap_block_type_t;
 

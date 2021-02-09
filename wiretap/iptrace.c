@@ -329,7 +329,7 @@ iptrace_read_rec_1_0(wtap *wth, FILE_T fh, wtap_rec *rec, Buffer *buf,
 		/*
 		 * Now make a new IDB and add it.
 		 */
-		int_data = wtap_block_create(WTAP_BLOCK_IF_DESCR);
+		int_data = wtap_block_create(WTAP_BLOCK_IF_DESCRIPTION);
 		int_data_mand = (wtapng_if_descr_mandatory_t *)wtap_block_get_mandatory_data(int_data);
 
 		int_data_mand->wtap_encap = rec->rec_header.packet_header.pkt_encap;
@@ -600,7 +600,7 @@ iptrace_read_rec_2_0(wtap *wth, FILE_T fh, wtap_rec *rec, Buffer *buf,
 		/*
 		 * Now make a new IDB and add it.
 		 */
-		int_data = wtap_block_create(WTAP_BLOCK_IF_DESCR);
+		int_data = wtap_block_create(WTAP_BLOCK_IF_DESCRIPTION);
 		int_data_mand = (wtapng_if_descr_mandatory_t *)wtap_block_get_mandatory_data(int_data);
 
 		int_data_mand->wtap_encap = rec->rec_header.packet_header.pkt_encap;

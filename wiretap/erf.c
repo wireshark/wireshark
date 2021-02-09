@@ -2451,7 +2451,7 @@ static int erf_populate_interface(erf_t *erf_priv, wtap *wth, union wtap_pseudo_
     return if_map->interfaces[if_num].if_index;
   }
 
-  int_data = wtap_block_create(WTAP_BLOCK_IF_DESCR);
+  int_data = wtap_block_create(WTAP_BLOCK_IF_DESCRIPTION);
   int_data_mand = (wtapng_if_descr_mandatory_t*)wtap_block_get_mandatory_data(int_data);
 
   int_data_mand->wtap_encap = WTAP_ENCAP_ERF;

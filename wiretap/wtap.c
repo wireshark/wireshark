@@ -216,7 +216,7 @@ wtap_add_generated_idb(wtap *wth)
 	g_assert(wth->file_tsprec != WTAP_TSPREC_UNKNOWN &&
 	    wth->file_tsprec != WTAP_TSPREC_PER_PACKET);
 
-	idb = wtap_block_create(WTAP_BLOCK_IF_DESCR);
+	idb = wtap_block_create(WTAP_BLOCK_IF_DESCRIPTION);
 
 	if_descr_mand = (wtapng_if_descr_mandatory_t*)wtap_block_get_mandatory_data(idb);
 	if_descr_mand->wtap_encap = wth->file_encap;
