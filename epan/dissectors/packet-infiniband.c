@@ -1763,7 +1763,7 @@ dissect_infiniband_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 
     /* General Variables */
     gboolean bthFollows = FALSE;    /* Tracks if we are parsing a BTH.  This is a significant decision point */
-    struct infinibandinfo info = { 0, 0, FALSE, 0, NULL, 0, 0, 0 };
+    struct infinibandinfo info = { NULL, 0, 0, 0, 0, 0, 0, 0, FALSE};
     gint32 nextHeaderSequence = -1; /* defined by this dissector. #define which indicates the upcoming header sequence from OpCode */
     guint8 nxtHdr = 0;              /* Keyed off for header dissection order */
     guint16 packetLength = 0;       /* Packet Length.  We track this as tvb_length - offset.   */
@@ -2450,7 +2450,7 @@ parse_RETH(proto_tree * parentTree, tvbuff_t *tvb, gint *offset,
     proto_item_set_text(RETH_header_item, "%s", "RETH - RDMA Extended Transport Header");
     RETH_header_tree = proto_item_add_subtree(RETH_header_item, ett_reth);
 
-    proto_tree_add_item(RETH_header_tree, hf_infiniband_virtual_address, tvb, local_offset, 8, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint64(RETH_header_tree, hf_infiniband_virtual_address, tvb, local_offset, 8, ENC_BIG_ENDIAN, &info->reth_remote_address);
     local_offset += 8;
     proto_tree_add_item_ret_uint(RETH_header_tree, hf_infiniband_remote_key, tvb, local_offset, 4, ENC_BIG_ENDIAN, &info->reth_remote_key);
     local_offset += 4;
@@ -3817,7 +3817,7 @@ static void parse_CM_DRsp(proto_tree *top_tree, packet_info *pinfo, tvbuff_t *tv
 static void parse_COM_MGT(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *tvb, gint *offset, proto_tree* top_tree)
 {
     MAD_Data    MadData;
-    struct infinibandinfo info = { 0, 0, FALSE, 0, NULL, 0, 0, 0 };
+    struct infinibandinfo info = { NULL, 0, 0, 0, 0, 0, 0, 0, FALSE};
     gint        local_offset;
     const char *label;
     proto_item *CM_header_item;
@@ -5972,7 +5972,7 @@ static void dissect_general_info(tvbuff_t *tvb, gint offset, packet_info *pinfo,
     MAD_Data          MadData;
 
     /* BTH - Base Trasport Header */
-    struct infinibandinfo info = { 0, 0, FALSE, 0, NULL, 0, 0, 0 };
+    struct infinibandinfo info = { NULL, 0, 0, 0, 0, 0, 0, 0, FALSE};
     gint bthSize = 12;
     void *src_addr,                 /* the address to be displayed in the source/destination columns */
          *dst_addr;                 /* (lid/gid number) will be stored here */

@@ -120,8 +120,23 @@ static const value_string attr_size_tbl[] = {
     { 0, NULL}
 };
 
+struct nvme_rdma_cmd_ctx;
+
+/* The idea of RDMA context matching is as follows:
+ * addresses, sizes, and keys are registred with nvme_add_data_request()
+ * at RDMA request, the packet is matched to queue (this is already done)
+ * at RDMA request, we see address, size, key, and find command with nvme_lookup_data_request()
+ * we store comand context and packet sequence in the queue
+ * the next RDMA transfer with the same sequence number will find a macth from queue to the command
+ * knowing command context, we can decode the buffer
+ * We expect all RDMA transfers to be done in order, so storing in queue context is OK
+ */
 struct nvme_rdma_q_ctx {
     struct nvme_q_ctx n_q_ctx;
+    struct {
+        struct nvme_rdma_cmd_ctx *cmd_ctx;
+        guint32 pkt_seq;
+    } rdma_ctx;
 };
 
 struct nvme_rdma_cmd_ctx {
@@ -383,11 +398,19 @@ struct prop_nssrc_ctx hf_nvme_rdma_cmd_sprop_nssr = {
     .rsvd = -1,
 };
 
+static int hf_nvme_rdma_read_to_host_req = -1;
+static int hf_nvme_rdma_read_to_host_unmatched = -1;
+static int hf_nvme_rdma_read_from_host_resp = -1;
+static int hf_nvme_rdma_read_from_host_unmatched = -1;
+static int hf_nvme_rdma_write_to_host_req = -1;
+static int hf_nvme_rdma_write_to_host_unmatched = -1;
 static int hf_nvme_rdma_to_host_unknown_data = -1;
 
 /* tracking Cmd and its respective CQE */
 static int hf_nvme_rdma_cmd_pkt = -1;
 static int hf_nvme_rdma_cqe_pkt = -1;
+static int hf_nvme_rdma_data_req = -1;
+static int hf_nvme_rdma_data_resp = -1;
 static int hf_nvme_rdma_cmd_latency = -1;
 static int hf_nvme_rdma_cmd_qid = -1;
 
@@ -396,6 +419,11 @@ static gint ett_cm = -1;
 static gint ett_data = -1;
 
 static range_t *gPORT_RANGE;
+
+static struct nvme_rdma_cmd_ctx* nvme_cmd_to_nvme_rdma_cmd(struct nvme_cmd_ctx *nvme_cmd)
+{
+    return (struct nvme_rdma_cmd_ctx*)(((char *)nvme_cmd) - offsetof(struct nvme_rdma_cmd_ctx, n_cmd_ctx));
+}
 
 static conversation_infiniband_data *get_conversion_data(conversation_t *conv)
 {
@@ -603,11 +631,13 @@ dissect_nvme_ib_cm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     return dissect_rdma_cm_packet(tvb, tree, info->cm_attribute_id);
 }
 
-static void dissect_nvme_fabric_connect_cmd(proto_tree *cmd_tree, tvbuff_t *cmd_tvb)
+static void dissect_nvme_fabric_connect_cmd(proto_tree *cmd_tree, packet_info *pinfo, tvbuff_t *cmd_tvb,
+        struct nvme_rdma_q_ctx *q_ctx, struct nvme_rdma_cmd_ctx *nvme_rdma_cmd_ctx)
 {
     proto_tree_add_item(cmd_tree, hf_nvme_rdma_cmd_connect_rsvd1, cmd_tvb,
                         5, 19, ENC_NA);
-    dissect_nvme_cmd_sgl(cmd_tvb, cmd_tree, hf_nvme_rdma_cmd_connect_sgl1, NULL);
+    dissect_nvme_cmd_sgl(cmd_tvb, cmd_tree, hf_nvme_rdma_cmd_connect_sgl1,
+        &q_ctx->n_q_ctx, &nvme_rdma_cmd_ctx->n_cmd_ctx, PINFO_FD_VISITED(pinfo));
     proto_tree_add_item(cmd_tree, hf_nvme_rdma_cmd_connect_recfmt, cmd_tvb,
                         40, 2, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(cmd_tree, hf_nvme_rdma_cmd_connect_qid, cmd_tvb,
@@ -720,8 +750,8 @@ bind_cmd_to_qctx(packet_info *pinfo, struct nvme_q_ctx *q_ctx,
 }
 
 static void
-dissect_nvme_fabric_cmd(tvbuff_t *nvme_tvb, proto_tree *nvme_tree,
-                        struct nvme_rdma_cmd_ctx *cmd_ctx)
+dissect_nvme_fabric_cmd(tvbuff_t *nvme_tvb, packet_info *pinfo, proto_tree *nvme_tree,
+        struct nvme_rdma_q_ctx *q_ctx, struct nvme_rdma_cmd_ctx *cmd_ctx)
 {
     proto_tree *cmd_tree;
     proto_item *ti, *opc_item, *fctype_item;
@@ -739,7 +769,9 @@ dissect_nvme_fabric_cmd(tvbuff_t *nvme_tvb, proto_tree *nvme_tree,
     proto_item_append_text(opc_item, "%s", " Fabric Cmd");
 
     cmd_ctx->n_cmd_ctx.opcode = NVME_FABRIC_OPC;
-    nvme_publish_cmd_to_cqe_link(cmd_tree, nvme_tvb, hf_nvme_rdma_cqe_pkt,
+    nvme_publish_to_data_req_link(cmd_tree, nvme_tvb, hf_nvme_rdma_data_req,
+                                 &cmd_ctx->n_cmd_ctx);
+    nvme_publish_to_cqe_link(cmd_tree, nvme_tvb, hf_nvme_rdma_cqe_pkt,
                                  &cmd_ctx->n_cmd_ctx);
 
     proto_tree_add_item(cmd_tree, hf_nvme_rdma_cmd_rsvd, nvme_tvb,
@@ -755,7 +787,7 @@ dissect_nvme_fabric_cmd(tvbuff_t *nvme_tvb, proto_tree *nvme_tree,
 
     switch(fctype) {
     case NVME_FCTYPE_CONNECT:
-        dissect_nvme_fabric_connect_cmd(cmd_tree, nvme_tvb);
+        dissect_nvme_fabric_connect_cmd(cmd_tree, pinfo, nvme_tvb, q_ctx, cmd_ctx);
         break;
     case NVME_FCTYPE_PROP_GET:
         dissect_nvme_fabric_prop_get_cmd(cmd_tree, nvme_tvb, cmd_ctx);
@@ -825,7 +857,7 @@ dissect_nvme_rdma_cmd(tvbuff_t *nvme_tvb, packet_info *pinfo, proto_tree *root_t
     cmd_ctx = bind_cmd_to_qctx(pinfo, &q_ctx->n_q_ctx, cmd_id);
     if (opcode == NVME_FABRIC_OPC) {
         cmd_ctx->n_cmd_ctx.fabric = TRUE;
-        dissect_nvme_fabric_cmd(nvme_tvb, nvme_tree, cmd_ctx);
+        dissect_nvme_fabric_cmd(nvme_tvb, pinfo, nvme_tree, q_ctx, cmd_ctx);
         len -= NVME_FABRIC_CMD_SIZE;
         if (len)
             dissect_nvme_fabric_data(nvme_tvb, nvme_tree, len, cmd_ctx->fabric_cmd.fctype);
@@ -833,12 +865,9 @@ dissect_nvme_rdma_cmd(tvbuff_t *nvme_tvb, packet_info *pinfo, proto_tree *root_t
         cmd_ctx->n_cmd_ctx.fabric = FALSE;
         dissect_nvme_cmd(nvme_tvb, pinfo, root_tree, &q_ctx->n_q_ctx,
                          &cmd_ctx->n_cmd_ctx);
-        if (cmd_ctx->n_cmd_ctx.remote_key) {
-            nvme_add_data_request(pinfo, &q_ctx->n_q_ctx,
-                                  &cmd_ctx->n_cmd_ctx, (void*)cmd_ctx);
-        }
     }
 }
+
 
 static void
 dissect_nvme_from_host(tvbuff_t *nvme_tvb, packet_info *pinfo,
@@ -849,12 +878,41 @@ dissect_nvme_from_host(tvbuff_t *nvme_tvb, packet_info *pinfo,
 
 {
     switch (info->opCode) {
+    case RC_RDMA_READ_RESPONSE_FIRST:
+    case  RC_RDMA_READ_RESPONSE_ONLY:
+    {
+        struct nvme_cmd_ctx *cmd = NULL;
+        /* try fast path - is this transaction cached? */
+        if (q_ctx->rdma_ctx.pkt_seq == info->packet_seq_num) {
+            cmd = &q_ctx->rdma_ctx.cmd_ctx->n_cmd_ctx;
+            if (!PINFO_FD_VISITED(pinfo))
+                nvme_add_data_response(&q_ctx->n_q_ctx, cmd, info->packet_seq_num, 0);
+        } else {
+            cmd = nvme_lookup_data_response(&q_ctx->n_q_ctx, info->packet_seq_num, 0);
+        }
+        if (cmd) {
+            proto_item *ti = proto_tree_add_item(nvme_tree,
+                hf_nvme_rdma_read_from_host_resp, nvme_tvb, 0, len, ENC_NA);
+            proto_tree *rdma_tree = proto_item_add_subtree(ti, ett_data);
+            cmd->data_resp_pkt_num = pinfo->num;
+            nvme_publish_to_data_req_link(rdma_tree, nvme_tvb,
+                                    hf_nvme_rdma_data_req, cmd);
+            nvme_publish_to_cmd_link(rdma_tree, nvme_tvb,
+                                    hf_nvme_rdma_cmd_pkt, cmd);
+            q_ctx->rdma_ctx.cmd_ctx = nvme_cmd_to_nvme_rdma_cmd(cmd);
+            q_ctx->rdma_ctx.pkt_seq = info->packet_seq_num;
+        } else {
+            proto_tree_add_item(nvme_tree, hf_nvme_rdma_read_from_host_unmatched,
+                                    nvme_tvb, 0, len, ENC_NA);
+        }
+        break;
+    }
     case RC_SEND_ONLY:
         if (len >= NVME_FABRIC_CMD_SIZE)
             dissect_nvme_rdma_cmd(nvme_tvb, pinfo, root_tree, nvme_tree, q_ctx, len);
         else
-            proto_tree_add_item(nvme_tree, hf_nvme_rdma_from_host_unknown_data, nvme_tvb,
-                    0, len, ENC_NA);
+            proto_tree_add_item(nvme_tree, hf_nvme_rdma_from_host_unknown_data,
+                            nvme_tvb, 0, len, ENC_NA);
         break;
     default:
         proto_tree_add_item(nvme_tree, hf_nvme_rdma_from_host_unknown_data, nvme_tvb,
@@ -1027,7 +1085,7 @@ dissect_nvme_fabric_cqe(tvbuff_t *nvme_tvb,
 
     cqe_tree = proto_item_add_subtree(ti, ett_data);
 
-    nvme_publish_cqe_to_cmd_link(cqe_tree, nvme_tvb, hf_nvme_rdma_cmd_pkt,
+    nvme_publish_to_cmd_link(cqe_tree, nvme_tvb, hf_nvme_rdma_cmd_pkt,
                                  &cmd_ctx->n_cmd_ctx);
     nvme_publish_cmd_latency(cqe_tree, &cmd_ctx->n_cmd_ctx, hf_nvme_rdma_cmd_latency);
 
@@ -1095,9 +1153,34 @@ dissect_nvme_to_host(tvbuff_t *nvme_tvb, packet_info *pinfo,
                      struct infinibandinfo *info,
                      struct nvme_rdma_q_ctx *q_ctx, guint len)
 {
-    struct nvme_rdma_cmd_ctx *cmd_ctx;
+    struct nvme_rdma_cmd_ctx *cmd_ctx = NULL;
 
     switch (info->opCode) {
+    case RC_RDMA_READ_REQUEST:
+    {
+        struct keyed_data_req req = {
+            .addr = info->reth_remote_address,
+            .key = info->reth_remote_key,
+            .size = info->reth_dma_length
+        };
+        struct nvme_cmd_ctx *cmd = nvme_lookup_data_request(&q_ctx->n_q_ctx, &req);
+        if (cmd) {
+            proto_item *ti = proto_tree_add_item(nvme_tree,
+                    hf_nvme_rdma_read_to_host_req, nvme_tvb, 0, 0, ENC_NA);
+            proto_tree *rdma_tree = proto_item_add_subtree(ti, ett_data);
+            cmd->data_req_pkt_num = pinfo->num;
+            nvme_publish_to_data_resp_link(rdma_tree, nvme_tvb,
+                                    hf_nvme_rdma_data_resp, cmd);
+            nvme_publish_to_cmd_link(rdma_tree, nvme_tvb,
+                                     hf_nvme_rdma_cmd_pkt, cmd);
+            q_ctx->rdma_ctx.cmd_ctx = nvme_cmd_to_nvme_rdma_cmd(cmd);
+            q_ctx->rdma_ctx.pkt_seq = info->packet_seq_num;
+        } else {
+            proto_tree_add_item(nvme_tree, hf_nvme_rdma_read_to_host_unmatched,
+                                nvme_tvb, 0, len, ENC_NA);
+        }
+        break;
+    }
     case RC_SEND_ONLY:
     case RC_SEND_ONLY_INVAL:
         if (len == NVME_FABRIC_CQE_SIZE)
@@ -1108,24 +1191,35 @@ dissect_nvme_to_host(tvbuff_t *nvme_tvb, packet_info *pinfo,
         break;
     case RC_RDMA_WRITE_ONLY:
     case RC_RDMA_WRITE_FIRST:
-        if (!PINFO_FD_VISITED(pinfo)) {
-            cmd_ctx = (struct nvme_rdma_cmd_ctx*)
-                       nvme_lookup_data_request(&q_ctx->n_q_ctx,
-                                                info->reth_remote_key);
-            if (cmd_ctx) {
-                cmd_ctx->n_cmd_ctx.data_resp_pkt_num = pinfo->num;
-                nvme_add_data_response(&q_ctx->n_q_ctx, &cmd_ctx->n_cmd_ctx,
-                                       info->reth_remote_key);
-            }
+    {
+        struct nvme_cmd_ctx *cmd;
+        struct keyed_data_req req = {
+            .addr = info->reth_remote_address,
+            .key =  info->reth_remote_key,
+            .size = info->reth_dma_length
+        };
+        cmd = nvme_lookup_data_request(&q_ctx->n_q_ctx, &req);
+        if (cmd) {
+            proto_item *ti = proto_tree_add_item(nvme_tree,
+                    hf_nvme_rdma_write_to_host_req, nvme_tvb, 0, 0, ENC_NA);
+            proto_tree *rdma_tree = proto_item_add_subtree(ti, ett_data);
+            cmd->data_req_pkt_num = pinfo->num;
+            nvme_publish_to_data_resp_link(rdma_tree, nvme_tvb,
+                                    hf_nvme_rdma_data_resp, cmd);
+            nvme_publish_to_cmd_link(rdma_tree, nvme_tvb, hf_nvme_rdma_cmd_pkt, cmd);
+            q_ctx->rdma_ctx.cmd_ctx = nvme_cmd_to_nvme_rdma_cmd(cmd);
+            q_ctx->rdma_ctx.pkt_seq = info->packet_seq_num;
+            cmd_ctx = nvme_cmd_to_nvme_rdma_cmd(cmd);
         } else {
-            cmd_ctx = (struct nvme_rdma_cmd_ctx*)
-                       nvme_lookup_data_response(pinfo, &q_ctx->n_q_ctx,
-                                                 info->reth_remote_key);
+            proto_tree_add_item(nvme_tree, hf_nvme_rdma_write_to_host_unmatched,
+                                        nvme_tvb, 0, len, ENC_NA);
         }
+
         if (cmd_ctx)
             dissect_nvme_data_response(nvme_tvb, pinfo, root_tree, &q_ctx->n_q_ctx,
                                        &cmd_ctx->n_cmd_ctx, len);
         break;
+    }
     default:
         proto_tree_add_item(nvme_tree, hf_nvme_rdma_to_host_unknown_data, nvme_tvb,
                 0, len, ENC_NA);
@@ -1627,6 +1721,30 @@ proto_register_nvme_rdma(void)
             { "Reserved", "nvme-rdma.cqe.prop_set.rsvd",
                FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
         },
+        { &hf_nvme_rdma_read_to_host_req,
+            { "RDMA Read Request Sent to Host", "nvme-rdma.read_to_host_req",
+               FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_rdma_read_to_host_unmatched,
+            { "RDMA Read Request Sent to Host (no Command Match)", "nvme-rdma.read_to_host_req",
+               FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_rdma_read_from_host_resp,
+            { "RDMA Read Transfer Sent from Host", "nvme-rdma.read_from_host_resp",
+               FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_rdma_read_from_host_unmatched,
+            { "RDMA Read Transfer Sent from Host (no Command Match)", "nvme-rdma.read_from_host_resp",
+               FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_rdma_write_to_host_req,
+            { "RDMA Write Request Sent to Host", "nvme-rdma.write_to_host_req",
+               FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_rdma_write_to_host_unmatched,
+            { "RDMA Write Request Sent to Host (no Command Match)", "nvme-rdma.write_to_host_req",
+               FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL}
+        },
         { &hf_nvme_rdma_to_host_unknown_data,
             { "Dissection unsupported", "nvme-rdma.unknown_data",
                FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
@@ -1640,6 +1758,16 @@ proto_register_nvme_rdma(void)
             { "Fabric Cqe in", "nvme-rdma.cqe_pkt",
               FT_FRAMENUM, BASE_NONE, NULL, 0,
               "The Cqe for this transaction is in this frame", HFILL }
+        },
+        { &hf_nvme_rdma_data_req,
+            { "DATA Transfer Request", "nvme-rdma.data_req",
+              FT_FRAMENUM, BASE_NONE, NULL, 0,
+              "DATA transfer request for this transaction is in this frame", HFILL }
+        },
+        { &hf_nvme_rdma_data_resp,
+            { "DATA Transfer Response", "nvme-rdma.data_resp",
+              FT_FRAMENUM, BASE_NONE, NULL, 0,
+              "DATA transfer response for this transaction is in this frame", HFILL }
         },
         { &hf_nvme_rdma_cmd_latency,
             { "Cmd Latency", "nvme-rdma.cmd_latency",
