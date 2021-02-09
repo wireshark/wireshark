@@ -528,7 +528,7 @@ dissect_someip_sd_pdu_entry(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     /* Add specific fields - i.e. the last line */
     if (category == SD_ENTRY_SERVICE) {
         proto_tree_add_item_ret_uint(tree, hf_someip_sd_entry_minorver, tvb, offset, 4, ENC_BIG_ENDIAN, &minorver);
-        offset += 4;
+        /* offset += 4; */
 
         proto_item_append_text(ti_top, " (Service ID 0x%04x, Instance ID 0x%04x, Version %u.%u)", serviceid, instanceid, majorver, minorver);
     } else if (category == SD_ENTRY_EVENTGROUP) {
