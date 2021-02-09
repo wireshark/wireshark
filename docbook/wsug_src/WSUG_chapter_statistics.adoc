@@ -560,7 +560,35 @@ Open Network Computing (ONC) Remote Procedure Call (RPC) uses TCP or UDP protoco
 
 === 29West
 
-{missing}
+The 29West technology now refers to Ultra-Low Latency Messaging (ULLM) technology. It allows sending and receiving a high number of messages per second with microsecond delivery times for zero-latency data delivery. 
+
+The menu:Statistics[29West] shows:
+[cols="1,1"]
+|===
+|The `Topics` submenu shows counters for:
+a|* Advertisement by Topic
+* Advertisement by Source
+* Advertisement by Transport
+* Queries by Topic
+* Queries by Receiver
+* Wildcard Queries by Pattern
+* Wildcard Queries by Receiver
+
+|The `Queues` submenu shows counters for:
+a|* Advertisement by Queue
+* Advertisement by Source
+* Queries by Queue
+* Queries by Receiver
+
+|The `UIM` submenu shows `Streams`:
+| Each stream is provided by Endpoints, Messages, Bytes, and the First and Last Frame statistics.
+
+|The `LBT-RM` submenu
+|The LBT-RM Transport Statistics window shows the Sources and Receivers sequence numbers for transport and other data.
+
+|The `LBT-RU` submenu
+|The LBT-Ru Transport Statistics window shows the Sources and Receivers sequence numbers for transport and other data.
+|===
 
 [[ChStatANCP]]
 
