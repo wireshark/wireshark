@@ -226,7 +226,7 @@ extern const value_string tls_hello_ext_psk_ke_mode[];
 extern const value_string tls13_key_update_request[];
 extern const value_string compress_certificate_algorithm_vals[];
 extern const value_string quic_transport_parameter_id[];
-extern const value_string quic_version_vals[];
+extern const range_string quic_version_vals[];
 extern const val64_string quic_enable_time_stamp_v2_vals[];
 
 /* XXX Should we use GByteArray instead? */
@@ -2220,12 +2220,12 @@ ssl_common_dissect_t name = {   \
     },                                                                  \
     { & name .hf.hs_ext_quictp_parameter_currently_attempted_version,   \
       { "Currently Attempted Version", prefix ".quic.parameter.vn.currently_attempted_version", \
-        FT_UINT32, BASE_HEX, VALS(quic_version_vals), 0x00,             \
+        FT_UINT32, BASE_RANGE_STRING | BASE_HEX, RVALS(quic_version_vals), 0x00, \
         NULL, HFILL }                                                   \
     },                                                                  \
     { & name .hf.hs_ext_quictp_parameter_previously_attempted_version,  \
       { "Previously Attempted Version", prefix ".quic.parameter.vn.previously_attempted_version", \
-        FT_UINT32, BASE_HEX, VALS(quic_version_vals), 0x00,             \
+        FT_UINT32, BASE_RANGE_STRING | BASE_HEX, RVALS(quic_version_vals), 0x00, \
         NULL, HFILL }                                                   \
     },                                                                  \
     { & name .hf.hs_ext_quictp_parameter_received_negotiation_version_count, \
@@ -2235,7 +2235,7 @@ ssl_common_dissect_t name = {   \
     },                                                                  \
     { & name .hf.hs_ext_quictp_parameter_received_negotiation_version,  \
       { "Received Negotiation Version", prefix ".quic.parameter.vn.received_negotiation_version", \
-        FT_UINT32, BASE_HEX, VALS(quic_version_vals), 0x00,             \
+        FT_UINT32, BASE_RANGE_STRING | BASE_HEX, RVALS(quic_version_vals), 0x00, \
         NULL, HFILL }                                                   \
     },                                                                  \
     { & name .hf.hs_ext_quictp_parameter_compatible_version_count,      \
@@ -2245,12 +2245,12 @@ ssl_common_dissect_t name = {   \
     },                                                                  \
     { & name .hf.hs_ext_quictp_parameter_compatible_version,            \
       { "Compatible Version", prefix ".quic.parameter.vn.compatible_version", \
-        FT_UINT32, BASE_HEX, VALS(quic_version_vals), 0x00,             \
+        FT_UINT32, BASE_RANGE_STRING | BASE_HEX, RVALS(quic_version_vals), 0x00, \
         NULL, HFILL }                                                   \
     },                                                                  \
     { & name .hf.hs_ext_quictp_parameter_negotiated_version,            \
       { "Negotiated Version", prefix ".quic.parameter.vn.negotiated_version", \
-        FT_UINT32, BASE_HEX, VALS(quic_version_vals), 0x00,             \
+        FT_UINT32, BASE_RANGE_STRING | BASE_HEX, RVALS(quic_version_vals), 0x00, \
         NULL, HFILL }                                                   \
     },                                                                  \
     { & name .hf.hs_ext_quictp_parameter_supported_version_count,       \
@@ -2260,7 +2260,7 @@ ssl_common_dissect_t name = {   \
     },                                                                  \
     { & name .hf.hs_ext_quictp_parameter_supported_version,             \
       { "Supported Version", prefix ".quic.parameter.vn.supported_version", \
-        FT_UINT32, BASE_HEX, VALS(quic_version_vals), 0x00,             \
+        FT_UINT32, BASE_RANGE_STRING | BASE_HEX, RVALS(quic_version_vals), 0x00, \
         NULL, HFILL }                                                   \
     },                                                                  \
     { & name .hf.hs_ext_quictp_parameter_min_ack_delay,                 \
@@ -2280,7 +2280,7 @@ ssl_common_dissect_t name = {   \
     },                                                                  \
     { & name .hf.hs_ext_quictp_parameter_google_quic_version,           \
       { "Google QUIC version", prefix ".quic.parameter.google.quic_version", \
-        FT_UINT32, BASE_HEX, VALS(quic_version_vals), 0x00,             \
+        FT_UINT32, BASE_RANGE_STRING | BASE_HEX, RVALS(quic_version_vals), 0x00, \
         NULL, HFILL }                                                   \
     },                                                                  \
     { & name .hf.hs_ext_quictp_parameter_google_initial_rtt,            \
