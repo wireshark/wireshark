@@ -104,9 +104,9 @@ show_exception(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		break;
 
 	case FragmentBoundsError:
-		col_append_fstr(pinfo->cinfo, COL_INFO, "[Unreassembled Packet%s]", pinfo->noreassembly_reason);
+		col_append_fstr(pinfo->cinfo, COL_INFO, "[BoundErrorUnreassembled Packet%s]", pinfo->noreassembly_reason);
 		proto_tree_add_protocol_format(tree, proto_unreassembled,
-		    tvb, 0, 0, "[Unreassembled Packet%s: %s]",
+		    tvb, 0, 0, "[BoundError Unreassembled Packet%s: %s]",
 		    pinfo->noreassembly_reason, pinfo->current_proto);
 		/* Don't record FragmentBoundsError exceptions as expert events - they merely
 		 * reflect dissection done with reassembly turned off

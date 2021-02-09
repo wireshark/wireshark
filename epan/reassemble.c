@@ -2572,6 +2572,7 @@ fragment_end_seq_next(reassembly_table *table, const packet_info *pinfo,
  * was reassembled, put the fragment information into the protocol
  * tree, and construct a tvbuff with the reassembled data, otherwise
  * just put a "reassembled in" item into the protocol tree.
+ * offset from start of tvb, result up to end of tvb
  */
 tvbuff_t *
 process_reassembled_data(tvbuff_t *tvb, const int offset, packet_info *pinfo,
@@ -2613,7 +2614,7 @@ process_reassembled_data(tvbuff_t *tvb, const int offset, packet_info *pinfo,
 		} else {
 			/*
 			 * No.
-			 * Return a tvbuff with the payload.
+			 * Return a tvbuff with the payload. next_tvb ist from offset until end
 			 */
 			next_tvb = tvb_new_subset_remaining(tvb, offset);
 			pinfo->fragmented = FALSE;	/* one-fragment packet */
