@@ -50,7 +50,7 @@ static const value_string h248_pkg_BCP_props_vals[] = {
 };
 
 /* Properties */
-h248_pkg_param_t h248_pkg_BCP_props[] = {
+static h248_pkg_param_t h248_pkg_BCP_props[] = {
     { 0x0001, &hf_h248_pkg_BCP_BNCChar, h248_param_ber_integer, &implicit },
     { 0, NULL, NULL, NULL}
 };
@@ -137,7 +137,7 @@ static const value_string h248_pkg_RII_vals[]  = {
 };
 
 /* Properties */
-h248_pkg_param_t h248_pkg_RI_props[] = {
+static h248_pkg_param_t h248_pkg_RI_props[] = {
     { 0x0001, &hf_h248_pkg_RII, h248_param_ber_integer, &implicit },
     { 0, NULL, NULL, NULL}
 };

@@ -5709,7 +5709,7 @@ static const value_string gtpv2_apn_restriction_vals[] = {
     {4, "Private-2"},
     {0, NULL}
 };
-value_string_ext gtpv2_apn_restriction_vals_ext = VALUE_STRING_EXT_INIT(gtpv2_apn_restriction_vals);
+static value_string_ext gtpv2_apn_restriction_vals_ext = VALUE_STRING_EXT_INIT(gtpv2_apn_restriction_vals);
 
 static void
 dissect_gtpv2_apn_rest(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_, session_args_t * args _U_)

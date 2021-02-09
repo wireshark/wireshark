@@ -1021,7 +1021,7 @@ static const range_string nr_up_cause_vals[] = {
 };
 
 
-const true_false_string tfs_final_frame_indication = {
+static const true_false_string tfs_final_frame_indication = {
     "Frame is final",
     "Frame is not final"
 };

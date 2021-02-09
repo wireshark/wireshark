@@ -117,7 +117,7 @@ static gboolean gsm_a_u2u = TRUE;
 
 static expert_field ei_gsm_r_uus1_not_implemented_yet = EI_INIT;
 
-const value_string gsm_r_uus1_tags[] = {
+static const value_string gsm_r_uus1_tags[] = {
     { 2,  "Acknowledgement by Receiver of a HPC and response from device accepting the acknowledgement" },
     { 3,  "Acknowledgement by Initiator of a HPC" },
     { 5,  "Presentation of Functional Number" },
@@ -359,7 +359,7 @@ static const true_false_string gsm_r_uus1_elda_long_hem = {
     "East"
 };
 
-const value_string gsm_r_uus1_elda_scale_vals[] = {
+static const value_string gsm_r_uus1_elda_scale_vals[] = {
     { 0,  "10 cm resolution" },
     { 1,  "1 metre resolution" },
     { 2,  "10 metre resolution" },

@@ -462,7 +462,7 @@ sm_fragment_free_persistent_key(gpointer ptr)
     }
 }
 
-const reassembly_table_functions
+static const reassembly_table_functions
 sm_reassembly_table_functions = {
     sm_fragment_hash,
     sm_fragment_equal,

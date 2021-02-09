@@ -165,7 +165,7 @@ const value_string gsm_a_dtap_msg_rr_strings[] = {
     {    0, NULL }
 };
 
-const value_string gsm_a_dtap_msg_rr_ec_ccch_strings[] = {
+static const value_string gsm_a_dtap_msg_rr_ec_ccch_strings[] = {
     /* Channel establishment messages */
     { 0x01, "EC-Immediate Assignment Type 2" },
     { 0x02, "EC-Immediate Assignment Reject" },
@@ -334,7 +334,7 @@ static const value_string gsm_rr_elem_strings[] = {
 };
 value_string_ext gsm_rr_elem_strings_ext = VALUE_STRING_EXT_INIT(gsm_rr_elem_strings);
 
-const value_string gsm_rr_rest_octets_elem_strings[] = {
+static const value_string gsm_rr_rest_octets_elem_strings[] = {
     /* RR Rest Octets information elements */
     { 0, "UTRAN FDD Description" },
     { 0, "UTRAN TDD Description" },
@@ -403,7 +403,7 @@ const value_string gsm_rr_rest_octets_elem_strings[] = {
 
 /* RR cause value (octet 2) 3GPP TS 24.018, section 10.5.2.31 */
 /* public symbol for packet-gsm_gsup.c */
-const value_string gsm_a_rr_RR_cause_vals[] = {
+static const value_string gsm_a_rr_RR_cause_vals[] = {
     {    0, "Normal event"},
     {    1, "Abnormal release, unspecified"},
     {    2, "Abnormal release, channel unacceptable"},
@@ -12125,10 +12125,12 @@ get_rr_short_pd_msg_params(guint8 mess_type, const gchar **msg_str, int *ett_tre
     }
 }
 
+#if 0
 const value_string short_protocol_discriminator_vals[] = {
     {0x0, "Radio Resources Management messages"},
     {  0, NULL }
 };
+#endif
 
 static int
 dissect_sacch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)

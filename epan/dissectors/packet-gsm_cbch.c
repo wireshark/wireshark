@@ -21,7 +21,7 @@ void proto_reg_handoff_gsm_cbch(void);
 
 #define CBCH_FRAGMENT_SIZE 22
 
-const value_string block_type_lpd_strings[] = {
+static const value_string block_type_lpd_strings[] = {
     { 0x00, "NOT Cell Broadcast"},
     { 0x01, "Cell Broadcast"},
     { 0x02, "NOT Cell Broadcast"},
@@ -29,7 +29,7 @@ const value_string block_type_lpd_strings[] = {
     {    0, NULL}
 };
 
-const value_string block_type_seq_num_values[] = {
+static const value_string block_type_seq_num_values[] = {
     { 0x00, "First Block"},
     { 0x01, "Second Block"},
     { 0x02, "Third Block"},
@@ -39,7 +39,7 @@ const value_string block_type_seq_num_values[] = {
     {    0, NULL}
 };
 
-const value_string sched_type_values[] = {
+static const value_string sched_type_values[] = {
     { 0x00, "messages formatted as specified in subclause 3.5 of 3GPP 44.012"},
     { 0xFF, "Unknown schedule message format"},
     {    0, NULL}

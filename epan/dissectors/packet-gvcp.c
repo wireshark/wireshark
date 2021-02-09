@@ -673,7 +673,7 @@ static const true_false_string zonedirectionnames = {
 brief Register name to address mappings
 */
 
-const value_string bootstrapregisternames[] = {
+static const value_string bootstrapregisternames[] = {
 	{ GVCP_VERSION, "[Version]" },
 	{ GVCP_DEVICE_MODE, "[Device Mode]" },
 	{ GVCP_DEVICE_MAC_HIGH_0, "[Device MAC address High (Net #0)]" },
@@ -845,7 +845,7 @@ brief Extended Register name to address mappings
 */
 
 /* GEV 2.2 */
-const value_string extendedbootstrapregisternames[] = {
+static const value_string extendedbootstrapregisternames[] = {
 	{ GVCP_SC_GENDC_DESCRIPTOR_ADDRESS, "[SCGDAx (GenDC Descriptor Address)]" },
 	{ GVCP_SC_GENDC_DESCRIPTOR_SIZE, "[SCGDSx (GenDC Descriptor Size)]" },
 	{ GVCP_SC_GENDC_FLOW_MAPPING_TABLE_ADDRESS, "[SCGFTAx (GenDC Flow Mapping Table Address)]" },
