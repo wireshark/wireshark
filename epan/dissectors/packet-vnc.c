@@ -1547,7 +1547,7 @@ vnc_startup_messages(tvbuff_t *tvb, packet_info *pinfo, gint offset,
 			val_to_str_const(authtype, vnc_vencrypt_auth_types_vs, "Unknown"),
 			authtype);
 		proto_tree_add_item(tree, hf_vnc_vencrypt_auth_type, tvb, offset, 4, ENC_BIG_ENDIAN);
-		offset+=4;
+		/* offset+=4; */
 		if (authtype == VNC_SECURITY_TYPE_NONE) {
 			per_conversation_info->vnc_next_state = VNC_SESSION_STATE_CLIENT_INIT;
 			per_conversation_info->security_type_selected = VNC_SECURITY_TYPE_NONE;
