@@ -2420,7 +2420,7 @@ dissect_wccp2_info(tvbuff_t *tvb, int offset,
   */
   find_wccp_address_table(tvb,offset,pinfo,wccp_tree, &wccp_wccp_address_table);
 
-  while ((length_remaining = tvb_reported_length_remaining(tvb, offset)) > 0) {
+  while (tvb_reported_length_remaining(tvb, offset) > 0) {
     type = tvb_get_ntohs(tvb, offset);
     switch (type) {
 
