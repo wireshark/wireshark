@@ -22,6 +22,7 @@
 #include <epan/exceptions.h>
 #include <epan/show_exception.h>
 #include <epan/proto_data.h>
+#include <epan/prefs.h>
 
 #include <wsutil/str_util.h>
 #include <wsutil/epochs.h>
@@ -55,6 +56,8 @@ static wmem_map_t *nr_rrc_etws_cmas_dcs_hash = NULL;
 
 static reassembly_table nr_rrc_sib7_reassembly_table;
 static reassembly_table nr_rrc_sib8_reassembly_table;
+
+static gboolean nr_rrc_nas_in_root_tree;
 
 extern int proto_mac_nr;
 extern int proto_pdcp_nr;
@@ -744,6 +747,7 @@ proto_register_nr_rrc(void) {
   };
 
   expert_module_t* expert_nr_rrc;
+  module_t *nr_rrc_module;
 
   /* Register protocol */
   proto_nr_rrc = proto_register_protocol(PNAME, PSNAME, PFNAME);
@@ -764,6 +768,13 @@ proto_register_nr_rrc(void) {
                             &addresses_reassembly_table_functions);
   reassembly_table_register(&nr_rrc_sib8_reassembly_table,
                             &addresses_reassembly_table_functions);
+
+  /* Register configuration preferences */
+  nr_rrc_module = prefs_register_protocol(proto_nr_rrc, NULL);
+  prefs_register_bool_preference(nr_rrc_module, "nas_in_root_tree",
+                                 "Show NAS PDU in root packet details",
+                                 "Whether the NAS PDU should be shown in the root packet details tree",
+                                 &nr_rrc_nas_in_root_tree);
 }
 
 void
