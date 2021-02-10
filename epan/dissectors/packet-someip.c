@@ -763,7 +763,7 @@ static void
 post_update_someip_service_cb(void) {
     /* destroy old hash table, if it exists */
     if (data_someip_services) {
-        g_hash_table_destroy (data_someip_services);
+        g_hash_table_destroy(data_someip_services);
         data_someip_services = NULL;
     }
 
@@ -781,7 +781,7 @@ static void
 post_update_someip_method_cb(void) {
     /* destroy old hash table, if it exists */
     if (data_someip_methods) {
-        g_hash_table_destroy (data_someip_methods);
+        g_hash_table_destroy(data_someip_methods);
         data_someip_methods = NULL;
     }
 
@@ -799,7 +799,7 @@ static void
 post_update_someip_eventgroup_cb(void) {
     /* destroy old hash table, if it exists */
     if (data_someip_eventgroups) {
-        g_hash_table_destroy (data_someip_eventgroups);
+        g_hash_table_destroy(data_someip_eventgroups);
         data_someip_eventgroups = NULL;
     }
 
@@ -3672,7 +3672,7 @@ proto_register_someip(void) {
         sizeof(someip_parameter_list_uat_t), DATAFILE_SOMEIP_PARAMETERS, TRUE,
         (void**)&someip_parameter_list,
         &someip_parameter_list_num,
-        UAT_AFFECTS_DISSECTION,
+        UAT_AFFECTS_DISSECTION | UAT_AFFECTS_FIELDS,
         NULL, /* help */
         copy_someip_parameter_list_cb,
         update_someip_parameter_list,
@@ -3697,7 +3697,7 @@ proto_register_someip(void) {
         sizeof(someip_parameter_array_uat_t), DATAFILE_SOMEIP_ARRAYS, TRUE,
         (void**)&someip_parameter_arrays,
         &someip_parameter_arrays_num,
-        UAT_AFFECTS_DISSECTION,
+        UAT_AFFECTS_DISSECTION | UAT_AFFECTS_FIELDS,
         NULL, /* help */
         copy_someip_parameter_array_cb,
         update_someip_parameter_array,
@@ -3714,7 +3714,7 @@ proto_register_someip(void) {
         sizeof(someip_parameter_struct_uat_t), DATAFILE_SOMEIP_STRUCTS, TRUE,
         (void**)&someip_parameter_structs,
         &someip_parameter_structs_num,
-        UAT_AFFECTS_DISSECTION,
+        UAT_AFFECTS_DISSECTION | UAT_AFFECTS_FIELDS,
         NULL, /* help */
         copy_someip_parameter_struct_cb,
         update_someip_parameter_struct,
@@ -3731,7 +3731,7 @@ proto_register_someip(void) {
         sizeof(someip_parameter_union_uat_t), DATAFILE_SOMEIP_UNIONS, TRUE,
         (void**)&someip_parameter_unions,
         &someip_parameter_unions_num,
-        UAT_AFFECTS_DISSECTION,
+        UAT_AFFECTS_DISSECTION | UAT_AFFECTS_FIELDS,
         NULL, /* help */
         copy_someip_parameter_union_cb,
         update_someip_parameter_union,
@@ -3813,6 +3813,57 @@ proto_register_someip(void) {
         "A table to define typedefs", someip_parameter_typedefs_uat);
 }
 
+static void
+clean_all_hashtables_with_empty_uat(void) {
+    /* On config change, we delete all hashtables which should have 0 entries! */
+    /* Usually this is already done in the post update cb of the uat.*/
+    /* Unfortunately, Wireshark does not call the post_update_cb on config errors. :( */
+    if (data_someip_services && someip_service_ident_num==0) {
+        g_hash_table_destroy(data_someip_services);
+        data_someip_services = NULL;
+    }
+    if (data_someip_methods && someip_method_ident_num==0) {
+        g_hash_table_destroy(data_someip_methods);
+        data_someip_methods = NULL;
+    }
+    if (data_someip_eventgroups && someip_eventgroup_ident_num==0) {
+        g_hash_table_destroy(data_someip_eventgroups);
+        data_someip_eventgroups = NULL;
+    }
+    if (data_someip_parameter_list && someip_parameter_list_num==0) {
+        g_hash_table_destroy(data_someip_parameter_list);
+        data_someip_parameter_list = NULL;
+    }
+    if (data_someip_parameter_arrays && someip_parameter_arrays_num==0) {
+        g_hash_table_destroy(data_someip_parameter_arrays);
+        data_someip_parameter_arrays = NULL;
+    }
+    if (data_someip_parameter_structs && someip_parameter_structs_num==0) {
+        g_hash_table_destroy(data_someip_parameter_structs);
+        data_someip_parameter_structs = NULL;
+    }
+    if (data_someip_parameter_unions && someip_parameter_unions_num==0) {
+        g_hash_table_destroy(data_someip_parameter_unions);
+        data_someip_parameter_unions = NULL;
+    }
+    if (data_someip_parameter_enums && someip_parameter_enums_num == 0) {
+        g_hash_table_destroy(data_someip_parameter_enums);
+        data_someip_parameter_enums = NULL;
+    }
+    if (data_someip_parameter_base_type_list && someip_parameter_base_type_list_num==0) {
+        g_hash_table_destroy(data_someip_parameter_base_type_list);
+        data_someip_parameter_base_type_list = NULL;
+    }
+    if (data_someip_parameter_strings && someip_parameter_strings_num==0) {
+        g_hash_table_destroy(data_someip_parameter_strings);
+        data_someip_parameter_strings = NULL;
+    }
+    if (data_someip_parameter_typedefs && someip_parameter_typedefs_num==0) {
+        g_hash_table_destroy(data_someip_parameter_typedefs);
+        data_someip_parameter_typedefs = NULL;
+    }
+}
+
 void
 proto_reg_handoff_someip(void) {
     static gboolean initialized = FALSE;
@@ -3829,6 +3880,8 @@ proto_reg_handoff_someip(void) {
         /* delete all my ports even the dynamically registered ones */
         dissector_delete_all("udp.port", someip_handle_udp);
         dissector_delete_all("tcp.port", someip_handle_tcp);
+
+        clean_all_hashtables_with_empty_uat();
     }
     dissector_add_uint_range("udp.port", someip_ports_udp, someip_handle_udp);
     dissector_add_uint_range("tcp.port", someip_ports_tcp, someip_handle_tcp);
