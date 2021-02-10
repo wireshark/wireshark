@@ -2101,7 +2101,7 @@ update_dynamic_param_hf_entry(gpointer key _U_, gpointer value, gpointer data) {
         if (method_name != NULL) {
             c = proto_check_field_name(method_name);
             if (c) {
-                service_name = NULL;
+                method_name = NULL;
             }
         }
 
