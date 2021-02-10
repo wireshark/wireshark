@@ -188,14 +188,14 @@ typedef struct {
   gchar *dstIP;
   gchar *spi;
 
-  guint8 encryption_algo;
+  guint8 encryption_algo;         /* see values in esp_encryption_type_vals */
   gchar *encryption_key_string;
   gchar *encryption_key;
   gint encryption_key_length;
   gboolean         cipher_hd_created;
   gcry_cipher_hd_t cipher_hd;     /* Key is stored here and closed with the SA */
 
-  guint8 authentication_algo;
+  guint8 authentication_algo;     /* see values in esp_authentication_type_vals */
   gchar *authentication_key_string;
   gchar *authentication_key;
   gint authentication_key_length;
@@ -399,13 +399,16 @@ UAT_CSTRING_CB_DEF(uat_esp_sa_records, authentication_key_string, uat_esp_sa_rec
    added through the UAT entry interface/file. */
 void esp_sa_record_add_from_dissector(guint8 protocol, const gchar *srcIP, const char *dstIP,
                                       gchar *spi,
-                                      guint8 encryption_algo, const gchar *encryption_key,
-                                      guint8 authentication_algo, const gchar *authentication_key)
+                                      guint8 encryption_algo,           /* values from esp_encryption_type_vals */
+                                      const gchar *encryption_key,
+                                      guint8 authentication_algo,       /* values from esp_authentication_type_vals */
+                                      const gchar *authentication_key)
 {
    uat_esp_sa_record_t* record = NULL;
    if (extra_esp_sa_records.num_records == 0) {
       extra_esp_sa_records.records = g_new(uat_esp_sa_record_t, MAX_EXTRA_SA_RECORDS);
    }
+   /* Add new entry */
    if (extra_esp_sa_records.num_records < MAX_EXTRA_SA_RECORDS) {
       record = &extra_esp_sa_records.records[extra_esp_sa_records.num_records++];
    }

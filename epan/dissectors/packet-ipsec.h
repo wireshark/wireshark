@@ -19,7 +19,9 @@
    added through the UAT entry interface/file. */
 WS_DLL_PUBLIC void esp_sa_record_add_from_dissector(guint8 protocol, const gchar *srcIP, const char *dstIP,
                                                     gchar *spi,
-                                                    guint8 encryption_algo, const gchar *encryption_key,
-                                                    guint8 authentication_algo, const gchar *authentication_key);
+                                                    guint8 encryption_algo,           /* values from esp_encryption_type_vals */
+                                                    const gchar *encryption_key,
+                                                    guint8 authentication_algo,       /* values from esp_authentication_type_vals */
+                                                    const gchar *authentication_key);
 
 #endif
