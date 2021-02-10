@@ -92,32 +92,34 @@ get_git_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U
   return plen;
 }
 
-static int
-dissect_git_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+/* Parse pkt-lines one-by-one
+ *
+ * @param  tvb       The buffer to dissect.
+ * @param  git_tree  The git protocol subtree.
+ * @param  offset    The offset at which to start the dissection.
+ * @return bool      After successful/unsuccessful parsing.
+ *
+ * This new helper takes the contents of the tvbuffer, updates the
+ * offset, and returns to the caller for subsequent processing of the
+ * remainder of the data.
+*/
+static gboolean
+dissect_pkt_line(tvbuff_t *tvb, proto_tree *git_tree, int *offset)
 {
-  proto_tree             *git_tree;
-  proto_item             *ti;
-  int offset = 0;
   guint16 plen;
-
-  col_set_str(pinfo->cinfo, COL_PROTOCOL, PSNAME);
-
-  col_set_str(pinfo->cinfo, COL_INFO, PNAME);
-
-  ti = proto_tree_add_item(tree, proto_git, tvb, offset, -1, ENC_NA);
-  git_tree = proto_item_add_subtree(ti, ett_git);
 
   // what type of pkt-line is it?
   if (!get_packet_length(tvb, 0, &plen))
-    return 0;
+    return FALSE;
   if (plen == 0 || plen == 1 || plen == 2) {
-    proto_tree_add_uint(git_tree, hf_git_packet_type, tvb, offset,
+    proto_tree_add_uint(git_tree, hf_git_packet_type, tvb, *offset,
                         4, plen);
-    return 4;
+    *offset += 4;
+    return TRUE;
   }
 
-  proto_tree_add_uint(git_tree, hf_git_packet_len, tvb, offset, 4, plen);
-  offset += 4;
+  proto_tree_add_uint(git_tree, hf_git_packet_len, tvb, *offset, 4, plen);
+  *offset += 4;
   plen -= 4;
 
   /*
@@ -127,8 +129,8 @@ dissect_git_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
    * 1 or 2. Parsing out this information helps identify the capabilities and
    * information that can be used with the protocol.
   */
-  if (plen >= 9 && !tvb_strneql(tvb, offset, "version ", 8)) {
-    proto_tree_add_item(git_tree, hf_git_protocol_version, tvb, offset + 8,
+  if (plen >= 9 && !tvb_strneql(tvb, *offset, "version ", 8)) {
+    proto_tree_add_item(git_tree, hf_git_protocol_version, tvb, *offset + 8,
                         1, ENC_NA);
   }
 
@@ -140,16 +142,36 @@ dissect_git_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
    * lacking that, let's assume for now that all pkt-lines starting with \1, \2, or \3
    * are using sideband.
    */
-  int sideband_code = tvb_get_guint8(tvb, offset);
+  int sideband_code = tvb_get_guint8(tvb, *offset);
 
   if (1 <= sideband_code && sideband_code <= 3) {
-    proto_tree_add_uint(git_tree, hf_git_sideband_control_code, tvb, offset, 1,
+    proto_tree_add_uint(git_tree, hf_git_sideband_control_code, tvb, *offset, 1,
                         sideband_code);
-    offset++;
+    (*offset)++;
     plen--;
   }
 
-  proto_tree_add_item(git_tree, hf_git_packet_data, tvb, offset, plen, ENC_NA);
+  proto_tree_add_item(git_tree, hf_git_packet_data, tvb, *offset, plen, ENC_NA);
+  *offset += plen;
+  return TRUE;
+}
+
+static int
+dissect_git_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+{
+  proto_tree             *git_tree;
+  proto_item             *ti;
+  int offset = 0;
+
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, PSNAME);
+
+  col_set_str(pinfo->cinfo, COL_INFO, PNAME);
+
+  ti = proto_tree_add_item(tree, proto_git, tvb, offset, -1, ENC_NA);
+  git_tree = proto_item_add_subtree(ti, ett_git);
+
+  if (!dissect_pkt_line(tvb, git_tree, &offset))
+    return 0;
 
   return tvb_captured_length(tvb);
 }
