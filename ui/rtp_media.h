@@ -15,6 +15,8 @@
 #ifndef __RTP_MEDIA_H__
 #define __RTP_MEDIA_H__
 
+#include <glib.h>
+
 /** @file
  *  "RTP Player" dialog box common routines.
  *  @ingroup main_ui_group
@@ -23,8 +25,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
-
-#include <glib.h>
 
 /****************************************************************************/
 /* INTERFACE */

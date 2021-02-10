@@ -11,6 +11,8 @@
 #ifndef __FILE_UTIL_H__
 #define __FILE_UTIL_H__
 
+#include <glib.h>
+
 #include "config.h"
 
 #include "ws_symbol_export.h"
@@ -18,8 +20,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
-
-#include <glib.h>
 
 #ifdef _WIN32
 #include <io.h>		/* for _read(), _write(), etc. */

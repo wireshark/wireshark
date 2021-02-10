@@ -14,8 +14,8 @@
 #ifndef __RTP_STREAM_H__
 #define __RTP_STREAM_H__
 
-#include "tap-rtp-analysis.h"
 #include <glib.h>
+#include "tap-rtp-analysis.h"
 #include <stdio.h>
 
 #include "cfile.h"
