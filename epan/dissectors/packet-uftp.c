@@ -126,7 +126,7 @@ void proto_register_uftp(void);
 void proto_reg_handoff_uftp(void);
 
 static int proto_uftp = -1;
-#define UTFP_PORT   1044 /* Not IANA registered */
+#define UFTP_PORT   1044 /* Not IANA registered */
 
 /* main header and common fields */
 static int hf_uftp_version = -1;
@@ -2218,7 +2218,7 @@ void proto_reg_handoff_uftp(void)
     uftp4_handle = find_dissector("uftp4");
     uftp5_handle = find_dissector("uftp5");
     uftp_handle = create_dissector_handle(dissect_uftp, proto_uftp);
-    dissector_add_uint_with_preference("udp.port", UTFP_PORT, uftp_handle);
+    dissector_add_uint_with_preference("udp.port", UFTP_PORT, uftp_handle);
 }
 
 /*
