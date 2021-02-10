@@ -1008,7 +1008,7 @@ proto_register_nvme(void)
         },
         { &hf_nvme_cmd_nlb,
             { "Absolute Number of Logical Blocks", "nvme.cmd.nlb",
-               FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL}
+               FT_UINT16, BASE_DEC_HEX, NULL, 0, NULL, HFILL}
         },
         { &hf_nvme_cmd_rsvd2,
             { "Reserved", "nvme.cmd.rsvd2",
@@ -1099,7 +1099,7 @@ proto_register_nvme(void)
         /* Identify NS response */
         { &hf_nvme_identify_ns_nsze,
             { "Namespace Size (NSZE)", "nvme.cmd.identify.ns.nsze",
-               FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL}
+               FT_UINT64, BASE_DEC_HEX, NULL, 0x0, NULL, HFILL}
         },
         { &hf_nvme_identify_ns_ncap,
             { "Namespace Capacity (NCAP)", "nvme.cmd.identify.ns.ncap",
@@ -1115,11 +1115,11 @@ proto_register_nvme(void)
         },
         { &hf_nvme_identify_ns_nlbaf,
             { "Number of LBA Formats (NLBAF)", "nvme.cmd.identify.ns.nlbaf",
-               FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
+               FT_UINT8, BASE_DEC_HEX, NULL, 0x0, NULL, HFILL}
         },
         { &hf_nvme_identify_ns_flbas,
             { "Formatted LBA Size (FLBAS)", "nvme.cmd.identify.ns.flbas",
-               FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
+               FT_UINT8, BASE_DEC_HEX, NULL, 0x0, NULL, HFILL}
         },
         { &hf_nvme_identify_ns_mc,
             { "Metadata Capabilities (MC)", "nvme.cmd.identify.ns.mc",
@@ -1201,19 +1201,19 @@ proto_register_nvme(void)
         },
         { &hf_nvme_identify_ctrl_sqes,
             { "Submission Queue Entry Size (SQES)", "nvme.cmd.identify.ctrl.sqes",
-               FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
+               FT_UINT8, BASE_DEC_HEX, NULL, 0x0, NULL, HFILL}
         },
         { &hf_nvme_identify_ctrl_cqes,
             { "Completion Queue Entry Size (CQES)", "nvme.cmd.identify.ctrl.cqes",
-               FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
+               FT_UINT8, BASE_DEC_HEX, NULL, 0x0, NULL, HFILL}
         },
         { &hf_nvme_identify_ctrl_maxcmd,
             { "Maximum Outstanding Commands (MAXCMD)", "nvme.cmd.identify.ctrl.maxcmd",
-               FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}
+               FT_UINT16, BASE_DEC_HEX, NULL, 0x0, NULL, HFILL}
         },
         { &hf_nvme_identify_ctrl_nn,
             { "Number of Namespaces (NN)", "nvme.cmd.identify.ctrl.nn",
-               FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}
+               FT_UINT32, BASE_DEC_HEX, NULL, 0x0, NULL, HFILL}
         },
         { &hf_nvme_identify_ctrl_oncs,
             { "Optional NVM Command Support (ONCS)", "nvme.cmd.identify.ctrl.oncs",
@@ -1229,11 +1229,11 @@ proto_register_nvme(void)
         },
         { &hf_nvme_identify_ctrl_ioccsz,
             { "I/O Queue Command Capsule Supported Size (IOCCSZ)", "nvme.cmd.identify.ctrl.ioccsz",
-               FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}
+               FT_UINT32, BASE_DEC_HEX, NULL, 0x0, NULL, HFILL}
         },
         { &hf_nvme_identify_ctrl_iorcsz,
             { "I/O Queue Response Capsule Supported Size (IORCSZ)", "nvme.cmd.identify.ctrl.iorcsz",
-               FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}
+               FT_UINT32, BASE_DEC_HEX, NULL, 0x0, NULL, HFILL}
         },
 
         /* Identify nslist response */

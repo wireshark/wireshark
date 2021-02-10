@@ -6412,7 +6412,7 @@ void proto_register_infiniband(void)
         },
         { &hf_infiniband_dma_length, {
                 "DMA Length", "infiniband.reth.dmalen",
-                FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}
+                FT_UINT32, BASE_DEC_HEX, NULL, 0x0, NULL, HFILL}
         },
 
         /* Atomic Extended Transport Header (AtomicETH) */

@@ -2693,7 +2693,7 @@ proto_register_iscsi(void)
         },
         { &hf_iscsi_TotalAHSLength,
           { "TotalAHSLength", "iscsi.totalahslength",
-            FT_UINT8, BASE_HEX, NULL, 0,
+            FT_UINT8, BASE_DEC_HEX, NULL, 0,
             "Total additional header segment length (4 byte words)", HFILL }
         },
         { &hf_iscsi_InitiatorTaskTag,
@@ -2703,37 +2703,37 @@ proto_register_iscsi(void)
         },
         { &hf_iscsi_ExpectedDataTransferLength,
           { "ExpectedDataTransferLength", "iscsi.scsicommand.expecteddatatransferlength",
-            FT_UINT32, BASE_HEX, NULL, 0,
+            FT_UINT32, BASE_DEC_HEX, NULL, 0,
             "Expected length of data transfer", HFILL }
         },
         { &hf_iscsi_CmdSN,
           { "CmdSN", "iscsi.cmdsn",
-            FT_UINT32, BASE_HEX, NULL, 0,
+            FT_UINT32, BASE_DEC_HEX, NULL, 0,
             "Sequence number for this command", HFILL }
         },
         { &hf_iscsi_ExpStatSN,
           { "ExpStatSN", "iscsi.expstatsn",
-            FT_UINT32, BASE_HEX, NULL, 0,
+            FT_UINT32, BASE_DEC_HEX, NULL, 0,
             "Next expected status sequence number", HFILL }
         },
         { &hf_iscsi_SCSIResponse_ResidualCount,
           { "ResidualCount", "iscsi.scsiresponse.residualcount",
-            FT_UINT32, BASE_HEX, NULL, 0,
+            FT_UINT32, BASE_DEC_HEX, NULL, 0,
             "Residual count", HFILL }
         },
         { &hf_iscsi_StatSN,
           { "StatSN", "iscsi.statsn",
-            FT_UINT32, BASE_HEX, NULL, 0,
+            FT_UINT32, BASE_DEC_HEX, NULL, 0,
             "Status sequence number", HFILL }
         },
         { &hf_iscsi_ExpCmdSN,
           { "ExpCmdSN", "iscsi.expcmdsn",
-            FT_UINT32, BASE_HEX, NULL, 0,
+            FT_UINT32, BASE_DEC_HEX, NULL, 0,
             "Next expected command sequence number", HFILL }
         },
         { &hf_iscsi_MaxCmdSN,
           { "MaxCmdSN", "iscsi.maxcmdsn",
-            FT_UINT32, BASE_HEX, NULL, 0,
+            FT_UINT32, BASE_DEC_HEX, NULL, 0,
             "Maximum acceptable command sequence number", HFILL }
         },
         { &hf_iscsi_SCSIResponse_o,
@@ -2768,12 +2768,12 @@ proto_register_iscsi(void)
         },
         { &hf_iscsi_SCSIResponse_BidiReadResidualCount,
           { "BidiReadResidualCount", "iscsi.scsiresponse.bidireadresidualcount",
-            FT_UINT32, BASE_HEX, NULL, 0,
+            FT_UINT32, BASE_DEC_HEX, NULL, 0,
             "Bi-directional read residual count", HFILL }
         },
         { &hf_iscsi_SenseLength,
           { "SenseLength", "iscsi.scsiresponse.senselength",
-            FT_UINT16, BASE_HEX, NULL, 0,
+            FT_UINT16, BASE_DEC_HEX, NULL, 0,
             "Sense data length", HFILL }
         },
         { &hf_iscsi_SCSIData_F,
@@ -2808,17 +2808,17 @@ proto_register_iscsi(void)
         },
         { &hf_iscsi_BufferOffset,
           { "BufferOffset", "iscsi.bufferOffset",
-            FT_UINT32, BASE_HEX, NULL, 0,
+            FT_UINT32, BASE_DEC_HEX, NULL, 0,
             "Buffer offset", HFILL }
         },
         { &hf_iscsi_SCSIData_ResidualCount,
           { "ResidualCount", "iscsi.scsidata.readresidualcount",
-            FT_UINT32, BASE_HEX, NULL, 0,
+            FT_UINT32, BASE_DEC_HEX, NULL, 0,
             "Residual count", HFILL }
         },
         { &hf_iscsi_DataSN,
           { "DataSN", "iscsi.datasn",
-            FT_UINT32, BASE_HEX, NULL, 0,
+            FT_UINT32, BASE_DEC_HEX, NULL, 0,
             "Data sequence number", HFILL }
         },
         { &hf_iscsi_VersionMax,
@@ -2961,7 +2961,7 @@ proto_register_iscsi(void)
         },
         { &hf_iscsi_R2TSN,
           { "R2TSN", "iscsi.r2tsn",
-            FT_UINT32, BASE_HEX, NULL, 0,
+            FT_UINT32, BASE_DEC_HEX, NULL, 0,
             "R2T PDU Number", HFILL }
         },
         { &hf_iscsi_TaskManagementFunction_Response,
@@ -2976,7 +2976,7 @@ proto_register_iscsi(void)
         },
         { &hf_iscsi_RefCmdSN,
           { "RefCmdSN", "iscsi.refcmdsn",
-            FT_UINT32, BASE_HEX, NULL, 0,
+            FT_UINT32, BASE_DEC_HEX, NULL, 0,
             "Command sequence number for command to be aborted", HFILL }
         },
         { &hf_iscsi_TaskManagementFunction_Function,
@@ -3006,7 +3006,7 @@ proto_register_iscsi(void)
         },
         { &hf_iscsi_DesiredDataLength,
           { "DesiredDataLength", "iscsi.desireddatalength",
-            FT_UINT32, BASE_HEX, NULL, 0,
+            FT_UINT32, BASE_DEC_HEX, NULL, 0,
             "Desired data length (bytes)", HFILL }
         },
         { &hf_iscsi_AsyncEvent,
@@ -3051,7 +3051,7 @@ proto_register_iscsi(void)
         },
         { &hf_iscsi_RunLength,
           { "RunLength", "iscsi.snack.runlength",
-            FT_UINT32, BASE_HEX, NULL, 0,
+            FT_UINT32, BASE_DEC_HEX, NULL, 0,
             "Number of additional missing status PDUs in this run", HFILL }
         },
     };
