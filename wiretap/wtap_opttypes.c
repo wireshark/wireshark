@@ -67,14 +67,17 @@ static wtap_blocktype_t* blocktype_list[MAX_WTAP_BLOCK_TYPE_VALUE];
 static guint num_custom_blocks;
 static wtap_blocktype_t custom_blocktype_list[MAX_WTAP_BLOCK_CUSTOM];
 
-static void wtap_opttype_block_register(wtap_block_type_t block_type, wtap_blocktype_t *blocktype)
+static void wtap_opttype_block_register(wtap_blocktype_t *blocktype)
 {
+    wtap_block_type_t block_type;
     static const wtap_opttype_t opt_comment = {
         "opt_comment",
         "Comment",
         WTAP_OPTTYPE_STRING,
         WTAP_OPTTYPE_FLAG_MULTIPLE_ALLOWED
     };
+
+    block_type = blocktype->block_type;
 
     /* Check input */
     g_assert(block_type < WTAP_BLOCK_END_OF_LIST);
@@ -86,8 +89,6 @@ static void wtap_opttype_block_register(wtap_block_type_t block_type, wtap_block
     g_assert(blocktype->name);
     g_assert(blocktype->description);
     g_assert(blocktype->create);
-
-    blocktype->block_type = block_type;
 
     /*
      * Initialize the set of supported options.
@@ -118,6 +119,7 @@ int wtap_opttype_register_custom_block_type(const char* name, const char* descri
 
     block_type = (wtap_block_type_t)(WTAP_BLOCK_END_OF_LIST+num_custom_blocks);
 
+    custom_blocktype_list[num_custom_blocks].block_type = (wtap_block_type_t)block_type;
     custom_blocktype_list[num_custom_blocks].name = name;
     custom_blocktype_list[num_custom_blocks].description = description;
     custom_blocktype_list[num_custom_blocks].create = create;
@@ -133,6 +135,11 @@ static void wtap_opttype_option_register(wtap_blocktype_t *blocktype, guint optt
 {
     g_hash_table_insert(blocktype->options, GUINT_TO_POINTER(opttype),
                         (gpointer) option);
+}
+
+wtap_block_type_t wtap_block_get_type(wtap_block_t block)
+{
+    return block->info->block_type;
 }
 
 void* wtap_block_get_mandatory_data(wtap_block_t block)
@@ -1230,7 +1237,7 @@ void wtap_opttypes_initialize(void)
     /*
      * Register the SHB and the options that can appear in it.
      */
-    wtap_opttype_block_register(WTAP_BLOCK_SECTION, &shb_block);
+    wtap_opttype_block_register(&shb_block);
     wtap_opttype_option_register(&shb_block, OPT_SHB_HARDWARE, &shb_hardware);
     wtap_opttype_option_register(&shb_block, OPT_SHB_OS, &shb_os);
     wtap_opttype_option_register(&shb_block, OPT_SHB_USERAPPL, &shb_userappl);
@@ -1238,7 +1245,7 @@ void wtap_opttypes_initialize(void)
     /*
      * Register the IDB and the options that can appear in it.
      */
-    wtap_opttype_block_register(WTAP_BLOCK_IF_DESCRIPTION, &idb_block);
+    wtap_opttype_block_register(&idb_block);
     wtap_opttype_option_register(&idb_block, OPT_IDB_NAME, &if_name);
     wtap_opttype_option_register(&idb_block, OPT_IDB_DESCR, &if_description);
     wtap_opttype_option_register(&idb_block, OPT_IDB_SPEED, &if_speed);
@@ -1251,7 +1258,7 @@ void wtap_opttypes_initialize(void)
     /*
      * Register the NRB and the options that can appear in it.
      */
-    wtap_opttype_block_register(WTAP_BLOCK_NAME_RESOLUTION, &nrb_block);
+    wtap_opttype_block_register(&nrb_block);
     wtap_opttype_option_register(&nrb_block, OPT_NS_DNSNAME, &ns_dnsname);
     wtap_opttype_option_register(&nrb_block, OPT_NS_DNSIP4ADDR, &ns_dnsIP4addr);
     wtap_opttype_option_register(&nrb_block, OPT_NS_DNSIP6ADDR, &ns_dnsIP6addr);
@@ -1259,7 +1266,7 @@ void wtap_opttypes_initialize(void)
     /*
      * Register the ISB and the options that can appear in it.
      */
-    wtap_opttype_block_register(WTAP_BLOCK_IF_STATISTICS, &isb_block);
+    wtap_opttype_block_register(&isb_block);
     wtap_opttype_option_register(&isb_block, OPT_ISB_STARTTIME, &isb_starttime);
     wtap_opttype_option_register(&isb_block, OPT_ISB_ENDTIME, &isb_endtime);
     wtap_opttype_option_register(&isb_block, OPT_ISB_IFRECV, &isb_ifrecv);
@@ -1271,7 +1278,7 @@ void wtap_opttypes_initialize(void)
     /*
      * Register the DSB, currently no options are defined.
      */
-    wtap_opttype_block_register(WTAP_BLOCK_DECRYPTION_SECRETS, &dsb_block);
+    wtap_opttype_block_register(&dsb_block);
 }
 
 void wtap_opttypes_cleanup(void)
