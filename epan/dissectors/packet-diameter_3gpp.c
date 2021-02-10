@@ -416,6 +416,8 @@ static int hf_diameter_3gpp_acc_res_dat_flags_bit7 = -1;
 static int hf_diameter_3gpp_acc_res_dat_flags_bit8 = -1;
 static int hf_diameter_3gpp_acc_res_dat_flags_bit9 = -1;
 static int hf_diameter_3gpp_acc_res_dat_flags_bit10 = -1;
+static int hf_diameter_3gpp_acc_res_dat_flags_bit11 = -1;
+static int hf_diameter_3gpp_acc_res_dat_flags_bit12 = -1;
 static int hf_diameter_3gpp_acc_res_dat_flags_spare_bits = -1;
 static int hf_diameter_3gpp_ida_flags_spare_bits = -1;
 static int hf_diameter_3gpp_pua_flags_spare_bits = -1;
@@ -1916,7 +1918,9 @@ dissect_diameter_3gpp_acc_res_data(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
 {
     static int * const flags[] = {
         &hf_diameter_3gpp_acc_res_dat_flags_spare_bits,
-        &hf_diameter_3gpp_acc_res_dat_flags_bit10,
+        &hf_diameter_3gpp_acc_res_dat_flags_bit12,
+        &hf_diameter_3gpp_acc_res_dat_flags_bit11,
+        &hf_diameter_3gpp_acc_res_dat_flags_bit10, /* NR in 5GS Not Allowed*/
         &hf_diameter_3gpp_acc_res_dat_flags_bit9,
         &hf_diameter_3gpp_acc_res_dat_flags_bit8,
         &hf_diameter_3gpp_acc_res_dat_flags_bit7,
@@ -4419,9 +4423,19 @@ proto_register_diameter_3gpp(void)
             FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00000400,
             NULL, HFILL }
         },
+        { &hf_diameter_3gpp_acc_res_dat_flags_bit11,
+        { "LTE-M Not Allowed", "diameter.3gpp.acc_res_dat_flags_bit11",
+            FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00000800,
+            NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_acc_res_dat_flags_bit12,
+        { "WB-E-UTRAN Except LTE-M Not Allowed", "diameter.3gpp.acc_res_dat_flags_bit12",
+            FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00001000,
+            NULL, HFILL }
+        },
         { &hf_diameter_3gpp_acc_res_dat_flags_spare_bits,
         { "Spare", "diameter.3gpp.acc_res_dat_flags_spare",
-            FT_UINT32, BASE_HEX, NULL, 0xFFFFF800,
+            FT_UINT32, BASE_HEX, NULL, 0xFFFFe000,
             NULL, HFILL }
         },
 
