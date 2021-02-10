@@ -22,6 +22,8 @@
 #ifndef __VOIP_CALLS_H__
 #define __VOIP_CALLS_H__
 
+#include <glib.h>
+
 /** @file
  *  "VoIP Calls" dialog box common routines.
  *  @ingroup main_ui_group
@@ -31,7 +33,6 @@
 extern "C" {
 #endif /* __cplusplus */
 
-#include <glib.h>
 #include <stdio.h>
 
 #include "epan/address.h"

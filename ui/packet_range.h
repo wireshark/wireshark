@@ -14,11 +14,11 @@
 #ifndef __PACKET_RANGE_H__
 #define __PACKET_RANGE_H__
 
+#include <glib.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
-
-#include <glib.h>
 
 #include <epan/range.h>
 #include <epan/frame_data.h>

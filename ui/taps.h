@@ -11,11 +11,11 @@
 #ifndef __TAP_REGISTER_H__
 #define __TAP_REGISTER_H__
 
+#include <glib.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
-
-#include <glib.h>
 
 typedef struct _tap_reg {
     const char *cb_name;
