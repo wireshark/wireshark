@@ -11,11 +11,11 @@
 #ifndef __CAPTURE_IFINFO_H__
 #define __CAPTURE_IFINFO_H__
 
+#include <glib.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
-
-#include <glib.h>
 
 /*
  * Explicitly set the interface_type enum values as these values are exposed

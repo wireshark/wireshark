@@ -14,6 +14,8 @@
 #ifndef __RTP_STREAM_H__
 #define __RTP_STREAM_H__
 
+#include <glib.h>
+
 /** @file
  *  "RTP Streams" dialog box common routines.
  *  @ingroup main_ui_group
@@ -24,7 +26,6 @@ extern "C" {
 #endif /* __cplusplus */
 
 #include "tap-rtp-analysis.h"
-#include <glib.h>
 #include <stdio.h>
 
 #include "cfile.h"

@@ -11,11 +11,11 @@
 #ifndef __PREFS_H__
 #define __PREFS_H__
 
+#include <glib.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
-
-#include <glib.h>
 
 #include <epan/params.h>
 #include <epan/range.h>
