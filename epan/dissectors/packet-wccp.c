@@ -2377,7 +2377,6 @@ dissect_wccp2_info(tvbuff_t *tvb, int offset,
                    packet_info *pinfo, proto_tree *wccp_tree,
                    guint32 message_type)
 {
-  int length_remaining;
   guint16 type;
   guint16 item_length;
   proto_item *tf;
