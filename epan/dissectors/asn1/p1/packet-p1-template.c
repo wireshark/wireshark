@@ -17,6 +17,7 @@
 #include <epan/asn1.h>
 #include <epan/expert.h>
 #include <epan/strutil.h>
+#include <epan/proto_data.h>
 
 #include "packet-ber.h"
 #include "packet-acse.h"
@@ -72,7 +73,6 @@ static dissector_handle_t p1_handle;
 
 #include "packet-p1-table.c"   /* operation and error codes */
 
-#define P1_ADDRESS_CTX "p1-address-ctx"
 typedef struct p1_address_ctx {
     gboolean do_address;
     const char *content_type_id;
@@ -96,10 +96,8 @@ static p1_address_ctx_t *get_do_address_ctx(asn1_ctx_t* actx)
 {
     p1_address_ctx_t* ctx = NULL;
 
-    if (actx->pinfo->private_table) {
-        /* First check if called from an extension attribute */
-        ctx = (p1_address_ctx_t *)g_hash_table_lookup(actx->pinfo->private_table, P1_ADDRESS_CTX);
-    }
+    /* First check if called from an extension attribute */
+    ctx = (p1_address_ctx_t *)p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_p1, 0);
 
     if (!ctx) {
         ctx = (p1_address_ctx_t*)actx->subtree.tree_ctx;

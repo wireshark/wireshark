@@ -599,10 +599,7 @@ MessageToken						B	"2.6.1.7.36"	"id-hat-forwarded-token"
 #.FN_BODY ExtensionAttribute/extension-attribute-value
 
 	proto_item_append_text(tree, " (%%s)", val_to_str(actx->external.indirect_reference, p1_ExtensionAttributeType_vals, "extension-attribute-type %%d"));
-	if (!actx->pinfo->private_table) {
-		actx->pinfo->private_table = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, g_free);
-	}
-	g_hash_table_insert(actx->pinfo->private_table, (gpointer)P1_ADDRESS_CTX, actx->subtree.tree_ctx);
+	p_add_proto_data(actx->pinfo->pool, actx->pinfo, proto_p1, 0, actx->subtree.tree_ctx);
 	if (dissector_try_uint(p1_extension_attribute_dissector_table, actx->external.indirect_reference, tvb, actx->pinfo, tree)) {
 		offset =tvb_reported_length(tvb);
 	} else {
@@ -614,7 +611,7 @@ MessageToken						B	"2.6.1.7.36"	"id-hat-forwarded-token"
 		offset = dissect_unknown_ber(actx->pinfo, tvb, offset, next_tree);
 		expert_add_info(actx->pinfo, item, &ei_p1_unknown_extension_attribute_type);
 	}
-	g_hash_table_steal(actx->pinfo->private_table, (gpointer)P1_ADDRESS_CTX);
+	p_remove_proto_data(actx->pinfo->pool, actx->pinfo, proto_p1, 0);
 
 
 #.FN_BODY RefusedOperation/refused-argument/refused-extension
