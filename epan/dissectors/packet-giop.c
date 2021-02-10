@@ -869,7 +869,7 @@ static const value_string reply_status_types[] = {
   { 0, NULL }
 };
 
-const true_false_string tfs_matched_not_matched = { "Matched", "Not matched" };
+static const true_false_string tfs_matched_not_matched = { "Matched", "Not matched" };
 
 
 typedef enum LocateStatusType

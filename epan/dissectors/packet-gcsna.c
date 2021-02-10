@@ -29,7 +29,7 @@ static void gcsna_message_GCSNAL2Ack(proto_item *item, tvbuff_t *tvb, proto_tree
 static void gcsna_message_GCSNAServiceReject(proto_item *item, tvbuff_t *tvb, proto_tree *tree, guint *offset);
 
 /*Initialize all the header parameters that are to be displayed*/
-int proto_gcsna = -1;
+static int proto_gcsna = -1;
 static int hf_gcsna_msghdr = -1;
 static int hf_gcsna_msgid = -1;
 static int hf_gcsna_rejSequence = -1;

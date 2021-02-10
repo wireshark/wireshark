@@ -710,7 +710,7 @@ de_gmm_ciph_alg(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32
 /*
  * [13] 10.5.5.3a Integrity protection algorithm
  */
-const value_string gsm_a_gm_type_of_integ_alg_vals[] = {
+static const value_string gsm_a_gm_type_of_integ_alg_vals[] = {
 	{ 0x00, "GPRS Integrity Algorithm GIA/4" },
 	{ 0x01, "GPRS Integrity Algorithm GIA/5" },
 	{ 0x02, "GPRS Integrity Algorithm GIA/6" },
@@ -731,7 +731,7 @@ de_gmm_integ_alg(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint3
 /*
  * [9] 10.5.5.4 TMSI status
  */
-const true_false_string gsm_a_gm_tmsi_flag_value = {
+static const true_false_string gsm_a_gm_tmsi_flag_value = {
 	"valid TMSI available",
 	"no valid TMSI available"
 };
@@ -749,19 +749,19 @@ de_gmm_tmsi_stat(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint3
 /*
  * [7] 10.5.5.5
  */
-const true_false_string gsm_a_gm_power_off_value = {
+static const true_false_string gsm_a_gm_power_off_value = {
 	"power switched off",
 	"normal detach"
 };
 
-const value_string gsm_a_gm_type_of_detach_mo_vals[] = {
+static const value_string gsm_a_gm_type_of_detach_mo_vals[] = {
 	{ 0x01, "GPRS detach" },
 	{ 0x02, "IMSI detach" },
 	{ 0x03, "Combined GPRS/IMSI detach" },
 	{ 0, NULL }
 };
 
-const value_string gsm_a_gm_type_of_detach_mt_vals[] = {
+static const value_string gsm_a_gm_type_of_detach_mt_vals[] = {
 	{ 0x01, "re-attach required" },
 	{ 0x02, "re-attach not required" },
 	{ 0x03, "IMSI detach (after VLR failure)" },
@@ -4037,7 +4037,7 @@ de_gmm_plmn_id_cn_operator(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, 
 }
 
 /* [14] 10.5.5.37 Non-3GPP NW provided policies */
-const true_false_string gsm_a_gm_n3en_ind_value = {
+static const true_false_string gsm_a_gm_n3en_ind_value = {
 	"Use of non-3GPP emergency numbers permitted",
 	"Use of non-3GPP emergency numbers not permitted"
 };
@@ -4553,7 +4553,7 @@ static const value_string gsm_a_gm_nbifom_mode_vals[] = {
 	{ 0, NULL }
 };
 
-const true_false_string gsm_a_gm_apn_rate_ctrl_params_aer_value = {
+static const true_false_string gsm_a_gm_apn_rate_ctrl_params_aer_value = {
 	"Additional exception reports at maximum rate reached are allowed",
 	"Additional exception reports at maximum rate reached are not allowed"
 };
@@ -5051,7 +5051,7 @@ const value_string gsm_a_sm_qos_del_of_err_sdu_vals[] = {
 };
 
  /* Delivery order, octet 6 (see 3GPP TS 23.107) Bits 5 4 */
-const value_string gsm_a_sm_qos_del_order_vals[] = {
+static const value_string gsm_a_sm_qos_del_order_vals[] = {
 	{ 0, "Subscribed delivery order/Reserved" },
 	{ 1, "With delivery order ('yes')" },
 	{ 2, "Without delivery order ('no')" },
@@ -5108,7 +5108,7 @@ const value_string gsm_a_sm_qos_traff_hdl_pri_vals[] = {
 	{ 0, NULL }
 };
 
-const range_string gsm_a_sm_qos_peak_thr_vals[] = {
+static const range_string gsm_a_sm_qos_peak_thr_vals[] = {
 	{ 0x00, 0x00, "Subscribed peak throughput/reserved" },
 	{ 0x01, 0x01, "Up to 1 000 octet/s" },
 	{ 0x02, 0x02, "Up to 2 000 octet/s" },
@@ -5124,7 +5124,7 @@ const range_string gsm_a_sm_qos_peak_thr_vals[] = {
 	{ 0, 0, NULL }
 };
 
-const range_string gsm_a_sm_qos_mean_thr_vals[] = {
+static const range_string gsm_a_sm_qos_mean_thr_vals[] = {
 	{ 0x00, 0x00, "Subscribed peak throughput/reserved" },
 	{ 0x01, 0x01, "100 octet/h" },
 	{ 0x02, 0x02, "200 octet/h" },
@@ -5150,7 +5150,7 @@ const range_string gsm_a_sm_qos_mean_thr_vals[] = {
 	{ 0, 0, NULL }
 };
 
-const range_string gsm_a_sm_qos_prec_class_vals[] = {
+static const range_string gsm_a_sm_qos_prec_class_vals[] = {
 	{ 0x00, 0x00, "Subscribed precedence/reserved" },
 	{ 0x01, 0x01, "High priority" },
 	{ 0x02, 0x02, "Normal priority" },
@@ -5160,7 +5160,7 @@ const range_string gsm_a_sm_qos_prec_class_vals[] = {
 	{ 0, 0, NULL }
 };
 
-const true_false_string gsm_a_sm_qos_signalling_ind_value = {
+static const true_false_string gsm_a_sm_qos_signalling_ind_value = {
 	"Optimised for signalling traffic",
 	"Not optimised for signalling traffic"
 };
@@ -5525,12 +5525,12 @@ de_sm_qos(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, g
 /*
  * [12] 10.5.6.5a Re-attempt indicator
  */
-const true_false_string gsm_a_gm_eplmnc_value = {
+static const true_false_string gsm_a_gm_eplmnc_value = {
 	"MS is not allowed to re-attempt the procedure in an equivalent PLMN",
 	"MS is allowed to re-attempt the procedure in an equivalent PLMN"
 };
 
-const true_false_string gsm_a_gm_ratc_value = {
+static const true_false_string gsm_a_gm_ratc_value = {
 	"MS is not allowed to re-attempt the procedure in S1 mode",
 	"MS is allowed to re-attempt the procedure in S1 mode"
 };
@@ -5738,7 +5738,7 @@ de_sm_sapi(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offs
 /*
  * [9] 10.5.6.10 Tear down indicator
  */
-const true_false_string gsm_a_sm_tdi_value = {
+static const true_false_string gsm_a_sm_tdi_value = {
 	"Tear down requested",
 	"Tear down not requested"
 };

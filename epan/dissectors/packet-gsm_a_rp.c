@@ -185,7 +185,7 @@ static const value_string gsm_rp_cause_vals[] = {
 	{ 0, NULL }
 };
 
-value_string_ext gsm_rp_cause_vals_ext = VALUE_STRING_EXT_INIT(gsm_rp_cause_vals);
+static value_string_ext gsm_rp_cause_vals_ext = VALUE_STRING_EXT_INIT(gsm_rp_cause_vals);
 
 static const true_false_string tfs_extended_no_extension = { "Extended", "No extension"};
 

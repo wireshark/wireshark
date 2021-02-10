@@ -166,7 +166,7 @@ static const value_string fip_desc_types[] = {
     { FIP_DT_FC4F,      "FC-4 features" },
     { 0,    NULL }
 };
-value_string_ext fip_desc_types_ext = VALUE_STRING_EXT_INIT(fip_desc_types);
+static value_string_ext fip_desc_types_ext = VALUE_STRING_EXT_INIT(fip_desc_types);
 
 /*
  * flags in header fip_flags.

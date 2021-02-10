@@ -126,7 +126,7 @@ static const value_string erldp_ctlmsg_vals[] = {
 };
 
 /* Initialize the protocol and registered fields */
-int proto_erldp = -1;
+static int proto_erldp = -1;
 static int hf_erldp_length_2 = -1;
 static int hf_erldp_length_4 = -1;
 static int hf_etf_version_magic = -1;

@@ -1592,7 +1592,7 @@ dissect_fcels_lirr (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     }
 }
 
-const true_false_string tfs_srl_flag = { "Scan only specified FL Port", "Scan all loops in domain" };
+static const true_false_string tfs_srl_flag = { "Scan only specified FL Port", "Scan all loops in domain" };
 
 static void
 dissect_fcels_srl (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,

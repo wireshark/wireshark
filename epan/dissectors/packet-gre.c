@@ -92,7 +92,7 @@ static expert_field ei_gre_checksum_incorrect = EI_INIT;
 
 static dissector_table_t gre_dissector_table;
 
-const value_string gre_version[] = {
+static const value_string gre_version[] = {
     { 0, "GRE" },                /* [RFC2784] */
     { 1, "Enhanced GRE" },       /* [RFC2637] */
     { 0, NULL}

@@ -448,9 +448,9 @@ typedef struct _geonw_conv_info_t {
     wmem_tree_t  *matched_pdus;
 } geonw_conv_info_t;
 
-const gchar * get_geonw_name(const guint8 *addr);
-const gchar* geonw_name_resolution_str(const address* addr);
-int geonw_name_resolution_len(void);
+static const gchar * get_geonw_name(const guint8 *addr);
+static const gchar* geonw_name_resolution_str(const address* addr);
+static int geonw_name_resolution_len(void);
 
 static geonw_transaction_t *transaction_start(packet_info * pinfo, proto_tree * tree);
 static geonw_transaction_t *transaction_end(packet_info * pinfo, proto_tree * tree);
