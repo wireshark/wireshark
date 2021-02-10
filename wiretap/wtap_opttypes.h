@@ -140,8 +140,72 @@ typedef enum {
     WTAP_BLOCK_IF_STATISTICS,
     WTAP_BLOCK_DECRYPTION_SECRETS,
     WTAP_BLOCK_PACKET,
-    WTAP_BLOCK_END_OF_LIST
+    WTAP_BLOCK_FT_SPECIFIC_REPORT,
+    WTAP_BLOCK_FT_SPECIFIC_EVENT,
+    MAX_WTAP_BLOCK_TYPE_VALUE
 } wtap_block_type_t;
+
+/**
+ * Holds the required data from a WTAP_BLOCK_SECTION.
+ */
+typedef struct wtapng_section_mandatory_s {
+    guint64             section_length; /**< 64-bit value specifying the length in bytes of the
+                                         *     following section.
+                                         *     Section Length equal -1 (0xFFFFFFFFFFFFFFFF) means
+                                         *     that the size of the section is not specified
+                                         *   Note: if writing to a new file, this length will
+                                         *     be invalid if anything changes, such as the other
+                                         *     members of this struct, or the packets written.
+                                         */
+} wtapng_mandatory_section_t;
+
+/** struct holding the information to build an WTAP_BLOCK_IF_DESCRIPTION.
+ *  the interface_data array holds an array of wtap_block_t
+ *  representing interfacs, one per interface.
+ */
+typedef struct wtapng_iface_descriptions_s {
+    GArray *interface_data;
+} wtapng_iface_descriptions_t;
+
+/**
+ * Holds the required data from a WTAP_BLOCK_IF_DESCRIPTION.
+ */
+typedef struct wtapng_if_descr_mandatory_s {
+    int                    wtap_encap;            /**< link_type translated to wtap_encap */
+    guint64                time_units_per_second;
+    int                    tsprecision;           /**< WTAP_TSPREC_ value for this interface */
+
+    guint32                snap_len;
+
+    guint8                 num_stat_entries;
+    GArray                *interface_statistics;  /**< An array holding the interface statistics from
+                                                   *     pcapng ISB:s or equivalent(?)*/
+} wtapng_if_descr_mandatory_t;
+
+/**
+ * Holds the required data from a WTAP_BLOCK_IF_STATISTICS.
+ */
+typedef struct wtapng_if_stats_mandatory_s {
+    guint32  interface_id;
+    guint32  ts_high;
+    guint32  ts_low;
+} wtapng_if_stats_mandatory_t;
+
+/**
+ * Holds the required data from a WTAP_BLOCK_DECRYPTION_SECRETS.
+ */
+typedef struct wtapng_dsb_mandatory_s {
+    guint32                secrets_type;            /** Type of secrets stored in data (see secrets-types.h) */
+    guint32                secrets_len;             /** Length of the secrets data in bytes */
+    guint8                *secrets_data;            /** Buffer of secrets (not NUL-terminated) */
+} wtapng_dsb_mandatory_t;
+
+/**
+ * Holds the required data from a WTAP_BLOCK_FT_SPECIFIC_REPORT.
+ */
+typedef struct wtapng_ft_specific_mandatory_s {
+    guint     record_type;      /* the type of record this is - file type-specific value */
+} wtapng_ft_specific_mandatory_t;
 
 /* Currently supported option types */
 typedef enum {
@@ -251,6 +315,13 @@ WS_DLL_PUBLIC void wtap_block_free(wtap_block_t block);
  * @param[in] block_array Array of blocks to be freed
  */
 WS_DLL_PUBLIC void wtap_block_array_free(GArray* block_array);
+
+/** Provide type of a block
+ *
+ * @param[in] block Block from which to retrieve mandatory data
+ * @return Block type.
+ */
+WS_DLL_PUBLIC wtap_block_type_t wtap_block_get_type(wtap_block_t block);
 
 /** Provide type of a block
  *
@@ -570,9 +641,6 @@ WS_DLL_PUBLIC wtap_block_t wtap_block_make_copy(wtap_block_t block);
 
 typedef void (*wtap_block_foreach_func)(wtap_block_t block, guint option_id, wtap_opttype_e option_type, wtap_optval_t *option, void *user_data);
 WS_DLL_PUBLIC void wtap_block_foreach_option(wtap_block_t block, wtap_block_foreach_func func, void* user_data);
-
-WS_DLL_PUBLIC int wtap_opttype_register_custom_block_type(const char* name, const char* description, wtap_block_create_func create,
-                                                wtap_mand_free_func free_mand, wtap_mand_copy_func copy_mand);
 
 /** Cleanup the internal structures
  */

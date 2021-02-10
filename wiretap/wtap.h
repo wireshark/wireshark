@@ -1466,61 +1466,6 @@ typedef struct {
 #define WTAP_HAS_INT_QUEUE     0x00000080  /**< interface queue */
 #define WTAP_HAS_VERDICT       0x00000100  /**< packet verdict */
 
-/**
- * Holds the required data from pcapng:s Section Header block(SHB).
- */
-typedef struct wtapng_section_mandatory_s {
-    guint64             section_length; /**< 64-bit value specifying the length in bytes of the
-                                         *     following section.
-                                         *     Section Length equal -1 (0xFFFFFFFFFFFFFFFF) means
-                                         *     that the size of the section is not specified
-                                         *   Note: if writing to a new file, this length will
-                                         *     be invalid if anything changes, such as the other
-                                         *     members of this struct, or the packets written.
-                                         */
-} wtapng_mandatory_section_t;
-
-/** struct holding the information to build IDB:s
- *  the interface_data array holds an array of wtap_block_t
- *  represending IDB of one per interface.
- */
-typedef struct wtapng_iface_descriptions_s {
-    GArray *interface_data;
-} wtapng_iface_descriptions_t;
-
-/**
- * Interface description data
- */
-typedef struct wtapng_if_descr_mandatory_s {
-    int                    wtap_encap;            /**< link_type translated to wtap_encap */
-    guint64                time_units_per_second;
-    int                    tsprecision;           /**< WTAP_TSPREC_ value for this interface */
-
-    guint32                snap_len;
-
-    guint8                 num_stat_entries;
-    GArray                *interface_statistics;  /**< An array holding the interface statistics from
-                                                   *     pcapng ISB:s or equivalent(?)*/
-} wtapng_if_descr_mandatory_t;
-
-/**
- * Decryption Secrets Block data.
- */
-typedef struct wtapng_dsb_mandatory_s {
-    guint32                secrets_type;            /** Type of secrets stored in data (see secrets-types.h) */
-    guint32                secrets_len;             /** Length of the secrets data in bytes */
-    guint8                *secrets_data;            /** Buffer of secrets (not NUL-terminated) */
-} wtapng_dsb_mandatory_t;
-
-/**
- * Holds the required data for pcapng Interface Statistics Block (ISB).
- */
-typedef struct wtapng_if_stats_mandatory_s {
-    guint32  interface_id;
-    guint32  ts_high;
-    guint32  ts_low;
-} wtapng_if_stats_mandatory_t;
-
 #ifndef MAXNAMELEN
 #define MAXNAMELEN  	64	/* max name length (hostname and port name) */
 #endif

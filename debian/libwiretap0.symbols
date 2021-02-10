@@ -125,7 +125,6 @@ libwiretap.so.0 libwiretap0 #MINVER#
  wtap_init@Base 2.3.0
  wtap_name_to_encap@Base 2.9.1
  wtap_open_offline@Base 1.9.1
- wtap_opttype_register_custom_block_type@Base 2.1.2
  wtap_opttypes_initialize@Base 2.1.2
  wtap_opttypes_cleanup@Base 2.3.0
  wtap_pcap_encap_to_wtap_encap@Base 1.9.1
