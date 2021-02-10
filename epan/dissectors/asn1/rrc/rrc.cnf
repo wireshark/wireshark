@@ -184,8 +184,10 @@ HandoverFromUTRANCommand-GSM-r6-IEs/gsm-message/single-GSM-Message single-GSM-Me
 
 %(DEFAULT_BODY)s
 
-    if (nas_message_tvb)
-        call_dissector(gsm_a_dtap_handle,nas_message_tvb,%(ACTX)s->pinfo, tree);
+    if (nas_message_tvb && gsm_a_dtap_handle) {
+      proto_tree *nas_tree = rrc_nas_in_root_tree ? proto_tree_get_root(tree) : tree;
+      call_dissector(gsm_a_dtap_handle,nas_message_tvb,%(ACTX)s->pinfo, nas_tree);
+    }
 
 #.FN_BODY InterRATHandoverInfo/ue-CapabilityContainer/present VAL_PTR = &ue_radio_access_cap_info_tvb
   tvbuff_t *ue_radio_access_cap_info_tvb=NULL;
@@ -693,7 +695,7 @@ HandoverFromUTRANCommand-GSM-r6-IEs/gsm-message/single-GSM-Message single-GSM-Me
 
 %(DEFAULT_BODY)s
 
-  if (gsm_messagelist_tvb)
+  if (gsm_messagelist_tvb && gsm_a_dtap_handle)
     call_dissector(gsm_a_dtap_handle,gsm_messagelist_tvb,actx->pinfo, tree);
 
 #.FN_BODY HandoverFromUTRANCommand-GSM-r3-IEs/gsm-message/single-GSM-Message single-GSM-Message-r3
@@ -722,7 +724,7 @@ HandoverFromUTRANCommand-GSM-r6-IEs/gsm-message/single-GSM-Message single-GSM-Me
 
   gsm_message_tvb = tvb_new_octet_aligned(tvb, offset, 8*whole_octets_remaining);
 
-  if (gsm_message_tvb) {
+  if (gsm_message_tvb && gsm_a_dtap_handle) {
     add_new_data_source(actx->pinfo,gsm_message_tvb,"GSM Message(aligned)");
     call_dissector(gsm_a_dtap_handle,gsm_message_tvb,actx->pinfo, tree);
   }

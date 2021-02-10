@@ -26,6 +26,7 @@
 #include <epan/conversation.h>
 #include <epan/expert.h>
 #include <epan/proto_data.h>
+#include <epan/prefs.h>
 
 #include "packet-ber.h"
 #include "packet-per.h"
@@ -55,6 +56,7 @@ GTree * hsdsch_muxed_flows = NULL;
 GTree * rrc_ciph_info_tree = NULL;
 wmem_tree_t* rrc_global_urnti_crnti_map = NULL;
 static int msg_type _U_;
+static gboolean rrc_nas_in_root_tree;
 
 enum rrc_sib_segment_type {
   RRC_SIB_SEG_NO_SEGMENT = 0,
@@ -608,6 +610,7 @@ void proto_register_rrc(void) {
   };
 
   expert_module_t* expert_rrc;
+  module_t *rrc_module;
 
   /* Register protocol */
   proto_rrc = proto_register_protocol(PNAME, PSNAME, PFNAME);
@@ -621,11 +624,15 @@ void proto_register_rrc(void) {
 
 #include "packet-rrc-dis-reg.c"
 
+  register_init_routine(rrc_init);
+  register_cleanup_routine(rrc_cleanup);
 
-
-
-    register_init_routine(rrc_init);
-    register_cleanup_routine(rrc_cleanup);
+  /* Register configuration preferences */
+  rrc_module = prefs_register_protocol(proto_rrc, NULL);
+  prefs_register_bool_preference(rrc_module, "nas_in_root_tree",
+                                 "Show NAS PDU in root packet details",
+                                 "Whether the NAS PDU should be shown in the root packet details tree",
+                                 &rrc_nas_in_root_tree);
 }
 
 
