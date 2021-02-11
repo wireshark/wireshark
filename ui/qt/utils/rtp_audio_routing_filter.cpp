@@ -74,7 +74,7 @@ qint64 AudioRoutingFilter::readData(char *data, qint64 maxSize)
 
         // Expand it
         for(qint64 i = (readBytes / SAMPLE_BYTES) - 1; i > 0; i--) {
-            int j = SAMPLE_BYTES * i;
+            qint64 j = SAMPLE_BYTES * i;
             if (audio_routing_.getChannel() == channel_stereo_left) {
                 memcpy(&data[j*2], &data[j], SAMPLE_BYTES);
                 memcpy(&data[j*2+SAMPLE_BYTES], &silence, SAMPLE_BYTES);
