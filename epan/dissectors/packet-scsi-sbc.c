@@ -2231,7 +2231,7 @@ proto_register_scsi_sbc(void)
           {"TEST", "scsi_sbc.sanitize.test", FT_UINT8, BASE_HEX, NULL,
            0x60, NULL, HFILL}},
         { &hf_scsi_sbc_sanitize_owcount,
-          {"Overwrite Count", "scsi_sbc.sanitize.overwrite_count", FT_UINT8, BASE_HEX, NULL,
+          {"Overwrite Count", "scsi_sbc.sanitize.overwrite_count", FT_UINT8, BASE_DEC_HEX, NULL,
            0x1f, NULL, HFILL}},
         { &hf_scsi_sbc_sanitize_pattern_length,
           {"Initialization Pattern Length", "scsi_sbc.sanitize.pattern_length", FT_UINT16, BASE_DEC, NULL,

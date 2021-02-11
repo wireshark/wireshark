@@ -1958,7 +1958,7 @@ proto_register_scsi_mmc(void)
           { "Version", "scsi_mmc.book.version", FT_UINT8, BASE_HEX,
             NULL, 0x0f, NULL, HFILL}},
         { &hf_scsi_mmc_disc_size_size,
-          { "Size", "scsi_mmc.disc.size", FT_UINT8, BASE_HEX,
+          { "Size", "scsi_mmc.disc.size", FT_UINT8, BASE_DEC_HEX,
             VALS(scsi_disc_size), 0xf0, NULL, HFILL}},
         { &hf_scsi_mmc_disc_size_rate,
           { "Rate", "scsi_mmc.disc.rate", FT_UINT8, BASE_HEX,
