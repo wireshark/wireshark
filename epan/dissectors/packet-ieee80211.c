@@ -34,10 +34,11 @@
  * Reference :
  * The 802.11 standard is "free", 6 month after the publication.
  *
- * IEEE Std 802.11-2012: Revision of IEEE Std 802.11-2007
+ * IEEE Std 802.11-2016: Revision of IEEE Std 802.11-2012
+ * include 5 amendments (802.11ae,aa,ad,ac,af) 802.11-2012
  * include 10 amendments (802.11k,r,y,w,n,p,z,v,u,s) 802.11-2007
  * include 8 amendments (802.11a,b,d,e,g,h,i,j) 802.11-1999
- * http://standards.ieee.org/getieee802/download/802.11-2012.pdf
+ * https://ieeexplore.ieee.org/document/7786995
  *
  * WAPI (IE 68)
  * http://isotc.iso.org/livelink/livelink/fetch/-8913189/8913214/8913250/8913253/JTC001-N-9880.pdf?nodeid=8500308&vernum=-2
