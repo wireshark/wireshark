@@ -6,18 +6,118 @@
 
 [[ChSetupUNIX]]
 
-=== UNIX: Installation
+=== UNIX: Installation and Build Instructions
 
-All the tools required are usually installed on a UNIX developer machine.
+[[ChSetupUNIXBuildEnvironmentSetup]]
 
-If a tool is not already installed on your system, you can usually install it
-using the package in your distribution: aptitude, yum, Synaptic, etc.
+==== Build environment setup
+
+The following must be installed in order to build Wireshark:
+
+* a C compiler and a C++ compiler;
+* the Flex lexical analyzer;
+* either Bison or Berkeley YACC;
+* Perl;
+* Python 3;
+* CMake;
+* several required libraries.
+
+Either make or Ninja can be used to build Wireshark; at least one of
+those must be installed.
+
+To build the Developer's Guide and the User's Guide, Asciidoctor,
+Xsltproc, and DocBook must be installed.
+
+Some features of Wireshark require additional libraries to be installed.
+
+For Debian, and for Linux distributions based on Debian, such as Ubuntu,
+the script `tools/debian-setup.sh` will install the packages and
+libraries required to build Wireshark.  It supports the command-line
+options:
+
+* `--install-optional` to install additional tools and to install
+libraries required for all Wireshark features;
+* `--install-deb-deps` to install packages required to build a .deb file
+for Wireshark;
+* `--install-test-deps` to install packages required to run all tests.
+
+For RPM-based Linux distributions such as Red Hat, Centos, Fedora, and
+openSUSE, the script `tools/rpm-setup.sh` will install the packages and
+libraries required to build Wireshark.  It supports the
+`--install-optional` command-line option to install additional tools and
+to install libraries required for all Wireshark features.
+
+For Alpine Linux, the script `tools/alpine-setup.sh` will install the
+packages and libraries required to build Wireshark.  It supports the
+`--install-optional` command-line option to install additional tools and
+to install libraries required for all Wireshark features.
+
+For FreeBSD, NetBSD, OpenBSD, and DragonFly BSD, the script
+`tools/bsd-setup.sh` will install the packages and libraries required to
+build Wireshark.  It supports the `--install-optional` command-line
+option to install additional tools and to install libraries required for
+all Wireshark features.
+
+For macOS, you must first install Xcode.  After installing Xcode, the
+script `tools/macos-setup.sh` will install the rest of the tools and
+libraries required to build Wireshark, as well as the additional tools
+required to build the documentation and the libraries required for all
+Wireshark features.  If you're using Homebrew, the script
+`tools/macos-setup-brew.sh` will intall the same tools and libraries
+from Homebrew.
 
 If an install package is not available or you have a
 reason not to use it (maybe because it’s simply too old), you
 can install that tool from source code. The following sections
 will provide you with the webpage addresses where you can get
 these sources.
+
+[[ChSetupUNIXBuild]]
+
+==== Building
+
+CMake builds are best done in a separate build directory, such as a
+`build` subdirectory of the top-level source directory.  If that
+directory is a subdirectory of the top-level source directory, to
+generate the build files, change to the build directory and enter the
+following command:
+
+----
+$ cmake ..
+----
+
+to use make as the build tool or
+
+----
+$ cmake -G Ninja ..
+----
+
+to use Ninja as the build tool.  If you create the build tool in the
+same directory that contains the top-level Wireshark source directory,
+to generate the build files, change to the build directory and enter the
+following command:
+
+----
+$ cmake ../{source directory}
+----
+
+to use make as the build tool or
+
+----
+$ cmake -G Ninja ../{source directory}
+----
+
+to use Ninja as the build tool.  `{source directory}` is the name of the
+top-level Wireshark source directory.
+
+You can then run make or Ninja to build Wireshark.
+
+==== Optional: Create User’s and Developer’s Guide
+
+To build the Wireshark User's Guide and the Wireshark Developer's Guide
+build the `all_guides` target, e.g.  `make all_guides` or `ninja
+all_guides`.  Detailed information to build these guides can be found in
+the file _docbook\README.adoc_ in the Wireshark sources. 
 
 [[ChSetupWin32]]
 
@@ -452,6 +552,8 @@ on using the <<ChToolsDebugger, Debugger Tools>>.
 
 ==== Optional: Create User’s and Developer’s Guide
 
+To build the Wireshark User's Guide and the Wireshark Developer's Guide
+build the `all_guides` target, e.g.  `msbuild all_guides.vcxproj`. 
 Detailed information to build these guides can be found in the file
 _docbook\README.adoc_ in the Wireshark sources.
 
