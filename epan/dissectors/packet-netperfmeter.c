@@ -414,40 +414,6 @@ dissect_npmp(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree, void *
   proto_item *npmp_item;
   proto_tree *npmp_tree;
 
-  const guint length = tvb_reported_length(message_tvb);
-  if (length < 4)
-    return(0);
-  if( (pinfo->ptype == PT_TCP) ||
-      (pinfo->ptype == PT_UDP) ||
-      (pinfo->ptype == PT_DCCP) ) {
-     /* For TCP, UDP or DCCP:
-        Type must either be NETPERFMETER_DATA or NETPERFMETER_IDENTIFY_FLOW */
-     const guint8 type = tvb_get_guint8(message_tvb, offset_message_type);
-     switch(type) {
-       case NETPERFMETER_DATA:
-         if (length < offset_data_payload + 8)
-           return(0);
-         /* Identify NetPerfMeter flow by payload pattern */
-         for(int i = 0; i < 8; i++) {
-           guint8 d = tvb_get_guint8(message_tvb, offset_data_payload + i);
-           if(d != 30 + i)
-             return(0);
-         }
-         break;
-       case NETPERFMETER_IDENTIFY_FLOW:
-         if (length < offset_identifyflow_streamid + length_identifyflow_streamid)
-           return(0);
-         if (tvb_get_ntoh64(message_tvb, offset_identifyflow_magicnumber) != NETPERFMETER_IDENTIFY_FLOW_MAGIC_NUMBER) {
-           /* Identify NetPerfMeter flow by NETPERFMETER_IDENTIFY_FLOW_MAGIC_NUMBER */
-           return(0);
-         }
-         break;
-       default:
-         /* Not a NetPerfMeter packet */
-         break;
-     }
-  }
-
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "NetPerfMeterProtocol");
 
   /* In the interest of speed, if "tree" is NULL, don't do any work not
@@ -461,7 +427,48 @@ dissect_npmp(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree, void *
   };
   /* dissect the message */
   dissect_npmp_message(message_tvb, pinfo, npmp_tree);
-  return(TRUE);
+  return TRUE;
+}
+
+
+static int
+heur_dissect_npmp(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+  const guint length = tvb_captured_length(message_tvb);
+  if (length < 4)
+    return FALSE;
+
+  if((pinfo->ptype == PT_TCP) || (pinfo->ptype == PT_UDP) || (pinfo->ptype == PT_DCCP)) {
+    /* For TCP, UDP or DCCP:
+       Type must either be NETPERFMETER_DATA or NETPERFMETER_IDENTIFY_FLOW */
+    const guint8 type = tvb_get_guint8(message_tvb, offset_message_type);
+    switch(type) {
+      case NETPERFMETER_DATA:
+        if (length < offset_data_payload + 8)
+          return FALSE;
+        /* Identify NetPerfMeter flow by payload pattern */
+        for(int i = 0; i < 8; i++) {
+          guint8 d = tvb_get_guint8(message_tvb, offset_data_payload + i);
+          if(d != 30 + i)
+            return FALSE;
+        }
+        break;
+      case NETPERFMETER_IDENTIFY_FLOW:
+        if (length < offset_identifyflow_streamid + length_identifyflow_streamid)
+          return FALSE;
+        if (tvb_get_ntoh64(message_tvb, offset_identifyflow_magicnumber) != NETPERFMETER_IDENTIFY_FLOW_MAGIC_NUMBER) {
+          /* Identify NetPerfMeter flow by NETPERFMETER_IDENTIFY_FLOW_MAGIC_NUMBER */
+          return FALSE;
+        }
+        break;
+      default:
+        /* Not a NetPerfMeter packet */
+          return FALSE;
+        break;
+    }
+  }
+
+  return dissect_npmp(message_tvb, pinfo, tree, data);
 }
 
 
@@ -476,7 +483,7 @@ proto_register_npmp(void)
   };
 
   /* Register the protocol name and description */
-  proto_npmp = proto_register_protocol("NetPerfMeter Protocol", "NetPerfMeterProtocol",  "npmp");
+  proto_npmp = proto_register_protocol("NetPerfMeter Protocol", "NetPerfMeterProtocol", "npmp");
 
   /* Required function calls to register the header fields and subtrees used */
   proto_register_field_array(proto_npmp, hf, array_length(hf));
@@ -496,11 +503,10 @@ proto_reg_handoff_npmp(void)
   dissector_add_uint("sctp.ppi", NPMP_CTRL_PAYLOAD_PROTOCOL_ID,    npmp_handle);
   dissector_add_uint("sctp.ppi", NPMP_DATA_PAYLOAD_PROTOCOL_ID,    npmp_handle);
 
-  /* NetPerfMeterProtocol over TCP, UDP and DCCP is detected by
-     check of payload in dissect_npmp() */
-  dissector_add_uint_range_with_preference("tcp.port",  "1024-65535", npmp_handle);
-  dissector_add_uint_range_with_preference("dccp.port", "1024-65535", npmp_handle);
-  dissector_add_uint_range_with_preference("udp.port",  "1024-65535", npmp_handle);
+  /* Heuristic dissector for TCP, UDP and DCCP */
+  heur_dissector_add("tcp",  heur_dissect_npmp, "NetPerfMeter Protocol over TCP",  "npmp_tcp",  proto_npmp, HEURISTIC_ENABLE);
+  heur_dissector_add("udp",  heur_dissect_npmp, "NetPerfMeter Protocol over UDP",  "npmp_udp",  proto_npmp, HEURISTIC_ENABLE);
+  heur_dissector_add("dccp", heur_dissect_npmp, "NetPerfMeter Protocol over DCCP", "npmp_dccp", proto_npmp, HEURISTIC_ENABLE);
 }
 
 /*
