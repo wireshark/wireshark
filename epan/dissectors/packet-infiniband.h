@@ -113,15 +113,14 @@ typedef struct {
  * Private data passed from the infiniband dissector to payload subdissectors.
  */
 struct infinibandinfo {
-    proto_tree* payload_tree;
     guint8 opCode;              /* OpCode from BTH header. */
     guint8 pad_count;           /* PadCount from BTH header. */
+    gboolean dctConnect;        /* indicator for DCT connect/disconnect */
     guint16 cm_attribute_id;    /* attribute id for CM messages */
+    proto_tree* payload_tree;
     guint32 reth_remote_key;    /* Remote Key from RETH header */
-    guint64 reth_remote_address;/* Remote address from RETH header */
     guint32 reth_dma_length;    /* DMA Length from RETH header */
     guint32 packet_seq_num;     /* Packet sequence number */
-    gboolean dctConnect;        /* indicator for DCT connect/disconnect */
 };
 
 #endif

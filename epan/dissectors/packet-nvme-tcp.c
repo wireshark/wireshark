@@ -414,7 +414,7 @@ dissect_nvme_fabric_generic_cmd(proto_tree *cmd_tree,
 }
 
 static void
-dissect_nvme_fabric_connect_cmd(struct nvme_tcp_q_ctx *queue, packet_info *pinfo,
+dissect_nvme_fabric_connect_cmd(struct nvme_tcp_q_ctx *queue,
                                 proto_tree *cmd_tree,
                                 tvbuff_t *cmd_tvb,
                                 int offset)
@@ -422,7 +422,7 @@ dissect_nvme_fabric_connect_cmd(struct nvme_tcp_q_ctx *queue, packet_info *pinfo
     proto_tree_add_item(cmd_tree, hf_nvme_fabrics_cmd_connect_rsvd2, cmd_tvb,
             offset + 5, 19, ENC_NA);
     dissect_nvme_cmd_sgl(cmd_tvb, cmd_tree, hf_nvme_fabrics_cmd_connect_sgl1,
-            NULL, NULL, PINFO_FD_VISITED(pinfo));
+            NULL);
     proto_tree_add_item(cmd_tree, hf_nvme_fabrics_cmd_connect_recfmt, cmd_tvb,
             offset + 40, 2, ENC_LITTLE_ENDIAN);
 
@@ -508,7 +508,7 @@ dissect_nvme_fabric_prop_set_cmd(proto_tree *cmd_tree,
 }
 
 static void
-dissect_nvme_fabric_cmd(tvbuff_t *nvme_tvb, packet_info *pinfo,
+dissect_nvme_fabric_cmd(tvbuff_t *nvme_tvb,
                         proto_tree *nvme_tree,
                         struct nvme_tcp_q_ctx *queue,
                         struct nvme_tcp_cmd_ctx *cmd_ctx,
@@ -530,7 +530,7 @@ dissect_nvme_fabric_cmd(tvbuff_t *nvme_tvb, packet_info *pinfo,
             offset, 1, ENC_NA);
     proto_item_append_text(opc_item, "%s", " Fabric Cmd");
 
-    nvme_publish_to_cqe_link(cmd_tree, nvme_tvb, hf_nvme_fabrics_cqe_pkt,
+    nvme_publish_cmd_to_cqe_link(cmd_tree, nvme_tvb, hf_nvme_fabrics_cqe_pkt,
             &cmd_ctx->n_cmd_ctx);
 
     proto_tree_add_item(cmd_tree, hf_nvme_fabrics_cmd_rsvd1, nvme_tvb,
@@ -544,7 +544,7 @@ dissect_nvme_fabric_cmd(tvbuff_t *nvme_tvb, packet_info *pinfo,
 
     switch (fctype) {
     case nvme_fabrics_type_connect:
-        dissect_nvme_fabric_connect_cmd(queue, pinfo, cmd_tree, nvme_tvb, offset);
+        dissect_nvme_fabric_connect_cmd(queue, cmd_tree, nvme_tvb, offset);
         break;
     case nvme_fabrics_type_property_get:
         dissect_nvme_fabric_prop_get_cmd(cmd_tree, nvme_tvb, offset);
@@ -615,7 +615,7 @@ dissect_nvme_tcp_command(tvbuff_t *tvb,
 
         cmd_ctx->n_cmd_ctx.fabric = TRUE;
         fctype = tvb_get_guint8(tvb, offset + 4);
-        dissect_nvme_fabric_cmd(tvb, pinfo, nvme_tcp_tree, queue, cmd_ctx, offset);
+        dissect_nvme_fabric_cmd(tvb, nvme_tcp_tree, queue, cmd_ctx, offset);
         cmd_string = val_to_str_const(fctype, nvme_fabrics_cmd_type_vals,
                 "Unknown FcType");
         col_append_sep_fstr(pinfo->cinfo, COL_INFO, " | ", "Fabrics %s Request",
@@ -703,7 +703,7 @@ dissect_nvme_fabric_cqe(tvbuff_t *nvme_tvb,
 
     cqe_tree = proto_item_add_subtree(ti, ett_nvme_tcp);
 
-    nvme_publish_to_cmd_link(cqe_tree, nvme_tvb, hf_nvme_fabrics_cmd_pkt,
+    nvme_publish_cqe_to_cmd_link(cqe_tree, nvme_tvb, hf_nvme_fabrics_cmd_pkt,
             &cmd_ctx->n_cmd_ctx);
     nvme_publish_cmd_latency(cqe_tree, &cmd_ctx->n_cmd_ctx,
             hf_nvme_fabrics_cmd_latency);
@@ -788,10 +788,10 @@ dissect_nvme_tcp_c2h_data(tvbuff_t *tvb,
         /* In order to later lookup for command context lets add this command
          * to data responses */
         cmd_ctx->n_cmd_ctx.data_resp_pkt_num = pinfo->num;
-        nvme_add_data_response(&queue->n_q_ctx, &cmd_ctx->n_cmd_ctx, cmd_id, pinfo->num);
+        nvme_add_data_response(&queue->n_q_ctx, &cmd_ctx->n_cmd_ctx, cmd_id);
     } else {
-        cmd_ctx = (struct nvme_tcp_cmd_ctx*) nvme_lookup_data_response(&queue->n_q_ctx,
-                                cmd_id, pinfo->num);
+        cmd_ctx = (struct nvme_tcp_cmd_ctx*) nvme_lookup_data_response(pinfo,
+                &queue->n_q_ctx, cmd_id);
         if (!cmd_ctx) {
             proto_tree_add_item(root_tree, hf_nvme_tcp_unknown_data, tvb, offset + 16,
                                 data_length, ENC_NA);
@@ -799,7 +799,7 @@ dissect_nvme_tcp_c2h_data(tvbuff_t *tvb,
         }
     }
 
-    nvme_publish_to_cmd_link(nvme_tcp_tree, tvb,
+    nvme_publish_data_pdu_to_cmd_link(nvme_tcp_tree, tvb,
             hf_nvme_tcp_cmd_pkt, &cmd_ctx->n_cmd_ctx);
 
     if (cmd_ctx->n_cmd_ctx.fabric) {
@@ -896,7 +896,7 @@ dissect_nvme_tcp_h2c_data(tvbuff_t *tvb,
         }
     }
 
-    nvme_publish_to_cmd_link(nvme_tcp_tree, tvb,
+    nvme_publish_data_pdu_to_cmd_link(nvme_tcp_tree, tvb,
                 hf_nvme_tcp_cmd_pkt, &cmd_ctx->n_cmd_ctx);
 
     /* fabrics commands should not have h2cdata*/
