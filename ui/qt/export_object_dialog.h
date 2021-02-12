@@ -55,6 +55,7 @@ private slots:
     void currentHasChanged(QModelIndex current);
 
 private:
+    bool mimeTypeIsPreviewable(QString mime_type);
     void saveCurrentEntry(QString *tempFile = Q_NULLPTR);
     void saveAllEntries();
 
