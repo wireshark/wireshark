@@ -5842,7 +5842,7 @@ dissect_enc(tvbuff_t *tvb,
     /* Check if encr/auth specs are set properly (if for some case not, wireshark would crash) */
     if (!key_info->encr_spec || !key_info->auth_spec) {
       REPORT_DISSECTOR_BUG("IKEv2: decryption/integrity specs not set-up properly: encr_spec: %p, auth_spec: %p",
-        (void *)key_info->auth_spec, (void*)key_info->auth_spec);
+        (void *)key_info->encr_spec, (void*)key_info->auth_spec);
     }
 
     iv_len = key_info->encr_spec->iv_len;
