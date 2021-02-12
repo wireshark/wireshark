@@ -863,7 +863,16 @@ WSLUA_FUNCTION wslua_reload_lua_plugins(lua_State* L) { /* Reload all Lua plugin
 }
 
 
-WSLUA_FUNCTION wslua_browser_open_url(lua_State* L) { /* Open an url in a browser. */
+WSLUA_FUNCTION wslua_browser_open_url(lua_State* L) { /*
+    Opens an URL in a web browser. Requires a GUI.
+
+    [WARNING]
+    ====
+    Do not pass an untrusted URL to this function.
+
+    It will be passed to the system's URL handler, which might execute malicious code, switch on your Bluetooth-connected foghorn, or any of a number of unexpected or harmful things.
+    ====
+    */
 #define WSLUA_ARG_browser_open_url_URL 1 /* The url. */
     const char* url = luaL_checkstring(L,WSLUA_ARG_browser_open_url_URL);
 
@@ -877,7 +886,18 @@ WSLUA_FUNCTION wslua_browser_open_url(lua_State* L) { /* Open an url in a browse
     return 0;
 }
 
-WSLUA_FUNCTION wslua_browser_open_data_file(lua_State* L) { /* Open a file in a browser. */
+WSLUA_FUNCTION wslua_browser_open_data_file(lua_State* L) { /*
+    Open a file located in the data directory (specified in the Wireshark preferences) in the web browser.
+    If the file does not exist, the function silently ignores the request.
+    Requires a GUI.
+
+    [WARNING]
+    ====
+    Do not pass an untrusted URL to this function.
+
+    It will be passed to the system's URL handler, which might execute malicious code, switch on your Bluetooth-connected foghorn, or any of a number of unexpected or harmful things.
+    ====
+    */
 #define WSLUA_ARG_browser_open_data_file_FILENAME 1 /* The file name. */
     const char* file = luaL_checkstring(L,WSLUA_ARG_browser_open_data_file_FILENAME);
 
