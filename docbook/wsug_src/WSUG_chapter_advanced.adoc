@@ -503,7 +503,7 @@ Set when all of the following are true:
 * This is not a keepalive packet.
 * In the forward direction, the segment length is greater than zero or the SYN or FIN is set.
 * The next expected sequence number is greater than the current sequence number.
-* The next expected sequence number and the next sequence number differ.
+* The next expected sequence number is greater than or equal to the next sequence number.
 * The last segment arrived within the Out-Of-Order RTT threshold.
   The threshold is either the value shown in the “iRTT” (tcp.analysis.initial_rtt) field under “SEQ/ACK analysis” if it is present, or the default value of 3ms if it is not.
 
