@@ -366,6 +366,31 @@ class case_dissect_tcp(subprocesstest.SubprocessTestCase):
 
 @fixtures.mark_usefixtures('test_env')
 @fixtures.uses_fixtures
+class case_dissect_git(subprocesstest.SubprocessTestCase):
+    def test_git_prot(self, cmd_tshark, capture_file, features):
+        '''
+        Check for Git protocol version 2, flush and delimiter packets.
+        Ensure there are no malformed packets.
+        '''
+        proc = self.assertRun((cmd_tshark,
+                '-r', capture_file('gitOverTCP.pcap'),
+                '-Ygit', '-Tfields', '-egit.version', '-egit.packet_type',
+                '-zexpert', '-e_ws.expert',
+            ))
+        # `epan/dissectors/packet-git.c` parses the Git Protocol version
+        # from ASCII '1' or '2' to integers 49 or 50 in grep output.
+        # 0x0000 are flush packets.
+        # 0x0001 are delimiter packets.
+        # Pre-existing git Malformed Packets in this pcap were addressed
+        # with the parsing of the delimiter packets. This test ensures
+        # pcap gitOverTCP's delim packets are parsed and that there are no
+        # malformed packets with "Expert Info/Errors" in the same pcap.
+        # Additional test cases for other scenarios, i.e actually malformed
+        # git packets, might be required.
+        self.assertEqual(proc.stdout_str, '50\t\t\n\t0\t\n\t\t\n\t1,0\t\n')
+
+@fixtures.mark_usefixtures('test_env')
+@fixtures.uses_fixtures
 class case_dissect_tls(subprocesstest.SubprocessTestCase):
     def check_tls_handshake_reassembly(self, cmd_tshark, capture_file,
                                        extraArgs=[]):

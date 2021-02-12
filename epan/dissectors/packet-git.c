@@ -9,6 +9,9 @@
  * Copied from packet-pop.c
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
+ *
+ * Current testing suite 'case_dissect_git' can be found at
+ * test/suite_dissection.py
  */
 
 #include "config.h"
