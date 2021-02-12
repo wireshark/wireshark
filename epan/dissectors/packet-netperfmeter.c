@@ -214,7 +214,7 @@ static hf_register_info hf[] = {
    { &hf_data_frameid,               { "Frame ID",              "npmp.data_frameid",               FT_UINT32,  BASE_DEC,  NULL,                      0x0, NULL, HFILL } },
    { &hf_data_packetseqnumber,       { "Packet Seq Number",     "npmp.data_packetseqnumber",       FT_UINT64,  BASE_DEC,  NULL,                      0x0, NULL, HFILL } },
    { &hf_data_byteseqnumber,         { "Byte Seq Number",       "npmp.data_byteseqnumber",         FT_UINT64,  BASE_DEC,  NULL,                      0x0, NULL, HFILL } },
-   { &hf_data_timestamp,             { "Time Stamp",            "npmp.data_timestamp",             FT_UINT64,  BASE_DEC,  NULL,                      0x0, NULL, HFILL } },
+   { &hf_data_timestamp,             { "Time Stamp",            "npmp.data_timestamp",             FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL,        0x0, NULL, HFILL } },
    { &hf_data_payload,               { "Payload",               "npmp.data_payload",               FT_BYTES,   BASE_NONE, NULL,                      0x0, NULL, HFILL } },
 
 #if 0
@@ -328,6 +328,8 @@ static void
 dissect_npmp_data_message(tvbuff_t *message_tvb, proto_tree *message_tree)
 {
   const guint16 message_length = tvb_get_ntohs(message_tvb, offset_message_length);
+  u_int64_t     timestamp;
+  nstime_t      t;
 
   ADD_FIELD_UINT(message_tree, data_flowid);
   ADD_FIELD_UINT(message_tree, data_measurementid);
@@ -336,7 +338,13 @@ dissect_npmp_data_message(tvbuff_t *message_tvb, proto_tree *message_tree)
   ADD_FIELD_UINT(message_tree, data_frameid);
   ADD_FIELD_UINT(message_tree, data_packetseqnumber);
   ADD_FIELD_UINT(message_tree, data_byteseqnumber);
-  ADD_FIELD_UINT(message_tree, data_timestamp);
+
+  timestamp = tvb_get_ntoh64(message_tvb, offset_data_timestamp);
+  t.secs  = (time_t)(timestamp / 1000000);
+  t.nsecs = (int)((timestamp - 1000000 * t.secs) * 1000);
+
+  proto_tree_add_time(message_tree, hf_data_timestamp, message_tvb, offset_data_timestamp, length_data_timestamp, &t);
+
   if (message_length > offset_data_payload) {
     proto_tree_add_item(message_tree, hf_data_payload, message_tvb, offset_data_payload, message_length - offset_data_payload, ENC_NA);
   }
