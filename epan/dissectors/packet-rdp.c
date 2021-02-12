@@ -101,6 +101,7 @@ static int hf_rdp_negRsp_flags = -1;
 static int hf_rdp_negRsp_flag_extended_client_data_supported = -1;
 static int hf_rdp_negRsp_flag_dynvc_gfx_protocol_supported = -1;
 static int hf_rdp_negRsp_flag_restricted_admin_mode_supported = -1;
+static int hf_rdp_negRsp_flag_restricted_authentication_mode_supported = -1;
 static int hf_rdp_selectedProtocol = -1;
 static int hf_rdp_selectedProtocol_flag_ssl = -1;
 static int hf_rdp_selectedProtocol_flag_hybrid = -1;
@@ -2211,6 +2212,7 @@ dissect_rdpNegRsp(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tre
     &hf_rdp_negRsp_flag_extended_client_data_supported,
     &hf_rdp_negRsp_flag_dynvc_gfx_protocol_supported,
     &hf_rdp_negRsp_flag_restricted_admin_mode_supported,
+    &hf_rdp_negRsp_flag_restricted_authentication_mode_supported,
     NULL
   };
   static int * const selectedProtocol_bits[] = {
@@ -2383,6 +2385,10 @@ proto_register_rdp(void) {
     { &hf_rdp_negRsp_flag_restricted_admin_mode_supported,
       { "Restricted admin mode supported", "rdp.negRsp.flags.restricted_admin_mode_supported",
         FT_BOOLEAN, 8, NULL, 0x08,
+	NULL, HFILL }},
+    { &hf_rdp_negRsp_flag_restricted_authentication_mode_supported,
+      { "Restricted authentication mode supported", "rdp.negRsp.flags.restricted_authentication_mode_supported",
+        FT_BOOLEAN, 8, NULL, 0x10,
 	NULL, HFILL }},
     { &hf_rdp_selectedProtocol,
       { "selectedProtocol", "rdp.negReq.selectedProtocol",
