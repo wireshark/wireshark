@@ -614,7 +614,9 @@ void ProtoTree::itemDoubleClicked(const QModelIndex &index)
     } else {
         QString url = finfo.url();
         if (!url.isEmpty()) {
-            QDesktopServices::openUrl(QUrl(url));
+            QApplication::clipboard()->setText(url);
+            QString push_msg = tr("Copied ") + url;
+            wsApp->pushStatus(WiresharkApplication::TemporaryStatus, push_msg);
         }
     }
 }

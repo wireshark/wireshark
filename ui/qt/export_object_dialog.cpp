@@ -17,9 +17,11 @@
 #include "ui/qt/widgets/wireshark_file_dialog.h"
 #include <ui/qt/widgets/export_objects_view.h>
 #include <ui/qt/models/export_objects_model.h>
+#include <ui/qt/utils/qt_ui_utils.h>
 
 #include <QDialogButtonBox>
 #include <QMessageBox>
+#include <QMimeDatabase>
 #include <QPushButton>
 #include <QComboBox>
 #include <QDir>
@@ -95,12 +97,25 @@ void ExportObjectDialog::currentHasChanged(QModelIndex current)
         QModelIndex sibl = current.sibling(current.row(), ExportObjectModel::colPacket);
         if (eo_ui_->buttonBox->button(QDialogButtonBox::Open))
         {
-            QString cont = sibl.sibling(current.row(), ExportObjectModel::colContent).data().toString();
-            /* For security reasons application and unknown are disabled */
-            eo_ui_->buttonBox->button(QDialogButtonBox::Open)->setEnabled(! cont.startsWith("application/") && ! cont.startsWith("unknown/"));
+            QString mime_type = sibl.sibling(current.row(), ExportObjectModel::colContent).data().toString();
+            eo_ui_->buttonBox->button(QDialogButtonBox::Open)->setEnabled(mimeTypeIsPreviewable(mime_type));
         }
         wsApp->gotoFrame(sibl.data().toInt());
     }
+}
+
+bool ExportObjectDialog::mimeTypeIsPreviewable(QString mime_type)
+{
+    // XXX This excludes everything except HTTP. Maybe that's a good thing?
+    // Take care when adding to this, e.g. text/html or image/svg might contain JavaScript.
+    QStringList previewable_mime_types = QStringList()
+            << "text/plain"
+            << "image/gif" << "image/jpeg" << "image/png";
+
+    if (previewable_mime_types.contains(mime_type)) {
+        return true;
+    }
+    return false;
 }
 
 void ExportObjectDialog::modelDataChanged(const QModelIndex&, int from, int to)
@@ -203,8 +218,16 @@ void ExportObjectDialog::on_buttonBox_clicked(QAbstractButton *button)
         QString temp;
         saveCurrentEntry(&temp);
 
-        if (temp.length() > 0)
-            QDesktopServices::openUrl(QUrl(QString("file:///").append(temp), QUrl::TolerantMode));
+        if (temp.length() > 0) {
+            QMimeDatabase mime_db;
+            QMimeType mime_type = mime_db.mimeTypeForFile(temp, QMimeDatabase::MatchContent);
+            if (mimeTypeIsPreviewable(mime_type.name())) {
+                QDesktopServices::openUrl(QUrl(QString("file:///").append(temp), QUrl::TolerantMode));
+            } else {
+                desktop_show_in_folder(temp);
+            }
+
+        }
         break;
     }
     default: // Help, Cancel
