@@ -5276,6 +5276,8 @@ bssgp_status(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset
     /* This PDU indicates that an exception condition occurred. */
     /* Direction: SGSN to BSS, BSS to SGSN */
 
+    pinfo->flags.in_error_pkt = TRUE;
+
     /* Cause Cause/11.3.8 M TLV 3 */
     ELEM_MAND_TELV(BSSGP_IEI_CAUSE,BSSGP_PDU_TYPE, DE_BSSGP_CAUSE, NULL, ei_bssgp_missing_mandatory_element);
     /* BVCI BVCI/11.3.6 C TLV 4 */
@@ -6242,8 +6244,9 @@ bssgp_ran_inf_err(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 o
     /* The RAN-INFORMATION-ERROR PDU allows a BSS to send an error PDU back to an originating BSS as a response
      * to a RAN-INFORMATION, a RAN-INFORMATION-REQUEST, a RAN-INFORMATION-ACK or a RANINFORMATION-APPLICATION-ERROR PDU.
      */
-
     /* Direction: BSS to SGSN SGSN to BSS */
+
+    pinfo->flags.in_error_pkt = TRUE;
 
     /* Destination Cell Identifier RIM Routing Information/11.3.70 M TLV 3-? */
     ELEM_MAND_TELV(BSSGP_IEI_RIM_ROUTING_INFORMATION, BSSGP_PDU_TYPE, DE_BSSGP_RIM_ROUTING_INF, " - Destination Cell Identifier", ei_bssgp_missing_mandatory_element);
@@ -6272,6 +6275,8 @@ bssgp_ran_inf_app_err(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint
      */
 
     /* Direction: BSS to SGSN SGSN to BSS */
+
+    pinfo->flags.in_error_pkt = TRUE;
 
     /* Destination Cell Identifier RIM Routing Information/11.3.70 M TLV 3-? */
     ELEM_MAND_TELV(BSSGP_IEI_RIM_ROUTING_INFORMATION, BSSGP_PDU_TYPE, DE_BSSGP_RIM_ROUTING_INF, " - Destination Cell Identifier", ei_bssgp_missing_mandatory_element);
