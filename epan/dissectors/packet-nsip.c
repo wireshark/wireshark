@@ -853,7 +853,7 @@ decode_pdu_sns_size_ack(build_info_t *bi) {
 }
 
 static void
-decode_pdu(guint8 pdu_type, build_info_t *bi) {
+decode_pdu(guint8 pdu_type, build_info_t *bi, packet_info *pinfo) {
   switch (pdu_type) {
   case NSIP_PDU_NS_UNITDATA:
     decode_pdu_ns_unitdata(bi);
@@ -871,6 +871,7 @@ decode_pdu(guint8 pdu_type, build_info_t *bi) {
     decode_pdu_ns_block_ack(bi);
     break;
   case NSIP_PDU_NS_STATUS:
+    pinfo->flags.in_error_pkt = TRUE;
     decode_pdu_ns_status(bi);
     break;
   case NSIP_PDU_SNS_ACK:
@@ -941,7 +942,7 @@ dissect_nsip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     col_append_sep_str(pinfo->cinfo, COL_INFO, NSIP_SEP,
                 val_to_str_const(pdu_type, tab_nsip_pdu_types, "Unknown PDU type"));
   }
-  decode_pdu(pdu_type, &bi);
+  decode_pdu(pdu_type, &bi, pinfo);
   return tvb_captured_length(tvb);
 }
 
