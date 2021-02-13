@@ -119,6 +119,19 @@ build the `all_guides` target, e.g.  `make all_guides` or `ninja
 all_guides`.  Detailed information to build these guides can be found in
 the file _docbook\README.adoc_ in the Wireshark sources. 
 
+==== Optional: Create an installable or source code package
+
+To create a source code tarball, build the `dist` target.
+
+To create an installable package after successfully building Wireshark:
+
+* to build a Debian package, build the `deb-package` target;
+* to build an RPM package, build the `rpm-package` target;
+* to build an https://appimage.org[AppImage] package, build the
+`appimage` target;
+* to build a macOS dmg package containing am application bundle, build
+the `dmg_package` target.
+
 [[ChSetupWin32]]
 
 === Win32/64: Step-by-Step Guide
