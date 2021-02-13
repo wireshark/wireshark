@@ -1643,7 +1643,7 @@ static const struct file_type_subtype_info dump_open_table_base[] = {
 	  NULL, NULL, NULL },
 
 	/* WTAP_FILE_TYPE_SUBTYPE_SYSTEMD_JOURNAL */
-	{ "systemd journal export", "systemd journal", NULL, NULL,
+	{ "systemd journal export", "systemd_journal", NULL, NULL,
 	  FALSE, FALSE, 0,
 	  NULL, NULL, NULL },
 
