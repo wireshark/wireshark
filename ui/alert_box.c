@@ -196,7 +196,7 @@ cfile_dump_open_failure_alert_box(const char *filename, int err,
             simple_error_message_box(
                         "The file \"%s\" is a pipe, and %s capture files can't be "
                         "written to a pipe.",
-                        display_basename, wtap_file_type_subtype_string(file_type_subtype));
+                        display_basename, wtap_file_type_subtype_description(file_type_subtype));
             break;
 
         case WTAP_ERR_UNWRITABLE_FILE_TYPE:
@@ -373,7 +373,7 @@ cfile_write_failure_alert_box(const char *in_filename, const char *out_filename,
             simple_error_message_box(
                         "Frame %u%s has a network type that can't be saved in a \"%s\" file.",
                         framenum, in_file_string,
-                        wtap_file_type_subtype_string(file_type_subtype));
+                        wtap_file_type_subtype_description(file_type_subtype));
             break;
 
         case WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED:
@@ -385,7 +385,7 @@ cfile_write_failure_alert_box(const char *in_filename, const char *out_filename,
             simple_error_message_box(
                         "Frame %u%s has a network type that differs from the network type of earlier packets, which isn't supported in a \"%s\" file.",
                         framenum, in_file_string,
-                        wtap_file_type_subtype_string(file_type_subtype));
+                        wtap_file_type_subtype_description(file_type_subtype));
             break;
 
         case WTAP_ERR_INTERNAL:
@@ -407,7 +407,7 @@ cfile_write_failure_alert_box(const char *in_filename, const char *out_filename,
             simple_error_message_box(
                         "Frame %u%s is larger than Wireshark supports in a \"%s\" file.",
                         framenum, in_file_string,
-                        wtap_file_type_subtype_string(file_type_subtype));
+                        wtap_file_type_subtype_description(file_type_subtype));
             break;
 
         case WTAP_ERR_UNWRITABLE_REC_TYPE:
@@ -419,7 +419,7 @@ cfile_write_failure_alert_box(const char *in_filename, const char *out_filename,
             simple_error_message_box(
                         "Record %u%s has a record type that can't be saved in a \"%s\" file.",
                         framenum, in_file_string,
-                        wtap_file_type_subtype_string(file_type_subtype));
+                        wtap_file_type_subtype_description(file_type_subtype));
             break;
 
         case WTAP_ERR_UNWRITABLE_REC_DATA:
@@ -432,7 +432,7 @@ cfile_write_failure_alert_box(const char *in_filename, const char *out_filename,
                         "Record %u%s has data that can't be saved in a \"%s\" file.\n"
                         "(%s)",
                         framenum, in_file_string,
-                        wtap_file_type_subtype_string(file_type_subtype),
+                        wtap_file_type_subtype_description(file_type_subtype),
                         err_info != NULL ? err_info : "no information supplied");
             g_free(err_info);
             break;

@@ -898,8 +898,8 @@ list_capture_types(FILE *stream) {
     fprintf(stream, "editcap: The available capture file types for the \"-F\" flag are:\n");
     for (i = 0; i < WTAP_NUM_FILE_TYPES_SUBTYPES; i++) {
         if (wtap_dump_can_open(i)) {
-            captypes[i].sstr = wtap_file_type_subtype_short_string(i);
-            captypes[i].lstr = wtap_file_type_subtype_string(i);
+            captypes[i].sstr = wtap_file_type_subtype_name(i);
+            captypes[i].lstr = wtap_file_type_subtype_description(i);
             list = g_slist_insert_sorted(list, &captypes[i], string_compare);
         }
     }
@@ -1373,7 +1373,7 @@ main(int argc, char *argv[])
             break;
 
         case 'F':
-            out_file_type_subtype = wtap_short_string_to_file_type_subtype(optarg);
+            out_file_type_subtype = wtap_name_to_file_type_subtype(optarg);
             if (out_file_type_subtype < 0) {
                 fprintf(stderr, "editcap: \"%s\" isn't a valid capture file type\n\n",
                         optarg);
@@ -1550,7 +1550,7 @@ main(int argc, char *argv[])
 
     if (verbose) {
         fprintf(stderr, "File %s is a %s capture file.\n", argv[optind],
-                wtap_file_type_subtype_string(wtap_file_type_subtype(wth)));
+                wtap_file_type_subtype_description(wtap_file_type_subtype(wth)));
     }
 
     if (skip_radiotap) {

@@ -826,7 +826,7 @@ QStringList CaptureFileDialog::buildFileSaveAsTypeList(bool must_support_all_com
             ft = g_array_index(savable_file_types_subtypes, int, i);
             if (default_ft_ < 1)
                 default_ft_ = ft; /* first file type is the default */
-            QString type_name(wtap_file_type_subtype_string(ft));
+            QString type_name(wtap_file_type_subtype_description(ft));
             filters << type_name + fileType(ft, type_suffixes_[type_name]);
             type_hash_[type_name] = ft;
         }
@@ -894,7 +894,7 @@ void CaptureFileDialog::preview(const QString & path)
     }
 
     // Format
-    preview_format_.setText(QString::fromUtf8(wtap_file_type_subtype_string(wtap_file_type_subtype(wth))));
+    preview_format_.setText(QString::fromUtf8(wtap_file_type_subtype_description(wtap_file_type_subtype(wth))));
 
     // Size
     gint64 filesize = wtap_file_size(wth, &err);

@@ -182,7 +182,7 @@ cfile_dump_open_failure_message(const char *progname, const char *filename,
         case WTAP_ERR_CANT_WRITE_TO_PIPE:
             cmdarg_err("The %s is a pipe, and \"%s\" capture files can't be written to a pipe.",
                        file_description,
-                       wtap_file_type_subtype_short_string(file_type_subtype));
+                       wtap_file_type_subtype_name(file_type_subtype));
             break;
 
         case WTAP_ERR_UNWRITABLE_FILE_TYPE:
@@ -192,12 +192,12 @@ cfile_dump_open_failure_message(const char *progname, const char *filename,
 
         case WTAP_ERR_UNWRITABLE_ENCAP:
             cmdarg_err("The capture file being read can't be written as a \"%s\" file.",
-                       wtap_file_type_subtype_short_string(file_type_subtype));
+                       wtap_file_type_subtype_name(file_type_subtype));
             break;
 
         case WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED:
             cmdarg_err("The capture file being read can't be written as a \"%s\" file.",
-                       wtap_file_type_subtype_short_string(file_type_subtype));
+                       wtap_file_type_subtype_name(file_type_subtype));
             break;
 
         case WTAP_ERR_CANT_OPEN:
@@ -347,7 +347,7 @@ cfile_write_failure_message(const char *progname, const char *in_filename,
          */
         cmdarg_err("Frame%s has a network type that can't be saved in a \"%s\" file.",
                    in_frame_string,
-                   wtap_file_type_subtype_short_string(file_type_subtype));
+                   wtap_file_type_subtype_name(file_type_subtype));
         break;
 
     case WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED:
@@ -358,7 +358,7 @@ cfile_write_failure_message(const char *progname, const char *in_filename,
          */
         cmdarg_err("Frame%s has a network type that differs from the network type of earlier packets, which isn't supported in a \"%s\" file.",
                    in_frame_string,
-                   wtap_file_type_subtype_string(file_type_subtype));
+                   wtap_file_type_subtype_description(file_type_subtype));
         break;
 
     case WTAP_ERR_PACKET_TOO_LARGE:
@@ -369,7 +369,7 @@ cfile_write_failure_message(const char *progname, const char *in_filename,
          */
         cmdarg_err("Frame%s is larger than %s supports in a \"%s\" file.",
                    in_frame_string, progname,
-                   wtap_file_type_subtype_short_string(file_type_subtype));
+                   wtap_file_type_subtype_name(file_type_subtype));
         break;
 
     case WTAP_ERR_UNWRITABLE_REC_TYPE:
@@ -380,7 +380,7 @@ cfile_write_failure_message(const char *progname, const char *in_filename,
          */
         cmdarg_err("Record%s has a record type that can't be saved in a \"%s\" file.",
                    in_frame_string,
-                   wtap_file_type_subtype_short_string(file_type_subtype));
+                   wtap_file_type_subtype_name(file_type_subtype));
         break;
 
     case WTAP_ERR_UNWRITABLE_REC_DATA:
@@ -392,7 +392,7 @@ cfile_write_failure_message(const char *progname, const char *in_filename,
         cmdarg_err("Record%s has data that can't be saved in a \"%s\" file.\n"
                    "(%s)",
                    in_frame_string,
-                   wtap_file_type_subtype_short_string(file_type_subtype),
+                   wtap_file_type_subtype_name(file_type_subtype),
                    err_info != NULL ? err_info : "no information supplied");
         g_free(err_info);
         break;

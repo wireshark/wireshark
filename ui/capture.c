@@ -316,7 +316,7 @@ cf_open_error_message(int err, gchar *err_info, gboolean for_writing,
             /* Seen only when opening a capture file for writing. */
             g_snprintf(errmsg_errno, sizeof(errmsg_errno),
                        "The file \"%%s\" is a pipe, and %s capture files can't be "
-                       "written to a pipe.", wtap_file_type_subtype_string(file_type));
+                       "written to a pipe.", wtap_file_type_subtype_description(file_type));
             errmsg = errmsg_errno;
             break;
 

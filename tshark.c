@@ -298,8 +298,8 @@ list_capture_types(void) {
   fprintf(stderr, "tshark: The available capture file types for the \"-F\" flag are:\n");
   for (i = 0; i < WTAP_NUM_FILE_TYPES_SUBTYPES; i++) {
     if (wtap_dump_can_open(i)) {
-      captypes[i].sstr = wtap_file_type_subtype_short_string(i);
-      captypes[i].lstr = wtap_file_type_subtype_string(i);
+      captypes[i].sstr = wtap_file_type_subtype_name(i);
+      captypes[i].lstr = wtap_file_type_subtype_description(i);
       list = g_slist_insert_sorted(list, &captypes[i], string_compare);
     }
   }
@@ -1195,7 +1195,7 @@ main(int argc, char *argv[])
       }
       break;
     case 'F':
-      out_file_type = wtap_short_string_to_file_type_subtype(optarg);
+      out_file_type = wtap_name_to_file_type_subtype(optarg);
       if (out_file_type < 0) {
         cmdarg_err("\"%s\" isn't a valid capture file type", optarg);
         list_capture_types();
@@ -3743,7 +3743,7 @@ process_cap_file(capture_file *cf, char *save_file, int out_file_type,
       if (pdh && out_file_name_res) {
         if (!wtap_dump_set_addrinfo_list(pdh, get_addrinfo_list())) {
           cmdarg_err("The file format \"%s\" doesn't support name resolution information.",
-                     wtap_file_type_subtype_short_string(out_file_type));
+                     wtap_file_type_subtype_name(out_file_type));
         }
       }
       /* Now close the capture file. */

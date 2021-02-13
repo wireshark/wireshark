@@ -29,12 +29,12 @@ WSLUA_FUNCTION wslua_wtap_file_type_subtype_description(lua_State* LS) {
     */
 #define WSLUA_ARG_file_type_subtype_description_FILETYPE 1 /* The type for which the description is to be fetched - a number entry from the `wtap_filetypes` table in `init.lua`. */
     lua_Number filetype = luaL_checknumber(LS,WSLUA_ARG_file_type_subtype_description_FILETYPE);
-    /* wtap_file_type_subtype_string()'s name isn't really descriptive. */
+    /* wtap_file_type_subtype_description()'s name isn't really descriptive. */
     if (filetype > INT_MAX) {
         /* Too big. */
         lua_pushnil(LS);
     } else {
-        const gchar* str = wtap_file_type_subtype_string((int)filetype);
+        const gchar* str = wtap_file_type_subtype_description((int)filetype);
         if (str == NULL)
             lua_pushnil(LS);
         else
@@ -52,12 +52,12 @@ WSLUA_FUNCTION wslua_wtap_file_type_subtype_name(lua_State* LS) {
     */
 #define WSLUA_ARG_file_type_subtype_name_FILETYPE 1 /* The type for which the name is to be fetched - a number entry from the `wtap_filetypes` table in `init.lua`. */
     lua_Number filetype = luaL_checknumber(LS,WSLUA_ARG_file_type_subtype_name_FILETYPE);
-    /* wtap_file_type_subtype_string()'s name isn't really descriptive. */
+    /* wtap_file_type_subtype_description()'s name isn't really descriptive. */
     if (filetype > INT_MAX) {
         /* Too big. */
         lua_pushnil(LS);
     } else {
-        const gchar* str = wtap_file_type_subtype_short_string((int)filetype);
+        const gchar* str = wtap_file_type_subtype_name((int)filetype);
         if (str == NULL)
             lua_pushnil(LS);
         else
@@ -75,8 +75,8 @@ WSLUA_FUNCTION wslua_wtap_name_to_file_type_subtype(lua_State* LS) {
     */
 #define WSLUA_ARG_name_to_file_type_subtype_NAME 1 /* A timestamp value to convert. */
     const char* name = luaL_checkstring(LS,WSLUA_ARG_name_to_file_type_subtype_NAME);
-    /* wtap_short_string_to_file_type_subtype()'s name isn't really descriptive. */
-    lua_Number filetype = wtap_short_string_to_file_type_subtype(name);
+    /* wtap_name_to_file_type_subtype()'s name isn't really descriptive. */
+    lua_Number filetype = wtap_name_to_file_type_subtype(name);
     if (filetype == -1)
         lua_pushnil(LS);
     else

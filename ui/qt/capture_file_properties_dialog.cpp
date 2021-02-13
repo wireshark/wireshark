@@ -184,7 +184,7 @@ QString CaptureFilePropertiesDialog::summaryToHtml()
         << table_data_tmpl.arg(summary.file_sha1)
         << table_row_end;
 
-    QString format_str = wtap_file_type_subtype_string(summary.file_type);
+    QString format_str = wtap_file_type_subtype_description(summary.file_type);
     const char *compression_type_description = wtap_compression_type_description(summary.compression_type);
     if (compression_type_description != nullptr) {
         format_str += QString(" (%1)").arg(compression_type_description);

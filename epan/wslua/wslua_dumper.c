@@ -222,23 +222,23 @@ WSLUA_CONSTRUCTOR Dumper_new(lua_State* L) {
 
         case WTAP_ERR_CANT_WRITE_TO_PIPE:
             luaL_error(L,"The file \"%s\" is a pipe, and %s capture files can't be written to a pipe",
-                       filename, wtap_file_type_subtype_string(filetype));
+                       filename, wtap_file_type_subtype_description(filetype));
             break;
 
         case WTAP_ERR_UNWRITABLE_FILE_TYPE:
             luaL_error(L,"Files of file type %s cannot be written",
-                       wtap_file_type_subtype_string(filetype));
+                       wtap_file_type_subtype_description(filetype));
             break;
 
         case WTAP_ERR_UNWRITABLE_ENCAP:
             luaL_error(L,"Files of file type %s don't support encapsulation %s",
-                       wtap_file_type_subtype_string(filetype),
+                       wtap_file_type_subtype_description(filetype),
                        wtap_encap_name(encap));
             break;
 
         case WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED:
             luaL_error(L,"Files of file type %s don't support per-packet encapsulation",
-                       wtap_file_type_subtype_string(filetype));
+                       wtap_file_type_subtype_description(filetype));
             break;
 
         case WTAP_ERR_CANT_OPEN:
@@ -253,7 +253,7 @@ WSLUA_CONSTRUCTOR Dumper_new(lua_State* L) {
 
         case WTAP_ERR_COMPRESSION_NOT_SUPPORTED:
             luaL_error(L,"Files of file type %s cannot be written as a compressed file",
-                       wtap_file_type_subtype_string(filetype));
+                       wtap_file_type_subtype_description(filetype));
             break;
 
         case WTAP_ERR_INTERNAL:
@@ -435,23 +435,23 @@ WSLUA_METHOD Dumper_new_for_current(lua_State* L) {
 
         case WTAP_ERR_CANT_WRITE_TO_PIPE:
             luaL_error(L,"The file \"%s\" is a pipe, and %s capture files can't be written to a pipe",
-                       filename, wtap_file_type_subtype_string(filetype));
+                       filename, wtap_file_type_subtype_description(filetype));
             break;
 
         case WTAP_ERR_UNWRITABLE_FILE_TYPE:
             luaL_error(L,"Files of file type %s cannot be written",
-                       wtap_file_type_subtype_string(filetype));
+                       wtap_file_type_subtype_description(filetype));
             break;
 
         case WTAP_ERR_UNWRITABLE_ENCAP:
             luaL_error(L,"Files of file type %s don't support encapsulation %s",
-                       wtap_file_type_subtype_string(filetype),
+                       wtap_file_type_subtype_description(filetype),
                        wtap_encap_name(encap));
             break;
 
         case WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED:
             luaL_error(L,"Files of file type %s don't support per-packet encapsulation",
-                       wtap_file_type_subtype_string(filetype));
+                       wtap_file_type_subtype_description(filetype));
             break;
 
         case WTAP_ERR_CANT_OPEN:
@@ -466,7 +466,7 @@ WSLUA_METHOD Dumper_new_for_current(lua_State* L) {
 
         case WTAP_ERR_COMPRESSION_NOT_SUPPORTED:
             luaL_error(L,"Files of file type %s cannot be written as a compressed file",
-                       wtap_file_type_subtype_string(filetype));
+                       wtap_file_type_subtype_description(filetype));
             break;
 
         case WTAP_ERR_INTERNAL:

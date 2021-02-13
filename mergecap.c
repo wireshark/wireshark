@@ -138,8 +138,8 @@ list_capture_types(void) {
   fprintf(stderr, "mergecap: The available capture file types for the \"-F\" flag are:\n");
   for (i = 0; i < WTAP_NUM_FILE_TYPES_SUBTYPES; i++) {
     if (wtap_dump_can_open(i)) {
-      captypes[i].sstr = wtap_file_type_subtype_short_string(i);
-      captypes[i].lstr = wtap_file_type_subtype_string(i);
+      captypes[i].sstr = wtap_file_type_subtype_name(i);
+      captypes[i].lstr = wtap_file_type_subtype_description(i);
       list = g_slist_insert_sorted(list, &captypes[i], string_compare);
     }
   }
@@ -170,7 +170,7 @@ merge_callback(merge_event event, int num,
     case MERGE_EVENT_INPUT_FILES_OPENED:
       for (i = 0; i < in_file_count; i++) {
         fprintf(stderr, "mergecap: %s is type %s.\n", in_files[i].filename,
-                wtap_file_type_subtype_string(wtap_file_type_subtype(in_files[i].wth)));
+                wtap_file_type_subtype_description(wtap_file_type_subtype(in_files[i].wth)));
       }
       break;
 
@@ -287,7 +287,7 @@ main(int argc, char *argv[])
       break;
 
     case 'F':
-      file_type = wtap_short_string_to_file_type_subtype(optarg);
+      file_type = wtap_name_to_file_type_subtype(optarg);
       if (file_type < 0) {
         fprintf(stderr, "mergecap: \"%s\" isn't a valid capture file type\n",
                 optarg);

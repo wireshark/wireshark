@@ -1700,11 +1700,11 @@ wtap_register_file_type_subtypes(const struct file_type_subtype_info* fi, const 
 	struct file_type_subtype_info* finfo;
 
 	/*
-	 * Check for required fields (name and short_name). If an existing file
-	 * type is overridden (as opposed as creating a new registration),
+	 * Check for required fields (description and name). If an existing
+	 * file type is overridden (as opposed as creating a new registration),
 	 * prevent internal subtypes from being overridden by Lua plugins.
 	 */
-	if (!fi || !fi->name || !fi->short_name ||
+	if (!fi || !fi->description || !fi->name ||
 			(subtype != WTAP_FILE_TYPE_SUBTYPE_UNKNOWN &&
 			(subtype <= (int)G_N_ELEMENTS(dump_open_table_base) ||
 			subtype > wtap_num_file_types_subtypes))) {
@@ -1715,8 +1715,8 @@ wtap_register_file_type_subtypes(const struct file_type_subtype_info* fi, const 
 	/* do we want a new registration? */
 	if (subtype == WTAP_FILE_TYPE_SUBTYPE_UNKNOWN) {
 		/* register a new one; first verify there isn't one named this already */
-		if (wtap_short_string_to_file_type_subtype(fi->short_name) > -1 ) {
-			g_error("file type short name \"%s\" already exists", fi->short_name);
+		if (wtap_name_to_file_type_subtype(fi->name) > -1 ) {
+			g_error("file type short name \"%s\" already exists", fi->name);
 			return subtype;
 		}
 
@@ -1732,8 +1732,8 @@ wtap_register_file_type_subtypes(const struct file_type_subtype_info* fi, const 
 		return wtap_num_file_types_subtypes++;
 	}
 
-	/* re-register an existing one - verify the short names do match (sanity check really) */
-	if (!dump_open_table[subtype].short_name || strcmp(dump_open_table[subtype].short_name,fi->short_name) != 0) {
+	/* re-register an existing one - verify the names do match (sanity check really) */
+	if (!dump_open_table[subtype].name || strcmp(dump_open_table[subtype].name,fi->name) != 0) {
 		g_error("invalid file type name given to register");
 		return subtype;
 	}
@@ -1748,8 +1748,8 @@ wtap_register_file_type_subtypes(const struct file_type_subtype_info* fi, const 
 	 * pointer.
 	 */
 	finfo = &g_array_index(dump_open_table_arr, struct file_type_subtype_info, subtype);
+	/*finfo->description = fi->description;*/
 	/*finfo->name = fi->name;*/
-	/*finfo->short_name = fi->short_name;*/
 	finfo->default_file_extension     = fi->default_file_extension;
 	finfo->additional_file_extensions = fi->additional_file_extensions;
 	finfo->writing_must_seek          = fi->writing_must_seek;
@@ -1784,9 +1784,9 @@ wtap_deregister_file_type_subtype(const int subtype)
 	 * pointer.
 	 */
 	finfo = &g_array_index(dump_open_table_arr, struct file_type_subtype_info, subtype);
-	/* unfortunately, it's not safe to null-out the name or short_name; bunch of other code doesn't guard aainst that, afaict */
+	/* unfortunately, it's not safe to null-out the description or name; bunch of other code doesn't guard aainst that, afaict */
+	/*finfo->description = NULL;*/
 	/*finfo->name = NULL;*/
-	/*finfo->short_name = NULL;*/
 	finfo->default_file_extension = NULL;
 	finfo->additional_file_extensions = NULL;
 	finfo->writing_must_seek = FALSE;
@@ -2019,37 +2019,37 @@ wtap_uses_interface_ids(int file_type)
 	       file_type == WTAP_FILE_TYPE_SUBTYPE_IPTRACE_2_0;
 }
 
-/* Name that should be somewhat descriptive. */
+/* String describing the file type/subtype. */
 const char *
-wtap_file_type_subtype_string(int file_type_subtype)
+wtap_file_type_subtype_description(int file_type_subtype)
 {
 	if (file_type_subtype < 0 || file_type_subtype >= wtap_num_file_types_subtypes) {
 		g_error("Unknown capture file type %d", file_type_subtype);
 		/** g_error() does an abort() and thus never returns **/
 		return "";
 	} else
-		return dump_open_table[file_type_subtype].name;
+		return dump_open_table[file_type_subtype].description;
 }
 
 /* Name to use in, say, a command-line flag specifying the type/subtype. */
 const char *
-wtap_file_type_subtype_short_string(int file_type_subtype)
+wtap_file_type_subtype_name(int file_type_subtype)
 {
 	if (file_type_subtype < 0 || file_type_subtype >= wtap_num_file_types_subtypes)
 		return NULL;
 	else
-		return dump_open_table[file_type_subtype].short_name;
+		return dump_open_table[file_type_subtype].name;
 }
 
-/* Translate a short name to a capture file type/subtype. */
+/* Translate a name to a capture file type/subtype. */
 int
-wtap_short_string_to_file_type_subtype(const char *short_name)
+wtap_name_to_file_type_subtype(const char *name)
 {
 	int file_type_subtype;
 
 	for (file_type_subtype = 0; file_type_subtype < wtap_num_file_types_subtypes; file_type_subtype++) {
-		if (dump_open_table[file_type_subtype].short_name != NULL &&
-		    strcmp(short_name, dump_open_table[file_type_subtype].short_name) == 0)
+		if (dump_open_table[file_type_subtype].name != NULL &&
+		    strcmp(name, dump_open_table[file_type_subtype].name) == 0)
 			return file_type_subtype;
 	}
 
@@ -2059,19 +2059,19 @@ wtap_short_string_to_file_type_subtype(const char *short_name)
 	 * containing "libpcap" as well as "pcap", for backwards
 	 * compatibility.
 	 */
-	if (strcmp(short_name, "libpcap") == 0)
+	if (strcmp(name, "libpcap") == 0)
 		return WTAP_FILE_TYPE_SUBTYPE_PCAP;
-	else if (strcmp(short_name, "nseclibpcap") == 0)
+	else if (strcmp(name, "nseclibpcap") == 0)
 		return WTAP_FILE_TYPE_SUBTYPE_PCAP_NSEC;
-	else if (strcmp(short_name, "aixlibpcap") == 0)
+	else if (strcmp(name, "aixlibpcap") == 0)
 		return WTAP_FILE_TYPE_SUBTYPE_PCAP_AIX;
-	else if (strcmp(short_name, "modlibpcap") == 0)
+	else if (strcmp(name, "modlibpcap") == 0)
 		return WTAP_FILE_TYPE_SUBTYPE_PCAP_SS991029;
-	else if (strcmp(short_name, "nokialibpcap") == 0)
+	else if (strcmp(name, "nokialibpcap") == 0)
 		return WTAP_FILE_TYPE_SUBTYPE_PCAP_NOKIA;
-	else if (strcmp(short_name, "rh6_1libpcap") == 0)
+	else if (strcmp(name, "rh6_1libpcap") == 0)
 		return WTAP_FILE_TYPE_SUBTYPE_PCAP_SS990417;
-	else if (strcmp(short_name, "suse6_3libpcap") == 0)
+	else if (strcmp(name, "suse6_3libpcap") == 0)
 		return WTAP_FILE_TYPE_SUBTYPE_PCAP_SS990915;
 
 	return -1;	/* no such file type, or we can't write it */

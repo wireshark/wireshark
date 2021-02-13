@@ -277,7 +277,7 @@ struct _wslua_filehandler {
     struct file_type_subtype_info finfo;
     gboolean is_reader;
     gboolean is_writer;
-    gchar* description;
+    gchar* internal_description; /* XXX - this is redundant; finfo.description should suffice */
     gchar* type;
     gchar* extensions;
     lua_State* L;

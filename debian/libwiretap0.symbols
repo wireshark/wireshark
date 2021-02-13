@@ -102,8 +102,8 @@ libwiretap.so.0 libwiretap0 #MINVER#
  wtap_file_size@Base 1.9.1
  wtap_file_tsprec@Base 1.99.0
  wtap_file_type_subtype@Base 1.12.0~rc1
- wtap_file_type_subtype_short_string@Base 1.12.0~rc1
- wtap_file_type_subtype_string@Base 1.12.0~rc1
+ wtap_file_type_subtype_description@Base 3.5.0
+ wtap_file_type_subtype_name@Base 3.5.0
  wtap_free_extensions_list@Base 1.9.1
  wtap_free_idb_info@Base 1.99.9
  wtap_fstat@Base 1.9.1
@@ -124,6 +124,7 @@ libwiretap.so.0 libwiretap0 #MINVER#
  wtap_has_open_info@Base 1.12.0~rc1
  wtap_init@Base 2.3.0
  wtap_name_to_encap@Base 2.9.1
+ wtap_name_to_file_type_subtype@Base 3.5.0
  wtap_open_offline@Base 1.9.1
  wtap_opttypes_initialize@Base 2.1.2
  wtap_opttypes_cleanup@Base 2.3.0
@@ -147,7 +148,6 @@ libwiretap.so.0 libwiretap0 #MINVER#
  wtap_set_cb_new_secrets@Base 2.9.0
  wtap_set_cb_new_ipv4@Base 1.9.1
  wtap_set_cb_new_ipv6@Base 1.9.1
- wtap_short_string_to_file_type_subtype@Base 1.9.1
  wtap_snapshot_length@Base 1.9.1
  wtap_strerror@Base 1.9.1
  wtap_tsprec_string@Base 1.99.9

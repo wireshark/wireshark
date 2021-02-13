@@ -1656,13 +1656,22 @@ WS_DLL_PUBLIC struct open_info *open_routines;
 #define WTAP_COMMENT_PER_PACKET         0x00000004      /* per-packet */
 
 struct file_type_subtype_info {
-    /* the file type name */
-    /* should be NULL for all "pseudo" types that are only internally used and not read/writeable */
-    const char *name;
+    /*
+     * The file type description.
+     *
+     * Should be NULL for WTAP_FILE_TYPE_SUBTYPE_UNKNOWN, which is
+     * used internally.
+     */
+    const char *description;
 
-    /* the file type short name, used as a shortcut for the command line tools */
-    /* should be NULL for all "pseudo" types that are only internally used and not read/writeable */
-    const char *short_name;
+    /*
+     * The file type name, used to look up file types by name, e.g.
+     * looking up a file type specified as a command-line argument.
+     *
+     * Should be NULL for WTAP_FILE_TYPE_SUBTYPE_UNKNOWN, which is
+     * used internally.
+     */
+    const char *name;
 
     /* the default file extension, used to save this type */
     /* should be NULL if no default extension is known */
@@ -2214,13 +2223,13 @@ GArray *wtap_get_savable_file_types_subtypes(int file_type,
 WS_DLL_PUBLIC
 gboolean wtap_uses_interface_ids(int file_type);
 
-/*** various string converter functions ***/
+/*** various file type/subtype functions ***/
 WS_DLL_PUBLIC
-const char *wtap_file_type_subtype_string(int file_type_subtype);
+const char *wtap_file_type_subtype_description(int file_type_subtype);
 WS_DLL_PUBLIC
-const char *wtap_file_type_subtype_short_string(int file_type_subtype);
+const char *wtap_file_type_subtype_name(int file_type_subtype);
 WS_DLL_PUBLIC
-int wtap_short_string_to_file_type_subtype(const char *short_name);
+int wtap_name_to_file_type_subtype(const char *name);
 
 /*** various file extension functions ***/
 WS_DLL_PUBLIC

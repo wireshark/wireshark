@@ -609,34 +609,34 @@ wslua_filehandler_dump_finish(wtap_dumper *wdh, int *err, gchar **err_info)
 
 WSLUA_CONSTRUCTOR FileHandler_new(lua_State* L) {
     /* Creates a new FileHandler */
-#define WSLUA_ARG_FileHandler_new_NAME 1 /* The name of the file type, for display purposes only. E.g., "Wireshark - pcapng" */
-#define WSLUA_ARG_FileHandler_new_SHORTNAME 2 /* The file type short name, used as a shortcut in various places. E.g., "pcapng". Note: The name cannot already be in use. */
-#define WSLUA_ARG_FileHandler_new_DESCRIPTION 3 /* Descriptive text about this file format, for display purposes only */
+#define WSLUA_ARG_FileHandler_new_DESCRIPTION 1 /* A description of the file type, for display purposes only. E.g., "Wireshark - pcapng" */
+#define WSLUA_ARG_FileHandler_new_NAME 2 /* The file type name, used to look up the file type in various places. E.g., "pcapng". Note: The name cannot already be in use. */
+#define WSLUA_ARG_FileHandler_new_INTERNAL_DESCRIPTION 3 /* Descriptive text about this file format, for internal display purposes only */
 #define WSLUA_ARG_FileHandler_new_TYPE 4 /* The type of FileHandler, "r"/"w"/"rw" for reader/writer/both, include "m" for magic, "s" for strong heuristic */
 
+    const gchar* description = luaL_checkstring(L,WSLUA_ARG_FileHandler_new_DESCRIPTION);
     const gchar* name = luaL_checkstring(L,WSLUA_ARG_FileHandler_new_NAME);
-    const gchar* short_name = luaL_checkstring(L,WSLUA_ARG_FileHandler_new_SHORTNAME);
-    const gchar* desc = luaL_checkstring(L,WSLUA_ARG_FileHandler_new_DESCRIPTION);
+    const gchar* internal_description = luaL_checkstring(L,WSLUA_ARG_FileHandler_new_INTERNAL_DESCRIPTION);
     const gchar* type = luaL_checkstring(L,WSLUA_ARG_FileHandler_new_TYPE);
     FileHandler fh = (FileHandler) g_malloc0(sizeof(struct _wslua_filehandler));
 
     fh->is_reader = (strchr(type,'r') != NULL) ? TRUE : FALSE;
     fh->is_writer = (strchr(type,'w') != NULL) ? TRUE : FALSE;
 
-    if (fh->is_reader && wtap_has_open_info(short_name)) {
+    if (fh->is_reader && wtap_has_open_info(name)) {
         g_free(fh);
-        return luaL_error(L, "FileHandler.new: '%s' short name already exists for a reader!", short_name);
+        return luaL_error(L, "FileHandler.new: '%s' name already exists for a reader!", name);
     }
 
-    if (fh->is_writer && wtap_short_string_to_file_type_subtype(short_name) > -1) {
+    if (fh->is_writer && wtap_name_to_file_type_subtype(name) > -1) {
         g_free(fh);
-        return luaL_error(L, "FileHandler.new: '%s' short name already exists for a writer!", short_name);
+        return luaL_error(L, "FileHandler.new: '%s' name already exists for a writer!", name);
     }
 
     fh->type = g_strdup(type);
     fh->extensions = NULL;
+    fh->finfo.description = g_strdup(description);
     fh->finfo.name = g_strdup(name);
-    fh->finfo.short_name = g_strdup(short_name);
     fh->finfo.default_file_extension = NULL;
     fh->finfo.additional_file_extensions = NULL;
     fh->finfo.writing_must_seek = FALSE;
@@ -646,7 +646,7 @@ WSLUA_CONSTRUCTOR FileHandler_new(lua_State* L) {
     /* this will be set to a new file_type when registered */
     fh->file_type = WTAP_FILE_TYPE_SUBTYPE_UNKNOWN;
 
-    fh->description = g_strdup(desc);
+    fh->internal_description = g_strdup(internal_description);
     fh->L = L;
     fh->read_open_ref = LUA_NOREF;
     fh->read_ref = LUA_NOREF;
@@ -671,8 +671,8 @@ WSLUA_METAMETHOD FileHandler__tostring(lua_State* L) {
     if (!fh) {
         lua_pushstring(L,"FileHandler pointer is NULL!");
     } else {
-        lua_pushfstring(L, "FileHandler(%s): short-name='%s', description='%s', read_open=%d, read=%d, write=%d",
-            fh->finfo.name, fh->finfo.short_name, fh->description, fh->read_open_ref, fh->read_ref, fh->write_ref);
+        lua_pushfstring(L, "FileHandler(%s): description='%s', internal description='%s', read_open=%d, read=%d, write=%d",
+            fh->finfo.name, fh->finfo.description, fh->internal_description, fh->read_open_ref, fh->read_ref, fh->write_ref);
     }
 
     WSLUA_RETURN(1); /* String of debug information. */
@@ -723,7 +723,7 @@ WSLUA_FUNCTION wslua_register_filehandler(lua_State* L) {
      * XXX wtap_register_file_type_subtypes will abort the program if a builtin
      * file handler is overridden, so plugin authors should not try that.
      */
-    int file_type = wtap_short_string_to_file_type_subtype(fh->finfo.short_name);
+    int file_type = wtap_name_to_file_type_subtype(fh->finfo.name);
     if (file_type == -1) {
         /* File type was not registered before, create a new one. */
         file_type = WTAP_FILE_TYPE_SUBTYPE_UNKNOWN;
@@ -751,7 +751,7 @@ WSLUA_FUNCTION wslua_register_filehandler(lua_State* L) {
 
     if (fh->is_reader) {
         struct open_info oi = { NULL, OPEN_INFO_HEURISTIC, NULL, NULL, NULL, NULL };
-        oi.name = fh->finfo.short_name;
+        oi.name = fh->finfo.name;
         oi.open_routine = wslua_filehandler_open;
         oi.extensions = fh->extensions;
         oi.wslua_data = (void*)(fh);
@@ -787,8 +787,8 @@ wslua_deregister_filehandler_work(FileHandler fh)
     if (fh->file_type != WTAP_FILE_TYPE_SUBTYPE_UNKNOWN)
         wtap_deregister_file_type_subtype(fh->file_type);
 
-    if (fh->is_reader && wtap_has_open_info(fh->finfo.short_name)) {
-        wtap_deregister_open_info(fh->finfo.short_name);
+    if (fh->is_reader && wtap_has_open_info(fh->finfo.name)) {
+        wtap_deregister_open_info(fh->finfo.name);
     }
 
     fh->registered = FALSE;

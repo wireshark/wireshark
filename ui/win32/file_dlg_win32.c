@@ -763,7 +763,7 @@ preview_set_file_info(HWND of_hwnd, gchar *preview_file) {
 
     /* Format */
     cur_ctrl = GetDlgItem(of_hwnd, EWFD_PTX_FORMAT);
-    SetWindowText(cur_ctrl, utf_8to16(wtap_file_type_subtype_string(wtap_file_type_subtype(wth))));
+    SetWindowText(cur_ctrl, utf_8to16(wtap_file_type_subtype_description(wtap_file_type_subtype(wth))));
 
     /* Size */
     filesize = wtap_file_size(wth, &err);
@@ -1189,7 +1189,7 @@ append_file_type(GArray *sa, int ft)
     }
 
     /* Construct the description. */
-    g_string_printf(description_str, "%s (%s)", wtap_file_type_subtype_string(ft),
+    g_string_printf(description_str, "%s (%s)", wtap_file_type_subtype_description(ft),
                     pattern_str->str);
     str16 = utf_8to16(description_str->str);
     sa = g_array_append_vals(sa, str16, (guint) strlen(description_str->str));

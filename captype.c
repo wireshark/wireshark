@@ -168,7 +168,7 @@ main(int argc, char *argv[])
     wth = wtap_open_offline(argv[i], WTAP_TYPE_AUTO, &err, &err_info, FALSE);
 
     if(wth) {
-      printf("%s: %s\n", argv[i], wtap_file_type_subtype_short_string(wtap_file_type_subtype(wth)));
+      printf("%s: %s\n", argv[i], wtap_file_type_subtype_name(wtap_file_type_subtype(wth)));
       wtap_close(wth);
     } else {
       if (err == WTAP_ERR_FILE_UNKNOWN_FORMAT)
