@@ -323,6 +323,7 @@ set(WSLUA_MODULES
 	${CMAKE_SOURCE_DIR}/epan/wslua/wslua_frame_info.c
 	${CMAKE_SOURCE_DIR}/epan/wslua/wslua_capture_info.c
 	${CMAKE_SOURCE_DIR}/epan/wslua/wslua_dir.c
+	${CMAKE_SOURCE_DIR}/epan/wslua/wslua_wtap.c
 	${CMAKE_SOURCE_DIR}/epan/wslua/wslua_util.c
 	${CMAKE_SOURCE_DIR}/epan/wslua/wslua_struct.c
 )
