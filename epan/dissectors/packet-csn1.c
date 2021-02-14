@@ -19,7 +19,7 @@
 
 void proto_register_csn1(void);
 
-int hf_null_data = -1;
+static int hf_null_data = -1;
 
 static expert_field ei_csn1_more_bits_to_unpack = EI_INIT;
 static expert_field ei_csn1_general = EI_INIT;

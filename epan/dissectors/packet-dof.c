@@ -11823,8 +11823,8 @@ static void dof_oap_handoff(void)
 
 /* SGMP Registration Support */
 
-void dof_register_sgmp_130(void);
-void dof_reg_handoff_sgmp_130(void);
+static void dof_register_sgmp_130(void);
+static void dof_reg_handoff_sgmp_130(void);
 
 static void dof_sgmp_reset(void)
 {
@@ -11834,7 +11834,7 @@ static void dof_sgmp_cleanup(void)
 {
 }
 
-void dof_register_sgmp_130(void)
+static void dof_register_sgmp_130(void)
 {
     static hf_register_info hf[] =
     {
@@ -11897,7 +11897,7 @@ void dof_register_sgmp_130(void)
 /**
  * The registration hand-off routine
  */
-void dof_reg_handoff_sgmp_130(void)
+static void dof_reg_handoff_sgmp_130(void)
 {
     dissector_handle_t sgmp_handle = create_dissector_handle(dissect_sgmp, proto_sgmp);
 

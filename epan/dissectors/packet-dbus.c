@@ -100,9 +100,9 @@ static const value_string endianness_vals[] = {
 	{ 'B', "big-endian" },
 	{ 0, NULL }
 };
-const true_false_string allow_vals = { "Allow", "Don't allow" };
-const true_false_string no_start_vals = { "Don't start", "Start" };
-const true_false_string not_expected_vals = { "Not expected", "Expected" };
+static const true_false_string allow_vals = { "Allow", "Don't allow" };
+static const true_false_string no_start_vals = { "Don't start", "Start" };
+static const true_false_string not_expected_vals = { "Not expected", "Expected" };
 
 static int hf_dbus_endianness = -1;
 static int hf_dbus_message_type = -1;

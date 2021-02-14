@@ -258,7 +258,7 @@ static const value_string eap_type_vals[] = {
 };
 value_string_ext eap_type_vals_ext = VALUE_STRING_EXT_INIT(eap_type_vals);
 
-const value_string eap_identity_prefix_vals[] = {
+static const value_string eap_identity_prefix_vals[] = {
   { 0x00, "Encrypted IMSI" },
   {  '0', "EAP-AKA Permanent" },
   {  '1', "EAP-SIM Permanent" },

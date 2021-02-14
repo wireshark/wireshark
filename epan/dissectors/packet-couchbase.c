@@ -858,14 +858,14 @@ static const value_string opcode_vals[] = {
 
 static value_string_ext opcode_vals_ext = VALUE_STRING_EXT_INIT(opcode_vals);
 
-const value_string dcp_connection_type_vals[] = {
+static const value_string dcp_connection_type_vals[] = {
   {0, "Consumer"},
   {1, "Producer"},
   {2, "Notifier"},
   {0, NULL}
 };
 
-const value_string vbucket_states_vals[] = {
+static const value_string vbucket_states_vals[] = {
   {1, "Active"},
   {2, "Replica"},
   {3, "Pending"},

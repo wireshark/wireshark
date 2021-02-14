@@ -2469,8 +2469,8 @@ static const value_string rba_subband_direction_vals [] = {
 static const true_false_string tfs_ucd_change_ind_vals = {"Changes", "No changes"};
 
 static const true_false_string tfs_allow_inhibit = { "Inhibit Initial Ranging", "Ranging Allowed" };
-const true_false_string type35ucd_tfs_present_not_present = { "UCD35 is present for this UCID",
-                                                              "UCD35 is not present for this UCID" };
+static const true_false_string type35ucd_tfs_present_not_present = { "UCD35 is present for this UCID",
+                                                                     "UCD35 is not present for this UCID" };
 
 static const true_false_string sid_field_bit15_tfs = {
   "The commanded power level P1.6r_n is higher than the value corresponding to the top of the DRW.",

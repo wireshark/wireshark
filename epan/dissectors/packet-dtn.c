@@ -50,7 +50,7 @@ static int dissect_admin_record(proto_tree *primary_tree, tvbuff_t *tvb, packet_
 extern void
 dissect_amp_as_subtree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset);
 
-int add_sdnv_time_to_tree(proto_tree *tree, tvbuff_t *tvb, int offset, int hf_sdnv_time);
+static int add_sdnv_time_to_tree(proto_tree *tree, tvbuff_t *tvb, int offset, int hf_sdnv_time);
 
 
 /* For Reassembling TCP Convergence Layer segments */

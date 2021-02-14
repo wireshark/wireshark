@@ -4003,7 +4003,7 @@ de_gmm_mac(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offs
 }
 
 /* [13] 10.5.5.34 User Plane integrity indicator */
-const true_false_string gsm_a_gm_up_integ_ind_value = {
+static const true_false_string gsm_a_gm_up_integ_ind_value = {
 	"MS shall enable integrity protection of user plane data in LLC layer",
 	"MS shall disable integrity protection of user plane data in LLC layer"
 };

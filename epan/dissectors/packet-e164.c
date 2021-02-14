@@ -401,7 +401,7 @@ const value_string E164_ISO3166_country_code_short_value[] = {
 };
 value_string_ext E164_ISO3166_country_code_short_value_ext = VALUE_STRING_EXT_INIT(E164_ISO3166_country_code_short_value);
 
-const value_string E164_GMSS_vals[] = {
+static const value_string E164_GMSS_vals[] = {
 	{ 6,	"Iridium Satellite LLC"},
 	{ 7,	"Iridium Satellite LLC"},
 	{ 8,	"Globalstar"},
@@ -409,7 +409,7 @@ const value_string E164_GMSS_vals[] = {
 	{ 0,	NULL }
 };
 
-const value_string E164_International_Networks_882_vals[] = {
+static const value_string E164_International_Networks_882_vals[] = {
 	{ 10,	"Global Office Application"},
 	{ 12,	"HyperStream International (HSI) Data Network"},
 	{ 13,	"EMS Regional Mobile Satellite System"},
@@ -442,7 +442,7 @@ const value_string E164_International_Networks_882_vals[] = {
 };
 static value_string_ext E164_International_Networks_882_vals_ext = VALUE_STRING_EXT_INIT(E164_International_Networks_882_vals);
 
-const value_string E164_International_Networks_883_vals[] = {
+static const value_string E164_International_Networks_883_vals[] = {
 	{ 100,	"MediaLincc Ltd"},
 	{ 110,	"Aicent Inc"},
 	{ 120,	"Telenor Connexion AB"},

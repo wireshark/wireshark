@@ -1369,7 +1369,7 @@ static const value_string cip_pccc_es_st_vals[] = {
    { 0,                          NULL }
 };
 
-value_string_ext cip_pccc_es_st_vals_ext = VALUE_STRING_EXT_INIT(cip_pccc_es_st_vals);
+static value_string_ext cip_pccc_es_st_vals_ext = VALUE_STRING_EXT_INIT(cip_pccc_es_st_vals);
 
 /* Translate PCCC Function Codes */
 static const value_string cip_pccc_fnc_06_vals[] = {
@@ -1388,7 +1388,7 @@ static const value_string cip_pccc_fnc_06_vals[] = {
    { 0,                          NULL }
 };
 
-value_string_ext cip_pccc_fnc_06_vals_ext = VALUE_STRING_EXT_INIT(cip_pccc_fnc_06_vals);
+static value_string_ext cip_pccc_fnc_06_vals_ext = VALUE_STRING_EXT_INIT(cip_pccc_fnc_06_vals);
 
 static const value_string cip_pccc_fnc_07_vals[] = {
     { PCCC_FNC_07_00, "Disable outputs" },
@@ -1401,7 +1401,7 @@ static const value_string cip_pccc_fnc_07_vals[] = {
    { 0,                          NULL }
 };
 
-value_string_ext cip_pccc_fnc_07_vals_ext = VALUE_STRING_EXT_INIT(cip_pccc_fnc_07_vals);
+static value_string_ext cip_pccc_fnc_07_vals_ext = VALUE_STRING_EXT_INIT(cip_pccc_fnc_07_vals);
 
 static const value_string cip_pccc_fnc_0f_vals[] = {
     { PCCC_FNC_0F_00, "Word range write" },
@@ -1448,7 +1448,7 @@ static const value_string cip_pccc_fnc_0f_vals[] = {
    { 0,                          NULL }
 };
 
-value_string_ext cip_pccc_fnc_0f_vals_ext = VALUE_STRING_EXT_INIT(cip_pccc_fnc_0f_vals);
+static value_string_ext cip_pccc_fnc_0f_vals_ext = VALUE_STRING_EXT_INIT(cip_pccc_fnc_0f_vals);
 
 /* Translate PCCC File Types */
 static const value_string cip_pccc_file_types_vals[] = {
@@ -1480,7 +1480,7 @@ static const value_string cip_pccc_file_types_vals[] = {
    { 0,                          NULL }
 };
 
-value_string_ext cip_pccc_file_type_vals_ext = VALUE_STRING_EXT_INIT(cip_pccc_file_types_vals);
+static value_string_ext cip_pccc_file_type_vals_ext = VALUE_STRING_EXT_INIT(cip_pccc_file_types_vals);
 
 /* Translate PCCC CPU Modes */
 #if 0
@@ -1504,7 +1504,7 @@ static const value_string cip_pccc_cpu_mode_80_vals[] = {
    { 0,                          NULL }
 };
 
-value_string_ext cip_pccc_cpu_mode_80_vals_ext = VALUE_STRING_EXT_INIT(cip_pccc_cpu_mode_80_vals);
+static value_string_ext cip_pccc_cpu_mode_80_vals_ext = VALUE_STRING_EXT_INIT(cip_pccc_cpu_mode_80_vals);
 
 /* Translate Vendor IDs */
 static const value_string cip_vendor_vals[] = {
@@ -2900,7 +2900,7 @@ const value_string cip_class_names_vals[] = {
    { 0,        NULL                             }
 };
 
-const value_string cip_id_state_vals[] = {
+static const value_string cip_id_state_vals[] = {
    { 0, "Nonexistent" },
    { 1, "Device Self Testing" },
    { 2, "Standby" },
@@ -2911,7 +2911,7 @@ const value_string cip_id_state_vals[] = {
    { 0, NULL }
 };
 
-const range_string cip_port_type_vals[] = {
+static const range_string cip_port_type_vals[] = {
    { 0, 0, "Any - no routing" },
    { 1, 1, "Reserved for legacy use" },
    { 2, 2, "ControlNet" },

@@ -446,7 +446,7 @@ const value_string tighter_cap_level_vals[] = {
     { 0, NULL}
 };
 
-const value_string cs_to_ps_srvcc_geran_to_utra_vals[] = {
+static const value_string cs_to_ps_srvcc_geran_to_utra_vals[] = {
     { 0, "CS to PS SRVCC from GERAN to UMTS FDD and 1.28 Mcps TDD not supported" },
     { 1, "CS to PS SRVCC from GERAN to UMTS FDD supported" },
     { 2, "CS to PS SRVCC from GERAN to UMTS 1.28 Mcps TDD supported" },
@@ -454,7 +454,7 @@ const value_string cs_to_ps_srvcc_geran_to_utra_vals[] = {
     { 0, NULL}
 };
 
-const value_string cs_to_ps_srvcc_geran_to_eutra_vals[] = {
+static const value_string cs_to_ps_srvcc_geran_to_eutra_vals[] = {
     { 0, "CS to PS SRVCC from GERAN to E-UTRA FDD and TDD not supported" },
     { 1, "CS to PS SRVCC from GERAN to E-UTRA FDD supported" },
     { 2, "CS to PS SRVCC from GERAN to E-UTRA TDD supported" },
@@ -3484,7 +3484,7 @@ de_cn_common_gsm_map_nas_sys_info(tvbuff_t *tvb, proto_tree *tree, packet_info *
 /*
  * [3] 10.5.1.12.2 CS domain specific system information
  */
-const true_false_string gsm_a_att_value = {
+static const true_false_string gsm_a_att_value = {
     "MSs shall apply IMSI attach and detach procedure",
     "MSs shall not apply IMSI attach and detach procedure"
 };
@@ -3510,12 +3510,12 @@ de_cs_domain_spec_sys_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, 
 /*
  * [3] 10.5.1.12.3 PS domain specific system information
  */
-const true_false_string gsm_a_nmo_1_value = {
+static const true_false_string gsm_a_nmo_1_value = {
     "Network Mode of Operation I is used for MS configured for NMO_I_Behaviour",
     "Network Mode of Operation indicated in Bit 1 (NMO) is used for MS configured for NMO_I_Behaviour"
 };
 
-const true_false_string gsm_a_nmo_value = {
+static const true_false_string gsm_a_nmo_value = {
     "Network Mode of Operation II",
     "Network Mode of Operation I"
 };

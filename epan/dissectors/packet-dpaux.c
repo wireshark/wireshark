@@ -126,7 +126,7 @@ struct dpaux_register {
     } data;
 };
 
-struct dpaux_register registers[] = {
+static struct dpaux_register registers[] = {
     { 0x0, DPAUX_REGISTER_TYPE_BITFIELD, .data.bitfield = { &hf_00000, reg00000_fields } },
     { 0x1, DPAUX_REGISTER_TYPE_BITFIELD, .data.bitfield = { &hf_00001, reg00001_fields } },
     { 0x2, DPAUX_REGISTER_TYPE_BITFIELD, .data.bitfield = { &hf_00002, reg00002_fields } },
