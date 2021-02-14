@@ -160,7 +160,7 @@ int VoipCallsInfoModel::columnCount(const QModelIndex &parent) const
 QVariant VoipCallsInfoModel::timeData(nstime_t *abs_ts, nstime_t *rel_ts) const
 {
     if (mTimeOfDay_) {
-        return QDateTime::fromTime_t(nstime_to_sec(abs_ts)).toTimeSpec(Qt::LocalTime).toString("yyyy-MM-dd hh:mm:ss");
+        return QDateTime::fromMSecsSinceEpoch(nstime_to_msec(abs_ts), Qt::LocalTime).toString("yyyy-MM-dd hh:mm:ss");
     } else {
         // XXX Pull digit count from capture file precision
         return QString::number(nstime_to_sec(rel_ts), 'f', 6);

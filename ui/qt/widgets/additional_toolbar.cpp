@@ -46,7 +46,7 @@ AdditionalToolBar * AdditionalToolBar::create(QWidget * parent, ext_toolbar_t * 
     AdditionalToolBar * result = new AdditionalToolBar(toolbar, parent);
     result->setMovable(false);
     result->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding);
-    result->layout()->setMargin(0);
+    result->layout()->setContentsMargins(0, 0, 0, 0);
     result->layout()->setSpacing(4);
 
     GList * walker = toolbar->children;
@@ -248,7 +248,7 @@ QWidget * AdditionalToolbarWidgetAction::createLabelFrame(ext_toolbar_t * item, 
     QWidget * frame = new QWidget(parent);
 
     QHBoxLayout * frameLayout = new QHBoxLayout(frame);
-    frameLayout->setMargin(0);
+    frameLayout->setContentsMargins(0, 0, 0, 0);
     frameLayout->setSpacing(0);
 
     QLabel * strLabel = new QLabel(item->name, frame);
