@@ -13,24 +13,6 @@ if (HAVE_HFI_SECTION_INIT)
 	)
 endif()
 
-include_directories(
-		${BROTLI_INCLUDE_DIRS}
-		${GLIB2_INCLUDE_DIRS}
-		${CARES_INCLUDE_DIRS}
-		${GCRYPT_INCLUDE_DIRS}
-		${GTHREAD2_INCLUDE_DIRS}
-		${GNUTLS_INCLUDE_DIRS}
-		${KERBEROS_INCLUDE_DIRS}
-		${LUA_INCLUDE_DIRS}
-		${LZ4_INCLUDE_DIRS}
-		${NGHTTP2_INCLUDE_DIRS}
-		${SMI_INCLUDE_DIRS}
-		${SNAPPY_INCLUDE_DIRS}
-		${ZLIB_INCLUDE_DIRS}
-		${ZSTD_INCLUDE_DIRS}
-		${LIBXML2_INCLUDE_DIRS}
-)
-
 add_definitions(
 		${LIBXML2_DEFINITIONS}
 		${KERBEROS_DEFINITIONS}
@@ -41,6 +23,7 @@ add_subdirectory(dfilter)
 add_subdirectory(dissectors)
 add_subdirectory(ftypes)
 add_subdirectory(wmem)
+
 if(LUA_FOUND)
 	add_subdirectory(wslua)
 endif()
@@ -364,6 +347,20 @@ target_include_directories(epan
 )
 
 target_include_directories(epan SYSTEM PUBLIC ${GLIB2_INCLUDE_DIRS})
+
+target_include_directories(epan
+	SYSTEM PRIVATE
+		${BROTLI_INCLUDE_DIRS}
+		${CARES_INCLUDE_DIRS}
+		${GLIB2_INCLUDE_DIRS}
+		${GNUTLS_INCLUDE_DIRS}
+		${GTHREAD2_INCLUDE_DIRS}
+		${LIBXML2_INCLUDE_DIRS}
+		${LUA_INCLUDE_DIRS}
+		${NGHTTP2_INCLUDE_DIRS}
+		${SMI_INCLUDE_DIRS}
+		${ZLIB_INCLUDE_DIRS}
+)
 
 add_dependencies(epan lemon)
 

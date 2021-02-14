@@ -60,6 +60,11 @@ add_library(crypt OBJECT
 	${CRYPT_FILES}
 )
 
+target_include_directories(crypt
+	SYSTEM PRIVATE
+		${GCRYPT_INCLUDE_DIRS}
+)
+
 set_target_properties(crypt PROPERTIES
 	FOLDER "Libs/epan/crypt"
 	COMPILE_DEFINITIONS "WS_BUILD_DLL"

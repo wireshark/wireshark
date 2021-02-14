@@ -9,10 +9,6 @@
 
 ADD_CUSTOM_CMAKE_INCLUDE()
 
-include_directories(
-		${GCRYPT_INCLUDE_DIRS}
-)
-
 set(WIRESHARK_WIDGET_HEADERS
 	widgets/additional_toolbar.h
 	widgets/apply_line_edit.h
@@ -713,15 +709,16 @@ add_library(qtui OBJECT
 	wireshark-tap-register.c
 )
 
-target_include_directories(qtui SYSTEM
-	PUBLIC
+target_include_directories(qtui
+	SYSTEM PUBLIC
 		${QT_INCLUDE_DIRS}
 		${WINSPARKLE_INCLUDE_DIRS}
 		${SPEEXDSP_INCLUDE_DIRS}
-	PRIVATE
+	SYSTEM PRIVATE
 		# Can't use imported target, linking object libraries for usage requirements
 		# requires CMake 3.12
 		${PCAP_INCLUDE_DIRS}
+		${GCRYPT_INCLUDE_DIRS}
 )
 
 target_compile_definitions(qtui

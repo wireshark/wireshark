@@ -146,6 +146,11 @@ add_library(wslua OBJECT
 	${WSLUA_FILES}
 )
 
+target_include_directories(wslua
+	SYSTEM PRIVATE
+		${LUA_INCLUDE_DIRS}
+)
+
 set_target_properties(wslua PROPERTIES
 	FOLDER "Libs/epan/wslua"
 	COMPILE_DEFINITIONS "WS_BUILD_DLL"
