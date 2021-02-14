@@ -27,7 +27,7 @@ WSLUA_FUNCTION wslua_wtap_file_type_subtype_description(lua_State* LS) {
 
     @since 3.2.12, 3.4.4
     */
-#define WSLUA_ARG_file_type_subtype_description_FILETYPE 1 /* The type for which the description is to be fetched - a number entry from the `wtap_filetypes` table in `init.lua`. */
+#define WSLUA_ARG_file_type_subtype_description_FILETYPE 1 /* The type for which the description is to be fetched - a number returned by `wtap_name_to_file_type_subtype()`. */
     lua_Number filetype = luaL_checknumber(LS,WSLUA_ARG_file_type_subtype_description_FILETYPE);
     /* wtap_file_type_subtype_string()'s name isn't really descriptive. */
     if (filetype > INT_MAX) {
@@ -40,7 +40,7 @@ WSLUA_FUNCTION wslua_wtap_file_type_subtype_description(lua_State* LS) {
         else
             lua_pushstring(LS,str);
     }
-    WSLUA_RETURN(1); /* The description of the file type with that filetype value, or nul if there is no such file type. */
+    WSLUA_RETURN(1); /* The description of the file type with that filetype value, or nil if there is no such file type. */
 }
 
 WSLUA_FUNCTION wslua_wtap_file_type_subtype_name(lua_State* LS) {
@@ -50,7 +50,7 @@ WSLUA_FUNCTION wslua_wtap_file_type_subtype_name(lua_State* LS) {
 
     @since 3.2.12, 3.4.4
     */
-#define WSLUA_ARG_file_type_subtype_name_FILETYPE 1 /* The type for which the name is to be fetched - a number entry from the `wtap_filetypes` table in `init.lua`. */
+#define WSLUA_ARG_file_type_subtype_name_FILETYPE 1 /* The type for which the name is to be fetched - a number returned by `wtap_name_to_file_type_subtype()`. */
     lua_Number filetype = luaL_checknumber(LS,WSLUA_ARG_file_type_subtype_name_FILETYPE);
     /* wtap_file_type_subtype_string()'s name isn't really descriptive. */
     if (filetype > INT_MAX) {
@@ -63,7 +63,7 @@ WSLUA_FUNCTION wslua_wtap_file_type_subtype_name(lua_State* LS) {
         else
            lua_pushstring(LS,str);
     }
-    WSLUA_RETURN(1); /* The name of the file type with that filetype value, or nul if there is no such file type. */
+    WSLUA_RETURN(1); /* The name of the file type with that filetype value, or nil if there is no such file type. */
 }
 
 WSLUA_FUNCTION wslua_wtap_name_to_file_type_subtype(lua_State* LS) {
@@ -73,7 +73,7 @@ WSLUA_FUNCTION wslua_wtap_name_to_file_type_subtype(lua_State* LS) {
 
     @since 3.2.12, 3.4.4
     */
-#define WSLUA_ARG_name_to_file_type_subtype_NAME 1 /* A timestamp value to convert. */
+#define WSLUA_ARG_name_to_file_type_subtype_NAME 1 /* The name of a file type. */
     const char* name = luaL_checkstring(LS,WSLUA_ARG_name_to_file_type_subtype_NAME);
     /* wtap_short_string_to_file_type_subtype()'s name isn't really descriptive. */
     lua_Number filetype = wtap_short_string_to_file_type_subtype(name);
