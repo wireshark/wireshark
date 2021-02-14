@@ -193,14 +193,11 @@ static gboolean check_valid_key_string(const char* raw_string, char* checked_str
     guint written = 0;
     guint length = (gint)strlen(raw_string);
 
-    char error_str[256];
-
     /* Can't be valid if not long enough. */
     if (length < 32) {
         if (length > 0) {
-            g_snprintf(error_str, 256, "PDCP NR: Invalid key string (%s) - should include 32 ASCII hex characters (16 bytes) but only %u chars given",
-                       raw_string, length);
-            *error = g_strdup(error_str);
+            *error = g_strdup_printf("PDCP NR: Invalid key string (%s) - should include 32 ASCII hex characters (16 bytes) but only %u chars given",
+                                     raw_string, length);
         }
         return FALSE;
     }
@@ -220,21 +217,18 @@ static gboolean check_valid_key_string(const char* raw_string, char* checked_str
             checked_string[written++] = c;
         }
         else {
-            g_snprintf(error_str, 256, "PDCP-NR: Invalid char '%c' given in key", c);
-            *error = g_strdup(error_str);
+            *error = g_strdup_printf("PDCP-NR: Invalid char '%c' given in key", c);
             return FALSE;
         }
     }
 
     /* Must have found exactly 32 hex ascii chars for 16-byte key */
     if (n<length) {
-        g_snprintf(error_str, 256, "PDCP-NR: Key (%s) should contain 32 hex characters (16 bytes) but more detected", raw_string);
-        *error = g_strdup(error_str);
+        *error = g_strdup_printf("PDCP-NR: Key (%s) should contain 32 hex characters (16 bytes) but more detected", raw_string);
         return FALSE;
     }
     if (written != 32) {
-        g_snprintf(error_str, 256, "PDCP-NR: Key (%s) should contain 32 hex characters (16 bytes) but %u detected", raw_string, written);
-        *error = g_strdup(error_str);
+        *error = g_strdup_printf("PDCP-NR: Key (%s) should contain 32 hex characters (16 bytes) but %u detected", raw_string, written);
         return FALSE;
     }
     else {
