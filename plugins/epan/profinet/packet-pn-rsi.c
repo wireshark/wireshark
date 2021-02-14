@@ -229,9 +229,6 @@ static const range_string pn_rsi_interface[] = {
     { 0, NULL }
 };*/
 
-int dissect_blocks(tvbuff_t *tvb, int offset,
-    packet_info *pinfo, proto_tree *tree, guint8 *drep);
-
 static int
 dissect_FOpnumOffset(tvbuff_t *tvb, int offset,
     packet_info *pinfo _U_, proto_tree *tree, guint8 *drep _U_, guint32 *u32FOpnumOffset)

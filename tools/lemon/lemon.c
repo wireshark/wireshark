@@ -48,7 +48,7 @@ extern int access(const char *path, int mode);
 #define MAXRHS 1000
 #endif
 
-extern void memory_error();
+extern void memory_error(void);
 static int showPrecedenceConflict = 0;
 static char *msort(char*,char**,int(*)(const char*,const char*));
 
@@ -430,7 +430,6 @@ struct lemon {
 };
 
 #define MemoryCheck(X) if((X)==0){ \
-  extern void memory_error(); \
   memory_error(); \
 }
 

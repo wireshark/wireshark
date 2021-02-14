@@ -582,6 +582,7 @@ else() # ! MSVC
 		-Wheader-guard
 		-Wcomma
 		-Wshorten-64-to-32
+		-Wredundant-decls
 	)
 
 	#
@@ -674,12 +675,6 @@ else() # ! MSVC
 			# never enable this one with -Werror.
 			#
 			-Wcast-qual
-			#
-			# Some generated ASN.1 dissectors block this one;
-			# multiple function declarations for the same
-			# function are being generated.
-			#
-			-Wredundant-decls
 			#
 			# All the registration functions block these for now.
 			#

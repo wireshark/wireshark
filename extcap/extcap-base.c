@@ -19,13 +19,19 @@
 #include <string.h>
 #include <errno.h>
 
-#ifdef HAVE_GETOPT_H
-    #include <getopt.h>
+/*
+ * If we have getopt_long() in the system library, include <getopt.h>.
+ * Otherwise, we're using our own getopt_long() (either because the
+ * system has getopt() but not getopt_long(), as with some UN*Xes,
+ * or because it doesn't even have getopt(), as with Windows), so
+ * include our getopt_long()'s header.
+ */
+#ifdef HAVE_GETOPT_LONG
+#include <getopt.h>
+#else
+#include <wsutil/wsgetopt.h>
 #endif
 
-#ifndef HAVE_GETOPT_LONG
-    #include "wsutil/wsgetopt.h"
-#endif
 #include "ws_attributes.h"
 
 enum extcap_options {
