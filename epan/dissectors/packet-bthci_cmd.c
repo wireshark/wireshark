@@ -1598,7 +1598,7 @@ static const value_string bthci_cmd_cod_major_device_class_vals[] = {
     {0x1F, "Uncategorized: device code not specified"},
     {0, NULL }
 };
-value_string_ext bthci_cmd_cod_major_device_class_vals_ext = VALUE_STRING_EXT_INIT(bthci_cmd_cod_major_device_class_vals);
+static value_string_ext bthci_cmd_cod_major_device_class_vals_ext = VALUE_STRING_EXT_INIT(bthci_cmd_cod_major_device_class_vals);
 
 static const value_string bthci_cmd_cod_minor_device_class_computer_vals[] = {
     { 0x00,  "Uncategorized, code for device not assigned" },
@@ -1611,7 +1611,7 @@ static const value_string bthci_cmd_cod_minor_device_class_computer_vals[] = {
     { 0x07,  "Tablet" },
     { 0, NULL }
 };
-value_string_ext bthci_cmd_cod_minor_device_class_computer_vals_ext = VALUE_STRING_EXT_INIT(bthci_cmd_cod_minor_device_class_computer_vals);
+static value_string_ext bthci_cmd_cod_minor_device_class_computer_vals_ext = VALUE_STRING_EXT_INIT(bthci_cmd_cod_minor_device_class_computer_vals);
 
 static const value_string bthci_cmd_cod_minor_device_class_phone_vals[] = {
     { 0x00,  "Uncategorized, code for device not assigned" },
@@ -1622,7 +1622,7 @@ static const value_string bthci_cmd_cod_minor_device_class_phone_vals[] = {
     { 0x05,  "Common ISDN access" },
     { 0, NULL }
 };
-value_string_ext bthci_cmd_cod_minor_device_class_phone_vals_ext = VALUE_STRING_EXT_INIT(bthci_cmd_cod_minor_device_class_phone_vals);
+static value_string_ext bthci_cmd_cod_minor_device_class_phone_vals_ext = VALUE_STRING_EXT_INIT(bthci_cmd_cod_minor_device_class_phone_vals);
 
 static const value_string bthci_cmd_cod_minor_device_class_lan_net_load_factor_vals[] = {
     { 0x00,  "Fully available" },
@@ -1635,13 +1635,13 @@ static const value_string bthci_cmd_cod_minor_device_class_lan_net_load_factor_v
     { 0x07,  "No service available" },
     { 0, NULL }
 };
-value_string_ext bthci_cmd_cod_minor_device_class_lan_net_load_factor_vals_ext = VALUE_STRING_EXT_INIT(bthci_cmd_cod_minor_device_class_lan_net_load_factor_vals);
+static value_string_ext bthci_cmd_cod_minor_device_class_lan_net_load_factor_vals_ext = VALUE_STRING_EXT_INIT(bthci_cmd_cod_minor_device_class_lan_net_load_factor_vals);
 
 static const value_string bthci_cmd_cod_minor_device_class_lan_net_type_vals[] = {
     { 0x00,  "Uncategorized (used if no others apply)" },
     { 0, NULL }
 };
-value_string_ext bthci_cmd_cod_minor_device_class_lan_net_type_vals_ext = VALUE_STRING_EXT_INIT(bthci_cmd_cod_minor_device_class_lan_net_type_vals);
+static value_string_ext bthci_cmd_cod_minor_device_class_lan_net_type_vals_ext = VALUE_STRING_EXT_INIT(bthci_cmd_cod_minor_device_class_lan_net_type_vals);
 
 static const value_string bthci_cmd_cod_minor_device_class_audio_video_vals[] = {
     { 0x00,  "Uncategorized, code not assigned" },
@@ -1663,7 +1663,7 @@ static const value_string bthci_cmd_cod_minor_device_class_audio_video_vals[] = 
     { 0x12,  "Gaming/Toy" },
     { 0, NULL }
 };
-value_string_ext bthci_cmd_cod_minor_device_class_audio_video_vals_ext = VALUE_STRING_EXT_INIT(bthci_cmd_cod_minor_device_class_audio_video_vals);
+static value_string_ext bthci_cmd_cod_minor_device_class_audio_video_vals_ext = VALUE_STRING_EXT_INIT(bthci_cmd_cod_minor_device_class_audio_video_vals);
 
 static const value_string bthci_cmd_cod_minor_device_class_peripheral_class_vals[] = {
     { 0x00,  "Not Keyboard / Not Pointing Device" },
@@ -1672,7 +1672,7 @@ static const value_string bthci_cmd_cod_minor_device_class_peripheral_class_vals
     { 0x03,  "Combo keyboard/pointing device" },
     { 0, NULL }
 };
-value_string_ext bthci_cmd_cod_minor_device_class_peripheral_class_vals_ext = VALUE_STRING_EXT_INIT(bthci_cmd_cod_minor_device_class_peripheral_class_vals);
+static value_string_ext bthci_cmd_cod_minor_device_class_peripheral_class_vals_ext = VALUE_STRING_EXT_INIT(bthci_cmd_cod_minor_device_class_peripheral_class_vals);
 
 static const value_string bthci_cmd_cod_minor_device_class_peripheral_type_vals[] = {
     { 0x00,  "Uncategorized device" },
@@ -1687,14 +1687,14 @@ static const value_string bthci_cmd_cod_minor_device_class_peripheral_type_vals[
     { 0x09,  "Handheld gestural input device" },
     { 0, NULL }
 };
-value_string_ext bthci_cmd_cod_minor_device_class_peripheral_type_vals_ext = VALUE_STRING_EXT_INIT(bthci_cmd_cod_minor_device_class_peripheral_type_vals);
+static value_string_ext bthci_cmd_cod_minor_device_class_peripheral_type_vals_ext = VALUE_STRING_EXT_INIT(bthci_cmd_cod_minor_device_class_peripheral_type_vals);
 
 
 static const value_string bthci_cmd_cod_minor_device_class_imaging_type_vals[] = {
     { 0x00,  "Uncategorized, default" },
     { 0, NULL }
 };
-value_string_ext bthci_cmd_cod_minor_device_class_imaging_type_vals_ext = VALUE_STRING_EXT_INIT(bthci_cmd_cod_minor_device_class_imaging_type_vals);
+static value_string_ext bthci_cmd_cod_minor_device_class_imaging_type_vals_ext = VALUE_STRING_EXT_INIT(bthci_cmd_cod_minor_device_class_imaging_type_vals);
 
 static const value_string bthci_cmd_cod_minor_device_class_wearable_vals[] = {
     { 0x01,  "Wristwatch" },
@@ -1704,7 +1704,7 @@ static const value_string bthci_cmd_cod_minor_device_class_wearable_vals[] = {
     { 0x05,  "Glasses" },
     { 0, NULL }
 };
-value_string_ext bthci_cmd_cod_minor_device_class_wearable_vals_ext = VALUE_STRING_EXT_INIT(bthci_cmd_cod_minor_device_class_wearable_vals);
+static value_string_ext bthci_cmd_cod_minor_device_class_wearable_vals_ext = VALUE_STRING_EXT_INIT(bthci_cmd_cod_minor_device_class_wearable_vals);
 
 static const value_string bthci_cmd_cod_minor_device_class_toy_vals[] = {
     { 0x01,  "Robot" },
@@ -1714,7 +1714,7 @@ static const value_string bthci_cmd_cod_minor_device_class_toy_vals[] = {
     { 0x05,  "Game" },
     { 0, NULL }
 };
-value_string_ext bthci_cmd_cod_minor_device_class_toy_vals_ext = VALUE_STRING_EXT_INIT(bthci_cmd_cod_minor_device_class_toy_vals);
+static value_string_ext bthci_cmd_cod_minor_device_class_toy_vals_ext = VALUE_STRING_EXT_INIT(bthci_cmd_cod_minor_device_class_toy_vals);
 
 static const value_string bthci_cmd_cod_minor_device_class_health_vals[] = {
     { 0x00,  "Undefined" },
@@ -1735,7 +1735,7 @@ static const value_string bthci_cmd_cod_minor_device_class_health_vals[] = {
     { 0x0F,  "Personal Mobility Device" },
     { 0, NULL }
 };
-value_string_ext bthci_cmd_cod_minor_device_class_health_vals_ext = VALUE_STRING_EXT_INIT(bthci_cmd_cod_minor_device_class_health_vals);
+static value_string_ext bthci_cmd_cod_minor_device_class_health_vals_ext = VALUE_STRING_EXT_INIT(bthci_cmd_cod_minor_device_class_health_vals);
 
 /* https://www.bluetooth.com/specifications/assigned-numbers/generic-access-profile */
 static const value_string bthci_cmd_eir_data_type_vals[] = {

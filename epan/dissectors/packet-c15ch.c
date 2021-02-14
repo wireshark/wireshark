@@ -3394,7 +3394,7 @@ static int hf_c15ch_inc_gwe_voip_cot = -1;
 static int hf_c15ch_inc_gwe_voip_cot_ip_gwe_pass_code = -1;
 
 /* Field Labels */
-const true_false_string c15_inc_gwe_voip_cot_ip_gwe_pass_code_types = {
+static const true_false_string c15_inc_gwe_voip_cot_ip_gwe_pass_code_types = {
        "Success", /*string for 1*/
        "Failure"  /*string for 0*/
 };

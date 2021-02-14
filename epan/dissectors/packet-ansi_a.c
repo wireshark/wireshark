@@ -5261,7 +5261,7 @@ static const value_string ansi_a_ms_info_rec_signal_tone_vals[] = {
     { 0, NULL }
 };
 
-const value_string ansi_a_ms_info_rec_signal_isdn_alert_vals[] = {
+static const value_string ansi_a_ms_info_rec_signal_isdn_alert_vals[] = {
     { 0x0,      "Normal Alerting" },
     { 0x1,      "Intergroup Alerting" },
     { 0x2,      "Special/Priority Alerting" },

@@ -44,7 +44,7 @@ static void cdma2k_message_ACTIVE_SET_RECORD_FIELDS(proto_item *item,tvbuff_t *t
 
 /*Initialize all the header parameters that are to be displayed*/
 
-int proto_cdma2k = -1;
+static int proto_cdma2k = -1;
 static int hf_cdma2k_msghdr = -1;
 
 /* Tlac Parameters */

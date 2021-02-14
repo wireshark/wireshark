@@ -163,7 +163,7 @@ static gint ett_aprs_storm	= -1;
 static gint ett_aprs_mic_e	= -1;
 
 
-const value_string ctype_vals[] = {
+static const value_string ctype_vals[] = {
 	{ 0,   "Compressed" },
 	{ 1,   "TNC BText" },
 	{ 2,   "Software (DOS/Mac/Win/+SA)" },
@@ -175,7 +175,7 @@ const value_string ctype_vals[] = {
 	{ 0,            NULL }
 };
 
-const value_string nmea_vals[] = {
+static const value_string nmea_vals[] = {
 	{ 0,   "other" },
 	{ 1,   "GLL" },
 	{ 2,   "GGA" },
@@ -183,7 +183,7 @@ const value_string nmea_vals[] = {
 	{ 0,            NULL }
 };
 
-const value_string gps_vals[] = {
+static const value_string gps_vals[] = {
 	{ 0,   "old (last)" },
 	{ 1,   "current" },
 	{ 0,            NULL }

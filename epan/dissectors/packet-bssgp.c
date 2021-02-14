@@ -1121,13 +1121,16 @@ static const true_false_string  bssgp_cr_bit_vals = {
     "The SDU contains a LLC ACK or SACK command/response frame type"
 };
 
-const value_string bssgp_peak_rate_gran_vals[] = {
+#if 0
+static const value_string bssgp_peak_rate_gran_vals[] = {
     { 0x0, "100 bits/s increments" },
     { 0x1, "1000 bits/s increments" },
     { 0x2, "10000 bits/s increments" },
     { 0x3, "100000 bits/s increments" },
     { 0, NULL }
 };
+#endif
+
 static const value_string bssgp_precedence_ul[] = {
     { 0,   "High priority" },
     { 1,   "Normal priority" },

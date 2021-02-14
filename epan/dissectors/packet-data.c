@@ -25,10 +25,8 @@
 void proto_register_data(void);
 void proto_reg_handoff_data(void);
 
-/* proto_data cannot be static because it's referenced in the
- * print routines
- */
-int proto_data = -1;
+
+static int proto_data = -1;
 
 #define DATA_HFI_INIT HFI_INIT(proto_data)
 

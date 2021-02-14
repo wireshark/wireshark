@@ -27,7 +27,7 @@ void proto_register_cbs(void);
 
 #define GSM_CBS_PAGE_SIZE 88
 
-const value_string message_id_values[] = {
+static const value_string message_id_values[] = {
    { 0, "Index"},
    { 10, "Flashes"},
    { 20, "Hospitals"},
@@ -82,7 +82,7 @@ const value_string message_id_values[] = {
    {    0, NULL }
 };
 
-const value_string geographic_scope_values[] = {
+static const value_string geographic_scope_values[] = {
    { 0x00, "Cell-wide (immediate display)" },
    { 0x01, "PLMN-wide" },
    { 0x02, "Location Area-wide (GSM) or Service Area-wide (UMTS)" },

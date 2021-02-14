@@ -1553,7 +1553,7 @@ static const value_string artnet_oem_code_vals[] = {
   { 0xFFFF, "Artistic Licence Engineering Ltd: OemGlobal" },
   { 0,      NULL }
 };
-value_string_ext artnet_oem_code_vals_ext = VALUE_STRING_EXT_INIT(artnet_oem_code_vals);
+static value_string_ext artnet_oem_code_vals_ext = VALUE_STRING_EXT_INIT(artnet_oem_code_vals);
 
 static const value_string artnet_esta_man_vals[] = {
   { 0x0000, "ESTA/PLASA" },
@@ -2627,7 +2627,7 @@ static const value_string artnet_esta_man_vals[] = {
 
   { 0,      NULL }
 };
-value_string_ext artnet_esta_man_vals_ext = VALUE_STRING_EXT_INIT(artnet_esta_man_vals);
+static value_string_ext artnet_esta_man_vals_ext = VALUE_STRING_EXT_INIT(artnet_esta_man_vals);
 
 static const value_string artnet_indicator_state_vals[] = {
   { 0x00, "unknown" },

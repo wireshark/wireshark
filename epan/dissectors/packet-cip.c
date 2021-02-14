@@ -1327,7 +1327,7 @@ static const value_string cip_pccc_gs_st_vals[] = {
    { 0,                          NULL }
 };
 
-value_string_ext cip_pccc_gs_st_vals_ext = VALUE_STRING_EXT_INIT(cip_pccc_gs_st_vals);
+static value_string_ext cip_pccc_gs_st_vals_ext = VALUE_STRING_EXT_INIT(cip_pccc_gs_st_vals);
 
 /* Translate function to string - PCCC Extended Status codes */
 static const value_string cip_pccc_es_st_vals[] = {

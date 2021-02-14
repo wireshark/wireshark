@@ -847,7 +847,7 @@ dissect_ctrl_pdu_without_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *btl
  *
  * It returns the procedure context in case it exists, otherwise NULL.
  */
-control_proc_info_t *
+static control_proc_info_t *
 control_proc_start(tvbuff_t *tvb,
                    packet_info *pinfo,
                    proto_tree *btle_tree,
