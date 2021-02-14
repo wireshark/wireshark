@@ -20,7 +20,11 @@
 
    The classes/functions defined in this module are for using a `Dumper` object to
    make Wireshark save a capture file to disk. `Dumper` represents Wireshark's built-in
-   file format writers (see the `wtap_filetypes` table in `init.lua`).
+   file format writers (see the `wtap_name_to_file_type_subtype` function).
+
+   (The `wtap_filetypes` table in `init.lua` is deprecated, and should
+   only be used in code that must run on Wireshark 3.4.3 and earlier 3.4
+   releases or in Wireshark 3.2.11 and earlier 3.2.x releases.)
 
    To have a Lua script create its own file format writer, see the chapter titled
    "Custom file format reading/writing".
@@ -197,7 +201,12 @@ WSLUA_CONSTRUCTOR Dumper_new(lua_State* L) {
      `Dumper:new_for_current()` will probably be a better choice.
     */
 #define WSLUA_ARG_Dumper_new_FILENAME 1 /* The name of the capture file to be created. */
-#define WSLUA_OPTARG_Dumper_new_FILETYPE 2 /* The type of the file to be created - a number entry from the `wtap_filetypes` table in `init.lua`. */
+#define WSLUA_OPTARG_Dumper_new_FILETYPE 2 /* The type of the file to be created - a number returned by `wtap_name_to_file_type_subtype()`.
+                                              (The `wtap_filetypes` table in `init.lua`
+                                              is deprecated, and should only be used
+                                              in code that must run on Wireshark 3.4.3 and earlier 3.4 releases
+                                              or in Wireshark 3.2.11 and earlier
+                                              3.2.x releases.) */
 #define WSLUA_OPTARG_Dumper_new_ENCAP 3 /* The encapsulation to be used in the file to be created - a number entry from the `wtap_encaps` table in `init.lua`. */
     Dumper d;
     const char* fname = luaL_checkstring(L,WSLUA_ARG_Dumper_new_FILENAME);
