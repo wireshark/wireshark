@@ -35459,7 +35459,7 @@ proto_register_ieee80211(void)
        "Action Code", HFILL }},
 
     {&hf_ieee80211_ff_robust_av_streaming_action_code,
-     {"Robust AV Streaming Action Code", "wlan.robust_av_stremaing.action_code",
+     {"Robust AV Streaming Action Code", "wlan.robust_av_streaming.action_code",
       FT_UINT8, BASE_HEX, VALS(ff_robust_av_streaming_action_flags), 0,
       "Action Code", HFILL }},
 
@@ -39324,7 +39324,7 @@ proto_register_ieee80211(void)
       NULL, HFILL }},
 
     {&hf_ieee80211_rnr_bss_parameters_b2,
-     {"Mutiple SSID", "wlan.rnr.bss_parameters.b2",
+     {"Multiple SSID", "wlan.rnr.bss_parameters.b2",
       FT_BOOLEAN, 8, NULL, 0x04,
       NULL, HFILL }},
 
@@ -39339,7 +39339,7 @@ proto_register_ieee80211(void)
       NULL, HFILL }},
 
     {&hf_ieee80211_rnr_bss_parameters_b5,
-     {"Unsolicated Probe Responses Active", "wlan.rnr.bss_parameters.b5",
+     {"Unsolicited Probe Responses Active", "wlan.rnr.bss_parameters.b5",
       FT_BOOLEAN, 8, NULL, 0x20,
       NULL, HFILL }},
 
@@ -39541,7 +39541,7 @@ proto_register_ieee80211(void)
       FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x01, NULL, HFILL }},
 
     {&hf_ieee80211_s1g_cap_distributed_authentication_control,
-     {"Distributed Authentication Control", "wlan.s1g.capabilities.distrubuted_authentication_control",
+     {"Distributed Authentication Control", "wlan.s1g.capabilities.distributed_authentication_control",
       FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x02, NULL, HFILL }},
 
     {&hf_ieee80211_s1g_cap_a_msdu_support,
@@ -39787,7 +39787,7 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_s1g_slot_def_format_indication,
      {"Slot Definition Format Indication",
-      "wlan.s1g.rps.raw_slot_defintion.slot_definition_format_indication",
+      "wlan.s1g.rps.raw_slot_definition.slot_definition_format_indication",
       FT_UINT16, BASE_DEC, NULL, 0x0001, NULL, HFILL }},
 
     {&hf_ieee80211_s1g_slot_def_cross_slot_boundary,
@@ -39836,7 +39836,7 @@ proto_register_ieee80211(void)
       FT_UINT24, BASE_DEC, NULL, 0xFFE000, NULL, HFILL }},
 
     {&hf_ieee80211_s1g_raw_channel_indication,
-     {"Channel Indication", "wlan.s1g.rps.channel_indicaton",
+     {"Channel Indication", "wlan.s1g.rps.channel_indication",
       FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
     {&hf_ieee80211_s1g_raw_ci_channel_activity_bitmap,
@@ -39960,7 +39960,7 @@ proto_register_ieee80211(void)
       FT_BOOLEAN, 8, NULL, 0x01, NULL, HFILL }},
 
     {&hf_ieee80211_s1g_aid_request_characteristic_offload,
-     {"Offload", "wlan.s1g.aid_rquest.service_characteristic.offload",
+     {"Offload", "wlan.s1g.aid_request.service_characteristic.offload",
       FT_BOOLEAN, 8, NULL, 0x02, NULL, HFILL }},
 
     {&hf_ieee80211_s1g_aid_request_characteristic_official_service,
@@ -40121,7 +40121,7 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_s1g_relay_function_stas_present_indic,
      {"Number of STAs Presence Indicator",
-      "wlan.s1g.relay_acctivation.number_of_stas_presence_indicator",
+      "wlan.s1g.relay_activation.number_of_stas_presence_indicator",
       FT_BOOLEAN, 8, NULL, 0x80, NULL, HFILL }},
 
     {&hf_ieee80211_s1g_relay_function_reserved,
@@ -40482,7 +40482,7 @@ proto_register_ieee80211(void)
       FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
     {&hf_ieee80211_s1g_header_comp_ccmp_update,
-     {"CCMP Udate", "wlan.s1g.header_compression.ccmp_update",
+     {"CCMP Update", "wlan.s1g.header_compression.ccmp_update",
       FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
     {&hf_ieee80211_ampduparam,
