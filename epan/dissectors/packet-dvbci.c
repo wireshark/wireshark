@@ -167,6 +167,7 @@ void proto_reg_handoff_dvbci(void);
 #define RES_CLASS_HLC 0x8D
 #define RES_CLASS_CUP 0x8E
 #define RES_CLASS_OPP 0x8F
+#define RES_CLASS_AFS 0x91
 #define RES_CLASS_SAS 0x96
 
 #define RES_ID_LEN 4 /* bytes */
@@ -370,6 +371,11 @@ void proto_reg_handoff_dvbci(void);
 #define LSC_RET_CONNECTED    1
 #define LSC_RET_TOO_BIG 0xFE
 
+/* auxiliary file system resource */
+#define AFS_ACK_RSV     0
+#define AFS_ACK_OK      1
+#define AFS_ACK_UNKNOWN 2
+
 /* operator profile resource */
 #define TABLE_ID_CICAM_NIT 0x40  /* CICAM NIT must be a NIT actual */
 
@@ -489,6 +495,10 @@ dissect_dvbci_payload_opp(guint32 tag, gint len_field _U_,
         tvbuff_t *tvb, gint offset, conversation_t *conv _U_,
         packet_info *pinfo, proto_tree *tree);
 static void
+dissect_dvbci_payload_afs(guint32 tag, gint len_field _U_,
+        tvbuff_t *tvb, gint offset, conversation_t *conv _U_,
+        packet_info *pinfo, proto_tree *tree);
+static void
 dissect_dvbci_payload_sas(guint32 tag, gint len_field _U_,
         tvbuff_t *tvb, gint offset, conversation_t *conv,
         packet_info *pinfo, proto_tree *tree);
@@ -565,6 +575,10 @@ dissect_dvbci_payload_sas(guint32 tag, gint len_field _U_,
 #define T_COMMS_SEND_MORE               0x9F8C04
 #define T_COMMS_RCV_LAST                0x9F8C05
 #define T_COMMS_RCV_MORE                0x9F8C06
+#define T_AFS_FILE_SYSTEM_OFFER         0x9F9400
+#define T_AFS_FILE_SYSTEM_ACK           0x9F9401
+#define T_AFS_FILE_REQUEST              0x9F9402
+#define T_AFS_FILE_ACKNOWLEDGE          0x9F9403
 #define T_OPERATOR_STATUS_REQ           0x9F9C00
 #define T_OPERATOR_STATUS               0x9F9C01
 #define T_OPERATOR_NIT_REQ              0x9F9C02
@@ -673,6 +687,11 @@ static const apdu_info_t apdu_info[] = {
     {T_COMMS_RCV_LAST,      2, LEN_FIELD_ANY, DATA_HOST_TO_CAM, RES_CLASS_LSC, 1, dissect_dvbci_payload_lsc},
     {T_COMMS_RCV_MORE,      2, LEN_FIELD_ANY, DATA_HOST_TO_CAM, RES_CLASS_LSC, 1, dissect_dvbci_payload_lsc},
 
+    {T_AFS_FILE_SYSTEM_OFFER, 1, LEN_FIELD_ANY, DATA_CAM_TO_HOST, RES_CLASS_AFS, 1, dissect_dvbci_payload_afs},
+    {T_AFS_FILE_SYSTEM_ACK,   1, 1,             DATA_HOST_TO_CAM, RES_CLASS_AFS, 1, dissect_dvbci_payload_afs},
+    {T_AFS_FILE_REQUEST,      1, LEN_FIELD_ANY, DATA_HOST_TO_CAM, RES_CLASS_AFS, 1, dissect_dvbci_payload_afs},
+    {T_AFS_FILE_ACKNOWLEDGE,  2, LEN_FIELD_ANY, DATA_CAM_TO_HOST, RES_CLASS_AFS, 1, dissect_dvbci_payload_afs},
+
     {T_OPERATOR_STATUS_REQ,       0, 0,             DATA_HOST_TO_CAM, RES_CLASS_OPP, 1, NULL},
     {T_OPERATOR_STATUS,           0, 6,             DATA_CAM_TO_HOST, RES_CLASS_OPP, 1, dissect_dvbci_payload_opp},
     {T_OPERATOR_NIT_REQ,          0, 0,             DATA_HOST_TO_CAM, RES_CLASS_OPP, 1, NULL},
@@ -766,6 +785,10 @@ static const value_string dvbci_apdu_tag[] = {
     { T_COMMS_SEND_MORE,               "Comms send more" },
     { T_COMMS_RCV_LAST,                "Comms receive last" },
     { T_COMMS_RCV_MORE,                "Comms receive more" },
+    { T_AFS_FILE_SYSTEM_OFFER,         "File system offer" },
+    { T_AFS_FILE_SYSTEM_ACK,           "File system ack" },
+    { T_AFS_FILE_REQUEST,              "File request" },
+    { T_AFS_FILE_ACKNOWLEDGE,          "File acknowledge" },
     { T_OPERATOR_STATUS_REQ,           "Operator status request" },
     { T_OPERATOR_STATUS,               "Operator status" },
     { T_OPERATOR_NIT_REQ,              "Operator NIT request" },
@@ -1049,6 +1072,8 @@ static int hf_dvbci_lsc_proto = -1;
 static int hf_dvbci_lsc_hostname = -1;
 static int hf_dvbci_lsc_retry_count = -1;
 static int hf_dvbci_lsc_timeout = -1;
+static int hf_dvbci_afs_dom_id = -1;
+static int hf_dvbci_afs_ack_code = -1;
 static int hf_dvbci_info_ver_op_status = -1;
 static int hf_dvbci_nit_ver = -1;
 static int hf_dvbci_pro_typ = -1;
@@ -1320,6 +1345,7 @@ static const value_string dvbci_res_class[] = {
     { RES_CLASS_HLC, "Host Language & Country" },
     { RES_CLASS_CUP, "CAM Upgrade" },
     { RES_CLASS_OPP, "Operator Profile" },
+    { RES_CLASS_AFS, "Auxiliary File System" },
     { RES_CLASS_SAS, "Specific Application Support" },
     { 0, NULL }
 };
@@ -1585,6 +1611,12 @@ static const value_string dvbci_lsc_ret_val_connect[] = {
 static const value_string dvbci_lsc_ret_val_params[] = {
     { LSC_RET_OK, "ok" },
     { LSC_RET_TOO_BIG, "buffer size too big" },
+    { 0, NULL }
+};
+static const value_string dvbci_afs_ack_code[] = {
+    { AFS_ACK_RSV, "Reserved for future use" },
+    { AFS_ACK_OK, "The application environment is supported by the Host" },
+    { AFS_ACK_UNKNOWN, "The DomainIdentifier is not supported by the Host" },
     { 0, NULL }
 };
 static const value_string dvbci_opp_ref_req_flag[] = {
@@ -4071,6 +4103,33 @@ dissect_dvbci_payload_opp(guint32 tag, gint len_field _U_,
 
 
 static void
+dissect_dvbci_payload_afs(guint32 tag, gint len_field _U_,
+        tvbuff_t *tvb, gint offset, conversation_t *conv _U_,
+        packet_info *pinfo, proto_tree *tree)
+{
+    const guint8 *dom_id_str;
+
+    switch(tag) {
+        case T_AFS_FILE_SYSTEM_OFFER:
+            proto_tree_add_item_ret_string(tree, hf_dvbci_afs_dom_id,
+                    tvb, offset, 1, ENC_UTF_8|ENC_BIG_ENDIAN,
+                    wmem_packet_scope(), &dom_id_str);
+            if (dom_id_str) {
+                col_append_sep_fstr(pinfo->cinfo,
+                        COL_INFO, ": ", "%s", dom_id_str);
+            }
+            break;
+        case T_AFS_FILE_SYSTEM_ACK:
+            proto_tree_add_item(tree, hf_dvbci_afs_ack_code,
+                    tvb, offset, 1, ENC_BIG_ENDIAN);
+            break;
+        default:
+            break;
+    }
+}
+
+
+static void
 dissect_dvbci_payload_sas(guint32 tag, gint len_field _U_,
         tvbuff_t *tvb, gint offset, conversation_t *conv,
         packet_info *pinfo, proto_tree *tree)
@@ -5963,7 +6022,14 @@ proto_register_dvbci(void)
           { "Timeout", "dvb-ci.lsc.timeout",
             FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }
         },
-
+        { &hf_dvbci_afs_dom_id,
+          { "Domain identifier", "dvb-ci.afs.domain_identifier",
+            FT_UINT_STRING, STR_UNICODE, NULL, 0, NULL, HFILL }
+        },
+        { &hf_dvbci_afs_ack_code,
+          { "Ack code", "dvb-ci.afs.ack_code",
+            FT_UINT8, BASE_HEX, VALS(dvbci_afs_ack_code), 0, NULL, HFILL }
+        },
         /* filter string for hf_dvbci_info_ver_op_status and
          * hf_dvbci_info_ver_op_info below is the same, it seems this is ok */
         { &hf_dvbci_info_ver_op_status,
