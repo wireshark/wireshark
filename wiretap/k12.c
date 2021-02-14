@@ -36,6 +36,10 @@
  * are stored in the file.
  */
 
+static int k12_file_type_subtype = -1;
+
+void register_k12(void);
+
 /* #define DEBUG_K12 */
 #ifdef DEBUG_K12
 #include <stdio.h>
@@ -1080,7 +1084,7 @@ wtap_open_return_val k12_open(wtap *wth, int *err, gchar **err_info) {
         file_data->num_of_records--;
     } while(1);
 
-    wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_K12;
+    wth->file_type_subtype = k12_file_type_subtype;
     wth->file_encap = WTAP_ENCAP_K12;
     wth->snapshot_length = 0;
     wth->subtype_read = k12_read;
@@ -1106,7 +1110,7 @@ typedef struct {
     guint32 file_offset;
 } k12_dump_t;
 
-int k12_dump_can_write_encap(int encap) {
+static int k12_dump_can_write_encap(int encap) {
 
     if (encap == WTAP_ENCAP_PER_PACKET)
         return WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED;
@@ -1367,7 +1371,7 @@ static gboolean k12_dump_finish(wtap_dumper *wdh, int *err, gchar **err_info _U_
 }
 
 
-gboolean k12_dump_open(wtap_dumper *wdh, int *err, gchar **err_info _U_) {
+static gboolean k12_dump_open(wtap_dumper *wdh, int *err, gchar **err_info _U_) {
     k12_dump_t *k12;
 
     if ( ! wtap_dump_file_write(wdh, k12_file_magic, 8, err)) {
@@ -1387,6 +1391,18 @@ gboolean k12_dump_open(wtap_dumper *wdh, int *err, gchar **err_info _U_) {
     k12->file_offset  = K12_FILE_HDR_LEN;
 
     return TRUE;
+}
+
+static const struct file_type_subtype_info k12_info = {
+    "Tektronix K12xx 32-bit .rf5 format", "rf5", "rf5", NULL,
+    TRUE, FALSE, 0,
+    k12_dump_can_write_encap, k12_dump_open, NULL
+};
+
+void register_k12(void)
+{
+    k12_file_type_subtype = wtap_register_file_type_subtypes(&k12_info,
+                                                             WTAP_FILE_TYPE_SUBTYPE_UNKNOWN);
 }
 
 /*

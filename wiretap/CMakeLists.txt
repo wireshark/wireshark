@@ -18,7 +18,12 @@ set(WIRETAP_PUBLIC_HEADERS
 	wtap_opttypes.h
 )
 
-set(WIRETAP_NONGENERATED_FILES
+#
+# Files that implement reading and possibly writing one or more
+# file types.  (For cases where more than one source file is
+# used, this should be the one that contains a registration routine.)
+#
+set(WIRETAP_C_MODULE_FILES
 	${CMAKE_CURRENT_SOURCE_DIR}/5views.c
 	${CMAKE_CURRENT_SOURCE_DIR}/aethra.c
 	${CMAKE_CURRENT_SOURCE_DIR}/ascendtext.c
@@ -39,8 +44,6 @@ set(WIRETAP_NONGENERATED_FILES
 	${CMAKE_CURRENT_SOURCE_DIR}/dct3trace.c
 	${CMAKE_CURRENT_SOURCE_DIR}/erf.c
 	${CMAKE_CURRENT_SOURCE_DIR}/eyesdn.c
-	${CMAKE_CURRENT_SOURCE_DIR}/file_access.c
-	${CMAKE_CURRENT_SOURCE_DIR}/file_wrappers.c
 	${CMAKE_CURRENT_SOURCE_DIR}/hcidump.c
 	${CMAKE_CURRENT_SOURCE_DIR}/i4btrace.c
 	${CMAKE_CURRENT_SOURCE_DIR}/ipfix.c
@@ -53,7 +56,6 @@ set(WIRETAP_NONGENERATED_FILES
 	${CMAKE_CURRENT_SOURCE_DIR}/log3gpp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/logcat.c
 	${CMAKE_CURRENT_SOURCE_DIR}/logcat_text.c
-	${CMAKE_CURRENT_SOURCE_DIR}/merge.c
 	${CMAKE_CURRENT_SOURCE_DIR}/mp4.c
 	${CMAKE_CURRENT_SOURCE_DIR}/mpeg.c
 	${CMAKE_CURRENT_SOURCE_DIR}/mplog.c
@@ -84,17 +86,42 @@ set(WIRETAP_NONGENERATED_FILES
 	${CMAKE_CURRENT_SOURCE_DIR}/visual.c
 	${CMAKE_CURRENT_SOURCE_DIR}/vms.c
 	${CMAKE_CURRENT_SOURCE_DIR}/vwr.c
+)
+
+set(WIRETAP_LEX_MODULE_FILES
+	${CMAKE_CURRENT_SOURCE_DIR}/k12text.l
+)
+
+#
+# Files to scan for registration routines.
+#
+set(WIRETAP_MODULE_FILES
+	${WIRETAP_C_MODULE_FILES}
+	${WIRETAP_LEX_MODULE_FILES}
+)
+
+#
+# C source files that aren't generated.
+#
+set(WIRETAP_NONGENERATED_C_FILES
+	${WIRETAP_C_MODULE_FILES}
+	${CMAKE_CURRENT_SOURCE_DIR}/file_access.c
+	${CMAKE_CURRENT_SOURCE_DIR}/file_wrappers.c
+	${CMAKE_CURRENT_SOURCE_DIR}/merge.c
 	${CMAKE_CURRENT_SOURCE_DIR}/wtap.c
 	${CMAKE_CURRENT_SOURCE_DIR}/wtap_opttypes.c
 )
 
-set(WIRETAP_FILES ${WIRETAP_NONGENERATED_FILES} wtap_modules.c)
+#
+# All C files to compile.
+#
+set(WIRETAP_FILES ${WIRETAP_NONGENERATED_C_FILES} wtap_modules.c)
 
 add_lex_files(LEX_FILES WIRETAP_FILES
+	${WIRETAP_LEX_MODULE_FILES}
 	${CMAKE_CURRENT_SOURCE_DIR}/ascend_scanner.l
 	${CMAKE_CURRENT_SOURCE_DIR}/busmaster_scanner.l
 	${CMAKE_CURRENT_SOURCE_DIR}/candump_scanner.l
-	${CMAKE_CURRENT_SOURCE_DIR}/k12text.l
 )
 
 add_lemon_files(LEMON_FILES WIRETAP_FILES
@@ -109,7 +136,7 @@ add_lemon_files(LEMON_FILES WIRETAP_FILES
 #
 file(GENERATE
 	OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/wtap_modules.in.txt"
-	CONTENT "$<JOIN:${WIRETAP_NONGENERATED_FILES},\n>\n"
+	CONTENT "$<JOIN:${WIRETAP_MODULE_FILES},\n>\n"
 )
 add_custom_command(
 	OUTPUT wtap_modules.c

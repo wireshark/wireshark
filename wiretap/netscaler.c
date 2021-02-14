@@ -602,7 +602,16 @@ typedef struct {
     guint64 file_size;
 } nstrace_t;
 
-static guint32 nspm_signature_version(gchar*, gint32);
+/*
+ * File versions.
+ */
+#define NSPM_SIGNATURE_1_0       0
+#define NSPM_SIGNATURE_2_0       1
+#define NSPM_SIGNATURE_3_0       2
+#define NSPM_SIGNATURE_3_5       3
+#define NSPM_SIGNATURE_NOMATCH  -1
+
+static int nspm_signature_version(gchar*, gint32);
 static gboolean nstrace_read_v10(wtap *wth, wtap_rec *rec, Buffer *buf,
                                  int *err, gchar **err_info,
                                  gint64 *data_offset);
@@ -630,12 +639,20 @@ static gboolean nstrace_set_start_time_v10(wtap *wth, int *err,
                                            gchar **err_info);
 static gboolean nstrace_set_start_time_v20(wtap *wth, int *err,
                                            gchar **err_info);
-static gboolean nstrace_set_start_time(wtap *wth, int *err, gchar **err_info);
+static gboolean nstrace_set_start_time(wtap *wth, int version, int *err,
+                                       gchar **err_info);
 static guint64 ns_hrtime2nsec(guint32 tm);
 
 static gboolean nstrace_dump(wtap_dumper *wdh, const wtap_rec *rec,
                              const guint8 *pd, int *err, gchar **err_info);
 
+
+static int nstrace_1_0_file_type_subtype = -1;
+static int nstrace_2_0_file_type_subtype = -1;
+static int nstrace_3_0_file_type_subtype = -1;
+static int nstrace_3_5_file_type_subtype = -1;
+
+void register_nstrace(void);
 
 /*
  * Minimum of the page size and the amount of data left in the file;
@@ -697,6 +714,7 @@ nstrace_read_buf(FILE_T fh, void *buf, guint32 buflen, int *err,
 */
 wtap_open_return_val nstrace_open(wtap *wth, int *err, gchar **err_info)
 {
+    int file_version;
     gchar *nstrace_buf;
     gint64 file_size;
     gint32 page_size;
@@ -724,26 +742,29 @@ wtap_open_return_val nstrace_open(wtap *wth, int *err, gchar **err_info)
     /*
      * Scan it for a signature block.
      */
-    wth->file_type_subtype = nspm_signature_version(nstrace_buf, page_size);
+    file_version = nspm_signature_version(nstrace_buf, page_size);
+    switch (file_version) {
 
-    switch (wth->file_type_subtype)
-    {
-    case WTAP_FILE_TYPE_SUBTYPE_NETSCALER_1_0:
+    case NSPM_SIGNATURE_1_0:
+        wth->file_type_subtype = nstrace_1_0_file_type_subtype;
         wth->file_encap = WTAP_ENCAP_NSTRACE_1_0;
         break;
 
-    case WTAP_FILE_TYPE_SUBTYPE_NETSCALER_2_0:
+    case NSPM_SIGNATURE_2_0:
+        wth->file_type_subtype = nstrace_2_0_file_type_subtype;
         wth->file_encap = WTAP_ENCAP_NSTRACE_2_0;
         break;
 
-    case WTAP_FILE_TYPE_SUBTYPE_NETSCALER_3_0:
+    case NSPM_SIGNATURE_3_0:
+        wth->file_type_subtype = nstrace_3_0_file_type_subtype;
         wth->file_encap = WTAP_ENCAP_NSTRACE_3_0;
         g_free(nstrace_buf);
         nstrace_buf = (gchar *)g_malloc(NSPR_PAGESIZE_TRACE);
         page_size = GET_READ_PAGE_SIZEV3(file_size);
         break;
 
-    case WTAP_FILE_TYPE_SUBTYPE_NETSCALER_3_5:
+    case NSPM_SIGNATURE_3_5:
+        wth->file_type_subtype = nstrace_3_5_file_type_subtype;
         wth->file_encap = WTAP_ENCAP_NSTRACE_3_5;
         g_free(nstrace_buf);
         nstrace_buf = (gchar *)g_malloc(NSPR_PAGESIZE_TRACE);
@@ -772,24 +793,24 @@ wtap_open_return_val nstrace_open(wtap *wth, int *err, gchar **err_info)
         return WTAP_OPEN_NOT_MINE;
     }
 
-    switch (wth->file_type_subtype)
+    switch (file_version)
     {
-    case WTAP_FILE_TYPE_SUBTYPE_NETSCALER_1_0:
+    case NSPM_SIGNATURE_1_0:
         wth->subtype_read = nstrace_read_v10;
         wth->subtype_seek_read = nstrace_seek_read_v10;
         break;
 
-    case WTAP_FILE_TYPE_SUBTYPE_NETSCALER_2_0:
+    case NSPM_SIGNATURE_2_0:
         wth->subtype_read = nstrace_read_v20;
         wth->subtype_seek_read = nstrace_seek_read_v20;
         break;
 
-    case WTAP_FILE_TYPE_SUBTYPE_NETSCALER_3_0:
+    case NSPM_SIGNATURE_3_0:
         wth->subtype_read = nstrace_read_v30;
         wth->subtype_seek_read = nstrace_seek_read_v30;
         break;
 
-    case WTAP_FILE_TYPE_SUBTYPE_NETSCALER_3_5:
+    case NSPM_SIGNATURE_3_5:
         wth->subtype_read = nstrace_read_v30;
         wth->subtype_seek_read = nstrace_seek_read_v30;
         break;
@@ -810,7 +831,7 @@ wtap_open_return_val nstrace_open(wtap *wth, int *err, gchar **err_info)
 
 
     /* Set the start time by looking for the abstime record */
-    if ((nstrace_set_start_time(wth, err, err_info)) == FALSE)
+    if ((nstrace_set_start_time(wth, file_version, err, err_info)) == FALSE)
     {
         /*
          * No absolute time record seen, so we just reset the read
@@ -898,7 +919,7 @@ nspm_signature_func(35)
 **
 ** XXX - can we assume the signature block is the first block?
 */
-static guint32
+static int
 nspm_signature_version(gchar *nstrace_buf, gint32 len)
 {
     gchar *dp = nstrace_buf;
@@ -929,7 +950,7 @@ nspm_signature_version(gchar *nstrace_buf, gint32 len)
             (pletoh16(&sigv10p->nsprRecordSize) >= nspr_signature_v10_s))
         {
             if ((nspm_signature_isv10(sigv10p->sig_Signature, sizeof sigv10p->sig_Signature)))
-                return WTAP_FILE_TYPE_SUBTYPE_NETSCALER_1_0;
+                return NSPM_SIGNATURE_1_0;
         }
 #undef    sigv10p
 
@@ -954,17 +975,17 @@ nspm_signature_version(gchar *nstrace_buf, gint32 len)
             (sigv20p->sig_RecordSize >= nspr_signature_v20_s))
         {
             if (nspm_signature_isv20(sigv20p->sig_Signature, sizeof sigv20p->sig_Signature)){
-                return WTAP_FILE_TYPE_SUBTYPE_NETSCALER_2_0;
+                return NSPM_SIGNATURE_2_0;
             } else if (nspm_signature_isv30(sigv20p->sig_Signature, sizeof sigv20p->sig_Signature)){
-                return WTAP_FILE_TYPE_SUBTYPE_NETSCALER_3_0;
+                return NSPM_SIGNATURE_3_0;
             } else if (nspm_signature_isv35(sigv20p->sig_Signature, sizeof sigv20p->sig_Signature)){
-                return WTAP_FILE_TYPE_SUBTYPE_NETSCALER_3_5;
+                return NSPM_SIGNATURE_3_5;
             }
         }
 #undef    sigv20p
     }
 
-    return WTAP_FILE_TYPE_SUBTYPE_UNKNOWN;    /* no version found */
+    return NSPM_SIGNATURE_NOMATCH;    /* no version found */
 }
 
 #define nspr_getv10recordtype(hdp) (pletoh16(&(hdp)->nsprRecordType))
@@ -1033,13 +1054,14 @@ nstrace_set_start_time_ver(20)
 ** the next record after the ABSTIME record. Inorder to report correct time values, all trace
 ** records before the ABSTIME record are ignored.
 */
-static gboolean nstrace_set_start_time(wtap *wth, int *err, gchar **err_info)
+static gboolean nstrace_set_start_time(wtap *wth, int file_version, int *err,
+                                       gchar **err_info)
 {
-    if (wth->file_type_subtype == WTAP_FILE_TYPE_SUBTYPE_NETSCALER_1_0)
+    if (file_version == NSPM_SIGNATURE_1_0)
         return nstrace_set_start_time_v10(wth, err, err_info);
-    else if (wth->file_type_subtype == WTAP_FILE_TYPE_SUBTYPE_NETSCALER_2_0)
+    else if (file_version == NSPM_SIGNATURE_2_0)
         return nstrace_set_start_time_v20(wth, err, err_info);
-    else if (wth->file_type_subtype == WTAP_FILE_TYPE_SUBTYPE_NETSCALER_3_0)
+    else if (file_version == NSPM_SIGNATURE_3_0)
         return nstrace_set_start_time_v20(wth, err, err_info);
     return FALSE;
 }
@@ -1989,7 +2011,13 @@ static void nstrace_close(wtap *wth)
 }
 
 
+#define NSTRACE_1_0       0
+#define NSTRACE_2_0       1
+#define NSTRACE_3_0       2
+#define NSTRACE_3_5       3
+
 typedef struct {
+    guint version;
     guint16 page_offset;
     guint16 page_len;
     guint32 absrec_time;
@@ -2039,7 +2067,8 @@ int nstrace_35_dump_can_write_encap(int encap)
 
 /* Returns TRUE on success, FALSE on failure; sets "*err" to an error code on
 ** failure */
-gboolean nstrace_dump_open(wtap_dumper *wdh, int *err _U_, gchar **err_info _U_)
+static gboolean nstrace_dump_open(wtap_dumper *wdh, guint version, int *err _U_,
+                                  gchar **err_info _U_)
 {
     nstrace_dump_t *nstrace;
 
@@ -2047,9 +2076,10 @@ gboolean nstrace_dump_open(wtap_dumper *wdh, int *err _U_, gchar **err_info _U_)
 
     nstrace = g_new(nstrace_dump_t, 1);
     wdh->priv = (void *)nstrace;
+    nstrace->version = version;
     nstrace->page_offset = 0;
-    if ((wdh->file_type_subtype == WTAP_FILE_TYPE_SUBTYPE_NETSCALER_3_0) ||
-      (wdh->file_type_subtype == WTAP_FILE_TYPE_SUBTYPE_NETSCALER_3_5))
+    if ((nstrace->version == NSTRACE_3_0) ||
+      (nstrace->version == NSTRACE_3_5))
       nstrace->page_len = NSPR_PAGESIZE_TRACE;
     else
       nstrace->page_len = NSPR_PAGESIZE;
@@ -2060,12 +2090,35 @@ gboolean nstrace_dump_open(wtap_dumper *wdh, int *err _U_, gchar **err_info _U_)
     return TRUE;
 }
 
+static gboolean nstrace_10_dump_open(wtap_dumper *wdh, int *err,
+                                     gchar **err_info)
+{
+    return nstrace_dump_open(wdh, NSTRACE_1_0, err, err_info);
+}
+
+static gboolean nstrace_20_dump_open(wtap_dumper *wdh, int *err,
+                                     gchar **err_info)
+{
+    return nstrace_dump_open(wdh, NSTRACE_2_0, err, err_info);
+}
+
+static gboolean nstrace_30_dump_open(wtap_dumper *wdh, int *err,
+                                     gchar **err_info)
+{
+    return nstrace_dump_open(wdh, NSTRACE_3_0, err, err_info);
+}
+
+static gboolean nstrace_35_dump_open(wtap_dumper *wdh, int *err,
+                                     gchar **err_info)
+{
+    return nstrace_dump_open(wdh, NSTRACE_3_5, err, err_info);
+}
 
 static gboolean nstrace_add_signature(wtap_dumper *wdh, int *err)
 {
     nstrace_dump_t *nstrace = (nstrace_dump_t *)wdh->priv;
 
-    if (wdh->file_type_subtype == WTAP_FILE_TYPE_SUBTYPE_NETSCALER_1_0)
+    if (nstrace->version == NSTRACE_1_0)
     {
         guint16 val16b;
         nspr_signature_v10_t sig10;
@@ -2086,7 +2139,7 @@ static gboolean nstrace_add_signature(wtap_dumper *wdh, int *err)
         /* Move forward the page offset */
         nstrace->page_offset += (guint16) nspr_signature_v10_s;
 
-    } else if (wdh->file_type_subtype == WTAP_FILE_TYPE_SUBTYPE_NETSCALER_2_0)
+    } else if (nstrace->version == NSTRACE_2_0)
     {
         nspr_signature_v20_t sig20;
 
@@ -2102,7 +2155,7 @@ static gboolean nstrace_add_signature(wtap_dumper *wdh, int *err)
         /* Move forward the page offset */
         nstrace->page_offset += (guint16) sig20.sig_RecordSize;
 
-    } else if (wdh->file_type_subtype == WTAP_FILE_TYPE_SUBTYPE_NETSCALER_3_0)
+    } else if (nstrace->version == NSTRACE_3_0)
     {
         nspr_signature_v30_t sig30;
 
@@ -2117,7 +2170,7 @@ static gboolean nstrace_add_signature(wtap_dumper *wdh, int *err)
 
         /* Move forward the page offset */
         nstrace->page_offset += (guint16) sig30.sig_RecordSize;
-    } else if (wdh->file_type_subtype == WTAP_FILE_TYPE_SUBTYPE_NETSCALER_3_5)
+    } else if (nstrace->version == NSTRACE_3_5)
     {
         nspr_signature_v35_t sig35;
 
@@ -2149,7 +2202,7 @@ nstrace_add_abstime(wtap_dumper *wdh, const wtap_rec *rec,
     nstrace_dump_t *nstrace = (nstrace_dump_t *)wdh->priv;
     guint64 nsg_creltime;
 
-    if (wdh->file_type_subtype == WTAP_FILE_TYPE_SUBTYPE_NETSCALER_1_0)
+    if (nstrace->version == NSTRACE_1_0)
     {
         guint16 val16;
         guint32 reltime;
@@ -2176,9 +2229,9 @@ nstrace_add_abstime(wtap_dumper *wdh, const wtap_rec *rec,
         /* Move forward the page offset */
         nstrace->page_offset += nspr_abstime_v10_s;
 
-    } else if ((wdh->file_type_subtype == WTAP_FILE_TYPE_SUBTYPE_NETSCALER_2_0) ||
-        (wdh->file_type_subtype == WTAP_FILE_TYPE_SUBTYPE_NETSCALER_3_0) ||
-        (wdh->file_type_subtype == WTAP_FILE_TYPE_SUBTYPE_NETSCALER_3_5))    {
+    } else if ((nstrace->version == NSTRACE_2_0) ||
+        (nstrace->version == NSTRACE_3_0) ||
+        (nstrace->version == NSTRACE_3_5))    {
         guint32 reltime;
         guint64 abstime;
         nspr_abstime_v20_t abs20;
@@ -2227,18 +2280,18 @@ static gboolean nstrace_dump(wtap_dumper *wdh, const wtap_rec *rec,
     {
         nstrace->newfile = FALSE;
         /* Add the signature record and abs time record */
-        if (wdh->file_type_subtype == WTAP_FILE_TYPE_SUBTYPE_NETSCALER_1_0)
+        if (nstrace->version == NSTRACE_1_0)
         {
             if (!nstrace_add_signature(wdh, err) ||
                 !nstrace_add_abstime(wdh, rec, pd, err))
                 return FALSE;
-        } else if (wdh->file_type_subtype == WTAP_FILE_TYPE_SUBTYPE_NETSCALER_2_0)
+        } else if (nstrace->version == NSTRACE_2_0)
         {
             if (!nstrace_add_signature(wdh, err) ||
                 !nstrace_add_abstime(wdh, rec, pd, err))
                 return FALSE;
-        } else if (wdh->file_type_subtype == WTAP_FILE_TYPE_SUBTYPE_NETSCALER_3_0 ||
-                   wdh->file_type_subtype == WTAP_FILE_TYPE_SUBTYPE_NETSCALER_3_5 )
+        } else if (nstrace->version == NSTRACE_3_0 ||
+                   nstrace->version == NSTRACE_3_5 )
         {
             if (!nstrace_add_signature(wdh, err) ||
                 !nstrace_add_abstime(wdh, rec, pd, err))
@@ -2254,7 +2307,7 @@ static gboolean nstrace_dump(wtap_dumper *wdh, const wtap_rec *rec,
     {
     case NSPR_HEADER_VERSION100:
 
-        if (wdh->file_type_subtype == WTAP_FILE_TYPE_SUBTYPE_NETSCALER_1_0)
+        if (nstrace->version == NSTRACE_1_0)
         {
             if (nstrace->page_offset + rec->rec_header.packet_header.caplen >= nstrace->page_len)
             {
@@ -2274,7 +2327,7 @@ static gboolean nstrace_dump(wtap_dumper *wdh, const wtap_rec *rec,
                 return FALSE;
 
             nstrace->page_offset += (guint16) rec->rec_header.packet_header.caplen;
-        } else if (wdh->file_type_subtype == WTAP_FILE_TYPE_SUBTYPE_NETSCALER_2_0)
+        } else if (nstrace->version == NSTRACE_2_0)
         {
             *err = WTAP_ERR_UNWRITABLE_FILE_TYPE;
             return FALSE;
@@ -2289,11 +2342,11 @@ static gboolean nstrace_dump(wtap_dumper *wdh, const wtap_rec *rec,
     case NSPR_HEADER_VERSION204:
     case NSPR_HEADER_VERSION205:
     case NSPR_HEADER_VERSION206:
-        if (wdh->file_type_subtype == WTAP_FILE_TYPE_SUBTYPE_NETSCALER_1_0)
+        if (nstrace->version == NSTRACE_1_0)
         {
             *err = WTAP_ERR_UNWRITABLE_FILE_TYPE;
             return FALSE;
-        } else if (wdh->file_type_subtype == WTAP_FILE_TYPE_SUBTYPE_NETSCALER_2_0)
+        } else if (nstrace->version == NSTRACE_2_0)
         {
             if (nstrace->page_offset + rec->rec_header.packet_header.caplen >= nstrace->page_len)
             {
@@ -2319,15 +2372,15 @@ static gboolean nstrace_dump(wtap_dumper *wdh, const wtap_rec *rec,
 
     case NSPR_HEADER_VERSION300:
     case NSPR_HEADER_VERSION350:
-        if (wdh->file_type_subtype == WTAP_FILE_TYPE_SUBTYPE_NETSCALER_1_0)
+        if (nstrace->version == NSTRACE_1_0)
         {
             *err = WTAP_ERR_UNWRITABLE_FILE_TYPE;
             return FALSE;
-        } else if (wdh->file_type_subtype == WTAP_FILE_TYPE_SUBTYPE_NETSCALER_2_0)
+        } else if (nstrace->version == NSTRACE_2_0)
         {
             *err = WTAP_ERR_UNWRITABLE_FILE_TYPE;
             return FALSE;
-        } else if (wdh->file_type_subtype == WTAP_FILE_TYPE_SUBTYPE_NETSCALER_3_0 || wdh->file_type_subtype == WTAP_FILE_TYPE_SUBTYPE_NETSCALER_3_5)
+        } else if (nstrace->version == NSTRACE_3_0 || nstrace->version == NSTRACE_3_5)
         {
             if (nstrace->page_offset + rec->rec_header.packet_header.caplen >= nstrace->page_len)
             {
@@ -2360,6 +2413,42 @@ static gboolean nstrace_dump(wtap_dumper *wdh, const wtap_rec *rec,
     }
 
     return TRUE;
+}
+
+static const struct file_type_subtype_info nstrace_1_0_info = {
+    "NetScaler Trace (Version 1.0)", "nstrace10", NULL, NULL,
+    TRUE, FALSE, 0,
+    nstrace_10_dump_can_write_encap, nstrace_10_dump_open, NULL
+};
+
+static const struct file_type_subtype_info nstrace_2_0_info = {
+    "NetScaler Trace (Version 2.0)", "nstrace20", "cap", NULL,
+    TRUE, FALSE, 0,
+    nstrace_20_dump_can_write_encap, nstrace_20_dump_open, NULL
+};
+
+static const struct file_type_subtype_info nstrace_3_0_info = {
+    "NetScaler Trace (Version 3.0)", "nstrace30", "cap", NULL,
+    TRUE, FALSE, 0,
+    nstrace_30_dump_can_write_encap, nstrace_30_dump_open, NULL
+};
+
+static const struct file_type_subtype_info nstrace_3_5_info = {
+    "NetScaler Trace (Version 3.5)", "nstrace35", "cap", NULL,
+    TRUE, FALSE, 0,
+    nstrace_35_dump_can_write_encap, nstrace_35_dump_open, NULL
+};
+
+void register_netscaler(void)
+{
+    nstrace_1_0_file_type_subtype = wtap_register_file_type_subtypes(&nstrace_1_0_info,
+                                                                     WTAP_FILE_TYPE_SUBTYPE_UNKNOWN);
+    nstrace_2_0_file_type_subtype = wtap_register_file_type_subtypes(&nstrace_2_0_info,
+                                                                     WTAP_FILE_TYPE_SUBTYPE_UNKNOWN);
+    nstrace_3_0_file_type_subtype = wtap_register_file_type_subtypes(&nstrace_3_0_info,
+                                                                     WTAP_FILE_TYPE_SUBTYPE_UNKNOWN);
+    nstrace_3_5_file_type_subtype = wtap_register_file_type_subtypes(&nstrace_3_5_info,
+                                                                     WTAP_FILE_TYPE_SUBTYPE_UNKNOWN);
 }
 
 /*

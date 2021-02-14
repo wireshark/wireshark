@@ -71,6 +71,10 @@ static gboolean btsnoop_seek_read(wtap *wth, gint64 seek_off,
 static gboolean btsnoop_read_record(wtap *wth, FILE_T fh,
     wtap_rec *rec, Buffer *buf, int *err, gchar **err_info);
 
+static int btsnoop_file_type_subtype = -1;
+
+void register_btsnoop(void);
+
 wtap_open_return_val btsnoop_open(wtap *wth, int *err, gchar **err_info)
 {
     char magic[sizeof btsnoop_magic];
@@ -137,7 +141,7 @@ wtap_open_return_val btsnoop_open(wtap *wth, int *err, gchar **err_info)
     wth->file_encap = file_encap;
     wth->snapshot_length = 0;   /* not available in header */
     wth->file_tsprec = WTAP_TSPREC_USEC;
-    wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_BTSNOOP;
+    wth->file_type_subtype = btsnoop_file_type_subtype;
 
     /*
      * Add an IDB; we don't know how many interfaces were
@@ -236,7 +240,7 @@ static gboolean btsnoop_read_record(wtap *wth, FILE_T fh,
 
 /* Returns 0 if we could write the specified encapsulation type,
    an error indication otherwise. */
-int btsnoop_dump_can_write_encap(int encap)
+static int btsnoop_dump_can_write_encap(int encap)
 {
     /* Per-packet encapsulations aren't supported. */
     if (encap == WTAP_ENCAP_PER_PACKET)
@@ -372,7 +376,7 @@ static gboolean btsnoop_dump(wtap_dumper *wdh,
 
 /* Returns TRUE on success, FALSE on failure; sets "*err" to an error code on
    failure */
-gboolean btsnoop_dump_open(wtap_dumper *wdh, int *err, gchar **err_info _U_)
+static gboolean btsnoop_dump_open(wtap_dumper *wdh, int *err, gchar **err_info _U_)
 {
     struct btsnoop_hdr file_hdr;
     guint32 datalink;
@@ -420,6 +424,18 @@ gboolean btsnoop_dump_open(wtap_dumper *wdh, int *err, gchar **err_info _U_)
     wdh->bytes_dumped += sizeof file_hdr;
 
     return TRUE;
+}
+
+static const struct file_type_subtype_info btsnoop_info = {
+    "Symbian OS btsnoop", "btsnoop", "log", NULL,
+    FALSE, FALSE, 0,
+    btsnoop_dump_can_write_encap, btsnoop_dump_open, NULL
+};
+
+void register_btsnoop(void)
+{
+    btsnoop_file_type_subtype = wtap_register_file_type_subtypes(&btsnoop_info,
+                                                                 WTAP_FILE_TYPE_SUBTYPE_UNKNOWN);
 }
 
 /*

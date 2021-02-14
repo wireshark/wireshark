@@ -29,6 +29,10 @@ typedef struct {
 #define PKT_HDR_SIZE  32 /* size of a packet header */
 #define SEG_HDR_SIZE  5  /* size of a segment header */
 
+static int stanag4607_file_type_subtype = -1;
+
+void register_stanag4607(void);
+
 static gboolean is_valid_id(guint16 version_id)
 {
 #define VERSION_21 0x3231
@@ -181,7 +185,7 @@ wtap_open_return_val stanag4607_open(wtap *wth, int *err, gchar **err_info)
   if (file_seek(wth->fh, 0, SEEK_SET, err) == -1)
     return WTAP_OPEN_ERROR;
 
-  wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_STANAG_4607;
+  wth->file_type_subtype = stanag4607_file_type_subtype;
   wth->file_encap = WTAP_ENCAP_STANAG_4607;
   wth->snapshot_length = 0; /* not known */
 
@@ -202,6 +206,18 @@ wtap_open_return_val stanag4607_open(wtap *wth, int *err, gchar **err_info)
   wtap_add_generated_idb(wth);
 
   return WTAP_OPEN_MINE;
+}
+
+static const struct file_type_subtype_info stanag4607_info = {
+  "STANAG 4607 Format", "stanag4607", NULL, NULL,
+  FALSE, FALSE, 0,
+  NULL, NULL, NULL
+};
+
+void register_stanag4607(void)
+{
+  stanag4607_file_type_subtype = wtap_register_file_type_subtypes(&stanag4607_info,
+                                                                  WTAP_FILE_TYPE_SUBTYPE_UNKNOWN);
 }
 
 /*

@@ -27,6 +27,10 @@ static gboolean i4btrace_seek_read(wtap *wth, gint64 seek_off,
 static int i4b_read_rec(wtap *wth, FILE_T fh, wtap_rec *rec,
     Buffer *buf, int *err, gchar **err_info);
 
+static int i4btrace_file_type_subtype = -1;
+
+void register_i4btrace(void);
+
 /*
  * Byte-swap the header.
  */
@@ -154,7 +158,7 @@ wtap_open_return_val i4btrace_open(wtap *wth, int *err, gchar **err_info)
 
 	/* Get capture start time */
 
-	wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_I4BTRACE;
+	wth->file_type_subtype = i4btrace_file_type_subtype;
 	i4btrace = g_new(i4btrace_t, 1);
 	wth->priv = (void *)i4btrace;
 	wth->subtype_read = i4btrace_read;
@@ -291,6 +295,19 @@ i4b_read_rec(wtap *wth, FILE_T fh, wtap_rec *rec, Buffer *buf,
 	 * Read the packet data.
 	 */
 	return wtap_read_packet_bytes(fh, buf, length, err, err_info);
+}
+
+static const struct file_type_subtype_info i4btrace_info = {
+	"I4B ISDN trace", "i4btrace", NULL, NULL,
+	FALSE, FALSE, 0,
+	NULL, NULL, NULL
+};
+
+void register_i4btrace(void)
+{
+	i4btrace_file_type_subtype =
+	    wtap_register_file_type_subtypes(&i4btrace_info,
+	        WTAP_FILE_TYPE_SUBTYPE_UNKNOWN);
 }
 
 /*

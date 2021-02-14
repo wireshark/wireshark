@@ -109,6 +109,10 @@ static gboolean aethra_seek_read(wtap *wth, gint64 seek_off,
 static gboolean aethra_read_rec_header(wtap *wth, FILE_T fh, struct aethrarec_hdr *hdr,
     wtap_rec *rec, int *err, gchar **err_info);
 
+static int aethra_file_type_subtype = -1;
+
+void register_aethra(void);
+
 wtap_open_return_val aethra_open(wtap *wth, int *err, gchar **err_info)
 {
 	struct aethra_hdr hdr;
@@ -130,7 +134,7 @@ wtap_open_return_val aethra_open(wtap *wth, int *err, gchar **err_info)
 	if (!wtap_read_bytes(wth->fh, (char *)&hdr + sizeof hdr.magic,
 	    sizeof hdr - sizeof hdr.magic, err, err_info))
 		return WTAP_OPEN_ERROR;
-	wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_AETHRA;
+	wth->file_type_subtype = aethra_file_type_subtype;
 	aethra = g_new(aethra_t, 1);
 	wth->priv = (void *)aethra;
 	wth->subtype_read = aethra_read;
@@ -335,6 +339,19 @@ aethra_read_rec_header(wtap *wth, FILE_T fh, struct aethrarec_hdr *hdr,
 	rec->rec_header.packet_header.pseudo_header.isdn.channel = 0;	/* XXX - D channel */
 
 	return TRUE;
+}
+
+static const struct file_type_subtype_info aethra_info = {
+	"Aethra .aps file", "aethra", "aps", NULL,
+	FALSE, FALSE, 0,
+	NULL, NULL, NULL
+};
+
+void register_aethra(void)
+{
+	aethra_file_type_subtype =
+	    wtap_register_file_type_subtypes(&aethra_info,
+	        WTAP_FILE_TYPE_SUBTYPE_UNKNOWN);
 }
 
 /*

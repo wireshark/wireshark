@@ -111,6 +111,10 @@ typedef struct exported_pdu_info {
 #define EXP_PDU_TAG_COL_PROT_BIT	0x0200
 
 
+static int nettrace_3gpp_32_423_file_type_subtype = -1;
+
+void register_nettrace_3gpp_32_423(void);
+
 /* Parse a string IPv4 or IPv6 address into bytes for exported_pdu_info.
  * Also parses the port pairs and transport layer type.
  */
@@ -815,7 +819,7 @@ nettrace_3gpp_32_423_file_open(wtap *wth, int *err, gchar **err_info)
 	file_info->buffer = g_byte_array_sized_new(RINGBUFFER_START_SIZE);
 	g_byte_array_append(file_info->buffer, curr_pos, (guint)(bytes_read - (curr_pos - magic_buf)));
 
-	wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_NETTRACE_3GPP_32_423;
+	wth->file_type_subtype = nettrace_3gpp_32_423_file_type_subtype;
 	wth->file_encap = WTAP_ENCAP_WIRESHARK_UPPER_PDU;
 	wth->file_tsprec = WTAP_TSPREC_MSEC;
 	wth->subtype_read = nettrace_read;
@@ -825,6 +829,20 @@ nettrace_3gpp_32_423_file_open(wtap *wth, int *err, gchar **err_info)
 	wth->priv = (void*)file_info;
 
 	return WTAP_OPEN_MINE;
+}
+
+static const struct file_type_subtype_info nettrace_3gpp_32_423_info = {
+	/* WTAP_FILE_TYPE_SUBTYPE_NETTRACE_3GPP_32_423 */
+	"3GPP TS 32.423 Trace", "3gpp32423", NULL, NULL,
+	FALSE, FALSE, 0,
+	NULL, NULL, NULL
+};
+
+void register_nettrace_3gpp_32_423(void)
+{
+	nettrace_3gpp_32_423_file_type_subtype =
+	    wtap_register_file_type_subtypes(&nettrace_3gpp_32_423_info,
+	        WTAP_FILE_TYPE_SUBTYPE_UNKNOWN);
 }
 
 /*

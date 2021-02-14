@@ -116,6 +116,10 @@ static gboolean observer_dump(wtap_dumper *wdh, const wtap_rec *rec,
 static gint observer_to_wtap_encap(int observer_encap);
 static gint wtap_to_observer_encap(int wtap_encap);
 
+static int network_instruments_file_type_subtype = -1;
+
+void register_network_instruments(void);
+
 wtap_open_return_val network_instruments_open(wtap *wth, int *err, gchar **err_info)
 {
     guint offset;
@@ -294,7 +298,7 @@ wtap_open_return_val network_instruments_open(wtap *wth, int *err, gchar **err_i
     wth->subtype_sequential_close = NULL;
     wth->snapshot_length = 0;    /* not available in header */
     wth->file_tsprec = WTAP_TSPREC_NSEC;
-    wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_NETWORK_INSTRUMENTS;
+    wth->file_type_subtype = network_instruments_file_type_subtype;
 
     /* reset the pointer to the first packet */
     if (file_seek(wth->fh, header_offset, SEEK_SET, err) == -1)
@@ -646,7 +650,7 @@ skip_to_next_packet(wtap *wth, int offset_to_next_packet, int current_offset_fro
 
 /* Returns 0 if we could write the specified encapsulation type,
    an error indication otherwise. */
-int network_instruments_dump_can_write_encap(int encap)
+static int network_instruments_dump_can_write_encap(int encap)
 {
     /* per-packet encapsulations aren't supported */
     if (encap == WTAP_ENCAP_PER_PACKET)
@@ -660,7 +664,7 @@ int network_instruments_dump_can_write_encap(int encap)
 
 /* Returns TRUE on success, FALSE on failure; sets "*err" to an error code on
    failure. */
-gboolean network_instruments_dump_open(wtap_dumper *wdh, int *err,
+static gboolean network_instruments_dump_open(wtap_dumper *wdh, int *err,
     gchar **err_info)
 {
     observer_dump_private_state * private_state = NULL;
@@ -874,6 +878,18 @@ static gint wtap_to_observer_encap(int wtap_encap)
         return OBSERVER_UNDEFINED;
     }
     return OBSERVER_UNDEFINED;
+}
+
+static const struct file_type_subtype_info network_instruments_info = {
+    "Network Instruments Observer", "niobserver", "bfr", NULL,
+    FALSE, FALSE, 0,
+    network_instruments_dump_can_write_encap, network_instruments_dump_open, NULL
+};
+
+void register_network_instruments(void)
+{
+    network_instruments_file_type_subtype = wtap_register_file_type_subtypes(&network_instruments_info,
+                                                                             WTAP_FILE_TYPE_SUBTYPE_UNKNOWN);
 }
 
 /*

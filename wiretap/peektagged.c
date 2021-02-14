@@ -158,6 +158,10 @@ static gboolean peektagged_read(wtap *wth, wtap_rec *rec, Buffer *buf,
 static gboolean peektagged_seek_read(wtap *wth, gint64 seek_off,
     wtap_rec *rec, Buffer *buf, int *err, gchar **err_info);
 
+static int peektagged_file_type_subtype = -1;
+
+void register_peektagged(void);
+
 static int wtap_file_read_pattern (wtap *wth, const char *pattern, int *err,
                                 gchar **err_info)
 {
@@ -371,7 +375,7 @@ wtap_open_return_val peektagged_open(wtap *wth, int *err, gchar **err_info)
      */
     file_encap = peektagged_encap[mediaSubType];
 
-    wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_PEEKTAGGED;
+    wth->file_type_subtype = peektagged_file_type_subtype;
     wth->file_encap = file_encap;
     wth->subtype_read = peektagged_read;
     wth->subtype_seek_read = peektagged_seek_read;
@@ -879,6 +883,18 @@ peektagged_seek_read(wtap *wth, gint64 seek_off,
         return FALSE;
     }
     return TRUE;
+}
+
+static const struct file_type_subtype_info peektagged_info = {
+    "Savvius tagged", "peektagged", "pkt", "tpc;apc;wpz",
+    FALSE, FALSE, 0,
+    NULL, NULL, NULL
+};
+
+void register_peektagged(void)
+{
+    peektagged_file_type_subtype = wtap_register_file_type_subtypes(&peektagged_info,
+                                                                    WTAP_FILE_TYPE_SUBTYPE_UNKNOWN);
 }
 
 /*

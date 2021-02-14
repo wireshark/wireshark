@@ -464,6 +464,7 @@ typedef struct {
 typedef struct {
 	guint	maj_vers;
 	guint	min_vers;
+	gboolean is_compressed;
 	guint32	timeunit;
 	time_t	start;
 	guint	network;		/* network type */
@@ -529,6 +530,11 @@ static gboolean ng_skip_bytes_seq(wtap *wth, unsigned int count, int *err,
     gchar **err_info);
 static gboolean ng_file_seek_rand(wtap *wth, gint64 offset, int *err,
     gchar **err_info);
+
+static int ngsniffer_uncompressed_file_type_subtype = -1;
+static int ngsniffer_compressed_file_type_subtype = -1;
+
+void register_ngsniffer(void);
 
 wtap_open_return_val
 ngsniffer_open(wtap *wth, int *err, gchar **err_info)
@@ -609,13 +615,6 @@ ngsniffer_open(wtap *wth, int *err, gchar **err_info)
 		return WTAP_OPEN_ERROR;
 	}
 
-	/* compressed or uncompressed Sniffer file? */
-	if (version.format != 1) {
-		wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_NGSNIFFER_COMPRESSED;
-	} else {
-		wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_NGSNIFFER_UNCOMPRESSED;
-	}
-
 	/* Set encap type before reading header records because the
 	 * header record may change encap type.
 	 */
@@ -693,6 +692,16 @@ ngsniffer_open(wtap *wth, int *err, gchar **err_info)
 	/* This is a ngsniffer file */
 	ngsniffer = g_new(ngsniffer_t, 1);
 	wth->priv = (void *)ngsniffer;
+
+	/* compressed or uncompressed Sniffer file? */
+	if (version.format != 1) {
+		wth->file_type_subtype = ngsniffer_compressed_file_type_subtype;
+		ngsniffer->is_compressed = TRUE;
+	} else {
+		wth->file_type_subtype = ngsniffer_uncompressed_file_type_subtype;
+		ngsniffer->is_compressed = FALSE;
+	}
+
 	ngsniffer->maj_vers = maj_vers;
 	ngsniffer->min_vers = pletoh16(&version.min_vers);
 
@@ -2005,7 +2014,7 @@ static const int wtap_encap[] = {
 
 /* Returns 0 if we could write the specified encapsulation type,
    an error indication otherwise. */
-int
+static int
 ngsniffer_dump_can_write_encap(int encap)
 {
 	/* Per-packet encapsulations aren't supported. */
@@ -2020,7 +2029,7 @@ ngsniffer_dump_can_write_encap(int encap)
 
 /* Returns TRUE on success, FALSE on failure; sets "*err" to an error code on
    failure */
-gboolean
+static gboolean
 ngsniffer_dump_open(wtap_dumper *wdh, int *err, gchar **err_info _U_)
 {
 	ngsniffer_dump_t *ngsniffer;
@@ -2462,7 +2471,8 @@ ng_read_bytes_or_eof(wtap *wth, void *buffer, unsigned int nbytes, gboolean is_r
 		comp_stream = &ngsniffer->seq;
 	}
 
-	if (wth->file_type_subtype == WTAP_FILE_TYPE_SUBTYPE_NGSNIFFER_UNCOMPRESSED) {
+	if (!ngsniffer->is_compressed) {
+		/* Uncompressed - just read bytes */
 		if (!wtap_read_bytes_or_eof(infile, buffer, nbytes, err, err_info))
 			return FALSE;
 		comp_stream->uncomp_offset += nbytes;
@@ -2470,7 +2480,11 @@ ng_read_bytes_or_eof(wtap *wth, void *buffer, unsigned int nbytes, gboolean is_r
 		return TRUE;
 	}
 
-	/* Allocate the stream buffer if it hasn't already been allocated. */
+	/*
+	 * Compressed.
+	 *
+	 * Allocate the stream buffer if it hasn't already been allocated.
+	 */
 	if (comp_stream->buf == NULL) {
 		comp_stream->buf = (unsigned char *)g_malloc(OUTBUF_SIZE);
 
@@ -2634,12 +2648,17 @@ ng_skip_bytes_seq(wtap *wth, unsigned int count, int *err, gchar **err_info)
 
 	ngsniffer = (ngsniffer_t *)wth->priv;
 
-	if (wth->file_type_subtype == WTAP_FILE_TYPE_SUBTYPE_NGSNIFFER_UNCOMPRESSED) {
+	if (!ngsniffer->is_compressed) {
+		/* Uncompressed - just read forward and discard data */
 		ngsniffer->seq.uncomp_offset += count;
 		return wtap_read_bytes(wth->fh, NULL, count, err, err_info);
 	}
 
-	/* Ok, now read and discard "count" bytes. */
+	/*
+	 * Compressed.
+	 *
+	 * Now read and discard "count" bytes.
+	 */
 	buf = (char *)g_malloc(INBUF_SIZE);
 	while (count != 0) {
 		if (count > INBUF_SIZE)
@@ -2677,12 +2696,19 @@ ng_file_seek_rand(wtap *wth, gint64 offset, int *err, gchar **err_info)
 
 	ngsniffer = (ngsniffer_t *)wth->priv;
 
-	if (wth->file_type_subtype == WTAP_FILE_TYPE_SUBTYPE_NGSNIFFER_UNCOMPRESSED) {
+	if (!ngsniffer->is_compressed) {
+		/* Uncompressed - just seek. */
 		if (file_seek(wth->random_fh, offset, SEEK_SET, err) == -1)
 			return FALSE;
 		return TRUE;
 	}
 
+	/*
+	 * Compressed.
+	 *
+	 * How many *uncompressed* should we move forward or
+	 * backward?
+	 */
 	delta = offset - ngsniffer->rand.uncomp_offset;
 
 	/* Is the place to which we're seeking within the current buffer, or
@@ -2814,6 +2840,28 @@ ng_file_seek_rand(wtap *wth, gint64 offset, int *err, gchar **err_info)
 	ngsniffer->rand.uncomp_offset += delta;
 
 	return TRUE;
+}
+
+static const struct file_type_subtype_info ngsniffer_uncompressed_info = {
+	"Sniffer (DOS)", "ngsniffer", "cap", "enc;trc;fdc;syc",
+	FALSE, FALSE, 0,
+	ngsniffer_dump_can_write_encap, ngsniffer_dump_open, NULL
+};
+
+static const struct file_type_subtype_info ngsniffer_compressed_info = {
+	"Sniffer (DOS), compressed", "ngsniffer_comp", "cap", "enc;trc;fdc;syc",
+	FALSE, FALSE, 0,
+	NULL, NULL, NULL
+};
+
+void register_ngsniffer(void)
+{
+	ngsniffer_uncompressed_file_type_subtype =
+	    wtap_register_file_type_subtypes(&ngsniffer_uncompressed_info,
+	        WTAP_FILE_TYPE_SUBTYPE_UNKNOWN);
+	ngsniffer_compressed_file_type_subtype =
+	    wtap_register_file_type_subtypes(&ngsniffer_compressed_info,
+	        WTAP_FILE_TYPE_SUBTYPE_UNKNOWN);
 }
 
 /*

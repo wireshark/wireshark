@@ -18,6 +18,10 @@
 /* Maximum size of json file. */
 #define MAX_FILE_SIZE  (50*1024*1024)
 
+static int json_file_type_subtype = -1;
+
+void register_json(void);
+
 wtap_open_return_val json_open(wtap *wth, int *err, gchar **err_info)
 {
     guint8* filebuf;
@@ -52,7 +56,7 @@ wtap_open_return_val json_open(wtap *wth, int *err, gchar **err_info)
         return WTAP_OPEN_ERROR;
     }
 
-    wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_JSON;
+    wth->file_type_subtype = json_file_type_subtype;
     wth->file_encap = WTAP_ENCAP_JSON;
     wth->file_tsprec = WTAP_TSPREC_SEC;
     wth->subtype_read = wtap_full_file_read;
@@ -61,6 +65,19 @@ wtap_open_return_val json_open(wtap *wth, int *err, gchar **err_info)
 
     g_free(filebuf);
     return WTAP_OPEN_MINE;
+}
+
+static const struct file_type_subtype_info json_info = {
+    /* WTAP_FILE_TYPE_SUBTYPE_JSON */
+    "JavaScript Object Notation", "json", "json", NULL,
+    FALSE, FALSE, 0,
+    NULL, NULL, NULL
+};
+
+void register_json(void)
+{
+    json_file_type_subtype = wtap_register_file_type_subtypes(&json_info,
+                                                              WTAP_FILE_TYPE_SUBTYPE_UNKNOWN);
 }
 
 /*

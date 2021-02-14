@@ -151,6 +151,11 @@ static gboolean peekclassic_seek_read_v56(wtap *wth, gint64 seek_off,
 static gboolean peekclassic_read_packet_v56(wtap *wth, FILE_T fh,
     wtap_rec *rec, Buffer *buf, int *err, gchar **err_info);
 
+static int peekclassic_v56_file_type_subtype = -1;
+static int peekclassic_v7_file_type_subtype = -1;
+
+void register_peekclassic(void);
+
 wtap_open_return_val peekclassic_open(wtap *wth, int *err, gchar **err_info)
 {
 	peekclassic_header_t ep_hdr;
@@ -324,13 +329,13 @@ wtap_open_return_val peekclassic_open(wtap *wth, int *err, gchar **err_info)
 
 	case 5:
 	case 6:
-		wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_PEEKCLASSIC_V56;
+		wth->file_type_subtype = peekclassic_v56_file_type_subtype;
 		wth->subtype_read = peekclassic_read_v56;
 		wth->subtype_seek_read = peekclassic_seek_read_v56;
 		break;
 
 	case 7:
-		wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_PEEKCLASSIC_V7;
+		wth->file_type_subtype = peekclassic_v7_file_type_subtype;
 		wth->subtype_read = peekclassic_read_v7;
 		wth->subtype_seek_read = peekclassic_seek_read_v7;
 		break;
@@ -655,6 +660,28 @@ static gboolean peekclassic_read_packet_v56(wtap *wth, FILE_T fh,
 
 	/* read the packet data */
 	return wtap_read_packet_bytes(fh, buf, sliceLength, err, err_info);
+}
+
+static const struct file_type_subtype_info peekclassic_v56_info = {
+	"Savvius classic (V5 and V6)", "peekclassic56", "pkt", "tpc;apc;wpz",
+	FALSE, FALSE, 0,
+	NULL, NULL, NULL
+};
+
+static const struct file_type_subtype_info peekclassic_v7_info = {
+	"Savvius classic (V7)", "peekclassic7", "pkt", "tpc;apc;wpz",
+	FALSE, FALSE, 0,
+	NULL, NULL, NULL
+};
+
+void register_peekclassic(void)
+{
+	peekclassic_v56_file_type_subtype =
+	    wtap_register_file_type_subtypes(&peekclassic_v56_info,
+	        WTAP_FILE_TYPE_SUBTYPE_UNKNOWN);
+	peekclassic_v7_file_type_subtype =
+	    wtap_register_file_type_subtypes(&peekclassic_v7_info,
+	        WTAP_FILE_TYPE_SUBTYPE_UNKNOWN);
 }
 
 /*

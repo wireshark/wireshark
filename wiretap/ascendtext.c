@@ -83,6 +83,10 @@ static gboolean ascend_seek_read(wtap *wth, gint64 seek_off,
         wtap_rec *rec, Buffer *buf,
         int *err, gchar **err_info);
 
+static int ascend_file_type_subtype = -1;
+
+void register_ascend(void);
+
 /* Seeks to the beginning of the next packet, and returns the
    byte offset at which the header for that packet begins.
    Returns -1 on failure. */
@@ -261,7 +265,7 @@ wtap_open_return_val ascend_open(wtap *wth, int *err, gchar **err_info)
         return WTAP_OPEN_NOT_MINE;
     }
 
-    wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_ASCEND;
+    wth->file_type_subtype = ascend_file_type_subtype;
     wth->file_encap = WTAP_ENCAP_ASCEND;
 
     wth->snapshot_length = ASCEND_MAX_PKT_LEN;
@@ -451,4 +455,16 @@ static gboolean ascend_seek_read(wtap *wth, gint64 seek_off,
         *err_info = NULL;
     }
     return TRUE;
+}
+
+static const struct file_type_subtype_info ascend_info = {
+    "Lucent/Ascend access server trace", "ascend", "txt", NULL,
+    FALSE, FALSE, 0,
+    NULL, NULL, NULL
+};
+
+void register_ascend(void)
+{
+    ascend_file_type_subtype = wtap_register_file_type_subtypes(&ascend_info,
+                                                                WTAP_FILE_TYPE_SUBTYPE_UNKNOWN);
 }

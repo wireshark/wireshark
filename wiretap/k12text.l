@@ -190,6 +190,10 @@ typedef struct {
 #define k12text_realloc(ptr, size, yyscanner)	(void *)realloc((char *)(ptr), (size))
 #define k12text_free(ptr, yyscanner)		free((char *)ptr)
 
+static int k12text_file_type_subtype = -1;
+
+void register_k12text(void);
+
 %}
 start_timestamp \053[\055]{9}\053[\055]{15,100}\053[\055]{10,100}\053
 oneormoredigits [0-9]+:
@@ -455,7 +459,7 @@ k12text_open(wtap *wth, int *err, gchar **err_info)
 	k12text = g_new(k12text_t, 1);
 	wth->priv = (void *)k12text;
 	k12text->next_frame_offset = 0;
-	wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_K12TEXT;
+	wth->file_type_subtype = k12text_file_type_subtype;
 	wth->file_encap = WTAP_ENCAP_PER_PACKET;
 	wth->snapshot_length = 0;
 	wth->subtype_read = k12text_read;
@@ -548,7 +552,7 @@ k12text_dump(wtap_dumper *wdh, const wtap_rec *rec,
 }
 
 
-gboolean
+static gboolean
 k12text_dump_open(wtap_dumper *wdh, int *err _U_, gchar **err_info _U_)
 {
     wdh->subtype_write = k12text_dump;
@@ -556,7 +560,7 @@ k12text_dump_open(wtap_dumper *wdh, int *err _U_, gchar **err_info _U_)
     return TRUE;
 }
 
-int
+static int
 k12text_dump_can_write_encap(int encap)
 {
     switch (encap) {
@@ -570,4 +574,16 @@ k12text_dump_can_write_encap(int encap)
 	default:
 		return WTAP_ERR_UNWRITABLE_ENCAP;
     }
+}
+
+static const struct file_type_subtype_info k12text_info = {
+    "K12 text file", "k12text", "txt", NULL,
+    FALSE, FALSE, 0,
+    k12text_dump_can_write_encap, k12text_dump_open, NULL
+};
+
+void register_k12text(void)
+{
+    k12text_file_type_subtype = wtap_register_file_type_subtypes(&k12text_info,
+                                                                 WTAP_FILE_TYPE_SUBTYPE_UNKNOWN);
 }

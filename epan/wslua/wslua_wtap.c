@@ -83,3 +83,16 @@ WSLUA_FUNCTION wslua_wtap_name_to_file_type_subtype(lua_State* LS) {
         lua_pushnumber(LS,filetype);
     WSLUA_RETURN(1); /* The filetype value for the file type with that name, or nil if there is no such file type. */
 }
+
+WSLUA_FUNCTION wslua_wtap_get_num_file_types_subtypes(lua_State* LS) {
+    /*
+    Get the total number of filetype values.
+
+    Note: as filetype values begin with 0, this is one *greater*
+    than the largest filetype value.
+
+    @since 3.5.0
+    */
+    lua_pushnumber(LS,wtap_get_num_file_types_subtypes());
+    WSLUA_RETURN(1); /* The total number of registered file types. */
+}

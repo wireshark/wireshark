@@ -16,6 +16,10 @@
 
 static const guint8 mp4_magic[] = { 'f', 't', 'y', 'p' };
 
+static int mp4_file_type_subtype = -1;
+
+void register_mp4(void);
+
 wtap_open_return_val
 mp4_open(wtap *wth, int *err, gchar **err_info)
 {
@@ -38,7 +42,7 @@ mp4_open(wtap *wth, int *err, gchar **err_info)
 	if (file_seek(wth->fh, 0, SEEK_SET, err) == -1)
 		return WTAP_OPEN_ERROR;
 
-	wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_MP4;
+	wth->file_type_subtype = mp4_file_type_subtype;
 	wth->file_encap = WTAP_ENCAP_MP4;
 	wth->file_tsprec = WTAP_TSPREC_SEC;
 	wth->subtype_read = wtap_full_file_read;
@@ -46,6 +50,20 @@ mp4_open(wtap *wth, int *err, gchar **err_info)
 	wth->snapshot_length = 0;
 
 	return WTAP_OPEN_MINE;
+}
+
+static const struct file_type_subtype_info mp4_info = {
+	/* WTAP_FILE_TYPE_SUBTYPE_MP4 */
+	"MP4 media", "mp4", "mp4", NULL,
+	FALSE, FALSE, 0,
+	NULL, NULL, NULL
+};
+
+void register_mp4(void)
+{
+	mp4_file_type_subtype =
+	    wtap_register_file_type_subtypes(&mp4_info,
+	        WTAP_FILE_TYPE_SUBTYPE_UNKNOWN);
 }
 
 /*

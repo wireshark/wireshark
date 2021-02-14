@@ -265,6 +265,10 @@ static gboolean lanalyzer_seek_read(wtap *wth, gint64 seek_off,
 static gboolean lanalyzer_dump_finish(wtap_dumper *wdh, int *err,
     gchar **err_info);
 
+static int lanalyzer_file_type_subtype = -1;
+
+void register_lanalyzer(void);
+
 wtap_open_return_val lanalyzer_open(wtap *wth, int *err, gchar **err_info)
 {
       LA_RecordHeader rec_header;
@@ -452,7 +456,7 @@ done:
       /* If we made it this far, then the file is a readable LANAlyzer file.
        * Let's get some info from it. Note that we get wth->snapshot_length
        * from a record later in the file. */
-      wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_LANALYZER;
+      wth->file_type_subtype = lanalyzer_file_type_subtype;
       lanalyzer = g_new(lanalyzer_t, 1);
       lanalyzer->start = start;
       wth->priv = (void *)lanalyzer;
@@ -958,6 +962,18 @@ static gboolean lanalyzer_dump_finish(wtap_dumper *wdh, int *err,
 {
       lanalyzer_dump_header(wdh,err);
       return *err ? FALSE : TRUE;
+}
+
+static const struct file_type_subtype_info lanalyzer_info = {
+      "Novell LANalyzer","lanalyzer", "tr1", NULL,
+      TRUE, FALSE, 0,
+      lanalyzer_dump_can_write_encap, lanalyzer_dump_open, NULL
+};
+
+void register_lanalyzer(void)
+{
+      lanalyzer_file_type_subtype = wtap_register_file_type_subtypes(&lanalyzer_info,
+                                                                     WTAP_FILE_TYPE_SUBTYPE_UNKNOWN);
 }
 
 /*

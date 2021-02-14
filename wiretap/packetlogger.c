@@ -66,6 +66,10 @@ static gboolean packetlogger_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
 					 Buffer *buf, int *err,
 					 gchar **err_info);
 
+static int packetlogger_file_type_subtype = -1;
+
+void register_packetlogger(void);
+
 /*
  * Number of packets to try reading.
  */
@@ -199,7 +203,7 @@ wtap_open_return_val packetlogger_open(wtap *wth, int *err, gchar **err_info)
 	wth->subtype_read = packetlogger_read;
 	wth->subtype_seek_read = packetlogger_seek_read;
 
-	wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_PACKETLOGGER;
+	wth->file_type_subtype = packetlogger_file_type_subtype;
 	wth->file_encap = WTAP_ENCAP_PACKETLOGGER;
 	wth->file_tsprec = WTAP_TSPREC_USEC;
 
@@ -371,6 +375,19 @@ packetlogger_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec, Buffer *buf,
 	rec->ts.nsecs = (int)(pl_hdr.ts_usecs * 1000);
 
 	return wtap_read_packet_bytes(fh, buf, rec->rec_header.packet_header.caplen, err, err_info);
+}
+
+static const struct file_type_subtype_info packetlogger_info = {
+	"macOS PacketLogger", "pklg", "pklg", NULL,
+	FALSE, FALSE, 0,
+	NULL, NULL, NULL
+};
+
+void register_packetlogger(void)
+{
+	packetlogger_file_type_subtype =
+	    wtap_register_file_type_subtypes(&packetlogger_info,
+	        WTAP_FILE_TYPE_SUBTYPE_UNKNOWN);
 }
 
 /*

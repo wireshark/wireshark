@@ -157,6 +157,10 @@ static gboolean visual_dump_finish(wtap_dumper *wdh, int *err,
     gchar **err_info);
 static void visual_dump_free(wtap_dumper *wdh);
 
+static int visual_file_type_subtype = -1;
+
+void register_visual(void);
+
 
 /* Open a file for reading */
 wtap_open_return_val visual_open(wtap *wth, int *err, gchar **err_info)
@@ -236,7 +240,7 @@ wtap_open_return_val visual_open(wtap *wth, int *err, gchar **err_info)
     }
 
     /* Fill in the wiretap struct with data from the file header */
-    wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_VISUAL_NETWORKS;
+    wth->file_type_subtype = visual_file_type_subtype;
     wth->file_encap = encap;
     wth->snapshot_length = pletoh16(&vfile_hdr.max_length);
 
@@ -576,7 +580,7 @@ visual_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
 /* Check for media types that may be written in Visual file format.
    Returns 0 if the specified encapsulation type is supported,
    an error indication otherwise. */
-int visual_dump_can_write_encap(int encap)
+static int visual_dump_can_write_encap(int encap)
 {
     /* Per-packet encapsulations aren't supported. */
     if (encap == WTAP_ENCAP_PER_PACKET)
@@ -602,7 +606,7 @@ int visual_dump_can_write_encap(int encap)
 /* Open a file for writing.
    Returns TRUE on success, FALSE on failure; sets "*err" to an
    error code on failure */
-gboolean visual_dump_open(wtap_dumper *wdh, int *err, gchar **err_info _U_)
+static gboolean visual_dump_open(wtap_dumper *wdh, int *err, gchar **err_info _U_)
 {
     struct visual_write_info *visual;
 
@@ -855,6 +859,18 @@ static void visual_dump_free(wtap_dumper *wdh)
         /* Free the index table memory. */
         g_free(visual->index_table);
     }
+}
+
+static const struct file_type_subtype_info visual_info = {
+    "Visual Networks traffic capture", "visual", NULL, NULL,
+    TRUE, FALSE, 0,
+    visual_dump_can_write_encap, visual_dump_open, NULL
+};
+
+void register_visual(void)
+{
+    visual_file_type_subtype = wtap_register_file_type_subtypes(&visual_info,
+        WTAP_FILE_TYPE_SUBTYPE_UNKNOWN);
 }
 
 /*

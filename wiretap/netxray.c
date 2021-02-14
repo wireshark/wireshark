@@ -408,6 +408,13 @@ static gboolean netxray_dump_2_0(wtap_dumper *wdh,
 static gboolean netxray_dump_finish_2_0(wtap_dumper *wdh, int *err,
     gchar **err_info);
 
+static int netxray_old_file_type_subtype = -1;
+static int netxray_1_0_file_type_subtype = -1;
+static int netxray_1_1_file_type_subtype = -1;
+static int netxray_2_00x_file_type_subtype = -1;
+
+void register_netxray(void);
+
 wtap_open_return_val
 netxray_open(wtap *wth, int *err, gchar **err_info)
 {
@@ -470,7 +477,7 @@ netxray_open(wtap *wth, int *err, gchar **err_info)
 	if (is_old) {
 		version_major = 0;
 		version_minor = 0;
-		file_type = WTAP_FILE_TYPE_SUBTYPE_NETXRAY_OLD;
+		file_type = netxray_old_file_type_subtype;
 	} else {
 		/* It appears that version 1.1 files (as produced by Windows
 		 * Sniffer Pro 2.0.01) have the time stamp in microseconds,
@@ -482,27 +489,27 @@ netxray_open(wtap *wth, int *err, gchar **err_info)
 		if (memcmp(hdr.version, vers_1_0, sizeof vers_1_0) == 0) {
 			version_major = 1;
 			version_minor = 0;
-			file_type = WTAP_FILE_TYPE_SUBTYPE_NETXRAY_1_0;
+			file_type = netxray_1_0_file_type_subtype;
 		} else if (memcmp(hdr.version, vers_1_1, sizeof vers_1_1) == 0) {
 			version_major = 1;
 			version_minor = 1;
-			file_type = WTAP_FILE_TYPE_SUBTYPE_NETXRAY_1_1;
+			file_type = netxray_1_1_file_type_subtype;
 		} else if (memcmp(hdr.version, vers_2_000, sizeof vers_2_000) == 0) {
 			version_major = 2;
 			version_minor = 0;
-			file_type = WTAP_FILE_TYPE_SUBTYPE_NETXRAY_2_00x;
+			file_type = netxray_2_00x_file_type_subtype;
 		} else if (memcmp(hdr.version, vers_2_001, sizeof vers_2_001) == 0) {
 			version_major = 2;
 			version_minor = 1;
-			file_type = WTAP_FILE_TYPE_SUBTYPE_NETXRAY_2_00x;
+			file_type = netxray_2_00x_file_type_subtype;
 		} else if (memcmp(hdr.version, vers_2_002, sizeof vers_2_002) == 0) {
 			version_major = 2;
 			version_minor = 2;
-			file_type = WTAP_FILE_TYPE_SUBTYPE_NETXRAY_2_00x;
+			file_type = netxray_2_00x_file_type_subtype;
 		} else if (memcmp(hdr.version, vers_2_003, sizeof vers_2_003) == 0) {
 			version_major = 2;
 			version_minor = 3;
-			file_type = WTAP_FILE_TYPE_SUBTYPE_NETXRAY_2_00x;
+			file_type = netxray_2_00x_file_type_subtype;
 		} else {
 			*err = WTAP_ERR_UNSUPPORTED;
 			*err_info = g_strdup_printf("netxray: version \"%.8s\" unsupported", hdr.version);
@@ -551,30 +558,37 @@ netxray_open(wtap *wth, int *err, gchar **err_info)
 	 */
 	start_timestamp = (double)pletoh32(&hdr.timelo)
 	    + (double)pletoh32(&hdr.timehi)*4294967296.0;
-	switch (file_type) {
-
-	case WTAP_FILE_TYPE_SUBTYPE_NETXRAY_OLD:
+	if (is_old) {
 		ticks_per_sec = 1000.0;
 		wth->file_tsprec = WTAP_TSPREC_MSEC;
-		break;
+	} else if (version_major == 1) {
+		switch (version_minor) {
 
-	case WTAP_FILE_TYPE_SUBTYPE_NETXRAY_1_0:
-		ticks_per_sec = 1000.0;
-		wth->file_tsprec = WTAP_TSPREC_MSEC;
-		break;
+		case 0:
+			ticks_per_sec = 1000.0;
+			wth->file_tsprec = WTAP_TSPREC_MSEC;
+			break;
 
-	case WTAP_FILE_TYPE_SUBTYPE_NETXRAY_1_1:
-		/*
-		 * In version 1.1 files (as produced by Windows Sniffer
-		 * Pro 2.0.01), the time stamp is in microseconds,
-		 * rather than the milliseconds time stamps in NetXRay
-		 * and older versions of Windows Sniffer.
-		 */
-		ticks_per_sec = 1000000.0;
-		wth->file_tsprec = WTAP_TSPREC_USEC;
-		break;
+		case 1:
+			/*
+			 * In version 1.1 files (as produced by Windows
+			 * Sniffer Pro 2.0.01), the time stamp is in
+			 * microseconds, rather than the milliseconds
+			 * time stamps in NetXRay and older versions
+			 * of Windows Sniffer.
+			 */
+			ticks_per_sec = 1000000.0;
+			wth->file_tsprec = WTAP_TSPREC_USEC;
+			break;
 
-	case WTAP_FILE_TYPE_SUBTYPE_NETXRAY_2_00x:
+		default:
+			/* "Can't happen" - we rejected that above */
+			*err = WTAP_ERR_INTERNAL;
+			*err_info = g_strdup_printf("netxray: version %d.%d somehow didn't get rejected",
+			                            version_major, version_minor);
+			return WTAP_OPEN_ERROR;
+		}
+	} else if (version_major == 2) {
 		/*
 		 * Get the time stamp units from the appropriate TpS
 		 * table or from the file header.
@@ -731,11 +745,12 @@ netxray_open(wtap *wth, int *err, gchar **err_info)
 			wth->file_tsprec = WTAP_TSPREC_NSEC;
 		else
 			wth->file_tsprec = WTAP_TSPREC_USEC;
-		break;
-
-	default:
-		g_assert_not_reached();
-		ticks_per_sec = 0.0;
+	} else {
+		/* "Can't happen" - we rejected that above */
+		*err = WTAP_ERR_INTERNAL;
+		*err_info = g_strdup_printf("netxray: version %d.%d somehow didn't get rejected",
+		                            version_major, version_minor);
+		return WTAP_OPEN_ERROR;
 	}
 	start_timestamp = start_timestamp/ticks_per_sec;
 
@@ -2078,6 +2093,46 @@ netxray_dump_finish_2_0(wtap_dumper *wdh, int *err, gchar **err_info _U_)
 		return FALSE;
 
 	return TRUE;
+}
+
+static const struct file_type_subtype_info netxray_old_info = {
+	"Cinco Networks NetXRay 1.x", "netxray1", "cap", NULL,
+	TRUE, FALSE, 0,
+	NULL, NULL, NULL
+};
+
+static const struct file_type_subtype_info netxray_1_0_info = {
+	"Cinco Networks NetXRay 2.0 or later", "netxray2", "cap", NULL,
+	TRUE, FALSE, 0,
+	NULL, NULL, NULL
+};
+
+static const struct file_type_subtype_info netxray_1_1_info = {
+	"NetXray, Sniffer (Windows) 1.1", "ngwsniffer_1_1", "cap", NULL,
+	TRUE, FALSE, 0,
+	netxray_dump_can_write_encap_1_1, netxray_dump_open_1_1, NULL
+};
+
+static const struct file_type_subtype_info netxray_2_00x_info = {
+	"Sniffer (Windows) 2.00x", "ngwsniffer_2_0", "cap", "caz",
+	TRUE, FALSE, 0,
+	netxray_dump_can_write_encap_2_0, netxray_dump_open_2_0, NULL
+};
+
+void register_netxray(void)
+{
+	netxray_old_file_type_subtype =
+	    wtap_register_file_type_subtypes(&netxray_old_info,
+	        WTAP_FILE_TYPE_SUBTYPE_UNKNOWN);
+	netxray_1_0_file_type_subtype =
+	    wtap_register_file_type_subtypes(&netxray_1_0_info,
+	        WTAP_FILE_TYPE_SUBTYPE_UNKNOWN);
+	netxray_1_1_file_type_subtype =
+	    wtap_register_file_type_subtypes(&netxray_1_1_info,
+	        WTAP_FILE_TYPE_SUBTYPE_UNKNOWN);
+	netxray_2_00x_file_type_subtype =
+	    wtap_register_file_type_subtypes(&netxray_2_00x_info,
+	        WTAP_FILE_TYPE_SUBTYPE_UNKNOWN);
 }
 
 /*

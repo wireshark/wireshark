@@ -15,6 +15,10 @@
 #include "snoop.h"
 /* See RFC 1761 for a description of the "snoop" file format. */
 
+typedef struct {
+	gboolean is_shomiti;
+} snoop_t;
+
 /* Magic number in "snoop" files. */
 static const char snoop_magic[] = {
 	's', 'n', 'o', 'o', 'p', '\0', '\0', '\0'
@@ -84,6 +88,11 @@ static gboolean snoop_read_shomiti_wireless_pseudoheader(FILE_T fh,
     int *header_size);
 static gboolean snoop_dump(wtap_dumper *wdh, const wtap_rec *rec,
     const guint8 *pd, int *err, gchar **err_info);
+
+static int snoop_file_type_subtype = -1;
+static int shomiti_file_type_subtype = -1;
+
+void register_snoop(void);
 
 /*
  * See
@@ -238,6 +247,7 @@ wtap_open_return_val snoop_open(wtap *wth, int *err, gchar **err_info)
 	#define NUM_SHOMITI_ENCAPS (sizeof shomiti_encap / sizeof shomiti_encap[0])
 	int file_encap;
 	gint64 saved_offset;
+	snoop_t *snoop;
 
 	/* Read in the string that should be at the start of a "snoop" file */
 	if (!wtap_read_bytes(wth->fh, magic, sizeof magic, err, err_info)) {
@@ -362,9 +372,6 @@ wtap_open_return_val snoop_open(wtap *wth, int *err, gchar **err_info)
 			return WTAP_OPEN_ERROR;
 		}
 		file_encap = shomiti_encap[hdr.network];
-
-		/* This is a Shomiti file */
-		wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_SHOMITI;
 	} else if (hdr.network & SNOOP_PRIVATE_BIT) {
 		if ((hdr.network^SNOOP_PRIVATE_BIT) >= NUM_SNOOP_PRIVATE_ENCAPS
 		    || snoop_private_encap[hdr.network^SNOOP_PRIVATE_BIT] == WTAP_ENCAP_UNKNOWN) {
@@ -374,9 +381,6 @@ wtap_open_return_val snoop_open(wtap *wth, int *err, gchar **err_info)
 			return WTAP_OPEN_ERROR;
 		}
 		file_encap = snoop_private_encap[hdr.network^SNOOP_PRIVATE_BIT];
-
-		/* This is a snoop file */
-		wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_SNOOP;
 	} else {
 		if (hdr.network >= NUM_SNOOP_ENCAPS
 		    || snoop_encap[hdr.network] == WTAP_ENCAP_UNKNOWN) {
@@ -386,9 +390,6 @@ wtap_open_return_val snoop_open(wtap *wth, int *err, gchar **err_info)
 			return WTAP_OPEN_ERROR;
 		}
 		file_encap = snoop_encap[hdr.network];
-
-		/* This is a snoop file */
-		wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_SNOOP;
 	}
 
 	/*
@@ -396,11 +397,15 @@ wtap_open_return_val snoop_open(wtap *wth, int *err, gchar **err_info)
 	 * records, so we use the same routines to read snoop and
 	 * Shomiti files.
 	 */
+	wth->file_type_subtype = is_shomiti ? shomiti_file_type_subtype : snoop_file_type_subtype;
+	snoop = g_new0(snoop_t, 1);
+	wth->priv = (void *)snoop;
 	wth->subtype_read = snoop_read;
 	wth->subtype_seek_read = snoop_seek_read;
 	wth->file_encap = file_encap;
 	wth->snapshot_length = 0;	/* not available in header */
 	wth->file_tsprec = WTAP_TSPREC_USEC;
+	snoop->is_shomiti = is_shomiti;
 
 	/*
 	 * Add an IDB; we don't know how many interfaces were
@@ -467,6 +472,7 @@ static int
 snoop_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
     Buffer *buf, int *err, gchar **err_info)
 {
+	snoop_t *snoop = (snoop_t *)wth->priv;
 	struct snooprec_hdr hdr;
 	guint32 rec_size;
 	guint32	packet_size;
@@ -547,7 +553,7 @@ snoop_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
 		 * this frame; if this is a Shomit file, we assume there
 		 * is.  (XXX - or should we treat it a "maybe"?)
 		 */
-		if (wth->file_type_subtype == WTAP_FILE_TYPE_SUBTYPE_SHOMITI)
+		if (snoop->is_shomiti)
 			rec->rec_header.packet_header.pseudo_header.eth.fcs_len = 4;
 		else
 			rec->rec_header.packet_header.pseudo_header.eth.fcs_len = 0;
@@ -909,6 +915,28 @@ static gboolean snoop_dump(wtap_dumper *wdh,
 	if (!wtap_dump_file_write(wdh, zeroes, padlen, err))
 		return FALSE;
 	return TRUE;
+}
+
+static const struct file_type_subtype_info snoop_info = {
+	"Sun snoop", "snoop", "snoop", "cap",
+	FALSE, FALSE, 0,
+	snoop_dump_can_write_encap, snoop_dump_open, NULL
+};
+
+static const struct file_type_subtype_info shomiti_info = {
+	"Shomiti/Finisar Surveyor", "shomiti", "cap", NULL,
+	FALSE, FALSE, 0,
+	NULL, NULL, NULL
+};
+
+void register_snoop(void)
+{
+	snoop_file_type_subtype =
+	    wtap_register_file_type_subtypes(&snoop_info,
+	        WTAP_FILE_TYPE_SUBTYPE_UNKNOWN);
+	shomiti_file_type_subtype =
+	    wtap_register_file_type_subtypes(&shomiti_info,
+	        WTAP_FILE_TYPE_SUBTYPE_UNKNOWN);
 }
 
 /*

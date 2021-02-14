@@ -14,6 +14,10 @@
 
 #include "logcat.h"
 
+static int logcat_file_type_subtype = -1;
+
+void register_logcat(void);
+
 /* Returns '?' for invalid priorities */
 static gchar get_priority(const guint8 priority) {
     static gchar priorities[] = "??VDIWEFS";
@@ -282,7 +286,7 @@ wtap_open_return_val logcat_open(wtap *wth, int *err, gchar **err_info)
 
     wth->priv = logcat;
 
-    wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_LOGCAT;
+    wth->file_type_subtype = logcat_file_type_subtype;
     wth->file_encap = WTAP_ENCAP_LOGCAT;
     wth->snapshot_length = 0;
 
@@ -301,7 +305,7 @@ wtap_open_return_val logcat_open(wtap *wth, int *err, gchar **err_info)
     return WTAP_OPEN_MINE;
 }
 
-int logcat_dump_can_write_encap(int encap)
+static int logcat_dump_can_write_encap(int encap)
 {
     if (encap == WTAP_ENCAP_PER_PACKET)
         return WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED;
@@ -352,12 +356,24 @@ static gboolean logcat_binary_dump(wtap_dumper *wdh,
     return TRUE;
 }
 
-gboolean logcat_binary_dump_open(wtap_dumper *wdh, int *err _U_,
+static gboolean logcat_binary_dump_open(wtap_dumper *wdh, int *err _U_,
     gchar **err_info _U_)
 {
     wdh->subtype_write = logcat_binary_dump;
 
     return TRUE;
+}
+
+static const struct file_type_subtype_info logcat_info = {
+    "Android Logcat Binary format", "logcat", "logcat", NULL,
+    FALSE, FALSE, 0,
+    logcat_dump_can_write_encap, logcat_binary_dump_open, NULL
+};
+
+void register_logcat(void)
+{
+    logcat_file_type_subtype = wtap_register_file_type_subtypes(&logcat_info,
+                                                                WTAP_FILE_TYPE_SUBTYPE_UNKNOWN);
 }
 
 /*

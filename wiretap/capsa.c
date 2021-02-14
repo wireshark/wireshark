@@ -113,6 +113,11 @@ static gboolean capsa_seek_read(wtap *wth, gint64 seek_off,
 static int capsa_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
     Buffer *buf, int *err, gchar **err_info);
 
+static int capsa_file_type_subtype = -1;
+static int packet_builder_file_type_subtype = -1;
+
+void register_capsa(void);
+
 wtap_open_return_val capsa_open(wtap *wth, int *err, gchar **err_info)
 {
 	char magic[sizeof capsa_magic];
@@ -144,11 +149,11 @@ wtap_open_return_val capsa_open(wtap *wth, int *err, gchar **err_info)
 	switch (format_indicator) {
 
 	case 1:		/* Capsa */
-		file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_COLASOFT_CAPSA;
+		file_type_subtype = capsa_file_type_subtype;
 		break;
 
 	case 2:		/* Packet Builder */
-		file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_COLASOFT_PACKET_BUILDER;
+		file_type_subtype = packet_builder_file_type_subtype;
 		break;
 
 	default:
@@ -427,6 +432,28 @@ capsa_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
 		return -1;	/* failed */
 
 	return rec_size - (header_size + packet_size);
+}
+
+static const struct file_type_subtype_info capsa_info = {
+	"Colasoft Capsa format", "capsa", "cscpkt", NULL,
+	FALSE, FALSE, 0,
+	NULL, NULL, NULL
+};
+
+static const struct file_type_subtype_info packet_builder_info = {
+	"Colasoft Packet Builder format", "colasoft-pb", "cscpkt", NULL,
+	FALSE, FALSE, 0,
+	NULL, NULL, NULL
+};
+
+void register_capsa(void)
+{
+	capsa_file_type_subtype =
+	    wtap_register_file_type_subtypes(&capsa_info,
+	        WTAP_FILE_TYPE_SUBTYPE_UNKNOWN);
+	packet_builder_file_type_subtype =
+	    wtap_register_file_type_subtypes(&packet_builder_info,
+	        WTAP_FILE_TYPE_SUBTYPE_UNKNOWN);
 }
 
 /*

@@ -95,6 +95,9 @@ static int _5views_read_header(wtap *wth, FILE_T fh, t_5VW_TimeStamped_Header *h
 static gboolean _5views_dump(wtap_dumper *wdh, const wtap_rec *rec, const guint8 *pd, int *err, gchar **err_info);
 static gboolean _5views_dump_finish(wtap_dumper *wdh, int *err, gchar **err_info);
 
+static int _5views_file_type_subtype = -1;
+
+void register_5views(void);
 
 wtap_open_return_val
 _5views_open(wtap *wth, int *err, gchar **err_info)
@@ -160,7 +163,7 @@ _5views_open(wtap *wth, int *err, gchar **err_info)
 		return WTAP_OPEN_ERROR;
 
 	/* This is a 5views capture file */
-	wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_5VIEWS;
+	wth->file_type_subtype = _5views_file_type_subtype;
 	wth->subtype_read = _5views_read;
 	wth->subtype_seek_read = _5views_seek_read;
 	wth->file_encap = encap;
@@ -307,7 +310,7 @@ static const int wtap_encap[] = {
 
 /* Returns 0 if we could write the specified encapsulation type,
    an error indication otherwise. */
-int _5views_dump_can_write_encap(int encap)
+static int _5views_dump_can_write_encap(int encap)
 {
 	/* Per-packet encapsulations aren't supported. */
 	if (encap == WTAP_ENCAP_PER_PACKET)
@@ -321,7 +324,7 @@ int _5views_dump_can_write_encap(int encap)
 
 /* Returns TRUE on success, FALSE on failure; sets "*err" to an error code on
    failure */
-gboolean _5views_dump_open(wtap_dumper *wdh, int *err, gchar **err_info _U_)
+static gboolean _5views_dump_open(wtap_dumper *wdh, int *err, gchar **err_info _U_)
 {
 	_5views_dump_t *_5views;
 
@@ -448,6 +451,19 @@ static gboolean _5views_dump_finish(wtap_dumper *wdh, int *err, gchar **err_info
 		return FALSE;
 
 	return TRUE;
+}
+
+static const struct file_type_subtype_info _5views_info = {
+	"InfoVista 5View capture", "5views", "5vw", NULL,
+	TRUE, FALSE, 0,
+	_5views_dump_can_write_encap, _5views_dump_open, NULL
+};
+
+void register_5views(void)
+{
+	_5views_file_type_subtype =
+	    wtap_register_file_type_subtypes(&_5views_info,
+	        WTAP_FILE_TYPE_SUBTYPE_UNKNOWN);
 }
 
 /*

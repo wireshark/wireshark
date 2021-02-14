@@ -67,6 +67,10 @@ static gboolean daintree_sna_seek_read(wtap *wth, gint64 seek_off,
 static gboolean daintree_sna_read_packet(FILE_T fh, wtap_rec *rec,
 	Buffer *buf, int *err, gchar **err_info);
 
+static int daintree_sna_file_type_subtype = -1;
+
+void register_daintree_sna(void);
+
 /* Open a file and determine if it's a Daintree file */
 wtap_open_return_val daintree_sna_open(wtap *wth, int *err, gchar **err_info)
 {
@@ -99,7 +103,7 @@ wtap_open_return_val daintree_sna_open(wtap *wth, int *err, gchar **err_info)
 	wth->subtype_seek_read = daintree_sna_seek_read;
 
 	/* set up for file type */
-	wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_DAINTREE_SNA;
+	wth->file_type_subtype = daintree_sna_file_type_subtype;
 	wth->file_encap = WTAP_ENCAP_IEEE802_15_4_NOFCS;
 	wth->file_tsprec = WTAP_TSPREC_USEC;
 	wth->snapshot_length = 0; /* not available in header */
@@ -248,6 +252,19 @@ daintree_sna_read_packet(FILE_T fh, wtap_rec *rec, Buffer *buf,
 	ws_buffer_assure_space(buf, bytes);
 	memcpy(ws_buffer_start_ptr(buf), readData, bytes);
 	return TRUE;
+}
+
+static const struct file_type_subtype_info daintree_sna_info = {
+	"Daintree SNA", "dsna", "dcf", NULL,
+	FALSE, FALSE, 0,
+	NULL, NULL, NULL
+};
+
+void register_daintree_sna(void)
+{
+	daintree_sna_file_type_subtype =
+	    wtap_register_file_type_subtypes(&daintree_sna_info,
+	        WTAP_FILE_TYPE_SUBTYPE_UNKNOWN);
 }
 
 /*

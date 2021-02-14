@@ -78,6 +78,10 @@ static gboolean radcom_seek_read(wtap *wth, gint64 seek_off,
 static gboolean radcom_read_rec(wtap *wth, FILE_T fh, wtap_rec *rec,
 	Buffer *buf, int *err, gchar **err_info);
 
+static int radcom_file_type_subtype = -1;
+
+void register_radcom(void);
+
 wtap_open_return_val radcom_open(wtap *wth, int *err, gchar **err_info)
 {
 	guint8 r_magic[8], t_magic[11], search_encap[7];
@@ -172,7 +176,7 @@ wtap_open_return_val radcom_open(wtap *wth, int *err, gchar **err_info)
 	}
 
 	/* This is a radcom file */
-	wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_RADCOM;
+	wth->file_type_subtype = radcom_file_type_subtype;
 	wth->subtype_read = radcom_read;
 	wth->subtype_seek_read = radcom_seek_read;
 	wth->snapshot_length = 0; /* not available in header, only in frame */
@@ -366,6 +370,19 @@ radcom_read_rec(wtap *wth, FILE_T fh, wtap_rec *rec, Buffer *buf,
 		return FALSE;	/* Read error */
 
 	return TRUE;
+}
+
+static const struct file_type_subtype_info radcom_info = {
+	"RADCOM WAN/LAN analyzer", "radcom", NULL, NULL,
+	FALSE, FALSE, 0,
+	NULL, NULL, NULL
+};
+
+void register_radcom(void)
+{
+	radcom_file_type_subtype =
+	    wtap_register_file_type_subtypes(&radcom_info,
+	        WTAP_FILE_TYPE_SUBTYPE_UNKNOWN);
 }
 
 /*

@@ -13,11 +13,7 @@
 #include "wtap.h"
 
 wtap_open_return_val k12_open(wtap *wth, int *err, gchar **err_info);
-int k12_dump_can_write_encap(int encap);
-gboolean k12_dump_open(wtap_dumper *wdh, int *err, gchar **err_info);
 wtap_open_return_val k12text_open(wtap *wth, int *err, gchar **err_info);
-int k12text_dump_can_write_encap(int encap);
-gboolean k12text_dump_open(wtap_dumper *wdh, int *err, gchar **err_info);
 
 #endif
 

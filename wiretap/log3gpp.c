@@ -86,6 +86,10 @@ static guchar hex_from_char(gchar c);
 static gboolean get_file_time_stamp(gchar* linebuff, time_t *secs, guint32 *usecs);
 
 
+static int log3gpp_file_type_subtype = -1;
+
+void register_log3gpp(void);
+
 /***************************************************************************/
 /* Free log3gpp-specific capture info from file that was open for reading  */
 /***************************************************************************/
@@ -196,7 +200,7 @@ log3gpp_open(wtap *wth, int *err, gchar **err_info _U_)
     /* File is for us. Fill in details so packets can be read   */
 
     /* Set our file type */
-    wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_LOG_3GPP;
+    wth->file_type_subtype = log3gpp_file_type_subtype;
 
     /* Use our own encapsulation to send all packets to our stub dissector */
     wth->file_encap = WTAP_ENCAP_LOG_3GPP;
@@ -880,6 +884,19 @@ gboolean get_file_time_stamp(gchar* linebuff, time_t *secs, guint32 *usecs)
     *usecs = *usecs * 100;
 
     return TRUE;
+}
+
+static const struct file_type_subtype_info log3gpp_info = {
+        "3GPP Log", "3gpp_log", "*.log", NULL,
+        TRUE, FALSE, 0,
+        NULL, NULL, NULL
+};
+
+void register_log3gpp(void)
+{
+        log3gpp_file_type_subtype =
+            wtap_register_file_type_subtypes(&log3gpp_info,
+                WTAP_FILE_TYPE_SUBTYPE_UNKNOWN);
 }
 
 #if 0

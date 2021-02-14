@@ -73,6 +73,10 @@
 #define PKT_BUF_LEN   (ISO14443_PSEUDO_HDR_LEN + ISO14443_MAX_PKT_LEN)
 
 
+static int mplog_file_type_subtype = -1;
+
+void register_mplog(void);
+
 /* read the next packet, starting at the current position of fh
    as we know very little about the file format, our approach is rather simple:
    - we read block-by-block until a known block-type is found
@@ -231,7 +235,7 @@ wtap_open_return_val mplog_open(wtap *wth, int *err, gchar **err_info)
 
     wth->subtype_read = mplog_read;
     wth->subtype_seek_read = mplog_seek_read;
-    wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_MPLOG;
+    wth->file_type_subtype = mplog_file_type_subtype;
 
     /* skip the file header */
     if (-1 == file_seek(wth->fh, 0x80, SEEK_SET, err))
@@ -250,6 +254,17 @@ wtap_open_return_val mplog_open(wtap *wth, int *err, gchar **err_info)
     return WTAP_OPEN_MINE;
 }
 
+static const struct file_type_subtype_info mplog_info = {
+    "Micropross mplog", "mplog", "mplog", NULL,
+    FALSE, FALSE, 0,
+    NULL, NULL, NULL
+};
+
+void register_mplog(void)
+{
+    mplog_file_type_subtype = wtap_register_file_type_subtypes(&mplog_info,
+                                                               WTAP_FILE_TYPE_SUBTYPE_UNKNOWN);
+}
 
 /*
  * Editor modelines  -  https://www.wireshark.org/tools/modelines.html

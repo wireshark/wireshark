@@ -78,7 +78,136 @@ end
 
 %WTAP_ENCAPS%
 
+--
+-- This pulls in the WTAP_TSPREC_ values that are included in
+-- wtap_filetypes for backwards compatibility.
+--
 %WTAP_FILETYPES%
+
+--
+-- Generate the wtap_filetypes items for file types, for backwards
+-- compatibility.
+-- We no longer have WTAP_FILE_TYPE_SUBTYPE_ #defines;
+-- built-in file types are registered the same way that
+-- plugin file types are registered.
+--
+-- New code should use wtap_name_to_file_type_subtype to
+-- look up file types by name.
+--
+-- "UNKNOWN" is a special case; it has no name.
+--
+wtap_filetypes["UNKNOWN"] = 0
+for filetype = 1, wtap_get_num_file_types_subtypes() - 1 do
+    local typename = wtap_file_type_subtype_name(filetype)
+    --
+    -- In most cases, the old #define was just a capitalized
+    -- version of the file type name.
+    --
+    -- We process the exceptions here.
+    --
+    if typename == "nsecpcap" then
+        wtap_filetypes["PCAP_NSEC"] = filetype
+    elseif typename == "aixpcap" then
+        wtap_filetypes["PCAP_AIX"] = filetype
+    elseif typename == "modpcap" then
+        wtap_filetypes["PCAP_SS991029"] = filetype
+    elseif typename == "nokiapcap" then
+        wtap_filetypes["PCAP_NOKIA"] = filetype
+    elseif typename == "rh6_1pcap" then
+        wtap_filetypes["PCAP_SS990417"] = filetype
+    elseif typename == "suse6_3pcap" then
+        wtap_filetypes["PCAP_SS990915"] = filetype
+    elseif typename == "iptrace_1" then
+        wtap_filetypes["IPTRACE_1_0"] = filetype
+    elseif typename == "iptrace_2" then
+        wtap_filetypes["IPTRACE_2_0"] = filetype
+    elseif typename == "dct2000" then
+        wtap_filetypes["CATAPULT_DCT2000"] = filetype
+    elseif typename == "netxray1" then
+        wtap_filetypes["NETXRAY_OLD"] = filetype
+    elseif typename == "netxray2" then
+        -- This is correct; the #define was wrong
+        wtap_filetypes["NETXRAY_1_0"] = filetype
+    elseif typename == "etherwatch" then
+        wtap_filetypes["DBS_ETHERWATCH"] = filetype
+    elseif typename == "iseries_ascii" then
+        wtap_filetypes["ISERIES"] = filetype
+    elseif typename == "iseries_unicode" then
+        wtap_filetypes["ISERIES_UNICODE"] = filetype
+    elseif typename == "netmon1" then
+        wtap_filetypes["NETMON_1_x"] = filetype
+    elseif typename == "netmon2" then
+        wtap_filetypes["NETMON_2_x"] = filetype
+    elseif typename == "ngsniffer" then
+        wtap_filetypes["NGSNIFFER_UNCOMPRESSED"] = filetype
+    elseif typename == "ngsniffer_comp" then
+        wtap_filetypes["NGSNIFFER_COMPRESSED"] = filetype
+    elseif typename == "ngwsniffer_1_1" then
+        wtap_filetypes["NETXRAY_1_1"] = filetype
+    elseif typename == "ngwsniffer_2_0" then
+        wtap_filetypes["NETXRAY_2_00x"] = filetype
+    elseif typename == "niobserver" then
+        wtap_filetypes["NETWORK_INSTRUMENTS"] = filetype
+    elseif typename == "pppd" then
+        wtap_filetypes["PPPDUMP"] = filetype
+    elseif typename == "tcpiptrace" then
+        wtap_filetypes["VMS"] = filetype
+    elseif typename == "rf5" then
+        wtap_filetypes["K12"] = filetype
+    elseif typename == "visual" then
+        wtap_filetypes["VISUAL_NETWORKS"] = filetype
+    elseif typename == "peekclassic56" then
+        wtap_filetypes["PEEKCLASSIC_V56"] = filetype
+    elseif typename == "peekclassic7" then
+        wtap_filetypes["PEEKCLASSIC_V7"] = filetype
+    elseif typename == "pklg" then
+        wtap_filetypes["PACKETLOGGER"] = filetype
+    elseif typename == "dsna" then
+        wtap_filetypes["DAINTREE_SNA"] = filetype
+    elseif typename == "nstrace10" then
+        wtap_filetypes["NETSCALER_1_0"] = filetype
+    elseif typename == "nstrace20" then
+        wtap_filetypes["NETSCALER_2_0"] = filetype
+    elseif typename == "nstrace30" then
+        wtap_filetypes["NETSCALER_3_0"] = filetype
+    elseif typename == "nstrace35" then
+        wtap_filetypes["NETSCALER_3_5"] = filetype
+    elseif typename == "jpeg" then
+        wtap_filetypes["JPEG_JFIF"] = filetype
+    elseif typename == "mp2t" then
+        wtap_filetypes["MPEG_2_TS"] = filetype
+    elseif typename == "vwr80211" then
+        wtap_filetypes["VWR_80211"] = filetype
+    elseif typename == "vwreth" then
+        wtap_filetypes["VWR_ETH"] = filetype
+    elseif typename == "stanag4607" then
+        wtap_filetypes["STANAG_4607"] = filetype
+    elseif typename == "logcat-brief" then
+        wtap_filetypes["LOGCAT_BRIEF"] = filetype
+    elseif typename == "logcat-process" then
+        wtap_filetypes["LOGCAT_PROCESS"] = filetype
+    elseif typename == "logcat-tag" then
+        wtap_filetypes["LOGCAT_TAG"] = filetype
+    elseif typename == "logcat-thread" then
+        wtap_filetypes["LOGCAT_THREAD"] = filetype
+    elseif typename == "logcat-time" then
+        wtap_filetypes["LOGCAT_TIME"] = filetype
+    elseif typename == "logcat-threadtime" then
+        wtap_filetypes["LOGCAT_THREADTIME"] = filetype
+    elseif typename == "logcat-long" then
+        wtap_filetypes["LOGCAT_LONG"] = filetype
+    elseif typename == "colasoft-pb" then
+        wtap_filetypes["PACKET_BUILDER"] = filetype
+    elseif typename == "3gpp32423" then
+        wtap_filetypes["NETTRACE_3GPP_32_423"] = filetype
+    elseif typename == "3gpp_log" then
+        wtap_filetypes["LOG_3GPP"] = filetype
+    elseif typename == "jpeg" then
+        wtap_filetypes["JPEG_JFIF"] = filetype
+    else
+        wtap_filetypes[string.upper(typename)] = filetype
+    end
+end
 
 %WTAP_TSPRECS%
 

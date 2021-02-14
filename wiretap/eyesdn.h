@@ -28,7 +28,4 @@ enum EyeSDN_TYPES {
     EYESDN_ENCAP_V5_EF
 };
 
-gboolean eyesdn_dump_open(wtap_dumper *wdh, int *err, gchar **err_info);
-int eyesdn_dump_can_write_encap(int encap);
-
 #endif

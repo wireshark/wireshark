@@ -15,6 +15,10 @@
 #include <string.h>
 #include <errno.h>
 
+static int eyesdn_file_type_subtype = -1;
+
+void register_eyesdn(void);
+
 /* This module reads the output of the EyeSDN USB S0/E1 ISDN probes
  * They store HDLC frames of D and B channels in a binary format
  * The fileformat is
@@ -130,7 +134,7 @@ wtap_open_return_val eyesdn_open(wtap *wth, int *err, gchar **err_info)
 		return WTAP_OPEN_NOT_MINE;
 
 	wth->file_encap = WTAP_ENCAP_PER_PACKET;
-	wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_EYESDN;
+	wth->file_type_subtype = eyesdn_file_type_subtype;
 	wth->snapshot_length = 0; /* not known */
 	wth->subtype_read = eyesdn_read;
 	wth->subtype_seek_read = eyesdn_seek_read;
@@ -338,7 +342,7 @@ static gboolean eyesdn_dump(wtap_dumper *wdh,
 			    const wtap_rec *rec,
 			    const guint8 *pd, int *err, gchar **err_info);
 
-gboolean eyesdn_dump_open(wtap_dumper *wdh, int *err, gchar **err_info _U_)
+static gboolean eyesdn_dump_open(wtap_dumper *wdh, int *err, gchar **err_info _U_)
 {
 	wdh->subtype_write=eyesdn_dump;
 
@@ -350,7 +354,7 @@ gboolean eyesdn_dump_open(wtap_dumper *wdh, int *err, gchar **err_info _U_)
 	return TRUE;
 }
 
-int eyesdn_dump_can_write_encap(int encap)
+static int eyesdn_dump_can_write_encap(int encap)
 {
 	switch (encap) {
 	case WTAP_ENCAP_ISDN:
@@ -470,6 +474,19 @@ static gboolean eyesdn_dump(wtap_dumper *wdh,
 	if (!esc_write(wdh, pd, size, err))
 		return FALSE;
 	return TRUE;
+}
+
+static const struct file_type_subtype_info eyesdn_info = {
+	"EyeSDN USB S0/E1 ISDN trace format", "eyesdn", "trc", NULL,
+	 FALSE, FALSE, 0,
+	 eyesdn_dump_can_write_encap, eyesdn_dump_open, NULL
+};
+
+void register_eyesdn(void)
+{
+	eyesdn_file_type_subtype =
+	    wtap_register_file_type_subtypes(&eyesdn_info,
+	        WTAP_FILE_TYPE_SUBTYPE_UNKNOWN);
 }
 
 /*

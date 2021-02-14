@@ -146,6 +146,9 @@ static guint packet_offset_hash_func(gconstpointer v);
 static gboolean get_file_time_stamp(gchar *linebuff, time_t *secs, guint32 *usecs);
 static gboolean free_line_prefix_info(gpointer key, gpointer value, gpointer user_data);
 
+static int dct2000_file_type_subtype = -1;
+
+void register_dct2000(void);
 
 
 /********************************************/
@@ -239,7 +242,7 @@ catapult_dct2000_open(wtap *wth, int *err, gchar **err_info)
     /* File is for us. Fill in details so packets can be read   */
 
     /* Set our file type */
-    wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_CATAPULT_DCT2000;
+    wth->file_type_subtype = dct2000_file_type_subtype;
 
     /* Use our own encapsulation to send all packets to our stub dissector */
     wth->file_encap = WTAP_ENCAP_CATAPULT_DCT2000;
@@ -541,7 +544,7 @@ typedef struct {
 /* The file that we are writing to has been opened.  */
 /* Set other dump callbacks.                         */
 /*****************************************************/
-gboolean
+static gboolean
 catapult_dct2000_dump_open(wtap_dumper *wdh, int *err _U_, gchar **err_info _U_)
 {
     /* Fill in other dump callbacks */
@@ -554,7 +557,7 @@ catapult_dct2000_dump_open(wtap_dumper *wdh, int *err _U_, gchar **err_info _U_)
 /* Respond to queries about which encap types we support */
 /* writing to.                                           */
 /*********************************************************/
-int
+static int
 catapult_dct2000_dump_can_write_encap(int encap)
 {
     switch (encap) {
@@ -1646,6 +1649,20 @@ free_line_prefix_info(gpointer key, gpointer value,
 
     /* Item will always be removed from table */
     return TRUE;
+}
+
+static const struct file_type_subtype_info dct2000_info = {
+	"Catapult DCT2000 trace (.out format)", "dct2000", "out", NULL,
+	FALSE, FALSE, 0,
+	catapult_dct2000_dump_can_write_encap, catapult_dct2000_dump_open, NULL
+
+};
+
+void register_dct2000(void)
+{
+	dct2000_file_type_subtype =
+	    wtap_register_file_type_subtypes(&dct2000_info,
+	        WTAP_FILE_TYPE_SUBTYPE_UNKNOWN);
 }
 
 /*

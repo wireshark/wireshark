@@ -16,6 +16,10 @@
 
 #include "ruby_marshal.h"
 
+static int ruby_marshal_file_type_subtype = -1;
+
+void register_ruby_marshal(void);
+
 static gboolean is_ruby_marshal(const guint8* filebuf)
 {
     if (filebuf[0] != RUBY_MARSHAL_MAJOR)
@@ -70,7 +74,7 @@ wtap_open_return_val ruby_marshal_open(wtap *wth, int *err, gchar **err_info)
         return WTAP_OPEN_ERROR;
     }
 
-    wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_RUBY_MARSHAL;
+    wth->file_type_subtype = ruby_marshal_file_type_subtype;
     wth->file_encap = WTAP_ENCAP_RUBY_MARSHAL;
     wth->file_tsprec = WTAP_TSPREC_SEC;
     wth->subtype_read = wtap_full_file_read;
@@ -78,6 +82,18 @@ wtap_open_return_val ruby_marshal_open(wtap *wth, int *err, gchar **err_info)
     wth->snapshot_length = 0;
 
     return WTAP_OPEN_MINE;
+}
+
+static const struct file_type_subtype_info ruby_marshal_info = {
+    "Ruby marshal files", "ruby_marshal", NULL, NULL,
+    FALSE, FALSE, 0,
+    NULL, NULL, NULL
+};
+
+void register_ruby_marshal(void)
+{
+    ruby_marshal_file_type_subtype = wtap_register_file_type_subtypes(&ruby_marshal_info,
+                                                                      WTAP_FILE_TYPE_SUBTYPE_UNKNOWN);
 }
 
 /*

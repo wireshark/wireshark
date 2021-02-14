@@ -65,6 +65,10 @@ static gboolean dct3trace_read(wtap *wth, wtap_rec *rec,
 static gboolean dct3trace_seek_read(wtap *wth, gint64 seek_off,
 	wtap_rec *rec, Buffer *buf, int *err, gchar **err_info);
 
+static int dct3trace_file_type_subtype = -1;
+
+void register_dct3trace(void);
+
 /*
  * Following 3 functions taken from gsmdecode-0.7bis, with permission:
  *
@@ -204,7 +208,7 @@ wtap_open_return_val dct3trace_open(wtap *wth, int *err, gchar **err_info)
 	}
 
 	wth->file_encap = WTAP_ENCAP_GSM_UM;
-	wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_DCT3TRACE;
+	wth->file_type_subtype = dct3trace_file_type_subtype;
 	wth->snapshot_length = 0; /* not known */
 	wth->subtype_read = dct3trace_read;
 	wth->subtype_seek_read = dct3trace_seek_read;
@@ -396,6 +400,19 @@ static gboolean dct3trace_seek_read(wtap *wth, gint64 seek_off,
 	}
 
 	return dct3trace_get_packet(wth->random_fh, rec, buf, err, err_info);
+}
+
+static const struct file_type_subtype_info dct3trace_info = {
+	"Gammu DCT3 trace", "dct3trace", "xml", NULL,
+	FALSE, FALSE, 0,
+	NULL, NULL, NULL
+};
+
+void register_dct3trace(void)
+{
+	dct3trace_file_type_subtype =
+	    wtap_register_file_type_subtypes(&dct3trace_info,
+	        WTAP_FILE_TYPE_SUBTYPE_UNKNOWN);
 }
 
 /*

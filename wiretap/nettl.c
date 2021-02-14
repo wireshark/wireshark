@@ -173,6 +173,10 @@ static gboolean nettl_read_rec(wtap *wth, FILE_T fh, wtap_rec *rec,
 static gboolean nettl_dump(wtap_dumper *wdh, const wtap_rec *rec,
     const guint8 *pd, int *err, gchar **err_info);
 
+static int nettl_file_type_subtype = -1;
+
+void register_nettl(void);
+
 wtap_open_return_val nettl_open(wtap *wth, int *err, gchar **err_info)
 {
     struct nettl_file_hdr file_hdr;
@@ -200,7 +204,7 @@ wtap_open_return_val nettl_open(wtap *wth, int *err, gchar **err_info)
         return WTAP_OPEN_ERROR;
 
     /* This is an nettl file */
-    wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_NETTL;
+    wth->file_type_subtype = nettl_file_type_subtype;
     nettl = g_new(nettl_t,1);
     wth->priv = (void *)nettl;
     if (file_hdr.os_vers[2] == '1' && file_hdr.os_vers[3] == '1')
@@ -613,7 +617,7 @@ nettl_read_rec(wtap *wth, FILE_T fh, wtap_rec *rec, Buffer *buf,
    when they are first opened, so we allow that for tshark read/write.
  */
 
-int nettl_dump_can_write_encap(int encap)
+static int nettl_dump_can_write_encap(int encap)
 {
 
     switch (encap) {
@@ -642,7 +646,7 @@ int nettl_dump_can_write_encap(int encap)
 
 /* Returns TRUE on success, FALSE on failure;
    sets "*err" to an error code on failure */
-gboolean nettl_dump_open(wtap_dumper *wdh, int *err, gchar **err_info _U_)
+static gboolean nettl_dump_open(wtap_dumper *wdh, int *err, gchar **err_info _U_)
 {
     struct nettl_file_hdr file_hdr;
 
@@ -791,6 +795,18 @@ static gboolean nettl_dump(wtap_dumper *wdh,
     wdh->bytes_dumped += rec->rec_header.packet_header.caplen;
 
     return TRUE;
+}
+
+static const struct file_type_subtype_info nettl_info = {
+    "HP-UX nettl trace", "nettl", "trc0", "trc1",
+    FALSE, FALSE, 0,
+    nettl_dump_can_write_encap, nettl_dump_open, NULL
+};
+
+void register_nettl(void)
+{
+    nettl_file_type_subtype = wtap_register_file_type_subtypes(&nettl_info,
+                                                               WTAP_FILE_TYPE_SUBTYPE_UNKNOWN);
 }
 
 /*

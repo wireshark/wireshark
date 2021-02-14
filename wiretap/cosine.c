@@ -158,6 +158,10 @@ static int parse_cosine_packet(FILE_T fh, wtap_rec *rec, Buffer* buf,
 static int parse_single_hex_dump_line(char* rec, guint8 *buf,
 	guint byte_offset);
 
+static int cosine_file_type_subtype = -1;
+
+void register_cosine(void);
+
 /* Returns TRUE if the line appears to be an empty line. Otherwise it
    returns FALSE. */
 static gboolean empty_line(const gchar *line)
@@ -256,7 +260,7 @@ wtap_open_return_val cosine_open(wtap *wth, int *err, gchar **err_info)
 		return WTAP_OPEN_ERROR;
 
 	wth->file_encap = WTAP_ENCAP_COSINE;
-	wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_COSINE;
+	wth->file_type_subtype = cosine_file_type_subtype;
 	wth->snapshot_length = 0; /* not known */
 	wth->subtype_read = cosine_read;
 	wth->subtype_seek_read = cosine_seek_read;
@@ -482,6 +486,19 @@ parse_single_hex_dump_line(char* rec, guint8 *buf, guint byte_offset)
 	}
 
 	return num_items_scanned;
+}
+
+static const struct file_type_subtype_info cosine_info = {
+	"CoSine IPSX L2 capture", "cosine", "txt", NULL,
+	FALSE, FALSE, 0,
+	NULL, NULL, NULL
+};
+
+void register_cosine(void)
+{
+	cosine_file_type_subtype =
+	    wtap_register_file_type_subtypes(&cosine_info,
+	        WTAP_FILE_TYPE_SUBTYPE_UNKNOWN);
 }
 
 /*

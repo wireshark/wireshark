@@ -43,6 +43,10 @@ struct csids_header {
   guint16 caplen;  /* the capture length  */
 };
 
+static int csids_file_type_subtype = -1;
+
+void register_csids(void);
+
 wtap_open_return_val csids_open(wtap *wth, int *err, gchar **err_info)
 {
   /* There is no file header. There is only a header for each packet
@@ -113,7 +117,7 @@ wtap_open_return_val csids_open(wtap *wth, int *err, gchar **err_info)
   wth->priv = (void *)csids;
   csids->byteswapped = byteswap;
   wth->file_encap = WTAP_ENCAP_RAW_IP;
-  wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_CSIDS;
+  wth->file_type_subtype = csids_file_type_subtype;
   wth->snapshot_length = 0; /* not known */
   wth->subtype_read = csids_read;
   wth->subtype_seek_read = csids_seek_read;
@@ -203,6 +207,18 @@ csids_read_packet(FILE_T fh, csids_t *csids, wtap_rec *rec,
   }
 
   return TRUE;
+}
+
+static const struct file_type_subtype_info csids_info = {
+  "CSIDS IPLog", "csids", NULL, NULL,
+  FALSE, FALSE, 0,
+  NULL, NULL, NULL
+};
+
+void register_csids(void)
+{
+  csids_file_type_subtype = wtap_register_file_type_subtypes(&csids_info,
+                                                             WTAP_FILE_TYPE_SUBTYPE_UNKNOWN);
 }
 
 /*

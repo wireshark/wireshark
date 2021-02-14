@@ -90,6 +90,10 @@ static const mime_files_t magic_files[] = {
 
 #define	N_MAGIC_TYPES	(sizeof(magic_files) / sizeof(magic_files[0]))
 
+static int mime_file_type_subtype = -1;
+
+void register_mime(void);
+
 wtap_open_return_val
 mime_file_open(wtap *wth, int *err, gchar **err_info)
 {
@@ -135,7 +139,7 @@ mime_file_open(wtap *wth, int *err, gchar **err_info)
 	if (file_seek(wth->fh, 0, SEEK_SET, err) == -1)
 		return WTAP_OPEN_ERROR;
 
-	wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_MIME;
+	wth->file_type_subtype = mime_file_type_subtype;
 	wth->file_encap = WTAP_ENCAP_MIME;
 	wth->file_tsprec = WTAP_TSPREC_SEC;
 	wth->subtype_read = wtap_full_file_read;
@@ -143,6 +147,37 @@ mime_file_open(wtap *wth, int *err, gchar **err_info)
 	wth->snapshot_length = 0;
 
 	return WTAP_OPEN_MINE;
+}
+
+static const struct file_type_subtype_info mime_info = {
+	"MIME File Format", "mime", NULL, NULL,
+	 FALSE, FALSE, 0,
+	 NULL, NULL, NULL
+};
+
+/*
+ * XXX - registered solely for the benefit of Lua scripts that
+ * look for the file type "JPEG_JFIF"; it may be removed once
+ * we get rid of wtap_filetypes.
+ */
+static const struct file_type_subtype_info jpeg_jfif_info = {
+	"JPEG/JFIF", "jpeg", "jpg", "jpeg;jfif",
+	FALSE, FALSE, 0,
+	NULL, NULL, NULL
+};
+
+void register_mime(void)
+{
+	mime_file_type_subtype =
+	    wtap_register_file_type_subtypes(&mime_info,
+	        WTAP_FILE_TYPE_SUBTYPE_UNKNOWN);
+
+	/*
+	 * Obsoleted by "mime", so just register it; we don't
+	 * need its return value.
+	 */
+	wtap_register_file_type_subtypes(&jpeg_jfif_info,
+	    WTAP_FILE_TYPE_SUBTYPE_UNKNOWN);
 }
 
 /*

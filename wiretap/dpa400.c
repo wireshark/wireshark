@@ -32,6 +32,10 @@ struct dpa400_header {
 	guint8 sb2;
 };
 
+static int dpa400_file_type_subtype = -1;
+
+void register_dpa400(void);
+
 static gboolean dpa400_read_header(FILE_T fh, struct dpa400_header *hdr, int *err, gchar **err_info)
 {
 	if (!wtap_read_bytes_or_eof(fh, hdr, sizeof(struct dpa400_header), err, err_info))
@@ -224,7 +228,7 @@ wtap_open_return_val dpa400_open(wtap *wth, int *err, gchar **err_info)
 	if (memcmp(magic, dpa_magic, sizeof(dpa_magic)))
 		return WTAP_OPEN_NOT_MINE;
 
-	wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_DPA400;
+	wth->file_type_subtype = dpa400_file_type_subtype;
 	wth->file_encap = WTAP_ENCAP_DPAUXMON;
 	wth->file_tsprec = WTAP_TSPREC_USEC;
 	wth->subtype_read = dpa400_read;
@@ -241,3 +245,29 @@ wtap_open_return_val dpa400_open(wtap *wth, int *err, gchar **err_info)
 
 	return WTAP_OPEN_MINE;
 }
+
+static const struct file_type_subtype_info dpa400_info = {
+	"Unigraf DPA-400 capture", "dpa400", "bin", NULL,
+	FALSE, FALSE, 0,
+	NULL, NULL, NULL
+};
+
+void register_dpa400(void)
+{
+	dpa400_file_type_subtype =
+	    wtap_register_file_type_subtypes(&dpa400_info,
+	        WTAP_FILE_TYPE_SUBTYPE_UNKNOWN);
+}
+
+/*
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 8
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
+ * :indentSize=8:tabSize=8:noTabs=false:
+ */

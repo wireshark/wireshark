@@ -11,6 +11,10 @@
 #include "file_wrappers.h"
 #include "hcidump.h"
 
+static int hcidump_file_type_subtype = -1;
+
+void register_hcidump(void);
+
 struct dump_hdr {
 	guint16 len;
 	guint8  in;
@@ -98,7 +102,7 @@ wtap_open_return_val hcidump_open(wtap *wth, int *err, gchar **err_info)
 	if (file_seek(wth->fh, 0, SEEK_SET, err) == -1)
 		return WTAP_OPEN_ERROR;
 
-	wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_HCIDUMP;
+	wth->file_type_subtype = hcidump_file_type_subtype;
 	wth->file_encap = WTAP_ENCAP_BLUETOOTH_H4_WITH_PHDR;
 	wth->snapshot_length = 0;
 
@@ -115,6 +119,20 @@ wtap_open_return_val hcidump_open(wtap *wth, int *err, gchar **err_info)
 	wtap_add_generated_idb(wth);
 
 	return WTAP_OPEN_MINE;
+}
+
+static const struct file_type_subtype_info hcidump_info = {
+	"Bluetooth HCI dump", "hcidump", NULL, NULL,
+	FALSE, FALSE, 0,
+	NULL, NULL, NULL
+
+};
+
+void register_hcidump(void)
+{
+	hcidump_file_type_subtype =
+	    wtap_register_file_type_subtypes(&hcidump_info,
+	        WTAP_FILE_TYPE_SUBTYPE_UNKNOWN);
 }
 
 /*

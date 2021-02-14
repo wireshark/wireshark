@@ -89,6 +89,10 @@ static gboolean commview_read_header(commview_header_t *cv_hdr, FILE_T fh,
 static gboolean commview_dump(wtap_dumper *wdh,	const wtap_rec *rec,
 			      const guint8 *pd, int *err, gchar **err_info);
 
+static int commview_file_type_subtype = -1;
+
+void register_commview(void);
+
 wtap_open_return_val commview_open(wtap *wth, int *err, gchar **err_info)
 {
 	commview_header_t cv_hdr;
@@ -122,7 +126,7 @@ wtap_open_return_val commview_open(wtap *wth, int *err, gchar **err_info)
 	wth->subtype_read = commview_read;
 	wth->subtype_seek_read = commview_seek_read;
 
-	wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_COMMVIEW;
+	wth->file_type_subtype = commview_file_type_subtype;
 	wth->file_encap = WTAP_ENCAP_PER_PACKET;
 	wth->file_tsprec = WTAP_TSPREC_USEC;
 
@@ -594,6 +598,19 @@ static gboolean commview_dump(wtap_dumper *wdh,
 	wdh->bytes_dumped += rec->rec_header.packet_header.caplen;
 
 	return TRUE;
+}
+
+static const struct file_type_subtype_info commview_info = {
+	"TamoSoft CommView", "commview", "ncf", NULL,
+	FALSE, FALSE, 0,
+	commview_dump_can_write_encap, commview_dump_open, NULL
+};
+
+void register_commview(void)
+{
+	commview_file_type_subtype =
+	    wtap_register_file_type_subtypes(&commview_info,
+	        WTAP_FILE_TYPE_SUBTYPE_UNKNOWN);
 }
 
 /*

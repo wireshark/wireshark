@@ -13,8 +13,6 @@
 #include "ws_symbol_export.h"
 
 wtap_open_return_val catapult_dct2000_open(wtap *wth, int *err, gchar **err_info);
-gboolean catapult_dct2000_dump_open(wtap_dumper *wdh, int *err, gchar **err_info);
-int catapult_dct2000_dump_can_write_encap(int encap);
 
 #define DCT2000_ENCAP_UNHANDLED 0
 #define DCT2000_ENCAP_SSCOP     101

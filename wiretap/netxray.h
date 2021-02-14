@@ -13,9 +13,5 @@
 #include "wtap.h"
 
 wtap_open_return_val netxray_open(wtap *wth, int *err, gchar **err_info);
-int netxray_dump_can_write_encap_1_1(int encap);
-gboolean netxray_dump_open_1_1(wtap_dumper *wdh, int *err, gchar **err_info);
-int netxray_dump_can_write_encap_2_0(int encap);
-gboolean netxray_dump_open_2_0(wtap_dumper *wdh, int *err, gchar **err_info);
 
 #endif

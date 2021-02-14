@@ -227,6 +227,11 @@ static gboolean netmon_dump(wtap_dumper *wdh, const wtap_rec *rec,
 static gboolean netmon_dump_finish(wtap_dumper *wdh, int *err,
     gchar **err_info);
 
+static int netmon_1_x_file_type_subtype = -1;
+static int netmon_2_x_file_type_subtype = -1;
+
+void register_netmon(void);
+
 /*
  * Convert a counted UTF-16 string, which is probably also null-terminated
  * but is not guaranteed to be null-terminated (as it came from a file),
@@ -440,11 +445,11 @@ wtap_open_return_val netmon_open(wtap *wth, int *err, gchar **err_info)
 	switch (hdr.ver_major) {
 
 	case 1:
-		file_type = WTAP_FILE_TYPE_SUBTYPE_NETMON_1_x;
+		file_type = netmon_1_x_file_type_subtype;
 		break;
 
 	case 2:
-		file_type = WTAP_FILE_TYPE_SUBTYPE_NETMON_2_x;
+		file_type = netmon_2_x_file_type_subtype;
 		break;
 
 	default:
@@ -1561,6 +1566,7 @@ netmon_close(wtap *wth)
 }
 
 typedef struct {
+	gboolean is_v2;
 	gboolean got_first_record_time;
 	nstime_t first_record_time;
 	guint32	frame_table_offset;
@@ -1590,7 +1596,7 @@ static const int wtap_encap[] = {
 
 /* Returns 0 if we could write the specified encapsulation type,
    an error indication otherwise. */
-int netmon_dump_can_write_encap_1_x(int encap)
+static int netmon_dump_can_write_encap_1_x(int encap)
 {
 	/*
 	 * Per-packet encapsulations are *not* supported in NetMon 1.x
@@ -1602,7 +1608,7 @@ int netmon_dump_can_write_encap_1_x(int encap)
 	return 0;
 }
 
-int netmon_dump_can_write_encap_2_x(int encap)
+static int netmon_dump_can_write_encap_2_x(int encap)
 {
 	/*
 	 * Per-packet encapsulations are supported in NetMon 2.1
@@ -1619,7 +1625,8 @@ int netmon_dump_can_write_encap_2_x(int encap)
 
 /* Returns TRUE on success, FALSE on failure; sets "*err" to an error code on
    failure */
-gboolean netmon_dump_open(wtap_dumper *wdh, int *err, gchar **err_info _U_)
+static gboolean netmon_dump_open(wtap_dumper *wdh, gboolean is_v2,
+                                 int *err, gchar **err_info _U_)
 {
 	netmon_dump_t *netmon;
 
@@ -1635,6 +1642,7 @@ gboolean netmon_dump_open(wtap_dumper *wdh, int *err, gchar **err_info _U_)
 
 	netmon = g_new(netmon_dump_t, 1);
 	wdh->priv = (void *)netmon;
+	netmon->is_v2 = is_v2;
 	netmon->frame_table_offset = CAPTUREFILE_HEADER_SIZE;
 	netmon->got_first_record_time = FALSE;
 	netmon->frame_table = NULL;
@@ -1643,6 +1651,16 @@ gboolean netmon_dump_open(wtap_dumper *wdh, int *err, gchar **err_info _U_)
 	netmon->no_more_room = FALSE;
 
 	return TRUE;
+}
+
+static gboolean netmon_dump_open_1_x(wtap_dumper *wdh, int *err, gchar **err_info _U_)
+{
+	return netmon_dump_open(wdh, 1, err, err_info);
+}
+
+static gboolean netmon_dump_open_2_x(wtap_dumper *wdh, int *err, gchar **err_info _U_)
+{
+	return netmon_dump_open(wdh, 2, err, err_info);
 }
 
 /* Write a record for a packet to a dump file.
@@ -1669,9 +1687,13 @@ static gboolean netmon_dump(wtap_dumper *wdh, const wtap_rec *rec,
 		return FALSE;
 	}
 
-	switch (wdh->file_type_subtype) {
-
-	case WTAP_FILE_TYPE_SUBTYPE_NETMON_1_x:
+	if (netmon->is_v2) {
+		/* Don't write anything we're not willing to read. */
+		if (rec->rec_header.packet_header.caplen > WTAP_MAX_PACKET_SIZE_STANDARD) {
+			*err = WTAP_ERR_PACKET_TOO_LARGE;
+			return FALSE;
+		}
+	} else {
 		/*
 		 * The length fields are 16-bit, so there's a hard limit
 		 * of 65535.
@@ -1680,21 +1702,6 @@ static gboolean netmon_dump(wtap_dumper *wdh, const wtap_rec *rec,
 			*err = WTAP_ERR_PACKET_TOO_LARGE;
 			return FALSE;
 		}
-		break;
-
-	case WTAP_FILE_TYPE_SUBTYPE_NETMON_2_x:
-		/* Don't write anything we're not willing to read. */
-		if (rec->rec_header.packet_header.caplen > WTAP_MAX_PACKET_SIZE_STANDARD) {
-			*err = WTAP_ERR_PACKET_TOO_LARGE;
-			return FALSE;
-		}
-		break;
-
-	default:
-		/* We should never get here - our open routine
-		   should only get called for the types above. */
-		*err = WTAP_ERR_UNWRITABLE_FILE_TYPE;
-		return FALSE;
 	}
 
 	if (wdh->encap == WTAP_ENCAP_PER_PACKET) {
@@ -1777,29 +1784,18 @@ static gboolean netmon_dump(wtap_dumper *wdh, const wtap_rec *rec,
 		nsecs += 1000000000;
 		secs--;
 	}
-	switch (wdh->file_type_subtype) {
-
-	case WTAP_FILE_TYPE_SUBTYPE_NETMON_1_x:
-		rec_1_x_hdr.ts_delta = GUINT32_TO_LE(secs*1000 + (nsecs + 500000)/1000000);
-		rec_1_x_hdr.orig_len = GUINT16_TO_LE(rec->rec_header.packet_header.len + atm_hdrsize);
-		rec_1_x_hdr.incl_len = GUINT16_TO_LE(rec->rec_header.packet_header.caplen + atm_hdrsize);
-		hdrp = &rec_1_x_hdr;
-		hdr_size = sizeof rec_1_x_hdr;
-		break;
-
-	case WTAP_FILE_TYPE_SUBTYPE_NETMON_2_x:
+	if (netmon->is_v2) {
 		rec_2_x_hdr.ts_delta = GUINT64_TO_LE(secs*1000000 + (nsecs + 500)/1000);
 		rec_2_x_hdr.orig_len = GUINT32_TO_LE(rec->rec_header.packet_header.len + atm_hdrsize);
 		rec_2_x_hdr.incl_len = GUINT32_TO_LE(rec->rec_header.packet_header.caplen + atm_hdrsize);
 		hdrp = &rec_2_x_hdr;
 		hdr_size = sizeof rec_2_x_hdr;
-		break;
-
-	default:
-		/* We should never get here - our open routine
-		   should only get called for the types above. */
-		*err = WTAP_ERR_UNWRITABLE_FILE_TYPE;
-		return FALSE;
+	} else {
+		rec_1_x_hdr.ts_delta = GUINT32_TO_LE(secs*1000 + (nsecs + 500000)/1000000);
+		rec_1_x_hdr.orig_len = GUINT16_TO_LE(rec->rec_header.packet_header.len + atm_hdrsize);
+		rec_1_x_hdr.incl_len = GUINT16_TO_LE(rec->rec_header.packet_header.caplen + atm_hdrsize);
+		hdrp = &rec_1_x_hdr;
+		hdr_size = sizeof rec_1_x_hdr;
 	}
 
 	/*
@@ -1914,17 +1910,7 @@ static gboolean netmon_dump_finish(wtap_dumper *wdh, int *err,
 	if (wtap_dump_file_seek(wdh, 0, SEEK_SET, err) == -1)
 		return FALSE;
 	memset(&file_hdr, '\0', sizeof file_hdr);
-	switch (wdh->file_type_subtype) {
-
-	case WTAP_FILE_TYPE_SUBTYPE_NETMON_1_x:
-		magicp = netmon_1_x_magic;
-		magic_size = sizeof netmon_1_x_magic;
-		/* NetMon file version, for 1.x, is 1.1 */
-		file_hdr.ver_major = 1;
-		file_hdr.ver_minor = 1;
-		break;
-
-	case WTAP_FILE_TYPE_SUBTYPE_NETMON_2_x:
+	if (netmon->is_v2) {
 		magicp = netmon_2_x_magic;
 		magic_size = sizeof netmon_2_x_magic;
 		/*
@@ -1946,14 +1932,12 @@ static gboolean netmon_dump_finish(wtap_dumper *wdh, int *err,
 		file_hdr.ver_major = 2;
 		file_hdr.ver_minor =
 		    (wdh->encap == WTAP_ENCAP_PER_PACKET) ? 1 : 0;
-		break;
-
-	default:
-		/* We should never get here - our open routine
-		   should only get called for the types above. */
-		if (err != NULL)
-			*err = WTAP_ERR_UNWRITABLE_FILE_TYPE;
-		return FALSE;
+	} else {
+		magicp = netmon_1_x_magic;
+		magic_size = sizeof netmon_1_x_magic;
+		/* NetMon file version, for 1.x, is 1.1 */
+		file_hdr.ver_major = 1;
+		file_hdr.ver_minor = 1;
 	}
 	if (!wtap_dump_file_write(wdh, magicp, magic_size, err))
 		return FALSE;
@@ -1993,6 +1977,28 @@ static gboolean netmon_dump_finish(wtap_dumper *wdh, int *err,
 		return FALSE;
 
 	return TRUE;
+}
+
+static const struct file_type_subtype_info netmon_1_x_info = {
+	"Microsoft NetMon 1.x", "netmon1", "cap", NULL,
+	TRUE, FALSE, 0,
+	netmon_dump_can_write_encap_1_x, netmon_dump_open_1_x, NULL
+};
+
+static const struct file_type_subtype_info netmon_2_x_info = {
+	"Microsoft NetMon 2.x", "netmon2", "cap", NULL,
+	TRUE, FALSE, 0,
+	netmon_dump_can_write_encap_2_x, netmon_dump_open_2_x, NULL
+};
+
+void register_netmon(void)
+{
+	netmon_1_x_file_type_subtype =
+	    wtap_register_file_type_subtypes(&netmon_1_x_info,
+	        WTAP_FILE_TYPE_SUBTYPE_UNKNOWN);
+	netmon_2_x_file_type_subtype =
+	    wtap_register_file_type_subtypes(&netmon_2_x_info,
+	        WTAP_FILE_TYPE_SUBTYPE_UNKNOWN);
 }
 
 /*

@@ -95,6 +95,10 @@ static gboolean parse_single_hex_dump_line(char* rec, guint8 *buf,
 static gboolean parse_toshiba_packet(FILE_T fh, wtap_rec *rec,
 	Buffer *buf, int *err, gchar **err_info);
 
+static int toshiba_file_type_subtype = -1;
+
+void register_toshiba(void);
+
 /* Seeks to the beginning of the next packet, and returns the
    byte offset.  Returns -1 on failure, and sets "*err" to the error
    and "*err_info" to null or an additional error string. */
@@ -185,7 +189,7 @@ wtap_open_return_val toshiba_open(wtap *wth, int *err, gchar **err_info)
 	}
 
 	wth->file_encap = WTAP_ENCAP_PER_PACKET;
-	wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_TOSHIBA;
+	wth->file_type_subtype = toshiba_file_type_subtype;
 	wth->snapshot_length = 0; /* not known */
 	wth->subtype_read = toshiba_read;
 	wth->subtype_seek_read = toshiba_seek_read;
@@ -423,6 +427,19 @@ parse_single_hex_dump_line(char* rec, guint8 *buf, guint byte_offset) {
 	}
 
 	return TRUE;
+}
+
+static const struct file_type_subtype_info toshiba_info = {
+	"Toshiba Compact ISDN Router snoop", "toshiba", "txt", NULL,
+	FALSE, FALSE, 0,
+	NULL, NULL, NULL
+};
+
+void register_toshiba(void)
+{
+	toshiba_file_type_subtype =
+	    wtap_register_file_type_subtypes(&toshiba_info,
+	        WTAP_FILE_TYPE_SUBTYPE_UNKNOWN);
 }
 
 /*
