@@ -323,13 +323,6 @@ WS_DLL_PUBLIC void wtap_block_array_free(GArray* block_array);
  */
 WS_DLL_PUBLIC wtap_block_type_t wtap_block_get_type(wtap_block_t block);
 
-/** Provide type of a block
- *
- * @param[in] block Block from which to retrieve mandatory data
- * @return Block type.
- */
-WS_DLL_PUBLIC wtap_block_type_t wtap_block_get_type(wtap_block_t block);
-
 /** Provide mandatory data of a block
  *
  * @param[in] block Block from which to retrieve mandatory data
