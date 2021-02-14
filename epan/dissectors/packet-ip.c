@@ -2023,11 +2023,7 @@ dissect_ip_v4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
   tf = proto_tree_add_uint(ip_tree, hf_ip_frag_offset, tvb, offset + 6, 2, (iph->ip_off & IP_OFFSET)*8);
 
   iph->ip_ttl = tvb_get_guint8(tvb, offset + 8);
-  if (tree) {
-    ttl_item = proto_tree_add_item(ip_tree, hf_ip_ttl, tvb, offset + 8, 1, ENC_BIG_ENDIAN);
-  } else {
-    ttl_item = NULL;
-  }
+  ttl_item = proto_tree_add_item(ip_tree, hf_ip_ttl, tvb, offset + 8, 1, ENC_BIG_ENDIAN);
 
   iph->ip_proto = tvb_get_guint8(tvb, offset + 9);
   if (tree) {
