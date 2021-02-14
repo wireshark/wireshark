@@ -240,7 +240,7 @@ iseries_open (wtap * wth, int *err, gchar ** err_info)
           }
 
         wth->file_encap        = WTAP_ENCAP_ETHERNET;
-        wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_ISERIES;
+        wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_ISERIES_UNICODE;
         wth->snapshot_length   = 0;
         wth->subtype_read      = iseries_read;
         wth->subtype_seek_read = iseries_seek_read;

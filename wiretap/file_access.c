@@ -1343,7 +1343,7 @@ static const struct file_type_subtype_info dump_open_table_base[] = {
 	  NULL, NULL, NULL },
 
 	/* WTAP_FILE_TYPE_SUBTYPE_ISERIES_UNICODE */
-	{ "IBM iSeries comm. trace (UNICODE)", "iseries_unicode", "txt", NULL,
+	{ "IBM iSeries comm. trace (Unicode)", "iseries_unicode", "txt", NULL,
 	  FALSE, FALSE, 0,
 	  NULL, NULL, NULL },
 
