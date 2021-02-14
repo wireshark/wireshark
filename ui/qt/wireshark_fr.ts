@@ -61,7 +61,7 @@
     </message>
     <message>
         <source>Filter by type:</source>
-        <translation type="unfinished"></translation>
+        <translation>Filtrer par type:</translation>
     </message>
     <message>
         <source>Keyboard Shortcuts</source>
@@ -10914,11 +10914,13 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
         <translation>Espace</translation>
     </message>
     <message>
-        <source>Mute</source>
+        <source>Mute/Unmute</source>
+        <oldsource>Mute</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Mute the stream</source>
+        <source>Mute or unmute the stream</source>
+        <oldsource>Mute the stream</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -11010,20 +11012,12 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Preparing to play...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Unknown</source>
         <translation>Inconnu</translation>
-    </message>
-    <message>
-        <source>L</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>R</source>
-        <translation type="unfinished">R</translation>
-    </message>
-    <message>
-        <source>L+R</source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

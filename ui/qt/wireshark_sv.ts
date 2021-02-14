@@ -10953,11 +10953,13 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>Mellanslag</translation>
     </message>
     <message>
-        <source>Mute</source>
+        <source>Mute/Unmute</source>
+        <oldsource>Mute</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Mute the stream</source>
+        <source>Mute or unmute the stream</source>
+        <oldsource>Mute the stream</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -11049,20 +11051,12 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>Start: %1, markör: %2.  Tryck ”G” för att gå till paket %3.  Dubbelklicka för att ange start av uppspelning.</translation>
     </message>
     <message>
+        <source>Preparing to play...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Unknown</source>
         <translation>Okänd</translation>
-    </message>
-    <message>
-        <source>L</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>R</source>
-        <translation type="unfinished">R</translation>
-    </message>
-    <message>
-        <source>L+R</source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

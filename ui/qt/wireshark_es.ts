@@ -10845,11 +10845,13 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
         <translation type="unfinished">Espacio</translation>
     </message>
     <message>
-        <source>Mute</source>
+        <source>Mute/Unmute</source>
+        <oldsource>Mute</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Mute the stream</source>
+        <source>Mute or unmute the stream</source>
+        <oldsource>Mute the stream</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -10941,20 +10943,12 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Preparing to play...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Unknown</source>
         <translation type="unfinished">Desconocida</translation>
-    </message>
-    <message>
-        <source>L</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>R</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>L+R</source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

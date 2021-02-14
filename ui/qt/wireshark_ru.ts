@@ -10980,11 +10980,13 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Пробел</translation>
     </message>
     <message>
-        <source>Mute</source>
+        <source>Mute/Unmute</source>
+        <oldsource>Mute</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Mute the stream</source>
+        <source>Mute or unmute the stream</source>
+        <oldsource>Mute the stream</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -11076,20 +11078,12 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Начало: %1, курсор: %2. Нажмите &quot;G&quot;, чтобы перейти к пакету %3. Двойной клик, чтобы установить начало воспроизведения.</translation>
     </message>
     <message>
+        <source>Preparing to play...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Unknown</source>
         <translation>Неизвестный</translation>
-    </message>
-    <message>
-        <source>L</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>R</source>
-        <translation type="unfinished">R</translation>
-    </message>
-    <message>
-        <source>L+R</source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

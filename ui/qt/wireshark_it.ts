@@ -10953,56 +10953,58 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Spazio</translation>
     </message>
     <message>
-        <source>Mute</source>
-        <translation type="unfinished"></translation>
+        <source>Mute/Unmute</source>
+        <oldsource>Mute</oldsource>
+        <translation type="unfinished">Silenzia</translation>
     </message>
     <message>
-        <source>Mute the stream</source>
-        <translation type="unfinished"></translation>
+        <source>Mute or unmute the stream</source>
+        <oldsource>Mute the stream</oldsource>
+        <translation type="unfinished">Silenzia il flusso</translation>
     </message>
     <message>
         <source>Play the stream</source>
-        <translation type="unfinished"></translation>
+        <translation>Riproduci il flusso</translation>
     </message>
     <message>
         <source>To Left</source>
-        <translation type="unfinished"></translation>
+        <translation>A sinistra</translation>
     </message>
     <message>
         <source>Route audio to left channel</source>
-        <translation type="unfinished"></translation>
+        <translation>Instrada l&apos;audio al canale sinistro</translation>
     </message>
     <message>
         <source>Left + Right</source>
-        <translation type="unfinished"></translation>
+        <translation>Sinistra + destra</translation>
     </message>
     <message>
         <source>Route audio to left and right channel</source>
-        <translation type="unfinished"></translation>
+        <translation>Instrada l&apos;audio al canale sinistro e destro</translation>
     </message>
     <message>
         <source>To Right</source>
-        <translation type="unfinished"></translation>
+        <translation>A destra</translation>
     </message>
     <message>
         <source>Route audio to right channel</source>
-        <translation type="unfinished"></translation>
+        <translation>Instrada l&apos;audio al canale destro</translation>
     </message>
     <message>
         <source>Invert Muting</source>
-        <translation type="unfinished"></translation>
+        <translation>Inverti il silenziamento</translation>
     </message>
     <message>
         <source>Invert muting of all channels</source>
-        <translation type="unfinished"></translation>
+        <translation>Inverti il silenziamento di tutti i canali</translation>
     </message>
     <message>
         <source>Remove Stream</source>
-        <translation type="unfinished"></translation>
+        <translation>Rimuovi flusso</translation>
     </message>
     <message>
         <source>Remove stream from the list</source>
-        <translation type="unfinished"></translation>
+        <translation>Rimuovi il flusso dall&apos;elenco</translation>
     </message>
     <message>
         <source>No devices available</source>
@@ -11010,7 +11012,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Audio Routing</source>
-        <translation type="unfinished"></translation>
+        <translation>Instradamento audio</translation>
     </message>
     <message>
         <source>Play Streams</source>
@@ -11018,7 +11020,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Decoding streams...</source>
-        <translation type="unfinished"></translation>
+        <translation>Decodifica dei flussi...</translation>
     </message>
     <message>
         <source>Out of Sequence</source>
@@ -11049,20 +11051,24 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Avvio: %1, cursore: %2. Premi &quot;G&quot; per portarti sul pacchetti %3. Doppio clic per impostare l&apos;avvio della riproduzione.</translation>
     </message>
     <message>
+        <source>Preparing to play...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Unknown</source>
         <translation>Sconosciuto</translation>
     </message>
     <message>
         <source>L</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">S</translation>
     </message>
     <message>
         <source>R</source>
-        <translation type="unfinished">R</translation>
+        <translation type="vanished">D</translation>
     </message>
     <message>
         <source>L+R</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">S+D</translation>
     </message>
 </context>
 <context>

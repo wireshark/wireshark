@@ -10953,56 +10953,58 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <translation>Space</translation>
     </message>
     <message>
-        <source>Mute</source>
-        <translation type="unfinished"></translation>
+        <source>Mute/Unmute</source>
+        <oldsource>Mute</oldsource>
+        <translation type="unfinished">Stummschalten</translation>
     </message>
     <message>
-        <source>Mute the stream</source>
-        <translation type="unfinished"></translation>
+        <source>Mute or unmute the stream</source>
+        <oldsource>Mute the stream</oldsource>
+        <translation type="unfinished">Stream stummschalten</translation>
     </message>
     <message>
         <source>Play the stream</source>
-        <translation type="unfinished"></translation>
+        <translation>Stream abspielen</translation>
     </message>
     <message>
         <source>To Left</source>
-        <translation type="unfinished"></translation>
+        <translation>nach Links</translation>
     </message>
     <message>
         <source>Route audio to left channel</source>
-        <translation type="unfinished"></translation>
+        <translation>Audio auf linken Kanal lenken</translation>
     </message>
     <message>
         <source>Left + Right</source>
-        <translation type="unfinished"></translation>
+        <translation>Links + Rechts</translation>
     </message>
     <message>
         <source>Route audio to left and right channel</source>
-        <translation type="unfinished"></translation>
+        <translation>Audio auf linken und rechten Kanal lenken</translation>
     </message>
     <message>
         <source>To Right</source>
-        <translation type="unfinished"></translation>
+        <translation>nach Rechts</translation>
     </message>
     <message>
         <source>Route audio to right channel</source>
-        <translation type="unfinished"></translation>
+        <translation>Audio auf rechten Kanal lenken</translation>
     </message>
     <message>
         <source>Invert Muting</source>
-        <translation type="unfinished"></translation>
+        <translation>Stummschaltung umkehren</translation>
     </message>
     <message>
         <source>Invert muting of all channels</source>
-        <translation type="unfinished"></translation>
+        <translation>Stummschaltung aller Kanäle umkehren</translation>
     </message>
     <message>
         <source>Remove Stream</source>
-        <translation type="unfinished"></translation>
+        <translation>Stream entfernen</translation>
     </message>
     <message>
         <source>Remove stream from the list</source>
-        <translation type="unfinished"></translation>
+        <translation>Stream aus der Liste entfernen</translation>
     </message>
     <message>
         <source>No devices available</source>
@@ -11010,7 +11012,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Audio Routing</source>
-        <translation type="unfinished"></translation>
+        <translation>Audio Routing</translation>
     </message>
     <message>
         <source>Play Streams</source>
@@ -11018,7 +11020,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Decoding streams...</source>
-        <translation type="unfinished"></translation>
+        <translation>Streams dekodieren</translation>
     </message>
     <message>
         <source>Out of Sequence</source>
@@ -11049,20 +11051,24 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <translation>Start %1, Cursor: %2. &quot;G&quot; drücken um zu Paket %3 zu gehen. Doppelklicken um den Startpunkt zum Abspielen zu setzen.</translation>
     </message>
     <message>
+        <source>Preparing to play...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Unknown</source>
         <translation>Unbekannt</translation>
     </message>
     <message>
         <source>L</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">L</translation>
     </message>
     <message>
         <source>R</source>
-        <translation type="unfinished">R</translation>
+        <translation type="vanished">R</translation>
     </message>
     <message>
         <source>L+R</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">L+R</translation>
     </message>
 </context>
 <context>

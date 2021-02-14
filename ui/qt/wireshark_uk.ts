@@ -10851,11 +10851,13 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished">Прогалина</translation>
     </message>
     <message>
-        <source>Mute</source>
+        <source>Mute/Unmute</source>
+        <oldsource>Mute</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Mute the stream</source>
+        <source>Mute or unmute the stream</source>
+        <oldsource>Mute the stream</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -10947,20 +10949,12 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Preparing to play...</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Unknown</source>
         <translation type="unfinished">Невідомо</translation>
-    </message>
-    <message>
-        <source>L</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>R</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>L+R</source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
