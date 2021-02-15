@@ -299,7 +299,7 @@ find_add_q_ctx(packet_info *pinfo, conversation_t *conv)
     q_ctx = (struct nvme_rdma_q_ctx*)conversation_get_proto_data(conv, proto_nvme_rdma);
     if (!q_ctx) {
         qid = find_nvme_qid(pinfo);
-        q_ctx = wmem_new(wmem_file_scope(), struct nvme_rdma_q_ctx);
+        q_ctx = wmem_new0(wmem_file_scope(), struct nvme_rdma_q_ctx);
         q_ctx->n_q_ctx.pending_cmds = wmem_tree_new(wmem_file_scope());
         q_ctx->n_q_ctx.done_cmds = wmem_tree_new(wmem_file_scope());
         q_ctx->n_q_ctx.data_requests = wmem_tree_new(wmem_file_scope());
