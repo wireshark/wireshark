@@ -3038,38 +3038,6 @@ if(RPMBUILD_EXECUTABLE)
 	if(CMAKE_VERBOSE_MAKEFILE)
 		list(APPEND _rpmbuild_with_args -v)
 	endif()
-	#
-	# This is ugly.
-	#
-	# At least some versions of rpmbuild define the cmake_build
-	# macro to run "cmake --build" with the "--verbose" option,
-	# with no obvious way to easily override that, so, if you
-	# are doing a build with lots of source files, and with
-	# lots of compiler options (for example, a log of -W flags),
-	# you can get a lot of output from rpmbuild.
-	#
-	# Wireshark is a program with lots of source files and
-	# lots of compiler options.
-	#
-	# GitLab's shared builders have a limit of 4MB on logs
-	# from build jobs.
-	#
-	# Wireshark uses the shared builders, and can produce
-	# more than 4MB with the Fedora RPM build; this causes
-	# the builds to fail.
-	#
-	# Adding the -q flag to rpmbuild appears to squelch
-	# most of the rpmbuild output.  This is not ideal,
-	# but it might at least let the builds succeed
-	# without failing due to hitting the log file limit.
-	#
-	# We don't add -q by default; if the build has
-	# the FORCE_CMAKE_NINJA_QUIET environment
-	# variable set, it will add it.
-	#
-	if(DEFINED ENV{FORCE_CMAKE_NINJA_QUIET})
-		list(APPEND _rpmbuild_with_args --quiet)
-	endif()
 	if(CMAKE_GENERATOR STREQUAL "Ninja")
 		list(APPEND _rpmbuild_with_args --with ninja)
 	endif()

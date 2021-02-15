@@ -164,9 +164,11 @@ build:rpm-fedora:
   script:
     # Shared GitLab runners limit the log size to 4M, so reduce verbosity. See
     # https://gitlab.com/gitlab-com/support-forum/issues/2790
-    - export FORCE_CMAKE_NINJA_QUIET=1
+    # We do this by piping the output of "ninja rpm-package" through
+    # sed, to strip out all the -W and -f options from lines
+    # containing /usr/bin/gcc.
     - cmake3 -GNinja ..
-    - ninja rpm-package
+    - ninja rpm-package | sed -e '/\/usr\/bin\/gcc/s/ -W[a-zA-Z0-9-]*//' '/\/usr\/bin\/gcc/s/ -f[a-zA-Z0-9-]*//'
   needs:
     - build:ubuntu-dist
 test:rpm-fedora:
