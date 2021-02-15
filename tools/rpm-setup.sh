@@ -17,6 +17,7 @@ then
 	echo "The basic usage installs the needed software\n\n"
 	echo "Usage: $0 [--install-optional] [...other options...]\n"
 	echo "\t--install-optional: install optional software as well"
+	echo "\t--install-rpm-deps: install packages required to build the .rpm file\\n"
 	echo "\t[other]: other options are passed as-is to the packet manager\n"
 	exit 1
 fi
@@ -29,14 +30,19 @@ then
 fi
 
 ADDITIONAL=0
-for op
-do
-	if [ "$op" = "--install-optional" ]
-	then
-		ADDITIONAL=1
-	else
-		OPTIONS="$OPTIONS $op"
-	fi
+RPMDEPS=0
+for arg; do
+	case $arg in
+		--install-optional)
+			ADDITIONAL=1
+			;;
+		--install-rpm-deps)
+			RPMDEPS=1
+			;;
+		*)
+			OPTIONS="$OPTIONS $arg"
+			;;
+	esac
 done
 
 BASIC_LIST="cmake \
@@ -61,8 +67,9 @@ ADDITIONAL_LIST="libcap-devel \
 	lz4 \
 	libxml2-devel \
 	spandsp-devel \
-	systemd-devel \
-	rpm-build"
+	systemd-devel"
+
+RPMDEPS_LIST="rpm-build"
 
 # Guess which package manager we will use
 for PM in zypper dnf yum ''; do
@@ -243,10 +250,19 @@ then
 	ACTUAL_LIST="$ACTUAL_LIST $ADDITIONAL_LIST"
 fi
 
+if [ $RPMDEPS -ne 0 ]
+then
+	ACTUAL_LIST="$ACTUAL_LIST $RPMDEPS_LIST"
+fi
+
 $PM $PM_OPT install $ACTUAL_LIST $OPTIONS
 
-# Now arrange for optional support libraries
 if [ $ADDITIONAL -eq 0 ]
 then
 	echo -e "\n*** Optional packages not installed. Rerun with --install-optional to have them.\n"
+fi
+
+if [ $RPMDEPS -eq 0 ]
+then
+	printf "\n*** RPM packages build deps not installed. Rerun with --install-deb-deps to have them.\n"
 fi

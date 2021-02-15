@@ -43,9 +43,13 @@ for Wireshark;
 
 For RPM-based Linux distributions such as Red Hat, Centos, Fedora, and
 openSUSE, the script `tools/rpm-setup.sh` will install the packages and
-libraries required to build Wireshark.  It supports the
-`--install-optional` command-line option to install additional tools and
-to install libraries required for all Wireshark features.
+libraries required to build Wireshark.  It supports the command-line
+options:
+
+* `--install-optional` to install additional tools and to install
+libraries required for all Wireshark features;
+* `--install-rpm-deps` to install packages required to build a .rpm file
+for Wireshark.
 
 For Alpine Linux, the script `tools/alpine-setup.sh` will install the
 packages and libraries required to build Wireshark.  It supports the
