@@ -3068,7 +3068,7 @@ if(RPMBUILD_EXECUTABLE)
 	# variable set, it will add it.
 	#
 	if(DEFINED ENV{FORCE_CMAKE_NINJA_QUIET})
-		list(APPEND _rpmbuild_with_args -q)
+		list(APPEND _rpmbuild_with_args --quiet)
 	endif()
 	if(CMAKE_GENERATOR STREQUAL "Ninja")
 		list(APPEND _rpmbuild_with_args --with ninja)
