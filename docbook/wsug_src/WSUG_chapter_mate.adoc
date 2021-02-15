@@ -914,8 +914,8 @@ to isolate DNS and HTTP packets related to a visit of a certain user.
 * use *mate.http_req.Duration > 1.5* to filter all the packets of HTTP requests
 that take more than 1.5 seconds to complete.
 
-The complete config file is here:
-https://gitlab.com/wireshark/wireshark/-/wikis/uploads/__moin_import__/attachments/Mate/Examples/web.mate[web.mate]
+The complete config file is available on the Wireshark Wiki:
+https://gitlab.com/wireshark/wireshark/-/wikis/Mate/Tutorial
 
 Note: for this example I used _dns.qry.name_ which is defined since Wireshark
 version 0.10.9. Supposing you have a mate plugin already installed you can test

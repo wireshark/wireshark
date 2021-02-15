@@ -482,7 +482,7 @@ In many cases you can use a tool like link:https://www.tracewrangler.com/[TraceW
 ====
 Do not send large files (> 1 MB) to the mailing lists. Instead, provide a
 download link. For bugs and feature requests, you can create an issue on
-link:{wireshark-bugs-url}[Bugzilla] and upload the file there.
+link:{wireshark-bugs-url}[Gitlab Issues] and upload the file there.
 ====
 
 ==== Reporting Crashes on UNIX/Linux platforms

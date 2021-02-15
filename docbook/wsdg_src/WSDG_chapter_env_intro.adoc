@@ -413,9 +413,9 @@ someone answers your question.
 
 [[ChIntroBugDatabase]]
 
-==== Bug database (Bugzilla)
+==== Bug database (Gitlab Issues)
 
-The Wireshark community collects bug reports in a Bugzilla database at
+The Wireshark community collects bug reports in an issues database at
 {wireshark-bugs-url}. This database is filled with manually filed bug
 reports, usually after some discussion on wireshark-dev, and automatic
 bug reports from the Buildbot tools.
@@ -470,7 +470,7 @@ can help you.
 If you send captured data to the mailing lists, or add it to your bug report,
 be sure it doesn't contain any sensitive or confidential information,
 such as passwords.  Visibility of such files can be limited to certain
-groups in the Bugzilla database though.
+groups in the Gitlab Issues database by marking the issue confidential.
 ====
 
 ==== Reporting Crashes on UNIX-like platforms
