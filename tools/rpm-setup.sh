@@ -49,10 +49,10 @@ BASIC_LIST="cmake \
 	git \
 	glib2-devel \
 	libpcap-devel \
-	zlib-devel"
+	zlib-devel \
+	libgcrypt-devel" 
 
 ADDITIONAL_LIST="libcap-devel \
-	libgcrypt-devel \
 	libssh-devel \
 	krb5-devel \
 	perl-Parse-Yapp \
