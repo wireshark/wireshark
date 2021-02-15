@@ -168,7 +168,7 @@ build:rpm-fedora:
     # sed, to strip out all the -W and -f options from lines
     # containing /usr/bin/gcc.
     - cmake3 -GNinja ..
-    - ninja rpm-package | sed -e '/\/usr\/bin\/gcc/s/ -W[a-zA-Z0-9-]*//' '/\/usr\/bin\/gcc/s/ -f[a-zA-Z0-9-]*//'
+    - ninja rpm-package | sed -e '/\/usr\/bin\/gcc/s/ -W[a-zA-Z0-9-]*//' -e '/\/usr\/bin\/gcc/s/ -f[a-zA-Z0-9-]*//'
   needs:
     - build:ubuntu-dist
 test:rpm-fedora:
