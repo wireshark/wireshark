@@ -5400,6 +5400,16 @@ static int hf_ieee80211_tag_mmie_keyid = -1;
 static int hf_ieee80211_tag_mmie_ipn = -1;
 static int hf_ieee80211_tag_mmie_mic = -1;
 
+/* IEEE Std 802.11-2016: 9.4.2.72 */
+static int hf_ieee80211_tag_no_bssid_capability_dmg_bss_control = -1;
+static int hf_ieee80211_tag_no_bssid_capability_dmg_bss_control_type = -1;
+static int hf_ieee80211_tag_no_bssid_capability_dmg_bss_control_reserved = -1;
+
+/* IEEE Std 802.11-2016: 9.4.2.74 */
+static int hf_ieee80211_tag_multiple_bssid_index_bssid_index = -1;
+static int hf_ieee80211_tag_multiple_bssid_index_dtim_period = -1;
+static int hf_ieee80211_tag_multiple_bssid_index_dtim_count = -1;
+
 /* IEEE Std 802.11-2012: 8.4.2.61 */
 static int hf_ieee80211_tag_obss_spd = -1;
 static int hf_ieee80211_tag_obss_sad = -1;
@@ -7190,6 +7200,7 @@ static gint ett_osen_group_management_cipher_suite = -1;
 
 static gint ett_hs20_cc_proto_port_tuple = -1;
 
+static gint ett_tag_no_bssid_capability_dmg_bss_control_tree = -1; 
 static gint ett_ssid_list = -1;
 
 static gint ett_sgdsn = -1;
@@ -7381,6 +7392,8 @@ static const enum_val_t wlan_ignore_prot_options[] = {
 
 static int wlan_address_type = -1;
 static int wlan_bssid_address_type = -1;
+
+static int beacon_padding = 0; /* beacon padding bug */
 
 /*
  * Check if we have an S1G STA
@@ -18142,6 +18155,39 @@ dissect_mmie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 }
 
 static int
+ieee80211_tag_dmg_capabilities(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data);
+
+static int
+dissect_no_bssid_capability(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data)
+{
+  int tag_len = tvb_reported_length(tvb);
+  int offset = 0;
+
+  static int * const ieee80211_tag_no_bssid_capability_dmg_bss_control[] = {
+    &hf_ieee80211_tag_no_bssid_capability_dmg_bss_control_type,
+    &hf_ieee80211_tag_no_bssid_capability_dmg_bss_control_reserved,
+    NULL
+  };
+
+  add_ff_cap_info(tree, tvb, pinfo, offset);
+  offset += 2;
+  tag_len -= 2;
+
+  /* On nontransmitted BSSID, there is only DMG Capability Info */
+  if (tag_len) {
+    proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_ieee80211_tag_no_bssid_capability_dmg_bss_control,
+                                      ett_tag_no_bssid_capability_dmg_bss_control_tree,
+                                      ieee80211_tag_no_bssid_capability_dmg_bss_control,
+                                      ENC_LITTLE_ENDIAN, BMT_NO_APPEND);
+    offset += 1;
+
+    ieee80211_tag_dmg_capabilities(tvb, pinfo, tree, data);
+  }
+
+  return tvb_captured_length(tvb);
+}
+
+static int
 dissect_ssid_list(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
   int tag_len = tvb_reported_length(tvb);
@@ -18168,6 +18214,27 @@ dissect_ssid_list(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void*
     proto_tree_add_item(entry, hf_ieee80211_tag_ssid, tvb, offset, len,
                         ENC_ASCII|ENC_NA);
     offset += len;
+  }
+
+  return tvb_captured_length(tvb);
+}
+
+static int
+dissect_multiple_bssid_index(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
+{
+  int tag_len = tvb_reported_length(tvb);
+  int offset = 0;
+
+  proto_tree_add_item(tree, hf_ieee80211_tag_multiple_bssid_index_bssid_index, tvb, offset, 1, ENC_NA);
+  offset += 1;
+  tag_len -= 1;
+
+  if (tag_len) {
+    proto_tree_add_item(tree, hf_ieee80211_tag_multiple_bssid_index_dtim_period, tvb, offset, 1, ENC_NA);
+    offset += 1;
+
+    proto_tree_add_item(tree, hf_ieee80211_tag_multiple_bssid_index_dtim_count, tvb, offset, 1, ENC_NA);
+    offset += 1;
   }
 
   return tvb_captured_length(tvb);
@@ -21047,6 +21114,8 @@ dissect_multiple_bssid_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
   const gchar *sub_tag_name;
   proto_tree *sub_tag_tree;
   const guint8 ids[] = { TAG_VENDOR_SPECIFIC_IE };
+  const guint8 ids2[] = { TAG_SSID, TAG_MULTIPLE_BSSID_INDEX, TAG_NO_BSSID_CAPABILITY, TAG_VENDOR_SPECIFIC_IE };
+  guint32 s_offset, s_end;
 
   if (tag_len < 1)
   {
@@ -21081,6 +21150,17 @@ dissect_multiple_bssid_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
     {
     case MULTIPLE_BSSID_SUBELEM_NO_BSSID_PROFILE:
       proto_tree_add_item(sub_tag_tree, hf_ieee80211_tag_multiple_bssid_subelem_nontrans_profile, tvb, offset, sub_tag_len, ENC_NA);
+
+      s_offset = offset;
+      s_end = offset + sub_tag_len;
+      beacon_padding = 0; /* this is for the beacon padding confused with ssid fix */
+      while (s_offset < s_end) {
+        int tlen = add_tagged_field(pinfo, sub_tag_tree, tvb, s_offset, 0, ids2, G_N_ELEMENTS(ids2), NULL);
+        if (tlen==0)
+          break;
+        s_offset += tlen;
+      }
+
       break;
 
     case MULTIPLE_BSSID_SUBELEM_VENDOR_SPECIFIC:
@@ -21098,6 +21178,7 @@ dissect_multiple_bssid_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
     }
 
     offset += sub_tag_len;
+
   }
 
   if (offset < tag_len) {
@@ -22207,8 +22288,6 @@ dissect_he_6ghz_band_capabilities(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 /* ************************************************************************* */
 /*           Dissect and add tagged (optional) fields to proto tree          */
 /* ************************************************************************* */
-
-static int beacon_padding = 0; /* beacon padding bug */
 
 static int
 ieee80211_tag_ssid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
@@ -45251,6 +45330,32 @@ proto_register_ieee80211(void)
      {"MIC", "wlan.mmie.mic",
       FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
 
+    /* Non Transmitted BSSID Capability */
+    {&hf_ieee80211_tag_no_bssid_capability_dmg_bss_control,
+     {"DMG BSS Control", "wlan.no_bssid_capability.dmg_bss_control",
+      FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_tag_no_bssid_capability_dmg_bss_control_type,
+     {"Type", "wlan.no_bssid_capability.dmg_bss_control.type",
+      FT_UINT8, BASE_DEC, NULL, 0x03, NULL, HFILL }},
+
+    {&hf_ieee80211_tag_no_bssid_capability_dmg_bss_control_reserved,
+     {"Reserved", "wlan.no_bssid_capability.dmg_bss_control.reserved",
+      FT_UINT8, BASE_DEC, NULL, 0xFC, NULL, HFILL }},
+
+    /* Multiple BSSID Index */
+    {&hf_ieee80211_tag_multiple_bssid_index_bssid_index,
+     {"BSSID Index", "wlan.multiple_bssid_index.bssid_index",
+      FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_tag_multiple_bssid_index_dtim_period,
+     {"DTIM Period", "wlan.multiple_bssid_index.dtim_period",
+      FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_tag_multiple_bssid_index_dtim_count,
+     {"DTIM Count", "wlan.multiple_bssid_index.dtim_count",
+      FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+
     /* WAPI Parameter Set*/
     {&hf_ieee80211_tag_wapi_param_set_version,
      {"Version", "wlan.wapi.version",
@@ -47606,6 +47711,7 @@ proto_register_ieee80211(void)
 
     &ett_hs20_cc_proto_port_tuple,
 
+    &ett_tag_no_bssid_capability_dmg_bss_control_tree,
     &ett_ssid_list,
 
     &ett_sgdsn,
@@ -48361,7 +48467,9 @@ proto_reg_handoff_ieee80211(void)
   dissector_add_uint("wlan.tag.number", TAG_MOBILITY_DOMAIN, create_dissector_handle(dissect_mobility_domain, -1));
   dissector_add_uint("wlan.tag.number", TAG_FAST_BSS_TRANSITION, create_dissector_handle(dissect_fast_bss_transition, -1));
   dissector_add_uint("wlan.tag.number", TAG_MMIE, create_dissector_handle(dissect_mmie, -1));
+  dissector_add_uint("wlan.tag.number", TAG_NO_BSSID_CAPABILITY, create_dissector_handle(dissect_no_bssid_capability, -1));
   dissector_add_uint("wlan.tag.number", TAG_SSID_LIST, create_dissector_handle(dissect_ssid_list, -1));
+  dissector_add_uint("wlan.tag.number", TAG_MULTIPLE_BSSID_INDEX, create_dissector_handle(dissect_multiple_bssid_index, -1));
   dissector_add_uint("wlan.tag.number", TAG_TIME_ZONE, create_dissector_handle(dissect_time_zone, -1));
   dissector_add_uint("wlan.tag.number", TAG_TIMEOUT_INTERVAL, create_dissector_handle(dissect_timeout_interval, -1));
   dissector_add_uint("wlan.tag.number", TAG_RIC_DATA, create_dissector_handle(dissect_ric_data, -1));
