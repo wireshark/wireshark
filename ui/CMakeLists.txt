@@ -51,6 +51,7 @@ set(NONGENERATED_UI_SRC
 	tap-rlc-graph.c
 	tap-tcp-stream.c
 	text_import.c
+	text_import_regex.c
 	time_shift.c
 	traffic_table_ui.c
 	util.c

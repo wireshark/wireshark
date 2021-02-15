@@ -2,6 +2,7 @@
  * text_import.h
  * State machine for text import
  * November 2010, Jaap Keuter <jaap.keuter@xs4all.nl>
+ * Modified February 2021, Paul Weiß
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -34,6 +35,13 @@ enum offset_type
     OFFSET_DEC
 };
 
+enum data_encoding {
+  ENCODING_PLAIN_HEX,
+  ENCODING_PLAIN_OCT,
+  ENCODING_PLAIN_BIN,
+  ENCODING_BASE64
+};
+
 enum dummy_header_type
 {
     HEADER_NONE,
@@ -46,15 +54,32 @@ enum dummy_header_type
     HEADER_EXPORT_PDU
 };
 
+enum text_import_mode {
+    TEXT_IMPORT_HEXDUMP,
+    TEXT_IMPORT_REGEX
+};
+
 typedef struct
 {
     /* Input info */
-    char *import_text_filename;
-    FILE *import_text_file;
-    enum offset_type offset_type;
-    gboolean date_timestamp;
-    gboolean has_direction;
-    char *date_timestamp_format;
+    // TODO: add const, as this way string constants can't be used
+    // BUT: the other way clang-check complaines when you free them
+    /* const */ char *import_text_filename;
+    enum text_import_mode mode;
+
+    struct {
+        FILE *import_text_FILE;
+        enum offset_type offset_type;
+        gboolean has_direction;
+    } hexdump;
+    struct {
+        GMappedFile* import_text_GMappedFile;
+        /* const */ GRegex* format;
+        enum data_encoding encoding;
+        /* const */ gchar* in_indication;
+        /* const */ gchar* out_indication;
+    } regex;
+    const char* timestamp_format;
 
     /* Import info */
     guint encapsulation;
@@ -68,12 +93,12 @@ typedef struct
     guint dst_port;
     guint tag;
     guint ppi;
-    gchar* payload;
+    /* const */ gchar* payload;
 
     guint max_frame_length;
 } text_import_info_t;
 
-int text_import(text_import_info_t *info);
+int text_import(const text_import_info_t *info);
 
 #ifdef __cplusplus
 }

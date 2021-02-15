@@ -39,12 +39,25 @@
 #include <QDebug>
 #include <QFile>
 
+#define HINT_BEGIN "<small><i>"
+#define HINT_END "</i></small>"
+#define HTML_LT "&lt;"
+#define HTML_GT "&gt;"
+
+static const QString default_regex_hint = ImportTextDialog::tr("Supported fields are data, dir, time, seqno");
+static const QString missing_data_hint = ImportTextDialog::tr("Missing capturing group data (use (?" HTML_LT "data" HTML_GT "(...)) )");
+
 ImportTextDialog::ImportTextDialog(QWidget *parent) :
     QDialog(parent),
     ti_ui_(new Ui::ImportTextDialog),
     import_info_(),
     file_ok_(false),
-    time_format_ok_(true),
+    timestamp_format_ok_(true),
+    regex_ok_(false),
+    re_has_dir_(false),
+    in_indication_ok_(false),
+    out_indication_ok_(false),
+    re_has_time_(false),
     ether_type_ok_(true),
     proto_ok_(true),
     source_port_ok_(true),
@@ -66,6 +79,8 @@ ImportTextDialog::ImportTextDialog(QWidget *parent) :
     import_button_->setText(tr("Import"));
     import_button_->setEnabled(false);
 
+    ti_ui_->regexHintLabel->setSmallText(true);
+
 #ifdef Q_OS_MAC
     // The grid layout squishes each line edit otherwise.
     int le_height = ti_ui_->textFileLineEdit->sizeHint().height();
@@ -75,15 +90,28 @@ ImportTextDialog::ImportTextDialog(QWidget *parent) :
     ti_ui_->destinationPortLineEdit->setMinimumHeight(le_height);
     ti_ui_->tagLineEdit->setMinimumHeight(le_height);
     ti_ui_->ppiLineEdit->setMinimumHeight(le_height);
-    ti_ui_->payloadLineEdit->setMinimumHeight(le_height);
 #endif
 
-    on_dateTimeLineEdit_textChanged(ti_ui_->dateTimeLineEdit->text());
+    on_timestampFormatLineEdit_textChanged(ti_ui_->timestampFormatLineEdit->text());
 
     for (i = 0; i < ti_ui_->headerGridLayout->count(); i++) {
         QRadioButton *rb = qobject_cast<QRadioButton *>(ti_ui_->headerGridLayout->itemAt(i)->widget());
 
         if (rb) encap_buttons_.append(rb);
+    }
+
+    /* fill the data encoding dropdown in regex tab*/
+    struct {
+        const char* name;
+        enum data_encoding id;
+    } encodings[] = {
+        {"Plain hex", ENCODING_PLAIN_HEX},
+        {"Plain oct", ENCODING_PLAIN_OCT},
+        {"Plain bin", ENCODING_PLAIN_BIN},
+        {"Base 64", ENCODING_BASE64}
+    };
+    for (i = 0; i < (int) (sizeof(encodings) / sizeof(encodings[0])); ++i) {
+        ti_ui_->dataEncodingComboBox->addItem(encodings[i].name, QVariant(encodings[i].id));
     }
 
     /*
@@ -115,13 +143,26 @@ ImportTextDialog::ImportTextDialog(QWidget *parent) :
         }
     }
     ti_ui_->encapComboBox->model()->sort(0);
+
+    /* fill the dissector combo box */
+    GList* dissector_names = get_dissector_names();
+    for (GList* l = dissector_names; l != NULL; l = l->next) {
+         const char* name = (const char*) l->data;
+         ti_ui_->dissectorComboBox->addItem(name, QVariant(name));
+    }
+    ti_ui_->dissectorComboBox->model()->sort(0);
+    g_list_free(dissector_names);
+
+    ti_ui_->regexHintLabel->setText(default_regex_hint);
+
+    import_info_.mode = TEXT_IMPORT_HEXDUMP;
+
+    on_modeTabWidget_currentChanged(0);
+    updateImportButtonState();
 }
 
 ImportTextDialog::~ImportTextDialog()
 {
-    g_free (import_info_.import_text_filename);
-    g_free (import_info_.date_timestamp_format);
-    g_free (import_info_.payload);
     delete ti_ui_;
 }
 
@@ -129,12 +170,99 @@ QString &ImportTextDialog::capfileName() {
     return capfile_name_;
 }
 
-void ImportTextDialog::convertTextFile() {
-    char *tmpname;
+int ImportTextDialog::exec() {
+    QVariant encap_val;
+    char* tmp;
+    GError* gerror = NULL;
     int err;
     gchar *err_info;
     wtap_dump_params params;
     int file_type_subtype;
+
+    QDialog::exec();
+
+    if (result() != QDialog::Accepted) {
+        return result();
+    }
+
+    /* from here on the cleanup labels are used to free allocated resources in
+     * reverse order.
+     * naming is cleanup_<step_where_something_failed>
+     * Don't Declare new variables from here on
+     */
+
+    import_info_.import_text_filename = qstring_strdup(ti_ui_->textFileLineEdit->text());
+    import_info_.timestamp_format = qstring_strdup(ti_ui_->timestampFormatLineEdit->text());
+    if (strlen(import_info_.timestamp_format) == 0) {
+        g_free((gpointer) import_info_.timestamp_format);
+        import_info_.timestamp_format = NULL;
+    }
+
+    switch (import_info_.mode) {
+      default: /* should never happen */
+        setResult(QDialog::Rejected);
+        return QDialog::Rejected;
+      case TEXT_IMPORT_HEXDUMP:
+        import_info_.hexdump.import_text_FILE = ws_fopen(import_info_.import_text_filename, "rb");
+        if (!import_info_.hexdump.import_text_FILE) {
+            open_failure_alert_box(import_info_.import_text_filename, errno, FALSE);
+            setResult(QDialog::Rejected);
+            goto cleanup_mode;
+        }
+
+        import_info_.hexdump.offset_type =
+            ti_ui_->hexOffsetButton->isChecked()     ? OFFSET_HEX :
+            ti_ui_->decimalOffsetButton->isChecked() ? OFFSET_DEC :
+            ti_ui_->octalOffsetButton->isChecked()   ? OFFSET_OCT :
+            OFFSET_NONE;
+        break;
+      case TEXT_IMPORT_REGEX:
+        import_info_.regex.import_text_GMappedFile = g_mapped_file_new(import_info_.import_text_filename, true, &gerror);
+        if (gerror) {
+            open_failure_alert_box(import_info_.import_text_filename, gerror->code, FALSE);
+            g_error_free(gerror);
+            setResult(QDialog::Rejected);
+            goto cleanup_mode;
+        }
+        tmp = qstring_strdup(ti_ui_->regexTextEdit->toPlainText());
+        import_info_.regex.format = g_regex_new(tmp, (GRegexCompileFlags) (G_REGEX_DUPNAMES | G_REGEX_OPTIMIZE | G_REGEX_MULTILINE), G_REGEX_MATCH_NOTEMPTY, &gerror);
+        g_free(tmp);
+        if (re_has_dir_) {
+            import_info_.regex.in_indication = qstring_strdup(ti_ui_->dirInIndicationLineEdit->text());
+            import_info_.regex.out_indication = qstring_strdup(ti_ui_->dirOutIndicationLineEdit->text());
+        } else {
+            import_info_.regex.in_indication = NULL;
+            import_info_.regex.out_indication = NULL;
+        }
+        break;
+    }
+
+    encap_val = ti_ui_->encapComboBox->itemData(ti_ui_->encapComboBox->currentIndex());
+    import_info_.dummy_header_type = HEADER_NONE;
+    if (encap_val.isValid() && (encap_val.toUInt() == WTAP_ENCAP_ETHERNET || encap_val.toUInt() == WTAP_ENCAP_WIRESHARK_UPPER_PDU)
+            && !ti_ui_->noDummyButton->isChecked()) {
+        // Inputs were validated in the on_xxx_textChanged slots.
+        if (ti_ui_->ethernetButton->isChecked()) {
+            import_info_.dummy_header_type = HEADER_ETH;
+        } else if (ti_ui_->ipv4Button->isChecked()) {
+            import_info_.dummy_header_type = HEADER_IPV4;
+        } else if (ti_ui_->udpButton->isChecked()) {
+            import_info_.dummy_header_type = HEADER_UDP;
+        } else if (ti_ui_->tcpButton->isChecked()) {
+            import_info_.dummy_header_type = HEADER_TCP;
+        } else if (ti_ui_->sctpButton->isChecked()) {
+            import_info_.dummy_header_type = HEADER_SCTP;
+        } else if (ti_ui_->sctpDataButton->isChecked()) {
+            import_info_.dummy_header_type = HEADER_SCTP_DATA;
+        } else if (ti_ui_->exportPduButton->isChecked()) {
+            import_info_.dummy_header_type = HEADER_EXPORT_PDU;
+        }
+    }
+    if (import_info_.max_frame_length == 0) {
+        import_info_.max_frame_length = WTAP_MAX_PACKET_SIZE_STANDARD;
+    }
+
+    import_info_.payload = qstring_strdup(ti_ui_->dissectorComboBox->currentData().toString());
 
     capfile_name_.clear();
     wtap_dump_params_init(&params, NULL);
@@ -144,36 +272,312 @@ void ImportTextDialog::convertTextFile() {
     /* Write a pcapng temporary file */
     file_type_subtype = wtap_pcapng_file_type_subtype();
     /* Use a random name for the temporary import buffer */
-    import_info_.wdh = wtap_dump_open_tempfile(&tmpname, "import", file_type_subtype, WTAP_UNCOMPRESSED, &params, &err, &err_info);
-    capfile_name_.append(tmpname ? tmpname : "temporary file");
-    g_free(tmpname);
-    qDebug() << capfile_name_ << ":" << import_info_.wdh << import_info_.encapsulation << import_info_.max_frame_length;
+    import_info_.wdh = wtap_dump_open_tempfile(&tmp, "import", file_type_subtype, WTAP_UNCOMPRESSED, &params, &err, &err_info);
+    capfile_name_.append(tmp ? tmp : "temporary file");
+    g_free(tmp);
+
     if (import_info_.wdh == NULL) {
         cfile_dump_open_failure_alert_box(capfile_name_.toUtf8().constData(), err, err_info, file_type_subtype);
-        fclose(import_info_.import_text_file);
         setResult(QDialog::Rejected);
-        return;
+        goto cleanup_wtap;
     }
 
     err = text_import(&import_info_);
-    if (err != 0) {
+
+    if (err < 0) {
         failure_alert_box("Can't initialize scanner: %s", g_strerror(err));
-        fclose(import_info_.import_text_file);
         setResult(QDialog::Rejected);
-        return;
+        goto cleanup;
     }
 
-    if (fclose(import_info_.import_text_file))
-    {
-        read_failure_alert_box(import_info_.import_text_filename, errno);
-    }
-
+  cleanup: /* free in reverse order of allocation */
     if (!wtap_dump_close(import_info_.wdh, &err, &err_info))
     {
         cfile_close_failure_alert_box(capfile_name_.toUtf8().constData(), err, err_info);
     }
+  cleanup_wtap:
+    /* g_free checks for null */
+    g_free((gpointer) import_info_.payload);
+    switch (import_info_.mode) {
+      case TEXT_IMPORT_HEXDUMP:
+        fclose(import_info_.hexdump.import_text_FILE);
+        break;
+      case TEXT_IMPORT_REGEX:
+        g_mapped_file_unref(import_info_.regex.import_text_GMappedFile);
+        g_regex_unref((GRegex*) import_info_.regex.format);
+        g_free((gpointer) import_info_.regex.in_indication);
+        g_free((gpointer) import_info_.regex.out_indication);
+        break;
+    }
+  cleanup_mode:
+    g_free((gpointer) import_info_.import_text_filename);
+    g_free((gpointer) import_info_.timestamp_format);
+    return result();
 }
 
+/*******************************************************************************
+ * General Input
+ */
+
+void ImportTextDialog::updateImportButtonState()
+{
+    if (file_ok_ && timestamp_format_ok_ && ether_type_ok_ &&
+        proto_ok_ && source_port_ok_ && dest_port_ok_ &&
+        tag_ok_ && ppi_ok_ && payload_ok_ && max_len_ok_ &&
+        (
+            (
+                import_info_.mode == TEXT_IMPORT_REGEX && regex_ok_ &&
+                (!re_has_dir_  || (in_indication_ok_ && out_indication_ok_))
+            ) || (
+                import_info_.mode == TEXT_IMPORT_HEXDUMP
+            )
+        )
+      ) {
+          import_button_->setEnabled(true);
+    } else {
+        import_button_->setEnabled(false);
+    }
+}
+
+void ImportTextDialog::on_textFileLineEdit_textChanged(const QString &file_name)
+{
+    QFile text_file(file_name);
+
+    if (file_name.length() > 0 && text_file.open(QIODevice::ReadOnly)) {
+        file_ok_ = true;
+        text_file.close();
+    } else {
+        file_ok_ = false;
+    }
+    updateImportButtonState();
+}
+
+void ImportTextDialog::on_textFileBrowseButton_clicked()
+{
+    QString open_dir;
+    if (ti_ui_->textFileLineEdit->text().length() > 0) {
+        open_dir = ti_ui_->textFileLineEdit->text();
+    } else {
+        switch (prefs.gui_fileopen_style) {
+
+        case FO_STYLE_LAST_OPENED:
+            /* The user has specified that we should start out in the last directory
+               we looked in.  If we've already opened a file, use its containing
+               directory, if we could determine it, as the directory, otherwise
+               use the "last opened" directory saved in the preferences file if
+               there was one. */
+            /* This is now the default behaviour in file_selection_new() */
+            open_dir = get_last_open_dir();
+            break;
+
+        case FO_STYLE_SPECIFIED:
+            /* The user has specified that we should always start out in a
+               specified directory; if they've specified that directory,
+               start out by showing the files in that dir. */
+            if (prefs.gui_fileopen_dir[0] != '\0')
+                open_dir = prefs.gui_fileopen_dir;
+            break;
+        }
+    }
+
+    QString file_name = WiresharkFileDialog::getOpenFileName(this, wsApp->windowTitleString(tr("Import Text File")), open_dir);
+    ti_ui_->textFileLineEdit->setText(file_name);
+}
+
+bool ImportTextDialog::checkDateTimeFormat(const QString &time_format)
+{
+    /* nonstandard is f for fractions of seconds */
+    const QString valid_code = "aAbBcdDFfHIjmMpsSTUwWxXyYzZ%";
+    int idx = 0;
+    int ret = false;
+
+    while ((idx = time_format.indexOf("%", idx)) != -1) {
+        idx++;
+        if ((idx == time_format.size()) || !valid_code.contains(time_format[idx])) {
+            return false;
+        }
+        idx++;
+        ret = true;
+    }
+    return ret;
+}
+
+void ImportTextDialog::on_timestampFormatLineEdit_textChanged(const QString &time_format)
+{
+    if (time_format.length() > 0) {
+        if (checkDateTimeFormat(time_format)) {
+            struct timespec timenow;
+            struct tm *cur_tm;
+            struct tm fallback;
+            char time_str[100];
+            QString timefmt = QString(time_format);
+
+#if defined(_WIN32)
+            // At least some Windows C libraries have this.
+            // Some UN*X C libraries do, as well, but they might not
+            // show it unless you're requesting C11 - or C++17.
+            timespec_get(&timenow, TIME_UTC);
+#elif defined(HAVE_CLOCK_GETTIME)
+            // Newer POSIX API.  Some UN*Xes whose C libraries lack
+            // timespec_get() (C11) have this.
+            clock_gettime(CLOCK_REALTIME, &timenow);
+#else
+            // Fall back on gettimeofday().
+            struct timeval usectimenow;
+            gettimeofday(&usectimenow, NULL);
+            timenow.tv_sec = usectimenow.tv_sec;
+            timenow.tv_nsec = usectimenow.tv_usec*1000;
+#endif
+            /* On windows strftime/wcsftime does not support %s yet, this works on all OSs */
+            timefmt.replace(QString("%s"), QString::number(timenow.tv_sec));
+            /* subsecond example as usec */
+            timefmt.replace(QString("%f"),  QString("%1").arg(timenow.tv_nsec, 6, 10, QChar('0')));
+
+            cur_tm = localtime(&timenow.tv_sec);
+            if (cur_tm == NULL) {
+              memset(&fallback, 0, sizeof(fallback));
+              cur_tm = &fallback;
+            }
+            strftime(time_str, sizeof time_str, timefmt.toUtf8(), cur_tm);
+            ti_ui_->timestampExampleLabel->setText(QString(tr(HINT_BEGIN "Example: %1" HINT_END)).arg(QString(time_str).toHtmlEscaped()));
+            timestamp_format_ok_ = true;
+        }
+        else {
+            ti_ui_->timestampExampleLabel->setText(tr(HINT_BEGIN "(Wrong date format)" HINT_END));
+            timestamp_format_ok_ = false;
+        }
+    } else {
+        ti_ui_->timestampExampleLabel->setText(tr(HINT_BEGIN "(No format will be applied)" HINT_END));
+        timestamp_format_ok_ = true;
+    }
+    updateImportButtonState();
+}
+
+void ImportTextDialog::on_modeTabWidget_currentChanged(int index) {
+    switch (index) {
+      default:
+        ti_ui_->modeTabWidget->setCurrentIndex(0);
+        /* fall through */
+      case 0: /* these numbers depend on the UI */
+        import_info_.mode = TEXT_IMPORT_HEXDUMP;
+        memset(&import_info_.hexdump, 0, sizeof(import_info_.hexdump));
+        on_directionIndicationCheckBox_toggled(ti_ui_->directionIndicationCheckBox->isChecked());
+        enableFieldWidgets(false, true);
+        break;
+      case 1:
+        import_info_.mode = TEXT_IMPORT_REGEX;
+        memset(&import_info_.regex, 0, sizeof(import_info_.regex));
+        on_dataEncodingComboBox_currentIndexChanged(ti_ui_->dataEncodingComboBox->currentIndex());
+        enableFieldWidgets(re_has_dir_, re_has_time_);
+        break;
+    }
+    on_textFileLineEdit_textChanged(ti_ui_->textFileLineEdit->text());
+}
+
+/*******************************************************************************
+ * Hex Dump Tab
+ */
+
+void ImportTextDialog::on_noOffsetButton_toggled(bool checked)
+{
+    if (checked) {
+        ti_ui_->noOffsetLabel->setText("(only one packet will be created)");
+    } else {
+        ti_ui_->noOffsetLabel->setText("");
+    }
+}
+
+void ImportTextDialog::on_directionIndicationCheckBox_toggled(bool checked)
+{
+    import_info_.hexdump.has_direction = checked;
+}
+
+/*******************************************************************************
+ * Regex Tab
+ */
+
+void ImportTextDialog::on_regexTextEdit_textChanged()
+{
+    gchar* regex_gchar_p = qstring_strdup(ti_ui_->regexTextEdit->toPlainText());;
+    GError* gerror = NULL;
+    /* TODO: Use GLib's c++ interface or enable C++ int to enum casting
+     * because the flags are declared as enum, so we can't pass 0 like
+     * the specificaion reccomends. These options don't hurt.
+     */
+    GRegex* regex = g_regex_new(regex_gchar_p, G_REGEX_DUPNAMES, G_REGEX_MATCH_NOTEMPTY, &gerror);
+    if (gerror) {
+        regex_ok_ = false;
+        ti_ui_->regexHintLabel->setText(QString(gerror->message).toHtmlEscaped());
+        g_error_free(gerror);
+    } else {
+        regex_ok_ = 0 <= g_regex_get_string_number(regex, "data");
+        if (regex_ok_)
+            ti_ui_->regexHintLabel->setText(default_regex_hint);
+        else
+            ti_ui_->regexHintLabel->setText(missing_data_hint);
+        re_has_dir_ = 0 <= g_regex_get_string_number(regex, "dir");
+        re_has_time_ = 0 <= g_regex_get_string_number(regex, "time");
+        //re_has_seqno = 0 <= g_regex_get_string_number(regex, "seqno");
+        g_regex_unref(regex);
+    }
+    g_free(regex_gchar_p);
+    enableFieldWidgets(re_has_dir_, re_has_time_);
+    updateImportButtonState();
+}
+
+void ImportTextDialog::enableFieldWidgets(bool enable_direction_input, bool enable_time_input) {
+    ti_ui_->dirIndicationLabel->setEnabled(enable_direction_input);
+    ti_ui_->dirInIndicationLineEdit->setEnabled(enable_direction_input);
+    ti_ui_->dirOutIndicationLineEdit->setEnabled(enable_direction_input);
+    ti_ui_->timestampLabel->setEnabled(enable_time_input);
+    ti_ui_->timestampFormatLineEdit->setEnabled(enable_time_input);
+    ti_ui_->timestampExampleLabel->setEnabled(enable_time_input);
+}
+
+void ImportTextDialog::on_dataEncodingComboBox_currentIndexChanged(int index)
+{
+    QVariant val = ti_ui_->dataEncodingComboBox->itemData(index);
+    if (val != QVariant::Invalid) {
+        // data_encoding_ok = true;
+        import_info_.regex.encoding = (enum data_encoding) val.toUInt();
+        switch (import_info_.regex.encoding) {
+          case ENCODING_PLAIN_HEX:
+            ti_ui_->encodingRegexExample->setText(HINT_BEGIN "(?" HTML_LT "data" HTML_GT "[0-9a-fA-F:\\s]+)" HINT_END);
+            break;
+          case ENCODING_PLAIN_BIN:
+            ti_ui_->encodingRegexExample->setText(HINT_BEGIN "(?" HTML_LT "data" HTML_GT "[0-1\\s]+)" HINT_END);
+            break;
+          case ENCODING_PLAIN_OCT:
+            ti_ui_->encodingRegexExample->setText(HINT_BEGIN "(?" HTML_LT "data" HTML_GT "[0-8:\\s]+)" HINT_END);
+            break;
+          case ENCODING_BASE64:
+            ti_ui_->encodingRegexExample->setText(HINT_BEGIN "(?" HTML_LT "data" HTML_GT "[0-9a-zA-Z+\\/\\s]+=*)" HINT_END);
+            break;
+          default:
+            ti_ui_->encodingRegexExample->setText(HINT_BEGIN HTML_LT "no example" HTML_GT HINT_END);
+            break;
+        }
+        /* for some reason this breaks when changing the text */
+        ti_ui_->encodingRegexExample->setTextInteractionFlags(Qt::TextSelectableByMouse);
+    }
+    updateImportButtonState();
+}
+
+void ImportTextDialog::on_dirInIndicationLineEdit_textChanged(const QString &in_indication)
+{
+    in_indication_ok_ = in_indication.length() > 0;
+    updateImportButtonState();
+}
+
+void ImportTextDialog::on_dirOutIndicationLineEdit_textChanged(const QString &out_indication)
+{
+    out_indication_ok_ = out_indication.length() > 0;
+    updateImportButtonState();
+}
+
+/*******************************************************************************
+ * Encapsulation input
+ */
 
 void ImportTextDialog::enableHeaderWidgets(bool enable_ethernet_buttons, bool enable_export_pdu_buttons) {
     bool ethertype = false;
@@ -213,7 +617,6 @@ void ImportTextDialog::enableHeaderWidgets(bool enable_ethernet_buttons, bool en
     if (enable_export_pdu_buttons) {
         if (ti_ui_->exportPduButton->isChecked()) {
             export_pdu = true;
-            on_payloadLineEdit_textChanged(ti_ui_->payloadLineEdit->text());
         }
     }
 
@@ -237,124 +640,7 @@ void ImportTextDialog::enableHeaderWidgets(bool enable_ethernet_buttons, bool en
     ti_ui_->ppiLabel->setEnabled(sctp_ppi);
     ti_ui_->ppiLineEdit->setEnabled(sctp_ppi);
     ti_ui_->payloadLabel->setEnabled(export_pdu);
-    ti_ui_->payloadLineEdit->setEnabled(export_pdu);
-}
-
-int ImportTextDialog::exec() {
-    QVariant encap_val;
-
-    QDialog::exec();
-
-    if (result() != QDialog::Accepted) {
-        return result();
-    }
-
-    import_info_.import_text_filename = qstring_strdup(ti_ui_->textFileLineEdit->text());
-    import_info_.import_text_file = ws_fopen(import_info_.import_text_filename, "rb");
-    if (!import_info_.import_text_file) {
-        open_failure_alert_box(import_info_.import_text_filename, errno, FALSE);
-        setResult(QDialog::Rejected);
-        return QDialog::Rejected;
-    }
-
-    import_info_.offset_type =
-        ti_ui_->hexOffsetButton->isChecked()     ? OFFSET_HEX :
-        ti_ui_->decimalOffsetButton->isChecked() ? OFFSET_DEC :
-        ti_ui_->octalOffsetButton->isChecked()   ? OFFSET_OCT :
-        OFFSET_NONE;
-    import_info_.date_timestamp = ti_ui_->dateTimeLineEdit->text().length() > 0;
-    import_info_.date_timestamp_format = qstring_strdup(ti_ui_->dateTimeLineEdit->text());
-
-    encap_val = ti_ui_->encapComboBox->itemData(ti_ui_->encapComboBox->currentIndex());
-    import_info_.dummy_header_type = HEADER_NONE;
-    if (encap_val.isValid() && (encap_val.toUInt() == WTAP_ENCAP_ETHERNET || encap_val.toUInt() == WTAP_ENCAP_WIRESHARK_UPPER_PDU)
-            && !ti_ui_->noDummyButton->isChecked()) {
-        // Inputs were validated in the on_xxx_textChanged slots.
-        if (ti_ui_->ethernetButton->isChecked()) {
-            import_info_.dummy_header_type = HEADER_ETH;
-        } else if (ti_ui_->ipv4Button->isChecked()) {
-            import_info_.dummy_header_type = HEADER_IPV4;
-        } else if (ti_ui_->udpButton->isChecked()) {
-            import_info_.dummy_header_type = HEADER_UDP;
-        } else if (ti_ui_->tcpButton->isChecked()) {
-            import_info_.dummy_header_type = HEADER_TCP;
-        } else if (ti_ui_->sctpButton->isChecked()) {
-            import_info_.dummy_header_type = HEADER_SCTP;
-        } else if (ti_ui_->sctpDataButton->isChecked()) {
-            import_info_.dummy_header_type = HEADER_SCTP_DATA;
-        } else if (ti_ui_->exportPduButton->isChecked()) {
-            import_info_.dummy_header_type = HEADER_EXPORT_PDU;
-        }
-    }
-    if (import_info_.max_frame_length == 0) {
-        import_info_.max_frame_length = WTAP_MAX_PACKET_SIZE_STANDARD;
-    }
-
-    convertTextFile();
-    return QDialog::Accepted;
-}
-
-void ImportTextDialog::on_textFileBrowseButton_clicked()
-{
-    char *open_dir = NULL;
-
-    switch (prefs.gui_fileopen_style) {
-
-    case FO_STYLE_LAST_OPENED:
-        /* The user has specified that we should start out in the last directory
-           we looked in.  If we've already opened a file, use its containing
-           directory, if we could determine it, as the directory, otherwise
-           use the "last opened" directory saved in the preferences file if
-           there was one. */
-        /* This is now the default behaviour in file_selection_new() */
-        open_dir = get_last_open_dir();
-        break;
-
-    case FO_STYLE_SPECIFIED:
-        /* The user has specified that we should always start out in a
-           specified directory; if they've specified that directory,
-           start out by showing the files in that dir. */
-        if (prefs.gui_fileopen_dir[0] != '\0')
-            open_dir = prefs.gui_fileopen_dir;
-        break;
-    }
-
-    QString file_name = WiresharkFileDialog::getOpenFileName(this, wsApp->windowTitleString(tr("Import Text File")), open_dir);
-    ti_ui_->textFileLineEdit->setText(file_name);
-}
-
-void ImportTextDialog::updateImportButtonState()
-{
-    if (file_ok_ && time_format_ok_ && ether_type_ok_ &&
-        proto_ok_ && source_port_ok_ && dest_port_ok_ &&
-        tag_ok_ && ppi_ok_ && payload_ok_ && max_len_ok_) {
-        import_button_->setEnabled(true);
-    } else {
-        import_button_->setEnabled(false);
-    }
-}
-
-void ImportTextDialog::on_textFileLineEdit_textChanged(const QString &file_name)
-{
-    QFile *text_file;
-
-    text_file = new QFile(file_name);
-    if (text_file->open(QIODevice::ReadOnly)) {
-        file_ok_ = true;
-        text_file->close();
-    } else {
-        file_ok_ = false;
-    }
-    updateImportButtonState();
-}
-
-void ImportTextDialog::on_noOffsetButton_toggled(bool checked)
-{
-    if (checked) {
-        ti_ui_->noOffsetLabel->setText("(only one packet will be created)");
-    } else {
-        ti_ui_->noOffsetLabel->setText("");
-    }
+    ti_ui_->dissectorComboBox->setEnabled(export_pdu);
 }
 
 void ImportTextDialog::on_encapComboBox_currentIndexChanged(int index)
@@ -371,77 +657,6 @@ void ImportTextDialog::on_encapComboBox_currentIndexChanged(int index)
     }
 
     enableHeaderWidgets(enabled_ethernet, enabled_export_pdu);
-}
-
-bool ImportTextDialog::checkDateTimeFormat(const QString &time_format)
-{
-    const QString valid_code = "aAbBcdDFHIjmMpsSTUwWxXyYzZ%";
-    int idx = 0;
-    int ret = false;
-
-    while ((idx = time_format.indexOf("%", idx)) != -1) {
-        idx++;
-        if ((idx == time_format.size()) || !valid_code.contains(time_format[idx])) {
-            return false;
-        }
-        idx++;
-        ret = true;
-    }
-    return ret;
-}
-
-void ImportTextDialog::on_dateTimeLineEdit_textChanged(const QString &time_format)
-{
-    if (time_format.length() > 0) {
-        if (checkDateTimeFormat(time_format)) {
-            struct timespec timenow;
-            struct tm *cur_tm;
-            char time_str[100];
-            QString timefmt = QString(time_format);
-
-#if defined(_WIN32)
-            // At least some Windows C libraries have this.
-            // Some UN*X C libraries do, as well, but they might not
-            // show it unless you're requesting C11 - or C++17.
-            timespec_get(&timenow, TIME_UTC);
-#elif defined(HAVE_CLOCK_GETTIME)
-            // Newer POSIX API.  Some UN*Xes whose C libraries lack
-            // timespec_get() (C11) have this.
-            clock_gettime(CLOCK_REALTIME, &timenow);
-#else
-            // Fall back on gettimeofday().
-            struct timeval usectimenow;
-            gettimeofday(&usectimenow, NULL);
-            timenow.tv_sec = usectimenow.tv_sec;
-            timenow.tv_nsec = usectimenow.tv_usec*1000;
-#endif
-            /* On windows strftime/wcsftime does not support %s yet, this works on all OSs */
-            timefmt.replace(QString("%s"), QString::number(timenow.tv_sec));
-            /* subsecond example as usec */
-            timefmt.replace(QString("."),  QString(".%1").arg(timenow.tv_nsec/1000, 6, 10, QChar('0')));
-
-            cur_tm = localtime(&timenow.tv_sec);
-            if (cur_tm != NULL)
-                strftime(time_str, sizeof time_str, timefmt.toUtf8(), cur_tm);
-            else
-                g_strlcpy(time_str, "Not representable", sizeof time_str);
-            ti_ui_->timestampExampleLabel->setText(QString(tr("Example: %1")).arg(time_str));
-            time_format_ok_ = true;
-        }
-        else {
-            ti_ui_->timestampExampleLabel->setText(tr("<i>(Wrong date format)</i>"));
-            time_format_ok_ = false;
-        }
-    } else {
-        ti_ui_->timestampExampleLabel->setText(tr("<i>(No format will be applied)</i>"));
-        time_format_ok_ = true;
-    }
-    updateImportButtonState();
-}
-
-void ImportTextDialog::on_directionIndicationCheckBox_toggled(bool checked)
-{
-    import_info_.has_direction = checked;
 }
 
 void ImportTextDialog::on_noDummyButton_toggled(bool checked)
@@ -547,12 +762,9 @@ void ImportTextDialog::on_ppiLineEdit_textChanged(const QString &ppi_str)
     check_line_edit(ti_ui_->ppiLineEdit, ppi_ok_, ppi_str, 10, 0xffffffff, false, &import_info_.ppi);
 }
 
-void ImportTextDialog::on_payloadLineEdit_textChanged(const QString &payload)
-{
-    payload_ok_ = true;
-    import_info_.payload = g_strdup(payload.toStdString().c_str());
-    updateImportButtonState();
-}
+/*******************************************************************************
+* Footer
+*/
 
 void ImportTextDialog::on_maxLengthLineEdit_textChanged(const QString &max_frame_len_str)
 {

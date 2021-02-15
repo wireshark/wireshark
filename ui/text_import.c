@@ -1,6 +1,7 @@
 /* text_import.c
  * State machine for text import
  * November 2010, Jaap Keuter <jaap.keuter@xs4all.nl>
+ * Modified February 2021, Paul Weiß
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -61,6 +62,18 @@
  * set to WTAP_MAX_PACKET_SIZE_STANDARD.
  */
 
+/*******************************************************************************
+ * Alternatively this parses a Textfile based on a prel regex containing named
+ * capturing groups like so:
+ * (?<seqno>\d+)\s*(?<dir><|>)\s*(?<time>\d+:\d\d:\d\d.\d+)\s+(?<data>[0-9a-fA-F]+)\\s+
+ *
+ * Fields are decoded using a leanient parser, but only one attempt is made.
+ * Except for in data invalid values will be replaced by default ones.
+ * data currently only accepts plain HEX, OCT or BIN encoded data.
+ * common field seperators are ignored. Note however that 0x or 0b prefixing is
+ * not supported and no automatic format detection is attempted.
+ */
+
 #include "config.h"
 
 /*
@@ -115,11 +128,20 @@
 #include "text_import.h"
 #include "text_import_scanner.h"
 #include "text_import_scanner_lex.h"
+#include "text_import_regex.h"
 
 /*--- Options --------------------------------------------------------------------*/
 
 /* Debug level */
 static int debug = 0;
+
+/* time percision stored in file: 1[file] = 1^(-SUBSEC_PREC) */
+#define SUBSEC_PREC 9
+
+#define debug_printf(level,  ...) \
+    if (debug >= (level)) { \
+        printf(__VA_ARGS__); \
+    }
 
 /* Dummy Ethernet header */
 static gboolean hdr_ethernet = FALSE;
@@ -160,11 +182,12 @@ static guint32 hdr_data_chunk_ppid = 0;
 
 /* Dummy ExportPdu header */
 static gboolean hdr_export_pdu = FALSE;
-static gchar* hdr_export_pdu_payload = NULL;
+static const gchar* hdr_export_pdu_payload = NULL;
 
 static gboolean has_direction = FALSE;
 static guint32 direction = PACK_FLAGS_RECEPTION_TYPE_UNSPECIFIED;
-
+static gboolean has_seqno = FALSE;
+static guint64 seqno = 0;
 /*--- Local data -----------------------------------------------------------------*/
 
 /* This is where we store the packet currently being built */
@@ -181,8 +204,8 @@ static int packet_preamble_len = 0;
 
 /* Time code of packet, derived from packet_preamble */
 static time_t ts_sec = 0;
-static guint32 ts_usec = 0;
-static char *ts_fmt = NULL;
+static guint32 ts_nsec = 0;
+static const char *ts_fmt = NULL;
 static struct tm timecode_default;
 
 static wtap_dumper* wdh;
@@ -593,12 +616,16 @@ write_current_packet (void)
 
             rec.rec_type = REC_TYPE_PACKET;
             rec.ts.secs = (guint32)ts_sec;
-            rec.ts.nsecs = ts_usec * 1000;
-            if (ts_fmt == NULL) { ts_usec++; }  /* fake packet counter */
+            rec.ts.nsecs = ts_nsec;
+            if (ts_fmt == NULL) { ts_nsec++; }  /* fake packet counter */
             rec.rec_header.packet_header.caplen = rec.rec_header.packet_header.len = prefix_length + curr_offset + eth_trailer_length;
             rec.rec_header.packet_header.pkt_encap = pcap_link_type;
             rec.rec_header.packet_header.pack_flags |= direction;
             rec.presence_flags = WTAP_HAS_CAP_LEN|WTAP_HAS_INTERFACE_ID|WTAP_HAS_TS|WTAP_HAS_PACK_FLAGS;
+            if (has_seqno) {
+              rec.presence_flags |= WTAP_HAS_PACKET_ID;
+              rec.rec_header.packet_header.packet_id = seqno;
+            }
 
             /* XXX - report errors! */
             if (!wtap_dump(wdh, &rec, packet_buf, &err, &err_info)) {
@@ -654,6 +681,326 @@ append_to_preamble(char *str)
     }
 }
 
+#define INVALID_VALUE (-1)
+
+#define WHITESPACE_VALUE (-2)
+
+/*
+ * Information on how to parse any plainly encoded binary data
+ *
+ * one Unit is least_common_mmultiple(bits_per_char, 8) bits.
+ */
+struct plain_decoding_data {
+    const gchar* name;
+    guint chars_per_unit;
+    guint bytes_per_unit : 3; /* Internally a guint64 is used to hold units */
+    guint bits_per_char : 6;
+    gint8 table[256];
+};
+
+#define INVALID_INIT \
+    [0 ... 255] = INVALID_VALUE
+
+#define WHITESPACE_INIT \
+    [' '] = WHITESPACE_VALUE, \
+    ['\t'] = WHITESPACE_VALUE, \
+    ['\n'] = WHITESPACE_VALUE, \
+    ['\v'] = WHITESPACE_VALUE, \
+    ['\f'] = WHITESPACE_VALUE, \
+    ['\r'] = WHITESPACE_VALUE
+
+
+const struct plain_decoding_data hex_decode_info = {
+    .chars_per_unit = 2,
+    .bytes_per_unit = 1,
+    .bits_per_char = 4,
+    .table = {
+        INVALID_INIT,
+        WHITESPACE_INIT,
+        [':'] = WHITESPACE_VALUE,
+        ['0'] = 0,1,2,3,4,5,6,7,8,9,
+        ['A'] = 10,11,12,13,14,15,
+        ['a'] = 10,11,12,13,14,15
+    }
+};
+
+const struct plain_decoding_data bin_decode_info = {
+    .chars_per_unit = 8,
+    .bytes_per_unit = 1,
+    .bits_per_char = 1,
+    .table = {
+        INVALID_INIT,
+        WHITESPACE_INIT,
+        ['0'] = 0, 1
+    }
+};
+
+const struct plain_decoding_data oct_decode_info = {
+    .chars_per_unit = 8,
+    .bytes_per_unit = 3,
+    .bits_per_char = 3,
+    .table = {
+        INVALID_INIT,
+        WHITESPACE_INIT,
+        ['0'] = 0,1,2,3,4,5,6,7
+    }
+};
+
+const struct plain_decoding_data base64_decode_info = {
+    .chars_per_unit = 4,
+    .bytes_per_unit = 3,
+    .bits_per_char = 6,
+    .table = {
+        INVALID_INIT,
+        WHITESPACE_INIT,
+        ['A'] = 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,
+        ['a'] = 26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,
+        ['0'] = 52,53,54,55,56,57,58,59,60,61,
+        ['+'] = 62,
+        ['/'] = 63,
+        ['='] = WHITESPACE_VALUE /* padding at the end, the decoder doesn't need this, so just ignores it */
+    }
+};
+
+/*******************************************************************************
+ * The modularized part of this mess, used by the wrapper around the regex
+ * engine in text_import_regex.c to hook into this state-machine backend.
+ *
+ * Should the rest be modularized aswell? Maybe, but then start with pcap2text.c
+ */
+
+ /**
+  * This function parses encoded data according to <encoding> into binary data.
+  * It will continue until one of the following conditions is met:
+  *    - src is depletetd
+  *    - dest cannot hold another full unit of data
+  *    - an invalid character is read
+  * When this happens any complete bytes will be recovered from the remaining
+  * possibly incomplete unit and stored to dest (there will be no incomplete unit
+  * if dest is full). Any remaining bits will be discarded.
+  * src and dest will be advanced to where parsing including this last incomplete
+  * unit stopped.
+  * If you want to continue parsing (meaning incomplete units were due to call
+  * fragmentation and not actually due to EOT) you have to resume the parser at
+  * *src_last_unit and dest - result % bytes_per_unit
+  */
+static int parse_plain_data(guchar** src, const guchar* src_end,
+    guint8** dest, const guint8* dest_end, const struct plain_decoding_data* encoding,
+    guchar** src_last_unit) {
+    int status = 1;
+    int units = 0;
+    /* unit buffer */
+    guint64 c_val = 0;
+    guint c_chars = 0;
+    /**
+     * Src data   |- - -|- - -|- - -|- - -|- - -|- - -|- - -|- - -|
+     * Bytes      |- - - - - - - -|- - - - - - - -|- - - - - - - -|
+     * Units      |- - - - - - - - - - - - - - - - - - - - - - - -|
+     */
+    guint64 val;
+    int j;
+    debug_printf(3, "parsing data: ");
+    while (*src < src_end && *dest + encoding->bytes_per_unit <= dest_end) {
+        debug_printf(3, "%c", **src);
+        val = encoding->table[**src];
+        switch (val) {
+          case INVALID_VALUE:
+            status = -1;
+            goto remainder;
+          case WHITESPACE_VALUE:
+            fprintf(stderr, "Unexpected char %d in data\n", **src);
+            break;
+          default:
+            c_val = c_val << encoding->bits_per_char | val;
+            ++c_chars;
+            /* another full unit */
+            if (c_chars == encoding->chars_per_unit) {
+                ++units;
+                if (src_last_unit)
+                    *src_last_unit = *src;
+                c_chars = 0;
+                for (j = encoding->bytes_per_unit; j > 0; --j) {
+                    **dest = (gchar) (c_val >> (j * 8 - 8));
+                    *dest += 1;
+                }
+            }
+        }
+        *src += 1;
+    }
+remainder:
+    for (j = c_chars * encoding->bits_per_char; j >= 8; j -= 8) {
+        **dest = (gchar) (c_val >> (j - 8));
+        *dest += 1;
+    }
+    debug_printf(3, "\n");
+    return status * units;
+}
+
+void parse_data(guchar* start_field, guchar* end_field, enum data_encoding encoding) {
+    guint8* dest = &packet_buf[curr_offset];
+    guint8* dest_end = &packet_buf[max_offset];
+
+    const struct plain_decoding_data* table; /* should be further down */
+    switch (encoding) {
+      case ENCODING_PLAIN_HEX:
+      case ENCODING_PLAIN_OCT:
+      case ENCODING_PLAIN_BIN:
+      case ENCODING_BASE64:
+        /* const struct plain_decoding_data* table; // This can't be here because gcc says no */
+        switch (encoding) {
+          case ENCODING_PLAIN_HEX:
+            table = &hex_decode_info;
+            break;
+          case ENCODING_PLAIN_OCT:
+            table = &oct_decode_info;
+            break;
+          case ENCODING_PLAIN_BIN:
+            table = &bin_decode_info;
+            break;
+          case ENCODING_BASE64:
+            table = &base64_decode_info;
+            break;
+          default:
+            return;
+        }
+        while (1) {
+            parse_plain_data(&start_field, end_field, &dest, dest_end, table, NULL);
+            curr_offset = (int) (dest - packet_buf);
+            if (curr_offset == max_offset) {
+                write_current_packet();
+                dest = &packet_buf[curr_offset];
+            } else
+                break;
+        }
+        break;
+      default:
+          fprintf(stderr, "not implemented/invalid encoding type\n");
+          return;
+    }
+}
+
+#define setFlags(VAL, MASK, FLAGS) \
+    ((VAL) & ~(MASK)) | ((FLAGS) & (MASK))
+
+static void _parse_dir(const guchar* start_field, __attribute__ ((unused)) const guchar* end_field, const gchar* in_indicator, const gchar* out_indicator, guint32* dir) {
+    for (; *in_indicator && *start_field != *in_indicator; ++in_indicator);
+    if (*in_indicator) {
+        *dir = setFlags(*dir, PACK_FLAGS_DIRECTION_MASK << PACK_FLAGS_DIRECTION_SHIFT, PACK_FLAGS_DIRECTION_INBOUND);
+        return;
+    }
+    for (; *out_indicator && *start_field != *out_indicator; ++out_indicator);
+    if (*out_indicator) {
+        *dir = setFlags(*dir, PACK_FLAGS_DIRECTION_MASK << PACK_FLAGS_DIRECTION_SHIFT, PACK_FLAGS_DIRECTION_OUTBOUND);
+        return;
+    }
+    *dir = setFlags(*dir, PACK_FLAGS_DIRECTION_MASK << PACK_FLAGS_DIRECTION_SHIFT, PACK_FLAGS_DIRECTION_UNKNOWN);
+}
+
+void parse_dir(const guchar* start_field, const guchar* end_field, const gchar* in_indicator, const gchar* out_indicator) {
+    _parse_dir(start_field, end_field, in_indicator, out_indicator, &direction);
+}
+
+#define PARSE_BUF 64
+
+static void _parse_time(const guchar* start_field, const guchar* end_field, const gchar* _format, time_t* sec, gint* nsec) {
+    struct tm timecode;
+    time_t sec_buf;
+    gint nsec_buf;
+
+    char field[PARSE_BUF];
+    char format[PARSE_BUF];
+
+    char* subsecs_fmt;
+    int  subseclen = -1;
+
+    char *cursor;
+    char *p;
+    int  i;
+
+    g_strlcpy(field, start_field, MIN(end_field - start_field + 1, PARSE_BUF));
+    g_strlcpy(format, _format, PARSE_BUF);
+
+    /*
+     * Initialize to today localtime, just in case not all fields
+     * of the date and time are specified.
+     */
+    timecode = timecode_default;
+    cursor = &field[0];
+
+    /*
+     * %f is for fractions of seconds not supported by strptime
+     * BTW: what is this function name? is this some russian joke?
+     */
+    subsecs_fmt = g_strrstr (format, "%f");
+    if (subsecs_fmt)
+        *subsecs_fmt = 0;
+    else
+      /* arbitrary counter if no fractions */
+        ++*nsec;
+
+    cursor = strptime(cursor, format, &timecode);
+
+    if (cursor != NULL && subsecs_fmt != NULL) {
+        /*
+         * Parse subsecs and any following format
+         */
+        nsec_buf = (guint) strtol(cursor, &p, 10);
+        if (p > cursor) {
+            *nsec = nsec_buf;
+            subseclen = (int) (p - cursor);
+            cursor = p;
+            strptime(cursor, subsecs_fmt + 2, &timecode);
+        } else {
+            ++*nsec;
+            subseclen = -1;
+        }
+    }
+
+    if (subseclen > 0) {
+        /*
+         * Convert that number to a number
+         * of nanoseconds; if it's N digits
+         * long, it's in units of 10^(-N) seconds,
+         * so, to convert it to units of
+         * 10^-9 seconds, we multiply by
+         * 10^(9-N).
+         */
+        if (subseclen > SUBSEC_PREC) {
+            /*
+             * *More* than 9 digits; 9-N is
+             * negative, so we divide by
+             * 10^(N-9).
+             */
+            for (i = subseclen - SUBSEC_PREC; i != 0; i--)
+                *nsec /= 10;
+        } else if (subseclen < SUBSEC_PREC) {
+            for (i = SUBSEC_PREC - subseclen; i != 0; i--)
+                *nsec *= 10;
+        }
+    }
+
+    if ( -1 == (sec_buf = mktime(&timecode)) ) {
+        ++*sec;
+    } else {
+        *sec = sec_buf;
+    }
+    debug_printf(3, "parsed time %s Format(%s), time(%u), subsecs(%u)\n", field, _format, (guint32)*sec, (guint32)*nsec);
+}
+
+void parse_time(const guchar* start_field, const guchar* end_field, const gchar* format) {
+    _parse_time(start_field, end_field, format, &ts_sec, &ts_nsec);
+}
+
+void parse_seqno(const guchar* start_field, const guchar* end_field) {
+    char* buf = (char*) g_alloca(end_field - start_field + 1);
+    g_strlcpy(buf, start_field, end_field - start_field + 1);
+    seqno = g_ascii_strtoull(buf, NULL, 10);
+}
+
+void flush_packet(void) {
+    write_current_packet();
+}
+
 /*----------------------------------------------------------------------
  * Parse the preamble to get the timecode.
  */
@@ -661,10 +1008,6 @@ append_to_preamble(char *str)
 static void
 parse_preamble (void)
 {
-    struct tm timecode;
-    char *subsecs;
-    char *p;
-    int  subseclen;
     int  i;
 
     /*
@@ -673,21 +1016,7 @@ parse_preamble (void)
     packet_preamble[packet_preamble_len] = '\0';
 
     if (has_direction) {
-        switch (packet_preamble[0]) {
-        case 'i':
-        case 'I':
-            direction = PACK_FLAGS_DIRECTION_INBOUND;
-            packet_preamble[0] = ' ';
-            break;
-        case 'o':
-        case 'O':
-            direction = PACK_FLAGS_DIRECTION_OUTBOUND;
-            packet_preamble[0] = ' ';
-            break;
-        default:
-            direction = PACK_FLAGS_DIRECTION_UNKNOWN;
-            break;
-        }
+        _parse_dir(&packet_preamble[0], &packet_preamble[1], "iI", "oO", &direction);
         i = 0;
         while (packet_preamble[i] == ' ' ||
                packet_preamble[i] == '\r' ||
@@ -711,75 +1040,17 @@ parse_preamble (void)
      * of the date and time are specified.
      */
 
-    timecode = timecode_default;
-    ts_usec = 0;
-
     /* Ensure preamble has more than two chars before attempting to parse.
      * This should cover line breaks etc that get counted.
      */
     if ( strlen(packet_preamble) > 2 ) {
-        /* Get Time leaving subseconds */
-        subsecs = strptime( packet_preamble, ts_fmt, &timecode );
-        if (subsecs != NULL) {
-            /* Get the long time from the tm structure */
-            /*  (will return -1 if failure)            */
-            ts_sec  = mktime( &timecode );
-        } else
-            ts_sec = -1;    /* we failed to parse it */
-
-        /* This will ensure incorrectly parsed dates get set to zero */
-        if ( -1 == ts_sec )
-        {
-            /* Sanitize - remove all '\r' */
-            char *c;
-            while ((c = strchr(packet_preamble, '\r')) != NULL) *c=' ';
-            fprintf (stderr, "Failure processing time \"%s\" using time format \"%s\"\n   (defaulting to Jan 1,1970 00:00:00 GMT)\n",
-                 packet_preamble, ts_fmt);
-            if (debug >= 2) {
-                fprintf(stderr, "timecode: %02d/%02d/%d %02d:%02d:%02d %d\n",
-                    timecode.tm_mday, timecode.tm_mon, timecode.tm_year,
-                    timecode.tm_hour, timecode.tm_min, timecode.tm_sec, timecode.tm_isdst);
-            }
-            ts_sec  = 0;  /* Jan 1,1970: 00:00 GMT; tshark/wireshark will display date/time as adjusted by timezone */
-            ts_usec = 0;
-        }
-        else
-        {
-            /* Parse subseconds */
-            ts_usec = (guint32)strtol(subsecs, &p, 10);
-            if (subsecs == p) {
-                /* Error */
-                ts_usec = 0;
-            } else {
-                /*
-                 * Convert that number to a number
-                 * of microseconds; if it's N digits
-                 * long, it's in units of 10^(-N) seconds,
-                 * so, to convert it to units of
-                 * 10^-6 seconds, we multiply by
-                 * 10^(6-N).
-                 */
-                subseclen = (int) (p - subsecs);
-                if (subseclen > 6) {
-                    /*
-                     * *More* than 6 digits; 6-N is
-                     * negative, so we divide by
-                     * 10^(N-6).
-                     */
-                    for (i = subseclen - 6; i != 0; i--)
-                        ts_usec /= 10;
-                } else if (subseclen < 6) {
-                    for (i = 6 - subseclen; i != 0; i--)
-                        ts_usec *= 10;
-                }
-            }
-        }
+        _parse_time(packet_preamble, packet_preamble + strlen(packet_preamble + 1), ts_fmt, &ts_sec, &ts_nsec);
     }
     if (debug >= 2) {
         char *c;
         while ((c = strchr(packet_preamble, '\r')) != NULL) *c=' ';
         fprintf(stderr, "[[parse_preamble: \"%s\"]]\n", packet_preamble);
-        fprintf(stderr, "Format(%s), time(%u), subsecs(%u)\n", ts_fmt, (guint32)ts_sec, ts_usec);
+        fprintf(stderr, "Format(%s), time(%u), subsecs(%u)\n", ts_fmt, (guint32)ts_sec, ts_nsec);
     }
 
 
@@ -800,6 +1071,7 @@ start_new_packet (void)
     write_current_packet();
 
     /* Ensure we parse the packet preamble as it may contain the time */
+    /* THIS IMPLEIES A STATE TRANSITION OUTSIDE THE STATE MACHINE */
     parse_preamble();
 }
 
@@ -999,7 +1271,7 @@ parse_token (token_t token, char *str)
  * Import a text file.
  */
 int
-text_import(text_import_info_t *info)
+text_import(const text_import_info_t *info)
 {
     int ret;
     struct tm *now_tm;
@@ -1021,6 +1293,7 @@ text_import(text_import_info_t *info)
     packet_preamble_len = 0;
     ts_sec = time(0);            /* initialize to current time */
     now_tm = localtime(&ts_sec);
+    direction = PACK_FLAGS_DIRECTION_UNKNOWN;
     if (now_tm == NULL) {
         /*
          * This shouldn't happen - on UN*X, this should Just Work, and
@@ -1032,7 +1305,7 @@ text_import(text_import_info_t *info)
     }
     timecode_default = *now_tm;
     timecode_default.tm_isdst = -1;     /* Unknown for now, depends on time given to the strptime() function */
-    ts_usec = 0;
+    ts_nsec = 0;
 
     /* Dummy headers */
     hdr_ethernet = FALSE;
@@ -1043,27 +1316,32 @@ text_import(text_import_info_t *info)
     hdr_data_chunk = FALSE;
     hdr_export_pdu = FALSE;
 
-    switch (info->offset_type)
-    {
-        case OFFSET_NONE:
-            offset_base = 0;
-            break;
-        case OFFSET_HEX:
-            offset_base = 16;
-            break;
-        case OFFSET_OCT:
-            offset_base = 8;
-            break;
-        case OFFSET_DEC:
-            offset_base = 10;
-            break;
+    if (info->mode == TEXT_IMPORT_HEXDUMP) {
+        switch (info->hexdump.offset_type)
+        {
+            case OFFSET_NONE:
+                offset_base = 0;
+                break;
+            case OFFSET_HEX:
+                offset_base = 16;
+                break;
+            case OFFSET_OCT:
+                offset_base = 8;
+                break;
+            case OFFSET_DEC:
+                offset_base = 10;
+                break;
+        }
+        has_direction = info->hexdump.has_direction;
+
+    } else if (info->mode == TEXT_IMPORT_REGEX) {
+        has_direction = g_regex_get_string_number(info->regex.format, "dir") >= 0;
+        has_seqno = g_regex_get_string_number(info->regex.format, "seqno") >= 0;
     }
 
-    has_direction = info->has_direction;
-
-    if (info->date_timestamp)
+    if (info->timestamp_format)
     {
-        ts_fmt = info->date_timestamp_format;
+        ts_fmt = info->timestamp_format;
     }
 
     pcap_link_type = info->encapsulation;
@@ -1140,7 +1418,13 @@ text_import(text_import_info_t *info)
 
     max_offset = info->max_frame_length;
 
-    ret = text_import_scan(info->import_text_file);
+    if (info->mode == TEXT_IMPORT_HEXDUMP) {
+        ret = text_import_scan(info->hexdump.import_text_FILE);
+    } else if (info->mode == TEXT_IMPORT_REGEX) {
+        ret = text_import_regex(info);
+    } else {
+        ret = -1;
+    }
     g_free(packet_buf);
     return ret;
 }

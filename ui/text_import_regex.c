@@ -1,0 +1,123 @@
+/* text_import_regex.c
+ * Regex based text importer
+ * February 2021, Paul Weiß
+ *
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
+ * Copyright 1998 Gerald Combs
+ *
+ * Based on text_import.c by Jaap Keuter <jaap.keuter@xs4all.nl>
+ *
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
+
+#include "config.h"
+
+#include <stdio.h>
+#include <stdlib.h>
+
+#include <glib.h>
+
+#include "text_import.h"
+#include "text_import_regex.h"
+
+typedef unsigned int uint;
+
+/*--- Options --------------------------------------------------------------------*/
+
+static int debug = 0;
+
+#define debug_printf(level,  ...) \
+    if (debug >= (level)) { \
+        printf(__VA_ARGS__); \
+    }
+
+int text_import_regex(const text_import_info_t* info) {
+    int status = 1;
+    int parsed_packets = 0;
+    debug_printf(1, "starting import...\n");
+
+    // IO
+    GMappedFile* file = g_mapped_file_ref(info->regex.import_text_GMappedFile);
+    GError* gerror = NULL;
+    gsize f_size = g_mapped_file_get_length(file);
+    guchar* f_content = g_mapped_file_get_contents(file);
+    { /* zero terminate the file */
+        if (f_content[f_size -  1] != '\n') {
+            fprintf(stderr, "Error: file did not end on \\n\n");
+            g_mapped_file_unref(file);
+            return -1;
+        }
+        f_content[f_size] = 0;
+    }
+
+    // Regex result dissecting
+    gint re_data, re_time, re_dir, re_seqno;
+    GMatchInfo* match;
+    gint field_start;
+    gint field_end;
+    { /* analyze regex */
+        re_time = g_regex_get_string_number(info->regex.format, "time");
+        re_dir = g_regex_get_string_number(info->regex.format, "dir");
+        re_seqno = g_regex_get_string_number(info->regex.format, "seqno");
+        re_data = g_regex_get_string_number(info->regex.format, "data");
+        if (re_data < 0) {
+        /* This should never happen, as the dialog checks for this */
+        fprintf(stderr, "Error could not find data in pattern\n");
+        g_mapped_file_unref(file);
+        return -1;
+        }
+    }
+
+    debug_printf(1, "regex has data: %d, dir: %d, time: %d, seqno: %d\n", re_data, re_dir, re_time, re_seqno);
+    g_regex_match(info->regex.format, f_content, G_REGEX_MATCH_NOTEMPTY, &match);
+    while (g_match_info_matches(match)) {
+        /* parse the data */
+        if (!g_match_info_fetch_pos(match, re_data, &field_start, &field_end)) {
+            fprintf(stderr, "Warning: could not fetch data, discarding\n");
+            continue;
+        }
+        parse_data(f_content + field_start, f_content + field_end, info->regex.encoding);
+
+        /* parse the auxillary information if present */
+        if (re_time >= 0 &&
+                g_match_info_fetch_pos(match, re_time, &field_start, &field_end))
+            parse_time(f_content + field_start, f_content + field_end, info->timestamp_format);
+
+        if (re_dir >= 0 &&
+                g_match_info_fetch_pos(match, re_dir, &field_start, &field_end))
+            parse_dir(f_content + field_start, f_content + field_end, info->regex.in_indication, info->regex.out_indication);
+
+        if (re_seqno >= 0 &&
+                g_match_info_fetch_pos(match, re_seqno, &field_start, &field_end))
+            parse_seqno(f_content + field_start, f_content + field_end);
+
+        flush_packet();
+
+        /* prepare next packet */
+        ++parsed_packets;
+        g_match_info_next(match, &gerror);
+        if (gerror && gerror->code) {
+            status = -1;
+            g_error_free(gerror);
+            break;
+        }
+    }
+    debug_printf(1, "processed %d packets\n", parsed_packets);
+    g_match_info_unref(match);
+    g_mapped_file_unref(file);
+    return status * parsed_packets;
+}
+
+/*
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */

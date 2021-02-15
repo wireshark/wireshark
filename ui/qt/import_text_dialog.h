@@ -38,10 +38,14 @@ public:
     QString &capfileName();
 
 private:
-    void convertTextFile();
     void enableHeaderWidgets(bool enable_ethernet_buttons = true, bool enable_export_pdu_buttons = true);
+
+    /* regex fields */
+    void enableFieldWidgets(bool enable_direction_input = true, bool enable_time_input = true);
+
     void check_line_edit(SyntaxLineEdit *le, bool &ok_enable, const QString &num_str, int base, guint max_val, bool is_short, guint *val_ptr);
     bool checkDateTimeFormat(const QString &time_format);
+
     void updateImportButtonState();
 
     Ui::ImportTextDialog *ti_ui_;
@@ -51,7 +55,15 @@ private:
     text_import_info_t import_info_;
     QString capfile_name_;
     bool file_ok_;
-    bool time_format_ok_;
+    bool timestamp_format_ok_;
+
+    /* Regex input */
+    bool regex_ok_;
+    bool re_has_dir_;
+    bool in_indication_ok_;
+    bool out_indication_ok_;
+    bool re_has_time_;
+
     bool ether_type_ok_;
     bool proto_ok_;
     bool source_port_ok_;
@@ -67,10 +79,21 @@ public slots:
 private slots:
     void on_textFileBrowseButton_clicked();
     void on_textFileLineEdit_textChanged(const QString &arg1);
+    void on_modeTabWidget_currentChanged(int index);
+    void on_timestampFormatLineEdit_textChanged(const QString &arg1);
+
+    /* Hex Dump input */
     void on_noOffsetButton_toggled(bool checked);
-    void on_encapComboBox_currentIndexChanged(int index);
-    void on_dateTimeLineEdit_textChanged(const QString &arg1);
     void on_directionIndicationCheckBox_toggled(bool checked);
+
+    /* Regex input */
+    void on_regexTextEdit_textChanged();
+    void on_dataEncodingComboBox_currentIndexChanged(int index);
+    void on_dirInIndicationLineEdit_textChanged(const QString &arg1);
+    void on_dirOutIndicationLineEdit_textChanged(const QString &arg1);
+
+    /* Encapsulation input */
+    void on_encapComboBox_currentIndexChanged(int index);
     void on_noDummyButton_toggled(bool checked);
     void on_ethernetButton_toggled(bool checked);
     void on_ipv4Button_toggled(bool checked);
@@ -85,7 +108,7 @@ private slots:
     void on_destinationPortLineEdit_textChanged(const QString &destination_port_str);
     void on_tagLineEdit_textChanged(const QString &tag_str);
     void on_ppiLineEdit_textChanged(const QString &ppi_str);
-    void on_payloadLineEdit_textChanged(const QString &payload);
+
     void on_maxLengthLineEdit_textChanged(const QString &max_frame_len_str);
     void on_buttonBox_helpRequested();
 };

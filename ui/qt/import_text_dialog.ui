@@ -6,20 +6,14 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>472</width>
-    <height>486</height>
+    <width>545</width>
+    <height>673</height>
    </rect>
-  </property>
-  <property name="sizePolicy">
-   <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
-    <horstretch>0</horstretch>
-    <verstretch>0</verstretch>
-   </sizepolicy>
   </property>
   <property name="maximumSize">
    <size>
     <width>16777215</width>
-    <height>486</height>
+    <height>1000</height>
    </size>
   </property>
   <property name="sizeGripEnabled">
@@ -28,211 +22,423 @@
   <property name="modal">
    <bool>true</bool>
   </property>
-  <layout class="QFormLayout" name="formLayout_3">
-   <property name="fieldGrowthPolicy">
-    <enum>QFormLayout::FieldsStayAtSizeHint</enum>
-   </property>
-   <item row="0" column="0" colspan="2">
-    <widget class="QGroupBox" name="groupBox">
-     <property name="title">
-      <string>Import From</string>
+  <layout class="QVBoxLayout" name="verticalLayout_2">
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout_2">
+     <item>
+      <widget class="QLabel" name="label">
+       <property name="text">
+        <string>File:</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLineEdit" name="textFileLineEdit">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
+         <horstretch>0</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <property name="toolTip">
+        <string>Set name of text file to import</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="textFileBrowseButton">
+       <property name="toolTip">
+        <string>Browse for text file to import</string>
+       </property>
+       <property name="text">
+        <string>Browse…</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <widget class="QTabWidget" name="modeTabWidget">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
      </property>
-     <property name="flat">
-      <bool>true</bool>
+     <property name="currentIndex">
+      <number>0</number>
      </property>
-     <layout class="QFormLayout" name="formLayout_2">
-      <item row="1" column="0" colspan="2">
-       <layout class="QHBoxLayout" name="horizontalLayout_2">
-        <item>
-         <widget class="QLabel" name="label">
-          <property name="text">
-           <string>File:</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QLineEdit" name="textFileLineEdit">
-          <property name="sizePolicy">
-           <sizepolicy hsizetype="MinimumExpanding" vsizetype="Fixed">
-            <horstretch>0</horstretch>
-            <verstretch>0</verstretch>
-           </sizepolicy>
-          </property>
-          <property name="toolTip">
-           <string>Set name of text file to import</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPushButton" name="textFileBrowseButton">
-          <property name="toolTip">
-           <string>Browse for text file to import</string>
-          </property>
-          <property name="text">
-           <string>Browse…</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </item>
-      <item row="2" column="0" colspan="2">
-       <layout class="QGridLayout" name="gridLayout_2">
-        <item row="2" column="1">
-         <widget class="QRadioButton" name="octalOffsetButton">
-          <property name="toolTip">
-           <string>Offsets in the text file are in octal notation</string>
-          </property>
-          <property name="text">
-           <string>Octal</string>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="0">
-         <widget class="QLabel" name="label_2">
-          <property name="text">
-           <string>Offsets:</string>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="1">
-         <widget class="QRadioButton" name="hexOffsetButton">
-          <property name="toolTip">
-           <string>Offsets in the text file are in hexadecimal notation</string>
-          </property>
-          <property name="text">
-           <string>Hexadecimal</string>
-          </property>
-          <property name="checked">
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="1">
-         <widget class="QRadioButton" name="decimalOffsetButton">
-          <property name="toolTip">
-           <string>Offsets in the text file are in decimal notation</string>
-          </property>
-          <property name="text">
-           <string>Decimal</string>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="2" rowspan="3">
-         <spacer name="horizontalSpacer_2">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>40</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-        <item row="3" column="1">
-         <widget class="QRadioButton" name="noOffsetButton">
-          <property name="toolTip">
-           <string>The text file has no offset</string>
-          </property>
-          <property name="text">
-           <string>None</string>
-          </property>
-         </widget>
-        </item>
-        <item row="3" column="2">
-         <widget class="QLabel" name="noOffsetLabel">
-          <property name="font">
-           <font>
-            <italic>false</italic>
-           </font>
-          </property>
-          <property name="text">
-           <string/>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </item>
-      <item row="4" column="0" colspan="2">
-       <layout class="QHBoxLayout" name="horizontalLayout_3">
-        <item>
-         <widget class="QLabel" name="label_3">
-          <property name="toolTip">
-           <string>The format in which to parse timestamps in the text file (e.g. %H:%M:%S.). Format specifiers are based on strptime(3)</string>
-          </property>
-          <property name="text">
-           <string>Timestamp format:</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QLineEdit" name="dateTimeLineEdit">
-          <property name="toolTip">
-           <string>The format in which to parse timestamps in the text file (e.g. %H:%M:%S.). Format specifiers are based on strptime(3)</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QLabel" name="timestampExampleLabel">
-          <property name="text">
-           <string/>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <spacer name="horizontalSpacer">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>40</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-       </layout>
-      </item>
-      <item row="5" column="0" colspan="2">
-       <layout class="QHBoxLayout" name="horizontalLayout_5" stretch="0,0,0">
-        <item>
-         <widget class="QLabel" name="directionIndicationLabel">
-          <property name="toolTip">
-           <string>Whether or not the file contains information indicating the direction (inbound or outbound) of the packet.</string>
-          </property>
-          <property name="text">
-           <string>Direction indication:</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QCheckBox" name="directionIndicationCheckBox">
-          <property name="toolTip">
-           <string>Whether or not the file contains information indicating the direction (inbound or outbound) of the packet.</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <spacer name="horizontalSpacer_5">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>40</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-       </layout>
-      </item>
-     </layout>
+     <widget class="QWidget" name="tab">
+      <attribute name="title">
+       <string>Hex Dump</string>
+      </attribute>
+      <attribute name="toolTip">
+       <string>Import a standard hex dump as exported by Wireshark</string>
+      </attribute>
+      <layout class="QHBoxLayout" name="horizontalLayout_7">
+       <item>
+        <layout class="QVBoxLayout" name="verticalLayout_3">
+         <item>
+          <layout class="QGridLayout" name="gridLayout_2">
+           <property name="verticalSpacing">
+            <number>1</number>
+           </property>
+           <item row="2" column="1">
+            <widget class="QRadioButton" name="octalOffsetButton">
+             <property name="toolTip">
+              <string>Offsets in the text file are in octal notation</string>
+             </property>
+             <property name="text">
+              <string>Octal</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="0">
+            <widget class="QLabel" name="label_2">
+             <property name="text">
+              <string>Offsets:</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="1">
+            <widget class="QRadioButton" name="hexOffsetButton">
+             <property name="toolTip">
+              <string>Offsets in the text file are in hexadecimal notation</string>
+             </property>
+             <property name="text">
+              <string>Hexadecimal</string>
+             </property>
+             <property name="checked">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="1">
+            <widget class="QRadioButton" name="decimalOffsetButton">
+             <property name="toolTip">
+              <string>Offsets in the text file are in decimal notation</string>
+             </property>
+             <property name="text">
+              <string>Decimal</string>
+             </property>
+            </widget>
+           </item>
+           <item row="0" column="2" rowspan="4">
+            <spacer name="horizontalSpacer_2">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>40</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+           <item row="3" column="1">
+            <widget class="QRadioButton" name="noOffsetButton">
+             <property name="toolTip">
+              <string>The text file has no offset</string>
+             </property>
+             <property name="text">
+              <string>None</string>
+             </property>
+            </widget>
+           </item>
+           <item row="3" column="2">
+            <widget class="QLabel" name="noOffsetLabel">
+             <property name="font">
+              <font>
+               <italic>false</italic>
+              </font>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+            </widget>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_5" stretch="0,0,0">
+           <item>
+            <widget class="QLabel" name="directionIndicationLabel">
+             <property name="toolTip">
+              <string>Whether or not the file contains information indicating the direction (inbound or outbound) of the packet.</string>
+             </property>
+             <property name="text">
+              <string>Direction indication:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QCheckBox" name="directionIndicationCheckBox">
+             <property name="toolTip">
+              <string>Whether or not the file contains information indicating the direction (inbound or outbound) of the packet.</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <spacer name="horizontalSpacer_5">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>40</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <spacer name="verticalSpacer">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>40</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </widget>
+     <widget class="QWidget" name="tab_2">
+      <attribute name="title">
+       <string>Regular Expression</string>
+      </attribute>
+      <attribute name="toolTip">
+       <string>Import a file formatted according to a custom regular expression</string>
+      </attribute>
+      <layout class="QHBoxLayout" name="horizontalLayout_10">
+       <item>
+        <layout class="QVBoxLayout" name="verticalLayout">
+         <item>
+          <widget class="QLabel" name="label_6">
+           <property name="text">
+            <string>Packet format regular expression</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QTextEdit" name="regexTextEdit">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>16777215</width>
+             <height>16777215</height>
+            </size>
+           </property>
+           <property name="sizeIncrement">
+            <size>
+             <width>1</width>
+             <height>1</height>
+            </size>
+           </property>
+           <property name="baseSize">
+            <size>
+             <width>100</width>
+             <height>100</height>
+            </size>
+           </property>
+           <property name="toolTip">
+            <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Perl compatible regular expression capturing a single packet in the file with named groups identifieing data to import. Anchors ^ and $ also match before/after newlines &lt;/p&gt;&lt;p&gt;Required is only a data group, also supported are time, dir and seqno.&lt;/p&gt;&lt;p&gt;Regex flags: DUPNAMES, MULTILINE and NOEMPTY&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+           </property>
+           <property name="lineWidth">
+            <number>24</number>
+           </property>
+           <property name="placeholderText">
+            <string notr="true">^(?&lt;dir&gt;(&lt;|&gt;))\s*(?&lt;time&gt;(\d\d\:){2}\d\d)\s+(?&lt;seqno&gt;\d{5})\s+(?&lt;data&gt;[0-9a-fA-F]*)$\s+</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="ElidedLabel" name="regexHintLabel">
+           <property name="enabled">
+            <bool>true</bool>
+           </property>
+           <property name="text">
+            <string>This is regexHintLabel, it will be set to default_regex_hint</string>
+           </property>
+           <property name="wordWrap">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_8" stretch="0,0,0,0,0">
+           <property name="sizeConstraint">
+            <enum>QLayout::SetDefaultConstraint</enum>
+           </property>
+           <item>
+            <widget class="QLabel" name="label_7">
+             <property name="text">
+              <string>Data encoding:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QComboBox" name="dataEncodingComboBox">
+             <property name="toolTip">
+              <string>How data is encoded</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="label_3">
+             <property name="text">
+              <string>&lt;small&gt;&lt;i&gt;reccomended regex:&lt;/small&gt;&lt;/i&gt;</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLabel" name="encodingRegexExample">
+             <property name="text">
+              <string>encodingRegexExample</string>
+             </property>
+             <property name="textInteractionFlags">
+              <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <spacer name="horizontalSpacer_7">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>40</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+          </layout>
+         </item>
+         <item>
+          <layout class="QHBoxLayout" name="horizontalLayout_6" stretch="0,0,0,0">
+           <item>
+            <widget class="QLabel" name="dirIndicationLabel">
+             <property name="toolTip">
+              <string/>
+             </property>
+             <property name="text">
+              <string>Direction indication:</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLineEdit" name="dirInIndicationLineEdit">
+             <property name="baseSize">
+              <size>
+               <width>0</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="toolTip">
+              <string>List of characters indicating incoming packets</string>
+             </property>
+             <property name="maxLength">
+              <number>6</number>
+             </property>
+             <property name="placeholderText">
+              <string>iI&lt;</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QLineEdit" name="dirOutIndicationLineEdit">
+             <property name="enabled">
+              <bool>true</bool>
+             </property>
+             <property name="toolTip">
+              <string>List of characters indicating outgoing packets</string>
+             </property>
+             <property name="placeholderText">
+              <string>oO&gt;</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <spacer name="horizontalSpacer_6">
+             <property name="orientation">
+              <enum>Qt::Horizontal</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>40</width>
+               <height>20</height>
+              </size>
+             </property>
+            </spacer>
+           </item>
+          </layout>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </widget>
     </widget>
    </item>
-   <item row="1" column="0" colspan="2">
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout_9" stretch="0,0,0,0">
+     <item>
+      <widget class="QLabel" name="timestampLabel">
+       <property name="toolTip">
+        <string>The format in which to parse timestamps in the text file (e.g. %H:%M:%S.). Format specifiers are based on strptime(3)</string>
+       </property>
+       <property name="text">
+        <string>Timestamp format:</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLineEdit" name="timestampFormatLineEdit">
+       <property name="toolTip">
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The format in which to parse timestamps in the text file (e.g. %H:%M:%S.%f).&lt;/p&gt;&lt;p&gt;Format specifiers are based on strptime(3) with the addition of %f for second fractions. The percision of %f is determined from it's length.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+       </property>
+       <property name="placeholderText">
+        <string>%H:%M:%S.%f</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="timestampExampleLabel">
+       <property name="text">
+        <string>timestampExampleLabel</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer_8">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+    </layout>
+   </item>
+   <item>
     <widget class="QGroupBox" name="groupBox_2">
      <property name="title">
       <string>Encapsulation</string>
@@ -277,24 +483,30 @@
       </item>
       <item row="1" column="0" colspan="2">
        <layout class="QGridLayout" name="headerGridLayout">
-        <item row="3" column="2">
-         <widget class="SyntaxLineEdit" name="sourcePortLineEdit">
-          <property name="toolTip">
-           <string>The UDP, TCP or SCTP source port for each frame</string>
+        <property name="verticalSpacing">
+         <number>1</number>
+        </property>
+        <item row="7" column="0">
+         <widget class="QRadioButton" name="exportPduButton">
+          <property name="text">
+           <string>ExportPDU</string>
           </property>
          </widget>
         </item>
-        <item row="6" column="2">
-         <widget class="SyntaxLineEdit" name="ppiLineEdit">
+        <item row="3" column="0">
+         <widget class="QRadioButton" name="udpButton">
           <property name="toolTip">
-           <string>The SCTP DATA payload protocol identifier for each frame</string>
+           <string>Prefix each frame with an Ethernet, IPv4 and UDP header</string>
+          </property>
+          <property name="text">
+           <string>UDP</string>
           </property>
          </widget>
         </item>
-        <item row="4" column="2">
-         <widget class="SyntaxLineEdit" name="destinationPortLineEdit">
-          <property name="toolTip">
-           <string>The UDP, TCP or SCTP destination port for each frame</string>
+        <item row="2" column="1">
+         <widget class="QLabel" name="protocolLabel">
+          <property name="text">
+           <string>Protocol (dec):</string>
           </property>
          </widget>
         </item>
@@ -308,13 +520,36 @@
           </property>
          </widget>
         </item>
-        <item row="5" column="0">
-         <widget class="QRadioButton" name="sctpButton">
+        <item row="0" column="3" rowspan="8">
+         <spacer name="horizontalSpacer_4">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item row="2" column="0">
+         <widget class="QRadioButton" name="ipv4Button">
           <property name="toolTip">
-           <string>Prefix each frame with an Ethernet, IPv4 and SCTP header</string>
+           <string>Prefix each frame with an Ethernet and IPv4 header</string>
           </property>
           <property name="text">
-           <string>SCTP</string>
+           <string>IPv4</string>
+          </property>
+         </widget>
+        </item>
+        <item row="6" column="0">
+         <widget class="QRadioButton" name="sctpDataButton">
+          <property name="toolTip">
+           <string>Prefix each frame with an Ethernet, IPv4 and SCTP (DATA) header</string>
+          </property>
+          <property name="text">
+           <string>SCTP (Data)</string>
           </property>
          </widget>
         </item>
@@ -322,13 +557,6 @@
          <widget class="QLabel" name="ppiLabel">
           <property name="text">
            <string>PPI:</string>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="1">
-         <widget class="QLabel" name="protocolLabel">
-          <property name="text">
-           <string>Protocol (dec):</string>
           </property>
          </widget>
         </item>
@@ -345,36 +573,6 @@
           </property>
          </widget>
         </item>
-        <item row="0" column="3" rowspan="7">
-         <spacer name="horizontalSpacer_4">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>40</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
-        </item>
-        <item row="5" column="1">
-         <widget class="QLabel" name="tagLabel">
-          <property name="text">
-           <string>Tag:</string>
-          </property>
-         </widget>
-        </item>
-        <item row="3" column="0">
-         <widget class="QRadioButton" name="udpButton">
-          <property name="toolTip">
-           <string>Prefix each frame with an Ethernet, IPv4 and UDP header</string>
-          </property>
-          <property name="text">
-           <string>UDP</string>
-          </property>
-         </widget>
-        </item>
         <item row="3" column="1">
          <widget class="QLabel" name="sourcePortLabel">
           <property name="text">
@@ -382,13 +580,17 @@
           </property>
          </widget>
         </item>
-        <item row="1" column="2">
-         <widget class="SyntaxLineEdit" name="ethertypeLineEdit">
-          <property name="toolTip">
-           <string>The Ethertype value of each frame</string>
+        <item row="1" column="1">
+         <widget class="QLabel" name="ethertypeLabel">
+          <property name="text">
+           <string>Ethertype (hex):</string>
           </property>
-          <property name="cursorPosition">
-           <number>0</number>
+         </widget>
+        </item>
+        <item row="4" column="1">
+         <widget class="QLabel" name="destinationPortLabel">
+          <property name="text">
+           <string>Destination port:</string>
           </property>
          </widget>
         </item>
@@ -402,24 +604,37 @@
           </property>
          </widget>
         </item>
-        <item row="5" column="2">
-         <widget class="SyntaxLineEdit" name="tagLineEdit">
+        <item row="5" column="0">
+         <widget class="QRadioButton" name="sctpButton">
           <property name="toolTip">
-           <string>The SCTP verification tag for each frame</string>
+           <string>Prefix each frame with an Ethernet, IPv4 and SCTP header</string>
+          </property>
+          <property name="text">
+           <string>SCTP</string>
           </property>
          </widget>
         </item>
-        <item row="4" column="1">
-         <widget class="QLabel" name="destinationPortLabel">
+        <item row="7" column="1">
+         <widget class="QLabel" name="payloadLabel">
           <property name="text">
-           <string>Destination port:</string>
+           <string>Dissector</string>
           </property>
          </widget>
         </item>
-        <item row="1" column="1">
-         <widget class="QLabel" name="ethertypeLabel">
+        <item row="5" column="1">
+         <widget class="QLabel" name="tagLabel">
           <property name="text">
-           <string>Ethertype (hex):</string>
+           <string>Tag:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="2">
+         <widget class="SyntaxLineEdit" name="ethertypeLineEdit">
+          <property name="toolTip">
+           <string>The Ethertype value of each frame</string>
+          </property>
+          <property name="cursorPosition">
+           <number>0</number>
           </property>
          </widget>
         </item>
@@ -430,49 +645,47 @@
           </property>
          </widget>
         </item>
-        <item row="6" column="0">
-         <widget class="QRadioButton" name="sctpDataButton">
+        <item row="3" column="2">
+         <widget class="SyntaxLineEdit" name="sourcePortLineEdit">
           <property name="toolTip">
-           <string>Prefix each frame with an Ethernet, IPv4 and SCTP (DATA) header</string>
-          </property>
-          <property name="text">
-           <string>SCTP (Data)</string>
+           <string>The UDP, TCP or SCTP source port for each frame</string>
           </property>
          </widget>
         </item>
-        <item row="2" column="0">
-         <widget class="QRadioButton" name="ipv4Button">
+        <item row="4" column="2">
+         <widget class="SyntaxLineEdit" name="destinationPortLineEdit">
           <property name="toolTip">
-           <string>Prefix each frame with an Ethernet and IPv4 header</string>
-          </property>
-          <property name="text">
-           <string>IPv4</string>
+           <string>The UDP, TCP or SCTP destination port for each frame</string>
           </property>
          </widget>
         </item>
-        <item row="8" column="0">
-         <widget class="QRadioButton" name="exportPduButton">
-          <property name="text">
-           <string>ExportPDU</string>
+        <item row="5" column="2">
+         <widget class="SyntaxLineEdit" name="tagLineEdit">
+          <property name="toolTip">
+           <string>The SCTP verification tag for each frame</string>
           </property>
          </widget>
         </item>
-        <item row="8" column="1">
-         <widget class="QLabel" name="payloadLabel">
-          <property name="text">
-           <string>Payload</string>
+        <item row="6" column="2">
+         <widget class="SyntaxLineEdit" name="ppiLineEdit">
+          <property name="toolTip">
+           <string>The SCTP DATA payload protocol identifier for each frame</string>
           </property>
          </widget>
         </item>
-        <item row="8" column="2">
-         <widget class="SyntaxLineEdit" name="payloadLineEdit"/>
+        <item row="7" column="2">
+         <widget class="QComboBox" name="dissectorComboBox">
+          <property name="toolTip">
+           <string>The dissector to use for each frame</string>
+          </property>
+         </widget>
         </item>
        </layout>
       </item>
      </layout>
     </widget>
    </item>
-   <item row="2" column="1">
+   <item>
     <layout class="QHBoxLayout" name="horizontalLayout_4">
      <item>
       <widget class="QLabel" name="label_11">
@@ -486,11 +699,14 @@
        <property name="toolTip">
         <string>The maximum size of the frames to write to the import capture file (max 256kiB)</string>
        </property>
+       <property name="alignment">
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       </property>
       </widget>
      </item>
     </layout>
    </item>
-   <item row="3" column="0" colspan="2">
+   <item>
     <widget class="QDialogButtonBox" name="buttonBox">
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
@@ -503,6 +719,11 @@
   </layout>
  </widget>
  <customwidgets>
+  <customwidget>
+   <class>ElidedLabel</class>
+   <extends>QLabel</extends>
+   <header>widgets/elided_label.h</header>
+  </customwidget>
   <customwidget>
    <class>SyntaxLineEdit</class>
    <extends>QLineEdit</extends>
