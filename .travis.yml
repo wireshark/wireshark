@@ -65,8 +65,6 @@ before_install:
   - if [ "$TRAVIS_OS_NAME" == "osx" ]; then ./tools/macos-setup-brew.sh; fi
   - if [ "$TRAVIS_OS_NAME" == "osx" ]; then brew install softhsm; fi
   - if [ "$TRAVIS_OS_NAME" == "osx" ]; then sed s/access_bpf/staff/ packaging/macosx/ChmodBPF/ChmodBPF | sudo bash; fi
-  # Required to fix an issue on macOS 10.14. Remove it as soon as Travis moves to 10.15.
-  - if [ "$TRAVIS_OS_NAME" == "osx" ]; then sudo xcode-select --switch /Library/Developer/CommandLineTools; fi
   # linux
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo ./tools/debian-setup.sh --install-optional --install-test-deps -q; fi
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo apt-get install -y python3-pip; fi
