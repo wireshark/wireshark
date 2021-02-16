@@ -435,6 +435,12 @@ if( CMAKE_C_COMPILER_ID MATCHES "MSVC")
 	set(WIRESHARK_COMMON_FLAGS /Qspectre)
 
 	if(ENABLE_CODE_ANALYSIS)
+		# We should probably add a code_analysis.props file and use it to set
+		# CAExcludePath, otherwise we trigger on Qt's headers:
+		# https://stackoverflow.com/questions/59669026/how-to-add-property-to-affect-code-analysis-in-cmake
+		# https://gitlab.kitware.com/cmake/cmake/-/issues/19682
+		# For now, we set CAExcludePath=C:\Qt;%include% in the Visual Studio
+		# Code Analys builder's environment.
 		list(APPEND LOCAL_CFLAGS /analyze:WX-)
 	endif()
 
