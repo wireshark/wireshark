@@ -3038,6 +3038,60 @@ if(RPMBUILD_EXECUTABLE)
 	if(CMAKE_VERBOSE_MAKEFILE)
 		list(APPEND _rpmbuild_with_args -v)
 	endif()
+	#
+	# This is ugly.
+	#
+	# At least some versions of rpmbuild define the cmake_build
+	# macro to run "cmake --build" with the "--verbose" option,
+	# with no obvious way to easily override that, so, if you
+	# are doing a build with lots of source files, and with
+	# lots of compiler options (for example, a log of -W flags),
+	# you can get a lot of output from rpmbuild.
+	#
+	# Wireshark is a program with lots of source files and
+	# lots of compiler options.
+	#
+	# GitLab's shared builders have a limit of 4MB on logs
+	# from build jobs.
+	#
+	# Wireshark uses the shared builders, and can produce
+	# more than 4MB with the Fedora RPM build; this causes
+	# the builds to fail.
+	#
+	# Forcibly overriding the cmake_build macro with a
+	# version that lacks the --version file should
+	# prevent ninja from being run with the -v flag,
+	# so that it prints the compact output rather
+	# than the raw command.
+	#
+	# We don't do that by default; if the build has the
+	# FORCE_CMAKE_NINJA_QUIET environment variable set,
+	# it will add it.
+	#
+	if(DEFINED ENV{FORCE_CMAKE_NINJA_NON_VERBOSE})
+		#
+		# Get the output of a pipeline running
+		# "rpmbuild --showrc", to find the settings
+		# of all macros, piped to an awk script
+		# to extract the value of the cmake_build
+		# macro.
+		#
+		execute_process(
+			COMMAND rpmbuild --showrc
+			COMMAND awk "/: cmake_build/ { getline; print \$0; exit }"
+			OUTPUT_VARIABLE CMAKE_BUILD_VALUE
+			OUTPUT_STRIP_TRAILING_WHITESPACE)
+		if (CMAKE_BUILD_VALUE MATCHES ".*--verbose.*")
+			#
+			# OK, the setting contains "--verbose".
+			# Rip it out.
+			#
+			string(REPLACE "--verbose" ""
+				NON_VERBOSE_CMAKE_BUILD_VALUE
+				${CMAKE_BUILD_VALUE})
+			list(APPEND _rpmbuild_with_args --define "cmake_build ${NON_VERBOSE_CMAKE_BUILD_VALUE}")
+		endif()
+	endif()
 	if(CMAKE_GENERATOR STREQUAL "Ninja")
 		list(APPEND _rpmbuild_with_args --with ninja)
 	endif()
