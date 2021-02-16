@@ -4755,7 +4755,7 @@ dissect_ppp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     /* Make direction information filterable */
     if (pinfo->p2p_dir == P2P_DIR_RECV || pinfo->p2p_dir == P2P_DIR_SENT) {
-        proto_item *direction_ti = proto_tree_add_uint(tree, hf_ppp_direction,
+        proto_item *direction_ti = proto_tree_add_uint(fh_tree, hf_ppp_direction,
             tvb, 0, 0, pinfo->p2p_dir);
         proto_item_set_generated(direction_ti);
     }

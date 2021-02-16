@@ -1893,6 +1893,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-vcdu.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-vicp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-vines.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-vj-comp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-vlan.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-vmlab.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-vnc.c
