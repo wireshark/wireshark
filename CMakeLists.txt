@@ -6,6 +6,14 @@
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 #
+if(DEFINED ENV{FORCE_CMAKE_NINJA_NON_VERBOSE})
+	#
+	# Forcibly unset CMAKE_VERBOSE_MAKEFILE,
+	# to make *CERTAIN* that we don't do
+	# anything verbose here!
+	#
+	unset(CMAKE_VERBOSE_MAKEFILE CACHE)
+endif()
 
 if(WIN32)
 	# Needed for add_custom_command() WORKING_DIRECTORY generator expressions
@@ -3041,9 +3049,6 @@ if(RPMBUILD_EXECUTABLE)
 	endforeach()
 
 	set(_rpmbuild_with_args)
-	if(CMAKE_VERBOSE_MAKEFILE)
-		list(APPEND _rpmbuild_with_args -v)
-	endif()
 	#
 	# This is ugly.
 	#
@@ -3096,6 +3101,10 @@ if(RPMBUILD_EXECUTABLE)
 				NON_VERBOSE_CMAKE_BUILD_VALUE
 				${CMAKE_BUILD_VALUE})
 			list(APPEND _rpmbuild_with_args --define "cmake_build ${NON_VERBOSE_CMAKE_BUILD_VALUE}")
+		endif()
+	else()
+		if(CMAKE_VERBOSE_MAKEFILE)
+			list(APPEND _rpmbuild_with_args -v)
 		endif()
 	endif()
 	if(CMAKE_GENERATOR STREQUAL "Ninja")
