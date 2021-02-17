@@ -28,11 +28,6 @@ if(LUA_FOUND)
 	add_subdirectory(wslua)
 endif()
 
-include_directories(
-	${CMAKE_CURRENT_BINARY_DIR}
-	${CMAKE_CURRENT_SOURCE_DIR}
-)
-
 add_custom_command(
 	OUTPUT ps.c
 	COMMAND ${PYTHON_EXECUTABLE}
@@ -344,11 +339,14 @@ target_link_libraries(epan
 
 target_include_directories(epan
 	INTERFACE
-	$<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}>
-	$<INSTALL_INTERFACE:include/wireshark>
+		$<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}>
+		$<INSTALL_INTERFACE:include/wireshark>
 )
 
-target_include_directories(epan SYSTEM PUBLIC ${GLIB2_INCLUDE_DIRS})
+target_include_directories(epan
+	SYSTEM PUBLIC
+		${GLIB2_INCLUDE_DIRS}
+)
 
 target_include_directories(epan
 	SYSTEM PRIVATE
@@ -362,6 +360,9 @@ target_include_directories(epan
 		${NGHTTP2_INCLUDE_DIRS}
 		${SMI_INCLUDE_DIRS}
 		${ZLIB_INCLUDE_DIRS}
+	PRIVATE
+		${CMAKE_CURRENT_BINARY_DIR}
+		${CMAKE_CURRENT_SOURCE_DIR}
 )
 
 add_dependencies(epan lemon)

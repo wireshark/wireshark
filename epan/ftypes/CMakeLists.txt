@@ -7,12 +7,6 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 #
 
-include_directories(
-	${CMAKE_CURRENT_BINARY_DIR}
-	${CMAKE_CURRENT_SOURCE_DIR}
-	${CMAKE_SOURCE_DIR}/epan
-)
-
 set(FTYPE_PUBLIC_HEADERS
 	ftypes.h
 )
@@ -50,6 +44,13 @@ add_library(ftypes OBJECT
 	${FTYPE_HEADER_FILES}
 
 	${FTYPE_FILES}
+)
+
+target_include_directories(ftypes
+	PRIVATE
+		${CMAKE_CURRENT_BINARY_DIR}
+		${CMAKE_CURRENT_SOURCE_DIR}
+		${CMAKE_SOURCE_DIR}/epan
 )
 
 set_target_properties(ftypes PROPERTIES

@@ -9,12 +9,6 @@
 
 ADD_CUSTOM_CMAKE_INCLUDE()
 
-
-include_directories(
-	${CMAKE_CURRENT_BINARY_DIR}
-	${CMAKE_CURRENT_SOURCE_DIR}
-)
-
 set(CRYPT_HEADER_FILES
 	dot11decrypt_debug.h
 	dot11decrypt_int.h
@@ -63,6 +57,9 @@ add_library(crypt OBJECT
 target_include_directories(crypt
 	SYSTEM PRIVATE
 		${GCRYPT_INCLUDE_DIRS}
+	PRIVATE
+		${CMAKE_CURRENT_BINARY_DIR}
+		${CMAKE_CURRENT_SOURCE_DIR}
 )
 
 set_target_properties(crypt PROPERTIES

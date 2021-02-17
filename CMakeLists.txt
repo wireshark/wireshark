@@ -994,7 +994,7 @@ message(STATUS "Linker flags: ${WS_LINK_FLAGS}")
 if(APPLE AND EXISTS /usr/local/opt/gettext)
 	# GLib on macOS requires libintl. Homebrew installs gettext (and
 	# libintl) in /usr/local/opt/gettext
-	include_directories(/usr/local/opt/gettext/include)
+	include_directories(SYSTEM /usr/local/opt/gettext/include)
 	link_directories(/usr/local/opt/gettext/lib)
 endif()
 
@@ -1208,9 +1208,7 @@ endif()
 
 # Include minizip include directories
 if(MINIZIP_FOUND)
-	include_directories(
-		${MINIZIP_INCLUDE_DIRS}
-	)
+	include_directories(SYSTEM ${MINIZIP_INCLUDE_DIRS})
 else()
 	set(MINIZIP_LIBRARY "")
 endif()
@@ -2577,10 +2575,7 @@ if(BUILD_sharkd)
 	add_executable(sharkd ${sharkd_FILES})
 	set_extra_executable_properties(sharkd "Executables")
 	target_link_libraries(sharkd ${sharkd_LIBS})
-	target_include_directories(sharkd SYSTEM
-		PUBLIC
-			${SPEEXDSP_INCLUDE_DIRS}
-	)
+	target_include_directories(sharkd SYSTEM PUBLIC ${SPEEXDSP_INCLUDE_DIRS})
 
 	install(TARGETS sharkd RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 endif()

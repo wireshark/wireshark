@@ -7,13 +7,6 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 #
 
-include_directories(
-	${CMAKE_CURRENT_BINARY_DIR}
-	${CMAKE_CURRENT_SOURCE_DIR}
-	${CMAKE_SOURCE_DIR}/epan
-	${CMAKE_SOURCE_DIR}/tools/lemon
-)
-
 set(DFILTER_PUBLIC_HEADERS
 	dfilter.h
 	drange.h
@@ -81,6 +74,14 @@ add_library(dfilter OBJECT
 	${DFILTER_HEADER_FILES}
 
 	${DFILTER_FILES}
+)
+
+target_include_directories(dfilter
+	PRIVATE
+		${CMAKE_CURRENT_BINARY_DIR}
+		${CMAKE_CURRENT_SOURCE_DIR}
+		${CMAKE_SOURCE_DIR}/epan
+		${CMAKE_SOURCE_DIR}/tools/lemon
 )
 
 set_target_properties(dfilter PROPERTIES

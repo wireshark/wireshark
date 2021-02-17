@@ -628,11 +628,6 @@ set(WIRESHARK_QT_QRC
 	${CMAKE_CURRENT_BINARY_DIR}/i18n.qrc
 )
 
-include_directories(
-	${CMAKE_CURRENT_BINARY_DIR}
-	${CMAKE_CURRENT_SOURCE_DIR}
-)
-
 set(CMAKE_AUTOMOC TRUE)
 set(CMAKE_AUTOUIC TRUE)
 set(CMAKE_AUTORCC TRUE)
@@ -714,11 +709,17 @@ target_include_directories(qtui
 		${QT_INCLUDE_DIRS}
 		${WINSPARKLE_INCLUDE_DIRS}
 		${SPEEXDSP_INCLUDE_DIRS}
+)
+
+target_include_directories(qtui
 	SYSTEM PRIVATE
 		# Can't use imported target, linking object libraries for usage requirements
 		# requires CMake 3.12
 		${PCAP_INCLUDE_DIRS}
 		${GCRYPT_INCLUDE_DIRS}
+	PRIVATE
+		${CMAKE_CURRENT_BINARY_DIR}
+		${CMAKE_CURRENT_SOURCE_DIR}
 )
 
 target_compile_definitions(qtui

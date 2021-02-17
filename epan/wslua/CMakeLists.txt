@@ -7,11 +7,6 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 #
 
-include_directories(
-	${CMAKE_CURRENT_BINARY_DIR}
-	${CMAKE_CURRENT_SOURCE_DIR}
-)
-
 set(WSLUA_MODULES
 	${CMAKE_CURRENT_SOURCE_DIR}/lrexlib.c
 	${CMAKE_CURRENT_SOURCE_DIR}/lrexlib_glib.c
@@ -149,6 +144,9 @@ add_library(wslua OBJECT
 target_include_directories(wslua
 	SYSTEM PRIVATE
 		${LUA_INCLUDE_DIRS}
+	PRIVATE
+		${CMAKE_CURRENT_BINARY_DIR}
+		${CMAKE_CURRENT_SOURCE_DIR}
 )
 
 set_target_properties(wslua PROPERTIES
