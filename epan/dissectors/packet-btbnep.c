@@ -216,11 +216,11 @@ dissect_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
             offset += 2;
 
             for (i_item = 0; i_item + 12 > i_item && i_item < list_length; i_item += 12) {
-                proto_tree_add_item(tree, hf_btbnep_multicast_address_start, tvb, offset, 6, ENC_NA);
-                offset += 6;
+                proto_tree_add_item(tree, hf_btbnep_multicast_address_start, tvb, offset, FT_ETHER_LEN, ENC_NA);
+                offset += FT_ETHER_LEN;
 
-                proto_tree_add_item(tree, hf_btbnep_multicast_address_end, tvb, offset, 6, ENC_NA);
-                offset += 6;
+                proto_tree_add_item(tree, hf_btbnep_multicast_address_end, tvb, offset, FT_ETHER_LEN, ENC_NA);
+                offset += FT_ETHER_LEN;
             }
             break;
         case 0x06: /* Filter Multi Addr Response */
@@ -312,28 +312,28 @@ dissect_btbnep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
         set_address_tvb(&pinfo->dl_dst, AT_ETHER, 6, tvb, offset);
         copy_address_shallow(&pinfo->dst, &pinfo->dl_dst);
 
-        addr_item = proto_tree_add_item(btbnep_tree, hf_btbnep_dst, tvb, offset, 6, ENC_NA);
+        addr_item = proto_tree_add_item(btbnep_tree, hf_btbnep_dst, tvb, offset, FT_ETHER_LEN, ENC_NA);
         addr_tree = proto_item_add_subtree(addr_item, ett_addr);
-        proto_tree_add_item(addr_tree, hf_btbnep_addr, tvb, offset, 6, ENC_NA);
+        proto_tree_add_item(addr_tree, hf_btbnep_addr, tvb, offset, FT_ETHER_LEN, ENC_NA);
         proto_tree_add_item(addr_tree, hf_btbnep_lg, tvb, offset, 3, ENC_BIG_ENDIAN);
         proto_tree_add_item(addr_tree, hf_btbnep_ig, tvb, offset, 3, ENC_BIG_ENDIAN);
-        offset += 6;
+        offset += FT_ETHER_LEN;
     }
 
     if (bnep_type == BNEP_TYPE_GENERAL_ETHERNET || bnep_type == BNEP_TYPE_COMPRESSED_ETHERNET_SOURCE_ONLY) {
         set_address_tvb(&pinfo->dl_src, AT_ETHER, 6, tvb, offset);
         copy_address_shallow(&pinfo->src, &pinfo->dl_src);
 
-        addr_item = proto_tree_add_item(btbnep_tree, hf_btbnep_src, tvb, offset, 6, ENC_NA);
+        addr_item = proto_tree_add_item(btbnep_tree, hf_btbnep_src, tvb, offset, FT_ETHER_LEN, ENC_NA);
         addr_tree = proto_item_add_subtree(addr_item, ett_addr);
         if (tvb_get_guint8(tvb, offset) & 0x01) {
             expert_add_info(pinfo, addr_item, &ei_btbnep_src_not_group_address);
         }
 
-        proto_tree_add_item(addr_tree, hf_btbnep_addr, tvb, offset, 6, ENC_NA);
+        proto_tree_add_item(addr_tree, hf_btbnep_addr, tvb, offset, FT_ETHER_LEN, ENC_NA);
         proto_tree_add_item(addr_tree, hf_btbnep_lg, tvb, offset, 3, ENC_BIG_ENDIAN);
         proto_tree_add_item(addr_tree, hf_btbnep_ig, tvb, offset, 3, ENC_BIG_ENDIAN);
-        offset += 6;
+        offset += FT_ETHER_LEN;
     }
 
     if (bnep_type != BNEP_TYPE_CONTROL) {
