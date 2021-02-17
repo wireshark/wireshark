@@ -3625,6 +3625,39 @@ dissect_dvbci_payload_cc(guint32 tag, gint len_field _U_,
 
 
 static void
+dissect_dvbci_ami_file_req(tvbuff_t *tvb, gint offset,
+        packet_info *pinfo, proto_tree *tree)
+{
+    guint8  req_type;
+    const guint8 *req_str;
+
+    req_type = tvb_get_guint8(tvb, offset);
+    proto_tree_add_item(tree, hf_dvbci_req_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+    col_append_sep_str(pinfo->cinfo, COL_INFO, ": ",
+            val_to_str_const(req_type, dvbci_req_type, "unknown"));
+    offset++;
+    if (req_type==REQ_TYPE_FILE_HASH) {
+        proto_tree_add_item(tree, hf_dvbci_file_hash,
+                tvb, offset, 16, ENC_NA);
+        offset += 16;
+    }
+    if (tvb_reported_length_remaining(tvb, offset) <= 0) {
+        return;
+    }
+    if (req_type==REQ_TYPE_FILE || req_type==REQ_TYPE_FILE_HASH) {
+        proto_tree_add_item_ret_string(tree, hf_dvbci_file_name,
+                tvb, offset, tvb_reported_length_remaining(tvb, offset),
+                ENC_ASCII, wmem_packet_scope(), &req_str);
+        col_append_sep_str(pinfo->cinfo, COL_INFO, " ", req_str);
+    }
+    else if (req_type==REQ_TYPE_DATA) {
+        proto_tree_add_item(tree, hf_dvbci_ami_priv_data, tvb, offset,
+                tvb_reported_length_remaining(tvb, offset), ENC_NA);
+    }
+}
+
+
+static void
 dissect_dvbci_ami_file_ack(tvbuff_t *tvb, gint offset,
         packet_info *pinfo, proto_tree *tree)
 {
@@ -3707,8 +3740,6 @@ dissect_dvbci_payload_ami(guint32 tag, gint len_field _U_,
     guint8  app_dom_id_len, init_obj_len;
     const guint8 *app_dom_id;
     guint8  ack_code;
-    guint8  req_type;
-    const guint8 *req_str;
 
     switch(tag) {
         case T_REQUEST_START:
@@ -3739,28 +3770,7 @@ dissect_dvbci_payload_ami(guint32 tag, gint len_field _U_,
                     val_to_str_const(ack_code, dvbci_ack_code, "unknown"));
             break;
         case T_FILE_REQUEST:
-            req_type = tvb_get_guint8(tvb, offset);
-            proto_tree_add_item(tree, hf_dvbci_req_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-            col_append_sep_str(pinfo->cinfo, COL_INFO, ": ",
-                    val_to_str_const(req_type, dvbci_req_type, "unknown"));
-            offset++;
-            if (req_type==REQ_TYPE_FILE_HASH) {
-                proto_tree_add_item(tree, hf_dvbci_file_hash,
-                        tvb, offset, 16, ENC_NA);
-                offset += 16;
-            }
-            if (tvb_reported_length_remaining(tvb, offset) <= 0)
-              break;
-            if (req_type==REQ_TYPE_FILE || req_type==REQ_TYPE_FILE_HASH) {
-                proto_tree_add_item_ret_string(tree, hf_dvbci_file_name,
-                        tvb, offset, tvb_reported_length_remaining(tvb, offset),
-                        ENC_ASCII, wmem_packet_scope(), &req_str);
-                col_append_sep_str(pinfo->cinfo, COL_INFO, " ", req_str);
-            }
-            else if (req_type==REQ_TYPE_DATA) {
-                proto_tree_add_item(tree, hf_dvbci_ami_priv_data, tvb, offset,
-                        tvb_reported_length_remaining(tvb, offset), ENC_NA);
-            }
+            dissect_dvbci_ami_file_req(tvb, offset, pinfo, tree);
             break;
         case T_FILE_ACKNOWLEDGE:
             dissect_dvbci_ami_file_ack(tvb, offset, pinfo, tree);
@@ -4161,6 +4171,12 @@ dissect_dvbci_payload_afs(guint32 tag, gint len_field _U_,
         case T_AFS_FILE_SYSTEM_ACK:
             proto_tree_add_item(tree, hf_dvbci_afs_ack_code,
                     tvb, offset, 1, ENC_BIG_ENDIAN);
+            break;
+        case T_AFS_FILE_REQUEST:
+            dissect_dvbci_ami_file_req(tvb, offset, pinfo, tree);
+            break;
+        case T_AFS_FILE_ACKNOWLEDGE:
+            dissect_dvbci_ami_file_ack(tvb, offset, pinfo, tree);
             break;
         default:
             break;
