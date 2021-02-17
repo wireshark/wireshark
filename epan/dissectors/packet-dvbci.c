@@ -526,6 +526,11 @@ dissect_dvbci_payload_sas(guint32 tag, gint len_field _U_,
 #define T_TUNE_BROADCAST_REQ            0x9F8404
 #define T_TUNE_REPLY                    0x9F8405
 #define T_ASK_RELEASE_REPLY             0x9F8406
+#define T_TUNE_LCN_REQ                  0x9F8407
+#define T_TUNE_IP_REQ                   0x9F8408
+#define T_TUNE_TRIPLET_REQ              0x9F8409
+#define T_TUNE_STATUS_REQ               0x9F840A
+#define T_TUNE_STATUS_REPLY             0x9F840B
 #define T_DATE_TIME_ENQ                 0x9F8440
 #define T_DATE_TIME                     0x9F8441
 #define T_CLOSE_MMI                     0x9F8800
@@ -733,6 +738,11 @@ static const value_string dvbci_apdu_tag[] = {
     { T_TUNE_BROADCAST_REQ,            "Tune broadcast request" },
     { T_TUNE_REPLY,                    "Tune reply" },
     { T_ASK_RELEASE_REPLY,             "Ask release reply" },
+    { T_TUNE_LCN_REQ,                  "Tune LCN request" },
+    { T_TUNE_IP_REQ,                   "Tune IP request" },
+    { T_TUNE_TRIPLET_REQ,              "Tune triplet request" },
+    { T_TUNE_STATUS_REQ,               "Tune status request" },
+    { T_TUNE_STATUS_REPLY,             "Tune status reply" },
     { T_DATE_TIME_ENQ,                 "Date-Time enquiry" },
     { T_DATE_TIME,                     "Date-Time" },
     { T_CLOSE_MMI,                     "Close MMI" },
