@@ -68,7 +68,6 @@ wtap_open_return_val json_open(wtap *wth, int *err, gchar **err_info)
 }
 
 static const struct file_type_subtype_info json_info = {
-    /* WTAP_FILE_TYPE_SUBTYPE_JSON */
     "JavaScript Object Notation", "json", "json", NULL,
     FALSE, FALSE, 0,
     NULL, NULL, NULL
@@ -76,8 +75,14 @@ static const struct file_type_subtype_info json_info = {
 
 void register_json(void)
 {
-    json_file_type_subtype = wtap_register_file_type_subtypes(&json_info,
-                                                              WTAP_FILE_TYPE_SUBTYPE_UNKNOWN);
+    json_file_type_subtype = wtap_register_file_type_subtypes(&json_info);
+
+    /*
+     * Register name for backwards compatibility with the
+     * wtap_filetypes table in Lua.
+     */
+    wtap_register_backwards_compatibility_lua_name("JSON",
+                                                   json_file_type_subtype);
 }
 
 /*

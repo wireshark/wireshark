@@ -608,9 +608,14 @@ static const struct file_type_subtype_info commview_info = {
 
 void register_commview(void)
 {
-	commview_file_type_subtype =
-	    wtap_register_file_type_subtypes(&commview_info,
-	        WTAP_FILE_TYPE_SUBTYPE_UNKNOWN);
+	commview_file_type_subtype = wtap_register_file_type_subtypes(&commview_info);
+
+	/*
+	 * Register name for backwards compatibility with the
+	 * wtap_filetypes table in Lua.
+	 */
+	wtap_register_backwards_compatibility_lua_name("COMMVIEW",
+	    commview_file_type_subtype);
 }
 
 /*

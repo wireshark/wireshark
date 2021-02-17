@@ -305,9 +305,14 @@ static const struct file_type_subtype_info i4btrace_info = {
 
 void register_i4btrace(void)
 {
-	i4btrace_file_type_subtype =
-	    wtap_register_file_type_subtypes(&i4btrace_info,
-	        WTAP_FILE_TYPE_SUBTYPE_UNKNOWN);
+	i4btrace_file_type_subtype = wtap_register_file_type_subtypes(&i4btrace_info);
+
+	/*
+	 * Register name for backwards compatibility with the
+	 * wtap_filetypes table in Lua.
+	 */
+	wtap_register_backwards_compatibility_lua_name("I4BTRACE",
+	    i4btrace_file_type_subtype);
 }
 
 /*

@@ -336,8 +336,14 @@ static const struct file_type_subtype_info ipfix_info = {
 
 void register_ipfix(void)
 {
-    ipfix_file_type_subtype = wtap_register_file_type_subtypes(&ipfix_info,
-                                                               WTAP_FILE_TYPE_SUBTYPE_UNKNOWN);
+    ipfix_file_type_subtype = wtap_register_file_type_subtypes(&ipfix_info);
+
+    /*
+     * Register name for backwards compatibility with the
+     * wtap_filetypes table in Lua.
+     */
+    wtap_register_backwards_compatibility_lua_name("IPFIX",
+                                                   ipfix_file_type_subtype);
 }
 
 /*

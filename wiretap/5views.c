@@ -461,9 +461,14 @@ static const struct file_type_subtype_info _5views_info = {
 
 void register_5views(void)
 {
-	_5views_file_type_subtype =
-	    wtap_register_file_type_subtypes(&_5views_info,
-	        WTAP_FILE_TYPE_SUBTYPE_UNKNOWN);
+	_5views_file_type_subtype = wtap_register_file_type_subtypes(&_5views_info);
+
+	/*
+	 * Register name for backwards compatibility with the
+	 * wtap_filetypes table in Lua.
+	 */
+	wtap_register_backwards_compatibility_lua_name("5VIEWS",
+	    _5views_file_type_subtype);
 }
 
 /*

@@ -676,12 +676,17 @@ static const struct file_type_subtype_info peekclassic_v7_info = {
 
 void register_peekclassic(void)
 {
-	peekclassic_v56_file_type_subtype =
-	    wtap_register_file_type_subtypes(&peekclassic_v56_info,
-	        WTAP_FILE_TYPE_SUBTYPE_UNKNOWN);
-	peekclassic_v7_file_type_subtype =
-	    wtap_register_file_type_subtypes(&peekclassic_v7_info,
-	        WTAP_FILE_TYPE_SUBTYPE_UNKNOWN);
+	peekclassic_v56_file_type_subtype = wtap_register_file_type_subtypes(&peekclassic_v56_info);
+	peekclassic_v7_file_type_subtype = wtap_register_file_type_subtypes(&peekclassic_v7_info);
+
+	/*
+	 * Register names for backwards compatibility with the
+	 * wtap_filetypes table in Lua.
+	 */
+	wtap_register_backwards_compatibility_lua_name("PEEKCLASSIC_V56",
+	    peekclassic_v56_file_type_subtype);
+	wtap_register_backwards_compatibility_lua_name("PEEKCLASSIC_V7",
+	    peekclassic_v7_file_type_subtype);
 }
 
 /*

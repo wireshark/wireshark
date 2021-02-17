@@ -872,13 +872,6 @@ struct string_elem {
 };
 
 static gint
-string_compare(gconstpointer a, gconstpointer b)
-{
-    return strcmp(((const struct string_elem *)a)->sstr,
-        ((const struct string_elem *)b)->sstr);
-}
-
-static gint
 string_nat_compare(gconstpointer a, gconstpointer b)
 {
     return ws_ascii_strnatcmp(((const struct string_elem *)a)->sstr,
@@ -895,22 +888,16 @@ string_elem_print(gpointer data, gpointer stream_ptr)
 
 static void
 list_capture_types(FILE *stream) {
-    int i;
-    struct string_elem *captypes;
-    GSList *list = NULL;
+    GArray *writable_type_subtypes;
 
-    captypes = g_new(struct string_elem,WTAP_NUM_FILE_TYPES_SUBTYPES);
     fprintf(stream, "editcap: The available capture file types for the \"-F\" flag are:\n");
-    for (i = 0; i < WTAP_NUM_FILE_TYPES_SUBTYPES; i++) {
-        if (wtap_dump_can_open(i)) {
-            captypes[i].sstr = wtap_file_type_subtype_name(i);
-            captypes[i].lstr = wtap_file_type_subtype_description(i);
-            list = g_slist_insert_sorted(list, &captypes[i], string_compare);
-        }
+    writable_type_subtypes = wtap_get_writable_file_types_subtypes(FT_SORT_BY_NAME);
+    for (guint i = 0; i < writable_type_subtypes->len; i++) {
+        int ft = g_array_index(writable_type_subtypes, int, i);
+        fprintf(stderr, "    %s - %s\n", wtap_file_type_subtype_name(ft),
+                wtap_file_type_subtype_description(ft));
     }
-    g_slist_foreach(list, string_elem_print, stream);
-    g_slist_free(list);
-    g_free(captypes);
+    g_array_free(writable_type_subtypes, TRUE);
 }
 
 static void

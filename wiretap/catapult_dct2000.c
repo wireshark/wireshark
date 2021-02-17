@@ -1652,17 +1652,21 @@ free_line_prefix_info(gpointer key, gpointer value,
 }
 
 static const struct file_type_subtype_info dct2000_info = {
-	"Catapult DCT2000 trace (.out format)", "dct2000", "out", NULL,
-	FALSE, FALSE, 0,
-	catapult_dct2000_dump_can_write_encap, catapult_dct2000_dump_open, NULL
-
+    "Catapult DCT2000 trace (.out format)", "dct2000", "out", NULL,
+    FALSE, FALSE, 0,
+    catapult_dct2000_dump_can_write_encap, catapult_dct2000_dump_open, NULL
 };
 
 void register_dct2000(void)
 {
-	dct2000_file_type_subtype =
-	    wtap_register_file_type_subtypes(&dct2000_info,
-	        WTAP_FILE_TYPE_SUBTYPE_UNKNOWN);
+    dct2000_file_type_subtype = wtap_register_file_type_subtypes(&dct2000_info);
+
+    /*
+     * Register name for backwards compatibility with the
+     * wtap_filetypes table in Lua.
+     */
+    wtap_register_backwards_compatibility_lua_name("CATAPULT_DCT2000",
+                                                   dct2000_file_type_subtype);
 }
 
 /*

@@ -434,8 +434,14 @@ static const struct file_type_subtype_info btsnoop_info = {
 
 void register_btsnoop(void)
 {
-    btsnoop_file_type_subtype = wtap_register_file_type_subtypes(&btsnoop_info,
-                                                                 WTAP_FILE_TYPE_SUBTYPE_UNKNOWN);
+    btsnoop_file_type_subtype = wtap_register_file_type_subtypes(&btsnoop_info);
+
+    /*
+     * Register name for backwards compatibility with the
+     * wtap_filetypes table in Lua.
+     */
+    wtap_register_backwards_compatibility_lua_name("BTSNOOP",
+                                                   btsnoop_file_type_subtype);
 }
 
 /*

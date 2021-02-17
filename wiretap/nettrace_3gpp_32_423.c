@@ -832,7 +832,6 @@ nettrace_3gpp_32_423_file_open(wtap *wth, int *err, gchar **err_info)
 }
 
 static const struct file_type_subtype_info nettrace_3gpp_32_423_info = {
-	/* WTAP_FILE_TYPE_SUBTYPE_NETTRACE_3GPP_32_423 */
 	"3GPP TS 32.423 Trace", "3gpp32423", NULL, NULL,
 	FALSE, FALSE, 0,
 	NULL, NULL, NULL
@@ -840,9 +839,14 @@ static const struct file_type_subtype_info nettrace_3gpp_32_423_info = {
 
 void register_nettrace_3gpp_32_423(void)
 {
-	nettrace_3gpp_32_423_file_type_subtype =
-	    wtap_register_file_type_subtypes(&nettrace_3gpp_32_423_info,
-	        WTAP_FILE_TYPE_SUBTYPE_UNKNOWN);
+	nettrace_3gpp_32_423_file_type_subtype = wtap_register_file_type_subtypes(&nettrace_3gpp_32_423_info);
+
+	/*
+	 * Register name for backwards compatibility with the
+	 * wtap_filetypes table in Lua.
+	 */
+	wtap_register_backwards_compatibility_lua_name("NETTRACE_3GPP_32_423",
+	    nettrace_3gpp_32_423_file_type_subtype);
 }
 
 /*

@@ -804,9 +804,14 @@ static const struct file_type_subtype_info pppdump_info = {
 
 void register_pppdump(void)
 {
-	pppdump_file_type_subtype =
-	    wtap_register_file_type_subtypes(&pppdump_info,
-	        WTAP_FILE_TYPE_SUBTYPE_UNKNOWN);
+	pppdump_file_type_subtype = wtap_register_file_type_subtypes(&pppdump_info);
+
+	/*
+	 * Register name for backwards compatibility with the
+	 * wtap_filetypes table in Lua.
+	 */
+	wtap_register_backwards_compatibility_lua_name("PPPDUMP",
+	    pppdump_file_type_subtype);
 }
 
 /*

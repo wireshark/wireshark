@@ -496,9 +496,14 @@ static const struct file_type_subtype_info cosine_info = {
 
 void register_cosine(void)
 {
-	cosine_file_type_subtype =
-	    wtap_register_file_type_subtypes(&cosine_info,
-	        WTAP_FILE_TYPE_SUBTYPE_UNKNOWN);
+	cosine_file_type_subtype = wtap_register_file_type_subtypes(&cosine_info);
+
+	/*
+	 * Register name for backwards compatibility with the
+	 * wtap_filetypes table in Lua.
+	 */
+	wtap_register_backwards_compatibility_lua_name("COSINE",
+	    cosine_file_type_subtype);
 }
 
 /*

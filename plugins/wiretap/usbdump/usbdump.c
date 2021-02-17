@@ -334,8 +334,7 @@ wtap_register_usbdump(void)
         NULL
     };
 
-    usbdump_file_type_subtype =
-        wtap_register_file_type_subtypes(&fi, WTAP_FILE_TYPE_SUBTYPE_UNKNOWN);
+    usbdump_file_type_subtype = wtap_register_file_type_subtypes(&fi);
 }
 
 /*

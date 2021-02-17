@@ -672,20 +672,32 @@ static const struct file_type_subtype_info logcat_text_long_info = {
 
 void register_logcat_text(void)
 {
-    logcat_text_brief_file_type_subtype = wtap_register_file_type_subtypes(&logcat_text_brief_info,
-                                                                           WTAP_FILE_TYPE_SUBTYPE_UNKNOWN);
-    logcat_text_process_file_type_subtype = wtap_register_file_type_subtypes(&logcat_text_process_info,
-                                                                             WTAP_FILE_TYPE_SUBTYPE_UNKNOWN);
-    logcat_text_tag_file_type_subtype = wtap_register_file_type_subtypes(&logcat_text_tag_info,
-                                                                         WTAP_FILE_TYPE_SUBTYPE_UNKNOWN);
-    logcat_text_thread_file_type_subtype = wtap_register_file_type_subtypes(&logcat_text_thread_info,
-                                                                           WTAP_FILE_TYPE_SUBTYPE_UNKNOWN);
-    logcat_text_time_file_type_subtype = wtap_register_file_type_subtypes(&logcat_text_time_info,
-                                                                          WTAP_FILE_TYPE_SUBTYPE_UNKNOWN);
-    logcat_text_threadtime_file_type_subtype = wtap_register_file_type_subtypes(&logcat_text_threadtime_info,
-                                                                                WTAP_FILE_TYPE_SUBTYPE_UNKNOWN);
-    logcat_text_long_file_type_subtype = wtap_register_file_type_subtypes(&logcat_text_long_info,
-                                                                          WTAP_FILE_TYPE_SUBTYPE_UNKNOWN);
+    logcat_text_brief_file_type_subtype = wtap_register_file_type_subtypes(&logcat_text_brief_info);
+    logcat_text_process_file_type_subtype = wtap_register_file_type_subtypes(&logcat_text_process_info);
+    logcat_text_tag_file_type_subtype = wtap_register_file_type_subtypes(&logcat_text_tag_info);
+    logcat_text_thread_file_type_subtype = wtap_register_file_type_subtypes(&logcat_text_thread_info);
+    logcat_text_time_file_type_subtype = wtap_register_file_type_subtypes(&logcat_text_time_info);
+    logcat_text_threadtime_file_type_subtype = wtap_register_file_type_subtypes(&logcat_text_threadtime_info);
+    logcat_text_long_file_type_subtype = wtap_register_file_type_subtypes(&logcat_text_long_info);
+
+    /*
+     * Register names for backwards compatibility with the
+     * wtap_filetypes table in Lua.
+     */
+    wtap_register_backwards_compatibility_lua_name("LOGCAT_BRIEF",
+                                                   logcat_text_brief_file_type_subtype);
+    wtap_register_backwards_compatibility_lua_name("LOGCAT_PROCESS",
+                                                   logcat_text_process_file_type_subtype);
+    wtap_register_backwards_compatibility_lua_name("LOGCAT_TAG",
+                                                   logcat_text_tag_file_type_subtype);
+    wtap_register_backwards_compatibility_lua_name("LOGCAT_THREAD",
+                                                   logcat_text_thread_file_type_subtype);
+    wtap_register_backwards_compatibility_lua_name("LOGCAT_TIME",
+                                                   logcat_text_time_file_type_subtype);
+    wtap_register_backwards_compatibility_lua_name("LOGCAT_THREADTIME",
+                                                   logcat_text_threadtime_file_type_subtype);
+    wtap_register_backwards_compatibility_lua_name("LOGCAT_LONG",
+                                                   logcat_text_long_file_type_subtype);
 }
 
 /*

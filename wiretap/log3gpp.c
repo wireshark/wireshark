@@ -887,16 +887,21 @@ gboolean get_file_time_stamp(gchar* linebuff, time_t *secs, guint32 *usecs)
 }
 
 static const struct file_type_subtype_info log3gpp_info = {
-        "3GPP Log", "3gpp_log", "*.log", NULL,
-        TRUE, FALSE, 0,
-        NULL, NULL, NULL
+    "3GPP Log", "3gpp_log", "*.log", NULL,
+    TRUE, FALSE, 0,
+    NULL, NULL, NULL
 };
 
 void register_log3gpp(void)
 {
-        log3gpp_file_type_subtype =
-            wtap_register_file_type_subtypes(&log3gpp_info,
-                WTAP_FILE_TYPE_SUBTYPE_UNKNOWN);
+    log3gpp_file_type_subtype = wtap_register_file_type_subtypes(&log3gpp_info);
+
+    /*
+     * Register name for backwards compatibility with the
+     * wtap_filetypes table in Lua.
+     */
+    wtap_register_backwards_compatibility_lua_name("LOG_3GPP",
+                                                   log3gpp_file_type_subtype);
 }
 
 #if 0
@@ -914,6 +919,7 @@ void wtap_register_phonelog(void) {
         wf_3gpp_log =  wtap_register_file_type_subtypes(&fi, WTAP_FILE_TYPE_SUBTYPE_UNKNOWN);
 }
 #endif
+
 /*
  * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *

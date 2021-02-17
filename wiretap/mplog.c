@@ -262,8 +262,14 @@ static const struct file_type_subtype_info mplog_info = {
 
 void register_mplog(void)
 {
-    mplog_file_type_subtype = wtap_register_file_type_subtypes(&mplog_info,
-                                                               WTAP_FILE_TYPE_SUBTYPE_UNKNOWN);
+    mplog_file_type_subtype = wtap_register_file_type_subtypes(&mplog_info);
+
+    /*
+     * Register name for backwards compatibility with the
+     * wtap_filetypes table in Lua.
+     */
+    wtap_register_backwards_compatibility_lua_name("MPLOG",
+                                                   mplog_file_type_subtype);
 }
 
 /*

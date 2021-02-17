@@ -15,8 +15,12 @@
 
 #include <wsutil/file_util.h>
 #include <wsutil/tempfile.h>
+#ifdef HAVE_PLUGINS
+#include <wsutil/plugins.h>
+#endif
 
 #include "wtap-int.h"
+#include "wtap_modules.h"
 #include "file_wrappers.h"
 #include <wsutil/buffer.h>
 #include "lanalyzer.h"
@@ -1220,7 +1224,7 @@ wtap_fdreopen(wtap *wth, const char *filename, int *err)
    If we need to modify it, we allocate a GArray, copy the entries
    in the above table to that GArray, use the copy as the table, and
    make all changes to the copy. */
-static const struct file_type_subtype_info dump_open_table_base[] = {
+static const struct file_type_subtype_info file_type_subtype_table_base[] = {
 	/* WTAP_FILE_TYPE_SUBTYPE_UNKNOWN (only used internally for initialization) */
 	{ NULL, NULL, NULL, NULL,
 	  FALSE, FALSE, 0,
@@ -1293,108 +1297,125 @@ static const struct file_type_subtype_info dump_open_table_base[] = {
 	  NULL, NULL, NULL }
 };
 
-/*
- * Pointer to the table we're currently using.  It's initialized to point
- * to the static table, but, if we have to allocate the GArray, it's
- * changed to point to the data in the GArray.
- */
-static const struct file_type_subtype_info* dump_open_table = dump_open_table_base;
+#define N_DUMP_OPEN_TABLE_BASE_ENTRIES	(sizeof(file_type_subtype_table_base) / sizeof(struct file_type_subtype_info))
 
 /*
- * Number of elements in the table we're currently using.  It's initialized
- * to the number of elements in the static table, but, if we have to
- * allocate the GArray, it's changed to have the size of the GArray.
+ * Pointer to the GArray holding the registered file types.
  */
-static gint wtap_num_file_types_subtypes = sizeof(dump_open_table_base) / sizeof(struct file_type_subtype_info);
+static GArray*  file_type_subtype_table_arr;
 
 /*
- * Pointer to the GArray; NULL until it's needed.
+ * Pointer to the table of registered file types in that GArray.
  */
-static GArray*  dump_open_table_arr = NULL;
+static const struct file_type_subtype_info* file_type_subtype_table;
 
 /*
- * Create the GArray from the static table if it hasn't already been created.
+ * Number of elements in the table for builtin file types/subtypes.
  */
-static void
-init_file_types_subtypes_garray(void)
+static guint wtap_num_builtin_file_types_subtypes;
+
+/*
+ * Initialize the table of file types/subtypes with all the builtin
+ * types/subtypes.
+ */
+void
+wtap_init_file_type_subtypes(void)
 {
-	if (dump_open_table_arr) return;
+	/* Don't do this twice. */
+	g_assert(file_type_subtype_table_arr == NULL);
 
-	dump_open_table_arr = g_array_new(FALSE,TRUE,sizeof(struct file_type_subtype_info));
+	/*
+	 * Estimate the number of file types/subtypes as twice the
+	 * number of modules; that's probably an overestimate, as
+	 * the average number of file types/subtypes registered by
+	 * a module is > 1 but probably < 2, but that shouldn't
+	 * waste too much memory.
+	 */
+	file_type_subtype_table_arr = g_array_sized_new(FALSE, TRUE,
+	    sizeof(struct file_type_subtype_info), wtap_module_count*2);
 
-	g_array_append_vals(dump_open_table_arr,dump_open_table_base,wtap_num_file_types_subtypes);
+	/* Copy over the fixed builtin entries. */
+	g_array_append_vals(file_type_subtype_table_arr, file_type_subtype_table_base,
+	    N_DUMP_OPEN_TABLE_BASE_ENTRIES);
 
-	dump_open_table = (const struct file_type_subtype_info*)(void *)dump_open_table_arr->data;
+	file_type_subtype_table = (const struct file_type_subtype_info*)(void *)file_type_subtype_table_arr->data;
+
+	/* Load the builtin plugins that aren't in the table. */
+	for (guint i = 0; i < wtap_module_count; i++)
+		wtap_module_reg[i].cb_func();
+
+	/* Remember which entries are builtin. */
+	wtap_num_builtin_file_types_subtypes = file_type_subtype_table_arr->len;
 }
 
-/* if subtype is WTAP_FILE_TYPE_SUBTYPE_UNKNOWN, then create a new subtype as well as register it, else replace the
-   existing entry in that spot */
+/*
+ * Attempt to register a new file type/subtype; fails if a type/subtype
+ * with that name is already registered.
+ */
 int
-wtap_register_file_type_subtypes(const struct file_type_subtype_info* fi, const int subtype)
+wtap_register_file_type_subtypes(const struct file_type_subtype_info* fi)
 {
 	struct file_type_subtype_info* finfo;
 
 	/*
-	 * Check for required fields (description and name). If an existing
-	 * file type is overridden (as opposed as creating a new registration),
-	 * prevent internal subtypes from being overridden by Lua plugins.
+	 * Check for required fields (description and name).
 	 */
-	if (!fi || !fi->description || !fi->name ||
-			(subtype != WTAP_FILE_TYPE_SUBTYPE_UNKNOWN &&
-			(subtype <= (int)G_N_ELEMENTS(dump_open_table_base) ||
-			subtype > wtap_num_file_types_subtypes))) {
-		g_error("no file type info or invalid file type to register");
-		return subtype;
+	if (!fi || !fi->description || !fi->name) {
+		g_error("no file type info");
+		return -1;
 	}
 
-	/* do we want a new registration? */
-	if (subtype == WTAP_FILE_TYPE_SUBTYPE_UNKNOWN) {
-		/* register a new one; first verify there isn't one named this already */
-		if (wtap_name_to_file_type_subtype(fi->name) > -1 ) {
-			g_error("file type short name \"%s\" already exists", fi->name);
-			return subtype;
-		}
-
+	/*
+	 * Is this type already registered?
+	 */
+	if (wtap_name_to_file_type_subtype(fi->name) != -1) {
 		/*
-		 * Create the GArray if it hasn't already been created.
+		 * Yes.  You don't get to replace an existing handler.
 		 */
-		init_file_types_subtypes_garray();
-
-		g_array_append_val(dump_open_table_arr,*fi);
-
-		dump_open_table = (const struct file_type_subtype_info*)(void *)dump_open_table_arr->data;
-
-		return wtap_num_file_types_subtypes++;
-	}
-
-	/* re-register an existing one - verify the names do match (sanity check really) */
-	if (!dump_open_table[subtype].name || strcmp(dump_open_table[subtype].name,fi->name) != 0) {
-		g_error("invalid file type name given to register");
-		return subtype;
+		g_error("file type \"%s\" is already registered", fi->name);
+		return -1;
 	}
 
 	/*
-	 * Create the GArray if it hasn't already been created.
+	 * Is there a freed entry in the array, due to a file type
+	 * being de-registered?
+	 *
+	 * Skip the built-in entries, as they're never deregistered
+	 * (and because entry 0, for WTAP_FILE_TYPE_SUBTYPE_UNKNOWN,
+	 * has a null name pointer).
 	 */
-	init_file_types_subtypes_garray();
+	for (guint i = wtap_num_builtin_file_types_subtypes;
+	    i < file_type_subtype_table_arr->len; i++) {
+		if (file_type_subtype_table[i].name == NULL) {
+			/*
+			 * We found such an entry.
+			 *
+			 * Get the pointer from the GArray, so that we get a
+			 * non-const pointer.
+			 */
+			finfo = &g_array_index(file_type_subtype_table_arr, struct file_type_subtype_info, i);
+
+			/*
+			 * Fill in the entry with the new values.
+			 */
+			*finfo = *fi;
+
+			return (gint)i;
+		}
+	}
 
 	/*
-	 * Get the pointer from the GArray, so that we get a non-const
-	 * pointer.
+	 * There aren't any free slots, so add a new entry.
+	 * Append this entry to the end of the array, change
+	 * file_type_subtype_table in case the array had to get reallocated,
+	 * increment the number of entries (XXX - just use the array
+	 * length!), and return subtype, which is now set to the
+	 * old number of entries, which is now the index of the new
+	 * entry.
 	 */
-	finfo = &g_array_index(dump_open_table_arr, struct file_type_subtype_info, subtype);
-	/*finfo->description = fi->description;*/
-	/*finfo->name = fi->name;*/
-	finfo->default_file_extension     = fi->default_file_extension;
-	finfo->additional_file_extensions = fi->additional_file_extensions;
-	finfo->writing_must_seek          = fi->writing_must_seek;
-	finfo->has_name_resolution        = fi->has_name_resolution;
-	finfo->supported_comment_types    = fi->supported_comment_types;
-	finfo->can_write_encap            = fi->can_write_encap;
-	finfo->dump_open                  = fi->dump_open;
-	finfo->wslua_info                 = fi->wslua_info;
-
-	return subtype;
+	g_array_append_val(file_type_subtype_table_arr,*fi);
+	file_type_subtype_table = (const struct file_type_subtype_info*)(void *)file_type_subtype_table_arr->data;
+	return file_type_subtype_table_arr->len;
 }
 
 /* De-registers a file writer - they can never be removed from the GArray, but we can "clear" an entry.
@@ -1404,24 +1425,25 @@ wtap_deregister_file_type_subtype(const int subtype)
 {
 	struct file_type_subtype_info* finfo;
 
-	if (subtype < 0 || subtype >= wtap_num_file_types_subtypes) {
+	if (subtype < 0 || subtype >= (int)file_type_subtype_table_arr->len) {
 		g_error("invalid file type to de-register");
 		return;
 	}
-
-	/*
-	 * Create the GArray if it hasn't already been created.
-	 */
-	init_file_types_subtypes_garray();
+	if ((guint)subtype >= wtap_num_builtin_file_types_subtypes) {
+		g_error("built-in file types cannot be de-registered");
+		return;
+	}
 
 	/*
 	 * Get the pointer from the GArray, so that we get a non-const
 	 * pointer.
 	 */
-	finfo = &g_array_index(dump_open_table_arr, struct file_type_subtype_info, subtype);
-	/* unfortunately, it's not safe to null-out the description or name; bunch of other code doesn't guard aainst that, afaict */
-	/*finfo->description = NULL;*/
-	/*finfo->name = NULL;*/
+	finfo = &g_array_index(file_type_subtype_table_arr, struct file_type_subtype_info, subtype);
+	/*
+	 * Clear out this entry.
+	 */
+	finfo->description = NULL;
+	finfo->name = NULL;
 	finfo->default_file_extension = NULL;
 	finfo->additional_file_extensions = NULL;
 	finfo->writing_must_seek = FALSE;
@@ -1430,12 +1452,6 @@ wtap_deregister_file_type_subtype(const int subtype)
 	finfo->can_write_encap = NULL;
 	finfo->dump_open = NULL;
 	finfo->wslua_info = NULL;
-}
-
-int
-wtap_get_num_file_types_subtypes(void)
-{
-	return wtap_num_file_types_subtypes;
 }
 
 /*
@@ -1462,19 +1478,19 @@ wtap_dump_can_write_encap(int filetype, int encap)
 {
 	int result = 0;
 
-	if (filetype < 0 || filetype >= wtap_num_file_types_subtypes
-	    || dump_open_table[filetype].can_write_encap == NULL)
+	if (filetype < 0 || filetype >= (int)file_type_subtype_table_arr->len ||
+	    file_type_subtype_table[filetype].can_write_encap == NULL)
 		return FALSE;
 
-	result = (*dump_open_table[filetype].can_write_encap)(encap);
+	result = (*file_type_subtype_table[filetype].can_write_encap)(encap);
 
 	if (result != 0) {
 		/* if the err said to check wslua's can_write_encap, try that */
 		if (result == WTAP_ERR_CHECK_WSLUA
-			&& dump_open_table[filetype].wslua_info != NULL
-			&& dump_open_table[filetype].wslua_info->wslua_can_write_encap != NULL) {
+			&& file_type_subtype_table[filetype].wslua_info != NULL
+			&& file_type_subtype_table[filetype].wslua_info->wslua_can_write_encap != NULL) {
 
-			result = (*dump_open_table[filetype].wslua_info->wslua_can_write_encap)(encap, dump_open_table[filetype].wslua_info->wslua_data);
+			result = (*file_type_subtype_table[filetype].wslua_info->wslua_can_write_encap)(encap, file_type_subtype_table[filetype].wslua_info->wslua_data);
 
 		}
 
@@ -1546,7 +1562,7 @@ wtap_dump_can_write(const GArray *file_encaps, guint32 required_comment_types)
 {
 	int ft;
 
-	for (ft = 0; ft < WTAP_NUM_FILE_TYPES_SUBTYPES; ft++) {
+	for (ft = 0; ft < (int)file_type_subtype_table_arr->len; ft++) {
 		/* To save a file with Wiretap, Wiretap has to handle that format,
 		 * and its code to handle that format must be able to write a file
 		 * with this file's encapsulation types.
@@ -1561,16 +1577,45 @@ wtap_dump_can_write(const GArray *file_encaps, guint32 required_comment_types)
 	return FALSE;
 }
 
+/*
+ * Sort by file type/subtype name.
+ */
+static int
+compare_file_type_subtypes_by_name(gconstpointer a, gconstpointer b)
+{
+	int file_type_subtype_a = *(const int *)a;
+	int file_type_subtype_b = *(const int *)b;
+
+	return strcmp(wtap_file_type_subtype_name(file_type_subtype_a),
+	              wtap_file_type_subtype_name(file_type_subtype_b));
+}
+
+/*
+ * Sort by file type/subtype description.
+ */
+static int
+compare_file_type_subtypes_by_description(gconstpointer a, gconstpointer b)
+{
+	int file_type_subtype_a = *(const int *)a;
+	int file_type_subtype_b = *(const int *)b;
+
+	return strcmp(wtap_file_type_subtype_description(file_type_subtype_a),
+	              wtap_file_type_subtype_description(file_type_subtype_b));
+}
+
 /**
- * Get a GArray of WTAP_FILE_TYPE_SUBTYPE_ values for file types/subtypes
+ * Get a GArray of file type/subtype values for file types/subtypes
  * that can be used to save a file of a given type/subtype with a given
  * GArray of encapsulation types and the given bitmask of comment types.
  */
 GArray *
-wtap_get_savable_file_types_subtypes(int file_type_subtype,
-    const GArray *file_encaps, guint32 required_comment_types)
+wtap_get_savable_file_types_subtypes_for_file(int file_type_subtype,
+    const GArray *file_encaps, guint32 required_comment_types,
+    ft_sort_order sort_order)
 {
 	GArray *savable_file_types_subtypes;
+	int pcap_file_type_subtype = wtap_name_to_file_type_subtype("pcap");
+	int pcapng_file_type_subtype = wtap_name_to_file_type_subtype("pcapng");
 	int ft;
 	int default_file_type_subtype = -1;
 	int other_file_type_subtype = -1;
@@ -1583,7 +1628,7 @@ wtap_get_savable_file_types_subtypes(int file_type_subtype,
 	} else {
 		/* OK, find the first file type/subtype we *can* save it as. */
 		default_file_type_subtype = -1;
-		for (ft = 0; ft < WTAP_NUM_FILE_TYPES_SUBTYPES; ft++) {
+		for (ft = 0; ft < (int)file_type_subtype_table_arr->len; ft++) {
 			if (wtap_dump_can_write_format(ft, file_encaps,
 						       required_comment_types)) {
 				/* OK, got it. */
@@ -1598,34 +1643,38 @@ wtap_get_savable_file_types_subtypes(int file_type_subtype,
 		return NULL;
 	}
 
-	/* Allocate the array. */
-	savable_file_types_subtypes = g_array_new(FALSE, FALSE, (guint)sizeof (int));
-
-	/* Put the default file type/subtype first in the list. */
-	g_array_append_val(savable_file_types_subtypes, default_file_type_subtype);
-
-	/* If the default is pcap, put pcapng right after it if we can
-	   also write it in pcapng format; otherwise, if the default is
-	   pcapng, put pcap right after it if we can also write it in
-	   pcap format. */
-	if (default_file_type_subtype == WTAP_FILE_TYPE_SUBTYPE_PCAP) {
-		if (wtap_dump_can_write_format(WTAP_FILE_TYPE_SUBTYPE_PCAPNG, file_encaps,
+	/*
+	 * If the default is pcap, put pcapng right after it if we can
+	 * also write it in pcapng format; otherwise, if the default is
+	 * pcapng, put pcap right after it if we can also write it in
+	 * pcap format.
+	 */
+	if (default_file_type_subtype == pcap_file_type_subtype) {
+		if (wtap_dump_can_write_format(pcapng_file_type_subtype,
+		                               file_encaps,
+		                               required_comment_types))
+			other_file_type_subtype = pcapng_file_type_subtype;
+	} else if (default_file_type_subtype == pcapng_file_type_subtype) {
+		if (wtap_dump_can_write_format(pcap_file_type_subtype,
+		                               file_encaps,
 					       required_comment_types))
-			other_file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_PCAPNG;
-	} else if (default_file_type_subtype == WTAP_FILE_TYPE_SUBTYPE_PCAPNG) {
-		if (wtap_dump_can_write_format(WTAP_FILE_TYPE_SUBTYPE_PCAP, file_encaps,
-					       required_comment_types))
-			other_file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_PCAP;
+			other_file_type_subtype = pcap_file_type_subtype;
 	}
-	if (other_file_type_subtype != -1)
-		g_array_append_val(savable_file_types_subtypes, other_file_type_subtype);
 
-	/* Add all the other file types/subtypes that work. */
-	for (ft = 0; ft < WTAP_NUM_FILE_TYPES_SUBTYPES; ft++) {
+	/* Allocate the array. */
+	savable_file_types_subtypes = g_array_new(FALSE, FALSE,
+	    sizeof (int));
+
+	/*
+	 * First, add the types we don't want to force to the
+	 * beginning of the list.
+	 */
+	for (ft = 0; ft < (int)file_type_subtype_table_arr->len; ft++) {
 		if (ft == WTAP_FILE_TYPE_SUBTYPE_UNKNOWN)
 			continue;	/* not a real file type */
-		if (ft == default_file_type_subtype || ft == other_file_type_subtype)
-			continue;	/* we've already done this one */
+		if (ft == default_file_type_subtype ||
+		    ft == other_file_type_subtype)
+			continue;	/* we will done this one later */
 		if (wtap_dump_can_write_format(ft, file_encaps,
 					       required_comment_types)) {
 			/* OK, we can write it out in this type. */
@@ -1633,7 +1682,95 @@ wtap_get_savable_file_types_subtypes(int file_type_subtype,
 		}
 	}
 
+	/* Now, sort the list. */
+	g_array_sort(savable_file_types_subtypes,
+	    (sort_order == FT_SORT_BY_NAME) ? compare_file_type_subtypes_by_name :
+	                                      compare_file_type_subtypes_by_description);
+
+	/*
+	 * If we have a type/subtype to put above the default one,
+	 * do so.
+	 *
+	 * We put this type at the beginning before putting the
+	 * default there, so the default is at the top.
+	 */
+	if (other_file_type_subtype != -1)
+		g_array_prepend_val(savable_file_types_subtypes,
+		    other_file_type_subtype);
+
+	/* Put the default file type/subtype first in the list. */
+	g_array_prepend_val(savable_file_types_subtypes,
+	    default_file_type_subtype);
+
 	return savable_file_types_subtypes;
+}
+
+/**
+ * Get a GArray of all writable file type/subtype values.
+ */
+GArray *
+wtap_get_writable_file_types_subtypes(ft_sort_order sort_order)
+{
+	GArray *writable_file_types_subtypes;
+	int pcap_file_type_subtype = wtap_name_to_file_type_subtype("pcap");
+	int pcapng_file_type_subtype = wtap_name_to_file_type_subtype("pcapng");
+	int ft;
+
+	/*
+	 * Allocate the array.
+	 * Pre-allocate room enough for all types.
+	 * XXX - that's overkill; just scan the table to find all the
+	 * writable types and count them.
+	 */
+	writable_file_types_subtypes = g_array_sized_new(FALSE, FALSE,
+	    sizeof (int), file_type_subtype_table_arr->len);
+
+	/*
+	 * First, add the types we don't want to force to the
+	 * beginning of the list.
+	 */
+	for (ft = 0; ft < (int)file_type_subtype_table_arr->len; ft++) {
+		if (ft == WTAP_FILE_TYPE_SUBTYPE_UNKNOWN)
+			continue;	/* not a real file type */
+		if (ft == pcap_file_type_subtype ||
+		    ft == pcapng_file_type_subtype)
+			continue;	/* we've already done these two */
+		if (wtap_dump_can_open(ft)) {
+			/* OK, we can write this type. */
+			g_array_append_val(writable_file_types_subtypes, ft);
+		}
+	}
+
+	/* Now, sort the list. */
+	g_array_sort(writable_file_types_subtypes,
+	    (sort_order == FT_SORT_BY_NAME) ? compare_file_type_subtypes_by_name :
+	                                      compare_file_type_subtypes_by_description);
+
+	/*
+	 * Now, put pcap and pcapng at the beginning, as they're
+	 * our "native" formats.  Put pcapng there first, and
+	 * pcap before it.
+	 */
+	if (pcapng_file_type_subtype != -1 &&
+	    wtap_dump_can_open(pcapng_file_type_subtype)) {
+		/*
+		 * We can write pcapng.  (If we can't, that's a huge
+		 * mistake.)
+		 */
+		g_array_prepend_val(writable_file_types_subtypes,
+		    pcapng_file_type_subtype);
+	}
+	if (pcap_file_type_subtype != -1 &&
+	    wtap_dump_can_open(pcap_file_type_subtype)) {
+		/*
+		 * We can write pcap.  (If we can't, that's a huge
+		 * mistake.)
+		 */
+		g_array_prepend_val(writable_file_types_subtypes,
+		    pcap_file_type_subtype);
+	}
+
+	return writable_file_types_subtypes;
 }
 
 /**
@@ -1658,22 +1795,22 @@ wtap_uses_interface_ids(int file_type)
 const char *
 wtap_file_type_subtype_description(int file_type_subtype)
 {
-	if (file_type_subtype < 0 || file_type_subtype >= wtap_num_file_types_subtypes) {
-		g_error("Unknown capture file type %d", file_type_subtype);
-		/** g_error() does an abort() and thus never returns **/
-		return "";
-	} else
-		return dump_open_table[file_type_subtype].description;
+	if (file_type_subtype < 0 ||
+	    file_type_subtype >= (int)file_type_subtype_table_arr->len)
+		return NULL;
+	else
+		return file_type_subtype_table[file_type_subtype].description;
 }
 
 /* Name to use in, say, a command-line flag specifying the type/subtype. */
 const char *
 wtap_file_type_subtype_name(int file_type_subtype)
 {
-	if (file_type_subtype < 0 || file_type_subtype >= wtap_num_file_types_subtypes)
+	if (file_type_subtype < 0 ||
+	    file_type_subtype >= (int)file_type_subtype_table_arr->len)
 		return NULL;
 	else
-		return dump_open_table[file_type_subtype].name;
+		return file_type_subtype_table[file_type_subtype].name;
 }
 
 /* Translate a name to a capture file type/subtype. */
@@ -1682,32 +1819,39 @@ wtap_name_to_file_type_subtype(const char *name)
 {
 	int file_type_subtype;
 
-	for (file_type_subtype = 0; file_type_subtype < wtap_num_file_types_subtypes; file_type_subtype++) {
-		if (dump_open_table[file_type_subtype].name != NULL &&
-		    strcmp(name, dump_open_table[file_type_subtype].name) == 0)
-			return file_type_subtype;
-	}
-
 	/*
 	 * We now call the libpcap file format just pcap, but we allow
 	 * the various variants of it to be specified using names
 	 * containing "libpcap" as well as "pcap", for backwards
 	 * compatibility.
 	 */
-	if (strcmp(name, "libpcap") == 0)
-		return WTAP_FILE_TYPE_SUBTYPE_PCAP;
-	else if (strcmp(name, "nseclibpcap") == 0)
-		return WTAP_FILE_TYPE_SUBTYPE_PCAP_NSEC;
-	else if (strcmp(name, "aixlibpcap") == 0)
-		return WTAP_FILE_TYPE_SUBTYPE_PCAP_AIX;
-	else if (strcmp(name, "modlibpcap") == 0)
-		return WTAP_FILE_TYPE_SUBTYPE_PCAP_SS991029;
-	else if (strcmp(name, "nokialibpcap") == 0)
-		return WTAP_FILE_TYPE_SUBTYPE_PCAP_NOKIA;
-	else if (strcmp(name, "rh6_1libpcap") == 0)
-		return WTAP_FILE_TYPE_SUBTYPE_PCAP_SS990417;
-	else if (strcmp(name, "suse6_3libpcap") == 0)
-		return WTAP_FILE_TYPE_SUBTYPE_PCAP_SS990915;
+	static const struct name_map {
+		const char *oldname;
+		const char *name;
+	} name_map[] = {
+		{ "libpcap", "pcap" },
+		{ "nseclibpcap", "nsecpcap" },
+		{ "aixlibpcap", "aixpcap" },
+		{ "modlibpcap", "modpcap" },
+		{ "nokialibpcap", "nokiapcap" },
+		{ "rh6_1libpcap", "rh6_1pcap" },
+		{ "suse6_3libpcap", "suse6_3pcap" }
+	};
+#define N_NAME_MAP_ENTRIES (sizeof name_map / sizeof name_map[0])
+
+	for (size_t i = 0; i < N_NAME_MAP_ENTRIES; i++) {
+		if (strcmp(name_map[i].oldname, name) == 0) {
+			name = name_map[i].name;
+			break;
+		}
+	}
+	for (file_type_subtype = 0;
+	    file_type_subtype < (int)file_type_subtype_table_arr->len;
+	    file_type_subtype++) {
+		if (file_type_subtype_table[file_type_subtype].name != NULL &&
+		    strcmp(name, file_type_subtype_table[file_type_subtype].name) == 0)
+			return file_type_subtype;
+	}
 
 	return -1;	/* no such file type, or we can't write it */
 }
@@ -1724,20 +1868,20 @@ add_extensions_for_file_type_subtype(int file_type_subtype, GSList *extensions,
 	 * from the list of compressed-file extensions, if there is a
 	 * default extension.
 	 */
-	if (dump_open_table[file_type_subtype].default_file_extension != NULL) {
+	if (file_type_subtype_table[file_type_subtype].default_file_extension != NULL) {
 		extensions = add_extensions(extensions,
-		    dump_open_table[file_type_subtype].default_file_extension,
+		    file_type_subtype_table[file_type_subtype].default_file_extension,
 		    compression_type_extensions);
 	}
 
-	if (dump_open_table[file_type_subtype].additional_file_extensions != NULL) {
+	if (file_type_subtype_table[file_type_subtype].additional_file_extensions != NULL) {
 		/*
 		 * We have additional extensions; add them.
 		 *
 		 * First, split the extension-list string into a set of
 		 * extensions.
 		 */
-		extensions_set = g_strsplit(dump_open_table[file_type_subtype].additional_file_extensions,
+		extensions_set = g_strsplit(file_type_subtype_table[file_type_subtype].additional_file_extensions,
 		    ";", 0);
 
 		/*
@@ -1773,10 +1917,11 @@ wtap_get_file_extensions_list(int file_type_subtype, gboolean include_compressed
 {
 	GSList *extensions, *compression_type_extensions;
 
-	if (file_type_subtype < 0 || file_type_subtype >= wtap_num_file_types_subtypes)
+	if (file_type_subtype < 0 ||
+	    file_type_subtype >= (int)file_type_subtype_table_arr->len)
 		return NULL;	/* not a valid file type */
 
-	if (dump_open_table[file_type_subtype].default_file_extension == NULL)
+	if (file_type_subtype_table[file_type_subtype].default_file_extension == NULL)
 		return NULL;	/* valid, but no extensions known */
 
 	extensions = NULL;	/* empty list, to start with */
@@ -1819,7 +1964,6 @@ GSList *
 wtap_get_all_file_extensions_list(void)
 {
 	GSList *extensions, *compression_type_extensions;
-	int i;
 
 	extensions = NULL;	/* empty list, to start with */
 
@@ -1828,8 +1972,8 @@ wtap_get_all_file_extensions_list(void)
 	 */
 	compression_type_extensions = wtap_get_all_compression_type_extensions_list();
 
-	for (i = 0; i < WTAP_NUM_FILE_TYPES_SUBTYPES; i++) {
-		extensions = add_extensions_for_file_type_subtype(i, extensions,
+	for (int ft = 0; ft < (int)file_type_subtype_table_arr->len; ft++) {
+		extensions = add_extensions_for_file_type_subtype(ft, extensions,
 		    compression_type_extensions);
 	}
 
@@ -1860,17 +2004,19 @@ wtap_free_extensions_list(GSList *extensions)
 const char *
 wtap_default_file_extension(int file_type_subtype)
 {
-	if (file_type_subtype < 0 || file_type_subtype >= wtap_num_file_types_subtypes)
+	if (file_type_subtype < 0 ||
+	    file_type_subtype >= (int)file_type_subtype_table_arr->len)
 		return NULL;
 	else
-		return dump_open_table[file_type_subtype].default_file_extension;
+		return file_type_subtype_table[file_type_subtype].default_file_extension;
 }
 
 gboolean
 wtap_dump_can_open(int file_type_subtype)
 {
-	if (file_type_subtype < 0 || file_type_subtype >= wtap_num_file_types_subtypes
-	    || dump_open_table[file_type_subtype].dump_open == NULL)
+	if (file_type_subtype < 0 ||
+	    file_type_subtype >= (int)file_type_subtype_table_arr->len ||
+	    file_type_subtype_table[file_type_subtype].dump_open == NULL)
 		return FALSE;
 
 	return TRUE;
@@ -1885,8 +2031,9 @@ wtap_dump_can_compress(int file_type_subtype)
 	 * seek when writing out a file with this file type,
 	 * return FALSE.
 	 */
-	if (file_type_subtype < 0 || file_type_subtype >= wtap_num_file_types_subtypes
-	    || dump_open_table[file_type_subtype].writing_must_seek)
+	if (file_type_subtype < 0 ||
+	    file_type_subtype >= (int)file_type_subtype_table_arr->len ||
+	    file_type_subtype_table[file_type_subtype].writing_must_seek)
 		return FALSE;
 
 	return TRUE;
@@ -1902,8 +2049,9 @@ wtap_dump_can_compress(int file_type_subtype _U_)
 gboolean
 wtap_dump_has_name_resolution(int file_type_subtype)
 {
-	if (file_type_subtype < 0 || file_type_subtype >= wtap_num_file_types_subtypes
-	    || dump_open_table[file_type_subtype].has_name_resolution == FALSE)
+	if (file_type_subtype < 0 ||
+	    file_type_subtype >= (int)file_type_subtype_table_arr->len ||
+	    file_type_subtype_table[file_type_subtype].has_name_resolution == FALSE)
 		return FALSE;
 
 	return TRUE;
@@ -1914,10 +2062,11 @@ wtap_dump_supports_comment_types(int file_type_subtype, guint32 comment_types)
 {
 	guint32 supported_comment_types;
 
-	if (file_type_subtype < 0 || file_type_subtype >= wtap_num_file_types_subtypes)
+	if (file_type_subtype < 0 ||
+	    file_type_subtype >= (int)file_type_subtype_table_arr->len)
 		return FALSE;
 
-	supported_comment_types = dump_open_table[file_type_subtype].supported_comment_types;
+	supported_comment_types = file_type_subtype_table[file_type_subtype].supported_comment_types;
 
 	if ((comment_types & supported_comment_types) == comment_types)
 		return TRUE;
@@ -2242,13 +2391,13 @@ wtap_dump_open_check(int file_type_subtype, int encap, gboolean compressed, int 
 
 	/* OK, we know how to write that type; can we write the specified
 	   encapsulation type? */
-	*err = (*dump_open_table[file_type_subtype].can_write_encap)(encap);
+	*err = (*file_type_subtype_table[file_type_subtype].can_write_encap)(encap);
 	/* if the err said to check wslua's can_write_encap, try that */
 	if (*err == WTAP_ERR_CHECK_WSLUA
-		&& dump_open_table[file_type_subtype].wslua_info != NULL
-		&& dump_open_table[file_type_subtype].wslua_info->wslua_can_write_encap != NULL) {
+		&& file_type_subtype_table[file_type_subtype].wslua_info != NULL
+		&& file_type_subtype_table[file_type_subtype].wslua_info->wslua_can_write_encap != NULL) {
 
-		*err = (*dump_open_table[file_type_subtype].wslua_info->wslua_can_write_encap)(encap, dump_open_table[file_type_subtype].wslua_info->wslua_data);
+		*err = (*file_type_subtype_table[file_type_subtype].wslua_info->wslua_can_write_encap)(encap, file_type_subtype_table[file_type_subtype].wslua_info->wslua_data);
 
 	}
 
@@ -2309,7 +2458,7 @@ wtap_dump_open_finish(wtap_dumper *wdh, int file_type_subtype, int *err,
 	}
 
 	/* If this file type requires seeking, and we can't seek, fail. */
-	if (dump_open_table[file_type_subtype].writing_must_seek && cant_seek) {
+	if (file_type_subtype_table[file_type_subtype].writing_must_seek && cant_seek) {
 		*err = WTAP_ERR_CANT_WRITE_TO_PIPE;
 		return FALSE;
 	}
@@ -2317,11 +2466,11 @@ wtap_dump_open_finish(wtap_dumper *wdh, int file_type_subtype, int *err,
 	/* Set wdh with wslua data if any - this is how we pass the data
 	 * to the file writer.
 	 */
-	if (dump_open_table[file_type_subtype].wslua_info)
-		wdh->wslua_data = dump_open_table[file_type_subtype].wslua_info->wslua_data;
+	if (file_type_subtype_table[file_type_subtype].wslua_info)
+		wdh->wslua_data = file_type_subtype_table[file_type_subtype].wslua_info->wslua_data;
 
 	/* Now try to open the file for writing. */
-	if (!(*dump_open_table[file_type_subtype].dump_open)(wdh, err,
+	if (!(*file_type_subtype_table[file_type_subtype].dump_open)(wdh, err,
 	    err_info)) {
 		return FALSE;
 	}
@@ -2432,9 +2581,10 @@ wtap_addrinfo_list_empty(addrinfo_lists_t *addrinfo_lists)
 gboolean
 wtap_dump_set_addrinfo_list(wtap_dumper *wdh, addrinfo_lists_t *addrinfo_lists)
 {
-	if (!wdh || wdh->file_type_subtype < 0 || wdh->file_type_subtype >= wtap_num_file_types_subtypes
-		|| dump_open_table[wdh->file_type_subtype].has_name_resolution == FALSE)
-			return FALSE;
+	if (!wdh || wdh->file_type_subtype < 0 ||
+	    wdh->file_type_subtype >= (int)file_type_subtype_table_arr->len ||
+	    file_type_subtype_table[wdh->file_type_subtype].has_name_resolution == FALSE)
+		return FALSE;
 	wdh->addrinfo_lists = addrinfo_lists;
 	return TRUE;
 }
@@ -2607,6 +2757,99 @@ cleanup_open_routines(void)
 		g_array_free(open_info_arr, TRUE);
 		open_info_arr = NULL;
 	}
+}
+
+/*
+ * Allow built-in file handlers (but *not* plugin file handlers!) to
+ * register a "backwards-compatibility" name and file type value, to
+ * put in the Lua wtap_filetypes table.
+ *
+ * This is only to be used as long as we have that table; new Lua
+ * code should use wtap_name_to_file_type_subtype() to look up
+ * file types by their name, just as C code should.
+ *
+ * The backwards-ccmpatibility names are the old WTAP_FILE_TYPE_SUBTYPE_
+ * #define name, with WTAP_FILE_TYPE_SUBTYPE_ removed.
+ */
+
+static GArray *backwards_compatibility_lua_names;
+
+void
+wtap_register_backwards_compatibility_lua_name(const char *name, int ft)
+{
+	struct backwards_compatibiliity_lua_name entry;
+
+	/*
+	 * Create the table if it doesn't already exist.
+	 * Use the same size as we do for the file type/subtype table.
+	 */
+	if (backwards_compatibility_lua_names == NULL) {
+		backwards_compatibility_lua_names = g_array_sized_new(FALSE,
+		    TRUE, sizeof(struct backwards_compatibiliity_lua_name),
+		    wtap_module_count*2);
+
+		/*
+		 * Extra backwards compatibility hack - add entries
+		 * for time stamp precision values(!), as well as
+		 * for "UNKNOWN" and types that don't yet register
+		 * themselves.
+		 *
+		 * If new WS_TSPREC_ value are added, don't bother
+		 * adding them to this table; any Lua program that
+		 * would use them should use the wtap_tsprecs type.
+		 *
+		 * (Recursion: see "recursion".)
+		 */
+		wtap_register_backwards_compatibility_lua_name("TSPREC_SEC",
+		    WTAP_TSPREC_SEC);
+		wtap_register_backwards_compatibility_lua_name("TSPREC_DSEC",
+		    WTAP_TSPREC_DSEC);
+		wtap_register_backwards_compatibility_lua_name("TSPREC_CSEC",
+		    WTAP_TSPREC_CSEC);
+		wtap_register_backwards_compatibility_lua_name("TSPREC_MSEC",
+		    WTAP_TSPREC_MSEC);
+		wtap_register_backwards_compatibility_lua_name("TSPREC_USEC",
+		    WTAP_TSPREC_USEC);
+		wtap_register_backwards_compatibility_lua_name("TSPREC_NSEC",
+		    WTAP_TSPREC_NSEC);
+		wtap_register_backwards_compatibility_lua_name("UNKNOWN",
+		    WTAP_FILE_TYPE_SUBTYPE_UNKNOWN);
+		wtap_register_backwards_compatibility_lua_name("PCAP",
+		    WTAP_FILE_TYPE_SUBTYPE_PCAP);
+		wtap_register_backwards_compatibility_lua_name("PCAPNG",
+		    WTAP_FILE_TYPE_SUBTYPE_PCAPNG);
+		wtap_register_backwards_compatibility_lua_name("PCAP_NSEC",
+		    WTAP_FILE_TYPE_SUBTYPE_PCAP_NSEC);
+		wtap_register_backwards_compatibility_lua_name("PCAP_AIX",
+		    WTAP_FILE_TYPE_SUBTYPE_PCAP_AIX);
+		wtap_register_backwards_compatibility_lua_name("PCAP_SS991029",
+		    WTAP_FILE_TYPE_SUBTYPE_PCAP_SS991029);
+		wtap_register_backwards_compatibility_lua_name("PCAP_NOKIA",
+		    WTAP_FILE_TYPE_SUBTYPE_PCAP_NOKIA);
+		wtap_register_backwards_compatibility_lua_name("PCAP_SS990417",
+		    WTAP_FILE_TYPE_SUBTYPE_PCAP_SS990417);
+		wtap_register_backwards_compatibility_lua_name("PCAP_SS990915",
+		    WTAP_FILE_TYPE_SUBTYPE_PCAP_SS990915);
+		wtap_register_backwards_compatibility_lua_name("IPTRACE_1_0",
+		    WTAP_FILE_TYPE_SUBTYPE_IPTRACE_1_0);
+		wtap_register_backwards_compatibility_lua_name("IPTRACE_2_0",
+		    WTAP_FILE_TYPE_SUBTYPE_IPTRACE_2_0);
+		wtap_register_backwards_compatibility_lua_name("BER",
+		    WTAP_FILE_TYPE_SUBTYPE_BER);
+		wtap_register_backwards_compatibility_lua_name("ERF",
+		    WTAP_FILE_TYPE_SUBTYPE_ERF);
+		wtap_register_backwards_compatibility_lua_name("SYSTEMD_JOURNAL",
+		    WTAP_FILE_TYPE_SUBTYPE_SYSTEMD_JOURNAL);
+	}
+	entry.name = name;
+	entry.ft = ft;
+	g_array_append_val(backwards_compatibility_lua_names, entry);
+}
+
+const GArray *
+get_backwards_compatibility_lua_table(void)
+{
+	return backwards_compatibility_lua_names;
 }
 
 /*

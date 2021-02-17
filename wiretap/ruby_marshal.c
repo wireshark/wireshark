@@ -92,8 +92,14 @@ static const struct file_type_subtype_info ruby_marshal_info = {
 
 void register_ruby_marshal(void)
 {
-    ruby_marshal_file_type_subtype = wtap_register_file_type_subtypes(&ruby_marshal_info,
-                                                                      WTAP_FILE_TYPE_SUBTYPE_UNKNOWN);
+    ruby_marshal_file_type_subtype = wtap_register_file_type_subtypes(&ruby_marshal_info);
+
+    /*
+     * Register name for backwards compatibility with the
+     * wtap_filetypes table in Lua.
+     */
+    wtap_register_backwards_compatibility_lua_name("RUBY_MARSHAL",
+                                                   ruby_marshal_file_type_subtype);
 }
 
 /*

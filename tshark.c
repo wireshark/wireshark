@@ -272,6 +272,20 @@ static void failure_message_cont(const char *msg_format, va_list ap);
 
 static GHashTable *output_only_tables = NULL;
 
+static void
+list_capture_types(void) {
+  GArray *writable_type_subtypes;
+
+  fprintf(stderr, "tshark: The available capture file types for the \"-F\" flag are:\n");
+  writable_type_subtypes = wtap_get_writable_file_types_subtypes(FT_SORT_BY_NAME);
+  for (guint i = 0; i < writable_type_subtypes->len; i++) {
+    int ft = g_array_index(writable_type_subtypes, int, i);
+    fprintf(stderr, "    %s - %s\n", wtap_file_type_subtype_name(ft),
+            wtap_file_type_subtype_description(ft));
+  }
+  g_array_free(writable_type_subtypes, TRUE);
+}
+
 struct string_elem {
   const char *sstr;   /* The short string */
   const char *lstr;   /* The long string */
@@ -293,38 +307,22 @@ string_elem_print(gpointer data)
 }
 
 static void
-list_capture_types(void) {
-  int                 i;
-  struct string_elem *captypes;
-  GSList             *list = NULL;
-
-  captypes = g_new(struct string_elem, WTAP_NUM_FILE_TYPES_SUBTYPES);
-
-  fprintf(stderr, "tshark: The available capture file types for the \"-F\" flag are:\n");
-  for (i = 0; i < WTAP_NUM_FILE_TYPES_SUBTYPES; i++) {
-    if (wtap_dump_can_open(i)) {
-      captypes[i].sstr = wtap_file_type_subtype_name(i);
-      captypes[i].lstr = wtap_file_type_subtype_description(i);
-      list = g_slist_insert_sorted(list, &captypes[i], string_compare);
-    }
-  }
-  g_slist_free_full(list, string_elem_print);
-  g_free(captypes);
-}
-
-static void
 list_read_capture_types(void) {
-  int                 i;
+  guint               i;
+  size_t              num_file_types;
   struct string_elem *captypes;
   GSList             *list = NULL;
   const char *magic = "Magic-value-based";
   const char *heuristic = "Heuristics-based";
 
-  /* this is a hack, but WTAP_NUM_FILE_TYPES_SUBTYPES is always >= number of open routines so we're safe */
-  captypes = g_new(struct string_elem, WTAP_NUM_FILE_TYPES_SUBTYPES);
+  /* How many readable file types are there? */
+  num_file_types = 0;
+  for (i = 0; open_routines[i].name != NULL; i++)
+    num_file_types++;
+  captypes = g_new(struct string_elem, num_file_types);
 
   fprintf(stderr, "tshark: The available read file types for the \"-X read_format:\" option are:\n");
-  for (i = 0; open_routines[i].name != NULL; i++) {
+  for (i = 0; i < num_file_types && open_routines[i].name != NULL; i++) {
     captypes[i].sstr = open_routines[i].name;
     captypes[i].lstr = (open_routines[i].type == OPEN_INFO_MAGIC) ? magic : heuristic;
     list = g_slist_insert_sorted(list, &captypes[i], string_compare);

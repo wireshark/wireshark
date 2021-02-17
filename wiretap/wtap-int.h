@@ -23,6 +23,8 @@
 
 #define wtap_warn(...) g_warning(__VA_ARGS__)
 
+void wtap_init_file_type_subtypes(void);
+
 WS_DLL_PUBLIC
 int wtap_fstat(wtap *wth, ws_statb64 *statb, int *err);
 
@@ -345,6 +347,18 @@ wtap_add_idb(wtap *wth, wtap_block_t idb);
  */
 void
 wtapng_process_dsb(wtap *wth, wtap_block_t dsb);
+
+void
+wtap_register_backwards_compatibility_lua_name(const char *name, int ft);
+
+struct backwards_compatibiliity_lua_name {
+	const char *name;
+	int ft;
+};
+
+WS_DLL_PUBLIC
+const GArray *get_backwards_compatibility_lua_table(void);
+
 #endif /* __WTAP_INT_H__ */
 
 /*

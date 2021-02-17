@@ -2856,12 +2856,17 @@ static const struct file_type_subtype_info ngsniffer_compressed_info = {
 
 void register_ngsniffer(void)
 {
-	ngsniffer_uncompressed_file_type_subtype =
-	    wtap_register_file_type_subtypes(&ngsniffer_uncompressed_info,
-	        WTAP_FILE_TYPE_SUBTYPE_UNKNOWN);
-	ngsniffer_compressed_file_type_subtype =
-	    wtap_register_file_type_subtypes(&ngsniffer_compressed_info,
-	        WTAP_FILE_TYPE_SUBTYPE_UNKNOWN);
+	ngsniffer_uncompressed_file_type_subtype = wtap_register_file_type_subtypes(&ngsniffer_uncompressed_info);
+	ngsniffer_compressed_file_type_subtype = wtap_register_file_type_subtypes(&ngsniffer_compressed_info);
+
+	/*
+	 * Register names for backwards compatibility with the
+	 * wtap_filetypes table in Lua.
+	 */
+	wtap_register_backwards_compatibility_lua_name("NGSNIFFER_UNCOMPRESSED",
+	    ngsniffer_uncompressed_file_type_subtype);
+	wtap_register_backwards_compatibility_lua_name("NGSNIFFER_COMPRESSED",
+	    ngsniffer_compressed_file_type_subtype);
 }
 
 /*

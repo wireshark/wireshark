@@ -931,12 +931,17 @@ static const struct file_type_subtype_info shomiti_info = {
 
 void register_snoop(void)
 {
-	snoop_file_type_subtype =
-	    wtap_register_file_type_subtypes(&snoop_info,
-	        WTAP_FILE_TYPE_SUBTYPE_UNKNOWN);
-	shomiti_file_type_subtype =
-	    wtap_register_file_type_subtypes(&shomiti_info,
-	        WTAP_FILE_TYPE_SUBTYPE_UNKNOWN);
+	snoop_file_type_subtype = wtap_register_file_type_subtypes(&snoop_info);
+	shomiti_file_type_subtype = wtap_register_file_type_subtypes(&shomiti_info);
+
+	/*
+	 * Register names for backwards compatibility with the
+	 * wtap_filetypes table in Lua.
+	 */
+	wtap_register_backwards_compatibility_lua_name("SNOOP",
+	    snoop_file_type_subtype);
+	wtap_register_backwards_compatibility_lua_name("SHOMITI",
+	    shomiti_file_type_subtype);
 }
 
 /*

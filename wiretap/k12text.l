@@ -584,6 +584,12 @@ static const struct file_type_subtype_info k12text_info = {
 
 void register_k12text(void)
 {
-    k12text_file_type_subtype = wtap_register_file_type_subtypes(&k12text_info,
-                                                                 WTAP_FILE_TYPE_SUBTYPE_UNKNOWN);
+    k12text_file_type_subtype = wtap_register_file_type_subtypes(&k12text_info);
+
+    /*
+     * Register name for backwards compatibility with the
+     * wtap_filetypes table in Lua.
+     */
+    wtap_register_backwards_compatibility_lua_name("K12TEXT",
+                                                   k12text_file_type_subtype);
 }

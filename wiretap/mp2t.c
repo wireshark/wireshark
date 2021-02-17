@@ -403,8 +403,14 @@ static const struct file_type_subtype_info mp2t_info = {
 
 void register_mp2t(void)
 {
-    mp2t_file_type_subtype = wtap_register_file_type_subtypes(&mp2t_info,
-                                                              WTAP_FILE_TYPE_SUBTYPE_UNKNOWN);
+    mp2t_file_type_subtype = wtap_register_file_type_subtypes(&mp2t_info);
+
+    /*
+     * Register name for backwards compatibility with the
+     * wtap_filetypes table in Lua.
+     */
+    wtap_register_backwards_compatibility_lua_name("MPEG_2_TS",
+                                                   mp2t_file_type_subtype);
 }
 
 /*

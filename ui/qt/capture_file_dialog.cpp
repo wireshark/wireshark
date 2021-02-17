@@ -813,9 +813,10 @@ QStringList CaptureFileDialog::buildFileSaveAsTypeList(bool must_support_all_com
         required_comment_types = 0; /* none of them */
 
   /* What types of file can we save this file as? */
-    savable_file_types_subtypes = wtap_get_savable_file_types_subtypes(cap_file_->cd_t,
+    savable_file_types_subtypes = wtap_get_savable_file_types_subtypes_for_file(cap_file_->cd_t,
                                                                        cap_file_->linktypes,
-                                                                       required_comment_types);
+                                                                       required_comment_types,
+                                                                       FT_SORT_BY_DESCRIPTION);
 
     if (savable_file_types_subtypes != NULL) {
         int ft;

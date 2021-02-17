@@ -719,16 +719,6 @@ WSLUA_FUNCTION wslua_register_filehandler(lua_State* L) {
     if (!verify_filehandler_complete(fh))
         return luaL_error(L,"this FileHandler is not complete enough to register");
 
-    /* If a Lua file handler is reloaded, try to reuse the previous subtype.
-     * XXX wtap_register_file_type_subtypes will abort the program if a builtin
-     * file handler is overridden, so plugin authors should not try that.
-     */
-    int file_type = wtap_name_to_file_type_subtype(fh->finfo.name);
-    if (file_type == -1) {
-        /* File type was not registered before, create a new one. */
-        file_type = WTAP_FILE_TYPE_SUBTYPE_UNKNOWN;
-    }
-
     if (fh->is_writer) {
         if (fh->extensions && fh->extensions[0]) {
             char *extension = g_strdup(fh->extensions);
@@ -747,7 +737,7 @@ WSLUA_FUNCTION wslua_register_filehandler(lua_State* L) {
         fh->finfo.dump_open = wslua_filehandler_dump_open;
     }
 
-    fh->file_type = wtap_register_file_type_subtypes(&(fh->finfo), file_type);
+    fh->file_type = wtap_register_file_type_subtypes(&(fh->finfo));
 
     if (fh->is_reader) {
         struct open_info oi = { NULL, OPEN_INFO_HEURISTIC, NULL, NULL, NULL, NULL };

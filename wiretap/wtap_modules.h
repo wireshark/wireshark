@@ -28,7 +28,7 @@ typedef struct _wtap_module_reg {
 
 extern wtap_module_reg_t wtap_module_reg[];
 
-extern const gulong wtap_module_count;
+extern const guint wtap_module_count;
 
 #ifdef __cplusplus
 }

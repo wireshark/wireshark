@@ -315,8 +315,6 @@ extern "C" {
 #define WTAP_FILE_TYPE_SUBTYPE_ERF                           12
 #define WTAP_FILE_TYPE_SUBTYPE_SYSTEMD_JOURNAL               13
 
-#define WTAP_NUM_FILE_TYPES_SUBTYPES  wtap_get_num_file_types_subtypes()
-
 /* timestamp precision (currently only these values are supported) */
 #define WTAP_TSPREC_UNKNOWN    -2
 #define WTAP_TSPREC_PER_PACKET -1  /* as a per-file value, means per-packet */
@@ -2134,14 +2132,29 @@ gboolean wtap_dump_close(wtap_dumper *wdh, int *err, gchar **err_info);
 WS_DLL_PUBLIC
 gboolean wtap_dump_can_write(const GArray *file_encaps, guint32 required_comment_types);
 
+/*
+ * Sort the file types by name or by description?
+ */
+typedef enum {
+	FT_SORT_BY_NAME,
+	FT_SORT_BY_DESCRIPTION
+} ft_sort_order;
+
 /**
- * Get a GArray of WTAP_FILE_TYPE_SUBTYPE_ values for file types/subtypes
+ * Get a GArray of file type/subtype values for file types/subtypes
  * that can be used to save a file of a given type with a given GArray of
  * WTAP_ENCAP_ types and the given bitmask of comment types.
  */
 WS_DLL_PUBLIC
-GArray *wtap_get_savable_file_types_subtypes(int file_type,
-    const GArray *file_encaps, guint32 required_comment_types);
+GArray *wtap_get_savable_file_types_subtypes_for_file(int file_type,
+    const GArray *file_encaps, guint32 required_comment_types,
+    ft_sort_order sort_order);
+
+/**
+ * Get a GArray of all writable file type/subtype values.
+ */
+WS_DLL_PUBLIC
+GArray *wtap_get_writable_file_types_subtypes(ft_sort_order sort_order);
 
 /**
  * Return TRUE if files of this file type/subtype use interface IDs
@@ -2188,8 +2201,6 @@ WS_DLL_PUBLIC
 int wtap_get_num_file_type_extensions(void);
 WS_DLL_PUBLIC
 int wtap_get_num_encap_types(void);
-WS_DLL_PUBLIC
-int wtap_get_num_file_types_subtypes(void);
 
 /*** get information for file type extension ***/
 WS_DLL_PUBLIC
@@ -2226,7 +2237,7 @@ void wtap_deregister_open_info(const gchar *name);
 WS_DLL_PUBLIC
 unsigned int open_info_name_to_type(const char *name);
 WS_DLL_PUBLIC
-int wtap_register_file_type_subtypes(const struct file_type_subtype_info* fi, const int subtype);
+int wtap_register_file_type_subtypes(const struct file_type_subtype_info* fi);
 WS_DLL_PUBLIC
 void wtap_deregister_file_type_subtype(const int file_type_subtype);
 

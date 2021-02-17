@@ -1993,12 +1993,17 @@ static const struct file_type_subtype_info netmon_2_x_info = {
 
 void register_netmon(void)
 {
-	netmon_1_x_file_type_subtype =
-	    wtap_register_file_type_subtypes(&netmon_1_x_info,
-	        WTAP_FILE_TYPE_SUBTYPE_UNKNOWN);
-	netmon_2_x_file_type_subtype =
-	    wtap_register_file_type_subtypes(&netmon_2_x_info,
-	        WTAP_FILE_TYPE_SUBTYPE_UNKNOWN);
+	netmon_1_x_file_type_subtype = wtap_register_file_type_subtypes(&netmon_1_x_info);
+	netmon_2_x_file_type_subtype = wtap_register_file_type_subtypes(&netmon_2_x_info);
+
+	/*
+	 * Register names for backwards compatibility with the
+	 * wtap_filetypes table in Lua.
+	 */
+	wtap_register_backwards_compatibility_lua_name("NETMON_1_x",
+	    netmon_1_x_file_type_subtype);
+	wtap_register_backwards_compatibility_lua_name("NETMON_2_x",
+	    netmon_2_x_file_type_subtype);
 }
 
 /*

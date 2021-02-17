@@ -90,7 +90,7 @@ def make_wtap_modules(outfile, infiles):
     output += """\
 #include "wtap_modules.h"
 
-const gulong wtap_module_count = {0};
+const guint wtap_module_count = {0};
 
 """.format(len(wtap_modules))
 

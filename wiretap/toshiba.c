@@ -437,9 +437,14 @@ static const struct file_type_subtype_info toshiba_info = {
 
 void register_toshiba(void)
 {
-	toshiba_file_type_subtype =
-	    wtap_register_file_type_subtypes(&toshiba_info,
-	        WTAP_FILE_TYPE_SUBTYPE_UNKNOWN);
+	toshiba_file_type_subtype = wtap_register_file_type_subtypes(&toshiba_info);
+
+	/*
+	 * Register name for backwards compatibility with the
+	 * wtap_filetypes table in Lua.
+	 */
+	wtap_register_backwards_compatibility_lua_name("TOSHIBA",
+	    toshiba_file_type_subtype);
 }
 
 /*

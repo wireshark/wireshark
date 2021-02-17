@@ -3384,10 +3384,17 @@ static const struct file_type_subtype_info vwr_eth_info = {
 
 void register_vwr(void)
 {
-    vwr_80211_file_type_subtype = wtap_register_file_type_subtypes(&vwr_80211_info,
-                                                                   WTAP_FILE_TYPE_SUBTYPE_UNKNOWN);
-    vwr_eth_file_type_subtype = wtap_register_file_type_subtypes(&vwr_eth_info,
-                                                                 WTAP_FILE_TYPE_SUBTYPE_UNKNOWN);
+    vwr_80211_file_type_subtype = wtap_register_file_type_subtypes(&vwr_80211_info);
+    vwr_eth_file_type_subtype = wtap_register_file_type_subtypes(&vwr_eth_info);
+
+    /*
+     * Register names for backwards compatibility with the
+     * wtap_filetypes table in Lua.
+     */
+    wtap_register_backwards_compatibility_lua_name("VWR_80211",
+                                                   vwr_80211_file_type_subtype);
+    wtap_register_backwards_compatibility_lua_name("VWR_ETH",
+                                                   vwr_eth_file_type_subtype);
 }
 
 /*

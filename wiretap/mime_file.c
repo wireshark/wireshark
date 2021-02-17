@@ -168,16 +168,24 @@ static const struct file_type_subtype_info jpeg_jfif_info = {
 
 void register_mime(void)
 {
-	mime_file_type_subtype =
-	    wtap_register_file_type_subtypes(&mime_info,
-	        WTAP_FILE_TYPE_SUBTYPE_UNKNOWN);
+	int jpeg_jfif_file_type_subtype;
+
+	mime_file_type_subtype = wtap_register_file_type_subtypes(&mime_info);
 
 	/*
-	 * Obsoleted by "mime", so just register it; we don't
-	 * need its return value.
+	 * Obsoleted by "mime", but we want it for the backwards-
+	 * compatibility table for Lua.
 	 */
-	wtap_register_file_type_subtypes(&jpeg_jfif_info,
-	    WTAP_FILE_TYPE_SUBTYPE_UNKNOWN);
+	jpeg_jfif_file_type_subtype = wtap_register_file_type_subtypes(&jpeg_jfif_info);
+
+	/*
+	 * Register names for backwards compatibility with the
+	 * wtap_filetypes table in Lua.
+	 */
+	wtap_register_backwards_compatibility_lua_name("MIME",
+	    mime_file_type_subtype);
+	wtap_register_backwards_compatibility_lua_name("JPEG_JFIF",
+	    jpeg_jfif_file_type_subtype);
 }
 
 /*

@@ -20,6 +20,12 @@
 #include "wslua.h"
 #include <wiretap/wtap.h>
 
+/*
+ * Solely for the function that gets the table of backwards-compatibility
+ * Lua names for file types/subtypes.
+ */
+#include <wiretap/wtap-int.h>
+
 WSLUA_FUNCTION wslua_wtap_file_type_subtype_description(lua_State* LS) {
     /*
     Get a string describing a capture file type, given a filetype
@@ -84,15 +90,39 @@ WSLUA_FUNCTION wslua_wtap_name_to_file_type_subtype(lua_State* LS) {
     WSLUA_RETURN(1); /* The filetype value for the file type with that name, or nil if there is no such file type. */
 }
 
-WSLUA_FUNCTION wslua_wtap_get_num_file_types_subtypes(lua_State* LS) {
+/*
+ * init.wslua-only function to return a table to assign to
+ * wtap_filetypes.
+ */
+WSLUA_INTERNAL_FUNCTION wslua_get_wtap_filetypes(lua_State* LS) {
+    /* Get the GArray from which we initialize this. */
+    const GArray *table = get_backwards_compatibility_lua_table();
+
     /*
-    Get the total number of filetype values.
+     * Create the table; it's indexted by strings, not numbers,
+     * so none of the entries will be in a sequence.
+     */
+    lua_createtable(LS,0,table->len);
+    for (guint i = 0; i < table->len; i++) {
+        struct backwards_compatibiliity_lua_name *entry;
 
-    Note: as filetype values begin with 0, this is one *greater*
-    than the largest filetype value.
-
-    @since 3.5.0
-    */
-    lua_pushnumber(LS,wtap_get_num_file_types_subtypes());
-    WSLUA_RETURN(1); /* The total number of registered file types. */
+        entry = &g_array_index(table,
+            struct backwards_compatibiliity_lua_name, i);
+        /*
+         * Push the name and the ft, in order, so that the ft,
+         * which should be the value at the top of the stack,
+         * is at the top of the stack, and the name, which should
+         * be the value just below that, is the value just below
+         * it.
+         */
+        lua_pushstring(LS, entry->name);
+        lua_pushnumber(LS, entry->ft);
+        /*
+         * The -3 is the index, relative to the top of the stack, of
+         * the table; the two elements on top of it are the ft and
+         * the name, so it's -3.
+         */
+        lua_settable(LS, -3);
+    }
+    WSLUA_RETURN(1); /* The table. */
 }

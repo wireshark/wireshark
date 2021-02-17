@@ -107,8 +107,14 @@ static const struct file_type_subtype_info rfc7468_info = {
 
 void register_rfc7468(void)
 {
-    rfc7468_file_type_subtype = wtap_register_file_type_subtypes(&rfc7468_info,
-                                                                 WTAP_FILE_TYPE_SUBTYPE_UNKNOWN);
+    rfc7468_file_type_subtype = wtap_register_file_type_subtypes(&rfc7468_info);
+
+    /*
+     * Register name for backwards compatibility with the
+     * wtap_filetypes table in Lua.
+     */
+    wtap_register_backwards_compatibility_lua_name("RFC7468",
+                                                   rfc7468_file_type_subtype);
 }
 
 /*

@@ -216,8 +216,14 @@ static const struct file_type_subtype_info stanag4607_info = {
 
 void register_stanag4607(void)
 {
-  stanag4607_file_type_subtype = wtap_register_file_type_subtypes(&stanag4607_info,
-                                                                  WTAP_FILE_TYPE_SUBTYPE_UNKNOWN);
+  stanag4607_file_type_subtype = wtap_register_file_type_subtypes(&stanag4607_info);
+
+  /*
+   * Register name for backwards compatibility with the
+   * wtap_filetypes table in Lua.
+   */
+  wtap_register_backwards_compatibility_lua_name("STANAG_4607",
+                                                 stanag4607_file_type_subtype);
 }
 
 /*

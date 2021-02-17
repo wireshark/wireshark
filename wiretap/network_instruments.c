@@ -888,8 +888,14 @@ static const struct file_type_subtype_info network_instruments_info = {
 
 void register_network_instruments(void)
 {
-    network_instruments_file_type_subtype = wtap_register_file_type_subtypes(&network_instruments_info,
-                                                                             WTAP_FILE_TYPE_SUBTYPE_UNKNOWN);
+    network_instruments_file_type_subtype = wtap_register_file_type_subtypes(&network_instruments_info);
+
+    /*
+     * Register name for backwards compatibility with the
+     * wtap_filetypes table in Lua.
+     */
+    wtap_register_backwards_compatibility_lua_name("NETWORK_INSTRUMENTS",
+                                                   network_instruments_file_type_subtype);
 }
 
 /*

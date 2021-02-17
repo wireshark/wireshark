@@ -638,8 +638,14 @@ static const struct file_type_subtype_info dbs_etherwatch_info = {
 
 void register_dbs_etherwatch(void)
 {
-    dbs_etherwatch_file_type_subtype = wtap_register_file_type_subtypes(&dbs_etherwatch_info,
-                                                                        WTAP_FILE_TYPE_SUBTYPE_UNKNOWN);
+    dbs_etherwatch_file_type_subtype = wtap_register_file_type_subtypes(&dbs_etherwatch_info);
+
+    /*
+     * Register name for backwards compatibility with the
+     * wtap_filetypes table in Lua.
+     */
+    wtap_register_backwards_compatibility_lua_name("DBS_ETHERWATCH",
+                                                   dbs_etherwatch_file_type_subtype);
 }
 
 /*

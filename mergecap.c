@@ -101,25 +101,6 @@ mergecap_cmdarg_err_cont(const char *fmt, va_list ap)
   fprintf(stderr, "\n");
 }
 
-struct string_elem {
-  const char *sstr;     /* The short string */
-  const char *lstr;     /* The long string */
-};
-
-static gint
-string_compare(gconstpointer a, gconstpointer b)
-{
-  return strcmp(((const struct string_elem *)a)->sstr,
-                ((const struct string_elem *)b)->sstr);
-}
-
-static void
-string_elem_print(gpointer data, gpointer not_used _U_)
-{
-  fprintf(stderr, "    %s - %s\n", ((struct string_elem *)data)->sstr,
-          ((struct string_elem *)data)->lstr);
-}
-
 /*
  * General errors and warnings are reported with an console message
  * in mergecap.
@@ -134,23 +115,16 @@ failure_warning_message(const char *msg_format, va_list ap)
 
 static void
 list_capture_types(void) {
-  int i;
-  struct string_elem *captypes;
-  GSList *list = NULL;
-
-  captypes = g_new(struct string_elem,WTAP_NUM_FILE_TYPES_SUBTYPES);
+  GArray *writable_type_subtypes;
 
   fprintf(stderr, "mergecap: The available capture file types for the \"-F\" flag are:\n");
-  for (i = 0; i < WTAP_NUM_FILE_TYPES_SUBTYPES; i++) {
-    if (wtap_dump_can_open(i)) {
-      captypes[i].sstr = wtap_file_type_subtype_name(i);
-      captypes[i].lstr = wtap_file_type_subtype_description(i);
-      list = g_slist_insert_sorted(list, &captypes[i], string_compare);
-    }
+  writable_type_subtypes = wtap_get_writable_file_types_subtypes(FT_SORT_BY_NAME);
+  for (guint i = 0; i < writable_type_subtypes->len; i++) {
+    int ft = g_array_index(writable_type_subtypes, int, i);
+    fprintf(stderr, "    %s - %s\n", wtap_file_type_subtype_name(ft),
+            wtap_file_type_subtype_description(ft));
   }
-  g_slist_foreach(list, string_elem_print, NULL);
-  g_slist_free(list);
-  g_free(captypes);
+  g_array_free(writable_type_subtypes, TRUE);
 }
 
 static void

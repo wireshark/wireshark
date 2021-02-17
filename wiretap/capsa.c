@@ -448,12 +448,17 @@ static const struct file_type_subtype_info packet_builder_info = {
 
 void register_capsa(void)
 {
-	capsa_file_type_subtype =
-	    wtap_register_file_type_subtypes(&capsa_info,
-	        WTAP_FILE_TYPE_SUBTYPE_UNKNOWN);
-	packet_builder_file_type_subtype =
-	    wtap_register_file_type_subtypes(&packet_builder_info,
-	        WTAP_FILE_TYPE_SUBTYPE_UNKNOWN);
+	capsa_file_type_subtype = wtap_register_file_type_subtypes(&capsa_info);
+	packet_builder_file_type_subtype = wtap_register_file_type_subtypes(&packet_builder_info);
+
+	/*
+	 * Register names for backwards compatibility with the
+	 * wtap_filetypes table in Lua.
+	 */
+	wtap_register_backwards_compatibility_lua_name("COLASOFT_CAPSA",
+	    capsa_file_type_subtype);
+	wtap_register_backwards_compatibility_lua_name("COLASOFT_PACKET_BUILDER",
+	    packet_builder_file_type_subtype);
 }
 
 /*

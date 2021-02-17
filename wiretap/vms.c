@@ -536,8 +536,14 @@ static const struct file_type_subtype_info vms_info = {
 
 void register_vms(void)
 {
-    vms_file_type_subtype = wtap_register_file_type_subtypes(&vms_info,
-                                                             WTAP_FILE_TYPE_SUBTYPE_UNKNOWN);
+    vms_file_type_subtype = wtap_register_file_type_subtypes(&vms_info);
+
+    /*
+     * Register name for backwards compatibility with the
+     * wtap_filetypes table in Lua.
+     */
+    wtap_register_backwards_compatibility_lua_name("VMS",
+                                                   vms_file_type_subtype);
 }
 
 /*

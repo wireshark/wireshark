@@ -2121,18 +2121,23 @@ static const struct file_type_subtype_info netxray_2_00x_info = {
 
 void register_netxray(void)
 {
-	netxray_old_file_type_subtype =
-	    wtap_register_file_type_subtypes(&netxray_old_info,
-	        WTAP_FILE_TYPE_SUBTYPE_UNKNOWN);
-	netxray_1_0_file_type_subtype =
-	    wtap_register_file_type_subtypes(&netxray_1_0_info,
-	        WTAP_FILE_TYPE_SUBTYPE_UNKNOWN);
-	netxray_1_1_file_type_subtype =
-	    wtap_register_file_type_subtypes(&netxray_1_1_info,
-	        WTAP_FILE_TYPE_SUBTYPE_UNKNOWN);
-	netxray_2_00x_file_type_subtype =
-	    wtap_register_file_type_subtypes(&netxray_2_00x_info,
-	        WTAP_FILE_TYPE_SUBTYPE_UNKNOWN);
+	netxray_old_file_type_subtype = wtap_register_file_type_subtypes(&netxray_old_info);
+	netxray_1_0_file_type_subtype = wtap_register_file_type_subtypes(&netxray_1_0_info);
+	netxray_1_1_file_type_subtype = wtap_register_file_type_subtypes(&netxray_1_1_info);
+	netxray_2_00x_file_type_subtype = wtap_register_file_type_subtypes(&netxray_2_00x_info);
+
+	/*
+	 * Register names for backwards compatibility with the
+	 * wtap_filetypes table in Lua.
+	 */
+	wtap_register_backwards_compatibility_lua_name("NETXRAY_OLD",
+	    netxray_old_file_type_subtype);
+	wtap_register_backwards_compatibility_lua_name("NETXRAY_1_0",
+	    netxray_1_0_file_type_subtype);
+	wtap_register_backwards_compatibility_lua_name("NETXRAY_1_1",
+	    netxray_1_1_file_type_subtype);
+	wtap_register_backwards_compatibility_lua_name("NETXRAY_2_00x",
+	    netxray_2_00x_file_type_subtype);
 }
 
 /*

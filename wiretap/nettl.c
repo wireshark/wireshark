@@ -805,8 +805,14 @@ static const struct file_type_subtype_info nettl_info = {
 
 void register_nettl(void)
 {
-    nettl_file_type_subtype = wtap_register_file_type_subtypes(&nettl_info,
-                                                               WTAP_FILE_TYPE_SUBTYPE_UNKNOWN);
+    nettl_file_type_subtype = wtap_register_file_type_subtypes(&nettl_info);
+
+    /*
+     * Register name for backwards compatibility with the
+     * wtap_filetypes table in Lua.
+     */
+    wtap_register_backwards_compatibility_lua_name("NETTL",
+                                                   nettl_file_type_subtype);
 }
 
 /*

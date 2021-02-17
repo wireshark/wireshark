@@ -16,6 +16,7 @@ use Getopt::Long;
 
 my @classes = ();
 my @functions = ();
+my @internal_functions = ();
 my $source_dir = "";
 
 GetOptions('dir=s' => \$source_dir);
@@ -33,6 +34,7 @@ while ($filename = $ARGV[0]) {
 	while (<FILE>) {
 		push @classes, $1 if /WSLUA_CLASS_DEFINE(?:_BASE)?\050\s*([A-Za-z0-9]+)/;
 		push @functions, $1 if /WSLUA_FUNCTION\s+wslua_([a-z_0-9]+)/;
+		push @internal_functions, $1 if /WSLUA_INTERNAL_FUNCTION\s+wslua_([a-z_0-9]+)/;
 	}
 }
 
@@ -51,6 +53,9 @@ print H "\n\n";
 print H "#define WSLUA_DECLARE_FUNCTIONS() \\\n";
 for (@functions) {
 	print H "\tWSLUA_FUNCTION wslua_$_(lua_State* L);\\\n"
+}
+for (@internal_functions) {
+	print H "\tWSLUA_INTERNAL_FUNCTION wslua_$_(lua_State* L);\\\n"
 }
 print H "\n\n";
 print H "extern void wslua_register_classes(lua_State* L);\n";
@@ -81,6 +86,9 @@ print C "}\n\n";
 
 print C "void wslua_register_functions(lua_State* L) {\n";
 for (@functions) {
+	print C "\tWSLUA_REGISTER_FUNCTION($_); \n"
+}
+for (@internal_functions) {
 	print C "\tWSLUA_REGISTER_FUNCTION($_); \n"
 }
 print C "}\n\n";

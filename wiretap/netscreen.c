@@ -458,9 +458,14 @@ static const struct file_type_subtype_info netscreen_info = {
 
 void register_netscreen(void)
 {
-	netscreen_file_type_subtype =
-	    wtap_register_file_type_subtypes(&netscreen_info,
-	        WTAP_FILE_TYPE_SUBTYPE_UNKNOWN);
+	netscreen_file_type_subtype = wtap_register_file_type_subtypes(&netscreen_info);
+
+	/*
+	 * Register name for backwards compatibility with the
+	 * wtap_filetypes table in Lua.
+	 */
+	wtap_register_backwards_compatibility_lua_name("NETSCREEN",
+	    netscreen_file_type_subtype);
 }
 
 /*

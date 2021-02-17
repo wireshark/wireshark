@@ -130,9 +130,14 @@ static const struct file_type_subtype_info hcidump_info = {
 
 void register_hcidump(void)
 {
-	hcidump_file_type_subtype =
-	    wtap_register_file_type_subtypes(&hcidump_info,
-	        WTAP_FILE_TYPE_SUBTYPE_UNKNOWN);
+	hcidump_file_type_subtype = wtap_register_file_type_subtypes(&hcidump_info);
+
+	/*
+	 * Register name for backwards compatibility with the
+	 * wtap_filetypes table in Lua.
+	 */
+	wtap_register_backwards_compatibility_lua_name("HCIDUMP",
+	    hcidump_file_type_subtype);
 }
 
 /*

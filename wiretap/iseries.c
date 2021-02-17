@@ -1066,10 +1066,17 @@ static const struct file_type_subtype_info iseries_unicode_info = {
 
 void register_iseries(void)
 {
-  iseries_file_type_subtype = wtap_register_file_type_subtypes(&iseries_info,
-                                                               WTAP_FILE_TYPE_SUBTYPE_UNKNOWN);
-  iseries_unicode_file_type_subtype = wtap_register_file_type_subtypes(&iseries_unicode_info,
-                                                                       WTAP_FILE_TYPE_SUBTYPE_UNKNOWN);
+  iseries_file_type_subtype = wtap_register_file_type_subtypes(&iseries_info);
+  iseries_unicode_file_type_subtype = wtap_register_file_type_subtypes(&iseries_unicode_info);
+
+  /*
+   * Register names for backwards compatibility with the
+   * wtap_filetypes table in Lua.
+   */
+  wtap_register_backwards_compatibility_lua_name("ISERIES",
+                                                 iseries_file_type_subtype);
+  wtap_register_backwards_compatibility_lua_name("ISERIES_UNICODE",
+                                                 iseries_unicode_file_type_subtype);
 }
 
 /*

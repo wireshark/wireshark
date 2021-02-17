@@ -9,6 +9,7 @@ libwiretap.so.0 libwiretap0 #MINVER#
  file_read@Base 1.9.1
  file_seek@Base 1.9.1
  file_tell@Base 1.9.1
+ get_backwards_compatibility_lua_table@Base 3.5.0
  init_open_routines@Base 1.12.0~rc1
  merge_files@Base 1.99.9
  merge_files_to_stdout@Base 2.3.0
@@ -119,8 +120,8 @@ libwiretap.so.0 libwiretap0 #MINVER#
  wtap_get_next_interface_description@Base 3.3.2
  wtap_get_num_encap_types@Base 1.9.1
  wtap_get_num_file_type_extensions@Base 1.12.0~rc1
- wtap_get_num_file_types_subtypes@Base 1.12.0~rc1
- wtap_get_savable_file_types_subtypes@Base 1.12.0~rc1
+ wtap_get_savable_file_types_subtypes_for_file@Base 3.5.0
+ wtap_get_writable_file_types_subtypes@Base 3.5.0
  wtap_has_open_info@Base 1.12.0~rc1
  wtap_init@Base 2.3.0
  wtap_name_to_encap@Base 2.9.1
@@ -137,6 +138,7 @@ libwiretap.so.0 libwiretap0 #MINVER#
  wtap_read_so_far@Base 1.9.1
  wtap_rec_cleanup@Base 2.5.1
  wtap_rec_init@Base 2.5.1
+ wtap_register_backwards_compatibility_lua_name@Base 3.5.0
  wtap_register_encap_type@Base 1.9.1
  wtap_register_file_type_extension@Base 1.12.0~rc1
  wtap_register_file_type_subtypes@Base 1.12.0~rc1

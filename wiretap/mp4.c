@@ -53,7 +53,6 @@ mp4_open(wtap *wth, int *err, gchar **err_info)
 }
 
 static const struct file_type_subtype_info mp4_info = {
-	/* WTAP_FILE_TYPE_SUBTYPE_MP4 */
 	"MP4 media", "mp4", "mp4", NULL,
 	FALSE, FALSE, 0,
 	NULL, NULL, NULL
@@ -61,9 +60,14 @@ static const struct file_type_subtype_info mp4_info = {
 
 void register_mp4(void)
 {
-	mp4_file_type_subtype =
-	    wtap_register_file_type_subtypes(&mp4_info,
-	        WTAP_FILE_TYPE_SUBTYPE_UNKNOWN);
+	mp4_file_type_subtype = wtap_register_file_type_subtypes(&mp4_info);
+
+	/*
+	 * Register name for backwards compatibility with the
+	 * wtap_filetypes table in Lua.
+	 */
+	wtap_register_backwards_compatibility_lua_name("MP4",
+	    mp4_file_type_subtype);
 }
 
 /*

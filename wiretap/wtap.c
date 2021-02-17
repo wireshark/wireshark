@@ -15,7 +15,6 @@
 
 #include "wtap-int.h"
 #include "wtap_opttypes.h"
-#include "wtap_modules.h"
 #include "pcapng.h"
 
 #include "file_wrappers.h"
@@ -1807,8 +1806,7 @@ wtap_init(gboolean load_wiretap_plugins)
 	init_open_routines();
 	wtap_opttypes_initialize();
 	wtap_init_encap_types();
-	for (gulong i = 0; i < wtap_module_count; i++)
-		wtap_module_reg[i].cb_func();
+	wtap_init_file_type_subtypes();
 	if (load_wiretap_plugins) {
 #ifdef HAVE_PLUGINS
 		libwiretap_plugins = plugins_init(WS_PLUGIN_WIRETAP);

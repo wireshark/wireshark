@@ -462,6 +462,8 @@ extern int wslua_reg_attributes(lua_State *L, const wslua_attribute_table *t, gb
 #endif
 
 #define WSLUA_FUNCTION extern int
+/* This is for functions intended only to be used in init.lua */
+#define WSLUA_INTERNAL_FUNCTION extern int
 
 #define WSLUA_REGISTER_FUNCTION(name)     { lua_pushcfunction(L, wslua_## name); lua_setglobal(L, #name); }
 

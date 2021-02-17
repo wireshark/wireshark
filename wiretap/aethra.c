@@ -349,9 +349,14 @@ static const struct file_type_subtype_info aethra_info = {
 
 void register_aethra(void)
 {
-	aethra_file_type_subtype =
-	    wtap_register_file_type_subtypes(&aethra_info,
-	        WTAP_FILE_TYPE_SUBTYPE_UNKNOWN);
+	aethra_file_type_subtype = wtap_register_file_type_subtypes(&aethra_info);
+
+	/*
+	 * Register name for backwards compatibility with the
+	 * wtap_filetypes table in Lua.
+	 */
+	wtap_register_backwards_compatibility_lua_name("AETHRA",
+	    aethra_file_type_subtype);
 }
 
 /*
