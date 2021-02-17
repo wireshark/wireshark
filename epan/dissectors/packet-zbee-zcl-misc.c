@@ -536,11 +536,11 @@ proto_register_zbee_zcl_thermostat(void)
 
         { &hf_zbee_zcl_thermostat_schedule_heat,
             { "Heating Setpoint", "zbee_zcl_hvac.thermostat.heat", FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Heating setpoint in degrees Celcius", HFILL }},
+                "Heating setpoint in degrees Celsius", HFILL }},
 
         { &hf_zbee_zcl_thermostat_schedule_cool,
             { "Cooling Setpoint", "zbee_zcl_hvac.thermostat.cool", FT_FLOAT, BASE_NONE, NULL, 0x0,
-                "Cooling setpoint in degrees Celcius", HFILL }}
+                "Cooling setpoint in degrees Celsius", HFILL }}
     };
 
     /* ZCL IAS Zone subtrees */

@@ -2304,7 +2304,7 @@ static const value_string mbim_sar_status_vals[] = {
 static void
 mbim_degrees_fmt(gchar *s, guint32 v)
 {
-    g_snprintf(s, ITEM_LABEL_LENGTH, "%.1f Celcius Degrees (%u)", (float)v/10.0, v);
+    g_snprintf(s, ITEM_LABEL_LENGTH, "%.1f Degrees Celsius (%u)", (float)v/10.0, v);
 }
 
 static const value_string mbim_adpclk_activate_state_vals[] = {

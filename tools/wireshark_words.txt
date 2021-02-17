@@ -15,6 +15,7 @@ acp133
 activations
 actuator
 additionsr
+adjacency
 administrable
 adwin
 aes128
@@ -28,7 +29,6 @@ alcap
 alljoyn
 alloc
 allocators
-ammendment
 amperage
 ampere
 amperes
@@ -36,6 +36,7 @@ analyzers
 analyzes
 annexc
 anonsvn
+aperiodic
 appdata
 appid
 arbitrated
@@ -78,6 +79,7 @@ beamformed
 beamformee
 beamformer
 beamforming
+bidirectional
 bitfield
 bitmask
 bitrate
@@ -128,7 +130,6 @@ cccid
 ccpch
 cctrch
 cdma2000
-celcius
 celeron
 cellid
 cellidentity
@@ -143,6 +144,7 @@ charset
 charsets
 checkbox
 checkout
+checksum
 choco
 chocolatey
 chunked
@@ -178,6 +180,7 @@ concatenates
 concurrent
 conferenced
 configitem
+configurable
 conformant
 connectionless
 connid
@@ -211,6 +214,7 @@ deact
 deactivated
 deactivating
 deactivation
+deassert
 deassertion
 deauth
 deauthenticate
@@ -222,12 +226,14 @@ debug
 dechunk
 decompressing
 decompressor
+decrement
 decremented
 decrementing
 decrypt
 decrypted
 decrypting
 decryption
+deduplicate
 defragment
 defragmentation
 defragmented
@@ -249,8 +255,10 @@ dereg
 deregister
 deregistered
 deregistering
+deregistration
 des40
 descr
+descriptors
 desegment
 desegmentation
 desegmenting
@@ -270,13 +278,13 @@ dissector
 dissectors
 distinguisher
 diversifier
+divisor
 djiuav
 dlmap
 dlsch
 dmepi
 dnskey
 docsis
-doesn't
 double
 downlink
 dpauxmon
@@ -302,6 +310,7 @@ encaps
 encapsulations
 encapsulator
 enciphered
+encodings
 encrypt
 encrypting
 endace
@@ -347,7 +356,6 @@ fpiur
 fraghdr
 framenum
 framenumber
-framenun
 frametype
 frontend
 fsctl
@@ -417,6 +425,7 @@ implementer
 implementor
 inband
 incits
+incremented
 incrementing
 infile
 infiniband
@@ -452,6 +461,7 @@ iptrace
 ipv4addr
 isakmp
 isobus
+isochronous
 iterating
 iterator
 itunes
@@ -602,6 +612,7 @@ objectid
 objkey
 obsoleted
 octal
+octet
 octets
 octetstring
 ofdma
@@ -635,6 +646,7 @@ parameterized
 params
 parlay
 parms
+parser
 passcode
 passkey
 passthrough
@@ -685,6 +697,7 @@ protected
 protoabbrev
 protobuf
 protocolie
+proxied
 proxying
 pscell
 pseudowire
@@ -698,6 +711,7 @@ qam16
 qam64
 qnet6
 quadro
+quiescing
 quintuplet
 quintuplets
 radeon
@@ -789,6 +803,7 @@ reserved4
 reserved5
 resize
 resized
+resolvable
 resolver
 resynchronization
 resynchronize
@@ -837,7 +852,6 @@ sha256
 sha384
 sha512
 sharkd
-shouldn't
 siapp
 sidelink
 signaling
@@ -953,6 +967,7 @@ tspec
 tunid
 tunneled
 tunneling
+tuple
 tvbuff
 type1
 type2
@@ -970,6 +985,7 @@ ulsch
 unacked
 unadvise
 unaligned
+unallocated
 unassign
 unauthenticated
 unbind
@@ -979,6 +995,7 @@ uncategorized
 unchannelized
 unciphered
 uncompress
+uncompressed
 uncompressing
 uncompression
 unconfigurable
@@ -1045,7 +1062,6 @@ unsynchronized
 untagged
 untruncated
 untrusted
-untunelled
 untunneled
 untyped
 updatability

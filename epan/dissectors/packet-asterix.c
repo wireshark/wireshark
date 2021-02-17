@@ -15259,7 +15259,7 @@ void proto_register_asterix (void)
         { &hf_062_380_20_TRB, { "TRB", "asterix.062_380_20_TRB", FT_UINT8, BASE_DEC, VALS (valstr_062_380_20_TRB), 0x10, NULL, HFILL } },
         { &hf_062_380_20_WS_VAL, { "WS[knot]", "asterix.062_380_20_WS_VAL", FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_062_380_20_WD_VAL, { "WD[deg]", "asterix.062_380_20_WD_VAL", FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
-        { &hf_062_380_20_TMP_VAL, { "TMP[deg Celcius]", "asterix.062_380_20_TMP_VAL", FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_062_380_20_TMP_VAL, { "TMP[deg Celsius]", "asterix.062_380_20_TMP_VAL", FT_DOUBLE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_062_380_20_TRB_VAL, { "TRB", "asterix.062_380_20_TRB_VAL", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
         { &hf_062_380_21, { "#21: Emitter Category", "asterix.062_380_21", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_062_380_21_ECAT, { "ECAT", "asterix.062_380_21_ECAT", FT_UINT8, BASE_DEC, VALS (valstr_062_380_21_ECAT), 0x0, NULL, HFILL } },
