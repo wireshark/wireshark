@@ -848,7 +848,7 @@ static unsigned char *dvbci_siv_bin = NULL;
 static dissector_handle_t data_handle;
 static dissector_handle_t mpeg_pmt_handle;
 static dissector_handle_t dvb_nit_handle;
-static dissector_handle_t png_handle;
+static dissector_handle_t mime_handle;
 static dissector_table_t tcp_dissector_table;
 static dissector_table_t udp_dissector_table;
 
@@ -3633,7 +3633,6 @@ dissect_dvbci_ami_file_ack(tvbuff_t *tvb, gint offset,
     guint8      file_name_len;
     guint8     *file_name_str;
     guint32     file_data_len;
-    tvbuff_t   *png_file_tvb = NULL;
     proto_tree *req_tree;
 
     req_type = tvb_get_guint8(tvb, offset+1);
@@ -3669,25 +3668,11 @@ dissect_dvbci_ami_file_ack(tvbuff_t *tvb, gint offset,
                 tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
         if (file_data_len > 0) {
-            if (file_name_len>4) {
-                gchar *suffix_lo;
-                suffix_lo = wmem_ascii_strdown(wmem_packet_scope(),
-                        &file_name_str[file_name_len-4], -1);
-                if (g_strcmp0(suffix_lo, ".png")==0) {
-                    png_file_tvb = tvb_new_subset_length(
-                            tvb, offset, file_data_len);
-                }
-            }
-
-            if (png_handle && png_file_tvb) {
-                col_set_fence(pinfo->cinfo, COL_PROTOCOL);
-                col_set_fence(pinfo->cinfo, COL_INFO);
-                call_dissector(png_handle, png_file_tvb, pinfo, tree);
-            }
-            else {
-                proto_tree_add_item(tree, hf_dvbci_file_data,
-                        tvb, offset, file_data_len, ENC_NA);
-            }
+            col_set_fence(pinfo->cinfo, COL_PROTOCOL);
+            col_set_fence(pinfo->cinfo, COL_INFO);
+            call_dissector(mime_handle,
+                    tvb_new_subset_length(tvb, offset, file_data_len),
+                    pinfo, tree);
         }
     }
     else if (req_type==REQ_TYPE_DATA) {
@@ -6479,7 +6464,7 @@ proto_reg_handoff_dvbci(void)
     data_handle = find_dissector("data");
     mpeg_pmt_handle = find_dissector_add_dependency("mpeg_pmt", proto_dvbci);
     dvb_nit_handle = find_dissector_add_dependency("dvb_nit", proto_dvbci);
-    png_handle = find_dissector_add_dependency("png", proto_dvbci);
+    mime_handle = find_dissector_add_dependency("mime_dlt", proto_dvbci);
     tcp_dissector_table = find_dissector_table("tcp.port");
     udp_dissector_table = find_dissector_table("udp.port");
 
