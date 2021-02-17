@@ -367,8 +367,8 @@ void proto_reg_handoff_dvbci(void);
 #define COMMS_REP_ID_SEND_ACK            6
 
 #define LSC_RET_OK 0
-#define LSC_RET_DISCONNECTED 0
-#define LSC_RET_CONNECTED    1
+#define LSC_DISCONNECTED 0
+#define LSC_CONNECTED    1
 #define LSC_RET_TOO_BIG 0xFE
 
 /* auxiliary file system resource */
@@ -580,6 +580,8 @@ dissect_dvbci_payload_sas(guint32 tag, gint len_field _U_,
 #define T_COMMS_SEND_MORE               0x9F8C04
 #define T_COMMS_RCV_LAST                0x9F8C05
 #define T_COMMS_RCV_MORE                0x9F8C06
+#define T_COMMS_IP_CONFIG_REQ           0x9F8C09
+#define T_COMMS_IP_CONFIG_REPLY         0x9F8C0A
 #define T_AFS_FILE_SYSTEM_OFFER         0x9F9400
 #define T_AFS_FILE_SYSTEM_ACK           0x9F9401
 #define T_AFS_FILE_REQUEST              0x9F9402
@@ -685,12 +687,14 @@ static const apdu_info_t apdu_info[] = {
     {T_APP_ABORT_REQUEST,   0, LEN_FIELD_ANY, DIRECTION_ANY,    RES_CLASS_AMI, 1, dissect_dvbci_payload_ami},
     {T_APP_ABORT_ACK,       0, LEN_FIELD_ANY, DIRECTION_ANY,    RES_CLASS_AMI, 1, dissect_dvbci_payload_ami},
 
-    {T_COMMS_CMD,           1, LEN_FIELD_ANY, DATA_CAM_TO_HOST, RES_CLASS_LSC, 1, dissect_dvbci_payload_lsc},
-    {T_COMMS_REPLY,         0, 2,             DATA_HOST_TO_CAM, RES_CLASS_LSC, 1, dissect_dvbci_payload_lsc},
-    {T_COMMS_SEND_LAST,     2, LEN_FIELD_ANY, DATA_CAM_TO_HOST, RES_CLASS_LSC, 1, dissect_dvbci_payload_lsc},
-    {T_COMMS_SEND_MORE,     2, LEN_FIELD_ANY, DATA_CAM_TO_HOST, RES_CLASS_LSC, 1, dissect_dvbci_payload_lsc},
-    {T_COMMS_RCV_LAST,      2, LEN_FIELD_ANY, DATA_HOST_TO_CAM, RES_CLASS_LSC, 1, dissect_dvbci_payload_lsc},
-    {T_COMMS_RCV_MORE,      2, LEN_FIELD_ANY, DATA_HOST_TO_CAM, RES_CLASS_LSC, 1, dissect_dvbci_payload_lsc},
+    {T_COMMS_CMD,             1, LEN_FIELD_ANY, DATA_CAM_TO_HOST, RES_CLASS_LSC, 1, dissect_dvbci_payload_lsc},
+    {T_COMMS_REPLY,           0, 2,             DATA_HOST_TO_CAM, RES_CLASS_LSC, 1, dissect_dvbci_payload_lsc},
+    {T_COMMS_SEND_LAST,       2, LEN_FIELD_ANY, DATA_CAM_TO_HOST, RES_CLASS_LSC, 1, dissect_dvbci_payload_lsc},
+    {T_COMMS_SEND_MORE,       2, LEN_FIELD_ANY, DATA_CAM_TO_HOST, RES_CLASS_LSC, 1, dissect_dvbci_payload_lsc},
+    {T_COMMS_RCV_LAST,        2, LEN_FIELD_ANY, DATA_HOST_TO_CAM, RES_CLASS_LSC, 1, dissect_dvbci_payload_lsc},
+    {T_COMMS_RCV_MORE,        2, LEN_FIELD_ANY, DATA_HOST_TO_CAM, RES_CLASS_LSC, 1, dissect_dvbci_payload_lsc},
+    {T_COMMS_IP_CONFIG_REQ,   0, 0,             DATA_CAM_TO_HOST, RES_CLASS_LSC, 4, NULL},
+    {T_COMMS_IP_CONFIG_REPLY, 2, LEN_FIELD_ANY, DATA_HOST_TO_CAM, RES_CLASS_LSC, 4, dissect_dvbci_payload_lsc},
 
     {T_AFS_FILE_SYSTEM_OFFER, 1, LEN_FIELD_ANY, DATA_CAM_TO_HOST, RES_CLASS_AFS, 1, dissect_dvbci_payload_afs},
     {T_AFS_FILE_SYSTEM_ACK,   1, 1,             DATA_HOST_TO_CAM, RES_CLASS_AFS, 1, dissect_dvbci_payload_afs},
@@ -795,6 +799,8 @@ static const value_string dvbci_apdu_tag[] = {
     { T_COMMS_SEND_MORE,               "Comms send more" },
     { T_COMMS_RCV_LAST,                "Comms receive last" },
     { T_COMMS_RCV_MORE,                "Comms receive more" },
+    { T_COMMS_IP_CONFIG_REQ,           "Comms IP config request" },
+    { T_COMMS_IP_CONFIG_REPLY,         "Comms IP config reply" },
     { T_AFS_FILE_SYSTEM_OFFER,         "File system offer" },
     { T_AFS_FILE_SYSTEM_ACK,           "File system ack" },
     { T_AFS_FILE_REQUEST,              "File request" },
@@ -1082,6 +1088,13 @@ static int hf_dvbci_lsc_proto = -1;
 static int hf_dvbci_lsc_hostname = -1;
 static int hf_dvbci_lsc_retry_count = -1;
 static int hf_dvbci_lsc_timeout = -1;
+static int hf_dvbci_lsc_conn_state = -1;
+static int hf_dvbci_lsc_phys_addr = -1;
+static int hf_dvbci_lsc_netmask = -1;
+static int hf_dvbci_lsc_gateway = -1;
+static int hf_dvbci_lsc_dhcp_srv = -1;
+static int hf_dvbci_lsc_num_dns_srv = -1;
+static int hf_dvbci_lsc_dns_srv = -1;
 static int hf_dvbci_afs_dom_id = -1;
 static int hf_dvbci_afs_ack_code = -1;
 static int hf_dvbci_info_ver_op_status = -1;
@@ -1613,9 +1626,9 @@ static const value_string dvbci_lsc_ret_val[] = {
     { LSC_RET_OK, "ok" },
     { 0, NULL }
 };
-static const value_string dvbci_lsc_ret_val_connect[] = {
-    { LSC_RET_DISCONNECTED, "disconnected" },
-    { LSC_RET_CONNECTED, "connected" },
+static const value_string dvbci_lsc_connect[] = {
+    { LSC_DISCONNECTED, "disconnected" },
+    { LSC_CONNECTED, "connected" },
     { 0, NULL }
 };
 static const value_string dvbci_lsc_ret_val_params[] = {
@@ -3799,6 +3812,7 @@ dissect_dvbci_payload_lsc(guint32 tag, gint len_field,
     gint                msg_len;
     tvbuff_t           *msg_tvb;
     dissector_handle_t  msg_handle;
+    guint32             conn_state, i, num_dns_srv;
 
     offset_start = offset;
 
@@ -3894,7 +3908,7 @@ dissect_dvbci_payload_lsc(guint32 tag, gint len_field,
                     break;
                 case COMMS_REP_ID_STATUS_REPLY:
                     ret_val_str = val_to_str_const(ret_val,
-                            dvbci_lsc_ret_val_connect, "unknown/error");
+                            dvbci_lsc_connect, "unknown/error");
                     break;
                 default:
                     ret_val_str = val_to_str_const(ret_val,
@@ -3935,6 +3949,36 @@ dissect_dvbci_payload_lsc(guint32 tag, gint len_field,
             }
             if (msg_handle)
                 call_dissector(msg_handle, msg_tvb, pinfo, tree);
+            break;
+        case T_COMMS_IP_CONFIG_REPLY:
+            proto_tree_add_item_ret_uint(tree, hf_dvbci_lsc_conn_state,
+                    tvb, offset, 1, ENC_BIG_ENDIAN, &conn_state);
+            offset++;
+            proto_tree_add_item(tree, hf_dvbci_lsc_phys_addr,
+                    tvb, offset, FT_ETHER_LEN, ENC_NA);
+            offset += FT_ETHER_LEN;
+            if (conn_state == LSC_CONNECTED) {
+                proto_tree_add_item(tree, hf_dvbci_lsc_ipv6_addr,
+                        tvb, offset, FT_IPv6_LEN, ENC_NA);
+                offset += FT_IPv6_LEN;
+                proto_tree_add_item(tree, hf_dvbci_lsc_netmask,
+                        tvb, offset, FT_IPv6_LEN, ENC_NA);
+                offset += FT_IPv6_LEN;
+                proto_tree_add_item(tree, hf_dvbci_lsc_gateway,
+                        tvb, offset, FT_IPv6_LEN, ENC_NA);
+                offset += FT_IPv6_LEN;
+                proto_tree_add_item(tree, hf_dvbci_lsc_dhcp_srv,
+                        tvb, offset, FT_IPv6_LEN, ENC_NA);
+                offset += FT_IPv6_LEN;
+                proto_tree_add_item_ret_uint(tree, hf_dvbci_lsc_num_dns_srv,
+                        tvb, offset, 1, ENC_BIG_ENDIAN, &num_dns_srv);
+                offset++;
+                for(i = 0; i < num_dns_srv; i++) {
+                    proto_tree_add_item(tree, hf_dvbci_lsc_dns_srv,
+                            tvb, offset, FT_IPv6_LEN, ENC_NA);
+                    offset += FT_IPv6_LEN;
+                }
+            }
             break;
         default:
             break;
@@ -6031,6 +6075,34 @@ proto_register_dvbci(void)
         { &hf_dvbci_lsc_timeout,
           { "Timeout", "dvb-ci.lsc.timeout",
             FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }
+        },
+        { &hf_dvbci_lsc_conn_state,
+          { "Connection state", "dvb-ci.lsc.connection_state",
+            FT_UINT8, BASE_HEX, VALS(dvbci_lsc_connect), 0xC0, NULL, HFILL }
+        },
+        { &hf_dvbci_lsc_phys_addr,
+          { "Physical address", "dvb-ci.lsc.physical_address",
+            FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL }
+        },
+        { &hf_dvbci_lsc_netmask,
+          { "Network mask", "dvb-ci.lsc.netmask",
+            FT_IPv6, BASE_NONE, NULL, 0, NULL, HFILL }
+        },
+        { &hf_dvbci_lsc_gateway,
+          { "Default gateway", "dvb-ci.lsc.gateway",
+            FT_IPv6, BASE_NONE, NULL, 0, NULL, HFILL }
+        },
+        { &hf_dvbci_lsc_dhcp_srv,
+          { "DHCP server", "dvb-ci.lsc.dhcp_server",
+            FT_IPv6, BASE_NONE, NULL, 0, NULL, HFILL }
+        },
+        { &hf_dvbci_lsc_num_dns_srv,
+          { "Number of DNS servers", "dvb-ci.lsc.num_dns_srv",
+            FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }
+        },
+        { &hf_dvbci_lsc_dns_srv,
+          { "DNS server", "dvb-ci.lsc.dns_server",
+            FT_IPv6, BASE_NONE, NULL, 0, NULL, HFILL }
         },
         { &hf_dvbci_afs_dom_id,
           { "Domain identifier", "dvb-ci.afs.domain_identifier",
