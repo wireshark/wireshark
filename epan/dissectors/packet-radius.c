@@ -1901,14 +1901,15 @@ is_radius(tvbuff_t *tvb)
 }
 
 /*
- * returns true if the response authenticator is valid
- * input: tvb of the response, corresponding request authenticator
- * uses the shared secret to calculate the Response authenticator
+ * returns true if the response or accounting request authenticator is valid
+ * input: tvb of the response, corresponding request authenticator (not used for request),
+ * uses the shared secret to calculate the authenticator
  * and checks with the current.
  * see RFC 2865, packet format page 16
+ * see RFC 2866, Request Authenticator page 7
  */
 static gboolean
-valid_authenticator(tvbuff_t *tvb, guint8 request_authenticator[])
+valid_authenticator(tvbuff_t *tvb, guint8 request_authenticator[], int request)
 {
 	gcry_md_hd_t md5_handle;
 	guint8 *digest;
@@ -1921,8 +1922,13 @@ valid_authenticator(tvbuff_t *tvb, guint8 request_authenticator[])
 	/* copy response into payload */
 	payload = (guint8 *)tvb_memdup(wmem_packet_scope(), tvb, 0, tvb_length);
 
-	/* replace authenticator in reply with the one in request */
-	memcpy(payload+4, request_authenticator, AUTHENTICATOR_LENGTH);
+	if (request) {
+		/* reset authenticator field */
+		memset(payload+4, 0, AUTHENTICATOR_LENGTH);
+	} else {
+		/* replace authenticator in reply with the one in request */
+		memcpy(payload+4, request_authenticator, AUTHENTICATOR_LENGTH);
+	}
 
 	/* calculate MD5 hash (payload+shared_secret) */
 	if (gcry_md_open(&md5_handle, GCRY_MD_MD5, 0)) {
@@ -2093,6 +2099,24 @@ dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 						proto_item_set_generated(item);
 					}
 				}
+
+				/* Accounting Request Authenticator Validation */
+				if (rh.rh_code == RADIUS_PKT_TYPE_ACCOUNTING_REQUEST && validate_authenticator && *shared_secret != '\0') {
+					proto_item *authenticator_tree, *item;
+					int valid;
+					valid = valid_authenticator(tvb, radius_call->req_authenticator, 1);
+
+					proto_item_append_text(authenticator_item, " [%s]", valid? "correct" : "incorrect");
+					authenticator_tree = proto_item_add_subtree(authenticator_item, ett_radius_authenticator);
+					item = proto_tree_add_boolean(authenticator_tree, hf_radius_authenticator_valid, tvb, 4, AUTHENTICATOR_LENGTH, valid ? TRUE : FALSE);
+					proto_item_set_generated(item);
+					item = proto_tree_add_boolean(authenticator_tree, hf_radius_authenticator_invalid, tvb, 4, AUTHENTICATOR_LENGTH, valid ? FALSE : TRUE);
+					proto_item_set_generated(item);
+
+					if (!valid) {
+						col_append_fstr(pinfo->cinfo, COL_INFO, " [incorrect authenticator]");
+					}
+				}
 			}
 
 			if (!PINFO_FD_VISITED(pinfo) && (radius_call == NULL || !rad_info->is_duplicate)) {
@@ -2214,7 +2238,7 @@ dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 				if (validate_authenticator && *shared_secret != '\0') {
 					proto_item *authenticator_tree;
 					int valid;
-					valid = valid_authenticator(tvb, radius_call->req_authenticator);
+					valid = valid_authenticator(tvb, radius_call->req_authenticator, 0);
 
 					proto_item_append_text(authenticator_item, " [%s]", valid? "correct" : "incorrect");
 					authenticator_tree = proto_item_add_subtree(authenticator_item, ett_radius_authenticator);
@@ -2829,10 +2853,10 @@ proto_register_radius(void)
 	register_shutdown_routine(radius_shutdown);
 	radius_module = prefs_register_protocol(proto_radius, NULL);
 	prefs_register_string_preference(radius_module, "shared_secret", "Shared Secret",
-					 "Shared secret used to decode User Passwords and validate Response Authenticators",
+					 "Shared secret used to decode User Passwords and validate Accounting Request and Response Authenticators",
 					 &shared_secret);
-	prefs_register_bool_preference(radius_module, "validate_authenticator", "Validate Response Authenticator",
-				       "Whether to check or not if Response Authenticator is correct. You need to define shared secret for this to work.",
+	prefs_register_bool_preference(radius_module, "validate_authenticator", "Validate Accounting Request and Response Authenticator",
+				       "Whether to check or not if Accounting Request and Response Authenticator are correct. You need to define shared secret for this to work.",
 				       &validate_authenticator);
 	prefs_register_bool_preference(radius_module, "show_length", "Show AVP Lengths",
 				       "Whether to add or not to the tree the AVP's payload length",
