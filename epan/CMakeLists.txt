@@ -120,6 +120,7 @@ set(LIBWIRESHARK_PUBLIC_HEADERS
 	packet.h
 	packet_info.h
 	params.h
+	pci-ids.h
 	plugin_if.h
 	ppptypes.h
 	print.h
@@ -219,6 +220,7 @@ set(LIBWIRESHARK_NONGENERATED_FILES
 	oids.c
 	osi-utils.c
 	packet.c
+	pci-ids.c
 	plugin_if.c
 	print.c
 	print_stream.c
