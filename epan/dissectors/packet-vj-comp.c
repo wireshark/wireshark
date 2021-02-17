@@ -446,12 +446,14 @@ dissect_vjc_comp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* 
         }
     }
     conv = vjc_find_conversation(pinfo, vjc_cnum, FALSE);
-    if (NULL == conv) {
+    if (NULL != conv) {
+        pkt_data = (vjc_conv_t *)conversation_get_proto_data(conv, proto_vjc);
+        // Will be testing that pkt_data exists below
+    }
+    else {
         proto_tree_add_expert(ti, pinfo, &ei_vjc_no_conversation,
                 tvb, 1, (flags & VJC_FLAG_C) ? 1 : 0);
     }
-    pkt_data = (vjc_conv_t *)conversation_get_proto_data(conv, proto_vjc);
-    // Will be testing that pkt_data exists below
 
     proto_tree_add_item_ret_uint(subtree, hf_vjc_chksum, tvb, offset, 2,
             ENC_BIG_ENDIAN, &tcp_chksum);
