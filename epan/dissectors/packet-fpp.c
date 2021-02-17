@@ -30,6 +30,7 @@ static int proto_fpp = -1;
 static dissector_handle_t fpp_handle;
 
 static int hf_fpp_preamble = -1;
+static int hf_fpp_preamble_pad = -1;
 static int hf_fpp_preamble_smd = -1;
 static int hf_fpp_preamble_frag_count = -1;
 static int hf_fpp_mdata = -1;
@@ -85,7 +86,7 @@ static const fragment_items fpp_frag_items = {
     "fpp fragments"
 };
 
-#define FPP_PREAMBLE_LENGTH 8
+#define FPP_DEFAULT_PREAMBLE_LENGTH 8
 #define FPP_CRC_LENGTH      4
 
 typedef enum {
@@ -159,6 +160,58 @@ static const value_string frag_count_delim_desc[] = {
     { 0x0, NULL }
 };
 
+static const value_string delim_desc[] = {
+    { SMD_Verify, "[SMD-V]" },
+    { SMD_Respond, "[SMD-R]" },
+    { SMD_Express, "[SMD-E]" },
+    { SMD_PP_Start_0, "[SMD-S0]" },
+    { SMD_PP_Start_1, "[SMD-S1]" },
+    { SMD_PP_Start_2, "[SMD-S2]" },
+    { SMD_PP_Start_3, "[SMD-S3]" },
+    { SMD_PP_ContFrag_0, "[SMD-C0]" },
+    { SMD_PP_ContFrag_1, "[SMD-C1]" },
+    { SMD_PP_ContFrag_2, "[SMD-C2]" },
+    { SMD_PP_ContFrag_3, "[SMD-C3]" },
+    { 0x0, NULL }
+};
+
+static guint32
+get_preamble_length(tvbuff_t *tvb) {
+
+    guint32 index = 0;
+
+    if( 0x50 == tvb_get_guint8(tvb, index) )
+    {
+        //First octet contains preamble alignment bits. Ignore it.
+        index = 1;
+    }
+
+    while( tvb_get_guint8(tvb, index) == Octet_0x55 && ( index + 2 < tvb_reported_length(tvb) ) )
+    {
+        index++;
+    }
+
+    guint8 smd1 = tvb_get_guint8(tvb, index);
+
+    switch (smd1) {
+        case SMD_PP_Start_0:
+        case SMD_PP_Start_1:
+        case SMD_PP_Start_2:
+        case SMD_PP_Start_3:
+        case SMD_Verify:
+        case SMD_Respond:
+        case SMD_Express:
+            return index + 1;
+        case SMD_PP_ContFrag_0:
+        case SMD_PP_ContFrag_1:
+        case SMD_PP_ContFrag_2:
+        case SMD_PP_ContFrag_3:
+            return index + 2;
+        default:
+            return FPP_DEFAULT_PREAMBLE_LENGTH;
+    }
+}
+
 static fpp_crc_t
 get_crc_stat(tvbuff_t *tvb, guint32 crc, guint32 mcrc) {
     fpp_crc_t crc_val;
@@ -174,46 +227,38 @@ get_crc_stat(tvbuff_t *tvb, guint32 crc, guint32 mcrc) {
     return crc_val;
 }
 
-static void
-col_fstr_process(tvbuff_t *tvb, packet_info *pinfo, fpp_crc_t crc_val) {
-    if (tvb_get_guint8(tvb, 6) == Octet_0x55) {
-        if (tvb_get_guint8(tvb, 7) == SMD_Express) {
-            col_add_str(pinfo->cinfo, COL_INFO, "[Express]");
-        } else {
-            if ((crc_val == CRC_CRC) || (crc_val == CRC_FALSE))
-                col_add_fstr(pinfo->cinfo, COL_INFO, "%s", try_val_to_str(tvb_get_guint8(tvb, 7), preemptive_delim_desc));
-            else
-                col_add_fstr(pinfo->cinfo, COL_INFO, "%s", try_val_to_str(tvb_get_guint8(tvb, 7), initial_delim_desc));
-        }
-    } else {
-        col_add_fstr(pinfo->cinfo, COL_INFO, "%s %s", try_val_to_str(tvb_get_guint8(tvb, 6), continuation_delim_desc),
-                                                    try_val_to_str(tvb_get_guint8(tvb, 7), frag_count_delim_desc));
-    }
-}
-
 static fpp_packet_t
 get_packet_type(tvbuff_t *tvb) {
     /* function analyze a packet based on preamble and ignore crc */
-    guint8 smd1 = tvb_get_guint8(tvb, 6);
-    guint8 smd2 = tvb_get_guint8(tvb, 7);
+
+    guint32 index = 0;
+
+    if( 0x50 == tvb_get_guint8(tvb, index) )
+    {
+        //First octet contains preamble alignment bits. Ignore it.
+        index = 1;
+    }
+
+    while( tvb_get_guint8(tvb, index) == Octet_0x55 && ( index + 2 < tvb_reported_length(tvb) ) )
+    {
+        index++;
+    }
+
+    guint8 smd1 = tvb_get_guint8(tvb, index);
+    guint8 smd2 = tvb_get_guint8(tvb, index + 1);
 
     switch (smd1) {
-        case Octet_0x55:
-            switch (smd2) {
-                case SMD_PP_Start_0:
-                case SMD_PP_Start_1:
-                case SMD_PP_Start_2:
-                case SMD_PP_Start_3:
-                    return FPP_Packet_Init;
-                case SMD_Verify:
-                    return FPP_Packet_Verify;
-                case SMD_Respond:
-                    return FPP_Packet_Response;
-                case SMD_Express:
-                    return FPP_Packet_Expess;
-                default:
-                    return FPP_Packet_Invalid;
-            }
+        case SMD_PP_Start_0:
+        case SMD_PP_Start_1:
+        case SMD_PP_Start_2:
+        case SMD_PP_Start_3:
+            return FPP_Packet_Init;
+        case SMD_Verify:
+            return FPP_Packet_Verify;
+        case SMD_Respond:
+            return FPP_Packet_Response;
+        case SMD_Express:
+            return FPP_Packet_Expess;
         case SMD_PP_ContFrag_0:
         case SMD_PP_ContFrag_1:
         case SMD_PP_ContFrag_2:
@@ -232,6 +277,35 @@ get_packet_type(tvbuff_t *tvb) {
     }
 
     return FPP_Packet_Invalid;
+}
+
+static void
+col_fstr_process(tvbuff_t *tvb, packet_info *pinfo, fpp_crc_t crc_val) {
+    guint preamble_length = get_preamble_length( tvb );
+
+    switch( get_packet_type(tvb) ) {
+        case FPP_Packet_Expess:
+            col_add_str(pinfo->cinfo, COL_INFO, "[Express]");
+            break;
+        case FPP_Packet_Verify:
+            col_add_str(pinfo->cinfo, COL_INFO, "[Verify]");
+            break;
+        case FPP_Packet_Response:
+            col_add_str(pinfo->cinfo, COL_INFO, "[Respond]");
+            break;
+        case FPP_Packet_Init:
+            if ((crc_val == CRC_CRC) || (crc_val == CRC_FALSE))
+               col_add_fstr(pinfo->cinfo, COL_INFO, "%s", try_val_to_str(tvb_get_guint8(tvb, preamble_length-1), preemptive_delim_desc));
+            else
+               col_add_fstr(pinfo->cinfo, COL_INFO, "%s", try_val_to_str(tvb_get_guint8(tvb, preamble_length-1), initial_delim_desc));
+            break;
+        case FPP_Packet_Cont:
+            col_add_fstr(pinfo->cinfo, COL_INFO, "%s %s", try_val_to_str(tvb_get_guint8(tvb, preamble_length-2), continuation_delim_desc),
+                                                          try_val_to_str(tvb_get_guint8(tvb, preamble_length-1), frag_count_delim_desc));
+            break;
+        default:
+            break;
+    }
 }
 
 struct _fpp_ctx_t {
@@ -311,13 +385,18 @@ dissect_preemption(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 
 
     fpp_packet_t pck_type;
 
-    guint8 smd1 = tvb_get_guint8(tvb, 6);
-    guint8 smd2 = tvb_get_guint8(tvb, 7);
+    guint preamble_length = get_preamble_length( tvb );
+    guint preamble_bit_length = preamble_length * 8;
+    gboolean preamble_unaligned = FALSE;
+
+
+    guint8 smd1 = tvb_get_guint8(tvb, preamble_length - 2);
+    guint8 smd2 = tvb_get_guint8(tvb, preamble_length - 1);
 
     guint32 mcrc = crc ^ 0xffff0000;
 
     guint crc_offset = tvb_reported_length(tvb) - FPP_CRC_LENGTH;
-    gint frag_size = tvb_reported_length(tvb) - FPP_PREAMBLE_LENGTH - FPP_CRC_LENGTH;
+    gint frag_size = tvb_reported_length(tvb) - preamble_length - FPP_CRC_LENGTH;
 
     /* Reassembly parameters. */
     tvbuff_t *new_tvb = NULL;
@@ -332,20 +411,42 @@ dissect_preemption(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 
     }
 
     /* Create a tree for the preamble. */
-    proto_item *ti_preamble = proto_tree_add_item(tree, hf_fpp_preamble, tvb, 0, FPP_PREAMBLE_LENGTH, ENC_BIG_ENDIAN);
+    proto_item *ti_preamble = proto_tree_add_item(tree, hf_fpp_preamble, tvb, 0, preamble_length, ENC_NA);
 
-    proto_tree_add_item(tree, hf_fpp_mdata, tvb, FPP_PREAMBLE_LENGTH, frag_size, ENC_NA);
+    if( 0x50 == tvb_get_guint8(tvb, 0) )
+    {
+        //First octet contains preamble alignment bits.
+        preamble_bit_length -= 4;
+        preamble_unaligned = TRUE;
+    }
+
+    if( preamble_bit_length == FPP_DEFAULT_PREAMBLE_LENGTH * 8 ) {
+        proto_item_append_text(ti_preamble, " [Preamble length: Normal]" );
+    } else if( preamble_bit_length < FPP_DEFAULT_PREAMBLE_LENGTH * 8 ) {
+        proto_item_append_text(ti_preamble, " [Preamble length: Shortened by %d bits]", FPP_DEFAULT_PREAMBLE_LENGTH * 8 - preamble_bit_length );
+    } else if( preamble_bit_length > FPP_DEFAULT_PREAMBLE_LENGTH * 8 ) {
+        proto_item_append_text(ti_preamble, " [Preamble length: Lengthened by %d bits]", preamble_bit_length - FPP_DEFAULT_PREAMBLE_LENGTH * 8 );
+    }
+
+    proto_tree_add_item(tree, hf_fpp_mdata, tvb, preamble_length, frag_size, ENC_NA);
 
     proto_tree *fpp_preamble_tree = proto_item_add_subtree(ti_preamble, ett_fpp_preamble);
 
+    if( preamble_unaligned ) {
+        proto_tree_add_item(fpp_preamble_tree, hf_fpp_preamble_pad, tvb, 0, 1, ENC_BIG_ENDIAN);
+    }
+
     if(get_packet_type(tvb) == FPP_Packet_Cont)
     {
-        proto_tree_add_item(fpp_preamble_tree, hf_fpp_preamble_smd, tvb, 6, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(fpp_preamble_tree, hf_fpp_preamble_frag_count, tvb, 7, 1, ENC_BIG_ENDIAN);
+        proto_item *ti_smd = proto_tree_add_item(fpp_preamble_tree, hf_fpp_preamble_smd, tvb, preamble_length - 2, 1, ENC_BIG_ENDIAN);
+        proto_item *ti_fragcnt = proto_tree_add_item(fpp_preamble_tree, hf_fpp_preamble_frag_count, tvb, preamble_length - 1, 1, ENC_BIG_ENDIAN);
+        proto_item_append_text(ti_smd, " %s", try_val_to_str(tvb_get_guint8(tvb, preamble_length-2), delim_desc) );
+        proto_item_append_text(ti_fragcnt, " %s", try_val_to_str(tvb_get_guint8(tvb, preamble_length-1), frag_count_delim_desc) );
     }
     else
     {
-        proto_tree_add_item(fpp_preamble_tree, hf_fpp_preamble_smd, tvb, 7, 1, ENC_BIG_ENDIAN);
+        proto_item *ti_smd = proto_tree_add_item(fpp_preamble_tree, hf_fpp_preamble_smd, tvb, preamble_length - 1, 1, ENC_BIG_ENDIAN);
+        proto_item_append_text(ti_smd, " %s", try_val_to_str(tvb_get_guint8(tvb, preamble_length-1), delim_desc) );
     }
 
     pck_type = get_packet_type(tvb);
@@ -360,7 +461,7 @@ dissect_preemption(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 
 
             proto_tree_add_checksum(tree, tvb, crc_offset, hf_fpp_crc32, hf_fpp_crc32_status, &ei_fpp_crc32, pinfo, crc, ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
 
-            return tvb_new_subset_length(tvb, FPP_PREAMBLE_LENGTH, frag_size);
+            return tvb_new_subset_length(tvb, preamble_length, frag_size);
         } else if (crc_val == CRC_mCRC) {
             /* Init frag */
             drop_fragments(pinfo);
@@ -375,7 +476,7 @@ dissect_preemption(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 
             }
 
             fragment_add_check(&fpp_reassembly_table,
-                               tvb, FPP_PREAMBLE_LENGTH, pinfo, pinfo->p2p_dir, NULL,
+                               tvb, preamble_length, pinfo, pinfo->p2p_dir, NULL,
                                0, frag_size, TRUE);
 
             set_address_tvb(&pinfo->dl_dst, AT_ETHER, 6, tvb, 8);
@@ -416,7 +517,7 @@ dissect_preemption(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 
             fpp_pdata_t *fpp_pdata = (fpp_pdata_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_fpp, pinfo->p2p_dir);
             if (fpp_pdata) {
                 fragment_add_check(&fpp_reassembly_table,
-                                   tvb, FPP_PREAMBLE_LENGTH, pinfo, pinfo->p2p_dir, NULL,
+                                   tvb, preamble_length, pinfo, pinfo->p2p_dir, NULL,
                                    fpp_pdata->offset, frag_size, TRUE);
             } else {
                 drop_fragments(pinfo);
@@ -445,10 +546,10 @@ dissect_preemption(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 
                 save_fragmented = pinfo->fragmented;
                 pinfo->fragmented = TRUE;
                 frag_data = fragment_add_check(&fpp_reassembly_table,
-                                               tvb, FPP_PREAMBLE_LENGTH, pinfo, pinfo->p2p_dir, NULL,
+                                               tvb, preamble_length, pinfo, pinfo->p2p_dir, NULL,
                                                fpp_pdata->offset, frag_size, FALSE);
                 // Attempt reassembly.
-                new_tvb = process_reassembled_data(tvb, FPP_PREAMBLE_LENGTH, pinfo,
+                new_tvb = process_reassembled_data(tvb, preamble_length, pinfo,
                                                    "Reassembled FPP", frag_data, &fpp_frag_items,
                                                    NULL, tree);
                 pinfo->fragmented = save_fragmented;
@@ -486,20 +587,45 @@ dissect_express(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 crc
 
     guint crc_offset = tvb_reported_length(tvb) - FPP_CRC_LENGTH;
     guint offset = 0;
-    guint pdu_data_len = tvb_reported_length(tvb) - FPP_PREAMBLE_LENGTH - FPP_CRC_LENGTH;
+    guint preamble_length = get_preamble_length( tvb );
+    guint preamble_bit_length = preamble_length * 8;
+    gboolean preamble_unaligned = FALSE;
+    guint pdu_data_len = tvb_reported_length(tvb) - preamble_length - FPP_CRC_LENGTH;
 
-    proto_item *ti_preamble = proto_tree_add_item(tree, hf_fpp_preamble, tvb, offset, 8, ENC_BIG_ENDIAN);
-    offset += FPP_PREAMBLE_LENGTH;
+
+    proto_item *ti_preamble = proto_tree_add_item(tree, hf_fpp_preamble, tvb, offset, preamble_length, ENC_NA);
+    offset += preamble_length;
+
+    if( 0x50 == tvb_get_guint8(tvb, 0) )
+    {
+        //First octet contains preamble alignment bits.
+        preamble_bit_length -= 4;
+        preamble_unaligned = TRUE;
+    }
+
+    if( preamble_bit_length == FPP_DEFAULT_PREAMBLE_LENGTH * 8 ) {
+        proto_item_append_text(ti_preamble, " [Preamble length: Normal]" );
+    } else if( preamble_bit_length < FPP_DEFAULT_PREAMBLE_LENGTH * 8 ) {
+        proto_item_append_text(ti_preamble, " [Preamble length: Shortened by %d bits]", FPP_DEFAULT_PREAMBLE_LENGTH * 8 - preamble_bit_length );
+    } else if( preamble_bit_length > FPP_DEFAULT_PREAMBLE_LENGTH * 8 ) {
+        proto_item_append_text(ti_preamble, " [Preamble length: Lengthened by %d bits]", preamble_bit_length - FPP_DEFAULT_PREAMBLE_LENGTH * 8 );
+    }
+
 
     proto_tree_add_item(tree, hf_fpp_mdata, tvb, offset, pdu_data_len, ENC_NA);
 
     proto_tree *fpp_preamble_tree = proto_item_add_subtree(ti_preamble, ett_fpp_preamble);
-    proto_tree_add_item(fpp_preamble_tree, hf_fpp_preamble_smd, tvb, 7, 1, ENC_BIG_ENDIAN);
+
+    if( preamble_unaligned ) {
+        proto_tree_add_item(fpp_preamble_tree, hf_fpp_preamble_pad, tvb, 0, 1, ENC_BIG_ENDIAN);
+    }
+    proto_item *ti_smd = proto_tree_add_item(fpp_preamble_tree, hf_fpp_preamble_smd, tvb, preamble_length - 1, 1, ENC_BIG_ENDIAN);
+    proto_item_append_text(ti_smd, " [SMD-E]" );
 
     proto_tree_add_checksum(tree, tvb, crc_offset, hf_fpp_crc32, hf_fpp_crc32_status, &ei_fpp_crc32, pinfo, crc, ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
 
     if (crc_val == CRC_CRC) {
-        return tvb_new_subset_length(tvb, FPP_PREAMBLE_LENGTH, pdu_data_len);
+        return tvb_new_subset_length(tvb, preamble_length, pdu_data_len);
     }
     return NULL;
 }
@@ -510,12 +636,13 @@ dissect_fpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     guint32 crc, mcrc;
     fpp_crc_t crc_val;
     tvbuff_t *next = tvb;
-    guint pdu_data_len = tvb_reported_length(tvb) - FPP_PREAMBLE_LENGTH - FPP_CRC_LENGTH;
+    guint preamble_length = get_preamble_length( tvb );
+    guint pdu_data_len = tvb_reported_length(tvb) - preamble_length - FPP_CRC_LENGTH;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "FPP");
     col_clear(pinfo->cinfo,COL_INFO);
 
-    crc = GUINT32_SWAP_LE_BE(crc32_ccitt_tvb_offset(tvb, FPP_PREAMBLE_LENGTH, pdu_data_len));
+    crc = GUINT32_SWAP_LE_BE(crc32_ccitt_tvb_offset(tvb, preamble_length, pdu_data_len));
     mcrc = crc ^ 0xffff0000;
 
     // get crc type
@@ -545,7 +672,7 @@ dissect_fpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     if (next) {
         call_dissector(ethl2_handle, next, pinfo, tree);
     } else {
-        tvbuff_t *new_tvb = tvb_new_subset_length(tvb, FPP_PREAMBLE_LENGTH, pdu_data_len);
+        tvbuff_t *new_tvb = tvb_new_subset_length(tvb, preamble_length, pdu_data_len);
         call_data_dissector(new_tvb, pinfo, tree);
     }
     return tvb_captured_length(tvb);
@@ -557,8 +684,14 @@ proto_register_fpp(void)
     static hf_register_info hf[] = {
         { &hf_fpp_preamble,
             { "Preamble", "fpp.preamble",
-                FT_UINT64, BASE_HEX,
+                FT_BYTES, BASE_NONE,
                 NULL, 0x0,
+                NULL, HFILL }
+        },
+        { &hf_fpp_preamble_pad,
+            { "Alignment padding, not part of frame", "fpp.preamble.pad",
+                FT_UINT8, BASE_HEX,
+                NULL, 0x0F,
                 NULL, HFILL }
         },
         { &hf_fpp_preamble_smd,
