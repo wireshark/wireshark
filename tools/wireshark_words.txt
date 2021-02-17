@@ -47,6 +47,7 @@ asn2wrs
 assymetric
 async
 asynchronously
+asyncmap
 atheros
 atomically
 attendee
@@ -119,6 +120,7 @@ capinfos
 capsa
 captioning
 capwap
+cardbus
 carrierfreq
 carrierid
 categorizes
@@ -127,6 +129,7 @@ ccpch
 cctrch
 cdma2000
 celcius
+celeron
 cellid
 cellidentity
 centiseconds
@@ -398,6 +401,7 @@ hspdsch
 hsupa
 http2
 https
+huffman
 icmpv
 ident
 idl2wrs
@@ -563,6 +567,7 @@ netboot
 netfilter
 netflow
 nethop
+netkeyindex
 netlink
 netlogon
 netmask
@@ -617,6 +622,7 @@ oplock
 opnum
 optimizations
 optimizer
+optiplex
 ospf6
 outhdr
 packetcable
@@ -641,6 +647,7 @@ pdcch
 pdsch
 peeraddr
 periodicities
+phaser
 phich
 phonebook
 physcellid
@@ -690,8 +697,10 @@ pytest
 qam16
 qam64
 qnet6
+quadro
 quintuplet
 quintuplets
+radeon
 radiotap
 ralink
 ranap
@@ -916,8 +925,11 @@ tdd128
 tdd384
 tdd768
 technica
+telenor
 teletex
+telia
 teredo
+tesla
 text2pcap
 timeout
 timeslot
@@ -991,6 +1003,7 @@ unfragmented
 unhandled
 unicast
 unicode
+unicom
 unignore
 unimplemented
 uninitialized
@@ -1091,5 +1104,6 @@ wsluarm
 x509sat
 xchannel
 xmlns
+xtreme
 z3950
 zigbee

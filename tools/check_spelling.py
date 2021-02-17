@@ -119,7 +119,7 @@ class File:
         return False
 
 
-    # Check the spelling of all the words we have found fir tgus fuke,
+    # Check the spelling of all the words we have found
     def spellCheck(self):
 
         num_values = len(self.values)
@@ -230,13 +230,16 @@ def removeSingleQuotes(code_string):
     return code_string
 
 def removeHexSpecifiers(code_string):
-    # TODO: replace with single regexp?
-    code_string = code_string.replace('0x%02X', "")
-    code_string = code_string.replace('0x%02x', "")
-    code_string = code_string.replace('0x%04X', "")
-    code_string = code_string.replace('0x%04x', "")
-    code_string = code_string.replace('0x%08X', "")
-    code_string = code_string.replace('0x%08x', "")
+    # Find all hex numbers
+
+    looking = True
+    while looking:
+        m = re.search(r'(0x[0-9a-fA-F]*)', code_string)
+        if m:
+            code_string = code_string.replace(m.group(0), "")
+        else:
+            looking = False
+
     return code_string
 
 
@@ -418,7 +421,7 @@ for f in files:
 
 
 
-# Show the most commonly not-recognised words. TODO: depend upon a command-line option here?
+# Show the most commonly not-recognised words.
 print('')
 counter = Counter(missing_words).most_common(100)
 if len(counter) > 0:
