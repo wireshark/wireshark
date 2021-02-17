@@ -364,7 +364,7 @@ static dissector_table_t rtps_type_name_table;
 #define PID_TYPE_CONSISTENCY                    (0x0074)
 #define PID_EQUIVALENT_TYPE_NAME                (0x0075)
 #define PID_BASE_TYPE_NAME                      (0x0076)
-#define PID_ENABLE_ENCRYPTION                   (0x0077)
+#define PID_BUILTIN_ENDPOINT_QOS                (0x0077)
 #define PID_ENABLE_AUTHENTICATION               (0x0078)
 #define PID_DOMAIN_ID                           (0x000f)
 #define PID_DOMAIN_TAG                          (0x4014)
@@ -909,7 +909,7 @@ static int hf_rtps_param_sample_signature_signature         = -1;
 static int hf_rtps_secure_secure_data_length                = -1;
 static int hf_rtps_secure_secure_data                       = -1;
 static int hf_rtps_param_enable_authentication              = -1;
-static int hf_rtps_param_enable_encryption                  = -1;
+static int hf_rtps_param_builtin_endpoint_qos               = -1;
 static int hf_rtps_secure_dataheader_transformation_kind    = -1;
 static int hf_rtps_secure_dataheader_transformation_key_id  = -1;
 static int hf_rtps_secure_dataheader_plugin_sec_header      = -1;
@@ -1601,7 +1601,7 @@ static const value_string parameter_id_v2_vals[] = {
   { PID_STATUS_INFO,                    "PID_STATUS_INFO" },
   { PID_DATA_REPRESENTATION,            "PID_DATA_REPRESENTATION" },
   { PID_TYPE_CONSISTENCY,               "PID_TYPE_CONSISTENCY" },
-  { PID_ENABLE_ENCRYPTION,              "PID_ENABLE_ENCRYPTION" },
+  { PID_BUILTIN_ENDPOINT_QOS,           "PID_BUILTIN_ENDPOINT_QOS" },
   { PID_ENABLE_AUTHENTICATION,          "PID_ENABLE_AUTHENTICATION" },
   { PID_IDENTITY_TOKEN,                 "PID_IDENTITY_TOKEN" },
   { PID_PERMISSIONS_TOKEN,              "PID_PERMISSIONS_TOKEN" },
@@ -5865,9 +5865,9 @@ static gboolean dissect_parameter_sequence_rti_dds(proto_tree *rtps_parameter_tr
             offset, 4, ENC_NA);
       break;
 
-    case PID_ENABLE_ENCRYPTION:
+    case PID_BUILTIN_ENDPOINT_QOS:
       ENSURE_LENGTH(1);
-      proto_tree_add_item(rtps_parameter_tree, hf_rtps_param_enable_encryption, tvb,
+      proto_tree_add_item(rtps_parameter_tree, hf_rtps_param_builtin_endpoint_qos, tvb,
               offset, 1, ENC_NA);
       break;
 
@@ -13943,9 +13943,9 @@ void proto_register_rtps(void) {
       { "Authentication enabled", "rtps.secure.enable_authentication",
         FT_BOOLEAN, 32, TFS(&tfs_true_false), 0, NULL, HFILL }
     },
-    { &hf_rtps_param_enable_encryption,
-      { "Encryption enabled", "rtps.secure.enable_encryption",
-        FT_BOOLEAN, 8, TFS(&tfs_true_false), 0, NULL, HFILL }
+    { &hf_rtps_param_builtin_endpoint_qos,
+      { "Built-in Endpoint QoS", "rtps.param.builtin_endpoint_qos",
+        FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }
     },
     { &hf_rtps_param_sample_signature_epoch,
       { "Epoch", "rtps.sample_signature.epoch",
