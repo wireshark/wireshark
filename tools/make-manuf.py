@@ -60,7 +60,7 @@ def open_url(url):
 # These are applied after punctuation has been removed.
 # More examples at https://en.wikipedia.org/wiki/Incorporation_(business)
 general_terms = '|'.join([
-    'a/s',
+    'a +s', # A/S and A.S. but not "As" as in "Connect As".
     'ab', # Also follows "Oy", which is covered below.
     'ag',
     'b ?v',
@@ -85,6 +85,7 @@ general_terms = '|'.join([
     'of',
     'open joint stock company',
     'ooo',
+    'oü',
     'oy',
     'oyj',
     'plc',
@@ -114,7 +115,7 @@ def shorten(manuf):
         manuf = manuf.title()
     # Remove any punctuation
     # XXX Use string.punctuation? Note that it includes '-' and '*'.
-    manuf = re.sub(u"[\"',.()]", ' ', manuf)
+    manuf = re.sub(u"[\"',./:()]", ' ', manuf)
     # & isn't needed when Standalone
     manuf = manuf.replace(" & ", " ")
     # Remove business types and other general terms ("the", "inc", "plc", etc.)
