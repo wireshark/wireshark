@@ -1359,6 +1359,7 @@ int
 wtap_register_file_type_subtypes(const struct file_type_subtype_info* fi)
 {
 	struct file_type_subtype_info* finfo;
+	guint file_type_subtype;
 
 	/*
 	 * Check for required fields (description and name).
@@ -1387,38 +1388,39 @@ wtap_register_file_type_subtypes(const struct file_type_subtype_info* fi)
 	 * (and because entry 0, for WTAP_FILE_TYPE_SUBTYPE_UNKNOWN,
 	 * has a null name pointer).
 	 */
-	for (guint i = wtap_num_builtin_file_types_subtypes;
-	    i < file_type_subtype_table_arr->len; i++) {
-		if (file_type_subtype_table[i].name == NULL) {
+	for (file_type_subtype = wtap_num_builtin_file_types_subtypes;
+	    file_type_subtype < file_type_subtype_table_arr->len;
+	    file_type_subtype++) {
+		if (file_type_subtype_table[file_type_subtype].name == NULL) {
 			/*
 			 * We found such an entry.
 			 *
 			 * Get the pointer from the GArray, so that we get a
 			 * non-const pointer.
 			 */
-			finfo = &g_array_index(file_type_subtype_table_arr, struct file_type_subtype_info, i);
+			finfo = &g_array_index(file_type_subtype_table_arr, struct file_type_subtype_info, file_type_subtype);
 
 			/*
 			 * Fill in the entry with the new values.
 			 */
 			*finfo = *fi;
 
-			return (gint)i;
+			return (gint)file_type_subtype;
 		}
 	}
 
 	/*
 	 * There aren't any free slots, so add a new entry.
-	 * Append this entry to the end of the array, change
-	 * file_type_subtype_table in case the array had to get reallocated,
-	 * increment the number of entries (XXX - just use the array
-	 * length!), and return subtype, which is now set to the
-	 * old number of entries, which is now the index of the new
-	 * entry.
+	 * Get the number of current number of entries, which will
+	 * be the index of the new entry, then append this entry
+	 * to the end of the array, change file_type_subtype_table
+	 * in case the array had to get reallocated, and return
+	 * the index of the new entry.
 	 */
-	g_array_append_val(file_type_subtype_table_arr,*fi);
+	file_type_subtype = file_type_subtype_table_arr->len;
+	g_array_append_val(file_type_subtype_table_arr, *fi);
 	file_type_subtype_table = (const struct file_type_subtype_info*)(void *)file_type_subtype_table_arr->data;
-	return file_type_subtype_table_arr->len;
+	return file_type_subtype;
 }
 
 /* De-registers a file writer - they can never be removed from the GArray, but we can "clear" an entry.
