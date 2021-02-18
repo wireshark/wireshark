@@ -297,6 +297,9 @@ static gboolean dissect_a615a_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     if ((tvb_get_ntohl(tvb, 0) != psize) || ((gchar)tvb_get_guint8(tvb, 4) != 'A')) return FALSE;
 
     const char *filename = ((struct tftpinfo *)data)->filename;
+    if (filename == NULL) {
+      return FALSE;
+    }
 
     for (unsigned i = 0; i < array_length(a615a_file); ++i) {
         if (g_str_has_suffix(filename, a615a_file[i].abbreviated)) {
