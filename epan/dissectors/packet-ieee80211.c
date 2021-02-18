@@ -7200,7 +7200,7 @@ static gint ett_osen_group_management_cipher_suite = -1;
 
 static gint ett_hs20_cc_proto_port_tuple = -1;
 
-static gint ett_tag_no_bssid_capability_dmg_bss_control_tree = -1; 
+static gint ett_tag_no_bssid_capability_dmg_bss_control_tree = -1;
 static gint ett_ssid_list = -1;
 
 static gint ett_sgdsn = -1;
@@ -7748,10 +7748,12 @@ he_ru_allocation_base_custom(gchar *result, guint32 ru_allocation)
 static void
 vs_sgdsn_serialnumber_len_custom(gchar *result, guint32 val)
 {
-  if(val >= 0x30 && val <= 0x39) {
+  if (val >= 0x30 && val <= 0x39) {
     g_snprintf(result, ITEM_LABEL_LENGTH, "%d byte(s)", val-0x30);
-  } else if(val >= 0x41 && val <= 0x46) {
+  } else if (val >= 0x41 && val <= 0x46) {
     g_snprintf(result, ITEM_LABEL_LENGTH, "%d byte(s)", val-0x37);
+  } else {
+    g_snprintf(result, ITEM_LABEL_LENGTH, "Invalid length: %u", val);
   }
 }
 
