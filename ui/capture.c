@@ -284,8 +284,7 @@ capture_input_read_all(capture_session *cap_session, gboolean is_tempfile,
 }
 
 static const char *
-cf_open_error_message(int err, gchar *err_info, gboolean for_writing,
-                      int file_type)
+cf_open_error_message(int err, gchar *err_info)
 {
     const char *errmsg;
     static char errmsg_errno[1024 + 1];
@@ -304,7 +303,6 @@ cf_open_error_message(int err, gchar *err_info, gboolean for_writing,
             break;
 
         case WTAP_ERR_UNSUPPORTED:
-            /* Seen only when opening a capture file for reading. */
             g_snprintf(errmsg_errno, sizeof(errmsg_errno),
                        "The file \"%%s\" contains record data that Wireshark doesn't support.\n"
                        "(%s)", err_info != NULL ? err_info : "no information supplied");
@@ -312,33 +310,11 @@ cf_open_error_message(int err, gchar *err_info, gboolean for_writing,
             errmsg = errmsg_errno;
             break;
 
-        case WTAP_ERR_CANT_WRITE_TO_PIPE:
-            /* Seen only when opening a capture file for writing. */
-            g_snprintf(errmsg_errno, sizeof(errmsg_errno),
-                       "The file \"%%s\" is a pipe, and %s capture files can't be "
-                       "written to a pipe.", wtap_file_type_subtype_description(file_type));
-            errmsg = errmsg_errno;
-            break;
-
-        case WTAP_ERR_UNWRITABLE_FILE_TYPE:
-            /* Seen only when opening a capture file for writing. */
-            errmsg = "Wireshark doesn't support writing capture files in that format.";
-            break;
-
-        case WTAP_ERR_UNWRITABLE_ENCAP:
-            /* Seen only when opening a capture file for writing. */
-            errmsg = "Wireshark can't save this capture in that format.";
-            break;
-
         case WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED:
-            if (for_writing)
-                errmsg = "Wireshark can't save this capture in that format.";
-            else
-                errmsg = "The file \"%s\" is a capture for a network type that Wireshark doesn't support.";
+            errmsg = "The file \"%s\" is a capture for a network type that Wireshark doesn't support.";
             break;
 
         case WTAP_ERR_BAD_FILE:
-            /* Seen only when opening a capture file for reading. */
             g_snprintf(errmsg_errno, sizeof(errmsg_errno),
                        "The file \"%%s\" appears to be damaged or corrupt.\n"
                        "(%s)", err_info != NULL ? err_info : "no information supplied");
@@ -347,10 +323,7 @@ cf_open_error_message(int err, gchar *err_info, gboolean for_writing,
             break;
 
         case WTAP_ERR_CANT_OPEN:
-            if (for_writing)
-                errmsg = "The file \"%s\" could not be created for some unknown reason.";
-            else
-                errmsg = "The file \"%s\" could not be opened for some unknown reason.";
+            errmsg = "The file \"%s\" could not be opened for some unknown reason.";
             break;
 
         case WTAP_ERR_SHORT_READ:
@@ -358,35 +331,25 @@ cf_open_error_message(int err, gchar *err_info, gboolean for_writing,
                 " in the middle of a packet or other data.";
             break;
 
-        case WTAP_ERR_SHORT_WRITE:
-            errmsg = "A full header couldn't be written to the file \"%s\".";
-            break;
-
         case WTAP_ERR_DECOMPRESS:
             g_snprintf(errmsg_errno, sizeof(errmsg_errno),
-                       "The compressed file \"%%s\" appears to be damaged or corrupt.\n"
+                       "The file \"%%s\" cannot be decompressed; it may be damaged or corrupt.\n"
                        "(%s)", err_info != NULL ? err_info : "no information supplied");
             g_free(err_info);
             errmsg = errmsg_errno;
             break;
 
         case WTAP_ERR_INTERNAL:
-            if (for_writing) {
-                g_snprintf(errmsg_errno, sizeof(errmsg_errno),
-                           "An internal error occurred creating the file \"%%s\".\n"
-                           "(%s)", err_info != NULL ? err_info : "no information supplied");
-            } else {
-                g_snprintf(errmsg_errno, sizeof(errmsg_errno),
-                           "An internal error occurred opening the file \"%%s\".\n"
-                           "(%s)", err_info != NULL ? err_info : "no information supplied");
-            }
+            g_snprintf(errmsg_errno, sizeof(errmsg_errno),
+                       "An internal error occurred opening the file \"%%s\".\n"
+                       "(%s)", err_info != NULL ? err_info : "no information supplied");
             g_free(err_info);
             errmsg = errmsg_errno;
             break;
 
         case WTAP_ERR_DECOMPRESSION_NOT_SUPPORTED:
             g_snprintf(errmsg_errno, sizeof(errmsg_errno),
-                       "We don't support the form of compression used by the compressed file \"%%s\".\n"
+                       "The file \"%%s\" cannot be decompressed; it is compressed in a way that We don't support.\n"
                        "(%s)", err_info != NULL ? err_info : "no information supplied");
             g_free(err_info);
             errmsg = errmsg_errno;
@@ -394,15 +357,14 @@ cf_open_error_message(int err, gchar *err_info, gboolean for_writing,
 
         default:
             g_snprintf(errmsg_errno, sizeof(errmsg_errno),
-                       "The file \"%%s\" could not be %s: %s.",
-                       for_writing ? "created" : "opened",
+                       "The file \"%%s\" could not be opened: %s.",
                        wtap_strerror(err));
             errmsg = errmsg_errno;
             break;
         }
     }
     else
-        errmsg = file_open_error_message(err, for_writing);
+        errmsg = file_open_error_message(err, FALSE);
     return errmsg;
 }
 
@@ -474,7 +436,7 @@ capture_input_new_file(capture_session *cap_session, gchar *new_file)
 
         cap_session->wtap = wtap_open_offline(new_file, WTAP_TYPE_AUTO, &err, &err_info, FALSE);
         if (!cap_session->wtap) {
-            err_msg = g_strdup_printf(cf_open_error_message(err, err_info, FALSE, WTAP_FILE_TYPE_SUBTYPE_UNKNOWN),
+            err_msg = g_strdup_printf(cf_open_error_message(err, err_info),
                                       new_file);
             g_warning("capture_input_new_file: %d (%s)", err, err_msg);
             g_free(err_msg);
