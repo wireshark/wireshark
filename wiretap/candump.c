@@ -26,6 +26,14 @@ static gboolean candump_seek_read(wtap *wth, gint64 seek_off,
                                   wtap_rec *rec, Buffer *buf,
                                   int *err, gchar **err_info);
 
+static int candump_file_type_subtype = -1;
+
+void register_candump(void);
+
+/*
+ * This is written by the candump utility on Linux.
+ */
+
 static void
 candump_write_packet(wtap_rec *rec, Buffer *buf, const msg_t *msg)
 {
@@ -164,7 +172,7 @@ candump_open(wtap *wth, int *err, char **err_info)
     }
 
     wth->priv              = NULL;
-    wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_UNKNOWN;
+    wth->file_type_subtype = candump_file_type_subtype;
     wth->file_encap        = WTAP_ENCAP_WIRESHARK_UPPER_PDU;
     wth->file_tsprec       = WTAP_TSPREC_USEC;
     wth->subtype_read      = candump_read;
@@ -219,6 +227,17 @@ candump_seek_read(wtap *wth , gint64 seek_off, wtap_rec *rec,
     candump_write_packet(rec, buf, &msg);
 
     return TRUE;
+}
+
+static const struct file_type_subtype_info candump_info = {
+    "Linux candump file", "candump", NULL, NULL,
+    FALSE, FALSE, 0,
+    NULL, NULL, NULL
+};
+
+void register_candump(void)
+{
+    candump_file_type_subtype = wtap_register_file_type_subtypes(&candump_info);
 }
 
 /*

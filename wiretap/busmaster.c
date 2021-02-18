@@ -33,6 +33,18 @@ busmaster_seek_read(wtap     *wth, gint64 seek_off,
                     wtap_rec *rec, Buffer *buf,
                     int      *err, gchar **err_info);
 
+static int busmaster_file_type_subtype = -1;
+
+void register_busmaster(void);
+
+/*
+ * See
+ *
+ *    http://rbei-etas.github.io/busmaster/
+ *
+ * for the BUSMASTER software.
+ */
+
 static gboolean
 busmaster_gen_packet(wtap_rec               *rec, Buffer *buf,
                      const busmaster_priv_t *priv_entry, const msg_t *msg,
@@ -252,7 +264,7 @@ busmaster_open(wtap *wth, int *err, char **err_info)
     wth->subtype_close     = busmaster_close;
     wth->subtype_read      = busmaster_read;
     wth->subtype_seek_read = busmaster_seek_read;
-    wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_UNKNOWN;
+    wth->file_type_subtype = busmaster_file_type_subtype;
     wth->file_encap        = WTAP_ENCAP_WIRESHARK_UPPER_PDU;
     wth->file_tsprec       = WTAP_TSPREC_USEC;
 
@@ -428,6 +440,17 @@ busmaster_seek_read(wtap   *wth, gint64 seek_off, wtap_rec *rec,
     }
 
     return busmaster_gen_packet(rec, buf, priv_entry, &state.msg, err, err_info);
+}
+
+static const struct file_type_subtype_info busmaster_info = {
+    "BUSMASTER log file", "busmaster", "log", NULL,
+    FALSE, FALSE, 0,
+    NULL, NULL, NULL
+};
+
+void register_busmaster(void)
+{
+    busmaster_file_type_subtype = wtap_register_file_type_subtypes(&busmaster_info);
 }
 
 /*
