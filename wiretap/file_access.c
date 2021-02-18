@@ -1340,11 +1340,14 @@ wtap_init_file_type_subtypes(void)
 
 	file_type_subtype_table = (const struct file_type_subtype_info*)(void *)file_type_subtype_table_arr->data;
 
-	/* Load the builtin plugins that aren't in the table. */
+	/* Remember which entries are builtin. */
+	wtap_num_builtin_file_types_subtypes = file_type_subtype_table_arr->len;
+
+	/* Register the builtin entries that aren't in the table. */
 	for (guint i = 0; i < wtap_module_count; i++)
 		wtap_module_reg[i].cb_func();
 
-	/* Remember which entries are builtin. */
+	/* Update the number of builtin entries. */
 	wtap_num_builtin_file_types_subtypes = file_type_subtype_table_arr->len;
 }
 
