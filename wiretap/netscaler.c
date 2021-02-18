@@ -912,7 +912,7 @@ nspm_signature_func(35)
 ** if we find one, check the signature against the ones we support.
 ** If we find one we support, return the file type/subtype for that
 ** file version.  If we don't find a signature record with a signature
-** we support, return WTAP_FILE_TYPE_SUBTYPE_UNKNOWN.
+** we support, return NSPM_SIGNATURE_NOMATCH.
 **
 ** We don't know what version the file is, so we can't make
 ** assumptions about the format of the records.
