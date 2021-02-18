@@ -1162,12 +1162,12 @@ def softhsm_paths(features):
         else:
             name = 'softhsm2.dll'
     else:
-        # Debian/Ubuntu-specific paths
+        # Look in a variety of paths, Debian/Ubuntu, Fedora, RHEL/CentOS
         madir = sysconfig.get_config_var('multiarchsubdir')
-        libdir64_sub = os.path.join(libdir + '64', 'softhsm')
-        libdir_sub = os.path.join(libdir, 'softhsm')
+        libdir_archs = (libdir, libdir + '64')
+        libdir_subs = ('softhsm', 'pkcs11', '')
         libdirs = [os.path.join(libdir + madir, 'softhsm')] if madir else []
-        libdirs += [libdir_sub, libdir64_sub]
+        libdirs += [os.path.join(arch, sub) for sub in libdir_subs for arch in libdir_archs]
         name = 'libsofthsm2.so'
     for libdir in libdirs:
         provider = os.path.join(libdir, name)
