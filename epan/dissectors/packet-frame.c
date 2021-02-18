@@ -800,7 +800,7 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 			case REC_TYPE_FT_SPECIFIC_EVENT:
 			case REC_TYPE_FT_SPECIFIC_REPORT:
 				{
-					int file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_UNKNOWN;
+					int file_type_subtype;
 
 					file_type_subtype = fr_data->file_type_subtype;
 
