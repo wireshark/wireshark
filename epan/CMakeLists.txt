@@ -73,6 +73,7 @@ set(LIBWIRESHARK_PUBLIC_HEADERS
 	diam_dict.h
 	disabled_protos.h
 	conversation_filter.h
+	dccpservicecodes.h
 	dtd.h
 	dtd_parse.h
 	dvb_chartbl.h
