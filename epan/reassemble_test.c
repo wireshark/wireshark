@@ -7,9 +7,8 @@
  * hopefully they will inspire people to write additional tests, and provide a
  * useful basis on which to do so.
  *
- * December 2010:
- * 1. reassemble_test can be run under valgrind to detect any memory leaks in the
- *    Wireshark reassembly code.
+ * reassemble_test can be run under valgrind to detect any memory leaks in the
+ * Wireshark reassembly code.
  *    Specifically: code has been added to free dynamically allocated memory
  *     after each test (or at program completion) so that valgrind will report
  *     only actual memory leaks.
@@ -18,11 +17,6 @@
  *        G_DEBUG=gc-friendly             \
  *        G_SLICE=always-malloc           \
  *      valgrind --leak-check=full --show-reachable=yes ./reassemble_test
- *
- *  2. Debug functions have been added which will print information
- *     about the fd-chains associated with the fragment_table and the
- *     reassembled table.
- *     #define debug  to enable the code.
  *
  * Copyright (c) 2007 MX Telecom Ltd. <richardv@mxtelecom.com>
  *
@@ -51,6 +45,7 @@
 #include "exceptions.h"
 
 static int failure = 0;
+static const gboolean debug = FALSE; /* Set to TRUE to dump tables. */
 
 #define ASSERT(b)           \
     if (!(b)) {             \
@@ -91,7 +86,6 @@ static packet_info pinfo;
    fragment_head */
 static reassembly_table test_reassembly_table;
 
-#ifdef debug
 /*************************************************
  * Util fcns to display
  *   fragment_table & reassembled_table fd-chains
@@ -103,7 +97,7 @@ static struct _fd_flags {
 } fd_flags[] = {
     {FD_DEFRAGMENTED         ,"DF"},
     {FD_DATALEN_SET          ,"DS"},
-    {FD_SUBSET_TVB,          ,"ST"},
+    {FD_SUBSET_TVB           ,"ST"},
     {FD_BLOCKSEQUENCE        ,"BS"},
     {FD_PARTIAL_REASSEMBLY   ,"PR"},
     {FD_OVERLAP              ,"OL"},
@@ -118,14 +112,18 @@ print_fd(fragment_head *fd, gboolean is_head) {
     int i;
 
     g_assert(fd != NULL);
-    printf("        %p %p %3u %3u %3u", fd, fd->next, fd->frame, fd->offset, fd->len);
+    printf("        %16p %16p %3u %3u %3u", fd, fd->next, fd->frame, fd->offset, fd->len);
     if (is_head) {
         printf(" %3u %3u", fd->datalen, fd->reassembled_in);
     } else {
         printf( "        ");
     }
-    printf(" 0x%08x", fd->data);
-    for (i=0; i<N_FD_FLAGS; i++) {
+    if (fd->tvb_data != NULL) {
+        printf(" %16p", tvb_get_ptr(fd->tvb_data, 0, 1)); /* Address of first byte only... */
+    } else {
+        printf(" %16s", "<null tvb_data>");
+    }
+    for (i=0; i < N_FD_FLAGS; i++) {
         printf(" %s", (fd->flags & fd_flags[i].flag) ? fd_flags[i].flag_name : "  ");
     }
     printf("\n");
@@ -143,24 +141,32 @@ print_fd_chain(fragment_head *fd_head) {
 }
 
 static void
-print_fragment_table_chain(gpointer k, gpointer v, gpointer ud) {
+print_fragment_table_chain(gpointer k _U_, gpointer v, gpointer ud _U_) {
+#ifdef DUMP_KEYS
     fragment_key  *key     = (fragment_key*)k;
+#endif
     fragment_head *fd_head = (fragment_head *)v;
+#ifdef DUMP_KEYS
     printf("  --> FT: %3d 0x%08x 0x%08x\n", key->id, *(guint32 *)(key->src.data), *(guint32 *)(key->dst.data));
+#endif
     print_fd_chain(fd_head);
 }
 
 static void
 print_fragment_table(void) {
     printf("\n Fragment Table -------\n");
-    g_hash_table_foreach(fragment_table, print_fragment_table_chain, NULL);
+    g_hash_table_foreach(test_reassembly_table.fragment_table, print_fragment_table_chain, NULL);
 }
 
 static void
-print_reassembled_table_chain(gpointer k, gpointer v, gpointer ud) {
+print_reassembled_table_chain(gpointer k _U_, gpointer v, gpointer ud _U_) {
+#ifdef DUMP_KEYS
     reassembled_key  *key  = (reassembled_key*)k;
+#endif
     fragment_head *fd_head = (fragment_head *)v;
+#ifdef DUMP_KEYS
     printf("  --> RT: %5d %5d\n", key->id, key->frame);
+#endif
     print_fd_chain(fd_head);
 }
 
@@ -175,7 +181,6 @@ print_tables(void) {
     print_fragment_table();
     print_reassembled_table();
 }
-#endif
 
 /**********************************************************************************
  *
@@ -277,9 +282,9 @@ test_simple_fragment_add_seq(void)
     ASSERT(!tvb_memeql(fd_head->tvb_data,50,data+15,60));
     ASSERT(!tvb_memeql(fd_head->tvb_data,110,data+5,60));
 
-#if 0
-    print_fragment_table();
-#endif
+    if (debug) {
+        print_fragment_table();
+    }
 
     /* what happens if we revisit the packets now? */
     fdh0 = fd_head;
@@ -304,9 +309,9 @@ test_simple_fragment_add_seq(void)
                              1, 60, TRUE, 0);
     ASSERT_EQ_POINTER(fdh0,fd_head);
 
-#if 0
-    print_fragment_table();
-#endif
+    if (debug) {
+        print_fragment_table();
+    }
 }
 
 /* XXX ought to have some tests for overlapping fragments */
@@ -665,9 +670,9 @@ test_fragment_add_seq_duplicate_first(void)
     ASSERT(!tvb_memeql(fd_head->tvb_data,50,data+5,60));
     ASSERT(!tvb_memeql(fd_head->tvb_data,110,data+5,40));
 
-#if 0
-    print_fragment_table();
-#endif
+    if (debug) {
+        print_fragment_table();
+    }
 }
 
 
@@ -764,9 +769,9 @@ test_fragment_add_seq_duplicate_middle(void)
     ASSERT(!tvb_memeql(fd_head->tvb_data,50,data+5,60));
     ASSERT(!tvb_memeql(fd_head->tvb_data,110,data+5,40));
 
-#if 0
-    print_fragment_table();
-#endif
+    if (debug) {
+        print_fragment_table();
+    }
 }
 
 /* Test case for fragment_add_seq with duplicated (e.g., retransmitted) data.
@@ -862,9 +867,9 @@ test_fragment_add_seq_duplicate_last(void)
     ASSERT(!tvb_memeql(fd_head->tvb_data,50,data+5,60));
     ASSERT(!tvb_memeql(fd_head->tvb_data,110,data+5,40));
 
-#if 0
-    print_fragment_table();
-#endif
+    if (debug) {
+        print_fragment_table();
+    }
 }
 
 /* Test case for fragment_add_seq with duplicated (e.g., retransmitted) data
@@ -964,9 +969,9 @@ test_fragment_add_seq_duplicate_conflict(void)
     ASSERT(!tvb_memeql(fd_head->tvb_data,50,data+5,60));
     ASSERT(!tvb_memeql(fd_head->tvb_data,110,data+5,40));
 
-#if 0
-    print_fragment_table();
-#endif
+    if (debug) {
+        print_fragment_table();
+    }
 }
 
 /**********************************************************************************
@@ -1069,9 +1074,9 @@ test_fragment_add_seq_check_work(fragment_head *(*fn)(reassembly_table *,
     ASSERT(!tvb_memeql(fd_head->tvb_data,50,data+15,60));
     ASSERT(!tvb_memeql(fd_head->tvb_data,110,data+5,60));
 
-#if 0
-    print_tables();
-#endif
+    if (debug) {
+        print_tables();
+    }
 }
 
 /* Simple test case for fragment_add_seq_check
@@ -1616,9 +1621,9 @@ test_simple_fragment_add(void)
     ASSERT(!tvb_memeql(fd_head->tvb_data,50,data+15,60));
     ASSERT(!tvb_memeql(fd_head->tvb_data,110,data+5,60));
 
-#if 0
-    print_fragment_table();
-#endif
+    if (debug) {
+        print_fragment_table();
+    }
 
     /* what happens if we revisit the packets now? */
     fdh0 = fd_head;
@@ -1643,9 +1648,9 @@ test_simple_fragment_add(void)
                          50, 60, TRUE);
     ASSERT_EQ_POINTER(fdh0,fd_head);
 
-#if 0
-    print_fragment_table();
-#endif
+    if (debug) {
+        print_fragment_table();
+    }
 }
 
 /* This tests the functionality of fragment_set_partial_reassembly for
@@ -2036,9 +2041,9 @@ test_fragment_add_duplicate_first(void)
     ASSERT(!tvb_memeql(fd_head->tvb_data,50,data+5,60));
     ASSERT(!tvb_memeql(fd_head->tvb_data,110,data+5,40));
 
-#if 0
-    print_fragment_table();
-#endif
+    if (debug) {
+        print_fragment_table();
+    }
 }
 
 
@@ -2140,9 +2145,9 @@ test_fragment_add_duplicate_middle(void)
     ASSERT(!tvb_memeql(fd_head->tvb_data,50,data+5,60));
     ASSERT(!tvb_memeql(fd_head->tvb_data,110,data+5,40));
 
-#if 0
-    print_fragment_table();
-#endif
+    if (debug) {
+        print_fragment_table();
+    }
 }
 
 /* XXX: Is the proper behavior here really throwing an exception instead
@@ -2269,9 +2274,9 @@ test_fragment_add_duplicate_last(void)
     ASSERT(!tvb_memeql(fd_head->tvb_data,50,data+5,60));
     ASSERT(!tvb_memeql(fd_head->tvb_data,110,data+5,40));
 
-#if 0
-    print_fragment_table();
-#endif
+    if (debug) {
+        print_fragment_table();
+    }
 }
 
 /* Test case for fragment_add with duplicated (e.g., retransmitted) data
@@ -2376,9 +2381,9 @@ test_fragment_add_duplicate_conflict(void)
     ASSERT(!tvb_memeql(fd_head->tvb_data,50,data+5,60));
     ASSERT(!tvb_memeql(fd_head->tvb_data,110,data+5,40));
 
-#if 0
-    print_fragment_table();
-#endif
+    if (debug) {
+        print_fragment_table();
+    }
 }
 
 /**********************************************************************************
@@ -2490,9 +2495,9 @@ test_simple_fragment_add_check(void)
     ASSERT(!tvb_memeql(fd_head->tvb_data,50,data+15,60));
     ASSERT(!tvb_memeql(fd_head->tvb_data,110,data+5,60));
 
-#if 0
-    print_fragment_table();
-#endif
+    if (debug) {
+        print_fragment_table();
+    }
 
     /* what happens if we revisit the packets now? */
     fdh0 = fd_head;
@@ -2517,9 +2522,9 @@ test_simple_fragment_add_check(void)
                                NULL, 50, 60, TRUE);
     ASSERT_EQ_POINTER(fdh0,fd_head);
 
-#if 0
-    print_fragment_table();
-#endif
+    if (debug) {
+        print_fragment_table();
+    }
 }
 
 #if 0
@@ -2922,9 +2927,9 @@ test_fragment_add_check_duplicate_first(void)
     ASSERT(!tvb_memeql(fd_head->tvb_data,50,data+5,60));
     ASSERT(!tvb_memeql(fd_head->tvb_data,110,data+5,40));
 
-#if 0
-    print_fragment_table();
-#endif
+    if (debug) {
+        print_fragment_table();
+    }
 }
 #endif
 
@@ -3030,9 +3035,9 @@ test_fragment_add_check_duplicate_middle(void)
     ASSERT(!tvb_memeql(fd_head->tvb_data,50,data+5,60));
     ASSERT(!tvb_memeql(fd_head->tvb_data,110,data+5,40));
 
-#if 0
-    print_fragment_table();
-#endif
+    if (debug) {
+        print_fragment_table();
+    }
 }
 
 #if 0
@@ -3147,9 +3152,9 @@ test_fragment_add_check_duplicate_last(void)
     ASSERT(!tvb_memeql(fd_head->tvb_data,50,data+5,60));
     ASSERT(!tvb_memeql(fd_head->tvb_data,110,data+5,40));
 
-#if 0
-    print_fragment_table();
-#endif
+    if (debug) {
+        print_fragment_table();
+    }
 }
 #endif
 
@@ -3258,9 +3263,9 @@ test_fragment_add_check_duplicate_conflict(void)
     ASSERT(!tvb_memeql(fd_head->tvb_data,50,data+5,60));
     ASSERT(!tvb_memeql(fd_head->tvb_data,110,data+5,40));
 
-#if 0
-    print_fragment_table();
-#endif
+    if (debug) {
+        print_fragment_table();
+    }
 }
 /**********************************************************************************
  *
