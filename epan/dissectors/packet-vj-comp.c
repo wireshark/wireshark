@@ -481,10 +481,10 @@ done_header_len:
     ti = proto_tree_add_bitmask(subtree, tvb, 0, hf_vjc_change_mask,
             ett_vjc_change_mask, vjc_change_mask_fields, ENC_NA);
     if ((flags & VJC_FLAGS_SAWU) == VJC_FLAGS_SAWU) {
-        proto_tree_add_expert(ti, pinfo, &ei_vjc_sawu, tvb, 0, 1);
+        proto_tree_add_expert(subtree, pinfo, &ei_vjc_sawu, tvb, 0, 1);
     }
     else if ((flags & VJC_FLAGS_SAWU) == VJC_FLAGS_SWU) {
-        proto_tree_add_expert(ti, pinfo, &ei_vjc_swu, tvb, 0, 1);
+        proto_tree_add_expert(subtree, pinfo, &ei_vjc_swu, tvb, 0, 1);
     }
 
     offset++;
@@ -502,7 +502,7 @@ done_header_len:
             proto_item_set_generated(ti);
         }
         else {
-            proto_tree_add_expert(ti, pinfo, &ei_vjc_no_cnum, tvb, 0, 0);
+            proto_tree_add_expert(subtree, pinfo, &ei_vjc_no_cnum, tvb, 0, 0);
         }
     }
     conv = vjc_find_conversation(pinfo, vjc_cnum, FALSE);
@@ -511,7 +511,7 @@ done_header_len:
         // Will be testing that pkt_data exists below
     }
     else {
-        proto_tree_add_expert(ti, pinfo, &ei_vjc_no_conversation,
+        proto_tree_add_expert(subtree, pinfo, &ei_vjc_no_conversation,
                 tvb, 1, (flags & VJC_FLAG_C) ? 1 : 0);
     }
 
