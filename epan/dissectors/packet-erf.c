@@ -3863,9 +3863,13 @@ proto_register_erf(void)
 void
 proto_reg_handoff_erf(void)
 {
+  int file_type_subtype_erf;
+
   dissector_add_uint("wtap_encap", WTAP_ENCAP_ERF, erf_handle);
   /* Also register dissector for Provenance non-packet records */
-  dissector_add_uint("wtap_fts_rec", WTAP_FILE_TYPE_SUBTYPE_ERF, erf_handle);
+  file_type_subtype_erf = wtap_name_to_file_type_subtype("erf");
+  if (file_type_subtype_erf != -1)
+    dissector_add_uint("wtap_fts_rec", file_type_subtype_erf, erf_handle);
 
   /* Get handles for serial line protocols */
   chdlc_handle  = find_dissector_add_dependency("chdlc", proto_erf);

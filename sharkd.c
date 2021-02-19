@@ -148,6 +148,11 @@ main(int argc, char *argv[])
   timestamp_set_precision(TS_PREC_AUTO);
   timestamp_set_seconds_type(TS_SECONDS_DEFAULT);
 
+  /*
+   * Libwiretap must be initialized before libwireshark is, so that
+   * dissection-time handlers for file-type-dependent blocks can
+   * register using the file type/subtype value for the file type.
+   */
   wtap_init(TRUE);
 
   /* Register all dissectors; we must do this before checking for the

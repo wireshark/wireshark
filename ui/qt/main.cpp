@@ -732,6 +732,11 @@ int main(int argc, char *qt_argv[])
                         open_failure_alert_box, read_failure_alert_box,
                         write_failure_alert_box);
 
+    /*
+     * Libwiretap must be initialized before libwireshark is, so that
+     * dissection-time handlers for file-type-dependent blocks can
+     * register using the file type/subtype value for the file type.
+     */
     wtap_init(TRUE);
 
     splash_update(RA_DISSECTORS, NULL, NULL);

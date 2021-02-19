@@ -1285,16 +1285,6 @@ static const struct file_type_subtype_info file_type_subtype_table_base[] = {
 	{ "ASN.1 Basic Encoding Rules", "ber", NULL, NULL,
 	  FALSE, FALSE, 0,
 	  NULL, NULL, NULL },
-
-	/* WTAP_FILE_TYPE_SUBTYPE_ERF */
-	{ "Endace ERF capture", "erf", "erf", NULL,
-	  FALSE, TRUE, WTAP_COMMENT_PER_SECTION|WTAP_COMMENT_PER_INTERFACE|WTAP_COMMENT_PER_PACKET,
-	  erf_dump_can_write_encap, erf_dump_open, NULL },
-
-	/* WTAP_FILE_TYPE_SUBTYPE_SYSTEMD_JOURNAL */
-	{ "systemd journal export", "systemd_journal", NULL, NULL,
-	  FALSE, FALSE, 0,
-	  NULL, NULL, NULL }
 };
 
 #define N_DUMP_OPEN_TABLE_BASE_ENTRIES	(sizeof(file_type_subtype_table_base) / sizeof(struct file_type_subtype_info))
@@ -2841,10 +2831,6 @@ wtap_register_backwards_compatibility_lua_name(const char *name, int ft)
 		    WTAP_FILE_TYPE_SUBTYPE_IPTRACE_2_0);
 		wtap_register_backwards_compatibility_lua_name("BER",
 		    WTAP_FILE_TYPE_SUBTYPE_BER);
-		wtap_register_backwards_compatibility_lua_name("ERF",
-		    WTAP_FILE_TYPE_SUBTYPE_ERF);
-		wtap_register_backwards_compatibility_lua_name("SYSTEMD_JOURNAL",
-		    WTAP_FILE_TYPE_SUBTYPE_SYSTEMD_JOURNAL);
 	}
 	entry.name = name;
 	entry.ft = ft;

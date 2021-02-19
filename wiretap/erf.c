@@ -177,6 +177,10 @@ static gboolean erf_wtap_blocks_to_erf_sections(wtap_block_t block, GPtrArray *s
 
 static guint32 erf_meta_read_tag(struct erf_meta_tag*, guint8*, guint32);
 
+static int erf_file_type_subtype = -1;
+
+void register_erf(void);
+
 static guint erf_anchor_mapping_hash(gconstpointer key) {
   const struct erf_anchor_mapping *anchor_map = (const struct erf_anchor_mapping*) key;
 
@@ -542,7 +546,7 @@ extern wtap_open_return_val erf_open(wtap *wth, int *err, gchar **err_info)
   }
 
   /* This is an ERF file */
-  wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_ERF;
+  wth->file_type_subtype = erf_file_type_subtype;
   wth->snapshot_length = 0;     /* not available in header, only in frame */
 
   /*
@@ -707,7 +711,7 @@ static gboolean erf_read_header(wtap *wth, FILE_T fh,
   {
     guint64 ts = pletoh64(&erf_header->ts);
 
-    /*if ((erf_header->type & 0x7f) != ERF_TYPE_META || wth->file_type_subtype != WTAP_FILE_TYPE_SUBTYPE_ERF) {*/
+    /*if ((erf_header->type & 0x7f) != ERF_TYPE_META || wth->file_type_subtype != file_type_subtype_erf) {*/
       rec->rec_type = REC_TYPE_PACKET;
     /*
      * XXX: ERF_TYPE_META records should ideally be FT_SPECIFIC for display
@@ -3389,6 +3393,23 @@ static void erf_close(wtap *wth)
   erf_priv_free(erf_priv);
   /* XXX: Prevent double free by wtap_close() */
   wth->priv = NULL;
+}
+
+static const struct file_type_subtype_info erf_info = {
+  "Endace ERF capture", "erf", "erf", NULL,
+  FALSE, TRUE, WTAP_COMMENT_PER_SECTION|WTAP_COMMENT_PER_INTERFACE|WTAP_COMMENT_PER_PACKET,
+  erf_dump_can_write_encap, erf_dump_open, NULL
+};
+
+void register_erf(void)
+{
+  erf_file_type_subtype = wtap_register_file_type_subtypes(&erf_info);
+
+  /*
+   * Register name for backwards compatibility with the
+   * wtap_filetypes table in Lua.
+   */
+  wtap_register_backwards_compatibility_lua_name("ERF", erf_file_type_subtype);
 }
 
 /*

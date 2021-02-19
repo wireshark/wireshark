@@ -479,6 +479,18 @@ main(int argc, char *argv[])
   timestamp_set_precision(TS_PREC_AUTO);
   timestamp_set_seconds_type(TS_SECONDS_DEFAULT);
 
+  /*
+   * Libwiretap must be initialized before libwireshark is, so that
+   * dissection-time handlers for file-type-dependent blocks can
+   * register using the file type/subtype value for the file type.
+   *
+   * XXX - TFShark shouldn't use libwiretap, as it's a file dissector
+   * and should read all files as raw bytes and then try to dissect them.
+   * It needs to handle file types its own way, because we would want
+   * to support dissecting file-type-specific blocks when dissecting
+   * capture files, but that mechanism should support plugins for
+   * other files, too, if *their* formats are extensible.
+   */
   wtap_init(TRUE);
 
   /* Register all dissectors; we must do this before checking for the

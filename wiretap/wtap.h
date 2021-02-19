@@ -312,8 +312,6 @@ extern "C" {
 #define WTAP_FILE_TYPE_SUBTYPE_IPTRACE_1_0                    9
 #define WTAP_FILE_TYPE_SUBTYPE_IPTRACE_2_0                   10
 #define WTAP_FILE_TYPE_SUBTYPE_BER                           11
-#define WTAP_FILE_TYPE_SUBTYPE_ERF                           12
-#define WTAP_FILE_TYPE_SUBTYPE_SYSTEMD_JOURNAL               13
 
 /* timestamp precision (currently only these values are supported) */
 #define WTAP_TSPREC_UNKNOWN    -2
