@@ -502,17 +502,9 @@ void ByteViewText::drawLine(QPainter *painter, const int offset, const int row_y
     addFormatRange(fmt_list, 0, offsetChars(), offset_mode);
 
     layout_->clearLayout();
-#if QT_VERSION >= QT_VERSION_CHECK(5, 6, 0)
     layout_->clearFormats();
-#else
-    layout_->clearAdditionalFormats();
-#endif
     layout_->setText(line);
-#if QT_VERSION >= QT_VERSION_CHECK(5, 6, 0)
     layout_->setFormats(fmt_list.toVector());
-#else
-    layout_->setAdditionalFormats(fmt_list);
-#endif
     layout_->beginLayout();
     QTextLine tl = layout_->createLine();
     tl.setLineWidth(totalPixels());

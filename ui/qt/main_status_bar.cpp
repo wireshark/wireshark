@@ -60,11 +60,7 @@ statusbar_push_temporary_msg(const gchar *msg_format, ...)
     if (!cur_main_status_bar_) return;
 
     va_start(ap, msg_format);
-#if QT_VERSION >= QT_VERSION_CHECK(5, 5, 0)
     push_msg = QString::vasprintf(msg_format, ap);
-#else
-    push_msg.vsprintf(msg_format, ap);
-#endif
     va_end(ap);
 
     wsApp->pushStatus(WiresharkApplication::TemporaryStatus, push_msg);

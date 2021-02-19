@@ -472,7 +472,7 @@ else() # ! MSVC
 	if(APPLE)
 		# MIN_MACOS_VERSION is used to set LSMinimumSystemVersion
 		# in Info.plist, so start with something low.
-		set(MIN_MACOS_VERSION 10.6)
+		set(MIN_MACOS_VERSION 10.8)
 		if(CMAKE_OSX_DEPLOYMENT_TARGET)
 			if(CMAKE_OSX_DEPLOYMENT_TARGET VERSION_LESS MIN_MACOS_VERSION)
 				message(FATAL_ERROR "We don't support building for macOS < ${MIN_MACOS_VERSION}")
@@ -1258,8 +1258,8 @@ if(GNUTLS_FOUND AND NOT GNUTLS_VERSION VERSION_LESS "3.4.0")
 endif()
 
 if (QT_FOUND)
-	if (Qt5Widgets_VERSION VERSION_LESS 5.3)
-		message(FATAL_ERROR "Qt 5.3 or later is required.")
+	if (Qt5Widgets_VERSION VERSION_LESS 5.6)
+		message(FATAL_ERROR "Qt 5.6 or later is required.")
 	endif()
 	if (Qt5Widgets_VERSION VERSION_GREATER 5.6
 	    AND (CMAKE_COMPILER_IS_GNUCC OR CMAKE_C_COMPILER_ID MATCHES "Clang"))
@@ -1288,10 +1288,6 @@ if (QT_FOUND)
 			HINTS "${QT_BIN_PATH}"
 			DOC "Path to the windeployqt utility."
 		)
-		if(Qt5Widgets_VERSION VERSION_GREATER "5.5.999")
-			set(QT_WINDEPLOYQT_EXTRA_OPTS --pdb)
-		endif()
-
 	elseif(APPLE)
 		find_program(QT_MACDEPLOYQT_EXECUTABLE macdeployqt
 			HINTS "${QT_BIN_PATH}"
@@ -1317,8 +1313,6 @@ if (QT_FOUND)
 			set(MIN_MACOS_VERSION 10.10)
 		elseif(Qt5Widgets_VERSION VERSION_GREATER "5.7.999")
 			set(MIN_MACOS_VERSION 10.9)
-		elseif(Qt5Widgets_VERSION VERSION_GREATER "5.4.999")
-			set(MIN_MACOS_VERSION 10.8)
 		endif()
 		if(CMAKE_OSX_DEPLOYMENT_TARGET AND CMAKE_OSX_DEPLOYMENT_TARGET VERSION_LESS MIN_MACOS_VERSION)
 			message(FATAL_ERROR "Qt version ${Qt5Widgets_VERSION} requires CMAKE_OSX_DEPLOYMENT_TARGET (${CMAKE_OSX_DEPLOYMENT_TARGET}) >= ${MIN_MACOS_VERSION}")
@@ -2420,7 +2414,7 @@ if(BUILD_wireshark AND QT_FOUND)
 				$<$<NOT:$<CONFIG:Debug>>:--release>
 				--no-compiler-runtime
 				--verbose 10
-				${QT_WINDEPLOYQT_EXTRA_OPTS}
+				--pdb
 				"$<TARGET_FILE:wireshark>"
 		)
 		add_dependencies(copy_qt_dlls wireshark)
