@@ -50,8 +50,22 @@
     (p)[(i)+3] = ((v) & 0x000000FF); \
 } G_STMT_END
 
+/* Store the last connection number we've seen.
+ * Only used on the first pass, in case the connection number itself
+ * gets compressed out.
+ */
 #define CNUM_INVALID G_MAXUINT16
-static guint16 last_cnum;
+static guint16 last_cnum = CNUM_INVALID;
+
+/* Location in an IPv4 packet of the IP Next Protocol field
+ * (which VJC replaces with the connection ID in uncompressed packets)
+ */
+#define VJC_CONNID_OFFSET 9
+
+/* Minimum TCP header length. We get compression data from the TCP header,
+ * and also store it for future use.
+ */
+#define VJC_TCP_HDR_LEN 20
 
 /* Structure for tracking the changeable parts of a packet header */
 typedef struct vjc_hdr_s {
@@ -90,6 +104,7 @@ static expert_field ei_vjc_no_conversation = EI_INIT;
 static expert_field ei_vjc_no_direction = EI_INIT;
 static expert_field ei_vjc_no_conv_data = EI_INIT;
 static expert_field ei_vjc_undecoded = EI_INIT;
+static expert_field ei_vjc_bad_data = EI_INIT;
 static expert_field ei_vjc_error = EI_INIT;
 
 #define VJC_FLAG_R 0x80
@@ -238,6 +253,7 @@ dissect_vjc_uncomp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
      */
     proto_tree     *subtree     = NULL;
     proto_item     *ti          = NULL;
+    guint8          ip_ver      = 0;
     guint8          ip_len      = 0;
     guint           tcp_len     = 0;
     guint32         vjc_cnum    = 0;
@@ -249,16 +265,30 @@ dissect_vjc_uncomp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
     guint8         *pdata       = NULL;
     static guint8   real_proto  = IP_PROTO_TCP;
 
-    tcp_len = tvb_get_guint16(tvb, 2, ENC_BIG_ENDIAN);
-
-    ti = proto_tree_add_item(tree, proto_vjc, tvb, 0, tcp_len, ENC_NA);
+    ti = proto_tree_add_item(tree, proto_vjc, tvb, 0, -1, ENC_NA);
     subtree = proto_item_add_subtree(ti, ett_vjc);
     proto_item_set_text(subtree, "PPP Van Jacobson uncompressed TCP/IP");
 
+    /* Start with some sanity checks */
+    if (VJC_CONNID_OFFSET+1 > tvb_captured_length(tvb)) {
+        proto_tree_add_expert_format(subtree, pinfo, &ei_vjc_bad_data, tvb, 0, -1,
+                "Packet truncated before Connection ID field");
+        return tvb_captured_length(tvb);
+    }
+    ip_ver = (tvb_get_guint8(tvb, 0) & 0xF0) >> 4;
+    ip_len = (tvb_get_guint8(tvb, 0) & 0x0F) << 2;
+    tcp_len = ip_len + VJC_TCP_HDR_LEN;
+    if (4 != ip_ver) {
+        proto_tree_add_expert_format(subtree, pinfo, &ei_vjc_bad_data, tvb, 0, 1,
+                "IPv%d unsupported for VJC compression", ip_ver);
+        return tvb_captured_length(tvb);
+    }
+
+    /* So far so good, continue the dissection */
     ti = proto_tree_add_boolean(subtree, hf_vjc_comp, tvb, 0, 0, FALSE);
     proto_item_set_generated(ti);
 
-    proto_tree_add_item_ret_uint(subtree, hf_vjc_cnum, tvb, 9, 1,
+    proto_tree_add_item_ret_uint(subtree, hf_vjc_cnum, tvb, VJC_CONNID_OFFSET, 1,
             ENC_BIG_ENDIAN, &vjc_cnum);
 
     /* Build a composite TVB containing the original TCP/IP data.
@@ -269,9 +299,11 @@ dissect_vjc_uncomp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
     tvb_set_free_cb(sub_tvb, NULL);
 
     tcpip_tvb = tvb_new_composite();
-    tvb_composite_append(tcpip_tvb, tvb_new_subset_length(tvb, 0, 9));
+    tvb_composite_append(tcpip_tvb, tvb_new_subset_length(tvb, 0, VJC_CONNID_OFFSET));
     tvb_composite_append(tcpip_tvb, sub_tvb);
-    tvb_composite_append(tcpip_tvb, tvb_new_subset_length(tvb, 10, tcp_len-10));
+    if (0 < tvb_captured_length_remaining(tvb, VJC_CONNID_OFFSET+1)) {
+        tvb_composite_append(tcpip_tvb, tvb_new_subset_length(tvb, VJC_CONNID_OFFSET+1, -1));
+    }
     tvb_composite_finalize(tcpip_tvb);
 
     add_new_data_source(pinfo, tcpip_tvb, "Original TCP/IP data");
@@ -280,10 +312,17 @@ dissect_vjc_uncomp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
         /* We can't make a proper conversation if we don't know the endpoints */
         proto_tree_add_expert(subtree, pinfo, &ei_vjc_no_direction, tvb, 0, 0);
     }
+    else if (tcp_len > tvb_captured_length(tvb)) {
+        /* Not enough data. We can still pass this packet onward (though probably
+         * to no benefit), but can't base future decompression off of it.
+         */
+        proto_tree_add_expert_format(subtree, pinfo, &ei_vjc_bad_data, tvb, 0, -1,
+                "Packet truncated before end of TCP/IP headers");
+    }
     else if (!pinfo->fd->visited) {
         /* If this is our first time visiting this packet, set things up for
-        * decompressing future packets.
-        */
+         * decompressing future packets.
+         */
         last_cnum = vjc_cnum;
         conv = vjc_find_conversation(pinfo, vjc_cnum, TRUE);
         pkt_data = (vjc_conv_t *)conversation_get_proto_data(conv, proto_vjc);
@@ -293,12 +332,14 @@ dissect_vjc_uncomp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
             conversation_add_proto_data(conv, proto_vjc, (void *)pkt_data);
         }
         pdata = // shorthand
-            pkt_data->frame_headers = (guint8 *)tvb_memdup(wmem_file_scope(), tcpip_tvb, 0, -1);
-        ip_len = (pdata[0] & 0x0F) << 2;
+            pkt_data->frame_headers =
+            (guint8 *)tvb_memdup(wmem_file_scope(), tcpip_tvb, 0, tcp_len);
 
         pkt_data->last_frame = pinfo->num;
         pkt_data->header_len = tcp_len;
-        pkt_data->last_frame_len = tcp_len - ip_len;
+
+        // This value is used for re-calculating seq/ack numbers
+        pkt_data->last_frame_len = tvb_reported_length(tvb) - ip_len;
 
         this_hdr = wmem_new0(wmem_file_scope(), vjc_hdr_t);
         this_hdr->ip_id = GET_16(pdata, 4);
@@ -329,6 +370,7 @@ dissect_vjc_comp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* 
     proto_tree     *subtree     = NULL;
     proto_item     *ti          = NULL;
     guint           hdr_len     = 3;    // See below
+    gboolean        hdr_error   = FALSE;
     guint           ip_len      = 0;
     guint           pkt_len     = 0;
     guint           d_ipid      = 0;
@@ -354,10 +396,15 @@ dissect_vjc_comp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* 
      * We start with a value of 3, because we'll always have
      * an 8-bit change mask and a 16-bit TCP checksum.
      */
+#define TEST_HDR_LEN \
+    if (hdr_len > tvb_captured_length(tvb)) { hdr_error = TRUE; goto done_header_len; }
+
+    TEST_HDR_LEN;
     flags = tvb_get_guint8(tvb, offset);
     if (flags & VJC_FLAG_C) {
         // have connection number
         hdr_len++;
+        TEST_HDR_LEN;
     }
     if ((flags & VJC_FLAGS_SAWU) == VJC_FLAGS_SAWU) {
         /* Special case for "unidirectional data transfer".
@@ -377,6 +424,7 @@ dissect_vjc_comp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* 
         if (flags & VJC_FLAG_U) {
             // have urgent pointer
             hdr_len += 2;
+            TEST_HDR_LEN;
         }
         if (flags & VJC_FLAG_W) {
             // have d_win
@@ -384,6 +432,7 @@ dissect_vjc_comp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* 
                 hdr_len += 3;
             else
                 hdr_len++;
+            TEST_HDR_LEN;
         }
         if (flags & VJC_FLAG_A) {
             // have d_ack
@@ -391,6 +440,7 @@ dissect_vjc_comp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* 
                 hdr_len += 3;
             else
                 hdr_len++;
+            TEST_HDR_LEN;
         }
         if (flags & VJC_FLAG_S) {
             // have d_seq
@@ -398,6 +448,7 @@ dissect_vjc_comp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* 
                 hdr_len += 3;
             else
                 hdr_len++;
+            TEST_HDR_LEN;
         }
     }
     if (flags & VJC_FLAG_I) {
@@ -406,14 +457,23 @@ dissect_vjc_comp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* 
             hdr_len += 3;
         else
             hdr_len++;
+        TEST_HDR_LEN;
     }
 
     /* Now that we have the header length, use it when assigning the
      * protocol item.
      */
-    ti = proto_tree_add_item(tree, proto_vjc, tvb, 0, hdr_len, ENC_NA);
+#undef TEST_HDR_LEN
+done_header_len:
+    ti = proto_tree_add_item(tree, proto_vjc, tvb, 0,
+            MIN(hdr_len, tvb_captured_length(tvb)), ENC_NA);
     subtree = proto_item_add_subtree(ti, ett_vjc);
     proto_item_set_text(subtree, "PPP Van Jacobson compressed TCP/IP");
+    if (hdr_error) {
+        proto_tree_add_expert_format(subtree, pinfo, &ei_vjc_bad_data, tvb, 0, -1,
+                "Packet truncated, compression header incomplete");
+        return tvb_captured_length(tvb);
+    }
 
     ti = proto_tree_add_boolean(subtree, hf_vjc_comp, tvb, 0, 0, TRUE);
     proto_item_set_generated(ti);
@@ -578,7 +638,7 @@ dissect_vjc_comp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* 
 
             // This frame is the next frame's last frame
             pkt_data->last_frame = pinfo->num;
-            pkt_data->last_frame_len = tvb_captured_length_remaining(tvb, offset);
+            pkt_data->last_frame_len = tvb_reported_length_remaining(tvb, offset);
         }
         else {
             proto_tree_add_expert_format(subtree, pinfo, &ei_vjc_error, tvb, 0, 0,
@@ -768,6 +828,9 @@ proto_register_vjc(void)
         { &ei_vjc_undecoded,
             { "vjc.no_decompress", PI_UNDECODED, PI_WARN,
                 "Undecoded data (impossible due to missing information)", EXPFILL }},
+        { &ei_vjc_bad_data,
+            { "vjc.bad_data", PI_PROTOCOL, PI_ERROR,
+                "Non-compliant packet data", EXPFILL }},
         { &ei_vjc_error,
             { "vjc.error", PI_MALFORMED, PI_ERROR,
                 "Unrecoverable dissector error", EXPFILL }},
