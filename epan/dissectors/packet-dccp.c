@@ -32,12 +32,16 @@
  *
  * Mar 11, 2012: add support for RFC 5596 (DCCP-Listen Packet)
  * (Francesco Fondelli)
+ *
+ * Feb 19, 2021: added service code types
+ * (Thomas Dreibholz)
  */
 
 #include "config.h"
 
 #include <epan/packet.h>
 #include <epan/addr_resolv.h>
+#include <epan/dccpservicecodes.h>
 #include <epan/ipproto.h>
 #include <epan/in_cksum.h>
 #include <epan/prefs.h>
@@ -91,6 +95,26 @@ static const value_string dccp_packet_type_vals[] = {
     {0xF, "Reserved"},
     {0,   NULL      }
 };
+
+/*
+ * Based on https://www.iana.org/assignments/service-codes/service-codes.xhtml
+ * as of February 19th, 2021
+ */
+static const value_string dccp_service_code_vals[] = {
+  { NOT_SPECIFIED_SERVICE_CODE, "not specified" },
+  { LTP_SERVICE_CODE,           "LTP: Licklider Transmission Protocol" },
+  { DISC_SERVICE_CODE,          "DISC: Discard" },
+  { RTCP_SERVICE_CODE,          "RTCP: RTCP connection, separate from the corresponding RTP" },
+  { RTPA_SERVICE_CODE,          "RTPA: RTP session conveying audio data (and associated RTCP)" },
+  { RTPO_SERVICE_CODE,          "RTPO: RTP session conveying other media (and associated RTCP)" },
+  { RTPT_SERVICE_CODE,          "RTPT: RTP session conveying text media (and associated RTCP)" },
+  { RTPV_SERVICE_CODE,          "RTPV: RTP session conveying video data (and associated RTCP)" },
+  { SYLG_SERVICE_CODE,          "SYLG: Syslog Protocol" },
+  { BUNDLES_SERVICE_CODE,       "Bundle Protocol" },
+  { NPMP_SERVICE_CODE,          "NPMP: NetPerfMeter Data" },
+  { RESERVED_SERVICE_CODE,      "Reserved (Invalid)" },
+
+  { 0,                          NULL } };
 
 static const value_string dccp_reset_code_vals[] = {
     {0x00, "Unspecified"       },
@@ -1134,7 +1158,7 @@ proto_register_dccp(void)
             &hf_dccp_service_code,
             {
                 "Service Code", "dccp.service_code",
-                FT_UINT32, BASE_DEC, NULL, 0x0,
+                FT_UINT32, BASE_DEC, VALS(dccp_service_code_vals), 0x0,
                 NULL, HFILL
             }
         },
