@@ -118,7 +118,7 @@ void proto_reg_handoff_gsm_a_dtap(void);
 
 /* PROTOTYPES/FORWARDS */
 
-const value_string gsm_a_dtap_msg_gcc_strings[] = {
+static const value_string gsm_a_dtap_msg_gcc_strings[] = {
     { 0x31, "Immediate Setup" },
     { 0x32, "Setup" },
     { 0x33, "Connect" },
@@ -131,7 +131,7 @@ const value_string gsm_a_dtap_msg_gcc_strings[] = {
     { 0, NULL }
 };
 
-const value_string gsm_a_dtap_msg_bcc_strings[] = {
+static const value_string gsm_a_dtap_msg_bcc_strings[] = {
     { 0x31, "Immediate Setup" },
     { 0x32, "Setup" },
     { 0x33, "Connect" },
@@ -890,8 +890,8 @@ static const value_string gsm_a_dtap_number_of_spare_bits_vals[] = {
     { 0, NULL }
 };
 
-const true_false_string tfs_add_ci = { "The MS should add the letters for the Country's Initials and a separator (e.g. a space) to the text string",
-                                       "The MS should not add the letters for the Country's Initials to the text string" };
+static const true_false_string tfs_add_ci = { "The MS should add the letters for the Country's Initials and a separator (e.g. a space) to the text string",
+                                              "The MS should not add the letters for the Country's Initials to the text string" };
 
 static const value_string gsm_a_dtap_coding_scheme_vals[] = {
     { 0, "Cell Broadcast data coding scheme, GSM default alphabet, language unspecified, defined in 3GPP TS 23.038"},
@@ -2064,17 +2064,17 @@ de_bearer_cap_uplink(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint3
 /*
  * [9] 10.5.4.5a Call Control Capabilities
  */
-const true_false_string gsm_a_dtap_mcat_value = {
+static const true_false_string gsm_a_dtap_mcat_value = {
     "The mobile station supports Multimedia CAT during the alerting phase of a mobile originated multimedia call establishment",
     "The mobile station does not support Multimedia CAT"
 };
 
-const true_false_string gsm_a_dtap_enicm_value = {
+static const true_false_string gsm_a_dtap_enicm_value = {
     "The mobile station supports the Enhanced Network-initiated In-Call Modification procedure",
     "The mobile station does not support the Enhanced Network-initiated In-Call Modification procedure"
 };
 
-const true_false_string gsm_a_dtap_dtmf_value = {
+static const true_false_string gsm_a_dtap_dtmf_value = {
     "the mobile station supports DTMF as specified in subclause 5.5.7 of TS 24.008",
     "reserved for earlier versions of the protocol"
 };
@@ -2222,7 +2222,7 @@ const value_string gsm_a_dtap_numbering_plan_id_values[] = {
     { 0, NULL }
 };
 
-const value_string gsm_a_dtap_present_ind_values[] = {
+static const value_string gsm_a_dtap_present_ind_values[] = {
     { 0x00, "Presentation allowed" },
     { 0x01, "Presentation restricted" },
     { 0x02, "Number not available due to interworking" },
@@ -2230,7 +2230,7 @@ const value_string gsm_a_dtap_present_ind_values[] = {
     { 0, NULL }
 };
 
-const value_string gsm_a_dtap_screening_ind_values[] = {
+static const value_string gsm_a_dtap_screening_ind_values[] = {
     { 0x00, "User-provided, not screened" },
     { 0x01, "User-provided, verified and passed" },
     { 0x02, "User-provided, verified and failed" },
@@ -2280,13 +2280,13 @@ de_bcd_num(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, 
 /*
  * Helper function for sub address decoding
  */
-const value_string gsm_a_dtap_type_of_sub_addr_values[] = {
+static const value_string gsm_a_dtap_type_of_sub_addr_values[] = {
     { 0x00, "NSAP (ITU-T Rec. X.213/ISO 8348 AD2)" },
     { 0x02, "User specified" },
     { 0, NULL }
 };
 
-const value_string gsm_a_dtap_odd_even_ind_values[] = {
+static const value_string gsm_a_dtap_odd_even_ind_values[] = {
     { 0x00, "even number of address signals" },
     { 0x01, "odd number of address signals" },
     { 0, NULL }
@@ -3088,7 +3088,7 @@ de_alert_pat(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset
 /*
  * 10.5.4.27 Allowed actions $(CCBS)$
  */
-const true_false_string gsm_a_ccbs_activation_value = {
+static const true_false_string gsm_a_ccbs_activation_value = {
     "Activation of CCBS possible",
     "Activation of CCBS not possible"
 };

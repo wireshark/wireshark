@@ -272,7 +272,7 @@ struct prop_ver_ctx {
     int mjr;
 };
 
-struct prop_ver_ctx hf_nvme_rdma_cmd_gprop_ver = {
+static struct prop_ver_ctx hf_nvme_rdma_cmd_gprop_ver = {
     .ter = -1,
     .mnr = -1,
     .mjr = -1,
@@ -359,7 +359,7 @@ struct prop_nssrc_ctx {
     int nssrc;
     int rsvd;
 };
-struct prop_nssrc_ctx hf_nvme_rdma_cmd_gprop_nssr = {
+static struct prop_nssrc_ctx hf_nvme_rdma_cmd_gprop_nssr = {
     .nssrc = -1,
     .rsvd = -1,
 };
@@ -393,7 +393,7 @@ static struct prop_csts_ctx hf_nvme_rdma_cmd_sprop_csts = {
     .rsvd1= -1,
 };
 /* NVM Subsystem Reset */
-struct prop_nssrc_ctx hf_nvme_rdma_cmd_sprop_nssr = {
+static struct prop_nssrc_ctx hf_nvme_rdma_cmd_sprop_nssr = {
     .nssrc = -1,
     .rsvd = -1,
 };

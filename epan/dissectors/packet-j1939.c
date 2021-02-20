@@ -145,7 +145,7 @@ static const value_string j1939_address_vals[] = {
     { 0, NULL }
 };
 
-value_string_ext j1939_address_vals_ext = VALUE_STRING_EXT_INIT(j1939_address_vals);
+static value_string_ext j1939_address_vals_ext = VALUE_STRING_EXT_INIT(j1939_address_vals);
 
 static void
 j1939_fmt_address(gchar *result, guint32 addr )

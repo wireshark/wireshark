@@ -24,10 +24,7 @@
 
 void proto_register_media(void);
 
-/* proto_media cannot be static because it's referenced in the
- * print routines
- */
-int proto_media = -1;
+static int proto_media = -1;
 static gint hf_media_type = -1;
 static gint ett_media = -1;
 static heur_dissector_list_t heur_subdissector_list;

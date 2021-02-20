@@ -354,7 +354,7 @@ static const value_string eap_sim_aka_attribute_vals[] = {
   { 151, "AT_DEVICE_IDENTITY" },
   { 0, NULL }
 };
-value_string_ext eap_sim_aka_attribute_vals_ext = VALUE_STRING_EXT_INIT(eap_sim_aka_attribute_vals);
+static value_string_ext eap_sim_aka_attribute_vals_ext = VALUE_STRING_EXT_INIT(eap_sim_aka_attribute_vals);
 
 static const value_string eap_sim_aka_notification_vals[] = {
   {    0, "General Failure after Authentication" },

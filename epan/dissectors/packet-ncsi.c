@@ -509,7 +509,7 @@ dissect_ncsi_aen(tvbuff_t *tvb, proto_tree *tree)
 
 #define HEXSTR(x) (((x) < 10)? '0' + (x): 'A' + ((x) - 10))
 
-const gchar *
+static const gchar *
 ncsi_bcd_dig_to_str(tvbuff_t *tvb, const gint offset)
 {
     int     length = 16; /* MM.mm.uu.aa.bb */
@@ -559,7 +559,7 @@ ncsi_bcd_dig_to_str(tvbuff_t *tvb, const gint offset)
 }
 
 
-const gchar *
+static const gchar *
 ncsi_fw_version(tvbuff_t *tvb, const gint offset)
 {
     int     length = 16; /* hh.hh.hh.hh */

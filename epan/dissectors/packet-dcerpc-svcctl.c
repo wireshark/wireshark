@@ -214,7 +214,7 @@ svcctl_scm_specific_rights(tvbuff_t *tvb, gint offset, proto_tree *tree,
 	proto_tree_add_boolean(tree, hf_svcctl_scm_rights_connect, tvb, offset, 4, access);
 }
 
-struct access_mask_info svcctl_scm_access_mask_info = {
+static struct access_mask_info svcctl_scm_access_mask_info = {
 	"SVCCTL",
 	svcctl_scm_specific_rights,
 	NULL,			/* Generic mapping table */

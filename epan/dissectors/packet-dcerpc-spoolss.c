@@ -422,7 +422,7 @@ spoolss_job_specific_rights(tvbuff_t *tvb, gint offset,
 		tree, hf_job_access_admin, tvb, offset, 4, access);
 }
 
-struct access_mask_info spoolss_job_access_mask_info = {
+static struct access_mask_info spoolss_job_access_mask_info = {
 	"SPOOLSS job",
 	spoolss_job_specific_rights,
 	NULL,			/* Generic mapping table */
