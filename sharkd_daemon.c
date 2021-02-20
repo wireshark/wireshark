@@ -354,7 +354,11 @@ sharkd_init(int argc, char **argv)
 }
 
 int
+#ifndef _WIN32
+sharkd_loop(int argc _U_, char* argv[] _U_)
+#else
 sharkd_loop(int argc _U_, char* argv[])
+#endif
 {
 	if (mode == SHARKD_MODE_CLASSIC_CONSOLE || mode == SHARKD_MODE_GOLD_CONSOLE)
 	{
