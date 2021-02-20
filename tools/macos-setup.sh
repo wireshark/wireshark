@@ -19,11 +19,10 @@ shopt -s extglob
 DARWIN_MAJOR_VERSION=`uname -r | sed 's/\([0-9]*\).*/\1/'`
 
 #
-# To make this work on Leopard (rather than working *on* Snow Leopard
-# when building *for* Leopard) will take more work.
-#
-if [[ $DARWIN_MAJOR_VERSION -le 9 ]]; then
-    echo "This script does not support any versions of macOS before Snow Leopard" 1>&2
+# The minimum supported version of Qt is 5.6, so the minimum supported version
+# of macOS is OS X 10.8 (Mountain Lion), aka Darwin 12.0
+if [[ $DARWIN_MAJOR_VERSION -lt 12 ]]; then
+    echo "This script does not support any versions of macOS before Mountain Lion" 1>&2
     exit 1
 fi
 
@@ -69,26 +68,18 @@ PCRE_VERSION=8.44
 # CMake is required to do the build - and to build some of the
 # dependencies.
 #
-# Sigh.  CMake versions 3.7 and later fail on Lion due to issues with
-# Lion's libc++, and CMake 3.5 and 3.6 have an annoying "Make sure the
-# combination of SDK and Deployment Target are allowed" check that fails
-# in some cases.
-#
 # 3.19.2 is the first version to support Apple Silicon, but the precompiled
 # binary on cmake.org is only a universal binary that requires macOS 10.0
 # (Yosemite) or newer.
 #
-# So if you're on Lion, we choose version 3.5.2, otherwise on Mountain
-# Lion and Mavericks we choose the last stable release that works on
-# them (3.18.5), and on Yosemite and later we choose the latest stable
+# So on Mountain Lion and Mavericks we choose the last stable release that
+# works on them (3.18.5), and on Yosemite and later we choose the latest stable
 # version (currently 3.19.2).
 #
 if [[ $DARWIN_MAJOR_VERSION -gt 13 ]]; then
     CMAKE_VERSION=${CMAKE_VERSION-3.19.2}
-elif [[ $DARWIN_MAJOR_VERSION -gt 11 ]]; then
-    CMAKE_VERSION=${CMAKE_VERSION-3.18.5}
 else
-    CMAKE_VERSION=${CMAKE_VERSION-3.5.2}
+    CMAKE_VERSION=${CMAKE_VERSION-3.18.5}
 fi
 
 #
@@ -122,11 +113,6 @@ LIBGCRYPT_VERSION=1.8.7
 # script, e.g.
 # "QT_VERSION=5.10.1 ./macos-setup.sh"
 # will build and install with QT 5.10.1.
-#
-# Note that Qt 5, prior to 5.5.0, mishandles context menus in ways that,
-# for example, cause them not to work reliably in the packet detail or
-# packet data pane; see, for example, Qt bugs QTBUG-31937, QTBUG-41017,
-# and QTBUG-43464, all of which seem to be the same bug.
 #
 QT_VERSION=${QT_VERSION-5.12.6}
 
@@ -199,8 +185,8 @@ OPUS_VERSION=1.3.1
 # (Mountain Lion), and 3.9.1 is the first version of Python to support
 # macOS 11 Big Sur and Apple Silicon (arm-based Macs).
 
-# So on Snow Leopard through Mountain Lion, choose 3.7.6, otherwise
-# get the latest stable version (3.9.1).
+# So on Mountain Lion, choose 3.7.6, otherwise get the latest stable version
+# (3.9.1).
 if [[ $DARWIN_MAJOR_VERSION -gt 12 ]]; then
     PYTHON3_VERSION=3.9.1
 else
@@ -868,11 +854,11 @@ install_qt() {
         5*)
             case $QT_MINOR_VERSION in
 
-            0|1|2)
+            0|1|2|3|4|5)
                 echo "Qt $QT_VERSION" is too old 1>&2
                 ;;
 
-            3|4|5|6|7|8)
+            6|7|8)
                 QT_VOLUME=qt-opensource-mac-x64-clang-$QT_VERSION
                 ;;
 
@@ -923,21 +909,8 @@ uninstall_qt() {
             5*)
                 case $installed_qt_minor_version in
 
-                0|1)
+                0|1|2)
                     echo "Qt $installed_qt_version" is too old 1>&2
-                    ;;
-
-                2)
-                    case $installed_qt_dotdot_version in
-
-                    0)
-                        installed_qt_volume=qt-mac-opensource-$installed_qt_version.dmg
-                        ;;
-
-                    1)
-                        installed_qt_volume=qt-opensource-mac-x64-clang-$installed_qt_version.dmg
-                        ;;
-                    esac
                     ;;
 
                 3|4|5|6|7|8)
@@ -2017,7 +1990,7 @@ install_python3() {
         macver=11.0
     elif [[ $DARWIN_MAJOR_VERSION -lt 13 ]]; then
         # The 64-bit installer requires 10.9 (Mavericks), use the 64-bit/32-bit
-        # variant for 10.6 (Snow Leopard) through 10.8 (Mountain Lion).
+        # variant for 10.8 (Mountain Lion).
         macver=x10.6
     fi
     if [ "$PYTHON3_VERSION" -a ! -f python3-$PYTHON3_VERSION-done ] ; then
