@@ -59,9 +59,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  ansi_tsb58_srvc_cat_vals_ext@Base 1.12.0~rc1
  asn1_ctx_init@Base 1.9.1
  attributes_page_vals_ext@Base 1.12.0~rc1
- ber_decode_as@Base 1.9.1
  ber_decode_as_foreach@Base 1.9.1
- ber_set_filename@Base 1.9.1
  bluetooth_company_id_vals_ext@Base 1.99.6
  bluetooth_gatt_has_no_parameter@Base 2.1.0
  bluetooth_uuid_vals@Base 1.99.2

@@ -187,10 +187,6 @@ int dissect_ber_oid_NULL_callback(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
 WS_DLL_PUBLIC
 void ber_decode_as_foreach(GHFunc func, gpointer user_data); /* iterate through known syntaxes */
-WS_DLL_PUBLIC
-void ber_decode_as(const gchar *syntax); /* decode the current capture as this syntax */
-WS_DLL_PUBLIC
-void ber_set_filename(gchar *filename); /* name of current BER-encoded file */
 
 WS_DLL_PUBLIC
 gboolean oid_has_dissector(const char *oid);

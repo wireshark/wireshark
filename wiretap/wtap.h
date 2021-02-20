@@ -1133,6 +1133,11 @@ struct netmon_phdr {
     } subheader;
 };
 
+/* File "pseudo-header" for BER data files. */
+struct ber_phdr {
+    const char *pathname;   /* Path name of file. */
+};
+
 union wtap_pseudo_header {
     struct eth_phdr     eth;
     struct dte_dce_phdr dte_dce;
@@ -1160,6 +1165,7 @@ union wtap_pseudo_header {
     struct llcp_phdr    llcp;
     struct logcat_phdr  logcat;
     struct netmon_phdr  netmon;
+    struct ber_phdr     ber;
 };
 
 /*

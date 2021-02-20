@@ -191,7 +191,6 @@ static gboolean decode_unexpected                = FALSE;
 static gboolean decode_warning_leading_zero_bits = FALSE;
 
 static gchar *decode_as_syntax = NULL;
-static gchar *ber_filename     = NULL;
 
 static dissector_table_t ber_oid_dissector_table    = NULL;
 static dissector_table_t ber_syntax_dissector_table = NULL;
@@ -399,13 +398,15 @@ static void ber_populate_list(const gchar *table_name _U_, decode_as_add_to_list
 
 static gboolean ber_decode_as_reset(const char *name _U_, gconstpointer pattern _U_)
 {
-    ber_decode_as(NULL);
+    g_free(decode_as_syntax);
+    decode_as_syntax = NULL;
     return FALSE;
 }
 
 static gboolean ber_decode_as_change(const char *name _U_, gconstpointer pattern _U_, gconstpointer handle _U_, const gchar* list_name)
 {
-    ber_decode_as(list_name);
+    g_free(decode_as_syntax);
+    decode_as_syntax = g_strdup(list_name);
     return FALSE;
 }
 
@@ -497,43 +498,12 @@ ber_decode_as_foreach(GHFunc func, gpointer user_data)
 
 }
 
-void
-ber_decode_as(const gchar *syntax)
-{
-
-    g_free(decode_as_syntax);
-    decode_as_syntax = g_strdup(syntax);
-}
-
 /* Get oid syntax from hash table to get translation in proto dissection(packet-per.c) */
 static const gchar *
 get_ber_oid_syntax(const char *oid)
 {
     return (const char *)g_hash_table_lookup(syntax_table, oid);
 }
-
-void
-ber_set_filename(gchar *filename)
-{
-    gchar      *ptr;
-
-    if (ber_filename) {
-        g_free(ber_filename);
-        ber_filename = NULL;
-    }
-
-    if (filename) {
-
-        ber_filename = g_strdup(filename);
-
-        if ((ptr = strrchr(ber_filename, '.')) != NULL) {
-
-            ber_decode_as(get_ber_oid_syntax(ptr));
-
-        }
-    }
-}
-
 
 static void
 ber_update_oids(void)
@@ -4287,7 +4257,7 @@ dissect_ber_syntax(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 }
 
 static int
-dissect_ber(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_ber_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, const char *syntax)
 {
     const char *name;
     int offset;
@@ -4296,7 +4266,7 @@ dissect_ber(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 
     col_set_str(pinfo->cinfo, COL_DEF_SRC, "BER encoded value");
 
-    if (!decode_as_syntax) {
+    if (!syntax) {
 
         /* if we got here we couldn't find anything better */
         col_set_str(pinfo->cinfo, COL_INFO, "Unknown BER");
@@ -4305,14 +4275,32 @@ dissect_ber(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 
     } else {
 
-        offset = call_ber_syntax_callback(decode_as_syntax, tvb, 0, pinfo, tree);
+        offset = call_ber_syntax_callback(syntax, tvb, 0, pinfo, tree);
 
         /* see if we have a better name */
-        name = get_ber_oid_syntax(decode_as_syntax);
-        col_add_fstr(pinfo->cinfo, COL_INFO, "Decoded as %s", name ? name : decode_as_syntax);
+        name = get_ber_oid_syntax(syntax);
+        col_add_fstr(pinfo->cinfo, COL_INFO, "Decoded as %s", name ? name : syntax);
     }
 
     return offset;
+}
+
+static int
+dissect_ber(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+    return dissect_ber_common(tvb, pinfo, tree, decode_as_syntax);
+}
+
+static int
+dissect_ber_file(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+    struct ber_phdr *ber = (struct ber_phdr *)data;
+    const char *ptr;
+    const char *file_syntax = NULL;
+
+    if ((ptr = strrchr(ber->pathname, '.')) != NULL)
+        file_syntax = get_ber_oid_syntax(ptr);
+    return dissect_ber_common(tvb, pinfo, tree, file_syntax);
 }
 
 gboolean
@@ -4636,11 +4624,10 @@ void
 proto_reg_handoff_ber(void)
 {
     guint i = 1;
+    dissector_handle_t ber_file_handle;
 
     oid_add_from_string("asn1", "2.1");
     oid_add_from_string("basic-encoding", "2.1.1");
-
-    dissector_add_uint("wtap_encap", WTAP_ENCAP_BER, ber_handle);
 
     ber_decode_as_foreach(ber_add_syntax_name, &i);
 
@@ -4655,6 +4642,9 @@ proto_reg_handoff_ber(void)
     dissector_add_for_decode_as_with_preference("udp.port", ber_handle);
 
     ber_update_oids();
+
+    ber_file_handle = create_dissector_handle(dissect_ber_file, proto_ber);
+    dissector_add_uint("wtap_encap", WTAP_ENCAP_BER, ber_file_handle);
 }
 
 /*

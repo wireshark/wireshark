@@ -1441,6 +1441,8 @@ wtap_close(wtap *wth)
 
 	g_free(wth->priv);
 
+	g_free(wth->pathname);
+
 	if (wth->fast_seek != NULL) {
 		g_ptr_array_foreach(wth->fast_seek, g_fast_seek_item_free, NULL);
 		g_ptr_array_free(wth->fast_seek, TRUE);

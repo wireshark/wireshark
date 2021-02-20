@@ -35,7 +35,6 @@
 #include <epan/dfilter/dfilter.h>
 #include <epan/epan_dissect.h>
 #include <epan/tap.h>
-#include <epan/dissectors/packet-ber.h>
 #include <epan/timestamp.h>
 #include <epan/dfilter/dfilter-macro.h>
 #include <epan/strutil.h>
@@ -325,11 +324,6 @@ cf_open(capture_file *cf, const char *fname, unsigned int type, gboolean is_temp
 
   packet_list_queue_draw();
   cf_callback_invoke(cf_cb_file_opened, cf);
-
-  if (cf->cd_t == WTAP_FILE_TYPE_SUBTYPE_BER) {
-    /* tell the BER dissector the file name */
-    ber_set_filename(cf->filename);
-  }
 
   wtap_set_cb_new_ipv4(cf->provider.wth, add_ipv4_name);
   wtap_set_cb_new_ipv6(cf->provider.wth, (wtap_new_ipv6_callback_t) add_ipv6_name);

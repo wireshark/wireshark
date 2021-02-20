@@ -22,6 +22,34 @@
 #define BER_UNI_TAG_SEQ 16      /* SEQUENCE, SEQUENCE OF */
 #define BER_UNI_TAG_SET 17      /* SET, SET OF */
 
+static int ber_file_type_subtype = -1;
+
+void register_ber(void);
+
+static gboolean ber_full_file_read(wtap *wth, wtap_rec *rec, Buffer *buf,
+                                   int *err, gchar **err_info,
+                                   gint64 *data_offset)
+{
+  if (!wtap_full_file_read(wth, rec, buf, err, err_info, data_offset))
+    return FALSE;
+
+  /* Pass the file name. */
+  rec->rec_header.packet_header.pseudo_header.ber.pathname = wth->pathname;
+  return TRUE;
+}
+
+static gboolean ber_full_file_seek_read(wtap *wth, gint64 seek_off,
+                                        wtap_rec *rec, Buffer *buf,
+                                        int *err, gchar **err_info)
+{
+  if (!wtap_full_file_seek_read(wth, seek_off, rec, buf, err, err_info))
+    return FALSE;
+
+  /* Pass the file name. */
+  rec->rec_header.packet_header.pseudo_header.ber.pathname = wth->pathname;
+  return TRUE;
+}
+
 wtap_open_return_val ber_open(wtap *wth, int *err, gchar **err_info)
 {
 #define BER_BYTES_TO_CHECK 8
@@ -90,15 +118,32 @@ wtap_open_return_val ber_open(wtap *wth, int *err, gchar **err_info)
   if (file_seek(wth->fh, 0, SEEK_SET, err) == -1)
     return WTAP_OPEN_ERROR;
 
-  wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_BER;
+  wth->file_type_subtype = ber_file_type_subtype;
   wth->file_encap = WTAP_ENCAP_BER;
   wth->snapshot_length = 0;
 
-  wth->subtype_read = wtap_full_file_read;
-  wth->subtype_seek_read = wtap_full_file_seek_read;
+  wth->subtype_read = ber_full_file_read;
+  wth->subtype_seek_read = ber_full_file_seek_read;
   wth->file_tsprec = WTAP_TSPREC_SEC;
 
   return WTAP_OPEN_MINE;
+}
+
+static const struct file_type_subtype_info ber_info = {
+  "ASN.1 Basic Encoding Rules", "ber", NULL, NULL,
+  FALSE, FALSE, 0,
+  NULL, NULL, NULL
+};
+
+void register_ber(void)
+{
+  ber_file_type_subtype = wtap_register_file_type_subtypes(&ber_info);
+
+  /*
+   * Register name for backwards compatibility with the
+   * wtap_filetypes table in Lua.
+   */
+  wtap_register_backwards_compatibility_lua_name("BER", ber_file_type_subtype);
 }
 
 /*

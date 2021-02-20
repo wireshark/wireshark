@@ -878,6 +878,7 @@ wtap_open_offline(const char *filename, unsigned int type, int *err, char **err_
 	wth->subtype_sequential_close = NULL;
 	wth->subtype_close = NULL;
 	wth->file_tsprec = WTAP_TSPREC_USEC;
+	wth->pathname = g_strdup(filename);
 	wth->priv = NULL;
 	wth->wslua_data = NULL;
 	wth->shb_hdrs = g_array_new(FALSE, FALSE, sizeof(wtap_block_t));
@@ -1279,12 +1280,7 @@ static const struct file_type_subtype_info file_type_subtype_table_base[] = {
 	/* WTAP_FILE_TYPE_SUBTYPE_IPTRACE_2_0 */
 	{ "AIX iptrace 2.0", "iptrace_2", NULL, NULL,
 	  FALSE, FALSE, 0,
-	  NULL, NULL, NULL },
-
-	/* WTAP_FILE_TYPE_SUBTYPE_BER */
-	{ "ASN.1 Basic Encoding Rules", "ber", NULL, NULL,
-	  FALSE, FALSE, 0,
-	  NULL, NULL, NULL },
+	  NULL, NULL, NULL }
 };
 
 #define N_DUMP_OPEN_TABLE_BASE_ENTRIES	(sizeof(file_type_subtype_table_base) / sizeof(struct file_type_subtype_info))
@@ -2829,8 +2825,6 @@ wtap_register_backwards_compatibility_lua_name(const char *name, int ft)
 		    WTAP_FILE_TYPE_SUBTYPE_IPTRACE_1_0);
 		wtap_register_backwards_compatibility_lua_name("IPTRACE_2_0",
 		    WTAP_FILE_TYPE_SUBTYPE_IPTRACE_2_0);
-		wtap_register_backwards_compatibility_lua_name("BER",
-		    WTAP_FILE_TYPE_SUBTYPE_BER);
 	}
 	entry.name = name;
 	entry.ft = ft;
