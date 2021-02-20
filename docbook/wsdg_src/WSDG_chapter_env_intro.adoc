@@ -231,7 +231,7 @@ Later chapters describe the required tools and libraries in detail.
 
 === Automated Builds (GitLab CI And Buildbot)
 
-The Wireshark devlopment team uses GitLab’s continuous integration (CI) system and Buildbot to automatically build Wireshark for each Git merge request and commit. Automated builds provide several useful services:
+The Wireshark development team uses GitLab’s continuous integration (CI) system and Buildbot to automatically build Wireshark for each Git merge request and commit. Automated builds provide several useful services:
 
 * Cross-platform testing.
   Inbound merge requests and commits can be tested on each of our supported plaforms, which ensures that a developer on one platform doesn’t break the build on other platforms.

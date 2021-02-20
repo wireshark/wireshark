@@ -209,7 +209,7 @@ def removeContractions(code_string):
                      "you’d", "developer’s", "doesn’t", "what’s", "let’s", "haven’t", "can’t", "you’ve",
                      "shouldn’t", "didn’t", "wouldn’t", "aren’t", "there’s", "packet’s", "couldn’t", "world’s",
                      "needn’t", "graph’s", "table’s", "parent’s", "entity’s", "server’s", "node’s",
-                     "querier’s", "sender’s", "receiver’s", "computer’s"]
+                     "querier’s", "sender’s", "receiver’s", "computer’s", "frame’s", "vendor’s", "system’s"]
     for c in contractions:
         code_string = code_string.replace(c, "")
         code_string = code_string.replace(c.capitalize(), "")
@@ -220,13 +220,15 @@ def removeContractions(code_string):
 def removeComments(code_string):
     code_string = re.sub(re.compile(r"/\*.*?\*/",re.DOTALL ) ,"" ,code_string) # C-style comment
     # Remove this for now as can get tripped up if see htpps://www.... within a string!
-    #code_string = re.sub(re.compile(r"//.*?\n" ) ,"" ,code_string)             # C++-style comment
+    code_string = re.sub(re.compile(r"^\s*//.*?\n" ) ,"" ,code_string)             # C++-style comment
     return code_string
 
 def removeSingleQuotes(code_string):
+    code_string = code_string.replace('\\\\', " ")        # Separate at \\
     code_string = code_string.replace('\"\\\\\"', "")
     code_string = code_string.replace("\\\"", " ")
     code_string = code_string.replace("'\"'", "")
+    code_string = code_string.replace('…', ' ')
     return code_string
 
 def removeHexSpecifiers(code_string):

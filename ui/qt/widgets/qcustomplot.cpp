@@ -16556,7 +16556,7 @@ void QCPSelectionDecoratorBracket::drawBracket(QCPPainter *painter, int directio
     }
     default:
     {
-      qDebug() << Q_FUNC_INFO << "unknown/custom bracket style can't be handeld by default implementation:" << static_cast<int>(mBracketStyle);
+      qDebug() << Q_FUNC_INFO << "unknown/custom bracket style can't be handled by default implementation:" << static_cast<int>(mBracketStyle);
       break;
     }
   }

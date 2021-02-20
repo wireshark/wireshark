@@ -196,8 +196,8 @@ static int hf_bssgp_ggsn_pgw_location = -1;
 static int hf_bssgp_edrx_cycle_value = -1;
 static int hf_bssgp_tunpo_minutes = -1;
 static int hf_bssgp_tunpo_seconds = -1;
-static int hf_bssgp_ec_dl_coveradge_class = -1;
-static int hf_bssgp_ec_ul_coveradge_class = -1;
+static int hf_bssgp_ec_dl_coverage_class = -1;
+static int hf_bssgp_ec_ul_coverage_class = -1;
 static int hf_bssgp_pei = -1;
 static int hf_bssgp_paging_attempt_count = -1;
 static int hf_bssgp_intended_num_of_pag_attempts = -1;
@@ -535,7 +535,7 @@ x91     IRAT Measurement Configuration (extended E-ARFCNs)
 */
 #define BSSGP_IEI_EDRX_PARAMETERS                          0x92
 #define BSSGP_IEI_TUNPO                                    0x93
-#define BSSGP_IEI_COVERADGE_CLASS                          0x98
+#define BSSGP_IEI_COVERAGE_CLASS                           0x98
 #define BSSGP_IEI_PAG_ATTEMPT_INFO                         0x99
 #define BSSGP_IEI_EXCEPTION_REPORT_FLAG                    0x9a
 #define BSSGP_IEI_OLD_RA_IDENTIFICATION                    0x9b
@@ -3503,7 +3503,7 @@ de_bssgp_tunpo(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 
 /*
  * 11.3.124 	Coverage Class
  */
-static const value_string bssgp_ec_dl_coveradge_class_vals[] = {
+static const value_string bssgp_ec_dl_coverage_class_vals[] = {
     { 0x0, "reserved" },
     { 0x1, "DL Coverage Class 1" },
     { 0x2, "DL Coverage Class 2" },
@@ -3512,7 +3512,7 @@ static const value_string bssgp_ec_dl_coveradge_class_vals[] = {
     { 0, NULL }
 };
 
-static const value_string bssgp_ec_ul_coveradge_class_vals[] = {
+static const value_string bssgp_ec_ul_coverage_class_vals[] = {
     { 0x0, "reserved" },
     { 0x1, "UL Coverage Class 1" },
     { 0x2, "UL Coverage Class 2" },
@@ -3522,14 +3522,14 @@ static const value_string bssgp_ec_ul_coveradge_class_vals[] = {
 };
 
 static guint16
-de_bssgp_coveradge_class(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_bssgp_coverage_class(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     guint32	curr_offset;
 
     curr_offset = offset;
 
-    proto_tree_add_item(tree, hf_bssgp_ec_dl_coveradge_class, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_bssgp_ec_ul_coveradge_class, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_bssgp_ec_dl_coverage_class, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_bssgp_ec_ul_coverage_class, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
     curr_offset++;
 
    return(curr_offset - offset);
@@ -3714,7 +3714,7 @@ typedef enum
     DE_BSSGP_PRIORITY_CLASS_IND,                                /* 11.3.119 Priority Class Indicator */
     DE_BSSGP_EDRX_PARAMS,                                       /* 11.3.122 eDRX Parameters */
     DE_BSSGP_TUNPO,                                             /* 11.3.123 Time Until Next Paging Occasion */
-    DE_BSSGP_COVERADGE_CLASS,                                   /* 11.3.124 Coverage Class */
+    DE_BSSGP_COVERAGE_CLASS,                                    /* 11.3.124 Coverage Class */
     DE_BSSGP_PAG_ATTEMPT_INFO,                                  /* 11.3.125 Paging Attempt Information */
     DE_BSSGP_EXCEPTION_REPORT_FLAG,                             /* 11.3.126 Exception Report Flag */
     DE_BSSGP_OLD_RA_IDENTIFICATION,                             /* 11.3.127	Old Routing Area Identification */
@@ -3881,7 +3881,7 @@ static const value_string bssgp_elem_strings[] = {
     { DE_BSSGP_PRIORITY_CLASS_IND,                   "Priority Class Indicator" },                           /* 11.3.119 Priority Class Indicator */
     { DE_BSSGP_EDRX_PARAMS,                          "eDRX Parameters" },                                    /* 11.3.122 eDRX Parameters */
     { DE_BSSGP_TUNPO,                                "Time Until Next Paging Occasion" },                    /* 11.3.123 Time Until Next Paging Occasion */
-    { DE_BSSGP_COVERADGE_CLASS,                      "Coverage Class" },                                     /* 11.3.124 Coverage Class */
+    { DE_BSSGP_COVERAGE_CLASS,                       "Coverage Class" },                                     /* 11.3.124 Coverage Class */
     { DE_BSSGP_PAG_ATTEMPT_INFO,                     "Paging Attempt Information" },                         /* 11.3.125 Paging Attempt Information */
     { DE_BSSGP_EXCEPTION_REPORT_FLAG,                "Exception Report Flag" },                              /* 11.3.126 Exception Report Flag */
     { DE_BSSGP_OLD_RA_IDENTIFICATION,                "Old Routing Area Identification" },                    /* 11.3.127 Old Routing Area Identification */
@@ -4007,7 +4007,7 @@ guint16 (*bssgp_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
     de_bssgp_pri_class_ind,                                     /* 11.3.119 Priority Class Indicator */
     de_bssgp_edrx_params,                                       /* 11.3.122 eDRX Parameters */
     de_bssgp_tunpo,                                             /* 11.3.122 Time Until Next Paging Occasion */
-    de_bssgp_coveradge_class,                                   /* 11.3.124 Coverage Class */
+    de_bssgp_coverage_class,                                    /* 11.3.124 Coverage Class */
     de_bssgp_pag_attempt_info,                                  /* 11.3.125 Paging Attempt Information */
     NULL,                                                       /* 11.3.126 Exception Report Flag */
     NULL,                                                       /* 11.3.127 Old Routing Area Identification */
@@ -4296,7 +4296,7 @@ bssgp_dl_unitdata(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 o
     /* eDRX Parameters (note 11) eDRX Parameters/11.3.122 O TLV 3 */
     ELEM_OPT_TELV(BSSGP_IEI_EDRX_PARAMETERS, BSSGP_PDU_TYPE, DE_BSSGP_EDRX_PARAMS, NULL);
     /* Coverage Class Coverage Class/11.3.124 O TLV 3 */
-    ELEM_OPT_TELV(BSSGP_IEI_COVERADGE_CLASS, BSSGP_PDU_TYPE, DE_BSSGP_COVERADGE_CLASS, NULL);
+    ELEM_OPT_TELV(BSSGP_IEI_COVERAGE_CLASS, BSSGP_PDU_TYPE, DE_BSSGP_COVERAGE_CLASS, NULL);
     /* Old Routing Area Identification (note 12) Old Routing Area Identification/11.3.127 O TLV 8 */
     ELEM_OPT_TELV(BSSGP_IEI_OLD_RA_IDENTIFICATION, GSM_A_PDU_TYPE_GM, DE_RAI, " - Old routing area identification");
     /* Attach Indicator(note 13) Attach Indicator / 11.3.128 O TLV 3 */
@@ -4352,7 +4352,7 @@ bssgp_ul_unitdata(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 o
     /* Selected PLMN ID (note 5) Selected PLMN ID/11.3.118 O TLV 5 */
     ELEM_OPT_TELV(BSSGP_IEI_SELECTED_PLMN_ID, BSSGP_PDU_TYPE, DE_BSSGP_PLMN_ID, " - Selected PLMN ID");
     /* Coverage Class Coverage Class/11.3.124 O TLV 3 */
-    ELEM_OPT_TELV(BSSGP_IEI_COVERADGE_CLASS, BSSGP_PDU_TYPE, DE_BSSGP_COVERADGE_CLASS, NULL);
+    ELEM_OPT_TELV(BSSGP_IEI_COVERAGE_CLASS, BSSGP_PDU_TYPE, DE_BSSGP_COVERAGE_CLASS, NULL);
     /* Exception Report Flag(note 6) Exception Report Flag / 11.3.126 O TLV 3 */
     ELEM_OPT_TELV(BSSGP_IEI_EXCEPTION_REPORT_FLAG, BSSGP_PDU_TYPE, DE_BSSGP_EXCEPTION_REPORT_FLAG, NULL);
     /* Selected Operator(note 8, 9) PLMN Identity / 11.3.129 O TLV 5 */
@@ -4502,7 +4502,7 @@ bssgp_paging_ps(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 off
     /* eDRX Parameters (note 11) eDRX Parameters/11.3.122 O TLV 3 */
     ELEM_OPT_TELV(BSSGP_IEI_EDRX_PARAMETERS, BSSGP_PDU_TYPE, DE_BSSGP_EDRX_PARAMS, NULL);
     /* Coverage Class Coverage Class/11.3.124 O TLV 3 */
-    ELEM_OPT_TELV(BSSGP_IEI_COVERADGE_CLASS, BSSGP_PDU_TYPE, DE_BSSGP_COVERADGE_CLASS, NULL);
+    ELEM_OPT_TELV(BSSGP_IEI_COVERAGE_CLASS, BSSGP_PDU_TYPE, DE_BSSGP_COVERAGE_CLASS, NULL);
     /* Cell Identifier (note 4) Cell Identifier/11.3.9 O TLV 10 */
     ELEM_OPT_TELV(BSSGP_IEI_CELL_IDENTIFIER, BSSGP_PDU_TYPE, DE_BSSGP_CELL_ID, NULL);
     /* MS Radio Access Capability (note 5) MS Radio Access Capability/11.3.22 O TLV 7-? */
@@ -6011,7 +6011,7 @@ bssgp_perform_loc_request(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, g
     /* eDRX Parameters (note 7)	eDRX Parameters/11.3.122    O   TLV 3 */
     ELEM_OPT_TELV(BSSGP_IEI_EDRX_PARAMETERS, BSSGP_PDU_TYPE, DE_BSSGP_EDRX_PARAMS, NULL);
     /* Coverage Class   Coverage Class/11.3.124 O   TLV 3 */
-    ELEM_OPT_TELV(BSSGP_IEI_COVERADGE_CLASS, BSSGP_PDU_TYPE, DE_BSSGP_COVERADGE_CLASS, NULL);
+    ELEM_OPT_TELV(BSSGP_IEI_COVERAGE_CLASS, BSSGP_PDU_TYPE, DE_BSSGP_COVERAGE_CLASS, NULL);
     /* MS Radio Access Capability (note 8)  MS Radio Access Capability/11.3.22  O   TLV 7   ? */
     ELEM_IN_ELEM_MAND_TELV(BSSGP_IEI_MS_RADIO_ACCESS_CAPABILITY, GSM_A_PDU_TYPE_GM, DE_MS_RAD_ACC_CAP, NULL);
     /* MultilaterationTiming Advance (note 9)   MultilaterationTiming Advance/11.3.137  O   TLV 4 */
@@ -7491,14 +7491,14 @@ proto_register_bssgp(void)
             FT_UINT8, BASE_DEC, NULL, 0x3F,
             NULL, HFILL } },
 
-        { &hf_bssgp_ec_dl_coveradge_class,
-          { "DL Coverage Class", "bssgp.ec_dl_coveradge_class",
-            FT_UINT8, BASE_DEC, VALS(bssgp_ec_dl_coveradge_class_vals), 0x38,
+        { &hf_bssgp_ec_dl_coverage_class,
+          { "DL Coverage Class", "bssgp.ec_dl_coverage_class",
+            FT_UINT8, BASE_DEC, VALS(bssgp_ec_dl_coverage_class_vals), 0x38,
             NULL, HFILL } },
 
-        { &hf_bssgp_ec_ul_coveradge_class,
-          { "UL Coverage Class", "bssgp.ec_ul_coveradge_class",
-            FT_UINT8, BASE_DEC, VALS(bssgp_ec_ul_coveradge_class_vals), 0x07,
+        { &hf_bssgp_ec_ul_coverage_class,
+          { "UL Coverage Class", "bssgp.ec_ul_coverage_class",
+            FT_UINT8, BASE_DEC, VALS(bssgp_ec_ul_coverage_class_vals), 0x07,
             NULL, HFILL } },
 
         { &hf_bssgp_sci,
@@ -7556,7 +7556,7 @@ proto_register_bssgp(void)
         { &ei_bssgp_not_dissected_yet, { "bssgp.not_dissected_yet", PI_UNDECODED, PI_WARN, "Not dissected yet", EXPFILL }},
         { &ei_bssgp_erroneous_app_container, { "bssgp.erroneous_app_container", PI_PROTOCOL, PI_WARN, "Erroneous Application Container including IEI and LI", EXPFILL }},
         { &ei_bssgp_si_item, { "bssgp.erroneous_app_container", PI_PROTOCOL, PI_WARN, "Unknown SI message", EXPFILL }},
-        { &ei_bssgp_unknown_rim_app_id_data, { "bssgp.rim_app_id_data.unknown", PI_PROTOCOL, PI_WARN, "Unknown RIM Application Identitys Data", EXPFILL }},
+        { &ei_bssgp_unknown_rim_app_id_data, { "bssgp.rim_app_id_data.unknown", PI_PROTOCOL, PI_WARN, "Unknown RIM Application Identity Data", EXPFILL }},
         { &ei_bssgp_unknown_app_container, { "bssgp.unknown_app_container", PI_PROTOCOL, PI_WARN, "Unknown Application Error Container", EXPFILL }},
         { &ei_bssgp_ra_discriminator, { "bssgp.ra_discriminator.unknown", PI_PROTOCOL, PI_WARN, "Unknown RIM Routing Address discriminator", EXPFILL }},
         { &ei_bssgp_unknown_rim_app_id, { "bssgp.rim_app_id.unknown", PI_PROTOCOL, PI_WARN, "Unknown RIM Application Identity", EXPFILL }},

@@ -619,7 +619,7 @@ nettrace_msg_to_packet(nettrace_3gpp_32_423_file_info_t *file_info, wtap_rec *re
 		}
 		else {
 			/* Something wrong, bail out */
-			*err_info = g_strdup_printf("Could not parse hex data,bufzize %u index %u %c%c",
+			*err_info = g_strdup_printf("Could not parse hex data, bufsize %u index %u %c%c",
 				(pkt_data_len + exp_pdu_tags_len),
 				i,
 				chr1,

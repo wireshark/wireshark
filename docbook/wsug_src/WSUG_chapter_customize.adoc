@@ -1078,7 +1078,7 @@ specific case and a general one the specific one must appear first in the list.
 
 Protocol::
 This is the name of the encapsulating protocol (the lowest layer in the packet
-data) it can be either just the name of the protocol (e.g. mtp2, eth_witoutfcs,
+data) it can be either just the name of the protocol (e.g. mtp2, eth_withoutfcs,
 sscf-nni ) or the name of the encapsulation protocol and the “application”
 protocol over it separated by a colon (e.g sscop:sscf-nni, sscop:alcap,
 sscop:nbap, ...)

@@ -11191,7 +11191,7 @@ proto_register_bgp(void)
         { "Ignore remarking", "bgp.ext_com_qos.flags.ignore_remarking", FT_BOOLEAN, 8,
           TFS(&tfs_yes_no), 0x08, NULL, HFILL}},
       { &hf_bgp_ext_com_qos_flags_agg_marking,
-        { "Aggegation of markins", "bgp.ext_com_qos.flags.agg_marking", FT_BOOLEAN, 8,
+        { "Aggregation of markins", "bgp.ext_com_qos.flags.agg_marking", FT_BOOLEAN, 8,
           TFS(&tfs_yes_no), 0x04, NULL, HFILL}},
       { &hf_bgp_ext_com_cos_flags,
         { "Flags byte", "bgp.ext_com_cos.flags", FT_UINT8, BASE_HEX,

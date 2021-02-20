@@ -4,6 +4,7 @@
 1xrtt
 32bit
 3gpp2
+5views
 80211n
 accelerometer
 accessor
@@ -39,10 +40,12 @@ anonsvn
 aperiodic
 appdata
 appid
+appkey
 arbitrated
 arduino
 arfcn
 asciidoc
+asn1
 asn1cnf
 asn2wrs
 assymetric
@@ -68,6 +71,7 @@ autoneg
 autosar
 available
 avaya
+avrcp
 backend
 backhaul
 backoff
@@ -86,6 +90,7 @@ bitrate
 bitstring
 blackhole
 bnode
+boolflag
 bootfile
 bootloader
 bootopt
@@ -96,6 +101,7 @@ bssid
 bssids
 bssmap
 btatt
+btbredr
 btcommon
 bthci
 btmesh
@@ -107,6 +113,7 @@ builtin
 byte
 byteorder
 cablelabs
+cadenced
 callback
 callid
 callsign
@@ -135,6 +142,7 @@ cellid
 cellidentity
 centiseconds
 centrino
+cfilters
 chan1
 chan2
 changelog
@@ -155,6 +163,7 @@ ciphertext
 citrix
 classmark
 classmark3
+clientkey
 cmake
 cmdcontrol
 cmstatus
@@ -163,6 +172,7 @@ codecs
 codepoint
 codeset
 codingrate
+collectd
 colocated
 coloring
 colorise
@@ -189,6 +199,7 @@ contactless
 contiguously
 copyfile
 couchbase
+coverity
 cpdlc
 cpich
 cpuregisters
@@ -247,6 +258,7 @@ demultiplexer
 demultiplexers
 deobfuscated
 deprecated
+dequeue
 dequeued
 dereference
 dereferenced
@@ -263,9 +275,11 @@ desegment
 desegmentation
 desegmenting
 deselect
+destport
 devcap
 devmode
 dfilter
+dfilters
 dfsauth
 dhcpv
 dialed
@@ -339,6 +353,8 @@ extensibility
 exthdr
 extrainformation
 failover
+fastmsg
+fattr
 fiber
 fileset
 firewall
@@ -359,6 +375,7 @@ framenumber
 frametype
 frontend
 fsctl
+ftype
 functionalities
 funkt
 fvalue
@@ -377,10 +394,13 @@ getnext
 getter
 gigabit
 gigamon
+gigpod
 github
 gitlab
 gluster
+gmail
 gmprs
+gnutls
 goaway
 google
 gprscdr
@@ -412,6 +432,7 @@ https
 huffman
 icmpv
 ident
+idiographic
 idl2wrs
 iec60870
 ieee17221
@@ -466,6 +487,7 @@ iterating
 iterator
 itunes
 iwarp
+ixveriwave
 jetds
 kademlia
 keepalive
@@ -482,6 +504,7 @@ l2cap
 lanalyzer
 lcgid
 lcids
+lcsap
 leasequery
 libgcrypt
 libpcap
@@ -584,6 +607,7 @@ netmask
 netmon
 netscaler
 nettl
+netxray
 newpw
 nexthop
 nfs4err
@@ -591,6 +615,7 @@ nghttp
 ngsniffer
 niagra
 noauth
+nofcs
 nominals
 nonblock
 noncriticalextension
@@ -600,6 +625,7 @@ notarized
 notif
 notifier
 notused
+nowait
 npcap
 nprach
 nsapi
@@ -697,11 +723,13 @@ protected
 protoabbrev
 protobuf
 protocolie
+protos
 proxied
 proxying
 pscell
 pseudowire
 ptvcursor
+ptype
 pubdir
 pubkey
 pucch
@@ -714,6 +742,7 @@ quadro
 quiescing
 quintuplet
 quintuplets
+radcom
 radeon
 radiotap
 ralink
@@ -790,6 +819,7 @@ reregister
 reroute
 rerouted
 rerouting
+rescan
 resegment
 resend
 resequencing
@@ -834,6 +864,7 @@ scannable
 scell
 scoped
 scrollbar
+sdusize
 sectorized
 segno
 semiautomatic
@@ -841,6 +872,7 @@ sendto
 seqno
 seqnum
 sequenceno
+sercos
 serialize
 serialized
 sessionid
@@ -848,6 +880,7 @@ setattr
 setuid
 severities
 sflow
+sgsap
 sha256
 sha384
 sha512
@@ -856,11 +889,13 @@ siapp
 sidelink
 signaling
 simulcast
+skype
 slsch
 sname
 snaplen
 snow3g
 someip
+someipsd
 spare
 spare1
 spare2
@@ -880,11 +915,16 @@ spooled
 srbid
 srcport
 srvcc
+sshkey
 ssupervisor
+stanag
 stateful
 statusbar
+stderr
+stdout
 streamid
 struct
+structs
 subaddress
 subband
 subcarrier
@@ -933,6 +973,7 @@ sysframe
 syslog
 systemd
 tablemod
+tclas
 tcpip
 tcpudp
 tdd128
@@ -950,6 +991,8 @@ timeslot
 timestamp
 timestamps
 timezone
+tipcv
+toggled
 toggling
 toolongfragment
 tooltip
@@ -957,6 +1000,7 @@ touchlink
 touchpad
 traceroute
 transcoder
+transifex
 transitioning
 traveler
 truncatable
@@ -969,6 +1013,7 @@ tunneled
 tunneling
 tuple
 tvbuff
+twamp
 type1
 type2
 type3
@@ -1043,6 +1088,7 @@ unparsable
 unparseable
 unparsed
 unprocessable
+unpublish
 unpunctuated
 unreassembled
 unreceived
@@ -1079,6 +1125,7 @@ userlist
 userplane
 utf8mb
 utilization
+utils
 utran
 v1250
 v1310
