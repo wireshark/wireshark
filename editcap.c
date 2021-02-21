@@ -894,7 +894,7 @@ list_capture_types(FILE *stream) {
     writable_type_subtypes = wtap_get_writable_file_types_subtypes(FT_SORT_BY_NAME);
     for (guint i = 0; i < writable_type_subtypes->len; i++) {
         int ft = g_array_index(writable_type_subtypes, int, i);
-        fprintf(stderr, "    %s - %s\n", wtap_file_type_subtype_name(ft),
+        fprintf(stream, "    %s - %s\n", wtap_file_type_subtype_name(ft),
                 wtap_file_type_subtype_description(ft));
     }
     g_array_free(writable_type_subtypes, TRUE);
