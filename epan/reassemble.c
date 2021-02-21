@@ -376,12 +376,12 @@ free_all_reassembled_fragments(gpointer key_arg _U_, gpointer value,
 		 * fragments to array and later free them in
 		 * free_fragments()
 		 */
-		if (fd_head->flags != FD_VISITED_FREE) {
-			if (fd_head->flags & FD_SUBSET_TVB)
-				fd_head->tvb_data = NULL;
-			g_ptr_array_add(allocated_fragments, fd_head);
-			fd_head->flags = FD_VISITED_FREE;
-		}
+		if (fd_head->flags == FD_VISITED_FREE)
+			break;
+		if (fd_head->flags & FD_SUBSET_TVB)
+			fd_head->tvb_data = NULL;
+		g_ptr_array_add(allocated_fragments, fd_head);
+		fd_head->flags = FD_VISITED_FREE;
 	}
 
 	return TRUE;
