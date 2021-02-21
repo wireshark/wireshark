@@ -9291,6 +9291,10 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Copied </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Wiki Page for %1</source>
         <translation type="unfinished">Page Wiki pour %1</translation>
     </message>
@@ -10915,12 +10919,10 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     </message>
     <message>
         <source>Mute/Unmute</source>
-        <oldsource>Mute</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Mute or unmute the stream</source>
-        <oldsource>Mute the stream</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>

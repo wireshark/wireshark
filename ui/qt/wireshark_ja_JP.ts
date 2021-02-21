@@ -9304,6 +9304,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>フィルタフィールドリファレンス</translation>
     </message>
     <message>
+        <source>Copied </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Wiki Page for %1</source>
         <translation>%1 のWikiページ</translation>
     </message>
@@ -10930,12 +10934,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Mute/Unmute</source>
-        <oldsource>Mute</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Mute or unmute the stream</source>
-        <oldsource>Mute the stream</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>

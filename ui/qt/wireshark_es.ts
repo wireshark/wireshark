@@ -9247,6 +9247,10 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Copied </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Wiki Page for %1</source>
         <translation type="unfinished"></translation>
     </message>
@@ -10846,12 +10850,10 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>Mute/Unmute</source>
-        <oldsource>Mute</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Mute or unmute the stream</source>
-        <oldsource>Mute the stream</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>

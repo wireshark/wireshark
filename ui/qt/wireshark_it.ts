@@ -9328,6 +9328,10 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Riferimento campo di filtro</translation>
     </message>
     <message>
+        <source>Copied </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Wiki Page for %1</source>
         <translation>Pagina wiki per %1</translation>
     </message>
@@ -10954,13 +10958,11 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Mute/Unmute</source>
-        <oldsource>Mute</oldsource>
-        <translation type="unfinished">Silenzia</translation>
+        <translation>Silenzia/Rimuovi silenzio</translation>
     </message>
     <message>
         <source>Mute or unmute the stream</source>
-        <oldsource>Mute the stream</oldsource>
-        <translation type="unfinished">Silenzia il flusso</translation>
+        <translation>Silenzia o riprendi il flusso</translation>
     </message>
     <message>
         <source>Play the stream</source>
@@ -11052,23 +11054,11 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Preparing to play...</source>
-        <translation type="unfinished"></translation>
+        <translation>Preparazione della riproduzione…</translation>
     </message>
     <message>
         <source>Unknown</source>
         <translation>Sconosciuto</translation>
-    </message>
-    <message>
-        <source>L</source>
-        <translation type="vanished">S</translation>
-    </message>
-    <message>
-        <source>R</source>
-        <translation type="vanished">D</translation>
-    </message>
-    <message>
-        <source>L+R</source>
-        <translation type="vanished">S+D</translation>
     </message>
 </context>
 <context>

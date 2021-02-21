@@ -9328,6 +9328,10 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <translation>Referenz Filterfelder</translation>
     </message>
     <message>
+        <source>Copied </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Wiki Page for %1</source>
         <translation>Wikiseite für &amp;1</translation>
     </message>
@@ -10954,13 +10958,11 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Mute/Unmute</source>
-        <oldsource>Mute</oldsource>
-        <translation type="unfinished">Stummschalten</translation>
+        <translation>Stummschalten</translation>
     </message>
     <message>
         <source>Mute or unmute the stream</source>
-        <oldsource>Mute the stream</oldsource>
-        <translation type="unfinished">Stream stummschalten</translation>
+        <translation>Stream stummschalten</translation>
     </message>
     <message>
         <source>Play the stream</source>
@@ -11052,23 +11054,11 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Preparing to play...</source>
-        <translation type="unfinished"></translation>
+        <translation>Zum Abspielen vorbereiten...</translation>
     </message>
     <message>
         <source>Unknown</source>
         <translation>Unbekannt</translation>
-    </message>
-    <message>
-        <source>L</source>
-        <translation type="vanished">L</translation>
-    </message>
-    <message>
-        <source>R</source>
-        <translation type="vanished">R</translation>
-    </message>
-    <message>
-        <source>L+R</source>
-        <translation type="vanished">L+R</translation>
     </message>
 </context>
 <context>
