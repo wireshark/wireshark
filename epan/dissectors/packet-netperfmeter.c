@@ -446,34 +446,32 @@ heur_dissect_npmp(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree, v
   if (length < 4)
     return FALSE;
 
-  if((pinfo->ptype == PT_TCP) || (pinfo->ptype == PT_UDP) || (pinfo->ptype == PT_DCCP)) {
-    /* For TCP, UDP or DCCP:
-       Type must either be NETPERFMETER_DATA or NETPERFMETER_IDENTIFY_FLOW */
-    const guint8 type = tvb_get_guint8(message_tvb, offset_message_type);
-    switch(type) {
-      case NETPERFMETER_DATA:
-        if (length < offset_data_payload + 8)
+  /* For TCP, UDP or DCCP:
+      Type must either be NETPERFMETER_DATA or NETPERFMETER_IDENTIFY_FLOW */
+  const guint8 type = tvb_get_guint8(message_tvb, offset_message_type);
+  switch(type) {
+    case NETPERFMETER_DATA:
+      if (length < offset_data_payload + 8)
+        return FALSE;
+      /* Identify NetPerfMeter flow by payload pattern */
+      for(int i = 0; i < 8; i++) {
+        guint8 d = tvb_get_guint8(message_tvb, offset_data_payload + i);
+        if(d != 30 + i)
           return FALSE;
-        /* Identify NetPerfMeter flow by payload pattern */
-        for(int i = 0; i < 8; i++) {
-          guint8 d = tvb_get_guint8(message_tvb, offset_data_payload + i);
-          if(d != 30 + i)
-            return FALSE;
-        }
-        break;
-      case NETPERFMETER_IDENTIFY_FLOW:
-        if (length < offset_identifyflow_streamid + length_identifyflow_streamid)
-          return FALSE;
-        if (tvb_get_ntoh64(message_tvb, offset_identifyflow_magicnumber) != NETPERFMETER_IDENTIFY_FLOW_MAGIC_NUMBER) {
-          /* Identify NetPerfMeter flow by NETPERFMETER_IDENTIFY_FLOW_MAGIC_NUMBER */
-          return FALSE;
-        }
-        break;
-      default:
-        /* Not a NetPerfMeter packet */
-          return FALSE;
-        break;
-    }
+      }
+      break;
+    case NETPERFMETER_IDENTIFY_FLOW:
+      if (length < offset_identifyflow_streamid + length_identifyflow_streamid)
+        return FALSE;
+      if (tvb_get_ntoh64(message_tvb, offset_identifyflow_magicnumber) != NETPERFMETER_IDENTIFY_FLOW_MAGIC_NUMBER) {
+        /* Identify NetPerfMeter flow by NETPERFMETER_IDENTIFY_FLOW_MAGIC_NUMBER */
+        return FALSE;
+      }
+      break;
+    default:
+      /* Not a NetPerfMeter packet */
+        return FALSE;
+      break;
   }
 
   return dissect_npmp(message_tvb, pinfo, tree, data);
