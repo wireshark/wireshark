@@ -187,6 +187,27 @@ extern "C" {
 #endif
 
 /*
+ * Suppress warnings about casting away constness.
+ * Do this only if you know that the pointer is to something that can
+ * be written and, in this context, should be writable.
+ */
+#if defined(__GNUC__) || defined(__clang__)
+  /*
+   * GCC or a compiler that claims to be GCC-compatible.
+   * We throw in Clang just in case clang-cl doesn't define
+   * __GNUC__; if it does, __GNUC__ should suffice.
+   */
+  #define DIAG_OFF_CAST_AWAY_CONST DIAG_OFF(cast-qual)
+  #define DIAG_ON_CAST_AWAY_CONST DIAG_OFF(cast-qual)
+#elif defined(_MSC_VER)
+  #define DIAG_OFF_CAST_AWAY_CONST
+  #define DIAG_ON_CAST_AWAY_CONST
+#else
+  #define DIAG_OFF_CAST_AWAY_CONST
+  #define DIAG_ON_CAST_AWAY_CONST
+#endif
+
+/*
  *	For dealing with APIs which are only deprecated in macOS (like the
  *	OpenSSL and MIT/Heimdal Kerberos APIs).
  *

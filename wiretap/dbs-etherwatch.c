@@ -630,9 +630,16 @@ parse_hex_dump(char* dump, guint8 *buf, char separator, char end) {
     return count;
 }
 
+static const struct supported_block_type dbs_etherwatch_blocks_supported[] = {
+    /*
+     * We support packet blocks, with no comments or other options.
+     */
+    { WTAP_BLOCK_PACKET, MULTIPLE_BLOCKS_SUPPORTED, NO_OPTIONS_SUPPORTED }
+};
+
 static const struct file_type_subtype_info dbs_etherwatch_info = {
     "DBS Etherwatch (VMS)", "etherwatch", "txt", NULL,
-    FALSE, FALSE, 0,
+    FALSE, BLOCKS_SUPPORTED(dbs_etherwatch_blocks_supported),
     NULL, NULL, NULL
 };
 

@@ -129,9 +129,18 @@ wtap_open_return_val ber_open(wtap *wth, int *err, gchar **err_info)
   return WTAP_OPEN_MINE;
 }
 
+static const struct supported_block_type ber_blocks_supported[] = {
+  /*
+   * These are file formats that we dissect, so we provide only one
+   * "packet" with the file's contents, and don't support any
+   * options.
+   */
+  { WTAP_BLOCK_PACKET, ONE_BLOCK_SUPPORTED, NO_OPTIONS_SUPPORTED }
+};
+
 static const struct file_type_subtype_info ber_info = {
   "ASN.1 Basic Encoding Rules", "ber", NULL, NULL,
-  FALSE, FALSE, 0,
+  FALSE, BLOCKS_SUPPORTED(ber_blocks_supported),
   NULL, NULL, NULL
 };
 

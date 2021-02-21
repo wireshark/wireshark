@@ -1393,9 +1393,16 @@ static gboolean k12_dump_open(wtap_dumper *wdh, int *err, gchar **err_info _U_) 
     return TRUE;
 }
 
+static const struct supported_block_type k12_blocks_supported[] = {
+    /*
+     * We support packet blocks, with no comments or other options.
+     */
+    { WTAP_BLOCK_PACKET, MULTIPLE_BLOCKS_SUPPORTED, NO_OPTIONS_SUPPORTED }
+};
+
 static const struct file_type_subtype_info k12_info = {
     "Tektronix K12xx 32-bit .rf5 format", "rf5", "rf5", NULL,
-    TRUE, FALSE, 0,
+    TRUE, BLOCKS_SUPPORTED(k12_blocks_supported),
     k12_dump_can_write_encap, k12_dump_open, NULL
 };
 

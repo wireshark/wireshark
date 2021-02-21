@@ -891,7 +891,7 @@ pcapng_read_if_descr_block(wtap *wth, FILE_T fh, pcapng_block_header_t *bh,
     }
 
     /* mandatory values */
-    wblock->block = wtap_block_create(WTAP_BLOCK_IF_DESCRIPTION);
+    wblock->block = wtap_block_create(WTAP_BLOCK_IF_ID_AND_INFO);
     if_descr_mand = (wtapng_if_descr_mandatory_t*)wtap_block_get_mandatory_data(wblock->block);
     if (section_info->byte_swapped) {
         link_type = GUINT16_SWAP_LE_BE(idb.linktype);
@@ -2712,7 +2712,7 @@ static void
 pcapng_process_idb(wtap *wth, section_info_t *section_info,
                    wtapng_block_t *wblock)
 {
-    wtap_block_t int_data = wtap_block_create(WTAP_BLOCK_IF_DESCRIPTION);
+    wtap_block_t int_data = wtap_block_create(WTAP_BLOCK_IF_ID_AND_INFO);
     interface_info_t iface_info;
     wtapng_if_descr_mandatory_t *if_descr_mand = (wtapng_if_descr_mandatory_t*)wtap_block_get_mandatory_data(int_data),
                                 *wblock_if_descr_mand = (wtapng_if_descr_mandatory_t*)wtap_block_get_mandatory_data(wblock->block);
@@ -4768,7 +4768,7 @@ static gboolean pcapng_add_idb(wtap_dumper *wdh, wtap_block_t idb,
 	/*
 	 * Add a copy of this IDB to our array of IDBs.
 	 */
-	idb_copy = wtap_block_create(WTAP_BLOCK_IF_DESCRIPTION);
+	idb_copy = wtap_block_create(WTAP_BLOCK_IF_ID_AND_INFO);
 	wtap_block_copy(idb_copy, idb);
 	g_array_append_val(wdh->interface_data, idb_copy);
 

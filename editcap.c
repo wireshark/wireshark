@@ -1009,10 +1009,14 @@ editcap_dump_open(const char *filename, const wtap_dump_params *params,
         return NULL;
 
     /*
-     * If the output file requires interface IDs, add all the IDBs we've
-     * seen so far.
+     * If the output file supporst identifying the interfaces on which
+     * packets arrive, add all the IDBs we've seen so far.
+     *
+     * That mean that the abstract interface provided by libwiretap
+     * involves WTAP_BLOCK_IF_ID_AND_INFO blocks.
      */
-    if (wtap_uses_interface_ids(wtap_dump_file_type_subtype(pdh))) {
+    if (wtap_file_type_subtype_supports_block(wtap_dump_file_type_subtype(pdh),
+                                              WTAP_BLOCK_IF_ID_AND_INFO) != BLOCK_NOT_SUPPORTED) {
         for (guint i = 0; i < idbs_seen->len; i++) {
             wtap_block_t if_data = g_array_index(idbs_seen, wtap_block_t, i);
 
@@ -1041,10 +1045,14 @@ process_new_idbs(wtap *wth, wtap_dumper *pdh, GArray *idbs_seen,
 
     while ((if_data = wtap_get_next_interface_description(wth)) != NULL) {
         /*
-         * Only add IDBs if the output file requires interface IDs;
-         * otherwise, it doesn't support writing IDBs.
+         * Only add interface blocks if the output file supports (meaning
+         * *requires*) them.
+         *
+         * That mean that the abstract interface provided by libwiretap
+         * involves WTAP_BLOCK_IF_ID_AND_INFO blocks.
          */
-        if (wtap_uses_interface_ids(wtap_dump_file_type_subtype(pdh))) {
+        if (wtap_file_type_subtype_supports_block(wtap_dump_file_type_subtype(pdh),
+                                                  WTAP_BLOCK_IF_ID_AND_INFO) != BLOCK_NOT_SUPPORTED) {
             wtap_block_t if_data_copy;
 
             /*

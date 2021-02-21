@@ -297,9 +297,16 @@ i4b_read_rec(wtap *wth, FILE_T fh, wtap_rec *rec, Buffer *buf,
 	return wtap_read_packet_bytes(fh, buf, length, err, err_info);
 }
 
+static const struct supported_block_type i4btrace_blocks_supported[] = {
+	/*
+	 * We support packet blocks, with no comments or other options.
+	 */
+	{ WTAP_BLOCK_PACKET, MULTIPLE_BLOCKS_SUPPORTED, NO_OPTIONS_SUPPORTED }
+};
+
 static const struct file_type_subtype_info i4btrace_info = {
 	"I4B ISDN trace", "i4btrace", NULL, NULL,
-	FALSE, FALSE, 0,
+	FALSE, BLOCKS_SUPPORTED(i4btrace_blocks_supported),
 	NULL, NULL, NULL
 };
 

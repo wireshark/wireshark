@@ -453,9 +453,16 @@ static gboolean _5views_dump_finish(wtap_dumper *wdh, int *err, gchar **err_info
 	return TRUE;
 }
 
+static const struct supported_block_type _5views_blocks_supported[] = {
+	/*
+	 * We support packet blocks, with no comments or other options.
+	 */
+	{ WTAP_BLOCK_PACKET, MULTIPLE_BLOCKS_SUPPORTED, NO_OPTIONS_SUPPORTED }
+};
+
 static const struct file_type_subtype_info _5views_info = {
 	"InfoVista 5View capture", "5views", "5vw", NULL,
-	TRUE, FALSE, 0,
+	TRUE, BLOCKS_SUPPORTED(_5views_blocks_supported),
 	_5views_dump_can_write_encap, _5views_dump_open, NULL
 };
 

@@ -78,7 +78,6 @@ libwiretap.so.0 libwiretap0 #MINVER#
  wtap_dump_file_write@Base 1.12.0~rc1
  wtap_dump_flush@Base 1.9.1
  wtap_dump_get_needs_reload@Base 2.5.0
- wtap_dump_has_name_resolution@Base 1.9.1
  wtap_dump_open@Base 1.9.1
  wtap_dump_open_stdout@Base 2.0.0
  wtap_dump_open_tempfile@Base 2.0.0
@@ -87,7 +86,6 @@ libwiretap.so.0 libwiretap0 #MINVER#
  wtap_dump_params_init@Base 2.9.0
  wtap_dump_params_init_no_idbs@Base 3.3.2
  wtap_dump_set_addrinfo_list@Base 1.9.1
- wtap_dump_supports_comment_types@Base 1.9.1
  wtap_encap_description@Base 2.9.1
  wtap_encap_name@Base 2.9.1
  wtap_encap_requires_phdr@Base 1.9.1
@@ -105,6 +103,8 @@ libwiretap.so.0 libwiretap0 #MINVER#
  wtap_file_type_subtype@Base 1.12.0~rc1
  wtap_file_type_subtype_description@Base 3.5.0
  wtap_file_type_subtype_name@Base 3.5.0
+ wtap_file_type_subtype_supports_block@Base 3.5.0
+ wtap_file_type_subtype_supports_option@Base 3.5.0
  wtap_free_extensions_list@Base 1.9.1
  wtap_free_idb_info@Base 1.99.9
  wtap_fstat@Base 1.9.1
@@ -153,6 +153,5 @@ libwiretap.so.0 libwiretap0 #MINVER#
  wtap_snapshot_length@Base 1.9.1
  wtap_strerror@Base 1.9.1
  wtap_tsprec_string@Base 1.99.9
- wtap_uses_interface_ids@Base 3.3.2
  wtap_write_shb_comment@Base 1.9.1
  wtap_wtap_encap_to_pcap_encap@Base 1.9.1

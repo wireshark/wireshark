@@ -149,10 +149,19 @@ mime_file_open(wtap *wth, int *err, gchar **err_info)
 	return WTAP_OPEN_MINE;
 }
 
+static const struct supported_block_type mime_blocks_supported[] = {
+	/*
+	 * This is a file format that we dissect, so we provide
+	 * only one "packet" with the file's contents, and don't
+	 * support any options.
+	 */
+	{ WTAP_BLOCK_PACKET, ONE_BLOCK_SUPPORTED, NO_OPTIONS_SUPPORTED }
+};
+
 static const struct file_type_subtype_info mime_info = {
 	"MIME File Format", "mime", NULL, NULL,
-	 FALSE, FALSE, 0,
-	 NULL, NULL, NULL
+	FALSE, BLOCKS_SUPPORTED(mime_blocks_supported),
+	NULL, NULL, NULL
 };
 
 /*
@@ -160,9 +169,18 @@ static const struct file_type_subtype_info mime_info = {
  * look for the file type "JPEG_JFIF"; it may be removed once
  * we get rid of wtap_filetypes.
  */
+static const struct supported_block_type jpeg_jfif_blocks_supported[] = {
+	/*
+	 * This is a file format that we dissect, so we provide
+	 * only one "packet" with the file's contents, and don't
+	 * support any options.
+	 */
+	{ WTAP_BLOCK_PACKET, ONE_BLOCK_SUPPORTED, NO_OPTIONS_SUPPORTED }
+};
+
 static const struct file_type_subtype_info jpeg_jfif_info = {
 	"JPEG/JFIF", "jpeg", "jpg", "jpeg;jfif",
-	FALSE, FALSE, 0,
+	FALSE, BLOCKS_SUPPORTED(jpeg_jfif_blocks_supported),
 	NULL, NULL, NULL
 };
 

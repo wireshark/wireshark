@@ -713,7 +713,7 @@ static guint
 add_idb_to_merged_file(wtapng_iface_descriptions_t *merged_idb_list,
                        const wtap_block_t input_file_idb)
 {
-    wtap_block_t idb = wtap_block_create(WTAP_BLOCK_IF_DESCRIPTION);
+    wtap_block_t idb = wtap_block_create(WTAP_BLOCK_IF_ID_AND_INFO);
     wtapng_if_descr_mandatory_t* idb_mand;
 
     g_assert(merged_idb_list != NULL);
@@ -908,7 +908,15 @@ merge_process_packets(wtap_dumper *pdh, const int file_type,
             break;
         }
 
-        if (wtap_uses_interface_ids(file_type)) {
+        /*
+         * Does this file type support identifying the interfaces on
+         * which packets arrive?
+         *
+         * That mean that the abstract interface provided by libwiretap
+         * involves WTAP_BLOCK_IF_ID_AND_INFO blocks.
+         */
+        if (wtap_file_type_subtype_supports_block(file_type,
+                                                  WTAP_BLOCK_IF_ID_AND_INFO) != BLOCK_NOT_SUPPORTED) {
             /*
              * XXX - We should do this only for record types
              * that pertain to a particular interface; for
@@ -1038,7 +1046,15 @@ merge_files_common(const gchar* out_filename, /* normal output mode */
     wtap_dump_params params = WTAP_DUMP_PARAMS_INIT;
     params.encap = frame_type;
     params.snaplen = snaplen;
-    if (wtap_uses_interface_ids(file_type)) {
+    /*
+     * Does this file type support identifying the interfaces on
+     * which packets arrive?
+     *
+     * That mean that the abstract interface provided by libwiretap
+     * involves WTAP_BLOCK_IF_ID_AND_INFO blocks.
+     */
+    if (wtap_file_type_subtype_supports_block(file_type,
+                                              WTAP_BLOCK_IF_ID_AND_INFO) != BLOCK_NOT_SUPPORTED) {
         shb_hdrs = create_shb_header(in_files, in_file_count, app_name);
         merge_debug("merge_files: SHB created");
 

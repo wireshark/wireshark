@@ -2842,15 +2842,29 @@ ng_file_seek_rand(wtap *wth, gint64 offset, int *err, gchar **err_info)
 	return TRUE;
 }
 
+static const struct supported_block_type ngsniffer_uncompressed_blocks_supported[] = {
+	/*
+	 * We support packet blocks, with no comments or other options.
+	 */
+	{ WTAP_BLOCK_PACKET, MULTIPLE_BLOCKS_SUPPORTED, NO_OPTIONS_SUPPORTED }
+};
+
 static const struct file_type_subtype_info ngsniffer_uncompressed_info = {
 	"Sniffer (DOS)", "ngsniffer", "cap", "enc;trc;fdc;syc",
-	FALSE, FALSE, 0,
+	FALSE, BLOCKS_SUPPORTED(ngsniffer_uncompressed_blocks_supported),
 	ngsniffer_dump_can_write_encap, ngsniffer_dump_open, NULL
+};
+
+static const struct supported_block_type ngsniffer_compressed_blocks_supported[] = {
+	/*
+	 * We support packet blocks, with no comments or other options.
+	 */
+	{ WTAP_BLOCK_PACKET, MULTIPLE_BLOCKS_SUPPORTED, NO_OPTIONS_SUPPORTED }
 };
 
 static const struct file_type_subtype_info ngsniffer_compressed_info = {
 	"Sniffer (DOS), compressed", "ngsniffer_comp", "cap", "enc;trc;fdc;syc",
-	FALSE, FALSE, 0,
+	FALSE, BLOCKS_SUPPORTED(ngsniffer_compressed_blocks_supported),
 	NULL, NULL, NULL
 };
 

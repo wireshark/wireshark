@@ -52,9 +52,18 @@ mp4_open(wtap *wth, int *err, gchar **err_info)
 	return WTAP_OPEN_MINE;
 }
 
+static const struct supported_block_type mp4_blocks_supported[] = {
+	/*
+	 * This is a file format that we dissect, so we provide
+	 * only one "packet" with the file's contents, and don't
+	 * support any options.
+	 */
+	{ WTAP_BLOCK_PACKET, ONE_BLOCK_SUPPORTED, NO_OPTIONS_SUPPORTED }
+};
+
 static const struct file_type_subtype_info mp4_info = {
 	"MP4 media", "mp4", "mp4", NULL,
-	FALSE, FALSE, 0,
+	FALSE, BLOCKS_SUPPORTED(mp4_blocks_supported),
 	NULL, NULL, NULL
 };
 

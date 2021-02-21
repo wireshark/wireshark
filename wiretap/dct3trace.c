@@ -402,9 +402,16 @@ static gboolean dct3trace_seek_read(wtap *wth, gint64 seek_off,
 	return dct3trace_get_packet(wth->random_fh, rec, buf, err, err_info);
 }
 
+static const struct supported_block_type dct3trace_blocks_supported[] = {
+	/*
+	 * We support packet blocks, with no comments or other options.
+	 */
+	{ WTAP_BLOCK_PACKET, MULTIPLE_BLOCKS_SUPPORTED, NO_OPTIONS_SUPPORTED }
+};
+
 static const struct file_type_subtype_info dct3trace_info = {
 	"Gammu DCT3 trace", "dct3trace", "xml", NULL,
-	FALSE, FALSE, 0,
+	FALSE, BLOCKS_SUPPORTED(dct3trace_blocks_supported),
 	NULL, NULL, NULL
 };
 

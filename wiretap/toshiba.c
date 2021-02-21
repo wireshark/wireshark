@@ -429,9 +429,16 @@ parse_single_hex_dump_line(char* rec, guint8 *buf, guint byte_offset) {
 	return TRUE;
 }
 
+static const struct supported_block_type toshiba_blocks_supported[] = {
+	/*
+	 * We support packet blocks, with no comments or other options.
+	 */
+	{ WTAP_BLOCK_PACKET, MULTIPLE_BLOCKS_SUPPORTED, NO_OPTIONS_SUPPORTED }
+};
+
 static const struct file_type_subtype_info toshiba_info = {
 	"Toshiba Compact ISDN Router snoop", "toshiba", "txt", NULL,
-	FALSE, FALSE, 0,
+	FALSE, BLOCKS_SUPPORTED(toshiba_blocks_supported),
 	NULL, NULL, NULL
 };
 

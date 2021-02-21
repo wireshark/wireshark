@@ -126,7 +126,7 @@ exp_pdu_open(exp_pdu_t *exp_pdu_tap_data, int fd, const char *comment, int *err,
     exp_pdu_tap_data->idb_inf->interface_data = g_array_new(FALSE, FALSE, sizeof(wtap_block_t));
 
     /* create the fake interface data */
-    int_data = wtap_block_create(WTAP_BLOCK_IF_DESCRIPTION);
+    int_data = wtap_block_create(WTAP_BLOCK_IF_ID_AND_INFO);
     int_data_mand = (wtapng_if_descr_mandatory_t*)wtap_block_get_mandatory_data(int_data);
     int_data_mand->wtap_encap      = WTAP_ENCAP_WIRESHARK_UPPER_PDU;
     int_data_mand->time_units_per_second = 1000000000; /* default nanosecond resolution */

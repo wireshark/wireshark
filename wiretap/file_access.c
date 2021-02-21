@@ -1214,6 +1214,114 @@ wtap_fdreopen(wtap *wth, const char *filename, int *err)
 	return TRUE;
 }
 
+static const struct supported_block_type pcap_blocks_supported[] = {
+	/*
+	 * We support packet blocks, with no comments or other options.
+	 */
+	{ WTAP_BLOCK_PACKET, MULTIPLE_BLOCKS_SUPPORTED, NO_OPTIONS_SUPPORTED }
+};
+
+/*
+ * pcapng supports several block types, and supports more than one
+ * of them.
+ *
+ * It also supports comments for many block types, as well as other
+ * option types.
+ */
+
+/* Options for section blocks. */
+static const struct supported_option_type section_block_options_supported[] = {
+	{ OPT_COMMENT, MULTIPLE_OPTIONS_SUPPORTED },
+	{ OPT_SHB_HARDWARE, ONE_OPTION_SUPPORTED },
+	{ OPT_SHB_USERAPPL, ONE_OPTION_SUPPORTED }
+};
+
+/* Options for interface blocks. */
+static const struct supported_option_type interface_block_options_supported[] = {
+	{ OPT_COMMENT, MULTIPLE_OPTIONS_SUPPORTED },
+	{ OPT_IDB_NAME, ONE_OPTION_SUPPORTED },
+	{ OPT_IDB_DESCR, ONE_OPTION_SUPPORTED },
+	{ OPT_IDB_IP4ADDR, MULTIPLE_OPTIONS_SUPPORTED },
+	{ OPT_IDB_IP6ADDR, MULTIPLE_OPTIONS_SUPPORTED },
+	{ OPT_IDB_MACADDR, ONE_OPTION_SUPPORTED },
+	{ OPT_IDB_EUIADDR, ONE_OPTION_SUPPORTED },
+	{ OPT_IDB_SPEED, ONE_OPTION_SUPPORTED },
+	{ OPT_IDB_TSRESOL, ONE_OPTION_SUPPORTED },
+	{ OPT_IDB_TZONE, ONE_OPTION_SUPPORTED },
+	{ OPT_IDB_FILTER, ONE_OPTION_SUPPORTED },
+	{ OPT_IDB_OS, ONE_OPTION_SUPPORTED },
+	{ OPT_IDB_FCSLEN, ONE_OPTION_SUPPORTED },
+	{ OPT_IDB_TSOFFSET, ONE_OPTION_SUPPORTED },
+	{ OPT_IDB_HARDWARE, ONE_OPTION_SUPPORTED }
+};
+
+/* Options for name resolution blocks. */
+static const struct supported_option_type name_resolution_block_options_supported[] = {
+	{ OPT_COMMENT, MULTIPLE_OPTIONS_SUPPORTED },
+	{ OPT_NS_DNSNAME, ONE_OPTION_SUPPORTED },
+	{ OPT_NS_DNSIP4ADDR, ONE_OPTION_SUPPORTED },
+	{ OPT_NS_DNSIP6ADDR, ONE_OPTION_SUPPORTED }
+};
+
+/* Options for interface statistics blocks. */
+static const struct supported_option_type interface_statistics_block_options_supported[] = {
+	{ OPT_COMMENT, MULTIPLE_OPTIONS_SUPPORTED },
+	{ OPT_ISB_STARTTIME, ONE_OPTION_SUPPORTED },
+	{ OPT_ISB_ENDTIME, ONE_OPTION_SUPPORTED },
+	{ OPT_ISB_IFRECV, ONE_OPTION_SUPPORTED },
+	{ OPT_ISB_IFDROP, ONE_OPTION_SUPPORTED },
+	{ OPT_ISB_FILTERACCEPT, ONE_OPTION_SUPPORTED },
+	{ OPT_ISB_OSDROP, ONE_OPTION_SUPPORTED },
+	{ OPT_ISB_USRDELIV, ONE_OPTION_SUPPORTED }
+};
+
+/* Options for decryption secrets blocks. */
+static const struct supported_option_type decryption_secrets_block_options_supported[] = {
+	{ OPT_COMMENT, MULTIPLE_OPTIONS_SUPPORTED }
+};
+
+/* Options for packet blocks. */
+static const struct supported_option_type packet_block_options_supported[] = {
+	/* XXX - pending use of wtap_block_t's for packets */
+	{ OPT_COMMENT, MULTIPLE_OPTIONS_SUPPORTED }
+};
+
+/* Options for file-type-sepcific reports. */
+static const struct supported_option_type ft_specific_report_block_options_supported[] = {
+	{ OPT_COMMENT, MULTIPLE_OPTIONS_SUPPORTED }
+};
+
+/* Options for file-type-sepcific event. */
+static const struct supported_option_type ft_specific_event_block_options_supported[] = {
+	{ OPT_COMMENT, MULTIPLE_OPTIONS_SUPPORTED }
+};
+
+static const struct supported_block_type pcapng_blocks_supported[] = {
+	/* Multiple sections. */
+	{ WTAP_BLOCK_SECTION, MULTIPLE_BLOCKS_SUPPORTED, OPTION_TYPES_SUPPORTED(section_block_options_supported) },
+
+	/* Multiple interfaces. */
+	{ WTAP_BLOCK_IF_ID_AND_INFO, MULTIPLE_BLOCKS_SUPPORTED, OPTION_TYPES_SUPPORTED(interface_block_options_supported) },
+
+	/* Multiple blocks of name resolution information */
+	{ WTAP_BLOCK_NAME_RESOLUTION, MULTIPLE_BLOCKS_SUPPORTED, OPTION_TYPES_SUPPORTED(name_resolution_block_options_supported) },
+
+	/* Multiple blocks of interface statistics. */
+	{ WTAP_BLOCK_IF_STATISTICS, MULTIPLE_BLOCKS_SUPPORTED, OPTION_TYPES_SUPPORTED(interface_statistics_block_options_supported) },
+
+	/* Multiple blocks of decryption secrets. */
+	{ WTAP_BLOCK_DECRYPTION_SECRETS, MULTIPLE_BLOCKS_SUPPORTED, OPTION_TYPES_SUPPORTED(decryption_secrets_block_options_supported) },
+
+	/* And, obviously, multiple packets. */
+	{ WTAP_BLOCK_PACKET, MULTIPLE_BLOCKS_SUPPORTED, OPTION_TYPES_SUPPORTED(packet_block_options_supported) },
+
+	/* Multiple file-type specific reports (including local ones). */
+	{ WTAP_BLOCK_FT_SPECIFIC_REPORT, MULTIPLE_BLOCKS_SUPPORTED, OPTION_TYPES_SUPPORTED(ft_specific_report_block_options_supported) },
+
+	/* Multiple file-type specific events (including local ones). */
+	{ WTAP_BLOCK_FT_SPECIFIC_EVENT, MULTIPLE_BLOCKS_SUPPORTED, OPTION_TYPES_SUPPORTED(ft_specific_event_block_options_supported) }
+};
+
 /* Table of the file types and subtypes for which we have built-in support.
    Entries must be sorted by WTAP_FILE_TYPE_SUBTYPE_xxx values in ascending
    order.
@@ -1228,59 +1336,49 @@ wtap_fdreopen(wtap *wth, const char *filename, int *err)
 static const struct file_type_subtype_info file_type_subtype_table_base[] = {
 	/* WTAP_FILE_TYPE_SUBTYPE_UNKNOWN (only used internally for initialization) */
 	{ NULL, NULL, NULL, NULL,
-	  FALSE, FALSE, 0,
+	  FALSE, NO_OPTIONS_SUPPORTED,
 	  NULL, NULL, NULL },
 
 	/* WTAP_FILE_TYPE_SUBTYPE_PCAP */
 	/* Gianluca Varenni suggests that we add "deprecated" to the description. */
 	{ "Wireshark/tcpdump/... - pcap", "pcap", "pcap", "cap;dmp",
-	  FALSE, FALSE, 0,
+	  FALSE, BLOCKS_SUPPORTED(pcap_blocks_supported),
 	  libpcap_dump_can_write_encap, libpcap_dump_open, NULL },
 
 	/* WTAP_FILE_TYPE_SUBTYPE_PCAPNG */
 	{ "Wireshark/... - pcapng", "pcapng", "pcapng", "ntar",
-	  FALSE, TRUE, WTAP_COMMENT_PER_SECTION|WTAP_COMMENT_PER_INTERFACE|WTAP_COMMENT_PER_PACKET,
+	  FALSE, BLOCKS_SUPPORTED(pcapng_blocks_supported),
 	  pcapng_dump_can_write_encap, pcapng_dump_open, NULL },
 
 	/* WTAP_FILE_TYPE_SUBTYPE_PCAP_NSEC */
 	{ "Wireshark/tcpdump/... - nanosecond pcap", "nsecpcap", "pcap", "cap;dmp",
-	  FALSE, FALSE, 0,
+	  FALSE, BLOCKS_SUPPORTED(pcap_blocks_supported),
 	  libpcap_dump_can_write_encap, libpcap_dump_open, NULL },
 
 	/* WTAP_FILE_TYPE_SUBTYPE_PCAP_AIX */
 	{ "AIX tcpdump - pcap", "aixpcap", "pcap", "cap;dmp",
-	  FALSE, FALSE, 0,
+	  FALSE, BLOCKS_SUPPORTED(pcap_blocks_supported),
 	  NULL, NULL, NULL },
 
 	/* WTAP_FILE_TYPE_SUBTYPE_PCAP_SS991029 */
 	{ "Modified tcpdump - pcap", "modpcap", "pcap", "cap;dmp",
-	  FALSE, FALSE, 0,
+	  FALSE, BLOCKS_SUPPORTED(pcap_blocks_supported),
 	  libpcap_dump_can_write_encap, libpcap_dump_open, NULL },
 
 	/* WTAP_FILE_TYPE_SUBTYPE_PCAP_NOKIA */
 	{ "Nokia tcpdump - pcap", "nokiapcap", "pcap", "cap;dmp",
-	  FALSE, FALSE, 0,
+	  FALSE, BLOCKS_SUPPORTED(pcap_blocks_supported),
 	  libpcap_dump_can_write_encap, libpcap_dump_open, NULL },
 
 	/* WTAP_FILE_TYPE_SUBTYPE_PCAP_SS990417 */
 	{ "RedHat 6.1 tcpdump - pcap", "rh6_1pcap", "pcap", "cap;dmp",
-	  FALSE, FALSE, 0,
+	  FALSE, BLOCKS_SUPPORTED(pcap_blocks_supported),
 	  libpcap_dump_can_write_encap, libpcap_dump_open, NULL },
 
 	/* WTAP_FILE_TYPE_SUBTYPE_PCAP_SS990915 */
 	{ "SuSE 6.3 tcpdump - pcap", "suse6_3pcap", "pcap", "cap;dmp",
-	  FALSE, FALSE, 0,
-	  libpcap_dump_can_write_encap, libpcap_dump_open, NULL },
-
-	/* WTAP_FILE_TYPE_SUBTYPE_IPTRACE_1_0 */
-	{ "AIX iptrace 1.0", "iptrace_1", NULL, NULL,
-	  FALSE, FALSE, 0,
-	  NULL, NULL, NULL },
-
-	/* WTAP_FILE_TYPE_SUBTYPE_IPTRACE_2_0 */
-	{ "AIX iptrace 2.0", "iptrace_2", NULL, NULL,
-	  FALSE, FALSE, 0,
-	  NULL, NULL, NULL }
+	  FALSE, BLOCKS_SUPPORTED(pcap_blocks_supported),
+	  libpcap_dump_can_write_encap, libpcap_dump_open, NULL }
 };
 
 #define N_DUMP_OPEN_TABLE_BASE_ENTRIES	(sizeof(file_type_subtype_table_base) / sizeof(struct file_type_subtype_info))
@@ -1438,8 +1536,8 @@ wtap_deregister_file_type_subtype(const int subtype)
 	finfo->default_file_extension = NULL;
 	finfo->additional_file_extensions = NULL;
 	finfo->writing_must_seek = FALSE;
-	finfo->has_name_resolution = FALSE;
-	finfo->supported_comment_types = 0;
+	finfo->num_supported_blocks = 0;
+	finfo->supported_blocks = NULL;
 	finfo->can_write_encap = NULL;
 	finfo->dump_open = NULL;
 	finfo->wslua_info = NULL;
@@ -1515,9 +1613,26 @@ wtap_dump_can_write_format(int ft, const GArray *file_encaps,
 	 * Yes.  Can we write out all the required comments in this
 	 * format?
 	 */
-	if (!wtap_dump_supports_comment_types(ft, required_comment_types)) {
-		/* No. */
-		return FALSE;
+	if (required_comment_types & WTAP_COMMENT_PER_SECTION) {
+		if (wtap_file_type_subtype_supports_option(ft,
+		    WTAP_BLOCK_SECTION, OPT_COMMENT) == OPTION_NOT_SUPPORTED) {
+			/* Not section comments. */
+			return FALSE;
+		}
+	}
+	if (required_comment_types & WTAP_COMMENT_PER_INTERFACE) {
+		if (wtap_file_type_subtype_supports_option(ft,
+		    WTAP_BLOCK_IF_ID_AND_INFO, OPT_COMMENT) == OPTION_NOT_SUPPORTED) {
+			/* Not interface comments. */
+			return FALSE;
+		}
+	}
+	if (required_comment_types & WTAP_COMMENT_PER_PACKET) {
+		if (wtap_file_type_subtype_supports_option(ft,
+		    WTAP_BLOCK_PACKET, OPT_COMMENT) == OPTION_NOT_SUPPORTED) {
+			/* Not packet comments. */
+			return FALSE;
+		}
 	}
 
 	/*
@@ -1764,24 +1879,6 @@ wtap_get_writable_file_types_subtypes(ft_sort_order sort_order)
 	return writable_file_types_subtypes;
 }
 
-/**
- * Return TRUE if files of this file type/subtype use interface IDs
- * to associate records with an interface.
- */
-gboolean
-wtap_uses_interface_ids(int file_type)
-{
-	/*
-	 * XXX - for now, pcapng and iptrace are the only such file types.
-	 * We don't write iptrace files, so this doesn't currently
-	 * matter, but we provide this API to make it clearer what's
-	 * being checked.
-	 */
-	return file_type == WTAP_FILE_TYPE_SUBTYPE_PCAPNG ||
-	       file_type == WTAP_FILE_TYPE_SUBTYPE_IPTRACE_1_0 ||
-	       file_type == WTAP_FILE_TYPE_SUBTYPE_IPTRACE_2_0;
-}
-
 /* String describing the file type/subtype. */
 const char *
 wtap_file_type_subtype_description(int file_type_subtype)
@@ -1845,6 +1942,77 @@ wtap_name_to_file_type_subtype(const char *name)
 	}
 
 	return -1;	/* no such file type, or we can't write it */
+}
+
+block_support_t
+wtap_file_type_subtype_supports_block(int filetype, wtap_block_type_t type)
+{
+	size_t num_supported_blocks;
+	const struct supported_block_type *supported_blocks;
+
+	num_supported_blocks = file_type_subtype_table[filetype].num_supported_blocks;
+	supported_blocks = file_type_subtype_table[filetype].supported_blocks;
+
+	for (size_t i = 0; i < num_supported_blocks; i++) {
+		if (supported_blocks[i].type == type)
+			return supported_blocks[i].support;
+	}
+
+	/*
+	 * Not found, which means not supported.
+	 */
+	return BLOCK_NOT_SUPPORTED;
+}
+
+option_support_t
+wtap_file_type_subtype_supports_option(int filetype, wtap_block_type_t type,
+    guint option)
+{
+	size_t num_supported_blocks;
+	const struct supported_block_type *supported_blocks;
+
+	num_supported_blocks = file_type_subtype_table[filetype].num_supported_blocks;
+	supported_blocks = file_type_subtype_table[filetype].supported_blocks;
+
+	for (size_t i = 0; i < num_supported_blocks; i++) {
+		if (supported_blocks[i].type == type) {
+			/*
+			 * OK, that block is known.
+			 * Is it supported?
+			 */
+			if (supported_blocks[i].support == BLOCK_NOT_SUPPORTED) {
+				/*
+				 * No, so clearly the option isn't
+				 * supported in that block.
+				 */
+				return OPTION_NOT_SUPPORTED;
+			}
+
+			/*
+			 * Yes, so check the options.
+			 */
+			size_t num_supported_options;
+			const struct supported_option_type *supported_options;
+
+			num_supported_options = supported_blocks[i].num_supported_options;
+			supported_options = supported_blocks[i].supported_options;
+			for (size_t j = 0; j < num_supported_options; i++) {
+				if (supported_options[i].opt == option)
+					return supported_options[i].support;
+			}
+
+			/*
+			 * Not found, which means not supported.
+			 */
+			return OPTION_NOT_SUPPORTED;
+		}
+	}
+
+	/*
+	 * The block type wasn't found, which means it's not supported,
+	 * which means the option isn't supported in that block.
+	 */
+	return OPTION_NOT_SUPPORTED;
 }
 
 static GSList *
@@ -2037,33 +2205,6 @@ wtap_dump_can_compress(int file_type_subtype _U_)
 }
 #endif
 
-gboolean
-wtap_dump_has_name_resolution(int file_type_subtype)
-{
-	if (file_type_subtype < 0 ||
-	    file_type_subtype >= (int)file_type_subtype_table_arr->len ||
-	    file_type_subtype_table[file_type_subtype].has_name_resolution == FALSE)
-		return FALSE;
-
-	return TRUE;
-}
-
-gboolean
-wtap_dump_supports_comment_types(int file_type_subtype, guint32 comment_types)
-{
-	guint32 supported_comment_types;
-
-	if (file_type_subtype < 0 ||
-	    file_type_subtype >= (int)file_type_subtype_table_arr->len)
-		return FALSE;
-
-	supported_comment_types = file_type_subtype_table[file_type_subtype].supported_comment_types;
-
-	if ((comment_types & supported_comment_types) == comment_types)
-		return TRUE;
-	return FALSE;
-}
-
 static gboolean wtap_dump_open_check(int file_type_subtype, int encap, gboolean compressed, int *err);
 static wtap_dumper* wtap_dump_alloc_wdh(int file_type_subtype, int encap, int snaplen,
 					wtap_compression_type compression_type,
@@ -2124,7 +2265,7 @@ wtap_dump_init_dumper(int file_type_subtype, wtap_compression_type compression_t
 		int snaplen;
 
 		// XXX IDBs should be optional.
-		descr = wtap_block_create(WTAP_BLOCK_IF_DESCRIPTION);
+		descr = wtap_block_create(WTAP_BLOCK_IF_ID_AND_INFO);
 		descr_mand = (wtapng_if_descr_mandatory_t*)wtap_block_get_mandatory_data(descr);
 		descr_mand->wtap_encap = params->encap;
 		descr_mand->tsprecision = params->tsprec;
@@ -2574,7 +2715,7 @@ wtap_dump_set_addrinfo_list(wtap_dumper *wdh, addrinfo_lists_t *addrinfo_lists)
 {
 	if (!wdh || wdh->file_type_subtype < 0 ||
 	    wdh->file_type_subtype >= (int)file_type_subtype_table_arr->len ||
-	    file_type_subtype_table[wdh->file_type_subtype].has_name_resolution == FALSE)
+	    wtap_file_type_subtype_supports_block(wdh->file_type_subtype, WTAP_BLOCK_NAME_RESOLUTION) == BLOCK_NOT_SUPPORTED)
 		return FALSE;
 	wdh->addrinfo_lists = addrinfo_lists;
 	return TRUE;
@@ -2821,10 +2962,6 @@ wtap_register_backwards_compatibility_lua_name(const char *name, int ft)
 		    WTAP_FILE_TYPE_SUBTYPE_PCAP_SS990417);
 		wtap_register_backwards_compatibility_lua_name("PCAP_SS990915",
 		    WTAP_FILE_TYPE_SUBTYPE_PCAP_SS990915);
-		wtap_register_backwards_compatibility_lua_name("IPTRACE_1_0",
-		    WTAP_FILE_TYPE_SUBTYPE_IPTRACE_1_0);
-		wtap_register_backwards_compatibility_lua_name("IPTRACE_2_0",
-		    WTAP_FILE_TYPE_SUBTYPE_IPTRACE_2_0);
 	}
 	entry.name = name;
 	entry.ft = ft;

@@ -1052,15 +1052,29 @@ iseries_parse_hex_string (const char * ascii, guint8 * buf, size_t len)
   return TRUE;
 }
 
+static const struct supported_block_type iseries_blocks_supported[] = {
+  /*
+   * We support packet blocks, with no comments or other options.
+   */
+  { WTAP_BLOCK_PACKET, MULTIPLE_BLOCKS_SUPPORTED, NO_OPTIONS_SUPPORTED }
+};
+
 static const struct file_type_subtype_info iseries_info = {
   "IBM iSeries comm. trace (ASCII)", "iseries_ascii", "txt", NULL,
-  FALSE, FALSE, 0,
+  FALSE, BLOCKS_SUPPORTED(iseries_blocks_supported),
   NULL, NULL, NULL
+};
+
+static const struct supported_block_type iseries_unicode_blocks_supported[] = {
+  /*
+   * We support packet blocks, with no comments or other options.
+   */
+  { WTAP_BLOCK_PACKET, MULTIPLE_BLOCKS_SUPPORTED, NO_OPTIONS_SUPPORTED }
 };
 
 static const struct file_type_subtype_info iseries_unicode_info = {
   "IBM iSeries comm. trace (Unicode)", "iseries_unicode", "txt", NULL,
-  FALSE, FALSE, 0,
+  FALSE, BLOCKS_SUPPORTED(iseries_unicode_blocks_supported),
   NULL, NULL, NULL
 };
 

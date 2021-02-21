@@ -1979,15 +1979,29 @@ static gboolean netmon_dump_finish(wtap_dumper *wdh, int *err,
 	return TRUE;
 }
 
+static const struct supported_block_type netmon_1_x_blocks_supported[] = {
+	/*
+	 * We support packet blocks, with no comments or other options.
+	 */
+	{ WTAP_BLOCK_PACKET, MULTIPLE_BLOCKS_SUPPORTED, NO_OPTIONS_SUPPORTED }
+};
+
 static const struct file_type_subtype_info netmon_1_x_info = {
 	"Microsoft NetMon 1.x", "netmon1", "cap", NULL,
-	TRUE, FALSE, 0,
+	TRUE, BLOCKS_SUPPORTED(netmon_1_x_blocks_supported),
 	netmon_dump_can_write_encap_1_x, netmon_dump_open_1_x, NULL
+};
+
+static const struct supported_block_type netmon_2_x_blocks_supported[] = {
+	/*
+	 * We support packet blocks, with no comments or other options.
+	 */
+	{ WTAP_BLOCK_PACKET, MULTIPLE_BLOCKS_SUPPORTED, NO_OPTIONS_SUPPORTED }
 };
 
 static const struct file_type_subtype_info netmon_2_x_info = {
 	"Microsoft NetMon 2.x", "netmon2", "cap", NULL,
-	TRUE, FALSE, 0,
+	TRUE, BLOCKS_SUPPORTED(netmon_2_x_blocks_supported),
 	netmon_dump_can_write_encap_2_x, netmon_dump_open_2_x, NULL
 };
 

@@ -236,9 +236,16 @@ systemd_journal_read_export_entry(FILE_T fh, wtap_rec *rec, Buffer *buf, int *er
     return TRUE;
 }
 
+static const struct supported_block_type systemd_journal_blocks_supported[] = {
+    /*
+     * We support packet blocks, with no comments or other options.
+     */
+    { WTAP_BLOCK_PACKET, MULTIPLE_BLOCKS_SUPPORTED, NO_OPTIONS_SUPPORTED }
+};
+
 static const struct file_type_subtype_info systemd_journal_info = {
     "systemd journal export", "systemd_journal", NULL, NULL,
-    FALSE, FALSE, 0,
+    FALSE, BLOCKS_SUPPORTED(systemd_journal_blocks_supported),
     NULL, NULL, NULL
 };
 

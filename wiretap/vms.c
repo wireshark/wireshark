@@ -528,9 +528,16 @@ parse_single_hex_dump_line(char* rec, guint8 *buf, long byte_offset,
     return TRUE;
 }
 
+static const struct supported_block_type vms_blocks_supported[] = {
+    /*
+     * We support packet blocks, with no comments or other options.
+     */
+    { WTAP_BLOCK_PACKET, MULTIPLE_BLOCKS_SUPPORTED, NO_OPTIONS_SUPPORTED }
+};
+
 static const struct file_type_subtype_info vms_info = {
     "TCPIPtrace (VMS)", "tcpiptrace", "txt", NULL,
-    FALSE, FALSE, 0,
+    FALSE, BLOCKS_SUPPORTED(vms_blocks_supported),
     NULL, NULL, NULL
 };
 

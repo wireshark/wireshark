@@ -880,9 +880,16 @@ static gint wtap_to_observer_encap(int wtap_encap)
     return OBSERVER_UNDEFINED;
 }
 
+static const struct supported_block_type network_instruments_blocks_supported[] = {
+    /*
+     * We support packet blocks, with no comments or other options.
+     */
+    { WTAP_BLOCK_PACKET, MULTIPLE_BLOCKS_SUPPORTED, NO_OPTIONS_SUPPORTED }
+};
+
 static const struct file_type_subtype_info network_instruments_info = {
     "Network Instruments Observer", "niobserver", "bfr", NULL,
-    FALSE, FALSE, 0,
+    FALSE, BLOCKS_SUPPORTED(network_instruments_blocks_supported),
     network_instruments_dump_can_write_encap, network_instruments_dump_open, NULL
 };
 

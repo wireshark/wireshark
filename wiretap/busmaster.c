@@ -442,9 +442,16 @@ busmaster_seek_read(wtap   *wth, gint64 seek_off, wtap_rec *rec,
     return busmaster_gen_packet(rec, buf, priv_entry, &state.msg, err, err_info);
 }
 
+static const struct supported_block_type busmaster_blocks_supported[] = {
+    /*
+     * We support packet blocks, with no comments or other options.
+     */
+    { WTAP_BLOCK_PACKET, MULTIPLE_BLOCKS_SUPPORTED, NO_OPTIONS_SUPPORTED }
+};
+
 static const struct file_type_subtype_info busmaster_info = {
     "BUSMASTER log file", "busmaster", "log", NULL,
-    FALSE, FALSE, 0,
+    FALSE, BLOCKS_SUPPORTED(busmaster_blocks_supported),
     NULL, NULL, NULL
 };
 

@@ -885,9 +885,16 @@ peektagged_seek_read(wtap *wth, gint64 seek_off,
     return TRUE;
 }
 
+static const struct supported_block_type peektagged_blocks_supported[] = {
+    /*
+     * We support packet blocks, with no comments or other options.
+     */
+    { WTAP_BLOCK_PACKET, MULTIPLE_BLOCKS_SUPPORTED, NO_OPTIONS_SUPPORTED }
+};
+
 static const struct file_type_subtype_info peektagged_info = {
     "Savvius tagged", "peektagged", "pkt", "tpc;apc;wpz",
-    FALSE, FALSE, 0,
+    FALSE, BLOCKS_SUPPORTED(peektagged_blocks_supported),
     NULL, NULL, NULL
 };
 

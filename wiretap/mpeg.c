@@ -265,9 +265,18 @@ good_magic:
 	return WTAP_OPEN_MINE;
 }
 
+static const struct supported_block_type mpeg_blocks_supported[] = {
+	/*
+	 * This is a file format that we dissect, so we provide
+	 * only one "packet" with the file's contents, and don't
+	 * support any options.
+	 */
+	{ WTAP_BLOCK_PACKET, ONE_BLOCK_SUPPORTED, NO_OPTIONS_SUPPORTED }
+};
+
 static const struct file_type_subtype_info mpeg_info = {
 	"MPEG", "mpeg", "mpeg", "mpg;mp3",
-	FALSE, FALSE, 0,
+	FALSE, BLOCKS_SUPPORTED(mpeg_blocks_supported),
 	NULL, NULL, NULL
 };
 

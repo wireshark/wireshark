@@ -628,45 +628,94 @@ static gboolean logcat_text_long_dump_open(wtap_dumper *wdh, int *err _U_, gchar
     return logcat_text_dump_open(wdh, WTAP_ENCAP_LOGCAT_LONG);
 }
 
+static const struct supported_block_type logcat_text_brief_blocks_supported[] = {
+    /*
+     * We support packet blocks, with no comments or other options.
+     */
+    { WTAP_BLOCK_PACKET, MULTIPLE_BLOCKS_SUPPORTED, NO_OPTIONS_SUPPORTED }
+};
+
 static const struct file_type_subtype_info logcat_text_brief_info = {
     "Android Logcat Brief text format", "logcat-brief", NULL, NULL,
-    FALSE, FALSE, 0,
+    FALSE, BLOCKS_SUPPORTED(logcat_text_brief_blocks_supported),
     logcat_text_brief_dump_can_write_encap, logcat_text_brief_dump_open, NULL
+};
+
+static const struct supported_block_type logcat_text_process_blocks_supported[] = {
+    /*
+     * We support packet blocks, with no comments or other options.
+     */
+    { WTAP_BLOCK_PACKET, MULTIPLE_BLOCKS_SUPPORTED, NO_OPTIONS_SUPPORTED }
 };
 
 static const struct file_type_subtype_info logcat_text_process_info = {
     "Android Logcat Process text format", "logcat-process", NULL, NULL,
-    FALSE, FALSE, 0,
+    FALSE, BLOCKS_SUPPORTED(logcat_text_process_blocks_supported),
     logcat_text_process_dump_can_write_encap, logcat_text_process_dump_open, NULL
+};
+
+static const struct supported_block_type logcat_text_tag_blocks_supported[] = {
+    /*
+     * We support packet blocks, with no comments or other options.
+     */
+    { WTAP_BLOCK_PACKET, MULTIPLE_BLOCKS_SUPPORTED, NO_OPTIONS_SUPPORTED }
 };
 
 static const struct file_type_subtype_info logcat_text_tag_info = {
     "Android Logcat Tag text format", "logcat-tag", NULL, NULL,
-    FALSE, FALSE, 0,
+    FALSE, BLOCKS_SUPPORTED(logcat_text_tag_blocks_supported),
     logcat_text_tag_dump_can_write_encap, logcat_text_tag_dump_open, NULL
+};
+
+static const struct supported_block_type logcat_text_thread_blocks_supported[] = {
+    /*
+     * We support packet blocks, with no comments or other options.
+     */
+    { WTAP_BLOCK_PACKET, MULTIPLE_BLOCKS_SUPPORTED, NO_OPTIONS_SUPPORTED }
 };
 
 static const struct file_type_subtype_info logcat_text_thread_info = {
     "Android Logcat Thread text format", "logcat-thread", NULL, NULL,
-    FALSE, FALSE, 0,
+    FALSE, BLOCKS_SUPPORTED(logcat_text_thread_blocks_supported),
     logcat_text_thread_dump_can_write_encap, logcat_text_thread_dump_open, NULL
+};
+
+static const struct supported_block_type logcat_text_time_blocks_supported[] = {
+    /*
+     * We support packet blocks, with no comments or other options.
+     */
+    { WTAP_BLOCK_PACKET, MULTIPLE_BLOCKS_SUPPORTED, NO_OPTIONS_SUPPORTED }
 };
 
 static const struct file_type_subtype_info logcat_text_time_info = {
     "Android Logcat Time text format", "logcat-time", NULL, NULL,
-    FALSE, FALSE, 0,
+    FALSE, BLOCKS_SUPPORTED(logcat_text_time_blocks_supported),
     logcat_text_time_dump_can_write_encap, logcat_text_time_dump_open, NULL
+};
+
+static const struct supported_block_type logcat_text_threadtime_blocks_supported[] = {
+    /*
+     * We support packet blocks, with no comments or other options.
+     */
+    { WTAP_BLOCK_PACKET, MULTIPLE_BLOCKS_SUPPORTED, NO_OPTIONS_SUPPORTED }
 };
 
 static const struct file_type_subtype_info logcat_text_threadtime_info = {
     "Android Logcat Threadtime text format", "logcat-threadtime", NULL, NULL,
-    FALSE, FALSE, 0,
+    FALSE, BLOCKS_SUPPORTED(logcat_text_threadtime_blocks_supported),
     logcat_text_threadtime_dump_can_write_encap, logcat_text_threadtime_dump_open, NULL
+};
+
+static const struct supported_block_type logcat_text_long_blocks_supported[] = {
+    /*
+     * We support packet blocks, with no comments or other options.
+     */
+    { WTAP_BLOCK_PACKET, MULTIPLE_BLOCKS_SUPPORTED, NO_OPTIONS_SUPPORTED }
 };
 
 static const struct file_type_subtype_info logcat_text_long_info = {
     "Android Logcat Long text format", "logcat-long", NULL, NULL,
-    FALSE, FALSE, 0,
+    FALSE, BLOCKS_SUPPORTED(logcat_text_long_blocks_supported),
     logcat_text_long_dump_can_write_encap, logcat_text_long_dump_open, NULL
 };
 

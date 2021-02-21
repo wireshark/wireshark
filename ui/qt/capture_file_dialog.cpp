@@ -106,12 +106,31 @@ CaptureFileDialog::CaptureFileDialog(QWidget *parent, capture_file *cf, QString 
 
 check_savability_t CaptureFileDialog::checkSaveAsWithComments(QWidget *parent, capture_file *cf, int file_type) {
     guint32 comment_types;
+    bool all_comment_types_supported = true;
 
     /* What types of comments do we have? */
     comment_types = cf_comment_types(cf);
 
     /* Does the file's format support all the comments we have? */
-    if (wtap_dump_supports_comment_types(file_type, comment_types)) {
+    if (comment_types & WTAP_COMMENT_PER_SECTION) {
+        if (wtap_file_type_subtype_supports_option(file_type,
+                                                   WTAP_BLOCK_SECTION,
+                                                   OPT_COMMENT) == OPTION_NOT_SUPPORTED)
+            all_comment_types_supported = false;
+    }
+    if (comment_types & WTAP_COMMENT_PER_INTERFACE) {
+        if (wtap_file_type_subtype_supports_option(file_type,
+                                                   WTAP_BLOCK_IF_ID_AND_INFO,
+                                                   OPT_COMMENT) == OPTION_NOT_SUPPORTED)
+            all_comment_types_supported = false;
+    }
+    if (comment_types & WTAP_COMMENT_PER_PACKET) {
+        if (wtap_file_type_subtype_supports_option(file_type,
+                                                   WTAP_BLOCK_PACKET,
+                                                   OPT_COMMENT) == OPTION_NOT_SUPPORTED)
+            all_comment_types_supported = false;
+    }
+    if (all_comment_types_supported) {
         /* Yes.  Let the save happen; we can save all the comments, so
            there's no need to delete them. */
         return SAVE;

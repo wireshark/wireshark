@@ -964,9 +964,16 @@ static gboolean lanalyzer_dump_finish(wtap_dumper *wdh, int *err,
       return *err ? FALSE : TRUE;
 }
 
+static const struct supported_block_type lanalyzer_blocks_supported[] = {
+      /*
+       * We support packet blocks, with no comments or other options.
+       */
+      { WTAP_BLOCK_PACKET, MULTIPLE_BLOCKS_SUPPORTED, NO_OPTIONS_SUPPORTED }
+};
+
 static const struct file_type_subtype_info lanalyzer_info = {
       "Novell LANalyzer","lanalyzer", "tr1", NULL,
-      TRUE, FALSE, 0,
+      TRUE, BLOCKS_SUPPORTED(lanalyzer_blocks_supported),
       lanalyzer_dump_can_write_encap, lanalyzer_dump_open, NULL
 };
 

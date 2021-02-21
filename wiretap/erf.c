@@ -2455,7 +2455,7 @@ static int erf_populate_interface(erf_t *erf_priv, wtap *wth, union wtap_pseudo_
     return if_map->interfaces[if_num].if_index;
   }
 
-  int_data = wtap_block_create(WTAP_BLOCK_IF_DESCRIPTION);
+  int_data = wtap_block_create(WTAP_BLOCK_IF_ID_AND_INFO);
   int_data_mand = (wtapng_if_descr_mandatory_t*)wtap_block_get_mandatory_data(int_data);
 
   int_data_mand->wtap_encap = WTAP_ENCAP_ERF;
@@ -3395,9 +3395,57 @@ static void erf_close(wtap *wth)
   wth->priv = NULL;
 }
 
+static const struct supported_option_type section_block_options_supported[] = {
+  { OPT_COMMENT, ONE_OPTION_SUPPORTED }, /* XXX - multiple? */
+  { OPT_SHB_USERAPPL, ONE_OPTION_SUPPORTED }
+};
+
+static const struct supported_option_type interface_block_options_supported[] = {
+  { OPT_COMMENT, ONE_OPTION_SUPPORTED }, /* XXX - multiple? */
+  { OPT_IDB_NAME, ONE_OPTION_SUPPORTED },
+  { OPT_IDB_DESCR, ONE_OPTION_SUPPORTED },
+  { OPT_IDB_OS, ONE_OPTION_SUPPORTED },
+  { OPT_IDB_TSOFFSET, ONE_OPTION_SUPPORTED },
+  { OPT_IDB_SPEED, ONE_OPTION_SUPPORTED },
+  { OPT_IDB_IP4ADDR, ONE_OPTION_SUPPORTED }, /* XXX - multiple? */
+  { OPT_IDB_IP6ADDR, ONE_OPTION_SUPPORTED }, /* XXX - multiple? */
+  { OPT_IDB_FILTER, ONE_OPTION_SUPPORTED },
+  { OPT_IDB_FCSLEN, ONE_OPTION_SUPPORTED }
+};
+
+static const struct supported_option_type packet_block_options_supported[] = {
+  { OPT_COMMENT, ONE_OPTION_SUPPORTED } /* XXX - multiple? */
+};
+
+static const struct supported_block_type erf_blocks_supported[] = {
+  /*
+   * Per-file comments and application supported; section blocks
+   * are used for that.
+   * ERF files have only one section.  (XXX - true?)
+   */
+  { WTAP_BLOCK_SECTION, ONE_BLOCK_SUPPORTED, OPTION_TYPES_SUPPORTED(section_block_options_supported) },
+
+  /*
+   * ERF supports multiple interfaces, with information, and
+   * supports associating packets with interfaces.  Interface
+   * description blocks are used for that.
+   */
+  { WTAP_BLOCK_IF_ID_AND_INFO, MULTIPLE_BLOCKS_SUPPORTED, OPTION_TYPES_SUPPORTED(interface_block_options_supported) },
+
+  /*
+   * Name resolution is supported, but we don't support comments.
+   */
+  { WTAP_BLOCK_NAME_RESOLUTION, ONE_BLOCK_SUPPORTED, NO_OPTIONS_SUPPORTED },
+
+  /*
+   * ERF is a capture format, so it obviously supports packets.
+   */
+  { WTAP_BLOCK_PACKET, MULTIPLE_BLOCKS_SUPPORTED, OPTION_TYPES_SUPPORTED(packet_block_options_supported) }
+};
+
 static const struct file_type_subtype_info erf_info = {
   "Endace ERF capture", "erf", "erf", NULL,
-  FALSE, TRUE, WTAP_COMMENT_PER_SECTION|WTAP_COMMENT_PER_INTERFACE|WTAP_COMMENT_PER_PACKET,
+  FALSE, BLOCKS_SUPPORTED(erf_blocks_supported),
   erf_dump_can_write_encap, erf_dump_open, NULL
 };
 

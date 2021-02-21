@@ -209,9 +209,16 @@ csids_read_packet(FILE_T fh, csids_t *csids, wtap_rec *rec,
   return TRUE;
 }
 
+static const struct supported_block_type csids_blocks_supported[] = {
+  /*
+   * We support packet blocks, with no comments or other options.
+   */
+  { WTAP_BLOCK_PACKET, MULTIPLE_BLOCKS_SUPPORTED, NO_OPTIONS_SUPPORTED }
+};
+
 static const struct file_type_subtype_info csids_info = {
   "CSIDS IPLog", "csids", NULL, NULL,
-  FALSE, FALSE, 0,
+  FALSE, BLOCKS_SUPPORTED(csids_blocks_supported),
   NULL, NULL, NULL
 };
 

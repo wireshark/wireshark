@@ -861,9 +861,16 @@ static void visual_dump_free(wtap_dumper *wdh)
     }
 }
 
+static const struct supported_block_type visual_blocks_supported[] = {
+    /*
+     * We support packet blocks, with no comments or other options.
+     */
+    { WTAP_BLOCK_PACKET, MULTIPLE_BLOCKS_SUPPORTED, NO_OPTIONS_SUPPORTED }
+};
+
 static const struct file_type_subtype_info visual_info = {
     "Visual Networks traffic capture", "visual", NULL, NULL,
-    TRUE, FALSE, 0,
+    TRUE, BLOCKS_SUPPORTED(visual_blocks_supported),
     visual_dump_can_write_encap, visual_dump_open, NULL
 };
 

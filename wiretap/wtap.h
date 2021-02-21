@@ -309,9 +309,6 @@ extern "C" {
 #define WTAP_FILE_TYPE_SUBTYPE_PCAP_NOKIA                     6
 #define WTAP_FILE_TYPE_SUBTYPE_PCAP_SS990417                  7
 #define WTAP_FILE_TYPE_SUBTYPE_PCAP_SS990915                  8
-#define WTAP_FILE_TYPE_SUBTYPE_IPTRACE_1_0                    9
-#define WTAP_FILE_TYPE_SUBTYPE_IPTRACE_2_0                   10
-#define WTAP_FILE_TYPE_SUBTYPE_BER                           11
 
 /* timestamp precision (currently only these values are supported) */
 #define WTAP_TSPREC_UNKNOWN    -2
@@ -1584,6 +1581,54 @@ WS_DLL_PUBLIC struct open_info *open_routines;
 #define WTAP_COMMENT_PER_INTERFACE      0x00000002      /* per-interface */
 #define WTAP_COMMENT_PER_PACKET         0x00000004      /* per-packet */
 
+/*
+ * For a given option type in a certain block type, does a file format
+ * not support it, support only one such option, or support multiple
+ * such options?
+ */
+typedef enum {
+    OPTION_NOT_SUPPORTED,
+    ONE_OPTION_SUPPORTED,
+    MULTIPLE_OPTIONS_SUPPORTED
+} option_support_t;
+
+/*
+ * Entry in a table of supported option types.
+ */
+struct supported_option_type {
+    guint opt;
+    option_support_t support; /* OPTION_NOT_SUPPORTED allowed, equivalent to absence */
+};
+
+#define OPTION_TYPES_SUPPORTED(option_type_array) \
+    sizeof option_type_array / sizeof option_type_array[0], option_type_array
+
+#define NO_OPTIONS_SUPPORTED \
+    0, NULL
+
+/*
+ * For a given block type, does a file format not support it, support
+ * only one such block, or support multiple such blocks?
+ */
+typedef enum {
+    BLOCK_NOT_SUPPORTED,
+    ONE_BLOCK_SUPPORTED,
+    MULTIPLE_BLOCKS_SUPPORTED
+} block_support_t;
+
+/*
+ * Entry in a table of supported block types.
+ */
+struct supported_block_type {
+    wtap_block_type_t type;
+    block_support_t support; /* BLOCK_NOT_SUPPORTED allowed, equivalent to absence */
+    size_t num_supported_options;
+    const struct supported_option_type *supported_options;
+};
+
+#define BLOCKS_SUPPORTED(block_type_array) \
+    sizeof block_type_array / sizeof block_type_array[0], block_type_array
+
 struct file_type_subtype_info {
     /*
      * The file type description.
@@ -1615,12 +1660,11 @@ struct file_type_subtype_info {
     /* when writing this file format, is seeking required? */
     gboolean writing_must_seek;
 
-    /* does this type support name resolution records? */
-    /* should be FALSE is this file type doesn't support name resolution records */
-    gboolean has_name_resolution;
+    /* Number of block types supported. */
+    size_t num_supported_blocks;
 
-    /* what types of comment does this file support? */
-    guint32 supported_comment_types;
+    /* Table of block types supported. */
+    const struct supported_block_type *supported_blocks;
 
     /* can this type write this encapsulation format? */
     /* should be NULL is this file type doesn't have write support */
@@ -1957,20 +2001,6 @@ WS_DLL_PUBLIC
 gboolean wtap_dump_can_compress(int filetype);
 
 /**
- * Return TRUE if this capture file format supports storing name
- * resolution information in it, FALSE if not.
- */
-WS_DLL_PUBLIC
-gboolean wtap_dump_has_name_resolution(int filetype);
-
-/**
- * Return TRUE if this capture file format supports all the comment
- * types specified, FALSE if not.
- */
-WS_DLL_PUBLIC
-gboolean wtap_dump_supports_comment_types(int filetype, guint32 comment_types);
-
-/**
  * Initialize the per-file information based on an existing file. Its
  * contents must be freed according to the requirements of wtap_dump_params.
  * If wth does not remain valid for the duration of the session, dsbs_growing
@@ -2160,13 +2190,6 @@ GArray *wtap_get_savable_file_types_subtypes_for_file(int file_type,
 WS_DLL_PUBLIC
 GArray *wtap_get_writable_file_types_subtypes(ft_sort_order sort_order);
 
-/**
- * Return TRUE if files of this file type/subtype use interface IDs
- * to associate records with an interface.
- */
-WS_DLL_PUBLIC
-gboolean wtap_uses_interface_ids(int file_type);
-
 /*** various file type/subtype functions ***/
 WS_DLL_PUBLIC
 const char *wtap_file_type_subtype_description(int file_type_subtype);
@@ -2174,6 +2197,22 @@ WS_DLL_PUBLIC
 const char *wtap_file_type_subtype_name(int file_type_subtype);
 WS_DLL_PUBLIC
 int wtap_name_to_file_type_subtype(const char *name);
+
+/**
+ * Return an indication of whether this capture file format supports
+ * the block in question.
+ */
+WS_DLL_PUBLIC
+block_support_t wtap_file_type_subtype_supports_block(int filetype,
+    wtap_block_type_t type);
+
+/**
+ * Return an indication of whether this capture file format supports
+ * the option in queston for the block in question.
+ */
+WS_DLL_PUBLIC
+option_support_t wtap_file_type_subtype_supports_option(int filetype,
+    wtap_block_type_t type, guint opttype);
 
 /*** various file extension functions ***/
 WS_DLL_PUBLIC

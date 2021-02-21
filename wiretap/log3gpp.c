@@ -886,9 +886,16 @@ gboolean get_file_time_stamp(gchar* linebuff, time_t *secs, guint32 *usecs)
     return TRUE;
 }
 
+static const struct supported_block_type log3gpp_blocks_supported[] = {
+    /*
+     * We support packet blocks, with no comments or other options.
+     */
+    { WTAP_BLOCK_PACKET, MULTIPLE_BLOCKS_SUPPORTED, NO_OPTIONS_SUPPORTED }
+};
+
 static const struct file_type_subtype_info log3gpp_info = {
     "3GPP Log", "3gpp_log", "*.log", NULL,
-    TRUE, FALSE, 0,
+    TRUE, BLOCKS_SUPPORTED(log3gpp_blocks_supported),
     NULL, NULL, NULL
 };
 

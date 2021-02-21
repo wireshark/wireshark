@@ -61,6 +61,11 @@ typedef struct {
 	guint8 if_type;
 } if_info;
 
+static int iptrace_1_0_file_type_subtype = -1;
+static int iptrace_2_0_file_type_subtype = -1;
+
+void register_iptrace(void);
+
 static gboolean destroy_if_info(gpointer key, gpointer value _U_,
     gpointer user_data _U_)
 {
@@ -102,13 +107,13 @@ wtap_open_return_val iptrace_open(wtap *wth, int *err, gchar **err_info)
 	version_string[VERSION_STRING_SIZE] = '\0';
 
 	if (strcmp(version_string, "iptrace 1.0") == 0) {
-		wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_IPTRACE_1_0;
+		wth->file_type_subtype = iptrace_1_0_file_type_subtype;
 		wth->subtype_read = iptrace_read_1_0;
 		wth->subtype_seek_read = iptrace_seek_read_1_0;
 		wth->file_tsprec = WTAP_TSPREC_SEC;
 	}
 	else if (strcmp(version_string, "iptrace 2.0") == 0) {
-		wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_IPTRACE_2_0;
+		wth->file_type_subtype = iptrace_2_0_file_type_subtype;
 		wth->subtype_read = iptrace_read_2_0;
 		wth->subtype_seek_read = iptrace_seek_read_2_0;
 		wth->file_tsprec = WTAP_TSPREC_NSEC;
@@ -329,7 +334,7 @@ iptrace_read_rec_1_0(wtap *wth, FILE_T fh, wtap_rec *rec, Buffer *buf,
 		/*
 		 * Now make a new IDB and add it.
 		 */
-		int_data = wtap_block_create(WTAP_BLOCK_IF_DESCRIPTION);
+		int_data = wtap_block_create(WTAP_BLOCK_IF_ID_AND_INFO);
 		int_data_mand = (wtapng_if_descr_mandatory_t *)wtap_block_get_mandatory_data(int_data);
 
 		int_data_mand->wtap_encap = rec->rec_header.packet_header.pkt_encap;
@@ -600,7 +605,7 @@ iptrace_read_rec_2_0(wtap *wth, FILE_T fh, wtap_rec *rec, Buffer *buf,
 		/*
 		 * Now make a new IDB and add it.
 		 */
-		int_data = wtap_block_create(WTAP_BLOCK_IF_DESCRIPTION);
+		int_data = wtap_block_create(WTAP_BLOCK_IF_ID_AND_INFO);
 		int_data_mand = (wtapng_if_descr_mandatory_t *)wtap_block_get_mandatory_data(int_data);
 
 		int_data_mand->wtap_encap = rec->rec_header.packet_header.pkt_encap;
@@ -824,6 +829,69 @@ wtap_encap_ift(unsigned int  ift)
 				return WTAP_ENCAP_UNKNOWN;
 		}
 	}
+}
+
+/* Options for interface blocks. */
+static const struct supported_option_type interface_block_options_supported[] = {
+	/* No comments, just an interface name. */
+	{ OPT_IDB_NAME, ONE_OPTION_SUPPORTED }
+};
+
+static const struct supported_block_type iptrace_1_0_blocks_supported[] = {
+	/*
+	 * iptrace supports multiple interfaces, with descriptions, and
+	 * supports associating packets with interfaces.  Interface
+	 * description blocks are used for that.
+	 */
+	{ WTAP_BLOCK_IF_ID_AND_INFO, MULTIPLE_BLOCKS_SUPPORTED, OPTION_TYPES_SUPPORTED(interface_block_options_supported) },
+
+	/*
+	 * iptrace is a capture format, so it obviously supports packets.
+	 * It supports no packet options, however.
+	 */
+	{ WTAP_BLOCK_PACKET, MULTIPLE_BLOCKS_SUPPORTED, NO_OPTIONS_SUPPORTED }
+};
+
+static const struct file_type_subtype_info iptrace_1_0_info = {
+	"AIX iptrace 1.0", "iptrace_1", NULL, NULL,
+	FALSE, BLOCKS_SUPPORTED(iptrace_1_0_blocks_supported),
+	NULL, NULL, NULL
+};
+
+static const struct supported_block_type iptrace_2_0_blocks_supported[] = {
+	/*
+	 * iptrace supports multiple interfaces, with descriptions, and
+	 * supports associating packets with interfaces.  Interface
+	 * description blocks are used for that.
+	 */
+	{ WTAP_BLOCK_IF_ID_AND_INFO, MULTIPLE_BLOCKS_SUPPORTED, OPTION_TYPES_SUPPORTED(interface_block_options_supported) },
+
+	/*
+	 * iptrace is a capture format, so it obviously supports packets.
+	 * It supports no packet options, however.
+	 */
+	{ WTAP_BLOCK_PACKET, MULTIPLE_BLOCKS_SUPPORTED, NO_OPTIONS_SUPPORTED }
+};
+
+static const struct file_type_subtype_info iptrace_2_0_info = {
+	"AIX iptrace 2.0", "iptrace_2", NULL, NULL,
+	FALSE, BLOCKS_SUPPORTED(iptrace_2_0_blocks_supported),
+	NULL, NULL, NULL
+};
+
+void register_iptrace(void)
+{
+	iptrace_1_0_file_type_subtype = wtap_register_file_type_subtypes(&iptrace_1_0_info);
+	iptrace_2_0_file_type_subtype = wtap_register_file_type_subtypes(&iptrace_2_0_info);
+
+	/*
+	 * Register names for backwards compatibility with the
+	 * wtap_filetypes table in Lua.
+	 */
+	wtap_register_backwards_compatibility_lua_name("IPTRACE_1_0",
+	    iptrace_1_0_file_type_subtype);
+	wtap_register_backwards_compatibility_lua_name("IPTRACE_2_0",
+	    iptrace_2_0_file_type_subtype);
 }
 
 /*

@@ -2415,27 +2415,55 @@ static gboolean nstrace_dump(wtap_dumper *wdh, const wtap_rec *rec,
     return TRUE;
 }
 
+static const struct supported_block_type nstrace_1_0_blocks_supported[] = {
+    /*
+     * We support packet blocks, with no comments or other options.
+     */
+    { WTAP_BLOCK_PACKET, MULTIPLE_BLOCKS_SUPPORTED, NO_OPTIONS_SUPPORTED }
+};
+
 static const struct file_type_subtype_info nstrace_1_0_info = {
     "NetScaler Trace (Version 1.0)", "nstrace10", NULL, NULL,
-    TRUE, FALSE, 0,
+    TRUE, BLOCKS_SUPPORTED(nstrace_1_0_blocks_supported),
     nstrace_10_dump_can_write_encap, nstrace_10_dump_open, NULL
+};
+
+static const struct supported_block_type nstrace_2_0_blocks_supported[] = {
+    /*
+     * We support packet blocks, with no comments or other options.
+     */
+    { WTAP_BLOCK_PACKET, MULTIPLE_BLOCKS_SUPPORTED, NO_OPTIONS_SUPPORTED }
 };
 
 static const struct file_type_subtype_info nstrace_2_0_info = {
     "NetScaler Trace (Version 2.0)", "nstrace20", "cap", NULL,
-    TRUE, FALSE, 0,
+    TRUE, BLOCKS_SUPPORTED(nstrace_2_0_blocks_supported),
     nstrace_20_dump_can_write_encap, nstrace_20_dump_open, NULL
+};
+
+static const struct supported_block_type nstrace_3_0_blocks_supported[] = {
+    /*
+     * We support packet blocks, with no comments or other options.
+     */
+    { WTAP_BLOCK_PACKET, MULTIPLE_BLOCKS_SUPPORTED, NO_OPTIONS_SUPPORTED }
 };
 
 static const struct file_type_subtype_info nstrace_3_0_info = {
     "NetScaler Trace (Version 3.0)", "nstrace30", "cap", NULL,
-    TRUE, FALSE, 0,
+    TRUE, BLOCKS_SUPPORTED(nstrace_3_0_blocks_supported),
     nstrace_30_dump_can_write_encap, nstrace_30_dump_open, NULL
+};
+
+static const struct supported_block_type nstrace_3_5_blocks_supported[] = {
+    /*
+     * We support packet blocks, with no comments or other options.
+     */
+    { WTAP_BLOCK_PACKET, MULTIPLE_BLOCKS_SUPPORTED, NO_OPTIONS_SUPPORTED }
 };
 
 static const struct file_type_subtype_info nstrace_3_5_info = {
     "NetScaler Trace (Version 3.5)", "nstrace35", "cap", NULL,
-    TRUE, FALSE, 0,
+    TRUE, BLOCKS_SUPPORTED(nstrace_3_5_blocks_supported),
     nstrace_35_dump_can_write_encap, nstrace_35_dump_open, NULL
 };
 

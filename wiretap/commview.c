@@ -600,9 +600,16 @@ static gboolean commview_dump(wtap_dumper *wdh,
 	return TRUE;
 }
 
+static const struct supported_block_type commview_blocks_supported[] = {
+	/*
+	 * We support packet blocks, with no comments or other options.
+	 */
+	{ WTAP_BLOCK_PACKET, MULTIPLE_BLOCKS_SUPPORTED, NO_OPTIONS_SUPPORTED }
+};
+
 static const struct file_type_subtype_info commview_info = {
 	"TamoSoft CommView", "commview", "ncf", NULL,
-	FALSE, FALSE, 0,
+	FALSE, BLOCKS_SUPPORTED(commview_blocks_supported),
 	commview_dump_can_write_encap, commview_dump_open, NULL
 };
 

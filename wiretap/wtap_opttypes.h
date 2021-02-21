@@ -129,13 +129,37 @@ typedef struct wtap_block *wtap_block_t;
  * for them, they're identifiers used internally, and more than one
  * pcapng block type may use a given block type.
  *
+ * Note that, in a given file format, this information won't necessarily
+ * appear in the form of blocks in the file, even though they're presented
+ * to the caller of libwiretap as blocks when reading and and are presented
+ * by the caller of libwiretap as blocks when writing.  See, for example,
+ * the iptrace file format, in which the interface name is given as part
+ * of the packet record header; we synthesize those blocks when reading
+ * (we don't currently support writing that format, but if we did, we'd
+ * get the interface name from the block and put it in the packet record
+ * header).
+ *
+ * WTAP_BLOCK_IF_ID_AND_INFO is a block that not only gives
+ * descriptive information about an interface but *also* assigns an
+ * ID to the interface, so that every packet has either an explicit
+ * or implicit interface ID indicating on which the packet arrived.
+ *
+ * It does *not* refer to information about interfaces that does not
+ * allow identification of the interface on which a packet arrives
+ * (I'm looking at *you*, Microsoft Network Monitor...).  Do *not*
+ * indicate support for that block if your capture format merely
+ * gives a list of interface information without having every packet
+ * explicitly or implicitly (as in, for example, the pcapng Simple
+ * Packet Block) indicate on which of those interfaces the packet
+ * arrived.
+ *
  * WTAP_BLOCK_PACKET (which corresponds to the Enhanced Packet Block,
  * the Simple Packet Block, and the deprecated Packet Block) is not
  * currently used; it's reserved for future use.
  */
 typedef enum {
     WTAP_BLOCK_SECTION = 0,
-    WTAP_BLOCK_IF_DESCRIPTION,
+    WTAP_BLOCK_IF_ID_AND_INFO,
     WTAP_BLOCK_NAME_RESOLUTION,
     WTAP_BLOCK_IF_STATISTICS,
     WTAP_BLOCK_DECRYPTION_SECRETS,
@@ -159,7 +183,7 @@ typedef struct wtapng_section_mandatory_s {
                                          */
 } wtapng_mandatory_section_t;
 
-/** struct holding the information to build an WTAP_BLOCK_IF_DESCRIPTION.
+/** struct holding the information to build an WTAP_BLOCK_IF_ID_AND_INFO.
  *  the interface_data array holds an array of wtap_block_t
  *  representing interfacs, one per interface.
  */
@@ -168,7 +192,7 @@ typedef struct wtapng_iface_descriptions_s {
 } wtapng_iface_descriptions_t;
 
 /**
- * Holds the required data from a WTAP_BLOCK_IF_DESCRIPTION.
+ * Holds the required data from a WTAP_BLOCK_IF_ID_AND_INFO.
  */
 typedef struct wtapng_if_descr_mandatory_s {
     int                    wtap_encap;            /**< link_type translated to wtap_encap */

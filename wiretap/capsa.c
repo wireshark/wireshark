@@ -434,15 +434,29 @@ capsa_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
 	return rec_size - (header_size + packet_size);
 }
 
+static const struct supported_block_type capsa_blocks_supported[] = {
+	/*
+	 * We support packet blocks, with no comments or other options.
+	 */
+	{ WTAP_BLOCK_PACKET, MULTIPLE_BLOCKS_SUPPORTED, NO_OPTIONS_SUPPORTED }
+};
+
 static const struct file_type_subtype_info capsa_info = {
 	"Colasoft Capsa format", "capsa", "cscpkt", NULL,
-	FALSE, FALSE, 0,
+	FALSE, BLOCKS_SUPPORTED(capsa_blocks_supported),
 	NULL, NULL, NULL
+};
+
+static const struct supported_block_type packet_builder_blocks_supported[] = {
+	/*
+	 * We support packet blocks, with no comments or other options.
+	 */
+	{ WTAP_BLOCK_PACKET, MULTIPLE_BLOCKS_SUPPORTED, NO_OPTIONS_SUPPORTED }
 };
 
 static const struct file_type_subtype_info packet_builder_info = {
 	"Colasoft Packet Builder format", "colasoft-pb", "cscpkt", NULL,
-	FALSE, FALSE, 0,
+	FALSE, BLOCKS_SUPPORTED(packet_builder_blocks_supported),
 	NULL, NULL, NULL
 };
 

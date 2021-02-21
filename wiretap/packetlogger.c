@@ -377,9 +377,16 @@ packetlogger_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec, Buffer *buf,
 	return wtap_read_packet_bytes(fh, buf, rec->rec_header.packet_header.caplen, err, err_info);
 }
 
+static const struct supported_block_type packetlogger_blocks_supported[] = {
+	/*
+	 * We support packet blocks, with no comments or other options.
+	 */
+	{ WTAP_BLOCK_PACKET, MULTIPLE_BLOCKS_SUPPORTED, NO_OPTIONS_SUPPORTED }
+};
+
 static const struct file_type_subtype_info packetlogger_info = {
 	"macOS PacketLogger", "pklg", "pklg", NULL,
-	FALSE, FALSE, 0,
+	FALSE, BLOCKS_SUPPORTED(packetlogger_blocks_supported),
 	NULL, NULL, NULL
 };
 

@@ -364,9 +364,16 @@ static gboolean logcat_binary_dump_open(wtap_dumper *wdh, int *err _U_,
     return TRUE;
 }
 
+static const struct supported_block_type logcat_blocks_supported[] = {
+    /*
+     * We support packet blocks, with no comments or other options.
+     */
+    { WTAP_BLOCK_PACKET, MULTIPLE_BLOCKS_SUPPORTED, NO_OPTIONS_SUPPORTED }
+};
+
 static const struct file_type_subtype_info logcat_info = {
     "Android Logcat Binary format", "logcat", "logcat", NULL,
-    FALSE, FALSE, 0,
+    FALSE, BLOCKS_SUPPORTED(logcat_blocks_supported),
     logcat_dump_can_write_encap, logcat_binary_dump_open, NULL
 };
 

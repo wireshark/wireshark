@@ -372,9 +372,16 @@ radcom_read_rec(wtap *wth, FILE_T fh, wtap_rec *rec, Buffer *buf,
 	return TRUE;
 }
 
+static const struct supported_block_type radcom_blocks_supported[] = {
+	/*
+	 * We support packet blocks, with no comments or other options.
+	 */
+	{ WTAP_BLOCK_PACKET, MULTIPLE_BLOCKS_SUPPORTED, NO_OPTIONS_SUPPORTED }
+};
+
 static const struct file_type_subtype_info radcom_info = {
 	"RADCOM WAN/LAN analyzer", "radcom", NULL, NULL,
-	FALSE, FALSE, 0,
+	FALSE, BLOCKS_SUPPORTED(radcom_blocks_supported),
 	NULL, NULL, NULL
 };
 

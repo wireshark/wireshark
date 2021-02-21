@@ -254,9 +254,16 @@ daintree_sna_read_packet(FILE_T fh, wtap_rec *rec, Buffer *buf,
 	return TRUE;
 }
 
+static const struct supported_block_type daintree_sna_blocks_supported[] = {
+	/*
+	 * We support packet blocks, with no comments or other options.
+	 */
+	{ WTAP_BLOCK_PACKET, MULTIPLE_BLOCKS_SUPPORTED, NO_OPTIONS_SUPPORTED }
+};
+
 static const struct file_type_subtype_info daintree_sna_info = {
 	"Daintree SNA", "dsna", "dcf", NULL,
-	FALSE, FALSE, 0,
+	FALSE, BLOCKS_SUPPORTED(daintree_sna_blocks_supported),
 	NULL, NULL, NULL
 };
 

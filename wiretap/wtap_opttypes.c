@@ -1052,7 +1052,7 @@ void wtap_opttypes_initialize(void)
     };
 
     static wtap_blocktype_t idb_block = {
-        WTAP_BLOCK_IF_DESCRIPTION,     /* block_type */
+        WTAP_BLOCK_IF_ID_AND_INFO,     /* block_type */
         "IDB",                         /* name */
         "Interface Description Block", /* description */
         idb_create,                    /* create */

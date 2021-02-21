@@ -99,10 +99,19 @@ wtap_open_return_val rfc7468_open(wtap *wth, int *err, gchar **err_info)
     return WTAP_OPEN_MINE;
 }
 
+static const struct supported_block_type rfc7468_blocks_supported[] = {
+    /*
+     * This is a file format that we dissect, so we provide only one
+     * "packet" with the file's contents, and don't support any
+     * options.
+     */
+    { WTAP_BLOCK_PACKET, ONE_BLOCK_SUPPORTED, NO_OPTIONS_SUPPORTED }
+};
+
 static const struct file_type_subtype_info rfc7468_info = {
-	"RFC 7468 files", "rfc7468", NULL, NULL,
-	FALSE, FALSE, 0,
-	NULL, NULL, NULL
+    "RFC 7468 files", "rfc7468", NULL, NULL,
+    FALSE, BLOCKS_SUPPORTED(rfc7468_blocks_supported),
+    NULL, NULL, NULL
 };
 
 void register_rfc7468(void)

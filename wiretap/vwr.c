@@ -3370,15 +3370,29 @@ vwr_process_rec_data(FILE_T fh, int rec_size,
     return ret;
 }
 
+static const struct supported_block_type vwr_80211_blocks_supported[] = {
+    /*
+     * We support packet blocks, with no comments or other options.
+     */
+    { WTAP_BLOCK_PACKET, MULTIPLE_BLOCKS_SUPPORTED, NO_OPTIONS_SUPPORTED }
+};
+
 static const struct file_type_subtype_info vwr_80211_info = {
     "Ixia IxVeriWave .vwr Raw 802.11 Capture", "vwr80211", "vwr", NULL,
-    FALSE, FALSE, 0,
+    FALSE, BLOCKS_SUPPORTED(vwr_80211_blocks_supported),
     NULL, NULL, NULL
+};
+
+static const struct supported_block_type vwr_eth_blocks_supported[] = {
+    /*
+     * We support packet blocks, with no comments or other options.
+     */
+    { WTAP_BLOCK_PACKET, MULTIPLE_BLOCKS_SUPPORTED, NO_OPTIONS_SUPPORTED }
 };
 
 static const struct file_type_subtype_info vwr_eth_info = {
     "Ixia IxVeriWave .vwr Raw Ethernet Capture", "vwreth", "vwr", NULL,
-    FALSE, FALSE, 0,
+    FALSE, BLOCKS_SUPPORTED(vwr_eth_blocks_supported),
     NULL, NULL, NULL
 };
 

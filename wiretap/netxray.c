@@ -2095,27 +2095,55 @@ netxray_dump_finish_2_0(wtap_dumper *wdh, int *err, gchar **err_info _U_)
 	return TRUE;
 }
 
+static const struct supported_block_type netxray_old_blocks_supported[] = {
+	/*
+	 * We support packet blocks, with no comments or other options.
+	 */
+	{ WTAP_BLOCK_PACKET, MULTIPLE_BLOCKS_SUPPORTED, NO_OPTIONS_SUPPORTED }
+};
+
 static const struct file_type_subtype_info netxray_old_info = {
 	"Cinco Networks NetXRay 1.x", "netxray1", "cap", NULL,
-	TRUE, FALSE, 0,
+	TRUE, BLOCKS_SUPPORTED(netxray_old_blocks_supported),
 	NULL, NULL, NULL
+};
+
+static const struct supported_block_type netxray_1_0_blocks_supported[] = {
+	/*
+	 * We support packet blocks, with no comments or other options.
+	 */
+	{ WTAP_BLOCK_PACKET, MULTIPLE_BLOCKS_SUPPORTED, NO_OPTIONS_SUPPORTED }
 };
 
 static const struct file_type_subtype_info netxray_1_0_info = {
 	"Cinco Networks NetXRay 2.0 or later", "netxray2", "cap", NULL,
-	TRUE, FALSE, 0,
+	TRUE, BLOCKS_SUPPORTED(netxray_1_0_blocks_supported),
 	NULL, NULL, NULL
+};
+
+static const struct supported_block_type netxray_1_1_blocks_supported[] = {
+	/*
+	 * We support packet blocks, with no comments or other options.
+	 */
+	{ WTAP_BLOCK_PACKET, MULTIPLE_BLOCKS_SUPPORTED, NO_OPTIONS_SUPPORTED }
 };
 
 static const struct file_type_subtype_info netxray_1_1_info = {
 	"NetXray, Sniffer (Windows) 1.1", "ngwsniffer_1_1", "cap", NULL,
-	TRUE, FALSE, 0,
+	TRUE, BLOCKS_SUPPORTED(netxray_1_1_blocks_supported),
 	netxray_dump_can_write_encap_1_1, netxray_dump_open_1_1, NULL
+};
+
+static const struct supported_block_type netxray_2_00x_blocks_supported[] = {
+	/*
+	 * We support packet blocks, with no comments or other options.
+	 */
+	{ WTAP_BLOCK_PACKET, MULTIPLE_BLOCKS_SUPPORTED, NO_OPTIONS_SUPPORTED }
 };
 
 static const struct file_type_subtype_info netxray_2_00x_info = {
 	"Sniffer (Windows) 2.00x", "ngwsniffer_2_0", "cap", "caz",
-	TRUE, FALSE, 0,
+	TRUE, BLOCKS_SUPPORTED(netxray_2_00x_blocks_supported),
 	netxray_dump_can_write_encap_2_0, netxray_dump_open_2_0, NULL
 };
 

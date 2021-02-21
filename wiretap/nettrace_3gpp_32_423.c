@@ -831,9 +831,16 @@ nettrace_3gpp_32_423_file_open(wtap *wth, int *err, gchar **err_info)
 	return WTAP_OPEN_MINE;
 }
 
+static const struct supported_block_type nettrace_3gpp_32_423_blocks_supported[] = {
+	/*
+	 * We support packet blocks, with no comments or other options.
+	 */
+	{ WTAP_BLOCK_PACKET, MULTIPLE_BLOCKS_SUPPORTED, NO_OPTIONS_SUPPORTED }
+};
+
 static const struct file_type_subtype_info nettrace_3gpp_32_423_info = {
 	"3GPP TS 32.423 Trace", "3gpp32423", NULL, NULL,
-	FALSE, FALSE, 0,
+	FALSE, BLOCKS_SUPPORTED(nettrace_3gpp_32_423_blocks_supported),
 	NULL, NULL, NULL
 };
 

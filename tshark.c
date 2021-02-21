@@ -3287,11 +3287,14 @@ process_new_idbs(wtap *wth, wtap_dumper *pdh, int *err, gchar **err_info)
 
   while ((if_data = wtap_get_next_interface_description(wth)) != NULL) {
     /*
-     * Only add IDBs if we're writing to a file and the output file
-     * requires interface IDs; otherwise, it doesn't support writing IDBs.
+     * Only add interface blocks if the output file supports (meaning
+     * *requires*) them.
+     *
+     * That mean that the abstract interface provided by libwiretap
+     * involves WTAP_BLOCK_IF_ID_AND_INFO blocks.
      */
     if (pdh != NULL) {
-      if (wtap_uses_interface_ids(wtap_dump_file_type_subtype(pdh))) {
+      if (wtap_file_type_subtype_supports_block(wtap_dump_file_type_subtype(pdh), WTAP_BLOCK_IF_ID_AND_INFO) != BLOCK_NOT_SUPPORTED) {
         if (!wtap_dump_add_idb(pdh, if_data, err, err_info))
           return FALSE;
       }

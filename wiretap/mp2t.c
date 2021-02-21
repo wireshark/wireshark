@@ -395,9 +395,16 @@ found:
     return WTAP_OPEN_MINE;
 }
 
+static const struct supported_block_type mp2t_blocks_supported[] = {
+    /*
+     * We support packet blocks, with no comments or other options.
+     */
+    { WTAP_BLOCK_PACKET, MULTIPLE_BLOCKS_SUPPORTED, NO_OPTIONS_SUPPORTED }
+};
+
 static const struct file_type_subtype_info mp2t_info = {
     "MPEG2 transport stream", "mp2t", "mp2t", "ts;mpg",
-    FALSE, FALSE, 0,
+    FALSE, BLOCKS_SUPPORTED(mp2t_blocks_supported),
     NULL, NULL, NULL
 };
 

@@ -426,9 +426,16 @@ static gboolean btsnoop_dump_open(wtap_dumper *wdh, int *err, gchar **err_info _
     return TRUE;
 }
 
+static const struct supported_block_type btsnoop_blocks_supported[] = {
+    /*
+     * We support packet blocks, with no comments or other options.
+     */
+    { WTAP_BLOCK_PACKET, MULTIPLE_BLOCKS_SUPPORTED, NO_OPTIONS_SUPPORTED }
+};
+
 static const struct file_type_subtype_info btsnoop_info = {
     "Symbian OS btsnoop", "btsnoop", "log", NULL,
-    FALSE, FALSE, 0,
+    FALSE, BLOCKS_SUPPORTED(btsnoop_blocks_supported),
     btsnoop_dump_can_write_encap, btsnoop_dump_open, NULL
 };
 

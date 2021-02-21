@@ -917,15 +917,29 @@ static gboolean snoop_dump(wtap_dumper *wdh,
 	return TRUE;
 }
 
+static const struct supported_block_type snoop_blocks_supported[] = {
+	/*
+	 * We support packet blocks, with no comments or other options.
+	 */
+	{ WTAP_BLOCK_PACKET, MULTIPLE_BLOCKS_SUPPORTED, NO_OPTIONS_SUPPORTED }
+};
+
 static const struct file_type_subtype_info snoop_info = {
 	"Sun snoop", "snoop", "snoop", "cap",
-	FALSE, FALSE, 0,
+	FALSE, BLOCKS_SUPPORTED(snoop_blocks_supported),
 	snoop_dump_can_write_encap, snoop_dump_open, NULL
+};
+
+static const struct supported_block_type shomiti_blocks_supported[] = {
+	/*
+	 * We support packet blocks, with no comments or other options.
+	 */
+	{ WTAP_BLOCK_PACKET, MULTIPLE_BLOCKS_SUPPORTED, NO_OPTIONS_SUPPORTED }
 };
 
 static const struct file_type_subtype_info shomiti_info = {
 	"Shomiti/Finisar Surveyor", "shomiti", "cap", NULL,
-	FALSE, FALSE, 0,
+	FALSE, BLOCKS_SUPPORTED(shomiti_blocks_supported),
 	NULL, NULL, NULL
 };
 

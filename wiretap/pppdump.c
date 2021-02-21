@@ -796,9 +796,16 @@ pppdump_close(wtap *wth)
 	}
 }
 
+static const struct supported_block_type pppdump_blocks_supported[] = {
+	/*
+	 * We support packet blocks, with no comments or other options.
+	 */
+	{ WTAP_BLOCK_PACKET, MULTIPLE_BLOCKS_SUPPORTED, NO_OPTIONS_SUPPORTED }
+};
+
 static const struct file_type_subtype_info pppdump_info = {
 	"pppd log (pppdump format)", "pppd", NULL, NULL,
-	FALSE, FALSE, 0,
+	FALSE, BLOCKS_SUPPORTED(pppdump_blocks_supported),
 	NULL, NULL, NULL
 };
 

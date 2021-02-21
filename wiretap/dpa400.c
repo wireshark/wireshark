@@ -246,9 +246,16 @@ wtap_open_return_val dpa400_open(wtap *wth, int *err, gchar **err_info)
 	return WTAP_OPEN_MINE;
 }
 
+static const struct supported_block_type dpa400_blocks_supported[] = {
+	/*
+	 * We support packet blocks, with no comments or other options.
+	 */
+	{ WTAP_BLOCK_PACKET, MULTIPLE_BLOCKS_SUPPORTED, NO_OPTIONS_SUPPORTED }
+};
+
 static const struct file_type_subtype_info dpa400_info = {
 	"Unigraf DPA-400 capture", "dpa400", "bin", NULL,
-	FALSE, FALSE, 0,
+	FALSE, BLOCKS_SUPPORTED(dpa400_blocks_supported),
 	NULL, NULL, NULL
 };
 

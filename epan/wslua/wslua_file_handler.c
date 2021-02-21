@@ -606,6 +606,31 @@ wslua_filehandler_dump_finish(wtap_dumper *wdh, int *err, gchar **err_info)
     return (retval == 1);
 }
 
+/*
+ * Prototype table of option support.
+ * We start out saying we don't support comments, and we don't mention
+ * other options.
+ */
+static const struct supported_option_type option_type_proto[] = {
+	{ OPT_COMMENT, OPTION_NOT_SUPPORTED }
+};
+
+/*
+ * Prototype table of block type support.
+ * We start out saying we only support packets.
+ */
+static const struct supported_block_type block_type_proto[] = {
+	{ WTAP_BLOCK_SECTION, BLOCK_NOT_SUPPORTED, 0, NULL },
+	{ WTAP_BLOCK_IF_ID_AND_INFO, BLOCK_NOT_SUPPORTED, 0, NULL },
+	{ WTAP_BLOCK_NAME_RESOLUTION, BLOCK_NOT_SUPPORTED, 0, NULL },
+	{ WTAP_BLOCK_IF_STATISTICS, BLOCK_NOT_SUPPORTED, 0, NULL },
+	{ WTAP_BLOCK_DECRYPTION_SECRETS, BLOCK_NOT_SUPPORTED, 0, NULL },
+	{ WTAP_BLOCK_PACKET, MULTIPLE_BLOCKS_SUPPORTED, 0, NULL },
+	{ WTAP_BLOCK_FT_SPECIFIC_REPORT, BLOCK_NOT_SUPPORTED, 0, NULL },
+	{ WTAP_BLOCK_FT_SPECIFIC_EVENT, BLOCK_NOT_SUPPORTED, 0, NULL }
+};
+
+#define NUM_LISTED_BLOCK_TYPES (sizeof block_type_proto / sizeof block_type_proto[0])
 
 WSLUA_CONSTRUCTOR FileHandler_new(lua_State* L) {
     /* Creates a new FileHandler */
@@ -619,6 +644,7 @@ WSLUA_CONSTRUCTOR FileHandler_new(lua_State* L) {
     const gchar* internal_description = luaL_checkstring(L,WSLUA_ARG_FileHandler_new_INTERNAL_DESCRIPTION);
     const gchar* type = luaL_checkstring(L,WSLUA_ARG_FileHandler_new_TYPE);
     FileHandler fh = (FileHandler) g_malloc0(sizeof(struct _wslua_filehandler));
+    struct supported_block_type *supported_blocks;
 
     fh->is_reader = (strchr(type,'r') != NULL) ? TRUE : FALSE;
     fh->is_writer = (strchr(type,'w') != NULL) ? TRUE : FALSE;
@@ -640,7 +666,27 @@ WSLUA_CONSTRUCTOR FileHandler_new(lua_State* L) {
     fh->finfo.default_file_extension = NULL;
     fh->finfo.additional_file_extensions = NULL;
     fh->finfo.writing_must_seek = FALSE;
-    fh->finfo.has_name_resolution = FALSE;
+    supported_blocks = (struct supported_block_type  *)g_memdup(&block_type_proto, sizeof block_type_proto);
+    /*
+     * Add a list of options to the seciton block, interface block, and
+     * packet block, so the file handler can indicate comment support.
+     */
+    for (size_t i = 0; i < NUM_LISTED_BLOCK_TYPES; i++) {
+        switch (supported_blocks[i].type) {
+
+        case WTAP_BLOCK_SECTION:
+        case WTAP_BLOCK_IF_ID_AND_INFO:
+        case WTAP_BLOCK_PACKET:
+            supported_blocks[i].num_supported_options = OPTION_TYPES_SUPPORTED(option_type_proto);
+            supported_blocks[i].supported_options = (struct supported_option_type *)g_memdup(&option_type_proto, sizeof option_type_proto);
+            break;
+
+        default:
+            break;
+        }
+    }
+    fh->finfo.num_supported_blocks = NUM_LISTED_BLOCK_TYPES;
+    fh->finfo.supported_blocks = supported_blocks;
     fh->finfo.can_write_encap = NULL;
     fh->finfo.dump_open = NULL;
     /* this will be set to a new file_type when registered */
@@ -975,13 +1021,229 @@ WSLUA_ATTRIBUTE_NAMED_BOOLEAN_SETTER(FileHandler,writing_must_seek,finfo.writing
 
 /* WSLUA_ATTRIBUTE FileHandler_writes_name_resolution RW true if the file format supports name resolution
     records, else false. */
-WSLUA_ATTRIBUTE_NAMED_BOOLEAN_GETTER(FileHandler,writes_name_resolution,finfo.has_name_resolution);
-WSLUA_ATTRIBUTE_NAMED_BOOLEAN_SETTER(FileHandler,writes_name_resolution,finfo.has_name_resolution);
+static inline struct supported_block_type *
+safe_cast_away_block_type_const(const struct supported_block_type *arg)
+{
+    /*
+     * Cast away constness without a warning; we know we can do this
+     * because, for Lua file handlers, the table of supported block
+     * types is in allocated memory, so that we *can* modify it.
+     *
+     * The pointer in the file_type_subtype_info structure is a
+     * pointer to const because compiled file handlers will
+     * normally set it to point to a static const structure.
+     */
+DIAG_OFF_CAST_AWAY_CONST
+    return (struct supported_block_type *)arg;
+DIAG_ON_CAST_AWAY_CONST
+}
+
+WSLUA_ATTRIBUTE_GET(FileHandler,writes_name_resolution,{ \
+    gboolean supports_name_resolution = FALSE; \
+    for (size_t i = 0; i < obj->finfo.num_supported_blocks; i++) { \
+        /* \
+         * If WTAP_BLOCK_NAME_RESOLUTION is supported, name \
+         * resolution is supported. \
+         */ \
+        if (obj->finfo.supported_blocks[i].type == WTAP_BLOCK_NAME_RESOLUTION) { \
+            supports_name_resolution = (obj->finfo.supported_blocks[i].support != BLOCK_NOT_SUPPORTED); \
+            break; \
+        } \
+    } \
+    lua_pushboolean(L, supports_name_resolution); \
+});
+WSLUA_ATTRIBUTE_SET(FileHandler,writes_name_resolution, { \
+    gboolean supports_name_resolution; \
+    if (!lua_isboolean(L,-1) ) \
+        return luaL_error(L, "FileHandler's attribute`writes_name_resolution' must be a boolean"); \
+    supports_name_resolution = lua_toboolean(L,-1); \
+    /* \
+     * Update support for WTAP_BLOCK_NAME_RESOLUTION; the entry for \
+     * it should be there. \
+     */ \
+    for (size_t i = 0; i < obj->finfo.num_supported_blocks; i++) { \
+        if (obj->finfo.supported_blocks[i].type == WTAP_BLOCK_NAME_RESOLUTION) { \
+            struct supported_block_type *supported_blocks;
+            supported_blocks = safe_cast_away_block_type_const(obj->finfo.supported_blocks); \
+
+            supported_blocks[i].support = supports_name_resolution ? ONE_BLOCK_SUPPORTED : BLOCK_NOT_SUPPORTED; \
+            break; \
+        } \
+    } \
+});
 
 /* WSLUA_ATTRIBUTE FileHandler_supported_comment_types RW set to the bit-wise OR'ed number representing
     the type of comments the file writer supports writing, based on the numbers in the `wtap_comments` table. */
-WSLUA_ATTRIBUTE_NAMED_NUMBER_GETTER(FileHandler,supported_comment_types,finfo.supported_comment_types);
-WSLUA_ATTRIBUTE_NAMED_NUMBER_SETTER(FileHandler,supported_comment_types,finfo.supported_comment_types,guint32);
+static inline struct supported_option_type *
+safe_cast_away_option_type_const(const struct supported_option_type *arg)
+{
+    /*
+     * Cast away constness without a warning; we know we can do this
+     * because, for Lua file handlers, the table of supported option
+     * types is in allocated memory, so that we *can* modify it.
+     *
+     * The pointer in the file_type_subtype_info structure is a
+     * pointer to const because compiled file handlers will
+     * normally set it to point to a static const structure.
+     */
+DIAG_OFF_CAST_AWAY_CONST
+    return (struct supported_option_type *)arg;
+DIAG_ON_CAST_AWAY_CONST
+}
+
+WSLUA_ATTRIBUTE_GET(FileHandler,supported_comment_types,{ \
+    guint supported_comment_types = 0; \
+    for (size_t i = 0; i < obj->finfo.num_supported_blocks; i++) { \
+        size_t num_supported_options; \
+        const struct supported_option_type *supported_options;
+\
+        /* \
+         * Is this block type supported? \
+         */ \
+        if (obj->finfo.supported_blocks[i].support == BLOCK_NOT_SUPPORTED) { \
+            /* \
+             * No - skip it. \
+             */ \
+            continue; \
+        } \
+\
+        /* \
+         * Yes - what type of block is it? \
+         */ \
+        switch (obj->finfo.supported_blocks[i].type) { \
+\
+        case WTAP_BLOCK_SECTION: \
+            /* \
+             * Section block - does this block type support comments? \
+             */ \
+            num_supported_options = obj->finfo.supported_blocks[i].num_supported_options; \
+            supported_options = obj->finfo.supported_blocks[i].supported_options; \
+            for (size_t j = 0; j < num_supported_options; i++) { \
+                if (supported_options[i].opt == OPT_COMMENT) { \
+                    if (supported_options[i].support != OPTION_NOT_SUPPORTED) \
+                        supported_comment_types |= WTAP_COMMENT_PER_SECTION; \
+                    break; \
+                } \
+            } \
+            break; \
+\
+        case WTAP_BLOCK_IF_ID_AND_INFO: \
+            /* \
+             * Interface block - does this block type support comments? \
+             */ \
+            num_supported_options = obj->finfo.supported_blocks[i].num_supported_options; \
+            supported_options = obj->finfo.supported_blocks[i].supported_options; \
+            for (size_t j = 0; j < num_supported_options; i++) { \
+                if (supported_options[i].opt == OPT_COMMENT) { \
+                    if (supported_options[i].support != OPTION_NOT_SUPPORTED) \
+                        supported_comment_types |= WTAP_COMMENT_PER_INTERFACE; \
+                    break; \
+                } \
+            } \
+            break; \
+\
+        case WTAP_BLOCK_PACKET: \
+            /* \
+             * Packet block - does this block type support comments? \
+             */ \
+            num_supported_options = obj->finfo.supported_blocks[i].num_supported_options; \
+            supported_options = obj->finfo.supported_blocks[i].supported_options; \
+            for (size_t j = 0; j < num_supported_options; i++) { \
+                if (supported_options[i].opt == OPT_COMMENT) { \
+                    if (supported_options[i].support != OPTION_NOT_SUPPORTED) \
+                        supported_comment_types |= WTAP_COMMENT_PER_PACKET; \
+                    break; \
+                } \
+            } \
+            break; \
+\
+        default: \
+            break;\
+        } \
+    } \
+    lua_pushnumber(L, (lua_Number)supported_comment_types); \
+});
+WSLUA_ATTRIBUTE_SET(FileHandler,supported_comment_types, { \
+    guint supported_comment_types; \
+    size_t num_supported_options; \
+    struct supported_option_type *supported_options; \
+    if (!lua_isnumber(L,-1) ) \
+        return luaL_error(L, "FileHandler's attribute`supported_comment_types' must be a number"); \
+    supported_comment_types = wslua_toguint(L,-1); \
+    /* \
+     * Update support for comments in the relevant block types; the entries \
+     * for comments in those types should be there. \
+     */ \
+    for (size_t i = 0; i < obj->finfo.num_supported_blocks; i++) { \
+\
+        /* \
+         * Is this block type supported? \
+         */ \
+        if (obj->finfo.supported_blocks[i].support == BLOCK_NOT_SUPPORTED) { \
+            /* \
+             * No - skip it. \
+             */ \
+            continue; \
+        } \
+\
+        /* \
+         * Yes - what type of block is it? \
+         */ \
+        switch (obj->finfo.supported_blocks[i].type) { \
+\
+        case WTAP_BLOCK_SECTION: \
+            /* \
+             * Section block - update the comment support. \
+             */ \
+            num_supported_options = obj->finfo.supported_blocks[i].num_supported_options; \
+            supported_options = safe_cast_away_option_type_const(obj->finfo.supported_blocks[i].supported_options); \
+            for (size_t j = 0; j < num_supported_options; i++) { \
+                if (supported_options[i].opt == OPT_COMMENT) { \
+                    supported_options[i].support = \
+                        (supported_comment_types &= WTAP_COMMENT_PER_SECTION) ? \
+                            ONE_OPTION_SUPPORTED : OPTION_NOT_SUPPORTED ; \
+                    break; \
+                } \
+            } \
+            break; \
+\
+        case WTAP_BLOCK_IF_ID_AND_INFO: \
+            /* \
+             * Interface block - does this block type support comments? \
+             */ \
+            num_supported_options = obj->finfo.supported_blocks[i].num_supported_options; \
+            supported_options = safe_cast_away_option_type_const(obj->finfo.supported_blocks[i].supported_options); \
+            for (size_t j = 0; j < num_supported_options; i++) { \
+                if (supported_options[i].opt == OPT_COMMENT) { \
+                    supported_options[i].support = \
+                        (supported_comment_types &= WTAP_COMMENT_PER_INTERFACE) ? \
+                            ONE_OPTION_SUPPORTED : OPTION_NOT_SUPPORTED ; \
+                    break; \
+                } \
+            } \
+            break; \
+\
+        case WTAP_BLOCK_PACKET: \
+            /* \
+             * Packet block - does this block type support comments? \
+             */ \
+            num_supported_options = obj->finfo.supported_blocks[i].num_supported_options; \
+            supported_options = safe_cast_away_option_type_const(obj->finfo.supported_blocks[i].supported_options); \
+            for (size_t j = 0; j < num_supported_options; i++) { \
+                if (supported_options[i].opt == OPT_COMMENT) { \
+                    supported_options[i].support = \
+                        (supported_comment_types &= WTAP_COMMENT_PER_PACKET) ? \
+                            ONE_OPTION_SUPPORTED : OPTION_NOT_SUPPORTED ; \
+                    break; \
+                } \
+            } \
+            break; \
+\
+        default: \
+            break;\
+        } \
+    } \
+});
 
 /* This table is ultimately registered as a sub-table of the class' metatable,
  * and if __index/__newindex is invoked then it calls the appropriate function

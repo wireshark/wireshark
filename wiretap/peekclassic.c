@@ -662,15 +662,29 @@ static gboolean peekclassic_read_packet_v56(wtap *wth, FILE_T fh,
 	return wtap_read_packet_bytes(fh, buf, sliceLength, err, err_info);
 }
 
+static const struct supported_block_type peekclassic_v56_blocks_supported[] = {
+	/*
+	 * We support packet blocks, with no comments or other options.
+	 */
+	{ WTAP_BLOCK_PACKET, MULTIPLE_BLOCKS_SUPPORTED, NO_OPTIONS_SUPPORTED }
+};
+
 static const struct file_type_subtype_info peekclassic_v56_info = {
 	"Savvius classic (V5 and V6)", "peekclassic56", "pkt", "tpc;apc;wpz",
-	FALSE, FALSE, 0,
+	FALSE, BLOCKS_SUPPORTED(peekclassic_v56_blocks_supported),
 	NULL, NULL, NULL
+};
+
+static const struct supported_block_type peekclassic_v7_blocks_supported[] = {
+	/*
+	 * We support packet blocks, with no comments or other options.
+	 */
+	{ WTAP_BLOCK_PACKET, MULTIPLE_BLOCKS_SUPPORTED, NO_OPTIONS_SUPPORTED }
 };
 
 static const struct file_type_subtype_info peekclassic_v7_info = {
 	"Savvius classic (V7)", "peekclassic7", "pkt", "tpc;apc;wpz",
-	FALSE, FALSE, 0,
+	FALSE, BLOCKS_SUPPORTED(peekclassic_v7_blocks_supported),
 	NULL, NULL, NULL
 };
 

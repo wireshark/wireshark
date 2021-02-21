@@ -1651,9 +1651,16 @@ free_line_prefix_info(gpointer key, gpointer value,
     return TRUE;
 }
 
+static const struct supported_block_type dct2000_blocks_supported[] = {
+    /*
+     * We support packet blocks, with no comments or other options.
+     */
+    { WTAP_BLOCK_PACKET, MULTIPLE_BLOCKS_SUPPORTED, NO_OPTIONS_SUPPORTED }
+};
+
 static const struct file_type_subtype_info dct2000_info = {
     "Catapult DCT2000 trace (.out format)", "dct2000", "out", NULL,
-    FALSE, FALSE, 0,
+    FALSE, BLOCKS_SUPPORTED(dct2000_blocks_supported),
     catapult_dct2000_dump_can_write_encap, catapult_dct2000_dump_open, NULL
 };
 

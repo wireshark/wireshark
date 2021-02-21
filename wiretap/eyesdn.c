@@ -476,10 +476,17 @@ static gboolean eyesdn_dump(wtap_dumper *wdh,
 	return TRUE;
 }
 
+static const struct supported_block_type eyesdn_blocks_supported[] = {
+	/*
+	 * We support packet blocks, with no comments or other options.
+	 */
+	{ WTAP_BLOCK_PACKET, MULTIPLE_BLOCKS_SUPPORTED, NO_OPTIONS_SUPPORTED }
+};
+
 static const struct file_type_subtype_info eyesdn_info = {
 	"EyeSDN USB S0/E1 ISDN trace format", "eyesdn", "trc", NULL,
-	 FALSE, FALSE, 0,
-	 eyesdn_dump_can_write_encap, eyesdn_dump_open, NULL
+	FALSE, BLOCKS_SUPPORTED(eyesdn_blocks_supported),
+	eyesdn_dump_can_write_encap, eyesdn_dump_open, NULL
 };
 
 void register_eyesdn(void)

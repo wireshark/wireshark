@@ -341,9 +341,16 @@ aethra_read_rec_header(wtap *wth, FILE_T fh, struct aethrarec_hdr *hdr,
 	return TRUE;
 }
 
+static const struct supported_block_type aethra_blocks_supported[] = {
+	/*
+	 * We support packet blocks, with no comments or other options.
+	 */
+	{ WTAP_BLOCK_PACKET, MULTIPLE_BLOCKS_SUPPORTED, NO_OPTIONS_SUPPORTED }
+};
+
 static const struct file_type_subtype_info aethra_info = {
 	"Aethra .aps file", "aethra", "aps", NULL,
-	FALSE, FALSE, 0,
+	FALSE, BLOCKS_SUPPORTED(aethra_blocks_supported),
 	NULL, NULL, NULL
 };
 

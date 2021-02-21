@@ -4467,7 +4467,7 @@ cf_save_records(capture_file *cf, const char *fname, guint save_format,
 
   if (save_format == cf->cd_t && compression_type == cf->compression_type
       && !discard_comments && !cf->unsaved_changes
-      && (wtap_addrinfo_list_empty(addr_lists) || !wtap_dump_has_name_resolution(save_format))) {
+      && (wtap_addrinfo_list_empty(addr_lists) || wtap_file_type_subtype_supports_block(save_format, WTAP_BLOCK_NAME_RESOLUTION) == BLOCK_NOT_SUPPORTED)) {
     /* We're saving in the format it's already in, and we're not discarding
        comments, and there are no changes we have in memory that aren't saved
        to the file, and we have no name resolution information to write or
