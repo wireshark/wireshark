@@ -3464,6 +3464,7 @@ set(_test_group_list
 	suite_follow
 	suite_io
 	suite_mergecap
+	suite_netperfmeter
 	suite_nameres
 	suite_outputformats
 	suite_release
