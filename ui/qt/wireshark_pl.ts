@@ -9057,6 +9057,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished">Odwołania filtru pola</translation>
     </message>
     <message>
+        <source>Copied </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Wiki Page for %1</source>
         <translation type="unfinished">Strona Wiki dla %1</translation>
     </message>

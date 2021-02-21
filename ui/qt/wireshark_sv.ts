@@ -9100,6 +9100,10 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>Filterfältreferens</translation>
     </message>
     <message>
+        <source>Copied </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Wiki Page for %1</source>
         <translation>Wiki-sida för %1</translation>
     </message>
