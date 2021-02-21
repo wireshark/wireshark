@@ -34,12 +34,12 @@ static gint ett_onoffarray  = -1;
 /* Initialize the protocol and registered fields */
 #define INIT_FIELD(variable, offset, length) \
    static int hf_##variable           = -1;        \
-   static const int offset_##variable = offset;    \
+   static const unsigned int offset_##variable = offset;    \
    static const int length_##variable = length;
 
 #define INIT_FIELD_WITHOUT_LEN(variable, offset) \
    static int hf_##variable           = -1;        \
-   static const int offset_##variable = offset;
+   static const unsigned int offset_##variable = offset;
 
 #define NETPERFMETER_ACKNOWLEDGE    0x01
 #define NETPERFMETER_ADD_FLOW       0x02
@@ -328,7 +328,7 @@ static void
 dissect_npmp_data_message(tvbuff_t *message_tvb, proto_tree *message_tree)
 {
   const guint16 message_length = tvb_get_ntohs(message_tvb, offset_message_length);
-  u_int64_t     timestamp;
+  guint64       timestamp;
   nstime_t      t;
 
   ADD_FIELD_UINT(message_tree, data_flowid);
