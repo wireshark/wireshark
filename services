@@ -4620,7 +4620,7 @@ openmailpxy	5768/tcp/udp	# OpenMail CMTS Server
 spramsca	5769/tcp/udp	# x509solutions Internal CA
 spramsd		5770/tcp/udp	# x509solutions Secure Data
 netagent	5771/tcp/udp	# NetAgent
-dali-port	5777/tcp/udp	# DALI Port
+starfield-io	5777/tcp/udp	# Control commands and responses
 vts-rpc		5780/tcp	# Visual Tag System RPC
 3par-evts	5781/tcp/udp	# 3PAR Event Reporting Service
 3par-mgmt	5782/tcp/udp	# 3PAR Management Service
