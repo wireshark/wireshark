@@ -1,9 +1,9 @@
 /* packet-fractalgeneratorprotocol.c
  * Routines for the Fractal Generator Protocol, a test application of the
- * rsplib RSerPool implementation
- * http://www.tdr.wiwi.uni-due.de/forschung/forschungsprojekte/reliable-server-pooling//
+ * RSPLIB RSerPool implementation
+ * https://www.uni-due.de/~be0001/rserpool/
  *
- * Copyright 2006 by Thomas Dreibholz <dreibh [AT] exp-math.uni-essen.de>
+ * Copyright 2006-2021 by Thomas Dreibholz <dreibh [AT] iem.uni-due.de>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -92,10 +92,19 @@ static gint ett_fractalgeneratorprotocol = -1;
 #define FRACTALGENERATOR_PARAMETER_MESSAGE_TYPE 0x01
 #define FRACTALGENERATOR_DATA_MESSAGE_TYPE      0x02
 
+#define FGPA_MANDELBROT  1
+#define FGPA_MANDELBROTN 2
+
 
 static const value_string message_type_values[] = {
   { FRACTALGENERATOR_PARAMETER_MESSAGE_TYPE,        "FractalGenerator Parameter" },
   { FRACTALGENERATOR_DATA_MESSAGE_TYPE,             "FractalGenerator Data" },
+  { 0, NULL }
+};
+
+static const value_string algorithmid_values[] = {
+  { FGPA_MANDELBROT,  "Mandelbrot: z_{n+1} = z_n^2 + c" },
+  { FGPA_MANDELBROTN, "Mandelbrot-N: z_{n+1} = z_n^N + c" },
   { 0, NULL }
 };
 
@@ -185,13 +194,13 @@ proto_register_fractalgeneratorprotocol(void)
     { &hf_parameter_width,         { "Width",         "fractalgeneratorprotocol.parameter_width",         FT_UINT32, BASE_DEC, NULL,                      0x0, NULL, HFILL } },
     { &hf_parameter_height,        { "Height",        "fractalgeneratorprotocol.parameter_height",        FT_UINT32, BASE_DEC, NULL,                      0x0, NULL, HFILL } },
     { &hf_parameter_maxiterations, { "MaxIterations", "fractalgeneratorprotocol.parameter_maxiterations", FT_UINT32, BASE_DEC, NULL,                      0x0, NULL, HFILL } },
-    { &hf_parameter_algorithmid,   { "AlgorithmID",   "fractalgeneratorprotocol.parameter_algorithmid",   FT_UINT32, BASE_DEC, NULL,                      0x0, NULL, HFILL } },
-    { &hf_parameter_c1real,        { "C1Real",        "fractalgeneratorprotocol.parameter_c1real",        FT_DOUBLE, BASE_NONE, NULL,                      0x0, NULL, HFILL } },
-    { &hf_parameter_c1imag,        { "C1Imag",        "fractalgeneratorprotocol.parameter_c1imag",        FT_DOUBLE, BASE_NONE, NULL,                      0x0, NULL, HFILL } },
-    { &hf_parameter_c2real,        { "C2Real",        "fractalgeneratorprotocol.parameter_c2real",        FT_DOUBLE, BASE_NONE, NULL,                      0x0, NULL, HFILL } },
-    { &hf_parameter_c2imag,        { "C2Imag",        "fractalgeneratorprotocol.parameter_c2imag",        FT_DOUBLE, BASE_NONE, NULL,                      0x0, NULL, HFILL } },
-    { &hf_parameter_n,             { "N",             "fractalgeneratorprotocol.parameter_n",             FT_DOUBLE, BASE_NONE, NULL,                      0x0, NULL, HFILL } },
-    { &hf_buffer,                  { "Buffer",        "fractalgeneratorprotocol.buffer",                  FT_BYTES,  BASE_NONE, NULL,                      0x0, NULL, HFILL } },
+    { &hf_parameter_algorithmid,   { "AlgorithmID",   "fractalgeneratorprotocol.parameter_algorithmid",   FT_UINT32, BASE_DEC, VALS(algorithmid_values),  0x0, NULL, HFILL } },
+    { &hf_parameter_c1real,        { "C1Real",        "fractalgeneratorprotocol.parameter_c1real",        FT_DOUBLE, BASE_NONE, NULL,                     0x0, NULL, HFILL } },
+    { &hf_parameter_c1imag,        { "C1Imag",        "fractalgeneratorprotocol.parameter_c1imag",        FT_DOUBLE, BASE_NONE, NULL,                     0x0, NULL, HFILL } },
+    { &hf_parameter_c2real,        { "C2Real",        "fractalgeneratorprotocol.parameter_c2real",        FT_DOUBLE, BASE_NONE, NULL,                     0x0, NULL, HFILL } },
+    { &hf_parameter_c2imag,        { "C2Imag",        "fractalgeneratorprotocol.parameter_c2imag",        FT_DOUBLE, BASE_NONE, NULL,                     0x0, NULL, HFILL } },
+    { &hf_parameter_n,             { "N",             "fractalgeneratorprotocol.parameter_n",             FT_DOUBLE, BASE_NONE, NULL,                     0x0, NULL, HFILL } },
+    { &hf_buffer,                  { "Buffer",        "fractalgeneratorprotocol.buffer",                  FT_BYTES,  BASE_NONE, NULL,                     0x0, NULL, HFILL } },
   };
 
   /* Setup protocol subtree array */

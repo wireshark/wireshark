@@ -1,9 +1,9 @@
 /* packet-pingpongprotocol.c
  * Routines for the Ping Pong Protocol, a test application of the
- * rsplib RSerPool implementation
- * http://www.tdr.wiwi.uni-due.de/forschung/forschungsprojekte/reliable-server-pooling//
+ * RSPLIB RSerPool implementation
+ * https://www.uni-due.de/~be0001/rserpool/
  *
- * Copyright 2006 by Thomas Dreibholz <dreibh [AT] exp-math.uni-essen.de>
+ * Copyright 2006-2021 by Thomas Dreibholz <dreibh [AT] iem.uni-due.de>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
