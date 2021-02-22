@@ -602,7 +602,7 @@ static inline gint dissect_zvt_amount(
         tvbuff_t *tvb, gint offset, packet_info *pinfo _U_, proto_tree *tree)
 {
     const gchar *str = tvb_bcd_dig_to_wmem_packet_str_be(tvb, offset, 6, NULL, FALSE);
-    proto_tree_add_uint64(tree, hf_zvt_amount, tvb, offset, 6, atol(str));
+    proto_tree_add_uint64(tree, hf_zvt_amount, tvb, offset, 6, g_ascii_strtoll(str,NULL,10));
     return 6;
 }
 
