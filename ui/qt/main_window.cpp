@@ -2641,6 +2641,7 @@ static QList<register_stat_group_t> menu_groups = QList<register_stat_group_t>()
             << REGISTER_STAT_GROUP_CONVERSATION_LIST
             << REGISTER_STAT_GROUP_ENDPOINT_LIST
             << REGISTER_STAT_GROUP_RESPONSE_TIME
+            << REGISTER_STAT_GROUP_RSERPOOL
             << REGISTER_STAT_GROUP_TELEPHONY
             << REGISTER_STAT_GROUP_TELEPHONY_ANSI
             << REGISTER_STAT_GROUP_TELEPHONY_GSM
@@ -2661,6 +2662,9 @@ void MainWindow::addMenuActions(QList<QAction *> &actions, int menu_group)
             break;
         case REGISTER_STAT_GROUP_RESPONSE_TIME:
             main_ui_->menuServiceResponseTime->addAction(action);
+            break;
+        case REGISTER_STAT_GROUP_RSERPOOL:
+            main_ui_->menuRSerPool->addAction(action);
             break;
         case REGISTER_STAT_GROUP_TELEPHONY:
             main_ui_->menuTelephony->addAction(action);
@@ -2724,6 +2728,9 @@ void MainWindow::removeMenuActions(QList<QAction *> &actions, int menu_group)
             break;
         case REGISTER_STAT_GROUP_RESPONSE_TIME:
             main_ui_->menuServiceResponseTime->removeAction(action);
+            break;
+        case REGISTER_STAT_GROUP_RSERPOOL:
+            main_ui_->menuRSerPool->removeAction(action);
             break;
         case REGISTER_STAT_GROUP_TELEPHONY:
             main_ui_->menuTelephony->removeAction(action);

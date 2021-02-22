@@ -544,6 +544,13 @@
     <addaction name="actionStatisticsSametime"/>
     <addaction name="menuTcpStreamGraphs"/>
     <addaction name="actionStatisticsUdpMulticastStreams"/>
+    <addaction name="menuRSerPool"/>
+    <widget class="QMenu" name="menuRSerPool">
+     <property name="title">
+      <string>Reliable Server Pooling (RSerPool)</string>
+     </property>
+    </widget>
+    <addaction name="actionStatistics_REGISTER_STAT_GROUP_RSERPOOL"/>
    </widget>
    <widget class="QMenu" name="menuTelephony">
     <property name="title">
@@ -2668,6 +2675,20 @@
    </property>
    <property name="toolTip">
     <string>Start of &quot;REGISTER_STAT_GROUP_UNSORTED&quot;</string>
+   </property>
+   <property name="visible">
+    <bool>false</bool>
+   </property>
+   <property name="menuRole">
+    <enum>QAction::NoRole</enum>
+   </property>
+  </action>
+  <action name="actionStatistics_REGISTER_STAT_GROUP_RSERPOOL">
+   <property name="text">
+    <string>REGISTER_STAT_GROUP_RSERPOOL</string>
+   </property>
+   <property name="toolTip">
+    <string>Start of &quot;REGISTER_STAT_GROUP_RSERPOOL&quot;</string>
    </property>
    <property name="visible">
     <bool>false</bool>
