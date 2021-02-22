@@ -141,7 +141,7 @@ file(GENERATE
 add_custom_command(
 	OUTPUT wtap_modules.c
 	COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tools/make-regs.py wtap_modules wtap_modules.c @wtap_modules.in.txt
-	DEPENDS ${CMAKE_SOURCE_DIR}/tools/make-regs.py ${WIRETAP_NONGENERATED_FILES}
+	DEPENDS ${CMAKE_SOURCE_DIR}/tools/make-regs.py ${WIRETAP_MODULE_FILES}
 		"${CMAKE_CURRENT_BINARY_DIR}/wtap_modules.in.txt"
 	COMMENT "Making wtap_modules.c"
 )
