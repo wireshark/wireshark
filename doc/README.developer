@@ -682,43 +682,36 @@ ws_, wslua_, wmem_ and wtap_.
 
 5. White space convention.
 
+Most of the C and C++ files in Wireshark use 4-space or 2-space indentation.
+When creating new files you are you are strongly encouraged to use 4-space
+indentation for source code in order to ensure consistency between files.
+
 Please avoid using tab expansions different from 8 column widths, as not all
-text editors in use by the developers support this. For a detailed
-discussion of tabs, spaces, and indentation, see
+text editors in use by the developers support this. For a detailed discussion
+of tabs, spaces, and indentation, see
 
     http://www.jwz.org/doc/tabs-vs-spaces.html
 
-Most of the files in Wireshark tend to use 2-space or 4-space indentation. When
-creating a new file you are free to choose an indentation logic but you are
-encouraged to use 4-space indentation for C/C++ source to keep inconsistency
-between files to a minimum.
+We use EditorConfig (http://editorconfig.org) files to provide formatting
+hints. Most editors and IDEs support EditorConfig, either directly or via
+a plugin. If yours requires a plugin we encourage you to install it. Our
+default EditorConfig indentation style for C and C++ files is 4 spaces.
 
-Each file should have a short comment (modelines) on the indentation logic at
-the end of the file. See
+Many files also have a short comment (modelines) on the indentation logic at
+the end of the file. This was required in the past but has been superseded by
+EditorConfig. See
 
     https://www.wireshark.org/tools/modelines.html
 
-for guidance.
-
-A complementary and arguably better alternative to modelines is
-EditorConfig (http://editorconfig.org). The default EditorConfig indentation
-style is defined in the .editorconfig file placed on the root of the project
-source code tree (4-space indentation for C). One advantage of following the
-default style is that no additional EditorConfig settings are required for new
-files. If your file does not follow this style please add a file-specific
-setting overriding the default style to a separate .editorconfig configuration
-file placed in the source file directory.
-
-Some IDEs and text editors have built-in EditorConfig support and many more
-have plugins available (links at http://editorconfig.org).
+for more information.
 
 Please do not leave trailing whitespace (spaces/tabs) on lines.
 
-When editing an existing file, try following the existing indentation
-logic and even if it very tempting, never ever use a restyler/reindenter
-utility on an existing file.  If you run across wildly varying
-indentation styles within the same file, it might be helpful to send a
-note to wireshark-dev for guidance.
+Quite a bit of our source code has varying indentation styles. When editing an
+existing file, try following the existing indentation logic. If you wish to
+convert a file to 4 space indentation, please do so in its own commit and be
+sure to remove its .editorconfig entry so that the default setting takes
+effect.
 
 6. Compiler warnings
 

@@ -323,15 +323,9 @@ on using the <<ChToolsDebugger, Debugger Tools>>.
 [[ChSrcChange]]
 === Make Changes To The Wireshark Sources
 
-As the Wireshark developers are working on many different platforms, a lot of
-editors are used to develop Wireshark (emacs, vi, Microsoft Visual Studio
-and many, many others). There’s no "standard" or "default" development
-environment.
+There are several reasons why you might want to change Wireshark’s sources:
 
-There are several reasons why you might want to change the Wireshark
-sources:
-
-* Add support for a new protocol (a new dissector)
+* Add support for a new protocol (i.e., add a new dissector)
 
 * Change or extend an existing dissector
 
@@ -339,10 +333,12 @@ sources:
 
 * Implement a glorious new feature
 
-The internal structure of the Wireshark sources will be described in
-<<PartDevelopment>>.
+Wireshark’s developers work on a variety of different platforms and use a variety of different development environments.
+Although we we don't enforce or recommend a particular environment, your editor should support https://editorconfig.org/[EditorConfig] in order to make sure you pick up the correct indentation style for any files that you might edit.
 
-.Ask the _wireshark-dev_ mailing list before you start a new development task.
+The internal structure of the Wireshark sources are described in <<PartDevelopment>>.
+
+.Ask the {wireshark-dev-list-email} mailing list before you start a new development task.
 [TIP]
 ====
 If you have an idea what you want to add or change it’s a good idea to
