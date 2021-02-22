@@ -852,6 +852,7 @@ static expert_field ei_rtcp_mcptt_location_type = EI_INIT;
 static expert_field ei_rtcp_appl_extra_bytes = EI_INIT;
 static expert_field ei_rtcp_appl_not_ascii = EI_INIT;
 static expert_field ei_rtcp_appl_non_conformant = EI_INIT;
+static expert_field ei_rtcp_appl_non_zero_pad = EI_INIT;
 
 /* Main dissection function */
 static int dissect_rtcp( tvbuff_t *tvb, packet_info *pinfo,
@@ -2460,232 +2461,237 @@ dissect_rtcp_app_mcpt(tvbuff_t* tvb, packet_info* pinfo, int offset, proto_tree*
         if ((1 + len_len + mcptt_fld_len) % 4) {
             padding = (4 - ((1 + len_len + mcptt_fld_len) % 4));
         }
-
-        /* Field Value */
-        switch (mcptt_fld_id) {
-        case 0:
-            /* Floor Priority */
-            proto_tree_add_item(sub_tree, hf_rtcp_mcptt_priority, tvb, offset, 2, ENC_BIG_ENDIAN);
-            offset += 2;
-            break;
-        case 1:
-            /* Duration */
-            proto_tree_add_item(sub_tree, hf_rtcp_mcptt_duration, tvb, offset, 2, ENC_BIG_ENDIAN);
-            offset += 2;
-            break;
-        case 2:
-        {
-            /* Reject Cause */
-            guint32 cause = 0;
-            switch (rtcp_subtype) {
+        if (mcptt_fld_len != 0) {
+            /* Field Value */
+            switch (mcptt_fld_id) {
+            case 0:
+                /* Floor Priority */
+                proto_tree_add_item(sub_tree, hf_rtcp_mcptt_priority, tvb, offset, 2, ENC_BIG_ENDIAN);
+                offset += 2;
+                break;
+            case 1:
+                /* Duration */
+                proto_tree_add_item(sub_tree, hf_rtcp_mcptt_duration, tvb, offset, 2, ENC_BIG_ENDIAN);
+                offset += 2;
+                break;
+            case 2:
+            {
+                /* Reject Cause */
+                guint32 cause = 0;
+                switch (rtcp_subtype) {
+                case 3:
+                    /* Floor deny */
+                    proto_tree_add_item_ret_uint(sub_tree, hf_rtcp_mcptt_rej_cause_floor_deny, tvb, offset, 2, ENC_BIG_ENDIAN, &cause);
+                    col_append_fstr(pinfo->cinfo, COL_INFO, " - %s",
+                        val_to_str_const(cause, rtcp_mcptt_rej_cause_floor_deny_vals, "Unknown"));
+                    break;
+                case 6:
+                    /* Floor revoke */
+                    proto_tree_add_item_ret_uint(sub_tree, hf_rtcp_mcptt_rej_cause_floor_revoke, tvb, offset, 2, ENC_BIG_ENDIAN, &cause);
+                    col_append_fstr(pinfo->cinfo, COL_INFO, " - %s",
+                        val_to_str_const(cause, rtcp_mcptt_rej_cause_floor_deny_vals, "Unknown"));
+                    break;
+                default:
+                    proto_tree_add_item(sub_tree, hf_rtcp_mcptt_rej_cause, tvb, offset, 2, ENC_BIG_ENDIAN);
+                    break;
+                }
+                offset += 2;
+                /* If the length field is set to '2', there is no <Reject Phrase> value in the Reject Cause field */
+                if (mcptt_fld_len == 2) {
+                    break;
+                }
+                /* Reject Phrase */
+                proto_tree_add_item(sub_tree, hf_rtcp_sdes_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+                offset += 1;
+                proto_tree_add_item(sub_tree, hf_rtcp_sdes_length, tvb, offset, 1, ENC_BIG_ENDIAN);
+                offset += 1;
+                proto_tree_add_item(sub_tree, hf_rtcp_mcptt_rej_phrase, tvb, offset, mcptt_fld_len - 4, ENC_UTF_8 | ENC_NA);
+                offset += (mcptt_fld_len - 4);
+                break;
+            }
             case 3:
-                /* Floor deny */
-                proto_tree_add_item_ret_uint(sub_tree, hf_rtcp_mcptt_rej_cause_floor_deny, tvb, offset, 2, ENC_BIG_ENDIAN, &cause);
-                col_append_fstr(pinfo->cinfo, COL_INFO, " - %s",
-                    val_to_str_const(cause, rtcp_mcptt_rej_cause_floor_deny_vals, "Unknown"));
+                /* Queue Info*/
+                proto_tree_add_item(sub_tree, hf_rtcp_mcptt_queue_pos_inf, tvb, offset, 1, ENC_BIG_ENDIAN);
+                offset += 1;
+                proto_tree_add_item(sub_tree, hf_rtcp_mcptt_queue_pri_lev, tvb, offset, 1, ENC_BIG_ENDIAN);
+                offset += 1;
+                break;
+            case 4:
+            case 106:
+                /* Granted Party's Identity */
+                proto_tree_add_item(sub_tree, hf_rtcp_mcptt_granted_partys_id, tvb, offset, mcptt_fld_len, ENC_UTF_8 | ENC_NA);
+                offset += mcptt_fld_len;
+                break;
+            case 5:
+                /* Permission to Request the Floor */
+                proto_tree_add_item(sub_tree, hf_rtcp_mcptt_perm_to_req_floor, tvb, offset, 2, ENC_BIG_ENDIAN);
+                offset += 2;
                 break;
             case 6:
-                /* Floor revoke */
-                proto_tree_add_item_ret_uint(sub_tree, hf_rtcp_mcptt_rej_cause_floor_revoke, tvb, offset, 2, ENC_BIG_ENDIAN, &cause);
-                col_append_fstr(pinfo->cinfo, COL_INFO, " - %s",
-                    val_to_str_const(cause, rtcp_mcptt_rej_cause_floor_deny_vals, "Unknown"));
+                /* User ID */
+                proto_tree_add_item(sub_tree, hf_rtcp_mcptt_user_id, tvb, offset, mcptt_fld_len, ENC_UTF_8 | ENC_NA);
+                offset += mcptt_fld_len;
                 break;
-            default:
-                proto_tree_add_item(sub_tree, hf_rtcp_mcptt_rej_cause, tvb, offset, 2, ENC_BIG_ENDIAN);
+            case 7:
+                /* Queue Size */
+                proto_tree_add_item(sub_tree, hf_rtcp_mcptt_queue_size, tvb, offset, 2, ENC_BIG_ENDIAN);
+                offset += 2;
                 break;
-            }
-            offset += 2;
-            /* If the length field is set to '2', there is no <Reject Phrase> value in the Reject Cause field */
-            if (mcptt_fld_len == 2) {
+            case 8:
+                /* Message Sequence-Number */
+                proto_tree_add_item(sub_tree, hf_rtcp_mcptt_msg_seq_num, tvb, offset, 2, ENC_BIG_ENDIAN);
+                offset += 2;
                 break;
-            }
-            /* Reject Phrase */
-            proto_tree_add_item(sub_tree, hf_rtcp_sdes_type, tvb, offset, 1, ENC_BIG_ENDIAN);
-            offset += 1;
-            proto_tree_add_item(sub_tree, hf_rtcp_sdes_length, tvb, offset, 1, ENC_BIG_ENDIAN);
-            offset += 1;
-            proto_tree_add_item(sub_tree, hf_rtcp_mcptt_rej_phrase, tvb, offset, mcptt_fld_len-4, ENC_UTF_8 | ENC_NA);
-            offset += (mcptt_fld_len - 4);
-            break;
-        }
-        case 3:
-            /* Queue Info*/
-            proto_tree_add_item(sub_tree, hf_rtcp_mcptt_queue_pos_inf, tvb, offset, 1, ENC_BIG_ENDIAN);
-            offset += 1;
-            proto_tree_add_item(sub_tree, hf_rtcp_mcptt_queue_pri_lev, tvb, offset, 1, ENC_BIG_ENDIAN);
-            offset += 1;
-            break;
-        case 4:
-        case 106:
-            /* Granted Party's Identity */
-            proto_tree_add_item(sub_tree, hf_rtcp_mcptt_granted_partys_id, tvb, offset, mcptt_fld_len, ENC_UTF_8 | ENC_NA);
-            offset += mcptt_fld_len;
-            break;
-        case 5:
-            /* Permission to Request the Floor */
-            proto_tree_add_item(sub_tree, hf_rtcp_mcptt_perm_to_req_floor, tvb, offset, 2, ENC_BIG_ENDIAN);
-            offset += 2;
-            break;
-        case 6:
-            /* User ID */
-            proto_tree_add_item(sub_tree, hf_rtcp_mcptt_user_id, tvb, offset, mcptt_fld_len, ENC_UTF_8 | ENC_NA);
-            offset += mcptt_fld_len;
-            break;
-        case 7:
-            /* Queue Size */
-            proto_tree_add_item(sub_tree, hf_rtcp_mcptt_queue_size, tvb, offset, 2, ENC_BIG_ENDIAN);
-            offset += 2;
-            break;
-        case 8:
-            /* Message Sequence-Number */
-            proto_tree_add_item(sub_tree, hf_rtcp_mcptt_msg_seq_num, tvb, offset, 2, ENC_BIG_ENDIAN);
-            offset += 2;
-            break;
-        case 9:
-            /* Queued User ID */
-            proto_tree_add_item(sub_tree, hf_rtcp_mcptt_queued_user_id, tvb, offset, mcptt_fld_len, ENC_UTF_8 | ENC_NA);
-            offset += mcptt_fld_len;
-            break;
-        case 10:
-            /* Source */
-            proto_tree_add_item(sub_tree, hf_rtcp_mcptt_source, tvb, offset, 2, ENC_BIG_ENDIAN);
-            offset += 2;
-            break;
-        case 11:
-        {
-            guint32 fld_len, num_ref;
-            int rem_len = mcptt_fld_len;
-            proto_tree* part_tree;
-            /* Track Info */
-            proto_tree_add_item(sub_tree, hf_rtcp_mcptt_queueing_cap, tvb, offset, 1, ENC_BIG_ENDIAN);
-            offset += 1;
-            rem_len -= 1;
-            proto_tree_add_item_ret_uint(sub_tree, hf_rtcp_mcptt_part_type_len, tvb, offset, 1, ENC_BIG_ENDIAN, &fld_len);
-            offset += 1;
-            rem_len -= 1;
-            proto_tree_add_item(sub_tree, hf_rtcp_mcptt_participant_type, tvb, offset, fld_len, ENC_UTF_8 | ENC_NA);
-            offset += fld_len;
-            rem_len -= fld_len;
-            if (rem_len > 0) {
-                num_ref = 1;
-                /* Floor Participant Reference */
-                while (rem_len > 0) {
-                    part_tree = proto_tree_add_subtree_format(sub_tree, tvb, offset, 4, ett_rtcp_mcptt_participant_ref, NULL, "Floor Participant Reference %u", num_ref);
-                    proto_tree_add_item(part_tree, hf_rtcp_mcptt_participant_ref, tvb, offset, 4, ENC_BIG_ENDIAN);
-                    offset += 4;
-                    rem_len -= 4;
-                    num_ref++;
-                }
-            }
-            break;
-        }
-        case 12:
-            /* Message Type */
-            proto_tree_add_item(sub_tree, hf_rtcp_mcptt_msg_type, tvb, offset, 1, ENC_NA);
-            offset += 1;
-            proto_tree_add_item(sub_tree, hf_rtcp_spare16, tvb, offset, 1, ENC_NA);
-            offset += 1;
-            break;
-        case 13:
-        {
-            /* Floor Indicator */
-            guint32 floor_ind;
-            proto_tree_add_item_ret_uint(sub_tree, hf_rtcp_mcptt_floor_ind, tvb, offset, 2, ENC_BIG_ENDIAN, &floor_ind);
-            col_append_fstr(pinfo->cinfo, COL_INFO, " - %s",
-                val_to_str_const(floor_ind, mcptt_floor_ind_vals, "Unknown"));
-            offset += 2;
-            break;
-        }
-        case 14:
-            /* SSRC */
-            proto_tree_add_item(sub_tree, hf_rtcp_mcptt_ssrc, tvb, offset, 4, ENC_BIG_ENDIAN);
-            offset += 4;
-            proto_tree_add_item(sub_tree, hf_rtcp_spare16, tvb, offset, 2, ENC_BIG_ENDIAN);
-            offset += 2;
-            break;
-        case 15:
-            /* List of Granted Users */
-        {
-            guint32 num_users, user_id_len;
-            /* No of users */
-            proto_tree_add_item_ret_uint(sub_tree, hf_rtcp_mcptt_num_users, tvb, offset, 1, ENC_BIG_ENDIAN, &num_users);
-            offset += 1;
-            while (num_users > 0) {
-                proto_tree_add_item_ret_uint(sub_tree, hf_rtcp_mcptt_user_id_len, tvb, offset, 1, ENC_BIG_ENDIAN, &user_id_len);
+            case 9:
+                /* Queued User ID */
+                proto_tree_add_item(sub_tree, hf_rtcp_mcptt_queued_user_id, tvb, offset, mcptt_fld_len, ENC_UTF_8 | ENC_NA);
+                offset += mcptt_fld_len;
+                break;
+            case 10:
+                /* Source */
+                proto_tree_add_item(sub_tree, hf_rtcp_mcptt_source, tvb, offset, 2, ENC_BIG_ENDIAN);
+                offset += 2;
+                break;
+            case 11:
+            {
+                guint32 fld_len, num_ref;
+                int rem_len = mcptt_fld_len;
+                proto_tree* part_tree;
+                /* Track Info */
+                proto_tree_add_item(sub_tree, hf_rtcp_mcptt_queueing_cap, tvb, offset, 1, ENC_BIG_ENDIAN);
                 offset += 1;
-                proto_tree_add_item(sub_tree, hf_rtcp_mcptt_user_id, tvb, offset, user_id_len, ENC_UTF_8 | ENC_NA);
-                offset += user_id_len;
-                num_users--;
+                rem_len -= 1;
+                proto_tree_add_item_ret_uint(sub_tree, hf_rtcp_mcptt_part_type_len, tvb, offset, 1, ENC_BIG_ENDIAN, &fld_len);
+                offset += 1;
+                rem_len -= 1;
+                proto_tree_add_item(sub_tree, hf_rtcp_mcptt_participant_type, tvb, offset, fld_len, ENC_UTF_8 | ENC_NA);
+                offset += fld_len;
+                rem_len -= fld_len;
+                if (rem_len > 0) {
+                    num_ref = 1;
+                    /* Floor Participant Reference */
+                    while (rem_len > 0) {
+                        part_tree = proto_tree_add_subtree_format(sub_tree, tvb, offset, 4, ett_rtcp_mcptt_participant_ref, NULL, "Floor Participant Reference %u", num_ref);
+                        proto_tree_add_item(part_tree, hf_rtcp_mcptt_participant_ref, tvb, offset, 4, ENC_BIG_ENDIAN);
+                        offset += 4;
+                        rem_len -= 4;
+                        num_ref++;
+                    }
+                }
+                break;
             }
-            break;
-        }
-        case 16:
-            /* List of SSRCs */
-        {
-            guint32 num_ssrc;
-            /* Number of SSRCs*/
-            proto_tree_add_item_ret_uint(sub_tree, hf_rtcp_mcptt_num_ssrc, tvb, offset, 1, ENC_BIG_ENDIAN, &num_ssrc);
-            offset += 1;
-            proto_tree_add_item(sub_tree, hf_rtcp_spare16, tvb, offset, 2, ENC_BIG_ENDIAN);
-            offset += 2;
-
-            while (num_ssrc > 0) {
+            case 12:
+                /* Message Type */
+                proto_tree_add_item(sub_tree, hf_rtcp_mcptt_msg_type, tvb, offset, 1, ENC_NA);
+                offset += 1;
+                proto_tree_add_item(sub_tree, hf_rtcp_spare16, tvb, offset, 1, ENC_NA);
+                offset += 1;
+                break;
+            case 13:
+            {
+                /* Floor Indicator */
+                guint32 floor_ind;
+                proto_tree_add_item_ret_uint(sub_tree, hf_rtcp_mcptt_floor_ind, tvb, offset, 2, ENC_BIG_ENDIAN, &floor_ind);
+                col_append_fstr(pinfo->cinfo, COL_INFO, " - %s",
+                    val_to_str_const(floor_ind, mcptt_floor_ind_vals, "Unknown"));
+                offset += 2;
+                break;
+            }
+            case 14:
+                /* SSRC */
                 proto_tree_add_item(sub_tree, hf_rtcp_mcptt_ssrc, tvb, offset, 4, ENC_BIG_ENDIAN);
                 offset += 4;
-                num_ssrc--;
-            }
-            break;
-        }
-        case 17:
-            /* Functional Alias */
-            proto_tree_add_item(sub_tree, hf_rtcp_mcptt_func_alias, tvb, offset, mcptt_fld_len, ENC_UTF_8 | ENC_NA);
-            offset += mcptt_fld_len;
-            break;
-
-        case 18:
-            /* List of Functional Aliases */
-        {
-            guint32 num_fas, fa_len;
-            /* No of FAs */
-            proto_tree_add_item_ret_uint(sub_tree, hf_rtcp_mcptt_num_fas, tvb, offset, 1, ENC_BIG_ENDIAN, &num_fas);
-            offset += 1;
-            while (num_fas > 0) {
-                proto_tree_add_item_ret_uint(sub_tree, hf_rtcp_mcptt_fa_len, tvb, offset, 1, ENC_BIG_ENDIAN, &fa_len);
+                proto_tree_add_item(sub_tree, hf_rtcp_spare16, tvb, offset, 2, ENC_BIG_ENDIAN);
+                offset += 2;
+                break;
+            case 15:
+                /* List of Granted Users */
+            {
+                guint32 num_users, user_id_len;
+                /* No of users */
+                proto_tree_add_item_ret_uint(sub_tree, hf_rtcp_mcptt_num_users, tvb, offset, 1, ENC_BIG_ENDIAN, &num_users);
                 offset += 1;
-                proto_tree_add_item(sub_tree, hf_rtcp_mcptt_func_alias, tvb, offset, fa_len, ENC_UTF_8 | ENC_NA);
-                offset += fa_len;
-                num_fas--;
+                while (num_users > 0) {
+                    proto_tree_add_item_ret_uint(sub_tree, hf_rtcp_mcptt_user_id_len, tvb, offset, 1, ENC_BIG_ENDIAN, &user_id_len);
+                    offset += 1;
+                    proto_tree_add_item(sub_tree, hf_rtcp_mcptt_user_id, tvb, offset, user_id_len, ENC_UTF_8 | ENC_NA);
+                    offset += user_id_len;
+                    num_users--;
+                }
+                break;
             }
-            break;
-        }
+            case 16:
+                /* List of SSRCs */
+            {
+                guint32 num_ssrc;
+                /* Number of SSRCs*/
+                proto_tree_add_item_ret_uint(sub_tree, hf_rtcp_mcptt_num_ssrc, tvb, offset, 1, ENC_BIG_ENDIAN, &num_ssrc);
+                offset += 1;
+                proto_tree_add_item(sub_tree, hf_rtcp_spare16, tvb, offset, 2, ENC_BIG_ENDIAN);
+                offset += 2;
 
-        case 19:
-            /* Location */
-            offset = dissect_rtcp_mcptt_location_ie(tvb, pinfo, offset, sub_tree, mcptt_fld_len);
-            break;
-        case 20:
-            /* List of Locations */
-        {
-            guint32 num_loc;
-            /* Number of SSRCs*/
-            proto_tree_add_item_ret_uint(sub_tree, hf_rtcp_mcptt_num_loc, tvb, offset, 1, ENC_BIG_ENDIAN, &num_loc);
-            offset += 1;
+                while (num_ssrc > 0) {
+                    proto_tree_add_item(sub_tree, hf_rtcp_mcptt_ssrc, tvb, offset, 4, ENC_BIG_ENDIAN);
+                    offset += 4;
+                    num_ssrc--;
+                }
+                break;
+            }
+            case 17:
+                /* Functional Alias */
+                proto_tree_add_item(sub_tree, hf_rtcp_mcptt_func_alias, tvb, offset, mcptt_fld_len, ENC_UTF_8 | ENC_NA);
+                offset += mcptt_fld_len;
+                break;
 
-            while (num_loc > 0) {
+            case 18:
+                /* List of Functional Aliases */
+            {
+                guint32 num_fas, fa_len;
+                /* No of FAs */
+                proto_tree_add_item_ret_uint(sub_tree, hf_rtcp_mcptt_num_fas, tvb, offset, 1, ENC_BIG_ENDIAN, &num_fas);
+                offset += 1;
+                while (num_fas > 0) {
+                    proto_tree_add_item_ret_uint(sub_tree, hf_rtcp_mcptt_fa_len, tvb, offset, 1, ENC_BIG_ENDIAN, &fa_len);
+                    offset += 1;
+                    proto_tree_add_item(sub_tree, hf_rtcp_mcptt_func_alias, tvb, offset, fa_len, ENC_UTF_8 | ENC_NA);
+                    offset += fa_len;
+                    num_fas--;
+                }
+                break;
+            }
+
+            case 19:
+                /* Location */
                 offset = dissect_rtcp_mcptt_location_ie(tvb, pinfo, offset, sub_tree, mcptt_fld_len);
-                num_loc--;
-            }
-            break;
-        }
+                break;
+            case 20:
+                /* List of Locations */
+            {
+                guint32 num_loc;
+                /* Number of SSRCs*/
+                proto_tree_add_item_ret_uint(sub_tree, hf_rtcp_mcptt_num_loc, tvb, offset, 1, ENC_BIG_ENDIAN, &num_loc);
+                offset += 1;
 
-        default:
-            expert_add_info(pinfo, ti, &ei_rtcp_mcptt_unknown_fld);
-            proto_tree_add_item(sub_tree, hf_rtcp_mcptt_fld_val, tvb, offset, mcptt_fld_len, ENC_NA);
-            offset += mcptt_fld_len;
-            break;
+                while (num_loc > 0) {
+                    offset = dissect_rtcp_mcptt_location_ie(tvb, pinfo, offset, sub_tree, mcptt_fld_len);
+                    num_loc--;
+                }
+                break;
+            }
+
+            default:
+                expert_add_info(pinfo, ti, &ei_rtcp_mcptt_unknown_fld);
+                proto_tree_add_item(sub_tree, hf_rtcp_mcptt_fld_val, tvb, offset, mcptt_fld_len, ENC_NA);
+                offset += mcptt_fld_len;
+                break;
+            }
         }
         if (padding) {
-            proto_tree_add_item(sub_tree, hf_rtcp_app_data_padding, tvb, offset, padding, ENC_BIG_ENDIAN);
+            guint32 data;
+            proto_tree_add_item_ret_uint(sub_tree, hf_rtcp_app_data_padding, tvb, offset, padding, ENC_BIG_ENDIAN, &data);
+            if (data != 0) {
+                proto_tree_add_expert(sub_tree, pinfo, &ei_rtcp_appl_non_zero_pad, tvb, offset, padding);
+            }
             offset += padding;
         }
         packet_len -= offset - start_offset;
@@ -7917,6 +7923,7 @@ proto_register_rtcp(void)
         { &ei_rtcp_appl_extra_bytes, { "rtcp.appl.extra_bytes", PI_PROTOCOL, PI_ERROR, "Extra bytes detected", EXPFILL }},
         { &ei_rtcp_appl_not_ascii, { "rtcp.appl.not_ascii", PI_PROTOCOL, PI_ERROR, "Application name is not a string", EXPFILL }},
         { &ei_rtcp_appl_non_conformant, { "rtcp.appl.non_conformant", PI_PROTOCOL, PI_ERROR, "Data not according to standards", EXPFILL }},
+        { &ei_rtcp_appl_non_zero_pad, { "rtcp.appl.non_zero_pad", PI_PROTOCOL, PI_ERROR, "Non zero padding detected, faulty encoding?", EXPFILL }},
     };
 
     module_t *rtcp_module;
