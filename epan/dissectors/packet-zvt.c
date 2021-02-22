@@ -236,6 +236,7 @@ static int hf_zvt_tlv_tag_class = -1;
 static int hf_zvt_tlv_tag_type = -1;
 static int hf_zvt_tlv_len = -1;
 static int hf_zvt_text_lines_line = -1;
+static int hf_zvt_permitted_cmd = -1;
 
 static expert_field ei_invalid_apdu_len = EI_INIT;
 
@@ -319,6 +320,7 @@ static const value_string tlv_tag_class[] = {
 static value_string_ext tlv_tag_class_ext = VALUE_STRING_EXT_INIT(tlv_tag_class);
 
 #define TLV_TAG_TEXT_LINES          0x07
+#define TLV_TAG_PERMITTED_ZVT_CMD   0x0A
 #define TLV_TAG_CHARS_PER_LINE      0x12
 #define TLV_TAG_DISPLAY_TEXTS       0x24
 #define TLV_TAG_PERMITTED_ZVT_CMDS  0x26
@@ -354,10 +356,16 @@ static inline gint dissect_zvt_tlv_subseq(
         tvbuff_t *tvb, gint offset, gint len,
         packet_info *pinfo, proto_tree *tree, tlv_seq_info_t *seq_info);
 
+static inline gint dissect_zvt_tlv_permitted_cmd(
+        tvbuff_t *tvb, gint offset, gint len,
+        packet_info *pinfo, proto_tree *tree, tlv_seq_info_t *seq_info);
+
 static const tlv_info_t tlv_info[] = {
     { TLV_TAG_TEXT_LINES, dissect_zvt_tlv_text_lines },
     { TLV_TAG_DISPLAY_TEXTS, dissect_zvt_tlv_subseq },
-    { TLV_TAG_PAYMENT_TYPE, dissect_zvt_tlv_subseq }
+    { TLV_TAG_PAYMENT_TYPE, dissect_zvt_tlv_subseq },
+    { TLV_TAG_PERMITTED_ZVT_CMDS, dissect_zvt_tlv_subseq },
+    { TLV_TAG_PERMITTED_ZVT_CMD, dissect_zvt_tlv_permitted_cmd }
 };
 
 static const value_string tlv_tags[] = {
@@ -398,6 +406,16 @@ static inline gint dissect_zvt_tlv_subseq(
             "Subsequence");
 
     return dissect_zvt_tlv_seq(tvb, offset, len, pinfo, subseq_tree, seq_info);
+}
+
+
+static inline gint dissect_zvt_tlv_permitted_cmd(
+        tvbuff_t *tvb, gint offset, gint len,
+        packet_info *pinfo _U_, proto_tree *tree, tlv_seq_info_t *seq_info _U_)
+{
+    proto_tree_add_item(tree, hf_zvt_permitted_cmd,
+            tvb, offset, len, ENC_BIG_ENDIAN);
+    return len;
 }
 
 
@@ -1135,7 +1153,10 @@ proto_register_zvt(void)
                 FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL } },
         { &hf_zvt_text_lines_line,
             { "Text line", "zvt.tlv.text_lines.line",
-                FT_STRING, STR_UNICODE, NULL, 0, NULL, HFILL } }
+                FT_STRING, STR_UNICODE, NULL, 0, NULL, HFILL } },
+        { &hf_zvt_permitted_cmd,
+            { "Permitted command", "zvt.tlv.permitted_command",
+                FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL } }
     };
 
     static ei_register_info ei[] = {
