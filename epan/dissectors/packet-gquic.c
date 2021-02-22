@@ -169,6 +169,7 @@ static int hf_gquic_tag_smhl = -1;
 static int hf_gquic_tag_tbkp = -1;
 static int hf_gquic_tag_mad0 = -1;
 static int hf_gquic_tag_qlve = -1;
+static int hf_gquic_tag_cgst = -1;
 
 /* Public Reset Tags */
 static int hf_gquic_tag_rnon = -1;
@@ -430,6 +431,7 @@ static const value_string message_tag_vals[] = {
 #define TAG_TBKP 0x54424B50
 #define TAG_MAD0 0x4d414400
 #define TAG_QLVE 0x514C5645
+#define TAG_CGST 0x43475354
 
 /* Public Reset Tag */
 #define TAG_RNON 0x524E4F4E
@@ -478,6 +480,7 @@ static const value_string tag_vals[] = {
     { TAG_TBKP, "Token Binding Key Params" },
     { TAG_MAD0, "Max Ack Delay (IETF QUIC)" },
     { TAG_QLVE, "Legacy Version Encapsulation" },
+    { TAG_CGST, "Congestion Control Feedback Type" },
 
     { TAG_RNON, "Public Reset Nonce Proof" },
     { TAG_RSEQ, "Rejected Packet Number" },
@@ -1670,6 +1673,10 @@ dissect_gquic_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *gquic_tree, gui
 
                 tag_offset += tag_len;
             }
+            break;
+            case TAG_CGST:
+                proto_tree_add_item(tag_tree, hf_gquic_tag_cgst, tvb, tag_offset_start + tag_offset, tag_len, ENC_NA);
+                tag_offset += tag_len;
             break;
             default:
                 proto_tree_add_item(tag_tree, hf_gquic_tag_unknown, tvb, tag_offset_start + tag_offset, tag_len, ENC_NA);
@@ -3161,6 +3168,11 @@ proto_register_gquic(void)
         },
         { &hf_gquic_tag_qlve,
             { "Legacy Version Encapsulation", "gquic.tag.qlve",
+              FT_BYTES, BASE_NONE, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_gquic_tag_cgst,
+            { "Congestion Control Feedback Type", "gquic.tag.cgst",
               FT_BYTES, BASE_NONE, NULL, 0x0,
               NULL, HFILL }
         },
