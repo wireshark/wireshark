@@ -782,7 +782,7 @@ proto_register_asap(void)
   };
 
   static stat_tap_table_ui asap_stat_table = {
-    REGISTER_STAT_GROUP_UNSORTED,
+    REGISTER_STAT_GROUP_RSERPOOL,
     "ASAP Statistics",
     "asap",
     "asap,stat",
