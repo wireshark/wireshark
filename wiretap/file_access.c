@@ -1953,9 +1953,10 @@ wtap_file_type_subtype_supports_block(int filetype, wtap_block_type_t type)
 	num_supported_blocks = file_type_subtype_table[filetype].num_supported_blocks;
 	supported_blocks = file_type_subtype_table[filetype].supported_blocks;
 
-	for (size_t i = 0; i < num_supported_blocks; i++) {
-		if (supported_blocks[i].type == type)
-			return supported_blocks[i].support;
+	for (size_t block_idx = 0; block_idx < num_supported_blocks;
+	    block_idx++) {
+		if (supported_blocks[block_idx].type == type)
+			return supported_blocks[block_idx].support;
 	}
 
 	/*
@@ -1974,13 +1975,14 @@ wtap_file_type_subtype_supports_option(int filetype, wtap_block_type_t type,
 	num_supported_blocks = file_type_subtype_table[filetype].num_supported_blocks;
 	supported_blocks = file_type_subtype_table[filetype].supported_blocks;
 
-	for (size_t i = 0; i < num_supported_blocks; i++) {
-		if (supported_blocks[i].type == type) {
+	for (size_t block_idx = 0; block_idx < num_supported_blocks;
+	    block_idx++) {
+		if (supported_blocks[block_idx].type == type) {
 			/*
 			 * OK, that block is known.
 			 * Is it supported?
 			 */
-			if (supported_blocks[i].support == BLOCK_NOT_SUPPORTED) {
+			if (supported_blocks[block_idx].support == BLOCK_NOT_SUPPORTED) {
 				/*
 				 * No, so clearly the option isn't
 				 * supported in that block.
@@ -1994,11 +1996,12 @@ wtap_file_type_subtype_supports_option(int filetype, wtap_block_type_t type,
 			size_t num_supported_options;
 			const struct supported_option_type *supported_options;
 
-			num_supported_options = supported_blocks[i].num_supported_options;
-			supported_options = supported_blocks[i].supported_options;
-			for (size_t j = 0; j < num_supported_options; i++) {
-				if (supported_options[i].opt == option)
-					return supported_options[i].support;
+			num_supported_options = supported_blocks[block_idx].num_supported_options;
+			supported_options = supported_blocks[block_idx].supported_options;
+			for (size_t opt_idx = 0; opt_idx < num_supported_options;
+			    opt_idx++) {
+				if (supported_options[opt_idx].opt == option)
+					return supported_options[opt_idx].support;
 			}
 
 			/*
