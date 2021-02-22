@@ -6,6 +6,8 @@
  *
  * Francesco Fondelli <francesco dot fondelli, gmail dot com>
  *
+ * Copyright 2020-2021 by Thomas Dreibholz <dreibh [AT] simula.no>
+ *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
@@ -45,8 +47,12 @@
 #include <epan/ipproto.h>
 #include <epan/in_cksum.h>
 #include <epan/prefs.h>
+#include <epan/follow.h>
 #include <epan/expert.h>
 #include <epan/conversation.h>
+#include <epan/conversation_table.h>
+#include <epan/conversation_filter.h>
+#include <epan/exported_pdu.h>
 #include <epan/tap.h>
 #include <wsutil/str_util.h>
 #include <wsutil/utf8_entities.h>
@@ -181,10 +187,12 @@ static const unit_name_string units_bytes_sec = { "bytes/sec", NULL };
 
 static int proto_dccp = -1;
 static int dccp_tap = -1;
+static int dccp_follow_tap = -1;
 
 static int hf_dccp_srcport = -1;
 static int hf_dccp_dstport = -1;
 static int hf_dccp_port = -1;
+static int hf_dccp_stream = -1;
 static int hf_dccp_data_offset = -1;
 static int hf_dccp_ccval = -1;
 static int hf_dccp_cscov = -1;
@@ -246,6 +254,7 @@ static heur_dissector_list_t heur_subdissector_list;
 static gboolean dccp_summary_in_tree = TRUE;
 static gboolean try_heuristic_first  = FALSE;
 static gboolean dccp_check_checksum  = TRUE;
+static guint32  dccp_stream_count;
 
 static void
 decode_dccp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
@@ -256,6 +265,11 @@ decode_dccp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
     heur_dtbl_entry_t *hdtbl_entry;
 
     next_tvb = tvb_new_subset_remaining(tvb, offset);
+
+    /* If the user has a "Follow DCCP Stream" window loading, pass a pointer
+       to the payload tvb through the tap system. */
+    if (have_tap_listener(dccp_follow_tap))
+        tap_queue_packet(dccp_follow_tap, pinfo, next_tvb);
 
     /*
      * determine if this packet is part of a conversation and call dissector
@@ -320,6 +334,251 @@ decode_dccp_ports(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
     /* Oh, well, we don't know this; dissect it as data. */
     call_data_dissector(next_tvb, pinfo, tree);
+}
+
+/* Conversation and process code originally copied from packet-udp.c */
+static struct dccp_analysis *
+init_dccp_conversation_data(packet_info *pinfo)
+{
+  struct dccp_analysis *dccpd;
+
+  /* Initialize the dccp protocol data structure to add to the dccp conversation */
+  dccpd = wmem_new0(wmem_file_scope(), struct dccp_analysis);
+  /*
+  dccpd->flow1.username = NULL;
+  dccpd->flow1.command = NULL;
+  dccpd->flow2.username = NULL;
+  dccpd->flow2.command = NULL;
+  */
+
+  dccpd->stream = dccp_stream_count++;
+  dccpd->ts_first = pinfo->abs_ts;
+  dccpd->ts_prev = pinfo->abs_ts;
+
+  return dccpd;
+}
+
+static struct dccp_analysis *
+get_dccp_conversation_data(conversation_t *conv, packet_info *pinfo)
+{
+  int direction;
+  struct dccp_analysis *dccpd;
+
+  /* Get the data for this conversation */
+  dccpd=(struct dccp_analysis *)conversation_get_proto_data(conv, proto_dccp);
+
+  /* If the conversation was just created or it matched a
+   * conversation with template options, dccpd will not
+   * have been initialized. So, initialize
+   * a new dccpd structure for the conversation.
+   */
+  if (!dccpd) {
+    dccpd = init_dccp_conversation_data(pinfo);
+    conversation_add_proto_data(conv, proto_dccp, dccpd);
+  }
+
+  /* check direction and get ua lists */
+  direction=cmp_address(&pinfo->src, &pinfo->dst);
+  /* if the addresses are equal, match the ports instead */
+  if (direction == 0) {
+    direction= (pinfo->srcport > pinfo->destport) ? 1 : -1;
+  }
+  if (direction >= 0) {
+    dccpd->fwd=&(dccpd->flow1);
+    dccpd->rev=&(dccpd->flow2);
+  } else {
+    dccpd->fwd=&(dccpd->flow2);
+    dccpd->rev=&(dccpd->flow1);
+  }
+
+  return dccpd;
+}
+
+static const char* dccp_conv_get_filter_type(conv_item_t* conv, conv_filter_type_e filter)
+{
+    if (filter == CONV_FT_SRC_PORT)
+        return "dccp.srcport";
+
+    if (filter == CONV_FT_DST_PORT)
+        return "dccp.dstport";
+
+    if (filter == CONV_FT_ANY_PORT)
+        return "dccp.port";
+
+    if(!conv) {
+        return CONV_FILTER_INVALID;
+    }
+
+    if (filter == CONV_FT_SRC_ADDRESS) {
+        if (conv->src_address.type == AT_IPv4)
+            return "ip.src";
+        if (conv->src_address.type == AT_IPv6)
+            return "ipv6.src";
+    }
+
+    if (filter == CONV_FT_DST_ADDRESS) {
+        if (conv->dst_address.type == AT_IPv4)
+            return "ip.dst";
+        if (conv->dst_address.type == AT_IPv6)
+            return "ipv6.dst";
+    }
+
+    if (filter == CONV_FT_ANY_ADDRESS) {
+        if (conv->src_address.type == AT_IPv4)
+            return "ip.addr";
+        if (conv->src_address.type == AT_IPv6)
+            return "ipv6.addr";
+    }
+
+    return CONV_FILTER_INVALID;
+}
+
+static ct_dissector_info_t dccp_ct_dissector_info = {&dccp_conv_get_filter_type};
+
+static tap_packet_status
+dccpip_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip)
+{
+    conv_hash_t *hash = (conv_hash_t*) pct;
+    const e_dccphdr *dccphdr=(const e_dccphdr *)vip;
+
+    add_conversation_table_data_with_conv_id(hash, &dccphdr->ip_src, &dccphdr->ip_dst, dccphdr->sport, dccphdr->dport, (conv_id_t) dccphdr->stream, 1, pinfo->fd->pkt_len, &pinfo->rel_ts, &pinfo->abs_ts, &dccp_ct_dissector_info, ENDPOINT_DCCP);
+
+    return TAP_PACKET_REDRAW;
+}
+
+static const char* dccp_host_get_filter_type(hostlist_talker_t* host, conv_filter_type_e filter)
+{
+
+    if (filter == CONV_FT_SRC_PORT)
+        return "dccp.srcport";
+
+    if (filter == CONV_FT_DST_PORT)
+        return "dccp.dstport";
+
+    if (filter == CONV_FT_ANY_PORT)
+        return "dccp.port";
+
+    if(!host) {
+        return CONV_FILTER_INVALID;
+    }
+
+
+    if (filter == CONV_FT_SRC_ADDRESS) {
+        if (host->myaddress.type == AT_IPv4)
+            return "ip.src";
+        if (host->myaddress.type == AT_IPv6)
+            return "ipv6.src";
+    }
+
+    if (filter == CONV_FT_DST_ADDRESS) {
+        if (host->myaddress.type == AT_IPv4)
+            return "ip.dst";
+        if (host->myaddress.type == AT_IPv6)
+            return "ipv6.dst";
+    }
+
+    if (filter == CONV_FT_ANY_ADDRESS) {
+        if (host->myaddress.type == AT_IPv4)
+            return "ip.addr";
+        if (host->myaddress.type == AT_IPv6)
+            return "ipv6.addr";
+    }
+
+    return CONV_FILTER_INVALID;
+}
+
+static hostlist_dissector_info_t dccp_host_dissector_info = {&dccp_host_get_filter_type};
+
+static tap_packet_status
+dccpip_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip)
+{
+    conv_hash_t *hash = (conv_hash_t*) pit;
+    const e_dccphdr *dccphdr=(const e_dccphdr *)vip;
+
+    /* Take two "add" passes per packet, adding for each direction, ensures that all
+    packets are counted properly (even if address is sending to itself)
+    XXX - this could probably be done more efficiently inside hostlist_table */
+    add_hostlist_table_data(hash, &dccphdr->ip_src, dccphdr->sport, TRUE, 1, pinfo->fd->pkt_len, &dccp_host_dissector_info, ENDPOINT_DCCP);
+    add_hostlist_table_data(hash, &dccphdr->ip_dst, dccphdr->dport, FALSE, 1, pinfo->fd->pkt_len, &dccp_host_dissector_info, ENDPOINT_DCCP);
+
+    return TAP_PACKET_REDRAW;
+}
+
+/* Return the current stream count */
+guint32 get_dccp_stream_count(void)
+{
+    return dccp_stream_count;
+}
+
+static gboolean
+dccp_filter_valid(packet_info *pinfo)
+{
+    return proto_is_frame_protocol(pinfo->layers, "dccp");
+}
+
+static gchar*
+dccp_build_filter(packet_info *pinfo)
+{
+    if( pinfo->net_src.type == AT_IPv4 && pinfo->net_dst.type == AT_IPv4 ) {
+        /* DCCP over IPv4 */
+        return g_strdup_printf("(ip.addr eq %s and ip.addr eq %s) and (dccp.port eq %d and dccp.port eq %d)",
+            address_to_str(pinfo->pool, &pinfo->net_src),
+            address_to_str(pinfo->pool, &pinfo->net_dst),
+            pinfo->srcport, pinfo->destport );
+    }
+
+    if( pinfo->net_src.type == AT_IPv6 && pinfo->net_dst.type == AT_IPv6 ) {
+        /* DCCP over IPv6 */
+        return g_strdup_printf("(ipv6.addr eq %s and ipv6.addr eq %s) and (dccp.port eq %d and dccp.port eq %d)",
+            address_to_str(pinfo->pool, &pinfo->net_src),
+            address_to_str(pinfo->pool, &pinfo->net_dst),
+            pinfo->srcport, pinfo->destport );
+    }
+
+    return NULL;
+}
+
+static gchar *dccp_follow_conv_filter(packet_info *pinfo, guint *stream, guint *sub_stream _U_)
+{
+    conversation_t *conv;
+    struct dccp_analysis *dccpd;
+
+    if( ((pinfo->net_src.type == AT_IPv4 && pinfo->net_dst.type == AT_IPv4) ||
+            (pinfo->net_src.type == AT_IPv6 && pinfo->net_dst.type == AT_IPv6))
+          && (conv=find_conversation_pinfo(pinfo, 0)) != NULL )
+    {
+        /* DCCP over IPv4/6 */
+        dccpd = get_dccp_conversation_data(conv, pinfo);
+        *stream = dccpd->stream;
+        return g_strdup_printf("dccp.stream eq %u", dccpd->stream);
+    }
+
+    return NULL;
+}
+
+static gchar *dccp_follow_index_filter(guint stream, guint sub_stream _U_)
+{
+    return g_strdup_printf("dccp.stream eq %u", stream);
+}
+
+static gchar *dccp_follow_address_filter(address *src_addr, address *dst_addr, int src_port, int dst_port)
+{
+    const gchar  *ip_version = src_addr->type == AT_IPv6 ? "v6" : "";
+    gchar         src_addr_str[WS_INET6_ADDRSTRLEN];
+    gchar         dst_addr_str[WS_INET6_ADDRSTRLEN];
+
+    address_to_str_buf(src_addr, src_addr_str, sizeof(src_addr_str));
+    address_to_str_buf(dst_addr, dst_addr_str, sizeof(dst_addr_str));
+
+    return g_strdup_printf("((ip%s.src eq %s and dccp.srcport eq %d) and "
+                     "(ip%s.dst eq %s and dccp.dstport eq %d))"
+                     " or "
+                     "((ip%s.src eq %s and dccp.srcport eq %d) and "
+                     "(ip%s.dst eq %s and dccp.dstport eq %d))",
+                     ip_version, src_addr_str, src_port,
+                     ip_version, dst_addr_str, dst_port,
+                     ip_version, dst_addr_str, dst_port,
+                     ip_version, src_addr_str, src_port);
 }
 
 /*
@@ -620,6 +879,7 @@ static int
 dissect_dccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     proto_tree *dccp_tree;
+    proto_item *item;
     proto_tree *dccp_options_tree = NULL;
     proto_item *dccp_item         = NULL;
     proto_item *hidden_item, *offset_item;
@@ -632,6 +892,8 @@ dissect_dccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     guint      advertised_dccp_header_len = 0;
     guint      options_len                = 0;
     e_dccphdr *dccph;
+    conversation_t *conv = NULL;
+    struct dccp_analysis *dccpd;
 
     dccph = wmem_new0(wmem_packet_scope(), e_dccphdr);
     dccph->sport = tvb_get_ntohs(tvb, offset);
@@ -668,6 +930,17 @@ dissect_dccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     pinfo->ptype = PT_DCCP;
     pinfo->srcport = dccph->sport;
     pinfo->destport = dccph->dport;
+
+    /* find (or create if needed) the conversation for this DCCP session */
+    conv = find_or_create_conversation(pinfo);
+    dccpd = get_dccp_conversation_data(conv, pinfo);
+    item = proto_tree_add_uint(dccp_tree, hf_dccp_stream, tvb, offset, 0, dccpd->stream);
+    proto_item_set_generated(item);
+
+    /* Copy the stream index into the header as well to make it available
+    * to tap listeners.
+    */
+    dccph->stream = dccpd->stream;
 
     dccph->data_offset = tvb_get_guint8(tvb, offset);
     advertised_dccp_header_len = dccph->data_offset * 4;
@@ -1028,6 +1301,12 @@ dissect_dccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     return tvb_reported_length(tvb);
 }
 
+static void
+dccp_init(void)
+{
+  dccp_stream_count = 0;
+}
+
 void
 proto_register_dccp(void)
 {
@@ -1055,6 +1334,14 @@ proto_register_dccp(void)
             {
                 "Source or Destination Port", "dccp.port",
                 FT_UINT16, BASE_PT_DCCP, NULL, 0x0,
+                NULL, HFILL
+            }
+        },
+        {
+            &hf_dccp_stream,
+            {
+                "Stream index", "dccp.stream",
+                FT_UINT32, BASE_DEC, NULL, 0x0,
                 NULL, HFILL
             }
         },
@@ -1328,6 +1615,13 @@ proto_register_dccp(void)
         "Check the validity of the DCCP checksum when possible",
         "Whether to check the validity of the DCCP checksum",
         &dccp_check_checksum);
+
+    register_conversation_table(proto_dccp, FALSE, dccpip_conversation_packet, dccpip_hostlist_packet);
+    register_conversation_filter("dccp", "DCCP", dccp_filter_valid, dccp_build_filter);
+    register_follow_stream(proto_dccp, "dccp_follow", dccp_follow_conv_filter, dccp_follow_index_filter, dccp_follow_address_filter,
+                           dccp_port_to_display, follow_tvb_tap_listener);
+
+    register_init_routine(dccp_init);
 }
 
 void
@@ -1338,6 +1632,7 @@ proto_reg_handoff_dccp(void)
     dccp_handle = create_dissector_handle(dissect_dccp, proto_dccp);
     dissector_add_uint("ip.proto", IP_PROTO_DCCP, dccp_handle);
     dccp_tap    = register_tap("dccp");
+    dccp_follow_tap = register_tap("dccp_follow");
 }
 
 /*

@@ -2621,8 +2621,16 @@ Kees Cook		<kees[AT]outflux.net> {
 	TiVoConnect Discovery Protocol
 }
 
-Thomas Dreibholz	<dreibh[AT]iem.uni-due.de> {
+Thomas Dreibholz	<dreibh[AT]iem.uni-due.de>/<dreibh[AT]simula.no> {
+	Calculation Application Protocol support
+	Component Status Protocol support
+	Fractal Generator Protocol support
+	DCCP dissector improvements
+	Follow DCCP stream feature
+	NetPerfMeter Protocol support
+	Ping Pong Protocol support
 	RSerPol protocol stack
+	SCTP dissector improvements
 	Scripting Service Protocol support
 }
 

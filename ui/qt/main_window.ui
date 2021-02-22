@@ -1710,6 +1710,17 @@
     <string notr="true">Ctrl+Alt+Shift+U</string>
    </property>
   </action>
+  <action name="actionAnalyzeFollowDCCPStream">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>DCCP Stream</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">Ctrl+Alt+Shift+E</string>
+   </property>
+  </action>
   <action name="actionAnalyzeFollowTLSStream">
    <property name="enabled">
     <bool>false</bool>

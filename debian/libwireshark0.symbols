@@ -784,6 +784,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  get_data_source_name@Base 1.9.1
  get_data_source_tvb@Base 1.9.1
  get_data_source_tvb_by_name@Base 2.3.0
+ get_dccp_stream_count@Base 3.5.0
  get_dissector_names@Base 1.12.0~rc1
  get_dissector_table_param@Base 1.99.2
  get_dissector_table_selector_type@Base 1.9.1

@@ -42,6 +42,7 @@ typedef enum {
     FOLLOW_TCP,
     FOLLOW_TLS,
     FOLLOW_UDP,
+    FOLLOW_DCCP,
     FOLLOW_HTTP,
     FOLLOW_HTTP2,
     FOLLOW_QUIC,

@@ -46,6 +46,8 @@ They previously shipped with Npcap 1.00.
   created to dissect DLT_ETW packets so Wireshark can display the DLT_ETW packet header, its message and packet_etw dissector
   calls packet_mbim sub_dissector if its provider matches the MBIM provider GUID.
 
+* "Follow DCCP stream" feature to filter for and extract the contents of DCCP streams.
+
 // === Removed Features and Support
 
 //=== Removed Dissectors

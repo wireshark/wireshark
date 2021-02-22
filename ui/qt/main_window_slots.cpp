@@ -1123,7 +1123,7 @@ void MainWindow::recentActionTriggered() {
 
 void MainWindow::setMenusForSelectedPacket()
 {
-    gboolean is_ip = FALSE, is_tcp = FALSE, is_udp = FALSE, is_sctp = FALSE, is_tls = FALSE, is_rtp = FALSE, is_lte_rlc = FALSE,
+    gboolean is_ip = FALSE, is_tcp = FALSE, is_udp = FALSE, is_dccp = FALSE, is_sctp = FALSE, is_tls = FALSE, is_rtp = FALSE, is_lte_rlc = FALSE,
              is_http = FALSE, is_http2 = FALSE, is_quic = FALSE;
 
     /* Making the menu context-sensitive allows for easier selection of the
@@ -1193,6 +1193,7 @@ void MainWindow::setMenusForSelectedPacket()
             proto_get_frame_protocols(capture_file_.capFile()->edt->pi.layers,
                                       &is_ip, &is_tcp, &is_udp, &is_sctp,
                                       &is_tls, &is_rtp, &is_lte_rlc);
+            is_dccp = proto_is_frame_protocol(capture_file_.capFile()->edt->pi.layers, "dccp");
             is_http = proto_is_frame_protocol(capture_file_.capFile()->edt->pi.layers, "http");
             is_http2 = proto_is_frame_protocol(capture_file_.capFile()->edt->pi.layers, "http2");
             is_quic = proto_is_frame_protocol(capture_file_.capFile()->edt->pi.layers, "quic");
@@ -1237,6 +1238,7 @@ void MainWindow::setMenusForSelectedPacket()
 
     main_ui_->actionAnalyzeFollowTCPStream->setEnabled(is_tcp);
     main_ui_->actionAnalyzeFollowUDPStream->setEnabled(is_udp);
+    main_ui_->actionAnalyzeFollowDCCPStream->setEnabled(is_dccp);
     main_ui_->actionAnalyzeFollowTLSStream->setEnabled(is_tls);
     main_ui_->actionAnalyzeFollowHTTPStream->setEnabled(is_http);
     main_ui_->actionAnalyzeFollowHTTP2Stream->setEnabled(is_http2);
@@ -2878,6 +2880,11 @@ void MainWindow::on_actionAnalyzeFollowTCPStream_triggered()
 void MainWindow::on_actionAnalyzeFollowUDPStream_triggered()
 {
     openFollowStreamDialogForType(FOLLOW_UDP);
+}
+
+void MainWindow::on_actionAnalyzeFollowDCCPStream_triggered()
+{
+    openFollowStreamDialogForType(FOLLOW_DCCP);
 }
 
 void MainWindow::on_actionAnalyzeFollowTLSStream_triggered()

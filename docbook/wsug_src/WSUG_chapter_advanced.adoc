@@ -22,7 +22,7 @@ display filter to show only the packets in a TLS or SSL stream. If so,
 Wireshark’s ability to follow protocol streams will be useful to you.
 
 To filter to a particular stream,
-select a TCP, UDP, TLS, or HTTP packet in the packet list of the stream/connection you are
+select a TCP, UDP, DCCP, TLS, HTTP, HTTP/2 or QUIC packet in the packet list of the stream/connection you are
 interested in and then select the menu item menu:Analyze[Follow TCP Stream]
 (or use the context menu in the packet list). Wireshark will set an
 appropriate display filter and display a dialog box with the data from the
@@ -628,7 +628,7 @@ For example, a conversation containing only a three-way handshake will be found
 with the filter 'tcp.completeness==7' (1+2+4) while a complete conversation with
 data transfer will be found with a longer filter as closing a connection can be
 associated with FIN or RST packets, or even both :
-'tcp.completeness==31 or tcp.completeness==47 or tcp.completeness==63' 
+'tcp.completeness==31 or tcp.completeness==47 or tcp.completeness==63'
 
 [[ChAdvTimestamps]]
 

@@ -574,6 +574,7 @@ private slots:
     void openFollowStreamDialogForType(follow_type_t type);
     void on_actionAnalyzeFollowTCPStream_triggered();
     void on_actionAnalyzeFollowUDPStream_triggered();
+    void on_actionAnalyzeFollowDCCPStream_triggered();
     void on_actionAnalyzeFollowTLSStream_triggered();
     void on_actionAnalyzeFollowHTTPStream_triggered();
     void on_actionAnalyzeFollowHTTP2Stream_triggered();
