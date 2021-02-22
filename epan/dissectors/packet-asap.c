@@ -24,6 +24,7 @@
 #include <epan/packet.h>
 #include <epan/to_str.h>
 #include <epan/sctpppids.h>
+#include <epan/stat_tap_ui.h>
 
 #include <wsutil/str_util.h>
 
@@ -33,6 +34,7 @@ void proto_register_asap(void);
 void proto_reg_handoff_asap(void);
 
 /* Initialize the protocol and registered fields */
+static int asap_tap = -1;
 static int proto_asap = -1;
 static int hf_cause_code = -1;
 static int hf_cause_length = -1;
@@ -94,6 +96,12 @@ dissect_asap(tvbuff_t *, packet_info *, proto_tree *, void *);
 #define ASAP_UDP_PORT  3863
 #define ASAP_TCP_PORT  3863
 #define ASAP_SCTP_PORT 3863
+
+typedef struct _asap_tap_rec_t {
+  guint8      type;
+  guint16     size;
+  const char* type_string;
+} asap_tap_rec_t;
 
 /* Dissectors for error causes. This is common for ASAP and ENRP. */
 
@@ -562,16 +570,23 @@ static const true_false_string reject_bit_value = {
 static void
 dissect_asap_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *asap_tree)
 {
-  tvbuff_t   *parameters_tvb;
-  proto_item *flags_item;
-  proto_tree *flags_tree;
-  guint8      type;
-
+  asap_tap_rec_t *tap_rec;
+  tvbuff_t       *parameters_tvb;
+  proto_item     *flags_item;
+  proto_tree     *flags_tree;
+  guint8          type;
 
   type = tvb_get_guint8(message_tvb, MESSAGE_TYPE_OFFSET);
   /* pinfo is NULL only if dissect_asap_message is called via dissect_error_cause */
-  if (pinfo)
-   col_add_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str_const(type, message_type_values, "Unknown ASAP type"));
+  if (pinfo) {
+    tap_rec = wmem_new0(wmem_packet_scope(), asap_tap_rec_t);
+    tap_rec->type        = type;
+    tap_rec->size        = tvb_get_ntohs(message_tvb, MESSAGE_LENGTH_OFFSET);
+    tap_rec->type_string = val_to_str_const(tap_rec->type, message_type_values, "Unknown ASAP type");
+    tap_queue_packet(asap_tap, pinfo, tap_rec);
+
+    col_add_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str_const(type, message_type_values, "Unknown ASAP type"));
+  }
 
   if (asap_tree) {
     proto_tree_add_item(asap_tree, hf_message_type,   message_tvb, MESSAGE_TYPE_OFFSET,   MESSAGE_TYPE_LENGTH,   ENC_BIG_ENDIAN);
@@ -611,6 +626,95 @@ dissect_asap(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree, void* 
   /* dissect the message */
   dissect_asap_message(message_tvb, pinfo, asap_tree);
   return tvb_captured_length(message_tvb);
+}
+
+/* TAP STAT INFO */
+typedef enum
+{
+  MESSAGE_TYPE_COLUMN = 0,
+  PACKETS_COLUMN,
+  BYTES_COLUMN,
+} asap_stat_columns;
+
+static stat_tap_table_item asap_stat_fields[] = {
+  { TABLE_ITEM_STRING, TAP_ALIGN_LEFT,  "ASAP Message Type", "%-25s" },
+  { TABLE_ITEM_UINT,   TAP_ALIGN_RIGHT, "Packets", "%d" },
+  { TABLE_ITEM_UINT,   TAP_ALIGN_RIGHT, "Bytes", "%d" }
+};
+
+static void asap_stat_init(stat_tap_table_ui* new_stat)
+{
+  const char *table_name = "ASAP Statistics";
+  int num_fields = sizeof(asap_stat_fields)/sizeof(stat_tap_table_item);
+  stat_tap_table *table;
+  int i = 0;
+  stat_tap_table_item_type items[sizeof(asap_stat_fields)/sizeof(stat_tap_table_item)];
+
+  table = stat_tap_find_table(new_stat, table_name);
+  if (table) {
+    if (new_stat->stat_tap_reset_table_cb) {
+      new_stat->stat_tap_reset_table_cb(table);
+    }
+    return;
+  }
+
+  table = stat_tap_init_table(table_name, num_fields, 0, NULL);
+  stat_tap_add_table(new_stat, table);
+
+  /* Add a row for each value type */
+  while (message_type_values[i].strptr)
+  {
+    items[MESSAGE_TYPE_COLUMN].type = TABLE_ITEM_STRING;
+    items[MESSAGE_TYPE_COLUMN].value.string_value = message_type_values[i].strptr;
+    items[PACKETS_COLUMN].type = TABLE_ITEM_UINT;
+    items[PACKETS_COLUMN].value.uint_value = 0;
+    items[BYTES_COLUMN].type = TABLE_ITEM_UINT;
+    items[BYTES_COLUMN].value.uint_value = 0;
+
+    stat_tap_init_table_row(table, i, num_fields, items);
+    i++;
+  }
+}
+
+static tap_packet_status
+asap_stat_packet(void* tapdata, packet_info* pinfo _U_, epan_dissect_t* edt _U_, const void* data)
+{
+  stat_data_t*              stat_data = (stat_data_t*)tapdata;
+  const asap_tap_rec_t*     tap_rec   = (const asap_tap_rec_t*)data;
+  stat_tap_table*           table;
+  stat_tap_table_item_type* msg_data;
+  gint                      idx;
+
+  idx = str_to_val_idx(tap_rec->type_string, message_type_values);
+  if (idx < 0)
+    return TAP_PACKET_DONT_REDRAW;
+
+  table = g_array_index(stat_data->stat_tap_data->tables, stat_tap_table*, 0);
+  msg_data = stat_tap_get_field_data(table, idx, PACKETS_COLUMN);
+  msg_data->value.uint_value++;
+  stat_tap_set_field_data(table, idx, PACKETS_COLUMN, msg_data);
+  msg_data = stat_tap_get_field_data(table, idx, BYTES_COLUMN);
+  msg_data->value.uint_value += tap_rec->size;
+  stat_tap_set_field_data(table, idx, BYTES_COLUMN, msg_data);
+
+  return TAP_PACKET_REDRAW;
+}
+
+static void
+asap_stat_reset(stat_tap_table* table)
+{
+  guint element;
+  stat_tap_table_item_type* item_data;
+
+  for (element = 0; element < table->num_elements; element++)
+  {
+    item_data = stat_tap_get_field_data(table, element, PACKETS_COLUMN);
+    item_data->value.uint_value = 0;
+    stat_tap_set_field_data(table, element, PACKETS_COLUMN, item_data);
+    item_data = stat_tap_get_field_data(table, element, BYTES_COLUMN);
+    item_data->value.uint_value = 0;
+    stat_tap_set_field_data(table, element, BYTES_COLUMN, item_data);
+  }
 }
 
 /* Register the protocol with Wireshark */
@@ -673,13 +777,35 @@ proto_register_asap(void)
     &ett_asap_cause,
   };
 
+  static tap_param asap_stat_params[] = {
+    { PARAM_FILTER, "filter", "Filter", NULL, TRUE }
+  };
+
+  static stat_tap_table_ui asap_stat_table = {
+    REGISTER_STAT_GROUP_UNSORTED,
+    "ASAP Statistics",
+    "asap",
+    "asap,stat",
+    asap_stat_init,
+    asap_stat_packet,
+    asap_stat_reset,
+    NULL,
+    NULL,
+    sizeof(asap_stat_fields)/sizeof(stat_tap_table_item), asap_stat_fields,
+    sizeof(asap_stat_params)/sizeof(tap_param), asap_stat_params,
+    NULL,
+    0
+  };
+
   /* Register the protocol name and description */
   proto_asap = proto_register_protocol("Aggregate Server Access Protocol", "ASAP",  "asap");
 
   /* Required function calls to register the header fields and subtrees used */
   proto_register_field_array(proto_asap, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+  asap_tap = register_tap("asap");
 
+  register_stat_tap_table_ui(&asap_stat_table);
 }
 
 void
