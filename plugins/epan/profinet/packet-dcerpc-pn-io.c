@@ -5086,7 +5086,7 @@ dissect_PDInterfaceMrpDataAdjust_block(tvbuff_t *tvb, int offset,
     guint16   u16Role;
     guint8    u8LengthDomainName;
     guint8    u8NumberOfMrpInstances;
-    int       iStartOffset = offset;
+    int       endoffset = offset + u16BodyLength;
 
 
     if (u8BlockVersionHigh != 1 || u8BlockVersionLow > 1) { /* added low version == 1 */
@@ -5097,49 +5097,49 @@ dissect_PDInterfaceMrpDataAdjust_block(tvbuff_t *tvb, int offset,
 
     if (u8BlockVersionLow == 0) /*dissect LowVersion == 0 */
     {
-    offset = dissect_pn_align4(tvb, offset, pinfo, tree);
+        offset = dissect_pn_align4(tvb, offset, pinfo, tree);
 
-    /* MRP_DomainUUID */
-    offset = dissect_dcerpc_uuid_t(tvb, offset, pinfo, tree, drep,
-                        hf_pn_io_mrp_domain_uuid, &uuid);
-    /* MRP_Role */
-    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
-                    hf_pn_io_mrp_role, &u16Role);
-    /* Padding */
-    offset = dissect_pn_align4(tvb, offset, pinfo, tree);
+        /* MRP_DomainUUID */
+        offset = dissect_dcerpc_uuid_t(tvb, offset, pinfo, tree, drep,
+                            hf_pn_io_mrp_domain_uuid, &uuid);
+        /* MRP_Role */
+        offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
+                        hf_pn_io_mrp_role, &u16Role);
+        /* Padding */
+        offset = dissect_pn_align4(tvb, offset, pinfo, tree);
 
-    /* MRP_LengthDomainName */
-    offset = dissect_dcerpc_uint8(tvb, offset, pinfo, tree, drep,
-                    hf_pn_io_mrp_length_domain_name, &u8LengthDomainName);
-    /* MRP_DomainName */
-    /* XXX - IEC 61158-6-10 Edition 4.0 says, in section 5.2.17.2.4 "Coding
-       of the field MRP_DomainName", that "This field shall be coded as
-       data type OctetString with 1 to 240 octets according to Table 702
-       and 4.3.1.4.15.2."
+        /* MRP_LengthDomainName */
+        offset = dissect_dcerpc_uint8(tvb, offset, pinfo, tree, drep,
+                        hf_pn_io_mrp_length_domain_name, &u8LengthDomainName);
+        /* MRP_DomainName */
+        /* XXX - IEC 61158-6-10 Edition 4.0 says, in section 5.2.17.2.4 "Coding
+           of the field MRP_DomainName", that "This field shall be coded as
+           data type OctetString with 1 to 240 octets according to Table 702
+           and 4.3.1.4.15.2."
 
-       It then says, in subsection 4.3.1.4.15.2 "Encoding" of section
-       4.3.1.4.15 "Coding of the field NameOfStationValue", that "This
-       field shall be coded as data type OctetString with 1 to 240
-       octets. The definition of IETF RFC 5890 and the following syntax
-       applies: ..."
+           It then says, in subsection 4.3.1.4.15.2 "Encoding" of section
+           4.3.1.4.15 "Coding of the field NameOfStationValue", that "This
+           field shall be coded as data type OctetString with 1 to 240
+           octets. The definition of IETF RFC 5890 and the following syntax
+           applies: ..."
 
-       RFC 5890 means Punycode; should we translate the domain name to
-       UTF-8 and show both the untranslated and translated domain name?
+           RFC 5890 means Punycode; should we translate the domain name to
+           UTF-8 and show both the untranslated and translated domain name?
 
-       They don't mention anything about the RFC 1035 encoding of
-       domain names as mentioned in section 3.1 "Name space definitions",
-       with the labels being counted strings; does that mean that this
-       is just an ASCII string to be interpreted as a Punycode Unicode
-       domain name? */
-    proto_tree_add_item (tree, hf_pn_io_mrp_domain_name, tvb, offset, u8LengthDomainName, ENC_ASCII|ENC_NA);
-    offset += u8LengthDomainName;
+           They don't mention anything about the RFC 1035 encoding of
+           domain names as mentioned in section 3.1 "Name space definitions",
+           with the labels being counted strings; does that mean that this
+           is just an ASCII string to be interpreted as a Punycode Unicode
+           domain name? */
+        proto_tree_add_item (tree, hf_pn_io_mrp_domain_name, tvb, offset, u8LengthDomainName, ENC_ASCII|ENC_NA);
+        offset += u8LengthDomainName;
 
-    /* Padding */
-    offset = dissect_pn_align4(tvb, offset, pinfo, tree);
-    if ((offset - iStartOffset) < u16BodyLength)
-    {
-        offset = dissect_blocks(tvb, offset, pinfo, tree, drep);
-    }
+        /* Padding */
+        offset = dissect_pn_align4(tvb, offset, pinfo, tree);
+        while (endoffset > offset)
+        {
+            offset = dissect_a_block(tvb, offset, pinfo, tree, drep);
+        }
     }
     else if (u8BlockVersionLow == 1) /*dissect LowVersion == 1 */
     {
