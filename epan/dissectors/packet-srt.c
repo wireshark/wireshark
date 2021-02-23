@@ -16,6 +16,11 @@
  * quality live video over the worst networks.
  *
  * http://www.srtalliance.org
+ *
+ * As no version of the standard could be found on the above site, a
+ * network protocol description can be found in a sample implementation::
+ *
+ * https://github.com/Haivision/srt/blob/master/docs/handshake.md
  */
 
 #include <config.h>
