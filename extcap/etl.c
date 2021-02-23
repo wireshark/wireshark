@@ -192,7 +192,7 @@ wtap_dumper* etw_dump_open(const char* pcapng_filename, int* err, gchar** err_in
     params.shb_hdrs = shb_hdrs;
     params.idb_inf = idb_info;
 
-    pdh = wtap_dump_open(pcapng_filename, WTAP_FILE_TYPE_SUBTYPE_PCAPNG, WTAP_UNCOMPRESSED, &params, err, err_info);
+    pdh = wtap_dump_open(pcapng_filename, wtap_pcapng_file_type_subtype(), WTAP_UNCOMPRESSED, &params, err, err_info);
 
     if (shb_hdrs)
     {

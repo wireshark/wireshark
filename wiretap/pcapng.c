@@ -26,6 +26,7 @@
 
 #include "wtap-int.h"
 #include "file_wrappers.h"
+#include "required_file_handlers.h"
 #include "pcap-common.h"
 #include "pcap-encap.h"
 #include "pcapng.h"
@@ -51,8 +52,6 @@ pcapng_close(wtap *wth);
 
 static gboolean
 pcapng_encap_is_ft_specific(int encap);
-
-void register_pcapng(void);
 
 /*
  * Minimum block size = size of block header + size of block trailer.
@@ -1409,7 +1408,7 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh,
 
     memset((void *)&wblock->rec->rec_header.packet_header.pseudo_header, 0, sizeof(union wtap_pseudo_header));
     pseudo_header_len = pcap_process_pseudo_header(fh,
-                                                   WTAP_FILE_TYPE_SUBTYPE_PCAPNG,
+                                                   FALSE, /* not a Nokia pcap - not a pcap at all */
                                                    iface_info.wtap_encap,
                                                    packet.cap_len,
                                                    wblock->rec,
@@ -1650,7 +1649,7 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh,
         }
     }
 
-    pcap_read_post_process(WTAP_FILE_TYPE_SUBTYPE_PCAPNG, iface_info.wtap_encap,
+    pcap_read_post_process(FALSE, iface_info.wtap_encap,
                            wblock->rec, ws_buffer_start_ptr(wblock->frame_buffer),
                            section_info->byte_swapped, fcslen);
 
@@ -1786,7 +1785,7 @@ pcapng_read_simple_packet_block(FILE_T fh, pcapng_block_header_t *bh,
 
     memset((void *)&wblock->rec->rec_header.packet_header.pseudo_header, 0, sizeof(union wtap_pseudo_header));
     pseudo_header_len = pcap_process_pseudo_header(fh,
-                                                   WTAP_FILE_TYPE_SUBTYPE_PCAPNG,
+                                                   FALSE,
                                                    iface_info.wtap_encap,
                                                    simple_packet.cap_len,
                                                    wblock->rec,
@@ -1811,7 +1810,7 @@ pcapng_read_simple_packet_block(FILE_T fh, pcapng_block_header_t *bh,
             return FALSE;
     }
 
-    pcap_read_post_process(WTAP_FILE_TYPE_SUBTYPE_PCAPNG, iface_info.wtap_encap,
+    pcap_read_post_process(FALSE, iface_info.wtap_encap,
                            wblock->rec, ws_buffer_start_ptr(wblock->frame_buffer),
                            section_info->byte_swapped, iface_info.fcslen);
 
@@ -2848,7 +2847,7 @@ pcapng_open(wtap *wth, int *err, gchar **err_info)
     wth->subtype_read = pcapng_read;
     wth->subtype_seek_read = pcapng_seek_read;
     wth->subtype_close = pcapng_close;
-    wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_PCAPNG;
+    wth->file_type_subtype = pcapng_file_type_subtype;
 
     /* Always initialize the list of Decryption Secret Blocks such that a
      * wtap_dumper can refer to it right after opening the capture file. */
@@ -4984,8 +4983,119 @@ gboolean pcapng_encap_is_ft_specific(int encap)
     return FALSE;
 }
 
+/*
+ * pcapng supports several block types, and supports more than one
+ * of them.
+ *
+ * It also supports comments for many block types, as well as other
+ * option types.
+ */
+
+/* Options for section blocks. */
+static const struct supported_option_type section_block_options_supported[] = {
+    { OPT_COMMENT, MULTIPLE_OPTIONS_SUPPORTED },
+    { OPT_SHB_HARDWARE, ONE_OPTION_SUPPORTED },
+    { OPT_SHB_USERAPPL, ONE_OPTION_SUPPORTED }
+};
+
+/* Options for interface blocks. */
+static const struct supported_option_type interface_block_options_supported[] = {
+    { OPT_COMMENT, MULTIPLE_OPTIONS_SUPPORTED },
+    { OPT_IDB_NAME, ONE_OPTION_SUPPORTED },
+    { OPT_IDB_DESCR, ONE_OPTION_SUPPORTED },
+    { OPT_IDB_IP4ADDR, MULTIPLE_OPTIONS_SUPPORTED },
+    { OPT_IDB_IP6ADDR, MULTIPLE_OPTIONS_SUPPORTED },
+    { OPT_IDB_MACADDR, ONE_OPTION_SUPPORTED },
+    { OPT_IDB_EUIADDR, ONE_OPTION_SUPPORTED },
+    { OPT_IDB_SPEED, ONE_OPTION_SUPPORTED },
+    { OPT_IDB_TSRESOL, ONE_OPTION_SUPPORTED },
+    { OPT_IDB_TZONE, ONE_OPTION_SUPPORTED },
+    { OPT_IDB_FILTER, ONE_OPTION_SUPPORTED },
+    { OPT_IDB_OS, ONE_OPTION_SUPPORTED },
+    { OPT_IDB_FCSLEN, ONE_OPTION_SUPPORTED },
+    { OPT_IDB_TSOFFSET, ONE_OPTION_SUPPORTED },
+    { OPT_IDB_HARDWARE, ONE_OPTION_SUPPORTED }
+};
+
+/* Options for name resolution blocks. */
+static const struct supported_option_type name_resolution_block_options_supported[] = {
+    { OPT_COMMENT, MULTIPLE_OPTIONS_SUPPORTED },
+    { OPT_NS_DNSNAME, ONE_OPTION_SUPPORTED },
+    { OPT_NS_DNSIP4ADDR, ONE_OPTION_SUPPORTED },
+    { OPT_NS_DNSIP6ADDR, ONE_OPTION_SUPPORTED }
+};
+
+/* Options for interface statistics blocks. */
+static const struct supported_option_type interface_statistics_block_options_supported[] = {
+    { OPT_COMMENT, MULTIPLE_OPTIONS_SUPPORTED },
+    { OPT_ISB_STARTTIME, ONE_OPTION_SUPPORTED },
+    { OPT_ISB_ENDTIME, ONE_OPTION_SUPPORTED },
+    { OPT_ISB_IFRECV, ONE_OPTION_SUPPORTED },
+    { OPT_ISB_IFDROP, ONE_OPTION_SUPPORTED },
+    { OPT_ISB_FILTERACCEPT, ONE_OPTION_SUPPORTED },
+    { OPT_ISB_OSDROP, ONE_OPTION_SUPPORTED },
+    { OPT_ISB_USRDELIV, ONE_OPTION_SUPPORTED }
+};
+
+/* Options for decryption secrets blocks. */
+static const struct supported_option_type decryption_secrets_block_options_supported[] = {
+    { OPT_COMMENT, MULTIPLE_OPTIONS_SUPPORTED }
+};
+
+/* Options for packet blocks. */
+static const struct supported_option_type packet_block_options_supported[] = {
+    /* XXX - pending use of wtap_block_t's for packets */
+    { OPT_COMMENT, MULTIPLE_OPTIONS_SUPPORTED }
+};
+
+/* Options for file-type-sepcific reports. */
+static const struct supported_option_type ft_specific_report_block_options_supported[] = {
+    { OPT_COMMENT, MULTIPLE_OPTIONS_SUPPORTED }
+};
+
+/* Options for file-type-sepcific event. */
+static const struct supported_option_type ft_specific_event_block_options_supported[] = {
+    { OPT_COMMENT, MULTIPLE_OPTIONS_SUPPORTED }
+};
+
+static const struct supported_block_type pcapng_blocks_supported[] = {
+    /* Multiple sections. */
+    { WTAP_BLOCK_SECTION, MULTIPLE_BLOCKS_SUPPORTED, OPTION_TYPES_SUPPORTED(section_block_options_supported) },
+
+    /* Multiple interfaces. */
+    { WTAP_BLOCK_IF_ID_AND_INFO, MULTIPLE_BLOCKS_SUPPORTED, OPTION_TYPES_SUPPORTED(interface_block_options_supported) },
+
+    /* Multiple blocks of name resolution information */
+    { WTAP_BLOCK_NAME_RESOLUTION, MULTIPLE_BLOCKS_SUPPORTED, OPTION_TYPES_SUPPORTED(name_resolution_block_options_supported) },
+
+    /* Multiple blocks of interface statistics. */
+    { WTAP_BLOCK_IF_STATISTICS, MULTIPLE_BLOCKS_SUPPORTED, OPTION_TYPES_SUPPORTED(interface_statistics_block_options_supported) },
+
+    /* Multiple blocks of decryption secrets. */
+    { WTAP_BLOCK_DECRYPTION_SECRETS, MULTIPLE_BLOCKS_SUPPORTED, OPTION_TYPES_SUPPORTED(decryption_secrets_block_options_supported) },
+
+    /* And, obviously, multiple packets. */
+    { WTAP_BLOCK_PACKET, MULTIPLE_BLOCKS_SUPPORTED, OPTION_TYPES_SUPPORTED(packet_block_options_supported) },
+
+    /* Multiple file-type specific reports (including local ones). */
+    { WTAP_BLOCK_FT_SPECIFIC_REPORT, MULTIPLE_BLOCKS_SUPPORTED, OPTION_TYPES_SUPPORTED(ft_specific_report_block_options_supported) },
+
+    /* Multiple file-type specific events (including local ones). */
+    { WTAP_BLOCK_FT_SPECIFIC_EVENT, MULTIPLE_BLOCKS_SUPPORTED, OPTION_TYPES_SUPPORTED(ft_specific_event_block_options_supported) }
+};
+
+static const struct file_type_subtype_info pcapng_info = {
+    "Wireshark/... - pcapng", "pcapng", "pcapng", "ntar",
+    FALSE, BLOCKS_SUPPORTED(pcapng_blocks_supported),
+    pcapng_dump_can_write_encap, pcapng_dump_open, NULL
+};
+
 void register_pcapng(void)
 {
+    pcapng_file_type_subtype = wtap_register_file_type_subtypes(&pcapng_info);
+
+    wtap_register_backwards_compatibility_lua_name("PCAPNG",
+                                                   pcapng_file_type_subtype);
 }
 
 /*

@@ -85,8 +85,8 @@ export_pdu_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt, const 
 }
 
 gboolean
-exp_pdu_open(exp_pdu_t *exp_pdu_tap_data, int fd, const char *comment, int *err,
-             gchar **err_info)
+exp_pdu_open(exp_pdu_t *exp_pdu_tap_data, int fd, int file_type_subtype,
+             const char *comment, int *err, gchar **err_info)
 {
     /* pcapng defs */
     wtap_block_t                 shb_hdr;
@@ -96,49 +96,69 @@ exp_pdu_open(exp_pdu_t *exp_pdu_tap_data, int fd, const char *comment, int *err,
     gsize                        opt_len;
     gchar                       *opt_str;
 
-    /* Create data for SHB  */
-    os_info_str = g_string_new("");
-    get_os_version_info(os_info_str);
-
-    shb_hdr = wtap_block_create(WTAP_BLOCK_SECTION);
-
-    /* options */
-    wtap_block_add_string_option(shb_hdr, OPT_COMMENT, comment, strlen(comment));
-
     /*
-     * UTF-8 string containing the name of the operating system used to create
-     * this section.
+     * If the file format supports a section block, and the section
+     * block supports comments, create data for it.
      */
-    opt_len = os_info_str->len;
-    opt_str = g_string_free(os_info_str, FALSE);
-    if (opt_str) {
-        wtap_block_add_string_option(shb_hdr, OPT_SHB_OS, opt_str, opt_len);
-        g_free(opt_str);
+    if (wtap_file_type_subtype_supports_block(file_type_subtype,
+                                              WTAP_BLOCK_SECTION) != BLOCK_NOT_SUPPORTED &&
+        wtap_file_type_subtype_supports_option(file_type_subtype,
+                                               WTAP_BLOCK_SECTION,
+                                               OPT_COMMENT) != OPTION_NOT_SUPPORTED) {
+        os_info_str = g_string_new("");
+        get_os_version_info(os_info_str);
+
+        shb_hdr = wtap_block_create(WTAP_BLOCK_SECTION);
+
+        /* options */
+        wtap_block_add_string_option(shb_hdr, OPT_COMMENT, comment, strlen(comment));
+
+        /*
+         * UTF-8 string containing the name of the operating system used to
+         * create this section.
+         */
+        opt_len = os_info_str->len;
+        opt_str = g_string_free(os_info_str, FALSE);
+        if (opt_str) {
+            wtap_block_add_string_option(shb_hdr, OPT_SHB_OS, opt_str, opt_len);
+            g_free(opt_str);
+        }
+        /*
+         * UTF-8 string containing the name of the application used to create
+         * this section.
+         */
+        wtap_block_add_string_option_format(shb_hdr, OPT_SHB_USERAPPL, "%s",
+                                            get_appname_and_version());
+
+        exp_pdu_tap_data->shb_hdrs = g_array_new(FALSE, FALSE, sizeof(wtap_block_t));
+        g_array_append_val(exp_pdu_tap_data->shb_hdrs, shb_hdr);
+    } else {
+        exp_pdu_tap_data->shb_hdrs = NULL;
     }
+
     /*
-     * UTF-8 string containing the name of the application used to create
-     * this section.
+     * Create a fake IDB even if it's not supported; that provides a
+     * link-layer type
      */
-    wtap_block_add_string_option_format(shb_hdr, OPT_SHB_USERAPPL, "%s", get_appname_and_version());
+    if (wtap_file_type_subtype_supports_block(file_type_subtype,
+                                              WTAP_BLOCK_IF_ID_AND_INFO) != BLOCK_NOT_SUPPORTED) {
+        exp_pdu_tap_data->idb_inf = g_new(wtapng_iface_descriptions_t,1);
+        exp_pdu_tap_data->idb_inf->interface_data = g_array_new(FALSE, FALSE, sizeof(wtap_block_t));
 
-    /* Create fake IDB info */
-    exp_pdu_tap_data->idb_inf = g_new(wtapng_iface_descriptions_t,1);
-    exp_pdu_tap_data->idb_inf->interface_data = g_array_new(FALSE, FALSE, sizeof(wtap_block_t));
+        /* create the fake interface data */
+        int_data = wtap_block_create(WTAP_BLOCK_IF_ID_AND_INFO);
+        int_data_mand = (wtapng_if_descr_mandatory_t*)wtap_block_get_mandatory_data(int_data);
+        int_data_mand->wtap_encap      = WTAP_ENCAP_WIRESHARK_UPPER_PDU;
+        int_data_mand->time_units_per_second = 1000000000; /* default nanosecond resolution */
+        int_data_mand->snap_len        = WTAP_MAX_PACKET_SIZE_STANDARD;
 
-    /* create the fake interface data */
-    int_data = wtap_block_create(WTAP_BLOCK_IF_ID_AND_INFO);
-    int_data_mand = (wtapng_if_descr_mandatory_t*)wtap_block_get_mandatory_data(int_data);
-    int_data_mand->wtap_encap      = WTAP_ENCAP_WIRESHARK_UPPER_PDU;
-    int_data_mand->time_units_per_second = 1000000000; /* default nanosecond resolution */
-    int_data_mand->snap_len        = WTAP_MAX_PACKET_SIZE_STANDARD;
+        wtap_block_add_string_option(int_data, OPT_IDB_NAME, "Fake IF, PDU->Export", strlen("Fake IF, PDU->Export"));
+        wtap_block_add_uint8_option(int_data, OPT_IDB_TSRESOL, 9);
 
-    wtap_block_add_string_option(int_data, OPT_IDB_NAME, "Fake IF, PDU->Export", strlen("Fake IF, PDU->Export"));
-    wtap_block_add_uint8_option(int_data, OPT_IDB_TSRESOL, 9);
-
-    g_array_append_val(exp_pdu_tap_data->idb_inf->interface_data, int_data);
-
-    exp_pdu_tap_data->shb_hdrs = g_array_new(FALSE, FALSE, sizeof(wtap_block_t));
-    g_array_append_val(exp_pdu_tap_data->shb_hdrs, shb_hdr);
+        g_array_append_val(exp_pdu_tap_data->idb_inf->interface_data, int_data);
+    } else {
+        exp_pdu_tap_data->idb_inf = NULL;
+    }
 
     const wtap_dump_params params = {
         .encap = WTAP_ENCAP_WIRESHARK_UPPER_PDU,
@@ -147,10 +167,10 @@ exp_pdu_open(exp_pdu_t *exp_pdu_tap_data, int fd, const char *comment, int *err,
         .idb_inf = exp_pdu_tap_data->idb_inf,
     };
     if (fd == 1) {
-        exp_pdu_tap_data->wdh = wtap_dump_open_stdout(WTAP_FILE_TYPE_SUBTYPE_PCAPNG,
+        exp_pdu_tap_data->wdh = wtap_dump_open_stdout(file_type_subtype,
                 WTAP_UNCOMPRESSED, &params, err, err_info);
     } else {
-        exp_pdu_tap_data->wdh = wtap_dump_fdopen(fd, WTAP_FILE_TYPE_SUBTYPE_PCAPNG,
+        exp_pdu_tap_data->wdh = wtap_dump_fdopen(fd, file_type_subtype,
                 WTAP_UNCOMPRESSED, &params, err, err_info);
     }
     if (exp_pdu_tap_data->wdh == NULL)

@@ -161,7 +161,7 @@ GPtrArray *capture_comments = NULL;
 static struct select_item     selectfrm[MAX_SELECTIONS];
 static guint                  max_selected              = 0;
 static gboolean               keep_em                   = FALSE;
-static int                    out_file_type_subtype     = WTAP_FILE_TYPE_SUBTYPE_PCAPNG; /* default to pcapng   */
+static int                    out_file_type_subtype     = WTAP_FILE_TYPE_SUBTYPE_UNKNOWN;
 static int                    out_frame_type            = -2; /* Leave frame type alone */
 static gboolean               verbose                   = FALSE; /* Not so verbose         */
 static struct time_adjustment time_adj                  = {NSTIME_INIT_ZERO, 0}; /* no adjustment */
@@ -1512,7 +1512,11 @@ main(int argc, char *argv[])
         print_usage(stderr);
         ret = INVALID_OPTION;
         goto clean_exit;
+    }
 
+    if (out_file_type_subtype == WTAP_FILE_TYPE_SUBTYPE_UNKNOWN) {
+      /* default to pcapng   */
+      out_file_type_subtype = wtap_pcapng_file_type_subtype();
     }
 
     if (err_prob >= 0.0) {

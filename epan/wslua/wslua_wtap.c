@@ -95,7 +95,7 @@ WSLUA_FUNCTION wslua_wtap_pcap_file_type_subtype(lua_State* LS) {
 
     @since 3.2.12, 3.4.4
     */
-    lua_Number filetype = WTAP_FILE_TYPE_SUBTYPE_PCAP;
+    lua_Number filetype = wtap_pcap_file_type_subtype();
     lua_pushnumber(LS,filetype);
     WSLUA_RETURN(1); /* The filetype value for pcap files. */
 }
@@ -106,7 +106,7 @@ WSLUA_FUNCTION wslua_wtap_pcap_nsec_file_type_subtype(lua_State* LS) {
 
     @since 3.2.12, 3.4.4
     */
-    lua_Number filetype = WTAP_FILE_TYPE_SUBTYPE_PCAP_NSEC;
+    lua_Number filetype = wtap_pcap_nsec_file_type_subtype();
     lua_pushnumber(LS,filetype);
     WSLUA_RETURN(1); /* The filetype value for nanosecond-resolution pcap files. */
 }
@@ -117,7 +117,7 @@ WSLUA_FUNCTION wslua_wtap_pcapng_file_type_subtype(lua_State* LS) {
 
     @since 3.2.12, 3.4.4
     */
-    lua_Number filetype = WTAP_FILE_TYPE_SUBTYPE_PCAPNG;
+    lua_Number filetype = wtap_pcapng_file_type_subtype();
     lua_pushnumber(LS,filetype);
     WSLUA_RETURN(1); /* The filetype value for pcapng files. */
 }

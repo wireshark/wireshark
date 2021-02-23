@@ -97,7 +97,5 @@ struct pcaprec_nokia_hdr {
 };
 
 wtap_open_return_val libpcap_open(wtap *wth, int *err, gchar **err_info);
-gboolean libpcap_dump_open(wtap_dumper *wdh, int *err, gchar **err_info);
-int libpcap_dump_can_write_encap(int encap);
 
 #endif

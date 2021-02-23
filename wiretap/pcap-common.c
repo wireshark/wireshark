@@ -2114,7 +2114,7 @@ pcap_byteswap_nflog_pseudoheader(wtap_rec *rec, guint8 *pd)
 }
 
 int
-pcap_process_pseudo_header(FILE_T fh, int file_type, int wtap_encap,
+pcap_process_pseudo_header(FILE_T fh, gboolean is_nokia, int wtap_encap,
     guint packet_size, wtap_rec *rec, int *err, gchar **err_info)
 {
 	int phdr_len = 0;
@@ -2122,7 +2122,7 @@ pcap_process_pseudo_header(FILE_T fh, int file_type, int wtap_encap,
 	switch (wtap_encap) {
 
 	case WTAP_ENCAP_ATM_PDUS:
-		if (file_type == WTAP_FILE_TYPE_SUBTYPE_PCAP_NOKIA) {
+		if (is_nokia) {
 			/*
 			 * Nokia IPSO ATM.
 			 */
@@ -2144,7 +2144,7 @@ pcap_process_pseudo_header(FILE_T fh, int file_type, int wtap_encap,
 		break;
 
 	case WTAP_ENCAP_ETHERNET:
-		if (file_type == WTAP_FILE_TYPE_SUBTYPE_PCAP_NOKIA) {
+		if (is_nokia) {
 			/*
 			 * Nokia IPSO.  Pseudo header has already been read, but it's not considered
 			 * part of the packet size, so reread it to store the data for later (when saving)
@@ -2267,13 +2267,13 @@ pcap_process_pseudo_header(FILE_T fh, int file_type, int wtap_encap,
 }
 
 void
-pcap_read_post_process(int file_type, int wtap_encap,
+pcap_read_post_process(gboolean is_nokia, int wtap_encap,
     wtap_rec *rec, guint8 *pd, gboolean bytes_swapped, int fcs_len)
 {
 	switch (wtap_encap) {
 
 	case WTAP_ENCAP_ATM_PDUS:
-		if (file_type == WTAP_FILE_TYPE_SUBTYPE_PCAP_NOKIA) {
+		if (is_nokia) {
 			/*
 			 * Nokia IPSO ATM.
 			 *

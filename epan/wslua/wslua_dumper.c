@@ -210,7 +210,7 @@ WSLUA_CONSTRUCTOR Dumper_new(lua_State* L) {
 #define WSLUA_OPTARG_Dumper_new_ENCAP 3 /* The encapsulation to be used in the file to be created - a number entry from the `wtap_encaps` table in `init.lua`. */
     Dumper d;
     const char* fname = luaL_checkstring(L,WSLUA_ARG_Dumper_new_FILENAME);
-    int filetype = (int)luaL_optinteger(L,WSLUA_OPTARG_Dumper_new_FILETYPE,WTAP_FILE_TYPE_SUBTYPE_PCAP);
+    int filetype = (int)luaL_optinteger(L,WSLUA_OPTARG_Dumper_new_FILETYPE,wtap_pcap_file_type_subtype());
     int encap  = (int)luaL_optinteger(L,WSLUA_OPTARG_Dumper_new_ENCAP,WTAP_ENCAP_ETHERNET);
     int err = 0;
     gchar *err_info = NULL;
@@ -414,7 +414,7 @@ WSLUA_METHOD Dumper_new_for_current(lua_State* L) {
 #define WSLUA_OPTARG_Dumper_new_for_current_FILETYPE 2 /* The file type. Defaults to pcap. */
     Dumper d;
     const char* fname = luaL_checkstring(L,1);
-    int filetype = (int)luaL_optinteger(L,WSLUA_OPTARG_Dumper_new_for_current_FILETYPE,WTAP_FILE_TYPE_SUBTYPE_PCAP);
+    int filetype = (int)luaL_optinteger(L,WSLUA_OPTARG_Dumper_new_for_current_FILETYPE,wtap_pcap_file_type_subtype());
     int encap;
     int err = 0;
     gchar *err_info = NULL;

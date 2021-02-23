@@ -622,14 +622,14 @@ void randpkt_loop(randpkt_example* example, guint64 produce_count, guint64 packe
 		if (!wtap_dump(example->dump, rec, buffer, &err, &err_info)) {
 			cfile_write_failure_message("randpkt", NULL,
 			    example->filename, err, err_info, 0,
-			    WTAP_FILE_TYPE_SUBTYPE_PCAP);
+			    wtap_dump_file_type_subtype(example->dump));
 		}
 		if (packet_delay_ms) {
 			g_usleep(1000 * (gulong)packet_delay_ms);
 			if (!wtap_dump_flush(example->dump, &err)) {
 				cfile_write_failure_message("randpkt", NULL,
 				    example->filename, err, NULL, 0,
-				    WTAP_FILE_TYPE_SUBTYPE_PCAP);
+				    wtap_dump_file_type_subtype(example->dump));
 			}
 		}
 	}
@@ -661,6 +661,7 @@ int randpkt_example_init(randpkt_example* example, char* produce_filename, int p
 {
 	int err;
 	gchar *err_info;
+	int file_type_subtype;
 
 	if (pkt_rand == NULL) {
 		pkt_rand = g_rand_new();
@@ -670,19 +671,20 @@ int randpkt_example_init(randpkt_example* example, char* produce_filename, int p
 		.encap = example->sample_wtap_encap,
 		.snaplen = produce_max_bytes,
 	};
+	file_type_subtype = wtap_pcap_file_type_subtype();
 	if (strcmp(produce_filename, "-") == 0) {
 		/* Write to the standard output. */
-		example->dump = wtap_dump_open_stdout(WTAP_FILE_TYPE_SUBTYPE_PCAP,
+		example->dump = wtap_dump_open_stdout(file_type_subtype,
 			WTAP_UNCOMPRESSED, &params, &err, &err_info);
 		example->filename = "the standard output";
 	} else {
-		example->dump = wtap_dump_open(produce_filename, WTAP_FILE_TYPE_SUBTYPE_PCAP,
+		example->dump = wtap_dump_open(produce_filename, file_type_subtype,
 			WTAP_UNCOMPRESSED, &params, &err, &err_info);
 		example->filename = produce_filename;
 	}
 	if (!example->dump) {
 		cfile_dump_open_failure_message("randpkt", produce_filename,
-			err, err_info, WTAP_FILE_TYPE_SUBTYPE_PCAP);
+			err, err_info, file_type_subtype);
 		return WRITE_ERROR;
 	}
 

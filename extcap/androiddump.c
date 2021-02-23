@@ -448,6 +448,7 @@ static struct extcap_dumper extcap_dumper_open(char *fifo, int encap) {
     }
 #else
     wtap_dump_params params = WTAP_DUMP_PARAMS_INIT;
+    int file_type_subtype;
     int err = 0;
     gchar *err_info = NULL;
 
@@ -455,14 +456,15 @@ static struct extcap_dumper extcap_dumper_open(char *fifo, int encap) {
 
     params.encap = encap;
     params.snaplen = PACKET_LENGTH;
-    extcap_dumper.dumper.wtap = wtap_dump_open(fifo, WTAP_FILE_TYPE_SUBTYPE_PCAP_NSEC, WTAP_UNCOMPRESSED, &params, &err, &err_info);
+    file_type_subtype = wtap_pcap_nsec_file_type_subtype();
+    extcap_dumper.dumper.wtap = wtap_dump_open(fifo, file_type_subtype, WTAP_UNCOMPRESSED, &params, &err, &err_info);
     if (!extcap_dumper.dumper.wtap) {
-        cfile_dump_open_failure_message("androiddump", fifo, err, err_info, WTAP_FILE_TYPE_SUBTYPE_PCAP_NSEC);
+        cfile_dump_open_failure_message("androiddump", fifo, err, err_info, file_type_subtype);
         exit(EXIT_CODE_CANNOT_SAVE_WIRETAP_DUMP);
     }
     extcap_dumper.encap = encap;
     if (!wtap_dump_flush(extcap_dumper.dumper.wtap, &err)) {
-        cfile_dump_open_failure_message("androiddump", fifo, err, NULL, WTAP_FILE_TYPE_SUBTYPE_PCAP_NSEC);
+        cfile_dump_open_failure_message("androiddump", fifo, err, NULL, file_type_subtype);
         exit(EXIT_CODE_CANNOT_SAVE_WIRETAP_DUMP);
     }
 #endif
@@ -520,14 +522,14 @@ static gboolean extcap_dumper_dump(struct extcap_dumper extcap_dumper,
     rec.rec_header.packet_header.pkt_encap = extcap_dumper.encap;
 
     if (!wtap_dump(extcap_dumper.dumper.wtap, &rec, (const guint8 *) buffer, &err, &err_info)) {
-        cfile_write_failure_message("androiddump", NULL, fifo, err, err_info,
-                                    0, WTAP_FILE_TYPE_SUBTYPE_PCAP_NSEC);
+        cfile_write_failure_message("androiddump", NULL, fifo, err, err_info, 0,
+                                    wtap_dump_file_type_subtype(extcap_dumper.dumper.wtap));
         return FALSE;
     }
 
     if (!wtap_dump_flush(extcap_dumper.dumper.wtap, &err)) {
-        cfile_write_failure_message("androiddump", NULL, fifo, err, NULL,
-                                    0, WTAP_FILE_TYPE_SUBTYPE_PCAP_NSEC);
+        cfile_write_failure_message("androiddump", NULL, fifo, err, NULL, 0,
+                                    wtap_dump_file_type_subtype(extcap_dumper.dumper.wtap));
         return FALSE;
     }
 #endif

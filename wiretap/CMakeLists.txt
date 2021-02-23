@@ -23,6 +23,11 @@ set(WIRETAP_PUBLIC_HEADERS
 # file types.  (For cases where more than one source file is
 # used, this should be the one that contains a registration routine.)
 #
+# This does not include libpcap.c and pcapng.c; those are listed below,
+# and we don't scan them to see whether they have registration
+# routines, we *require* them to have registration routines named
+# register_pcap() and register_pcapng(), and directly call those routines.
+#
 set(WIRETAP_C_MODULE_FILES
 	${CMAKE_CURRENT_SOURCE_DIR}/5views.c
 	${CMAKE_CURRENT_SOURCE_DIR}/aethra.c
@@ -52,7 +57,6 @@ set(WIRETAP_C_MODULE_FILES
 	${CMAKE_CURRENT_SOURCE_DIR}/json.c
 	${CMAKE_CURRENT_SOURCE_DIR}/k12.c
 	${CMAKE_CURRENT_SOURCE_DIR}/lanalyzer.c
-	${CMAKE_CURRENT_SOURCE_DIR}/libpcap.c
 	${CMAKE_CURRENT_SOURCE_DIR}/log3gpp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/logcat.c
 	${CMAKE_CURRENT_SOURCE_DIR}/logcat_text.c
@@ -71,7 +75,6 @@ set(WIRETAP_C_MODULE_FILES
 	${CMAKE_CURRENT_SOURCE_DIR}/ngsniffer.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packetlogger.c
 	${CMAKE_CURRENT_SOURCE_DIR}/pcap-common.c
-	${CMAKE_CURRENT_SOURCE_DIR}/pcapng.c
 	${CMAKE_CURRENT_SOURCE_DIR}/peekclassic.c
 	${CMAKE_CURRENT_SOURCE_DIR}/peektagged.c
 	${CMAKE_CURRENT_SOURCE_DIR}/rfc7468.c
@@ -105,6 +108,8 @@ set(WIRETAP_MODULE_FILES
 #
 set(WIRETAP_NONGENERATED_C_FILES
 	${WIRETAP_C_MODULE_FILES}
+	${CMAKE_CURRENT_SOURCE_DIR}/pcapng.c
+	${CMAKE_CURRENT_SOURCE_DIR}/libpcap.c
 	${CMAKE_CURRENT_SOURCE_DIR}/file_access.c
 	${CMAKE_CURRENT_SOURCE_DIR}/file_wrappers.c
 	${CMAKE_CURRENT_SOURCE_DIR}/merge.c

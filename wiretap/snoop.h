@@ -14,7 +14,5 @@
 #include "ws_symbol_export.h"
 
 wtap_open_return_val snoop_open(wtap *wth, int *err, gchar **err_info);
-gboolean snoop_dump_open(wtap_dumper *wdh, int *err, gchar **err_info);
-int snoop_dump_can_write_encap(int encap);
 
 #endif

@@ -19,10 +19,11 @@
 
 extern guint wtap_max_snaplen_for_encap(int wtap_encap);
 
-extern int pcap_process_pseudo_header(FILE_T fh, int file_type, int wtap_encap,
-    guint packet_size, wtap_rec *rec, int *err, gchar **err_info);
+extern int pcap_process_pseudo_header(FILE_T fh, gboolean is_nokia,
+    int wtap_encap, guint packet_size, wtap_rec *rec,
+    int *err, gchar **err_info);
 
-extern void pcap_read_post_process(int file_type, int wtap_encap,
+extern void pcap_read_post_process(gboolean is_nokia, int wtap_encap,
     wtap_rec *rec, guint8 *pd, gboolean bytes_swapped, int fcs_len);
 
 extern int pcap_get_phdr_size(int encap,

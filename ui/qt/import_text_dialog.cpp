@@ -124,19 +124,22 @@ void ImportTextDialog::convertTextFile() {
     int err;
     gchar *err_info;
     wtap_dump_params params;
+    int file_type_subtype;
 
     capfile_name_.clear();
     wtap_dump_params_init(&params, NULL);
     params.encap = import_info_.encapsulation;
     params.snaplen = import_info_.max_frame_length;
     params.tsprec = WTAP_TSPREC_USEC; /* XXX - support other precisions? */
+    /* Write a pcapng temporary file */
+    file_type_subtype = wtap_pcapng_file_type_subtype();
     /* Use a random name for the temporary import buffer */
-    import_info_.wdh = wtap_dump_open_tempfile(&tmpname, "import", WTAP_FILE_TYPE_SUBTYPE_PCAPNG, WTAP_UNCOMPRESSED, &params, &err, &err_info);
+    import_info_.wdh = wtap_dump_open_tempfile(&tmpname, "import", file_type_subtype, WTAP_UNCOMPRESSED, &params, &err, &err_info);
     capfile_name_.append(tmpname ? tmpname : "temporary file");
     g_free(tmpname);
     qDebug() << capfile_name_ << ":" << import_info_.wdh << import_info_.encapsulation << import_info_.max_frame_length;
     if (import_info_.wdh == NULL) {
-        cfile_dump_open_failure_alert_box(capfile_name_.toUtf8().constData(), err, err_info, WTAP_FILE_TYPE_SUBTYPE_PCAP);
+        cfile_dump_open_failure_alert_box(capfile_name_.toUtf8().constData(), err, err_info, file_type_subtype);
         fclose(import_info_.import_text_file);
         setResult(QDialog::Rejected);
         return;

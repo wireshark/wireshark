@@ -216,7 +216,7 @@ main(int argc, char *argv[])
   gboolean            verbose            = FALSE;
   int                 in_file_count      = 0;
   guint32             snaplen            = 0;
-  int                 file_type          = WTAP_FILE_TYPE_SUBTYPE_PCAPNG; /* default to pcapng format */
+  int                 file_type          = WTAP_FILE_TYPE_SUBTYPE_UNKNOWN;
   int                 err                = 0;
   gchar              *err_info           = NULL;
   int                 err_fileno;
@@ -327,6 +327,10 @@ main(int argc, char *argv[])
     }
   }
 
+  /* Default to pcapng when writing. */
+  if (file_type == WTAP_FILE_TYPE_SUBTYPE_UNKNOWN)
+    file_type = wtap_pcapng_file_type_subtype();
+
   cb.callback_func = merge_callback;
   cb.data = NULL;
 
@@ -345,9 +349,13 @@ main(int argc, char *argv[])
     return 1;
   }
 
-  /* setting IDB merge mode must use PCAPNG output */
-  if (mode != IDB_MERGE_MODE_MAX && file_type != WTAP_FILE_TYPE_SUBTYPE_PCAPNG) {
-    fprintf(stderr, "The IDB merge mode can only be used with PCAPNG output format\n");
+  /*
+   * Setting IDB merge mode must use a file format that supports
+   * (and thus requires) interface ID and information blocks.
+   */
+  if (mode != IDB_MERGE_MODE_MAX &&
+      wtap_file_type_subtype_supports_block(file_type, WTAP_BLOCK_IF_ID_AND_INFO) == BLOCK_NOT_SUPPORTED) {
+    fprintf(stderr, "The IDB merge mode can only be used with an output format that identifies interfaces\n");
     status = MERGE_ERR_INVALID_OPTION;
     goto clean_exit;
   }

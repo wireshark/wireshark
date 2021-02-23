@@ -733,7 +733,7 @@ main(int argc, char *argv[])
   gboolean             capture_option_specified = FALSE;
   volatile int         max_packet_count = 0;
 #endif
-  volatile int         out_file_type = WTAP_FILE_TYPE_SUBTYPE_PCAPNG;
+  volatile int         out_file_type = WTAP_FILE_TYPE_SUBTYPE_UNKNOWN;
   volatile gboolean    out_file_name_res = FALSE;
   volatile int         in_file_type = WTAP_TYPE_AUTO;
   gchar               *volatile cf_name = NULL;
@@ -746,6 +746,7 @@ main(int argc, char *argv[])
   gchar               *output_only = NULL;
   gchar               *volatile pdu_export_arg = NULL;
   char                *volatile exp_pdu_filename = NULL;
+  int                  exp_pdu_file_type_subtype;
   exp_pdu_t            exp_pdu_tap_data;
   const gchar*         elastic_mapping_filter = NULL;
 
@@ -1528,6 +1529,10 @@ main(int argc, char *argv[])
   if (output_action == WRITE_NONE)
     output_action = WRITE_TEXT;
 
+  /* set the default file type to pcapng */
+  if (out_file_type == WTAP_FILE_TYPE_SUBTYPE_UNKNOWN)
+    out_file_type = wtap_pcapng_file_type_subtype();
+
   /*
    * Print packet summary information is the default if neither -V or -x
    * were specified. Note that this is new behavior, which allows for the
@@ -1766,16 +1771,19 @@ main(int argc, char *argv[])
 
       if (global_capture_opts.saving_to_file) {
         /* They specified a "-w" flag, so we'll be saving to a capture file. */
+        gboolean use_pcapng;
 
         /* When capturing, we only support writing pcap or pcapng format. */
-        if (out_file_type != WTAP_FILE_TYPE_SUBTYPE_PCAP &&
-            out_file_type != WTAP_FILE_TYPE_SUBTYPE_PCAPNG) {
+        if (out_file_type == wtap_pcapng_file_type_subtype()) {
+          use_pcapng = TRUE;
+        } else if (out_file_type == wtap_pcap_file_type_subtype()) {
+          use_pcapng = FALSE;
+        } else {
           cmdarg_err("Live captures can only be saved in pcap or pcapng format.");
           exit_status = INVALID_OPTION;
           goto clean_exit;
         }
-        if (global_capture_opts.capture_comment &&
-            out_file_type != WTAP_FILE_TYPE_SUBTYPE_PCAPNG) {
+        if (global_capture_opts.capture_comment && !use_pcapng) {
           cmdarg_err("A capture comment can only be written to a pcapng file.");
           exit_status = INVALID_OPTION;
           goto clean_exit;
@@ -1818,7 +1826,7 @@ main(int argc, char *argv[])
           exit_status = INVALID_OPTION;
           goto clean_exit;
         }
-        global_capture_opts.use_pcapng = (out_file_type == WTAP_FILE_TYPE_SUBTYPE_PCAPNG) ? TRUE : FALSE;
+        global_capture_opts.use_pcapng = use_pcapng;
       } else {
         /* They didn't specify a "-w" flag, so we won't be saving to a
            capture file.  Check for options that only make sense if
@@ -2051,14 +2059,18 @@ main(int argc, char *argv[])
       }
 
       /* Activate the export PDU tap */
+      /* Write a pcapng file... */
+      exp_pdu_file_type_subtype = wtap_pcapng_file_type_subtype();
+      /* ...with this comment */
       comment = g_strdup_printf("Dump of PDUs from %s", cf_name);
-      exp_pdu_status = exp_pdu_open(&exp_pdu_tap_data, exp_fd, comment,
+      exp_pdu_status = exp_pdu_open(&exp_pdu_tap_data,
+                                    exp_pdu_file_type_subtype, exp_fd, comment,
                                     &err, &err_info);
       g_free(comment);
       if (!exp_pdu_status) {
           cfile_dump_open_failure_message("TShark", exp_pdu_filename,
                                           err, err_info,
-                                          WTAP_FILE_TYPE_SUBTYPE_PCAPNG);
+                                          exp_pdu_file_type_subtype);
           exit_status = INVALID_EXPORT;
           goto clean_exit;
       }

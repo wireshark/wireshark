@@ -301,14 +301,6 @@ extern "C" {
    different subtypes need to be written in a different
    fashion. */
 #define WTAP_FILE_TYPE_SUBTYPE_UNKNOWN                        0
-#define WTAP_FILE_TYPE_SUBTYPE_PCAP                           1
-#define WTAP_FILE_TYPE_SUBTYPE_PCAPNG                         2
-#define WTAP_FILE_TYPE_SUBTYPE_PCAP_NSEC                      3
-#define WTAP_FILE_TYPE_SUBTYPE_PCAP_AIX                       4
-#define WTAP_FILE_TYPE_SUBTYPE_PCAP_SS991029                  5
-#define WTAP_FILE_TYPE_SUBTYPE_PCAP_NOKIA                     6
-#define WTAP_FILE_TYPE_SUBTYPE_PCAP_SS990417                  7
-#define WTAP_FILE_TYPE_SUBTYPE_PCAP_SS990915                  8
 
 /* timestamp precision (currently only these values are supported) */
 #define WTAP_TSPREC_UNKNOWN    -2
@@ -2197,6 +2189,12 @@ WS_DLL_PUBLIC
 const char *wtap_file_type_subtype_name(int file_type_subtype);
 WS_DLL_PUBLIC
 int wtap_name_to_file_type_subtype(const char *name);
+WS_DLL_PUBLIC
+int wtap_pcap_file_type_subtype(void);
+WS_DLL_PUBLIC
+int wtap_pcap_nsec_file_type_subtype(void);
+WS_DLL_PUBLIC
+int wtap_pcapng_file_type_subtype(void);
 
 /**
  * Return an indication of whether this capture file format supports

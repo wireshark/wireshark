@@ -1041,7 +1041,8 @@ void MainWindow::dropEvent(QDropEvent *event)
 
     /* merge the files in chronological order */
     if (cf_merge_files_to_tempfile(this, &tmpname, local_files.size(),
-                                   in_filenames, WTAP_FILE_TYPE_SUBTYPE_PCAPNG,
+                                   in_filenames,
+                                   wtap_pcapng_file_type_subtype(),
                                    FALSE) == CF_OK) {
         /* Merge succeeded; close the currently-open file and try
            to open the merged capture file. */

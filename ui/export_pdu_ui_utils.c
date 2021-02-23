@@ -34,6 +34,7 @@ static void
 exp_pdu_file_open(exp_pdu_t *exp_pdu_tap_data)
 {
     int   import_file_fd;
+    int   file_type_subtype;
     char *capfile_name, *comment;
     gboolean status;
     int   err;
@@ -48,14 +49,16 @@ exp_pdu_file_open(exp_pdu_t *exp_pdu_tap_data)
         goto end;
     }
 
+    /* Write a pcapng file... */
+    file_type_subtype = wtap_pcapng_file_type_subtype();
+    /* ...with this comment */
     comment = g_strdup_printf("Dump of PDUs from %s", cfile.filename);
-    status = exp_pdu_open(exp_pdu_tap_data, import_file_fd, comment, &err,
-                          &err_info);
+    status = exp_pdu_open(exp_pdu_tap_data, file_type_subtype, import_file_fd,
+                          comment, &err, &err_info);
     g_free(comment);
     if (!status) {
         cfile_dump_open_failure_alert_box(capfile_name ? capfile_name : "temporary file",
-                                          err, err_info,
-                                          WTAP_FILE_TYPE_SUBTYPE_PCAPNG);
+                                          err, err_info, file_type_subtype);
         goto end;
     }
 
