@@ -975,7 +975,7 @@ static const enum_val_t preferred_mbim_extended_version_vals[] = {
     {"3.0", "3.0", MBIM_Extended_Version_3},
     {NULL, NULL, -1}
 };
-static guint32 preferred_mbim_extended_version = MBIM_Extended_Version_1;
+static gint preferred_mbim_extended_version = MBIM_Extended_Version_1;
 
 #define SHOULD_MBIM_EX2_BE_APPLIED(mbim_conv) \
             (mbim_conv->mbim_extended_version == MBIM_Extended_Version_2 || \
@@ -2874,12 +2874,12 @@ mbim_dissect_ms_plmn(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gi
 static void
 mbim_dissect_ms_tai_list_single_plmn(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, gint* offset)
 {
-    gint32 tac_element = 0;
+    guint32 tac_element, i;
     mbim_dissect_ms_plmn(tvb, pinfo, tree, *offset);
     *offset += 4;
     proto_tree_add_item_ret_uint(tree, hf_mbim_ms_tai_list_single_plmn_tac_element, tvb, *offset, 1, ENC_LITTLE_ENDIAN, &tac_element);
     *offset += 1;
-    for (int i = 0; i < tac_element; i++)
+    for (i = 0; i < tac_element; i++)
     {
         proto_tree_add_item(tree, hf_mbim_ms_tai_tac, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
         *offset += 4;
@@ -2890,10 +2890,10 @@ static void
 mbim_dissect_ms_tai_list_multi_plmn(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, gint* offset)
 {
     proto_tree* subtree;
-    gint32 tai_element = 0;
+    guint32 tai_element, i;
     proto_tree_add_item_ret_uint(tree, hf_mbim_ms_tai_list_multi_plmn_tai_element, tvb, *offset, 1, ENC_LITTLE_ENDIAN, &tai_element);
     *offset += 1;
-    for (int i = 0; i < tai_element; i++)
+    for (i = 0; i < tai_element; i++)
     {
         subtree = proto_tree_add_subtree_format(tree, tvb, *offset, 0, ett_mbim_pair_list, NULL, "TAI #%u", i + 1);
         mbim_dissect_ms_plmn(tvb, pinfo, subtree, *offset);
@@ -2909,7 +2909,7 @@ mbim_dissect_ms_tai(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gin
     proto_tree* subtree;
     gint32 base_offset = offset;
     gint32 tai_list_info_element_pos = 1;
-    gint32 tai_list_type = 0;
+    guint32 tai_list_type;
     while ((guint32)offset - base_offset < data_len)
     {
         subtree = proto_tree_add_subtree_format(tree, tvb, offset, 0, ett_mbim_pair_list, NULL, "TAI List Info #%u", tai_list_info_element_pos);
@@ -4227,7 +4227,7 @@ static void mbim_decode_sms_cdma_text(tvbuff_t *tvb, proto_tree *tree, const int
             src = (unsigned char*)tvb_get_ascii_7bits_string(wmem_packet_scope(), tvb, (offset << 3), size_in_chars);
             dest = (unsigned char*)wmem_alloc(wmem_packet_scope(), (const size_t)size_in_chars + 1);
             IA5_7BIT_decode(dest, src, size_in_chars);
-            proto_tree_add_string(tree, hfindex, tvb, offset, size_in_bytes, dest);
+            proto_tree_add_string(tree, hfindex, tvb, offset, size_in_bytes, (const char*)dest);
             break;
         case MBIM_ENCODING_UNICODE:
             proto_tree_add_item(tree, hfindex, tvb, offset, size_in_bytes, ENC_UCS_2|ENC_BIG_ENDIAN);
@@ -5753,7 +5753,7 @@ static void
 mbim_dissect_ms_app_info_elements(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, gint offset, guint32 app_count)
 {
     guint32 app_name_length, i;
-    gint app_id_size, num_pins;
+    guint32 app_id_size, num_pins;
     proto_tree* subtree;
     const gint app_info_size = 296;
 
