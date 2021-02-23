@@ -83,3 +83,36 @@ WSLUA_FUNCTION wslua_wtap_name_to_file_type_subtype(lua_State* LS) {
         lua_pushnumber(LS,filetype);
     WSLUA_RETURN(1); /* The filetype value for the file type with that name, or nil if there is no such file type. */
 }
+
+WSLUA_FUNCTION wslua_wtap_pcap_file_type_subtype(lua_State* LS) {
+    /*
+    Get the filetype value for pcap files.
+
+    @since 3.2.12, 3.4.4
+    */
+    lua_Number filetype = WTAP_FILE_TYPE_SUBTYPE_PCAP;
+    lua_pushnumber(LS,filetype);
+    WSLUA_RETURN(1); /* The filetype value for pcap files. */
+}
+
+WSLUA_FUNCTION wslua_wtap_pcap_nsec_file_type_subtype(lua_State* LS) {
+    /*
+    Get the filetype value for nanosecond-resolution pcap files.
+
+    @since 3.2.12, 3.4.4
+    */
+    lua_Number filetype = WTAP_FILE_TYPE_SUBTYPE_PCAP_NSEC;
+    lua_pushnumber(LS,filetype);
+    WSLUA_RETURN(1); /* The filetype value for nanosecond-resolution pcap files. */
+}
+
+WSLUA_FUNCTION wslua_wtap_pcapng_file_type_subtype(lua_State* LS) {
+    /*
+    Get the filetype value for pcapng files.
+
+    @since 3.2.12, 3.4.4
+    */
+    lua_Number filetype = WTAP_FILE_TYPE_SUBTYPE_PCAPNG;
+    lua_pushnumber(LS,filetype);
+    WSLUA_RETURN(1); /* The filetype value for pcapng files. */
+}
