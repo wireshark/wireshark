@@ -3110,10 +3110,12 @@ then
 
             #
             # Is it for the deployment target or some later release?
+            # Starting with major 11, the minor version no longer matters.
             #
             if test "$sdk_major" -gt "$min_osx_target_major" -o \
                 \( "$sdk_major" -eq "$min_osx_target_major" -a \
-                   "$sdk_minor" -ge "$min_osx_target_minor" \)
+                \( "$sdk_major" -ge 11 -o \
+                   "$sdk_minor" -ge "$min_osx_target_minor" \) \)
             then
                 #
                 # Yes, use it.
