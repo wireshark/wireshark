@@ -109,7 +109,7 @@ dissect_pkt_line(tvbuff_t *tvb, proto_tree *git_tree, int *offset)
   guint16 plen;
 
   // what type of pkt-line is it?
-  if (!get_packet_length(tvb, 0, &plen))
+  if (!get_packet_length(tvb, *offset, &plen))
     return FALSE;
   if (plen == 0 || plen == 1 || plen == 2) {
     proto_tree_add_uint(git_tree, hf_git_packet_type, tvb, *offset,
