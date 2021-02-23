@@ -407,7 +407,7 @@ spoolss_printserver_specific_rights(tvbuff_t *tvb, gint offset,
 		tree, hf_server_access_admin, tvb, offset, 4, access);
 }
 
-struct access_mask_info spoolss_printserver_access_mask_info = {
+static struct access_mask_info spoolss_printserver_access_mask_info = {
 	"SPOOLSS print server",
 	spoolss_printserver_specific_rights,
 	NULL,			/* Generic mapping table */

@@ -1982,7 +1982,7 @@ const value_string bthci_cmd_address_types_vals[] = {
     { 0, NULL }
 };
 
-const value_string bthci_cmd_identity_address_types_vals[] = {
+static const value_string bthci_cmd_identity_address_types_vals[] = {
     { 0x00, "Public Identity Address" },
     { 0x01, "Random (Static) Identity Address" },
     { 0, NULL }
