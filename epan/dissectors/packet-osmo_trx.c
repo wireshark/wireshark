@@ -51,8 +51,9 @@ static int hf_otrxd_toa256 = -1;
 /* RX TRXD header, V1 specific fields */
 static int hf_otrxd_nope_ind = -1;
 static int hf_otrxd_nope_ind_pad = -1;
-static int hf_otrxd_mod_gmsk = -1;
-static int hf_otrxd_mod_type = -1;
+static int hf_otrxd_mod_2b = -1; /* 2 bit field */
+static int hf_otrxd_mod_3b = -1; /* 3 bit field */
+static int hf_otrxd_mod_4b = -1; /* 4 bit field */
 static int hf_otrxd_tsc_set_x4 = -1;
 static int hf_otrxd_tsc_set_x2 = -1;
 static int hf_otrxd_tsc = -1;
@@ -89,19 +90,25 @@ static expert_field ei_otrxc_unknown_dir = EI_INIT;
 /* Custom units */
 static const unit_name_string otrx_units_toa256 = { " (1/256 of a symbol)", NULL };
 
-/* TRXD modulation types */
-static const value_string otrxd_mod_vals[] = {
-	/* NOTE: unlike the others, GMSK has 4 TSC sets,
-	 * so the LSB bit is used to extend the value range. */
-	{ 0x00, "GMSK" },
-	{ 0x01, "GMSK" },
-	{ 0x02, "8-PSK" },
-	{ 0x03, "AQPSK" },
-	{ 0x04, "16QAM" },
-	{ 0x05, "32QAM" },
-	/* Reserved for further use */
-	{ 0x06, "RESERVED" },
-	{ 0x07, "RESERVED" },
+/* TRXD modulation types (2 bit field) */
+static const value_string otrxd_mod_2b_vals[] = {
+	/* .00xx... */	{ 0x00, "GMSK" },
+	/* .11xx... */	{ 0x03, "AQPSK" },
+	{ 0, NULL },
+};
+
+/* TRXD modulation types (3 bit field) */
+static const value_string otrxd_mod_3b_vals[] = {
+	/* .010x... */	{ 0x02, "8-PSK" },
+	/* .100x... */	{ 0x04, "16QAM" },
+	/* .101x... */	{ 0x05, "32QAM" },
+	{ 0, NULL },
+};
+
+/* TRXD modulation types (4 bit field) */
+static const value_string otrxd_mod_4b_vals[] = {
+	/* .0110... */	{ 0x06, "GMSK (Access Burst)" },
+	/* .0111... */	{ 0x07, "RFU (Reserved for Future Use)" },
 	{ 0, NULL },
 };
 
@@ -235,26 +242,30 @@ static int dissect_otrxd_rx_hdr_v1(tvbuff_t *tvb, packet_info *pinfo,
 	 * | 7 6 5 4 3 2 1 0 | Bit numbers (value range)
 	 * | . 0 0 X X . . . | GMSK, 4 TSC sets (0..3)
 	 * | . 0 1 0 X . . . | 8-PSK, 2 TSC sets (0..1)
-	 * | . 0 1 1 X . . . | AQPSK, 2 TSC sets (0..1)
+	 * | . 0 1 1 0 . . . | GMSK, Packet Access Burst
+	 * | . 0 1 1 1 . . . | RFU (Reserved for Future Use)
 	 * | . 1 0 0 X . . . | 16QAM, 2 TSC sets (0..1)
 	 * | . 1 0 1 X . . . | 32QAM, 2 TSC sets (0..1)
-	 * | . 1 1 0 X . . . | RESERVED (0)
-	 * | . 1 1 1 X . . . | RESERVED (0)
+	 * | . 1 1 X X . . . | AQPSK, 4 TSC sets (0..3)
 	 *
-	 * NOTE: GMSK has 4 TSC sets, so bit 4 is used for range extension.
+	 * NOTE: 3GPP defines 4 TSC sets for both GMSK and AQPSK.
 	 */
 	mts = tvb_get_guint8(tvb, offset);
-	if (((mts >> 5) & 0x03) == 0x00) {
-		proto_tree_add_item(tree, hf_otrxd_mod_gmsk, tvb, offset, 1, ENC_NA);
+	if ((mts >> 5) == 0x00 || (mts >> 5) == 0x03) { /* 2 bit: GMSK (0) or AQPSK (3) */
+		mod_str = val_to_str(mts >> 5, otrxd_mod_2b_vals, "Unknown 0x%02x");
+		proto_tree_add_item(tree, hf_otrxd_mod_2b, tvb, offset, 1, ENC_NA);
 		proto_tree_add_item(tree, hf_otrxd_tsc_set_x4, tvb, offset, 1, ENC_NA);
-	} else {
-		proto_tree_add_item(tree, hf_otrxd_mod_type, tvb, offset, 1, ENC_NA);
+	} else if ((mts >> 4) != 0x03) { /* 3 bit: 8-PSK, 16QAM, or 32QAM */
+		mod_str = val_to_str(mts >> 4, otrxd_mod_3b_vals, "Unknown 0x%02x");
+		proto_tree_add_item(tree, hf_otrxd_mod_3b, tvb, offset, 1, ENC_NA);
 		proto_tree_add_item(tree, hf_otrxd_tsc_set_x2, tvb, offset, 1, ENC_NA);
+	} else { /* 4 bit (without TSC set): GMSK (Packet Access Burst) or RFU */
+		mod_str = val_to_str(mts >> 3, otrxd_mod_4b_vals, "Unknown 0x%02x");
+		proto_tree_add_item(tree, hf_otrxd_mod_4b, tvb, offset, 1, ENC_NA);
 	}
 	proto_tree_add_item_ret_uint(tree, hf_otrxd_tsc, tvb, offset, 1, ENC_NA, &tsc);
 	offset++;
 
-	mod_str = val_to_str((mts >> 4) & 0x07, otrxd_mod_vals, "Unknown 0x%02x");
 	col_append_fstr(pinfo->cinfo, COL_INFO, ", Modulation %s, TSC %u", mod_str, tsc);
 	proto_item_append_text(ti, ", Modulation %s, TSC %u", mod_str, tsc);
 
@@ -594,12 +605,15 @@ void proto_register_osmo_trx(void)
 		  FT_BOOLEAN, 8, NULL, 0x80, NULL, HFILL } },
 		{ &hf_otrxd_nope_ind_pad, { "NOPE Padding", "osmo_trxd.nope_ind_pad",
 		  FT_UINT8, BASE_DEC, NULL, 0x7f, NULL, HFILL } },
-		{ &hf_otrxd_mod_type, { "Modulation", "osmo_trxd.mod",
-		  FT_UINT8, BASE_DEC, VALS(otrxd_mod_vals), 0x70, NULL, HFILL } },
+
+		{ &hf_otrxd_mod_2b, { "Modulation", "osmo_trxd.mod",
+		  FT_UINT8, BASE_DEC, VALS(otrxd_mod_2b_vals), 0x60, NULL, HFILL } },
+		{ &hf_otrxd_mod_3b, { "Modulation", "osmo_trxd.mod",
+		  FT_UINT8, BASE_DEC, VALS(otrxd_mod_3b_vals), 0x70, NULL, HFILL } },
+		{ &hf_otrxd_mod_4b, { "Modulation", "osmo_trxd.mod",
+		  FT_UINT8, BASE_DEC, VALS(otrxd_mod_4b_vals), 0x78, NULL, HFILL } },
 		{ &hf_otrxd_tsc_set_x2, { "TSC Set", "osmo_trxd.tsc_set",
 		  FT_UINT8, BASE_CUSTOM, CF_FUNC(format_tsc_set), 0x08, NULL, HFILL } },
-		{ &hf_otrxd_mod_gmsk, { "Modulation", "osmo_trxd.mod",
-		  FT_UINT8, BASE_DEC, VALS(otrxd_mod_vals), 0x60, NULL, HFILL } },
 		{ &hf_otrxd_tsc_set_x4, { "TSC Set", "osmo_trxd.tsc_set",
 		  FT_UINT8, BASE_CUSTOM, CF_FUNC(format_tsc_set), 0x18, NULL, HFILL } },
 		{ &hf_otrxd_tsc, { "TSC (Training Sequence Code)", "osmo_trxd.tsc",
