@@ -50,6 +50,12 @@ They previously shipped with Npcap 1.10.
 
 * Wireshark now supports dissecting the rtp packet with OPUS payload.
 
+* Importing captures from text files is now also possible based on regular expressions. By specifying a regex capturing a single
+  packet including capturing groups for relevant fields a textfile can be converted to a libcap capture file. Supported data
+  encodings are plain-hexadecimal, -octal, -binary and base64.
+  Also the timestamp format now allows the second-fractions to be placed anywhere in the timestamp and it will be stored with
+  nanosecond instead of microsecond precision.
+
 // === Removed Features and Support
 
 //=== Removed Dissectors
