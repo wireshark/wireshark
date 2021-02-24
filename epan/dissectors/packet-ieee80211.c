@@ -6888,10 +6888,17 @@ static int hf_ieee80211_tag_twt_nom_min_twt_wake_dur = -1;
 static int hf_ieee80211_tag_twt_wake_interval_mantissa = -1;
 static int hf_ieee80211_tag_twt_channel = -1;
 
+static int hf_ieee80211_tag_rsnx = -1;
+/* octet 1 */
 static int hf_ieee80211_tag_rsnx_length = -1;
 static int hf_ieee80211_tag_rsnx_protected_twt_operations_support = -1;
 static int hf_ieee80211_tag_rsnx_sae_hash_to_element = -1;
 static int hf_ieee80211_tag_rsnx_reserved_b6b7 = -1;
+/* octet 2 */
+static int hf_ieee80211_tag_rsnx_secure_ltf_support = -1;
+static int hf_ieee80211_tag_rsnx_secure_rtt_supported = -1;
+static int hf_ieee80211_tag_rsnx_range_protection_required = -1;
+static int hf_ieee80211_tag_rsnx_reserved_b11thru15 = -1;
 static int hf_ieee80211_tag_rsnx_reserved = -1;
 
 
@@ -7118,6 +7125,9 @@ static gint ett_tag_rm_cap2 = -1;
 static gint ett_tag_rm_cap3 = -1;
 static gint ett_tag_rm_cap4 = -1;
 static gint ett_tag_rm_cap5 = -1;
+
+static gint ett_tag_rsnx_octet1 = -1;
+static gint ett_tag_rsnx_octet2 = -1;
 
 static gint ett_tag_multiple_bssid_subelem_tree = -1;
 static gint ett_tag_20_40_bc = -1;
@@ -26866,24 +26876,41 @@ ieee80211_tag_rsnx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
   int tag_len = tvb_reported_length(tvb);
   ieee80211_tagged_field_data_t* field_data = (ieee80211_tagged_field_data_t*)data;
   int offset = 0;
+  proto_item *octet;
+  static int * const octet1[] = {
+    &hf_ieee80211_tag_rsnx_length,
+    &hf_ieee80211_tag_rsnx_protected_twt_operations_support,
+    &hf_ieee80211_tag_rsnx_sae_hash_to_element,
+    &hf_ieee80211_tag_rsnx_reserved_b6b7,
+    NULL
+  };
+  static int * const octet2[] = {
+    &hf_ieee80211_tag_rsnx_secure_ltf_support,
+    &hf_ieee80211_tag_rsnx_secure_rtt_supported,
+    &hf_ieee80211_tag_rsnx_range_protection_required,
+    &hf_ieee80211_tag_rsnx_reserved_b11thru15,
+    NULL
+  };
 
-  if (tag_len < 1)
-  {
+  if (tag_len < 1) {
     expert_add_info_format(pinfo, field_data->item_tag_length, &ei_ieee80211_tag_length, "Tag Length %u wrong, must be >= 1", tag_len);
     return tvb_captured_length(tvb);
   }
+  proto_item_append_text(field_data->item_tag, " (%u octet%s)", tag_len, plurality(tag_len, "", "s"));
 
+  /* octet 1 */
+  octet = proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_ieee80211_tag_rsnx, ett_tag_rsnx_octet1, octet1, ENC_LITTLE_ENDIAN, BMT_NO_APPEND);
+  proto_item_append_text(octet, " (octet %d)", offset + 1);
 
-  proto_tree_add_item(tree, hf_ieee80211_tag_rsnx_length, tvb, offset, 1,
-                      ENC_LITTLE_ENDIAN);
+  offset += 1;
+  if (offset >= tag_len) {
+      return offset;
+  }
 
-  proto_tree_add_item(tree, hf_ieee80211_tag_rsnx_protected_twt_operations_support, tvb, offset, 1,
-                      ENC_LITTLE_ENDIAN);
+  /* octet 2 */
+  octet = proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_ieee80211_tag_rsnx, ett_tag_rsnx_octet2, octet2, ENC_LITTLE_ENDIAN, BMT_NO_APPEND);
+  proto_item_append_text(octet, " (octet %d)", offset + 1);
 
-  proto_tree_add_item(tree, hf_ieee80211_tag_rsnx_sae_hash_to_element, tvb, offset, 1,
-                      ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(tree, hf_ieee80211_tag_rsnx_reserved_b6b7, tvb, offset, 1,
-                      ENC_LITTLE_ENDIAN);
   offset += 1;
 
   /* all rest of payload is reserved... */
@@ -26893,7 +26920,7 @@ ieee80211_tag_rsnx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
     offset += 1;
   }
 
-  return tvb_captured_length(tvb);
+  return offset;
 }
 
 static int
@@ -47361,6 +47388,10 @@ proto_register_ieee80211(void)
       {"TWT Channel", "wlan.twt.channel",
        FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
 
+    {&hf_ieee80211_tag_rsnx,
+      {"RSNX", "wlan.rsnx",
+       FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
+
     {&hf_ieee80211_tag_rsnx_length,
       {"RSNX Length", "wlan.rsnx.length",
        FT_UINT8, BASE_DEC, NULL, 0x0F, NULL, HFILL }},
@@ -47376,6 +47407,22 @@ proto_register_ieee80211(void)
     {&hf_ieee80211_tag_rsnx_reserved_b6b7,
       {"Reserved", "wlan.rsnx.reserved",
        FT_UINT8, BASE_HEX, NULL, 0xC0, NULL, HFILL }},
+
+    {&hf_ieee80211_tag_rsnx_secure_ltf_support,
+      {"Secure LTF Support", "wlan.rsnx.secure_ltf_support",
+       FT_BOOLEAN, 8, NULL, GENMASK(0, 0), NULL, HFILL }},
+
+    {&hf_ieee80211_tag_rsnx_secure_rtt_supported,
+      {"Secure RTT Supported", "wlan.rsnx.secure_rtt_supported",
+       FT_BOOLEAN, 8, NULL, GENMASK(1, 1), NULL, HFILL }},
+
+    {&hf_ieee80211_tag_rsnx_range_protection_required,
+      {"Range Protection Required (RNM-MFP)", "wlan.rsnx.rnmmfp",
+       FT_BOOLEAN, 8, NULL, GENMASK(2, 2), NULL, HFILL }},
+
+    {&hf_ieee80211_tag_rsnx_reserved_b11thru15,
+      {"Reserved", "wlan.rsnx.reserved.b11thru15",
+       FT_UINT8, BASE_HEX, NULL, GENMASK(7, 3), NULL, HFILL }},
 
     {&hf_ieee80211_tag_rsnx_reserved,
       {"Reserved", "wlan.rsnx.reserved",
@@ -47630,6 +47677,9 @@ proto_register_ieee80211(void)
     &ett_tag_rm_cap3,
     &ett_tag_rm_cap4,
     &ett_tag_rm_cap5,
+
+    &ett_tag_rsnx_octet1,
+    &ett_tag_rsnx_octet2,
 
     &ett_tag_multiple_bssid_subelem_tree,
 
