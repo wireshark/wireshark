@@ -549,7 +549,7 @@ getFrameControlData(tvbuff_t *tvb, packet_info *pinfo, proto_tree *field_tree, i
 
 /*Get frame data from length field*/
 static int
-getFrameLength(tvbuff_t *tvb, proto_tree *field_tree, int offset, guint16* length_info){
+getFrameLength(tvbuff_t *tvb, proto_tree *field_tree, int offset, guint32* length_info){
 
     /*Get the E/A bit*/
     guint8 length_ea = tvb_get_guint8(tvb, offset) & MUX27010_EA_LENGTH_FLAG;
@@ -566,9 +566,9 @@ getFrameLength(tvbuff_t *tvb, proto_tree *field_tree, int offset, guint16* lengt
         return 1;
     }
 
-    /*If E/A = 0 the length of the info field is >127*/
-    proto_tree_add_item(field_tree, hf_mux27010_lengthframesize_ea, tvb, offset, 2, ENC_BIG_ENDIAN);
-    *length_info = (tvb_get_ntohs(tvb, offset) & MUX27010_FRAMESIZE_LENGTH_FLAG_EA) >> 1; /*Shift because of EA bit*/
+    /*If E/A = 0 the length of the info field is >127;
+      first octet stores LSB bits, second octet MSB -> LITTLE ENDIAN stuffing*/
+    proto_tree_add_item_ret_uint(field_tree, hf_mux27010_lengthframesize_ea, tvb, offset, 2, ENC_LITTLE_ENDIAN, length_info);
 
     return 2;
 }
@@ -726,7 +726,7 @@ getControlChannelValues(tvbuff_t *tvb, proto_tree *field_tree_ctr, int offset,
 /*Get values information field*/
 static int
 getFrameInformation(tvbuff_t *tvb, packet_info *pinfo, proto_tree *field_tree,
-                    int offset, guint16 length_info){
+                    int offset, guint32 length_info){
 
     /*Get the data from information field as string*/
     char *information_field = tvb_get_string_enc(wmem_packet_scope(), tvb,offset,length_info, ENC_ASCII);
@@ -752,7 +752,7 @@ dissect_mux27010(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
     proto_item *ti, *tf, *tf_extended_header, *tf_addr, *tf_ctr;
     proto_tree *mux27010_tree, *field_tree, *field_tree_extended_header, *field_tree_addr, *field_tree_ctr;
     int offset = 0;
-    guint16 length_info;
+    guint32 length_info;
     gboolean save_fragmented;
     /*Address DLCI*/
     gint8 dlci_number = 0;
