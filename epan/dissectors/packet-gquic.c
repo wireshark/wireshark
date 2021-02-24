@@ -170,6 +170,8 @@ static int hf_gquic_tag_tbkp = -1;
 static int hf_gquic_tag_mad0 = -1;
 static int hf_gquic_tag_qlve = -1;
 static int hf_gquic_tag_cgst = -1;
+static int hf_gquic_tag_epid = -1;
+static int hf_gquic_tag_srst = -1;
 
 /* Public Reset Tags */
 static int hf_gquic_tag_rnon = -1;
@@ -432,6 +434,8 @@ static const value_string message_tag_vals[] = {
 #define TAG_MAD0 0x4d414400
 #define TAG_QLVE 0x514C5645
 #define TAG_CGST 0x43475354
+#define TAG_EPID 0x45504944
+#define TAG_SRST 0x53525354
 
 /* Public Reset Tag */
 #define TAG_RNON 0x524E4F4E
@@ -481,6 +485,8 @@ static const value_string tag_vals[] = {
     { TAG_MAD0, "Max Ack Delay (IETF QUIC)" },
     { TAG_QLVE, "Legacy Version Encapsulation" },
     { TAG_CGST, "Congestion Control Feedback Type" },
+    { TAG_EPID, "Endpoint Identifier" },
+    { TAG_SRST, "Stateless Reset Token" },
 
     { TAG_RNON, "Public Reset Nonce Proof" },
     { TAG_RSEQ, "Rejected Packet Number" },
@@ -1396,7 +1402,7 @@ dissect_gquic_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *gquic_tree, gui
 
     while(tag_number){
         proto_tree *tag_tree, *ti_len, *ti_tag, *ti_type;
-        guint32 offset_end, tag;
+        guint32 offset_end, tag, num_iter;
         const guint8* tag_str;
 
         ti_tag = proto_tree_add_item(gquic_tree, hf_gquic_tags, tvb, offset, 8, ENC_NA);
@@ -1437,9 +1443,13 @@ dissect_gquic_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *gquic_tree, gui
                 tag_offset += tag_len;
             break;
             case TAG_VER:
-                proto_tree_add_item_ret_string(tag_tree, hf_gquic_tag_ver, tvb, tag_offset_start + tag_offset, 4, ENC_ASCII|ENC_NA, wmem_packet_scope(), &tag_str);
-                proto_item_append_text(ti_tag, ": %s", tag_str);
-                tag_offset += 4;
+                num_iter = 1;
+                while(offset_end - tag_offset >= 4){
+                    proto_tree_add_item_ret_string(tag_tree, hf_gquic_tag_ver, tvb, tag_offset_start + tag_offset, 4, ENC_ASCII|ENC_NA, wmem_packet_scope(), &tag_str);
+                    proto_item_append_text(ti_tag, "%s %s", num_iter == 1 ? ":" : ",", tag_str);
+                    tag_offset += 4;
+                    num_iter++;
+                }
             break;
             case TAG_CCS:
                 while(offset_end - tag_offset >= 8){
@@ -1676,6 +1686,15 @@ dissect_gquic_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *gquic_tree, gui
             break;
             case TAG_CGST:
                 proto_tree_add_item(tag_tree, hf_gquic_tag_cgst, tvb, tag_offset_start + tag_offset, tag_len, ENC_NA);
+                tag_offset += tag_len;
+            break;
+            case TAG_EPID:
+                proto_tree_add_item_ret_string(tag_tree, hf_gquic_tag_epid, tvb, tag_offset_start + tag_offset, tag_len, ENC_ASCII|ENC_NA, wmem_packet_scope(), &tag_str);
+                proto_item_append_text(ti_tag, ": %s", tag_str);
+                tag_offset += tag_len;
+            break;
+            case TAG_SRST:
+                proto_tree_add_item(tag_tree, hf_gquic_tag_srst, tvb, tag_offset_start + tag_offset, tag_len, ENC_NA);
                 tag_offset += tag_len;
             break;
             default:
@@ -3173,6 +3192,16 @@ proto_register_gquic(void)
         },
         { &hf_gquic_tag_cgst,
             { "Congestion Control Feedback Type", "gquic.tag.cgst",
+              FT_BYTES, BASE_NONE, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_gquic_tag_epid,
+            { "Endpoint identifier", "gquic.tag.epid",
+              FT_STRING, BASE_NONE, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_gquic_tag_srst,
+            { "Stateless Reset Token", "gquic.tag.srst",
               FT_BYTES, BASE_NONE, NULL, 0x0,
               NULL, HFILL }
         },
