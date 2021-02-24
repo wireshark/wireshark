@@ -85,7 +85,7 @@ export_pdu_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt, const 
 }
 
 gboolean
-exp_pdu_open(exp_pdu_t *exp_pdu_tap_data, int fd, int file_type_subtype,
+exp_pdu_open(exp_pdu_t *exp_pdu_tap_data, int file_type_subtype, int fd,
              const char *comment, int *err, gchar **err_info)
 {
     /* pcapng defs */
