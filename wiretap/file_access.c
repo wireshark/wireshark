@@ -1882,13 +1882,23 @@ wtap_pcapng_file_type_subtype(void)
 }
 
 block_support_t
-wtap_file_type_subtype_supports_block(int filetype, wtap_block_type_t type)
+wtap_file_type_subtype_supports_block(int file_type_subtype,
+    wtap_block_type_t type)
 {
 	size_t num_supported_blocks;
 	const struct supported_block_type *supported_blocks;
 
-	num_supported_blocks = file_type_subtype_table[filetype].num_supported_blocks;
-	supported_blocks = file_type_subtype_table[filetype].supported_blocks;
+	if (file_type_subtype < 0 ||
+	    file_type_subtype >= (int)file_type_subtype_table_arr->len) {
+		/*
+		 * There's no such file type, so it can't support any
+		 * blocks.
+		 */
+		return BLOCK_NOT_SUPPORTED;
+	}
+
+	num_supported_blocks = file_type_subtype_table[file_type_subtype].num_supported_blocks;
+	supported_blocks = file_type_subtype_table[file_type_subtype].supported_blocks;
 
 	for (size_t block_idx = 0; block_idx < num_supported_blocks;
 	    block_idx++) {
@@ -1903,14 +1913,23 @@ wtap_file_type_subtype_supports_block(int filetype, wtap_block_type_t type)
 }
 
 option_support_t
-wtap_file_type_subtype_supports_option(int filetype, wtap_block_type_t type,
-    guint option)
+wtap_file_type_subtype_supports_option(int file_type_subtype,
+    wtap_block_type_t type, guint option)
 {
 	size_t num_supported_blocks;
 	const struct supported_block_type *supported_blocks;
 
-	num_supported_blocks = file_type_subtype_table[filetype].num_supported_blocks;
-	supported_blocks = file_type_subtype_table[filetype].supported_blocks;
+	if (file_type_subtype < 0 ||
+	    file_type_subtype >= (int)file_type_subtype_table_arr->len) {
+		/*
+		 * There's no such file type, so it can't support any
+		 * blocks, and thus can't support any options.
+		 */
+		return OPTION_NOT_SUPPORTED;
+	}
+
+	num_supported_blocks = file_type_subtype_table[file_type_subtype].num_supported_blocks;
+	supported_blocks = file_type_subtype_table[file_type_subtype].supported_blocks;
 
 	for (size_t block_idx = 0; block_idx < num_supported_blocks;
 	    block_idx++) {
@@ -1961,6 +1980,15 @@ add_extensions_for_file_type_subtype(int file_type_subtype, GSList *extensions,
 {
 	gchar **extensions_set, **extensionp;
 	gchar *extension;
+
+	if (file_type_subtype < 0 ||
+	    file_type_subtype >= (int)file_type_subtype_table_arr->len) {
+		/*
+		 * There's no such file type, so it has no extensions
+		 * to add.
+		 */
+		return extensions;
+	}
 
 	/*
 	 * Add the default extension, and all of the compressed variants
@@ -2145,12 +2173,8 @@ wtap_dump_can_compress(int file_type_subtype _U_)
 }
 #endif
 
-static gboolean wtap_dump_open_check(int file_type_subtype, int encap, gboolean compressed, int *err);
-static wtap_dumper* wtap_dump_alloc_wdh(int file_type_subtype, int encap, int snaplen,
-					wtap_compression_type compression_type,
-					int *err);
-static gboolean wtap_dump_open_finish(wtap_dumper *wdh, int file_type_subtype,
-				      int *err, gchar **err_info);
+static gboolean wtap_dump_open_finish(wtap_dumper *wdh, int *err,
+				      gchar **err_info);
 
 static WFILE_T wtap_dump_file_open(wtap_dumper *wdh, const char *filename);
 static WFILE_T wtap_dump_file_fdopen(wtap_dumper *wdh, int fd);
@@ -2165,19 +2189,64 @@ wtap_dump_init_dumper(int file_type_subtype, wtap_compression_type compression_t
 	wtapng_if_descr_mandatory_t *descr_mand, *file_int_data_mand;
 	GArray *interfaces = params->idb_inf ? params->idb_inf->interface_data : NULL;
 
+	/* Can we write files of this file type/subtype?
+	 *
+	 * This will fail if file_type_subtype isn't a valid
+	 * file type/subtype value, so, if it doesn't fail,
+	 * we know file_type_subtype is within the bounds of
+	 * the table of file types/subtypes. */
+	if (!wtap_dump_can_open(file_type_subtype)) {
+		/* Invalid type, or type we don't know how to write. */
+		*err = WTAP_ERR_UNWRITABLE_FILE_TYPE;
+		return FALSE;
+	}
+
+	/* OK, we know how to write that file type/subtype; can we write
+	   the specified encapsulation type in that file type/subtype? */
+	*err = (*file_type_subtype_table[file_type_subtype].can_write_encap)(params->encap);
+	/* if the err said to check wslua's can_write_encap, try that */
+	if (*err == WTAP_ERR_CHECK_WSLUA
+		&& file_type_subtype_table[file_type_subtype].wslua_info != NULL
+		&& file_type_subtype_table[file_type_subtype].wslua_info->wslua_can_write_encap != NULL) {
+
+		*err = (*file_type_subtype_table[file_type_subtype].wslua_info->wslua_can_write_encap)(params->encap, file_type_subtype_table[file_type_subtype].wslua_info->wslua_data);
+	}
+
+	if (*err != 0) {
+		/* No, we can't. */
+		return NULL;
+	}
+
 	/* Check whether we can open a capture file with that file type
 	   and that encapsulation, and, if the compression type isn't
 	   "uncompressed", whether we can write a *compressed* file
 	   of that file type. */
-	if (!wtap_dump_open_check(file_type_subtype, params->encap,
-	    (compression_type != WTAP_UNCOMPRESSED), err))
+	/* If we're doing compression, can this file type/subtype be
+	   written in compressed form?
+
+	   (The particular type doesn't matter - if the file can't
+	   be written 100% sequentially, we can't compress it,
+	   because we can't go back and overwrite something we've
+	   already written. */
+	if (compression_type != WTAP_UNCOMPRESSED &&
+	    !wtap_dump_can_compress(file_type_subtype)) {
+		*err = WTAP_ERR_COMPRESSION_NOT_SUPPORTED;
 		return NULL;
+	}
 
 	/* Allocate a data structure for the output stream. */
-	wdh = wtap_dump_alloc_wdh(file_type_subtype, params->encap,
-	    params->snaplen, compression_type, err);
-	if (wdh == NULL)
-		return NULL;	/* couldn't allocate it */
+	wdh = g_new0(wtap_dumper, 1);
+	if (wdh == NULL) {
+		*err = errno;
+		return NULL;
+	}
+
+	wdh->file_type_subtype = file_type_subtype;
+	wdh->snaplen = params->snaplen;
+	wdh->encap = params->encap;
+	wdh->compression_type = compression_type;
+	wdh->wslua_data = NULL;
+	wdh->interface_data = g_array_new(FALSE, FALSE, sizeof(wtap_block_t));
 
 	/* Set Section Header Block data */
 	wdh->shb_hdrs = params->shb_hdrs;
@@ -2301,7 +2370,7 @@ wtap_dump_open(const char *filename, int file_type_subtype,
 	}
 	wdh->fh = fh;
 
-	if (!wtap_dump_open_finish(wdh, file_type_subtype, err, err_info)) {
+	if (!wtap_dump_open_finish(wdh, err, err_info)) {
 		/* Get rid of the file we created; we couldn't finish
 		   opening it. */
 		wtap_dump_file_close(wdh);
@@ -2363,7 +2432,7 @@ wtap_dump_open_tempfile(char **filenamep, const char *pfx,
 	}
 	wdh->fh = fh;
 
-	if (!wtap_dump_open_finish(wdh, file_type_subtype, err, err_info)) {
+	if (!wtap_dump_open_finish(wdh, err, err_info)) {
 		/* Get rid of the file we created; we couldn't finish
 		   opening it. */
 		wtap_dump_file_close(wdh);
@@ -2401,7 +2470,7 @@ wtap_dump_fdopen(int fd, int file_type_subtype, wtap_compression_type compressio
 	}
 	wdh->fh = fh;
 
-	if (!wtap_dump_open_finish(wdh, file_type_subtype, err, err_info)) {
+	if (!wtap_dump_open_finish(wdh, err, err_info)) {
 		wtap_dump_file_close(wdh);
 		g_free(wdh);
 		return NULL;
@@ -2453,63 +2522,7 @@ wtap_dump_open_stdout(int file_type_subtype, wtap_compression_type compression_t
 }
 
 static gboolean
-wtap_dump_open_check(int file_type_subtype, int encap, gboolean compressed, int *err)
-{
-	if (!wtap_dump_can_open(file_type_subtype)) {
-		/* Invalid type, or type we don't know how to write. */
-		*err = WTAP_ERR_UNWRITABLE_FILE_TYPE;
-		return FALSE;
-	}
-
-	/* OK, we know how to write that type; can we write the specified
-	   encapsulation type? */
-	*err = (*file_type_subtype_table[file_type_subtype].can_write_encap)(encap);
-	/* if the err said to check wslua's can_write_encap, try that */
-	if (*err == WTAP_ERR_CHECK_WSLUA
-		&& file_type_subtype_table[file_type_subtype].wslua_info != NULL
-		&& file_type_subtype_table[file_type_subtype].wslua_info->wslua_can_write_encap != NULL) {
-
-		*err = (*file_type_subtype_table[file_type_subtype].wslua_info->wslua_can_write_encap)(encap, file_type_subtype_table[file_type_subtype].wslua_info->wslua_data);
-
-	}
-
-	if (*err != 0)
-		return FALSE;
-
-	/* if compression is wanted, do we support this for this file_type_subtype? */
-	if(compressed && !wtap_dump_can_compress(file_type_subtype)) {
-		*err = WTAP_ERR_COMPRESSION_NOT_SUPPORTED;
-		return FALSE;
-	}
-
-	/* All systems go! */
-	return TRUE;
-}
-
-static wtap_dumper *
-wtap_dump_alloc_wdh(int file_type_subtype, int encap, int snaplen,
-    wtap_compression_type compression_type, int *err)
-{
-	wtap_dumper *wdh;
-
-	wdh = g_new0(wtap_dumper, 1);
-	if (wdh == NULL) {
-		*err = errno;
-		return NULL;
-	}
-
-	wdh->file_type_subtype = file_type_subtype;
-	wdh->snaplen = snaplen;
-	wdh->encap = encap;
-	wdh->compression_type = compression_type;
-	wdh->wslua_data = NULL;
-	wdh->interface_data = g_array_new(FALSE, FALSE, sizeof(wtap_block_t));
-	return wdh;
-}
-
-static gboolean
-wtap_dump_open_finish(wtap_dumper *wdh, int file_type_subtype, int *err,
-    gchar **err_info)
+wtap_dump_open_finish(wtap_dumper *wdh, int *err, gchar **err_info)
 {
 	int fd;
 	gboolean cant_seek;
@@ -2530,7 +2543,7 @@ wtap_dump_open_finish(wtap_dumper *wdh, int file_type_subtype, int *err,
 	}
 
 	/* If this file type requires seeking, and we can't seek, fail. */
-	if (file_type_subtype_table[file_type_subtype].writing_must_seek && cant_seek) {
+	if (file_type_subtype_table[wdh->file_type_subtype].writing_must_seek && cant_seek) {
 		*err = WTAP_ERR_CANT_WRITE_TO_PIPE;
 		return FALSE;
 	}
@@ -2538,11 +2551,11 @@ wtap_dump_open_finish(wtap_dumper *wdh, int file_type_subtype, int *err,
 	/* Set wdh with wslua data if any - this is how we pass the data
 	 * to the file writer.
 	 */
-	if (file_type_subtype_table[file_type_subtype].wslua_info)
-		wdh->wslua_data = file_type_subtype_table[file_type_subtype].wslua_info->wslua_data;
+	if (file_type_subtype_table[wdh->file_type_subtype].wslua_info)
+		wdh->wslua_data = file_type_subtype_table[wdh->file_type_subtype].wslua_info->wslua_data;
 
 	/* Now try to open the file for writing. */
-	if (!(*file_type_subtype_table[file_type_subtype].dump_open)(wdh, err,
+	if (!(*file_type_subtype_table[wdh->file_type_subtype].dump_open)(wdh, err,
 	    err_info)) {
 		return FALSE;
 	}
