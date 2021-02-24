@@ -11602,7 +11602,7 @@ add_ff_action_public_fields(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
     offset += add_ff_ftm_toa_err(tree, tvb, pinfo, offset);
     break;
   case PA_FILS_DISCOVERY:
-    offset += add_ff_fils_discovery(tree, tvb, pinfo, offset);
+    offset = add_ff_fils_discovery(tree, tvb, pinfo, offset);
     break;
   }
 
