@@ -16,6 +16,7 @@
 #include <stdio.h>
 
 #include <epan/packet.h>
+#include <epan/expert.h>
 #include <epan/prefs.h>
 #include "packet-tcp.h"
 
@@ -25,6 +26,7 @@ void proto_reg_handoff_git(void);
 static dissector_handle_t git_handle;
 
 static int proto_git = -1;
+static expert_field ei_git_bad_pkt_len = EI_INIT;
 
 static gint ett_git = -1;
 
@@ -84,17 +86,15 @@ get_git_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U
   if (!get_packet_length(tvb, offset, &plen))
     return 0; /* No idea what this is */
 
-  if (plen == 0 || plen == 1 || plen == 2) {
-    /* Terminator, Delimiter, or Response_end packets */
-    return 4;
-  }
-
-  return plen;
+  return plen < 4
+      ? 4   // Special packet (e.g., flush-pkt)
+      : plen;
 }
 
 /* Parse pkt-lines one-by-one
  *
  * @param  tvb       The buffer to dissect.
+ * @param  pinfo     Packet info associated to this buffer.
  * @param  git_tree  The git protocol subtree.
  * @param  offset    The offset at which to start the dissection.
  * @return bool      After successful/unsuccessful parsing.
@@ -104,17 +104,22 @@ get_git_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U
  * remainder of the data.
 */
 static gboolean
-dissect_pkt_line(tvbuff_t *tvb, proto_tree *git_tree, int *offset)
+dissect_pkt_line(tvbuff_t *tvb, packet_info *pinfo, proto_tree *git_tree,
+                 int *offset)
 {
   guint16 plen;
 
   // what type of pkt-line is it?
   if (!get_packet_length(tvb, *offset, &plen))
     return FALSE;
-  if (plen == 0 || plen == 1 || plen == 2) {
-    proto_tree_add_uint(git_tree, hf_git_packet_type, tvb, *offset,
-                        4, plen);
+  if (plen < 4) {   // a special packet (e.g., flush-pkt)
+    proto_item *ti =
+        proto_tree_add_uint(git_tree, hf_git_packet_type, tvb,
+                            *offset, 4, plen);
     *offset += 4;
+
+    if (!try_val_to_str(plen, packet_type_vals))
+      expert_add_info(pinfo, ti, &ei_git_bad_pkt_len);
     return TRUE;
   }
 
@@ -170,7 +175,7 @@ dissect_git_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
   ti = proto_tree_add_item(tree, proto_git, tvb, offset, -1, ENC_NA);
   git_tree = proto_item_add_subtree(ti, ett_git);
 
-  if (!dissect_pkt_line(tvb, git_tree, &offset))
+  if (!dissect_pkt_line(tvb, pinfo, git_tree, &offset))
     return 0;
 
   return tvb_captured_length(tvb);
@@ -212,11 +217,22 @@ proto_register_git(void)
     &ett_git,
   };
 
+  static ei_register_info ei[] = {
+    { &ei_git_bad_pkt_len,
+      { "git.bad_pkt_len", PI_PROTOCOL, PI_ERROR,
+        "unrecognized special pkt-len value", EXPFILL }
+    }
+  };
+
   module_t *git_module;
+  expert_module_t *expert_git;
 
   proto_git = proto_register_protocol(PNAME, PSNAME, PFNAME);
   proto_register_field_array(proto_git, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+
+  expert_git = expert_register_protocol(proto_git);
+  expert_register_field_array(expert_git, ei, array_length(ei));
 
   git_handle = register_dissector(PFNAME, dissect_git, proto_git);
 
