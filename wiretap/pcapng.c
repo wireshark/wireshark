@@ -5058,6 +5058,11 @@ static const struct supported_option_type ft_specific_event_block_options_suppor
     { OPT_COMMENT, MULTIPLE_OPTIONS_SUPPORTED }
 };
 
+/* Options for systemd journal entry. */
+static const struct supported_option_type systemd_journal_block_options_supported[] = {
+    { OPT_COMMENT, MULTIPLE_OPTIONS_SUPPORTED }
+};
+
 static const struct supported_block_type pcapng_blocks_supported[] = {
     /* Multiple sections. */
     { WTAP_BLOCK_SECTION, MULTIPLE_BLOCKS_SUPPORTED, OPTION_TYPES_SUPPORTED(section_block_options_supported) },
@@ -5081,7 +5086,10 @@ static const struct supported_block_type pcapng_blocks_supported[] = {
     { WTAP_BLOCK_FT_SPECIFIC_REPORT, MULTIPLE_BLOCKS_SUPPORTED, OPTION_TYPES_SUPPORTED(ft_specific_report_block_options_supported) },
 
     /* Multiple file-type specific events (including local ones). */
-    { WTAP_BLOCK_FT_SPECIFIC_EVENT, MULTIPLE_BLOCKS_SUPPORTED, OPTION_TYPES_SUPPORTED(ft_specific_event_block_options_supported) }
+    { WTAP_BLOCK_FT_SPECIFIC_EVENT, MULTIPLE_BLOCKS_SUPPORTED, OPTION_TYPES_SUPPORTED(ft_specific_event_block_options_supported) },
+
+    /* Multiple systemd journal records. */
+    { WTAP_BLOCK_SYSTEMD_JOURNAL, MULTIPLE_BLOCKS_SUPPORTED, OPTION_TYPES_SUPPORTED(systemd_journal_block_options_supported) },
 };
 
 static const struct file_type_subtype_info pcapng_info = {

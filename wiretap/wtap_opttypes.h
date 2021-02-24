@@ -155,7 +155,8 @@ typedef struct wtap_block *wtap_block_t;
  *
  * WTAP_BLOCK_PACKET (which corresponds to the Enhanced Packet Block,
  * the Simple Packet Block, and the deprecated Packet Block) is not
- * currently used; it's reserved for future use.
+ * currently used; it's reserved for future use.  The same applies
+ * to WTAP_BLOCK_SYSTEMD_JOURNAL.
  */
 typedef enum {
     WTAP_BLOCK_SECTION = 0,
@@ -166,6 +167,7 @@ typedef enum {
     WTAP_BLOCK_PACKET,
     WTAP_BLOCK_FT_SPECIFIC_REPORT,
     WTAP_BLOCK_FT_SPECIFIC_EVENT,
+    WTAP_BLOCK_SYSTEMD_JOURNAL,
     MAX_WTAP_BLOCK_TYPE_VALUE
 } wtap_block_type_t;
 
