@@ -307,6 +307,22 @@ usbdump_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec, Buffer *buf,
  * Register how we can handle an unknown file to see if this is a valid
  * usbdump file and register information about this file format.
  */
+static const struct supported_block_type usbdump_blocks_supported[] = {
+    /* We support packet blocks, with no comments or other options. */
+    { WTAP_BLOCK_PACKET, MULTIPLE_BLOCKS_SUPPORTED, NO_OPTIONS_SUPPORTED }
+};
+static const struct file_type_subtype_info fi = {
+    "FreeBSD USBDUMP",
+    "usbdump",
+    NULL,
+    NULL,
+    FALSE,
+    BLOCKS_SUPPORTED(usbdump_blocks_supported),
+    NULL,
+    NULL,
+    NULL
+};
+
 void
 wtap_register_usbdump(void)
 {
@@ -320,19 +336,6 @@ wtap_register_usbdump(void)
     };
 
     wtap_register_open_info(&oi, FALSE);
-
-    struct file_type_subtype_info fi = {
-        "FreeBSD USBDUMP",
-        "usbdump",
-        NULL,
-        NULL,
-        FALSE,
-        FALSE,
-        0,
-        NULL,
-        NULL,
-        NULL
-    };
 
     usbdump_file_type_subtype = wtap_register_file_type_subtypes(&fi);
 }
