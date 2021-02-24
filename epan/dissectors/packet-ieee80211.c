@@ -26894,7 +26894,7 @@ ieee80211_tag_rsnx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 
   if (tag_len < 1) {
     expert_add_info_format(pinfo, field_data->item_tag_length, &ei_ieee80211_tag_length, "Tag Length %u wrong, must be >= 1", tag_len);
-    return tvb_captured_length(tvb);
+    return 0;
   }
   proto_item_append_text(field_data->item_tag, " (%u octet%s)", tag_len, plurality(tag_len, "", "s"));
 
@@ -26912,6 +26912,9 @@ ieee80211_tag_rsnx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
   proto_item_append_text(octet, " (octet %d)", offset + 1);
 
   offset += 1;
+  if (offset >= tag_len) {
+      return offset;
+  }
 
   /* all rest of payload is reserved... */
   while (offset < tag_len) {
