@@ -356,7 +356,7 @@ static const struct file_type_subtype_info aethra_info = {
 
 void register_aethra(void)
 {
-	aethra_file_type_subtype = wtap_register_file_type_subtypes(&aethra_info);
+	aethra_file_type_subtype = wtap_register_file_type_subtype(&aethra_info);
 
 	/*
 	 * Register name for backwards compatibility with the

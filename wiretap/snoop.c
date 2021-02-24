@@ -945,8 +945,8 @@ static const struct file_type_subtype_info shomiti_info = {
 
 void register_snoop(void)
 {
-	snoop_file_type_subtype = wtap_register_file_type_subtypes(&snoop_info);
-	shomiti_file_type_subtype = wtap_register_file_type_subtypes(&shomiti_info);
+	snoop_file_type_subtype = wtap_register_file_type_subtype(&snoop_info);
+	shomiti_file_type_subtype = wtap_register_file_type_subtype(&shomiti_info);
 
 	/*
 	 * Register names for backwards compatibility with the

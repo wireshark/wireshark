@@ -116,7 +116,7 @@ static const struct file_type_subtype_info rfc7468_info = {
 
 void register_rfc7468(void)
 {
-    rfc7468_file_type_subtype = wtap_register_file_type_subtypes(&rfc7468_info);
+    rfc7468_file_type_subtype = wtap_register_file_type_subtype(&rfc7468_info);
 
     /*
      * Register name for backwards compatibility with the

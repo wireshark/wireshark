@@ -900,7 +900,7 @@ static const struct file_type_subtype_info peektagged_info = {
 
 void register_peektagged(void)
 {
-    peektagged_file_type_subtype = wtap_register_file_type_subtypes(&peektagged_info);
+    peektagged_file_type_subtype = wtap_register_file_type_subtype(&peektagged_info);
 
     /*
      * Register name for backwards compatibility with the

@@ -503,7 +503,7 @@ static const struct file_type_subtype_info cosine_info = {
 
 void register_cosine(void)
 {
-	cosine_file_type_subtype = wtap_register_file_type_subtypes(&cosine_info);
+	cosine_file_type_subtype = wtap_register_file_type_subtype(&cosine_info);
 
 	/*
 	 * Register name for backwards compatibility with the

@@ -444,7 +444,7 @@ static const struct file_type_subtype_info toshiba_info = {
 
 void register_toshiba(void)
 {
-	toshiba_file_type_subtype = wtap_register_file_type_subtypes(&toshiba_info);
+	toshiba_file_type_subtype = wtap_register_file_type_subtype(&toshiba_info);
 
 	/*
 	 * Register name for backwards compatibility with the

@@ -1405,13 +1405,13 @@ static const struct file_type_subtype_info pcap_nokia_info = {
 
 void register_pcap(void)
 {
-	pcap_file_type_subtype = wtap_register_file_type_subtypes(&pcap_info);
-	pcap_nsec_file_type_subtype = wtap_register_file_type_subtypes(&pcap_nsec_info);
-	pcap_aix_file_type_subtype = wtap_register_file_type_subtypes(&pcap_aix_info);
-	pcap_ss990417_file_type_subtype = wtap_register_file_type_subtypes(&pcap_ss990417_info);
-	pcap_ss990915_file_type_subtype = wtap_register_file_type_subtypes(&pcap_ss990915_info);
-	pcap_ss991029_file_type_subtype = wtap_register_file_type_subtypes(&pcap_ss991029_info);
-	pcap_nokia_file_type_subtype = wtap_register_file_type_subtypes(&pcap_nokia_info);
+	pcap_file_type_subtype = wtap_register_file_type_subtype(&pcap_info);
+	pcap_nsec_file_type_subtype = wtap_register_file_type_subtype(&pcap_nsec_info);
+	pcap_aix_file_type_subtype = wtap_register_file_type_subtype(&pcap_aix_info);
+	pcap_ss990417_file_type_subtype = wtap_register_file_type_subtype(&pcap_ss990417_info);
+	pcap_ss990915_file_type_subtype = wtap_register_file_type_subtype(&pcap_ss990915_info);
+	pcap_ss991029_file_type_subtype = wtap_register_file_type_subtype(&pcap_ss991029_info);
+	pcap_nokia_file_type_subtype = wtap_register_file_type_subtype(&pcap_nokia_info);
 
 	/*
 	 * Register name for backwards compatibility with the

@@ -251,7 +251,7 @@ static const struct file_type_subtype_info systemd_journal_info = {
 
 void register_systemd_journal(void)
 {
-  systemd_journal_file_type_subtype = wtap_register_file_type_subtypes(&systemd_journal_info);
+  systemd_journal_file_type_subtype = wtap_register_file_type_subtype(&systemd_journal_info);
 
   /*
    * Register name for backwards compatibility with the

@@ -99,7 +99,7 @@ static const struct file_type_subtype_info ruby_marshal_info = {
 
 void register_ruby_marshal(void)
 {
-    ruby_marshal_file_type_subtype = wtap_register_file_type_subtypes(&ruby_marshal_info);
+    ruby_marshal_file_type_subtype = wtap_register_file_type_subtype(&ruby_marshal_info);
 
     /*
      * Register name for backwards compatibility with the

@@ -457,7 +457,7 @@ static const struct file_type_subtype_info busmaster_info = {
 
 void register_busmaster(void)
 {
-    busmaster_file_type_subtype = wtap_register_file_type_subtypes(&busmaster_info);
+    busmaster_file_type_subtype = wtap_register_file_type_subtype(&busmaster_info);
 }
 
 /*

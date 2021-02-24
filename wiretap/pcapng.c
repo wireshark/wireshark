@@ -5092,7 +5092,7 @@ static const struct file_type_subtype_info pcapng_info = {
 
 void register_pcapng(void)
 {
-    pcapng_file_type_subtype = wtap_register_file_type_subtypes(&pcapng_info);
+    pcapng_file_type_subtype = wtap_register_file_type_subtype(&pcapng_info);
 
     wtap_register_backwards_compatibility_lua_name("PCAPNG",
                                                    pcapng_file_type_subtype);

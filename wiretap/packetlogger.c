@@ -392,7 +392,7 @@ static const struct file_type_subtype_info packetlogger_info = {
 
 void register_packetlogger(void)
 {
-	packetlogger_file_type_subtype = wtap_register_file_type_subtypes(&packetlogger_info);
+	packetlogger_file_type_subtype = wtap_register_file_type_subtype(&packetlogger_info);
 
 	/*
 	 * Register name for backwards compatibility with the

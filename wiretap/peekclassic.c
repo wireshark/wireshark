@@ -690,8 +690,8 @@ static const struct file_type_subtype_info peekclassic_v7_info = {
 
 void register_peekclassic(void)
 {
-	peekclassic_v56_file_type_subtype = wtap_register_file_type_subtypes(&peekclassic_v56_info);
-	peekclassic_v7_file_type_subtype = wtap_register_file_type_subtypes(&peekclassic_v7_info);
+	peekclassic_v56_file_type_subtype = wtap_register_file_type_subtype(&peekclassic_v56_info);
+	peekclassic_v7_file_type_subtype = wtap_register_file_type_subtype(&peekclassic_v7_info);
 
 	/*
 	 * Register names for backwards compatibility with the

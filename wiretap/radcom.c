@@ -387,7 +387,7 @@ static const struct file_type_subtype_info radcom_info = {
 
 void register_radcom(void)
 {
-	radcom_file_type_subtype = wtap_register_file_type_subtypes(&radcom_info);
+	radcom_file_type_subtype = wtap_register_file_type_subtype(&radcom_info);
 
 	/*
 	 * Register name for backwards compatibility with the

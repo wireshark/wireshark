@@ -462,8 +462,8 @@ static const struct file_type_subtype_info packet_builder_info = {
 
 void register_capsa(void)
 {
-	capsa_file_type_subtype = wtap_register_file_type_subtypes(&capsa_info);
-	packet_builder_file_type_subtype = wtap_register_file_type_subtypes(&packet_builder_info);
+	capsa_file_type_subtype = wtap_register_file_type_subtype(&capsa_info);
+	packet_builder_file_type_subtype = wtap_register_file_type_subtype(&packet_builder_info);
 
 	/*
 	 * Register names for backwards compatibility with the

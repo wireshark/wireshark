@@ -615,7 +615,7 @@ static const struct file_type_subtype_info commview_info = {
 
 void register_commview(void)
 {
-	commview_file_type_subtype = wtap_register_file_type_subtypes(&commview_info);
+	commview_file_type_subtype = wtap_register_file_type_subtype(&commview_info);
 
 	/*
 	 * Register name for backwards compatibility with the

@@ -69,7 +69,7 @@ static const struct file_type_subtype_info mp4_info = {
 
 void register_mp4(void)
 {
-	mp4_file_type_subtype = wtap_register_file_type_subtypes(&mp4_info);
+	mp4_file_type_subtype = wtap_register_file_type_subtype(&mp4_info);
 
 	/*
 	 * Register name for backwards compatibility with the

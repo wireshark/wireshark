@@ -491,7 +491,7 @@ static const struct file_type_subtype_info eyesdn_info = {
 
 void register_eyesdn(void)
 {
-	eyesdn_file_type_subtype = wtap_register_file_type_subtypes(&eyesdn_info);
+	eyesdn_file_type_subtype = wtap_register_file_type_subtype(&eyesdn_info);
 
 	/*
 	 * Register name for backwards compatibility with the

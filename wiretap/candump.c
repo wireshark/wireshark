@@ -244,7 +244,7 @@ static const struct file_type_subtype_info candump_info = {
 
 void register_candump(void)
 {
-    candump_file_type_subtype = wtap_register_file_type_subtypes(&candump_info);
+    candump_file_type_subtype = wtap_register_file_type_subtype(&candump_info);
 }
 
 /*

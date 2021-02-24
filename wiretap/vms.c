@@ -543,7 +543,7 @@ static const struct file_type_subtype_info vms_info = {
 
 void register_vms(void)
 {
-    vms_file_type_subtype = wtap_register_file_type_subtypes(&vms_info);
+    vms_file_type_subtype = wtap_register_file_type_subtype(&vms_info);
 
     /*
      * Register name for backwards compatibility with the

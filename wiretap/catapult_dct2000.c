@@ -1666,7 +1666,7 @@ static const struct file_type_subtype_info dct2000_info = {
 
 void register_dct2000(void)
 {
-    dct2000_file_type_subtype = wtap_register_file_type_subtypes(&dct2000_info);
+    dct2000_file_type_subtype = wtap_register_file_type_subtype(&dct2000_info);
 
     /*
      * Register name for backwards compatibility with the

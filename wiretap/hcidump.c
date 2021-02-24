@@ -136,7 +136,7 @@ static const struct file_type_subtype_info hcidump_info = {
 
 void register_hcidump(void)
 {
-	hcidump_file_type_subtype = wtap_register_file_type_subtypes(&hcidump_info);
+	hcidump_file_type_subtype = wtap_register_file_type_subtype(&hcidump_info);
 
 	/*
 	 * Register name for backwards compatibility with the

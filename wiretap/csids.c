@@ -224,7 +224,7 @@ static const struct file_type_subtype_info csids_info = {
 
 void register_csids(void)
 {
-  csids_file_type_subtype = wtap_register_file_type_subtypes(&csids_info);
+  csids_file_type_subtype = wtap_register_file_type_subtype(&csids_info);
 
   /*
    * Register name for backwards compatibility with the

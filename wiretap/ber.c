@@ -146,7 +146,7 @@ static const struct file_type_subtype_info ber_info = {
 
 void register_ber(void)
 {
-  ber_file_type_subtype = wtap_register_file_type_subtypes(&ber_info);
+  ber_file_type_subtype = wtap_register_file_type_subtype(&ber_info);
 
   /*
    * Register name for backwards compatibility with the

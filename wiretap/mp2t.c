@@ -410,7 +410,7 @@ static const struct file_type_subtype_info mp2t_info = {
 
 void register_mp2t(void)
 {
-    mp2t_file_type_subtype = wtap_register_file_type_subtypes(&mp2t_info);
+    mp2t_file_type_subtype = wtap_register_file_type_subtype(&mp2t_info);
 
     /*
      * Register name for backwards compatibility with the

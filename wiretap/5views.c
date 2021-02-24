@@ -468,7 +468,7 @@ static const struct file_type_subtype_info _5views_info = {
 
 void register_5views(void)
 {
-	_5views_file_type_subtype = wtap_register_file_type_subtypes(&_5views_info);
+	_5views_file_type_subtype = wtap_register_file_type_subtype(&_5views_info);
 
 	/*
 	 * Register name for backwards compatibility with the

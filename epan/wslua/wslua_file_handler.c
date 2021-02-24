@@ -783,7 +783,7 @@ WSLUA_FUNCTION wslua_register_filehandler(lua_State* L) {
         fh->finfo.dump_open = wslua_filehandler_dump_open;
     }
 
-    fh->file_type = wtap_register_file_type_subtypes(&(fh->finfo));
+    fh->file_type = wtap_register_file_type_subtype(&(fh->finfo));
 
     if (fh->is_reader) {
         struct open_info oi = { NULL, OPEN_INFO_HEURISTIC, NULL, NULL, NULL, NULL };

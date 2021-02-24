@@ -472,7 +472,7 @@ static const struct file_type_subtype_info ascend_info = {
 
 void register_ascend(void)
 {
-    ascend_file_type_subtype = wtap_register_file_type_subtypes(&ascend_info);
+    ascend_file_type_subtype = wtap_register_file_type_subtype(&ascend_info);
 
     /*
      * Register name for backwards compatibility with the

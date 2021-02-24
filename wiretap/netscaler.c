@@ -2469,10 +2469,10 @@ static const struct file_type_subtype_info nstrace_3_5_info = {
 
 void register_netscaler(void)
 {
-    nstrace_1_0_file_type_subtype = wtap_register_file_type_subtypes(&nstrace_1_0_info);
-    nstrace_2_0_file_type_subtype = wtap_register_file_type_subtypes(&nstrace_2_0_info);
-    nstrace_3_0_file_type_subtype = wtap_register_file_type_subtypes(&nstrace_3_0_info);
-    nstrace_3_5_file_type_subtype = wtap_register_file_type_subtypes(&nstrace_3_5_info);
+    nstrace_1_0_file_type_subtype = wtap_register_file_type_subtype(&nstrace_1_0_info);
+    nstrace_2_0_file_type_subtype = wtap_register_file_type_subtype(&nstrace_2_0_info);
+    nstrace_3_0_file_type_subtype = wtap_register_file_type_subtype(&nstrace_3_0_info);
+    nstrace_3_5_file_type_subtype = wtap_register_file_type_subtype(&nstrace_3_5_info);
 
     /*
      * Register names for backwards compatibility with the

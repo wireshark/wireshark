@@ -188,13 +188,13 @@ void register_mime(void)
 {
 	int jpeg_jfif_file_type_subtype;
 
-	mime_file_type_subtype = wtap_register_file_type_subtypes(&mime_info);
+	mime_file_type_subtype = wtap_register_file_type_subtype(&mime_info);
 
 	/*
 	 * Obsoleted by "mime", but we want it for the backwards-
 	 * compatibility table for Lua.
 	 */
-	jpeg_jfif_file_type_subtype = wtap_register_file_type_subtypes(&jpeg_jfif_info);
+	jpeg_jfif_file_type_subtype = wtap_register_file_type_subtype(&jpeg_jfif_info);
 
 	/*
 	 * Register names for backwards compatibility with the

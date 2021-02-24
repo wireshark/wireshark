@@ -269,7 +269,7 @@ static const struct file_type_subtype_info daintree_sna_info = {
 
 void register_daintree_sna(void)
 {
-	daintree_sna_file_type_subtype = wtap_register_file_type_subtypes(&daintree_sna_info);
+	daintree_sna_file_type_subtype = wtap_register_file_type_subtype(&daintree_sna_info);
 
 	/*
 	 * Register name for backwards compatibility with the

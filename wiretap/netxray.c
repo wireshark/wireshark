@@ -2149,10 +2149,10 @@ static const struct file_type_subtype_info netxray_2_00x_info = {
 
 void register_netxray(void)
 {
-	netxray_old_file_type_subtype = wtap_register_file_type_subtypes(&netxray_old_info);
-	netxray_1_0_file_type_subtype = wtap_register_file_type_subtypes(&netxray_1_0_info);
-	netxray_1_1_file_type_subtype = wtap_register_file_type_subtypes(&netxray_1_1_info);
-	netxray_2_00x_file_type_subtype = wtap_register_file_type_subtypes(&netxray_2_00x_info);
+	netxray_old_file_type_subtype = wtap_register_file_type_subtype(&netxray_old_info);
+	netxray_1_0_file_type_subtype = wtap_register_file_type_subtype(&netxray_1_0_info);
+	netxray_1_1_file_type_subtype = wtap_register_file_type_subtype(&netxray_1_1_info);
+	netxray_2_00x_file_type_subtype = wtap_register_file_type_subtype(&netxray_2_00x_info);
 
 	/*
 	 * Register names for backwards compatibility with the

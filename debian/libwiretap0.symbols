@@ -144,7 +144,7 @@ libwiretap.so.0 libwiretap0 #MINVER#
  wtap_register_backwards_compatibility_lua_name@Base 3.5.0
  wtap_register_encap_type@Base 1.9.1
  wtap_register_file_type_extension@Base 1.12.0~rc1
- wtap_register_file_type_subtypes@Base 1.12.0~rc1
+ wtap_register_file_type_subtype@Base 3.5.0
  wtap_register_open_info@Base 1.12.0~rc1
  wtap_register_plugin@Base 2.5.0
  wtap_seek_read@Base 1.9.1

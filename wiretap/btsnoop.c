@@ -441,7 +441,7 @@ static const struct file_type_subtype_info btsnoop_info = {
 
 void register_btsnoop(void)
 {
-    btsnoop_file_type_subtype = wtap_register_file_type_subtypes(&btsnoop_info);
+    btsnoop_file_type_subtype = wtap_register_file_type_subtype(&btsnoop_info);
 
     /*
      * Register name for backwards compatibility with the

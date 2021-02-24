@@ -417,7 +417,7 @@ static const struct file_type_subtype_info dct3trace_info = {
 
 void register_dct3trace(void)
 {
-	dct3trace_file_type_subtype = wtap_register_file_type_subtypes(&dct3trace_info);
+	dct3trace_file_type_subtype = wtap_register_file_type_subtype(&dct3trace_info);
 
 	/*
 	 * Register name for backwards compatibility with the

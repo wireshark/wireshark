@@ -1314,7 +1314,7 @@ wtap_init_file_type_subtypes(void)
  * with that name is already registered.
  */
 int
-wtap_register_file_type_subtypes(const struct file_type_subtype_info* fi)
+wtap_register_file_type_subtype(const struct file_type_subtype_info* fi)
 {
 	struct file_type_subtype_info* finfo;
 	guint file_type_subtype;
@@ -1323,7 +1323,16 @@ wtap_register_file_type_subtypes(const struct file_type_subtype_info* fi)
 	 * Check for required fields (description and name).
 	 */
 	if (!fi || !fi->description || !fi->name) {
-		g_error("no file type info");
+		g_warning("no file type info");
+		return -1;
+	}
+
+	/*
+	 * There must be at least one block type that this file
+	 * type/subtype supports.
+	 */
+	if (fi->num_supported_blocks == 0 || fi->supported_blocks == NULL) {
+		g_warning("no blocks supported by file type \"%s\"", fi->name);
 		return -1;
 	}
 
@@ -1334,7 +1343,7 @@ wtap_register_file_type_subtypes(const struct file_type_subtype_info* fi)
 		/*
 		 * Yes.  You don't get to replace an existing handler.
 		 */
-		g_error("file type \"%s\" is already registered", fi->name);
+		g_warning("file type \"%s\" is already registered", fi->name);
 		return -1;
 	}
 

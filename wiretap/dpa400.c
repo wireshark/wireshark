@@ -261,7 +261,7 @@ static const struct file_type_subtype_info dpa400_info = {
 
 void register_dpa400(void)
 {
-	dpa400_file_type_subtype = wtap_register_file_type_subtypes(&dpa400_info);
+	dpa400_file_type_subtype = wtap_register_file_type_subtype(&dpa400_info);
 
 	/*
 	 * Register name for backwards compatibility with the

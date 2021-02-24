@@ -3451,7 +3451,7 @@ static const struct file_type_subtype_info erf_info = {
 
 void register_erf(void)
 {
-  erf_file_type_subtype = wtap_register_file_type_subtypes(&erf_info);
+  erf_file_type_subtype = wtap_register_file_type_subtype(&erf_info);
 
   /*
    * Register name for backwards compatibility with the

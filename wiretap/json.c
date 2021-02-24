@@ -84,7 +84,7 @@ static const struct file_type_subtype_info json_info = {
 
 void register_json(void)
 {
-    json_file_type_subtype = wtap_register_file_type_subtypes(&json_info);
+    json_file_type_subtype = wtap_register_file_type_subtype(&json_info);
 
     /*
      * Register name for backwards compatibility with the

@@ -901,7 +901,7 @@ static const struct file_type_subtype_info log3gpp_info = {
 
 void register_log3gpp(void)
 {
-    log3gpp_file_type_subtype = wtap_register_file_type_subtypes(&log3gpp_info);
+    log3gpp_file_type_subtype = wtap_register_file_type_subtype(&log3gpp_info);
 
     /*
      * Register name for backwards compatibility with the
@@ -923,7 +923,7 @@ void wtap_register_phonelog(void) {
         wtap_register_open_info(&phonelog_oi, TRUE);
 
         encap_3gpp_log = wtap_register_encap_type("3GPP Log","3gpp_log");
-        wf_3gpp_log =  wtap_register_file_type_subtypes(&fi, WTAP_FILE_TYPE_SUBTYPE_UNKNOWN);
+        wf_3gpp_log =  wtap_register_file_type_subtype(&fi, WTAP_FILE_TYPE_SUBTYPE_UNKNOWN);
 }
 #endif
 

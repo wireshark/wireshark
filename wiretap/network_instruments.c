@@ -895,7 +895,7 @@ static const struct file_type_subtype_info network_instruments_info = {
 
 void register_network_instruments(void)
 {
-    network_instruments_file_type_subtype = wtap_register_file_type_subtypes(&network_instruments_info);
+    network_instruments_file_type_subtype = wtap_register_file_type_subtype(&network_instruments_info);
 
     /*
      * Register name for backwards compatibility with the

@@ -337,7 +337,7 @@ wtap_register_usbdump(void)
 
     wtap_register_open_info(&oi, FALSE);
 
-    usbdump_file_type_subtype = wtap_register_file_type_subtypes(&fi);
+    usbdump_file_type_subtype = wtap_register_file_type_subtype(&fi);
 }
 
 /*

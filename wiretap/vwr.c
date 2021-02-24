@@ -3398,8 +3398,8 @@ static const struct file_type_subtype_info vwr_eth_info = {
 
 void register_vwr(void)
 {
-    vwr_80211_file_type_subtype = wtap_register_file_type_subtypes(&vwr_80211_info);
-    vwr_eth_file_type_subtype = wtap_register_file_type_subtypes(&vwr_eth_info);
+    vwr_80211_file_type_subtype = wtap_register_file_type_subtype(&vwr_80211_info);
+    vwr_eth_file_type_subtype = wtap_register_file_type_subtype(&vwr_eth_info);
 
     /*
      * Register names for backwards compatibility with the

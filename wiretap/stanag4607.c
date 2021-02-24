@@ -223,7 +223,7 @@ static const struct file_type_subtype_info stanag4607_info = {
 
 void register_stanag4607(void)
 {
-  stanag4607_file_type_subtype = wtap_register_file_type_subtypes(&stanag4607_info);
+  stanag4607_file_type_subtype = wtap_register_file_type_subtype(&stanag4607_info);
 
   /*
    * Register name for backwards compatibility with the

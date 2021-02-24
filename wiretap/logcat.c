@@ -379,7 +379,7 @@ static const struct file_type_subtype_info logcat_info = {
 
 void register_logcat(void)
 {
-    logcat_file_type_subtype = wtap_register_file_type_subtypes(&logcat_info);
+    logcat_file_type_subtype = wtap_register_file_type_subtype(&logcat_info);
 
     /*
      * Register name for backwards compatibility with the

@@ -465,7 +465,7 @@ static const struct file_type_subtype_info netscreen_info = {
 
 void register_netscreen(void)
 {
-	netscreen_file_type_subtype = wtap_register_file_type_subtypes(&netscreen_info);
+	netscreen_file_type_subtype = wtap_register_file_type_subtype(&netscreen_info);
 
 	/*
 	 * Register name for backwards compatibility with the

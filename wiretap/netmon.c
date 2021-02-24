@@ -2007,8 +2007,8 @@ static const struct file_type_subtype_info netmon_2_x_info = {
 
 void register_netmon(void)
 {
-	netmon_1_x_file_type_subtype = wtap_register_file_type_subtypes(&netmon_1_x_info);
-	netmon_2_x_file_type_subtype = wtap_register_file_type_subtypes(&netmon_2_x_info);
+	netmon_1_x_file_type_subtype = wtap_register_file_type_subtype(&netmon_1_x_info);
+	netmon_2_x_file_type_subtype = wtap_register_file_type_subtype(&netmon_2_x_info);
 
 	/*
 	 * Register names for backwards compatibility with the

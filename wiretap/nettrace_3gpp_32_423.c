@@ -846,7 +846,7 @@ static const struct file_type_subtype_info nettrace_3gpp_32_423_info = {
 
 void register_nettrace_3gpp_32_423(void)
 {
-	nettrace_3gpp_32_423_file_type_subtype = wtap_register_file_type_subtypes(&nettrace_3gpp_32_423_info);
+	nettrace_3gpp_32_423_file_type_subtype = wtap_register_file_type_subtype(&nettrace_3gpp_32_423_info);
 
 	/*
 	 * Register name for backwards compatibility with the

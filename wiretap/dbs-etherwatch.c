@@ -645,7 +645,7 @@ static const struct file_type_subtype_info dbs_etherwatch_info = {
 
 void register_dbs_etherwatch(void)
 {
-    dbs_etherwatch_file_type_subtype = wtap_register_file_type_subtypes(&dbs_etherwatch_info);
+    dbs_etherwatch_file_type_subtype = wtap_register_file_type_subtype(&dbs_etherwatch_info);
 
     /*
      * Register name for backwards compatibility with the

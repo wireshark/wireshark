@@ -721,13 +721,13 @@ static const struct file_type_subtype_info logcat_text_long_info = {
 
 void register_logcat_text(void)
 {
-    logcat_text_brief_file_type_subtype = wtap_register_file_type_subtypes(&logcat_text_brief_info);
-    logcat_text_process_file_type_subtype = wtap_register_file_type_subtypes(&logcat_text_process_info);
-    logcat_text_tag_file_type_subtype = wtap_register_file_type_subtypes(&logcat_text_tag_info);
-    logcat_text_thread_file_type_subtype = wtap_register_file_type_subtypes(&logcat_text_thread_info);
-    logcat_text_time_file_type_subtype = wtap_register_file_type_subtypes(&logcat_text_time_info);
-    logcat_text_threadtime_file_type_subtype = wtap_register_file_type_subtypes(&logcat_text_threadtime_info);
-    logcat_text_long_file_type_subtype = wtap_register_file_type_subtypes(&logcat_text_long_info);
+    logcat_text_brief_file_type_subtype = wtap_register_file_type_subtype(&logcat_text_brief_info);
+    logcat_text_process_file_type_subtype = wtap_register_file_type_subtype(&logcat_text_process_info);
+    logcat_text_tag_file_type_subtype = wtap_register_file_type_subtype(&logcat_text_tag_info);
+    logcat_text_thread_file_type_subtype = wtap_register_file_type_subtype(&logcat_text_thread_info);
+    logcat_text_time_file_type_subtype = wtap_register_file_type_subtype(&logcat_text_time_info);
+    logcat_text_threadtime_file_type_subtype = wtap_register_file_type_subtype(&logcat_text_threadtime_info);
+    logcat_text_long_file_type_subtype = wtap_register_file_type_subtype(&logcat_text_long_info);
 
     /*
      * Register names for backwards compatibility with the

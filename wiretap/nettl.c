@@ -812,7 +812,7 @@ static const struct file_type_subtype_info nettl_info = {
 
 void register_nettl(void)
 {
-    nettl_file_type_subtype = wtap_register_file_type_subtypes(&nettl_info);
+    nettl_file_type_subtype = wtap_register_file_type_subtype(&nettl_info);
 
     /*
      * Register name for backwards compatibility with the

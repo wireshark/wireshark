@@ -282,7 +282,7 @@ static const struct file_type_subtype_info mpeg_info = {
 
 void register_mpeg(void)
 {
-	mpeg_file_type_subtype = wtap_register_file_type_subtypes(&mpeg_info);
+	mpeg_file_type_subtype = wtap_register_file_type_subtype(&mpeg_info);
 
 	/*
 	 * Register name for backwards compatibility with the

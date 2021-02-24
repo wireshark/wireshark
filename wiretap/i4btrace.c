@@ -312,7 +312,7 @@ static const struct file_type_subtype_info i4btrace_info = {
 
 void register_i4btrace(void)
 {
-	i4btrace_file_type_subtype = wtap_register_file_type_subtypes(&i4btrace_info);
+	i4btrace_file_type_subtype = wtap_register_file_type_subtype(&i4btrace_info);
 
 	/*
 	 * Register name for backwards compatibility with the

@@ -811,7 +811,7 @@ static const struct file_type_subtype_info pppdump_info = {
 
 void register_pppdump(void)
 {
-	pppdump_file_type_subtype = wtap_register_file_type_subtypes(&pppdump_info);
+	pppdump_file_type_subtype = wtap_register_file_type_subtype(&pppdump_info);
 
 	/*
 	 * Register name for backwards compatibility with the

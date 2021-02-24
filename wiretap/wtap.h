@@ -2278,7 +2278,7 @@ void wtap_deregister_open_info(const gchar *name);
 WS_DLL_PUBLIC
 unsigned int open_info_name_to_type(const char *name);
 WS_DLL_PUBLIC
-int wtap_register_file_type_subtypes(const struct file_type_subtype_info* fi);
+int wtap_register_file_type_subtype(const struct file_type_subtype_info* fi);
 WS_DLL_PUBLIC
 void wtap_deregister_file_type_subtype(const int file_type_subtype);
 

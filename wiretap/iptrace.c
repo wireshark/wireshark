@@ -881,8 +881,8 @@ static const struct file_type_subtype_info iptrace_2_0_info = {
 
 void register_iptrace(void)
 {
-	iptrace_1_0_file_type_subtype = wtap_register_file_type_subtypes(&iptrace_1_0_info);
-	iptrace_2_0_file_type_subtype = wtap_register_file_type_subtypes(&iptrace_2_0_info);
+	iptrace_1_0_file_type_subtype = wtap_register_file_type_subtype(&iptrace_1_0_info);
+	iptrace_2_0_file_type_subtype = wtap_register_file_type_subtype(&iptrace_2_0_info);
 
 	/*
 	 * Register names for backwards compatibility with the

@@ -467,7 +467,7 @@ static const struct file_type_subtype_info camins_info = {
 
 void register_camins(void)
 {
-   camins_file_type_subtype = wtap_register_file_type_subtypes(&camins_info);
+   camins_file_type_subtype = wtap_register_file_type_subtype(&camins_info);
 
    /*
     * Register name for backwards compatibility with the

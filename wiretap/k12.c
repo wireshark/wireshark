@@ -1408,7 +1408,7 @@ static const struct file_type_subtype_info k12_info = {
 
 void register_k12(void)
 {
-    k12_file_type_subtype = wtap_register_file_type_subtypes(&k12_info);
+    k12_file_type_subtype = wtap_register_file_type_subtype(&k12_info);
 
     /*
      * Register name for backwards compatibility with the

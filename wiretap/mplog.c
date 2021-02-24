@@ -269,7 +269,7 @@ static const struct file_type_subtype_info mplog_info = {
 
 void register_mplog(void)
 {
-    mplog_file_type_subtype = wtap_register_file_type_subtypes(&mplog_info);
+    mplog_file_type_subtype = wtap_register_file_type_subtype(&mplog_info);
 
     /*
      * Register name for backwards compatibility with the

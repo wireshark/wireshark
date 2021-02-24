@@ -2870,8 +2870,8 @@ static const struct file_type_subtype_info ngsniffer_compressed_info = {
 
 void register_ngsniffer(void)
 {
-	ngsniffer_uncompressed_file_type_subtype = wtap_register_file_type_subtypes(&ngsniffer_uncompressed_info);
-	ngsniffer_compressed_file_type_subtype = wtap_register_file_type_subtypes(&ngsniffer_compressed_info);
+	ngsniffer_uncompressed_file_type_subtype = wtap_register_file_type_subtype(&ngsniffer_uncompressed_info);
+	ngsniffer_compressed_file_type_subtype = wtap_register_file_type_subtype(&ngsniffer_compressed_info);
 
 	/*
 	 * Register names for backwards compatibility with the
