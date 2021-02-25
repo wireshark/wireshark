@@ -1417,7 +1417,6 @@ dissect_gquic_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *gquic_tree, gui
         offset_end = tvb_get_guint32(tvb, offset, ENC_LITTLE_ENDIAN);
 
         tag_len = offset_end - tag_offset;
-        total_tag_len += tag_len;
         ti_len = proto_tree_add_uint(tag_tree, hf_gquic_tag_length, tvb, offset, 4, tag_len);
         proto_item_append_text(ti_tag, " (l=%u)", tag_len);
         proto_item_set_generated(ti_len);
@@ -1429,6 +1428,8 @@ dissect_gquic_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *gquic_tree, gui
             offset_end = tag_offset + tag_len;
             expert_add_info(pinfo, ti_len, &ei_gquic_tag_length);
         }
+
+        total_tag_len += tag_len;
 
         proto_tree_add_item(tag_tree, hf_gquic_tag_value, tvb, tag_offset_start + tag_offset, tag_len, ENC_NA);
 
@@ -1703,7 +1704,7 @@ dissect_gquic_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *gquic_tree, gui
                                  "Dissector for (Google) QUIC Tag"
                                  " %s (%s) code not implemented, Contact"
                                  " Wireshark developers if you want this supported", tvb_get_string_enc(wmem_packet_scope(), tvb, offset-8, 4, ENC_ASCII|ENC_NA), val_to_str(tag, tag_vals, "Unknown"));
-                goto end;
+                tag_offset += tag_len;
             break;
         }
         if(tag_offset != offset_end){
@@ -1715,7 +1716,6 @@ dissect_gquic_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *gquic_tree, gui
         tag_number--;
     }
 
-    end:
     if (offset + total_tag_len <= offset) {
         expert_add_info_format(pinfo, gquic_tree, &ei_gquic_length_invalid,
                                 "Invalid total tag length: %u", total_tag_len);
