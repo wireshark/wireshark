@@ -29,6 +29,8 @@
  *   - Added support for SMPTE TLV
  * - Adam Wujek 17.10.2017 <adam.wujek@cern.ch>
  *   - Added support for White Rabbit TLV
+ * - Prashant Tripathi 19-02-2021 <prashant_tripathi@selinc.com>
+ *   - Added support for C37.238-2017
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -738,6 +740,10 @@ static gint ett_ptp_time2 = -1;
 #define PTP_V2_AN_TLV_OE_IEEEC37238TLV_NWINACCURACY_OFFSET          16
 #define PTP_V2_AN_TLV_OE_IEEEC37238TLV_RESERVED_OFFSET              20
 
+/* PTPv2 IEEE_C37_238-2017 TLV additional field offsets */
+#define PTP_V2_AN_TLV_OE_IEEEC372382017TLV_RESERVED_OFFSET          12
+#define PTP_V2_AN_TLV_OE_IEEEC37238TLV_TOTALINACCURACY_OFFSET       16
+
 /* PTP_V2_TLV_TYPE_ALTERNATE_TIME_OFFSET_INDICATOR field offsets */
 #define PTP_V2_AN_TLV_ATOI_KEYFIELD_OFFSET                           4
 #define PTP_V2_AN_TLV_ATOI_CURRENTOFFSET_OFFSET                      5
@@ -962,6 +968,7 @@ static gint ett_ptp_time2 = -1;
 
 /* Subtypes for the OUI_IEEE_C37_238 organization ID */
 #define PTP_V2_OE_ORG_IEEE_C37_238_SUBTYPE_C37238TLV    1        /* Defined in IEEE Std C37.238-2011 */
+#define PTP_V2_OE_ORG_IEEE_C37_238_SUBTYPE_C372382017TLV    2    /* Defined in IEEE Std C37.238-2017 */
 
 /* Subtypes for the PTP_V2_OE_ORG_ID_SMPTE organization ID */
 #define PTP_V2_OE_ORG_SMPTE_SUBTYPE_VERSION_TLV         1
@@ -1317,6 +1324,11 @@ static const value_string ptp_v2_org_iee_c37_238_subtype_vals[] = {
     {0,                                             NULL}
 };
 
+static const value_string ptp_v2_org_iee_c37_238_2017_subtype_vals[] = {
+    {PTP_V2_OE_ORG_IEEE_C37_238_SUBTYPE_C372382017TLV,  "IEEE_C37_238_2017 TLV"},
+    {0,                                             NULL}
+};
+
 static const value_string ptp_v2_org_smpte_subtype_vals[] = {
     {PTP_V2_OE_ORG_SMPTE_SUBTYPE_VERSION_TLV,  "Version"},
     {0,                                             NULL}
@@ -1413,6 +1425,7 @@ static int hf_ptp_v2_an_tlv_lengthfield = -1;
 /* Fields for the ORGANIZATION_EXTENSION TLV */
 static int hf_ptp_v2_oe_tlv_organizationid = -1;
 static int hf_ptp_v2_oe_tlv_organizationsubtype = -1;
+static int hf_ptp_v2_oe_tlv_2017_organizationsubtype = -1;
 static int hf_ptp_v2_oe_tlv_datafield = -1;
 
 /* Fields for CERN White Rabbit TLV (OE TLV subtype) */
@@ -1428,6 +1441,11 @@ static int hf_ptp_v2_oe_tlv_subtype_c37238tlv_grandmasterid = -1;
 static int hf_ptp_v2_oe_tlv_subtype_c37238tlv_grandmastertimeinaccuracy = -1;
 static int hf_ptp_v2_oe_tlv_subtype_c37238tlv_networktimeinaccuracy = -1;
 static int hf_ptp_v2_oe_tlv_subtype_c37238tlv_reserved = -1;
+
+/* Additional Fields for IEEE_C37_238-2017 TLV (OE TLV subtype) */
+static int hf_ptp_v2_oe_tlv_subtype_c372382017tlv_reserved = -1;
+static int hf_ptp_v2_oe_tlv_subtype_c37238tlv_totaltimeinaccuracy = -1;
+
 /* Fields for SMPTE TLV (OE TLV subtype) */
 static int hf_ptp_v2_oe_tlv_smpte_subtype = -1;
 static int hf_ptp_v2_oe_tlv_subtype_smpte_data = -1;
@@ -2840,17 +2858,17 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean ptp
                                 {
                                     case OUI_IEEE_C37_238:
                                     {
-                                        proto_tree_add_item(ptp_tlv_tree,
-                                                            hf_ptp_v2_oe_tlv_organizationsubtype,
-                                                            tvb,
-                                                            PTP_V2_AN_TLV_OFFSET + tlv_total_length + PTP_V2_AN_TLV_OE_ORGANIZATIONSUBTYPE_OFFSET,
-                                                            3,
-                                                            ENC_BIG_ENDIAN);
 
                                         switch (subtype)
                                         {
                                             case PTP_V2_OE_ORG_IEEE_C37_238_SUBTYPE_C37238TLV:
                                             {
+                                                proto_tree_add_item(ptp_tlv_tree,
+                                                                    hf_ptp_v2_oe_tlv_organizationsubtype,
+                                                                    tvb,
+                                                                    PTP_V2_AN_TLV_OFFSET + tlv_total_length + PTP_V2_AN_TLV_OE_ORGANIZATIONSUBTYPE_OFFSET,
+                                                                    3,
+                                                                    ENC_BIG_ENDIAN);
                                                 proto_tree_add_item(ptp_tlv_tree,
                                                                     hf_ptp_v2_oe_tlv_subtype_c37238tlv_grandmasterid,
                                                                     tvb,
@@ -2877,8 +2895,51 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean ptp
                                                                     ENC_BIG_ENDIAN);
                                                 break;
                                             }
+                                            case PTP_V2_OE_ORG_IEEE_C37_238_SUBTYPE_C372382017TLV:
+                                            {
+                                                proto_tree_add_item(ptp_tlv_tree,
+                                                                    hf_ptp_v2_oe_tlv_2017_organizationsubtype,
+                                                                    tvb,
+                                                                    PTP_V2_AN_TLV_OFFSET + tlv_total_length + PTP_V2_AN_TLV_OE_ORGANIZATIONSUBTYPE_OFFSET,
+                                                                    3,
+                                                                    ENC_BIG_ENDIAN);
+                                                proto_tree_add_item(ptp_tlv_tree,
+                                                                    hf_ptp_v2_oe_tlv_subtype_c37238tlv_grandmasterid,
+                                                                    tvb,
+                                                                    PTP_V2_AN_TLV_OFFSET + tlv_total_length + PTP_V2_AN_TLV_OE_IEEEC37238TLV_GMID_OFFSET,
+                                                                    2,
+                                                                    ENC_BIG_ENDIAN);
+                                                proto_tree_add_item(ptp_tlv_tree,
+                                                                    hf_ptp_v2_oe_tlv_subtype_c372382017tlv_reserved,
+                                                                    tvb,
+                                                                    PTP_V2_AN_TLV_OFFSET + tlv_total_length + PTP_V2_AN_TLV_OE_IEEEC372382017TLV_RESERVED_OFFSET,
+                                                                    4,
+                                                                    ENC_BIG_ENDIAN);
+                                                proto_tree_add_item(ptp_tlv_tree,
+                                                                    hf_ptp_v2_oe_tlv_subtype_c37238tlv_totaltimeinaccuracy,
+                                                                    tvb,
+                                                                    PTP_V2_AN_TLV_OFFSET + tlv_total_length + PTP_V2_AN_TLV_OE_IEEEC37238TLV_TOTALINACCURACY_OFFSET,
+                                                                    4,
+                                                                    ENC_BIG_ENDIAN);
+                                                proto_tree_add_item(ptp_tlv_tree,
+                                                                    hf_ptp_v2_oe_tlv_subtype_c37238tlv_reserved,
+                                                                    tvb,
+                                                                    PTP_V2_AN_TLV_OFFSET + tlv_total_length + PTP_V2_AN_TLV_OE_IEEEC37238TLV_RESERVED_OFFSET,
+                                                                    2,
+                                                                    ENC_BIG_ENDIAN);
+                                                break;
+                                            }
+
+
+
                                             default:
                                             {
+                                                proto_tree_add_item(ptp_tlv_tree,
+                                                                    hf_ptp_v2_oe_tlv_organizationsubtype,
+                                                                    tvb,
+                                                                    PTP_V2_AN_TLV_OFFSET + tlv_total_length + PTP_V2_AN_TLV_OE_ORGANIZATIONSUBTYPE_OFFSET,
+                                                                    3,
+                                                                    ENC_BIG_ENDIAN);
                                                 proto_tree_add_item(ptp_tlv_tree,
                                                                     hf_ptp_v2_oe_tlv_datafield,
                                                                     tvb,
@@ -5494,6 +5555,11 @@ proto_register_ptp(void)
             FT_UINT24, BASE_HEX, VALS(ptp_v2_org_iee_c37_238_subtype_vals), 0x00,
             NULL, HFILL }
         },
+        { &hf_ptp_v2_oe_tlv_2017_organizationsubtype,
+          { "organizationSubType", "ptp.v2.an.oe.organizationSubType",
+            FT_UINT24, BASE_HEX, VALS(ptp_v2_org_iee_c37_238_2017_subtype_vals), 0x00,
+            NULL, HFILL }
+        },
         { &hf_ptp_v2_oe_tlv_datafield,
           { "dataField", "ptp.v2.an.oe.dataField",
             FT_BYTES, BASE_NONE, NULL, 0x00,
@@ -5550,6 +5616,17 @@ proto_register_ptp(void)
           { "reserved", "ptp.v2.an.oe.reserved",
             FT_UINT16, BASE_HEX, NULL, 0x00,
             NULL, HFILL }
+        },
+        /* Additional fields in C37.238-2017 compared to C37.238-2011 */
+        { &hf_ptp_v2_oe_tlv_subtype_c372382017tlv_reserved,
+          { "reserved", "ptp.v2.an.oe.reserved",
+            FT_UINT32, BASE_HEX, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_ptp_v2_oe_tlv_subtype_c37238tlv_totaltimeinaccuracy,
+            { "totalTimeInaccuracy (nanoseconds)", "ptp.v2.an.oe.totalTimeInaccuracy",
+                FT_UINT32, BASE_DEC, NULL, 0x00,
+                NULL, HFILL }
         },
         /* Fields for ALTERNATE_TIME_OFFSET_INDICATOR TLV */
         { &hf_ptp_v2_atoi_tlv_keyfield,
