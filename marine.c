@@ -1033,3 +1033,7 @@ static void reset_epan_mem(capture_file *cf, epan_dissect_t *edt, gboolean tree,
     epan_dissect_init(edt, cf->epan, tree, visual);
     cf->count = 0;
 }
+
+WS_DLL_PUBLIC void marine_report_fields(void) {
+    proto_registrar_dump_fields();
+}
