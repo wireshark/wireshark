@@ -2939,6 +2939,15 @@ static const SslCipherSuite cipher_suites[]={
     {0xC017,KEX_ECDH_ANON,      ENC_3DES,       DIG_SHA,    MODE_CBC   },   /* TLS_ECDH_anon_WITH_3DES_EDE_CBC_SHA */
     {0xC018,KEX_ECDH_ANON,      ENC_AES,        DIG_SHA,    MODE_CBC   },   /* TLS_ECDH_anon_WITH_AES_128_CBC_SHA */
     {0xC019,KEX_ECDH_ANON,      ENC_AES256,     DIG_SHA,    MODE_CBC   },   /* TLS_ECDH_anon_WITH_AES_256_CBC_SHA */
+    {0xC01A,KEX_SRP_SHA,        ENC_3DES,       DIG_SHA,    MODE_CBC   },   /* TLS_SRP_SHA_WITH_3DES_EDE_CBC_SHA */
+    {0xC01B,KEX_SRP_SHA_RSA,    ENC_3DES,       DIG_SHA,    MODE_CBC   },   /* TLS_SRP_SHA_RSA_WITH_3DES_EDE_CBC_SHA */
+    {0xC01C,KEX_SRP_SHA_DSS,    ENC_3DES,       DIG_SHA,    MODE_CBC   },   /* TLS_SRP_SHA_DSS_WITH_3DES_EDE_CBC_SHA */
+    {0xC01D,KEX_SRP_SHA,        ENC_AES,        DIG_SHA,    MODE_CBC   },   /* TLS_SRP_SHA_WITH_AES_128_CBC_SHA */
+    {0xC01E,KEX_SRP_SHA_RSA,    ENC_AES,        DIG_SHA,    MODE_CBC   },   /* TLS_SRP_SHA_RSA_WITH_AES_128_CBC_SHA */
+    {0xC01F,KEX_SRP_SHA_DSS,    ENC_AES,        DIG_SHA,    MODE_CBC   },   /* TLS_SRP_SHA_DSS_WITH_AES_128_CBC_SHA */
+    {0xC020,KEX_SRP_SHA,        ENC_AES256,     DIG_SHA,    MODE_CBC   },   /* TLS_SRP_SHA_WITH_AES_256_CBC_SHA */
+    {0xC021,KEX_SRP_SHA_RSA,    ENC_AES256,     DIG_SHA,    MODE_CBC   },   /* TLS_SRP_SHA_RSA_WITH_AES_256_CBC_SHA */
+    {0xC022,KEX_SRP_SHA_DSS,    ENC_AES256,     DIG_SHA,    MODE_CBC   },   /* TLS_SRP_SHA_DSS_WITH_AES_256_CBC_SHA */
     {0xC023,KEX_ECDHE_ECDSA,    ENC_AES,        DIG_SHA256, MODE_CBC   },   /* TLS_ECDHE_ECDSA_WITH_AES_128_CBC_SHA256 */
     {0xC024,KEX_ECDHE_ECDSA,    ENC_AES256,     DIG_SHA384, MODE_CBC   },   /* TLS_ECDHE_ECDSA_WITH_AES_256_CBC_SHA384 */
     {0xC025,KEX_ECDH_ECDSA,     ENC_AES,        DIG_SHA256, MODE_CBC   },   /* TLS_ECDH_ECDSA_WITH_AES_128_CBC_SHA256 */
@@ -8028,6 +8037,29 @@ ssl_dissect_hnd_hello_ext_ec_point_formats(ssl_common_dissect_t *hf, tvbuff_t *t
     return offset;
 }
 
+static gint
+ssl_dissect_hnd_hello_ext_srp(ssl_common_dissect_t *hf, tvbuff_t *tvb,
+                               packet_info *pinfo, proto_tree *tree,
+                               guint32 offset, guint32 next_offset)
+{
+    /* https://tools.ietf.org/html/rfc5054#section-2.8.1
+     *  opaque srp_I<1..2^8-1>;
+     */
+    guint32 username_len;
+
+    if (!ssl_add_vector(hf, tvb, pinfo, tree, offset, next_offset, &username_len,
+                        hf->hf.hs_ext_srp_len, 1, G_MAXUINT8)) {
+        return next_offset;
+    }
+    offset++;
+
+    proto_tree_add_item(tree, hf->hf.hs_ext_srp_username,
+                        tvb, offset, username_len, ENC_UTF_8|ENC_NA);
+    offset += username_len;
+
+    return offset;
+}
+
 static guint32
 tls_dissect_sct(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 guint32 offset, guint32 offset_end, guint16 version)
@@ -9300,6 +9332,9 @@ ssl_dissect_hnd_extension(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *t
             break;
         case SSL_HND_HELLO_EXT_EC_POINT_FORMATS:
             offset = ssl_dissect_hnd_hello_ext_ec_point_formats(hf, tvb, ext_tree, offset);
+            break;
+        case SSL_HND_HELLO_EXT_SRP:
+            offset = ssl_dissect_hnd_hello_ext_srp(hf, tvb, pinfo, ext_tree, offset, next_offset);
             break;
         case SSL_HND_HELLO_EXT_SIGNATURE_ALGORITHMS:
         case SSL_HND_HELLO_EXT_SIGNATURE_ALGORITHMS_CERT: /* since TLS 1.3 draft -23 */

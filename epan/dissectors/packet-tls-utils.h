@@ -819,6 +819,8 @@ typedef struct ssl_common_dissect {
         gint hs_ext_ec_point_format;
         gint hs_ext_ec_point_formats;
         gint hs_ext_ec_point_formats_len;
+        gint hs_ext_srp_len;
+        gint hs_ext_srp_username;
         gint hs_ext_supported_group;
         gint hs_ext_supported_groups;
         gint hs_ext_supported_groups_len;
@@ -1242,7 +1244,7 @@ ssl_common_dissect_t name = {   \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
-        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,                     \
+        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1              \
     },                                                                  \
     /* ett */ {                                                         \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
@@ -1310,6 +1312,16 @@ ssl_common_dissect_t name = {   \
       { "EC point format", prefix ".handshake.extensions_ec_point_format",             \
         FT_UINT8, BASE_DEC, VALS(ssl_extension_ec_point_formats), 0x0,  \
         "Elliptic curves point format", HFILL }                         \
+    },                                                                  \
+    { & name .hf.hs_ext_srp_len,                                        \
+      { "SRP username length", prefix ".handshake.extensions_srp_len",  \
+        FT_UINT8, BASE_DEC, NULL, 0x0,                                  \
+        "Length of Secure Remote Password username field", HFILL }      \
+    },                                                                  \
+    { & name .hf.hs_ext_srp_username,                                   \
+      { "SRP username", prefix ".handshake.extensions_srp_username",    \
+        FT_STRING, BASE_NONE, NULL, 0x0,                                \
+        "Secure Remote Password username", HFILL }                      \
     },                                                                  \
     { & name .hf.hs_ext_alpn_len,                                       \
       { "ALPN Extension Length", prefix ".handshake.extensions_alpn_len",              \
