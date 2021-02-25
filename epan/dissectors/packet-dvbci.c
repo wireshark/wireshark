@@ -3701,7 +3701,10 @@ dissect_dvbci_ami_file_ack(tvbuff_t *tvb, gint offset,
                 tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
         if (file_data_len > 0) {
+            col_append_str(pinfo->cinfo, COL_PROTOCOL, ", ");
             col_set_fence(pinfo->cinfo, COL_PROTOCOL);
+            /* The mime_encap dissector may overwrite this part. */
+            col_append_str(pinfo->cinfo, COL_PROTOCOL, "Data");
             col_set_fence(pinfo->cinfo, COL_INFO);
             call_dissector(mime_handle,
                     tvb_new_subset_length(tvb, offset, file_data_len),
