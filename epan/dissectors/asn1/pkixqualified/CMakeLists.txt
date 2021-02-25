@@ -16,6 +16,8 @@ set( EXT_ASN_FILE_LIST
 
 set( ASN_FILE_LIST
 	PKIXqualified.asn
+	PKIXServiceNameSAN88.asn
+	PKIXServiceNameSAN93.asn
 )
 
 set( EXTRA_DIST

@@ -1,7 +1,7 @@
 /* Do not modify this file. Changes will be overwritten.                      */
 /* Generated automatically by the ASN.1 to Wireshark dissector compiler       */
 /* packet-pkixqualified.c                                                     */
-/* asn2wrs.py -b -p pkixqualified -c ./pkixqualified.cnf -s ./packet-pkixqualified-template -D . -O ../.. PKIXqualified.asn */
+/* asn2wrs.py -b -p pkixqualified -c ./pkixqualified.cnf -s ./packet-pkixqualified-template -D . -O ../.. PKIXqualified.asn PKIXServiceNameSAN88.asn PKIXServiceNameSAN93.asn */
 
 /* Input file: packet-pkixqualified-template.c */
 
@@ -48,6 +48,7 @@ static int hf_pkixqualified_BiometricSyntax_PDU = -1;  /* BiometricSyntax */
 static int hf_pkixqualified_QCStatements_PDU = -1;  /* QCStatements */
 static int hf_pkixqualified_SemanticsInformation_PDU = -1;  /* SemanticsInformation */
 static int hf_pkixqualified_XmppAddr_PDU = -1;    /* XmppAddr */
+static int hf_pkixqualified_SRVName_PDU = -1;     /* SRVName */
 static int hf_pkixqualified_BiometricSyntax_item = -1;  /* BiometricData */
 static int hf_pkixqualified_typeOfBiometricData = -1;  /* TypeOfBiometricData */
 static int hf_pkixqualified_hashAlgorithm = -1;   /* AlgorithmIdentifier */
@@ -225,7 +226,7 @@ dissect_pkixqualified_T_statementId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 
 static int
 dissect_pkixqualified_T_statementInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 32 "./asn1/pkixqualified/pkixqualified.cnf"
+#line 33 "./asn1/pkixqualified/pkixqualified.cnf"
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree, NULL);
 
 
@@ -300,6 +301,17 @@ dissect_pkixqualified_XmppAddr(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
   return offset;
 }
 
+
+
+static int
+dissect_pkixqualified_SRVName(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_restricted_string(implicit_tag, BER_UNI_TAG_IA5String,
+                                            actx, tree, tvb, offset, hf_index,
+                                            NULL);
+
+  return offset;
+}
+
 /*--- PDUs ---*/
 
 static int dissect_Generalizedtime_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
@@ -351,6 +363,13 @@ static int dissect_XmppAddr_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto
   offset = dissect_pkixqualified_XmppAddr(FALSE, tvb, offset, &asn1_ctx, tree, hf_pkixqualified_XmppAddr_PDU);
   return offset;
 }
+static int dissect_SRVName_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
+  offset = dissect_pkixqualified_SRVName(FALSE, tvb, offset, &asn1_ctx, tree, hf_pkixqualified_SRVName_PDU);
+  return offset;
+}
 
 
 /*--- End of included file: packet-pkixqualified-fn.c ---*/
@@ -391,6 +410,10 @@ void proto_register_pkixqualified(void) {
         NULL, HFILL }},
     { &hf_pkixqualified_XmppAddr_PDU,
       { "XmppAddr", "pkixqualified.XmppAddr",
+        FT_STRING, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_pkixqualified_SRVName_PDU,
+      { "SRVName", "pkixqualified.SRVName",
         FT_STRING, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_pkixqualified_BiometricSyntax_item,
@@ -492,6 +515,7 @@ void proto_reg_handoff_pkixqualified(void) {
   register_ber_oid_dissector("1.3.6.1.5.5.7.9.3", dissect_Printablestring_PDU, proto_pkixqualified, "id-pda-gender");
   register_ber_oid_dissector("1.3.6.1.5.5.7.9.4", dissect_Printablestring_PDU, proto_pkixqualified, "id-pda-countryOfCitizenship");
   register_ber_oid_dissector("1.3.6.1.5.5.7.9.5", dissect_Printablestring_PDU, proto_pkixqualified, "id-pda-countryOfResidence");
+  register_ber_oid_dissector("1.3.6.1.5.5.7.8.7", dissect_SRVName_PDU, proto_pkixqualified, "id-on-dnsSRV");
 
 
 /*--- End of included file: packet-pkixqualified-dis-tab.c ---*/
