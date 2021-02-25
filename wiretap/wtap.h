@@ -295,12 +295,8 @@ extern "C" {
 
 #define WTAP_NUM_ENCAP_TYPES                    wtap_get_num_encap_types()
 
-/* File types/subtypes that can be read by wiretap.
-   We support writing many of these file types, too, so we
-   distinguish between different subtypes of them, as
-   different subtypes need to be written in a different
-   fashion. */
-#define WTAP_FILE_TYPE_SUBTYPE_UNKNOWN                        0
+/* Value to be used as a file type/subtype value if the type is unknown */
+#define WTAP_FILE_TYPE_SUBTYPE_UNKNOWN                        -1
 
 /* timestamp precision (currently only these values are supported) */
 #define WTAP_TSPREC_UNKNOWN    -2
@@ -1624,18 +1620,12 @@ struct supported_block_type {
 struct file_type_subtype_info {
     /*
      * The file type description.
-     *
-     * Should be NULL for WTAP_FILE_TYPE_SUBTYPE_UNKNOWN, which is
-     * used internally.
      */
     const char *description;
 
     /*
      * The file type name, used to look up file types by name, e.g.
      * looking up a file type specified as a command-line argument.
-     *
-     * Should be NULL for WTAP_FILE_TYPE_SUBTYPE_UNKNOWN, which is
-     * used internally.
      */
     const char *name;
 

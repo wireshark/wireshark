@@ -1216,25 +1216,7 @@ wtap_fdreopen(wtap *wth, const char *filename, int *err)
 	return TRUE;
 }
 
-/* Table of the file types and subtypes for which we have built-in support.
-   Entries must be sorted by WTAP_FILE_TYPE_SUBTYPE_xxx values in ascending
-   order.
-
-   These are used to report what type and subtype a given file is and
-   to let the user select a format when writing out packets.
-
-   This table is what we start with, but it can be modified.
-   If we need to modify it, we allocate a GArray, copy the entries
-   in the above table to that GArray, use the copy as the table, and
-   make all changes to the copy. */
-static const struct file_type_subtype_info file_type_subtype_table_base[] = {
-	/* WTAP_FILE_TYPE_SUBTYPE_UNKNOWN (only used internally for initialization) */
-	{ NULL, NULL, NULL, NULL,
-	  FALSE, NO_OPTIONS_SUPPORTED,
-	  NULL, NULL, NULL }
-};
-
-#define N_DUMP_OPEN_TABLE_BASE_ENTRIES	(sizeof(file_type_subtype_table_base) / sizeof(struct file_type_subtype_info))
+/* Table of the file types and subtypes for which we have support. */
 
 /*
  * Pointer to the GArray holding the registered file types.
@@ -1280,15 +1262,10 @@ wtap_init_file_type_subtypes(void)
 	 */
 	file_type_subtype_table_arr = g_array_sized_new(FALSE, TRUE,
 	    sizeof(struct file_type_subtype_info), wtap_module_count*2 + 7);
-
-	/* Copy over the fixed builtin entries. */
-	g_array_append_vals(file_type_subtype_table_arr, file_type_subtype_table_base,
-	    N_DUMP_OPEN_TABLE_BASE_ENTRIES);
-
 	file_type_subtype_table = (const struct file_type_subtype_info*)(void *)file_type_subtype_table_arr->data;
 
-	/* Remember which entries are builtin. */
-	wtap_num_builtin_file_types_subtypes = file_type_subtype_table_arr->len;
+	/* No entries yet, so no builtin entries yet. */
+	wtap_num_builtin_file_types_subtypes = 0;
 
 	/*
 	 * Register the builtin entries that aren't in the table.
@@ -1351,9 +1328,7 @@ wtap_register_file_type_subtype(const struct file_type_subtype_info* fi)
 	 * Is there a freed entry in the array, due to a file type
 	 * being de-registered?
 	 *
-	 * Skip the built-in entries, as they're never deregistered
-	 * (and because entry 0, for WTAP_FILE_TYPE_SUBTYPE_UNKNOWN,
-	 * has a null name pointer).
+	 * Skip the built-in entries, as they're never deregistered.
 	 */
 	for (file_type_subtype = wtap_num_builtin_file_types_subtypes;
 	    file_type_subtype < file_type_subtype_table_arr->len;
@@ -1673,8 +1648,6 @@ wtap_get_savable_file_types_subtypes_for_file(int file_type_subtype,
 	 * beginning of the list.
 	 */
 	for (ft = 0; ft < (int)file_type_subtype_table_arr->len; ft++) {
-		if (ft == WTAP_FILE_TYPE_SUBTYPE_UNKNOWN)
-			continue;	/* not a real file type */
 		if (ft == default_file_type_subtype ||
 		    ft == other_file_type_subtype)
 			continue;	/* we will done this one later */
@@ -1731,8 +1704,6 @@ wtap_get_writable_file_types_subtypes(ft_sort_order sort_order)
 	 * beginning of the list.
 	 */
 	for (ft = 0; ft < (int)file_type_subtype_table_arr->len; ft++) {
-		if (ft == WTAP_FILE_TYPE_SUBTYPE_UNKNOWN)
-			continue;	/* not a real file type */
 		if (ft == pcap_file_type_subtype ||
 		    ft == pcapng_file_type_subtype)
 			continue;	/* we've already done these two */
