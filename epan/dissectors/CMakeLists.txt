@@ -254,6 +254,7 @@ set(DISSECTOR_PUBLIC_HEADERS
 	packet-ansi_map.h
 	packet-ansi_tcap.h
 	packet-arp.h
+	packet-asap+enrp-common.h
 	packet-atalk.h
 	packet-atm.h
 	packet-atn-ulcs.h
@@ -700,6 +701,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-aruba-papi.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ar_drone.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-asap.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-asap+enrp-common.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ascend.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-asf.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-asphodel.c
