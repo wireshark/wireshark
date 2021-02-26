@@ -180,7 +180,9 @@ class case_tshark_dump_glossaries(subprocesstest.SubprocessTestCase):
                 decoded = False
             self.assertTrue(decoded, '{} is not valid UTF-8'.format(glossary))
 
-    def test_tshark_glossary_plugin_count(self, cmd_tshark, base_env):
+    def test_tshark_glossary_plugin_count(self, cmd_tshark, base_env, features):
+        if not features.have_plugins:
+            self.skipTest('Test requires binary plugin support.')
         self.assertRun((cmd_tshark, '-G', 'plugins'), env=base_env)
         self.assertGreaterEqual(self.countOutput('dissector'), 10, 'Fewer than 10 dissector plugins found')
 
