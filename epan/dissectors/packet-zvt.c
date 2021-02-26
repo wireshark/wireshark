@@ -117,7 +117,7 @@ static const apdu_info_t apdu_info[] = {
     { CTRL_DIAG,          0, DIRECTION_ECR_TO_PT, NULL },
     { CTRL_INIT,          0, DIRECTION_ECR_TO_PT, dissect_zvt_init },
     { CTRL_PRINT_LINE,    0, DIRECTION_PT_TO_ECR, NULL },
-    { CTRL_PRINT_TEXT,    0, DIRECTION_PT_TO_ECR, NULL }
+    { CTRL_PRINT_TEXT,    0, DIRECTION_PT_TO_ECR, dissect_zvt_bitmap_seq }
 };
 
 
@@ -237,6 +237,7 @@ static int hf_zvt_tlv_tag_type = -1;
 static int hf_zvt_tlv_len = -1;
 static int hf_zvt_text_lines_line = -1;
 static int hf_zvt_permitted_cmd = -1;
+static int hf_zvt_receipt_type = -1;
 
 static expert_field ei_invalid_apdu_len = EI_INIT;
 
@@ -270,6 +271,13 @@ static value_string_ext ctrl_field_ext = VALUE_STRING_EXT_INIT(ctrl_field);
 /* ISO 4217 currency codes */
 static const value_string zvt_cc[] = {
     { 0x0978, "EUR" },
+    { 0, NULL }
+};
+
+static const value_string receipt_type[] = {
+    { 0x01, "Transaction receipt (merchant)" },
+    { 0x02, "Transaction receipt (customer)" },
+    { 0x03, "Administration receipt" },
     { 0, NULL }
 };
 
@@ -320,14 +328,17 @@ static const value_string tlv_tag_class[] = {
 static value_string_ext tlv_tag_class_ext = VALUE_STRING_EXT_INIT(tlv_tag_class);
 
 #define TLV_TAG_TEXT_LINES          0x07
+#define TLV_TAG_ATTRIBUTE           0x09
 #define TLV_TAG_PERMITTED_ZVT_CMD   0x0A
 #define TLV_TAG_CHARS_PER_LINE      0x12
 #define TLV_TAG_DISPLAY_TEXTS       0x24
+#define TLV_TAG_PRINT_TEXTS         0x25
 #define TLV_TAG_PERMITTED_ZVT_CMDS  0x26
 #define TLV_TAG_SUPPORTED_CHARSETS  0x27
 #define TLV_TAG_PAYMENT_TYPE        0x2F
 #define TLV_TAG_EMV_CFG_PARAM       0x40
 #define TLV_TAG_RECEIPT_PARAM       0x1F04
+#define TLV_TAG_RECEIPT_TYPE        0x1F07
 #define TLV_TAG_CARDHOLDER_AUTH     0x1F10
 #define TLV_TAG_ONLINE_FLAG         0x1F11
 #define TLV_TAG_CARD_TYPE           0x1F12
@@ -360,24 +371,33 @@ static inline gint dissect_zvt_tlv_permitted_cmd(
         tvbuff_t *tvb, gint offset, gint len,
         packet_info *pinfo, proto_tree *tree, tlv_seq_info_t *seq_info);
 
+static inline gint dissect_zvt_tlv_receipt_type(
+        tvbuff_t *tvb, gint offset, gint len,
+        packet_info *pinfo, proto_tree *tree, tlv_seq_info_t *seq_info);
+
 static const tlv_info_t tlv_info[] = {
     { TLV_TAG_TEXT_LINES, dissect_zvt_tlv_text_lines },
     { TLV_TAG_DISPLAY_TEXTS, dissect_zvt_tlv_subseq },
+    { TLV_TAG_PRINT_TEXTS, dissect_zvt_tlv_subseq },
     { TLV_TAG_PAYMENT_TYPE, dissect_zvt_tlv_subseq },
     { TLV_TAG_PERMITTED_ZVT_CMDS, dissect_zvt_tlv_subseq },
-    { TLV_TAG_PERMITTED_ZVT_CMD, dissect_zvt_tlv_permitted_cmd }
+    { TLV_TAG_PERMITTED_ZVT_CMD, dissect_zvt_tlv_permitted_cmd },
+    { TLV_TAG_RECEIPT_TYPE, dissect_zvt_tlv_receipt_type }
 };
 
 static const value_string tlv_tags[] = {
     { TLV_TAG_TEXT_LINES,         "Text lines" },
+    { TLV_TAG_ATTRIBUTE,          "Attribute"},
     { TLV_TAG_CHARS_PER_LINE,
         "Number of characters per line of the printer" },
-    { TLV_TAG_DISPLAY_TEXTS, "Display texts" },
+    { TLV_TAG_DISPLAY_TEXTS,      "Display texts" },
+    { TLV_TAG_PRINT_TEXTS,        "Print texts" },
     { TLV_TAG_PERMITTED_ZVT_CMDS, "List of permitted ZVT commands" },
     { TLV_TAG_SUPPORTED_CHARSETS, "List of supported character sets" },
     { TLV_TAG_PAYMENT_TYPE,       "Payment type" },
     { TLV_TAG_EMV_CFG_PARAM,      "EMV config parameter" },
     { TLV_TAG_RECEIPT_PARAM,      "Receipt parameter" },
+    { TLV_TAG_RECEIPT_TYPE,       "Receipt type" },
     { TLV_TAG_CARDHOLDER_AUTH,    "Cardholder authentication" },
     { TLV_TAG_ONLINE_FLAG,        "Online flag" },
     { TLV_TAG_CARD_TYPE,          "Card type" },
@@ -414,6 +434,16 @@ static inline gint dissect_zvt_tlv_permitted_cmd(
         packet_info *pinfo _U_, proto_tree *tree, tlv_seq_info_t *seq_info _U_)
 {
     proto_tree_add_item(tree, hf_zvt_permitted_cmd,
+            tvb, offset, len, ENC_BIG_ENDIAN);
+    return len;
+}
+
+
+static inline gint dissect_zvt_tlv_receipt_type(
+        tvbuff_t *tvb, gint offset, gint len,
+        packet_info *pinfo _U_, proto_tree *tree, tlv_seq_info_t *seq_info _U_)
+{
+    proto_tree_add_item(tree, hf_zvt_receipt_type,
             tvb, offset, len, ENC_BIG_ENDIAN);
     return len;
 }
@@ -1156,7 +1186,10 @@ proto_register_zvt(void)
                 FT_STRING, STR_UNICODE, NULL, 0, NULL, HFILL } },
         { &hf_zvt_permitted_cmd,
             { "Permitted command", "zvt.tlv.permitted_command",
-                FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL } }
+                FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL } },
+        { &hf_zvt_receipt_type,
+            { "Receipt type", "zvt.tlv.receipt_type",
+                FT_UINT16, BASE_HEX, VALS(receipt_type), 0, NULL, HFILL } }
     };
 
     static ei_register_info ei[] = {
