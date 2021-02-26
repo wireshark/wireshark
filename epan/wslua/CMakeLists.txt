@@ -158,7 +158,6 @@ CHECKAPI(
 	NAME
 	  wslua
 	SWITCHES
-	  --group termoutput:6 --summary-group termoutput
 	SOURCES
 	  ${WSLUA_FILES}
 )

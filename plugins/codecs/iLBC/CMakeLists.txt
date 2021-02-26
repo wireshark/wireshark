@@ -50,7 +50,6 @@ CHECKAPI(
 	NAME
 	  ilbc
 	SWITCHES
-	  -g abort -g termoutput
 	SOURCES
 	  ${CODEC_SRC}
 	  ${CODEC_HEADERS}

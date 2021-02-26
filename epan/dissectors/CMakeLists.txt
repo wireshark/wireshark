@@ -2084,8 +2084,8 @@ CHECKAPI(
 	NAME
 	  dissectors
 	SWITCHES
-	  --group abort
-	  --group termoutput:5 --summary-group termoutput
+	  --group dissectors-prohibited
+	  --group dissectors-restricted:5 --summary-group dissectors-restricted
 	  --file ${CHECKAPI_FILE_LIST}
 	SOURCES
 	  ${DISSECTOR_SUPPORT_SRC}

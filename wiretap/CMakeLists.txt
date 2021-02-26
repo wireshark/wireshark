@@ -202,8 +202,6 @@ CHECKAPI(
 	NAME
 	  wiretap
 	SWITCHES
-	  --group abort:11 --summary-group abort
-	  --group termoutput:1 --summary-group termoutput
 	SOURCES
 	  ${WIRETAP_NONGENERATED_FILES}
 # LEX files commented out due to use of malloc, free etc.

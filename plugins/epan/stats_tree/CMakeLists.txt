@@ -43,7 +43,8 @@ CHECKAPI(
 	NAME
 	  stats_tree
 	SWITCHES
-	  -g abort -g termoutput
+	  --group dissectors-prohibited
+	  --group dissectors-restricted
 	SOURCES
 	  ${PLUGIN_FILES}
 	  ${PLUGIN_HEADERS}

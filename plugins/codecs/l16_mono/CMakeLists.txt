@@ -48,7 +48,6 @@ CHECKAPI(
 	NAME
 	  l16mono
 	SWITCHES
-	  -g abort -g termoutput
 	SOURCES
 	  ${CODEC_SRC}
 	  ${CODEC_HEADERS}

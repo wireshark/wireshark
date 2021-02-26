@@ -48,7 +48,6 @@ CHECKAPI(
 	NAME
 	  usbdump
 	SWITCHES
-	  -g abort -g termoutput
 	SOURCES
 	  ${WIRETAP_SRC}
 	  ${WIRETAP_HEADERS}

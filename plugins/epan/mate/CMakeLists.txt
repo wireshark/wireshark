@@ -61,8 +61,8 @@ CHECKAPI(
 	NAME
 	  mate
 	SWITCHES
-	  --group abort
-	  --group termoutput:1 --summary-group termoutput
+	  --group dissectors-prohibited
+	  --group dissectors-restricted
 	SOURCES
 	  ${DISSECTOR_SRC}
 	  ${DISSECTOR_SUPPORT_SRC}

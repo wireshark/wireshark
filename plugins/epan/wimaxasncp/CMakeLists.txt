@@ -49,7 +49,8 @@ CHECKAPI(
 	NAME
 	  wimaxasncp
 	SWITCHES
-	  -g abort -g termoutput
+	  --group dissectors-prohibited
+	  --group dissectors-restricted
 	SOURCES
 	  ${DISSECTOR_SRC}
 	  ${DISSECTOR_HEADERS}

@@ -99,7 +99,6 @@ CHECKAPI(
 	NAME
 	  wmem
 	SWITCHES
-	  --group termoutput:1 --summary-group termoutput
 	SOURCES
 	  ${WMEM_FILES}
 )
