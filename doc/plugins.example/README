@@ -1,8 +1,20 @@
 
-This is an example of how to build a Wireshark plugin out-of-tree.
+This is an example of how to build a Wireshark plugin out-of-tree. This
+is an alternative, more recent way to build Wireshark binary plugins,
+than the one in 'README.plugins', that describes in detail how to
+include a new plugin into the project source tree (here called in-tree
+build). Building a plugin out-of-tree doesn't require rebuilding the whole
+Wireshark source tree every time.
 
-Note that this builds against Wireshark's *installed* version. You should of
-course adapt to your own needs.
+You always need to rebuild plugins for each major.minor Wireshark version.
+Binary compatibility is never guaranteed between those releases and Wireshark
+will explicitly check for which version the plugin was built and refuse
+to load it otherwise.
+
+Note that this method builds the plugin against Wireshark's *system installion*,
+using CMake's Config-file mechanism[1] for configuration.
+
+You should of course adapt this trivial example to your own needs.
 
 To build/install the plugin:
 
@@ -13,6 +25,8 @@ $ sudo make install
 
 If your WiresharkConfig.cmake file is not in one of the standard cmake search
 paths you will have to tell cmake where to find it. You can do so using
-CMAKE_PREFIX_PATH, for example
+CMAKE_PREFIX_PATH, for example:
 
 $ cmake -DCMAKE_PREFIX_PATH="/opt/wireshark" ..
+
+[1]https://cmake.org/cmake/help/latest/manual/cmake-packages.7.html#config-file-packages
