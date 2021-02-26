@@ -4337,6 +4337,8 @@ static int hf_ieee80211_tag_he_6ghz_cap_inf_b12 = -1;
 static int hf_ieee80211_tag_he_6ghz_cap_inf_b13 = -1;
 static int hf_ieee80211_tag_he_6ghz_cap_inf_b14_b15 = -1;
 
+static int hf_ieee80211_tag_ftm_tsf_sync_info = -1;
+
 static int * const ieee80211_tag_he_6ghz_cap_inf[] = {
   &hf_ieee80211_tag_he_6ghz_cap_inf_b0_b2,
   &hf_ieee80211_tag_he_6ghz_cap_inf_b3_b5,
@@ -27105,6 +27107,9 @@ ieee80211_tag_element_id_extension(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     case ETAG_HE_6GHZ_BAND_CAPABILITIES:
       dissect_he_6ghz_band_capabilities(tvb, pinfo, tree, offset, ext_tag_len);
       break;
+    case ETAG_FTM_SYNC_INFO:
+      proto_tree_add_item(tree, hf_ieee80211_tag_ftm_tsf_sync_info, tvb, offset, ext_tag_len, ENC_NA);
+      break;
     default:
       proto_tree_add_item(tree, hf_ieee80211_ext_tag_data, tvb, offset, ext_tag_len, ENC_NA);
       expert_add_info_format(pinfo, field_data->item_tag, &ei_ieee80211_tag_data,
@@ -39038,6 +39043,11 @@ proto_register_ieee80211(void)
     {&hf_ieee80211_tag_he_6ghz_cap_inf_b14_b15,
      {"Reserved", "wlan.tag.he_6ghz.cap_inf.b14_b15",
       FT_UINT16, BASE_HEX, NULL, 0xC000,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_ftm_tsf_sync_info,
+     {"TSF Sync Info", "wlan.tag.ftm_tsf_sync_info",
+      FT_BYTES, BASE_NONE, NULL, 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_rsn_version,
