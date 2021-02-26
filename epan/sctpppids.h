@@ -1,6 +1,8 @@
 /* sctpppids.h
  * Declarations of SCTP payload protocol IDs.
  *
+ * Copyright 2011-2021 by Thomas Dreibholz <dreibh [AT] iem.uni-due.de>
+ *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
@@ -93,5 +95,7 @@
 #define E2_UP_PROTOCOL_ID                              71
 #define E2_DU_PROTOCOL_ID                              72
 #define W1AP_PROTOCOL_ID                               73
+
+WS_DLL_PUBLIC value_string_ext sctpppid_val_ext;
 
 #endif /* sctpppids.h */

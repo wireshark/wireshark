@@ -1452,6 +1452,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  scsi_ssc_vals_ext@Base 1.12.0~rc1
  scsistat_param@Base 2.5.0
  sctp_port_to_display@Base 1.99.2
+ sctpppid_val_ext@Base 3.5.0
  secrets_get_available_keys@Base 2.9.1
  secrets_rsa_decrypt@Base 2.9.0
  secrets_verify_key@Base 2.9.1

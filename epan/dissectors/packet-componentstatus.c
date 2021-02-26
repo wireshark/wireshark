@@ -17,6 +17,8 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/ipproto.h>
+#include <epan/sctpppids.h>
 
 
 #if 0
@@ -126,7 +128,7 @@ static const true_false_string message_flags_final_bit = {
 
 
 static const value_string message_type_values[] = {
-  { COMPONENTSTATUS_COMPONENTSTATUSREPORT_MESSAGE_TYPE,             "ComponentStatus Report" },
+  { COMPONENTSTATUS_COMPONENTSTATUSREPORT_MESSAGE_TYPE, "ComponentStatus Report" },
   { 0, NULL }
 };
 
@@ -256,8 +258,8 @@ proto_register_componentstatusprotocol(void)
     { &hf_componentassociation_receiverid,        { "ReceiverID",       "componentstatusprotocol.componentassociation_receiverid",        FT_UINT64, BASE_HEX, NULL,                      0x0, NULL, HFILL } },
     { &hf_componentassociation_duration,          { "Duration",         "componentstatusprotocol.componentassociation_duration",          FT_UINT64, BASE_DEC, NULL,                      0x0, NULL, HFILL } },
     { &hf_componentassociation_flags,             { "Flags",            "componentstatusprotocol.componentassociation_flags",             FT_UINT16, BASE_DEC, NULL,                      0x0, NULL, HFILL } },
-    { &hf_componentassociation_protocolid,        { "ProtocolID",       "componentstatusprotocol.componentassociation_protocolid",        FT_UINT16, BASE_DEC, NULL,                      0x0, NULL, HFILL } },
-    { &hf_componentassociation_ppid,              { "PPID",             "componentstatusprotocol.componentassociation_ppid",              FT_UINT32, BASE_DEC, NULL,                      0x0, NULL, HFILL } },
+    { &hf_componentassociation_protocolid,        { "ProtocolID",       "componentstatusprotocol.componentassociation_protocolid",        FT_UINT16, BASE_DEC|BASE_EXT_STRING, &ipproto_val_ext,  0x0, NULL, HFILL } },
+    { &hf_componentassociation_ppid,              { "PPID",             "componentstatusprotocol.componentassociation_ppid",              FT_UINT32, BASE_DEC|BASE_EXT_STRING, &sctpppid_val_ext, 0x0, NULL, HFILL } },
   };
 
   /* Setup protocol subtree array */

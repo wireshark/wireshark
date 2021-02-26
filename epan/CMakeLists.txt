@@ -229,6 +229,7 @@ set(LIBWIRESHARK_NONGENERATED_FILES
 	register.c
 	req_resp_hdrs.c
 	rtd_table.c
+	sctpppids.c
 	secrets.c
 	sequence_analysis.c
 	show_exception.c
