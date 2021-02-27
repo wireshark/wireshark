@@ -104,7 +104,7 @@
 #include <wsutil/strtoi.h>
 #include <wsutil/rsa.h>
 #include <errno.h>
-#include <wsutil/ws_printf.h>
+#include <epan/ws_printf.h>
 #include <epan/ptvcursor.h>
 
 void proto_register_tibia(void);

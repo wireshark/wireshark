@@ -18,12 +18,6 @@
 
 #include <wsutil/glib-compat.h>
 
-#if 0
-#define wtap_debug(...) g_warning(__VA_ARGS__)
-#else
-#define wtap_debug(...)
-#endif
-
 /*
  * Structure describing a type of block.
  */

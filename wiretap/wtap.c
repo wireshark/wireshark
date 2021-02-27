@@ -39,7 +39,7 @@ wtap_register_plugin(const wtap_plugin *plug)
 void
 wtap_register_plugin(const wtap_plugin *plug _U_)
 {
-	wtap_warn("wtap_register_plugin: built without support for binary plugins");
+	g_warning("wtap_register_plugin: built without support for binary plugins");
 }
 #endif /* HAVE_PLUGINS */
 

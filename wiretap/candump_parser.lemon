@@ -57,11 +57,11 @@ DIAG_OFF(unreachable-code)
 
 #ifdef CANDUMP_DEBUG
     const int n = sizeof(yyTokenName) / sizeof(yyTokenName[0]);
-    ws_debug_printf("%s: got token: %s\n", G_STRFUNC, yyTokenName[yymajor]);
+    candump_debug_printf("%s: got token: %s\n", G_STRFUNC, yyTokenName[yymajor]);
     for (int i = 0; i < n; ++i) {
         int a = yy_find_shift_action((YYCODETYPE)i, yypParser->yytos->stateno);
         if (a < YYNSTATE + YYNRULE) {
-            ws_debug_printf("%s: possible token: %s\n", G_STRFUNC, yyTokenName[i]);
+            candump_debug_printf("%s: possible token: %s\n", G_STRFUNC, yyTokenName[i]);
         }
     }
 #endif
@@ -69,7 +69,7 @@ DIAG_OFF(unreachable-code)
     g_free(state->parse_error);
     state->parse_error = g_strdup_printf("Syntax Error");
 #ifdef CANDUMP_DEBUG
-    ws_debug_printf("%s: Syntax Error\n", G_STRFUNC);
+    candump_debug_printf("%s: Syntax Error\n", G_STRFUNC);
 #endif
 }
 
@@ -78,7 +78,7 @@ DIAG_OFF(unreachable-code)
     g_free(state->parse_error);
     state->parse_error = g_strdup("Parse Error");
 #ifdef CANDUMP_DEBUG
-    ws_debug_printf("%s: Parse Error\n", G_STRFUNC);
+    candump_debug_printf("%s: Parse Error\n", G_STRFUNC);
 #endif
 }
 
@@ -113,7 +113,7 @@ DIAG_OFF(unreachable-code)
 line ::= maybe_spaces msg(M) .
 {
 #ifdef CANDUMP_DEBUG
-    ws_debug_printf("%s: read message\n", G_STRFUNC);
+    candump_debug_printf("%s: read message\n", G_STRFUNC);
 #endif
 
     state->msg          = M;
@@ -123,7 +123,7 @@ line ::= maybe_spaces msg(M) .
 line ::= maybe_spaces .
 {
 #ifdef CANDUMP_DEBUG
-    ws_debug_printf("%s: read empty line\n", G_STRFUNC);
+    candump_debug_printf("%s: read empty line\n", G_STRFUNC);
 #endif
 }
 
@@ -294,7 +294,7 @@ run_candump_parser(candump_state_t *state, int *err, gchar **err_info)
 #ifdef CANDUMP_DEBUG
     CandumpParserTrace(stdout, "parser >> ");
 
-    ws_debug_printf("%s: Starting parsing\n", G_STRFUNC);
+    candump_debug_printf("%s: Starting parsing\n", G_STRFUNC);
 #endif
 
     do
@@ -303,11 +303,11 @@ run_candump_parser(candump_state_t *state, int *err, gchar **err_info)
 
 #ifdef CANDUMP_DEBUG
         if (lex_code)
-            ws_debug_printf("%s: Feeding %s '%s'\n",
+            candump_debug_printf("%s: Feeding %s '%s'\n",
                             G_STRFUNC, yyTokenName[lex_code],
                             candump_get_text(scanner));
         else
-            ws_debug_printf("%s: Feeding %s\n",
+            candump_debug_printf("%s: Feeding %s\n",
                             G_STRFUNC, yyTokenName[lex_code]);
 #endif
 
@@ -319,7 +319,7 @@ run_candump_parser(candump_state_t *state, int *err, gchar **err_info)
     while (lex_code);
 
 #ifdef CANDUMP_DEBUG
-    ws_debug_printf("%s: Done (%d)\n", G_STRFUNC, lex_code);
+    candump_debug_printf("%s: Done (%d)\n", G_STRFUNC, lex_code);
 #endif
 
     CandumpParserFree(parser, g_free);

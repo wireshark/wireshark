@@ -45,7 +45,6 @@
 #include "in_cksum.h"
 #include "register-int.h"
 
-#include <wsutil/ws_printf.h> /* ws_debug_printf */
 #include <wsutil/crash_info.h>
 #include <wsutil/epochs.h>
 
@@ -1418,7 +1417,7 @@ proto_tree_add_debug_text(proto_tree *tree, const char *format, ...)
 	va_start(ap, format);
 	vprintf(format, ap);
 	va_end(ap);
-	ws_debug_printf("\n");
+	printf("\n");
 
 	return pi;
 }
@@ -10636,7 +10635,7 @@ proto_registrar_dump_protocols(void)
 	i = proto_get_first_protocol(&cookie);
 	while (i != -1) {
 		protocol = find_protocol_by_id(i);
-		ws_debug_printf("%s\t%s\t%s\n", protocol->name, protocol->short_name,
+		printf("%s\t%s\t%s\n", protocol->name, protocol->short_name,
 			protocol->filter_name);
 		i = proto_get_next_protocol(&cookie);
 	}
@@ -10785,7 +10784,7 @@ proto_registrar_dump_values(void)
 						continue;
 					}
 					try_val64_to_str_ext(0, vse_p); /* "prime" the extended val64_string */
-					ws_debug_printf("E\t%s\t%u\t%s\t%s\n",
+					printf("E\t%s\t%u\t%s\t%s\n",
 					       hfinfo->abbrev,
 					       VAL64_STRING_EXT_VS_NUM_ENTRIES(vse_p),
 					       VAL64_STRING_EXT_VS_NAME(vse_p),
@@ -10797,7 +10796,7 @@ proto_registrar_dump_values(void)
 						continue;
 					}
 					try_val_to_str_ext(0, vse_p); /* "prime" the extended value_string */
-					ws_debug_printf("E\t%s\t%u\t%s\t%s\n",
+					printf("E\t%s\t%u\t%s\t%s\n",
 					       hfinfo->abbrev,
 					       VALUE_STRING_EXT_VS_NUM_ENTRIES(vse_p),
 					       VALUE_STRING_EXT_VS_NAME(vse_p),
@@ -10809,19 +10808,19 @@ proto_registrar_dump_values(void)
 				/* Print in the proper base */
 				if (hfinfo->type == FT_CHAR) {
 					if (g_ascii_isprint(vals[vi].value)) {
-						ws_debug_printf("V\t%s\t'%c'\t%s\n",
+						printf("V\t%s\t'%c'\t%s\n",
 						       hfinfo->abbrev,
 						       vals[vi].value,
 						       vals[vi].strptr);
 					} else {
 						if (hfinfo->display == BASE_HEX) {
-							ws_debug_printf("V\t%s\t'\\x%02x'\t%s\n",
+							printf("V\t%s\t'\\x%02x'\t%s\n",
 							       hfinfo->abbrev,
 							       vals[vi].value,
 							       vals[vi].strptr);
 						}
 						else {
-							ws_debug_printf("V\t%s\t'\\%03o'\t%s\n",
+							printf("V\t%s\t'\\%03o'\t%s\n",
 							       hfinfo->abbrev,
 							       vals[vi].value,
 							       vals[vi].strptr);
@@ -10829,13 +10828,13 @@ proto_registrar_dump_values(void)
 					}
 				} else {
 					if (hfinfo->display == BASE_HEX) {
-						ws_debug_printf("V\t%s\t0x%x\t%s\n",
+						printf("V\t%s\t0x%x\t%s\n",
 						       hfinfo->abbrev,
 						       vals[vi].value,
 						       vals[vi].strptr);
 					}
 					else {
-						ws_debug_printf("V\t%s\t%u\t%s\n",
+						printf("V\t%s\t%u\t%s\n",
 						       hfinfo->abbrev,
 						       vals[vi].value,
 						       vals[vi].strptr);
@@ -10847,7 +10846,7 @@ proto_registrar_dump_values(void)
 		else if (vals64) {
 			vi = 0;
 			while (vals64[vi].strptr) {
-				ws_debug_printf("V64\t%s\t%" G_GINT64_MODIFIER "u\t%s\n",
+				printf("V64\t%s\t%" G_GINT64_MODIFIER "u\t%s\n",
 				       hfinfo->abbrev,
 				       vals64[vi].value,
 				       vals64[vi].strptr);
@@ -10861,14 +10860,14 @@ proto_registrar_dump_values(void)
 			while (range[vi].strptr) {
 				/* Print in the proper base */
 				if (FIELD_DISPLAY(hfinfo->display) == BASE_HEX) {
-					ws_debug_printf("R\t%s\t0x%x\t0x%x\t%s\n",
+					printf("R\t%s\t0x%x\t0x%x\t%s\n",
 					       hfinfo->abbrev,
 					       range[vi].value_min,
 					       range[vi].value_max,
 					       range[vi].strptr);
 				}
 				else {
-					ws_debug_printf("R\t%s\t%u\t%u\t%s\n",
+					printf("R\t%s\t%u\t%u\t%s\n",
 					       hfinfo->abbrev,
 					       range[vi].value_min,
 					       range[vi].value_max,
@@ -10880,12 +10879,12 @@ proto_registrar_dump_values(void)
 
 		/* Print true/false strings? */
 		else if (tfs) {
-			ws_debug_printf("T\t%s\t%s\t%s\n", hfinfo->abbrev,
+			printf("T\t%s\t%s\t%s\n", hfinfo->abbrev,
 			       tfs->true_string, tfs->false_string);
 		}
 		/* Print unit strings? */
 		else if (units) {
-			ws_debug_printf("U\t%s\t%s\t%s\n", hfinfo->abbrev,
+			printf("U\t%s\t%s\t%s\n", hfinfo->abbrev,
 			       units->singular, units->plural ? units->plural : "(no plural)");
 		}
 	}
@@ -10922,21 +10921,21 @@ proto_registrar_dump_fieldcount(void)
 			same_name_count++;
 	}
 
-	ws_debug_printf("There are %u header fields registered, of which:\n"
+	printf("There are %u header fields registered, of which:\n"
 		"\t%u are deregistered\n"
 		"\t%u are protocols\n"
 		"\t%u have the same name as another field\n\n",
 		gpa_hfinfo.len, deregistered_count, protocol_count,
 		same_name_count);
 
-	ws_debug_printf("%d fields were pre-allocated.\n%s", PROTO_PRE_ALLOC_HF_FIELDS_MEM,
+	printf("%d fields were pre-allocated.\n%s", PROTO_PRE_ALLOC_HF_FIELDS_MEM,
 		(gpa_hfinfo.allocated_len > PROTO_PRE_ALLOC_HF_FIELDS_MEM) ?
 		    "* * Please increase PROTO_PRE_ALLOC_HF_FIELDS_MEM (in epan/proto.c)! * *\n\n" :
 		    "\n");
 
-	ws_debug_printf("The header field table consumes %u KiB of memory.\n",
+	printf("The header field table consumes %u KiB of memory.\n",
 		(unsigned int)(gpa_hfinfo.allocated_len * sizeof(header_field_info *) / 1024));
-	ws_debug_printf("The fields themselves consume %u KiB of memory.\n",
+	printf("The fields themselves consume %u KiB of memory.\n",
 		(unsigned int)(gpa_hfinfo.len * sizeof(header_field_info) / 1024));
 
 	return (gpa_hfinfo.allocated_len > PROTO_PRE_ALLOC_HF_FIELDS_MEM);
@@ -11194,7 +11193,7 @@ proto_registrar_dump_fields(void)
 
 		/* format for protocols */
 		if (proto_registrar_is_protocol(i)) {
-			ws_debug_printf("P\t%s\t%s\n", hfinfo->name, hfinfo->abbrev);
+			printf("P\t%s\t%s\n", hfinfo->name, hfinfo->abbrev);
 		}
 		/* format for header fields */
 		else {
@@ -11267,7 +11266,7 @@ proto_registrar_dump_fields(void)
 			else if (strlen(blurb) == 0)
 				blurb = "\"\"";
 
-			ws_debug_printf("F\t%s\t%s\t%s\t%s\t%s\t0x%" G_GINT64_MODIFIER "x\t%s\n",
+			printf("F\t%s\t%s\t%s\t%s\t%s\t0x%" G_GINT64_MODIFIER "x\t%s\n",
 				hfinfo->name, hfinfo->abbrev, enum_name,
 				parent_hfinfo->abbrev, base_name,
 				hfinfo->bitmask, blurb);
@@ -11290,7 +11289,7 @@ proto_registrar_dump_ftypes(void)
 	int fte;
 
 	for (fte = 0; fte < FT_NUM_TYPES; fte++) {
-		ws_debug_printf("%s\t%s\n", ftype_name((ftenum_t)fte), ftype_pretty_name((ftenum_t)fte));
+		printf("%s\t%s\n", ftype_name((ftenum_t)fte), ftype_pretty_name((ftenum_t)fte));
 	}
 }
 

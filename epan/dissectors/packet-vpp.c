@@ -20,7 +20,7 @@
 #include <epan/nlpid.h>
 #include <epan/etypes.h>
 #include <stdio.h>
-#include <wsutil/ws_printf.h>
+#include <epan/ws_printf.h>
 
 void proto_register_vpp(void);
 void proto_reg_handoff_vpp(void);

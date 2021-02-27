@@ -39,7 +39,7 @@
 #include <wsutil/filesystem.h>
 #include <wsutil/file_util.h>
 #include <wsutil/pint.h>
-#include <wsutil/ws_printf.h>
+#include <epan/ws_printf.h>
 #include <wsutil/report_message.h>
 
 #include "protobuf-helper.h"

@@ -21,10 +21,6 @@
 #include <epan/exceptions.h>
 #include <epan/packet.h>
 
-#ifdef DEBUG_dfilter
-#include <wsutil/ws_printf.h> /* ws_debug_printf */
-#endif
-
 #include <ftypes/ftypes-int.h>
 
 /* Enable debug logging by defining AM_CFLAGS
@@ -33,8 +29,8 @@
 
 #ifdef DEBUG_dfilter
 #define DebugLog(x) \
-	ws_debug_printf("%s:%u: ", __FILE__, (unsigned int)__LINE__); \
-	ws_debug_printf x; \
+	printf("%s:%u: ", __FILE__, (unsigned int)__LINE__); \
+	printf x; \
 	fflush(stdout)
 #else
 #define DebugLog(x) ;

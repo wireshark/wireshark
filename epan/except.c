@@ -35,9 +35,6 @@
 #include <glib.h>
 
 #include "except.h"
-#ifdef KAZLIB_TEST_MAIN
-#include <wsutil/ws_printf.h> /* ws_debug_printf */
-#endif
 
 #ifdef _WIN32
 #include <windows.h>
@@ -392,13 +389,13 @@ void except_free(void *ptr)
 
 static void cleanup(void *arg)
 {
-    ws_debug_printf("cleanup(\"%s\") called\n", (char *) arg);
+    printf("cleanup(\"%s\") called\n", (char *) arg);
 }
 
 static void bottom_level(void)
 {
     char buf[256];
-    ws_debug_printf("throw exception? "); fflush(stdout);
+    printf("throw exception? "); fflush(stdout);
     fgets(buf, sizeof buf, stdin);
 
     if (buf[0] >= 0 && (buf[0] == 'Y' || buf[0] == 'y'))
@@ -433,10 +430,10 @@ int main(int argc, char **argv)
             /* inner catch */
             msg = except_message(ex);
             if (msg == NULL) {
-                ws_debug_printf("caught exception (inner): s=%lu, c=%lu\n",
+                printf("caught exception (inner): s=%lu, c=%lu\n",
                        except_group(ex), except_code(ex));
             } else {
-                ws_debug_printf("caught exception (inner): \"%s\", s=%lu, c=%lu\n",
+                printf("caught exception (inner): \"%s\", s=%lu, c=%lu\n",
                        msg, except_group(ex), except_code(ex));
             }
             except_rethrow(ex);
@@ -446,10 +443,10 @@ int main(int argc, char **argv)
         /* outer catch */
         msg = except_message(ex);
         if (msg == NULL) {
-            ws_debug_printf("caught exception (outer): s=%lu, c=%lu\n",
+            printf("caught exception (outer): s=%lu, c=%lu\n",
                    except_group(ex), except_code(ex));
         } else {
-            ws_debug_printf("caught exception (outer): \"%s\", s=%lu, c=%lu\n",
+            printf("caught exception (outer): \"%s\", s=%lu, c=%lu\n",
                    except_message(ex), except_group(ex), except_code(ex));
         }
     }
@@ -459,7 +456,7 @@ int main(int argc, char **argv)
 }
 
 
-#endif
+#endif /* KAZLIB_TEST_MAIN */
 
 /*
  * Editor modelines  -  https://www.wireshark.org/tools/modelines.html

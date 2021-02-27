@@ -12,6 +12,8 @@
 
 #include <config.h>
 
+#define G_LOG_DOMAIN "tshark"
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -56,6 +58,7 @@
 #include <wsutil/privileges.h>
 #include <wsutil/report_message.h>
 #include <wsutil/please_report_bug.h>
+#include <wsutil/wslog.h>
 #include <cli_main.h>
 #include <version_info.h>
 #include <wiretap/wtap_opttypes.h>
@@ -138,12 +141,6 @@
 #define LONGOPT_COLOR                   LONGOPT_BASE_APPLICATION+2
 #define LONGOPT_NO_DUPLICATE_KEYS       LONGOPT_BASE_APPLICATION+3
 #define LONGOPT_ELASTIC_MAPPING_FILTER  LONGOPT_BASE_APPLICATION+4
-
-#if 0
-#define tshark_debug(...) g_warning(__VA_ARGS__)
-#else
-#define tshark_debug(...)
-#endif
 
 capture_file cfile;
 
@@ -794,7 +791,7 @@ main(int argc, char *argv[])
   setlocale(LC_ALL, "");
 #endif
 
-  tshark_debug("tshark started with %d args", argc);
+  ws_debug("tshark started with %d args", argc);
 
   cmdarg_err_init(tshark_cmdarg_err, tshark_cmdarg_err_cont);
 
@@ -1068,7 +1065,7 @@ main(int argc, char *argv[])
     goto clean_exit;
   }
 
-  tshark_debug("tshark reading settings");
+  ws_debug("tshark reading settings");
 
   /* Load libwireshark settings from the current profile. */
   prefs_p = epan_load_settings();
@@ -1940,7 +1937,7 @@ main(int argc, char *argv[])
 #endif
 
   if (rfilter != NULL) {
-    tshark_debug("Compiling read filter: '%s'", rfilter);
+    ws_debug("Compiling read filter: '%s'", rfilter);
     if (!dfilter_compile(rfilter, &rfcode, &err_msg)) {
       cmdarg_err("%s", err_msg);
       g_free(err_msg);
@@ -1967,7 +1964,7 @@ main(int argc, char *argv[])
   cfile.rfcode = rfcode;
 
   if (dfilter != NULL) {
-    tshark_debug("Compiling display filter: '%s'", dfilter);
+    ws_debug("Compiling display filter: '%s'", dfilter);
     if (!dfilter_compile(dfilter, &dfcode, &err_msg)) {
       cmdarg_err("%s", err_msg);
       g_free(err_msg);
@@ -2077,10 +2074,10 @@ main(int argc, char *argv[])
       }
   }
 
-  tshark_debug("tshark: do_dissection = %s", do_dissection ? "TRUE" : "FALSE");
+  ws_debug("tshark: do_dissection = %s", do_dissection ? "TRUE" : "FALSE");
 
   if (cf_name) {
-    tshark_debug("tshark: Opening capture file: %s", cf_name);
+    ws_debug("tshark: Opening capture file: %s", cf_name);
     /*
      * We're reading a capture file.
      */
@@ -2105,7 +2102,7 @@ main(int argc, char *argv[])
     do_dissection = must_do_dissection(rfcode, dfcode, pdu_export_arg);
 
     /* Process the packets in the file */
-    tshark_debug("tshark: invoking process_cap_file() to process the packets");
+    ws_debug("tshark: invoking process_cap_file() to process the packets");
     TRY {
       status = process_cap_file(&cfile, output_file_name, out_file_type, out_file_name_res,
 #ifdef HAVE_LIBPCAP
@@ -2164,7 +2161,7 @@ main(int argc, char *argv[])
         g_free(exp_pdu_filename);
     }
   } else {
-    tshark_debug("tshark: no capture file specified");
+    ws_debug("tshark: no capture file specified");
     /* No capture file specified, so we're supposed to do a live capture
        or get a list of link-layer types for a live capture device;
        do we have support for live captures? */
@@ -2264,7 +2261,7 @@ main(int argc, char *argv[])
       }
     }
 
-    tshark_debug("tshark: performing live capture");
+    ws_debug("tshark: performing live capture");
 
     /* Start statistics taps; we should only do so after the capture
        started successfully, so we know we have something to compute
@@ -3153,14 +3150,14 @@ process_cap_file_first_pass(capture_file *cf, int max_packet_count,
     create_proto_tree =
       (cf->rfcode != NULL || cf->dfcode != NULL || postdissectors_want_hfids() || dissect_color);
 
-    tshark_debug("tshark: create_proto_tree = %s", create_proto_tree ? "TRUE" : "FALSE");
+    ws_debug("tshark: create_proto_tree = %s", create_proto_tree ? "TRUE" : "FALSE");
 
     /* We're not going to display the protocol tree on this pass,
        so it's not going to be "visible". */
     edt = epan_dissect_new(cf->epan, create_proto_tree, FALSE);
   }
 
-  tshark_debug("tshark: reading records for first pass");
+  ws_debug("tshark: reading records for first pass");
   *err = 0;
   while (wtap_read(cf->provider.wth, &rec, &buf, err, err_info, &data_offset)) {
     if (read_interrupted) {
@@ -3174,7 +3171,7 @@ process_cap_file_first_pass(capture_file *cf, int max_packet_count,
        * (unless we roll over max_packet_count ?)
        */
       if ( (--max_packet_count == 0) || (max_byte_count != 0 && data_offset >= max_byte_count)) {
-        tshark_debug("tshark: max_packet_count (%d) or max_byte_count (%" G_GINT64_MODIFIER "d/%" G_GINT64_MODIFIER "d) reached",
+        ws_debug("tshark: max_packet_count (%d) or max_byte_count (%" G_GINT64_MODIFIER "d/%" G_GINT64_MODIFIER "d) reached",
                       max_packet_count, data_offset, max_byte_count);
         *err = 0; /* This is not an error */
         break;
@@ -3366,7 +3363,7 @@ process_cap_file_second_pass(capture_file *cf, wtap_dumper *pdh,
       (cf->dfcode || print_details || filtering_tap_listeners ||
        (tap_flags & TL_REQUIRES_PROTO_TREE) || have_custom_cols(&cf->cinfo) || dissect_color);
 
-    tshark_debug("tshark: create_proto_tree = %s", create_proto_tree ? "TRUE" : "FALSE");
+    ws_debug("tshark: create_proto_tree = %s", create_proto_tree ? "TRUE" : "FALSE");
 
     /* The protocol tree will be "visible", i.e., printed, only if we're
        printing packet details, which is true if we're printing stuff
@@ -3393,16 +3390,16 @@ process_cap_file_second_pass(capture_file *cf, wtap_dumper *pdh,
       status = PASS_READ_ERROR;
       break;
     }
-    tshark_debug("tshark: invoking process_packet_second_pass() for frame #%d", framenum);
+    ws_debug("tshark: invoking process_packet_second_pass() for frame #%d", framenum);
     if (process_packet_second_pass(cf, edt, fdata, &rec, &buf, tap_flags)) {
       /* Either there's no read filtering or this packet passed the
          filter, so, if we're writing to a capture file, write
          this packet out. */
       if (pdh != NULL) {
-        tshark_debug("tshark: writing packet #%d to outfile", framenum);
+        ws_debug("tshark: writing packet #%d to outfile", framenum);
         if (!wtap_dump(pdh, &rec, ws_buffer_start_ptr(&buf), err, err_info)) {
           /* Error writing to the output file. */
-          tshark_debug("tshark: error writing to a capture file (%d)", *err);
+          ws_debug("tshark: error writing to a capture file (%d)", *err);
           *err_framenum = framenum;
           status = PASS_WRITE_ERROR;
           break;
@@ -3473,7 +3470,7 @@ process_cap_file_single_pass(capture_file *cf, wtap_dumper *pdh,
         (tap_flags & TL_REQUIRES_PROTO_TREE) || postdissectors_want_hfids() ||
         have_custom_cols(&cf->cinfo) || dissect_color);
 
-    tshark_debug("tshark: create_proto_tree = %s", create_proto_tree ? "TRUE" : "FALSE");
+    ws_debug("tshark: create_proto_tree = %s", create_proto_tree ? "TRUE" : "FALSE");
 
     /* The protocol tree will be "visible", i.e., printed, only if we're
        printing packet details, which is true if we're printing stuff
@@ -3506,7 +3503,7 @@ process_cap_file_single_pass(capture_file *cf, wtap_dumper *pdh,
       break;
     }
 
-    tshark_debug("tshark: processing packet #%d", framenum);
+    ws_debug("tshark: processing packet #%d", framenum);
 
     reset_epan_mem(cf, edt, create_proto_tree, print_packet_info && print_details);
 
@@ -3515,10 +3512,10 @@ process_cap_file_single_pass(capture_file *cf, wtap_dumper *pdh,
          filter, so, if we're writing to a capture file, write
          this packet out. */
       if (pdh != NULL) {
-        tshark_debug("tshark: writing packet #%d to outfile", framenum);
+        ws_debug("tshark: writing packet #%d to outfile", framenum);
         if (!wtap_dump(pdh, &rec, ws_buffer_start_ptr(&buf), err, err_info)) {
           /* Error writing to the output file. */
-          tshark_debug("tshark: error writing to a capture file (%d)", *err);
+          ws_debug("tshark: error writing to a capture file (%d)", *err);
           *err_framenum = framenum;
           status = PASS_WRITE_ERROR;
           break;
@@ -3531,7 +3528,7 @@ process_cap_file_single_pass(capture_file *cf, wtap_dumper *pdh,
      * (unless we roll over max_packet_count ?)
      */
     if ( (--max_packet_count == 0) || (max_byte_count != 0 && data_offset >= max_byte_count)) {
-      tshark_debug("tshark: max_packet_count (%d) or max_byte_count (%" G_GINT64_MODIFIER "d/%" G_GINT64_MODIFIER "d) reached",
+      ws_debug("tshark: max_packet_count (%d) or max_byte_count (%" G_GINT64_MODIFIER "d/%" G_GINT64_MODIFIER "d) reached",
                     max_packet_count, data_offset, max_byte_count);
       *err = 0; /* This is not an error */
       break;
@@ -3577,7 +3574,7 @@ process_cap_file(capture_file *cf, char *save_file, int out_file_type,
       wtap_block_add_string_option_format(g_array_index(params.shb_hdrs, wtap_block_t, 0), OPT_SHB_USERAPPL, "%s", get_appname_and_version());
     }
 
-    tshark_debug("tshark: writing format type %d, to %s", out_file_type, save_file);
+    ws_debug("tshark: writing format type %d, to %s", out_file_type, save_file);
     if (strcmp(save_file, "-") == 0) {
       /* Write to the standard output. */
       pdh = wtap_dump_open_stdout(out_file_type, WTAP_UNCOMPRESSED, &params,
@@ -3634,14 +3631,14 @@ process_cap_file(capture_file *cf, char *save_file, int out_file_type,
 #endif /* _WIN32 */
 
   if (perform_two_pass_analysis) {
-    tshark_debug("tshark: perform_two_pass_analysis, do_dissection=%s", do_dissection ? "TRUE" : "FALSE");
+    ws_debug("tshark: perform_two_pass_analysis, do_dissection=%s", do_dissection ? "TRUE" : "FALSE");
 
     first_pass_status = process_cap_file_first_pass(cf, max_packet_count,
                                                     max_byte_count,
                                                     &err_pass1,
                                                     &err_info_pass1);
 
-    tshark_debug("tshark: done with first pass");
+    ws_debug("tshark: done with first pass");
 
     if (first_pass_status == PASS_INTERRUPTED) {
       /* The first pass was interrupted; skip the second pass.
@@ -3658,12 +3655,12 @@ process_cap_file(capture_file *cf, char *save_file, int out_file_type,
       second_pass_status = process_cap_file_second_pass(cf, pdh, &err, &err_info,
                                                         &err_framenum);
 
-      tshark_debug("tshark: done with second pass");
+      ws_debug("tshark: done with second pass");
     }
   }
   else {
     /* !perform_two_pass_analysis */
-    tshark_debug("tshark: perform one pass analysis, do_dissection=%s", do_dissection ? "TRUE" : "FALSE");
+    ws_debug("tshark: perform one pass analysis, do_dissection=%s", do_dissection ? "TRUE" : "FALSE");
 
     first_pass_status = PASS_SUCCEEDED; /* There is no first pass */
     second_pass_status = process_cap_file_single_pass(cf, pdh,
@@ -3682,7 +3679,7 @@ process_cap_file(capture_file *cf, char *save_file, int out_file_type,
     if (first_pass_status != PASS_INTERRUPTED ||
         second_pass_status != PASS_INTERRUPTED) {
       /* At least one of the passes got an error. */
-      tshark_debug("tshark: something failed along the line (%d)", err);
+      ws_debug("tshark: something failed along the line (%d)", err);
       /*
        * If we're printing packet data, and the standard output and error
        * are going to the same place, flush the standard output, so everything

@@ -40,7 +40,6 @@
 #include <wsutil/file_util.h>
 #include <wsutil/filesystem.h>
 #include <wsutil/ws_pipe.h>
-#include <wsutil/ws_printf.h>
 #include <wsutil/tempfile.h>
 
 #include "capture_opts.h"
@@ -217,7 +216,7 @@ print_extcap_description(const char *basename, const char *version,
                         const char *description, const char *filename,
                         void *user_data _U_)
 {
-    ws_debug_printf("%-16s\t%s\t%s\t%s\n", basename, version, description, filename);
+    printf("%-16s\t%s\t%s\t%s\n", basename, version, description, filename);
 }
 
 void

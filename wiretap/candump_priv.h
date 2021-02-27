@@ -59,14 +59,11 @@ typedef struct {
 gboolean
 run_candump_parser(candump_state_t *state, int *err, gchar **err_info);
 
-#include <wsutil/ws_printf.h>
-
-/* Uncomment the following line to make decoder verbose */
-//#undef NDEBUG
-
-#ifdef NDEBUG
-#undef  ws_debug_printf
-#define ws_debug_printf(...) (void)0
+#ifdef CANDUMP_DEBUG
+#include <stdio.h>
+#define candump_debug_printf(...) printf(__VA_ARGS__)
+#else
+#define candump_debug_printf(...) (void)0
 #endif
 
 #endif  /* CANDUMP_PRIV_H__ */

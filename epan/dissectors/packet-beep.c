@@ -24,7 +24,7 @@
 #include <epan/expert.h>
 #include <epan/proto_data.h>
 #if defined(DEBUG_BEEP_HASH)
-#include <wsutil/ws_printf.h> /* ws_debug_printf */
+#include <epan/ws_printf.h>
 #endif
 
 #define TCP_PORT_BEEP 10288 /* Don't think this is IANA registered */

@@ -9,6 +9,8 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
+#define G_LOG_DOMAIN "epan"
+
 #include <config.h>
 
 #include <glib.h>
@@ -22,9 +24,7 @@
 #endif
 
 #include "tvbuff.h"
-#ifdef TVB_Z_DEBUG
-#include <wsutil/ws_printf.h> /* ws_debug_printf */
-#endif
+#include <wsutil/wslog.h>
 
 #ifdef HAVE_ZLIB
 /*
@@ -34,8 +34,6 @@
  */
 #define TVB_Z_MIN_BUFSIZ 32768
 #define TVB_Z_MAX_BUFSIZ 1048576 * 10
-/* #define TVB_Z_DEBUG 1 */
-#undef TVB_Z_DEBUG
 
 tvbuff_t *
 tvb_uncompress(tvbuff_t *tvb, const int offset, int comprlen)
@@ -51,7 +49,7 @@ tvb_uncompress(tvbuff_t *tvb, const int offset, int comprlen)
 	gint       wbits          = MAX_WBITS;
 	guint8    *next;
 	guint      bufsiz;
-#ifdef TVB_Z_DEBUG
+#ifdef WS_DEBUG
 	guint      inflate_passes = 0;
 	guint      bytes_in       = tvb_captured_length_remaining(tvb, offset);
 #endif
@@ -72,9 +70,7 @@ tvb_uncompress(tvbuff_t *tvb, const int offset, int comprlen)
 	bufsiz = tvb_captured_length_remaining(tvb, offset) * 2;
 	bufsiz = CLAMP(bufsiz, TVB_Z_MIN_BUFSIZ, TVB_Z_MAX_BUFSIZ);
 
-#ifdef TVB_Z_DEBUG
-	ws_debug_printf("bufsiz: %u bytes\n", bufsiz);
-#endif
+	ws_debug("bufsiz: %u bytes\n", bufsiz);
 
 	next = compr;
 
@@ -106,7 +102,7 @@ tvb_uncompress(tvbuff_t *tvb, const int offset, int comprlen)
 		if (err == Z_OK || err == Z_STREAM_END) {
 			guint bytes_pass = bufsiz - strm->avail_out;
 
-#ifdef TVB_Z_DEBUG
+#ifdef WS_DEBUG
 			++inflate_passes;
 #endif
 
@@ -305,10 +301,8 @@ tvb_uncompress(tvbuff_t *tvb, const int offset, int comprlen)
 		}
 	}
 
-#ifdef TVB_Z_DEBUG
-	ws_debug_printf("inflate() total passes: %u\n", inflate_passes);
-	ws_debug_printf("bytes  in: %u\nbytes out: %u\n\n", bytes_in, bytes_out);
-#endif
+	ws_debug("inflate() total passes: %u\n", inflate_passes);
+	ws_debug("bytes  in: %u\nbytes out: %u\n\n", bytes_in, bytes_out);
 
 	if (uncompr != NULL) {
 		uncompr_tvb =  tvb_new_real_data(uncompr, bytes_out, bytes_out);

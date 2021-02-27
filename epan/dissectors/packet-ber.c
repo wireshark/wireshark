@@ -56,7 +56,7 @@
 #include <epan/decode_as.h>
 #include <wiretap/wtap.h>
 #ifdef DEBUG_BER
-#include <wsutil/ws_printf.h> /* ws_debug_printf */
+#include <epan/ws_printf.h>
 #endif
 
 #include "packet-ber.h"

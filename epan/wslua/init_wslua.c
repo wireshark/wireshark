@@ -18,11 +18,11 @@
 #include "init_wslua.h"
 #include <epan/dissectors/packet-frame.h>
 #include <math.h>
+#include <stdio.h>
 #include <epan/expert.h>
 #include <epan/ex-opt.h>
 #include <wsutil/privileges.h>
 #include <wsutil/file_util.h>
-#include <wsutil/ws_printf.h> /* ws_debug_printf */
 
 /* linked list of Lua plugins */
 typedef struct _wslua_plugin {
@@ -775,7 +775,7 @@ print_wslua_plugin_description(const char *name, const char *version,
                                const char *description, const char *filename,
                                void *user_data _U_)
 {
-    ws_debug_printf("%s\t%s\t%s\t%s\n", name, version, description, filename);
+    printf("%s\t%s\t%s\t%s\n", name, version, description, filename);
 }
 
 void

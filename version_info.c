@@ -38,7 +38,6 @@
 #include <wsutil/copyright_info.h>
 #include <wsutil/os_version_info.h>
 #include <wsutil/crash_info.h>
-#include <wsutil/ws_printf.h> /* ws_debug_printf */
 #include <wsutil/plugins.h>
 
 static char *appname_with_version;
@@ -500,7 +499,7 @@ get_ws_version_number(int *major, int *minor, int *micro)
 void
 show_version(void)
 {
-	ws_debug_printf("%s\n"
+	printf("%s\n"
 			"\n"
 			"%s\n"
 			"%s\n"
@@ -512,7 +511,7 @@ show_version(void)
 void
 show_help_header(const char *description)
 {
-	ws_debug_printf("%s\n"
+	printf("%s\n"
 		"%s\n"
 		"See https://www.wireshark.org for more information.\n",
 		appname_with_version, description);

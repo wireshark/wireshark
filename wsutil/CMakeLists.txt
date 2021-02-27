@@ -71,8 +71,8 @@ set(WSUTIL_PUBLIC_HEADERS
 	ws_mempbrk.h
 	ws_mempbrk_int.h
 	ws_pipe.h
-	ws_printf.h
 	wsjson.h
+	wslog.h
 	xtea.h
 )
 

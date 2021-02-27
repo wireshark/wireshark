@@ -21,8 +21,6 @@
 #include "wtap.h"
 #include "wtap_opttypes.h"
 
-#define wtap_warn(...) g_warning(__VA_ARGS__)
-
 void wtap_init_file_type_subtypes(void);
 
 WS_DLL_PUBLIC

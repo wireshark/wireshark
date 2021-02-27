@@ -27,7 +27,7 @@
 #include <epan/expert.h>
 #include <epan/addr_resolv.h>
 #include <wsutil/wsgcrypt.h>
-#include <wsutil/ws_printf.h> /* ws_debug_printf */
+#include <epan/ws_printf.h>
 
 #include "packet-tcp.h"
 #include "packet-tacacs.h"

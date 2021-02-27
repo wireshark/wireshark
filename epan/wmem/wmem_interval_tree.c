@@ -22,7 +22,6 @@
 #include "wmem_interval_tree.h"
 #include "wmem_user_cb.h"
 
-#include <wsutil/ws_printf.h> /* ws_debug_printf */
 #include <wsutil/ws_assert.h>
 
 
@@ -33,7 +32,7 @@ print_range(const void *value)
     if(!value) {
         return;
     }
-    ws_debug_printf("Range: low=%" G_GUINT64_FORMAT " high=%" G_GUINT64_FORMAT " max_edge=%" G_GUINT64_FORMAT "\n", range->low, range->high, range->max_edge);
+    printf("Range: low=%" G_GUINT64_FORMAT " high=%" G_GUINT64_FORMAT " max_edge=%" G_GUINT64_FORMAT "\n", range->low, range->high, range->max_edge);
 }
 
 /**

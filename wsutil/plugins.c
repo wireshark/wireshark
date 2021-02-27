@@ -26,7 +26,6 @@
 #include <wsutil/report_message.h>
 
 #include <wsutil/plugins.h>
-#include <wsutil/ws_printf.h> /* ws_debug_printf */
 
 typedef struct _plugin {
     GModule        *handle;       /* handle returned by g_module_open */
@@ -271,7 +270,7 @@ print_plugin_description(const char *name, const char *version,
                          const char *description, const char *filename,
                          void *user_data _U_)
 {
-    ws_debug_printf("%-16s\t%s\t%s\t%s\n", name, version, description, filename);
+    printf("%-16s\t%s\t%s\t%s\n", name, version, description, filename);
 }
 
 void

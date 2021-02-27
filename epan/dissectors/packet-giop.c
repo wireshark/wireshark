@@ -282,7 +282,7 @@
 #include <wsutil/str_util.h>
 #include <wsutil/pint.h>
 #include <wsutil/report_message.h>
-#include <wsutil/ws_printf.h> /* ws_debug_printf */
+#include <epan/ws_printf.h>
 
 #include "packet-giop.h"
 #include "packet-ziop.h"

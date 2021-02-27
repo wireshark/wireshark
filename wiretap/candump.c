@@ -102,7 +102,7 @@ candump_parse(FILE_T fh, msg_t *msg, gint64 *offset, int *err, char **err_info)
     gint64          seek_off;
 
 #ifdef CANDUMP_DEBUG
-    ws_debug_printf("%s: Trying candump file decoder\n", G_STRFUNC);
+    candump_debug_printf("%s: Trying candump file decoder\n", G_STRFUNC);
 #endif
 
     state.fh = fh;
@@ -114,7 +114,7 @@ candump_parse(FILE_T fh, msg_t *msg, gint64 *offset, int *err, char **err_info)
 
         seek_off = file_tell(fh);
 #ifdef CANDUMP_DEBUG
-        ws_debug_printf("%s: Starting parser at offset %" PRIi64 "\n", G_STRFUNC, seek_off);
+        candump_debug_printf("%s: Starting parser at offset %" PRIi64 "\n", G_STRFUNC, seek_off);
 #endif
         state.file_bytes_read = 0;
         ok = run_candump_parser(&state, err, err_info);
@@ -134,7 +134,7 @@ candump_parse(FILE_T fh, msg_t *msg, gint64 *offset, int *err, char **err_info)
         return FALSE;
 
 #ifdef CANDUMP_DEBUG
-    ws_debug_printf("%s: Success\n", G_STRFUNC);
+    candump_debug_printf("%s: Success\n", G_STRFUNC);
 #endif
 
     if (offset)
@@ -160,7 +160,7 @@ candump_open(wtap *wth, int *err, char **err_info)
     }
 
 #ifdef CANDUMP_DEBUG
-    ws_debug_printf("%s: This is our file\n", G_STRFUNC);
+    candump_debug_printf("%s: This is our file\n", G_STRFUNC);
 #endif
 
     if (file_seek(wth->fh, 0, SEEK_SET, err) == -1)
@@ -188,14 +188,14 @@ candump_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err, gchar **err_info,
     msg_t msg;
 
 #ifdef CANDUMP_DEBUG
-    ws_debug_printf("%s: Try reading at offset %" PRIi64 "\n", G_STRFUNC, file_tell(wth->fh));
+    candump_debug_printf("%s: Try reading at offset %" PRIi64 "\n", G_STRFUNC, file_tell(wth->fh));
 #endif
 
     if (!candump_parse(wth->fh, &msg, data_offset, err, err_info))
         return FALSE;
 
 #ifdef CANDUMP_DEBUG
-    ws_debug_printf("%s: Stopped at offset %" PRIi64 "\n", G_STRFUNC, file_tell(wth->fh));
+    candump_debug_printf("%s: Stopped at offset %" PRIi64 "\n", G_STRFUNC, file_tell(wth->fh));
 #endif
 
     candump_write_packet(rec, buf, &msg);
@@ -210,7 +210,7 @@ candump_seek_read(wtap *wth , gint64 seek_off, wtap_rec *rec,
     msg_t msg;
 
 #ifdef CANDUMP_DEBUG
-    ws_debug_printf("%s: Read at offset %" PRIi64 "\n", G_STRFUNC, seek_off);
+    candump_debug_printf("%s: Read at offset %" PRIi64 "\n", G_STRFUNC, seek_off);
 #endif
 
     if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)

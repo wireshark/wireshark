@@ -15,7 +15,6 @@
 #include <gmodule.h>
 #include <wiretap/wtap.h>
 #include <wiretap/socketcan.h>
-#include <wsutil/ws_printf.h>
 
 //#define BUSMASTER_DEBUG
 //#define BUSMASTER_PARSER_TRACE
@@ -128,7 +127,8 @@ run_busmaster_parser(busmaster_state_t *state,
                      int               *err, gchar **err_info);
 
 #ifdef BUSMASTER_DEBUG
-#define busmaster_debug_printf(...) ws_debug_printf(__VA_ARGS__)
+#include <stdio.h>
+#define busmaster_debug_printf(...) printf(__VA_ARGS__)
 #else
 #define busmaster_debug_printf(...) (void)0
 #endif

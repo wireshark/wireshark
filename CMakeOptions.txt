@@ -55,6 +55,7 @@ option(ENABLE_UBSAN "Enable UndefinedBehaviorSanitizer (UBSan) for debugging" OF
 option(ENABLE_FUZZER "Enable libFuzzer instrumentation for use with fuzzshark" OFF)
 option(ENABLE_CHECKHF_CONFLICT "Enable hf conflict check for debugging (start-up may be slower)" OFF)
 option(ENABLE_CCACHE "Speed up compiling and linking using ccache if possible" OFF)
+option(ENABLE_DEBUG "Enable debug output" OFF)
 
 if(CMAKE_GENERATOR STREQUAL "Ninja")
 	option(ENABLE_COMPILER_COLOR_DIAGNOSTICS "Always enable the compiler's color diagnostic output" ON)

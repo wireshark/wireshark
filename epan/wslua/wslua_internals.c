@@ -16,7 +16,7 @@
 
 #include "config.h"
 #include "wslua.h"
-#include <wsutil/ws_printf.h> /* ws_debug_printf */
+#include <stdio.h>
 
 /* Several implementation details (__getters, __setters, __methods) were exposed
  * to Lua code. These are normally not used by dissectors, just for debugging
@@ -177,9 +177,9 @@ WSLUA_API void wslua_print_stack(char* s, lua_State* L) {
     int i;
 
     for (i=1;i<=lua_gettop(L);i++) {
-        ws_debug_printf("%s-%i: %s\n",s,i,lua_typename (L,lua_type(L, i)));
+        printf("%s-%i: %s\n",s,i,lua_typename (L,lua_type(L, i)));
     }
-    ws_debug_printf("\n");
+    printf("\n");
 }
 
 /* C-code function equivalent of the typeof() function we created in Lua.

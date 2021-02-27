@@ -25,7 +25,6 @@
 #include "packet.h"
 #include "wsutil/filesystem.h"
 #include "dissectors/packet-ber.h"
-#include <wsutil/ws_printf.h> /* ws_debug_printf */
 
 #ifdef HAVE_LIBSMI
 #include <smi.h>
@@ -36,7 +35,7 @@ static gboolean load_smi_modules = FALSE;
 static gboolean suppress_smi_errors = FALSE;
 #endif
 
-#define D(level,args) do if (debuglevel >= level) { ws_debug_printf args; ws_debug_printf("\n"); fflush(stdout); } while(0)
+#define D(level,args) do if (debuglevel >= level) { printf args; printf("\n"); fflush(stdout); } while(0)
 
 #include "oids.h"
 

@@ -20,7 +20,7 @@
 #include <epan/dissectors/packet-dcerpc.h>
 #include <epan/dissectors/packet-dcom.h>
 #include "packet-dcom-cba-acco.h"
-#include <wsutil/ws_printf.h> /* ws_debug_printf */
+#include <epan/ws_printf.h>
 
 void proto_register_dcom_cba_acco(void);
 void proto_reg_handoff_dcom_cba_acco(void);

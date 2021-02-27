@@ -22,7 +22,6 @@
 #include "wmem_tree-int.h"
 #include "wmem_user_cb.h"
 
-#include <wsutil/ws_printf.h> /* ws_debug_printf */
 #include <wsutil/ws_assert.h>
 
 
@@ -768,7 +767,7 @@ static void
 wmem_print_indent(guint32 level) {
     guint32 i;
     for (i=0; i<level; i++) {
-        ws_debug_printf("    ");
+        printf("    ");
     }
 }
 
@@ -781,7 +780,7 @@ wmem_tree_print_nodes(const char *prefix, wmem_tree_node_t *node, guint32 level,
 
     wmem_print_indent(level);
 
-    ws_debug_printf("%sNODE:%p parent:%p left:%p right:%p colour:%s key:%p %s:%p\n",
+    printf("%sNODE:%p parent:%p left:%p right:%p colour:%s key:%p %s:%p\n",
             prefix,
             (void *)node, (void *)node->parent,
             (void *)node->left, (void *)node->right,
@@ -790,12 +789,12 @@ wmem_tree_print_nodes(const char *prefix, wmem_tree_node_t *node, guint32 level,
     if (key_printer) {
         wmem_print_indent(level);
         key_printer(node->key);
-        ws_debug_printf("\n");
+        printf("\n");
     }
     if (data_printer && !node->is_subtree) {
         wmem_print_indent(level);
         data_printer(node->data);
-        ws_debug_printf("\n");
+        printf("\n");
     }
 
     if (node->left)
@@ -816,7 +815,7 @@ wmem_print_subtree(wmem_tree_t *tree, guint32 level, wmem_printer_func key_print
 
     wmem_print_indent(level);
 
-    ws_debug_printf("WMEM tree:%p root:%p\n", (void *)tree, (void *)tree->root);
+    printf("WMEM tree:%p root:%p\n", (void *)tree, (void *)tree->root);
     if (tree->root) {
         wmem_tree_print_nodes("Root-", tree->root, level, key_printer, data_printer);
     }

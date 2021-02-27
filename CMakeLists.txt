@@ -823,6 +823,13 @@ else() # ! MSVC
 	elseif(DISABLE_ASSERT)
 		add_definitions(-DWS_DISABLE_ASSERT)
 	endif()
+	if(ENABLE_DEBUG)
+		add_definitions(-DWS_DEBUG)
+	elseif(CMAKE_VERSION VERSION_GREATER "3.11.99")
+		add_compile_definitions(
+			$<$<CONFIG:Debug>:WS_DEBUG>
+		)
+	endif()
 
 	set(WIRESHARK_LD_FLAGS
 		# See also CheckCLinkerFlag.cmake
