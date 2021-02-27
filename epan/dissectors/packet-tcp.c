@@ -2234,6 +2234,20 @@ finished_fwd:
             seq_not_advanced = FALSE;
         }
 
+        /* Check for spurious retransmission. If the current seq + segment length
+         * is less than or equal to the current lastack, the packet contains
+         * duplicate data and may be considered spurious.
+         */
+        if ( seglen > 0
+        && tcpd->rev->tcp_analyze_seq_info->lastack
+        && LE_SEQ(seq + seglen, tcpd->rev->tcp_analyze_seq_info->lastack) ) {
+            if(!tcpd->ta){
+                tcp_analyze_get_acked_struct(pinfo->num, seq, ack, TRUE, tcpd);
+            }
+            tcpd->ta->flags|=TCP_A_SPURIOUS_RETRANSMISSION;
+            goto finished_checking_retransmission_type;
+        }
+
         /* If there were >=2 duplicate ACKs in the reverse direction
          * (there might be duplicate acks missing from the trace)
          * and if this sequence number matches those ACKs
@@ -2273,20 +2287,6 @@ finished_fwd:
                 tcp_analyze_get_acked_struct(pinfo->num, seq, ack, TRUE, tcpd);
             }
             tcpd->ta->flags|=TCP_A_OUT_OF_ORDER;
-            goto finished_checking_retransmission_type;
-        }
-
-        /* Check for spurious retransmission. If the current seq + segment length
-         * is less than or equal to the current lastack, the packet contains
-         * duplicate data and may be considered spurious.
-         */
-        if ( seglen > 0
-        && tcpd->rev->tcp_analyze_seq_info->lastack
-        && LE_SEQ(seq + seglen, tcpd->rev->tcp_analyze_seq_info->lastack) ) {
-            if(!tcpd->ta){
-                tcp_analyze_get_acked_struct(pinfo->num, seq, ack, TRUE, tcpd);
-            }
-            tcpd->ta->flags|=TCP_A_SPURIOUS_RETRANSMISSION;
             goto finished_checking_retransmission_type;
         }
 

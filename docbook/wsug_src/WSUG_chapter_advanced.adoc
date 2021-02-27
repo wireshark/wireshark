@@ -466,7 +466,7 @@ Set when all of the following are true:
 * The current sequence number equals the next expected acknowledgement number.
 * We saw the last acknowledgement less than 20ms ago.
 
-Supersedes “Out-Of-Order”, “Spurious Retransmission”, and “Retransmission”.
+Supersedes “Out-Of-Order” and “Retransmission”.
 
 // TCP_A_KEEP_ALIVE
 [discrete]
@@ -507,7 +507,7 @@ Set when all of the following are true:
 * The last segment arrived within the Out-Of-Order RTT threshold.
   The threshold is either the value shown in the “iRTT” (tcp.analysis.initial_rtt) field under “SEQ/ACK analysis” if it is present, or the default value of 3ms if it is not.
 
-Supersedes “Spurious Retransmission” and “Retransmission”.
+Supersedes “Retransmission”.
 
 // TCP_A_REUSED_PORTS
 [discrete]
@@ -534,7 +534,7 @@ direction. Set when all of the following are true:
 * Data for this flow has been acknowledged. That is, the last-seen acknowledgement number has been set.
 * The next sequence number is less than or equal to the last-seen acknowledgement number.
 
-Supersedes “Retransmission”.
+Supersedes “Fast Retransmission”, “Out-Of-Order”, and “Retransmission”.
 
 // TCP_A_RETRANSMISSION
 [discrete]
