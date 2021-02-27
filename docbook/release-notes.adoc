@@ -48,6 +48,8 @@ They previously shipped with Npcap 1.00.
 
 * "Follow DCCP stream" feature to filter for and extract the contents of DCCP streams.
 
+* Wireshark now supports dissecting the rtp packet with OPUS payload.
+
 // === Removed Features and Support
 
 //=== Removed Dissectors
