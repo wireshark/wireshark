@@ -12,6 +12,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/expert.h>
 #include <epan/to_str.h>
 #include "packet-mpeg-sect.h"
 
@@ -27,8 +28,13 @@ static int hf_dvb_data_mpe_current_next_indicator = -1;
 static int hf_dvb_data_mpe_section_number = -1;
 static int hf_dvb_data_mpe_last_section_number = -1;
 static int hf_dvb_data_mpe_dst_mac = -1;
+static int hf_dvb_data_mpe_dst_mac_scrambled = -1;
 
 static gint ett_dvb_data_mpe = -1;
+
+static expert_field ei_dvb_data_mpe_reserved_not_one = EI_INIT;
+static expert_field ei_dvb_data_mpe_payload_scrambled = EI_INIT;
+static expert_field ei_dvb_data_mpe_address_scrambled = EI_INIT;
 
 static dissector_handle_t ip_handle;
 static dissector_handle_t llc_handle;
@@ -38,6 +44,20 @@ static dissector_handle_t llc_handle;
 #define DVB_DATA_MPE_ADDRESS_SCRAMBLING_MASK      0x0C
 #define DVB_DATA_MPE_LLC_SNAP_FLAG_MASK           0x02
 #define DVB_DATA_MPE_CURRENT_NEXT_INDICATOR_MASK  0x01
+
+/* Field positions for the MAC Address */
+/* It is split into two chunks, one of two octets and a second
+ * one of four octets. Also, the octets are in reverse order. */
+#define DVB_DATA_MPE_DST_MAC_FIRST 3
+#define DVB_DATA_MPE_DST_MAC_SECOND 8
+
+static const value_string dvb_data_mpe_scrambling_vals[] = {
+    { 0, "Unscrambled" },
+    { 1, "Defined by service" },
+    { 2, "Defined by service" },
+    { 3, "Defined by service" },
+    { 0, NULL }
+};
 
 static const value_string dvb_rcs_cur_next_vals[] = {
 
@@ -53,13 +73,13 @@ dissect_dvb_data_mpe(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 {
 
     guint       offset = 0, tot_len = 0;
-    guint8      llc_snap_flag;
+    guint32     reserved, address_scrambling, payload_scrambling, llc_snap_flag;
     int         i;
 
     proto_item *ti;
     proto_tree *dvb_data_mpe_tree;
-    tvbuff_t   *mac_tvb;
-    tvbuff_t   *mac_bytes_tvb[6];
+    guchar     *dst = (guchar*)wmem_alloc(pinfo->pool, 6);
+    address     dst_addr;
     tvbuff_t   *data_tvb;
 
     /* The TVB should start right after the section_length in the Section packet */
@@ -75,17 +95,22 @@ dissect_dvb_data_mpe(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 
     /* Parse the DMC-CC private section header */
 
-    mac_bytes_tvb[5] = tvb_new_subset_length(tvb, offset, 1);
+    dst[5] = tvb_get_guint8(tvb, offset);
     offset += 1;
-    mac_bytes_tvb[4] = tvb_new_subset_length(tvb, offset, 1);
+    dst[4] = tvb_get_guint8(tvb, offset);
     offset += 1;
 
-    proto_tree_add_item(dvb_data_mpe_tree, hf_dvb_data_mpe_reserved,                   tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(dvb_data_mpe_tree, hf_dvb_data_mpe_payload_scrambling_control, tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(dvb_data_mpe_tree, hf_dvb_data_mpe_address_scrambling_control, tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(dvb_data_mpe_tree, hf_dvb_data_mpe_llc_snap_flag,              tvb, offset, 1, ENC_BIG_ENDIAN);
+    ti = proto_tree_add_item_ret_uint(dvb_data_mpe_tree, hf_dvb_data_mpe_reserved,     tvb, offset, 1, ENC_BIG_ENDIAN, &reserved);
+    if (reserved != 3) {
+        expert_add_info(pinfo, ti, &ei_dvb_data_mpe_reserved_not_one);
+    }
+    ti = proto_tree_add_item_ret_uint(dvb_data_mpe_tree, hf_dvb_data_mpe_payload_scrambling_control, tvb, offset, 1, ENC_BIG_ENDIAN, &payload_scrambling);
+    if (payload_scrambling) {
+        expert_add_info(pinfo, ti, &ei_dvb_data_mpe_payload_scrambled);
+    }
+    proto_tree_add_item_ret_uint(dvb_data_mpe_tree, hf_dvb_data_mpe_address_scrambling_control, tvb, offset, 1, ENC_BIG_ENDIAN, &address_scrambling);
+    proto_tree_add_item_ret_uint(dvb_data_mpe_tree, hf_dvb_data_mpe_llc_snap_flag,     tvb, offset, 1, ENC_BIG_ENDIAN, &llc_snap_flag);
     proto_tree_add_item(dvb_data_mpe_tree, hf_dvb_data_mpe_current_next_indicator,     tvb, offset, 1, ENC_BIG_ENDIAN);
-    llc_snap_flag = tvb_get_guint8(tvb, offset) & DVB_DATA_MPE_LLC_SNAP_FLAG_MASK;
     offset += 1;
 
     proto_tree_add_item(dvb_data_mpe_tree, hf_dvb_data_mpe_section_number,             tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -95,23 +120,26 @@ dissect_dvb_data_mpe(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
     offset += 1;
 
     for (i = 3; i >= 0; i--) {
-        mac_bytes_tvb[i] = tvb_new_subset_length(tvb, offset, 1);
+        dst[i] = tvb_get_guint8(tvb, offset);
         offset += 1;
     }
 
-    mac_tvb = tvb_new_composite();
-
-    for (i = 0; i < 6; i++)
-        tvb_composite_append(mac_tvb, mac_bytes_tvb[i]);
-
-    tvb_composite_finalize(mac_tvb);
-
-    proto_tree_add_item(dvb_data_mpe_tree, hf_dvb_data_mpe_dst_mac, mac_tvb, 0 , 6, ENC_NA);
-    col_add_str(pinfo->cinfo, COL_RES_DL_DST, tvb_ether_to_str(mac_tvb, 0));
+    if (address_scrambling) {
+        ti = proto_tree_add_bytes_with_length(dvb_data_mpe_tree, hf_dvb_data_mpe_dst_mac_scrambled, tvb, DVB_DATA_MPE_DST_MAC_FIRST, 2, dst, 6);
+        expert_add_info(pinfo, ti, &ei_dvb_data_mpe_address_scrambled);
+    } else {
+        ti = proto_tree_add_ether(dvb_data_mpe_tree, hf_dvb_data_mpe_dst_mac, tvb, DVB_DATA_MPE_DST_MAC_FIRST, 2, dst);
+        set_address(&dst_addr, AT_ETHER, 6, dst);
+        col_add_str(pinfo->cinfo, COL_RES_DL_DST, address_to_str(pinfo->pool, &dst_addr));
+    }
+    /* Extend the highlighting for the second chunk. */
+    proto_tree_set_appendix(ti, tvb, DVB_DATA_MPE_DST_MAC_SECOND, 4);
 
     data_tvb = tvb_new_subset_remaining(tvb, offset);
 
-    if (llc_snap_flag) {
+    if (payload_scrambling) {
+        call_data_dissector(data_tvb, pinfo, tree);
+    } else if (llc_snap_flag) {
         call_dissector(llc_handle, data_tvb, pinfo, tree);
     } else {
         call_dissector(ip_handle, data_tvb, pinfo, tree);
@@ -135,12 +163,14 @@ proto_register_dvb_data_mpe(void)
 
         { &hf_dvb_data_mpe_payload_scrambling_control, {
             "Payload Scrambling Control", "dvb_data_mpe.pload_scrambling",
-            FT_UINT8, BASE_HEX, NULL, DVB_DATA_MPE_PAYLOAD_SCRAMBLING_MASK, NULL, HFILL
+            FT_UINT8, BASE_HEX, VALS(dvb_data_mpe_scrambling_vals),
+            DVB_DATA_MPE_PAYLOAD_SCRAMBLING_MASK, NULL, HFILL
         } },
 
         { &hf_dvb_data_mpe_address_scrambling_control, {
             "Address Scrambling Control", "dvb_data_mpe.addr_scrambling",
-            FT_UINT8, BASE_HEX, NULL, DVB_DATA_MPE_ADDRESS_SCRAMBLING_MASK, NULL, HFILL
+            FT_UINT8, BASE_HEX, VALS(dvb_data_mpe_scrambling_vals),
+            DVB_DATA_MPE_ADDRESS_SCRAMBLING_MASK, NULL, HFILL
         } },
 
         { &hf_dvb_data_mpe_llc_snap_flag, {
@@ -165,9 +195,14 @@ proto_register_dvb_data_mpe(void)
 
         { &hf_dvb_data_mpe_dst_mac, {
             "Destination MAC address", "dvb_data_mpe.dst_mac",
-            FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL
+            FT_ETHER, BASE_NONE, NULL, 0, NULL, HFILL
         } },
 
+        { &hf_dvb_data_mpe_dst_mac_scrambled, {
+            "Destination MAC address (scrambled)",
+            "dvb_data_mpe.dst_mac.scrambled",
+            FT_BYTES, SEP_COLON, NULL, 0, NULL, HFILL
+        } },
 
     };
 
@@ -175,8 +210,23 @@ proto_register_dvb_data_mpe(void)
         &ett_dvb_data_mpe,
     };
 
+    expert_module_t *expert_dvb_data_mpe;
+    static ei_register_info ei[] = {
+        { &ei_dvb_data_mpe_reserved_not_one,
+            { "dvb_data_mpe.reserved.not_one", PI_PROTOCOL, PI_WARN,
+                "Reserved bits not all ones", EXPFILL }},
+        { &ei_dvb_data_mpe_address_scrambled,
+            { "dvb_data_mpe.address_scrambled", PI_UNDECODED, PI_WARN,
+                "Cannot descramble destination MAC address (user private scrambling)", EXPFILL }},
+        { &ei_dvb_data_mpe_payload_scrambled,
+            { "dvb_data_mpe.payload.scrambled", PI_UNDECODED, PI_WARN,
+                "Cannot descramble payload (user private scrambling)", EXPFILL }},
+    };
+
     proto_dvb_data_mpe = proto_register_protocol("DVB-DATA MultiProtocol Encapsulation", "DVB-DATA MPE", "dvb_data_mpe");
     proto_register_field_array(proto_dvb_data_mpe, hf, array_length(hf));
+    expert_dvb_data_mpe = expert_register_protocol(proto_dvb_data_mpe);
+    expert_register_field_array(expert_dvb_data_mpe, ei, array_length(ei));
 
     proto_register_subtree_array(ett, array_length(ett));
 
