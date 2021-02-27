@@ -381,15 +381,15 @@ as to avoid collisions with other names - this might be more of an issue
 on Windows, as it appears to #define names such as DELETE and
 OPTIONAL.
 
-Don't use the "numbered argument" feature that many UNIX printf's
+Don't use the "positional parameters" extension that many UNIX printf's
 implement, e.g.:
 
-    g_snprintf(add_string, 30, " - (%1$d) (0x%1$04x)", value);
+    snprintf(add_string, 30, " - (%1$d) (0x%1$04x)", value);
 
 as not all UNIX printf's implement it, and Windows printf doesn't appear
 to implement it.  Use something like
 
-    g_snprintf(add_string, 30, " - (%d) (0x%04x)", value, value);
+    snprintf(add_string, 30, " - (%d) (0x%04x)", value, value);
 
 instead.
 
@@ -399,9 +399,13 @@ Don't use
 
 as that's not supported by all compilers.
 
-snprintf() -> g_snprintf()
-snprintf() is not available on all platforms, so it's a good idea to use the
-g_snprintf() function declared by <glib.h> instead.
+Prefer the C99 output functions from <stdio.h> instead of their GLib
+replacements (note that positional format parameters are not part of C99).
+In the past we used to recommend using g_snprintf() and g_vsnprintf()
+instead but since Visual Studio 2015 native C99 implementations are
+available on all platforms we support. These are optimized better than
+the gnulib (GLib) implementation and on hot codepaths that can be a
+noticeable difference in execution speed.
 
 tmpnam() -> mkstemp()
 tmpnam is insecure and should not be used any more. Wireshark brings its
@@ -432,7 +436,7 @@ Do not use functions such as strcat() or strcpy().
 A lot of work has been done to remove the existing calls to these functions and
 we do not want any new callers of these functions.
 
-Instead use g_snprintf() since that function will if used correctly prevent
+Instead use snprintf() since that function will if used correctly prevent
 buffer overflows for large strings.
 
 Be sure that all pointers passed to %s specifiers in format strings are non-
@@ -459,7 +463,7 @@ or
    buffer=wmem_alloc(wmem_packet_scope(), MAX_BUFFER);
    buffer[0]='\0';
    ...
-   g_snprintf(buffer, MAX_BUFFER, ...
+   snprintf(buffer, MAX_BUFFER, ...
 
 This avoids the stack from being corrupted in case there is a bug in your code
 that accidentally writes beyond the end of the buffer.
@@ -643,12 +647,12 @@ should be stored in a 32-bit variable, such as an "int"; if you store it
 in an 8-bit or 16-bit variable, you run the risk of the variable
 overflowing.
 
-sprintf() -> g_snprintf()
+sprintf() -> snprintf()
 Prevent yourself from using the sprintf() function, as it does not test the
 length of the given output buffer and might be writing into unintended memory
 areas. This function is one of the main causes of security problems like buffer
 exploits and many other bugs that are very hard to find. It's much better to
-use the g_snprintf() function declared by <glib.h> instead.
+use the snprintf() function declared by <stdio.h> instead.
 
 You should test your dissector against incorrectly-formed packets.  This
 can be done using the randpkt and editcap utilities that come with the

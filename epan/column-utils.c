@@ -32,7 +32,6 @@
 #include <epan/dfilter/dfilter.h>
 
 #include <wsutil/utf8_entities.h>
-#include <wsutil/ws_printf.h>
 
 #ifdef HAVE_LUA
 #include <epan/wslua/wslua.h>
@@ -431,15 +430,15 @@ col_append_str_uint(column_info *cinfo, const gint col, const gchar *abbrev, gui
 }
 
 static inline void
-col_snprint_port(gchar *buf, gulong buf_siz, port_type typ, guint16 val)
+col_snprint_port(gchar *buf, size_t buf_siz, port_type typ, guint16 val)
 {
   const char *str;
 
   if (gbl_resolv_flags.transport_name &&
         (str = try_serv_name_lookup(typ, val)) != NULL) {
-    ws_snprintf(buf, buf_siz, "%s(%"G_GUINT16_FORMAT")", str, val);
+    snprintf(buf, buf_siz, "%s(%"G_GUINT16_FORMAT")", str, val);
   } else {
-    ws_snprintf(buf, buf_siz, "%"G_GUINT16_FORMAT, val);
+    snprintf(buf, buf_siz, "%"G_GUINT16_FORMAT, val);
   }
 }
 
@@ -498,7 +497,7 @@ col_do_append_fstr(column_info *cinfo, const int el, const char *separator, cons
         va_list ap2;
 
         G_VA_COPY(ap2, ap);
-        ws_vsnprintf(&col_item->col_buf[len], (guint32)(max_len - len), format, ap2);
+        vsnprintf(&col_item->col_buf[len], max_len - len, format, ap2);
         va_end(ap2);
       }
     }
@@ -571,7 +570,7 @@ col_prepend_fstr(column_info *cinfo, const gint el, const gchar *format, ...)
         orig = orig_buf;
       }
       va_start(ap, format);
-      ws_vsnprintf(col_item->col_buf, max_len, format, ap);
+      vsnprintf(col_item->col_buf, max_len, format, ap);
       va_end(ap);
 
       /*
@@ -614,7 +613,7 @@ col_prepend_fence_fstr(column_info *cinfo, const gint el, const gchar *format, .
         orig = orig_buf;
       }
       va_start(ap, format);
-      ws_vsnprintf(col_item->col_buf, max_len, format, ap);
+      vsnprintf(col_item->col_buf, max_len, format, ap);
       va_end(ap);
 
       /*
@@ -792,7 +791,7 @@ col_add_fstr(column_info *cinfo, const gint el, const gchar *format, ...)
         col_item->col_data = col_item->col_buf;
       }
       va_start(ap, format);
-      ws_vsnprintf(&col_item->col_buf[col_item->col_fence], max_len - col_item->col_fence, format, ap);
+      vsnprintf(&col_item->col_buf[col_item->col_fence], max_len - col_item->col_fence, format, ap);
       va_end(ap);
     }
   }
@@ -916,7 +915,7 @@ set_abs_ymd_time(const frame_data *fd, gchar *buf, char *decimal_point, gboolean
     }
     switch (tsprecision) {
     case WTAP_TSPREC_SEC:
-      ws_snprintf(buf, COL_MAX_LEN,"%04d-%02d-%02d %02d:%02d:%02d",
+      snprintf(buf, COL_MAX_LEN,"%04d-%02d-%02d %02d:%02d:%02d",
         tmp->tm_year + 1900,
         tmp->tm_mon + 1,
         tmp->tm_mday,
@@ -925,7 +924,7 @@ set_abs_ymd_time(const frame_data *fd, gchar *buf, char *decimal_point, gboolean
         tmp->tm_sec);
       break;
     case WTAP_TSPREC_DSEC:
-      ws_snprintf(buf, COL_MAX_LEN,"%04d-%02d-%02d %02d:%02d:%02d%s%01d",
+      snprintf(buf, COL_MAX_LEN,"%04d-%02d-%02d %02d:%02d:%02d%s%01d",
         tmp->tm_year + 1900,
         tmp->tm_mon + 1,
         tmp->tm_mday,
@@ -936,7 +935,7 @@ set_abs_ymd_time(const frame_data *fd, gchar *buf, char *decimal_point, gboolean
         fd->abs_ts.nsecs / 100000000);
       break;
     case WTAP_TSPREC_CSEC:
-      ws_snprintf(buf, COL_MAX_LEN,"%04d-%02d-%02d %02d:%02d:%02d%s%02d",
+      snprintf(buf, COL_MAX_LEN,"%04d-%02d-%02d %02d:%02d:%02d%s%02d",
         tmp->tm_year + 1900,
         tmp->tm_mon + 1,
         tmp->tm_mday,
@@ -947,7 +946,7 @@ set_abs_ymd_time(const frame_data *fd, gchar *buf, char *decimal_point, gboolean
         fd->abs_ts.nsecs / 10000000);
       break;
     case WTAP_TSPREC_MSEC:
-      ws_snprintf(buf, COL_MAX_LEN, "%04d-%02d-%02d %02d:%02d:%02d%s%03d",
+      snprintf(buf, COL_MAX_LEN, "%04d-%02d-%02d %02d:%02d:%02d%s%03d",
         tmp->tm_year + 1900,
         tmp->tm_mon + 1,
         tmp->tm_mday,
@@ -958,7 +957,7 @@ set_abs_ymd_time(const frame_data *fd, gchar *buf, char *decimal_point, gboolean
         fd->abs_ts.nsecs / 1000000);
       break;
     case WTAP_TSPREC_USEC:
-      ws_snprintf(buf, COL_MAX_LEN, "%04d-%02d-%02d %02d:%02d:%02d%s%06d",
+      snprintf(buf, COL_MAX_LEN, "%04d-%02d-%02d %02d:%02d:%02d%s%06d",
         tmp->tm_year + 1900,
         tmp->tm_mon + 1,
         tmp->tm_mday,
@@ -969,7 +968,7 @@ set_abs_ymd_time(const frame_data *fd, gchar *buf, char *decimal_point, gboolean
         fd->abs_ts.nsecs / 1000);
       break;
     case WTAP_TSPREC_NSEC:
-      ws_snprintf(buf, COL_MAX_LEN, "%04d-%02d-%02d %02d:%02d:%02d%s%09d",
+      snprintf(buf, COL_MAX_LEN, "%04d-%02d-%02d %02d:%02d:%02d%s%09d",
         tmp->tm_year + 1900,
         tmp->tm_mon + 1,
         tmp->tm_mday,
@@ -1050,7 +1049,7 @@ set_abs_ydoy_time(const frame_data *fd, gchar *buf, char *decimal_point, gboolea
     }
     switch (tsprecision) {
     case WTAP_TSPREC_SEC:
-      ws_snprintf(buf, COL_MAX_LEN,"%04d/%03d %02d:%02d:%02d",
+      snprintf(buf, COL_MAX_LEN,"%04d/%03d %02d:%02d:%02d",
         tmp->tm_year + 1900,
         tmp->tm_yday + 1,
         tmp->tm_hour,
@@ -1058,7 +1057,7 @@ set_abs_ydoy_time(const frame_data *fd, gchar *buf, char *decimal_point, gboolea
         tmp->tm_sec);
       break;
     case WTAP_TSPREC_DSEC:
-      ws_snprintf(buf, COL_MAX_LEN,"%04d/%03d %02d:%02d:%02d%s%01d",
+      snprintf(buf, COL_MAX_LEN,"%04d/%03d %02d:%02d:%02d%s%01d",
         tmp->tm_year + 1900,
         tmp->tm_yday + 1,
         tmp->tm_hour,
@@ -1068,7 +1067,7 @@ set_abs_ydoy_time(const frame_data *fd, gchar *buf, char *decimal_point, gboolea
         fd->abs_ts.nsecs / 100000000);
       break;
     case WTAP_TSPREC_CSEC:
-      ws_snprintf(buf, COL_MAX_LEN,"%04d/%03d %02d:%02d:%02d%s%02d",
+      snprintf(buf, COL_MAX_LEN,"%04d/%03d %02d:%02d:%02d%s%02d",
         tmp->tm_year + 1900,
         tmp->tm_yday + 1,
         tmp->tm_hour,
@@ -1078,7 +1077,7 @@ set_abs_ydoy_time(const frame_data *fd, gchar *buf, char *decimal_point, gboolea
         fd->abs_ts.nsecs / 10000000);
       break;
     case WTAP_TSPREC_MSEC:
-      ws_snprintf(buf, COL_MAX_LEN, "%04d/%03d %02d:%02d:%02d%s%03d",
+      snprintf(buf, COL_MAX_LEN, "%04d/%03d %02d:%02d:%02d%s%03d",
         tmp->tm_year + 1900,
         tmp->tm_yday + 1,
         tmp->tm_hour,
@@ -1088,7 +1087,7 @@ set_abs_ydoy_time(const frame_data *fd, gchar *buf, char *decimal_point, gboolea
         fd->abs_ts.nsecs / 1000000);
       break;
     case WTAP_TSPREC_USEC:
-      ws_snprintf(buf, COL_MAX_LEN, "%04d/%03d %02d:%02d:%02d%s%06d",
+      snprintf(buf, COL_MAX_LEN, "%04d/%03d %02d:%02d:%02d%s%06d",
         tmp->tm_year + 1900,
         tmp->tm_yday + 1,
         tmp->tm_hour,
@@ -1098,7 +1097,7 @@ set_abs_ydoy_time(const frame_data *fd, gchar *buf, char *decimal_point, gboolea
         fd->abs_ts.nsecs / 1000);
       break;
     case WTAP_TSPREC_NSEC:
-      ws_snprintf(buf, COL_MAX_LEN, "%04d/%03d %02d:%02d:%02d%s%09d",
+      snprintf(buf, COL_MAX_LEN, "%04d/%03d %02d:%02d:%02d%s%09d",
         tmp->tm_year + 1900,
         tmp->tm_yday + 1,
         tmp->tm_hour,
@@ -1240,25 +1239,25 @@ set_time_hour_min_sec(const frame_data *fd, const nstime_t *ts, gchar *buf, char
   switch (tsprecision) {
   case WTAP_TSPREC_SEC:
     if (secs >= (60*60)) {
-      ws_snprintf(buf, COL_MAX_LEN, "%s%dh %2dm %2ds",
+      snprintf(buf, COL_MAX_LEN, "%s%dh %2dm %2ds",
                  negative ? "- " : "",
                  (gint32) secs / (60 * 60),
                  (gint32) (secs / 60) % 60,
                  (gint32) secs % 60);
     } else if (secs >= 60) {
-      ws_snprintf(buf, COL_MAX_LEN, "%s%dm %2ds",
+      snprintf(buf, COL_MAX_LEN, "%s%dm %2ds",
                  negative ? "- " : "",
                  (gint32) secs / 60,
                  (gint32) secs % 60);
     } else {
-      ws_snprintf(buf, COL_MAX_LEN, "%s%ds",
+      snprintf(buf, COL_MAX_LEN, "%s%ds",
                  negative ? "- " : "",
                  (gint32) secs);
     }
     break;
   case WTAP_TSPREC_DSEC:
     if (secs >= (60*60)) {
-      ws_snprintf(buf, COL_MAX_LEN, "%s%dh %2dm %2d%s%01lds",
+      snprintf(buf, COL_MAX_LEN, "%s%dh %2dm %2d%s%01lds",
                  negative ? "- " : "",
                  (gint32) secs / (60 * 60),
                  (gint32) (secs / 60) % 60,
@@ -1266,14 +1265,14 @@ set_time_hour_min_sec(const frame_data *fd, const nstime_t *ts, gchar *buf, char
                  decimal_point,
                  nsecs / 100000000);
     } else if (secs >= 60) {
-      ws_snprintf(buf, COL_MAX_LEN, "%s%dm %2d%s%01lds",
+      snprintf(buf, COL_MAX_LEN, "%s%dm %2d%s%01lds",
                  negative ? "- " : "",
                  (gint32) secs / 60,
                  (gint32) secs % 60,
                  decimal_point,
                  nsecs / 100000000);
     } else {
-      ws_snprintf(buf, COL_MAX_LEN, "%s%d%s%01lds",
+      snprintf(buf, COL_MAX_LEN, "%s%d%s%01lds",
                  negative ? "- " : "",
                  (gint32) secs,
                  decimal_point,
@@ -1282,7 +1281,7 @@ set_time_hour_min_sec(const frame_data *fd, const nstime_t *ts, gchar *buf, char
     break;
   case WTAP_TSPREC_CSEC:
     if (secs >= (60*60)) {
-      ws_snprintf(buf, COL_MAX_LEN, "%s%dh %2dm %2d%s%02lds",
+      snprintf(buf, COL_MAX_LEN, "%s%dh %2dm %2d%s%02lds",
                  negative ? "- " : "",
                  (gint32) secs / (60 * 60),
                  (gint32) (secs / 60) % 60,
@@ -1290,14 +1289,14 @@ set_time_hour_min_sec(const frame_data *fd, const nstime_t *ts, gchar *buf, char
                  decimal_point,
                  nsecs / 10000000);
     } else if (secs >= 60) {
-      ws_snprintf(buf, COL_MAX_LEN, "%s%dm %2d%s%02lds",
+      snprintf(buf, COL_MAX_LEN, "%s%dm %2d%s%02lds",
                  negative ? "- " : "",
                  (gint32) secs / 60,
                  (gint32) secs % 60,
                  decimal_point,
                  nsecs / 10000000);
     } else {
-      ws_snprintf(buf, COL_MAX_LEN, "%s%d%s%02lds",
+      snprintf(buf, COL_MAX_LEN, "%s%d%s%02lds",
                  negative ? "- " : "",
                  (gint32) secs,
                  decimal_point,
@@ -1306,7 +1305,7 @@ set_time_hour_min_sec(const frame_data *fd, const nstime_t *ts, gchar *buf, char
     break;
   case WTAP_TSPREC_MSEC:
     if (secs >= (60*60)) {
-      ws_snprintf(buf, COL_MAX_LEN, "%s%dh %2dm %2d%s%03lds",
+      snprintf(buf, COL_MAX_LEN, "%s%dh %2dm %2d%s%03lds",
                  negative ? "- " : "",
                  (gint32) secs / (60 * 60),
                  (gint32) (secs / 60) % 60,
@@ -1314,14 +1313,14 @@ set_time_hour_min_sec(const frame_data *fd, const nstime_t *ts, gchar *buf, char
                  decimal_point,
                  nsecs / 1000000);
     } else if (secs >= 60) {
-      ws_snprintf(buf, COL_MAX_LEN, "%s%dm %2d%s%03lds",
+      snprintf(buf, COL_MAX_LEN, "%s%dm %2d%s%03lds",
                  negative ? "- " : "",
                  (gint32) secs / 60,
                  (gint32) secs % 60,
                  decimal_point,
                  nsecs / 1000000);
     } else {
-      ws_snprintf(buf, COL_MAX_LEN, "%s%d%s%03lds",
+      snprintf(buf, COL_MAX_LEN, "%s%d%s%03lds",
                  negative ? "- " : "",
                  (gint32) secs,
                  decimal_point,
@@ -1330,7 +1329,7 @@ set_time_hour_min_sec(const frame_data *fd, const nstime_t *ts, gchar *buf, char
     break;
   case WTAP_TSPREC_USEC:
     if (secs >= (60*60)) {
-      ws_snprintf(buf, COL_MAX_LEN, "%s%dh %2dm %2d%s%06lds",
+      snprintf(buf, COL_MAX_LEN, "%s%dh %2dm %2d%s%06lds",
                  negative ? "- " : "",
                  (gint32) secs / (60 * 60),
                  (gint32) (secs / 60) % 60,
@@ -1338,14 +1337,14 @@ set_time_hour_min_sec(const frame_data *fd, const nstime_t *ts, gchar *buf, char
                  decimal_point,
                  nsecs / 1000);
     } else if (secs >= 60) {
-      ws_snprintf(buf, COL_MAX_LEN, "%s%dm %2d%s%06lds",
+      snprintf(buf, COL_MAX_LEN, "%s%dm %2d%s%06lds",
                  negative ? "- " : "",
                  (gint32) secs / 60,
                  (gint32) secs % 60,
                  decimal_point,
                  nsecs / 1000);
     } else {
-      ws_snprintf(buf, COL_MAX_LEN, "%s%d%s%06lds",
+      snprintf(buf, COL_MAX_LEN, "%s%d%s%06lds",
                  negative ? "- " : "",
                  (gint32) secs,
                  decimal_point,
@@ -1354,7 +1353,7 @@ set_time_hour_min_sec(const frame_data *fd, const nstime_t *ts, gchar *buf, char
     break;
   case WTAP_TSPREC_NSEC:
     if (secs >= (60*60)) {
-      ws_snprintf(buf, COL_MAX_LEN, "%s%dh %2dm %2d%s%09lds",
+      snprintf(buf, COL_MAX_LEN, "%s%dh %2dm %2d%s%09lds",
                  negative ? "- " : "",
                  (gint32) secs / (60 * 60),
                  (gint32) (secs / 60) % 60,
@@ -1362,14 +1361,14 @@ set_time_hour_min_sec(const frame_data *fd, const nstime_t *ts, gchar *buf, char
                  decimal_point,
                  nsecs);
     } else if (secs >= 60) {
-      ws_snprintf(buf, COL_MAX_LEN, "%s%dm %2d%s%09lds",
+      snprintf(buf, COL_MAX_LEN, "%s%dm %2d%s%09lds",
                  negative ? "- " : "",
                  (gint32) secs / 60,
                  (gint32) secs % 60,
                  decimal_point,
                  nsecs);
     } else {
-      ws_snprintf(buf, COL_MAX_LEN, "%s%d%s%09lds",
+      snprintf(buf, COL_MAX_LEN, "%s%d%s%09lds",
                  negative ? "- " : "",
                  (gint32) secs,
                  decimal_point,
@@ -1508,13 +1507,13 @@ set_abs_time(const frame_data *fd, gchar *buf, char *decimal_point, gboolean loc
     }
     switch (tsprecision) {
     case WTAP_TSPREC_SEC:
-      ws_snprintf(buf, COL_MAX_LEN,"%02d:%02d:%02d",
+      snprintf(buf, COL_MAX_LEN,"%02d:%02d:%02d",
         tmp->tm_hour,
         tmp->tm_min,
         tmp->tm_sec);
       break;
     case WTAP_TSPREC_DSEC:
-      ws_snprintf(buf, COL_MAX_LEN,"%02d:%02d:%02d%s%01d",
+      snprintf(buf, COL_MAX_LEN,"%02d:%02d:%02d%s%01d",
         tmp->tm_hour,
         tmp->tm_min,
         tmp->tm_sec,
@@ -1522,7 +1521,7 @@ set_abs_time(const frame_data *fd, gchar *buf, char *decimal_point, gboolean loc
         fd->abs_ts.nsecs / 100000000);
       break;
     case WTAP_TSPREC_CSEC:
-      ws_snprintf(buf, COL_MAX_LEN,"%02d:%02d:%02d%s%02d",
+      snprintf(buf, COL_MAX_LEN,"%02d:%02d:%02d%s%02d",
         tmp->tm_hour,
         tmp->tm_min,
         tmp->tm_sec,
@@ -1530,7 +1529,7 @@ set_abs_time(const frame_data *fd, gchar *buf, char *decimal_point, gboolean loc
         fd->abs_ts.nsecs / 10000000);
       break;
     case WTAP_TSPREC_MSEC:
-      ws_snprintf(buf, COL_MAX_LEN,"%02d:%02d:%02d%s%03d",
+      snprintf(buf, COL_MAX_LEN,"%02d:%02d:%02d%s%03d",
         tmp->tm_hour,
         tmp->tm_min,
         tmp->tm_sec,
@@ -1538,7 +1537,7 @@ set_abs_time(const frame_data *fd, gchar *buf, char *decimal_point, gboolean loc
         fd->abs_ts.nsecs / 1000000);
       break;
     case WTAP_TSPREC_USEC:
-      ws_snprintf(buf, COL_MAX_LEN,"%02d:%02d:%02d%s%06d",
+      snprintf(buf, COL_MAX_LEN,"%02d:%02d:%02d%s%06d",
         tmp->tm_hour,
         tmp->tm_min,
         tmp->tm_sec,
@@ -1546,7 +1545,7 @@ set_abs_time(const frame_data *fd, gchar *buf, char *decimal_point, gboolean loc
         fd->abs_ts.nsecs / 1000);
       break;
     case WTAP_TSPREC_NSEC:
-      ws_snprintf(buf, COL_MAX_LEN, "%02d:%02d:%02d%s%09d",
+      snprintf(buf, COL_MAX_LEN, "%02d:%02d:%02d%s%09d",
         tmp->tm_hour,
         tmp->tm_min,
         tmp->tm_sec,
@@ -2012,7 +2011,7 @@ col_set_port(packet_info *pinfo, const int col, const gboolean is_res, const gbo
 
   case PT_IPX:
     /* XXX - resolve IPX socket numbers */
-    ws_snprintf(col_item->col_buf, COL_MAX_LEN, "0x%04x", port);
+    snprintf(col_item->col_buf, COL_MAX_LEN, "0x%04x", port);
     g_strlcpy(pinfo->cinfo->col_expr.col_expr_val[col], col_item->col_buf,COL_MAX_LEN);
     if (is_src)
       pinfo->cinfo->col_expr.col_expr[col] = "ipx.src.socket";
@@ -2022,7 +2021,7 @@ col_set_port(packet_info *pinfo, const int col, const gboolean is_res, const gbo
 
   case PT_IDP:
     /* XXX - resolve IDP socket numbers */
-    ws_snprintf(col_item->col_buf, COL_MAX_LEN, "0x%04x", port);
+    snprintf(col_item->col_buf, COL_MAX_LEN, "0x%04x", port);
     g_strlcpy(pinfo->cinfo->col_expr.col_expr_val[col], col_item->col_buf,COL_MAX_LEN);
     if (is_src)
       pinfo->cinfo->col_expr.col_expr[col] = "idp.src.socket";
@@ -2032,7 +2031,7 @@ col_set_port(packet_info *pinfo, const int col, const gboolean is_res, const gbo
 
   case PT_USB:
     /* XXX - resolve USB endpoint numbers */
-    ws_snprintf(col_item->col_buf, COL_MAX_LEN, "0x%08x", port);
+    snprintf(col_item->col_buf, COL_MAX_LEN, "0x%08x", port);
     g_strlcpy(pinfo->cinfo->col_expr.col_expr_val[col], col_item->col_buf,COL_MAX_LEN);
     if (is_src)
       pinfo->cinfo->col_expr.col_expr[col] = "usb.src.endpoint";

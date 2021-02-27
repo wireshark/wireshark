@@ -54,6 +54,7 @@
 
 #include <config.h>
 #include <stdlib.h>
+#include <stdio.h>
 
 #include <epan/packet.h>
 #include <epan/expert.h>
@@ -68,7 +69,6 @@
 #include <epan/etypes.h>
 
 #include <wsutil/utf8_entities.h>
-#include <wsutil/ws_printf.h>
 
 #include "packet-e164.h"
 #include "packet-ieee1609dot2.h"
@@ -405,7 +405,7 @@ dissect_btpb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     pinfo->destport = dst_port;
 
     char buf_dst[32];
-    ws_snprintf(buf_dst, 32, "%"G_GUINT16_FORMAT, dst_port);
+    snprintf(buf_dst, 32, "%"G_GUINT16_FORMAT, dst_port);
     col_append_lstr(pinfo->cinfo, COL_INFO, " " UTF8_RIGHTWARDS_ARROW " ", buf_dst, COL_ADD_LSTR_TERMINATOR);
 
     btpbh->btp_pdst = dst_port;
