@@ -625,7 +625,7 @@ void CaptureFileDialog::addMergeControls(QVBoxLayout &v_box) {
 }
 
 int CaptureFileDialog::selectedFileType() {
-    return type_hash_.value(selectedNameFilter(), -1);
+    return type_hash_.value(selectedNameFilter(), WTAP_FILE_TYPE_SUBTYPE_UNKNOWN);
 }
 
 wtap_compression_type CaptureFileDialog::compressionType() {
@@ -748,8 +748,22 @@ check_savability_t CaptureFileDialog::saveAs(QString &file_name, bool must_suppo
     connect(this, &QFileDialog::filterSelected, this, &CaptureFileDialog::fixFilenameExtension);
 
     if (WiresharkFileDialog::exec() && selectedFiles().length() > 0) {
+        int file_type;
+
         file_name = selectedFiles()[0];
-        return checkSaveAsWithComments(this, cap_file_, selectedFileType());
+        file_type = selectedFileType();
+        /* Is the file type bogus? */
+        if (file_type == WTAP_FILE_TYPE_SUBTYPE_UNKNOWN) {
+            /* This "should not happen". */
+            QMessageBox msg_dialog;
+
+            msg_dialog.setIcon(QMessageBox::Critical);
+            msg_dialog.setText(tr("Unknown file type returned by save as dialog."));
+            msg_dialog.setInformativeText(tr("Please report this as a Wireshark issue at https://gitlab.com/wireshark/wireshark/-/issues."));
+            msg_dialog.exec();
+            return CANCELLED;
+        }
+        return checkSaveAsWithComments(this, cap_file_, file_type);
     }
     return CANCELLED;
 }
@@ -784,8 +798,22 @@ check_savability_t CaptureFileDialog::exportSelectedPackets(QString &file_name, 
     connect(this, &QFileDialog::filterSelected, this, &CaptureFileDialog::fixFilenameExtension);
 
     if (WiresharkFileDialog::exec() && selectedFiles().length() > 0) {
+        int file_type;
+
         file_name = selectedFiles()[0];
-        return checkSaveAsWithComments(this, cap_file_, selectedFileType());
+        file_type = selectedFileType();
+        /* Is the file type bogus? */
+        if (file_type == WTAP_FILE_TYPE_SUBTYPE_UNKNOWN) {
+            /* This "should not happen". */
+            QMessageBox msg_dialog;
+
+            msg_dialog.setIcon(QMessageBox::Critical);
+            msg_dialog.setText(tr("Unknown file type returned by save as dialog."));
+            msg_dialog.setInformativeText(tr("Please report this as a Wireshark issue at https://gitlab.com/wireshark/wireshark/-/issues."));
+            msg_dialog.exec();
+            return CANCELLED;
+        }
+        return checkSaveAsWithComments(this, cap_file_, file_type);
     }
     return CANCELLED;
 }

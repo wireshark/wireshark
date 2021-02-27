@@ -1470,6 +1470,16 @@ bool MainWindow::saveAsCaptureFile(capture_file *cf, bool must_support_comments,
             return false;
         }
         file_type = save_as_dlg.selectedFileType();
+        if (file_type == WTAP_FILE_TYPE_SUBTYPE_UNKNOWN) {
+            /* This "should not happen". */
+            QMessageBox msg_dialog;
+
+            msg_dialog.setIcon(QMessageBox::Critical);
+            msg_dialog.setText(tr("Unknown file type returned by merge dialog."));
+            msg_dialog.setInformativeText(tr("Please report this as a Wireshark issue at https://gitlab.com/wireshark/wireshark/-/issues."));
+            msg_dialog.exec();
+            return false;
+	}
         compression_type = save_as_dlg.compressionType();
 
 #ifdef Q_OS_WIN
@@ -1604,6 +1614,16 @@ void MainWindow::exportSelectedPackets() {
         }
 
         file_type = esp_dlg.selectedFileType();
+        if (file_type == WTAP_FILE_TYPE_SUBTYPE_UNKNOWN) {
+            /* This "should not happen". */
+            QMessageBox msg_box;
+
+            msg_box.setIcon(QMessageBox::Critical);
+            msg_box.setText(tr("Unknown file type returned by export dialog."));
+            msg_box.setInformativeText(tr("Please report this as a Wireshark issue at https://gitlab.com/wireshark/wireshark/-/issues."));
+            msg_box.exec();
+            goto cleanup;
+	}
         compression_type = esp_dlg.compressionType();
 #ifdef Q_OS_WIN
         // the Windows dialog does not fixup extensions, do it manually here.
