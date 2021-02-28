@@ -879,6 +879,14 @@
         <translation>合并捕获文件</translation>
     </message>
     <message>
+        <source>Unknown file type returned by save as dialog.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Please report this as a Wireshark issue at https://gitlab.com/wireshark/wireshark/-/issues.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>directory</source>
         <translation>目录</translation>
     </message>
@@ -6819,6 +6827,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>TCP 窗口尺寸</translation>
     </message>
     <message>
+        <source>DCCP Stream</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>TLS Stream</source>
         <translation>TLS 流</translation>
     </message>
@@ -7921,6 +7933,18 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Unable to drop files during capture.</source>
         <translation>无法在捕获时拖放文件。</translation>
+    </message>
+    <message>
+        <source>Unknown file type returned by merge dialog.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Please report this as a Wireshark issue at https://gitlab.com/wireshark/wireshark/-/issues.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unknown file type returned by export dialog.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Do you want to stop the capture and save the captured packets%1?</source>

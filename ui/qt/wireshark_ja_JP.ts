@@ -879,6 +879,14 @@
         <translation>キャプチャファイルを結合</translation>
     </message>
     <message>
+        <source>Unknown file type returned by save as dialog.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Please report this as a Wireshark issue at https://gitlab.com/wireshark/wireshark/-/issues.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>directory</source>
         <translation>ディレクトリ</translation>
     </message>
@@ -3329,7 +3337,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Example GIF query packets have jumbo window sizes</source>
         <extracomment>These are pangrams. Feel free to replace with nonsense text that spans your alphabet. https://en.wikipedia.org/wiki/Pangram</extracomment>
-        <translation type="unfinished"></translation>
+        <translation>サンプルのGIF形式のクエリパケットは巨大なウインドウサイズを持ちます。</translation>
     </message>
     <message>
         <source>Lazy badgers move unique waxy jellyfish packets</source>
@@ -6826,6 +6834,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>TCPウインドウスケーリング</translation>
     </message>
     <message>
+        <source>DCCP Stream</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>TLS Stream</source>
         <translation>TLS ストリーム</translation>
     </message>
@@ -7928,6 +7940,18 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Unable to drop files during capture.</source>
         <translation>キャプチャ中にファイルをドロップできません</translation>
+    </message>
+    <message>
+        <source>Unknown file type returned by merge dialog.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Please report this as a Wireshark issue at https://gitlab.com/wireshark/wireshark/-/issues.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unknown file type returned by export dialog.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Do you want to stop the capture and save the captured packets%1?</source>
@@ -13542,11 +13566,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Select &amp;None</source>
-        <translation type="unfinished"></translation>
+        <translation>選択なし(&amp;N)</translation>
     </message>
     <message>
         <source>Clear selection</source>
-        <translation type="unfinished"></translation>
+        <translation>選択をクリア</translation>
     </message>
     <message>
         <source>Display time as time of day</source>

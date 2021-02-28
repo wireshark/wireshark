@@ -2621,8 +2621,16 @@ Kees Cook		<kees[AT]outflux.net> {
 	TiVoConnect Discovery Protocol
 }
 
-Thomas Dreibholz	<dreibh[AT]iem.uni-due.de> {
+Thomas Dreibholz	<dreibh[AT]iem.uni-due.de>/<dreibh[AT]simula.no> {
+	Calculation Application Protocol support
+	Component Status Protocol support
+	Fractal Generator Protocol support
+	DCCP dissector improvements
+	Follow DCCP stream feature
+	NetPerfMeter Protocol support
+	Ping Pong Protocol support
 	RSerPol protocol stack
+	SCTP dissector improvements
 	Scripting Service Protocol support
 }
 
@@ -4424,6 +4432,7 @@ Jonas Jonsson		<jonas[AT]ludd.ltu.se>
 Jonathan Brucker	<jonathan.brucke[AT]gmail.com>
 Jonathan Fleming	<jonathan[AT]optigo.net>
 Jonathan Muñoz		<jonathan.munoz[AT]inria.fr>
+Jonathan Nieder		<jrnieder[AT]gmail.com>
 Jordan Keister		<grokspawn[AT]gmail.com>
 Jorge Mora		<jmora1300[AT]gmail.com>
 Jorge Power		<jpower[AT]rsscorp.org>
@@ -4574,6 +4583,7 @@ Michaël Bouchaud	<michael.bouchaud[AT]external.thalesaleniaspace.com>
 Michaël Bouchaud	<michael.bouchaud[AT]gmail.com>
 Michał Skalski		<mskalski13[AT]gmail.com>
 Michele Baldessari	<michele[AT]acksyn.org>
+Michele Mazzante	<mazzante[AT]gmail.com>
 Miguel Company		<MiguelCompany[AT]eprosima.com>
 Mihai Codrean		<mihaicodrean[AT]gmail.com>
 Mikael Kanstrup		<mikael.kanstrup[AT]gmail.com>
@@ -4685,9 +4695,11 @@ Piotr Smolinski		<piotr.smolinski[AT]confluent.io>
 Piotr Tulpan		<piotr.tulpan[AT]netscan.pl>
 Piotr Winiarczyk	<wino45[AT]gmail.com>
 Poornima G		<pgurusid[AT]redhat.com>
+Prashant Tripathi	<prashant_tripathi[AT]selinc.com>
 Prashanth Pai		<ppai[AT]redhat.com>
 Prerit Jain		<prerit.jain[AT]gmail.com>
 Prerit Jain		<prerit.jain[AT]samsung.com>
+Preston Hunt		<me[AT]prestonhunt.com>
 Prince Paul		<prince.paul.k[AT]gmail.com>
 Priyanka Mondal		<priyanka02010[AT]gmail.com>
 Radhashyam Behera	<radhashyambehera[AT]gmail.com>
@@ -4923,6 +4935,7 @@ lutianxiong		<lutianxiong[AT]huawei.com>
 mbutkereit		<marvin.butkereit[AT]haw-hamburg.de>
 mirkodeckert		<mirko.deckert[AT]adtran.com>
 mkg20001		<mkg20001[AT]gmail.com>
+naf			<naf[AT]sdf.org>
 nickvsnetworking	<nick[AT]nickvsnetworking.com>
 pavol47			<pavoloresky47[AT]gmail.com>
 pegah hajiani		<pegah_haj[AT]yahoo.com>

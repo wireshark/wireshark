@@ -5,6 +5,7 @@ editcap: The available capture file types for the "-F" flag are:
     btsnoop - Symbian OS btsnoop
     commview - TamoSoft CommView
     dct2000 - Catapult DCT2000 trace (.out format)
+    erf - Endace ERF capture
     eyesdn - EyeSDN USB S0/E1 ISDN trace format
     k12text - K12 text file
     lanalyzer - Novell LANalyzer
