@@ -62,6 +62,7 @@ static int hf_pdcp_nr_plane = -1;
 static int hf_pdcp_nr_seqnum_length = -1;
 static int hf_pdcp_nr_maci_present = -1;
 static int hf_pdcp_nr_sdap = -1;
+static int hf_pdcp_nr_ciphering_disabled = -1;
 
 static int hf_pdcp_nr_rohc_compression = -1;
 static int hf_pdcp_nr_rohc_mode = -1;
@@ -758,90 +759,6 @@ static void addBearerSequenceInfo(pdcp_sequence_report_in_frame *p,
                                     tvb, 0, 0, p->nextFrameNum);
             }
 
-            /* May also be able to add key inputs to security tree here */
-            if ((pdu_security->ciphering != nea0) ||
-                (pdu_security->integrity != nia0)) {
-                guint32              hfn_multiplier;
-                guint32              count;
-                gchar                *cipher_key = NULL;
-                gchar                *integrity_key = NULL;
-
-                /* BEARER */
-                ti = proto_tree_add_uint(security_tree, hf_pdcp_nr_security_bearer,
-                                         tvb, 0, 0, p_pdcp_nr_info->bearerId-1);
-                proto_item_set_generated(ti);
-                pdu_security->bearer = p_pdcp_nr_info->bearerId-1;
-
-                /* DIRECTION */
-                ti = proto_tree_add_uint(security_tree, hf_pdcp_nr_security_direction,
-                                         tvb, 0, 0, p_pdcp_nr_info->direction);
-                proto_item_set_generated(ti);
-
-                /* COUNT (HFN * snLength^2 + SN) */
-                switch (p_pdcp_nr_info->seqnum_length) {
-                    case PDCP_NR_SN_LENGTH_12_BITS:
-                        hfn_multiplier = 4096;
-                        break;
-                    case PDCP_NR_SN_LENGTH_18_BITS:
-                        hfn_multiplier = 262144;
-                        break;
-                    default:
-                        DISSECTOR_ASSERT_NOT_REACHED();
-                        break;
-                }
-                count = (p->hfn * hfn_multiplier) + sequenceNumber;
-                ti = proto_tree_add_uint(security_tree, hf_pdcp_nr_security_count,
-                                         tvb, 0, 0, count);
-                proto_item_set_generated(ti);
-                pdu_security->count = count;
-
-                /* KEY.  Look this UE up among UEs that have keys configured */
-                keys_record = look_up_keys_record(p_pdcp_nr_info->ueid);
-                if (keys_record != NULL) {
-                    if (p_pdcp_nr_info->plane == NR_SIGNALING_PLANE) {
-                        /* Get RRC ciphering key */
-                        if (keys_record->rrcCipherKeyOK) {
-                            cipher_key = keys_record->rrcCipherKeyString;
-                            pdu_security->cipherKey = &(keys_record->rrcCipherBinaryKey[0]);
-                            pdu_security->cipherKeyValid = TRUE;
-                        }
-                        /* Get RRC integrity key */
-                        if (keys_record->rrcIntegrityKeyOK) {
-                            integrity_key = keys_record->rrcIntegrityKeyString;
-                            pdu_security->integrityKey = &(keys_record->rrcIntegrityBinaryKey[0]);
-                            pdu_security->integrityKeyValid = TRUE;
-                        }
-                    }
-                    else {
-                        /* Get userplane ciphering key */
-                        if (keys_record->upCipherKeyOK) {
-                            cipher_key = keys_record->upCipherKeyString;
-                            pdu_security->cipherKey = &(keys_record->upCipherBinaryKey[0]);
-                            pdu_security->cipherKeyValid = TRUE;
-                        }
-                        /* Get userplane integrity key */
-                        if (keys_record->upIntegrityKeyOK) {
-                            integrity_key = keys_record->upIntegrityKeyString;
-                            pdu_security->integrityKey = &(keys_record->upIntegrityBinaryKey[0]);
-                            pdu_security->integrityKeyValid = TRUE;
-                        }
-                    }
-
-                    /* Show keys where known and valid */
-                    if (cipher_key != NULL) {
-                        ti = proto_tree_add_string(security_tree, hf_pdcp_nr_security_cipher_key,
-                                                   tvb, 0, 0, cipher_key);
-                        proto_item_set_generated(ti);
-                    }
-                    if (integrity_key != NULL) {
-                        ti = proto_tree_add_string(security_tree, hf_pdcp_nr_security_integrity_key,
-                                                   tvb, 0, 0, integrity_key);
-                        proto_item_set_generated(ti);
-                    }
-
-                    pdu_security->direction = p_pdcp_nr_info->direction;
-                }
-            }
             break;
 
         case SN_Missing:
@@ -903,6 +820,91 @@ static void addBearerSequenceInfo(pdcp_sequence_report_in_frame *p,
                                    p_pdcp_nr_info->bearerId,
                                    sequenceNumber, p->sequenceExpected);
             break;
+    }
+
+    /* May also be able to add key inputs to security tree here */
+    if ((pdu_security->ciphering != nea0) ||
+        (pdu_security->integrity != nia0)) {
+        guint32              hfn_multiplier;
+        guint32              count;
+        gchar                *cipher_key = NULL;
+        gchar                *integrity_key = NULL;
+
+        /* BEARER */
+        ti = proto_tree_add_uint(security_tree, hf_pdcp_nr_security_bearer,
+                                 tvb, 0, 0, p_pdcp_nr_info->bearerId-1);
+        proto_item_set_generated(ti);
+        pdu_security->bearer = p_pdcp_nr_info->bearerId-1;
+
+        /* DIRECTION */
+        ti = proto_tree_add_uint(security_tree, hf_pdcp_nr_security_direction,
+                                 tvb, 0, 0, p_pdcp_nr_info->direction);
+        proto_item_set_generated(ti);
+
+        /* COUNT (HFN * snLength^2 + SN) */
+        switch (p_pdcp_nr_info->seqnum_length) {
+            case PDCP_NR_SN_LENGTH_12_BITS:
+                hfn_multiplier = 4096;
+                break;
+            case PDCP_NR_SN_LENGTH_18_BITS:
+                hfn_multiplier = 262144;
+                break;
+            default:
+                DISSECTOR_ASSERT_NOT_REACHED();
+                break;
+        }
+        count = (p->hfn * hfn_multiplier) + sequenceNumber;
+        ti = proto_tree_add_uint(security_tree, hf_pdcp_nr_security_count,
+                                 tvb, 0, 0, count);
+        proto_item_set_generated(ti);
+        pdu_security->count = count;
+
+        /* KEY.  Look this UE up among UEs that have keys configured */
+        keys_record = look_up_keys_record(p_pdcp_nr_info->ueid);
+        if (keys_record != NULL) {
+            if (p_pdcp_nr_info->plane == NR_SIGNALING_PLANE) {
+                /* Get RRC ciphering key */
+                if (keys_record->rrcCipherKeyOK) {
+                    cipher_key = keys_record->rrcCipherKeyString;
+                    pdu_security->cipherKey = &(keys_record->rrcCipherBinaryKey[0]);
+                    pdu_security->cipherKeyValid = TRUE;
+                }
+                /* Get RRC integrity key */
+                if (keys_record->rrcIntegrityKeyOK) {
+                    integrity_key = keys_record->rrcIntegrityKeyString;
+                    pdu_security->integrityKey = &(keys_record->rrcIntegrityBinaryKey[0]);
+                    pdu_security->integrityKeyValid = TRUE;
+                }
+            }
+            else {
+                /* Get userplane ciphering key */
+                if (keys_record->upCipherKeyOK) {
+                    cipher_key = keys_record->upCipherKeyString;
+                    pdu_security->cipherKey = &(keys_record->upCipherBinaryKey[0]);
+                    pdu_security->cipherKeyValid = TRUE;
+                }
+                /* Get userplane integrity key */
+                if (keys_record->upIntegrityKeyOK) {
+                    integrity_key = keys_record->upIntegrityKeyString;
+                    pdu_security->integrityKey = &(keys_record->upIntegrityBinaryKey[0]);
+                    pdu_security->integrityKeyValid = TRUE;
+                }
+            }
+
+            /* Show keys where known and valid */
+            if (cipher_key != NULL) {
+                ti = proto_tree_add_string(security_tree, hf_pdcp_nr_security_cipher_key,
+                                           tvb, 0, 0, cipher_key);
+                proto_item_set_generated(ti);
+            }
+            if (integrity_key != NULL) {
+                ti = proto_tree_add_string(security_tree, hf_pdcp_nr_security_integrity_key,
+                                           tvb, 0, 0, integrity_key);
+                proto_item_set_generated(ti);
+            }
+
+            pdu_security->direction = p_pdcp_nr_info->direction;
+        }
     }
 }
 
@@ -995,6 +997,7 @@ static void checkBearerSequenceInfo(packet_info *pinfo, tvbuff_t *tvb,
     p_report_in_frame->sequenceExpectedCorrect = (sequenceNumber == expectedSequenceNumber);
     p_report_in_frame->hfn = p_bearer_status->hfn;
 
+
     /* For wrong sequence number... */
     if (!p_report_in_frame->sequenceExpectedCorrect) {
 
@@ -1027,7 +1030,7 @@ static void checkBearerSequenceInfo(packet_info *pinfo, tvbuff_t *tvb,
         p_report_in_frame->previousFrameNum = p_bearer_status->previousFrameNum;
         /* SN has rolled around, inc hfn! */
         if (!createdBearer && (sequenceNumber == 0)) {
-            /* TODO: not worrying about HFN rolling over for now! */
+            /* Should handover before HFN needs to wrap, so don't worry about it */
             p_bearer_status->hfn++;
             p_report_in_frame->hfn = p_bearer_status->hfn;
         }
@@ -1203,6 +1206,15 @@ static void show_pdcp_config(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree
                                 p_pdcp_info->maci_present);
     proto_item_set_generated(ti);
 
+    /* Ciphering disabled */
+    ti = proto_tree_add_boolean(configuration_tree, hf_pdcp_nr_ciphering_disabled, tvb, 0, 0,
+                                p_pdcp_info->ciphering_disabled);
+    proto_item_set_generated(ti);
+    /* Hide unless set */
+    if (!p_pdcp_info->ciphering_disabled) {
+        proto_item_set_hidden(ti);
+    }
+
 
     if (p_pdcp_info->plane == NR_USER_PLANE) {
 
@@ -1253,6 +1265,7 @@ static void show_pdcp_config(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree
             proto_item_set_generated(ti);
         }
     }
+
 
     /* Append summary to configuration root */
     proto_item_append_text(configuration_ti, "(direction=%s, plane=%s",
@@ -1409,11 +1422,11 @@ static tvbuff_t *decipher_payload(tvbuff_t *tvb, packet_info *pinfo, int *offset
         return tvb;
 #endif
     }
-    else
-    if (pdu_security_settings->ciphering != nea2) {
+    else if (pdu_security_settings->ciphering != nea2) {
         /* An algorithm we don't support at all! */
         return tvb;
     }
+
 
     /* Don't decipher if turned off in preferences */
     if (((p_pdcp_info->plane == NR_SIGNALING_PLANE) &&  !global_pdcp_decipher_signalling) ||
@@ -1441,7 +1454,6 @@ static tvbuff_t *decipher_payload(tvbuff_t *tvb, packet_info *pinfo, int *offset
         unsigned char ctr_block[16];
         gcry_cipher_hd_t cypher_hd;
         int gcrypt_err;
-
         /* TS 33.501 D.4.4 defers to TS 33.401 B.1.3 */
 
         /* Set CTR */
@@ -2248,8 +2260,20 @@ static int dissect_pdcp_nr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     }
 
     /* Decipher payload if necessary */
+    gboolean should_decipher = FALSE;
+    if (pdu_security && !p_pdcp_info->ciphering_disabled) {
+        if (p_pdcp_info->plane == NR_USER_PLANE) {
+            /* Should decipher DRBs if have key */
+            should_decipher = TRUE;
+        }
+        else {
+            /* Past SecurityModeComplete */
+            should_decipher= pdu_security->seen_next_ul_pdu;
+        }
+    }
     payload_tvb = decipher_payload(tvb, pinfo, &offset, &pdu_security_settings, p_pdcp_info, sdap_length,
-                                   pdu_security ? pdu_security->seen_next_ul_pdu: FALSE, &payload_deciphered);
+                                   should_decipher,
+                                   &payload_deciphered);
 
     proto_item *mac_ti = NULL;
     guint32  calculated_digest = 0;
@@ -2270,7 +2294,8 @@ static int dissect_pdcp_nr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
         /* RRC data is all but last 4 bytes.
            Call nr-rrc dissector (according to direction and Bearer type) if we have valid data */
         if ((global_pdcp_dissect_signalling_plane_as_rrc) &&
-            ((pdu_security == NULL) || (pdu_security->ciphering == nea0) || payload_deciphered || !pdu_security->seen_next_ul_pdu)) {
+            ((pdu_security == NULL) || (pdu_security->ciphering == nea0) || payload_deciphered ||
+             p_pdcp_info->ciphering_disabled || !pdu_security->seen_next_ul_pdu)) {
 
             /* Get appropriate dissector handle */
             dissector_handle_t rrc_handle = lookup_rrc_dissector_handle(p_pdcp_info, data_length);
@@ -2283,6 +2308,8 @@ static int dissect_pdcp_nr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
                 /* We always want to see this in the info column */
                 col_set_writable(pinfo->cinfo, COL_INFO, TRUE);
 
+                /* N.B. Have seen some cases where RRC dissector throws an exception and doesn't return here, or show as malformed... */
+                /* Have attempted to TRY CATCH etc, but with no joy */
                 call_dissector_only(rrc_handle, rrc_payload_tvb, pinfo, pdcp_tree, NULL);
 
                 /* Restore to whatever it was */
@@ -2494,6 +2521,13 @@ void proto_register_pdcp_nr(void)
               "Indicates whether SDAP appears after PDCP headers", HFILL
             }
         },
+        { &hf_pdcp_nr_ciphering_disabled,
+            { "Ciphering disabled",
+              "pdcp-nr.ciphering-disabled", FT_BOOLEAN, 8, NULL, 0x0,
+              NULL, HFILL
+            }
+        },
+
 
         { &hf_pdcp_nr_rohc_compression,
             { "ROHC Compression",
