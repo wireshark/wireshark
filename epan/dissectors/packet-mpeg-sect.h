@@ -39,6 +39,7 @@
 #define DVB_AIT_TID             0x74 /* packet-dvb-ait.c */
 
 /* From ETSI EN 301 192 */
+/* Duplicates / implementation of DSMCC_TID_PRIVATE */
 #define DVB_DATA_MPE_TID        0x3E /* packet-dvb-data-mpe.c */
 
 /* From OC-SP-ETV-AM 1.0-IO5 */
@@ -51,6 +52,9 @@
 #define PACKET_MPEG_SECT_PI__RESERVED	2
 #define PACKET_MPEG_SECT_PI__LENGTH	3
 #define PACKET_MPEG_SECT_PI__SIZE	4
+
+/* Per-packet proto_data */
+#define MPEG_SECT_TID_KEY       0
 
 /* convert a byte that contains two 4bit BCD digits into a decimal value */
 #define MPEG_SECT_BCD44_TO_DEC(x)  ((((x)&0xf0) >> 4) * 10 + ((x)&0x0f))

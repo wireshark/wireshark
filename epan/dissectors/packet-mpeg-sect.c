@@ -15,6 +15,8 @@
 #include <epan/prefs.h>
 #include <epan/crc32-tvb.h>
 #include <epan/expert.h>
+#include <epan/decode_as.h>
+#include <epan/proto_data.h>
 #include "packet-mpeg-sect.h"
 
 void proto_register_mpeg_sect(void);
@@ -138,6 +140,17 @@ static const value_string mpeg_sect_table_id_vals[] = {
     { TID_FORBIDEN,    "Forbidden" },
     { 0, NULL }
 };
+
+static void mpeg_sect_prompt(packet_info *pinfo, gchar* result)
+{
+    g_snprintf(result, MAX_DECODE_AS_PROMPT_LEN, "Table ID %u as",
+        GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_mpeg_sect, MPEG_SECT_TID_KEY)));
+}
+
+static gpointer mpeg_sect_value(packet_info *pinfo)
+{
+    return p_get_proto_data(pinfo->pool, pinfo, proto_mpeg_sect, MPEG_SECT_TID_KEY);
+}
 
 /* read a utc_time field in a tvb and write it to the utc_time struct
    the encoding of the field is according to DVB-SI specification, section 5.2.5
@@ -268,6 +281,7 @@ dissect_mpeg_sect(tvbuff_t *tvb, packet_info *pinfo,
         return 0;
 
     table_id = tvb_get_guint8(tvb, offset);
+    p_add_proto_data(pinfo->pool, pinfo, proto_mpeg_sect, MPEG_SECT_TID_KEY, GUINT_TO_POINTER(table_id));
 
     /* Check if a dissector can parse the current table */
     if (dissector_try_uint(mpeg_sect_tid_dissector_table, table_id, tvb, pinfo, tree))
@@ -336,6 +350,11 @@ proto_register_mpeg_sect(void)
         { &ei_mpeg_sect_crc, { "mpeg_sect.crc.invalid", PI_CHECKSUM, PI_WARN, "Invalid CRC", EXPFILL }},
     };
 
+    /* Decode As handling */
+    static build_valid_func mpeg_sect_da_build_value[1] = {mpeg_sect_value};
+    static decode_as_value_t mpeg_sect_da_values = {mpeg_sect_prompt, 1, mpeg_sect_da_build_value};
+    static decode_as_t mpeg_sect_da = {"mpeg_sect", "mpeg_sect.tid", 1, 0, &mpeg_sect_da_values, NULL, NULL, decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL};
+
     module_t *mpeg_sect_module;
     expert_module_t* expert_mpeg_sect;
 
@@ -359,6 +378,7 @@ proto_register_mpeg_sect(void)
                                  "MPEG SECT Table ID",
                                  proto_mpeg_sect, FT_UINT8, BASE_HEX);
 
+    register_decode_as(&mpeg_sect_da);
 }
 
 /*

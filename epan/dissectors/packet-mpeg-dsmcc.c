@@ -3303,7 +3303,14 @@ proto_reg_handoff_dsmcc(void)
     dissector_add_uint("mpeg_sect.tid", DSMCC_TID_UN_MSG, dsmcc_ts_handle);
     dissector_add_uint("mpeg_sect.tid", DSMCC_TID_DD_MSG, dsmcc_ts_handle);
     dissector_add_uint("mpeg_sect.tid", DSMCC_TID_DESC_LIST, dsmcc_ts_handle);
-    dissector_add_uint("mpeg_sect.tid", DSMCC_TID_PRIVATE, dsmcc_ts_handle);
+    /* TID 0x3E is used for both DSMCC_TID_PRIVATE and DVB_DATA_MPE_TID.
+     * MPE (ETSI EN 301 192) is conformant to the DSSMCC section format
+     * for private data, and is by far the most common implementation,
+     * so default register it to the table entry. If someone wants this
+     * generic DSM-CC dissector to handle it, they can use Decode As.
+     *
+     * dissector_add_uint("mpeg_sect.tid", DSMCC_TID_PRIVATE, dsmcc_ts_handle);
+     */
 
     dissector_add_uint_with_preference("tcp.port", DSMCC_TCP_PORT, dsmcc_tcp_handle);
     dissector_add_uint_with_preference("udp.port", DSMCC_UDP_PORT, dsmcc_udp_handle);
