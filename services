@@ -131,7 +131,7 @@ netbios-ssn	139/tcp/udp	# NETBIOS Session Service
 emfis-data	140/tcp/udp	# EMFIS Data Service
 emfis-cntl	141/tcp/udp	# EMFIS Control Service
 bl-idm		142/tcp/udp	# Britton-Lee IDM
-imap		143/tcp/udp	# Internet Message Access Protocol
+imap		143/tcp		# Internet Message Access Protocol
 uma		144/tcp/udp	# Universal Management Architecture
 uaac		145/tcp/udp	# UAAC Protocol
 iso-tp0		146/tcp/udp	# ISO-IP0
@@ -711,7 +711,7 @@ ftps-data	989/tcp/udp	# ftp protocol, data, over TLS/SSL
 ftps		990/tcp/udp	# ftp protocol, control, over TLS/SSL
 nas		991/tcp/udp	# Netnews Administration System
 telnets		992/tcp/udp	# telnet protocol over TLS/SSL
-imaps		993/tcp/udp	# IMAP over TLS protocol
+imaps		993/tcp		# IMAP over TLS protocol
 pop3s		995/tcp/udp	# POP3 over TLS protocol
 vsinet		996/tcp/udp
 maitrd		997/tcp/udp
