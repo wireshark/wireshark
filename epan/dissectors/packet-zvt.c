@@ -238,6 +238,27 @@ static int hf_zvt_tlv_len = -1;
 static int hf_zvt_text_lines_line = -1;
 static int hf_zvt_permitted_cmd = -1;
 static int hf_zvt_receipt_type = -1;
+static int hf_zvt_receipt_parameter_positive_customer = -1;
+static int hf_zvt_receipt_parameter_negative_customer = -1;
+static int hf_zvt_receipt_parameter_positive_merchant = -1;
+static int hf_zvt_receipt_parameter_negative_merchant = -1;
+static int hf_zvt_receipt_parameter_customer_before_merchant = -1;
+static int hf_zvt_receipt_parameter_print_short_receipt = -1;
+static int hf_zvt_receipt_parameter_no_product_data = -1;
+static int hf_zvt_receipt_parameter_ecr_as_printer = -1;
+static int hf_zvt_receipt_parameter = -1;
+
+static int * const receipt_parameter_flag_fields[] = {
+    &hf_zvt_receipt_parameter_positive_customer,
+    &hf_zvt_receipt_parameter_negative_customer,
+    &hf_zvt_receipt_parameter_positive_merchant,
+    &hf_zvt_receipt_parameter_negative_merchant,
+    &hf_zvt_receipt_parameter_customer_before_merchant,
+    &hf_zvt_receipt_parameter_print_short_receipt,
+    &hf_zvt_receipt_parameter_no_product_data,
+    &hf_zvt_receipt_parameter_ecr_as_printer,
+    NULL
+};
 
 static expert_field ei_invalid_apdu_len = EI_INIT;
 
@@ -375,6 +396,10 @@ static inline gint dissect_zvt_tlv_receipt_type(
         tvbuff_t *tvb, gint offset, gint len,
         packet_info *pinfo, proto_tree *tree, tlv_seq_info_t *seq_info);
 
+static inline gint dissect_zvt_tlv_receipt_param(
+        tvbuff_t *tvb, gint offset, gint len,
+        packet_info *pinfo, proto_tree *tree, tlv_seq_info_t *seq_info);
+
 static const tlv_info_t tlv_info[] = {
     { TLV_TAG_TEXT_LINES, dissect_zvt_tlv_text_lines },
     { TLV_TAG_DISPLAY_TEXTS, dissect_zvt_tlv_subseq },
@@ -382,7 +407,8 @@ static const tlv_info_t tlv_info[] = {
     { TLV_TAG_PAYMENT_TYPE, dissect_zvt_tlv_subseq },
     { TLV_TAG_PERMITTED_ZVT_CMDS, dissect_zvt_tlv_subseq },
     { TLV_TAG_PERMITTED_ZVT_CMD, dissect_zvt_tlv_permitted_cmd },
-    { TLV_TAG_RECEIPT_TYPE, dissect_zvt_tlv_receipt_type }
+    { TLV_TAG_RECEIPT_TYPE, dissect_zvt_tlv_receipt_type },
+    { TLV_TAG_RECEIPT_PARAM, dissect_zvt_tlv_receipt_param }
 };
 
 static const value_string tlv_tags[] = {
@@ -445,6 +471,15 @@ static inline gint dissect_zvt_tlv_receipt_type(
 {
     proto_tree_add_item(tree, hf_zvt_receipt_type,
             tvb, offset, len, ENC_BIG_ENDIAN);
+    return len;
+}
+
+
+static inline gint dissect_zvt_tlv_receipt_param(
+        tvbuff_t *tvb, gint offset, gint len,
+        packet_info *pinfo _U_, proto_tree *tree, tlv_seq_info_t *seq_info _U_)
+{
+    proto_tree_add_bitmask(tree, tvb, offset, hf_zvt_receipt_parameter, ett_zvt_tlv_tag, receipt_parameter_flag_fields, ENC_BIG_ENDIAN);
     return len;
 }
 
@@ -1189,7 +1224,34 @@ proto_register_zvt(void)
                 FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL } },
         { &hf_zvt_receipt_type,
             { "Receipt type", "zvt.tlv.receipt_type",
-                FT_UINT16, BASE_HEX, VALS(receipt_type), 0, NULL, HFILL } }
+                FT_UINT16, BASE_HEX, VALS(receipt_type), 0, NULL, HFILL } },
+        { &hf_zvt_receipt_parameter_positive_customer,
+            { "Positive customer receipt", "zvt.tlv.receipt_parameter.negative_customer", FT_BOOLEAN,
+                8, TFS(&tfs_required_not_required), 0x80, NULL, HFILL } },
+        { &hf_zvt_receipt_parameter_negative_customer,
+            { "Negative customer receipt", "zvt.tlv.receipt_parameter.negative_customer", FT_BOOLEAN,
+                8, TFS(&tfs_required_not_required), 0x40, NULL, HFILL } },
+        { &hf_zvt_receipt_parameter_positive_merchant,
+            { "Positive merchant receipt", "zvt.tlv.receipt_parameter.negative_customer", FT_BOOLEAN,
+                8, TFS(&tfs_required_not_required), 0x20, NULL, HFILL } },
+        { &hf_zvt_receipt_parameter_negative_merchant,
+            { "Negative merchant receipt", "zvt.tlv.receipt_parameter.negative_customer", FT_BOOLEAN,
+                8, TFS(&tfs_required_not_required), 0x10, NULL, HFILL } },
+        { &hf_zvt_receipt_parameter_customer_before_merchant,
+            { "Customer receipt should be sent before the merchant receipt", "zvt.tlv.receipt_parameter.customer_first", FT_BOOLEAN,
+                8, TFS(&tfs_yes_no), 0x08, NULL, HFILL } },
+        { &hf_zvt_receipt_parameter_print_short_receipt,
+            { "Print short receipt", "zvt.tlv.receipt_parameter.short_receipt", FT_BOOLEAN,
+                8, TFS(&tfs_yes_no), 0x04, NULL, HFILL } },
+        { &hf_zvt_receipt_parameter_no_product_data,
+            { "Do not print product data (from BMP 3C) on the receipt", "zvt.tlv.receipt_parameter.no_product", FT_BOOLEAN,
+                8, TFS(&tfs_yes_no), 0x02, NULL, HFILL } },
+        { &hf_zvt_receipt_parameter_ecr_as_printer,
+            { "Use ECR as printer", "zvt.tlv.receipt_parameter.ecr_as_printer", FT_BOOLEAN,
+                8, TFS(&tfs_yes_no), 0x01, NULL, HFILL } },
+        { &hf_zvt_receipt_parameter,
+            { "Receipt parameter", "zvt.tlv.receipt_parameter", FT_UINT8,
+                BASE_HEX, NULL, 0x00, NULL, HFILL } }
     };
 
     static ei_register_info ei[] = {
