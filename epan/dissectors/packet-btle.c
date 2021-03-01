@@ -6,6 +6,7 @@
  * Copyright 2013, Michal Labedzki for Tieto Corporation
  * Copyright 2014, Christopher D. Kilgour, techie at whiterocker dot com
  * Copyright 2017, Stig Bjorlykke for Nordic Semiconductor
+ * Copyright 2021, Thomas Sailer
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -107,9 +108,17 @@ static int hf_data_header = -1;
 static int hf_data_header_length = -1;
 static int hf_data_header_rfu = -1;
 static int hf_data_header_llid = -1;
+static int hf_data_header_llid_connectediso = -1;
+static int hf_data_header_llid_broadcastiso = -1;
 static int hf_data_header_more_data = -1;
 static int hf_data_header_sequence_number = -1;
 static int hf_data_header_next_expected_sequence_number = -1;
+static int hf_data_header_rfu_57 = -1;
+static int hf_data_header_rfu_67 = -1;
+static int hf_data_header_close_isochronous_event = -1;
+static int hf_data_header_null_pdu_indicator = -1;
+static int hf_data_header_control_subevent_sequence_number = -1;
+static int hf_data_header_control_subevent_transmission_flag = -1;
 static int hf_control_opcode = -1;
 static int hf_l2cap_index = -1;
 static int hf_l2cap_fragment = -1;
@@ -177,12 +186,83 @@ static int hf_control_phys_reserved_bits = -1;
 static int hf_control_tx_phys = -1;
 static int hf_control_rx_phys = -1;
 static int hf_control_m_to_s_phy = -1;
+static int hf_control_m_to_s_phy_le_1m_phy = -1;
+static int hf_control_m_to_s_phy_le_2m_phy = -1;
+static int hf_control_m_to_s_phy_le_coded_phy = -1;
+static int hf_control_m_to_s_phy_reserved_bits = -1;
 static int hf_control_s_to_m_phy = -1;
+static int hf_control_s_to_m_phy_le_1m_phy = -1;
+static int hf_control_s_to_m_phy_le_2m_phy = -1;
+static int hf_control_s_to_m_phy_le_coded_phy = -1;
+static int hf_control_s_to_m_phy_reserved_bits = -1;
 static int hf_control_phys = -1;
 static int hf_control_phys_le_1m_phy = -1;
 static int hf_control_phys_le_2m_phy = -1;
 static int hf_control_phys_le_coded_phy = -1;
 static int hf_control_min_used_channels = -1;
+static int hf_control_cte_min_len_req = -1;
+static int hf_control_cte_rfu = -1;
+static int hf_control_cte_type_req = -1;
+static int hf_control_sync_id = -1;
+static int hf_control_sync_info_offset = -1;
+static int hf_control_sync_info_offset_units = -1;
+static int hf_control_sync_info_offset_adjust = -1;
+static int hf_control_sync_info_reserved = -1;
+static int hf_control_sync_info_interval = -1;
+static int hf_control_sync_info_channel_map = -1;
+static int hf_control_sync_info_sleep_clock_accuracy = -1;
+static int hf_control_sync_info_access_address = -1;
+static int hf_control_sync_info_crc_init = -1;
+static int hf_control_sync_info_event_counter = -1;
+static int hf_control_sync_conn_event_count = -1;
+static int hf_control_sync_last_pa_event_counter = -1;
+static int hf_control_sync_sid = -1;
+static int hf_control_sync_atype = -1;
+static int hf_control_sync_sleep_clock_accuracy = -1;
+static int hf_control_sync_sync_conn_event_counter = -1;
+static int hf_control_sleep_clock_accuracy = -1;
+static int hf_control_cig_id = -1;
+static int hf_control_cis_id = -1;
+static int hf_control_max_sdu_m_to_s = -1;
+static int hf_control_rfu_1 = -1;
+static int hf_control_framed = -1;
+static int hf_control_max_sdu_s_to_m = -1;
+static int hf_control_rfu_2 = -1;
+static int hf_control_sdu_interval_m_to_s = -1;
+static int hf_control_rfu_3 = -1;
+static int hf_control_sdu_interval_s_to_m = -1;
+static int hf_control_rfu_4 = -1;
+static int hf_control_max_pdu_m_to_s = -1;
+static int hf_control_max_pdu_s_to_m = -1;
+static int hf_control_num_sub_events = -1;
+static int hf_control_sub_interval = -1;
+static int hf_control_bn_m_to_s = -1;
+static int hf_control_bn_s_to_m = -1;
+static int hf_control_ft_m_to_s = -1;
+static int hf_control_ft_s_to_m = -1;
+static int hf_control_iso_interval = -1;
+static int hf_control_cis_offset_min = -1;
+static int hf_control_cis_offset_max = -1;
+static int hf_control_conn_event_count = -1;
+static int hf_control_access_address = -1;
+static int hf_control_cis_offset = -1;
+static int hf_control_cig_sync_delay = -1;
+static int hf_control_cis_sync_delay = -1;
+static int hf_control_pwr_phy = -1;
+static int hf_control_pwr_phy_le_1m_phy = -1;
+static int hf_control_pwr_phy_le_2m_phy = -1;
+static int hf_control_pwr_phy_le_coded_s8_phy = -1;
+static int hf_control_pwr_phy_le_coded_s2_phy = -1;
+static int hf_control_pwr_phy_reserved_bits = -1;
+static int hf_control_delta = -1;
+static int hf_control_txpwr = -1;
+static int hf_control_pwrflags = -1;
+static int hf_control_pwrflags_min = -1;
+static int hf_control_pwrflags_max = -1;
+static int hf_control_pwrflags_reserved_bits = -1;
+static int hf_control_acceptable_power_reduction = -1;
+static int hf_big_control_opcode = -1;
+static int hf_isochronous_data = -1;
 static int hf_btle_l2cap_msg_fragments = -1;
 static int hf_btle_l2cap_msg_fragment = -1;
 static int hf_btle_l2cap_msg_fragment_overlap = -1;
@@ -217,8 +297,11 @@ static gint ett_rx_phys = -1;
 static gint ett_m_to_s_phy = -1;
 static gint ett_s_to_m_phy = -1;
 static gint ett_phys = -1;
+static gint ett_pwr_phy = -1;
+static gint ett_cte = -1;
 static gint ett_channel_map = -1;
 static gint ett_scan_response_data = -1;
+static gint ett_pwrflags = -1;
 static gint ett_btle_l2cap_msg_fragment = -1;
 static gint ett_btle_l2cap_msg_fragments = -1;
 static gint ett_btle_ea_host_advertising_data_fragment = -1;
@@ -289,6 +372,22 @@ static int * const hfx_control_phys_update[] = {
     NULL
 };
 
+static int * const hfx_control_m_to_s_phy[] = {
+    &hf_control_m_to_s_phy_le_1m_phy,
+    &hf_control_m_to_s_phy_le_2m_phy,
+    &hf_control_m_to_s_phy_le_coded_phy,
+    &hf_control_m_to_s_phy_reserved_bits,
+    NULL
+};
+
+static int * const hfx_control_s_to_m_phy[] = {
+    &hf_control_s_to_m_phy_le_1m_phy,
+    &hf_control_s_to_m_phy_le_2m_phy,
+    &hf_control_s_to_m_phy_le_coded_phy,
+    &hf_control_s_to_m_phy_reserved_bits,
+    NULL
+};
+
 static int * const hfx_control_phys[] = {
     &hf_control_phys_le_1m_phy,
     &hf_control_phys_le_2m_phy,
@@ -297,6 +396,35 @@ static int * const hfx_control_phys[] = {
     NULL
 };
 
+static int * const hfx_control_pwr_phy[] = {
+    &hf_control_pwr_phy_le_1m_phy,
+    &hf_control_pwr_phy_le_2m_phy,
+    &hf_control_pwr_phy_le_coded_s8_phy,
+    &hf_control_pwr_phy_le_coded_s2_phy,
+    &hf_control_pwr_phy_reserved_bits,
+    NULL
+};
+
+static int * const hfx_control_cte[] = {
+    &hf_control_cte_min_len_req,
+    &hf_control_cte_rfu,
+    &hf_control_cte_type_req,
+    NULL
+};
+
+static int * const hfx_control_periodicsyncflags[] = {
+    &hf_control_sync_sid,
+    &hf_control_sync_atype,
+    &hf_control_sync_sleep_clock_accuracy,
+    NULL
+};
+
+static int * const hfx_control_pwrflags[] = {
+    &hf_control_pwrflags_min,
+    &hf_control_pwrflags_max,
+    &hf_control_pwrflags_reserved_bits,
+    NULL
+};
 
 static expert_field ei_unknown_data = EI_INIT;
 static expert_field ei_access_address_matched = EI_INIT;
@@ -317,6 +445,7 @@ static dissector_handle_t btcommon_le_channel_map_handle;
 static dissector_handle_t btl2cap_handle;
 
 static wmem_tree_t *connection_info_tree;
+static wmem_tree_t *broadcastiso_connection_info_tree;
 static wmem_tree_t *connection_parameter_info_tree;
 static wmem_tree_t *adi_to_first_frame_tree;
 static guint32 l2cap_index;
@@ -441,6 +570,16 @@ typedef struct _connection_info_t {
     direction_info_t direction_info[3];  /* UNKNOWN, MASTER_SLAVE and SLAVE_MASTER */
 } connection_info_t;
 
+/* Store information about a broadcast isochronous connection */
+typedef struct _broadcastiso_connection_info_t {
+    /* Address information */
+    guint32  interface_id;
+    guint32  adapter_id;
+    guint32  access_address;
+
+    guint8   master_bd_addr[6];
+} broadcastiso_connection_info_t;
+
 /* */
 typedef struct _btle_frame_info_t {
     guint    retransmit : 1;      /* 0 = No, 1 = Retransmitted frame */
@@ -512,6 +651,23 @@ static const value_string llid_codes_vals[] = {
 };
 static value_string_ext llid_codes_vals_ext = VALUE_STRING_EXT_INIT(llid_codes_vals);
 
+static const value_string llid_connectediso_codes_vals[] = {
+    { 0x00, "Unframed CIS Data PDU; end fragment of an SDU or a complete SDU" },
+    { 0x01, "Unframed CIS Data PDU; start or continuation fragment of an SDU" },
+    { 0x02, "Framed CIS Data PDU; one or more segments of an SDU" },
+    { 0, NULL }
+};
+static value_string_ext llid_connectediso_codes_vals_ext = VALUE_STRING_EXT_INIT(llid_connectediso_codes_vals);
+
+static const value_string llid_broadcastiso_codes_vals[] = {
+    { 0x00, "Unframed BIS Data PDU; end fragment of an SDU or a complete SDU" },
+    { 0x01, "Unframed BIS Data PDU; start or continuation fragment of an SDU" },
+    { 0x02, "Framed BIS Data PDU; one or more segments of an SDU" },
+    { 0x03, "BIG Control PDU" },
+    { 0, NULL }
+};
+static value_string_ext llid_broadcastiso_codes_vals_ext = VALUE_STRING_EXT_INIT(llid_broadcastiso_codes_vals);
+
 static const value_string control_opcode_vals[] = {
     { 0x00, "LL_CONNECTION_UPDATE_IND" },
     { 0x01, "LL_CHANNEL_MAP_IND" },
@@ -554,6 +710,13 @@ static const value_string control_opcode_vals[] = {
     { 0, NULL }
 };
 static value_string_ext control_opcode_vals_ext = VALUE_STRING_EXT_INIT(control_opcode_vals);
+
+static const value_string big_control_opcode_vals[] = {
+    { 0x00, "BIG_CHANNEL_MAP_IND" },
+    { 0x01, "BIG_TERMINATE_IND" },
+    { 0, NULL }
+};
+static value_string_ext big_control_opcode_vals_ext = VALUE_STRING_EXT_INIT(big_control_opcode_vals);
 
 /* Taken from https://www.bluetooth.com/specifications/assigned-numbers/link-layer/ */
 static const value_string ll_version_number_vals[] = {
@@ -828,6 +991,252 @@ dissect_phy_req_rsp(tvbuff_t *tvb, proto_tree *btle_tree, gint offset)
 }
 
 static gint
+dissect_periodic_sync_ind(tvbuff_t *tvb, proto_tree *btle_tree, gint offset, packet_info *pinfo, guint32 interface_id, guint32 adapter_id)
+{
+    guint32               sync_offset, interval;
+    gint                  reserved_offset;
+    guint16               sf;
+    guint8                bd_addr[6];
+    proto_item           *item;
+    proto_item           *sub_item;
+    proto_tree           *sub_tree;
+
+    /* ID */
+    proto_tree_add_item(btle_tree, hf_control_sync_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+
+    /* Sync Info */
+    sf = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
+
+    item = proto_tree_add_item_ret_uint(btle_tree, hf_control_sync_info_offset, tvb, offset, 2, ENC_LITTLE_ENDIAN, &sync_offset);
+    proto_tree_add_item(btle_tree, hf_control_sync_info_offset_units, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(btle_tree, hf_control_sync_info_offset_adjust, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(btle_tree, hf_control_sync_info_reserved, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    if (sync_offset > 0) {
+        proto_item_append_text(item, " (%u usec)", sync_offset * ((sf & 0x2000) != 0 ? 300 : 30) + ((sf & 0x4000) != 0 ? 2457600 : 0));
+    } else {
+        proto_item_append_text(item, " Cannot be represented");
+    }
+    offset += 2;
+
+    item = proto_tree_add_item_ret_uint(btle_tree, hf_control_sync_info_interval, tvb, offset, 2, ENC_LITTLE_ENDIAN, &interval);
+    proto_item_append_text(item, " (%g msec)", interval * 1.25);
+    offset += 2;
+
+    sub_item = proto_tree_add_item(btle_tree, hf_control_sync_info_channel_map, tvb, offset, 5, ENC_NA);
+    sub_tree = proto_item_add_subtree(sub_item, ett_channel_map);
+
+    call_dissector_with_data(btcommon_le_channel_map_handle, tvb_new_subset_length(tvb, offset, 5), pinfo, sub_tree, &reserved_offset);
+    proto_tree_add_item(btle_tree, hf_control_sync_info_sleep_clock_accuracy, tvb, reserved_offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 5;
+
+    proto_tree_add_item(btle_tree, hf_control_sync_info_access_address, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+
+    proto_tree_add_item(btle_tree, hf_control_sync_info_crc_init, tvb, offset, 3, ENC_LITTLE_ENDIAN);
+    offset += 3;
+
+    proto_tree_add_item(btle_tree, hf_control_sync_info_event_counter, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+
+    /* connEv */
+    proto_tree_add_item(btle_tree, hf_control_sync_conn_event_count, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_item(btle_tree, hf_control_sync_last_pa_event_counter, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_bitmask_list(btle_tree, tvb, offset, 1, hfx_control_periodicsyncflags, ENC_NA);
+    offset += 1;
+
+    proto_tree_add_bitmask(btle_tree, tvb, offset, hf_control_phys, ett_phys, hfx_control_phys, ENC_NA);
+    offset += 1;
+
+    offset = dissect_bd_addr(hf_advertising_address, pinfo, btle_tree, tvb, offset, TRUE, interface_id, adapter_id, bd_addr);
+
+    proto_tree_add_item(btle_tree, hf_control_sync_sync_conn_event_counter, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+
+    return offset;
+}
+
+static gint
+dissect_cis_req(tvbuff_t *tvb, proto_tree *btle_tree, gint offset)
+{
+    guint32               interval;
+    proto_item           *item;
+
+    proto_tree_add_item(btle_tree, hf_control_cig_id, tvb, offset, 1, ENC_NA);
+    offset += 1;
+
+    proto_tree_add_item(btle_tree, hf_control_cis_id, tvb, offset, 1, ENC_NA);
+    offset += 1;
+
+    proto_tree_add_bitmask(btle_tree, tvb, offset, hf_control_m_to_s_phy, ett_m_to_s_phy, hfx_control_m_to_s_phy, ENC_NA);
+    offset += 1;
+
+    proto_tree_add_bitmask(btle_tree, tvb, offset, hf_control_s_to_m_phy, ett_s_to_m_phy, hfx_control_s_to_m_phy, ENC_NA);
+    offset += 1;
+
+    proto_tree_add_item(btle_tree, hf_control_max_sdu_m_to_s, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(btle_tree, hf_control_rfu_1, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(btle_tree, hf_control_framed, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_item(btle_tree, hf_control_max_sdu_s_to_m, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(btle_tree, hf_control_rfu_2, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_item(btle_tree, hf_control_sdu_interval_m_to_s, tvb, offset, 3, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(btle_tree, hf_control_rfu_3, tvb, offset, 3, ENC_LITTLE_ENDIAN);
+    offset += 3;
+
+    proto_tree_add_item(btle_tree, hf_control_sdu_interval_s_to_m, tvb, offset, 3, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(btle_tree, hf_control_rfu_4, tvb, offset, 3, ENC_LITTLE_ENDIAN);
+    offset += 3;
+
+    proto_tree_add_item(btle_tree, hf_control_max_pdu_m_to_s, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_item(btle_tree, hf_control_max_pdu_s_to_m, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_item(btle_tree, hf_control_num_sub_events, tvb, offset, 1, ENC_NA);
+    offset += 1;
+
+    proto_tree_add_item(btle_tree, hf_control_sub_interval, tvb, offset, 3, ENC_LITTLE_ENDIAN);
+    offset += 3;
+
+    proto_tree_add_item(btle_tree, hf_control_bn_m_to_s, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(btle_tree, hf_control_bn_s_to_m, tvb, offset, 1, ENC_NA);
+    offset += 1;
+
+    proto_tree_add_item(btle_tree, hf_control_ft_m_to_s, tvb, offset, 1, ENC_NA);
+    offset += 1;
+
+    proto_tree_add_item(btle_tree, hf_control_ft_s_to_m, tvb, offset, 1, ENC_NA);
+    offset += 1;
+
+    item = proto_tree_add_item_ret_uint(btle_tree, hf_control_iso_interval, tvb, offset, 2, ENC_LITTLE_ENDIAN, &interval);
+    proto_item_append_text(item, " (%g msec)", interval * 1.25);
+    offset += 2;
+
+    proto_tree_add_item(btle_tree, hf_control_cis_offset_min, tvb, offset, 3, ENC_LITTLE_ENDIAN);
+    offset += 3;
+
+    proto_tree_add_item(btle_tree, hf_control_cis_offset_max, tvb, offset, 3, ENC_LITTLE_ENDIAN);
+    offset += 3;
+
+    proto_tree_add_item(btle_tree, hf_control_conn_event_count, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+
+    return offset;
+}
+
+static gint
+dissect_cis_rsp(tvbuff_t *tvb, proto_tree *btle_tree, gint offset)
+{
+    proto_tree_add_item(btle_tree, hf_control_cis_offset_min, tvb, offset, 3, ENC_LITTLE_ENDIAN);
+    offset += 3;
+
+    proto_tree_add_item(btle_tree, hf_control_cis_offset_max, tvb, offset, 3, ENC_LITTLE_ENDIAN);
+    offset += 3;
+
+    proto_tree_add_item(btle_tree, hf_control_conn_event_count, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+
+    return offset;
+}
+
+static gint
+dissect_cis_ind(tvbuff_t *tvb, proto_tree *btle_tree, gint offset)
+{
+    proto_tree_add_item(btle_tree, hf_control_access_address, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+
+    proto_tree_add_item(btle_tree, hf_control_cis_offset, tvb, offset, 3, ENC_LITTLE_ENDIAN);
+    offset += 3;
+
+    proto_tree_add_item(btle_tree, hf_control_cig_sync_delay, tvb, offset, 3, ENC_LITTLE_ENDIAN);
+    offset += 3;
+
+    proto_tree_add_item(btle_tree, hf_control_cis_sync_delay, tvb, offset, 3, ENC_LITTLE_ENDIAN);
+    offset += 3;
+
+    proto_tree_add_item(btle_tree, hf_control_conn_event_count, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+
+    return offset;
+}
+
+static gint
+dissect_cis_terminate_ind(tvbuff_t *tvb, proto_tree *btle_tree, gint offset)
+{
+    proto_tree_add_item(btle_tree, hf_control_cig_id, tvb, offset, 1, ENC_NA);
+    offset += 1;
+
+    proto_tree_add_item(btle_tree, hf_control_cis_id, tvb, offset, 1, ENC_NA);
+    offset += 1;
+
+    proto_tree_add_item(btle_tree, hf_control_error_code, tvb, offset, 1, ENC_NA);
+    offset += 1;
+
+    return offset;
+}
+
+static gint
+dissect_power_control_req(tvbuff_t *tvb, proto_tree *btle_tree, gint offset)
+{
+    proto_tree_add_bitmask(btle_tree, tvb, offset, hf_control_pwr_phy, ett_pwr_phy, hfx_control_pwr_phy, ENC_NA);
+    offset += 1;
+
+    proto_tree_add_item(btle_tree, hf_control_delta, tvb, offset, 1, ENC_NA);
+    offset += 1;
+
+    proto_tree_add_item(btle_tree, hf_control_txpwr, tvb, offset, 1, ENC_NA);
+    offset += 1;
+
+    return offset;
+}
+
+
+static gint
+dissect_power_control_rsp(tvbuff_t *tvb, proto_tree *btle_tree, gint offset)
+{
+    proto_tree_add_bitmask(btle_tree, tvb, offset, hf_control_pwrflags, ett_pwrflags, hfx_control_pwrflags, ENC_NA);
+    offset += 1;
+
+    proto_tree_add_item(btle_tree, hf_control_delta, tvb, offset, 1, ENC_NA);
+    offset += 1;
+
+    proto_tree_add_item(btle_tree, hf_control_txpwr, tvb, offset, 1, ENC_NA);
+    offset += 1;
+
+    proto_tree_add_item(btle_tree, hf_control_acceptable_power_reduction, tvb, offset, 1, ENC_NA);
+    offset += 1;
+
+    return offset;
+}
+
+static gint
+dissect_power_control_ind(tvbuff_t *tvb, proto_tree *btle_tree, gint offset)
+{
+    proto_tree_add_bitmask(btle_tree, tvb, offset, hf_control_pwr_phy, ett_pwr_phy, hfx_control_pwr_phy, ENC_NA);
+    offset += 1;
+
+    proto_tree_add_bitmask(btle_tree, tvb, offset, hf_control_pwrflags, ett_pwrflags, hfx_control_pwrflags, ENC_NA);
+    offset += 1;
+
+    proto_tree_add_item(btle_tree, hf_control_delta, tvb, offset, 1, ENC_NA);
+    offset += 1;
+
+    proto_tree_add_item(btle_tree, hf_control_txpwr, tvb, offset, 1, ENC_NA);
+    offset += 1;
+
+    return offset;
+}
+
+static gint
 dissect_ctrl_pdu_without_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *btle_tree, gint offset)
 {
     if (tvb_reported_length_remaining(tvb, offset) > 3) {
@@ -1040,6 +1449,60 @@ control_proc_invalid_collision(packet_info const *pinfo,
         return FALSE;
 }
 
+static void
+dissect_ad_eir(tvbuff_t *tvb, guint32 interface_id, guint32 adapter_id, guint32 frame_number, guint8 *src_bd_addr, packet_info *pinfo, proto_tree *tree)
+{
+    bluetooth_eir_ad_data_t *ad_data = wmem_new0(wmem_packet_scope(), bluetooth_eir_ad_data_t);
+    ad_data->interface_id = interface_id;
+    ad_data->adapter_id = adapter_id;
+    call_dissector_with_data(btcommon_ad_handle, tvb, pinfo, tree, ad_data);
+    if (pinfo->fd->visited)
+        return;
+    for (gint offset = 0;; ) {
+        guint remain = tvb_reported_length_remaining(tvb, offset);
+        guint length;
+        guint8 opcode;
+        if (remain < 1)
+            break;
+        length = tvb_get_guint8(tvb, offset);
+        ++offset;
+        if (length <= 0)
+            continue;
+        --remain;
+        if (remain < length)
+            break;
+        opcode = tvb_get_guint8(tvb, offset);
+        if (opcode == 0x2c && length >= 34) {
+            guint seed_access_address = tvb_get_guint32(tvb, offset + 14, ENC_LITTLE_ENDIAN);
+            guint32 trunc_seed_access_address = seed_access_address & 0x0041ffff;
+            broadcastiso_connection_info_t *nconnection_info;
+            wmem_tree_key_t key[5];
+
+            key[0].length = 1;
+            key[0].key = &interface_id;
+            key[1].length = 1;
+            key[1].key = &adapter_id;
+            key[2].length = 1;
+            key[2].key = &trunc_seed_access_address;
+            key[3].length = 1;
+            key[3].key = &frame_number;
+            key[4].length = 0;
+            key[4].key = NULL;
+
+            nconnection_info = wmem_new0(wmem_file_scope(), broadcastiso_connection_info_t);
+            nconnection_info->interface_id   = interface_id;
+            nconnection_info->adapter_id     = adapter_id;
+            nconnection_info->access_address = seed_access_address;
+
+            if (src_bd_addr)
+                memcpy(nconnection_info->master_bd_addr, src_bd_addr, 6);
+
+            wmem_tree_insert32_array(broadcastiso_connection_info_tree, key, nconnection_info);
+        }
+        offset += length;
+    }
+}
+
 static gint
 dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
@@ -1165,6 +1628,26 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             crc_status = CRC_CAN_BE_CALCULATED;
         }
 
+        key[0].length = 1;
+        key[0].key = &interface_id;
+        key[1].length = 1;
+        key[1].key = &adapter_id;
+        key[2].length = 1;
+        key[2].key = &access_address;
+        key[3].length = 0;
+        key[3].key = NULL;
+
+        wmem_tree = (wmem_tree_t *) wmem_tree_lookup32_array(connection_info_tree, key);
+        if (wmem_tree) {
+            connection_info = (connection_info_t *) wmem_tree_lookup32_le(wmem_tree, pinfo->num);
+            if (connection_info) {
+                set_address(&pinfo->net_src, AT_ETHER, 6, connection_info->master_bd_addr);
+                copy_address_shallow(&pinfo->dl_src, &pinfo->net_src);
+                copy_address_shallow(&pinfo->src, &pinfo->net_src);
+                memcpy(src_bd_addr, connection_info->master_bd_addr, 6);
+            }
+        }
+
         advertising_header_item = proto_tree_add_item(btle_tree, hf_advertising_header, tvb, offset, 2, ENC_LITTLE_ENDIAN);
         advertising_header_tree = proto_item_add_subtree(advertising_header_item, ett_advertising_header);
 
@@ -1271,11 +1754,8 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             }
 
             if (tvb_reported_length_remaining(tvb, offset) > 3) {
-                bluetooth_eir_ad_data_t *ad_data = wmem_new0(wmem_packet_scope(), bluetooth_eir_ad_data_t);
-                ad_data->interface_id = interface_id;
-                ad_data->adapter_id = adapter_id;
                 next_tvb = tvb_new_subset_length(tvb, offset, tvb_reported_length_remaining(tvb, offset) - 3);
-                call_dissector_with_data(btcommon_ad_handle, next_tvb, pinfo, btle_tree, ad_data);
+                dissect_ad_eir(next_tvb, interface_id, adapter_id, frame_number, src_bd_addr, pinfo, btle_tree);
             }
 
             offset += tvb_reported_length_remaining(tvb, offset) - 3;
@@ -1358,11 +1838,8 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             sub_tree = proto_item_add_subtree(sub_item, ett_scan_response_data);
 
             if (tvb_reported_length_remaining(tvb, offset) > 3) {
-                bluetooth_eir_ad_data_t *ad_data = wmem_new0(wmem_packet_scope(), bluetooth_eir_ad_data_t);
-                ad_data->interface_id = interface_id;
-                ad_data->adapter_id = adapter_id;
                 next_tvb = tvb_new_subset_length(tvb, offset, tvb_reported_length_remaining(tvb, offset) - 3);
-                call_dissector_with_data(btcommon_ad_handle, next_tvb, pinfo, sub_tree, ad_data);
+                dissect_ad_eir(next_tvb, interface_id, adapter_id, frame_number, src_bd_addr, pinfo, sub_tree);
             }
 
             offset += tvb_reported_length_remaining(tvb, offset) - 3;
@@ -1508,7 +1985,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 copy_address_shallow(&pinfo->src, &pinfo->net_src);
 
                 acad_len -= 6;
-            } else {
+            } else if (!connection_info) {
                 const char * anon_str = "Anonymous";
                 clear_address(&pinfo->dl_src);
                 set_address(&pinfo->net_src, AT_STRINGZ, sizeof(*anon_str), anon_str);
@@ -1589,8 +2066,49 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 guint16 sf;
 
                 /* Sync Info */
-                sync_info_item = proto_tree_add_item(ext_header_tree, hf_extended_advertising_sync_info, tvb, offset, 1, ENC_NA);
+                sync_info_item = proto_tree_add_item(ext_header_tree, hf_extended_advertising_sync_info, tvb, offset, 18, ENC_NA);
                 sync_info_tree = proto_item_add_subtree(sync_info_item, ett_extended_advertising_sync_info);
+
+                if (!pinfo->fd->visited) {
+                    connection_parameter_info_t *connection_parameter_info;
+
+                    connection_access_address = tvb_get_guint32(tvb, offset + 9, ENC_LITTLE_ENDIAN);
+
+                    key[0].length = 1;
+                    key[0].key = &interface_id;
+                    key[1].length = 1;
+                    key[1].key = &adapter_id;
+                    key[2].length = 1;
+                    key[2].key = &connection_access_address;
+                    key[3].length = 1;
+                    key[3].key = &frame_number;
+                    key[4].length = 0;
+                    key[4].key = NULL;
+
+                    connection_info = wmem_new0(wmem_file_scope(), connection_info_t);
+                    connection_info->interface_id   = interface_id;
+                    connection_info->adapter_id     = adapter_id;
+                    connection_info->access_address = connection_access_address;
+
+                    if (flags & 0x01)
+                        memcpy(connection_info->master_bd_addr, src_bd_addr, 6);
+
+                    /* We don't create control procedure context trees for BTLE_DIR_UNKNOWN,
+                     * as the direction must be known for request/response matching. */
+                    connection_info->direction_info[BTLE_DIR_MASTER_SLAVE].control_procs =
+                        wmem_tree_new(wmem_file_scope());
+                    connection_info->direction_info[BTLE_DIR_SLAVE_MASTER].control_procs =
+                        wmem_tree_new(wmem_file_scope());
+
+                    wmem_tree_insert32_array(connection_info_tree, key, connection_info);
+
+                    connection_parameter_info = wmem_new0(wmem_file_scope(), connection_parameter_info_t);
+                    connection_parameter_info->parameters_frame = pinfo->num;
+
+                    key[3].length = 1;
+                    key[3].key = &pinfo->num;
+                    wmem_tree_insert32_array(connection_parameter_info_tree, key, connection_parameter_info);
+                }
 
                 sf = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
 
@@ -1641,11 +2159,8 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 sub_tree = proto_item_add_subtree(sub_item, ett_extended_advertising_acad);
 
                 /* Additional Controller Advertising Data */
-                bluetooth_eir_ad_data_t *ad_data = wmem_new0(wmem_packet_scope(), bluetooth_eir_ad_data_t);
-                ad_data->interface_id = interface_id;
-                ad_data->adapter_id = adapter_id;
                 next_tvb = tvb_new_subset_length(tvb, offset, acad_len);
-                call_dissector_with_data(btcommon_ad_handle, next_tvb, pinfo, sub_tree, ad_data);
+                dissect_ad_eir(next_tvb, interface_id, adapter_id, frame_number, src_bd_addr, pinfo, sub_tree);
 
                 offset += acad_len;
             }
@@ -1744,10 +2259,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                                         "Reassembled Host Advertising Data", fd_head,
                                         &btle_ea_host_advertising_data_frag_items,
                                         NULL, btle_tree);
-                                    bluetooth_eir_ad_data_t *ad_data = wmem_new0(wmem_packet_scope(), bluetooth_eir_ad_data_t);
-                                    ad_data->interface_id = interface_id;
-                                    ad_data->adapter_id = adapter_id;
-                                    call_dissector_with_data(btcommon_ad_handle, assembled_tvb, pinfo, btle_tree, ad_data);
+                                    dissect_ad_eir(assembled_tvb, interface_id, adapter_id, frame_number, src_bd_addr, pinfo, btle_tree);
                                 }
                             }
                             else {
@@ -1760,9 +2272,6 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
                 if (tvb_reported_length_remaining(tvb, offset) > 3) {
                     /* Host Advertising Data */
-                    bluetooth_eir_ad_data_t *ad_data = wmem_new0(wmem_packet_scope(), bluetooth_eir_ad_data_t);
-                    ad_data->interface_id = interface_id;
-                    ad_data->adapter_id = adapter_id;
                     next_tvb = tvb_new_subset_length(tvb, offset, tvb_reported_length_remaining(tvb, offset) - 3);
 
                     if (btle_context && btle_context->aux_pdu_type_valid && btle_context->aux_pdu_type == 3) {
@@ -1770,10 +2279,10 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                         sub_item = proto_tree_add_item(btle_tree, hf_scan_response_data, tvb, offset, tvb_reported_length_remaining(tvb, offset) - 3, ENC_NA);
                         sub_tree = proto_item_add_subtree(sub_item, ett_scan_response_data);
 
-                        call_dissector_with_data(btcommon_ad_handle, next_tvb, pinfo, sub_tree, ad_data);
+                        dissect_ad_eir(next_tvb, interface_id, adapter_id, frame_number, src_bd_addr, pinfo, sub_tree);
                     }
                     else {
-                        call_dissector_with_data(btcommon_ad_handle, next_tvb, pinfo, btle_tree, ad_data);
+                        dissect_ad_eir(next_tvb, interface_id, adapter_id, frame_number, src_bd_addr, pinfo, btle_tree);
                     }
 
                     offset += tvb_reported_length_remaining(tvb, offset) - 3;
@@ -1787,7 +2296,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 offset += tvb_reported_length_remaining(tvb, offset) - 3;
             }
         }
-    } else if (btle_pdu_type == BTLE_PDU_TYPE_DATA) {
+    } else if (btle_pdu_type == BTLE_PDU_TYPE_DATA || btle_pdu_type == BTLE_PDU_TYPE_CONNECTEDISO) {
         proto_item  *data_header_item, *seq_item, *control_proc_item;
         proto_tree  *data_header_tree;
         guint8       oct;
@@ -1867,18 +2376,20 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 copy_address_shallow(&pinfo->dst, &pinfo->net_dst);
 
                 /* Retrieve the last initiated control procedures. */
-                last_control_proc[BTLE_DIR_MASTER_SLAVE] =
+                if (btle_pdu_type == BTLE_PDU_TYPE_DATA) {
+                    last_control_proc[BTLE_DIR_MASTER_SLAVE] =
                         (control_proc_info_t *)wmem_tree_lookup32_le(connection_info->direction_info[BTLE_DIR_MASTER_SLAVE].control_procs, pinfo->num);
-                last_control_proc[BTLE_DIR_SLAVE_MASTER] =
+                    last_control_proc[BTLE_DIR_SLAVE_MASTER] =
                         (control_proc_info_t *)wmem_tree_lookup32_le(connection_info->direction_info[BTLE_DIR_SLAVE_MASTER].control_procs, pinfo->num);
 
-                if (!pinfo->fd->visited && btle_context && btle_context->event_counter_valid) {
-                    control_proc_complete_if_instant_reached(pinfo->num,
-                                                             btle_context->event_counter,
-                                                             last_control_proc[BTLE_DIR_MASTER_SLAVE]);
-                    control_proc_complete_if_instant_reached(pinfo->num,
-                                                             btle_context->event_counter,
-                                                             last_control_proc[BTLE_DIR_SLAVE_MASTER]);
+                    if (!pinfo->fd->visited && btle_context && btle_context->event_counter_valid) {
+                        control_proc_complete_if_instant_reached(pinfo->num,
+                                                                 btle_context->event_counter,
+                                                                 last_control_proc[BTLE_DIR_MASTER_SLAVE]);
+                        control_proc_complete_if_instant_reached(pinfo->num,
+                                                                 btle_context->event_counter,
+                                                                 last_control_proc[BTLE_DIR_SLAVE_MASTER]);
+                    }
                 }
 
                 if (!pinfo->fd->visited) {
@@ -1932,10 +2443,10 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         if (btle_frame_info == NULL) {
             btle_frame_info = &empty_btle_frame_info;
         }
-        data_header_item = proto_tree_add_item(btle_tree, hf_data_header, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        data_header_item = proto_tree_add_item(btle_tree,  hf_data_header, tvb, offset, 2, ENC_LITTLE_ENDIAN);
         data_header_tree = proto_item_add_subtree(data_header_item, ett_data_header);
 
-        proto_tree_add_item(data_header_tree, hf_data_header_llid, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(data_header_tree, (btle_pdu_type == BTLE_PDU_TYPE_CONNECTEDISO) ? hf_data_header_llid_connectediso :hf_data_header_llid, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         seq_item = proto_tree_add_item(data_header_tree, hf_data_header_next_expected_sequence_number, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 
         if (direction != BTLE_DIR_UNKNOWN) {
@@ -1964,9 +2475,16 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             }
         }
 
-        proto_tree_add_item(data_header_tree, hf_data_header_more_data, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(data_header_tree, hf_data_header_rfu, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         llid = tvb_get_guint8(tvb, offset) & 0x03;
+        if (btle_pdu_type == BTLE_PDU_TYPE_CONNECTEDISO) {
+            proto_tree_add_item(data_header_tree, hf_data_header_close_isochronous_event, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(data_header_tree, hf_data_header_null_pdu_indicator, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(data_header_tree, hf_data_header_rfu_57, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            llid |= 0x04;
+        } else {
+            proto_tree_add_item(data_header_tree, hf_data_header_more_data, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(data_header_tree, hf_data_header_rfu, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        }
         offset += 1;
 
         proto_tree_add_item(data_header_tree, hf_data_header_length, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -2929,12 +3447,202 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                     }
                 }
                 break;
+            case 0x1A: /* LL_CTE_REQ */
+                proto_tree_add_bitmask(btle_tree, tvb, offset, hf_control_phys, ett_cte, hfx_control_cte, ENC_NA);
+                offset += 1;
+                if (connection_info && !btle_frame_info->retransmit && direction != BTLE_DIR_UNKNOWN) {
+                    if (control_proc_invalid_collision(pinfo,
+                                                       last_control_proc[other_direction],
+                                                       control_opcode)) {
+                        expert_add_info(pinfo, control_proc_item, &ei_control_proc_invalid_collision);
+                    }
+
+                    control_proc_start(tvb, pinfo, btle_tree, control_proc_item,
+                                       connection_info->direction_info[direction].control_procs,
+                                       control_opcode);
+                }
+                break;
+            case 0x1B: /* LL_CTE_RSP */
+                offset = dissect_ctrl_pdu_without_data(tvb, pinfo, btle_tree, offset);
+                if (connection_info && !btle_frame_info->retransmit && direction != BTLE_DIR_UNKNOWN) {
+                    if (control_proc_can_add_frame(pinfo,
+                                                   last_control_proc[other_direction],
+                                                   0x1A, 1)) {
+                        last_control_proc[other_direction]->frames[1] = pinfo->num;
+                        last_control_proc[other_direction]->last_frame = pinfo->num;
+
+                        sub_item = proto_tree_add_uint(btle_tree, hf_request_in_frame, tvb, 0, 0,
+                                                       last_control_proc[other_direction]->frames[0]);
+                        proto_item_set_generated(sub_item);
+                    } else {
+                        expert_add_info(pinfo, control_proc_item, &ei_control_proc_wrong_seq);
+                    }
+                }
+                break;
+            case 0x1C: /* LL_PERIODIC_SYNC_IND */
+                offset = dissect_periodic_sync_ind(tvb, btle_tree, offset, pinfo, interface_id, adapter_id);
+                break;
+            case 0x1D: /* LL_CLOCK_ACCURACY_REQ */
+                proto_tree_add_item(btle_tree, hf_control_sleep_clock_accuracy, tvb, offset, 1, ENC_NA);
+                offset += 1;
+                if (connection_info && !btle_frame_info->retransmit && direction != BTLE_DIR_UNKNOWN) {
+                    if (control_proc_invalid_collision(pinfo,
+                                                       last_control_proc[other_direction],
+                                                       control_opcode)) {
+                        expert_add_info(pinfo, control_proc_item, &ei_control_proc_invalid_collision);
+                    }
+
+                    control_proc_start(tvb, pinfo, btle_tree, control_proc_item,
+                                       connection_info->direction_info[direction].control_procs,
+                                       control_opcode);
+                }
+                break;
+            case 0x1E: /* LL_CLOCK_ACCURACY_RSP */
+                proto_tree_add_item(btle_tree, hf_control_sleep_clock_accuracy, tvb, offset, 1, ENC_NA);
+                offset += 1;
+                if (connection_info && !btle_frame_info->retransmit && direction != BTLE_DIR_UNKNOWN) {
+                    if (control_proc_can_add_frame(pinfo,
+                                                   last_control_proc[other_direction],
+                                                   0x1D, 1)) {
+                        last_control_proc[other_direction]->frames[1] = pinfo->num;
+                        last_control_proc[other_direction]->last_frame = pinfo->num;
+
+                        sub_item = proto_tree_add_uint(btle_tree, hf_request_in_frame, tvb, 0, 0,
+                                                       last_control_proc[other_direction]->frames[0]);
+                        proto_item_set_generated(sub_item);
+                    } else {
+                        expert_add_info(pinfo, control_proc_item, &ei_control_proc_wrong_seq);
+                    }
+                }
+                break;
+            case 0x1F: /* LL_CIS_REQ */
+                offset = dissect_cis_req(tvb, btle_tree, offset);
+                if (connection_info && !btle_frame_info->retransmit && direction != BTLE_DIR_UNKNOWN) {
+                    if (control_proc_invalid_collision(pinfo,
+                                                       last_control_proc[other_direction],
+                                                       control_opcode)) {
+                        expert_add_info(pinfo, control_proc_item, &ei_control_proc_invalid_collision);
+                    }
+
+                    control_proc_start(tvb, pinfo, btle_tree, control_proc_item,
+                                       connection_info->direction_info[direction].control_procs,
+                                       control_opcode);
+                }
+                break;
+            case 0x20: /* LL_CIS_RSP */
+                offset = dissect_cis_rsp(tvb, btle_tree, offset);
+                if (connection_info && !btle_frame_info->retransmit && direction != BTLE_DIR_UNKNOWN) {
+                    if (control_proc_can_add_frame(pinfo,
+                                                   last_control_proc[other_direction],
+                                                   0x1F, 1)) {
+                        last_control_proc[other_direction]->frames[1] = pinfo->num;
+                        last_control_proc[other_direction]->last_frame = pinfo->num;
+
+                        sub_item = proto_tree_add_uint(btle_tree, hf_request_in_frame, tvb, 0, 0,
+                                                       last_control_proc[other_direction]->frames[0]);
+                        proto_item_set_generated(sub_item);
+                    } else {
+                        expert_add_info(pinfo, control_proc_item, &ei_control_proc_wrong_seq);
+                    }
+                }
+                break;
+            case 0x21: /* LL_CIS_IND */
+                if (!pinfo->fd->visited) {
+                    connection_info_t *nconnection_info;
+                    connection_parameter_info_t *connection_parameter_info;
+
+                    connection_access_address = tvb_get_guint32(tvb, offset, ENC_LITTLE_ENDIAN);
+
+                    key[0].length = 1;
+                    key[0].key = &interface_id;
+                    key[1].length = 1;
+                    key[1].key = &adapter_id;
+                    key[2].length = 1;
+                    key[2].key = &connection_access_address;
+                    key[3].length = 1;
+                    key[3].key = &frame_number;
+                    key[4].length = 0;
+                    key[4].key = NULL;
+
+                    nconnection_info = wmem_new0(wmem_file_scope(), connection_info_t);
+                    nconnection_info->interface_id   = interface_id;
+                    nconnection_info->adapter_id     = adapter_id;
+                    nconnection_info->access_address = connection_access_address;
+
+                    if (connection_info) {
+                        memcpy(nconnection_info->master_bd_addr, connection_info->master_bd_addr, 6);
+                        memcpy(nconnection_info->slave_bd_addr,  connection_info->slave_bd_addr,  6);
+                    }
+
+                    /* We don't create control procedure context trees for BTLE_DIR_UNKNOWN,
+                     * as the direction must be known for request/response matching. */
+                    nconnection_info->direction_info[BTLE_DIR_MASTER_SLAVE].control_procs =
+                        wmem_tree_new(wmem_file_scope());
+                    nconnection_info->direction_info[BTLE_DIR_SLAVE_MASTER].control_procs =
+                        wmem_tree_new(wmem_file_scope());
+
+                    wmem_tree_insert32_array(connection_info_tree, key, nconnection_info);
+
+                    connection_parameter_info = wmem_new0(wmem_file_scope(), connection_parameter_info_t);
+                    connection_parameter_info->parameters_frame = pinfo->num;
+
+                    key[3].length = 1;
+                    key[3].key = &pinfo->num;
+                    wmem_tree_insert32_array(connection_parameter_info_tree, key, connection_parameter_info);
+                }
+                offset = dissect_cis_ind(tvb, btle_tree, offset);
+                break;
+            case 0x22: /* LL_CIS_TERMINATE_IND */
+                offset = dissect_cis_terminate_ind(tvb, btle_tree, offset);
+                break;
+            case 0x23: /* LL_POWER_CONTROL_REQ */
+                offset = dissect_power_control_req(tvb, btle_tree, offset);
+                if (connection_info && !btle_frame_info->retransmit && direction != BTLE_DIR_UNKNOWN) {
+                    if (control_proc_invalid_collision(pinfo,
+                                                       last_control_proc[other_direction],
+                                                       control_opcode)) {
+                        expert_add_info(pinfo, control_proc_item, &ei_control_proc_invalid_collision);
+                    }
+
+                    control_proc_start(tvb, pinfo, btle_tree, control_proc_item,
+                                       connection_info->direction_info[direction].control_procs,
+                                       control_opcode);
+                }
+                break;
+            case 0x24: /* LL_POWER_CONTROL_RSP */
+                offset = dissect_power_control_rsp(tvb, btle_tree, offset);
+                if (connection_info && !btle_frame_info->retransmit && direction != BTLE_DIR_UNKNOWN) {
+                    if (control_proc_can_add_frame(pinfo,
+                                                   last_control_proc[other_direction],
+                                                   0x23, 1)) {
+                        last_control_proc[other_direction]->frames[1] = pinfo->num;
+                        last_control_proc[other_direction]->last_frame = pinfo->num;
+
+                        sub_item = proto_tree_add_uint(btle_tree, hf_request_in_frame, tvb, 0, 0,
+                                                       last_control_proc[other_direction]->frames[0]);
+                        proto_item_set_generated(sub_item);
+                    } else {
+                        expert_add_info(pinfo, control_proc_item, &ei_control_proc_wrong_seq);
+                    }
+                }
+                break;
+            case 0x25: /* LL_POWER_CHANGE_IND */
+                offset = dissect_power_control_ind(tvb, btle_tree, offset);
+                break;
             default:
                 offset = dissect_ctrl_pdu_without_data(tvb, pinfo, btle_tree, offset);
                 break;
             }
 
             break;
+
+        case 0x04: /* Unframed CIS Data PDU; end fragment of an SDU or a complete SDU */
+        case 0x05: /* Unframed CIS Data PDU; start or continuation fragment of an SDU */
+        case 0x06: /* Framed CIS Data PDU; one or more segments of an SDU */
+            proto_tree_add_item(btle_tree, hf_isochronous_data, tvb, offset, length, ENC_NA);
+            offset += length;
+            break;
+
         default:
             if (tvb_reported_length_remaining(tvb, offset) > 3) {
                 proto_tree_add_expert(btle_tree, pinfo, &ei_unknown_data, tvb, offset, tvb_reported_length_remaining(tvb, offset) - 3);
@@ -2978,6 +3686,120 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             crc_init = btle_context->connection_info.CRCInit;
             crc_status = CRC_CAN_BE_CALCULATED;
         }
+    } else if (btle_pdu_type == BTLE_PDU_TYPE_BROADCASTISO) {
+        broadcastiso_connection_info_t *broadcastiso_connection_info = NULL;
+        guint32      seed_access_address = access_address & 0x0041ffff;
+        proto_item  *data_header_item;
+        proto_tree  *data_header_tree;
+        guint8       llid;
+        guint8       control_opcode;
+
+        key[0].length = 1;
+        key[0].key = &interface_id;
+        key[1].length = 1;
+        key[1].key = &adapter_id;
+        key[2].length = 1;
+        key[2].key = &seed_access_address;
+        key[3].length = 0;
+        key[3].key = NULL;
+
+        wmem_tree = (wmem_tree_t *) wmem_tree_lookup32_array(broadcastiso_connection_info_tree, key);
+        if (wmem_tree) {
+            broadcastiso_connection_info = (broadcastiso_connection_info_t *) wmem_tree_lookup32_le(wmem_tree, pinfo->num);
+            if (broadcastiso_connection_info) {
+                gchar  *str_addr_src;
+                /* Holds "Master" + access_address + NULL, which is the longest string */
+                int     str_addr_len = 17 + 1;
+
+                str_addr_src = (gchar *) wmem_alloc(pinfo->pool, str_addr_len);
+
+                sub_item = proto_tree_add_ether(btle_tree, hf_master_bd_addr, tvb, 0, 0, broadcastiso_connection_info->master_bd_addr);
+                proto_item_set_generated(sub_item);
+
+                g_snprintf(str_addr_src, str_addr_len, "Master_0x%08x", broadcastiso_connection_info->access_address);
+                set_address(&pinfo->dl_src, AT_ETHER, sizeof(broadcastiso_connection_info->master_bd_addr), broadcastiso_connection_info->master_bd_addr);
+                clear_address(&pinfo->dl_dst);
+
+                set_address(&pinfo->net_src, AT_STRINGZ, (int)strlen(str_addr_src)+1, str_addr_src);
+                copy_address_shallow(&pinfo->src, &pinfo->net_src);
+
+                if (!pinfo->fd->visited) {
+                    address *addr;
+
+                    addr = (address *) wmem_memdup(wmem_file_scope(), &pinfo->dl_src, sizeof(address));
+                    addr->data =  wmem_memdup(wmem_file_scope(), pinfo->dl_src.data, pinfo->dl_src.len);
+                    p_add_proto_data(wmem_file_scope(), pinfo, proto_bluetooth, BLUETOOTH_DATA_SRC, addr);
+                }
+            }
+        }
+
+        set_address(&pinfo->net_dst, AT_ETHER, 6, broadcast_addr);
+        copy_address_shallow(&pinfo->dl_dst, &pinfo->net_dst);
+        copy_address_shallow(&pinfo->dst, &pinfo->net_dst);
+
+        data_header_item = proto_tree_add_item(btle_tree,  hf_data_header, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        data_header_tree = proto_item_add_subtree(data_header_item, ett_data_header);
+
+        proto_tree_add_item(data_header_tree, hf_data_header_llid_broadcastiso, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        llid = tvb_get_guint8(tvb, offset) & 0x03;
+        proto_tree_add_item(data_header_tree, hf_data_header_control_subevent_sequence_number, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(data_header_tree, hf_data_header_control_subevent_transmission_flag, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(data_header_tree, hf_data_header_rfu_67, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset += 1;
+
+        proto_tree_add_item(data_header_tree, hf_data_header_length, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        item = proto_tree_add_item_ret_uint(btle_tree, hf_length, tvb, offset, 1, ENC_LITTLE_ENDIAN, &length);
+        proto_item_set_hidden(item);
+        offset += 1;
+
+        switch (llid) {
+        case 0x00: /* Unframed BIS Data PDU; end fragment of an SDU or a complete SDU */
+        case 0x01: /* Unframed BIS Data PDU; start or continuation fragment of an SDU */
+        case 0x02: /* Framed BIS Data PDU; one or more segments of an SDU */
+            proto_tree_add_item(btle_tree, hf_isochronous_data, tvb, offset, length, ENC_NA);
+            offset += length;
+            break;
+
+        case 0x03: /* BIG Control PDU */
+            proto_tree_add_item(btle_tree, hf_big_control_opcode, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            control_opcode = tvb_get_guint8(tvb, offset);
+            offset += 1;
+
+            col_add_fstr(pinfo->cinfo, COL_INFO, "BIG Control Opcode: %s",
+                    val_to_str_ext_const(control_opcode, &big_control_opcode_vals_ext, "Unknown"));
+
+            switch (control_opcode) {
+            case 0x00: /* BIG_CHANNEL_MAP_IND */
+                sub_item = proto_tree_add_item(btle_tree, hf_control_channel_map, tvb, offset, 5, ENC_NA);
+                sub_tree = proto_item_add_subtree(sub_item, ett_channel_map);
+
+                call_dissector(btcommon_le_channel_map_handle, tvb_new_subset_length(tvb, offset, 5), pinfo, sub_tree);
+                offset += 5;
+
+                proto_tree_add_item_ret_uint(btle_tree, hf_control_instant, tvb, offset, 2, ENC_LITTLE_ENDIAN, &item_value);
+                offset += 2;
+                break;
+
+            case 0x01: /* BIG_TERMINATE_IND */
+                proto_tree_add_item(btle_tree, hf_control_error_code, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+                offset += 1;
+                proto_tree_add_item_ret_uint(btle_tree, hf_control_instant, tvb, offset, 2, ENC_LITTLE_ENDIAN, &item_value);
+                offset += 2;
+                break;
+
+            default:
+                offset = dissect_ctrl_pdu_without_data(tvb, pinfo, btle_tree, offset);
+                break;
+            }
+            break;
+
+        default:
+            if (tvb_reported_length_remaining(tvb, offset) > 3) {
+                proto_tree_add_expert(btle_tree, pinfo, &ei_unknown_data, tvb, offset, tvb_reported_length_remaining(tvb, offset) - 3);
+                offset += tvb_reported_length_remaining(tvb, offset) - 3;
+            }
+        }
+
     } else {
         /* Unknown physical channel PDU type */
         if (tvb_reported_length_remaining(tvb, offset) > 3) {
@@ -3376,6 +4198,16 @@ proto_register_btle(void)
             FT_UINT8, BASE_HEX | BASE_EXT_STRING, &llid_codes_vals_ext, 0x03,
             "Logical Link Identifier", HFILL }
         },
+        { &hf_data_header_llid_connectediso,
+            { "LLID",                            "btle.data_header.llid",
+            FT_UINT8, BASE_HEX | BASE_EXT_STRING, &llid_connectediso_codes_vals_ext, 0x03,
+            "Logical Link Identifier", HFILL }
+        },
+        { &hf_data_header_llid_broadcastiso,
+            { "LLID",                            "btle.data_header.llid",
+            FT_UINT8, BASE_HEX | BASE_EXT_STRING, &llid_broadcastiso_codes_vals_ext, 0x03,
+            "Logical Link Identifier", HFILL }
+        },
         { &hf_data_header_next_expected_sequence_number,
             { "Next Expected Sequence Number",   "btle.data_header.next_expected_sequence_number",
             FT_UINT8, BASE_DEC, NULL, 0x04,
@@ -3400,6 +4232,36 @@ proto_register_btle(void)
             { "RFU",                             "btle.data_header.rfu",
             FT_UINT8, BASE_DEC, NULL, 0xE0,
             "Reserved for Future Use", HFILL }
+        },
+        { &hf_data_header_rfu_67,
+            { "RFU",                             "btle.data_header.rfu",
+            FT_UINT8, BASE_DEC, NULL, 0xC0,
+            "Reserved for Future Use", HFILL }
+        },
+        { &hf_data_header_rfu_57,
+            { "RFU",                             "btle.data_header.rfu",
+            FT_UINT8, BASE_DEC, NULL, 0xA0,
+            "Reserved for Future Use", HFILL }
+        },
+        { &hf_data_header_close_isochronous_event,
+            { "Close Isochronous Event",         "btle.data_header.close_isochronous_event",
+            FT_BOOLEAN, 8, NULL, 0x10,
+            NULL, HFILL }
+        },
+        { &hf_data_header_null_pdu_indicator,
+            { "Null PDU Indicator",              "btle.data_header.null_pdu_indicator",
+            FT_BOOLEAN, 8, NULL, 0x40,
+            NULL, HFILL }
+        },
+        { &hf_data_header_control_subevent_sequence_number,
+            { "Control Subevent Sequence Number", "btle.data_header.control_subevent_sequence_number",
+            FT_UINT8, BASE_DEC, NULL, 0x1C,
+            NULL, HFILL }
+        },
+        { &hf_data_header_control_subevent_transmission_flag,
+            { "Control Subevent Transmission Flag", "btle.data_header.control_subevent_transmission_flag",
+            FT_BOOLEAN, 8, NULL, 0x20,
+            NULL, HFILL }
         },
         { &hf_control_opcode,
             { "Control Opcode",                  "btle.control_opcode",
@@ -3721,9 +4583,49 @@ proto_register_btle(void)
             FT_UINT8, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
+        { &hf_control_m_to_s_phy_le_1m_phy,
+            { "LE 1M PHY", "btle.control.m_to_s_phy.le_1m_phy",
+            FT_BOOLEAN, 8, NULL, 0x01,
+            NULL, HFILL }
+        },
+        { &hf_control_m_to_s_phy_le_2m_phy,
+            { "LE 2M PHY", "btle.control.m_to_s_phy.le_2m_phy",
+            FT_BOOLEAN, 8, NULL, 0x02,
+            NULL, HFILL }
+        },
+        { &hf_control_m_to_s_phy_le_coded_phy,
+            { "LE Coded PHY", "btle.control.m_to_s_phy.le_coded_phy",
+            FT_BOOLEAN, 8, NULL, 0x04,
+            NULL, HFILL }
+        },
+        { &hf_control_m_to_s_phy_reserved_bits,
+            { "Reserved for future use", "btle.control.m_to_s_phy.reserved",
+            FT_UINT8, BASE_DEC, NULL, 0xF8,
+            NULL, HFILL }
+        },
         { &hf_control_s_to_m_phy,
             { "Slave to Master PHY", "btle.control.s_to_m_phy",
             FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_control_s_to_m_phy_le_1m_phy,
+            { "LE 1M PHY", "btle.control.s_to_m_phy.le_1m_phy",
+            FT_BOOLEAN, 8, NULL, 0x01,
+            NULL, HFILL }
+        },
+        { &hf_control_s_to_m_phy_le_2m_phy,
+            { "LE 2M PHY", "btle.control.s_to_m_phy.le_2m_phy",
+            FT_BOOLEAN, 8, NULL, 0x02,
+            NULL, HFILL }
+        },
+        { &hf_control_s_to_m_phy_le_coded_phy,
+            { "LE Coded PHY", "btle.control.s_to_m_phy.le_coded_phy",
+            FT_BOOLEAN, 8, NULL, 0x04,
+            NULL, HFILL }
+        },
+        { &hf_control_s_to_m_phy_reserved_bits,
+            { "Reserved for future use", "btle.control.s_to_m_phy.reserved",
+            FT_UINT8, BASE_DEC, NULL, 0xF8,
             NULL, HFILL }
         },
         { &hf_control_phys,
@@ -3751,6 +4653,316 @@ proto_register_btle(void)
             FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
+        { &hf_control_cte_min_len_req,
+           { "MinCTELenReq", "btle.control.cte.min_len_req",
+            FT_UINT8, BASE_DEC, NULL, 0x1F,
+            NULL, HFILL }
+        },
+        { &hf_control_cte_rfu,
+           { "MinCTELenReq", "btle.control.cte.rfu",
+            FT_UINT8, BASE_DEC, NULL, 0x20,
+            NULL, HFILL }
+        },
+        { &hf_control_cte_type_req,
+            { "CTETypeReq", "btle.control.cte.type_req",
+            FT_UINT8, BASE_DEC, VALS(le_cte_type_vals), 0xC0,
+            NULL, HFILL }
+        },
+        { &hf_control_sync_id,
+            { "ID",                              "btle.control.sync.id",
+            FT_UINT16, BASE_HEX, NULL, 0xFFFF,
+            NULL, HFILL }
+        },
+        { &hf_control_sync_info_offset,
+            { "Sync Offset",                     "btle.control.sync_info.sync_offset",
+            FT_UINT16, BASE_HEX, NULL, 0x1FFF,
+            NULL, HFILL }
+        },
+        { &hf_control_sync_info_offset_units,
+            { "Offset Units",                    "btle.control.sync_info.offset_units",
+            FT_BOOLEAN, 16, TFS(&tfs_offset_units), 0x2000,
+            NULL, HFILL }
+        },
+        { &hf_control_sync_info_offset_adjust,
+            { "Offset Adjust",                   "btle.control.sync_info.offset_adjust",
+            FT_BOOLEAN, 16, TFS(&tfs_offset_adjust), 0x4000,
+            NULL, HFILL }
+        },
+        { &hf_control_sync_info_reserved,
+            { "Reserved",                        "btle.control.sync_info.offset_units",
+            FT_BOOLEAN, 16, NULL, 0x8000,
+            NULL, HFILL }
+        },
+        { &hf_control_sync_info_interval,
+            { "Interval",                        "btle.control.sync_info.interval",
+            FT_UINT16, BASE_HEX, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_control_sync_info_channel_map,
+            { "Channel Map",                     "btle.control.sync_info.channel_map",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_control_sync_info_sleep_clock_accuracy,
+            { "Sleep Clock Accuracy",            "btle.control.sync_info.sleep_clock_accuracy",
+            FT_UINT8, BASE_DEC | BASE_EXT_STRING, &sleep_clock_accuracy_vals_ext, 0xe0,
+            NULL, HFILL }
+        },
+        { &hf_control_sync_info_access_address,
+            { "Access Address",                  "btle.control.sync_info.access_address",
+            FT_UINT32, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_control_sync_info_crc_init,
+            { "CRC Init",                        "btle.control.sync_info.crc_init",
+            FT_UINT24, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_control_sync_info_event_counter,
+            { "Event counter",                   "btle.control.sync_info.event_counter",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_control_sync_conn_event_count,
+            { "connEventCount",                  "btle.control.sync.conn_event_count",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_control_sync_last_pa_event_counter,
+            { "lastPaEventCounter",              "btle.control.sync.last_pa_event_counter",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_control_sync_sid,
+            { "SID",                             "btle.control.sync.sid",
+            FT_UINT8, BASE_HEX, NULL, 0x0F,
+            NULL, HFILL }
+        },
+        { &hf_control_sync_atype,
+            { "AType",                           "btle.control.sync.atype",
+            FT_UINT8, BASE_DEC, NULL, 0x10,
+            NULL, HFILL }
+        },
+        { &hf_control_sync_sleep_clock_accuracy,
+            { "Sleep Clock Accuracy",            "btle.control.sync.sleep_clock_accuracy",
+            FT_UINT8, BASE_DEC | BASE_EXT_STRING, &sleep_clock_accuracy_vals_ext, 0xE0,
+            NULL, HFILL }
+        },
+        { &hf_control_sync_sync_conn_event_counter,
+            { "syncConnEventCount",              "btle.control.sync.sync_conn_event_count",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_control_sleep_clock_accuracy,
+            { "Sleep Clock Accuracy",            "btle.control.sleep_clock_accuracy",
+            FT_UINT8, BASE_DEC | BASE_EXT_STRING, &sleep_clock_accuracy_vals_ext, 0xe0,
+            NULL, HFILL }
+        },
+        { &hf_control_cig_id,
+            { "CIG_ID",                          "btle.control.cig_id",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_control_cis_id,
+            { "CIS_ID",                          "btle.control.cis_id",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_control_max_sdu_m_to_s,
+            { "Max_SDU_M_To_S",                  "btle.control.max_sdu_m_to_s",
+            FT_UINT16, BASE_DEC, NULL, 0x0fff,
+            NULL, HFILL }
+        },
+        { &hf_control_rfu_1,
+            { "Reserved",                        "btle.control.rfu.1",
+            FT_UINT16, BASE_DEC, NULL, 0x7000,
+            "Reserved for Future Use", HFILL }
+        },
+        { &hf_control_framed,
+            { "Framed",                          "btle.control.framed",
+            FT_BOOLEAN, 16, NULL, 0x8000,
+            NULL, HFILL }
+        },
+        { &hf_control_max_sdu_s_to_m,
+            { "Max_SDU_S_To_M",                  "btle.control.max_sdu_s_to_m",
+            FT_UINT16, BASE_DEC, NULL, 0x0fff,
+            NULL, HFILL }
+        },
+        { &hf_control_rfu_2,
+            { "Reserved",                        "btle.control.rfu.2",
+            FT_UINT16, BASE_DEC, NULL, 0xf000,
+            "Reserved for Future Use", HFILL }
+        },
+        { &hf_control_sdu_interval_m_to_s,
+            { "SDU_Interval_M_To_S",             "btle.control.sdu_interval_m_to_s",
+            FT_UINT24, BASE_DEC|BASE_UNIT_STRING, &units_microsecond_microseconds, 0x0fffff,
+            NULL, HFILL }
+        },
+        { &hf_control_rfu_3,
+            { "Reserved",                        "btle.control.rfu.3",
+            FT_UINT24, BASE_DEC, NULL, 0xf00000,
+            "Reserved for Future Use", HFILL }
+        },
+        { &hf_control_sdu_interval_s_to_m,
+            { "SDU_Interval_S_To_M",             "btle.control.sdu_interval_s_to_m",
+            FT_UINT24, BASE_DEC|BASE_UNIT_STRING, &units_microsecond_microseconds, 0x0fffff,
+            NULL, HFILL }
+        },
+        { &hf_control_rfu_4,
+            { "Reserved",                        "btle.control.rfu.4",
+            FT_UINT24, BASE_DEC, NULL, 0xf00000,
+            "Reserved for Future Use", HFILL }
+        },
+        { &hf_control_max_pdu_m_to_s,
+            { "Max_PDU_M_To_S",                  "btle.control.max_pdu_m_to_s",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_control_max_pdu_s_to_m,
+            { "Max_PDU_S_To_M",                  "btle.control.max_pdu_s_to_m",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_control_num_sub_events,
+            { "Num_Sub_Events",                  "btle.control.num_sub_events",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_control_sub_interval,
+            { "Sub_Interval",                    "btle.control.sub_interval",
+            FT_UINT24, BASE_DEC|BASE_UNIT_STRING, &units_microsecond_microseconds, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_control_bn_m_to_s,
+            { "BN_M_To_S",                       "btle.control.bn_m_to_s",
+            FT_UINT8, BASE_DEC, NULL, 0x0f,
+            NULL, HFILL }
+        },
+        { &hf_control_bn_s_to_m,
+            { "BN_S_To_M",                       "btle.control.bn_s_to_m",
+            FT_UINT8, BASE_DEC, NULL, 0xf0,
+            NULL, HFILL }
+        },
+        { &hf_control_ft_m_to_s,
+            { "FT_M_To_S",                       "btle.control.ft_m_to_s",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_control_ft_s_to_m,
+            { "FT_S_To_M",                       "btle.control.ft_s_to_m",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_control_iso_interval,
+            { "ISO_Interval",                    "btle.control.iso_interval",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_control_cis_offset_min,
+            { "CIS_Offset_Min",                  "btle.control.cis_offset_min",
+            FT_UINT24, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_control_cis_offset_max,
+            { "CIS_Offset_Max",                  "btle.control.cis_offset_max",
+            FT_UINT24, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_control_conn_event_count,
+            { "connEventCount",                  "btle.control.conn_event_count",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_control_access_address,
+            { "Access Address",                  "btle.control.access_address",
+            FT_UINT32, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_control_cis_offset,
+            { "CIS_Offset",                      "btle.control.cis_offset",
+            FT_UINT24, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_control_cig_sync_delay,
+            { "CIG_Sync_Delay",                  "btle.control.cig_sync_delay",
+            FT_UINT24, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_control_cis_sync_delay,
+            { "CIS_Sync_Delay",                  "btle.control.cis_sync_delay",
+            FT_UINT24, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_control_pwr_phy,
+            { "Power PHY", "btle.control.pwr_phy",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_control_pwr_phy_le_1m_phy,
+            { "LE 1M PHY", "btle.control.pwr_phy.le_1m_phy",
+            FT_BOOLEAN, 8, NULL, 0x01,
+            NULL, HFILL }
+        },
+        { &hf_control_pwr_phy_le_2m_phy,
+            { "LE 2M PHY", "btle.control.pwr_phy.le_2m_phy",
+            FT_BOOLEAN, 8, NULL, 0x02,
+            NULL, HFILL }
+        },
+        { &hf_control_pwr_phy_le_coded_s8_phy,
+            { "LE Coded S=8 PHY", "btle.control.pwr_phy.le_coded_s8_phy",
+            FT_BOOLEAN, 8, NULL, 0x04,
+            NULL, HFILL }
+        },
+        { &hf_control_pwr_phy_le_coded_s2_phy,
+            { "LE Coded S=2 PHY", "btle.control.pwr_phy.le_coded_s2_phy",
+            FT_BOOLEAN, 8, NULL, 0x08,
+            NULL, HFILL }
+        },
+        { &hf_control_pwr_phy_reserved_bits,
+            { "Reserved for future use", "btle.control.pwr_phy.reserved",
+            FT_UINT8, BASE_DEC, NULL, 0xF0,
+            NULL, HFILL }
+        },
+        { &hf_control_delta,
+            { "Delta", "btle.control.delta",
+            FT_INT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_control_txpwr,
+            { "TxPower", "btle.control.txpower",
+            FT_INT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_control_pwrflags,
+           { "Power Flags", "btle.control.pwrflags",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_control_pwrflags_min,
+            { "Min", "btle.control.min",
+            FT_BOOLEAN, 8, NULL, 0x01,
+            NULL, HFILL }
+        },
+        { &hf_control_pwrflags_max,
+            { "Max", "btle.control.max",
+            FT_BOOLEAN, 8, NULL, 0x02,
+            NULL, HFILL }
+        },
+        { &hf_control_pwrflags_reserved_bits,
+            { "Reserved for future use", "btle.control.pwrctrl.reserved",
+            FT_UINT8, BASE_DEC, NULL, 0xFC,
+            NULL, HFILL }
+        },
+        { &hf_control_acceptable_power_reduction,
+            { "Acceptable Power Reduction", "btle.control.acceptable_power_reduction",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_big_control_opcode,
+            { "BIG Control Opcode",              "btle.big_control_opcode",
+            FT_UINT8, BASE_HEX | BASE_EXT_STRING, &big_control_opcode_vals_ext, 0x0,
+            NULL, HFILL }
+        },
         { &hf_l2cap_index,
             { "L2CAP Index",                     "btle.l2cap_index",
             FT_UINT32, BASE_DEC, NULL, 0x0,
@@ -3767,117 +4979,122 @@ proto_register_btle(void)
             NULL, HFILL }
         },
         { &hf_crc,
-            { "CRC",                             "btle.crc",
+          { "CRC",                             "btle.crc",
             FT_UINT24, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
+        { &hf_isochronous_data,
+          { "Isochronous Data",                "btle.isochronous_data",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
         { &hf_btle_l2cap_msg_fragments,
-        { "L2CAP fragments", "btle.l2cap.fragments",
+          { "L2CAP fragments", "btle.l2cap.fragments",
             FT_NONE, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_btle_l2cap_msg_fragment,
-        { "L2CAP fragment", "btle.l2cap.fragment",
+          { "L2CAP fragment", "btle.l2cap.fragment",
             FT_FRAMENUM, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_btle_l2cap_msg_fragment_overlap,
-        { "L2CAP fragment overlap", "btle.l2cap.fragment.overlap",
+          { "L2CAP fragment overlap", "btle.l2cap.fragment.overlap",
             FT_BOOLEAN, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_btle_l2cap_msg_fragment_overlap_conflicts,
-        { "L2CAP fragment overlapping with conflicting data", "btle.l2cap.fragment.overlap.conflicts",
+          { "L2CAP fragment overlapping with conflicting data", "btle.l2cap.fragment.overlap.conflicts",
             FT_BOOLEAN, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_btle_l2cap_msg_fragment_multiple_tails,
-        { "L2CAP has multiple tail fragments", "btle.l2cap.fragment.multiple_tails",
+          { "L2CAP has multiple tail fragments", "btle.l2cap.fragment.multiple_tails",
             FT_BOOLEAN, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_btle_l2cap_msg_fragment_too_long_fragment,
-        { "L2CAP fragment too long", "btle.l2cap.fragment.too_long_fragment",
+          { "L2CAP fragment too long", "btle.l2cap.fragment.too_long_fragment",
             FT_BOOLEAN, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_btle_l2cap_msg_fragment_error,
-        { "L2CAP defragmentation error", "btle.l2cap.fragment.error",
+          { "L2CAP defragmentation error", "btle.l2cap.fragment.error",
             FT_FRAMENUM, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_btle_l2cap_msg_fragment_count,
-        { "L2CAP fragment count", "btle.l2cap.fragment.count",
+          { "L2CAP fragment count", "btle.l2cap.fragment.count",
             FT_UINT32, BASE_DEC, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_btle_l2cap_msg_reassembled_in,
-        { "Reassembled in", "btle.l2cap.reassembled.in",
+          { "Reassembled in", "btle.l2cap.reassembled.in",
             FT_FRAMENUM, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_btle_l2cap_msg_reassembled_length,
-        { "Reassembled L2CAP length", "btle.l2cap.reassembled.length",
+          { "Reassembled L2CAP length", "btle.l2cap.reassembled.length",
             FT_UINT32, BASE_DEC, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_btle_ea_host_advertising_data_fragments,
-        { "EA HAD fragments", "btle.ea.host_advertising_data.fragments",
+          { "EA HAD fragments", "btle.ea.host_advertising_data.fragments",
             FT_NONE, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_btle_ea_host_advertising_data_fragment,
-        { "EA HAD fragment", "btle.ea.host_advertising_data.fragment",
+          { "EA HAD fragment", "btle.ea.host_advertising_data.fragment",
             FT_FRAMENUM, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_btle_ea_host_advertising_data_fragment_overlap,
-        { "EA HAD fragment overlap", "btle.ea.host_advertising_data.fragment.overlap",
+          { "EA HAD fragment overlap", "btle.ea.host_advertising_data.fragment.overlap",
             FT_BOOLEAN, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_btle_ea_host_advertising_data_fragment_overlap_conflicts,
-        { "EA HAD fragment overlapping with conflicting data", "btle.ea.host_advertising_data.fragment.overlap.conflicts",
+          { "EA HAD fragment overlapping with conflicting data", "btle.ea.host_advertising_data.fragment.overlap.conflicts",
             FT_BOOLEAN, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_btle_ea_host_advertising_data_fragment_multiple_tails,
-        { "EA HAD has multiple tail fragments", "btle.ea.host_advertising_data.fragment.multiple_tails",
+          { "EA HAD has multiple tail fragments", "btle.ea.host_advertising_data.fragment.multiple_tails",
             FT_BOOLEAN, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_btle_ea_host_advertising_data_fragment_too_long_fragment,
-        { "EA HAD fragment too long", "btle.ea.host_advertising_data.fragment.too_long_fragment",
+          { "EA HAD fragment too long", "btle.ea.host_advertising_data.fragment.too_long_fragment",
             FT_BOOLEAN, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_btle_ea_host_advertising_data_fragment_error,
-        { "EA HAD defragmentation error", "btle.ea.host_advertising_data.fragment.error",
+          { "EA HAD defragmentation error", "btle.ea.host_advertising_data.fragment.error",
             FT_FRAMENUM, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_btle_ea_host_advertising_data_fragment_count,
-        { "EA HAD fragment count", "btle.ea.host_advertising_data.fragment.count",
+          { "EA HAD fragment count", "btle.ea.host_advertising_data.fragment.count",
             FT_UINT32, BASE_DEC, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_btle_ea_host_advertising_data_reassembled_in,
-        { "Reassembled in", "btle.ea.host_advertising_data.reassembled.in",
+          { "Reassembled in", "btle.ea.host_advertising_data.reassembled.in",
             FT_FRAMENUM, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_btle_ea_host_advertising_data_reassembled_length,
-        { "Reassembled EA HAD length", "btle.ea.host_advertising_data.reassembled.length",
+          { "Reassembled EA HAD length", "btle.ea.host_advertising_data.reassembled.length",
             FT_UINT32, BASE_DEC, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_request_in_frame,
-        {"Request in Frame", "btle.request_in_frame",
+          {"Request in Frame", "btle.request_in_frame",
             FT_FRAMENUM, BASE_NONE, FRAMENUM_TYPE(FT_FRAMENUM_REQUEST), 0x0,
             NULL, HFILL}
         },
         { &hf_response_in_frame,
-        {"Response in Frame", "btle.response_in_frame",
+          {"Response in Frame", "btle.response_in_frame",
             FT_FRAMENUM, BASE_NONE, FRAMENUM_TYPE(FT_FRAMENUM_RESPONSE), 0x0,
             NULL, HFILL}
         },
@@ -3928,8 +5145,11 @@ proto_register_btle(void)
         &ett_m_to_s_phy,
         &ett_s_to_m_phy,
         &ett_phys,
+        &ett_pwr_phy,
+        &ett_cte,
         &ett_channel_map,
         &ett_scan_response_data,
+        &ett_pwrflags,
         &ett_btle_l2cap_msg_fragment,
         &ett_btle_l2cap_msg_fragments,
         &ett_btle_ea_host_advertising_data_fragment,
@@ -3937,6 +5157,7 @@ proto_register_btle(void)
     };
 
     connection_info_tree = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
+    broadcastiso_connection_info_tree = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
     connection_parameter_info_tree = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
     adi_to_first_frame_tree = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
 

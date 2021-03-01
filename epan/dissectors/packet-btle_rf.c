@@ -202,20 +202,17 @@ dissect_btle_rf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         pinfo->p2p_dir = P2P_DIR_RECV;
         break;
     case 4: // Connected Isochronous, Master to Slave
-        // Isochronous not yet supported by common link layer dissector
-        context.pdu_type = BTLE_PDU_TYPE_UNKNOWN;
+        context.pdu_type = BTLE_PDU_TYPE_CONNECTEDISO;
         context.direction = BTLE_DIR_MASTER_SLAVE;
         pinfo->p2p_dir = P2P_DIR_SENT;
         break;
     case 5: // Connected Isochronous, Slave to Master
-        // Isochronous not yet supported by common link layer dissector
-        context.pdu_type = BTLE_PDU_TYPE_UNKNOWN;
+        context.pdu_type = BTLE_PDU_TYPE_CONNECTEDISO;
         context.direction = BTLE_DIR_SLAVE_MASTER;
         pinfo->p2p_dir = P2P_DIR_RECV;
         break;
     case 6: // Broadcast Isochronous
-        // Isochronous not yet supported by common link layer dissector
-        context.pdu_type = BTLE_PDU_TYPE_UNKNOWN;
+        context.pdu_type = BTLE_PDU_TYPE_BROADCASTISO;
         break;
     case 7: // Reserved
         context.pdu_type = BTLE_PDU_TYPE_UNKNOWN;

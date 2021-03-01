@@ -44,9 +44,11 @@ typedef enum {
 #define BTLE_DIR_MASTER_SLAVE 1
 #define BTLE_DIR_SLAVE_MASTER 2
 
-#define BTLE_PDU_TYPE_UNKNOWN     0 /* Unknown physical channel PDU */
-#define BTLE_PDU_TYPE_ADVERTISING 1 /* Advertising physical channel PDU */
-#define BTLE_PDU_TYPE_DATA        2 /* Data physical channel PDU */
+#define BTLE_PDU_TYPE_UNKNOWN       0 /* Unknown physical channel PDU */
+#define BTLE_PDU_TYPE_ADVERTISING   1 /* Advertising physical channel PDU */
+#define BTLE_PDU_TYPE_DATA          2 /* Data physical channel PDU */
+#define BTLE_PDU_TYPE_CONNECTEDISO  3 /* Connected isochronous physical channel PDU */
+#define BTLE_PDU_TYPE_BROADCASTISO  4 /* Broadcast isochronous physical channel PDU */
 
 #define LE_1M_PHY     0
 #define LE_2M_PHY     1

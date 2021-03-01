@@ -10,6 +10,8 @@
  *   Allan M. Madsen 2007
  * Updated to HCI specification 3.0+HS & 4.0
  *   Allan M. Madsen 2012
+ * Updated to Core Specification 5.2
+ *   Thomas Sailer 2021
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -898,6 +900,32 @@ static gint hf_btcommon_eir_ad_le_features_power_class_1 = -1;
 static gint hf_btcommon_eir_ad_le_features_minimum_number_of_used_channels_procedure = -1;
 static gint hf_btcommon_eir_ad_le_features_reserved_1_7 = -1;
 static gint hf_btcommon_eir_ad_le_features_reserved = -1;
+static gint hf_btcommon_eir_ad_biginfo_big_offset = -1;
+static gint hf_btcommon_eir_ad_biginfo_big_offset_units = -1;
+static gint hf_btcommon_eir_ad_biginfo_iso_interval = -1;
+static gint hf_btcommon_eir_ad_biginfo_num_bis = -1;
+static gint hf_btcommon_eir_ad_biginfo_nse = -1;
+static gint hf_btcommon_eir_ad_biginfo_bn = -1;
+static gint hf_btcommon_eir_ad_biginfo_sub_interval = -1;
+static gint hf_btcommon_eir_ad_biginfo_pto = -1;
+static gint hf_btcommon_eir_ad_biginfo_bis_spacing = -1;
+static gint hf_btcommon_eir_ad_biginfo_irc = -1;
+static gint hf_btcommon_eir_ad_biginfo_max_pdu = -1;
+static gint hf_btcommon_eir_ad_biginfo_rfu = -1;
+static gint hf_btcommon_eir_ad_biginfo_seed_access_address = -1;
+static gint hf_btcommon_eir_ad_biginfo_sdu_interval = -1;
+static gint hf_btcommon_eir_ad_biginfo_max_sdu = -1;
+static gint hf_btcommon_eir_ad_biginfo_base_crc_init = -1;
+static gint hf_btcommon_eir_ad_biginfo_channel_map = -1;
+static gint hf_btcommon_eir_ad_biginfo_phy = -1;
+static gint hf_btcommon_eir_ad_biginfo_bis_payload_count = -1;
+static gint hf_btcommon_eir_ad_biginfo_framing = -1;
+static gint hf_btcommon_eir_ad_biginfo_giv = -1;
+static gint hf_btcommon_eir_ad_biginfo_gskd = -1;
+static gint hf_btcommon_eir_ad_biginfo_big_control_access_address = -1;
+static gint hf_btcommon_eir_ad_biginfo_bis_access_address = -1;
+static gint hf_btcommon_eir_ad_broadcast_code = -1;
+
 static gint hf_btcommon_cod_class_of_device = -1;
 static gint hf_btcommon_cod_format_type = -1;
 static gint hf_btcommon_cod_major_service_class_information = -1;
@@ -1049,6 +1077,7 @@ static gint ett_cod = -1;
 static gint ett_eir_ad = -1;
 static gint ett_eir_ad_entry = -1;
 static gint ett_eir_ad_le_features = -1;
+static gint ett_eir_ad_biginfo_seedaa = -1;
 
 static expert_field ei_eir_ad_undecoded                               = EI_INIT;
 static expert_field ei_eir_ad_unknown                                 = EI_INIT;
@@ -1781,6 +1810,8 @@ static const value_string bthci_cmd_eir_data_type_vals[] = {
     {0x29, "PB-ADV" },
     {0x2A, "Mesh Message" },
     {0x2B, "Mesh Beacon" },
+    {0x2C, "BIGInfo" },
+    {0x2D, "Broadcast Code" },
     {0x3D, "3D Information Data" },
     {0xFF, "Manufacturer Specific" },
     {   0, NULL }
@@ -2518,6 +2549,18 @@ static const value_string csb_fragment_vals[] = {
     { 0x02, "End" },
     { 0x03, "No" },
     {0, NULL }
+};
+
+static const val64_string cmd_biginfo_le_phy_vals64[] = {
+    { 0x00, "LE 1M" },
+    { 0x01, "LE 2M" },
+    { 0x02, "LE Coded" },
+    { 0, NULL }
+};
+
+static const true_false_string tfs_offset_units = {
+    "300 usec",
+    "30 usec"
 };
 
 
@@ -8834,6 +8877,7 @@ dissect_eir_ad_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bluetoo
     guint8       bd_addr[6];
     guint8      *name = NULL;
     bluetooth_uuid_t uuid;
+    guint32      interval, num_bis;
 
     DISSECTOR_ASSERT(bluetooth_eir_ad_data);
 
@@ -9281,6 +9325,63 @@ dissect_eir_ad_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bluetoo
             } else {
                 proto_tree_add_item(entry_tree, hf_btcommon_eir_ad_mesh_beacon, tvb, offset, length, ENC_NA);
             }
+            offset += length;
+
+            break;
+        case 0x2c: /* BIGInfo */
+            sub_item = proto_tree_add_item_ret_uint(entry_tree, hf_btcommon_eir_ad_biginfo_big_offset, tvb, offset, 4, ENC_LITTLE_ENDIAN, &interval);
+            proto_tree_add_item(entry_tree, hf_btcommon_eir_ad_biginfo_big_offset_units, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            proto_item_append_text(sub_item, " (%u usec)", interval * ((tvb_get_guint32(tvb, offset, ENC_LITTLE_ENDIAN) & 0x00004000) != 0 ? 300 : 30));
+            sub_item = proto_tree_add_item_ret_uint(entry_tree, hf_btcommon_eir_ad_biginfo_iso_interval, tvb, offset, 4, ENC_LITTLE_ENDIAN, &interval);
+            proto_item_append_text(sub_item, " (%g msec)", interval * 1.25);
+            proto_tree_add_item_ret_uint(entry_tree, hf_btcommon_eir_ad_biginfo_num_bis, tvb, offset, 4, ENC_LITTLE_ENDIAN, &num_bis);
+            offset += 4;
+            proto_tree_add_item(entry_tree, hf_btcommon_eir_ad_biginfo_nse, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(entry_tree, hf_btcommon_eir_ad_biginfo_bn, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(entry_tree, hf_btcommon_eir_ad_biginfo_sub_interval, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(entry_tree, hf_btcommon_eir_ad_biginfo_pto, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            offset += 4;
+            proto_tree_add_item(entry_tree, hf_btcommon_eir_ad_biginfo_bis_spacing, tvb, offset, 3, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(entry_tree, hf_btcommon_eir_ad_biginfo_irc, tvb, offset, 3, ENC_LITTLE_ENDIAN);
+            offset += 3;
+            proto_tree_add_item(entry_tree, hf_btcommon_eir_ad_biginfo_max_pdu, tvb, offset, 1, ENC_NA);
+            offset += 1;
+            proto_tree_add_item(entry_tree, hf_btcommon_eir_ad_biginfo_rfu, tvb, offset, 1, ENC_NA);
+            offset += 1;
+            sub_item = proto_tree_add_item(entry_tree, hf_btcommon_eir_ad_biginfo_seed_access_address, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            sub_tree = proto_item_add_subtree(sub_item, ett_eir_ad_biginfo_seedaa);
+            for (guint32 bis = 0; bis <= num_bis; ++bis) {
+                guint32 aa = tvb_get_guint32(tvb, offset, ENC_LITTLE_ENDIAN);
+                guint8 d = (35 * bis + 42) & 0x7f;
+                guint32 dw = (0xfc000000 * (d & 1)) | ((d & 0x02) << 24) | ((d & 0x40) << 18) | ((d & 0x02) << 22) | ((d & 0x30) << 16) | ((d & 0x0c) << 15);
+                aa ^= dw;
+                proto_tree_add_uint(sub_tree, bis ? hf_btcommon_eir_ad_biginfo_bis_access_address : hf_btcommon_eir_ad_biginfo_big_control_access_address, tvb, 0, 0, aa);
+            }
+            offset += 4;
+            proto_tree_add_item(entry_tree, hf_btcommon_eir_ad_biginfo_sdu_interval, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(entry_tree, hf_btcommon_eir_ad_biginfo_max_sdu, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            offset += 4;
+            proto_tree_add_item(entry_tree, hf_btcommon_eir_ad_biginfo_base_crc_init, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset += 2;
+            sub_item = proto_tree_add_item(entry_tree, hf_btcommon_eir_ad_biginfo_channel_map, tvb, offset, 5, ENC_LITTLE_ENDIAN);
+            sub_tree = proto_item_add_subtree(sub_item, ett_le_channel_map);
+            call_dissector(btcommon_le_channel_map_handle, tvb_new_subset_length(tvb, offset, 5), pinfo, sub_tree);
+            proto_tree_add_item(entry_tree, hf_btcommon_eir_ad_biginfo_phy, tvb, offset, 5, ENC_LITTLE_ENDIAN);
+            offset += 5;
+            proto_tree_add_item(entry_tree, hf_btcommon_eir_ad_biginfo_bis_payload_count, tvb, offset, 5, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(entry_tree, hf_btcommon_eir_ad_biginfo_framing, tvb, offset, 5, ENC_LITTLE_ENDIAN);
+            offset += 5;
+            if (length >= 57) {
+                proto_tree_add_item(entry_tree, hf_btcommon_eir_ad_biginfo_giv, tvb, offset, 8, ENC_NA);
+                offset += 8;
+                proto_tree_add_item(entry_tree, hf_btcommon_eir_ad_biginfo_gskd, tvb, offset, 16, ENC_NA);
+                offset += 16;
+            }
+
+            break;
+        case 0x2d: /* Broadcast Code */
+            proto_tree_add_item(entry_tree, hf_btcommon_eir_ad_broadcast_code, tvb, offset, length, ENC_UTF_8 | ENC_NA);
+            proto_item_append_text(entry_item, ": %s", tvb_format_text(tvb, offset, length));
             offset += length;
 
             break;
@@ -10143,6 +10244,131 @@ proto_register_btcommon(void)
             FT_UINT8, BASE_HEX, NULL, 0xFF,
             NULL, HFILL }
         },
+        { &hf_btcommon_eir_ad_biginfo_big_offset,
+          { "BIG_Offset", "btcommon.eir_ad.entry.biginfo.big_offset",
+            FT_UINT32, BASE_DEC, NULL, 0x00003fff,
+            NULL, HFILL}
+        },
+        { &hf_btcommon_eir_ad_biginfo_big_offset_units,
+          { "BIG_Offset_Units", "btcommon.eir_ad.entry.biginfo.big_offset_units",
+            FT_BOOLEAN, 32, TFS(&tfs_offset_units), 0x00004000,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_eir_ad_biginfo_iso_interval,
+          { "ISO_Interval", "btcommon.eir_ad.entry.biginfo.iso_interval",
+            FT_UINT32, BASE_DEC, NULL, 0x07ff8000,
+            NULL, HFILL}
+        },
+        { &hf_btcommon_eir_ad_biginfo_num_bis,
+          { "Num_BIS", "btcommon.eir_ad.entry.biginfo.num_bis",
+            FT_UINT32, BASE_DEC, NULL, 0xf8000000,
+            NULL, HFILL}
+        },
+        { &hf_btcommon_eir_ad_biginfo_nse,
+          { "NSE", "btcommon.eir_ad.entry.biginfo.nse",
+            FT_UINT32, BASE_DEC, NULL, 0x0000001f,
+            NULL, HFILL}
+        },
+        { &hf_btcommon_eir_ad_biginfo_bn,
+          { "BN", "btcommon.eir_ad.entry.biginfo.bn",
+            FT_UINT32, BASE_DEC, NULL, 0x000000e0,
+            NULL, HFILL}
+        },
+        { &hf_btcommon_eir_ad_biginfo_sub_interval,
+          { "Sub_Interval", "btcommon.eir_ad.entry.biginfo.sub_interval",
+            FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_microsecond_microseconds, 0x0fffff00,
+            NULL, HFILL}
+        },
+        { &hf_btcommon_eir_ad_biginfo_pto,
+          { "PTO", "btcommon.eir_ad.entry.biginfo.pto",
+            FT_UINT32, BASE_DEC, NULL, 0xf0000000,
+            NULL, HFILL}
+        },
+        { &hf_btcommon_eir_ad_biginfo_bis_spacing,
+          { "BIS_Spacing", "btcommon.eir_ad.entry.biginfo.bis_spacing",
+            FT_UINT24, BASE_DEC|BASE_UNIT_STRING, &units_microsecond_microseconds, 0x0fffff,
+            NULL, HFILL}
+        },
+        { &hf_btcommon_eir_ad_biginfo_irc,
+          { "IRC", "btcommon.eir_ad.entry.biginfo.irc",
+            FT_UINT24, BASE_DEC, NULL, 0xf00000,
+            NULL, HFILL}
+        },
+        { &hf_btcommon_eir_ad_biginfo_max_pdu,
+          { "Max_PDU", "btcommon.eir_ad.entry.biginfo.max_pdu",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        { &hf_btcommon_eir_ad_biginfo_rfu,
+          { "Reserved", "btcommon.eir_ad.entry.biginfo.rfu",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL}
+        },
+        { &hf_btcommon_eir_ad_biginfo_seed_access_address,
+          { "Seed Access Address", "btcommon.eir_ad.entry.biginfo.seed_access_address",
+            FT_UINT32, BASE_HEX, NULL, 0x0,
+            NULL, HFILL}
+        },
+        { &hf_btcommon_eir_ad_biginfo_sdu_interval,
+          { "SDU_Interval", "btcommon.eir_ad.entry.biginfo.sdu_interval",
+            FT_UINT32, BASE_DEC, NULL, 0x000fffff,
+            NULL, HFILL}
+        },
+        { &hf_btcommon_eir_ad_biginfo_max_sdu,
+          { "Max_SDU", "btcommon.eir_ad.entry.biginfo.max_sdu",
+            FT_UINT32, BASE_DEC, NULL, 0xfff00000,
+            NULL, HFILL}
+        },
+        { &hf_btcommon_eir_ad_biginfo_base_crc_init,
+          { "BaseCRCInit", "btcommon.eir_ad.entry.biginfo.base_crc_init",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL}
+        },
+        { &hf_btcommon_eir_ad_biginfo_channel_map,
+          { "Channel Map", "btcommon.eir_ad.entry.biginfo.channel_map",
+            FT_UINT40, BASE_HEX, NULL, 0x1fffffffff,
+            NULL, HFILL}
+        },
+        { &hf_btcommon_eir_ad_biginfo_phy,
+          { "PHY", "btcommon.eir_ad.entry.biginfo.phy",
+            FT_UINT40, BASE_DEC|BASE_VAL64_STRING, VALS64(cmd_biginfo_le_phy_vals64), 0xe000000000,
+            NULL, HFILL}
+        },
+        { &hf_btcommon_eir_ad_biginfo_bis_payload_count,
+          { "bisPayloadCount", "btcommon.eir_ad.entry.biginfo.bis_payload_count",
+            FT_UINT40, BASE_DEC, NULL, 0x7fffffffff,
+            NULL, HFILL}
+        },
+        { &hf_btcommon_eir_ad_biginfo_framing,
+          { "Framing", "btcommon.eir_ad.entry.biginfo.framing",
+            FT_BOOLEAN, 40, NULL, 0x8000000000,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_eir_ad_biginfo_giv,
+            { "GIV", "btcommon.eir_ad.entry.biginfo.giv",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_eir_ad_biginfo_gskd,
+            { "GSKD", "btcommon.eir_ad.entry.biginfo.gskd",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btcommon_eir_ad_biginfo_big_control_access_address,
+          { "BIG Control Access Address", "btcommon.eir_ad.entry.biginfo.big_control_access_address",
+            FT_UINT32, BASE_HEX, NULL, 0x0,
+            NULL, HFILL}
+        },
+        { &hf_btcommon_eir_ad_biginfo_bis_access_address,
+          { "BIS Access Address", "btcommon.eir_ad.entry.biginfo.bis_access_address",
+            FT_UINT32, BASE_HEX, NULL, 0x0,
+            NULL, HFILL}
+        },
+        { &hf_btcommon_eir_ad_broadcast_code,
+          { "Broadcast Code", "btcommon.eir_ad.entry.broadcast_code",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
         { &hf_btcommon_cod_class_of_device,
           { "Class of Device", "btcommon.cod.class_of_device",
             FT_UINT24, BASE_HEX, NULL, 0x0,
@@ -10509,6 +10735,7 @@ proto_register_btcommon(void)
         &ett_eir_ad,
         &ett_eir_ad_entry,
         &ett_eir_ad_le_features,
+        &ett_eir_ad_biginfo_seedaa
     };
 
     static ei_register_info ei[] = {
