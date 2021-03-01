@@ -38,7 +38,7 @@ target_link_libraries(stats_tree epan)
 
 install_plugin(stats_tree epan)
 
-file(GLOB PLUGIN_HEADERS RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" "*.h")
+file(GLOB TAP_HEADERS RELATIVE "${CMAKE_CURRENT_SOURCE_DIR}" "*.h")
 CHECKAPI(
 	NAME
 	  stats_tree
@@ -46,8 +46,8 @@ CHECKAPI(
 	  --group dissectors-prohibited
 	  --group dissectors-restricted
 	SOURCES
-	  ${PLUGIN_FILES}
-	  ${PLUGIN_HEADERS}
+	  ${TAP_SRC}
+	  ${TAP_HEADERS}
 )
 
 #
