@@ -19,7 +19,8 @@ static int proto_ipvs_syncd = -1;
 static int hf_conn_count = -1;
 static int hf_syncid = -1;
 static int hf_size = -1;
-static int hf_resv8 = -1;
+static int hf_resv = -1;
+static int hf_version = -1;
 static int hf_proto = -1;
 static int hf_cport = -1;
 static int hf_vport = -1;
@@ -107,7 +108,11 @@ dissect_ipvs_syncd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, v
 	col_clear(pinfo->cinfo, COL_INFO);
 
 	cnt = tvb_get_guint8(tvb, offset);
-	proto_tree_add_item(tree, hf_conn_count, tvb, offset, 1, ENC_BIG_ENDIAN);
+	if(cnt == 0) { //Version 1 (or after...) first byte is reserved
+		proto_tree_add_item(tree, hf_resv, tvb, offset, 1, ENC_BIG_ENDIAN);
+	} else {
+		proto_tree_add_item(tree, hf_conn_count, tvb, offset, 1, ENC_BIG_ENDIAN);
+	}
 	offset += 1;
 
 	proto_tree_add_item(tree, hf_syncid, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -115,6 +120,18 @@ dissect_ipvs_syncd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, v
 
 	proto_tree_add_item(tree, hf_size, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset += 2;
+
+	if(cnt == 0) { //Version 1 (or after...)
+		cnt = tvb_get_guint8(tvb, offset);
+		proto_tree_add_item(tree, hf_conn_count, tvb, offset, 1, ENC_BIG_ENDIAN);
+		offset += 1;
+
+		proto_tree_add_item(tree, hf_version, tvb, offset, 1, ENC_BIG_ENDIAN);
+		offset += 1;
+
+		proto_tree_add_item(tree, hf_resv, tvb, offset, 2, ENC_NA);
+		offset += 2;
+	}
 
 	for (conn = 0; conn < cnt; conn++)
 	{
@@ -125,7 +142,7 @@ dissect_ipvs_syncd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, v
 		ctree = proto_tree_add_subtree_format(tree, tvb, offset, 24, ett_conn, NULL,
 						      "Connection #%d", conn+1);
 
-		proto_tree_add_item(ctree, hf_resv8, tvb, offset, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(ctree, hf_resv, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset += 1;
 
 		proto_tree_add_item(ctree, hf_proto, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -208,8 +225,12 @@ proto_register_ipvs_syncd(void)
 			{ "Size", "ipvs.size", FT_UINT16, BASE_DEC,
 			  NULL, 0, NULL, HFILL }},
 
-		{ &hf_resv8,
-			{ "Reserved", "ipvs.resv8", FT_UINT8, BASE_HEX,
+		{ &hf_resv,
+			{ "Reserved", "ipvs.resv", FT_BYTES, BASE_NONE,
+			  NULL, 0, NULL, HFILL }},
+
+		{ &hf_version,
+			{ "Version", "ipvs.version", FT_UINT8, BASE_DEC,
 			  NULL, 0, NULL, HFILL }},
 
 		{ &hf_proto,
