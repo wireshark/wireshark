@@ -21,6 +21,47 @@
 
 gboolean failed = FALSE;
 
+typedef struct {
+	struct {
+		guint8 needle;
+		gint offset;
+	} g8;
+	struct {
+		gboolean test;
+		guint16 needle;
+		gint offset;
+	} g16;
+	struct {
+		gboolean test;
+		ws_mempbrk_pattern pattern;
+		gint offset;
+		guchar found_needle;
+	} mempbrk;
+} search_test_params;
+
+static gboolean
+test_searches(tvbuff_t *tvb, gint offset, search_test_params *sp)
+{
+	volatile gboolean ex_thrown = FALSE;
+
+	TRY {
+		sp->g8.offset = tvb_find_guint8(tvb, offset, -1, sp->g8.needle);
+		if (sp->g16.test) {
+			sp->g16.offset = tvb_find_guint16(tvb, offset, -1, sp->g16.needle);
+		}
+		if (sp->mempbrk.test) {
+			sp->mempbrk.offset =
+				tvb_ws_mempbrk_pattern_guint8(tvb, offset, -1,
+					&sp->mempbrk.pattern, &sp->mempbrk.found_needle);
+		}
+	}
+	CATCH_ALL {
+		ex_thrown = TRUE;
+	}
+	ENDTRY;
+	return ex_thrown;
+}
+
 /* Tests a tvbuff against the expected pattern/length.
  * Returns TRUE if all tests succeeed, FALSE if any test fails */
 static gboolean
@@ -268,6 +309,72 @@ test(tvbuff_t *tvb, const gchar* name,
 	}
 	wmem_free(NULL, ptr);
 
+	/* Test some searches.
+	 * For now, just do a few trivial searches with easily verifiable
+	 * results... each of the searches is expected to find their target at
+	 * the offset from which the search commences.  Walk through the tvb
+	 * and run these tests at each byte position. */
+	for (i = 0; i < length; i++) {
+		search_test_params sp;
+
+		memset(&sp, 0, sizeof sp);
+
+		/* Search for the guint8 at this offset. */
+		sp.g8.needle = expected_data[i];
+
+		/* If at least two bytes left, search for the guint16 at this offset. */
+		sp.g16.test = length - i > 1;
+		if (sp.g16.test) {
+			sp.g16.needle = (expected_data[i] << 8) | expected_data[i + 1];
+		}
+
+		/* If the guint8 at this offset is nonzero, try
+		 * tvb_ws_mempbrk_pattern_guint8 as well.
+		 * ws_mempbrk_compile("\0") is not effective... */
+		sp.mempbrk.test = expected_data[i] != 0;
+		if (sp.mempbrk.test) {
+			gchar pattern_string[2] = {expected_data[i], '\0'};
+
+			ws_mempbrk_compile(&sp.mempbrk.pattern, pattern_string);
+		}
+
+		ex_thrown = test_searches(tvb, i, &sp);
+		if (ex_thrown) {
+			printf("13: Failed TVB=%s Exception when searching, offset %d\n",
+					name, i);
+			failed = TRUE;
+			return FALSE;
+		}
+		if ((guint)sp.g8.offset != i) {
+			printf("13: Failed TVB=%s Wrong offset for guint8:%02x,"
+					" got %d, expected %d\n",
+					name, sp.g8.needle, sp.g8.offset, i);
+			failed = TRUE;
+			return FALSE;
+		}
+		if (sp.g16.test && (guint)sp.g16.offset != i) {
+			printf("13: Failed TVB=%s Wrong offset for guint16:%04x,"
+					" got %d, expected %d\n",
+					name, sp.g16.needle, sp.g16.offset, i);
+			failed = TRUE;
+			return FALSE;
+		}
+		if (sp.mempbrk.test && (guint)sp.mempbrk.offset != i) {
+			printf("13: Failed TVB=%s Wrong offset for mempbrk:%02x,"
+					" got %d, expected %d\n",
+					name, expected_data[i], sp.mempbrk.offset, i);
+			failed = TRUE;
+			return FALSE;
+		}
+		if (sp.mempbrk.test && sp.mempbrk.found_needle != expected_data[i]) {
+			printf("13: Failed TVB=%s Wrong needle found for mempbrk:%02x,"
+					" got %02x, expected %02x\n",
+					name, expected_data[i], sp.mempbrk.found_needle, expected_data[i]);
+			failed = TRUE;
+			return FALSE;
+		}
+	}
+
 
 	printf("Passed TVB=%s\n", name);
 
@@ -299,6 +406,10 @@ run_tests(void)
 	tvbuff_t	*tvb_comp[6];
 	guint		comp_length[6];
 	guint		comp_reported_length[6];
+	tvbuff_t	*tvb_comp_subset;
+	guint		comp_subset_length;
+	guint		comp_subset_reported_length;
+	guint8		*comp_subset;
 	int		len;
 
 	tvb_parent = tvb_new_real_data((const guint8*)"", 0, 0);
@@ -466,6 +577,12 @@ run_tests(void)
 	tvb_composite_append(tvb_comp[5], tvb_comp[3]);
 	tvb_composite_finalize(tvb_comp[5]);
 
+	/* A subset of one of the composites. */
+	tvb_comp_subset = tvb_new_subset_remaining(tvb_comp[1], 1);
+	comp_subset = &comp[1][1];
+	comp_subset_length = comp_length[1] - 1;
+	comp_subset_reported_length = comp_reported_length[1] - 1;
+
 	/* Test the "composite" tvbuff objects. */
 	test(tvb_comp[0], "Composite 0", comp[0], comp_length[0], comp_reported_length[0]);
 	test(tvb_comp[1], "Composite 1", comp[1], comp_length[1], comp_reported_length[1]);
@@ -473,6 +590,9 @@ run_tests(void)
 	test(tvb_comp[3], "Composite 3", comp[3], comp_length[3], comp_reported_length[3]);
 	test(tvb_comp[4], "Composite 4", comp[4], comp_length[4], comp_reported_length[4]);
 	test(tvb_comp[5], "Composite 5", comp[5], comp_length[5], comp_reported_length[5]);
+
+	/* Test the subset of the composite. */
+	test(tvb_comp_subset, "Subset of Composite", comp_subset, comp_subset_length, comp_subset_reported_length);
 
 	/* free memory. */
 	/* Don't free: comp[0] */
