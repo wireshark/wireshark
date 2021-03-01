@@ -404,9 +404,7 @@ dissect_btpb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 
     pinfo->destport = dst_port;
 
-    char buf_dst[32];
-    snprintf(buf_dst, 32, "%"G_GUINT16_FORMAT, dst_port);
-    col_append_lstr(pinfo->cinfo, COL_INFO, " " UTF8_RIGHTWARDS_ARROW " ", buf_dst, COL_ADD_LSTR_TERMINATOR);
+    col_append_fstr(pinfo->cinfo, COL_INFO, " " UTF8_RIGHTWARDS_ARROW " %u", dst_port);
 
     btpbh->btp_pdst = dst_port;
     btpbh->btp_idst = dst_info;
