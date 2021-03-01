@@ -34,16 +34,16 @@ extern "C" {
  * Filter lists.
  */
 typedef enum {
-  CFILTER_LIST,        /* capture filter list - saved */
-  DFILTER_LIST        /* display filter list - saved */
+    CFILTER_LIST,        /* capture filter list - saved */
+    DFILTER_LIST        /* display filter list - saved */
 } filter_list_type_t;
 
 /*
  * Item in a list of filters.
  */
 typedef struct {
-  char *name;          /* filter name */
-  char *strval;        /* filter expression */
+    char *name;          /* filter name */
+    char *strval;        /* filter expression */
 } filter_def;
 
 /*
@@ -92,11 +92,11 @@ void free_filter_lists(void);
  * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local Variables:
- * c-basic-offset: 2
+ * c-basic-offset: 4
  * tab-width: 8
  * indent-tabs-mode: nil
  * End:
  *
- * vi: set shiftwidth=2 tabstop=8 expandtab:
- * :indentSize=2:tabSize=8:noTabs=true:
+ * ex: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
  */

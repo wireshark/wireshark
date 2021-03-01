@@ -79,9 +79,6 @@ indent_size = 2
 [file.[ch]]
 indent_size = 2
 
-[filter_files.[ch]]
-indent_size = 2
-
 [frame_tvbuff.[ch]]
 indent_style = tab
 indent_size = tab
@@ -90,9 +87,6 @@ indent_size = tab
 indent_size = 8
 
 [ringbuffer.[ch]]
-indent_size = 2
-
-[summary.[ch]]
 indent_size = 2
 
 [randpkt_core.[ch]]
