@@ -12,9 +12,6 @@ indent_size = tab
 indent_style = tab
 indent_size = tab
 
-[ascendtext.[ch]]
-indent_size = 2
-
 [atm.[ch]]
 indent_style = tab
 indent_size = tab

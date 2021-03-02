@@ -16,6 +16,8 @@ trim_trailing_whitespace = true
 insert_final_newline = true
 
 # CMake
+# The CMake project itself uses two spaces:
+# https://gitlab.kitware.com/cmake/cmake/-/blob/master/.editorconfig
 [{CMake*,*.cmake,*.cmake.in}]
 indent_style = tab
 
