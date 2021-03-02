@@ -357,8 +357,6 @@ dissect_server_information_parameter(tvbuff_t *parameter_tvb, proto_tree *parame
   dissect_parameters(parameters_tvb, parameter_tree);
 }
 
-#define ERROR_CAUSES_OFFSET PARAMETER_VALUE_OFFSET
-
 static void
 dissect_operation_error_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree)
 {
@@ -367,8 +365,6 @@ dissect_operation_error_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter
   error_causes_tvb = tvb_new_subset_remaining(parameter_tvb, ERROR_CAUSES_OFFSET);
   dissect_error_causes(error_causes_tvb, parameter_tree);
 }
-
-#define COOKIE_OFFSET PARAMETER_VALUE_OFFSET
 
 static void
 dissect_cookie_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
