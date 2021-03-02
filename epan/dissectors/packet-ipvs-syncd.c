@@ -128,8 +128,10 @@ dissect_ipvs_syncd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, v
 	cnt = tvb_get_guint8(tvb, offset);
 	if(cnt == 0) { //Version 1 (or after...) first byte is reserved
 		proto_tree_add_item(tree, hf_resv, tvb, offset, 1, ENC_BIG_ENDIAN);
+		col_set_str(pinfo->cinfo, COL_INFO, "v1");
 	} else {
 		proto_tree_add_item(tree, hf_conn_count, tvb, offset, 1, ENC_BIG_ENDIAN);
+		col_set_str(pinfo->cinfo, COL_INFO, "v0");
 	}
 	offset += 1;
 
@@ -151,6 +153,7 @@ dissect_ipvs_syncd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, v
 		proto_tree_add_item(tree, hf_resv, tvb, offset, 2, ENC_NA);
 		offset += 2;
 	}
+	col_append_fstr(pinfo->cinfo, COL_INFO, " %u Connection(s)", cnt);
 
 	for (conn = 0; conn < cnt; conn++)
 	{
