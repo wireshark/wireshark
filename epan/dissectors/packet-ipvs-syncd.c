@@ -44,6 +44,17 @@ static int hf_out_seq_init = -1;
 static int hf_out_seq_delta = -1;
 static int hf_out_seq_pdelta = -1;
 
+/* Payload v1 */
+static int hf_type = -1;
+static int hf_ver = -1;
+static int hf_size_v1 = -1;
+static int hf_flags_v1 = -1;
+static int hf_fwmark  = -1;
+static int hf_timeout = -1;
+static int hf_caddr6 = -1;
+static int hf_vaddr6 = -1;
+static int hf_daddr6 = -1;
+
 static int ett_ipvs_syncd = -1;
 static int ett_conn = -1;
 static int ett_flags = -1;
@@ -61,6 +72,12 @@ static const value_string state_strings[] = {
 	{0x00, "Input"},
 	{0x04, "Output"},
 	{0x08, "Input Only"},
+	{0x00, NULL},
+};
+
+static const value_string type_strings[] = {
+	{0x0, "IPv4"},
+	{0x2, "IPv6"},
 	{0x00, NULL},
 };
 
@@ -98,6 +115,7 @@ dissect_ipvs_syncd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, v
 	proto_item *item;
 	int         offset = 0;
 	guint8      cnt    = 0;
+	guint8      version = 0;
 	int         conn   = 0;
 
 	item = proto_tree_add_item(parent_tree, proto_ipvs_syncd, tvb, offset, -1, ENC_NA);
@@ -126,6 +144,7 @@ dissect_ipvs_syncd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, v
 		proto_tree_add_item(tree, hf_conn_count, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset += 1;
 
+		version = tvb_get_guint8(tvb, offset);
 		proto_tree_add_item(tree, hf_version, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset += 1;
 
@@ -135,73 +154,142 @@ dissect_ipvs_syncd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, v
 
 	for (conn = 0; conn < cnt; conn++)
 	{
-		proto_tree *ctree;
-		proto_tree *ftree, *fi;
-		guint16 flags;
+		if(version) {
 
-		ctree = proto_tree_add_subtree_format(tree, tvb, offset, 24, ett_conn, NULL,
-						      "Connection #%d", conn+1);
+			proto_tree *ctree;
+			guint8 type;
+			guint16 size;
 
-		proto_tree_add_item(ctree, hf_resv, tvb, offset, 1, ENC_BIG_ENDIAN);
-		offset += 1;
+			ctree = proto_tree_add_subtree_format(tree, tvb, offset, 36, ett_conn, NULL,
+							      "Connection #%d", conn+1);
 
-		proto_tree_add_item(ctree, hf_proto, tvb, offset, 1, ENC_BIG_ENDIAN);
-		offset += 1;
+			type = tvb_get_guint8(tvb, offset);
+			proto_tree_add_item(ctree, hf_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+			offset += 1;
 
-		proto_tree_add_item(ctree, hf_cport, tvb, offset, 2, ENC_BIG_ENDIAN);
-		offset += 2;
+			proto_tree_add_item(ctree, hf_proto, tvb, offset, 1, ENC_BIG_ENDIAN);
+			offset += 1;
 
-		proto_tree_add_item(ctree, hf_vport, tvb, offset, 2, ENC_BIG_ENDIAN);
-		offset += 2;
+			size = (tvb_get_ntohs(tvb, offset) & 0x1FFF);
+			proto_item_set_len(ctree, size);
+			proto_tree_add_item(ctree, hf_ver, tvb, offset, 2, ENC_BIG_ENDIAN);
+			proto_tree_add_item(ctree, hf_size_v1, tvb, offset, 2, ENC_BIG_ENDIAN);
+			offset += 2;
 
-		proto_tree_add_item(ctree, hf_dport, tvb, offset, 2, ENC_BIG_ENDIAN);
-		offset += 2;
-
-		proto_tree_add_item(ctree, hf_caddr, tvb, offset, 4, ENC_BIG_ENDIAN);
-		offset += 4;
-
-		proto_tree_add_item(ctree, hf_vaddr, tvb, offset, 4, ENC_BIG_ENDIAN);
-		offset += 4;
-
-		proto_tree_add_item(ctree, hf_daddr, tvb, offset, 4, ENC_BIG_ENDIAN);
-		offset += 4;
-
-		flags = tvb_get_ntohs(tvb, offset);
-		fi = proto_tree_add_item(ctree, hf_flags, tvb, offset, 2, ENC_BIG_ENDIAN);
-		ftree = proto_item_add_subtree(fi, ett_flags);
-		proto_tree_add_item(ftree, hf_flags_conn_type, tvb, offset, 2, ENC_BIG_ENDIAN);
-		proto_tree_add_item(ftree, hf_flags_hashed_entry, tvb, offset, 2, ENC_BIG_ENDIAN);
-		proto_tree_add_item(ftree, hf_flags_no_output_packets, tvb, offset, 2, ENC_BIG_ENDIAN);
-		proto_tree_add_item(ftree, hf_flags_conn_not_established, tvb, offset, 2, ENC_BIG_ENDIAN);
-		proto_tree_add_item(ftree, hf_flags_adjust_output_seq, tvb, offset, 2, ENC_BIG_ENDIAN);
-		proto_tree_add_item(ftree, hf_flags_adjust_input_seq, tvb, offset, 2, ENC_BIG_ENDIAN);
-		proto_tree_add_item(ftree, hf_flags_no_client_port_set, tvb, offset, 2, ENC_BIG_ENDIAN);
-
-		offset += 2;
-
-		proto_tree_add_item(ctree, hf_state, tvb, offset, 2, ENC_BIG_ENDIAN);
-		offset += 2;
-
-		/* we have full connection info */
-		if ( flags & IP_VS_CONN_F_SEQ_MASK )
-		{
-			proto_tree_add_item(ctree, hf_in_seq_init, tvb, offset, 4, ENC_BIG_ENDIAN);
+			proto_tree_add_item(ctree, hf_flags_v1, tvb, offset, 4, ENC_BIG_ENDIAN);
 			offset += 4;
 
-			proto_tree_add_item(ctree, hf_in_seq_delta, tvb, offset, 4, ENC_BIG_ENDIAN);
+			proto_tree_add_item(ctree, hf_state, tvb, offset, 2, ENC_BIG_ENDIAN);
+			offset += 2;
+
+			proto_tree_add_item(ctree, hf_cport, tvb, offset, 2, ENC_BIG_ENDIAN);
+			offset += 2;
+
+			proto_tree_add_item(ctree, hf_vport, tvb, offset, 2, ENC_BIG_ENDIAN);
+			offset += 2;
+
+			proto_tree_add_item(ctree, hf_dport, tvb, offset, 2, ENC_BIG_ENDIAN);
+			offset += 2;
+
+			proto_tree_add_item(ctree, hf_fwmark, tvb, offset, 4, ENC_BIG_ENDIAN);
 			offset += 4;
 
-			proto_tree_add_item(ctree, hf_in_seq_pdelta, tvb, offset, 4, ENC_BIG_ENDIAN);
+			proto_tree_add_item(ctree, hf_timeout, tvb, offset, 4, ENC_BIG_ENDIAN);
 			offset += 4;
 
-			proto_tree_add_item(ctree, hf_out_seq_init, tvb, offset, 4, ENC_BIG_ENDIAN);
+			if(type == 0){ /* IPv4 */
+
+				proto_tree_add_item(ctree, hf_caddr, tvb, offset, 4, ENC_BIG_ENDIAN);
+				offset += 4;
+
+				proto_tree_add_item(ctree, hf_vaddr, tvb, offset, 4, ENC_BIG_ENDIAN);
+				offset += 4;
+
+				proto_tree_add_item(ctree, hf_daddr, tvb, offset, 4, ENC_BIG_ENDIAN);
+				offset += 4;
+			} else { /* IPv6 */
+
+				proto_tree_add_item(ctree, hf_caddr6, tvb, offset, 16, ENC_BIG_ENDIAN);
+				offset += 16;
+
+				proto_tree_add_item(ctree, hf_vaddr6, tvb, offset, 16, ENC_BIG_ENDIAN);
+				offset += 16;
+
+				proto_tree_add_item(ctree, hf_daddr6, tvb, offset, 16, ENC_BIG_ENDIAN);
+				offset += 16;
+			}
+
+		} else {
+
+			proto_tree *ctree;
+			proto_tree *ftree, *fi;
+			guint16 flags;
+
+			ctree = proto_tree_add_subtree_format(tree, tvb, offset, 24, ett_conn, NULL,
+							      "Connection #%d", conn+1);
+
+			proto_tree_add_item(ctree, hf_resv, tvb, offset, 1, ENC_BIG_ENDIAN);
+			offset += 1;
+
+			proto_tree_add_item(ctree, hf_proto, tvb, offset, 1, ENC_BIG_ENDIAN);
+			offset += 1;
+
+			proto_tree_add_item(ctree, hf_cport, tvb, offset, 2, ENC_BIG_ENDIAN);
+			offset += 2;
+
+			proto_tree_add_item(ctree, hf_vport, tvb, offset, 2, ENC_BIG_ENDIAN);
+			offset += 2;
+
+			proto_tree_add_item(ctree, hf_dport, tvb, offset, 2, ENC_BIG_ENDIAN);
+			offset += 2;
+
+			proto_tree_add_item(ctree, hf_caddr, tvb, offset, 4, ENC_BIG_ENDIAN);
 			offset += 4;
 
-			proto_tree_add_item(ctree, hf_out_seq_delta, tvb, offset, 4, ENC_BIG_ENDIAN);
+			proto_tree_add_item(ctree, hf_vaddr, tvb, offset, 4, ENC_BIG_ENDIAN);
 			offset += 4;
 
-			proto_tree_add_item(ctree, hf_out_seq_pdelta, tvb, offset, 4, ENC_BIG_ENDIAN);
+			proto_tree_add_item(ctree, hf_daddr, tvb, offset, 4, ENC_BIG_ENDIAN);
 			offset += 4;
+
+			flags = tvb_get_ntohs(tvb, offset);
+			fi = proto_tree_add_item(ctree, hf_flags, tvb, offset, 2, ENC_BIG_ENDIAN);
+			ftree = proto_item_add_subtree(fi, ett_flags);
+			proto_tree_add_item(ftree, hf_flags_conn_type, tvb, offset, 2, ENC_BIG_ENDIAN);
+			proto_tree_add_item(ftree, hf_flags_hashed_entry, tvb, offset, 2, ENC_BIG_ENDIAN);
+			proto_tree_add_item(ftree, hf_flags_no_output_packets, tvb, offset, 2, ENC_BIG_ENDIAN);
+			proto_tree_add_item(ftree, hf_flags_conn_not_established, tvb, offset, 2, ENC_BIG_ENDIAN);
+			proto_tree_add_item(ftree, hf_flags_adjust_output_seq, tvb, offset, 2, ENC_BIG_ENDIAN);
+			proto_tree_add_item(ftree, hf_flags_adjust_input_seq, tvb, offset, 2, ENC_BIG_ENDIAN);
+			proto_tree_add_item(ftree, hf_flags_no_client_port_set, tvb, offset, 2, ENC_BIG_ENDIAN);
+
+			offset += 2;
+
+			proto_tree_add_item(ctree, hf_state, tvb, offset, 2, ENC_BIG_ENDIAN);
+			offset += 2;
+
+			/* we have full connection info */
+			if ( flags & IP_VS_CONN_F_SEQ_MASK )
+			{
+				proto_tree_add_item(ctree, hf_in_seq_init, tvb, offset, 4, ENC_BIG_ENDIAN);
+				offset += 4;
+
+				proto_tree_add_item(ctree, hf_in_seq_delta, tvb, offset, 4, ENC_BIG_ENDIAN);
+				offset += 4;
+
+				proto_tree_add_item(ctree, hf_in_seq_pdelta, tvb, offset, 4, ENC_BIG_ENDIAN);
+				offset += 4;
+
+				proto_tree_add_item(ctree, hf_out_seq_init, tvb, offset, 4, ENC_BIG_ENDIAN);
+				offset += 4;
+
+				proto_tree_add_item(ctree, hf_out_seq_delta, tvb, offset, 4, ENC_BIG_ENDIAN);
+				offset += 4;
+
+				proto_tree_add_item(ctree, hf_out_seq_pdelta, tvb, offset, 4, ENC_BIG_ENDIAN);
+				offset += 4;
+
+			}
 		}
 
 	}
@@ -321,8 +409,43 @@ proto_register_ipvs_syncd(void)
 			{ "Output Sequence (Previous Delta)", "ipvs.out_seq.pdelta", FT_UINT32,
 				BASE_HEX, NULL, 0, NULL, HFILL }},
 
+		/* v1 payload */
 
+		{ &hf_type,
+			{ "Type", "ipvs.type", FT_UINT8, BASE_DEC,
+			  VALS(type_strings), 0, NULL, HFILL }},
 
+		{ &hf_ver,
+			{ "Version", "ipvs.ver", FT_UINT16, BASE_DEC,
+			  NULL, 0xE000, NULL, HFILL }},
+
+		{ &hf_size_v1,
+			{ "Size", "ipvs.size.v1", FT_UINT16, BASE_DEC,
+			  NULL, 0x1FFF, NULL, HFILL }},
+
+		{ &hf_flags_v1,
+			{ "Flags", "ipvs.flags.v1", FT_UINT32, BASE_HEX,
+			  NULL, 0, NULL, HFILL }},
+
+		{ &hf_fwmark,
+			{ "FWmark", "ipvs.fwmark", FT_UINT32, BASE_HEX,
+			  NULL, 0, NULL, HFILL }},
+
+		{ &hf_timeout,
+			{ "Timeout", "ipvs.timeout", FT_UINT32, BASE_DEC,
+			  NULL, 0, NULL, HFILL }},
+
+		{ &hf_caddr6,
+			{ "Client Address", "ipvs.caddr6", FT_IPv6, BASE_NONE,
+			  NULL, 0, NULL, HFILL }},
+
+		{ &hf_vaddr6,
+			{ "Virtual Address", "ipvs.vaddr6", FT_IPv6, BASE_NONE,
+			  NULL, 0, NULL, HFILL }},
+
+		{ &hf_daddr6,
+			{ "Destination Address", "ipvs.daddr6", FT_IPv6, BASE_NONE,
+			  NULL, 0, NULL, HFILL }},
 
 	};
 	static gint *ett[] = {
