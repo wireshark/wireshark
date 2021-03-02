@@ -986,15 +986,15 @@ proto_register_oran(void)
 {
     static hf_register_info hf[] = {
 
-       /* Section 3.1.2.1.6 */
+       /* Section 3.1.3.1.6 */
        { &hf_oran_cu_port_id,
-         { "CU Port ID", "oran_fh_cus.cu_port_id",
+         { "DU Port ID", "oran_fh_cus.du_port_id",
            FT_UINT8, BASE_DEC,
            NULL, 0xc0,
            NULL, HFILL }
        },
 
-       /* Section 3.1.2.1.6 */
+       /* Section 3.1.3.1.6 */
        { &hf_oran_bandsector_id,
          { "BandSector ID", "oran_fh_cus.bandsector_id",
            FT_UINT8, BASE_DEC,
@@ -1002,7 +1002,7 @@ proto_register_oran(void)
            NULL, HFILL }
        },
 
-       /* Section 3.1.2.1.6 */
+       /* Section 3.1.3.1.6 */
        { &hf_oran_cc_id,
          { "CC ID", "oran_fh_cus.cc_id",
            FT_UINT8, BASE_DEC,
@@ -1010,7 +1010,7 @@ proto_register_oran(void)
            NULL, HFILL }
        },
 
-        /* Section 3.1.2.1.6 */
+        /* Section 3.1.3.1.6 */
         { &hf_oran_ru_port_id,
           { "RU Port ID", "oran_fh_cus.ru_port_id",
             FT_UINT8, BASE_DEC,
@@ -1018,7 +1018,7 @@ proto_register_oran(void)
             NULL, HFILL }
         },
 
-        /* Section 3.1.2.1.7 */
+        /* Section 3.1.3.1.7 */
         { &hf_oran_sequence_id,
           { "Sequence ID", "oran_fh_cus.sequence_id",
             FT_UINT8, BASE_DEC,
@@ -1027,7 +1027,7 @@ proto_register_oran(void)
             HFILL }
         },
 
-        /* Section 3.1.2.1.7 */
+        /* Section 3.1.3.1.7 */
         { &hf_oran_e_bit,
           { "E Bit", "oran_fh_cus.e_bit",
             FT_UINT8, BASE_DEC,
@@ -1036,7 +1036,7 @@ proto_register_oran(void)
             HFILL }
         },
 
-        /* Section 3.1.2.1.7 */
+        /* Section 3.1.3.1.7 */
         { &hf_oran_subsequence_id,
           { "Subsequence ID", "oran_fh_cus.subsequence_id",
             FT_UINT8, BASE_DEC,
@@ -1322,8 +1322,8 @@ proto_register_oran(void)
           FT_BOOLEAN, 8,
           NULL, 0x80,
           "This parameter is used to indicate if this section will contain "
-          "both beamforming index and any extension information (ef=1) or "
-          "just a beamforming index ewf=0)",
+          "both beamforming index and any ex(tension information (ef=1) or "
+          "just a beamforming index (ewf=0)",
           HFILL}
         },
 
@@ -1345,25 +1345,25 @@ proto_register_oran(void)
           HFILL}
         },
 
-        /* Section 5.4.7 */
+        /* Section 5.4.6.2 */
         {&hf_oran_extension,
-         {"extension", "oran_fh_cus.extension",
+         {"ef", "oran_fh_cus.ef",
           FT_STRING, BASE_NONE,
           NULL, 0x0,
-          NULL,
+          "extension flag.  Set if there is another extension present",
           HFILL}
         },
 
-        /* Section 5.4.7 */
+        /* Section 5.4.6.1 */
         {&hf_oran_exttype,
          {"extType", "oran_fh_cus.extType",
           FT_UINT8, BASE_DEC,
           VALS(exttype_vals), 0x7f,
-          NULL,
+          "The extension which which provides additional parameters specific to subject data extension",
           HFILL}
         },
 
-        /* Section 5.4.7 */
+        /* Section 5.4.6.3 */
         {&hf_oran_extlen,
          {"extLen", "oran_fh_cus.extLen",
          FT_UINT8, BASE_DEC,
