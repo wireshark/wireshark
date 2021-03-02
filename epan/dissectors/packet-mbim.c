@@ -2868,7 +2868,7 @@ mbim_dissect_ms_plmn(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gi
     {
         proto_tree_add_uint_format_value(tree, hf_mbim_ms_plmn_mnc, tvb, offset, 2, mnc, "%03u", mnc & 0x7fff);
     }
-    offset += 2;
+    /* offset += 2; */
 }
 
 static void
@@ -2973,7 +2973,7 @@ mbim_dissect_ms_wake_packet(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* t
     proto_tree_add_item_ret_uint(wake_packet_tree, hf_mbim_ms_wake_reason_packet_saved_offset, tvb, offset, 4, ENC_LITTLE_ENDIAN, &packet_offset);
     offset += 4;
     proto_tree_add_item_ret_uint(wake_packet_tree, hf_mbim_ms_wake_reason_packet_saved_size, tvb, offset, 4, ENC_LITTLE_ENDIAN, &packet_size);
-    offset += 4;
+    /* offset += 4; */
     if (packet_offset && packet_size)
     {
         proto_tree_add_bytes_format(wake_packet_tree, hf_mbim_ms_wake_reason_packet_saved_data, tvb, begin_offset + packet_offset, packet_size, NULL, "Saved Packet Data");
@@ -4050,7 +4050,7 @@ mbim_dissect_single_packet_filter(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
     offset += 4;
     if (SHOULD_MBIM_EX3_BE_APPLIED(mbim_conv)) {
         proto_tree_add_item(tree, hf_mbim_single_packet_filter_filter_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-        offset += 4;
+        /* offset += 4; */
     }
     if (filter_size) {
         if (packet_filter_offset) {
