@@ -3116,7 +3116,7 @@ proto_register_dsmcc(void)
 
         { &hf_dsmcc_dii_private_data_length, {
             "Private Data Length", "mpeg_dsmcc.dii.private_data_length",
-            FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL
+            FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL
         } },
         /* table 7-6 downloadInfoIndication - end */
 
