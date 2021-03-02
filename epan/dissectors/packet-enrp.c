@@ -4,10 +4,10 @@
  * RFC 5353
  * RFC 5354
  * RFC 5356
- * https://tools.ietf.org/html/draft-dreibholz-rserpool-enrp-takeover-00
+ * https://tools.ietf.org/html/draft-dreibholz-rserpool-enrp-takeover-21
  *
- * Copyright 2004-2007 Michael Tuexen <tuexen [AT] fh-muenster.de>
  * Copyright 2008-2021 Thomas Dreibholz <dreibh [AT] iem.uni-due.de>
+ * Copyright 2004-2007 Michael Tüxen <tuexen [AT] fh-muenster.de>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>

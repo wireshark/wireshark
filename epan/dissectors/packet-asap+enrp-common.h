@@ -1,10 +1,23 @@
-/* packet-lisp.h
- * Routines for Locator/ID Separation Protocol (LISP) Control Message dissection
- * Copyright 2018 Lorand Jakab <ljakab@ac.upc.edu>
+/* packet-asap+enrp-common.h
+ * Common routines for
+ * Aggregate Server Access Protocol (ASAP) and
+ * Endpoint Handlespace Redundancy Protocol (ENRP)
+ * It is hopefully (needs testing) compliant to
+ * RFC 5352
+ * RFC 5354
+ * RFC 5356
+ * https://tools.ietf.org/html/draft-dreibholz-rserpool-asap-hropt-27
+ * https://tools.ietf.org/html/draft-dreibholz-rserpool-delay-26
+ * https://tools.ietf.org/html/draft-dreibholz-rserpool-enrp-takeover-21
+ *
+ * Copyright 2008-2021 Thomas Dreibholz <dreibh [AT] iem.uni-due.de>
+ * Copyright 2004-2007 Michael Tüxen <tuexen [AT] fh-muenster.de>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
+ *
+ * Copied from README.developer
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
