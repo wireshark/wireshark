@@ -43,8 +43,6 @@ CHECKAPI(
 	NAME
 	  stats_tree
 	SWITCHES
-	  --group dissectors-prohibited
-	  --group dissectors-restricted
 	SOURCES
 	  ${TAP_SRC}
 	  ${TAP_HEADERS}
