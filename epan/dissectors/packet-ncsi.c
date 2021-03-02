@@ -650,7 +650,7 @@ ncsi_proto_tree_add_cap(tvbuff_t *tvb, proto_tree *tree, int offset)
     proto_tree_add_item(tree, hf_ncsi_cap_uccnt, tvb, offset += 1, 1, ENC_NA);
     proto_tree_add_bitmask_with_flags(tree, tvb, offset += 3, hf_ncsi_cap_vmode,
             ett_ncsi_cap_vmode, cap_vmode_fields, ENC_BIG_ENDIAN, BMT_NO_APPEND);
-    proto_tree_add_item(tree, hf_ncsi_cap_chcnt, tvb, offset += 1, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_ncsi_cap_chcnt, tvb, offset, 1, ENC_NA);
 
 }
 
