@@ -814,6 +814,15 @@ else() # ! MSVC
 		-DG_DISABLE_DEPRECATED
 		-DG_DISABLE_SINGLE_INCLUDES
 	)
+	if(CMAKE_VERSION VERSION_GREATER "3.11.99")
+		# Build type dependency requires support for generator expressions.
+		# add_compile_definitions() requires cmake >= 3.12.
+		add_compile_definitions(
+			$<$<OR:$<BOOL:${DISABLE_ASSERT}>,$<CONFIG:Release>>:WS_DISABLE_ASSERT>
+		)
+	elseif(DISABLE_ASSERT)
+		add_definitions(-DWS_DISABLE_ASSERT)
+	endif()
 
 	set(WIRESHARK_LD_FLAGS
 		# See also CheckCLinkerFlag.cmake

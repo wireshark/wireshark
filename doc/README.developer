@@ -533,13 +533,42 @@ packets without crashing or looping infinitely.
 Here are some suggestions for making code more robust in the face
 of incorrectly-formed packets:
 
-Do *NOT* use "g_assert()" or "g_assert_not_reached()" in dissectors.
+Do *NOT* use "ws_assert()" or "ws_assert_not_reached()" with input data in dissectors.
 *NO* value in a packet's data should be considered "wrong" in the sense
 that it's a problem with the dissector if found; if it cannot do
 anything else with a particular value from a packet's data, the
 dissector should put into the protocol tree an indication that the
 value is invalid, and should return.  The "expert" mechanism should be
 used for that purpose.
+
+Use assertions to catch logic errors in your program. A failed assertion
+indicates a bug in the code. Use ws_assert() instead of g_assert() to
+test a logic condition. Note that ws_assert() will be removed with
+WS_DISABLE_ASSERT. Therefore assertions should not have any side-effects,
+otherwise the program may behave inconsistently.
+
+Use ws_assert_not_reached() instead of g_assert_not_reached() for
+unreachable error conditions. For example if (and only if) you know
+'myvar' can only have the values 1 and 2 do:
+    switch(myvar) {
+    case 1:
+        (...)
+        break;
+    case 2:
+        (...)
+        break;
+    default:
+        ws_assert_not_reached();
+        break;
+    }
+
+For dissectors use DISSECTOR_ASSERT() and DISSECTOR_ASSERT_NOT_REACHED()
+instead, with the same caveats as above.
+
+You should continue to use g_assert_true(), g_assert_cmpstr(), etc for
+"test code", such as unit testing. These assertions are always active.
+See the GLib Testing API documentation for the details on each of those
+functions.
 
 If there is a case where you are checking not for an invalid data item
 in the packet, but for a bug in the dissector (for example, an

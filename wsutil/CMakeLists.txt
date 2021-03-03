@@ -65,6 +65,7 @@ set(WSUTIL_PUBLIC_HEADERS
 	type_util.h
 	unicode-utils.h
 	utf8_entities.h
+	ws_assert.h
 	ws_cpuid.h
 	glib-compat.h
 	ws_mempbrk.h

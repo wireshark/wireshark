@@ -174,6 +174,11 @@ get_compiled_version_info(void (*prepend_info)(GString *),
 	/* Additional application-dependent information */
 	if (append_info)
 		(*append_info)(str);
+
+#ifdef WS_DISABLE_ASSERT
+	g_string_append(str, ", without assertions");
+#endif
+
 	g_string_append(str, ".");
 
 	end_string(str);
