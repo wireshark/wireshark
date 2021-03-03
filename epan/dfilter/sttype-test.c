@@ -24,7 +24,7 @@ test_new(gpointer junk)
 {
 	test_t		*test;
 
-	g_assert(junk == NULL);
+	g_assert_true(junk == NULL);
 
 	test = g_new(test_t, 1);
 
@@ -100,7 +100,7 @@ sttype_test_set1(stnode_t *node, test_op_t op, stnode_t *val1)
 	test = (test_t*)stnode_data(node);
 	assert_magic(test, TEST_MAGIC);
 
-	g_assert(num_operands(op) == 1);
+	g_assert_true(num_operands(op) == 1);
 	test->op = op;
 	test->val1 = val1;
 }
@@ -113,7 +113,7 @@ sttype_test_set2(stnode_t *node, test_op_t op, stnode_t *val1, stnode_t *val2)
 	test = (test_t*)stnode_data(node);
 	assert_magic(test, TEST_MAGIC);
 
-	g_assert(num_operands(op) == 2);
+	g_assert_true(num_operands(op) == 2);
 	test->op = op;
 	test->val1 = val1;
 	test->val2 = val2;
@@ -128,7 +128,7 @@ sttype_test_set2_args(stnode_t *node, stnode_t *val1, stnode_t *val2)
 	assert_magic(test, TEST_MAGIC);
 
 	if (num_operands(test->op) == 1) {
-		g_assert(val2 == NULL);
+		g_assert_true(val2 == NULL);
 	}
 	test->val1 = val1;
 	test->val2 = val2;

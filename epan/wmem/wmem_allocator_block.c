@@ -218,16 +218,16 @@ wmem_block_verify_block(wmem_block_hdr_t *block)
         return 0;
     }
 
-    g_assert(chunk->prev == 0);
+    g_assert_true(chunk->prev == 0);
 
     do {
         total_len += chunk->len;
 
-        g_assert(chunk->len >= WMEM_CHUNK_HEADER_SIZE);
-        g_assert(!chunk->jumbo);
+        g_assert_true(chunk->len >= WMEM_CHUNK_HEADER_SIZE);
+        g_assert_true(!chunk->jumbo);
 
         if (WMEM_CHUNK_NEXT(chunk)) {
-            g_assert(chunk->len == WMEM_CHUNK_NEXT(chunk)->prev);
+            g_assert_true(chunk->len == WMEM_CHUNK_NEXT(chunk)->prev);
         }
 
         if (!chunk->used &&
@@ -236,15 +236,15 @@ wmem_block_verify_block(wmem_block_hdr_t *block)
             total_free_space += chunk->len;
 
             if (!chunk->last) {
-                g_assert(WMEM_GET_FREE(chunk)->next);
-                g_assert(WMEM_GET_FREE(chunk)->prev);
+                g_assert_true(WMEM_GET_FREE(chunk)->next);
+                g_assert_true(WMEM_GET_FREE(chunk)->prev);
             }
         }
 
         chunk = WMEM_CHUNK_NEXT(chunk);
     } while (chunk);
 
-    g_assert(total_len == WMEM_BLOCK_SIZE);
+    g_assert_true(total_len == WMEM_BLOCK_SIZE);
 
     return total_free_space;
 }
@@ -261,21 +261,21 @@ wmem_block_verify_master_list(wmem_block_allocator_t *allocator)
         return 0;
     }
 
-    g_assert(WMEM_GET_FREE(cur)->prev == NULL);
+    g_assert_true(WMEM_GET_FREE(cur)->prev == NULL);
 
     while (cur) {
         free_space += cur->len;
 
         cur_free = WMEM_GET_FREE(cur);
 
-        g_assert(! cur->used);
+        g_assert_true(! cur->used);
 
         if (cur_free->next) {
-            g_assert(WMEM_GET_FREE(cur_free->next)->prev == cur);
+            g_assert_true(WMEM_GET_FREE(cur_free->next)->prev == cur);
         }
 
         if (cur != allocator->master_head) {
-            g_assert(cur->len == WMEM_BLOCK_SIZE);
+            g_assert_true(cur->len == WMEM_BLOCK_SIZE);
         }
 
         cur = cur_free->next;
@@ -301,13 +301,13 @@ wmem_block_verify_recycler(wmem_block_allocator_t *allocator)
 
         cur_free = WMEM_GET_FREE(cur);
 
-        g_assert(! cur->used);
+        g_assert_true(! cur->used);
 
-        g_assert(cur_free->prev);
-        g_assert(cur_free->next);
+        g_assert_true(cur_free->prev);
+        g_assert_true(cur_free->next);
 
-        g_assert(WMEM_GET_FREE(cur_free->prev)->next == cur);
-        g_assert(WMEM_GET_FREE(cur_free->next)->prev == cur);
+        g_assert_true(WMEM_GET_FREE(cur_free->prev)->next == cur);
+        g_assert_true(WMEM_GET_FREE(cur_free->next)->prev == cur);
 
         cur = cur_free->next;
     } while (cur != allocator->recycler_head);
@@ -325,13 +325,13 @@ wmem_block_verify(wmem_allocator_t *allocator)
     /* Normally it would be bad for an allocator helper function to depend
      * on receiving the right type of allocator, but this is for testing only
      * and is not part of any real API. */
-    g_assert(allocator->type == WMEM_ALLOCATOR_BLOCK);
+    g_assert_true(allocator->type == WMEM_ALLOCATOR_BLOCK);
 
     private_allocator = (wmem_block_allocator_t*) allocator->private_data;
 
     if (private_allocator->block_list == NULL) {
-        g_assert(! private_allocator->master_head);
-        g_assert(! private_allocator->recycler_head);
+        g_assert_true(! private_allocator->master_head);
+        g_assert_true(! private_allocator->recycler_head);
         return;
     }
 
@@ -339,16 +339,16 @@ wmem_block_verify(wmem_allocator_t *allocator)
     recycler_free = wmem_block_verify_recycler(private_allocator);
 
     cur = private_allocator->block_list;
-    g_assert(cur->prev == NULL);
+    g_assert_true(cur->prev == NULL);
     while (cur) {
         if (cur->next) {
-            g_assert(cur->next->prev == cur);
+            g_assert_true(cur->next->prev == cur);
         }
         chunk_free += wmem_block_verify_block(cur);
         cur = cur->next;
     }
 
-    g_assert(chunk_free == master_free + recycler_free);
+    g_assert_true(chunk_free == master_free + recycler_free);
 }
 
 /* MASTER/RECYCLER HELPERS */

@@ -59,10 +59,10 @@ wmem_strict_block_check_canaries(wmem_strict_allocator_block_t *block)
     guint8 *canary;
 
     canary = WMEM_BLOCK_TO_PRE_CANARY(block);
-    for (i=0; i<WMEM_CANARY_SIZE; i++) g_assert(canary[i] == WMEM_CANARY_VALUE);
+    for (i=0; i<WMEM_CANARY_SIZE; i++) g_assert_true(canary[i] == WMEM_CANARY_VALUE);
 
     canary = WMEM_BLOCK_TO_POST_CANARY(block);
-    for (i=0; i<WMEM_CANARY_SIZE; i++) g_assert(canary[i] == WMEM_CANARY_VALUE);
+    for (i=0; i<WMEM_CANARY_SIZE; i++) g_assert_true(canary[i] == WMEM_CANARY_VALUE);
 }
 
 /*
