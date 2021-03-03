@@ -280,11 +280,16 @@ struct netxrayrec_1_x_hdr {
  *
  *	xxx[0]: ATM traffic type and subtype in the low 3 bits of
  *	each nibble, and flags(?) in the upper bit of each nibble.
+ *	Always 0 for 802.11?
+ *
+ *	xxx[1]: Always 0 for 802.11?
  *
  *	xxx[2], xxx[3]: for Ethernet, 802.11, ISDN LAPD, LAPB,
  *	Frame Relay, if both are 0xff, there are 4 bytes of stuff
  *	at the end of the packet data, which might be an FCS or
  *	which might be junk to discard.
+ *
+ *	xxx[4-7]: Always 0 for 802.11?
  *
  *	xxx[8], xxx[9]: 2 bytes of a flag word?  If treated as
  *	a 2-byte little-endian flag word:
@@ -293,11 +298,12 @@ struct netxrayrec_1_x_hdr {
  *		    in one ISDN capture it's set in some B2 channel
  *		    packets of unknown content (as opposed to the B1
  *		    traffic in the capture, which is PPP)
+ *              0x0002: Seen in 802.11 - short preamble?  Bad CRC?
  *		0x0004: Some particular type of error?
  *		0x0008: For (Gigabit?) Ethernet (with special probe?),
  *		    4 bytes at end are junk rather than CRC?
  *		0x0100: CRC error on ATM?  Protected and Not decrypted
- *		    for 802.11?
+ *		    for 802.11?  Bad CRC?  Short preamble?
  *		0x0200: Something for ATM? Something else for 802.11?
  *		0x0400: raw ATM cell
  *		0x0800: OAM cell?
@@ -346,18 +352,30 @@ struct netxrayrec_1_x_hdr {
  *	The field appears to be somewhat random in some captures,
  *	however.
  *
+ *	xxx[10]: for 802.11, always 0?
+ *
  *	xxx[11]: for 802.11, 0x05 if the packet is WEP-encrypted(?).
  *
  *	xxx[12]: for 802.11, channel number.
  *
- *	xxx[13]: for 802.11, data rate.
+ *	xxx[13]: for 802.11, data rate, in 500 Kb/s units.
  *
  *	xxx[14]: for 802.11, signal strength.
  *
  *	xxx[15]: for 802.11, noise level; 0xFF means none reported,
  *	    0x7F means 100%.
  *
+ *	xxx[16-19]: for 802.11, PHY header, at least for {HR/}DSSS,
+ *	            in at least one capture.
+ *	            In another capture, xxx[16] appears to be the
+ *	            data rate in 500 Kb/s units
+ *	            Chip-dependent stuff?
+ *
  *	xxx[20-25]: for 802.11, MAC address of sending machine(?).
+ *
+ *	xxx[26]: for 802.11, one of 0x00, 0x01, 0x03, or 0x0b?
+ *
+ *	xxx[27]: for 802.11, one of 0x00 or 0x30?
  */
 struct netxrayrec_2_x_hdr {
 	guint32	timelo;		/* lower 32 bits of time stamp */
