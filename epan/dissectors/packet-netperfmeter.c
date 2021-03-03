@@ -456,7 +456,7 @@ heur_dissect_npmp(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree, v
       /* Identify NetPerfMeter flow by payload pattern */
       for(int i = 0; i < 8; i++) {
         guint8 d = tvb_get_guint8(message_tvb, offset_data_payload + i);
-        if(d != 30 + i)
+        if( (d != 30 + i) && (d != 127 - i) )
           return FALSE;
       }
       break;
