@@ -304,7 +304,8 @@ dot11decrypt_derive_pmk_r0(const guint8 *xxkey, size_t xxkey_len,
     offset += ft_r0n_len;
     memcpy(context + offset, r0_key_data + q, 16);
     offset += 16;
-    sha256(context, offset, sha256_res);
+    if(!sha256(context, offset, sha256_res))
+        return FALSE;
     memcpy(pmk_r0_name, sha256_res, 16);
     return TRUE;
 }
@@ -353,7 +354,8 @@ dot11decrypt_derive_pmk_r1(const guint8 *pmk_r0, size_t pmk_r0_len,
     offset += DOT11DECRYPT_MAC_LEN;
     memcpy(context + offset, s1kh_id, DOT11DECRYPT_MAC_LEN);
     offset += DOT11DECRYPT_MAC_LEN;
-    sha256(context, offset, sha256_res);
+    if(!sha256(context, offset, sha256_res))
+        return FALSE;
     memcpy(pmk_r1_name, sha256_res, 16);
     return TRUE;
 }

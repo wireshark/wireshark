@@ -757,6 +757,8 @@ static if_filter_opt_t if_filter_dup(if_filter_opt_t* filter_src)
 {
     if_filter_opt_t filter_dest;
 
+    memset(&filter_dest, 0, sizeof(filter_dest));
+
     /* Deep copy. */
     filter_dest.type = filter_src->type;
     switch (filter_src->type) {
