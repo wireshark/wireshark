@@ -689,6 +689,20 @@ static value_string_ext tag_num_vals_ext = VALUE_STRING_EXT_INIT(ie_tag_num_vals
 #define ETAG_REJECTED_GROUPS                   92
 #define ETAG_ANTI_CLOGGING_TOKEN               93
 
+/* 802.11az */
+#define ETAG_SECURE_LTF_PARAMETERS                      94
+#define ETAG_ISTA_PASSIVE_TB_RANGING_MEASUREMENT_REPORT 95
+#define ETAG_RSTA_PASSIVE_TB_RANGING_MEASUREMENT_REPORT 96
+#define ETAG_PASSIVE_TB_RANGING_LCI_TABLE_ELEMENT       97
+#define ETAG_ISTA_AVAILABILITY_WINDOW                   98
+#define ETAG_RSTA_AVAILABILITY_WINDOW                   99
+#define ETAG_PASN_PARAMETERS                            100
+#define ETAG_RANGING_PARAMETERS                         101
+#define ETAG_DIRECTION_MEASUREMENT_RESULTS              102
+#define ETAG_MULTIPLE_AOD_FEEDBACK                      103
+#define ETAG_MULTIPLE_BEST_AWV_ID                       104
+#define ETAG_LOS_LIKELIHOOD                             105
+
 static const value_string tag_num_vals_eid_ext[] = {
   { ETAG_ASSOC_DELAY_INFO,                    "Association Delay Info" },
   { ETAG_FILS_REQ_PARAMS,                     "FILS Request Parameters" },
@@ -726,6 +740,19 @@ static const value_string tag_num_vals_eid_ext[] = {
   { ETAG_TCLAS_MASK,                          "TCLAS Mask" },
   { ETAG_REJECTED_GROUPS,                     "Rejected Groups" },
   { ETAG_ANTI_CLOGGING_TOKEN,                 "Anti-Clogging Token Container" },
+  /* 802.11az */
+  { ETAG_SECURE_LTF_PARAMETERS,               "Secure LTF Parameters" },
+  { ETAG_ISTA_PASSIVE_TB_RANGING_MEASUREMENT_REPORT, "ISTA Passive TB Ranging Measurement Report" },
+  { ETAG_RSTA_PASSIVE_TB_RANGING_MEASUREMENT_REPORT, "RSTA Passive TB Ranging Measurement Report" },
+  { ETAG_PASSIVE_TB_RANGING_LCI_TABLE_ELEMENT, "Passive TB Ranging LCI Table element" },
+  { ETAG_ISTA_AVAILABILITY_WINDOW,            "ISTA Availability Window" },
+  { ETAG_RSTA_AVAILABILITY_WINDOW,            "RSTA Availability Window" },
+  { ETAG_PASN_PARAMETERS,                     "PASN Parameters" },
+  { ETAG_RANGING_PARAMETERS,                  "Ranging Parameters" },
+  { ETAG_DIRECTION_MEASUREMENT_RESULTS,       "Direction Measurement Results" },
+  { ETAG_MULTIPLE_AOD_FEEDBACK,               "Multiple AOD Feedback" },
+  { ETAG_MULTIPLE_BEST_AWV_ID,                "Multiple Best AWV ID" },
+  { ETAG_LOS_LIKELIHOOD,                      "LOS Likelihood" },
   { 0, NULL }
 };
 static value_string_ext tag_num_vals_eid_ext_ext = VALUE_STRING_EXT_INIT(tag_num_vals_eid_ext);
@@ -1188,8 +1215,15 @@ static value_string_ext aruba_mgt_typevals_ext = VALUE_STRING_EXT_INIT(aruba_mgt
 #define CAT_FLOW_CONTROL          24
 #define CAT_CONTROL_RESPONSE_MCS_NEG 25
 #define CAT_FILS                  26
+/* aj */
+#define CAT_CDMG                  27
+#define CAT_CMMG                  28
+/* ak */
+#define CAT_GLK                   29
+
 #define CAT_HE                    30
 #define CAT_PROTECTED_HE          31
+#define CAT_PROTECTED_FTM         34
 #define CAT_VENDOR_SPECIFIC_PROTECTED 126
 #define CAT_VENDOR_SPECIFIC     127
 
@@ -1267,6 +1301,26 @@ static value_string_ext aruba_mgt_typevals_ext = VALUE_STRING_EXT_INIT(aruba_mgt
 #define PA_FTM_REQUEST                     32
 #define PA_FTM_RESPONSE                    33
 #define PA_FILS_DISCOVERY                  34
+/* 802.11aj */
+#define PA_DCS_MEASUREMENT_REQUEST               35
+#define PA_DCS_MEASUREMENT_REPORT                36
+#define PA_DCS_REQUEST                           37
+#define PA_DCS_RESPONSE                          38
+#define PA_EXTENDED_NOTIFICATION_PERIOD_REQUEST  39
+#define PA_EXTENDED_NOTIFICATION_PERIOD_RESPONSE 40
+#define PA_EXTENDED_CHANNEL_SPLITTING_REQUEST    41
+#define PA_EXTENDED_CHANNEL_SPLITTING_RESPONSE   42
+/* 802.11aq */
+#define PA_GROUP_ADDRESSED_GAS_REQUEST     43
+#define PA_GROUP_ADDRESSED_GAS_RESPONSE    44
+/* Unknown */
+#define PA_ON_CHANNEL_TUNNEL_REQUEST       45
+#define PA_VALUE_46                        46
+/* 802.11az */
+#define PA_LOCATION_MEASUREMENT_REPORT                                      47
+#define PA_ISTA_PASSIVE_TB_RANGING_MEASUREMENT_REPORT                       48
+#define PA_PRIMARY_RSTA_BROADCAST_PASSIVE_TB_RANGING_MEASUREMENT_REPORT     49
+#define PA_SECONDARY_RSTA_BROADCAST_PASSIVE_TB_RANGING_MEASUREMENT_REPORT   50
 
 /* Keep in sync with PA_* defines */
 #define PPA_DSE_ENABLEMENT                   1
@@ -2156,6 +2210,10 @@ static const value_string ff_pa_action_codes[] = {
   {PA_FTM_REQUEST,                     "FTM Request"},
   {PA_FTM_RESPONSE,                    "FTM Response"},
   {PA_FILS_DISCOVERY,                  "FILS Discovery"},
+  {PA_LOCATION_MEASUREMENT_REPORT,                                      "Location Measurement Report"},
+  {PA_ISTA_PASSIVE_TB_RANGING_MEASUREMENT_REPORT,                       "ISTA Passive TB Ranging Measurement Report"},
+  {PA_PRIMARY_RSTA_BROADCAST_PASSIVE_TB_RANGING_MEASUREMENT_REPORT,     "Primary RSTA Broadcast Passive TB Ranging Measurement Report"},
+  {PA_SECONDARY_RSTA_BROADCAST_PASSIVE_TB_RANGING_MEASUREMENT_REPORT,   "Secondary RSTA Broadcast Passive TB Ranging Measurement Report"},
   {0x00, NULL}
 };
 value_string_ext ff_pa_action_codes_ext = VALUE_STRING_EXT_INIT(ff_pa_action_codes);
@@ -2190,6 +2248,7 @@ static const value_string category_codes[] = {
   {CAT_FILS,                             "FILS"},
   {CAT_HE,                               "HE"},
   {CAT_PROTECTED_HE,                     "Protected HE"},
+  {CAT_PROTECTED_FTM,                    "Protected FTM"},
   {CAT_VENDOR_SPECIFIC_PROTECTED,        "Vendor-specific Protected"},
   {CAT_VENDOR_SPECIFIC,                  "Vendor Specific"},
 
@@ -2217,6 +2276,7 @@ static const value_string category_codes[] = {
   {0x80 | CAT_VHT,                       "VHT (error)"},
   {0x80 | CAT_HE,                        "HE (error)"},
   {0x80 | CAT_PROTECTED_HE,              "Protected HE (error)"},
+  {0x80 | CAT_PROTECTED_FTM,             "Protected FTM (error)"},
   {0x80 | CAT_VENDOR_SPECIFIC_PROTECTED, "Vendor-specific Protected (error)"},
   {0x80 | CAT_VENDOR_SPECIFIC,           "Vendor Specific (error)"},
   {0, NULL}
