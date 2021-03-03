@@ -54,7 +54,7 @@ _inet_pton(int af, const gchar *src, gpointer dst)
             g_critical("ws_inet_pton6: EAFNOSUPPORT");
         }
         else {
-            g_assert(0);
+            g_assert_not_reached();
         }
         errno = EAFNOSUPPORT;
     }
