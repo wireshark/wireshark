@@ -368,7 +368,7 @@ dissect_npmp_stop_message(tvbuff_t *message_tvb, proto_tree *message_tree)
 static void
 dissect_npmp_results_message(tvbuff_t *message_tvb, proto_tree *message_tree)
 {
-  const guint16 message_length = tvb_get_guint8(message_tvb, offset_message_length);
+  const guint16 message_length = tvb_get_ntohs(message_tvb, offset_message_length);
   if (message_length > offset_results_data) {
     proto_tree_add_item(message_tree, hf_results_data, message_tvb, offset_results_data, message_length - offset_results_data, ENC_NA);
   }
