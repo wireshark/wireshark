@@ -144,12 +144,15 @@ typedef struct _bitmap_info_t {
 #define BMP_T3_DAT        0x24
 #define BMP_RES_CODE      0x27
 #define BMP_TID           0x29
+#define BMP_VU_NUMBER     0x2A
 #define BMP_T1_DAT        0x2D
 #define BMP_CVV_CVC       0x3A
+#define BMP_AID           0x3B
 #define BMP_ADD_DATA      0x3C
 #define BMP_CC            0x49
 #define BMP_RCPT_NUM      0x87
 #define BMP_CARD_TYPE     0x8A
+#define BMP_CARD_NAME     0x8B
 
 #define BMP_PLD_LEN_UNKNOWN 0  /* unknown/variable bitmap payload len */
 
@@ -169,6 +172,16 @@ static inline gint dissect_zvt_date(
         tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree);
 static inline gint dissect_zvt_card_type(
         tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree);
+static inline gint dissect_zvt_trace_number(
+        tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree);
+static inline gint dissect_zvt_expiry_date(
+        tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree);
+static inline gint dissect_zvt_card_number(
+        tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree);
+static inline gint dissect_zvt_card_name(
+        tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree);
+static inline gint dissect_zvt_additional_data(
+        tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree);
 
 static const bitmap_info_t bitmap_info[] = {
     { BMP_TIMEOUT,                         1, NULL },
@@ -177,23 +190,26 @@ static const bitmap_info_t bitmap_info[] = {
     { BMP_AMOUNT,                          6, dissect_zvt_amount },
     { BMP_PUMP_NR,                         1, NULL },
     { BMP_TLV_CONTAINER, BMP_PLD_LEN_UNKNOWN, dissect_zvt_tlv_container },
-    { BMP_TRACE_NUM,                       3, NULL },
+    { BMP_TRACE_NUM,                       3, dissect_zvt_trace_number },
     { BMP_TIME,                            3, dissect_zvt_time },
     { BMP_DATE,                            2, dissect_zvt_date },
-    { BMP_EXP_DATE,                        2, NULL },
+    { BMP_EXP_DATE,                        2, dissect_zvt_expiry_date },
     { BMP_CARD_SEQ_NUM,                    2, NULL },
     { BMP_PAYMENT_TYPE,                    1, NULL },
-    { BMP_CARD_NUM,      BMP_PLD_LEN_UNKNOWN, NULL },
+    { BMP_CARD_NUM,      BMP_PLD_LEN_UNKNOWN, dissect_zvt_card_number },
     { BMP_T2_DAT,        BMP_PLD_LEN_UNKNOWN, NULL },
     { BMP_T3_DAT,        BMP_PLD_LEN_UNKNOWN, NULL },
     { BMP_RES_CODE,                        1, dissect_zvt_res_code },
     { BMP_TID,                             4, dissect_zvt_terminal_id },
+    { BMP_VU_NUMBER,                      15, NULL },
     { BMP_T1_DAT,        BMP_PLD_LEN_UNKNOWN, NULL },
     { BMP_CVV_CVC,                         2, NULL },
-    { BMP_ADD_DATA,      BMP_PLD_LEN_UNKNOWN, NULL },
+    { BMP_AID,                             8, NULL },
+    { BMP_ADD_DATA,      BMP_PLD_LEN_UNKNOWN, dissect_zvt_additional_data },
     { BMP_CC,                              2, dissect_zvt_cc },
     { BMP_RCPT_NUM,                        2, NULL },
-    { BMP_CARD_TYPE,                       1, dissect_zvt_card_type }
+    { BMP_CARD_TYPE,                       1, dissect_zvt_card_type },
+    { BMP_CARD_NAME,     BMP_PLD_LEN_UNKNOWN, dissect_zvt_card_name }
 };
 
 
@@ -247,6 +263,11 @@ static int hf_zvt_receipt_parameter_print_short_receipt = -1;
 static int hf_zvt_receipt_parameter_no_product_data = -1;
 static int hf_zvt_receipt_parameter_ecr_as_printer = -1;
 static int hf_zvt_receipt_parameter = -1;
+static int hf_zvt_trace_number = -1;
+static int hf_zvt_expiry_date = -1;
+static int hf_zvt_card_number = -1;
+static int hf_zvt_card_name = -1;
+static int hf_zvt_additional_data = -1;
 
 static int * const receipt_parameter_flag_fields[] = {
     &hf_zvt_receipt_parameter_positive_customer,
@@ -329,12 +350,15 @@ static const value_string bitmap[] = {
     { BMP_T3_DAT,        "Track 3 data" },
     { BMP_RES_CODE,      "Result code" },
     { BMP_TID,           "Terminal ID" },
+    { BMP_VU_NUMBER,     "Contract number"},
     { BMP_T1_DAT,        "Track 1 data" },
     { BMP_CVV_CVC,       "CVV / CVC" },
+    { BMP_AID,           "Authorization attribute" },
     { BMP_ADD_DATA,      "Additional data" },
     { BMP_CC,            "Currency code (CC)" },
     { BMP_RCPT_NUM,      "Receipt number" },
     { BMP_CARD_TYPE,     "Card type" },
+    { BMP_CARD_NAME,     "Card name" },
     { 0, NULL }
 };
 static value_string_ext bitmap_ext = VALUE_STRING_EXT_INIT(bitmap);
@@ -358,6 +382,9 @@ static value_string_ext tlv_tag_class_ext = VALUE_STRING_EXT_INIT(tlv_tag_class)
 #define TLV_TAG_SUPPORTED_CHARSETS  0x27
 #define TLV_TAG_PAYMENT_TYPE        0x2F
 #define TLV_TAG_EMV_CFG_PARAM       0x40
+#define TLV_TAG_CARD_TYPE_ID        0x41
+#define TLV_TAG_RECEIPT_PARAMETER   0x45
+#define TLV_TAG_APPLICATION         0x60
 #define TLV_TAG_RECEIPT_PARAM       0x1F04
 #define TLV_TAG_RECEIPT_TYPE        0x1F07
 #define TLV_TAG_CARDHOLDER_AUTH     0x1F10
@@ -422,6 +449,9 @@ static const value_string tlv_tags[] = {
     { TLV_TAG_SUPPORTED_CHARSETS, "List of supported character sets" },
     { TLV_TAG_PAYMENT_TYPE,       "Payment type" },
     { TLV_TAG_EMV_CFG_PARAM,      "EMV config parameter" },
+    { TLV_TAG_CARD_TYPE_ID,       "Card type ID" },
+    { TLV_TAG_RECEIPT_PARAMETER,  "Receipt parameter (EMV)" },
+    { TLV_TAG_APPLICATION,        "Application" },
     { TLV_TAG_RECEIPT_PARAM,      "Receipt parameter" },
     { TLV_TAG_RECEIPT_TYPE,       "Receipt type" },
     { TLV_TAG_CARDHOLDER_AUTH,    "Cardholder authentication" },
@@ -722,6 +752,68 @@ static inline gint dissect_zvt_date(
     fstr[5] = 0;
     proto_tree_add_string(tree, hf_zvt_date, tvb, offset, 2, fstr);
     return 2;
+}
+
+
+static inline gint dissect_zvt_expiry_date(
+        tvbuff_t *tvb, gint offset, packet_info *pinfo _U_, proto_tree *tree)
+{
+    const gchar *str = tvb_bcd_dig_to_wmem_packet_str_be(tvb, offset, 2, NULL, FALSE);
+    gchar  *fstr = (char *)wmem_alloc(wmem_packet_scope(), 6);
+    fstr[0] = str[0];
+    fstr[1] = str[1];
+    fstr[2] = '/';
+    fstr[3] = str[2];
+    fstr[4] = str[3];
+    fstr[5] = 0;
+    proto_tree_add_string(tree, hf_zvt_expiry_date, tvb, offset, 2, fstr);
+    return 2;
+}
+
+
+static inline gint dissect_zvt_trace_number(
+        tvbuff_t *tvb, gint offset, packet_info *pinfo _U_, proto_tree *tree)
+{
+    const gchar *str = tvb_bcd_dig_to_wmem_packet_str_be(tvb, offset, 3, NULL, FALSE);
+    proto_tree_add_string(tree, hf_zvt_trace_number, tvb, offset, 3, str);
+    return 3;
+}
+
+
+static inline gint dissect_zvt_card_number(
+        tvbuff_t *tvb, gint offset, packet_info *pinfo _U_, proto_tree *tree)
+{
+    guint8 tens = tvb_get_guint8(tvb, offset) & 0x0f;
+    guint8 ones = tvb_get_guint8(tvb, offset + 1) & 0x0f;
+    guint8 length = tens * 10 + ones;
+    const gchar *str = tvb_bcd_dig_to_wmem_packet_str_be(tvb, offset + 2, length, NULL, FALSE);
+    proto_tree_add_string(tree, hf_zvt_card_number, tvb, offset + 2, length, str);
+    return 2 + length;
+}
+
+
+static inline gint dissect_zvt_card_name(
+        tvbuff_t *tvb, gint offset, packet_info *pinfo _U_, proto_tree *tree)
+{
+    guint8 tens = tvb_get_guint8(tvb, offset) & 0x0f;
+    guint8 ones = tvb_get_guint8(tvb, offset + 1) & 0x0f;
+    guint8 length = tens * 10 + ones;
+    const guint8 * str = NULL;
+    proto_tree_add_item_ret_string(tree, hf_zvt_card_name, tvb, offset + 2, length, ENC_ASCII, wmem_packet_scope(), &str);
+    return 2 + length;
+}
+
+
+static inline gint dissect_zvt_additional_data(
+        tvbuff_t *tvb, gint offset, packet_info *pinfo _U_, proto_tree *tree)
+{
+    guint8 hundrets = tvb_get_guint8(tvb, offset) & 0x0f;
+    guint8 tens = tvb_get_guint8(tvb, offset + 1) & 0x0f;
+    guint8 ones = tvb_get_guint8(tvb, offset + 2) & 0x0f;
+    guint16 length = hundrets * 100 + tens * 10 + ones;
+    const guint8 * str = NULL;
+    proto_tree_add_item_ret_string(tree, hf_zvt_additional_data, tvb, offset + 3, length, ENC_ASCII, wmem_packet_scope(), &str);
+    return 3 + length;
 }
 
 
@@ -1251,7 +1343,22 @@ proto_register_zvt(void)
                 8, TFS(&tfs_yes_no), 0x01, NULL, HFILL } },
         { &hf_zvt_receipt_parameter,
             { "Receipt parameter", "zvt.tlv.receipt_parameter", FT_UINT8,
-                BASE_HEX, NULL, 0x00, NULL, HFILL } }
+                BASE_HEX, NULL, 0x00, NULL, HFILL } },
+        { &hf_zvt_trace_number,
+            { "Trace number", "zvt.trace_number", FT_STRING,
+                BASE_NONE, NULL, 0, NULL, HFILL } },
+        { &hf_zvt_expiry_date,
+            { "Expiry date", "zvt.expiry_date", FT_STRING,
+                BASE_NONE, NULL, 0, NULL, HFILL } },
+        { &hf_zvt_card_number,
+            { "Card number", "zvt.card_number", FT_STRING,
+                BASE_NONE, NULL, 0, NULL, HFILL } },
+        { &hf_zvt_card_name,
+            { "Card name", "zvt.card_name", FT_STRING,
+                BASE_NONE, NULL, 0, NULL, HFILL } },
+        { &hf_zvt_additional_data,
+            { "Additional data", "zvt.additional_data", FT_STRING,
+                BASE_NONE, NULL, 0, NULL, HFILL } }
     };
 
     static ei_register_info ei[] = {
