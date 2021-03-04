@@ -21,7 +21,7 @@
 
 #include "ui/ws_ui_util.h"
 #include <wsutil/utf8_entities.h>
-#include <wsutil/frequency-utils.h>
+#include <wsutil/802_11-utils.h>
 #include "wireshark_application.h"
 
 #include <QProcess>

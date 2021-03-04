@@ -15,7 +15,7 @@
 
 #include <wiretap/wtap.h>
 
-#include <wsutil/frequency-utils.h>
+#include <wsutil/802_11-utils.h>
 
 void proto_register_netmon_802_11(void);
 void proto_reg_handoff_netmon_802_11(void);

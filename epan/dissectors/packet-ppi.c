@@ -26,7 +26,7 @@
 #include <epan/prefs.h>
 #include <epan/expert.h>
 #include <epan/reassemble.h>
-#include <wsutil/frequency-utils.h>
+#include <wsutil/802_11-utils.h>
 #include <wsutil/pint.h>
 #include <wsutil/str_util.h>
 

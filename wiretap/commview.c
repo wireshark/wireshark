@@ -31,7 +31,7 @@
 #include "file_wrappers.h"
 #include "commview.h"
 
-#include <wsutil/frequency-utils.h>
+#include <wsutil/802_11-utils.h>
 
 typedef struct commview_header {
 	guint16		data_len;

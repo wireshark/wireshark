@@ -12,6 +12,7 @@ add_definitions(-DEXTCAP_DIR=\"${CMAKE_INSTALL_PREFIX}/${EXTCAP_INSTALL_LIBDIR}\
 add_definitions(-DDATA_DIR=\"${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_DATADIR}\")
 
 set(WSUTIL_PUBLIC_HEADERS
+	802_11-utils.h
 	adler32.h
 	base32.h
 	bits_count_ones.h
@@ -36,7 +37,6 @@ set(WSUTIL_PUBLIC_HEADERS
 	eax.h
 	epochs.h
 	filesystem.h
-	frequency-utils.h
 	g711.h
 	inet_addr.h
 	inet_ipv4.h
@@ -75,6 +75,7 @@ set(WSUTIL_PUBLIC_HEADERS
 )
 
 set(WSUTIL_COMMON_FILES
+	802_11-utils.c
 	adler32.c
 	base32.c
 	bitswap.c
@@ -95,7 +96,6 @@ set(WSUTIL_COMMON_FILES
 	dot11decrypt_wep.c
 	eax.c
 	filesystem.c
-	frequency-utils.c
 	g711.c
 	inet_addr.c
 	interface.c

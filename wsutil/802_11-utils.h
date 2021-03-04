@@ -1,5 +1,5 @@
-/* frequency-utils.h
- * Frequency conversion utility definitions
+/* 802_11-utils.h
+ * 802.11 utility definitions
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -8,8 +8,8 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-#ifndef __FREQUENCY_UTILS_H__
-#define __FREQUENCY_UTILS_H__
+#ifndef __802_11_UTILS_H__
+#define __802_11_UTILS_H__
 
 #include "ws_symbol_export.h"
 
@@ -18,7 +18,7 @@ extern "C" {
 #endif /* __cplusplus */
 
 /** @file
- * Frequency and channel conversion utilities.
+ * 802.11 utilities.
  */
 
 /**
@@ -31,7 +31,7 @@ gint
 ieee80211_mhz_to_chan(guint freq);
 
 /**
- * Given a channel number and a band type, return a center frequency.
+ * Given an 802.11 channel number and a band type, return a center frequency.
  * @param chan Channel number
  * @param is_bg TRUE if the channel is a b/g channel, FALSE otherwise.
  * @return The equivalent frequency or 0 if no match is found.
@@ -41,9 +41,11 @@ guint
 ieee80211_chan_to_mhz(gint chan, gboolean is_bg);
 
 /**
- * Given a frequency in MHz, return a string representation.
+ * Given an 802.11 channel center frequency in MHz, return a string
+ * representation.
  * @param freq Frequench in MHz.
- * @return A string showing the frequency, channel number, and type.  The string must be freed with g_free() after use.
+ * @return A string showing the frequency, channel number, and type.
+ * The string must be freed with g_free() after use.
  */
 WS_DLL_PUBLIC
 gchar*
@@ -56,7 +58,7 @@ ieee80211_mhz_to_str(guint freq);
 }
 #endif /* __cplusplus */
 
-#endif /* __FREQUENCY_UTILS_H__ */
+#endif /* __802_11_UTILS_H__ */
 
 /*
  * Editor modelines

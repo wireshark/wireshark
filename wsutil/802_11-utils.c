@@ -1,5 +1,5 @@
-/* frequency-utils.c
- * Frequency conversion utility definitions
+/* 802_11-utils.c
+ * 802.11 utility definitions
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -12,7 +12,7 @@
 
 #include <glib.h>
 
-#include "frequency-utils.h"
+#include "802_11-utils.h"
 
 typedef struct freq_cvt_s {
     guint fmin;         /* Minimum frequency in MHz */

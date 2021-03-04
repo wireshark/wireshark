@@ -25,7 +25,7 @@
 #include "wtap-int.h"
 #include "file_wrappers.h"
 #include "peektagged.h"
-#include <wsutil/frequency-utils.h>
+#include <wsutil/802_11-utils.h>
 
 /* CREDITS
  *
