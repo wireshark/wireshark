@@ -4131,6 +4131,26 @@ static int hf_ieee80211_ff_ftm_param_reserved2 = -1;
 static int hf_ieee80211_ff_ftm_param_format_and_bw = -1;
 static int hf_ieee80211_ff_ftm_param_burst_period = -1;
 
+/* az D3.0 introduces a 1-octet TOD Error field; use a different name to avoid
+ * conflicting with the existing hf_ieee80211_ff_ftm_tod_err (which is 2
+ * octets).
+ */
+static int hf_ieee80211_ff_ftm_tod_err1 = -1;
+static int hf_ieee80211_ff_ftm_max_tod_error_exponent = -1;
+static int hf_ieee80211_ff_ftm_tod_err_reserved = -1;
+static int hf_ieee80211_ff_ftm_tod_not_continuous = -1;
+
+/* Same situation with ...toa_err1 as ...tod_err1 */
+static int hf_ieee80211_ff_ftm_toa_err1 = -1;
+static int hf_ieee80211_ff_ftm_max_toa_error_exponent = -1;
+static int hf_ieee80211_ff_ftm_toa_err_reserved = -1;
+static int hf_ieee80211_ff_ftm_invalid_measurement = -1;
+static int hf_ieee80211_ff_ftm_toa_type = -1;
+
+static int hf_ieee80211_ff_ftm_cfo = -1;
+static int hf_ieee80211_ff_ftm_r2i_ndp_tx_power = -1;
+static int hf_ieee80211_ff_ftm_i2r_ndp_target_rssi = -1;
+
 static int hf_ieee80211_ff_ant_selection = -1;
 static int hf_ieee80211_ff_ant_selection_0 = -1;
 static int hf_ieee80211_ff_ant_selection_1 = -1;
@@ -7152,6 +7172,8 @@ static gint ett_ht_info_delimiter3_tree = -1;
 static gint ett_ff_ftm_param_delim1 = -1;
 static gint ett_ff_ftm_param_delim2 = -1;
 static gint ett_ff_ftm_param_delim3 = -1;
+static gint ett_ff_ftm_tod_err1 = -1;
+static gint ett_ff_ftm_toa_err1 = -1;
 
 static gint ett_tag_measure_request_mode_tree = -1;
 static gint ett_tag_measure_request_type_tree = -1;
@@ -10482,6 +10504,63 @@ add_ff_ftm_toa_err(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int 
   return 2;
 }
 
+static guint
+add_ff_ftm_tod_err1(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int offset)
+{
+  static int * const fields[] = {
+    &hf_ieee80211_ff_ftm_max_tod_error_exponent,
+    &hf_ieee80211_ff_ftm_tod_err_reserved,
+    &hf_ieee80211_ff_ftm_tod_not_continuous,
+    NULL
+  };
+
+  proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_ieee80211_ff_ftm_tod_err1,
+                                    ett_ff_ftm_tod_err1, fields,
+                                    ENC_LITTLE_ENDIAN, BMT_NO_APPEND);
+  return 1;
+}
+
+static guint
+add_ff_ftm_toa_err1(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int offset)
+{
+  static int * const fields[] = {
+    &hf_ieee80211_ff_ftm_max_toa_error_exponent,
+    &hf_ieee80211_ff_ftm_toa_err_reserved,
+    &hf_ieee80211_ff_ftm_invalid_measurement,
+    &hf_ieee80211_ff_ftm_toa_type,
+    NULL
+  };
+
+  proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_ieee80211_ff_ftm_toa_err1,
+                                    ett_ff_ftm_toa_err1, fields,
+                                    ENC_LITTLE_ENDIAN, BMT_NO_APPEND);
+  return 1;
+}
+
+static guint
+add_ff_ftm_cfo_parameter(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int offset)
+{
+  proto_tree_add_item(tree, hf_ieee80211_ff_ftm_cfo, tvb, offset, 2,
+                      ENC_LITTLE_ENDIAN);
+  return 2;
+}
+
+static guint
+add_ff_ftm_r2i_ndp_tx_power(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int offset)
+{
+  proto_tree_add_item(tree, hf_ieee80211_ff_ftm_r2i_ndp_tx_power, tvb, offset, 1,
+                      ENC_LITTLE_ENDIAN);
+  return 1;
+}
+
+static guint
+add_ff_ftm_i2r_ndp_target_rssi(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int offset)
+{
+  proto_tree_add_item(tree, hf_ieee80211_ff_ftm_i2r_ndp_target_rssi, tvb, offset, 1,
+                      ENC_LITTLE_ENDIAN);
+  return 1;
+}
+
 static int
 dissect_ftm_params(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
@@ -10534,6 +10613,8 @@ dissect_ftm_params(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void
 static guint
 add_ff_dialog_token(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int offset)
 {
+  guint8 value = tvb_get_guint8(tvb, offset);
+  col_append_fstr(pinfo->cinfo, COL_INFO, ", Dialog Token=%d", value);
   proto_tree_add_item(tree, hf_ieee80211_ff_dialog_token, tvb, offset, 1,
                       ENC_LITTLE_ENDIAN);
   return 1;
@@ -10941,6 +11022,22 @@ add_ff_ht_information(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, i
                          ett_ff_ht_info, ieee80211_ff_ht_info_fields,
                          ENC_LITTLE_ENDIAN);
   return 1;
+}
+static guint
+add_ff_lmr_report(proto_tree *tree, tvbuff_t *tvb,
+                  packet_info *pinfo _U_, int offset)
+{
+  offset += add_ff_dialog_token(tree, tvb, pinfo, offset);
+  offset += add_ff_ftm_tod(tree, tvb, pinfo, offset);
+  offset += add_ff_ftm_toa(tree, tvb, pinfo, offset);
+  offset += add_ff_ftm_tod_err1(tree, tvb, pinfo, offset);
+  offset += add_ff_ftm_toa_err1(tree, tvb, pinfo, offset);
+  offset += add_ff_ftm_cfo_parameter(tree, tvb, pinfo, offset);
+  offset += add_ff_ftm_r2i_ndp_tx_power(tree, tvb, pinfo, offset);
+  offset += add_ff_ftm_i2r_ndp_target_rssi(tree, tvb, pinfo, offset);
+  /* Secure LTF parameters (optional) */
+  /* AOA feedback (optional) */
+  return offset;
 }
 
 static guint
@@ -11664,6 +11761,10 @@ add_ff_action_public_fields(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
   case PA_FILS_DISCOVERY:
     col_set_str(pinfo->cinfo, COL_INFO, "FILS Discovery");
     offset = add_ff_fils_discovery(tree, tvb, pinfo, offset);
+    break;
+  case PA_LOCATION_MEASUREMENT_REPORT:
+    col_set_str(pinfo->cinfo, COL_INFO, "Location Measurement Report");
+    offset = add_ff_lmr_report(tree, tvb, pinfo, offset);
     break;
   }
 
@@ -36542,6 +36643,59 @@ proto_register_ieee80211(void)
       FT_UINT24, BASE_HEX, 0, 0xFFFF00,
       NULL, HFILL }},
 
+    {&hf_ieee80211_ff_ftm_tod_err1,
+     {"FTM TOD Error", "wlan.fixed.ftm.tod_error",
+      FT_UINT8, BASE_HEX, NULL, 0,
+      "Management action FTM LMR TOD Error", HFILL }},
+
+    {&hf_ieee80211_ff_ftm_max_tod_error_exponent,
+     {"Max TOD Error Exponent", "wlan.fixed.ftm.max_tod_error_exponent",
+      FT_UINT8, BASE_DEC, NULL, GENMASK(4, 0), NULL, HFILL }},
+
+    {&hf_ieee80211_ff_ftm_tod_err_reserved,
+     {"Reserved", "wlan.fixed.ftm.tod_reserved",
+      FT_UINT8, BASE_HEX, NULL, GENMASK(6, 5), NULL, HFILL }},
+
+    {&hf_ieee80211_ff_ftm_tod_not_continuous,
+     {"TOD Not Continuous", "wlan.fixed.ftm.tod_not_continuous",
+      FT_BOOLEAN, 8, NULL, GENMASK(7, 7), NULL, HFILL }},
+
+    {&hf_ieee80211_ff_ftm_toa_err1,
+     {"FTM TOA Error", "wlan.fixed.ftm_toa_err",
+      FT_UINT8, BASE_HEX, NULL, 0,
+      "Management action FTM LMR TOA Error", HFILL }},
+
+    {&hf_ieee80211_ff_ftm_max_toa_error_exponent,
+     {"Max TOA Error Exponent", "wlan.fixed.ftm_max_toa_error_exponent",
+      FT_UINT8, BASE_DEC, NULL, GENMASK(4, 0), NULL, HFILL }},
+
+    {&hf_ieee80211_ff_ftm_toa_err_reserved,
+     {"Reserved", "wlan.fixed.ftm_toa_reserved",
+      FT_UINT8, BASE_HEX, NULL, GENMASK(5, 5), NULL, HFILL }},
+
+    {&hf_ieee80211_ff_ftm_invalid_measurement,
+     {"Invalid Measurement", "wlan.fixed.ftm_invalid_measurement",
+      FT_BOOLEAN, 8, NULL, GENMASK(6, 6), NULL, HFILL }},
+
+    {&hf_ieee80211_ff_ftm_toa_type,
+     {"TOA Type", "wlan.fixed.ftm_toa_type",
+      FT_UINT8, BASE_DEC, NULL, GENMASK(7, 7), NULL, HFILL }},
+
+    {&hf_ieee80211_ff_ftm_cfo,
+     {"CFO", "wlan.fixed.ftm.param.cfo",
+      FT_UINT16, BASE_HEX, 0, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_ff_ftm_r2i_ndp_tx_power,
+     {"R2I NDP Tx Power", "wlan.fixed.ftm.param.r2i_ndp_tx_power",
+      FT_UINT8, BASE_DEC, 0, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_ff_ftm_i2r_ndp_target_rssi,
+     {"I2R NDP Target RSSI", "wlan.fixed.ftm.param.i2r_ndp_target_rssi",
+      FT_UINT8, BASE_DEC, 0, 0,
+      NULL, HFILL }},
+
     {&hf_ieee80211_ff_psmp_sta_info,
      {"Power Save Multi-Poll (PSMP) Station Information", "wlan.fixed.psmp.stainfo",
       FT_UINT64, BASE_HEX, 0, 0,
@@ -47716,6 +47870,8 @@ proto_register_ieee80211(void)
     &ett_ff_ftm_param_delim1,
     &ett_ff_ftm_param_delim2,
     &ett_ff_ftm_param_delim3,
+    &ett_ff_ftm_tod_err1,
+    &ett_ff_ftm_toa_err1,
 
     &ett_tag_measure_request_mode_tree,
     &ett_tag_measure_request_type_tree,
