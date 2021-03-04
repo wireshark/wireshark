@@ -400,7 +400,7 @@ WSLUA_METAMETHOD FieldInfo__le(lua_State* L) {
     if (l->ws_fi->ds_tvb != r->ws_fi->ds_tvb)
         WSLUA_ERROR(FieldInfo__le,"Data source must be the same for both fields");
 
-    if (r->ws_fi->start + r->ws_fi->length <= l->ws_fi->start + l->ws_fi->length) {
+    if (l->ws_fi->start + l->ws_fi->length <= r->ws_fi->start + r->ws_fi->length) {
         lua_pushboolean(L,1);
     } else {
         lua_pushboolean(L,0);
@@ -409,7 +409,7 @@ WSLUA_METAMETHOD FieldInfo__le(lua_State* L) {
 }
 
 WSLUA_METAMETHOD FieldInfo__lt(lua_State* L) {
-    /* Checks whether the end byte of rhs is before the beginning of rhs. */
+    /* Checks whether the end byte of lhs is before the beginning of rhs. */
     FieldInfo l = checkFieldInfo(L,1);
     FieldInfo r = checkFieldInfo(L,2);
 
@@ -418,7 +418,7 @@ WSLUA_METAMETHOD FieldInfo__lt(lua_State* L) {
         return 0;
     }
 
-    if (r->ws_fi->start + r->ws_fi->length < l->ws_fi->start) {
+    if (l->ws_fi->start + l->ws_fi->length <= r->ws_fi->start) {
         lua_pushboolean(L,1);
     } else {
         lua_pushboolean(L,0);
