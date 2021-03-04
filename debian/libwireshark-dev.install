@@ -1,6 +1,5 @@
 usr/lib/*/libwireshark.so
 usr/lib/*/pkgconfig/wireshark.pc
-obj-*/config.h usr/include/wireshark
 epan/register.h usr/include/wireshark
 epan/stat_groups.h usr/include/wireshark
 epan/*.h usr/include/wireshark/epan
