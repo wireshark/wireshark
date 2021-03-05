@@ -6874,7 +6874,7 @@ dissect_cip_cm_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_
             p_remove_proto_data(wmem_file_scope(), pinfo, proto_cip, 0);
             p_add_proto_data(wmem_file_scope(), pinfo, proto_cip, 0, pembedded_req_info );
 
-            proto_tree_add_uint_format( item_tree, hf_cip_cm_sc, tvb, 0, 0, SC_CM_UNCON_SEND|CIP_SC_RESPONSE_MASK, "(Service: Unconnected Send (Response))" );
+            proto_item_set_generated(proto_tree_add_uint_format( item_tree, hf_cip_cm_sc, tvb, 0, 0, SC_CM_UNCON_SEND|CIP_SC_RESPONSE_MASK, "Service: Unconnected Send (Response)" ));
             next_tvb = tvb_new_subset_length(tvb, offset, item_length);
 
             display_previous_request_path(pembedded_req_info, item_tree, tvb, pinfo, NULL, FALSE);
