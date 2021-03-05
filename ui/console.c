@@ -24,11 +24,6 @@ static void
 console_log_handler(const char *log_domain, GLogLevelFlags log_level,
                     const char *message, gpointer user_data _U_)
 {
-    time_t curr;
-    struct tm *today;
-    const char *level;
-    FILE *stream = stderr;
-
     /* ignore log message, if log_level isn't interesting based
        upon the console log preferences.
        If the preferences haven't been loaded loaded yet, display the
@@ -43,11 +38,15 @@ console_log_handler(const char *log_domain, GLogLevelFlags log_level,
     }
 
 #ifdef _WIN32
+    time_t curr;
+    struct tm *today;
+    const char *level;
+    FILE *stream = stderr;
+
     if (prefs.gui_console_open != console_open_never || log_level & G_LOG_LEVEL_ERROR) {
         /* the user wants a console or the application will terminate immediately */
         create_console();
     }
-#endif
 
     switch(log_level & G_LOG_LEVEL_MASK) {
         case G_LOG_LEVEL_ERROR:
@@ -92,14 +91,16 @@ console_log_handler(const char *log_domain, GLogLevelFlags log_level,
                     level, message);
     }
     fflush(stream);
-#ifdef _WIN32
+
     if(log_level & G_LOG_LEVEL_ERROR) {
         /* wait for a key press before the following error handler will terminate the program
             this way the user at least can read the error message */
         printf("\n\nPress any key to exit\n");
         _getch();
     }
-#endif
+#else /* _WIN32 */
+    g_log_default_handler(log_domain, log_level, message, NULL);
+#endif /* _WIN32 */
 }
 
 void set_console_log_handler(void)
