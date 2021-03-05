@@ -5684,7 +5684,7 @@ void proto_register_radiotap(void)
 		  FT_UINT40, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
 		{&hf_radiotap_s1g_ndp_cf_end_partial_bssid,
-		 {"Patrtial BSSID (TA)", "radiotap.s1g.ndp.cf_end.partial_bssid",
+		 {"Partial BSSID (TA)", "radiotap.s1g.ndp.cf_end.partial_bssid",
 		  FT_UINT40, BASE_HEX, NULL, 0x0000001FF0, NULL, HFILL }},
 
 		{&hf_radiotap_s1g_ndp_cf_end_duration_1m,
