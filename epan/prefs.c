@@ -2445,11 +2445,20 @@ console_log_level_set_cb(pref_t* pref, const gchar* value, unsigned int* changed
     }
 
     if (*pref->varp.uint & (G_LOG_LEVEL_INFO|G_LOG_LEVEL_DEBUG)) {
-      /*
-       * GLib >= 2.32 drops INFO and DEBUG messages by default. Tell
-       * it not to do that.
-       */
-       g_setenv("G_MESSAGES_DEBUG", "all", TRUE);
+        /*
+         * GLib drops INFO and DEBUG messages by default. If the user
+         * hasn't set G_MESSAGES_DEBUG, possibly to a specific set of
+         * domains, tell it not to do that.
+         */
+        const char *s = g_getenv("G_MESSAGES_DEBUG");
+        if(s != NULL) {
+            g_message("prefs: Skip overwriting environment variable "
+                        "G_MESSAGES_DEBUG=\"%s\"", s);
+        }
+        else {
+            g_info("prefs: Set environment variable G_MESSAGES_DEBUG=\"all\"");
+            g_setenv("G_MESSAGES_DEBUG", "all", FALSE);
+        }
     }
 
     return PREFS_SET_OK;
