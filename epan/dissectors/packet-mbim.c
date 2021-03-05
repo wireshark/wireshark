@@ -1733,7 +1733,7 @@ static const value_string mbim_ms_mico_mode_vals[] = {
     { 0, "Disabled"},
     { 1, "Enabled"},
     { 2, "Unsupported"},
-    { 1, "Default"},
+    { 3, "Default"},
     { 0, NULL}
 };
 
