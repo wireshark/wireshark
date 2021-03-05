@@ -395,7 +395,7 @@ static const value_string dataratepacketsizepreference_vals[] = {
     { 0x00, "no packet size preference" },
     { 0x01, "use 1-slot packets" },
     { 0x02, "use 3-slot packets" },
-    { 0x02, "use 5-slot packets" },
+    { 0x03, "use 5-slot packets" },
     { 0x00, NULL }
 };
 
