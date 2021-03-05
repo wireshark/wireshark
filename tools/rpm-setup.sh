@@ -264,5 +264,5 @@ fi
 
 if [ $RPMDEPS -eq 0 ]
 then
-	printf "\n*** RPM packages build deps not installed. Rerun with --install-deb-deps to have them.\n"
+	printf "\n*** RPM packages build deps not installed. Rerun with --install-rpm-deps to have them.\n"
 fi
