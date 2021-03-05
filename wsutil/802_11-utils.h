@@ -52,7 +52,48 @@ gchar*
 ieee80211_mhz_to_str(guint freq);
 
 /* Should this be "(freq < 4920)", or something else? */
-#define FREQ_IS_BG(freq) (freq <= 2484)
+#define FREQ_IS_BG(freq) ((freq) <= 2484)
+#define CHAN_IS_BG(chan) ((chan) <= 14)
+
+/*
+ * Test whether a data rate is an {HR}/DSSS (legacy DSSS/11b) data rate
+ * and whether it's an OFDM (11a/11g OFDM mode) data rate.
+ *
+ * rate is in units of 500 Kb/s.
+ *
+ * The 22 and 33 Mb/s rates for DSSS use Packet Binary Convolutional
+ * Coding (PBCC).  That was provided by Texas Instruments as 11b+,
+ * and was in section 19.6 "ERP-PBCC operation specifications" of
+ * IEEE Std 802.11g-2003, and sections 18.4.6.6 "DSSS/PBCC data modulation
+ * and modulation rate (optional)" and 19.6 "ERP-PBCC operation
+ * specifications" of IEEE Std 802.11-2007, and sections 17.4.6.7 "DSSS/PBCC
+ * data modulation and modulation rate (optional)" and 19.6 "ERP-PBCC
+ * operation specifications" of IEEE Std 802.11-2012, marked as optional
+ * in both cases, but is not present in IEEE Std 802.11-2016.
+ *
+ * (Note: not to be confused with "peanut butter and chocolate chips":
+ *
+ *    https://www.bigoven.com/recipe/peanut-butter-chocolate-chip-cookies-pbcc-cookies/186266
+ *
+ * :-))
+ */
+#define RATE_IS_DSSS(rate) \
+    ((rate) == 2 /* 1 Mb/s */ || \
+     (rate) == 4 /* 2 Mb/s */ || \
+     (rate) == 11 /* 5.5 Mb/s */ || \
+     (rate) == 22 /* 11 Mb/s */ || \
+     (rate) == 44 /* 22 Mb/s */ || \
+     (rate) == 66 /* 33 Mb/s */)
+
+#define RATE_IS_OFDM(rate) \
+    ((rate) == 12 /* 6 Mb/s */ || \
+     (rate) == 18 /* 9 Mb/s */ || \
+     (rate) == 24 /* 12 Mb/s */ || \
+     (rate) == 36 /* 18 Mb/s */ || \
+     (rate) == 48 /* 24 Mb/s */ || \
+     (rate) == 72 /* 36 Mb/s */ || \
+     (rate) == 96 /* 48 Mb/s */ || \
+     (rate) == 108 /* 54 Mb/s */)
 
 #ifdef __cplusplus
 }
