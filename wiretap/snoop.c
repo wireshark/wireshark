@@ -418,6 +418,28 @@ wtap_open_return_val snoop_open(wtap *wth, int *err, gchar **err_info)
 	return WTAP_OPEN_MINE;
 }
 
+/*
+ * XXX - pad[3] is the length of the header, not including
+ * the length of the pad field; is it a 1-byte field, a 2-byte
+ * field with pad[2] usually being 0, a 3-byte field with
+ * pad[1] and pad[2] usually being 0, or a 4-byte field?
+ *
+ * If it's not a 4-byte field, is there anything significant
+ * in the other bytes?
+ *
+ * Can the header length ever be less than 8, so that not
+ * all the fields following pad are present?
+ *
+ * What's in undecrypt?  In captures I've seen, undecrypt[0]
+ * is usually 0x00 but sometimes 0x02 or 0x06, and undecrypt[1]
+ * is either 0x00 or 0x02.
+ *
+ * What's in preamble?  In captures I've seen, it's 0x00.
+ *
+ * What's in code?  In captures I've seen, it's 0x01 or 0x03.
+ *
+ * If the header is longer than 8 bytes, what are the other fields?
+ */
 typedef struct {
 	guint8 pad[4];
 	guint8 undecrypt[2];
@@ -722,12 +744,6 @@ snoop_read_shomiti_wireless_pseudoheader(FILE_T fh,
 	 * XXX - presumably that means that the header length
 	 * doesn't include the length field, as we've read
 	 * 12 bytes total.
-	 *
-	 * XXX - what's in the other 3 bytes of the padding?  Is it a
-	 * 4-byte length field?
-	 * XXX - is there anything in the rest of the header of interest?
-	 * XXX - are there any files where the header is shorter than
-	 * 4 bytes of length plus 8 bytes of information?
 	 */
 	if (whdr.pad[3] < 8) {
 		*err = WTAP_ERR_BAD_FILE;
