@@ -403,7 +403,7 @@ void ManageInterfacesDialog::updateRemoteInterfaceList(GList* rlist, remote_opti
             auth_str = g_strdup_printf("%s:%s", roptions->remote_host_opts.auth_username,
                                        roptions->remote_host_opts.auth_password);
         }
-        caps = capture_get_if_capabilities(if_string, monitor_mode, auth_str, NULL, main_window_update);
+        caps = capture_get_if_capabilities(if_string, monitor_mode, auth_str, NULL, NULL, main_window_update);
         g_free(auth_str);
         for (; (curr_addr = g_slist_nth(if_info->addrs, ips)) != NULL; ips++) {
             address addr_str;

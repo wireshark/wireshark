@@ -727,7 +727,7 @@ main(int argc, char *argv[])
   int                  caps_queries = 0;
   gboolean             start_capture = FALSE;
   GList               *if_list;
-  gchar               *err_str;
+  gchar               *err_str, *err_str_secondary;
   struct bpf_program   fcode;
 #else
   gboolean             capture_option_specified = FALSE;
@@ -2200,11 +2200,13 @@ main(int argc, char *argv[])
               auth_str = g_strdup_printf("%s:%s", interface_opts->auth_username, interface_opts->auth_password);
           }
 #endif
-          caps = capture_get_if_capabilities(interface_opts->name, interface_opts->monitor_mode, auth_str, &err_str, NULL);
+          caps = capture_get_if_capabilities(interface_opts->name, interface_opts->monitor_mode,
+                                              auth_str, &err_str, &err_str_secondary, NULL);
           g_free(auth_str);
           if (caps == NULL) {
-            cmdarg_err("%s", err_str);
+            cmdarg_err("%s%s%s", err_str, err_str_secondary ? "\n" : "", err_str_secondary ? err_str_secondary : "");
             g_free(err_str);
+            g_free(err_str_secondary);
             exit_status = INVALID_CAPABILITY;
             goto clean_exit;
           }

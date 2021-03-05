@@ -449,7 +449,7 @@ int main(int argc, char *qt_argv[])
     char                *rf_path;
     int                  rf_open_errno;
 #ifdef HAVE_LIBPCAP
-    gchar               *err_str;
+    gchar               *err_str, *err_str_secondary;;
 #else
 #ifdef _WIN32
 #ifdef HAVE_AIRPCAP
@@ -854,13 +854,14 @@ int main(int argc, char *qt_argv[])
             device = &g_array_index(global_capture_opts.all_ifaces, interface_t, i);
             if (device->selected) {
 #if defined(HAVE_PCAP_CREATE)
-                caps = capture_get_if_capabilities(device->name, device->monitor_mode_supported, NULL, &err_str, main_window_update);
+                caps = capture_get_if_capabilities(device->name, device->monitor_mode_supported, NULL, &err_str, &err_str_secondary, main_window_update);
 #else
-                caps = capture_get_if_capabilities(device->name, FALSE, NULL, &err_str,main_window_update);
+                caps = capture_get_if_capabilities(device->name, FALSE, NULL, &err_str, &err_str_secondary, main_window_update);
 #endif
                 if (caps == NULL) {
-                    cmdarg_err("%s", err_str);
+                    cmdarg_err("%s%s%s", err_str, err_str_secondary ? "\n" : "", err_str_secondary ? err_str_secondary : "");
                     g_free(err_str);
+                    g_free(err_str_secondary);
                     ret_val = INVALID_CAPABILITY;
                     goto clean_exit;
                 }

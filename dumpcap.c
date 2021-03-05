@@ -5447,9 +5447,20 @@ main(int argc, char *argv[])
 
             caps = get_if_capabilities(interface_opts, &err, &err_str);
             if (caps == NULL) {
-                cmdarg_err("The capabilities of the capture device \"%s\" could not be obtained (%s).\n"
-                           "%s", interface_opts->name, err_str,
-                           get_pcap_failure_secondary_error_message(err, err_str));
+                if (capture_child) {
+                    char *error_msg = g_strdup_printf("The capabilities of the capture device"
+                                                " \"%s\" could not be obtained (%s)",
+                                                interface_opts->name, err_str);
+                    sync_pipe_errmsg_to_parent(2, error_msg,
+                            get_pcap_failure_secondary_error_message(err, err_str));
+                    g_free(error_msg);
+                }
+                else {
+                    cmdarg_err("The capabilities of the capture device"
+                                "\"%s\" could not be obtained (%s).\n%s",
+                                interface_opts->name, err_str,
+                                get_pcap_failure_secondary_error_message(err, err_str));
+                }
                 g_free(err_str);
                 exit_main(2);
             }

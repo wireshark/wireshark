@@ -196,7 +196,8 @@ capture_interface_list(int *err, char **err_str, void (*update_cb)(void))
 if_capabilities_t *
 capture_get_if_capabilities(const gchar *ifname, gboolean monitor_mode,
                             const gchar *auth_string,
-                            char **err_str, void (*update_cb)(void))
+                            char **err_primary_msg, char **err_secondary_msg,
+                            void (*update_cb)(void))
 {
     if_capabilities_t *caps;
     GList              *linktype_list = NULL, *timestamp_list = NULL;
@@ -207,27 +208,28 @@ capture_get_if_capabilities(const gchar *ifname, gboolean monitor_mode,
     g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_MESSAGE, "Capture Interface Capabilities ...");
 
     /* see if the interface is from extcap */
-    caps = extcap_get_if_dlts(ifname, err_str);
+    caps = extcap_get_if_dlts(ifname, err_primary_msg);
     if (caps != NULL)
         return caps;
 
     /* return if the extcap interface generated an error */
-    if (err_str != NULL && *err_str != NULL)
+    if (err_primary_msg != NULL && *err_primary_msg != NULL)
         return NULL;
 
     /* Try to get our interface list */
     err = sync_if_capabilities_open(ifname, monitor_mode, auth_string, &data,
                                     &primary_msg, &secondary_msg, update_cb);
     if (err != 0) {
-        g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_MESSAGE, "Capture Interface Capabilities failed. Error %d, %s (%s)",
-              err, primary_msg ? primary_msg : "no message",
-              secondary_msg ? secondary_msg : "no secondary message");
-        if (err_str) {
-            *err_str = primary_msg;
-        } else {
+        g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_MESSAGE, "Capture Interface Capabilities failed. Error %d, %s",
+              err, primary_msg ? primary_msg : "no message");
+        if (err_primary_msg)
+            *err_primary_msg = primary_msg;
+        else
             g_free(primary_msg);
-        }
-        g_free(secondary_msg);
+        if (err_secondary_msg)
+            *err_secondary_msg = secondary_msg;
+        else
+            g_free(secondary_msg);
         return NULL;
     }
 
@@ -244,8 +246,8 @@ capture_get_if_capabilities(const gchar *ifname, gboolean monitor_mode,
      */
     if (raw_list[0] == NULL || *raw_list[0] == '\0') {
         g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_MESSAGE, "Capture Interface Capabilities returned no information.");
-        if (err_str) {
-            *err_str = g_strdup("Dumpcap returned no interface capability information");
+        if (err_primary_msg) {
+            *err_primary_msg = g_strdup("Dumpcap returned no interface capability information");
         }
         g_strfreev(raw_list);
         return NULL;
@@ -267,8 +269,8 @@ capture_get_if_capabilities(const gchar *ifname, gboolean monitor_mode,
 
     default:
         g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_MESSAGE, "Capture Interface Capabilities returned bad information.");
-        if (err_str) {
-            *err_str = g_strdup_printf("Dumpcap returned \"%s\" for monitor-mode capability",
+        if (err_primary_msg) {
+            *err_primary_msg = g_strdup_printf("Dumpcap returned \"%s\" for monitor-mode capability",
                                        raw_list[0]);
         }
         g_free(caps);
@@ -323,8 +325,8 @@ capture_get_if_capabilities(const gchar *ifname, gboolean monitor_mode,
     /* Check to see if we built a list */
     if (linktype_list == NULL) {
         /* No. */
-        if (err_str)
-            *err_str = g_strdup("Dumpcap returned no link-layer types");
+        if (err_primary_msg)
+            *err_primary_msg = g_strdup("Dumpcap returned no link-layer types");
         g_free(caps);
         return NULL;
     }
