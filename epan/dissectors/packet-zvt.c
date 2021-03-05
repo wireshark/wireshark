@@ -90,6 +90,8 @@ typedef struct _apdu_info_t {
 #define CTRL_AUTHORISATION 0x0601
 #define CTRL_COMPLETION    0x060F
 #define CTRL_ABORT         0x061E
+#define CTRL_REVERSAL      0x0630
+#define CTRL_REFUND        0x0631
 #define CTRL_END_OF_DAY    0x0650
 #define CTRL_DIAG          0x0670
 #define CTRL_INIT          0x0693
@@ -104,6 +106,8 @@ static void dissect_zvt_bitmap_seq(tvbuff_t *tvb, gint offset, guint16 len,
         packet_info *pinfo, proto_tree *tree, zvt_transaction_t *zvt_trans);
 static void dissect_zvt_init(tvbuff_t *tvb, gint offset, guint16 len,
         packet_info *pinfo, proto_tree *tree, zvt_transaction_t *zvt_trans);
+static void dissect_zvt_pass_bitmap_seq(tvbuff_t *tvb, gint offset, guint16 len,
+        packet_info *pinfo, proto_tree *tree, zvt_transaction_t *zvt_trans);
 
 static const apdu_info_t apdu_info[] = {
     { CTRL_STATUS,        0, DIRECTION_PT_TO_ECR, dissect_zvt_bitmap_seq },
@@ -113,6 +117,8 @@ static const apdu_info_t apdu_info[] = {
     { CTRL_AUTHORISATION, 7, DIRECTION_ECR_TO_PT, dissect_zvt_bitmap_seq },
     { CTRL_COMPLETION,    0, DIRECTION_PT_TO_ECR, dissect_zvt_bitmap_seq },
     { CTRL_ABORT,         0, DIRECTION_PT_TO_ECR, NULL },
+    { CTRL_REVERSAL,      0, DIRECTION_ECR_TO_PT, dissect_zvt_pass_bitmap_seq },
+    { CTRL_REFUND,        0, DIRECTION_ECR_TO_PT, dissect_zvt_pass_bitmap_seq },
     { CTRL_END_OF_DAY,    0, DIRECTION_ECR_TO_PT, NULL },
     { CTRL_DIAG,          0, DIRECTION_ECR_TO_PT, NULL },
     { CTRL_INIT,          0, DIRECTION_ECR_TO_PT, dissect_zvt_init },
@@ -301,6 +307,8 @@ static const value_string ctrl_field[] = {
     { CTRL_AUTHORISATION, "Authorisation" },
     { CTRL_COMPLETION, "Completion" },
     { CTRL_ABORT, "Abort" },
+    { CTRL_REVERSAL, "Reversal" },
+    { CTRL_REFUND, "Refund" },
     { CTRL_END_OF_DAY, "End Of Day" },
     { CTRL_DIAG, "Diagnosis" },
     { CTRL_INIT, "Initialisation" },
@@ -904,6 +912,19 @@ static void dissect_zvt_init(
         proto_tree *tree, zvt_transaction_t *zvt_trans _U_)
 {
     proto_tree_add_item(tree, hf_zvt_pwd, tvb, offset, 3, ENC_NA);
+}
+
+
+static void
+dissect_zvt_pass_bitmap_seq(tvbuff_t *tvb, gint offset, guint16 len _U_,
+        packet_info *pinfo, proto_tree *tree, zvt_transaction_t *zvt_trans)
+{
+    proto_tree_add_item(tree, hf_zvt_pwd, tvb, offset, 3, ENC_NA);
+    offset += 3;
+
+    dissect_zvt_bitmap_seq(tvb, offset,
+            tvb_captured_length_remaining(tvb, offset),
+            pinfo, tree, zvt_trans);
 }
 
 
