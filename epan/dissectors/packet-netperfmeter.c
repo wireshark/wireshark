@@ -1,5 +1,5 @@
 /* packet-netperfmeter.c
- * Routines for the NetPerfMeter Protocol used by the Open Source
+ * Routines for the NetPerfMeter protocol used by the Open Source
  * network performance meter application NetPerfMeter:
  * http://www.exp-math.uni-essen.de/~dreibh/netperfmeter/
  *
@@ -19,11 +19,11 @@
 #include <epan/packet.h>
 #include <epan/sctpppids.h>
 
-void proto_register_npmp(void);
-void proto_reg_handoff_npmp(void);
+void proto_register_npm(void);
+void proto_reg_handoff_npm(void);
 
-static int  proto_npmp      = -1;
-static gint ett_npmp        = -1;
+static int  proto_npm       = -1;
+static gint ett_npm         = -1;
 static gint ett_onoffarray  = -1;
 
 
@@ -159,75 +159,75 @@ static const value_string rng_type_values[] = {
 
 /* Setup list of header fields */
 static hf_register_info hf[] = {
-   { &hf_message_type,               { "Type",                  "npmp.message_type",               FT_UINT8,   BASE_DEC,  VALS(message_type_values), 0x0, NULL, HFILL } },
-   { &hf_message_flags,              { "Flags",                 "npmp.message_flags",              FT_UINT8,   BASE_DEC,  NULL,                      0x0, NULL, HFILL } },
-   { &hf_message_length,             { "Length",                "npmp.message_length",             FT_UINT16,  BASE_DEC,  NULL,                      0x0, NULL, HFILL } },
+   { &hf_message_type,               { "Type",                  "netperfmeter.message_type",               FT_UINT8,   BASE_DEC,  VALS(message_type_values), 0x0, NULL, HFILL } },
+   { &hf_message_flags,              { "Flags",                 "netperfmeter.message_flags",              FT_UINT8,   BASE_DEC,  NULL,                      0x0, NULL, HFILL } },
+   { &hf_message_length,             { "Length",                "netperfmeter.message_length",             FT_UINT16,  BASE_DEC,  NULL,                      0x0, NULL, HFILL } },
 
-   { &hf_acknowledge_flowid,         { "Flow ID",               "npmp.acknowledge_flowid",         FT_UINT32,  BASE_HEX,  NULL,                      0x0, NULL, HFILL } },
-   { &hf_acknowledge_measurementid,  { "Measurement ID",        "npmp.acknowledge_measurementid",  FT_UINT64,  BASE_HEX,  NULL,                      0x0, NULL, HFILL } },
-   { &hf_acknowledge_streamid,       { "Stream ID",             "npmp.acknowledge_streamid",       FT_UINT16,  BASE_DEC,  NULL,                      0x0, NULL, HFILL } },
+   { &hf_acknowledge_flowid,         { "Flow ID",               "netperfmeter.acknowledge_flowid",         FT_UINT32,  BASE_HEX,  NULL,                      0x0, NULL, HFILL } },
+   { &hf_acknowledge_measurementid,  { "Measurement ID",        "netperfmeter.acknowledge_measurementid",  FT_UINT64,  BASE_HEX,  NULL,                      0x0, NULL, HFILL } },
+   { &hf_acknowledge_streamid,       { "Stream ID",             "netperfmeter.acknowledge_streamid",       FT_UINT16,  BASE_DEC,  NULL,                      0x0, NULL, HFILL } },
 #if 0
-   { &hf_acknowledge_padding,        { "Padding",               "npmp.acknowledge_padding",        FT_UINT16,  BASE_HEX,  NULL,                      0x0, NULL, HFILL } },
+   { &hf_acknowledge_padding,        { "Padding",               "netperfmeter.acknowledge_padding",        FT_UINT16,  BASE_HEX,  NULL,                      0x0, NULL, HFILL } },
 #endif
-   { &hf_acknowledge_status,         { "Status",                "npmp.acknowledge_status",         FT_UINT32,  BASE_DEC,  NULL,                      0x0, NULL, HFILL } },
+   { &hf_acknowledge_status,         { "Status",                "netperfmeter.acknowledge_status",         FT_UINT32,  BASE_DEC,  NULL,                      0x0, NULL, HFILL } },
 
-   { &hf_addflow_flowid,             { "Flow ID",               "npmp.addflow_flowid",             FT_UINT32,  BASE_HEX,  NULL,                      0x0, NULL, HFILL } },
-   { &hf_addflow_measurementid,      { "Measurement ID",        "npmp.addflow_measurementid",      FT_UINT64,  BASE_HEX,  NULL,                      0x0, NULL, HFILL } },
-   { &hf_addflow_streamid,           { "Stream ID",             "npmp.addflow_streamid",           FT_UINT16,  BASE_DEC,  NULL,                      0x0, NULL, HFILL } },
-   { &hf_addflow_protocol,           { "Protocol",              "npmp.addflow_protocol",           FT_UINT8,   BASE_DEC,  VALS(proto_type_values),   0x0, NULL, HFILL } },
-   { &hf_addflow_flags,              { "Flags",                 "npmp.addflow_flags",              FT_UINT8,   BASE_HEX,  NULL,                      0x0, NULL, HFILL } },
-   { &hf_addflow_description,        { "Description",           "npmp.addflow_description",        FT_STRING,  BASE_NONE, NULL,                      0x0, NULL, HFILL } },
-   { &hf_addflow_ordered,            { "Ordered",               "npmp.addflow_ordered",            FT_DOUBLE,  BASE_NONE, NULL,                      0x0, NULL, HFILL } },
-   { &hf_addflow_reliable,           { "Reliable",              "npmp.addflow_reliable",           FT_DOUBLE,  BASE_NONE, NULL,                      0x0, NULL, HFILL } },
-   { &hf_addflow_retranstrials,      { "Retransmission Trials", "npmp.addflow_retranstrials",      FT_UINT16,  BASE_DEC,  NULL,                      0x0, NULL, HFILL } },
-   { &hf_addflow_frameraterng,       { "Frame Rate RNG",        "npmp.addflow_frameraterng",       FT_UINT8,   BASE_DEC,  VALS(rng_type_values),     0x0, NULL, HFILL } },
-   { &hf_addflow_framerate1,         { "Frame Rate 1",          "npmp.addflow_framerate1",         FT_DOUBLE,  BASE_NONE, NULL,                      0x0, NULL, HFILL } },
-   { &hf_addflow_framerate2,         { "Frame Rate 2",          "npmp.addflow_framerate2",         FT_DOUBLE,  BASE_NONE, NULL,                      0x0, NULL, HFILL } },
-   { &hf_addflow_framerate3,         { "Frame Rate 3",          "npmp.addflow_framerate3",         FT_DOUBLE,  BASE_NONE, NULL,                      0x0, NULL, HFILL } },
-   { &hf_addflow_framerate4,         { "Frame Rate 4",          "npmp.addflow_framerate4",         FT_DOUBLE,  BASE_NONE, NULL,                      0x0, NULL, HFILL } },
-   { &hf_addflow_framesizerng,       { "Frame Size RNG",        "npmp.addflow_framesizerng",       FT_UINT8,   BASE_DEC,  VALS(rng_type_values),     0x0, NULL, HFILL } },
-   { &hf_addflow_framesize1,         { "Frame Size 1",          "npmp.addflow_framesize1",         FT_DOUBLE,  BASE_NONE, NULL,                      0x0, NULL, HFILL } },
-   { &hf_addflow_framesize2,         { "Frame Size 2",          "npmp.addflow_framesize2",         FT_DOUBLE,  BASE_NONE, NULL,                      0x0, NULL, HFILL } },
-   { &hf_addflow_framesize3,         { "Frame Size 3",          "npmp.addflow_framesize3",         FT_DOUBLE,  BASE_NONE, NULL,                      0x0, NULL, HFILL } },
-   { &hf_addflow_framesize4,         { "Frame Size 4",          "npmp.addflow_framesize4",         FT_DOUBLE,  BASE_NONE, NULL,                      0x0, NULL, HFILL } },
-   { &hf_addflow_rcvbuffersize,      { "Receive Buffer Size",   "npmp.addflow_rcvbuffersize",      FT_UINT32,  BASE_DEC,  NULL,                      0x0, NULL, HFILL } },
-   { &hf_addflow_sndbuffersize,      { "Send Buffer Size",      "npmp.addflow_sndbuffersize",      FT_UINT32,  BASE_DEC,  NULL,                      0x0, NULL, HFILL } },
-   { &hf_addflow_maxmsgsize,         { "Max. Message Size",     "npmp.addflow_maxmsgsize",         FT_UINT16,  BASE_DEC,  NULL,                      0x0, NULL, HFILL } },
-   { &hf_addflow_cmt,                { "CMT",                   "npmp.addflow_cmt",                FT_UINT8,   BASE_HEX,  VALS(cmt_values),          0x0, NULL, HFILL } },
-   { &hf_addflow_ccid,               { "CCID",                  "npmp.addflow_ccid",               FT_UINT8,   BASE_HEX,  NULL,                      0x0, NULL, HFILL } },
-   { &hf_addflow_onoffevents,        { "On/Off Events",         "npmp.addflow_onoffevents",        FT_UINT16,  BASE_DEC,  NULL,                      0x0, NULL, HFILL } },
-   { &hf_addflow_onoffeventarray,    { "On/Off Event",          "npmp.addflow_onoffeventarray",    FT_UINT32,  BASE_DEC,  NULL,                      0x0, NULL, HFILL } },
+   { &hf_addflow_flowid,             { "Flow ID",               "netperfmeter.addflow_flowid",             FT_UINT32,  BASE_HEX,  NULL,                      0x0, NULL, HFILL } },
+   { &hf_addflow_measurementid,      { "Measurement ID",        "netperfmeter.addflow_measurementid",      FT_UINT64,  BASE_HEX,  NULL,                      0x0, NULL, HFILL } },
+   { &hf_addflow_streamid,           { "Stream ID",             "netperfmeter.addflow_streamid",           FT_UINT16,  BASE_DEC,  NULL,                      0x0, NULL, HFILL } },
+   { &hf_addflow_protocol,           { "Protocol",              "netperfmeter.addflow_protocol",           FT_UINT8,   BASE_DEC,  VALS(proto_type_values),   0x0, NULL, HFILL } },
+   { &hf_addflow_flags,              { "Flags",                 "netperfmeter.addflow_flags",              FT_UINT8,   BASE_HEX,  NULL,                      0x0, NULL, HFILL } },
+   { &hf_addflow_description,        { "Description",           "netperfmeter.addflow_description",        FT_STRING,  BASE_NONE, NULL,                      0x0, NULL, HFILL } },
+   { &hf_addflow_ordered,            { "Ordered",               "netperfmeter.addflow_ordered",            FT_DOUBLE,  BASE_NONE, NULL,                      0x0, NULL, HFILL } },
+   { &hf_addflow_reliable,           { "Reliable",              "netperfmeter.addflow_reliable",           FT_DOUBLE,  BASE_NONE, NULL,                      0x0, NULL, HFILL } },
+   { &hf_addflow_retranstrials,      { "Retransmission Trials", "netperfmeter.addflow_retranstrials",      FT_UINT16,  BASE_DEC,  NULL,                      0x0, NULL, HFILL } },
+   { &hf_addflow_frameraterng,       { "Frame Rate RNG",        "netperfmeter.addflow_frameraterng",       FT_UINT8,   BASE_DEC,  VALS(rng_type_values),     0x0, NULL, HFILL } },
+   { &hf_addflow_framerate1,         { "Frame Rate 1",          "netperfmeter.addflow_framerate1",         FT_DOUBLE,  BASE_NONE, NULL,                      0x0, NULL, HFILL } },
+   { &hf_addflow_framerate2,         { "Frame Rate 2",          "netperfmeter.addflow_framerate2",         FT_DOUBLE,  BASE_NONE, NULL,                      0x0, NULL, HFILL } },
+   { &hf_addflow_framerate3,         { "Frame Rate 3",          "netperfmeter.addflow_framerate3",         FT_DOUBLE,  BASE_NONE, NULL,                      0x0, NULL, HFILL } },
+   { &hf_addflow_framerate4,         { "Frame Rate 4",          "netperfmeter.addflow_framerate4",         FT_DOUBLE,  BASE_NONE, NULL,                      0x0, NULL, HFILL } },
+   { &hf_addflow_framesizerng,       { "Frame Size RNG",        "netperfmeter.addflow_framesizerng",       FT_UINT8,   BASE_DEC,  VALS(rng_type_values),     0x0, NULL, HFILL } },
+   { &hf_addflow_framesize1,         { "Frame Size 1",          "netperfmeter.addflow_framesize1",         FT_DOUBLE,  BASE_NONE, NULL,                      0x0, NULL, HFILL } },
+   { &hf_addflow_framesize2,         { "Frame Size 2",          "netperfmeter.addflow_framesize2",         FT_DOUBLE,  BASE_NONE, NULL,                      0x0, NULL, HFILL } },
+   { &hf_addflow_framesize3,         { "Frame Size 3",          "netperfmeter.addflow_framesize3",         FT_DOUBLE,  BASE_NONE, NULL,                      0x0, NULL, HFILL } },
+   { &hf_addflow_framesize4,         { "Frame Size 4",          "netperfmeter.addflow_framesize4",         FT_DOUBLE,  BASE_NONE, NULL,                      0x0, NULL, HFILL } },
+   { &hf_addflow_rcvbuffersize,      { "Receive Buffer Size",   "netperfmeter.addflow_rcvbuffersize",      FT_UINT32,  BASE_DEC,  NULL,                      0x0, NULL, HFILL } },
+   { &hf_addflow_sndbuffersize,      { "Send Buffer Size",      "netperfmeter.addflow_sndbuffersize",      FT_UINT32,  BASE_DEC,  NULL,                      0x0, NULL, HFILL } },
+   { &hf_addflow_maxmsgsize,         { "Max. Message Size",     "netperfmeter.addflow_maxmsgsize",         FT_UINT16,  BASE_DEC,  NULL,                      0x0, NULL, HFILL } },
+   { &hf_addflow_cmt,                { "CMT",                   "netperfmeter.addflow_cmt",                FT_UINT8,   BASE_HEX,  VALS(cmt_values),          0x0, NULL, HFILL } },
+   { &hf_addflow_ccid,               { "CCID",                  "netperfmeter.addflow_ccid",               FT_UINT8,   BASE_HEX,  NULL,                      0x0, NULL, HFILL } },
+   { &hf_addflow_onoffevents,        { "On/Off Events",         "netperfmeter.addflow_onoffevents",        FT_UINT16,  BASE_DEC,  NULL,                      0x0, NULL, HFILL } },
+   { &hf_addflow_onoffeventarray,    { "On/Off Event",          "netperfmeter.addflow_onoffeventarray",    FT_UINT32,  BASE_DEC,  NULL,                      0x0, NULL, HFILL } },
 
-   { &hf_removeflow_flowid,          { "Flow ID",               "npmp.removeflow_flowid",          FT_UINT32,  BASE_HEX,  NULL,                      0x0, NULL, HFILL } },
-   { &hf_removeflow_measurementid,   { "Measurement ID",        "npmp.removeflow_measurementid",   FT_UINT64,  BASE_HEX,  NULL,                      0x0, NULL, HFILL } },
-   { &hf_removeflow_streamid,        { "Stream ID",             "npmp.removeflow_streamid",        FT_UINT16,  BASE_DEC,  NULL,                      0x0, NULL, HFILL } },
+   { &hf_removeflow_flowid,          { "Flow ID",               "netperfmeter.removeflow_flowid",          FT_UINT32,  BASE_HEX,  NULL,                      0x0, NULL, HFILL } },
+   { &hf_removeflow_measurementid,   { "Measurement ID",        "netperfmeter.removeflow_measurementid",   FT_UINT64,  BASE_HEX,  NULL,                      0x0, NULL, HFILL } },
+   { &hf_removeflow_streamid,        { "Stream ID",             "netperfmeter.removeflow_streamid",        FT_UINT16,  BASE_DEC,  NULL,                      0x0, NULL, HFILL } },
 
-   { &hf_identifyflow_flowid,        { "Flow ID",               "npmp.identifyflow_flowid",        FT_UINT32,  BASE_HEX,  NULL,                      0x0, NULL, HFILL } },
-   { &hf_identifyflow_magicnumber,   { "Magic Number",          "npmp.identifyflow_magicnumber",   FT_UINT64,  BASE_HEX,  NULL,                      0x0, NULL, HFILL } },
-   { &hf_identifyflow_measurementid, { "Measurement ID",        "npmp.identifyflow_measurementid", FT_UINT64,  BASE_HEX,  NULL,                      0x0, NULL, HFILL } },
-   { &hf_identifyflow_streamid,      { "Stream ID",             "npmp.identifyflow_streamid",      FT_UINT16,  BASE_DEC,  NULL,                      0x0, NULL, HFILL } },
+   { &hf_identifyflow_flowid,        { "Flow ID",               "netperfmeter.identifyflow_flowid",        FT_UINT32,  BASE_HEX,  NULL,                      0x0, NULL, HFILL } },
+   { &hf_identifyflow_magicnumber,   { "Magic Number",          "netperfmeter.identifyflow_magicnumber",   FT_UINT64,  BASE_HEX,  NULL,                      0x0, NULL, HFILL } },
+   { &hf_identifyflow_measurementid, { "Measurement ID",        "netperfmeter.identifyflow_measurementid", FT_UINT64,  BASE_HEX,  NULL,                      0x0, NULL, HFILL } },
+   { &hf_identifyflow_streamid,      { "Stream ID",             "netperfmeter.identifyflow_streamid",      FT_UINT16,  BASE_DEC,  NULL,                      0x0, NULL, HFILL } },
 
-   { &hf_data_flowid,                { "Flow ID",               "npmp.data_flowid",                FT_UINT32,  BASE_HEX,  NULL,                      0x0, NULL, HFILL } },
-   { &hf_data_measurementid,         { "Measurement ID",        "npmp.data_measurementid",         FT_UINT64,  BASE_HEX,  NULL,                      0x0, NULL, HFILL } },
-   { &hf_data_streamid,              { "Stream ID",             "npmp.data_streamid",              FT_UINT16,  BASE_DEC,  NULL,                      0x0, NULL, HFILL } },
-   { &hf_data_padding,               { "Padding",               "npmp.data_padding",               FT_UINT16,  BASE_HEX,  NULL,                      0x0, NULL, HFILL } },
-   { &hf_data_frameid,               { "Frame ID",              "npmp.data_frameid",               FT_UINT32,  BASE_DEC,  NULL,                      0x0, NULL, HFILL } },
-   { &hf_data_packetseqnumber,       { "Packet Seq Number",     "npmp.data_packetseqnumber",       FT_UINT64,  BASE_DEC,  NULL,                      0x0, NULL, HFILL } },
-   { &hf_data_byteseqnumber,         { "Byte Seq Number",       "npmp.data_byteseqnumber",         FT_UINT64,  BASE_DEC,  NULL,                      0x0, NULL, HFILL } },
-   { &hf_data_timestamp,             { "Time Stamp",            "npmp.data_timestamp",             FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL,        0x0, NULL, HFILL } },
-   { &hf_data_payload,               { "Payload",               "npmp.data_payload",               FT_BYTES,   BASE_NONE, NULL,                      0x0, NULL, HFILL } },
-
-#if 0
-   { &hf_start_padding,              { "Padding",               "npmp.start_padding",              FT_UINT32,  BASE_HEX,  NULL,                      0x0, NULL, HFILL } },
-#endif
-   { &hf_start_measurementid,        { "Measurement ID",        "npmp.start_measurementid",        FT_UINT64,  BASE_HEX,  NULL,                      0x0, NULL, HFILL } },
+   { &hf_data_flowid,                { "Flow ID",               "netperfmeter.data_flowid",                FT_UINT32,  BASE_HEX,  NULL,                      0x0, NULL, HFILL } },
+   { &hf_data_measurementid,         { "Measurement ID",        "netperfmeter.data_measurementid",         FT_UINT64,  BASE_HEX,  NULL,                      0x0, NULL, HFILL } },
+   { &hf_data_streamid,              { "Stream ID",             "netperfmeter.data_streamid",              FT_UINT16,  BASE_DEC,  NULL,                      0x0, NULL, HFILL } },
+   { &hf_data_padding,               { "Padding",               "netperfmeter.data_padding",               FT_UINT16,  BASE_HEX,  NULL,                      0x0, NULL, HFILL } },
+   { &hf_data_frameid,               { "Frame ID",              "netperfmeter.data_frameid",               FT_UINT32,  BASE_DEC,  NULL,                      0x0, NULL, HFILL } },
+   { &hf_data_packetseqnumber,       { "Packet Seq Number",     "netperfmeter.data_packetseqnumber",       FT_UINT64,  BASE_DEC,  NULL,                      0x0, NULL, HFILL } },
+   { &hf_data_byteseqnumber,         { "Byte Seq Number",       "netperfmeter.data_byteseqnumber",         FT_UINT64,  BASE_DEC,  NULL,                      0x0, NULL, HFILL } },
+   { &hf_data_timestamp,             { "Time Stamp",            "netperfmeter.data_timestamp",             FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL,        0x0, NULL, HFILL } },
+   { &hf_data_payload,               { "Payload",               "netperfmeter.data_payload",               FT_BYTES,   BASE_NONE, NULL,                      0x0, NULL, HFILL } },
 
 #if 0
-   { &hf_stop_padding,               { "Padding",               "npmp.stop_padding",               FT_UINT32,  BASE_HEX,  NULL,                      0x0, NULL, HFILL } },
+   { &hf_start_padding,              { "Padding",               "netperfmeter.start_padding",              FT_UINT32,  BASE_HEX,  NULL,                      0x0, NULL, HFILL } },
 #endif
-   { &hf_stop_measurementid,         { "Measurement ID",        "npmp.stop_measurementid",         FT_UINT64,  BASE_HEX,  NULL,                      0x0, NULL, HFILL } },
+   { &hf_start_measurementid,        { "Measurement ID",        "netperfmeter.start_measurementid",        FT_UINT64,  BASE_HEX,  NULL,                      0x0, NULL, HFILL } },
 
-   { &hf_results_data,               { "Data",                  "npmp.results_data",               FT_BYTES,   BASE_NONE, NULL,                      0x0, NULL, HFILL } },
+#if 0
+   { &hf_stop_padding,               { "Padding",               "netperfmeter.stop_padding",               FT_UINT32,  BASE_HEX,  NULL,                      0x0, NULL, HFILL } },
+#endif
+   { &hf_stop_measurementid,         { "Measurement ID",        "netperfmeter.stop_measurementid",         FT_UINT64,  BASE_HEX,  NULL,                      0x0, NULL, HFILL } },
+
+   { &hf_results_data,               { "Data",                  "netperfmeter.results_data",               FT_BYTES,   BASE_NONE, NULL,                      0x0, NULL, HFILL } },
 };
 
 
@@ -236,7 +236,7 @@ static hf_register_info hf[] = {
 
 
 static void
-dissect_npmp_acknowledge_message(tvbuff_t *message_tvb, proto_tree *message_tree)
+dissect_npm_acknowledge_message(tvbuff_t *message_tvb, proto_tree *message_tree)
 {
   ADD_FIELD_UINT(message_tree, acknowledge_flowid);
   ADD_FIELD_UINT(message_tree, acknowledge_measurementid);
@@ -246,7 +246,7 @@ dissect_npmp_acknowledge_message(tvbuff_t *message_tvb, proto_tree *message_tree
 
 
 static void
-dissect_npmp_add_flow_message(tvbuff_t *message_tvb, proto_tree *message_tree)
+dissect_npm_add_flow_message(tvbuff_t *message_tvb, proto_tree *message_tree)
 {
   guint32      retranstrials;
   proto_item*  onoffitem;
@@ -306,7 +306,7 @@ dissect_npmp_add_flow_message(tvbuff_t *message_tvb, proto_tree *message_tree)
 
 
 static void
-dissect_npmp_remove_flow_message(tvbuff_t *message_tvb, proto_tree *message_tree)
+dissect_npm_remove_flow_message(tvbuff_t *message_tvb, proto_tree *message_tree)
 {
   ADD_FIELD_UINT(message_tree, removeflow_flowid);
   ADD_FIELD_UINT(message_tree, removeflow_measurementid);
@@ -315,7 +315,7 @@ dissect_npmp_remove_flow_message(tvbuff_t *message_tvb, proto_tree *message_tree
 
 
 static void
-dissect_npmp_identify_flow_message(tvbuff_t *message_tvb, proto_tree *message_tree)
+dissect_npm_identify_flow_message(tvbuff_t *message_tvb, proto_tree *message_tree)
 {
   ADD_FIELD_UINT(message_tree, identifyflow_magicnumber);
   ADD_FIELD_UINT(message_tree, identifyflow_flowid);
@@ -325,7 +325,7 @@ dissect_npmp_identify_flow_message(tvbuff_t *message_tvb, proto_tree *message_tr
 
 
 static void
-dissect_npmp_data_message(tvbuff_t *message_tvb, proto_tree *message_tree)
+dissect_npm_data_message(tvbuff_t *message_tvb, proto_tree *message_tree)
 {
   const guint16 message_length = tvb_get_ntohs(message_tvb, offset_message_length);
   guint64       timestamp;
@@ -352,21 +352,21 @@ dissect_npmp_data_message(tvbuff_t *message_tvb, proto_tree *message_tree)
 
 
 static void
-dissect_npmp_start_message(tvbuff_t *message_tvb, proto_tree *message_tree)
+dissect_npm_start_message(tvbuff_t *message_tvb, proto_tree *message_tree)
 {
   ADD_FIELD_UINT(message_tree, start_measurementid);
 }
 
 
 static void
-dissect_npmp_stop_message(tvbuff_t *message_tvb, proto_tree *message_tree)
+dissect_npm_stop_message(tvbuff_t *message_tvb, proto_tree *message_tree)
 {
   ADD_FIELD_UINT(message_tree, stop_measurementid);
 }
 
 
 static void
-dissect_npmp_results_message(tvbuff_t *message_tvb, proto_tree *message_tree)
+dissect_npm_results_message(tvbuff_t *message_tvb, proto_tree *message_tree)
 {
   const guint16 message_length = tvb_get_ntohs(message_tvb, offset_message_length);
   if (message_length > offset_results_data) {
@@ -376,71 +376,71 @@ dissect_npmp_results_message(tvbuff_t *message_tvb, proto_tree *message_tree)
 
 
 static void
-dissect_npmp_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *npmp_tree)
+dissect_npm_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *npm_tree)
 {
   guint8 type;
 
   type = tvb_get_guint8(message_tvb, offset_message_type);
-  col_add_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str_const(type, message_type_values, "Unknown NetPerfMeterProtocol type"));
+  col_add_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str_const(type, message_type_values, "Unknown NetPerfMeter message type"));
 
-  ADD_FIELD_UINT(npmp_tree, message_type);
-  ADD_FIELD_UINT(npmp_tree, message_flags);
-  ADD_FIELD_UINT(npmp_tree, message_length);
+  ADD_FIELD_UINT(npm_tree, message_type);
+  ADD_FIELD_UINT(npm_tree, message_flags);
+  ADD_FIELD_UINT(npm_tree, message_length);
 
   switch (type) {
     case NETPERFMETER_ACKNOWLEDGE:
-      dissect_npmp_acknowledge_message(message_tvb, npmp_tree);
+      dissect_npm_acknowledge_message(message_tvb, npm_tree);
      break;
     case NETPERFMETER_ADD_FLOW:
-      dissect_npmp_add_flow_message(message_tvb, npmp_tree);
+      dissect_npm_add_flow_message(message_tvb, npm_tree);
      break;
     case NETPERFMETER_REMOVE_FLOW:
-      dissect_npmp_remove_flow_message(message_tvb, npmp_tree);
+      dissect_npm_remove_flow_message(message_tvb, npm_tree);
      break;
     case NETPERFMETER_IDENTIFY_FLOW:
-      dissect_npmp_identify_flow_message(message_tvb, npmp_tree);
+      dissect_npm_identify_flow_message(message_tvb, npm_tree);
      break;
     case NETPERFMETER_DATA:
-      dissect_npmp_data_message(message_tvb, npmp_tree);
+      dissect_npm_data_message(message_tvb, npm_tree);
      break;
     case NETPERFMETER_START:
-      dissect_npmp_start_message(message_tvb, npmp_tree);
+      dissect_npm_start_message(message_tvb, npm_tree);
      break;
     case NETPERFMETER_STOP:
-      dissect_npmp_stop_message(message_tvb, npmp_tree);
+      dissect_npm_stop_message(message_tvb, npm_tree);
      break;
     case NETPERFMETER_RESULTS:
-      dissect_npmp_results_message(message_tvb, npmp_tree);
+      dissect_npm_results_message(message_tvb, npm_tree);
      break;
   }
 }
 
 
 static int
-dissect_npmp(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_npm(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-  proto_item *npmp_item;
-  proto_tree *npmp_tree;
+  proto_item *npm_item;
+  proto_tree *npm_tree;
 
-  col_set_str(pinfo->cinfo, COL_PROTOCOL, "NetPerfMeterProtocol");
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "NetPerfMeter");
 
   /* In the interest of speed, if "tree" is NULL, don't do any work not
      necessary to generate protocol tree items. */
   if (tree) {
-    /* create the npmp protocol tree */
-    npmp_item = proto_tree_add_item(tree, proto_npmp, message_tvb, 0, -1, ENC_NA);
-    npmp_tree = proto_item_add_subtree(npmp_item, ett_npmp);
+    /* create the npm protocol tree */
+    npm_item = proto_tree_add_item(tree, proto_npm, message_tvb, 0, -1, ENC_NA);
+    npm_tree = proto_item_add_subtree(npm_item, ett_npm);
   } else {
-    npmp_tree = NULL;
+    npm_tree = NULL;
   };
   /* dissect the message */
-  dissect_npmp_message(message_tvb, pinfo, npmp_tree);
+  dissect_npm_message(message_tvb, pinfo, npm_tree);
   return TRUE;
 }
 
 
 static int
-heur_dissect_npmp(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+heur_dissect_npm(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
   const guint length = tvb_captured_length(message_tvb);
   if (length < 4)
@@ -474,45 +474,45 @@ heur_dissect_npmp(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree, v
       break;
   }
 
-  return dissect_npmp(message_tvb, pinfo, tree, data);
+  return dissect_npm(message_tvb, pinfo, tree, data);
 }
 
 
 /* Register the protocol with Wireshark */
 void
-proto_register_npmp(void)
+proto_register_npm(void)
 {
   /* Setup protocol subtree array */
   static gint *ett[] = {
-    &ett_npmp,
+    &ett_npm,
     &ett_onoffarray
   };
 
   /* Register the protocol name and description */
-  proto_npmp = proto_register_protocol("NetPerfMeter Protocol", "NetPerfMeterProtocol", "npmp");
+  proto_npm = proto_register_protocol("NetPerfMeter Protocol", "NetPerfMeter", "netperfmeter");
 
   /* Required function calls to register the header fields and subtrees used */
-  proto_register_field_array(proto_npmp, hf, array_length(hf));
+  proto_register_field_array(proto_npm, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 }
 
 
 void
-proto_reg_handoff_npmp(void)
+proto_reg_handoff_npm(void)
 {
-  dissector_handle_t npmp_handle;
+  dissector_handle_t npm_handle;
 
-  /* NetPerfMeterProtocol over SCTP is detected by PPIDs */
-  npmp_handle = create_dissector_handle(dissect_npmp, proto_npmp);
-  dissector_add_uint("sctp.ppi", PPID_NETPERFMETER_CONTROL_LEGACY, npmp_handle);
-  dissector_add_uint("sctp.ppi", PPID_NETPERFMETER_DATA_LEGACY,    npmp_handle);
-  dissector_add_uint("sctp.ppi", NPMP_CTRL_PAYLOAD_PROTOCOL_ID,    npmp_handle);
-  dissector_add_uint("sctp.ppi", NPMP_DATA_PAYLOAD_PROTOCOL_ID,    npmp_handle);
+  /* NetPerfMeter protocol over SCTP is detected by PPIDs */
+  npm_handle = create_dissector_handle(dissect_npm, proto_npm);
+  dissector_add_uint("sctp.ppi", PPID_NETPERFMETER_CONTROL_LEGACY, npm_handle);
+  dissector_add_uint("sctp.ppi", PPID_NETPERFMETER_DATA_LEGACY,    npm_handle);
+  dissector_add_uint("sctp.ppi", NPMP_CTRL_PAYLOAD_PROTOCOL_ID,    npm_handle);
+  dissector_add_uint("sctp.ppi", NPMP_DATA_PAYLOAD_PROTOCOL_ID,    npm_handle);
 
   /* Heuristic dissector for TCP, UDP and DCCP */
-  heur_dissector_add("tcp",  heur_dissect_npmp, "NetPerfMeter Protocol over TCP",  "npmp_tcp",  proto_npmp, HEURISTIC_ENABLE);
-  heur_dissector_add("udp",  heur_dissect_npmp, "NetPerfMeter Protocol over UDP",  "npmp_udp",  proto_npmp, HEURISTIC_ENABLE);
-  heur_dissector_add("dccp", heur_dissect_npmp, "NetPerfMeter Protocol over DCCP", "npmp_dccp", proto_npmp, HEURISTIC_ENABLE);
+  heur_dissector_add("tcp",  heur_dissect_npm, "NetPerfMeter over TCP",  "netperfmeter_tcp",  proto_npm, HEURISTIC_ENABLE);
+  heur_dissector_add("udp",  heur_dissect_npm, "NetPerfMeter over UDP",  "netperfmeter_udp",  proto_npm, HEURISTIC_ENABLE);
+  heur_dissector_add("dccp", heur_dissect_npm, "NetPerfMeter over DCCP", "netperfmeter_dccp", proto_npm, HEURISTIC_ENABLE);
 }
 
 /*
