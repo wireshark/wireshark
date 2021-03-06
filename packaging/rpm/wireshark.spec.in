@@ -386,7 +386,7 @@ cmake \
 %else
 # Suggestion: put this in your ~/.rpmmacros (without the hash sign, of course):
 # %_smp_mflags -j %(grep -c processor /proc/cpuinfo)
-make %{?_smp_mflags}
+make %{?_smp_mflags} -C %{__cmake_builddir}
 %endif
 
 %install
@@ -409,9 +409,9 @@ DESTDIR=$RPM_BUILD_ROOT %ninja_build install_guides
 %endif
 %endif
 %else
-make DESTDIR=$RPM_BUILD_ROOT install
+make DESTDIR=$RPM_BUILD_ROOT install -C %{__cmake_builddir}
 %if %{with guides}
-make DESTDIR=$RPM_BUILD_ROOT install_guides
+make DESTDIR=$RPM_BUILD_ROOT install_guides -C %{__cmake_builddir}
 %endif
 %endif
 
