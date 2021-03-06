@@ -973,7 +973,7 @@ proto_register_gsup(void)
 		  { "gsup.sm_rp_oa.invalid", PI_PROTOCOL, PI_ERROR,
 		    "Malformed SM-RP-OA IE", EXPFILL } },
 		{ &ei_gsup_ie_len_invalid,
-		  { "gsup.ie.len.invalid", PI_PROTOCOL, PI_MALFORMED,
+		  { "gsup.ie.len.invalid", PI_PROTOCOL, PI_ERROR,
 		    "Invalid Information Element Length", EXPFILL } },
 	};
 

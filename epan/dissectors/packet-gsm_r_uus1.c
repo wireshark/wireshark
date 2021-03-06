@@ -849,7 +849,7 @@ proto_register_gsm_r_uus1(void)
     };
 
     static ei_register_info ei[] = {
-        { &ei_gsm_r_uus1_not_implemented_yet, { "gsm-r-uus1.not_implemented_yet", PI_PROTOCOL, PI_UNDECODED, "Not implemented yet", EXPFILL }},
+        { &ei_gsm_r_uus1_not_implemented_yet, { "gsm-r-uus1.not_implemented_yet", PI_UNDECODED, PI_NOTE, "Not implemented yet", EXPFILL }},
     };
 
     expert_module_t* expert_gsm_r_uus1;

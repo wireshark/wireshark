@@ -8564,13 +8564,13 @@ proto_register_lustre(void)
     expert_module_t *expert_lustre;
     static ei_register_info ei[] = {
         { &ei_lustre_buflen,
-          { "lustre.bad_buflen", PI_ERROR, PI_MALFORMED, "Buffer length mis-match", EXPFILL } },
+          { "lustre.bad_buflen", PI_MALFORMED, PI_ERROR, "Buffer length mis-match", EXPFILL } },
         { &ei_lustre_badopc,
-          { "lustre.bad_opcode", PI_WARN, PI_PROTOCOL, "BAD OPCODE", EXPFILL } },
+          { "lustre.bad_opcode", PI_PROTOCOL, PI_WARN, "BAD OPCODE", EXPFILL } },
         { &ei_lustre_badmagic,
-          { "lustre.bad_magic", PI_WARN, PI_PROTOCOL, "BAD Magic Value", EXPFILL } },
+          { "lustre.bad_magic", PI_PROTOCOL, PI_WARN, "BAD Magic Value", EXPFILL } },
         { &ei_lustre_obsopc,
-          { "lustre.old_opcode", PI_NOTE, PI_DEPRECATED, "Deprecated Opcode", EXPFILL } },
+          { "lustre.old_opcode", PI_DEPRECATED, PI_NOTE, "Deprecated Opcode", EXPFILL } },
     };
 
     proto_lustre = proto_register_protocol("Lustre", "lustre", "lustre");

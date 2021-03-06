@@ -353,6 +353,37 @@ expert_free_deregistered_expertinfos (void)
 static int
 expert_register_field_init(expert_field_info *expinfo, expert_module_t *module)
 {
+	/* Check for valid group and severity vals */
+	switch (expinfo->group) {
+		case PI_CHECKSUM:
+		case PI_SEQUENCE:
+		case PI_RESPONSE_CODE:
+		case PI_REQUEST_CODE:
+		case PI_UNDECODED:
+		case PI_REASSEMBLE:
+		case PI_MALFORMED:
+		case PI_DEBUG:
+		case PI_PROTOCOL:
+		case PI_SECURITY:
+		case PI_COMMENTS_GROUP:
+		case PI_DECRYPTION:
+		case PI_ASSUMPTION:
+		case PI_DEPRECATED:
+			break;
+		default:
+			REPORT_DISSECTOR_BUG("Expert info for %s has invalid group=0x%08x\n", expinfo->name, expinfo->group);
+	}
+	switch (expinfo->severity) {
+		case PI_COMMENT:
+		case PI_CHAT:
+		case PI_NOTE:
+		case PI_WARN:
+		case PI_ERROR:
+			break;
+		default:
+			REPORT_DISSECTOR_BUG("Expert info for %s has invalid severity=0x%08x\n", expinfo->name, expinfo->severity);
+	}
+
 	expinfo->protocol      = module->proto_name;
 
 	/* if we always add and never delete, then id == len - 1 is correct */

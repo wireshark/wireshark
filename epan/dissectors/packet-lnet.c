@@ -1041,9 +1041,9 @@ proto_register_lnet(void)
     expert_module_t *expert_lnet;
     static ei_register_info ei[] = {
         { &ei_lnet_buflen,
-          { "lnet.bad_buflen", PI_ERROR, PI_MALFORMED, "Buffer length mis-match", EXPFILL } },
+          { "lnet.bad_buflen", PI_MALFORMED, PI_ERROR, "Buffer length mis-match", EXPFILL } },
         { &ei_lnet_type,
-          { "lnet.bad_type", PI_ERROR, PI_PROTOCOL, "LNET Type mis-match", EXPFILL } }
+          { "lnet.bad_type", PI_PROTOCOL, PI_ERROR, "LNET Type mis-match", EXPFILL } }
     };
 
     proto_lnet = proto_register_protocol("Lustre Network", "LNet", "lnet");
