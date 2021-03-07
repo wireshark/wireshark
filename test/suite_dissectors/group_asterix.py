@@ -1648,14 +1648,14 @@ class case_category_048(subprocesstest.SubprocessTestCase):
             [0x01, 0x80, 0xff, 0xff, 0xff],
             "asterix.048_220",
             {
-                "asterix.AA": "0x00ffffff"
+                "asterix.AA": "0xffffff"
             }
         )
         validator.add_dissection(
             [0x01, 0x80, 0xff, 0xff, 0xff],
             "asterix.048_220",
             {
-                "asterix.AA": "0x00ffffff"
+                "asterix.AA": "0xffffff"
             }
         )
         validator.add_dissection(

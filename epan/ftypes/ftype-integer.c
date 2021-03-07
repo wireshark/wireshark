@@ -420,13 +420,32 @@ char_repr_len(fvalue_t *fv _U_, ftrepr_t rtype _U_, int field_display _U_)
 static void
 uinteger_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_display, char *buf, unsigned int size)
 {
-	if ((field_display == BASE_HEX) || (field_display == BASE_HEX_DEC))
+	if (((field_display & 0xff) == BASE_HEX) || ((field_display & 0xff) == BASE_HEX_DEC))
 	{
 		/* This format perfectly fits into 11 bytes. */
 		*buf++ = '0';
 		*buf++ = 'x';
 
-		buf = dword_to_hex(buf, fv->value.uinteger);
+		switch (fv->ftype->ftype) {
+
+		case FT_UINT8:
+			buf = guint8_to_hex(buf, fv->value.uinteger);
+			break;
+
+		case FT_UINT16:
+			buf = word_to_hex(buf, fv->value.uinteger);
+			break;
+
+		case FT_UINT24:
+			buf = guint8_to_hex(buf, (fv->value.uinteger & 0x00ff0000) >> 16);
+			buf = word_to_hex(buf, (fv->value.uinteger & 0x0000ffff));
+			break;
+
+		default:
+			buf = dword_to_hex(buf, fv->value.uinteger);
+			break;
+		}
+
 		*buf++ = '\0';
 	}
 	else

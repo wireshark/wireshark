@@ -47,19 +47,19 @@
             "eth.src.ig": "0",
             "eth.ig": "0"
           },
-          "eth.type": "0x00000800"
+          "eth.type": "0x0800"
         },
         "ip": {
           "ip.version": "4",
           "ip.hdr_len": "20",
-          "ip.dsfield": "0x00000000",
+          "ip.dsfield": "0x00",
           "ip.dsfield_tree": {
             "ip.dsfield.dscp": "0",
             "ip.dsfield.ecn": "0"
           },
           "ip.len": "300",
-          "ip.id": "0x0000a836",
-          "ip.flags": "0x00000000",
+          "ip.id": "0xa836",
+          "ip.flags": "0x00",
           "ip.flags_tree": {
             "ip.flags.rb": "0",
             "ip.flags.df": "0",
@@ -68,7 +68,7 @@
           "ip.frag_offset": "0",
           "ip.ttl": "250",
           "ip.proto": "17",
-          "ip.checksum": "0x0000178b",
+          "ip.checksum": "0x178b",
           "ip.checksum.status": "2",
           "ip.src": "0.0.0.0",
           "ip.addr": "0.0.0.0",
@@ -85,7 +85,7 @@
           "udp.port": "68",
           "udp.port": "67",
           "udp.length": "280",
-          "udp.checksum": "0x0000591f",
+          "udp.checksum": "0x591f",
           "udp.checksum.status": "2",
           "udp.stream": "0",
           "Timestamps": {
@@ -96,15 +96,15 @@
         },
         "dhcp": {
           "dhcp.type": "1",
-          "dhcp.hw.type": "0x00000001",
+          "dhcp.hw.type": "0x01",
           "dhcp.hw.len": "6",
           "dhcp.hops": "0",
           "dhcp.id": "0x00003d1d",
           "dhcp.secs": "0",
-          "dhcp.flags": "0x00000000",
+          "dhcp.flags": "0x0000",
           "dhcp.flags_tree": {
             "dhcp.flags.bc": "0",
-            "dhcp.flags.reserved": "0x00000000"
+            "dhcp.flags.reserved": "0x0000"
           },
           "dhcp.ip.client": "0.0.0.0",
           "dhcp.ip.your": "0.0.0.0",
@@ -125,7 +125,7 @@
           "dhcp.option.type_tree": {
             "dhcp.option.length": "7",
             "dhcp.option.value": "01:00:0b:82:01:fc:42",
-            "dhcp.hw.type": "0x00000001",
+            "dhcp.hw.type": "0x01",
             "dhcp.hw.mac_addr": "00:0b:82:01:fc:42"
           },
           "dhcp.option.type": "50",
@@ -202,19 +202,19 @@
             "eth.src.ig": "0",
             "eth.ig": "0"
           },
-          "eth.type": "0x00000800"
+          "eth.type": "0x0800"
         },
         "ip": {
           "ip.version": "4",
           "ip.hdr_len": "20",
-          "ip.dsfield": "0x00000000",
+          "ip.dsfield": "0x00",
           "ip.dsfield_tree": {
             "ip.dsfield.dscp": "0",
             "ip.dsfield.ecn": "0"
           },
           "ip.len": "328",
-          "ip.id": "0x00000445",
-          "ip.flags": "0x00000000",
+          "ip.id": "0x0445",
+          "ip.flags": "0x00",
           "ip.flags_tree": {
             "ip.flags.rb": "0",
             "ip.flags.df": "0",
@@ -223,7 +223,7 @@
           "ip.frag_offset": "0",
           "ip.ttl": "128",
           "ip.proto": "17",
-          "ip.checksum": "0x00000000",
+          "ip.checksum": "0x0000",
           "ip.checksum.status": "2",
           "ip.src": "192.168.0.1",
           "ip.addr": "192.168.0.1",
@@ -240,7 +240,7 @@
           "udp.port": "67",
           "udp.port": "68",
           "udp.length": "308",
-          "udp.checksum": "0x00002233",
+          "udp.checksum": "0x2233",
           "udp.checksum.status": "2",
           "udp.stream": "1",
           "Timestamps": {
@@ -251,15 +251,15 @@
         },
         "dhcp": {
           "dhcp.type": "2",
-          "dhcp.hw.type": "0x00000001",
+          "dhcp.hw.type": "0x01",
           "dhcp.hw.len": "6",
           "dhcp.hops": "0",
           "dhcp.id": "0x00003d1d",
           "dhcp.secs": "0",
-          "dhcp.flags": "0x00000000",
+          "dhcp.flags": "0x0000",
           "dhcp.flags_tree": {
             "dhcp.flags.bc": "0",
-            "dhcp.flags.reserved": "0x00000000"
+            "dhcp.flags.reserved": "0x0000"
           },
           "dhcp.ip.client": "0.0.0.0",
           "dhcp.ip.your": "192.168.0.10",
@@ -363,19 +363,19 @@
             "eth.src.ig": "0",
             "eth.ig": "0"
           },
-          "eth.type": "0x00000800"
+          "eth.type": "0x0800"
         },
         "ip": {
           "ip.version": "4",
           "ip.hdr_len": "20",
-          "ip.dsfield": "0x00000000",
+          "ip.dsfield": "0x00",
           "ip.dsfield_tree": {
             "ip.dsfield.dscp": "0",
             "ip.dsfield.ecn": "0"
           },
           "ip.len": "300",
-          "ip.id": "0x0000a837",
-          "ip.flags": "0x00000000",
+          "ip.id": "0xa837",
+          "ip.flags": "0x00",
           "ip.flags_tree": {
             "ip.flags.rb": "0",
             "ip.flags.df": "0",
@@ -384,7 +384,7 @@
           "ip.frag_offset": "0",
           "ip.ttl": "250",
           "ip.proto": "17",
-          "ip.checksum": "0x0000178a",
+          "ip.checksum": "0x178a",
           "ip.checksum.status": "2",
           "ip.src": "0.0.0.0",
           "ip.addr": "0.0.0.0",
@@ -401,7 +401,7 @@
           "udp.port": "68",
           "udp.port": "67",
           "udp.length": "280",
-          "udp.checksum": "0x00009fbd",
+          "udp.checksum": "0x9fbd",
           "udp.checksum.status": "2",
           "udp.stream": "0",
           "Timestamps": {
@@ -412,15 +412,15 @@
         },
         "dhcp": {
           "dhcp.type": "1",
-          "dhcp.hw.type": "0x00000001",
+          "dhcp.hw.type": "0x01",
           "dhcp.hw.len": "6",
           "dhcp.hops": "0",
           "dhcp.id": "0x00003d1e",
           "dhcp.secs": "0",
-          "dhcp.flags": "0x00000000",
+          "dhcp.flags": "0x0000",
           "dhcp.flags_tree": {
             "dhcp.flags.bc": "0",
-            "dhcp.flags.reserved": "0x00000000"
+            "dhcp.flags.reserved": "0x0000"
           },
           "dhcp.ip.client": "0.0.0.0",
           "dhcp.ip.your": "0.0.0.0",
@@ -441,7 +441,7 @@
           "dhcp.option.type_tree": {
             "dhcp.option.length": "7",
             "dhcp.option.value": "01:00:0b:82:01:fc:42",
-            "dhcp.hw.type": "0x00000001",
+            "dhcp.hw.type": "0x01",
             "dhcp.hw.mac_addr": "00:0b:82:01:fc:42"
           },
           "dhcp.option.type": "50",
@@ -524,19 +524,19 @@
             "eth.src.ig": "0",
             "eth.ig": "0"
           },
-          "eth.type": "0x00000800"
+          "eth.type": "0x0800"
         },
         "ip": {
           "ip.version": "4",
           "ip.hdr_len": "20",
-          "ip.dsfield": "0x00000000",
+          "ip.dsfield": "0x00",
           "ip.dsfield_tree": {
             "ip.dsfield.dscp": "0",
             "ip.dsfield.ecn": "0"
           },
           "ip.len": "328",
-          "ip.id": "0x00000446",
-          "ip.flags": "0x00000000",
+          "ip.id": "0x0446",
+          "ip.flags": "0x00",
           "ip.flags_tree": {
             "ip.flags.rb": "0",
             "ip.flags.df": "0",
@@ -545,7 +545,7 @@
           "ip.frag_offset": "0",
           "ip.ttl": "128",
           "ip.proto": "17",
-          "ip.checksum": "0x00000000",
+          "ip.checksum": "0x0000",
           "ip.checksum.status": "2",
           "ip.src": "192.168.0.1",
           "ip.addr": "192.168.0.1",
@@ -562,7 +562,7 @@
           "udp.port": "67",
           "udp.port": "68",
           "udp.length": "308",
-          "udp.checksum": "0x0000dfdb",
+          "udp.checksum": "0xdfdb",
           "udp.checksum.status": "2",
           "udp.stream": "1",
           "Timestamps": {
@@ -573,15 +573,15 @@
         },
         "dhcp": {
           "dhcp.type": "2",
-          "dhcp.hw.type": "0x00000001",
+          "dhcp.hw.type": "0x01",
           "dhcp.hw.len": "6",
           "dhcp.hops": "0",
           "dhcp.id": "0x00003d1e",
           "dhcp.secs": "0",
-          "dhcp.flags": "0x00000000",
+          "dhcp.flags": "0x0000",
           "dhcp.flags_tree": {
             "dhcp.flags.bc": "0",
-            "dhcp.flags.reserved": "0x00000000"
+            "dhcp.flags.reserved": "0x0000"
           },
           "dhcp.ip.client": "0.0.0.0",
           "dhcp.ip.your": "192.168.0.10",

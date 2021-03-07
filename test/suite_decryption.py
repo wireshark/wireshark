@@ -170,16 +170,16 @@ class case_decrypt_80211(subprocesstest.SubprocessTestCase):
                 '-e' 'wlan.rsn.ie.ptk.keyid',
                 ))
         # Verify frames are decoded with the correct key
-        self.assertEqual(self.countOutput('^32\t33:33:00:00:00:16\t\t234a9a6ddcca3cb728751cea49d01bb0\t$'), 5)
-        self.assertEqual(self.countOutput('^32\t33:33:ff:00:00:00\t\t234a9a6ddcca3cb728751cea49d01bb0\t$'), 1)
-        self.assertEqual(self.countOutput('^32\t33:33:ff:00:03:00\t\t234a9a6ddcca3cb728751cea49d01bb0\t$'), 1)
-        self.assertEqual(self.countOutput('^32\tff:ff:ff:ff:ff:ff\t\t234a9a6ddcca3cb728751cea49d01bb0\t$'), 4)
-        self.assertEqual(self.countOutput('^40\t02:00:00:00:03:00\t618b4d1829e2a496d7fd8c034a6d024d\t\t$'), 2)
-        self.assertEqual(self.countOutput('^40\t02:00:00:00:00:00\t618b4d1829e2a496d7fd8c034a6d024d\t\t$'), 1)
+        self.assertEqual(self.countOutput('^0x0020\t33:33:00:00:00:16\t\t234a9a6ddcca3cb728751cea49d01bb0\t$'), 5)
+        self.assertEqual(self.countOutput('^0x0020\t33:33:ff:00:00:00\t\t234a9a6ddcca3cb728751cea49d01bb0\t$'), 1)
+        self.assertEqual(self.countOutput('^0x0020\t33:33:ff:00:03:00\t\t234a9a6ddcca3cb728751cea49d01bb0\t$'), 1)
+        self.assertEqual(self.countOutput('^0x0020\tff:ff:ff:ff:ff:ff\t\t234a9a6ddcca3cb728751cea49d01bb0\t$'), 4)
+        self.assertEqual(self.countOutput('^0x0028\t02:00:00:00:03:00\t618b4d1829e2a496d7fd8c034a6d024d\t\t$'), 2)
+        self.assertEqual(self.countOutput('^0x0028\t02:00:00:00:00:00\t618b4d1829e2a496d7fd8c034a6d024d\t\t$'), 1)
         # Verify RSN PTK KeyID parsing
-        self.assertEqual(self.countOutput('^40\t02:00:00:00:00:00\t\t\t1$'), 1)
-        self.assertEqual(self.countOutput('^40\t02:00:00:00:00:00\tf31ecff5452f4c286cf66ef50d10dabe\t\t0$'), 1)
-        self.assertEqual(self.countOutput('^40\t02:00:00:00:00:00\t28dd851decf3f1c2a35df8bcc22fa1d2\t\t1$'), 1)
+        self.assertEqual(self.countOutput('^0x0028\t02:00:00:00:00:00\t\t\t1$'), 1)
+        self.assertEqual(self.countOutput('^0x0028\t02:00:00:00:00:00\tf31ecff5452f4c286cf66ef50d10dabe\t\t0$'), 1)
+        self.assertEqual(self.countOutput('^0x0028\t02:00:00:00:00:00\t28dd851decf3f1c2a35df8bcc22fa1d2\t\t1$'), 1)
 
     def test_80211_wpa_ccmp_256(self, cmd_tshark, capture_file, features):
         '''IEEE 802.11 decode CCMP-256'''
