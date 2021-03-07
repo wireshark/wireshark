@@ -196,32 +196,16 @@ static const value_string otrxc_msg_type_desc[] = {
 	{ 0, NULL },
 };
 
-/* Dissector for Rx TRXD header version 0 */
-static int dissect_otrxd_rx_hdr_v0(tvbuff_t *tvb, packet_info *pinfo _U_,
-				   proto_item *ti _U_, proto_tree *tree,
-				   int offset)
-{
-	proto_tree_add_item(tree, hf_otrxd_rssi, tvb, offset++, 1, ENC_NA);
-	proto_tree_add_item(tree, hf_otrxd_toa256, tvb, offset, 2, ENC_NA);
-
-	return 1 + 2;
-}
-
-/* Dissector for Rx TRXD header version 1 */
-static int dissect_otrxd_rx_hdr_v1(tvbuff_t *tvb, packet_info *pinfo,
-				   proto_item *ti, proto_tree *tree,
-				   int offset)
+/* Dissector for MTS (Modulation and Training Sequence) */
+static void dissect_otrxd_mts(tvbuff_t *tvb, packet_info *pinfo,
+			      proto_item *ti, proto_tree *tree,
+			      int offset)
 {
 	const gchar *mod_str;
 	gboolean nope_ind;
 	guint32 mts, tsc;
-	int v0_hdr_len;
 
-	/* Dissect V0 specific part first */
-	v0_hdr_len = dissect_otrxd_rx_hdr_v0(tvb, pinfo, ti, tree, offset);
-	offset += v0_hdr_len;
-
-	/* NOPE indication does not contain MTS nor C/I.
+	/* NOPE indication contains no MTS information.
 	 *
 	 * | 7 6 5 4 3 2 1 0 | Bit numbers (value range)
 	 * | X . . . . . . . | NOPE / IDLE indication
@@ -231,10 +215,10 @@ static int dissect_otrxd_rx_hdr_v1(tvbuff_t *tvb, packet_info *pinfo,
 	proto_tree_add_item_ret_boolean(tree, hf_otrxd_nope_ind, tvb,
 					offset, 1, ENC_NA, &nope_ind);
 	if (nope_ind) {
-		proto_tree_add_item(tree, hf_otrxd_nope_ind_pad, tvb, offset++, 1, ENC_NA);
+		proto_tree_add_item(tree, hf_otrxd_nope_ind_pad, tvb, offset, 1, ENC_NA);
 		col_append_str(pinfo->cinfo, COL_INFO, ", NOPE.ind");
 		proto_item_append_text(ti, ", NOPE.ind");
-		goto skip_mts;
+		return;
 	}
 
 	/* MTS (Modulation and Training Sequence info).
@@ -263,13 +247,38 @@ static int dissect_otrxd_rx_hdr_v1(tvbuff_t *tvb, packet_info *pinfo,
 		mod_str = val_to_str(mts >> 3, otrxd_mod_4b_vals, "Unknown 0x%02x");
 		proto_tree_add_item(tree, hf_otrxd_mod_4b, tvb, offset, 1, ENC_NA);
 	}
+
 	proto_tree_add_item_ret_uint(tree, hf_otrxd_tsc, tvb, offset, 1, ENC_NA, &tsc);
-	offset++;
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, ", Modulation %s, TSC %u", mod_str, tsc);
 	proto_item_append_text(ti, ", Modulation %s, TSC %u", mod_str, tsc);
+}
 
-skip_mts:
+/* Dissector for Rx TRXD header version 0 */
+static int dissect_otrxd_rx_hdr_v0(tvbuff_t *tvb, packet_info *pinfo _U_,
+				   proto_item *ti _U_, proto_tree *tree,
+				   int offset)
+{
+	proto_tree_add_item(tree, hf_otrxd_rssi, tvb, offset++, 1, ENC_NA);
+	proto_tree_add_item(tree, hf_otrxd_toa256, tvb, offset, 2, ENC_NA);
+
+	return 1 + 2;
+}
+
+/* Dissector for Rx TRXD header version 1 */
+static int dissect_otrxd_rx_hdr_v1(tvbuff_t *tvb, packet_info *pinfo,
+				   proto_item *ti, proto_tree *tree,
+				   int offset)
+{
+	int v0_hdr_len;
+
+	/* Dissect V0 specific part first */
+	v0_hdr_len = dissect_otrxd_rx_hdr_v0(tvb, pinfo, ti, tree, offset);
+	offset += v0_hdr_len;
+
+	/* MTS (Modulation and Training Sequence) */
+	dissect_otrxd_mts(tvb, pinfo, ti, tree, offset++);
+
 	/* C/I (Carrier to Interference ratio) */
 	proto_tree_add_item(tree, hf_otrxd_ci, tvb, offset, 2, ENC_NA);
 
