@@ -599,6 +599,34 @@ mp2t_fragment_handle(tvbuff_t *tvb, guint offset, packet_info *pinfo,
  * For PES and PSI, see ISO/IEC 13818-1 / ITU-T Rec. H.222.0 (05/2006),
  * section 2.4.3.3 "Semantic definition of fields in Transport Stream packet
  * layer", which says much the same thing.
+ *
+ * When the payload is PES packet data, note that there is no pointer_field;
+ * if the PUSI is 1 then the TS payload "will commence with the first byte
+ * of a PES packet" and "one and only one PES packet starts in this Transport
+ * Stream packet". Furthermore, section 2.4.3.5 "Semantic definition of
+ * fields in adaptation field" mentions that stuffing in an adaptation field
+ * is "the only method of stuffing allowed for Transport Stream packets
+ * carrying PES packets." Thus stuff_bytes is not relevant for MPEG-TS payloads
+ * carrying PES. (It is possible to have stuffing *inside* the PES packet,
+ * as seen in section 2.4.3.6 "PES packet" and 2.4.3.7 "Semantic definition
+ * of fields in PES packet", which is handled in the MPEG PES dissector.)
+ *
+ * For MPEG-TS packets carrying PSI (which includes private data sections), an
+ * alternative stuffing method is allowed. This method involves stuff bytes
+ * at the end of a MPEG-TS packet after the last section contained within
+ * (similar to the stuff_bytes that may appear after a continued section
+ * before the byte referenced by pointer_field). According to Section 2.4.4
+ * "Program specific information", once a packet stuffing byte 0xFF appears,
+ * "all bytes until the end of the Transport Stream packet shall also be
+ * stuffing bytes of value 0xFF." In other words, as section C.3 "The Mapping
+ * of Sections into Transport Stream Packets" elaborates, while multiple
+ * entire sections are allowed within a TS packet, "no gaps between sections
+ * within a Transport Stream packet are allowed by the syntax".
+ *
+ * However, this function is permissive in what it accepts to the extent
+ * possible; it will allow multiple PES packets in the same TS packet and
+ * stuffing bytes to follow PES packets (at least those that indicate their
+ * length) and will allow stuffing bytes between complete PSI sections.
  */
 static void
 mp2t_process_fragmented_payload(tvbuff_t *tvb, gint offset, guint remaining_len, packet_info *pinfo,
@@ -809,7 +837,19 @@ mp2t_process_fragmented_payload(tvbuff_t *tvb, gint offset, guint remaining_len,
 
     /* There are remaining bytes. Add them to the fragment list */
 
-    if ((frag_tot_len && frag_cur_pos + remaining_len >= frag_tot_len) || (!frag_tot_len && pusi_flag)) {
+    if (frag_tot_len && frag_cur_pos + remaining_len > frag_tot_len) {
+        /* The case where PUSI was 0, a continuing SECT ended, and stuff
+         * bytes follow. */
+        stuff_len = frag_cur_pos + remaining_len - frag_tot_len;
+        mp2t_fragment_handle(tvb, offset, pinfo, tree, frag_id, frag_cur_pos, remaining_len - stuff_len, TRUE, pid_analysis->pload_type);
+        offset += remaining_len - stuff_len;
+        frag_id++;
+        fragmentation = FALSE;
+        frag_cur_pos = 0;
+        frag_tot_len = 0;
+        stuff_tree = proto_tree_add_subtree_format(tree, tvb, offset, stuff_len, ett_stuff, NULL, "Stuffing");
+        proto_tree_add_item(stuff_tree, hf_mp2t_stuff_bytes, tvb, offset, stuff_len, ENC_NA);
+    } else if ((frag_tot_len && frag_cur_pos + remaining_len == frag_tot_len) || (!frag_tot_len && pusi_flag)) {
         mp2t_fragment_handle(tvb, offset, pinfo, tree, frag_id, frag_cur_pos, remaining_len, TRUE, pid_analysis->pload_type);
         frag_id++;
         fragmentation = FALSE;
