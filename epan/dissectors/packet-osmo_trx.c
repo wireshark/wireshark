@@ -18,6 +18,8 @@
 #include <epan/expert.h>
 #include <epan/unit_strings.h>
 
+#define GMSK_BURST_LEN	148
+
 /* This is a non-standard, ad-hoc protocol to pass baseband GSM bursts between
  * the transceiver (such as osmo-trx, fake_trx.py or grgsm_trx) and the L1
  * program (such as osmo-bts-trx or trxcon). Osmocom inherited this protocol
@@ -321,7 +323,7 @@ static int dissect_otrxd_rx(tvbuff_t *tvb, packet_info *pinfo,
 	burst_len = tvb_reported_length(tvb) - offset;
 
 	/* There can be two optional padding bytes -> detect them! */
-	if (burst_len == 148 + 2 || burst_len == 444 + 2) {
+	if (burst_len == GMSK_BURST_LEN + 2 || burst_len == 3 * GMSK_BURST_LEN + 2) {
 		burst_len -= 2;
 		padding = 2;
 	}
@@ -375,11 +377,11 @@ static int dissect_otrxd_tx(tvbuff_t *tvb, packet_info *pinfo,
 		break;
 	/* TODO: introduce an enumerated type, detect other modulation types,
 	 * TODO: add a generated field for "osmo_trxd.mod" */
-	case 148:
+	case GMSK_BURST_LEN:
 		col_append_str(pinfo->cinfo, COL_INFO, ", Modulation GMSK");
 		proto_item_append_text(ti, ", Modulation GMSK");
 		break;
-	case 444:
+	case 3 * GMSK_BURST_LEN:
 		col_append_str(pinfo->cinfo, COL_INFO, ", Modulation 8-PSK");
 		proto_item_append_text(ti, ", Modulation 8-PSK");
 		break;
