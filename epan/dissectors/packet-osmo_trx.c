@@ -267,8 +267,9 @@ static int dissect_otrxd_rx_hdr_v0(tvbuff_t *tvb, packet_info *pinfo _U_,
 {
 	proto_tree_add_item(tree, hf_otrxd_rssi, tvb, offset++, 1, ENC_NA);
 	proto_tree_add_item(tree, hf_otrxd_toa256, tvb, offset, 2, ENC_NA);
+	offset += 2;
 
-	return 1 + 2;
+	return offset;
 }
 
 /* Dissector for Rx TRXD header version 1 */
@@ -276,19 +277,17 @@ static int dissect_otrxd_rx_hdr_v1(tvbuff_t *tvb, packet_info *pinfo,
 				   proto_item *ti, proto_tree *tree,
 				   int offset)
 {
-	int v0_hdr_len;
-
 	/* Dissect V0 specific part first */
-	v0_hdr_len = dissect_otrxd_rx_hdr_v0(tvb, pinfo, ti, tree, offset);
-	offset += v0_hdr_len;
+	offset = dissect_otrxd_rx_hdr_v0(tvb, pinfo, ti, tree, offset);
 
 	/* MTS (Modulation and Training Sequence) */
 	dissect_otrxd_mts(tvb, pinfo, ti, tree, offset++);
 
 	/* C/I (Carrier to Interference ratio) */
 	proto_tree_add_item(tree, hf_otrxd_ci, tvb, offset, 2, ENC_NA);
+	offset += 2;
 
-	return v0_hdr_len + 1 + 2;
+	return offset;
 }
 
 /* Dissector for common Rx/Tx TRXD header part */
@@ -334,10 +333,10 @@ static int dissect_otrxd_rx(tvbuff_t *tvb, packet_info *pinfo,
 	/* Parse version specific TRXD header part */
 	switch (hdr_ver) {
 	case 0:
-		offset += dissect_otrxd_rx_hdr_v0(tvb, pinfo, ti, tree, offset);
+		offset = dissect_otrxd_rx_hdr_v0(tvb, pinfo, ti, tree, offset);
 		break;
 	case 1:
-		offset += dissect_otrxd_rx_hdr_v1(tvb, pinfo, ti, tree, offset);
+		offset = dissect_otrxd_rx_hdr_v1(tvb, pinfo, ti, tree, offset);
 		break;
 	default:
 		expert_add_info_format(pinfo, ti, &ei_otrxd_unknown_pdu_ver,
