@@ -884,11 +884,11 @@
     </message>
     <message>
         <source>Unknown file type returned by save as dialog.</source>
-        <translation type="unfinished"></translation>
+        <translation>Tipo di file sconosciuto restituito dalla finestra di dialogo Salva come. </translation>
     </message>
     <message>
         <source>Please report this as a Wireshark issue at https://gitlab.com/wireshark/wireshark/-/issues.</source>
-        <translation type="unfinished"></translation>
+        <translation>Segnalalo come un problema di Wireshark su https://gitlab.com/wireshark/wireshark/-/issues. </translation>
     </message>
     <message>
         <source>directory</source>
@@ -6851,7 +6851,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>DCCP Stream</source>
-        <translation type="unfinished"></translation>
+        <translation>Flusso DCCP</translation>
     </message>
     <message>
         <source>TLS Stream</source>
@@ -7959,15 +7959,15 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Unknown file type returned by merge dialog.</source>
-        <translation type="unfinished"></translation>
+        <translation>Tipo di file sconosciuto restituito dalla finestra di unione. </translation>
     </message>
     <message>
         <source>Please report this as a Wireshark issue at https://gitlab.com/wireshark/wireshark/-/issues.</source>
-        <translation type="unfinished"></translation>
+        <translation>Segnalalo come un problema di Wireshark su https://gitlab.com/wireshark/wireshark/-/issues. </translation>
     </message>
     <message>
         <source>Unknown file type returned by export dialog.</source>
-        <translation type="unfinished"></translation>
+        <translation>Tipo di file sconosciuto restituito dalla finestra di esportazione. </translation>
     </message>
     <message>
         <source>Do you want to stop the capture and save the captured packets%1?</source>

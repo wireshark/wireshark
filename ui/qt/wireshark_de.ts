@@ -884,11 +884,11 @@
     </message>
     <message>
         <source>Unknown file type returned by save as dialog.</source>
-        <translation type="unfinished"></translation>
+        <translation>Speichern Dialog meldet einen unbekannten Dateityp</translation>
     </message>
     <message>
         <source>Please report this as a Wireshark issue at https://gitlab.com/wireshark/wireshark/-/issues.</source>
-        <translation type="unfinished"></translation>
+        <translation>Bitte melden Sie dies als ein Wireshark Issue unter https://gitlab.com/wireshark/wireshark/-/issues.</translation>
     </message>
     <message>
         <source>directory</source>
@@ -6851,7 +6851,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>DCCP Stream</source>
-        <translation type="unfinished"></translation>
+        <translation>DCCP Stream</translation>
     </message>
     <message>
         <source>TLS Stream</source>
@@ -7959,15 +7959,15 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Unknown file type returned by merge dialog.</source>
-        <translation type="unfinished"></translation>
+        <translation>Zusammenführen Dialog meldet einen unbekannten Dateityp</translation>
     </message>
     <message>
         <source>Please report this as a Wireshark issue at https://gitlab.com/wireshark/wireshark/-/issues.</source>
-        <translation type="unfinished"></translation>
+        <translation>Bitte melden Sie dies als ein Wireshark Issue unter https://gitlab.com/wireshark/wireshark/-/issues.</translation>
     </message>
     <message>
         <source>Unknown file type returned by export dialog.</source>
-        <translation type="unfinished"></translation>
+        <translation>Exportieren Dialog meldet einen unbekannten Dateityp</translation>
     </message>
     <message>
         <source>Do you want to stop the capture and save the captured packets%1?</source>
