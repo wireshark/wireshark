@@ -256,16 +256,3 @@ void set_action_shortcuts_visible_in_context_menu(QList<QAction *> actions)
     Q_UNUSED(actions)
 #endif
 }
-
-/*
- * Editor modelines
- *
- * Local Variables:
- * c-basic-offset: 4
- * tab-width: 8
- * indent-tabs-mode: nil
- * End:
- *
- * ex: set shiftwidth=4 tabstop=8 expandtab:
- * :indentSize=4:tabSize=8:noTabs=true:
- */

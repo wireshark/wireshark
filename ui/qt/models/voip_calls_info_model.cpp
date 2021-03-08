@@ -246,16 +246,3 @@ bool VoipCallsInfoSortedModel::lessThan(const QModelIndex &source_left, const QM
     // fallback to string cmp on other fields
     return QSortFilterProxyModel::lessThan(source_left, source_right);
 }
-
-/*
- * Editor modelines
- *
- * Local Variables:
- * c-basic-offset: 4
- * tab-width: 8
- * indent-tabs-mode: nil
- * End:
- *
- * ex: set shiftwidth=4 tabstop=8 expandtab:
- * :indentSize=4:tabSize=8:noTabs=true:
- */

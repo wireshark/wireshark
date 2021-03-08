@@ -881,16 +881,3 @@ void LteRlcGraphDialog::on_buttonBox_accepted()
 
 // No need to register tap listeners here.  This is done
 // in calls to the common functions in ui/tap-rlc-graph.c
-
-/*
- * Editor modelines
- *
- * Local Variables:
- * c-basic-offset: 4
- * tab-width: 8
- * indent-tabs-mode: nil
- * End:
- *
- * ex: set shiftwidth=4 tabstop=8 expandtab:
- * :indentSize=4:tabSize=8:noTabs=true:
- */

@@ -89,16 +89,3 @@ private:
 void color_filter_qt_add_cb(color_filter_t *colorf, gpointer user_data);
 
 #endif // COLOR_UTILS_H
-
-/*
- * Editor modelines
- *
- * Local Variables:
- * c-basic-offset: 4
- * tab-width: 8
- * indent-tabs-mode: nil
- * End:
- *
- * ex: set shiftwidth=4 tabstop=8 expandtab:
- * :indentSize=4:tabSize=8:noTabs=true:
- */

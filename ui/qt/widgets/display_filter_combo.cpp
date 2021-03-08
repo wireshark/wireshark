@@ -170,17 +170,3 @@ extern "C" gboolean dfilter_combo_add_recent(const gchar *filter) {
     cur_display_filter_combo->lineEdit()->blockSignals(block_state);
     return TRUE;
 }
-
-
-/*
- * Editor modelines
- *
- * Local Variables:
- * c-basic-offset: 4
- * tab-width: 8
- * indent-tabs-mode: nil
- * End:
- *
- * ex: set shiftwidth=4 tabstop=8 expandtab:
- * :indentSize=4:tabSize=8:noTabs=true:
- */

@@ -506,16 +506,3 @@ void InterfaceFrame::on_warningLabel_linkActivated(const QString &link)
         QDesktopServices::openUrl(QUrl(link));
     }
 }
-
-/*
- * Editor modelines
- *
- * Local Variables:
- * c-basic-offset: 4
- * tab-width: 8
- * indent-tabs-mode: nil
- * End:
- *
- * ex: set shiftwidth=4 tabstop=8 expandtab:
- * :indentSize=4:tabSize=8:noTabs=true:
- */

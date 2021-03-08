@@ -360,16 +360,3 @@ void LayoutPreferencesFrame::on_statusBarShowFileLoadTimeCheckBox_toggled(bool c
 {
     prefs_set_bool_value(pref_show_file_load_time_, (gboolean) checked, pref_stashed);
 }
-
-/*
- * Editor modelines
- *
- * Local Variables:
- * c-basic-offset: 4
- * tab-width: 8
- * indent-tabs-mode: nil
- * End:
- *
- * ex: set shiftwidth=4 tabstop=8 expandtab:
- * :indentSize=4:tabSize=8:noTabs=true:
- */

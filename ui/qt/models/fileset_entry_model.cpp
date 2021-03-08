@@ -153,16 +153,3 @@ QString FilesetEntryModel::time_tToString(time_t clock) const
             .arg(local->tm_min, 2, 10, QChar('0'))
             .arg(local->tm_sec, 2, 10, QChar('0'));
 }
-
-/*
- * Editor modelines
- *
- * Local Variables:
- * c-basic-offset: 4
- * tab-width: 8
- * indent-tabs-mode: nil
- * End:
- *
- * ex: set shiftwidth=4 tabstop=8 expandtab:
- * :indentSize=4:tabSize=8:noTabs=true:
- */

@@ -74,16 +74,3 @@ void text_window_add_button(funnel_text_window_t* ftw, funnel_bt_t* funnel_butto
 
 
 #endif // FUNNEL_TEXT_DIALOG_H
-
-/*
- * Editor modelines
- *
- * Local Variables:
- * c-basic-offset: 4
- * tab-width: 8
- * indent-tabs-mode: nil
- * End:
- *
- * ex: set shiftwidth=4 tabstop=8 expandtab:
- * :indentSize=4:tabSize=8:noTabs=true:
- */

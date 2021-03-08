@@ -146,16 +146,3 @@ void CapturePreferencesFrame::on_captureNoExtcapCheckBox_toggled(bool checked)
 {
     prefs_set_bool_value(pref_no_extcap_, checked, pref_stashed);
 }
-
-/*
- * Editor modelines
- *
- * Local Variables:
- * c-basic-offset: 4
- * tab-width: 8
- * indent-tabs-mode: nil
- * End:
- *
- * ex: set shiftwidth=4 tabstop=8 expandtab:
- * :indentSize=4:tabSize=8:noTabs=true:
- */
