@@ -1892,6 +1892,8 @@ dissect_oampdu_vendor_specific(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
                                         proto_item_append_text(dpoe_opcode_response, " (Downstream port %i queue %i size)",  qc_p_i, qc_j_i);
                                     }
                                 }
+                                /* offset variable already incremented, so variable_length should include only 1 to read next_byte */
+                                variable_length = 1;
                                 /* fall-through for unmatched: */
                             } else {
                                 proto_tree_add_item(dpoe_opcode_response_tree, hf_oampdu_variable_value, tvb, offset, variable_length, ENC_NA);
