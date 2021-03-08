@@ -513,29 +513,6 @@ static value_string_ext gbcs_gbz_alert_code_names_ext = VALUE_STRING_EXT_INIT(gb
 VALUE_STRING_ENUM(gbcs_gbz_integrity_issue_warning_names);
 VALUE_STRING_ARRAY(gbcs_gbz_integrity_issue_warning_names);
 
-#define gbcs_gbz_user_interface_command_names_VALUE_STRING_LIST(XXX) \
-    XXX(GBCS_GBZ_USER_INTERFACE_COMMAND_ACTIVATE_BOOST_PERIOD,          0x0001, "Activate Boost Period" ) \
-    XXX(GBCS_GBZ_USER_INTERFACE_COMMAND_ACTIVATE_EMERGENCY_CREDIT_PIN,  0x0002, "Activate Emergency Credit [PIN]" ) \
-    XXX(GBCS_GBZ_USER_INTERFACE_COMMAND_ADD_CREDIT,                     0x0005, "Add Credit" ) \
-    XXX(GBCS_GBZ_USER_INTERFACE_COMMAND_ALLOW_ACCESS_TO_USER_INTERFACE, 0x0008, "Allow Access to User Interface" ) \
-    XXX(GBCS_GBZ_USER_INTERFACE_COMMAND_CANCEL_BOOST_PERIOD,            0x000A, "Cancel Boost Period" ) \
-    XXX(GBCS_GBZ_USER_INTERFACE_COMMAND_CHECK_FOR_HAN_INTERFACE_CMD,    0x000B, "Check for HAN Interface Commands" ) \
-    XXX(GBCS_GBZ_USER_INTERFACE_COMMAND_DISABLE_PRIV_PIN_PROTEC_PIN,    0x000C, "Disable Privacy PIN Protection [PIN]" ) \
-    XXX(GBCS_GBZ_USER_INTERFACE_COMMAND_ENABLE_SUPPLY_PIN,              0x000E, "Enable Supply [PIN]" ) \
-    XXX(GBCS_GBZ_USER_INTERFACE_COMMAND_EXTEND_BOOST_PERIOD,            0x000F, "Extend Boost Period" ) \
-    XXX(GBCS_GBZ_USER_INTERFACE_COMMAND_SET_PRIVACY_PIN_PIN,            0x0012, "Set Privacy PIN [PIN]" ) \
-    XXX(GBCS_GBZ_USER_INTERFACE_COMMAND_TEST_AUX_LOAD_CONTROL_SWITCH_1, 0x0013, "Test Auxiliary Load Control Switch 1" ) \
-    XXX(GBCS_GBZ_USER_INTERFACE_COMMAND_TEST_AUX_LOAD_CONTROL_SWITCH_2, 0x0014, "Test Auxiliary Load Control Switch 2" ) \
-    XXX(GBCS_GBZ_USER_INTERFACE_COMMAND_TEST_AUX_LOAD_CONTROL_SWITCH_3, 0x0015, "Test Auxiliary Load Control Switch 3" ) \
-    XXX(GBCS_GBZ_USER_INTERFACE_COMMAND_TEST_AUX_LOAD_CONTROL_SWITCH_4, 0x0016, "Test Auxiliary Load Control Switch 4" ) \
-    XXX(GBCS_GBZ_USER_INTERFACE_COMMAND_TEST_AUX_LOAD_CONTROL_SWITCH_5, 0x0017, "Test Auxiliary Load Control Switch 5" ) \
-    XXX(GBCS_GBZ_USER_INTERFACE_COMMAND_TEST_VALVE,                     0x0018, "Test Valve" ) \
-    XXX(GBCS_GBZ_USER_INTERFACE_COMMAND_RESET_REMAIN_BATTERY_CAPACITY,  0x0019, "Reset Remaining Battery Capacity" ) \
-    XXX(GBCS_GBZ_USER_INTERFACE_COMMAND_FIND_AND_JOIN_SMHAN,            0x001A, "Find and Join SMHAN" )
-
-VALUE_STRING_ENUM(gbcs_gbz_user_interface_command_names);
-VALUE_STRING_ARRAY(gbcs_gbz_user_interface_command_names);
-
 static dissector_handle_t zcl_handle;
 
 static int proto_gbcs_gbz = -1;
@@ -555,7 +532,6 @@ static int hf_gbcs_gbz_originator_counter = -1;
 static int hf_gbcs_gbz_frame_control = -1;
 static int hf_gbcs_gbz_command_id = -1;
 static int hf_gbcs_gbz_integrity_issue_warning = -1;
-static int hf_gbcs_gbz_user_interface_command = -1;
 static int hf_gbcs_gbz_from_date_time = -1;
 static int hf_gbcs_gbz_additional_header_control = -1;
 static int hf_gbcs_gbz_additional_frame_counter = -1;
@@ -744,11 +720,6 @@ static int dissect_gbcs_gbz(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         case GBCS_GBZ_ALERT_BILLING_DATA_LOG_UPDATED:
             dissect_gbcs_gbz_component(tvb, pinfo, gbz_tree, &offset, 0);
             break;
-        case GBCS_GBZ_ALERT_USER_INTERFACE_COMMAND_INPUT_AND_SUCCESSFULLY_AC:
-        case GBCS_GBZ_ALERT_USER_INTERFACE_COMMAND_INPUT_BUT_NOT_SUCCESSFULL:
-            proto_tree_add_item(gbz_tree, hf_gbcs_gbz_user_interface_command, tvb, offset, 2, ENC_BIG_ENDIAN);
-            offset += 2;
-            break;
         case GBCS_GBZ_ALERT_SMART_METER_INTEGRITY_ISSUE_WARNING:
             proto_tree_add_item(gbz_tree, hf_gbcs_gbz_integrity_issue_warning, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset += 2;
@@ -830,10 +801,6 @@ void proto_register_gbcs_gbz(void)
         {&hf_gbcs_gbz_integrity_issue_warning,
             {"Integrity Issue Warning", "gbcs_gbz.integrity_issue_warning",
              FT_UINT16, BASE_HEX, VALS(gbcs_gbz_integrity_issue_warning_names), 0x0, NULL, HFILL}
-        },
-        {&hf_gbcs_gbz_user_interface_command,
-            {"User Interface Command", "gbcs_gbz.user_interface_command",
-             FT_UINT16, BASE_HEX, VALS(gbcs_gbz_user_interface_command_names), 0x0, NULL, HFILL}
         },
         {&hf_gbcs_gbz_from_date_time,
             {"From Date Time", "gbcs_gbz.from_date_time",
