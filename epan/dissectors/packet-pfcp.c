@@ -823,8 +823,10 @@ static int hf_pfcp_number_of_ue_ip_addresses_ipv4 = -1;
 static int hf_pfcp_validity_timer = -1;
 
 static int hf_pfcp_travelping_build_id = -1;
-static int hf_pfcp_travelping_build_id_str = -1;
 static int hf_pfcp_travelping_now = -1;
+static int hf_pfcp_travelping_error_message = -1;
+static int hf_pfcp_travelping_file_name = -1;
+static int hf_pfcp_travelping_line_number = -1;
 
 static int ett_pfcp = -1;
 static int ett_pfcp_flags = -1;
@@ -909,8 +911,7 @@ static int ett_pfcp_data_status_flags = -1;
 static int ett_pfcp_rds_configuration_information_flags = -1;
 static int ett_pfcp_number_of_ue_ip_addresses_flags = -1;
 
-
-
+static int ett_pfcp_enterprise_travelping_error_report = -1;
 
 static expert_field ei_pfcp_ie_reserved = EI_INIT;
 static expert_field ei_pfcp_ie_data_not_decoded = EI_INIT;
@@ -9070,11 +9071,21 @@ static const value_string pfcp_enterpise_travelping_type_vals[] = {
     { 3, "Now"},
     { 4, "Start"},
     { 5, "Stop"},
+    { 6, "Error Report"},
+    { 7, "Error Message"},
+    { 8, "File Name"},
+    { 9, "Line Number"},
     { 0, NULL }
 };
 
+static void
+dissect_pfcp_enterprise_travelping_error_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
+{
+    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_enterprise_travelping_error_report, args);
+}
+
 static int
-dissect_pfcp_enterprise_travelping_ies(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data)
+dissect_pfcp_enterprise_travelping_ies(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     proto_item *item = (proto_item *)data;
     gint offset = 0;
@@ -9089,42 +9100,61 @@ dissect_pfcp_enterprise_travelping_ies(tvbuff_t *tvb, packet_info *pinfo _U_, pr
     /* adjust length for Enterprise Id */
     length -= 2;
 
-    proto_item_append_text(tree, ": %s", val_to_str_const(type, pfcp_enterpise_travelping_type_vals, "Unknown"));
+    proto_item_append_text(tree, " : %s", val_to_str_const(type, pfcp_enterpise_travelping_type_vals, "Unknown"));
 
     switch (type) {
     case 2:
         /* Octet 7 to (n+4) Travelping Build Id */
-        if (tvb_ascii_isprint(tvb, offset, length))
-        {
-            const guint8* string_value;
-            proto_tree_add_item_ret_string(tree, hf_pfcp_travelping_build_id_str, tvb, offset, length, ENC_ASCII | ENC_NA, wmem_packet_scope(), &string_value);
-            proto_item_append_text(item, "%s", string_value);
-        }
-        else
-        {
-            proto_tree_add_item(tree, hf_pfcp_travelping_build_id, tvb, offset, length, ENC_NA);
-        }
+        proto_tree_add_item(tree, hf_pfcp_travelping_build_id, tvb, offset, length, ENC_NA);
         break;
 
     case 3: {
         char *time_str;
 
         proto_tree_add_item_ret_time_string(tree, hf_pfcp_travelping_now, tvb, offset, 8, ENC_TIME_NTP | ENC_BIG_ENDIAN, wmem_packet_scope(), &time_str);
-        proto_item_append_text(item, " %s", time_str);
+        proto_item_append_text(item, " : %s", time_str);
         break;
     }
     case 4: {
         char *time_str;
 
         proto_tree_add_item_ret_time_string(tree, hf_pfcp_travelping_now, tvb, offset, 8, ENC_TIME_NTP | ENC_BIG_ENDIAN, wmem_packet_scope(), &time_str);
-        proto_item_append_text(item, " %s", time_str);
+        proto_item_append_text(item, " : %s", time_str);
         break;
     }
     case 5: {
         char *time_str;
 
         proto_tree_add_item_ret_time_string(tree, hf_pfcp_travelping_now, tvb, offset, 8, ENC_TIME_NTP | ENC_BIG_ENDIAN, wmem_packet_scope(), &time_str);
-        proto_item_append_text(item, " %s", time_str);
+        proto_item_append_text(item, " : %s", time_str);
+        break;
+    }
+
+    case 6: {
+        tvbuff_t *ie_tvb;
+
+        ie_tvb = tvb_new_subset_length(tvb, offset, length);
+        proto_item_append_text(item, " : ");
+        dissect_pfcp_enterprise_travelping_error_report(ie_tvb, pinfo, tree, item, length, -1, NULL);
+        break;
+    }
+
+    case 7:
+        /* Octet 7 to (n+4) Travelping Error Message */
+        proto_tree_add_item(tree, hf_pfcp_travelping_error_message, tvb, offset, length, ENC_NA);
+        break;
+
+    case 8:
+        /* Octet 7 to (n+4) Travelping Error Message */
+        proto_tree_add_item(tree, hf_pfcp_travelping_file_name, tvb, offset, length, ENC_NA);
+        break;
+
+    case 9: {
+        guint32 line_number;
+
+        /* Octet 7 to 10 Travelping Line Number */
+        proto_tree_add_item_ret_uint(tree, hf_pfcp_travelping_line_number, tvb, offset, 4, ENC_BIG_ENDIAN, &line_number);
+        proto_item_append_text(item, " : %u", line_number);
         break;
     }
 
@@ -12552,26 +12582,35 @@ proto_register_pfcp(void)
             NULL, HFILL }
         },
 
-
         { &hf_pfcp_travelping_build_id,
-        { "Travelping Build Identifier", "pfcp.travelping_build_id",
-            FT_BYTES, BASE_NONE, NULL, 0x0,
-            NULL, HFILL }
-        },
-        { &hf_pfcp_travelping_build_id_str,
-        { "Travelping Build Identifier", "pfcp.travelping_build_id_str",
-            FT_STRING, BASE_NONE, NULL, 0x0,
+        { "Build Identifier", "pfcp.travelping.build_id",
+            FT_BYTES, BASE_SHOW_ASCII_PRINTABLE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_pfcp_travelping_now,
-        { "Travelping Now", "pfcp.travelping_now",
+        { "Now", "pfcp.travelping.now",
             FT_ABSOLUTE_TIME, ABSOLUTE_TIME_NTP_UTC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_travelping_error_message,
+        { "Error Message", "pfcp.travelping.error_message",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_travelping_file_name,
+        { "File Name", "pfcp.travelping.file_name",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_travelping_line_number,
+        { "Line Number", "pfcp.travelping.line_number",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
     };
 
     /* Setup protocol subtree array */
-#define NUM_INDIVIDUAL_ELEMS_PFCP    82
+#define NUM_INDIVIDUAL_ELEMS_PFCP    83
     gint *ett[NUM_INDIVIDUAL_ELEMS_PFCP +
         (NUM_PFCP_IES - 1)];
 
@@ -12657,7 +12696,7 @@ proto_register_pfcp(void)
     ett[79] = &ett_pfcp_data_status_flags;
     ett[80] = &ett_pfcp_rds_configuration_information_flags;
     ett[81] = &ett_pfcp_number_of_ue_ip_addresses_flags;
-
+    ett[82] = &ett_pfcp_enterprise_travelping_error_report;
 
 
     static ei_register_info ei[] = {
