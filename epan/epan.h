@@ -28,6 +28,7 @@ extern "C" {
  * to save fetching it repeatedly.
  */
 extern gboolean wireshark_abort_on_dissector_bug;
+extern gboolean wireshark_abort_on_too_many_items;
 
 typedef struct epan_dissect epan_dissect_t;
 

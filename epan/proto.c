@@ -109,7 +109,7 @@ struct ptvcursor {
 	PROTO_REGISTRAR_GET_NTH(hfindex, hfinfo);			\
 	if (PTREE_DATA(tree)->count > prefs.gui_max_tree_items) {			\
 		free_block;						\
-		if (getenv("WIRESHARK_ABORT_ON_TOO_MANY_ITEMS") != NULL) \
+		if (wireshark_abort_on_too_many_items) \
 			g_error("Adding %s would put more than %d items in the tree -- possible infinite loop (max number of items can be increased in advanced preferences)", \
 			    hfinfo->abbrev, prefs.gui_max_tree_items);	\
 		/* Let the exception handler add items to the tree */	\
