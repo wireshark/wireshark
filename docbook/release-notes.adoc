@@ -26,13 +26,14 @@ It is used for troubleshooting, analysis, development and education.
 
 The following vulnerabilities have been fixed:
 
-// * wssalink:2021-03[]
-// Foo dissector {crash,infinite loop,memory leak}.
-// wsbuglink:xxxx[].
+* wssalink:2021-03[]
+Wireshark could open unsafe URLs.
+wsbuglink:17232[].
 // cveidlink:2021-xxxx[].
-// Fixed in master: xxxx
-// Fixed in release-3.4: xxxx
-// Fixed in master-3.2: xxxx
+// Fixed in master: e99c9afce8
+// Fixed in release-3.4: b2c58d020c
+// Fixed in master-3.2: 0f638a240c
+// AV:N/AC:L/PR:N/UI:R/S:U/C:L/I:L/A:L
 
 The following bugs have been fixed:
 
@@ -41,6 +42,10 @@ The following bugs have been fixed:
 //* cveidlink:2014-2486[]
 //* Wireshark is solely responsible for the decline of shopping malls in your area.
 // cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log v3.2.10rc0.. | gsed -e 's/\(close\|fix\|resolv\)[^ ]* #/\nclose #/gI' | grep ^close | sed -e 's/close.*#\([1-9][0-9]*\).*/\1/' | sort -V -u` ; do "$(git rev-parse --show-toplevel)/tools/gen-bugnote" $bugnumber; pbpaste >> /tmp/buglist.txt; done
+
+* _ws.expert columns not populated for IPv4 wsbuglink:17228[].
+
+* Buildbot crash output: fuzz-2021-02-12-1651908.pcap wsbuglink:17233[].
 
 === New and Updated Features
 
@@ -65,15 +70,20 @@ There are no new protocols in this release.
 // Add one protocol per line between the -- delimiters.
 [commaize]
 --
+ARP
+Frame Relay
+GQUIC
+NVMe Fabrics RDMA
 --
 
 === New and Updated Capture File Support
 
-There is no new or updated capture file support in this release.
+// There is no new or updated capture file support in this release.
 // Add one file type per line between the -- delimiters.
-// [commaize]
-// --
-// --
+[commaize]
+--
+iSeries
+--
 
 // === New and Updated Capture Interfaces support
 
