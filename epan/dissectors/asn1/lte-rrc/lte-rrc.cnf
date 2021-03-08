@@ -289,6 +289,31 @@ RRCConnectionResumeRequest-NB-r13-IEs/anr-InfoAvailable-r16                     
 MasterInformationBlock-NB/additionalTransmissionSIB1-r15                                       masterInformationBlock-NB_additionalTransmissionSIB1-r15
 PhyLayerParameters-NB-v1530/additionalTransmissionSIB1-r15                                     phyLayerParameters-NB-v1530_additionalTransmissionSIB1-r15
 
+BCCH-BCH-Message/message                                                                       bCCH-BCH-Message_message
+BCCH-BCH-Message-MBMS/message                                                                  bCCH-BCH-Message-MBMS_message
+BCCH-DL-SCH-Message/message                                                                    bCCH-DL-SCH-Message_message
+BCCH-DL-SCH-Message-BR/message                                                                 bCCH-DL-SCH-Message-BR_message
+BCCH-DL-SCH-Message-MBMS/message                                                               bCCH-DL-SCH-Message-MBMS_message
+MCCH-Message/message                                                                           mCCH-Message_message
+PCCH-Message/message                                                                           pCCH-Message_message
+DL-CCCH-Message/message                                                                        dL-CCCH-Message_message
+DL-DCCH-Message/message                                                                        dL-DCCH-Message_message
+UL-CCCH-Message/message                                                                        uL-CCCH-Message_message
+UL-DCCH-Message/message                                                                        uL-DCCH-Message_message
+SC-MCCH-Message-r13/message                                                                    sC-MCCH-Message-r13_message
+SBCCH-SL-BCH-Message/message                                                                   sBCCH-SL-BCH-Message_message
+SBCCH-SL-BCH-Message-V2X-r14/message                                                           sBCCH-SL-BCH-Message-V2X-r14_message
+BCCH-BCH-Message-NB/message                                                                    bCCH-BCH-Message-NB_message
+BCCH-BCH-Message-TDD-NB/message                                                                bCCH-BCH-Message-TDD-NB_message
+BCCH-DL-SCH-Message-NB/message                                                                 bCCH-DL-SCH-Message-NB_message
+PCCH-Message-NB/message                                                                        pCCH-Message-NB_message
+DL-CCCH-Message-NB/message                                                                     dL-CCCH-Message-NB_message
+DL-DCCH-Message-NB/message                                                                     dL-DCCH-Message-NB_message
+UL-CCCH-Message-NB/message                                                                     uL-CCCH-Message-NB_message
+SC-MCCH-Message-NB/message                                                                     sC-MCCH-Message-NB_message
+UL-DCCH-Message-NB/message                                                                     uL-DCCH-Message-NB_message
+DRX-Config/release                                                                             dRX-Config_release
+
 #.FIELD_ATTR
 UERadioAccessCapabilityInformation-r8-IEs/ue-RadioAccessCapabilityInfo  ABBREV=uERadioAccessCapabilityInformation-r8-IEs.ue-RadioAccessCapabilityInfo
 RRCConnectionResumeRequest-r13-IEs/resumeIdentity-r13                   ABBREV=rRCConnectionResumeRequest-r13-IEs.resumeIdentity-r13
@@ -570,6 +595,30 @@ RRCConnectionResumeComplete-NB-v1610-IEs/anr-InfoAvailable-r16                  
 RRCConnectionResumeRequest-NB-r13-IEs/anr-InfoAvailable-r16                                    ABBREV=rRCConnectionResumeRequest-NB-r13-IEs.anr-InfoAvailable-r16
 MasterInformationBlock-NB/additionalTransmissionSIB1-r15                                       ABBREV=masterInformationBlock-NB.additionalTransmissionSIB1-r15
 PhyLayerParameters-NB-v1530/additionalTransmissionSIB1-r15                                     ABBREV=phyLayerParameters-NB-v1530.additionalTransmissionSIB1-r15
+BCCH-BCH-Message/message                                                                       ABBREV=bCCH-BCH-Message.message
+BCCH-BCH-Message-MBMS/message                                                                  ABBREV=bCCH-BCH-Message-MBMS.message
+BCCH-DL-SCH-Message/message                                                                    ABBREV=bCCH-DL-SCH-Message.message
+BCCH-DL-SCH-Message-BR/message                                                                 ABBREV=bCCH-DL-SCH-Message-BR.message
+BCCH-DL-SCH-Message-MBMS/message                                                               ABBREV=bCCH-DL-SCH-Message-MBMS.message
+MCCH-Message/message                                                                           ABBREV=mCCH-Message.message
+PCCH-Message/message                                                                           ABBREV=pCCH-Message.message
+DL-CCCH-Message/message                                                                        ABBREV=dL-CCCH-Message.message
+DL-DCCH-Message/message                                                                        ABBREV=dL-DCCH-Message.message
+UL-CCCH-Message/message                                                                        ABBREV=uL-CCCH-Message.message
+UL-DCCH-Message/message                                                                        ABBREV=uL-DCCH-Message.message
+SC-MCCH-Message-r13/message                                                                    ABBREV=sC-MCCH-Message-r13.message
+SBCCH-SL-BCH-Message/message                                                                   ABBREV=sBCCH-SL-BCH-Message.message
+SBCCH-SL-BCH-Message-V2X-r14/message                                                           ABBREV=sBCCH-SL-BCH-Message-V2X-r14.message
+BCCH-BCH-Message-NB/message                                                                    ABBREV=bCCH-BCH-Message-NB.message
+BCCH-BCH-Message-TDD-NB/message                                                                ABBREV=bCCH-BCH-Message-TDD-NB.message
+BCCH-DL-SCH-Message-NB/message                                                                 ABBREV=bCCH-DL-SCH-Message-NB.message
+PCCH-Message-NB/message                                                                        ABBREV=pCCH-Message-NB.message
+DL-CCCH-Message-NB/message                                                                     ABBREV=dL-CCCH-Message-NB.message
+DL-DCCH-Message-NB/message                                                                     ABBREV=dL-DCCH-Message-NB.message
+UL-CCCH-Message-NB/message                                                                     ABBREV=uL-CCCH-Message-NB.message
+SC-MCCH-Message-NB/message                                                                     ABBREV=sC-MCCH-Message-NB.message
+UL-DCCH-Message-NB/message                                                                     ABBREV=uL-DCCH-Message-NB.message
+DRX-Config/release                                                                             ABBREV=dRX-Config.release
 
 #.USE_VALS_EXT
 AUL-Config-r15/setup/aul-RetransmissionTimer-r15
