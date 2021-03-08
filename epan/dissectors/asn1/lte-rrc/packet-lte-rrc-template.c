@@ -49,6 +49,7 @@ void proto_register_lte_rrc(void);
 void proto_reg_handoff_lte_rrc(void);
 
 static dissector_handle_t nas_eps_handle = NULL;
+static dissector_handle_t nas_5gs_handle = NULL;
 static dissector_handle_t rrc_irat_ho_to_utran_cmd_handle = NULL;
 static dissector_handle_t rrc_sys_info_cont_handle = NULL;
 static dissector_handle_t gsm_a_dtap_handle = NULL;
@@ -4509,6 +4510,7 @@ proto_reg_handoff_lte_rrc(void)
 {
   dissector_add_for_decode_as_with_preference("udp.port", lte_rrc_dl_ccch_handle);
   nas_eps_handle = find_dissector("nas-eps");
+  nas_5gs_handle = find_dissector("nas-5gs");
   rrc_irat_ho_to_utran_cmd_handle = find_dissector("rrc.irat.ho_to_utran_cmd");
   rrc_sys_info_cont_handle = find_dissector("rrc.sysinfo.cont");
   gsm_a_dtap_handle = find_dissector("gsm_a_dtap");

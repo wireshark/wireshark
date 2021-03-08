@@ -822,14 +822,18 @@ SI-OrPSI-GERAN TYPE_PREFIX
 #.FN_BODY DedicatedInfoNAS VAL_PTR = &nas_eps_tvb
   tvbuff_t *nas_eps_tvb=NULL;
 %(DEFAULT_BODY)s
-  if ((nas_eps_tvb)&&(nas_eps_handle)) {
+  if (nas_eps_tvb) {
     proto_tree *nas_tree;
+    dissector_handle_t handle;
     if (lte_rrc_nas_in_root_tree) {
       nas_tree = proto_tree_get_root(tree);
     } else {
       nas_tree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_dedicatedInfoNAS);
     }
-    lte_rrc_call_dissector(nas_eps_handle, nas_eps_tvb, actx->pinfo, nas_tree);
+    handle = (tvb_get_bits8(nas_eps_tvb, 4, 4) == 0x0e) ? nas_5gs_handle : nas_eps_handle;
+    if (handle) {
+      lte_rrc_call_dissector(handle, nas_eps_tvb, actx->pinfo, nas_tree);
+    }
   }
 
 #.FN_BODY UECapabilityEnquiry-v1510-IEs/requestedFreqBandsNR-MRDC-r15 VAL_PTR = &freq_band_list_tvb
