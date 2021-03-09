@@ -20,6 +20,13 @@
 
 #include "packet-ieee80211.h"
 
+/*
+ * See
+ *
+ *    https://web.archive.org/web/20040803232023/http://www.shaftnet.org/~pizza/software/capturefrm.txt
+ *
+ * for the format of the header.
+ */
 void proto_register_ieee80211_wlancap(void);
 void proto_reg_handoff_ieee80211_wlancap(void);
 
@@ -483,6 +490,7 @@ dissect_wlancap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
       }
     }
     offset+=4;
+
     datarate = tvb_get_ntohl(tvb, offset);
     if (datarate < 100000) {
       /* In units of 100 Kb/s; convert to b/s */
@@ -509,12 +517,44 @@ dissect_wlancap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
                                    ((datarate % 1000000) > 500000) ? 5 : 0);
     }
     offset+=4;
+
+    /*
+     * The phytype field in the header "identifies what type of PHY
+     * is employed by the WLAN device used to capture this frame";
+     * in at least one capture, it's phytype_ofdm_dot11_g for frames
+     * received using DSSS, so it may be usable to identify the
+     * type of PHY being used (except that "ofdm" isn't correct, as
+     * 11g supports both DSSS and OFDM), but it cannot be used to
+     * determine the modulation with which the packet was transmitted.
+     *
+     * The encoding field "specifies the encoding of the received packet".
+     * At least one capture using the AVS header specifies CCK for at
+     * least one frame with a 1 Mb/s data rate, which is technically
+     * incorrect (CCK is used only for 5.5 and 11 Mb/s DSSS packets) and
+     * it also specifies it for at least one frame with a 54 Mb/s data
+     * rate, which is *very* wrong (that's OFDM, not DSSS, and CCK is
+     * only used with DSSS), so that field cannot be trusted to indicate
+     * the modulation with which the packet was transmitted.
+     *
+     * We want an indication of how the frame was received, so, if we
+     * have the data rate for a purportedly 11g-OFDM packet, we use
+     * that to determine whether it's 11g-OFDM or 11g/11b-DSSS.
+     */
+    if (phdr.phy == PHDR_802_11_PHY_11G && phdr.has_data_rate) {
+      if (RATE_IS_DSSS(phdr.data_rate)) {
+        /* Presumably 11g using DSSS; we report that as 11b. */
+        phdr.phy = PHDR_802_11_PHY_11B;
+      }
+    }
+
     if (tree)
       proto_tree_add_item(wlan_tree, hf_wlancap_antenna, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset+=4;
+
     if (tree)
       proto_tree_add_item(wlan_tree, hf_wlancap_priority, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset+=4;
+
     ssi_type = tvb_get_ntohl(tvb, offset);
     if (tree)
       proto_tree_add_uint(wlan_tree, hf_wlancap_ssi_type, tvb, offset, 4, ssi_type);
@@ -551,6 +591,7 @@ dissect_wlancap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
       break;
     }
     offset+=4;
+
     antnoise = tvb_get_ntohl(tvb, offset);
     /* 0xffffffff means "hardware does not provide noise data" */
     if (antnoise != 0xffffffff) {
@@ -586,70 +627,57 @@ dissect_wlancap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
       }
     }
     offset+=4;
-    switch (tvb_get_ntohl(tvb, offset)) {
 
-    case 0:
-      /* Undefined, so we don't know if there's a short preamble */
-      break;
+    /*
+     * This only applies to packets received as DSSS (1b/11g-DSSS).
+     */
+    if (phdr.phy == PHDR_802_11_PHY_11B) {
+      switch (tvb_get_ntohl(tvb, offset)) {
 
-    case 1:
-      /*
-       * Short preamble.
-       */
-      switch (phdr.phy) {
+      case 0:
+        /* Undefined, so we don't know if there's a short preamble */
+        phdr.phy_info.info_11b.has_short_preamble = FALSE;
+        break;
 
-      case PHDR_802_11_PHY_11B:
+      case 1:
+        /* Short preamble. */
         phdr.phy_info.info_11b.has_short_preamble = TRUE;
         phdr.phy_info.info_11b.short_preamble = TRUE;
         break;
 
-      case PHDR_802_11_PHY_11G:
-        phdr.phy_info.info_11g.has_short_preamble = TRUE;
-        phdr.phy_info.info_11g.short_preamble = TRUE;
-        break;
-      }
-      break;
-
-    case 2:
-      /*
-       * Long preamble.
-       * We assume this is present only for PHYs that support variable
-       * preamble lengths.
-       */
-      switch (phdr.phy) {
-
-      case PHDR_802_11_PHY_11B:
+      case 2:
+        /* Long preamble. */
         phdr.phy_info.info_11b.has_short_preamble = TRUE;
         phdr.phy_info.info_11b.short_preamble = FALSE;
         break;
 
-      case PHDR_802_11_PHY_11G:
-        phdr.phy_info.info_11g.has_short_preamble = TRUE;
-        phdr.phy_info.info_11g.short_preamble = FALSE;
+      default:
+        /* Invalid, so we don't know if there's a short preamble. */
+        phdr.phy_info.info_11b.has_short_preamble = FALSE;
         break;
       }
-      break;
-
-    default:
-      /* Invalid, so we don't know if there's a short preamble. */
-      break;
     }
     if (tree)
       proto_tree_add_item(wlan_tree, hf_wlancap_preamble, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset+=4;
+
     if (tree)
       proto_tree_add_item(wlan_tree, hf_wlancap_encoding, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset+=4;
+
     if (version > 1) {
       if (tree)
         proto_tree_add_item(wlan_tree, hf_wlancap_sequence, tvb, offset, 4, ENC_BIG_ENDIAN);
       offset+=4;
+
       if (tree)
         proto_tree_add_item(wlan_tree, hf_wlancap_drops, tvb, offset, 4, ENC_BIG_ENDIAN);
       offset+=4;
+
       if (tree)
         proto_tree_add_item(wlan_tree, hf_wlancap_receiver_addr, tvb, offset, 6, ENC_NA);
       offset+=6;
+
       if (tree)
         proto_tree_add_item(wlan_tree, hf_wlancap_padding, tvb, offset, 2, ENC_NA);
       /*offset+=2;*/

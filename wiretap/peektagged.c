@@ -802,19 +802,9 @@ peektagged_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
                     }
                     if (ieee_802_11.phy == PHDR_802_11_PHY_11G) {
                       /* Set 11g metadata */
-                      if (saw_flags_and_status) {
-                        /*
-                         * XXX - is the short preamble only a
-                         * "DSSS part of 11g" thing?  If so, we
-                         * should never get here.
-                         */
-                        ieee_802_11.phy_info.info_11g.has_short_preamble = TRUE;
-                        ieee_802_11.phy_info.info_11g.short_preamble =
-                          (flags_and_status & STATUS_SHORT_PREAMBLE) ? TRUE : FALSE;;
-                      } else
-                        ieee_802_11.phy_info.info_11g.has_short_preamble = FALSE;
-                    } else if (ieee_802_11.phy == PHDR_802_11_PHY_11G) {
-                      /* 11a - set 11a metadata */
+                      ieee_802_11.phy_info.info_11g.has_mode = FALSE;
+                    } else if (ieee_802_11.phy == PHDR_802_11_PHY_11A) {
+                      /* Set 11a metadata */
                       ieee_802_11.phy_info.info_11a.has_channel_type = FALSE;
                       ieee_802_11.phy_info.info_11a.has_turbo_type = FALSE;
                     }

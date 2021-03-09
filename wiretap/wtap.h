@@ -594,13 +594,15 @@ struct ieee_802_11a {
 
 /*
  * 802.11g.
+ *
+ * This should only be used for packets sent using OFDM; packets
+ * sent on an 11g network using DSSS should have the PHY set to
+ * 11b.
  */
 struct ieee_802_11g {
     /* Which of this information is present? */
-    guint    has_short_preamble:1;
     guint    has_mode:1;
 
-    gboolean short_preamble; /* Short preamble */
     guint32  mode;           /* Various proprietary extensions */
 };
 

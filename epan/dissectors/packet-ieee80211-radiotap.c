@@ -2382,8 +2382,7 @@ dissect_radiotap_rate(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 
 static void
 dissect_radiotap_channel(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
-	int offset, guint8 rflags, gboolean have_rflags,
-	struct ieee_802_11_phdr *phdr)
+	int offset, struct ieee_802_11_phdr *phdr)
 {
 	guint32     freq;
 	guint16     cflags;
@@ -2424,30 +2423,22 @@ dissect_radiotap_channel(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 
 	case IEEE80211_CHAN_B:
 		phdr->phy = PHDR_802_11_PHY_11B;
-		if (have_rflags) {
-			phdr->phy_info.info_11b.has_short_preamble = TRUE;
-			phdr->phy_info.info_11b.short_preamble = (rflags & IEEE80211_RADIOTAP_F_SHORTPRE) != 0;
-		}
 		break;
 
 	case IEEE80211_CHAN_PUREG:
-		phdr->phy = PHDR_802_11_PHY_11G;
-		phdr->phy_info.info_11g.has_mode = TRUE;
-		phdr->phy_info.info_11g.mode = PHDR_802_11G_MODE_NORMAL;
-		if (have_rflags) {
-			phdr->phy_info.info_11g.has_short_preamble = TRUE;
-			phdr->phy_info.info_11g.short_preamble = (rflags & IEEE80211_RADIOTAP_F_SHORTPRE) != 0;
-		}
-		break;
-
 	case IEEE80211_CHAN_G:
+		/*
+		 * One of those means, in theory, that there should
+		 * only be ERP-OFDM traffic, and the other means that
+		 * there could be both ERP-DSSS and ERP-OFDM traffic.
+		 *
+		 * For now, we treat it as 11g; later, we'll check
+		 * the rate and, if it's a DSSS rate, mark it as 11b,
+		 * instead.
+		 */
 		phdr->phy = PHDR_802_11_PHY_11G;
 		phdr->phy_info.info_11g.has_mode = TRUE;
 		phdr->phy_info.info_11g.mode = PHDR_802_11G_MODE_NORMAL;
-		if (have_rflags) {
-			phdr->phy_info.info_11g.has_short_preamble = TRUE;
-			phdr->phy_info.info_11g.short_preamble = (rflags & IEEE80211_RADIOTAP_F_SHORTPRE) != 0;
-		}
 		break;
 
 	case IEEE80211_CHAN_108A:
@@ -2461,10 +2452,6 @@ dissect_radiotap_channel(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 		phdr->phy = PHDR_802_11_PHY_11G;
 		phdr->phy_info.info_11g.has_mode = TRUE;
 		phdr->phy_info.info_11g.mode = PHDR_802_11G_MODE_SUPER_G;
-		if (have_rflags) {
-			phdr->phy_info.info_11g.has_short_preamble = TRUE;
-			phdr->phy_info.info_11g.short_preamble = (rflags & IEEE80211_RADIOTAP_F_SHORTPRE) != 0;
-		}
 		break;
 	}
 
@@ -2635,8 +2622,7 @@ dissect_radiotap_tx_flags(tvbuff_t *tvb, packet_info *pinfo _U_,
 
 static void
 dissect_radiotap_xchannel(tvbuff_t *tvb, packet_info *pinfo _U_,
-	proto_tree *tree, int offset, guint8 rflags, gboolean have_rflags,
-	struct ieee_802_11_phdr *phdr)
+	proto_tree *tree, int offset, struct ieee_802_11_phdr *phdr)
 {
 	guint32     xcflags = tvb_get_letohl(tvb, offset);
 	guint32     freq;
@@ -2644,13 +2630,7 @@ dissect_radiotap_xchannel(tvbuff_t *tvb, packet_info *pinfo _U_,
 	switch (xcflags & IEEE80211_CHAN_ALLTURBO) {
 
 	case IEEE80211_CHAN_FHSS:
-		/*
-		 * Don't overwrite any FHSS information
-		 * we've seen before this.
-		 */
-		if (phdr->phy != PHDR_802_11_PHY_11_FHSS) {
-			phdr->phy = PHDR_802_11_PHY_11_FHSS;
-		}
+		phdr->phy = PHDR_802_11_PHY_11_FHSS;
 		break;
 
 	case IEEE80211_CHAN_DSSS:
@@ -2665,30 +2645,13 @@ dissect_radiotap_xchannel(tvbuff_t *tvb, packet_info *pinfo _U_,
 
 	case IEEE80211_CHAN_B:
 		phdr->phy = PHDR_802_11_PHY_11B;
-		if (have_rflags) {
-			phdr->phy_info.info_11b.has_short_preamble = TRUE;
-			phdr->phy_info.info_11b.short_preamble = (rflags & IEEE80211_RADIOTAP_F_SHORTPRE) != 0;
-		}
 		break;
 
 	case IEEE80211_CHAN_PUREG:
-		phdr->phy = PHDR_802_11_PHY_11G;
-		phdr->phy_info.info_11g.has_mode = TRUE;
-		phdr->phy_info.info_11g.mode = PHDR_802_11G_MODE_NORMAL;
-		if (have_rflags) {
-			phdr->phy_info.info_11g.has_short_preamble = TRUE;
-			phdr->phy_info.info_11g.short_preamble = (rflags & IEEE80211_RADIOTAP_F_SHORTPRE) != 0;
-		}
-		break;
-
 	case IEEE80211_CHAN_G:
 		phdr->phy = PHDR_802_11_PHY_11G;
 		phdr->phy_info.info_11g.has_mode = TRUE;
 		phdr->phy_info.info_11g.mode = PHDR_802_11G_MODE_NORMAL;
-		if (have_rflags) {
-			phdr->phy_info.info_11g.has_short_preamble = TRUE;
-			phdr->phy_info.info_11g.short_preamble = (rflags & IEEE80211_RADIOTAP_F_SHORTPRE) != 0;
-		}
 		break;
 
 	case IEEE80211_CHAN_108A:
@@ -2702,10 +2665,6 @@ dissect_radiotap_xchannel(tvbuff_t *tvb, packet_info *pinfo _U_,
 		phdr->phy = PHDR_802_11_PHY_11G;
 		phdr->phy_info.info_11g.has_mode = TRUE;
 		phdr->phy_info.info_11g.mode = PHDR_802_11G_MODE_SUPER_G;
-		if (have_rflags) {
-			phdr->phy_info.info_11g.has_short_preamble = TRUE;
-			phdr->phy_info.info_11g.short_preamble = (rflags & IEEE80211_RADIOTAP_F_SHORTPRE) != 0;
-		}
 		break;
 
 	case IEEE80211_CHAN_ST:
@@ -2721,21 +2680,6 @@ dissect_radiotap_xchannel(tvbuff_t *tvb, packet_info *pinfo _U_,
 	case IEEE80211_CHAN_G|IEEE80211_CHAN_HT40U:
 	case IEEE80211_CHAN_G|IEEE80211_CHAN_HT40D:
 		phdr->phy = PHDR_802_11_PHY_11N;
-
-		/*
-		 * This doesn't supply "short GI" information,
-		 * so use the 0x80 bit in the Flags field,
-		 * if we have it; it's "Currently unspecified
-		 * but used" for that purpose, according to
-		 * the radiotap.org page for that field.
-		 */
-		if (have_rflags) {
-			phdr->phy_info.info_11n.has_short_gi = TRUE;
-			if (rflags & 0x80)
-				phdr->phy_info.info_11n.short_gi = 1;
-			else
-				phdr->phy_info.info_11n.short_gi = 0;
-		}
 		break;
 	}
 	freq = tvb_get_letohs(tvb, offset + 4);
@@ -3166,7 +3110,7 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* u
 
 		case IEEE80211_RADIOTAP_CHANNEL:
 			dissect_radiotap_channel(tvb, pinfo, item_tree, offset,
-					rflags, have_rflags, &phdr);
+					&phdr);
 			break;
 
 		case IEEE80211_RADIOTAP_FHSS:
@@ -3237,8 +3181,7 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* u
 
 		case IEEE80211_RADIOTAP_XCHANNEL:
 			dissect_radiotap_xchannel(tvb, pinfo, item_tree,
-						offset, rflags, have_rflags,
-						&phdr);
+						offset, &phdr);
 			break;
 
 		case IEEE80211_RADIOTAP_MCS: {
@@ -3717,6 +3660,147 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* u
 	}
 
  hand_off_to_80211:
+	/*
+	 * The comment in the radiotap.org page about the suggested
+	 * xchannel field says:
+	 *
+	 *  As used, this field conflates channel properties (which
+	 *  need not be stored per packet but are more or less fixed)
+	 *  with packet properties (like the modulation).
+	 *
+	 * The channel field, in practice, seems to be used, in some
+	 * cases, to indicate channel properties (from which the packet
+	 * modulation cannot be inferred) and, in other cases, to
+	 * indicate the packet's modulation.
+	 *
+	 * There is even a capture in which the channel field indicates
+	 * that the channel is an OFDM channel with a center frequency
+	 * of 2452 MHz, and the data rate field indicates a 1 Mb/s rate,
+	 * which means you can't rely on the CCK/OFDM/dynamic CCK/OFDM
+	 * bits in the channel field to indicate anything. (There are
+	 * also captures in which a 1 Mb/s packet has the CCK flag set,
+	 * so it clearly doesn't indicate how the packet was transmitted.)
+	 *
+	 * That makes the channel field unusable either for determining
+	 * the channel type or for determining the packet modulation,
+	 * as it cannot be determined how it's being used.  The xchannel
+	 * field might well be used inconsistently as well.
+	 *
+	 * Fortunately, there are other ways to determine the packet
+	 * modulation:
+	 *
+	 *  if there's an FHSS flag, the packet was transmitted
+	 *  using the 802.11 legacy FHSS modulation;
+	 *
+	 *  otherwise:
+	 *
+	 *    if there's an HE field, the packet was transmitted
+	 *    using one of the 11ax HE PHY's specified modulations;
+	 *
+	 *    otherwise, if there's a VHT field, the packet was
+	 *    transmitted using one of the 11ac VHT PHY's specified
+	 *    modulations;
+	 *
+	 *    otherwise, if there's an MCS field, the packet was
+	 *    transmitted using one of the 11n HT PHY's specified
+	 *    modulations;
+	 *
+	 *    otherwise:
+	 *
+	 *      if the data rate is 1 Mb/s or 2 Mb/s, the packet was
+	 *      transmitted using the 802.11 legacy DSSS modulation
+	 *      (we ignore the IR PHY - was it ever implemented?);
+	 *
+	 *      if the data rate is 5 Mb/s or 11 Mb/s, the packet
+	 *      was transmitted using the 802.11b DSSS/CCK modulation
+	 *      (or the now-obsolete DSSS/PBCC modulation; *if* we can
+	 *      rely on the channel/xchannel field's "CCK channel" and
+	 *      "Dynamic CCK-OFDM channel" flags, the absence of either
+	 *      flag would presumably indicate DSSS/PBCC);
+	 *
+	 *      if the data rate is 22 Mb/s or 33 Mb/s, the packet was
+	 *      transmitted using the 802.11b DSSS/PBCC modulation (as
+	 *      those speeds aren't supported by DSSS/CCK);
+	 *
+	 *      if the data rate is one of the OFDM rates for the 11a
+	 *      OFDM PHY and the OFDM part of the 11g ERP PHY, the
+	 *      packet was transmitted with the 11g/11a OFDM modulation.
+	 *
+	 * We've already handled the HE, VHT, and MCS fields, and may
+	 * have attempted to use the channel and xchannel fields to
+	 * guess the modulation.  That guess might get the wrong answer
+	 * for 11g "Dynamic CCK-OFDM" channels.
+	 *
+	 * If we have the data rate, we use it to:
+	 *
+	 *  fix up the 11g channels;
+	 *
+	 *  determine the modulation if we haven't been able to
+	 *  determine it any other way.
+	 */
+	if (phdr.has_data_rate) {
+		if (phdr.phy == PHDR_802_11_PHY_UNKNOWN) {
+			/*
+			 * We don't know they PHY, but we do have the
+			 * data rate; try to guess it based on the
+			 * data rate and channel/center frequency.
+			 */
+			if (RATE_IS_DSSS(phdr.data_rate)) {
+				/* 11b */
+				phdr.phy = PHDR_802_11_PHY_11B;
+			} else if (RATE_IS_OFDM(phdr.data_rate)) {
+				/* 11a or 11g, depending on the band. */
+				if (phdr.has_frequency) {
+					if (FREQ_IS_BG(phdr.frequency)) {
+						/* 11g */
+						phdr.phy = PHDR_802_11_PHY_11G;
+					} else {
+						/* 11a */
+						phdr.phy = PHDR_802_11_PHY_11A;
+					}
+				}
+			}
+		} else if (phdr.phy == PHDR_802_11_PHY_11G) {
+			if (RATE_IS_DSSS(phdr.data_rate)) {
+				/* DSSS, so 11b. */
+				phdr.phy = PHDR_802_11_PHY_11B;
+			}
+		}
+	}
+
+	switch (phdr.phy) {
+
+	case PHDR_802_11_PHY_11B:
+		/*
+		 * We now know it's 11b, so set the "short preamble"
+		 * property.
+		 */
+		if (have_rflags) {
+			phdr.phy_info.info_11b.has_short_preamble = TRUE;
+			phdr.phy_info.info_11b.short_preamble =
+			    (rflags & IEEE80211_RADIOTAP_F_SHORTPRE) ? TRUE : FALSE;;
+		} else
+			phdr.phy_info.info_11b.has_short_preamble = FALSE;
+		break;
+
+	case PHDR_802_11_PHY_11N:
+		/*
+		 * This doesn't supply "short GI" information,
+		 * so use the 0x80 bit in the Flags field,
+		 * if we have it; it's "Currently unspecified
+		 * but used" for that purpose, according to
+		 * the radiotap.org page for that field.
+		 */
+		if (!phdr.phy_info.info_11n.has_short_gi && have_rflags) {
+			phdr.phy_info.info_11n.has_short_gi = TRUE;
+			if (rflags & 0x80)
+				phdr.phy_info.info_11n.short_gi = 1;
+			else
+				phdr.phy_info.info_11n.short_gi = 0;
+		}
+		break;
+	}
+
 	/* Grab the rest of the frame. */
 	next_tvb = tvb_new_subset_remaining(tvb, length);
 

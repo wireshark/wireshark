@@ -904,13 +904,6 @@ dissect_wlan_radio_phdr(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, 
       {
         struct ieee_802_11g *info_g = &phy_info->info_11g;
 
-        has_short_preamble = info_g->has_short_preamble;
-        short_preamble = info_g->short_preamble;
-
-        if (has_short_preamble) {
-          proto_tree_add_boolean(radio_tree, hf_wlan_radio_short_preamble, tvb, 0, 0,
-                   short_preamble);
-        }
         if (info_g->has_mode) {
           proto_tree_add_uint(radio_tree, hf_wlan_radio_11g_mode, tvb, 0, 0,
                    info_g->mode);
