@@ -62,6 +62,7 @@ static int hf_tecmp_payload_channelid = -1;
 static int hf_tecmp_payload_timestamp = -1;
 static int hf_tecmp_payload_timestamp_ns = -1;
 static int hf_tecmp_payload_timestamp_async = -1;
+static int hf_tecmp_payload_timestamp_res = -1;
 static int hf_tecmp_payload_length = -1;
 static int hf_tecmp_payload_data = -1;
 static int hf_tecmp_payload_data_length = -1;
@@ -623,7 +624,7 @@ dissect_tecmp_entry_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 
     proto_tree_add_item(tree, hf_tecmp_payload_channelid, tvb, offset, 4, ENC_BIG_ENDIAN);
 
-    ns = tvb_get_guint64(tvb, offset + 4, ENC_BIG_ENDIAN) & 0x7fffffffffffffff;
+    ns = tvb_get_guint64(tvb, offset + 4, ENC_BIG_ENDIAN) & 0x3fffffffffffffff;
 
     timestamp.secs = (time_t)(ns / 1000000000);
     timestamp.nsecs = (int)(ns % 1000000000);
@@ -631,6 +632,8 @@ dissect_tecmp_entry_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     subtree = proto_item_add_subtree(ti, ett_tecmp_payload_timestamp);
     proto_tree_add_item_ret_boolean(subtree, hf_tecmp_payload_timestamp_async, tvb, offset + 4, 1,ENC_BIG_ENDIAN,
                                     &async);
+    proto_tree_add_item(subtree, hf_tecmp_payload_timestamp_res, tvb, offset + 4, 1, ENC_BIG_ENDIAN);
+
     if (async) {
         proto_item_append_text(ti, " (not synchronized)");
     } else {
@@ -1231,6 +1234,9 @@ proto_register_tecmp_payload(void) {
         { &hf_tecmp_payload_timestamp_async,
             { "Timestamp Synchronisation Status", "tecmp.payload.timestamp_synch_status",
             FT_BOOLEAN, 8, TFS(&tfs_tecmp_payload_timestamp_async_type), 0x80, NULL, HFILL }},
+        { &hf_tecmp_payload_timestamp_res,
+            { "Timestamp Synchronisation reserved", "tecmp.payload.timestamp_reserved",
+            FT_BOOLEAN, 8, NULL, 0x40, NULL, HFILL }},
         { &hf_tecmp_payload_timestamp_ns,
             { "Timestamp ns", "tecmp.payload.timestamp_ns",
             FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL }},
