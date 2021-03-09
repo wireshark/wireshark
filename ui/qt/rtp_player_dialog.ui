@@ -21,6 +21,9 @@
      </property>
      <widget class="QCustomPlot" name="audioPlot" native="true"/>
      <widget class="QTreeWidget" name="streamTreeWidget">
+      <property name="selectionMode">
+       <enum>QAbstractItemView::ExtendedSelection</enum>
+      </property>
       <property name="rootIsDecorated">
        <bool>false</bool>
       </property>
@@ -28,6 +31,12 @@
        <bool>true</bool>
       </property>
       <property name="itemsExpandable">
+       <bool>false</bool>
+      </property>
+      <property name="sortingEnabled">
+       <bool>true</bool>
+      </property>
+      <property name="expandsOnDoubleClick">
        <bool>false</bool>
       </property>
       <column>
@@ -106,10 +115,6 @@
 &lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;←&lt;/th&gt;&lt;td&gt;Move left 1 pixel&lt;/td&gt;&lt;/th&gt;
 
 &lt;tr&gt;&lt;th&gt;g&lt;/th&gt;&lt;td&gt;Go to packet under cursor&lt;/td&gt;&lt;/th&gt;
-
-&lt;tr&gt;&lt;th&gt;z&lt;/th&gt;&lt;td&gt;Toggle mouse drag / zoom&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;t&lt;/th&gt;&lt;td&gt;Toggle capture / session time origin&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;Space&lt;/th&gt;&lt;td&gt;Toggle crosshairs&lt;/td&gt;&lt;/th&gt;
 
 &lt;/tbody&gt;&lt;/table&gt;
 &lt;/body&gt;&lt;/html&gt;</string>
@@ -327,7 +332,7 @@
     <string>Reset the graph to its initial state.</string>
    </property>
    <property name="shortcut">
-    <string>0</string>
+    <string notr="true">0</string>
    </property>
   </action>
   <action name="actionZoomIn">
@@ -338,7 +343,7 @@
     <string>Zoom In</string>
    </property>
    <property name="shortcut">
-    <string>+</string>
+    <string notr="true">+</string>
    </property>
   </action>
   <action name="actionZoomOut">
@@ -349,7 +354,7 @@
     <string>Zoom Out</string>
    </property>
    <property name="shortcut">
-    <string>-</string>
+    <string notr="true">-</string>
    </property>
   </action>
   <action name="actionMoveLeft10">
@@ -360,7 +365,7 @@
     <string>Move Left 10 Pixels</string>
    </property>
    <property name="shortcut">
-    <string>Left</string>
+    <string notr="true">Left</string>
    </property>
   </action>
   <action name="actionMoveRight10">
@@ -371,7 +376,7 @@
     <string>Move Right 10 Pixels</string>
    </property>
    <property name="shortcut">
-    <string>Right</string>
+    <string notr="true">Right</string>
    </property>
   </action>
   <action name="actionMoveLeft1">
@@ -382,7 +387,7 @@
     <string>Move Left 1 Pixels</string>
    </property>
    <property name="shortcut">
-    <string>Shift+Left</string>
+    <string notr="true">Shift+Left</string>
    </property>
   </action>
   <action name="actionMoveRight1">
@@ -393,7 +398,7 @@
     <string>Move Right 1 Pixels</string>
    </property>
    <property name="shortcut">
-    <string>Shift+Right</string>
+    <string notr="true">Shift+Right</string>
    </property>
   </action>
   <action name="actionGoToPacket">
@@ -404,40 +409,7 @@
     <string>Go to packet currently under the cursor</string>
    </property>
    <property name="shortcut">
-    <string>G</string>
-   </property>
-  </action>
-  <action name="actionDragZoom">
-   <property name="text">
-    <string>Drag / Zoom</string>
-   </property>
-   <property name="toolTip">
-    <string>Toggle mouse drag / zoom behavior</string>
-   </property>
-   <property name="shortcut">
-    <string>Z</string>
-   </property>
-  </action>
-  <action name="actionToggleTimeOrigin">
-   <property name="text">
-    <string>Capture / Session Time Origin</string>
-   </property>
-   <property name="toolTip">
-    <string>Toggle capture / session time origin</string>
-   </property>
-   <property name="shortcut">
-    <string>T</string>
-   </property>
-  </action>
-  <action name="actionCrosshairs">
-   <property name="text">
-    <string>Crosshairs</string>
-   </property>
-   <property name="toolTip">
-    <string>Toggle crosshairs</string>
-   </property>
-   <property name="shortcut">
-    <string>Space</string>
+    <string notr="true">G</string>
    </property>
   </action>
   <action name="actionAudioRoutingM">
@@ -445,7 +417,10 @@
     <string>Mute/Unmute</string>
    </property>
    <property name="toolTip">
-    <string>Mute or unmute the stream</string>
+    <string>Mute or unmute selected streams</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">M</string>
    </property>
   </action>
   <action name="actionAudioRoutingP">
@@ -461,7 +436,7 @@
     <string>To Left</string>
    </property>
    <property name="toolTip">
-    <string>Route audio to left channel</string>
+    <string>Route audio to left channel of selected streams</string>
    </property>
   </action>
   <action name="actionAudioRoutingLR">
@@ -469,7 +444,7 @@
     <string>Left + Right</string>
    </property>
    <property name="toolTip">
-    <string>Route audio to left and right channel</string>
+    <string>Route audio to left and right channel of selected streams</string>
    </property>
   </action>
   <action name="actionAudioRoutingR">
@@ -477,7 +452,7 @@
     <string>To Right</string>
    </property>
    <property name="toolTip">
-    <string>Route audio to right channel</string>
+    <string>Route audio to right channel of selected streams</string>
    </property>
   </action>
   <action name="actionAudioRoutingI">
@@ -485,15 +460,54 @@
     <string>Invert Muting</string>
    </property>
    <property name="toolTip">
-    <string>Invert muting of all channels</string>
+    <string>Invert muting of selected streams</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">M</string>
    </property>
   </action>
   <action name="actionRemoveStream">
    <property name="text">
-    <string>Remove Stream</string>
+    <string>Remove Streams</string>
    </property>
    <property name="toolTip">
-    <string>Remove stream from the list</string>
+    <string>Remove selected streams from the list</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">Delete</string>
+   </property>
+  </action>
+  <action name="actionSelectAll">
+   <property name="text">
+    <string>All</string>
+   </property>
+   <property name="toolTip">
+    <string>Select all</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">Ctrl+A</string>
+   </property>
+  </action>
+  <action name="actionSelectNone">
+   <property name="text">
+    <string>None</string>
+   </property>
+   <property name="toolTip">
+    <string>Clear selection</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">Ctrl+Shift+A</string>
+   </property>
+  </action>
+  <action name="actionSelectInvert">
+   <property name="text">
+    <string>Invert</string>
+   </property>
+   <property name="toolTip">
+    <string>Invert selection</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">Ctrl+I</string>
    </property>
   </action>
  </widget>

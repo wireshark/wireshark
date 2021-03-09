@@ -23,6 +23,7 @@
 #include <ui/qt/utils/qt_ui_utils.h>
 #include "rtp_audio_stream.h"
 #include <ui/qt/utils/tango_colors.h>
+#include <widgets/rtp_audio_graph.h>
 
 #include <QAudio>
 #include <QAudioDeviceInfo>
@@ -93,10 +94,31 @@ enum {
     graph_silence_data_col_ = first_pkt_col_, // QCPGraph (silence)
 };
 
+class RtpPlayerTreeWidgetItem : public QTreeWidgetItem
+{
+public:
+    RtpPlayerTreeWidgetItem(QTreeWidget *tree) :
+        QTreeWidgetItem(tree)
+    {
+    }
 
-#ifdef QT_MULTIMEDIA_LIB
-static const double wf_graph_normal_width_ = 0.5;
-#endif
+    bool operator< (const QTreeWidgetItem &other) const
+    {
+        // Handle numeric sorting
+        switch (treeWidget()->sortColumn()) {
+            case src_port_col_:
+            case dst_port_col_:
+            case first_pkt_col_:
+            case num_pkts_col_:
+            case sample_rate_col_:
+                return text(treeWidget()->sortColumn()).toULong() < other.text(treeWidget()->sortColumn()).toULong();
+            default:
+                // Fall back to string comparison
+                return QTreeWidgetItem::operator <(other);
+                break;
+        }
+    }
+};
 
 RtpPlayerDialog::RtpPlayerDialog(QWidget &parent, CaptureFile &cf) :
     WiresharkDialog(parent, cf)
@@ -112,15 +134,20 @@ RtpPlayerDialog::RtpPlayerDialog(QWidget &parent, CaptureFile &cf) :
     , datetime_ticker_(new QCPAxisTickerDateTime)
     , stereo_available_(false)
     , marker_stream_(0)
+    , last_ti_(0)
     , listener_removed_(false)
 {
     ui->setupUi(this);
-    setWindowTitle(wsApp->windowTitleString(tr("RTP Player")));
     loadGeometry(parent.width(), parent.height());
+    setWindowTitle(wsApp->windowTitleString(tr("RTP Player")));
+    ui->streamTreeWidget->installEventFilter(this);
+    ui->audioPlot->installEventFilter(this);
 
 #ifdef QT_MULTIMEDIA_LIB
     ui->splitter->setStretchFactor(0, 3);
     ui->splitter->setStretchFactor(1, 1);
+
+    ui->streamTreeWidget->sortByColumn(first_pkt_col_, Qt::AscendingOrder);
 
     graph_ctx_menu_ = new QMenu(this);
 
@@ -134,14 +161,16 @@ RtpPlayerDialog::RtpPlayerDialog(QWidget &parent, CaptureFile &cf) :
     graph_ctx_menu_->addAction(ui->actionMoveLeft1);
     graph_ctx_menu_->addSeparator();
     graph_ctx_menu_->addAction(ui->actionGoToPacket);
-    graph_ctx_menu_->addSeparator();
-    graph_ctx_menu_->addAction(ui->actionDragZoom);
-    graph_ctx_menu_->addAction(ui->actionToggleTimeOrigin);
-//    graph_ctx_menu_->addAction(ui->actionCrosshairs);
     set_action_shortcuts_visible_in_context_menu(graph_ctx_menu_->actions());
 
+    ui->streamTreeWidget->setMouseTracking(true);
+    connect(ui->streamTreeWidget, SIGNAL(itemEntered(QTreeWidgetItem *, int)),
+            this, SLOT(itemEntered(QTreeWidgetItem *, int)));
+
     connect(ui->audioPlot, SIGNAL(mouseMove(QMouseEvent*)),
-            this, SLOT(updateHintLabel()));
+            this, SLOT(mouseMovePlot(QMouseEvent*)));
+    connect(ui->audioPlot, SIGNAL(mouseMove(QMouseEvent*)),
+            this, SLOT(mouseMovePlot(QMouseEvent*)));
     connect(ui->audioPlot, SIGNAL(mousePress(QMouseEvent*)),
             this, SLOT(graphClicked(QMouseEvent*)));
     connect(ui->audioPlot, SIGNAL(mouseDoubleClick(QMouseEvent*)),
@@ -204,15 +233,22 @@ RtpPlayerDialog::RtpPlayerDialog(QWidget &parent, CaptureFile &cf) :
                 QCP::iRangeDrag |
                 QCP::iRangeZoom
                 );
-    ui->audioPlot->setFocus();
 
     graph_ctx_menu_->addSeparator();
     list_ctx_menu_ = new QMenu(this);
+    QMenu *selection_menu1 = list_ctx_menu_->addMenu(tr("Select"));
+    QMenu *selection_menu2 = graph_ctx_menu_->addMenu(tr("Select"));
+    selection_menu1->addAction(ui->actionSelectAll);
+    selection_menu2->addAction(ui->actionSelectAll);
+    selection_menu1->addAction(ui->actionSelectNone);
+    selection_menu2->addAction(ui->actionSelectNone);
+    selection_menu1->addAction(ui->actionSelectInvert);
+    selection_menu2->addAction(ui->actionSelectInvert);
     QMenu *audio_routing_menu1 = list_ctx_menu_->addMenu(tr("Audio Routing"));
     QMenu *audio_routing_menu2 = graph_ctx_menu_->addMenu(tr("Audio Routing"));
     // All AudioRouting actions are in menu, some of them are disabled later
-    audio_routing_menu1->addAction(ui->actionAudioRoutingM);
-    audio_routing_menu2->addAction(ui->actionAudioRoutingM);
+    audio_routing_menu1->addAction(ui->actionAudioRoutingI);
+    audio_routing_menu2->addAction(ui->actionAudioRoutingI);
     audio_routing_menu1->addAction(ui->actionAudioRoutingP);
     audio_routing_menu2->addAction(ui->actionAudioRoutingP);
     audio_routing_menu1->addAction(ui->actionAudioRoutingL);
@@ -221,8 +257,6 @@ RtpPlayerDialog::RtpPlayerDialog(QWidget &parent, CaptureFile &cf) :
     audio_routing_menu2->addAction(ui->actionAudioRoutingLR);
     audio_routing_menu1->addAction(ui->actionAudioRoutingR);
     audio_routing_menu2->addAction(ui->actionAudioRoutingR);
-    audio_routing_menu1->addAction(ui->actionAudioRoutingI);
-    audio_routing_menu2->addAction(ui->actionAudioRoutingI);
     list_ctx_menu_->addAction(ui->actionRemoveStream);
     graph_ctx_menu_->addAction(ui->actionRemoveStream);
     set_action_shortcuts_visible_in_context_menu(list_ctx_menu_->actions());
@@ -379,19 +413,11 @@ void RtpPlayerDialog::createPlot(bool rescale_axes)
         ti->setData(graph_silence_data_col_, Qt::UserRole, QVariant());
 
         // Waveform
-        QCPGraph *audio_graph = ui->audioPlot->addGraph();
-        QPen wf_pen(audio_stream->color());
-        wf_pen.setWidthF(wf_graph_normal_width_);
-        if (audio_routing.isMuted()) {
-            // Indicate that audio will not be hearable
-            wf_pen.setStyle(Qt::DotLine);
-        }
-        audio_graph->setPen(wf_pen);
-        audio_graph->setSelectable(QCP::stNone);
+        RtpAudioGraph *audio_graph = new RtpAudioGraph(ui->audioPlot, audio_stream->color());
+        audio_graph->setMuted(audio_routing.isMuted());
         audio_graph->setData(audio_stream->visualTimestamps(relative_timestamps), audio_stream->visualSamples(y_offset));
-        audio_graph->removeFromLegend();
-        ti->setData(graph_audio_data_col_, Qt::UserRole, QVariant::fromValue<QCPGraph *>(audio_graph));
-        RTP_STREAM_DEBUG("Plotting %s, %d samples", ti->text(src_addr_col_).toUtf8().constData(), audio_graph->data()->size());
+        ti->setData(graph_audio_data_col_, Qt::UserRole, QVariant::fromValue<RtpAudioGraph *>(audio_graph));
+        //RTP_STREAM_DEBUG("Plotting %s, %d samples", ti->text(src_addr_col_).toUtf8().constData(), audio_graph->wave->data()->size());
 
         QString span_str;
         if (ui->todCheckBox->isChecked()) {
@@ -507,7 +533,7 @@ void RtpPlayerDialog::addRtpStream(rtpstream_info_t *rtpstream)
         audio_stream = new RtpAudioStream(this, rtpstream, stereo_available_);
         audio_stream->setColor(ColorUtils::graphColor(tli_count));
 
-        QTreeWidgetItem *ti = new QTreeWidgetItem(ui->streamTreeWidget);
+        QTreeWidgetItem *ti = new RtpPlayerTreeWidgetItem(ui->streamTreeWidget);
         ti->setText(src_addr_col_, address_to_qstring(&rtpstream->id.src_addr));
         ti->setText(src_port_col_, QString::number(rtpstream->id.src_port));
         ti->setText(dst_addr_col_, address_to_qstring(&rtpstream->id.dst_addr));
@@ -566,62 +592,83 @@ void RtpPlayerDialog::showEvent(QShowEvent *)
     ui->splitter->setSizes(split_sizes);
 }
 
-void RtpPlayerDialog::keyPressEvent(QKeyEvent *event)
+bool RtpPlayerDialog::eventFilter(QObject *, QEvent *event)
 {
-    int pan_secs = event->modifiers() & Qt::ShiftModifier ? 1 : 10;
+    if (event->type() == QEvent::KeyPress) {
+        QKeyEvent &keyEvent = static_cast<QKeyEvent&>(*event);
+        int pan_secs = keyEvent.modifiers() & Qt::ShiftModifier ? 1 : 10;
 
-    switch(event->key()) {
-    case Qt::Key_Minus:
-    case Qt::Key_Underscore:    // Shifted minus on U.S. keyboards
-    case Qt::Key_O:             // GTK+
-    case Qt::Key_R:
-        on_actionZoomOut_triggered();
-        break;
-    case Qt::Key_Plus:
-    case Qt::Key_Equal:         // Unshifted plus on U.S. keyboards
-    case Qt::Key_I:             // GTK+
-        on_actionZoomIn_triggered();
-        break;
-
-    case Qt::Key_Right:
-    case Qt::Key_L:
-        panXAxis(pan_secs);
-        break;
-    case Qt::Key_Left:
-    case Qt::Key_H:
-        panXAxis(-1 * pan_secs);
-        break;
-
-    case Qt::Key_Space:
-//        toggleTracerStyle();
-        break;
-
-    case Qt::Key_0:
-    case Qt::Key_ParenRight:    // Shifted 0 on U.S. keyboards
-    case Qt::Key_Home:
-        on_actionReset_triggered();
-        break;
-
-    case Qt::Key_G:
-        on_actionGoToPacket_triggered();
-        break;
-    case Qt::Key_T:
-//        on_actionToggleTimeOrigin_triggered();
-        break;
-    case Qt::Key_Z:
-//        on_actionDragZoom_triggered();
-        break;
+        switch(keyEvent.key()) {
+            case Qt::Key_Minus:
+            case Qt::Key_Underscore:    // Shifted minus on U.S. keyboards
+            case Qt::Key_O:             // GTK+
+            case Qt::Key_R:
+                on_actionZoomOut_triggered();
+                return true;
+            case Qt::Key_Plus:
+            case Qt::Key_Equal:         // Unshifted plus on U.S. keyboards
+            case Qt::Key_I:             // GTK+
+                if (keyEvent.modifiers() == Qt::ControlModifier) {
+                    invertSelection();
+                    return true;
+                } else {
+                    on_actionZoomIn_triggered();
+                    return true;
+                }
+                break;
+            case Qt::Key_Right:
+            case Qt::Key_L:
+                panXAxis(pan_secs);
+                return true;
+            case Qt::Key_Left:
+            case Qt::Key_H:
+                panXAxis(-1 * pan_secs);
+                return true;
+            case Qt::Key_0:
+            case Qt::Key_ParenRight:    // Shifted 0 on U.S. keyboards
+                on_actionReset_triggered();
+                return true;
+            case Qt::Key_G:
+                on_actionGoToPacket_triggered();
+                return true;
+            case Qt::Key_A:
+                if (keyEvent.modifiers() == Qt::ControlModifier) {
+                    ui->streamTreeWidget->selectAll();
+                    return true;
+                } else if (keyEvent.modifiers() == (Qt::ShiftModifier | Qt::ControlModifier)) {
+                    ui->streamTreeWidget->clearSelection();
+                    return true;
+                }
+                break;
+            case Qt::Key_M:
+                on_actionAudioRoutingI_triggered();
+                return true;
+            case Qt::Key_Delete:
+                on_actionRemoveStream_triggered();
+                return true;
+            case Qt::Key_X:
+                if (keyEvent.modifiers() == Qt::ControlModifier) {
+                    on_actionRemoveStream_triggered();
+                    return true;
+                }
+                break;
+            // Route keys to QTreeWidget
+            case Qt::Key_Down:
+            case Qt::Key_Up:
+            case Qt::Key_PageUp:
+            case Qt::Key_PageDown:
+            case Qt::Key_Home:
+            case Qt::Key_End:
+                ui->streamTreeWidget->setFocus();
+                break;
+        }
     }
 
-    QDialog::keyPressEvent(event);
+    return false;
 }
 
 void RtpPlayerDialog::contextMenuEvent(QContextMenuEvent *event)
 {
-    QTreeWidgetItem *ti = ui->streamTreeWidget->currentItem();
-    if (!ti)
-        return;
-
     list_ctx_menu_->exec(event->globalPos());
 }
 
@@ -673,13 +720,64 @@ void RtpPlayerDialog::updateWidgets()
     ui->audioPlot->replot();
 }
 
+void RtpPlayerDialog::handleItemHighlight(QTreeWidgetItem *ti, bool scroll)
+{
+    if (ti) {
+        if (ti != last_ti_) {
+            if (last_ti_) {
+                highlightItem(last_ti_, false);
+            }
+            highlightItem(ti, true);
+
+            if (scroll)
+                ui->streamTreeWidget->scrollToItem(ti, QAbstractItemView::EnsureVisible);
+            ui->audioPlot->replot();
+            last_ti_ = ti;
+        }
+    } else {
+        if (last_ti_) {
+            highlightItem(last_ti_, false);
+            ui->audioPlot->replot();
+            last_ti_ = NULL;
+        }
+    }
+}
+
+void RtpPlayerDialog::highlightItem(QTreeWidgetItem *ti, bool highlight)
+{
+    QFont font;
+    RtpAudioGraph *audio_graph;
+
+    font.setBold(highlight);
+    for(int i=0; i<ui->streamTreeWidget->columnCount(); i++) {
+        ti->setFont(i, font);
+    }
+
+    audio_graph = ti->data(graph_audio_data_col_, Qt::UserRole).value<RtpAudioGraph*>();
+    if (audio_graph) {
+        audio_graph->setHighlight(highlight);
+    }
+}
+
+void RtpPlayerDialog::itemEntered(QTreeWidgetItem *item, int column _U_)
+{
+    handleItemHighlight(item, false);
+}
+
+void RtpPlayerDialog::mouseMovePlot(QMouseEvent *event)
+{
+    updateHintLabel();
+
+    QTreeWidgetItem *ti = findItemByCoords(event->pos());
+    handleItemHighlight(ti, true);
+}
+
 void RtpPlayerDialog::graphClicked(QMouseEvent *event)
 {
     updateWidgets();
     if (event->button() == Qt::RightButton) {
         graph_ctx_menu_->exec(event->globalPos());
     }
-    ui->audioPlot->setFocus();
 }
 
 void RtpPlayerDialog::graphDoubleClicked(QMouseEvent *event)
@@ -687,26 +785,50 @@ void RtpPlayerDialog::graphDoubleClicked(QMouseEvent *event)
     updateWidgets();
     if (event->button() == Qt::LeftButton) {
         // Move start play line
-        double ts = ui->audioPlot->xAxis->pixelToCoord(ui->audioPlot->mapFromGlobal(QCursor::pos()).x());
+        double ts = ui->audioPlot->xAxis->pixelToCoord(event->pos().x());
 
         setStartPlayMarker(ts);
         drawStartPlayMarker();
 
         ui->audioPlot->replot();
     }
-    ui->audioPlot->setFocus();
 }
 
-void RtpPlayerDialog::plotClicked(QCPAbstractPlottable *plottable, int dataIndex _U_, QMouseEvent *event _U_)
+void RtpPlayerDialog::plotClicked(QCPAbstractPlottable *plottable _U_, int dataIndex _U_, QMouseEvent *event)
 {
-    ui->streamTreeWidget->clearSelection();
-    for (int row = 0; row < ui->streamTreeWidget->topLevelItemCount(); row++) {
-        QTreeWidgetItem *ti = ui->streamTreeWidget->topLevelItem(row);
-        QCPGraph *audio_graph = ti->data(graph_audio_data_col_, Qt::UserRole).value<QCPGraph*>();
-        if (plottable == audio_graph) {
-            ui->streamTreeWidget->setCurrentItem(ti);
+    // Delivered plottable very often points to different element than a mouse
+    // so we find right one by mouse coordinates
+    QTreeWidgetItem *ti = findItemByCoords(event->pos());
+    if (ti) {
+        if (event->modifiers() == Qt::NoModifier) {
+            ti->setSelected(true);
+        } else if (event->modifiers() == Qt::ControlModifier) {
+            ti->setSelected(!ti->isSelected());
         }
     }
+}
+
+QTreeWidgetItem *RtpPlayerDialog::findItemByCoords(QPoint point)
+{
+    QCPAbstractPlottable *plottable=ui->audioPlot->plottableAt(point);
+    if (plottable) {
+        return findItem(plottable);
+    }
+
+    return NULL;
+}
+
+QTreeWidgetItem *RtpPlayerDialog::findItem(QCPAbstractPlottable *plottable)
+{
+    for (int row = 0; row < ui->streamTreeWidget->topLevelItemCount(); row++) {
+        QTreeWidgetItem *ti = ui->streamTreeWidget->topLevelItem(row);
+        RtpAudioGraph *audio_graph = ti->data(graph_audio_data_col_, Qt::UserRole).value<RtpAudioGraph*>();
+        if (audio_graph->isMyPlottable(plottable)) {
+            return ti;
+        }
+    }
+
+    return NULL;
 }
 
 void RtpPlayerDialog::updateHintLabel()
@@ -1006,20 +1128,12 @@ void RtpPlayerDialog::on_streamTreeWidget_itemSelectionChanged()
 {
     for (int row = 0; row < ui->streamTreeWidget->topLevelItemCount(); row++) {
         QTreeWidgetItem *ti = ui->streamTreeWidget->topLevelItem(row);
-        QCPGraph *audio_graph = ti->data(graph_audio_data_col_, Qt::UserRole).value<QCPGraph*>();
+        RtpAudioGraph *audio_graph = ti->data(graph_audio_data_col_, Qt::UserRole).value<RtpAudioGraph*>();
         if (audio_graph) {
-            audio_graph->setSelection(ti->isSelected() ? QCPDataSelection(QCPDataRange()) : QCPDataSelection());
-            QPen p = audio_graph->pen();
-            if (ti->isSelected()) {
-                p.setWidthF(wf_graph_normal_width_*2);
-            } else {
-                p.setWidthF(wf_graph_normal_width_);
-            }
-            audio_graph->setPen(p);
+            audio_graph->setSelected(ti->isSelected());
         }
     }
     ui->audioPlot->replot();
-    ui->audioPlot->setFocus();
 }
 
 // Change channel audio routing if double clicked channel column
@@ -1038,53 +1152,56 @@ void RtpPlayerDialog::on_streamTreeWidget_itemDoubleClicked(QTreeWidgetItem *ite
 
 void RtpPlayerDialog::on_actionRemoveStream_triggered()
 {
-    QTreeWidgetItem *ti = ui->streamTreeWidget->currentItem();
-    if (!ti)
-        return;
+    QList<QTreeWidgetItem *> items = ui->streamTreeWidget->selectedItems();
 
-    RtpAudioStream *audio_stream = ti->data(stream_data_col_, Qt::UserRole).value<RtpAudioStream*>();
-    if (audio_stream) {
-        ti->setData(stream_data_col_, Qt::UserRole, QVariant());
-        delete audio_stream;
+    if (last_ti_) {
+        highlightItem(last_ti_, false);
+        last_ti_ = NULL;
     }
+    for(int i = 0; i<items.count(); i++ ) {
 
-    QCPGraph *graph;
-    graph = ti->data(graph_audio_data_col_, Qt::UserRole).value<QCPGraph*>();
-    if (graph) {
-        ti->setData(graph_audio_data_col_, Qt::UserRole, QVariant());
-        ui->audioPlot->removeGraph(graph);
-        ui->audioPlot->replot();
+        QTreeWidgetItem *ti = items[i];
+
+        RtpAudioStream *audio_stream = ti->data(stream_data_col_, Qt::UserRole).value<RtpAudioStream*>();
+        if (audio_stream) {
+            ti->setData(stream_data_col_, Qt::UserRole, QVariant());
+            delete audio_stream;
+        }
+
+        RtpAudioGraph *audio_graph = ti->data(graph_audio_data_col_, Qt::UserRole).value<RtpAudioGraph*>();
+        if (audio_graph) {
+            ti->setData(graph_audio_data_col_, Qt::UserRole, QVariant());
+            audio_graph->remove(ui->audioPlot);
+        }
+
+        QCPGraph *graph;
+        graph = ti->data(graph_sequence_data_col_, Qt::UserRole).value<QCPGraph*>();
+        if (graph) {
+            ti->setData(graph_sequence_data_col_, Qt::UserRole, QVariant());
+            ui->audioPlot->removeGraph(graph);
+        }
+
+        graph = ti->data(graph_jitter_data_col_, Qt::UserRole).value<QCPGraph*>();
+        if (graph) {
+            ti->setData(graph_jitter_data_col_, Qt::UserRole, QVariant());
+            ui->audioPlot->removeGraph(graph);
+        }
+
+        graph = ti->data(graph_timestamp_data_col_, Qt::UserRole).value<QCPGraph*>();
+        if (graph) {
+            ti->setData(graph_timestamp_data_col_, Qt::UserRole, QVariant());
+            ui->audioPlot->removeGraph(graph);
+        }
+
+        graph = ti->data(graph_silence_data_col_, Qt::UserRole).value<QCPGraph*>();
+        if (graph) {
+            ti->setData(graph_silence_data_col_, Qt::UserRole, QVariant());
+            ui->audioPlot->removeGraph(graph);
+        }
+
+        delete ti;
     }
-
-    graph = ti->data(graph_sequence_data_col_, Qt::UserRole).value<QCPGraph*>();
-    if (graph) {
-        ti->setData(graph_sequence_data_col_, Qt::UserRole, QVariant());
-        ui->audioPlot->removeGraph(graph);
-        ui->audioPlot->replot();
-    }
-
-    graph = ti->data(graph_jitter_data_col_, Qt::UserRole).value<QCPGraph*>();
-    if (graph) {
-        ti->setData(graph_jitter_data_col_, Qt::UserRole, QVariant());
-        ui->audioPlot->removeGraph(graph);
-        ui->audioPlot->replot();
-    }
-
-    graph = ti->data(graph_timestamp_data_col_, Qt::UserRole).value<QCPGraph*>();
-    if (graph) {
-        ti->setData(graph_timestamp_data_col_, Qt::UserRole, QVariant());
-        ui->audioPlot->removeGraph(graph);
-        ui->audioPlot->replot();
-    }
-
-    graph = ti->data(graph_silence_data_col_, Qt::UserRole).value<QCPGraph*>();
-    if (graph) {
-        ti->setData(graph_silence_data_col_, Qt::UserRole, QVariant());
-        ui->audioPlot->removeGraph(graph);
-        ui->audioPlot->replot();
-    }
-
-    delete ti;
+    ui->audioPlot->replot();
 
     updateWidgets();
 }
@@ -1105,18 +1222,11 @@ void RtpPlayerDialog::changeAudioRoutingOnItem(QTreeWidgetItem *ti, AudioRouting
 
     audio_stream->setAudioRouting(audio_routing);
 
-    QCPGraph *audio_graph = ti->data(graph_audio_data_col_, Qt::UserRole).value<QCPGraph*>();
+    RtpAudioGraph *audio_graph = ti->data(graph_audio_data_col_, Qt::UserRole).value<RtpAudioGraph*>();
     if (audio_graph) {
 
-        audio_graph->setSelection(ti->isSelected() ? QCPDataSelection(QCPDataRange()) : QCPDataSelection());
-        QPen p = audio_graph->pen();
-        if (audio_routing.isMuted()) {
-            // Indicate that audio will not be hearable
-            p.setStyle(Qt::DotLine);
-        } else {
-            p.setStyle(Qt::SolidLine);
-        }
-        audio_graph->setPen(p);
+        audio_graph->setSelected(ti->isSelected());
+        audio_graph->setMuted(audio_routing.isMuted());
         ui->audioPlot->replot();
     }
 }
@@ -1124,8 +1234,13 @@ void RtpPlayerDialog::changeAudioRoutingOnItem(QTreeWidgetItem *ti, AudioRouting
 // Find current item and apply change on it
 void RtpPlayerDialog::changeAudioRouting(AudioRouting new_audio_routing)
 {
-    QTreeWidgetItem *ti = ui->streamTreeWidget->currentItem();
-    changeAudioRoutingOnItem(ti, new_audio_routing);
+    QList<QTreeWidgetItem *> items = ui->streamTreeWidget->selectedItems();
+
+    for(int i = 0; i<items.count(); i++ ) {
+
+        QTreeWidgetItem *ti = items[i];
+        changeAudioRoutingOnItem(ti, new_audio_routing);
+    }
 }
 
 // Invert mute/unmute on item
@@ -1147,11 +1262,18 @@ void RtpPlayerDialog::invertAudioMutingOnItem(QTreeWidgetItem *ti)
     }
 }
 
-void RtpPlayerDialog::on_actionAudioRoutingM_triggered()
+/*
+void RtpPlayerDialog::on_aactionAudioRoutingMctionAudioRoutingM_triggered()
 {
-    QTreeWidgetItem *ti = ui->streamTreeWidget->currentItem();
-    invertAudioMutingOnItem(ti);
+    QList<QTreeWidgetItem *> items = ui->streamTreeWidget->selectedItems();
+
+    for(int i = 0; i<items.count(); i++ ) {
+
+        QTreeWidgetItem *ti = items[i];
+        changeAudioRoutingOnItem(ti, AudioRouting(AUDIO_MUTED, channel_any));
+    }
 }
+*/
 
 void RtpPlayerDialog::on_actionAudioRoutingP_triggered()
 {
@@ -1175,8 +1297,11 @@ void RtpPlayerDialog::on_actionAudioRoutingR_triggered()
 
 void RtpPlayerDialog::on_actionAudioRoutingI_triggered()
 {
-    for (int row = 0; row < ui->streamTreeWidget->topLevelItemCount(); row++) {
-        QTreeWidgetItem *ti = ui->streamTreeWidget->topLevelItem(row);
+    QList<QTreeWidgetItem *> items = ui->streamTreeWidget->selectedItems();
+
+    for(int i = 0; i<items.count(); i++ ) {
+
+        QTreeWidgetItem *ti = items[i];
         invertAudioMutingOnItem(ti);
     }
 }
@@ -1198,22 +1323,24 @@ const QString RtpPlayerDialog::getFormatedTime(double f_time)
 
 const QString RtpPlayerDialog::getFormatedHoveredTime()
 {
-    QTreeWidgetItem *ti = ui->streamTreeWidget->currentItem();
+    QPoint pos = ui->audioPlot->mapFromGlobal(QCursor::pos());
+    QTreeWidgetItem *ti = findItemByCoords(pos);
     if (!ti) return tr("Unknown");
 
-    double ts = ui->audioPlot->xAxis->pixelToCoord(ui->audioPlot->mapFromGlobal(QCursor::pos()).x());
+    double ts = ui->audioPlot->xAxis->pixelToCoord(ui->audioPlot->mapFromGlobal(pos).x());
 
     return getFormatedTime(ts);
 }
 
 int RtpPlayerDialog::getHoveredPacket()
 {
-    QTreeWidgetItem *ti = ui->streamTreeWidget->currentItem();
+    QPoint pos = ui->audioPlot->mapFromGlobal(QCursor::pos());
+    QTreeWidgetItem *ti = findItemByCoords(pos);
     if (!ti) return 0;
 
     RtpAudioStream *audio_stream = ti->data(stream_data_col_, Qt::UserRole).value<RtpAudioStream*>();
 
-    double ts = ui->audioPlot->xAxis->pixelToCoord(ui->audioPlot->mapFromGlobal(QCursor::pos()).x());
+    double ts = ui->audioPlot->xAxis->pixelToCoord(ui->audioPlot->mapFromGlobal(pos).x());
 
     return audio_stream->nearestPacket(ts, !ui->todCheckBox->isChecked());
 }
@@ -1350,6 +1477,29 @@ bool RtpPlayerDialog::isStereoAvailable()
     }
 
     return false;
+}
+
+void RtpPlayerDialog::invertSelection()
+{
+    for (int row = 0; row < ui->streamTreeWidget->topLevelItemCount(); row++) {
+        QTreeWidgetItem *ti = ui->streamTreeWidget->topLevelItem(row);
+        ti->setSelected(!ti->isSelected());
+    }
+}
+
+void RtpPlayerDialog::on_actionSelectAll_triggered()
+{
+    ui->streamTreeWidget->selectAll();
+}
+
+void RtpPlayerDialog::on_actionSelectInvert_triggered()
+{
+    invertSelection();
+}
+
+void RtpPlayerDialog::on_actionSelectNone_triggered()
+{
+    ui->streamTreeWidget->clearSelection();
 }
 
 #if 0

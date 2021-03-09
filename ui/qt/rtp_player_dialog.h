@@ -77,8 +77,8 @@ signals:
 
 protected:
     virtual void showEvent(QShowEvent *);
-    virtual void keyPressEvent(QKeyEvent *event);
     void contextMenuEvent(QContextMenuEvent *event);
+    bool eventFilter(QObject *obj, QEvent *event);
 
 private slots:
     /** Retap the capture file, adding RTP packets that match the
@@ -90,6 +90,8 @@ private slots:
     void rescanPackets(bool rescale_axes = false);
     void createPlot(bool rescale_axes = false);
     void updateWidgets();
+    void itemEntered(QTreeWidgetItem *item, int column);
+    void mouseMovePlot(QMouseEvent *event);
     void graphClicked(QMouseEvent *event);
     void graphDoubleClicked(QMouseEvent *event);
     void plotClicked(QCPAbstractPlottable *plottable, int dataIndex, QMouseEvent *event);
@@ -114,7 +116,7 @@ private slots:
     void on_actionMoveRight1_triggered();
     void on_actionGoToPacket_triggered();
     void on_actionRemoveStream_triggered();
-    void on_actionAudioRoutingM_triggered();
+    //void on_actionAudioRoutingM_triggered();
     void on_actionAudioRoutingP_triggered();
     void on_actionAudioRoutingL_triggered();
     void on_actionAudioRoutingLR_triggered();
@@ -127,6 +129,9 @@ private slots:
     void on_timingComboBox_currentIndexChanged(int);
     void on_todCheckBox_toggled(bool checked);
     void on_buttonBox_helpRequested();
+    void on_actionSelectAll_triggered();
+    void on_actionSelectInvert_triggered();
+    void on_actionSelectNone_triggered();
     void outputNotify();
 
 private:
@@ -147,7 +152,7 @@ private:
     bool stereo_available_;
     QList<RtpAudioStream *> playing_streams_;
     QAudioOutput *marker_stream_;
-
+    QTreeWidgetItem *last_ti_;
     bool listener_removed_;
 
 //    const QString streamKey(const rtpstream_info_t *rtpstream);
@@ -173,6 +178,11 @@ private:
     bool isStereoAvailable();
     QAudioOutput *getSilenceAudioOutput();
     QAudioDeviceInfo getCurrentDeviceInfo();
+    QTreeWidgetItem *findItemByCoords(QPoint point);
+    QTreeWidgetItem *findItem(QCPAbstractPlottable *plottable);
+    void handleItemHighlight(QTreeWidgetItem *ti, bool scroll);
+    void highlightItem(QTreeWidgetItem *ti, bool highlight);
+    void invertSelection();
 
 #else // QT_MULTIMEDIA_LIB
 private:
