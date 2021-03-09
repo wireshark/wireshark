@@ -11054,6 +11054,25 @@ add_ff_lmr_report(proto_tree *tree, tvbuff_t *tvb,
 }
 
 static guint
+add_ff_ftm_request(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int offset)
+{
+  return add_ff_trigger(tree, tvb, pinfo, offset);
+}
+
+static guint
+add_ff_ftm_response(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int offset)
+{
+  guint start = offset;
+  offset += add_ff_dialog_token(tree, tvb, pinfo, offset);
+  offset += add_ff_followup_dialog_token(tree, tvb, pinfo, offset);
+  offset += add_ff_ftm_tod(tree, tvb, pinfo, offset);
+  offset += add_ff_ftm_toa(tree, tvb, pinfo, offset);
+  offset += add_ff_ftm_tod_err(tree, tvb, pinfo, offset);
+  offset += add_ff_ftm_toa_err(tree, tvb, pinfo, offset);
+  return offset - start;
+}
+
+static guint
 add_ff_ht_action_code(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int offset)
 {
   proto_tree_add_item(tree, hf_ieee80211_ff_ht_action, tvb, offset, 1,
@@ -11761,15 +11780,10 @@ add_ff_action_public_fields(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
     offset += add_ff_res_ap_addr(tree, tvb, pinfo, offset);
     break;
   case PA_FTM_REQUEST:
-    offset += add_ff_trigger(tree, tvb, pinfo, offset);
+    offset += add_ff_ftm_request(tree, tvb, pinfo, offset);
     break;
   case PA_FTM_RESPONSE:
-    offset += add_ff_dialog_token(tree, tvb, pinfo, offset);
-    offset += add_ff_followup_dialog_token(tree, tvb, pinfo, offset);
-    offset += add_ff_ftm_tod(tree, tvb, pinfo, offset);
-    offset += add_ff_ftm_toa(tree, tvb, pinfo, offset);
-    offset += add_ff_ftm_tod_err(tree, tvb, pinfo, offset);
-    offset += add_ff_ftm_toa_err(tree, tvb, pinfo, offset);
+    offset += add_ff_ftm_response(tree, tvb, pinfo, offset);
     break;
   case PA_FILS_DISCOVERY:
     col_set_str(pinfo->cinfo, COL_INFO, "FILS Discovery");
