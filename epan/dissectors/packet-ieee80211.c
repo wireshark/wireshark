@@ -2221,6 +2221,14 @@ static const value_string ff_pa_action_codes[] = {
 };
 value_string_ext ff_pa_action_codes_ext = VALUE_STRING_EXT_INIT(ff_pa_action_codes);
 
+static const value_string protected_ftm_action_vals[] = {
+  {0, "Reserved"},
+  {1, "Protected FTM Request"},
+  {2, "Protected FTM Response"},
+  {3, "Protected Location Measurement Report"},
+  {0, NULL}
+};
+
 static const value_string ftm_trigger_vals[] = {
   {0, "Stop sending FTM frames"},
   {1, "Start or continue sending FTM frames"},
@@ -5387,6 +5395,7 @@ static int hf_ieee80211_vht_compressed_beamforming_psi_angle = -1;
 
 static int hf_ieee80211_ff_he_action = -1;
 static int hf_ieee80211_ff_protected_he_action = -1;
+static int hf_ieee80211_ff_protected_ftm_action = -1;
 static int hf_ieee80211_he_mimo_control_nc_index = -1;
 static int hf_ieee80211_he_mimo_control_nr_index = -1;
 static int hf_ieee80211_he_mimo_control_bw = -1;
@@ -11780,9 +11789,11 @@ add_ff_action_public_fields(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
     offset += add_ff_res_ap_addr(tree, tvb, pinfo, offset);
     break;
   case PA_FTM_REQUEST:
+    col_set_str(pinfo->cinfo, COL_INFO, "FTM Request");
     offset += add_ff_ftm_request(tree, tvb, pinfo, offset);
     break;
   case PA_FTM_RESPONSE:
+    col_set_str(pinfo->cinfo, COL_INFO, "FTM Response");
     offset += add_ff_ftm_response(tree, tvb, pinfo, offset);
     break;
   case PA_FILS_DISCOVERY:
@@ -14795,6 +14806,36 @@ add_ff_action_protected_he(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, 
 }
 
 static guint
+add_ff_action_protected_ftm(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset)
+{
+  guint start = offset;
+  guint8 action;
+
+  offset += add_ff_category_code(tree, tvb, pinfo, offset);
+  action = tvb_get_guint8(tvb, offset);
+  proto_tree_add_item(tree, hf_ieee80211_ff_protected_ftm_action, tvb, offset, 1, ENC_NA);
+  offset += 1;
+
+  col_set_str(pinfo->cinfo, COL_INFO, val_to_str_const(action, protected_ftm_action_vals, "Unknown"));
+
+  switch (action) {
+    case 1:
+      offset += add_ff_ftm_request(tree, tvb, pinfo, offset);
+      break;
+    case 2:
+      offset += add_ff_ftm_response(tree, tvb, pinfo, offset);
+      break;
+    case 3:
+      offset += add_ff_lmr_report(tree, tvb, pinfo, offset);
+      break;
+    default:  /* reserved */
+      break;
+  }
+
+  return offset - start;
+}
+
+static guint
 add_ff_action_fst(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset)
 {
   guint8 code;
@@ -15073,6 +15114,8 @@ add_ff_action(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset,
     return add_ff_action_he(tree, tvb, pinfo, offset);
   case CAT_PROTECTED_HE:
     return add_ff_action_protected_he(tree, tvb, pinfo, offset);
+  case CAT_PROTECTED_FTM:
+    return add_ff_action_protected_ftm(tree, tvb, pinfo, offset);
 /*  case CAT_VENDOR_SPECIFIC_PROTECTED:   Vendor Specific Protected Category - 126 */
 /*    return add_ff_action_vendor_specific_protected(tree, tvb, pinfo, offset);*/
   case CAT_VENDOR_SPECIFIC:  /* Vendor Specific Protected Category - 127 */
@@ -35935,6 +35978,11 @@ proto_register_ieee80211(void)
     {&hf_ieee80211_ff_protected_he_action,
       {"Protected HE Action", "wlan.he.protected_action",
        FT_UINT8, BASE_RANGE_STRING | BASE_DEC, RVALS(protected_he_action_rvals), 0,
+       NULL, HFILL }},
+
+    {&hf_ieee80211_ff_protected_ftm_action,
+      {"Protected FTM Action", "wlan.ftm.protected_action",
+       FT_UINT8, BASE_DEC, VALS(protected_ftm_action_vals), 0,
        NULL, HFILL }},
 
     {&hf_ieee80211_he_mimo_control_nc_index,
