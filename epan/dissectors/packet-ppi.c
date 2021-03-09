@@ -988,6 +988,113 @@ dissect_ppi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         }
     }
 
+    /*
+     * The Channel-Flags field is described as "Radiotap-formatted
+     * channel flags".  The comment in the radiotap.org page about
+     * the suggested xchannel field says:
+     *
+     *  As used, this field conflates channel properties (which
+     *  need not be stored per packet but are more or less fixed)
+     *  with packet properties (like the modulation).
+     *
+     * The radiotap channel field, in practice, seems to be used,
+     * in some cases, to indicate channel properties (from which
+     * the packet modulation cannot be inferred) and, in other
+     * cases, to indicate the packet's modulation.
+     *
+     * The same applies to the Channel-Flags field.  There is a capture
+     * in which the Channel-Flags field indicates that the channel is
+     * an OFDM-only channel with a center frequency of 2422 MHz, and
+     * the data rate field indicates a 2 Mb/s rate, which means you can't
+     * rely on the CCK/OFDM/dynamic CCK/OFDM bits in the channel field
+     * to indicate anything.
+     *
+     * That makes the Channel-Flags field unusable either for determining
+     * the channel type or for determining the packet modulation,
+     * as it cannot be determined how it's being used.
+     *
+     * Fortunately, there are other ways to determine the packet
+     * modulation:
+     *
+     *  if there's an FHSS flag, the packet was transmitted
+     *  using the 802.11 legacy FHSS modulation;
+     *
+     *  otherwise:
+     *
+     *    if there's an 802.11n MAC Extension header or an 802.11n
+     *    MAC+PHY Extension header, the packet was transmitted using
+     *    one of the 11n HT PHY's specified modulations;
+     *
+     *    otherwise:
+     *
+     *      if the data rate is 1 Mb/s or 2 Mb/s, the packet was
+     *      transmitted using the 802.11 legacy DSSS modulation
+     *      (we ignore the IR PHY - was it ever implemented?);
+     *
+     *      if the data rate is 5 Mb/s or 11 Mb/s, the packet
+     *      was transmitted using the 802.11b DSSS/CCK modulation
+     *      (or the now-obsolete DSSS/PBCC modulation; *if* we can
+     *      rely on the channel/xchannel field's "CCK channel" and
+     *      "Dynamic CCK-OFDM channel" flags, the absence of either
+     *      flag would presumably indicate DSSS/PBCC);
+     *
+     *      if the data rate is 22 Mb/s or 33 Mb/s, the packet was
+     *      transmitted using the 802.11b DSSS/PBCC modulation (as
+     *      those speeds aren't supported by DSSS/CCK);
+     *
+     *      if the data rate is one of the OFDM rates for the 11a
+     *      OFDM PHY and the OFDM part of the 11g ERP PHY, the
+     *      packet was transmitted with the 11g/11a OFDM modulation.
+     *
+     * We've already handled the 11n headers, and may have attempted
+     * to use the Channel-Flags field to guess the modulation.  That
+     * guess might get the wrong answer for 11g "Dynamic CCK-OFDM"
+     * channels.
+     *
+     * If we have the data rate, we use it to:
+     *
+     *  fix up the 11g channels;
+     *
+     *  determine the modulation if we haven't been able to
+     *  determine it any other way.
+     */
+    if (phdr.has_data_rate) {
+        if (phdr.phy == PHDR_802_11_PHY_UNKNOWN) {
+            /*
+             * We don't know they PHY, but we do have the
+             * data rate; try to guess it based on the
+             * data rate and channel/center frequency.
+             */
+            if (RATE_IS_DSSS(phdr.data_rate)) {
+                /* 11b */
+                phdr.phy = PHDR_802_11_PHY_11B;
+            } else if (RATE_IS_OFDM(phdr.data_rate)) {
+                /* 11a or 11g, depending on the band. */
+                if (phdr.has_frequency) {
+                    if (FREQ_IS_BG(phdr.frequency)) {
+                        /* 11g */
+                        phdr.phy = PHDR_802_11_PHY_11G;
+                    } else {
+                        /* 11a */
+                        phdr.phy = PHDR_802_11_PHY_11A;
+                    }
+                }
+            }
+        } else if (phdr.phy == PHDR_802_11_PHY_11G) {
+            if (RATE_IS_DSSS(phdr.data_rate)) {
+                /* DSSS, so 11b. */
+                phdr.phy = PHDR_802_11_PHY_11B;
+            }
+        }
+    }
+
+    /*
+     * There is no indication, for HR/DSSS (11b/11g), whether
+     * the packet had a long or short preamble.
+     */
+    if (phdr.phy == PHDR_802_11_PHY_11B)
+        phdr.phy_info.info_11b.has_short_preamble = FALSE;
+
     if (ppi_ampdu_reassemble && DOT11N_IS_AGGREGATE(n_ext_flags)) {
         len_remain = tvb_captured_length_remaining(tvb, offset);
 #if 0 /* XXX: pad_len never actually used ?? */
