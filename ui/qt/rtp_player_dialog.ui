@@ -412,6 +412,28 @@
     <string notr="true">G</string>
    </property>
   </action>
+  <action name="actionGoToSetupPacketPlot">
+   <property name="text">
+    <string>Go To Setup Packet</string>
+   </property>
+   <property name="toolTip">
+    <string>Go to setup packet of stream currently under the cursor</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">Shift+G</string>
+   </property>
+  </action>
+  <action name="actionGoToSetupPacketTree">
+   <property name="text">
+    <string>Go To Setup Packet</string>
+   </property>
+   <property name="toolTip">
+    <string>Go to setup packet of stream currently under the cursor</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">Shift+G</string>
+   </property>
+  </action>
   <action name="actionAudioRoutingM">
    <property name="text">
     <string>Mute/Unmute</string>

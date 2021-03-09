@@ -91,7 +91,8 @@ enum {
     graph_sequence_data_col_ = dst_addr_col_, // QCPGraph (sequence)
     graph_jitter_data_col_ = dst_port_col_, // QCPGraph (jitter)
     graph_timestamp_data_col_ = ssrc_col_, // QCPGraph (timestamp)
-    graph_silence_data_col_ = first_pkt_col_, // QCPGraph (silence)
+    // first_pkt_col_ is skipped, it is used for real data
+    graph_silence_data_col_ = num_pkts_col_, // QCPGraph (silence)
 };
 
 class RtpPlayerTreeWidgetItem : public QTreeWidgetItem
@@ -108,10 +109,17 @@ public:
         switch (treeWidget()->sortColumn()) {
             case src_port_col_:
             case dst_port_col_:
-            case first_pkt_col_:
             case num_pkts_col_:
             case sample_rate_col_:
-                return text(treeWidget()->sortColumn()).toULong() < other.text(treeWidget()->sortColumn()).toULong();
+                return text(treeWidget()->sortColumn()).toInt() < other.text(treeWidget()->sortColumn()).toInt();
+            case first_pkt_col_:
+                int v1;
+                int v2;
+
+                v1 = data(first_pkt_col_, Qt::UserRole).toInt();
+                v2 = other.data(first_pkt_col_, Qt::UserRole).toInt();
+
+                return v1 < v2;
             default:
                 // Fall back to string comparison
                 return QTreeWidgetItem::operator <(other);
@@ -161,6 +169,7 @@ RtpPlayerDialog::RtpPlayerDialog(QWidget &parent, CaptureFile &cf) :
     graph_ctx_menu_->addAction(ui->actionMoveLeft1);
     graph_ctx_menu_->addSeparator();
     graph_ctx_menu_->addAction(ui->actionGoToPacket);
+    graph_ctx_menu_->addAction(ui->actionGoToSetupPacketPlot);
     set_action_shortcuts_visible_in_context_menu(graph_ctx_menu_->actions());
 
     ui->streamTreeWidget->setMouseTracking(true);
@@ -259,6 +268,7 @@ RtpPlayerDialog::RtpPlayerDialog(QWidget &parent, CaptureFile &cf) :
     audio_routing_menu2->addAction(ui->actionAudioRoutingR);
     list_ctx_menu_->addAction(ui->actionRemoveStream);
     graph_ctx_menu_->addAction(ui->actionRemoveStream);
+    list_ctx_menu_->addAction(ui->actionGoToSetupPacketTree);
     set_action_shortcuts_visible_in_context_menu(list_ctx_menu_->actions());
 
     QTimer::singleShot(0, this, SLOT(retapPackets()));
@@ -539,7 +549,15 @@ void RtpPlayerDialog::addRtpStream(rtpstream_info_t *rtpstream)
         ti->setText(dst_addr_col_, address_to_qstring(&rtpstream->id.dst_addr));
         ti->setText(dst_port_col_, QString::number(rtpstream->id.dst_port));
         ti->setText(ssrc_col_, int_to_qstring(rtpstream->id.ssrc, 8, 16));
-        ti->setText(first_pkt_col_, QString::number(rtpstream->setup_frame_number));
+        if (rtpstream->setup_frame_number == 0xFFFFFFFF) {
+            int packet = rtpstream->rtp_stats.first_packet_num;
+            ti->setText(first_pkt_col_, QString("RTP %1").arg(packet));
+            ti->setData(first_pkt_col_, Qt::UserRole, QVariant(packet));
+        } else {
+            int packet = rtpstream->setup_frame_number;
+            ti->setText(first_pkt_col_, QString("SETUP %1").arg(rtpstream->setup_frame_number));
+            ti->setData(first_pkt_col_, Qt::UserRole, QVariant(packet));
+        }
         ti->setText(num_pkts_col_, QString::number(rtpstream->packet_count));
 
         ti->setData(stream_data_col_, Qt::UserRole, QVariant::fromValue(audio_stream));
@@ -609,9 +627,11 @@ bool RtpPlayerDialog::eventFilter(QObject *, QEvent *event)
             case Qt::Key_Equal:         // Unshifted plus on U.S. keyboards
             case Qt::Key_I:             // GTK+
                 if (keyEvent.modifiers() == Qt::ControlModifier) {
+                    // Ctrl+I
                     invertSelection();
                     return true;
                 } else {
+                    // I
                     on_actionZoomIn_triggered();
                     return true;
                 }
@@ -629,13 +649,29 @@ bool RtpPlayerDialog::eventFilter(QObject *, QEvent *event)
                 on_actionReset_triggered();
                 return true;
             case Qt::Key_G:
-                on_actionGoToPacket_triggered();
-                return true;
+                if (keyEvent.modifiers() == Qt::ShiftModifier) {
+                    // Goto SETUP frame, use correct call based on caller
+                    QPoint pos1 = ui->audioPlot->mapFromGlobal(QCursor::pos());
+                    QPoint pos2 = ui->streamTreeWidget->mapFromGlobal(QCursor::pos());
+                    if (ui->audioPlot->rect().contains(pos1)) {
+                        // audio plot, by mouse coords
+                        on_actionGoToSetupPacketPlot_triggered();
+                    } else if (ui->streamTreeWidget->rect().contains(pos2)) {
+                        // packet tree, by cursor
+                        on_actionGoToSetupPacketTree_triggered();
+                    }
+                    return true;
+                } else {
+                    on_actionGoToPacket_triggered();
+                    return true;
+                }
             case Qt::Key_A:
                 if (keyEvent.modifiers() == Qt::ControlModifier) {
+                    // Ctrl+A
                     ui->streamTreeWidget->selectAll();
                     return true;
                 } else if (keyEvent.modifiers() == (Qt::ShiftModifier | Qt::ControlModifier)) {
+                    // Ctrl+Shift+A
                     ui->streamTreeWidget->clearSelection();
                     return true;
                 }
@@ -648,17 +684,18 @@ bool RtpPlayerDialog::eventFilter(QObject *, QEvent *event)
                 return true;
             case Qt::Key_X:
                 if (keyEvent.modifiers() == Qt::ControlModifier) {
+                    // Ctrl+X
                     on_actionRemoveStream_triggered();
                     return true;
                 }
                 break;
-            // Route keys to QTreeWidget
             case Qt::Key_Down:
             case Qt::Key_Up:
             case Qt::Key_PageUp:
             case Qt::Key_PageDown:
             case Qt::Key_Home:
             case Qt::Key_End:
+                // Route keys to QTreeWidget
                 ui->streamTreeWidget->setFocus();
                 break;
         }
@@ -1121,6 +1158,29 @@ void RtpPlayerDialog::on_actionGoToPacket_triggered()
 {
     int packet_num = getHoveredPacket();
     if (packet_num > 0) emit goToPacket(packet_num);
+}
+
+void RtpPlayerDialog::handleGoToSetupPacket(QTreeWidgetItem *ti)
+{
+    if (ti) {
+        bool ok;
+
+        int packet_num = ti->data(first_pkt_col_, Qt::UserRole).toInt(&ok);
+        if (ok) {
+            emit goToPacket(packet_num);
+        }
+    }
+}
+
+void RtpPlayerDialog::on_actionGoToSetupPacketPlot_triggered()
+{
+    QPoint pos = ui->audioPlot->mapFromGlobal(QCursor::pos());
+    handleGoToSetupPacket(findItemByCoords(pos));
+}
+
+void RtpPlayerDialog::on_actionGoToSetupPacketTree_triggered()
+{
+    handleGoToSetupPacket(last_ti_);
 }
 
 // Make waveform graphs selectable and update the treewidget selection accordingly.

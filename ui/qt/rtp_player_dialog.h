@@ -115,8 +115,9 @@ private slots:
     void on_actionMoveLeft1_triggered();
     void on_actionMoveRight1_triggered();
     void on_actionGoToPacket_triggered();
+    void on_actionGoToSetupPacketPlot_triggered();
+    void on_actionGoToSetupPacketTree_triggered();
     void on_actionRemoveStream_triggered();
-    //void on_actionAudioRoutingM_triggered();
     void on_actionAudioRoutingP_triggered();
     void on_actionAudioRoutingL_triggered();
     void on_actionAudioRoutingLR_triggered();
@@ -183,6 +184,7 @@ private:
     void handleItemHighlight(QTreeWidgetItem *ti, bool scroll);
     void highlightItem(QTreeWidgetItem *ti, bool highlight);
     void invertSelection();
+    void handleGoToSetupPacket(QTreeWidgetItem *ti);
 
 #else // QT_MULTIMEDIA_LIB
 private:

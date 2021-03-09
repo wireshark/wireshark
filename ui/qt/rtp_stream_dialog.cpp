@@ -854,6 +854,7 @@ void RtpStreamDialog::showPlayer()
             rtpstream_id_copy(&selected_stream->id, &stream_info.id);
             stream_info.packet_count = selected_stream->packet_count;
             stream_info.setup_frame_number = selected_stream->setup_frame_number;
+            stream_info.rtp_stats = selected_stream->rtp_stats;
             nstime_copy(&stream_info.start_rel_time, &selected_stream->start_rel_time);
             nstime_copy(&stream_info.stop_rel_time, &selected_stream->stop_rel_time);
             nstime_copy(&stream_info.start_abs_time, &selected_stream->start_abs_time);

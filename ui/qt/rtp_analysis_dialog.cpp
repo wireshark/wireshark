@@ -971,6 +971,7 @@ void RtpAnalysisDialog::showPlayer()
     rtpstream_id_copy(&fwd_statinfo_.id, &stream_info.id);
     stream_info.packet_count = fwd_statinfo_.packet_count;
     stream_info.setup_frame_number = fwd_statinfo_.setup_frame_number;
+    stream_info.rtp_stats = fwd_statinfo_.rtp_stats;
     nstime_copy(&stream_info.start_rel_time, &fwd_statinfo_.start_rel_time);
     nstime_copy(&stream_info.stop_rel_time, &fwd_statinfo_.stop_rel_time);
     nstime_copy(&stream_info.start_abs_time, &fwd_statinfo_.start_abs_time);
@@ -981,6 +982,7 @@ void RtpAnalysisDialog::showPlayer()
         rtpstream_id_copy(&rev_statinfo_.id, &stream_info.id);
         stream_info.packet_count = rev_statinfo_.packet_count;
         stream_info.setup_frame_number = rev_statinfo_.setup_frame_number;
+        stream_info.rtp_stats = rev_statinfo_.rtp_stats;
         nstime_copy(&stream_info.start_rel_time, &rev_statinfo_.start_rel_time);
         nstime_copy(&stream_info.stop_rel_time, &rev_statinfo_.stop_rel_time);
         nstime_copy(&stream_info.start_abs_time, &rev_statinfo_.start_abs_time);
