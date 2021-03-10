@@ -129,6 +129,7 @@ static int hf_nvme_identify_ctrl_ctratt_ng = -1;
 static int hf_nvme_identify_ctrl_ctratt_sqa = -1;
 static int hf_nvme_identify_ctrl_ctratt_uuidl = -1;
 static int hf_nvme_identify_ctrl_ctratt_rsvd = -1;
+static int hf_nvme_identify_ctrl_rrls[17] = { [0 ... 16] = -1 };
 static int hf_nvme_identify_ctrl_oacs = -1;
 static int hf_nvme_identify_ctrl_acl = -1;
 static int hf_nvme_identify_ctrl_aerl = -1;
@@ -823,6 +824,8 @@ static void dissect_nvme_identify_ctrl_resp(tvbuff_t *cmd_tvb,
 
     add_decode_group(ctratt_array, sizeof(ctratt_array) / sizeof(ctratt_array[0]), 96, 4, cmd_tvb, cmd_tree);
 
+    add_decode_group(hf_nvme_identify_ctrl_rrls, sizeof(hf_nvme_identify_ctrl_rrls) / sizeof(hf_nvme_identify_ctrl_rrls[0]), 100, 2, cmd_tvb, cmd_tree);
+
     proto_tree_add_item(cmd_tree, hf_nvme_identify_ctrl_oacs, cmd_tvb,
                         256, 2, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(cmd_tree, hf_nvme_identify_ctrl_acl, cmd_tvb,
@@ -1486,6 +1489,74 @@ proto_register_nvme(void)
         { &hf_nvme_identify_ctrl_ctratt_rsvd,
             { "Reserved", "nvme.cmd.identify.ctrl.ctratt.rsvd",
                FT_UINT32, BASE_HEX, NULL, 0xfffffc00, NULL, HFILL}
+        },
+        { &hf_nvme_identify_ctrl_rrls[0],
+            { "Read Recovery Levels Support (RRLS)", "nvme.cmd.identify.ctrl.rrls",
+               FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_identify_ctrl_rrls[1],
+            { "Read Recovery Level 0 Support", "nvme.cmd.identify.ctrl.rrls.rrls0",
+               FT_UINT16, BASE_HEX, NULL, 0x1, NULL, HFILL}
+        },
+        { &hf_nvme_identify_ctrl_rrls[2],
+            { "Read Recovery Level 1 Support", "nvme.cmd.identify.ctrl.rrls.rrls1",
+               FT_UINT16, BASE_HEX, NULL, 0x2, NULL, HFILL}
+        },
+        { &hf_nvme_identify_ctrl_rrls[3],
+            { "Read Recovery Level 2 Support", "nvme.cmd.identify.ctrl.rrls.rrls2",
+               FT_UINT16, BASE_HEX, NULL, 0x4, NULL, HFILL}
+        },
+        { &hf_nvme_identify_ctrl_rrls[4],
+            { "Read Recovery Level 3 Support", "nvme.cmd.identify.ctrl.rrls.rrls3",
+               FT_UINT16, BASE_HEX, NULL, 0x8, NULL, HFILL}
+        },
+        { &hf_nvme_identify_ctrl_rrls[5],
+            { "Read Recovery Level 4 (Default) Support", "nvme.cmd.identify.ctrl.rrls.rrls4",
+               FT_UINT16, BASE_HEX, NULL, 0x10, NULL, HFILL}
+        },
+        { &hf_nvme_identify_ctrl_rrls[6],
+            { "Read Recovery Level 5 Support", "nvme.cmd.identify.ctrl.rrls.rrls5",
+               FT_UINT16, BASE_HEX, NULL, 0x20, NULL, HFILL}
+        },
+        { &hf_nvme_identify_ctrl_rrls[7],
+            { "Read Recovery Level 6 Support", "nvme.cmd.identify.ctrl.rrls.rrls6",
+               FT_UINT16, BASE_HEX, NULL, 0x40, NULL, HFILL}
+        },
+        { &hf_nvme_identify_ctrl_rrls[8],
+            { "Read Recovery Level 7 Support", "nvme.cmd.identify.ctrl.rrls.rrls7",
+               FT_UINT16, BASE_HEX, NULL, 0x80, NULL, HFILL}
+        },
+        { &hf_nvme_identify_ctrl_rrls[9],
+            { "Read Recovery Level 8 Support", "nvme.cmd.identify.ctrl.rrls.rrls8",
+               FT_UINT16, BASE_HEX, NULL, 0x100, NULL, HFILL}
+        },
+        { &hf_nvme_identify_ctrl_rrls[10],
+            { "Read Recovery Level 9 Support", "nvme.cmd.identify.ctrl.rrls.rrls9",
+               FT_UINT16, BASE_HEX, NULL, 0x200, NULL, HFILL}
+        },
+        { &hf_nvme_identify_ctrl_rrls[11],
+            { "Read Recovery Level 10 Support", "nvme.cmd.identify.ctrl.rrls.rrls10",
+               FT_UINT16, BASE_HEX, NULL, 0x400, NULL, HFILL}
+        },
+        { &hf_nvme_identify_ctrl_rrls[12],
+            { "Read Recovery Level 11 Support", "nvme.cmd.identify.ctrl.rrls.rrls11",
+               FT_UINT16, BASE_HEX, NULL, 0x800, NULL, HFILL}
+        },
+        { &hf_nvme_identify_ctrl_rrls[13],
+            { "Read Recovery Level 12 Support", "nvme.cmd.identify.ctrl.rrls.rrls12",
+               FT_UINT16, BASE_HEX, NULL, 0x1000, NULL, HFILL}
+        },
+        { &hf_nvme_identify_ctrl_rrls[14],
+            { "Read Recovery Level 13 Support", "nvme.cmd.identify.ctrl.rrls.rrls13",
+               FT_UINT16, BASE_HEX, NULL, 0x2000, NULL, HFILL}
+        },
+        { &hf_nvme_identify_ctrl_rrls[15],
+            { "Read Recovery Level 14 Support", "nvme.cmd.identify.ctrl.rrls.rrls14",
+               FT_UINT16, BASE_HEX, NULL, 0x4000, NULL, HFILL}
+        },
+        { &hf_nvme_identify_ctrl_rrls[16],
+            { "Read Recovery Level 15 (Fast Fail) Support", "nvme.cmd.identify.ctrl.rrls.rrls15",
+               FT_UINT16, BASE_HEX, NULL, 0x8000, NULL, HFILL}
         },
         { &hf_nvme_identify_ctrl_oacs,
             { "Optional Admin Command Support (OACS)", "nvme.cmd.identify.ctrl.oacs",
