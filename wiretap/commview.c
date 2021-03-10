@@ -167,6 +167,7 @@ commview_read_packet(FILE_T fh, wtap_rec *rec, Buffer *buf,
 
 		case BAND_11A:
 			rec->rec_header.packet_header.pseudo_header.ieee_802_11.phy = PHDR_802_11_PHY_11A;
+			rec->rec_header.packet_header.pseudo_header.ieee_802_11.phy_info.info_11a.has_channel_type = FALSE;
 			rec->rec_header.packet_header.pseudo_header.ieee_802_11.phy_info.info_11a.has_turbo_type = TRUE;
 			rec->rec_header.packet_header.pseudo_header.ieee_802_11.phy_info.info_11a.turbo_type =
 			    PHDR_802_11A_TURBO_TYPE_NORMAL;
@@ -175,6 +176,7 @@ commview_read_packet(FILE_T fh, wtap_rec *rec, Buffer *buf,
 
 		case BAND_11B:
 			rec->rec_header.packet_header.pseudo_header.ieee_802_11.phy = PHDR_802_11_PHY_11B;
+			rec->rec_header.packet_header.pseudo_header.ieee_802_11.phy_info.info_11b.has_short_preamble = FALSE;
 			frequency = ieee80211_chan_to_mhz(cv_hdr.channel, TRUE);
 			break;
 
@@ -256,6 +258,35 @@ commview_read_packet(FILE_T fh, wtap_rec *rec, Buffer *buf,
 		if (cv_hdr.noise_level != 0) {
 			rec->rec_header.packet_header.pseudo_header.ieee_802_11.noise_dbm = -cv_hdr.noise_level;
 			rec->rec_header.packet_header.pseudo_header.ieee_802_11.has_noise_dbm = TRUE;
+		}
+		if (rec->rec_header.packet_header.pseudo_header.ieee_802_11.phy == PHDR_802_11_PHY_UNKNOWN) {
+			/*
+			 * We don't know they PHY, but we do have the
+			 * data rate; try to guess it based on the
+			 * data rate and center frequency.
+			 */
+			if (RATE_IS_DSSS(rec->rec_header.packet_header.pseudo_header.ieee_802_11.data_rate)) {
+				/* 11b */
+				rec->rec_header.packet_header.pseudo_header.ieee_802_11.phy = PHDR_802_11_PHY_11B;
+				rec->rec_header.packet_header.pseudo_header.ieee_802_11.phy_info.info_11b.has_short_preamble = FALSE;
+			} else if (RATE_IS_OFDM(rec->rec_header.packet_header.pseudo_header.ieee_802_11.data_rate)) {
+				/* 11a or 11g, depending on the band. */
+				if (rec->rec_header.packet_header.pseudo_header.ieee_802_11.has_frequency) {
+					if (FREQ_IS_BG(rec->rec_header.packet_header.pseudo_header.ieee_802_11.frequency)) {
+						/* 11g */
+						rec->rec_header.packet_header.pseudo_header.ieee_802_11.phy = PHDR_802_11_PHY_11G;
+					} else {
+						/* 11a */
+						rec->rec_header.packet_header.pseudo_header.ieee_802_11.phy = PHDR_802_11_PHY_11A;
+					}
+				}
+			}
+		} else if (rec->rec_header.packet_header.pseudo_header.ieee_802_11.phy == PHDR_802_11_PHY_11G) {
+			if (RATE_IS_DSSS(rec->rec_header.packet_header.pseudo_header.ieee_802_11.data_rate)) {
+				/* DSSS, so 11b. */
+				rec->rec_header.packet_header.pseudo_header.ieee_802_11.phy = PHDR_802_11_PHY_11B;
+				rec->rec_header.packet_header.pseudo_header.ieee_802_11.phy_info.info_11b.has_short_preamble = FALSE;
+			}
 		}
 		break;
 
