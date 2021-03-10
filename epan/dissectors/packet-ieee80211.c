@@ -1921,6 +1921,7 @@ static const value_string ap_cf_pollable[] = {
 #define AUTH_ALG_FILS_SK_WITHOUT_PFS    4
 #define AUTH_ALG_FILS_SK_WITH_PFS       5
 #define AUTH_ALG_FILS_PK                6
+#define AUTH_ALG_PASN                   7
 #define AUTH_ALG_NETWORK_EAP         0x80
 
 static const value_string auth_alg[] = {
@@ -1931,6 +1932,7 @@ static const value_string auth_alg[] = {
   {AUTH_ALG_FILS_SK_WITHOUT_PFS, "FILS Shared Key authentication without PFS"},
   {AUTH_ALG_FILS_SK_WITH_PFS,    "FILS Shared Key authentication with PFS"},
   {AUTH_ALG_FILS_PK,             "FILS Public Key authentication"},
+  {AUTH_ALG_PASN,                "Pre-Association Security Negotiation (PASN)"},
   {AUTH_ALG_NETWORK_EAP,         "Network EAP"},  /* Cisco proprietary? */
   {0, NULL}
 };
