@@ -2571,6 +2571,8 @@ proto_register_dect(void)
 	proto_dect=proto_register_protocol("DECT Protocol", "DECT", "dect");
 	proto_register_field_array(proto_dect, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+
+	register_dissector("dect", dissect_dect, proto_dect);
 }
 
 void
