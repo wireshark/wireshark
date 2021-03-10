@@ -581,6 +581,8 @@ static int hf_nfs4_exchid_flags_upd_conf_rec_a = -1;
 static int hf_nfs4_exchid_flags_confirmed_r = -1;
 static int hf_nfs4_state_protect_window = -1;
 static int hf_nfs4_state_protect_num_gss_handles = -1;
+static int hf_nfs4_sp_parms_hash_algs = -1;
+static int hf_nfs4_sp_parms_encr_algs = -1;
 static int hf_nfs4_prot_info_spi_window = -1;
 static int hf_nfs4_prot_info_svv_length = -1;
 static int hf_nfs4_prot_info_encr_alg = -1;
@@ -8277,13 +8279,19 @@ dissect_nfs4_state_protect_ops(tvbuff_t *tvb, int offset,
 
 
 static int
+dissect_nfs4_sec_oid(tvbuff_t *tvb, int offset, packet_info *pinfo,
+				proto_tree *tree, void *data _U_)
+{
+	return dissect_rpc_opaque_data(tvb, offset, tree, pinfo,
+				hf_nfs4_sec_oid, FALSE, 0, FALSE, NULL, NULL);
+}
+
+static int
 dissect_nfs4_ssv_sp_parms(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
 	offset = dissect_nfs4_state_protect_ops(tvb, offset, pinfo, tree);
-	offset = dissect_rpc_opaque_data(tvb, offset, tree, NULL,
-				hf_nfs4_sec_oid, FALSE, 0, FALSE, NULL, NULL);
-	offset = dissect_rpc_opaque_data(tvb, offset, tree, NULL,
-				hf_nfs4_sec_oid, FALSE, 0, FALSE, NULL, NULL);
+	offset = dissect_rpc_array(tvb, pinfo, tree, offset, dissect_nfs4_sec_oid, hf_nfs4_sp_parms_hash_algs);
+	offset = dissect_rpc_array(tvb, pinfo, tree, offset, dissect_nfs4_sec_oid, hf_nfs4_sp_parms_encr_algs);
 	offset = dissect_rpc_uint32(tvb, tree, hf_nfs4_state_protect_window, offset);
 	offset = dissect_rpc_uint32(tvb, tree, hf_nfs4_state_protect_num_gss_handles, offset);
 	return offset;
@@ -8484,8 +8492,7 @@ dissect_nfs4_open_delegation(tvbuff_t *tvb, int offset, packet_info *pinfo,
 static int
 dissect_nfs_rpcsec_gss_info(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
-	offset = dissect_rpc_opaque_data(tvb, offset, tree, NULL,
-		hf_nfs4_sec_oid, FALSE, 0, FALSE, NULL, NULL);
+	offset = dissect_nfs4_sec_oid(tvb, offset, NULL, tree, NULL);
 	offset = dissect_rpc_uint32(tvb, tree, hf_nfs4_qop, offset);
 	offset = dissect_rpc_uint32(tvb, tree,
 		hf_nfs4_secinfo_rpcsec_gss_info_service, offset);
@@ -13735,6 +13742,12 @@ proto_register_nfs(void)
 		{ &hf_nfs4_exchid_flags_confirmed_r, {
 			"EXCHGID4_FLAG_CONFIRMED_R", "nfs.exchange_id.flags.confirmed_r", FT_BOOLEAN, 32,
 			TFS(&tfs_set_notset), 0x80000000, NULL, HFILL}},
+		{ &hf_nfs4_sp_parms_hash_algs, {
+			"State Protect hash algorithms", "nfs.sp_parms4_hash_algs", FT_NONE, BASE_NONE,
+			NULL, 0, NULL, HFILL }},
+		{ &hf_nfs4_sp_parms_encr_algs, {
+			"State Protect encryption algorithms", "nfs.sp_parms4_encr_algs", FT_NONE, BASE_NONE,
+			NULL, 0, NULL, HFILL }},
 		{ &hf_nfs4_prot_info_hash_alg, {
 			"Prot Info hash algorithm", "nfs.prot_info4_hash_alg", FT_UINT32, BASE_HEX,
 			NULL, 0, NULL, HFILL }},
