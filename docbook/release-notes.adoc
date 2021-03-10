@@ -24,16 +24,16 @@ It is used for troubleshooting, analysis, development and education.
 
 === Bug Fixes
 
-The following vulnerabilities have been fixed:
+// The following vulnerabilities have been fixed:
 
-* wssalink:2021-03[]
-Wireshark could open unsafe URLs.
-wsbuglink:17232[].
-cveidlink:2021-22191[].
-// Fixed in master: e99c9afce8
-// Fixed in release-3.4: b2c58d020c
-// Fixed in master-3.2: 0f638a240c
-// AV:N/AC:L/PR:N/UI:R/S:U/C:L/I:L/A:L
+// * wssalink:2021-04[]
+// Foo dissector {crash,infinite loop,memory leak}.
+// wsbuglink:xxxx[].
+// cveidlink:2021-xxxx[].
+// Fixed in master: xxxx
+// Fixed in release-3.4: xxxx
+// Fixed in master-3.2: xxxx
+// CVSS AV:N/AC:L/PR:N/UI:R/S:U/C:L/I:L/A:L
 
 The following bugs have been fixed:
 
@@ -42,22 +42,6 @@ The following bugs have been fixed:
 //* cveidlink:2014-2486[]
 //* Wireshark exposed details your sordid redneck past, which were subsequently widely disseminated on social media.
 // cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log v3.4.4rc0.. | gsed -e 's/\(close\|fix\|resolv\)[^ ]* #/\nclose #/gI' | grep ^close | sed -e 's/close.*#\([1-9][0-9]*\).*/\1/' | sort -V -u` ; do "$(git rev-parse --show-toplevel)/tools/gen-bugnote" $bugnumber; pbpaste >> /tmp/buglist.txt; done
-
-* NTP Version 3 Client Decode PDML output issue (Reference ID Issue) wsbuglink:17112[].
-
-* 3.4.2: public wireshark include files are including build time "config.h" wsbuglink:17190[].
-
-* wireshark-3.4.3/epan/dissectors/packet-s7comm.c:3521: bad array index ? wsbuglink:17198[].
-
-* SIP protocol: P-Called-Party-ID header mixed up with P-Charge-Info header wsbuglink:17215[].
-
-* Asterix CAT010 Decode Error wsbuglink:17226[].
-
-* _ws.expert columns not populated for IPv4 wsbuglink:17228[].
-
-* Buildbot crash output: fuzz-2021-02-12-1651908.pcap wsbuglink:17233[].
-
-* gQUIC: Wireshark 3.4.3 fails to dissect a packet (gQUIC q024) that v3.2.6 succeeds. wsbuglink:17250[].
 
 === New and Updated Features
 
@@ -80,23 +64,15 @@ There are no new protocols in this release.
 // Add one protocol per line between the -- delimiters.
 [commaize]
 --
-ASTERIX
-Frame Relay
-GQUIC
-NTP
-NVMe Fabrics RDMA
-S7COMM
-SIP
 --
 
 === New and Updated Capture File Support
 
-// There is no new or updated capture file support in this release.
+There is no new or updated capture file support in this release.
 // Add one file type per line between the -- delimiters.
-[commaize]
---
-iSeries
---
+// [commaize]
+// --
+// --
 
 // === New and Updated Capture Interfaces support
 
