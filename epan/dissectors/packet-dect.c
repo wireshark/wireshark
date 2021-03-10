@@ -212,7 +212,7 @@ static int hf_dect_B_DescrambledData		= -1;
 static int hf_dect_B_fn				= -1;
 static int hf_dect_B_XCRC			= -1;
 
-static const value_string tranceiver_mode[]=
+static const value_string transceiver_mode[]=
 {
 	{0, "Receive"},
 	{1, "Send"},
@@ -332,7 +332,7 @@ static const value_string QTEscape_vals[]=
 };
 
 /* ETSI EN 300 175-3 V2.3.0  7.2.3.2.6 */
-static const value_string QTTranceiver_vals[]=
+static const value_string QTTransceiver_vals[]=
 {
 	{0, "RFP has 1 Transceiver"},
 	{1, "RFP has 2 Transceiver"},
@@ -2018,7 +2018,7 @@ proto_register_dect(void)
 	static hf_register_info hf[]=
 	{
 		{ &hf_dect_transceivermode,
-		{"Tranceiver-Mode", "dect.tranceivermode", FT_UINT8, BASE_HEX, VALS(tranceiver_mode),
+		{"Transceiver-Mode", "dect.transceivermode", FT_UINT8, BASE_HEX, VALS(transceiver_mode),
 			0x0, NULL, HFILL}},
 
 		{ &hf_dect_channel,
@@ -2129,7 +2129,7 @@ proto_register_dect(void)
 			0x20, NULL, HFILL}},
 
 		{ &hf_dect_A_Tail_Qt_0_Txs,
-		{"Txs", "dect.afield.tail.Qt.Txs", FT_UINT8, BASE_DEC, VALS(QTTranceiver_vals),
+		{"Txs", "dect.afield.tail.Qt.Txs", FT_UINT8, BASE_DEC, VALS(QTTransceiver_vals),
 			0x18, NULL, HFILL}},
 
 		{ &hf_dect_A_Tail_Qt_0_Mc,
