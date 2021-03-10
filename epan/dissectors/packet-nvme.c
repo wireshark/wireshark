@@ -105,6 +105,8 @@ static int hf_nvme_identify_ctrl_ver = -1;
 static int hf_nvme_identify_ctrl_ver_min = -1;
 static int hf_nvme_identify_ctrl_ver_mjr = -1;
 static int hf_nvme_identify_ctrl_ver_ter = -1;
+static int hf_nvme_identify_ctrl_rtd3r = -1;
+static int hf_nvme_identify_ctrl_rtd3e = -1;
 static int hf_nvme_identify_ctrl_oaes = -1;
 static int hf_nvme_identify_ctrl_oaes_rsvd0 = -1;
 static int hf_nvme_identify_ctrl_oaes_nan = -1;
@@ -777,6 +779,19 @@ static void dissect_nvme_identify_ctrl_resp(tvbuff_t *cmd_tvb,
     proto_tree_add_item(ver, hf_nvme_identify_ctrl_ver_ter, cmd_tvb,
                         80, 1, ENC_LITTLE_ENDIAN);
 
+    ti = proto_tree_add_item_ret_uint(cmd_tree, hf_nvme_identify_ctrl_rtd3r, cmd_tvb,
+                        84, 4, ENC_LITTLE_ENDIAN, &val);
+    if (!val)
+        proto_item_append_text(ti, " (not reported)");
+    else
+        proto_item_append_text(ti, " (%u microseconds)", val);
+    ti = proto_tree_add_item_ret_uint(cmd_tree, hf_nvme_identify_ctrl_rtd3e, cmd_tvb,
+                        88, 4, ENC_LITTLE_ENDIAN, &val);
+    if (!val)
+        proto_item_append_text(ti, " (not reported)");
+    else
+        proto_item_append_text(ti, " (%u microseconds)", val);
+
     ti = proto_tree_add_item(cmd_tree, hf_nvme_identify_ctrl_oaes, cmd_tvb,
                         92, 4, ENC_LITTLE_ENDIAN);
     oaes = proto_item_add_subtree(ti, ett_data);
@@ -1366,6 +1381,14 @@ proto_register_nvme(void)
         { &hf_nvme_identify_ctrl_ver_mjr,
             { "Major Version Number (MJR)", "nvme.cmd.identify.ctrl.ver.mjr",
                FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_identify_ctrl_rtd3r,
+            { "RTD3 Resume Latency (RTD3R)", "nvme.cmd.identify.ctrl.rtd3r",
+               FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_identify_ctrl_rtd3e,
+            { "RTD3 Entry Latency (RTD3E)", "nvme.cmd.identify.ctrl.rtd3e",
+               FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}
         },
         { &hf_nvme_identify_ctrl_oaes,
             { "Optional Asynchronous Events Supported (OAES)", "nvme.cmd.identify.ctrl.oaes",
