@@ -132,6 +132,10 @@ static int hf_nvme_identify_ctrl_ctratt_rsvd = -1;
 static int hf_nvme_identify_ctrl_rrls[17] = { [0 ... 16] = -1 };
 static int hf_nvme_identify_ctrl_rsvd0 = -1;
 static int hf_nvme_identify_ctrl_cntrltype = -1;
+static int hf_nvme_identify_ctrl_fguid = -1;
+static int hf_nvme_identify_ctrl_fguid_vse = -1;
+static int hf_nvme_identify_ctrl_fguid_oui = -1;
+static int hf_nvme_identify_ctrl_fguid_ei = -1;
 static int hf_nvme_identify_ctrl_oacs = -1;
 static int hf_nvme_identify_ctrl_acl = -1;
 static int hf_nvme_identify_ctrl_aerl = -1;
@@ -840,6 +844,16 @@ static void dissect_nvme_identify_ctrl_resp(tvbuff_t *cmd_tvb,
     ti = proto_tree_add_item_ret_uint(cmd_tree, hf_nvme_identify_ctrl_cntrltype, cmd_tvb,
                         111, 1, ENC_LITTLE_ENDIAN, &val);
     proto_item_append_text(ti, " (%s)", val_to_str(val, ctrl_type_tbl, "Reserved"));
+
+    ti = proto_tree_add_item(cmd_tree, hf_nvme_identify_ctrl_fguid, cmd_tvb,
+                        112, 16, ENC_LITTLE_ENDIAN);
+    grp = proto_item_add_subtree(ti, ett_data);
+    proto_tree_add_item(grp, hf_nvme_identify_ctrl_fguid_vse, cmd_tvb,
+                        112, 8, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(grp, hf_nvme_identify_ctrl_fguid_oui, cmd_tvb,
+                        120, 3, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(grp, hf_nvme_identify_ctrl_fguid_ei, cmd_tvb,
+                        123, 5, ENC_LITTLE_ENDIAN);
 
     proto_tree_add_item(cmd_tree, hf_nvme_identify_ctrl_oacs, cmd_tvb,
                         256, 2, ENC_LITTLE_ENDIAN);
@@ -1580,6 +1594,22 @@ proto_register_nvme(void)
         { &hf_nvme_identify_ctrl_cntrltype,
             { "Controller Type (CNTRLTYPE)", "nvme.cmd.identify.ctrl.cntrltype",
                FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_identify_ctrl_fguid,
+            { "FRU Globally Unique Identifier (FGUID)", "nvme.cmd.identify.ctrl.fguid",
+               FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_identify_ctrl_fguid_vse,
+            { "Vendor Specific Extention Identifier", "nvme.cmd.identify.ctrl.fguid.vse",
+               FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_identify_ctrl_fguid_oui,
+            { "Organizationally Unique Identifier", "nvme.cmd.identify.ctrl.fguid.oui",
+               FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_identify_ctrl_fguid_ei,
+            { "Exention Identifier", "nvme.cmd.identify.ctrl.fguid.ei",
+               FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL}
         },
         { &hf_nvme_identify_ctrl_oacs,
             { "Optional Admin Command Support (OACS)", "nvme.cmd.identify.ctrl.oacs",
