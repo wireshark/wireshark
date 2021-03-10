@@ -136,6 +136,10 @@ static int hf_nvme_identify_ctrl_fguid = -1;
 static int hf_nvme_identify_ctrl_fguid_vse = -1;
 static int hf_nvme_identify_ctrl_fguid_oui = -1;
 static int hf_nvme_identify_ctrl_fguid_ei = -1;
+static int hf_nvme_identify_ctrl_crdt1 = -1;
+static int hf_nvme_identify_ctrl_crdt2 = -1;
+static int hf_nvme_identify_ctrl_crdt3 = -1;
+static int hf_nvme_identify_ctrl_rsvd1 = -1;
 static int hf_nvme_identify_ctrl_oacs = -1;
 static int hf_nvme_identify_ctrl_acl = -1;
 static int hf_nvme_identify_ctrl_aerl = -1;
@@ -854,6 +858,18 @@ static void dissect_nvme_identify_ctrl_resp(tvbuff_t *cmd_tvb,
                         120, 3, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(grp, hf_nvme_identify_ctrl_fguid_ei, cmd_tvb,
                         123, 5, ENC_LITTLE_ENDIAN);
+
+    ti = proto_tree_add_item_ret_uint(cmd_tree, hf_nvme_identify_ctrl_crdt1, cmd_tvb,
+                        128, 2, ENC_LITTLE_ENDIAN, &val);
+    proto_item_append_text(ti, " (%u ms)", val * 100);
+    ti = proto_tree_add_item_ret_uint(cmd_tree, hf_nvme_identify_ctrl_crdt2, cmd_tvb,
+                        130, 2, ENC_LITTLE_ENDIAN, &val);
+    proto_item_append_text(ti, " (%u ms)", val * 100);
+    ti = proto_tree_add_item_ret_uint(cmd_tree, hf_nvme_identify_ctrl_crdt3, cmd_tvb,
+                        132, 2, ENC_LITTLE_ENDIAN, &val);
+    proto_item_append_text(ti, " (%u ms)", val * 100);
+    proto_tree_add_item(cmd_tree, hf_nvme_identify_ctrl_rsvd1, cmd_tvb,
+                        134, 106, ENC_LITTLE_ENDIAN);
 
     proto_tree_add_item(cmd_tree, hf_nvme_identify_ctrl_oacs, cmd_tvb,
                         256, 2, ENC_LITTLE_ENDIAN);
@@ -1610,6 +1626,22 @@ proto_register_nvme(void)
         { &hf_nvme_identify_ctrl_fguid_ei,
             { "Exention Identifier", "nvme.cmd.identify.ctrl.fguid.ei",
                FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_identify_ctrl_crdt1,
+            { "Command Retry Delay Time 1", "nvme.cmd.identify.ctrl.crdt1",
+               FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_identify_ctrl_crdt2,
+            { "Command Retry Delay Time 2", "nvme.cmd.identify.ctrl.crdt2",
+               FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_identify_ctrl_crdt3,
+            { "Command Retry Delay Time 3", "nvme.cmd.identify.ctrl.crdt3",
+               FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_identify_ctrl_rsvd1,
+            { "Reserved", "nvme.cmd.identify.ctrl.rsvd1",
+               FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
         },
         { &hf_nvme_identify_ctrl_oacs,
             { "Optional Admin Command Support (OACS)", "nvme.cmd.identify.ctrl.oacs",
