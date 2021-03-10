@@ -503,7 +503,7 @@ proto_register_vp8(void)
         },
         { &hf_vp8_hdr_show_bit,
             { "Show bit",           "vp8.hdr.show",
-            FT_BOOLEAN, 8, NULL, BIT_5_MASK,
+            FT_BOOLEAN, 8, NULL, BIT_4_MASK,
             NULL, HFILL }
         },
         { &hf_vp8_hdr_first_partition_size,
