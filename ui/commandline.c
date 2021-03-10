@@ -342,6 +342,13 @@ void commandline_early_options(int argc, char *argv[])
         }
     }
 
+#ifndef HAVE_LUA
+    if (ex_opt_count("lua_script") > 0) {
+        cmdarg_err("This version of Wireshark was not built with support for Lua scripting.");
+        exit(1);
+    }
+#endif
+
 #ifndef HAVE_LIBPCAP
     if (capture_option_specified) {
         print_no_capture_support_error();
