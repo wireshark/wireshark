@@ -130,6 +130,8 @@ static int hf_nvme_identify_ctrl_ctratt_sqa = -1;
 static int hf_nvme_identify_ctrl_ctratt_uuidl = -1;
 static int hf_nvme_identify_ctrl_ctratt_rsvd = -1;
 static int hf_nvme_identify_ctrl_rrls[17] = { [0 ... 16] = -1 };
+static int hf_nvme_identify_ctrl_rsvd0 = -1;
+static int hf_nvme_identify_ctrl_cntrltype = -1;
 static int hf_nvme_identify_ctrl_oacs = -1;
 static int hf_nvme_identify_ctrl_acl = -1;
 static int hf_nvme_identify_ctrl_aerl = -1;
@@ -762,6 +764,13 @@ static void dissect_nvme_identify_ctrl_resp(tvbuff_t *cmd_tvb,
                             hf_nvme_identify_ctrl_ctratt_plm, hf_nvme_identify_ctrl_ctratt_tbkas, hf_nvme_identify_ctrl_ctratt_ng,
                             hf_nvme_identify_ctrl_ctratt_sqa, hf_nvme_identify_ctrl_ctratt_uuidl, hf_nvme_identify_ctrl_ctratt_rsvd
     };
+    static const value_string ctrl_type_tbl[] = {
+        { 0,  "Reserved (not reported)" },
+        { 1,  "I/O Controller" },
+        { 2,  "Discovery Controller" },
+        { 3,  "Administrative Controller" },
+        { 0, NULL}
+    };
 
     proto_tree_add_item(cmd_tree, hf_nvme_identify_ctrl_vid, cmd_tvb,
                         0, 2, ENC_LITTLE_ENDIAN);
@@ -825,6 +834,12 @@ static void dissect_nvme_identify_ctrl_resp(tvbuff_t *cmd_tvb,
     add_decode_group(ctratt_array, sizeof(ctratt_array) / sizeof(ctratt_array[0]), 96, 4, cmd_tvb, cmd_tree);
 
     add_decode_group(hf_nvme_identify_ctrl_rrls, sizeof(hf_nvme_identify_ctrl_rrls) / sizeof(hf_nvme_identify_ctrl_rrls[0]), 100, 2, cmd_tvb, cmd_tree);
+
+    proto_tree_add_item(cmd_tree, hf_nvme_identify_ctrl_rsvd0, cmd_tvb,
+                        102, 9, ENC_LITTLE_ENDIAN);
+    ti = proto_tree_add_item_ret_uint(cmd_tree, hf_nvme_identify_ctrl_cntrltype, cmd_tvb,
+                        111, 1, ENC_LITTLE_ENDIAN, &val);
+    proto_item_append_text(ti, " (%s)", val_to_str(val, ctrl_type_tbl, "Reserved"));
 
     proto_tree_add_item(cmd_tree, hf_nvme_identify_ctrl_oacs, cmd_tvb,
                         256, 2, ENC_LITTLE_ENDIAN);
@@ -1557,6 +1572,14 @@ proto_register_nvme(void)
         { &hf_nvme_identify_ctrl_rrls[16],
             { "Read Recovery Level 15 (Fast Fail) Support", "nvme.cmd.identify.ctrl.rrls.rrls15",
                FT_UINT16, BASE_HEX, NULL, 0x8000, NULL, HFILL}
+        },
+        { &hf_nvme_identify_ctrl_rsvd0,
+            { "Reserved", "nvme.cmd.identify.ctrl.rsvd0",
+               FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_identify_ctrl_cntrltype,
+            { "Controller Type (CNTRLTYPE)", "nvme.cmd.identify.ctrl.cntrltype",
+               FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
         },
         { &hf_nvme_identify_ctrl_oacs,
             { "Optional Admin Command Support (OACS)", "nvme.cmd.identify.ctrl.oacs",
