@@ -65,6 +65,12 @@ clang-10: &clang-10
   variables:
     CC: clang-10
     CXX: clang++-10
+  after_script:
+    - build/run/tshark -G fields > dfilter-list-$( git describe --match "v*" | sed -e 's/^v//' ).txt
+  artifacts:
+    paths:
+      - dfilter-list-*.txt
+
 
 build:ubuntu-dist:
   extends: .build-ubuntu
