@@ -2610,16 +2610,20 @@ pcapng_read_block(wtap *wth, FILE_T fh, pcapng_t *pn,
         /*
          * Not an SHB.
          *
-         * If section_info is null, it means we're calling this from
-         * pcapng_open() to see whether the file begins with an SHB.
+         * If pn is null, it means we're calling this from pcapng_open()
+         * to see whether the file begins with an SHB.
          * It doesn't, which means that it is not a pcapng file.
          */
-        if (section_info == NULL) {
+        if (pn == NULL) {
             *err = 0;
             *err_info = NULL;
             return PCAPNG_BLOCK_NOT_SHB;
         }
 
+        /*
+         * pn is not null; section_info must not be null, either.
+         */
+        g_assert(section_info != NULL);
         if (section_info->byte_swapped) {
             bh.block_type         = GUINT32_SWAP_LE_BE(bh.block_type);
             bh.block_total_length = GUINT32_SWAP_LE_BE(bh.block_total_length);
@@ -2754,7 +2758,6 @@ pcapng_process_dsb(wtap *wth, wtapng_block_t *wblock)
 wtap_open_return_val
 pcapng_open(wtap *wth, int *err, gchar **err_info)
 {
-    pcapng_t pn;
     wtapng_block_t wblock;
     pcapng_t *pcapng;
     pcapng_block_header_t bh;
@@ -2778,7 +2781,7 @@ pcapng_open(wtap *wth, int *err, gchar **err_info)
      * There is no current section_info yet, so don't pass any.
      * Pass a pointer to first_section to fill in.
      */
-    switch (pcapng_read_block(wth, wth->fh, &pn, NULL, &first_section, &wblock,
+    switch (pcapng_read_block(wth, wth->fh, NULL, NULL, &first_section, &wblock,
                               err, err_info)) {
 
     case PCAPNG_BLOCK_OK:
@@ -2825,7 +2828,6 @@ pcapng_open(wtap *wth, int *err, gchar **err_info)
     wth->file_tsprec = WTAP_TSPREC_UNKNOWN;
     pcapng = g_new(pcapng_t, 1);
     wth->priv = (void *)pcapng;
-    *pcapng = pn;
     /*
      * We're currently processing the first section; as this is written
      * in C, that's section 0. :-)
@@ -2843,6 +2845,14 @@ pcapng_open(wtap *wth, int *err, gchar **err_info)
      */
     pcapng->sections = g_array_sized_new(FALSE, FALSE, sizeof(section_info_t), 1);
     g_array_append_val(pcapng->sections, first_section);
+
+    /*
+     * Set the callbacks for new addresses to null; if our caller wants
+     * to be called, they will set them to point to the appropriate
+     * caller.
+     */
+    pcapng->add_new_ipv4 = NULL;
+    pcapng->add_new_ipv6 = NULL;
 
     wth->subtype_read = pcapng_read;
     wth->subtype_seek_read = pcapng_seek_read;
