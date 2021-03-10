@@ -106,6 +106,15 @@ static int hf_nvme_identify_ctrl_ver_min = -1;
 static int hf_nvme_identify_ctrl_ver_mjr = -1;
 static int hf_nvme_identify_ctrl_ver_ter = -1;
 static int hf_nvme_identify_ctrl_oaes = -1;
+static int hf_nvme_identify_ctrl_oaes_rsvd0 = -1;
+static int hf_nvme_identify_ctrl_oaes_nan = -1;
+static int hf_nvme_identify_ctrl_oaes_fan = -1;
+static int hf_nvme_identify_ctrl_oaes_rsvd1 = -1;
+static int hf_nvme_identify_ctrl_oaes_ana = -1;
+static int hf_nvme_identify_ctrl_oaes_ple = -1;
+static int hf_nvme_identify_ctrl_oaes_lba = -1;
+static int hf_nvme_identify_ctrl_oaes_ege = -1;
+static int hf_nvme_identify_ctrl_oaes_rsvd2 = -1;
 static int hf_nvme_identify_ctrl_oacs = -1;
 static int hf_nvme_identify_ctrl_acl = -1;
 static int hf_nvme_identify_ctrl_aerl = -1;
@@ -709,7 +718,7 @@ static void dissect_nvme_identify_ctrl_resp(tvbuff_t *cmd_tvb,
                                             proto_tree *cmd_tree)
 {
     char *sn, *mn;
-    proto_item *ti, *cmic, *ver;
+    proto_item *ti, *cmic, *ver, *oaes;
     guint val;
 
     proto_tree_add_item(cmd_tree, hf_nvme_identify_ctrl_vid, cmd_tvb,
@@ -767,8 +776,29 @@ static void dissect_nvme_identify_ctrl_resp(tvbuff_t *cmd_tvb,
                         81, 1, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(ver, hf_nvme_identify_ctrl_ver_ter, cmd_tvb,
                         80, 1, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(cmd_tree, hf_nvme_identify_ctrl_oaes, cmd_tvb,
+
+    ti = proto_tree_add_item(cmd_tree, hf_nvme_identify_ctrl_oaes, cmd_tvb,
                         92, 4, ENC_LITTLE_ENDIAN);
+    oaes = proto_item_add_subtree(ti, ett_data);
+    proto_tree_add_item(oaes, hf_nvme_identify_ctrl_oaes_rsvd0, cmd_tvb,
+                        92, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(oaes, hf_nvme_identify_ctrl_oaes_nan, cmd_tvb,
+                        92, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(oaes, hf_nvme_identify_ctrl_oaes_fan, cmd_tvb,
+                        92, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(oaes, hf_nvme_identify_ctrl_oaes_rsvd1, cmd_tvb,
+                        92, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(oaes, hf_nvme_identify_ctrl_oaes_ana, cmd_tvb,
+                        92, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(oaes, hf_nvme_identify_ctrl_oaes_ple, cmd_tvb,
+                        92, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(oaes, hf_nvme_identify_ctrl_oaes_lba, cmd_tvb,
+                        92, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(oaes, hf_nvme_identify_ctrl_oaes_ege, cmd_tvb,
+                        92, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(oaes, hf_nvme_identify_ctrl_oaes_rsvd2, cmd_tvb,
+                        92, 4, ENC_LITTLE_ENDIAN);
+
     proto_tree_add_item(cmd_tree, hf_nvme_identify_ctrl_oacs, cmd_tvb,
                         256, 2, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(cmd_tree, hf_nvme_identify_ctrl_acl, cmd_tvb,
@@ -1340,6 +1370,42 @@ proto_register_nvme(void)
         { &hf_nvme_identify_ctrl_oaes,
             { "Optional Asynchronous Events Supported (OAES)", "nvme.cmd.identify.ctrl.oaes",
                FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_identify_ctrl_oaes_rsvd0,
+            { "Reserved", "nvme.cmd.identify.ctrl.oaes.rsvd0",
+               FT_UINT32, BASE_HEX, NULL, 0xff, NULL, HFILL}
+        },
+        { &hf_nvme_identify_ctrl_oaes_nan,
+            { "Namespace Attribute Notices Supported", "nvme.cmd.identify.ctrl.oaes.nan",
+               FT_UINT32, BASE_HEX, NULL, 0x100, NULL, HFILL}
+        },
+        { &hf_nvme_identify_ctrl_oaes_fan,
+            { "Firmware Activation Supported", "nvme.cmd.identify.ctrl.oaes.fan",
+               FT_UINT32, BASE_HEX, NULL, 0x200, NULL, HFILL}
+        },
+        { &hf_nvme_identify_ctrl_oaes_rsvd1,
+            { "Reserved", "nvme.cmd.identify.ctrl.oaes.rsvd1",
+               FT_UINT32, BASE_HEX, NULL, 0x400, NULL, HFILL}
+        },
+        { &hf_nvme_identify_ctrl_oaes_ana,
+            { "Asymmetric Namespace Access Change Notices Supported", "nvme.cmd.identify.ctrl.oaes.ana",
+               FT_UINT32, BASE_HEX, NULL, 0x800, NULL, HFILL}
+        },
+        { &hf_nvme_identify_ctrl_oaes_ple,
+            { "Predictable Latency Event Aggregate Log Change Notices Supported", "nvme.cmd.identify.ctrl.oaes.ple",
+               FT_UINT32, BASE_HEX, NULL, 0x1000, NULL, HFILL}
+        },
+        { &hf_nvme_identify_ctrl_oaes_lba,
+            { "LBA Status Information Notices Supported", "nvme.cmd.identify.ctrl.oaes.lba",
+               FT_UINT32, BASE_HEX, NULL, 0x2000, NULL, HFILL}
+        },
+        { &hf_nvme_identify_ctrl_oaes_ege,
+            { "Endurance Group Event Aggregate Log Page Change Notices Supported", "nvme.cmd.identify.ctrl.oaes.ege",
+               FT_UINT32, BASE_HEX, NULL, 0x4000, NULL, HFILL}
+        },
+        { &hf_nvme_identify_ctrl_oaes_rsvd2,
+            { "Reserved", "nvme.cmd.identify.ctrl.oaes.rsvd2",
+               FT_UINT32, BASE_HEX, NULL, 0xffff8000, NULL, HFILL}
         },
         { &hf_nvme_identify_ctrl_oacs,
             { "Optional Admin Command Support (OACS)", "nvme.cmd.identify.ctrl.oacs",
