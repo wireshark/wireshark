@@ -10189,7 +10189,7 @@ hfinfo_number_value_format(const header_field_info *hfinfo, char buf[32], guint3
 }
 
 static const char *
-hfinfo_number_value_format64(const header_field_info *hfinfo, char buf[64], guint64 value)
+hfinfo_number_value_format64(const header_field_info *hfinfo, char buf[48], guint64 value)
 {
 	int display = hfinfo->display;
 
@@ -10250,7 +10250,7 @@ hfinfo_numeric_value_format(const header_field_info *hfinfo, char buf[32], guint
 }
 
 static const char *
-hfinfo_numeric_value_format64(const header_field_info *hfinfo, char buf[64], guint64 value)
+hfinfo_numeric_value_format64(const header_field_info *hfinfo, char buf[48], guint64 value)
 {
 	/* Get the underlying BASE_ value */
 	int display = FIELD_DISPLAY(hfinfo->display);
@@ -10307,7 +10307,7 @@ hfinfo_number_vals_format(const header_field_info *hfinfo, char buf[32], guint32
 }
 
 static const char *
-hfinfo_number_vals_format64(const header_field_info *hfinfo, char buf[64], guint64 value)
+hfinfo_number_vals_format64(const header_field_info *hfinfo, char buf[48], guint64 value)
 {
 	/* Get the underlying BASE_ value */
 	int display = FIELD_DISPLAY(hfinfo->display);

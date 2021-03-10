@@ -963,9 +963,9 @@ static const gchar* get_pid_name( gint ot, gint pid )
 */
 static const guint8* decrypt_data_security_data_with_key( const guint8* key, const guint8* encrypted, gint encrypted_size, const guint8* cemi, gint cemi_size )
 {
-  guint8 ctr_0[ 16 ];
-  guint8 b_0[ 16 ];
-  guint8 mac[ 16 ];
+  guint8 ctr_0[ KNX_KEY_LENGTH ];
+  guint8 b_0[ KNX_KEY_LENGTH ];
+  guint8 mac[ KNX_KEY_LENGTH ];
   guint8* a_bytes = 0;
   const guint8* p_bytes = NULL;
   gint a_length = 0;

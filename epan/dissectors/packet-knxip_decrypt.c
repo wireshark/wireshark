@@ -57,7 +57,7 @@ static void build_ctr0( guint8 p_result[ KNX_KEY_LENGTH ], const guint8* nonce, 
 }
 
 // Calculate MAC for KNX IP Security or KNX Data Security
-void knx_ccm_calc_cbc_mac( guint8* p_mac, const guint8 key[ KNX_KEY_LENGTH ],
+void knx_ccm_calc_cbc_mac(guint8 p_mac[ KNX_KEY_LENGTH ], const guint8 key[ KNX_KEY_LENGTH ],
   const guint8* a_bytes, gint a_length, const guint8* p_bytes, gint p_length,
   const guint8 b_0[ KNX_KEY_LENGTH ] )
 {
@@ -103,7 +103,7 @@ void knx_ccm_calc_cbc_mac( guint8* p_mac, const guint8 key[ KNX_KEY_LENGTH ],
 }
 
 // Calculate MAC for KNX IP Security, using 6-byte Sequence ID
-void knxip_ccm_calc_cbc_mac( guint8* p_mac, const guint8 key[ KNX_KEY_LENGTH ],
+void knxip_ccm_calc_cbc_mac( guint8 p_mac[ KNX_KEY_LENGTH ], const guint8 key[ KNX_KEY_LENGTH ],
   const guint8* a_bytes, gint a_length, const guint8* p_bytes, gint p_length,
   const guint8* nonce, guint8 nonce_length )
 {
@@ -183,7 +183,7 @@ guint8* knx_ccm_encrypt( guint8* p_result, const guint8 key[ KNX_KEY_LENGTH ], c
 
 // Encrypt for KNX IP Security (with 16-byte MAC and Nonce based on 6-byte Sequence ID)
 guint8* knxip_ccm_encrypt( guint8* p_result, const guint8 key[ KNX_KEY_LENGTH ], const guint8* p_bytes, gint p_length,
-  const guint8* mac, const guint8* nonce, guint8 nonce_length )
+  const guint8 mac[KNX_KEY_LENGTH], const guint8* nonce, guint8 nonce_length )
 {
   guint8 ctr_0[ KNX_KEY_LENGTH ];
   build_ctr0( ctr_0, nonce, nonce_length );

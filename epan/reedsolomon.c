@@ -338,7 +338,7 @@ gen_poly(void)
  */
 
 int
-encode_rs(dtype data[KK], dtype bb[NN-KK])
+encode_rs(dtype data[], dtype bb[])
 {
   register int i, j;
   gf feedback;
@@ -406,7 +406,7 @@ encode_rs(dtype data[KK], dtype bb[NN-KK])
  */
 
 int
-eras_dec_rs(dtype data[NN], int eras_pos[NN-KK], int no_eras)
+eras_dec_rs(dtype data[], int eras_pos[], int no_eras)
 {
   int deg_lambda, el, deg_omega;
   int i, j, r,k;

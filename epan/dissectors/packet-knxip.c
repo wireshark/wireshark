@@ -2585,7 +2585,7 @@ static guint8* decrypt_secure_wrapper( const guint8* key, const guint8* data, gi
     if( decrypted )
     {
       /* Calculate MAC */
-      guint8 mac[ 16 ];
+      guint8 mac[ KNX_KEY_LENGTH ];
       p_length -= 16;
 
       knxip_ccm_calc_cbc_mac( mac, key, data, a_length, decrypted, p_length, nonce, 14 );
@@ -2809,7 +2809,7 @@ static guint8 check_timer_sync_mac( const guint8* key, const guint8* data, gint 
 {
   // Calculate and encrypt MAC
   const guint8* nonce = data + header_length;
-  guint8 mac[ 16 ];
+  guint8 mac[ KNX_KEY_LENGTH ];
   knxip_ccm_calc_cbc_mac( mac, key, data, header_length, NULL, 0, nonce, 14 );
   knxip_ccm_encrypt( mac, key, NULL, 0, mac, nonce, 14 );
 
