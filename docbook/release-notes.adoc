@@ -29,7 +29,7 @@ The following vulnerabilities have been fixed:
 * wssalink:2021-03[]
 Wireshark could open unsafe URLs.
 wsbuglink:17232[].
-// cveidlink:2021-xxxx[].
+cveidlink:2021-22191[].
 // Fixed in master: e99c9afce8
 // Fixed in release-3.4: b2c58d020c
 // Fixed in master-3.2: 0f638a240c
