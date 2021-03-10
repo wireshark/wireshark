@@ -1,0 +1,288 @@
+commit 9713e20948
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Tue Mar 9 14:36:18 2021 -0800
+
+    Windows: Update our spandsp packages.
+    
+    Use the versions of lrint and lrintf defined by Visual C++. This should fix
+    
+        91>C:\buildbot\builders\wireshark-master-64\wireshark-win64-libs\spandsp-0.0.6-win64ws\include\spandsp/fast_convert.h(320,5): error C2169: 'lrint': intrinsic function, cannot be defined (compiling source file C:\buildbot\builders\wireshark-master-64\windows-2019-x64\build\plugins\codecs\G726\G726decode.c) [C:\buildbot\builders\wireshark-master-64\windows-2019-x64\build\cmbuild\plugins\codecs\G726\g726.vcxproj]
+        91>C:\buildbot\builders\wireshark-master-64\wireshark-win64-libs\spandsp-0.0.6-win64ws\include\spandsp/fast_convert.h(325,5): error C2169: 'lrintf': intrinsic function, cannot be defined (compiling source file C:\buildbot\builders\wireshark-master-64\windows-2019-x64\build\plugins\codecs\G726\G726decode.c) [C:\buildbot\builders\wireshark-master-64\windows-2019-x64\build\cmbuild\plugins\codecs\G726\g726.vcxproj]
+    
+    for Visual C++ 16.9.1 and later.
+    
+    (cherry picked from commit 4b07a92103586daca58ad7db0d6a97230c73ce7c)
+    
+    Conflicts:
+            tools/win-setup.ps1
+
+commit f42440fd26
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Mon Mar 8 11:01:13 2021 -0800
+
+    Prep for 3.2.12.
+
+commit a31c79d699
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Mar 7 11:15:13 2021 +0000
+
+    [Automatic update for 2021-03-07]
+    
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit f34e7e9915
+Author: Nardi Ivan <nardi.ivan@gmail.com>
+Date:   Thu Feb 25 11:21:18 2021 +0000
+
+    GQUIC: fix parsing of unknown (but valid) tags
+    
+    This commit should be a proper fix for the regression reported in #17250
+    (7fd71536 is a simple workaround). Such regression has been introduced by
+    b287e716 while fixing the infinite loop reported in #16897.
+    
+    b287e716, while fixing the infinite loop, broke the decoding of perfectly
+    valid tags not yet supported by Wireshark.
+    
+    AFAIK, the root cause of the infinite loop is the overflow of the `offset`
+    variable. Therefore checking for this overflow should be sufficient to avoid
+    the loop.
+    Note that we already check for sensible values for the 'tag_len' variable;
+    we should update `total_tag_len` accordingly.
+    
+    Some words about testing: other than correctly handling unknown but valid
+    tags, it is important that this commit doesn't reintroduce the infinite
+    loop bug.
+    Fortunately #16897 provided a POC trace. Unfortunately, if you revert
+    b287e716, this POC doesn't work anymore in master-3.4 and master branches,
+    but it still triggers the infinite loop in master-3.2 branch.
+    Therefore I have been able to manually check that this MR + the
+    overflow check is enough to avoid the infinite loop bug, at least in master-3.2.
+    
+    Some traffic with unknown but valid tags is available in e2ee14ae03.
+    
+    
+    (cherry picked from commit 142cfb03ac5d0473d70f3e8adeabdc4f4496e953)
+
+commit 737b5bdc4f
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Feb 28 11:12:11 2021 +0000
+
+    [Automatic update for 2021-02-28]
+    
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit a4415eb373
+Author: Guy Harris <gharris@sonic.net>
+Date:   Mon Feb 22 22:23:54 2021 -0800
+
+    Lua: add routines to return pcap/nsec pcap/pcapng file type/subtypes.
+    
+    These will be backported, for the benefit of Lua scripts that want those
+    specific file types/subtypes (typically in order to write files of those
+    types); that allows those types to be fetched without having to know the
+    right string to hand to wslua_wtap_name_to_file_type_subtype().
+    
+    (cherry picked from commit bc3cc17bc401ea9ae044c30f34e9c7052b04e603)
+
+commit 3f5816c32f
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Feb 21 11:13:16 2021 +0000
+
+    [Automatic update for 2021-02-21]
+    
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit 0f638a240c
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Fri Feb 12 11:54:54 2021 -0800
+
+    Be more strict about opening URLs.
+    
+    In the proto tree, copy URLs instead of opening them.
+    
+    Add warnings to the wslua browser_open_url and browser_open_data_file
+    documentation.
+    
+    Fixes #17232.
+    
+    (cherry picked from commit e99c9afce86edd47b4388dd6e10cf2e758fe31cf)
+
+commit f4b6165dd3
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Mon Feb 15 18:28:57 2021 +0000
+
+    NVMe Fabrics RDMA: Initialize a variable.
+    
+    Make sure q_ctx is fully initialized. Fixes #17233.
+    
+    
+    (cherry picked from commit e29c934d7254eba19a943356e62d0d481df71c22)
+
+commit b699a16eca
+Author: Guy Harris <gharris@sonic.net>
+Date:   Mon Feb 15 07:39:02 2021 +0000
+
+    rpm-setup: install libgcrypt by default.
+    
+    Wireshark now requires it.
+    
+    
+    (cherry picked from commit 3c404abf2c9aef2422ddc9d037424fecbc9bdb0c)
+
+commit 925a9184fd
+Author: Chuck Craft <bubbasnmp@gmail.com>
+Date:   Sun Feb 14 22:02:11 2021 +0000
+
+    ip: ip_ttl _ws.expert fields not set if no tree
+    
+    See 'if (tree) ...' comment
+    Closes #17228
+    
+    
+    (cherry picked from commit dde65b96cde8a4dd94ce15cb451a2e7fd85a9014)
+
+commit ae09f39749
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Feb 14 11:12:53 2021 +0000
+
+    [Automatic update for 2021-02-14]
+    
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit 3bd3221363
+Author: Guy Harris <gharris@sonic.net>
+Date:   Sun Feb 14 06:12:23 2021 +0000
+
+    WSDG: deprecate wtap_filetypes.
+    
+    Recommend the use of wtap_name_to_file_type_subtype() to get filetype
+    values, unless you need to run on older versions of Wireshark that don't
+    have it.
+    
+    Don't even *mention* wtap_filetypes in the documentation for the new
+    wtap_ routines, as, if you have those routines, you have
+    wtap_name_to_file_type_subtype(), because it's one of those routines.
+    
+    Fix references to "nul" while we're at it - it's "nil" in Lua.
+    
+    (That part of the WSDG - the Lua reference - is generated, so this
+    involves changing the source code implementing the Lua routines.)
+    
+    
+    (cherry picked from commit 5b3c3d0682c869e6dd19a5245b1a22c90192e9ae)
+
+commit 6140fc8b6c
+Author: Guy Harris <gharris@sonic.net>
+Date:   Sun Feb 14 04:23:08 2021 +0000
+
+    iseries: report Unicode files as Unicode rather than ASCII.
+    
+    While we're at it, that's "Unicode", not "UNICODE" - it's not an
+    initialism, and isn't all-caps.
+    
+    
+    (cherry picked from commit 8ec5906fd64260d5a59034e0a0e49bdd78553f5c)
+
+commit 0ba390ce61
+Author: Guy Harris <gharris@sonic.net>
+Date:   Sat Feb 13 18:35:58 2021 +0000
+
+    wiretap: remove spaces from file format names.
+    
+    File format names are used on the command line, so don't require them to
+    be quoted - replace the space in "systemd journal" with an underscore.
+    
+    
+    (cherry picked from commit 8bba6ebe5c5d6a501ba9f2c16386f6ab437025bf)
+
+commit 4d000a93b6
+Author: Guy Harris <gharris@sonic.net>
+Date:   Sat Feb 13 03:29:33 2021 +0000
+
+    wslua: expose some libwiretap APIs in Lua.
+    
+    Provide Lua version of wtap_file_type_subtype_string(),
+    wtap_file_type_subtype_short_string(), and
+    wtap_short_string_to_file_type_subtype().
+    
+    This will be backported to the 3.2 and 3.4 branches, to allow scripts
+    not run on the bleeding-edge version to use them.
+    
+    
+    (cherry picked from commit f0ebc507626e3ffd0195b132486da11b3c7b138b)
+
+commit 228830d425
+Author: Constantine Gavrilov <constg@il.ibm.com>
+Date:   Sun Feb 7 19:26:02 2021 +0000
+
+    Fix dissection of transport connect payload for NVMEoF with RDMA.
+    
+    
+    (cherry picked from commit 28937e9022f232504286c1abd34834bf0ec7d421)
+
+commit 9759756c99
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Feb 7 11:16:54 2021 +0000
+
+    [Automatic update for 2021-02-07]
+    
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit d16b9604e6
+Author: Harald Welte <laforge@osmocom.org>
+Date:   Fri Feb 5 12:00:37 2021 +0000
+
+    packet-fr: Register for SLL dispatch to Frame Relay dissector
+    
+    Without this patch, any Linux cooked packet capture on HDLC / frame
+    relay devices will not be dispatched to the proper dissector.
+    
+    Such packets do carry a proper sll_hatype set to ARPHRD_FRAD and should
+    be dispatched accordingly.  However, the packet-fr dissector so far
+    did not register itself accordingly.
+    
+    
+    (cherry picked from commit b83f92a4580080a968f73b4cda8ca52f2d6332ba)
+
+commit 6b34511c5f
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Sat May 9 04:29:46 2020 -0700
+
+    ARP: expand the set of ARPHRD_ definitions from both IANA and Linxu.
+    
+    While we're at it, fix some typoes, and clean up the white space.
+    
+    Change-Id: I32cdcb6603bcf76df26f74bd60cdaadc01b28693
+    Reviewed-on: https://code.wireshark.org/review/37171
+    Petri-Dish: Guy Harris <gharris@sonic.net>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Guy Harris <gharris@sonic.net>
+    (cherry picked from commit 366415bcc352f18fabc9a7fc17a34139c526c617)
+
+commit 44e139929e
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sat Jan 30 00:36:23 2021 +0000
+
+    Docs: Change the default wsbuglink text to "Issue".
+    
+    Change the default text in the AsciiDoctor wsbuglink macrom from "Bug"
+    to "Issue".
+    
+    
+    (cherry picked from commit 9177f0e71a57303db01802d4f0ca6d7bdb473fac)
+
+commit ef00872c8e
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Jan 31 11:12:15 2021 +0000
+
+    [Automatic update for 2021-01-31]
+    
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit dad5807819
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Fri Jan 29 11:54:59 2021 -0800
+
+    Version: 3.2.11 → 3.2.12.
+    
+    [skip ci]

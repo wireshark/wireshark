@@ -11,7 +11,15 @@ Wireshark 3.2.12 Release Notes
 
    The following vulnerabilities have been fixed:
 
+     • wnpa-sec-2021-03[1] Wireshark could open unsafe URLs. Issue
+       17232[2]. CVE-2021-22191[3].
+
    The following bugs have been fixed:
+
+     • _ws.expert columns not populated for IPv4 Issue 17228[4].
+
+     • Buildbot crash output: fuzz-2021-02-12-1651908.pcap Issue
+       17233[5].
 
   New and Updated Features
 
@@ -23,9 +31,11 @@ Wireshark 3.2.12 Release Notes
 
   Updated Protocol Support
 
+   ARP, Frame Relay, GQUIC, and NVMe Fabrics RDMA
+
   New and Updated Capture File Support
 
-   There is no new or updated capture file support in this release.
+   iSeries
 
  Getting Wireshark
 
@@ -37,7 +47,7 @@ Wireshark 3.2.12 Release Notes
    Most Linux and Unix vendors supply their own Wireshark packages. You
    can usually install or upgrade Wireshark using the package management
    system specific to that platform. A list of third-party packages can
-   be found on the download page[1] on the Wireshark web site.
+   be found on the download page[6] on the Wireshark web site.
 
  File Locations
 
@@ -51,22 +61,27 @@ Wireshark 3.2.12 Release Notes
   The User’s Guide, manual pages and various other documentation can be
   found at https://www.wireshark.org/docs/
 
-  Community support is available on Wireshark’s Q&A site[2] and on the
+  Community support is available on Wireshark’s Q&A site[7] and on the
   wireshark-users mailing list. Subscription information and archives
-  for all of Wireshark’s mailing lists can be found on the web site[3].
+  for all of Wireshark’s mailing lists can be found on the web site[8].
 
-  Issues and feature requests can be reported on the issue tracker[4].
+  Issues and feature requests can be reported on the issue tracker[9].
 
  Frequently Asked Questions
 
-  A complete FAQ is available on the Wireshark web site[5].
+  A complete FAQ is available on the Wireshark web site[10].
 
-  Last updated 2021-03-07 10:35:17 UTC
+  Last updated 2021-03-10 18:06:44 UTC
 
  References
 
-   1. https://www.wireshark.org/download.html#thirdparty
-   2. https://ask.wireshark.org/
-   3. https://www.wireshark.org/lists/
-   4. https://gitlab.com/wireshark/wireshark/-/issues
-   5. https://www.wireshark.org/faq.html
+   1. https://www.wireshark.org/security/wnpa-sec-2021-03
+   2. https://gitlab.com/wireshark/wireshark/-/issues/17232
+   3. https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2021-22191
+   4. https://gitlab.com/wireshark/wireshark/-/issues/17228
+   5. https://gitlab.com/wireshark/wireshark/-/issues/17233
+   6. https://www.wireshark.org/download.html#thirdparty
+   7. https://ask.wireshark.org/
+   8. https://www.wireshark.org/lists/
+   9. https://gitlab.com/wireshark/wireshark/-/issues
+  10. https://www.wireshark.org/faq.html
