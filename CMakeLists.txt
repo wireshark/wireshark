@@ -1194,6 +1194,15 @@ if(BUILD_wireshark)
 		list(APPEND QT_INCLUDE_DIRS ${${_qt_package}_INCLUDE_DIRS})
 		list(APPEND QT_COMPILE_DEFINITIONS ${${_qt_package}_COMPILE_DEFINITIONS})
 	endforeach()
+	if(APPLE AND "/usr/local/opt/qt5/lib/QtCore.framework" IN_LIST Qt5Core_INCLUDE_DIRS)
+		# When qt@6 and qt@5 are both installed via Homebrew,
+		# /usr/local/include/QtCore/qvariant.h points to Qt 6 headers.
+		# Normally the Headers from `-iframework /usr/local/opt/qt5/lib`
+		# should be used, but `-isystem /usr/local/include` (via
+		# Libgcrypt and others) seems to prioritized, resulting in use
+		# of the Qt6 headers. Resolve this by explicit including Qt5.
+		list(APPEND QT_INCLUDE_DIRS /usr/local/opt/qt5/include)
+	endif()
 	set(QT_FOUND ON)
 	if(Qt5MacExtras_FOUND)
 		set(QT_MACEXTRAS_LIB 1)
