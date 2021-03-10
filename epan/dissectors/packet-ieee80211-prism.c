@@ -399,7 +399,7 @@ prism_rate_return_sig(guint32 rate_phy1, guint32 rate_phy2, struct ieee_802_11_p
     gboolean su_ppdu = FALSE;
     unsigned int partial_aid, nsts_u1, nsts_u2, nsts_u3, nsts_u4;
     unsigned int sig_a_1, sig_a_2, nss = 1, nsts_su, signal_type;
-    unsigned int cck_tbl[] = {22, 11, 4, 2};
+    unsigned int dsss_tbl[] = {22, 11, 4, 2};
     static const unsigned int bw_map[] = { 0, 1, 4, 11 };
 
     /*
@@ -420,12 +420,12 @@ prism_rate_return_sig(guint32 rate_phy1, guint32 rate_phy2, struct ieee_802_11_p
         signal_type = rate_phy1 & (1 << 12);
         bw = 20 << ((rate_phy1 >> 13) & 0x3);
         result = wmem_strdup_printf(wmem_packet_scope(),
-              "Rate: OFDM %u.%u Mb/s Signaling:%s BW %d",
+              "Rate: %u.%u Mb/s OFDM Signaling:%s BW %d",
                mcs, 0, signal_type ? "Dynamic" : "Static", bw
               );
         break;
 
-    case 1: /* CCK */
+    case 1: /* DSSS */
         phdr->phy = PHDR_802_11_PHY_11B;
         mcs = (rate_phy1 >> 4) & 0xF;
         base = (mcs & 0x4) ? 1 : 0;
@@ -433,10 +433,10 @@ prism_rate_return_sig(guint32 rate_phy1, guint32 rate_phy2, struct ieee_802_11_p
         phdr->phy_info.info_11b.short_preamble = base;
         mcs &= ~0x4;
         mcs = (mcs - 8) & 0x3;
-        disp_rate = cck_tbl[mcs];
+        disp_rate = dsss_tbl[mcs];
         phdr->has_data_rate = 1;
         phdr->data_rate = disp_rate;
-        result = wmem_strdup_printf(wmem_packet_scope(), "Rate: %u.%u Mb/s %s",
+        result = wmem_strdup_printf(wmem_packet_scope(), "Rate: %u.%u Mb/s DSSS %s",
                       disp_rate / 2,
                       (disp_rate & 1) ? 5 : 0,
                       base ? "[SP]" : "[LP]");
@@ -487,7 +487,7 @@ prism_rate_return_sig(guint32 rate_phy1, guint32 rate_phy2, struct ieee_802_11_p
             }
         }
         result = wmem_strdup_printf(wmem_packet_scope(),
-              "%u.%u Mb/s HT MCS %d NSS %d BW %d MHz %s %s %s",
+              "Rate: %u.%u Mb/s HT MCS %d NSS %d BW %d MHz %s %s %s",
                disp_rate/10, disp_rate%10, mcs, nss, bw,
                sgi ? "[SGI]" : "",
                ldpc ? "[LDPC]" : "",
@@ -575,7 +575,7 @@ prism_rate_return_sig(guint32 rate_phy1, guint32 rate_phy2, struct ieee_802_11_p
             }
 
             result = wmem_strdup_printf(wmem_packet_scope(),
-                "%u.%u Mb/s VHT MCS %d NSS %d Partial AID %d BW %d MHz %s %s %s GroupID %d %s %s",
+                "Rate: %u.%u Mb/s VHT MCS %d NSS %d Partial AID %d BW %d MHz %s %s %s GroupID %d %s %s",
                 disp_rate/10, disp_rate%10,
                 mcs, nss, partial_aid, bw,
                 sgi ? "[SGI]" : "",
