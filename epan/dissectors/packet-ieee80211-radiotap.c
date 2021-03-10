@@ -3743,7 +3743,7 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* u
 			/*
 			 * We don't know they PHY, but we do have the
 			 * data rate; try to guess it based on the
-			 * data rate and channel/center frequency.
+			 * data rate and center frequency.
 			 */
 			if (RATE_IS_DSSS(phdr.data_rate)) {
 				/* 11b */
