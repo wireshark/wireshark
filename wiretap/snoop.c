@@ -13,6 +13,8 @@
 #include "file_wrappers.h"
 #include "atm.h"
 #include "snoop.h"
+#include <wsutil/802_11-utils.h>
+
 /* See RFC 1761 for a description of the "snoop" file format. */
 
 typedef struct {
@@ -767,6 +769,28 @@ snoop_read_shomiti_wireless_pseudoheader(FILE_T fh,
 	pseudo_header->ieee_802_11.data_rate = whdr.rate;
 	pseudo_header->ieee_802_11.has_signal_percent = TRUE;
 	pseudo_header->ieee_802_11.signal_percent = whdr.signal;
+
+	/*
+	 * We don't know they PHY, but we do have the data rate;
+	 * try to guess the PHY based on the data rate and channel.
+	 */
+	if (RATE_IS_DSSS(pseudo_header->ieee_802_11.data_rate)) {
+		/* 11b */
+		pseudo_header->ieee_802_11.phy = PHDR_802_11_PHY_11B;
+		pseudo_header->ieee_802_11.phy_info.info_11b.has_short_preamble = FALSE;
+	} else if (RATE_IS_OFDM(pseudo_header->ieee_802_11.data_rate)) {
+		/* 11a or 11g, depending on the band. */
+		if (CHAN_IS_BG(pseudo_header->ieee_802_11.channel)) {
+			/* 11g */
+			pseudo_header->ieee_802_11.phy = PHDR_802_11_PHY_11G;
+			pseudo_header->ieee_802_11.phy_info.info_11g.has_mode = FALSE;
+		} else {
+			/* 11a */
+			pseudo_header->ieee_802_11.phy = PHDR_802_11_PHY_11A;
+			pseudo_header->ieee_802_11.phy_info.info_11a.has_channel_type = FALSE;
+			pseudo_header->ieee_802_11.phy_info.info_11a.has_turbo_type = FALSE;
+		}
+	}
 
 	/* add back the header and don't forget the pad as well */
 	*header_size = rsize + 8 + 4;

@@ -94,6 +94,8 @@
 #include <epan/prefs.h>
 #include <epan/decode_as.h>
 
+#include <wsutil/802_11-utils.h>
+
 #define PROTO_SHORT_NAME "ARUBA_ERM"
 #define PROTO_LONG_NAME  "Aruba Networks encapsulated remote mirroring"
 
@@ -304,6 +306,28 @@ dissect_aruba_erm_type3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 
     proto_item_set_len(aruba_erm_tree, offset);
     next_tvb = tvb_new_subset_remaining(tvb, offset);
+
+    /*
+     * We don't know they PHY, but we do have the data rate;
+     * try to guess the PHY based on the data rate and channel.
+     */
+    if (RATE_IS_DSSS(phdr.data_rate)) {
+        /* 11b */
+        phdr.phy = PHDR_802_11_PHY_11B;
+        phdr.phy_info.info_11b.has_short_preamble = FALSE;
+    } else if (RATE_IS_OFDM(phdr.data_rate)) {
+        /* 11a or 11g, depending on the band. */
+        if (CHAN_IS_BG(phdr.channel)) {
+            /* 11g */
+            phdr.phy = PHDR_802_11_PHY_11G;
+            phdr.phy_info.info_11g.has_mode = FALSE;
+        } else {
+            /* 11a */
+            phdr.phy = PHDR_802_11_PHY_11A;
+            phdr.phy_info.info_11a.has_channel_type = FALSE;
+            phdr.phy_info.info_11a.has_turbo_type = FALSE;
+        }
+    }
 
     if(signal_strength == 100){ /* When signal = 100 %, it is TX packet and there is no FCS */
         phdr.fcs_len = 0; /* TX packet, no FCS */

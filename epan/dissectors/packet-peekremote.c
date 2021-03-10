@@ -53,6 +53,8 @@
 #include <epan/packet.h>
 #include <epan/expert.h>
 
+#include <wsutil/802_11-utils.h>
+
 #define IS_ARUBA 0x01
 
 #define PEEKREMOTE_PORT 5000 /* Not IANA registered */
@@ -663,6 +665,28 @@ dissect_peekremote_legacy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
   phdr.noise_dbm = tvb_get_guint8(tvb, 1);
   phdr.has_tsf_timestamp = TRUE;
   phdr.tsf_timestamp = tvb_get_ntoh64(tvb, 8);
+
+  /*
+   * We don't know they PHY, but we do have the data rate;
+   * try to guess the PHY based on the data rate and channel.
+   */
+  if (RATE_IS_DSSS(phdr.data_rate)) {
+    /* 11b */
+    phdr.phy = PHDR_802_11_PHY_11B;
+    phdr.phy_info.info_11b.has_short_preamble = FALSE;
+  } else if (RATE_IS_OFDM(phdr.data_rate)) {
+    /* 11a or 11g, depending on the band. */
+    if (CHAN_IS_BG(phdr.channel)) {
+      /* 11g */
+      phdr.phy = PHDR_802_11_PHY_11G;
+      phdr.phy_info.info_11g.has_mode = FALSE;
+    } else {
+      /* 11a */
+      phdr.phy = PHDR_802_11_PHY_11A;
+      phdr.phy_info.info_11a.has_channel_type = FALSE;
+      phdr.phy_info.info_11a.has_turbo_type = FALSE;
+    }
+  }
 
   return 20 + call_dissector_with_data(wlan_radio_handle, next_tvb, pinfo, tree, &phdr);
 }

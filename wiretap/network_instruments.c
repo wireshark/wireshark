@@ -20,6 +20,7 @@
 #include "wtap-int.h"
 #include "file_wrappers.h"
 #include "network_instruments.h"
+#include <wsutil/802_11-utils.h>
 
 static const char network_instruments_magic[] = {"ObserverPktBufferVersion=15.00"};
 static const int true_magic_length = 17;
@@ -501,6 +502,29 @@ read_packet_header(wtap *wth, FILE_T fh, union wtap_pseudo_header *pseudo_header
             pseudo_header->ieee_802_11.data_rate = wireless_header.rate;
             pseudo_header->ieee_802_11.has_signal_percent = TRUE;
             pseudo_header->ieee_802_11.signal_percent = wireless_header.strengthPercent;
+
+            /*
+             * We don't know they PHY, but we do have the data rate;
+             * try to guess the PHY based on the data rate and channel.
+             */
+            if (RATE_IS_DSSS(pseudo_header->ieee_802_11.data_rate)) {
+                /* 11b */
+                pseudo_header->ieee_802_11.phy = PHDR_802_11_PHY_11B;
+                pseudo_header->ieee_802_11.phy_info.info_11b.has_short_preamble = FALSE;
+            } else if (RATE_IS_OFDM(pseudo_header->ieee_802_11.data_rate)) {
+                /* 11a or 11g, depending on the band. */
+                if (CHAN_IS_BG(pseudo_header->ieee_802_11.channel)) {
+                    /* 11g */
+                    pseudo_header->ieee_802_11.phy = PHDR_802_11_PHY_11G;
+                    pseudo_header->ieee_802_11.phy_info.info_11g.has_mode = FALSE;
+                } else {
+                    /* 11a */
+                    pseudo_header->ieee_802_11.phy = PHDR_802_11_PHY_11A;
+                    pseudo_header->ieee_802_11.phy_info.info_11a.has_channel_type = FALSE;
+                    pseudo_header->ieee_802_11.phy_info.info_11a.has_turbo_type = FALSE;
+                }
+            }
+
             offset += (int)sizeof wireless_header;
             break;
         default:

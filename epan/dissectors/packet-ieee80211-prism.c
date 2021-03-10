@@ -19,6 +19,7 @@
 #include <epan/capture_dissectors.h>
 #include <wiretap/wtap.h>
 #include <wsutil/pint.h>
+#include <wsutil/802_11-utils.h>
 #include "packet-ieee80211.h"
 
 void proto_register_ieee80211_prism(void);
@@ -874,6 +875,80 @@ dissect_prism(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
             }
         }
         offset += 4;
+    }
+
+    /*
+     * The only DIDs that directly indicate the packet modulation
+     * are the SIG_A1 and SIG_A2 DIDs; if they're not present, we
+     * ned to use some other way to determine the packet modulation,
+     * so, if the modulation is unknown at this point:
+     *
+     *  if the data rate is 1 Mb/s or 2 Mb/s, the packet was
+     *  transmitted using the 802.11 legacy DSSS modulation
+     *  (we ignore the IR PHY - was it ever implemented?);
+     *
+     *  if the data rate is 5 Mb/s or 11 Mb/s, the packet
+     *  was transmitted using the 802.11b DSSS/CCK modulation
+     *  (or the now-obsolete DSSS/PBCC modulation; *if* we can
+     *  rely on the channel/xchannel field's "CCK channel" and
+     *  "Dynamic CCK-OFDM channel" flags, the absence of either
+     *  flag would presumably indicate DSSS/PBCC);
+     *
+     *  if the data rate is 22 Mb/s or 33 Mb/s, the packet was
+     *  transmitted using the 802.11b DSSS/PBCC modulation (as
+     *  those speeds aren't supported by DSSS/CCK);
+     *
+     *  if the data rate is one of the OFDM rates for the 11a
+     *  OFDM PHY and the OFDM part of the 11g ERP PHY, the
+     *  packet was transmitted with the 11g/11a OFDM modulation -
+     *  we distinguish between them based on the channel, if we
+     *  have it.
+     *
+     * In addition, if they *are* present, and indicate that the
+     * modulation uses OFDM and isn't HT, VHT, or HE, all we know
+     * from that is that it's 11a or 11g, not which of those it
+     * is.  We use the channel to distinguish between them.
+     */
+    if (phdr.has_data_rate) {
+        if (phdr.phy == PHDR_802_11_PHY_UNKNOWN) {
+            /*
+             * We don't know they PHY, but we do have the
+             * data rate; try to guess it based on the
+             * data rate and center frequency.
+             */
+            if (RATE_IS_DSSS(phdr.data_rate)) {
+                /* 11b */
+                phdr.phy = PHDR_802_11_PHY_11B;
+            } else if (RATE_IS_OFDM(phdr.data_rate)) {
+                /* 11a or 11g, depending on the band. */
+                if (phdr.has_channel) {
+                    if (CHAN_IS_BG(phdr.channel)) {
+                        /* 11g */
+                        phdr.phy = PHDR_802_11_PHY_11G;
+                    } else {
+                        /* 11a */
+                        phdr.phy = PHDR_802_11_PHY_11A;
+                    }
+                }
+            }
+        } else if (phdr.phy == PHDR_802_11_PHY_11A) {
+            /*
+             * All we know is that it's OFDM; we guessed
+             * 11a in prism_rate_return_sig(), but if
+             * the channel is  2.4 GHz channel, it's
+             * 11g.
+             */
+            if (phdr.has_channel) {
+                if (CHAN_IS_BG(phdr.channel)) {
+                    /* 11g */
+                    phdr.phy = PHDR_802_11_PHY_11G;
+                }
+            }
+            if (RATE_IS_DSSS(phdr.data_rate)) {
+                /* DSSS, so 11b. */
+                phdr.phy = PHDR_802_11_PHY_11B;
+            }
+        }
     }
 
     /* dissect the 802.11 header next */

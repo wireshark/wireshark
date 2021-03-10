@@ -26,6 +26,7 @@
 #include <string.h>
 
 #include <wsutil/epochs.h>
+#include <wsutil/802_11-utils.h>
 
 #include "wtap-int.h"
 #include "file_wrappers.h"
@@ -513,6 +514,28 @@ static int peekclassic_read_packet_v7(wtap *wth, FILE_T fh,
 
 		rec->rec_header.packet_header.pseudo_header.ieee_802_11.has_signal_percent = TRUE;
 		rec->rec_header.packet_header.pseudo_header.ieee_802_11.signal_percent = radio_info[2];
+
+		/*
+		 * We don't know they PHY, but we do have the data rate;
+		 * try to guess it based on the data rate and channel.
+		 */
+		if (RATE_IS_DSSS(rec->rec_header.packet_header.pseudo_header.ieee_802_11.data_rate)) {
+			/* 11b */
+			rec->rec_header.packet_header.pseudo_header.ieee_802_11.phy = PHDR_802_11_PHY_11B;
+			rec->rec_header.packet_header.pseudo_header.ieee_802_11.phy_info.info_11b.has_short_preamble = FALSE;
+		} else if (RATE_IS_OFDM(rec->rec_header.packet_header.pseudo_header.ieee_802_11.data_rate)) {
+			/* 11a or 11g, depending on the band. */
+			if (CHAN_IS_BG(rec->rec_header.packet_header.pseudo_header.ieee_802_11.channel)) {
+				/* 11g */
+				rec->rec_header.packet_header.pseudo_header.ieee_802_11.phy = PHDR_802_11_PHY_11G;
+				rec->rec_header.packet_header.pseudo_header.ieee_802_11.phy_info.info_11g.has_mode = FALSE;
+			} else {
+				/* 11a */
+				rec->rec_header.packet_header.pseudo_header.ieee_802_11.phy = PHDR_802_11_PHY_11A;
+				rec->rec_header.packet_header.pseudo_header.ieee_802_11.phy_info.info_11a.has_channel_type = FALSE;
+				rec->rec_header.packet_header.pseudo_header.ieee_802_11.phy_info.info_11a.has_turbo_type = FALSE;
+			}
+		}
 
 		/*
 		 * The last 4 bytes appear to be random data - the length

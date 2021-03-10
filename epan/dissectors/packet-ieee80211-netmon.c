@@ -175,6 +175,11 @@ dissect_netmon_802_11(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
     phy_type = tvb_get_letohl(tvb, offset);
     memset(&phdr->phy_info, 0, sizeof(phdr->phy_info));
 
+    /*
+     * Unlike the channel flags in radiotap, this appears
+     * to correctly indicate the modulation for this packet
+     * (no cases seen where this doesn't match the data rate).
+     */
     switch (phy_type) {
 
     case PHY_TYPE_UNKNOWN:
