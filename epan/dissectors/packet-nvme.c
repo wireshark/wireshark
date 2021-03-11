@@ -145,7 +145,7 @@ static int hf_nvme_identify_ctrl_mi_rsvd = -1;
 static int hf_nvme_identify_ctrl_mi_nvmsr[] = {[0 ... 3] = -1 };
 static int hf_nvme_identify_ctrl_mi_vwci[] = {[0 ... 2] = -1 };
 static int hf_nvme_identify_ctrl_mi_mec[] = {[0 ... 3] = -1 };
-static int hf_nvme_identify_ctrl_oacs = -1;
+static int hf_nvme_identify_ctrl_oacs[] = {[0 ... 11] = -1 };
 static int hf_nvme_identify_ctrl_acl = -1;
 static int hf_nvme_identify_ctrl_aerl = -1;
 static int hf_nvme_identify_ctrl_kas = -1;
@@ -885,12 +885,13 @@ static void dissect_nvme_identify_ctrl_resp(tvbuff_t *cmd_tvb,
     add_decode_group(hf_nvme_identify_ctrl_mi_vwci, sizeof(hf_nvme_identify_ctrl_mi_vwci)/sizeof(hf_nvme_identify_ctrl_mi_vwci[0]), 254, 1, cmd_tvb, grp);
     add_decode_group(hf_nvme_identify_ctrl_mi_mec, sizeof(hf_nvme_identify_ctrl_mi_mec)/sizeof(hf_nvme_identify_ctrl_mi_mec[0]), 255, 1, cmd_tvb, grp);
 
-    proto_tree_add_item(cmd_tree, hf_nvme_identify_ctrl_oacs, cmd_tvb,
-                        256, 2, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(cmd_tree, hf_nvme_identify_ctrl_acl, cmd_tvb,
-                        258, 1, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(cmd_tree, hf_nvme_identify_ctrl_aerl, cmd_tvb,
-                        259, 1, ENC_LITTLE_ENDIAN);
+    add_decode_group(hf_nvme_identify_ctrl_oacs, sizeof(hf_nvme_identify_ctrl_oacs)/sizeof(hf_nvme_identify_ctrl_oacs[0]), 256, 2, cmd_tvb, cmd_tree);
+    ti = proto_tree_add_item_ret_uint(cmd_tree, hf_nvme_identify_ctrl_acl, cmd_tvb,
+                        258, 1, ENC_LITTLE_ENDIAN, &val);
+    proto_item_append_text(ti, " (%u command%s)", val+1, val ? "s" : "");
+    ti = proto_tree_add_item_ret_uint(cmd_tree, hf_nvme_identify_ctrl_aerl, cmd_tvb,
+                        259, 1, ENC_LITTLE_ENDIAN, &val);
+    proto_item_append_text(ti, " (%u event%s)", val+1, val ? "s" : "");
     proto_tree_add_item(cmd_tree, hf_nvme_identify_ctrl_kas, cmd_tvb,
                         320, 2, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(cmd_tree, hf_nvme_identify_ctrl_sqes, cmd_tvb,
@@ -1709,9 +1710,53 @@ proto_register_nvme(void)
             { "Reserved", "nvme.cmd.identify.ctrl.mi.mec.rsvd",
                FT_UINT8, BASE_HEX, NULL, 0xfc, NULL, HFILL}
         },
-        { &hf_nvme_identify_ctrl_oacs,
+        { &hf_nvme_identify_ctrl_oacs[0],
             { "Optional Admin Command Support (OACS)", "nvme.cmd.identify.ctrl.oacs",
                FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_identify_ctrl_oacs[1],
+            { "Security Send and Security Receive Support", "nvme.cmd.identify.ctrl.oacs.sec",
+               FT_UINT16, BASE_HEX, NULL, 0x1, NULL, HFILL}
+        },
+        { &hf_nvme_identify_ctrl_oacs[2],
+            { "Format NVM Support", "nvme.cmd.identify.ctrl.oacs.fmt",
+               FT_UINT16, BASE_HEX, NULL, 0x2, NULL, HFILL}
+        },
+        { &hf_nvme_identify_ctrl_oacs[3],
+            { "Firmware Download and Commit Support", "nvme.cmd.identify.ctrl.oacs.fw",
+               FT_UINT16, BASE_HEX, NULL, 0x4, NULL, HFILL}
+        },
+        { &hf_nvme_identify_ctrl_oacs[4],
+            { "Namespace Management Support", "nvme.cmd.identify.ctrl.oacs.nsmgmt",
+               FT_UINT16, BASE_HEX, NULL, 0x8, NULL, HFILL}
+        },
+        { &hf_nvme_identify_ctrl_oacs[5],
+            { "Device Self-Test Support", "nvme.cmd.identify.ctrl.oacs.stst",
+               FT_UINT16, BASE_HEX, NULL, 0x10, NULL, HFILL}
+        },
+        { &hf_nvme_identify_ctrl_oacs[6],
+            { "Directive Send and Directive Receive Support", "nvme.cmd.identify.ctrl.oacs.dtv",
+               FT_UINT16, BASE_HEX, NULL, 0x20, NULL, HFILL}
+        },
+        { &hf_nvme_identify_ctrl_oacs[7],
+            { "NVMe-MI Send and NVMe Receive Support", "nvme.cmd.identify.ctrl.oacs.mi",
+               FT_UINT16, BASE_HEX, NULL, 0x40, NULL, HFILL}
+        },
+        { &hf_nvme_identify_ctrl_oacs[8],
+            { "Virtualization Management Support", "nvme.cmd.identify.ctrl.oacs.vm",
+               FT_UINT16, BASE_HEX, NULL, 0x80, NULL, HFILL}
+        },
+        { &hf_nvme_identify_ctrl_oacs[9],
+            { "Dorbell Buffer Config Support", "nvme.cmd.identify.ctrl.oacs.db",
+               FT_UINT16, BASE_HEX, NULL, 0x100, NULL, HFILL}
+        },
+        { &hf_nvme_identify_ctrl_oacs[10],
+            { "Get LBA Status Support", "nvme.cmd.identify.ctrl.oacs.sec.lba",
+               FT_UINT16, BASE_HEX, NULL, 0x200, NULL, HFILL}
+        },
+        { &hf_nvme_identify_ctrl_oacs[11],
+            { "Reserevd", "nvme.cmd.identify.ctrl.oacs.sec.rsvd",
+               FT_UINT16, BASE_HEX, NULL, 0xfc00, NULL, HFILL}
         },
         { &hf_nvme_identify_ctrl_acl,
             { "Abort Command Limit (ACL)", "nvme.cmd.identify.ctrl.acl",
