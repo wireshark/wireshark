@@ -9,6 +9,12 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
+/*
+ * RFC 6386 - VP8 Data Format and Decoding Guide
+ * RFC 7741 - RTP Payload Format for NP8 Video
+ */
+
+
 #include "config.h"
 
 #include <epan/packet.h>
@@ -110,6 +116,15 @@ static const value_string vp8_type_values[] = {
     {  1,   "Interframe" },
     {  2,   "Continuation" },
     {  0, NULL }
+};
+
+static const range_string vp8_hdr_version_vals[] = {
+    {  0, 0,   "Bicubic  (Loop Filter=Normal)" },
+    {  1, 1,   "Bilinear (Loop Filter=Simple)" },
+    {  2, 2,   "Bilinear (Loop Filter=None)" },
+    {  3, 3,   "No filters" },
+    {  4, 7,   "Reserved for future use" },
+    {  0, 0,  NULL }
 };
 
 static const true_false_string vp8_x_bit_vals = {
@@ -498,13 +513,13 @@ proto_register_vp8(void)
         },
         { &hf_vp8_hdr_version,
             { "version",           "vp8.hdr.version",
-            FT_UINT8, BASE_DEC, NULL, BIT_567_MASK,
+            FT_UINT8, BASE_DEC | BASE_RANGE_STRING, RVALS(vp8_hdr_version_vals), BIT_567_MASK,
             NULL, HFILL }
         },
         { &hf_vp8_hdr_show_bit,
             { "Show bit",           "vp8.hdr.show",
             FT_BOOLEAN, 8, NULL, BIT_4_MASK,
-            NULL, HFILL }
+            "Set when current frame is for display", HFILL }
         },
         { &hf_vp8_hdr_first_partition_size,
             { "First partition size",           "vp8.hdr.partition_size",
