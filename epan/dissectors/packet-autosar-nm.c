@@ -89,7 +89,7 @@ static gboolean g_autosar_nm_interpret_coord_id = FALSE;
 
 /* Id and mask of CAN frames to be dissected */
 static guint32 g_autosar_nm_can_id = 0;
-static guint32 g_autosar_nm_can_id_mask = 0;
+static guint32 g_autosar_nm_can_id_mask = 0xffffffff;
 
 /* Relevant PDUs */
 static range_t *g_autosar_nm_pdus = NULL;
