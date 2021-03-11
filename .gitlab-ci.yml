@@ -11,6 +11,12 @@
 # https://hub.docker.com/r/wireshark/wireshark-ubuntu-dev
 
 variables:
+  # Ensure that checkouts are a) fast and b) have a reachable tag. In a
+  # brighter, more glorious future we might be able to use --shallow-since:
+  # https://gitlab.com/gitlab-org/gitlab-runner/-/issues/3460
+  # In the mean time, fetching the last 5000 commits does the job.
+  GIT_DEPTH: "1"
+  GIT_FETCH_EXTRA_FLAGS: "--depth=5000"
   CCACHE_DIR: "${CI_PROJECT_DIR}/ccache"
 
 .build:
@@ -264,8 +270,6 @@ merge-req:commit-checks:
     - docker
   rules:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
-  variables:
-    GIT_DEPTH: 10
   script:
     # build-ubuntu puts us in `build`.
     - cd ..
@@ -278,8 +282,6 @@ merge-req:ubuntu-dpkg:
     - docker
   rules:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
-  variables:
-    GIT_DEPTH: 10
   script:
     # build-ubuntu puts us in `build`.
     - cd ..
@@ -296,8 +298,6 @@ merge-req:ubuntu-gcc-ctest:
     - docker
   rules:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
-  variables:
-    GIT_DEPTH: 10
   script:
     # build-ubuntu puts us in `build`.
     - CC=gcc CXX=g++ cmake -DENABLE_EXTRA_COMPILER_WARNINGS=on -DCMAKE_EXPORT_COMPILE_COMMANDS=on -DENABLE_CCACHE=ON -G Ninja ..
@@ -312,8 +312,6 @@ merge-req:ubuntu-clang-other-tests:
     - docker
   rules:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
-  variables:
-    GIT_DEPTH: 10
   script:
     # build-ubuntu puts us in `build`.
     - cd ..
@@ -348,8 +346,6 @@ merge-req:windows:
     # The wireshark-windows-dev image is only available via a dedicated runner.
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_PROJECT_URL =~ /.*gitlab.com\/wireshark\/wireshark/'
       when: always
-  variables:
-    GIT_DEPTH: 10
   before_script:
     # XXX Find a better location.
     - cmd.exe /c "set CI_PIPELINE_SOURCE"
