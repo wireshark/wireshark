@@ -2745,16 +2745,6 @@ pcapng_open(wtap *wth, int *err, gchar **err_info)
     gint64 saved_offset;
     section_info_t first_section, new_section, *current_section;
 
-    /* we don't know the byte swapping of the file yet */
-    first_section.byte_swapped = FALSE;
-    first_section.version_major = -1;
-    first_section.version_minor = -1;
-    first_section.shb_off = 0; /* it's at the very beginning of the file */
-
-    /* we don't expect any packet blocks yet */
-    wblock.frame_buffer = NULL;
-    wblock.rec = NULL;
-
     pcapng_debug("pcapng_open: opening file");
     /*
      * Read first block.
@@ -2802,6 +2792,10 @@ pcapng_open(wtap *wth, int *err, gchar **err_info)
      */
     wblock.type = bh.block_type;
     wblock.block = NULL;
+    /* we don't expect any packet blocks yet */
+    wblock.frame_buffer = NULL;
+    wblock.rec = NULL;
+
     switch (pcapng_read_section_header_block(wth->fh, &bh, &first_section,
                                              &wblock, err, err_info)) {
     case PCAPNG_BLOCK_OK:
@@ -2867,6 +2861,11 @@ pcapng_open(wtap *wth, int *err, gchar **err_info)
      * Create the array of interfaces for the first section.
      */
     first_section.interfaces = g_array_new(FALSE, FALSE, sizeof(interface_info_t));
+
+    /*
+     * The first section is at the very beginning of the file.
+     */
+    first_section.shb_off = 0;
 
     /*
      * Allocate the sections table with space reserved for the first
