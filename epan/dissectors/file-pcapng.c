@@ -68,7 +68,10 @@ static int hf_pcapng_option_data_interface_timestamp_resolution = -1;
 static int hf_pcapng_option_data_interface_timestamp_resolution_base = -1;
 static int hf_pcapng_option_data_interface_timestamp_resolution_value = -1;
 static int hf_pcapng_option_data_interface_timezone = -1;
-static int hf_pcapng_option_data_interface_filter = -1;
+static int hf_pcapng_option_data_interface_filter_type = -1;
+static int hf_pcapng_option_data_interface_filter_string = -1;
+static int hf_pcapng_option_data_interface_filter_bpf_program = -1;
+static int hf_pcapng_option_data_interface_filter_unknown = -1;
 static int hf_pcapng_option_data_interface_os = -1;
 static int hf_pcapng_option_data_interface_hardware = -1;
 static int hf_pcapng_option_data_interface_fcs_length = -1;
@@ -568,6 +571,12 @@ static const value_string timestamp_resolution_base_vals[] = {
     { 0, NULL }
 };
 
+static const value_string interface_filter_type_vals[] = {
+    { 0, "libpcap string" },
+    { 1, "BPF program" },
+    { 0, NULL }
+};
+
 static const value_string packet_verdict_type_vals[] = {
     { 0,  "Hardware" },
     { 1,  "Linux eBPF TC" },
@@ -631,18 +640,17 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
     guint32       option_code;
     guint32       option_length;
     gint          hfj_pcapng_option_code;
-    const guint8*str = NULL;
+    char         *str;
+    const char   *const_str;
     wmem_strbuf_t *strbuf;
     address       addr;
-    address      addr_mask;
+    address       addr_mask;
+    guint32       if_filter_type;
     const value_string  *vals = NULL;
-    union       value {
-            guint32 u32;
-            guint64 u64;
-            guint16 u16;
-            guint8  u8;
-    } value;
-    e_guid_t uuid;
+    guint8        value_u8;
+    guint32       value_u32;
+    guint64       value_u64;
+    e_guid_t      uuid;
 
     if (tvb_reported_length(tvb) <= 0)
         return 0;
@@ -702,21 +710,25 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
             proto_item_set_len(option_item, option_length + 2 * 2);
             break;
         } else if (option_code == 1) {
-            proto_tree_add_item_ret_string(option_tree, hf_pcapng_option_data_comment, tvb, offset, option_length, ENC_NA | ENC_UTF_8, wmem_packet_scope(), &str);
+            proto_tree_add_item_ret_display_string(option_tree, hf_pcapng_option_data_comment, tvb, offset, option_length, ENC_NA | ENC_UTF_8, wmem_packet_scope(), &str);
+            proto_item_append_text(option_item, " = %s", str);
             offset += option_length;
         } else switch (block_type) {
         case BLOCK_SECTION_HEADER:
             switch (option_code) {
             case 2:
-                proto_tree_add_item_ret_string(option_tree, hf_pcapng_option_data_section_header_hardware, tvb, offset, option_length, ENC_NA | ENC_UTF_8, wmem_packet_scope(), &str);
+                proto_tree_add_item_ret_display_string(option_tree, hf_pcapng_option_data_section_header_hardware, tvb, offset, option_length, ENC_NA | ENC_UTF_8, wmem_packet_scope(), &str);
+                proto_item_append_text(option_item, " = %s", str);
                 offset += option_length;
                 break;
             case 3:
-                proto_tree_add_item_ret_string(option_tree, hf_pcapng_option_data_section_header_os, tvb, offset, option_length, ENC_NA | ENC_UTF_8, wmem_packet_scope(), &str);
+                proto_tree_add_item_ret_display_string(option_tree, hf_pcapng_option_data_section_header_os, tvb, offset, option_length, ENC_NA | ENC_UTF_8, wmem_packet_scope(), &str);
+                proto_item_append_text(option_item, " = %s", str);
                 offset += option_length;
                 break;
             case 4:
-                proto_tree_add_item_ret_string(option_tree, hf_pcapng_option_data_section_header_user_application, tvb, offset, option_length, ENC_NA | ENC_UTF_8, wmem_packet_scope(), &str);
+                proto_tree_add_item_ret_display_string(option_tree, hf_pcapng_option_data_section_header_user_application, tvb, offset, option_length, ENC_NA | ENC_UTF_8, wmem_packet_scope(), &str);
+                proto_item_append_text(option_item, " = %s", str);
                 offset += option_length;
                 break;
             default:
@@ -729,11 +741,13 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
 
             switch (option_code) {
             case 2:
-                proto_tree_add_item_ret_string(option_tree, hf_pcapng_option_data_interface_description_name, tvb, offset, option_length, ENC_NA | ENC_UTF_8, wmem_packet_scope(), &str);
+                proto_tree_add_item_ret_display_string(option_tree, hf_pcapng_option_data_interface_description_name, tvb, offset, option_length, ENC_NA | ENC_UTF_8, wmem_packet_scope(), &str);
+                proto_item_append_text(option_item, " = %s", str);
                 offset += option_length;
                 break;
             case 3:
-                proto_tree_add_item_ret_string(option_tree, hf_pcapng_option_data_interface_description_description, tvb, offset, option_length, ENC_NA | ENC_UTF_8, wmem_packet_scope(), &str);
+                proto_tree_add_item_ret_display_string(option_tree, hf_pcapng_option_data_interface_description_description, tvb, offset, option_length, ENC_NA | ENC_UTF_8, wmem_packet_scope(), &str);
+                proto_item_append_text(option_item, " = %s", str);
                 offset += option_length;
                 break;
             case 4:
@@ -750,7 +764,7 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
                 set_address_tvb(&addr_mask, AT_IPv4, 4, tvb, offset);
                 offset += 4;
 
-                str = (const guint8 *)wmem_strdup_printf(wmem_packet_scope(), "%s/%s",
+                proto_item_append_text(option_item, " = %s/%s",
                         address_to_display(wmem_packet_scope(),  &addr),
                         address_to_display(wmem_packet_scope(),  &addr_mask));
                 break;
@@ -765,11 +779,11 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
                 set_address_tvb(&addr, AT_IPv6, 16, tvb, offset);
                 offset += 16;
 
-                proto_tree_add_item(option_tree, hf_pcapng_option_data_ipv6_mask, tvb, offset, 1, ENC_NA);
+                proto_tree_add_item_ret_uint(option_tree, hf_pcapng_option_data_ipv6_mask, tvb, offset, 1, ENC_NA, &value_u32);
                 offset += 1;
 
-                str = (const guint8*)wmem_strdup_printf(wmem_packet_scope(), "%s/%u",
-                    address_to_display(wmem_packet_scope(),  &addr), (unsigned int) tvb_get_guint8(tvb, offset - 1));
+                proto_item_append_text(option_item, " = %s/%u",
+                    address_to_display(wmem_packet_scope(),  &addr), value_u32);
 
                 break;;
             case 6:
@@ -780,7 +794,8 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
                 }
 
                 proto_tree_add_item(option_tree, hf_pcapng_option_data_mac_address, tvb, offset, 6, encoding);
-                str = (const guint8*)tvb_get_ether_name(tvb, offset);
+                proto_item_append_text(option_item, " = %s",
+                    tvb_get_ether_name(tvb, offset));
                 offset += 6;
 
                 break;
@@ -795,7 +810,8 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
                 set_address_tvb(&addr, AT_EUI64, 8, tvb, offset);
                 offset += 8;
 
-                str = (const guint8*)address_to_display(wmem_packet_scope(),  &addr);
+                proto_item_append_text(option_item, " = %s",
+                    address_to_display(wmem_packet_scope(),  &addr));
 
                 break;
             case 8:
@@ -805,20 +821,19 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
                     break;
                 }
 
-                p_item = proto_tree_add_item(option_tree, hf_pcapng_option_data_interface_speed, tvb, offset, 8, encoding);
-                value.u64 = tvb_get_guint64(tvb, offset, encoding);
-                if (value.u64 == 10000000) {
-                    str = (const guint8*)"10 Mbps";
-                    proto_item_append_text(p_item, "%s", str);
-                } else if (value.u64 == 100000000) {
-                    str = (const guint8*)"100 Mbps";
-                    proto_item_append_text(p_item, "%s", str);
-                } else if (value.u64 == 1000000000) {
-                    str = (const guint8*)"1 Gbps";
-                    proto_item_append_text(p_item, "%s", str);
+                p_item = proto_tree_add_item_ret_uint64(option_tree, hf_pcapng_option_data_interface_speed, tvb, offset, 8, encoding, &value_u64);
+                /* XXX - is there a general routine to do this mapping? */
+                if (value_u64 == 10000000) {
+                    const_str = "10 Mbps";
+                } else if (value_u64 == 100000000) {
+                    const_str = "100 Mbps";
+                } else if (value_u64 == 1000000000) {
+                    const_str = "1 Gbps";
                 } else {
-                    str = (const guint8*)wmem_strdup_printf(wmem_packet_scope(), "%"G_GUINT64_FORMAT, value.u64);
+                    const_str = wmem_strdup_printf(wmem_packet_scope(), "%"G_GUINT64_FORMAT, value_u64);
                 }
+                proto_item_append_text(p_item, "%s", const_str);
+                proto_item_append_text(option_item, " = %s", const_str);
                 offset += 8;
 
                 break;
@@ -836,15 +851,15 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
                 }
 
                 proto_tree_add_bitmask(option_tree, tvb, offset, hf_pcapng_option_data_interface_timestamp_resolution, ett_pcapng_option, hfx_pcapng_option_data_interface_timestamp_resolution, ENC_NA);
-                value.u8 = tvb_get_guint8(tvb, offset);
+                value_u8 = tvb_get_guint8(tvb, offset);
                 offset += 1;
 
-                if (value.u8 & 0x80) {
+                if (value_u8 & 0x80) {
                     base = 2;
                 } else {
                     base = 10;
                 }
-                exponent = value.u8 & 0x7F;
+                exponent = value_u8 & 0x7F;
 
                 strbuf = wmem_strbuf_new(wmem_packet_scope(), "");
                 wmem_strbuf_append_printf(strbuf, "%u^-%u", base, exponent);
@@ -921,7 +936,8 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
                     wmem_strbuf_append(strbuf, " (.01 picoseconds)");
                     break;
                 }
-                str = (const guint8*)wmem_strbuf_finalize(strbuf);
+                proto_item_append_text(option_item, " = %s",
+                    wmem_strbuf_finalize(strbuf));
                 break;
             }
             case 10:
@@ -932,11 +948,10 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
                 }
 
 /* TODO: Better timezone decoding */
-                proto_tree_add_item(option_tree, hf_pcapng_option_data_interface_timezone, tvb, offset, 4, encoding);
-                value.u32 = tvb_get_guint32(tvb, offset, encoding);
+                proto_tree_add_item_ret_uint(option_tree, hf_pcapng_option_data_interface_timezone, tvb, offset, 4, encoding, &value_u32);
                 offset += 4;
 
-                str = (const guint8*)wmem_strdup_printf(wmem_packet_scope(), "%u", value.u32);
+                proto_item_append_text(option_item, " = %u", value_u32);
 
                 break;
             case 11:
@@ -945,14 +960,33 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
                     break;
                 }
 
-                /* Skip over filter type (0 is libpcap, others are unspecified.) */
+
+                /* Get filter type (0 is libpcap, 1 is BPF program, others are unspecified.) */
+                proto_tree_add_item_ret_uint(option_tree, hf_pcapng_option_data_interface_filter_type, tvb, offset, 1, ENC_NA, &if_filter_type);
                 offset++;
-                proto_tree_add_item_ret_string(option_tree, hf_pcapng_option_data_interface_filter, tvb, offset, option_length - 1, ENC_NA | ENC_UTF_8, wmem_packet_scope(), &str);
+                switch (if_filter_type) {
+
+                case 0:
+                    proto_tree_add_item_ret_display_string(option_tree, hf_pcapng_option_data_interface_filter_string, tvb, offset, option_length - 1, ENC_NA | ENC_UTF_8, wmem_packet_scope(), &str);
+                    proto_item_append_text(option_item, " = %s", str);
+                    break;
+
+                case 1:
+                    proto_tree_add_item(option_tree, hf_pcapng_option_data_interface_filter_bpf_program, tvb, offset, option_length - 1, ENC_NA);
+                    proto_item_append_text(option_item, " = {BPF program}");
+                    break;
+
+                default:
+                    proto_tree_add_item(option_tree, hf_pcapng_option_data_interface_filter_unknown, tvb, offset, option_length - 1, ENC_NA);
+                    proto_item_append_text(option_item, " = unknown (type %u)", if_filter_type);
+                    break;
+		}
                 offset += option_length - 1;
 
                 break;
             case 12:
-                proto_tree_add_item_ret_string(option_tree, hf_pcapng_option_data_interface_os, tvb, offset, option_length, ENC_NA | ENC_UTF_8, wmem_packet_scope(), &str);
+                proto_tree_add_item_ret_display_string(option_tree, hf_pcapng_option_data_interface_os, tvb, offset, option_length, ENC_NA | ENC_UTF_8, wmem_packet_scope(), &str);
+                proto_item_append_text(option_item, " = %s", str);
                 offset += option_length;
 
                 break;
@@ -963,10 +997,9 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
                     break;
                 }
 
-                proto_tree_add_item(option_tree, hf_pcapng_option_data_interface_fcs_length, tvb, offset, 1, ENC_NA);
-                value.u8 = tvb_get_guint8(tvb, offset);
-                str = (const guint8*)wmem_strdup_printf(wmem_packet_scope(), "%u", (guint32) value.u8);
+                proto_tree_add_item_ret_uint(option_tree, hf_pcapng_option_data_interface_fcs_length, tvb, offset, 1, ENC_NA, &value_u32);
                 offset += 1;
+                proto_item_append_text(option_item, " = %u", value_u32);
 
                 break;
             case 14:
@@ -976,18 +1009,18 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
                     break;
                 }
 
-                proto_tree_add_item(option_tree, hf_pcapng_option_data_interface_timestamp_offset, tvb, offset, 8, encoding);
-                value.u64 = tvb_get_guint64(tvb, offset, encoding);
-                str = (const guint8*)wmem_strdup_printf(wmem_packet_scope(), "%"G_GUINT64_FORMAT, value.u64);
+                proto_tree_add_item_ret_uint64(option_tree, hf_pcapng_option_data_interface_timestamp_offset, tvb, offset, 8, encoding, &value_u64);
                 offset += 8;
+                proto_item_append_text(option_item, " = %"G_GUINT64_FORMAT, value_u64);
 
                 if (interface_description) {
-                    interface_description->timestamp_offset = value.u64;
+                    interface_description->timestamp_offset = value_u64;
                 }
 
                 break;
             case 15:
-                proto_tree_add_item_ret_string(option_tree, hf_pcapng_option_data_interface_hardware, tvb, offset, option_length, ENC_NA | ENC_UTF_8, wmem_packet_scope(), &str);
+                proto_tree_add_item_ret_display_string(option_tree, hf_pcapng_option_data_interface_hardware, tvb, offset, option_length, ENC_NA | ENC_UTF_8, wmem_packet_scope(), &str);
+                proto_item_append_text(option_item, " = %s", str);
                 offset += option_length;
 
                 break;
@@ -1038,7 +1071,8 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
         case BLOCK_NAME_RESOLUTION:
             switch (option_code) {
             case 2:
-                proto_tree_add_item_ret_string(option_tree, hf_pcapng_option_data_dns_name, tvb, offset, option_length, ENC_NA | ENC_UTF_8, wmem_packet_scope(), &str);
+                proto_tree_add_item_ret_display_string(option_tree, hf_pcapng_option_data_dns_name, tvb, offset, option_length, ENC_NA | ENC_UTF_8, wmem_packet_scope(), &str);
+                proto_item_append_text(option_item, " = %s", str);
                 offset += option_length;
 
                 break;
@@ -1053,7 +1087,8 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
                 set_address_tvb(&addr, AT_IPv4, 4, tvb, offset);
                 offset += 4;
 
-                str = (const guint8*)address_to_display(wmem_packet_scope(), &addr);
+                proto_item_append_text(option_item, " = %s",
+                    address_to_display(wmem_packet_scope(), &addr));
 
                 break;
             case 4:
@@ -1067,7 +1102,8 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
                 set_address_tvb(&addr, AT_IPv6, 16, tvb, offset);
                 offset += 16;
 
-                str = (const guint8*)address_to_display(wmem_packet_scope(),  &addr);
+                proto_item_append_text(option_item, " = %s",
+                    address_to_display(wmem_packet_scope(),  &addr));
 
                 break;
             default:
@@ -1107,9 +1143,8 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
                     break;
                 }
 
-                proto_tree_add_item(option_tree, hf_pcapng_option_data_interface_received, tvb, offset, 8, encoding);
-                value.u64 = tvb_get_guint64(tvb, offset, encoding);
-                str = (const guint8*)wmem_strdup_printf(wmem_packet_scope(), "%"G_GUINT64_FORMAT, value.u64);
+                proto_tree_add_item_ret_uint64(option_tree, hf_pcapng_option_data_interface_received, tvb, offset, 8, encoding, &value_u64);
+                proto_item_append_text(option_item, " = %"G_GUINT64_FORMAT, value_u64);
                 offset += 8;
 
                 break;
@@ -1120,9 +1155,8 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
                     break;
                 }
 
-                proto_tree_add_item(option_tree, hf_pcapng_option_data_interface_dropped, tvb, offset, 8, encoding);
-                value.u64 = tvb_get_guint64(tvb, offset, encoding);
-                str = (const guint8*)wmem_strdup_printf(wmem_packet_scope(), "%"G_GUINT64_FORMAT, value.u64);
+                proto_tree_add_item_ret_uint64(option_tree, hf_pcapng_option_data_interface_dropped, tvb, offset, 8, encoding, &value_u64);
+                proto_item_append_text(option_item, " = %"G_GUINT64_FORMAT, value_u64);
                 offset += 8;
 
                 break;
@@ -1133,9 +1167,8 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
                     break;
                 }
 
-                proto_tree_add_item(option_tree, hf_pcapng_option_data_interface_accepted_by_filter, tvb, offset, 8, encoding);
-                value.u64 = tvb_get_guint64(tvb, offset, encoding);
-                str = (const guint8*)wmem_strdup_printf(wmem_packet_scope(), "%"G_GUINT64_FORMAT, value.u64);
+                proto_tree_add_item_ret_uint64(option_tree, hf_pcapng_option_data_interface_accepted_by_filter, tvb, offset, 8, encoding, &value_u64);
+                proto_item_append_text(option_item, " = %"G_GUINT64_FORMAT, value_u64);
                 offset += 8;
 
                 break;
@@ -1146,9 +1179,8 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
                     break;
                 }
 
-                proto_tree_add_item(option_tree, hf_pcapng_option_data_interface_dropped_by_os, tvb, offset, 8, encoding);
-                value.u64 = tvb_get_guint64(tvb, offset, encoding);
-                str = (const guint8*)wmem_strdup_printf(wmem_packet_scope(), "%"G_GUINT64_FORMAT, value.u64);
+                proto_tree_add_item_ret_uint64(option_tree, hf_pcapng_option_data_interface_dropped_by_os, tvb, offset, 8, encoding, &value_u64);
+                proto_item_append_text(option_item, " = %"G_GUINT64_FORMAT, value_u64);
                 offset += 8;
 
                 break;
@@ -1159,9 +1191,8 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
                     break;
                 }
 
-                proto_tree_add_item(option_tree, hf_pcapng_option_data_interface_delivered_to_user, tvb, offset, 8, encoding);
-                value.u64 = tvb_get_guint64(tvb, offset, encoding);
-                str = (const guint8*)wmem_strdup_printf(wmem_packet_scope(), "%"G_GUINT64_FORMAT, value.u64);
+                proto_tree_add_item_ret_uint64(option_tree, hf_pcapng_option_data_interface_delivered_to_user, tvb, offset, 8, encoding, &value_u64);
+                proto_item_append_text(option_item, " = %"G_GUINT64_FORMAT, value_u64);
                 offset += 8;
 
                 break;
@@ -1210,9 +1241,8 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
                     break;
                 }
 
-                proto_tree_add_item(option_tree, hf_pcapng_option_data_packet_drop_count, tvb, offset, 8, encoding);
-                value.u64 = tvb_get_guint64(tvb, offset, encoding);
-                str = (const guint8*)wmem_strdup_printf(wmem_packet_scope(), "%"G_GUINT64_FORMAT, value.u64);
+                proto_tree_add_item_ret_uint64(option_tree, hf_pcapng_option_data_packet_drop_count, tvb, offset, 8, encoding, &value_u64);
+                proto_item_append_text(option_item, " = %"G_GUINT64_FORMAT, value_u64);
                 offset += 8;
 
                 break;
@@ -1223,9 +1253,8 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
                     break;
                 }
 
-                proto_tree_add_item(option_tree, hf_pcapng_option_data_packet_id, tvb, offset, 8, encoding);
-                value.u64 = tvb_get_guint64(tvb, offset, encoding);
-                str = (const guint8*)wmem_strdup_printf(wmem_packet_scope(), "0x%016"G_GINT64_MODIFIER"x", value.u64);
+                proto_tree_add_item_ret_uint64(option_tree, hf_pcapng_option_data_packet_id, tvb, offset, 8, encoding, &value_u64);
+                proto_item_append_text(option_item, " = 0x%016"G_GINT64_MODIFIER"x", value_u64);
                 offset += 8;
 
                 break;
@@ -1236,9 +1265,8 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
                     break;
                 }
 
-                proto_tree_add_item(option_tree, hf_pcapng_option_data_packet_queue, tvb, offset, 4, encoding);
-                value.u32 = tvb_get_guint32(tvb, offset, encoding);
-                str = (const guint8*)wmem_strdup_printf(wmem_packet_scope(), "%u", value.u32);
+                proto_tree_add_item_ret_uint(option_tree, hf_pcapng_option_data_packet_queue, tvb, offset, 4, encoding, &value_u32);
+                proto_item_append_text(option_item, " = %u", value_u32);
                 offset += 4;
 
                 break;
@@ -1266,27 +1294,24 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
 
                 break;
             case 32769: /* Darwin DPEB ID */
-                proto_tree_add_item(option_tree, hf_pcapng_option_data_packet_darwin_dpeb_id, tvb, offset, option_length, encoding);
-                value.u32 = tvb_get_guint32(tvb, offset, encoding);
+                proto_tree_add_item_ret_uint(option_tree, hf_pcapng_option_data_packet_darwin_dpeb_id, tvb, offset, option_length, encoding, &value_u32);
                 offset += option_length;
 
-                str = (const guint8*)wmem_strdup_printf(wmem_packet_scope(), "%u", value.u32);
+                proto_item_append_text(option_item, " = %u", value_u32);
 
                 break;
             case 32770: /* Darwin Service Type */
-                proto_tree_add_item(option_tree, hf_pcapng_option_data_packet_darwin_svc_class, tvb, offset, option_length, encoding);
-                value.u32 = tvb_get_guint32(tvb, offset, encoding);
+                proto_tree_add_item_ret_uint(option_tree, hf_pcapng_option_data_packet_darwin_svc_class, tvb, offset, option_length, encoding, &value_u32);
                 offset += option_length;
 
-                str = (const guint8*)wmem_strdup_printf(wmem_packet_scope(), "%s", val_to_str_const(value.u32, option_code_darwin_svc_class_vals, "Unknown"));
+                proto_item_append_text(option_item, " = %s", val_to_str_const(value_u32, option_code_darwin_svc_class_vals, "Unknown"));
 
                 break;
             case 32771: /* Darwin Effective DPEB ID */
-                proto_tree_add_item(option_tree, hf_pcapng_option_data_packet_darwin_edpeb_id, tvb, offset, option_length, encoding);
-                value.u32 = tvb_get_guint32(tvb, offset, encoding);
+                proto_tree_add_item_ret_uint(option_tree, hf_pcapng_option_data_packet_darwin_edpeb_id, tvb, offset, option_length, encoding, &value_u32);
                 offset += option_length;
 
-                str = (const guint8*)wmem_strdup_printf(wmem_packet_scope(), "%u", value.u32);
+                proto_item_append_text(option_item, " = %u", value_u32);
 
                 break;
             case 32772: /* Darwin Flags */
@@ -1303,7 +1328,7 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
         case BLOCK_DARWIN_PROCESS:
             switch (option_code) {
             case 2: /* Darwin Process Name */
-                proto_tree_add_item_ret_string(option_tree, hf_pcapng_option_darwin_process_name, tvb, offset, option_length, ENC_NA | ENC_UTF_8, wmem_packet_scope(), &str);
+                proto_tree_add_item_ret_display_string(option_tree, hf_pcapng_option_darwin_process_name, tvb, offset, option_length, ENC_NA | ENC_UTF_8, wmem_packet_scope(), &str);
                 offset += option_length;
                 break;
 
@@ -1312,7 +1337,8 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
                 tvb_get_guid(tvb, offset, &uuid, ENC_BIG_ENDIAN);
                 offset += option_length;
 
-                str = (const guint8*)guid_to_str(wmem_packet_scope(), &uuid);
+                proto_item_append_text(option_item, " = %s",
+                    guid_to_str(wmem_packet_scope(), &uuid));
 
                 break;
             default:
@@ -1334,10 +1360,6 @@ static gint dissect_options(proto_tree *tree, packet_info *pinfo,
             offset += option_length;
         } else
             proto_item_set_len(option_item, option_length + 2 * 2);
-
-        if (str)
-            proto_item_append_text(option_item, " = %s", str);
-
     }
 
     return offset;
@@ -2135,9 +2157,24 @@ proto_register_pcapng(void)
             FT_UINT32, BASE_DEC, NULL, 0x00,
             NULL, HFILL }
         },
-        { &hf_pcapng_option_data_interface_filter,
-            { "Filter",                                    "pcapng.options.option.data.interface.filter",
+        { &hf_pcapng_option_data_interface_filter_type,
+            { "Filter type",                               "pcapng.options.option.data.interface.filter.type",
+            FT_UINT8, BASE_DEC, VALS(interface_filter_type_vals), 0x00,
+            NULL, HFILL }
+        },
+        { &hf_pcapng_option_data_interface_filter_string,
+            { "Filter string",                             "pcapng.options.option.data.interface.filter.string",
             FT_STRING, STR_ASCII, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_pcapng_option_data_interface_filter_bpf_program,
+            { "Filter BPF program",                        "pcapng.options.option.data.interface.filter.bpf_program",
+            FT_NONE, BASE_NONE, NULL, 0x00,
+            NULL, HFILL }
+        },
+        { &hf_pcapng_option_data_interface_filter_unknown,
+            { "Filter data",                               "pcapng.options.option.data.interface.filter.unknown",
+            FT_NONE, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_pcapng_option_data_interface_os,
