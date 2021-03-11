@@ -1021,6 +1021,9 @@ pcapng_read_if_descr_block(wtap *wth, FILE_T fh, pcapng_block_header_t *bh,
                         if_filter.type = if_filter_pcap;
                         if_filter.data.filter_str = g_strndup((char *)option_content+1, oh.option_length-1);
                         pcapng_debug("pcapng_read_if_descr_block: filter_str %s oh.option_length %u", if_filter.filter_str, oh.option_length);
+                        /* Fails with multiple options; we silently ignore the failure */
+                        wtap_block_add_if_filter_option(wblock->block, oh.option_code, &if_filter);
+                        g_free(if_filter.data.filter_str);
                     } else if (option_content[0] == 1) {
                         /*
                          * XXX - byte-swap the code and k fields
@@ -1053,12 +1056,8 @@ pcapng_read_if_descr_block(wtap *wth, FILE_T fh, pcapng_block_header_t *bh,
                                 insn->k = GUINT32_SWAP_LE_BE(insn->k);
                             insn_in += 4;
                         }
-                    }
-                    /* Fails with multiple options; we silently ignore the failure */
-                    wtap_block_add_if_filter_option(wblock->block, oh.option_code, &if_filter);
-                    if (if_filter.type == if_filter_pcap) {
-                        g_free(if_filter.data.filter_str);
-                    } else if (if_filter.type == if_filter_bpf) {
+                        /* Fails with multiple options; we silently ignore the failure */
+                        wtap_block_add_if_filter_option(wblock->block, oh.option_code, &if_filter);
                         g_free(if_filter.data.bpf_prog.bpf_prog);
                     }
                 } else {
