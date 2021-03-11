@@ -2613,7 +2613,9 @@ static void
 dissect_oui_default_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
 	proto_tree_add_item(tree, hf_unknown_subtype, tvb, 0, 1, ENC_BIG_ENDIAN);
-	proto_tree_add_item(tree, hf_unknown_subtype_content, tvb, 1, -1, ENC_NA);
+	if (tvb_captured_length_remaining(tvb, 1) > 0) {
+		proto_tree_add_item(tree, hf_unknown_subtype_content, tvb, 1, -1, ENC_NA);
+	}
 }
 
 static void
