@@ -133,6 +133,7 @@ static int hf_icmp_ext_data = -1;
 static int hf_icmp_int_info_ifindex = -1;
 static int hf_icmp_int_info_ipaddr = -1;
 static int hf_icmp_int_info_name = -1;
+static int hf_icmp_int_info_mtu_present = -1;
 static int hf_icmp_int_info_mtu = -1;
 static int hf_icmp_int_info_index = -1;
 static int hf_icmp_int_info_afi = -1;
@@ -767,6 +768,7 @@ dissect_interface_information_object(tvbuff_t * tvb, gint offset,
 	guint8 if_index_flag;
 	guint8 ipaddr_flag;
 	guint8 name_flag;
+	guint8 mtu_flag;
 	guint16 afi;
 	guint8 int_name_length = 0;
 
@@ -790,6 +792,7 @@ dissect_interface_information_object(tvbuff_t * tvb, gint offset,
 	if_index_flag = (c_type & INT_INFO_IFINDEX) >> 3;
 	ipaddr_flag = (c_type & INT_INFO_IPADDR) >> 2;
 	name_flag = (c_type & INT_INFO_NAME) >> 1;
+	mtu_flag = (c_type & INT_INFO_MTU) >> 0;
 
 	{
 		static int * const c_type_fields[] = {
@@ -798,7 +801,7 @@ dissect_interface_information_object(tvbuff_t * tvb, gint offset,
 			&hf_icmp_int_info_ifindex,
 			&hf_icmp_int_info_ipaddr,
 			&hf_icmp_int_info_name,
-			&hf_icmp_int_info_mtu,
+			&hf_icmp_int_info_mtu_present,
 			NULL
 		};
 		proto_tree_add_bitmask(ext_object_tree, tvb, offset + 3,
@@ -826,7 +829,7 @@ dissect_interface_information_object(tvbuff_t * tvb, gint offset,
 		 * if afi = 2, IPv6 address, 2 bytes afi, 2 bytes rsvd, 16 bytes IP addr
 		 */
 		int_ipaddr_object_tree = proto_tree_add_subtree(ext_object_tree, tvb, offset,
-					 afi == 1 ? 8 : 10, ett_icmp_interface_ipaddr, NULL,
+					 afi == 1 ? 8 : 20, ett_icmp_interface_ipaddr, NULL,
 					 "IP Address Sub-Object");
 
 		proto_tree_add_uint(int_ipaddr_object_tree,
@@ -862,10 +865,17 @@ dissect_interface_information_object(tvbuff_t * tvb, gint offset,
 						 "Interface Name Sub-Object");
 
 			proto_tree_add_item(int_name_object_tree, hf_icmp_int_info_name_length, tvb, offset, 1, ENC_BIG_ENDIAN);
+			offset += 1;
 		}
-		if (obj_end_offset >= offset + 1 + int_name_length) {
-			proto_tree_add_item(int_name_object_tree, hf_icmp_int_info_name_string, tvb, offset + 1, int_name_length, ENC_ASCII|ENC_NA);
+		if (obj_end_offset >= offset + int_name_length) {
+			proto_tree_add_item(int_name_object_tree, hf_icmp_int_info_name_string, tvb, offset, int_name_length - 1, ENC_ASCII|ENC_NA);
+			offset += int_name_length - 1;
 		}
+	}
+	/* MTU Sub Object */
+	if (mtu_flag) {
+		proto_tree_add_item(ext_object_tree, hf_icmp_int_info_mtu, tvb, offset, 4, ENC_NA);
+		offset += 4;
 	}
 
 
@@ -2168,8 +2178,8 @@ void proto_register_icmp(void)
 		  INT_INFO_NAME,
 		  NULL,
 		  HFILL}},
-		{&hf_icmp_int_info_mtu,
-		 {"MTU", "icmp.int_info.mtu", FT_BOOLEAN, 8, TFS(&tfs_present_not_present),
+		{&hf_icmp_int_info_mtu_present,
+		 {"MTU", "icmp.int_info.mtu_present", FT_BOOLEAN, 8, TFS(&tfs_present_not_present),
 		  INT_INFO_MTU,
 		  NULL, HFILL}},
 		{&hf_icmp_int_info_index,
@@ -2202,6 +2212,12 @@ void proto_register_icmp(void)
 		 {"Name", "icmp.int_info.name", FT_STRING, BASE_NONE, NULL,
 		  0x0,
 		  NULL, HFILL}},
+		{&hf_icmp_int_info_mtu,
+		 {"Maximum Transmission Unit", "icmp.int_info.mtu",
+		  FT_UINT32, BASE_DEC,
+		  NULL, 0x0,
+		  NULL, HFILL}},
+
 
 		{&hf_icmp_ext_echo_seq_num,
 		 {"Sequence Number", "icmp.ext.echo.seq", FT_UINT8,
