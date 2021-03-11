@@ -2220,6 +2220,13 @@ static const value_string ff_pa_action_codes[] = {
 };
 value_string_ext ff_pa_action_codes_ext = VALUE_STRING_EXT_INIT(ff_pa_action_codes);
 
+static const value_string ftm_trigger_vals[] = {
+  {0, "Stop sending FTM frames"},
+  {1, "Start or continue sending FTM frames"},
+  /* all other values reserved */
+  {0, NULL}
+};
+
 static const value_string category_codes[] = {
   {CAT_SPECTRUM_MGMT,                    "Spectrum Management (SM)"},
   {CAT_QOS,                              "Quality of Service (QoS)"},
@@ -10469,6 +10476,9 @@ add_ff_action_code(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int 
 static guint
 add_ff_trigger(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int offset)
 {
+  guint8 trigger = tvb_get_guint8(tvb, offset);
+  col_append_fstr(pinfo->cinfo, COL_INFO, ", Trigger=%d (%s)", trigger,
+                  val_to_str_const(trigger, ftm_trigger_vals, "Unknown"));
   proto_tree_add_item(tree, hf_ieee80211_ff_trigger, tvb, offset, 1,
                       ENC_LITTLE_ENDIAN);
   return 1;
@@ -37004,8 +37014,8 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_ff_trigger,
      {"Trigger", "wlan.fixed.trigger",
-      FT_UINT8, BASE_HEX, NULL, 0,
-      "Management action trigger", HFILL }},
+      FT_UINT8, BASE_DEC, VALS(ftm_trigger_vals), 0,
+      "FTM action trigger", HFILL }},
 
     {&hf_ieee80211_ff_ftm_tod,
      {"FTM TOD", "wlan.fixed.ftm_tod",
