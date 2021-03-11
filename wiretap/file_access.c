@@ -138,7 +138,7 @@ static const struct file_extension_info file_type_extensions_base[] = {
 	{ "Endace ERF capture", TRUE, "erf" },
 	{ "EyeSDN USB S0/E1 ISDN trace format", TRUE, "trc" },
 	{ "HP-UX nettl trace", TRUE, "trc0;trc1" },
-	{ "Network Instruments Observer", TRUE, "bfr" },
+	{ "Viavi Observer", TRUE, "bfr" },
 	{ "Colasoft Capsa", TRUE, "cscpkt" },
 	{ "Novell LANalyzer", TRUE, "tr1" },
 	{ "Tektronix K12xx 32-bit .rf5 format", TRUE, "rf5" },

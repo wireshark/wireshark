@@ -69,7 +69,7 @@ AG Group/WildPackets/Savvius B<EtherPeek>/B<TokenPeek>/B<AiroPeek>/B<EtherHelp>/
 B<RADCOM>'s WAN/LAN analyzer captures
 
 =item *
-Network Instruments B<Observer> version 9 captures
+Network Instruments/JDSU/Viavi B<Observer> version 9 captures
 
 =item *
 B<Lucent/Ascend> router debug output

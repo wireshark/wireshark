@@ -218,7 +218,7 @@ EtherPeek/TokenPeek/AiroPeek/EtherHelp/Packet Grabber captures
 * Network Associates Windows-based Sniffer captures
 * Network General/Network Associates DOS-based Sniffer (compressed or
 uncompressed) captures
-* Network Instruments Observer version 9 captures
+* Network Instruments/JDSU/Viavi Observer version 9 captures
 * Novell LANalyzer captures
 * RADCOM's WAN/LAN analyzer captures
 * Shomiti/Finisar Surveyor captures

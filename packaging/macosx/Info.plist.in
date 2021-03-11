@@ -42,7 +42,7 @@
 			<key>CFBundleTypeIconFile</key>
 			<string>Wiresharkdoc.icns</string>
 			<key>CFBundleTypeName</key>
-			<string>Savvius Packet Capture</string>
+			<string>Savvius EtherPeek/TokenPeek/AiroPeek/OmniPeek Packet Capture</string>
 			<key>CFBundleTypeRole</key>
 			<string>Viewer</string>
 		</dict>
@@ -55,7 +55,7 @@
 			<key>CFBundleTypeIconFile</key>
 			<string>Wiresharkdoc.icns</string>
 			<key>CFBundleTypeName</key>
-			<string>Network Instruments Observer Packet Capture</string>
+			<string>Viavi Observer Packet Capture</string>
 			<key>CFBundleTypeRole</key>
 			<string>Viewer</string>
 		</dict>

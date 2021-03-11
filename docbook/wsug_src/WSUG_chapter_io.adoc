@@ -124,7 +124,7 @@ The following file formats from other capture tools can be opened by Wireshark:
 
 * RADCOM’s WAN/LAN Analyzer captures
 
-* Network Instruments Observer version 9 captures
+* Network Instruments/JDSU/Viavi Observer version 9 captures
 
 * Lucent/Ascend router debug output
 
@@ -279,7 +279,7 @@ The following file formats can be saved by Wireshark (with the known file extens
 
 * Network Associates Sniffer - Windows ({asterisk}.cap)
 
-* Network Instruments Observer version 9 ({asterisk}.bfr)
+* Network Instruments/Viavi Observer version 9 ({asterisk}.bfr)
 
 * Novell LANalyzer ({asterisk}.tr1)
 

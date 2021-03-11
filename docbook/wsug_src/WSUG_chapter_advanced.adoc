@@ -816,9 +816,9 @@ system clock appears to display correct local time. When capturing, Npcap has
 to convert the time to UTC before supplying it to Wireshark. If the system’s
 time zone is not set correctly, that conversion will not be done correctly.
 
-Other capture file formats, such as the Microsoft Network Monitor, DOS-based
-Sniffer, and Network Instruments Observer formats, save the arrival time of
-packets as local time values.
+Other capture file formats, such as the Microsoft Network Monitor,
+DOS-based Sniffer, and Network Instruments/JDSU/Viavi Observer formats,
+save the arrival time of packets as local time values.
 
 Internally to Wireshark, time stamps are represented in UTC. This means that
 when reading capture files that save the arrival time of packets as local time
