@@ -1241,6 +1241,12 @@ int pcap_nsec_file_type_subtype = -1;
 int pcapng_file_type_subtype = -1;
 
 /*
+ * Table for mapping old file type/subtype names to new ones for
+ * backwards compatibility.
+ */
+static GHashTable *type_subtype_name_map;
+
+/*
  * Initialize the table of file types/subtypes with all the builtin
  * types/subtypes.
  */
@@ -1263,6 +1269,13 @@ wtap_init_file_type_subtypes(void)
 	file_type_subtype_table_arr = g_array_sized_new(FALSE, TRUE,
 	    sizeof(struct file_type_subtype_info), wtap_module_count*2 + 7);
 	file_type_subtype_table = (const struct file_type_subtype_info*)(void *)file_type_subtype_table_arr->data;
+
+	/*
+	 * Initialize the hash table for mapping old file type/subtype
+	 * names to the corresponding new names.
+	 */
+	type_subtype_name_map = g_hash_table_new_full(g_str_hash,
+	    g_str_equal, g_free, g_free);
 
 	/* No entries yet, so no builtin entries yet. */
 	wtap_num_builtin_file_types_subtypes = 0;
@@ -1767,37 +1780,35 @@ wtap_file_type_subtype_name(int file_type_subtype)
 		return file_type_subtype_table[file_type_subtype].name;
 }
 
+/*
+ * Register a backwards-compatibility name.
+ */
+void
+wtap_register_compatibility_file_subtype_name(const char *old_name,
+    const char *new_name)
+{
+	g_hash_table_insert(type_subtype_name_map, g_strdup(old_name),
+	    g_strdup(new_name));
+}
+
 /* Translate a name to a capture file type/subtype. */
 int
 wtap_name_to_file_type_subtype(const char *name)
 {
+	char *new_name;
 	int file_type_subtype;
 
 	/*
-	 * We now call the libpcap file format just pcap, but we allow
-	 * the various variants of it to be specified using names
-	 * containing "libpcap" as well as "pcap", for backwards
-	 * compatibility.
+	 * Is this name a backwards-compatibility name?
 	 */
-	static const struct name_map {
-		const char *oldname;
-		const char *name;
-	} name_map[] = {
-		{ "libpcap", "pcap" },
-		{ "nseclibpcap", "nsecpcap" },
-		{ "aixlibpcap", "aixpcap" },
-		{ "modlibpcap", "modpcap" },
-		{ "nokialibpcap", "nokiapcap" },
-		{ "rh6_1libpcap", "rh6_1pcap" },
-		{ "suse6_3libpcap", "suse6_3pcap" }
-	};
-#define N_NAME_MAP_ENTRIES (sizeof name_map / sizeof name_map[0])
-
-	for (size_t i = 0; i < N_NAME_MAP_ENTRIES; i++) {
-		if (strcmp(name_map[i].oldname, name) == 0) {
-			name = name_map[i].name;
-			break;
-		}
+	new_name = (char *)g_hash_table_lookup(type_subtype_name_map,
+	    (gpointer)name);
+	if (new_name != NULL) {
+		/*
+		 * Yes, and new_name is the name to which it should
+		 * be mapped.
+		 */
+		name = new_name;
 	}
 	for (file_type_subtype = 0;
 	    file_type_subtype < (int)file_type_subtype_table_arr->len;

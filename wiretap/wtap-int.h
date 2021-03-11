@@ -351,6 +351,10 @@ void
 wtapng_process_dsb(wtap *wth, wtap_block_t dsb);
 
 void
+wtap_register_compatibility_file_subtype_name(const char *old_name,
+    const char *new_name);
+
+void
 wtap_register_backwards_compatibility_lua_name(const char *name, int ft);
 
 struct backwards_compatibiliity_lua_name {

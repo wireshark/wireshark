@@ -1414,7 +1414,23 @@ void register_pcap(void)
 	pcap_nokia_file_type_subtype = wtap_register_file_type_subtype(&pcap_nokia_info);
 
 	/*
-	 * Register name for backwards compatibility with the
+	 * We now call the libpcap file format just pcap, but we allow
+	 * the various variants of it to be specified using names
+	 * containing "libpcap" as well as "pcap", for backwards
+	 * compatibility.
+	 *
+	 * Register names for that purpose.
+	 */
+	wtap_register_compatibility_file_subtype_name("libpcap", "pcap");
+	wtap_register_compatibility_file_subtype_name("nseclibpcap", "nsecpcap");
+	wtap_register_compatibility_file_subtype_name("aixlibpcap", "aixpcap");
+	wtap_register_compatibility_file_subtype_name("modlibpcap", "modpcap");
+	wtap_register_compatibility_file_subtype_name("nokialibpcap", "nokiapcap");
+	wtap_register_compatibility_file_subtype_name("rh6_1libpcap", "rh6_1pcap");
+	wtap_register_compatibility_file_subtype_name("suse6_3libpcap", "suse6_3pcap");
+
+	/*
+	 * Register names for backwards compatibility with the
 	 * wtap_filetypes table in Lua.
 	 */
 	wtap_register_backwards_compatibility_lua_name("PCAP",
