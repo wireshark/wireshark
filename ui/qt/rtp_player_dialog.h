@@ -122,7 +122,9 @@ private slots:
     void on_actionAudioRoutingL_triggered();
     void on_actionAudioRoutingLR_triggered();
     void on_actionAudioRoutingR_triggered();
-    void on_actionAudioRoutingI_triggered();
+    void on_actionAudioRoutingMute_triggered();
+    void on_actionAudioRoutingUnmute_triggered();
+    void on_actionAudioRoutingMuteInvert_triggered();
     void on_streamTreeWidget_itemSelectionChanged();
     void on_streamTreeWidget_itemDoubleClicked(QTreeWidgetItem *item, const int column);
     void on_outputDeviceComboBox_currentIndexChanged(const QString &);
@@ -134,6 +136,8 @@ private slots:
     void on_actionSelectInvert_triggered();
     void on_actionSelectNone_triggered();
     void outputNotify();
+    void on_actionPlay_triggered();
+    void on_actionStop_triggered();
 
 private:
     Ui::RtpPlayerDialog *ui;

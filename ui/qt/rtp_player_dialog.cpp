@@ -245,6 +245,10 @@ RtpPlayerDialog::RtpPlayerDialog(QWidget &parent, CaptureFile &cf) :
 
     graph_ctx_menu_->addSeparator();
     list_ctx_menu_ = new QMenu(this);
+    list_ctx_menu_->addAction(ui->actionPlay);
+    graph_ctx_menu_->addAction(ui->actionPlay);
+    list_ctx_menu_->addAction(ui->actionStop);
+    graph_ctx_menu_->addAction(ui->actionStop);
     QMenu *selection_menu1 = list_ctx_menu_->addMenu(tr("Select"));
     QMenu *selection_menu2 = graph_ctx_menu_->addMenu(tr("Select"));
     selection_menu1->addAction(ui->actionSelectAll);
@@ -256,8 +260,12 @@ RtpPlayerDialog::RtpPlayerDialog(QWidget &parent, CaptureFile &cf) :
     QMenu *audio_routing_menu1 = list_ctx_menu_->addMenu(tr("Audio Routing"));
     QMenu *audio_routing_menu2 = graph_ctx_menu_->addMenu(tr("Audio Routing"));
     // All AudioRouting actions are in menu, some of them are disabled later
-    audio_routing_menu1->addAction(ui->actionAudioRoutingI);
-    audio_routing_menu2->addAction(ui->actionAudioRoutingI);
+    audio_routing_menu1->addAction(ui->actionAudioRoutingMute);
+    audio_routing_menu2->addAction(ui->actionAudioRoutingMute);
+    audio_routing_menu1->addAction(ui->actionAudioRoutingUnmute);
+    audio_routing_menu2->addAction(ui->actionAudioRoutingUnmute);
+    audio_routing_menu1->addAction(ui->actionAudioRoutingMuteInvert);
+    audio_routing_menu2->addAction(ui->actionAudioRoutingMuteInvert);
     audio_routing_menu1->addAction(ui->actionAudioRoutingP);
     audio_routing_menu2->addAction(ui->actionAudioRoutingP);
     audio_routing_menu1->addAction(ui->actionAudioRoutingL);
@@ -677,8 +685,16 @@ bool RtpPlayerDialog::eventFilter(QObject *, QEvent *event)
                 }
                 break;
             case Qt::Key_M:
-                on_actionAudioRoutingI_triggered();
-                return true;
+                if (keyEvent.modifiers() == Qt::ShiftModifier) {
+                    on_actionAudioRoutingUnmute_triggered();
+                    return true;
+                } else if (keyEvent.modifiers() == Qt::ControlModifier) {
+                    on_actionAudioRoutingMuteInvert_triggered();
+                    return true;
+                } else  {
+                    on_actionAudioRoutingMute_triggered();
+                    return true;
+                }
             case Qt::Key_Delete:
                 on_actionRemoveStream_triggered();
                 return true;
@@ -698,6 +714,12 @@ bool RtpPlayerDialog::eventFilter(QObject *, QEvent *event)
                 // Route keys to QTreeWidget
                 ui->streamTreeWidget->setFocus();
                 break;
+            case Qt::Key_P:
+                on_actionPlay_triggered();
+                return true;
+            case Qt::Key_S:
+                on_actionStop_triggered();
+                return true;
         }
     }
 
@@ -747,6 +769,7 @@ void RtpPlayerDialog::updateWidgets()
     ui->outputDeviceComboBox->setEnabled(enable_play);
     ui->pauseButton->setEnabled(enable_pause);
     ui->stopButton->setEnabled(enable_stop);
+    ui->actionStop->setEnabled(enable_stop);
     cur_play_pos_->setVisible(enable_stop);
 
     ui->jitterSpinBox->setEnabled(enable_timing);
@@ -1322,19 +1345,6 @@ void RtpPlayerDialog::invertAudioMutingOnItem(QTreeWidgetItem *ti)
     }
 }
 
-/*
-void RtpPlayerDialog::on_aactionAudioRoutingMctionAudioRoutingM_triggered()
-{
-    QList<QTreeWidgetItem *> items = ui->streamTreeWidget->selectedItems();
-
-    for(int i = 0; i<items.count(); i++ ) {
-
-        QTreeWidgetItem *ti = items[i];
-        changeAudioRoutingOnItem(ti, AudioRouting(AUDIO_MUTED, channel_any));
-    }
-}
-*/
-
 void RtpPlayerDialog::on_actionAudioRoutingP_triggered()
 {
     changeAudioRouting(AudioRouting(AUDIO_UNMUTED, channel_mono));
@@ -1355,7 +1365,17 @@ void RtpPlayerDialog::on_actionAudioRoutingR_triggered()
     changeAudioRouting(AudioRouting(AUDIO_UNMUTED, channel_stereo_right));
 }
 
-void RtpPlayerDialog::on_actionAudioRoutingI_triggered()
+void RtpPlayerDialog::on_actionAudioRoutingMute_triggered()
+{
+    changeAudioRouting(AudioRouting(AUDIO_MUTED, channel_any));
+}
+
+void RtpPlayerDialog::on_actionAudioRoutingUnmute_triggered()
+{
+    changeAudioRouting(AudioRouting(AUDIO_UNMUTED, channel_any));
+}
+
+void RtpPlayerDialog::on_actionAudioRoutingMuteInvert_triggered()
 {
     QList<QTreeWidgetItem *> items = ui->streamTreeWidget->selectedItems();
 
@@ -1560,6 +1580,22 @@ void RtpPlayerDialog::on_actionSelectInvert_triggered()
 void RtpPlayerDialog::on_actionSelectNone_triggered()
 {
     ui->streamTreeWidget->clearSelection();
+}
+
+void RtpPlayerDialog::on_actionPlay_triggered()
+{
+    if (ui->playButton->isEnabled()) {
+        ui->playButton->animateClick();
+    } else if (ui->pauseButton->isEnabled()) {
+        ui->pauseButton->animateClick();
+    }
+}
+
+void RtpPlayerDialog::on_actionStop_triggered()
+{
+    if (ui->stopButton->isEnabled()) {
+        ui->stopButton->animateClick();
+    }
 }
 
 #if 0

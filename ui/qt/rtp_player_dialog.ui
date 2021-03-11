@@ -99,26 +99,6 @@
    </item>
    <item>
     <widget class="QLabel" name="hintLabel">
-     <property name="toolTip">
-      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
-
-&lt;h3&gt;Valuable and amazing time-saving keyboard shortcuts&lt;/h3&gt;
-&lt;table&gt;&lt;tbody&gt;
-
-&lt;tr&gt;&lt;th&gt;+&lt;/th&gt;&lt;td&gt;Zoom in&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;-&lt;/th&gt;&lt;td&gt;Zoom out&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;0&lt;/th&gt;&lt;td&gt;Reset graph to its initial state&lt;/td&gt;&lt;/th&gt;
-
-&lt;tr&gt;&lt;th&gt;→&lt;/th&gt;&lt;td&gt;Move right 10 pixels&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;←&lt;/th&gt;&lt;td&gt;Move left 10 pixels&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;→&lt;/th&gt;&lt;td&gt;Move right 1 pixel&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;←&lt;/th&gt;&lt;td&gt;Move left 1 pixel&lt;/td&gt;&lt;/th&gt;
-
-&lt;tr&gt;&lt;th&gt;g&lt;/th&gt;&lt;td&gt;Go to packet under cursor&lt;/td&gt;&lt;/th&gt;
-
-&lt;/tbody&gt;&lt;/table&gt;
-&lt;/body&gt;&lt;/html&gt;</string>
-     </property>
      <property name="text">
       <string>&lt;small&gt;&lt;i&gt;No audio&lt;/i&gt;&lt;/small&gt;</string>
      </property>
@@ -434,15 +414,37 @@
     <string notr="true">Shift+G</string>
    </property>
   </action>
-  <action name="actionAudioRoutingM">
+  <action name="actionAudioRoutingMute">
    <property name="text">
-    <string>Mute/Unmute</string>
+    <string>Mute</string>
    </property>
    <property name="toolTip">
-    <string>Mute or unmute selected streams</string>
+    <string>Mute selected streams</string>
    </property>
    <property name="shortcut">
     <string notr="true">M</string>
+   </property>
+  </action>
+  <action name="actionAudioRoutingUnmute">
+   <property name="text">
+    <string>Unmute</string>
+   </property>
+   <property name="toolTip">
+    <string>Unmute selected streams</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">Shift+M</string>
+   </property>
+  </action>
+  <action name="actionAudioRoutingMuteInvert">
+   <property name="text">
+    <string>Invert Muting</string>
+   </property>
+   <property name="toolTip">
+    <string>Invert muting of selected streams</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">Ctrl+M</string>
    </property>
   </action>
   <action name="actionAudioRoutingP">
@@ -475,17 +477,6 @@
    </property>
    <property name="toolTip">
     <string>Route audio to right channel of selected streams</string>
-   </property>
-  </action>
-  <action name="actionAudioRoutingI">
-   <property name="text">
-    <string>Invert Muting</string>
-   </property>
-   <property name="toolTip">
-    <string>Invert muting of selected streams</string>
-   </property>
-   <property name="shortcut">
-    <string notr="true">M</string>
    </property>
   </action>
   <action name="actionRemoveStream">
@@ -530,6 +521,28 @@
    </property>
    <property name="shortcut">
     <string notr="true">Ctrl+I</string>
+   </property>
+  </action>
+  <action name="actionPlay">
+   <property name="text">
+    <string>Play/Pause</string>
+   </property>
+   <property name="toolTip">
+    <string>Start playing or pause playing</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">P</string>
+   </property>
+  </action>
+  <action name="actionStop">
+   <property name="text">
+    <string>Stop</string>
+   </property>
+   <property name="toolTip">
+    <string>Stop playing</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">S</string>
    </property>
   </action>
  </widget>
