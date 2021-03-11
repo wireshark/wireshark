@@ -282,6 +282,10 @@ class case_wslua(subprocesstest.SubprocessTestCase):
         '''wslua tvb without a tree'''
         check_lua_script(self, 'tvb.lua', dns_port_pcap, True)
 
+    def test_wslua_try_heuristics(self, check_lua_script):
+        '''wslua try_heuristics'''
+        check_lua_script(self, 'try_heuristics.lua', dns_port_pcap, True)
+
 
 @fixtures.uses_fixtures
 class case_wslua_unicode(subprocesstest.SubprocessTestCase):

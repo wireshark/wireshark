@@ -286,6 +286,35 @@ WSLUA_CONSTRUCTOR DissectorTable_heuristic_list (lua_State *L) {
     WSLUA_RETURN(1); /* The array table of registered heuristic list names */
 }
 
+WSLUA_CONSTRUCTOR DissectorTable_try_heuristics (lua_State *L) {
+    /*
+     Try all the dissectors in a given heuristic dissector table.
+     */
+#define WSLUA_ARG_DissectorTable_try_heuristics_LISTNAME 1 /* The name of the heuristic dissector. */
+#define WSLUA_ARG_DissectorTable_try_heuristics_TVB 2 /* The buffer to dissect. */
+#define WSLUA_ARG_DissectorTable_try_heuristics_PINFO 3 /* The packet info. */
+#define WSLUA_ARG_DissectorTable_try_heuristics_TREE 4 /* The tree on which to add the protocol items. */
+
+    const gchar* name = luaL_checkstring(L,WSLUA_ARG_DissectorTable_try_heuristics_LISTNAME);
+    Tvb tvb = checkTvb(L,WSLUA_ARG_DissectorTable_try_heuristics_TVB);
+    Pinfo pinfo = checkPinfo(L,WSLUA_ARG_DissectorTable_try_heuristics_PINFO);
+    TreeItem tree = checkTreeItem(L,WSLUA_ARG_DissectorTable_try_heuristics_TREE);
+    heur_dissector_list_t list;
+    heur_dtbl_entry_t *entry;
+
+    if (!(name && tvb && pinfo && tree)) return 0;
+
+    list = find_heur_dissector_list(name);
+    if (!list) {
+        luaL_error(L, "Heuristic list '%s' does not exist", name);
+        return 0;
+    }
+
+    lua_pushboolean(L, dissector_try_heuristic(list, tvb->ws_tvb, pinfo->ws_pinfo, tree->tree, &entry, NULL));
+
+    WSLUA_RETURN(1); /* True if the packet was recognized by the sub-dissector (stop dissection here). */
+}
+
 WSLUA_CONSTRUCTOR DissectorTable_get (lua_State *L) {
     /*
      Obtain a reference to an existing dissector table.
@@ -688,6 +717,7 @@ WSLUA_METHODS DissectorTable_methods[] = {
     WSLUA_CLASS_FNREG(DissectorTable,get),
     WSLUA_CLASS_FNREG(DissectorTable,list),
     WSLUA_CLASS_FNREG(DissectorTable,heuristic_list),
+    WSLUA_CLASS_FNREG(DissectorTable,try_heuristics),
     WSLUA_CLASS_FNREG(DissectorTable,add),
     WSLUA_CLASS_FNREG(DissectorTable,set),
     WSLUA_CLASS_FNREG(DissectorTable,remove),
