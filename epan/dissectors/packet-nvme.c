@@ -149,6 +149,10 @@ static int hf_nvme_identify_ctrl_frmw[5] = { NEG_LST_5 };
 static int hf_nvme_identify_ctrl_lpa[7] = { NEG_LST_7 };
 static int hf_nvme_identify_ctrl_elpe = -1;
 static int hf_nvme_identify_ctrl_npss = -1;
+static int hf_nvme_identify_ctrl_avscc[3] = { NEG_LST_3 };
+static int hf_nvme_identify_ctrl_apsta[3] = { NEG_LST_3 };
+static int hf_nvme_identify_ctrl_wctemp = -1;
+static int hf_nvme_identify_ctrl_cctemp = -1;
 static int hf_nvme_identify_ctrl_kas = -1;
 static int hf_nvme_identify_ctrl_sqes = -1;
 static int hf_nvme_identify_ctrl_cqes = -1;
@@ -943,6 +947,14 @@ static void dissect_nvme_identify_ctrl_resp(tvbuff_t *cmd_tvb,
             .u.field_array = hf_nvme_identify_ctrl_lpa},
         { .type = TREE_ENT_REGULAR, .field = hf_nvme_identify_ctrl_elpe, .dec_type = ENC_LITTLE_ENDIAN, .offset = 262, .bytes = 1, .u.post_add = post_add_elpe },
         { .type = TREE_ENT_REGULAR, .field = hf_nvme_identify_ctrl_npss, .dec_type = ENC_LITTLE_ENDIAN, .offset = 263, .bytes = 1, .u.post_add = post_add_npss },
+        { .type = TREE_ENT_GROUP_MASK, .array_len = ALEN(hf_nvme_identify_ctrl_avscc), .dec_type = ENC_LITTLE_ENDIAN, .offset = 264, .bytes = 1,
+            .u.field_array = hf_nvme_identify_ctrl_avscc},
+        { .type = TREE_ENT_GROUP_MASK, .array_len = ALEN(hf_nvme_identify_ctrl_apsta), .dec_type = ENC_LITTLE_ENDIAN, .offset = 265, .bytes = 1,
+            .u.field_array = hf_nvme_identify_ctrl_apsta},
+        { .type = TREE_ENT_REGULAR, .field = hf_nvme_identify_ctrl_wctemp, .dec_type = ENC_LITTLE_ENDIAN, .offset = 266, .bytes = 2, },
+        { .type = TREE_ENT_REGULAR, .field = hf_nvme_identify_ctrl_cctemp, .dec_type = ENC_LITTLE_ENDIAN, .offset = 268, .bytes = 2, },
+
+
         { .type = TREE_ENT_REGULAR, .field = hf_nvme_identify_ctrl_kas, .dec_type = ENC_LITTLE_ENDIAN, .offset = 320, .bytes = 2 },
         { .type = TREE_ENT_REGULAR, .field = hf_nvme_identify_ctrl_sqes, .dec_type = ENC_LITTLE_ENDIAN, .offset = 512, .bytes = 1 },
         { .type = TREE_ENT_REGULAR, .field = hf_nvme_identify_ctrl_cqes, .dec_type = ENC_LITTLE_ENDIAN, .offset = 513, .bytes = 1 },
@@ -1865,6 +1877,38 @@ proto_register_nvme(void)
         { &hf_nvme_identify_ctrl_npss,
             { "Number of Power States Supported (NPSS)", "nvme.cmd.identify.ctrl.npss",
                FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_identify_ctrl_avscc[0],
+            { "Admin Vendor Specific Command Configuration (AVSCC)", "nvme.cmd.identify.ctrl.avscc",
+               FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_identify_ctrl_avscc[1],
+            { "Standard Command Format", "nvme.cmd.identify.ctrl.avscc.std",
+               FT_UINT8, BASE_HEX, NULL, 0x1, NULL, HFILL}
+        },
+        { &hf_nvme_identify_ctrl_avscc[2],
+            { "Reserved", "nvme.cmd.identify.ctrl.avscc.rsvd",
+               FT_UINT8, BASE_HEX, NULL, 0xfe, NULL, HFILL}
+        },
+        { &hf_nvme_identify_ctrl_apsta[0],
+            { "Autonomous Power State Transition Attributes (APSTA)", "nvme.cmd.identify.ctrl.apsta",
+               FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_identify_ctrl_apsta[1],
+            { "Autonomous Power State Transitions Supported", "nvme.cmd.identify.ctrl.apsta.aut",
+               FT_UINT8, BASE_HEX, NULL, 0x1, NULL, HFILL}
+        },
+        { &hf_nvme_identify_ctrl_apsta[2],
+            { "Reserved", "nvme.cmd.identify.ctrl.apsta.rsvd",
+               FT_UINT8, BASE_HEX, NULL, 0xfe, NULL, HFILL}
+        },
+        { &hf_nvme_identify_ctrl_wctemp,
+            { "Warning Composite Temperature Threshold (WCTEMP)", "nvme.cmd.identify.ctrl.wctemp",
+               FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_identify_ctrl_cctemp,
+            { "Critical Composite Temperature Threshold (CCTEMP)", "nvme.cmd.identify.ctrl.cctemp",
+               FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}
         },
         { &hf_nvme_identify_ctrl_kas,
             { "Keep Alive Support (KAS)", "nvme.cmd.identify.ctrl.kas",
