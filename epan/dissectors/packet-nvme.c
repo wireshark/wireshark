@@ -147,6 +147,8 @@ static int hf_nvme_identify_ctrl_acl = -1;
 static int hf_nvme_identify_ctrl_aerl = -1;
 static int hf_nvme_identify_ctrl_frmw[5] = { NEG_LST_5 };
 static int hf_nvme_identify_ctrl_lpa[7] = { NEG_LST_7 };
+static int hf_nvme_identify_ctrl_elpe = -1;
+static int hf_nvme_identify_ctrl_npss = -1;
 static int hf_nvme_identify_ctrl_kas = -1;
 static int hf_nvme_identify_ctrl_sqes = -1;
 static int hf_nvme_identify_ctrl_cqes = -1;
@@ -866,6 +868,16 @@ void post_add_aerl(proto_item *ti, guint val)
     proto_item_append_text(ti, " (%u event%s)", val+1, val ? "s" : "");
 }
 
+void post_add_elpe(proto_item *ti, guint val)
+{
+    proto_item_append_text(ti, " (%u entr%s)", val+1, val ? "ies" : "y");
+}
+
+void post_add_npss(proto_item *ti, guint val)
+{
+    proto_item_append_text(ti, " (%u state%s)", val+1, val ? "s" : "");
+}
+
 #define ALEN(_x_) array_length(_x_)
 static void dissect_nvme_identify_ctrl_resp(tvbuff_t *cmd_tvb,
                                             proto_tree *cmd_tree)
@@ -929,6 +941,8 @@ static void dissect_nvme_identify_ctrl_resp(tvbuff_t *cmd_tvb,
             .u.field_array = hf_nvme_identify_ctrl_frmw},
         { .type = TREE_ENT_GROUP_MASK, .array_len = ALEN(hf_nvme_identify_ctrl_lpa), .dec_type = ENC_LITTLE_ENDIAN, .offset = 261, .bytes = 1,
             .u.field_array = hf_nvme_identify_ctrl_lpa},
+        { .type = TREE_ENT_REGULAR, .field = hf_nvme_identify_ctrl_elpe, .dec_type = ENC_LITTLE_ENDIAN, .offset = 262, .bytes = 1, .u.post_add = post_add_elpe },
+        { .type = TREE_ENT_REGULAR, .field = hf_nvme_identify_ctrl_npss, .dec_type = ENC_LITTLE_ENDIAN, .offset = 263, .bytes = 1, .u.post_add = post_add_npss },
         { .type = TREE_ENT_REGULAR, .field = hf_nvme_identify_ctrl_kas, .dec_type = ENC_LITTLE_ENDIAN, .offset = 320, .bytes = 2 },
         { .type = TREE_ENT_REGULAR, .field = hf_nvme_identify_ctrl_sqes, .dec_type = ENC_LITTLE_ENDIAN, .offset = 512, .bytes = 1 },
         { .type = TREE_ENT_REGULAR, .field = hf_nvme_identify_ctrl_cqes, .dec_type = ENC_LITTLE_ENDIAN, .offset = 513, .bytes = 1 },
@@ -1843,6 +1857,14 @@ proto_register_nvme(void)
         { &hf_nvme_identify_ctrl_lpa[6],
             { "Reserved", "nvme.cmd.identify.ctrl.lpa",
                FT_UINT8, BASE_HEX, NULL, 0xe0, NULL, HFILL}
+        },
+        { &hf_nvme_identify_ctrl_elpe,
+            { "Error Log Page Entries (ELPE)", "nvme.cmd.identify.ctrl.elpe",
+               FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_identify_ctrl_npss,
+            { "Number of Power States Supported (NPSS)", "nvme.cmd.identify.ctrl.npss",
+               FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
         },
         { &hf_nvme_identify_ctrl_kas,
             { "Keep Alive Support (KAS)", "nvme.cmd.identify.ctrl.kas",
