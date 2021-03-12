@@ -1,5 +1,5 @@
 /***************************************************************************
-                          network_instruments.h  -  description
+                          observer.h  -  description
                              -------------------
     begin                : Wed Oct 29 2003
     copyright            : (C) 2003 by root
@@ -18,7 +18,7 @@
 #include <glib.h>
 #include "wtap.h"
 
-wtap_open_return_val network_instruments_open(wtap *wth, int *err, gchar **err_info);
+wtap_open_return_val observer_open(wtap *wth, int *err, gchar **err_info);
 
 /*
  * In v15 the high_byte was added to allow a larger offset This was done by

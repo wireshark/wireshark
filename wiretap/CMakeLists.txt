@@ -70,7 +70,7 @@ set(WIRETAP_C_MODULE_FILES
 	${CMAKE_CURRENT_SOURCE_DIR}/netscreen.c
 	${CMAKE_CURRENT_SOURCE_DIR}/nettl.c
 	${CMAKE_CURRENT_SOURCE_DIR}/nettrace_3gpp_32_423.c
-	${CMAKE_CURRENT_SOURCE_DIR}/network_instruments.c
+	${CMAKE_CURRENT_SOURCE_DIR}/observer.c
 	${CMAKE_CURRENT_SOURCE_DIR}/netxray.c
 	${CMAKE_CURRENT_SOURCE_DIR}/ngsniffer.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packetlogger.c

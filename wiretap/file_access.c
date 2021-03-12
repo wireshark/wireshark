@@ -53,7 +53,7 @@
 #include "logcat.h"
 #include "logcat_text.h"
 #include "json.h"
-#include "network_instruments.h"
+#include "observer.h"
 #include "k12.h"
 #include "ber.h"
 #include "catapult_dct2000.h"
@@ -367,7 +367,7 @@ static const struct open_info open_info_base[] = {
 	{ "HP-UX nettl trace",                      OPEN_INFO_MAGIC,     nettl_open,               NULL,       NULL, NULL },
 	{ "Visual Networks traffic capture",        OPEN_INFO_MAGIC,     visual_open,              NULL,       NULL, NULL },
 	{ "InfoVista 5View capture",                OPEN_INFO_MAGIC,     _5views_open,             NULL,       NULL, NULL },
-	{ "Network Instruments Observer",           OPEN_INFO_MAGIC,     network_instruments_open, NULL,       NULL, NULL },
+	{ "Viavi Observer",                         OPEN_INFO_MAGIC,     observer_open, NULL,       NULL, NULL },
 	{ "Savvius tagged",                         OPEN_INFO_MAGIC,     peektagged_open,          NULL,       NULL, NULL },
 	{ "Colasoft Capsa",                         OPEN_INFO_MAGIC,     capsa_open,               NULL,       NULL, NULL },
 	{ "DBS Etherwatch (VMS)",                   OPEN_INFO_MAGIC,     dbs_etherwatch_open,      NULL,       NULL, NULL },

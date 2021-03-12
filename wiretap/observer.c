@@ -1,5 +1,5 @@
 /***************************************************************************
-                          network_instruments.c  -  description
+                          observer.c  -  description
                              -------------------
     begin                : Wed Oct 29 2003
     copyright            : (C) 2003 by root
@@ -19,10 +19,10 @@
 #include <string.h>
 #include "wtap-int.h"
 #include "file_wrappers.h"
-#include "network_instruments.h"
+#include "observer.h"
 #include <wsutil/802_11-utils.h>
 
-static const char network_instruments_magic[] = {"ObserverPktBufferVersion=15.00"};
+static const char observer_magic[] = {"ObserverPktBufferVersion=15.00"};
 static const int true_magic_length = 17;
 
 static const guint32 observer_packet_magic = 0x88888888;
@@ -117,11 +117,11 @@ static gboolean observer_dump(wtap_dumper *wdh, const wtap_rec *rec,
 static gint observer_to_wtap_encap(int observer_encap);
 static gint wtap_to_observer_encap(int wtap_encap);
 
-static int network_instruments_file_type_subtype = -1;
+static int observer_file_type_subtype = -1;
 
-void register_network_instruments(void);
+void register_observer(void);
 
-wtap_open_return_val network_instruments_open(wtap *wth, int *err, gchar **err_info)
+wtap_open_return_val observer_open(wtap *wth, int *err, gchar **err_info)
 {
     guint offset;
     capture_file_header file_header;
@@ -146,7 +146,7 @@ wtap_open_return_val network_instruments_open(wtap *wth, int *err, gchar **err_i
     CAPTURE_FILE_HEADER_FROM_LE_IN_PLACE(file_header);
 
     /* check if version info is present */
-    if (memcmp(file_header.observer_version, network_instruments_magic, true_magic_length)!=0) {
+    if (memcmp(file_header.observer_version, observer_magic, true_magic_length)!=0) {
         return WTAP_OPEN_NOT_MINE;
     }
 
@@ -298,7 +298,7 @@ wtap_open_return_val network_instruments_open(wtap *wth, int *err, gchar **err_i
     wth->subtype_sequential_close = NULL;
     wth->snapshot_length = 0;    /* not available in header */
     wth->file_tsprec = WTAP_TSPREC_NSEC;
-    wth->file_type_subtype = network_instruments_file_type_subtype;
+    wth->file_type_subtype = observer_file_type_subtype;
 
     /* reset the pointer to the first packet */
     if (file_seek(wth->fh, header_offset, SEEK_SET, err) == -1)
@@ -307,7 +307,7 @@ wtap_open_return_val network_instruments_open(wtap *wth, int *err, gchar **err_i
     err_str = init_gmt_to_localtime_offset();
     if (err_str != NULL) {
         *err = WTAP_ERR_INTERNAL;
-        *err_info = g_strdup_printf("network_instruments: %s", err_str);
+        *err_info = g_strdup_printf("observer: %s", err_str);
         return WTAP_OPEN_ERROR;
     }
 
@@ -679,7 +679,7 @@ skip_to_next_packet(wtap *wth, int offset_to_next_packet, int current_offset_fro
 
 /* Returns 0 if we could write the specified encapsulation type,
    an error indication otherwise. */
-static int network_instruments_dump_can_write_encap(int encap)
+static int observer_dump_can_write_encap(int encap)
 {
     /* per-packet encapsulations aren't supported */
     if (encap == WTAP_ENCAP_PER_PACKET)
@@ -693,7 +693,7 @@ static int network_instruments_dump_can_write_encap(int encap)
 
 /* Returns TRUE on success, FALSE on failure; sets "*err" to an error code on
    failure. */
-static gboolean network_instruments_dump_open(wtap_dumper *wdh, int *err,
+static gboolean observer_dump_open(wtap_dumper *wdh, int *err,
     gchar **err_info)
 {
     observer_dump_private_state * private_state = NULL;
@@ -720,7 +720,7 @@ static gboolean network_instruments_dump_open(wtap_dumper *wdh, int *err,
 
     /* initialize the file header */
     memset(&file_header, 0x00, sizeof(file_header));
-    g_strlcpy(file_header.observer_version, network_instruments_magic, 31);
+    g_strlcpy(file_header.observer_version, observer_magic, 31);
     header_offset = (guint16)sizeof(file_header);
 
     /* create the file comment TLV */
@@ -796,7 +796,7 @@ static gboolean network_instruments_dump_open(wtap_dumper *wdh, int *err,
     err_str = init_gmt_to_localtime_offset();
     if (err_str != NULL) {
         *err = WTAP_ERR_INTERNAL;
-        *err_info = g_strdup_printf("network_instruments: %s", err_str);
+        *err_info = g_strdup_printf("observer: %s", err_str);
         return FALSE;
     }
 
@@ -916,29 +916,38 @@ static gint wtap_to_observer_encap(int wtap_encap)
     return OBSERVER_UNDEFINED;
 }
 
-static const struct supported_block_type network_instruments_blocks_supported[] = {
+static const struct supported_block_type observer_blocks_supported[] = {
     /*
      * We support packet blocks, with no comments or other options.
      */
     { WTAP_BLOCK_PACKET, MULTIPLE_BLOCKS_SUPPORTED, NO_OPTIONS_SUPPORTED }
 };
 
-static const struct file_type_subtype_info network_instruments_info = {
-    "Network Instruments Observer", "niobserver", "bfr", NULL,
-    FALSE, BLOCKS_SUPPORTED(network_instruments_blocks_supported),
-    network_instruments_dump_can_write_encap, network_instruments_dump_open, NULL
+static const struct file_type_subtype_info observer_info = {
+    "Viavi Observer", "observer", "bfr", NULL,
+    FALSE, BLOCKS_SUPPORTED(observer_blocks_supported),
+    observer_dump_can_write_encap, observer_dump_open, NULL
 };
 
-void register_network_instruments(void)
+void register_observer(void)
 {
-    network_instruments_file_type_subtype = wtap_register_file_type_subtype(&network_instruments_info);
+    observer_file_type_subtype = wtap_register_file_type_subtype(&observer_info);
+
+    /*
+     * We now call this file format just "observer", but we allow
+     * it to be referred to as "niobserver" for backwards
+     * compatibility.
+     *
+     * Register "niobserver" for that purpose.
+     */
+    wtap_register_compatibility_file_subtype_name("niobserver", "observer");
 
     /*
      * Register name for backwards compatibility with the
      * wtap_filetypes table in Lua.
      */
     wtap_register_backwards_compatibility_lua_name("NETWORK_INSTRUMENTS",
-                                                   network_instruments_file_type_subtype);
+                                                   observer_file_type_subtype);
 }
 
 /*
