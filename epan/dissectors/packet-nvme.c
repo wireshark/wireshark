@@ -145,6 +145,8 @@ static int hf_nvme_identify_ctrl_mi_mec[4] =  { NEG_LST_4 };
 static int hf_nvme_identify_ctrl_oacs[12] = { NEG_LST_12 };
 static int hf_nvme_identify_ctrl_acl = -1;
 static int hf_nvme_identify_ctrl_aerl = -1;
+static int hf_nvme_identify_ctrl_frmw[5] = { NEG_LST_5 };
+static int hf_nvme_identify_ctrl_lpa[7] = { NEG_LST_7 };
 static int hf_nvme_identify_ctrl_kas = -1;
 static int hf_nvme_identify_ctrl_sqes = -1;
 static int hf_nvme_identify_ctrl_cqes = -1;
@@ -923,6 +925,10 @@ static void dissect_nvme_identify_ctrl_resp(tvbuff_t *cmd_tvb,
             .u.field_array = hf_nvme_identify_ctrl_oacs},
         { .type = TREE_ENT_REGULAR, .field = hf_nvme_identify_ctrl_acl, .dec_type = ENC_LITTLE_ENDIAN, .offset = 258, .bytes = 1, .u.post_add = post_add_acl },
         { .type = TREE_ENT_REGULAR, .field = hf_nvme_identify_ctrl_aerl, .dec_type = ENC_LITTLE_ENDIAN, .offset = 259, .bytes = 1, .u.post_add = post_add_aerl },
+        { .type = TREE_ENT_GROUP_MASK, .array_len = ALEN(hf_nvme_identify_ctrl_frmw), .dec_type = ENC_LITTLE_ENDIAN, .offset = 260, .bytes = 1,
+            .u.field_array = hf_nvme_identify_ctrl_frmw},
+        { .type = TREE_ENT_GROUP_MASK, .array_len = ALEN(hf_nvme_identify_ctrl_lpa), .dec_type = ENC_LITTLE_ENDIAN, .offset = 261, .bytes = 1,
+            .u.field_array = hf_nvme_identify_ctrl_lpa},
         { .type = TREE_ENT_REGULAR, .field = hf_nvme_identify_ctrl_kas, .dec_type = ENC_LITTLE_ENDIAN, .offset = 320, .bytes = 2 },
         { .type = TREE_ENT_REGULAR, .field = hf_nvme_identify_ctrl_sqes, .dec_type = ENC_LITTLE_ENDIAN, .offset = 512, .bytes = 1 },
         { .type = TREE_ENT_REGULAR, .field = hf_nvme_identify_ctrl_cqes, .dec_type = ENC_LITTLE_ENDIAN, .offset = 513, .bytes = 1 },
@@ -1789,6 +1795,54 @@ proto_register_nvme(void)
         { &hf_nvme_identify_ctrl_aerl,
             { "Asynchronous Event Request Limit (AERL)", "nvme.cmd.identify.ctrl.aerl",
                FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_identify_ctrl_frmw[0],
+            { "Firmware Updates (FRMW)", "nvme.cmd.identify.ctrl.frmw",
+               FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_identify_ctrl_frmw[1],
+            { "First Firmware Slot Read-ONly", "nvme.cmd.identify.ctrl.frmw.fro",
+               FT_UINT8, BASE_HEX, NULL, 0x1, NULL, HFILL}
+        },
+        { &hf_nvme_identify_ctrl_frmw[2],
+            { "Number of Firmware Slots", "nvme.cmd.identify.ctrl.frmw.fsn",
+               FT_UINT8, BASE_HEX, NULL, 0xe, NULL, HFILL}
+        },
+        { &hf_nvme_identify_ctrl_frmw[3],
+            { "Supports Activation Without Reset", "nvme.cmd.identify.ctrl.frmw.anr",
+               FT_UINT8, BASE_HEX, NULL, 0x10, NULL, HFILL}
+        },
+        { &hf_nvme_identify_ctrl_frmw[4],
+            { "Reserved", "nvme.cmd.identify.ctrl.frmw.rsvd",
+               FT_UINT8, BASE_HEX, NULL, 0xe0, NULL, HFILL}
+        },
+        { &hf_nvme_identify_ctrl_lpa[0],
+            { "Log Page Attributes (LPA)", "nvme.cmd.identify.ctrl.lpa",
+               FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_identify_ctrl_lpa[1],
+            { "Smart Log Page per Namespace Support", "nvme.cmd.identify.ctrl.lpa.smrt",
+               FT_UINT8, BASE_HEX, NULL, 0x1, NULL, HFILL}
+        },
+        { &hf_nvme_identify_ctrl_lpa[2],
+            { "Commands Supported and Effects Log Page Support", "nvme.cmd.identify.ctrl.lpa.cmds",
+               FT_UINT8, BASE_HEX, NULL, 0x2, NULL, HFILL}
+        },
+        { &hf_nvme_identify_ctrl_lpa[3],
+            { "Extended Data Get Log Page Support", "nvme.cmd.identify.ctrl.lpa.elp.elp",
+               FT_UINT8, BASE_HEX, NULL, 0x4, NULL, HFILL}
+        },
+        { &hf_nvme_identify_ctrl_lpa[4],
+            { "Telemetry Log Page and Notices Support", "nvme.cmd.identify.ctrl.lpa.tel",
+               FT_UINT8, BASE_HEX, NULL, 0x8, NULL, HFILL}
+        },
+        { &hf_nvme_identify_ctrl_lpa[5],
+            { "Persistent Event Log Support", "nvme.cmd.identify.ctrl.lpa.ple",
+               FT_UINT8, BASE_HEX, NULL, 0x10, NULL, HFILL}
+        },
+        { &hf_nvme_identify_ctrl_lpa[6],
+            { "Reserved", "nvme.cmd.identify.ctrl.lpa",
+               FT_UINT8, BASE_HEX, NULL, 0xe0, NULL, HFILL}
         },
         { &hf_nvme_identify_ctrl_kas,
             { "Keep Alive Support (KAS)", "nvme.cmd.identify.ctrl.kas",
