@@ -153,6 +153,9 @@ static int hf_nvme_identify_ctrl_avscc[3] = { NEG_LST_3 };
 static int hf_nvme_identify_ctrl_apsta[3] = { NEG_LST_3 };
 static int hf_nvme_identify_ctrl_wctemp = -1;
 static int hf_nvme_identify_ctrl_cctemp = -1;
+static int hf_nvme_identify_ctrl_mtfa = -1;
+static int hf_nvme_identify_ctrl_hmpre = -1;
+static int hf_nvme_identify_ctrl_hmmin = -1;
 static int hf_nvme_identify_ctrl_kas = -1;
 static int hf_nvme_identify_ctrl_sqes = -1;
 static int hf_nvme_identify_ctrl_cqes = -1;
@@ -824,12 +827,12 @@ static void add_tree_entries(tvbuff_t *tvb, proto_tree *tree, tree_ent_t *entrie
     }
 }
 
-void post_add_rab(proto_item *ti, guint val)
+static void post_add_rab(proto_item *ti, guint val)
 {
     proto_item_append_text(ti, " (%lu command%s)", 1UL << val, val ? "s" : "");
 }
 
-void post_add_mdts(proto_item *ti, guint val)
+static void post_add_mdts(proto_item *ti, guint val)
 {
     if (val)
         proto_item_append_text(ti, " (%lu pages)", 1UL << val);
@@ -837,7 +840,7 @@ void post_add_mdts(proto_item *ti, guint val)
         proto_item_append_text(ti, " (unlimited)");
 }
 
-void post_add_rtd3(proto_item *ti, guint val)
+static void post_add_rtd3(proto_item *ti, guint val)
 {
     if (!val)
         proto_item_append_text(ti, " (not reported)");
@@ -845,7 +848,7 @@ void post_add_rtd3(proto_item *ti, guint val)
         proto_item_append_text(ti, " (%u microseconds)", val);
 }
 
-void post_add_cntrltype(proto_item *ti, guint val)
+static void post_add_cntrltype(proto_item *ti, guint val)
 {
     const value_string ctrl_type_tbl[] = {
         { 0,  "Reserved (not reported)" },
@@ -857,29 +860,34 @@ void post_add_cntrltype(proto_item *ti, guint val)
     proto_item_append_text(ti, " (%s)", val_to_str(val, ctrl_type_tbl, "Reserved"));
 }
 
-void post_add_crdt(proto_item *ti, guint val)
+static void post_add_crdt(proto_item *ti, guint val)
 {
     proto_item_append_text(ti, " (%u ms)", val * 100);
 }
 
-void post_add_acl(proto_item *ti, guint val)
+static void post_add_acl(proto_item *ti, guint val)
 {
     proto_item_append_text(ti, " (%u command%s)", val+1, val ? "s" : "");
 }
 
-void post_add_aerl(proto_item *ti, guint val)
+static void post_add_aerl(proto_item *ti, guint val)
 {
     proto_item_append_text(ti, " (%u event%s)", val+1, val ? "s" : "");
 }
 
-void post_add_elpe(proto_item *ti, guint val)
+static void post_add_elpe(proto_item *ti, guint val)
 {
     proto_item_append_text(ti, " (%u entr%s)", val+1, val ? "ies" : "y");
 }
 
-void post_add_npss(proto_item *ti, guint val)
+static void post_add_npss(proto_item *ti, guint val)
 {
     proto_item_append_text(ti, " (%u state%s)", val+1, val ? "s" : "");
+}
+
+static void post_add_hmpre(proto_item *ti, guint val)
+{
+    proto_item_append_text(ti, " (%lu bytes)", ((unsigned long)(val)) * 4096);
 }
 
 #define ALEN(_x_) array_length(_x_)
@@ -953,8 +961,9 @@ static void dissect_nvme_identify_ctrl_resp(tvbuff_t *cmd_tvb,
             .u.field_array = hf_nvme_identify_ctrl_apsta},
         { .type = TREE_ENT_REGULAR, .field = hf_nvme_identify_ctrl_wctemp, .dec_type = ENC_LITTLE_ENDIAN, .offset = 266, .bytes = 2, },
         { .type = TREE_ENT_REGULAR, .field = hf_nvme_identify_ctrl_cctemp, .dec_type = ENC_LITTLE_ENDIAN, .offset = 268, .bytes = 2, },
-
-
+        { .type = TREE_ENT_REGULAR, .field = hf_nvme_identify_ctrl_mtfa, .dec_type = ENC_LITTLE_ENDIAN, .offset = 270, .bytes = 2, .u.post_add = post_add_crdt },
+        { .type = TREE_ENT_REGULAR, .field = hf_nvme_identify_ctrl_hmpre, .dec_type = ENC_LITTLE_ENDIAN, .offset = 272, .bytes = 4, .u.post_add = post_add_hmpre },
+        { .type = TREE_ENT_REGULAR, .field = hf_nvme_identify_ctrl_hmmin, .dec_type = ENC_LITTLE_ENDIAN, .offset = 276, .bytes = 4, .u.post_add = post_add_hmpre },
         { .type = TREE_ENT_REGULAR, .field = hf_nvme_identify_ctrl_kas, .dec_type = ENC_LITTLE_ENDIAN, .offset = 320, .bytes = 2 },
         { .type = TREE_ENT_REGULAR, .field = hf_nvme_identify_ctrl_sqes, .dec_type = ENC_LITTLE_ENDIAN, .offset = 512, .bytes = 1 },
         { .type = TREE_ENT_REGULAR, .field = hf_nvme_identify_ctrl_cqes, .dec_type = ENC_LITTLE_ENDIAN, .offset = 513, .bytes = 1 },
@@ -1909,6 +1918,18 @@ proto_register_nvme(void)
         { &hf_nvme_identify_ctrl_cctemp,
             { "Critical Composite Temperature Threshold (CCTEMP)", "nvme.cmd.identify.ctrl.cctemp",
                FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_identify_ctrl_mtfa,
+            { "Maximum Time for Firmware Activation (MTFA)", "nvme.cmd.identify.ctrl.mtfa",
+               FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_identify_ctrl_hmpre,
+            { "Host Memory Buffer Preferred Size (HMPRE)", "nvme.cmd.identify.ctrl.hmpre",
+               FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_identify_ctrl_hmmin,
+            { "Host Memory Buffer Minimum Size (HMMIN)", "nvme.cmd.identify.ctrl.hmmin",
+               FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}
         },
         { &hf_nvme_identify_ctrl_kas,
             { "Keep Alive Support (KAS)", "nvme.cmd.identify.ctrl.kas",
