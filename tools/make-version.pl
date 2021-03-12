@@ -516,12 +516,13 @@ sub update_debian_changelog
 
 	open(CHANGELOG, "< $filepath") || die "Can't read $filepath!";
 	while ($line = <CHANGELOG>) {
-		if ($set_version && CHANGELOG->input_line_number() == 1) {
+		if (CHANGELOG->input_line_number() == 1) {
 			$line =~ /^.*?([\r\n]+)$/;
-			$line = sprintf("wireshark (%d.%d.%d) unstable; urgency=low$1",
+			$line = sprintf("wireshark (%d.%d.%d%s) unstable; urgency=low$1",
 					$version_major,
 					$version_minor,
 					$version_micro,
+					$package_string,
 					);
 		}
 		$contents .= $line
@@ -571,10 +572,10 @@ sub update_versioned_files
 		$version_minor, $version_micro,
 		$package_string;
 	&update_cmakelists_txt;
+	&update_debian_changelog;
 	if ($set_version) {
 		&update_attributes_asciidoc;
 		&update_docinfo_asciidoc;
-		&update_debian_changelog;
 		&update_cmake_lib_releases;
 	}
 }
@@ -723,7 +724,9 @@ sub get_config {
 
 &get_config();
 
-&read_repo_info();
+if (! $set_version) {
+	&read_repo_info();
+}
 
 &print_VCS_REVISION;
 
