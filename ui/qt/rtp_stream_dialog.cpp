@@ -251,7 +251,10 @@ RtpStreamDialog::RtpStreamDialog(QWidget &parent, CaptureFile &cf) :
 
     player_button_ = RtpPlayerDialog::addPlayerButton(ui->buttonBox);
 
-    ctx_menu_.addAction(ui->actionSelectNone);
+    QMenu *selection_menu = ctx_menu_.addMenu(tr("Select"));
+    selection_menu->addAction(ui->actionSelectAll);
+    selection_menu->addAction(ui->actionSelectNone);
+    selection_menu->addAction(ui->actionSelectInvert);
     ctx_menu_.addAction(ui->actionFindReverse);
     ctx_menu_.addAction(ui->actionGoToSetup);
     ctx_menu_.addAction(ui->actionMarkPackets);
@@ -350,27 +353,38 @@ bool RtpStreamDialog::eventFilter(QObject *, QEvent *event)
     if (ui->streamTreeWidget->hasFocus() && event->type() == QEvent::KeyPress) {
         QKeyEvent &keyEvent = static_cast<QKeyEvent&>(*event);
         switch(keyEvent.key()) {
-        case Qt::Key_G:
-            on_actionGoToSetup_triggered();
-            return true;
-        case Qt::Key_M:
-            on_actionMarkPackets_triggered();
-            return true;
-        case Qt::Key_P:
-            on_actionPrepareFilter_triggered();
-            return true;
-        case Qt::Key_R:
-            on_actionFindReverse_triggered();
-            return true;
-        case Qt::Key_A:
-            // XXX "Shift+Ctrl+A" is a fairly standard shortcut for "select none".
-            // However, the main window uses this for displaying the profile dialog.
-//            if (keyEvent.modifiers() == (Qt::ControlModifier | Qt::ShiftModifier))
-//                on_actionSelectNone_triggered();
-//            return true;
-            break;
-        default:
-            break;
+            case Qt::Key_G:
+                on_actionGoToSetup_triggered();
+                return true;
+            case Qt::Key_M:
+                on_actionMarkPackets_triggered();
+                return true;
+            case Qt::Key_P:
+                on_actionPrepareFilter_triggered();
+                return true;
+            case Qt::Key_R:
+                on_actionFindReverse_triggered();
+                return true;
+            case Qt::Key_I:
+                if (keyEvent.modifiers() == Qt::ControlModifier) {
+                    // Ctrl+I
+                    on_actionSelectInvert_triggered();
+                    return true;
+                }
+                break;
+            case Qt::Key_A:
+                if (keyEvent.modifiers() == Qt::ControlModifier) {
+                    // Ctrl+A
+                    on_actionSelectAll_triggered();
+                    return true;
+                } else if (keyEvent.modifiers() == (Qt::ShiftModifier | Qt::ControlModifier)) {
+                    // Ctrl+Shift+A
+                    on_actionSelectNone_triggered();
+                    return true;
+                }
+                break;
+            default:
+                break;
         }
     }
     return false;
@@ -783,11 +797,6 @@ void RtpStreamDialog::on_actionPrepareFilter_triggered()
     }
 }
 
-void RtpStreamDialog::on_actionSelectNone_triggered()
-{
-    ui->streamTreeWidget->clearSelection();
-}
-
 void RtpStreamDialog::on_streamTreeWidget_itemSelectionChanged()
 {
     updateWidgets();
@@ -836,6 +845,21 @@ void RtpStreamDialog::on_todCheckBox_toggled(bool checked)
     ui->streamTreeWidget->resizeColumnToContents(start_time_col_);
 }
 
+void RtpStreamDialog::on_actionSelectAll_triggered()
+{
+    ui->streamTreeWidget->selectAll();
+}
+
+void RtpStreamDialog::on_actionSelectInvert_triggered()
+{
+    invertSelection();
+}
+
+void RtpStreamDialog::on_actionSelectNone_triggered()
+{
+    ui->streamTreeWidget->clearSelection();
+}
+
 void RtpStreamDialog::showPlayer()
 {
     rtpstream_info_t stream_info;
@@ -877,3 +901,12 @@ void RtpStreamDialog::displayFilterSuccess(bool success)
         cap_file_.retapPackets();
     }
 }
+
+void RtpStreamDialog::invertSelection()
+{
+    for (int row = 0; row < ui->streamTreeWidget->topLevelItemCount(); row++) {
+        QTreeWidgetItem *ti = ui->streamTreeWidget->topLevelItem(row);
+        ti->setSelected(!ti->isSelected());
+    }
+}
+

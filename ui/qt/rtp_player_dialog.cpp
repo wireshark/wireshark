@@ -636,7 +636,7 @@ bool RtpPlayerDialog::eventFilter(QObject *, QEvent *event)
             case Qt::Key_I:             // GTK+
                 if (keyEvent.modifiers() == Qt::ControlModifier) {
                     // Ctrl+I
-                    invertSelection();
+                    on_actionSelectInvert_triggered();
                     return true;
                 } else {
                     // I
@@ -676,11 +676,11 @@ bool RtpPlayerDialog::eventFilter(QObject *, QEvent *event)
             case Qt::Key_A:
                 if (keyEvent.modifiers() == Qt::ControlModifier) {
                     // Ctrl+A
-                    ui->streamTreeWidget->selectAll();
+                    on_actionSelectAll_triggered();
                     return true;
                 } else if (keyEvent.modifiers() == (Qt::ShiftModifier | Qt::ControlModifier)) {
                     // Ctrl+Shift+A
-                    ui->streamTreeWidget->clearSelection();
+                    on_actionSelectNone_triggered();
                     return true;
                 }
                 break;

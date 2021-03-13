@@ -57,6 +57,7 @@ protected:
     virtual void removeTapListeners();
     void captureFileClosing();
     void captureFileClosed();
+    bool eventFilter(QObject *obj, QEvent *event);
 
 protected slots:
     void changeEvent(QEvent* event);
@@ -88,6 +89,7 @@ private:
     void showSequence();
     void showPlayer();
     void removeAllCalls();
+    void invertSelection();
 
     QList<QVariant> streamRowData(int row) const;
 
@@ -106,6 +108,9 @@ private slots:
     void openRtpStreamDialogPassIn();
     void captureEvent(CaptureEvent e);
     void on_displayFilterCheckBox_toggled(bool checked);
+    void on_actionSelectAll_triggered();
+    void on_actionSelectInvert_triggered();
+    void on_actionSelectNone_triggered();
 };
 
 #endif // VOIP_CALLS_DIALOG_H

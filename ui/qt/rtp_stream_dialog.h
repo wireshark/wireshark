@@ -73,6 +73,7 @@ private:
 
     QList<QVariant> streamRowData(int row) const;
     void freeLastSelected();
+    void invertSelection();
 
 
 private slots:
@@ -83,7 +84,6 @@ private slots:
     void on_actionGoToSetup_triggered();
     void on_actionMarkPackets_triggered();
     void on_actionPrepareFilter_triggered();
-    void on_actionSelectNone_triggered();
     void on_streamTreeWidget_itemSelectionChanged();
     void on_buttonBox_helpRequested();
     void on_buttonBox_clicked(QAbstractButton *button);
@@ -92,6 +92,9 @@ private slots:
     void captureEvent(CaptureEvent e);
     void on_displayFilterCheckBox_toggled(bool checked);
     void on_todCheckBox_toggled(bool checked);
+    void on_actionSelectAll_triggered();
+    void on_actionSelectInvert_triggered();
+    void on_actionSelectNone_triggered();
 };
 
 #endif // RTP_STREAM_DIALOG_H

@@ -50,6 +50,7 @@ VoipCallsDialog::VoipCallsDialog(QWidget &parent, CaptureFile &cf, bool all_flow
 {
     ui->setupUi(this);
     loadGeometry(parent.width() * 4 / 5, parent.height() * 2 / 3);
+    ui->callTreeView->installEventFilter(this);
 
     // Create the model that stores the actual data and the proxy model that is
     // responsible for sorting and filtering data in the display.
@@ -108,6 +109,36 @@ VoipCallsDialog::VoipCallsDialog(QWidget &parent, CaptureFile &cf, bool all_flow
         tapinfo_.session = cap_file_.capFile()->epan;
         cap_file_.delayedRetapPackets();
     }
+}
+
+bool VoipCallsDialog::eventFilter(QObject *, QEvent *event)
+{
+    if (ui->callTreeView->hasFocus() && event->type() == QEvent::KeyPress) {
+        QKeyEvent &keyEvent = static_cast<QKeyEvent&>(*event);
+        switch(keyEvent.key()) {
+            case Qt::Key_I:
+                if (keyEvent.modifiers() == Qt::ControlModifier) {
+                    // Ctrl+I
+                    on_actionSelectInvert_triggered();
+                    return true;
+                }
+                break;
+            case Qt::Key_A:
+                if (keyEvent.modifiers() == Qt::ControlModifier) {
+                    // Ctrl+A
+                    on_actionSelectAll_triggered();
+                    return true;
+                } else if (keyEvent.modifiers() == (Qt::ShiftModifier | Qt::ControlModifier)) {
+                    // Ctrl+Shift+A
+                    on_actionSelectNone_triggered();
+                    return true;
+                }
+                break;
+            default:
+                break;
+        }
+    }
+    return false;
 }
 
 VoipCallsDialog::~VoipCallsDialog()
@@ -170,11 +201,10 @@ void VoipCallsDialog::contextMenuEvent(QContextMenuEvent *event)
     QMenu popupMenu;
     QAction *action;
 
-    action = popupMenu.addAction(tr("Select &All"), this, SLOT(selectAll()));
-    action->setToolTip(tr("Select all calls"));
-    action = popupMenu.addAction(tr("Select &None"), this, SLOT(selectNone()));
-    action->setToolTip(tr("Clear selection"));
-    popupMenu.addSeparator();
+    QMenu *selection_menu = popupMenu.addMenu(tr("Select"));
+    selection_menu->addAction(ui->actionSelectAll);
+    selection_menu->addAction(ui->actionSelectNone);
+    selection_menu->addAction(ui->actionSelectInvert);
     action = popupMenu.addAction(tr("Display time as time of day"), this, SLOT(switchTimeOfDay()));
     action->setCheckable(true);
     action->setChecked(call_infos_model_->timeOfDay());
@@ -688,3 +718,31 @@ void VoipCallsDialog::displayFilterSuccess(bool success)
         cap_file_.retapPackets();
     }
 }
+
+void VoipCallsDialog::invertSelection()
+{
+    QModelIndex rootIndex = ui->callTreeView->rootIndex();
+    QModelIndex first = sorted_model_->index(0, 0, QModelIndex());
+    int numOfItems = sorted_model_->rowCount(rootIndex);
+    int numOfCols = sorted_model_->columnCount(rootIndex);
+    QModelIndex last = sorted_model_->index(numOfItems - 1, numOfCols - 1, QModelIndex());
+
+    QItemSelection selection(first, last);
+    ui->callTreeView->selectionModel()->select(selection, QItemSelectionModel::Toggle);
+}
+
+void VoipCallsDialog::on_actionSelectAll_triggered()
+{
+    ui->callTreeView->selectAll();
+}
+
+void VoipCallsDialog::on_actionSelectInvert_triggered()
+{
+    invertSelection();
+}
+
+void VoipCallsDialog::on_actionSelectNone_triggered()
+{
+    ui->callTreeView->clearSelection();
+}
+
