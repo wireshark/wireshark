@@ -1684,7 +1684,7 @@ proto_register_nvme(void)
                FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
         },
         { &hf_nvme_identify_ctrl_fguid_vse,
-            { "Vendor Specific Extention Identifier", "nvme.cmd.identify.ctrl.fguid.vse",
+            { "Vendor Specific Extension Identifier", "nvme.cmd.identify.ctrl.fguid.vse",
                FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL}
         },
         { &hf_nvme_identify_ctrl_fguid_oui,
@@ -1692,7 +1692,7 @@ proto_register_nvme(void)
                FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}
         },
         { &hf_nvme_identify_ctrl_fguid_ei,
-            { "Exention Identifier", "nvme.cmd.identify.ctrl.fguid.ei",
+            { "Extension Identifier", "nvme.cmd.identify.ctrl.fguid.ei",
                FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL}
         },
         { &hf_nvme_identify_ctrl_crdt1,
@@ -1808,7 +1808,7 @@ proto_register_nvme(void)
                FT_UINT16, BASE_HEX, NULL, 0x200, NULL, HFILL}
         },
         { &hf_nvme_identify_ctrl_oacs[11],
-            { "Reserevd", "nvme.cmd.identify.ctrl.oacs.sec.rsvd",
+            { "Reserved", "nvme.cmd.identify.ctrl.oacs.sec.rsvd",
                FT_UINT16, BASE_HEX, NULL, 0xfc00, NULL, HFILL}
         },
         { &hf_nvme_identify_ctrl_acl,
@@ -1940,7 +1940,7 @@ proto_register_nvme(void)
                FT_UINT32, BASE_HEX, NULL, 0x38, NULL, HFILL}
         },
         { &hf_nvme_identify_ctrl_rpmbs[3],
-            { "Resered", "nvme.cmd.identify.ctrl.rpmbs.rsvd",
+            { "Reserved", "nvme.cmd.identify.ctrl.rpmbs.rsvd",
                FT_UINT32, BASE_HEX, NULL, 0xffc0, NULL, HFILL}
         },
         { &hf_nvme_identify_ctrl_rpmbs[4],
