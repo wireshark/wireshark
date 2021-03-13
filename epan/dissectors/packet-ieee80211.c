@@ -100,6 +100,10 @@ static const unit_name_string units_di_dis = { "DI", "DIs" };
 
 static const unit_name_string units_ppm = { " ppm", NULL };
 
+/* az min/max time units */
+static const unit_name_string units_100_us = { " times 100 microseconds", NULL };
+static const unit_name_string units_10_ms = { " times 10 milliseconds", NULL };
+
 /*
  * We keep STA properties here, like whether they are S1G STAs or DMG STAs.
  * This is based on looking at BEACONs, or perhaps from the radiotap header
@@ -4210,6 +4214,15 @@ static int hf_ieee80211_tag_ranging_max_i2r_ltf_total = -1;
 static int hf_ieee80211_tag_ranging_max_i2r_sts_le_80_mhz = -1;
 static int hf_ieee80211_tag_ranging_max_i2r_sts_gt_80_mhz = -1;
 
+/* az: FTM Ranging Parameters NTB-specific subelement */
+static int hf_ieee80211_tag_ranging_ntb = -1;
+static int hf_ieee80211_tag_ranging_ntb_reserved1 = -1;
+static int hf_ieee80211_tag_ranging_ntb_min_time_msmts = -1;
+static int hf_ieee80211_tag_ranging_ntb_max_time_msmts = -1;
+static int hf_ieee80211_tag_ranging_ntb_r2i_tx_power = -1;
+static int hf_ieee80211_tag_ranging_ntb_i2r_tx_power = -1;
+static int hf_ieee80211_tag_ranging_ntb_reserved2 = -1;
+
 static int hf_ieee80211_ff_ant_selection = -1;
 static int hf_ieee80211_ff_ant_selection_0 = -1;
 static int hf_ieee80211_ff_ant_selection_1 = -1;
@@ -7235,6 +7248,7 @@ static gint ett_ff_ftm_param_delim3 = -1;
 static gint ett_ff_ftm_tod_err1 = -1;
 static gint ett_ff_ftm_toa_err1 = -1;
 static gint ett_tag_ranging = -1;
+static gint ett_tag_ranging_ntb = -1;
 
 static gint ett_tag_measure_request_mode_tree = -1;
 static gint ett_tag_measure_request_type_tree = -1;
@@ -22640,8 +22654,55 @@ dissect_he_6ghz_band_capabilities(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 }
 
 static void
+add_min_max_time_between_measurements(proto_item *item, tvbuff_t *tvb, packet_info *pinfo, int offset, int sub_length)
+{
+  guint64 ntb_specific, min, max;
+
+  if (sub_length < 6) {
+      return;
+  }
+
+  ntb_specific = tvb_get_gint48(tvb, offset, ENC_LITTLE_ENDIAN);
+
+  min = (ntb_specific >> 1) & GENMASK(22, 0);
+  max = (ntb_specific >> 24) & GENMASK(19, 0);
+
+  /* convert to microseconds */
+  min *= 100; /* min time is in units of 100 microseconds */
+  max *= 10 * 1000; /* max time is in units of 10 milliseconds */
+
+  float minf = min / 1E6;
+  float maxf = max / 1E6;
+
+  proto_item_append_text(item, " (Min=%.6gs, Max=%.6gs)", minf, maxf);
+  col_append_fstr(pinfo->cinfo, COL_INFO, ", Min=%.6gs, Max=%.6gs", minf, maxf);
+}
+
+
+static void
+dissect_ntb_specific(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int sub_length)
+{
+  static int * const nontb_fields[] = {
+    &hf_ieee80211_tag_ranging_ntb_reserved1,
+    &hf_ieee80211_tag_ranging_ntb_min_time_msmts,
+    &hf_ieee80211_tag_ranging_ntb_max_time_msmts,
+    &hf_ieee80211_tag_ranging_ntb_r2i_tx_power,
+    &hf_ieee80211_tag_ranging_ntb_i2r_tx_power,
+    &hf_ieee80211_tag_ranging_ntb_reserved2,
+    NULL};
+  proto_tree *item;
+
+  item = proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_ieee80211_tag_ranging_ntb,
+                                           ett_tag_ranging_ntb, nontb_fields,
+                                           ENC_LITTLE_ENDIAN, BMT_NO_APPEND);
+  col_append_fstr(pinfo->cinfo, COL_INFO, ", NTB");
+  add_min_max_time_between_measurements(item, tvb, pinfo, offset, sub_length);
+}
+
+static void
 dissect_ranging_parameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int len)
 {
+  int tag_len = tvb_reported_length(tvb);
   static int * const ranging_params_fields[] = {
     &hf_ieee80211_tag_ranging_status_indication,
     &hf_ieee80211_tag_ranging_value,
@@ -22667,6 +22728,13 @@ dissect_ranging_parameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     &hf_ieee80211_tag_ranging_max_i2r_sts_le_80_mhz,
     &hf_ieee80211_tag_ranging_max_i2r_sts_gt_80_mhz,
     NULL};
+  static const value_string short_status[] = {
+    { 0, "Reserved" },
+    { 1, "Successful" },
+    { 2, "Request incapable" },
+    { 3, "Request failed" },
+    { 0, NULL }
+  };
 
   if (len < 6) {
     expert_add_info_format(pinfo, tree, &ei_ieee80211_tag_length,
@@ -22677,6 +22745,35 @@ dissect_ranging_parameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
   proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_ieee80211_tag_ranging_parameters,
                                     ett_tag_ranging, ranging_params_fields,
                                     ENC_LITTLE_ENDIAN, BMT_NO_APPEND);
+  guint8 status = tvb_get_guint8(tvb, offset) & GENMASK(1, 0);
+  if (status != 0) {
+    col_append_fstr(pinfo->cinfo, COL_INFO, ", Status=%d (%s)", status,
+                    val_to_str_const(status, short_status, "Unknown"));
+  }
+
+  offset += 6;
+
+  while (offset < len) {
+    guint8 sub_id, sub_length;
+    sub_id = tvb_get_guint8(tvb, offset);
+    sub_length = tvb_get_guint8(tvb, offset + 1);
+    offset += 2;
+
+    if (offset + sub_length > tag_len) {
+      expert_add_info_format(pinfo, tree, &ei_ieee80211_tag_length, "Subelement length exceeds tag length");
+      return;
+    }
+
+    switch (sub_id) {
+      case 0:  /* non-TB specific */
+        dissect_ntb_specific(tvb, pinfo, tree, offset, sub_length);
+        break;
+      default:  /* skip unknown elements which may be defined in the future */
+        break;
+    }
+
+    offset += sub_length;
+  }
 }
 
 /* ************************************************************************* */
@@ -37067,6 +37164,43 @@ proto_register_ieee80211(void)
       FT_UINT48, BASE_DEC, NULL, GENMASK64(47, 45),
       NULL, HFILL }},
 
+    /* az: non-TB-specific subelement */
+
+    {&hf_ieee80211_tag_ranging_ntb,
+     {"Non-TB specific subelement", "wlan.ranging.ntb",
+      FT_UINT48, BASE_HEX, 0, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_ranging_ntb_reserved1,
+     {"Reserved", "wlan.ranging.ntb.reserved1",
+      FT_UINT48, BASE_DEC, NULL, GENMASK(0, 0),
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_ranging_ntb_min_time_msmts,
+     {"Min Time Between Measurements", "wlan.ranging.ntb.min_time",
+      FT_UINT48, BASE_DEC | BASE_UNIT_STRING, &units_100_us, GENMASK(23, 1),
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_ranging_ntb_max_time_msmts,
+     {"Max Time Between Measurements", "wlan.ranging.ntb.max_time",
+      FT_UINT48, BASE_DEC | BASE_UNIT_STRING, &units_10_ms, GENMASK64(43, 24),
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_ranging_ntb_r2i_tx_power,
+     {"R2I Tx Power", "wlan.ranging.ntb.r2i_tx_power",
+      FT_UINT48, BASE_DEC, NULL, GENMASK64(44, 44),
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_ranging_ntb_i2r_tx_power,
+     {"I2R Tx Power", "wlan.ranging.ntb.i2r_tx_power",
+      FT_UINT48, BASE_DEC, NULL, GENMASK64(45, 45),
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_ranging_ntb_reserved2,
+     {"Reserved", "wlan.ranging.ntb.reserved2",
+      FT_UINT48, BASE_DEC, NULL, GENMASK64(47, 46),
+      NULL, HFILL }},
+
     {&hf_ieee80211_ff_ftm_max_tod_error_exponent,
      {"Max TOD Error Exponent", "wlan.fixed.ftm.max_tod_error_exponent",
       FT_UINT8, BASE_DEC, NULL, GENMASK(4, 0), NULL, HFILL }},
@@ -48292,6 +48426,7 @@ proto_register_ieee80211(void)
     &ett_ff_ftm_tod_err1,
     &ett_ff_ftm_toa_err1,
     &ett_tag_ranging,
+    &ett_tag_ranging_ntb,
 
     &ett_tag_measure_request_mode_tree,
     &ett_tag_measure_request_type_tree,
