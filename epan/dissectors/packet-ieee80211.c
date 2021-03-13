@@ -139,6 +139,7 @@ sta_prop_equal_fn(gconstpointer v, gconstpointer w)
  * taken from kernel's include/linux/bitops.h
  */
 #define GENMASK(h, l)  (((1U << ((h) - (l) + 1)) - 1) << (l))
+#define GENMASK64(h, l)  (((1ULL << ((h) - (l) + 1)) - 1) << (l))
 
 /* Defragment fragmented 802.11 datagrams */
 static gboolean wlan_defragment = TRUE;
@@ -4183,6 +4184,32 @@ static int hf_ieee80211_ff_ftm_cfo = -1;
 static int hf_ieee80211_ff_ftm_r2i_ndp_tx_power = -1;
 static int hf_ieee80211_ff_ftm_i2r_ndp_target_rssi = -1;
 
+/* az: FTM Ranging Parameters Element */
+static int hf_ieee80211_tag_ranging_parameters = -1;
+static int hf_ieee80211_tag_ranging_status_indication = -1;
+static int hf_ieee80211_tag_ranging_value = -1;
+static int hf_ieee80211_tag_ranging_i2r_lmr_feedback = -1;
+static int hf_ieee80211_tag_ranging_secure_ltf_required = -1;
+static int hf_ieee80211_tag_ranging_secure_ltf_support = -1;
+static int hf_ieee80211_tag_ranging_ranging_priority = -1;
+static int hf_ieee80211_tag_ranging_r2i_toa_type = -1;
+static int hf_ieee80211_tag_ranging_i2r_toa_type = -1;
+static int hf_ieee80211_tag_ranging_r2i_aoa_requested = -1;
+static int hf_ieee80211_tag_ranging_i2r_aoa_requested = -1;
+static int hf_ieee80211_tag_ranging_format_and_bandwidth = -1;
+static int hf_ieee80211_tag_ranging_immediate_r2i_feedback = -1;
+static int hf_ieee80211_tag_ranging_immediate_i2r_feedback = -1;
+static int hf_ieee80211_tag_ranging_max_i2r_repetition = -1;
+static int hf_ieee80211_tag_ranging_max_r2i_repetition = -1;
+static int hf_ieee80211_tag_ranging_device_class = -1;
+static int hf_ieee80211_tag_ranging_full_bandwidth_ul_mu_mimo = -1;
+static int hf_ieee80211_tag_ranging_max_r2i_sts_le_80_mhz = -1;
+static int hf_ieee80211_tag_ranging_max_r2i_sts_gt_80_mhz = -1;
+static int hf_ieee80211_tag_ranging_max_r2i_ltf_total = -1;
+static int hf_ieee80211_tag_ranging_max_i2r_ltf_total = -1;
+static int hf_ieee80211_tag_ranging_max_i2r_sts_le_80_mhz = -1;
+static int hf_ieee80211_tag_ranging_max_i2r_sts_gt_80_mhz = -1;
+
 static int hf_ieee80211_ff_ant_selection = -1;
 static int hf_ieee80211_ff_ant_selection_0 = -1;
 static int hf_ieee80211_ff_ant_selection_1 = -1;
@@ -7207,6 +7234,7 @@ static gint ett_ff_ftm_param_delim2 = -1;
 static gint ett_ff_ftm_param_delim3 = -1;
 static gint ett_ff_ftm_tod_err1 = -1;
 static gint ett_ff_ftm_toa_err1 = -1;
+static gint ett_tag_ranging = -1;
 
 static gint ett_tag_measure_request_mode_tree = -1;
 static gint ett_tag_measure_request_type_tree = -1;
@@ -15414,6 +15442,26 @@ static const true_false_string ieee802111_wfa_ie_wme_qos_info_sta_ac_tfs = {
   "non-WMM PS"
 };
 
+/* az: Ranging Parameters */
+static const val64_string ieee80211_ranging_status_vals[] = {
+  { 0, "Reserved" },
+  { 1, "Successful; measurement exchanges are about to begin" },
+  { 2, "Request incapable; do not send same request again; FTM session ends" },
+  { 3, "Request failed; do not send new request for Value seconds; FTM session ends" },
+  { 0, NULL }
+};
+
+static const val64_string ieee80211_ranging_fmt_bw_vals[] = {
+  { 0, "HE 20 MHz" },
+  { 1, "HE 40 MHz" },
+  { 2, "HE 80 MHz" },
+  { 3, "HE 80+80 MHz" },
+  { 4, "HE 160 MHz (two separate RF LOs)" },
+  { 5, "HE 160 MHz (single RF LO)" },
+  /* values 6-63 reserved */
+  { 0, NULL }
+};
+
 static void
 wpa_mcs_base_custom(gchar *result, guint32 mcs)
 {
@@ -22589,7 +22637,46 @@ dissect_he_6ghz_band_capabilities(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
                          ett_tag_he_6ghz_cap_inf_tree,
                          ieee80211_tag_he_6ghz_cap_inf,
                          ENC_LITTLE_ENDIAN);
+}
 
+static void
+dissect_ranging_parameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int len)
+{
+  static int * const ranging_params_fields[] = {
+    &hf_ieee80211_tag_ranging_status_indication,
+    &hf_ieee80211_tag_ranging_value,
+    &hf_ieee80211_tag_ranging_i2r_lmr_feedback,
+    &hf_ieee80211_tag_ranging_secure_ltf_required,
+    &hf_ieee80211_tag_ranging_secure_ltf_support,
+    &hf_ieee80211_tag_ranging_ranging_priority,
+    &hf_ieee80211_tag_ranging_r2i_toa_type,
+    &hf_ieee80211_tag_ranging_i2r_toa_type,
+    &hf_ieee80211_tag_ranging_r2i_aoa_requested,
+    &hf_ieee80211_tag_ranging_i2r_aoa_requested,
+    &hf_ieee80211_tag_ranging_format_and_bandwidth,
+    &hf_ieee80211_tag_ranging_immediate_r2i_feedback,
+    &hf_ieee80211_tag_ranging_immediate_i2r_feedback,
+    &hf_ieee80211_tag_ranging_max_i2r_repetition,
+    &hf_ieee80211_tag_ranging_max_r2i_repetition,
+    &hf_ieee80211_tag_ranging_device_class,
+    &hf_ieee80211_tag_ranging_full_bandwidth_ul_mu_mimo,
+    &hf_ieee80211_tag_ranging_max_r2i_sts_le_80_mhz,
+    &hf_ieee80211_tag_ranging_max_r2i_sts_gt_80_mhz,
+    &hf_ieee80211_tag_ranging_max_r2i_ltf_total,
+    &hf_ieee80211_tag_ranging_max_i2r_ltf_total,
+    &hf_ieee80211_tag_ranging_max_i2r_sts_le_80_mhz,
+    &hf_ieee80211_tag_ranging_max_i2r_sts_gt_80_mhz,
+    NULL};
+
+  if (len < 6) {
+    expert_add_info_format(pinfo, tree, &ei_ieee80211_tag_length,
+                           "Ranging Parameters must be at least 6 octets long");
+    return;
+  }
+
+  proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_ieee80211_tag_ranging_parameters,
+                                    ett_tag_ranging, ranging_params_fields,
+                                    ENC_LITTLE_ENDIAN, BMT_NO_APPEND);
 }
 
 /* ************************************************************************* */
@@ -27400,6 +27487,9 @@ ieee80211_tag_element_id_extension(tvbuff_t *tvb, packet_info *pinfo, proto_tree
       break;
     case ETAG_HE_6GHZ_BAND_CAPABILITIES:
       dissect_he_6ghz_band_capabilities(tvb, pinfo, tree, offset, ext_tag_len);
+      break;
+    case ETAG_RANGING_PARAMETERS:
+      dissect_ranging_parameters(tvb, pinfo, tree, offset, ext_tag_len);
       break;
     case ETAG_FTM_SYNC_INFO:
       proto_tree_add_item(tree, hf_ieee80211_tag_ftm_tsf_sync_info, tvb, offset, ext_tag_len, ENC_NA);
@@ -36854,6 +36944,128 @@ proto_register_ieee80211(void)
      {"FTM TOD Error", "wlan.fixed.ftm.tod_error",
       FT_UINT8, BASE_HEX, NULL, 0,
       "Management action FTM LMR TOD Error", HFILL }},
+
+    /* az: Ranging Parameters element */
+
+    {&hf_ieee80211_tag_ranging_parameters,
+     {"Ranging Parameters", "wlan.ranging",
+      FT_UINT48, BASE_HEX, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_ranging_status_indication,
+     {"Status Indication", "wlan.ranging.status",
+      FT_UINT48, BASE_DEC | BASE_VAL64_STRING, VALS64(ieee80211_ranging_status_vals), GENMASK(1, 0),
+      "Status Indication", HFILL }},
+
+    {&hf_ieee80211_tag_ranging_value,
+     {"Value", "wlan.ranging.value",
+      FT_UINT48, BASE_DEC, NULL, GENMASK(6, 2),
+      "When Status Indication is 3, the Value field contains a duration in units of seconds", HFILL }},
+
+    {&hf_ieee80211_tag_ranging_i2r_lmr_feedback,
+     {"I2R LMR Feedback", "wlan.ranging.i2r_lmr_feedback",
+      FT_UINT48, BASE_DEC, NULL, GENMASK(7, 7),
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_ranging_secure_ltf_required,
+     {"Secure LTF Required", "wlan.ranging.secure_ltf_required",
+      FT_UINT48, BASE_DEC, NULL, GENMASK(8, 8),
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_ranging_secure_ltf_support,
+     {"Secure LTF Support", "wlan.ranging.secure_ltf_support",
+      FT_UINT48, BASE_DEC, NULL, GENMASK(9, 9),
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_ranging_ranging_priority,
+     {"Ranging Priority", "wlan.ranging.priority",
+      FT_UINT48, BASE_DEC, NULL, GENMASK(11, 10),
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_ranging_r2i_toa_type,
+     {"R2I TOA Type", "wlan.ranging.r2i_toa_type",
+      FT_UINT48, BASE_DEC, NULL, GENMASK(12, 12),
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_ranging_i2r_toa_type,
+     {"I2R TOA Type", "wlan.ranging.i2r_toa_type",
+      FT_UINT48, BASE_DEC, NULL, GENMASK(13, 13),
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_ranging_r2i_aoa_requested,
+     {"R2I AOA Requested", "wlan.ranging.r2i_aoa_requested",
+      FT_UINT48, BASE_DEC, NULL, GENMASK(14, 14),
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_ranging_i2r_aoa_requested,
+     {"I2R AOA Requested", "wlan.ranging.i2r_aoa_requested",
+      FT_UINT48, BASE_DEC, NULL, GENMASK(15, 15),
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_ranging_format_and_bandwidth,
+     {"Format and Bandwidth", "wlan.ranging.format_and_bandwidth",
+      FT_UINT48, BASE_DEC | BASE_VAL64_STRING, VALS64(ieee80211_ranging_fmt_bw_vals), GENMASK(21, 16),
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_ranging_immediate_r2i_feedback,
+     {"Immediate R2I Feedback", "wlan.ranging.immediate_r2i_feedback",
+      FT_UINT48, BASE_DEC, NULL, GENMASK(22, 22),
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_ranging_immediate_i2r_feedback,
+     {"Immediate I2R Feedback", "wlan.ranging.immediate_i2r_feedback",
+      FT_UINT48, BASE_DEC, NULL, GENMASK(23, 23),
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_ranging_max_i2r_repetition,
+     {"Max I2R Repetition", "wlan.ranging.max_i2r_repetition",
+      FT_UINT48, BASE_DEC, NULL, GENMASK(26, 24),
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_ranging_max_r2i_repetition,
+     {"Max R2I Repetition", "wlan.ranging.max_r2i_repetition",
+      FT_UINT48, BASE_DEC, NULL, GENMASK(29, 27),
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_ranging_device_class,
+     {"Device Class", "wlan.ranging.device_class",
+      FT_UINT48, BASE_DEC, NULL, GENMASK(30, 30),
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_ranging_full_bandwidth_ul_mu_mimo,
+     {"Full Bandwidth UL MU-MIMO", "wlan.ranging.full_bandwidth_ul_mu_mimo",
+      FT_UINT48, BASE_DEC, NULL, GENMASK(31, 31),
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_ranging_max_r2i_sts_le_80_mhz,
+     {"Max R2I STS <= 80 MHz", "wlan.ranging.max_r2i_sts_le_80_mhz",
+      FT_UINT48, BASE_DEC, NULL, GENMASK64(34, 32),
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_ranging_max_r2i_sts_gt_80_mhz,
+     {"Max R2I STS > 80 MHz", "wlan.ranging.max_r2i_sts_gt_80_mhz",
+      FT_UINT48, BASE_DEC, NULL, GENMASK64(37, 35),
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_ranging_max_r2i_ltf_total,
+     {"Max R2I LTF Total", "wlan.ranging.max_r2i_ltf_total",
+      FT_UINT48, BASE_DEC, NULL, GENMASK64(39, 38),
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_ranging_max_i2r_ltf_total,
+     {"Max I2R LTF Total", "wlan.ranging.max_i2r_ltf_total",
+      FT_UINT48, BASE_DEC, NULL, GENMASK64(41, 40),
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_ranging_max_i2r_sts_le_80_mhz,
+     {"Max I2R STS <= 80 MHz", "wlan.ranging.max_i2r_sts_le_80_mhz",
+      FT_UINT48, BASE_DEC, NULL, GENMASK64(44, 42),
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_ranging_max_i2r_sts_gt_80_mhz,
+     {"Max I2R STS > 80 MHz", "wlan.ranging.max_i2r_sts_gt_80_mhz",
+      FT_UINT48, BASE_DEC, NULL, GENMASK64(47, 45),
+      NULL, HFILL }},
 
     {&hf_ieee80211_ff_ftm_max_tod_error_exponent,
      {"Max TOD Error Exponent", "wlan.fixed.ftm.max_tod_error_exponent",
@@ -48079,6 +48291,7 @@ proto_register_ieee80211(void)
     &ett_ff_ftm_param_delim3,
     &ett_ff_ftm_tod_err1,
     &ett_ff_ftm_toa_err1,
+    &ett_tag_ranging,
 
     &ett_tag_measure_request_mode_tree,
     &ett_tag_measure_request_type_tree,
