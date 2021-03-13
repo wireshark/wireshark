@@ -355,6 +355,9 @@ static int hf_icmpv6_ni_reply_node_name = -1;
 static int hf_icmpv6_ni_reply_node_address = -1;
 static int hf_icmpv6_ni_reply_ipv4_address = -1;
 
+/* RFC 4884: Extended ICMP */
+static int hf_icmpv6_length = -1;
+
 /* RPL: RFC 6550/6997 : Routing and Discovery of P2P Routes in Low-Power and Lossy Networks. */
 static int hf_icmpv6_rpl_dis_flag = -1;
 static int hf_icmpv6_rpl_dio_instance = -1;
@@ -4191,13 +4194,31 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         switch (icmp6_type) {
             case ICMP6_DST_UNREACH: /* Destination Unreachable (1) */
             case ICMP6_TIME_EXCEEDED: /* Time Exceeded (3) */
-                /* Reserved */
-                proto_tree_add_item(icmp6_tree, hf_icmpv6_reserved, tvb, offset, 4, ENC_NA);
-                offset += 4;
+            {
+                char orig_datagram_length = tvb_get_guint8(tvb, offset);
+                if (orig_datagram_length) {
+                  /* RFC 4884 Original datagram length */
+                  proto_tree_add_item(icmp6_tree, hf_icmpv6_length, tvb, offset, 1, ENC_NA);
+                  offset += 1;
+                  proto_tree_add_item(icmp6_tree, hf_icmpv6_reserved, tvb, offset, 3, ENC_NA);
+                  offset += 3;
+                } else {
+                  /* Reserved */
+                  proto_tree_add_item(icmp6_tree, hf_icmpv6_reserved, tvb, offset, 4, ENC_NA);
+                  offset += 4;
+                }
 
                 next_tvb = tvb_new_subset_remaining(tvb, offset);
-                offset += dissect_contained_icmpv6(next_tvb, pinfo, icmp6_tree);
+                int contained_len = dissect_contained_icmpv6(next_tvb, pinfo, icmp6_tree);
+                if (orig_datagram_length) {
+                  offset += 8 * orig_datagram_length;
+                  tvbuff_t * extension_tvb = tvb_new_subset_remaining(tvb, offset);
+                  offset += call_dissector(icmp_extension_handle, extension_tvb, pinfo, icmp6_tree);
+                } else {
+                  offset += contained_len;
+                }
                 break;
+            }
             case ICMP6_PACKET_TOO_BIG: /* Packet Too Big (2) */
                 /* MTU */
                 proto_tree_add_item(icmp6_tree, hf_icmpv6_mtu, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -5503,6 +5524,11 @@ proto_register_icmpv6(void)
         { &hf_icmpv6_ni_reply_ipv4_address,
            { "IPv4 Node address", "icmpv6.ni.reply.ipv4_address", FT_IPv4, BASE_NONE, NULL, 0x0,
              NULL, HFILL }},
+
+        /* RFC 4884: Extended ICMP */
+        { &hf_icmpv6_length,
+          { "Length of original datagram", "icmpv6.length", FT_UINT8, BASE_DEC, NULL, 0x0,
+            "The length of the original datagram", HFILL }},
 
         /* RPL: RFC 6550 : Routing over Low-Power and Lossy Networks. */
         { &hf_icmpv6_rpl_dis_flag,
