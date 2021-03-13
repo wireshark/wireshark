@@ -326,6 +326,16 @@ list_read_capture_types(void) {
 }
 
 static void
+list_export_pdu_taps(void) {
+  fprintf(stderr, "tshark: The available export tap names for the \"-U tap_name\" option are:\n");
+  for (GSList *export_pdu_tap_name_list = get_export_pdu_tap_list();
+       export_pdu_tap_name_list != NULL;
+       export_pdu_tap_name_list = g_slist_next(export_pdu_tap_name_list)) {
+    fprintf(stderr, "    %s\n", (const char*)(export_pdu_tap_name_list->data));
+  }
+}
+
+static void
 print_usage(FILE *output)
 {
   fprintf(output, "\n");
@@ -1379,20 +1389,13 @@ main(int argc, char *argv[])
       }
       break;
     case 'U':        /* Export PDUs to file */
-    {
-        GSList *export_pdu_tap_name_list = NULL;
-
-        if (!*optarg) {
-            cmdarg_err("A tap name is required. Valid names are:");
-            for (export_pdu_tap_name_list = get_export_pdu_tap_list(); export_pdu_tap_name_list; export_pdu_tap_name_list = g_slist_next(export_pdu_tap_name_list)) {
-                cmdarg_err("%s\n", (const char*)(export_pdu_tap_name_list->data));
-            }
+        if (strcmp(optarg, "") == 0 || strcmp(optarg, "?") == 0) {
+            list_export_pdu_taps();
             exit_status = INVALID_OPTION;
             goto clean_exit;
         }
         pdu_export_arg = g_strdup(optarg);
         break;
-    }
     case 'v':         /* Show version and exit */
       show_version();
       /* We don't really have to cleanup here, but it's a convenient way to test
@@ -1995,6 +1998,7 @@ main(int argc, char *argv[])
       if (exp_pdu_error) {
           cmdarg_err("Cannot register tap: %s", exp_pdu_error);
           g_free(exp_pdu_error);
+          list_export_pdu_taps();
           exit_status = INVALID_TAP;
           goto clean_exit;
       }
