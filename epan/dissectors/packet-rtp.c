@@ -330,7 +330,7 @@ static const value_string rtp_ext_profile_vals[] =
 
 /* Payload type is the last 7 bits */
 #define RTP_PAYLOAD_TYPE(octet) ((octet) & 0x7F)
-/* http://www.iana.org/assignments/rtp-parameters */
+/* https://www.iana.org/assignments/rtp-parameters/ */
 
 #define FIRST_RTCP_CONFLICT_PAYLOAD_TYPE 64
 #define LAST_RTCP_CONFLICT_PAYLOAD_TYPE  95
@@ -416,7 +416,7 @@ static const value_string rtp_payload_type_vals[] =
 /* 74 */    { 74,               "Reserved for RTCP conflict avoidance" },
 /* 75 */    { 75,               "Reserved for RTCP conflict avoidance" },
 /* 76 */    { 76,               "Reserved for RTCP conflict avoidance" },
-/* 77-95     Unassigned      ? */
+/* 77-95     Unassigned, MAY be used if > 32 PT are used */
 /* 77 */    { 77,               "Unassigned" },
 /* 78 */    { 78,               "Unassigned" },
 /* 79 */    { 79,               "Unassigned" },
@@ -436,7 +436,7 @@ static const value_string rtp_payload_type_vals[] =
 /* 93 */    { 93,               "Unassigned" },
 /* 94 */    { 94,               "Unassigned" },
 /* 95 */    { 95,               "Unassigned" },
-        /* Added to support addtional RTP payload types
+        /* Added to support additional RTP payload types
          * See epan/rtp_pt.h */
         { PT_UNDF_96,   "DynamicRTP-Type-96" },
         { PT_UNDF_97,   "DynamicRTP-Type-97" },
@@ -557,7 +557,7 @@ static const value_string rtp_payload_type_short_vals[] =
     { 74,               "Reserved for RTCP conflict avoidance" },
     { 75,               "Reserved for RTCP conflict avoidance" },
     { 76,               "Reserved for RTCP conflict avoidance" },
-/* 77-95     Unassigned      ? */
+/* 77-95     Unassigned, MAY be used if > 32 PT are used */
     { 77,               "Unassigned" },
     { 78,               "Unassigned" },
     { 79,               "Unassigned" },
