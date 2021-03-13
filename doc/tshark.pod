@@ -865,10 +865,11 @@ B<hms> for hours, minutes and seconds
 
 =item -U E<lt>tap nameE<gt>
 
-PDUs export, exports PDUs from infile to outfile according to the tap name given.
-Use -Y to filter.
+PDUs export, exports PDUs from infile to outfile according to the tap
+name given. Use -Y to filter.
 
-Enter an empty tap name "" to get a list of available names.
+Enter an empty tap name "" or a tap name of ? to get a list of available
+names.
 
 =item -v|--version
 
