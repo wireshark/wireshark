@@ -1,0 +1,7 @@
+#!/bin/sh
+#
+# Validate the commit message.
+
+./tools/validate-commit.py --commitmsg $1
+
+

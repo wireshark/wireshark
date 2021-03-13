@@ -26,6 +26,7 @@ import urllib.request
 parser = argparse.ArgumentParser()
 parser.add_argument('commit', nargs='?', default='HEAD',
                     help='Commit ID to be checked (default %(default)s)')
+parser.add_argument('--commitmsg', help='commit-msg check', action='store')
 
 
 def print_git_user_instructions():
@@ -115,7 +116,7 @@ def verify_body(body):
         is_good = False
     cleaned_subject = extract_subject(old_lines[0])
     if len(cleaned_subject) > 80:
-        # Note that this is currently also checked by the commit-msg hook.
+        # Note that this check is also invoked by the commit-msg hook.
         print('Warning: keep lines in the commit message under 80 characters.')
         is_good = False
     if not is_good:
@@ -170,6 +171,7 @@ for details.
     return is_good
 
 
+
 def verify_merge_request():
     # Not needed if/when https://gitlab.com/gitlab-org/gitlab/-/issues/23308 is fixed.
     gitlab_api_pfx = "https://gitlab.com/api/v4"
@@ -210,10 +212,19 @@ def main():
     args = parser.parse_args()
     commit = args.commit
 
+    # If called from commit-msg script, just validate that part and return.
+    if args.commitmsg:
+        try:
+            with open(args.commitmsg) as f:
+                return 0 if verify_body(f.read()) else 1
+        except:
+            print("Couldn't verify body of message from file '", + args.commitmsg + "'");
+            return 1
+
+
     if(os.getenv('CI_MERGE_REQUEST_EVENT_TYPE') == 'merge_train'):
         print("If we were on the love train, people all over the world would be joining hands for this merge request.\nInstead, we're on a merge train so we're skipping commit validation checks. ")
         return 0
-
 
     cmd = ['git', 'show', '--no-patch',
            '--format=%h%n%an%n%ae%n%B', commit, '--']
