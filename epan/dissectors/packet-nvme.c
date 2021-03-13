@@ -813,21 +813,21 @@ static void post_add_cap(proto_item *ti, tvbuff_t *tvb, guint off)
     guint64 hi = tvb_get_guint64(tvb, off, 8);
     if (hi) {
         if (!(hi >> 10))
-            proto_item_append_text(ti, " (%lu KiB)", (hi << 54) | (lo >> 10));
+            proto_item_append_text(ti, " (%" G_GUINT64_FORMAT " KiB)", (hi << 54) | (lo >> 10));
         else if (!(hi >> 20))
-            proto_item_append_text(ti, " (%lu MiB)", (hi << 44) | (lo >> 20));
+            proto_item_append_text(ti, " (%" G_GUINT64_FORMAT " MiB)", (hi << 44) | (lo >> 20));
         else if (!(hi >> 30))
-            proto_item_append_text(ti, " (%lu GiB)", (hi << 34) | (lo >> 30));
+            proto_item_append_text(ti, " (%" G_GUINT64_FORMAT " GiB)", (hi << 34) | (lo >> 30));
         else if (!(hi >> 40))
-            proto_item_append_text(ti, " (%lu TiB)", (hi << 24) | (lo >> 40));
+            proto_item_append_text(ti, " (%" G_GUINT64_FORMAT " TiB)", (hi << 24) | (lo >> 40));
         else if (!(hi >> 50))
-            proto_item_append_text(ti, " (%lu PiB)", (hi << 14) | (lo >> 50));
+            proto_item_append_text(ti, " (%" G_GUINT64_FORMAT " PiB)", (hi << 14) | (lo >> 50));
         else if (!(hi >> 60))
-            proto_item_append_text(ti, " (%lu EiB)", (hi << 4) | (lo >> 60));
+            proto_item_append_text(ti, " (%" G_GUINT64_FORMAT " EiB)", (hi << 4) | (lo >> 60));
         else
-            proto_item_append_text(ti, " (%lu ZiB)", hi >> 6);
+            proto_item_append_text(ti, " (%" G_GUINT64_FORMAT " ZiB)", hi >> 6);
     } else {
-        proto_item_append_text(ti, " (%lu bytes)", lo);
+        proto_item_append_text(ti, " (%" G_GUINT64_FORMAT " bytes)", lo);
     }
 }
 
