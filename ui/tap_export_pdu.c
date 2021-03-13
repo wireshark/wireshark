@@ -148,7 +148,7 @@ exp_pdu_open(exp_pdu_t *exp_pdu_tap_data, int file_type_subtype, int fd,
         /* create the fake interface data */
         int_data = wtap_block_create(WTAP_BLOCK_IF_ID_AND_INFO);
         int_data_mand = (wtapng_if_descr_mandatory_t*)wtap_block_get_mandatory_data(int_data);
-        int_data_mand->wtap_encap      = WTAP_ENCAP_WIRESHARK_UPPER_PDU;
+        int_data_mand->wtap_encap      = exp_pdu_tap_data->pkt_encap;
         int_data_mand->time_units_per_second = 1000000000; /* default nanosecond resolution */
         int_data_mand->snap_len        = WTAP_MAX_PACKET_SIZE_STANDARD;
 
@@ -161,7 +161,7 @@ exp_pdu_open(exp_pdu_t *exp_pdu_tap_data, int file_type_subtype, int fd,
     }
 
     const wtap_dump_params params = {
-        .encap = WTAP_ENCAP_WIRESHARK_UPPER_PDU,
+        .encap = exp_pdu_tap_data->pkt_encap,
         .snaplen = WTAP_MAX_PACKET_SIZE_STANDARD,
         .shb_hdrs = exp_pdu_tap_data->shb_hdrs,
         .idb_inf = exp_pdu_tap_data->idb_inf,
@@ -200,7 +200,7 @@ exp_pdu_pre_open(const char *tap_name, const char *filter, exp_pdu_t *exp_pdu_ta
     GString        *error_string;
 
     /* XXX: can we always assume WTAP_ENCAP_WIRESHARK_UPPER_PDU? */
-    exp_pdu_tap_data->pkt_encap = wtap_wtap_encap_to_pcap_encap(WTAP_ENCAP_WIRESHARK_UPPER_PDU);
+    exp_pdu_tap_data->pkt_encap = WTAP_ENCAP_WIRESHARK_UPPER_PDU;
 
     /* Register this tap listener now */
     error_string = register_tap_listener(tap_name,             /* The name of the tap we want to listen to */

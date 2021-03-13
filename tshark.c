@@ -759,7 +759,6 @@ main(int argc, char *argv[])
   gchar               *output_only = NULL;
   gchar               *volatile pdu_export_arg = NULL;
   char                *volatile exp_pdu_filename = NULL;
-  int                  exp_pdu_file_type_subtype;
   exp_pdu_t            exp_pdu_tap_data;
   const gchar*         elastic_mapping_filter = NULL;
 
@@ -2066,18 +2065,17 @@ main(int argc, char *argv[])
       }
 
       /* Activate the export PDU tap */
-      /* Write a pcapng file... */
-      exp_pdu_file_type_subtype = wtap_pcapng_file_type_subtype();
-      /* ...with this comment */
+      /* Write to our output file with this comment (if the type supports it,
+       * otherwise exp_pdu_open() will ignore the comment) */
       comment = g_strdup_printf("Dump of PDUs from %s", cf_name);
       exp_pdu_status = exp_pdu_open(&exp_pdu_tap_data,
-                                    exp_pdu_file_type_subtype, exp_fd, comment,
+                                    out_file_type, exp_fd, comment,
                                     &err, &err_info);
       g_free(comment);
       if (!exp_pdu_status) {
           cfile_dump_open_failure_message("TShark", exp_pdu_filename,
                                           err, err_info,
-                                          exp_pdu_file_type_subtype);
+                                          out_file_type);
           exit_status = INVALID_EXPORT;
           goto clean_exit;
       }
