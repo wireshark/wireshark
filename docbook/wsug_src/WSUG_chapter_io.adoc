@@ -96,15 +96,19 @@ This is the common Qt file open dialog along with some Wireshark extensions.
 
 ==== Input File Formats
 
-The following file formats from other capture tools can be opened by Wireshark:
+The native capture file formats used by Wireshark are:
 
-* pcapng. A flexible, extensible successor to the libpcap format. Wireshark 1.8 and later
-  save files as pcapng by default. Versions prior to 1.8 used libpcap.
-
-* libpcap. The default format used by the _libpcap_ packet capture library. Used
+* pcap. The default format used by the _libpcap_ packet capture library. Used
   by _tcpdump, _Snort_, _Nmap_, _Ntop_, and many other tools.
 
-* Oracle (previously Sun) _snoop_ and _atmsnoop_
+* pcapng.  A flexible, extensible successor to the pcap format. 
+  Wireshark 1.8 and later save files as pcapng by default.  Versions
+  prior to 1.8 used pcap.  Used by Wireshark and by _tcpdump_ in newer
+  versions of macOS.
+
+The following file formats from other capture tools can be opened by Wireshark:
+
+* Oracle (previously Sun) _snoop_ and _atmsnoop_ captures
 
 * Finisar (previously Shomiti) _Surveyor_ captures
 
@@ -116,27 +120,30 @@ The following file formats from other capture tools can be opened by Wireshark:
 
 * Cinco Networks NetXray captures
 
-* Network Associates Windows-based Sniffer and Sniffer Pro captures
+* NETSCOUT (previously Network Associates/Network General) Windows-based
+  Sniffer and Sniffer Pro captures
 
-* Network General/Network Associates DOS-based Sniffer (compressed or uncompressed) captures
+* Network General/Network Associates DOS-based Sniffer captures
+  (compressed or uncompressed) captures
 
-* AG Group/WildPackets/Savvius EtherPeek/TokenPeek/AiroPeek/EtherHelp/PacketGrabber captures
+* LiveAction (previously WildPackets/Savvius)
+  *Peek/EtherHelp/PacketGrabber captures
 
 * RADCOM’s WAN/LAN Analyzer captures
 
-* Network Instruments/JDSU/Viavi Observer version 9 captures
+* Viavi (previously Network Instruments)i Observer captures
 
 * Lucent/Ascend router debug output
 
-* HP-UX’s nettl
+* captures from HP-UX nettl
 
 * Toshiba’s ISDN routers dump output
 
-* ISDN4BSD _i4btrace_ utility
+* output from _i4btrace_ from the ISDN4BSD project
 
 * traces from the EyeSDN USB S0
 
-* IPLog format from the Cisco Secure Intrusion Detection System
+* the IPLog format output from the Cisco Secure Intrusion Detection System
 
 * pppd logs (pppdump format)
 
@@ -148,7 +155,7 @@ The following file formats from other capture tools can be opened by Wireshark:
 
 * the output from CoSine L2 debug
 
-* the output from Accellent’s 5Views LAN agents
+* the output from InfoVista (previously Accellent) 5Views LAN agents
 
 * Endace Measurement Systems’ ERF format captures
 
@@ -173,6 +180,32 @@ The following file formats from other capture tools can be opened by Wireshark:
 * Apple PacketLogger captures
 
 * Captures from Aethra Telecommunications’ PC108 software for their test instruments
+
+* Citrix NetScaler Trace files
+
+* Android Logcat binary and text format logs
+
+* Colasoft Capsa and PacketBuilder captures
+
+* Micropross mplog files
+
+* Unigraf DPA-400 DisplayPort AUX channel monitor traces
+
+* 802.15.4 traces from Daintree's Sensor Network Analyzer
+
+* MPEG-2 Transport Streams as defined in ISO/IEC 13818-1
+
+* Log files from the _candump_ utility
+
+* Logs from the BUSMASTER tool
+
+* Ixia IxVeriWave raw captures
+
+* Rabbit Labs CAM Inspector files
+
+* _systemd_ journal files
+
+* 3GPP TS 32.423 trace files
 
 New file formats are added from time to time.
 
@@ -266,26 +299,50 @@ The following file formats can be saved by Wireshark (with the known file extens
   libpcap format. Wireshark 1.8 and later save files as pcapng by
   default. Versions prior to 1.8 used libpcap.
 
-* libpcap, tcpdump and various other tools using tcpdump’s capture
-  format ({asterisk}.pcap,{asterisk}.cap,{asterisk}.dmp)
+* pcap ({asterisk}.pcap).  The default format used by the _libpcap_
+  packet capture library.  Used by _tcpdump, _Snort_, _Nmap_, _Ntop_,
+  and many other tools.
 
 * Accellent 5Views ({asterisk}.5vw)
 
-* HP-UX’s nettl ({asterisk}.TRC0,{asterisk}.TRC1)
+* captures from HP-UX nettl ({asterisktrc0,{asterisk}.trc1)
 
 * Microsoft Network Monitor - NetMon ({asterisk}.cap)
 
-* Network Associates Sniffer - DOS ({asterisk}.cap,{asterisk}.enc,{asterisk}.trc,*fdc,{asterisk}.syc)
+* Network Associates Sniffer - DOS
+  ({asterisk}.cap,{asterisk}.enc,{asterisk}.trc,{asterisk}.fdc,{asterisk}.syc)
+
+* Cinco Networks NetXray captures ({asterisk}.cap)
 
 * Network Associates Sniffer - Windows ({asterisk}.cap)
 
-* Network Instruments/Viavi Observer version 9 ({asterisk}.bfr)
+* Network Instruments/Viavi Observer ({asterisk}.bfr)
 
 * Novell LANalyzer ({asterisk}.tr1)
 
 * Oracle (previously Sun) snoop ({asterisk}.snoop,{asterisk}.cap)
 
 * Visual Networks Visual UpTime traffic ({asterisk}.{asterisk})
+
+* Symbian OS btsnoop captures ({asterisk}.log)
+
+* Tamosoft CommView captures ({asterisk}.ncf)
+
+* Catapult DCT2000 .out files ({asterisk}.out)
+
+* Endace Measurement Systems’ ERF format capture({asterisk}.erf)
+
+* EyeSDN USB S0 traces ({asterisk}.trc)
+
+* Textronix K12 text file format captures ({asterisk}.txt)
+
+* Textronix K12xx 32bit .rf5 format captures ({asterisk}.rf5)
+
+* Android Logcat binary logs ({asterisk}.logcat)
+
+* Android Logcat text logs ({asterisk}.{asterisk})
+
+* Citrix NetScaler Trace files ({asterisk}.cap)
 
 New file formats are added from time to time.
 
@@ -296,7 +353,8 @@ Whether or not the above tools will be more helpful than Wireshark is a differen
 ====
 Wireshark examines a file’s contents to determine its type. Some other protocol
 analyzers only look at a filename extensions. For example, you might need to use
-the `.cap` extension in order to open a file using _Sniffer_.
+the `.cap` extension in order to open a file using the Windows version
+of _Sniffer_.
 ====
 
 [[ChIOMergeSection]]

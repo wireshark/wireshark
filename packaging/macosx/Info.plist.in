@@ -23,7 +23,7 @@
 			<key>CFBundleTypeIconFile</key>
 			<string>Wiresharkdoc.icns</string>
 			<key>CFBundleTypeName</key>
-			<string>InfoVista 5View Packet Capture</string>
+			<string>InfoVista/Accellent 5View Packet Capture</string>
 			<key>CFBundleTypeRole</key>
 			<string>Viewer</string>
 		</dict>
@@ -42,7 +42,7 @@
 			<key>CFBundleTypeIconFile</key>
 			<string>Wiresharkdoc.icns</string>
 			<key>CFBundleTypeName</key>
-			<string>Savvius EtherPeek/TokenPeek/AiroPeek/OmniPeek Packet Capture</string>
+			<string>LiveAction/Savvius/WildPackets *Peek Packet Capture</string>
 			<key>CFBundleTypeRole</key>
 			<string>Viewer</string>
 		</dict>
@@ -55,7 +55,7 @@
 			<key>CFBundleTypeIconFile</key>
 			<string>Wiresharkdoc.icns</string>
 			<key>CFBundleTypeName</key>
-			<string>Viavi Observer Packet Capture</string>
+			<string>Viavi/Network Instruments Observer Packet Capture</string>
 			<key>CFBundleTypeRole</key>
 			<string>Viewer</string>
 		</dict>
@@ -159,7 +159,7 @@
 			<key>CFBundleTypeIconFile</key>
 			<string>Wiresharkdoc.icns</string>
 			<key>CFBundleTypeName</key>
-			<string>Tektronix Packet Capture</string>
+			<string>Tektronix K12 Packet Capture</string>
 			<key>CFBundleTypeRole</key>
 			<string>Viewer</string>
 		</dict>

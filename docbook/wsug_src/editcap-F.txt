@@ -24,13 +24,13 @@ editcap: The available capture file types for the "-F" flag are:
     ngsniffer - Sniffer (DOS)
     ngwsniffer_1_1 - NetXray, Sniffer (Windows) 1.1
     ngwsniffer_2_0 - Sniffer (Windows) 2.00x
-    niobserver - Network Instruments Observer
     nokiapcap - Nokia tcpdump - pcap
     nsecpcap - Wireshark/tcpdump/... - nanosecond pcap
     nstrace10 - NetScaler Trace (Version 1.0)
     nstrace20 - NetScaler Trace (Version 2.0)
     nstrace30 - NetScaler Trace (Version 3.0)
     nstrace35 - NetScaler Trace (Version 3.5)
+    observer - Viavi Observer
     rf5 - Tektronix K12xx 32-bit .rf5 format
     rh6_1pcap - RedHat 6.1 tcpdump - pcap
     snoop - Sun snoop

@@ -22,33 +22,28 @@ S<[ E<lt>infileE<gt> ]>
 
 B<Wireshark> is a GUI network protocol analyzer.  It lets you
 interactively browse packet data from a live network or from a
-previously saved capture file.  B<Wireshark>'s native capture file format
-is B<pcapng> format, or B<pcap> which is also the format used by B<tcpdump> and
-various other tools.
+previously saved capture file.  B<Wireshark>'s native capture file
+formats are B<pcapng> format and B<pcap> format; it can read and write
+both formats..  B<pcap> format is also the format used by B<tcpdump> and
+various other tools; B<tcpdump>, when using newer verions of the
+B<libpcap> library, can also read some pcapng files, and, on newer
+versions of macOS, can read all pcapng files and can write them as well.
 
-B<Wireshark> can read / import the following file formats:
+B<Wireshark> can also read / import the following file formats:
 
 =over 4
 
 =item *
-pcap - captures from B<Wireshark>/B<TShark>/B<dumpcap>, B<tcpdump>,
-and various other tools using libpcap's/Npcap's/WinPcap's/tcpdump's/WinDump's
-capture format
+Oracle (previously Sun) B<snoop> and B<atmsnoop> captures
 
 =item *
-pcapng - "next-generation" successor to pcap format
-
-=item *
-B<snoop> and B<atmsnoop> captures
-
-=item *
-Shomiti/Finisar B<Surveyor> captures
-
-=item *
-Novell B<LANalyzer> captures
+Finisar (previously Shomiti) B<Surveyor> captures
 
 =item *
 Microsoft B<Network Monitor> captures
+
+=item *
+Novell B<LANalyzer> captures
 
 =item *
 AIX's B<iptrace> captures
@@ -57,25 +52,27 @@ AIX's B<iptrace> captures
 Cinco Networks B<NetXRay> captures
 
 =item *
-Network Associates Windows-based B<Sniffer> captures
+NETSCOUT (previously Network Associates/Network General) Windows-based
+B<Sniffer> captures
 
 =item *
-Network General/Network Associates DOS-based B<Sniffer> (compressed or uncompressed) captures
+Network General/Network Associates DOS-based B<Sniffer> captures
+(compressed or uncompressed)
 
 =item *
-AG Group/WildPackets/Savvius B<EtherPeek>/B<TokenPeek>/B<AiroPeek>/B<EtherHelp>/B<PacketGrabber> captures
+LiveAction (previously WildPackets/Savvius) B<*Peek>/B<EtherHelp>/B<PacketGrabber> captures
 
 =item *
 B<RADCOM>'s WAN/LAN analyzer captures
 
 =item *
-Network Instruments/JDSU/Viavi B<Observer> version 9 captures
+Viavi (previously Network Instruments) B<Observer> captures
 
 =item *
 B<Lucent/Ascend> router debug output
 
 =item *
-files from HP-UX's B<nettl>
+captures from HP-UX B<nettl>
 
 =item *
 B<Toshiba's> ISDN routers dump output
@@ -84,10 +81,10 @@ B<Toshiba's> ISDN routers dump output
 the output from B<i4btrace> from the ISDN4BSD project
 
 =item *
-traces from the B<EyeSDN> USB S0.
+traces from the B<EyeSDN> USB S0
 
 =item *
-the output in B<IPLog> format from the Cisco Secure Intrusion Detection System
+the B<IPLog> format output from the Cisco Secure Intrusion Detection System
 
 =item *
 B<pppd logs> (pppdump format)
@@ -105,7 +102,7 @@ Visual Networks' B<Visual UpTime> traffic capture
 the output from B<CoSine> L2 debug
 
 =item *
-the output from InfoVista's B<5View> LAN agents
+the output from InfoVista (previously Accellent) B<5View> LAN agents
 
 =item *
 Endace Measurement Systems' ERF format captures
@@ -141,17 +138,47 @@ Textronix K12 text file format captures
 Apple PacketLogger files
 
 =item *
-Files from Aethra Telecommunications' PC108 software for their test
+Captures from Aethra Telecommunications' PC108 software for their test
 instruments
+
+=item *
+Citrix NetScaler Trace files
+
+=item *
+Android Logcat binary and text format logs
+
+=item *
+Colasoft Capsa and PacketBuilder captures
+
+=item *
+Micropross mplog files
+
+=item *
+Unigraf DPA-400 DisplayPort AUX channel monitor traces
+
+=item *
+802.15.4 traces from Daintree's Sensor Network Analyzer
 
 =item *
 MPEG-2 Transport Streams as defined in ISO/IEC 13818-1
 
 =item *
+Log files from the _candump_ utility
+
+=item *
+Logs from the BUSMASTER tool
+
+=item *
+Ixia IxVeriWave raw captures
+
+=item *
 Rabbit Labs CAM Inspector files
 
 =item *
-Colasoft Capsa files
+ _systemd_ journal files
+
+=item *
+3GPP TS 32.423 trace files
 
 =back
 

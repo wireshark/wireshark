@@ -200,34 +200,59 @@ update the wiki page accordingly.
 
 It can also read a variety of capture file formats, including:
 
-* AG Group/WildPackets/Savvius
-EtherPeek/TokenPeek/AiroPeek/EtherHelp/Packet Grabber captures
-* AIX's iptrace captures
-* Accellent's 5Views LAN agent output
-* Cinco Networks NetXRay captures
-* Cisco Secure Intrusion Detection System IPLog output
-* CoSine L2 debug output
-* DBS Etherwatch VMS text output
-* Endace Measurement Systems' ERF format captures
-* EyeSDN USB S0 traces
-* HP-UX nettl captures
-* ISDN4BSD project i4btrace captures
-* Linux Bluez Bluetooth stack hcidump -w traces
-* Lucent/Ascend router debug output
+* pcap, used by libpcap, tcpdump and various other tools
+* Oracle (previously Sun) snoop and atmsnoop captures
+* Finisar (previously Shomiti) Surveyor captures
 * Microsoft Network Monitor captures
-* Network Associates Windows-based Sniffer captures
-* Network General/Network Associates DOS-based Sniffer (compressed or
-uncompressed) captures
-* Network Instruments/JDSU/Viavi Observer version 9 captures
 * Novell LANalyzer captures
+* AIX's iptrace captures
+* Cinco Networks NetXRay captures
+* NETSCOUT (previously Network Associates/Network General) Windows-based
+Sniffer captures
+* Network General/Network Associates DOS-based Sniffer captures
+(compressed or uncompressed)
+* LiveAction (previously WildPackets/Savvius) *Peek/EtherHelp/Packet Grabber
+captures
 * RADCOM's WAN/LAN analyzer captures
-* Shomiti/Finisar Surveyor captures
+* Viavi (previously Network Instruments) Observer captures
+* Lucent/Ascend router debug output
 * Toshiba's ISDN routers dump output
-* VMS TCPIPtrace/TCPtrace/UCX$TRACE output
+* captures from HP-UX nettl
+* the output from i4btrace from the ISDN4BSD project
+* traces from the EyeSDN USB S0
+* the IPLog format output from the Cisco Secure Intrusion Detection System
+* pppd logs (pppdump format)
+* the text output from VMS's TCPIPtrace/TCPtrace/UCX$TRACE utilities
+* the text output from the DBS Etherwatch VMS utility
 * Visual Networks' Visual UpTime traffic capture
-* libpcap, tcpdump and various other tools using tcpdump's capture
-format
-* snoop and atmsnoop output
+* the output from CoSine L2 debug
+* the output from InfoVista (formerly Accellent) 5Views LAN agents
+* Endace Measurement Systems' ERF format captures
+* Linux Bluez Bluetooth stack hcidump -w traces
+* Catapult DCT2000 .out files
+* Gammu generated text output from Nokia DCT3 phones in Netmonitor mode
+* IBM Series (OS/400) Comm traces (ASCII & UNICODE)
+* Juniper Netscreen snoop files
+* Symbian OS btsnoop files
+* TamoSoft CommView files
+* Textronix K12xx 32bit .rf5 format files
+* Textronix K12 text file format captures
+* Apple PacketLogger files
+* Files from Aethra Telecommunications' PC108 software for their test
+instruments
+* Citrix NetScaler Trace files
+* Android Logcat binary and text format logs
+* Colasoft Capsa and Packet Builder captures
+* Micropross mplog files
+* Unigraf DPA-400 DisplayPort AUX channel monitor traces
+* 802.15.4 traces from Daintree's Sensor Network Analyzer
+* MPEG-2 Transport Streams as defined in ISO/IEC 13818-1
+* Log files from the _candump_ utility
+* Logs from the BUSMASTER tool
+* Ixia IxVeriWave raw captures
+* Rabbit Labs CAM Inspector files
+* systemd journal files
+* 3GPP TS 32.423 trace files
 
 so that it can read traces from various network types, as captured by
 other applications or equipment, even if it cannot itself capture on

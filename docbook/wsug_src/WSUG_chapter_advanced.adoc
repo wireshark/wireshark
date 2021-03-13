@@ -806,19 +806,23 @@ for a lot more), for examples see {ntp-main-url}.
 
 So what’s the relationship between Wireshark and time zones anyway?
 
-Wireshark’s native capture file format (libpcap format), and some other capture
-file formats, such as the Windows Sniffer, EtherPeek, AiroPeek, and Sun snoop
-formats, save the arrival time of packets as UTC values. UN*X systems, and
-“Windows NT based” systems represent time internally as UTC. When Wireshark is
-capturing, no conversion is necessary. However, if the system time zone is not
-set correctly, the system’s UTC time might not be correctly set even if the
-system clock appears to display correct local time. When capturing, Npcap has
-to convert the time to UTC before supplying it to Wireshark. If the system’s
-time zone is not set correctly, that conversion will not be done correctly.
+Wireshark’s native capture file format (libpcap format), and some
+other capture file formats, such as the Windows Sniffer, *Peek, Sun
+snoop formats, and newer versions of the Microsoft Network Monitor and
+Network Instruments/Viavi Observer formats, save the arrival time of
+packets as UTC values.  UN*X systems, and “Windows NT based” systems
+represent time internally as UTC.  When Wireshark is capturing, no
+conversion is necessary.  However, if the system time zone is not set
+correctly, the system’s UTC time might not be correctly set even if
+the system clock appears to display correct local time.  When capturing,
+Npcap has to convert the time to UTC before supplying it to Wireshark. 
+If the system’s time zone is not set correctly, that conversion will
+not be done correctly.
 
-Other capture file formats, such as the Microsoft Network Monitor,
-DOS-based Sniffer, and Network Instruments/JDSU/Viavi Observer formats,
-save the arrival time of packets as local time values.
+Other capture file formats, such as the OOS-based Sniffer format and
+older versions of the Microsoft Network Monitor and Network
+Instruments/Viavi Observer formats, save the arrival time of packets as
+local time values.
 
 Internally to Wireshark, time stamps are represented in UTC. This means that
 when reading capture files that save the arrival time of packets as local time

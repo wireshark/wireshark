@@ -113,7 +113,7 @@
   </mime-type>
 
   <mime-type type="application/x-etherpeek">
-    <comment>Packet Capture (Savvius Etherpeek/Airopeek/Omnipeek tagged/v9)</comment>
+    <comment>Packet Capture (WildPackets/Savvius/LiveAction *Peek)</comment>
     <generic-icon name="org.wireshark.Wireshark-mimetype"/>
     <magic>
       <match type="string" offset="0" value="\177ver"/>
@@ -137,7 +137,7 @@
   </mime-type>
 
   <mime-type type="application/x-netinstobserver">
-    <comment>Packet Capture (Viavi Observer)</comment>
+    <comment>Packet Capture (Network Instruments/Viavi Observer)</comment>
     <generic-icon name="org.wireshark.Wireshark-mimetype"/>
     <magic>
       <match type="string" offset="0" value="ObserverPktBuffe"/>
