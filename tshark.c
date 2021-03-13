@@ -118,6 +118,9 @@
 #include <wsutil/str_util.h>
 #include <wsutil/utf8_entities.h>
 #include <wsutil/json_dumper.h>
+#ifdef _WIN32
+#include <wsutil/win32-utils.h>
+#endif
 
 #include "extcap.h"
 
@@ -247,7 +250,7 @@ static process_file_status_t process_cap_file(capture_file *, char *, int, gbool
 static gboolean process_packet_single_pass(capture_file *cf,
     epan_dissect_t *edt, gint64 offset, wtap_rec *rec, Buffer *buf,
     guint tap_flags);
-static void show_print_file_io_error(int err);
+static void show_print_file_io_error(void);
 static gboolean write_preamble(capture_file *cf);
 static gboolean print_packet(capture_file *cf, epan_dissect_t *edt);
 static gboolean write_finale(void);
@@ -2206,7 +2209,7 @@ main(int argc, char *argv[])
 
     if (print_packet_info) {
       if (!write_preamble(&cfile)) {
-        show_print_file_io_error(errno);
+        show_print_file_io_error();
         exit_status = INVALID_FILE;
         goto clean_exit;
       }
@@ -2244,7 +2247,7 @@ main(int argc, char *argv[])
 
     if (print_packet_info) {
       if (!write_finale()) {
-        show_print_file_io_error(errno);
+        show_print_file_io_error();
       }
     }
 
@@ -3223,7 +3226,7 @@ process_packet_second_pass(capture_file *cf, epan_dissect_t *edt,
         fflush(stdout);
 
       if (ferror(stdout)) {
-        show_print_file_io_error(errno);
+        show_print_file_io_error();
         exit(2);
       }
     }
@@ -3505,7 +3508,7 @@ process_cap_file(capture_file *cf, char *save_file, int out_file_type,
     /* Set up to print packet information. */
     if (print_packet_info) {
       if (!write_preamble(cf)) {
-        show_print_file_io_error(errno);
+        show_print_file_io_error();
         status = PROCESS_FILE_NO_FILE_PROCESSED;
         goto out;
       }
@@ -3685,7 +3688,7 @@ process_cap_file(capture_file *cf, char *save_file, int out_file_type,
   } else {
     if (print_packet_info) {
       if (!write_finale()) {
-        show_print_file_io_error(errno);
+        show_print_file_io_error();
         status = PROCESS_FILE_ERROR;
       }
     }
@@ -3785,7 +3788,7 @@ process_packet_single_pass(capture_file *cf, epan_dissect_t *edt, gint64 offset,
         fflush(stdout);
 
       if (ferror(stdout)) {
-        show_print_file_io_error(errno);
+        show_print_file_io_error();
         exit(2);
       }
     }
@@ -4329,9 +4332,9 @@ fail:
 }
 
 static void
-show_print_file_io_error(int err)
+show_print_file_io_error(void)
 {
-  switch (err) {
+  switch (errno) {
 
   case ENOSPC:
     cmdarg_err("Not all the packets could be printed because there is "
@@ -4346,13 +4349,37 @@ show_print_file_io_error(int err)
 #endif
 
   case EPIPE:
+    /*
+     * This almost certainly means "the next program after us in
+     * the pipeline exited before we were finished writing", so
+     * this isn't a real error, it just means we're done.  (We
+     * don't get SIGPIPE because libwireshark ignores SIGPIPE
+     * to avoid getting killed if writing to the MaxMind process
+     * gets SIGPIPE because that process died.)
+     *
+     * Presumably either that program exited deliberately (for
+     * example, "head -N" read N lines and printed them), in
+     * which case there's no error to report, or it terminated
+     * due to an error or a signal, in which case *that's* the
+     * error and that error has been reported.
+     */
+    break;
+
+  default:
+#ifdef _WIN32
+    if (errno == EINVAL && _doserrno == ERROR_NO_DATA) {
       /*
-       * This almost certainly means "the next program after us in
-       * the pipeline exited before we were finished writing", so
-       * this isn't a real error, it just means we're done.  (We
-       * don't get SIGPIPE because libwireshark ignores SIGPIPE
-       * to avoid getting killed if writing to the MaxMind process
-       * gets SIGPIPE because that process died.)
+       * XXX - on Windows, a write to a pipe where the read side
+       * has been closed apparently may return the Windows error
+       * ERROR_BROKEN_PIPE, which the Visual Studio C library maps
+       * to EPIPE, or may return the Windows error ERROR_NO_DATA,
+       * which the Visual Studio C library maps to EINVAL.
+       *
+       * Either of those almost certainly means "the next program
+       * after us in the pipeline exited before we were finished
+       * writing", so, if _doserrno is ERROR_NO_DATA, this isn't
+       * a real error, it just means we're done.  (Windows doesn't
+       * SIGPIPE.)
        *
        * Presumably either that program exited deliberately (for
        * example, "head -N" read N lines and printed them), in
@@ -4361,10 +4388,19 @@ show_print_file_io_error(int err)
        * error and that error has been reported.
        */
       break;
+    }
 
-  default:
+    /*
+     * It's a different error; report it, but with the error
+     * message for _doserrno, which will give more detail
+     * than just "Invalid argument".
+     */
     cmdarg_err("An error occurred while printing packets: %s.",
-      g_strerror(err));
+      win32strerror(_doserrno));
+#else
+    cmdarg_err("An error occurred while printing packets: %s.",
+      g_strerror(errno));
+#endif
     break;
   }
 }
