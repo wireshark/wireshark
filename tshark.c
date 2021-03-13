@@ -1218,6 +1218,11 @@ main(int argc, char *argv[])
                     goto clean_exit;
                 }
                 break;
+            case 'G':
+                cmdarg_err("-G only valid as first option");
+                exit_status = INVALID_OPTION;
+                goto clean_exit;
+                break;
             case 'j':
                 if (protocolfilter) {
                     cmdarg_err("-j or -J was already specified! Overwriting previous protocol filter");
