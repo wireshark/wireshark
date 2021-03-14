@@ -73,6 +73,10 @@ export_pdu_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt, const 
             g_free(err_info);
             break;
 
+        case WTAP_ERR_INTERNAL:
+            g_free(err_info);
+            break;
+
         default:
             break;
         }
