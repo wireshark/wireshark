@@ -19,9 +19,9 @@ extern "C" {
 
 /**
 * Filters the current opened capture file into a temporary file. On success,
-* TRUE is returned and the filtered file is opened into the UI.
+* the filtered file is opened into the UI.
 */
-gboolean do_export_pdu(const char *filter, const gchar *tap_name, exp_pdu_t *data);
+void do_export_pdu(const char *filter, const gchar *tap_name);
 
 
 #ifdef __cplusplus

@@ -13,12 +13,9 @@
 #include "export_pdu_dialog.h"
 #include <ui_export_pdu_dialog.h>
 
-#include <wiretap/pcap-encap.h>
-
 #include <epan/tap.h>
 #include <epan/exported_pdu.h>
 
-#include "ui/tap_export_pdu.h"
 #include "ui/export_pdu_ui_utils.h"
 
 ExportPDUDialog::ExportPDUDialog(QWidget *parent) :
@@ -35,14 +32,10 @@ ExportPDUDialog::ExportPDUDialog(QWidget *parent) :
 }
 void ExportPDUDialog::on_buttonBox_accepted()
 {
-    exp_pdu_t  exp_pdu_data;
-
-    exp_pdu_data.pkt_encap = wtap_wtap_encap_to_pcap_encap(WTAP_ENCAP_WIRESHARK_UPPER_PDU);
-
     const QByteArray& filter = ui->displayFilterLineEdit->text().toUtf8();
     const QByteArray& tap_name = ui->comboBox->currentText().toUtf8();
 
-    do_export_pdu(filter.constData(), tap_name.constData(), &exp_pdu_data);
+    do_export_pdu(filter.constData(), tap_name.constData());
 }
 ExportPDUDialog::~ExportPDUDialog()
 {
