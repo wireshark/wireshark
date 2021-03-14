@@ -1433,24 +1433,25 @@ wtap_dump_file_encap_type(const GArray *file_encaps)
 	return encap;
 }
 
-static gboolean
-wtap_dump_can_write_encap(int filetype, int encap)
+gboolean
+wtap_dump_can_write_encap(int file_type_subtype, int encap)
 {
 	int result = 0;
 
-	if (filetype < 0 || filetype >= (int)file_type_subtype_table_arr->len ||
-	    file_type_subtype_table[filetype].can_write_encap == NULL)
+	if (file_type_subtype < 0 ||
+	    file_type_subtype >= (int)file_type_subtype_table_arr->len ||
+	    file_type_subtype_table[file_type_subtype].can_write_encap == NULL)
 		return FALSE;
 
-	result = (*file_type_subtype_table[filetype].can_write_encap)(encap);
+	result = (*file_type_subtype_table[file_type_subtype].can_write_encap)(encap);
 
 	if (result != 0) {
 		/* if the err said to check wslua's can_write_encap, try that */
 		if (result == WTAP_ERR_CHECK_WSLUA
-			&& file_type_subtype_table[filetype].wslua_info != NULL
-			&& file_type_subtype_table[filetype].wslua_info->wslua_can_write_encap != NULL) {
+			&& file_type_subtype_table[file_type_subtype].wslua_info != NULL
+			&& file_type_subtype_table[file_type_subtype].wslua_info->wslua_can_write_encap != NULL) {
 
-			result = (*file_type_subtype_table[filetype].wslua_info->wslua_can_write_encap)(encap, file_type_subtype_table[filetype].wslua_info->wslua_data);
+			result = (*file_type_subtype_table[file_type_subtype].wslua_info->wslua_can_write_encap)(encap, file_type_subtype_table[file_type_subtype].wslua_info->wslua_data);
 
 		}
 

@@ -68,6 +68,7 @@ libwiretap.so.0 libwiretap0 #MINVER#
  wtap_dump_can_compress@Base 1.9.1
  wtap_dump_can_open@Base 1.9.1
  wtap_dump_can_write@Base 1.9.1
+ wtap_dump_can_write_encap@Base 3.5.0
  wtap_dump_close@Base 1.9.1
  wtap_dump_discard_decryption_secrets@Base 3.0.0
  wtap_dump_fdopen@Base 1.9.1
@@ -156,4 +157,3 @@ libwiretap.so.0 libwiretap0 #MINVER#
  wtap_strerror@Base 1.9.1
  wtap_tsprec_string@Base 1.99.9
  wtap_write_shb_comment@Base 1.9.1
- wtap_wtap_encap_to_pcap_encap@Base 1.9.1
