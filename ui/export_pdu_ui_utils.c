@@ -30,9 +30,11 @@
 #include "tap_export_pdu.h"
 #include "export_pdu_ui_utils.h"
 
-static void
-exp_pdu_file_open(exp_pdu_t *exp_pdu_tap_data)
+void
+do_export_pdu(const char *filter, const gchar *tap_name)
 {
+    exp_pdu_t exp_pdu_tap_data;
+    char *error;
     int   import_file_fd;
     int   file_type_subtype;
     char *capfile_name, *comment;
@@ -40,39 +42,54 @@ exp_pdu_file_open(exp_pdu_t *exp_pdu_tap_data)
     int   err;
     gchar *err_info;
 
+    error = exp_pdu_pre_open(tap_name, filter, &exp_pdu_tap_data);
+    if (error) {
+        /* Error.  We failed to attach to the tap. Clean up */
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", error);
+        g_free(error);
+        return;
+    }
+
     /* Choose a random name for the temporary import buffer */
     GError *err_tempfile = NULL;
     import_file_fd = create_tempfile(&capfile_name, "Wireshark_PDU_", NULL, &err_tempfile);
     if (import_file_fd < 0) {
         failure_alert_box("Temporary file could not be created: %s", err_tempfile->message);
         g_error_free(err_tempfile);
-        goto end;
+        g_free(capfile_name);
+        return;
     }
 
     /* Write a pcapng file... */
     file_type_subtype = wtap_pcapng_file_type_subtype();
     /* ...with this comment */
     comment = g_strdup_printf("Dump of PDUs from %s", cfile.filename);
-    status = exp_pdu_open(exp_pdu_tap_data, file_type_subtype, import_file_fd,
+    status = exp_pdu_open(&exp_pdu_tap_data, file_type_subtype, import_file_fd,
                           comment, &err, &err_info);
     g_free(comment);
     if (!status) {
         cfile_dump_open_failure_alert_box(capfile_name ? capfile_name : "temporary file",
                                           err, err_info, file_type_subtype);
-        goto end;
+        g_free(capfile_name);
+        return;
     }
 
     /* Run the tap */
     cf_retap_packets(&cfile);
 
-    if (!exp_pdu_close(exp_pdu_tap_data, &err, &err_info)) {
+    if (!exp_pdu_close(&exp_pdu_tap_data, &err, &err_info)) {
         cfile_close_failure_alert_box(capfile_name, err, err_info);
+        /*
+         * XXX - remove the temporary file and don't open it as
+         * the current capture?
+         */
     }
 
     /* XXX: should this use the open_routine type in the cfile instead of WTAP_TYPE_AUTO? */
     if (cf_open(&cfile, capfile_name, WTAP_TYPE_AUTO, TRUE /* temporary file */, &err) != CF_OK) {
         /* cf_open() has put up a dialog box for the error */
-        goto end;
+        g_free(capfile_name);
+        return;
     }
 
     switch (cf_read(&cfile, FALSE)) {
@@ -91,25 +108,7 @@ exp_pdu_file_open(exp_pdu_t *exp_pdu_tap_data)
         break;
     }
 
-end:
     g_free(capfile_name);
-}
-
-gboolean
-do_export_pdu(const char *filter, const gchar *tap_name, exp_pdu_t *exp_pdu_tap_data)
-{
-    char *error;
-    error = exp_pdu_pre_open(tap_name, filter, exp_pdu_tap_data);
-    if (error) {
-        /* Error.  We failed to attach to the tap. Clean up */
-        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", error);
-        g_free(error);
-        return FALSE;
-    }
-
-    exp_pdu_file_open(exp_pdu_tap_data);
-
-    return TRUE;
 }
 
 /*
