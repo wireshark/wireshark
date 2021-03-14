@@ -3,6 +3,7 @@
  *
  * (C) 2018 by Harald Welte <laforge@gnumonks.org>
  * (C) 2019 by Vadim Yanitskiy <axilirator@gmail.com>
+ * (C) 2021 by sysmocom - s.f.m.c. GmbH <info@sysmocom.de>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -33,8 +34,8 @@ static int proto_otrxc = -1;
 static int hf_otrxd_burst_dir = -1;
 static int hf_otrxc_msg_dir = -1;
 
-/* TRXD header version */
-static int hf_otrxd_hdr_ver = -1;
+/* TRXD PDU version */
+static int hf_otrxd_pdu_ver = -1;
 
 /* Common TDMA fields */
 static int hf_otrxd_chdr_reserved = -1;
@@ -73,7 +74,7 @@ static int hf_otrxc_status = -1;
 static gint ett_otrxd = -1;
 static gint ett_otrxc = -1;
 
-static expert_field ei_otrxd_unknown_hdr_ver = EI_INIT;
+static expert_field ei_otrxd_unknown_pdu_ver = EI_INIT;
 static expert_field ei_otrxd_injected_msg = EI_INIT;
 static expert_field ei_otrxd_unknown_dir = EI_INIT;
 
@@ -273,11 +274,11 @@ static int dissect_otrxd_common_hdr(tvbuff_t *tvb, packet_info *pinfo,
 	/* TRXD header version and TDMA time-slot number.
 	 *
 	 * | 7 6 5 4 3 2 1 0 | Bit numbers (value range)
-	 * | X X X X . . . . | HDR version (0..15)
+	 * | X X X X . . . . | TRXD PDU version (0..15)
 	 * | . . . . . X X X | TDMA time-slot number (0..7)
 	 * | . . . . X . . . | Reserved (0)
 	 */
-	proto_tree_add_item_ret_uint(tree, hf_otrxd_hdr_ver, tvb,
+	proto_tree_add_item_ret_uint(tree, hf_otrxd_pdu_ver, tvb,
 				     offset, 1, ENC_NA, hdr_ver);
 	proto_tree_add_item(tree, hf_otrxd_chdr_reserved, tvb,
 				     offset, 1, ENC_NA);
@@ -311,8 +312,8 @@ static int dissect_otrxd_rx(tvbuff_t *tvb, packet_info *pinfo,
 		offset += dissect_otrxd_rx_hdr_v1(tvb, pinfo, ti, tree, offset);
 		break;
 	default:
-		expert_add_info_format(pinfo, ti, &ei_otrxd_unknown_hdr_ver,
-				       "Unknown TRXD header version %u", hdr_ver);
+		expert_add_info_format(pinfo, ti, &ei_otrxd_unknown_pdu_ver,
+				       "Unknown TRXD PDU version %u", hdr_ver);
 		return offset;
 	}
 
@@ -357,8 +358,8 @@ static int dissect_otrxd_tx(tvbuff_t *tvb, packet_info *pinfo,
 		offset++;
 		break;
 	default:
-		expert_add_info_format(pinfo, ti, &ei_otrxd_unknown_hdr_ver,
-				       "Unknown TRXD header version %u", hdr_ver);
+		expert_add_info_format(pinfo, ti, &ei_otrxd_unknown_pdu_ver,
+				       "Unknown TRXD PDU version %u", hdr_ver);
 		return offset;
 	}
 
@@ -571,7 +572,7 @@ void proto_register_osmo_trx(void)
 		  FT_UINT8, BASE_DEC, VALS(otrxcd_dir_vals), 0, NULL, HFILL } },
 
 		/* Common TRXD header fields */
-		{ &hf_otrxd_hdr_ver, { "Header Version", "osmo_trxd.hdr_ver",
+		{ &hf_otrxd_pdu_ver, { "PDU Version", "osmo_trxd.pdu_ver",
 		  FT_UINT8, BASE_DEC, NULL, 0xf0, NULL, HFILL } },
 		{ &hf_otrxd_chdr_reserved, { "Reserved", "osmo_trxd.chdr_reserved",
 		  FT_UINT8, BASE_DEC, NULL, 0x08, NULL, HFILL } },
@@ -653,8 +654,8 @@ void proto_register_osmo_trx(void)
 		  PI_COMMENTS_GROUP, PI_COMMENT, "Injected message", EXPFILL } },
 		{ &ei_otrxd_unknown_dir, { "osmo_trx.ei.unknown_dir",
 		  PI_UNDECODED, PI_ERROR, "Unknown direction", EXPFILL } },
-		{ &ei_otrxd_unknown_hdr_ver, { "osmo_trxd.ei.unknown_hdr_ver",
-		  PI_PROTOCOL, PI_WARN, "Unknown header version", EXPFILL } },
+		{ &ei_otrxd_unknown_pdu_ver, { "osmo_trxd.ei.unknown_pdu_ver",
+		  PI_PROTOCOL, PI_WARN, "Unknown PDU version", EXPFILL } },
 	};
 
 	static ei_register_info ei_otrxc[] = {
