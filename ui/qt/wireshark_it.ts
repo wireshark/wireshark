@@ -10792,7 +10792,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
 
 &lt;/tbody&gt;&lt;/table&gt;
 &lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
+        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;
 
 &lt;h3&gt;Scorciatoie di tastiera preziose e che risparmiano tempo&lt;/h3&gt;
 &lt;table&gt;&lt;tbody&gt;
@@ -10881,8 +10881,96 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Ripristina il grafico al suo stato iniziale.</translation>
     </message>
     <message>
+        <source>Go To Setup Packet</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Go to setup packet of stream currently under the cursor</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Mute</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Mute selected streams</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unmute</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unmute selected streams</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Invert muting of selected streams</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Route audio to left channel of selected streams</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Route audio to left and right channel of selected streams</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Route audio to right channel of selected streams</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Remove Streams</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Remove selected streams from the list</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>All</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Select all</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>None</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Clear selection</source>
+        <translation type="unfinished">Cancella la selezione</translation>
+    </message>
+    <message>
+        <source>Invert</source>
+        <translation type="unfinished">Inverti</translation>
+    </message>
+    <message>
+        <source>Invert selection</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Play/Pause</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Start playing or pause playing</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Stop</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Stop playing</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>0</source>
-        <translation>0</translation>
+        <translation type="vanished">0</translation>
     </message>
     <message>
         <source>Zoom In</source>
@@ -10890,7 +10978,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>+</source>
-        <translation>+</translation>
+        <translation type="vanished">+</translation>
     </message>
     <message>
         <source>Zoom Out</source>
@@ -10898,7 +10986,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>-</source>
-        <translation>-</translation>
+        <translation type="vanished">-</translation>
     </message>
     <message>
         <source>Move Left 10 Pixels</source>
@@ -10906,7 +10994,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Left</source>
-        <translation>Sinistra</translation>
+        <translation type="vanished">Sinistra</translation>
     </message>
     <message>
         <source>Move Right 10 Pixels</source>
@@ -10914,7 +11002,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Right</source>
-        <translation>Destra</translation>
+        <translation type="vanished">Destra</translation>
     </message>
     <message>
         <source>Move Left 1 Pixels</source>
@@ -10922,7 +11010,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Shift+Left</source>
-        <translation>Maiusc+Sinistra</translation>
+        <translation type="vanished">Maiusc+Sinistra</translation>
     </message>
     <message>
         <source>Move Right 1 Pixels</source>
@@ -10930,7 +11018,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Shift+Right</source>
-        <translation>Maiusc+Destra</translation>
+        <translation type="vanished">Maiusc+Destra</translation>
     </message>
     <message>
         <source>Go To Packet Under Cursor</source>
@@ -10942,51 +11030,51 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>G</source>
-        <translation>G</translation>
+        <translation type="vanished">G</translation>
     </message>
     <message>
         <source>Drag / Zoom</source>
-        <translation>Trascina / Ingrandisci</translation>
+        <translation type="vanished">Trascina / Ingrandisci</translation>
     </message>
     <message>
         <source>Toggle mouse drag / zoom behavior</source>
-        <translation>Commuta il comportamento di trascinamento/ingrandimento del mouse</translation>
+        <translation type="vanished">Commuta il comportamento di trascinamento/ingrandimento del mouse</translation>
     </message>
     <message>
         <source>Z</source>
-        <translation>Z</translation>
+        <translation type="vanished">Z</translation>
     </message>
     <message>
         <source>Capture / Session Time Origin</source>
-        <translation>Origine dell&apos;orario della cattura/sessione</translation>
+        <translation type="vanished">Origine dell&apos;orario della cattura/sessione</translation>
     </message>
     <message>
         <source>Toggle capture / session time origin</source>
-        <translation>Commuta l&apos;origine dell&apos;orario della cattura/sessione</translation>
+        <translation type="vanished">Commuta l&apos;origine dell&apos;orario della cattura/sessione</translation>
     </message>
     <message>
         <source>T</source>
-        <translation>T</translation>
+        <translation type="vanished">T</translation>
     </message>
     <message>
         <source>Crosshairs</source>
-        <translation>Reticolo</translation>
+        <translation type="vanished">Reticolo</translation>
     </message>
     <message>
         <source>Toggle crosshairs</source>
-        <translation>Commuta il reticolo</translation>
+        <translation type="vanished">Commuta il reticolo</translation>
     </message>
     <message>
         <source>Space</source>
-        <translation>Spazio</translation>
+        <translation type="vanished">Spazio</translation>
     </message>
     <message>
         <source>Mute/Unmute</source>
-        <translation>Silenzia/Rimuovi silenzio</translation>
+        <translation type="vanished">Silenzia/Rimuovi silenzio</translation>
     </message>
     <message>
         <source>Mute or unmute the stream</source>
-        <translation>Silenzia o riprendi il flusso</translation>
+        <translation type="vanished">Silenzia o riprendi il flusso</translation>
     </message>
     <message>
         <source>Play the stream</source>
@@ -10998,7 +11086,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Route audio to left channel</source>
-        <translation>Instrada l&apos;audio al canale sinistro</translation>
+        <translation type="vanished">Instrada l&apos;audio al canale sinistro</translation>
     </message>
     <message>
         <source>Left + Right</source>
@@ -11006,7 +11094,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Route audio to left and right channel</source>
-        <translation>Instrada l&apos;audio al canale sinistro e destro</translation>
+        <translation type="vanished">Instrada l&apos;audio al canale sinistro e destro</translation>
     </message>
     <message>
         <source>To Right</source>
@@ -11014,7 +11102,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Route audio to right channel</source>
-        <translation>Instrada l&apos;audio al canale destro</translation>
+        <translation type="vanished">Instrada l&apos;audio al canale destro</translation>
     </message>
     <message>
         <source>Invert Muting</source>
@@ -11022,19 +11110,23 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Invert muting of all channels</source>
-        <translation>Inverti il silenziamento di tutti i canali</translation>
+        <translation type="vanished">Inverti il silenziamento di tutti i canali</translation>
     </message>
     <message>
         <source>Remove Stream</source>
-        <translation>Rimuovi flusso</translation>
+        <translation type="vanished">Rimuovi flusso</translation>
     </message>
     <message>
         <source>Remove stream from the list</source>
-        <translation>Rimuovi il flusso dall&apos;elenco</translation>
+        <translation type="vanished">Rimuovi il flusso dall&apos;elenco</translation>
     </message>
     <message>
         <source>No devices available</source>
         <translation>Nessun dispositivo disponibile</translation>
+    </message>
+    <message>
+        <source>Select</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Audio Routing</source>

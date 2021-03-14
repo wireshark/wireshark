@@ -10757,7 +10757,7 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
 
 &lt;/tbody&gt;&lt;/table&gt;
 &lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
+        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;
 
 &lt;h3&gt;Raccourcis-clavier précieux pour gains de temps surprenants&lt;/h3&gt;
 &lt;table&gt;&lt;tbody&gt;
@@ -10842,8 +10842,96 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
         <translation>Réinitialiser le graphique à son état initial.</translation>
     </message>
     <message>
+        <source>Go To Setup Packet</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Go to setup packet of stream currently under the cursor</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Mute</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Mute selected streams</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unmute</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unmute selected streams</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Invert muting of selected streams</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Route audio to left channel of selected streams</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Route audio to left and right channel of selected streams</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Route audio to right channel of selected streams</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Remove Streams</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Remove selected streams from the list</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>All</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Select all</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>None</source>
+        <translation type="unfinished">Aucun</translation>
+    </message>
+    <message>
+        <source>Clear selection</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Invert</source>
+        <translation type="unfinished">Inverser</translation>
+    </message>
+    <message>
+        <source>Invert selection</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Play/Pause</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Start playing or pause playing</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Stop</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Stop playing</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>0</source>
-        <translation>0</translation>
+        <translation type="vanished">0</translation>
     </message>
     <message>
         <source>Zoom In</source>
@@ -10851,7 +10939,7 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     </message>
     <message>
         <source>+</source>
-        <translation>+</translation>
+        <translation type="vanished">+</translation>
     </message>
     <message>
         <source>Zoom Out</source>
@@ -10859,7 +10947,7 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     </message>
     <message>
         <source>-</source>
-        <translation>-</translation>
+        <translation type="vanished">-</translation>
     </message>
     <message>
         <source>Move Left 10 Pixels</source>
@@ -10867,7 +10955,7 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     </message>
     <message>
         <source>Left</source>
-        <translation>Gauche</translation>
+        <translation type="vanished">Gauche</translation>
     </message>
     <message>
         <source>Move Right 10 Pixels</source>
@@ -10875,7 +10963,7 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     </message>
     <message>
         <source>Right</source>
-        <translation>Droite</translation>
+        <translation type="vanished">Droite</translation>
     </message>
     <message>
         <source>Move Left 1 Pixels</source>
@@ -10883,7 +10971,7 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     </message>
     <message>
         <source>Shift+Left</source>
-        <translation>Maj+Gauche</translation>
+        <translation type="vanished">Maj+Gauche</translation>
     </message>
     <message>
         <source>Move Right 1 Pixels</source>
@@ -10891,7 +10979,7 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     </message>
     <message>
         <source>Shift+Right</source>
-        <translation>Maj+Droite</translation>
+        <translation type="vanished">Maj+Droite</translation>
     </message>
     <message>
         <source>Go To Packet Under Cursor</source>
@@ -10903,51 +10991,43 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     </message>
     <message>
         <source>G</source>
-        <translation>G</translation>
+        <translation type="vanished">G</translation>
     </message>
     <message>
         <source>Drag / Zoom</source>
-        <translation>Glisser / Zoom</translation>
+        <translation type="vanished">Glisser / Zoom</translation>
     </message>
     <message>
         <source>Toggle mouse drag / zoom behavior</source>
-        <translation>Basculer comportant de la souris glisser / zoom</translation>
+        <translation type="vanished">Basculer comportant de la souris glisser / zoom</translation>
     </message>
     <message>
         <source>Z</source>
-        <translation>Z</translation>
+        <translation type="vanished">Z</translation>
     </message>
     <message>
         <source>Capture / Session Time Origin</source>
-        <translation>Capture / Temps de Session d&apos;origine</translation>
+        <translation type="vanished">Capture / Temps de Session d&apos;origine</translation>
     </message>
     <message>
         <source>Toggle capture / session time origin</source>
-        <translation>Basculer du temps d&apos;origine capture / session</translation>
+        <translation type="vanished">Basculer du temps d&apos;origine capture / session</translation>
     </message>
     <message>
         <source>T</source>
-        <translation>T</translation>
+        <translation type="vanished">T</translation>
     </message>
     <message>
         <source>Crosshairs</source>
-        <translation>Réticule</translation>
+        <translation type="vanished">Réticule</translation>
     </message>
     <message>
         <source>Toggle crosshairs</source>
-        <translation>Basculer réticule</translation>
+        <translation type="vanished">Basculer réticule</translation>
     </message>
     <message>
         <source>Space</source>
-        <translation>Espace</translation>
-    </message>
-    <message>
-        <source>Mute/Unmute</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Mute or unmute the stream</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">Espace</translation>
     </message>
     <message>
         <source>Play the stream</source>
@@ -10958,15 +11038,7 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Route audio to left channel</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Left + Right</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Route audio to left and right channel</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -10974,27 +11046,15 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Route audio to right channel</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Invert Muting</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Invert muting of all channels</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Remove Stream</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Remove stream from the list</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>No devices available</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Select</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

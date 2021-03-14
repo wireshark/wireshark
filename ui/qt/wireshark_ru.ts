@@ -892,7 +892,7 @@
     </message>
     <message>
         <source>Please report this as a Wireshark issue at https://gitlab.com/wireshark/wireshark/-/issues.</source>
-        <translation type="unfinished"></translation>
+        <translation>Пожалуйста, зарепортите этот баг https://gitlab.com/wireshark/wireshark/-/issues</translation>
     </message>
     <message>
         <source>directory</source>
@@ -6870,7 +6870,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>DCCP Stream</source>
-        <translation type="unfinished"></translation>
+        <translation>Поток DCCP</translation>
     </message>
     <message>
         <source>TLS Stream</source>
@@ -7982,7 +7982,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Please report this as a Wireshark issue at https://gitlab.com/wireshark/wireshark/-/issues.</source>
-        <translation type="unfinished"></translation>
+        <translation>Пожалуйста, зарепортите этот баг https://gitlab.com/wireshark/wireshark/-/issues</translation>
     </message>
     <message>
         <source>Unknown file type returned by export dialog.</source>
@@ -10819,7 +10819,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
 
 &lt;/tbody&gt;&lt;/table&gt;
 &lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
+        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;
 
 &lt;h3&gt;Полезные, удобные и экономящие время комбинации клавиш&lt;/h3&gt;
 &lt;table&gt;&lt;tbody&gt;
@@ -10908,8 +10908,96 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Сбросить график в его исходное состояние.</translation>
     </message>
     <message>
+        <source>Go To Setup Packet</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Go to setup packet of stream currently under the cursor</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Mute</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Mute selected streams</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unmute</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unmute selected streams</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Invert muting of selected streams</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Route audio to left channel of selected streams</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Route audio to left and right channel of selected streams</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Route audio to right channel of selected streams</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Remove Streams</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Remove selected streams from the list</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>All</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Select all</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>None</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Clear selection</source>
+        <translation type="unfinished">Очистить выбор</translation>
+    </message>
+    <message>
+        <source>Invert</source>
+        <translation type="unfinished">Инвертировать</translation>
+    </message>
+    <message>
+        <source>Invert selection</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Play/Pause</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Start playing or pause playing</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Stop</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Stop playing</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>0</source>
-        <translation>0</translation>
+        <translation type="vanished">0</translation>
     </message>
     <message>
         <source>Zoom In</source>
@@ -10917,7 +11005,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>+</source>
-        <translation>+</translation>
+        <translation type="vanished">+</translation>
     </message>
     <message>
         <source>Zoom Out</source>
@@ -10925,7 +11013,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>-</source>
-        <translation>-</translation>
+        <translation type="vanished">-</translation>
     </message>
     <message>
         <source>Move Left 10 Pixels</source>
@@ -10933,7 +11021,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Left</source>
-        <translation>Влево</translation>
+        <translation type="vanished">Влево</translation>
     </message>
     <message>
         <source>Move Right 10 Pixels</source>
@@ -10941,7 +11029,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Right</source>
-        <translation>Вправо</translation>
+        <translation type="vanished">Вправо</translation>
     </message>
     <message>
         <source>Move Left 1 Pixels</source>
@@ -10949,7 +11037,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Shift+Left</source>
-        <translation>Shift+Влево</translation>
+        <translation type="vanished">Shift+Влево</translation>
     </message>
     <message>
         <source>Move Right 1 Pixels</source>
@@ -10957,7 +11045,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Shift+Right</source>
-        <translation>Shift+Вправо</translation>
+        <translation type="vanished">Shift+Вправо</translation>
     </message>
     <message>
         <source>Go To Packet Under Cursor</source>
@@ -10969,51 +11057,51 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>G</source>
-        <translation>G</translation>
+        <translation type="vanished">G</translation>
     </message>
     <message>
         <source>Drag / Zoom</source>
-        <translation>Перетянуть / Изменить Масштаб</translation>
+        <translation type="vanished">Перетянуть / Изменить Масштаб</translation>
     </message>
     <message>
         <source>Toggle mouse drag / zoom behavior</source>
-        <translation>Переключать режим работы мыши: перетягивание / масштаб</translation>
+        <translation type="vanished">Переключать режим работы мыши: перетягивание / масштаб</translation>
     </message>
     <message>
         <source>Z</source>
-        <translation>Z</translation>
+        <translation type="vanished">Z</translation>
     </message>
     <message>
         <source>Capture / Session Time Origin</source>
-        <translation>Время Начала Захвата / Сессии</translation>
+        <translation type="vanished">Время Начала Захвата / Сессии</translation>
     </message>
     <message>
         <source>Toggle capture / session time origin</source>
-        <translation>Переключить Время Начала Захвата / Сессии</translation>
+        <translation type="vanished">Переключить Время Начала Захвата / Сессии</translation>
     </message>
     <message>
         <source>T</source>
-        <translation>T</translation>
+        <translation type="vanished">T</translation>
     </message>
     <message>
         <source>Crosshairs</source>
-        <translation>Перекрестия</translation>
+        <translation type="vanished">Перекрестия</translation>
     </message>
     <message>
         <source>Toggle crosshairs</source>
-        <translation>Переключить перекрестия</translation>
+        <translation type="vanished">Переключить перекрестия</translation>
     </message>
     <message>
         <source>Space</source>
-        <translation>Пробел</translation>
+        <translation type="vanished">Пробел</translation>
     </message>
     <message>
         <source>Mute/Unmute</source>
-        <translation>Включить/отключить звук</translation>
+        <translation type="vanished">Включить/отключить звук</translation>
     </message>
     <message>
         <source>Mute or unmute the stream</source>
-        <translation>Включить/отключить звук потока</translation>
+        <translation type="vanished">Включить/отключить звук потока</translation>
     </message>
     <message>
         <source>Play the stream</source>
@@ -11024,24 +11112,12 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Левый канал</translation>
     </message>
     <message>
-        <source>Route audio to left channel</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Left + Right</source>
         <translation>Левый + Правый </translation>
     </message>
     <message>
-        <source>Route audio to left and right channel</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>To Right</source>
         <translation>Правый канал</translation>
-    </message>
-    <message>
-        <source>Route audio to right channel</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Invert Muting</source>
@@ -11049,19 +11125,23 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Invert muting of all channels</source>
-        <translation>Инвертировать выключение звука всех каналов</translation>
+        <translation type="vanished">Инвертировать выключение звука всех каналов</translation>
     </message>
     <message>
         <source>Remove Stream</source>
-        <translation>Убрать поток</translation>
+        <translation type="vanished">Убрать поток</translation>
     </message>
     <message>
         <source>Remove stream from the list</source>
-        <translation>Убрать стрим из списка</translation>
+        <translation type="vanished">Убрать стрим из списка</translation>
     </message>
     <message>
         <source>No devices available</source>
         <translation>Нет доступных устройств</translation>
+    </message>
+    <message>
+        <source>Select</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Audio Routing</source>

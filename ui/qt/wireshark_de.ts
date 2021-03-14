@@ -10792,7 +10792,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
 
 &lt;/tbody&gt;&lt;/table&gt;
 &lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
+        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;
 
 &lt;h3&gt;Nützliche Tastenkürzel zur Zeitersparnis&lt;/h3&gt;
 &lt;table&gt;&lt;tbody&gt;
@@ -10881,8 +10881,96 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <translation>Graph in den Ursprungszustand zurücksetzen.</translation>
     </message>
     <message>
+        <source>Go To Setup Packet</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Go to setup packet of stream currently under the cursor</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Mute</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Mute selected streams</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unmute</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unmute selected streams</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Invert muting of selected streams</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Route audio to left channel of selected streams</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Route audio to left and right channel of selected streams</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Route audio to right channel of selected streams</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Remove Streams</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Remove selected streams from the list</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>All</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Select all</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>None</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Clear selection</source>
+        <translation type="unfinished">Auswahl löschen</translation>
+    </message>
+    <message>
+        <source>Invert</source>
+        <translation type="unfinished">Invertieren</translation>
+    </message>
+    <message>
+        <source>Invert selection</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Play/Pause</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Start playing or pause playing</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Stop</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Stop playing</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>0</source>
-        <translation>0</translation>
+        <translation type="vanished">0</translation>
     </message>
     <message>
         <source>Zoom In</source>
@@ -10890,7 +10978,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>+</source>
-        <translation>+</translation>
+        <translation type="vanished">+</translation>
     </message>
     <message>
         <source>Zoom Out</source>
@@ -10898,7 +10986,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>-</source>
-        <translation>-</translation>
+        <translation type="vanished">-</translation>
     </message>
     <message>
         <source>Move Left 10 Pixels</source>
@@ -10906,7 +10994,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Left</source>
-        <translation>Links</translation>
+        <translation type="vanished">Links</translation>
     </message>
     <message>
         <source>Move Right 10 Pixels</source>
@@ -10914,7 +11002,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Right</source>
-        <translation>Rechts</translation>
+        <translation type="vanished">Rechts</translation>
     </message>
     <message>
         <source>Move Left 1 Pixels</source>
@@ -10922,7 +11010,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Shift+Left</source>
-        <translation>Shift+Left</translation>
+        <translation type="vanished">Shift+Left</translation>
     </message>
     <message>
         <source>Move Right 1 Pixels</source>
@@ -10930,7 +11018,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Shift+Right</source>
-        <translation>Shift+Right</translation>
+        <translation type="vanished">Shift+Right</translation>
     </message>
     <message>
         <source>Go To Packet Under Cursor</source>
@@ -10942,51 +11030,51 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>G</source>
-        <translation>G</translation>
+        <translation type="vanished">G</translation>
     </message>
     <message>
         <source>Drag / Zoom</source>
-        <translation>Verschieben / Zoomen</translation>
+        <translation type="vanished">Verschieben / Zoomen</translation>
     </message>
     <message>
         <source>Toggle mouse drag / zoom behavior</source>
-        <translation>Maustastenverhalten umschalten: Verschieben / Zoomen</translation>
+        <translation type="vanished">Maustastenverhalten umschalten: Verschieben / Zoomen</translation>
     </message>
     <message>
         <source>Z</source>
-        <translation>Z</translation>
+        <translation type="vanished">Z</translation>
     </message>
     <message>
         <source>Capture / Session Time Origin</source>
-        <translation>Uhrzeit / verstrichene Zeit</translation>
+        <translation type="vanished">Uhrzeit / verstrichene Zeit</translation>
     </message>
     <message>
         <source>Toggle capture / session time origin</source>
-        <translation>Umschalten zwischen Uhrzeit und verstrichener Zeit</translation>
+        <translation type="vanished">Umschalten zwischen Uhrzeit und verstrichener Zeit</translation>
     </message>
     <message>
         <source>T</source>
-        <translation>T</translation>
+        <translation type="vanished">T</translation>
     </message>
     <message>
         <source>Crosshairs</source>
-        <translation>Fadenkreuz</translation>
+        <translation type="vanished">Fadenkreuz</translation>
     </message>
     <message>
         <source>Toggle crosshairs</source>
-        <translation>Fadenkreuz ein/ausblenden</translation>
+        <translation type="vanished">Fadenkreuz ein/ausblenden</translation>
     </message>
     <message>
         <source>Space</source>
-        <translation>Space</translation>
+        <translation type="vanished">Space</translation>
     </message>
     <message>
         <source>Mute/Unmute</source>
-        <translation>Stummschalten</translation>
+        <translation type="vanished">Stummschalten</translation>
     </message>
     <message>
         <source>Mute or unmute the stream</source>
-        <translation>Stream stummschalten</translation>
+        <translation type="vanished">Stream stummschalten</translation>
     </message>
     <message>
         <source>Play the stream</source>
@@ -10998,7 +11086,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Route audio to left channel</source>
-        <translation>Audio auf linken Kanal lenken</translation>
+        <translation type="vanished">Audio auf linken Kanal lenken</translation>
     </message>
     <message>
         <source>Left + Right</source>
@@ -11006,7 +11094,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Route audio to left and right channel</source>
-        <translation>Audio auf linken und rechten Kanal lenken</translation>
+        <translation type="vanished">Audio auf linken und rechten Kanal lenken</translation>
     </message>
     <message>
         <source>To Right</source>
@@ -11014,7 +11102,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Route audio to right channel</source>
-        <translation>Audio auf rechten Kanal lenken</translation>
+        <translation type="vanished">Audio auf rechten Kanal lenken</translation>
     </message>
     <message>
         <source>Invert Muting</source>
@@ -11022,19 +11110,23 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Invert muting of all channels</source>
-        <translation>Stummschaltung aller Kanäle umkehren</translation>
+        <translation type="vanished">Stummschaltung aller Kanäle umkehren</translation>
     </message>
     <message>
         <source>Remove Stream</source>
-        <translation>Stream entfernen</translation>
+        <translation type="vanished">Stream entfernen</translation>
     </message>
     <message>
         <source>Remove stream from the list</source>
-        <translation>Stream aus der Liste entfernen</translation>
+        <translation type="vanished">Stream aus der Liste entfernen</translation>
     </message>
     <message>
         <source>No devices available</source>
         <translation>Keine Geräte gefunden</translation>
+    </message>
+    <message>
+        <source>Select</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Audio Routing</source>

@@ -10792,7 +10792,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
 
 &lt;/tbody&gt;&lt;/table&gt;
 &lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
+        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;
 
 &lt;h3&gt;Värdefulla och fantastiskt tidsbesparande tangentbordsgenvägar&lt;/h3&gt;
 &lt;table&gt;&lt;tbody&gt;
@@ -10881,8 +10881,96 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>Återställ grafen till sitt ursprungstillstånd.</translation>
     </message>
     <message>
+        <source>Go To Setup Packet</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Go to setup packet of stream currently under the cursor</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Mute</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Mute selected streams</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unmute</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unmute selected streams</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Invert muting of selected streams</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Route audio to left channel of selected streams</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Route audio to left and right channel of selected streams</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Route audio to right channel of selected streams</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Remove Streams</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Remove selected streams from the list</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>All</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Select all</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>None</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Clear selection</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Invert</source>
+        <translation type="unfinished">Invertera</translation>
+    </message>
+    <message>
+        <source>Invert selection</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Play/Pause</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Start playing or pause playing</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Stop</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Stop playing</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>0</source>
-        <translation>0</translation>
+        <translation type="vanished">0</translation>
     </message>
     <message>
         <source>Zoom In</source>
@@ -10890,7 +10978,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>+</source>
-        <translation>+</translation>
+        <translation type="vanished">+</translation>
     </message>
     <message>
         <source>Zoom Out</source>
@@ -10898,7 +10986,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>-</source>
-        <translation>-</translation>
+        <translation type="vanished">-</translation>
     </message>
     <message>
         <source>Move Left 10 Pixels</source>
@@ -10906,7 +10994,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>Left</source>
-        <translation>Vänster</translation>
+        <translation type="vanished">Vänster</translation>
     </message>
     <message>
         <source>Move Right 10 Pixels</source>
@@ -10914,7 +11002,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>Right</source>
-        <translation>Höger</translation>
+        <translation type="vanished">Höger</translation>
     </message>
     <message>
         <source>Move Left 1 Pixels</source>
@@ -10922,7 +11010,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>Shift+Left</source>
-        <translation>Skift+vänster</translation>
+        <translation type="vanished">Skift+vänster</translation>
     </message>
     <message>
         <source>Move Right 1 Pixels</source>
@@ -10930,7 +11018,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>Shift+Right</source>
-        <translation>Skift+höger</translation>
+        <translation type="vanished">Skift+höger</translation>
     </message>
     <message>
         <source>Go To Packet Under Cursor</source>
@@ -10942,51 +11030,43 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>G</source>
-        <translation>G</translation>
+        <translation type="vanished">G</translation>
     </message>
     <message>
         <source>Drag / Zoom</source>
-        <translation>Dra/zooma</translation>
+        <translation type="vanished">Dra/zooma</translation>
     </message>
     <message>
         <source>Toggle mouse drag / zoom behavior</source>
-        <translation>Växla musbeteende mellan dra/zooma</translation>
+        <translation type="vanished">Växla musbeteende mellan dra/zooma</translation>
     </message>
     <message>
         <source>Z</source>
-        <translation>Z</translation>
+        <translation type="vanished">Z</translation>
     </message>
     <message>
         <source>Capture / Session Time Origin</source>
-        <translation>Ursprungstid för fångst/session</translation>
+        <translation type="vanished">Ursprungstid för fångst/session</translation>
     </message>
     <message>
         <source>Toggle capture / session time origin</source>
-        <translation>Växla mellan fångst/session som ursprungstid</translation>
+        <translation type="vanished">Växla mellan fångst/session som ursprungstid</translation>
     </message>
     <message>
         <source>T</source>
-        <translation>T</translation>
+        <translation type="vanished">T</translation>
     </message>
     <message>
         <source>Crosshairs</source>
-        <translation>Hårkors</translation>
+        <translation type="vanished">Hårkors</translation>
     </message>
     <message>
         <source>Toggle crosshairs</source>
-        <translation>Byt hårkors</translation>
+        <translation type="vanished">Byt hårkors</translation>
     </message>
     <message>
         <source>Space</source>
-        <translation>Mellanslag</translation>
-    </message>
-    <message>
-        <source>Mute/Unmute</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Mute or unmute the stream</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">Mellanslag</translation>
     </message>
     <message>
         <source>Play the stream</source>
@@ -10997,15 +11077,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Route audio to left channel</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Left + Right</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Route audio to left and right channel</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -11013,28 +11085,16 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Route audio to right channel</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Invert Muting</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Invert muting of all channels</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Remove Stream</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Remove stream from the list</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>No devices available</source>
         <translation>Inga enheter tillgängliga</translation>
+    </message>
+    <message>
+        <source>Select</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Audio Routing</source>

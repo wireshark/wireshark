@@ -10768,7 +10768,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
 
 &lt;/tbody&gt;&lt;/table&gt;
 &lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
+        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;
 
 &lt;h3&gt;価値のあるすばらしく時間を説zy九できるキーボードショートカット&lt;/h3&gt;
 &lt;table&gt;&lt;tbody&gt;
@@ -10857,8 +10857,96 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>グラフを初期状態にリセットします</translation>
     </message>
     <message>
+        <source>Go To Setup Packet</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Go to setup packet of stream currently under the cursor</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Mute</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Mute selected streams</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unmute</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unmute selected streams</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Invert muting of selected streams</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Route audio to left channel of selected streams</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Route audio to left and right channel of selected streams</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Route audio to right channel of selected streams</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Remove Streams</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Remove selected streams from the list</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>All</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Select all</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>None</source>
+        <translation type="unfinished">なし</translation>
+    </message>
+    <message>
+        <source>Clear selection</source>
+        <translation type="unfinished">選択をクリア</translation>
+    </message>
+    <message>
+        <source>Invert</source>
+        <translation type="unfinished">反転</translation>
+    </message>
+    <message>
+        <source>Invert selection</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Play/Pause</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Start playing or pause playing</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Stop</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Stop playing</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>0</source>
-        <translation>0</translation>
+        <translation type="vanished">0</translation>
     </message>
     <message>
         <source>Zoom In</source>
@@ -10866,7 +10954,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>+</source>
-        <translation>+</translation>
+        <translation type="vanished">+</translation>
     </message>
     <message>
         <source>Zoom Out</source>
@@ -10874,7 +10962,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>-</source>
-        <translation>-</translation>
+        <translation type="vanished">-</translation>
     </message>
     <message>
         <source>Move Left 10 Pixels</source>
@@ -10882,7 +10970,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Left</source>
-        <translation>左</translation>
+        <translation type="vanished">左</translation>
     </message>
     <message>
         <source>Move Right 10 Pixels</source>
@@ -10890,7 +10978,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Right</source>
-        <translation>右</translation>
+        <translation type="vanished">右</translation>
     </message>
     <message>
         <source>Move Left 1 Pixels</source>
@@ -10898,7 +10986,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Shift+Left</source>
-        <translation>Shift+左</translation>
+        <translation type="vanished">Shift+左</translation>
     </message>
     <message>
         <source>Move Right 1 Pixels</source>
@@ -10906,7 +10994,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Shift+Right</source>
-        <translation>Shift+右</translation>
+        <translation type="vanished">Shift+右</translation>
     </message>
     <message>
         <source>Go To Packet Under Cursor</source>
@@ -10918,51 +11006,43 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>G</source>
-        <translation>G</translation>
+        <translation type="vanished">G</translation>
     </message>
     <message>
         <source>Drag / Zoom</source>
-        <translation>ドラッグ/ズーム</translation>
+        <translation type="vanished">ドラッグ/ズーム</translation>
     </message>
     <message>
         <source>Toggle mouse drag / zoom behavior</source>
-        <translation>マウスのドラッグ/ズームの動作を切り替えます</translation>
+        <translation type="vanished">マウスのドラッグ/ズームの動作を切り替えます</translation>
     </message>
     <message>
         <source>Z</source>
-        <translation>Z</translation>
+        <translation type="vanished">Z</translation>
     </message>
     <message>
         <source>Capture / Session Time Origin</source>
-        <translation>キャプチャ/セッション時間起点</translation>
+        <translation type="vanished">キャプチャ/セッション時間起点</translation>
     </message>
     <message>
         <source>Toggle capture / session time origin</source>
-        <translation>キャプチャ/セッション時間起点を切り替えます</translation>
+        <translation type="vanished">キャプチャ/セッション時間起点を切り替えます</translation>
     </message>
     <message>
         <source>T</source>
-        <translation>T</translation>
+        <translation type="vanished">T</translation>
     </message>
     <message>
         <source>Crosshairs</source>
-        <translation>十字カーソル</translation>
+        <translation type="vanished">十字カーソル</translation>
     </message>
     <message>
         <source>Toggle crosshairs</source>
-        <translation>十字カーソルの表示切り替え</translation>
+        <translation type="vanished">十字カーソルの表示切り替え</translation>
     </message>
     <message>
         <source>Space</source>
-        <translation>スペース</translation>
-    </message>
-    <message>
-        <source>Mute/Unmute</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Mute or unmute the stream</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">スペース</translation>
     </message>
     <message>
         <source>Play the stream</source>
@@ -10973,15 +11053,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Route audio to left channel</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Left + Right</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Route audio to left and right channel</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -10989,28 +11061,16 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Route audio to right channel</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Invert Muting</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Invert muting of all channels</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Remove Stream</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Remove stream from the list</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>No devices available</source>
         <translation>デバイスが利用できません</translation>
+    </message>
+    <message>
+        <source>Select</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Audio Routing</source>
