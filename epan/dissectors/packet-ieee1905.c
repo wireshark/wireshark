@@ -9101,7 +9101,8 @@ proto_register_ieee1905(void)
 
         { &hf_ieee1905_association_flag,
           { "Association event", "ieee1905.assoc_event.assoc_event",
-            FT_BOOLEAN, 8, TFS(&tfs_ieee1905_association_event_flag), 0x20, NULL, HFILL }},
+            FT_BOOLEAN, 8, TFS(&tfs_ieee1905_association_event_flag),
+            0x80, NULL, HFILL }},
 
         { &hf_ieee1905_association_client_mac_addr,
           { "Client mac address", "ieee1905.assoc_event.client_mac",
