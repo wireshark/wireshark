@@ -18,8 +18,6 @@
 #include <epan/expert.h>
 #include <epan/unit_strings.h>
 
-#define GMSK_BURST_LEN	148
-
 /* This is a non-standard, ad-hoc protocol to pass baseband GSM bursts between
  * the transceiver (such as osmo-trx, fake_trx.py or grgsm_trx) and the L1
  * program (such as osmo-bts-trx or trxcon). Osmocom inherited this protocol
@@ -127,6 +125,20 @@ enum otrxd_mod_type {
 	OTRXD_MOD_T_32QAM		= 0x05,
 	OTRXD_MOD_T_GMSK_AB		= 0x06,
 	OTRXD_MOD_T_RFU			= 0x07,
+};
+
+/* See 3GPP TS 45.002, section 5.2 "Bursts" */
+#define GMSK_BURST_LEN			148
+
+/* TRXD modulation / burst length mapping */
+static const guint16 otrxd_burst_len[] = {
+	[OTRXD_MOD_T_GMSK]		= GMSK_BURST_LEN * 1,
+	[OTRXD_MOD_T_GMSK_AB]		= GMSK_BURST_LEN * 1,
+	[OTRXD_MOD_T_AQPSK]		= GMSK_BURST_LEN * 2,
+	[OTRXD_MOD_T_8PSK]		= GMSK_BURST_LEN * 3,
+	[OTRXD_MOD_T_16QAM]		= GMSK_BURST_LEN * 4,
+	[OTRXD_MOD_T_32QAM]		= GMSK_BURST_LEN * 5,
+	[OTRXD_MOD_T_RFU]		= 0, /* unknown */
 };
 
 /* RSSI is encoded without a negative sign, so we need to show it */
@@ -357,42 +369,41 @@ static int dissect_otrxd_rx(tvbuff_t *tvb, packet_info *pinfo,
 			    proto_item *ti, proto_tree *tree,
 			    struct otrxd_pdu_info *pi, int offset)
 {
-	int burst_len, padding = 0;
+	int burst_len, padding;
 
 	/* Parse version specific TRXD header part */
 	switch (pi->ver) {
 	case 0:
 		offset = dissect_otrxd_rx_hdr_v0(tvb, pinfo, ti, tree, pi, offset);
+		/* The remaining octets is basically soft-bits of the burst */
+		burst_len = tvb_reported_length(tvb) - offset;
+		/* ... there must be at least 148 soft-bits */
+		if (burst_len < GMSK_BURST_LEN)
+			burst_len = GMSK_BURST_LEN; /* let it crash! */
+		/* ... there can be 2 optional padding octets in the end */
+		padding = burst_len % GMSK_BURST_LEN;
+		proto_tree_add_item(tree, hf_otrxd_soft_symbols, tvb,
+				    offset, burst_len - padding, ENC_NA);
+		offset += burst_len - padding;
+		if (padding == 0)
+			break;
+		proto_tree_add_item(tree, hf_otrxd_burst_pad, tvb,
+				    offset, padding, ENC_NA);
+		offset += padding;
 		break;
 	case 1:
 		offset = dissect_otrxd_rx_hdr_v1(tvb, pinfo, ti, tree, pi, offset);
+		if (pi->nope) /* NOPE.ind contains no burst */
+			break;
+		burst_len = otrxd_burst_len[pi->mod];
+		proto_tree_add_item(tree, hf_otrxd_soft_symbols, tvb,
+				    offset, burst_len, ENC_NA);
+		offset += burst_len;
 		break;
 	default:
 		expert_add_info_format(pinfo, ti, &ei_otrxd_unknown_pdu_ver,
 				       "Unknown TRXD PDU version %u", pi->ver);
 		return offset;
-	}
-
-	/* Calculate the burst length */
-	burst_len = tvb_reported_length(tvb) - offset;
-
-	/* There can be two optional padding bytes -> detect them! */
-	if (burst_len == GMSK_BURST_LEN + 2 || burst_len == 3 * GMSK_BURST_LEN + 2) {
-		burst_len -= 2;
-		padding = 2;
-	}
-
-	/* Soft-bits (255..0) */
-	if (burst_len > 0) {
-		proto_tree_add_item(tree, hf_otrxd_soft_symbols, tvb,
-				    offset, burst_len, ENC_NA);
-		offset += burst_len;
-	}
-
-	/* Optional padding */
-	if (padding > 0) {
-		proto_tree_add_item(tree, hf_otrxd_burst_pad, tvb,
-				    offset, padding, ENC_NA);
 	}
 
 	return tvb_captured_length(tvb);
@@ -428,7 +439,8 @@ static int dissect_otrxd_tx(tvbuff_t *tvb, packet_info *pinfo,
 	case 0:
 		col_append_str(pinfo->cinfo, COL_INFO, ", NOPE.req");
 		proto_item_append_text(ti, ", NOPE.req");
-		break;
+		return offset;
+
 	/* TODO: introduce an enumerated type, detect other modulation types,
 	 * TODO: add a generated field for "osmo_trxd.mod" */
 	case GMSK_BURST_LEN:
@@ -442,10 +454,8 @@ static int dissect_otrxd_tx(tvbuff_t *tvb, packet_info *pinfo,
 	}
 
 	/* Hard-bits (1 or 0) */
-	if (burst_len > 0) {
-		proto_tree_add_item(tree, hf_otrxd_hard_symbols, tvb,
-				    offset, burst_len, ENC_NA);
-	}
+	proto_tree_add_item(tree, hf_otrxd_hard_symbols, tvb,
+			    offset, burst_len, ENC_NA);
 
 	return tvb_captured_length(tvb);
 }
