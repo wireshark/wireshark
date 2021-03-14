@@ -4475,7 +4475,9 @@ static void
 capture_loop_wrote_one_packet(capture_src *pcap_src) {
     global_ld.packets_captured++;
     global_ld.packets_written++;
-    pcap_src->received++;
+    if (!use_threads) {
+        pcap_src->received++;
+    }
 
     /* check -c NUM / -a packets:NUM */
     if (global_capture_opts.has_autostop_packets && global_ld.packets_captured >= global_capture_opts.autostop_packets) {
