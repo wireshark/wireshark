@@ -45463,7 +45463,7 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_tag_ft_subelem_gtk_key_length,
      {"Key Length", "wlan.ft.subelem.gtk.key_length",
-      FT_UINT8, BASE_HEX, NULL, 0,
+      FT_UINT8, BASE_DEC, NULL, 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_ft_subelem_gtk_rsc,
@@ -45493,7 +45493,7 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_tag_ft_subelem_igtk_key_length,
      {"Key Length", "wlan.ft.subelem.igtk.key_length",
-      FT_UINT8, BASE_HEX, NULL, 0,
+      FT_UINT8, BASE_DEC, NULL, 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_ft_subelem_igtk_key,
