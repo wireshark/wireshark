@@ -131,7 +131,6 @@ exp_pdu_open(exp_pdu_t *exp_pdu_tap_data, int fd, const char *comment)
     int_data = wtap_block_create(WTAP_BLOCK_IF_DESCR);
     int_data_mand = (wtapng_if_descr_mandatory_t*)wtap_block_get_mandatory_data(int_data);
     int_data_mand->wtap_encap      = exp_pdu_tap_data->pkt_encap;
-    int_data_mand->wtap_encap      = WTAP_ENCAP_WIRESHARK_UPPER_PDU;
     int_data_mand->time_units_per_second = 1000000000; /* default nanosecond resolution */
     int_data_mand->snap_len        = WTAP_MAX_PACKET_SIZE_STANDARD;
 
