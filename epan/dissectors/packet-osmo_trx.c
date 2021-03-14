@@ -78,6 +78,7 @@ static gint ett_otrxc = -1;
 static expert_field ei_otrxd_unknown_pdu_ver = EI_INIT;
 static expert_field ei_otrxd_injected_msg = EI_INIT;
 static expert_field ei_otrxd_unknown_dir = EI_INIT;
+static expert_field ei_otrxd_tail_octets = EI_INIT;
 
 static expert_field ei_otrxc_unknown_msg_type = EI_INIT;
 static expert_field ei_otrxc_bad_delimiter = EI_INIT;
@@ -403,10 +404,10 @@ static int dissect_otrxd_rx(tvbuff_t *tvb, packet_info *pinfo,
 	default:
 		expert_add_info_format(pinfo, ti, &ei_otrxd_unknown_pdu_ver,
 				       "Unknown TRXD PDU version %u", pi->ver);
-		return offset;
+		offset = 1; /* Only the PDU version was parsed */
 	}
 
-	return tvb_captured_length(tvb);
+	return offset;
 }
 
 /* Burst data in Transmit direction */
@@ -427,6 +428,7 @@ static int dissect_otrxd_tx(tvbuff_t *tvb, packet_info *pinfo,
 	default:
 		expert_add_info_format(pinfo, ti, &ei_otrxd_unknown_pdu_ver,
 				       "Unknown TRXD PDU version %u", pi->ver);
+		offset = 1; /* Only the PDU version was parsed */
 		return offset;
 	}
 
@@ -456,8 +458,9 @@ static int dissect_otrxd_tx(tvbuff_t *tvb, packet_info *pinfo,
 	/* Hard-bits (1 or 0) */
 	proto_tree_add_item(tree, hf_otrxd_hard_symbols, tvb,
 			    offset, burst_len, ENC_NA);
+	offset += burst_len;
 
-	return tvb_captured_length(tvb);
+	return offset;
 }
 
 /* Common dissector for bursts in both directions */
@@ -467,7 +470,7 @@ static int dissect_otrxd(tvbuff_t *tvb, packet_info *pinfo,
 	struct otrxd_pdu_info pi = { 0 };
 	proto_tree *otrxd_tree;
 	proto_item *ti, *gi;
-	int offset, rc;
+	int offset;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "OsmoTRXD");
 	col_clear(pinfo->cinfo, COL_INFO);
@@ -502,15 +505,21 @@ static int dissect_otrxd(tvbuff_t *tvb, packet_info *pinfo,
 	offset = dissect_otrxd_common_hdr(tvb, pinfo, ti, otrxd_tree, &pi);
 
 	if (burst_dir == OTRXCD_DIR_L12TRX)
-		rc = dissect_otrxd_tx(tvb, pinfo, ti, otrxd_tree, &pi, offset);
+		offset = dissect_otrxd_tx(tvb, pinfo, ti, otrxd_tree, &pi, offset);
 	else if (burst_dir == OTRXCD_DIR_TRX2L1)
-		rc = dissect_otrxd_rx(tvb, pinfo, ti, otrxd_tree, &pi, offset);
+		offset = dissect_otrxd_rx(tvb, pinfo, ti, otrxd_tree, &pi, offset);
 	else {
 		expert_add_info(pinfo, ti, &ei_otrxd_unknown_dir);
-		rc = offset;
+		offset = 1; /* Only the PDU version was parsed */
 	}
 
-	return rc;
+	proto_item_set_len(ti, offset);
+
+	/* Let it warn us if there are unhandled tail octets */
+	if ((guint) offset < tvb_reported_length(tvb))
+		expert_add_info(pinfo, ti, &ei_otrxd_tail_octets);
+
+	return offset;
 }
 
 /* Dissector for Control commands and responses, and Clock indications */
@@ -724,6 +733,8 @@ void proto_register_osmo_trx(void)
 		  PI_UNDECODED, PI_ERROR, "Unknown direction", EXPFILL } },
 		{ &ei_otrxd_unknown_pdu_ver, { "osmo_trxd.ei.unknown_pdu_ver",
 		  PI_PROTOCOL, PI_ERROR, "Unknown PDU version", EXPFILL } },
+		{ &ei_otrxd_tail_octets, { "osmo_trxd.ei.tail_octets",
+		  PI_UNDECODED, PI_WARN, "Unhandled tail octets", EXPFILL } },
 	};
 
 	static ei_register_info ei_otrxc[] = {
