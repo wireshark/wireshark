@@ -249,8 +249,6 @@ RtpStreamDialog::RtpStreamDialog(QWidget &parent, CaptureFile &cf) :
     setWindowSubtitle(tr("RTP Streams"));
     ui->streamTreeWidget->installEventFilter(this);
 
-    player_button_ = RtpPlayerDialog::addPlayerButton(ui->buttonBox);
-
     QMenu *selection_menu = ctx_menu_.addMenu(tr("Select"));
     selection_menu->addAction(ui->actionSelectAll);
     selection_menu->addAction(ui->actionSelectNone);
@@ -273,15 +271,17 @@ RtpStreamDialog::RtpStreamDialog(QWidget &parent, CaptureFile &cf) :
     // Some GTK+ buttons have been left out intentionally in order to
     // reduce clutter. Do you have a strong and informed opinion about
     // this? Perhaps you should volunteer to maintain this code!
-    find_reverse_button_ = ui->buttonBox->addButton(ui->actionFindReverse->text(), QDialogButtonBox::ApplyRole);
+    find_reverse_button_ = ui->buttonBox->addButton(ui->actionFindReverse->text(), QDialogButtonBox::ActionRole);
     find_reverse_button_->setToolTip(ui->actionFindReverse->toolTip());
-    prepare_button_ = ui->buttonBox->addButton(ui->actionPrepareFilter->text(), QDialogButtonBox::ApplyRole);
-    prepare_button_->setToolTip(ui->actionPrepareFilter->toolTip());
-    export_button_ = ui->buttonBox->addButton(tr("Export…"), QDialogButtonBox::ApplyRole);
-    export_button_->setToolTip(ui->actionExportAsRtpDump->toolTip());
-    copy_button_ = ui->buttonBox->addButton(tr("Copy"), QDialogButtonBox::ApplyRole);
-    analyze_button_ = ui->buttonBox->addButton(ui->actionAnalyze->text(), QDialogButtonBox::ApplyRole);
+    analyze_button_ = ui->buttonBox->addButton(ui->actionAnalyze->text(), QDialogButtonBox::ActionRole);
     analyze_button_->setToolTip(ui->actionAnalyze->toolTip());
+    prepare_button_ = ui->buttonBox->addButton(ui->actionPrepareFilter->text(), QDialogButtonBox::ActionRole);
+    prepare_button_->setToolTip(ui->actionPrepareFilter->toolTip());
+    player_button_ = RtpPlayerDialog::addPlayerButton(ui->buttonBox);
+    copy_button_ = ui->buttonBox->addButton(tr("Copy"), QDialogButtonBox::ActionRole);
+    export_button_ = ui->buttonBox->addButton(tr("Export"), QDialogButtonBox::ActionRole);
+    export_button_->setToolTip(ui->actionExportAsRtpDump->toolTip());
+
 
     QMenu *copy_menu = new QMenu(copy_button_);
     QAction *ca;

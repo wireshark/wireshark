@@ -74,8 +74,9 @@ private slots:
 
     void fillDiagram();
     void resetView();
+    void exportDiagram();
 
-    void on_buttonBox_accepted();
+    void on_buttonBox_clicked(QAbstractButton *button);
     void on_actionGoToPacket_triggered();
     void on_actionGoToNextPacket_triggered() { goToAdjacentPacket(true); }
     void on_actionGoToPreviousPacket_triggered() { goToAdjacentPacket(false); }
@@ -103,6 +104,7 @@ private:
     guint32 packet_num_;
     double one_em_;
     int sequence_w_;
+    QPushButton *export_button_;
     QMenu ctx_menu_;
     QCPItemText *key_text_;
     QCPItemText *comment_text_;

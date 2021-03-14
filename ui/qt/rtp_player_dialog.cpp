@@ -288,7 +288,7 @@ QPushButton *RtpPlayerDialog::addPlayerButton(QDialogButtonBox *button_box)
     if (!button_box) return NULL;
 
     QPushButton *player_button;
-    player_button = button_box->addButton(tr("Play Streams"), QDialogButtonBox::ApplyRole);
+    player_button = button_box->addButton(tr("Play Streams"), QDialogButtonBox::ActionRole);
     player_button->setIcon(StockIcon("media-playback-start"));
     return player_button;
 }

@@ -178,8 +178,7 @@ SequenceDialog::SequenceDialog(QWidget &parent, CaptureFile &cf, SequenceInfo *i
         ui->controlFrame->hide();
     }
 
-    QPushButton *save_bt = ui->buttonBox->button(QDialogButtonBox::Save);
-    save_bt->setText(tr("Save As…"));
+    export_button_ = ui->buttonBox->addButton(tr("Export"), QDialogButtonBox::ActionRole);
 
     QPushButton *close_bt = ui->buttonBox->button(QDialogButtonBox::Close);
     if (close_bt) {
@@ -398,7 +397,14 @@ void SequenceDialog::mouseWheeled(QWheelEvent *event)
     event->accept();
 }
 
-void SequenceDialog::on_buttonBox_accepted()
+void SequenceDialog::on_buttonBox_clicked(QAbstractButton *button)
+{
+    if (button == export_button_) {
+        exportDiagram();
+    }
+}
+
+void SequenceDialog::exportDiagram()
 {
     QString file_name, extension;
     QDir path(wsApp->lastOpenDir());
