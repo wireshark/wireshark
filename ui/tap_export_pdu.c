@@ -141,8 +141,8 @@ exp_pdu_open(exp_pdu_t *exp_pdu_tap_data, int file_type_subtype, int fd,
     }
 
     /*
-     * Create a fake IDB even if it's not supported; that provides a
-     * link-layer type
+     * Create fake interface information for files that support (meaning
+     * "require") interface information and per-packet interface IDs.
      */
     if (wtap_file_type_subtype_supports_block(file_type_subtype,
                                               WTAP_BLOCK_IF_ID_AND_INFO) != BLOCK_NOT_SUPPORTED) {
