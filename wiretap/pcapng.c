@@ -3581,6 +3581,17 @@ pcapng_write_enhanced_packet_block(wtap_dumper *wdh, const wtap_rec *rec,
     int_data = g_array_index(wdh->interface_data, wtap_block_t,
                              epb.interface_id);
     int_data_mand = (wtapng_if_descr_mandatory_t*)wtap_block_get_mandatory_data(int_data);
+    if (int_data_mand->wtap_encap != rec->rec_header.packet_header.pkt_encap) {
+        /*
+         * Our caller is doing something bad.
+         */
+        *err = WTAP_ERR_INTERNAL;
+        *err_info = g_strdup_printf("pcapng: interface %u encap %d != packet encap %d",
+                                    epb.interface_id,
+                                    int_data_mand->wtap_encap,
+                                    rec->rec_header.packet_header.pkt_encap);
+        return FALSE;
+    }
     ts = ((guint64)rec->ts.secs) * int_data_mand->time_units_per_second +
         (((guint64)rec->ts.nsecs) * int_data_mand->time_units_per_second) / 1000000000;
     epb.timestamp_high      = (guint32)(ts >> 32);
