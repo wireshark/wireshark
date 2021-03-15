@@ -50,7 +50,9 @@ for arg; do
 	esac
 done
 
-BASIC_LIST="libglib2.0-dev \
+BASIC_LIST="gcc \
+	g++\
+	libglib2.0-dev \
 	qttools5-dev \
 	qttools5-dev-tools \
 	libqt5svg5-dev \
