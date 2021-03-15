@@ -2074,7 +2074,7 @@ main(int argc, char *argv[])
       /* Write to our output file with this comment (if the type supports it,
        * otherwise exp_pdu_open() will ignore the comment) */
       comment = g_strdup_printf("Dump of PDUs from %s", cf_name);
-      exp_pdu_status = exp_pdu_open(&exp_pdu_tap_data,
+      exp_pdu_status = exp_pdu_open(&exp_pdu_tap_data, exp_pdu_filename,
                                     out_file_type, exp_fd, comment,
                                     &err, &err_info);
       g_free(comment);

@@ -35,6 +35,11 @@ export_pdu_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt, const 
     guint8 *packet_buf;
     tap_packet_status status = TAP_PACKET_DONT_REDRAW; /* no GUI, nothing to redraw */
 
+    /*
+     * Count this packet.
+     */
+    exp_pdu_tap_data->framenum++;
+
     memset(&rec, 0, sizeof rec);
     buffer_len = exp_pdu_data->tvb_captured_length + exp_pdu_data->tlv_buffer_len;
     packet_buf = (guint8 *)g_malloc(buffer_len);
@@ -66,7 +71,8 @@ export_pdu_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt, const 
 
     /* XXX: should the rec.rec_header.packet_header.pseudo_header be set to the pinfo's pseudo-header? */
     if (!wtap_dump(exp_pdu_tap_data->wdh, &rec, packet_buf, &err, &err_info)) {
-        report_cfile_write_failure(NULL, g_strdup("whatever"), err, err_info, 69,
+        report_cfile_write_failure(NULL, exp_pdu_tap_data->pathname,
+                                   err, err_info, exp_pdu_tap_data->framenum,
                                    wtap_dump_file_type_subtype(exp_pdu_tap_data->wdh));
         status = TAP_PACKET_FAILED;
     }
@@ -78,8 +84,9 @@ export_pdu_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt, const 
 }
 
 gboolean
-exp_pdu_open(exp_pdu_t *exp_pdu_tap_data, int file_type_subtype, int fd,
-             const char *comment, int *err, gchar **err_info)
+exp_pdu_open(exp_pdu_t *exp_pdu_tap_data, char *pathname,
+             int file_type_subtype, int fd, const char *comment,
+             int *err, gchar **err_info)
 {
     /* pcapng defs */
     wtap_block_t                 shb_hdr;
@@ -169,6 +176,8 @@ exp_pdu_open(exp_pdu_t *exp_pdu_tap_data, int file_type_subtype, int fd,
     if (exp_pdu_tap_data->wdh == NULL)
         return FALSE;
 
+    exp_pdu_tap_data->pathname = pathname;
+    exp_pdu_tap_data->framenum = 0; /* No frames written yet */
     return TRUE;
 }
 
