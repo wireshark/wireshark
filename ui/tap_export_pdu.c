@@ -10,16 +10,14 @@
 
 #include "config.h"
 
-#include "wiretap/pcap-encap.h"
-#include "wsutil/os_version_info.h"
-#include "version_info.h"
-
 #include <epan/tap.h>
 #include <epan/exported_pdu.h>
 #include <epan/epan_dissect.h>
 #include <wiretap/wtap.h>
 #include <wiretap/wtap_opttypes.h>
-#include <wiretap/pcapng.h>
+#include <wsutil/os_version_info.h>
+
+#include "version_info.h"
 
 #include "tap_export_pdu.h"
 
