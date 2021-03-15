@@ -16,6 +16,7 @@
 #include <wiretap/wtap.h>
 #include <wiretap/wtap_opttypes.h>
 #include <wsutil/os_version_info.h>
+#include <wsutil/report_message.h>
 
 #include "version_info.h"
 
@@ -32,6 +33,7 @@ export_pdu_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt, const 
     gchar *err_info;
     int buffer_len;
     guint8 *packet_buf;
+    tap_packet_status status = TAP_PACKET_DONT_REDRAW; /* no GUI, nothing to redraw */
 
     memset(&rec, 0, sizeof rec);
     buffer_len = exp_pdu_data->tvb_captured_length + exp_pdu_data->tlv_buffer_len;
@@ -63,27 +65,16 @@ export_pdu_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt, const 
     }
 
     /* XXX: should the rec.rec_header.packet_header.pseudo_header be set to the pinfo's pseudo-header? */
-    /* XXX: report errors and return TAP_PACKET_FAILED! */
     if (!wtap_dump(exp_pdu_tap_data->wdh, &rec, packet_buf, &err, &err_info)) {
-        switch (err) {
-
-        case WTAP_ERR_UNWRITABLE_REC_DATA:
-            g_free(err_info);
-            break;
-
-        case WTAP_ERR_INTERNAL:
-            g_free(err_info);
-            break;
-
-        default:
-            break;
-        }
+        report_cfile_write_failure(NULL, g_strdup("whatever"), err, err_info, 69,
+                                   wtap_dump_file_type_subtype(exp_pdu_tap_data->wdh));
+        status = TAP_PACKET_FAILED;
     }
 
     g_free(packet_buf);
     g_free(rec.opt_comment);
 
-    return TAP_PACKET_DONT_REDRAW; /* Do not redraw */
+    return status;
 }
 
 gboolean
