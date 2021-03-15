@@ -24426,7 +24426,7 @@ ieee80211_frame_classifier(tvbuff_t *tvb, packet_info *pinfo _U_,
                         offset, 1, ENC_NA);
     offset += 1;
 
-    filter_field_len = (tag_len - 5) / 2;
+    filter_field_len = (tag_len - 4) / 2;
 
     proto_tree_add_item(tree, hf_ieee80211_tclas_filter_value, tvb, offset,
                         filter_field_len, ENC_NA);
