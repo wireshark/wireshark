@@ -101,18 +101,6 @@ mergecap_cmdarg_err_cont(const char *fmt, va_list ap)
   fprintf(stderr, "\n");
 }
 
-/*
- * General errors and warnings are reported with an console message
- * in mergecap.
- */
-static void
-failure_warning_message(const char *msg_format, va_list ap)
-{
-  fprintf(stderr, "mergecap: ");
-  vfprintf(stderr, msg_format, ap);
-  fprintf(stderr, "\n");
-}
-
 static void
 list_capture_types(void) {
   GArray *writable_type_subtypes;
@@ -206,6 +194,18 @@ int
 main(int argc, char *argv[])
 {
   char               *init_progfile_dir_error;
+  static const struct report_message_routines mergecap_report_routines = {
+      failure_message,
+      failure_message,
+      open_failure_message,
+      read_failure_message,
+      write_failure_message,
+      cfile_open_failure_message,
+      cfile_dump_open_failure_message,
+      cfile_read_failure_message,
+      cfile_write_failure_message,
+      cfile_close_failure_message
+  };
   int                 opt;
   static const struct option long_options[] = {
       {"help", no_argument, NULL, 'h'},
@@ -252,8 +252,7 @@ main(int argc, char *argv[])
     g_free(init_progfile_dir_error);
   }
 
-  init_report_message(failure_warning_message, failure_warning_message,
-                      NULL, NULL, NULL);
+  init_report_message("mergecap", &mergecap_report_routines);
 
   wtap_init(TRUE);
 
@@ -393,18 +392,15 @@ main(int argc, char *argv[])
       break;
 
     case MERGE_ERR_CANT_OPEN_INFILE:
-      cfile_open_failure_message("mergecap", argv[optind + err_fileno],
-                                 err, err_info);
+      cfile_open_failure_message(argv[optind + err_fileno], err, err_info);
       break;
 
     case MERGE_ERR_CANT_OPEN_OUTFILE:
-      cfile_dump_open_failure_message("mergecap", out_filename, err, err_info,
-                                      file_type);
+      cfile_dump_open_failure_message(out_filename, err, err_info, file_type);
       break;
 
     case MERGE_ERR_CANT_READ_INFILE:
-      cfile_read_failure_message("mergecap", argv[optind + err_fileno],
-                                 err, err_info);
+      cfile_read_failure_message(argv[optind + err_fileno], err, err_info);
       break;
 
     case MERGE_ERR_BAD_PHDR_INTERFACE_ID:
@@ -413,9 +409,8 @@ main(int argc, char *argv[])
       break;
 
     case MERGE_ERR_CANT_WRITE_OUTFILE:
-       cfile_write_failure_message("mergecap", argv[optind + err_fileno],
-                                   out_filename, err, err_info, err_framenum,
-                                   file_type);
+       cfile_write_failure_message(argv[optind + err_fileno], out_filename,
+                                   err, err_info, err_framenum, file_type);
        break;
 
     case MERGE_ERR_CANT_CLOSE_OUTFILE:

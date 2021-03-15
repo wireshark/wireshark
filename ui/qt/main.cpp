@@ -465,6 +465,18 @@ int main(int argc, char *qt_argv[])
 #endif
     /* Start time in microseconds */
     guint64 start_time = g_get_monotonic_time();
+    static const struct report_message_routines wireshark_report_routines = {
+        vfailure_alert_box,
+        vwarning_alert_box,
+        open_failure_alert_box,
+        read_failure_alert_box,
+        write_failure_alert_box,
+        cfile_open_failure_alert_box,
+        cfile_dump_open_failure_alert_box,
+        cfile_read_failure_alert_box,
+        cfile_write_failure_alert_box,
+        cfile_close_failure_alert_box
+    };
 
 #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
     /*
@@ -728,9 +740,7 @@ int main(int argc, char *qt_argv[])
     capture_opts_init(&global_capture_opts);
 #endif
 
-    init_report_message(vfailure_alert_box, vwarning_alert_box,
-                        open_failure_alert_box, read_failure_alert_box,
-                        write_failure_alert_box);
+    init_report_message("Wireshark", &wireshark_report_routines);
 
     /*
      * Libwiretap must be initialized before libwireshark is, so that

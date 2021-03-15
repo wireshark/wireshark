@@ -80,6 +80,7 @@ libwsutil.so.0 libwsutil0 #MINVER#
  get_datafile_path@Base 1.12.0~rc1
  get_dirname@Base 1.12.0~rc1
  get_extcap_dir@Base 1.99.0
+ get_friendly_program_name@Base 3.5.0
  get_global_profiles_dir@Base 1.12.0~rc1
  get_os_version_info@Base 1.99.0
  get_persconffile_path@Base 1.12.0~rc1
@@ -160,6 +161,11 @@ libwsutil.so.0 libwsutil0 #MINVER#
  register_codec@Base 3.1.0
  relinquish_special_privs_perm@Base 1.10.0
  rename_persconffile_profile@Base 1.12.0~rc1
+ report_cfile_close_failure@Base 3.5.0
+ report_cfile_dump_open_failure@Base 3.5.0
+ report_cfile_open_failure@Base 3.5.0
+ report_cfile_read_failure@Base 3.5.0
+ report_cfile_write_failure@Base 3.5.0
  report_failure@Base 1.12.0~rc1
  report_open_failure@Base 1.12.0~rc1
  report_read_failure@Base 1.12.0~rc1

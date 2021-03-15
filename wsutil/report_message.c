@@ -21,23 +21,15 @@
 #include <glib.h>
 #include "report_message.h"
 
-static void (*vreport_failure_func)(const char *, va_list);
-static void (*vreport_warning_func)(const char *, va_list);
-static void (*report_open_failure_func)(const char *, int, gboolean);
-static void (*report_read_failure_func)(const char *, int);
-static void (*report_write_failure_func)(const char *, int);
+static const char *friendly_program_name;
+static const struct report_message_routines *routines;
 
-void init_report_message(void (*vreport_failure_fcn_p)(const char *, va_list),
-			 void (*vreport_warning_fcn_p)(const char *, va_list),
-			 void (*report_open_failure_fcn_p)(const char *, int, gboolean),
-			 void (*report_read_failure_fcn_p)(const char *, int),
-			 void (*report_write_failure_fcn_p)(const char *, int))
+void
+init_report_message(const char *friendly_program_name_arg,
+    const struct report_message_routines *routines_arg)
 {
-	vreport_failure_func = vreport_failure_fcn_p;
-	vreport_warning_func = vreport_warning_fcn_p;
-	report_open_failure_func = report_open_failure_fcn_p;
-	report_read_failure_func = report_read_failure_fcn_p;
-	report_write_failure_func = report_write_failure_fcn_p;
+	friendly_program_name = friendly_program_name_arg;
+	routines = routines_arg;
 }
 
 /*
@@ -49,7 +41,7 @@ report_failure(const char *msg_format, ...)
 	va_list ap;
 
 	va_start(ap, msg_format);
-	(*vreport_failure_func)(msg_format, ap);
+	(*routines->vreport_failure)(msg_format, ap);
 	va_end(ap);
 }
 
@@ -62,7 +54,7 @@ report_warning(const char *msg_format, ...)
 	va_list ap;
 
 	va_start(ap, msg_format);
-	(*vreport_warning_func)(msg_format, ap);
+	(*routines->vreport_warning)(msg_format, ap);
 	va_end(ap);
 }
 
@@ -76,7 +68,7 @@ void
 report_open_failure(const char *filename, int err,
 					gboolean for_writing)
 {
-	(*report_open_failure_func)(filename, err, for_writing);
+	(*routines->report_open_failure)(filename, err, for_writing);
 }
 
 /*
@@ -86,7 +78,7 @@ report_open_failure(const char *filename, int err,
 void
 report_read_failure(const char *filename, int err)
 {
-	(*report_read_failure_func)(filename, err);
+	(*routines->report_read_failure)(filename, err);
 }
 
 /*
@@ -96,7 +88,65 @@ report_read_failure(const char *filename, int err)
 void
 report_write_failure(const char *filename, int err)
 {
-	(*report_write_failure_func)(filename, err);
+	(*routines->report_write_failure)(filename, err);
+}
+
+/*
+ * Report an error from opening a capture file for reading.
+ */
+void
+report_cfile_open_failure(const char *filename, int err, gchar *err_info)
+{
+	(*routines->report_cfile_open_failure)(filename, err, err_info);
+}
+
+/*
+ * Report an error from opening a capture file for writing.
+ */
+void
+report_cfile_dump_open_failure(const char *filename,
+    int err, gchar *err_info, int file_type_subtype)
+{
+	(*routines->report_cfile_dump_open_failure)(filename,
+	    err, err_info, file_type_subtype);
+}
+
+/*
+ * Report an error from attempting to read from a capture file.
+ */
+void
+report_cfile_read_failure(const char *filename, int err, gchar *err_info)
+{
+	(*routines->report_cfile_read_failure)(filename, err, err_info);
+}
+
+/*
+ * Report an error from attempting to write to a capture file.
+ */
+void
+report_cfile_write_failure(const char *in_filename, const char *out_filename,
+    int err, gchar *err_info, guint32 framenum, int file_type_subtype)
+{
+	(*routines->report_cfile_write_failure)(in_filename, out_filename,
+	    err, err_info, framenum, file_type_subtype);
+}
+
+/*
+ * Report an error from closing a capture file open for writing.
+ */
+void
+report_cfile_close_failure(const char *filename, int err, gchar *err_info)
+{
+	(*routines->report_cfile_close_failure)(filename, err, err_info);
+}
+
+/*
+ * Return the "friendly" program name.
+ */
+const char *
+get_friendly_program_name(void)
+{
+	return friendly_program_name;
 }
 
 /*

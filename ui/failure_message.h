@@ -17,43 +17,68 @@ extern "C" {
 #endif /* __cplusplus */
 
 /*
+ * Generic error message.
+ */
+extern void failure_message(const char *msg_format, va_list ap);
+
+/*
+ * Error message for a failed attempt to open or create a file
+ * other than a capture file.
+ * "filename" is the name of the file being opened; "err" is assumed
+ * to be a UNIX-style errno; "for_writing" is TRUE if we're opening
+ * the file for writing and FALSE if we're opening it for reading.
+ */
+extern void open_failure_message(const char *filename, int err,
+                                 gboolean for_writing);
+
+/*
+ * Error message for a failed attempt to read from a file other than
+ * a capture file.
+ * "filename" is the name of the file being opened; "err" is assumed
+ * to be a UNIX-style errno.
+ */
+extern void read_failure_message(const char *filename, int err);
+
+/*
+ * Error message for a failed attempt to write to a file other than
+ * a capture file.
+ * "filename" is the name of the file being written to; "err" is assumed
+ * to be a UNIX-style errno.
+ */
+extern void write_failure_message(const char *filename, int err);
+
+/*
  * Error message for a failed attempt to open a capture file for input.
- * "progname" is the name of the program trying to open the file;
  * "filename" is the name of the file being opened; "err" is assumed
  * to be a UNIX-style errno or a WTAP_ERR_ value; "err_info" is assumed
  * to be a string giving further information for some WTAP_ERR_ values.
  */
-extern void cfile_open_failure_message(const char *progname,
-                                       const char *filename, int err,
+extern void cfile_open_failure_message(const char *filename, int err,
                                        gchar *err_info);
 
 /*
- * "progname" is the name of the program trying to open the file;
+ * Error message for a failed attempt to open a capture file for output.
  * "filename" is the name of the file being opened; "err" is assumed
  * to be a UNIX-style errno or a WTAP_ERR_ value; "err_info" is assumed
  * to be a string giving further information for some WTAP_ERR_ values;
  * "file_type_subtype" is a WTAP_FILE_TYPE_SUBTYPE_ value for the type
  * and subtype of file being opened.
  */
-extern void cfile_dump_open_failure_message(const char *progname,
-                                            const char *filename, int err,
+extern void cfile_dump_open_failure_message(const char *filename, int err,
                                             gchar *err_info,
                                             int file_type_subtype);
 
 /*
  * Error message for a failed attempt to read from a capture file.
- * "progname" is the name of the program trying to open the file;
  * "filename" is the name of the file being opened; "err" is assumed
  * to be a UNIX-style errno or a WTAP_ERR_ value; "err_info" is assumed
  * to be a string giving further information for some WTAP_ERR_ values.
  */
-extern void cfile_read_failure_message(const char *progname,
-                                       const char *filename, int err,
+extern void cfile_read_failure_message(const char *filename, int err,
                                        gchar *err_info);
 
 /*
  * Error message for a failed attempt to write to a capture file.
- * "progname" is the name of the program trying to open the file;
  * "in_filename" is the name of the file from which the record
  * being written came; "out_filename" is the name of the file to
  * which we're writing; "err" is assumed "err" is assumed to be a
@@ -63,8 +88,7 @@ extern void cfile_read_failure_message(const char *progname,
  * occurred; "file_type_subtype" is a WTAP_FILE_TYPE_SUBTYPE_ value
  * for the type and subtype of file being written.
  */
-extern void cfile_write_failure_message(const char *progname,
-                                        const char *in_filename,
+extern void cfile_write_failure_message(const char *in_filename,
                                         const char *out_filename,
                                         int err, gchar *err_info,
                                         guint32 framenum,

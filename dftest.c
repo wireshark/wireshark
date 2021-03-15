@@ -33,20 +33,33 @@
 #include <wiretap/wtap.h>
 
 #include "ui/util.h"
+#include "ui/cmdarg_err.h"
+#include "ui/failure_message.h"
 
-static void failure_warning_message(const char *msg_format, va_list ap);
-static void open_failure_message(const char *filename, int err,
-	gboolean for_writing);
-static void read_failure_message(const char *filename, int err);
-static void write_failure_message(const char *filename, int err);
+static void dftest_cmdarg_err(const char *fmt, va_list ap);
+static void dftest_cmdarg_err_cont(const char *fmt, va_list ap);
 
 int
 main(int argc, char **argv)
 {
 	char		*init_progfile_dir_error;
+	static const struct report_message_routines dftest_report_routines = {
+		failure_message,
+		failure_message,
+		open_failure_message,
+		read_failure_message,
+		write_failure_message,
+		cfile_open_failure_message,
+		cfile_dump_open_failure_message,
+		cfile_read_failure_message,
+		cfile_write_failure_message,
+		cfile_close_failure_message
+	};
 	char		*text;
 	dfilter_t	*df;
 	gchar		*err_msg;
+
+	cmdarg_err_init(dftest_cmdarg_err, dftest_cmdarg_err_cont);
 
 	/*
 	 * Get credential information for later use.
@@ -64,9 +77,7 @@ main(int argc, char **argv)
 		g_free(init_progfile_dir_error);
 	}
 
-	init_report_message(failure_warning_message, failure_warning_message,
-			    open_failure_message, read_failure_message,
-			    write_failure_message);
+	init_report_message("dftest", &dftest_report_routines);
 
 	timestamp_set_type(TS_RELATIVE);
 	timestamp_set_seconds_type(TS_SECONDS_DEFAULT);
@@ -137,46 +148,24 @@ main(int argc, char **argv)
 }
 
 /*
- * General errors and warnings are reported with an console message
- * in "dftest".
+ * Report an error in command-line arguments.
  */
 static void
-failure_warning_message(const char *msg_format, va_list ap)
+dftest_cmdarg_err(const char *fmt, va_list ap)
 {
 	fprintf(stderr, "dftest: ");
-	vfprintf(stderr, msg_format, ap);
+	vfprintf(stderr, fmt, ap);
 	fprintf(stderr, "\n");
 }
 
 /*
- * Open/create errors are reported with an console message in "dftest".
+ * Report additional information for an error in command-line arguments.
  */
 static void
-open_failure_message(const char *filename, int err, gboolean for_writing)
+dftest_cmdarg_err_cont(const char *fmt, va_list ap)
 {
-	fprintf(stderr, "dftest: ");
-	fprintf(stderr, file_open_error_message(err, for_writing), filename);
+	vfprintf(stderr, fmt, ap);
 	fprintf(stderr, "\n");
-}
-
-/*
- * Read errors are reported with an console message in "dftest".
- */
-static void
-read_failure_message(const char *filename, int err)
-{
-	fprintf(stderr, "dftest: An error occurred while reading from the file \"%s\": %s.\n",
-		filename, g_strerror(err));
-}
-
-/*
- * Write errors are reported with an console message in "dftest".
- */
-static void
-write_failure_message(const char *filename, int err)
-{
-	fprintf(stderr, "dftest: An error occurred while writing to the file \"%s\": %s.\n",
-		filename, g_strerror(err));
 }
 
 /*

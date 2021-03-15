@@ -970,11 +970,10 @@ framenum_compare(gconstpointer a, gconstpointer b, gpointer user_data _U_)
 }
 
 /*
- * General errors and warnings are reported with an console message
- * in editcap.
+ * Report an error in command-line arguments.
  */
 static void
-failure_warning_message(const char *msg_format, va_list ap)
+editcap_cmdarg_err(const char *msg_format, va_list ap)
 {
     fprintf(stderr, "editcap: ");
     vfprintf(stderr, msg_format, ap);
@@ -985,7 +984,7 @@ failure_warning_message(const char *msg_format, va_list ap)
  * Report additional information for an error in command-line arguments.
  */
 static void
-failure_message_cont(const char *msg_format, va_list ap)
+editcap_cmdarg_err_cont(const char *msg_format, va_list ap)
 {
     vfprintf(stderr, msg_format, ap);
     fprintf(stderr, "\n");
@@ -1078,6 +1077,18 @@ int
 main(int argc, char *argv[])
 {
     char         *init_progfile_dir_error;
+    static const struct report_message_routines editcap_report_routines = {
+        failure_message,
+        failure_message,
+        open_failure_message,
+        read_failure_message,
+        write_failure_message,
+        cfile_open_failure_message,
+        cfile_dump_open_failure_message,
+        cfile_read_failure_message,
+        cfile_write_failure_message,
+        cfile_close_failure_message
+    };
     wtap         *wth = NULL;
     int           i, j, read_err, write_err;
     gchar        *read_err_info, *write_err_info;
@@ -1141,7 +1152,7 @@ main(int argc, char *argv[])
     gboolean                     valid_seed = FALSE;
     unsigned int                 seed = 0;
 
-    cmdarg_err_init(failure_warning_message, failure_message_cont);
+    cmdarg_err_init(editcap_cmdarg_err, editcap_cmdarg_err_cont);
 
 #ifdef _WIN32
     create_app_running_mutex();
@@ -1167,8 +1178,7 @@ main(int argc, char *argv[])
         g_free(init_progfile_dir_error);
     }
 
-    init_report_message(failure_warning_message, failure_warning_message,
-                        NULL, NULL, NULL);
+    init_report_message("editcap", &editcap_report_routines);
 
     wtap_init(TRUE);
 
@@ -1546,8 +1556,7 @@ main(int argc, char *argv[])
     wth = wtap_open_offline(argv[optind], WTAP_TYPE_AUTO, &read_err, &read_err_info, FALSE);
 
     if (!wth) {
-        cfile_open_failure_message("editcap", argv[optind], read_err,
-                                   read_err_info);
+        cfile_open_failure_message(argv[optind], read_err, read_err_info);
         ret = INVALID_FILE;
         goto clean_exit;
     }
@@ -1733,7 +1742,7 @@ main(int argc, char *argv[])
                                     &write_err_info);
 
             if (pdh == NULL) {
-                cfile_dump_open_failure_message("editcap", filename,
+                cfile_dump_open_failure_message(filename,
                                                 write_err, write_err_info,
                                                 out_file_type_subtype);
                 ret = INVALID_FILE;
@@ -1745,8 +1754,7 @@ main(int argc, char *argv[])
          * Process whatever IDBs we haven't seen yet.
          */
         if (!process_new_idbs(wth, pdh, idbs_seen, &write_err, &write_err_info)) {
-            cfile_write_failure_message("editcap", argv[optind],
-                                        filename,
+            cfile_write_failure_message(argv[optind], filename,
                                         write_err, write_err_info,
                                         read_count,
                                         out_file_type_subtype);
@@ -1786,7 +1794,7 @@ main(int argc, char *argv[])
                                             &write_err, &write_err_info);
 
                     if (pdh == NULL) {
-                        cfile_dump_open_failure_message("editcap", filename,
+                        cfile_dump_open_failure_message(filename,
                                                         write_err,
                                                         write_err_info,
                                                         out_file_type_subtype);
@@ -1817,7 +1825,7 @@ main(int argc, char *argv[])
                 pdh = editcap_dump_open(filename, &params, idbs_seen,
                                         &write_err, &write_err_info);
                 if (pdh == NULL) {
-                    cfile_dump_open_failure_message("editcap", filename,
+                    cfile_dump_open_failure_message(filename,
                                                     write_err, write_err_info,
                                                     out_file_type_subtype);
                     ret = INVALID_FILE;
@@ -2191,8 +2199,7 @@ main(int argc, char *argv[])
 
             /* Attempt to dump out current frame to the output file */
             if (!wtap_dump(pdh, rec, buf, &write_err, &write_err_info)) {
-                cfile_write_failure_message("editcap", argv[optind],
-                                            filename,
+                cfile_write_failure_message(argv[optind], filename,
                                             write_err, write_err_info,
                                             read_count,
                                             out_file_type_subtype);
@@ -2212,8 +2219,7 @@ main(int argc, char *argv[])
     if (read_err != 0) {
         /* Print a message noting that the read failed somewhere along the
          * line. */
-        cfile_read_failure_message("editcap", argv[optind], read_err,
-                                   read_err_info);
+        cfile_read_failure_message(argv[optind], read_err, read_err_info);
     }
 
     if (!pdh) {
@@ -2225,7 +2231,7 @@ main(int argc, char *argv[])
         pdh = editcap_dump_open(filename, &params, idbs_seen, &write_err,
                                 &write_err_info);
         if (pdh == NULL) {
-            cfile_dump_open_failure_message("editcap", filename,
+            cfile_dump_open_failure_message(filename,
                                             write_err, write_err_info,
                                             out_file_type_subtype);
             ret = INVALID_FILE;

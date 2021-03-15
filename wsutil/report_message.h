@@ -29,12 +29,22 @@ extern "C" {
 /*
  *  Initialize the report message routines
  */
-WS_DLL_PUBLIC void init_report_message(
-	void (*vreport_failure)(const char *, va_list),
-	void (*vreport_warning)(const char *, va_list),
-	void (*report_open_failure)(const char *, int, gboolean),
-	void (*report_read_failure)(const char *, int),
-	void (*report_write_failure)(const char *, int));
+struct report_message_routines {
+	void (*vreport_failure)(const char *, va_list);
+	void (*vreport_warning)(const char *, va_list);
+	void (*report_open_failure)(const char *, int, gboolean);
+	void (*report_read_failure)(const char *, int);
+	void (*report_write_failure)(const char *, int);
+	void (*report_cfile_open_failure)(const char *, int, gchar *);
+	void (*report_cfile_dump_open_failure)(const char *, int, gchar *, int);
+	void (*report_cfile_read_failure)(const char *, int, gchar *);
+	void (*report_cfile_write_failure)(const char *, const char *,
+	    int, gchar *, guint32, int);
+	void (*report_cfile_close_failure)(const char *, int, gchar *);
+};
+
+WS_DLL_PUBLIC void init_report_message(const char *friendly_program_name,
+    const struct report_message_routines *routines);
 
 /*
  * Report a general error.
@@ -66,6 +76,42 @@ WS_DLL_PUBLIC void report_read_failure(const char *filename, int err);
  * "err" is assumed to be a UNIX-style errno.
  */
 WS_DLL_PUBLIC void report_write_failure(const char *filename, int err);
+
+/*
+ * Report an error from opening a capture file for reading.
+ */
+WS_DLL_PUBLIC void report_cfile_open_failure(const char *filename,
+    int err, gchar *err_info);
+
+/*
+ * Report an error from opening a capture file for writing.
+ */
+WS_DLL_PUBLIC void report_cfile_dump_open_failure(const char *filename,
+    int err, gchar *err_info, int file_type_subtype);
+
+/*
+ * Report an error from attempting to read from a capture file.
+ */
+WS_DLL_PUBLIC void report_cfile_read_failure(const char *filename,
+    int err, gchar *err_info);
+
+/*
+ * Report an error from attempting to write to a capture file.
+ */
+WS_DLL_PUBLIC void report_cfile_write_failure(const char *in_filename,
+    const char *out_filename, int err, gchar *err_info, guint32 framenum,
+    int file_type_subtype);
+
+/*
+ * Report an error from closing a capture file open for writing.
+ */
+WS_DLL_PUBLIC void report_cfile_close_failure(const char *filename,
+    int err, gchar *err_info);
+
+/*
+ * Return the "friendly" program name.
+ */
+WS_DLL_PUBLIC const char *get_friendly_program_name(void);
 
 #ifdef __cplusplus
 }

@@ -74,12 +74,8 @@ capture_file cfile;
 static guint32 cum_bytes;
 static frame_data ref_frame;
 
-static void failure_warning_message(const char *msg_format, va_list ap);
-static void open_failure_message(const char *filename, int err,
-    gboolean for_writing);
-static void read_failure_message(const char *filename, int err);
-static void write_failure_message(const char *filename, int err);
-static void failure_message_cont(const char *msg_format, va_list ap);
+static void sharkd_cmdarg_err(const char *msg_format, va_list ap);
+static void sharkd_cmdarg_err_cont(const char *msg_format, va_list ap);
 
 static void
 print_current_user(void) {
@@ -107,8 +103,20 @@ main(int argc, char *argv[])
   char                *err_msg = NULL;
   e_prefs             *prefs_p;
   int                  ret = EXIT_SUCCESS;
+  static const struct report_message_routines sharkd_report_routines = {
+    failure_message,
+    failure_message,
+    open_failure_message,
+    read_failure_message,
+    write_failure_message,
+    cfile_open_failure_message,
+    cfile_dump_open_failure_message,
+    cfile_read_failure_message,
+    cfile_write_failure_message,
+    cfile_close_failure_message
+  };
 
-  cmdarg_err_init(failure_warning_message, failure_message_cont);
+  cmdarg_err_init(sharkd_cmdarg_err, sharkd_cmdarg_err_cont);
 
   /*
    * Get credential information for later use, and drop privileges
@@ -140,9 +148,7 @@ main(int argc, char *argv[])
     goto clean_exit;
   }
 
-  init_report_message(failure_warning_message, failure_warning_message,
-                      open_failure_message, read_failure_message,
-                      write_failure_message);
+  init_report_message("sharkd", &sharkd_report_routines);
 
   timestamp_set_type(TS_RELATIVE);
   timestamp_set_precision(TS_PREC_AUTO);
@@ -392,7 +398,7 @@ load_cap_file(capture_file *cf, int max_packet_count, gint64 max_byte_count)
   }
 
   if (err != 0) {
-    cfile_read_failure_message("sharkd", cf->filename, err, err_info);
+    cfile_read_failure_message(cf->filename, err, err_info);
   }
 
   return err;
@@ -448,16 +454,15 @@ cf_open(capture_file *cf, const char *fname, unsigned int type, gboolean is_temp
   return CF_OK;
 
 fail:
-  cfile_open_failure_message("sharkd", fname, *err, err_info);
+  cfile_open_failure_message(fname, *err, err_info);
   return CF_ERROR;
 }
 
 /*
- * General errors and warnings are reported with an console message
- * in sharkd.
+ * Report an error in command-line arguments.
  */
 static void
-failure_warning_message(const char *msg_format, va_list ap)
+sharkd_cmdarg_err(const char *msg_format, va_list ap)
 {
   fprintf(stderr, "sharkd: ");
   vfprintf(stderr, msg_format, ap);
@@ -465,41 +470,10 @@ failure_warning_message(const char *msg_format, va_list ap)
 }
 
 /*
- * Open/create errors are reported with an console message in sharkd.
- */
-static void
-open_failure_message(const char *filename, int err, gboolean for_writing)
-{
-  fprintf(stderr, "sharkd: ");
-  fprintf(stderr, file_open_error_message(err, for_writing), filename);
-  fprintf(stderr, "\n");
-}
-
-/*
- * Read errors are reported with an console message in sharkd.
- */
-static void
-read_failure_message(const char *filename, int err)
-{
-  cmdarg_err("An error occurred while reading from the file \"%s\": %s.",
-          filename, g_strerror(err));
-}
-
-/*
- * Write errors are reported with an console message in sharkd.
- */
-static void
-write_failure_message(const char *filename, int err)
-{
-  cmdarg_err("An error occurred while writing to the file \"%s\": %s.",
-          filename, g_strerror(err));
-}
-
-/*
  * Report additional information for an error in command-line arguments.
  */
 static void
-failure_message_cont(const char *msg_format, va_list ap)
+sharkd_cmdarg_err_cont(const char *msg_format, va_list ap)
 {
   vfprintf(stderr, msg_format, ap);
   fprintf(stderr, "\n");

@@ -30,6 +30,12 @@ cmdarg_err_init(void (*err)(const char *, va_list),
  * Report an error in command-line arguments.
  */
 void
+vcmdarg_err(const char *fmt, va_list ap)
+{
+    print_err(fmt, ap);
+}
+
+void
 cmdarg_err(const char *fmt, ...)
 {
     va_list ap;

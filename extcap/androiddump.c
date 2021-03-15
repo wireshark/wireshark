@@ -21,6 +21,7 @@
 #include <wsutil/strtoi.h>
 #include <wsutil/filesystem.h>
 #include <wsutil/privileges.h>
+#include <wsutil/report_message.h>
 #include <wsutil/please_report_bug.h>
 #include <ui/cmdarg_err.h>
 #include <wsutil/inet_addr.h>
@@ -359,7 +360,7 @@ static const char* interface_to_logbuf(char* interface)
  * g_logv() with the appropriate arguments.
  */
 static void
-failure_warning_message(const char *msg_format, va_list ap)
+androiddump_cmdarg_err(const char *msg_format, va_list ap)
 {
     g_logv(G_LOG_DOMAIN, G_LOG_LEVEL_WARNING, msg_format, ap);
 }
@@ -459,12 +460,12 @@ static struct extcap_dumper extcap_dumper_open(char *fifo, int encap) {
     file_type_subtype = wtap_pcap_nsec_file_type_subtype();
     extcap_dumper.dumper.wtap = wtap_dump_open(fifo, file_type_subtype, WTAP_UNCOMPRESSED, &params, &err, &err_info);
     if (!extcap_dumper.dumper.wtap) {
-        cfile_dump_open_failure_message("androiddump", fifo, err, err_info, file_type_subtype);
+        cfile_dump_open_failure_message(fifo, err, err_info, file_type_subtype);
         exit(EXIT_CODE_CANNOT_SAVE_WIRETAP_DUMP);
     }
     extcap_dumper.encap = encap;
     if (!wtap_dump_flush(extcap_dumper.dumper.wtap, &err)) {
-        cfile_dump_open_failure_message("androiddump", fifo, err, NULL, file_type_subtype);
+        cfile_dump_open_failure_message(fifo, err, NULL, file_type_subtype);
         exit(EXIT_CODE_CANNOT_SAVE_WIRETAP_DUMP);
     }
 #endif
@@ -522,13 +523,13 @@ static gboolean extcap_dumper_dump(struct extcap_dumper extcap_dumper,
     rec.rec_header.packet_header.pkt_encap = extcap_dumper.encap;
 
     if (!wtap_dump(extcap_dumper.dumper.wtap, &rec, (const guint8 *) buffer, &err, &err_info)) {
-        cfile_write_failure_message("androiddump", NULL, fifo, err, err_info, 0,
+        cfile_write_failure_message(NULL, fifo, err, err_info, 0,
                                     wtap_dump_file_type_subtype(extcap_dumper.dumper.wtap));
         return FALSE;
     }
 
     if (!wtap_dump_flush(extcap_dumper.dumper.wtap, &err)) {
-        cfile_write_failure_message("androiddump", NULL, fifo, err, NULL, 0,
+        cfile_write_failure_message(NULL, fifo, err, NULL, 0,
                                     wtap_dump_file_type_subtype(extcap_dumper.dumper.wtap));
         return FALSE;
     }
@@ -2490,6 +2491,18 @@ static int capture_android_tcpdump(char *interface, char *fifo,
 
 int main(int argc, char *argv[]) {
     char            *err_msg;
+    static const struct report_message_routines androiddummp_report_routines = {
+        failure_message,
+        failure_message,
+        open_failure_message,
+        read_failure_message,
+        write_failure_message,
+        cfile_open_failure_message,
+        cfile_dump_open_failure_message,
+        cfile_read_failure_message,
+        cfile_write_failure_message,
+        cfile_close_failure_message
+    };
     int              ret = EXIT_CODE_GENERIC;
     int              option_idx = 0;
     int              result;
@@ -2514,7 +2527,7 @@ int main(int argc, char *argv[]) {
     char            *help_url;
     char            *help_header = NULL;
 
-    cmdarg_err_init(failure_warning_message, failure_warning_message);
+    cmdarg_err_init(androiddump_cmdarg_err, androiddump_cmdarg_err);
 
     /*
      * Get credential information for later use.
@@ -2531,6 +2544,8 @@ int main(int argc, char *argv[]) {
                   err_msg);
         g_free(err_msg);
     }
+
+    init_report_message("androiddump", &androiddummp_report_routines);
 
     extcap_conf = g_new0(extcap_parameters, 1);
 

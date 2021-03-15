@@ -144,11 +144,6 @@ static gboolean process_packet(capture_file *cf, epan_dissect_t *edt, gint64 off
                                wtap_rec *rec, Buffer *buf);
 static void show_print_file_io_error(int err);
 
-static void failure_warning_message(const char *msg_format, va_list ap);
-static void open_failure_message(const char *filename, int err,
-                                 gboolean for_writing);
-static void read_failure_message(const char *filename, int err);
-static void write_failure_message(const char *filename, int err);
 static void rawshark_cmdarg_err(const char *fmt, va_list ap);
 static void rawshark_cmdarg_err_cont(const char *fmt, va_list ap);
 static void protocolinfo_init(char *field);
@@ -437,6 +432,18 @@ main(int argc, char *argv[])
 #define OPTSTRING_INIT "d:F:hlm:nN:o:pr:R:sS:t:v"
 
     static const char    optstring[] = OPTSTRING_INIT;
+    static const struct report_message_routines rawshark_report_routines = {
+      failure_message,
+      failure_message,
+      open_failure_message,
+      read_failure_message,
+      write_failure_message,
+      cfile_open_failure_message,
+      cfile_dump_open_failure_message,
+      cfile_read_failure_message,
+      cfile_write_failure_message,
+      cfile_close_failure_message
+    };
 
     /*
      * Set the C-language locale to the native environment and set the
@@ -501,9 +508,7 @@ main(int argc, char *argv[])
                       (GLogLevelFlags)log_flags,
                       log_func_ignore, NULL /* user_data */);
 
-    init_report_message(failure_warning_message, failure_warning_message,
-                        open_failure_message, read_failure_message,
-                        write_failure_message);
+    init_report_message("rawshark", &rawshark_report_routines);
 
     timestamp_set_type(TS_RELATIVE);
     timestamp_set_precision(TS_PREC_AUTO);
@@ -966,7 +971,7 @@ load_cap_file(capture_file *cf)
     ws_buffer_free(&buf);
     if (err != 0) {
         /* Print a message noting that the read failed somewhere along the line. */
-        cfile_read_failure_message("Rawshark", cf->filename, err, err_info);
+        cfile_read_failure_message(cf->filename, err, err_info);
         return FALSE;
     }
 
@@ -1431,29 +1436,6 @@ show_print_file_io_error(int err)
     }
 }
 
-/*
- * General errors and warnings are reported with an console message
- * in Rawshark.
- */
-static void
-failure_warning_message(const char *msg_format, va_list ap)
-{
-    fprintf(stderr, "rawshark: ");
-    vfprintf(stderr, msg_format, ap);
-    fprintf(stderr, "\n");
-}
-
-/*
- * Open/create errors are reported with an console message in Rawshark.
- */
-static void
-open_failure_message(const char *filename, int err, gboolean for_writing)
-{
-    fprintf(stderr, "rawshark: ");
-    fprintf(stderr, file_open_error_message(err, for_writing), filename);
-    fprintf(stderr, "\n");
-}
-
 static const nstime_t *
 raw_get_frame_ts(struct packet_provider_data *prov, guint32 frame_num)
 {
@@ -1520,26 +1502,6 @@ raw_cf_open(capture_file *cf, const char *fname)
     cf->provider.prev_cap = NULL;
 
     return CF_OK;
-}
-
-/*
- * Read errors are reported with an console message in Rawshark.
- */
-static void
-read_failure_message(const char *filename, int err)
-{
-    cmdarg_err("An error occurred while reading from the file \"%s\": %s.",
-               filename, g_strerror(err));
-}
-
-/*
- * Write errors are reported with an console message in Rawshark.
- */
-static void
-write_failure_message(const char *filename, int err)
-{
-    cmdarg_err("An error occurred while writing to the file \"%s\": %s.",
-               filename, g_strerror(err));
 }
 
 /*

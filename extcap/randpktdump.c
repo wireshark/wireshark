@@ -125,7 +125,7 @@ static int list_config(char *interface)
 	return EXIT_SUCCESS;
 }
 
-static void failure_warning_message(const char *msg_format, va_list ap)
+static void randpktdump_cmdarg_err(const char *msg_format, va_list ap)
 {
 	g_logv(G_LOG_DOMAIN, G_LOG_LEVEL_WARNING, msg_format, ap);
 }
@@ -150,7 +150,7 @@ int main(int argc, char *argv[])
 	char* help_url;
 	char* help_header = NULL;
 
-	cmdarg_err_init(failure_warning_message, failure_warning_message);
+	cmdarg_err_init(randpktdump_cmdarg_err, randpktdump_cmdarg_err);
 
 	/*
 	 * Get credential information for later use.

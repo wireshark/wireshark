@@ -266,12 +266,8 @@ static gboolean write_preamble(capture_file *cf);
 static gboolean print_packet(capture_file *cf, epan_dissect_t *edt);
 static gboolean write_finale(void);
 
-static void failure_warning_message(const char *msg_format, va_list ap);
-static void open_failure_message(const char *filename, int err,
-    gboolean for_writing);
-static void read_failure_message(const char *filename, int err);
-static void write_failure_message(const char *filename, int err);
-static void failure_message_cont(const char *msg_format, va_list ap);
+static void tshark_cmdarg_err(const char *msg_format, va_list ap);
+static void tshark_cmdarg_err_cont(const char *msg_format, va_list ap);
 
 static GHashTable *output_only_tables = NULL;
 
@@ -714,6 +710,18 @@ int
 main(int argc, char *argv[])
 {
   char                *err_msg;
+  static const struct report_message_routines tshark_report_routines = {
+    failure_message,
+    failure_message,
+    open_failure_message,
+    read_failure_message,
+    write_failure_message,
+    cfile_open_failure_message,
+    cfile_dump_open_failure_message,
+    cfile_read_failure_message,
+    cfile_write_failure_message,
+    cfile_close_failure_message
+  };
   int                  opt;
   static const struct option long_options[] = {
     {"help", no_argument, NULL, 'h'},
@@ -797,7 +805,7 @@ main(int argc, char *argv[])
 
   tshark_debug("tshark started with %d args", argc);
 
-  cmdarg_err_init(failure_warning_message, failure_message_cont);
+  cmdarg_err_init(tshark_cmdarg_err, tshark_cmdarg_err_cont);
 
 #ifdef _WIN32
   create_app_running_mutex();
@@ -946,9 +954,7 @@ main(int argc, char *argv[])
                     tshark_log_handler, NULL /* user_data */);
 #endif
 
-  init_report_message(failure_warning_message, failure_warning_message,
-                      open_failure_message, read_failure_message,
-                      write_failure_message);
+  init_report_message("TShark", &tshark_report_routines);
 
 #ifdef HAVE_LIBPCAP
   capture_opts_init(&global_capture_opts);
@@ -2073,8 +2079,7 @@ main(int argc, char *argv[])
                                     &err, &err_info);
       g_free(comment);
       if (!exp_pdu_status) {
-          cfile_dump_open_failure_message("TShark", exp_pdu_filename,
-                                          err, err_info,
+          cfile_dump_open_failure_message(exp_pdu_filename, err, err_info,
                                           out_file_type);
           exit_status = INVALID_EXPORT;
           goto clean_exit;
@@ -3601,7 +3606,7 @@ process_cap_file(capture_file *cf, char *save_file, int out_file_type,
 
     if (pdh == NULL) {
       /* We couldn't set up to write to the capture file. */
-      cfile_dump_open_failure_message("TShark", save_file, err, err_info,
+      cfile_dump_open_failure_message(save_file, err, err_info,
                                       out_file_type);
       status = PROCESS_FILE_NO_FILE_PROCESSED;
       goto out;
@@ -3724,8 +3729,7 @@ process_cap_file(capture_file *cf, char *save_file, int out_file_type,
 
     case PASS_READ_ERROR:
       /* Read error. */
-      cfile_read_failure_message("TShark", cf->filename, err_pass1,
-                                 err_info_pass1);
+      cfile_read_failure_message(cf->filename, err_pass1, err_info_pass1);
       status = PROCESS_FILE_ERROR;
       break;
 
@@ -3749,7 +3753,7 @@ process_cap_file(capture_file *cf, char *save_file, int out_file_type,
 
     case PASS_READ_ERROR:
       /* Read error. */
-      cfile_read_failure_message("TShark", cf->filename, err, err_info);
+      cfile_read_failure_message(cf->filename, err, err_info);
       status = PROCESS_FILE_ERROR;
       break;
 
@@ -3757,8 +3761,8 @@ process_cap_file(capture_file *cf, char *save_file, int out_file_type,
       /* Write error.
          XXX - framenum is not necessarily the frame number in
          the input file if there was a read filter. */
-      cfile_write_failure_message("TShark", cf->filename, save_file,
-                                  err, err_info, err_framenum, out_file_type);
+      cfile_write_failure_message(cf->filename, save_file, err, err_info,
+                                  err_framenum, out_file_type);
       status = PROCESS_FILE_ERROR;
       break;
 
@@ -4433,7 +4437,7 @@ cf_open(capture_file *cf, const char *fname, unsigned int type, gboolean is_temp
   return CF_OK;
 
 fail:
-  cfile_open_failure_message("TShark", fname, *err, err_info);
+  cfile_open_failure_message(fname, *err, err_info);
   return CF_ERROR;
 }
 
@@ -4512,11 +4516,10 @@ show_print_file_io_error(void)
 }
 
 /*
- * General errors and warnings are reported with an console message
- * in TShark.
+ * Report an error in command-line arguments.
  */
 static void
-failure_warning_message(const char *msg_format, va_list ap)
+tshark_cmdarg_err(const char *msg_format, va_list ap)
 {
   fprintf(stderr, "tshark: ");
   vfprintf(stderr, msg_format, ap);
@@ -4524,34 +4527,13 @@ failure_warning_message(const char *msg_format, va_list ap)
 }
 
 /*
- * Open/create errors are reported with an console message in TShark.
+ * Report additional information for an error in command-line arguments.
  */
 static void
-open_failure_message(const char *filename, int err, gboolean for_writing)
+tshark_cmdarg_err_cont(const char *msg_format, va_list ap)
 {
-  fprintf(stderr, "tshark: ");
-  fprintf(stderr, file_open_error_message(err, for_writing), filename);
+  vfprintf(stderr, msg_format, ap);
   fprintf(stderr, "\n");
-}
-
-/*
- * Read errors are reported with an console message in TShark.
- */
-static void
-read_failure_message(const char *filename, int err)
-{
-  cmdarg_err("An error occurred while reading from the file \"%s\": %s.",
-             filename, g_strerror(err));
-}
-
-/*
- * Write errors are reported with an console message in TShark.
- */
-static void
-write_failure_message(const char *filename, int err)
-{
-  cmdarg_err("An error occurred while writing to the file \"%s\": %s.",
-             filename, g_strerror(err));
 }
 
 static void reset_epan_mem(capture_file *cf,epan_dissect_t *edt, gboolean tree, gboolean visual)
@@ -4567,16 +4549,6 @@ static void reset_epan_mem(capture_file *cf,epan_dissect_t *edt, gboolean tree, 
   cf->epan = tshark_epan_new(cf);
   epan_dissect_init(edt, cf->epan, tree, visual);
   cf->count = 0;
-}
-
-/*
- * Report additional information for an error in command-line arguments.
- */
-static void
-failure_message_cont(const char *msg_format, va_list ap)
-{
-  vfprintf(stderr, msg_format, ap);
-  fprintf(stderr, "\n");
 }
 
 /*

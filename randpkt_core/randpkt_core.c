@@ -620,14 +620,14 @@ void randpkt_loop(randpkt_example* example, guint64 produce_count, guint64 packe
 		}
 
 		if (!wtap_dump(example->dump, rec, buffer, &err, &err_info)) {
-			cfile_write_failure_message("randpkt", NULL,
+			cfile_write_failure_message(NULL,
 			    example->filename, err, err_info, 0,
 			    wtap_dump_file_type_subtype(example->dump));
 		}
 		if (packet_delay_ms) {
 			g_usleep(1000 * (gulong)packet_delay_ms);
 			if (!wtap_dump_flush(example->dump, &err)) {
-				cfile_write_failure_message("randpkt", NULL,
+				cfile_write_failure_message(NULL,
 				    example->filename, err, NULL, 0,
 				    wtap_dump_file_type_subtype(example->dump));
 			}
@@ -683,7 +683,7 @@ int randpkt_example_init(randpkt_example* example, char* produce_filename, int p
 		example->filename = produce_filename;
 	}
 	if (!example->dump) {
-		cfile_dump_open_failure_message("randpkt", produce_filename,
+		cfile_dump_open_failure_message(produce_filename,
 			err, err_info, file_type_subtype);
 		return WRITE_ERROR;
 	}

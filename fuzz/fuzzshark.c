@@ -1,4 +1,4 @@
-/* oss-fuzzshark.c
+/* fuzzshark.c
  *
  * Fuzzer variant of Wireshark for oss-fuzz
  *
@@ -21,6 +21,7 @@
 #include <epan/epan.h>
 
 #include <ui/cmdarg_err.h>
+#include <ui/failure_message.h>
 #include <wsutil/filesystem.h>
 #include <wsutil/privileges.h>
 #include <wsutil/report_message.h>
@@ -49,11 +50,10 @@ static epan_t *fuzz_epan;
 static epan_dissect_t *fuzz_edt;
 
 /*
- * General errors and warnings are reported with an console message
- * in oss-fuzzshark.
+ * Report an error in command-line arguments.
  */
 static void
-failure_warning_message(const char *msg_format, va_list ap)
+fuzzshark_cmdarg_err(const char *msg_format, va_list ap)
 {
 	fprintf(stderr, "oss-fuzzshark: ");
 	vfprintf(stderr, msg_format, ap);
@@ -61,39 +61,10 @@ failure_warning_message(const char *msg_format, va_list ap)
 }
 
 /*
- * Open/create errors are reported with an console message in oss-fuzzshark.
- */
-static void
-open_failure_message(const char *filename, int err, gboolean for_writing)
-{
-	fprintf(stderr, "oss-fuzzshark: ");
-	fprintf(stderr, file_open_error_message(err, for_writing), filename);
-	fprintf(stderr, "\n");
-}
-
-/*
- * Read errors are reported with an console message in oss-fuzzshark.
- */
-static void
-read_failure_message(const char *filename, int err)
-{
-	cmdarg_err("An error occurred while reading from the file \"%s\": %s.", filename, g_strerror(err));
-}
-
-/*
- * Write errors are reported with an console message in oss-fuzzshark.
- */
-static void
-write_failure_message(const char *filename, int err)
-{
-	cmdarg_err("An error occurred while writing to the file \"%s\": %s.", filename, g_strerror(err));
-}
-
-/*
  * Report additional information for an error in command-line arguments.
  */
 static void
-failure_message_cont(const char *msg_format, va_list ap)
+fuzzshark_cmdarg_err_cont(const char *msg_format, va_list ap)
 {
 	vfprintf(stderr, msg_format, ap);
 	fprintf(stderr, "\n");
@@ -181,6 +152,19 @@ fuzz_init(int argc _U_, char **argv)
 {
 	char                *init_progfile_dir_error;
 
+	static const struct report_message_routines fuzzshark_report_routines = {
+		failure_message,
+		failure_message,
+		open_failure_message,
+		read_failure_message,
+		write_failure_message,
+		cfile_open_failure_message,
+		cfile_dump_open_failure_message,
+		cfile_read_failure_message,
+		cfile_write_failure_message,
+		cfile_close_failure_message
+	};
+
 	char                *err_msg = NULL;
 	e_prefs             *prefs_p;
 	int                  ret = EXIT_SUCCESS;
@@ -250,7 +234,7 @@ fuzz_init(int argc _U_, char **argv)
 	g_setenv("WIRESHARK_DEBUG_WMEM_OVERRIDE", "simple", 0);
 	g_setenv("G_SLICE", "always-malloc", 0);
 
-	cmdarg_err_init(failure_warning_message, failure_message_cont);
+	cmdarg_err_init(fuzzshark_cmdarg_err, fuzzshark_cmdarg_err_cont);
 
 	/*
 	 * Get credential information for later use, and drop privileges
@@ -273,8 +257,7 @@ fuzz_init(int argc _U_, char **argv)
 	ws_init_version_info("OSS Fuzzshark (Wireshark)", NULL,
 	    epan_get_compiled_version_info, epan_get_runtime_version_info);
 
-	init_report_message(failure_warning_message, failure_warning_message,
-	     open_failure_message, read_failure_message, write_failure_message);
+	init_report_message("fuzzshark", &fuzzshark_report_routines);
 
 	timestamp_set_type(TS_RELATIVE);
 	timestamp_set_precision(TS_PREC_AUTO);
