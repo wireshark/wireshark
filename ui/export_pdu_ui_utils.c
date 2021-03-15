@@ -13,7 +13,6 @@
 #include "config.h"
 
 #include "globals.h"
-#include "wiretap/pcap-encap.h"
 #include "wsutil/os_version_info.h"
 #include "wsutil/tempfile.h"
 #include "version_info.h"

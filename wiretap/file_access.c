@@ -76,7 +76,6 @@
 #include "camins.h"
 #include "stanag4607.h"
 #include "capsa.h"
-#include "pcap-encap.h"
 #include "nettrace_3gpp_32_423.h"
 #include "mplog.h"
 #include "dpa400.h"

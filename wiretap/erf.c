@@ -33,7 +33,6 @@
 
 #include "wtap-int.h"
 #include "file_wrappers.h"
-#include "pcap-encap.h"
 #include "erf.h"
 #include "erf_record.h"
 #include "erf-common.h"

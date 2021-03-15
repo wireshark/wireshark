@@ -23,7 +23,6 @@
 
 #include "wtap-int.h"
 #include "file_wrappers.h"
-#include "pcap-encap.h"
 
 #include <epan/exported_pdu.h>
 #include <wsutil/buffer.h>
