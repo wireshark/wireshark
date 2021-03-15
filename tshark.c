@@ -58,7 +58,6 @@
 #include <cli_main.h>
 #include <version_info.h>
 #include <wiretap/wtap_opttypes.h>
-#include <wiretap/pcapng.h>
 
 #include "globals.h"
 #include <epan/timestamp.h>

@@ -33,7 +33,6 @@
 #include <wsutil/inet_addr.h>
 
 
-#include "pcapng.h"
 #include "nettrace_3gpp_32_423.h"
 
 /* String constants sought in the XML data.

@@ -31,7 +31,6 @@
 #include <wsutil/report_message.h>
 #include <version_info.h>
 #include <wiretap/wtap_opttypes.h>
-#include <wiretap/pcapng.h>
 
 #include <epan/decode_as.h>
 #include <epan/timestamp.h>

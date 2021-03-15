@@ -12,7 +12,6 @@
 
 #include <wiretap/pcap-encap.h>
 #include <wiretap/wtap_opttypes.h>
-#include <wiretap/pcapng.h>
 
 #include <epan/packet.h>
 #include <wsutil/file_util.h>

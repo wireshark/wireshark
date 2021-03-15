@@ -15,7 +15,6 @@
 
 #include "wtap-int.h"
 #include "wtap_opttypes.h"
-#include "pcapng.h"
 
 #include "file_wrappers.h"
 #include <wsutil/file_util.h>

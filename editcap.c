@@ -83,7 +83,6 @@
 #include <wsutil/pint.h>
 #include <wsutil/strtoi.h>
 #include <wiretap/wtap_opttypes.h>
-#include <wiretap/pcapng.h>
 
 #include "ui/failure_message.h"
 

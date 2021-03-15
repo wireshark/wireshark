@@ -14,7 +14,6 @@
 #include "wtap.h"
 #include "wtap_opttypes.h"
 #include "wtap-int.h"
-#include "pcapng.h"
 #include "pcapng_module.h"
 
 #if 0

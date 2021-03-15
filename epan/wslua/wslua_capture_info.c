@@ -16,7 +16,6 @@
 #include "wslua_file_common.h"
 
 #include <epan/addr_resolv.h>
-#include <wiretap/pcapng.h>
 
 
 /* WSLUA_CONTINUE_MODULE File */

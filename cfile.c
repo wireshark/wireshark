@@ -14,7 +14,6 @@
 #include <glib.h>
 
 #include <epan/packet.h>
-#include <wiretap/pcapng.h>
 
 #include "cfile.h"
 

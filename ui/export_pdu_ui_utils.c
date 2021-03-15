@@ -23,7 +23,6 @@
 #include <epan/epan_dissect.h>
 #include <wiretap/wtap.h>
 #include <wiretap/wtap_opttypes.h>
-#include <wiretap/pcapng.h>
 
 #include "ui/alert_box.h"
 #include "ui/simple_dialog.h"

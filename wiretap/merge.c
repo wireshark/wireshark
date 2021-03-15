@@ -24,7 +24,6 @@
 #include <string.h>
 #include "merge.h"
 #include "wtap_opttypes.h"
-#include "pcapng.h"
 #include "wtap-int.h"
 
 #include <wsutil/filesystem.h>
