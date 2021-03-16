@@ -243,6 +243,27 @@ struct otrxd_pdu_info {
 	guint32 tsc;
 };
 
+/* Dissector for common Rx/Tx TRXDv0/v1 header part */
+static void dissect_otrxd_chdr_v0(tvbuff_t *tvb, packet_info *pinfo,
+				  proto_item *ti, proto_tree *tree,
+				  struct otrxd_pdu_info *pi,
+				  int *offset)
+{
+	proto_tree_add_item(tree, hf_otrxd_chdr_reserved, tvb,
+			    *offset, 1, ENC_NA);
+	proto_tree_add_item_ret_uint(tree, hf_otrxd_tdma_tn, tvb,
+				     *offset, 1, ENC_NA, &pi->tn);
+	*offset += 1;
+
+	/* TDMA frame number (4 octets, big endian) */
+	proto_tree_add_item_ret_uint(tree, hf_otrxd_tdma_fn, tvb,
+				     *offset, 4, ENC_BIG_ENDIAN, &pi->fn);
+	*offset += 4;
+
+	col_append_fstr(pinfo->cinfo, COL_INFO, "TDMA FN %07u TN %u", pi->fn, pi->tn);
+	proto_item_append_text(ti, ", TDMA FN %07u TN %u", pi->fn, pi->tn);
+}
+
 /* Dissector for MTS (Modulation and Training Sequence) */
 static void dissect_otrxd_mts(tvbuff_t *tvb, packet_info *pinfo,
 			      proto_item *ti, proto_tree *tree,
@@ -302,11 +323,13 @@ static void dissect_otrxd_mts(tvbuff_t *tvb, packet_info *pinfo,
 }
 
 /* Dissector for Rx TRXD header version 0 */
-static int dissect_otrxd_rx_hdr_v0(tvbuff_t *tvb, packet_info *pinfo _U_,
-				   proto_item *ti _U_, proto_tree *tree,
-				   struct otrxd_pdu_info *pi _U_,
+static int dissect_otrxd_rx_hdr_v0(tvbuff_t *tvb, packet_info *pinfo,
+				   proto_item *ti, proto_tree *tree,
+				   struct otrxd_pdu_info *pi,
 				   int offset)
 {
+	dissect_otrxd_chdr_v0(tvb, pinfo, ti, tree, pi, &offset);
+
 	proto_tree_add_item(tree, hf_otrxd_rssi, tvb, offset++, 1, ENC_NA);
 	proto_tree_add_item(tree, hf_otrxd_toa256, tvb, offset, 2, ENC_NA);
 	offset += 2;
@@ -331,38 +354,6 @@ static int dissect_otrxd_rx_hdr_v1(tvbuff_t *tvb, packet_info *pinfo,
 	offset += 2;
 
 	return offset;
-}
-
-/* Dissector for common Rx/Tx TRXD header part */
-static int dissect_otrxd_common_hdr(tvbuff_t *tvb, packet_info *pinfo,
-				    proto_item *ti, proto_tree *tree,
-				    struct otrxd_pdu_info *pi)
-{
-	int offset = 0;
-
-	/* TRXD header version and TDMA time-slot number.
-	 *
-	 * | 7 6 5 4 3 2 1 0 | Bit numbers (value range)
-	 * | X X X X . . . . | TRXD PDU version (0..15)
-	 * | . . . . . X X X | TDMA time-slot number (0..7)
-	 * | . . . . X . . . | Reserved (0)
-	 */
-	proto_tree_add_item_ret_uint(tree, hf_otrxd_pdu_ver, tvb,
-				     offset, 1, ENC_NA, &pi->ver);
-	proto_tree_add_item(tree, hf_otrxd_chdr_reserved, tvb,
-				     offset, 1, ENC_NA);
-	proto_tree_add_item_ret_uint(tree, hf_otrxd_tdma_tn, tvb,
-				     offset, 1, ENC_NA, &pi->tn);
-	offset++;
-
-	/* TDMA frame number (4 octets, big endian) */
-	proto_tree_add_item_ret_uint(tree, hf_otrxd_tdma_fn, tvb,
-				     offset, 4, ENC_BIG_ENDIAN, &pi->fn);
-
-	col_append_fstr(pinfo->cinfo, COL_INFO, "TDMA FN %07u TN %u", pi->fn, pi->tn);
-	proto_item_append_text(ti, ", TDMA FN %07u TN %u", pi->fn, pi->tn);
-
-	return 1 + 4;
 }
 
 /* Burst data in Receive direction */
@@ -422,6 +413,7 @@ static int dissect_otrxd_tx(tvbuff_t *tvb, packet_info *pinfo,
 	/* Both versions feature the same header format */
 	case 0:
 	case 1:
+		dissect_otrxd_chdr_v0(tvb, pinfo, ti, tree, pi, &offset);
 		proto_tree_add_item(tree, hf_otrxd_tx_att, tvb, offset, 1, ENC_NA);
 		offset++;
 		break;
@@ -470,12 +462,11 @@ static int dissect_otrxd(tvbuff_t *tvb, packet_info *pinfo,
 	struct otrxd_pdu_info pi = { 0 };
 	proto_tree *otrxd_tree;
 	proto_item *ti, *gi;
-	int offset;
+	int offset = 0;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "OsmoTRXD");
 	col_clear(pinfo->cinfo, COL_INFO);
 
-	/* Common TRXD header tree (1 + 4 bytes) */
 	ti = proto_tree_add_item(tree, proto_otrxd, tvb, 0, -1, ENC_NA);
 	otrxd_tree = proto_item_add_subtree(ti, ett_otrxd);
 
@@ -501,8 +492,9 @@ static int dissect_otrxd(tvbuff_t *tvb, packet_info *pinfo,
 				 tvb, 0, 0, burst_dir);
 	proto_item_set_generated(gi);
 
-	/* Parse common TRXD header part */
-	offset = dissect_otrxd_common_hdr(tvb, pinfo, ti, otrxd_tree, &pi);
+	/* Parse common TRXD PDU version */
+	proto_tree_add_item_ret_uint(otrxd_tree, hf_otrxd_pdu_ver, tvb,
+				     offset, 1, ENC_NA, &pi.ver);
 
 	if (burst_dir == OTRXCD_DIR_L12TRX)
 		offset = dissect_otrxd_tx(tvb, pinfo, ti, otrxd_tree, &pi, offset);
