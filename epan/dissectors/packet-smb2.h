@@ -97,9 +97,9 @@ typedef struct _smb2_sesid_info_t {
 	guint8 server_decryption_key[AES_KEY_SIZE];
 
 	wmem_map_t *tids;
-	GHashTable *fids;
+	wmem_map_t *fids;
 	/* table to store some infos for smb export object */
-	GHashTable *files;
+	wmem_map_t *files;
 
 	guint8 preauth_hash[SMB2_PREAUTH_HASH_SIZE];
 } smb2_sesid_info_t;

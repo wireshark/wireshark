@@ -1488,8 +1488,8 @@ smb2_get_session(smb2_conv_info_t *conv _U_, guint64 id, packet_info *pinfo, smb
 		ses->sesid = id;
 		ses->auth_frame = (guint32)-1;
 		ses->tids = wmem_map_new(wmem_file_scope(), smb2_tid_info_hash, smb2_tid_info_equal);
-		ses->fids = g_hash_table_new(smb2_fid_info_hash, smb2_fid_info_equal);
-		ses->files = g_hash_table_new(smb2_eo_files_hash, smb2_eo_files_equal);
+		ses->fids = wmem_map_new(wmem_file_scope(), smb2_fid_info_hash, smb2_fid_info_equal);
+		ses->files = wmem_map_new(wmem_file_scope(), smb2_eo_files_hash, smb2_eo_files_equal);
 
 		seskey_find_sid_key(id, ses->session_key, ses->client_decryption_key, ses->server_decryption_key);
 		if (pinfo && si) {
@@ -2364,7 +2364,7 @@ dissect_smb2_fid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset
 			dcerpc_store_polhnd_name(&policy_hnd, pinfo,
 						  fid_name);
 
-			g_hash_table_insert(si->session->fids, sfi, sfi);
+			wmem_map_insert(si->session->fids, sfi, sfi);
 			si->file = sfi;
 
 			/* If needed, create the file entry and save the policy hnd */
@@ -2374,13 +2374,13 @@ dissect_smb2_fid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset
 			}
 
 			if (si->conv) {
-				eo_file_info = (smb2_eo_file_info_t *)g_hash_table_lookup(si->session->files,&policy_hnd);
+				eo_file_info = (smb2_eo_file_info_t *)wmem_map_lookup(si->session->files,&policy_hnd);
 				if (!eo_file_info) {
 					eo_file_info = wmem_new(wmem_file_scope(), smb2_eo_file_info_t);
 					policy_hnd_hashtablekey = wmem_new(wmem_file_scope(), e_ctx_hnd);
 					memcpy(policy_hnd_hashtablekey, &policy_hnd, sizeof(e_ctx_hnd));
 					eo_file_info->end_of_file=0;
-					g_hash_table_insert(si->session->files,policy_hnd_hashtablekey,eo_file_info);
+					wmem_map_insert(si->session->files,policy_hnd_hashtablekey,eo_file_info);
 				}
 				si->eo_file_info=eo_file_info;
 			}
@@ -2388,7 +2388,7 @@ dissect_smb2_fid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset
 		break;
 	case FID_MODE_CLOSE:
 		if (!pinfo->fd->visited) {
-			smb2_fid_info_t *fid = (smb2_fid_info_t *)g_hash_table_lookup(si->session->fids, &sfi_key);
+			smb2_fid_info_t *fid = (smb2_fid_info_t *)wmem_map_lookup(si->session->fids, &sfi_key);
 			if (fid) {
 				/* set last frame */
 				fid->frame_end = pinfo->num;
@@ -2403,7 +2403,7 @@ dissect_smb2_fid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset
 		break;
 	}
 
-	si->file = (smb2_fid_info_t *)g_hash_table_lookup(si->session->fids, &sfi_key);
+	si->file = (smb2_fid_info_t *)wmem_map_lookup(si->session->fids, &sfi_key);
 	if (si->file) {
 		if (si->saved) {
 			si->saved->file = si->file;
@@ -2421,7 +2421,7 @@ dissect_smb2_fid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset
 		if (!si->eo_file_info) {
 			if (si->saved) { si->saved->policy_hnd = policy_hnd; }
 			if (si->conv) {
-				eo_file_info = (smb2_eo_file_info_t *)g_hash_table_lookup(si->session->files,&policy_hnd);
+				eo_file_info = (smb2_eo_file_info_t *)wmem_map_lookup(si->session->files,&policy_hnd);
 				if (eo_file_info) {
 					si->eo_file_info=eo_file_info;
 				} else { /* XXX This should never happen */
@@ -2429,7 +2429,7 @@ dissect_smb2_fid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset
 					policy_hnd_hashtablekey = wmem_new(wmem_file_scope(), e_ctx_hnd);
 					memcpy(policy_hnd_hashtablekey, &policy_hnd, sizeof(e_ctx_hnd));
 					eo_file_info->end_of_file=0;
-					g_hash_table_insert(si->session->files,policy_hnd_hashtablekey,eo_file_info);
+					wmem_map_insert(si->session->files,policy_hnd_hashtablekey,eo_file_info);
 				}
 			}
 
@@ -10334,6 +10334,8 @@ dissect_smb2_chained_comp_payload(packet_info *pinfo, proto_tree *tree,
 	}
 
  out:
+	if (uncomp_tvb)
+		tvb_free(uncomp_tvb);
 	proto_tree_add_item(subtree, hf_smb2_comp_transform_data, tvb, offset, length, ENC_NA);
 	offset += length;
 
@@ -10986,14 +10988,14 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, gboolea
 				/* If needed, create the file entry and save the policy hnd */
 				if (!si->eo_file_info) {
 					if (si->conv) {
-						eo_file_info = (smb2_eo_file_info_t *)g_hash_table_lookup(si->session->files,&ssi->policy_hnd);
+						eo_file_info = (smb2_eo_file_info_t *)wmem_map_lookup(si->session->files,&ssi->policy_hnd);
 						if (!eo_file_info) { /* XXX This should never happen */
 							/* assert(1==0); */
 							eo_file_info = wmem_new(wmem_file_scope(), smb2_eo_file_info_t);
 							policy_hnd_hashtablekey = wmem_new(wmem_file_scope(), e_ctx_hnd);
 							memcpy(policy_hnd_hashtablekey, &ssi->policy_hnd, sizeof(e_ctx_hnd));
 							eo_file_info->end_of_file=0;
-							g_hash_table_insert(si->session->files,policy_hnd_hashtablekey,eo_file_info);
+							wmem_map_insert(si->session->files,policy_hnd_hashtablekey,eo_file_info);
 						}
 						si->eo_file_info=eo_file_info;
 					}
