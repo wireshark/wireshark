@@ -13,6 +13,12 @@
 
 #include "ws_symbol_export.h"
 
+#include <epan/params.h>
+#include <epan/stat_groups.h>
+#include <epan/packet_info.h>
+#include <epan/tap.h>
+#include <epan/wmem/wmem.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
@@ -20,12 +26,6 @@ extern "C" {
 /*
  * Parameters for taps.
  */
-
-#include <epan/params.h>
-#include <epan/stat_groups.h>
-#include <epan/packet_info.h>
-#include <epan/tap.h>
-#include <epan/wmem/wmem.h>
 
 typedef enum {
     PARAM_UINT,   /* Unused? */

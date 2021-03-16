@@ -13,14 +13,14 @@
 #ifndef __OIDS_H__
 #define __OIDS_H__
 
-#ifdef __cplusplus
-extern "C" {
-#endif /* __cplusplus */
-
 #include <epan/ftypes/ftypes.h>
 #include <epan/prefs.h>
 #include <epan/wmem/wmem.h>
 #include "ws_symbol_export.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
 
 /**
  *@file
