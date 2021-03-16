@@ -17,10 +17,6 @@
 
 #include "ws_symbol_export.h"
 
-#ifdef __cplusplus
-extern "C" {
-#endif /* __cplusplus */
-
 #ifdef _WIN32
 #include <io.h>		/* for _read(), _write(), etc. */
 #include <gmodule.h>
@@ -35,6 +31,12 @@ extern "C" {
 #endif
 
 #include <sys/stat.h>	/* for stat() and struct stat */
+
+#include <stdio.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
 
 /* We set a larger IO Buffer size for the capture files */
 #define IO_BUF_SIZE (64 * 1024)
@@ -57,8 +59,6 @@ extern "C" {
 #ifndef S_ISDIR
 #define S_ISDIR(mode)   (((mode) & S_IFMT) == S_IFDIR)
 #endif
-
-#include <stdio.h>
 
 #ifdef _WIN32
 

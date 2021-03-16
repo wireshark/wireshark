@@ -12,11 +12,11 @@
 
 #include "ws_symbol_export.h"
 
+#include <time.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
-
-#include <time.h>
 
 /** Converts a broken down date representation, relative to UTC,
  * to a timestamp
