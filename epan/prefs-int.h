@@ -12,13 +12,13 @@
 #ifndef __PREFS_INT_H__
 #define __PREFS_INT_H__
 
-#ifdef __cplusplus
-extern "C" {
-#endif /* __cplusplus */
-
 #include <stdio.h>
 #include "ws_symbol_export.h"
 #include <epan/wmem/wmem.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
 
 /**
  *@file

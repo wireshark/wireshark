@@ -10,14 +10,14 @@
 #ifndef EPAN_DISSECT_H
 #define EPAN_DISSECT_H
 
-#ifdef __cplusplus
-extern "C" {
-#endif /* __cplusplus */
-
 #include "epan.h"
 #include "tvbuff.h"
 #include "proto.h"
 #include "packet_info.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
 
 /* Dissection of a single byte array. Holds tvbuff info as
  * well as proto_tree info. As long as the epan_dissect_t for a byte

@@ -13,14 +13,14 @@
 #ifndef __MAXMIND_DB_H__
 #define __MAXMIND_DB_H__
 
-#ifdef __cplusplus
-extern "C" {
-#endif /* __cplusplus */
-
 #include <epan/prefs.h>
 #include <wsutil/inet_ipv4.h>
 #include <wsutil/inet_ipv6.h>
 #include "ws_symbol_export.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
 
 typedef struct _mmdb_lookup_t {
     gboolean found;

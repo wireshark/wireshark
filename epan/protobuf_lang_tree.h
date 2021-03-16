@@ -15,12 +15,12 @@
 
 #include <glib.h>
 
+#include <stdio.h>
+#include <stdarg.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
-
-#include <stdio.h>
-#include <stdarg.h>
 
 #define PBL_DEFAULT_PACKAGE_NAME ""
 

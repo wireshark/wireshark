@@ -25,6 +25,9 @@ typedef struct _e_guid_t {
     guint8  data4[8];
 } e_guid_t;
 
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
 
 WS_DLL_PUBLIC void guids_init(void);
 
@@ -49,5 +52,9 @@ WS_DLL_PUBLIC const gchar* guids_resolve_guid_to_str(const e_guid_t *guid);
 #define guids_resolve_uuid_to_str(uuid) guids_resolve_guid_to_str((e_guid_t *) (uuid))
 
 WS_DLL_PUBLIC int guid_cmp(const e_guid_t *g1, const e_guid_t *g2);
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
 
 #endif /* __GUID_UTILS_H__ */

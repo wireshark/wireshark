@@ -10,11 +10,8 @@
 #ifndef __EPAN_H__
 #define __EPAN_H__
 
-#ifdef __cplusplus
-extern "C" {
-#endif /* __cplusplus */
-
 #include <glib.h>
+
 #include <epan/tvbuff.h>
 #include <epan/prefs.h>
 #include <epan/frame_data.h>
@@ -22,6 +19,9 @@ extern "C" {
 #include <epan/register.h>
 #include "ws_symbol_export.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
 
 /** Global variable holding the content of the corresponding environment variable
  * to save fetching it repeatedly.

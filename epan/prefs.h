@@ -11,10 +11,6 @@
 #ifndef __PREFS_H__
 #define __PREFS_H__
 
-#ifdef __cplusplus
-extern "C" {
-#endif /* __cplusplus */
-
 #include <glib.h>
 
 #include <epan/params.h>
@@ -23,6 +19,10 @@ extern "C" {
 #include <wsutil/color.h>
 
 #include "ws_symbol_export.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
 
 #define DEF_WIDTH 750
 #define DEF_HEIGHT 550

@@ -11,13 +11,14 @@
 #ifndef __VALUE_STRING_H__
 #define __VALUE_STRING_H__
 
+#include <glib.h>
+
+#include "ws_symbol_export.h"
+#include "wmem/wmem.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
-
-#include <glib.h>
-#include "ws_symbol_export.h"
-#include "wmem/wmem.h"
 
 /* VALUE TO STRING MATCHING */
 

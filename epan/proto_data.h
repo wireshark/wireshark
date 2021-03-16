@@ -11,11 +11,20 @@
 #ifndef __PROTO_DATA_H__
 #define __PROTO_DATA_H__
 
+#include "ws_symbol_export.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
 
-#include "ws_symbol_export.h"
+/** @file
+ * Dissected packet data and metadata.
+ */
+
+/** @defgroup packetinfo Packet Data and Metadata
+ *
+ * @{
+ */
 
 /* Allocator should be either pinfo->pool or wmem_file_scope() */
 WS_DLL_PUBLIC void p_add_proto_data(wmem_allocator_t *scope, struct _packet_info* pinfo, int proto, guint32 key, void *proto_data);
