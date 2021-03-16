@@ -15,6 +15,12 @@
 
 #include <glib.h>
 
+#ifdef _WIN32
+#include <windows.h>
+#include <tchar.h>
+#include <wchar.h>
+#endif
+
 /**
  * @file
  * Unicode convenience routines.
@@ -28,10 +34,6 @@ WS_DLL_PUBLIC
 int ws_utf8_char_len(guint8 ch);
 
 #ifdef _WIN32
-
-#include <windows.h>
-#include <tchar.h>
-#include <wchar.h>
 
 /** Given a UTF-8 string, convert it to UTF-16.  This is meant to be used
  * to convert between GTK+ 2.x (UTF-8) to Windows (UTF-16).

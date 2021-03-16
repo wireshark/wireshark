@@ -17,8 +17,6 @@
 extern "C" {
 #endif /* __cplusplus */
 
-#include "ws_symbol_export.h"
-
 WS_DLL_PUBLIC void get_cpu_info(GString *str);
 
 #ifdef __cplusplus

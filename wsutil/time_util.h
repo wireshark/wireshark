@@ -12,11 +12,11 @@
 
 #include "ws_symbol_export.h"
 
+#include <time.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
-
-#include <time.h>
 
 WS_DLL_PUBLIC
 time_t mktime_utc(struct tm *tm);
