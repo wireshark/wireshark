@@ -808,7 +808,23 @@ pcapng_read_section_header_block(FILE_T fh, pcapng_block_header_t *bh,
         }
         to_read -= bytes_read;
 
-        /* handle option content */
+        /*
+         * Handle option content.
+         *
+         * ***DO NOT*** add any items to this table that are not
+         * standardized option codes in either section 3.5 "Options"
+         * of the current pcapng spec, at
+         *
+         *    https://pcapng.github.io/pcapng/draft-tuexen-opsawg-pcapng.html#name-options
+         *
+         * or in the list of options in section 4.1 "Section Header Block"
+         * of the current pcapng spec, at
+         *
+         *    https://pcapng.github.io/pcapng/draft-tuexen-opsawg-pcapng.html#name-section-header-block
+         *
+         * All option codes in this switch statement here must be listed
+         * in one of those places as standardized option types.
+         */
         switch (oh.option_code) {
             case(OPT_EOFOPT):
                 if (to_read != 0) {
@@ -934,7 +950,23 @@ pcapng_read_if_descr_block(wtap *wth, FILE_T fh, pcapng_block_header_t *bh,
         }
         to_read -= bytes_read;
 
-        /* handle option content */
+        /*
+         * Handle option content.
+         *
+         * ***DO NOT*** add any items to this table that are not
+         * standardized option codes in either section 3.5 "Options"
+         * of the current pcapng spec, at
+         *
+         *    https://pcapng.github.io/pcapng/draft-tuexen-opsawg-pcapng.html#name-options
+         *
+         * or in the list of options in section 4.2 "Interface Description
+         * Block" of the current pcapng spec, at
+         *
+         *    https://pcapng.github.io/pcapng/draft-tuexen-opsawg-pcapng.html#name-interface-description-block
+         *
+         * All option codes in this switch statement here must be listed
+         * in one of those places as standardized option types.
+         */
         switch (oh.option_code) {
             case(OPT_EOFOPT): /* opt_endofopt */
                 if (to_read != 0) {
@@ -1482,7 +1514,23 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh,
         }
         to_read -= bytes_read;
 
-        /* handle option content */
+        /*
+         * Handle option content.
+         *
+         * ***DO NOT*** add any items to this table that are not
+         * standardized option codes in either section 3.5 "Options"
+         * of the current pcapng spec, at
+         *
+         *    https://pcapng.github.io/pcapng/draft-tuexen-opsawg-pcapng.html#name-options
+         *
+         * or in the list of options in section 4.3 "Enhanced Packet Block"
+         * of the current pcapng spec, at
+         *
+         *    https://pcapng.github.io/pcapng/draft-tuexen-opsawg-pcapng.html#name-enhanced-packet-block
+         *
+         * All option codes in this switch statement here must be listed
+         * in one of those places as standardized option types.
+         */
         switch (oh->option_code) {
             case(OPT_EOFOPT):
                 if (to_read != 0) {
@@ -2111,7 +2159,23 @@ read_options:
         }
         to_read -= bytes_read;
 
-        /* handle option content */
+        /*
+         * Handle option content.
+         *
+         * ***DO NOT*** add any items to this table that are not
+         * standardized option codes in either section 3.5 "Options"
+         * of the current pcapng spec, at
+         *
+         *    https://pcapng.github.io/pcapng/draft-tuexen-opsawg-pcapng.html#name-options
+         *
+         * or in the list of options in section 4.5 "Name Resolution Block"
+         * of the current pcapng spec, at
+         *
+         *    https://pcapng.github.io/pcapng/draft-tuexen-opsawg-pcapng.html#name-name-resolution-block
+         *
+         * All option codes in this switch statement here must be listed
+         * in one of those places as standardized option types.
+         */
         switch (oh.option_code) {
             case(OPT_EOFOPT):
                 if (to_read != 0) {
@@ -2208,7 +2272,23 @@ pcapng_read_interface_statistics_block(FILE_T fh, pcapng_block_header_t *bh,
         }
         to_read -= bytes_read;
 
-        /* handle option content */
+        /*
+         * Handle option content.
+         *
+         * ***DO NOT*** add any items to this table that are not
+         * standardized option codes in either section 3.5 "Options"
+         * of the current pcapng spec, at
+         *
+         *    https://pcapng.github.io/pcapng/draft-tuexen-opsawg-pcapng.html#name-options
+         *
+         * or in the list of options in section 4.6 "Interface Statistics
+         * Block" of the current pcapng spec, at
+         *
+         *    https://pcapng.github.io/pcapng/draft-tuexen-opsawg-pcapng.html#name-interface-statistics-block
+         *
+         * All option codes in this switch statement here must be listed
+         * in one of those places as standardized option types.
+         */
         switch (oh.option_code) {
             case(OPT_EOFOPT): /* opt_endofopt */
                 if (to_read != 0) {
@@ -2635,6 +2715,16 @@ pcapng_read_block(wtap *wth, FILE_T fh, pcapng_t *pn,
             return FALSE;
         }
 
+        /*
+         * ***DO NOT*** add any items to this table that are not
+         * standardized block types in the current pcapng spec at
+         *
+         *    https://pcapng.github.io/pcapng/draft-tuexen-opsawg-pcapng.html
+         *
+         * All block types in this switch statement here must be
+         * listed there as standardized block types, ideally with
+         * a description.
+         */
         switch (bh.block_type) {
             case(BLOCK_TYPE_IDB):
                 if (!pcapng_read_if_descr_block(wth, fh, &bh, section_info, wblock, err, err_info))
