@@ -18,11 +18,11 @@
 #ifndef __TAP_RTP_COMMON_H__
 #define __TAP_RTP_COMMON_H__
 
+#include "ui/rtp_stream.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
-
-#include "ui/rtp_stream.h"
 
 /* type of error when saving voice in a file didn't succeed */
 typedef enum {

@@ -11,19 +11,19 @@
 #ifndef __TAP_SCTP_ANALYSIS_H__
 #define __TAP_SCTP_ANALYSIS_H__
 
-#ifdef __cplusplus
-extern "C" {
-#endif /* __cplusplus */
-
 #include <epan/dissectors/packet-sctp.h>
 #include <epan/address.h>
-#ifndef _WIN32
+#ifdef _WIN32
+#include <winsock2.h>
+#else
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
-#else
-#include <winsock2.h>
 #endif
+
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
 
 #define CHUNK_TYPE_LENGTH	      1
 #define CHUNK_FLAGS_LENGTH	      1

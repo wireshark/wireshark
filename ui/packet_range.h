@@ -16,14 +16,14 @@
 
 #include <glib.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif /* __cplusplus */
-
 #include <epan/range.h>
 #include <epan/frame_data.h>
 
 #include "cfile.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
 
 extern guint32  curr_selected_frame;
 

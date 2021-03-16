@@ -10,14 +10,14 @@
 #ifndef __PACKET_BLUETOOTH_H__
 #define __PACKET_BLUETOOTH_H__
 
-#ifdef __cplusplus
-extern "C" {
-#endif /* __cplusplus */
-
 #include <epan/wmem/wmem.h>
 
 #include "packet-usb.h"
 #include "packet-ubertooth.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
 
 #define PROTO_DATA_BLUETOOTH_SERVICE_UUID  0
 

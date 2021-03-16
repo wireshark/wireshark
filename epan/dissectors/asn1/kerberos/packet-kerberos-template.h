@@ -122,10 +122,10 @@ extern gboolean krb_decrypt;
 
 #endif /* HAVE_KERBEROS */
 
-#include "packet-kerberos-exp.h"
-
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */
+
+#include "packet-kerberos-exp.h"
 
 #endif  /* __PACKET_KERBEROS_H */

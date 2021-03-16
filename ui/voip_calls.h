@@ -24,15 +24,6 @@
 
 #include <glib.h>
 
-/** @file
- *  "VoIP Calls" dialog box common routines.
- *  @ingroup main_ui_group
- */
-
-#ifdef __cplusplus
-extern "C" {
-#endif /* __cplusplus */
-
 #include <stdio.h>
 
 #include "epan/address.h"
@@ -41,6 +32,15 @@ extern "C" {
 #include "epan/tap.h"
 #include "epan/tap-voip.h"
 #include "epan/sequence_analysis.h"
+
+/** @file
+ *  "VoIP Calls" dialog box common routines.
+ *  @ingroup main_ui_group
+ */
+
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
 
 /****************************************************************************/
 extern const char *voip_call_state_name[8];

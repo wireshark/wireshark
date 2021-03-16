@@ -10,15 +10,15 @@
 #ifndef __PACKET_TCP_H__
 #define __PACKET_TCP_H__
 
-#ifdef __cplusplus
-extern "C" {
-#endif /* __cplusplus */
-
 #include "ws_symbol_export.h"
 
 #include <epan/conversation.h>
 #include <epan/wmem/wmem.h>
 #include <epan/wmem/wmem_interval_tree.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
 
 /* TCP flags */
 #define TH_FIN  0x0001

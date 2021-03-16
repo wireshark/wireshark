@@ -11,11 +11,11 @@
 #ifndef __WS80211_UTILS_H__
 #define __WS80211_UTILS_H__
 
+#include "ws_attributes.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
-
-#include "ws_attributes.h"
 
 enum ws80211_channel_type {
 	WS80211_CHAN_NO_HT,

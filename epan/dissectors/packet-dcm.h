@@ -25,9 +25,6 @@
 extern "C" {
 #endif /* __cplusplus */
 
-#include "config.h"
-
-
 #define DCM_VR_AE  1  /* Application Entity        */
 #define DCM_VR_AS  2  /* Age String                */
 #define DCM_VR_AT  3  /* Attribute Tag             */

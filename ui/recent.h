@@ -14,13 +14,13 @@
 
 #include <glib.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif /* __cplusplus */
-
 #include <stdio.h>
 #include "epan/timestamp.h"
 #include "ui/ws_ui_util.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
 
 /** @file
  *  Recent user interface settings.

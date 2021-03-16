@@ -11,10 +11,6 @@
 #ifndef __CAPCHILD_CAPTURE_SESSION_H__
 #define __CAPCHILD_CAPTURE_SESSION_H__
 
-#ifdef __cplusplus
-extern "C" {
-#endif /* __cplusplus */
-
 #ifndef _WIN32
 #include <sys/types.h>
 #include <stdint.h>
@@ -24,6 +20,12 @@ extern "C" {
 
 #include <wsutil/processes.h>
 
+#include "cfile.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
 #ifdef HAVE_LIBPCAP
 /* Current state of capture engine. XXX - differentiate states */
 typedef enum {
@@ -32,7 +34,6 @@ typedef enum {
     CAPTURE_RUNNING         /**< capture child signalled ok, capture is running now */
 } capture_state;
 
-#include "cfile.h"
 struct _info_data;
 
 /*
