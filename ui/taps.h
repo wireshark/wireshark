@@ -13,11 +13,11 @@
 
 #include <glib.h>
 
+#include <epan/tap.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
-
-#include <epan/tap.h>
 
 extern tap_reg_t tap_reg_listener[];
 

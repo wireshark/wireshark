@@ -10,6 +10,9 @@
 #ifndef __UI_PROTO_HIER_STATS_H__
 #define __UI_PROTO_HIER_STATS_H__
 
+#include <epan/proto.h>
+#include "cfile.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
@@ -17,9 +20,6 @@ extern "C" {
 /** @file
  * Protocol Hierarchy Statistics
  */
-
-#include <epan/proto.h>
-#include "cfile.h"
 
 typedef struct {
     header_field_info	*hfinfo;

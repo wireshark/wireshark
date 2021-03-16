@@ -11,14 +11,14 @@
 #ifndef __TAP_RLC_GRAPH_H__
 #define __TAP_RLC_GRAPH_H__
 
-#ifdef __cplusplus
-extern "C" {
-#endif /* __cplusplus */
-
 #include <epan/epan.h>
 #include <epan/packet.h>
 #include <cfile.h>
 #include <epan/dissectors/packet-rlc-lte.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
 
 struct rlc_segment {
     struct rlc_segment *next;

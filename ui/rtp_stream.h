@@ -16,15 +16,6 @@
 
 #include <glib.h>
 
-/** @file
- *  "RTP Streams" dialog box common routines.
- *  @ingroup main_ui_group
- */
-
-#ifdef __cplusplus
-extern "C" {
-#endif /* __cplusplus */
-
 #include "tap-rtp-analysis.h"
 #include <stdio.h>
 
@@ -34,6 +25,15 @@ extern "C" {
 #include <epan/tap.h>
 
 #include "ui/rtp_stream_id.h"
+
+/** @file
+ *  "RTP Streams" dialog box common routines.
+ *  @ingroup main_ui_group
+ */
+
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
 
 /** Defines an rtp stream */
 typedef struct _rtpstream_info {

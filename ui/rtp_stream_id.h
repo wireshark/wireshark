@@ -19,11 +19,11 @@
  *  @ingroup main_ui_group
  */
 
+#include <epan/address.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
-
-#include <epan/address.h>
 
 /* forward */
 struct _rtp_info;
