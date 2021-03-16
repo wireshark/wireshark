@@ -7841,7 +7841,7 @@ proto_register_isakmp(void)
         NULL, HFILL }},
     { &hf_isakmp_enc_pad_length,
       { "Pad Length", "isakmp.enc.pad_length",
-        FT_UINT16, BASE_DEC, NULL, 0x0,
+        FT_UINT8, BASE_DEC, NULL, 0x0,
         NULL, HFILL }},
     { &hf_isakmp_enc_data,
       { "Encrypted Data", "isakmp.enc.data",
