@@ -11,13 +11,13 @@
 #ifndef __PACKET_UDP_H__
 #define __PACKET_UDP_H__
 
-#ifdef __cplusplus
-extern "C" {
-#endif /* __cplusplus */
-
 #include "ws_symbol_export.h"
 
 #include <epan/conversation.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
 
 /* UDP structs and definitions */
 typedef struct _e_udphdr {

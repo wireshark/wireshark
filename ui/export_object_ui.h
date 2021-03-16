@@ -12,11 +12,11 @@
 #ifndef __EXPORT_OBJECT_UI_H__
 #define __EXPORT_OBJECT_UI_H__
 
+#include <epan/export_object.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
-
-#include <epan/export_object.h>
 
 /* Common between protocols */
 

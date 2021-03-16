@@ -13,11 +13,11 @@
 #ifndef __IO_GRAPH_ITEM_H__
 #define __IO_GRAPH_ITEM_H__
 
+#include "cfile.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
-
-#include "cfile.h"
 
 typedef enum {
     IOG_ITEM_UNIT_FIRST,

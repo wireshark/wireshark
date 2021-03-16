@@ -12,12 +12,13 @@
 #ifndef __WMEM_USER_CB_INT_H__
 #define __WMEM_USER_CB_INT_H__
 
+#include <glib.h>
+
+#include "wmem_user_cb.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
-
-#include <glib.h>
-#include "wmem_user_cb.h"
 
 WS_DLL_LOCAL
 void

@@ -18,11 +18,11 @@
 #ifndef __MCAST_STREAM_H__
 #define __MCAST_STREAM_H__
 
+#include <epan/tap.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
-
-#include <epan/tap.h>
 
 #define MAX_SPEED 200000
 

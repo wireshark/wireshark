@@ -11,16 +11,16 @@
 #ifndef __TAP_REGISTER_H__
 #define __TAP_REGISTER_H__
 
-#ifdef __cplusplus
-extern "C" {
-#endif /* __cplusplus */
-
 #include <glib.h>
 
 typedef struct _tap_reg {
     const char *cb_name;
     void (*cb_func)(void);
 } tap_reg_t;
+
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
 
 extern tap_reg_t tap_reg_listener[];
 
