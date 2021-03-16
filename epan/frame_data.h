@@ -11,15 +11,15 @@
 #ifndef __FRAME_DATA_H__
 #define __FRAME_DATA_H__
 
-#ifdef __cplusplus
-extern "C" {
-#endif /* __cplusplus */
-
 #include <ws_diag_control.h>
 #include <ws_symbol_export.h>
 #include <wsutil/nstime.h>
 
 #include <wiretap/wtap.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
 
 struct _packet_info;
 struct epan_session;

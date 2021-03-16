@@ -15,13 +15,13 @@
 
 #include <glib.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif /* __cplusplus */
-
 #include <stdio.h>
 #include <stdarg.h>
 #include "ws_attributes.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
 
 #define PBL_DEFAULT_PACKAGE_NAME ""
 

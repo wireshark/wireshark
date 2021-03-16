@@ -13,16 +13,16 @@
 #ifndef __FOLLOW_H__
 #define __FOLLOW_H__
 
-#ifdef __cplusplus
-extern "C" {
-#endif /* __cplusplus */
-
 #include <epan/epan.h>
 #include <epan/packet.h>
 #include <epan/ipv6.h>
 #include <epan/tap.h>
 #include <epan/wmem/wmem.h>
 #include "ws_symbol_export.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
 
 typedef enum {
   TCP_STREAM = 0,

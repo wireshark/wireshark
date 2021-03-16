@@ -13,16 +13,16 @@
 
 #include <glib.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif /* __cplusplus */
-
 #include <epan/params.h>
 #include <epan/range.h>
 
 #include <wsutil/color.h>
 
 #include "ws_symbol_export.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
 
 #define DEF_WIDTH 750
 #define DEF_HEIGHT 550

@@ -12,11 +12,11 @@
 
 #include "ws_symbol_export.h"
 
+#include <wsutil/color.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
-
-#include <wsutil/color.h>
 
 struct epan_dissect;
 

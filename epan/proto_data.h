@@ -11,11 +11,11 @@
 #ifndef __PROTO_DATA_H__
 #define __PROTO_DATA_H__
 
+#include "ws_symbol_export.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
-
-#include "ws_symbol_export.h"
 
 /** @file
  * Dissected packet data and metadata.
