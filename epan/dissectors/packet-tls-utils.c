@@ -448,6 +448,7 @@ const value_string ssl_extension_curves[] = {
     { 28, "brainpoolP512r1" }, /* RFC 7027 */
     { 29, "x25519" }, /* RFC 8446 / RFC 8422 */
     { 30, "x448" }, /* RFC 8446 / RFC 8422 */
+    { 41, "curveSM2" }, /* RFC 8998 */
     { 256, "ffdhe2048" }, /* RFC 7919 */
     { 257, "ffdhe3072" }, /* RFC 7919 */
     { 258, "ffdhe4096" }, /* RFC 7919 */
@@ -825,7 +826,7 @@ static const value_string ssl_31_ciphersuite[] = {
     { 0x00C3, "TLS_DHE_DSS_WITH_CAMELLIA_256_CBC_SHA256" },
     { 0x00C4, "TLS_DHE_RSA_WITH_CAMELLIA_256_CBC_SHA256" },
     { 0x00C5, "TLS_DH_anon_WITH_CAMELLIA_256_CBC_SHA256" },
-    /* draft-yang-tls-tls13-sm-suites */
+    /* RFC 8998 */
     { 0x00C6, "TLS_SM4_GCM_SM3" },
     { 0x00C7, "TLS_SM4_CCM_SM3" },
     /* 0x00,0xC8-FE Unassigned */
@@ -1247,6 +1248,7 @@ const value_string tls13_signature_algorithm[] = {
     { 0x0503, "ecdsa_secp384r1_sha384" },
     { 0x0601, "rsa_pkcs1_sha512" },
     { 0x0603, "ecdsa_secp521r1_sha512" },
+    { 0x0708, "sm2sig_sm3" },
     { 0x0804, "rsa_pss_rsae_sha256" },
     { 0x0805, "rsa_pss_rsae_sha384" },
     { 0x0806, "rsa_pss_rsae_sha512" },
