@@ -723,7 +723,7 @@ void proto_register_osmo_trx(void)
 		{ &ei_otrxd_unknown_dir, { "osmo_trx.ei.unknown_dir",
 		  PI_UNDECODED, PI_ERROR, "Unknown direction", EXPFILL } },
 		{ &ei_otrxd_unknown_pdu_ver, { "osmo_trxd.ei.unknown_pdu_ver",
-		  PI_PROTOCOL, PI_WARN, "Unknown PDU version", EXPFILL } },
+		  PI_PROTOCOL, PI_ERROR, "Unknown PDU version", EXPFILL } },
 	};
 
 	static ei_register_info ei_otrxc[] = {
