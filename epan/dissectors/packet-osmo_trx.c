@@ -401,31 +401,13 @@ static int dissect_otrxd_rx(tvbuff_t *tvb, packet_info *pinfo,
 	return offset;
 }
 
-/* Burst data in Transmit direction */
-static int dissect_otrxd_tx(tvbuff_t *tvb, packet_info *pinfo,
-			    proto_item *ti _U_, proto_tree *tree,
-			    struct otrxd_pdu_info *pi, int offset)
+/* Dissector for TRXDv0/v1 Tx burst */
+static void dissect_otrxd_tx_burst_v0(tvbuff_t *tvb, packet_info *pinfo,
+				      proto_item *ti, proto_tree *tree,
+				      int *offset)
 {
-	int burst_len;
-
-	/* Parse version specific TRXD header part */
-	switch (pi->ver) {
-	/* Both versions feature the same header format */
-	case 0:
-	case 1:
-		dissect_otrxd_chdr_v0(tvb, pinfo, ti, tree, pi, &offset);
-		proto_tree_add_item(tree, hf_otrxd_tx_att, tvb, offset, 1, ENC_NA);
-		offset++;
-		break;
-	default:
-		expert_add_info_format(pinfo, ti, &ei_otrxd_unknown_pdu_ver,
-				       "Unknown TRXD PDU version %u", pi->ver);
-		offset = 1; /* Only the PDU version was parsed */
-		return offset;
-	}
-
 	/* Calculate the burst length */
-	burst_len = tvb_reported_length(tvb) - offset;
+	const int burst_len = tvb_reported_length(tvb) - *offset;
 
 	/* Attempt to guess modulation by the length */
 	switch (burst_len) {
@@ -433,7 +415,7 @@ static int dissect_otrxd_tx(tvbuff_t *tvb, packet_info *pinfo,
 	case 0:
 		col_append_str(pinfo->cinfo, COL_INFO, ", NOPE.req");
 		proto_item_append_text(ti, ", NOPE.req");
-		return offset;
+		return;
 
 	/* TODO: introduce an enumerated type, detect other modulation types,
 	 * TODO: add a generated field for "osmo_trxd.mod" */
@@ -449,8 +431,30 @@ static int dissect_otrxd_tx(tvbuff_t *tvb, packet_info *pinfo,
 
 	/* Hard-bits (1 or 0) */
 	proto_tree_add_item(tree, hf_otrxd_hard_symbols, tvb,
-			    offset, burst_len, ENC_NA);
-	offset += burst_len;
+			    *offset, burst_len, ENC_NA);
+	*offset += burst_len;
+}
+
+/* Burst data in Transmit direction */
+static int dissect_otrxd_tx(tvbuff_t *tvb, packet_info *pinfo,
+			    proto_item *ti, proto_tree *tree,
+			    struct otrxd_pdu_info *pi,
+			    int offset)
+{
+	switch (pi->ver) {
+	/* Both versions feature the same PDU format */
+	case 0:
+	case 1:
+		dissect_otrxd_chdr_v0(tvb, pinfo, ti, tree, pi, &offset);
+		proto_tree_add_item(tree, hf_otrxd_tx_att, tvb, offset++, 1, ENC_NA);
+		dissect_otrxd_tx_burst_v0(tvb, pinfo, ti, tree, &offset);
+		break;
+	default:
+		expert_add_info_format(pinfo, ti, &ei_otrxd_unknown_pdu_ver,
+				       "Unknown TRXD PDU version %u", pi->ver);
+		offset = 1; /* Only the PDU version was parsed */
+		return offset;
+	}
 
 	return offset;
 }
