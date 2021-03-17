@@ -75,6 +75,9 @@ static int hf_otrxc_status = -1;
 static gint ett_otrxd = -1;
 static gint ett_otrxc = -1;
 
+static gint ett_otrxd_rx_pdu = -1;
+static gint ett_otrxd_tx_pdu = -1;
+
 static expert_field ei_otrxd_unknown_pdu_ver = EI_INIT;
 static expert_field ei_otrxd_injected_msg = EI_INIT;
 static expert_field ei_otrxd_unknown_dir = EI_INIT;
@@ -261,7 +264,7 @@ static void dissect_otrxd_chdr_v0(tvbuff_t *tvb, packet_info *pinfo,
 	*offset += 4;
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, "TDMA FN %07u TN %u", pi->fn, pi->tn);
-	proto_item_append_text(ti, ", TDMA FN %07u TN %u", pi->fn, pi->tn);
+	proto_item_append_text(ti, "TDMA FN %07u TN %u", pi->fn, pi->tn);
 }
 
 /* Dissector for MTS (Modulation and Training Sequence) */
@@ -358,10 +361,19 @@ static int dissect_otrxd_rx_hdr_v1(tvbuff_t *tvb, packet_info *pinfo,
 
 /* Burst data in Receive direction */
 static int dissect_otrxd_rx(tvbuff_t *tvb, packet_info *pinfo,
-			    proto_item *ti, proto_tree *tree,
-			    struct otrxd_pdu_info *pi, int offset)
+			    proto_item *pti, proto_tree *ptree,
+			    struct otrxd_pdu_info *pi,
+			    int offset)
 {
-	int burst_len, padding;
+	int start, burst_len, padding;
+	proto_tree *tree;
+	proto_item *ti;
+
+	/* Add a sub-tree for each PDU (length is set below) */
+	tree = proto_tree_add_subtree(ptree, tvb, offset, -1,
+				      ett_otrxd_rx_pdu, &ti,
+				      "TRXD Rx PDU: ");
+	start = offset;
 
 	/* Parse version specific TRXD header part */
 	switch (pi->ver) {
@@ -393,10 +405,13 @@ static int dissect_otrxd_rx(tvbuff_t *tvb, packet_info *pinfo,
 		offset += burst_len;
 		break;
 	default:
-		expert_add_info_format(pinfo, ti, &ei_otrxd_unknown_pdu_ver,
+		expert_add_info_format(pinfo, pti, &ei_otrxd_unknown_pdu_ver,
 				       "Unknown TRXD PDU version %u", pi->ver);
 		offset = 1; /* Only the PDU version was parsed */
+		return offset;
 	}
+
+	proto_item_set_len(ti, offset - start);
 
 	return offset;
 }
@@ -437,10 +452,20 @@ static void dissect_otrxd_tx_burst_v0(tvbuff_t *tvb, packet_info *pinfo,
 
 /* Burst data in Transmit direction */
 static int dissect_otrxd_tx(tvbuff_t *tvb, packet_info *pinfo,
-			    proto_item *ti, proto_tree *tree,
+			    proto_item *pti, proto_tree *ptree,
 			    struct otrxd_pdu_info *pi,
 			    int offset)
 {
+	proto_tree *tree;
+	proto_item *ti;
+	int start;
+
+	/* Add a sub-tree for each PDU (length is set below) */
+	tree = proto_tree_add_subtree(ptree, tvb, offset, -1,
+				      ett_otrxd_tx_pdu, &ti,
+				      "TRXD Tx PDU: ");
+	start = offset;
+
 	switch (pi->ver) {
 	/* Both versions feature the same PDU format */
 	case 0:
@@ -450,11 +475,13 @@ static int dissect_otrxd_tx(tvbuff_t *tvb, packet_info *pinfo,
 		dissect_otrxd_tx_burst_v0(tvb, pinfo, ti, tree, &offset);
 		break;
 	default:
-		expert_add_info_format(pinfo, ti, &ei_otrxd_unknown_pdu_ver,
+		expert_add_info_format(pinfo, pti, &ei_otrxd_unknown_pdu_ver,
 				       "Unknown TRXD PDU version %u", pi->ver);
 		offset = 1; /* Only the PDU version was parsed */
 		return offset;
 	}
+
+	proto_item_set_len(ti, offset - start);
 
 	return offset;
 }
@@ -710,6 +737,8 @@ void proto_register_osmo_trx(void)
 
 	static gint *ett[] = {
 		&ett_otrxd,
+		&ett_otrxd_rx_pdu,
+		&ett_otrxd_tx_pdu,
 		&ett_otrxc,
 	};
 
