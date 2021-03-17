@@ -19,8 +19,6 @@
 #include <epan/proto_data.h>
 #include <epan/dissectors/packet-usb.h>
 
-
-
 /*
 U3V descriptor constants
 */
@@ -217,16 +215,22 @@ U3V descriptor constants
 #define PFNC_U3V_BGR16 0x0230004B
 #define PFNC_U3V_BGR565P 0x02100036
 #define PFNC_U3V_R8 0x010800C9
-#define PFNC_U3V_R10 0x010A00CA
-#define PFNC_U3V_R12 0x010C00CB
+#define PFNC_U3V_R10 0x01100120
+#define PFNC_U3V_R10_DEPRECATED 0x010A00CA
+#define PFNC_U3V_R12 0x01100121
+#define PFNC_U3V_R12_DEPRECATED 0x010C00CB
 #define PFNC_U3V_R16 0x011000CC
 #define PFNC_U3V_G8 0x010800CD
-#define PFNC_U3V_G10 0x010A00CE
-#define PFNC_U3V_G12 0x010C00CF
+#define PFNC_U3V_G10 0x01100122
+#define PFNC_U3V_G10_DEPRECATED 0x010A00CE
+#define PFNC_U3V_G12 0x01100123
+#define PFNC_U3V_G12_DEPRECATED 0x010C00CF
 #define PFNC_U3V_G16 0x011000D0
 #define PFNC_U3V_B8 0x010800D1
-#define PFNC_U3V_B10 0x010A00D2
-#define PFNC_U3V_B12 0x010C00D3
+#define PFNC_U3V_B10 0x01100124
+#define PFNC_U3V_B10_DEPRECATED 0x010A00D2
+#define PFNC_U3V_B12 0x01100125
+#define PFNC_U3V_B12_DEPRECATED 0x010C00D3
 #define PFNC_U3V_B16 0x011000D4
 #define PFNC_U3V_COORD3D_ABC8 0x021800B2
 #define PFNC_U3V_COORD3D_ABC8_PLANAR 0x021800B3
@@ -268,16 +272,6 @@ U3V descriptor constants
 #define PFNC_U3V_CONFIDENCE8 0x010800C6
 #define PFNC_U3V_CONFIDENCE16 0x011000C7
 #define PFNC_U3V_CONFIDENCE32F 0x012000C8
-#define PFNC_U3V_DATA8 0x01080116
-#define PFNC_U3V_DATA8S 0x01080117
-#define PFNC_U3V_DATA16 0x01100118
-#define PFNC_U3V_DATA16S 0x01100119
-#define PFNC_U3V_DATA32 0x0120011A
-#define PFNC_U3V_DATA32F 0x0120011C
-#define PFNC_U3V_DATA32S 0x0120011B
-#define PFNC_U3V_DATA64 0x0140011D
-#define PFNC_U3V_DATA64F 0x0140011F
-#define PFNC_U3V_DATA64S 0x0140011E
 #define PFNC_U3V_BICOLORBGRG8 0x021000A6
 #define PFNC_U3V_BICOLORBGRG10 0x022000A9
 #define PFNC_U3V_BICOLORBGRG10P 0x021400AA
@@ -288,6 +282,16 @@ U3V descriptor constants
 #define PFNC_U3V_BICOLORRGBG10P 0x021400A8
 #define PFNC_U3V_BICOLORRGBG12 0x022000AB
 #define PFNC_U3V_BICOLORRGBG12P 0x021800AC
+#define PFNC_U3V_DATA8 0x01080116
+#define PFNC_U3V_DATA8S 0x01080117
+#define PFNC_U3V_DATA16 0x01100118
+#define PFNC_U3V_DATA16S 0x01100119
+#define PFNC_U3V_DATA32 0x0120011A
+#define PFNC_U3V_DATA32F 0x0120011C
+#define PFNC_U3V_DATA32S 0x0120011B
+#define PFNC_U3V_DATA64 0x0140011D
+#define PFNC_U3V_DATA64F 0x0140011F
+#define PFNC_U3V_DATA64S 0x0140011E
 #define PFNC_U3V_SCF1WBWG8 0x01080067
 #define PFNC_U3V_SCF1WBWG10 0x01100068
 #define PFNC_U3V_SCF1WBWG10P 0x010A0069
@@ -370,10 +374,6 @@ U3V descriptor constants
 #define PFNC_U3V_YCBCR709_422_12_CBYCRY 0x022000A3
 #define PFNC_U3V_YCBCR709_422_12P 0x02180098
 #define PFNC_U3V_YCBCR709_422_12P_CBYCRY 0x021800A4
-#define PFNC_U3V_YUV8_UYV 0x02180020
-#define PFNC_U3V_YUV411_8_UYYVYY 0x020C001E
-#define PFNC_U3V_YUV422_8 0x02100032
-#define PFNC_U3V_YUV422_8_UYVY 0x0210001F
 #define PFNC_U3V_YCBCR2020_8_CBYCR 0x021800F4
 #define PFNC_U3V_YCBCR2020_10_CBYCR 0x023000F5
 #define PFNC_U3V_YCBCR2020_10P_CBYCR 0x021E00F6
@@ -386,22 +386,26 @@ U3V descriptor constants
 #define PFNC_U3V_YCBCR2020_422_10_CBYCRY 0x022000FD
 #define PFNC_U3V_YCBCR2020_422_10P 0x021400FE
 #define PFNC_U3V_YCBCR2020_422_10P_CBYCRY 0x021400FF
-#define PFNC_U3V_YCBCR2020_422_12 0x02180100
-#define PFNC_U3V_YCBCR2020_422_12_CBYCRY 0x02180101
+#define PFNC_U3V_YCBCR2020_422_12 0x02200100
+#define PFNC_U3V_YCBCR2020_422_12_CBYCRY 0x02200101
 #define PFNC_U3V_YCBCR2020_422_12P 0x02180102
 #define PFNC_U3V_YCBCR2020_422_12P_CBYCRY 0x02180103
-#define GVSP_PIX_MONO10PACKED 0x010C0004
-#define GVSP_PIX_MONO12PACKED 0x010C0006
-#define GVSP_PIX_BAYERBG10PACKED 0x010C0029
-#define GVSP_PIX_BAYERBG12PACKED 0x010C002D
-#define GVSP_PIX_BAYERGB10PACKED 0x010C0028
-#define GVSP_PIX_BAYERGB12PACKED 0x010C002C
-#define GVSP_PIX_BAYERGR10PACKED 0x010C0026
-#define GVSP_PIX_BAYERGR12PACKED 0x010C002A
-#define GVSP_PIX_BAYERRG10PACKED 0x010C0027
-#define GVSP_PIX_BAYERRG12PACKED 0x010C002B
-#define GVSP_PIX_RGB10V1PACKED 0x0220001C
-#define GVSP_PIX_RGB12V1PACKED 0x02240034
+#define PFNC_U3V_YUV8_UYV 0x02180020
+#define PFNC_U3V_YUV411_8_UYYVYY 0x020C001E
+#define PFNC_U3V_YUV422_8 0x02100032
+#define PFNC_U3V_YUV422_8_UYVY 0x0210001F
+#define GVSP_MONO10PACKED 0x010C0004
+#define GVSP_MONO12PACKED 0x010C0006
+#define GVSP_BAYERBG10PACKED 0x010C0029
+#define GVSP_BAYERBG12PACKED 0x010C002D
+#define GVSP_BAYERGB10PACKED 0x010C0028
+#define GVSP_BAYERGB12PACKED 0x010C002C
+#define GVSP_BAYERGR10PACKED 0x010C0026
+#define GVSP_BAYERGR12PACKED 0x010C002A
+#define GVSP_BAYERRG10PACKED 0x010C0027
+#define GVSP_BAYERRG12PACKED 0x010C002B
+#define GVSP_RGB10V1PACKED 0x0220001C
+#define GVSP_RGB12V1PACKED 0x02240034
 
 /*
  Payload Types
@@ -733,281 +737,286 @@ static const value_string bootstrap_register_names_eirm[] =
 
 static const value_string pixel_format_names[] =
 {
-    { PFNC_U3V_MONO1P, "Monochrome 1-bit packed" },
-    { PFNC_U3V_CONFIDENCE1P, "Confidence 1-bit packed" },
-    { PFNC_U3V_MONO2P, "Monochrome 2-bit packed" },
-    { PFNC_U3V_MONO4P, "Monochrome 4-bit packed" },
-    { PFNC_U3V_BAYERGR4P, "Bayer Green-Red 4-bit packed" },
-    { PFNC_U3V_BAYERRG4P, "Bayer Red-Green 4-bit packed" },
-    { PFNC_U3V_BAYERGB4P, "Bayer Green-Blue 4-bit packed" },
-    { PFNC_U3V_BAYERBG4P, "Bayer Blue-Green 4-bit packed" },
-    { PFNC_U3V_MONO8, "Monochrome 8-bit" },
-    { PFNC_U3V_MONO8S, "Monochrome 8-bit signed" },
-    { PFNC_U3V_BAYERGR8, "Bayer Green-Red 8-bit" },
-    { PFNC_U3V_BAYERRG8, "Bayer Red-Green 8-bit" },
-    { PFNC_U3V_BAYERGB8, "Bayer Green-Blue 8-bit" },
-    { PFNC_U3V_BAYERBG8, "Bayer Blue-Green 8-bit" },
-    { PFNC_U3V_SCF1WBWG8, "Sparse Color Filter #1 White-Blue-White-Green 8-bit" },
-    { PFNC_U3V_SCF1WGWB8, "Sparse Color Filter #1 White-Green-White-Blue 8-bit" },
-    { PFNC_U3V_SCF1WGWR8, "Sparse Color Filter #1 White-Green-White-Red 8-bit" },
-    { PFNC_U3V_SCF1WRWG8, "Sparse Color Filter #1 White-Red-White-Green 8-bit" },
-    { PFNC_U3V_COORD3D_A8, "3D coordinate A 8-bit" },
-    { PFNC_U3V_COORD3D_B8, "3D coordinate B 8-bit" },
-    { PFNC_U3V_COORD3D_C8, "3D coordinate C 8-bit" },
-    { PFNC_U3V_CONFIDENCE1, "Confidence 1-bit unpacked" },
-    { PFNC_U3V_CONFIDENCE8, "Confidence 8-bit" },
-    { PFNC_U3V_R8, "Red 8-bit" },
-    { PFNC_U3V_G8, "Green 8-bit" },
-    { PFNC_U3V_B8, "Blue 8-bit" },
-    { PFNC_U3V_DATA8, "Data 8-bit" },
-    { PFNC_U3V_DATA8S, "Data 8-bit signed" },
-    { PFNC_U3V_MONO10P, "Monochrome 10-bit packed" },
-    { PFNC_U3V_BAYERBG10P, "Bayer Blue-Green 10-bit packed" },
-    { PFNC_U3V_BAYERGB10P, "Bayer Green-Blue 10-bit packed" },
-    { PFNC_U3V_BAYERGR10P, "Bayer Green-Red 10-bit packed" },
-    { PFNC_U3V_BAYERRG10P, "Bayer Red-Green 10-bit packed" },
-    { PFNC_U3V_SCF1WBWG10P, "Sparse Color Filter #1 White-Blue-White-Green 10-bit packed" },
-    { PFNC_U3V_SCF1WGWB10P, "Sparse Color Filter #1 White-Green-White-Blue 10-bit packed" },
-    { PFNC_U3V_SCF1WGWR10P, "Sparse Color Filter #1 White-Green-White-Red 10-bit packed" },
-    { PFNC_U3V_SCF1WRWG10P, "Sparse Color Filter #1 White-Red-White-Green 10-bit packed" },
-    { PFNC_U3V_R10, "Red 10-bit" },
-    { PFNC_U3V_G10, "Green 10-bit" },
-    { PFNC_U3V_B10, "Blue 10-bit" },
-    { PFNC_U3V_COORD3D_A10P, "3D coordinate A 10-bit packed" },
-    { PFNC_U3V_COORD3D_B10P, "3D coordinate B 10-bit packed" },
-    { PFNC_U3V_COORD3D_C10P, "3D coordinate C 10-bit packed" },
-    { GVSP_PIX_MONO10PACKED, "GigE Vision specific format, Monochrome 10-bit packed" },
-    { GVSP_PIX_MONO12PACKED, "GigE Vision specific format, Monochrome 12-bit packed" },
-    { GVSP_PIX_BAYERGR10PACKED, "GigE Vision specific format, Bayer Green-Red 10-bit packed" },
-    { GVSP_PIX_BAYERRG10PACKED, "GigE Vision specific format, Bayer Red-Green 10-bit packed" },
-    { GVSP_PIX_BAYERGB10PACKED, "GigE Vision specific format, Bayer Green-Blue 10-bit packed" },
-    { GVSP_PIX_BAYERBG10PACKED, "GigE Vision specific format, Bayer Blue-Green 10-bit packed" },
-    { GVSP_PIX_BAYERGR12PACKED, "GigE Vision specific format, Bayer Green-Red 12-bit packed" },
-    { GVSP_PIX_BAYERRG12PACKED, "GigE Vision specific format, Bayer Red-Green 12-bit packed" },
-    { GVSP_PIX_BAYERGB12PACKED, "GigE Vision specific format, Bayer Green-Blue 12-bit packed" },
-    { GVSP_PIX_BAYERBG12PACKED, "GigE Vision specific format, Bayer Blue-Green 12-bit packed" },
-    { PFNC_U3V_MONO12P, "Monochrome 12-bit packed" },
-    { PFNC_U3V_BAYERBG12P, "Bayer Blue-Green 12-bit packed" },
-    { PFNC_U3V_BAYERGB12P, "Bayer Green-Blue 12-bit packed" },
-    { PFNC_U3V_BAYERGR12P, "Bayer Green-Red 12-bit packed" },
-    { PFNC_U3V_BAYERRG12P, "Bayer Red-Green 12-bit packed" },
-    { PFNC_U3V_SCF1WBWG12P, "Sparse Color Filter #1 White-Blue-White-Green 12-bit packed" },
-    { PFNC_U3V_SCF1WGWB12P, "Sparse Color Filter #1 White-Green-White-Blue 12-bit packed" },
-    { PFNC_U3V_SCF1WGWR12P, "Sparse Color Filter #1 White-Green-White-Red 12-bit packed" },
-    { PFNC_U3V_SCF1WRWG12P, "Sparse Color Filter #1 White-Red-White-Green 12-bit packed" },
-    { PFNC_U3V_R12, "Red 12-bit" },
-    { PFNC_U3V_G12, "Green 12-bit" },
-    { PFNC_U3V_B12, "Blue 12-bit" },
-    { PFNC_U3V_COORD3D_A12P, "3D coordinate A 12-bit packed" },
-    { PFNC_U3V_COORD3D_B12P, "3D coordinate B 12-bit packed" },
-    { PFNC_U3V_COORD3D_C12P, "3D coordinate C 12-bit packed" },
-    { PFNC_U3V_MONO14P, "Monochrome 14-bit packed" },
-    { PFNC_U3V_BAYERGR14P, "Bayer Green-Red 14-bit packed" },
-    { PFNC_U3V_BAYERRG14P, "Bayer Red-Green 14-bit packed" },
-    { PFNC_U3V_BAYERGB14P, "Bayer Green-Blue 14-bit packed" },
-    { PFNC_U3V_BAYERBG14P, "Bayer Blue-Green 14-bit packed" },
-    { PFNC_U3V_MONO10, "Monochrome 10-bit unpacked" },
-    { PFNC_U3V_MONO12, "Monochrome 12-bit unpacked" },
-    { PFNC_U3V_MONO16, "Monochrome 16-bit" },
-    { PFNC_U3V_BAYERGR10, "Bayer Green-Red 10-bit unpacked" },
-    { PFNC_U3V_BAYERRG10, "Bayer Red-Green 10-bit unpacked" },
-    { PFNC_U3V_BAYERGB10, "Bayer Green-Blue 10-bit unpacked" },
-    { PFNC_U3V_BAYERBG10, "Bayer Blue-Green 10-bit unpacked" },
-    { PFNC_U3V_BAYERGR12, "Bayer Green-Red 12-bit unpacked" },
-    { PFNC_U3V_BAYERRG12, "Bayer Red-Green 12-bit unpacked" },
-    { PFNC_U3V_BAYERGB12, "Bayer Green-Blue 12-bit unpacked" },
-    { PFNC_U3V_BAYERBG12, "Bayer Blue-Green 12-bit unpacked" },
-    { PFNC_U3V_MONO14, "Monochrome 14-bit unpacked" },
-    { PFNC_U3V_BAYERGR16, "Bayer Green-Red 16-bit" },
-    { PFNC_U3V_BAYERRG16, "Bayer Red-Green 16-bit" },
-    { PFNC_U3V_BAYERGB16, "Bayer Green-Blue 16-bit" },
-    { PFNC_U3V_BAYERBG16, "Bayer Blue-Green 16-bit" },
-    { PFNC_U3V_SCF1WBWG10, "Sparse Color Filter #1 White-Blue-White-Green 10-bit unpacked" },
-    { PFNC_U3V_SCF1WBWG12, "Sparse Color Filter #1 White-Blue-White-Green 12-bit unpacked" },
-    { PFNC_U3V_SCF1WBWG14, "Sparse Color Filter #1 White-Blue-White-Green 14-bit unpacked" },
-    { PFNC_U3V_SCF1WBWG16, "Sparse Color Filter #1 White-Blue-White-Green 16-bit unpacked" },
-    { PFNC_U3V_SCF1WGWB10, "Sparse Color Filter #1 White-Green-White-Blue 10-bit unpacked" },
-    { PFNC_U3V_SCF1WGWB12, "Sparse Color Filter #1 White-Green-White-Blue 12-bit unpacked" },
-    { PFNC_U3V_SCF1WGWB14, "Sparse Color Filter #1 White-Green-White-Blue 14-bit unpacked" },
-    { PFNC_U3V_SCF1WGWB16, "Sparse Color Filter #1 White-Green-White-Blue 16-bit" },
-    { PFNC_U3V_SCF1WGWR10, "Sparse Color Filter #1 White-Green-White-Red 10-bit unpacked" },
-    { PFNC_U3V_SCF1WGWR12, "Sparse Color Filter #1 White-Green-White-Red 12-bit unpacked" },
-    { PFNC_U3V_SCF1WGWR14, "Sparse Color Filter #1 White-Green-White-Red 14-bit unpacked" },
-    { PFNC_U3V_SCF1WGWR16, "Sparse Color Filter #1 White-Green-White-Red 16-bit" },
-    { PFNC_U3V_SCF1WRWG10, "Sparse Color Filter #1 White-Red-White-Green 10-bit unpacked" },
-    { PFNC_U3V_SCF1WRWG12, "Sparse Color Filter #1 White-Red-White-Green 12-bit unpacked" },
-    { PFNC_U3V_SCF1WRWG14, "Sparse Color Filter #1 White-Red-White-Green 14-bit unpacked" },
-    { PFNC_U3V_SCF1WRWG16, "Sparse Color Filter #1 White-Red-White-Green 16-bit" },
-    { PFNC_U3V_COORD3D_A16, "3D coordinate A 16-bit" },
-    { PFNC_U3V_COORD3D_B16, "3D coordinate B 16-bit" },
-    { PFNC_U3V_COORD3D_C16, "3D coordinate C 16-bit" },
-    { PFNC_U3V_CONFIDENCE16, "Confidence 16-bit" },
-    { PFNC_U3V_R16, "Red 16-bit" },
-    { PFNC_U3V_G16, "Green 16-bit" },
-    { PFNC_U3V_B16, "Blue 16-bit" },
-    { PFNC_U3V_BAYERGR14, "Bayer Green-Red 14-bit unpacked" },
-    { PFNC_U3V_BAYERRG14, "Bayer Red-Green 14-bit unpacked" },
-    { PFNC_U3V_BAYERGB14, "Bayer Green-Blue 14-bit unpacked" },
-    { PFNC_U3V_BAYERBG14, "Bayer Blue-Green 14-bit unpacked" },
-    { PFNC_U3V_DATA16, "Data 16-bit" },
-    { PFNC_U3V_DATA16S, "Data 16-bit signed" },
-    { PFNC_U3V_COORD3D_A32F, "3D coordinate A 32-bit floating point" },
-    { PFNC_U3V_COORD3D_B32F, "3D coordinate B 32-bit floating point" },
-    { PFNC_U3V_COORD3D_C32F, "3D coordinate C 32-bit floating point" },
-    { PFNC_U3V_CONFIDENCE32F, "Confidence 32-bit floating point" },
-    { PFNC_U3V_MONO32, "Monochrome 32-bit unpacked" },
-    { PFNC_U3V_DATA32, "Data 32-bit" },
-    { PFNC_U3V_DATA32S, "Data 32-bit signed" },
-    { PFNC_U3V_DATA32F, "Data 32-bit floating point" },
-    { PFNC_U3V_DATA64, "Data 64-bit" },
-    { PFNC_U3V_DATA64S, "Data 64-bit signed" },
-    { PFNC_U3V_DATA64F, "Data 64-bit floating point" },
-    { PFNC_U3V_YUV411_8_UYYVYY, "YUV 4:1:1 8-bit" },
-    { PFNC_U3V_YCBCR411_8_CBYYCRYY, "YCbCr 4:1:1 8-bit" },
-    { PFNC_U3V_YCBCR601_411_8_CBYYCRYY, "YCbCr 4:1:1 8-bit BT.601" },
-    { PFNC_U3V_YCBCR709_411_8_CBYYCRYY, "YCbCr 4:1:1 8-bit BT.709" },
-    { PFNC_U3V_YCBCR411_8, "YCbCr 4:1:1 8-bit" },
-    { PFNC_U3V_YCBCR2020_411_8_CBYYCRYY, "YCbCr 4:1:1 8-bit BT.2020" },
-    { PFNC_U3V_YCBCR420_8_YY_CBCR_SEMIPLANAR, "YCbCr 4:2:0 8-bit YY/CbCr Semiplanar" },
-    { PFNC_U3V_YCBCR420_8_YY_CRCB_SEMIPLANAR, "YCbCr 4:2:0 8-bit YY/CrCb Semiplanar" },
-    { PFNC_U3V_YUV422_8_UYVY, "YUV 4:2:2 8-bit" },
-    { PFNC_U3V_YUV422_8, "YUV 4:2:2 8-bit" },
-    { PFNC_U3V_RGB565P, "Red-Green-Blue 5/6/5-bit packed" },
-    { PFNC_U3V_BGR565P, "Blue-Green-Red 5/6/5-bit packed" },
-    { PFNC_U3V_YCBCR422_8, "YCbCr 4:2:2 8-bit" },
-    { PFNC_U3V_YCBCR601_422_8, "YCbCr 4:2:2 8-bit BT.601" },
-    { PFNC_U3V_YCBCR709_422_8, "YCbCr 4:2:2 8-bit BT.709" },
-    { PFNC_U3V_YCBCR422_8_CBYCRY, "YCbCr 4:2:2 8-bit" },
-    { PFNC_U3V_YCBCR601_422_8_CBYCRY, "YCbCr 4:2:2 8-bit BT.601" },
-    { PFNC_U3V_YCBCR709_422_8_CBYCRY, "YCbCr 4:2:2 8-bit BT.709" },
-    { PFNC_U3V_BICOLORRGBG8, "Bi-color Red/Green - Blue/Green 8-bit" },
-    { PFNC_U3V_BICOLORBGRG8, "Bi-color Blue/Green - Red/Green 8-bit" },
-    { PFNC_U3V_COORD3D_AC8, "3D coordinate A-C 8-bit" },
-    { PFNC_U3V_COORD3D_AC8_PLANAR, "3D coordinate A-C 8-bit planar" },
-    { PFNC_U3V_YCBCR2020_422_8, "YCbCr 4:2:2 8-bit BT.2020" },
-    { PFNC_U3V_YCBCR2020_422_8_CBYCRY, "YCbCr 4:2:2 8-bit BT.2020" },
-    { PFNC_U3V_YCBCR422_8_YY_CBCR_SEMIPLANAR, "YCbCr 4:2:2 8-bit YY/CbCr Semiplanar" },
-    { PFNC_U3V_YCBCR422_8_YY_CRCB_SEMIPLANAR, "YCbCr 4:2:2 8-bit YY/CrCb Semiplanar" },
-    { PFNC_U3V_YCBCR422_10P, "YCbCr 4:2:2 10-bit packed" },
-    { PFNC_U3V_YCBCR601_422_10P, "YCbCr 4:2:2 10-bit packed BT.601" },
-    { PFNC_U3V_YCBCR709_422_10P, "YCbCr 4:2:2 10-bit packed BT.709" },
-    { PFNC_U3V_YCBCR422_10P_CBYCRY, "YCbCr 4:2:2 10-bit packed" },
-    { PFNC_U3V_YCBCR601_422_10P_CBYCRY, "YCbCr 4:2:2 10-bit packed BT.601" },
-    { PFNC_U3V_YCBCR709_422_10P_CBYCRY, "YCbCr 4:2:2 10-bit packed BT.709" },
-    { PFNC_U3V_BICOLORRGBG10P, "Bi-color Red/Green - Blue/Green 10-bit packed" },
-    { PFNC_U3V_BICOLORBGRG10P, "Bi-color Blue/Green - Red/Green 10-bit packed" },
-    { PFNC_U3V_COORD3D_AC10P, "3D coordinate A-C 10-bit packed" },
-    { PFNC_U3V_COORD3D_AC10P_PLANAR, "3D coordinate A-C 10-bit packed planar" },
-    { PFNC_U3V_YCBCR2020_422_10P, "YCbCr 4:2:2 10-bit packed BT.2020" },
-    { PFNC_U3V_YCBCR2020_422_10P_CBYCRY, "YCbCr 4:2:2 10-bit packed BT.2020" },
-    { PFNC_U3V_RGB8, "Red-Green-Blue 8-bit" },
-    { PFNC_U3V_BGR8, "Blue-Green-Red 8-bit" },
-    { PFNC_U3V_YUV8_UYV, "YUV 4:4:4 8-bit" },
-    { PFNC_U3V_RGB8_PLANAR, "Red-Green-Blue 8-bit planar" },
-    { PFNC_U3V_YCBCR8_CBYCR, "YCbCr 4:4:4 8-bit" },
-    { PFNC_U3V_YCBCR601_8_CBYCR, "YCbCr 4:4:4 8-bit BT.601" },
-    { PFNC_U3V_YCBCR709_8_CBYCR, "YCbCr 4:4:4 8-bit BT.709" },
-    { PFNC_U3V_YCBCR8, "YCbCr 4:4:4 8-bit" },
-    { PFNC_U3V_YCBCR422_12P, "YCbCr 4:2:2 12-bit packed" },
-    { PFNC_U3V_YCBCR601_422_12P, "YCbCr 4:2:2 12-bit packed BT.601" },
-    { PFNC_U3V_YCBCR709_422_12P, "YCbCr 4:2:2 12-bit packed BT.709" },
-    { PFNC_U3V_YCBCR422_12P_CBYCRY, "YCbCr 4:2:2 12-bit packed" },
-    { PFNC_U3V_YCBCR601_422_12P_CBYCRY, "YCbCr 4:2:2 12-bit packed BT.601" },
-    { PFNC_U3V_YCBCR709_422_12P_CBYCRY, "YCbCr 4:2:2 12-bit packed BT.709" },
-    { PFNC_U3V_BICOLORRGBG12P, "Bi-color Red/Green - Blue/Green 12-bit packed" },
-    { PFNC_U3V_BICOLORBGRG12P, "Bi-color Blue/Green - Red/Green 12-bit packed" },
-    { PFNC_U3V_COORD3D_ABC8, "3D coordinate A-B-C 8-bit" },
-    { PFNC_U3V_COORD3D_ABC8_PLANAR, "3D coordinate A-B-C 8-bit planar" },
-    { PFNC_U3V_COORD3D_AC12P, "3D coordinate A-C 12-bit packed" },
-    { PFNC_U3V_COORD3D_AC12P_PLANAR, "3D coordinate A-C 12-bit packed planar" },
-    { PFNC_U3V_YCBCR2020_8_CBYCR, "YCbCr 4:4:4 8-bit BT.2020" },
-    { PFNC_U3V_YCBCR2020_422_12, "YCbCr 4:2:2 12-bit unpacked BT.2020" },
-    { PFNC_U3V_YCBCR2020_422_12_CBYCRY, "YCbCr 4:2:2 12-bit unpacked BT.2020" },
-    { PFNC_U3V_YCBCR2020_422_12P, "YCbCr 4:2:2 12-bit packed BT.2020" },
-    { PFNC_U3V_YCBCR2020_422_12P_CBYCRY, "YCbCr 4:2:2 12-bit packed BT.2020" },
-    { PFNC_U3V_BGR10P, "Blue-Green-Red 10-bit packed" },
-    { PFNC_U3V_RGB10P, "Red-Green-Blue 10-bit packed" },
-    { PFNC_U3V_YCBCR10P_CBYCR, "YCbCr 4:4:4 10-bit packed" },
-    { PFNC_U3V_YCBCR601_10P_CBYCR, "YCbCr 4:4:4 10-bit packed BT.601" },
-    { PFNC_U3V_YCBCR709_10P_CBYCR, "YCbCr 4:4:4 10-bit packed BT.709" },
-    { PFNC_U3V_COORD3D_ABC10P, "3D coordinate A-B-C 10-bit packed" },
-    { PFNC_U3V_COORD3D_ABC10P_PLANAR, "3D coordinate A-B-C 10-bit packed planar" },
-    { PFNC_U3V_YCBCR2020_10P_CBYCR, "YCbCr 4:4:4 10-bit packed BT.2020" },
-    { PFNC_U3V_RGBA8, "Red-Green-Blue-alpha 8-bit" },
-    { PFNC_U3V_BGRA8, "Blue-Green-Red-alpha 8-bit" },
-    { GVSP_PIX_RGB10V1PACKED, "GigE Vision specific format, Red-Green-Blue 10-bit packed - variant 1" },
-    { PFNC_U3V_RGB10P32, "Red-Green-Blue 10-bit packed into 32-bit" },
-    { PFNC_U3V_YCBCR422_10, "YCbCr 4:2:2 10-bit unpacked" },
-    { PFNC_U3V_YCBCR422_12, "YCbCr 4:2:2 12-bit unpacked" },
-    { PFNC_U3V_YCBCR601_422_10, "YCbCr 4:2:2 10-bit unpacked BT.601" },
-    { PFNC_U3V_YCBCR601_422_12, "YCbCr 4:2:2 12-bit unpacked BT.601" },
-    { PFNC_U3V_YCBCR709_422_10, "YCbCr 4:2:2 10-bit unpacked BT.709" },
-    { PFNC_U3V_YCBCR709_422_12, "YCbCr 4:2:2 12-bit unpacked BT.709" },
-    { PFNC_U3V_YCBCR422_10_CBYCRY, "YCbCr 4:2:2 10-bit unpacked" },
-    { PFNC_U3V_YCBCR422_12_CBYCRY, "YCbCr 4:2:2 12-bit unpacked" },
-    { PFNC_U3V_YCBCR601_422_10_CBYCRY, "YCbCr 4:2:2 10-bit unpacked BT.601" },
-    { PFNC_U3V_YCBCR601_422_12_CBYCRY, "YCbCr 4:2:2 12-bit unpacked BT.601" },
-    { PFNC_U3V_YCBCR709_422_10_CBYCRY, "YCbCr 4:2:2 10-bit unpacked BT.709" },
-    { PFNC_U3V_YCBCR709_422_12_CBYCRY, "YCbCr 4:2:2 12-bit unpacked BT.709" },
-    { PFNC_U3V_BICOLORRGBG10, "Bi-color Red/Green - Blue/Green 10-bit unpacked" },
-    { PFNC_U3V_BICOLORBGRG10, "Bi-color Blue/Green - Red/Green 10-bit unpacked" },
-    { PFNC_U3V_BICOLORRGBG12, "Bi-color Red/Green - Blue/Green 12-bit unpacked" },
-    { PFNC_U3V_BICOLORBGRG12, "Bi-color Blue/Green - Red/Green 12-bit unpacked" },
-    { PFNC_U3V_COORD3D_AC16, "3D coordinate A-C 16-bit" },
-    { PFNC_U3V_COORD3D_AC16_PLANAR, "3D coordinate A-C 16-bit planar" },
-    { PFNC_U3V_YCBCR2020_422_10, "YCbCr 4:2:2 10-bit unpacked BT.2020" },
-    { PFNC_U3V_YCBCR2020_422_10_CBYCRY, "YCbCr 4:2:2 10-bit unpacked BT.2020" },
-    { GVSP_PIX_RGB12V1PACKED, "GigE Vision specific format, Red-Green-Blue 12-bit packed - variant 1" },
-    { PFNC_U3V_BGR12P, "Blue-Green-Red 12-bit packed" },
-    { PFNC_U3V_RGB12P, "Red-Green-Blue 12-bit packed" },
-    { PFNC_U3V_YCBCR12P_CBYCR, "YCbCr 4:4:4 12-bit packed" },
-    { PFNC_U3V_YCBCR601_12P_CBYCR, "YCbCr 4:4:4 12-bit packed BT.601" },
-    { PFNC_U3V_YCBCR709_12P_CBYCR, "YCbCr 4:4:4 12-bit packed BT.709" },
-    { PFNC_U3V_COORD3D_ABC12P, "3D coordinate A-B-C 12-bit packed" },
-    { PFNC_U3V_COORD3D_ABC12P_PLANAR, "3D coordinate A-B-C 12-bit packed planar" },
-    { PFNC_U3V_YCBCR2020_12P_CBYCR, "YCbCr 4:4:4 12-bit packed BT.2020" },
-    { PFNC_U3V_BGRA10P, "Blue-Green-Red-alpha 10-bit packed" },
-    { PFNC_U3V_RGBA10P, "Red-Green-Blue-alpha 10-bit packed" },
-    { PFNC_U3V_RGB10, "Red-Green-Blue 10-bit unpacked" },
-    { PFNC_U3V_BGR10, "Blue-Green-Red 10-bit unpacked" },
-    { PFNC_U3V_RGB12, "Red-Green-Blue 12-bit unpacked" },
-    { PFNC_U3V_BGR12, "Blue-Green-Red 12-bit unpacked" },
-    { PFNC_U3V_RGB10_PLANAR, "Red-Green-Blue 10-bit unpacked planar" },
-    { PFNC_U3V_RGB12_PLANAR, "Red-Green-Blue 12-bit unpacked planar" },
-    { PFNC_U3V_RGB16_PLANAR, "Red-Green-Blue 16-bit planar" },
-    { PFNC_U3V_RGB16, "Red-Green-Blue 16-bit" },
-    { PFNC_U3V_BGR14, "Blue-Green-Red 14-bit unpacked" },
-    { PFNC_U3V_BGR16, "Blue-Green-Red 16-bit" },
-    { PFNC_U3V_BGRA12P, "Blue-Green-Red-alpha 12-bit packed" },
-    { PFNC_U3V_RGB14, "Red-Green-Blue 14-bit unpacked" },
-    { PFNC_U3V_RGBA12P, "Red-Green-Blue-alpha 12-bit packed" },
-    { PFNC_U3V_YCBCR10_CBYCR, "YCbCr 4:4:4 10-bit unpacked" },
-    { PFNC_U3V_YCBCR12_CBYCR, "YCbCr 4:4:4 12-bit unpacked" },
-    { PFNC_U3V_YCBCR601_10_CBYCR, "YCbCr 4:4:4 10-bit unpacked BT.601" },
-    { PFNC_U3V_YCBCR601_12_CBYCR, "YCbCr 4:4:4 12-bit unpacked BT.601" },
-    { PFNC_U3V_YCBCR709_10_CBYCR, "YCbCr 4:4:4 10-bit unpacked BT.709" },
-    { PFNC_U3V_YCBCR709_12_CBYCR, "YCbCr 4:4:4 12-bit unpacked BT.709" },
-    { PFNC_U3V_COORD3D_ABC16, "3D coordinate A-B-C 16-bit" },
-    { PFNC_U3V_COORD3D_ABC16_PLANAR, "3D coordinate A-B-C 16-bit planar" },
-    { PFNC_U3V_YCBCR2020_10_CBYCR, "YCbCr 4:4:4 10-bit unpacked BT.2020" },
-    { PFNC_U3V_YCBCR2020_12_CBYCR, "YCbCr 4:4:4 12-bit unpacked BT.2020" },
-    { PFNC_U3V_BGRA10, "Blue-Green-Red-alpha 10-bit unpacked" },
-    { PFNC_U3V_BGRA12, "Blue-Green-Red-alpha 12-bit unpacked" },
-    { PFNC_U3V_BGRA14, "Blue-Green-Red-alpha 14-bit unpacked" },
-    { PFNC_U3V_BGRA16, "Blue-Green-Red-alpha 16-bit" },
-    { PFNC_U3V_RGBA10, "Red-Green-Blue-alpha 10-bit unpacked" },
-    { PFNC_U3V_RGBA12, "Red-Green-Blue-alpha 12-bit unpacked" },
-    { PFNC_U3V_RGBA14, "Red-Green-Blue-alpha 14-bit unpacked" },
-    { PFNC_U3V_RGBA16, "Red-Green-Blue-alpha 16-bit" },
-    { PFNC_U3V_COORD3D_AC32F, "3D coordinate A-C 32-bit floating point" },
-    { PFNC_U3V_COORD3D_AC32F_PLANAR, "3D coordinate A-C 32-bit floating point planar" },
-    { PFNC_U3V_COORD3D_ABC32F, "3D coordinate A-B-C 32-bit floating point" },
-    { PFNC_U3V_COORD3D_ABC32F_PLANAR, "3D coordinate A-B-C 32-bit floating point planar" },
+    { PFNC_U3V_MONO1P, "Mono1p (Monochrome 1-bit packed)" },
+    { PFNC_U3V_CONFIDENCE1P, "Confidence1p (Confidence 1-bit packed)" },
+    { PFNC_U3V_MONO2P, "Mono2p (Monochrome 2-bit packed)" },
+    { PFNC_U3V_MONO4P, "Mono4p (Monochrome 4-bit packed)" },
+    { PFNC_U3V_BAYERGR4P, "BayerGR4p (Bayer Green-Red 4-bit packed)" },
+    { PFNC_U3V_BAYERRG4P, "BayerRG4p (Bayer Red-Green 4-bit packed)" },
+    { PFNC_U3V_BAYERGB4P, "BayerGB4p (Bayer Green-Blue 4-bit packed)" },
+    { PFNC_U3V_BAYERBG4P, "BayerBG4p (Bayer Blue-Green 4-bit packed)" },
+    { PFNC_U3V_MONO8, "Mono8 (Monochrome 8-bit)" },
+    { PFNC_U3V_MONO8S, "Mono8s (Monochrome 8-bit signed)" },
+    { PFNC_U3V_BAYERGR8, "BayerGR8 (Bayer Green-Red 8-bit)" },
+    { PFNC_U3V_BAYERRG8, "BayerRG8 (Bayer Red-Green 8-bit)" },
+    { PFNC_U3V_BAYERGB8, "BayerGB8 (Bayer Green-Blue 8-bit)" },
+    { PFNC_U3V_BAYERBG8, "BayerBG8 (Bayer Blue-Green 8-bit)" },
+    { PFNC_U3V_SCF1WBWG8, "SCF1WBWG8 (Sparse Color Filter #1 White-Blue-White-Green 8-bit)" },
+    { PFNC_U3V_SCF1WGWB8, "SCF1WGWB8 (Sparse Color Filter #1 White-Green-White-Blue 8-bit)" },
+    { PFNC_U3V_SCF1WGWR8, "SCF1WGWR8 (Sparse Color Filter #1 White-Green-White-Red 8-bit)" },
+    { PFNC_U3V_SCF1WRWG8, "SCF1WRWG8 (Sparse Color Filter #1 White-Red-White-Green 8-bit)" },
+    { PFNC_U3V_COORD3D_A8, "Coord3D_A8 (3D coordinate A 8-bit)" },
+    { PFNC_U3V_COORD3D_B8, "Coord3D_B8 (3D coordinate B 8-bit)" },
+    { PFNC_U3V_COORD3D_C8, "Coord3D_C8 (3D coordinate C 8-bit)" },
+    { PFNC_U3V_CONFIDENCE1, "Confidence1 (Confidence 1-bit unpacked)" },
+    { PFNC_U3V_CONFIDENCE8, "Confidence8 (Confidence 8-bit)" },
+    { PFNC_U3V_R8, "R8 (Red 8-bit)" },
+    { PFNC_U3V_G8, "G8 (Green 8-bit)" },
+    { PFNC_U3V_B8, "B8 (Blue 8-bit)" },
+    { PFNC_U3V_DATA8, "Data8 (Data 8-bit)" },
+    { PFNC_U3V_DATA8S, "Data8s (Data 8-bit signed)" },
+    { PFNC_U3V_MONO10P, "Mono10p (Monochrome 10-bit packed)" },
+    { PFNC_U3V_BAYERBG10P, "BayerBG10p (Bayer Blue-Green 10-bit packed)" },
+    { PFNC_U3V_BAYERGB10P, "BayerGB10p (Bayer Green-Blue 10-bit packed)" },
+    { PFNC_U3V_BAYERGR10P, "BayerGR10p (Bayer Green-Red 10-bit packed)" },
+    { PFNC_U3V_BAYERRG10P, "BayerRG10p (Bayer Red-Green 10-bit packed)" },
+    { PFNC_U3V_SCF1WBWG10P, "SCF1WBWG10p (Sparse Color Filter #1 White-Blue-White-Green 10-bit packed)" },
+    { PFNC_U3V_SCF1WGWB10P, "SCF1WGWB10p (Sparse Color Filter #1 White-Green-White-Blue 10-bit packed)" },
+    { PFNC_U3V_SCF1WGWR10P, "SCF1WGWR10p (Sparse Color Filter #1 White-Green-White-Red 10-bit packed)" },
+    { PFNC_U3V_SCF1WRWG10P, "SCF1WRWG10p (Sparse Color Filter #1 White-Red-White-Green 10-bit packed)" },
+    { PFNC_U3V_R10_DEPRECATED, "R10_Deprecated (Deprecated because size field is wrong)" },
+    { PFNC_U3V_G10_DEPRECATED, "G10_Deprecated (Deprecated because size field is wrong)" },
+    { PFNC_U3V_B10_DEPRECATED, "B10_Deprecated (Deprecated because size field is wrong)" },
+    { PFNC_U3V_COORD3D_A10P, "Coord3D_A10p (3D coordinate A 10-bit packed)" },
+    { PFNC_U3V_COORD3D_B10P, "Coord3D_B10p (3D coordinate B 10-bit packed)" },
+    { PFNC_U3V_COORD3D_C10P, "Coord3D_C10p (3D coordinate C 10-bit packed)" },
+    { GVSP_MONO10PACKED, "GVSP_Mono10Packed (GigE Vision specific format, Monochrome 10-bit packed)" },
+    { GVSP_MONO12PACKED, "GVSP_Mono12Packed (GigE Vision specific format, Monochrome 12-bit packed)" },
+    { GVSP_BAYERGR10PACKED, "GVSP_BayerGR10Packed (GigE Vision specific format, Bayer Green-Red 10-bit packed)" },
+    { GVSP_BAYERRG10PACKED, "GVSP_BayerRG10Packed (GigE Vision specific format, Bayer Red-Green 10-bit packed)" },
+    { GVSP_BAYERGB10PACKED, "GVSP_BayerGB10Packed (GigE Vision specific format, Bayer Green-Blue 10-bit packed)" },
+    { GVSP_BAYERBG10PACKED, "GVSP_BayerBG10Packed (GigE Vision specific format, Bayer Blue-Green 10-bit packed)" },
+    { GVSP_BAYERGR12PACKED, "GVSP_BayerGR12Packed (GigE Vision specific format, Bayer Green-Red 12-bit packed)" },
+    { GVSP_BAYERRG12PACKED, "GVSP_BayerRG12Packed (GigE Vision specific format, Bayer Red-Green 12-bit packed)" },
+    { GVSP_BAYERGB12PACKED, "GVSP_BayerGB12Packed (GigE Vision specific format, Bayer Green-Blue 12-bit packed)" },
+    { GVSP_BAYERBG12PACKED, "GVSP_BayerBG12Packed (GigE Vision specific format, Bayer Blue-Green 12-bit packed)" },
+    { PFNC_U3V_MONO12P, "Mono12p (Monochrome 12-bit packed)" },
+    { PFNC_U3V_BAYERBG12P, "BayerBG12p (Bayer Blue-Green 12-bit packed)" },
+    { PFNC_U3V_BAYERGB12P, "BayerGB12p (Bayer Green-Blue 12-bit packed)" },
+    { PFNC_U3V_BAYERGR12P, "BayerGR12p (Bayer Green-Red 12-bit packed)" },
+    { PFNC_U3V_BAYERRG12P, "BayerRG12p (Bayer Red-Green 12-bit packed)" },
+    { PFNC_U3V_SCF1WBWG12P, "SCF1WBWG12p (Sparse Color Filter #1 White-Blue-White-Green 12-bit packed)" },
+    { PFNC_U3V_SCF1WGWB12P, "SCF1WGWB12p (Sparse Color Filter #1 White-Green-White-Blue 12-bit packed)" },
+    { PFNC_U3V_SCF1WGWR12P, "SCF1WGWR12p (Sparse Color Filter #1 White-Green-White-Red 12-bit packed)" },
+    { PFNC_U3V_SCF1WRWG12P, "SCF1WRWG12p (Sparse Color Filter #1 White-Red-White-Green 12-bit packed)" },
+    { PFNC_U3V_R12_DEPRECATED, "R12_Deprecated (Deprecated because size field is wrong)" },
+    { PFNC_U3V_G12_DEPRECATED, "G12_Deprecated (Deprecated because size field is wrong)" },
+    { PFNC_U3V_B12_DEPRECATED, "B12_Deprecated (Deprecated because size field is wrong)" },
+    { PFNC_U3V_COORD3D_A12P, "Coord3D_A12p (3D coordinate A 12-bit packed)" },
+    { PFNC_U3V_COORD3D_B12P, "Coord3D_B12p (3D coordinate B 12-bit packed)" },
+    { PFNC_U3V_COORD3D_C12P, "Coord3D_C12p (3D coordinate C 12-bit packed)" },
+    { PFNC_U3V_MONO14P, "Mono14p (Monochrome 14-bit packed)" },
+    { PFNC_U3V_BAYERGR14P, "BayerGR14p (Bayer Green-Red 14-bit packed)" },
+    { PFNC_U3V_BAYERRG14P, "BayerRG14p (Bayer Red-Green 14-bit packed)" },
+    { PFNC_U3V_BAYERGB14P, "BayerGB14p (Bayer Green-Blue 14-bit packed)" },
+    { PFNC_U3V_BAYERBG14P, "BayerBG14p (Bayer Blue-Green 14-bit packed)" },
+    { PFNC_U3V_MONO10, "Mono10 (Monochrome 10-bit unpacked)" },
+    { PFNC_U3V_MONO12, "Mono12 (Monochrome 12-bit unpacked)" },
+    { PFNC_U3V_MONO16, "Mono16 (Monochrome 16-bit)" },
+    { PFNC_U3V_BAYERGR10, "BayerGR10 (Bayer Green-Red 10-bit unpacked)" },
+    { PFNC_U3V_BAYERRG10, "BayerRG10 (Bayer Red-Green 10-bit unpacked)" },
+    { PFNC_U3V_BAYERGB10, "BayerGB10 (Bayer Green-Blue 10-bit unpacked)" },
+    { PFNC_U3V_BAYERBG10, "BayerBG10 (Bayer Blue-Green 10-bit unpacked)" },
+    { PFNC_U3V_BAYERGR12, "BayerGR12 (Bayer Green-Red 12-bit unpacked)" },
+    { PFNC_U3V_BAYERRG12, "BayerRG12 (Bayer Red-Green 12-bit unpacked)" },
+    { PFNC_U3V_BAYERGB12, "BayerGB12 (Bayer Green-Blue 12-bit unpacked)" },
+    { PFNC_U3V_BAYERBG12, "BayerBG12 (Bayer Blue-Green 12-bit unpacked)" },
+    { PFNC_U3V_MONO14, "Mono14 (Monochrome 14-bit unpacked)" },
+    { PFNC_U3V_BAYERGR16, "BayerGR16 (Bayer Green-Red 16-bit)" },
+    { PFNC_U3V_BAYERRG16, "BayerRG16 (Bayer Red-Green 16-bit)" },
+    { PFNC_U3V_BAYERGB16, "BayerGB16 (Bayer Green-Blue 16-bit)" },
+    { PFNC_U3V_BAYERBG16, "BayerBG16 (Bayer Blue-Green 16-bit)" },
+    { PFNC_U3V_SCF1WBWG10, "SCF1WBWG10 (Sparse Color Filter #1 White-Blue-White-Green 10-bit unpacked)" },
+    { PFNC_U3V_SCF1WBWG12, "SCF1WBWG12 (Sparse Color Filter #1 White-Blue-White-Green 12-bit unpacked)" },
+    { PFNC_U3V_SCF1WBWG14, "SCF1WBWG14 (Sparse Color Filter #1 White-Blue-White-Green 14-bit unpacked)" },
+    { PFNC_U3V_SCF1WBWG16, "SCF1WBWG16 (Sparse Color Filter #1 White-Blue-White-Green 16-bit unpacked)" },
+    { PFNC_U3V_SCF1WGWB10, "SCF1WGWB10 (Sparse Color Filter #1 White-Green-White-Blue 10-bit unpacked)" },
+    { PFNC_U3V_SCF1WGWB12, "SCF1WGWB12 (Sparse Color Filter #1 White-Green-White-Blue 12-bit unpacked)" },
+    { PFNC_U3V_SCF1WGWB14, "SCF1WGWB14 (Sparse Color Filter #1 White-Green-White-Blue 14-bit unpacked)" },
+    { PFNC_U3V_SCF1WGWB16, "SCF1WGWB16 (Sparse Color Filter #1 White-Green-White-Blue 16-bit)" },
+    { PFNC_U3V_SCF1WGWR10, "SCF1WGWR10 (Sparse Color Filter #1 White-Green-White-Red 10-bit unpacked)" },
+    { PFNC_U3V_SCF1WGWR12, "SCF1WGWR12 (Sparse Color Filter #1 White-Green-White-Red 12-bit unpacked)" },
+    { PFNC_U3V_SCF1WGWR14, "SCF1WGWR14 (Sparse Color Filter #1 White-Green-White-Red 14-bit unpacked)" },
+    { PFNC_U3V_SCF1WGWR16, "SCF1WGWR16 (Sparse Color Filter #1 White-Green-White-Red 16-bit)" },
+    { PFNC_U3V_SCF1WRWG10, "SCF1WRWG10 (Sparse Color Filter #1 White-Red-White-Green 10-bit unpacked)" },
+    { PFNC_U3V_SCF1WRWG12, "SCF1WRWG12 (Sparse Color Filter #1 White-Red-White-Green 12-bit unpacked)" },
+    { PFNC_U3V_SCF1WRWG14, "SCF1WRWG14 (Sparse Color Filter #1 White-Red-White-Green 14-bit unpacked)" },
+    { PFNC_U3V_SCF1WRWG16, "SCF1WRWG16 (Sparse Color Filter #1 White-Red-White-Green 16-bit)" },
+    { PFNC_U3V_COORD3D_A16, "Coord3D_A16 (3D coordinate A 16-bit)" },
+    { PFNC_U3V_COORD3D_B16, "Coord3D_B16 (3D coordinate B 16-bit)" },
+    { PFNC_U3V_COORD3D_C16, "Coord3D_C16 (3D coordinate C 16-bit)" },
+    { PFNC_U3V_CONFIDENCE16, "Confidence16 (Confidence 16-bit)" },
+    { PFNC_U3V_R16, "R16 (Red 16-bit)" },
+    { PFNC_U3V_G16, "G16 (Green 16-bit)" },
+    { PFNC_U3V_B16, "B16 (Blue 16-bit)" },
+    { PFNC_U3V_BAYERGR14, "BayerGR14 (Bayer Green-Red 14-bit)" },
+    { PFNC_U3V_BAYERRG14, "BayerRG14 (Bayer Red-Green 14-bit)" },
+    { PFNC_U3V_BAYERGB14, "BayerGB14 (Bayer Green-Blue 14-bit)" },
+    { PFNC_U3V_BAYERBG14, "BayerBG14 (Bayer Blue-Green 14-bit)" },
+    { PFNC_U3V_DATA16, "Data16 (Data 16-bit)" },
+    { PFNC_U3V_DATA16S, "Data16s (Data 16-bit signed)" },
+    { PFNC_U3V_R10, "R10 (Red 10-bit)" },
+    { PFNC_U3V_R12, "R12 (Red 12-bit)" },
+    { PFNC_U3V_G10, "G10 (Green 10-bit)" },
+    { PFNC_U3V_G12, "G12 (Green 12-bit)" },
+    { PFNC_U3V_B10, "B10 (Blue 10-bit)" },
+    { PFNC_U3V_B12, "B12 (Blue 12-bit)" },
+    { PFNC_U3V_COORD3D_A32F, "Coord3D_A32f (3D coordinate A 32-bit floating point)" },
+    { PFNC_U3V_COORD3D_B32F, "Coord3D_B32f (3D coordinate B 32-bit floating point)" },
+    { PFNC_U3V_COORD3D_C32F, "Coord3D_C32f (3D coordinate C 32-bit floating point)" },
+    { PFNC_U3V_CONFIDENCE32F, "Confidence32f (Confidence 32-bit floating point)" },
+    { PFNC_U3V_MONO32, "Mono32 (Monochrome 32-bit)" },
+    { PFNC_U3V_DATA32, "Data32 (Data 32-bit)" },
+    { PFNC_U3V_DATA32S, "Data32s (Data 32-bit signed)" },
+    { PFNC_U3V_DATA32F, "Data32f (Data 32-bit floating point)" },
+    { PFNC_U3V_DATA64, "Data64 (Data 64-bit)" },
+    { PFNC_U3V_DATA64S, "Data64s (Data 64-bit signed)" },
+    { PFNC_U3V_DATA64F, "Data64f (Data 64-bit floating point)" },
+    { PFNC_U3V_YUV411_8_UYYVYY, "YUV411_8_UYYVYY (YUV 4:1:1 8-bit)" },
+    { PFNC_U3V_YCBCR411_8_CBYYCRYY, "YCbCr411_8_CbYYCrYY (YCbCr 4:1:1 8-bit)" },
+    { PFNC_U3V_YCBCR601_411_8_CBYYCRYY, "YCbCr601_411_8_CbYYCrYY (YCbCr 4:1:1 8-bit BT.601)" },
+    { PFNC_U3V_YCBCR709_411_8_CBYYCRYY, "YCbCr709_411_8_CbYYCrYY (YCbCr 4:1:1 8-bit BT.709)" },
+    { PFNC_U3V_YCBCR411_8, "YCbCr411_8 (YCbCr 4:1:1 8-bit)" },
+    { PFNC_U3V_YCBCR2020_411_8_CBYYCRYY, "YCbCr2020_411_8_CbYYCrYY (YCbCr 4:1:1 8-bit BT.2020)" },
+    { PFNC_U3V_YCBCR420_8_YY_CBCR_SEMIPLANAR, "YCbCr420_8_YY_CbCr_Semiplanar (YCbCr 4:2:0 8-bit YY/CbCr Semiplanar)" },
+    { PFNC_U3V_YCBCR420_8_YY_CRCB_SEMIPLANAR, "YCbCr420_8_YY_CrCb_Semiplanar (YCbCr 4:2:0 8-bit YY/CrCb Semiplanar)" },
+    { PFNC_U3V_YUV422_8_UYVY, "YUV422_8_UYVY (YUV 4:2:2 8-bit)" },
+    { PFNC_U3V_YUV422_8, "YUV422_8 (YUV 4:2:2 8-bit)" },
+    { PFNC_U3V_RGB565P, "RGB565p (Red-Green-Blue 5/6/5-bit packed)" },
+    { PFNC_U3V_BGR565P, "BGR565p (Blue-Green-Red 5/6/5-bit packed)" },
+    { PFNC_U3V_YCBCR422_8, "YCbCr422_8 (YCbCr 4:2:2 8-bit)" },
+    { PFNC_U3V_YCBCR601_422_8, "YCbCr601_422_8 (YCbCr 4:2:2 8-bit BT.601)" },
+    { PFNC_U3V_YCBCR709_422_8, "YCbCr709_422_8 (YCbCr 4:2:2 8-bit BT.709)" },
+    { PFNC_U3V_YCBCR422_8_CBYCRY, "YCbCr422_8_CbYCrY (YCbCr 4:2:2 8-bit)" },
+    { PFNC_U3V_YCBCR601_422_8_CBYCRY, "YCbCr601_422_8_CbYCrY (YCbCr 4:2:2 8-bit BT.601)" },
+    { PFNC_U3V_YCBCR709_422_8_CBYCRY, "YCbCr709_422_8_CbYCrY (YCbCr 4:2:2 8-bit BT.709)" },
+    { PFNC_U3V_BICOLORRGBG8, "BiColorRGBG8 (Bi-color Red/Green - Blue/Green 8-bit)" },
+    { PFNC_U3V_BICOLORBGRG8, "BiColorBGRG8 (Bi-color Blue/Green - Red/Green 8-bit)" },
+    { PFNC_U3V_COORD3D_AC8, "Coord3D_AC8 (3D coordinate A-C 8-bit)" },
+    { PFNC_U3V_COORD3D_AC8_PLANAR, "Coord3D_AC8_Planar (3D coordinate A-C 8-bit planar)" },
+    { PFNC_U3V_YCBCR2020_422_8, "YCbCr2020_422_8 (YCbCr 4:2:2 8-bit BT.2020)" },
+    { PFNC_U3V_YCBCR2020_422_8_CBYCRY, "YCbCr2020_422_8_CbYCrY (YCbCr 4:2:2 8-bit BT.2020)" },
+    { PFNC_U3V_YCBCR422_8_YY_CBCR_SEMIPLANAR, "YCbCr422_8_YY_CbCr_Semiplanar (YCbCr 4:2:2 8-bit YY/CbCr Semiplanar)" },
+    { PFNC_U3V_YCBCR422_8_YY_CRCB_SEMIPLANAR, "YCbCr422_8_YY_CrCb_Semiplanar (YCbCr 4:2:2 8-bit YY/CrCb Semiplanar)" },
+    { PFNC_U3V_YCBCR422_10P, "YCbCr422_10p (YCbCr 4:2:2 10-bit packed)" },
+    { PFNC_U3V_YCBCR601_422_10P, "YCbCr601_422_10p (YCbCr 4:2:2 10-bit packed BT.601)" },
+    { PFNC_U3V_YCBCR709_422_10P, "YCbCr709_422_10p (YCbCr 4:2:2 10-bit packed BT.709)" },
+    { PFNC_U3V_YCBCR422_10P_CBYCRY, "YCbCr422_10p_CbYCrY (YCbCr 4:2:2 10-bit packed)" },
+    { PFNC_U3V_YCBCR601_422_10P_CBYCRY, "YCbCr601_422_10p_CbYCrY (YCbCr 4:2:2 10-bit packed BT.601)" },
+    { PFNC_U3V_YCBCR709_422_10P_CBYCRY, "YCbCr709_422_10p_CbYCrY (YCbCr 4:2:2 10-bit packed BT.709)" },
+    { PFNC_U3V_BICOLORRGBG10P, "BiColorRGBG10p (Bi-color Red/Green - Blue/Green 10-bit packed)" },
+    { PFNC_U3V_BICOLORBGRG10P, "BiColorBGRG10p (Bi-color Blue/Green - Red/Green 10-bit packed)" },
+    { PFNC_U3V_COORD3D_AC10P, "Coord3D_AC10p (3D coordinate A-C 10-bit packed)" },
+    { PFNC_U3V_COORD3D_AC10P_PLANAR, "Coord3D_AC10p_Planar (3D coordinate A-C 10-bit packed planar)" },
+    { PFNC_U3V_YCBCR2020_422_10P, "YCbCr2020_422_10p (YCbCr 4:2:2 10-bit packed BT.2020)" },
+    { PFNC_U3V_YCBCR2020_422_10P_CBYCRY, "YCbCr2020_422_10p_CbYCrY (YCbCr 4:2:2 10-bit packed BT.2020)" },
+    { PFNC_U3V_RGB8, "RGB8 (Red-Green-Blue 8-bit)" },
+    { PFNC_U3V_BGR8, "BGR8 (Blue-Green-Red 8-bit)" },
+    { PFNC_U3V_YUV8_UYV, "YUV8_UYV (YUV 4:4:4 8-bit)" },
+    { PFNC_U3V_RGB8_PLANAR, "RGB8_Planar (Red-Green-Blue 8-bit planar)" },
+    { PFNC_U3V_YCBCR8_CBYCR, "YCbCr8_CbYCr (YCbCr 4:4:4 8-bit)" },
+    { PFNC_U3V_YCBCR601_8_CBYCR, "YCbCr601_8_CbYCr (YCbCr 4:4:4 8-bit BT.601)" },
+    { PFNC_U3V_YCBCR709_8_CBYCR, "YCbCr709_8_CbYCr (YCbCr 4:4:4 8-bit BT.709)" },
+    { PFNC_U3V_YCBCR8, "YCbCr8 (YCbCr 4:4:4 8-bit)" },
+    { PFNC_U3V_YCBCR422_12P, "YCbCr422_12p (YCbCr 4:2:2 12-bit packed)" },
+    { PFNC_U3V_YCBCR601_422_12P, "YCbCr601_422_12p (YCbCr 4:2:2 12-bit packed BT.601)" },
+    { PFNC_U3V_YCBCR709_422_12P, "YCbCr709_422_12p (YCbCr 4:2:2 12-bit packed BT.709)" },
+    { PFNC_U3V_YCBCR422_12P_CBYCRY, "YCbCr422_12p_CbYCrY (YCbCr 4:2:2 12-bit packed)" },
+    { PFNC_U3V_YCBCR601_422_12P_CBYCRY, "YCbCr601_422_12p_CbYCrY (YCbCr 4:2:2 12-bit packed BT.601)" },
+    { PFNC_U3V_YCBCR709_422_12P_CBYCRY, "YCbCr709_422_12p_CbYCrY (YCbCr 4:2:2 12-bit packed BT.709)" },
+    { PFNC_U3V_BICOLORRGBG12P, "BiColorRGBG12p (Bi-color Red/Green - Blue/Green 12-bit packed)" },
+    { PFNC_U3V_BICOLORBGRG12P, "BiColorBGRG12p (Bi-color Blue/Green - Red/Green 12-bit packed)" },
+    { PFNC_U3V_COORD3D_ABC8, "Coord3D_ABC8 (3D coordinate A-B-C 8-bit)" },
+    { PFNC_U3V_COORD3D_ABC8_PLANAR, "Coord3D_ABC8_Planar (3D coordinate A-B-C 8-bit planar)" },
+    { PFNC_U3V_COORD3D_AC12P, "Coord3D_AC12p (3D coordinate A-C 12-bit packed)" },
+    { PFNC_U3V_COORD3D_AC12P_PLANAR, "Coord3D_AC12p_Planar (3D coordinate A-C 12-bit packed planar)" },
+    { PFNC_U3V_YCBCR2020_8_CBYCR, "YCbCr2020_8_CbYCr (YCbCr 4:4:4 8-bit BT.2020)" },
+    { PFNC_U3V_YCBCR2020_422_12P, "YCbCr2020_422_12p (YCbCr 4:2:2 12-bit packed BT.2020)" },
+    { PFNC_U3V_YCBCR2020_422_12P_CBYCRY, "YCbCr2020_422_12p_CbYCrY (YCbCr 4:2:2 12-bit packed BT.2020)" },
+    { PFNC_U3V_BGR10P, "BGR10p (Blue-Green-Red 10-bit packed)" },
+    { PFNC_U3V_RGB10P, "RGB10p (Red-Green-Blue 10-bit packed)" },
+    { PFNC_U3V_YCBCR10P_CBYCR, "YCbCr10p_CbYCr (YCbCr 4:4:4 10-bit packed)" },
+    { PFNC_U3V_YCBCR601_10P_CBYCR, "YCbCr601_10p_CbYCr (YCbCr 4:4:4 10-bit packed BT.601)" },
+    { PFNC_U3V_YCBCR709_10P_CBYCR, "YCbCr709_10p_CbYCr (YCbCr 4:4:4 10-bit packed BT.709)" },
+    { PFNC_U3V_COORD3D_ABC10P, "Coord3D_ABC10p (3D coordinate A-B-C 10-bit packed)" },
+    { PFNC_U3V_COORD3D_ABC10P_PLANAR, "Coord3D_ABC10p_Planar (3D coordinate A-B-C 10-bit packed planar)" },
+    { PFNC_U3V_YCBCR2020_10P_CBYCR, "YCbCr2020_10p_CbYCr (YCbCr 4:4:4 10-bit packed BT.2020)" },
+    { PFNC_U3V_RGBA8, "RGBa8 (Red-Green-Blue-alpha 8-bit)" },
+    { PFNC_U3V_BGRA8, "BGRa8 (Blue-Green-Red-alpha 8-bit)" },
+    { GVSP_RGB10V1PACKED, "GVSP_RGB10V1Packed (GigE Vision specific format, Red-Green-Blue 10-bit packed - variant 1)" },
+    { PFNC_U3V_RGB10P32, "RGB10p32 (Red-Green-Blue 10-bit packed into 32-bit)" },
+    { PFNC_U3V_YCBCR422_10, "YCbCr422_10 (YCbCr 4:2:2 10-bit unpacked)" },
+    { PFNC_U3V_YCBCR422_12, "YCbCr422_12 (YCbCr 4:2:2 12-bit unpacked)" },
+    { PFNC_U3V_YCBCR601_422_10, "YCbCr601_422_10 (YCbCr 4:2:2 10-bit unpacked BT.601)" },
+    { PFNC_U3V_YCBCR601_422_12, "YCbCr601_422_12 (YCbCr 4:2:2 12-bit unpacked BT.601)" },
+    { PFNC_U3V_YCBCR709_422_10, "YCbCr709_422_10 (YCbCr 4:2:2 10-bit unpacked BT.709)" },
+    { PFNC_U3V_YCBCR709_422_12, "YCbCr709_422_12 (YCbCr 4:2:2 12-bit unpacked BT.709)" },
+    { PFNC_U3V_YCBCR422_10_CBYCRY, "YCbCr422_10_CbYCrY (YCbCr 4:2:2 10-bit unpacked)" },
+    { PFNC_U3V_YCBCR422_12_CBYCRY, "YCbCr422_12_CbYCrY (YCbCr 4:2:2 12-bit unpacked)" },
+    { PFNC_U3V_YCBCR601_422_10_CBYCRY, "YCbCr601_422_10_CbYCrY (YCbCr 4:2:2 10-bit unpacked BT.601)" },
+    { PFNC_U3V_YCBCR601_422_12_CBYCRY, "YCbCr601_422_12_CbYCrY (YCbCr 4:2:2 12-bit unpacked BT.601)" },
+    { PFNC_U3V_YCBCR709_422_10_CBYCRY, "YCbCr709_422_10_CbYCrY (YCbCr 4:2:2 10-bit unpacked BT.709)" },
+    { PFNC_U3V_YCBCR709_422_12_CBYCRY, "YCbCr709_422_12_CbYCrY (YCbCr 4:2:2 12-bit unpacked BT.709)" },
+    { PFNC_U3V_BICOLORRGBG10, "BiColorRGBG10 (Bi-color Red/Green - Blue/Green 10-bit unpacked)" },
+    { PFNC_U3V_BICOLORBGRG10, "BiColorBGRG10 (Bi-color Blue/Green - Red/Green 10-bit unpacked)" },
+    { PFNC_U3V_BICOLORRGBG12, "BiColorRGBG12 (Bi-color Red/Green - Blue/Green 12-bit unpacked)" },
+    { PFNC_U3V_BICOLORBGRG12, "BiColorBGRG12 (Bi-color Blue/Green - Red/Green 12-bit unpacked)" },
+    { PFNC_U3V_COORD3D_AC16, "Coord3D_AC16 (3D coordinate A-C 16-bit)" },
+    { PFNC_U3V_COORD3D_AC16_PLANAR, "Coord3D_AC16_Planar (3D coordinate A-C 16-bit planar)" },
+    { PFNC_U3V_YCBCR2020_422_10, "YCbCr2020_422_10 (YCbCr 4:2:2 10-bit unpacked BT.2020)" },
+    { PFNC_U3V_YCBCR2020_422_10_CBYCRY, "YCbCr2020_422_10_CbYCrY (YCbCr 4:2:2 10-bit unpacked BT.2020)" },
+    { PFNC_U3V_YCBCR2020_422_12, "YCbCr2020_422_12 (YCbCr 4:2:2 12-bit unpacked BT.2020)" },
+    { PFNC_U3V_YCBCR2020_422_12_CBYCRY, "YCbCr2020_422_12_CbYCrY (YCbCr 4:2:2 12-bit unpacked BT.2020)" },
+    { GVSP_RGB12V1PACKED, "GVSP_RGB12V1Packed (GigE Vision specific format, Red-Green-Blue 12-bit packed - variant 1)" },
+    { PFNC_U3V_BGR12P, "BGR12p (Blue-Green-Red 12-bit packed)" },
+    { PFNC_U3V_RGB12P, "RGB12p (Red-Green-Blue 12-bit packed)" },
+    { PFNC_U3V_YCBCR12P_CBYCR, "YCbCr12p_CbYCr (YCbCr 4:4:4 12-bit packed)" },
+    { PFNC_U3V_YCBCR601_12P_CBYCR, "YCbCr601_12p_CbYCr (YCbCr 4:4:4 12-bit packed BT.601)" },
+    { PFNC_U3V_YCBCR709_12P_CBYCR, "YCbCr709_12p_CbYCr (YCbCr 4:4:4 12-bit packed BT.709)" },
+    { PFNC_U3V_COORD3D_ABC12P, "Coord3D_ABC12p (3D coordinate A-B-C 12-bit packed)" },
+    { PFNC_U3V_COORD3D_ABC12P_PLANAR, "Coord3D_ABC12p_Planar (3D coordinate A-B-C 12-bit packed planar)" },
+    { PFNC_U3V_YCBCR2020_12P_CBYCR, "YCbCr2020_12p_CbYCr (YCbCr 4:4:4 12-bit packed BT.2020)" },
+    { PFNC_U3V_BGRA10P, "BGRa10p (Blue-Green-Red-alpha 10-bit packed)" },
+    { PFNC_U3V_RGBA10P, "RGBa10p (Red-Green-Blue-alpha 10-bit packed)" },
+    { PFNC_U3V_RGB10, "RGB10 (Red-Green-Blue 10-bit unpacked)" },
+    { PFNC_U3V_BGR10, "BGR10 (Blue-Green-Red 10-bit unpacked)" },
+    { PFNC_U3V_RGB12, "RGB12 (Red-Green-Blue 12-bit unpacked)" },
+    { PFNC_U3V_BGR12, "BGR12 (Blue-Green-Red 12-bit unpacked)" },
+    { PFNC_U3V_RGB10_PLANAR, "RGB10_Planar (Red-Green-Blue 10-bit unpacked planar)" },
+    { PFNC_U3V_RGB12_PLANAR, "RGB12_Planar (Red-Green-Blue 12-bit unpacked planar)" },
+    { PFNC_U3V_RGB16_PLANAR, "RGB16_Planar (Red-Green-Blue 16-bit planar)" },
+    { PFNC_U3V_RGB16, "RGB16 (Red-Green-Blue 16-bit)" },
+    { PFNC_U3V_BGR14, "BGR14 (Blue-Green-Red 14-bit unpacked)" },
+    { PFNC_U3V_BGR16, "BGR16 (Blue-Green-Red 16-bit)" },
+    { PFNC_U3V_BGRA12P, "BGRa12p (Blue-Green-Red-alpha 12-bit packed)" },
+    { PFNC_U3V_RGB14, "RGB14 (Red-Green-Blue 14-bit unpacked)" },
+    { PFNC_U3V_RGBA12P, "RGBa12p (Red-Green-Blue-alpha 12-bit packed)" },
+    { PFNC_U3V_YCBCR10_CBYCR, "YCbCr10_CbYCr (YCbCr 4:4:4 10-bit unpacked)" },
+    { PFNC_U3V_YCBCR12_CBYCR, "YCbCr12_CbYCr (YCbCr 4:4:4 12-bit unpacked)" },
+    { PFNC_U3V_YCBCR601_10_CBYCR, "YCbCr601_10_CbYCr (YCbCr 4:4:4 10-bit unpacked BT.601)" },
+    { PFNC_U3V_YCBCR601_12_CBYCR, "YCbCr601_12_CbYCr (YCbCr 4:4:4 12-bit unpacked BT.601)" },
+    { PFNC_U3V_YCBCR709_10_CBYCR, "YCbCr709_10_CbYCr (YCbCr 4:4:4 10-bit unpacked BT.709)" },
+    { PFNC_U3V_YCBCR709_12_CBYCR, "YCbCr709_12_CbYCr (YCbCr 4:4:4 12-bit unpacked BT.709)" },
+    { PFNC_U3V_COORD3D_ABC16, "Coord3D_ABC16 (3D coordinate A-B-C 16-bit)" },
+    { PFNC_U3V_COORD3D_ABC16_PLANAR, "Coord3D_ABC16_Planar (3D coordinate A-B-C 16-bit planar)" },
+    { PFNC_U3V_YCBCR2020_10_CBYCR, "YCbCr2020_10_CbYCr (YCbCr 4:4:4 10-bit unpacked BT.2020)" },
+    { PFNC_U3V_YCBCR2020_12_CBYCR, "YCbCr2020_12_CbYCr (YCbCr 4:4:4 12-bit unpacked BT.2020)" },
+    { PFNC_U3V_BGRA10, "BGRa10 (Blue-Green-Red-alpha 10-bit unpacked)" },
+    { PFNC_U3V_BGRA12, "BGRa12 (Blue-Green-Red-alpha 12-bit unpacked)" },
+    { PFNC_U3V_BGRA14, "BGRa14 (Blue-Green-Red-alpha 14-bit unpacked)" },
+    { PFNC_U3V_BGRA16, "BGRa16 (Blue-Green-Red-alpha 16-bit)" },
+    { PFNC_U3V_RGBA10, "RGBa10 (Red-Green-Blue-alpha 10-bit unpacked)" },
+    { PFNC_U3V_RGBA12, "RGBa12 (Red-Green-Blue-alpha 12-bit unpacked)" },
+    { PFNC_U3V_RGBA14, "RGBa14 (Red-Green-Blue-alpha 14-bit unpacked)" },
+    { PFNC_U3V_RGBA16, "RGBa16 (Red-Green-Blue-alpha 16-bit)" },
+    { PFNC_U3V_COORD3D_AC32F, "Coord3D_AC32f (3D coordinate A-C 32-bit floating point)" },
+    { PFNC_U3V_COORD3D_AC32F_PLANAR, "Coord3D_AC32f_Planar (3D coordinate A-C 32-bit floating point planar)" },
+    { PFNC_U3V_COORD3D_ABC32F, "Coord3D_ABC32f (3D coordinate A-B-C 32-bit floating point)" },
+    { PFNC_U3V_COORD3D_ABC32F_PLANAR, "Coord3D_ABC32f_Planar (3D coordinate A-B-C 32-bit floating point planar)" },
     { 0, NULL }
 };
 
 static value_string_ext pixel_format_names_ext = VALUE_STRING_EXT_INIT(pixel_format_names);
-
 
 static const value_string payload_type_names[] =
 {

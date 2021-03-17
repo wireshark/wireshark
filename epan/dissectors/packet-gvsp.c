@@ -60,18 +60,37 @@ void proto_reg_handoff_gvsp(void);
 #define GENDC_DESCRIPTOR_START_FLAG ( 0x20 )
 #define GENDC_DESCRIPTOR_END_FLAG   ( 0x10 )
 
- /*
-   GenDC header types(GEV 2.2)
-  */
+/*
+  GenDC header types(GEV 2.2)
+ */
 
 #define GENDC_HEADER_TYPE_CONTAINER         ( 0x1000 )
 #define GENDC_HEADER_TYPE_COMPONENT_HEADER  ( 0x2000 )
 #define GENDC_HEADER_TYPE_PART_CHUNK        ( 0x4000 )
+#define GENDC_HEADER_TYPE_PART_XML          ( 0x4001 ) /* GenDC 1.1 */
 #define GENDC_HEADER_TYPE_PART_1D           ( 0x4100 )
 #define GENDC_HEADER_TYPE_PART_2D           ( 0x4200 )
 #define GENDC_HEADER_TYPE_PART_2D_JPEG      ( 0x4201 )
 #define GENDC_HEADER_TYPE_PART_2D_JPEG2000  ( 0x4202 )
 #define GENDC_HEADER_TYPE_PART_2D_H264      ( 0x4203 )
+
+
+/*
+  GenDC component types (GEV 2.2)
+ */
+
+#define GENDC_COMPONENT_TYPEID_UNDEFINED      ( 0x0000 )
+#define GENDC_COMPONENT_TYPEID_INTENSITY      ( 0x0001 )
+#define GENDC_COMPONENT_TYPEID_INFRARED       ( 0x0002 )
+#define GENDC_COMPONENT_TYPEID_ULTRAVIOLET    ( 0x0003 )
+#define GENDC_COMPONENT_TYPEID_RANGE          ( 0x0004 )
+#define GENDC_COMPONENT_TYPEID_REFLECTANCE    ( 0x0005 )
+#define GENDC_COMPONENT_TYPEID_CONFIDENCE     ( 0x0006 )
+#define GENDC_COMPONENT_TYPEID_SCATTER        ( 0x0007 )
+#define GENDC_COMPONENT_TYPEID_DISPARITY      ( 0x0008 )
+#define GENDC_COMPONENT_TYPEID_MULTISPECTRAL  ( 0x0009 )
+#define GENDC_COMPONENT_TYPEID_METADATA       ( 0x8001 )
+#define GENDC_COMPONENT_TYPEID_RESERVED       ( 0xFFFF )
 
 /*
    GVSP packet types
@@ -109,41 +128,41 @@ void proto_reg_handoff_gvsp(void);
    GVSP statuses
  */
 
-#define GEV_STATUS_SUCCESS                             (0x0000)
-#define GEV_STATUS_PACKET_RESEND                       (0x0100)
-#define GEV_STATUS_NOT_IMPLEMENTED                     (0x8001)
-#define GEV_STATUS_INVALID_PARAMETER                   (0x8002)
-#define GEV_STATUS_INVALID_ADDRESS                     (0x8003)
-#define GEV_STATUS_WRITE_PROTECT                       (0x8004)
-#define GEV_STATUS_BAD_ALIGNMENT                       (0x8005)
-#define GEV_STATUS_ACCESS_DENIED                       (0x8006)
-#define GEV_STATUS_BUSY                                (0x8007)
-#define GEV_STATUS_LOCAL_PROBLEM                       (0x8008) /* deprecated */
-#define GEV_STATUS_MSG_MISMATCH                        (0x8009) /* deprecated */
-#define GEV_STATUS_INVALID_PROTOCOL                    (0x800A) /* deprecated */
-#define GEV_STATUS_NO_MSG                              (0x800B) /* deprecated */
-#define GEV_STATUS_PACKET_UNAVAILABLE                  (0x800C)
-#define GEV_STATUS_DATA_OVERRUN                        (0x800D)
-#define GEV_STATUS_INVALID_HEADER                      (0x800E)
-#define GEV_STATUS_WRONG_CONFIG                        (0x800F) /* deprecated */
-#define GEV_STATUS_PACKET_NOT_YET_AVAILABLE            (0x8010)
-#define GEV_STATUS_PACKET_AND_PREV_REMOVED_FROM_MEMORY (0x8011)
-#define GEV_STATUS_PACKET_REMOVED_FROM_MEMORY          (0x8012)
-#define GEV_STATUS_NO_REF_TIME                         (0x8013) /* GEV 2.0 */
-#define GEV_STATUS_PACKET_TEMPORARILY_UNAVAILABLE      (0x8014) /* GEV 2.0 */
-#define GEV_STATUS_OVERFLOW                            (0x8015) /* GEV 2.0 */
-#define GEV_STATUS_ACTION_LATE                         (0x8016) /* GEV 2.0 */
-#define GEV_STATUS_LEADER_TRAILER_OVERFLOW             (0x8017) /* GEV 2.1 */
-#define GEV_STATUS_LAST                                (0x8017)
-#define GEV_STATUS_ERROR                               (0x8FFF)
+#define GEV_STATUS_SUCCESS                             ( 0x0000 )
+#define GEV_STATUS_PACKET_RESEND                       ( 0x0100 )
+#define GEV_STATUS_NOT_IMPLEMENTED                     ( 0x8001 )
+#define GEV_STATUS_INVALID_PARAMETER                   ( 0x8002 )
+#define GEV_STATUS_INVALID_ADDRESS                     ( 0x8003 )
+#define GEV_STATUS_WRITE_PROTECT                       ( 0x8004 )
+#define GEV_STATUS_BAD_ALIGNMENT                       ( 0x8005 )
+#define GEV_STATUS_ACCESS_DENIED                       ( 0x8006 )
+#define GEV_STATUS_BUSY                                ( 0x8007 )
+#define GEV_STATUS_LOCAL_PROBLEM                       ( 0x8008 ) /* deprecated */
+#define GEV_STATUS_MSG_MISMATCH                        ( 0x8009 ) /* deprecated */
+#define GEV_STATUS_INVALID_PROTOCOL                    ( 0x800A ) /* deprecated */
+#define GEV_STATUS_NO_MSG                              ( 0x800B ) /* deprecated */
+#define GEV_STATUS_PACKET_UNAVAILABLE                  ( 0x800C )
+#define GEV_STATUS_DATA_OVERRUN                        ( 0x800D )
+#define GEV_STATUS_INVALID_HEADER                      ( 0x800E )
+#define GEV_STATUS_WRONG_CONFIG                        ( 0x800F ) /* deprecated */
+#define GEV_STATUS_PACKET_NOT_YET_AVAILABLE            ( 0x8010 )
+#define GEV_STATUS_PACKET_AND_PREV_REMOVED_FROM_MEMORY ( 0x8011 )
+#define GEV_STATUS_PACKET_REMOVED_FROM_MEMORY          ( 0x8012 )
+#define GEV_STATUS_NO_REF_TIME                         ( 0x8013 ) /* GEV 2.0 */
+#define GEV_STATUS_PACKET_TEMPORARILY_UNAVAILABLE      ( 0x8014 ) /* GEV 2.0 */
+#define GEV_STATUS_OVERFLOW                            ( 0x8015 ) /* GEV 2.0 */
+#define GEV_STATUS_ACTION_LATE                         ( 0x8016 ) /* GEV 2.0 */
+#define GEV_STATUS_LEADER_TRAILER_OVERFLOW             ( 0x8017 ) /* GEV 2.1 */
+#define GEV_STATUS_LAST                                ( 0x8017 )
+#define GEV_STATUS_ERROR                               ( 0x8FFF )
 
 /*
    Pixel type color
  */
 
-#define GVSP_PIX_MONO             (0x01000000)
-#define GVSP_PIX_COLOR            (0x02000000)
-#define GVSP_PIX_CUSTOM           (0x80000000)
+#define GVSP_PIX_MONO             ( 0x01000000 )
+#define GVSP_PIX_COLOR            ( 0x02000000 )
+#define GVSP_PIX_CUSTOM           ( 0x80000000 )
 
 /*
    Pixel types
@@ -233,16 +252,22 @@ void proto_reg_handoff_gvsp(void);
 #define GVSP_PIX_BGR16 0x0230004B
 #define GVSP_PIX_BGR565P 0x02100036
 #define GVSP_PIX_R8 0x010800C9
-#define GVSP_PIX_R10 0x010A00CA
-#define GVSP_PIX_R12 0x010C00CB
+#define GVSP_PIX_R10 0x01100120
+#define GVSP_PIX_R10_DEPRECATED 0x010A00CA
+#define GVSP_PIX_R12 0x01100121
+#define GVSP_PIX_R12_DEPRECATED 0x010C00CB
 #define GVSP_PIX_R16 0x011000CC
 #define GVSP_PIX_G8 0x010800CD
-#define GVSP_PIX_G10 0x010A00CE
-#define GVSP_PIX_G12 0x010C00CF
+#define GVSP_PIX_G10 0x01100122
+#define GVSP_PIX_G10_DEPRECATED 0x010A00CE
+#define GVSP_PIX_G12 0x01100123
+#define GVSP_PIX_G12_DEPRECATED 0x010C00CF
 #define GVSP_PIX_G16 0x011000D0
 #define GVSP_PIX_B8 0x010800D1
-#define GVSP_PIX_B10 0x010A00D2
-#define GVSP_PIX_B12 0x010C00D3
+#define GVSP_PIX_B10 0x01100124
+#define GVSP_PIX_B10_DEPRECATED 0x010A00D2
+#define GVSP_PIX_B12 0x01100125
+#define GVSP_PIX_B12_DEPRECATED 0x010C00D3
 #define GVSP_PIX_B16 0x011000D4
 #define GVSP_PIX_COORD3D_ABC8 0x021800B2
 #define GVSP_PIX_COORD3D_ABC8_PLANAR 0x021800B3
@@ -284,16 +309,6 @@ void proto_reg_handoff_gvsp(void);
 #define GVSP_PIX_CONFIDENCE8 0x010800C6
 #define GVSP_PIX_CONFIDENCE16 0x011000C7
 #define GVSP_PIX_CONFIDENCE32F 0x012000C8
-#define GVSP_PIX_DATA8 0x01080116
-#define GVSP_PIX_DATA8S 0x01080117
-#define GVSP_PIX_DATA16 0x01100118
-#define GVSP_PIX_DATA16S 0x01100119
-#define GVSP_PIX_DATA32 0x0120011A
-#define GVSP_PIX_DATA32F 0x0120011C
-#define GVSP_PIX_DATA32S 0x0120011B
-#define GVSP_PIX_DATA64 0x0140011D
-#define GVSP_PIX_DATA64F 0x0140011F
-#define GVSP_PIX_DATA64S 0x0140011E
 #define GVSP_PIX_BICOLORBGRG8 0x021000A6
 #define GVSP_PIX_BICOLORBGRG10 0x022000A9
 #define GVSP_PIX_BICOLORBGRG10P 0x021400AA
@@ -304,6 +319,16 @@ void proto_reg_handoff_gvsp(void);
 #define GVSP_PIX_BICOLORRGBG10P 0x021400A8
 #define GVSP_PIX_BICOLORRGBG12 0x022000AB
 #define GVSP_PIX_BICOLORRGBG12P 0x021800AC
+#define GVSP_PIX_DATA8 0x01080116
+#define GVSP_PIX_DATA8S 0x01080117
+#define GVSP_PIX_DATA16 0x01100118
+#define GVSP_PIX_DATA16S 0x01100119
+#define GVSP_PIX_DATA32 0x0120011A
+#define GVSP_PIX_DATA32F 0x0120011C
+#define GVSP_PIX_DATA32S 0x0120011B
+#define GVSP_PIX_DATA64 0x0140011D
+#define GVSP_PIX_DATA64F 0x0140011F
+#define GVSP_PIX_DATA64S 0x0140011E
 #define GVSP_PIX_SCF1WBWG8 0x01080067
 #define GVSP_PIX_SCF1WBWG10 0x01100068
 #define GVSP_PIX_SCF1WBWG10P 0x010A0069
@@ -386,10 +411,6 @@ void proto_reg_handoff_gvsp(void);
 #define GVSP_PIX_YCBCR709_422_12_CBYCRY 0x022000A3
 #define GVSP_PIX_YCBCR709_422_12P 0x02180098
 #define GVSP_PIX_YCBCR709_422_12P_CBYCRY 0x021800A4
-#define GVSP_PIX_YUV8_UYV 0x02180020
-#define GVSP_PIX_YUV411_8_UYYVYY 0x020C001E
-#define GVSP_PIX_YUV422_8 0x02100032
-#define GVSP_PIX_YUV422_8_UYVY 0x0210001F
 #define GVSP_PIX_YCBCR2020_8_CBYCR 0x021800F4
 #define GVSP_PIX_YCBCR2020_10_CBYCR 0x023000F5
 #define GVSP_PIX_YCBCR2020_10P_CBYCR 0x021E00F6
@@ -402,10 +423,14 @@ void proto_reg_handoff_gvsp(void);
 #define GVSP_PIX_YCBCR2020_422_10_CBYCRY 0x022000FD
 #define GVSP_PIX_YCBCR2020_422_10P 0x021400FE
 #define GVSP_PIX_YCBCR2020_422_10P_CBYCRY 0x021400FF
-#define GVSP_PIX_YCBCR2020_422_12 0x02180100
-#define GVSP_PIX_YCBCR2020_422_12_CBYCRY 0x02180101
+#define GVSP_PIX_YCBCR2020_422_12 0x02200100
+#define GVSP_PIX_YCBCR2020_422_12_CBYCRY 0x02200101
 #define GVSP_PIX_YCBCR2020_422_12P 0x02180102
 #define GVSP_PIX_YCBCR2020_422_12P_CBYCRY 0x02180103
+#define GVSP_PIX_YUV8_UYV 0x02180020
+#define GVSP_PIX_YUV411_8_UYYVYY 0x020C001E
+#define GVSP_PIX_YUV422_8 0x02100032
+#define GVSP_PIX_YUV422_8_UYVY 0x0210001F
 #define GVSP_PIX_MONO10PACKED 0x010C0004
 #define GVSP_PIX_MONO12PACKED 0x010C0006
 #define GVSP_PIX_BAYERBG10PACKED 0x010C0029
@@ -467,6 +492,7 @@ static int ett_gvsp_gendc_component_header = -1;
 static int ett_gvsp_gendc_part_offsets = -1;
 static int ett_gvsp_gendc_part_header = -1;
 static int ett_gvsp_gendc_component_header_flags = -1;
+static int ett_gvsp_gendc_part_header_flags = -1;
 
 static const value_string statusnames[] = {
     { GEV_STATUS_SUCCESS,                             "GEV_STATUS_SUCCESS" },
@@ -495,7 +521,7 @@ static const value_string statusnames[] = {
     { GEV_STATUS_ACTION_LATE,                         "GEV_STATUS_ACTION_LATE" },
     { GEV_STATUS_LEADER_TRAILER_OVERFLOW,             "GEV_STATUS_LEADER_TRAILER_OVERFLOW" },
     { GEV_STATUS_ERROR,                               "GEV_STATUS_ERROR" },
-    { 0, NULL },
+    { 0, NULL }
 };
 
 static value_string_ext statusnames_ext = VALUE_STRING_EXT_INIT(statusnames);
@@ -517,7 +543,7 @@ static const value_string formatnames[] = {
     { GVSP_EXTENDED_ID_BIT | GVSP_PACKET_PAYLOAD_MULTIZONE, "MULTI-ZONE (ext IDs)" },
     { GVSP_EXTENDED_ID_BIT | GVSP_PACKET_PAYLOAD_MULTIPART, "MULTI-PART (ext IDs)" },
     { GVSP_EXTENDED_ID_BIT | GVSP_PACKET_PAYLOAD_GENDC,     "GENDC (ext IDs)" },
-    { 0, NULL },
+    { 0, NULL }
 };
 
 static const value_string payloadtypenames[] = {
@@ -542,7 +568,7 @@ static const value_string payloadtypenames[] = {
     { GVSP_EXTENDED_CHUNK_BIT | GVSP_PAYLOAD_H264,              "H264 (v2.0 Chunks)" },
     { GVSP_EXTENDED_CHUNK_BIT | GVSP_PAYLOAD_MULTIZONEIMAGE,    "MULTI-ZONE IMAGE (v2.0 Chunks)" },
     { GVSP_EXTENDED_CHUNK_BIT | GVSP_PAYLOAD_MULTIPART,         "MULTI-PART (v2.0 Chunks)" },
-    { 0, NULL },
+    { 0, NULL }
 };
 
 static value_string_ext payloadtypenames_ext = VALUE_STRING_EXT_INIT(payloadtypenames);
@@ -561,282 +587,289 @@ static const value_string multipartdatatypenames[] = {
     { GVSP_MULTIPART_DATA_TYPE_JPEG,                "JPEG" },
     { GVSP_MULTIPART_DATA_TYPE_JPEG2000,            "JPEG 2000" },
     { GVSP_MULTIPART_DATA_TYPE_DEVICESPECIFIC,      "DEVICE SPECIFIC" },
-    { 0, NULL },
+    { 0, NULL }
 };
 
 static value_string_ext multipartdatatypenames_ext = VALUE_STRING_EXT_INIT(multipartdatatypenames);
 
-static const value_string pixeltypenames[] = {
-    { GVSP_PIX_MONO1P, "Monochrome 1-bit packed" },
-    { GVSP_PIX_CONFIDENCE1P, "Confidence 1-bit packed" },
-    { GVSP_PIX_MONO2P, "Monochrome 2-bit packed" },
-    { GVSP_PIX_MONO4P, "Monochrome 4-bit packed" },
-    { GVSP_PIX_BAYERGR4P, "Bayer Green-Red 4-bit packed" },
-    { GVSP_PIX_BAYERRG4P, "Bayer Red-Green 4-bit packed" },
-    { GVSP_PIX_BAYERGB4P, "Bayer Green-Blue 4-bit packed" },
-    { GVSP_PIX_BAYERBG4P, "Bayer Blue-Green 4-bit packed" },
-    { GVSP_PIX_MONO8, "Monochrome 8-bit" },
-    { GVSP_PIX_MONO8S, "Monochrome 8-bit signed" },
-    { GVSP_PIX_BAYERGR8, "Bayer Green-Red 8-bit" },
-    { GVSP_PIX_BAYERRG8, "Bayer Red-Green 8-bit" },
-    { GVSP_PIX_BAYERGB8, "Bayer Green-Blue 8-bit" },
-    { GVSP_PIX_BAYERBG8, "Bayer Blue-Green 8-bit" },
-    { GVSP_PIX_SCF1WBWG8, "Sparse Color Filter #1 White-Blue-White-Green 8-bit" },
-    { GVSP_PIX_SCF1WGWB8, "Sparse Color Filter #1 White-Green-White-Blue 8-bit" },
-    { GVSP_PIX_SCF1WGWR8, "Sparse Color Filter #1 White-Green-White-Red 8-bit" },
-    { GVSP_PIX_SCF1WRWG8, "Sparse Color Filter #1 White-Red-White-Green 8-bit" },
-    { GVSP_PIX_COORD3D_A8, "3D coordinate A 8-bit" },
-    { GVSP_PIX_COORD3D_B8, "3D coordinate B 8-bit" },
-    { GVSP_PIX_COORD3D_C8, "3D coordinate C 8-bit" },
-    { GVSP_PIX_CONFIDENCE1, "Confidence 1-bit unpacked" },
-    { GVSP_PIX_CONFIDENCE8, "Confidence 8-bit" },
-    { GVSP_PIX_R8, "Red 8-bit" },
-    { GVSP_PIX_G8, "Green 8-bit" },
-    { GVSP_PIX_B8, "Blue 8-bit" },
-    { GVSP_PIX_DATA8, "Data 8-bit" },
-    { GVSP_PIX_DATA8S, "Data 8-bit signed" },
-    { GVSP_PIX_MONO10P, "Monochrome 10-bit packed" },
-    { GVSP_PIX_BAYERBG10P, "Bayer Blue-Green 10-bit packed" },
-    { GVSP_PIX_BAYERGB10P, "Bayer Green-Blue 10-bit packed" },
-    { GVSP_PIX_BAYERGR10P, "Bayer Green-Red 10-bit packed" },
-    { GVSP_PIX_BAYERRG10P, "Bayer Red-Green 10-bit packed" },
-    { GVSP_PIX_SCF1WBWG10P, "Sparse Color Filter #1 White-Blue-White-Green 10-bit packed" },
-    { GVSP_PIX_SCF1WGWB10P, "Sparse Color Filter #1 White-Green-White-Blue 10-bit packed" },
-    { GVSP_PIX_SCF1WGWR10P, "Sparse Color Filter #1 White-Green-White-Red 10-bit packed" },
-    { GVSP_PIX_SCF1WRWG10P, "Sparse Color Filter #1 White-Red-White-Green 10-bit packed" },
-    { GVSP_PIX_R10, "Red 10-bit" },
-    { GVSP_PIX_G10, "Green 10-bit" },
-    { GVSP_PIX_B10, "Blue 10-bit" },
-    { GVSP_PIX_COORD3D_A10P, "3D coordinate A 10-bit packed" },
-    { GVSP_PIX_COORD3D_B10P, "3D coordinate B 10-bit packed" },
-    { GVSP_PIX_COORD3D_C10P, "3D coordinate C 10-bit packed" },
-    { GVSP_PIX_MONO10PACKED, "GigE Vision specific format, Monochrome 10-bit packed" },
-    { GVSP_PIX_MONO12PACKED, "GigE Vision specific format, Monochrome 12-bit packed" },
-    { GVSP_PIX_BAYERGR10PACKED, "GigE Vision specific format, Bayer Green-Red 10-bit packed" },
-    { GVSP_PIX_BAYERRG10PACKED, "GigE Vision specific format, Bayer Red-Green 10-bit packed" },
-    { GVSP_PIX_BAYERGB10PACKED, "GigE Vision specific format, Bayer Green-Blue 10-bit packed" },
-    { GVSP_PIX_BAYERBG10PACKED, "GigE Vision specific format, Bayer Blue-Green 10-bit packed" },
-    { GVSP_PIX_BAYERGR12PACKED, "GigE Vision specific format, Bayer Green-Red 12-bit packed" },
-    { GVSP_PIX_BAYERRG12PACKED, "GigE Vision specific format, Bayer Red-Green 12-bit packed" },
-    { GVSP_PIX_BAYERGB12PACKED, "GigE Vision specific format, Bayer Green-Blue 12-bit packed" },
-    { GVSP_PIX_BAYERBG12PACKED, "GigE Vision specific format, Bayer Blue-Green 12-bit packed" },
-    { GVSP_PIX_MONO12P, "Monochrome 12-bit packed" },
-    { GVSP_PIX_BAYERBG12P, "Bayer Blue-Green 12-bit packed" },
-    { GVSP_PIX_BAYERGB12P, "Bayer Green-Blue 12-bit packed" },
-    { GVSP_PIX_BAYERGR12P, "Bayer Green-Red 12-bit packed" },
-    { GVSP_PIX_BAYERRG12P, "Bayer Red-Green 12-bit packed" },
-    { GVSP_PIX_SCF1WBWG12P, "Sparse Color Filter #1 White-Blue-White-Green 12-bit packed" },
-    { GVSP_PIX_SCF1WGWB12P, "Sparse Color Filter #1 White-Green-White-Blue 12-bit packed" },
-    { GVSP_PIX_SCF1WGWR12P, "Sparse Color Filter #1 White-Green-White-Red 12-bit packed" },
-    { GVSP_PIX_SCF1WRWG12P, "Sparse Color Filter #1 White-Red-White-Green 12-bit packed" },
-    { GVSP_PIX_R12, "Red 12-bit" },
-    { GVSP_PIX_G12, "Green 12-bit" },
-    { GVSP_PIX_B12, "Blue 12-bit" },
-    { GVSP_PIX_COORD3D_A12P, "3D coordinate A 12-bit packed" },
-    { GVSP_PIX_COORD3D_B12P, "3D coordinate B 12-bit packed" },
-    { GVSP_PIX_COORD3D_C12P, "3D coordinate C 12-bit packed" },
-    { GVSP_PIX_MONO14P, "Monochrome 14-bit packed" },
-    { GVSP_PIX_BAYERGR14P, "Bayer Green-Red 14-bit packed" },
-    { GVSP_PIX_BAYERRG14P, "Bayer Red-Green 14-bit packed" },
-    { GVSP_PIX_BAYERGB14P, "Bayer Green-Blue 14-bit packed" },
-    { GVSP_PIX_BAYERBG14P, "Bayer Blue-Green 14-bit packed" },
-    { GVSP_PIX_MONO10, "Monochrome 10-bit unpacked" },
-    { GVSP_PIX_MONO12, "Monochrome 12-bit unpacked" },
-    { GVSP_PIX_MONO16, "Monochrome 16-bit" },
-    { GVSP_PIX_BAYERGR10, "Bayer Green-Red 10-bit unpacked" },
-    { GVSP_PIX_BAYERRG10, "Bayer Red-Green 10-bit unpacked" },
-    { GVSP_PIX_BAYERGB10, "Bayer Green-Blue 10-bit unpacked" },
-    { GVSP_PIX_BAYERBG10, "Bayer Blue-Green 10-bit unpacked" },
-    { GVSP_PIX_BAYERGR12, "Bayer Green-Red 12-bit unpacked" },
-    { GVSP_PIX_BAYERRG12, "Bayer Red-Green 12-bit unpacked" },
-    { GVSP_PIX_BAYERGB12, "Bayer Green-Blue 12-bit unpacked" },
-    { GVSP_PIX_BAYERBG12, "Bayer Blue-Green 12-bit unpacked" },
-    { GVSP_PIX_MONO14, "Monochrome 14-bit unpacked" },
-    { GVSP_PIX_BAYERGR16, "Bayer Green-Red 16-bit" },
-    { GVSP_PIX_BAYERRG16, "Bayer Red-Green 16-bit" },
-    { GVSP_PIX_BAYERGB16, "Bayer Green-Blue 16-bit" },
-    { GVSP_PIX_BAYERBG16, "Bayer Blue-Green 16-bit" },
-    { GVSP_PIX_SCF1WBWG10, "Sparse Color Filter #1 White-Blue-White-Green 10-bit unpacked" },
-    { GVSP_PIX_SCF1WBWG12, "Sparse Color Filter #1 White-Blue-White-Green 12-bit unpacked" },
-    { GVSP_PIX_SCF1WBWG14, "Sparse Color Filter #1 White-Blue-White-Green 14-bit unpacked" },
-    { GVSP_PIX_SCF1WBWG16, "Sparse Color Filter #1 White-Blue-White-Green 16-bit unpacked" },
-    { GVSP_PIX_SCF1WGWB10, "Sparse Color Filter #1 White-Green-White-Blue 10-bit unpacked" },
-    { GVSP_PIX_SCF1WGWB12, "Sparse Color Filter #1 White-Green-White-Blue 12-bit unpacked" },
-    { GVSP_PIX_SCF1WGWB14, "Sparse Color Filter #1 White-Green-White-Blue 14-bit unpacked" },
-    { GVSP_PIX_SCF1WGWB16, "Sparse Color Filter #1 White-Green-White-Blue 16-bit" },
-    { GVSP_PIX_SCF1WGWR10, "Sparse Color Filter #1 White-Green-White-Red 10-bit unpacked" },
-    { GVSP_PIX_SCF1WGWR12, "Sparse Color Filter #1 White-Green-White-Red 12-bit unpacked" },
-    { GVSP_PIX_SCF1WGWR14, "Sparse Color Filter #1 White-Green-White-Red 14-bit unpacked" },
-    { GVSP_PIX_SCF1WGWR16, "Sparse Color Filter #1 White-Green-White-Red 16-bit" },
-    { GVSP_PIX_SCF1WRWG10, "Sparse Color Filter #1 White-Red-White-Green 10-bit unpacked" },
-    { GVSP_PIX_SCF1WRWG12, "Sparse Color Filter #1 White-Red-White-Green 12-bit unpacked" },
-    { GVSP_PIX_SCF1WRWG14, "Sparse Color Filter #1 White-Red-White-Green 14-bit unpacked" },
-    { GVSP_PIX_SCF1WRWG16, "Sparse Color Filter #1 White-Red-White-Green 16-bit" },
-    { GVSP_PIX_COORD3D_A16, "3D coordinate A 16-bit" },
-    { GVSP_PIX_COORD3D_B16, "3D coordinate B 16-bit" },
-    { GVSP_PIX_COORD3D_C16, "3D coordinate C 16-bit" },
-    { GVSP_PIX_CONFIDENCE16, "Confidence 16-bit" },
-    { GVSP_PIX_R16, "Red 16-bit" },
-    { GVSP_PIX_G16, "Green 16-bit" },
-    { GVSP_PIX_B16, "Blue 16-bit" },
-    { GVSP_PIX_BAYERGR14, "Bayer Green-Red 14-bit unpacked" },
-    { GVSP_PIX_BAYERRG14, "Bayer Red-Green 14-bit unpacked" },
-    { GVSP_PIX_BAYERGB14, "Bayer Green-Blue 14-bit unpacked" },
-    { GVSP_PIX_BAYERBG14, "Bayer Blue-Green 14-bit unpacked" },
-    { GVSP_PIX_DATA16, "Data 16-bit" },
-    { GVSP_PIX_DATA16S, "Data 16-bit signed" },
-    { GVSP_PIX_COORD3D_A32F, "3D coordinate A 32-bit floating point" },
-    { GVSP_PIX_COORD3D_B32F, "3D coordinate B 32-bit floating point" },
-    { GVSP_PIX_COORD3D_C32F, "3D coordinate C 32-bit floating point" },
-    { GVSP_PIX_CONFIDENCE32F, "Confidence 32-bit floating point" },
-    { GVSP_PIX_MONO32, "Monochrome 32-bit unpacked" },
-    { GVSP_PIX_DATA32, "Data 32-bit" },
-    { GVSP_PIX_DATA32S, "Data 32-bit signed" },
-    { GVSP_PIX_DATA32F, "Data 32-bit floating point" },
-    { GVSP_PIX_DATA64, "Data 64-bit" },
-    { GVSP_PIX_DATA64S, "Data 64-bit signed" },
-    { GVSP_PIX_DATA64F, "Data 64-bit floating point" },
-    { GVSP_PIX_YUV411_8_UYYVYY, "YUV 4:1:1 8-bit" },
-    { GVSP_PIX_YCBCR411_8_CBYYCRYY, "YCbCr 4:1:1 8-bit" },
-    { GVSP_PIX_YCBCR601_411_8_CBYYCRYY, "YCbCr 4:1:1 8-bit BT.601" },
-    { GVSP_PIX_YCBCR709_411_8_CBYYCRYY, "YCbCr 4:1:1 8-bit BT.709" },
-    { GVSP_PIX_YCBCR411_8, "YCbCr 4:1:1 8-bit" },
-    { GVSP_PIX_YCBCR2020_411_8_CBYYCRYY, "YCbCr 4:1:1 8-bit BT.2020" },
-    { GVSP_PIX_YCBCR420_8_YY_CBCR_SEMIPLANAR, "YCbCr 4:2:0 8-bit YY/CbCr Semiplanar" },
-    { GVSP_PIX_YCBCR420_8_YY_CRCB_SEMIPLANAR, "YCbCr 4:2:0 8-bit YY/CrCb Semiplanar" },
-    { GVSP_PIX_YUV422_8_UYVY, "YUV 4:2:2 8-bit" },
-    { GVSP_PIX_YUV422_8, "YUV 4:2:2 8-bit" },
-    { GVSP_PIX_RGB565P, "Red-Green-Blue 5/6/5-bit packed" },
-    { GVSP_PIX_BGR565P, "Blue-Green-Red 5/6/5-bit packed" },
-    { GVSP_PIX_YCBCR422_8, "YCbCr 4:2:2 8-bit" },
-    { GVSP_PIX_YCBCR601_422_8, "YCbCr 4:2:2 8-bit BT.601" },
-    { GVSP_PIX_YCBCR709_422_8, "YCbCr 4:2:2 8-bit BT.709" },
-    { GVSP_PIX_YCBCR422_8_CBYCRY, "YCbCr 4:2:2 8-bit" },
-    { GVSP_PIX_YCBCR601_422_8_CBYCRY, "YCbCr 4:2:2 8-bit BT.601" },
-    { GVSP_PIX_YCBCR709_422_8_CBYCRY, "YCbCr 4:2:2 8-bit BT.709" },
-    { GVSP_PIX_BICOLORRGBG8, "Bi-color Red/Green - Blue/Green 8-bit" },
-    { GVSP_PIX_BICOLORBGRG8, "Bi-color Blue/Green - Red/Green 8-bit" },
-    { GVSP_PIX_COORD3D_AC8, "3D coordinate A-C 8-bit" },
-    { GVSP_PIX_COORD3D_AC8_PLANAR, "3D coordinate A-C 8-bit planar" },
-    { GVSP_PIX_YCBCR2020_422_8, "YCbCr 4:2:2 8-bit BT.2020" },
-    { GVSP_PIX_YCBCR2020_422_8_CBYCRY, "YCbCr 4:2:2 8-bit BT.2020" },
-    { GVSP_PIX_YCBCR422_8_YY_CBCR_SEMIPLANAR, "YCbCr 4:2:2 8-bit YY/CbCr Semiplanar" },
-    { GVSP_PIX_YCBCR422_8_YY_CRCB_SEMIPLANAR, "YCbCr 4:2:2 8-bit YY/CrCb Semiplanar" },
-    { GVSP_PIX_YCBCR422_10P, "YCbCr 4:2:2 10-bit packed" },
-    { GVSP_PIX_YCBCR601_422_10P, "YCbCr 4:2:2 10-bit packed BT.601" },
-    { GVSP_PIX_YCBCR709_422_10P, "YCbCr 4:2:2 10-bit packed BT.709" },
-    { GVSP_PIX_YCBCR422_10P_CBYCRY, "YCbCr 4:2:2 10-bit packed" },
-    { GVSP_PIX_YCBCR601_422_10P_CBYCRY, "YCbCr 4:2:2 10-bit packed BT.601" },
-    { GVSP_PIX_YCBCR709_422_10P_CBYCRY, "YCbCr 4:2:2 10-bit packed BT.709" },
-    { GVSP_PIX_BICOLORRGBG10P, "Bi-color Red/Green - Blue/Green 10-bit packed" },
-    { GVSP_PIX_BICOLORBGRG10P, "Bi-color Blue/Green - Red/Green 10-bit packed" },
-    { GVSP_PIX_COORD3D_AC10P, "3D coordinate A-C 10-bit packed" },
-    { GVSP_PIX_COORD3D_AC10P_PLANAR, "3D coordinate A-C 10-bit packed planar" },
-    { GVSP_PIX_YCBCR2020_422_10P, "YCbCr 4:2:2 10-bit packed BT.2020" },
-    { GVSP_PIX_YCBCR2020_422_10P_CBYCRY, "YCbCr 4:2:2 10-bit packed BT.2020" },
-    { GVSP_PIX_RGB8, "Red-Green-Blue 8-bit" },
-    { GVSP_PIX_BGR8, "Blue-Green-Red 8-bit" },
-    { GVSP_PIX_YUV8_UYV, "YUV 4:4:4 8-bit" },
-    { GVSP_PIX_RGB8_PLANAR, "Red-Green-Blue 8-bit planar" },
-    { GVSP_PIX_YCBCR8_CBYCR, "YCbCr 4:4:4 8-bit" },
-    { GVSP_PIX_YCBCR601_8_CBYCR, "YCbCr 4:4:4 8-bit BT.601" },
-    { GVSP_PIX_YCBCR709_8_CBYCR, "YCbCr 4:4:4 8-bit BT.709" },
-    { GVSP_PIX_YCBCR8, "YCbCr 4:4:4 8-bit" },
-    { GVSP_PIX_YCBCR422_12P, "YCbCr 4:2:2 12-bit packed" },
-    { GVSP_PIX_YCBCR601_422_12P, "YCbCr 4:2:2 12-bit packed BT.601" },
-    { GVSP_PIX_YCBCR709_422_12P, "YCbCr 4:2:2 12-bit packed BT.709" },
-    { GVSP_PIX_YCBCR422_12P_CBYCRY, "YCbCr 4:2:2 12-bit packed" },
-    { GVSP_PIX_YCBCR601_422_12P_CBYCRY, "YCbCr 4:2:2 12-bit packed BT.601" },
-    { GVSP_PIX_YCBCR709_422_12P_CBYCRY, "YCbCr 4:2:2 12-bit packed BT.709" },
-    { GVSP_PIX_BICOLORRGBG12P, "Bi-color Red/Green - Blue/Green 12-bit packed" },
-    { GVSP_PIX_BICOLORBGRG12P, "Bi-color Blue/Green - Red/Green 12-bit packed" },
-    { GVSP_PIX_COORD3D_ABC8, "3D coordinate A-B-C 8-bit" },
-    { GVSP_PIX_COORD3D_ABC8_PLANAR, "3D coordinate A-B-C 8-bit planar" },
-    { GVSP_PIX_COORD3D_AC12P, "3D coordinate A-C 12-bit packed" },
-    { GVSP_PIX_COORD3D_AC12P_PLANAR, "3D coordinate A-C 12-bit packed planar" },
-    { GVSP_PIX_YCBCR2020_8_CBYCR, "YCbCr 4:4:4 8-bit BT.2020" },
-    { GVSP_PIX_YCBCR2020_422_12, "YCbCr 4:2:2 12-bit unpacked BT.2020" },
-    { GVSP_PIX_YCBCR2020_422_12_CBYCRY, "YCbCr 4:2:2 12-bit unpacked BT.2020" },
-    { GVSP_PIX_YCBCR2020_422_12P, "YCbCr 4:2:2 12-bit packed BT.2020" },
-    { GVSP_PIX_YCBCR2020_422_12P_CBYCRY, "YCbCr 4:2:2 12-bit packed BT.2020" },
-    { GVSP_PIX_BGR10P, "Blue-Green-Red 10-bit packed" },
-    { GVSP_PIX_RGB10P, "Red-Green-Blue 10-bit packed" },
-    { GVSP_PIX_YCBCR10P_CBYCR, "YCbCr 4:4:4 10-bit packed" },
-    { GVSP_PIX_YCBCR601_10P_CBYCR, "YCbCr 4:4:4 10-bit packed BT.601" },
-    { GVSP_PIX_YCBCR709_10P_CBYCR, "YCbCr 4:4:4 10-bit packed BT.709" },
-    { GVSP_PIX_COORD3D_ABC10P, "3D coordinate A-B-C 10-bit packed" },
-    { GVSP_PIX_COORD3D_ABC10P_PLANAR, "3D coordinate A-B-C 10-bit packed planar" },
-    { GVSP_PIX_YCBCR2020_10P_CBYCR, "YCbCr 4:4:4 10-bit packed BT.2020" },
-    { GVSP_PIX_RGBA8, "Red-Green-Blue-alpha 8-bit" },
-    { GVSP_PIX_BGRA8, "Blue-Green-Red-alpha 8-bit" },
-    { GVSP_PIX_RGB10V1PACKED, "GigE Vision specific format, Red-Green-Blue 10-bit packed - variant 1" },
-    { GVSP_PIX_RGB10P32, "Red-Green-Blue 10-bit packed into 32-bit" },
-    { GVSP_PIX_YCBCR422_10, "YCbCr 4:2:2 10-bit unpacked" },
-    { GVSP_PIX_YCBCR422_12, "YCbCr 4:2:2 12-bit unpacked" },
-    { GVSP_PIX_YCBCR601_422_10, "YCbCr 4:2:2 10-bit unpacked BT.601" },
-    { GVSP_PIX_YCBCR601_422_12, "YCbCr 4:2:2 12-bit unpacked BT.601" },
-    { GVSP_PIX_YCBCR709_422_10, "YCbCr 4:2:2 10-bit unpacked BT.709" },
-    { GVSP_PIX_YCBCR709_422_12, "YCbCr 4:2:2 12-bit unpacked BT.709" },
-    { GVSP_PIX_YCBCR422_10_CBYCRY, "YCbCr 4:2:2 10-bit unpacked" },
-    { GVSP_PIX_YCBCR422_12_CBYCRY, "YCbCr 4:2:2 12-bit unpacked" },
-    { GVSP_PIX_YCBCR601_422_10_CBYCRY, "YCbCr 4:2:2 10-bit unpacked BT.601" },
-    { GVSP_PIX_YCBCR601_422_12_CBYCRY, "YCbCr 4:2:2 12-bit unpacked BT.601" },
-    { GVSP_PIX_YCBCR709_422_10_CBYCRY, "YCbCr 4:2:2 10-bit unpacked BT.709" },
-    { GVSP_PIX_YCBCR709_422_12_CBYCRY, "YCbCr 4:2:2 12-bit unpacked BT.709" },
-    { GVSP_PIX_BICOLORRGBG10, "Bi-color Red/Green - Blue/Green 10-bit unpacked" },
-    { GVSP_PIX_BICOLORBGRG10, "Bi-color Blue/Green - Red/Green 10-bit unpacked" },
-    { GVSP_PIX_BICOLORRGBG12, "Bi-color Red/Green - Blue/Green 12-bit unpacked" },
-    { GVSP_PIX_BICOLORBGRG12, "Bi-color Blue/Green - Red/Green 12-bit unpacked" },
-    { GVSP_PIX_COORD3D_AC16, "3D coordinate A-C 16-bit" },
-    { GVSP_PIX_COORD3D_AC16_PLANAR, "3D coordinate A-C 16-bit planar" },
-    { GVSP_PIX_YCBCR2020_422_10, "YCbCr 4:2:2 10-bit unpacked BT.2020" },
-    { GVSP_PIX_YCBCR2020_422_10_CBYCRY, "YCbCr 4:2:2 10-bit unpacked BT.2020" },
-    { GVSP_PIX_RGB12V1PACKED, "GigE Vision specific format, Red-Green-Blue 12-bit packed - variant 1" },
-    { GVSP_PIX_BGR12P, "Blue-Green-Red 12-bit packed" },
-    { GVSP_PIX_RGB12P, "Red-Green-Blue 12-bit packed" },
-    { GVSP_PIX_YCBCR12P_CBYCR, "YCbCr 4:4:4 12-bit packed" },
-    { GVSP_PIX_YCBCR601_12P_CBYCR, "YCbCr 4:4:4 12-bit packed BT.601" },
-    { GVSP_PIX_YCBCR709_12P_CBYCR, "YCbCr 4:4:4 12-bit packed BT.709" },
-    { GVSP_PIX_COORD3D_ABC12P, "3D coordinate A-B-C 12-bit packed" },
-    { GVSP_PIX_COORD3D_ABC12P_PLANAR, "3D coordinate A-B-C 12-bit packed planar" },
-    { GVSP_PIX_YCBCR2020_12P_CBYCR, "YCbCr 4:4:4 12-bit packed BT.2020" },
-    { GVSP_PIX_BGRA10P, "Blue-Green-Red-alpha 10-bit packed" },
-    { GVSP_PIX_RGBA10P, "Red-Green-Blue-alpha 10-bit packed" },
-    { GVSP_PIX_RGB10, "Red-Green-Blue 10-bit unpacked" },
-    { GVSP_PIX_BGR10, "Blue-Green-Red 10-bit unpacked" },
-    { GVSP_PIX_RGB12, "Red-Green-Blue 12-bit unpacked" },
-    { GVSP_PIX_BGR12, "Blue-Green-Red 12-bit unpacked" },
-    { GVSP_PIX_RGB10_PLANAR, "Red-Green-Blue 10-bit unpacked planar" },
-    { GVSP_PIX_RGB12_PLANAR, "Red-Green-Blue 12-bit unpacked planar" },
-    { GVSP_PIX_RGB16_PLANAR, "Red-Green-Blue 16-bit planar" },
-    { GVSP_PIX_RGB16, "Red-Green-Blue 16-bit" },
-    { GVSP_PIX_BGR14, "Blue-Green-Red 14-bit unpacked" },
-    { GVSP_PIX_BGR16, "Blue-Green-Red 16-bit" },
-    { GVSP_PIX_BGRA12P, "Blue-Green-Red-alpha 12-bit packed" },
-    { GVSP_PIX_RGB14, "Red-Green-Blue 14-bit unpacked" },
-    { GVSP_PIX_RGBA12P, "Red-Green-Blue-alpha 12-bit packed" },
-    { GVSP_PIX_YCBCR10_CBYCR, "YCbCr 4:4:4 10-bit unpacked" },
-    { GVSP_PIX_YCBCR12_CBYCR, "YCbCr 4:4:4 12-bit unpacked" },
-    { GVSP_PIX_YCBCR601_10_CBYCR, "YCbCr 4:4:4 10-bit unpacked BT.601" },
-    { GVSP_PIX_YCBCR601_12_CBYCR, "YCbCr 4:4:4 12-bit unpacked BT.601" },
-    { GVSP_PIX_YCBCR709_10_CBYCR, "YCbCr 4:4:4 10-bit unpacked BT.709" },
-    { GVSP_PIX_YCBCR709_12_CBYCR, "YCbCr 4:4:4 12-bit unpacked BT.709" },
-    { GVSP_PIX_COORD3D_ABC16, "3D coordinate A-B-C 16-bit" },
-    { GVSP_PIX_COORD3D_ABC16_PLANAR, "3D coordinate A-B-C 16-bit planar" },
-    { GVSP_PIX_YCBCR2020_10_CBYCR, "YCbCr 4:4:4 10-bit unpacked BT.2020" },
-    { GVSP_PIX_YCBCR2020_12_CBYCR, "YCbCr 4:4:4 12-bit unpacked BT.2020" },
-    { GVSP_PIX_BGRA10, "Blue-Green-Red-alpha 10-bit unpacked" },
-    { GVSP_PIX_BGRA12, "Blue-Green-Red-alpha 12-bit unpacked" },
-    { GVSP_PIX_BGRA14, "Blue-Green-Red-alpha 14-bit unpacked" },
-    { GVSP_PIX_BGRA16, "Blue-Green-Red-alpha 16-bit" },
-    { GVSP_PIX_RGBA10, "Red-Green-Blue-alpha 10-bit unpacked" },
-    { GVSP_PIX_RGBA12, "Red-Green-Blue-alpha 12-bit unpacked" },
-    { GVSP_PIX_RGBA14, "Red-Green-Blue-alpha 14-bit unpacked" },
-    { GVSP_PIX_RGBA16, "Red-Green-Blue-alpha 16-bit" },
-    { GVSP_PIX_COORD3D_AC32F, "3D coordinate A-C 32-bit floating point" },
-    { GVSP_PIX_COORD3D_AC32F_PLANAR, "3D coordinate A-C 32-bit floating point planar" },
-    { GVSP_PIX_COORD3D_ABC32F, "3D coordinate A-B-C 32-bit floating point" },
-    { GVSP_PIX_COORD3D_ABC32F_PLANAR, "3D coordinate A-B-C 32-bit floating point planar" },
+static const value_string pixeltypenames[] =
+{
+    { GVSP_PIX_MONO1P, "Mono1p (Monochrome 1-bit packed)" },
+    { GVSP_PIX_CONFIDENCE1P, "Confidence1p (Confidence 1-bit packed)" },
+    { GVSP_PIX_MONO2P, "Mono2p (Monochrome 2-bit packed)" },
+    { GVSP_PIX_MONO4P, "Mono4p (Monochrome 4-bit packed)" },
+    { GVSP_PIX_BAYERGR4P, "BayerGR4p (Bayer Green-Red 4-bit packed)" },
+    { GVSP_PIX_BAYERRG4P, "BayerRG4p (Bayer Red-Green 4-bit packed)" },
+    { GVSP_PIX_BAYERGB4P, "BayerGB4p (Bayer Green-Blue 4-bit packed)" },
+    { GVSP_PIX_BAYERBG4P, "BayerBG4p (Bayer Blue-Green 4-bit packed)" },
+    { GVSP_PIX_MONO8, "Mono8 (Monochrome 8-bit)" },
+    { GVSP_PIX_MONO8S, "Mono8s (Monochrome 8-bit signed)" },
+    { GVSP_PIX_BAYERGR8, "BayerGR8 (Bayer Green-Red 8-bit)" },
+    { GVSP_PIX_BAYERRG8, "BayerRG8 (Bayer Red-Green 8-bit)" },
+    { GVSP_PIX_BAYERGB8, "BayerGB8 (Bayer Green-Blue 8-bit)" },
+    { GVSP_PIX_BAYERBG8, "BayerBG8 (Bayer Blue-Green 8-bit)" },
+    { GVSP_PIX_SCF1WBWG8, "SCF1WBWG8 (Sparse Color Filter #1 White-Blue-White-Green 8-bit)" },
+    { GVSP_PIX_SCF1WGWB8, "SCF1WGWB8 (Sparse Color Filter #1 White-Green-White-Blue 8-bit)" },
+    { GVSP_PIX_SCF1WGWR8, "SCF1WGWR8 (Sparse Color Filter #1 White-Green-White-Red 8-bit)" },
+    { GVSP_PIX_SCF1WRWG8, "SCF1WRWG8 (Sparse Color Filter #1 White-Red-White-Green 8-bit)" },
+    { GVSP_PIX_COORD3D_A8, "Coord3D_A8 (3D coordinate A 8-bit)" },
+    { GVSP_PIX_COORD3D_B8, "Coord3D_B8 (3D coordinate B 8-bit)" },
+    { GVSP_PIX_COORD3D_C8, "Coord3D_C8 (3D coordinate C 8-bit)" },
+    { GVSP_PIX_CONFIDENCE1, "Confidence1 (Confidence 1-bit unpacked)" },
+    { GVSP_PIX_CONFIDENCE8, "Confidence8 (Confidence 8-bit)" },
+    { GVSP_PIX_R8, "R8 (Red 8-bit)" },
+    { GVSP_PIX_G8, "G8 (Green 8-bit)" },
+    { GVSP_PIX_B8, "B8 (Blue 8-bit)" },
+    { GVSP_PIX_DATA8, "Data8 (Data 8-bit)" },
+    { GVSP_PIX_DATA8S, "Data8s (Data 8-bit signed)" },
+    { GVSP_PIX_MONO10P, "Mono10p (Monochrome 10-bit packed)" },
+    { GVSP_PIX_BAYERBG10P, "BayerBG10p (Bayer Blue-Green 10-bit packed)" },
+    { GVSP_PIX_BAYERGB10P, "BayerGB10p (Bayer Green-Blue 10-bit packed)" },
+    { GVSP_PIX_BAYERGR10P, "BayerGR10p (Bayer Green-Red 10-bit packed)" },
+    { GVSP_PIX_BAYERRG10P, "BayerRG10p (Bayer Red-Green 10-bit packed)" },
+    { GVSP_PIX_SCF1WBWG10P, "SCF1WBWG10p (Sparse Color Filter #1 White-Blue-White-Green 10-bit packed)" },
+    { GVSP_PIX_SCF1WGWB10P, "SCF1WGWB10p (Sparse Color Filter #1 White-Green-White-Blue 10-bit packed)" },
+    { GVSP_PIX_SCF1WGWR10P, "SCF1WGWR10p (Sparse Color Filter #1 White-Green-White-Red 10-bit packed)" },
+    { GVSP_PIX_SCF1WRWG10P, "SCF1WRWG10p (Sparse Color Filter #1 White-Red-White-Green 10-bit packed)" },
+    { GVSP_PIX_R10_DEPRECATED, "R10_Deprecated (Deprecated because size field is wrong)" },
+    { GVSP_PIX_G10_DEPRECATED, "G10_Deprecated (Deprecated because size field is wrong)" },
+    { GVSP_PIX_B10_DEPRECATED, "B10_Deprecated (Deprecated because size field is wrong)" },
+    { GVSP_PIX_COORD3D_A10P, "Coord3D_A10p (3D coordinate A 10-bit packed)" },
+    { GVSP_PIX_COORD3D_B10P, "Coord3D_B10p (3D coordinate B 10-bit packed)" },
+    { GVSP_PIX_COORD3D_C10P, "Coord3D_C10p (3D coordinate C 10-bit packed)" },
+    { GVSP_PIX_MONO10PACKED, "GVSP_Mono10Packed (GigE Vision specific format, Monochrome 10-bit packed)" },
+    { GVSP_PIX_MONO12PACKED, "GVSP_Mono12Packed (GigE Vision specific format, Monochrome 12-bit packed)" },
+    { GVSP_PIX_BAYERGR10PACKED, "GVSP_BayerGR10Packed (GigE Vision specific format, Bayer Green-Red 10-bit packed)" },
+    { GVSP_PIX_BAYERRG10PACKED, "GVSP_BayerRG10Packed (GigE Vision specific format, Bayer Red-Green 10-bit packed)" },
+    { GVSP_PIX_BAYERGB10PACKED, "GVSP_BayerGB10Packed (GigE Vision specific format, Bayer Green-Blue 10-bit packed)" },
+    { GVSP_PIX_BAYERBG10PACKED, "GVSP_BayerBG10Packed (GigE Vision specific format, Bayer Blue-Green 10-bit packed)" },
+    { GVSP_PIX_BAYERGR12PACKED, "GVSP_BayerGR12Packed (GigE Vision specific format, Bayer Green-Red 12-bit packed)" },
+    { GVSP_PIX_BAYERRG12PACKED, "GVSP_BayerRG12Packed (GigE Vision specific format, Bayer Red-Green 12-bit packed)" },
+    { GVSP_PIX_BAYERGB12PACKED, "GVSP_BayerGB12Packed (GigE Vision specific format, Bayer Green-Blue 12-bit packed)" },
+    { GVSP_PIX_BAYERBG12PACKED, "GVSP_BayerBG12Packed (GigE Vision specific format, Bayer Blue-Green 12-bit packed)" },
+    { GVSP_PIX_MONO12P, "Mono12p (Monochrome 12-bit packed)" },
+    { GVSP_PIX_BAYERBG12P, "BayerBG12p (Bayer Blue-Green 12-bit packed)" },
+    { GVSP_PIX_BAYERGB12P, "BayerGB12p (Bayer Green-Blue 12-bit packed)" },
+    { GVSP_PIX_BAYERGR12P, "BayerGR12p (Bayer Green-Red 12-bit packed)" },
+    { GVSP_PIX_BAYERRG12P, "BayerRG12p (Bayer Red-Green 12-bit packed)" },
+    { GVSP_PIX_SCF1WBWG12P, "SCF1WBWG12p (Sparse Color Filter #1 White-Blue-White-Green 12-bit packed)" },
+    { GVSP_PIX_SCF1WGWB12P, "SCF1WGWB12p (Sparse Color Filter #1 White-Green-White-Blue 12-bit packed)" },
+    { GVSP_PIX_SCF1WGWR12P, "SCF1WGWR12p (Sparse Color Filter #1 White-Green-White-Red 12-bit packed)" },
+    { GVSP_PIX_SCF1WRWG12P, "SCF1WRWG12p (Sparse Color Filter #1 White-Red-White-Green 12-bit packed)" },
+    { GVSP_PIX_R12_DEPRECATED, "R12_Deprecated (Deprecated because size field is wrong)" },
+    { GVSP_PIX_G12_DEPRECATED, "G12_Deprecated (Deprecated because size field is wrong)" },
+    { GVSP_PIX_B12_DEPRECATED, "B12_Deprecated (Deprecated because size field is wrong)" },
+    { GVSP_PIX_COORD3D_A12P, "Coord3D_A12p (3D coordinate A 12-bit packed)" },
+    { GVSP_PIX_COORD3D_B12P, "Coord3D_B12p (3D coordinate B 12-bit packed)" },
+    { GVSP_PIX_COORD3D_C12P, "Coord3D_C12p (3D coordinate C 12-bit packed)" },
+    { GVSP_PIX_MONO14P, "Mono14p (Monochrome 14-bit packed)" },
+    { GVSP_PIX_BAYERGR14P, "BayerGR14p (Bayer Green-Red 14-bit packed)" },
+    { GVSP_PIX_BAYERRG14P, "BayerRG14p (Bayer Red-Green 14-bit packed)" },
+    { GVSP_PIX_BAYERGB14P, "BayerGB14p (Bayer Green-Blue 14-bit packed)" },
+    { GVSP_PIX_BAYERBG14P, "BayerBG14p (Bayer Blue-Green 14-bit packed)" },
+    { GVSP_PIX_MONO10, "Mono10 (Monochrome 10-bit unpacked)" },
+    { GVSP_PIX_MONO12, "Mono12 (Monochrome 12-bit unpacked)" },
+    { GVSP_PIX_MONO16, "Mono16 (Monochrome 16-bit)" },
+    { GVSP_PIX_BAYERGR10, "BayerGR10 (Bayer Green-Red 10-bit unpacked)" },
+    { GVSP_PIX_BAYERRG10, "BayerRG10 (Bayer Red-Green 10-bit unpacked)" },
+    { GVSP_PIX_BAYERGB10, "BayerGB10 (Bayer Green-Blue 10-bit unpacked)" },
+    { GVSP_PIX_BAYERBG10, "BayerBG10 (Bayer Blue-Green 10-bit unpacked)" },
+    { GVSP_PIX_BAYERGR12, "BayerGR12 (Bayer Green-Red 12-bit unpacked)" },
+    { GVSP_PIX_BAYERRG12, "BayerRG12 (Bayer Red-Green 12-bit unpacked)" },
+    { GVSP_PIX_BAYERGB12, "BayerGB12 (Bayer Green-Blue 12-bit unpacked)" },
+    { GVSP_PIX_BAYERBG12, "BayerBG12 (Bayer Blue-Green 12-bit unpacked)" },
+    { GVSP_PIX_MONO14, "Mono14 (Monochrome 14-bit unpacked)" },
+    { GVSP_PIX_BAYERGR16, "BayerGR16 (Bayer Green-Red 16-bit)" },
+    { GVSP_PIX_BAYERRG16, "BayerRG16 (Bayer Red-Green 16-bit)" },
+    { GVSP_PIX_BAYERGB16, "BayerGB16 (Bayer Green-Blue 16-bit)" },
+    { GVSP_PIX_BAYERBG16, "BayerBG16 (Bayer Blue-Green 16-bit)" },
+    { GVSP_PIX_SCF1WBWG10, "SCF1WBWG10 (Sparse Color Filter #1 White-Blue-White-Green 10-bit unpacked)" },
+    { GVSP_PIX_SCF1WBWG12, "SCF1WBWG12 (Sparse Color Filter #1 White-Blue-White-Green 12-bit unpacked)" },
+    { GVSP_PIX_SCF1WBWG14, "SCF1WBWG14 (Sparse Color Filter #1 White-Blue-White-Green 14-bit unpacked)" },
+    { GVSP_PIX_SCF1WBWG16, "SCF1WBWG16 (Sparse Color Filter #1 White-Blue-White-Green 16-bit unpacked)" },
+    { GVSP_PIX_SCF1WGWB10, "SCF1WGWB10 (Sparse Color Filter #1 White-Green-White-Blue 10-bit unpacked)" },
+    { GVSP_PIX_SCF1WGWB12, "SCF1WGWB12 (Sparse Color Filter #1 White-Green-White-Blue 12-bit unpacked)" },
+    { GVSP_PIX_SCF1WGWB14, "SCF1WGWB14 (Sparse Color Filter #1 White-Green-White-Blue 14-bit unpacked)" },
+    { GVSP_PIX_SCF1WGWB16, "SCF1WGWB16 (Sparse Color Filter #1 White-Green-White-Blue 16-bit)" },
+    { GVSP_PIX_SCF1WGWR10, "SCF1WGWR10 (Sparse Color Filter #1 White-Green-White-Red 10-bit unpacked)" },
+    { GVSP_PIX_SCF1WGWR12, "SCF1WGWR12 (Sparse Color Filter #1 White-Green-White-Red 12-bit unpacked)" },
+    { GVSP_PIX_SCF1WGWR14, "SCF1WGWR14 (Sparse Color Filter #1 White-Green-White-Red 14-bit unpacked)" },
+    { GVSP_PIX_SCF1WGWR16, "SCF1WGWR16 (Sparse Color Filter #1 White-Green-White-Red 16-bit)" },
+    { GVSP_PIX_SCF1WRWG10, "SCF1WRWG10 (Sparse Color Filter #1 White-Red-White-Green 10-bit unpacked)" },
+    { GVSP_PIX_SCF1WRWG12, "SCF1WRWG12 (Sparse Color Filter #1 White-Red-White-Green 12-bit unpacked)" },
+    { GVSP_PIX_SCF1WRWG14, "SCF1WRWG14 (Sparse Color Filter #1 White-Red-White-Green 14-bit unpacked)" },
+    { GVSP_PIX_SCF1WRWG16, "SCF1WRWG16 (Sparse Color Filter #1 White-Red-White-Green 16-bit)" },
+    { GVSP_PIX_COORD3D_A16, "Coord3D_A16 (3D coordinate A 16-bit)" },
+    { GVSP_PIX_COORD3D_B16, "Coord3D_B16 (3D coordinate B 16-bit)" },
+    { GVSP_PIX_COORD3D_C16, "Coord3D_C16 (3D coordinate C 16-bit)" },
+    { GVSP_PIX_CONFIDENCE16, "Confidence16 (Confidence 16-bit)" },
+    { GVSP_PIX_R16, "R16 (Red 16-bit)" },
+    { GVSP_PIX_G16, "G16 (Green 16-bit)" },
+    { GVSP_PIX_B16, "B16 (Blue 16-bit)" },
+    { GVSP_PIX_BAYERGR14, "BayerGR14 (Bayer Green-Red 14-bit)" },
+    { GVSP_PIX_BAYERRG14, "BayerRG14 (Bayer Red-Green 14-bit)" },
+    { GVSP_PIX_BAYERGB14, "BayerGB14 (Bayer Green-Blue 14-bit)" },
+    { GVSP_PIX_BAYERBG14, "BayerBG14 (Bayer Blue-Green 14-bit)" },
+    { GVSP_PIX_DATA16, "Data16 (Data 16-bit)" },
+    { GVSP_PIX_DATA16S, "Data16s (Data 16-bit signed)" },
+    { GVSP_PIX_R10, "R10 (Red 10-bit)" },
+    { GVSP_PIX_R12, "R12 (Red 12-bit)" },
+    { GVSP_PIX_G10, "G10 (Green 10-bit)" },
+    { GVSP_PIX_G12, "G12 (Green 12-bit)" },
+    { GVSP_PIX_B10, "B10 (Blue 10-bit)" },
+    { GVSP_PIX_B12, "B12 (Blue 12-bit)" },
+    { GVSP_PIX_COORD3D_A32F, "Coord3D_A32f (3D coordinate A 32-bit floating point)" },
+    { GVSP_PIX_COORD3D_B32F, "Coord3D_B32f (3D coordinate B 32-bit floating point)" },
+    { GVSP_PIX_COORD3D_C32F, "Coord3D_C32f (3D coordinate C 32-bit floating point)" },
+    { GVSP_PIX_CONFIDENCE32F, "Confidence32f (Confidence 32-bit floating point)" },
+    { GVSP_PIX_MONO32, "Mono32 (Monochrome 32-bit)" },
+    { GVSP_PIX_DATA32, "Data32 (Data 32-bit)" },
+    { GVSP_PIX_DATA32S, "Data32s (Data 32-bit signed)" },
+    { GVSP_PIX_DATA32F, "Data32f (Data 32-bit floating point)" },
+    { GVSP_PIX_DATA64, "Data64 (Data 64-bit)" },
+    { GVSP_PIX_DATA64S, "Data64s (Data 64-bit signed)" },
+    { GVSP_PIX_DATA64F, "Data64f (Data 64-bit floating point)" },
+    { GVSP_PIX_YUV411_8_UYYVYY, "YUV411_8_UYYVYY (YUV 4:1:1 8-bit)" },
+    { GVSP_PIX_YCBCR411_8_CBYYCRYY, "YCbCr411_8_CbYYCrYY (YCbCr 4:1:1 8-bit)" },
+    { GVSP_PIX_YCBCR601_411_8_CBYYCRYY, "YCbCr601_411_8_CbYYCrYY (YCbCr 4:1:1 8-bit BT.601)" },
+    { GVSP_PIX_YCBCR709_411_8_CBYYCRYY, "YCbCr709_411_8_CbYYCrYY (YCbCr 4:1:1 8-bit BT.709)" },
+    { GVSP_PIX_YCBCR411_8, "YCbCr411_8 (YCbCr 4:1:1 8-bit)" },
+    { GVSP_PIX_YCBCR2020_411_8_CBYYCRYY, "YCbCr2020_411_8_CbYYCrYY (YCbCr 4:1:1 8-bit BT.2020)" },
+    { GVSP_PIX_YCBCR420_8_YY_CBCR_SEMIPLANAR, "YCbCr420_8_YY_CbCr_Semiplanar (YCbCr 4:2:0 8-bit YY/CbCr Semiplanar)" },
+    { GVSP_PIX_YCBCR420_8_YY_CRCB_SEMIPLANAR, "YCbCr420_8_YY_CrCb_Semiplanar (YCbCr 4:2:0 8-bit YY/CrCb Semiplanar)" },
+    { GVSP_PIX_YUV422_8_UYVY, "YUV422_8_UYVY (YUV 4:2:2 8-bit)" },
+    { GVSP_PIX_YUV422_8, "YUV422_8 (YUV 4:2:2 8-bit)" },
+    { GVSP_PIX_RGB565P, "RGB565p (Red-Green-Blue 5/6/5-bit packed)" },
+    { GVSP_PIX_BGR565P, "BGR565p (Blue-Green-Red 5/6/5-bit packed)" },
+    { GVSP_PIX_YCBCR422_8, "YCbCr422_8 (YCbCr 4:2:2 8-bit)" },
+    { GVSP_PIX_YCBCR601_422_8, "YCbCr601_422_8 (YCbCr 4:2:2 8-bit BT.601)" },
+    { GVSP_PIX_YCBCR709_422_8, "YCbCr709_422_8 (YCbCr 4:2:2 8-bit BT.709)" },
+    { GVSP_PIX_YCBCR422_8_CBYCRY, "YCbCr422_8_CbYCrY (YCbCr 4:2:2 8-bit)" },
+    { GVSP_PIX_YCBCR601_422_8_CBYCRY, "YCbCr601_422_8_CbYCrY (YCbCr 4:2:2 8-bit BT.601)" },
+    { GVSP_PIX_YCBCR709_422_8_CBYCRY, "YCbCr709_422_8_CbYCrY (YCbCr 4:2:2 8-bit BT.709)" },
+    { GVSP_PIX_BICOLORRGBG8, "BiColorRGBG8 (Bi-color Red/Green - Blue/Green 8-bit)" },
+    { GVSP_PIX_BICOLORBGRG8, "BiColorBGRG8 (Bi-color Blue/Green - Red/Green 8-bit)" },
+    { GVSP_PIX_COORD3D_AC8, "Coord3D_AC8 (3D coordinate A-C 8-bit)" },
+    { GVSP_PIX_COORD3D_AC8_PLANAR, "Coord3D_AC8_Planar (3D coordinate A-C 8-bit planar)" },
+    { GVSP_PIX_YCBCR2020_422_8, "YCbCr2020_422_8 (YCbCr 4:2:2 8-bit BT.2020)" },
+    { GVSP_PIX_YCBCR2020_422_8_CBYCRY, "YCbCr2020_422_8_CbYCrY (YCbCr 4:2:2 8-bit BT.2020)" },
+    { GVSP_PIX_YCBCR422_8_YY_CBCR_SEMIPLANAR, "YCbCr422_8_YY_CbCr_Semiplanar (YCbCr 4:2:2 8-bit YY/CbCr Semiplanar)" },
+    { GVSP_PIX_YCBCR422_8_YY_CRCB_SEMIPLANAR, "YCbCr422_8_YY_CrCb_Semiplanar (YCbCr 4:2:2 8-bit YY/CrCb Semiplanar)" },
+    { GVSP_PIX_YCBCR422_10P, "YCbCr422_10p (YCbCr 4:2:2 10-bit packed)" },
+    { GVSP_PIX_YCBCR601_422_10P, "YCbCr601_422_10p (YCbCr 4:2:2 10-bit packed BT.601)" },
+    { GVSP_PIX_YCBCR709_422_10P, "YCbCr709_422_10p (YCbCr 4:2:2 10-bit packed BT.709)" },
+    { GVSP_PIX_YCBCR422_10P_CBYCRY, "YCbCr422_10p_CbYCrY (YCbCr 4:2:2 10-bit packed)" },
+    { GVSP_PIX_YCBCR601_422_10P_CBYCRY, "YCbCr601_422_10p_CbYCrY (YCbCr 4:2:2 10-bit packed BT.601)" },
+    { GVSP_PIX_YCBCR709_422_10P_CBYCRY, "YCbCr709_422_10p_CbYCrY (YCbCr 4:2:2 10-bit packed BT.709)" },
+    { GVSP_PIX_BICOLORRGBG10P, "BiColorRGBG10p (Bi-color Red/Green - Blue/Green 10-bit packed)" },
+    { GVSP_PIX_BICOLORBGRG10P, "BiColorBGRG10p (Bi-color Blue/Green - Red/Green 10-bit packed)" },
+    { GVSP_PIX_COORD3D_AC10P, "Coord3D_AC10p (3D coordinate A-C 10-bit packed)" },
+    { GVSP_PIX_COORD3D_AC10P_PLANAR, "Coord3D_AC10p_Planar (3D coordinate A-C 10-bit packed planar)" },
+    { GVSP_PIX_YCBCR2020_422_10P, "YCbCr2020_422_10p (YCbCr 4:2:2 10-bit packed BT.2020)" },
+    { GVSP_PIX_YCBCR2020_422_10P_CBYCRY, "YCbCr2020_422_10p_CbYCrY (YCbCr 4:2:2 10-bit packed BT.2020)" },
+    { GVSP_PIX_RGB8, "RGB8 (Red-Green-Blue 8-bit)" },
+    { GVSP_PIX_BGR8, "BGR8 (Blue-Green-Red 8-bit)" },
+    { GVSP_PIX_YUV8_UYV, "YUV8_UYV (YUV 4:4:4 8-bit)" },
+    { GVSP_PIX_RGB8_PLANAR, "RGB8_Planar (Red-Green-Blue 8-bit planar)" },
+    { GVSP_PIX_YCBCR8_CBYCR, "YCbCr8_CbYCr (YCbCr 4:4:4 8-bit)" },
+    { GVSP_PIX_YCBCR601_8_CBYCR, "YCbCr601_8_CbYCr (YCbCr 4:4:4 8-bit BT.601)" },
+    { GVSP_PIX_YCBCR709_8_CBYCR, "YCbCr709_8_CbYCr (YCbCr 4:4:4 8-bit BT.709)" },
+    { GVSP_PIX_YCBCR8, "YCbCr8 (YCbCr 4:4:4 8-bit)" },
+    { GVSP_PIX_YCBCR422_12P, "YCbCr422_12p (YCbCr 4:2:2 12-bit packed)" },
+    { GVSP_PIX_YCBCR601_422_12P, "YCbCr601_422_12p (YCbCr 4:2:2 12-bit packed BT.601)" },
+    { GVSP_PIX_YCBCR709_422_12P, "YCbCr709_422_12p (YCbCr 4:2:2 12-bit packed BT.709)" },
+    { GVSP_PIX_YCBCR422_12P_CBYCRY, "YCbCr422_12p_CbYCrY (YCbCr 4:2:2 12-bit packed)" },
+    { GVSP_PIX_YCBCR601_422_12P_CBYCRY, "YCbCr601_422_12p_CbYCrY (YCbCr 4:2:2 12-bit packed BT.601)" },
+    { GVSP_PIX_YCBCR709_422_12P_CBYCRY, "YCbCr709_422_12p_CbYCrY (YCbCr 4:2:2 12-bit packed BT.709)" },
+    { GVSP_PIX_BICOLORRGBG12P, "BiColorRGBG12p (Bi-color Red/Green - Blue/Green 12-bit packed)" },
+    { GVSP_PIX_BICOLORBGRG12P, "BiColorBGRG12p (Bi-color Blue/Green - Red/Green 12-bit packed)" },
+    { GVSP_PIX_COORD3D_ABC8, "Coord3D_ABC8 (3D coordinate A-B-C 8-bit)" },
+    { GVSP_PIX_COORD3D_ABC8_PLANAR, "Coord3D_ABC8_Planar (3D coordinate A-B-C 8-bit planar)" },
+    { GVSP_PIX_COORD3D_AC12P, "Coord3D_AC12p (3D coordinate A-C 12-bit packed)" },
+    { GVSP_PIX_COORD3D_AC12P_PLANAR, "Coord3D_AC12p_Planar (3D coordinate A-C 12-bit packed planar)" },
+    { GVSP_PIX_YCBCR2020_8_CBYCR, "YCbCr2020_8_CbYCr (YCbCr 4:4:4 8-bit BT.2020)" },
+    { GVSP_PIX_YCBCR2020_422_12P, "YCbCr2020_422_12p (YCbCr 4:2:2 12-bit packed BT.2020)" },
+    { GVSP_PIX_YCBCR2020_422_12P_CBYCRY, "YCbCr2020_422_12p_CbYCrY (YCbCr 4:2:2 12-bit packed BT.2020)" },
+    { GVSP_PIX_BGR10P, "BGR10p (Blue-Green-Red 10-bit packed)" },
+    { GVSP_PIX_RGB10P, "RGB10p (Red-Green-Blue 10-bit packed)" },
+    { GVSP_PIX_YCBCR10P_CBYCR, "YCbCr10p_CbYCr (YCbCr 4:4:4 10-bit packed)" },
+    { GVSP_PIX_YCBCR601_10P_CBYCR, "YCbCr601_10p_CbYCr (YCbCr 4:4:4 10-bit packed BT.601)" },
+    { GVSP_PIX_YCBCR709_10P_CBYCR, "YCbCr709_10p_CbYCr (YCbCr 4:4:4 10-bit packed BT.709)" },
+    { GVSP_PIX_COORD3D_ABC10P, "Coord3D_ABC10p (3D coordinate A-B-C 10-bit packed)" },
+    { GVSP_PIX_COORD3D_ABC10P_PLANAR, "Coord3D_ABC10p_Planar (3D coordinate A-B-C 10-bit packed planar)" },
+    { GVSP_PIX_YCBCR2020_10P_CBYCR, "YCbCr2020_10p_CbYCr (YCbCr 4:4:4 10-bit packed BT.2020)" },
+    { GVSP_PIX_RGBA8, "RGBa8 (Red-Green-Blue-alpha 8-bit)" },
+    { GVSP_PIX_BGRA8, "BGRa8 (Blue-Green-Red-alpha 8-bit)" },
+    { GVSP_PIX_RGB10V1PACKED, "GVSP_RGB10V1Packed (GigE Vision specific format, Red-Green-Blue 10-bit packed - variant 1)" },
+    { GVSP_PIX_RGB10P32, "RGB10p32 (Red-Green-Blue 10-bit packed into 32-bit)" },
+    { GVSP_PIX_YCBCR422_10, "YCbCr422_10 (YCbCr 4:2:2 10-bit unpacked)" },
+    { GVSP_PIX_YCBCR422_12, "YCbCr422_12 (YCbCr 4:2:2 12-bit unpacked)" },
+    { GVSP_PIX_YCBCR601_422_10, "YCbCr601_422_10 (YCbCr 4:2:2 10-bit unpacked BT.601)" },
+    { GVSP_PIX_YCBCR601_422_12, "YCbCr601_422_12 (YCbCr 4:2:2 12-bit unpacked BT.601)" },
+    { GVSP_PIX_YCBCR709_422_10, "YCbCr709_422_10 (YCbCr 4:2:2 10-bit unpacked BT.709)" },
+    { GVSP_PIX_YCBCR709_422_12, "YCbCr709_422_12 (YCbCr 4:2:2 12-bit unpacked BT.709)" },
+    { GVSP_PIX_YCBCR422_10_CBYCRY, "YCbCr422_10_CbYCrY (YCbCr 4:2:2 10-bit unpacked)" },
+    { GVSP_PIX_YCBCR422_12_CBYCRY, "YCbCr422_12_CbYCrY (YCbCr 4:2:2 12-bit unpacked)" },
+    { GVSP_PIX_YCBCR601_422_10_CBYCRY, "YCbCr601_422_10_CbYCrY (YCbCr 4:2:2 10-bit unpacked BT.601)" },
+    { GVSP_PIX_YCBCR601_422_12_CBYCRY, "YCbCr601_422_12_CbYCrY (YCbCr 4:2:2 12-bit unpacked BT.601)" },
+    { GVSP_PIX_YCBCR709_422_10_CBYCRY, "YCbCr709_422_10_CbYCrY (YCbCr 4:2:2 10-bit unpacked BT.709)" },
+    { GVSP_PIX_YCBCR709_422_12_CBYCRY, "YCbCr709_422_12_CbYCrY (YCbCr 4:2:2 12-bit unpacked BT.709)" },
+    { GVSP_PIX_BICOLORRGBG10, "BiColorRGBG10 (Bi-color Red/Green - Blue/Green 10-bit unpacked)" },
+    { GVSP_PIX_BICOLORBGRG10, "BiColorBGRG10 (Bi-color Blue/Green - Red/Green 10-bit unpacked)" },
+    { GVSP_PIX_BICOLORRGBG12, "BiColorRGBG12 (Bi-color Red/Green - Blue/Green 12-bit unpacked)" },
+    { GVSP_PIX_BICOLORBGRG12, "BiColorBGRG12 (Bi-color Blue/Green - Red/Green 12-bit unpacked)" },
+    { GVSP_PIX_COORD3D_AC16, "Coord3D_AC16 (3D coordinate A-C 16-bit)" },
+    { GVSP_PIX_COORD3D_AC16_PLANAR, "Coord3D_AC16_Planar (3D coordinate A-C 16-bit planar)" },
+    { GVSP_PIX_YCBCR2020_422_10, "YCbCr2020_422_10 (YCbCr 4:2:2 10-bit unpacked BT.2020)" },
+    { GVSP_PIX_YCBCR2020_422_10_CBYCRY, "YCbCr2020_422_10_CbYCrY (YCbCr 4:2:2 10-bit unpacked BT.2020)" },
+    { GVSP_PIX_YCBCR2020_422_12, "YCbCr2020_422_12 (YCbCr 4:2:2 12-bit unpacked BT.2020)" },
+    { GVSP_PIX_YCBCR2020_422_12_CBYCRY, "YCbCr2020_422_12_CbYCrY (YCbCr 4:2:2 12-bit unpacked BT.2020)" },
+    { GVSP_PIX_RGB12V1PACKED, "GVSP_RGB12V1Packed (GigE Vision specific format, Red-Green-Blue 12-bit packed - variant 1)" },
+    { GVSP_PIX_BGR12P, "BGR12p (Blue-Green-Red 12-bit packed)" },
+    { GVSP_PIX_RGB12P, "RGB12p (Red-Green-Blue 12-bit packed)" },
+    { GVSP_PIX_YCBCR12P_CBYCR, "YCbCr12p_CbYCr (YCbCr 4:4:4 12-bit packed)" },
+    { GVSP_PIX_YCBCR601_12P_CBYCR, "YCbCr601_12p_CbYCr (YCbCr 4:4:4 12-bit packed BT.601)" },
+    { GVSP_PIX_YCBCR709_12P_CBYCR, "YCbCr709_12p_CbYCr (YCbCr 4:4:4 12-bit packed BT.709)" },
+    { GVSP_PIX_COORD3D_ABC12P, "Coord3D_ABC12p (3D coordinate A-B-C 12-bit packed)" },
+    { GVSP_PIX_COORD3D_ABC12P_PLANAR, "Coord3D_ABC12p_Planar (3D coordinate A-B-C 12-bit packed planar)" },
+    { GVSP_PIX_YCBCR2020_12P_CBYCR, "YCbCr2020_12p_CbYCr (YCbCr 4:4:4 12-bit packed BT.2020)" },
+    { GVSP_PIX_BGRA10P, "BGRa10p (Blue-Green-Red-alpha 10-bit packed)" },
+    { GVSP_PIX_RGBA10P, "RGBa10p (Red-Green-Blue-alpha 10-bit packed)" },
+    { GVSP_PIX_RGB10, "RGB10 (Red-Green-Blue 10-bit unpacked)" },
+    { GVSP_PIX_BGR10, "BGR10 (Blue-Green-Red 10-bit unpacked)" },
+    { GVSP_PIX_RGB12, "RGB12 (Red-Green-Blue 12-bit unpacked)" },
+    { GVSP_PIX_BGR12, "BGR12 (Blue-Green-Red 12-bit unpacked)" },
+    { GVSP_PIX_RGB10_PLANAR, "RGB10_Planar (Red-Green-Blue 10-bit unpacked planar)" },
+    { GVSP_PIX_RGB12_PLANAR, "RGB12_Planar (Red-Green-Blue 12-bit unpacked planar)" },
+    { GVSP_PIX_RGB16_PLANAR, "RGB16_Planar (Red-Green-Blue 16-bit planar)" },
+    { GVSP_PIX_RGB16, "RGB16 (Red-Green-Blue 16-bit)" },
+    { GVSP_PIX_BGR14, "BGR14 (Blue-Green-Red 14-bit unpacked)" },
+    { GVSP_PIX_BGR16, "BGR16 (Blue-Green-Red 16-bit)" },
+    { GVSP_PIX_BGRA12P, "BGRa12p (Blue-Green-Red-alpha 12-bit packed)" },
+    { GVSP_PIX_RGB14, "RGB14 (Red-Green-Blue 14-bit unpacked)" },
+    { GVSP_PIX_RGBA12P, "RGBa12p (Red-Green-Blue-alpha 12-bit packed)" },
+    { GVSP_PIX_YCBCR10_CBYCR, "YCbCr10_CbYCr (YCbCr 4:4:4 10-bit unpacked)" },
+    { GVSP_PIX_YCBCR12_CBYCR, "YCbCr12_CbYCr (YCbCr 4:4:4 12-bit unpacked)" },
+    { GVSP_PIX_YCBCR601_10_CBYCR, "YCbCr601_10_CbYCr (YCbCr 4:4:4 10-bit unpacked BT.601)" },
+    { GVSP_PIX_YCBCR601_12_CBYCR, "YCbCr601_12_CbYCr (YCbCr 4:4:4 12-bit unpacked BT.601)" },
+    { GVSP_PIX_YCBCR709_10_CBYCR, "YCbCr709_10_CbYCr (YCbCr 4:4:4 10-bit unpacked BT.709)" },
+    { GVSP_PIX_YCBCR709_12_CBYCR, "YCbCr709_12_CbYCr (YCbCr 4:4:4 12-bit unpacked BT.709)" },
+    { GVSP_PIX_COORD3D_ABC16, "Coord3D_ABC16 (3D coordinate A-B-C 16-bit)" },
+    { GVSP_PIX_COORD3D_ABC16_PLANAR, "Coord3D_ABC16_Planar (3D coordinate A-B-C 16-bit planar)" },
+    { GVSP_PIX_YCBCR2020_10_CBYCR, "YCbCr2020_10_CbYCr (YCbCr 4:4:4 10-bit unpacked BT.2020)" },
+    { GVSP_PIX_YCBCR2020_12_CBYCR, "YCbCr2020_12_CbYCr (YCbCr 4:4:4 12-bit unpacked BT.2020)" },
+    { GVSP_PIX_BGRA10, "BGRa10 (Blue-Green-Red-alpha 10-bit unpacked)" },
+    { GVSP_PIX_BGRA12, "BGRa12 (Blue-Green-Red-alpha 12-bit unpacked)" },
+    { GVSP_PIX_BGRA14, "BGRa14 (Blue-Green-Red-alpha 14-bit unpacked)" },
+    { GVSP_PIX_BGRA16, "BGRa16 (Blue-Green-Red-alpha 16-bit)" },
+    { GVSP_PIX_RGBA10, "RGBa10 (Red-Green-Blue-alpha 10-bit unpacked)" },
+    { GVSP_PIX_RGBA12, "RGBa12 (Red-Green-Blue-alpha 12-bit unpacked)" },
+    { GVSP_PIX_RGBA14, "RGBa14 (Red-Green-Blue-alpha 14-bit unpacked)" },
+    { GVSP_PIX_RGBA16, "RGBa16 (Red-Green-Blue-alpha 16-bit)" },
+    { GVSP_PIX_COORD3D_AC32F, "Coord3D_AC32f (3D coordinate A-C 32-bit floating point)" },
+    { GVSP_PIX_COORD3D_AC32F_PLANAR, "Coord3D_AC32f_Planar (3D coordinate A-C 32-bit floating point planar)" },
+    { GVSP_PIX_COORD3D_ABC32F, "Coord3D_ABC32f (3D coordinate A-B-C 32-bit floating point)" },
+    { GVSP_PIX_COORD3D_ABC32F_PLANAR, "Coord3D_ABC32f_Planar (3D coordinate A-B-C 32-bit floating point planar)" },
     { 0, NULL }
 };
 
@@ -846,7 +879,7 @@ static const value_string colornames[] = {
     { GVSP_PIX_MONO >> 24,   "Mono" },
     { GVSP_PIX_COLOR >> 24,  "Color" },
     { GVSP_PIX_CUSTOM >> 24, "Custom" },
-    { 0, NULL },
+    { 0, NULL }
 };
 
 static const true_false_string zonedirectionnames = {
@@ -860,7 +893,7 @@ static const value_string gendc_payload_descriptor_flag_values[] = {
         { 1, "Final Descriptor Data" },
         { 2, "Final Descriptor Data With Non-Descriptor Data" },
         { 3, "Preliminary Descriptor Data" },
-        { 0, NULL },
+        { 0, NULL }
 };
 
 /* GEV 2.2 */
@@ -868,12 +901,30 @@ static const value_string gendc_header_type_values[] = {
     { GENDC_HEADER_TYPE_CONTAINER , "Container" },
     { GENDC_HEADER_TYPE_COMPONENT_HEADER , "Component Header" },
     { GENDC_HEADER_TYPE_PART_CHUNK, "Chunk" },
+    { GENDC_HEADER_TYPE_PART_XML, "GenICam XML" },
     { GENDC_HEADER_TYPE_PART_1D, "1D Array" },
     { GENDC_HEADER_TYPE_PART_2D, "2D Array" },
     { GENDC_HEADER_TYPE_PART_2D_JPEG, "JPEG Image" },
     { GENDC_HEADER_TYPE_PART_2D_JPEG2000, "JPEG 2000 Image" },
     { GENDC_HEADER_TYPE_PART_2D_H264, "H.264 Image" },
-    { 0, NULL },
+    { 0, NULL }
+};
+
+/* GEV 2.2 */
+static const val64_string gendc_component_typeid_values[] = {
+    { GENDC_COMPONENT_TYPEID_UNDEFINED , "Undefined" },
+    { GENDC_COMPONENT_TYPEID_INTENSITY , "Intensity" },
+    { GENDC_COMPONENT_TYPEID_INFRARED , "Infrared" },
+    { GENDC_COMPONENT_TYPEID_ULTRAVIOLET , "Ultraviolet" },
+    { GENDC_COMPONENT_TYPEID_RANGE , "Range" },
+    { GENDC_COMPONENT_TYPEID_REFLECTANCE , "Reflectance" },
+    { GENDC_COMPONENT_TYPEID_CONFIDENCE , "Confidence" },
+    { GENDC_COMPONENT_TYPEID_SCATTER , "Scatter" },
+    { GENDC_COMPONENT_TYPEID_DISPARITY , "Disparity" },
+    { GENDC_COMPONENT_TYPEID_MULTISPECTRAL , "Multispectral" },
+    { GENDC_COMPONENT_TYPEID_METADATA , "Metadata" },
+    { GENDC_COMPONENT_TYPEID_RESERVED , "Reserved" },
+    { 0, NULL }
 };
 
 static int hf_gvsp_status = -1;
@@ -1032,6 +1083,11 @@ static int hf_gvsp_gendc_component_header_region_id_v2_2 = -1;
 static int hf_gvsp_gendc_component_header_type_id_v2_2 = -1;
 static int hf_gvsp_gendc_component_header_part_count_v2_2 = -1;
 static int hf_gvsp_gendc_component_header_part_offset_v2_2 = -1;
+static int hf_gvsp_gendc_part_header_flags_xml_reserved1_v2_2 = -1;
+static int hf_gvsp_gendc_part_header_flags_xml_zip_v2_2 = -1;
+static int hf_gvsp_gendc_part_header_flags_xml_chunk_v2_2 = -1;
+static int hf_gvsp_gendc_part_header_flags_xml_reserved2_v2_2 = -1;
+static int hf_gvsp_gendc_part_header_flags_v2_2 = -1;
 static int hf_gvsp_gendc_part_header_flow_offset_v2_2 = -1;
 static int hf_gvsp_gendc_part_header_type_specific_info_v2_2 = -1;
 static int hf_gvsp_gendc_part_header_1D_size_v2_2 = -1;
@@ -1165,6 +1221,14 @@ static int * const gendc_container_header_variable_fields_fields[] = {
 static int * const gendc_component_header_flags_fields[] = {
     &hf_gvsp_gendc_component_header_flags_invalid_v2_2,
     &hf_gvsp_gendc_component_header_flags_reserved_v2_2,
+    NULL
+};
+
+static int * const gendc_part_header_flags_fields[] = {
+    &hf_gvsp_gendc_part_header_flags_xml_reserved1_v2_2,
+    &hf_gvsp_gendc_part_header_flags_xml_zip_v2_2,
+    &hf_gvsp_gendc_part_header_flags_xml_chunk_v2_2,
+    &hf_gvsp_gendc_part_header_flags_xml_reserved2_v2_2,
     NULL
 };
 
@@ -1983,6 +2047,17 @@ static void dissect_packet_payload_gendc(proto_tree *gvsp_tree, tvbuff_t *tvb, p
                     /* GenDC part header type */
                     proto_tree_add_item(gvsp_gendc_part_header_tree, hf_gvsp_gendc_container_header_type_v2_2, tvb, part_offset, 2, ENC_LITTLE_ENDIAN);
 
+                    /* GenDC part header flags */
+                    if( part_type == GENDC_HEADER_TYPE_PART_XML )
+                    {
+                        proto_tree_add_bitmask(gvsp_gendc_part_header_tree, tvb, part_offset + 2, hf_gvsp_gendc_part_header_flags_v2_2,
+                            ett_gvsp_gendc_part_header_flags, gendc_part_header_flags_fields, ENC_LITTLE_ENDIAN);
+                    }
+                    else
+                    {
+                        proto_tree_add_item(gvsp_gendc_part_header_tree, hf_gvsp_gendc_part_header_flags_v2_2, tvb, part_offset + 2, 2, ENC_LITTLE_ENDIAN);
+                    }
+
                     /* GenDC part header size */
                     proto_tree_add_item(gvsp_gendc_part_header_tree, hf_gvsp_gendc_container_header_size_v2_2, tvb, part_offset + 4, 4, ENC_LITTLE_ENDIAN);
 
@@ -2004,6 +2079,7 @@ static void dissect_packet_payload_gendc(proto_tree *gvsp_tree, tvbuff_t *tvb, p
                     switch (part_type)
                     {
                         case GENDC_HEADER_TYPE_PART_CHUNK:
+                        case GENDC_HEADER_TYPE_PART_XML:
                             break;
                         case GENDC_HEADER_TYPE_PART_1D:
                             /* GenDC part header size */
@@ -3250,25 +3326,19 @@ void proto_register_gvsp(void)
 
         { &hf_gvsp_gendc_container_header_flags_timestamp_ptp_v2_2,
         { "Timestamp PTP", "gvsp.gendc.container.header.flags.timestampptp",
-        FT_UINT16, BASE_HEX, NULL, 0x80,
+        FT_UINT16, BASE_HEX, NULL, 0x0001,
         NULL, HFILL
         } },
 
         { &hf_gvsp_gendc_container_header_flags_component_invalid_v2_2,
         { "Component Invalid", "gvsp.gendc.container.header.flags.componentinvalid",
-        FT_UINT16, BASE_HEX, NULL, 0x40,
+        FT_UINT16, BASE_HEX, NULL, 0x0002,
         NULL, HFILL
         } },
 
         { &hf_gvsp_gendc_container_header_flags_reserved_v2_2,
         { "Reserved", "gvsp.gendc.container.header.flags.reserved",
-        FT_UINT16, BASE_HEX, NULL, 0x3F,
-        NULL, HFILL
-        } },
-
-        { &hf_gvsp_gendc_component_header_flags_reserved_v2_2,
-        { "Reserved", "gvsp.gendc.component.header.flags.reserved",
-        FT_UINT16, BASE_HEX, NULL, 0x7FFF,
+        FT_UINT16, BASE_HEX, NULL, 0xFFFC,
         NULL, HFILL
         } },
 
@@ -3292,55 +3362,55 @@ void proto_register_gvsp(void)
 
         { &hf_gvsp_gendc_container_header_variable_fields_data_size_v2_2,
         { "Data Size", "gvsp.gendc.container.header.variablefields.datasize",
-        FT_UINT16, BASE_HEX, NULL, 0x8000,
+        FT_UINT16, BASE_HEX, NULL, 0x0001,
         NULL, HFILL
         } },
 
         { &hf_gvsp_gendc_container_header_variable_fields_size_x_v2_2,
         { "Size X", "gvsp.gendc.container.header.variablefields.sizex",
-        FT_UINT16, BASE_HEX, NULL, 0x4000,
+        FT_UINT16, BASE_HEX, NULL, 0x0002,
         NULL, HFILL
         } },
 
         { &hf_gvsp_gendc_container_header_variable_fields_size_y_v2_2,
         { "Size Y", "gvsp.gendc.container.header.variablefields.sizey",
-        FT_UINT16, BASE_HEX, NULL, 0x2000,
+        FT_UINT16, BASE_HEX, NULL, 0x0004,
         NULL, HFILL
         } },
 
         { &hf_gvsp_gendc_container_header_variable_fields_region_offset_v2_2,
         { "Region Offset", "gvsp.gendc.container.header.variablefields.regionoffset",
-        FT_UINT16, BASE_HEX, NULL, 0x1000,
+        FT_UINT16, BASE_HEX, NULL, 0x0008,
         NULL, HFILL
         } },
 
         { &hf_gvsp_gendc_container_header_variable_fields_format_v2_2,
         { "Format", "gvsp.gendc.container.header.variablefields.format",
-        FT_UINT16, BASE_HEX, NULL, 0x0800,
+        FT_UINT16, BASE_HEX, NULL, 0x0010,
         NULL, HFILL
         } },
 
         { &hf_gvsp_gendc_container_header_variable_fields_timestamp_v2_2,
         { "Timestamp", "gvsp.gendc.container.header.variablefields.timestamp",
-        FT_UINT16, BASE_HEX, NULL, 0x0400,
+        FT_UINT16, BASE_HEX, NULL, 0x0020,
         NULL, HFILL
         } },
 
         { &hf_gvsp_gendc_container_header_variable_fields_component_count_v2_2,
         { "Component Count", "gvsp.gendc.container.header.variablefields.componentcount",
-        FT_UINT16, BASE_HEX, NULL, 0x0200,
+        FT_UINT16, BASE_HEX, NULL, 0x0040,
         NULL, HFILL
         } },
 
         { &hf_gvsp_gendc_container_header_variable_fields_component_invalid_v2_2,
         { "Component Invalid", "gvsp.gendc.container.header.variablefields.componentinvalid",
-        FT_UINT16, BASE_HEX, NULL, 0x0100,
+        FT_UINT16, BASE_HEX, NULL, 0x0080,
         NULL, HFILL
         } },
 
         { &hf_gvsp_gendc_container_header_variable_fields_reserved_v2_2,
         { "Reserved", "gvsp.gendc.container.header.variablefields.reserved",
-        FT_UINT16, BASE_HEX, NULL, 0x00FF,
+        FT_UINT16, BASE_HEX, NULL, 0xFF00,
         NULL, HFILL
         } },
 
@@ -3382,7 +3452,13 @@ void proto_register_gvsp(void)
 
         { &hf_gvsp_gendc_component_header_flags_invalid_v2_2,
         { "Invalid", "gvsp.gendc.container.header.flags.invalid",
-        FT_UINT16, BASE_HEX, NULL, 0x8000,
+        FT_UINT16, BASE_HEX, NULL, 0x0001,
+        NULL, HFILL
+        } },
+
+        { &hf_gvsp_gendc_component_header_flags_reserved_v2_2,
+        { "Reserved", "gvsp.gendc.component.header.flags.reserved",
+        FT_UINT16, BASE_HEX, NULL, 0xFFFE,
         NULL, HFILL
         } },
 
@@ -3406,7 +3482,7 @@ void proto_register_gvsp(void)
 
         { &hf_gvsp_gendc_component_header_type_id_v2_2,
         { "Type ID", "gvsp.gendc.component.header.typeid",
-        FT_UINT64, BASE_HEX_DEC, NULL, 0x0,
+        FT_UINT64, BASE_HEX | BASE_VAL64_STRING, VALS64(gendc_component_typeid_values), 0x0,
         NULL, HFILL
         } },
 
@@ -3419,6 +3495,36 @@ void proto_register_gvsp(void)
         { &hf_gvsp_gendc_component_header_part_offset_v2_2,
         { "Part Offset", "gvsp.gendc.container.header.partoffset",
         FT_UINT64, BASE_HEX_DEC, NULL, 0x0,
+        NULL, HFILL
+        } },
+
+        { &hf_gvsp_gendc_part_header_flags_xml_reserved1_v2_2,
+        { "Reserved", "gvsp.gendc.part.header.flags.xml.reserved1",
+        FT_UINT16, BASE_HEX, NULL, 0x00FF,
+        NULL, HFILL
+        } },
+
+        { &hf_gvsp_gendc_part_header_flags_xml_zip_v2_2,
+        { "ZIP", "gvsp.gendc.part.header.flags.xml.zip",
+        FT_UINT16, BASE_HEX, NULL, 0x0100,
+        NULL, HFILL
+        } },
+
+        { &hf_gvsp_gendc_part_header_flags_xml_chunk_v2_2,
+        { "Chunk", "gvsp.gendc.part.header.flags.xml.chunk",
+        FT_UINT16, BASE_HEX, NULL, 0x0200,
+        NULL, HFILL
+        } },
+
+        { &hf_gvsp_gendc_part_header_flags_xml_reserved2_v2_2,
+        { "Reserved", "gvsp.gendc.part.header.flags.xml.reserved2",
+        FT_UINT16, BASE_HEX, NULL, 0xFC00,
+        NULL, HFILL
+        } },
+
+        { &hf_gvsp_gendc_part_header_flags_v2_2,
+        { "Reserved", "gvsp.gendc.part.header.flags",
+        FT_UINT16, BASE_HEX, NULL, 0x0,
         NULL, HFILL
         } },
 
@@ -3471,7 +3577,8 @@ void proto_register_gvsp(void)
         &ett_gvsp_gendc_component_header,
         &ett_gvsp_gendc_component_header_flags,
         &ett_gvsp_gendc_part_offsets,
-        &ett_gvsp_gendc_part_header
+        &ett_gvsp_gendc_part_header,
+        &ett_gvsp_gendc_part_header_flags
     };
 
     proto_gvsp = proto_register_protocol("GigE Vision Streaming Protocol", "GVSP", "gvsp");
