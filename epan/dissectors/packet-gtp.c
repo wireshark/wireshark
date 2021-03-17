@@ -98,6 +98,7 @@ static dissector_handle_t nrup_handle;
 #define GTP_TPDU_AS_PDCP_NR 2
 #define GTP_TPDU_AS_SYNC 3
 #define GTP_TPDU_AS_ETHERNET 4
+#define GTP_TPDU_AS_CUSTOM 5
 
 static gboolean g_gtp_over_tcp = TRUE;
 gboolean g_gtp_session = FALSE;
@@ -885,6 +886,7 @@ static const enum_val_t gtp_decode_tpdu_as[] = {
     {"pdcp-nr", "PDCP-NR",   GTP_TPDU_AS_PDCP_NR },
     {"sync", "SYNC",   GTP_TPDU_AS_SYNC},
     {"eth", "ETHERNET",   GTP_TPDU_AS_ETHERNET},
+    {"custom", "Custom",   GTP_TPDU_AS_CUSTOM},
     {NULL, NULL, 0}
 };
 
@@ -2397,6 +2399,7 @@ static dissector_handle_t gtpv2_handle;
 static dissector_handle_t bssgp_handle;
 static dissector_handle_t pdcp_nr_handle;
 static dissector_handle_t pdcp_lte_handle;
+static dissector_handle_t gtp_tpdu_custom_handle;
 static dissector_table_t bssap_pdu_type_table;
 
 static int proto_pdcp_lte = -1;
@@ -10106,6 +10109,18 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
             call_dissector(eth_handle, next_tvb, pinfo, tree);
             col_prepend_fstr(pinfo->cinfo, COL_PROTOCOL, "GTP <");
             col_append_str(pinfo->cinfo, COL_PROTOCOL, ">");
+            break;
+        case GTP_TPDU_AS_CUSTOM:
+            /* Call a custom dissector if available */
+            if (gtp_tpdu_custom_handle ||
+                 (gtp_tpdu_custom_handle = find_dissector("gtp_tpdu_custom"))) {
+                next_tvb = tvb_new_subset_remaining(tvb, offset);
+                call_dissector(gtp_tpdu_custom_handle, next_tvb, pinfo, tree);
+                col_prepend_fstr(pinfo->cinfo, COL_PROTOCOL, "GTP <");
+                col_append_str(pinfo->cinfo, COL_PROTOCOL, ">");
+            } else {
+                proto_tree_add_item(tree, hf_gtp_tpdu_data, tvb, offset, -1, ENC_NA);
+            }
             break;
         default:
             proto_tree_add_item(tree, hf_gtp_tpdu_data, tvb, offset, -1, ENC_NA);
