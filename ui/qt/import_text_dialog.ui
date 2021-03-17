@@ -260,6 +260,9 @@
            <property name="lineWidth">
             <number>24</number>
            </property>
+           <property name="acceptRichText">
+            <bool>false</bool>
+           </property>
            <property name="placeholderText">
             <string notr="true">^(?&lt;dir&gt;(&lt;|&gt;))\s*(?&lt;time&gt;(\d\d\:){2}\d\d)\s+(?&lt;seqno&gt;\d{5})\s+(?&lt;data&gt;[0-9a-fA-F]*)$\s+</string>
            </property>

@@ -52,47 +52,55 @@ int text_import_regex(const text_import_info_t* info) {
     }
 
     // Regex result dissecting
-    gint re_data, re_time, re_dir, re_seqno;
+    gboolean re_time, re_dir, re_seqno;
     GMatchInfo* match;
     gint field_start;
     gint field_end;
     { /* analyze regex */
-        re_time = g_regex_get_string_number(info->regex.format, "time");
-        re_dir = g_regex_get_string_number(info->regex.format, "dir");
-        re_seqno = g_regex_get_string_number(info->regex.format, "seqno");
-        re_data = g_regex_get_string_number(info->regex.format, "data");
-        if (re_data < 0) {
-        /* This should never happen, as the dialog checks for this */
-        fprintf(stderr, "Error could not find data in pattern\n");
-        g_mapped_file_unref(file);
-        return -1;
+        re_time = g_regex_get_string_number(info->regex.format, "time") >= 0;
+        re_dir = g_regex_get_string_number(info->regex.format, "dir") >= 0;
+        re_seqno = g_regex_get_string_number(info->regex.format, "seqno") >= 0;
+        if (g_regex_get_string_number(info->regex.format, "data") < 0) {
+            /* This should never happen, as the dialog checks for this */
+            fprintf(stderr, "Error could not find data in pattern\n");
+            g_mapped_file_unref(file);
+            return -1;
         }
     }
 
-    debug_printf(1, "regex has data: %d, dir: %d, time: %d, seqno: %d\n", re_data, re_dir, re_time, re_seqno);
+    debug_printf(1, "regex has %s%s%s\n", re_dir ? "dir, " : "",
+                                          re_time ? "time, " : "",
+                                          re_seqno ? "seqno, " : "");
     g_regex_match(info->regex.format, f_content, G_REGEX_MATCH_NOTEMPTY, &match);
     while (g_match_info_matches(match)) {
         /* parse the data */
-        if (!g_match_info_fetch_pos(match, re_data, &field_start, &field_end)) {
-            fprintf(stderr, "Warning: could not fetch data, discarding\n");
+        if (!g_match_info_fetch_named_pos(match, "data", &field_start, &field_end)) {
+            fprintf(stderr, "Warning: could not fetch data on would be packet %d, discarding\n", parsed_packets + 1);
             continue;
         }
         parse_data(f_content + field_start, f_content + field_end, info->regex.encoding);
 
         /* parse the auxillary information if present */
-        if (re_time >= 0 &&
-                g_match_info_fetch_pos(match, re_time, &field_start, &field_end))
+        if (re_time &&
+                g_match_info_fetch_named_pos(match, "time", &field_start, &field_end))
             parse_time(f_content + field_start, f_content + field_end, info->timestamp_format);
 
-        if (re_dir >= 0 &&
-                g_match_info_fetch_pos(match, re_dir, &field_start, &field_end))
+        if (re_dir &&
+                g_match_info_fetch_named_pos(match, "dir", &field_start, &field_end))
             parse_dir(f_content + field_start, f_content + field_end, info->regex.in_indication, info->regex.out_indication);
 
-        if (re_seqno >= 0 &&
-                g_match_info_fetch_pos(match, re_seqno, &field_start, &field_end))
+        if (re_seqno &&
+                g_match_info_fetch_named_pos(match, "seqno", &field_start, &field_end))
             parse_seqno(f_content + field_start, f_content + field_end);
 
+        if (debug >= 2) {
+            g_match_info_fetch_pos(match, 0, &field_start, &field_end);
+            printf("Packet %d at %x to %x: %.*s\n", parsed_packets + 1,
+                    field_start, field_end,
+                    field_end - field_start, f_content + field_start);
+        }
         flush_packet();
+
 
         /* prepare next packet */
         ++parsed_packets;
