@@ -50,6 +50,7 @@ static int hf_mndp_board = -1;
 static int hf_mndp_unpack = -1;
 static int hf_mndp_ipv6address = -1;
 static int hf_mndp_interfacename = -1;
+static int hf_mndp_ipv4address = -1;
 
 #define PROTO_SHORT_NAME "MNDP"
 #define PROTO_LONG_NAME "Mikrotik Neighbor Discovery Protocol"
@@ -117,6 +118,7 @@ static const ext_value_string mndp_body_tlv_vals[] = {
 	{ 14, "Unpack",		&hf_mndp_unpack,	NULL, NULL },
 	{ 15, "IPv6-Address",	&hf_mndp_ipv6address,	NULL, NULL },
 	{ 16, "Interface name", &hf_mndp_interfacename, NULL, NULL },
+	{ 17, "IPv4-Address",	&hf_mndp_ipv4address,	NULL, NULL },
 
 	{ 0, NULL, NULL, NULL, NULL }
 };
@@ -328,6 +330,10 @@ proto_register_mndp(void)
 
 		{ &hf_mndp_interfacename,
 		{ "Interface name", "mndp.interfacename", FT_STRING, BASE_NONE, NULL,
+				0x0, NULL, HFILL }},
+
+		{ &hf_mndp_ipv4address,
+		{ "IPv4-Address", "mndp.ipv4address", FT_IPv4, BASE_NONE, NULL,
 				0x0, NULL, HFILL }},
 
 	};
