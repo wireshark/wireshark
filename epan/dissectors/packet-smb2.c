@@ -1093,6 +1093,8 @@ static const val64_string nfs_type_vals[] = {
 #define SMB2_DIALECT_202  0x0202
 #define SMB2_DIALECT_210  0x0210
 #define SMB2_DIALECT_2FF  0x02FF
+#define SMB2_DIALECT_222  0x0222
+#define SMB2_DIALECT_224  0x0224
 #define SMB2_DIALECT_300  0x0300
 #define SMB2_DIALECT_302  0x0302
 #define SMB2_DIALECT_310  0x0310
@@ -1102,6 +1104,8 @@ static const value_string smb2_dialect_vals[] = {
 	{ SMB2_DIALECT_202, "SMB 2.0.2" },
 	{ SMB2_DIALECT_210, "SMB 2.1" },
 	{ SMB2_DIALECT_2FF, "SMB2 wildcard" },
+	{ SMB2_DIALECT_222, "SMB 2.2.2 (deprecated; should be 3.0)" },
+	{ SMB2_DIALECT_224, "SMB 2.2.4 (deprecated; should be 3.0)" },
 	{ SMB2_DIALECT_300, "SMB 3.0" },
 	{ SMB2_DIALECT_302, "SMB 3.0.2" },
 	{ SMB2_DIALECT_310, "SMB 3.1.0 (deprecated; should be 3.1.1)" },
