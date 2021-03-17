@@ -39,6 +39,8 @@ static int hf_otrxd_pdu_ver = -1;
 
 /* TRXD common fields */
 static int hf_otrxd_chdr_reserved = -1;
+static int hf_otrxd_batch_ind = -1;
+static int hf_otrxd_trx_num = -1;
 static int hf_otrxd_tdma_tn = -1;
 static int hf_otrxd_tdma_fn = -1;
 
@@ -59,6 +61,8 @@ static int hf_otrxd_ci = -1;
 
 /* TRXD Tx header fields */
 static int hf_otrxd_tx_att = -1;
+static int hf_otrxd_tx_scpir = -1;
+static int hf_otrxd_tx_rfu = -1;
 
 /* Burst soft (255 .. 0) / hard (1 or 0) bits */
 static int hf_otrxd_soft_symbols = -1;
@@ -91,6 +95,12 @@ static expert_field ei_otrxc_unknown_dir = EI_INIT;
 
 /* Custom units */
 static const unit_name_string otrx_units_toa256 = { " (1/256 of a symbol)", NULL };
+
+/* TRXD BATCH.ind value description */
+static const true_false_string otrxd_batch_bool_val = {
+	"Another PDU follows",
+	"This is the last PDU",
+};
 
 /* TRXD NOPE.{ind,req} value description */
 static const true_false_string otrxd_nope_bool_val = {
@@ -233,6 +243,12 @@ static const value_string otrxc_msg_type_desc[] = {
 struct otrxd_pdu_info {
 	/* PDU version */
 	guint32 ver;
+	/* BATCH.ind marker */
+	gboolean batch;
+	/* Number of batched PDUs */
+	guint32 num_pdus;
+	/* TRX (RF channel) number */
+	guint32 trx_num;
 	/* TDMA frame number */
 	guint32 fn;
 	/* TDMA timeslot number */
@@ -247,7 +263,7 @@ struct otrxd_pdu_info {
 };
 
 /* Dissector for common Rx/Tx TRXDv0/v1 header part */
-static void dissect_otrxd_chdr_v0(tvbuff_t *tvb, packet_info *pinfo,
+static void dissect_otrxd_chdr_v0(tvbuff_t *tvb, packet_info *pinfo _U_,
 				  proto_item *ti, proto_tree *tree,
 				  struct otrxd_pdu_info *pi,
 				  int *offset)
@@ -263,13 +279,11 @@ static void dissect_otrxd_chdr_v0(tvbuff_t *tvb, packet_info *pinfo,
 				     *offset, 4, ENC_BIG_ENDIAN, &pi->fn);
 	*offset += 4;
 
-	col_append_fstr(pinfo->cinfo, COL_INFO, "TDMA FN %07u TN %u", pi->fn, pi->tn);
 	proto_item_append_text(ti, "TDMA FN %07u TN %u", pi->fn, pi->tn);
 }
 
 /* Dissector for MTS (Modulation and Training Sequence) */
-static void dissect_otrxd_mts(tvbuff_t *tvb, packet_info *pinfo,
-			      proto_item *ti, proto_tree *tree,
+static void dissect_otrxd_mts(tvbuff_t *tvb, proto_tree *tree,
 			      struct otrxd_pdu_info *pi,
 			      int offset)
 {
@@ -284,8 +298,6 @@ static void dissect_otrxd_mts(tvbuff_t *tvb, packet_info *pinfo,
 					offset, 1, ENC_NA, &pi->nope);
 	if (pi->nope) {
 		proto_tree_add_item(tree, hf_otrxd_nope_ind_pad, tvb, offset, 1, ENC_NA);
-		col_append_str(pinfo->cinfo, COL_INFO, ", NOPE.ind");
-		proto_item_append_text(ti, ", NOPE.ind");
 		return;
 	}
 
@@ -320,9 +332,6 @@ static void dissect_otrxd_mts(tvbuff_t *tvb, packet_info *pinfo,
 	}
 
 	proto_tree_add_item_ret_uint(tree, hf_otrxd_tsc, tvb, offset, 1, ENC_NA, &pi->tsc);
-
-	col_append_fstr(pinfo->cinfo, COL_INFO, ", Modulation %s, TSC %u", pi->mod_str, pi->tsc);
-	proto_item_append_text(ti, ", Modulation %s, TSC %u", pi->mod_str, pi->tsc);
 }
 
 /* Dissector for Rx TRXD header version 0 */
@@ -350,11 +359,59 @@ static int dissect_otrxd_rx_hdr_v1(tvbuff_t *tvb, packet_info *pinfo,
 	offset = dissect_otrxd_rx_hdr_v0(tvb, pinfo, ti, tree, pi, offset);
 
 	/* MTS (Modulation and Training Sequence) */
-	dissect_otrxd_mts(tvb, pinfo, ti, tree, pi, offset++);
+	dissect_otrxd_mts(tvb, tree, pi, offset++);
+	if (!pi->nope)
+		proto_item_append_text(ti, ", Modulation %s, TSC %u", pi->mod_str, pi->tsc);
+	else
+		proto_item_append_text(ti, ", NOPE.ind");
 
 	/* C/I (Carrier to Interference ratio) */
 	proto_tree_add_item(tree, hf_otrxd_ci, tvb, offset, 2, ENC_NA);
 	offset += 2;
+
+	return offset;
+}
+
+/* Dissector for TRXD Rx header version 2 */
+static int dissect_otrxd_rx_hdr_v2(tvbuff_t *tvb, packet_info *pinfo _U_,
+				   proto_item *ti, proto_tree *tree,
+				   struct otrxd_pdu_info *pi,
+				   int offset)
+{
+	proto_tree_add_item(tree, hf_otrxd_chdr_reserved, tvb, offset, 1, ENC_NA);
+	proto_tree_add_item_ret_uint(tree, hf_otrxd_tdma_tn, tvb,
+				     offset, 1, ENC_NA, &pi->tn);
+	offset += 1;
+
+	proto_tree_add_item_ret_boolean(tree, hf_otrxd_batch_ind, tvb,
+					offset, 1, ENC_NA, &pi->batch);
+	proto_tree_add_item_ret_uint(tree, hf_otrxd_trx_num, tvb,
+				     offset, 1, ENC_NA, &pi->trx_num);
+	offset += 1;
+
+	/* MTS (Modulation and Training Sequence) */
+	dissect_otrxd_mts(tvb, tree, pi, offset++);
+
+	/* RSSI (Received Signal Strength Indication) */
+	proto_tree_add_item(tree, hf_otrxd_rssi, tvb, offset++, 1, ENC_NA);
+
+	/* ToA256 (Timing of Arrival) and C/I (Carrier to Interference ratio) */
+	proto_tree_add_item(tree, hf_otrxd_toa256, tvb, offset, 2, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_otrxd_ci, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
+	offset += 4;
+
+	/* TDMA frame number (absent in additional PDUs) */
+	if (pi->num_pdus == 0) {
+		proto_tree_add_item_ret_uint(tree, hf_otrxd_tdma_fn, tvb,
+					     offset, 4, ENC_BIG_ENDIAN, &pi->fn);
+		offset += 4;
+	}
+
+	proto_item_append_text(ti, "TRXN %02u, TDMA FN %07u TN %u", pi->trx_num, pi->fn, pi->tn);
+	if (!pi->nope)
+		proto_item_append_text(ti, ", Modulation %s, TSC %u", pi->mod_str, pi->tsc);
+	else
+		proto_item_append_text(ti, ", NOPE.ind");
 
 	return offset;
 }
@@ -369,6 +426,7 @@ static int dissect_otrxd_rx(tvbuff_t *tvb, packet_info *pinfo,
 	proto_tree *tree;
 	proto_item *ti;
 
+loop:
 	/* Add a sub-tree for each PDU (length is set below) */
 	tree = proto_tree_add_subtree(ptree, tvb, offset, -1,
 				      ett_otrxd_rx_pdu, &ti,
@@ -404,6 +462,15 @@ static int dissect_otrxd_rx(tvbuff_t *tvb, packet_info *pinfo,
 				    offset, burst_len, ENC_NA);
 		offset += burst_len;
 		break;
+	case 2:
+		offset = dissect_otrxd_rx_hdr_v2(tvb, pinfo, ti, tree, pi, offset);
+		if (pi->nope) /* NOPE.ind contains no burst */
+			break;
+		burst_len = otrxd_burst_len[pi->mod];
+		proto_tree_add_item(tree, hf_otrxd_soft_symbols, tvb,
+				    offset, burst_len, ENC_NA);
+		offset += burst_len;
+		break;
 	default:
 		expert_add_info_format(pinfo, pti, &ei_otrxd_unknown_pdu_ver,
 				       "Unknown TRXD PDU version %u", pi->ver);
@@ -413,12 +480,20 @@ static int dissect_otrxd_rx(tvbuff_t *tvb, packet_info *pinfo,
 
 	proto_item_set_len(ti, offset - start);
 
+	/* Number of processed PDUs */
+	pi->num_pdus += 1;
+
+	/* There can be additional 'batched' PDUs */
+	if (pi->batch)
+		goto loop;
+
 	return offset;
 }
 
 /* Dissector for TRXDv0/v1 Tx burst */
-static void dissect_otrxd_tx_burst_v0(tvbuff_t *tvb, packet_info *pinfo,
+static void dissect_otrxd_tx_burst_v0(tvbuff_t *tvb, packet_info *pinfo _U_,
 				      proto_item *ti, proto_tree *tree,
+				      struct otrxd_pdu_info *pi,
 				      int *offset)
 {
 	/* Calculate the burst length */
@@ -428,19 +503,19 @@ static void dissect_otrxd_tx_burst_v0(tvbuff_t *tvb, packet_info *pinfo,
 	switch (burst_len) {
 	/* We may also have NOPE.req in the future (to drive fake_trx.py) */
 	case 0:
-		col_append_str(pinfo->cinfo, COL_INFO, ", NOPE.req");
 		proto_item_append_text(ti, ", NOPE.req");
+		pi->nope = TRUE;
 		return;
 
 	/* TODO: introduce an enumerated type, detect other modulation types,
 	 * TODO: add a generated field for "osmo_trxd.mod" */
 	case GMSK_BURST_LEN:
-		col_append_str(pinfo->cinfo, COL_INFO, ", Modulation GMSK");
 		proto_item_append_text(ti, ", Modulation GMSK");
+		pi->mod_str = "GMSK";
 		break;
 	case 3 * GMSK_BURST_LEN:
-		col_append_str(pinfo->cinfo, COL_INFO, ", Modulation 8-PSK");
 		proto_item_append_text(ti, ", Modulation 8-PSK");
+		pi->mod_str = "8-PSK";
 		break;
 	}
 
@@ -448,6 +523,53 @@ static void dissect_otrxd_tx_burst_v0(tvbuff_t *tvb, packet_info *pinfo,
 	proto_tree_add_item(tree, hf_otrxd_hard_symbols, tvb,
 			    *offset, burst_len, ENC_NA);
 	*offset += burst_len;
+}
+
+/* Dissector for TRXD Tx header version 2 */
+static void dissect_otrxd_tx_hdr_v2(tvbuff_t *tvb, packet_info *pinfo _U_,
+				    proto_item *ti, proto_tree *tree,
+				    struct otrxd_pdu_info *pi,
+				    int *offset)
+{
+	proto_tree_add_item(tree, hf_otrxd_chdr_reserved, tvb, *offset, 1, ENC_NA);
+	proto_tree_add_item_ret_uint(tree, hf_otrxd_tdma_tn, tvb,
+				     *offset, 1, ENC_NA, &pi->tn);
+	*offset += 1;
+
+	proto_tree_add_item_ret_boolean(tree, hf_otrxd_batch_ind, tvb,
+					*offset, 1, ENC_NA, &pi->batch);
+	proto_tree_add_item_ret_uint(tree, hf_otrxd_trx_num, tvb,
+				     *offset, 1, ENC_NA, &pi->trx_num);
+	*offset += 1;
+
+	/* MTS (Modulation and Training Sequence) */
+	dissect_otrxd_mts(tvb, tree, pi, *offset);
+	*offset += 1;
+
+	/* Tx power attenuation */
+	proto_tree_add_item(tree, hf_otrxd_tx_att, tvb, *offset, 1, ENC_NA);
+	*offset += 1;
+
+	/* SCPIR (Subchannel Power Imbalance Ratio) */
+	proto_tree_add_item(tree, hf_otrxd_tx_scpir, tvb, *offset, 1, ENC_NA);
+	*offset += 1;
+
+	/* RFU (currently just to make the header dword-alignment) */
+	proto_tree_add_item(tree, hf_otrxd_tx_rfu, tvb, *offset, 3, ENC_NA);
+	*offset += 3;
+
+	/* TDMA frame number (absent in additional PDUs) */
+	if (pi->num_pdus == 0) {
+		proto_tree_add_item_ret_uint(tree, hf_otrxd_tdma_fn, tvb,
+					     *offset, 4, ENC_BIG_ENDIAN, &pi->fn);
+		*offset += 4;
+	}
+
+	proto_item_append_text(ti, "TRXN %02u, TDMA FN %07u TN %u", pi->trx_num, pi->fn, pi->tn);
+	if (!pi->nope)
+		proto_item_append_text(ti, ", Modulation %s, TSC %u", pi->mod_str, pi->tsc);
+	else
+		proto_item_append_text(ti, ", NOPE.req");
 }
 
 /* Burst data in Transmit direction */
@@ -458,8 +580,10 @@ static int dissect_otrxd_tx(tvbuff_t *tvb, packet_info *pinfo,
 {
 	proto_tree *tree;
 	proto_item *ti;
+	int burst_len;
 	int start;
 
+loop:
 	/* Add a sub-tree for each PDU (length is set below) */
 	tree = proto_tree_add_subtree(ptree, tvb, offset, -1,
 				      ett_otrxd_tx_pdu, &ti,
@@ -472,7 +596,16 @@ static int dissect_otrxd_tx(tvbuff_t *tvb, packet_info *pinfo,
 	case 1:
 		dissect_otrxd_chdr_v0(tvb, pinfo, ti, tree, pi, &offset);
 		proto_tree_add_item(tree, hf_otrxd_tx_att, tvb, offset++, 1, ENC_NA);
-		dissect_otrxd_tx_burst_v0(tvb, pinfo, ti, tree, &offset);
+		dissect_otrxd_tx_burst_v0(tvb, pinfo, ti, tree, pi, &offset);
+		break;
+	case 2:
+		dissect_otrxd_tx_hdr_v2(tvb, pinfo, ti, tree, pi, &offset);
+		if (pi->nope) /* NOPE.ind contains no burst */
+			break;
+		burst_len = otrxd_burst_len[pi->mod];
+		proto_tree_add_item(tree, hf_otrxd_hard_symbols, tvb,
+				    offset, burst_len, ENC_NA);
+		offset += burst_len;
 		break;
 	default:
 		expert_add_info_format(pinfo, pti, &ei_otrxd_unknown_pdu_ver,
@@ -482,6 +615,13 @@ static int dissect_otrxd_tx(tvbuff_t *tvb, packet_info *pinfo,
 	}
 
 	proto_item_set_len(ti, offset - start);
+
+	/* Number of processed PDUs */
+	pi->num_pdus += 1;
+
+	/* There can be additional 'batched' PDUs */
+	if (pi->batch)
+		goto loop;
 
 	return offset;
 }
@@ -535,6 +675,20 @@ static int dissect_otrxd(tvbuff_t *tvb, packet_info *pinfo,
 	else {
 		expert_add_info(pinfo, ti, &ei_otrxd_unknown_dir);
 		offset = 1; /* Only the PDU version was parsed */
+	}
+
+	/* Summary for all parsed PDUs */
+	if (pi.num_pdus == 1) {
+		col_append_fstr(pinfo->cinfo, COL_INFO, "TDMA FN %07u TN %u", pi.fn, pi.tn);
+		if (pi.mod_str != NULL)
+			col_append_fstr(pinfo->cinfo, COL_INFO, ", Modulation %s", pi.mod_str);
+		else if (pi.nope && burst_dir == OTRXCD_DIR_TRX2L1)
+			col_append_str(pinfo->cinfo, COL_INFO, ", NOPE.ind");
+		else if (pi.nope && burst_dir == OTRXCD_DIR_L12TRX)
+			col_append_str(pinfo->cinfo, COL_INFO, ", NOPE.req");
+	} else if (pi.num_pdus > 1) {
+		col_append_fstr(pinfo->cinfo, COL_INFO, "TDMA FN %07u", pi.fn);
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", %u batched PDUs ", pi.num_pdus);
 	}
 
 	proto_item_set_len(ti, offset);
@@ -678,6 +832,10 @@ void proto_register_osmo_trx(void)
 		  FT_UINT8, BASE_DEC, NULL, 0x07, NULL, HFILL } },
 		{ &hf_otrxd_tdma_fn, { "TDMA Frame Number", "osmo_trxd.tdma.fn",
 		  FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL } },
+		{ &hf_otrxd_batch_ind, { "BATCH Indication", "osmo_trxd.batch_ind",
+		  FT_BOOLEAN, 8, TFS(&otrxd_batch_bool_val), 0x80, NULL, HFILL } },
+		{ &hf_otrxd_trx_num, { "TRX (RF Channel) Number", "osmo_trxd.trx_num",
+		  FT_UINT8, BASE_DEC, NULL, 0x3f, NULL, HFILL } },
 
 		/* Rx header fields */
 		{ &hf_otrxd_rssi, { "RSSI", "osmo_trxd.meas.rssi",
@@ -708,6 +866,10 @@ void proto_register_osmo_trx(void)
 		/* Tx header fields */
 		{ &hf_otrxd_tx_att, { "Tx Attenuation", "osmo_trxd.tx_att",
 		  FT_UINT8, BASE_DEC | BASE_UNIT_STRING, &units_decibels, 0, NULL, HFILL } },
+		{ &hf_otrxd_tx_scpir, { "SCPIR Value", "osmo_trxd.scpir_val",
+		  FT_INT8, BASE_DEC | BASE_UNIT_STRING, &units_decibels, 0, NULL, HFILL } },
+		{ &hf_otrxd_tx_rfu, { "Spare padding", "osmo_trxd.spare",
+		  FT_BYTES, SEP_SPACE, NULL, 0, NULL, HFILL } },
 
 		/* Burst soft (255 .. 0) / hard (1 or 0) bits */
 		{ &hf_otrxd_soft_symbols, { "Soft-bits", "osmo_trxd.burst.sbits",
