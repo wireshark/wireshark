@@ -90,6 +90,12 @@ static expert_field ei_otrxc_unknown_dir = EI_INIT;
 /* Custom units */
 static const unit_name_string otrx_units_toa256 = { " (1/256 of a symbol)", NULL };
 
+/* TRXD NOPE.{ind,req} value description */
+static const true_false_string otrxd_nope_bool_val = {
+	"Burst is not present",
+	"Burst is present",
+};
+
 /* TRXD modulation types (2 bit field) */
 static const value_string otrxd_mod_2b_vals[] = {
 	/* .00xx... */	{ 0x00, "GMSK" },
@@ -611,7 +617,7 @@ void proto_register_osmo_trx(void)
 
 		/* Rx TRXD header, V1 specific fields */
 		{ &hf_otrxd_nope_ind, { "NOPE Indication", "osmo_trxd.nope_ind",
-		  FT_BOOLEAN, 8, NULL, 0x80, NULL, HFILL } },
+		  FT_BOOLEAN, 8, TFS(&otrxd_nope_bool_val), 0x80, NULL, HFILL } },
 		{ &hf_otrxd_nope_ind_pad, { "NOPE Padding", "osmo_trxd.nope_ind_pad",
 		  FT_UINT8, BASE_DEC, NULL, 0x7f, NULL, HFILL } },
 
