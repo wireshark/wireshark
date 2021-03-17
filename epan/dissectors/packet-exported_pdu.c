@@ -534,7 +534,7 @@ proto_reg_handoff_exported_pdu(void)
     hf_ip_addr    = proto_registrar_get_id_byname("ip.addr");
     hf_ip_dst     = proto_registrar_get_id_byname("ip.dst");
     hf_ip_src     = proto_registrar_get_id_byname("ip.src");
-    hf_ipv6_addr  = proto_registrar_get_id_byname("ipv6.src");
+    hf_ipv6_addr  = proto_registrar_get_id_byname("ipv6.addr");
     hf_ipv6_dst   = proto_registrar_get_id_byname("ipv6.dst");
     hf_ipv6_src   = proto_registrar_get_id_byname("ipv6.src");
 }
