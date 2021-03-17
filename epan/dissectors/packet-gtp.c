@@ -5265,7 +5265,7 @@ decode_qos_umts(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tr
         break;
     }
 
-    if ((type == 3) && (rel_ind == 8)) {
+    if ((type == 3) && (rel_ind >= 8)) {
         /* Release 8 or higher P-GW QoS profile */
         static int * const arp_flags[] = {
             &hf_gtp_qos_arp_pci,
