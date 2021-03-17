@@ -1053,6 +1053,7 @@ typedef struct ssl_common_dissect {
         gint sct;
         gint cert_status;
         gint ocsp_response;
+        gint uncompressed_certificates;
 
         /* do not forget to update SSL_COMMON_LIST_T and SSL_COMMON_ETT_LIST! */
     } ett;
@@ -1065,6 +1066,7 @@ typedef struct ssl_common_dissect {
         expert_field hs_ext_cert_status_undecoded;
         expert_field resumed;
         expert_field record_length_invalid;
+        expert_field decompression_error;
 
         /* do not forget to update SSL_COMMON_LIST_T and SSL_COMMON_EI_LIST! */
     } ei;
@@ -1248,10 +1250,10 @@ ssl_common_dissect_t name = {   \
     },                                                                  \
     /* ett */ {                                                         \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
-        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,                 \
+        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1              \
     },                                                                  \
     /* ei */ {                                                          \
-        EI_INIT, EI_INIT, EI_INIT, EI_INIT, EI_INIT, EI_INIT,           \
+        EI_INIT, EI_INIT, EI_INIT, EI_INIT, EI_INIT, EI_INIT, EI_INIT   \
     },                                                                  \
 }
 /* }}} */
@@ -2397,6 +2399,7 @@ ssl_common_dissect_t name = {   \
         & name .ett.sct,                            \
         & name .ett.cert_status,                    \
         & name .ett.ocsp_response,                  \
+        & name .ett.uncompressed_certificates,      \
 /* }}} */
 
 /* {{{ */
@@ -2424,6 +2427,10 @@ ssl_common_dissect_t name = {   \
     { & name .ei.record_length_invalid, \
         { prefix ".record.length.invalid", PI_PROTOCOL, PI_ERROR, \
         "Record fragment length is too small or too large", EXPFILL } \
+    }, \
+    { & name .ei.decompression_error, \
+        { prefix ".decompression_error", PI_PROTOCOL, PI_ERROR, \
+        "Decompression error", EXPFILL } \
     }
 /* }}} */
 

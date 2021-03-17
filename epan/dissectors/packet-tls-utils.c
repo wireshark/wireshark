@@ -9231,11 +9231,21 @@ ssl_dissect_hnd_cert_url(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *tr
 void
 ssl_dissect_hnd_compress_certificate(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *tree,
                                       guint32 offset, guint32 offset_end, packet_info *pinfo,
-                                      SslSession *session _U_, SslDecryptSession *ssl _U_,
-                                      gboolean is_from_server _U_, gboolean is_dtls _U_)
+                                      SslSession *session, SslDecryptSession *ssl,
+                                      gboolean is_from_server, gboolean is_dtls)
 {
+    guint32 algorithm, uncompressed_length;
     guint32 compressed_certificate_message_length;
+    tvbuff_t *uncompressed_tvb = NULL;
+    proto_item *ti;
     /*
+     * enum {
+     *     zlib(1),
+     *     brotli(2),
+     *     zstd(3),
+     *     (65535)
+     * } CertificateCompressionAlgorithm;
+     *
      * struct {
      *       CertificateCompressionAlgorithm algorithm;
      *       uint24 uncompressed_length;
@@ -9243,12 +9253,12 @@ ssl_dissect_hnd_compress_certificate(ssl_common_dissect_t *hf, tvbuff_t *tvb, pr
      * } CompressedCertificate;
      */
 
-    proto_tree_add_item(tree, hf->hf.hs_ext_compress_certificate_algorithm,
-                        tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint(tree, hf->hf.hs_ext_compress_certificate_algorithm,
+                                 tvb, offset, 2, ENC_BIG_ENDIAN, &algorithm);
     offset += 2;
 
-    proto_tree_add_item(tree, hf->hf.hs_ext_compress_certificate_uncompressed_length,
-                       tvb, offset, 3, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint(tree, hf->hf.hs_ext_compress_certificate_uncompressed_length,
+                                 tvb, offset, 3, ENC_BIG_ENDIAN, &uncompressed_length);
     offset += 3;
 
     /* opaque compressed_certificate_message<1..2^24-1>; */
@@ -9258,10 +9268,33 @@ ssl_dissect_hnd_compress_certificate(ssl_common_dissect_t *hf, tvbuff_t *tvb, pr
     }
     offset += 3;
 
-    proto_tree_add_item(tree, hf->hf.hs_ext_compress_certificate_compressed_certificate_message,
-                        tvb, offset, compressed_certificate_message_length, ENC_NA);
+    ti = proto_tree_add_item(tree, hf->hf.hs_ext_compress_certificate_compressed_certificate_message,
+                             tvb, offset, compressed_certificate_message_length, ENC_NA);
 
-    /* TODO: Add Certificate decompression following algo... (Need to implement brotli too)*/
+    /* Certificate decompression following algorithm */
+    switch (algorithm) {
+    case 2: /* brotli */
+        uncompressed_tvb = tvb_child_uncompress_brotli(tvb, tvb, offset, compressed_certificate_message_length);
+	break;
+    /* TODO: add other algorithms */
+    }
+
+    if (uncompressed_tvb) {
+        proto_tree *uncompressed_tree;
+
+        if (uncompressed_length != tvb_captured_length(uncompressed_tvb)) {
+            proto_tree_add_expert_format(tree, pinfo, &hf->ei.decompression_error,
+                                         tvb, offset, offset_end - offset,
+                                         "Invalid uncompressed length %u (expected %u)",
+                                         tvb_captured_length(uncompressed_tvb),
+                                         uncompressed_length);
+        } else {
+            uncompressed_tree = proto_item_add_subtree(ti, hf->ett.uncompressed_certificates);
+            ssl_dissect_hnd_cert(hf, uncompressed_tvb, uncompressed_tree,
+                                 0, uncompressed_length, pinfo, session, ssl, is_from_server, is_dtls);
+            add_new_data_source(pinfo, uncompressed_tvb, "Uncompressed certificate(s)");
+        }
+    }
 }
 
 /* Dissection of TLS Extensions in Client Hello, Server Hello, etc. {{{ */
