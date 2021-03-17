@@ -34,8 +34,19 @@ struct nvme_cmd_ctx {
     nstime_t cmd_end_time;
     gboolean fabric;     /* indicate whether cmd fabric type or not */
 
+    union {
+        struct {
+            guint16 cns;
+        } cmd_identify;
+        struct {
+            guint16 lsi;
+            guint8 lid;
+            guint8 lsp;
+            guint64 off;
+            guint8 uid_idx;
+        } get_logpage;
+    } cmd_ctx;
     guint8  opcode;
-    guint16 resp_type;
 };
 
 void
