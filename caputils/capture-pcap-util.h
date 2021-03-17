@@ -11,6 +11,10 @@
 #ifndef __CAPTURE_PCAP_UTIL_H__
 #define __CAPTURE_PCAP_UTIL_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
 #ifdef HAVE_LIBPCAP
 
 #include "wspcap.h"
@@ -25,10 +29,6 @@
  * the packet"), so the minimum packet size is 1 byte.
  */
 #define MIN_PACKET_SIZE 1	/* minimum amount of packet data we can read */
-
-#ifdef __cplusplus
-extern "C" {
-#endif /* __cplusplus */
 
 GList *get_interface_list(int *err, char **err_str);
 #ifdef HAVE_PCAP_REMOTE
