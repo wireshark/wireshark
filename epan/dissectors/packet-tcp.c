@@ -3416,7 +3416,7 @@ again:
         }
     }
 
-    if (msp && msp->seq <= seq && msp->nxtpdu > seq) {
+    if (msp && LE_SEQ(msp->seq, seq) && GT_SEQ(msp->nxtpdu, seq)) {
         int len;
 
         if (!PINFO_FD_VISITED(pinfo)) {
@@ -3431,7 +3431,10 @@ again:
             /* The dissector asked for the entire segment */
             len = tvb_captured_length_remaining(tvb, offset);
         } else {
-            len = MIN(nxtseq, msp->nxtpdu) - seq;
+            /* Wraparound is possible, so subtraction does not
+             * distribute across MIN(x, y)
+             */
+            len = MIN(nxtseq - seq, msp->nxtpdu - seq);
         }
         last_fragment_len = len;
 
