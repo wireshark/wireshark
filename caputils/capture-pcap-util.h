@@ -11,18 +11,19 @@
 #ifndef __CAPTURE_PCAP_UTIL_H__
 #define __CAPTURE_PCAP_UTIL_H__
 
-#ifdef __cplusplus
-#define EXTERN_C extern "C"
-#else /* __cplusplus */
-#define EXTERN_C extern
-#endif /* __cplusplus */
-
 #ifdef HAVE_LIBPCAP
 
 #include "wspcap.h"
 
 #include "capture_opts.h"
 
+#endif
+
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
+
+#ifdef HAVE_LIBPCAP
 /*
  * A snapshot length of 0 is useless - and libpcap/WinPcap/Npcap don't guarantee
  * that a snapshot length of 0 will work, and, on some platforms, it won't
@@ -32,21 +33,19 @@
  */
 #define MIN_PACKET_SIZE 1	/* minimum amount of packet data we can read */
 
-EXTERN_C GList *get_interface_list(int *err, char **err_str);
+GList *get_interface_list(int *err, char **err_str);
 #ifdef HAVE_PCAP_REMOTE
-EXTERN_C GList *get_remote_interface_list(const char *hostname,
-                                          const char *port, int auth_type,
-                                          const char *username,
-                                          const char *passwd,
-                                          int *err, char **err_str);
+GList *get_remote_interface_list(const char *hostname, const char *port,
+                                 int auth_type, const char *username,
+                                 const char *passwd, int *err, char **err_str);
 #endif /* HAVE_PCAP_REMOTE */
 
-EXTERN_C const char *linktype_val_to_name(int dlt);
-EXTERN_C int linktype_name_to_val(const char *linktype);
+const char *linktype_val_to_name(int dlt);
+int linktype_name_to_val(const char *linktype);
 
-EXTERN_C int get_pcap_datalink(pcap_t *pch, const char *devicename);
+int get_pcap_datalink(pcap_t *pch, const char *devicename);
 
-EXTERN_C gboolean set_pcap_datalink(pcap_t *pcap_h, int datalink, char *name,
+gboolean set_pcap_datalink(pcap_t *pcap_h, int datalink, char *name,
     char *errmsg, size_t errmsg_len,
     char *secondary_errmsg, size_t secondary_errmsg_len);
 
@@ -55,7 +54,7 @@ EXTERN_C gboolean set_pcap_datalink(pcap_t *pcap_h, int datalink, char *name,
  * Return TRUE if the pcap_t in question is set up for high-precision
  * time stamps, FALSE otherwise.
  */
-EXTERN_C gboolean have_high_resolution_timestamp(pcap_t *pcap_h);
+gboolean have_high_resolution_timestamp(pcap_t *pcap_h);
 #endif /* HAVE_PCAP_SET_TSTAMP_PRECISION */
 
 /*
@@ -67,16 +66,16 @@ typedef enum {
     CAP_DEVICE_OPEN_ERR_NOT_PERMISSIONS, /* Error is known not to be a permissions error */
     CAP_DEVICE_OPEN_ERR_GENERIC          /* Error is not known to be one or the other */
 } cap_device_open_err;
-EXTERN_C if_capabilities_t *get_if_capabilities(interface_options *interface_opts,
+extern if_capabilities_t *get_if_capabilities(interface_options *interface_opts,
     cap_device_open_err *err, char **err_str);
-EXTERN_C pcap_t *open_capture_device(capture_options *capture_opts,
+extern pcap_t *open_capture_device(capture_options *capture_opts,
     interface_options *interface_opts,
     int timeout, cap_device_open_err *open_err,
     char (*open_err_str)[PCAP_ERRBUF_SIZE]);
 
 #endif /* HAVE_LIBPCAP */
 
-EXTERN_C void get_compiled_caplibs_version(GString *str);
+extern void get_compiled_caplibs_version(GString *str);
 
 /*
  * Append to a GString an indication of the version of capture libraries
@@ -85,6 +84,10 @@ EXTERN_C void get_compiled_caplibs_version(GString *str);
  * WinPcap/Npcap wasn't loaded, or nothing, if we weren't compiled with
  * libpcap/WinPcap/Npcap.
  */
-EXTERN_C void get_runtime_caplibs_version(GString *str);
+extern void get_runtime_caplibs_version(GString *str);
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
 
 #endif /* __CAPTURE_PCAP_UTIL_H__ */
