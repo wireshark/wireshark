@@ -7596,11 +7596,21 @@ ssl_dissect_hnd_hello_ext_quic_transport_parameters(ssl_common_dissect_t *hf, tv
                 offset += parameter_length;
             break;
             case SSL_HND_QUIC_TP_GOOGLE_QUIC_VERSION:
-                for (i = 0; i < parameter_length; i += 4) {
-                    proto_tree_add_item(parameter_tree, hf->hf.hs_ext_quictp_parameter_google_quic_version,
-                                        tvb, offset + i, 4, ENC_BIG_ENDIAN);
-		}
-                offset += parameter_length;
+                proto_tree_add_item(parameter_tree, hf->hf.hs_ext_quictp_parameter_google_quic_version,
+                                    tvb, offset, 4, ENC_BIG_ENDIAN);
+                offset += 4;
+                if (hnd_type == SSL_HND_ENCRYPTED_EXTENSIONS) { /* From server */
+                    guint32 versions_length;
+
+                    proto_tree_add_item_ret_uint(parameter_tree, hf->hf.hs_ext_quictp_parameter_google_supported_versions_length,
+                                                 tvb, offset, 1, ENC_NA, &versions_length);
+                    offset += 1;
+                    for (i = 0; i < versions_length / 4; i++) {
+                        quic_proto_tree_add_version(tvb, parameter_tree,
+                                                    hf->hf.hs_ext_quictp_parameter_google_supported_version, offset);
+                        offset += 4;
+                    }
+                }
             break;
             case SSL_HND_QUIC_TP_GOOGLE_INITIAL_RTT:
                 proto_tree_add_item_ret_varint(parameter_tree, hf->hf.hs_ext_quictp_parameter_google_initial_rtt,

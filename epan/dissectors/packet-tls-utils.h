@@ -1013,6 +1013,8 @@ typedef struct ssl_common_dissect {
         gint hs_ext_quictp_parameter_google_quic_params;
         gint hs_ext_quictp_parameter_google_quic_params_unknown_field;
         gint hs_ext_quictp_parameter_google_connection_options;
+        gint hs_ext_quictp_parameter_google_supported_versions_length;
+        gint hs_ext_quictp_parameter_google_supported_version;
         gint hs_ext_quictp_parameter_facebook_partial_reliability;
 
         gint esni_suite;
@@ -1246,7 +1248,7 @@ ssl_common_dissect_t name = {   \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
-        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1              \
+        -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1      \
     },                                                                  \
     /* ett */ {                                                         \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
@@ -2320,6 +2322,16 @@ ssl_common_dissect_t name = {   \
     { & name .hf.hs_ext_quictp_parameter_google_connection_options,     \
       { "Google Connection options", prefix ".quic.parameter.google.connection_options", \
         FT_BYTES, BASE_NONE, NULL, 0x00,                                \
+        NULL, HFILL }                                                   \
+    },                                                                  \
+    { & name .hf.hs_ext_quictp_parameter_google_supported_versions_length, \
+      { "Google Supported Versions Length", prefix ".quic.parameter.google.supported_versions_length", \
+        FT_UINT8, BASE_DEC, NULL, 0x00,                                 \
+        NULL, HFILL }                                                   \
+    },                                                                  \
+    { & name .hf.hs_ext_quictp_parameter_google_supported_version,      \
+      { "Google Supported Version", prefix ".quic.parameter.google.supported_version", \
+        FT_UINT32, BASE_RANGE_STRING | BASE_HEX, RVALS(quic_version_vals), 0x00, \
         NULL, HFILL }                                                   \
     },                                                                  \
     { & name .hf.hs_ext_quictp_parameter_facebook_partial_reliability,     \
