@@ -3627,6 +3627,17 @@ again:
                     msp->flags |= MSP_FLAGS_REASSEMBLE_ENTIRE_SEGMENT;
                 } else if (pinfo->desegment_len == DESEGMENT_UNTIL_FIN) {
                     tcpd->fwd->flags |= TCP_FLOW_REASSEMBLE_UNTIL_FIN;
+                    /* This is not the first segment, and we thought the
+                     * reassembly would be done now, but now know we must
+                     * desgment until FIN. (E.g., HTTP Response with headers
+                     * split across segments, and no Content-Length or
+                     * Transfer-Encoding (RFC 7230, Section 3.3.3, case 7.)
+                     * For the same reasons as below when we encounter
+                     * DESEGMENT_UNTIL_FIN on the first segment, give
+                     * msp->nxtpdu a big (but not too big) offset so reassembly
+                     * will pick up the segments later.
+                     */
+                    msp->nxtpdu = msp->seq + 0x40000000;
                 } else {
                     if (seq + last_fragment_len >= msp->nxtpdu) {
                         /* This is the segment (overlapping) the end of the MSP. */
