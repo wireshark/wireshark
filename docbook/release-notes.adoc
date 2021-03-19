@@ -115,7 +115,7 @@ The User’s Guide, manual pages and various other documentation can be found at
 https://www.wireshark.org/docs/
 
 Community support is available on
-https://ask.wireshark.org/[Wireshark’sQ&A site]
+https://ask.wireshark.org/[Wireshark’s Q&A site]
 and on the wireshark-users mailing list.
 Subscription information and archives for all of Wireshark’s mailing lists can be found on
 https://www.wireshark.org/lists/[the web site].
