@@ -1090,67 +1090,67 @@ wmem_test_strbuf(void)
     strbuf = wmem_strbuf_new(allocator, "TEST");
     g_assert_true(strbuf);
     g_assert_cmpstr(wmem_strbuf_get_str(strbuf), ==, "TEST");
-    g_assert_true(wmem_strbuf_get_len(strbuf) == 4);
+    g_assert_cmpuint(wmem_strbuf_get_len(strbuf), ==, 4);
 
     wmem_strbuf_append(strbuf, "FUZZ");
     g_assert_cmpstr(wmem_strbuf_get_str(strbuf), ==, "TESTFUZZ");
-    g_assert_true(wmem_strbuf_get_len(strbuf) == 8);
+    g_assert_cmpuint(wmem_strbuf_get_len(strbuf), ==, 8);
 
     wmem_strbuf_append_printf(strbuf, "%d%s", 3, "a");
     g_assert_cmpstr(wmem_strbuf_get_str(strbuf), ==, "TESTFUZZ3a");
-    g_assert_true(wmem_strbuf_get_len(strbuf) == 10);
+    g_assert_cmpuint(wmem_strbuf_get_len(strbuf), ==, 10);
 
     wmem_strbuf_append_c(strbuf, 'q');
     g_assert_cmpstr(wmem_strbuf_get_str(strbuf), ==, "TESTFUZZ3aq");
-    g_assert_true(wmem_strbuf_get_len(strbuf) == 11);
+    g_assert_cmpuint(wmem_strbuf_get_len(strbuf), ==, 11);
 
     wmem_strbuf_append_unichar(strbuf, g_utf8_get_char("\xC2\xA9"));
     g_assert_cmpstr(wmem_strbuf_get_str(strbuf), ==, "TESTFUZZ3aq\xC2\xA9");
-    g_assert_true(wmem_strbuf_get_len(strbuf) == 13);
+    g_assert_cmpuint(wmem_strbuf_get_len(strbuf), ==, 13);
 
     wmem_strbuf_truncate(strbuf, 32);
     wmem_strbuf_truncate(strbuf, 24);
     wmem_strbuf_truncate(strbuf, 16);
     wmem_strbuf_truncate(strbuf, 13);
     g_assert_cmpstr(wmem_strbuf_get_str(strbuf), ==, "TESTFUZZ3aq\xC2\xA9");
-    g_assert_true(wmem_strbuf_get_len(strbuf) == 13);
+    g_assert_cmpuint(wmem_strbuf_get_len(strbuf), ==, 13);
 
     wmem_strbuf_truncate(strbuf, 3);
     g_assert_cmpstr(wmem_strbuf_get_str(strbuf), ==, "TES");
-    g_assert_true(wmem_strbuf_get_len(strbuf) == 3);
+    g_assert_cmpuint(wmem_strbuf_get_len(strbuf), ==, 3);
 
     wmem_strbuf_append_len(strbuf, "TFUZZ1234", 5);
     g_assert_cmpstr(wmem_strbuf_get_str(strbuf), ==, "TESTFUZZ");
-    g_assert_true(wmem_strbuf_get_len(strbuf) == 8);
+    g_assert_cmpuint(wmem_strbuf_get_len(strbuf), ==, 8);
 
     strbuf = wmem_strbuf_sized_new(allocator, 10, 10);
     g_assert_true(strbuf);
     g_assert_cmpstr(wmem_strbuf_get_str(strbuf), ==, "");
-    g_assert_true(wmem_strbuf_get_len(strbuf) == 0);
+    g_assert_cmpuint(wmem_strbuf_get_len(strbuf), ==, 0);
 
     wmem_strbuf_append(strbuf, "FUZZ");
     g_assert_cmpstr(wmem_strbuf_get_str(strbuf), ==, "FUZZ");
-    g_assert_true(wmem_strbuf_get_len(strbuf) == 4);
+    g_assert_cmpuint(wmem_strbuf_get_len(strbuf), ==, 4);
 
     wmem_strbuf_append_printf(strbuf, "%d%s", 3, "abcdefghijklmnop");
     g_assert_cmpstr(wmem_strbuf_get_str(strbuf), ==, "FUZZ3abcd");
-    g_assert_true(wmem_strbuf_get_len(strbuf) == 9);
+    g_assert_cmpuint(wmem_strbuf_get_len(strbuf), ==, 9);
 
     wmem_strbuf_append(strbuf, "abcdefghijklmnopqrstuvwxyz");
     g_assert_cmpstr(wmem_strbuf_get_str(strbuf), ==, "FUZZ3abcd");
-    g_assert_true(wmem_strbuf_get_len(strbuf) == 9);
+    g_assert_cmpuint(wmem_strbuf_get_len(strbuf), ==, 9);
 
     wmem_strbuf_append_c(strbuf, 'q');
     g_assert_cmpstr(wmem_strbuf_get_str(strbuf), ==, "FUZZ3abcd");
-    g_assert_true(wmem_strbuf_get_len(strbuf) == 9);
+    g_assert_cmpuint(wmem_strbuf_get_len(strbuf), ==, 9);
 
     wmem_strbuf_append_unichar(strbuf, g_utf8_get_char("\xC2\xA9"));
     g_assert_cmpstr(wmem_strbuf_get_str(strbuf), ==, "FUZZ3abcd");
-    g_assert_true(wmem_strbuf_get_len(strbuf) == 9);
+    g_assert_cmpuint(wmem_strbuf_get_len(strbuf), ==, 9);
 
     str = wmem_strbuf_finalize(strbuf);
     g_assert_cmpstr(str, ==, "FUZZ3abcd");
-    g_assert_true(strlen(str) == 9);
+    g_assert_cmpuint(strlen(str), ==, 9);
 
     wmem_free_all(allocator);
 
