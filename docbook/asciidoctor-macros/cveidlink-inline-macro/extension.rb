@@ -3,7 +3,8 @@ require 'asciidoctor/extensions' unless RUBY_ENGINE == 'opal'
 
 include ::Asciidoctor
 
-# An inline macro that generates links to related man pages.
+# An inline macro that generates a link to a CVE Record identified by its CVE
+# Number.
 #
 # Usage
 #
