@@ -12,14 +12,12 @@
 #include "config.h"
 
 #include <string.h>
+#include <stdio.h>
+#include <errno.h>
 #include <glib.h>
 
 #include "wmem_core.h"
 #include "wmem_strbuf.h"
-
-#ifdef _WIN32
-#include <stdio.h>
-#endif
 
 #define DEFAULT_MINIMUM_LEN 16
 
@@ -167,60 +165,55 @@ wmem_strbuf_append_len(wmem_strbuf_t *strbuf, const gchar *str, gsize append_len
     strbuf->str[strbuf->len] = '\0';
 }
 
-#ifndef _WIN32
+static inline
+int _strbuf_vsnprintf(wmem_strbuf_t *strbuf, const char *format, va_list ap, gboolean reset)
+{
+    int want_len;
+    char *buffer = &strbuf->str[strbuf->len];
+    size_t buffer_size = WMEM_STRBUF_RAW_ROOM(strbuf);
+
+    want_len = vsnprintf(buffer, buffer_size, format, ap);
+    if (want_len < 0) {
+        /* Error. */
+        g_warning("%s: vsnprintf (%d): %s", G_STRFUNC, want_len, g_strerror(errno));
+        return -1;
+    }
+    if ((size_t)want_len < buffer_size) {
+        /* Success. */
+        strbuf->len += want_len;
+        return 0;
+    }
+
+    /* No space in buffer, output was truncated. */
+    if (reset) {
+        strbuf->str[strbuf->len] = '\0'; /* Reset. */
+    }
+    else {
+        strbuf->len += buffer_size - 1; /* Append. */
+        g_assert(strbuf->len == strbuf->alloc_len - 1);
+    }
+
+    return want_len; /* Length (not including terminating null) that would be written
+                        if there was enough space in buffer. */
+}
+
 void
 wmem_strbuf_append_vprintf(wmem_strbuf_t *strbuf, const gchar *fmt, va_list ap)
 {
+    int want_len;
     va_list ap2;
-    gsize append_len;
 
     G_VA_COPY(ap2, ap);
-
-    append_len = g_printf_string_upper_bound(fmt, ap);
-
-    /* -1 because g_printf_string_upper_bound counts the null-terminator, but
-     * wmem_strbuf_grow does not */
-    wmem_strbuf_grow(strbuf, append_len - 1);
-
-    append_len = g_vsnprintf(&strbuf->str[strbuf->len],
-            (gulong) WMEM_STRBUF_RAW_ROOM(strbuf),
-            fmt, ap2);
-
+    /* Try to write buffer, check if output fits. */
+    want_len = _strbuf_vsnprintf(strbuf, fmt, ap2, TRUE); /* Remove output if truncated. */
     va_end(ap2);
+    if (want_len <= 0)
+        return;
 
-    strbuf->len = MIN(strbuf->len + append_len, strbuf->alloc_len - 1);
+    /* Resize buffer and try again. This could hit the 'max_len' ceiling. */
+    wmem_strbuf_grow(strbuf, want_len);
+    _strbuf_vsnprintf(strbuf, fmt, ap, FALSE); /* Keep output if truncated. */
 }
-#else /* _WIN32 */
-/*
- * GLib's v*printf routines are surprisingly slow on Windows, at least with
- * GLib 2.40.0. This appears to be due to GLib using the gnulib version of
- * vasnprintf when compiled under MinGW. If GLib ever ends up using the
- * native Windows v*printf routines this can be removed.
- */
-void
-wmem_strbuf_append_vprintf(wmem_strbuf_t *strbuf, const gchar *fmt, va_list ap)
-{
-    va_list ap2;
-    gsize append_len;
-    gsize printed_len;
-
-    G_VA_COPY(ap2, ap);
-
-    append_len = _vscprintf(fmt, ap);
-
-    wmem_strbuf_grow(strbuf, append_len);
-
-    printed_len = vsnprintf_s(&strbuf->str[strbuf->len],
-            (gulong) WMEM_STRBUF_RAW_ROOM(strbuf),
-            _TRUNCATE,
-            fmt, ap2);
-    if (printed_len > -1) append_len = printed_len;
-
-    va_end(ap2);
-
-    strbuf->len = MIN(strbuf->len + append_len, strbuf->alloc_len - 1);
-}
-#endif /* _WIN32 */
 
 void
 wmem_strbuf_append_printf(wmem_strbuf_t *strbuf, const gchar *format, ...)
