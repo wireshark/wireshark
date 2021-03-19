@@ -1755,7 +1755,7 @@ set_fd_time(const epan_t *epan, frame_data *fd, gchar *buf)
 
   case TS_NOT_SET:
     /* code is missing for this case, but I don't know which [jmayer20051219] */
-    g_assert(FALSE);
+    g_assert_not_reached();
     break;
   }
 }

@@ -388,7 +388,7 @@ main(int argc, char *argv[])
 
     case MERGE_USER_ABORTED:
       /* we don't catch SIGINT/SIGTERM (yet?), so we couldn't have aborted */
-      g_assert(FALSE);
+      g_assert_not_reached();
       break;
 
     case MERGE_ERR_CANT_OPEN_INFILE:
