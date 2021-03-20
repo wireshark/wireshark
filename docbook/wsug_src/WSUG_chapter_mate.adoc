@@ -49,12 +49,12 @@ These are the steps to try out MATE:
 
 * Run Wireshark and check if the plugin is installed correct (MATE should
 appear in Help->About->Plugins)
-* Get a configuration file e.g. tcp.mate (see {wireshark-wiki-url}/Mate/Examples[Mate/Examples]
+* Get a configuration file e.g. tcp.mate (see {wireshark-wiki-url}Mate/Examples[Mate/Examples]
 for more) and place it somewhere on your harddisk.
 * Go to Preferences->Protocols->MATE and set the config filename to the file
 you want to use (you don't have to restart Wireshark)
 * Load a corresponding capture file (e.g.
-{wireshark-wiki-url}/uploads/27707187aeb30df68e70c8fb9d614981/http.cap[http.cap]) and see if MATE
+{wireshark-wiki-url}uploads/27707187aeb30df68e70c8fb9d614981/http.cap[http.cap]) and see if MATE
 has added some new display filter fields, something like: `mate tcp_pdu:1->tcp_ses:1`
 or, at prompt: `path_to/wireshark -o "mate.config: tcp.mate" -r http.cap`.
 

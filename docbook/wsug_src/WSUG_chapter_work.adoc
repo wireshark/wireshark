@@ -968,7 +968,7 @@ Hexadecimal Value::
   Search for a specific byte sequence in the packet data.
 +
 For example, use “ef:bb:bf” to find the next packet that contains the
-link:{wikipedia-main-url}/Byte_order_mark[UTF-8 byte order mark].
+link:{wikipedia-main-url}Byte_order_mark[UTF-8 byte order mark].
 
 String::
   Find a string in the packet data, with various options.
