@@ -2055,7 +2055,7 @@ proto_register_protobuf(void)
             proto_protobuf, FT_STRING, BASE_NONE);
 
     prefs_register_bool_preference(protobuf_module, "subdissect_all_pbf_types",
-        "Subdissector all Fields.",
+        "Enable subdissector for all protobuf fields.",
         "Subdissector can be register itself for Protobuf fields of all types if this option is turned on.",
         &subdissect_all_pbf_types);
 
