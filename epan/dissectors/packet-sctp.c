@@ -1,7 +1,7 @@
 /* packet-sctp.c
  * Routines for Stream Control Transmission Protocol dissection
  * Copyright 2000-2012 Michael Tuexen <tuexen [AT] fh-muenster.de>
- * Copyright 2011 Thomas Dreibholz <dreibh [AT] iem.uni-due.de>
+ * Copyright 2011-2021 Thomas Dreibholz <dreibh [AT] iem.uni-due.de>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -4709,7 +4709,12 @@ dissect_sctp_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolea
   dissect_sctp_chunks(tvb, pinfo, tree, sctp_item, sctp_tree, ha, encapsulated);
 
   /* add assoc_index and move it behind the verification tag */
-  pi = proto_tree_add_uint(sctp_tree, hf_sctp_assoc_index, tvb, 0 , 0, sctp_info.assoc_index);
+  if (enable_association_indexing) {
+     pi = proto_tree_add_uint(sctp_tree, hf_sctp_assoc_index, tvb, 0 , 0, sctp_info.assoc_index);
+  }
+  else {
+     pi = proto_tree_add_uint_format_value(sctp_tree, hf_sctp_assoc_index, tvb, 0 , 0, sctp_info.assoc_index, "disabled (enable in preferences)");
+  }
   proto_item_set_generated(pi);
   proto_tree_move_item(sctp_tree, vt, pi);
 }
@@ -5075,8 +5080,8 @@ proto_register_sctp(void)
                          "Match TSNs and their SACKs",
                          &enable_tsn_analysis);
   prefs_register_bool_preference(sctp_module, "association_index",
-                         "Enable Association indexing(Can be CPU intense)",
-                         "Match verification tags(CPU intense)",
+                         "Enable Association indexing (Can be CPU intense)",
+                         "Match verification tags (CPU intense)",
                          &enable_association_indexing);
   prefs_register_bool_preference(sctp_module, "ulp_dissection",
                          "Dissect upper layer protocols",
