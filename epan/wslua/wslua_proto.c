@@ -233,7 +233,7 @@ WSLUA_METHOD Proto_register_heuristic(lua_State* L) {
     Proto proto = checkProto(L,1);
     const gchar *listname = luaL_checkstring(L, WSLUA_ARG_Proto_register_heuristic_LISTNAME);
     const gchar *proto_name = proto->name;
-    const int top = lua_gettop(L);
+    const int top _U_ = lua_gettop(L);
     gchar *short_name;
 
     if (!proto_name || proto->hfid == -1) {
@@ -278,7 +278,7 @@ WSLUA_METHOD Proto_register_heuristic(lua_State* L) {
         lua_replace(L, WSLUA_ARG_Proto_register_heuristic_FUNC);
         /* pop the lua_dissectors_table */
         lua_pop(L, 1);
-        g_assert(top == lua_gettop(L));
+        ws_assert(top == lua_gettop(L));
     }
 
     /* heuristic functions are stored in a table in the registry; the registry has a
@@ -314,7 +314,7 @@ WSLUA_METHOD Proto_register_heuristic(lua_State* L) {
 
         /* ok, we're done with lua stuff, pop what we added to the stack */
         lua_pop(L,2); /* pop the lists table and the listname table */
-        g_assert(top == lua_gettop(L));
+        ws_assert(top == lua_gettop(L));
 
         short_name = wmem_strconcat(NULL, proto->loname, "_", listname, NULL);
 

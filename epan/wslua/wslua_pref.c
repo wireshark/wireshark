@@ -152,7 +152,7 @@ static int new_pref(lua_State* L, pref_type_t type) {
             break;
         }
         default:
-            g_assert_not_reached();
+            ws_assert_not_reached();
             break;
 
     }

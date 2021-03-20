@@ -224,7 +224,7 @@ gboolean heur_dissect_lua(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, v
     lua_tvb = tvb;
     lua_pinfo = pinfo;
 
-    g_assert(tvb && pinfo);
+    ws_assert(tvb && pinfo);
 
     if (!pinfo->heur_list_name || !pinfo->current_proto) {
         proto_tree_add_expert_format(tree, pinfo, &ei_lua_error, tvb, 0, 0,
@@ -797,7 +797,7 @@ wslua_get_expert_field(const int group, const int severity)
     int i;
     const ei_register_info *ei = ws_lua_ei;
 
-    g_assert(ei);
+    ws_assert(ei);
 
     for (i=0; i < ws_lua_ei_len; i++, ei++) {
         if (ei->eiinfo.group == group && ei->eiinfo.severity == severity)

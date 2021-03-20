@@ -57,7 +57,7 @@ static void lua_menu_callback(gpointer data) {
             g_warning("Error while running the error handler function for menu callback");
             break;
         default:
-            g_assert_not_reached();
+            ws_assert_not_reached();
             break;
     }
 
@@ -160,7 +160,7 @@ static void lua_dialog_cb(gchar** user_input, void* data) {
             g_warning("Error while running the error handler function for dialog callback");
             break;
         default:
-            g_assert_not_reached();
+            ws_assert_not_reached();
             break;
     }
 
@@ -774,7 +774,7 @@ static gboolean wslua_button_callback(funnel_text_window_t* ws_tw, void* data) {
             g_warning("Error while running the error handler function for button callback");
             break;
         default:
-            g_assert_not_reached();
+            ws_assert_not_reached();
             break;
     }
 

@@ -108,7 +108,7 @@ static tap_packet_status lua_tap_packet(void *tapdata, packet_info *pinfo, epan_
             g_warning("Error while running the error handler function for listener tap callback");
             break;
         default:
-            g_assert_not_reached();
+            ws_assert_not_reached();
             break;
     }
 
@@ -150,7 +150,7 @@ static void lua_tap_reset(void *tapdata) {
             g_warning("Error while running the error handler function for a listener's init()");
             break;
         default:
-            g_assert_not_reached();
+            ws_assert_not_reached();
             break;
     }
 }
@@ -185,7 +185,7 @@ static void lua_tap_draw(void *tapdata) {
             g_warning("Error while running the error handler function for a listener's draw()");
             break;
         default:
-            g_assert_not_reached();
+            ws_assert_not_reached();
             break;
     }
 }

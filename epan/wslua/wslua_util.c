@@ -501,7 +501,7 @@ static void statcmd_init(const char *opt_arg, void* userdata) {
             g_warning("Error while running the error handler function for statcmd callback");
             break;
         default:
-            g_assert_not_reached();
+            ws_assert_not_reached();
             break;
     }
 

@@ -30,6 +30,7 @@
 
 #include <wsutil/report_message.h>
 #include <wsutil/nstime.h>
+#include <wsutil/ws_assert.h>
 
 #include <epan/packet.h>
 #include <epan/strutil.h>

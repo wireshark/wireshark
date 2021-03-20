@@ -121,7 +121,7 @@ report_error(int *err, gchar **err_info, const char *fmt, ...)
         report_error(err, err_info, "Error in garbage collector while calling FileHandler %s routine", name); \
         break; \
     default: \
-        g_assert_not_reached(); \
+        ws_assert_not_reached(); \
         break;
 
 /* some declarations */
