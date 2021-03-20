@@ -36,6 +36,12 @@ class QTemporaryFile;
 struct _rtp_info;
 struct _rtp_sample;
 
+// Structure used for storing frame num during visual waveform decoding
+typedef struct {
+    qint64  len;
+    guint32 frame_num;
+} _rtp_packet_frame;
+
 class RtpAudioStream : public QObject
 {
     Q_OBJECT
@@ -150,8 +156,9 @@ private:
     rtpstream_id_t id_;
 
     QVector<struct _rtp_packet *>rtp_packets_;
-    QTemporaryFile *samplefile_;
-    QIODevice *tempfile_;
+    QTemporaryFile *sample_file_;       // Stores waveform samples
+    QTemporaryFile *sample_file_frame_; // Stores _rtp_packet_frame per packet
+    QIODevice *temp_file_;
     struct _GHashTable *decoders_hash_;
     // TODO: It is not used
     //QList<const rtpstream_info_t *>rtpstreams_;
@@ -159,6 +166,7 @@ private:
     double start_abs_offset_;
     double start_rel_time_;
     double stop_rel_time_;
+    qint64 prepend_samples_; // Count of silence samples to match other streams
     AudioRouting audio_routing_;
     bool stereo_required_;
     quint32 audio_out_rate_;
@@ -182,6 +190,9 @@ private:
     void writeSilence(qint64 samples);
     const QString formatDescription(const QAudioFormat & format);
     QString currentOutputDevice();
+
+    void decodeAudio(QAudioDeviceInfo out_device);
+    void decodeVisual();
 
 private slots:
     void outputStateChanged(QAudio::State new_state);

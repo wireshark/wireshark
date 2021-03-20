@@ -65,8 +65,10 @@ RtpAudioStream::RtpAudioStream(QObject *parent, rtpstream_info_t *rtpstream, boo
     speex_resampler_skip_zeros(visual_resampler_);
 
     QString tempname = QString("%1/wireshark_rtp_stream").arg(QDir::tempPath());
-    samplefile_ = new QTemporaryFile(tempname, this);
-    samplefile_->open();
+    sample_file_ = new QTemporaryFile(tempname, this);
+    sample_file_->open();
+    sample_file_frame_ = new QTemporaryFile(tempname, this);
+    sample_file_frame_->open();
 
     // RTP_STREAM_DEBUG("Writing to %s", tempname.toUtf8().constData());
 }
@@ -83,8 +85,9 @@ RtpAudioStream::~RtpAudioStream()
     if (audio_resampler_) speex_resampler_destroy (audio_resampler_);
     speex_resampler_destroy (visual_resampler_);
     rtpstream_id_free(&id_);
-    if (samplefile_) delete samplefile_;
-    // tempfile_ is released by audio_output_
+    if (sample_file_) delete sample_file_;
+    if (sample_file_frame_) delete sample_file_frame_;
+    // temp_file_ is released by audio_output_
     if (audio_output_) delete audio_output_;
 }
 
@@ -154,10 +157,9 @@ void RtpAudioStream::reset(double global_start_time)
     if (audio_resampler_) {
         speex_resampler_reset_mem(audio_resampler_);
     }
-    if (visual_resampler_) {
-        speex_resampler_reset_mem(visual_resampler_);
-    }
-    samplefile_->seek(0);
+    speex_resampler_reset_mem(visual_resampler_);
+    sample_file_->seek(0);
+    sample_file_frame_->seek(0);
 }
 
 AudioRouting RtpAudioStream::getAudioRouting()
@@ -179,12 +181,20 @@ void RtpAudioStream::decode(QAudioDeviceInfo out_device)
 {
     if (rtp_packets_.size() < 1) return;
 
+    decodeAudio(out_device);
+
+    speex_resampler_reset_mem(visual_resampler_);
+    decodeVisual();
+}
+
+void RtpAudioStream::decodeAudio(QAudioDeviceInfo out_device)
+{
     // gtk/rtp_player.c:decode_rtp_stream
     // XXX This is more messy than it should be.
 
     gsize resample_buff_len = 0x1000;
     SAMPLE *resample_buff = (SAMPLE *) g_malloc(resample_buff_len);
-    spx_uint32_t cur_in_rate = 0, visual_out_rate = 0;
+    spx_uint32_t cur_in_rate = 0;
     char *write_buff = NULL;
     qint64 write_bytes = 0;
     unsigned channels = 0;
@@ -200,13 +210,14 @@ void RtpAudioStream::decode(QAudioDeviceInfo out_device)
 
     size_t decoded_bytes_prev = 0;
 
+    _rtp_packet_frame frame_info;
+
     for (int cur_packet = 0; cur_packet < rtp_packets_.size(); cur_packet++) {
         SAMPLE *decode_buff = NULL;
         // XXX The GTK+ UI updates a progress bar here.
         rtp_packet_t *rtp_packet = rtp_packets_[cur_packet];
 
         stop_rel_time_ = start_rel_time_ + rtp_packet->arrive_offset;
-        speex_resampler_get_rate(visual_resampler_, &cur_in_rate, &visual_out_rate);
 
         QString payload_name;
         if (rtp_packet->info->info_payload_type_str) {
@@ -261,10 +272,10 @@ void RtpAudioStream::decode(QAudioDeviceInfo out_device)
             RTP_STREAM_DEBUG("Audio sample rate is %u", audio_out_rate_);
 
             // Prepend silence to match our sibling streams.
-            samplefile_->seek(0);
-            qint64 prepend_samples = (start_rel_time_ - global_start_rel_time_) * audio_out_rate_;
-            if (prepend_samples > 0) {
-                writeSilence(prepend_samples);
+            sample_file_->seek(0);
+            prepend_samples_ = (start_rel_time_ - global_start_rel_time_) * audio_out_rate_;
+            if (prepend_samples_ > 0) {
+                writeSilence(prepend_samples_);
             }
         }
 
@@ -302,8 +313,8 @@ void RtpAudioStream::decode(QAudioDeviceInfo out_device)
                 silence_timestamps_.append(stop_rel_time_);
 
                 decoded_bytes_prev = 0;
-/* defined start_timestamp to avoid overflow in timestamp. TODO: handle the timestamp correctly */
-/* XXX: if timestamps (RTP) are missing/ignored try use packet arrive time only (see also "rtp_time") */
+                /* defined start_timestamp to avoid overflow in timestamp. TODO: handle the timestamp correctly */
+                /* XXX: if timestamps (RTP) are missing/ignored try use packet arrive time only (see also "rtp_time") */
                 start_timestamp = rtp_packet->info->info_timestamp;
                 start_rtp_time = 0;
                 start_time = rtp_packet->arrive_offset;
@@ -342,7 +353,7 @@ void RtpAudioStream::decode(QAudioDeviceInfo out_device)
             arrive_time_prev = arrive_time;
         }
 
-        // Write samples to our file.
+        // Prepare samples to write
         write_buff = (char *) decode_buff;
         write_bytes = decoded_bytes;
 
@@ -359,7 +370,6 @@ void RtpAudioStream::decode(QAudioDeviceInfo out_device)
                 // Adjust rates if needed.
                 if (sample_rate != cur_in_rate) {
                     speex_resampler_set_rate(audio_resampler_, sample_rate, audio_out_rate);
-                    speex_resampler_set_rate(visual_resampler_, sample_rate, visual_out_rate);
                     RTP_STREAM_DEBUG("Changed input rate from %u to %u Hz. Out is %u.", cur_in_rate, sample_rate, audio_out_rate_);
                 }
             }
@@ -377,28 +387,78 @@ void RtpAudioStream::decode(QAudioDeviceInfo out_device)
         }
 
         // Write the decoded, possibly-resampled audio to our temp file.
-        samplefile_->write(write_buff, write_bytes);
+        sample_file_->write(write_buff, write_bytes);
 
-        // Collect our visual samples.
-        spx_uint32_t in_len = (spx_uint32_t)rtp_packet->info->info_payload_len;
-        spx_uint32_t out_len = (visual_out_rate * in_len / sample_rate) + (visual_out_rate % sample_rate != 0);
-        if (out_len * SAMPLE_BYTES > resample_buff_len) {
-            while ((out_len * SAMPLE_BYTES > resample_buff_len))
-                resample_buff_len *= 2;
-            resample_buff = (SAMPLE *) g_realloc(resample_buff, resample_buff_len);
-        }
-
-        speex_resampler_process_int(visual_resampler_, 0, decode_buff, &in_len, resample_buff, &out_len);
-        for (unsigned i = 0; i < out_len; i++) {
-            packet_timestamps_[stop_rel_time_ + (double) i / visual_out_rate] = rtp_packet->frame_num;
-            if (qAbs(resample_buff[i]) > max_sample_val_) max_sample_val_ = qAbs(resample_buff[i]);
-            visual_samples_.append(resample_buff[i]);
-        }
+        // Record frame info to separate file
+        frame_info.len = write_bytes;
+        frame_info.frame_num = rtp_packet->frame_num;
+        sample_file_frame_->write((char *)&frame_info, sizeof(frame_info));
 
         // Finally, write the resampled audio to our temp file and clean up.
         g_free(decode_buff);
     }
     g_free(resample_buff);
+}
+
+// We preallocate buffer, 320 samples is enough for most scenarios
+#define VISUAL_BUFF_LEN (320)
+#define VISUAL_BUFF_BYTES (SAMPLE_BYTES * VISUAL_BUFF_LEN)
+void RtpAudioStream::decodeVisual()
+{
+    spx_uint32_t cur_in_rate = 0, visual_out_rate = 0;
+    guint64 read_bytes = 0;
+    spx_uint32_t read_len = 0;
+    gint32 read_buff_bytes = VISUAL_BUFF_BYTES;
+    SAMPLE *read_buff = (SAMPLE *) g_malloc(read_buff_bytes);
+    gint32 resample_buff_bytes = VISUAL_BUFF_BYTES;
+    SAMPLE *resample_buff = (SAMPLE *) g_malloc(resample_buff_bytes);
+    unsigned int sample_no = 0;
+    _rtp_packet_frame frame_info;
+    spx_uint32_t out_len;
+
+    speex_resampler_get_rate(visual_resampler_, &cur_in_rate, &visual_out_rate);
+
+    // Skip silence at begin of the stream
+    sample_file_->seek(prepend_samples_ * SAMPLE_BYTES);
+    sample_file_frame_->seek(0);
+
+    // Loop over every frame record
+    while(sample_file_frame_->read((char *)&frame_info, sizeof(frame_info))) {
+        // Resize buffer when needed
+        if (frame_info.len > read_buff_bytes) {
+            while ((frame_info.len > read_buff_bytes)) {
+                read_buff_bytes *= 2;
+            }
+            read_buff = (SAMPLE *) g_realloc(read_buff, read_buff_bytes);
+        }
+
+        read_bytes = sample_file_->read((char *)read_buff, frame_info.len);
+        read_len = (spx_uint32_t)read_bytes / SAMPLE_BYTES;
+        out_len = (visual_out_rate * read_len / audio_out_rate_) + (visual_out_rate % audio_out_rate_ != 0);
+
+        // Resize buffer when needed
+        if (out_len * SAMPLE_BYTES > (spx_uint32_t)resample_buff_bytes) {
+            while ((out_len * SAMPLE_BYTES > (spx_uint32_t)resample_buff_bytes)) {
+                resample_buff_bytes *= 2;
+            }
+            resample_buff = (SAMPLE *) g_realloc(resample_buff, resample_buff_bytes);
+        }
+
+        // Resample
+        speex_resampler_process_int(visual_resampler_, 0, read_buff, &read_len, resample_buff, &out_len);
+
+        // Create timestamp and visual sample
+        for (unsigned i = 0; i < out_len; i++) {
+            double time = start_rel_time_ + (double) sample_no / visual_out_rate;
+            packet_timestamps_[time] = frame_info.frame_num;
+            if (qAbs(resample_buff[i]) > max_sample_val_) max_sample_val_ = qAbs(resample_buff[i]);
+            visual_samples_.append(resample_buff[i]);
+            sample_no++;
+        }
+    }
+
+    g_free(resample_buff);
+    g_free(read_buff);
 }
 
 const QStringList RtpAudioStream::payloadNames() const
@@ -587,8 +647,8 @@ bool RtpAudioStream::prepareForPlay(QAudioDeviceInfo out_device)
     format.setCodec("audio/pcm");
 
     // RTP_STREAM_DEBUG("playing %s %d samples @ %u Hz",
-    //                 samplefile_->fileName().toUtf8().constData(),
-    //                 (int) samplefile_->size(), audio_out_rate_);
+    //                 sample_file_->fileName().toUtf8().constData(),
+    //                 (int) sample_file_->size(), audio_out_rate_);
 
     if (!out_device.isFormatSupported(format)) {
         QString playback_error = tr("%1 does not support PCM at %2. Preferred format is %3")
@@ -601,7 +661,7 @@ bool RtpAudioStream::prepareForPlay(QAudioDeviceInfo out_device)
     start_pos = (qint64)(start_play_time_ * SAMPLE_BYTES * audio_out_rate_);
     // Round to SAMPLE_BYTES boundary
     start_pos = (start_pos / SAMPLE_BYTES) * SAMPLE_BYTES;
-    size = samplefile_->size();
+    size = sample_file_->size();
     if (stereo_required_) {
         // There is 2x more samples for stereo
         start_pos *= 2;
@@ -611,15 +671,15 @@ bool RtpAudioStream::prepareForPlay(QAudioDeviceInfo out_device)
         int buffer_size;
 
         // Start and stop audio with no connection to UI and store buffer size
-        tempfile_ = new AudioRoutingFilter(samplefile_, stereo_required_, audio_routing_);
-        tempfile_->seek(start_pos);
+        temp_file_ = new AudioRoutingFilter(sample_file_, stereo_required_, audio_routing_);
+        temp_file_->seek(start_pos);
         audio_output_ = new QAudioOutput(out_device, format, this);
-        audio_output_->start(tempfile_);
+        audio_output_->start(temp_file_);
         buffer_size = audio_output_->bufferSize();
         audio_output_->stop();
 
         // Start audio again with trippled buffer size
-        tempfile_->seek(start_pos);
+        temp_file_->seek(start_pos);
         audio_output_->setBufferSize(buffer_size*3);
         audio_output_->setNotifyInterval(100); // ~15 fps
         connect(audio_output_, SIGNAL(stateChanged(QAudio::State)), this, SLOT(outputStateChanged(QAudio::State)));
@@ -635,7 +695,7 @@ bool RtpAudioStream::prepareForPlay(QAudioDeviceInfo out_device)
 
 void RtpAudioStream::startPlaying()
 {
-   audio_output_->start(tempfile_);
+   audio_output_->start(temp_file_);
    // QTBUG-6548 StoppedState is not always emitted on error, force a cleanup
    // in case playback fails immediately.
    if (audio_output_ && audio_output_->state() == QAudio::StoppedState) {
@@ -675,7 +735,7 @@ void RtpAudioStream::writeSilence(qint64 samples)
     char *silence_buff = (char *) g_malloc0(silence_bytes);
 
     RTP_STREAM_DEBUG("Writing " G_GUINT64_FORMAT " silence samples", samples);
-    samplefile_->write(silence_buff, silence_bytes);
+    sample_file_->write(silence_buff, silence_bytes);
     g_free(silence_buff);
 
     // Silence is inserted to audio file only.
