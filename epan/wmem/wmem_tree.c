@@ -21,7 +21,9 @@
 #include "wmem_tree.h"
 #include "wmem_tree-int.h"
 #include "wmem_user_cb.h"
+
 #include <wsutil/ws_printf.h> /* ws_debug_printf */
+#include <wsutil/ws_assert.h>
 
 
 
@@ -661,7 +663,7 @@ wmem_tree_insert32_array(wmem_tree_t *tree, wmem_tree_key_t *key, void *data)
         }
     }
 
-    g_assert(insert_tree);
+    ws_assert(insert_tree);
 
     wmem_tree_insert32(insert_tree, insert_key32, data);
 }
@@ -696,7 +698,7 @@ wmem_tree_lookup32_array_helper(wmem_tree_t *tree, wmem_tree_key_t *key,
     }
 
     /* Assert if we didn't get any valid keys */
-    g_assert(lookup_tree);
+    ws_assert(lookup_tree);
 
     return (*helper)(lookup_tree, lookup_key32);
 }

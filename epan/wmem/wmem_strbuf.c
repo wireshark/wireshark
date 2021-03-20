@@ -19,6 +19,8 @@
 #include "wmem_core.h"
 #include "wmem_strbuf.h"
 
+#include <wsutil/ws_assert.h>
+
 #define DEFAULT_MINIMUM_LEN 16
 
 /* Holds a wmem-allocated string-buffer.
@@ -52,7 +54,7 @@ wmem_strbuf_sized_new(wmem_allocator_t *allocator,
 {
     wmem_strbuf_t *strbuf;
 
-    g_assert((max_len == 0) || (alloc_len <= max_len));
+    ws_assert((max_len == 0) || (alloc_len <= max_len));
 
     strbuf = wmem_new(allocator, wmem_strbuf_t);
 
@@ -190,7 +192,7 @@ int _strbuf_vsnprintf(wmem_strbuf_t *strbuf, const char *format, va_list ap, gbo
     }
     else {
         strbuf->len += buffer_size - 1; /* Append. */
-        g_assert(strbuf->len == strbuf->alloc_len - 1);
+        ws_assert(strbuf->len == strbuf->alloc_len - 1);
     }
 
     return want_len; /* Length (not including terminating null) that would be written

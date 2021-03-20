@@ -18,6 +18,8 @@
 #include "wmem_core.h"
 #include "wmem_array.h"
 
+#include <wsutil/ws_assert.h>
+
 /* Holds a wmem-allocated array.
  *  elem_len is the size of each element
  *  elem_count is the number of used elements
@@ -127,7 +129,7 @@ wmem_array_append(wmem_array_t *array, const void *in, guint count)
 void *
 wmem_array_index(wmem_array_t *array, guint array_index)
 {
-    g_assert(array_index < array->elem_count);
+    ws_assert(array_index < array->elem_count);
     return &array->buf[array_index * array->elem_size];
 }
 

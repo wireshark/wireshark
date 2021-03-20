@@ -15,6 +15,8 @@
 #include "wmem_scopes.h"
 #include "wmem_allocator.h"
 
+#include <wsutil/ws_assert.h>
+
 /* One of the supposed benefits of wmem over the old emem was going to be that
  * the scoping of the various memory pools would be obvious, since they would
  * no longer be global. Instead, the pools would be managed as variables scoped
@@ -45,7 +47,7 @@ static wmem_allocator_t *epan_scope   = NULL;
 wmem_allocator_t *
 wmem_packet_scope(void)
 {
-    g_assert(packet_scope);
+    ws_assert(packet_scope);
 
     return packet_scope;
 }
@@ -53,9 +55,9 @@ wmem_packet_scope(void)
 void
 wmem_enter_packet_scope(void)
 {
-    g_assert(packet_scope);
-    g_assert(file_scope->in_scope);
-    g_assert(!packet_scope->in_scope);
+    ws_assert(packet_scope);
+    ws_assert(file_scope->in_scope);
+    ws_assert(!packet_scope->in_scope);
 
     packet_scope->in_scope = TRUE;
 }
@@ -63,8 +65,8 @@ wmem_enter_packet_scope(void)
 void
 wmem_leave_packet_scope(void)
 {
-    g_assert(packet_scope);
-    g_assert(packet_scope->in_scope);
+    ws_assert(packet_scope);
+    ws_assert(packet_scope->in_scope);
 
     wmem_free_all(packet_scope);
     packet_scope->in_scope = FALSE;
@@ -75,7 +77,7 @@ wmem_leave_packet_scope(void)
 wmem_allocator_t *
 wmem_file_scope(void)
 {
-    g_assert(file_scope);
+    ws_assert(file_scope);
 
     return file_scope;
 }
@@ -83,8 +85,8 @@ wmem_file_scope(void)
 void
 wmem_enter_file_scope(void)
 {
-    g_assert(file_scope);
-    g_assert(!file_scope->in_scope);
+    ws_assert(file_scope);
+    ws_assert(!file_scope->in_scope);
 
     file_scope->in_scope = TRUE;
 }
@@ -92,9 +94,9 @@ wmem_enter_file_scope(void)
 void
 wmem_leave_file_scope(void)
 {
-    g_assert(file_scope);
-    g_assert(file_scope->in_scope);
-    g_assert(!packet_scope->in_scope);
+    ws_assert(file_scope);
+    ws_assert(file_scope->in_scope);
+    ws_assert(!packet_scope->in_scope);
 
     wmem_free_all(file_scope);
     file_scope->in_scope = FALSE;
@@ -109,7 +111,7 @@ wmem_leave_file_scope(void)
 wmem_allocator_t *
 wmem_epan_scope(void)
 {
-    g_assert(epan_scope);
+    ws_assert(epan_scope);
 
     return epan_scope;
 }
@@ -119,9 +121,9 @@ wmem_epan_scope(void)
 void
 wmem_init_scopes(void)
 {
-    g_assert(packet_scope == NULL);
-    g_assert(file_scope   == NULL);
-    g_assert(epan_scope   == NULL);
+    ws_assert(packet_scope == NULL);
+    ws_assert(file_scope   == NULL);
+    ws_assert(epan_scope   == NULL);
 
     packet_scope = wmem_allocator_new(WMEM_ALLOCATOR_BLOCK_FAST);
     file_scope   = wmem_allocator_new(WMEM_ALLOCATOR_BLOCK);
@@ -135,12 +137,12 @@ wmem_init_scopes(void)
 void
 wmem_cleanup_scopes(void)
 {
-    g_assert(packet_scope);
-    g_assert(file_scope);
-    g_assert(epan_scope);
+    ws_assert(packet_scope);
+    ws_assert(file_scope);
+    ws_assert(epan_scope);
 
-    g_assert(packet_scope->in_scope == FALSE);
-    g_assert(file_scope->in_scope   == FALSE);
+    ws_assert(packet_scope->in_scope == FALSE);
+    ws_assert(file_scope->in_scope   == FALSE);
 
     wmem_destroy_allocator(packet_scope);
     wmem_destroy_allocator(file_scope);
