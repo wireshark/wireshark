@@ -519,7 +519,8 @@ prefs_register_module_or_subtree(module_t *parent, const char *name,
          * protocol preferences to have a bogus "protocol.", or
          * something such as that, to be added to all their names).
          */
-        g_assert(prefs_find_module(name) == NULL);
+        if (prefs_find_module(name) != NULL)
+            g_error("Preference module \"%s\" is being registered twice", name);
 
         /*
          * Insert this module in the list of all modules.
@@ -530,7 +531,8 @@ prefs_register_module_or_subtree(module_t *parent, const char *name,
          * This has no name, just a title; check to make sure it's a
          * subtree, and crash if it's not.
          */
-        g_assert(is_subtree);
+        if (!is_subtree)
+            g_error("Preferences module with no name is being registered at the top level");
     }
 
     /*
@@ -588,7 +590,8 @@ prefs_register_module_alias(const char *name, module_t *module)
      *
      * We search the list of all aliases.
      */
-    g_assert(prefs_find_module_alias(name) == NULL);
+    if (prefs_find_module_alias(name) != NULL)
+        g_error("Preference module alias \"%s\" is being registered twice", name);
 
     alias = wmem_new(wmem_epan_scope(), module_alias_t);
     alias->name = name;
