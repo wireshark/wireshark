@@ -386,7 +386,7 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 		break;
 
 	default:
-		g_assert_not_reached();
+		DISSECTOR_ASSERT_NOT_REACHED();
 		break;
 	}
 

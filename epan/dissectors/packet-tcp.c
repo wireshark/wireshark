@@ -5960,7 +5960,7 @@ tcp_dissect_options(tvbuff_t *tvb, int offset, guint length, int eol,
                     nop_count = 0;
                 }
             } else {
-                g_assert_not_reached();
+                DISSECTOR_ASSERT_NOT_REACHED();
             }
 
             field_item = proto_tree_add_item(opt_tree, local_proto, tvb, offset, 1, ENC_NA);
