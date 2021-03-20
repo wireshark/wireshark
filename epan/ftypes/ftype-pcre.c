@@ -88,16 +88,14 @@ val_from_unparsed(fvalue_t *fv, const char *pattern, gboolean allow_partial_valu
 }
 
 static int
-gregex_repr_len(fvalue_t *fv, ftrepr_t rtype, int field_display _U_)
+gregex_repr_len(fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_)
 {
-    g_assert(rtype == FTREPR_DFILTER);
     return (int)strlen(g_regex_get_pattern(fv->value.re));
 }
 
 static void
-gregex_to_repr(fvalue_t *fv, ftrepr_t rtype, int field_display _U_, char *buf, unsigned int size)
+gregex_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_, char *buf, unsigned int size)
 {
-    g_assert(rtype == FTREPR_DFILTER);
     g_strlcpy(buf, g_regex_get_pattern(fv->value.re), size);
 }
 
