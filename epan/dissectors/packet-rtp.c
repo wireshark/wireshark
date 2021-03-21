@@ -996,6 +996,7 @@ bluetooth_add_address(packet_info *pinfo, address *addr, guint32 stream_number,
          * first few packets being out of order (hence 0,65535,1,2,...)
          */
         p_conv_data->extended_seqno = 0x10000;
+        p_conv_data->extended_timestamp = 0x100000000;
         p_conv_data->rtp_conv_info = wmem_new(wmem_file_scope(), rtp_private_conv_info);
         p_conv_data->rtp_conv_info->multisegment_pdus = wmem_tree_new(wmem_file_scope());
         conversation_add_proto_data(p_conv, proto_rtp, p_conv_data);
@@ -1128,6 +1129,7 @@ srtp_add_address(packet_info *pinfo, const port_type ptype, address *addr, int p
          * first few packets being out of order (hence 0,65535,1,2,...)
          */
         p_conv_data->extended_seqno = 0x10000;
+        p_conv_data->extended_timestamp = 0x100000000;
         p_conv_data->rtp_conv_info = wmem_new(wmem_file_scope(), rtp_private_conv_info);
         p_conv_data->rtp_conv_info->multisegment_pdus = wmem_tree_new(wmem_file_scope());
         DINDENT();
@@ -1242,6 +1244,7 @@ dissect_rtp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
             /* Create conversation data */
             p_conv_data = wmem_new0(wmem_file_scope(), struct _rtp_conversation_info);
             p_conv_data->extended_seqno = 0x10000;
+            p_conv_data->extended_timestamp = 0x100000000;
             p_conv_data->rtp_conv_info = wmem_new(wmem_file_scope(), rtp_private_conv_info);
             p_conv_data->rtp_conv_info->multisegment_pdus = wmem_tree_new(wmem_file_scope());
             conversation_add_proto_data(p_conv, proto_rtp, p_conv_data);
@@ -1989,8 +1992,11 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     /* Look for conv and add to the frame if found */
     p_conv_data = get_conv_info(pinfo, rtp_info);
 
-    if (p_conv_data)
+    if (p_conv_data) {
         rtp_info->info_media_types = p_conv_data->media_types;
+        rtp_info->info_extended_seq_num = p_conv_data->extended_seqno;
+        rtp_info->info_extended_timestamp = p_conv_data->extended_timestamp;
+    }
 
     if (p_conv_data && p_conv_data->srtp_info) is_srtp = TRUE;
     rtp_info->info_is_srtp = is_srtp;
@@ -2487,14 +2493,30 @@ static guint32
 calculate_extended_seqno(guint32 previous_seqno, guint16 raw_seqno)
 {
     guint32 seqno = (previous_seqno & 0xffff0000) | raw_seqno;
-    if(seqno + 0x8000 < previous_seqno) {
+    if (seqno + 0x8000 < previous_seqno) {
         seqno += 0x10000;
-    } else if(previous_seqno + 0x8000 < seqno) {
+    } else if (previous_seqno + 0x8000 < seqno) {
         /* we got an out-of-order packet which happened to go backwards over the
          * wrap boundary */
         seqno -= 0x10000;
     }
     return seqno;
+}
+
+/* calculate the extended sequence number - top 16 bits of the previous sequence number,
+ * plus our own; then correct for wrapping */
+static guint64
+calculate_extended_timestamp(guint64 previous_timestamp, guint32 raw_timestamp)
+{
+    guint64 timestamp = (previous_timestamp & 0xffffffff00000000) | raw_timestamp;
+    if (timestamp + 0x80000000 < previous_timestamp) {
+        timestamp += 0x100000000;
+    } else if (previous_timestamp + 0x80000000 < timestamp) {
+        /* we got an out-of-order packet which happened to go backwards over the
+         * wrap boundary */
+        timestamp -= 0x100000000;
+    }
+    return timestamp;
 }
 
 /* Look for conversation info */
@@ -2523,6 +2545,7 @@ get_conv_info(packet_info *pinfo, struct _rtp_info *rtp_info)
 
             if (p_conv_data) {
                 guint32 seqno;
+                guint64 timestamp;
 
                 /* Save this conversation info into packet info */
                 /* XXX: why is this file pool not pinfo->pool? */
@@ -2546,6 +2569,13 @@ get_conv_info(packet_info *pinfo, struct _rtp_info *rtp_info)
 
                 p_conv_packet_data->extended_seqno = seqno;
                 p_conv_data->extended_seqno = seqno;
+
+                /* calculate extended timestamp */
+                timestamp = calculate_extended_timestamp(p_conv_data->extended_timestamp,
+                                 rtp_info->info_timestamp);
+
+                p_conv_packet_data->extended_timestamp = timestamp;
+                p_conv_data->extended_timestamp = timestamp;
             }
         }
     }

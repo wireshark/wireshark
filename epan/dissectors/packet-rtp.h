@@ -34,7 +34,9 @@ struct _rtp_info {
 	unsigned int  info_payload_type;
 	unsigned int  info_padding_count;
 	guint16       info_seq_num;
+	guint32       info_extended_seq_num;
 	guint32       info_timestamp;
+	guint64       info_extended_timestamp;
 	guint32       info_sync_src;
 	guint         info_data_len;       /* length of raw rtp data as reported */
 	gboolean      info_all_data_present; /* FALSE if data is cut off */
@@ -183,7 +185,7 @@ struct _rtp_conversation_info
     guint32 extended_seqno;                         /**> the sequence number, extended to a 32-bit
                                                      * int to guarantee it increasing monotonically
                                                      */
-
+    guint64 extended_timestamp;                     /**> timestamp extended to 64-bit */
     struct _rtp_private_conv_info *rtp_conv_info;   /**> conversation info private
                                                      * to the rtp dissector
                                                      */
