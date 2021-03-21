@@ -90,11 +90,16 @@ GlobalTWIF-ID/tWIF-ID globalTWIF-ID_tWIF-ID
 GlobalW-AGF-ID/w-AGF-ID globalW-AGF-ID_w-AGF-ID
 
 #.FIELD_ATTR
-GlobalGNB-ID/gNB-ID       ABBREV=globalGNB-ID.gNB-ID
-GlobalN3IWF-ID/n3IWF-ID   ABBREV=globalN3IWF-ID_n3IWF-ID
-GlobalTNGF-ID/tNGF-ID     ABBREV=globalTNGF-ID.tNGF-ID
-GlobalTWIF-ID/tWIF-ID     ABBREV=globalTWIF-ID.tWIF-ID
-GlobalW-AGF-ID/w-AGF-ID   ABBREV=globalW-AGF-ID.w-AGF-ID
+GlobalGNB-ID/gNB-ID       ABBREV=globalGNB_ID.gNB_ID
+GlobalN3IWF-ID/n3IWF-ID   ABBREV=globalN3IWF_ID_n3IWF_ID
+GlobalTNGF-ID/tNGF-ID     ABBREV=globalTNGF_ID.tNGF_ID
+GlobalTWIF-ID/tWIF-ID     ABBREV=globalTWIF_ID.tWIF_ID
+GlobalW-AGF-ID/w-AGF-ID   ABBREV=globalW_AGF_ID.w_AGF_ID
+UE-associatedLogicalNG-connectionItem/aMF-UE-NGAP-ID ABBREV=AMF_UE_NGAP_ID
+UE-associatedLogicalNG-connectionItem/rAN-UE-NGAP-ID ABBREV=RAN_UE_NGAP_ID
+UE-NGAP-ID-pair/aMF-UE-NGAP-ID ABBREV=AMF_UE_NGAP_ID
+UE-NGAP-ID-pair/rAN-UE-NGAP-ID ABBREV=RAN_UE_NGAP_ID
+UE-NGAP-IDs/aMF-UE-NGAP-ID ABBREV=AMF_UE_NGAP_ID
 
 #.FN_BODY ProtocolIE-ID VAL_PTR=&ngap_data->protocol_ie_id
   struct ngap_private_data *ngap_data = ngap_get_private_data(actx->pinfo);
