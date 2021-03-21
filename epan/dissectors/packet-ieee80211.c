@@ -143,7 +143,7 @@ sta_prop_equal_fn(gconstpointer v, gconstpointer w)
  * taken from kernel's include/linux/bitops.h
  */
 #define GENMASK(h, l)  (((1U << ((h) - (l) + 1)) - 1) << (l))
-#define GENMASK64(h, l)  (((1ULL << ((h) - (l) + 1)) - 1) << (l))
+#define GENMASK64(h, l)  (((G_GUINT64_CONSTANT(1) << ((h) - (l) + 1)) - 1) << (l))
 
 /* Defragment fragmented 802.11 datagrams */
 static gboolean wlan_defragment = TRUE;
