@@ -22671,8 +22671,8 @@ add_min_max_time_between_measurements(proto_item *item, tvbuff_t *tvb, packet_in
   min *= 100; /* min time is in units of 100 microseconds */
   max *= 10 * 1000; /* max time is in units of 10 milliseconds */
 
-  float minf = min / 1E6;
-  float maxf = max / 1E6;
+  float minf = (float)(min / 1E6);
+  float maxf = (float)(max / 1E6);
 
   proto_item_append_text(item, " (Min=%.6gs, Max=%.6gs)", minf, maxf);
   col_append_fstr(pinfo->cinfo, COL_INFO, ", Min=%.6gs, Max=%.6gs", minf, maxf);
