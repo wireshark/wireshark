@@ -4188,6 +4188,15 @@ static int hf_ieee80211_ff_ftm_cfo = -1;
 static int hf_ieee80211_ff_ftm_r2i_ndp_tx_power = -1;
 static int hf_ieee80211_ff_ftm_i2r_ndp_target_rssi = -1;
 
+/* PASN Parameters Element */
+static int hf_ieee80211_tag_pasn_control = -1;
+static int hf_ieee80211_tag_pasn_wrapped_data_format = -1;
+static int hf_ieee80211_tag_pasn_comeback_after = -1;
+static int hf_ieee80211_tag_pasn_cookie = -1;
+static int hf_ieee80211_tag_pasn_finite_cyclic_group_id = -1;
+static int hf_ieee80211_tag_pasn_ephemeral_pk_length = -1;
+static int hf_ieee80211_tag_pasn_ephemeral_pk = -1;
+
 /* az: FTM Ranging Parameters Element */
 static int hf_ieee80211_tag_ranging_parameters = -1;
 static int hf_ieee80211_tag_ranging_status_indication = -1;
@@ -14189,6 +14198,14 @@ static const range_string protected_he_action_rvals[] = {
   { 0, 0, NULL }
 };
 
+static const value_string pasn_wrapped_data_format_vals[] = {
+  {0, "No wrapped data"},
+  {1, "Fast BSS Transition Wrapped Data"},
+  {2, "FILS Shared Key authentication without PFS Wrapped Data"},
+  {3, "SAE Wrapped Data"},
+  {0, NULL}
+};
+
 /*
  * This currently only works for SU, 20MHz, 40MHz and 80MHz and grouping 4 and 16.
  */
@@ -15242,6 +15259,7 @@ static const value_string ieee80211_rsn_keymgmt_vals[] = {
   {18, "Opportunistic Wireless Encryption"},
   {19, "FT using PSK (SHA384)"},
   {20, "PSK (SHA384)"},
+  {21, "PASN"},
   {0, NULL}
 };
 
@@ -22680,6 +22698,51 @@ add_min_max_time_between_measurements(proto_item *item, tvbuff_t *tvb, packet_in
   col_append_fstr(pinfo->cinfo, COL_INFO, ", Min=%.6gs, Max=%.6gs", minf, maxf);
 }
 
+static void
+dissect_pasn_parameters(tvbuff_t *tvb, proto_tree *tree, int offset)
+{
+  guint8 control;
+  int comeback_present, group_key_present;
+  proto_item* item;
+
+  control = tvb_get_guint8(tvb, offset);
+  comeback_present = control & 0x1;
+  group_key_present = control & 0x2;
+
+  item = proto_tree_add_item(tree, hf_ieee80211_tag_pasn_control, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+  proto_item_append_text(item, " (Comeback Info %s, Group and Key %s)", comeback_present ?  "present" : "not present",
+                         group_key_present ? "present" : "not present");
+  offset += 1;
+
+  proto_tree_add_item(tree, hf_ieee80211_tag_pasn_wrapped_data_format, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+  offset += 1;
+
+  if (comeback_present) {
+    guint8 cookie_length;
+
+    proto_tree_add_item(tree, hf_ieee80211_tag_pasn_comeback_after, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+
+    cookie_length = tvb_get_guint8(tvb, offset);
+    offset += 1;
+
+    proto_tree_add_item(tree, hf_ieee80211_tag_pasn_cookie, tvb, offset, cookie_length, ENC_NA);
+    offset += cookie_length;
+  }
+
+  if (group_key_present) {
+    guint8 key_len;
+
+    proto_tree_add_item(tree, hf_ieee80211_tag_pasn_finite_cyclic_group_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+
+    key_len = tvb_get_guint8(tvb, offset);
+    proto_tree_add_item(tree, hf_ieee80211_tag_pasn_ephemeral_pk_length , tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
+
+    proto_tree_add_item(tree, hf_ieee80211_tag_pasn_ephemeral_pk, tvb, offset, key_len, ENC_NA);
+  }
+}
 
 static void
 dissect_ntb_specific(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int sub_length)
@@ -27592,6 +27655,9 @@ ieee80211_tag_element_id_extension(tvbuff_t *tvb, packet_info *pinfo, proto_tree
       break;
     case ETAG_FTM_SYNC_INFO:
       proto_tree_add_item(tree, hf_ieee80211_tag_ftm_tsf_sync_info, tvb, offset, ext_tag_len, ENC_NA);
+      break;
+    case ETAG_PASN_PARAMETERS:
+      dissect_pasn_parameters(tvb, tree, offset);
       break;
     default:
       proto_tree_add_item(tree, hf_ieee80211_ext_tag_data, tvb, offset, ext_tag_len, ENC_NA);
@@ -48218,6 +48284,34 @@ proto_register_ieee80211(void)
     {&hf_ieee80211_owe_dh_parameter_public_key,
      {"Public Key", "wlan.ext_tag.owe_dh_parameter.public_key",
       FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
+    {&hf_ieee80211_tag_pasn_control,
+      {"Control", "wlan.ext_tag.pasn.control",
+       FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_tag_pasn_wrapped_data_format,
+      {"Wrapped Data Format", "wlan.ext_tag.pasn.wrapped_data_format",
+       FT_UINT8, BASE_DEC, VALS(pasn_wrapped_data_format_vals), 0, NULL, HFILL }},
+
+    {&hf_ieee80211_tag_pasn_comeback_after,
+      {"Comeback After", "wlan.ext_tag.pasn.comeback_after",
+       FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_tag_pasn_cookie,
+      {"Cookie", "wlan.ext_tag.pasn.cookie",
+       FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_tag_pasn_finite_cyclic_group_id,
+      {"Finite Cyclic Group ID", "wlan.ext_tag.pasn.finite_cyclic_group_id",
+       FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_tag_pasn_ephemeral_pk_length,
+      {"Ephemeral Public Key Length", "wlan.ext_tag.pasn.ephemeral_pk_length",
+       FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_tag_pasn_ephemeral_pk,
+      {"Ephemeral Public Key", "wlan.ext_tag.pasn.ephemeral_pk",
+       FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
   };
 
   static hf_register_info aggregate_fields[] = {
