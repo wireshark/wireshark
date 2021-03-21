@@ -533,13 +533,7 @@ proto_reg_handoff_ippusb(void)
 {
     dissector_handle_t ippusb_handle;
 
-    /*
-     * Register ourselves under usb bulk
-     * IPP packets could come from a variety of usb class types
-     */
     ippusb_handle = create_dissector_handle(dissect_ippusb, proto_ippusb);
-    dissector_add_uint("usb.bulk", IF_CLASS_UNKNOWN, ippusb_handle);
-    dissector_add_uint("usb.bulk", IF_CLASS_VENDOR_SPECIFIC, ippusb_handle);
     dissector_add_uint("usb.bulk", IF_CLASS_PRINTER, ippusb_handle);
 }
 
