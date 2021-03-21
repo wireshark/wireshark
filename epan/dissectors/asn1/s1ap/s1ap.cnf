@@ -108,6 +108,13 @@ ProtocolExtensionField/id ext_id
 #PrivateIE-Field/value private_value
 ProtocolIE-Field/value ie_field_value
 
+#.FIELD_ATTR
+UE-associatedLogicalS1-ConnectionItem/eNB-UE-S1AP-ID ABBREV=ENB_UE_S1AP_ID
+UE-associatedLogicalS1-ConnectionItem/mME-UE-S1AP-ID ABBREV=MME_UE_S1AP_ID
+UE-S1AP-ID-pair/eNB-UE-S1AP-ID ABBREV=ENB_UE_S1AP_ID
+UE-S1AP-ID-pair/mME-UE-S1AP-ID ABBREV=MME_UE_S1AP_ID
+UE-S1AP-IDs/mME-UE-S1AP-ID ABBREV=MME_UE_S1AP_ID
+
 #.FN_BODY ProtocolIE-ID VAL_PTR=&s1ap_data->protocol_ie_id
   struct s1ap_private_data *s1ap_data = s1ap_get_private_data(actx->pinfo);
 %(DEFAULT_BODY)s
