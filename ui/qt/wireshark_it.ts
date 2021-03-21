@@ -10552,6 +10552,10 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Impossibile salvare i dati RTP.</translation>
     </message>
     <message>
+        <source>Export</source>
+        <translation type="unfinished">Esporta</translation>
+    </message>
+    <message>
         <source>Save Graph As…</source>
         <translation>Salva grafico come...</translation>
     </message>
@@ -10770,52 +10774,6 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Payload</translation>
     </message>
     <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
-
-&lt;h3&gt;Valuable and amazing time-saving keyboard shortcuts&lt;/h3&gt;
-&lt;table&gt;&lt;tbody&gt;
-
-&lt;tr&gt;&lt;th&gt;+&lt;/th&gt;&lt;td&gt;Zoom in&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;-&lt;/th&gt;&lt;td&gt;Zoom out&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;0&lt;/th&gt;&lt;td&gt;Reset graph to its initial state&lt;/td&gt;&lt;/th&gt;
-
-&lt;tr&gt;&lt;th&gt;→&lt;/th&gt;&lt;td&gt;Move right 10 pixels&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;←&lt;/th&gt;&lt;td&gt;Move left 10 pixels&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;→&lt;/th&gt;&lt;td&gt;Move right 1 pixel&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;←&lt;/th&gt;&lt;td&gt;Move left 1 pixel&lt;/td&gt;&lt;/th&gt;
-
-&lt;tr&gt;&lt;th&gt;g&lt;/th&gt;&lt;td&gt;Go to packet under cursor&lt;/td&gt;&lt;/th&gt;
-
-&lt;tr&gt;&lt;th&gt;z&lt;/th&gt;&lt;td&gt;Toggle mouse drag / zoom&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;t&lt;/th&gt;&lt;td&gt;Toggle capture / session time origin&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;Space&lt;/th&gt;&lt;td&gt;Toggle crosshairs&lt;/td&gt;&lt;/th&gt;
-
-&lt;/tbody&gt;&lt;/table&gt;
-&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;
-
-&lt;h3&gt;Scorciatoie di tastiera preziose e che risparmiano tempo&lt;/h3&gt;
-&lt;table&gt;&lt;tbody&gt;
-
-&lt;tr&gt;&lt;th&gt;+&lt;/th&gt;&lt;td&gt;Ingrandisci&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;-&lt;/th&gt;&lt;td&gt;Rimpicciolisci&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;0&lt;/th&gt;&lt;td&gt;Reimposta il grafico al suo stato iniziale&lt;/td&gt;&lt;/th&gt;
-
-&lt;tr&gt;&lt;th&gt;→&lt;/th&gt;&lt;td&gt;Sposta a destra di 10 pixel&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;←&lt;/th&gt;&lt;td&gt;Sposta a sinistra di 10 pixel&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;&lt;i&gt;Maiusc+&lt;/i&gt;→&lt;/th&gt;&lt;td&gt;Sposta a destra di 1 pixel&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;&lt;i&gt;Maiusc+&lt;/i&gt;←&lt;/th&gt;&lt;td&gt;Sposta a sinistra di 1 pixel&lt;/td&gt;&lt;/th&gt;
-
-&lt;tr&gt;&lt;th&gt;g&lt;/th&gt;&lt;td&gt;Vai al pacchetto sotto il cursore&lt;/td&gt;&lt;/th&gt;
-
-&lt;tr&gt;&lt;th&gt;z&lt;/th&gt;&lt;td&gt;Inverti il trascinamento / ingrandimento del mouse&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;t&lt;/th&gt;&lt;td&gt;Commuta l&apos;origine dell&apos;orario della cattura / sessione&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;Spazio&lt;/th&gt;&lt;td&gt;Commuta il reticolo&lt;/td&gt;&lt;/th&gt;
-
-&lt;/tbody&gt;&lt;/table&gt;
-&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
         <source>&lt;small&gt;&lt;i&gt;No audio&lt;/i&gt;&lt;/small&gt;</source>
         <translation>&lt;small&gt;&lt;i&gt;Nessun audio&lt;/i&gt;&lt;/small&gt;</translation>
     </message>
@@ -10969,56 +10927,28 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>0</source>
-        <translation type="vanished">0</translation>
-    </message>
-    <message>
         <source>Zoom In</source>
         <translation>Ingrandisci</translation>
-    </message>
-    <message>
-        <source>+</source>
-        <translation type="vanished">+</translation>
     </message>
     <message>
         <source>Zoom Out</source>
         <translation>Rimpicciolisci</translation>
     </message>
     <message>
-        <source>-</source>
-        <translation type="vanished">-</translation>
-    </message>
-    <message>
         <source>Move Left 10 Pixels</source>
         <translation>Sposta a sinistra di 10 pixel</translation>
-    </message>
-    <message>
-        <source>Left</source>
-        <translation type="vanished">Sinistra</translation>
     </message>
     <message>
         <source>Move Right 10 Pixels</source>
         <translation>Sposta a destra di 10 pixel</translation>
     </message>
     <message>
-        <source>Right</source>
-        <translation type="vanished">Destra</translation>
-    </message>
-    <message>
         <source>Move Left 1 Pixels</source>
         <translation>Sposta a sinistra di 1 pixel</translation>
     </message>
     <message>
-        <source>Shift+Left</source>
-        <translation type="vanished">Maiusc+Sinistra</translation>
-    </message>
-    <message>
         <source>Move Right 1 Pixels</source>
         <translation>Sposta a destra di 1 pixel</translation>
-    </message>
-    <message>
-        <source>Shift+Right</source>
-        <translation type="vanished">Maiusc+Destra</translation>
     </message>
     <message>
         <source>Go To Packet Under Cursor</source>
@@ -11029,54 +10959,6 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Vai al pacchetto attualmente sotto il cursore</translation>
     </message>
     <message>
-        <source>G</source>
-        <translation type="vanished">G</translation>
-    </message>
-    <message>
-        <source>Drag / Zoom</source>
-        <translation type="vanished">Trascina / Ingrandisci</translation>
-    </message>
-    <message>
-        <source>Toggle mouse drag / zoom behavior</source>
-        <translation type="vanished">Commuta il comportamento di trascinamento/ingrandimento del mouse</translation>
-    </message>
-    <message>
-        <source>Z</source>
-        <translation type="vanished">Z</translation>
-    </message>
-    <message>
-        <source>Capture / Session Time Origin</source>
-        <translation type="vanished">Origine dell&apos;orario della cattura/sessione</translation>
-    </message>
-    <message>
-        <source>Toggle capture / session time origin</source>
-        <translation type="vanished">Commuta l&apos;origine dell&apos;orario della cattura/sessione</translation>
-    </message>
-    <message>
-        <source>T</source>
-        <translation type="vanished">T</translation>
-    </message>
-    <message>
-        <source>Crosshairs</source>
-        <translation type="vanished">Reticolo</translation>
-    </message>
-    <message>
-        <source>Toggle crosshairs</source>
-        <translation type="vanished">Commuta il reticolo</translation>
-    </message>
-    <message>
-        <source>Space</source>
-        <translation type="vanished">Spazio</translation>
-    </message>
-    <message>
-        <source>Mute/Unmute</source>
-        <translation type="vanished">Silenzia/Rimuovi silenzio</translation>
-    </message>
-    <message>
-        <source>Mute or unmute the stream</source>
-        <translation type="vanished">Silenzia o riprendi il flusso</translation>
-    </message>
-    <message>
         <source>Play the stream</source>
         <translation>Riproduci il flusso</translation>
     </message>
@@ -11085,40 +10967,16 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>A sinistra</translation>
     </message>
     <message>
-        <source>Route audio to left channel</source>
-        <translation type="vanished">Instrada l&apos;audio al canale sinistro</translation>
-    </message>
-    <message>
         <source>Left + Right</source>
         <translation>Sinistra + destra</translation>
-    </message>
-    <message>
-        <source>Route audio to left and right channel</source>
-        <translation type="vanished">Instrada l&apos;audio al canale sinistro e destro</translation>
     </message>
     <message>
         <source>To Right</source>
         <translation>A destra</translation>
     </message>
     <message>
-        <source>Route audio to right channel</source>
-        <translation type="vanished">Instrada l&apos;audio al canale destro</translation>
-    </message>
-    <message>
         <source>Invert Muting</source>
         <translation>Inverti il silenziamento</translation>
-    </message>
-    <message>
-        <source>Invert muting of all channels</source>
-        <translation type="vanished">Inverti il silenziamento di tutti i canali</translation>
-    </message>
-    <message>
-        <source>Remove Stream</source>
-        <translation type="vanished">Rimuovi flusso</translation>
-    </message>
-    <message>
-        <source>Remove stream from the list</source>
-        <translation type="vanished">Rimuovi il flusso dall&apos;elenco</translation>
     </message>
     <message>
         <source>No devices available</source>
@@ -11280,12 +11138,36 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>M</translation>
     </message>
     <message>
+        <source>All</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Select all</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>None</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Clear selection</source>
+        <translation type="unfinished">Cancella la selezione</translation>
+    </message>
+    <message>
+        <source>Invert</source>
+        <translation type="unfinished">Inverti</translation>
+    </message>
+    <message>
+        <source>Invert selection</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Select None</source>
-        <translation>Nessuna selezione</translation>
+        <translation type="vanished">Nessuna selezione</translation>
     </message>
     <message>
         <source>Undo stream selection.</source>
-        <translation>Annulla la selezione del flusso.</translation>
+        <translation type="vanished">Annulla la selezione del flusso.</translation>
     </message>
     <message>
         <source>Go To Setup</source>
@@ -11353,11 +11235,19 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Export…</source>
-        <translation>Esporta...</translation>
+        <translation type="vanished">Esporta...</translation>
+    </message>
+    <message>
+        <source>Select</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Copy</source>
         <translation>Copia</translation>
+    </message>
+    <message>
+        <source>Export</source>
+        <translation type="unfinished">Esporta</translation>
     </message>
     <message>
         <source>as CSV</source>
@@ -12221,7 +12111,11 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Save As…</source>
-        <translation>Salva come...</translation>
+        <translation type="vanished">Salva come...</translation>
+    </message>
+    <message>
+        <source>Export</source>
+        <translation type="unfinished">Esporta</translation>
     </message>
     <message>
         <source>No data</source>
@@ -13672,16 +13566,36 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Ora del giorno</translation>
     </message>
     <message>
+        <source>All</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Select all</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>None</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Invert</source>
+        <translation type="unfinished">Inverti</translation>
+    </message>
+    <message>
+        <source>Invert selection</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Select &amp;All</source>
-        <translation>Seleziona &amp;tutto</translation>
+        <translation type="vanished">Seleziona &amp;tutto</translation>
     </message>
     <message>
         <source>Select all calls</source>
-        <translation>Seleziona tutte le chiamate</translation>
+        <translation type="vanished">Seleziona tutte le chiamate</translation>
     </message>
     <message>
         <source>Select &amp;None</source>
-        <translation>&amp;Nessuna selezione</translation>
+        <translation type="vanished">&amp;Nessuna selezione</translation>
     </message>
     <message>
         <source>Clear selection</source>
@@ -13734,6 +13648,10 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <message>
         <source>as YAML</source>
         <translation>come YAML</translation>
+    </message>
+    <message>
+        <source>Select</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>No Audio</source>

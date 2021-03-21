@@ -10552,6 +10552,10 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <translation>RTP Daten können nicht gesichert werden.</translation>
     </message>
     <message>
+        <source>Export</source>
+        <translation type="unfinished">Exportieren</translation>
+    </message>
+    <message>
         <source>Save Graph As…</source>
         <translation>Graph speichern als…</translation>
     </message>
@@ -10770,52 +10774,6 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <translation>Payloads</translation>
     </message>
     <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;
-
-&lt;h3&gt;Valuable and amazing time-saving keyboard shortcuts&lt;/h3&gt;
-&lt;table&gt;&lt;tbody&gt;
-
-&lt;tr&gt;&lt;th&gt;+&lt;/th&gt;&lt;td&gt;Zoom in&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;-&lt;/th&gt;&lt;td&gt;Zoom out&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;0&lt;/th&gt;&lt;td&gt;Reset graph to its initial state&lt;/td&gt;&lt;/th&gt;
-
-&lt;tr&gt;&lt;th&gt;→&lt;/th&gt;&lt;td&gt;Move right 10 pixels&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;←&lt;/th&gt;&lt;td&gt;Move left 10 pixels&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;→&lt;/th&gt;&lt;td&gt;Move right 1 pixel&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;&lt;i&gt;Shift+&lt;/i&gt;←&lt;/th&gt;&lt;td&gt;Move left 1 pixel&lt;/td&gt;&lt;/th&gt;
-
-&lt;tr&gt;&lt;th&gt;g&lt;/th&gt;&lt;td&gt;Go to packet under cursor&lt;/td&gt;&lt;/th&gt;
-
-&lt;tr&gt;&lt;th&gt;z&lt;/th&gt;&lt;td&gt;Toggle mouse drag / zoom&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;t&lt;/th&gt;&lt;td&gt;Toggle capture / session time origin&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;Space&lt;/th&gt;&lt;td&gt;Toggle crosshairs&lt;/td&gt;&lt;/th&gt;
-
-&lt;/tbody&gt;&lt;/table&gt;
-&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;
-
-&lt;h3&gt;Nützliche Tastenkürzel zur Zeitersparnis&lt;/h3&gt;
-&lt;table&gt;&lt;tbody&gt;
-
-&lt;tr&gt;&lt;th&gt;+&lt;/th&gt;&lt;td&gt;Vergrößern&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;-&lt;/th&gt;&lt;td&gt;Verkleinern&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;0&lt;/th&gt;&lt;td&gt;Graph in Ursprungszustand zurücksetzen&lt;/td&gt;&lt;/th&gt;
-
-&lt;tr&gt;&lt;th&gt;→&lt;/th&gt;&lt;td&gt;10 Bildpunkte nach rechts&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;←&lt;/th&gt;&lt;td&gt;10 Bildpunkte nach links&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;&lt;i&gt;Umschalttaste+&lt;/i&gt;→&lt;/th&gt;&lt;td&gt;1 Bildpunkt nach rechts&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;&lt;i&gt;Umschalttaste+&lt;/i&gt;←&lt;/th&gt;&lt;td&gt;1 Bildpunkt nach links&lt;/td&gt;&lt;/th&gt;
-
-&lt;tr&gt;&lt;th&gt;g&lt;/th&gt;&lt;td&gt;Zum Paket gehen, bei dem sich der Zeiger gerade befindet&lt;/td&gt;&lt;/th&gt;
-
-&lt;tr&gt;&lt;th&gt;z&lt;/th&gt;&lt;td&gt;Maustastenverhalten umschalten: Verschieben / Zoomen&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;t&lt;/th&gt;&lt;td&gt;Toggle capture / session time origin&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;Space&lt;/th&gt;&lt;td&gt;Fadenkreuz ein/ausblenden&lt;/td&gt;&lt;/th&gt;
-
-&lt;/tbody&gt;&lt;/table&gt;
-&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
         <source>&lt;small&gt;&lt;i&gt;No audio&lt;/i&gt;&lt;/small&gt;</source>
         <translation>&lt;small&gt;&lt;i&gt;Kein Audio&lt;/i&gt;&lt;/small&gt;</translation>
     </message>
@@ -10969,56 +10927,28 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>0</source>
-        <translation type="vanished">0</translation>
-    </message>
-    <message>
         <source>Zoom In</source>
         <translation>Vergrößern</translation>
-    </message>
-    <message>
-        <source>+</source>
-        <translation type="vanished">+</translation>
     </message>
     <message>
         <source>Zoom Out</source>
         <translation>Verkleinern</translation>
     </message>
     <message>
-        <source>-</source>
-        <translation type="vanished">-</translation>
-    </message>
-    <message>
         <source>Move Left 10 Pixels</source>
         <translation>Um 10 Bildpunkte nach links verschieben</translation>
-    </message>
-    <message>
-        <source>Left</source>
-        <translation type="vanished">Links</translation>
     </message>
     <message>
         <source>Move Right 10 Pixels</source>
         <translation>Um 10 Bildpunkte nach rechts verschieben</translation>
     </message>
     <message>
-        <source>Right</source>
-        <translation type="vanished">Rechts</translation>
-    </message>
-    <message>
         <source>Move Left 1 Pixels</source>
         <translation>Um 1 Bildpunkt nach links verschieben</translation>
     </message>
     <message>
-        <source>Shift+Left</source>
-        <translation type="vanished">Shift+Left</translation>
-    </message>
-    <message>
         <source>Move Right 1 Pixels</source>
         <translation>Um 1 Bildpunkt nach rechts verschieben</translation>
-    </message>
-    <message>
-        <source>Shift+Right</source>
-        <translation type="vanished">Shift+Right</translation>
     </message>
     <message>
         <source>Go To Packet Under Cursor</source>
@@ -11029,54 +10959,6 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <translation>Zum Paket gehen, auf das der Mauszeiger gerade zeigt</translation>
     </message>
     <message>
-        <source>G</source>
-        <translation type="vanished">G</translation>
-    </message>
-    <message>
-        <source>Drag / Zoom</source>
-        <translation type="vanished">Verschieben / Zoomen</translation>
-    </message>
-    <message>
-        <source>Toggle mouse drag / zoom behavior</source>
-        <translation type="vanished">Maustastenverhalten umschalten: Verschieben / Zoomen</translation>
-    </message>
-    <message>
-        <source>Z</source>
-        <translation type="vanished">Z</translation>
-    </message>
-    <message>
-        <source>Capture / Session Time Origin</source>
-        <translation type="vanished">Uhrzeit / verstrichene Zeit</translation>
-    </message>
-    <message>
-        <source>Toggle capture / session time origin</source>
-        <translation type="vanished">Umschalten zwischen Uhrzeit und verstrichener Zeit</translation>
-    </message>
-    <message>
-        <source>T</source>
-        <translation type="vanished">T</translation>
-    </message>
-    <message>
-        <source>Crosshairs</source>
-        <translation type="vanished">Fadenkreuz</translation>
-    </message>
-    <message>
-        <source>Toggle crosshairs</source>
-        <translation type="vanished">Fadenkreuz ein/ausblenden</translation>
-    </message>
-    <message>
-        <source>Space</source>
-        <translation type="vanished">Space</translation>
-    </message>
-    <message>
-        <source>Mute/Unmute</source>
-        <translation type="vanished">Stummschalten</translation>
-    </message>
-    <message>
-        <source>Mute or unmute the stream</source>
-        <translation type="vanished">Stream stummschalten</translation>
-    </message>
-    <message>
         <source>Play the stream</source>
         <translation>Stream abspielen</translation>
     </message>
@@ -11085,40 +10967,16 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <translation>nach Links</translation>
     </message>
     <message>
-        <source>Route audio to left channel</source>
-        <translation type="vanished">Audio auf linken Kanal lenken</translation>
-    </message>
-    <message>
         <source>Left + Right</source>
         <translation>Links + Rechts</translation>
-    </message>
-    <message>
-        <source>Route audio to left and right channel</source>
-        <translation type="vanished">Audio auf linken und rechten Kanal lenken</translation>
     </message>
     <message>
         <source>To Right</source>
         <translation>nach Rechts</translation>
     </message>
     <message>
-        <source>Route audio to right channel</source>
-        <translation type="vanished">Audio auf rechten Kanal lenken</translation>
-    </message>
-    <message>
         <source>Invert Muting</source>
         <translation>Stummschaltung umkehren</translation>
-    </message>
-    <message>
-        <source>Invert muting of all channels</source>
-        <translation type="vanished">Stummschaltung aller Kanäle umkehren</translation>
-    </message>
-    <message>
-        <source>Remove Stream</source>
-        <translation type="vanished">Stream entfernen</translation>
-    </message>
-    <message>
-        <source>Remove stream from the list</source>
-        <translation type="vanished">Stream aus der Liste entfernen</translation>
     </message>
     <message>
         <source>No devices available</source>
@@ -11280,12 +11138,36 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <translation>M</translation>
     </message>
     <message>
+        <source>All</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Select all</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>None</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Clear selection</source>
+        <translation type="unfinished">Auswahl löschen</translation>
+    </message>
+    <message>
+        <source>Invert</source>
+        <translation type="unfinished">Invertieren</translation>
+    </message>
+    <message>
+        <source>Invert selection</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Select None</source>
-        <translation>Nichts auswählen</translation>
+        <translation type="vanished">Nichts auswählen</translation>
     </message>
     <message>
         <source>Undo stream selection.</source>
-        <translation>Streamauswahl rückgängig machen.</translation>
+        <translation type="vanished">Streamauswahl rückgängig machen.</translation>
     </message>
     <message>
         <source>Go To Setup</source>
@@ -11353,11 +11235,19 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Export…</source>
-        <translation>Exportieren…</translation>
+        <translation type="vanished">Exportieren…</translation>
+    </message>
+    <message>
+        <source>Select</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Copy</source>
         <translation>Kopieren</translation>
+    </message>
+    <message>
+        <source>Export</source>
+        <translation type="unfinished">Exportieren</translation>
     </message>
     <message>
         <source>as CSV</source>
@@ -12221,7 +12111,11 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Save As…</source>
-        <translation>Speichern als…</translation>
+        <translation type="vanished">Speichern als…</translation>
+    </message>
+    <message>
+        <source>Export</source>
+        <translation type="unfinished">Exportieren</translation>
     </message>
     <message>
         <source>No data</source>
@@ -13677,16 +13571,36 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <translation>Uhrzeit</translation>
     </message>
     <message>
+        <source>All</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Select all</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>None</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Invert</source>
+        <translation type="unfinished">Invertieren</translation>
+    </message>
+    <message>
+        <source>Invert selection</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Select &amp;All</source>
-        <translation>&amp;Alle auswählen</translation>
+        <translation type="vanished">&amp;Alle auswählen</translation>
     </message>
     <message>
         <source>Select all calls</source>
-        <translation>Alle Anrufe auswählen</translation>
+        <translation type="vanished">Alle Anrufe auswählen</translation>
     </message>
     <message>
         <source>Select &amp;None</source>
-        <translation>&amp;Nichts auswählen</translation>
+        <translation type="vanished">&amp;Nichts auswählen</translation>
     </message>
     <message>
         <source>Clear selection</source>
@@ -13739,6 +13653,10 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     <message>
         <source>as YAML</source>
         <translation>als YAML</translation>
+    </message>
+    <message>
+        <source>Select</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>No Audio</source>

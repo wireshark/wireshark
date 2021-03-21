@@ -10469,6 +10469,10 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Export</source>
+        <translation type="unfinished">Exportar</translation>
+    </message>
+    <message>
         <source>Save Graph As…</source>
         <translation type="unfinished"></translation>
     </message>
@@ -11047,11 +11051,27 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Select None</source>
+        <source>All</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Undo stream selection.</source>
+        <source>Select all</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>None</source>
+        <translation type="unfinished">Ninguno</translation>
+    </message>
+    <message>
+        <source>Clear selection</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Invert</source>
+        <translation type="unfinished">Invertir</translation>
+    </message>
+    <message>
+        <source>Invert selection</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -11119,12 +11139,16 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
         <translation type="unfinished">Flujos RTP</translation>
     </message>
     <message>
-        <source>Export…</source>
-        <translation type="unfinished">Exportar…</translation>
+        <source>Select</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Copy</source>
         <translation type="unfinished">Copiar</translation>
+    </message>
+    <message>
+        <source>Export</source>
+        <translation type="unfinished">Exportar</translation>
     </message>
     <message>
         <source>as CSV</source>
@@ -11987,8 +12011,8 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
         <translation type="unfinished">Comentario</translation>
     </message>
     <message>
-        <source>Save As…</source>
-        <translation type="unfinished"></translation>
+        <source>Export</source>
+        <translation type="unfinished">Exportar</translation>
     </message>
     <message>
         <source>No data</source>
@@ -13382,15 +13406,23 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
         <translation>Hora de día</translation>
     </message>
     <message>
-        <source>Select &amp;All</source>
+        <source>All</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Select all calls</source>
+        <source>Select all</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Select &amp;None</source>
+        <source>None</source>
+        <translation type="unfinished">Ninguno</translation>
+    </message>
+    <message>
+        <source>Invert</source>
+        <translation type="unfinished">Invertir</translation>
+    </message>
+    <message>
+        <source>Invert selection</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -13444,6 +13476,10 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     <message>
         <source>as YAML</source>
         <translation type="unfinished">como YAML</translation>
+    </message>
+    <message>
+        <source>Select</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>No Audio</source>
