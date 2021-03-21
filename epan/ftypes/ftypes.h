@@ -239,7 +239,6 @@ typedef struct _fvalue_t {
 		e_guid_t		guid;
 		nstime_t		time;
 		protocol_value_t 	protocol;
-		GRegex			*re;
 		guint16			sfloat_ieee_11073;
 		guint32			float_ieee_11073;
 	} value;
