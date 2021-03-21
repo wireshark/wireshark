@@ -23347,7 +23347,7 @@ static const value_string s1g_block_control_encoding_mode_vals[] = {
 
 static int
 dissect_pvb_encoded_block(tvbuff_t *tvb, packet_info *pinfo,
-                          proto_tree *tree, int offset, int index,
+                          proto_tree *tree, int offset, int idx,
                           guint8 page_index)
 {
   guint8 block_control = tvb_get_guint8(tvb, offset);
@@ -23359,7 +23359,7 @@ dissect_pvb_encoded_block(tvbuff_t *tvb, packet_info *pinfo,
 
   eb_tree = proto_tree_add_subtree_format(tree, tvb, offset, -1,
                                           ett_s1g_pvb_eb_tree, &ebti,
-                                          "Encoded Block %d", index);
+                                          "Encoded Block %d", idx);
 
   proto_tree_add_bitmask_with_flags(eb_tree, tvb, offset,
                                     hf_ieee80211_s1g_pvb_block_control_byte,
@@ -23401,16 +23401,16 @@ dissect_partial_virtual_bitmap(tvbuff_t *tvb, packet_info *pinfo,
                                guint8 page_index)
 {
   proto_tree *pvb_tree;
-  int index = 0;
+  int idx = 0;
 
   pvb_tree = proto_tree_add_subtree(tree, tvb, offset, pvb_len,
                                     ett_s1g_pvb_tree, NULL,
                                     "Partial Virtual Bitmap");
 
   while (tvb_reported_length_remaining(tvb, offset) > 0) {
-    offset = dissect_pvb_encoded_block(tvb, pinfo, pvb_tree, offset, index,
+    offset = dissect_pvb_encoded_block(tvb, pinfo, pvb_tree, offset, idx,
                                        page_index);
-    index++;
+    idx++;
   }
 
   return offset;
