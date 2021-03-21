@@ -34,7 +34,7 @@ typedef struct {
 		guint32			numeric;
 		drange_t		*drange;
 		header_field_info	*hfinfo;
-        df_func_def_t   *funcdef;
+		df_func_def_t		*funcdef;
 	} value;
 
 } dfvm_value_t;

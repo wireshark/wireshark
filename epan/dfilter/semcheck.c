@@ -1223,8 +1223,8 @@ check_relation_LHS_FUNCTION(dfwork_t *dfw, const char *relation_string,
 	ftenum_t		ftype1, ftype2;
 	fvalue_t		*fvalue;
 	char			*s;
-	df_func_def_t   *funcdef;
-	df_func_def_t   *funcdef2;
+	df_func_def_t		*funcdef;
+	df_func_def_t		*funcdef2;
 	/* GSList          *params; */
 
 	check_function(dfw, st_arg1);
