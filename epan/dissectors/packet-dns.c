@@ -534,6 +534,7 @@ typedef struct _dns_transaction_t {
   guint32 rep_frame;
   nstime_t req_time;
   guint id;
+  gboolean multiple_responds;
 } dns_transaction_t;
 
 /* Structure containing conversation specific information */
@@ -1630,7 +1631,8 @@ rfc1867_angle(tvbuff_t *tvb, int offset, gboolean longitude)
 
 static int
 dissect_dns_query(tvbuff_t *tvb, int offset, int dns_data_offset,
-  packet_info *pinfo, proto_tree *dns_tree, gboolean is_mdns)
+  packet_info *pinfo, proto_tree *dns_tree, gboolean is_mdns,
+  gboolean **is_multiple_responds)
 {
   int           used_bytes;
   const gchar  *name;
@@ -1656,6 +1658,10 @@ dissect_dns_query(tvbuff_t *tvb, int offset, int dns_data_offset,
     dns_class &= ~C_QU;
   } else {
     qu = 0;
+  }
+
+  if (type == T_AXFR || type == T_IXFR) {
+    **is_multiple_responds = TRUE;
   }
 
   type_name = val_to_str_ext(type, &dns_types_vals_ext, "Unknown (%d)");
@@ -3966,7 +3972,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
 static int
 dissect_query_records(tvbuff_t *tvb, int cur_off, int dns_data_offset,
     int count, packet_info *pinfo, proto_tree *dns_tree, gboolean isupdate,
-    gboolean is_mdns)
+    gboolean is_mdns, gboolean *is_multiple_responds)
 {
   int         start_off, add_off;
   proto_tree *qatree;
@@ -3979,7 +3985,7 @@ dissect_query_records(tvbuff_t *tvb, int cur_off, int dns_data_offset,
 
   while (count-- > 0) {
     add_off = dissect_dns_query(tvb, cur_off, dns_data_offset, pinfo, qatree,
-                                is_mdns);
+                                is_mdns, &is_multiple_responds);
     cur_off += add_off;
   }
   proto_item_set_len(ti, cur_off - start_off);
@@ -4087,6 +4093,7 @@ dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   const gchar       *name;
   int                name_len;
   nstime_t           delta = NSTIME_INIT_ZERO;
+  gboolean           is_multiple_responds = FALSE;
 
   dns_data_offset = offset;
 
@@ -4194,6 +4201,7 @@ dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
           dns_trans->rep_frame=0;
           dns_trans->req_time=pinfo->abs_ts;
           dns_trans->id = reqresp_id;
+          dns_trans->multiple_responds=FALSE;
           wmem_tree_insert32_array(dns_info->pdus, key, (void *)dns_trans);
         }
       } else {
@@ -4203,7 +4211,7 @@ dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             dns_trans = NULL;
           } else if (dns_trans->rep_frame == 0) {
             dns_trans->rep_frame=pinfo->num;
-          } else {
+          } else if (!dns_trans->multiple_responds) {
             retransmission = TRUE;
           }
         }
@@ -4222,7 +4230,7 @@ dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
           dns_trans = retrans_dns;
 
           retransmission = TRUE;
-        } else if ((flags & F_RESPONSE) && (dns_trans->rep_frame != pinfo->num)) {
+        } else if ((flags & F_RESPONSE) && (dns_trans->rep_frame != pinfo->num) && (!dns_trans->multiple_responds)) {
           retransmission = TRUE;
         }
       }
@@ -4343,7 +4351,8 @@ dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     /* If this is a response, don't add information about the queries
        to the summary, just add information about the answers. */
     cur_off += dissect_query_records(tvb, cur_off, dns_data_offset, quest, pinfo,
-                                     dns_tree, isupdate, is_mdns);
+                                     dns_tree, isupdate, is_mdns, &is_multiple_responds);
+    dns_trans->multiple_responds = is_multiple_responds;
   }
 
   if (ans > 0) {
