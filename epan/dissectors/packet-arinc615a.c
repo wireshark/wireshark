@@ -78,6 +78,31 @@ static int hf_a615a_designation = -1;
 static int hf_a615a_user_data = -1;
 static int hf_a615a_file_type = -1;
 
+#define FIND_PORT 1001
+
+static int proto_find = -1;
+
+static gint ett_find = -1;
+
+static int hf_find_opcode = -1;
+static int hf_find_target_hardware_identifier = -1;
+static int hf_find_target_type_name = -1;
+static int hf_find_target_position = -1;
+static int hf_find_literal_name = -1;
+static int hf_find_manufacturer_code = -1;
+static int hf_find_packet_terminator = -1;
+
+static dissector_handle_t find_handle;
+
+#define FIND_IRQ 1
+#define FIND_IAN 2
+
+static const value_string find_opcode_vals[] = {
+  { FIND_IRQ, "Information ReQuest (IRQ)" },
+  { FIND_IAN, "Information ANswer (IAN)" },
+  { 0, NULL }
+};
+
 static void dissect_a615a_LCL(ptvcursor_t *ptvc, packet_info *pinfo _U_)
 {
     guint32 th_count, pn_count;
@@ -312,6 +337,34 @@ static gboolean dissect_a615a_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     return FALSE;
 }
 
+static int dissect_find(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+{
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "FIND");
+    proto_item *ti = proto_tree_add_item(tree, proto_find, tvb, 0, -1, ENC_NA);
+    proto_tree *find_tree = proto_item_add_subtree(ti, ett_find);
+
+    ptvcursor_t *ptvc = ptvcursor_new(find_tree, tvb, 0);
+
+    guint32 opcode;
+    ptvcursor_add_ret_uint(ptvc, hf_find_opcode, 2, ENC_BIG_ENDIAN, &opcode);
+    col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", val_to_str(opcode, find_opcode_vals, "Unknown (0x%04x)"));
+
+    if (opcode == FIND_IAN) {
+        ptvcursor_add(ptvc, hf_find_target_hardware_identifier, -1, ENC_ASCII | ENC_NA);
+        ptvcursor_add(ptvc, hf_find_target_type_name, -1, ENC_ASCII | ENC_NA);
+        ptvcursor_add(ptvc, hf_find_target_position, -1, ENC_ASCII | ENC_NA);
+        ptvcursor_add(ptvc, hf_find_literal_name, -1, ENC_ASCII | ENC_NA);
+        ptvcursor_add(ptvc, hf_find_manufacturer_code, -1, ENC_ASCII | ENC_NA);
+    } else {
+        ptvcursor_advance(ptvc, 1);
+    }
+    ptvcursor_add(ptvc, hf_find_packet_terminator, 1, ENC_NA);
+
+    ptvcursor_free(ptvc);
+
+    return tvb_captured_length(tvb);
+}
+
 void proto_register_a615a(void)
 {
     static hf_register_info hf[] = {
@@ -380,12 +433,44 @@ void proto_register_a615a(void)
     proto_a615a = proto_register_protocol("Arinc 615a Protocol", "A615a", "a615a");
     proto_register_field_array(proto_a615a, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+
+    static hf_register_info hf_find[] = {
+        {&hf_find_opcode,
+         {"Opcode", "find.opcode", FT_UINT16, BASE_DEC, VALS(find_opcode_vals), 0x0,
+          "FIND Opcode", HFILL}},
+        {&hf_find_target_hardware_identifier,
+         {"Target Hardware Identifier", "find.target_hardware_identifier", FT_STRINGZ,
+          BASE_NONE, NULL, 0x0, "FIND Target Hardware Identifier", HFILL}},
+        {&hf_find_target_type_name,
+         {"Target Type Name", "find.target_type_name", FT_STRINGZ, BASE_NONE, NULL, 0x0,
+          "FIND Target Type Name", HFILL}},
+        {&hf_find_target_position,
+         {"Target Position", "find.target_position", FT_STRINGZ, BASE_NONE, NULL, 0x0,
+          "FIND Target Position", HFILL}},
+        {&hf_find_literal_name,
+         {"Literal Name", "find.literal_name", FT_STRINGZ, BASE_NONE, NULL, 0x0,
+          "FIND Literal Name", HFILL}},
+        {&hf_find_manufacturer_code,
+         {"Manufacturer Code", "find.manufacturer_code", FT_STRINGZ, BASE_NONE, NULL, 0x0,
+          "FIND Manufacturer Code", HFILL}},
+        {&hf_find_packet_terminator,
+         {"Packet terminator", "find.packet_terminator", FT_UINT8, BASE_HEX, NULL, 0x0,
+          "FIND Packet terminator", HFILL}}
+    };
+
+    static gint *etts_find[] = {&ett_find};
+
+    proto_find = proto_register_protocol("Find Identification of Network Devices", "FIND", "find");
+    proto_register_field_array(proto_find, hf_find, array_length(hf_find));
+    proto_register_subtree_array(etts_find, array_length(etts_find));
+    find_handle = register_dissector("find", dissect_find, proto_find);
 }
 
 void proto_reg_handoff_a615a(void)
 {
     heur_dissector_add("tftp", dissect_a615a_heur, "Arinc 615a Protocol", "a615a", proto_a615a,
                        HEURISTIC_ENABLE);
+    dissector_add_uint_with_preference("udp.port", FIND_PORT, find_handle);
 }
 
 /*
