@@ -231,6 +231,27 @@ dfw_append_function(dfwork_t *dfw, stnode_t *node, dfvm_value_t **p_jmp)
 	return val2->value.numeric;
 }
 
+/* returns register number */
+static int
+dfw_append_put_pcre(dfwork_t *dfw, GRegex *pcre)
+{
+	dfvm_insn_t	*insn;
+	dfvm_value_t	*val1, *val2;
+	int		reg;
+
+	insn = dfvm_insn_new(PUT_PCRE);
+	val1 = dfvm_value_new(PCRE);
+	val1->value.pcre = pcre;
+	val2 = dfvm_value_new(REGISTER);
+	reg = dfw->first_constant--;
+	val2->value.numeric = reg;
+	insn->arg1 = val1;
+	insn->arg2 = val2;
+	dfw_append_const(dfw, insn);
+
+	return reg;
+}
+
 
 /**
  * Adds an instruction for a relation operator where the values are already
@@ -403,6 +424,9 @@ gen_entity(dfwork_t *dfw, stnode_t *st_arg, dfvm_value_t **p_jmp)
 	}
 	else if (e_type == STTYPE_FUNCTION) {
 		reg = dfw_append_function(dfw, st_arg, p_jmp);
+	}
+	else if (e_type == STTYPE_PCRE) {
+		reg = dfw_append_put_pcre(dfw, (GRegex *)stnode_steal_data(st_arg));
 	}
 	else {
 		/* printf("sttype_id is %u\n", (unsigned)e_type); */

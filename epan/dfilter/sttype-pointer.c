@@ -24,6 +24,22 @@ fvalue_free(gpointer value)
 	}
 }
 
+static void
+pcre_free(gpointer value)
+{
+	GRegex	*pcre = (GRegex*)value;
+
+	/* If the data was not claimed with stnode_steal_data(), free it. */
+	if (pcre) {
+		/*
+		 * They're reference-counted, so just drop the reference
+		 * count; it'll get freed when the reference count drops
+		 * to 0.
+		 */
+		g_regex_unref(pcre);
+	}
+}
+
 void
 sttype_register_pointer(void)
 {
@@ -41,9 +57,17 @@ sttype_register_pointer(void)
 		fvalue_free,
 		NULL
 	};
+	static sttype_t pcre_type = {
+		STTYPE_PCRE,
+		"PCRE",
+		NULL,
+		pcre_free,
+		NULL
+	};
 
 	sttype_register(&field_type);
 	sttype_register(&fvalue_type);
+	sttype_register(&pcre_type);
 }
 
 /*

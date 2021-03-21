@@ -7101,7 +7101,6 @@ proto_item_get_display_repr(wmem_allocator_t *scope, proto_item *pi)
 		return "";
 	fi = PITEM_FINFO(pi);
 	DISSECTOR_ASSERT(fi->hfinfo != NULL);
-	DISSECTOR_ASSERT(fi->hfinfo->type != FT_PCRE);
 	return fvalue_to_string_repr(scope, &fi->value, FTREPR_DISPLAY, fi->hfinfo->display);
 }
 
@@ -8235,16 +8234,6 @@ tmp_fld_check_assert(header_field_info *hfinfo)
 	/* fields with an empty string for an abbreviation aren't filterable */
 	if (!hfinfo->abbrev || !hfinfo->abbrev[0])
 		g_error("Field '%s' does not have an abbreviation\n", hfinfo->name);
-
-	/*
-	 * FT_PCRE is a special "field" type; it's not for use by
-	 * fields, just by field values in filter expressions.
-	 */
-	if (hfinfo->type == FT_PCRE) {
-		g_error("Field '%s' (%s) is of type FT_PCRE,"
-			" which is not allowed\n",
-			hfinfo->name, hfinfo->abbrev);
-	}
 
 	/*  These types of fields are allowed to have value_strings,
 	 *  true_false_strings or a protocol_t struct
@@ -11531,12 +11520,6 @@ construct_match_selected_string(field_info *finfo, epan_dissect_t *edt,
 					}
 				}
 			}
-			break;
-
-		case FT_PCRE:
-			/* FT_PCRE never appears as a type for a registered field. It is
-			 * only used internally. */
-			DISSECTOR_ASSERT_NOT_REACHED();
 			break;
 
 		/* By default, use the fvalue's "to_string_repr" method. */

@@ -26,7 +26,6 @@ set(FTYPE_FILES
 	ftype-ipv6.c
 	ftype-guid.c
 	ftype-none.c
-	ftype-pcre.c
 	ftype-protocol.c
 	ftype-string.c
 	ftype-time.c

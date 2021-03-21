@@ -118,6 +118,7 @@ any "error" symbols are shifted, if possible. */
 		case STTYPE_NUM_TYPES:
 		case STTYPE_RANGE:
 		case STTYPE_FVALUE:
+		case STTYPE_PCRE:
 			g_assert_not_reached();
 			break;
 	}

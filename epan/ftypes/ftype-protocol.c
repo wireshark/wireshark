@@ -383,21 +383,13 @@ cmp_contains(const fvalue_t *fv_a, const fvalue_t *fv_b)
 }
 
 static gboolean
-cmp_matches(const fvalue_t *fv_a, const fvalue_t *fv_b)
+cmp_matches(const fvalue_t *fv, const GRegex *regex)
 {
-	const protocol_value_t *a = (const protocol_value_t *)&fv_a->value.protocol;
-	GRegex *regex = fv_b->value.re;
+	const protocol_value_t *a = (const protocol_value_t *)&fv->value.protocol;
 	volatile gboolean rc = FALSE;
 	const char *data = NULL; /* tvb data */
 	guint32 tvb_len; /* tvb length */
 
-	/* fv_b is always a FT_PCRE, otherwise the dfilter semcheck() would have
-	 * warned us. For the same reason (and because we're using g_malloc()),
-	 * fv_b->value.re is not NULL.
-	 */
-	if (strcmp(fv_b->ftype->name, "FT_PCRE") != 0) {
-		return FALSE;
-	}
 	if (! regex) {
 		return FALSE;
 	}

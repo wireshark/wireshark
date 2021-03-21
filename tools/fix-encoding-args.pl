@@ -167,7 +167,6 @@ my @types_ALL =
            FT_IPv6
            FT_IPXNET
            FT_FRAMENUM
-           FT_PCRE
            FT_GUID
            FT_OID
 	   FT_REL_OID

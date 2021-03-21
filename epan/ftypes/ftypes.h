@@ -58,7 +58,6 @@ enum ftenum {
 	FT_IPv6,
 	FT_IPXNET,
 	FT_FRAMENUM,	/* a UINT32, but if selected lets you go to frame with that number */
-	FT_PCRE,	/* a compiled Perl-Compatible Regular Expression object */
 	FT_GUID,	/* GUID, UUID */
 	FT_OID,		/* OBJECT IDENTIFIER */
 	FT_EUI64,
@@ -370,7 +369,7 @@ gboolean
 fvalue_contains(const fvalue_t *a, const fvalue_t *b);
 
 gboolean
-fvalue_matches(const fvalue_t *a, const fvalue_t *b);
+fvalue_matches(const fvalue_t *a, const GRegex *b);
 
 guint
 fvalue_length(fvalue_t *fv);

@@ -767,7 +767,6 @@
         ["IPv6"] = 24,
         ["NONE"] = 0,
         ["OID"] = 29,
-        ["PCRE"] = 27,
         ["PROTOCOL"] = 1,
         ["RELATIVE_TIME"] = 16,
         ["REL_OID"] = 33,

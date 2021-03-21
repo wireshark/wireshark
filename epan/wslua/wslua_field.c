@@ -207,7 +207,7 @@ WSLUA_METAMETHOD FieldInfo__tostring(lua_State* L) {
     if (fi->ws_fi->value.ftype->val_to_string_repr) {
         gchar* repr = NULL;
 
-        if (fi->ws_fi->hfinfo->type == FT_PROTOCOL || fi->ws_fi->hfinfo->type == FT_PCRE) {
+        if (fi->ws_fi->hfinfo->type == FT_PROTOCOL) {
             repr = fvalue_to_string_repr(NULL, &fi->ws_fi->value,FTREPR_DFILTER,BASE_NONE);
         }
         else {

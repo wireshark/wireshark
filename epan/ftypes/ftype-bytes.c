@@ -650,21 +650,10 @@ cmp_contains(const fvalue_t *fv_a, const fvalue_t *fv_b)
 }
 
 static gboolean
-cmp_matches(const fvalue_t *fv_a, const fvalue_t *fv_b)
+cmp_matches(const fvalue_t *fv, const GRegex *regex)
 {
-	GByteArray *a = fv_a->value.bytes;
-	GRegex *regex = fv_b->value.re;
+	GByteArray *a = fv->value.bytes;
 
-	/* fv_b is always a FT_PCRE, otherwise the dfilter semcheck() would have
-	 * warned us. For the same reason (and because we're using g_malloc()),
-	 * fv_b->value.re is not NULL.
-	 */
-	if (strcmp(fv_b->ftype->name, "FT_PCRE") != 0) {
-		return FALSE;
-	}
-	if (! regex) {
-		return FALSE;
-	}
 	return g_regex_match_full(
 		regex,			/* Compiled PCRE */
 		(char *)a->data,	/* The data to check for the pattern... */

@@ -31,7 +31,6 @@ ftypes_initialize(void)
 	ftype_register_string();
 	ftype_register_time();
 	ftype_register_tvbuff();
-	ftype_register_pcre();
 }
 
 /* Each ftype_t is registered via this function */
@@ -528,8 +527,7 @@ void
 fvalue_set_string(fvalue_t *fv, const gchar *value)
 {
 	g_assert(IS_FT_STRING(fv->ftype->ftype) ||
-			fv->ftype->ftype == FT_UINT_STRING ||
-			fv->ftype->ftype == FT_PCRE);
+			fv->ftype->ftype == FT_UINT_STRING);
 	g_assert(fv->ftype->set_value.set_value_string);
 	fv->ftype->set_value.set_value_string(fv, value);
 }
@@ -618,7 +616,6 @@ fvalue_get(fvalue_t *fv)
 			fv->ftype->ftype == FT_FCWWN ||
 			fv->ftype->ftype == FT_GUID ||
 			fv->ftype->ftype == FT_IPv6 ||
-			fv->ftype->ftype == FT_PCRE ||
 			fv->ftype->ftype == FT_PROTOCOL ||
 			IS_FT_STRING(fv->ftype->ftype) ||
 			fv->ftype->ftype == FT_UINT_STRING ||
@@ -753,7 +750,7 @@ fvalue_contains(const fvalue_t *a, const fvalue_t *b)
 }
 
 gboolean
-fvalue_matches(const fvalue_t *a, const fvalue_t *b)
+fvalue_matches(const fvalue_t *a, const GRegex *b)
 {
 	/* XXX - check compatibility of a and b */
 	g_assert(a->ftype->cmp_matches);

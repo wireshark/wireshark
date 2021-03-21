@@ -27,6 +27,7 @@ typedef enum {
 	STTYPE_RANGE,
 	STTYPE_FUNCTION,
 	STTYPE_SET,
+	STTYPE_PCRE,
 	STTYPE_NUM_TYPES
 } sttype_id_t;
 

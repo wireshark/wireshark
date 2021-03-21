@@ -36,6 +36,9 @@ dfvm_value_free(dfvm_value_t *v)
 		case DRANGE:
 			drange_free(v->value.drange);
 			break;
+		case PCRE:
+			g_regex_unref(v->value.pcre);
+			break;
 		default:
 			/* nothing */
 			;
@@ -105,6 +108,12 @@ dfvm_dump(FILE *f, dfilter_t *df)
 					arg2->value.numeric);
 				wmem_free(NULL, value_str);
 				break;
+			case PUT_PCRE:
+				fprintf(f, "%05d PUT_PCRE\t%s -> reg#%u\n",
+					id,
+					g_regex_get_pattern(arg1->value.pcre),
+					arg2->value.numeric);
+				break;
 			case CHECK_EXISTS:
 			case READ_TREE:
 			case CALL_FUNCTION:
@@ -165,6 +174,11 @@ dfvm_dump(FILE *f, dfilter_t *df)
 				break;
 
 			case PUT_FVALUE:
+				/* We already dumped these */
+				g_assert_not_reached();
+				break;
+
+			case PUT_PCRE:
 				/* We already dumped these */
 				g_assert_not_reached();
 				break;
@@ -347,6 +361,16 @@ put_fvalue(dfilter_t *df, fvalue_t *fv, int reg)
 	return TRUE;
 }
 
+/* Put a constant PCRE in a register. These will not be cleared by
+ * free_register_overhead. */
+static gboolean
+put_pcre(dfilter_t *df, GRegex *pcre, int reg)
+{
+	df->registers[reg] = g_list_append(NULL, pcre);
+	df->owns_memory[reg] = FALSE;
+	return TRUE;
+}
+
 typedef gboolean (*FvalueCmpFunc)(const fvalue_t*, const fvalue_t*);
 
 static gboolean
@@ -360,6 +384,26 @@ any_test(dfilter_t *df, FvalueCmpFunc cmp, int reg1, int reg2)
 		list_b = df->registers[reg2];
 		while (list_b) {
 			if (cmp((fvalue_t *)list_a->data, (fvalue_t *)list_b->data)) {
+				return TRUE;
+			}
+			list_b = g_list_next(list_b);
+		}
+		list_a = g_list_next(list_a);
+	}
+	return FALSE;
+}
+
+static gboolean
+any_matches(dfilter_t *df, int reg1, int reg2)
+{
+	GList	*list_a, *list_b;
+
+	list_a = df->registers[reg1];
+
+	while (list_a) {
+		list_b = df->registers[reg2];
+		while (list_b) {
+			if (fvalue_matches((fvalue_t *)list_a->data, (GRegex *)list_b->data)) {
 				return TRUE;
 			}
 			list_b = g_list_next(list_b);
@@ -568,7 +612,7 @@ dfvm_apply(dfilter_t *df, proto_tree *tree)
 				break;
 
 			case ANY_MATCHES:
-				accum = any_test(df, fvalue_matches,
+				accum = any_matches(df,
 						arg1->value.numeric, arg2->value.numeric);
 				break;
 
@@ -609,6 +653,14 @@ dfvm_apply(dfilter_t *df, proto_tree *tree)
 				break;
 #endif
 
+			case PUT_PCRE:
+#if 0
+				/* These were handled in the constants initialization */
+				accum = put_pcre(df,
+						arg1->value.pcre, arg2->value.numeric);
+				break;
+#endif
+
 			default:
 				g_assert_not_reached();
 				break;
@@ -639,6 +691,10 @@ dfvm_init_const(dfilter_t *df)
 			case PUT_FVALUE:
 				put_fvalue(df,
 						arg1->value.fvalue, arg2->value.numeric);
+				break;
+			case PUT_PCRE:
+				put_pcre(df,
+						arg1->value.pcre, arg2->value.numeric);
 				break;
 			case CHECK_EXISTS:
 			case READ_TREE:
