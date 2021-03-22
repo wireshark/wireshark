@@ -1187,7 +1187,7 @@ static void
 
     proto_tree_add_uint(ldap_tree, hf_ldap_sasl_buffer_length, sasl_tvb, 0, 4, sasl_len);
 
-    sasl_tree = proto_tree_add_subtree(ldap_tree, sasl_tvb, 0, sasl_msg_len, ett_ldap_sasl_blob, NULL, "SASL Buffer");
+    sasl_tree = proto_tree_add_subtree(ldap_tree, sasl_tvb, 4, sasl_msg_len - 4, ett_ldap_sasl_blob, NULL, "SASL Buffer");
 
     if (ldap_info->auth_mech != NULL &&
       ((strcmp(ldap_info->auth_mech, "GSS-SPNEGO") == 0) ||
