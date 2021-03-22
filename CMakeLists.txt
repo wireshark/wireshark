@@ -1514,9 +1514,35 @@ if(ENABLE_PCAP_NG_DEFAULT)
 	set(PCAP_NG_DEFAULT 1)
 endif()
 
-# Large file support (e.g. make off_t 64 bit if supported)
-include(gmxTestLargeFiles)
-gmx_test_large_files(GMX_LARGEFILES)
+#
+# Large file support on UN*X, a/k/a LFS.
+#
+# On Windows, we require _fseeki64() and _ftelli64().  Visual
+# Studio has had supported them since Visual Studio 2005/MSVCR80,
+# and we require newer versions, so we know we have them.
+#
+if(NOT WIN32)
+	include(FindLFS)
+	if(LFS_FOUND)
+		#
+		# Add the required #defines.
+		#
+		add_definitions(${LFS_DEFINITIONS})
+	endif()
+
+	#
+	# Check for fseeko as well.
+	#
+	include(FindFseeko)
+	if(FSEEKO_FOUND)
+		set(HAVE_FSEEKO ON)
+
+		#
+		# Add the required #defines.
+		#
+		add_definitions(${FSEEKO_DEFINITIONS})
+	endif()
+endif()
 
 set( VERSION ${PROJECT_VERSION} )
 if(VCSVERSION_OVERRIDE)

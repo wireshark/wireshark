@@ -80,7 +80,7 @@ fi
 [ "$MODE" = "html" ] && [ "$COLORIZE_HTML_MODE" = "yes" ] || COLORIZE_HTML_MODE="no"
 
 if [ "$LAST_COMMITS" -gt 0 ] ; then
-    TARGET=$( git diff --name-only HEAD~"$LAST_COMMITS".. | grep -E '\.(c|cpp)$' )
+    TARGET=$( git diff --name-only --diff-filter=d HEAD~"$LAST_COMMITS".. | grep -E '\.(c|cpp)$' )
 fi
 
 if [ $# -gt 0 ]; then

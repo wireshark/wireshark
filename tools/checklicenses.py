@@ -95,9 +95,6 @@ PATH_SPECIFIC_WHITELISTED_LICENSES = {
     'epan/except.h': [
         'UNKNOWN',
     ],
-    'cmake/TestFileOffsetBits.c': [
-        'UNKNOWN',
-    ],
     # Generated header files by lex/yacc/whatever
     'epan/dtd_grammar.h': [
         'UNKNOWN',

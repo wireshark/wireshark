@@ -365,12 +365,6 @@
 /* Build androiddump with libpcap instead of wireshark stuff */
 #cmakedefine ANDROIDDUMP_USE_LIBPCAP 1
 
-/* Large file support */
-#cmakedefine _LARGEFILE_SOURCE
-#cmakedefine _LARGEFILE64_SOURCE
-#cmakedefine _LARGE_FILES
-#cmakedefine _FILE_OFFSET_BITS @_FILE_OFFSET_BITS@
-
 /* Define to 1 if `lex' declares `yytext' as a `char *' by default, not a
    `char[]'. */
 /* Note: not use in the code */
