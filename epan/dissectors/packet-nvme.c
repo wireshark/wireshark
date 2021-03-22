@@ -267,6 +267,20 @@ static int hf_nvme_get_logpage_ify_rcrd_tsas_rdma_pkey = -1;
 static int hf_nvme_get_logpage_ify_rcrd_tsas_rdma_rsvd1 = -1;
 static int hf_nvme_get_logpage_ify_rcrd_tsas_tcp_sectype = -1;
 static int hf_nvme_get_logpage_ify_rcrd_tsas_tcp_rsvd = -1;
+static int hf_nvme_get_logpage_errinf_errcnt = -1;
+static int hf_nvme_get_logpage_errinf_sqid = -1;
+static int hf_nvme_get_logpage_errinf_cid = -1;
+static int hf_nvme_get_logpage_errinf_sf[3] = { NEG_LST_3};
+static int hf_nvme_get_logpage_errinf_pel[4] = { NEG_LST_4};
+static int hf_nvme_get_logpage_errinf_lba = -1;
+static int hf_nvme_get_logpage_errinf_ns = -1;
+static int hf_nvme_get_logpage_errinf_vsi = -1;
+static int hf_nvme_get_logpage_errinf_trtype = -1;
+static int hf_nvme_get_logpage_errinf_rsvd0 = -1;
+static int hf_nvme_get_logpage_errinf_csi = -1;
+static int hf_nvme_get_logpage_errinf_tsi = -1;
+static int hf_nvme_get_logpage_errinf_rsvd1 = -1;
+
 
 /* NVMe CQE fields */
 static int hf_nvme_cqe_sts = -1;
@@ -1503,6 +1517,45 @@ static void dissect_nvme_get_logpage_ify_resp(proto_item *ti, tvbuff_t *cmd_tvb,
     }
 }
 
+static void dissect_nvme_get_logpage_err_inf_resp(proto_item *ti, tvbuff_t *cmd_tvb, struct nvme_cmd_ctx *cmd_ctx, guint len)
+{
+    guint32 off = cmd_ctx->cmd_ctx.get_logpage.off & 0xffffffff; /* need guint type to silence clang-11 errors */
+    proto_tree *grp;
+
+    grp =  proto_item_add_subtree(ti, ett_data);
+
+    if (cmd_ctx->cmd_ctx.get_logpage.off > 42)
+        return; /* max allowed offset is 42, so we do not loose bits by casting to guint type */
+
+    if (!off && len >= 8)
+        proto_tree_add_item(grp, hf_nvme_get_logpage_errinf_errcnt, cmd_tvb, 0, 8, ENC_LITTLE_ENDIAN);
+    if (off <= 8 && (10-off) <= len)
+        proto_tree_add_item(grp, hf_nvme_get_logpage_errinf_sqid, cmd_tvb, 8-off, 2, ENC_LITTLE_ENDIAN);
+    if (off <= 10 && (12-off) <= len)
+        proto_tree_add_item(grp, hf_nvme_get_logpage_errinf_cid, cmd_tvb, 10-off, 2, ENC_LITTLE_ENDIAN);
+    if (off <= 12 && (14-off) <= len)
+        add_group_mask_entry(cmd_tvb, grp, 12-off, 2, ASPEC(hf_nvme_get_logpage_errinf_sf));
+    if (off <= 14 && (16-off) <= len)
+        add_group_mask_entry(cmd_tvb, grp, 14-off, 2, ASPEC(hf_nvme_get_logpage_errinf_pel));
+    if (off <= 16 && (24-off) <= len)
+        proto_tree_add_item(grp, hf_nvme_get_logpage_errinf_lba, cmd_tvb, 16-off, 8, ENC_LITTLE_ENDIAN);
+    if (off <= 24 && (28-off) <= len)
+        proto_tree_add_item(grp, hf_nvme_get_logpage_errinf_ns, cmd_tvb, 24-off, 4, ENC_LITTLE_ENDIAN);
+    if (off <= 28 && (29-off) <= len)
+        proto_tree_add_item(grp, hf_nvme_get_logpage_errinf_vsi, cmd_tvb, 28-off, 1, ENC_LITTLE_ENDIAN);
+    if (off <= 29 && (30-off) <= len)
+        proto_tree_add_item(grp, hf_nvme_get_logpage_errinf_trtype, cmd_tvb, 29-off, 1, ENC_LITTLE_ENDIAN);
+    if (off <= 30 && (32-off) <= len)
+        proto_tree_add_item(grp, hf_nvme_get_logpage_errinf_rsvd0, cmd_tvb, 30-off, 2, ENC_NA);
+    if (off <= 32 && (40-off) <= len)
+        proto_tree_add_item(grp, hf_nvme_get_logpage_errinf_csi, cmd_tvb, 32-off, 8, ENC_LITTLE_ENDIAN);
+    if (off <= 40 && (42-off) <= len)
+        proto_tree_add_item(grp, hf_nvme_get_logpage_errinf_tsi, cmd_tvb, 40-off, 2, ENC_LITTLE_ENDIAN);
+    if (off <= 42 && (64-off) <= len)
+        proto_tree_add_item(grp, hf_nvme_get_logpage_errinf_rsvd1, cmd_tvb, 42-off, 24, ENC_NA);
+}
+
+
 static void dissect_nvme_get_logpage_resp(tvbuff_t *cmd_tvb, proto_tree *cmd_tree, struct nvme_cmd_ctx *cmd_ctx, guint len)
 {
     proto_item *ti = proto_tree_add_bytes_format_value(cmd_tree, hf_nvme_gen_data, cmd_tvb, 0, len, NULL,
@@ -1510,6 +1563,8 @@ static void dissect_nvme_get_logpage_resp(tvbuff_t *cmd_tvb, proto_tree *cmd_tre
     switch(cmd_ctx->cmd_ctx.get_logpage.lid) {
         case 0x70:
             return dissect_nvme_get_logpage_ify_resp(ti, cmd_tvb, cmd_ctx, len);
+        case 0x1:
+            return dissect_nvme_get_logpage_err_inf_resp(ti, cmd_tvb, cmd_ctx, len);
         default:
             return;
     }
@@ -3191,6 +3246,79 @@ proto_register_nvme(void)
         },
         { &hf_nvme_get_logpage_ify_rcrd_tsas_tcp_rsvd,
             { "Reserved", "nvme.cmd.get_logpage.identify.rcrd.tsas.tcp_rsvd",
+               FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
+        },
+        /* Error Information Response */
+        { &hf_nvme_get_logpage_errinf_errcnt,
+            { "Error Count", "nvme.cmd.get_logpage.errinf.errcnt",
+               FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_errinf_sqid,
+            { "Submission Queue ID", "nvme.cmd.get_logpage.errinf.sqid",
+               FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_errinf_cid,
+            { "Command ID", "nvme.cmd.get_logpage.errinf.cid",
+               FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_errinf_sf[0],
+            { "Status Field", "nvme.cmd.get_logpage.errinf.sf",
+               FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_errinf_sf[1],
+            { "Status Field Value", "nvme.cmd.get_logpage.errinf.sf.val",
+               FT_UINT16, BASE_HEX, NULL, 0x7fff, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_errinf_sf[2],
+            { "Status Field Phase Tag", "nvme.cmd.get_logpage.errinf.sf.ptag",
+               FT_UINT16, BASE_HEX, NULL, 0x8000, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_errinf_pel[0],
+            { "Parameter Error Location", "nvme.cmd.get_logpage.errinf.pel",
+               FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_errinf_pel[1],
+            { "Byte in command that contained the error", "nvme.cmd.get_logpage.errinf.pel.bytee",
+               FT_UINT16, BASE_DEC, NULL, 0xff, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_errinf_pel[2],
+            { "Bit in command that contained the error", "nvme.cmd.get_logpage.errinf.pel.bite",
+               FT_UINT16, BASE_DEC, NULL, 0x7ff, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_errinf_pel[3],
+            { "Reserved", "nvme.cmd.get_logpage.errinf.pel.rsvd",
+               FT_UINT16, BASE_DEC, NULL, 0xf8ff, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_errinf_lba,
+            { "LBA", "nvme.cmd.get_logpage.errinf.lba",
+               FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_errinf_ns,
+            { "Namespace ID", "nvme.cmd.get_logpage.errinf.nsid",
+               FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_errinf_vsi,
+            { "Namespace ID", "nvme.cmd.get_logpage.errinf.vsi",
+               FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_errinf_trtype,
+            { "Namespace ID", "nvme.cmd.get_logpage.errinf.trype",
+               FT_UINT8, BASE_HEX, VALS(trt_type_tbl), 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_errinf_rsvd0,
+            { "Reserved", "nvme.cmd.get_logpage.errinf.rsvd0",
+               FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_errinf_csi,
+            { "Command Specific Information", "nvme.cmd.get_logpage.errinf.csi",
+               FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_errinf_tsi,
+            { "Namespace ID", "nvme.cmd.get_logpage.errinf.tsi",
+               FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_errinf_rsvd1,
+            { "Namespace ID", "nvme.cmd.get_logpage.errinf.rsvd1",
                FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
         },
         /* NVMe Response fields */
