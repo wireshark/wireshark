@@ -405,7 +405,10 @@ void RtpPlayerDialog::rescanPackets(bool rescale_axes)
 
 void RtpPlayerDialog::createPlot(bool rescale_axes)
 {
-    bool show_legend = false;
+    bool legend_out_of_sequence = false;
+    bool legend_jitter_dropped = false;
+    bool legend_wrong_timestamps = false;
+    bool legend_inserted_silences = false;
     bool relative_timestamps = !ui->todCheckBox->isChecked();
     int row_count = ui->streamTreeWidget->topLevelItemCount();
 
@@ -465,11 +468,11 @@ void RtpPlayerDialog::createPlot(bool rescale_axes)
             seq_graph->setSelectable(QCP::stNone);
             seq_graph->setData(audio_stream->outOfSequenceTimestamps(relative_timestamps), audio_stream->outOfSequenceSamples(y_offset));
             ti->setData(graph_sequence_data_col_, Qt::UserRole, QVariant::fromValue<QCPGraph *>(seq_graph));
-            if (row < 1) {
-                seq_graph->setName(tr("Out of Sequence"));
-                show_legend = true;
-            } else {
+            if (legend_out_of_sequence) {
                 seq_graph->removeFromLegend();
+            } else {
+                seq_graph->setName(tr("Out of Sequence"));
+                legend_out_of_sequence = true;
             }
         }
 
@@ -481,11 +484,11 @@ void RtpPlayerDialog::createPlot(bool rescale_axes)
             seq_graph->setSelectable(QCP::stNone);
             seq_graph->setData(audio_stream->jitterDroppedTimestamps(relative_timestamps), audio_stream->jitterDroppedSamples(y_offset));
             ti->setData(graph_jitter_data_col_, Qt::UserRole, QVariant::fromValue<QCPGraph *>(seq_graph));
-            if (row < 1) {
-                seq_graph->setName(tr("Jitter Drops"));
-                show_legend = true;
-            } else {
+            if (legend_jitter_dropped) {
                 seq_graph->removeFromLegend();
+            } else {
+                seq_graph->setName(tr("Jitter Drops"));
+                legend_jitter_dropped = true;
             }
         }
 
@@ -497,11 +500,11 @@ void RtpPlayerDialog::createPlot(bool rescale_axes)
             seq_graph->setSelectable(QCP::stNone);
             seq_graph->setData(audio_stream->wrongTimestampTimestamps(relative_timestamps), audio_stream->wrongTimestampSamples(y_offset));
             ti->setData(graph_timestamp_data_col_, Qt::UserRole, QVariant::fromValue<QCPGraph *>(seq_graph));
-            if (row < 1) {
-                seq_graph->setName(tr("Wrong Timestamps"));
-                show_legend = true;
-            } else {
+            if (legend_wrong_timestamps) {
                 seq_graph->removeFromLegend();
+            } else {
+                seq_graph->setName(tr("Wrong Timestamps"));
+                legend_wrong_timestamps = true;
             }
         }
 
@@ -513,15 +516,15 @@ void RtpPlayerDialog::createPlot(bool rescale_axes)
             seq_graph->setSelectable(QCP::stNone);
             seq_graph->setData(audio_stream->insertedSilenceTimestamps(relative_timestamps), audio_stream->insertedSilenceSamples(y_offset));
             ti->setData(graph_silence_data_col_, Qt::UserRole, QVariant::fromValue<QCPGraph *>(seq_graph));
-            if (row < 1) {
-                seq_graph->setName(tr("Inserted Silence"));
-                show_legend = true;
-            } else {
+            if (legend_inserted_silences) {
                 seq_graph->removeFromLegend();
+            } else {
+                seq_graph->setName(tr("Inserted Silence"));
+                legend_inserted_silences = true;
             }
         }
     }
-    ui->audioPlot->legend->setVisible(show_legend);
+    ui->audioPlot->legend->setVisible(legend_out_of_sequence || legend_jitter_dropped || legend_wrong_timestamps || legend_inserted_silences);
 
     ui->audioPlot->replot();
     if (rescale_axes) resetXAxis();
