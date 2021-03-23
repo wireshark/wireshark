@@ -24,12 +24,22 @@
 #include "packet-dtls.h"
 #include "packet-someip.h"
 
- /*
-  * Dissector for SOME/IP, SOME/IP-TP, and SOME/IP Payloads.
-  *
-  * See
-  *     http://www.some-ip.com
-  */
+/*
+ * Dissector for SOME/IP, SOME/IP-TP, and SOME/IP Payloads.
+ *
+ * See
+ *     http://www.some-ip.com
+ *
+ *
+ * This dissector also supports the experimental WTLV or TLV extension,
+ * which is not part of the original SOME/IP.
+ * This add-on feature uses a so-called WireType, which is basically
+ * a type of a length field and an ID to each parameter. Since the
+ * WireType is not really a type, we should avoid TLV as name for this.
+ * Only use this, if you know what you are doing since this changes the
+ * serialization methodology of SOME/IP in a incompatible way and might
+ * break the dissection of your messages.
+ */
 
 #define SOMEIP_NAME                             "SOME/IP"
 #define SOMEIP_NAME_LONG                        "SOME/IP Protocol"
@@ -102,6 +112,11 @@
 #define SOMEIP_RETCODE_MALFORMED_MSG            0x09
 #define SOMEIP_RETCODE_WRONG_MESSAGE_TYPE       0x0a
 
+/* SOME/IP WTLV (experimental "WTLV" extension) */
+#define SOMEIP_WTLV_MASK_RES                     0x8000
+#define SOMEIP_WTLV_MASK_WIRE_TYPE               0x7000
+#define SOMEIP_WTLV_MASK_DATA_ID                 0x0fff
+
 /* ID wireshark identifies the dissector by */
 static int proto_someip = -1;
 
@@ -165,6 +180,11 @@ static int hf_payload_str_struct                                        = -1;
 static int hf_payload_str_array                                         = -1;
 static int hf_payload_str_union                                         = -1;
 
+static int hf_payload_wtlv_tag                                          = -1;
+static int hf_payload_wtlv_tag_res                                      = -1;
+static int hf_payload_wtlv_tag_wire_type                                = -1;
+static int hf_payload_wtlv_tag_data_id                                  = -1;
+
 static hf_register_info* dynamic_hf_param                               = NULL;
 static guint dynamic_hf_param_size                                      = 0;
 static hf_register_info* dynamic_hf_array                               = NULL;
@@ -182,6 +202,8 @@ static gint ett_someip_array                                            = -1;
 static gint ett_someip_array_dim                                        = -1;
 static gint ett_someip_struct                                           = -1;
 static gint ett_someip_union                                            = -1;
+static gint ett_someip_parameter                                        = -1;
+static gint ett_someip_wtlv_tag                                         = -1;
 
 static const fragment_items someip_tp_frag_items = {
     &ett_someip_tp_fragment,
@@ -207,7 +229,7 @@ static range_t *someip_ports_tcp = NULL;
 
 static gboolean someip_tp_reassemble = TRUE;
 static gboolean someip_derserializer_activated = FALSE;
-
+static gboolean someip_derserializer_wtlv_default = FALSE;
 
 /* SOME/IP Message Types */
 static const value_string someip_msg_type[] = {
@@ -349,6 +371,7 @@ typedef struct _someip_payload_parameter_struct {
     gchar      *struct_name;
     guint32     length_of_length;   /* default: 0 */
     guint32     pad_to;             /* default: 0 */
+    gboolean    wtlv_encoding;
     guint32     num_of_items;
 
     /* array of items */
@@ -360,6 +383,7 @@ typedef struct _someip_payload_parameter_struct {
     (NAME)->struct_name         = NULL; \
     (NAME)->length_of_length    = 0; \
     (NAME)->pad_to              = 0; \
+    (NAME)->wtlv_encoding       = FALSE; \
     (NAME)->num_of_items        = 0;
 
 
@@ -475,6 +499,7 @@ typedef struct _someip_parameter_list {
     guint32             method_id;
     guint32             version;
     guint32             message_type;
+    gboolean            wtlv_encoding;
 
     guint32             num_of_items;
 
@@ -486,6 +511,7 @@ typedef struct _someip_parameter_list_uat {
     guint32             method_id;
     guint32             version;
     guint32             message_type;
+    gboolean            wtlv_encoding;
 
     guint32             num_of_params;
 
@@ -501,6 +527,7 @@ typedef struct _someip_parameter_struct_uat {
     gchar              *struct_name;
     guint32             length_of_length;       /* default: 0 */
     guint32             pad_to;                 /* default: 0 */
+    gboolean            wtlv_encoding;
 
     guint32             num_of_items;
 
@@ -903,6 +930,7 @@ UAT_HEX_CB_DEF(someip_parameter_list, service_id, someip_parameter_list_uat_t)
 UAT_HEX_CB_DEF(someip_parameter_list, method_id, someip_parameter_list_uat_t)
 UAT_DEC_CB_DEF(someip_parameter_list, version, someip_parameter_list_uat_t)
 UAT_HEX_CB_DEF(someip_parameter_list, message_type, someip_parameter_list_uat_t)
+UAT_BOOL_CB_DEF(someip_parameter_list, wtlv_encoding, someip_parameter_list_uat_t)
 
 UAT_DEC_CB_DEF(someip_parameter_list, num_of_params, someip_parameter_list_uat_t)
 
@@ -933,6 +961,7 @@ copy_someip_parameter_list_cb(void* n, const void* o, size_t size _U_) {
     new_rec->method_id = old_rec->method_id;
     new_rec->version = old_rec->version;
     new_rec->message_type = old_rec->message_type;
+    new_rec->wtlv_encoding = old_rec->wtlv_encoding;
     new_rec->num_of_params = old_rec->num_of_params;
     new_rec->pos = old_rec->pos;
     new_rec->data_type = old_rec->data_type;
@@ -1029,6 +1058,7 @@ post_update_someip_parameter_list_read_in_data(someip_parameter_list_uat_t *data
             list->method_id = data[i].method_id;
             list->version = data[i].version;
             list->message_type = data[i].message_type;
+            list->wtlv_encoding = data[i].wtlv_encoding;
             list->num_of_items = data[i].num_of_params;
 
             items = (someip_payload_parameter_item_t *)wmem_alloc_array(wmem_epan_scope(), someip_payload_parameter_item_t, data[i].num_of_params);
@@ -1348,7 +1378,7 @@ UAT_HEX_CB_DEF(someip_parameter_structs, id, someip_parameter_struct_uat_t)
 UAT_CSTRING_CB_DEF(someip_parameter_structs, struct_name, someip_parameter_struct_uat_t)
 UAT_DEC_CB_DEF(someip_parameter_structs, length_of_length, someip_parameter_struct_uat_t)
 UAT_DEC_CB_DEF(someip_parameter_structs, pad_to, someip_parameter_struct_uat_t)
-
+UAT_BOOL_CB_DEF(someip_parameter_structs, wtlv_encoding, someip_parameter_struct_uat_t)
 UAT_DEC_CB_DEF(someip_parameter_structs, num_of_items, someip_parameter_struct_uat_t)
 
 UAT_DEC_CB_DEF(someip_parameter_structs, pos, someip_parameter_struct_uat_t)
@@ -1372,7 +1402,7 @@ copy_someip_parameter_struct_cb(void* n, const void* o, size_t size _U_) {
 
     new_rec->length_of_length = old_rec->length_of_length;
     new_rec->pad_to = old_rec->pad_to;
-
+    new_rec->wtlv_encoding = old_rec->wtlv_encoding;
     new_rec->num_of_items = old_rec->num_of_items;
 
     new_rec->pos = old_rec->pos;
@@ -1462,6 +1492,7 @@ post_update_someip_parameter_struct_read_in_data(someip_parameter_struct_uat_t *
             list->struct_name = data[i].struct_name;
             list->length_of_length = data[i].length_of_length;
             list->pad_to = data[i].pad_to;
+            list->wtlv_encoding = data[i].wtlv_encoding;
             list->num_of_items = data[i].num_of_items;
 
             items = (someip_payload_parameter_item_t *)wmem_alloc_array(wmem_epan_scope(), someip_payload_parameter_item_t, data[i].num_of_items);
@@ -2262,22 +2293,29 @@ expert_someip_payload_alignment_error(proto_tree *tree, packet_info *pinfo, tvbu
  *******************************************/
 
 static int
-dissect_someip_payload_parameter(tvbuff_t* tvb, packet_info* pinfo, proto_tree *tree, gint offset, gint offset_bits, guint8 data_type, guint32 idref, gchar *name, int *hf_id_ptr);
+dissect_someip_payload_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset, gint offset_bits, guint8 data_type, guint32 idref, gchar *name, int *hf_id_ptr, gint wtlv_offset);
+
+static int
+dissect_someip_payload_parameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset, gint offset_bits, someip_payload_parameter_item_t *items, guint32 num_of_items, gboolean wtlv);
 
 /* add a flexible size length field, -1 for error*/
 static gint64
 dissect_someip_payload_length_field(tvbuff_t* tvb, packet_info* pinfo, proto_tree *subtree, gint offset, gint length_of_length_field) {
+    proto_item *ti;
     guint32 tmp = 0;
 
     switch (length_of_length_field) {
     case 8:
-        proto_tree_add_item_ret_uint(subtree, hf_payload_length_field_8bit, tvb, offset, length_of_length_field / 8, ENC_NA, &tmp);
+        ti = proto_tree_add_item_ret_uint(subtree, hf_payload_length_field_8bit, tvb, offset, length_of_length_field / 8, ENC_NA, &tmp);
+        proto_item_set_hidden(ti);
         break;
     case 16:
-        proto_tree_add_item_ret_uint(subtree, hf_payload_length_field_16bit, tvb, offset, length_of_length_field / 8, ENC_BIG_ENDIAN, &tmp);
+        ti = proto_tree_add_item_ret_uint(subtree, hf_payload_length_field_16bit, tvb, offset, length_of_length_field / 8, ENC_BIG_ENDIAN, &tmp);
+        proto_item_set_hidden(ti);
         break;
     case 32:
-        proto_tree_add_item_ret_uint(subtree, hf_payload_length_field_32bit, tvb, offset, length_of_length_field / 8, ENC_BIG_ENDIAN, &tmp);
+        ti = proto_tree_add_item_ret_uint(subtree, hf_payload_length_field_32bit, tvb, offset, length_of_length_field / 8, ENC_BIG_ENDIAN, &tmp);
+        proto_item_set_hidden(ti);
         break;
     default:
         proto_tree_add_expert_format(subtree, pinfo, &ef_someip_payload_config_error, tvb, offset, 0,
@@ -2292,17 +2330,21 @@ dissect_someip_payload_length_field(tvbuff_t* tvb, packet_info* pinfo, proto_tre
 /* add a flexible size type field */
 static gint64
 dissect_someip_payload_type_field(tvbuff_t* tvb, packet_info* pinfo, proto_tree *subtree, gint offset, gint length_of_type_field) {
+    proto_item *ti;
     guint32 tmp = 0;
 
     switch (length_of_type_field) {
     case 8:
-        proto_tree_add_item_ret_uint(subtree, hf_payload_type_field_8bit, tvb, offset, length_of_type_field / 8, ENC_NA, &tmp);
+        ti = proto_tree_add_item_ret_uint(subtree, hf_payload_type_field_8bit, tvb, offset, length_of_type_field / 8, ENC_NA, &tmp);
+        proto_item_set_hidden(ti);
         break;
     case 16:
-        proto_tree_add_item_ret_uint(subtree, hf_payload_type_field_16bit, tvb, offset, length_of_type_field / 8, ENC_BIG_ENDIAN, &tmp);
+        ti = proto_tree_add_item_ret_uint(subtree, hf_payload_type_field_16bit, tvb, offset, length_of_type_field / 8, ENC_BIG_ENDIAN, &tmp);
+        proto_item_set_hidden(ti);
         break;
     case 32:
-        proto_tree_add_item_ret_uint(subtree, hf_payload_type_field_32bit, tvb, offset, length_of_type_field / 8, ENC_BIG_ENDIAN, &tmp);
+        ti = proto_tree_add_item_ret_uint(subtree, hf_payload_type_field_32bit, tvb, offset, length_of_type_field / 8, ENC_BIG_ENDIAN, &tmp);
+        proto_item_set_hidden(ti);
         break;
     default:
         proto_tree_add_expert_format(subtree, pinfo, &ef_someip_payload_config_error, tvb, offset, 0,
@@ -2312,6 +2354,42 @@ dissect_someip_payload_type_field(tvbuff_t* tvb, packet_info* pinfo, proto_tree 
     }
 
     return (gint64)tmp;
+}
+
+static guint32
+dissect_someip_payload_add_wtlv_if_needed(tvbuff_t *tvb, packet_info *pinfo _U_, gint offset, proto_item *ti_root, proto_tree *parent_tree) {
+    static int * const tag_bitfield[] = {
+        &hf_payload_wtlv_tag_res,
+        &hf_payload_wtlv_tag_wire_type,
+        &hf_payload_wtlv_tag_data_id,
+        NULL
+    };
+
+    if (offset < 0) {
+        return 0;
+    }
+
+    proto_tree *tree = parent_tree;
+    if (tree == NULL) {
+        tree = proto_item_add_subtree(ti_root, ett_someip_parameter);
+    }
+
+    guint64 tagdata = 0;
+    proto_item *ti = proto_tree_add_bitmask_ret_uint64(tree, tvb, offset, hf_payload_wtlv_tag, ett_someip_wtlv_tag, tag_bitfield, ENC_BIG_ENDIAN, &tagdata);
+    proto_item_set_hidden(ti);
+
+    guint wiretype = (guint)((tagdata & SOMEIP_WTLV_MASK_WIRE_TYPE) >> 12);
+
+    switch (wiretype) {
+    case 5:
+        return 6;
+    case 6:
+        return 16;
+    case 7:
+        return 32;
+    default:
+        return 0;
+    }
 }
 
 static guint64
@@ -2373,7 +2451,7 @@ dissect_shifted_and_shortened_uint(tvbuff_t *tvb, gint offset, gint offset_bits,
 }
 
 static gint
-dissect_someip_payload_base_type(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree *tree, gint offset, gint offset_bits, guint8 data_type, guint32 id, gchar* name, int *hf_id_ptr) {
+dissect_someip_payload_base_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset, gint offset_bits, guint8 data_type, guint32 id, gchar *name, int *hf_id_ptr, gint wtlv_offset) {
     someip_payload_parameter_base_type_list_t *base_type = NULL;
     someip_payload_parameter_enum_t *enum_config = NULL;
 
@@ -2449,7 +2527,7 @@ dissect_someip_payload_base_type(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tr
                     }
                     value_set = TRUE;
                 } else {
-                    proto_tree_add_item(tree, hf_id, tvb, offset, param_length, big_endian ? ENC_BIG_ENDIAN : ENC_LITTLE_ENDIAN);
+                    ti = proto_tree_add_item(tree, hf_id, tvb, offset, param_length, big_endian ? ENC_BIG_ENDIAN : ENC_LITTLE_ENDIAN);
                 }
             } else {
                 if (name == NULL) {
@@ -2485,6 +2563,8 @@ dissect_someip_payload_base_type(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tr
         return 0;
     }
 
+    dissect_someip_payload_add_wtlv_if_needed(tvb, pinfo, wtlv_offset, ti, NULL);
+
     if (enum_config != NULL && value_set == TRUE) {
         for (i = 0; i < enum_config->num_of_items; i++) {
             if (enum_config->items[i].value == value) {
@@ -2501,7 +2581,7 @@ dissect_someip_payload_base_type(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tr
 }
 
 static int
-dissect_someip_payload_string(tvbuff_t* tvb, packet_info* pinfo, proto_tree *tree, gint offset, gint offset_bits, guint32 id, gchar* name, int *hf_id_ptr) {
+dissect_someip_payload_string(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset, gint offset_bits, guint32 id, gchar *name, int *hf_id_ptr, gint wtlv_offset) {
     someip_payload_parameter_string_t *config = NULL;
 
     guint8     *buf = NULL;
@@ -2528,24 +2608,35 @@ dissect_someip_payload_string(tvbuff_t* tvb, packet_info* pinfo, proto_tree *tre
         return 0;
     }
 
-    if (tvb_captured_length_remaining(tvb, 0) < (gint)(config->length_of_length >> 3)) {
-        expert_someip_payload_malformed(tree, pinfo, tvb, offset, 0);
-        return 0;
-    };
+    if (wtlv_offset >= 0) {
+        ti = proto_tree_add_string_format(tree, hf_id, tvb, wtlv_offset, 0, name, "%s [%s]", name, config->name);
+    } else {
+        ti = proto_tree_add_string_format(tree, hf_id, tvb, offset, 0, name, "%s [%s]", name, config->name);
+    }
 
-    ti = proto_tree_add_string_format(tree, hf_id, tvb, offset, 0, name, "%s [%s]", name, config->name);
     subtree = proto_item_add_subtree(ti, ett_someip_string);
+    guint32 length_of_length = dissect_someip_payload_add_wtlv_if_needed(tvb, pinfo, wtlv_offset, ti, NULL);
 
-    if (config->length_of_length == 0) {
+    /* WTLV length overrides configured length */
+    if (config->length_of_length == 0 && length_of_length == 0) {
         length = config->max_length;
     } else {
-        tmp = dissect_someip_payload_length_field(tvb, pinfo, subtree, offset, config->length_of_length);
+        if (length_of_length == 0) {
+            length_of_length = config->length_of_length;
+        }
+
+        if (tvb_captured_length_remaining(tvb, offset) < (gint)(length_of_length >> 3)) {
+            expert_someip_payload_malformed(tree, pinfo, tvb, offset, 0);
+            return 0;
+        }
+
+        tmp = dissect_someip_payload_length_field(tvb, pinfo, subtree, offset, length_of_length);
         if (tmp < 0) {
             /* error */
-            return config->length_of_length / 8;
+            return length_of_length / 8;
         }
         length = (guint32)tmp;
-        offset += config->length_of_length / 8;
+        offset += length_of_length / 8;
     }
 
     if ((guint32)tvb_captured_length_remaining(tvb, offset) < length) {
@@ -2583,18 +2674,17 @@ dissect_someip_payload_string(tvbuff_t* tvb, packet_info* pinfo, proto_tree *tre
 }
 
 static int
-dissect_someip_payload_struct(tvbuff_t* tvb, packet_info* pinfo, proto_tree *tree, gint offset_orig, gint offset_bits_orig, guint32 id, gchar* name) {
-    someip_payload_parameter_item_t* item = NULL;
+dissect_someip_payload_struct(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset_orig, gint offset_bits_orig, guint32 id, gchar *name, gint wtlv_offset) {
     someip_payload_parameter_struct_t *config = NULL;
 
     proto_tree *subtree = NULL;
     proto_item *ti = NULL;
+    tvbuff_t   *subtvb = tvb;
+
     gint64      length = 0;
     gint        offset = offset_orig;
     gint        offset_bits = offset_bits_orig;
     gint        bits_parsed = 0;
-
-    guint       i = 0;
 
     config = get_struct_config(id);
 
@@ -2602,32 +2692,42 @@ dissect_someip_payload_struct(tvbuff_t* tvb, packet_info* pinfo, proto_tree *tre
         return 0;
     }
 
-    ti = proto_tree_add_string_format(tree, hf_payload_str_struct, tvb, offset, 0, config->struct_name, "struct %s [%s]", name, config->struct_name);
-    subtree = proto_item_add_subtree(ti, ett_someip_struct);
+    if (wtlv_offset >= 0) {
+        ti = proto_tree_add_string_format(tree, hf_payload_str_struct, tvb, wtlv_offset, 0, config->struct_name, "struct %s [%s]", name, config->struct_name);
+    } else {
+        ti = proto_tree_add_string_format(tree, hf_payload_str_struct, tvb, offset, 0, config->struct_name, "struct %s [%s]", name, config->struct_name);
+    }
 
-    if (tvb_captured_length_remaining(tvb, 0) < (gint)(config->length_of_length >> 3)) {
+    subtree = proto_item_add_subtree(ti, ett_someip_struct);
+    guint32 length_of_length = dissect_someip_payload_add_wtlv_if_needed(tvb, pinfo, wtlv_offset, ti, subtree);
+
+    /* WTLV length overrides configured length */
+    if (length_of_length == 0) {
+        length_of_length = config->length_of_length;
+    }
+
+    if (tvb_captured_length_remaining(tvb, 0) < (gint)(length_of_length >> 3)) {
         expert_someip_payload_malformed(tree, pinfo, tvb, offset, 0);
         return 0;
     };
 
-    if (config->length_of_length != 0) {
-        length = dissect_someip_payload_length_field(tvb, pinfo, subtree, offset, config->length_of_length);
+    if (length_of_length != 0) {
+        length = dissect_someip_payload_length_field(tvb, pinfo, subtree, offset, length_of_length);
         if (length < 0) {
             /* error */
-            return config->length_of_length / 8;
+            return length_of_length / 8;
         }
-        offset += config->length_of_length / 8;
-        proto_item_set_end(ti, tvb, offset_orig + (config->length_of_length / 8) + (guint32)length);
+        offset += length_of_length / 8;
+        int endpos = offset_orig + (length_of_length / 8) + (guint32)length;
+        proto_item_set_end(ti, tvb, endpos);
+        subtvb = tvb_new_subset_length_caplen(tvb, 0, endpos, endpos);
     }
 
-    for (i = 0; i < config->num_of_items; i++) {
-        item = &(config->items[i]);
-        bits_parsed = dissect_someip_payload_parameter(tvb, pinfo, subtree, offset, offset_bits, (guint8)item->data_type, item->id_ref, item->name, item->hf_id);
-        offset = (8 * offset + offset_bits + bits_parsed) / 8;
-        offset_bits = (8 * offset + offset_bits + bits_parsed) % 8;
-    }
+    bits_parsed = dissect_someip_payload_parameters(subtvb, pinfo, subtree, offset, offset_bits, config->items, config->num_of_items, config->wtlv_encoding);
+    offset = (8 * offset + offset_bits + bits_parsed) / 8;
+    offset_bits = (8 * offset + offset_bits + bits_parsed) % 8;
 
-    if (config->length_of_length == 0) {
+    if (length_of_length == 0) {
         if (offset_bits == 0) {
             proto_item_set_end(ti, tvb, offset);
         } else {
@@ -2636,12 +2736,12 @@ dissect_someip_payload_struct(tvbuff_t* tvb, packet_info* pinfo, proto_tree *tre
 
         return 8 * (offset - offset_orig) + (offset_bits - offset_bits_orig);
     } else {
-        return 8 * ((config->length_of_length / 8) + (guint32)length);
+        return 8 * ((length_of_length / 8) + (guint32)length);
     }
 }
 
 static int
-dissect_someip_payload_typedef(tvbuff_t* tvb, packet_info* pinfo, proto_tree *tree, gint offset, gint offset_bits, guint32 id, gchar* name _U_, int *hf_id) {
+dissect_someip_payload_typedef(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset, gint offset_bits, guint32 id, gchar *name _U_, int *hf_id, gint wtlv_offset) {
     gint bits_parsed = 0;
     someip_payload_parameter_typedef_t *config = NULL;
 
@@ -2652,7 +2752,7 @@ dissect_someip_payload_typedef(tvbuff_t* tvb, packet_info* pinfo, proto_tree *tr
     }
 
     /* we basically skip over the typedef for now */
-    bits_parsed = dissect_someip_payload_parameter(tvb, pinfo, tree, offset, offset_bits, (guint8)config->data_type, config->id_ref, config->name, hf_id);
+    bits_parsed = dissect_someip_payload_parameter(tvb, pinfo, tree, offset, offset_bits, (guint8)config->data_type, config->id_ref, config->name, hf_id, wtlv_offset);
 
     return bits_parsed;
 }
@@ -2660,7 +2760,7 @@ dissect_someip_payload_typedef(tvbuff_t* tvb, packet_info* pinfo, proto_tree *tr
 /* returns bytes parsed, length needs to be gint to encode "non-existing" as -1 */
 static int
 dissect_someip_payload_array_dim_length(tvbuff_t* tvb, packet_info* pinfo, proto_tree *tree, gint offset_orig, gint *length, gint *lower_limit, gint *upper_limit,
-    someip_parameter_array_t *config, gint current_dim) {
+    someip_parameter_array_t *config, gint current_dim, guint32 length_of_length) {
     gint    offset = offset_orig;
     gint64  tmp = 0;
 
@@ -2670,15 +2770,18 @@ dissect_someip_payload_array_dim_length(tvbuff_t* tvb, packet_info* pinfo, proto
     /* length needs to be -1, if we do not have a dynamic length array */
     *length = -1;
 
-    if (config->dims[current_dim].length_of_length > 0) {
+    if (length_of_length == 0) {
+        length_of_length = config->dims[current_dim].length_of_length;
+    }
+    if (length_of_length > 0) {
         /* we are filling the length with number of bytes we found in the packet */
-        tmp = dissect_someip_payload_length_field(tvb, pinfo, tree, offset, config->dims[current_dim].length_of_length);
+        tmp = dissect_someip_payload_length_field(tvb, pinfo, tree, offset, length_of_length);
         if (tmp < 0) {
             /* leave *length = -1 */
-            return config->dims[current_dim].length_of_length/8;
+            return length_of_length/8;
         }
         *length = (gint32)tmp;
-        offset += config->dims[current_dim].length_of_length/8;
+        offset += length_of_length/8;
     } else {
         /* without a length field, the number of elements needs be fixed */
         if (config->dims[current_dim].lower_limit != config->dims[current_dim].upper_limit) {
@@ -2718,7 +2821,7 @@ dissect_someip_payload_array_payload(tvbuff_t* tvb, packet_info* pinfo, proto_tr
     }
 
     while ((length == -1 && count < upper_limit) || ((gint)(8 * offset + offset_bits) < 8 * length)) {
-        bits_parsed = dissect_someip_payload_parameter(subtvb, pinfo, tree, offset, offset_bits, (guint8)config->data_type, config->id_ref, config->name, config->hf_id);
+        bits_parsed = dissect_someip_payload_parameter(subtvb, pinfo, tree, offset, offset_bits, (guint8)config->data_type, config->id_ref, config->name, config->hf_id, -1);
         if (bits_parsed == 0) {
             return 1;
         }
@@ -2744,7 +2847,7 @@ dissect_someip_payload_array_payload(tvbuff_t* tvb, packet_info* pinfo, proto_tr
 
 /* returns bits parsed */
 static gint
-dissect_someip_payload_array_dim(tvbuff_t* tvb, packet_info* pinfo, proto_tree *tree, gint offset_orig, gint length, gint lower_limit, gint upper_limit, someip_parameter_array_t *config, guint current_dim, gchar* name) {
+dissect_someip_payload_array_dim(tvbuff_t* tvb, packet_info* pinfo, proto_tree *tree, gint offset_orig, gint length, gint lower_limit, gint upper_limit, someip_parameter_array_t *config, guint current_dim, gchar *name, guint32 length_of_length) {
     proto_item *ti = NULL;
     proto_tree *subtree = NULL;
     gint        sub_length = 0;
@@ -2768,14 +2871,14 @@ dissect_someip_payload_array_dim(tvbuff_t* tvb, packet_info* pinfo, proto_tree *
                 ti = proto_tree_add_string_format(tree, hf_payload_str_array, tvb, sub_offset, 0, name, "subarray (dim: %d, limit %d-%d)", current_dim + 1, sub_lower_limit, sub_upper_limit);
                 subtree = proto_item_add_subtree(ti, ett_someip_array_dim);
 
-                offset += dissect_someip_payload_array_dim_length(tvb, pinfo, subtree, offset, &sub_length, &sub_lower_limit, &sub_upper_limit, config, current_dim + 1);
+                offset += dissect_someip_payload_array_dim_length(tvb, pinfo, subtree, offset, &sub_length, &sub_lower_limit, &sub_upper_limit, config, current_dim + 1, length_of_length);
 
                 if (tvb_captured_length_remaining(tvb, offset) < (gint)sub_length) {
                     expert_someip_payload_truncated(subtree, pinfo, tvb, offset, tvb_captured_length_remaining(tvb, offset));
                     return 0;
                 }
 
-                offset_bits += dissect_someip_payload_array_dim(tvb, pinfo, subtree, offset, sub_length, sub_lower_limit, sub_upper_limit, config, current_dim + 1, name);
+                offset_bits += dissect_someip_payload_array_dim(tvb, pinfo, subtree, offset, sub_length, sub_lower_limit, sub_upper_limit, config, current_dim + 1, name, length_of_length);
                 offset = (8 * offset + offset_bits) / 8;
                 offset_bits = (8 * offset + offset_bits) % 8;
                 if (offset_bits == 0) {
@@ -2791,7 +2894,7 @@ dissect_someip_payload_array_dim(tvbuff_t* tvb, packet_info* pinfo, proto_tree *
             sub_upper_limit = config->dims[current_dim].upper_limit;
 
             for (i = 0; i < upper_limit; i++) {
-                offset += dissect_someip_payload_array_dim(tvb, pinfo, tree, offset, -1, sub_lower_limit, sub_upper_limit, config, current_dim + 1, name);
+                offset += dissect_someip_payload_array_dim(tvb, pinfo, tree, offset, -1, sub_lower_limit, sub_upper_limit, config, current_dim + 1, name, length_of_length);
             }
         }
     }
@@ -2801,7 +2904,7 @@ dissect_someip_payload_array_dim(tvbuff_t* tvb, packet_info* pinfo, proto_tree *
 }
 
 static int
-dissect_someip_payload_array(tvbuff_t* tvb, packet_info* pinfo, proto_tree *tree, gint offset_orig, gint offset_bits_orig, guint32 id, gchar* name) {
+dissect_someip_payload_array(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset_orig, gint offset_bits_orig, guint32 id, gchar *name, gint wtlv_offset) {
     someip_parameter_array_t *config = NULL;
 
     proto_tree *subtree;
@@ -2832,9 +2935,10 @@ dissect_someip_payload_array(tvbuff_t* tvb, packet_info* pinfo, proto_tree *tree
     }
 
     ti = proto_tree_add_string_format(tree, hf_payload_str_array, tvb, offset, 0, config->name, "array %s", name);
-    subtree = proto_item_add_subtree(ti, ett_someip_struct);
+    subtree = proto_item_add_subtree(ti, ett_someip_array);
+    guint32 length_of_length = dissect_someip_payload_add_wtlv_if_needed(tvb, pinfo, wtlv_offset, ti, subtree);
 
-    offset += dissect_someip_payload_array_dim_length(tvb, pinfo, subtree, offset_orig, &length, &lower_limit, &upper_limit, config, 0);
+    offset += dissect_someip_payload_array_dim_length(tvb, pinfo, subtree, offset_orig, &length, &lower_limit, &upper_limit, config, 0, length_of_length);
     size_of_length = offset - offset_orig;
 
     if (length != -1) {
@@ -2843,7 +2947,7 @@ dissect_someip_payload_array(tvbuff_t* tvb, packet_info* pinfo, proto_tree *tree
          proto_item_append_text(ti, " (elements limit: %d)", upper_limit);
     }
 
-    offset_bits += dissect_someip_payload_array_dim(tvb, pinfo, subtree, offset, length, lower_limit, upper_limit, config, 0, name);
+    offset_bits += dissect_someip_payload_array_dim(tvb, pinfo, subtree, offset, length, lower_limit, upper_limit, config, 0, name, length_of_length);
 
     offset = (8 * offset + offset_bits) / 8;
     offset_bits = (8 * offset + offset_bits) % 8;
@@ -2864,7 +2968,7 @@ dissect_someip_payload_array(tvbuff_t* tvb, packet_info* pinfo, proto_tree *tree
 }
 
 static int
-dissect_someip_payload_union(tvbuff_t* tvb, packet_info* pinfo, proto_tree *tree, gint offset_orig, gint offset_bits_orig, guint32 id, gchar* name) {
+dissect_someip_payload_union(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset_orig, gint offset_bits_orig, guint32 id, gchar *name, gint wtlv_offset) {
     someip_parameter_union_t        *config = NULL;
     someip_parameter_union_item_t   *item = NULL;
 
@@ -2896,29 +3000,39 @@ dissect_someip_payload_union(tvbuff_t* tvb, packet_info* pinfo, proto_tree *tree
         return 0;
     }
 
-    if ((config->length_of_length + config->length_of_type) / 8 > (guint)buf_length - offset) {
+    if (wtlv_offset >= 0) {
+        ti = proto_tree_add_string_format(tree, hf_payload_str_union, tvb, wtlv_offset, 0, name, "union %s [%s]", name, config->name);
+    } else {
+        ti = proto_tree_add_string_format(tree, hf_payload_str_union, tvb, offset_orig, 0, name, "union %s [%s]", name, config->name);
+    }
+
+    subtree = proto_item_add_subtree(ti, ett_someip_union);
+    guint32 length_of_length = dissect_someip_payload_add_wtlv_if_needed(tvb, pinfo, wtlv_offset, ti, subtree);
+
+    if (length_of_length == 0) {
+        length_of_length = config->length_of_length;
+    }
+
+    if ((length_of_length + config->length_of_type) / 8 > (guint)buf_length - offset) {
         expert_someip_payload_truncated(tree, pinfo, tvb, offset, tvb_captured_length_remaining(tvb, offset));
         return 0;
     }
 
-    ti = proto_tree_add_string_format(tree, hf_payload_str_union, tvb, offset_orig, 0, name, "union %s [%s]", name, config->name);
-    subtree = proto_item_add_subtree(ti, ett_someip_union);
-
-    tmp = dissect_someip_payload_length_field(tvb, pinfo, subtree, offset_orig, config->length_of_length);
+    tmp = dissect_someip_payload_length_field(tvb, pinfo, subtree, offset_orig, length_of_length);
     if (tmp == -1) {
         return 8 * (offset - offset_orig) + (offset_bits - 0);
     } else {
         length = (guint32)tmp;
     }
 
-    tmp = dissect_someip_payload_type_field(tvb, pinfo, subtree, offset_orig + config->length_of_length / 8, config->length_of_type);
+    tmp = dissect_someip_payload_type_field(tvb, pinfo, subtree, offset_orig + length_of_length / 8, config->length_of_type);
     if (tmp == -1) {
         return 8 * (offset - offset_orig) + (offset_bits - 0);
     } else {
         type = (guint32)tmp;
     }
 
-    offset += (config->length_of_length + config->length_of_type) / 8;
+    offset += (length_of_length + config->length_of_type) / 8;
     proto_item_set_end(ti, tvb, offset + length);
 
     item = NULL;
@@ -2930,38 +3044,38 @@ dissect_someip_payload_union(tvbuff_t* tvb, packet_info* pinfo, proto_tree *tree
 
     if (item != NULL) {
         subtvb = tvb_new_subset_length_caplen(tvb, offset, length, length);
-        dissect_someip_payload_parameter(subtvb, pinfo, subtree, 0, 0, (guint8)item->data_type, item->id_ref, item->name, item->hf_id);
+        dissect_someip_payload_parameter(subtvb, pinfo, subtree, 0, 0, (guint8)item->data_type, item->id_ref, item->name, item->hf_id, -1);
     } else {
         expert_someip_payload_config_error(tree, pinfo, tvb, offset, 0, "Union type not configured");
     }
 
     /* there might be some padding present, if 8*length != bits_parsed */
-    return 8 * length + config->length_of_type + config->length_of_length;
+    return 8 * length + config->length_of_type + length_of_length;
 }
 
 static int
-dissect_someip_payload_parameter(tvbuff_t* tvb, packet_info* pinfo, proto_tree *tree, gint offset, gint offset_bits, guint8 data_type, guint32 idref, gchar *name, int *hf_id_ptr) {
+dissect_someip_payload_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset, gint offset_bits, guint8 data_type, guint32 idref, gchar *name, int *hf_id_ptr, gint wtlv_offset) {
     gint bits_parsed = 0;
 
     switch (data_type) {
     case SOMEIP_PAYLOAD_PARAMETER_DATA_TYPE_TYPEDEF:
-        bits_parsed = dissect_someip_payload_typedef(tvb, pinfo, tree, offset, offset_bits, idref, name, hf_id_ptr);
+        bits_parsed = dissect_someip_payload_typedef(tvb, pinfo, tree, offset, offset_bits, idref, name, hf_id_ptr, wtlv_offset);
         break;
     case SOMEIP_PAYLOAD_PARAMETER_DATA_TYPE_BASE_TYPE:
     case SOMEIP_PAYLOAD_PARAMETER_DATA_TYPE_ENUM:
-        bits_parsed = dissect_someip_payload_base_type(tvb, pinfo, tree, offset, offset_bits, data_type, idref, name, hf_id_ptr);
+        bits_parsed = dissect_someip_payload_base_type(tvb, pinfo, tree, offset, offset_bits, data_type, idref, name, hf_id_ptr, wtlv_offset);
         break;
     case SOMEIP_PAYLOAD_PARAMETER_DATA_TYPE_STRING:
-        bits_parsed = dissect_someip_payload_string(tvb, pinfo, tree, offset, offset_bits, idref, name, hf_id_ptr);
+        bits_parsed = dissect_someip_payload_string(tvb, pinfo, tree, offset, offset_bits, idref, name, hf_id_ptr, wtlv_offset);
         break;
     case SOMEIP_PAYLOAD_PARAMETER_DATA_TYPE_ARRAY:
-        bits_parsed = dissect_someip_payload_array(tvb, pinfo, tree, offset, offset_bits, idref, name);
+        bits_parsed = dissect_someip_payload_array(tvb, pinfo, tree, offset, offset_bits, idref, name, wtlv_offset);
         break;
     case SOMEIP_PAYLOAD_PARAMETER_DATA_TYPE_STRUCT:
-        bits_parsed = dissect_someip_payload_struct(tvb, pinfo, tree, offset, offset_bits, idref, name);
+        bits_parsed = dissect_someip_payload_struct(tvb, pinfo, tree, offset, offset_bits, idref, name, wtlv_offset);
         break;
     case SOMEIP_PAYLOAD_PARAMETER_DATA_TYPE_UNION:
-        bits_parsed = dissect_someip_payload_union(tvb, pinfo, tree, offset, offset_bits, idref, name);
+        bits_parsed = dissect_someip_payload_union(tvb, pinfo, tree, offset, offset_bits, idref, name, wtlv_offset);
         break;
     default:
         proto_tree_add_expert_format(tree, pinfo, &ef_someip_payload_config_error, tvb, offset, 0,
@@ -2974,10 +3088,189 @@ dissect_someip_payload_parameter(tvbuff_t* tvb, packet_info* pinfo, proto_tree *
     return bits_parsed;
 }
 
+/*
+ * returns <0 for errors
+ */
+static int dissect_someip_payload_peek_length_of_length(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, gint offset, gint length, someip_payload_parameter_item_t *item) {
+    if (item == NULL) {
+        return -1;
+    }
+
+    guint32 data_type = item->data_type;
+    guint32 id_ref    = item->id_ref;
+
+    /* a config error could cause an endless loop, so we limit the number of indirections with loop_limit */
+    gint loop_limit = 255;
+    while (data_type == SOMEIP_PAYLOAD_PARAMETER_DATA_TYPE_TYPEDEF && loop_limit > 0) {
+        someip_payload_parameter_typedef_t *tmp = get_typedef_config(id_ref);
+        data_type = tmp->data_type;
+        id_ref = tmp->id_ref;
+        loop_limit--;
+    }
+
+    someip_payload_parameter_string_t  *tmp_string_config;
+    someip_parameter_array_t           *tmp_array_config;
+    someip_payload_parameter_struct_t  *tmp_struct_config;
+    someip_parameter_union_t           *tmp_union_config;
+
+    switch (item->data_type) {
+    case SOMEIP_PAYLOAD_PARAMETER_DATA_TYPE_STRING:
+        tmp_string_config = get_string_config(id_ref);
+        if (tmp_string_config == NULL) {
+            return -1;
+        }
+
+        return tmp_string_config->length_of_length;
+        break;
+
+    case SOMEIP_PAYLOAD_PARAMETER_DATA_TYPE_ARRAY:
+        tmp_array_config = get_array_config(id_ref);
+        if (tmp_array_config == NULL) {
+            return -1;
+        }
+
+        if (tmp_array_config->num_of_dims < 1 || tmp_array_config->dims == NULL) {
+            expert_someip_payload_config_error(tree, pinfo, tvb, offset, length, "array configuration does not support WTLV");
+            return -1;
+        }
+
+        return tmp_array_config->dims[0].length_of_length;
+        break;
+
+    case SOMEIP_PAYLOAD_PARAMETER_DATA_TYPE_STRUCT:
+        tmp_struct_config = get_struct_config(id_ref);
+        if (tmp_struct_config == NULL) {
+            return -1;
+        }
+
+        return tmp_struct_config->length_of_length;
+        break;
+
+    case SOMEIP_PAYLOAD_PARAMETER_DATA_TYPE_UNION:
+        tmp_union_config = get_union_config(id_ref);
+        if (tmp_union_config == NULL) {
+            return -1;
+        }
+
+        return tmp_union_config->length_of_length;
+        break;
+
+    case SOMEIP_PAYLOAD_PARAMETER_DATA_TYPE_TYPEDEF:
+    case SOMEIP_PAYLOAD_PARAMETER_DATA_TYPE_BASE_TYPE:
+    case SOMEIP_PAYLOAD_PARAMETER_DATA_TYPE_ENUM:
+    default:
+        /* This happends only if configuration or message are buggy. */
+        return -2;
+    }
+}
+
+static int
+dissect_someip_payload_parameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset, gint offset_bits, someip_payload_parameter_item_t *items, guint32 num_of_items, gboolean wtlv) {
+    someip_payload_parameter_item_t *item;
+    gint      offset_orig = offset;
+    gint      offset_orig_bits = offset_bits;
+    gint      bits_parsed = 0;
+
+    if (items == NULL && !someip_derserializer_wtlv_default) {
+        return 0;
+    }
+
+    if (wtlv) {
+        while (tvb_captured_length_remaining(tvb, offset) >= 2) {
+            /* WTLV only works if payload is aligned to bytes */
+            if (offset_bits != 0) {
+                expert_someip_payload_malformed(tree, pinfo, tvb, offset, 0);
+                return offset - offset_orig;
+            }
+
+            guint64 tagdata = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN);
+            guint wiretype = (tagdata & SOMEIP_WTLV_MASK_WIRE_TYPE) >> 12;
+            guint param_id = tagdata & SOMEIP_WTLV_MASK_DATA_ID;
+            offset += 2;
+
+            if (param_id < num_of_items && items != NULL) {
+                item = &(items[param_id]);
+            } else {
+                item = NULL;
+            }
+
+            guint param_length = 0;
+            switch (wiretype) {
+
+            /* fixed length type with just 1, 2, 4, or 8 byte length */
+            case 0:
+            case 1:
+            case 2:
+            case 3:
+                param_length = 1 << wiretype;
+                break;
+
+            /* var length types like structs, strings, arrays, and unions */
+            case 4:
+                /* this type is deprecated and should not be used*/
+
+                switch (dissect_someip_payload_peek_length_of_length(tree, pinfo, tvb, offset - 2, 0, item)) {
+                case 8:
+                    param_length = 1 + tvb_get_guint8(tvb, offset);
+                    break;
+                case 16:
+                    param_length = 2 + tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN);
+                    break;
+                case 32:
+                    param_length = 4 + tvb_get_guint32(tvb, offset, ENC_BIG_ENDIAN);
+                    break;
+                default:
+                    expert_someip_payload_config_error(tree, pinfo, tvb, offset - 2, 2, "WTLV type 4 but datatype has not an appropriate length field configured");
+                    return 8 * (offset - offset_orig);
+                }
+                break;
+
+            case 5:
+                param_length = 1 + tvb_get_guint8(tvb, offset);
+                break;
+            case 6:
+                param_length = 2 + tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN);
+                break;
+            case 7:
+                param_length = 4 + tvb_get_guint32(tvb, offset, ENC_BIG_ENDIAN);
+                break;
+
+            default:
+                 /* unsupported Wire Type!*/
+                expert_someip_payload_malformed(tree, pinfo, tvb, offset - 2, 2);
+                break;
+            }
+
+            tvbuff_t *subtvb = tvb_new_subset_length_caplen(tvb, offset - 2, param_length + 2, param_length + 2);
+            if (item != NULL) {
+                dissect_someip_payload_parameter(subtvb, pinfo, tree, 2, 0, (guint8)item->data_type, item->id_ref, item->name, item->hf_id, 0);
+            } else {
+                proto_item *ti = proto_tree_add_item(tree, hf_payload_unparsed, subtvb, 2, param_length, ENC_NA);
+                dissect_someip_payload_add_wtlv_if_needed(tvb, pinfo, offset - 2, ti, NULL);
+            }
+            offset += param_length;
+        }
+        bits_parsed = 8 * (offset - offset_orig);
+    } else {
+        if (items == NULL) {
+            return 0;
+        }
+        guint32 i;
+        for (i = 0; i < num_of_items; i++) {
+            item = &(items[i]);
+            bits_parsed = dissect_someip_payload_parameter(tvb, pinfo, tree, offset, offset_bits, (guint8)item->data_type, item->id_ref, item->name, item->hf_id, -1);
+            offset = (8 * offset + offset_bits + bits_parsed) / 8;
+            offset_bits = (8 * offset + offset_bits + bits_parsed) % 8;
+        }
+        bits_parsed = 8 * (offset - offset_orig) + (offset_bits + offset_orig_bits);
+    }
+
+    return bits_parsed;
+}
+
 static void
 dissect_someip_payload(tvbuff_t* tvb, packet_info* pinfo, proto_item *ti, guint16 serviceid, guint16 methodid, guint8 version, guint8 msgtype) {
     someip_parameter_list_t* paramlist = NULL;
-    someip_payload_parameter_item_t* item = NULL;
 
     gint        length = -1;
     gint        offset = 0;
@@ -2985,24 +3278,27 @@ dissect_someip_payload(tvbuff_t* tvb, packet_info* pinfo, proto_item *ti, guint1
     gint        bits_parsed = 0;
 
     proto_tree *tree = NULL;
-    guint       i = 0;
 
     length = tvb_captured_length_remaining(tvb, 0);
     tree = proto_item_add_subtree(ti, ett_someip_payload);
     paramlist = get_parameter_config(serviceid, methodid, version, msgtype);
 
     if (paramlist == NULL) {
-        return;
+        if (someip_derserializer_wtlv_default) {
+            bits_parsed = dissect_someip_payload_parameters(tvb, pinfo, tree, offset, offset_bits, NULL, 0, TRUE);
+        } else {
+            return;
+        }
+    } else {
+        bits_parsed = dissect_someip_payload_parameters(tvb, pinfo, tree, offset, offset_bits, paramlist->items, paramlist->num_of_items, paramlist->wtlv_encoding);
     }
 
-    for (i = 0; i < paramlist->num_of_items; i++) {
-        item = &(paramlist->items[i]);
-        bits_parsed = dissect_someip_payload_parameter(tvb, pinfo, tree, offset, offset_bits, (guint8)item->data_type, item->id_ref, item->name, item->hf_id);
-        offset = (8 * offset + offset_bits + bits_parsed) / 8;
-        offset_bits = (8 * offset + offset_bits + bits_parsed) % 8;
-    }
+    offset = (8 * offset + offset_bits + bits_parsed) / 8;
+    offset_bits = (8 * offset + offset_bits + bits_parsed) % 8;
 
     if (offset_bits != 0) {
+        expert_someip_payload_malformed(tree, pinfo, tvb, offset, 0);
+
         /* allign to byte */
         offset += 1;
     }
@@ -3417,6 +3713,19 @@ proto_register_someip(void) {
         { &hf_payload_str_union, {
             "(array)", "someip.payload.union",
             FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+
+        { &hf_payload_wtlv_tag, {
+            "WTLV-TAG", "someip.payload.wtlvtag",
+            FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+        { &hf_payload_wtlv_tag_res, {
+            "Reserved", "someip.payload.wtlvtag.res",
+            FT_UINT16, BASE_DEC, NULL, SOMEIP_WTLV_MASK_RES, NULL, HFILL } },
+        { &hf_payload_wtlv_tag_wire_type, {
+            "Wire Type", "someip.payload.wtlvtag.wire_type",
+            FT_UINT16, BASE_DEC, NULL, SOMEIP_WTLV_MASK_WIRE_TYPE, NULL, HFILL } },
+        { &hf_payload_wtlv_tag_data_id, {
+            "Data ID", "someip.payload.wtlvtag.data_id",
+            FT_UINT16, BASE_DEC, NULL, SOMEIP_WTLV_MASK_DATA_ID, NULL, HFILL } },
     };
 
     static gint *ett[] = {
@@ -3433,6 +3742,9 @@ proto_register_someip(void) {
         &ett_someip_array_dim,
         &ett_someip_struct,
         &ett_someip_union,
+
+        &ett_someip_parameter,
+        &ett_someip_wtlv_tag,
     };
 
 
@@ -3462,10 +3774,11 @@ proto_register_someip(void) {
         UAT_FLD_HEX(someip_parameter_list, method_id,               "Method ID",                "ID of the SOME/IP Method/Event/Notifier (16bit hex without leading 0x)"),
         UAT_FLD_DEC(someip_parameter_list, version,                 "Version",                  "Version of the SOME/IP Service (8bit dec)"),
         UAT_FLD_HEX(someip_parameter_list, message_type,            "Message Type",             "Message Type (8bit hex without leading 0x)"),
+        UAT_FLD_BOOL(someip_parameter_list, wtlv_encoding,          "WTLV Extension?",          "SOME/IP is extended by Wiretag-Length-Value encoding for this parameter list (not pure SOME/IP)"),
 
         UAT_FLD_DEC(someip_parameter_list, num_of_params,           "Number of Parameter",      "Number of Parameters (16bit dec)"),
 
-        UAT_FLD_DEC(someip_parameter_list, pos,                     "Parameter Position",       "Position of parameter (16bit dec, starting with 0)"),
+        UAT_FLD_DEC(someip_parameter_list, pos,                     "Parameter Position/ID",    "Position or ID of parameter (16bit dec, starting with 0)"),
         UAT_FLD_CSTRING(someip_parameter_list, name,                "Parameter Name",           "Name of parameter (string)"),
         UAT_FLD_DEC(someip_parameter_list, data_type,               "Parameter Type",           "Type of parameter (1: base, 2: string, 3: array, 4: struct, 5: union, 6: typedef, 7: enum)"),
         UAT_FLD_HEX(someip_parameter_list, id_ref,                  "ID Reference",             "ID Reference (32bit hex)"),
@@ -3494,10 +3807,10 @@ proto_register_someip(void) {
         UAT_FLD_CSTRING(someip_parameter_structs, struct_name,      "Struct Name",              "Name of struct"),
         UAT_FLD_DEC(someip_parameter_structs, length_of_length,     "Length of Length Field",   "Length of the strcuts length field  (8bit dec)"),
         UAT_FLD_DEC(someip_parameter_structs, pad_to,               "Pad to",                   "Padding pads to reach alignment (8bit dec)"),
-
+        UAT_FLD_BOOL(someip_parameter_structs, wtlv_encoding,       "WTLV Extension?",          "SOME/IP is extended by Wiretag-Length-Value encoding for this struct (not pure SOME/IP)"),
         UAT_FLD_DEC(someip_parameter_structs, num_of_items,         "Number of Items",          "Number of Items (16bit dec)"),
 
-        UAT_FLD_DEC(someip_parameter_structs, pos,                  "Parameter Position",       "Position of parameter (16bit dec, starting with 0)"),
+        UAT_FLD_DEC(someip_parameter_structs, pos,                  "Parameter Position/ID",    "Position or ID of parameter (16bit dec, starting with 0)"),
         UAT_FLD_CSTRING(someip_parameter_structs, name,             "Parameter Name",           "Name of parameter (string)"),
         UAT_FLD_DEC(someip_parameter_structs, data_type,            "Parameter Type",           "Type of parameter (1: base, 2: string, 3: array, 4: struct, 5: union, 6: typedef, 7: enum)"),
         UAT_FLD_HEX(someip_parameter_structs, id_ref,               "ID Reference",             "ID Reference (32bit hex)"),
@@ -3525,7 +3838,7 @@ proto_register_someip(void) {
     static uat_field_t someip_parameter_enum_uat_fields[] = {
         UAT_FLD_HEX(someip_parameter_enums, id,                     "ID",                       "ID of SOME/IP enum (32bit hex without leading 0x)"),
         UAT_FLD_CSTRING(someip_parameter_enums, name,               "Name",                     "Name of Enumeration (string)"),
-        UAT_FLD_DEC(someip_parameter_enums, data_type,              "Parameter Type",           "Type of parameter (dec)"),
+        UAT_FLD_DEC(someip_parameter_enums, data_type,              "Parameter Type",           "Type of parameter (1: base, 2: string, 3: array, 4: struct, 5: union, 6: typedef, 7: enum)"),
         UAT_FLD_HEX(someip_parameter_enums, id_ref,                 "ID Reference",             "ID Reference (32bit hex)"),
         UAT_FLD_DEC(someip_parameter_enums, num_of_items,           "Number of Items",          "Number of Items (32bit dec)"),
 
@@ -3693,6 +4006,11 @@ proto_register_someip(void) {
         "Dissect Payload",
         "Should the SOME/IP Dissector use the payload dissector?",
         &someip_derserializer_activated);
+
+    prefs_register_bool_preference(someip_module, "payload_dissector_wtlv_default",
+        "Try WTLV payload dissection for unconfigured messages (not pure SOME/IP)",
+        "Should the SOME/IP Dissector use the payload dissector with the experimental WTLV encoding for unconfigured messsages?",
+        &someip_derserializer_wtlv_default);
 
     prefs_register_uat_preference(someip_module, "_someip_parameter_list", "SOME/IP Parameter List",
         "A table to define names of SOME/IP parameters", someip_parameter_list_uat);
