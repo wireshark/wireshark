@@ -134,6 +134,9 @@ gboolean rtpstream_save(rtpstream_tapinfo_t *tapinfo, capture_file *cap_file, rt
 */
 void rtpstream_mark(rtpstream_tapinfo_t *tapinfo, capture_file *cap_file, rtpstream_info_t* stream_fwd, rtpstream_info_t* stream_rev);
 
+/* Constant based on fix for bug 4119/5902: don't insert too many silence
+ * frames.
+ */
 #define MAX_SILENCE_FRAMES 14400000
 
 #ifdef __cplusplus

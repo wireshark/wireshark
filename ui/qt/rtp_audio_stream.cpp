@@ -52,6 +52,7 @@ RtpAudioStream::RtpAudioStream(QObject *parent, rtpstream_info_t *rtpstream, boo
     audio_resampler_(0),
     audio_output_(0),
     max_sample_val_(1),
+    max_sample_val_used_(1),
     color_(0),
     jitter_buffer_size_(50),
     timing_mode_(RtpAudioStream::JitterBuffer),
@@ -457,6 +458,7 @@ void RtpAudioStream::decodeVisual()
         }
     }
 
+    max_sample_val_used_ = max_sample_val_;
     g_free(resample_buff);
     g_free(read_buff);
 }
@@ -480,18 +482,15 @@ const QVector<double> RtpAudioStream::visualTimestamps(bool relative)
     return adj_timestamps;
 }
 
-// Scale the height of the waveform (max_sample_val_) and adjust its Y
-// offset so that they overlap slightly (stack_offset_).
-
-// XXX This means that waveforms can be misleading with respect to relative
-// amplitude. We might want to add a "global" max_sample_val_.
+// Scale the height of the waveform to global scale (max_sample_val_used_)
+// and adjust its Y offset so that they overlap slightly (stack_offset_).
 static const double stack_offset_ = G_MAXINT16 / 3;
 const QVector<double> RtpAudioStream::visualSamples(int y_offset)
 {
     QVector<double> adj_samples;
     double scaled_offset = y_offset * stack_offset_;
     for (int i = 0; i < visual_samples_.size(); i++) {
-        adj_samples.append(((double)visual_samples_[i] * G_MAXINT16 / max_sample_val_) + scaled_offset);
+        adj_samples.append(((double)visual_samples_[i] * G_MAXINT16 / max_sample_val_used_) + scaled_offset);
     }
     return adj_samples;
 }

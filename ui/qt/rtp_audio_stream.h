@@ -144,6 +144,8 @@ public:
     void pausePlaying();
     void stopPlaying();
     void setStereoRequired(bool stereo_required) { stereo_required_ = stereo_required; }
+    qint16 getMaxSampleValue() { return max_sample_val_; }
+    void setMaxSampleValue(gint16 max_sample_val) { max_sample_val_used_ = max_sample_val; }
 
 signals:
     void processedSecs(double secs);
@@ -181,6 +183,7 @@ private:
     QVector<double> wrong_timestamp_timestamps_;
     QVector<double> silence_timestamps_;
     qint16 max_sample_val_;
+    qint16 max_sample_val_used_;
     QRgb color_;
 
     int jitter_buffer_size_;

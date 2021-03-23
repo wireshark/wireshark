@@ -411,6 +411,7 @@ void RtpPlayerDialog::createPlot(bool rescale_axes)
     bool legend_inserted_silences = false;
     bool relative_timestamps = !ui->todCheckBox->isChecked();
     int row_count = ui->streamTreeWidget->topLevelItemCount();
+    gint16 total_max_sample_value = 1;
 
     ui->audioPlot->clearGraphs();
 
@@ -418,6 +419,17 @@ void RtpPlayerDialog::createPlot(bool rescale_axes)
         ui->audioPlot->xAxis->setTicker(number_ticker_);
     } else {
         ui->audioPlot->xAxis->setTicker(datetime_ticker_);
+    }
+
+    // Calculate common Y scale for graphs
+    for (int row = 0; row < row_count; row++) {
+        QTreeWidgetItem *ti = ui->streamTreeWidget->topLevelItem(row);
+        RtpAudioStream *audio_stream = ti->data(stream_data_col_, Qt::UserRole).value<RtpAudioStream*>();
+        gint16 max_sample_value = audio_stream->getMaxSampleValue();
+
+        if (max_sample_value > total_max_sample_value) {
+            total_max_sample_value = max_sample_value;
+        }
     }
 
     // Clear existing graphs
@@ -432,6 +444,9 @@ void RtpPlayerDialog::createPlot(bool rescale_axes)
         ti->setData(graph_jitter_data_col_, Qt::UserRole, QVariant());
         ti->setData(graph_timestamp_data_col_, Qt::UserRole, QVariant());
         ti->setData(graph_silence_data_col_, Qt::UserRole, QVariant());
+
+        // Set common scale
+        audio_stream->setMaxSampleValue(total_max_sample_value);
 
         // Waveform
         RtpAudioGraph *audio_graph = new RtpAudioGraph(ui->audioPlot, audio_stream->color());
@@ -933,6 +948,22 @@ void RtpPlayerDialog::resetXAxis()
     ap->replot();
 }
 
+void RtpPlayerDialog::updateGraphs()
+{
+    QCustomPlot *ap = ui->audioPlot;
+
+    // Create new plots, just existing ones
+    createPlot(false);
+
+    // Rescale Y axis
+    double pixel_pad = 10.0; // per side
+    double axis_pixels = ap->yAxis->axisRect()->height();
+    ap->yAxis->rescale(true);
+    ap->yAxis->scaleRange((axis_pixels + (pixel_pad * 2)) / axis_pixels, ap->yAxis->range().center());
+
+    ap->replot();
+}
+
 void RtpPlayerDialog::playFinished(RtpAudioStream *stream)
 {
     playing_streams_.removeOne(stream);
@@ -1287,7 +1318,12 @@ void RtpPlayerDialog::on_actionRemoveStream_triggered()
 
         delete ti;
     }
-    ui->audioPlot->replot();
+    // TODO: Recalculate legend
+    // - Graphs used for legend could be removed above and we must add new
+    // - If no legend is required, it should be removed
+
+    // Redraw existing waveforms and rescale Y axis
+    updateGraphs();
 
     updateWidgets();
 }

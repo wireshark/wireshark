@@ -97,6 +97,7 @@ private slots:
     void plotClicked(QCPAbstractPlottable *plottable, int dataIndex, QMouseEvent *event);
     void updateHintLabel();
     void resetXAxis();
+    void updateGraphs();
     void playFinished(RtpAudioStream *stream);
 
     void setPlayPosition(double secs);
