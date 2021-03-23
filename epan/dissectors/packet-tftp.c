@@ -759,6 +759,26 @@ tftp_info_for_conversation(conversation_t *conversation)
 }
 
 static gboolean
+is_valid_requerest_body(tvbuff_t *tvb)
+{
+  for (gint i = 2; i < (gint)tvb_captured_length(tvb); ++i) {
+    gchar c = (gchar)tvb_get_guint8(tvb, i);
+    gboolean allowed_ch = (c == '\0') || g_ascii_isprint(c);
+    if (!allowed_ch) return FALSE;
+  }
+  return TRUE;
+}
+
+static gboolean
+is_valid_requerest(tvbuff_t *tvb)
+{
+  guint16 opcode = tvb_get_ntohs(tvb, 0);
+  if ((opcode != TFTP_RRQ) && (opcode != TFTP_WRQ))
+    return FALSE;
+  return is_valid_requerest_body(tvb);
+}
+
+static gboolean
 dissect_embeddedtftp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
   /* Used to dissect TFTP packets where one can not assume
@@ -780,16 +800,8 @@ dissect_embeddedtftp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
     case TFTP_RRQ:
     case TFTP_WRQ:
       /* These 2 opcodes have a NULL-terminated source file name after opcode. Verify */
-      {
-        gint char_offset = 2;
-        while (tvb_captured_length_remaining(tvb, char_offset)) {
-          gchar c = (gchar)tvb_get_guint8(tvb, char_offset++);
-          gboolean allowed_ch = (c == '\0') || g_ascii_isprint(c);
-          if (!allowed_ch) return FALSE;
-        }
-        /* Would have to have a short capture length to not include the whole filename,
-           but fall through here anyway rather than returning FALSE */
-     }
+      if (!is_valid_requerest_body(tvb))
+        return FALSE;
      /* Intentionally dropping through here... */
     case TFTP_DATA:
     case TFTP_ACK:
@@ -846,8 +858,10 @@ dissect_tftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
    * the destination address of this packet, and its port 2 being
    * wildcarded, and give it the TFTP dissector as a dissector.
    */
-  if (value_is_in_range(global_tftp_port_range, pinfo->destport) ||
-      (pinfo->match_uint == pinfo->destport)) {
+  if ((value_is_in_range(global_tftp_port_range, pinfo->destport) ||
+       (pinfo->match_uint == pinfo->destport)) &&
+      is_valid_requerest(tvb))
+  {
     if (!PINFO_FD_VISITED(pinfo)) {
       /* New read or write request on first pass, so create conversation with client port only */
       conversation = conversation_new(pinfo->num, &pinfo->src, &pinfo->dst, ENDPOINT_UDP,
@@ -861,7 +875,10 @@ dissect_tftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
       conversation = (conversation_t *)p_get_proto_data(wmem_file_scope(), pinfo,
                                                         proto_tftp, CONVERSATION_KEY);
     }
-  } else {
+  }
+
+  if (conversation == NULL)
+  {
     /* Not the initial read or write request */
     if (!PINFO_FD_VISITED(pinfo)) {
       /* During first pass, look for conversation based upon client port */
@@ -878,9 +895,9 @@ dissect_tftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     }
     if (conversation == NULL) {
       conversation = find_conversation_pinfo(pinfo, 0);
+      if (conversation == NULL) return 0;
     }
   }
-  DISSECTOR_ASSERT(conversation);
 
   dissect_tftp_message(tftp_info_for_conversation(conversation), tvb, pinfo, tree);
   return tvb_captured_length(tvb);
