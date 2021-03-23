@@ -1562,7 +1562,7 @@ rfc1867_angle(tvbuff_t *tvb, int offset, gboolean longitude)
 static int
 dissect_dns_query(tvbuff_t *tvb, int offset, int dns_data_offset,
   packet_info *pinfo, proto_tree *dns_tree, gboolean is_mdns,
-  gboolean **is_multiple_responds)
+  gboolean *is_multiple_responds)
 {
   int           used_bytes;
   const gchar  *name;
@@ -1591,7 +1591,7 @@ dissect_dns_query(tvbuff_t *tvb, int offset, int dns_data_offset,
   }
 
   if (type == T_AXFR || type == T_IXFR) {
-    **is_multiple_responds = TRUE;
+    *is_multiple_responds = TRUE;
   }
 
   type_name = val_to_str_ext(type, &dns_types_vals_ext, "Unknown (%d)");
@@ -3874,7 +3874,7 @@ dissect_query_records(tvbuff_t *tvb, int cur_off, int dns_data_offset,
 
   while (count-- > 0) {
     add_off = dissect_dns_query(tvb, cur_off, dns_data_offset, pinfo, qatree,
-                                is_mdns, &is_multiple_responds);
+                                is_mdns, is_multiple_responds);
     cur_off += add_off;
   }
   proto_item_set_len(ti, cur_off - start_off);
