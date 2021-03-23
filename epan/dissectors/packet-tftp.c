@@ -781,7 +781,7 @@ dissect_embeddedtftp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
     case TFTP_WRQ:
       /* These 2 opcodes have a NULL-terminated source file name after opcode. Verify */
       {
-        gint char_offset = 1;
+        gint char_offset = 2;
         while (tvb_captured_length_remaining(tvb, char_offset)) {
           gchar c = (gchar)tvb_get_guint8(tvb, char_offset++);
           if (c == '\0') {
