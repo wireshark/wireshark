@@ -269,6 +269,38 @@ if(WIN32)
     set(WILDCARD_OBJ wsetargv.obj)
 endif(WIN32)
 
+include(CheckSymbolExists)
+
+#
+# Large file support on UN*X, a/k/a LFS.
+#
+# On Windows, we require _fseeki64() and _ftelli64().  Visual
+# Studio has had supported them since Visual Studio 2005/MSVCR80,
+# and we require newer versions, so we know we have them.
+#
+if(NOT WIN32)
+	include(FindLFS)
+	if(LFS_FOUND)
+		#
+		# Add the required #defines.
+		#
+		add_definitions(${LFS_DEFINITIONS})
+	endif()
+
+	#
+	# Check for fseeko as well.
+	#
+	include(FindFseeko)
+	if(FSEEKO_FOUND)
+		set(HAVE_FSEEKO ON)
+
+		#
+		# Add the required #defines.
+		#
+		add_definitions(${FSEEKO_DEFINITIONS})
+	endif()
+endif()
+
 # Banner shown at top right of Qt welcome screen.
 if(DEFINED ENV{WIRESHARK_VERSION_FLAVOR})
 	set(VERSION_FLAVOR "$ENV{WIRESHARK_VERSION_FLAVOR}")
@@ -1246,7 +1278,6 @@ if(GNUTLS_FOUND AND NOT GNUTLS_VERSION VERSION_LESS "3.4.0")
 	#
 	# Check that the support is present in case GnuTLS was compiled
 	# --without-p11-kit as macos-setup.sh did until December 2020.
-	include(CheckSymbolExists)
 	cmake_push_check_state()
 	if(WIN32)
 		set(CMAKE_REQUIRED_DEFINITIONS -Dssize_t=int)
@@ -1545,36 +1576,6 @@ set (PLUGIN_DIR ${_plugin_dir} CACHE INTERNAL "Build time plugin location.")
 foreach(_plugin_src_dir ${PLUGIN_SRC_DIRS})
 	add_subdirectory( ${_plugin_src_dir} )
 endforeach()
-
-#
-# Large file support on UN*X, a/k/a LFS.
-#
-# On Windows, we require _fseeki64() and _ftelli64().  Visual
-# Studio has had supported them since Visual Studio 2005/MSVCR80,
-# and we require newer versions, so we know we have them.
-#
-if(NOT WIN32)
-	include(FindLFS)
-	if(LFS_FOUND)
-		#
-		# Add the required #defines.
-		#
-		add_definitions(${LFS_DEFINITIONS})
-	endif()
-
-	#
-	# Check for fseeko as well.
-	#
-	include(FindFseeko)
-	if(FSEEKO_FOUND)
-		set(HAVE_FSEEKO ON)
-
-		#
-		# Add the required #defines.
-		#
-		add_definitions(${FSEEKO_DEFINITIONS})
-	endif()
-endif()
 
 set( VERSION ${PROJECT_VERSION} )
 if(VCSVERSION_OVERRIDE)
