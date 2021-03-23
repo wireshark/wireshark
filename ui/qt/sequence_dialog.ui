@@ -186,13 +186,29 @@
   </layout>
   <action name="actionReset">
    <property name="text">
-    <string>Reset Diagram</string>
+    <string>Reset &amp;Diagram</string>
    </property>
    <property name="toolTip">
     <string>Reset the diagram to its initial state.</string>
    </property>
    <property name="shortcut">
     <string>0</string>
+   </property>
+  </action>
+  <action name="actionResetDiagram">
+   <property name="text">
+    <string>&amp;Reset Diagram</string>
+   </property>
+   <property name="toolTip">
+    <string>Reset the diagram to its initial state</string>
+   </property>
+  </action>
+  <action name="actionExportDiagram">
+   <property name="text">
+    <string>&amp;Export</string>
+   </property>
+   <property name="toolTip">
+    <string>Export diagram</string>
    </property>
   </action>
   <action name="actionZoomIn">

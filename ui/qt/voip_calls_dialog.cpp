@@ -66,13 +66,16 @@ VoipCallsDialog::VoipCallsDialog(QWidget &parent, CaptureFile &cf, bool all_flow
     ui->callTreeView->sortByColumn(VoipCallsInfoModel::StartTime, Qt::AscendingOrder);
     setWindowSubtitle(all_flows ? tr("SIP Flows") : tr("VoIP Calls"));
 
-    sequence_button_ = ui->buttonBox->addButton(tr("Flow Sequence"), QDialogButtonBox::ActionRole);
-    prepare_button_ = ui->buttonBox->addButton(tr("Prepare Filter"), QDialogButtonBox::ActionRole);
+    sequence_button_ = ui->buttonBox->addButton(ui->actionFlowSequence->text(), QDialogButtonBox::ActionRole);
+    sequence_button_->setToolTip(ui->actionFlowSequence->toolTip());
+    prepare_button_ = ui->buttonBox->addButton(ui->actionPrepareFilter->text(), QDialogButtonBox::ActionRole);
+    prepare_button_->setToolTip(ui->actionPrepareFilter->toolTip());
     player_button_ = RtpPlayerDialog::addPlayerButton(ui->buttonBox);
 
     connect (ui->todCheckBox, &QAbstractButton::toggled, this, &VoipCallsDialog::switchTimeOfDay);
 
-    copy_button_ = ui->buttonBox->addButton(tr("Copy"), QDialogButtonBox::ActionRole);
+    copy_button_ = ui->buttonBox->addButton(ui->actionCopyButton->text(), QDialogButtonBox::ActionRole);
+    copy_button_->setToolTip(ui->actionCopyButton->toolTip());
     QMenu *copy_menu = new QMenu(copy_button_);
     QAction *ca;
     ca = copy_menu->addAction(tr("as CSV"));

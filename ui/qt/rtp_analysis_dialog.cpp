@@ -330,7 +330,8 @@ RtpAnalysisDialog::RtpAnalysisDialog(QWidget &parent, CaptureFile &cf, rtpstream
 
     player_button_ = RtpPlayerDialog::addPlayerButton(ui->buttonBox);
 
-    QPushButton *export_btn = ui->buttonBox->addButton(tr("Export"), QDialogButtonBox::ActionRole);
+    QPushButton *export_btn = ui->buttonBox->addButton(ui->actionExportButton->text(), QDialogButtonBox::ActionRole);
+    export_btn->setToolTip(ui->actionExportButton->toolTip());
 
     QMenu *save_menu = new QMenu(export_btn);
     save_menu->addAction(ui->actionSaveAudioUnsync);

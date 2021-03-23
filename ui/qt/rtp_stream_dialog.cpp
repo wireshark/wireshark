@@ -278,10 +278,10 @@ RtpStreamDialog::RtpStreamDialog(QWidget &parent, CaptureFile &cf) :
     prepare_button_ = ui->buttonBox->addButton(ui->actionPrepareFilter->text(), QDialogButtonBox::ActionRole);
     prepare_button_->setToolTip(ui->actionPrepareFilter->toolTip());
     player_button_ = RtpPlayerDialog::addPlayerButton(ui->buttonBox);
-    copy_button_ = ui->buttonBox->addButton(tr("Copy"), QDialogButtonBox::ActionRole);
-    export_button_ = ui->buttonBox->addButton(tr("Export"), QDialogButtonBox::ActionRole);
+    copy_button_ = ui->buttonBox->addButton(ui->actionCopyButton->text(), QDialogButtonBox::ActionRole);
+    copy_button_->setToolTip(ui->actionCopyButton->toolTip());
+    export_button_ = ui->buttonBox->addButton(ui->actionExportAsRtpDump->text(), QDialogButtonBox::ActionRole);
     export_button_->setToolTip(ui->actionExportAsRtpDump->toolTip());
-
 
     QMenu *copy_menu = new QMenu(copy_button_);
     QAction *ca;

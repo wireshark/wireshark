@@ -85,6 +85,30 @@
     </widget>
    </item>
   </layout>
+  <action name="actionFlowSequence">
+   <property name="text">
+    <string>Flow &amp;Sequence</string>
+   </property>
+   <property name="toolTip">
+    <string>Show flow sequence for selected call(s).</string>
+   </property>
+  </action>
+  <action name="actionPrepareFilter">
+   <property name="text">
+    <string>Prepare &amp;Filter</string>
+   </property>
+   <property name="toolTip">
+    <string>Prepare a filter matching the selected calls(s).</string>
+   </property>
+  </action>
+  <action name="actionCopyButton">
+   <property name="text">
+    <string>Cop&amp;y</string>
+   </property>
+   <property name="toolTip">
+    <string>Open copy menu</string>
+   </property>
+  </action>
   <action name="actionSelectAll">
    <property name="text">
     <string>All</string>

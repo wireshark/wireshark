@@ -169,7 +169,7 @@
   </layout>
   <action name="actionFindReverse">
    <property name="text">
-    <string>Find Reverse</string>
+    <string>Find &amp;Reverse</string>
    </property>
    <property name="toolTip">
     <string>Find the reverse stream matching the selected forward stream.</string>
@@ -235,7 +235,7 @@
   </action>
   <action name="actionPrepareFilter">
    <property name="text">
-    <string>Prepare Filter</string>
+    <string>Prepare &amp;Filter</string>
    </property>
    <property name="toolTip">
     <string>Prepare a filter matching the selected stream(s).</string>
@@ -246,7 +246,7 @@
   </action>
   <action name="actionExportAsRtpDump">
    <property name="text">
-    <string>Export As RTPDump</string>
+    <string>&amp;Export</string>
    </property>
    <property name="toolTip">
     <string>Export the stream payload as rtpdump</string>
@@ -257,10 +257,21 @@
   </action>
   <action name="actionAnalyze">
    <property name="text">
-    <string>Analyze</string>
+    <string>&amp;Analyze</string>
    </property>
    <property name="toolTip">
     <string>Open the analysis window for the selected stream(s)</string>
+   </property>
+   <property name="shortcut">
+    <string>A</string>
+   </property>
+  </action>
+  <action name="actionCopyButton">
+   <property name="text">
+    <string>Cop&amp;y</string>
+   </property>
+   <property name="toolTip">
+    <string>Open copy menu</string>
    </property>
   </action>
   <action name="actionCopyAsCsv">

@@ -104,6 +104,7 @@ private:
     guint32 packet_num_;
     double one_em_;
     int sequence_w_;
+    QPushButton *reset_button_;
     QPushButton *export_button_;
     QMenu ctx_menu_;
     QCPItemText *key_text_;

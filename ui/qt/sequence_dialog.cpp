@@ -160,10 +160,6 @@ SequenceDialog::SequenceDialog(QWidget &parent, CaptureFile &cf, SequenceInfo *i
 
     ui->addressComboBox->setCurrentIndex(0);
 
-    QPushButton * btn = ui->buttonBox->addButton(tr("Reset Diagram"), QDialogButtonBox::ActionRole);
-    btn->setToolTip(tr("Reset the diagram to its initial state."));
-    connect(btn, &QPushButton::clicked, this, &SequenceDialog::resetView);
-
     sequence_items_t item_data;
 
     item_data.curr_index = 0;
@@ -178,7 +174,10 @@ SequenceDialog::SequenceDialog(QWidget &parent, CaptureFile &cf, SequenceInfo *i
         ui->controlFrame->hide();
     }
 
-    export_button_ = ui->buttonBox->addButton(tr("Export"), QDialogButtonBox::ActionRole);
+    reset_button_ = ui->buttonBox->addButton(ui->actionResetDiagram->text(), QDialogButtonBox::ActionRole);
+    reset_button_->setToolTip(ui->actionResetDiagram->toolTip());
+    export_button_ = ui->buttonBox->addButton(ui->actionExportDiagram->text(), QDialogButtonBox::ActionRole);
+    export_button_->setToolTip(ui->actionExportDiagram->toolTip());
 
     QPushButton *close_bt = ui->buttonBox->button(QDialogButtonBox::Close);
     if (close_bt) {
@@ -399,7 +398,9 @@ void SequenceDialog::mouseWheeled(QWheelEvent *event)
 
 void SequenceDialog::on_buttonBox_clicked(QAbstractButton *button)
 {
-    if (button == export_button_) {
+    if (button == reset_button_) {
+        resetView();
+    } else if (button == export_button_) {
         exportDiagram();
     }
 }
