@@ -16,6 +16,7 @@
 #include <wsutil/wsgcrypt.h>
 #include <wsutil/crc32.h>
 #include <wsutil/pint.h>
+#include <wsutil/glib-compat.h>
 
 #include <epan/proto.h> /* for DISSECTOR_ASSERT. */
 #include <epan/tvbuff.h>
@@ -367,7 +368,7 @@ Dot11DecryptRc4KeyData(const guint8 *decryption_key, guint decryption_key_len,
         gcry_cipher_close(rc4_handle);
         return NULL;
     }
-    decrypted_key = (guint8 *)g_memdup(encrypted_keydata, encrypted_keydata_len);
+    decrypted_key = (guint8 *)g_memdup2(encrypted_keydata, encrypted_keydata_len);
     if (!decrypted_key) {
         gcry_cipher_close(rc4_handle);
         return NULL;
@@ -573,7 +574,7 @@ Dot11DecryptAddSa(
     if (existing_sa != NULL) {
         sa = Dot11DecryptPrependSa(existing_sa, sa);
     } else {
-        void *key = g_memdup(id, sizeof(DOT11DECRYPT_SEC_ASSOCIATION_ID));
+        void *key = g_memdup2(id, sizeof(DOT11DECRYPT_SEC_ASSOCIATION_ID));
         g_hash_table_insert(ctx->sa_hash, key, sa);
     }
     return sa;

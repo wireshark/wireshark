@@ -54,6 +54,8 @@
 #include "ui/ws_ui_util.h"
 #include "ui/voip_calls.h"
 
+#include "wsutil/glib-compat.h"
+
 #define DUMP_PTR1(p) printf("#=> %p\n",(void *)p)
 #define DUMP_PTR2(p) printf("==> %p\n",(void *)p)
 
@@ -2079,7 +2081,7 @@ h225_calls_packet(void *tap_offset_ptr, packet_info *pinfo, epan_dissect_t *edt,
 
         tmp_h323info = (h323_calls_info_t *)callsinfo->prot_info;
         g_assert(tmp_h323info != NULL);
-        tmp_h323info->guid = (e_guid_t *)g_memdup(&pi->guid, sizeof pi->guid);
+        tmp_h323info->guid = (e_guid_t *)g_memdup2(&pi->guid, sizeof pi->guid);
         /* DUMP_PTR1(tmp_h323info->guid); */
 
         clear_address(&tmp_h323info->h225SetupAddr);

@@ -71,6 +71,7 @@ libwsutil.so.0 libwsutil0 #MINVER#
  find_last_pathname_separator@Base 1.12.0~rc1
  format_size@Base 1.10.0
  free_progdirs@Base 2.3.0
+ g_memdup2@Base 3.5.0
  get_basename@Base 1.12.0~rc1
  get_copyright_info@Base 1.99.0
  get_cur_groupname@Base 1.10.0

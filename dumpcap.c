@@ -86,6 +86,7 @@
 #include "wsutil/inet_addr.h"
 #include "wsutil/time_util.h"
 #include "wsutil/please_report_bug.h"
+#include "wsutil/glib-compat.h"
 
 #include "caputils/ws80211_utils.h"
 
@@ -2116,7 +2117,7 @@ pcapng_adjust_block(capture_src *pcap_src, const pcapng_block_header_t *bh, u_ch
              * buffer files.
              */
             g_free(global_ld.saved_shb);
-            global_ld.saved_shb = (guint8 *) g_memdup(pd, bh->block_total_length);
+            global_ld.saved_shb = (guint8 *) g_memdup2(pd, bh->block_total_length);
 
             /*
              * We're dealing with one section at a time, so we can (and must)
@@ -2155,7 +2156,7 @@ pcapng_adjust_block(capture_src *pcap_src, const pcapng_block_header_t *bh, u_ch
         saved_idb_t idb_source = { 0 };
         idb_source.interface_id = pcap_src->interface_id;
         idb_source.idb_len = bh->block_total_length;
-        idb_source.idb = (guint8 *) g_memdup(pd, idb_source.idb_len);
+        idb_source.idb = (guint8 *) g_memdup2(pd, idb_source.idb_len);
         g_array_append_val(global_ld.saved_idbs, idb_source);
         guint32 iface_id = global_ld.saved_idbs->len - 1;
         g_array_append_val(pcap_src->cap_pipe_info.pcapng.src_iface_to_global, iface_id);

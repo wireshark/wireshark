@@ -16,6 +16,8 @@
 #include "wtap-int.h"
 #include "pcapng_module.h"
 
+#include <wsutil/glib-compat.h>
+
 #if 0
 #define wtap_debug(...) g_warning(__VA_ARGS__)
 #else
@@ -773,7 +775,7 @@ static if_filter_opt_t if_filter_dup(if_filter_opt_t* filter_src)
         filter_dest.data.bpf_prog.bpf_prog_len =
             filter_src->data.bpf_prog.bpf_prog_len;
         filter_dest.data.bpf_prog.bpf_prog =
-            (wtap_bpf_insn_t *)g_memdup(filter_src->data.bpf_prog.bpf_prog,
+            (wtap_bpf_insn_t *)g_memdup2(filter_src->data.bpf_prog.bpf_prog,
                                         filter_src->data.bpf_prog.bpf_prog_len * sizeof (wtap_bpf_insn_t));
         break;
 
@@ -1019,7 +1021,7 @@ static void dsb_copy_mand(wtap_block_t dest_block, wtap_block_t src_block)
     dst->secrets_type = src->secrets_type;
     dst->secrets_len = src->secrets_len;
     g_free(dst->secrets_data);
-    dst->secrets_data = (guint8 *)g_memdup(src->secrets_data, src->secrets_len);
+    dst->secrets_data = (guint8 *)g_memdup2(src->secrets_data, src->secrets_len);
 }
 
 void wtap_opttypes_initialize(void)

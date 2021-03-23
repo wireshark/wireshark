@@ -12,6 +12,7 @@
 #include <epan/strutil.h>
 #include <epan/to_str-int.h>
 #include <string.h>
+#include <wsutil/glib-compat.h>
 
 #include <epan/exceptions.h>
 
@@ -58,7 +59,7 @@ val_from_string(fvalue_t *fv, const char *s, gchar **err_msg _U_)
 
 	/* Make a tvbuff from the string. We can drop the
 	 * terminating NUL. */
-	private_data = (guint8 *)g_memdup(s, (guint)strlen(s));
+	private_data = (guint8 *)g_memdup2(s, (guint)strlen(s));
 	new_tvb = tvb_new_real_data(private_data,
 			(guint)strlen(s), (gint)strlen(s));
 

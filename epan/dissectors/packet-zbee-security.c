@@ -192,7 +192,7 @@ static void uat_key_record_post_update(void) {
             key_record.frame_num = ZBEE_SEC_PC_KEY; /* means it's a user PC key */
             key_record.label = g_strdup(uat_key_records[i].label);
             memcpy(key_record.key, key, ZBEE_SEC_CONST_KEYSIZE);
-            zbee_pc_keyring = g_slist_prepend(zbee_pc_keyring, g_memdup(&key_record, sizeof(key_record_t)));
+            zbee_pc_keyring = g_slist_prepend(zbee_pc_keyring, g_memdup2(&key_record, sizeof(key_record_t)));
         }
     }
 }
@@ -1224,7 +1224,7 @@ void zbee_sec_add_key_to_keyring(packet_info *pinfo, const guint8 *key)
         if ( !nwk_keyring ) {
             nwk_keyring = (GSList **)g_malloc0(sizeof(GSList*));
             g_hash_table_insert(zbee_table_nwk_keyring,
-                    g_memdup(&nwk_hints->src_pan, sizeof(nwk_hints->src_pan)), nwk_keyring);
+                    g_memdup2(&nwk_hints->src_pan, sizeof(nwk_hints->src_pan)), nwk_keyring);
         }
 
         if ( nwk_keyring ) {
@@ -1235,7 +1235,7 @@ void zbee_sec_add_key_to_keyring(packet_info *pinfo, const guint8 *key)
                 key_record.frame_num = pinfo->num;
                 key_record.label = NULL;
                 memcpy(&key_record.key, key, ZBEE_APS_CMD_KEY_LENGTH);
-                *nwk_keyring = g_slist_prepend(*nwk_keyring, g_memdup(&key_record, sizeof(key_record_t)));
+                *nwk_keyring = g_slist_prepend(*nwk_keyring, g_memdup2(&key_record, sizeof(key_record_t)));
             }
         }
     }

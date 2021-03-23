@@ -1529,25 +1529,25 @@ static void set_ue_keys(snmp_ue_assoc_t* n ) {
 static snmp_ue_assoc_t*
 ue_dup(snmp_ue_assoc_t* o)
 {
-	snmp_ue_assoc_t* d = (snmp_ue_assoc_t*)g_memdup(o,sizeof(snmp_ue_assoc_t));
+	snmp_ue_assoc_t* d = (snmp_ue_assoc_t*)g_memdup2(o,sizeof(snmp_ue_assoc_t));
 
 	d->user.authModel = o->user.authModel;
 
 	d->user.privProtocol = o->user.privProtocol;
 
-	d->user.userName.data = (guint8 *)g_memdup(o->user.userName.data,o->user.userName.len);
+	d->user.userName.data = (guint8 *)g_memdup2(o->user.userName.data,o->user.userName.len);
 	d->user.userName.len = o->user.userName.len;
 
-	d->user.authPassword.data = o->user.authPassword.data ? (guint8 *)g_memdup(o->user.authPassword.data,o->user.authPassword.len) : NULL;
+	d->user.authPassword.data = o->user.authPassword.data ? (guint8 *)g_memdup2(o->user.authPassword.data,o->user.authPassword.len) : NULL;
 	d->user.authPassword.len = o->user.authPassword.len;
 
-	d->user.privPassword.data = o->user.privPassword.data ? (guint8 *)g_memdup(o->user.privPassword.data,o->user.privPassword.len) : NULL;
+	d->user.privPassword.data = o->user.privPassword.data ? (guint8 *)g_memdup2(o->user.privPassword.data,o->user.privPassword.len) : NULL;
 	d->user.privPassword.len = o->user.privPassword.len;
 
 	d->engine.len = o->engine.len;
 
 	if (d->engine.len) {
-		d->engine.data = (guint8 *)g_memdup(o->engine.data,o->engine.len);
+		d->engine.data = (guint8 *)g_memdup2(o->engine.data,o->engine.len);
 		set_ue_keys(d);
 	}
 
@@ -1567,24 +1567,24 @@ snmp_users_copy_cb(void* dest, const void* orig, size_t len _U_)
 	d->priv_proto = o->priv_proto;
 	d->user.privProtocol = priv_protos[o->priv_proto];
 
-	d->user.userName.data = (guint8*)g_memdup(o->user.userName.data,o->user.userName.len);
+	d->user.userName.data = (guint8*)g_memdup2(o->user.userName.data,o->user.userName.len);
 	d->user.userName.len = o->user.userName.len;
 
-	d->user.authPassword.data = o->user.authPassword.data ? (guint8*)g_memdup(o->user.authPassword.data,o->user.authPassword.len) : NULL;
+	d->user.authPassword.data = o->user.authPassword.data ? (guint8*)g_memdup2(o->user.authPassword.data,o->user.authPassword.len) : NULL;
 	d->user.authPassword.len = o->user.authPassword.len;
 
-	d->user.privPassword.data = o->user.privPassword.data ? (guint8*)g_memdup(o->user.privPassword.data,o->user.privPassword.len) : NULL;
+	d->user.privPassword.data = o->user.privPassword.data ? (guint8*)g_memdup2(o->user.privPassword.data,o->user.privPassword.len) : NULL;
 	d->user.privPassword.len = o->user.privPassword.len;
 
 	d->engine.len = o->engine.len;
 	if (o->engine.data) {
-		d->engine.data = (guint8*)g_memdup(o->engine.data,o->engine.len);
+		d->engine.data = (guint8*)g_memdup2(o->engine.data,o->engine.len);
 	}
 
-	d->user.authKey.data = o->user.authKey.data ? (guint8*)g_memdup(o->user.authKey.data,o->user.authKey.len) : NULL;
+	d->user.authKey.data = o->user.authKey.data ? (guint8*)g_memdup2(o->user.authKey.data,o->user.authKey.len) : NULL;
 	d->user.authKey.len = o->user.authKey.len;
 
-	d->user.privKey.data = o->user.privKey.data ? (guint8*)g_memdup(o->user.privKey.data,o->user.privKey.len) : NULL;
+	d->user.privKey.data = o->user.privKey.data ? (guint8*)g_memdup2(o->user.privKey.data,o->user.privKey.len) : NULL;
 	d->user.privKey.len = o->user.privKey.len;
 
 	return d;
@@ -1703,17 +1703,17 @@ renew_ue_cache(void)
 static snmp_ue_assoc_t*
 localize_ue( snmp_ue_assoc_t* o, const guint8* engine, guint engine_len )
 {
-	snmp_ue_assoc_t* n = (snmp_ue_assoc_t*)g_memdup(o,sizeof(snmp_ue_assoc_t));
+	snmp_ue_assoc_t* n = (snmp_ue_assoc_t*)g_memdup2(o,sizeof(snmp_ue_assoc_t));
 
-	n->user.userName.data = (guint8*)g_memdup(o->user.userName.data,o->user.userName.len);
+	n->user.userName.data = (guint8*)g_memdup2(o->user.userName.data,o->user.userName.len);
 	n->user.authModel = o->user.authModel;
-	n->user.authPassword.data = (guint8*)g_memdup(o->user.authPassword.data,o->user.authPassword.len);
+	n->user.authPassword.data = (guint8*)g_memdup2(o->user.authPassword.data,o->user.authPassword.len);
 	n->user.authPassword.len = o->user.authPassword.len;
-	n->user.privPassword.data = (guint8*)g_memdup(o->user.privPassword.data,o->user.privPassword.len);
+	n->user.privPassword.data = (guint8*)g_memdup2(o->user.privPassword.data,o->user.privPassword.len);
 	n->user.privPassword.len = o->user.privPassword.len;
-	n->user.authKey.data = (guint8*)g_memdup(o->user.authKey.data,o->user.authKey.len);
-	n->user.privKey.data = (guint8*)g_memdup(o->user.privKey.data,o->user.privKey.len);
-	n->engine.data = (guint8*)g_memdup(engine,engine_len);
+	n->user.authKey.data = (guint8*)g_memdup2(o->user.authKey.data,o->user.authKey.len);
+	n->user.privKey.data = (guint8*)g_memdup2(o->user.privKey.data,o->user.privKey.len);
+	n->engine.data = (guint8*)g_memdup2(engine,engine_len);
 	n->engine.len = engine_len;
 	n->priv_proto = o->priv_proto;
 

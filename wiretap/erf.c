@@ -30,6 +30,7 @@
 
 #include <wsutil/crc32.h>
 #include <wsutil/strtoi.h>
+#include <wsutil/glib-compat.h>
 
 #include "wtap-int.h"
 #include "file_wrappers.h"
@@ -3253,7 +3254,7 @@ static int populate_summary_info(erf_t *erf_priv, wtap *wth, union wtap_pseudo_h
          * before the interface information, as we associate them to interface
          * data.
          */
-        post_list = g_list_append(post_list, g_memdup(&state, sizeof(struct erf_meta_read_state)));
+        post_list = g_list_append(post_list, g_memdup2(&state, sizeof(struct erf_meta_read_state)));
         break;
       case ERF_META_SECTION_SOURCE:
       case ERF_META_SECTION_DNS:

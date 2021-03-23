@@ -22,6 +22,7 @@
 #include <ftypes/ftypes-int.h>
 #include <epan/uat-int.h>
 #include <epan/proto.h>
+#include <wsutil/glib-compat.h>
 
 typedef struct {
 	const char* name;
@@ -485,7 +486,7 @@ static void* macro_copy(void* dest, const void* orig, size_t len _U_) {
 		 */
 
 		do nparts++; while (m->parts[nparts]);
-		d->parts = (gchar **)g_memdup(m->parts,(nparts+1)*(guint)sizeof(void*));
+		d->parts = (gchar **)g_memdup2(m->parts,(nparts+1)*(guint)sizeof(void*));
 		nparts = 0;
 		while(m->parts[nparts]) {
 			if(nparts) {
@@ -500,7 +501,7 @@ static void* macro_copy(void* dest, const void* orig, size_t len _U_) {
 		 * Clone the contents of m->args_pos into d->args_pos.
 		 */
 
-		d->args_pos = (int *)g_memdup(m->args_pos,(--nparts)*(guint)sizeof(int));
+		d->args_pos = (int *)g_memdup2(m->args_pos,(--nparts)*(guint)sizeof(int));
 	}
 
 	DUMP_MACRO(d);

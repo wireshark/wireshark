@@ -15,6 +15,7 @@
 #include "config.h"
 
 #include <epan/funnel.h>
+#include <wsutil/glib-compat.h>
 
 typedef struct _funnel_menu_t {
     char *name;
@@ -106,7 +107,7 @@ void funnel_register_menu(const char *name,
 
     funnel_insert_menu(&registered_menus, m);
     if (menus_registered) {
-        funnel_menu_t* m_r = (funnel_menu_t *)g_memdup(m, sizeof *m);
+        funnel_menu_t* m_r = (funnel_menu_t *)g_memdup2(m, sizeof *m);
         m_r->name = g_strdup(name);
         funnel_insert_menu(&added_menus, m_r);
     }

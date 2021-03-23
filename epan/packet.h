@@ -22,6 +22,7 @@
 #include "tfs.h"
 #include "unit_strings.h"
 #include "ws_symbol_export.h"
+#include "wsutil/glib-compat.h"
 
 #ifdef __cplusplus
 extern "C" {

@@ -1248,13 +1248,13 @@ static void* seskey_list_copy_cb(void *n, const void *o, size_t siz _U_)
 	const smb2_seskey_field_t *old_rec = (const smb2_seskey_field_t *)o;
 
 	new_rec->id_len = old_rec->id_len;
-	new_rec->id = old_rec->id ? (guchar *)g_memdup(old_rec->id, old_rec->id_len) : NULL;
+	new_rec->id = old_rec->id ? (guchar *)g_memdup2(old_rec->id, old_rec->id_len) : NULL;
 	new_rec->seskey_len = old_rec->seskey_len;
-	new_rec->seskey = old_rec->seskey ? (guchar *)g_memdup(old_rec->seskey, old_rec->seskey_len) : NULL;
+	new_rec->seskey = old_rec->seskey ? (guchar *)g_memdup2(old_rec->seskey, old_rec->seskey_len) : NULL;
 	new_rec->s2ckey_len = old_rec->s2ckey_len;
-	new_rec->s2ckey = old_rec->s2ckey ? (guchar *)g_memdup(old_rec->s2ckey, old_rec->s2ckey_len) : NULL;
+	new_rec->s2ckey = old_rec->s2ckey ? (guchar *)g_memdup2(old_rec->s2ckey, old_rec->s2ckey_len) : NULL;
 	new_rec->c2skey_len = old_rec->c2skey_len;
-	new_rec->c2skey = old_rec->c2skey ? (guchar *)g_memdup(old_rec->c2skey, old_rec->c2skey_len) : NULL;
+	new_rec->c2skey = old_rec->c2skey ? (guchar *)g_memdup2(old_rec->c2skey, old_rec->c2skey_len) : NULL;
 
 	return new_rec;
 }

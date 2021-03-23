@@ -16,6 +16,7 @@
 
 #include "secrets.h"
 #include <wiretap/wtap.h>
+#include <wsutil/glib-compat.h>
 
 #include <string.h>
 #ifdef HAVE_LIBGNUTLS
@@ -135,7 +136,7 @@ privkey_hash_table_new(void)
 static void
 rsa_privkey_add(const cert_key_id_t *key_id, gnutls_privkey_t pkey)
 {
-    void *ht_key = g_memdup(key_id->key_id, sizeof(cert_key_id_t));
+    void *ht_key = g_memdup2(key_id->key_id, sizeof(cert_key_id_t));
     const guint32 *dw = (const guint32 *)key_id->key_id;
     g_hash_table_insert(rsa_privkeys, ht_key, pkey);
     g_debug("Adding RSA private, Key ID %08x%08x%08x%08x%08x", g_htonl(dw[0]),
@@ -639,7 +640,7 @@ secrets_rsa_decrypt(const cert_key_id_t *key_id, const guint8 *encr, int encr_le
 
     ret = gnutls_privkey_decrypt_data(pkey, 0, &ciphertext, &plain);
     if (ret == 0) {
-        *out = (guint8 *)g_memdup(plain.data, plain.size);
+        *out = (guint8 *)g_memdup2(plain.data, plain.size);
         *out_len = plain.size;
         gnutls_free(plain.data);
     }

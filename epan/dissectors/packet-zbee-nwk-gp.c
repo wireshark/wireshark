@@ -833,7 +833,7 @@ dissect_zbee_nwk_gp_cmd_commissioning(tvbuff_t *tvb, packet_info *pinfo, proto_t
                         key_record.frame_num = 0;
                         key_record.label = NULL;
                         memcpy(key_record.key, dec_buffer, ZBEE_SEC_CONST_KEYSIZE);
-                        zbee_gp_keyring = g_slist_prepend(zbee_gp_keyring, g_memdup(&key_record, sizeof(key_record_t)));
+                        zbee_gp_keyring = g_slist_prepend(zbee_gp_keyring, g_memdup2(&key_record, sizeof(key_record_t)));
 
                         payload_tvb = tvb_new_child_real_data(tvb, dec_buffer, ZBEE_SEC_CONST_KEYSIZE, ZBEE_SEC_CONST_KEYSIZE);
                         add_new_data_source(pinfo, payload_tvb, "Decrypted security key");
@@ -849,7 +849,7 @@ dissect_zbee_nwk_gp_cmd_commissioning(tvbuff_t *tvb, packet_info *pinfo, proto_t
                 key_record.label = NULL;
                 key = tvb_memdup(wmem_packet_scope(), tvb, offset - ZBEE_SEC_CONST_KEYSIZE, ZBEE_SEC_CONST_KEYSIZE);
                 memcpy(key_record.key, key, ZBEE_SEC_CONST_KEYSIZE);
-                zbee_gp_keyring = g_slist_prepend(zbee_gp_keyring, g_memdup(&key_record, sizeof(key_record_t)));
+                zbee_gp_keyring = g_slist_prepend(zbee_gp_keyring, g_memdup2(&key_record, sizeof(key_record_t)));
             }
         }
 
@@ -1116,7 +1116,7 @@ dissect_zbee_nwk_gp_cmd_commissioning_reply(tvbuff_t *tvb, packet_info *pinfo, p
             key_record.label = NULL;
             key = tvb_memdup(wmem_packet_scope(), tvb, offset - ZBEE_SEC_CONST_KEYSIZE, ZBEE_SEC_CONST_KEYSIZE);
             memcpy(key_record.key, key, ZBEE_SEC_CONST_KEYSIZE);
-            zbee_gp_keyring = g_slist_prepend(zbee_gp_keyring, g_memdup(&key_record, sizeof(key_record_t)));
+            zbee_gp_keyring = g_slist_prepend(zbee_gp_keyring, g_memdup2(&key_record, sizeof(key_record_t)));
         }
     }
     /* Parse and display security MIC. */
@@ -1157,7 +1157,7 @@ dissect_zbee_nwk_gp_cmd_commissioning_reply(tvbuff_t *tvb, packet_info *pinfo, p
                     key_record.frame_num = 0;
                     key_record.label = NULL;
                     memcpy(key_record.key, dec_buffer, ZBEE_SEC_CONST_KEYSIZE);
-                    zbee_gp_keyring = g_slist_prepend(zbee_gp_keyring, g_memdup(&key_record, sizeof(key_record_t)));
+                    zbee_gp_keyring = g_slist_prepend(zbee_gp_keyring, g_memdup2(&key_record, sizeof(key_record_t)));
 
                     payload_tvb = tvb_new_child_real_data(tvb, dec_buffer, ZBEE_SEC_CONST_KEYSIZE, ZBEE_SEC_CONST_KEYSIZE);
                     add_new_data_source(pinfo, payload_tvb, "Decrypted security key");
@@ -1931,7 +1931,7 @@ gp_init_zbee_security(void)
         key_record.frame_num = 0;
         key_record.label = g_strdup(gp_uat_key_records[i].label);
         memcpy(key_record.key, gp_uat_key_records[i].key, ZBEE_SEC_CONST_KEYSIZE);
-        zbee_gp_keyring = g_slist_prepend(zbee_gp_keyring, g_memdup(&key_record, sizeof(key_record_t)));
+        zbee_gp_keyring = g_slist_prepend(zbee_gp_keyring, g_memdup2(&key_record, sizeof(key_record_t)));
     }
 }
 

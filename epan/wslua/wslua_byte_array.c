@@ -19,7 +19,6 @@
 
 #include "wslua.h"
 
-
 /* WSLUA_CONTINUE_MODULE Tvb */
 
 
@@ -372,7 +371,7 @@ WSLUA_METHOD ByteArray_tvb (lua_State *L) {
         return 0;
     }
 
-    data = (guint8 *)g_memdup(ba->data, ba->len);
+    data = (guint8 *)g_memdup2(ba->data, ba->len);
 
     tvb = (Tvb)g_malloc(sizeof(struct _wslua_tvb));
     tvb->ws_tvb = tvb_new_child_real_data(lua_tvb, data, ba->len,ba->len);

@@ -34,6 +34,7 @@ static mmdb_lookup_t mmdb_not_found;
 #include <wsutil/filesystem.h>
 #include <wsutil/ws_pipe.h>
 #include <wsutil/strtoi.h>
+#include <wsutil/glib-compat.h>
 
 // To do:
 // - Add RBL lookups? Along with the "is this a spammer" information that most RBL databases
@@ -616,7 +617,7 @@ gboolean maxmind_db_lookup_process(void)
     mmdb_response_t *response;
 
     while (mmdbr_response_q && (response = (mmdb_response_t *) g_async_queue_try_pop(mmdbr_response_q)) != NULL) {
-        mmdb_lookup_t *mmdb_val = (mmdb_lookup_t *) g_memdup(&response->mmdb_val, sizeof(mmdb_lookup_t));
+        mmdb_lookup_t *mmdb_val = (mmdb_lookup_t *) g_memdup2(&response->mmdb_val, sizeof(mmdb_lookup_t));
         if (response->mmdb_val.country_iso) {
             char *country_iso = (char *) response->mmdb_val.country_iso;
             mmdb_val->country_iso = chunkify_string(country_iso);

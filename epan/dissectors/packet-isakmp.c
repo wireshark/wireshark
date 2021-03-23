@@ -6315,9 +6315,9 @@ ikev1_uat_data_copy_cb(void *dest, const void *source, size_t len _U_)
   const ikev1_uat_data_key_t* o = (const ikev1_uat_data_key_t*)source;
   ikev1_uat_data_key_t* d = (ikev1_uat_data_key_t*)dest;
 
-  d->icookie = (guchar *)g_memdup(o->icookie, o->icookie_len);
+  d->icookie = (guchar *)g_memdup2(o->icookie, o->icookie_len);
   d->icookie_len = o->icookie_len;
-  d->key = (guchar *)g_memdup(o->key, o->key_len);
+  d->key = (guchar *)g_memdup2(o->key, o->key_len);
   d->key_len = o->key_len;
 
   return dest;
@@ -6346,29 +6346,29 @@ ikev2_uat_data_copy_cb(void *dest, const void *source, size_t len _U_)
   const ikev2_uat_data_t* o = (const ikev2_uat_data_t*)source;
   ikev2_uat_data_t* d = (ikev2_uat_data_t*)dest;
 
-  d->key.spii = (guchar *)g_memdup(o->key.spii, o->key.spii_len);
+  d->key.spii = (guchar *)g_memdup2(o->key.spii, o->key.spii_len);
   d->key.spii_len = o->key.spii_len;
 
-  d->key.spir = (guchar *)g_memdup(o->key.spir, o->key.spir_len);
+  d->key.spir = (guchar *)g_memdup2(o->key.spir, o->key.spir_len);
   d->key.spir_len = o->key.spir_len;
 
   d->encr_alg = o->encr_alg;
   d->auth_alg = o->auth_alg;
 
-  d->sk_ei = (guchar *)g_memdup(o->sk_ei, o->sk_ei_len);
+  d->sk_ei = (guchar *)g_memdup2(o->sk_ei, o->sk_ei_len);
   d->sk_ei_len = o->sk_ei_len;
 
-  d->sk_er = (guchar *)g_memdup(o->sk_er, o->sk_er_len);
+  d->sk_er = (guchar *)g_memdup2(o->sk_er, o->sk_er_len);
   d->sk_er_len = o->sk_er_len;
 
-  d->sk_ai = (guchar *)g_memdup(o->sk_ai, o->sk_ai_len);
+  d->sk_ai = (guchar *)g_memdup2(o->sk_ai, o->sk_ai_len);
   d->sk_ai_len = o->sk_ai_len;
 
-  d->sk_ar = (guchar *)g_memdup(o->sk_ar, o->sk_ar_len);
+  d->sk_ar = (guchar *)g_memdup2(o->sk_ar, o->sk_ar_len);
   d->sk_ar_len = o->sk_ar_len;
 
-  d->encr_spec = (ikev2_encr_alg_spec_t *)g_memdup(o->encr_spec, sizeof(ikev2_encr_alg_spec_t));
-  d->auth_spec = (ikev2_auth_alg_spec_t *)g_memdup(o->auth_spec, sizeof(ikev2_auth_alg_spec_t));
+  d->encr_spec = (ikev2_encr_alg_spec_t *)g_memdup2(o->encr_spec, sizeof(ikev2_encr_alg_spec_t));
+  d->auth_spec = (ikev2_auth_alg_spec_t *)g_memdup2(o->auth_spec, sizeof(ikev2_auth_alg_spec_t));
 
   return dest;
 }

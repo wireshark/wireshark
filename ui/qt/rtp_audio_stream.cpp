@@ -129,9 +129,10 @@ void RtpAudioStream::addRtpPacket(const struct _packet_info *pinfo, const struct
     if (!rtp_info) return;
 
     rtp_packet_t *rtp_packet = g_new0(rtp_packet_t, 1);
-    rtp_packet->info = (struct _rtp_info *) g_memdup(rtp_info, sizeof(struct _rtp_info));
+    rtp_packet->info = (struct _rtp_info *) g_memdup2(rtp_info, sizeof(struct _rtp_info));
     if (rtp_info->info_all_data_present && (rtp_info->info_payload_len != 0)) {
-        rtp_packet->payload_data = (guint8 *) g_memdup(&(rtp_info->info_data[rtp_info->info_payload_offset]), rtp_info->info_payload_len);
+        rtp_packet->payload_data = (guint8 *) g_memdup2(&(rtp_info->info_data[rtp_info->info_payload_offset]),
+          rtp_info->info_payload_len);
     }
 
     if (rtp_packets_.size() < 1) { // First packet

@@ -332,7 +332,7 @@ k12_copy_cb(void* dest, const void* orig, size_t len _U_)
 
 	d->match   = g_strdup(o->match);
 	d->protos  = g_strdup(o->protos);
-	d->handles = (dissector_handle_t *)g_memdup(o->handles,(guint)(sizeof(dissector_handle_t)*(num_protos+1)));
+	d->handles = (dissector_handle_t *)g_memdup2(o->handles,(guint)(sizeof(dissector_handle_t)*(num_protos+1)));
 
 	g_strfreev(protos);
 

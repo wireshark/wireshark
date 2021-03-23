@@ -666,7 +666,7 @@ WSLUA_CONSTRUCTOR FileHandler_new(lua_State* L) {
     fh->finfo.default_file_extension = NULL;
     fh->finfo.additional_file_extensions = NULL;
     fh->finfo.writing_must_seek = FALSE;
-    supported_blocks = (struct supported_block_type  *)g_memdup(&block_type_proto, sizeof block_type_proto);
+    supported_blocks = (struct supported_block_type  *)g_memdup2(&block_type_proto, sizeof block_type_proto);
     /*
      * Add a list of options to the seciton block, interface block, and
      * packet block, so the file handler can indicate comment support.
@@ -678,7 +678,7 @@ WSLUA_CONSTRUCTOR FileHandler_new(lua_State* L) {
         case WTAP_BLOCK_IF_ID_AND_INFO:
         case WTAP_BLOCK_PACKET:
             supported_blocks[i].num_supported_options = OPTION_TYPES_SUPPORTED(option_type_proto);
-            supported_blocks[i].supported_options = (struct supported_option_type *)g_memdup(&option_type_proto, sizeof option_type_proto);
+            supported_blocks[i].supported_options = (struct supported_option_type *)g_memdup2(&option_type_proto, sizeof option_type_proto);
             break;
 
         default:

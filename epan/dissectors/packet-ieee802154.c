@@ -210,7 +210,7 @@ addr_uat_copy_cb(void *dest, const void *source, size_t len _U_)
     const static_addr_t* o = (const static_addr_t*)source;
     static_addr_t* d = (static_addr_t*)dest;
 
-    d->eui64 = (guchar *)g_memdup(o->eui64, o->eui64_len);
+    d->eui64 = (guchar *)g_memdup2(o->eui64, o->eui64_len);
     d->eui64_len = o->eui64_len;
     d->addr16 = o->addr16;
     d->pan = o->pan;

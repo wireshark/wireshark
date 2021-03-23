@@ -23,6 +23,7 @@
 
 #include <wsutil/ws_printf.h>
 #include <wsutil/strtoi.h>
+#include <wsutil/glib-compat.h>
 
 #include "wtap-int.h"
 #include "file_wrappers.h"
@@ -1662,7 +1663,7 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh,
                     wblock->rec->packet_verdict = g_ptr_array_new_with_free_func((GDestroyNotify) g_bytes_unref);
                 }
 
-                option_content_copy = g_memdup(option_content, oh->option_length);
+                option_content_copy = g_memdup2(option_content, oh->option_length);
 
                 /* For Linux XDP and TC we might need to byte swap */
                 if (section_info->byte_swapped &&

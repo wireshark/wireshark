@@ -14,6 +14,7 @@
 #include <glib.h>
 
 #include <string.h>
+#include <wsutil/glib-compat.h>
 
 #ifdef HAVE_ZLIB
 #define ZLIB_CONST
@@ -114,12 +115,12 @@ tvb_uncompress(tvbuff_t *tvb, const int offset, int comprlen)
 				 * This is ugly workaround for bug #6480
 				 * (https://gitlab.com/wireshark/wireshark/-/issues/6480)
 				 *
-				 * g_memdup(..., 0) returns NULL (g_malloc(0) also)
+				 * g_memdup2(..., 0) returns NULL (g_malloc(0) also)
 				 * when uncompr is NULL logic below doesn't create tvb
 				 * which is later interpreted as decompression failed.
 				 */
 				uncompr = (guint8 *)((bytes_pass || err != Z_STREAM_END) ?
-						g_memdup(strmbuf, bytes_pass) :
+						g_memdup2(strmbuf, bytes_pass) :
 						g_strdup(""));
 			} else {
 				guint8 *new_data = (guint8 *)g_malloc0(bytes_out + bytes_pass);

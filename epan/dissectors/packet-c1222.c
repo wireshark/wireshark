@@ -768,7 +768,7 @@ c1222_uat_data_copy_cb(void *dest, const void *source, size_t len _U_)
 
     d->keynum = o->keynum;
     d->keylen = o->keylen;
-    d->key = (guchar *)g_memdup(o->key, o->keylen);
+    d->key = (guchar *)g_memdup2(o->key, o->keylen);
 
     return dest;
 }
