@@ -238,7 +238,7 @@ class case_decrypt_80211(subprocesstest.SubprocessTestCase):
         self.assertEqual(self.countOutput('DHCP ACK'), 1)
         self.assertEqual(self.countOutput('ARP.*Who has'), 3)
         self.assertEqual(self.countOutput('ARP.*is at'), 1)
-        self.assertEqual(self.countOutput('ICMP.*Echo \(ping\)'), 2)
+        self.assertEqual(self.countOutput(r'ICMP.*Echo \(ping\)'), 2)
 
     def test_80211_wpa2_ft_psk_roam(self, cmd_tshark, capture_file, features):
         '''IEEE 802.11 decode WPA2 FT PSK'''
@@ -258,7 +258,7 @@ class case_decrypt_80211(subprocesstest.SubprocessTestCase):
         self.assertEqual(self.countOutput('DHCP ACK'), 1)
         self.assertEqual(self.countOutput('ARP.*Who has'), 5)
         self.assertEqual(self.countOutput('ARP.*is at'), 2)
-        self.assertEqual(self.countOutput('ICMP.*Echo \(ping\)'), 4)
+        self.assertEqual(self.countOutput(r'ICMP.*Echo \(ping\)'), 4)
 
     def test_80211_wpa2_ft_eap(self, cmd_tshark, capture_file):
         '''IEEE 802.11 decode WPA2 FT EAP'''
