@@ -3877,12 +3877,8 @@ dissect_usb_setup_request(packet_info *pinfo, proto_tree *tree,
                     next_tvb, 0, 1, ENC_LITTLE_ENDIAN);
             dissect_usb_setup_generic(pinfo, setup_tree,
                     next_tvb, 1, usb_conv_info);
-        } else if (data_tvb) {
-            proto_tree_add_item(setup_tree, hf_usb_request_unknown_class,
-                    tvb, setup_offset, 1, ENC_LITTLE_ENDIAN);
-            dissect_usb_setup_generic(pinfo, setup_tree,
-                    tvb, setup_offset+1, usb_conv_info);
         }
+        /* at this point, non-standard request has been dissectored */
     }
 
     if (data_tvb)
