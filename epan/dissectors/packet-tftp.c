@@ -784,14 +784,8 @@ dissect_embeddedtftp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
         gint char_offset = 2;
         while (tvb_captured_length_remaining(tvb, char_offset)) {
           gchar c = (gchar)tvb_get_guint8(tvb, char_offset++);
-          if (c == '\0') {
-            /* NULL termination found - continue with dissection */
-            break;
-          }
-          else if (!g_ascii_isprint(c)) {
-            /* Not part of a file name - give up now */
-            return FALSE;
-          }
+          gboolean allowed_ch = (c == '\0') || g_ascii_isprint(c);
+          if (!allowed_ch) return FALSE;
         }
         /* Would have to have a short capture length to not include the whole filename,
            but fall through here anyway rather than returning FALSE */
