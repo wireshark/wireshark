@@ -33,6 +33,7 @@ static int proto_isis_psnp = -1;
 /* csnp packets */
 static int hf_isis_csnp_pdu_length = -1;
 static int hf_isis_csnp_source_id = -1;
+static int hf_isis_csnp_source_circuit = -1;
 static int hf_isis_csnp_start_lsp_id = -1;
 static int hf_isis_csnp_end_lsp_id = -1;
 static int hf_isis_csnp_lsp_id = -1;
@@ -66,6 +67,7 @@ static expert_field ei_isis_csnp_clv_unknown = EI_INIT;
 /* psnp packets */
 static int hf_isis_psnp_pdu_length = -1;
 static int hf_isis_psnp_source_id = -1;
+static int hf_isis_psnp_source_circuit = -1;
 static int hf_isis_psnp_clv_type = -1;
 static int hf_isis_psnp_clv_length = -1;
 static int hf_isis_psnp_ip_authentication = -1;
@@ -394,9 +396,12 @@ dissect_isis_csnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offse
         expert_add_info(pinfo, isis->header_length_item, isis->ei_bad_header_length);
         return;
     }
-    proto_tree_add_item(csnp_tree, hf_isis_csnp_source_id, tvb, offset, isis->system_id_len + 1, ENC_NA);
-    col_append_fstr(pinfo->cinfo, COL_INFO, ", Source-ID: %s", tvb_print_system_id( tvb, offset, isis->system_id_len ));
-    offset += isis->system_id_len + 1;
+    /* ISO 10589:2002 9.10 "Source ID – the system ID of Intermediate System (with zero Circuit ID)" */
+    proto_tree_add_item(csnp_tree, hf_isis_csnp_source_id, tvb, offset, isis->system_id_len, ENC_NA);
+    col_append_fstr(pinfo->cinfo, COL_INFO, ", Source-ID: %s", tvb_print_system_id( tvb, offset, isis->system_id_len+1 ));
+    offset += isis->system_id_len;
+    proto_tree_add_item(csnp_tree, hf_isis_csnp_source_circuit, tvb, offset, 1, ENC_NA);
+    offset++;
 
     if (isis->header_length < 8 + 2 + isis->system_id_len + 1 + isis->system_id_len + 2) {
         /* Not large enough to include the part of the header that
@@ -486,9 +491,12 @@ dissect_isis_psnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offse
         expert_add_info(pinfo, isis->header_length_item, isis->ei_bad_header_length);
         return;
     }
+    /* ISO 10589:2002 9.10 "Source ID – the system ID of Intermediate System (with zero Circuit ID)" */
     proto_tree_add_item(psnp_tree, hf_isis_psnp_source_id, tvb, offset, isis->system_id_len, ENC_NA);
-    col_append_fstr(pinfo->cinfo, COL_INFO, ", Source-ID: %s", tvb_print_system_id( tvb, offset, isis->system_id_len ));
-    offset += isis->system_id_len + 1;
+    col_append_fstr(pinfo->cinfo, COL_INFO, ", Source-ID: %s", tvb_print_system_id( tvb, offset, isis->system_id_len+1 ));
+    offset += isis->system_id_len;
+    proto_tree_add_item(psnp_tree, hf_isis_psnp_source_circuit, tvb, offset, 1, ENC_NA);
+    offset++;
 
     if (pdu_length_too_short) {
         return;
@@ -526,6 +534,9 @@ proto_register_isis_csnp(void)
         { &hf_isis_csnp_source_id,
         { "Source-ID", "isis.csnp.source_id",
             FT_SYSTEM_ID, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_isis_csnp_source_circuit,
+        { "Source-ID-Circuit", "isis.csnp.source_circuit",
+            FT_BYTES, BASE_NONE, NULL, 0x0, "Must be Zero", HFILL }},
         { &hf_isis_csnp_start_lsp_id,
         { "Start LSP-ID", "isis.csnp.start_lsp_id",
             FT_SYSTEM_ID, BASE_NONE, NULL, 0x0, NULL, HFILL }},
@@ -616,7 +627,10 @@ proto_register_isis_psnp(void)
           BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_isis_psnp_source_id,
         { "Source-ID", "isis.psnp.source_id",
-            FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+            FT_SYSTEM_ID, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_isis_psnp_source_circuit,
+        { "Source-ID-Circuit", "isis.psnp.source_circuit",
+            FT_BYTES, BASE_NONE, NULL, 0x0, "Must be Zero", HFILL }},
         { &hf_isis_psnp_clv_type,
         { "Type",        "isis.psnp.clv.type", FT_UINT8,
           BASE_DEC, NULL, 0x0, NULL, HFILL }},
