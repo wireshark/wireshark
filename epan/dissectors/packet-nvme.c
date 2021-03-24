@@ -305,6 +305,11 @@ static int hf_nvme_get_logpage_smart_tmt2c = -1;
 static int hf_nvme_get_logpage_smart_tmt1t = -1;
 static int hf_nvme_get_logpage_smart_tmt2t = -1;
 static int hf_nvme_get_logpage_smart_rsvd1 = -1;
+static int hf_nvme_get_logpage_fw_slot_afi[5] = { NEG_LST_5 };
+static int hf_nvme_get_logpage_fw_slot_rsvd0 = -1;
+static int hf_nvme_get_logpage_fw_slot_frs[8] = { NEG_LST_8 };
+static int hf_nvme_get_logpage_fw_slot_rsvd1 = -1;
+
 
 /* NVMe CQE fields */
 static int hf_nvme_cqe_sts = -1;
@@ -1711,10 +1716,67 @@ static void dissect_nvme_get_logpage_smart_resp(proto_item *ti, tvbuff_t *cmd_tv
     if (off < 512) {
         guint poff = (off < 232) ? 232 : off;
         guint max_len = (off <= 232) ? 280 : 512 - off;
-        len =- poff;
+        len -= poff;
         if (len > max_len)
             len = max_len;
         proto_tree_add_item(grp, hf_nvme_get_logpage_smart_rsvd1,  cmd_tvb, poff, len, ENC_NA);
+    }
+}
+
+static void decode_fw_slot_frs(proto_tree *grp, tvbuff_t *cmd_tvb, guint32 off, guint len)
+{
+    proto_item *ti;
+    guint bytes;
+    guint poff;
+    guint max_bytes;
+    guint i;
+
+
+    poff = (off < 8) ? 8-off : off;
+
+    if (off > 56 || (poff + 8) > len)
+        return;
+
+    bytes = len - poff;
+    max_bytes = (off <= 8) ? 56 : (64 - off);
+
+    if (bytes > max_bytes)
+        bytes = max_bytes;
+
+    ti = proto_tree_add_item(grp, hf_nvme_get_logpage_fw_slot_frs[0],  cmd_tvb, poff, max_bytes, ENC_NA);
+    grp =  proto_item_add_subtree(ti, ett_data);
+    for (i = 0; i < 7; i++) {
+        guint pos = 8 + i * 8;
+        if (off <= pos && (pos + 8 - off) <= len)
+            proto_tree_add_item(grp, hf_nvme_get_logpage_fw_slot_frs[i+1],  cmd_tvb, pos - off, 8, ENC_LITTLE_ENDIAN);
+    }
+}
+
+
+static void dissect_nvme_get_logpage_fw_slot_resp(proto_item *ti, tvbuff_t *cmd_tvb, struct nvme_cmd_ctx *cmd_ctx, guint len)
+{
+    guint32 off = cmd_ctx->cmd_ctx.get_logpage.off & 0xffffffff; /* need guint type to silence clang-11 errors */
+    proto_tree *grp;
+
+    if (cmd_ctx->cmd_ctx.get_logpage.off >= 512)
+        return;  /* max allowed offset is < 512, so we do not loose bits by casting to guint type */
+
+    grp =  proto_item_add_subtree(ti, ett_data);
+
+    if (!off && len > 1)
+        add_group_mask_entry(cmd_tvb, grp, 0, 1, ASPEC(hf_nvme_get_logpage_fw_slot_afi));
+    if (off <= 1 && (8-off) <= len)
+        proto_tree_add_item(grp, hf_nvme_get_logpage_fw_slot_rsvd0,  cmd_tvb, 1-off, 7, ENC_NA);
+
+    decode_fw_slot_frs(grp, cmd_tvb, off, len);
+
+    if (off < 512) {
+        guint poff = (off < 64) ? 64 : off;
+        guint max_len = (off <= 64) ? 448 : 512 - off;
+        len -= poff;
+        if (len > max_len)
+            len = max_len;
+        proto_tree_add_item(grp, hf_nvme_get_logpage_fw_slot_rsvd1,  cmd_tvb, poff, len, ENC_NA);
     }
 }
 
@@ -1729,6 +1791,8 @@ static void dissect_nvme_get_logpage_resp(tvbuff_t *cmd_tvb, proto_tree *cmd_tre
             return dissect_nvme_get_logpage_err_inf_resp(ti, cmd_tvb, cmd_ctx, len);
         case 0x2:
             return dissect_nvme_get_logpage_smart_resp(ti, cmd_tvb, cmd_ctx, len);
+        case 0x3:
+            return dissect_nvme_get_logpage_fw_slot_resp(ti, cmd_tvb, cmd_ctx, len);
         default:
             return;
     }
@@ -3664,6 +3728,67 @@ proto_register_nvme(void)
         },
         { &hf_nvme_get_logpage_smart_rsvd1,
             { "Reserved", "nvme.cmd.get_logpage.smart.rsvd1",
+               FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
+        },
+        /* FW Slot Information Response */
+        { &hf_nvme_get_logpage_fw_slot_afi[0],
+            { "Active Firmware Info (AFI)", "nvme.cmd.get_logpage.fw_slot.afi",
+               FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_fw_slot_afi[1],
+            { "Active Firmware Slot", "nvme.cmd.get_logpage.fw_slot.afi.afs",
+               FT_UINT8, BASE_HEX, NULL, 0x7, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_fw_slot_afi[2],
+            { "Reserved", "nvme.cmd.get_logpage.fw_slot.afi.rsvd0",
+               FT_UINT8, BASE_HEX, NULL, 0x8, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_fw_slot_afi[3],
+            { "Next Reset Firmware Slot", "nvme.cmd.get_logpage.fw_slot.afi.nfs",
+               FT_UINT8, BASE_HEX, NULL, 0x70, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_fw_slot_afi[4],
+            { "Reserved", "nvme.cmd.get_logpage.fw_slot.afi.rsvd1",
+               FT_UINT8, BASE_HEX, NULL, 0x80, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_fw_slot_rsvd0,
+            { "Reserved", "nvme.cmd.get_logpage.fw_slot.rsvd0",
+               FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_fw_slot_frs[0],
+            { "Firmware Slot Revisions", "nvme.cmd.get_logpage.fw_slot.frs",
+               FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_fw_slot_frs[1],
+            { "Firmware Revision for Slot 1", "nvme.cmd.get_logpage.fw_slot.frs.s1",
+               FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_fw_slot_frs[2],
+            { "Firmware Revision for Slot 2", "nvme.cmd.get_logpage.fw_slot.frs.s2",
+               FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_fw_slot_frs[3],
+            { "Firmware Revision for Slot 3", "nvme.cmd.get_logpage.fw_slot.frs.s3",
+               FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_fw_slot_frs[4],
+            { "Firmware Revision for Slot 4", "nvme.cmd.get_logpage.fw_slot.frs.s4",
+               FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_fw_slot_frs[5],
+            { "Firmware Revision for Slot 5", "nvme.cmd.get_logpage.fw_slot.frs.s5",
+               FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_fw_slot_frs[6],
+            { "Firmware Revision for Slot 6", "nvme.cmd.get_logpage.fw_slot.frs.s6",
+               FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_fw_slot_frs[7],
+            { "Firmware Revision for Slot 7", "nvme.cmd.get_logpage.fw_slot.frs.s7",
+               FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_fw_slot_rsvd1,
+            { "Reserved", "nvme.cmd.get_logpage.fw_slot.rsvd1",
                FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
         },
         /* NVMe Response fields */
