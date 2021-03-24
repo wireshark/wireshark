@@ -309,6 +309,7 @@ static int hf_nvme_get_logpage_fw_slot_afi[5] = { NEG_LST_5 };
 static int hf_nvme_get_logpage_fw_slot_rsvd0 = -1;
 static int hf_nvme_get_logpage_fw_slot_frs[8] = { NEG_LST_8 };
 static int hf_nvme_get_logpage_fw_slot_rsvd1 = -1;
+static int hf_nvme_get_logpage_changed_nslist = -1;
 
 
 /* NVMe CQE fields */
@@ -1752,7 +1753,6 @@ static void decode_fw_slot_frs(proto_tree *grp, tvbuff_t *cmd_tvb, guint32 off, 
     }
 }
 
-
 static void dissect_nvme_get_logpage_fw_slot_resp(proto_item *ti, tvbuff_t *cmd_tvb, struct nvme_cmd_ctx *cmd_ctx, guint len)
 {
     guint32 off = cmd_ctx->cmd_ctx.get_logpage.off & 0xffffffff; /* need guint type to silence clang-11 errors */
@@ -1780,6 +1780,19 @@ static void dissect_nvme_get_logpage_fw_slot_resp(proto_item *ti, tvbuff_t *cmd_
     }
 }
 
+static void dissect_nvme_get_logpage_changed_nslist_resp(proto_item *ti, tvbuff_t *cmd_tvb, guint len)
+{
+    proto_tree *grp;
+    guint off = 0;
+
+    grp =  proto_item_add_subtree(ti, ett_data);
+    while (len >= 4) {
+        proto_tree_add_item(grp, hf_nvme_get_logpage_changed_nslist,  cmd_tvb, off, 4, ENC_LITTLE_ENDIAN);
+        len -= 4;
+        off += 4;
+    }
+}
+
 static void dissect_nvme_get_logpage_resp(tvbuff_t *cmd_tvb, proto_tree *cmd_tree, struct nvme_cmd_ctx *cmd_ctx, guint len)
 {
     proto_item *ti = proto_tree_add_bytes_format_value(cmd_tree, hf_nvme_gen_data, cmd_tvb, 0, len, NULL,
@@ -1793,6 +1806,8 @@ static void dissect_nvme_get_logpage_resp(tvbuff_t *cmd_tvb, proto_tree *cmd_tre
             return dissect_nvme_get_logpage_smart_resp(ti, cmd_tvb, cmd_ctx, len);
         case 0x3:
             return dissect_nvme_get_logpage_fw_slot_resp(ti, cmd_tvb, cmd_ctx, len);
+        case 0x4:
+            return dissect_nvme_get_logpage_changed_nslist_resp(ti, cmd_tvb, len);
         default:
             return;
     }
@@ -3790,6 +3805,11 @@ proto_register_nvme(void)
         { &hf_nvme_get_logpage_fw_slot_rsvd1,
             { "Reserved", "nvme.cmd.get_logpage.fw_slot.rsvd1",
                FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
+        },
+        /* Changed NameSpace List Response */
+        { &hf_nvme_get_logpage_changed_nslist,
+            { "Changed Namespace", "nvme.cmd.get_logpage.changed_nslist",
+               FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}
         },
         /* NVMe Response fields */
         { &hf_nvme_cqe_sts,
