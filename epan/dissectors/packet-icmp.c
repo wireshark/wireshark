@@ -875,7 +875,6 @@ dissect_interface_information_object(tvbuff_t * tvb, gint offset,
 	/* MTU Sub Object */
 	if (mtu_flag) {
 		proto_tree_add_item(ext_object_tree, hf_icmp_int_info_mtu, tvb, offset, 4, ENC_NA);
-		offset += 4;
 	}
 
 
