@@ -91,14 +91,14 @@
 #include <cli_main.h>
 #include <version_info.h>
 
-#include "caputils/capture-pcap-util.h"
+#include "capture/capture-pcap-util.h"
 
 #include "extcap.h"
 
 #ifdef HAVE_LIBPCAP
 #include <setjmp.h>
 #ifdef _WIN32
-#include "caputils/capture-wpcap.h"
+#include "capture/capture-wpcap.h"
 #endif /* _WIN32 */
 #endif /* HAVE_LIBPCAP */
 #include "log.h"

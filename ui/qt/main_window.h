@@ -54,7 +54,7 @@
 #ifdef HAVE_LIBPCAP
 #include "capture_opts.h"
 #endif
-#include <capchild/capture_session.h>
+#include <capture/capture_session.h>
 
 #include <QMainWindow>
 #include <QPointer>

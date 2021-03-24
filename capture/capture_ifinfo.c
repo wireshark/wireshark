@@ -20,12 +20,12 @@
 
 #include "capture_opts.h"
 
-#include "capchild/capture_session.h"
-#include "capchild/capture_sync.h"
+#include "capture/capture_session.h"
+#include "capture/capture_sync.h"
 #include "extcap.h"
 #include "log.h"
 
-#include <caputils/capture_ifinfo.h>
+#include <capture/capture_ifinfo.h>
 #include <wsutil/inet_addr.h>
 
 #ifdef HAVE_PCAP_REMOTE

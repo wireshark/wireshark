@@ -48,7 +48,7 @@
 
 #include "extcap.h"
 #ifdef HAVE_LIBPCAP
-#include <caputils/iface_monitor.h>
+#include <capture/iface_monitor.h>
 #endif
 
 #include "ui/filter_files.h"

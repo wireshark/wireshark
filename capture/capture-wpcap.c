@@ -20,7 +20,7 @@
 #include <stdio.h>
 #include <glib.h>
 
-#include "caputils/capture-wpcap.h"
+#include "capture/capture-wpcap.h"
 
 gboolean has_wpcap = FALSE;
 
@@ -30,9 +30,9 @@ gboolean has_wpcap = FALSE;
 
 #include <epan/strutil.h>
 
-#include "caputils/capture_ifinfo.h"
-#include "caputils/capture-pcap-util.h"
-#include "caputils/capture-pcap-util-int.h"
+#include "capture/capture_ifinfo.h"
+#include "capture/capture-pcap-util.h"
+#include "capture/capture-pcap-util-int.h"
 
 #include <wsutil/file_util.h>
 

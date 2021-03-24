@@ -21,7 +21,7 @@
 #ifdef HAVE_PCAP_REMOTE
 #include "ui/qt/remote_capture_dialog.h"
 #include "ui/qt/remote_settings_dialog.h"
-#include "caputils/capture-pcap-util.h"
+#include "capture/capture-pcap-util.h"
 #include "ui/recent.h"
 #endif
 #include "ui/iface_lists.h"

@@ -20,7 +20,7 @@
 
 #include <sys/types.h>     /* for gid_t */
 
-#include <caputils/capture_ifinfo.h>
+#include <capture/capture_ifinfo.h>
 #include "ringbuffer.h"
 
 #ifdef _WIN32

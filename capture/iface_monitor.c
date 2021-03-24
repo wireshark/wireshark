@@ -12,7 +12,7 @@
 
 #ifdef HAVE_LIBPCAP
 
-#include <caputils/iface_monitor.h>
+#include <capture/iface_monitor.h>
 #include "ws_attributes.h"
 
 #if defined(HAVE_LIBNL)

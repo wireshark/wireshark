@@ -17,7 +17,7 @@
 #include "remote_capture_dialog.h"
 #include <ui_remote_capture_dialog.h>
 #include "capture_opts.h"
-#include "caputils/capture-pcap-util.h"
+#include "capture/capture-pcap-util.h"
 #include "ui/capture_ui_utils.h"
 #include "epan/prefs.h"
 #include "epan/to_str.h"

@@ -20,7 +20,7 @@
 #include "capture_opts.h"
 #include "capture_info.h"
 #include "cfile.h"
-#include "capchild/capture_session.h"
+#include "capture/capture_session.h"
 
 #ifdef __cplusplus
 extern "C" {

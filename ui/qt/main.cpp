@@ -101,19 +101,19 @@
 #include <ui/qt/widgets/splash_overlay.h>
 #include "ui/qt/wireshark_application.h"
 
-#include "caputils/capture-pcap-util.h"
+#include "capture/capture-pcap-util.h"
 
 #include <QMessageBox>
 #include <QScreen>
 
 #ifdef _WIN32
-#  include "caputils/capture-wpcap.h"
+#  include "capture/capture-wpcap.h"
 #  include <wsutil/file_util.h>
 #endif /* _WIN32 */
 
 #ifdef HAVE_AIRPCAP
-#  include <caputils/airpcap.h>
-#  include <caputils/airpcap_loader.h>
+#  include <capture/airpcap.h>
+#  include <capture/airpcap_loader.h>
 //#  include "airpcap_dlg.h"
 //#  include "airpcap_gui_utils.h"
 #endif

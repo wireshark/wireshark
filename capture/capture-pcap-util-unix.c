@@ -22,9 +22,9 @@
 # include <sys/capability.h>
 #endif
 
-#include "caputils/capture_ifinfo.h"
-#include "caputils/capture-pcap-util.h"
-#include "caputils/capture-pcap-util-int.h"
+#include "capture/capture_ifinfo.h"
+#include "capture/capture-pcap-util.h"
+#include "capture/capture-pcap-util-int.h"
 
 #ifdef HAVE_PCAP_REMOTE
 GList *

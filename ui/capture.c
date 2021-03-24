@@ -22,17 +22,17 @@
 #include <epan/dfilter/dfilter.h>
 #include "file.h"
 #include "ui/capture.h"
-#include "caputils/capture_ifinfo.h"
-#include <capchild/capture_sync.h>
+#include "capture/capture_ifinfo.h"
+#include <capture/capture_sync.h>
 #include "ui/capture_info.h"
 #include "ui/capture_ui_utils.h"
 #include "ui/util.h"
 #include "ui/urls.h"
-#include "caputils/capture-pcap-util.h"
+#include "capture/capture-pcap-util.h"
 #include <epan/prefs.h>
 
 #ifdef _WIN32
-#include "caputils/capture-wpcap.h"
+#include "capture/capture-wpcap.h"
 #endif
 
 #include "ui/simple_dialog.h"

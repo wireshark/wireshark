@@ -14,10 +14,10 @@
 
 #include <glib.h>
 
-#include <capchild/capture_session.h>
-#include <capchild/capture_sync.h>
+#include <capture/capture_session.h>
+#include <capture/capture_sync.h>
 
-#include <caputils/ws80211_utils.h>
+#include <capture/ws80211_utils.h>
 
 #include "ui/ws_ui_util.h"
 #include <wsutil/utf8_entities.h>

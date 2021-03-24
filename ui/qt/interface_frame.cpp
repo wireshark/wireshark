@@ -11,10 +11,10 @@
 #include "config.h"
 #include <ui_interface_frame.h>
 
-#include "caputils/capture_ifinfo.h"
+#include "capture/capture_ifinfo.h"
 
 #ifdef Q_OS_WIN
-#include "caputils/capture-wpcap.h"
+#include "capture/capture-wpcap.h"
 #endif
 
 #include "ui/qt/interface_frame.h"
@@ -362,7 +362,7 @@ void InterfaceFrame::resetInterfaceTreeDisplay()
     }
 }
 
-// XXX Should this be in caputils/capture-pcap-util.[ch]?
+// XXX Should this be in capture/capture-pcap-util.[ch]?
 bool InterfaceFrame::haveLocalCapturePermissions() const
 {
 #ifdef Q_OS_MAC

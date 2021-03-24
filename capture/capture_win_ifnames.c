@@ -33,8 +33,8 @@
 
 #include "log.h"
 
-#include "caputils/capture_ifinfo.h"
-#include "caputils/capture_win_ifnames.h"
+#include "capture/capture_ifinfo.h"
+#include "capture/capture_win_ifnames.h"
 
 #include <wsutil/file_util.h>
 

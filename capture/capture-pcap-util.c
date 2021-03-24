@@ -64,9 +64,9 @@
 
 #endif /* defined(HAVE_PCAP_CREATE) && defined(__linux__) */
 
-#include "caputils/capture_ifinfo.h"
-#include "caputils/capture-pcap-util.h"
-#include "caputils/capture-pcap-util-int.h"
+#include "capture/capture_ifinfo.h"
+#include "capture/capture-pcap-util.h"
+#include "capture/capture-pcap-util-int.h"
 
 #include "log.h"
 
@@ -78,7 +78,7 @@
 #endif
 
 #ifdef _WIN32
-#include "caputils/capture_win_ifnames.h" /* windows friendly interface names */
+#include "capture/capture_win_ifnames.h" /* windows friendly interface names */
 #endif
 
 #if defined(__FreeBSD__) || defined(__OpenBSD__)

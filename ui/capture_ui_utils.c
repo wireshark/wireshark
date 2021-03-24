@@ -19,7 +19,7 @@
 
 #include "epan/prefs.h"
 #include "epan/ex-opt.h"
-#include "caputils/capture_ifinfo.h"
+#include "capture/capture_ifinfo.h"
 #include "ui/capture_ui_utils.h"
 #include "ui/capture_globals.h"
 #include "wiretap/wtap.h"

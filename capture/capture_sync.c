@@ -31,7 +31,7 @@
 # include <sys/wait.h>
 #endif
 
-#include "caputils/capture-pcap-util.h"
+#include "capture/capture-pcap-util.h"
 
 #ifndef _WIN32
 /*
@@ -67,12 +67,12 @@
 #include "file.h"
 
 #include "ui/capture.h"
-#include <capchild/capture_sync.h>
+#include <capture/capture_sync.h>
 
 #include "sync_pipe.h"
 
 #ifdef _WIN32
-#include "caputils/capture-wpcap.h"
+#include "capture/capture-wpcap.h"
 #endif
 
 #include "ui/ws_ui_util.h"

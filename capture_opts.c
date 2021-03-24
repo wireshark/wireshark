@@ -29,8 +29,8 @@
 #include <wsutil/file_util.h>
 #include <wsutil/ws_pipe.h>
 
-#include "caputils/capture_ifinfo.h"
-#include "caputils/capture-pcap-util.h"
+#include "capture/capture_ifinfo.h"
+#include "capture/capture-pcap-util.h"
 
 #include "ui/filter_files.h"
 

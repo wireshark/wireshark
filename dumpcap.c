@@ -55,11 +55,11 @@
 
 #include "ringbuffer.h"
 
-#include "caputils/capture_ifinfo.h"
-#include "caputils/capture-pcap-util.h"
-#include "caputils/capture-pcap-util-int.h"
+#include "capture/capture_ifinfo.h"
+#include "capture/capture-pcap-util.h"
+#include "capture/capture-pcap-util-int.h"
 #ifdef _WIN32
-#include "caputils/capture-wpcap.h"
+#include "capture/capture-wpcap.h"
 #endif /* _WIN32 */
 
 #include "writecap/pcapio.h"
@@ -74,8 +74,8 @@
 #include "sync_pipe.h"
 
 #include "capture_opts.h"
-#include <capchild/capture_session.h>
-#include <capchild/capture_sync.h>
+#include <capture/capture_session.h>
+#include <capture/capture_sync.h>
 
 #include "wsutil/tempfile.h"
 #include "log.h"
@@ -88,7 +88,7 @@
 #include "wsutil/please_report_bug.h"
 #include "wsutil/glib-compat.h"
 
-#include "caputils/ws80211_utils.h"
+#include "capture/ws80211_utils.h"
 
 #include "extcap.h"
 

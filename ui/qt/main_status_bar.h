@@ -14,7 +14,7 @@
 
 #include "cfile.h"
 
-#include "capchild/capture_session.h"
+#include "capture/capture_session.h"
 
 #include <ui/qt/utils/field_information.h>
 #include <ui/qt/widgets/label_stack.h>

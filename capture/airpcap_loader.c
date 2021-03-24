@@ -19,8 +19,8 @@
 #include <wsutil/file_util.h>
 #include <wsutil/802_11-utils.h>
 
-#include <caputils/airpcap.h>
-#include <caputils/airpcap_loader.h>
+#include <capture/airpcap.h>
+#include <capture/airpcap_loader.h>
 
 
 /*

@@ -112,7 +112,7 @@ find_path(PCAP_INCLUDE_DIR
 )
 
 # On Windows we load wpcap.dll explicitly and probe its functions in
-# caputils\capture-wpcap.c. We don't want to link with pcap.lib since
+# capture\capture-wpcap.c. We don't want to link with pcap.lib since
 # that would bring in the non-capturing (null) pcap.dll from the vcpkg
 # library.
 if(WIN32)

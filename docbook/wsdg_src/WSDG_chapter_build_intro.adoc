@@ -16,7 +16,7 @@ _/plugins/epan/{asterisk}_ directories
 * Capture file I/O - using Wireshark’s own wiretap library
 
 * Capture - using the libpcap and Npcap libraries, in _dumpcap.c_ and
-the _/capchild_ and _/caputils directories
+the _/capture_ directory
 
 * User interface - using Qt and associated libraries
 
