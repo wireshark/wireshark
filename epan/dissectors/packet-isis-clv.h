@@ -57,8 +57,12 @@
 #define ISIS_CLV_MT_PORT_CAP         143 /* rfc6165, rfc7176 */
 #define ISIS_CLV_MT_CAP              144 /* rfc6329, rfc7176 */
 #define ISIS_CLV_TRILL_NEIGHBOR      145 /* rfc7176 */
+#define ISIS_CLV_AVAYA_MAC           147 /* Avaya/Extremenetworks proprietary: Reverse engineered */
 #define ISIS_CLV_BFD_ENABLED         148 /* rfc6213 */
 #define ISIS_CLV_SID_LABEL_BINDING   149 /* draft-previdi-isis-segment-routing-extensions-05 */
+#define ISIS_CLV_AVAYA_IPVPN         184 /* Avaya/Extremenetworks proprietary: Reverse engineered */
+#define ISIS_CLV_AVAYA_IPVPN_MC      185 /* Avaya/Extremenetworks proprietary: Reverse engineered */
+#define ISIS_CLV_AVAYA_IP_GRT_MC     186 /* Avaya/Extremenetworks proprietary: Reverse engineered */
 #define ISIS_CLV_RESTART             211 /* draft-ietf-isis-restart-01 */
 #define ISIS_CLV_MT_IS_REACH         222 /* draft-ietf-isis-wg-multi-topology-05 */
 #define ISIS_CLV_MT_SUPPORTED        229 /* draft-ietf-isis-wg-multi-topology-05 */
@@ -91,7 +95,7 @@ extern void isis_dissect_clvs(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tre
         const isis_clv_handle_t *opts, expert_field *expert_short_len, isis_data_t *isis,
         int unknown_tree_id,  int tree_type, int tree_length, expert_field *ei_unknown);
 
-extern void isis_dissect_nlpid_clv(tvbuff_t *tvb, proto_tree *tree,
+extern void isis_dissect_nlpid_clv(tvbuff_t *tvb, proto_tree *tree, gint ett_nlpid,
         int hf_nlpid, int offset, int length);
 extern void isis_dissect_te_router_id_clv(proto_tree *tree, packet_info* pinfo, tvbuff_t *tvb, expert_field* expert,
         int offset, int length, int tree_id);

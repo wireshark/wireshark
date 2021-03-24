@@ -29,11 +29,12 @@
 #define NLPID_ISO8473_CLNP	0x81	/* X.233 */
 #define NLPID_ISO9542_ESIS	0x82
 #define NLPID_ISO10589_ISIS	0x83
-#define NLPID_ISO10747_IDRP     0x85
+#define NLPID_ISO10747_IDRP	0x85
 #define NLPID_ISO9542X25_ESIS	0x8a
 #define NLPID_ISO10030		0x8c
 #define NLPID_ISO11577		0x8d	/* X.273 */
 #define NLPID_IP6		0x8e
+#define NLPID_AVAYA_MAC		0x8f
 #define NLPID_COMPRESSED	0xb0	/* "Data compression protocol" */
 #define NLPID_TRILL		0xc0
 #define NLPID_SNDCF		0xc1	/* "SubNetwork Dependent Convergence Function */

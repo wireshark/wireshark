@@ -415,7 +415,7 @@ static int hf_isis_lsp_clv_srv6_endx_sid_subsubclvs_len = -1;
 static int hf_isis_lsp_area_address = -1;
 static int hf_isis_lsp_instance_identifier = -1;
 static int hf_isis_lsp_supported_itid = -1;
-static int hf_isis_lsp_clv_nlpid = -1;
+static int hf_isis_lsp_clv_nlpid_nlpid = -1;
 static int hf_isis_lsp_ip_authentication = -1;
 static int hf_isis_lsp_authentication = -1;
 static int hf_isis_lsp_area_address_str = -1;
@@ -457,6 +457,25 @@ static int hf_isis_lsp_clv_srv6_end_sid_sid = -1;
 static int hf_isis_lsp_clv_srv6_end_sid_subsubclvs_len = -1;
 static int hf_isis_lsp_purge_orig_id_num = -1;
 static int hf_isis_lsp_purge_orig_id_system_id = -1;
+/* Avaya proprietary */
+static int hf_isis_lsp_avaya_147_unknown = -1;
+static int hf_isis_lsp_avaya_147_mac = -1;
+static int hf_isis_lsp_avaya_147_fanmcast = -1;
+static int hf_isis_lsp_avaya_ipvpn_unknown = -1;
+static int hf_isis_lsp_avaya_ipvpn_system_id = -1;
+static int hf_isis_lsp_avaya_ipvpn_vrfsid = -1;
+static int hf_isis_lsp_avaya_ipvpn_subtlvbytes = -1;
+static int hf_isis_lsp_avaya_ipvpn_subtlvtype = -1;
+static int hf_isis_lsp_avaya_ipvpn_subtlvlength = -1;
+static int hf_isis_lsp_avaya_ipvpn_unknown_sub = -1;
+static int hf_isis_lsp_avaya_ipvpn_ipv4_metric = -1;
+static int hf_isis_lsp_avaya_ipvpn_ipv4_addr = -1;
+static int hf_isis_lsp_avaya_ipvpn_ipv4_mask = -1;
+static int hf_isis_lsp_avaya_ipvpn_ipv6_metric = -1;
+static int hf_isis_lsp_avaya_ipvpn_ipv6_prefixlen = -1;
+static int hf_isis_lsp_avaya_ipvpn_ipv6_prefix = -1;
+static int hf_isis_lsp_avaya_185_unknown = -1;
+static int hf_isis_lsp_avaya_186_unknown = -1;
 
 static gint ett_isis_lsp = -1;
 static gint ett_isis_lsp_info = -1;
@@ -476,7 +495,7 @@ static gint ett_isis_lsp_adj_sid_flags = -1;
 static gint ett_isis_lsp_clv_unknown = -1;
 static gint ett_isis_lsp_clv_partition_dis = -1;
 static gint ett_isis_lsp_clv_prefix_neighbors = -1;
-static gint ett_isis_lsp_clv_nlpid = -1;
+static gint ett_isis_lsp_clv_nlpid_nlpid = -1;
 static gint ett_isis_lsp_clv_hostname = -1;
 static gint ett_isis_lsp_clv_srlg = -1;
 static gint ett_isis_lsp_clv_te_router_id = -1;
@@ -535,6 +554,12 @@ static gint ett_isis_lsp_clv_srv6_locator = -1;
 static gint ett_isis_lsp_clv_srv6_loc_flags = -1;
 static gint ett_isis_lsp_clv_srv6_loc_sub_tlv = -1;
 static gint ett_isis_lsp_clv_srv6_endx_sid_flags = -1;
+static gint ett_isis_lsp_clv_avaya_mac = -1;
+static gint ett_isis_lsp_clv_avaya_ipvpn = -1;
+static gint ett_isis_lsp_clv_avaya_ipvpn_subtlv = -1;
+static gint ett_isis_lsp_clv_avaya_ipvpn_mc = -1;
+static gint ett_isis_lsp_clv_avaya_ip_grt_mc = -1;
+
 
 static expert_field ei_isis_lsp_short_pdu = EI_INIT;
 static expert_field ei_isis_lsp_long_pdu = EI_INIT;
@@ -543,9 +568,11 @@ static expert_field ei_isis_lsp_subtlv = EI_INIT;
 static expert_field ei_isis_lsp_authentication = EI_INIT;
 static expert_field ei_isis_lsp_short_clv = EI_INIT;
 static expert_field ei_isis_lsp_long_clv = EI_INIT;
+static expert_field ei_isis_lsp_length_clv = EI_INIT;
 static expert_field ei_isis_lsp_clv_mt = EI_INIT;
 static expert_field ei_isis_lsp_clv_unknown = EI_INIT;
 static expert_field ei_isis_lsp_malformed_subtlv = EI_INIT;
+static expert_field ei_isis_lsp_unknown_subtlv = EI_INIT;
 static expert_field ei_isis_lsp_reserved_not_zero = EI_INIT;
 static expert_field ei_isis_lsp_length_invalid = EI_INIT;
 
@@ -745,6 +772,13 @@ static const range_string isis_lsp_bier_alg_vals[] = {
 */
 static const value_string isis_lsp_bier_subsubtlv_type_vals[] = {
     { 1, "BIER MPLS Encapsulation" },
+    { 0, NULL }
+};
+
+/* Avaya specific sub-TLV types */
+static const value_string isis_lsp_avaya_ipvpn_subtlv_code_vals[] = {
+    { 135, "IPv4 Reachability" },
+    { 236, "IPv6 Reachability" },
     { 0, NULL }
 };
 
@@ -1921,7 +1955,7 @@ static void
 dissect_lsp_nlpid_clv(tvbuff_t *tvb, packet_info* pinfo _U_, proto_tree *tree, int offset,
     isis_data_t *isis _U_, int length)
 {
-    isis_dissect_nlpid_clv(tvb, tree, hf_isis_lsp_clv_nlpid, offset, length);
+    isis_dissect_nlpid_clv(tvb, tree, ett_isis_lsp_clv_nlpid_nlpid, hf_isis_lsp_clv_nlpid_nlpid, offset, length);
 }
 
 /*
@@ -3769,6 +3803,120 @@ dissect_lsp_purge_orig_id_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tre
     }
 }
 
+static void
+dissect_lsp_avaya_mac(tvbuff_t *tvb, packet_info* pinfo _U_, proto_tree *tree, int offset,
+                              isis_data_t *isis _U_, int length)
+{
+    if (length != 11 && length != 17) {
+        proto_tree_add_expert_format(tree, pinfo, &ei_isis_lsp_length_clv, tvb, offset, length,
+                                     "Unexpected length of Avaya MAC TLV (%d vs 11 or 17)",
+                                     length);
+        return;
+    }
+    proto_tree_add_item(tree, hf_isis_lsp_avaya_147_unknown, tvb, offset, 5, ENC_NA);
+    proto_tree_add_item(tree, hf_isis_lsp_avaya_147_mac, tvb, offset + 5, 6, ENC_NA);
+    if (length == 17)
+        proto_tree_add_item(tree, hf_isis_lsp_avaya_147_fanmcast, tvb, offset + 11, 6, ENC_NA);
+}
+
+static void
+dissect_lsp_avaya_ipvpn(tvbuff_t *tvb, packet_info* pinfo _U_, proto_tree *tree, int offset,
+                              isis_data_t *isis _U_, int length)
+{
+    guint subtlvbytes;
+    proto_item *ti;
+    proto_item *ti_pfxlen, *ti_prefix;
+    proto_tree *subtlvtree;
+    guint subtype;
+    guint sublength;
+
+    if (length < 15) {
+        proto_tree_add_expert_format(tree, pinfo, &ei_isis_lsp_short_clv, tvb, offset, length,
+                                     "Too short LSP Avaya IPVPN (%d vs min 15)",
+                                     length);
+        return;
+    }
+    proto_tree_add_item(tree, hf_isis_lsp_avaya_ipvpn_unknown, tvb, offset, 4, ENC_NA);
+    offset += 4;
+    proto_tree_add_item(tree, hf_isis_lsp_avaya_ipvpn_system_id, tvb, offset, 7, ENC_NA);
+    offset += 7;
+    proto_tree_add_item(tree, hf_isis_lsp_avaya_ipvpn_vrfsid, tvb, offset, 3, ENC_BIG_ENDIAN);
+    offset += 3;
+    proto_tree_add_item_ret_uint(tree, hf_isis_lsp_avaya_ipvpn_subtlvbytes, tvb, offset, 1, ENC_NA, &subtlvbytes);
+    offset += 1;
+
+    if ((guint)length != 15+subtlvbytes) {
+        proto_tree_add_expert_format(tree, pinfo, &ei_isis_lsp_length_clv, tvb, offset, length,
+                                     "Inconsistent length of LSP Avaya IPVPN with subtlvs (%d vs min %d)",
+                                     length, 15 + subtlvbytes);
+        return;
+    }
+    while (subtlvbytes > 0) {
+        if (subtlvbytes == 1) {
+            proto_tree_add_expert_format(tree, pinfo, &ei_isis_lsp_malformed_subtlv, tvb, offset, length,
+                                         "Too few bytes remaining for Sub-TLV header (1 vs 2)");
+            return;
+        }
+	subtype = tvb_get_guint8(tvb, offset);
+	sublength = tvb_get_guint8(tvb, offset + 1);
+        subtlvtree = proto_tree_add_subtree_format(tree, tvb, offset, sublength + 2, ett_isis_lsp_clv_avaya_ipvpn_subtlv, &ti, "%s",
+                                    val_to_str(subtype, isis_lsp_avaya_ipvpn_subtlv_code_vals, "Unknown"));
+        proto_tree_add_item(subtlvtree, hf_isis_lsp_avaya_ipvpn_subtlvtype, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(subtlvtree, hf_isis_lsp_avaya_ipvpn_subtlvlength, tvb, offset + 1, 1, ENC_NA);
+        offset += 2;
+        switch (subtype) {
+        case 135: /* IPv4 */
+            if (sublength != 12) {
+            proto_tree_add_expert_format(subtlvtree, pinfo, &ei_isis_lsp_malformed_subtlv, tvb, offset, sublength,
+                                         "Unexpected IPv4 Reachability sub-TLV length (%d vs 12)", sublength);
+            }
+            proto_tree_add_item(subtlvtree, hf_isis_lsp_avaya_ipvpn_ipv4_metric, tvb, offset, 4, ENC_BIG_ENDIAN);
+            offset += 4;
+            ti_prefix = proto_tree_add_item(subtlvtree, hf_isis_lsp_avaya_ipvpn_ipv4_addr, tvb, offset, 4, ENC_BIG_ENDIAN);
+            offset += 4;
+            ti_pfxlen = proto_tree_add_item(subtlvtree, hf_isis_lsp_avaya_ipvpn_ipv4_mask, tvb, offset, 4, ENC_BIG_ENDIAN);
+            offset += 4;
+            proto_item_append_text(ti, ": %s/%s", proto_item_get_display_repr(wmem_packet_scope(), ti_prefix),
+                                                  proto_item_get_display_repr(wmem_packet_scope(), ti_pfxlen));
+            break;
+        case 236: /* IPv6 */
+            if (sublength != 22) {
+            proto_tree_add_expert_format(subtlvtree, pinfo, &ei_isis_lsp_malformed_subtlv, tvb, offset, sublength,
+                                         "Unexpected IPv6 Reachability sub-TLV length (%d vs 22)", sublength);
+            }
+            proto_tree_add_item(subtlvtree, hf_isis_lsp_avaya_ipvpn_ipv6_metric, tvb, offset, 4, ENC_BIG_ENDIAN);
+            offset += 4;
+            ti_pfxlen = proto_tree_add_item(subtlvtree, hf_isis_lsp_avaya_ipvpn_ipv6_prefixlen, tvb, offset, 2, ENC_BIG_ENDIAN);
+            offset += 2;
+            ti_prefix = proto_tree_add_item(subtlvtree, hf_isis_lsp_avaya_ipvpn_ipv6_prefix, tvb, offset, 16, ENC_NA);
+            offset += 16;
+            proto_item_append_text(ti, ": %s/%s", proto_item_get_display_repr(wmem_packet_scope(), ti_prefix),
+                                                  proto_item_get_display_repr(wmem_packet_scope(), ti_pfxlen));
+            break;
+        default:
+            proto_tree_add_item(subtlvtree, hf_isis_lsp_avaya_ipvpn_unknown_sub, tvb, offset, 4, ENC_NA);
+            proto_tree_add_expert_format(subtlvtree, pinfo, &ei_isis_lsp_unknown_subtlv, tvb, offset, length,
+                                         "Unknown Avaya IPVPN subTLV (%d): Please report to Wireshark developers.", subtype);
+            offset += sublength;
+        }
+        subtlvbytes -= (2 + sublength);
+    }
+}
+
+static void
+dissect_lsp_avaya_ipvpn_mc(tvbuff_t *tvb, packet_info* pinfo _U_, proto_tree *tree, int offset,
+                              isis_data_t *isis _U_, int length)
+{
+    proto_tree_add_item(tree, hf_isis_lsp_avaya_185_unknown, tvb, offset, length, ENC_NA);
+}
+
+static void
+dissect_lsp_avaya_ip_grt_mc(tvbuff_t *tvb, packet_info* pinfo _U_, proto_tree *tree, int offset,
+                              isis_data_t *isis _U_, int length)
+{
+    proto_tree_add_item(tree, hf_isis_lsp_avaya_186_unknown, tvb, offset, length, ENC_NA);
+}
+
 static const isis_clv_handle_t clv_l1_lsp_opts[] = {
     {
         ISIS_CLV_AREA_ADDRESS,
@@ -3833,7 +3981,7 @@ static const isis_clv_handle_t clv_l1_lsp_opts[] = {
     {
         ISIS_CLV_PROTOCOLS_SUPPORTED,
         "Protocols supported",
-        &ett_isis_lsp_clv_nlpid,
+        &ett_isis_lsp_clv_nlpid_nlpid,
         dissect_lsp_nlpid_clv
     },
     {
@@ -3945,6 +4093,30 @@ static const isis_clv_handle_t clv_l1_lsp_opts[] = {
         dissect_lsp_purge_orig_id_clv
     },
     {
+        ISIS_CLV_AVAYA_MAC,
+        "Avaya MAC",
+        &ett_isis_lsp_clv_avaya_mac,
+        dissect_lsp_avaya_mac
+    },
+    {
+        ISIS_CLV_AVAYA_IPVPN,
+        "Avaya IPVPN",
+        &ett_isis_lsp_clv_avaya_ipvpn,
+        dissect_lsp_avaya_ipvpn
+    },
+    {
+        ISIS_CLV_AVAYA_IPVPN_MC,
+        "Avaya IPVPN MCast",
+        &ett_isis_lsp_clv_avaya_ipvpn_mc,
+        dissect_lsp_avaya_ipvpn_mc
+    },
+    {
+        ISIS_CLV_AVAYA_IP_GRT_MC,
+        "Avaya IP GRT MCast",
+        &ett_isis_lsp_clv_avaya_ip_grt_mc,
+        dissect_lsp_avaya_ip_grt_mc
+    },
+    {
         0,
         "",
         NULL,
@@ -4010,7 +4182,7 @@ static const isis_clv_handle_t clv_l2_lsp_opts[] = {
     {
         ISIS_CLV_PROTOCOLS_SUPPORTED,
         "Protocols supported",
-        &ett_isis_lsp_clv_nlpid,
+        &ett_isis_lsp_clv_nlpid_nlpid,
         dissect_lsp_nlpid_clv
     },
     {
@@ -5778,9 +5950,9 @@ proto_register_isis_lsp(void)
               FT_UINT16, BASE_DEC, NULL, 0x0,
               NULL, HFILL }
         },
-        { &hf_isis_lsp_clv_nlpid,
-            { "NLPID", "isis.lsp.clv_nlpid",
-              FT_BYTES, BASE_NONE|BASE_ALLOW_ZERO, NULL, 0x0,
+        { &hf_isis_lsp_clv_nlpid_nlpid,
+            { "NLPID", "isis.lsp.clv_nlpid.nlpid",
+              FT_UINT8, BASE_HEX, NULL, 0x0,
               NULL, HFILL }
         },
         { &hf_isis_lsp_ip_authentication,
@@ -5910,6 +6082,97 @@ proto_register_isis_lsp(void)
               FT_UINT24, BASE_DEC, NULL, 0x0FFFFF,
               NULL, HFILL }
         },
+	/* Avaya proprietary */
+        { &hf_isis_lsp_avaya_147_unknown,
+            { "Unknown", "isis.lsp.avaya.147.unknown",
+              FT_BYTES, BASE_NONE, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_avaya_147_mac,
+            { "Chassis MAC", "isis.lsp.avaya.147.chassismac",
+              FT_ETHER, BASE_NONE, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_avaya_147_fanmcast,
+            { "FAN Mcast", "isis.lsp.avaya.147.fanmcast",
+              FT_ETHER, BASE_NONE, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_avaya_ipvpn_unknown,
+            { "Unknown", "isis.lsp.avaya.ipvpn.unknown",
+              FT_BYTES, BASE_NONE, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_avaya_ipvpn_system_id,
+            { "System-ID", "isis.lsp.avaya.ipvpn.system_id",
+              FT_SYSTEM_ID, BASE_NONE, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_avaya_ipvpn_vrfsid,
+            { "Vrf I-SID", "isis.lsp.avaya.ipvpn.vrfsid",
+              FT_UINT24, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_avaya_ipvpn_subtlvbytes,
+            { "SubTLV Bytes", "isis.lsp.avaya.ipvpn.subtlvbytes",
+              FT_UINT8, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_avaya_ipvpn_subtlvtype,
+            { "SubTLV Type", "isis.lsp.avaya.ipvpn.subtlvtype",
+              FT_UINT8, BASE_DEC, VALS(isis_lsp_avaya_ipvpn_subtlv_code_vals), 0x0,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_avaya_ipvpn_subtlvlength,
+            { "SubTLV Length", "isis.lsp.avaya.ipvpn.subtlvlength",
+              FT_UINT8, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_avaya_ipvpn_unknown_sub,
+            { "Unknown", "isis.lsp.avaya.ipvpn.sub.unknown",
+              FT_BYTES, BASE_NONE, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_avaya_ipvpn_ipv4_metric,
+            { "Metric", "isis.lsp.avaya.ipvpn.ipv4.metric",
+              FT_UINT32, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_avaya_ipvpn_ipv4_addr,
+            { "IPv4 Address", "isis.lsp.avaya.ipvpn.ipv4.address",
+              FT_IPv4, BASE_NONE, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_avaya_ipvpn_ipv4_mask,
+            { "IPv4 Mask", "isis.lsp.avaya.ipvpn.ipv4.mask",
+              FT_IPv4, BASE_NONE, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_avaya_ipvpn_ipv6_metric,
+            { "Metric", "isis.lsp.avaya.ipvpn.ipv6.metric",
+              FT_UINT32, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_avaya_ipvpn_ipv6_prefixlen,
+            { "Prefix length", "isis.lsp.avaya.ipvpn.ipv6.prefixlen",
+              FT_UINT16, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_avaya_ipvpn_ipv6_prefix,
+            { "Prefix", "isis.lsp.avaya.ipvpn.ipv6.prefix",
+              FT_IPv6, BASE_NONE, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_avaya_185_unknown,
+            { "Unknown", "isis.lsp.avaya.185.unknown",
+              FT_BYTES, BASE_NONE, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_avaya_186_unknown,
+            { "Unknown", "isis.lsp.avaya.186.unknown",
+              FT_BYTES, BASE_NONE, NULL, 0x0,
+              NULL, HFILL }
+        },
     };
     static gint *ett[] = {
         &ett_isis_lsp,
@@ -5932,7 +6195,7 @@ proto_register_isis_lsp(void)
         &ett_isis_lsp_clv_prefix_neighbors,
         &ett_isis_lsp_clv_authentication,
         &ett_isis_lsp_clv_ip_authentication,
-        &ett_isis_lsp_clv_nlpid,
+        &ett_isis_lsp_clv_nlpid_nlpid,
         &ett_isis_lsp_clv_hostname,
         &ett_isis_lsp_clv_srlg,
         &ett_isis_lsp_clv_ipv4_int_addr,
@@ -5988,7 +6251,12 @@ proto_register_isis_lsp(void)
         &ett_isis_lsp_sl_flags,
         &ett_isis_lsp_sl_sub_tlv,
         &ett_isis_lsp_sl_sub_tlv_flags,
-        &ett_isis_lsp_clv_ipv6_te_router_id /* CLV 140, rfc6119 */
+        &ett_isis_lsp_clv_ipv6_te_router_id, /* CLV 140, rfc6119 */
+        &ett_isis_lsp_clv_avaya_mac, /* Avaya/Extremenetworks proprietary */
+        &ett_isis_lsp_clv_avaya_ipvpn,
+        &ett_isis_lsp_clv_avaya_ipvpn_subtlv,
+        &ett_isis_lsp_clv_avaya_ipvpn_mc,
+        &ett_isis_lsp_clv_avaya_ip_grt_mc
     };
 
     static ei_register_info ei[] = {
@@ -5999,9 +6267,11 @@ proto_register_isis_lsp(void)
         { &ei_isis_lsp_authentication, { "isis.lsp.authentication.unknown", PI_PROTOCOL, PI_WARN, "Unknown authentication type", EXPFILL }},
         { &ei_isis_lsp_short_clv, { "isis.lsp.short_clv", PI_MALFORMED, PI_ERROR, "Short CLV", EXPFILL }},
         { &ei_isis_lsp_long_clv, { "isis.lsp.long_clv", PI_MALFORMED, PI_ERROR, "Long CLV", EXPFILL }},
+        { &ei_isis_lsp_length_clv, { "isis.lsp.length_clv", PI_MALFORMED, PI_ERROR, "Wrong length CLV", EXPFILL }},
         { &ei_isis_lsp_clv_mt, { "isis.lsp.clv_mt.malformed", PI_MALFORMED, PI_ERROR, "malformed MT-ID", EXPFILL }},
         { &ei_isis_lsp_clv_unknown, { "isis.lsp.clv.unknown", PI_UNDECODED, PI_NOTE, "Unknown option", EXPFILL }},
         { &ei_isis_lsp_malformed_subtlv, { "isis.lsp.subtlv.malformed", PI_MALFORMED, PI_ERROR, "malformed SubTLV", EXPFILL }},
+        { &ei_isis_lsp_unknown_subtlv, { "isis.lsp.subtlv.unknown", PI_UNDECODED, PI_NOTE, "Unknown SubTLV", EXPFILL }},
         { &ei_isis_lsp_reserved_not_zero, { "isis.lsp.reserved_not_zero", PI_PROTOCOL, PI_WARN, "Reserve bit not 0", EXPFILL }},
         { &ei_isis_lsp_length_invalid, { "isis.lsp.length.invalid", PI_PROTOCOL, PI_WARN, "Invalid length", EXPFILL }},
     };
