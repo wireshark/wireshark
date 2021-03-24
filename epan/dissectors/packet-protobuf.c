@@ -150,7 +150,6 @@ static gboolean dissect_bytes_as_string = FALSE;
 static gboolean old_dissect_bytes_as_string = FALSE;
 static gboolean show_details = FALSE;
 static gboolean pbf_as_hf = FALSE; /* dissect protobuf fields as header fields of wireshark */
-static gboolean subdissect_all_pbf_types = FALSE; /* Allow subdissector for all protobuf fields */
 static gboolean preload_protos = FALSE;
 
 enum add_default_value_policy_t {
@@ -505,8 +504,7 @@ protobuf_dissect_field_value(proto_tree *value_tree, tvbuff_t *tvb, guint offset
     proto_tree* field_parent_tree = proto_tree_get_parent_tree(field_tree);
     proto_tree* pbf_tree = field_tree;
     nstime_t timestamp = { 0 };
-    dissector_handle_t field_dissector = (field_full_name && (subdissect_all_pbf_types || field_type == PROTOBUF_TYPE_BYTES || field_type == PROTOBUF_TYPE_STRING)) ?
-        dissector_get_string_handle(protobuf_field_subdissector_table, field_full_name) : NULL;
+    dissector_handle_t field_dissector = field_full_name ? dissector_get_string_handle(protobuf_field_subdissector_table, field_full_name) : NULL;
 
     if (pbf_as_hf && field_full_name) {
         hf_id_ptr = (int*)g_hash_table_lookup(pbf_hf_hash, field_full_name);
@@ -2047,19 +2045,12 @@ proto_register_protobuf(void)
 
     prefs_register_static_text_preference(protobuf_module, "field_dissector_table_note",
         "Subdissector can register itself in \"protobuf_field\" dissector table for parsing"
-        " the value of the field of bytes or string type.",
+        " the value of the field.",
         "The key of \"protobuf_field\" table is the full name of field.");
 
     protobuf_field_subdissector_table =
         register_dissector_table("protobuf_field", "Protobuf field subdissector table",
             proto_protobuf, FT_STRING, BASE_NONE);
-
-    prefs_register_bool_preference(protobuf_module, "subdissect_all_pbf_types",
-        "Enable subdissector for all protobuf fields.",
-        "Subdissector can be register itself for Protobuf fields of all types if this option is turned on.",
-        &subdissect_all_pbf_types);
-
-    prefs_set_preference_effect_fields(protobuf_module, "subdissect_all_pbf_types");
 
     expert_protobuf = expert_register_protocol(proto_protobuf);
     expert_register_field_array(expert_protobuf, ei, array_length(ei));
