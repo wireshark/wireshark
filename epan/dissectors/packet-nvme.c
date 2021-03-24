@@ -280,7 +280,31 @@ static int hf_nvme_get_logpage_errinf_rsvd0 = -1;
 static int hf_nvme_get_logpage_errinf_csi = -1;
 static int hf_nvme_get_logpage_errinf_tsi = -1;
 static int hf_nvme_get_logpage_errinf_rsvd1 = -1;
-
+static int hf_nvme_get_logpage_smart_cw[8] = { NEG_LST_8};
+static int hf_nvme_get_logpage_smart_ct = -1;
+static int hf_nvme_get_logpage_smart_asc = -1;
+static int hf_nvme_get_logpage_smart_ast = -1;
+static int hf_nvme_get_logpage_smart_lpu = -1;
+static int hf_nvme_get_logpage_smart_egcws[6] = { NEG_LST_6};
+static int hf_nvme_get_logpage_smart_rsvd0 = -1;
+static int hf_nvme_get_logpage_smart_dur = -1;
+static int hf_nvme_get_logpage_smart_duw = -1;
+static int hf_nvme_get_logpage_smart_hrc = -1;
+static int hf_nvme_get_logpage_smart_hwc = -1;
+static int hf_nvme_get_logpage_smart_cbt = -1;
+static int hf_nvme_get_logpage_smart_pc = -1;
+static int hf_nvme_get_logpage_smart_poh = -1;
+static int hf_nvme_get_logpage_smart_us = -1;
+static int hf_nvme_get_logpage_smart_mie = -1;
+static int hf_nvme_get_logpage_smart_ele = -1;
+static int hf_nvme_get_logpage_smart_wctt = -1;
+static int hf_nvme_get_logpage_smart_cctt = -1;
+static int hf_nvme_get_logpage_smart_ts[9] = { NEG_LST_9 };
+static int hf_nvme_get_logpage_smart_tmt1c = -1;
+static int hf_nvme_get_logpage_smart_tmt2c = -1;
+static int hf_nvme_get_logpage_smart_tmt1t = -1;
+static int hf_nvme_get_logpage_smart_tmt2t = -1;
+static int hf_nvme_get_logpage_smart_rsvd1 = -1;
 
 /* NVMe CQE fields */
 static int hf_nvme_cqe_sts = -1;
@@ -1074,10 +1098,16 @@ static void add_ctrl_hmpre(gchar *result, guint32 val)
     g_snprintf(result, ITEM_LABEL_LENGTH, "0x%x (%"G_GUINT64_FORMAT" bytes)", val, ((guint64)(val)) * 4096);
 }
 
-static void post_add_cap(proto_item *ti, tvbuff_t *tvb, guint off)
+static void post_add_bytes_from_16bytes(proto_item *ti, tvbuff_t *tvb, guint off, guint8 shiftl)
 {
     guint64 lo = tvb_get_guint64(tvb, off, 0);
     guint64 hi = tvb_get_guint64(tvb, off, 8);
+
+    if (shiftl) {
+        hi = hi << shiftl;
+        hi |= (lo >> (64-shiftl));
+        lo = lo << shiftl;
+    }
     if (hi) {
         if (!(hi >> 10))
             proto_item_append_text(ti, " (%" G_GUINT64_FORMAT " KiB)", (hi << 54) | (lo >> 10));
@@ -1196,9 +1226,9 @@ static void dissect_nvme_identify_ctrl_resp(tvbuff_t *cmd_tvb,
     proto_tree_add_item(cmd_tree, hf_nvme_identify_ctrl_hmmin, cmd_tvb, 276, 4, ENC_LITTLE_ENDIAN);
 
     ti = proto_tree_add_item(cmd_tree, hf_nvme_identify_ctrl_tnvmcap, cmd_tvb, 280, 16, ENC_NA);
-    post_add_cap(ti, cmd_tvb, 280);
+    post_add_bytes_from_16bytes(ti, cmd_tvb, 280, 0);
     ti = proto_tree_add_item(cmd_tree, hf_nvme_identify_ctrl_unvmcap, cmd_tvb, 296, 16, ENC_NA);
-    post_add_cap(ti, cmd_tvb, 296);
+    post_add_bytes_from_16bytes(ti, cmd_tvb, 296, 0);
 
     add_group_mask_entry(cmd_tvb, cmd_tree, 312, 4, ASPEC(hf_nvme_identify_ctrl_rpmbs));
     proto_tree_add_item(cmd_tree, hf_nvme_identify_ctrl_edstt, cmd_tvb, 316, 2, ENC_LITTLE_ENDIAN);
@@ -1555,6 +1585,138 @@ static void dissect_nvme_get_logpage_err_inf_resp(proto_item *ti, tvbuff_t *cmd_
         proto_tree_add_item(grp, hf_nvme_get_logpage_errinf_rsvd1, cmd_tvb, 42-off, 24, ENC_NA);
 }
 
+static void post_add_intval_from_16bytes(proto_item *ti, tvbuff_t *tvb, guint off)
+{
+    guint64 lo = tvb_get_guint64(tvb, off, 0);
+    guint64 hi = tvb_get_guint64(tvb, off, 8);
+    double res;
+
+    res = hi;
+    res *= (((guint64)1) << 63);
+    res *= 2;
+    res += lo;
+    if (res > 99999999)
+        proto_item_append_text(ti, " (%.8le)", res);
+    else
+        proto_item_append_text(ti, " (%.0lf)", res);
+}
+
+static void decode_smart_resp_temps(proto_tree *grp, tvbuff_t *cmd_tvb, guint off, guint len)
+{
+    proto_item *ti;
+    guint bytes;
+    guint poff;
+    guint max_bytes;
+    guint i;
+
+
+    poff = (off < 200) ? 200-off : off;
+
+    if (off > 214 || (poff + 2) > len)
+        return;
+
+    bytes = len - poff;
+    max_bytes = (off <= 200) ? 16 : (216 - off);
+
+    if (bytes > max_bytes)
+        bytes = max_bytes;
+
+    ti = proto_tree_add_item(grp, hf_nvme_get_logpage_smart_ts[0],  cmd_tvb, poff, max_bytes, ENC_NA);
+    grp =  proto_item_add_subtree(ti, ett_data);
+    for (i = 0; i < 8; i++) {
+        guint pos = 200 + i * 2;
+        if (off <= pos && (off + pos + 2) <= len)
+            proto_tree_add_item(grp, hf_nvme_get_logpage_smart_ts[i+1],  cmd_tvb, pos - off, 2, ENC_LITTLE_ENDIAN);
+    }
+}
+
+static void dissect_nvme_get_logpage_smart_resp(proto_item *ti, tvbuff_t *cmd_tvb, struct nvme_cmd_ctx *cmd_ctx, guint len)
+{
+    guint32 off = cmd_ctx->cmd_ctx.get_logpage.off & 0xffffffff; /* need guint type to silence clang-11 errors */
+    proto_tree *grp;
+
+    if (cmd_ctx->cmd_ctx.get_logpage.off >= 512)
+        return; /* max allowed offset is < 512, so we do not loose bits by casting to guint type */
+
+    grp =  proto_item_add_subtree(ti, ett_data);
+    if (!off && len >= 1)
+        add_group_mask_entry(cmd_tvb, grp, 0, 1, ASPEC(hf_nvme_get_logpage_smart_cw));
+    if (off <= 1 && (3 -off) <= len)
+        proto_tree_add_item(grp, hf_nvme_get_logpage_smart_ct,  cmd_tvb, 1-off, 2, ENC_LITTLE_ENDIAN);
+    if (off <= 3 && (4 -off) <= len)
+        proto_tree_add_item(grp, hf_nvme_get_logpage_smart_asc,  cmd_tvb, 3-off, 1, ENC_LITTLE_ENDIAN);
+    if (off <= 4 && (5 -off) <= len)
+        proto_tree_add_item(grp, hf_nvme_get_logpage_smart_ast,  cmd_tvb, 4-off, 1, ENC_LITTLE_ENDIAN);
+    if (off <= 5 && (6 -off) <= len)
+        proto_tree_add_item(grp, hf_nvme_get_logpage_smart_lpu,  cmd_tvb, 5-off, 1, ENC_LITTLE_ENDIAN);
+    if (off <= 6 && (7 -off) <= len)
+        add_group_mask_entry(cmd_tvb, grp, 6-off, 1, ASPEC(hf_nvme_get_logpage_smart_egcws));
+    if (off <= 7 && (32 -off) <= len)
+        proto_tree_add_item(grp, hf_nvme_get_logpage_smart_rsvd0,  cmd_tvb, 7-off, 25, ENC_NA);
+    if (off <= 32 && (48 -off) <= len) {
+        ti = proto_tree_add_item(grp, hf_nvme_get_logpage_smart_dur,  cmd_tvb, 32-off, 16, ENC_NA);
+        post_add_bytes_from_16bytes(ti, cmd_tvb, 32-off, 16);
+    }
+    if (off <= 48 && (64 -off) <= len) {
+        ti = proto_tree_add_item(grp, hf_nvme_get_logpage_smart_duw,  cmd_tvb, 48-off, 16, ENC_NA);
+        post_add_bytes_from_16bytes(ti, cmd_tvb, 48-off, 16);
+    }
+    if (off <= 64 && (80 -off) <= len) {
+        ti = proto_tree_add_item(grp, hf_nvme_get_logpage_smart_hrc,  cmd_tvb, 64-off, 16, ENC_NA);
+        post_add_intval_from_16bytes(ti, cmd_tvb, 64-off);
+    }
+    if (off <= 80 && (96 -off) <= len) {
+        ti = proto_tree_add_item(grp, hf_nvme_get_logpage_smart_hwc,  cmd_tvb, 80-off, 16, ENC_NA);
+        post_add_intval_from_16bytes(ti, cmd_tvb, 80-off);
+    }
+    if (off <= 96 && (112 -off) <= len) {
+        ti = proto_tree_add_item(grp, hf_nvme_get_logpage_smart_cbt,  cmd_tvb, 96-off, 16, ENC_NA);
+        post_add_intval_from_16bytes(ti, cmd_tvb, 96-off);
+    }
+    if (off <= 112 && (128 -off) <= len) {
+        ti = proto_tree_add_item(grp, hf_nvme_get_logpage_smart_pc,  cmd_tvb, 112-off, 16, ENC_NA);
+        post_add_intval_from_16bytes(ti, cmd_tvb, 112-off);
+    }
+    if (off <= 128 && (144 -off) <= len) {
+        ti = proto_tree_add_item(grp, hf_nvme_get_logpage_smart_poh,  cmd_tvb, 128-off, 16, ENC_NA);
+        post_add_intval_from_16bytes(ti, cmd_tvb, 128-off);
+    }
+    if (off <= 144 && (160 -off) <= len) {
+        ti = proto_tree_add_item(grp, hf_nvme_get_logpage_smart_us,  cmd_tvb, 144-off, 16, ENC_NA);
+        post_add_intval_from_16bytes(ti, cmd_tvb, 144-off);
+    }
+    if (off <= 160 && (176 -off) <= len) {
+        ti = proto_tree_add_item(grp, hf_nvme_get_logpage_smart_mie,  cmd_tvb, 160-off, 16, ENC_NA);
+        post_add_intval_from_16bytes(ti, cmd_tvb, 160-off);
+    }
+    if (off <= 176 && (192 -off) <= len) {
+        ti = proto_tree_add_item(grp, hf_nvme_get_logpage_smart_ele,  cmd_tvb, 176-off, 16, ENC_NA);
+        post_add_intval_from_16bytes(ti, cmd_tvb, 176-off);
+    }
+    if (off <= 192 && (196 -off) <= len)
+        proto_tree_add_item(grp, hf_nvme_get_logpage_smart_wctt,  cmd_tvb, 192-off, 4, ENC_LITTLE_ENDIAN);
+    if (off <= 196 && (200 -off) <= len)
+        proto_tree_add_item(grp, hf_nvme_get_logpage_smart_cctt,  cmd_tvb, 196-off, 4, ENC_LITTLE_ENDIAN);
+
+    decode_smart_resp_temps(grp, cmd_tvb, off, len);
+
+    if (off <= 216 && (220 -off) <= len)
+        proto_tree_add_item(grp, hf_nvme_get_logpage_smart_tmt1c,  cmd_tvb, 216-off, 4, ENC_LITTLE_ENDIAN);
+    if (off <= 220 && (224 -off) <= len)
+        proto_tree_add_item(grp, hf_nvme_get_logpage_smart_tmt2c,  cmd_tvb, 220-off, 4, ENC_LITTLE_ENDIAN);
+    if (off <= 224 && (228 -off) <= len)
+        proto_tree_add_item(grp, hf_nvme_get_logpage_smart_tmt1t,  cmd_tvb, 224-off, 4, ENC_LITTLE_ENDIAN);
+    if (off <= 228 && (232 -off) <= len)
+        proto_tree_add_item(grp, hf_nvme_get_logpage_smart_tmt2t,  cmd_tvb, 228-off, 4, ENC_LITTLE_ENDIAN);
+    if (off < 512) {
+        guint poff = (off < 232) ? 232 : off;
+        guint max_len = (off <= 232) ? 280 : 512 - off;
+        len =- poff;
+        if (len > max_len)
+            len = max_len;
+        proto_tree_add_item(grp, hf_nvme_get_logpage_smart_rsvd1,  cmd_tvb, poff, len, ENC_NA);
+    }
+}
 
 static void dissect_nvme_get_logpage_resp(tvbuff_t *cmd_tvb, proto_tree *cmd_tree, struct nvme_cmd_ctx *cmd_ctx, guint len)
 {
@@ -1565,6 +1727,8 @@ static void dissect_nvme_get_logpage_resp(tvbuff_t *cmd_tvb, proto_tree *cmd_tre
             return dissect_nvme_get_logpage_ify_resp(ti, cmd_tvb, cmd_ctx, len);
         case 0x1:
             return dissect_nvme_get_logpage_err_inf_resp(ti, cmd_tvb, cmd_ctx, len);
+        case 0x2:
+            return dissect_nvme_get_logpage_smart_resp(ti, cmd_tvb, cmd_ctx, len);
         default:
             return;
     }
@@ -3319,6 +3483,187 @@ proto_register_nvme(void)
         },
         { &hf_nvme_get_logpage_errinf_rsvd1,
             { "Namespace ID", "nvme.cmd.get_logpage.errinf.rsvd1",
+               FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
+        },
+        /* Get LogPage SMART response */
+        { &hf_nvme_get_logpage_smart_cw[0],
+            { "Critical Warning", "nvme.cmd.get_logpage.smart.cw",
+               FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_smart_cw[1],
+            { "Spare Capacity Below Threshold", "nvme.cmd.get_logpage.smart.cw.sc",
+               FT_BOOLEAN, 8, NULL, 0x1, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_smart_cw[2],
+            { "Temperature Crossed Threshold", "nvme.cmd.get_logpage.smart.cw.temp",
+               FT_BOOLEAN, 8, NULL, 0x2, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_smart_cw[3],
+            { "Reliability Degraded due to Significant Media Errors", "nvme.cmd.get_logpage.smart.cw.sme",
+               FT_BOOLEAN, 8, NULL, 0x4, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_smart_cw[4],
+            { "Media Placed in RO State", "nvme.cmd.get_logpage.smart.cw.ro",
+               FT_BOOLEAN, 8, NULL, 0x8, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_smart_cw[5],
+            { "Volatile Memory Backup Device Has Failed", "nvme.cmd.get_logpage.smart.cw.bdf",
+               FT_BOOLEAN, 8, NULL, 0x10, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_smart_cw[6],
+            { "Persistent Memory Region Placed in RO State", "nvme.cmd.get_logpage.smart.cw.mrro",
+               FT_BOOLEAN, 8, NULL, 0x20, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_smart_cw[7],
+            { "Reserved", "nvme.cmd.get_logpage.smart.cw.rsvd",
+               FT_UINT8, BASE_HEX, NULL, 0xe0, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_smart_ct,
+            { "Composite Temperature (degrees K)", "nvme.cmd.get_logpage.smart.ct",
+               FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_smart_asc,
+            { "Available Spare Capacity (%)", "nvme.cmd.get_logpage.smart.asc",
+               FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_smart_ast,
+            { "Available Spare Capacity Threshold (%)", "nvme.cmd.get_logpage.smart.ast",
+               FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_smart_lpu,
+            { "Life Age Estimate (%)", "nvme.cmd.get_logpage.smart.lae",
+               FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_smart_egcws[0],
+            { "Endurance Group Critical Warning Summary", "nvme.cmd.get_logpage.smart.egcws",
+               FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_smart_egcws[1],
+            { "Spare Capacity of Endurance Group Below Threshold", "nvme.cmd.get_logpage.smart.egcws.sc",
+               FT_BOOLEAN, 8, NULL, 0x1, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_smart_egcws[2],
+            { "Reserved", "nvme.cmd.get_logpage.smart.egcws.rsvd0",
+               FT_BOOLEAN, 8, NULL, 0x2, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_smart_egcws[3],
+            { "Reliability of Endurance Group Degraded due to Media Errors", "nvme.cmd.get_logpage.smart.egcws.me",
+               FT_BOOLEAN, 8, NULL, 0x4, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_smart_egcws[4],
+            { "A Namespace in Endurance Group Plased in RO State", "nvme.cmd.get_logpage.smart.egcws.ro",
+               FT_BOOLEAN, 8, NULL, 0x8, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_smart_egcws[5],
+            { "Reserved", "nvme.cmd.get_logpage.smart.egcws.rsvd1",
+               FT_UINT8, BASE_HEX, NULL, 0xf0, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_smart_rsvd0,
+            { "Reserved", "nvme.cmd.get_logpage.smart.rsvd0",
+               FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_smart_dur,
+            { "Data Units Read", "nvme.cmd.get_logpage.smart.dur",
+               FT_BYTES, BASE_NO_DISPLAY_VALUE, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_smart_duw,
+            { "Data Units Written", "nvme.cmd.get_logpage.smart.duw",
+               FT_BYTES, BASE_NO_DISPLAY_VALUE, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_smart_hrc,
+            { "Host Read Commands", "nvme.cmd.get_logpage.smart.hrc",
+               FT_BYTES, BASE_NO_DISPLAY_VALUE, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_smart_hwc,
+            { "Host Write Commands", "nvme.cmd.get_logpage.smart.hwc",
+               FT_BYTES, BASE_NO_DISPLAY_VALUE, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_smart_cbt,
+            { "Controller Busy Time (minutes)", "nvme.cmd.get_logpage.smart.cbt",
+               FT_BYTES, BASE_NO_DISPLAY_VALUE, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_smart_pc,
+            { "Power Cycles", "nvme.cmd.get_logpage.smart.pc",
+               FT_BYTES, BASE_NO_DISPLAY_VALUE, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_smart_poh,
+            { "Power On Hours", "nvme.cmd.get_logpage.smart.poh",
+               FT_BYTES, BASE_NO_DISPLAY_VALUE, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_smart_mie,
+            { "Media Integrity Errors", "nvme.cmd.get_logpage.smart.mie",
+               FT_BYTES, BASE_NO_DISPLAY_VALUE, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_smart_us,
+            { "Unsafe Shutdowns", "nvme.cmd.get_logpage.smart.us",
+               FT_BYTES, BASE_NO_DISPLAY_VALUE, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_smart_ele,
+            { "Number of Error Information Log Entries", "nvme.cmd.get_logpage.smart.ele",
+               FT_BYTES, BASE_NO_DISPLAY_VALUE, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_smart_wctt,
+            { "Warning Composite Temperature Time (minutes)", "nvme.cmd.get_logpage.smart.wctt",
+               FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_smart_cctt,
+            { "Critical Composite Temperature Time (minutes)", "nvme.cmd.get_logpage.smart.cctt",
+               FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_smart_ts[0],
+            { "Temperature Sensors", "nvme.cmd.get_logpage.smart.ts",
+               FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_smart_ts[1],
+            { "Temperature Sensor 1 (degrees K)", "nvme.cmd.get_logpage.smart.ts.s1",
+               FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_smart_ts[2],
+            { "Temperature Sensor 2 (degrees K)", "nvme.cmd.get_logpage.smart.ts.s2",
+               FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_smart_ts[3],
+            { "Temperature Sensor 3 (degrees K)", "nvme.cmd.get_logpage.smart.ts.s3",
+               FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_smart_ts[4],
+            { "Temperature Sensor 4 (degrees K)", "nvme.cmd.get_logpage.smart.ts.s4",
+               FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_smart_ts[5],
+            { "Temperature Sensor 5 (degrees K)", "nvme.cmd.get_logpage.smart.ts.s5",
+               FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_smart_ts[6],
+            { "Temperature Sensor 6 (degrees K)", "nvme.cmd.get_logpage.smart.ts.s6",
+               FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_smart_ts[7],
+            { "Temperature Sensor 7 (degrees K)", "nvme.cmd.get_logpage.smart.ts.s7",
+               FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_smart_ts[8],
+            { "Temperature Sensor 8 (degrees K)", "nvme.cmd.get_logpage.smart.ts.s8",
+               FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_smart_tmt1c,
+            { "Thermal Management Temperature 1 Transition Count", "nvme.cmd.get_logpage.smart.tmt1c",
+               FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_smart_tmt2c,
+            { "Thermal Management Temperature 2 Transition Count", "nvme.cmd.get_logpage.smart.tmt2c",
+               FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_smart_tmt1t,
+            { "Total Time For Thermal Management Temperature 1 (seconds)", "nvme.cmd.get_logpage.smart.tmt1t",
+               FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_smart_tmt2t,
+            { "Total Time For Thermal Management Temperature 2 (seconds)", "nvme.cmd.get_logpage.smart.tmt2t",
+               FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_smart_rsvd1,
+            { "Reserved", "nvme.cmd.get_logpage.smart.rsvd1",
                FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
         },
         /* NVMe Response fields */
