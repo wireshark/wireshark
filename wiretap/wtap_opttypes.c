@@ -125,8 +125,6 @@ static void wtap_opttype_block_register(wtap_blocktype_t *blocktype)
 
     block_type = blocktype->block_type;
 
-    block_type = blocktype->block_type;
-
     /* Check input */
     g_assert(block_type < MAX_WTAP_BLOCK_TYPE_VALUE);
 
