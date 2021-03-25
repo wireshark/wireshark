@@ -2868,7 +2868,7 @@ void proto_register_gvsp(void)
         }},
 
         {& hf_gvsp_sropinterleavingdepth,
-        { "srop_interlaving_depth", "gvsp.sropinterleavingdepth",
+        { "srop_interleaving_depth", "gvsp.sropinterleavingdepth",
         FT_UINT16, BASE_HEX, NULL, 0,
         NULL, HFILL
         }},
