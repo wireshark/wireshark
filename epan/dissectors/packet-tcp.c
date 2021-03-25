@@ -441,6 +441,15 @@ static gboolean tcp_no_subdissector_on_error = TRUE;
  */
 static gboolean tcp_exp_options_with_magic = TRUE;
 
+/*
+ * This flag indicates which of Fast Retransmission or Out-of-Order
+ * interpretation should supersede when analyzing an ambiguous packet as
+ * things are not always clear. The user is authorized to change this
+ * behavior.
+ * When set, we keep the historical interpretation (Fast RT > OOO)
+ */
+static gboolean tcp_fastrt_precedence = TRUE;
+
 /* Process info, currently discovered via IPFIX */
 static gboolean tcp_display_process_info = FALSE;
 
@@ -2248,47 +2257,58 @@ finished_fwd:
             goto finished_checking_retransmission_type;
         }
 
-        /* If there were >=2 duplicate ACKs in the reverse direction
-         * (there might be duplicate acks missing from the trace)
-         * and if this sequence number matches those ACKs
-         * and if the packet occurs within 20ms of the last
-         * duplicate ack
-         * then this is a fast retransmission
-         */
-        t=(pinfo->abs_ts.secs-tcpd->rev->tcp_analyze_seq_info->lastacktime.secs)*1000000000;
-        t=t+(pinfo->abs_ts.nsecs)-tcpd->rev->tcp_analyze_seq_info->lastacktime.nsecs;
-        if( seq_not_advanced
-        &&  tcpd->rev->tcp_analyze_seq_info->dupacknum>=2
-        &&  tcpd->rev->tcp_analyze_seq_info->lastack==seq
-        &&  t<20000000 ) {
-            if(!tcpd->ta) {
-                tcp_analyze_get_acked_struct(pinfo->num, seq, ack, TRUE, tcpd);
-            }
-            tcpd->ta->flags|=TCP_A_FAST_RETRANSMISSION;
-            goto finished_checking_retransmission_type;
-        }
+        gboolean precedence_count = tcp_fastrt_precedence;
+        do {
+            switch(precedence_count) {
+                case TRUE:
+                    /* If there were >=2 duplicate ACKs in the reverse direction
+                     * (there might be duplicate acks missing from the trace)
+                     * and if this sequence number matches those ACKs
+                     * and if the packet occurs within 20ms of the last
+                     * duplicate ack
+                     * then this is a fast retransmission
+                     */
+                    t=(pinfo->abs_ts.secs-tcpd->rev->tcp_analyze_seq_info->lastacktime.secs)*1000000000;
+                    t=t+(pinfo->abs_ts.nsecs)-tcpd->rev->tcp_analyze_seq_info->lastacktime.nsecs;
+                    if( seq_not_advanced
+                    &&  tcpd->rev->tcp_analyze_seq_info->dupacknum>=2
+                    &&  tcpd->rev->tcp_analyze_seq_info->lastack==seq
+                    &&  t<20000000 ) {
+                        if(!tcpd->ta) {
+                            tcp_analyze_get_acked_struct(pinfo->num, seq, ack, TRUE, tcpd);
+                        }
+                        tcpd->ta->flags|=TCP_A_FAST_RETRANSMISSION;
+                        goto finished_checking_retransmission_type;
+                    }
+                    precedence_count=!precedence_count;
+                    break;
 
-        /* If the segment came relatively close since the segment with the highest
-         * seen sequence number and it doesn't look like a retransmission
-         * then it is an OUT-OF-ORDER segment.
-         */
-        t=(pinfo->abs_ts.secs-tcpd->fwd->tcp_analyze_seq_info->nextseqtime.secs)*1000000000;
-        t=t+(pinfo->abs_ts.nsecs)-tcpd->fwd->tcp_analyze_seq_info->nextseqtime.nsecs;
-        if (tcpd->ts_first_rtt.nsecs == 0 && tcpd->ts_first_rtt.secs == 0) {
-            ooo_thres = 3000000;
-        } else {
-            ooo_thres = tcpd->ts_first_rtt.nsecs + tcpd->ts_first_rtt.secs*1000000000;
-        }
+                case FALSE:
+                    /* If the segment came relatively close since the segment with the highest
+                     * seen sequence number and it doesn't look like a retransmission
+                     * then it is an OUT-OF-ORDER segment.
+                     */
+                    t=(pinfo->abs_ts.secs-tcpd->fwd->tcp_analyze_seq_info->nextseqtime.secs)*1000000000;
+                    t=t+(pinfo->abs_ts.nsecs)-tcpd->fwd->tcp_analyze_seq_info->nextseqtime.nsecs;
+                    if (tcpd->ts_first_rtt.nsecs == 0 && tcpd->ts_first_rtt.secs == 0) {
+                        ooo_thres = 3000000;
+                    } else {
+                        ooo_thres = tcpd->ts_first_rtt.nsecs + tcpd->ts_first_rtt.secs*1000000000;
+                    }
 
-        if( seq_not_advanced // XXX is this neccessary?
-        && t < ooo_thres
-        && tcpd->fwd->tcp_analyze_seq_info->nextseq >= seq + seglen ) {
-            if(!tcpd->ta) {
-                tcp_analyze_get_acked_struct(pinfo->num, seq, ack, TRUE, tcpd);
+                    if( seq_not_advanced // XXX is this neccessary?
+                    && t < ooo_thres
+                    && tcpd->fwd->tcp_analyze_seq_info->nextseq >= seq + seglen ) {
+                        if(!tcpd->ta) {
+                            tcp_analyze_get_acked_struct(pinfo->num, seq, ack, TRUE, tcpd);
+                        }
+                        tcpd->ta->flags|=TCP_A_OUT_OF_ORDER;
+                        goto finished_checking_retransmission_type;
+                    }
+                    precedence_count=!precedence_count;
+                    break;
             }
-            tcpd->ta->flags|=TCP_A_OUT_OF_ORDER;
-            goto finished_checking_retransmission_type;
-        }
+        } while (precedence_count!=tcp_fastrt_precedence) ;
 
         if (seq_not_advanced) {
             /* Then it has to be a generic retransmission */
@@ -8301,6 +8321,10 @@ proto_register_tcp(void)
         "Ignore TCP Timestamps in summary",
         "Do not place the TCP Timestamps in the summary line",
         &tcp_ignore_timestamps);
+    prefs_register_bool_preference(tcp_module, "fastrt_supersedes_ooo",
+        "Fast Retransmission supersedes Out-of-Order interpretation",
+        "When interpreting ambiguous packets, give precedence to Fast Retransmission or OOO ",
+        &tcp_fastrt_precedence);
 
     prefs_register_bool_preference(tcp_module, "no_subdissector_on_error",
         "Do not call subdissectors for error packets",

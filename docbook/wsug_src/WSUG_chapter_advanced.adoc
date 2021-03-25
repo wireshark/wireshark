@@ -608,6 +608,15 @@ Set when the all of the following are true:
 
 Supersedes “TCP Dup ACK”.
 
+// TCP_A_AMBIGUOUS_INTERPRETATIONS
+[discrete]
+==== TCP Ambiguous Interpretations
+
+Some captures are quite difficult to analyze automatically, particularly when the
+time frame may cover both Fast Retransmission and Out-Of-Order packets. A TCP
+preference allows to switch the precedence of these two interpretations at the
+protocol level.
+
 // TCP_A_CONVERSATION_COMPLETENESS
 [discrete]
 ==== TCP Conversation Completeness
