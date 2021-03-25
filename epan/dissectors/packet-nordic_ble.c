@@ -881,7 +881,7 @@ proto_register_nordic_ble(void)
 
     expert_module_t *expert_nordic_ble;
 
-    proto_nordic_ble = proto_register_protocol("Nordic BLE Sniffer", "NORDIC_BLE", "nordic_ble");
+    proto_nordic_ble = proto_register_protocol("nRF Sniffer for Bluetooth LE", "NORDIC_BLE", "nordic_ble");
 
     register_dissector("nordic_ble", dissect_nordic_ble, proto_nordic_ble);
 
