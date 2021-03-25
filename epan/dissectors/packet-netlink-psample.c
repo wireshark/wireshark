@@ -45,8 +45,8 @@ enum ws_psample_attrs {
 	WS_PSAMPLE_ATTR_GROUP_SEQ,
 	WS_PSAMPLE_ATTR_SAMPLE_RATE,
 	WS_PSAMPLE_ATTR_DATA,
-	WS_PSAMPLE_ATTR_TUNNEL,
 	WS_PSAMPLE_ATTR_GROUP_REFCOUNT,
+	WS_PSAMPLE_ATTR_TUNNEL,
 	WS_PSAMPLE_ATTR_PAD,
 	WS_PSAMPLE_ATTR_OUT_TC,
 	WS_PSAMPLE_ATTR_OUT_TC_OCC,
@@ -90,8 +90,8 @@ static const value_string ws_psample_attrs_vals[] = {
 	{ WS_PSAMPLE_ATTR_GROUP_SEQ,		"Group sequence number" },
 	{ WS_PSAMPLE_ATTR_SAMPLE_RATE,		"Sample rate" },
 	{ WS_PSAMPLE_ATTR_DATA,			"Data" },
-	{ WS_PSAMPLE_ATTR_TUNNEL,		"Tunnel" },
 	{ WS_PSAMPLE_ATTR_GROUP_REFCOUNT,	"Group reference count" },
+	{ WS_PSAMPLE_ATTR_TUNNEL,		"Tunnel" },
 	{ WS_PSAMPLE_ATTR_PAD,			"Pad" },
 	{ WS_PSAMPLE_ATTR_OUT_TC,		"Output traffic class" },
 	{ WS_PSAMPLE_ATTR_OUT_TC_OCC,		"Output traffic class occupancy" },
@@ -203,13 +203,13 @@ dissect_psample_attrs(tvbuff_t *tvb, void *data, struct packet_netlink_data *nl_
 		if (!dissector_try_uint(sll_ltype_table, info->protocol, next_tvb, info->pinfo, tree))
 			call_data_dissector(next_tvb, info->pinfo, tree);
 		return 1;
-	case WS_PSAMPLE_ATTR_TUNNEL:
-		/* Currently there is no support for tunnel dissection. */
-		return 0;
 	case WS_PSAMPLE_ATTR_GROUP_REFCOUNT:
 		proto_tree_add_item_ret_uint(tree, &hfi_psample_group_refcount, tvb, offset, len, nl_data->encoding, &value);
 		proto_item_append_text(tree, ": %u", value);
 		return 1;
+	case WS_PSAMPLE_ATTR_TUNNEL:
+		/* Currently there is no support for tunnel dissection. */
+		return 0;
 	case WS_PSAMPLE_ATTR_OUT_TC:
 		proto_tree_add_item_ret_uint(tree, &hfi_psample_out_tc, tvb, offset, len, nl_data->encoding, &value);
 		proto_item_append_text(tree, ": %u", value);
