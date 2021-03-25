@@ -116,6 +116,9 @@ my %APIs = (
                 'strtod',
                 'strcasecmp',
                 'strncasecmp',
+                # Deprecated in glib 2.68 in favor of g_memdup2
+                # We have our local implementation for older versions
+                'g_memdup',
                 'g_strcasecmp',
                 'g_strncasecmp',
                 'g_strup',
