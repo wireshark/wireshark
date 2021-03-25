@@ -310,6 +310,8 @@ static int hf_nvme_get_logpage_fw_slot_rsvd0 = -1;
 static int hf_nvme_get_logpage_fw_slot_frs[8] = { NEG_LST_8 };
 static int hf_nvme_get_logpage_fw_slot_rsvd1 = -1;
 static int hf_nvme_get_logpage_changed_nslist = -1;
+static int hf_nvme_get_logpage_cmd_and_eff_cs = -1;
+static int hf_nvme_get_logpage_cmd_and_eff_cseds[10] = { NEG_LST_10 };
 
 
 /* NVMe CQE fields */
@@ -1793,6 +1795,60 @@ static void dissect_nvme_get_logpage_changed_nslist_resp(proto_item *ti, tvbuff_
     }
 }
 
+static const value_string cmd_eff_cse_tbl[] = {
+    { 0, "No command submission or execution restriction" },
+    { 1, "One concurrent command per namsespace" },
+    { 2, "One concurrent command per system" },
+    { 0, NULL}
+};
+
+static void dissect_nvme_get_logpage_cmd_sup_and_eff_grp(proto_tree *grp, tvbuff_t *cmd_tvb, guint poff, guint nrec, guint fidx, gboolean acs)
+{
+    guint i;
+    proto_item *ti;
+    for (i = 0; i < nrec; i++) {
+        if (acs)
+            ti = proto_tree_add_bytes_format(grp, hf_nvme_get_logpage_cmd_and_eff_cs, cmd_tvb, poff, 4, NULL, "Admin Command Supported %u (ACS%u)", fidx+i, fidx+1);
+        else
+            ti = proto_tree_add_bytes_format(grp, hf_nvme_get_logpage_cmd_and_eff_cs, cmd_tvb, poff, 4, NULL, "I/0 Command Supported %u (IOCS%u)", fidx+i, fidx+1);
+        grp =  proto_item_add_subtree(ti, ett_data);
+        add_group_mask_entry(cmd_tvb, grp, poff, 4, ASPEC(hf_nvme_get_logpage_cmd_and_eff_cseds));
+        poff += 4;
+    }
+}
+
+
+static void dissect_nvme_get_logpage_cmd_sup_and_eff_resp(proto_item *ti, tvbuff_t *cmd_tvb, struct nvme_cmd_ctx *cmd_ctx, guint len)
+{
+    guint32 off = cmd_ctx->cmd_ctx.get_logpage.off & 0xffffffff; /* need guint type to silence clang-11 errors */
+    proto_tree *grp;
+    guint nrec = 0;
+    guint fidx;
+
+    if (cmd_ctx->cmd_ctx.get_logpage.off >= 4096)
+        return; /* max allowed offset is < 4096, so we do not loose bits by casting to guint type */
+
+    grp =  proto_item_add_subtree(ti, ett_data);
+    if (off <= 1024 && len >= 4) {
+        fidx = off / 4;
+        nrec = (1024-off) / 4;
+        if (nrec > (len / 4))
+            nrec = len / 4;
+        dissect_nvme_get_logpage_cmd_sup_and_eff_grp(grp, cmd_tvb, 0, nrec, fidx, TRUE);
+    }
+
+    nrec = len / 4 - nrec;
+    if (!nrec)
+        return;
+    if (nrec > 256)
+        nrec = 256;
+
+    fidx = (off > 1028) ? (off - 1028) / 4 : 0;
+    off = (off < 1028) ? (1028 - off) : 0;
+
+    dissect_nvme_get_logpage_cmd_sup_and_eff_grp(grp, cmd_tvb, off, nrec, fidx, FALSE);
+}
+
 static void dissect_nvme_get_logpage_resp(tvbuff_t *cmd_tvb, proto_tree *cmd_tree, struct nvme_cmd_ctx *cmd_ctx, guint len)
 {
     proto_item *ti = proto_tree_add_bytes_format_value(cmd_tree, hf_nvme_gen_data, cmd_tvb, 0, len, NULL,
@@ -1808,6 +1864,8 @@ static void dissect_nvme_get_logpage_resp(tvbuff_t *cmd_tvb, proto_tree *cmd_tre
             return dissect_nvme_get_logpage_fw_slot_resp(ti, cmd_tvb, cmd_ctx, len);
         case 0x4:
             return dissect_nvme_get_logpage_changed_nslist_resp(ti, cmd_tvb, len);
+        case 0x5:
+            return dissect_nvme_get_logpage_cmd_sup_and_eff_resp(ti, cmd_tvb, cmd_ctx, len);
         default:
             return;
     }
@@ -3810,6 +3868,51 @@ proto_register_nvme(void)
         { &hf_nvme_get_logpage_changed_nslist,
             { "Changed Namespace", "nvme.cmd.get_logpage.changed_nslist",
                FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        /* Commands Supported and Effects Response */
+        { &hf_nvme_get_logpage_cmd_and_eff_cs,
+            { "Command Supported Entry", "nvme.cmd.get_logpage.cmd_and_eff.cs",
+               FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_cmd_and_eff_cseds[0],
+            { "Commands Supported and Effects Data Structure", "nvme.cmd.get_logpage.cmd_and_eff.cseds",
+               FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_cmd_and_eff_cseds[1],
+            { "Command Supported (CSUPP)", "nvme.cmd.get_logpage.cmd_and_eff.cseds.csupp",
+               FT_BOOLEAN, 32, NULL, 0x1, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_cmd_and_eff_cseds[2],
+            { "Logical Block Content Change (LBCC)", "nvme.cmd.get_logpage.cmd_and_eff.cseds.lbcc",
+               FT_BOOLEAN, 32, NULL, 0x2, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_cmd_and_eff_cseds[3],
+            { "Namespace Capability Change (NCC)", "nvme.cmd.get_logpage.cmd_and_eff.cseds.ncc",
+               FT_BOOLEAN, 32, NULL, 0x4, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_cmd_and_eff_cseds[4],
+            { "Namespace Inventory Change (NIC)", "nvme.cmd.get_logpage.cmd_and_eff.cseds.nic",
+               FT_BOOLEAN, 32, NULL, 0x8, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_cmd_and_eff_cseds[5],
+            { "Controller Capability Change (CCC)", "nvme.cmd.get_logpage.cmd_and_eff.cseds.ccc",
+               FT_BOOLEAN, 32, NULL, 0x10, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_cmd_and_eff_cseds[6],
+            { "Reserved", "nvme.cmd.get_logpage.cmd_and_eff.cseds.rsvd0",
+               FT_UINT32, BASE_HEX, NULL, 0xffe0, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_cmd_and_eff_cseds[7],
+            { "Command Submission and Execution (CSE)", "nvme.cmd.get_logpage.cmd_and_eff.cseds.cse",
+               FT_UINT32, BASE_HEX, VALS(cmd_eff_cse_tbl), 0x70000, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_cmd_and_eff_cseds[8],
+            { "UUID Selection Supported", "nvme.cmd.get_logpage.cmd_and_eff.cseds.uss",
+               FT_BOOLEAN, 32, NULL, 0x80000, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_cmd_and_eff_cseds[9],
+            { "Reserved", "nvme.cmd.get_logpage.cmd_and_eff.cseds.rsvd1",
+               FT_UINT32, BASE_HEX, NULL, 0xfff00000, NULL, HFILL}
         },
         /* NVMe Response fields */
         { &hf_nvme_cqe_sts,
