@@ -1,6 +1,6 @@
 /* text_import_regex.c
  * Regex based text importer
- * February 2021, Paul Weiß
+ * March 2021, Paul Weiß <paulniklasweiss@gmail.com>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>

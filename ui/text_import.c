@@ -1,7 +1,7 @@
 /* text_import.c
  * State machine for text import
  * November 2010, Jaap Keuter <jaap.keuter@xs4all.nl>
- * Modified February 2021, Paul Weiß
+ * Modified March 2021, Paul Weiß <paulniklasweiss@gmail.com>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -698,8 +698,18 @@ struct plain_decoding_data {
     gint8 table[256];
 };
 
-#define INVALID_INIT \
-    [0 ... 255] = INVALID_VALUE
+#define _INVALID_INIT2 INVALID_VALUE, INVALID_VALUE
+#define _INVALID_INIT4 _INVALID_INIT2, _INVALID_INIT2
+#define _INVALID_INIT8 _INVALID_INIT4, _INVALID_INIT4
+#define _INVALID_INIT16 _INVALID_INIT8, _INVALID_INIT8
+#define _INVALID_INIT32 _INVALID_INIT16, _INVALID_INIT16
+#define _INVALID_INIT64 _INVALID_INIT32, _INVALID_INIT32
+#define _INVALID_INIT128 _INVALID_INIT64, _INVALID_INIT64
+#define _INVALID_INIT256 _INVALID_INIT128, _INVALID_INIT128
+
+#define INVALID_INIT _INVALID_INIT256
+// this is a gcc/clang extension:
+//    [0 ... 255] = INVALID_VALUE
 
 #define WHITESPACE_INIT \
     [' '] = WHITESPACE_VALUE, \
@@ -882,7 +892,8 @@ void parse_data(guchar* start_field, guchar* end_field, enum data_encoding encod
 #define setFlags(VAL, MASK, FLAGS) \
     ((VAL) & ~(MASK)) | ((FLAGS) & (MASK))
 
-static void _parse_dir(const guchar* start_field, __attribute__ ((unused)) const guchar* end_field, const gchar* in_indicator, const gchar* out_indicator, guint32* dir) {
+static void _parse_dir(const guchar* start_field, const guchar* end_field _U_, const gchar* in_indicator, const gchar* out_indicator, guint32* dir) {
+
     for (; *in_indicator && *start_field != *in_indicator; ++in_indicator);
     if (*in_indicator) {
         *dir = setFlags(*dir, PACK_FLAGS_DIRECTION_MASK << PACK_FLAGS_DIRECTION_SHIFT, PACK_FLAGS_DIRECTION_INBOUND);
