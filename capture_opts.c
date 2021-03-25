@@ -563,6 +563,7 @@ fill_in_interface_opts_from_ifinfo(interface_options *interface_opts,
         interface_opts->descr = NULL;
         interface_opts->display_name = g_strdup(if_info->name);
     }
+    interface_opts->ifname = NULL;
     interface_opts->if_type = if_info->type;
     interface_opts->extcap = g_strdup(if_info->extcap);
 }
@@ -740,6 +741,7 @@ capture_opts_add_iface_opt(capture_options *capture_opts, const char *optarg_str
             interface_opts.descr = NULL;
             interface_opts.hardware = NULL;
             interface_opts.display_name = g_strdup(optarg_str_p);
+            interface_opts.ifname = NULL;
             interface_opts.if_type = capture_opts->default_options.if_type;
             interface_opts.extcap = g_strdup(capture_opts->default_options.extcap);
         }
@@ -1206,6 +1208,7 @@ capture_opts_del_iface(capture_options *capture_opts, guint if_index)
     g_free(interface_opts->descr);
     g_free(interface_opts->hardware);
     g_free(interface_opts->display_name);
+    g_free(interface_opts->ifname);
     g_free(interface_opts->cfilter);
     g_free(interface_opts->timestamp_type);
     g_free(interface_opts->extcap);

@@ -29,6 +29,8 @@ S<[ B<-M> ]>
 S<[ B<-n> ]>
 S<[ B<-N> E<lt>packet limitE<gt> ]>
 S<[ B<-p>|B<--no-promiscuous-mode> ]>
+S<[ B<--ifdescr> E<lt>descriptionE<gt> ]>
+S<[ B<--ifname> E<lt>nameE<gt> ]>
 S<[ B<-P> ]>
 S<[ B<-q> ]>
 S<[ B<-s>|B<--snapshot-length> E<lt>capture snaplenE<gt> ]>
@@ -247,6 +249,16 @@ endianness as the capturing host.
 
 This option can occur multiple times. When capturing from multiple
 interfaces, the capture file will be saved in pcapng format.
+
+=item --ifdescr> E<lt>descriptionE<gt>
+
+Use I<description> as the description in the capture file for the
+interface or pipe specified before it with B<-i>.
+
+=item --ifname> E<lt>nameE<gt>
+
+Use I<name> as the name in the capture file for the the interface or
+pipe specified before it with B<-i>.
 
 =item -I|--monitor-mode
 

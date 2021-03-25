@@ -367,6 +367,11 @@ print_usage(FILE *output)
                     "                           or for remote capturing, use one of these formats:\n"
                     "                               rpcap://<host>/<interface>\n"
                     "                               TCP@<host>:<port>\n");
+    fprintf(output, "  --ifname <name>          name to use in the capture file for a pipe from which\n");
+    fprintf(output, "                           we're capturing\n");
+    fprintf(output, "  --ifdescr <description>\n");
+    fprintf(output, "                           description to use in the capture file for a pipe\n");
+    fprintf(output, "                           from which we're capturing\n");
     fprintf(output, "  -f <capture filter>      packet filter in libpcap filter syntax\n");
     fprintf(output, "  -s <snaplen>, --snapshot-length <snaplen>\n");
 #ifdef HAVE_PCAP_CREATE
@@ -3146,8 +3151,8 @@ capture_loop_init_pcapng_output(capture_options *capture_opts, loop_data *ld,
                 pcap_src->snaplen = pcap_snapshot(pcap_src->pcap_h);
             }
             successful = pcapng_write_interface_description_block(global_ld.pdh,
-                                                                  NULL,                       /* OPT_COMMENT       1 */
-                                                                  interface_opts->name,       /* IDB_NAME          2 */
+                                                                   NULL,                       /* OPT_COMMENT       1 */
+                                                                  (interface_opts->ifname != NULL) ? interface_opts->ifname : interface_opts->name, /* IDB_NAME          2 */
                                                                   interface_opts->descr,      /* IDB_DESCRIPTION   3 */
                                                                   interface_opts->cfilter,    /* IDB_FILTER       11 */
                                                                   os_info_str->str,           /* IDB_OS           12 */
@@ -4820,6 +4825,9 @@ get_dumpcap_runtime_info(GString *str)
     get_runtime_caplibs_version(str);
 }
 
+#define LONGOPT_IFNAME             LONGOPT_BASE_APPLICATION+1
+#define LONGOPT_IFDESCR            LONGOPT_BASE_APPLICATION+2
+
 /* And now our feature presentation... [ fade to music ] */
 int
 main(int argc, char *argv[])
@@ -4830,6 +4838,8 @@ main(int argc, char *argv[])
         {"help", no_argument, NULL, 'h'},
         {"version", no_argument, NULL, 'v'},
         LONGOPT_CAPTURE_COMMON
+        {"ifname", required_argument, NULL, LONGOPT_IFNAME},
+        {"ifdescr", required_argument, NULL, LONGOPT_IFDESCR},
         {0, 0, 0, 0 }
     };
 
@@ -5190,6 +5200,28 @@ main(int argc, char *argv[])
             }
             break;
             /*** hidden option: Wireshark child mode (using binary output messages) ***/
+        case LONGOPT_IFNAME:
+            if (global_capture_opts.ifaces->len > 0) {
+                interface_options *interface_opts;
+
+                interface_opts = &g_array_index(global_capture_opts.ifaces, interface_options, global_capture_opts.ifaces->len - 1);
+                interface_opts->ifname = g_strdup(optarg);
+            } else {
+                cmdarg_err("--ifname must be specified after a -i option");
+                exit_main(1);
+            }
+            break;
+        case LONGOPT_IFDESCR:
+            if (global_capture_opts.ifaces->len > 0) {
+                interface_options *interface_opts;
+
+                interface_opts = &g_array_index(global_capture_opts.ifaces, interface_options, global_capture_opts.ifaces->len - 1);
+                interface_opts->descr = g_strdup(optarg);
+            } else {
+                cmdarg_err("--ifdescr must be specified after a -i option");
+                exit_main(1);
+            }
+            break;
         case 'Z':
             capture_child = TRUE;
 #ifdef _WIN32
@@ -5528,6 +5560,25 @@ main(int argc, char *argv[])
                     g_string_append_printf(str, " ");
                     if (j == global_capture_opts.ifaces->len - 1) {
                         g_string_append_printf(str, "and ");
+                    }
+                }
+                if (interface_opts->ifname != NULL) {
+                    /*
+                     * Re-generate the display name based on the strins
+                     * we were handed.
+                     */
+                    g_free(interface_opts->display_name);
+                    if (interface_opts->descr != NULL) {
+#ifdef _WIN32
+                        interface_opts->display_name = g_strdup_printf("%s",
+                            interface_opts->descr);
+#else
+                        interface_opts->display_name = g_strdup_printf("%s: %s",
+                            interface_opts->descr, interface_opts->ifname);
+#endif
+                    } else {
+                        interface_opts->display_name = g_strdup_printf("%s",
+                            interface_opts->ifname);
                     }
                 }
                 g_string_append_printf(str, "'%s'", interface_opts->display_name);

@@ -342,6 +342,15 @@ sync_pipe_start(capture_options *capture_opts, capture_session *cap_session, inf
 #else
             argv = sync_pipe_add_arg(argv, &argc, interface_opts->extcap_fifo);
 #endif
+            /* Add a name for the interface, to put into an IDB. */
+            argv = sync_pipe_add_arg(argv, &argc, "--ifname");
+            argv = sync_pipe_add_arg(argv, &argc, interface_opts->name);
+            if (interface_opts->descr != NULL)
+            {
+                /* Add a description for the interface, to put into an IDB. */
+                argv = sync_pipe_add_arg(argv, &argc, "--ifdescr");
+                argv = sync_pipe_add_arg(argv, &argc, interface_opts->descr);
+            }
         }
         else
             argv = sync_pipe_add_arg(argv, &argc, interface_opts->name);

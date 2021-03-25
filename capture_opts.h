@@ -197,6 +197,7 @@ typedef struct interface_options_tag {
     gchar            *descr;                /* a more user-friendly description of the interface; may be NULL if none */
     gchar            *hardware;             /* description of the hardware */
     gchar            *display_name;         /* the name displayed in the console and title bar */
+    gchar            *ifname;               /* if not null, name to use instead of the interface naem in IDBs */
     gchar            *cfilter;
     gboolean          has_snaplen;
     int               snaplen;
