@@ -469,6 +469,7 @@ static int hf_isis_lsp_avaya_ipvpn_subtlvtype = -1;
 static int hf_isis_lsp_avaya_ipvpn_subtlvlength = -1;
 static int hf_isis_lsp_avaya_ipvpn_unknown_sub = -1;
 static int hf_isis_lsp_avaya_ipvpn_ipv4_metric = -1;
+static int hf_isis_lsp_avaya_ipvpn_ipv4_metrictype = -1;
 static int hf_isis_lsp_avaya_ipvpn_ipv4_addr = -1;
 static int hf_isis_lsp_avaya_ipvpn_ipv4_mask = -1;
 static int hf_isis_lsp_avaya_ipvpn_ipv6_metric = -1;
@@ -777,6 +778,7 @@ static const value_string isis_lsp_bier_subsubtlv_type_vals[] = {
 
 /* Avaya specific sub-TLV types */
 static const value_string isis_lsp_avaya_ipvpn_subtlv_code_vals[] = {
+    { 1,   "IPv4 Metric Type" },
     { 135, "IPv4 Reachability" },
     { 236, "IPv6 Reachability" },
     { 0, NULL }
@@ -3865,6 +3867,14 @@ dissect_lsp_avaya_ipvpn(tvbuff_t *tvb, packet_info* pinfo _U_, proto_tree *tree,
         proto_tree_add_item(subtlvtree, hf_isis_lsp_avaya_ipvpn_subtlvlength, tvb, offset + 1, 1, ENC_NA);
         offset += 2;
         switch (subtype) {
+        case 1:   /* Metric Type */
+            if (sublength != 4) {
+            proto_tree_add_expert_format(subtlvtree, pinfo, &ei_isis_lsp_malformed_subtlv, tvb, offset, sublength,
+                                         "Unexpected Metric Type sub-TLV length (%d vs 4)", sublength);
+            }
+            proto_tree_add_item(subtlvtree, hf_isis_lsp_avaya_ipvpn_ipv4_metrictype, tvb, offset, 4, ENC_BIG_ENDIAN);
+            offset += 4;
+            break;
         case 135: /* IPv4 */
             if (sublength != 12) {
             proto_tree_add_expert_format(subtlvtree, pinfo, &ei_isis_lsp_malformed_subtlv, tvb, offset, sublength,
@@ -3895,7 +3905,7 @@ dissect_lsp_avaya_ipvpn(tvbuff_t *tvb, packet_info* pinfo _U_, proto_tree *tree,
             break;
         default:
             proto_tree_add_item(subtlvtree, hf_isis_lsp_avaya_ipvpn_unknown_sub, tvb, offset, 4, ENC_NA);
-            proto_tree_add_expert_format(subtlvtree, pinfo, &ei_isis_lsp_unknown_subtlv, tvb, offset, length,
+            proto_tree_add_expert_format(subtlvtree, pinfo, &ei_isis_lsp_unknown_subtlv, tvb, offset, sublength,
                                          "Unknown Avaya IPVPN subTLV (%d): Please report to Wireshark developers.", subtype);
             offset += sublength;
         }
@@ -6135,6 +6145,11 @@ proto_register_isis_lsp(void)
         },
         { &hf_isis_lsp_avaya_ipvpn_ipv4_metric,
             { "Metric", "isis.lsp.avaya.ipvpn.ipv4.metric",
+              FT_UINT32, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_avaya_ipvpn_ipv4_metrictype,
+            { "Metric Type", "isis.lsp.avaya.ipvpn.ipv4.metrictype",
               FT_UINT32, BASE_DEC, NULL, 0x0,
               NULL, HFILL }
         },
