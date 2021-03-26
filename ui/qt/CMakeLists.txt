@@ -631,10 +631,6 @@ include_directories(
 	${CMAKE_CURRENT_SOURCE_DIR}
 )
 
-set(CMAKE_AUTOMOC TRUE)
-set(CMAKE_AUTOUIC TRUE)
-set(CMAKE_AUTORCC TRUE)
-
 if(NOT Qt5Widgets_VERSION VERSION_LESS "5.9")
 	# Drop the file modification time of source files from generated files
 	# to help with reproducible builds. We do not use QFileInfo.lastModified
