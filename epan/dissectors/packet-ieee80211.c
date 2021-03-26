@@ -15240,6 +15240,8 @@ static const value_string ieee80211_rsn_keymgmt_vals[] = {
   {16, "FT over FILS (SHA256 and AES-SIV-256)" },
   {17, "FT over FILS (SHA384 and AES-SIV-512)" },
   {18, "Opportunistic Wireless Encryption"},
+  {19, "FT using PSK (SHA384)"},
+  {20, "PSK (SHA384)"},
   {0, NULL}
 };
 
