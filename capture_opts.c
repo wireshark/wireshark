@@ -45,6 +45,7 @@ capture_opts_init(capture_options *capture_opts)
     capture_opts->num_selected                    = 0;
     capture_opts->default_options.name            = NULL;
     capture_opts->default_options.descr           = NULL;
+    capture_opts->default_options.ifname          = NULL;
     capture_opts->default_options.hardware        = NULL;
     capture_opts->default_options.display_name    = NULL;
     capture_opts->default_options.cfilter         = NULL;
@@ -1254,6 +1255,7 @@ collect_ifaces(capture_options *capture_opts)
         if (!device->hidden && device->selected) {
             interface_opts.name = g_strdup(device->name);
             interface_opts.descr = g_strdup(device->friendly_name);
+            interface_opts.ifname = NULL;
             interface_opts.hardware = g_strdup(device->vendor_description);
             interface_opts.display_name = g_strdup(device->display_name);
             interface_opts.linktype = device->active_dlt;
