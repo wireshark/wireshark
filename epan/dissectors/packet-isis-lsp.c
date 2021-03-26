@@ -457,10 +457,15 @@ static int hf_isis_lsp_clv_srv6_end_sid_sid = -1;
 static int hf_isis_lsp_clv_srv6_end_sid_subsubclvs_len = -1;
 static int hf_isis_lsp_purge_orig_id_num = -1;
 static int hf_isis_lsp_purge_orig_id_system_id = -1;
+/* rfc 6165: MAC Reachability */
+static int hf_isis_lsp_mac_reachability_topoid_nick = -1;
+static int hf_isis_lsp_mac_reachability_confidence = -1;
+static int hf_isis_lsp_mac_reachability_reserved = -1;
+static int hf_isis_lsp_mac_reachability_vlan = -1;
+static int hf_isis_lsp_mac_reachability_mac = -1;
+static int hf_isis_lsp_mac_reachability_chassismac = -1;
+static int hf_isis_lsp_mac_reachability_fanmcast = -1;
 /* Avaya proprietary */
-static int hf_isis_lsp_avaya_147_unknown = -1;
-static int hf_isis_lsp_avaya_147_mac = -1;
-static int hf_isis_lsp_avaya_147_fanmcast = -1;
 static int hf_isis_lsp_avaya_ipvpn_unknown = -1;
 static int hf_isis_lsp_avaya_ipvpn_system_id = -1;
 static int hf_isis_lsp_avaya_ipvpn_vrfsid = -1;
@@ -555,7 +560,7 @@ static gint ett_isis_lsp_clv_srv6_locator = -1;
 static gint ett_isis_lsp_clv_srv6_loc_flags = -1;
 static gint ett_isis_lsp_clv_srv6_loc_sub_tlv = -1;
 static gint ett_isis_lsp_clv_srv6_endx_sid_flags = -1;
-static gint ett_isis_lsp_clv_avaya_mac = -1;
+static gint ett_isis_lsp_clv_mac_reachability = -1;
 static gint ett_isis_lsp_clv_avaya_ipvpn = -1;
 static gint ett_isis_lsp_clv_avaya_ipvpn_subtlv = -1;
 static gint ett_isis_lsp_clv_avaya_ipvpn_mc = -1;
@@ -3805,20 +3810,40 @@ dissect_lsp_purge_orig_id_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tre
     }
 }
 
+/* rfc6165: MAC Reachability */
 static void
-dissect_lsp_avaya_mac(tvbuff_t *tvb, packet_info* pinfo _U_, proto_tree *tree, int offset,
+dissect_lsp_mac_reachability(tvbuff_t *tvb, packet_info* pinfo _U_, proto_tree *tree, int offset,
                               isis_data_t *isis _U_, int length)
 {
-    if (length != 11 && length != 17) {
+    int num_macs;
+    int count;
+    gboolean is_avaya = TRUE; // JMayer: FIXME Add preference or determine from other parts of packet
+
+    if ((length - 5) % 6) {
         proto_tree_add_expert_format(tree, pinfo, &ei_isis_lsp_length_clv, tvb, offset, length,
-                                     "Unexpected length of Avaya MAC TLV (%d vs 11 or 17)",
+                                     "Unexpected length of MAC Reachability TLV (%d vs 5 + N*6)",
                                      length);
         return;
     }
-    proto_tree_add_item(tree, hf_isis_lsp_avaya_147_unknown, tvb, offset, 5, ENC_NA);
-    proto_tree_add_item(tree, hf_isis_lsp_avaya_147_mac, tvb, offset + 5, 6, ENC_NA);
-    if (length == 17)
-        proto_tree_add_item(tree, hf_isis_lsp_avaya_147_fanmcast, tvb, offset + 11, 6, ENC_NA);
+    num_macs = (length -5) / 6;
+
+    proto_tree_add_item(tree, hf_isis_lsp_mac_reachability_topoid_nick, tvb, offset, 2, ENC_NA);
+    offset += 2;
+    proto_tree_add_item(tree, hf_isis_lsp_mac_reachability_confidence, tvb, offset, 1, ENC_NA);
+    offset += 1;
+    proto_tree_add_item(tree, hf_isis_lsp_mac_reachability_reserved, tvb, offset, 2, ENC_NA);
+    proto_tree_add_item(tree, hf_isis_lsp_mac_reachability_vlan, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    for (count = 1; count <= num_macs; count++) {
+        if (is_avaya && count == 1 )
+            proto_tree_add_item(tree, hf_isis_lsp_mac_reachability_chassismac, tvb, offset, 6, ENC_NA);
+        else if (is_avaya && count == 2)
+            proto_tree_add_item(tree, hf_isis_lsp_mac_reachability_fanmcast, tvb, offset, 6, ENC_NA);
+        else
+            proto_tree_add_item(tree, hf_isis_lsp_mac_reachability_mac, tvb, offset + 5, 6, ENC_NA);
+        offset += 6;
+    }
 }
 
 static void
@@ -4103,10 +4128,10 @@ static const isis_clv_handle_t clv_l1_lsp_opts[] = {
         dissect_lsp_purge_orig_id_clv
     },
     {
-        ISIS_CLV_AVAYA_MAC,
-        "Avaya MAC",
-        &ett_isis_lsp_clv_avaya_mac,
-        dissect_lsp_avaya_mac
+        ISIS_CLV_MAC_RI,
+        "MAC Reachability",
+        &ett_isis_lsp_clv_mac_reachability,
+        dissect_lsp_mac_reachability
     },
     {
         ISIS_CLV_AVAYA_IPVPN,
@@ -6092,22 +6117,43 @@ proto_register_isis_lsp(void)
               FT_UINT24, BASE_DEC, NULL, 0x0FFFFF,
               NULL, HFILL }
         },
-	/* Avaya proprietary */
-        { &hf_isis_lsp_avaya_147_unknown,
-            { "Unknown", "isis.lsp.avaya.147.unknown",
+        /* rfc 6165 */
+        { &hf_isis_lsp_mac_reachability_topoid_nick,
+            { "Topology-id/Nickname", "isis.lsp.mac_reachability.topoid_nick",
               FT_BYTES, BASE_NONE, NULL, 0x0,
               NULL, HFILL }
         },
-        { &hf_isis_lsp_avaya_147_mac,
-            { "Chassis MAC", "isis.lsp.avaya.147.chassismac",
+        { &hf_isis_lsp_mac_reachability_confidence,
+            { "Confidence", "isis.lsp.mac_reachability.confidence",
+              FT_UINT8, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_mac_reachability_reserved,
+            { "Reserved", "isis.lsp.mac_reachability.reserved",
+              FT_UINT16, BASE_DEC, NULL, 0xf000,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_mac_reachability_vlan,
+            { "VLAN-ID", "isis.lsp.mac_reachability.vlan",
+              FT_UINT16, BASE_DEC, NULL, 0x0fff,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_mac_reachability_mac,
+            { "MAC Address", "isis.lsp.mac_reachability.mac",
               FT_ETHER, BASE_NONE, NULL, 0x0,
               NULL, HFILL }
         },
-        { &hf_isis_lsp_avaya_147_fanmcast,
-            { "FAN Mcast", "isis.lsp.avaya.147.fanmcast",
+        { &hf_isis_lsp_mac_reachability_chassismac,
+            { "Chassis MAC", "isis.lsp.mac_reachability.chassismac",
               FT_ETHER, BASE_NONE, NULL, 0x0,
               NULL, HFILL }
         },
+        { &hf_isis_lsp_mac_reachability_fanmcast,
+            { "FAN Mcast", "isis.lsp.mac_reachability.fanmcast",
+              FT_ETHER, BASE_NONE, NULL, 0x0,
+              NULL, HFILL }
+        },
+	/* Avaya proprietary */
         { &hf_isis_lsp_avaya_ipvpn_unknown,
             { "Unknown", "isis.lsp.avaya.ipvpn.unknown",
               FT_BYTES, BASE_NONE, NULL, 0x0,
@@ -6267,7 +6313,7 @@ proto_register_isis_lsp(void)
         &ett_isis_lsp_sl_sub_tlv,
         &ett_isis_lsp_sl_sub_tlv_flags,
         &ett_isis_lsp_clv_ipv6_te_router_id, /* CLV 140, rfc6119 */
-        &ett_isis_lsp_clv_avaya_mac, /* Avaya/Extremenetworks proprietary */
+        &ett_isis_lsp_clv_mac_reachability,  /* CLV 147, rfc6165 */
         &ett_isis_lsp_clv_avaya_ipvpn,
         &ett_isis_lsp_clv_avaya_ipvpn_subtlv,
         &ett_isis_lsp_clv_avaya_ipvpn_mc,

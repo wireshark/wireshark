@@ -57,7 +57,7 @@
 #define ISIS_CLV_MT_PORT_CAP         143 /* rfc6165, rfc7176 */
 #define ISIS_CLV_MT_CAP              144 /* rfc6329, rfc7176 */
 #define ISIS_CLV_TRILL_NEIGHBOR      145 /* rfc7176 */
-#define ISIS_CLV_AVAYA_MAC           147 /* Avaya/Extremenetworks proprietary: Reverse engineered */
+#define ISIS_CLV_MAC_RI              147 /* rfc6165: MAC Reachability */
 #define ISIS_CLV_BFD_ENABLED         148 /* rfc6213 */
 #define ISIS_CLV_SID_LABEL_BINDING   149 /* draft-previdi-isis-segment-routing-extensions-05 */
 #define ISIS_CLV_AVAYA_IPVPN         184 /* Avaya/Extremenetworks proprietary: Reverse engineered */

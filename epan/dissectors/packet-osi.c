@@ -403,7 +403,7 @@ const value_string nlpid_vals[] = {
   { NLPID_ISO9542_ESIS,    "ESIS" },
   { NLPID_ISO10589_ISIS,   "ISIS" },
   { NLPID_ISO10747_IDRP,   "IDRP" },
-  { NLPID_AVAYA_MAC,       "Avaya MAC" },
+  { NLPID_AVAYA_8F,        "Avaya 0x8f" },
   { NLPID_ISO9542X25_ESIS, "ESIS (X.25)" },
   { NLPID_ISO10030,        "ISO 10030" },
   { NLPID_ISO11577,        "ISO 11577" },
