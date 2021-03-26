@@ -664,6 +664,8 @@ int run_pbl_parser(pbl_descriptor_pool_t* pool)
             ProtobufLangParser(state.pParser, 0, NULL, &state);
         }
 
+        protobuf_lang_lex_destroy(scanner);
+
         /* remove the parsed file from list */
         pool->proto_files_to_be_parsed = it = g_slist_delete_link(pool->proto_files_to_be_parsed, it);
     }
