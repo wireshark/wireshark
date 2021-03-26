@@ -579,6 +579,7 @@ private slots:
     void on_actionAnalyzeFollowHTTPStream_triggered();
     void on_actionAnalyzeFollowHTTP2Stream_triggered();
     void on_actionAnalyzeFollowQUICStream_triggered();
+    void on_actionAnalyzeFollowSIPCall_triggered();
 
     void statCommandExpertInfo(const char *, void *);
     void on_actionAnalyzeExpertInfo_triggered();

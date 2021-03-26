@@ -2058,7 +2058,7 @@ inflate_http2_header_block(tvbuff_t *tvb, packet_info *pinfo, guint offset, prot
 #endif
 
 static gchar*
-http2_follow_conv_filter(packet_info *pinfo, guint *stream, guint *sub_stream)
+http2_follow_conv_filter(epan_dissect_t *edt _U_, packet_info *pinfo, guint *stream, guint *sub_stream)
 {
     http2_session_t *h2session;
     struct tcp_analysis *tcpd;

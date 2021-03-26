@@ -3747,7 +3747,7 @@ quic_cleanup(void)
 /* Follow QUIC Stream functionality {{{ */
 
 static gchar *
-quic_follow_conv_filter(packet_info *pinfo, guint *stream, guint *sub_stream)
+quic_follow_conv_filter(epan_dissect_t *edt _U_, packet_info *pinfo, guint *stream, guint *sub_stream)
 {
     if (((pinfo->net_src.type == AT_IPv4 && pinfo->net_dst.type == AT_IPv4) ||
         (pinfo->net_src.type == AT_IPv6 && pinfo->net_dst.type == AT_IPv6))) {

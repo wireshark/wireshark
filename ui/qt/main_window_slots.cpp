@@ -1124,7 +1124,7 @@ void MainWindow::recentActionTriggered() {
 void MainWindow::setMenusForSelectedPacket()
 {
     gboolean is_ip = FALSE, is_tcp = FALSE, is_udp = FALSE, is_dccp = FALSE, is_sctp = FALSE, is_tls = FALSE, is_rtp = FALSE, is_lte_rlc = FALSE,
-             is_http = FALSE, is_http2 = FALSE, is_quic = FALSE;
+             is_http = FALSE, is_http2 = FALSE, is_quic = FALSE, is_sip = FALSE;
 
     /* Making the menu context-sensitive allows for easier selection of the
        desired item and has the added benefit, with large captures, of
@@ -1197,6 +1197,7 @@ void MainWindow::setMenusForSelectedPacket()
             is_http = proto_is_frame_protocol(capture_file_.capFile()->edt->pi.layers, "http");
             is_http2 = proto_is_frame_protocol(capture_file_.capFile()->edt->pi.layers, "http2");
             is_quic = proto_is_frame_protocol(capture_file_.capFile()->edt->pi.layers, "quic");
+            is_sip = proto_is_frame_protocol(capture_file_.capFile()->edt->pi.layers, "sip");
         }
     }
 
@@ -1243,6 +1244,7 @@ void MainWindow::setMenusForSelectedPacket()
     main_ui_->actionAnalyzeFollowHTTPStream->setEnabled(is_http);
     main_ui_->actionAnalyzeFollowHTTP2Stream->setEnabled(is_http2);
     main_ui_->actionAnalyzeFollowQUICStream->setEnabled(is_quic);
+    main_ui_->actionAnalyzeFollowSIPCall->setEnabled(is_sip);
 
     foreach(QAction *cc_action, cc_actions) {
         cc_action->setEnabled(frame_selected);
@@ -2905,6 +2907,11 @@ void MainWindow::on_actionAnalyzeFollowHTTP2Stream_triggered()
 void MainWindow::on_actionAnalyzeFollowQUICStream_triggered()
 {
     openFollowStreamDialogForType(FOLLOW_QUIC);
+}
+
+void MainWindow::on_actionAnalyzeFollowSIPCall_triggered()
+{
+    openFollowStreamDialogForType(FOLLOW_SIP);
 }
 
 void MainWindow::openSCTPAllAssocsDialog()

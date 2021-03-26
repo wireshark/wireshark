@@ -418,6 +418,7 @@
      <addaction name="actionAnalyzeFollowHTTPStream"/>
      <addaction name="actionAnalyzeFollowHTTP2Stream"/>
      <addaction name="actionAnalyzeFollowQUICStream"/>
+     <addaction name="actionAnalyzeFollowSIPCall"/>
     </widget>
     <widget class="QMenu" name="menuConversationFilter">
      <property name="title">
@@ -1757,6 +1758,14 @@
    </property>
    <property name="text">
     <string>QUIC Stream</string>
+   </property>
+  </action>
+  <action name="actionAnalyzeFollowSIPCall">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>SIP Call</string>
    </property>
   </action>
   <action name="actionStatisticsTcpStreamTcptrace">

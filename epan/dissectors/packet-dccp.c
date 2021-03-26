@@ -538,7 +538,7 @@ dccp_build_filter(packet_info *pinfo)
     return NULL;
 }
 
-static gchar *dccp_follow_conv_filter(packet_info *pinfo, guint *stream, guint *sub_stream _U_)
+static gchar *dccp_follow_conv_filter(epan_dissect_t *edt _U_, packet_info *pinfo, guint *stream, guint *sub_stream _U_)
 {
     conversation_t *conv;
     struct dccp_analysis *dccpd;

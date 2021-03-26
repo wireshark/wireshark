@@ -35,6 +35,10 @@
 #include <epan/uat.h>
 #include <epan/strutil.h>
 #include <epan/to_str.h>
+#include <epan/follow.h>
+#include <epan/conversation.h>
+#include <epan/addr_resolv.h>
+#include <epan/epan_dissect.h>
 
 #include <wsutil/str_util.h>
 #include <wsutil/strtoi.h>
@@ -61,6 +65,7 @@
 void proto_register_sip(void);
 
 static gint sip_tap = -1;
+static gint sip_follow_tap = -1;
 static gint exported_pdu_tap = -1;
 static dissector_handle_t sip_handle;
 static dissector_handle_t sip_tcp_handle;
@@ -3586,6 +3591,9 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
     proto_item_set_text(th, "Message Header");
     hdr_tree = proto_item_add_subtree(th, ett_sip_hdr);
 
+    if (have_tap_listener(sip_follow_tap))
+        tap_queue_packet(sip_follow_tap, pinfo, tvb);
+
     /*
      * Process the headers - if we're not building a protocol tree,
      * we just do this to find the blank line separating the
@@ -6007,6 +6015,36 @@ sip_stat_free_table_item(stat_tap_table* table _U_, guint row _U_, guint column,
     field_data->value.string_value = NULL;
 }
 
+static gchar *sip_follow_conv_filter(epan_dissect_t *edt, packet_info *pinfo _U_, guint *stream _U_, guint *sub_stream _U_)
+{
+    gchar *filter = NULL;
+
+    /* Extract si.Call-ID from decoded tree in edt */
+    if (edt != NULL) {
+        int hfid = proto_registrar_get_id_byname("sip.Call-ID");
+        GPtrArray *gp = proto_find_first_finfo(edt->tree, hfid);
+        if (gp != NULL && gp->len != 0) {
+            filter = g_strdup_printf("sip.Call-ID == \"%s\"", (gchar *)fvalue_get(&((field_info *)gp->pdata[0])->value));
+        }
+        g_ptr_array_free(gp, TRUE);
+    } else {
+        filter = g_strdup_printf("sip.Call-ID");
+    }
+
+    return filter;
+}
+
+static gchar *sip_follow_index_filter(guint stream _U_, guint sub_stream _U_)
+{
+    return NULL;
+}
+
+static gchar *sip_follow_address_filter(address *src_addr _U_, address *dst_addr _U_, int src_port _U_, int dst_port _U_)
+{
+    return NULL;
+}
+
+
 /* Register the protocol with Wireshark */
 void proto_register_sip(void)
 {
@@ -7617,6 +7655,7 @@ void proto_register_sip(void)
     heur_subdissector_list = register_heur_dissector_list("sip", proto_sip);
     /* Register for tapping */
     sip_tap = register_tap("sip");
+    sip_follow_tap = register_tap("sip_follow");
 
     ext_hdr_subdissector_table = register_dissector_table("sip.hdr", "SIP Extension header", proto_sip, FT_STRING, BASE_NONE);
 
@@ -7632,6 +7671,8 @@ void proto_register_sip(void)
     ws_mempbrk_compile(&pbrk_addr_end, "[] \t:;");
     ws_mempbrk_compile(&pbrk_via_param_end, "\t;, ");
 
+    register_follow_stream(proto_sip, "sip_follow", sip_follow_conv_filter, sip_follow_index_filter, sip_follow_address_filter,
+                           udp_port_to_display, follow_tvb_tap_listener);
 }
 
 void

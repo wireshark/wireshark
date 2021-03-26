@@ -947,7 +947,7 @@ tcp_seq_analysis_packet( void *ptr, packet_info *pinfo, epan_dissect_t *edt _U_,
 }
 
 
-gchar *tcp_follow_conv_filter(packet_info *pinfo, guint *stream, guint *sub_stream _U_)
+gchar *tcp_follow_conv_filter(epan_dissect_t *edt _U_, packet_info *pinfo, guint *stream, guint *sub_stream _U_)
 {
     conversation_t *conv;
     struct tcp_analysis *tcpd;

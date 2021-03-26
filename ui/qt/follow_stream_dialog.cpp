@@ -13,6 +13,7 @@
 #include "main_window.h"
 #include "wireshark_application.h"
 
+#include "frame_tvbuff.h"
 #include "epan/follow.h"
 #include "epan/dissectors/packet-tcp.h"
 #include "epan/dissectors/packet-udp.h"
@@ -105,6 +106,9 @@ FollowStreamDialog::FollowStreamDialog(QWidget &parent, CaptureFile &cf, follow_
         break;
     case FOLLOW_QUIC:
         follower_ = get_follow_by_name("QUIC");
+        break;
+    case FOLLOW_SIP:
+        follower_ = get_follow_by_name("SIP");
         break;
     default :
         g_assert_not_reached();
@@ -528,6 +532,7 @@ FollowStreamDialog::readStream()
     case FOLLOW_HTTP2:
     case FOLLOW_QUIC:
     case FOLLOW_TLS :
+    case FOLLOW_SIP :
         ret = readFollowStream();
         break;
 
@@ -884,7 +889,7 @@ bool FollowStreamDialog::follow(QString previous_filter, bool use_stream_index, 
     if (use_stream_index) {
         follow_filter = gchar_free_to_qstring(get_follow_index_func(follower_)(stream_num, sub_stream_num));
     } else {
-        follow_filter = gchar_free_to_qstring(get_follow_conv_func(follower_)(&cap_file_.capFile()->edt->pi, &stream_num, &sub_stream_num));
+        follow_filter = gchar_free_to_qstring(get_follow_conv_func(follower_)(cap_file_.capFile()->edt, &cap_file_.capFile()->edt->pi, &stream_num, &sub_stream_num));
     }
     if (follow_filter.isEmpty()) {
         QMessageBox::warning(this,
@@ -1011,6 +1016,19 @@ bool FollowStreamDialog::follow(QString previous_filter, bool use_stream_index, 
     case FOLLOW_HTTP:
         /* No extra handling */
         break;
+    case FOLLOW_SIP:
+    {
+        /* There are no more streams */
+        ui->streamNumberSpinBox->setEnabled(false);
+        ui->streamNumberSpinBox->blockSignals(true);
+        ui->streamNumberSpinBox->setMaximum(0);
+        ui->streamNumberSpinBox->setValue(0);
+        ui->streamNumberSpinBox->blockSignals(false);
+        ui->streamNumberSpinBox->setToolTip(tr("No streams"));
+        ui->streamNumberLabel->setToolTip(ui->streamNumberSpinBox->toolTip());
+
+        break;
+    }
     }
 
     beginRetapPackets();
