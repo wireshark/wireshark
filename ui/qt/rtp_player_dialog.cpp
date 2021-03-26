@@ -576,7 +576,13 @@ void RtpPlayerDialog::addRtpStream(rtpstream_info_t *rtpstream)
         ti->setText(dst_addr_col_, address_to_qstring(&rtpstream->id.dst_addr));
         ti->setText(dst_port_col_, QString::number(rtpstream->id.dst_port));
         ti->setText(ssrc_col_, int_to_qstring(rtpstream->id.ssrc, 8, 16));
-        if (rtpstream->setup_frame_number == 0xFFFFFFFF) {
+
+        // 0xFFFFFFFF mean no setup frame
+        // first_packet_num == setup_frame_number happens, when
+        // rtp_udp is active or Decode as was used
+        if ((rtpstream->setup_frame_number == 0xFFFFFFFF) ||
+            (rtpstream->rtp_stats.first_packet_num == rtpstream->setup_frame_number)
+           ) {
             int packet = rtpstream->rtp_stats.first_packet_num;
             ti->setText(first_pkt_col_, QString("RTP %1").arg(packet));
             ti->setData(first_pkt_col_, Qt::UserRole, QVariant(packet));
