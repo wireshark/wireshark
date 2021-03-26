@@ -389,6 +389,38 @@ dissect_oer_bit_string(tvbuff_t *tvb, guint32 offset _U_, asn1_ctx_t *actx, prot
     return tvb_reported_length(tvb);
 }
 
+guint32
+dissect_oer_bit_string_unconstr(tvbuff_t *tvb, guint32 offset _U_, asn1_ctx_t *actx, proto_tree *tree, int hf_index _U_, int min_len _U_, int max_len _U_, gboolean has_extension _U_, int * const *named_bits _U_, gint num_named_bits _U_, tvbuff_t **value_tvb _U_, guint8 * const values, int values_size, int *len _U_)
+{
+    int length;
+    guint8 unused_bit_count = 0;
+
+    offset = dissect_oer_length_determinant(tvb, offset, actx, tree, -1 /*Don't show length value as internal field*/, &length);
+    if (length > 0) {
+        unused_bit_count = tvb_get_guint8(tvb, offset);
+        offset += 1;
+        length -= 1;
+    }
+
+    *len = length;
+    if (values) {
+        memset(values, 0, values_size);
+        if (length > values_size) {
+            dissect_oer_not_decoded_yet(tree, actx->pinfo, tvb, "too many bitstring elements");
+        }
+        for (int i = 0; i < length; i++) {
+            values[i] = tvb_get_guint8(tvb, offset);
+            if (i + 1 == length) {
+                /* unused bits of the last octet shall be set to zeros */
+                values[i] &= (0xFF << unused_bit_count);
+            }
+            offset += 1;
+        }
+    }
+
+    return offset;
+}
+
 /* 14 Encoding of octet string values */
 guint32
 dissect_oer_octet_string(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, int min_len, int max_len, gboolean has_extension _U_, tvbuff_t **value_tvb)
@@ -460,6 +492,7 @@ dissect_oer_sequence(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree
     guint32 i, j, num_opts;
     guint32 optional_mask[SEQ_MAX_COMPONENTS >> 5];
     int bit_offset = 0;
+    guint64 extensions_present = 0;
 
     DEBUG_ENTRY("dissect_oer_sequence");
 
@@ -477,7 +510,7 @@ dissect_oer_sequence(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree
         /* 16.2.2 The extension bit shall be present (as bit 8 of the first octet of the preamble)
          * if, and only if, the sequence type definition contains an extension marker...
          */
-        actx->created_item = proto_tree_add_bits_item(tree, hf_oer_extension_present_bit, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+        actx->created_item = proto_tree_add_bits_ret_val(tree, hf_oer_extension_present_bit, tvb, bit_offset, 1, &extensions_present, ENC_BIG_ENDIAN);
         bit_offset++;
         if (!display_internal_oer_fields) proto_item_set_hidden(actx->created_item);
     }
@@ -541,8 +574,45 @@ dissect_oer_sequence(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree
         }
     }
 
+    if (extensions_present) {
+        /* Parse the Extension Bitmap */
+        int ext_bmp_len;
+        guint8 extension_mask[SEQ_MAX_COMPONENTS >> 3];
+        offset = dissect_oer_bit_string_unconstr(tvb, offset, actx, tree, hf_index, NO_BOUND, NO_BOUND, FALSE, NULL, 0, NULL, extension_mask, SEQ_MAX_COMPONENTS >> 3, &ext_bmp_len);
 
-    /* XXX We do not handle extensions */
+        /* find first extension */
+        int seq_pos;
+        for (seq_pos = 0; sequence[seq_pos].p_id; seq_pos++) {
+            if (sequence[seq_pos].extension == ASN1_NOT_EXTENSION_ROOT) {
+                break;
+            }
+        }
+        for (int bitstr_pos = 0; bitstr_pos < ext_bmp_len; bitstr_pos++) {
+            gint8 octet = extension_mask[bitstr_pos];
+            for (int octet_pos = 0; octet_pos < 8; octet_pos++) {
+                gboolean ext_present = ((octet << octet_pos) & (0x80)) >> 7;
+                if (ext_present) {
+                    /* If any extensions still known - use functions */
+                    if (sequence[seq_pos].p_id) {
+                        guint length;
+                        offset = dissect_oer_length_determinant(tvb, offset, actx, tree, hf_oer_length_determinant, &length);
+                        if (sequence[seq_pos].func) {
+                            offset = sequence[seq_pos].func(tvb, offset, actx, tree, *sequence[seq_pos].p_id);
+                        } else {
+                            dissect_oer_not_decoded_yet(tree, actx->pinfo, tvb, index_get_field_name(sequence, seq_pos    ));
+                        }
+                    } else {
+                        offset = dissect_oer_octet_string(tvb, offset, actx, tree, hf_index, NO_BOUND, NO_BOUND, FALSE, NULL);
+                    }
+                }
+                /* if still within known sequence elements - move to next */
+                if (sequence[seq_pos].p_id) {
+                    seq_pos++;
+                }
+            }
+        }
+
+    }
 
     proto_item_set_len(item, offset - old_offset);
     actx->created_item = item;
@@ -689,6 +759,11 @@ dissect_oer_choice(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *
         if (choice->value == tag) {
             choice_item = proto_tree_add_uint(tree, hf_index, tvb, old_offset, 0, choice->value);
             choice_tree = proto_item_add_subtree(choice_item, ett_index);
+            /* For known extensions parse length prefix */
+            if (choice->extension == ASN1_NOT_EXTENSION_ROOT) {
+                guint length;
+                offset = dissect_oer_length_determinant(tvb, offset, actx, tree, hf_oer_length_determinant, &length);
+            }
             offset = choice->func(tvb, offset, actx, choice_tree, *choice->p_id);
             proto_item_set_len(choice_item, offset - old_offset);
             if (value) {
@@ -698,10 +773,11 @@ dissect_oer_choice(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *
         }
         choice++;
     }
+    /* None of the known choice options matched, parse the contents as an extension */
+    // XXX : should check if the extensions are present in the CHOICE defintion
+    offset = dissect_oer_octet_string(tvb, offset, actx, tree, hf_index, NO_BOUND, NO_BOUND, FALSE, NULL);
 
-    dissect_oer_not_decoded_yet(tree, actx->pinfo, tvb, "Choice : No matching tag");
-
-    return tvb_reported_length(tvb);
+    return offset;
 }
 
 /* 27 Encoding of values of the restricted character string types
