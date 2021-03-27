@@ -22,8 +22,6 @@ set(DISSECTOR_SUPPORT_SRC
 	mate_util.c
 )
 
-include_directories(${CMAKE_CURRENT_SOURCE_DIR})
-
 add_lemon_files(LEMON_FILES GENERATED_FILES
 	mate_grammar.lemon
 )

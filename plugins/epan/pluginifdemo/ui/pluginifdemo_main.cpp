@@ -14,7 +14,7 @@
 
 #include <config.h>
 
-#include <ui/uihandler.h>
+#include "uihandler.h"
 
 #include <QWidget>
 #include <QLineEdit>

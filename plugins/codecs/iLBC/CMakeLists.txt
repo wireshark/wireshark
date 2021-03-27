@@ -27,11 +27,6 @@ set_source_files_properties(
 	COMPILE_FLAGS "${WERROR_COMMON_FLAGS}"
 )
 
-include_directories(
-	${CMAKE_SOURCE_DIR}/codecs
-	${CMAKE_CURRENT_SOURCE_DIR}
-)
-
 register_plugin_files(plugin.c
 	plugin_codec
 	${CODEC_SRC}

@@ -24,7 +24,7 @@
 
 #include <ui/qt/main_window.h>
 
-#include <ui/uihandler.h>
+#include "uihandler.h"
 #include <ui/simple_dialog.h>
 
 static void

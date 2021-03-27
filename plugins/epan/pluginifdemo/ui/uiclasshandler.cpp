@@ -25,9 +25,9 @@
 
 #include <ui/qt/main_window.h>
 
-#include <ui/uihandler.h>
-#include <ui/pluginifdemo_main.h>
-#include <ui/pluginifdemo_about.h>
+#include "uihandler.h"
+#include "pluginifdemo_main.h"
+#include "pluginifdemo_about.h"
 
 QMutex * GuiHandler::singletonMutex = new QMutex();
 

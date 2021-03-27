@@ -19,7 +19,7 @@
 #include <epan/plugin_if.h>
 #include "pluginifdemo.h"
 
-#include <ui/uihandler.h>
+#include "ui/uihandler.h"
 
 void proto_register_pluginifdemo(void);
 void proto_reg_handoff_pluginifdemo(void);

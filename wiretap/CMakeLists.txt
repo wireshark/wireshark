@@ -187,6 +187,10 @@ target_include_directories(wiretap SYSTEM
 		${ZLIB_INCLUDE_DIRS}
 )
 
+target_include_directories(wiretap PUBLIC
+	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}>
+)
+
 install(TARGETS wiretap
 	EXPORT WiresharkTargets
 	RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
