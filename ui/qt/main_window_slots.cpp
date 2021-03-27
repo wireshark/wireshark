@@ -1273,7 +1273,7 @@ void MainWindow::setMenusForSelectedPacket()
     main_ui_->actionSCTPAnalyseThisAssociation->setEnabled(is_sctp);
     main_ui_->actionSCTPShowAllAssociations->setEnabled(is_sctp);
     main_ui_->actionSCTPFilterThisAssociation->setEnabled(is_sctp);
-    main_ui_->actionTelephonyRTPStreamAnalysis->setEnabled(is_rtp);
+    main_ui_->actionTelephonyRtpStreamAnalysis->setEnabled(is_rtp);
     main_ui_->actionTelephonyLteRlcGraph->setEnabled(is_lte_rlc);
 }
 
@@ -3304,36 +3304,56 @@ void MainWindow::on_actionStatisticsHTTP2_triggered()
 
 // Telephony Menu
 
-void MainWindow::interconnectRtpStreamDialogToTelephonyCallsDialog(RtpStreamDialog *rtp_stream_dialog, VoipCallsDialog *dlg)
+void MainWindow::openTelephonyRtpPlayerDialog()
 {
-    if (rtp_stream_dialog && dlg) {
-        // Connect signals between dialogs
-        connect(dlg, SIGNAL(selectRtpStreamPassOut(rtpstream_id_t *)), rtp_stream_dialog, SLOT(selectRtpStream(rtpstream_id_t *)));
-        connect(dlg, SIGNAL(deselectRtpStreamPassOut(rtpstream_id_t *)), rtp_stream_dialog, SLOT(deselectRtpStream(rtpstream_id_t *)));
+    if (!rtp_player_dialog_) {
+        rtp_player_dialog_ = new RtpPlayerDialog(*this, capture_file_);
     }
+
+    connect(rtp_player_dialog_, SIGNAL(goToPacket(int)),
+            packet_list_, SLOT(goToPacket(int)));
+    connect(this, SIGNAL(replaceRtpStreams(QVector<rtpstream_info_t *>)),
+            rtp_player_dialog_, SLOT(replaceRtpStreams(QVector<rtpstream_info_t *>)));
+    connect(this, SIGNAL(addRtpStreams(QVector<rtpstream_info_t *>)),
+            rtp_player_dialog_, SLOT(addRtpStreams(QVector<rtpstream_info_t *>)));
+    connect(this, SIGNAL(removeRtpStreams(QVector<rtpstream_info_t *>)),
+            rtp_player_dialog_, SLOT(removeRtpStreams(QVector<rtpstream_info_t *>)));
+    rtp_player_dialog_->show();
 }
 
-void MainWindow::openTelephonyVoipCallsDialog(VoipCallsDialog *dlg)
+void MainWindow::openTelephonyVoipCallsDialog(bool all_flows)
 {
+    VoipCallsDialog *dlg;
+
+    if (all_flows) {
+        if (!sip_calls_dialog_) {
+            sip_calls_dialog_ = new VoipCallsDialog(*this, capture_file_, true);
+        }
+        dlg = sip_calls_dialog_;
+    } else {
+        if (!voip_calls_dialog_) {
+            voip_calls_dialog_ = new VoipCallsDialog(*this, capture_file_, false);
+        }
+        dlg = voip_calls_dialog_;
+    }
     connect(dlg, SIGNAL(goToPacket(int)),
             packet_list_, SLOT(goToPacket(int)));
     connect(dlg, SIGNAL(updateFilter(QString, bool)),
             this, SLOT(filterPackets(QString, bool)));
-    connect(dlg, SIGNAL(openRtpStreamDialogPassOut()),
-            this, SLOT(on_actionTelephonyRTPStreams_triggered()));
     connect(this, SIGNAL(displayFilterSuccess(bool)),
             dlg, SLOT(displayFilterSuccess(bool)));
-    interconnectRtpStreamDialogToTelephonyCallsDialog(rtp_stream_dialog_, dlg);
+    connect(dlg, SIGNAL(rtpPlayerDialogReplaceRtpStreams(QVector<rtpstream_info_t *>)),
+            this, SLOT(rtpPlayerDialogReplaceRtpStreams(QVector<rtpstream_info_t *>)));
+    connect(dlg, SIGNAL(rtpPlayerDialogAddRtpStreams(QVector<rtpstream_info_t *>)),
+            this, SLOT(rtpPlayerDialogAddRtpStreams(QVector<rtpstream_info_t *>)));
+    connect(dlg, SIGNAL(rtpPlayerDialogRemoveRtpStreams(QVector<rtpstream_info_t *>)),
+            this, SLOT(rtpPlayerDialogRemoveRtpStreams(QVector<rtpstream_info_t *>)));
     dlg->show();
-    dlg->raise();
 }
 
 void MainWindow::on_actionTelephonyVoipCalls_triggered()
 {
-    if (!voip_calls_dialog_) {
-        voip_calls_dialog_ = new VoipCallsDialog(*this, capture_file_, false);
-    }
-    openTelephonyVoipCallsDialog(voip_calls_dialog_);
+    openTelephonyVoipCallsDialog(false);
 }
 
 void MainWindow::on_actionTelephonyGsmMapSummary_triggered()
@@ -3418,7 +3438,7 @@ void MainWindow::on_actionTelephonyOsmuxPacketCounter_triggered()
     openStatisticsTreeDialog("osmux");
 }
 
-void MainWindow::on_actionTelephonyRTPStreams_triggered()
+void MainWindow::openTelephonyRtpStreamsDialog()
 {
     if (!rtp_stream_dialog_) {
         rtp_stream_dialog_ = new RtpStreamDialog(*this, capture_file_);
@@ -3431,17 +3451,33 @@ void MainWindow::on_actionTelephonyRTPStreams_triggered()
             this, SLOT(filterPackets(QString, bool)));
     connect(this, SIGNAL(displayFilterSuccess(bool)),
             rtp_stream_dialog_, SLOT(displayFilterSuccess(bool)));
-    interconnectRtpStreamDialogToTelephonyCallsDialog(rtp_stream_dialog_, voip_calls_dialog_);
-    interconnectRtpStreamDialogToTelephonyCallsDialog(rtp_stream_dialog_, sip_calls_dialog_);
+    connect(rtp_stream_dialog_, SIGNAL(rtpPlayerDialogReplaceRtpStreams(QVector<rtpstream_info_t *>)),
+            this, SLOT(rtpPlayerDialogReplaceRtpStreams(QVector<rtpstream_info_t *>)));
+    connect(rtp_stream_dialog_, SIGNAL(rtpPlayerDialogAddRtpStreams(QVector<rtpstream_info_t *>)),
+            this, SLOT(rtpPlayerDialogAddRtpStreams(QVector<rtpstream_info_t *>)));
+    connect(rtp_stream_dialog_, SIGNAL(rtpPlayerDialogRemoveRtpStreams(QVector<rtpstream_info_t *>)),
+            this, SLOT(rtpPlayerDialogRemoveRtpStreams(QVector<rtpstream_info_t *>)));
+    connect(this, SIGNAL(selectRtpStream(rtpstream_id_t *)), rtp_stream_dialog_, SLOT(selectRtpStream(rtpstream_id_t *)));
+    connect(this, SIGNAL(deselectRtpStream(rtpstream_id_t *)), rtp_stream_dialog_, SLOT(deselectRtpStream(rtpstream_id_t *)));
     rtp_stream_dialog_->show();
-    rtp_stream_dialog_->raise();
 }
 
-void MainWindow::on_actionTelephonyRTPStreamAnalysis_triggered()
+void MainWindow::on_actionTelephonyRtpStreams_triggered()
+{
+    openTelephonyRtpStreamsDialog();
+}
+
+void MainWindow::on_actionTelephonyRtpStreamAnalysis_triggered()
 {
     RtpAnalysisDialog *rtp_analysis_dialog = new  RtpAnalysisDialog(*this, capture_file_);
     connect(rtp_analysis_dialog, SIGNAL(goToPacket(int)),
             packet_list_, SLOT(goToPacket(int)));
+    connect(rtp_analysis_dialog, SIGNAL(rtpPlayerDialogReplaceRtpStreams(QVector<rtpstream_info_t *>)),
+            this, SLOT(rtpPlayerDialogReplaceRtpStreams(QVector<rtpstream_info_t *>)));
+    connect(rtp_analysis_dialog, SIGNAL(rtpPlayerDialogAddRtpStreams(QVector<rtpstream_info_t *>)),
+            this, SLOT(rtpPlayerDialogAddRtpStreams(QVector<rtpstream_info_t *>)));
+    connect(rtp_analysis_dialog, SIGNAL(rtpPlayerDialogRemoveRtpStreams(QVector<rtpstream_info_t *>)),
+            this, SLOT(rtpPlayerDialogRemoveRtpStreams(QVector<rtpstream_info_t *>)));
     rtp_analysis_dialog->show();
 }
 
@@ -3462,10 +3498,7 @@ void MainWindow::on_actionTelephonyUCPMessages_triggered()
 
 void MainWindow::on_actionTelephonySipFlows_triggered()
 {
-    if (!sip_calls_dialog_) {
-        sip_calls_dialog_ = new VoipCallsDialog(*this, capture_file_, true);
-    }
-    openTelephonyVoipCallsDialog(sip_calls_dialog_);
+    openTelephonyVoipCallsDialog(true);
 }
 
 // Wireless Menu
@@ -4017,6 +4050,36 @@ void MainWindow::activatePluginIFToolbar(bool)
             }
         }
     }
+}
+
+void MainWindow::rtpPlayerDialogReplaceRtpStreams(QVector<rtpstream_info_t *> stream_infos)
+{
+    openTelephonyRtpPlayerDialog();
+    emit replaceRtpStreams(stream_infos);
+}
+
+void MainWindow::rtpPlayerDialogAddRtpStreams(QVector<rtpstream_info_t *> stream_infos)
+{
+    openTelephonyRtpPlayerDialog();
+    emit addRtpStreams(stream_infos);
+}
+
+void MainWindow::rtpPlayerDialogRemoveRtpStreams(QVector<rtpstream_info_t *> stream_infos)
+{
+    openTelephonyRtpPlayerDialog();
+    emit removeRtpStreams(stream_infos);
+}
+
+void MainWindow::rtpStreamsDialogSelectRtpStream(rtpstream_id_t *id)
+{
+    openTelephonyRtpStreamsDialog();
+    emit selectRtpStream(id);
+}
+
+void MainWindow::rtpStreamsDialogDeselectRtpStream(rtpstream_id_t *id)
+{
+    openTelephonyRtpStreamsDialog();
+    emit deselectRtpStream(id);
 }
 
 #ifdef _MSC_VER

@@ -768,8 +768,16 @@ rtp_draw(void *tap_offset_ptr)
                         (rtp_listinfo->is_srtp)?"SRTP":"RTP", rtp_listinfo->packet_count,
                         duration/1000, rtp_listinfo->id.ssrc);
                 new_gai->info_type=GA_INFO_TYPE_RTP;
-                new_gai->info_ptr=g_new(rtpstream_id_t, 1);
-                rtpstream_id_copy(&rtp_listinfo->id, (rtpstream_id_t *)new_gai->info_ptr);
+                rtpstream_info_t *new_info = g_new(rtpstream_info_t, 1);
+                new_gai->info_ptr = new_info;
+                rtpstream_info_init(new_info);
+                rtpstream_id_copy(&rtp_listinfo->id, &new_info->id);
+                new_info->packet_count = rtp_listinfo->packet_count;
+                new_info->setup_frame_number = rtp_listinfo->setup_frame_number;
+                new_info->rtp_stats = rtp_listinfo->rtp_stats;
+                nstime_copy(&new_info->start_rel_time, &rtp_listinfo->start_rel_time);
+                nstime_copy(&new_info->stop_rel_time, &rtp_listinfo->stop_rel_time);
+                nstime_copy(&new_info->start_abs_time, &rtp_listinfo->start_abs_time);
                 new_gai->conv_num = conv_num;
                 set_fd_time(tapinfo->session, rtp_listinfo->start_fd, time_str);
                 new_gai->time_str = g_strdup(time_str);

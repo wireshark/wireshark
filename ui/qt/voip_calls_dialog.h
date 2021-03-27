@@ -17,6 +17,8 @@
 #include "cfile.h"
 
 #include "ui/voip_calls.h"
+#include "ui/rtp_stream.h"
+#include "ui/rtp_stream_id.h"
 
 #include <ui/qt/models/voip_calls_info_model.h>
 #include <ui/qt/models/cache_proxy_model.h>
@@ -45,12 +47,15 @@ signals:
     void updateFilter(QString filter, bool force = false);
     void captureFileChanged(capture_file *cf);
     void goToPacket(int packet_num);
-    void selectRtpStreamPassOut(rtpstream_id_t *id);
-    void deselectRtpStreamPassOut(rtpstream_id_t *id);
-    void openRtpStreamDialogPassOut();
+    void rtpPlayerDialogReplaceRtpStreams(QVector<rtpstream_info_t *> stream_infos);
+    void rtpPlayerDialogAddRtpStreams(QVector<rtpstream_info_t *> stream_infos);
+    void rtpPlayerDialogRemoveRtpStreams(QVector<rtpstream_info_t *> stream_infos);
 
 public slots:
     void displayFilterSuccess(bool success);
+    void rtpPlayerReplace();
+    void rtpPlayerAdd();
+    void rtpPlayerRemove();
 
 protected:
     void contextMenuEvent(QContextMenuEvent *event);
@@ -92,6 +97,7 @@ private:
     void invertSelection();
 
     QList<QVariant> streamRowData(int row) const;
+    QVector<rtpstream_info_t *>getSelectedRtpStreams();
 
 private slots:
     void selectAll();
@@ -103,9 +109,6 @@ private slots:
     void on_buttonBox_clicked(QAbstractButton *button);
     void on_buttonBox_helpRequested();
     void updateWidgets();
-    void selectRtpStreamPassIn(rtpstream_id_t *id);
-    void deselectRtpStreamPassIn(rtpstream_id_t *id);
-    void openRtpStreamDialogPassIn();
     void captureEvent(CaptureEvent e);
     void on_displayFilterCheckBox_toggled(bool checked);
     void on_actionSelectAll_triggered();

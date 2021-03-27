@@ -559,8 +559,8 @@
      <property name="title">
       <string>&amp;RTP</string>
      </property>
-     <addaction name="actionTelephonyRTPStreams"/>
-     <addaction name="actionTelephonyRTPStreamAnalysis"/>
+     <addaction name="actionTelephonyRtpStreams"/>
+     <addaction name="actionTelephonyRtpStreamAnalysis"/>
     </widget>
     <widget class="QMenu" name="menuTelephonySCTP">
      <property name="title">
@@ -2588,7 +2588,7 @@
     <string>SIP Flows</string>
    </property>
   </action>
-  <action name="actionTelephonyRTPStreams">
+  <action name="actionTelephonyRtpStreams">
    <property name="text">
     <string>RTP Streams</string>
    </property>
@@ -2842,7 +2842,7 @@
     <string notr="true">Ctrl+Space</string>
    </property>
   </action>
-  <action name="actionTelephonyRTPStreamAnalysis">
+  <action name="actionTelephonyRtpStreamAnalysis">
    <property name="text">
     <string>Stream Analysis</string>
    </property>

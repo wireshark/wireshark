@@ -249,8 +249,7 @@ private:
     QPointer<RtpStreamDialog> rtp_stream_dialog_;       // Singleton pattern used
     QPointer<VoipCallsDialog> voip_calls_dialog_;       // Singleton pattern used
     QPointer<VoipCallsDialog> sip_calls_dialog_;        // Singleton pattern used
-
-    void interconnectRtpStreamDialogToTelephonyCallsDialog(RtpStreamDialog *rtp_stream_dialog, VoipCallsDialog *dlg);
+    QPointer<RtpPlayerDialog> rtp_player_dialog_;       // Singleton pattern used
 
     void freeze();
     void thaw();
@@ -313,6 +312,11 @@ signals:
     void framesSelected(QList<int>);
 
     void captureActive(int);
+    void replaceRtpStreams(QVector<rtpstream_info_t *> stream_infos);
+    void addRtpStreams(QVector<rtpstream_info_t *> stream_infos);
+    void removeRtpStreams(QVector<rtpstream_info_t *> stream_infos);
+    void selectRtpStream(rtpstream_id_t *id);
+    void deselectRtpStream(rtpstream_id_t *id);
 
 public slots:
     // in main_window_slots.cpp
@@ -359,6 +363,12 @@ public slots:
                         guint16 channelType, guint16 channelId, guint8 direction);
 
     void on_actionViewFullScreen_triggered(bool checked);
+
+    void rtpPlayerDialogReplaceRtpStreams(QVector<rtpstream_info_t *> stream_infos);
+    void rtpPlayerDialogAddRtpStreams(QVector<rtpstream_info_t *> stream_infos);
+    void rtpPlayerDialogRemoveRtpStreams(QVector<rtpstream_info_t *> stream_infos);
+    void rtpStreamsDialogSelectRtpStream(rtpstream_id_t *id);
+    void rtpStreamsDialogDeselectRtpStream(rtpstream_id_t *id);
 
 private slots:
 
@@ -673,7 +683,9 @@ private slots:
     void on_actionStatisticsHpfeeds_triggered();
     void on_actionStatisticsHTTP2_triggered();
 
-    void openTelephonyVoipCallsDialog(VoipCallsDialog *dlg);
+    void openTelephonyRtpStreamsDialog();
+    void openTelephonyRtpPlayerDialog();
+    void openTelephonyVoipCallsDialog(bool all_flows);
     void on_actionTelephonyVoipCalls_triggered();
     void on_actionTelephonyGsmMapSummary_triggered();
     void statCommandLteMacStatistics(const char *arg, void *);
@@ -685,8 +697,8 @@ private slots:
     void on_actionTelephonyISUPMessages_triggered();
     void on_actionTelephonyMtp3Summary_triggered();
     void on_actionTelephonyOsmuxPacketCounter_triggered();
-    void on_actionTelephonyRTPStreams_triggered();
-    void on_actionTelephonyRTPStreamAnalysis_triggered();
+    void on_actionTelephonyRtpStreams_triggered();
+    void on_actionTelephonyRtpStreamAnalysis_triggered();
     void on_actionTelephonyRTSPPacketCounter_triggered();
     void on_actionTelephonySMPPOperations_triggered();
     void on_actionTelephonyUCPMessages_triggered();

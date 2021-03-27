@@ -43,6 +43,14 @@ public:
 
 signals:
     void goToPacket(int packet_num);
+    void rtpPlayerDialogReplaceRtpStreams(QVector<rtpstream_info_t *> stream_infos);
+    void rtpPlayerDialogAddRtpStreams(QVector<rtpstream_info_t *> stream_infos);
+    void rtpPlayerDialogRemoveRtpStreams(QVector<rtpstream_info_t *> stream_infos);
+
+public slots:
+    void rtpPlayerReplace();
+    void rtpPlayerAdd();
+    void rtpPlayerRemove();
 
 protected slots:
     virtual void updateWidgets();
@@ -69,7 +77,6 @@ private slots:
     void on_actionSaveForwardCsv_triggered();
     void on_actionSaveReverseCsv_triggered();
     void on_actionSaveGraph_triggered();
-    void on_buttonBox_clicked(QAbstractButton *button);
     void on_buttonBox_helpRequested();
     void showStreamMenu(QPoint pos);
     void graphClicked(QMouseEvent *event);
@@ -146,6 +153,7 @@ private:
 
     void clearSAEErrors();
     bool isSAEOK();
+    QVector<rtpstream_info_t *>getSelectedRtpStreams();
 };
 
 #endif // RTP_ANALYSIS_DIALOG_H

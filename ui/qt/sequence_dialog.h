@@ -51,6 +51,7 @@ class SequenceDialog : public WiresharkDialog
 public:
     explicit SequenceDialog(QWidget &parent, CaptureFile &cf, SequenceInfo *info = NULL);
     ~SequenceDialog();
+    void enableVoIPFeatures();
 
 protected:
     void showEvent(QShowEvent *event);
@@ -58,9 +59,11 @@ protected:
     void keyPressEvent(QKeyEvent *event);
 
 signals:
-    void selectRtpStream(rtpstream_id_t *id);
-    void deselectRtpStream(rtpstream_id_t *id);
-    void openRtpStreamDialog();
+    void rtpStreamsDialogSelectRtpStream(rtpstream_id_t *id);
+    void rtpStreamsDialogDeselectRtpStream(rtpstream_id_t *id);
+    void rtpPlayerDialogReplaceRtpStreams(QVector<rtpstream_info_t *> stream_infos);
+    void rtpPlayerDialogAddRtpStreams(QVector<rtpstream_info_t *> stream_infos);
+    void rtpPlayerDialogRemoveRtpStreams(QVector<rtpstream_info_t *> stream_infos);
 
 private slots:
     void updateWidgets();
@@ -96,6 +99,10 @@ private slots:
     void on_actionSelectRtpStream_triggered();
     void on_actionDeselectRtpStream_triggered();
 
+    void rtpPlayerReplace();
+    void rtpPlayerAdd();
+    void rtpPlayerRemove();
+
 private:
     Ui::SequenceDialog *ui;
     SequenceDiagram *seq_diagram_;
@@ -105,12 +112,14 @@ private:
     double one_em_;
     int sequence_w_;
     QPushButton *reset_button_;
+    QPushButton *player_button_;
     QPushButton *export_button_;
     QMenu ctx_menu_;
     QCPItemText *key_text_;
     QCPItemText *comment_text_;
     seq_analysis_item_t *current_rtp_sai_;     // Used for passing current sai to rtp processing
     QPointer<RtpStreamDialog> rtp_stream_dialog_;       // Singleton pattern used
+    bool voipFeaturesEnabled;
 
     void zoomXAxis(bool in);
     void panAxes(int x_pixels, int y_pixels);
@@ -118,6 +127,8 @@ private:
     void goToAdjacentPacket(bool next);
 
     static gboolean addFlowSequenceItem(const void *key, void *value, void *userdata);
+
+    QVector<rtpstream_info_t *>getSelectedRtpStreams();
 };
 
 #endif // SEQUENCE_DIALOG_H

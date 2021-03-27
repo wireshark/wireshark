@@ -72,7 +72,8 @@ SequenceDialog::SequenceDialog(QWidget &parent, CaptureFile &cf, SequenceInfo *i
     info_(info),
     num_items_(0),
     packet_num_(0),
-    sequence_w_(1)
+    sequence_w_(1),
+    voipFeaturesEnabled(false)
 {
     QAction *action;
 
@@ -152,9 +153,11 @@ SequenceDialog::SequenceDialog(QWidget &parent, CaptureFile &cf, SequenceInfo *i
     ctx_menu_.addSeparator();
     action = ui->actionSelectRtpStream;
     ctx_menu_.addAction(action);
+    action->setVisible(false);
     action->setEnabled(false);
     action = ui->actionDeselectRtpStream;
     ctx_menu_.addAction(action);
+    action->setVisible(false);
     action->setEnabled(false);
     set_action_shortcuts_visible_in_context_menu(ctx_menu_.actions());
 
@@ -176,6 +179,7 @@ SequenceDialog::SequenceDialog(QWidget &parent, CaptureFile &cf, SequenceInfo *i
 
     reset_button_ = ui->buttonBox->addButton(ui->actionResetDiagram->text(), QDialogButtonBox::ActionRole);
     reset_button_->setToolTip(ui->actionResetDiagram->toolTip());
+    player_button_ = RtpPlayerDialog::addPlayerButton(ui->buttonBox, this);
     export_button_ = ui->buttonBox->addButton(ui->actionExportDiagram->text(), QDialogButtonBox::ActionRole);
     export_button_->setToolTip(ui->actionExportDiagram->toolTip());
 
@@ -197,12 +201,24 @@ SequenceDialog::SequenceDialog(QWidget &parent, CaptureFile &cf, SequenceInfo *i
     connect(sp, SIGNAL(mouseWheel(QWheelEvent*)), this, SLOT(mouseWheeled(QWheelEvent*)));
 
     disconnect(ui->buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
+
+    // Button must be enabled by VoIP dialogs
+    player_button_->setVisible(false);
+    player_button_->setEnabled(false);
 }
 
 SequenceDialog::~SequenceDialog()
 {
     info_->unref();
     delete ui;
+}
+
+void SequenceDialog::enableVoIPFeatures()
+{
+    voipFeaturesEnabled = true;
+    player_button_->setVisible(true);
+    ui->actionSelectRtpStream->setVisible(true);
+    ui->actionDeselectRtpStream->setVisible(true);
 }
 
 void SequenceDialog::updateWidgets()
@@ -279,10 +295,14 @@ void SequenceDialog::keyPressEvent(QKeyEvent *event)
         on_actionGoToPreviousPacket_triggered();
         break;
     case Qt::Key_S:
-        on_actionSelectRtpStream_triggered();
+        if (voipFeaturesEnabled) {
+            on_actionSelectRtpStream_triggered();
+        }
         break;
     case Qt::Key_D:
-        on_actionDeselectRtpStream_triggered();
+        if (voipFeaturesEnabled) {
+            on_actionDeselectRtpStream_triggered();
+        }
         break;
     }
 
@@ -319,26 +339,29 @@ void SequenceDialog::yAxisChanged(QCPRange range)
 
 void SequenceDialog::diagramClicked(QMouseEvent *event)
 {
+    current_rtp_sai_ = NULL;
+    if (event) {
+        seq_analysis_item_t *sai = seq_diagram_->itemForPosY(event->pos().y());
+        if (voipFeaturesEnabled) {
+            ui->actionSelectRtpStream->setEnabled(false);
+            ui->actionDeselectRtpStream->setEnabled(false);
+            player_button_->setEnabled(false);
+            if (sai) {
+                if (GA_INFO_TYPE_RTP == sai->info_type) {
+                    ui->actionSelectRtpStream->setEnabled(true && !file_closed_);
+                    ui->actionDeselectRtpStream->setEnabled(true && !file_closed_);
+                    player_button_->setEnabled(true && !file_closed_);
+                    current_rtp_sai_ = sai;
+                }
+            }
+        }
+    }
+
     switch (event->button()) {
     case Qt::LeftButton:
         on_actionGoToPacket_triggered();
         break;
     case Qt::RightButton:
-        // XXX We should find some way to get sequenceDiagram to handle a
-        // contextMenuEvent instead.
-        current_rtp_sai_ = NULL;
-        if (event) {
-            seq_analysis_item_t *sai = seq_diagram_->itemForPosY(event->pos().y());
-            ui->actionSelectRtpStream->setEnabled(false);
-            ui->actionDeselectRtpStream->setEnabled(false);
-            if (sai) {
-                if (GA_INFO_TYPE_RTP == sai->info_type) {
-                    ui->actionSelectRtpStream->setEnabled(true && !file_closed_);
-                    ui->actionDeselectRtpStream->setEnabled(true && !file_closed_);
-                    current_rtp_sai_ = sai;
-                }
-            }
-        }
         ctx_menu_.exec(event->globalPos());
         break;
     default:
@@ -732,8 +755,7 @@ void SequenceDialog::on_actionZoomOut_triggered()
 void SequenceDialog::on_actionSelectRtpStream_triggered()
 {
     if (current_rtp_sai_ && GA_INFO_TYPE_RTP == current_rtp_sai_->info_type) {
-        emit openRtpStreamDialog();
-        emit selectRtpStream((rtpstream_id_t *)current_rtp_sai_->info_ptr);
+        emit rtpStreamsDialogSelectRtpStream(&((rtpstream_info_t *)current_rtp_sai_->info_ptr)->id);
         raise();
     }
 }
@@ -741,8 +763,7 @@ void SequenceDialog::on_actionSelectRtpStream_triggered()
 void SequenceDialog::on_actionDeselectRtpStream_triggered()
 {
     if (current_rtp_sai_ && GA_INFO_TYPE_RTP == current_rtp_sai_->info_type) {
-        emit openRtpStreamDialog();
-        emit deselectRtpStream((rtpstream_id_t *)current_rtp_sai_->info_ptr);
+        emit rtpStreamsDialogDeselectRtpStream(&((rtpstream_info_t *)current_rtp_sai_->info_ptr)->id);
         raise();
     }
 }
@@ -779,6 +800,32 @@ gboolean SequenceDialog::addFlowSequenceItem(const void* key, void *value, void 
     item_data->curr_index++;
 
     return FALSE;
+}
+
+QVector<rtpstream_info_t *>SequenceDialog::getSelectedRtpStreams()
+{
+    QVector<rtpstream_info_t *> stream_infos;
+
+    if (current_rtp_sai_ && GA_INFO_TYPE_RTP == current_rtp_sai_->info_type) {
+        stream_infos << (rtpstream_info_t *)current_rtp_sai_->info_ptr;
+    }
+
+    return stream_infos;
+}
+
+void SequenceDialog::rtpPlayerReplace()
+{
+    emit rtpPlayerDialogReplaceRtpStreams(getSelectedRtpStreams());
+}
+
+void SequenceDialog::rtpPlayerAdd()
+{
+    emit rtpPlayerDialogAddRtpStreams(getSelectedRtpStreams());
+}
+
+void SequenceDialog::rtpPlayerRemove()
+{
+    emit rtpPlayerDialogRemoveRtpStreams(getSelectedRtpStreams());
 }
 
 SequenceInfo::SequenceInfo(seq_analysis_info_t *sainfo) :

@@ -143,7 +143,7 @@ RtpPlayerDialog::RtpPlayerDialog(QWidget &parent, CaptureFile &cf) :
     , stereo_available_(false)
     , marker_stream_(0)
     , last_ti_(0)
-    , listener_removed_(false)
+    , listener_removed_(true)
 {
     ui->setupUi(this);
     loadGeometry(parent.width(), parent.height());
@@ -279,11 +279,11 @@ RtpPlayerDialog::RtpPlayerDialog(QWidget &parent, CaptureFile &cf) :
     list_ctx_menu_->addAction(ui->actionGoToSetupPacketTree);
     set_action_shortcuts_visible_in_context_menu(list_ctx_menu_->actions());
 
-    QTimer::singleShot(0, this, SLOT(retapPackets()));
 #endif // QT_MULTIMEDIA_LIB
 }
 
-QPushButton *RtpPlayerDialog::addPlayerButton(QDialogButtonBox *button_box)
+// _U_ is used when no QT_MULTIMEDIA_LIB is available
+QPushButton *RtpPlayerDialog::addPlayerButton(QDialogButtonBox *button_box, QDialog *dialog _U_)
 {
     if (!button_box) return NULL;
 
@@ -291,6 +291,26 @@ QPushButton *RtpPlayerDialog::addPlayerButton(QDialogButtonBox *button_box)
     player_button = button_box->addButton(tr("&Play Streams"), QDialogButtonBox::ActionRole);
     player_button->setToolTip(tr("Open RTP player dialog"));
     player_button->setIcon(StockIcon("media-playback-start"));
+
+#if defined(QT_MULTIMEDIA_LIB)
+    QMenu *button_menu = new QMenu(player_button);
+    button_menu->setToolTipsVisible(true);
+    QAction *ca;
+    ca = button_menu->addAction(tr("Re&place"));
+    ca->setToolTip(tr("Replace existing streams in RTP Player with new set"));
+    connect(ca, SIGNAL(triggered()), dialog, SLOT(rtpPlayerReplace()));
+    ca = button_menu->addAction(tr("&Add"));
+    ca->setToolTip(tr("Add new set to existing list of streams in RTP Player"));
+    connect(ca, SIGNAL(triggered()), dialog, SLOT(rtpPlayerAdd()));
+    ca = button_menu->addAction(tr("&Remove"));
+    ca->setToolTip(tr("Remove selected streams from list of streams in RTP Player"));
+    connect(ca, SIGNAL(triggered()), dialog, SLOT(rtpPlayerRemove()));
+    player_button->setMenu(button_menu);
+#else
+    player_button->setEnabled(false);
+    player_button->setText(tr("No Audio"));
+#endif
+
     return player_button;
 }
 
@@ -334,8 +354,20 @@ void RtpPlayerDialog::reject()
 
 void RtpPlayerDialog::retapPackets()
 {
+    if (!listener_removed_) {
+        // Retap is running, nothing better we can do
+        return;
+    }
     ui->hintLabel->setText("<i><small>" + tr("Decoding streams...") + "</i></small>");
     wsApp->processEvents();
+
+    // Clear packets from existing streams before retap
+    for (int row = 0; row < ui->streamTreeWidget->topLevelItemCount(); row++) {
+        QTreeWidgetItem *ti = ui->streamTreeWidget->topLevelItem(row);
+        RtpAudioStream *row_stream = ti->data(stream_data_col_, Qt::UserRole).value<RtpAudioStream*>();
+
+        row_stream->clearPackets();
+    }
 
     // destroyCheck is protection againts destroying dialog during recap.
     // It stores dialog pointer in data() and if dialog destroyed, it
@@ -343,6 +375,7 @@ void RtpPlayerDialog::retapPackets()
     QPointer<RtpPlayerDialog> destroyCheck=this;
     GString *error_string;
 
+    listener_removed_ = false;
     error_string = register_tap_listener("rtp", this, NULL, 0, NULL, tapPacket, NULL, NULL);
     if (error_string) {
         report_failure("RTP Player - tap registration failed: %s", error_string->str);
@@ -546,7 +579,7 @@ void RtpPlayerDialog::createPlot(bool rescale_axes)
     if (rescale_axes) resetXAxis();
 }
 
-void RtpPlayerDialog::addRtpStream(rtpstream_info_t *rtpstream)
+void RtpPlayerDialog::addSingleRtpStream(rtpstream_info_t *rtpstream)
 {
     AudioRouting audio_routing = AudioRouting(AUDIO_UNMUTED, channel_mono);
 
@@ -625,6 +658,63 @@ void RtpPlayerDialog::addRtpStream(rtpstream_info_t *rtpstream)
                      ui->streamTreeWidget->topLevelItemCount(),
                      rtpstream->packet_count,
                      rtpstream->start_fd ? rtpstream->start_fd->num : 0);
+
+}
+
+void RtpPlayerDialog::replaceRtpStreams(QVector<rtpstream_info_t *> stream_infos)
+{
+    // Delete all existing rows
+    on_actionSelectAll_triggered();
+    on_actionRemoveStream_triggered();
+
+    // Add all new streams
+    for (int i=0; i < stream_infos.size(); i++) {
+        addSingleRtpStream(stream_infos[i]);
+    }
+    setMarkers();
+
+    QTimer::singleShot(0, this, SLOT(retapPackets()));
+}
+
+void RtpPlayerDialog::addRtpStreams(QVector<rtpstream_info_t *> stream_infos)
+{
+    int tli_count = ui->streamTreeWidget->topLevelItemCount();
+
+    // Add new streams
+    for (int i=0; i < stream_infos.size(); i++) {
+        addSingleRtpStream(stream_infos[i]);
+    }
+
+    if (tli_count == 0) {
+        setMarkers();
+    }
+
+    QTimer::singleShot(0, this, SLOT(retapPackets()));
+}
+
+void RtpPlayerDialog::removeRtpStreams(QVector<rtpstream_info_t *> stream_infos)
+{
+    int tli_count = ui->streamTreeWidget->topLevelItemCount();
+
+    if (last_ti_) {
+        highlightItem(last_ti_, false);
+        last_ti_ = NULL;
+    }
+
+    for (int i=0; i < stream_infos.size(); i++) {
+        for (int row = 0; row < tli_count; row++) {
+            QTreeWidgetItem *ti = ui->streamTreeWidget->topLevelItem(row);
+            RtpAudioStream *row_stream = ti->data(stream_data_col_, Qt::UserRole).value<RtpAudioStream*>();
+            if (row_stream->isMatch(stream_infos[i])) {
+                removeRow(ti);
+                tli_count--;
+                break;
+            }
+        }
+    }
+    updateGraphs();
+
+    updateWidgets();
 }
 
 void RtpPlayerDialog::setMarkers()
@@ -1157,7 +1247,6 @@ void RtpPlayerDialog::outputNotify()
     setPlayPosition(secs);
 }
 
-
 void RtpPlayerDialog::on_pauseButton_clicked()
 {
     for( int i = 0; i<playing_streams_.count(); ++i ) {
@@ -1274,6 +1363,48 @@ void RtpPlayerDialog::on_streamTreeWidget_itemDoubleClicked(QTreeWidgetItem *ite
     }
 }
 
+void RtpPlayerDialog::removeRow(QTreeWidgetItem *ti)
+{
+    RtpAudioStream *audio_stream = ti->data(stream_data_col_, Qt::UserRole).value<RtpAudioStream*>();
+    if (audio_stream) {
+        ti->setData(stream_data_col_, Qt::UserRole, QVariant());
+        delete audio_stream;
+    }
+
+    RtpAudioGraph *audio_graph = ti->data(graph_audio_data_col_, Qt::UserRole).value<RtpAudioGraph*>();
+    if (audio_graph) {
+        ti->setData(graph_audio_data_col_, Qt::UserRole, QVariant());
+        audio_graph->remove(ui->audioPlot);
+    }
+
+    QCPGraph *graph;
+    graph = ti->data(graph_sequence_data_col_, Qt::UserRole).value<QCPGraph*>();
+    if (graph) {
+        ti->setData(graph_sequence_data_col_, Qt::UserRole, QVariant());
+        ui->audioPlot->removeGraph(graph);
+    }
+
+    graph = ti->data(graph_jitter_data_col_, Qt::UserRole).value<QCPGraph*>();
+    if (graph) {
+        ti->setData(graph_jitter_data_col_, Qt::UserRole, QVariant());
+        ui->audioPlot->removeGraph(graph);
+    }
+
+    graph = ti->data(graph_timestamp_data_col_, Qt::UserRole).value<QCPGraph*>();
+    if (graph) {
+        ti->setData(graph_timestamp_data_col_, Qt::UserRole, QVariant());
+        ui->audioPlot->removeGraph(graph);
+    }
+
+    graph = ti->data(graph_silence_data_col_, Qt::UserRole).value<QCPGraph*>();
+    if (graph) {
+        ti->setData(graph_silence_data_col_, Qt::UserRole, QVariant());
+        ui->audioPlot->removeGraph(graph);
+    }
+
+    delete ti;
+}
+
 void RtpPlayerDialog::on_actionRemoveStream_triggered()
 {
     QList<QTreeWidgetItem *> items = ui->streamTreeWidget->selectedItems();
@@ -1283,47 +1414,7 @@ void RtpPlayerDialog::on_actionRemoveStream_triggered()
         last_ti_ = NULL;
     }
     for(int i = 0; i<items.count(); i++ ) {
-
-        QTreeWidgetItem *ti = items[i];
-
-        RtpAudioStream *audio_stream = ti->data(stream_data_col_, Qt::UserRole).value<RtpAudioStream*>();
-        if (audio_stream) {
-            ti->setData(stream_data_col_, Qt::UserRole, QVariant());
-            delete audio_stream;
-        }
-
-        RtpAudioGraph *audio_graph = ti->data(graph_audio_data_col_, Qt::UserRole).value<RtpAudioGraph*>();
-        if (audio_graph) {
-            ti->setData(graph_audio_data_col_, Qt::UserRole, QVariant());
-            audio_graph->remove(ui->audioPlot);
-        }
-
-        QCPGraph *graph;
-        graph = ti->data(graph_sequence_data_col_, Qt::UserRole).value<QCPGraph*>();
-        if (graph) {
-            ti->setData(graph_sequence_data_col_, Qt::UserRole, QVariant());
-            ui->audioPlot->removeGraph(graph);
-        }
-
-        graph = ti->data(graph_jitter_data_col_, Qt::UserRole).value<QCPGraph*>();
-        if (graph) {
-            ti->setData(graph_jitter_data_col_, Qt::UserRole, QVariant());
-            ui->audioPlot->removeGraph(graph);
-        }
-
-        graph = ti->data(graph_timestamp_data_col_, Qt::UserRole).value<QCPGraph*>();
-        if (graph) {
-            ti->setData(graph_timestamp_data_col_, Qt::UserRole, QVariant());
-            ui->audioPlot->removeGraph(graph);
-        }
-
-        graph = ti->data(graph_silence_data_col_, Qt::UserRole).value<QCPGraph*>();
-        if (graph) {
-            ti->setData(graph_silence_data_col_, Qt::UserRole, QVariant());
-            ui->audioPlot->removeGraph(graph);
-        }
-
-        delete ti;
+        removeRow(items[i]);
     }
     // TODO: Recalculate legend
     // - Graphs used for legend could be removed above and we must add new

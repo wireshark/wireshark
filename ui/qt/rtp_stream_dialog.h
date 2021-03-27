@@ -37,11 +37,17 @@ signals:
     void packetsMarked();
     void updateFilter(QString filter, bool force = false);
     void goToPacket(int packet_num);
+    void rtpPlayerDialogReplaceRtpStreams(QVector<rtpstream_info_t *> stream_infos);
+    void rtpPlayerDialogAddRtpStreams(QVector<rtpstream_info_t *> stream_infos);
+    void rtpPlayerDialogRemoveRtpStreams(QVector<rtpstream_info_t *> stream_infos);
 
 public slots:
     void selectRtpStream(rtpstream_id_t *id);
     void deselectRtpStream(rtpstream_id_t *id);
     void displayFilterSuccess(bool success);
+    void rtpPlayerReplace();
+    void rtpPlayerAdd();
+    void rtpPlayerRemove();
 
 protected:
     bool eventFilter(QObject *obj, QEvent *event);
@@ -74,7 +80,7 @@ private:
     QList<QVariant> streamRowData(int row) const;
     void freeLastSelected();
     void invertSelection();
-
+    QVector<rtpstream_info_t *>getSelectedRtpStreams();
 
 private slots:
     void showStreamMenu(QPoint pos);

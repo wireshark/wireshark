@@ -54,6 +54,7 @@ public:
     bool isMatch(const rtpstream_info_t *rtpstream) const;
     bool isMatch(const struct _packet_info *pinfo, const struct _rtp_info *rtp_info) const;
     void addRtpPacket(const struct _packet_info *pinfo, const struct _rtp_info *rtp_info);
+    void clearPackets();
     void reset(double global_start_time);
     AudioRouting getAudioRouting();
     void setAudioRouting(AudioRouting audio_routing);

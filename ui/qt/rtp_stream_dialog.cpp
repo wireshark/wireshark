@@ -277,7 +277,7 @@ RtpStreamDialog::RtpStreamDialog(QWidget &parent, CaptureFile &cf) :
     analyze_button_->setToolTip(ui->actionAnalyze->toolTip());
     prepare_button_ = ui->buttonBox->addButton(ui->actionPrepareFilter->text(), QDialogButtonBox::ActionRole);
     prepare_button_->setToolTip(ui->actionPrepareFilter->toolTip());
-    player_button_ = RtpPlayerDialog::addPlayerButton(ui->buttonBox);
+    player_button_ = RtpPlayerDialog::addPlayerButton(ui->buttonBox, this);
     copy_button_ = ui->buttonBox->addButton(ui->actionCopyButton->text(), QDialogButtonBox::ActionRole);
     copy_button_->setToolTip(ui->actionCopyButton->toolTip());
     export_button_ = ui->buttonBox->addButton(ui->actionExportAsRtpDump->text(), QDialogButtonBox::ActionRole);
@@ -545,9 +545,6 @@ void RtpStreamDialog::updateWidgets()
 
 #if defined(QT_MULTIMEDIA_LIB)
     player_button_->setEnabled(enable);
-#else
-    player_button_->setEnabled(false);
-    player_button_->setText(tr("No Audio"));
 #endif
 
     WiresharkDialog::updateWidgets();
@@ -812,8 +809,6 @@ void RtpStreamDialog::on_buttonBox_clicked(QAbstractButton *button)
         on_actionExportAsRtpDump_triggered();
     } else if (button == analyze_button_) {
         on_actionAnalyze_triggered();
-    } else if (button == player_button_) {
-        showPlayer();
     }
 }
 
@@ -860,39 +855,40 @@ void RtpStreamDialog::on_actionSelectNone_triggered()
     ui->streamTreeWidget->clearSelection();
 }
 
-void RtpStreamDialog::showPlayer()
+QVector<rtpstream_info_t *>RtpStreamDialog::getSelectedRtpStreams()
 {
-    rtpstream_info_t stream_info;
-    RtpPlayerDialog *rtp_player_dialog;
-
-    if (ui->streamTreeWidget->selectedItems().count() < 1) return;
-#ifdef QT_MULTIMEDIA_LIB
-    rtp_player_dialog = new RtpPlayerDialog(*this, cap_file_);
-
     // Gather up our selected streams...
+    QVector<rtpstream_info_t *> stream_infos;
     foreach(QTreeWidgetItem *ti, ui->streamTreeWidget->selectedItems()) {
         RtpStreamTreeWidgetItem *rsti = static_cast<RtpStreamTreeWidgetItem*>(ti);
         rtpstream_info_t *selected_stream = rsti->streamInfo();
         if (selected_stream) {
-            rtpstream_info_init(&stream_info);
-            rtpstream_id_copy(&selected_stream->id, &stream_info.id);
-            stream_info.packet_count = selected_stream->packet_count;
-            stream_info.setup_frame_number = selected_stream->setup_frame_number;
-            stream_info.rtp_stats = selected_stream->rtp_stats;
-            nstime_copy(&stream_info.start_rel_time, &selected_stream->start_rel_time);
-            nstime_copy(&stream_info.stop_rel_time, &selected_stream->stop_rel_time);
-            nstime_copy(&stream_info.start_abs_time, &selected_stream->start_abs_time);
-            rtp_player_dialog->addRtpStream(&stream_info);
+            stream_infos << selected_stream;
         }
     }
 
-    connect(rtp_player_dialog, SIGNAL(goToPacket(int)), this, SIGNAL(goToPacket(int)));
+    return stream_infos;
+}
 
-    rtp_player_dialog->setWindowModality(Qt::ApplicationModal);
-    rtp_player_dialog->setAttribute(Qt::WA_DeleteOnClose);
-    rtp_player_dialog->setMarkers();
-    rtp_player_dialog->show();
-#endif // QT_MULTIMEDIA_LIB
+void RtpStreamDialog::rtpPlayerReplace()
+{
+    if (ui->streamTreeWidget->selectedItems().count() < 1) return;
+
+    emit rtpPlayerDialogReplaceRtpStreams(getSelectedRtpStreams());
+}
+
+void RtpStreamDialog::rtpPlayerAdd()
+{
+    if (ui->streamTreeWidget->selectedItems().count() < 1) return;
+
+    emit rtpPlayerDialogAddRtpStreams(getSelectedRtpStreams());
+}
+
+void RtpStreamDialog::rtpPlayerRemove()
+{
+    if (ui->streamTreeWidget->selectedItems().count() < 1) return;
+
+    emit rtpPlayerDialogRemoveRtpStreams(getSelectedRtpStreams());
 }
 
 void RtpStreamDialog::displayFilterSuccess(bool success)

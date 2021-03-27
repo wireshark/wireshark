@@ -131,6 +131,17 @@ void RtpAudioStream::addRtpPacket(const struct _packet_info *pinfo, const struct
     rtp_packets_ << rtp_packet;
 }
 
+void RtpAudioStream::clearPackets()
+{
+    for (int i = 0; i < rtp_packets_.size(); i++) {
+        rtp_packet_t *rtp_packet = rtp_packets_[i];
+        g_free(rtp_packet->info);
+        g_free(rtp_packet->payload_data);
+        g_free(rtp_packet);
+    }
+    rtp_packets_.clear();
+}
+
 void RtpAudioStream::reset(double global_start_time)
 {
     global_start_rel_time_ = global_start_time;
