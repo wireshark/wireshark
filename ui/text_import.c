@@ -705,303 +705,31 @@ struct plain_decoding_data {
 #define _INVALID_INIT32 _INVALID_INIT16, _INVALID_INIT16
 #define _INVALID_INIT64 _INVALID_INIT32, _INVALID_INIT32
 #define _INVALID_INIT128 _INVALID_INIT64, _INVALID_INIT64
+#define _INVALID_INIT256 _INVALID_INIT128, _INVALID_INIT128
 
-/*
- * At least some compilers warn if you have two initializers for
- * the same array element, so we initialize everything that's
- * *always* invalid here, and initialize everything else
- * individually.
- */
-#define INVALID_INIT \
-    ['\000'] = INVALID_VALUE, \
-    ['\001'] = INVALID_VALUE, \
-    ['\002'] = INVALID_VALUE, \
-    ['\003'] = INVALID_VALUE, \
-    ['\004'] = INVALID_VALUE, \
-    ['\005'] = INVALID_VALUE, \
-    ['\006'] = INVALID_VALUE, \
-    ['\007'] = INVALID_VALUE, \
-    ['\010'] = INVALID_VALUE, \
-    /* '\t'-'\r' */           \
-    ['\016'] = INVALID_VALUE, \
-    ['\017'] = INVALID_VALUE, \
-    ['\020'] = INVALID_VALUE, \
-    ['\021'] = INVALID_VALUE, \
-    ['\022'] = INVALID_VALUE, \
-    ['\023'] = INVALID_VALUE, \
-    ['\024'] = INVALID_VALUE, \
-    ['\025'] = INVALID_VALUE, \
-    ['\026'] = INVALID_VALUE, \
-    ['\027'] = INVALID_VALUE, \
-    ['\030'] = INVALID_VALUE, \
-    ['\031'] = INVALID_VALUE, \
-    ['\032'] = INVALID_VALUE, \
-    ['\033'] = INVALID_VALUE, \
-    ['\034'] = INVALID_VALUE, \
-    ['\035'] = INVALID_VALUE, \
-    ['\036'] = INVALID_VALUE, \
-    ['\037'] = INVALID_VALUE, \
-    /* ' ' */                 \
-    ['!']    = INVALID_VALUE, \
-    ['"']    = INVALID_VALUE, \
-    ['#']    = INVALID_VALUE, \
-    ['$']    = INVALID_VALUE, \
-    ['"']    = INVALID_VALUE, \
-    ['%']    = INVALID_VALUE, \
-    ['&']    = INVALID_VALUE, \
-    ['\'']   = INVALID_VALUE, \
-    ['(']    = INVALID_VALUE, \
-    [')']    = INVALID_VALUE, \
-    ['*']    = INVALID_VALUE, \
-    /* + */                   \
-    [',']    = INVALID_VALUE, \
-    ['-']    = INVALID_VALUE, \
-    ['.']    = INVALID_VALUE, \
-    /* / */                   \
-    /* 0-9, : */              \
-    [';']    = INVALID_VALUE, \
-    ['<']    = INVALID_VALUE, \
-    /* = */                   \
-    ['>']    = INVALID_VALUE, \
-    ['?']    = INVALID_VALUE, \
-    ['@']    = INVALID_VALUE, \
-    /* A-Z */                 \
-    ['[']    = INVALID_VALUE, \
-    ['\\']   = INVALID_VALUE, \
-    [']']    = INVALID_VALUE, \
-    ['^']    = INVALID_VALUE, \
-    ['_']    = INVALID_VALUE, \
-    ['`']    = INVALID_VALUE, \
-    /* a-z */                 \
-    ['{']    = INVALID_VALUE, \
-    ['|']    = INVALID_VALUE, \
-    ['}']    = INVALID_VALUE, \
-    ['~']    = INVALID_VALUE, \
-    ['\177'] = INVALID_VALUE, \
-    [0x80]   = _INVALID_INIT128
+#define INVALID_INIT _INVALID_INIT256
+// this is a gcc/clang extension:
+//    [0 ... 255] = INVALID_VALUE
 
 #define WHITESPACE_INIT \
-    [' ']  = WHITESPACE_VALUE, \
+    [' '] = WHITESPACE_VALUE, \
     ['\t'] = WHITESPACE_VALUE, \
     ['\n'] = WHITESPACE_VALUE, \
     ['\v'] = WHITESPACE_VALUE, \
     ['\f'] = WHITESPACE_VALUE, \
     ['\r'] = WHITESPACE_VALUE
 
-#define BINARY_INIT_0_9 \
-    ['0'] = 0, \
-    ['1'] = 1, \
-    ['2'] = INVALID_VALUE, \
-    ['3'] = INVALID_VALUE, \
-    ['4'] = INVALID_VALUE, \
-    ['5'] = INVALID_VALUE, \
-    ['6'] = INVALID_VALUE, \
-    ['7'] = INVALID_VALUE, \
-    ['8'] = INVALID_VALUE, \
-    ['9'] = INVALID_VALUE
 
-#define BINARY_INIT_A_Z \
-    ['A'] = INVALID_VALUE, \
-    ['B'] = INVALID_VALUE, \
-    ['C'] = INVALID_VALUE, \
-    ['D'] = INVALID_VALUE, \
-    ['E'] = INVALID_VALUE, \
-    ['F'] = INVALID_VALUE, \
-    ['G'] = INVALID_VALUE, \
-    ['H'] = INVALID_VALUE, \
-    ['I'] = INVALID_VALUE, \
-    ['J'] = INVALID_VALUE, \
-    ['K'] = INVALID_VALUE, \
-    ['L'] = INVALID_VALUE, \
-    ['M'] = INVALID_VALUE, \
-    ['N'] = INVALID_VALUE, \
-    ['O'] = INVALID_VALUE, \
-    ['P'] = INVALID_VALUE, \
-    ['Q'] = INVALID_VALUE, \
-    ['R'] = INVALID_VALUE, \
-    ['S'] = INVALID_VALUE, \
-    ['T'] = INVALID_VALUE, \
-    ['U'] = INVALID_VALUE, \
-    ['V'] = INVALID_VALUE, \
-    ['W'] = INVALID_VALUE, \
-    ['X'] = INVALID_VALUE, \
-    ['Y'] = INVALID_VALUE, \
-    ['Z'] = INVALID_VALUE
-
-#define BINARY_INIT_a_z \
-    ['a'] = INVALID_VALUE, \
-    ['b'] = INVALID_VALUE, \
-    ['c'] = INVALID_VALUE, \
-    ['d'] = INVALID_VALUE, \
-    ['e'] = INVALID_VALUE, \
-    ['f'] = INVALID_VALUE, \
-    ['g'] = INVALID_VALUE, \
-    ['h'] = INVALID_VALUE, \
-    ['i'] = INVALID_VALUE, \
-    ['j'] = INVALID_VALUE, \
-    ['k'] = INVALID_VALUE, \
-    ['l'] = INVALID_VALUE, \
-    ['m'] = INVALID_VALUE, \
-    ['n'] = INVALID_VALUE, \
-    ['o'] = INVALID_VALUE, \
-    ['p'] = INVALID_VALUE, \
-    ['q'] = INVALID_VALUE, \
-    ['r'] = INVALID_VALUE, \
-    ['s'] = INVALID_VALUE, \
-    ['r'] = INVALID_VALUE, \
-    ['u'] = INVALID_VALUE, \
-    ['v'] = INVALID_VALUE, \
-    ['w'] = INVALID_VALUE, \
-    ['x'] = INVALID_VALUE, \
-    ['y'] = INVALID_VALUE, \
-    ['z'] = INVALID_VALUE
-
-#define OCTAL_INIT_0_9 \
-    ['0'] = 0, \
-    ['1'] = 1, \
-    ['2'] = 2, \
-    ['3'] = 3, \
-    ['4'] = 4, \
-    ['5'] = 5, \
-    ['6'] = 6, \
-    ['7'] = 7, \
-    ['8'] = INVALID_VALUE, \
-    ['9'] = INVALID_VALUE
-
-#define OCTAL_INIT_A_Z \
-    ['A'] = INVALID_VALUE, \
-    ['B'] = INVALID_VALUE, \
-    ['C'] = INVALID_VALUE, \
-    ['D'] = INVALID_VALUE, \
-    ['E'] = INVALID_VALUE, \
-    ['F'] = INVALID_VALUE, \
-    ['G'] = INVALID_VALUE, \
-    ['H'] = INVALID_VALUE, \
-    ['I'] = INVALID_VALUE, \
-    ['J'] = INVALID_VALUE, \
-    ['K'] = INVALID_VALUE, \
-    ['L'] = INVALID_VALUE, \
-    ['M'] = INVALID_VALUE, \
-    ['N'] = INVALID_VALUE, \
-    ['O'] = INVALID_VALUE, \
-    ['P'] = INVALID_VALUE, \
-    ['Q'] = INVALID_VALUE, \
-    ['R'] = INVALID_VALUE, \
-    ['S'] = INVALID_VALUE, \
-    ['T'] = INVALID_VALUE, \
-    ['U'] = INVALID_VALUE, \
-    ['V'] = INVALID_VALUE, \
-    ['W'] = INVALID_VALUE, \
-    ['X'] = INVALID_VALUE, \
-    ['Y'] = INVALID_VALUE, \
-    ['Z'] = INVALID_VALUE
-
-#define OCTAL_INIT_a_z \
-    ['a'] = INVALID_VALUE, \
-    ['b'] = INVALID_VALUE, \
-    ['c'] = INVALID_VALUE, \
-    ['d'] = INVALID_VALUE, \
-    ['e'] = INVALID_VALUE, \
-    ['f'] = INVALID_VALUE, \
-    ['g'] = INVALID_VALUE, \
-    ['h'] = INVALID_VALUE, \
-    ['i'] = INVALID_VALUE, \
-    ['j'] = INVALID_VALUE, \
-    ['k'] = INVALID_VALUE, \
-    ['l'] = INVALID_VALUE, \
-    ['m'] = INVALID_VALUE, \
-    ['n'] = INVALID_VALUE, \
-    ['o'] = INVALID_VALUE, \
-    ['p'] = INVALID_VALUE, \
-    ['q'] = INVALID_VALUE, \
-    ['r'] = INVALID_VALUE, \
-    ['s'] = INVALID_VALUE, \
-    ['r'] = INVALID_VALUE, \
-    ['u'] = INVALID_VALUE, \
-    ['v'] = INVALID_VALUE, \
-    ['w'] = INVALID_VALUE, \
-    ['x'] = INVALID_VALUE, \
-    ['y'] = INVALID_VALUE, \
-    ['z'] = INVALID_VALUE
-
-#define HEX_INIT_0_9 \
-    ['0'] = 0, \
-    ['1'] = 1, \
-    ['2'] = 2, \
-    ['3'] = 3, \
-    ['4'] = 4, \
-    ['5'] = 5, \
-    ['6'] = 6, \
-    ['7'] = 7, \
-    ['8'] = 8, \
-    ['9'] = 9
-
-#define HEX_INIT_A_Z \
-    ['A'] = 0xA,            \
-    ['B'] = 0xB,            \
-    ['C'] = 0xC,            \
-    ['D'] = 0xD,            \
-    ['E'] = 0xE,            \
-    ['F'] = 0xF,            \
-    ['G'] = INVALID_VALUE, \
-    ['H'] = INVALID_VALUE, \
-    ['I'] = INVALID_VALUE, \
-    ['J'] = INVALID_VALUE, \
-    ['K'] = INVALID_VALUE, \
-    ['L'] = INVALID_VALUE, \
-    ['M'] = INVALID_VALUE, \
-    ['N'] = INVALID_VALUE, \
-    ['O'] = INVALID_VALUE, \
-    ['P'] = INVALID_VALUE, \
-    ['Q'] = INVALID_VALUE, \
-    ['R'] = INVALID_VALUE, \
-    ['S'] = INVALID_VALUE, \
-    ['T'] = INVALID_VALUE, \
-    ['U'] = INVALID_VALUE, \
-    ['V'] = INVALID_VALUE, \
-    ['W'] = INVALID_VALUE, \
-    ['X'] = INVALID_VALUE, \
-    ['Y'] = INVALID_VALUE, \
-    ['Z'] = INVALID_VALUE
-
-#define HEX_INIT_a_z \
-    ['a'] = 0xa,           \
-    ['b'] = 0xb,           \
-    ['c'] = 0xc,           \
-    ['d'] = 0xd,           \
-    ['e'] = 0xe,           \
-    ['f'] = 0xf,           \
-    ['g'] = INVALID_VALUE, \
-    ['h'] = INVALID_VALUE, \
-    ['i'] = INVALID_VALUE, \
-    ['j'] = INVALID_VALUE, \
-    ['k'] = INVALID_VALUE, \
-    ['l'] = INVALID_VALUE, \
-    ['m'] = INVALID_VALUE, \
-    ['n'] = INVALID_VALUE, \
-    ['o'] = INVALID_VALUE, \
-    ['p'] = INVALID_VALUE, \
-    ['q'] = INVALID_VALUE, \
-    ['r'] = INVALID_VALUE, \
-    ['s'] = INVALID_VALUE, \
-    ['r'] = INVALID_VALUE, \
-    ['u'] = INVALID_VALUE, \
-    ['v'] = INVALID_VALUE, \
-    ['w'] = INVALID_VALUE, \
-    ['x'] = INVALID_VALUE, \
-    ['y'] = INVALID_VALUE, \
-    ['z'] = INVALID_VALUE
-
-#define NON_BASE64_INIT_PUNCT \
-    ['+'] = INVALID_VALUE, \
-    ['/'] = INVALID_VALUE, \
-    ['='] = INVALID_VALUE
-
-#define NON_HEX_INIT_PUNCT \
-    [':'] = INVALID_VALUE
-
-#define HEX_INIT_PUNCT \
-    [':'] = WHITESPACE_VALUE
+/*
+ * Some compilers warn about initializing the same subobject
+ * more than once with designated initializers.
+ *
+ * We're doing that - INVALID_INIT iniitalizes everything to
+ * INVALID_VALUE, but then we override selected elements -
+ * but we know what we're doing, so just suppress that
+ * warning.
+ */
+DIAG_OFF_INIT_TWICE
 
 const struct plain_decoding_data hex_decode_info = {
     .chars_per_unit = 2,
@@ -1010,11 +738,10 @@ const struct plain_decoding_data hex_decode_info = {
     .table = {
         INVALID_INIT,
         WHITESPACE_INIT,
-        HEX_INIT_PUNCT,
-        NON_BASE64_INIT_PUNCT,
-        HEX_INIT_0_9,
-        HEX_INIT_A_Z,
-        HEX_INIT_a_z
+        [':'] = WHITESPACE_VALUE,
+        ['0'] = 0,1,2,3,4,5,6,7,8,9,
+        ['A'] = 10,11,12,13,14,15,
+        ['a'] = 10,11,12,13,14,15
     }
 };
 
@@ -1024,12 +751,8 @@ const struct plain_decoding_data bin_decode_info = {
     .bits_per_char = 1,
     .table = {
         INVALID_INIT,
-        NON_HEX_INIT_PUNCT,
-        NON_BASE64_INIT_PUNCT,
         WHITESPACE_INIT,
-        BINARY_INIT_0_9,
-        BINARY_INIT_A_Z,
-        BINARY_INIT_a_z
+        ['0'] = 0, 1
     }
 };
 
@@ -1039,12 +762,8 @@ const struct plain_decoding_data oct_decode_info = {
     .bits_per_char = 3,
     .table = {
         INVALID_INIT,
-        NON_HEX_INIT_PUNCT,
-        NON_BASE64_INIT_PUNCT,
         WHITESPACE_INIT,
-        OCTAL_INIT_0_9,
-        OCTAL_INIT_A_Z,
-        OCTAL_INIT_a_z
+        ['0'] = 0,1,2,3,4,5,6,7
     }
 };
 
@@ -1054,7 +773,6 @@ const struct plain_decoding_data base64_decode_info = {
     .bits_per_char = 6,
     .table = {
         INVALID_INIT,
-        NON_HEX_INIT_PUNCT,
         WHITESPACE_INIT,
         ['A'] = 0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,
         ['a'] = 26,27,28,29,30,31,32,33,34,35,36,37,38,39,40,41,42,43,44,45,46,47,48,49,50,51,
@@ -1064,6 +782,8 @@ const struct plain_decoding_data base64_decode_info = {
         ['='] = WHITESPACE_VALUE /* padding at the end, the decoder doesn't need this, so just ignores it */
     }
 };
+
+DIAG_ON_INIT_TWICE
 
 /*******************************************************************************
  * The modularized part of this mess, used by the wrapper around the regex
