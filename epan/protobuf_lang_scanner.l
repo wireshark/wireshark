@@ -89,6 +89,7 @@ strdup_and_store(void* yyscanner, const char* text);
 
 #define PROTOBUF_LANG_PARSE(token_type)  \
             protobuf_lang_get_extra(yyscanner)->tmp_token = g_new0(protobuf_lang_token_t, 1); \
+            pbl_store_struct_token(protobuf_lang_get_extra(yyscanner), protobuf_lang_get_extra(yyscanner)->tmp_token); \
             protobuf_lang_get_extra(yyscanner)->tmp_token->v = strdup_and_store(yyscanner, yytext); \
             protobuf_lang_get_extra(yyscanner)->tmp_token->ln = protobuf_lang_get_lineno(yyscanner); \
             return (token_type);

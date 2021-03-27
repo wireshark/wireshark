@@ -571,9 +571,13 @@ pbl_clear_state(protobuf_lang_state_t *state, pbl_descriptor_pool_t* pool)
 
     state->pool = NULL;
     state->file = NULL;
-    state->scanner = NULL;
     state->grammar_error = FALSE;
     state->tmp_token = NULL;
+
+    if (state->scanner) {
+        protobuf_lang_lex_destroy(state->scanner);
+        state->scanner = NULL;
+    }
 
     if (state->pParser) {
         ProtobufLangParserFree(state->pParser, g_free);
@@ -663,8 +667,6 @@ int run_pbl_parser(pbl_descriptor_pool_t* pool)
         } else {
             ProtobufLangParser(state.pParser, 0, NULL, &state);
         }
-
-        protobuf_lang_lex_destroy(scanner);
 
         /* remove the parsed file from list */
         pool->proto_files_to_be_parsed = it = g_slist_delete_link(pool->proto_files_to_be_parsed, it);
