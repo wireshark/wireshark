@@ -183,12 +183,12 @@ OPUS_VERSION=1.3.1
 # 3.7.6 is the final version of Python to have official packages for the
 # 64-bit/32-bit variant that supports 10.6 (Snow Leopard) through 10.8
 # (Mountain Lion), and 3.9.1 is the first version of Python to support
-# macOS 11 Big Sur and Apple Silicon (arm-based Macs).
+# macOS 11 Big Sur and Apple Silicon (Arm-based Macs).
 
 # So on Mountain Lion, choose 3.7.6, otherwise get the latest stable version
 # (3.9.1).
 if [[ $DARWIN_MAJOR_VERSION -gt 12 ]]; then
-    PYTHON3_VERSION=3.9.1
+    PYTHON3_VERSION=3.9.2
 else
     PYTHON3_VERSION=3.7.6
 fi
@@ -1985,7 +1985,7 @@ install_python3() {
     # to use the 64-bit installer (10.9) on earlier releases for now.
     local macver=x10.9
     if [[ $DARWIN_MAJOR_VERSION -gt 19 ]]; then
-        # The macos11.0 installer is required for arm-based macs, which require
+        # The macos11.0 installer is required for Arm-based Macs, which require
         # macOS 11 Big Sur. Note that the 'x' was removed from the package name.
         macver=11.0
     elif [[ $DARWIN_MAJOR_VERSION -lt 13 ]]; then
