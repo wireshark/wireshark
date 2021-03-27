@@ -4869,7 +4869,7 @@ proto_register_isis_lsp(void)
         },
         { &hf_isis_lsp_sl_binding_range,
             { "Range", "isis.lsp.sl_binding.range",
-              FT_UINT8, BASE_DEC, NULL, 0,
+              FT_UINT16, BASE_DEC, NULL, 0,
               NULL, HFILL}
         },
         { &hf_isis_lsp_sl_binding_prefix_length,
