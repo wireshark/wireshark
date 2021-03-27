@@ -1834,7 +1834,9 @@ Dot11DecryptRsna4WHandshake(
 gint
 Dot11DecryptScanFtAssocForKeys(
     const PDOT11DECRYPT_CONTEXT ctx,
-    const PDOT11DECRYPT_ASSOC_PARSED assoc_parsed)
+    const PDOT11DECRYPT_ASSOC_PARSED assoc_parsed,
+    guint8 *decrypted_gtk, size_t *decrypted_len,
+    DOT11DECRYPT_KEY_ITEM* used_key)
 {
     DOT11DECRYPT_SEC_ASSOCIATION_ID id;
 
@@ -1981,14 +1983,19 @@ Dot11DecryptScanFtAssocForKeys(
             return DOT11DECRYPT_RET_UNSUCCESS;
         }
         Dot11DecryptCopyBroadcastKey(ctx, decrypted_key, decrypted_key_len, &id);
+        *decrypted_len = decrypted_key_len;
+        memcpy(decrypted_gtk, decrypted_key, decrypted_key_len);
     }
+    Dot11DecryptCopyKey(sa, used_key);
     return DOT11DECRYPT_RET_SUCCESS_HANDSHAKE;
 }
 #else
 gint
 Dot11DecryptScanFtAssocForKeys(
     const PDOT11DECRYPT_CONTEXT ctx _U_,
-    const PDOT11DECRYPT_ASSOC_PARSED assoc_parsed _U_)
+    const PDOT11DECRYPT_ASSOC_PARSED assoc_parsed _U_,
+    guint8 *decrypted_gtk _U_, size_t *decrypted_len _U_,
+    DOT11DECRYPT_KEY_ITEM* used_item _U_)
 {
     DEBUG_PRINT_LINE("Skipped Dot11DecryptScanFtAssocForKeys, libgcrypt >= 1.6", DEBUG_LEVEL_3);
     return DOT11DECRYPT_RET_UNSUCCESS;

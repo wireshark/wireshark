@@ -88,7 +88,7 @@ typedef struct {
   DOT11DECRYPT_KEY_ITEM used_key;
   guint keydata_len;
   guint8 *keydata;
-} proto_eapol_keydata_t;
+} proto_keydata_t;
 
 extern value_string_ext eap_type_vals_ext; /* from packet-eap.c */
 
@@ -326,6 +326,7 @@ typedef enum {
   IS_CTRL_GRANT_OR_GRANT_ACK_KEY,
   IS_S1G_KEY,
   DECRYPTED_EAPOL_KEY,
+  DECRYPTED_GTK_KEY,
   PACKET_DATA_KEY,
   ASSOC_COUNTER_KEY,
   STA_KEY,
@@ -5544,6 +5545,7 @@ static int hf_ieee80211_tag_ft_subelem_gtk_key_id = -1;
 static int hf_ieee80211_tag_ft_subelem_gtk_key_length = -1;
 static int hf_ieee80211_tag_ft_subelem_gtk_rsc = -1;
 static int hf_ieee80211_tag_ft_subelem_gtk_key = -1;
+static int hf_ieee80211_tag_ft_subelem_gtk_key_encrypted = -1;
 static int hf_ieee80211_tag_ft_subelem_r0kh_id = -1;
 static int hf_ieee80211_tag_ft_subelem_igtk_key_id = -1;
 static int hf_ieee80211_tag_ft_subelem_igtk_ipn = -1;
@@ -8412,6 +8414,27 @@ get_tagged_parameter_tree(proto_tree * tree, tvbuff_t *tvb, int start, int size)
   return proto_item_add_subtree(tagged_fields, ett_tagged_parameters);
 }
 
+static void
+add_ptk_analysis(tvbuff_t *tvb, proto_tree *tree, DOT11DECRYPT_KEY_ITEM *used_key)
+{
+  if (!used_key) {
+    return;
+  }
+  const guint8 *key = NULL;
+  proto_item *ti;
+  char buf[SHORT_STR];
+  int len = Dot11DecryptGetKCK(used_key, &key);
+  bytes_to_hexstr(buf, key, len);
+  buf[2 * len] = '\0';
+  ti = proto_tree_add_string(tree, hf_ieee80211_fc_analysis_kck, tvb, 0, 0, buf);
+  proto_item_set_generated(ti);
+
+  len = Dot11DecryptGetKEK(used_key, &key);
+  bytes_to_hexstr(buf, key, len);
+  buf[2 * len] = '\0';
+  ti = proto_tree_add_string(tree, hf_ieee80211_fc_analysis_kek, tvb, 0, 0, buf);
+  proto_item_set_generated(ti);
+}
 
 static int
 dissect_vendor_action_marvell(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
@@ -18432,6 +18455,7 @@ dissect_fast_bss_transition(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_item *ti;
     proto_tree *subtree;
     const gchar *subtree_name;
+    proto_keydata_t *proto;
 
     id = tvb_get_guint8(tvb, offset);
     len = tvb_get_guint8(tvb, offset + 1);
@@ -18483,8 +18507,21 @@ dissect_fast_bss_transition(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         break;
       save_proto_data_value(pinfo, s_end - offset, GTK_LEN_KEY);
       save_proto_data(tvb, pinfo, offset, s_end - offset, GTK_KEY);
-      proto_tree_add_item(subtree, hf_ieee80211_tag_ft_subelem_gtk_key,
-                          tvb, offset, s_end - offset, ENC_NA);
+
+      proto = (proto_keydata_t *)
+        p_get_proto_data(wmem_file_scope(), pinfo, proto_wlan, DECRYPTED_GTK_KEY);
+      if (proto) {
+        guint keydata_len = proto->keydata_len;
+        tvbuff_t *next_tvb = tvb_new_child_real_data(tvb, proto->keydata,
+                                                    keydata_len, keydata_len);
+        add_new_data_source(pinfo, next_tvb, "Decrypted GTK");
+        proto_tree_add_item(subtree, hf_ieee80211_tag_ft_subelem_gtk_key,
+                            next_tvb, 0, keydata_len, ENC_NA);
+        add_ptk_analysis(tvb, subtree, &proto->used_key);
+      } else {
+        proto_tree_add_item(subtree, hf_ieee80211_tag_ft_subelem_gtk_key_encrypted,
+                            tvb, offset, s_end - offset, ENC_NA);
+      }
       break;
     case 3:
       save_proto_data(tvb, pinfo, offset, len, FTE_R0KH_ID_KEY);
@@ -33269,7 +33306,7 @@ try_decrypt_keydata(packet_info *pinfo)
                                         dec_data, &dec_caplen,
                                         &used_key);
   if (ret == DOT11DECRYPT_RET_SUCCESS && dec_caplen > 0) {
-    proto_eapol_keydata_t *eapol = wmem_new(wmem_file_scope(), proto_eapol_keydata_t);
+    proto_keydata_t *eapol = wmem_new(wmem_file_scope(), proto_keydata_t);
     eapol->used_key = used_key;
     eapol->keydata_len = dec_caplen;
     eapol->keydata = (guint8 *)wmem_memdup(wmem_file_scope(), dec_data, dec_caplen);
@@ -33312,6 +33349,10 @@ static void
 try_scan_ft_assoc_keys(packet_info *pinfo, const wlan_hdr_t *whdr)
 {
   DOT11DECRYPT_ASSOC_PARSED assoc_parsed;
+  guint8 decrypted_buf[DOT11DECRYPT_WPA_PTK_MAX_LEN];
+  size_t decrypted_len = 0;
+  DOT11DECRYPT_KEY_ITEM used_key;
+  gint ret;
 
   if (!enable_decryption || pinfo->fd->visited || !whdr) {
     return;
@@ -33329,7 +33370,18 @@ try_scan_ft_assoc_keys(packet_info *pinfo, const wlan_hdr_t *whdr)
   memcpy(assoc_parsed.sa, whdr->src.data, 6);
   memcpy(assoc_parsed.da, whdr->dst.data, 6);
 
-  Dot11DecryptScanFtAssocForKeys(&dot11decrypt_ctx, &assoc_parsed);
+  ret = Dot11DecryptScanFtAssocForKeys(&dot11decrypt_ctx, &assoc_parsed,
+                                       decrypted_buf, &decrypted_len,
+                                       &used_key);
+  if (ret == DOT11DECRYPT_RET_SUCCESS_HANDSHAKE && decrypted_len > 0) {
+    proto_keydata_t *proto = wmem_new(wmem_file_scope(), proto_keydata_t);
+    proto->used_key = used_key;
+    proto->keydata_len = (guint)decrypted_len;
+    proto->keydata = (guint8 *)wmem_memdup(wmem_file_scope(), decrypted_buf, decrypted_len);
+
+    /* Save decrypted GTK keydata for tag dissector */
+    p_add_proto_data(wmem_file_scope(), pinfo, proto_wlan, DECRYPTED_GTK_KEY, proto);
+  }
 }
 
 /*
@@ -33599,15 +33651,14 @@ dissect_wlan_rsna_eapol_wpa_or_rsn_key(tvbuff_t *tvb, packet_info *pinfo, proto_
         try_decrypt_keydata(pinfo);
       }
 
-      proto_eapol_keydata_t *eapol;
-      eapol = (proto_eapol_keydata_t*)
+      proto_keydata_t *eapol;
+      eapol = (proto_keydata_t*)
         p_get_proto_data(wmem_file_scope(), pinfo, proto_wlan, DECRYPTED_EAPOL_KEY);
 
       if (eapol) {
         int keydata_len = eapol->keydata_len;
         tvbuff_t *next_tvb = tvb_new_child_real_data(tvb, eapol->keydata,
                                                      keydata_len, keydata_len);
-        char out_buff[SHORT_STR];
         keydes_tree = proto_item_add_subtree(ti, ett_wlan_rsna_eapol_keydes_data);
 
         if (keydes_version == KEYDES_VER_TYPE1) {
@@ -33627,18 +33678,7 @@ dissect_wlan_rsna_eapol_wpa_or_rsn_key(tvbuff_t *tvb, packet_info *pinfo, proto_
           }
         }
         /* Also add the PTK used to to decrypt and validate the keydata. */
-        const guint8 *key = NULL;
-        int len = Dot11DecryptGetKCK(&eapol->used_key, &key);
-        bytes_to_hexstr(out_buff, key, len);
-        out_buff[2 * len] = '\0';
-        ti = proto_tree_add_string(keydes_tree, hf_ieee80211_fc_analysis_kck, tvb, 0, 0, out_buff);
-        proto_item_set_generated(ti);
-
-        len = Dot11DecryptGetKEK(&eapol->used_key, &key);
-        bytes_to_hexstr(out_buff, key, len);
-        out_buff[2 * len] = '\0';
-        ti = proto_tree_add_string(keydes_tree, hf_ieee80211_fc_analysis_kek, tvb, 0, 0, out_buff);
-        proto_item_set_generated(ti);
+        add_ptk_analysis(tvb, keydes_tree, &eapol->used_key);
       }
     } else {
       keydes_tree = proto_item_add_subtree(ti, ett_wlan_rsna_eapol_keydes_data);
@@ -46007,6 +46047,11 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_tag_ft_subelem_gtk_key,
      {"GTK", "wlan.ft.subelem.gtk.key",
+      FT_BYTES, BASE_NONE, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_ft_subelem_gtk_key_encrypted,
+     {"GTK (encrypted)", "wlan.ft.subelem.gtk.key_encrypted",
       FT_BYTES, BASE_NONE, NULL, 0,
       NULL, HFILL }},
 

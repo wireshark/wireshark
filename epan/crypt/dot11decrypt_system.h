@@ -316,10 +316,32 @@ extern INT Dot11DecryptScanEapolForKeys(
     const UCHAR sta[DOT11DECRYPT_MAC_LEN])
 	;
 
+/**
+ * This will try to extract keys from an FT (re)association frame and add
+ * corresponding SAs to current context. assoc_parsed must contain the already
+ * parsed association frame content. If the FT BSS Transition IE contains an
+ * encrypted GTK subelem and decryption is successful the decrypted GTK will
+ * be returned in decrypted_gtk.
+ * @param ctx [IN] Pointer to the current context
+ * @param assoc_parsed [IN] Extracted/Parsed pieces of association frame
+ * @param decrypted_gtk [OUT] Buffer for decrypted GTK subelem
+ * @param decrypted_len [OUT] Decrypted GTK subelem key length
+ * @param used_key [OUT] Buffer to hold the key used during the decryption process.
+ * @return
+ * - DOT11DECRYPT_RET_UNSUCCESS: Generic unspecified error (decrypted_gtk
+ *   and decrypted_len will be not modified).
+ * - DOT11DECRYPT_RET_SUCCESS_HANDSHAKE: An association frame was successfuly parsed
+ *   and key information extracted.
+ * - DOT11DECRYPT_RET_NO_VALID_HANDSHAKE: The association is invalid or no matching
+ *   key for decryption was found.
+ */
 gint
 Dot11DecryptScanFtAssocForKeys(
     const PDOT11DECRYPT_CONTEXT ctx,
-    const PDOT11DECRYPT_ASSOC_PARSED assoc_parsed);
+    const PDOT11DECRYPT_ASSOC_PARSED assoc_parsed,
+    guint8 *decrypted_gtk, size_t *decrypted_len,
+    DOT11DECRYPT_KEY_ITEM* used_key);
+
 /**
  * This will try to extract keys from a TDLS action frame (without MAC headers)
  * and add corresponding SAs to current context.
