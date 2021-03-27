@@ -19,6 +19,7 @@
 #include <epan/address.h>
 #include <ui/rtp_stream.h>
 #include <ui/qt/utils/rtp_audio_routing.h>
+#include <ui/rtp_media.h>
 
 #include <QAudio>
 #include <QColor>
@@ -40,7 +41,7 @@ struct _rtp_sample;
 typedef struct {
     qint64  len;
     guint32 frame_num;
-} _rtp_packet_frame;
+} rtp_frame_info;
 
 class RtpAudioStream : public QObject
 {
@@ -52,7 +53,6 @@ public:
     ~RtpAudioStream();
     bool isMatch(const rtpstream_info_t *rtpstream) const;
     bool isMatch(const struct _packet_info *pinfo, const struct _rtp_info *rtp_info) const;
-    //void addRtpStream(const rtpstream_info_t *rtpstream);
     void addRtpPacket(const struct _packet_info *pinfo, const struct _rtp_info *rtp_info);
     void reset(double global_start_time);
     AudioRouting getAudioRouting();
@@ -61,7 +61,7 @@ public:
 
     double startRelTime() const { return start_rel_time_; }
     double stopRelTime() const { return stop_rel_time_; }
-    unsigned sampleRate() const { return audio_out_rate_; }
+    unsigned sampleRate() const { return first_sample_rate_; }
     const QStringList payloadNames() const;
 
     /**
@@ -159,7 +159,7 @@ private:
 
     QVector<struct _rtp_packet *>rtp_packets_;
     QTemporaryFile *sample_file_;       // Stores waveform samples
-    QTemporaryFile *sample_file_frame_; // Stores _rtp_packet_frame per packet
+    QTemporaryFile *sample_file_frame_; // Stores rtp_packet_info per packet
     QIODevice *temp_file_;
     struct _GHashTable *decoders_hash_;
     // TODO: It is not used
@@ -171,6 +171,7 @@ private:
     qint64 prepend_samples_; // Count of silence samples to match other streams
     AudioRouting audio_routing_;
     bool stereo_required_;
+    quint32 first_sample_rate_;
     quint32 audio_out_rate_;
     QSet<QString> payload_names_;
     struct SpeexResamplerState_ *audio_resampler_;
@@ -196,6 +197,8 @@ private:
 
     void decodeAudio(QAudioDeviceInfo out_device);
     void decodeVisual();
+    void selectAudioOutRate(QAudioDeviceInfo out_device, unsigned int sample_rate);
+    SAMPLE *resizeBufferIfNeeded(SAMPLE *buff, gint32 *buff_bytes, qint64 requested_size);
 
 private slots:
     void outputStateChanged(QAudio::State new_state);
