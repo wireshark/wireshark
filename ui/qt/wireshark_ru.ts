@@ -3229,6 +3229,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         </translation>
     </message>
     <message>
+        <source>No streams</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Entire conversation (%1)</source>
         <translation>Весь диалог (%1)</translation>
     </message>
@@ -4256,7 +4260,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>ImportTextDialog</name>
     <message>
         <source>Import From</source>
-        <translation>Импорт Из</translation>
+        <translation type="vanished">Импорт Из</translation>
     </message>
     <message>
         <source>File:</source>
@@ -4274,6 +4278,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <source>Browse…</source>
         <oldsource>Browse...</oldsource>
         <translation>Открыть…</translation>
+    </message>
+    <message>
+        <source>Hex Dump</source>
+        <translation type="unfinished">Шестнадцатеричный Дамп</translation>
+    </message>
+    <message>
+        <source>Import a standard hex dump as exported by Wireshark</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Offsets in the text file are in octal notation</source>
@@ -4304,6 +4316,58 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Десятичный</translation>
     </message>
     <message>
+        <source>Regular Expression</source>
+        <translation type="unfinished">Регулярное Выражение</translation>
+    </message>
+    <message>
+        <source>Import a file formatted according to a custom regular expression</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Packet format regular expression</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Perl compatible regular expression capturing a single packet in the file with named groups identifieing data to import. Anchors ^ and $ also match before/after newlines &lt;/p&gt;&lt;p&gt;Required is only a data group, also supported are time, dir and seqno.&lt;/p&gt;&lt;p&gt;Regex flags: DUPNAMES, MULTILINE and NOEMPTY&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>This is regexHintLabel, it will be set to default_regex_hint</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Data encoding:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>How data is encoded</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&lt;small&gt;&lt;i&gt;reccomended regex:&lt;/small&gt;&lt;/i&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>encodingRegexExample</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>List of characters indicating incoming packets</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>iI&lt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>List of characters indicating outgoing packets</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>oO&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Timestamp format:</source>
         <translation>Формат временной метки:</translation>
     </message>
@@ -4321,7 +4385,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Payload</source>
-        <translation>Полезная Нагрузка</translation>
+        <translation type="vanished">Полезная Нагрузка</translation>
     </message>
     <message>
         <source>Maximum frame length:</source>
@@ -4344,12 +4408,28 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Формат, в котором парсятся временные метки в текстовом файле (например, %H:%M:%S.). Спецификаторы формата базируются на strptime(3)</translation>
     </message>
     <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;The format in which to parse timestamps in the text file (e.g. %H:%M:%S.%f).&lt;/p&gt;&lt;p&gt;Format specifiers are based on strptime(3) with the addition of %f for second fractions. The percision of %f is determined from it&apos;s length.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>%H:%M:%S.%f</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>timestampExampleLabel</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Encapsulation Type:</source>
         <translation>Тип Инкапсуляции:</translation>
     </message>
     <message>
         <source>Encapsulation type of the frames in the import capture file</source>
         <translation>Тип инкапсуляции кадров в импортируемом файле захвата</translation>
+    </message>
+    <message>
+        <source>Dissector</source>
+        <translation type="unfinished">Диссектор</translation>
     </message>
     <message>
         <source>The UDP, TCP or SCTP source port for each frame</source>
@@ -4456,8 +4536,20 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>IPv4</translation>
     </message>
     <message>
+        <source>The dissector to use for each frame</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>The maximum size of the frames to write to the import capture file (max 256kiB)</source>
         <translation>Максимальный размер кадров для записи в импортируемый файл захвата (максимум 256 кбайт)</translation>
+    </message>
+    <message>
+        <source>Supported fields are data, dir, time, seqno</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Missing capturing group data (use (?</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Import From Hex Dump</source>
@@ -4473,15 +4565,15 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Example: %1</source>
-        <translation>Пример: %1</translation>
+        <translation type="vanished">Пример: %1</translation>
     </message>
     <message>
         <source>&lt;i&gt;(Wrong date format)&lt;/i&gt;</source>
-        <translation>&lt;i&gt;(Неверный формат даты)&lt;/i&gt;</translation>
+        <translation type="vanished">&lt;i&gt;(Неверный формат даты)&lt;/i&gt;</translation>
     </message>
     <message>
         <source>&lt;i&gt;(No format will be applied)&lt;/i&gt;</source>
-        <translation>&lt;i&gt;(Формат не будет применён)&lt;/i&gt;</translation>
+        <translation type="vanished">&lt;i&gt;(Формат не будет применён)&lt;/i&gt;</translation>
     </message>
 </context>
 <context>
@@ -6887,6 +6979,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>QUIC Stream</source>
         <translation>Поток QUIC</translation>
+    </message>
+    <message>
+        <source>SIP Call</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Time Sequence (tcptrace)</source>
@@ -10438,6 +10534,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>&lt;small&gt;&lt;i&gt;Совет.&lt;/i&gt;&lt;/small&gt;</translation>
     </message>
     <message>
+        <source>&amp;Export</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Open export menu</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Unsynchronized Forward and Reverse Audio</source>
         <translation>Несинхронизированное Прямое и Обратное Аудио</translation>
     </message>
@@ -10577,10 +10681,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Unable to save RTP data.</source>
         <translation>Невозможно сохранить данные RTP.</translation>
-    </message>
-    <message>
-        <source>Export</source>
-        <translation type="unfinished">Экспорт</translation>
     </message>
     <message>
         <source>Save Graph As…</source>
@@ -11018,8 +11118,13 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Play Streams</source>
-        <translation>Проиграть Потоки</translation>
+        <source>&amp;Play Streams</source>
+        <oldsource>Play Streams</oldsource>
+        <translation type="unfinished">Проиграть Потоки</translation>
+    </message>
+    <message>
+        <source>Open RTP player dialog</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Decoding streams...</source>
@@ -11141,8 +11246,9 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Время Дня</translation>
     </message>
     <message>
-        <source>Find Reverse</source>
-        <translation>Искать В Обратном Направлении</translation>
+        <source>Find &amp;Reverse</source>
+        <oldsource>Find Reverse</oldsource>
+        <translation type="unfinished">Искать В Обратном Направлении</translation>
     </message>
     <message>
         <source>Find the reverse stream matching the selected forward stream.</source>
@@ -11189,14 +11295,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Select None</source>
-        <translation type="vanished">Не Выбрано</translation>
-    </message>
-    <message>
-        <source>Undo stream selection.</source>
-        <translation type="vanished">Отменить выбор потока.</translation>
-    </message>
-    <message>
         <source>Go To Setup</source>
         <translation>Перейти к Настройке</translation>
     </message>
@@ -11209,8 +11307,9 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>G</translation>
     </message>
     <message>
-        <source>Prepare Filter</source>
-        <translation>Подготовить Фильтр</translation>
+        <source>Prepare &amp;Filter</source>
+        <oldsource>Prepare Filter</oldsource>
+        <translation type="unfinished">Подготовить Фильтр</translation>
     </message>
     <message>
         <source>Prepare a filter matching the selected stream(s).</source>
@@ -11221,8 +11320,12 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>P</translation>
     </message>
     <message>
+        <source>&amp;Export</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Export As RTPDump</source>
-        <translation>Экспортировать как дамп RTP</translation>
+        <translation type="vanished">Экспортировать как дамп RTP</translation>
     </message>
     <message>
         <source>Export the stream payload as rtpdump</source>
@@ -11233,12 +11336,25 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>E</translation>
     </message>
     <message>
-        <source>Analyze</source>
-        <translation>Анализировать</translation>
+        <source>&amp;Analyze</source>
+        <oldsource>Analyze</oldsource>
+        <translation type="unfinished">Анализировать</translation>
     </message>
     <message>
         <source>Open the analysis window for the selected stream(s)</source>
         <translation>Открыть окно анализа для выбранного потока (потоков)</translation>
+    </message>
+    <message>
+        <source>A</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Cop&amp;y</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Open copy menu</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Copy as CSV</source>
@@ -11261,20 +11377,12 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Потоки RTP</translation>
     </message>
     <message>
-        <source>Export…</source>
-        <translation type="vanished">Экспорт…</translation>
-    </message>
-    <message>
         <source>Select</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Copy</source>
-        <translation>Копировать</translation>
-    </message>
-    <message>
-        <source>Export</source>
-        <translation type="unfinished">Экспорт</translation>
+        <translation type="vanished">Копировать</translation>
     </message>
     <message>
         <source>as CSV</source>
@@ -12137,14 +12245,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Комментарий</translation>
     </message>
     <message>
-        <source>Save As…</source>
-        <translation type="vanished">Сохранить Как…</translation>
-    </message>
-    <message>
-        <source>Export</source>
-        <translation type="unfinished">Экспорт</translation>
-    </message>
-    <message>
         <source>No data</source>
         <translation>Нет данных</translation>
     </message>
@@ -12297,12 +12397,32 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Сброс Диаграммы</translation>
     </message>
     <message>
+        <source>Reset &amp;Diagram</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Reset the diagram to its initial state.</source>
         <translation>Сброс диаграммы в её исходное состояние.</translation>
     </message>
     <message>
         <source>0</source>
         <translation>0</translation>
+    </message>
+    <message>
+        <source>&amp;Reset Diagram</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Reset the diagram to its initial state</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Export</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Export diagram</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Zoom In</source>
@@ -13602,6 +13722,30 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Время Дня</translation>
     </message>
     <message>
+        <source>Flow &amp;Sequence</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Show flow sequence for selected call(s).</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Prepare &amp;Filter</source>
+        <translation type="unfinished">Подготовить Фильтр</translation>
+    </message>
+    <message>
+        <source>Prepare a filter matching the selected calls(s).</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Cop&amp;y</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Open copy menu</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>All</source>
         <translation type="unfinished"></translation>
     </message>
@@ -13620,18 +13764,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Invert selection</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Select &amp;All</source>
-        <translation type="vanished">Выбрать &amp;Все</translation>
-    </message>
-    <message>
-        <source>Select all calls</source>
-        <translation type="vanished">Выбрать все звонки</translation>
-    </message>
-    <message>
-        <source>Select &amp;None</source>
-        <translation type="vanished">Не &amp;Выбирать Ничего</translation>
     </message>
     <message>
         <source>Clear selection</source>
@@ -13667,15 +13799,15 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Prepare Filter</source>
-        <translation>Подготовить Фильтр</translation>
+        <translation type="vanished">Подготовить Фильтр</translation>
     </message>
     <message>
         <source>Flow Sequence</source>
-        <translation>Последовательность Потоков</translation>
+        <translation type="vanished">Последовательность Потоков</translation>
     </message>
     <message>
         <source>Copy</source>
-        <translation>Копировать</translation>
+        <translation type="vanished">Копировать</translation>
     </message>
     <message>
         <source>as CSV</source>

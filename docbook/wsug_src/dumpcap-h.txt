@@ -1,4 +1,4 @@
-Dumpcap (Wireshark) 3.5.0 (v3.5.0rc0-21-gce47866a4337)
+Dumpcap (Wireshark) 3.5.0 (v3.5.0rc0-1363-geaf6554aa174)
 Capture network packets and dump them into a pcapng or pcap file.
 See https://www.wireshark.org for more information.
 
@@ -10,6 +10,11 @@ Capture interface:
                            or for remote capturing, use one of these formats:
                                rpcap://<host>/<interface>
                                TCP@<host>:<port>
+  --ifname <name>          name to use in the capture file for a pipe from which
+                           we're capturing
+  --ifdescr <description>
+                           description to use in the capture file for a pipe
+                           from which we're capturing
   -f <capture filter>      packet filter in libpcap filter syntax
   -s <snaplen>, --snapshot-length <snaplen>
                            packet snapshot length (def: appropriate maximum)

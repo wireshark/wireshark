@@ -4657,6 +4657,7 @@ wbem-exp-https	5990/tcp/udp	# WBEM Export HTTPS
 nuxsl		5991/tcp/udp	# NUXSL
 consul-insight	5992/tcp/udp	# Consul InSight Security
 cim-rs		5993/tcp	# DMTF WBEM CIM REST
+rms-agent	5994/tcp	# RMS Agent Listening Service
 cvsup		5999/tcp/udp	# CVSup
 x11		6000-6063/tcp/udp	# X Window System
 ndl-ahp-svc	6064/tcp/udp	# NDL-AHP-SVC
