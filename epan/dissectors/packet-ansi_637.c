@@ -3016,7 +3016,7 @@ proto_register_ansi_637(void)
         },
         { &hf_ansi_637_tele_cb_num_num_fields07f8,
             { "Number of fields", "ansi_637_tele.cb_num.num_fields",
-            FT_UINT8, BASE_DEC, NULL, 0x07F8,
+            FT_UINT16, BASE_DEC, NULL, 0x07F8,
             NULL, HFILL }
         },
         { &hf_ansi_637_tele_cb_num_number,

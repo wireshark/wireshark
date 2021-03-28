@@ -665,7 +665,7 @@ proto_register_hdfsdata(void)
   },
   { &hf_hdfsdata_chunksize,
     { "HDFSDATA chunk size", "hdfsdata.chunksize",
-      FT_UINT16, BASE_DEC,
+      FT_UINT32, BASE_DEC,
       NULL, 0x0,
       NULL, HFILL }
   },

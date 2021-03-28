@@ -10634,7 +10634,7 @@ proto_register_bgp(void)
         { "Cookie", "bgp.update.encaps_tunnel_tlv_subtlv_cookie", FT_BYTES,
           BASE_NONE, NULL, 0x0, NULL, HFILL}},
       { &hf_bgp_update_encaps_tunnel_subtlv_gre_key,
-        { "GRE Key", "bgp.update.encaps_tunnel_tlv_subtlv_gre_key", FT_UINT16,
+        { "GRE Key", "bgp.update.encaps_tunnel_tlv_subtlv_gre_key", FT_UINT32,
           BASE_DEC, NULL, 0x0, NULL, HFILL}},
       { &hf_bgp_update_encaps_tunnel_subtlv_color_value,
         { "Color Value", "bgp.update.encaps_tunnel_tlv_subtlv_color_value", FT_UINT32,

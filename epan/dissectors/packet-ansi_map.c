@@ -16486,11 +16486,11 @@ void proto_register_ansi_map(void) {
 
         { &hf_ansi_map_mslocation_lat,
           { "Latitude in tenths of a second", "ansi_map.mslocation.lat",
-            FT_UINT8, BASE_DEC, NULL, 0,
+            FT_UINT24, BASE_DEC, NULL, 0,
             NULL, HFILL }},
         { &hf_ansi_map_mslocation_long,
           { "Longitude in tenths of a second", "ansi_map.mslocation.long",
-            FT_UINT8, BASE_DEC, NULL, 0,
+            FT_UINT24, BASE_DEC, NULL, 0,
             "Switch Number (SWNO)", HFILL }},
         { &hf_ansi_map_mslocation_res,
           { "Resolution in units of 1 foot", "ansi_map.mslocation.res",

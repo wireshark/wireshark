@@ -3233,7 +3233,7 @@ void proto_register_ecmp (void)
 	{ "Factory Fitted Option ID", "ecmp.drive_factory_fit_category_id", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
 	{ &hf_ecmp_category_id,
-	{ "Option ID", "ecmp.category_id", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+	{ "Option ID", "ecmp.category_id", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
 	{ &hf_ecmp_cyclic_link_num,
 	{ "Cyclic Link Number", "ecmp.link_num", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
@@ -3248,13 +3248,13 @@ void proto_register_ecmp (void)
 	{ "Cyclic Link Number Display", "ecmp.link_num_display", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
 	{ &hf_ecmp_buffer_size,
-	{"Buffer Size", "ecmp.buffer_size", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
+	{"Buffer Size", "ecmp.buffer_size", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}},
 
 	{ &hf_ecmp_max_response,
-	{"Maximum Response Time", "ecmp.max_response", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
+	{"Maximum Response Time", "ecmp.max_response", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}},
 
 	{ &hf_ecmp_max_handle,
-	{"Maximum Handle Period", "ecmp.max_handle", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},
+	{"Maximum Handle Period", "ecmp.max_handle", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}},
 
 	{ &hf_ecmp_info_address,
 	{"Number of Default Route Addresses", "ecmp.count", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}},

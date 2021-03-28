@@ -6785,7 +6785,7 @@ static int dissect_DIS_PARSER_DESIGNATOR_PDU(tvbuff_t *tvb, packet_info *pinfo, 
     proto_tree_add_item(sub_tree, hf_dis_designator_spot_location_z, tvb, offset, 8, ENC_BIG_ENDIAN);
     offset += 8;
 
-    proto_tree_add_item(tree, hf_dis_entity_dead_reckoning_algorithm, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_dis_entity_dead_reckoning_algorithm, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
     proto_tree_add_item(tree, hf_dis_padding, tvb, offset, 3, ENC_NA);
@@ -9444,7 +9444,7 @@ void proto_register_dis(void)
             },
             { &hf_dis_aggregate_formation,
               { "Formation", "dis.aggregate.formation",
-                FT_UINT8, BASE_DEC, VALS(aggregate_formation_vals), 0x0,
+                FT_UINT32, BASE_DEC, VALS(aggregate_formation_vals), 0x0,
                 NULL, HFILL }
             },
             { &hf_dis_aggregate_state,

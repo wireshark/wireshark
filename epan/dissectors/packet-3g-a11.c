@@ -2203,7 +2203,7 @@ proto_register_a11(void)
         },
         { &hf_a11_vse_apptype,
           { "Application Type",                      "a11.ext.apptype",
-            FT_UINT8, BASE_HEX | BASE_EXT_STRING, &a11_ext_app_ext, 0,
+            FT_UINT16, BASE_HEX | BASE_EXT_STRING, &a11_ext_app_ext, 0,
             NULL, HFILL }
         },
         { &hf_a11_vse_ppaddr,
