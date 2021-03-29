@@ -358,6 +358,7 @@ typedef enum {
   RSNE_TAG_KEY,
   RDE_TAG_KEY,
   GTK_SUBELEM_KEY_LEN_KEY,
+  PASN_DATA_KEY,
 } wlan_proto_key_t;
 
 /* ************************************************************************* */
@@ -732,7 +733,7 @@ static const value_string tag_num_vals_eid_ext[] = {
   { ETAG_FILS_HLP_CONTAINER,                  "FILS HLP Container" },
   { ETAG_FILS_IP_ADDRESS_ASSIGN,              "FILS IP Address Assignment" },
   { ETAG_KEY_DELIVERY,                        "Key Delivery" },
-  { ETAG_FILS_WRAPPED_DATA,                   "FILS Wrapped Data" },
+  { ETAG_FILS_WRAPPED_DATA,                   "Wrapped Data" },
   { ETAG_FTM_SYNC_INFO,                       "FTM Synchronization Information" },
   { ETAG_EXTENDED_REQUEST,                    "Extended Request" },
   { ETAG_ESTIMATED_SERVICE_PARAM,             "Estimated Service Parameters" },
@@ -4189,15 +4190,6 @@ static int hf_ieee80211_ff_ftm_cfo = -1;
 static int hf_ieee80211_ff_ftm_r2i_ndp_tx_power = -1;
 static int hf_ieee80211_ff_ftm_i2r_ndp_target_rssi = -1;
 
-/* PASN Parameters Element */
-static int hf_ieee80211_tag_pasn_control = -1;
-static int hf_ieee80211_tag_pasn_wrapped_data_format = -1;
-static int hf_ieee80211_tag_pasn_comeback_after = -1;
-static int hf_ieee80211_tag_pasn_cookie = -1;
-static int hf_ieee80211_tag_pasn_finite_cyclic_group_id = -1;
-static int hf_ieee80211_tag_pasn_ephemeral_pk_length = -1;
-static int hf_ieee80211_tag_pasn_ephemeral_pk = -1;
-
 /* az: FTM Ranging Parameters Element */
 static int hf_ieee80211_tag_ranging_parameters = -1;
 static int hf_ieee80211_tag_ranging_status_indication = -1;
@@ -4232,6 +4224,21 @@ static int hf_ieee80211_tag_ranging_ntb_max_time_msmts = -1;
 static int hf_ieee80211_tag_ranging_ntb_r2i_tx_power = -1;
 static int hf_ieee80211_tag_ranging_ntb_i2r_tx_power = -1;
 static int hf_ieee80211_tag_ranging_ntb_reserved2 = -1;
+
+/* az: PASN subelements etc. */
+static int hf_ieee80211_tag_pasn_parameters_control = -1;
+static int hf_ieee80211_tag_pasn_params_comeback_info_present = -1;
+static int hf_ieee80211_tag_pasn_params_group_and_key_present = -1;
+static int hf_ieee80211_tag_pasn_parameters_reserved = -1;
+static int hf_ieee80211_tag_pasn_parameters_wrapped_fmt = -1;
+static int hf_ieee80211_tag_pasn_comeback_after = -1;
+static int hf_ieee80211_tag_pasn_cookie_length = -1;
+static int hf_ieee80211_tag_pasn_cookie = -1;
+static int hf_ieee80211_tag_pasn_finite_cyclic_group_id = -1;
+static int hf_ieee80211_tag_pasn_ephemeral_public_key_len = -1;
+static int hf_ieee80211_tag_pasn_ephemeral_public_key = -1;
+static int hf_ieee80211_pasn_auth1_frame_len = -1;
+static int hf_ieee80211_pasn_auth2_frame_len = -1;
 
 static int hf_ieee80211_ff_ant_selection = -1;
 static int hf_ieee80211_ff_ant_selection_0 = -1;
@@ -7260,6 +7267,11 @@ static gint ett_ff_ftm_tod_err1 = -1;
 static gint ett_ff_ftm_toa_err1 = -1;
 static gint ett_tag_ranging = -1;
 static gint ett_tag_ranging_ntb = -1;
+
+static gint ett_pasn_parameters = -1;
+static gint ett_pasn_comeback_tree = -1;
+
+static gint ett_pasn_auth_frame = -1;
 
 static gint ett_tag_measure_request_mode_tree = -1;
 static gint ett_tag_measure_request_type_tree = -1;
@@ -12426,6 +12438,207 @@ add_ff_auth_fils(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_,
   return offset;
 }
 
+/*
+ * We handle different elements depending on whether the sequence number is
+ * 1, 2 or 3.
+ */
+typedef struct ieee80211_pasn_data {
+  guint pasn_seq;
+  guint pasn_status_code;
+} ieee80211_pasn_data_t;
+
+static ieee80211_pasn_data_t*
+create_pasn_data(packet_info *pinfo, guint seq, guint status)
+{
+  ieee80211_pasn_data_t *pasn_data = NULL;
+
+  pasn_data = wmem_new(pinfo->pool, ieee80211_pasn_data_t);
+
+  if(pasn_data) {
+    p_add_proto_data(pinfo->pool, pinfo, proto_wlan, PASN_DATA_KEY, pasn_data);
+    pasn_data->pasn_seq = seq;
+    pasn_data->pasn_status_code = status;
+  }
+
+  return pasn_data;
+}
+
+static guint
+add_ff_auth_pasn(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_,
+                 guint offset)
+{
+  guint seq, status_code;
+  ieee80211_pasn_data_t *pasn_data = NULL;
+  guint8 wrapped_fmt = 0;
+
+  seq = tvb_get_letohs(tvb, 2);
+  status_code = tvb_get_letohs(tvb, 4);
+
+  pasn_data = create_pasn_data(pinfo, seq, status_code);
+  if (!pasn_data) {
+    /* Leave it undissected if we cannot get memory. */
+    return offset + tvb_captured_length_remaining(tvb, offset);
+  }
+
+  if (seq == 1) {
+    /*
+     * Contains RSN Info,
+     * PASN field,
+     * Wrapped Data may be present if the PASN element says so,
+     * RSNXE may be present
+     * Timeout Interval element may be present
+     * Fragment element may be present if it was fragmented.
+     */
+    offset += add_tagged_field(pinfo, tree, tvb, offset, 0, NULL, 0, NULL);
+    /* Sigh, reach into the PASN element */
+    wrapped_fmt = tvb_get_guint8(tvb, offset + 4);
+    offset += add_tagged_field(pinfo, tree, tvb, offset, 0, NULL, 0, NULL);
+    if (wrapped_fmt > 0 && wrapped_fmt <= 3) {
+      offset += add_tagged_field(pinfo, tree, tvb, offset, 0, NULL, 0, NULL);
+    }
+    /* How do we check if this is there? */
+    offset += add_tagged_field(pinfo, tree, tvb, offset, 0, NULL, 0, NULL);
+    /* Do we have any more of the possible fields */
+  } else if (seq == 2) {
+    /*
+     * RSN element is present.
+     * PASN element is present if status == 0.
+     * Wrapped Data element present if the PASN element says so.
+     * ...
+     */
+    offset += add_tagged_field(pinfo, tree, tvb, offset, 0, NULL, 0, NULL);
+
+    if (status_code == 0) {
+      wrapped_fmt = tvb_get_guint8(tvb, offset + 4);
+      offset += add_tagged_field(pinfo, tree, tvb, offset, 0, NULL, 0, NULL);
+      if (wrapped_fmt > 0 && wrapped_fmt <= 3) {
+        offset += add_tagged_field(pinfo, tree, tvb, offset, 0, NULL, 0, NULL);
+      }
+    }
+    offset += add_tagged_field(pinfo, tree, tvb, offset, 0, NULL, 0, NULL);
+    offset += add_tagged_field(pinfo, tree, tvb, offset, 0, NULL, 0, NULL);
+  } else if (seq == 3) {
+    /*
+     * Contains PASN element if status == 0
+     * Contains Wrapped Data element if PASN element says so and status is 0.
+     * Contains MC element
+     * May contain fragment elements.
+     */
+    if (status_code == 0) {
+      wrapped_fmt = tvb_get_guint8(tvb, offset + 4);
+      offset += add_tagged_field(pinfo, tree, tvb, offset, 0, NULL, 0, NULL);
+      if (wrapped_fmt > 0 && wrapped_fmt <= 3) {
+        offset += add_tagged_field(pinfo, tree, tvb, offset, 0, NULL, 0, NULL);
+      }
+    }
+    offset += add_tagged_field(pinfo, tree, tvb, offset, 0, NULL, 0, NULL);
+  }
+
+  offset += tvb_captured_length_remaining(tvb, offset);
+
+  return offset;
+}
+
+/*
+ * Handle an Auth Frame. We need to be able to call this from several places.
+ *
+ * We should also handle the different auth types more correctly.
+ */
+static int
+dissect_auth_frame(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb)
+{
+  int offset = 0;
+  guint16 auth_algorithm = tvb_get_letohs(tvb, offset);
+
+  add_ff_auth_alg(tree, tvb, pinfo, offset);
+  offset += 2;
+
+  add_ff_auth_trans_seq(tree, tvb, pinfo, offset);
+  offset += 2;
+
+  add_ff_status_code(tree, tvb, pinfo, offset);
+  offset += 2;
+
+  switch (auth_algorithm) {
+  case AUTH_ALG_SAE:
+    offset = add_ff_auth_sae(tree, tvb, pinfo, offset);
+    break;
+  case AUTH_ALG_FILS_PK:
+  case  AUTH_ALG_FILS_SK_WITH_PFS:
+    offset = add_ff_auth_fils(tree, tvb, pinfo, offset);
+    break;
+  case AUTH_ALG_PASN:
+    offset = add_ff_auth_pasn(tree, tvb, pinfo, offset);
+    break;
+  }
+
+  return offset;
+}
+
+/*
+ * If it is PASN wrapped data, handle it correctly, else defer to fils
+ * wrapped data.
+ */
+static void
+dissect_wrapped_data(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
+                     int offset, guint8 ext_tag_len _U_)
+{
+  ieee80211_pasn_data_t *pasn_data =
+    (ieee80211_pasn_data_t*)p_get_proto_data(pinfo->pool, pinfo, proto_wlan,
+                                             PASN_DATA_KEY);
+
+  if (pasn_data) {
+    proto_tree *auth_tree = NULL;
+    proto_item *ai = NULL;
+    guint16 frame_len = 0;
+    tvbuff_t *new_tvb = NULL;
+
+    switch (pasn_data->pasn_seq) {
+    case 1:
+      auth_tree = proto_tree_add_subtree(tree, tvb, offset, -1,
+                                         ett_pasn_auth_frame, &ai,
+                                         "Authentication Frame");
+      new_tvb = tvb_new_subset_remaining(tvb, offset);
+      offset = dissect_auth_frame(auth_tree, pinfo, new_tvb);
+      proto_item_set_len(ai, offset); /* This is correct */
+      break;
+
+    case 2:
+      /* This has two auth frames in it. */
+      frame_len = tvb_get_letohs(tvb, offset);
+      proto_tree_add_item(tree, hf_ieee80211_pasn_auth1_frame_len, tvb, offset,
+                          2, ENC_LITTLE_ENDIAN);
+      offset += 2;
+      auth_tree = proto_tree_add_subtree(tree, tvb, offset, frame_len,
+                                         ett_pasn_auth_frame, NULL,
+                                         "Authentication Frame 1");
+      new_tvb = tvb_new_subset_length(tvb, offset, frame_len);
+      offset += dissect_auth_frame(auth_tree, pinfo, new_tvb);
+
+      /* Second frame */
+      frame_len = tvb_get_letohs(tvb, offset);
+      proto_tree_add_item(tree, hf_ieee80211_pasn_auth2_frame_len, tvb, offset,
+                          2, ENC_LITTLE_ENDIAN);
+      offset += 2;
+      auth_tree = proto_tree_add_subtree(tree, tvb, offset, frame_len,
+                                         ett_pasn_auth_frame, NULL,
+                                         "Authentication Frame 2");
+      new_tvb = tvb_new_subset_length(tvb, offset, frame_len);
+      dissect_auth_frame(auth_tree, pinfo, new_tvb);
+      break;
+
+    case 3:
+      auth_tree = proto_tree_add_subtree(tree, tvb, offset, -1,
+                                         ett_pasn_auth_frame, &ai,
+                                         "Authentication Frame");
+      new_tvb = tvb_new_subset_remaining(tvb, offset);
+      offset = dissect_auth_frame(auth_tree, pinfo, new_tvb);
+      proto_item_set_len(ai, offset);
+      break;
+    }
+  }
+}
+
 static guint
 wnm_bss_trans_mgmt_query(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset)
 {
@@ -14219,14 +14432,6 @@ static const range_string protected_he_action_rvals[] = {
         "HE BSS Color Change Announcement" },
   { HE_BSS_COLOR_CHANGE_ANNOUNCEMENT + 1, 255, "Reserved" },
   { 0, 0, NULL }
-};
-
-static const value_string pasn_wrapped_data_format_vals[] = {
-  {0, "No wrapped data"},
-  {1, "Fast BSS Transition Wrapped Data"},
-  {2, "FILS Shared Key authentication without PFS Wrapped Data"},
-  {3, "SAE Wrapped Data"},
-  {0, NULL}
 };
 
 /*
@@ -22735,49 +22940,125 @@ add_min_max_time_between_measurements(proto_item *item, tvbuff_t *tvb, packet_in
   col_append_fstr(pinfo->cinfo, COL_INFO, ", Min=%.6gs, Max=%.6gs", minf, maxf);
 }
 
-static void
-dissect_pasn_parameters(tvbuff_t *tvb, proto_tree *tree, int offset)
+/*
+ * "Comeback after subfield shall not be present (ie, zero octets) in PASN
+ * authentication frames from a non-AP STA."
+ *
+ * Attempt to figure out if the Comeback After field is present.
+ */
+#define PASN_COMEBACK_INFO_PRESENT 0x01
+#define PASN_GROUP_KEY_PRESENT     0x02
+
+static gboolean
+has_comeback_after(guint8 flags, tvbuff_t *tvb, int offset, int len _U_)
 {
-  guint8 control;
-  int comeback_present, group_key_present;
-  proto_item* item;
+  int tvb_left = tvb_captured_length_remaining(tvb, offset);
+  gboolean comeback_after = FALSE;
+  //int cookie_len = 0;
+  int fixed_len = 0;
 
-  control = tvb_get_guint8(tvb, offset);
-  comeback_present = control & 0x1;
-  group_key_present = control & 0x2;
-
-  item = proto_tree_add_item(tree, hf_ieee80211_tag_pasn_control, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-  proto_item_append_text(item, " (Comeback Info %s, Group and Key %s)", comeback_present ?  "present" : "not present",
-                         group_key_present ? "present" : "not present");
-  offset += 1;
-
-  proto_tree_add_item(tree, hf_ieee80211_tag_pasn_wrapped_data_format, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-  offset += 1;
-
-  if (comeback_present) {
-    guint8 cookie_length;
-
-    proto_tree_add_item(tree, hf_ieee80211_tag_pasn_comeback_after, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-    offset += 2;
-
-    cookie_length = tvb_get_guint8(tvb, offset);
-    offset += 1;
-
-    proto_tree_add_item(tree, hf_ieee80211_tag_pasn_cookie, tvb, offset, cookie_length, ENC_NA);
-    offset += cookie_length;
+  if (flags & PASN_GROUP_KEY_PRESENT) { /* Group and Key present */
+    fixed_len += 2;
   }
 
-  if (group_key_present) {
-    guint8 key_len;
+  /*
+   * If there is a comeback field and the comback_after is present ...
+   */
+  if (flags & 0x01) {
+        /* Check if the comeback_after field is there? */
+        if (tvb_get_letohs(tvb, offset) <= (tvb_left - fixed_len)) {
+                comeback_after = TRUE;
+        }
+  }
 
-    proto_tree_add_item(tree, hf_ieee80211_tag_pasn_finite_cyclic_group_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-    offset += 2;
+  return comeback_after;
+}
 
-    key_len = tvb_get_guint8(tvb, offset);
-    proto_tree_add_item(tree, hf_ieee80211_tag_pasn_ephemeral_pk_length , tvb, offset, 1, ENC_LITTLE_ENDIAN);
+static int * const pasn_params_fields[] = {
+  &hf_ieee80211_tag_pasn_params_comeback_info_present,
+  &hf_ieee80211_tag_pasn_params_group_and_key_present,
+  &hf_ieee80211_tag_pasn_parameters_reserved,
+  NULL
+};
+
+static const range_string wrapped_data_fmt_rvals[] = {
+  { 0, 0, "No wrapped data" },
+  { 1, 1, "Fast BSS Transition Wrapped Data" },
+  { 2, 2, "FILS Shared Key authentication without PFS Wrapped Data" },
+  { 3, 3, "SAE Wrapped Data" },
+  { 4, 255, "Reserved" },
+  { 0, 0, NULL }
+};
+
+static void
+dissect_pasn_parameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int len)
+{
+  int public_key_len = 0;
+  guint pasn_control = tvb_get_guint8(tvb, offset);
+
+  if (len < 2) {
+    expert_add_info_format(pinfo, tree, &ei_ieee80211_tag_length,
+                           "PASN Parameters must be at least 2 octets long");
+    return;
+  }
+
+  proto_tree_add_bitmask_with_flags(tree, tvb, offset,
+                                    hf_ieee80211_tag_pasn_parameters_control,
+                                    ett_pasn_parameters, pasn_params_fields,
+                                    ENC_LITTLE_ENDIAN,
+                                    BMT_NO_FALSE | BMT_NO_INT);
+  offset += 1;
+
+  proto_tree_add_item(tree, hf_ieee80211_tag_pasn_parameters_wrapped_fmt,
+                      tvb, offset, 1, ENC_NA);
+  offset += 1;
+
+  /*
+   * If the Comeback field is present, it might not have a Comeback After
+   * field. Use the following heuristic function to check.
+   */
+  if (pasn_control & PASN_COMEBACK_INFO_PRESENT) {
+    proto_tree *comeback_tree = NULL;
+    proto_item *cbi = NULL;
+    guint8 cookie_len;
+
+    comeback_tree = proto_tree_add_subtree(tree, tvb, offset, -1,
+                    ett_pasn_comeback_tree, &cbi, "Comeback field");
+
+    if (has_comeback_after(pasn_control, tvb, offset, len)) {
+      proto_tree_add_item(comeback_tree, hf_ieee80211_tag_pasn_comeback_after,
+                          tvb, offset, 2, ENC_LITTLE_ENDIAN);
+      offset += 2;
+    }
+
+    cookie_len = tvb_get_guint8(tvb, offset);
+
+    proto_tree_add_item(comeback_tree, hf_ieee80211_tag_pasn_cookie_length,
+                        tvb, offset, 1, ENC_NA);
     offset += 1;
 
-    proto_tree_add_item(tree, hf_ieee80211_tag_pasn_ephemeral_pk, tvb, offset, key_len, ENC_NA);
+    if (cookie_len) {
+      proto_tree_add_item(comeback_tree, hf_ieee80211_tag_pasn_cookie,
+                          tvb, offset, cookie_len, ENC_NA);
+      offset += cookie_len;
+    }
+  }
+
+  if (pasn_control & PASN_GROUP_KEY_PRESENT) {
+    public_key_len = tvb_get_guint8(tvb, offset + 2);
+
+    proto_tree_add_item(tree, hf_ieee80211_tag_pasn_finite_cyclic_group_id, tvb,
+                        offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_item(tree, hf_ieee80211_tag_pasn_ephemeral_public_key_len,
+                        tvb, offset, 1, ENC_NA);
+    offset += 1;
+
+    if (public_key_len) {
+      proto_tree_add_item(tree, hf_ieee80211_tag_pasn_ephemeral_public_key, tvb,
+                        offset, public_key_len, ENC_NA);
+    }
   }
 }
 
@@ -27616,7 +27897,7 @@ ieee80211_tag_element_id_extension(tvbuff_t *tvb, packet_info *pinfo, proto_tree
       }
       break;
     case ETAG_FILS_WRAPPED_DATA:
-      proto_tree_add_item(tree, hf_ieee80211_fils_wrapped_data, tvb, offset, ext_tag_len, ENC_NA);
+      dissect_wrapped_data(tree, pinfo, tvb, offset, ext_tag_len);
       break;
     case ETAG_FILS_NONCE:
       proto_tree_add_item(tree, hf_ieee80211_fils_nonce, tvb, offset, ext_tag_len, ENC_NA);
@@ -27694,7 +27975,7 @@ ieee80211_tag_element_id_extension(tvbuff_t *tvb, packet_info *pinfo, proto_tree
       proto_tree_add_item(tree, hf_ieee80211_tag_ftm_tsf_sync_info, tvb, offset, ext_tag_len, ENC_NA);
       break;
     case ETAG_PASN_PARAMETERS:
-      dissect_pasn_parameters(tvb, tree, offset);
+      dissect_pasn_parameters(tvb, pinfo, tree, offset, ext_tag_len);
       break;
     default:
       proto_tree_add_item(tree, hf_ieee80211_ext_tag_data, tvb, offset, ext_tag_len, ENC_NA);
@@ -29299,11 +29580,9 @@ dissect_ieee80211_mgt(guint16 fcf, tvbuff_t *tvb, packet_info *pinfo, proto_tree
       offset = 6;  /* Size of fixed fields */
 
       fixed_tree = get_fixed_parameter_tree(mgt_tree, tvb, 0, offset, TRUE);
-      add_ff_auth_alg(fixed_tree, tvb, pinfo, 0);
-      add_ff_auth_trans_seq(fixed_tree, tvb, pinfo, 2);
-      add_ff_status_code(fixed_tree, tvb, pinfo, 4);
-      offset = add_ff_auth_sae(fixed_tree, tvb, pinfo, offset);
-      offset = add_ff_auth_fils(fixed_tree, tvb, pinfo, offset);
+      offset = dissect_auth_frame(fixed_tree, pinfo, tvb);
+      proto_item_append_text(fixed_tree, " (%d bytes)", offset);
+      proto_item_set_len(fixed_tree, offset);
 
       tagged_parameter_tree_len =
         tvb_reported_length_remaining(tvb, offset);
@@ -47014,7 +47293,7 @@ proto_register_ieee80211(void)
       NULL, HFILL }},
 
     {&hf_ieee80211_fils_wrapped_data,
-     {"FILS Wrapped Data", "wlan.ext_tag.fils.wrapped_data",
+     {"Wrapped Data", "wlan.ext_tag.fils.wrapped_data",
       FT_BYTES, BASE_NONE, NULL, 0x0,
       NULL, HFILL }},
 
@@ -48330,33 +48609,61 @@ proto_register_ieee80211(void)
      {"Public Key", "wlan.ext_tag.owe_dh_parameter.public_key",
       FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
-    {&hf_ieee80211_tag_pasn_control,
-      {"Control", "wlan.ext_tag.pasn.control",
-       FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
+    {&hf_ieee80211_tag_pasn_parameters_control,
+     {"Control", "wlan.etag.pasn_params.control",
+      FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
-    {&hf_ieee80211_tag_pasn_wrapped_data_format,
-      {"Wrapped Data Format", "wlan.ext_tag.pasn.wrapped_data_format",
-       FT_UINT8, BASE_DEC, VALS(pasn_wrapped_data_format_vals), 0, NULL, HFILL }},
+    {&hf_ieee80211_tag_pasn_params_comeback_info_present,
+     {"Comeback Info Present", "wlan.etag.pasn_params.comeback_info_present",
+      FT_BOOLEAN, 8, NULL, 0x01, NULL, HFILL }},
+
+    {&hf_ieee80211_tag_pasn_params_group_and_key_present,
+     {"Group and Key Present", "wlan.etag.pasn_params.group_and_key_present",
+      FT_BOOLEAN, 8, NULL, 0x02, NULL, HFILL }},
+
+    {&hf_ieee80211_tag_pasn_parameters_reserved,
+     {"Reserved", "wlan.etag.pasn_parameters.reserved",
+      FT_UINT8, BASE_HEX, NULL, 0xFC, NULL, HFILL }},
+
+    {&hf_ieee80211_tag_pasn_parameters_wrapped_fmt,
+      {"Wrapped Data Format", "wlan.etag.pasn_parameters.wrapped_data_format",
+       FT_UINT8, BASE_HEX|BASE_RANGE_STRING, RVALS(wrapped_data_fmt_rvals),
+       0x0, NULL, HFILL }},
 
     {&hf_ieee80211_tag_pasn_comeback_after,
-      {"Comeback After", "wlan.ext_tag.pasn.comeback_after",
-       FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+     {"Comeback After", "wlan.etag.pasn_parameters.comeback_after",
+      FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_tu_tus, 0x0, NULL, HFILL }},
+
+    {&hf_ieee80211_tag_pasn_cookie_length,
+     {"Cookie length", "wlan.etag.pasn_parameters.cookie_length",
+      FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
     {&hf_ieee80211_tag_pasn_cookie,
-      {"Cookie", "wlan.ext_tag.pasn.cookie",
-       FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+     {"Cookie", "wlan.etag.pasn_parameters.cookie",
+      FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
     {&hf_ieee80211_tag_pasn_finite_cyclic_group_id,
-      {"Finite Cyclic Group ID", "wlan.ext_tag.pasn.finite_cyclic_group_id",
-       FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+     {"Finite Cyclic Group ID",
+      "wlan.etag.pasn_parameters.finite_cyclic_group_id",
+      FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
-    {&hf_ieee80211_tag_pasn_ephemeral_pk_length,
-      {"Ephemeral Public Key Length", "wlan.ext_tag.pasn.ephemeral_pk_length",
-       FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+    {&hf_ieee80211_tag_pasn_ephemeral_public_key_len,
+     {"Ephemeral Public Key Length",
+      "wlan.etag.pasn_parameters.ephemeral_public_key_len",
+      FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
-    {&hf_ieee80211_tag_pasn_ephemeral_pk,
-      {"Ephemeral Public Key", "wlan.ext_tag.pasn.ephemeral_pk",
-       FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+    {&hf_ieee80211_tag_pasn_ephemeral_public_key,
+      {"Ephemeral Public Key",
+       "wlan.etag.pasn_parameters.ephemeral_public_key",
+       FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
+    {&hf_ieee80211_pasn_auth1_frame_len,
+     {"Auth Frame 1 Length", "wlan.pasn_wrapped_data.auth_frame_1_len",
+      FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+    {&hf_ieee80211_pasn_auth2_frame_len,
+     {"Auth Frame 2 Length", "wlan.pasn_wrapped_data.auth_frame_2_len",
+      FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
   };
 
   static hf_register_info aggregate_fields[] = {
@@ -48568,6 +48875,10 @@ proto_register_ieee80211(void)
     &ett_ff_ftm_toa_err1,
     &ett_tag_ranging,
     &ett_tag_ranging_ntb,
+
+    &ett_pasn_parameters,
+    &ett_pasn_comeback_tree,
+    &ett_pasn_auth_frame,
 
     &ett_tag_measure_request_mode_tree,
     &ett_tag_measure_request_type_tree,
