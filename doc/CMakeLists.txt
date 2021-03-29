@@ -224,12 +224,10 @@ install(
 		${CMAKE_INSTALL_MANDIR}/man4
 )
 
-install(
-	FILES
-		${HTML_INSTALL_FILES}
-	DESTINATION
-		${CMAKE_INSTALL_DOCDIR}
-)
+#
+# Installation of HTML manuals is done
+# elsewhere to CMAKE_INSTALL_DATADIR.
+#
 
 #
 # Editor modelines  -  https://www.wireshark.org/tools/modelines.html
