@@ -66,6 +66,9 @@ endif(WIN32)
 set_target_properties(caputils PROPERTIES
 	LINK_FLAGS "${WS_LINK_FLAGS}"
 	FOLDER "Libs")
+if(MSVC)
+	set_target_properties(caputils PROPERTIES LINK_FLAGS_DEBUG "${WS_MSVC_DEBUG_LINK_FLAGS}")
+endif()
 
 set(CAPCHILD_SRC
 	capture_ifinfo.c
@@ -93,6 +96,9 @@ target_link_libraries(capchild
 set_target_properties(capchild PROPERTIES
 	LINK_FLAGS "${WS_LINK_FLAGS}"
 	FOLDER "Libs")
+if(MSVC)
+	set_target_properties(capchild PROPERTIES LINK_FLAGS_DEBUG "${WS_MSVC_DEBUG_LINK_FLAGS}")
+endif()
 
 CHECKAPI(
 	NAME

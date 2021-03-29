@@ -34,6 +34,9 @@ macro(set_extcap_executable_properties _executable)
 		FOLDER "Executables/Extcaps"
 		INSTALL_RPATH "${EXTCAP_INSTALL_RPATH}"
 	)
+	if(MSVC)
+		set_target_properties(${_executable} PROPERTIES LINK_FLAGS_DEBUG "${WS_MSVC_DEBUG_LINK_FLAGS}")
+	endif()
 
 	set(PROGLIST ${PROGLIST} ${_executable})
 

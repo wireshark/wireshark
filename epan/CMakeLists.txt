@@ -313,6 +313,9 @@ set_target_properties(epan PROPERTIES
 	PREFIX "lib"
 	FOLDER "DLLs"
 )
+if(MSVC)
+	set_target_properties(epan PROPERTIES LINK_FLAGS_DEBUG "${WS_MSVC_DEBUG_LINK_FLAGS}")
+endif()
 
 target_link_libraries(epan
 	PUBLIC
