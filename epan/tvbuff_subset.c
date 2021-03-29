@@ -1,4 +1,4 @@
-/* tvbuff_real.c
+/* tvbuff_subset.c
  *
  * Copyright (c) 2000 by Gilbert Ramirez <gram@alumni.rice.edu>
  *
@@ -62,16 +62,36 @@ static gint
 subset_find_guint8(tvbuff_t *tvb, guint abs_offset, guint limit, guint8 needle)
 {
 	struct tvb_subset *subset_tvb = (struct tvb_subset *) tvb;
+	gint result;
 
-	return tvb_find_guint8(subset_tvb->subset.tvb, subset_tvb->subset.offset + abs_offset, limit, needle);
+	result = tvb_find_guint8(subset_tvb->subset.tvb, subset_tvb->subset.offset + abs_offset, limit, needle);
+	if (result == -1)
+		return result;
+
+	/*
+	 * Make the result relative to the beginning of the tvbuff we
+	 * were handed, *not* relative to the beginning of its parent
+	 * tvbuff.
+	 */
+	return result - subset_tvb->subset.offset;
 }
 
 static gint
 subset_pbrk_guint8(tvbuff_t *tvb, guint abs_offset, guint limit, const ws_mempbrk_pattern* pattern, guchar *found_needle)
 {
 	struct tvb_subset *subset_tvb = (struct tvb_subset *) tvb;
+	gint result;
 
-	return tvb_ws_mempbrk_pattern_guint8(subset_tvb->subset.tvb, subset_tvb->subset.offset + abs_offset, limit, pattern, found_needle);
+	result = tvb_ws_mempbrk_pattern_guint8(subset_tvb->subset.tvb, subset_tvb->subset.offset + abs_offset, limit, pattern, found_needle);
+	if (result == -1)
+		return result;
+
+	/*
+	 * Make the result relative to the beginning of the tvbuff we
+	 * were handed, *not* relative to the beginning of its parent
+	 * tvbuff.
+	 */
+	return result - subset_tvb->subset.offset;
 }
 
 static tvbuff_t *
