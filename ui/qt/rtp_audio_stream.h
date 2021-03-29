@@ -63,6 +63,7 @@ public:
     double startRelTime() const { return start_rel_time_; }
     double stopRelTime() const { return stop_rel_time_; }
     unsigned sampleRate() const { return first_sample_rate_; }
+    unsigned playRate() const { return audio_out_rate_; }
     const QStringList payloadNames() const;
 
     /**

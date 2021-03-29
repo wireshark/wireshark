@@ -43,6 +43,9 @@
        <property name="text">
         <string>Play</string>
        </property>
+       <property name="toolTip">
+        <string>Double click to change audio routing</string>
+       </property>
       </column>
       <column>
        <property name="text">
@@ -86,7 +89,18 @@
       </column>
       <column>
        <property name="text">
-        <string>Sample Rate (Hz)</string>
+        <string>SR (Hz)</string>
+       </property>
+       <property name="toolTip">
+        <string>Sample rate of codec</string>
+       </property>
+      </column>
+      <column>
+       <property name="text">
+        <string>PR (Hz)</string>
+       </property>
+       <property name="toolTip">
+        <string>Play rate of decoded audio (depends e. g. on selected sound card)</string>
        </property>
       </column>
       <column>

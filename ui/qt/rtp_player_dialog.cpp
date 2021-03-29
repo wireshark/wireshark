@@ -84,6 +84,7 @@ enum {
     num_pkts_col_,
     time_span_col_,
     sample_rate_col_,
+    play_rate_col_,
     payload_col_,
 
     stream_data_col_ = src_addr_col_, // RtpAudioStream
@@ -111,6 +112,8 @@ public:
             case dst_port_col_:
             case num_pkts_col_:
             case sample_rate_col_:
+                return text(treeWidget()->sortColumn()).toInt() < other.text(treeWidget()->sortColumn()).toInt();
+            case play_rate_col_:
                 return text(treeWidget()->sortColumn()).toInt() < other.text(treeWidget()->sortColumn()).toInt();
             case first_pkt_col_:
                 int v1;
@@ -507,6 +510,7 @@ void RtpPlayerDialog::createPlot(bool rescale_axes)
         }
         ti->setText(time_span_col_, span_str);
         ti->setText(sample_rate_col_, QString::number(audio_stream->sampleRate()));
+        ti->setText(play_rate_col_, QString::number(audio_stream->playRate()));
         ti->setText(payload_col_, audio_stream->payloadNames().join(", "));
 
         if (audio_stream->outOfSequence() > 0) {
