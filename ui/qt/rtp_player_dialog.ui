@@ -181,6 +181,16 @@
       <widget class="QComboBox" name="outputDeviceComboBox"/>
      </item>
      <item>
+      <widget class="QLabel" name="label_4">
+       <property name="text">
+        <string>Output Audio Rate:</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QComboBox" name="outputAudioRate"/>
+     </item>
+     <item>
       <spacer name="horizontalSpacer_6">
        <property name="orientation">
         <enum>Qt::Horizontal</enum>

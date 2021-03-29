@@ -64,6 +64,7 @@ public:
     double stopRelTime() const { return stop_rel_time_; }
     unsigned sampleRate() const { return first_sample_rate_; }
     unsigned playRate() const { return audio_out_rate_; }
+    void setRequestedPlayRate(unsigned new_rate) { audio_requested_out_rate_ = new_rate; }
     const QStringList payloadNames() const;
 
     /**
@@ -175,6 +176,7 @@ private:
     bool stereo_required_;
     quint32 first_sample_rate_;
     quint32 audio_out_rate_;
+    quint32 audio_requested_out_rate_;
     QSet<QString> payload_names_;
     struct SpeexResamplerState_ *audio_resampler_;
     struct SpeexResamplerState_ *visual_resampler_;
@@ -199,7 +201,7 @@ private:
 
     void decodeAudio(QAudioDeviceInfo out_device);
     void decodeVisual();
-    void selectAudioOutRate(QAudioDeviceInfo out_device, unsigned int sample_rate);
+    quint32 calculateAudioOutRate(QAudioDeviceInfo out_device, unsigned int sample_rate, unsigned int requested_out_rate);
     SAMPLE *resizeBufferIfNeeded(SAMPLE *buff, gint32 *buff_bytes, qint64 requested_size);
 
 private slots:

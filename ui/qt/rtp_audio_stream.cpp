@@ -51,6 +51,7 @@ RtpAudioStream::RtpAudioStream(QObject *parent, rtpstream_info_t *rtpstream, boo
     stereo_required_(stereo_required),
     first_sample_rate_(0),
     audio_out_rate_(0),
+    audio_requested_out_rate_(0),
     audio_resampler_(0),
     audio_output_(NULL),
     max_sample_val_(1),
@@ -193,8 +194,11 @@ void RtpAudioStream::decode(QAudioDeviceInfo out_device)
     decodeVisual();
 }
 
-void RtpAudioStream::selectAudioOutRate(QAudioDeviceInfo out_device, unsigned int sample_rate)
+// Side effect: it creates and initiates resampler if needed
+quint32 RtpAudioStream::calculateAudioOutRate(QAudioDeviceInfo out_device, unsigned int sample_rate, unsigned int requested_out_rate)
 {
+    quint32 out_rate;
+
     // Use the first non-zero rate we find. Ajust it to match
     // our audio hardware.
     QAudioFormat format;
@@ -208,15 +212,27 @@ void RtpAudioStream::selectAudioOutRate(QAudioDeviceInfo out_device, unsigned in
     }
     format.setCodec("audio/pcm");
 
-    if (!out_device.isFormatSupported(format)) {
-        audio_out_rate_ = out_device.nearestFormat(format).sampleRate();
-        audio_resampler_ = speex_resampler_init(1, sample_rate, audio_out_rate_, 10, NULL);
-        RTP_STREAM_DEBUG("Started resampling from %u to (out) %u Hz.", sample_rate, audio_out_rate_);
+    if (!out_device.isFormatSupported(format) &&
+        (requested_out_rate==0)
+       ) {
+        out_rate = out_device.nearestFormat(format).sampleRate();
+        audio_resampler_ = speex_resampler_init(1, sample_rate, out_rate, 10, NULL);
+        RTP_STREAM_DEBUG("Started resampling from %u to (out) %u Hz.", sample_rate, out_rate);
     } else {
-        audio_out_rate_ = sample_rate;
+        if ((requested_out_rate!=0) &&
+            (requested_out_rate != sample_rate)
+           ) {
+            out_rate = requested_out_rate;
+            audio_resampler_ = speex_resampler_init(1, sample_rate, out_rate, 10, NULL);
+            RTP_STREAM_DEBUG("Started resampling from %u to (out) %u Hz.", sample_rate, out_rate);
+        } else {
+            out_rate = sample_rate;
+        }
     }
 
-    RTP_STREAM_DEBUG("Audio sample rate is %u", audio_out_rate_);
+    RTP_STREAM_DEBUG("Audio sample rate is %u", out_rate);
+
+    return out_rate;
 }
 
 void RtpAudioStream::decodeAudio(QAudioDeviceInfo out_device)
@@ -295,7 +311,8 @@ void RtpAudioStream::decodeAudio(QAudioDeviceInfo out_device)
 
             // We calculate audio_out_rate just for first sample_rate.
             // All later are just resampled to it.
-            selectAudioOutRate(out_device, sample_rate);
+            // Side effect: it creates and initiates resampler if needed
+            audio_out_rate_ = calculateAudioOutRate(out_device, sample_rate, audio_requested_out_rate_);
 
             // Calculate count of prepend samples for the stream
             // Note: Order of operations and separation to two formulas is

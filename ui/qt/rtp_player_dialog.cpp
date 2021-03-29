@@ -235,8 +235,10 @@ RtpPlayerDialog::RtpPlayerDialog(QWidget &parent, CaptureFile &cf) :
         ui->pauseButton->setEnabled(false);
         ui->stopButton->setEnabled(false);
         ui->outputDeviceComboBox->addItem(tr("No devices available"));
+        ui->outputAudioRate->setEnabled(false);
     } else {
         stereo_available_ = isStereoAvailable();
+        fillAudioRateMenu();
     }
 
     ui->audioPlot->setMouseTracking(true);
@@ -886,6 +888,7 @@ void RtpPlayerDialog::updateWidgets()
         ui->pauseButton->setVisible(true);
     }
     ui->outputDeviceComboBox->setEnabled(enable_play);
+    ui->outputAudioRate->setEnabled(enable_play);
     ui->pauseButton->setEnabled(enable_pause);
     ui->stopButton->setEnabled(enable_stop);
     ui->actionStop->setEnabled(enable_stop);
@@ -1573,6 +1576,15 @@ QString RtpPlayerDialog::currentOutputDeviceName()
     return ui->outputDeviceComboBox->currentText();
 }
 
+void RtpPlayerDialog::fillAudioRateMenu()
+{
+    ui->outputAudioRate->clear();
+    ui->outputAudioRate->addItem(tr("Automatic"));
+    foreach (int rate, getCurrentDeviceInfo().supportedSampleRates()) {
+        ui->outputAudioRate->addItem(QString::number(rate));
+    }
+}
+
 void RtpPlayerDialog::on_outputDeviceComboBox_currentIndexChanged(const QString &)
 {
     stereo_available_ = isStereoAvailable();
@@ -1583,6 +1595,24 @@ void RtpPlayerDialog::on_outputDeviceComboBox_currentIndexChanged(const QString 
             continue;
 
         changeAudioRoutingOnItem(ti, audio_stream->getAudioRouting().convert(stereo_available_));
+    }
+
+    fillAudioRateMenu();
+    rescanPackets();
+}
+
+void RtpPlayerDialog::on_outputAudioRate_currentIndexChanged(const QString & rate_string)
+{
+    // Any unconvertable string is converted to 0 => used as Automatic rate
+    unsigned selected_rate = rate_string.toInt();
+
+    for (int row = 0; row < ui->streamTreeWidget->topLevelItemCount(); row++) {
+        QTreeWidgetItem *ti = ui->streamTreeWidget->topLevelItem(row);
+        RtpAudioStream *audio_stream = ti->data(stream_data_col_, Qt::UserRole).value<RtpAudioStream*>();
+        if (!audio_stream)
+            continue;
+
+        audio_stream->setRequestedPlayRate(selected_rate);
     }
     rescanPackets();
 }

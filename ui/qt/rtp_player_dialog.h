@@ -131,6 +131,7 @@ private slots:
     void on_streamTreeWidget_itemSelectionChanged();
     void on_streamTreeWidget_itemDoubleClicked(QTreeWidgetItem *item, const int column);
     void on_outputDeviceComboBox_currentIndexChanged(const QString &);
+    void on_outputAudioRate_currentIndexChanged(const QString &);
     void on_jitterSpinBox_valueChanged(double);
     void on_timingComboBox_currentIndexChanged(int);
     void on_todCheckBox_toggled(bool checked);
@@ -194,6 +195,7 @@ private:
     void handleGoToSetupPacket(QTreeWidgetItem *ti);
     void addSingleRtpStream(rtpstream_info_t *rtpstream);
     void removeRow(QTreeWidgetItem *ti);
+    void fillAudioRateMenu();
 
 #else // QT_MULTIMEDIA_LIB
 private:
