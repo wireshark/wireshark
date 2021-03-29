@@ -219,7 +219,7 @@ static const string_string errortypenames[] = {
     { "E16", "PARSE_16" },
     { "E17", "PARSE_6" },
     { "E18", "PARSE_7" },
-    { "E18", "PARSE_8" },
+    { "E19", "PARSE_8" },
     { "E25", "Software error: output buffer overflow (RTOOBIG_1)" },
     { "E26", "Software error: output buffer overflow (RTOOBIG_2)" },
     { "E31", "Syntax error: invalid local address (INVLARG_1)" },
