@@ -171,7 +171,8 @@ conversation_create_from_template(conversation_t *conversation, const address *a
  * Compute the hash value for two given address/port pairs if the match
  * is to be exact.
  */
-/* http://eternallyconfuzzled.com/tuts/algorithms/jsw_tut_hashing.aspx#existing
+/* https://web.archive.org/web/20070615045827/http://eternallyconfuzzled.com/tuts/algorithms/jsw_tut_hashing.aspx#existing
+ * (formerly at http://eternallyconfuzzled.com/tuts/algorithms/jsw_tut_hashing.aspx#existing)
  * One-at-a-Time hash
  */
 guint
