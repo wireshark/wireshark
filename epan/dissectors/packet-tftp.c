@@ -783,10 +783,42 @@ is_valid_requerest_body(tvbuff_t *tvb)
 static gboolean
 is_valid_requerest(tvbuff_t *tvb)
 {
+  if (tvb_captured_length(tvb) < MIN_HDR_LEN)
+    return FALSE;
   guint16 opcode = tvb_get_ntohs(tvb, 0);
   if ((opcode != TFTP_RRQ) && (opcode != TFTP_WRQ))
     return FALSE;
   return is_valid_requerest_body(tvb);
+}
+
+static conversation_t* create_tftp_conversation(packet_info *pinfo)
+{
+  conversation_t* conversation = NULL;
+  if (!PINFO_FD_VISITED(pinfo)) {
+    /* New read or write request on first pass, so create conversation with client port only */
+    conversation = conversation_new(pinfo->num, &pinfo->src, &pinfo->dst, ENDPOINT_UDP,
+                                    pinfo->srcport, 0, NO_PORT2);
+    conversation_set_dissector(conversation, tftp_handle);
+    /* Store conversation in this frame */
+    p_add_proto_data(wmem_file_scope(), pinfo, proto_tftp, CONVERSATION_KEY,
+                     (void *)conversation);
+  } else {
+    /* Read or write request, but not first pass, so look up existing conversation */
+    conversation = (conversation_t *)p_get_proto_data(wmem_file_scope(), pinfo,
+                                                      proto_tftp, CONVERSATION_KEY);
+  }
+  return conversation;
+}
+
+static gboolean
+dissect_tftp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+  if (is_valid_requerest_body(tvb)) {
+    conversation_t* conversation = create_tftp_conversation(pinfo);
+    dissect_tftp_message(tftp_info_for_conversation(conversation), tvb, pinfo, tree);
+    return TRUE;
+  }
+  return FALSE;
 }
 
 static gboolean
@@ -873,19 +905,7 @@ dissect_tftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
        (pinfo->match_uint == pinfo->destport)) &&
       is_valid_requerest(tvb))
   {
-    if (!PINFO_FD_VISITED(pinfo)) {
-      /* New read or write request on first pass, so create conversation with client port only */
-      conversation = conversation_new(pinfo->num, &pinfo->src, &pinfo->dst, ENDPOINT_UDP,
-                                      pinfo->srcport, 0, NO_PORT2);
-      conversation_set_dissector(conversation, tftp_handle);
-      /* Store conversation in this frame */
-      p_add_proto_data(wmem_file_scope(), pinfo, proto_tftp, CONVERSATION_KEY,
-                       (void *)conversation);
-    } else {
-      /* Read or write request, but not first pass, so look up existing conversation */
-      conversation = (conversation_t *)p_get_proto_data(wmem_file_scope(), pinfo,
-                                                        proto_tftp, CONVERSATION_KEY);
-    }
+    conversation = create_tftp_conversation(pinfo);
   }
 
   if (conversation == NULL)
@@ -1090,6 +1110,7 @@ void
 proto_reg_handoff_tftp(void)
 {
   heur_dissector_add("stun", dissect_embeddedtftp_heur, "TFTP over TURN", "tftp_stun", proto_tftp, HEURISTIC_ENABLE);
+  heur_dissector_add("udp", dissect_tftp_heur, "TFTP", "tftp", proto_tftp, HEURISTIC_ENABLE);
 
   dissector_add_uint_range_with_preference("udp.port", UDP_PORT_TFTP_RANGE, tftp_handle);
   apply_tftp_prefs();
