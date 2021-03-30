@@ -78,6 +78,11 @@ static int hf_ts_last_jump_ns = -1;
 static int hf_ts_utc_leap_sec = -1;
 static int hf_ts_sync_state = -1;
 
+static int hf_dio_overflow_mon_unit = -1;
+static int hf_dio_jump_occured = -1;
+static int hf_dio_value_type = -1;
+static int hf_dio_reserved_bytes = -1;
+
 static int hf_ebhscr_version = -1;
 static int hf_ebhscr_length = -1;
 static int hf_ebhscr_start_timestamp = -1;
@@ -244,6 +249,24 @@ static const value_string ts_sync_state_strings[] = {
 	{ 0, NULL },
 };
 
+static int * const dio_status_bits[] = {
+	&hf_dio_overflow_mon_unit,
+	&hf_dio_jump_occured,
+	NULL
+};
+
+static int * const dio_mjr_hdr_bits[] = {
+	&hf_dio_value_type,
+	&hf_dio_reserved_bytes,
+	NULL
+};
+
+static const val64_string dio_val_type_strings[] = {
+	{ 0,	"Event triggered falling edge" },
+	{ 1,	"Event triggered rising edge" },
+	{ 0, NULL },
+};
+
 static expert_field ei_ebhscr_frame_header = EI_INIT;
 static expert_field ei_ebhscr_err_status_flag = EI_INIT;
 static expert_field ei_ebhscr_info_status_flag = EI_INIT;
@@ -263,6 +286,7 @@ static dissector_table_t subdissector_table;
 #define NMEA_FRAME 0x51
 #define TIME_STATE_FRAME 0x52
 #define CAN_FRAME 0x53
+#define DIO_FRAME 0x56
 #define EBHSCR_HEADER_LENGTH 32
 
 static int dissect_ebhscr_can(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
@@ -422,6 +446,36 @@ static int dissect_ebhscr_ts(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 }
 
 static int
+dissect_ebhscr_dio(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+					proto_tree *ebhscr_packet_header_tree, guint16 ebhscr_status, guint32 ebhscr_frame_length)
+{
+	tvbuff_t* next_tvb;
+	proto_item *ti;
+	guint32 ebhscr_current_payload_length;
+
+	col_set_str(pinfo->cinfo, COL_INFO, "DIO");
+	ebhscr_current_payload_length = ebhscr_frame_length - EBHSCR_HEADER_LENGTH;
+
+	ti = proto_tree_add_bitmask(ebhscr_packet_header_tree, tvb, 2, hf_ebhscr_status,
+								ett_ebhscr_status, dio_status_bits, ENC_BIG_ENDIAN);
+
+	if (ebhscr_status) {
+		expert_add_info(pinfo, ti, &ei_ebhscr_err_status_flag);
+	}
+	proto_tree_add_bitmask(ebhscr_packet_header_tree, tvb, 24, hf_ebhscr_mjr_hdr, ett_ebhscr_mjr_hdr,
+							dio_mjr_hdr_bits, ENC_BIG_ENDIAN);
+
+	if (ebhscr_frame_length == EBHSCR_HEADER_LENGTH) {
+		return tvb_captured_length(tvb);
+	}
+
+	next_tvb = tvb_new_subset_length(tvb, 32, ebhscr_current_payload_length);
+	call_data_dissector(next_tvb, pinfo, tree);
+
+	return tvb_captured_length(tvb);
+}
+
+static int
 dissect_ebhscr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	proto_item *ti;
@@ -493,6 +547,9 @@ dissect_ebhscr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 
 	else if (ebhscr_major_num == TIME_STATE_FRAME) {
 		dissect_ebhscr_ts(tvb, pinfo, tree, ebhscr_packet_header_tree, ebhscr_status, ebhscr_frame_length);
+	}
+	else if (ebhscr_major_num == DIO_FRAME) {
+		dissect_ebhscr_dio(tvb, pinfo, tree, ebhscr_packet_header_tree, ebhscr_status, ebhscr_frame_length);
 	}
 
 	else {
@@ -824,6 +881,31 @@ proto_register_ebhscr(void)
 			{ "Sync state", "ebhscr.ts.syn", FT_UINT16, BASE_HEX,
 			VALS(ts_sync_state_strings), 0, NULL, HFILL }
 		},
+		{ &hf_dio_overflow_mon_unit,
+			{ "Overflow in the monitoring unit", "ebhscr.dio.ofw_mon",
+			FT_BOOLEAN, 16,
+			NULL, 0x0001,
+			"Set to 1 in case of an overflow in the monitoring unit. In this case all remaining fields are invalid.", HFILL }
+		},
+		{ &hf_dio_jump_occured,
+			{ "Time jump occured", "ebhscr.dio.jump_occ",
+			FT_BOOLEAN, 16,
+			NULL, 0x0400,
+			"Set to 1 if a time jump occured near the edge and thus the timestamp was estimated.", HFILL }
+		},
+		{ &hf_dio_value_type,
+			{ "Digital IO value type", "ebhscr.dio.valtype",
+			FT_UINT64, BASE_DEC | BASE_VAL64_STRING,
+			VALS64(dio_val_type_strings), 0x0100000000000000,
+			NULL, HFILL }
+		},
+		{ &hf_dio_reserved_bytes,
+			{ "Reserved Flags", "ebhscr.dio.rsv",
+			FT_BOOLEAN, 64, NULL,
+			0x00FFFFFFFFFFFFFF,
+			NULL, HFILL }
+		},
+
 	};
 
 	static gint *ett[] = {
