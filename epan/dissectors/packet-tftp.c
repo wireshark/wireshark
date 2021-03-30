@@ -895,7 +895,8 @@ dissect_tftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     }
     if (conversation == NULL) {
       conversation = find_conversation_pinfo(pinfo, 0);
-      if (conversation == NULL) return 0;
+      if (conversation == NULL || conversation_get_dissector(conversation, pinfo->num) != tftp_handle)
+        return 0;
     }
   }
 
