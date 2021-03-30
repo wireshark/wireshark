@@ -678,6 +678,7 @@ static int hf_attr_maio = -1;
 static int hf_attr_list_req_attr = -1;
 static int hf_attr_ari_not_reported_cnt = -1;
 static int hf_attr_ari_not_reported_attr = -1;
+static int hf_attr_rf_max_pwr_red = -1;
 /* Ipaccess */
 static int hf_oml_ipa_tres_attr_tag = -1;
 static int hf_oml_ipa_tres_attr_len = -1;
@@ -712,6 +713,30 @@ static int hf_attr_ipa_nsei = -1;
 static int hf_attr_ipa_nsvci = -1;
 static int hf_attr_ipa_bvci = -1;
 static int hf_attr_ipa_rac = -1;
+static int hf_attr_ipa_ns_cfg_unblock_timer = -1;
+static int hf_attr_ipa_ns_cfg_unblock_retries = -1;
+static int hf_attr_ipa_ns_cfg_reset_timer = -1;
+static int hf_attr_ipa_ns_cfg_reset_retries = -1;
+static int hf_attr_ipa_ns_cfg_test_timer = -1;
+static int hf_attr_ipa_ns_cfg_alive_timer = -1;
+static int hf_attr_ipa_ns_cfg_alive_retries = -1;
+static int hf_attr_ipa_gprs_paging_rep_time = -1;
+static int hf_attr_ipa_gprs_paging_rep_count = -1;
+static int hf_attr_ipa_rlc_cfg_t3142 = -1;
+static int hf_attr_ipa_rlc_cfg_t3169 = -1;
+static int hf_attr_ipa_rlc_cfg_t3191 = -1;
+static int hf_attr_ipa_rlc_cfg_t3193 = -1;
+static int hf_attr_ipa_rlc_cfg_t3195 = -1;
+static int hf_attr_ipa_rlc_cfg_t3101 = -1;
+static int hf_attr_ipa_rlc_cfg_t3103 = -1;
+static int hf_attr_ipa_rlc_cfg_t3105 = -1;
+static int hf_attr_ipa_rlc_cfg_countdown = -1;
+static int hf_attr_ipa_rlc_cfg2_t_dl_tbf_ext = -1;
+static int hf_attr_ipa_rlc_cfg2_t_ul_tbf_ext = -1;
+static int hf_attr_ipa_rlc_cfg2_init_cs = -1;
+static int hf_attr_ipa_rlc_cfg2_init_mcs = -1;
+static int hf_attr_ipa_cs[4] = { -1, -1, -1, -1 };
+static int hf_attr_ipa_mcs[9] = { -1, -1, -1, -1, -1, -1, -1, -1, -1 };
 
 /* initialize the subtree pointers */
 static int ett_oml = -1;
@@ -1341,6 +1366,27 @@ static const value_string ipacc_testres_ie_vals[] = {
 	{ 0, NULL }
 };
 
+static const value_string rlc_cfg2_init_cs_vals[] = {
+	{ 0x01, "CS1" },
+	{ 0x02, "CS2" },
+	{ 0x03, "CS3" },
+	{ 0x04, "CS4" },
+	{ 0, NULL }
+};
+
+static const value_string rlc_cfg2_init_mcs_vals[] = {
+	{ 0x01, "MCS1" },
+	{ 0x02, "MCS2" },
+	{ 0x03, "MCS3" },
+	{ 0x04, "MCS4" },
+	{ 0x05, "MCS5" },
+	{ 0x06, "MCS6" },
+	{ 0x07, "MCS7" },
+	{ 0x08, "MCS8" },
+	{ 0x09, "MCS9" },
+	{ 0, NULL }
+};
+
 /* ANSI C does not allow selective initialization of arrays, for that reason,
  * we initialize these three TLV definitions in proto_register_abis_oml(). */
 static struct tlv_definition nm_att_tlvdef_base;
@@ -1515,12 +1561,14 @@ dissect_oml_attrs(tvbuff_t *tvb, int base_offs, int length,
 
 	while (offset - base_offs < length) {
 		guint i;
+		guint16 val16;
 		guint8 tag, val8;
 		unsigned int len, len_len, hlen;
 		const struct tlv_def *tdef;
 		proto_item *ti;
 		proto_tree *att_tree;
 		tvbuff_t *sub_tvb;
+		int ie_offset;
 
 		tag = tvb_get_guint8(tvb, offset);
 		ti = proto_tree_add_item(tree, hf_oml_fom_attr_tag, tvb,
@@ -1574,6 +1622,7 @@ dissect_oml_attrs(tvbuff_t *tvb, int base_offs, int length,
 		/* Empty IE => nothing to dissect */
 		if (len == 0)
 			continue;
+		ie_offset = offset;
 
 		sub_tvb = tvb_new_subset_length(tvb, offset, len);
 
@@ -1601,6 +1650,11 @@ dissect_oml_attrs(tvbuff_t *tvb, int base_offs, int length,
 						    tvb, offset + i, 2,
 						    ENC_BIG_ENDIAN);
 			}
+			break;
+		case NM_ATT_RF_MAXPOWR_R:
+			val8 = tvb_get_guint8(tvb, offset); /* 2 dB steps */
+			proto_tree_add_uint(att_tree, hf_attr_rf_max_pwr_red,
+					    tvb, offset, 1, val8 * 2);
 			break;
 		case NM_ATT_AVAIL_STATUS:
 			/* Availability status can have length 0 */
@@ -1771,6 +1825,77 @@ dissect_oml_attrs(tvbuff_t *tvb, int base_offs, int length,
 					   tvb, offset+2, 4, ENC_NA);
 			proto_tree_add_item(att_tree, hf_attr_ipa_nsl_dport,
 					    tvb, offset+6, 2, ENC_BIG_ENDIAN);
+			break;
+		case NM_ATT_IPACC_NS_CFG:
+			/* (Un)Blocking Timer and Retries */
+			proto_tree_add_item(att_tree, hf_attr_ipa_ns_cfg_unblock_timer,
+					    tvb, ie_offset++, 1, ENC_NA);
+			proto_tree_add_item(att_tree, hf_attr_ipa_ns_cfg_unblock_retries,
+					    tvb, ie_offset++, 1, ENC_NA);
+			/* Reset Timer and Retries */
+			proto_tree_add_item(att_tree, hf_attr_ipa_ns_cfg_reset_timer,
+					    tvb, ie_offset++, 1, ENC_NA);
+			proto_tree_add_item(att_tree, hf_attr_ipa_ns_cfg_reset_retries,
+					    tvb, ie_offset++, 1, ENC_NA);
+			/* Test Timer, Alive Timer and Retries */
+			proto_tree_add_item(att_tree, hf_attr_ipa_ns_cfg_test_timer,
+					    tvb, ie_offset++, 1, ENC_NA);
+			proto_tree_add_item(att_tree, hf_attr_ipa_ns_cfg_alive_timer,
+					    tvb, ie_offset++, 1, ENC_NA);
+			proto_tree_add_item(att_tree, hf_attr_ipa_ns_cfg_alive_retries,
+					    tvb, ie_offset++, 1, ENC_NA);
+			break;
+		case NM_ATT_IPACC_GPRS_PAGING_CFG:
+			val8 = tvb_get_guint8(tvb, ie_offset); /* units: 50 ms */
+			proto_tree_add_uint(att_tree, hf_attr_ipa_gprs_paging_rep_time,
+					    tvb, ie_offset++, 1, val8 * 50);
+			proto_tree_add_item(att_tree, hf_attr_ipa_gprs_paging_rep_count,
+					    tvb, ie_offset++, 1, ENC_NA);
+			break;
+		case NM_ATT_IPACC_RLC_CFG:
+			proto_tree_add_item(att_tree, hf_attr_ipa_rlc_cfg_t3142,
+					    tvb, ie_offset++, 1, ENC_NA);
+			proto_tree_add_item(att_tree, hf_attr_ipa_rlc_cfg_t3169,
+					    tvb, ie_offset++, 1, ENC_NA);
+			proto_tree_add_item(att_tree, hf_attr_ipa_rlc_cfg_t3191,
+					    tvb, ie_offset++, 1, ENC_NA);
+			val8 = tvb_get_guint8(tvb, ie_offset); /* units: 10 ms */
+			proto_tree_add_uint(att_tree, hf_attr_ipa_rlc_cfg_t3193,
+					    tvb, ie_offset++, 1, val8 * 10);
+			proto_tree_add_item(att_tree, hf_attr_ipa_rlc_cfg_t3195,
+					    tvb, ie_offset++, 1, ENC_NA);
+			proto_tree_add_item(att_tree, hf_attr_ipa_rlc_cfg_t3101,
+					    tvb, ie_offset++, 1, ENC_NA);
+			proto_tree_add_item(att_tree, hf_attr_ipa_rlc_cfg_t3103,
+					    tvb, ie_offset++, 1, ENC_NA);
+			proto_tree_add_item(att_tree, hf_attr_ipa_rlc_cfg_t3105,
+					    tvb, ie_offset++, 1, ENC_NA);
+			proto_tree_add_item(att_tree, hf_attr_ipa_rlc_cfg_countdown,
+					    tvb, ie_offset++, 1, ENC_NA);
+			break;
+		case NM_ATT_IPACC_RLC_CFG_2:
+			val16 = tvb_get_guint16(tvb, ie_offset, ENC_BIG_ENDIAN); /* units: 10 ms */
+			proto_tree_add_uint(att_tree, hf_attr_ipa_rlc_cfg2_t_dl_tbf_ext,
+					    tvb, ie_offset, 2, val16 * 10);
+			ie_offset += 2;
+			val16 = tvb_get_guint16(tvb, ie_offset, ENC_BIG_ENDIAN); /* units: 10 ms */
+			proto_tree_add_uint(att_tree, hf_attr_ipa_rlc_cfg2_t_ul_tbf_ext,
+					    tvb, ie_offset, 2, val16 * 10);
+			ie_offset += 2;
+			proto_tree_add_item(att_tree, hf_attr_ipa_rlc_cfg2_init_cs,
+					    tvb, ie_offset++, 1, ENC_NA);
+			break;
+		case NM_ATT_IPACC_RLC_CFG_3:
+			proto_tree_add_item(att_tree, hf_attr_ipa_rlc_cfg2_init_mcs,
+					    tvb, ie_offset++, 1, ENC_NA);
+			break;
+		case NM_ATT_IPACC_CODING_SCHEMES:
+			for (i = 0; i < 4; i++) /* CS1 .. CS4 */
+				proto_tree_add_item(att_tree, hf_attr_ipa_cs[i],
+						    tvb, ie_offset, 2, ENC_LITTLE_ENDIAN);
+			for (i = 0; i < 9; i++) /* MCS1 .. MCS9 */
+				proto_tree_add_item(att_tree, hf_attr_ipa_mcs[i],
+						    tvb, ie_offset, 2, ENC_LITTLE_ENDIAN);
 			break;
 		}
 		offset += len;
@@ -2066,6 +2191,11 @@ proto_register_abis_oml(void)
 			  FT_UINT8, BASE_DEC, VALS(oml_fom_attr_vals), 0,
 			  NULL, HFILL }
 		},
+		{ &hf_attr_rf_max_pwr_red,
+			{ "Max RF Power Reduction", "gsm_abis_oml.fom.attr.ari.max_rf_pwr_red",
+			  FT_UINT8, BASE_DEC | BASE_UNIT_STRING, &units_decibels, 0,
+			  NULL, HFILL }
+		},
 
 		/* IP Access */
 		{ &hf_oml_ipa_tres_attr_tag,
@@ -2222,6 +2352,182 @@ proto_register_abis_oml(void)
 			{ "RAC", "gsm_abis_oml.fom.attr.ipa.rac",
 			  FT_UINT8, BASE_HEX, NULL, 0,
 			  "Routing Area Code", HFILL }
+		},
+		{ &hf_attr_ipa_ns_cfg_unblock_timer,
+			{ "NS Unblock Timer",
+			  "gsm_abis_oml.fom.attr.ipa.ns_cfg_unblock_timer",
+			  FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }
+		},
+		{ &hf_attr_ipa_ns_cfg_unblock_retries,
+			{ "NS Unblock Retries",
+			  "gsm_abis_oml.fom.attr.ipa.ns_cfg_unblock_retries",
+			  FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }
+		},
+		{ &hf_attr_ipa_ns_cfg_reset_timer,
+			{ "NS Reset Timer",
+			  "gsm_abis_oml.fom.attr.ipa.ns_cfg_reset_timer",
+			  FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }
+		},
+		{ &hf_attr_ipa_ns_cfg_reset_retries,
+			{ "NS Reset Retries",
+			  "gsm_abis_oml.fom.attr.ipa.ns_cfg_reset_retries",
+			  FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }
+		},
+		{ &hf_attr_ipa_ns_cfg_test_timer,
+			{ "NS Test Timer",
+			  "gsm_abis_oml.fom.attr.ipa.ns_cfg_test_timer",
+			  FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }
+		},
+		{ &hf_attr_ipa_ns_cfg_alive_timer,
+			{ "NS Alive Timer",
+			  "gsm_abis_oml.fom.attr.ipa.ns_cfg_alive_timer",
+			  FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }
+		},
+		{ &hf_attr_ipa_ns_cfg_alive_retries,
+			{ "NS Alive Retries",
+			  "gsm_abis_oml.fom.attr.ipa.ns_cfg_alive_retries",
+			  FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }
+		},
+		{ &hf_attr_ipa_gprs_paging_rep_time,
+			{ "GPRS Paging Repeat Time",
+			  "gsm_abis_oml.fom.attr.ipa.gprs_paging_rep_time",
+			  FT_UINT8, BASE_DEC | BASE_UNIT_STRING, &units_milliseconds, 0,
+			  NULL, HFILL }
+		},
+		{ &hf_attr_ipa_gprs_paging_rep_count,
+			{ "GPRS Paging Repeat Count",
+			  "gsm_abis_oml.fom.attr.ipa.gprs_paging_rep_count",
+			  FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }
+		},
+		{ &hf_attr_ipa_rlc_cfg_t3142,
+			{ "T3142",
+			  "gsm_abis_oml.fom.attr.ipa.rlc_cfg_t3142",
+			  FT_UINT8, BASE_DEC | BASE_UNIT_STRING, &units_seconds, 0,
+			  NULL, HFILL }
+		},
+		{ &hf_attr_ipa_rlc_cfg_t3169,
+			{ "T3169",
+			  "gsm_abis_oml.fom.attr.ipa.rlc_cfg_t3169",
+			  FT_UINT8, BASE_DEC | BASE_UNIT_STRING, &units_seconds, 0,
+			  NULL, HFILL }
+		},
+		{ &hf_attr_ipa_rlc_cfg_t3191,
+			{ "T3191",
+			  "gsm_abis_oml.fom.attr.ipa.rlc_cfg_t3191",
+			  FT_UINT8, BASE_DEC | BASE_UNIT_STRING, &units_seconds, 0,
+			  NULL, HFILL }
+		},
+		{ &hf_attr_ipa_rlc_cfg_t3193,
+			{ "3193",
+			  "gsm_abis_oml.fom.attr.ipa.rlc_cfg_t3193",
+			  FT_UINT8, BASE_DEC | BASE_UNIT_STRING, &units_milliseconds, 0,
+			  NULL, HFILL }
+		},
+		{ &hf_attr_ipa_rlc_cfg_t3195,
+			{ "T3195",
+			  "gsm_abis_oml.fom.attr.ipa.rlc_cfg_t3195",
+			  FT_UINT8, BASE_DEC | BASE_UNIT_STRING, &units_seconds, 0,
+			  NULL, HFILL }
+		},
+		{ &hf_attr_ipa_rlc_cfg_t3101,
+			{ "T3101",
+			  "gsm_abis_oml.fom.attr.ipa.rlc_cfg_t3101",
+			  FT_UINT8, BASE_DEC | BASE_UNIT_STRING, &units_seconds, 0,
+			  NULL, HFILL }
+		},
+		{ &hf_attr_ipa_rlc_cfg_t3103,
+			{ "T3103",
+			  "gsm_abis_oml.fom.attr.ipa.rlc_cfg_t3103",
+			  FT_UINT8, BASE_DEC | BASE_UNIT_STRING, &units_seconds, 0,
+			  NULL, HFILL }
+		},
+		{ &hf_attr_ipa_rlc_cfg_t3105,
+			{ "T3105",
+			  "gsm_abis_oml.fom.attr.ipa.rlc_cfg_t3105",
+			  FT_UINT8, BASE_DEC | BASE_UNIT_STRING, &units_seconds, 0,
+			  NULL, HFILL }
+		},
+		{ &hf_attr_ipa_rlc_cfg_countdown,
+			{ "Countdown",
+			  "gsm_abis_oml.fom.attr.ipa.rlc_cfg_countdown",
+			  FT_UINT8, BASE_DEC | BASE_UNIT_STRING, &units_seconds, 0,
+			  NULL, HFILL }
+		},
+		{ &hf_attr_ipa_rlc_cfg2_t_dl_tbf_ext,
+			{ "Downlink TBF Extension",
+			  "gsm_abis_oml.fom.attr.ipa.rlc_cfg2_t_dl_tbf_ext",
+			  FT_UINT16, BASE_DEC | BASE_UNIT_STRING, &units_milliseconds, 0,
+			  NULL, HFILL }
+		},
+		{ &hf_attr_ipa_rlc_cfg2_t_ul_tbf_ext,
+			{ "Uplink TBF Extension",
+			  "gsm_abis_oml.fom.attr.ipa.rlc_cfg2_t_ul_tbf_ext",
+			  FT_UINT16, BASE_DEC | BASE_UNIT_STRING, &units_milliseconds, 0,
+			  NULL, HFILL }
+		},
+		{ &hf_attr_ipa_rlc_cfg2_init_cs,
+			{ "Initial GPRS Coding Scheme",
+			  "gsm_abis_oml.fom.attr.ipa.rlc_cfg2_init_cs",
+			  FT_UINT8, BASE_DEC, VALS(rlc_cfg2_init_cs_vals), 0,
+			  NULL, HFILL }
+		},
+		{ &hf_attr_ipa_rlc_cfg2_init_mcs,
+			{ "Initial EGPRS Coding Scheme",
+			  "gsm_abis_oml.fom.attr.ipa.rlc_cfg2_init_mcs",
+			  FT_UINT8, BASE_DEC, VALS(rlc_cfg2_init_mcs_vals), 0,
+			  NULL, HFILL }
+		},
+		{ &hf_attr_ipa_cs[0],
+			{ "CS1", "gsm_abis_oml.fom.attr.ipa.cs1",
+			  FT_UINT16, BASE_DEC, NULL, (1 << 0), NULL, HFILL }
+		},
+		{ &hf_attr_ipa_cs[1],
+			{ "CS2", "gsm_abis_oml.fom.attr.ipa.cs2",
+			  FT_UINT16, BASE_DEC, NULL, (1 << 1), NULL, HFILL }
+		},
+		{ &hf_attr_ipa_cs[2],
+			{ "CS3", "gsm_abis_oml.fom.attr.ipa.cs3",
+			  FT_UINT16, BASE_DEC, NULL, (1 << 2), NULL, HFILL }
+		},
+		{ &hf_attr_ipa_cs[3],
+			{ "CS4", "gsm_abis_oml.fom.attr.ipa.cs4",
+			  FT_UINT16, BASE_DEC, NULL, (1 << 3), NULL, HFILL }
+		},
+		{ &hf_attr_ipa_mcs[0],
+			{ "MCS1", "gsm_abis_oml.fom.attr.ipa.mcs1",
+			  FT_UINT16, BASE_DEC, NULL, (1 << 8), NULL, HFILL }
+		},
+		{ &hf_attr_ipa_mcs[1],
+			{ "MCS2", "gsm_abis_oml.fom.attr.ipa.mcs2",
+			  FT_UINT16, BASE_DEC, NULL, (1 << 9), NULL, HFILL }
+		},
+		{ &hf_attr_ipa_mcs[2],
+			{ "MCS3", "gsm_abis_oml.fom.attr.ipa.mcs3",
+			  FT_UINT16, BASE_DEC, NULL, (1 << 10), NULL, HFILL }
+		},
+		{ &hf_attr_ipa_mcs[3],
+			{ "MCS4", "gsm_abis_oml.fom.attr.ipa.mcs4",
+			  FT_UINT16, BASE_DEC, NULL, (1 << 11), NULL, HFILL }
+		},
+		{ &hf_attr_ipa_mcs[4],
+			{ "MCS5", "gsm_abis_oml.fom.attr.ipa.mcs5",
+			  FT_UINT16, BASE_DEC, NULL, (1 << 12), NULL, HFILL }
+		},
+		{ &hf_attr_ipa_mcs[5],
+			{ "MCS6", "gsm_abis_oml.fom.attr.ipa.mcs6",
+			  FT_UINT16, BASE_DEC, NULL, (1 << 13), NULL, HFILL }
+		},
+		{ &hf_attr_ipa_mcs[6],
+			{ "MCS7", "gsm_abis_oml.fom.attr.ipa.mcs7",
+			  FT_UINT16, BASE_DEC, NULL, (1 << 14), NULL, HFILL }
+		},
+		{ &hf_attr_ipa_mcs[7],
+			{ "MCS8", "gsm_abis_oml.fom.attr.ipa.mcs8",
+			  FT_UINT16, BASE_DEC, NULL, (1 << 15), NULL, HFILL }
+		},
+		{ &hf_attr_ipa_mcs[8],
+			{ "MCS9", "gsm_abis_oml.fom.attr.ipa.mcs9",
+			  FT_UINT16, BASE_DEC, NULL, (1 << 7), NULL, HFILL }
 		},
 	};
 	static gint *ett[] = {
