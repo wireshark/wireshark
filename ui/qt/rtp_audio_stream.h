@@ -28,6 +28,7 @@
 #include <QSet>
 #include <QVector>
 #include <QIODevice>
+#include <QTemporaryFile>
 #include <QAudioOutput>
 
 class QAudioFormat;
@@ -149,6 +150,10 @@ public:
     void setStereoRequired(bool stereo_required) { stereo_required_ = stereo_required; }
     qint16 getMaxSampleValue() { return max_sample_val_; }
     void setMaxSampleValue(gint16 max_sample_val) { max_sample_val_used_ = max_sample_val; }
+    void sampleFileSeek(qint64 samples);
+    qint64 sampleFileRead(SAMPLE *sample);
+    qint64 getLeadSilenceSamples() { return prepend_samples_; }
+    qint64 getTotalSamples() { return (sample_file_->size()/(qint64)sizeof(SAMPLE)); }
 
 signals:
     void processedSecs(double secs);
@@ -171,7 +176,7 @@ private:
     double start_abs_offset_;
     double start_rel_time_;
     double stop_rel_time_;
-    qint64 prepend_samples_; // Count of silence samples to match other streams
+    qint64 prepend_samples_; // Count of silence samples at begin of the stream to align with other streams
     AudioRouting audio_routing_;
     bool stereo_required_;
     quint32 first_sample_rate_;

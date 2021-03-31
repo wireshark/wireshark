@@ -328,6 +328,30 @@
     </widget>
    </item>
   </layout>
+  <action name="actionExportButton">
+   <property name="text">
+    <string>&amp;Export</string>
+   </property>
+   <property name="toolTip">
+    <string>Export audio of all unmuted selected channels.</string>
+   </property>
+  </action>
+  <action name="actionSaveAudioSyncStream">
+   <property name="text">
+    <string>&amp;Stream Synchronized Audio</string>
+   </property>
+   <property name="toolTip">
+    <string>Save audio data synchronized to start of the earliest stream.</string>
+   </property>
+  </action>
+  <action name="actionSaveAudioSyncFile">
+   <property name="text">
+    <string>&amp;File Synchronized Audio</string>
+   </property>
+   <property name="toolTip">
+    <string>Save audio data synchronized to start of the capture file.</string>
+   </property>
+  </action>
   <action name="actionReset">
    <property name="text">
     <string>Reset Graph</string>

@@ -17,6 +17,7 @@
 
 #include <wsutil/report_message.h>
 #include <wsutil/utf8_entities.h>
+#include <wsutil/pint.h>
 
 #include <ui/qt/utils/color_utils.h>
 #include <ui/qt/widgets/qcustomplot.h>
@@ -24,6 +25,8 @@
 #include "rtp_audio_stream.h"
 #include <ui/qt/utils/tango_colors.h>
 #include <widgets/rtp_audio_graph.h>
+#include "wireshark_application.h"
+#include "ui/qt/widgets/wireshark_file_dialog.h"
 
 #include <QAudio>
 #include <QAudioDeviceInfo>
@@ -284,6 +287,16 @@ RtpPlayerDialog::RtpPlayerDialog(QWidget &parent, CaptureFile &cf) :
     list_ctx_menu_->addAction(ui->actionGoToSetupPacketTree);
     set_action_shortcuts_visible_in_context_menu(list_ctx_menu_->actions());
 
+    QPushButton *export_btn = ui->buttonBox->addButton(ui->actionExportButton->text(), QDialogButtonBox::ActionRole);
+    export_btn->setToolTip(ui->actionExportButton->toolTip());
+
+    QMenu *save_menu = new QMenu(export_btn);
+    save_menu->addAction(ui->actionSaveAudioSyncStream);
+    save_menu->addAction(ui->actionSaveAudioSyncFile);
+    save_menu->setToolTipsVisible(true);
+    export_btn->setMenu(save_menu);
+
+    QTimer::singleShot(0, this, SLOT(retapPackets()));
 #endif // QT_MULTIMEDIA_LIB
 }
 
@@ -1767,6 +1780,331 @@ void RtpPlayerDialog::on_actionStop_triggered()
     if (ui->stopButton->isEnabled()) {
         ui->stopButton->animateClick();
     }
+}
+
+qint64 RtpPlayerDialog::saveAudioHeaderAU(QFile *save_file, int channels, unsigned audio_rate)
+{
+    uint8_t pd[4];
+    int64_t nchars;
+
+    /* https://pubs.opengroup.org/external/auformat.html */
+    /* First we write the .au header.  All values in the header are
+     * 4-byte big-endian values, so we use pntoh32() to copy them
+     * to a 4-byte buffer, in big-endian order, and then write out
+     * the buffer. */
+
+    /* the magic word 0x2e736e64 == .snd */
+    phton32(pd, 0x2e736e64);
+    nchars = save_file->write((const char *)pd, 4);
+    if (nchars != 4) {
+        return -1;
+    }
+
+    /* header offset == 24 bytes */
+    phton32(pd, 24);
+    nchars = save_file->write((const char *)pd, 4);
+    if (nchars != 4) {
+        return -1;
+    }
+
+    /* total length; it is permitted to set this to 0xffffffff */
+    phton32(pd, 0xffffffff);
+    nchars = save_file->write((const char *)pd, 4);
+    if (nchars != 4) {
+        return -1;
+    }
+
+    /* encoding format == 16-bit linear PCM */
+    phton32(pd, 3);
+    nchars = save_file->write((const char *)pd, 4);
+    if (nchars != 4) {
+        return -1;
+    }
+
+    /* sample rate [Hz] */
+    phton32(pd, audio_rate);
+    nchars = save_file->write((const char *)pd, 4);
+    if (nchars != 4) {
+        return -1;
+    }
+
+    /* channels */
+    phton32(pd, channels);
+    nchars = save_file->write((const char *)pd, 4);
+    if (nchars != 4) {
+        return -1;
+    }
+
+    return save_file->pos();
+}
+
+qint64 RtpPlayerDialog::saveAudioHeaderWAV(QFile *save_file, int channels, unsigned audio_rate, qint64 samples)
+{
+    uint8_t pd[4];
+    int64_t nchars;
+    gint32  subchunk2Size;
+    gint32  data32;
+    gint16  data16;
+
+    subchunk2Size = sizeof(SAMPLE) * channels * (gint32)samples;
+
+    /* http://soundfile.sapp.org/doc/WaveFormat/ */
+
+    /* RIFF header, ChunkID 0x52494646 == RIFF */
+    phton32(pd, 0x52494646);
+    nchars = save_file->write((const char *)pd, 4);
+    if (nchars != 4) {
+        return -1;
+    }
+
+    /* RIFF header, ChunkSize */
+    data32 = 36 + subchunk2Size;
+    nchars = save_file->write((const char *)&data32, 4);
+    if (nchars != 4) {
+        return -1;
+    }
+
+    /* RIFF header, Format 0x57415645 == WAVE */
+    phton32(pd, 0x57415645);
+    nchars = save_file->write((const char *)pd, 4);
+    if (nchars != 4) {
+        return -1;
+    }
+
+    /* WAVE fmt header, Subchunk1ID 0x666d7420 == 'fmt ' */
+    phton32(pd, 0x666d7420);
+    nchars = save_file->write((const char *)pd, 4);
+    if (nchars != 4) {
+        return -1;
+    }
+
+    /* WAVE fmt header, Subchunk1Size */
+    data32 = 16;
+    nchars = save_file->write((const char *)&data32, 4);
+    if (nchars != 4) {
+        return -1;
+    }
+
+    /* WAVE fmt header, AudioFormat 1 == PCM */
+    data16 = 1;
+    nchars = save_file->write((const char *)&data16, 2);
+    if (nchars != 2) {
+        return -1;
+    }
+
+    /* WAVE fmt header, NumChannels */
+    data16 = channels;
+    nchars = save_file->write((const char *)&data16, 2);
+    if (nchars != 2) {
+        return -1;
+    }
+
+    /* WAVE fmt header, SampleRate */
+    data32 = audio_rate;
+    nchars = save_file->write((const char *)&data32, 4);
+    if (nchars != 4) {
+        return -1;
+    }
+
+    /* WAVE fmt header, ByteRate */
+    data32 = audio_rate * channels * sizeof(SAMPLE);
+    nchars = save_file->write((const char *)&data32, 4);
+    if (nchars != 4) {
+        return -1;
+    }
+
+    /* WAVE fmt header, BlockAlign */
+    data16 = channels * (gint16)sizeof(SAMPLE);
+    nchars = save_file->write((const char *)&data16, 2);
+    if (nchars != 2) {
+        return -1;
+    }
+
+    /* WAVE fmt header, BitsPerSample */
+    data16 = (gint16)sizeof(SAMPLE) * 8;
+    nchars = save_file->write((const char *)&data16, 2);
+    if (nchars != 2) {
+        return -1;
+    }
+
+    /* WAVE data header, Subchunk2ID 0x64617461 == 'data' */
+    phton32(pd, 0x64617461);
+    nchars = save_file->write((const char *)pd, 4);
+    if (nchars != 4) {
+        return -1;
+    }
+
+    /* WAVE data header, Subchunk2Size */
+    data32 = subchunk2Size;
+    nchars = save_file->write((const char *)&data32, 4);
+    if (nchars != 4) {
+        return -1;
+    }
+
+    /* Now we are ready for saving data */
+
+    return save_file->pos();
+}
+
+void RtpPlayerDialog::writeAudioStreamsSamples(QFile *out_file, QVector<RtpAudioStream *> streams, bool swap_bytes)
+{
+    SAMPLE sample;
+    uint8_t pd[2];
+
+    // Did we read something in last cycle?
+    bool read = true;
+
+    while (read) {
+        read = false;
+        foreach(RtpAudioStream *audio_stream, streams) {
+            if (sizeof(sample) == audio_stream->sampleFileRead(&sample)) {
+                if (swap_bytes) {
+                    phton16(pd, sample);
+                } else {
+                    pd[1] = (guint8)(sample >> 8);
+                    pd[0] = (guint8)(sample >> 0);
+                }
+                read = true;
+            } else {
+                phton16(pd, 0x0000);
+            }
+            out_file->write((char *)&pd, sizeof(sample));
+        }
+    }
+}
+
+save_audio_t RtpPlayerDialog::selectFileFormatAndName(QString *file_path)
+{
+    QString ext_filter = "";
+    QString ext_filter_wav = tr("WAV (*.wav)");
+    QString ext_filter_au = tr("Sun Audio (*.au)");
+    ext_filter.append(ext_filter_wav);
+    ext_filter.append(";;");
+    ext_filter.append(ext_filter_au);
+
+    QString sel_filter;
+    *file_path = WiresharkFileDialog::getSaveFileName(
+                this, tr("Save audio"), wsApp->lastOpenDir().absoluteFilePath(""),
+                ext_filter, &sel_filter);
+
+    if (file_path->isEmpty()) return save_audio_none;
+
+    save_audio_t save_format = save_audio_none;
+    if (0 == QString::compare(sel_filter, ext_filter_au)) {
+        save_format = save_audio_au;
+    } else if (0 == QString::compare(sel_filter, ext_filter_wav)) {
+        save_format = save_audio_wav;
+    }
+
+    return save_format;
+}
+
+QVector<RtpAudioStream *>RtpPlayerDialog::getSelectedAudibleAudioStreams()
+{
+    QList<QTreeWidgetItem *> items = ui->streamTreeWidget->selectedItems();
+    QVector<RtpAudioStream *> streams;
+
+    if (items.count() > 0) {
+        foreach(QTreeWidgetItem *ti, items) {
+            RtpAudioStream *audio_stream = ti->data(stream_data_col_, Qt::UserRole).value<RtpAudioStream*>();
+            // Ignore muted streams and streams with no audio
+            if (audio_stream &&
+                !audio_stream->getAudioRouting().isMuted() &&
+                (audio_stream->sampleRate()>0)
+               ) {
+                streams << audio_stream;
+            }
+        }
+    }
+
+    return streams;
+}
+
+void RtpPlayerDialog::saveAudio(bool sync_to_stream)
+{
+    qint64 minSilenceSamples;
+    qint64 startSample;
+    qint64 maxSample;
+    QString path;
+    QVector<RtpAudioStream *>streams;
+
+    streams = getSelectedAudibleAudioStreams();
+    if (streams.count() < 1) {
+        QMessageBox::warning(this, tr("Warning"), tr("No stream selected or none of selected streams provide audio"));
+        return;
+    }
+
+    unsigned save_audio_rate = streams[0]->playRate();
+    // Check whether all streams use same audio rate
+    foreach(RtpAudioStream *audio_stream, streams) {
+        if (save_audio_rate != audio_stream->playRate()) {
+            QMessageBox::warning(this, tr("Error"), tr("All selected streams must use same play rate. Manual set of Output Audio Rate might help."));
+            return;
+        }
+    }
+
+    save_audio_t format = selectFileFormatAndName(&path);
+    if (format == save_audio_none) return;
+
+    // Use start silence and length of first stream
+    minSilenceSamples = streams[0]->getLeadSilenceSamples();
+    maxSample = streams[0]->getTotalSamples();
+    // Find shortest start silence and longest stream
+    foreach(RtpAudioStream *audio_stream, streams) {
+        if (minSilenceSamples > audio_stream->getLeadSilenceSamples()) {
+            minSilenceSamples = audio_stream->getLeadSilenceSamples();
+        }
+        if (maxSample < audio_stream->getTotalSamples()) {
+            maxSample = audio_stream->getTotalSamples();
+        }
+    }
+
+    if (sync_to_stream) {
+        // Start of first stream
+        startSample = minSilenceSamples;
+    } else {
+        // Start of file
+        startSample = 0;
+    }
+
+    // Seek to correct start
+    foreach(RtpAudioStream *audio_stream, streams) {
+        audio_stream->sampleFileSeek(startSample);
+    }
+
+    QFile file(path);
+    file.open(QIODevice::WriteOnly);
+
+    switch (format) {
+        case save_audio_au:
+            if (-1 == saveAudioHeaderAU(&file, streams.count(), save_audio_rate)) {
+               QMessageBox::warning(this, tr("Error"), tr("Can't write header of AU file"));
+               return;
+            }
+            writeAudioStreamsSamples(&file, streams, true);
+            break;
+        case save_audio_wav:
+            if (-1 == saveAudioHeaderWAV(&file, streams.count(), save_audio_rate, (maxSample - startSample))) {
+               QMessageBox::warning(this, tr("Error"), tr("Can't write header of WAV file"));
+               return;
+            }
+            writeAudioStreamsSamples(&file, streams, false);
+            break;
+        case save_audio_none:
+            break;
+    }
+
+    file.close();
+}
+
+void RtpPlayerDialog::on_actionSaveAudioSyncStream_triggered()
+{
+    saveAudio(true);
+}
+
+void RtpPlayerDialog::on_actionSaveAudioSyncFile_triggered()
+{
+    saveAudio(false);
 }
 
 #if 0

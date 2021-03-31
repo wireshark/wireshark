@@ -819,4 +819,14 @@ SAMPLE *RtpAudioStream::resizeBufferIfNeeded(SAMPLE *buff, gint32 *buff_bytes, q
     return buff;
 }
 
+void RtpAudioStream::sampleFileSeek(qint64 samples)
+{
+    sample_file_->seek(sizeof(SAMPLE) * samples);
+}
+
+qint64 RtpAudioStream::sampleFileRead(SAMPLE *sample)
+{
+    return sample_file_->read((char *)sample, sizeof(SAMPLE));
+}
+
 #endif // QT_MULTIMEDIA_LIB

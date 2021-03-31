@@ -36,6 +36,12 @@ class RtpAudioStream;
 class QCPAxisTicker;
 class QCPAxisTickerDateTime;
 
+typedef enum {
+    save_audio_none,
+    save_audio_au,
+    save_audio_wav
+} save_audio_t;
+
 class RtpPlayerDialog : public WiresharkDialog
 {
     Q_OBJECT
@@ -142,6 +148,8 @@ private slots:
     void outputNotify();
     void on_actionPlay_triggered();
     void on_actionStop_triggered();
+    void on_actionSaveAudioSyncStream_triggered();
+    void on_actionSaveAudioSyncFile_triggered();
 
 private:
     Ui::RtpPlayerDialog *ui;
@@ -196,6 +204,13 @@ private:
     void addSingleRtpStream(rtpstream_info_t *rtpstream);
     void removeRow(QTreeWidgetItem *ti);
     void fillAudioRateMenu();
+
+    qint64 saveAudioHeaderAU(QFile *save_file, int channels, unsigned audio_rate);
+    qint64 saveAudioHeaderWAV(QFile *save_file, int channels, unsigned audio_rate, qint64 samples);
+    void writeAudioStreamsSamples(QFile *out_file, QVector<RtpAudioStream *> streams, bool swap_bytes);
+    save_audio_t selectFileFormatAndName(QString *file_path);
+    QVector<RtpAudioStream *>getSelectedAudibleAudioStreams();
+    void saveAudio(bool sync_to_stream);
 
 #else // QT_MULTIMEDIA_LIB
 private:
