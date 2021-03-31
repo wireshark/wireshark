@@ -703,12 +703,20 @@ dissect_diameter_user_equipment_info_value(tvbuff_t *tvb, packet_info *pinfo, pr
 	case USER_EQUIPMENT_INFO_TYPE_IMEISV:
 		/* RFC 8506 section 8.53, 3GPP TS 23.003 */
 		len = tvb_reported_length(tvb);
-		proto_tree_add_item(tree, hf_diameter_user_equipment_info_imeisv, tvb, 0, len, ENC_ASCII|ENC_NA);
-		return len;
+		/* IMEISV is 16 digits, but often transmitted BCD coded in 8 octets. */
+		if (len == 8) {
+			proto_tree_add_item(tree, hf_diameter_user_equipment_info_imeisv, tvb, 0, len, ENC_BCD_DIGITS_0_9|ENC_NA);
+			return len;
+		} else if (len == 16) {
+			proto_tree_add_item(tree, hf_diameter_user_equipment_info_imeisv, tvb, 0, len, ENC_ASCII|ENC_NA);
+			return len;
+		}
+		proto_tree_add_expert(tree, pinfo, &ei_diameter_invalid_user_equipment_info_value_len, tvb, 0, len);
+		break;
 	case USER_EQUIPMENT_INFO_TYPE_MAC:
 		/* RFC 8506 section 8.54, RFC 5777 section 4.1.7.8 */
 		len = tvb_reported_length(tvb);
-		if (len == 6) {
+		if (len == FT_ETHER_LEN) {
 			proto_tree_add_item(tree, hf_diameter_user_equipment_info_mac, tvb, 0, len, ENC_NA);
 			return len;
 		}
@@ -717,7 +725,7 @@ dissect_diameter_user_equipment_info_value(tvbuff_t *tvb, packet_info *pinfo, pr
 	case USER_EQUIPMENT_INFO_TYPE_EUI64:
 		/* RFC 8506 section 8.55 */
 		len = tvb_reported_length(tvb);
-		if (len == 8) {
+		if (len == FT_EUI64_LEN) {
 			proto_tree_add_item(tree, hf_diameter_user_equipment_info_eui64, tvb, 0, len, ENC_BIG_ENDIAN);
 			return len;
 		}
@@ -726,8 +734,8 @@ dissect_diameter_user_equipment_info_value(tvbuff_t *tvb, packet_info *pinfo, pr
 	case USER_EQUIPMENT_INFO_TYPE_MODIFIED_EUI64:
 		/* RFC 8506 section 8.56, RFC 4291 */
 		len = tvb_reported_length(tvb);
-		if (len == 16) {
-			proto_tree_add_item(tree, hf_diameter_user_equipment_info_modified_eui64, tvb, 0, len,  ENC_NA);
+		if (len == FT_EUI64_LEN) {
+			proto_tree_add_item(tree, hf_diameter_user_equipment_info_modified_eui64, tvb, 0, len,  ENC_BIG_ENDIAN);
 			return len;
 		}
 		proto_tree_add_expert(tree, pinfo, &ei_diameter_invalid_user_equipment_info_value_len, tvb, 0, len);
@@ -2492,7 +2500,7 @@ real_register_diameter_fields(void)
 	{ &hf_diameter_user_equipment_info_eui64,
 		{ "EUI64","diameter.user_equipment_info.eui64", FT_EUI64, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 	{ &hf_diameter_user_equipment_info_modified_eui64,
-		{ "Modified EUI64","diameter.user_equipment_info.modified_eui64", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }}
+		{ "Modified EUI64","diameter.user_equipment_info.modified_eui64", FT_EUI64, BASE_NONE, NULL, 0x0, NULL, HFILL }}
 	};
 
 	gint *ett_base[] = {
