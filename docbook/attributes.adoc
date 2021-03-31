@@ -47,8 +47,7 @@
 :npcap-main-url: https://nmap.org/npcap/
 :npcap-development-url: https://github.com/nmap/npcap
 :npcap-license-url: https://raw.githubusercontent.com/nmap/npcap/master/LICENSE
-:winpcap-main-url: https://www.winpcap.org/
-:winpcap-download-url: {winpcap-main-url}install/
+:vcpkg-main-url: https://github.com/Microsoft/vcpkg/
 
 :sysfs-main-url: http://linux-diag.sourceforge.net/Sysfsutils.html
 :wikipedia-main-url: https://en.wikipedia.org/wiki/

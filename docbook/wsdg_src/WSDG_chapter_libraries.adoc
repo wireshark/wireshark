@@ -158,7 +158,7 @@ platform, you can get it at https://c-ares.haxx.se/[].
 [discrete]
 ==== Windows
 
-C-Ares is built using vcpkg and is available at
+C-Ares is built using {vcpkg-main-url}[vcpkg] and is available at
 https://anonsvn.wireshark.org/wireshark-win64-libs/trunk/packages/[]
 and
 https://anonsvn.wireshark.org/wireshark-win32-libs/trunk/packages/[].
@@ -243,9 +243,7 @@ platform, you can get it at {tcpdump-main-url}.
 [discrete]
 ==== Windows: Npcap
 
-The Windows build environment compiles and links against the
-{winpcap-main-url}devel.htm[WinPcap SDK (WpdPack)] and includes the
-{npcap-main-url}[Npcap packet capture driver] with the .exe installer.
+The Windows build environment compiles and links against a libpcap SDK built using {vcpkg-main-url}[vcpkg] and includes the {npcap-main-url}[Npcap packet capture driver] with the .exe installer.
 Both are <<ChLibsSetup,automatically downloaded by CMake>>.
 
 You can download the Npcap Windows packet capture library manually from
