@@ -160,6 +160,9 @@ void proto_reg_handoff_pcep(void);
 #define BAD_PARAMETER_VALUE             23
 #define LSP_INSTANTIATION_ERROR         24
 #define ASSOCIATION_ERROR               26
+#define WSON_RWA_ERROR                  27
+#define H_PCE_ERROR                     28
+#define PATH_COMPUTATION_FAILURE        29
 
 /*Different values of Reason in the CLOSE object */
 #define NO_EXP_PROV                      1
@@ -1048,30 +1051,60 @@ static const value_string pcep_notification_values2_vals[] = {
 
 /* PCEP TLVs */
 static const value_string pcep_tlvs_vals[] = {
-    {1,  "NO-PATH-VECTOR TLV"         },
-    {2,  "OVERLOAD-DURATION TLV"      },
-    {3,  "REQ-MISSING TLV"            },
-    {4,  "OF-list TLV"                },
-    {5,  "Order TLV"                  },
-    {6,  "P2MP Capable"               },
-    {7,  "VENDOR-INFORMATION-TLV"     },
-    {16, "STATEFUL-PCE-CAPABILITY"    },
-    {17, "SYMBOLIC-PATH-NAME"         },
-    {18, "IPV4-LSP-IDENTIFIERS"       },
-    {19, "IPV6-LSP-IDENTIFIERS"       },
-    {20, "LSP-ERROR-CODE"             },
-    {21, "RSVP-ERROR-SPEC"            },
-    {23, "LSP-DB-VERSION"             },
-    {24, "SPEAKER-ENTITY-ID"          },
-    {26, "SR-PCE-CAPABILITY"          },
-    {27, "PATH-SETUP-TYPE"            },
-    {28, "PATH-SETUP-TYPE"            },
-    {29, "OP-CONF-ASSOC-RANGE"        },
-    {30, "GLOBAL-ASSOCIATION-SOURCE"  },
-    {31, "EXTENDED-ASSOCIATION-ID"    },
-    {34, "PATH-SETUP-TYPE-CAPABILITY" },
-    {40, "SRCPAG-INFO"                }, /* Not yet register */
-    {0, NULL                          }
+    {1,  "NO-PATH-VECTOR TLV"                      },
+    {2,  "OVERLOAD-DURATION TLV"                   },
+    {3,  "REQ-MISSING TLV"                         },
+    {4,  "OF-list TLV"                             },
+    {5,  "Order TLV"                               },
+    {6,  "P2MP Capable"                            },
+    {7,  "VENDOR-INFORMATION-TLV"                  },
+    {8,  "Wavelength Selection"                    },
+    {9,  "Wavelength Restriction"                  },
+    {10, "Wavelength Allocation"                   },
+    {11, "Optical Interface Class List"            },
+    {12, "Client Signal Information"               },
+    {13, "H-PCE-CAPABILITY"                        },
+    {14, "Domain-ID"                               },
+    {15, "H-PCE-FLAG"                              },
+    {16, "STATEFUL-PCE-CAPABILITY"                 },
+    {17, "SYMBOLIC-PATH-NAME"                      },
+    {18, "IPV4-LSP-IDENTIFIERS"                    },
+    {19, "IPV6-LSP-IDENTIFIERS"                    },
+    {20, "LSP-ERROR-CODE"                          },
+    {21, "RSVP-ERROR-SPEC"                         },
+    {23, "LSP-DB-VERSION"                          },
+    {24, "SPEAKER-ENTITY-ID"                       },
+    {26, "SR-PCE-CAPABILITY"                       },
+    {27, "PATH-SETUP-TYPE"                         },
+    {28, "PATH-SETUP-TYPE"                         },
+    {29, "OP-CONF-ASSOC-RANGE"                     },
+    {30, "GLOBAL-ASSOCIATION-SOURCE"               },
+    {31, "EXTENDED-ASSOCIATION-ID"                 },
+    {32, "P2MP-IPV4-LSP-IDENTIFIERS"               },
+    {33, "P2MP-IPV6-LSP-IDENTIFIERS"               },
+    {34, "PATH-SETUP-TYPE-CAPABILITY"              },
+    {35, "ASSOC-Type-List"                         },
+    {36, "AUTO-BANDWIDTH-CAPABILITY"               },
+    {37, "AUTO-BANDWIDTH-ATTRIBUTES"               },
+    {38, "Path Protection Association Group TLV"   },
+    {39, "IPV4-ADDRESS"                            },
+    {40, "IPV6-ADDRESS"                            },
+    {41, "UNNUMBERED-ENDPOINT"                     },
+    {42, "LABEL-REQUEST"                           },
+    {43, "LABEL-SET"                               },
+    {44, "PROTECTION-ATTRIBUTE"                    },
+    {45, "GMPLS-CAPABILITY"                        },
+    {46, "DISJOINTNESS-CONFIGURATION"              },
+    {47, "DISJOINTNESS-STATUS"                     },
+    {48, "POLICY-PARAMETERS-TLV"                   },
+    {49, "SCHED-LSP-ATTRIBUTE"                     },
+    {50, "SCHED-PD-LSP-ATTRIBUTE"                  },
+    {51, "PCE-FLOWSPEC-CAPABILITY TLV"             },
+    {52, "FLOW FILTER TLV"                         },
+    {53, "L2 FLOW FILTER TLV"                      },
+    {54, "Bidirectional LSP Association Group TLV" },
+    {55, "TE-PATH-BINDING"                         },
+    {0, NULL                                       }
 };
 
 
@@ -1125,6 +1158,9 @@ static const value_string pcep_error_types_obj_vals[] = {
     {BAD_PARAMETER_VALUE,               "Bad parameter value"                           },
     {LSP_INSTANTIATION_ERROR,           "LSP instantiation error"                       },
     {ASSOCIATION_ERROR,                 "Association instantiation error"               },
+    {WSON_RWA_ERROR,                    "WSON RWA error"                                },
+    {H_PCE_ERROR,                       "H-PCE error"                                   },
+    {PATH_COMPUTATION_FAILURE,          "Path computation failure"                      },
     {0, NULL }
 };
 static value_string_ext pcep_error_types_obj_vals_ext = VALUE_STRING_EXT_INIT(pcep_error_types_obj_vals);
@@ -1298,13 +1334,44 @@ static const value_string pcep_error_value_24_vals[] = {
 
 /*Error values for error type 26*/
 static const value_string pcep_error_value_26_vals[] = {
-    {1, "Association-type is not supported"},                       /* draft-ietf-pce-association-group */
-    {2, "Too many LSPs in the association group"},                  /* draft-ietf-pce-association-group */
-    {3, "Too many association groups"},                             /* draft-ietf-pce-association-group */
-    {4, "Association unknown"},                                     /* draft-ietf-pce-association-group */
-    {5, "Operator-configured association information mismatch "},   /* draft-ietf-pce-association-group */
-    {6, "Association information mismatch"},                        /* draft-ietf-pce-association-group */
-    {7, "Cannot join the association group"},                       /* draft-ietf-pce-association-group */
+    {1, "Association-type is not supported"},                                              /* [RFC8697] */
+    {2, "Too many LSPs in the association group"},                                         /* [RFC8697] */
+    {3, "Too many association groups"},                                                    /* [RFC8697] */
+    {4, "Association unknown"},                                                            /* [RFC8697] */
+    {5, "Operator-configured association information mismatch "},                          /* [RFC8697] */
+    {6, "Association information mismatch"},                                               /* [RFC8697] */
+    {7, "Cannot join the association group"},                                              /* [RFC8697] */
+    {8, "Association ID not in range"},                                                    /* [RFC8697] */
+    {9, "Tunnel ID or End points mismatch for Path Protection Association"},               /* [RFC8745] */
+    {10, "Attempt to add another working/protection LSP for Path Protection Association"}, /* [RFC8745] */
+    {11, "Protection type is not supported"},                                              /* [RFC8745] */
+    {12, "Not expecting policy parameters"},                                               /* [RFC9005] */
+    {13, "Unacceptable policy parameters"},                                                /* [RFC9005] */
+    {0, NULL}
+};
+
+/*Error values for error type 27*/
+static const value_string pcep_error_value_27_vals[] = {
+    {1, "Insufficient memory"},           /* [RFC8780] */
+    {2, "RWA computation not supported"}, /* [RFC8780] */
+    {3, "Syntactical encoding error"},    /* [RFC8780] */
+    {0, NULL}
+};
+
+/*Error values for error type 28*/
+static const value_string pcep_error_value_28_vals[] = {
+    {1, "H-PCE Capability not advertised"},          /* [RFC8685] */
+    {2, "Parent PCE Capability cannot be provided"}, /* [RFC8685] */
+    {0, NULL}
+};
+
+/*Error values for error type 29*/
+static const value_string pcep_error_value_29_vals[] = {
+    {1, "Unacceptable request message"},                    /* [RFC8779] */
+    {2, "Generalized bandwidth value not supported"},       /* [RFC8779] */
+    {3, "Label set constraint could not be met"},           /* [RFC8779] */
+    {4, "Label constraint could not be met"},               /* [RFC8779] */
+    {5, "Constraints could not be met for some intervals"}, /* [RFC8934] */
     {0, NULL}
 };
 
@@ -2763,6 +2830,15 @@ dissect_pcep_error_obj(proto_tree *pcep_object_tree, packet_info *pinfo, tvbuff_
             break;
         case ASSOCIATION_ERROR:
             err_str = val_to_str_const(error_value, pcep_error_value_26_vals, "Unknown");
+            break;
+        case WSON_RWA_ERROR:
+            err_str = val_to_str_const(error_value, pcep_error_value_27_vals, "Unknown");
+            break;
+        case H_PCE_ERROR:
+            err_str = val_to_str_const(error_value, pcep_error_value_28_vals, "Unknown");
+            break;
+        case PATH_COMPUTATION_FAILURE:
+            err_str = val_to_str_const(error_value, pcep_error_value_29_vals, "Unknown");
             break;
         default:
             proto_item_append_text(type_item, " (%u Non defined Error-Value)", error_type);
