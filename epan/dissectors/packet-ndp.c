@@ -202,6 +202,7 @@ static const value_string ndp_chassis_val[] =
 	{160, "Ethernet Routing Switch 2500-26T-PWR"},
 	{161, "Ethernet Routing Switch 2500-50T"},
 	{162, "Ethernet Routing Switch 2500-50T-PWR"},
+	{213, "Virtual Services Platform 8284XSQ"},
 	{0, NULL}
 };
 static value_string_ext ndp_chassis_val_ext = VALUE_STRING_EXT_INIT(ndp_chassis_val);
