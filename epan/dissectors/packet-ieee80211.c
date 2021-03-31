@@ -4225,6 +4225,14 @@ static int hf_ieee80211_tag_ranging_ntb_r2i_tx_power = -1;
 static int hf_ieee80211_tag_ranging_ntb_i2r_tx_power = -1;
 static int hf_ieee80211_tag_ranging_ntb_reserved2 = -1;
 
+/* az: FTM Ranging Specific TB subelement */
+static int hf_ieee80211_tag_ranging_aid_rsid = -1;
+static int hf_ieee80211_tag_ranging_response = -1;
+static int hf_ieee80211_tag_ranging_trigger_frame_paddur = -1;
+static int hf_ieee80211_tag_ranging_passive_tb_ranging = -1;
+static int hf_ieee80211_tag_ranging_max_sess_exp = -1;
+static int hf_ieee80211_tag_ranging_bss_color_info = -1;
+
 /* az: PASN subelements etc. */
 static int hf_ieee80211_tag_pasn_parameters_control = -1;
 static int hf_ieee80211_tag_pasn_params_comeback_info_present = -1;
@@ -4239,6 +4247,31 @@ static int hf_ieee80211_tag_pasn_ephemeral_public_key_len = -1;
 static int hf_ieee80211_tag_pasn_ephemeral_public_key = -1;
 static int hf_ieee80211_pasn_auth1_frame_len = -1;
 static int hf_ieee80211_pasn_auth2_frame_len = -1;
+
+/* az: Secure LTF Parameters */
+static int hf_ieee80211_tag_secure_ltf_params_counter = -1;
+static int hf_ieee80211_tag_secure_ltf_generation_sac = -1;
+static int hf_ieee80211_tag_secure_ltf_management_sac = -1;
+static int hf_ieee80211_tag_secure_ltf_result_ltf_ofs = -1;
+
+/* az: ista and rsta availability details */
+static int hf_ieee80211_ftm_ista_availability_count = -1;
+static int hf_ieee80211_ftm_ista_availability_reserved = -1;
+static int hf_ieee80211_ftm_ista_avail_bits = -1;
+static int hf_ieee80211_ftm_ista_avail_pad = -1;
+
+static int hf_ieee80211_ftm_rsta_count = -1;
+static int hf_ieee80211_ftm_rsta_partial_tsf_timer1 = -1;
+static int hf_ieee80211_ftm_rsta_duration1 = -1;
+static int hf_ieee80211_ftm_rsta_passive_tb_ranging_avail_win1 = -1;
+static int hf_ieee80211_ftm_rsta_periodicity1 = -1;
+static int hf_ieee80211_ftm_rsta_partial_tsf_timer = -1;
+static int hf_ieee80211_ftm_rsta_duration = -1;
+static int hf_ieee80211_ftm_rsta_passive_tb_ranging_avail_win = -1;
+static int hf_ieee80211_ftm_rsta_periodicity = -1;
+static int hf_ieee80211_ftm_rsta_passive_tb_ranging_params = -1;
+static int hf_ieee80211_ftm_rsta_avail_subfield_short = -1;
+static int hf_ieee80211_ftm_rsta_avail_subfield_long = -1;
 
 static int hf_ieee80211_ff_ant_selection = -1;
 static int hf_ieee80211_ff_ant_selection_0 = -1;
@@ -6767,7 +6800,6 @@ static int hf_ieee80211_ext_tag_data = -1;
 
 static int hf_ieee80211_fils_session = -1;
 static int hf_ieee80211_fils_encrypted_data = -1;
-static int hf_ieee80211_fils_wrapped_data = -1;
 static int hf_ieee80211_fils_nonce = -1;
 
 /* wfa 60g ie tree */
@@ -7267,6 +7299,9 @@ static gint ett_ff_ftm_tod_err1 = -1;
 static gint ett_ff_ftm_toa_err1 = -1;
 static gint ett_tag_ranging = -1;
 static gint ett_tag_ranging_ntb = -1;
+
+static gint ett_rsta_avail_tree = -1;
+static gint ett_rsta_avail_subfield = -1;
 
 static gint ett_pasn_parameters = -1;
 static gint ett_pasn_comeback_tree = -1;
@@ -22916,28 +22951,104 @@ dissect_he_6ghz_band_capabilities(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 }
 
 static void
-add_min_max_time_between_measurements(proto_item *item, tvbuff_t *tvb, packet_info *pinfo, int offset, int sub_length)
+dissect_secure_ltf_parameters(tvbuff_t *tvb, packet_info *pinfo _U_,
+                              proto_tree *tree, int offset, int len _U_)
 {
-  guint64 ntb_specific, min, max;
+  proto_tree_add_item(tree, hf_ieee80211_tag_secure_ltf_params_counter, tvb,
+                      offset, 6, ENC_LITTLE_ENDIAN);
+  offset += 6;
 
-  if (sub_length < 6) {
-      return;
+  proto_tree_add_item(tree, hf_ieee80211_tag_secure_ltf_generation_sac, tvb,
+                      offset, 2, ENC_LITTLE_ENDIAN);
+  offset += 2;
+
+  proto_tree_add_item(tree, hf_ieee80211_tag_secure_ltf_management_sac, tvb,
+                      offset, 2, ENC_LITTLE_ENDIAN);
+  offset += 2;
+
+  proto_tree_add_item(tree, hf_ieee80211_tag_secure_ltf_result_ltf_ofs, tvb,
+                      offset, 1, ENC_NA);
+}
+
+static void
+dissect_ista_availability_window(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, int len)
+{
+  guint16 count = tvb_get_letohs(tvb, offset) & 0x1FF;
+
+  /* These are at the same level as the avail bits */
+  proto_tree_add_item(tree, hf_ieee80211_ftm_ista_availability_count,
+                      tvb, offset, 2, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(tree, hf_ieee80211_ftm_ista_availability_reserved,
+                      tvb, offset, 2, ENC_LITTLE_ENDIAN);
+  offset += 2;
+
+  /*
+   * This needs to be reworked because the number of bits can be as large as
+   * 512 so there likely needs to be a list of 64-bit quantities.
+   */
+  proto_tree_add_bits_item(tree, hf_ieee80211_ftm_ista_avail_bits, tvb,
+                           offset * 8, count, ENC_NA);
+
+  if (((len - 2) * 8) != count) {
+    proto_tree_add_bits_item(tree, hf_ieee80211_ftm_ista_avail_pad, tvb,
+                             offset * 8 + count, (len - 2) * 8 - count, ENC_NA);
   }
+}
 
-  ntb_specific = tvb_get_gint48(tvb, offset, ENC_LITTLE_ENDIAN);
+static int * const rsta_availability_subfield_hdr1[] = {
+  &hf_ieee80211_ftm_rsta_partial_tsf_timer1,
+  &hf_ieee80211_ftm_rsta_duration1,
+  &hf_ieee80211_ftm_rsta_passive_tb_ranging_avail_win1,
+  &hf_ieee80211_ftm_rsta_periodicity1,
+  NULL
+};
 
-  min = (ntb_specific >> 1) & GENMASK(22, 0);
-  max = (ntb_specific >> 24) & GENMASK(19, 0);
+static int * const rsta_availability_subfield_hdr2[] = {
+  &hf_ieee80211_ftm_rsta_partial_tsf_timer,
+  &hf_ieee80211_ftm_rsta_duration,
+  &hf_ieee80211_ftm_rsta_passive_tb_ranging_avail_win,
+  &hf_ieee80211_ftm_rsta_periodicity,
+  &hf_ieee80211_ftm_rsta_passive_tb_ranging_params,
+  NULL
+};
 
-  /* convert to microseconds */
-  min *= 100; /* min time is in units of 100 microseconds */
-  max *= 10 * 1000; /* max time is in units of 10 milliseconds */
+static void
+dissect_rsta_availability_window(tvbuff_t *tvb, packet_info *pinfo _U_,
+                                 proto_tree *tree, int offset, int len _U_)
+{
+  guint8 count = tvb_get_guint8(tvb, offset);
+  int i;
 
-  float minf = (float)(min / 1E6);
-  float maxf = (float)(max / 1E6);
+  proto_tree_add_item(tree, hf_ieee80211_ftm_rsta_count, tvb, offset, 1,
+                      ENC_NA);
+  offset += 1;
 
-  proto_item_append_text(item, " (Min=%.6gs, Max=%.6gs)", minf, maxf);
-  col_append_fstr(pinfo->cinfo, COL_INFO, ", Min=%.6gs, Max=%.6gs", minf, maxf);
+  for (i = 0; i < count; i++) {
+    proto_tree *subfield_tree = NULL;
+    gboolean has_passive_ranging_params =
+                (tvb_get_letohl(tvb, offset) >> 23) & 1;
+
+    subfield_tree = proto_tree_add_subtree_format(tree, tvb, offset,
+                                           has_passive_ranging_params ? 5 : 4,
+                                           ett_rsta_avail_tree, NULL,
+                                           "Availability Window Information %d",
+                                           i);
+    if (has_passive_ranging_params) {
+      proto_tree_add_bitmask(subfield_tree, tvb, offset,
+                             hf_ieee80211_ftm_rsta_avail_subfield_long,
+                             ett_rsta_avail_subfield,
+                             rsta_availability_subfield_hdr2,
+                             ENC_LITTLE_ENDIAN);
+      offset += 5;
+    } else {
+      proto_tree_add_bitmask(subfield_tree, tvb, offset,
+                             hf_ieee80211_ftm_rsta_avail_subfield_short,
+                             ett_rsta_avail_subfield,
+                             rsta_availability_subfield_hdr1,
+                             ENC_LITTLE_ENDIAN);
+      offset += 4;
+    }
+  }
 }
 
 /*
@@ -23063,6 +23174,31 @@ dissect_pasn_parameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
 }
 
 static void
+add_min_max_time_between_measurements(proto_item *item, tvbuff_t *tvb, packet_info *pinfo, int offset, int sub_length)
+{
+  guint64 ntb_specific, min, max;
+
+  if (sub_length < 6) {
+      return;
+  }
+
+  ntb_specific = tvb_get_gint48(tvb, offset, ENC_LITTLE_ENDIAN);
+
+  min = (ntb_specific >> 1) & GENMASK(22, 0);
+  max = (ntb_specific >> 24) & GENMASK(19, 0);
+
+  /* convert to microseconds */
+  min *= 100; /* min time is in units of 100 microseconds */
+  max *= 10 * 1000; /* max time is in units of 10 milliseconds */
+
+  float minf = (float)(min / 1E6);
+  float maxf = (float)(max / 1E6);
+
+  proto_item_append_text(item, " (Min=%.6gs, Max=%.6gs)", minf, maxf);
+  col_append_fstr(pinfo->cinfo, COL_INFO, ", Min=%.6gs, Max=%.6gs", minf, maxf);
+}
+
+static void
 dissect_ntb_specific(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int sub_length)
 {
   static int * const nontb_fields[] = {
@@ -23150,6 +23286,25 @@ dissect_ranging_parameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     switch (sub_id) {
       case 0:  /* non-TB specific */
         dissect_ntb_specific(tvb, pinfo, tree, offset, sub_length);
+        break;
+      case 1: /* Ranging SUB_TB_SPECIFIC */
+        /* TODO: Specify the acceptable tagged elements */
+        offset += add_tagged_field(pinfo, tree, tvb, offset, 0, NULL, 0, NULL);
+
+        /* Now add the extra 32-bits of items */
+        proto_tree_add_item(tree, hf_ieee80211_tag_ranging_aid_rsid, tvb,
+                            offset, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(tree, hf_ieee80211_tag_ranging_response, tvb,
+                            offset, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(tree, hf_ieee80211_tag_ranging_trigger_frame_paddur,
+                            tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(tree, hf_ieee80211_tag_ranging_passive_tb_ranging,
+                            tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(tree, hf_ieee80211_tag_ranging_max_sess_exp, tvb,
+                            offset, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(tree, hf_ieee80211_tag_ranging_bss_color_info, tvb,
+                            offset, 4, ENC_LITTLE_ENDIAN);
+        offset += 4;
         break;
       default:  /* skip unknown elements which may be defined in the future */
         break;
@@ -27973,6 +28128,15 @@ ieee80211_tag_element_id_extension(tvbuff_t *tvb, packet_info *pinfo, proto_tree
       break;
     case ETAG_FTM_SYNC_INFO:
       proto_tree_add_item(tree, hf_ieee80211_tag_ftm_tsf_sync_info, tvb, offset, ext_tag_len, ENC_NA);
+      break;
+    case ETAG_SECURE_LTF_PARAMETERS:
+      dissect_secure_ltf_parameters(tvb, pinfo, tree, offset, ext_tag_len);
+      break;
+    case ETAG_ISTA_AVAILABILITY_WINDOW:
+      dissect_ista_availability_window(tvb, pinfo, tree, offset, ext_tag_len);
+      break;
+    case ETAG_RSTA_AVAILABILITY_WINDOW:
+      dissect_rsta_availability_window(tvb, pinfo, tree, offset, ext_tag_len);
       break;
     case ETAG_PASN_PARAMETERS:
       dissect_pasn_parameters(tvb, pinfo, tree, offset, ext_tag_len);
@@ -37588,6 +37752,31 @@ proto_register_ieee80211(void)
       FT_UINT48, BASE_DEC, NULL, GENMASK64(47, 46),
       NULL, HFILL }},
 
+    {&hf_ieee80211_tag_ranging_aid_rsid,
+     {"AID/RSID", "wlan.ranging.tb.aid_rsid",
+      FT_UINT32, BASE_HEX, NULL, 0x0000ffff, NULL, HFILL }},
+
+    {&hf_ieee80211_tag_ranging_response,
+     {"Response", "wlan.ranging.tb.response",
+      FT_BOOLEAN, 32, NULL, 0x00010000, NULL, HFILL }},
+
+    {&hf_ieee80211_tag_ranging_trigger_frame_paddur,
+     {"Trigger Frame Padding Duration",
+      "wlan.ranging.tb.trigger_frame_padding_duration",
+      FT_UINT32, BASE_DEC, NULL, 0x00060000, NULL, HFILL }},
+
+    {&hf_ieee80211_tag_ranging_passive_tb_ranging,
+     {"Passive TB Ranging", "wlan.ranging.tb.passive_tb_ranging",
+      FT_BOOLEAN, 32, NULL, 0x00080000, NULL, HFILL }},
+
+    {&hf_ieee80211_tag_ranging_max_sess_exp,
+     {"Max Session Exp", "wlan.ranging.tb.max_session.exp",
+      FT_UINT32, BASE_DEC, NULL, 0x00f00000, NULL, HFILL }},
+
+    {&hf_ieee80211_tag_ranging_bss_color_info,
+     {"BSS Color Information", "wlan.ranging.tb.bss_color_information",
+      FT_UINT32, BASE_HEX, NULL, 0xff000000, NULL, HFILL }},
+
     {&hf_ieee80211_ff_ftm_max_tod_error_exponent,
      {"Max TOD Error Exponent", "wlan.fixed.ftm.max_tod_error_exponent",
       FT_UINT8, BASE_DEC, NULL, GENMASK(4, 0), NULL, HFILL }},
@@ -37635,6 +37824,91 @@ proto_register_ieee80211(void)
      {"I2R NDP Target RSSI", "wlan.fixed.ftm.param.i2r_ndp_target_rssi",
       FT_UINT8, BASE_DEC, 0, 0,
       NULL, HFILL }},
+
+    {&hf_ieee80211_tag_secure_ltf_params_counter,
+     {"Secure LTF Counter", "wlan.etag.secure_ltf_params.secure_ltf_counter",
+      FT_UINT48, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+    {&hf_ieee80211_tag_secure_ltf_generation_sac,
+     {"LTF Generation SAC", "wlan.etag.secure_ltf_params.ltf_generation_sac",
+      FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
+    {&hf_ieee80211_tag_secure_ltf_management_sac,
+     {"Ranging Management SAC",
+      "wlan.etag.secure_ltf_params.ranging_management_sac",
+      FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
+    {&hf_ieee80211_tag_secure_ltf_result_ltf_ofs,
+     {"Measurement Result LTF Offset",
+      "wlan.etag.secure_ltf_params.measurement_result_ltf_offset",
+     FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+    {&hf_ieee80211_ftm_ista_availability_count,
+     {"ISTA Availability Count", "wlan.ranging.ista.availability_count",
+      FT_UINT16, BASE_DEC, NULL, 0x01FF, NULL, HFILL }},
+
+    {&hf_ieee80211_ftm_ista_availability_reserved,
+     {"Reserved", "wlan.ranging.ista.availability_reserved",
+      FT_UINT16, BASE_HEX, NULL, 0xFE00, NULL, HFILL }},
+
+    {&hf_ieee80211_ftm_ista_avail_bits,
+     {"ISTA Availability", "wlan.ranging.ista.availability_bits",
+      FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
+    {&hf_ieee80211_ftm_ista_avail_pad,
+     {"Padding", "wlan.ranging.ista.availability_pad",
+      FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
+    {&hf_ieee80211_ftm_rsta_count,
+     {"RSTA Count", "wlan.ranging.rsta.count",
+      FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
+    {&hf_ieee80211_ftm_rsta_partial_tsf_timer1,
+     {"Partial TSF Timer", "wlan.ranging.rsta.partial_tsf_timer",
+      FT_UINT32, BASE_HEX, NULL, 0xffff, NULL, HFILL }},
+
+    {&hf_ieee80211_ftm_rsta_duration1,
+     {"Duration", "wlan.ranging.rsta.duration",
+      FT_UINT32, BASE_HEX, NULL, 0x7f0000, NULL, HFILL }},
+
+    {&hf_ieee80211_ftm_rsta_passive_tb_ranging_avail_win1,
+     {"Passive TB Ranging Availability Window",
+      "wlan.ranging.rsta.passive_ranging_availability_window",
+      FT_BOOLEAN, 32, NULL, 0x800000, NULL, HFILL }},
+
+    {&hf_ieee80211_ftm_rsta_periodicity1,
+     {"Periodicity", "wlan.ranging.rsta.periodicity",
+      FT_UINT32, BASE_DEC, NULL, 0xff000000, NULL, HFILL }},
+
+    {&hf_ieee80211_ftm_rsta_partial_tsf_timer,
+     {"Partial TSF Timer", "wlan.ranging.rsta.partial_tsf_timer",
+      FT_UINT40, BASE_HEX, NULL, 0xffff, NULL, HFILL }},
+
+    {&hf_ieee80211_ftm_rsta_duration,
+     {"Duration", "wlan.ranging.rsta.duration",
+      FT_UINT40, BASE_HEX, NULL, 0x7f0000, NULL, HFILL }},
+
+    {&hf_ieee80211_ftm_rsta_passive_tb_ranging_avail_win,
+     {"Passive TB Ranging Availability Window",
+      "wlan.ranging.rsta.passive_ranging_availability_window",
+      FT_BOOLEAN, 40, NULL, 0x800000, NULL, HFILL }},
+
+    {&hf_ieee80211_ftm_rsta_periodicity,
+     {"Periodicity", "wlan.ranging.rsta.periodicity",
+      FT_UINT40, BASE_DEC, NULL, 0xff000000, NULL, HFILL }},
+
+    {&hf_ieee80211_ftm_rsta_passive_tb_ranging_params,
+     {"Passive TB Ranging params",
+      "wlan.ranging.rsta.passive_tb_ranging_params",
+      FT_UINT8, BASE_HEX, NULL, 0xff00000000, NULL, HFILL }},
+
+    {&hf_ieee80211_ftm_rsta_avail_subfield_short,
+     {"RSTA Availability Information", "wlan.ranging.rsta.availability_window",
+      FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
+    {&hf_ieee80211_ftm_rsta_avail_subfield_long,
+     {"RSTA Availability Information", "wlan.ranging.rsta.availability_window",
+      FT_UINT40, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
     {&hf_ieee80211_ff_psmp_sta_info,
      {"Power Save Multi-Poll (PSMP) Station Information", "wlan.fixed.psmp.stainfo",
@@ -47292,11 +47566,6 @@ proto_register_ieee80211(void)
       FT_BYTES, BASE_NONE, NULL, 0x0,
       NULL, HFILL }},
 
-    {&hf_ieee80211_fils_wrapped_data,
-     {"Wrapped Data", "wlan.ext_tag.fils.wrapped_data",
-      FT_BYTES, BASE_NONE, NULL, 0x0,
-      NULL, HFILL }},
-
     {&hf_ieee80211_fils_nonce,
      {"FILS Nonce", "wlan.ext_tag.fils.nonce",
       FT_BYTES, BASE_NONE, NULL, 0x0,
@@ -48875,6 +49144,9 @@ proto_register_ieee80211(void)
     &ett_ff_ftm_toa_err1,
     &ett_tag_ranging,
     &ett_tag_ranging_ntb,
+
+    &ett_rsta_avail_tree,
+    &ett_rsta_avail_subfield,
 
     &ett_pasn_parameters,
     &ett_pasn_comeback_tree,
