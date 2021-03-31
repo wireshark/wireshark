@@ -376,7 +376,7 @@ post_update_spdu_message_cb(void) {
     post_update_one_id_string_template_cb(spdu_message_ident, spdu_message_ident_num, data_spdu_messages);
 }
 
-char*
+static char*
 get_message_name(guint32 id) {
     guint32 tmp = id;
 

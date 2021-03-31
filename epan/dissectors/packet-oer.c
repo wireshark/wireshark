@@ -389,7 +389,7 @@ dissect_oer_bit_string(tvbuff_t *tvb, guint32 offset _U_, asn1_ctx_t *actx, prot
     return tvb_reported_length(tvb);
 }
 
-guint32
+static guint32
 dissect_oer_bit_string_unconstr(tvbuff_t *tvb, guint32 offset _U_, asn1_ctx_t *actx, proto_tree *tree, int hf_index _U_, int min_len _U_, int max_len _U_, gboolean has_extension _U_, int * const *named_bits _U_, gint num_named_bits _U_, tvbuff_t **value_tvb _U_, guint8 * const values, int values_size, int *len _U_)
 {
     int length;
