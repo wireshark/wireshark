@@ -4702,6 +4702,7 @@ static int hf_ieee80211_rnr_bss_parameters_b4 = -1;
 static int hf_ieee80211_rnr_bss_parameters_b5 = -1;
 static int hf_ieee80211_rnr_bss_parameters_b6 = -1;
 static int hf_ieee80211_rnr_bss_parameters_b7 = -1;
+static int hf_ieee80211_rnr_20_mhz_psd = -1;
 
 static int hf_ieee80211_ampduparam = -1;
 static int hf_ieee80211_ampduparam_vs = -1;
@@ -19369,6 +19370,12 @@ dissect_reduced_neighbor_report(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
     proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_ieee80211_rnr_bss_parameters,
                                       ett_rnr_bss_parameters, ieee80211_rnr_bss_parameters,
                                       ENC_LITTLE_ENDIAN, BMT_NO_APPEND);
+    offset += 1;
+  }
+
+  /* 20 MHz PSD */
+  if(tbbt_length == 9 || tbbt_length == 13){
+    proto_tree_add_item(tree, hf_ieee80211_rnr_20_mhz_psd, tvb, offset, 1, ENC_NA);
     offset += 1;
   }
 
@@ -41108,6 +41115,10 @@ proto_register_ieee80211(void)
      {"Reserved", "wlan.rnr.bss_parameters.b7",
       FT_BOOLEAN, 8, NULL, 0x80,
       NULL, HFILL }},
+
+    {&hf_ieee80211_rnr_20_mhz_psd,
+     {"20 MHz PSD", "wlan.rnr.20_mhz_psd",
+      FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
     {&hf_ieee80211_s1g_cap_byte1,
      {"S1G Capabilities Byte 1", "wlan.s1g.capabilities.byte1",
