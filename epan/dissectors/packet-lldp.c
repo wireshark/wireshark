@@ -68,6 +68,14 @@ static int hf_ex_avaya_rsvd = -1;
 static int hf_ex_avaya_system_id = -1;
 static int hf_ex_avaya_status = -1;
 static int hf_ex_avaya_i_sid = -1;
+
+static int hf_ex_avaya2_tlv_subtype = -1;
+static int hf_ex_avaya2_fabric_spbminstance = -1;
+static int hf_ex_avaya2_fabric_numbvlans = -1;
+static int hf_ex_avaya2_fabric_bvlanid = -1;
+static int hf_ex_avaya2_fabric_sysidlength = -1;
+static int hf_ex_avaya2_fabric_sysid = -1;
+
 /* Sub Dissector Tables */
 static dissector_table_t oui_unique_code_table;
 
@@ -510,6 +518,7 @@ static gint ett_org_spc_media_11 = -1;
 
 static gint ett_ex_avayaSubTypes_11 = -1;
 static gint ett_ex_avayaSubTypes_12 = -1;
+static gint ett_ex_avaya2SubTypes_4 = -1;
 static gint ett_org_spc_ProfinetSubTypes_1 = -1;
 static gint ett_org_spc_ProfinetSubTypes_2 = -1;
 static gint ett_org_spc_ProfinetSubTypes_3 = -1;
@@ -761,6 +770,13 @@ static const value_string profinet_subtypes[] = {
 static const value_string ex_avaya_subtypes[] = {
 	{ EX_AVAYA_SUBTYPE_ELEMENT_TLV, "Extreme Fabric Attach Element TLV" },
 	{ EX_AVAYA_SUBTYPE_ASSIGNMENT_TLV, "Extreme Fabric Attach Assignment TLV" },
+	{ 0, NULL }
+};
+
+/* extreme avaya2 (fabric) subtypes */
+#define EX_AVAYA2_SUBTYPE_ZTFv2_TLV 4
+static const value_string ex_avaya2_subtypes[] = {
+	{ EX_AVAYA2_SUBTYPE_ZTFv2_TLV, "Extreme Zero Touch Fabric v2 TLV" },
 	{ 0, NULL }
 };
 
@@ -2677,10 +2693,11 @@ dissect_ieee_802_1qbg_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 
 /* Dissect extreme avaya ap tlv*/
 static int
-dissect_extreme_avaya_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint16 dataLen)
+dissect_extreme_avaya_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint16 dataLen)
 {
 	guint8 subType;
 	guint32 i, loopCount;
+	guint32 offset = 0;
 
 	/*
 	Element TLV:
@@ -2736,6 +2753,47 @@ dissect_extreme_avaya_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 	}
 	return offset;
 }
+
+/* Dissect extreme avaya ap tlv*/
+static int
+dissect_extreme_avaya2_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
+{
+	guint8 subType;
+	guint32 numbvlans, sysidlength;
+	guint32 offset = 0;
+
+	/*
+	Fabric TLV:
+	_________________________________________________________________________________________________
+	| TLV Type | TLV Length | Avaya OUI | Subtype | Num. BVLANs | BVLAN-ID*N | SysID Len | Sysid    |
+	-------------------------------------------------------------------------------------------------
+	| 7 bits   | 9 bits     | 3 octets  | 1 octet | 1 octet     | 2 octets*N | 1 octet   | octets*N |
+	-------------------------------------------------------------------------------------------------
+        */
+
+	/* Get subtype */
+	subType = tvb_get_guint8(tvb, offset);
+	proto_tree_add_item(tree, hf_ex_avaya2_tlv_subtype, tvb, offset, 1, ENC_BIG_ENDIAN);
+	offset++;
+	switch (subType) {
+	case EX_AVAYA2_SUBTYPE_ZTFv2_TLV:  /* Zero Touch Fabric v2 TLV */
+		proto_tree_add_item(tree, hf_ex_avaya2_fabric_spbminstance, tvb, offset, 1, ENC_NA);
+		offset++;
+		proto_tree_add_item_ret_uint(tree, hf_ex_avaya2_fabric_numbvlans, tvb, offset, 1, ENC_NA, &numbvlans);
+		offset++;
+		while (numbvlans--) {
+			proto_tree_add_item(tree, hf_ex_avaya2_fabric_bvlanid, tvb, offset, 2, ENC_BIG_ENDIAN);
+			offset += 2;
+		}
+		proto_tree_add_item_ret_uint(tree, hf_ex_avaya2_fabric_sysidlength, tvb, offset, 1, ENC_NA, &sysidlength);
+		offset++;
+		proto_tree_add_item(tree, hf_ex_avaya2_fabric_sysid, tvb, offset, sysidlength, ENC_NA);
+		offset += sysidlength;
+		break;
+	}
+	return offset;
+}
+
 /* Dissect IEEE 802.3 TLVs */
 static int
 dissect_ieee_802_3_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
@@ -4354,6 +4412,14 @@ dissect_organizational_specific_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 			break;
 		}
 		break;
+	case OUI_AVAYA_EXTREME2:
+		subTypeStr = val_to_str(subType, ex_avaya2_subtypes, "Unknown subtype 0x%x");
+		switch(subType)
+		{
+		case EX_AVAYA2_SUBTYPE_ZTFv2_TLV: tempTree = ett_ex_avaya2SubTypes_4;
+			break;
+		}
+		break;
 	case OUI_HYTEC_GER:
 		subTypeStr = val_to_str(subType, hytec_subtypes, "Unknown subtype (0x%x)");
 		switch(subType)
@@ -4428,7 +4494,10 @@ dissect_organizational_specific_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 		dissect_iana_tlv(vendor_tvb, pinfo, org_tlv_tree);
 		break;
 	case OUI_AVAYA_EXTREME:
-		dissect_extreme_avaya_tlv(tvb, pinfo, org_tlv_tree, (offset + 5),dataLen );
+		dissect_extreme_avaya_tlv(vendor_tvb, pinfo, org_tlv_tree, dataLen );
+		break;
+	case OUI_AVAYA_EXTREME2:
+		dissect_extreme_avaya2_tlv(vendor_tvb, pinfo, org_tlv_tree);
 		break;
 	case OUI_ONOS:
 		dissect_onos_tlv(vendor_tvb, pinfo, org_tlv_tree);
@@ -6173,6 +6242,30 @@ proto_register_lldp(void)
 			{ "I-SID", "lldp.extreme_avaya_ap.i_sid", FT_UINT24, BASE_DEC,
 			NULL, 0x0, NULL, HFILL }
 		},
+		{ &hf_ex_avaya2_tlv_subtype,
+			{ "Subtype", "lldp.extreme_avaya.fabric.subtype", FT_UINT8, BASE_DEC,
+			VALS(ex_avaya2_subtypes), 0x0, NULL, HFILL }
+		},
+		{ &hf_ex_avaya2_fabric_spbminstance,
+			{ "SPBM Instance", "lldp.extreme_avaya.fabric.spbminstance", FT_UINT8, BASE_DEC,
+			NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_ex_avaya2_fabric_numbvlans,
+			{ "Number B-VLANs", "lldp.extreme_avaya.fabric.numbvlans", FT_UINT8, BASE_DEC,
+			NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_ex_avaya2_fabric_bvlanid,
+			{ "B-VLAN ID", "lldp.extreme_avaya.fabric.bvlanid", FT_UINT16, BASE_DEC,
+			NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_ex_avaya2_fabric_sysidlength,
+			{ "SysID Length", "lldp.extreme_avaya.fabric.sysidlength", FT_UINT8, BASE_DEC,
+			NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_ex_avaya2_fabric_sysid,
+			{ "System ID", "lldp.extreme_avaya.fabric.sysid", FT_SYSTEM_ID, BASE_NONE,
+			NULL, 0x0, NULL, HFILL }
+		},
 	};
 
 	/* Setup protocol subtree array */
@@ -6254,7 +6347,8 @@ proto_register_lldp(void)
 		&ett_org_spc_hytec_trace_request,
 		&ett_org_spc_hytec_trace_reply,
 		&ett_ex_avayaSubTypes_11,
-		&ett_ex_avayaSubTypes_12
+		&ett_ex_avayaSubTypes_12,
+		&ett_ex_avaya2SubTypes_4
 	};
 
 	static ei_register_info ei[] = {
