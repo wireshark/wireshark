@@ -110,6 +110,25 @@ ProtocolIE-Field/value ie_field_value
 #.TYPE_ATTR
 ProtocolExtensionID TYPE = FT_UINT8  DISPLAY = BASE_DEC STRINGS = VALS(sbc_ap_ProtocolIE_ID_vals)
 
+#.TYPE_ATTR
+TAC TYPE = FT_UINT16 DISPLAY = BASE_DEC_HEX
+#.FN_BODY TAC VAL_PTR = &parameter_tvb HF_INDEX = -1
+  tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (parameter_tvb) {
+    actx->created_item = proto_tree_add_item(tree, hf_index, parameter_tvb, 0, 2, ENC_BIG_ENDIAN);
+  }
+
+#.TYPE_ATTR
+TAC-5GS TYPE = FT_UINT24 DISPLAY = BASE_DEC_HEX
+#.FN_BODY TAC-5GS VAL_PTR = &parameter_tvb HF_INDEX = -1
+  tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (parameter_tvb) {
+    actx->created_item = proto_tree_add_item(tree, hf_index, parameter_tvb, 0, 3, ENC_BIG_ENDIAN);
+  }
+
+
 #.ASSIGN_VALUE_TO_TYPE  # SBC-AP does not have constants assigned to types, they are pure INTEGER
 # ProcedureCode
 id-Write-Replace-Warning                    ProcedureCode

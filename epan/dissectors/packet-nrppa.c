@@ -4145,8 +4145,16 @@ dissect_nrppa_DLPRSResourceCoordinates(tvbuff_t *tvb _U_, int offset _U_, asn1_c
 
 static int
 dissect_nrppa_TAC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       3, 3, FALSE, NULL);
+#line 72 "./asn1/nrppa/nrppa.cnf"
+  tvbuff_t *parameter_tvb = NULL;
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, -1,
+                                       3, 3, FALSE, &parameter_tvb);
+
+  if (parameter_tvb) {
+    actx->created_item = proto_tree_add_item(tree, hf_index, parameter_tvb, 0, 3, ENC_BIG_ENDIAN);
+  }
+
+
 
   return offset;
 }
@@ -9684,7 +9692,7 @@ void proto_register_nrppa(void) {
         "NG_RAN_CGI", HFILL }},
     { &hf_nrppa_servingCellTAC,
       { "servingCellTAC", "nrppa.servingCellTAC",
-        FT_BYTES, BASE_NONE, NULL, 0,
+        FT_UINT24, BASE_DEC_HEX, NULL, 0,
         "TAC", HFILL }},
     { &hf_nrppa_nG_RANAccessPointPosition,
       { "nG-RANAccessPointPosition", "nrppa.nG_RANAccessPointPosition_element",
@@ -9952,7 +9960,7 @@ void proto_register_nrppa(void) {
         NULL, HFILL }},
     { &hf_nrppa_tAC,
       { "tAC", "nrppa.tAC",
-        FT_BYTES, BASE_NONE, NULL, 0,
+        FT_UINT24, BASE_DEC_HEX, NULL, 0,
         NULL, HFILL }},
     { &hf_nrppa_eARFCN,
       { "eARFCN", "nrppa.eARFCN",

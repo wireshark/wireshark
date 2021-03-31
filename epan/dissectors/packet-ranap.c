@@ -2467,8 +2467,16 @@ dissect_ranap_PLMNidentity(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 
 static int
 dissect_ranap_LAC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       2, 2, FALSE, NULL);
+#line 827 "./asn1/ranap/ranap.cnf"
+  tvbuff_t *parameter_tvb = NULL;
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, -1,
+                                       2, 2, FALSE, &parameter_tvb);
+
+  if (parameter_tvb) {
+    actx->created_item = proto_tree_add_item(tree, hf_index, parameter_tvb, 0, 2, ENC_BIG_ENDIAN);
+  }
+
+
 
   return offset;
 }
@@ -2493,8 +2501,16 @@ dissect_ranap_LAI(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto
 
 static int
 dissect_ranap_RAC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       1, 1, FALSE, NULL);
+#line 836 "./asn1/ranap/ranap.cnf"
+  tvbuff_t *parameter_tvb = NULL;
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, -1,
+                                       1, 1, FALSE, &parameter_tvb);
+
+  if (parameter_tvb) {
+    actx->created_item = proto_tree_add_item(tree, hf_index, parameter_tvb, 0, 1, ENC_BIG_ENDIAN);
+  }
+
+
 
   return offset;
 }
@@ -3389,8 +3405,16 @@ dissect_ranap_APN(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto
 
 static int
 dissect_ranap_SAC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       2, 2, FALSE, NULL);
+#line 845 "./asn1/ranap/ranap.cnf"
+  tvbuff_t *parameter_tvb = NULL;
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, -1,
+                                       2, 2, FALSE, &parameter_tvb);
+
+  if (parameter_tvb) {
+    actx->created_item = proto_tree_add_item(tree, hf_index, parameter_tvb, 0, 2, ENC_BIG_ENDIAN);
+  }
+
+
 
   return offset;
 }
@@ -5865,8 +5889,16 @@ dissect_ranap_TargetRNC_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 
 static int
 dissect_ranap_TAC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       2, 2, FALSE, NULL);
+#line 854 "./asn1/ranap/ranap.cnf"
+  tvbuff_t *parameter_tvb = NULL;
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, -1,
+                                       2, 2, FALSE, &parameter_tvb);
+
+  if (parameter_tvb) {
+    actx->created_item = proto_tree_add_item(tree, hf_index, parameter_tvb, 0, 2, ENC_BIG_ENDIAN);
+  }
+
+
 
   return offset;
 }
@@ -7240,8 +7272,16 @@ dissect_ranap_PLMNs_in_shared_network(tvbuff_t *tvb _U_, int offset _U_, asn1_ct
 
 static int
 dissect_ranap_Port_Number(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       2, 2, FALSE, NULL);
+#line 818 "./asn1/ranap/ranap.cnf"
+  tvbuff_t *parameter_tvb = NULL;
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, -1,
+                                       2, 2, FALSE, &parameter_tvb);
+
+  if (parameter_tvb) {
+    actx->created_item = proto_tree_add_item(tree, hf_index, parameter_tvb, 0, 2, ENC_BIG_ENDIAN);
+  }
+
+
 
   return offset;
 }
@@ -15674,7 +15714,7 @@ void proto_register_ranap(void) {
         NULL, HFILL }},
     { &hf_ranap_RAC_PDU,
       { "RAC", "ranap.RAC",
-        FT_BYTES, BASE_NONE, NULL, 0,
+        FT_UINT8, BASE_DEC_HEX, NULL, 0,
         NULL, HFILL }},
     { &hf_ranap_RAListofIdleModeUEs_PDU,
       { "RAListofIdleModeUEs", "ranap.RAListofIdleModeUEs",
@@ -16638,7 +16678,7 @@ void proto_register_ranap(void) {
         "LAI", HFILL }},
     { &hf_ranap_old_RAC,
       { "old-RAC", "ranap.old_RAC",
-        FT_BYTES, BASE_NONE, NULL, 0,
+        FT_UINT8, BASE_DEC_HEX, NULL, 0,
         "RAC", HFILL }},
     { &hf_ranap_nRI,
       { "nRI", "ranap.nRI",
@@ -16970,7 +17010,7 @@ void proto_register_ranap(void) {
         "RepetitionNumber1", HFILL }},
     { &hf_ranap_lAC,
       { "lAC", "ranap.lAC",
-        FT_BYTES, BASE_NONE, NULL, 0,
+        FT_UINT16, BASE_DEC_HEX, NULL, 0,
         NULL, HFILL }},
     { &hf_ranap_cI,
       { "cI", "ranap.cI",
@@ -16990,11 +17030,11 @@ void proto_register_ranap(void) {
         NULL, HFILL }},
     { &hf_ranap_NewRAListofIdleModeUEs_item,
       { "RAC", "ranap.RAC",
-        FT_BYTES, BASE_NONE, NULL, 0,
+        FT_UINT8, BASE_DEC_HEX, NULL, 0,
         NULL, HFILL }},
     { &hf_ranap_RAListwithNoIdleModeUEsAnyMore_item,
       { "RAC", "ranap.RAC",
-        FT_BYTES, BASE_NONE, NULL, 0,
+        FT_UINT8, BASE_DEC_HEX, NULL, 0,
         NULL, HFILL }},
     { &hf_ranap_macroENB_ID,
       { "macroENB-ID", "ranap.macroENB_ID",
@@ -17162,7 +17202,7 @@ void proto_register_ranap(void) {
         NULL, HFILL }},
     { &hf_ranap_rAC,
       { "rAC", "ranap.rAC",
-        FT_BYTES, BASE_NONE, NULL, 0,
+        FT_UINT8, BASE_DEC_HEX, NULL, 0,
         NULL, HFILL }},
     { &hf_ranap_cN_ID,
       { "cN-ID", "ranap.cN_ID",
@@ -17646,7 +17686,7 @@ void proto_register_ranap(void) {
         NULL, HFILL }},
     { &hf_ranap_RAofIdleModeUEs_item,
       { "RAC", "ranap.RAC",
-        FT_BYTES, BASE_NONE, NULL, 0,
+        FT_UINT8, BASE_DEC_HEX, NULL, 0,
         NULL, HFILL }},
     { &hf_ranap_LAListofIdleModeUEs_item,
       { "LAI", "ranap.LAI_element",
@@ -17770,7 +17810,7 @@ void proto_register_ranap(void) {
         "OCTET_STRING_SIZE_1_maxSizeOfIMSInfo", HFILL }},
     { &hf_ranap_sAC,
       { "sAC", "ranap.sAC",
-        FT_BYTES, BASE_NONE, NULL, 0,
+        FT_UINT16, BASE_DEC_HEX, NULL, 0,
         NULL, HFILL }},
     { &hf_ranap_pLMNs_in_shared_network,
       { "pLMNs-in-shared-network", "ranap.pLMNs_in_shared_network",
@@ -17946,7 +17986,7 @@ void proto_register_ranap(void) {
         NULL, HFILL }},
     { &hf_ranap_tAC,
       { "tAC", "ranap.tAC",
-        FT_BYTES, BASE_NONE, NULL, 0,
+        FT_UINT16, BASE_DEC_HEX, NULL, 0,
         NULL, HFILL }},
     { &hf_ranap_cGI,
       { "cGI", "ranap.cGI_element",
@@ -18010,7 +18050,7 @@ void proto_register_ranap(void) {
         NULL, HFILL }},
     { &hf_ranap_uDP_Port_Number,
       { "uDP-Port-Number", "ranap.uDP_Port_Number",
-        FT_BYTES, BASE_NONE, NULL, 0,
+        FT_UINT16, BASE_DEC, NULL, 0,
         "Port_Number", HFILL }},
     { &hf_ranap_uE_AggregateMaximumBitRateDownlink,
       { "uE-AggregateMaximumBitRateDownlink", "ranap.uE_AggregateMaximumBitRateDownlink",

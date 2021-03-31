@@ -67,6 +67,15 @@ ProtocolExtensionField/id ext_id
 #.END
 
 #.TYPE_ATTR
+TAC TYPE = FT_UINT24 DISPLAY = BASE_DEC_HEX
+#.FN_BODY TAC VAL_PTR = &parameter_tvb HF_INDEX = -1
+  tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (parameter_tvb) {
+    actx->created_item = proto_tree_add_item(tree, hf_index, parameter_tvb, 0, 3, ENC_BIG_ENDIAN);
+  }
+
+#.TYPE_ATTR
 
 #.TYPE_ATTR
 
