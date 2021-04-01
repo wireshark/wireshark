@@ -244,7 +244,7 @@ void PrintDialog::printPackets(QPrinter *printer, bool in_preview)
     if (!printer) return;
 
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 15, 0))
-    page_pos_ = printer->pageLayout().paintRectPixels(cur_printer_->resolution()).top();
+    page_pos_ = printer->pageLayout().paintRectPixels(printer->resolution()).top();
 #else
     page_pos_ = printer->pageRect().top();
 #endif
