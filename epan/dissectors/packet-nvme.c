@@ -312,7 +312,20 @@ static int hf_nvme_get_logpage_fw_slot_rsvd1 = -1;
 static int hf_nvme_get_logpage_changed_nslist = -1;
 static int hf_nvme_get_logpage_cmd_and_eff_cs = -1;
 static int hf_nvme_get_logpage_cmd_and_eff_cseds[10] = { NEG_LST_10 };
-
+static int hf_nvme_get_logpage_selftest_csto[3] = { NEG_LST_3 };
+static int hf_nvme_get_logpage_selftest_cstc[3] = { NEG_LST_3 };
+static int hf_nvme_get_logpage_selftest_rsvd = -1;
+static int hf_nvme_get_logpage_selftest_res = -1;
+static int hf_nvme_get_logpage_selftest_res_status[3] = { NEG_LST_3 };
+static int hf_nvme_get_logpage_selftest_res_sn = -1;
+static int hf_nvme_get_logpage_selftest_res_vdi[6] = { NEG_LST_6 };
+static int hf_nvme_get_logpage_selftest_res_rsvd = -1;
+static int hf_nvme_get_logpage_selftest_res_poh = -1;
+static int hf_nvme_get_logpage_selftest_res_nsid = -1;
+static int hf_nvme_get_logpage_selftest_res_flba = -1;
+static int hf_nvme_get_logpage_selftest_res_sct[3] = { NEG_LST_3 };
+static int hf_nvme_get_logpage_selftest_res_sc = -1;
+static int hf_nvme_get_logpage_selftest_res_vs = -1;
 
 /* NVMe CQE fields */
 static int hf_nvme_cqe_sts = -1;
@@ -1849,6 +1862,84 @@ static void dissect_nvme_get_logpage_cmd_sup_and_eff_resp(proto_item *ti, tvbuff
     dissect_nvme_get_logpage_cmd_sup_and_eff_grp(grp, cmd_tvb, off, nrec, fidx, FALSE);
 }
 
+static const value_string stest_type_active_tbl[] = {
+    { 0,  "No device self-test operation in progress" },
+    { 1,  "Short device self-test operation in progress" },
+    { 2,  "Extended device self-test operation in progress" },
+    { 0xE,  "Vendor Specific" },
+    { 0, NULL}
+};
+
+static const value_string stest_result_tbl[] = {
+    { 0, "Operation completed without error" },
+    { 1, "Operation was aborted by a Device Self-test command" },
+    { 2, "Operation was aborted by a Controller Level Reset" },
+    { 3, "Operation was aborted due to a removal of a namespace from the namespace inventory" },
+    { 4, "Operation was aborted due to the processing of a Format NVM command" },
+    { 5, "A fatal error or unknown test error occurred while the controller was executing the device self-test operation and the operation did not complete" },
+    { 6, "Operation completed with a segment that failed and the segment that failed is not known" },
+    { 7, "Operation completed with one or more failed segments and the first segment that failed is indicated in the Segment Number field" },
+    { 8, "Operation was aborted for unknown reason" },
+    { 9, "Operation was aborted due to a sanitize operation" },
+    { 0xF, "Entry not used (does not contain a test result)" },
+    {  0, NULL}
+};
+
+static const value_string * const stest_type_done_tbl = &stest_type_active_tbl[1];
+
+static void dissect_nvme_get_logpage_selftest_result(proto_tree *grp, tvbuff_t *cmd_tvb, guint32 off, guint tst_idx)
+{
+    proto_item *ti;
+
+    ti = proto_tree_add_bytes_format(grp, hf_nvme_get_logpage_selftest_res, cmd_tvb, off, 24, NULL,
+                                "Latest Self-test Result Data Structure (latest %u)", tst_idx);
+    grp =  proto_item_add_subtree(ti, ett_data);
+    add_group_mask_entry(cmd_tvb, grp, off, 1, ASPEC(hf_nvme_get_logpage_selftest_res_status));
+    proto_tree_add_item(grp, hf_nvme_get_logpage_selftest_res_sn, cmd_tvb, off+1, 1, ENC_LITTLE_ENDIAN);
+    add_group_mask_entry(cmd_tvb, grp, off+2, 1, ASPEC(hf_nvme_get_logpage_selftest_res_vdi));
+    proto_tree_add_item(grp, hf_nvme_get_logpage_selftest_res_rsvd, cmd_tvb, off+3, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(grp, hf_nvme_get_logpage_selftest_res_poh, cmd_tvb, off+4, 8, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(grp, hf_nvme_get_logpage_selftest_res_nsid, cmd_tvb, off+12, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(grp, hf_nvme_get_logpage_selftest_res_flba, cmd_tvb, off+16, 8, ENC_LITTLE_ENDIAN);
+    add_group_mask_entry(cmd_tvb, grp, off+24, 1, ASPEC(hf_nvme_get_logpage_selftest_res_sct));
+    proto_tree_add_item(grp, hf_nvme_get_logpage_selftest_res_sc, cmd_tvb, off+25, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(grp, hf_nvme_get_logpage_selftest_res_vs, cmd_tvb, off+26, 2, ENC_LITTLE_ENDIAN);
+}
+
+static void dissect_nvme_get_logpage_selftest_resp(proto_item *ti, tvbuff_t *cmd_tvb, struct nvme_cmd_ctx *cmd_ctx, guint len)
+{
+    guint32 off = cmd_ctx->cmd_ctx.get_logpage.off & 0xffffffff; /* need guint type to silence clang-11 errors */
+    proto_tree *grp;
+    guint tst_idx;
+
+    if (cmd_ctx->cmd_ctx.get_logpage.off > 536)
+        return; /* max offset is <= 536, so we do not loose bits by casting to guint type */
+
+    grp =  proto_item_add_subtree(ti, ett_data);
+
+    if (!off && len >= 1)
+        add_group_mask_entry(cmd_tvb, grp, 0, 1, ASPEC(hf_nvme_get_logpage_selftest_csto));
+    if (off <= 1 && (2 - off) <= len)
+        add_group_mask_entry(cmd_tvb, grp, 1-off, 1, ASPEC(hf_nvme_get_logpage_selftest_cstc));
+    if (off <= 2 && (4 - off) <= len)
+         proto_tree_add_item(grp, hf_nvme_get_logpage_selftest_rsvd, cmd_tvb, 2-off, 2, ENC_LITTLE_ENDIAN);
+
+    if (off <= 4) {
+        len -= (4-off);
+        tst_idx = 0;
+        off = 4;
+    } else {
+        tst_idx = (off - 4 + 27) / 28;
+        len -= (tst_idx * 28 - (off - 4));
+        off = 4 + (tst_idx * 8);
+    }
+    while (len >= 28) {
+        dissect_nvme_get_logpage_selftest_result(grp, cmd_tvb, off, tst_idx);
+        off += 28;
+        len -= 28;
+    }
+}
+
 static void dissect_nvme_get_logpage_resp(tvbuff_t *cmd_tvb, proto_tree *cmd_tree, struct nvme_cmd_ctx *cmd_ctx, guint len)
 {
     proto_item *ti = proto_tree_add_bytes_format_value(cmd_tree, hf_nvme_gen_data, cmd_tvb, 0, len, NULL,
@@ -1866,6 +1957,8 @@ static void dissect_nvme_get_logpage_resp(tvbuff_t *cmd_tvb, proto_tree *cmd_tre
             return dissect_nvme_get_logpage_changed_nslist_resp(ti, cmd_tvb, len);
         case 0x5:
             return dissect_nvme_get_logpage_cmd_sup_and_eff_resp(ti, cmd_tvb, cmd_ctx, len);
+        case 0x6:
+            return dissect_nvme_get_logpage_selftest_resp(ti, cmd_tvb, cmd_ctx, len);
         default:
             return;
     }
@@ -3913,6 +4006,115 @@ proto_register_nvme(void)
         { &hf_nvme_get_logpage_cmd_and_eff_cseds[9],
             { "Reserved", "nvme.cmd.get_logpage.cmd_and_eff.cseds.rsvd1",
                FT_UINT32, BASE_HEX, NULL, 0xfff00000, NULL, HFILL}
+        },
+        /* Device Self-Test Response */
+                { &hf_nvme_get_logpage_selftest_csto[0],
+            { "Current Device Self-Test Operation", "nvme.cmd.get_logpage.selftest.csto",
+               FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_selftest_csto[1],
+            { "Current Self-Test Operation Status", "nvme.cmd.get_logpage.selftest.csto.st",
+               FT_UINT8, BASE_HEX, VALS(stest_type_active_tbl), 0xf, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_selftest_csto[2],
+            { "Reserevd", "nvme.cmd.get_logpage.selftest.csto.rsvd",
+               FT_UINT8, BASE_HEX, NULL, 0xf0, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_selftest_cstc[0],
+            { "Current Device Self-Test Completion", "nvme.cmd.get_logpage.selftest.cstc",
+               FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_selftest_cstc[1],
+            { "Self-Test Completion Percent", "nvme.cmd.get_logpage.selftest.cstc.pcnt",
+               FT_UINT8, BASE_DEC, NULL, 0x7f, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_selftest_cstc[2],
+            { "Reserved", "nvme.cmd.get_logpage.selftest.cstc.rsvd",
+               FT_UINT8, BASE_HEX, NULL, 0x80, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_selftest_rsvd,
+            { "Self-Test Completion Percent", "nvme.cmd.get_logpage.selftest.rsvd",
+               FT_UINT16, BASE_HEX, NULL, 0x80, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_selftest_res,
+            { "Latest Self-test Result Data Structure", "nvme.cmd.get_logpage.selftest.res",
+               FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_selftest_res_status[0],
+            { "Device Self-test Status", "nvme.cmd.get_logpage.selftest.res.status",
+               FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_selftest_res_status[1],
+            { "Device Self-test Result", "nvme.cmd.get_logpage.selftest.res.status.result",
+               FT_UINT8, BASE_HEX, VALS(stest_result_tbl), 0xf, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_selftest_res_status[2],
+            { "Device Self-test Type", "nvme.cmd.get_logpage.selftest.res.status.type",
+               FT_UINT8, BASE_HEX, VALS(stest_type_done_tbl), 0xf0, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_selftest_res_sn,
+            { "Segment Number", "nvme.cmd.get_logpage.selftest.res.sn",
+               FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_selftest_res_vdi[0],
+            { "Valid Diagnostic Information", "nvme.cmd.get_logpage.selftest.res.vdi",
+               FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_selftest_res_vdi[1],
+            { "Namespace Identifier (NSID) Field Valid", "nvme.cmd.get_logpage.selftest.res.vdi.nsid",
+               FT_BOOLEAN, 8, NULL, 0x1, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_selftest_res_vdi[2],
+            { "Faling LBA (FLBA) Field Valid", "nvme.cmd.get_logpage.selftest.res.vdi.flba",
+               FT_BOOLEAN, 8, NULL, 0x2, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_selftest_res_vdi[3],
+            { "Status Code Type (SCT) Filed Valid", "nvme.cmd.get_logpage.selftest.res.vdi.sct",
+               FT_BOOLEAN, 8, NULL, 0x4, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_selftest_res_vdi[4],
+            { "Status Code (SC) Field Valid", "nvme.cmd.get_logpage.selftest.res.vdi.sc",
+               FT_BOOLEAN, 8, NULL, 0x8, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_selftest_res_vdi[5],
+            { "Reserevd", "nvme.cmd.get_logpage.selftest.res.vdi.rsvd",
+               FT_BOOLEAN, 8, NULL, 0xf0, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_selftest_res_rsvd,
+            { "Reserevd", "nvme.cmd.get_logpage.selftest.res.rsvd",
+               FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_selftest_res_poh,
+            { "Power On Hours (POH)", "nvme.cmd.get_logpage.selftest.res.poh",
+               FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_selftest_res_nsid,
+            { "Namespace Identifier (NSID)", "nvme.cmd.get_logpage.selftest.res.nsid",
+               FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_selftest_res_flba,
+            { "Failing LBA", "nvme.cmd.get_logpage.selftest.res.flba",
+               FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_selftest_res_sct[0],
+            { "Status Code Type", "nvme.cmd.get_logpage.selftest.res.sct",
+               FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_selftest_res_sct[1],
+            { "Additional Information", "nvme.cmd.get_logpage.selftest.res.sct.ai",
+               FT_UINT8, BASE_HEX, NULL, 0x7, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_selftest_res_sct[2],
+            { "Reserved", "nvme.cmd.get_logpage.selftest.res.sct.rsvd",
+               FT_UINT8, BASE_HEX, NULL, 0xf8, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_selftest_res_sc,
+            { "Status Code", "nvme.cmd.get_logpage.selftest.res.sc",
+               FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_selftest_res_vs,
+            { "Vendor Specific", "nvme.cmd.get_logpage.selftest.res.vs",
+               FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}
         },
         /* NVMe Response fields */
         { &hf_nvme_cqe_sts,
