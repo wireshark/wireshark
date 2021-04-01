@@ -762,11 +762,18 @@ static gboolean
 is_valid_requerest_body(tvbuff_t *tvb)
 {
   gint offset = 2;
+  guint zeros_counter = 0;
   for (gint i = offset; i < (gint)tvb_captured_length(tvb); ++i) {
     gchar c = (gchar)tvb_get_guint8(tvb, i);
-    gboolean allowed_ch = (c == '\0') || g_ascii_isprint(c);
-    if (!allowed_ch) return FALSE;
+    if (c == '\0') {
+      zeros_counter++;
+    } else if (!g_ascii_isprint(c)) {
+      return FALSE;
+    }
   }
+
+  if (zeros_counter % 2 != 0 || zeros_counter == 0)
+    return FALSE;
 
   offset += tvb_strsize(tvb, offset);
   guint len = tvb_strsize(tvb, offset);
