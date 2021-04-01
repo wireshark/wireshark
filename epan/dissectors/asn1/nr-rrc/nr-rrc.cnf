@@ -312,8 +312,8 @@ BandNR/eag_4/channelBWs-UL-v1590/fr1/scs-15kHz                                ba
 BandNR/eag_6/channelBW-DL-IAB-r16/fr1-100mhz/scs-15kHz                        bandNR_eag_6_channelBW-DL-IAB-r16_fr1-100mhz_scs-15kHz
 BandNR/eag_6/channelBW-UL-IAB-r16/fr1-100mhz/scs-15kHz                        bandNR_eag_6_channelBW-UL-IAB-r16_fr1-100mhz_scs-15kHz
 
-FeatureSetDownlink-v1610/cbgPDSCH-ProcessingType1-NumberOfTB-PerSlot-r16/scs-30kHz-r16               featureSetDownlink-v1610_cbgPDSCH-ProcessingType1-NumberOfTB-PerSlot-r16_scs-30kHz-r16
-FeatureSetDownlink-v1610/cbgPDSCH-ProcessingType2-NumberOfTB-PerSlot-r16/scs-30kHz-r16               featureSetDownlink-v1610_cbgPDSCH-ProcessingType2-NumberOfTB-PerSlot-r16_scs-30kHz-r16
+FeatureSetDownlink-v1610/cbgPDSCH-ProcessingType1-DifferentTB-PerSlot-r16/scs-30kHz-r16              featureSetDownlink-v1610_cbgPDSCH-ProcessingType1-DifferentTB-PerSlot-r16_scs-30kHz-r16
+FeatureSetDownlink-v1610/cbgPDSCH-ProcessingType2-DifferentTB-PerSlot-r16/scs-30kHz-r16              featureSetDownlink-v1610_cbgPDSCH-ProcessingType2-DifferentTB-PerSlot-r16_scs-30kHz-r16
 FeatureSetDownlink-v1610/pdcch-Monitoring-r16/pdsch-ProcessingType1-r16/scs-30kHz-r16                featureSetDownlink-v1610_pdcch-Monitoring-r16_pdsch-ProcessingType1-r16_scs-30kHz-r16
 FeatureSetUplink-v1610/cbgPUSCH-ProcessingType1-DifferentTB-PerSlot-r16/scs-30kHz-r16                featureSetUplink-v1610_cbgPUSCH-ProcessingType1-DifferentTB-PerSlot-r16_scs-30kHz-r16
 MinTimeGap-r16/scs-30kHz-r16                                                                         minTimeGap-r16_scs-30kHz-r16
@@ -359,8 +359,8 @@ BandNR/eag_4/channelBWs-UL-v1590/fr2/scs-120kHz                               ba
 BandNR/eag_6/channelBW-DL-IAB-r16/fr2-200mhz/scs-120kHz                       bandNR_eag_6_channelBW-DL-IAB-r16_fr2-200mhz_scs-120kHz
 BandNR/eag_6/channelBW-UL-IAB-r16/fr2-200mhz/scs-120kHz                       bandNR_eag_6_channelBW-UL-IAB-r16_fr2-200mhz_scs-120kHz
 
-FeatureSetDownlink-v1610/cbgPDSCH-ProcessingType1-NumberOfTB-PerSlot-r16/scs-15kHz-r16              featureSetDownlink-v1610_cbgPDSCH-ProcessingType1-NumberOfTB-PerSlot-r16_scs-15kHz-r16
-FeatureSetDownlink-v1610/cbgPDSCH-ProcessingType2-NumberOfTB-PerSlot-r16/scs-15kHz-r16              featureSetDownlink-v1610_cbgPDSCH-ProcessingType2-NumberOfTB-PerSlot-r16_scs-15kHz-r16
+FeatureSetDownlink-v1610/cbgPDSCH-ProcessingType1-DifferentTB-PerSlot-r16/scs-15kHz-r16             featureSetDownlink-v1610_cbgPDSCH-ProcessingType1-DifferentTB-PerSlot-r16_scs-15kHz-r16
+FeatureSetDownlink-v1610/cbgPDSCH-ProcessingType2-DifferentTB-PerSlot-r16/scs-15kHz-r16             featureSetDownlink-v1610_cbgPDSCH-ProcessingType2-DifferentTB-PerSlot-r16_scs-15kHz-r16
 FeatureSetDownlink-v1610/pdcch-Monitoring-r16/pdsch-ProcessingType1-r16/scs-15kHz-r16               featureSetDownlink-v1610_pdcch-Monitoring-r16_pdsch-ProcessingType1-r16_scs-15kHz-r16
 FeatureSetDownlink-v1610/pdcch-Monitoring-r16/pdsch-ProcessingType2-r16/scs-15kHz-r16               featureSetDownlink-v1610_pdcch-Monitoring-r16_pdsch-ProcessingType2-r16_scs-15kHz-r16
 FeatureSetUplink-v1610/cbgPUSCH-ProcessingType1-DifferentTB-PerSlot-r16/scs-15kHz-r16               featureSetUplink-v1610_cbgPUSCH-ProcessingType1-DifferentTB-PerSlot-r16_scs-15kHz-r16
@@ -372,8 +372,8 @@ BandSidelinkPC5-r16/sl-Reception-r16/scs-CP-PatternRxSidelink-r16/fr1-r16/scs-15
 FeatureSetUplink-v1610/cbgPUSCH-ProcessingType2-DifferentTB-PerSlot-r16/scs-30kHz-r16               featureSetUplink-v1610_cbgPUSCH-ProcessingType2-DifferentTB-PerSlot-r16_scs-30kHz-r16
 Phy-ParametersFR1/scs-60kHz                                                                         phy-ParametersFR1_scs-60kHz
 FeatureSetUplink-v1610/crossCarrierSchedulingProcessing-DiffSCS-r16/scs-60kHz-120kHz-r16            featureSetUplink-v1610_crossCarrierSchedulingProcessing-DiffSCS-r16_scs-60kHz-120kHz-r16
-FeatureSetDownlink-v1610/cbgPDSCH-ProcessingType1-NumberOfTB-PerSlot-r16/scs-60kHz-r16              featureSetDownlink-v1610_cbgPDSCH-ProcessingType1-NumberOfTB-PerSlot-r16_scs-60kHz-r16
-FeatureSetDownlink-v1610/cbgPDSCH-ProcessingType2-NumberOfTB-PerSlot-r16/scs-60kHz-r16              featureSetDownlink-v1610_cbgPDSCH-ProcessingType2-NumberOfTB-PerSlot-r16_scs-60kHz-r16
+FeatureSetDownlink-v1610/cbgPDSCH-ProcessingType1-DifferentTB-PerSlot-r16/scs-60kHz-r16             featureSetDownlink-v1610_cbgPDSCH-ProcessingType1-DifferentTB-PerSlot-r16_scs-60kHz-r16
+FeatureSetDownlink-v1610/cbgPDSCH-ProcessingType2-DifferentTB-PerSlot-r16/scs-60kHz-r16             featureSetDownlink-v1610_cbgPDSCH-ProcessingType2-DifferentTB-PerSlot-r16_scs-60kHz-r16
 FeatureSetUplink-v1610/cbgPUSCH-ProcessingType1-DifferentTB-PerSlot-r16/scs-60kHz-r16               featureSetUplink-v1610_cbgPUSCH-ProcessingType1-DifferentTB-PerSlot-r16_scs-60kHz-r16
 FeatureSetUplink-v1610/cbgPUSCH-ProcessingType2-DifferentTB-PerSlot-r16/scs-60kHz-r16               featureSetUplink-v1610_cbgPUSCH-ProcessingType2-DifferentTB-PerSlot-r16_scs-60kHz-r16
 MinTimeGap-r16/scs-60kHz-r16                                                                        minTimeGap-r16_scs-60kHz-r16
@@ -384,8 +384,8 @@ BandSidelink-r16/sl-TransmissionMode1-r16/scs-CP-PatternTxSidelinkModeOne-r16/fr
 BandSidelink-r16/sl-TransmissionMode1-r16/scs-CP-PatternTxSidelinkModeOne-r16/fr2-r16/scs-60kHz-r16 bandSidelink-r16_sl-TransmissionMode1-r16_scs-CP-PatternTxSidelinkModeOne-r16_fr2-r16_scs-60kHz-r16
 BandSidelinkPC5-r16/sl-Reception-r16/scs-CP-PatternRxSidelink-r16/fr1-r16/scs-60kHz-r16             bandSidelinkPC5-r16_sl-Reception-r16_scs-CP-PatternRxSidelink-r16_fr1-r16_scs-60kHz-r16
 BandSidelinkPC5-r16/sl-Reception-r16/scs-CP-PatternRxSidelink-r16/fr2-r16/scs-60kHz-r16             bandSidelinkPC5-r16_sl-Reception-r16_scs-CP-PatternRxSidelink-r16_fr2-r16_scs-60kHz-r16
-FeatureSetDownlink-v1610/cbgPDSCH-ProcessingType1-NumberOfTB-PerSlot-r16/scs-120kHz-r16             featureSetDownlink-v1610_cbgPDSCH-ProcessingType1-NumberOfTB-PerSlot-r16_scs-120kHz-r16
-FeatureSetDownlink-v1610/cbgPDSCH-ProcessingType2-NumberOfTB-PerSlot-r16/scs-120kHz-r16             featureSetDownlink-v1610_cbgPDSCH-ProcessingType2-NumberOfTB-PerSlot-r16_scs-120kHz-r16
+FeatureSetDownlink-v1610/cbgPDSCH-ProcessingType1-DifferentTB-PerSlot-r16/scs-120kHz-r16            featureSetDownlink-v1610_cbgPDSCH-ProcessingType1-DifferentTB-PerSlot-r16_scs-120kHz-r16
+FeatureSetDownlink-v1610/cbgPDSCH-ProcessingType2-DifferentTB-PerSlot-r16/scs-120kHz-r16            featureSetDownlink-v1610_cbgPDSCH-ProcessingType2-DifferentTB-PerSlot-r16_scs-120kHz-r16
 FeatureSetUplink-v1610/cbgPUSCH-ProcessingType1-DifferentTB-PerSlot-r16/scs-120kHz-r16              featureSetUplink-v1610_cbgPUSCH-ProcessingType1-DifferentTB-PerSlot-r16_scs-120kHz-r16
 FeatureSetUplink-v1610/cbgPUSCH-ProcessingType2-DifferentTB-PerSlot-r16/scs-120kHz-r16              featureSetUplink-v1610_cbgPUSCH-ProcessingType2-DifferentTB-PerSlot-r16_scs-120kHz-r16
 MinTimeGap-r16/scs-120kHz-r16                                                                       minTimeGap-r16_scs-120kHz-r16
@@ -474,8 +474,8 @@ BandNR/eag_4/channelBWs-DL-v1590/fr1/scs-15kHz                                 A
 BandNR/eag_4/channelBWs-UL-v1590/fr1/scs-15kHz                                 ABBREV=bandNR.eag_4.channelBWs_UL_v1590.fr1.scs_15kHz
 BandNR/eag_6/channelBW-DL-IAB-r16/fr1-100mhz/scs-15kHz                         ABBREV=bandNR.eag_6.channelBW_DL_IAB_r16.fr1_100mhz.scs_15kHz
 BandNR/eag_6/channelBW-UL-IAB-r16/fr1-100mhz/scs-15kHz                         ABBREV=bandNR.eag_6.channelBW_UL_IAB_r16.fr1_100mhz.scs_15kHz
-FeatureSetDownlink-v1610/cbgPDSCH-ProcessingType1-NumberOfTB-PerSlot-r16/scs-30kHz-r16               ABBREV=featureSetDownlink_v1610.cbgPDSCH_ProcessingType1_NumberOfTB_PerSlot_r16.scs_30kHz_r16
-FeatureSetDownlink-v1610/cbgPDSCH-ProcessingType2-NumberOfTB-PerSlot-r16/scs-30kHz-r16               ABBREV=featureSetDownlink_v1610.cbgPDSCH_ProcessingType2_NumberOfTB_PerSlot_r16.scs_30kHz_r16
+FeatureSetDownlink-v1610/cbgPDSCH-ProcessingType1-DifferentTB-PerSlot-r16/scs-30kHz-r16              ABBREV=featureSetDownlink_v1610.cbgPDSCH_ProcessingType1_DifferentTB_PerSlot_r16.scs_30kHz_r16
+FeatureSetDownlink-v1610/cbgPDSCH-ProcessingType2-DifferentTB-PerSlot-r16/scs-30kHz-r16              ABBREV=featureSetDownlink_v1610.cbgPDSCH_ProcessingType2_DifferentTB_PerSlot_r16.scs_30kHz_r16
 FeatureSetDownlink-v1610/pdcch-Monitoring-r16/pdsch-ProcessingType1-r16/scs-30kHz-r16                ABBREV=featureSetDownlink_v1610.pdcch_Monitoring_r16.pdsch_ProcessingType1_r16.scs_30kHz_r16
 FeatureSetUplink-v1610/cbgPUSCH-ProcessingType1-DifferentTB-PerSlot-r16/scs-30kHz-r16                ABBREV=featureSetUplink_v1610.cbgPUSCH_ProcessingType1_DifferentTB_PerSlot_r16.scs_30kHz_r16
 MinTimeGap-r16/scs-30kHz-r16                                                                         ABBREV=minTimeGap_r16.scs_30kHz_r16
@@ -519,8 +519,8 @@ BandNR/eag_4/channelBWs-DL-v1590/fr2/scs-120kHz                               AB
 BandNR/eag_4/channelBWs-UL-v1590/fr2/scs-120kHz                               ABBREV=bandNR.eag_4.channelBWs_UL_v1590.fr2.scs_120kHz
 BandNR/eag_6/channelBW-DL-IAB-r16/fr2-200mhz/scs-120kHz                       ABBREV=bandNR.eag_6.channelBW_DL_IAB_r16.fr2_200mhz.scs_120kHz
 BandNR/eag_6/channelBW-UL-IAB-r16/fr2-200mhz/scs-120kHz                       ABBREV=bandNR.eag_6.channelBW_UL_IAB_r16.fr2_200mhz.scs_120kHz
-FeatureSetDownlink-v1610/cbgPDSCH-ProcessingType1-NumberOfTB-PerSlot-r16/scs-15kHz-r16              ABBREV=featureSetDownlink_v1610.cbgPDSCH_ProcessingType1_NumberOfTB_PerSlot_r16.scs_15kHz_r16
-FeatureSetDownlink-v1610/cbgPDSCH-ProcessingType2-NumberOfTB-PerSlot-r16/scs-15kHz-r16              ABBREV=featureSetDownlink_v1610.cbgPDSCH_ProcessingType2_NumberOfTB_PerSlot_r16.scs_15kHz_r16
+FeatureSetDownlink-v1610/cbgPDSCH-ProcessingType1-DifferentTB-PerSlot-r16/scs-15kHz-r16             ABBREV=featureSetDownlink_v1610.cbgPDSCH_ProcessingType1_DifferentTB_PerSlot_r16.scs_15kHz_r16
+FeatureSetDownlink-v1610/cbgPDSCH-ProcessingType2-DifferentTB-PerSlot-r16/scs-15kHz-r16             ABBREV=featureSetDownlink_v1610.cbgPDSCH_ProcessingType2_DifferentTB_PerSlot_r16.scs_15kHz_r16
 FeatureSetDownlink-v1610/pdcch-Monitoring-r16/pdsch-ProcessingType1-r16/scs-15kHz-r16               ABBREV=featureSetDownlink_v1610.pdcch_Monitoring_r16.pdsch_ProcessingType1_r16.scs_15kHz_r16
 FeatureSetDownlink-v1610/pdcch-Monitoring-r16/pdsch-ProcessingType2-r16/scs-15kHz-r16               ABBREV=featureSetDownlink_v1610.pdcch_Monitoring_r16.pdsch_ProcessingType2_r16.scs_15kHz_r16
 FeatureSetUplink-v1610/cbgPUSCH-ProcessingType1-DifferentTB-PerSlot-r16/scs-15kHz-r16               ABBREV=featureSetUplink_v1610.cbgPUSCH_ProcessingType1_DifferentTB_PerSlot_r16.scs_15kHz_r16
@@ -531,8 +531,8 @@ BandSidelinkPC5-r16/sl-Reception-r16/scs-CP-PatternRxSidelink-r16/fr1-r16/scs-15
 FeatureSetUplink-v1610/cbgPUSCH-ProcessingType2-DifferentTB-PerSlot-r16/scs-30kHz-r16               ABBREV=featureSetUplink_v1610.cbgPUSCH_ProcessingType2_DifferentTB_PerSlot_r16.scs_30kHz_r16
 Phy-ParametersFR1/scs-60kHz                                                                         ABBREV=phy_ParametersFR1.scs_60kHz
 FeatureSetUplink-v1610/crossCarrierSchedulingProcessing-DiffSCS-r16/scs-60kHz-120kHz-r16            ABBREV=featureSetUplink_v1610.crossCarrierSchedulingProcessing_DiffSCS_r16.scs_60kHz_120kHz_r16
-FeatureSetDownlink-v1610/cbgPDSCH-ProcessingType1-NumberOfTB-PerSlot-r16/scs-60kHz-r16              ABBREV=featureSetDownlink_v1610.cbgPDSCH_ProcessingType1_NumberOfTB_PerSlot_r16.scs_60kHz_r16
-FeatureSetDownlink-v1610/cbgPDSCH-ProcessingType2-NumberOfTB-PerSlot-r16/scs-60kHz-r16              ABBREV=featureSetDownlink_v1610.cbgPDSCH_ProcessingType2_NumberOfTB_PerSlot_r16.scs_60kHz_r16
+FeatureSetDownlink-v1610/cbgPDSCH-ProcessingType1-DifferentTB-PerSlot-r16/scs-60kHz-r16             ABBREV=featureSetDownlink_v1610.cbgPDSCH_ProcessingType1_DifferentTB_PerSlot_r16.scs_60kHz_r16
+FeatureSetDownlink-v1610/cbgPDSCH-ProcessingType2-DifferentTB-PerSlot-r16/scs-60kHz-r16             ABBREV=featureSetDownlink_v1610.cbgPDSCH_ProcessingType2_DifferentTB_PerSlot_r16.scs_60kHz_r16
 FeatureSetUplink-v1610/cbgPUSCH-ProcessingType1-DifferentTB-PerSlot-r16/scs-60kHz-r16               ABBREV=featureSetUplink_v1610.cbgPUSCH_ProcessingType1_DifferentTB_PerSlot_r16.scs_60kHz_r16
 FeatureSetUplink-v1610/cbgPUSCH-ProcessingType2-DifferentTB-PerSlot-r16/scs-60kHz-r16               ABBREV=featureSetUplink_v1610.cbgPUSCH_ProcessingType2_DifferentTB_PerSlot_r16.scs_60kHz_r16
 MinTimeGap-r16/scs-60kHz-r16                                                                        ABBREV=minTimeGap_r16.scs_60kHz_r16
@@ -543,15 +543,15 @@ BandSidelink-r16/sl-TransmissionMode1-r16/scs-CP-PatternTxSidelinkModeOne-r16/fr
 BandSidelink-r16/sl-TransmissionMode1-r16/scs-CP-PatternTxSidelinkModeOne-r16/fr2-r16/scs-60kHz-r16 ABBREV=bandSidelink_r16.sl_TransmissionMode1_r16.scs_CP_PatternTxSidelinkModeOne_r16.fr2_r16.scs_60kHz_r16
 BandSidelinkPC5-r16/sl-Reception-r16/scs-CP-PatternRxSidelink-r16/fr1-r16/scs-60kHz-r16             ABBREV=bandSidelinkPC5_r16.sl_Reception_r16.scs_CP_PatternRxSidelink_r16.fr1_r16.scs_60kHz_r16
 BandSidelinkPC5-r16/sl-Reception-r16/scs-CP-PatternRxSidelink-r16/fr2-r16/scs-60kHz-r16             ABBREV=bandSidelinkPC5_r16.sl_Reception_r16.scs_CP_PatternRxSidelink_r16.fr2_r16.scs_60kHz_r16
-FeatureSetDownlink-v1610/cbgPDSCH-ProcessingType1-NumberOfTB-PerSlot-r16/scs-120kHz-r16             ABBREV=featureSetDownlink_v1610.cbgPDSCH_ProcessingType1_NumberOfTB_PerSlot_r16.scs_120kHz_r16
-FeatureSetDownlink-v1610/cbgPDSCH-ProcessingType2-NumberOfTB-PerSlot-r16/scs-120kHz-r16             ABBREV=featureSetDownlink_v1610.cbgPDSCH_ProcessingType2_NumberOfTB_PerSlot_r16.scs_120kHz_r16
+FeatureSetDownlink-v1610/cbgPDSCH-ProcessingType1-DifferentTB-PerSlot-r16/scs-120kHz-r16            ABBREV=featureSetDownlink_v1610.cbgPDSCH_ProcessingType1_DifferentTB_PerSlot_r16.scs_120kHz_r16
+FeatureSetDownlink-v1610/cbgPDSCH-ProcessingType2-DifferentTB-PerSlot-r16/scs-120kHz-r16             ABBREV=featureSetDownlink_v1610.cbgPDSCH_ProcessingType2_DifferentTB_PerSlot_r16.scs_120kHz_r16
 FeatureSetUplink-v1610/cbgPUSCH-ProcessingType1-DifferentTB-PerSlot-r16/scs-120kHz-r16              ABBREV=featureSetUplink_v1610.cbgPUSCH_ProcessingType1_DifferentTB_PerSlot_r16.scs_120kHz_r16
 FeatureSetUplink-v1610/cbgPUSCH-ProcessingType2-DifferentTB-PerSlot-r16/scs-120kHz-r16              ABBREV=featureSetUplink_v1610.cbgPUSCH_ProcessingType2_DifferentTB_PerSlot_r16.scs_120kHz_r16
 MinTimeGap-r16/scs-120kHz-r16                                                                       ABBREV=minTimeGap_r16.scs_120kHz_r16
 MIMO-ParametersPerBand/eag_2/beamSwitchTiming-r16/scs-120kHz-r16                                    ABBREV=mIMO_ParametersPerBand.eag_2.beamSwitchTiming_r16.scs_120kHz_r16
 BandSidelink-r16/sl-Reception-r16/scs-CP-PatternRxSidelink-r16/fr2-r16/scs-120kHz-r16               ABBREV=bandSidelink_r16.sl_Reception_r16.scs_CP_PatternRxSidelink_r16.fr2_r16.scs_120kHz_r16
 BandSidelink-r16/sl-TransmissionMode1-r16/scs-CP-PatternTxSidelinkModeOne-r16/fr2-r16/scs-120kHz-r16 ABBREV=bandSidelink_r16.sl_TransmissionMode1_r16.scs_CP_PatternTxSidelinkModeOne_r16.fr2_r16.scs_120kHz_r16
-BandSidelinkPC5-r16/sl-Reception-r16/scs-CP-PatternRxSidelink-r16/fr2-r16/scs-120kHz-r16             ABBREV=bandSidelinkPC5_r16.sl_Reception_r16.scs_CP_PatternRxSidelink_r16.fr2_r16.scs_120kHz_r16
+BandSidelinkPC5-r16/sl-Reception-r16/scs-CP-PatternRxSidelink-r16/fr2-r16/scs-120kHz-r16            ABBREV=bandSidelinkPC5_r16.sl_Reception_r16.scs_CP_PatternRxSidelink_r16.fr2_r16.scs_120kHz_r16
 SL-MeasReportQuantity-r16/sl-RSRP-r16                                                               ABBREV=sL_MeasReportQuantity_r16.sl_RSRP_r16
 MasterInformationBlockSidelink/slotIndex-r16                                                        ABBREV=bmasterInformationBlockSidelink.slotIndex_r16
 

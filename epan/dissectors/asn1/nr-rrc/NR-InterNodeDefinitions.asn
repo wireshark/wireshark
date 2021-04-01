@@ -1,4 +1,4 @@
--- 3GPP TS 38.331 V16.3.0 (2020-12)
+-- 3GPP TS 38.331 V16.4.1 (2021-03)
 
 NR-InterNodeDefinitions DEFINITIONS AUTOMATIC TAGS ::=
 
@@ -14,6 +14,8 @@ IMPORTS
     CSI-RS-CellMobility,
     DRX-Config,
     EUTRA-PhysCellId,
+    FeatureSetDownlinkPerCC-Id,
+    FeatureSetUplinkPerCC-Id,
     FreqBandIndicatorNR,
     GapConfig,
     maxBandComb,
@@ -22,6 +24,7 @@ IMPORTS
     maxFeatureSetsPerBand,
     maxFreqIDC-MRDC,
     maxNrofCombIDC,
+    maxNrofPhysicalResourceBlocks,
     maxNrofSCells,
     maxNrofServingCells,
     maxNrofServingCells-1,
@@ -129,6 +132,9 @@ AS-Context ::=                          SEQUENCE {
     ueAssistanceInformationEUTRA-r16        OCTET STRING                                        OPTIONAL,
     ueAssistanceInformationSCG-r16          OCTET STRING (CONTAINING UEAssistanceInformation)   OPTIONAL,   -- Cond HO2
     needForGapsInfoNR-r16                   NeedForGapsInfoNR-r16                               OPTIONAL
+    ]],
+    [[
+    configRestrictInfoDAPS-v1640            ConfigRestrictInfoDAPS-v1640                        OPTIONAL
     ]]
 }
 
@@ -138,6 +144,11 @@ ConfigRestrictInfoDAPS-r16 ::=          SEQUENCE {
         p-DAPS-Target-r16                       P-Max,
         uplinkPowerSharingDAPS-Mode-r16          ENUMERATED {semi-static-mode1, semi-static-mode2, dynamic }
     }                                                                                                       OPTIONAL
+}
+
+ConfigRestrictInfoDAPS-v1640 ::=    SEQUENCE {
+    sourceFeatureSetPerDownlinkCC-r16   FeatureSetDownlinkPerCC-Id,
+    sourceFeatureSetPerUplinkCC-r16     FeatureSetUplinkPerCC-Id
 }
 
 ReestablishmentInfo ::=             SEQUENCE {
@@ -244,8 +255,40 @@ CG-Config-v1620-IEs ::=             SEQUENCE {
 
 CG-Config-v1630-IEs ::=             SEQUENCE {
     selectedToffset-r16                 T-Offset-r16                                       OPTIONAL,
-    nonCriticalExtension                SEQUENCE {}                                        OPTIONAL
+    nonCriticalExtension                CG-Config-v1640-IEs                                OPTIONAL
 }
+
+CG-Config-v1640-IEs ::=             SEQUENCE {
+    servCellInfoListSCG-NR-r16          ServCellInfoListSCG-NR-r16                      OPTIONAL,
+    servCellInfoListSCG-EUTRA-r16       ServCellInfoListSCG-EUTRA-r16                   OPTIONAL,
+    nonCriticalExtension            SEQUENCE {}                                         OPTIONAL
+}
+
+ServCellInfoListSCG-NR-r16 ::=      SEQUENCE (SIZE (1.. maxNrofServingCells)) OF  ServCellInfoXCG-NR-r16
+
+ServCellInfoXCG-NR-r16 ::=          SEQUENCE {
+    dl-FreqInfo-NR-r16                  FrequencyConfig-NR-r16                          OPTIONAL,
+    ul-FreqInfo-NR-r16                  FrequencyConfig-NR-r16                          OPTIONAL, -- Cond FDD
+    ...
+}
+
+FrequencyConfig-NR-r16 ::=          SEQUENCE {
+    freqBandIndicatorNR-r16             FreqBandIndicatorNR,
+    carrierCenterFreq-NR-r16            ARFCN-ValueNR,
+    carrierBandwidth-NR-r16             INTEGER (1..maxNrofPhysicalResourceBlocks),
+    subcarrierSpacing-NR-r16            SubcarrierSpacing
+}
+
+ServCellInfoListSCG-EUTRA-r16 ::=   SEQUENCE (SIZE (1.. maxNrofServingCellsEUTRA)) OF ServCellInfoXCG-EUTRA-r16
+
+ServCellInfoXCG-EUTRA-r16 ::=       SEQUENCE {
+    dl-CarrierFreq-EUTRA-r16            ARFCN-ValueEUTRA                                OPTIONAL,
+    ul-CarrierFreq-EUTRA-r16            ARFCN-ValueEUTRA                                OPTIONAL, -- Cond FDD
+    transmissionBandwidth-EUTRA-r16     TransmissionBandwidth-EUTRA-r16                 OPTIONAL,
+    ...
+}
+
+TransmissionBandwidth-EUTRA-r16 ::= ENUMERATED {rb6, rb15, rb25, rb50, rb75, rb100}
 
 PH-TypeListSCG ::=                  SEQUENCE (SIZE (1..maxNrofServingCells)) OF PH-InfoSCG
 
@@ -394,7 +437,7 @@ CG-ConfigInfo-v1610-IEs ::=  SEQUENCE {
     }                                                                                                 OPTIONAL,
     scgFailureInfoEUTRA-r16                 SEQUENCE {
         failureTypeEUTRA-r16                    ENUMERATED { scg-lbtFailure-r16, beamFailureRecoveryFailure-r16,
-                                                         t312-Expiry-r16, bh-RLF-r16,
+                                                         t312-Expiry-r16, spare5,
                                                                      spare4, spare3, spare2, spare1},
         measResultSCG-EUTRA-r16                 OCTET STRING
     }                                                                                                 OPTIONAL,
@@ -405,8 +448,18 @@ CG-ConfigInfo-v1610-IEs ::=  SEQUENCE {
 
 CG-ConfigInfo-v1620-IEs ::=             SEQUENCE {
     ueAssistanceInformationSourceSCG-r16    OCTET STRING (CONTAINING UEAssistanceInformation)         OPTIONAL,
-    nonCriticalExtension                    SEQUENCE {}                                               OPTIONAL
+    nonCriticalExtension                    CG-ConfigInfo-v1640-IEs                                   OPTIONAL
 }
+
+CG-ConfigInfo-v1640-IEs ::=             SEQUENCE {
+	servCellInfoListMCG-NR-r16              ServCellInfoListMCG-NR-r16                   OPTIONAL,
+	servCellInfoListMCG-EUTRA-r16           ServCellInfoListMCG-EUTRA-r16                OPTIONAL,
+	nonCriticalExtension                    SEQUENCE {}                                  OPTIONAL
+}
+
+ServCellInfoListMCG-NR-r16 ::=          SEQUENCE (SIZE (1.. maxNrofServingCells)) OF  ServCellInfoXCG-NR-r16
+
+ServCellInfoListMCG-EUTRA-r16 ::=       SEQUENCE (SIZE (1.. maxNrofServingCellsEUTRA)) OF ServCellInfoXCG-EUTRA-r16
 
 SFTD-FrequencyList-NR ::=               SEQUENCE (SIZE (1..maxCellSFTD)) OF ARFCN-ValueNR
 
