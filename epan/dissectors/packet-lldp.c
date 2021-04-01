@@ -70,7 +70,7 @@ static int hf_ex_avaya_status = -1;
 static int hf_ex_avaya_i_sid = -1;
 
 static int hf_ex_avaya2_tlv_subtype = -1;
-static int hf_ex_avaya2_fabric_spbminstance = -1;
+static int hf_ex_avaya2_fabric_connect = -1;
 static int hf_ex_avaya2_fabric_numbvlans = -1;
 static int hf_ex_avaya2_fabric_bvlanid = -1;
 static int hf_ex_avaya2_fabric_sysidlength = -1;
@@ -774,9 +774,9 @@ static const value_string ex_avaya_subtypes[] = {
 };
 
 /* extreme avaya2 (fabric) subtypes */
-#define EX_AVAYA2_SUBTYPE_ZTFv2_TLV 4
+#define EX_AVAYA2_SUBTYPE_ZTFv2_FC_TLV 4
 static const value_string ex_avaya2_subtypes[] = {
-	{ EX_AVAYA2_SUBTYPE_ZTFv2_TLV, "Extreme Zero Touch Fabric v2 TLV" },
+	{ EX_AVAYA2_SUBTYPE_ZTFv2_FC_TLV, "Extreme Zero Touch Fabric v2 Fabric Connect TLV" },
 	{ 0, NULL }
 };
 
@@ -2776,8 +2776,8 @@ dissect_extreme_avaya2_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 	proto_tree_add_item(tree, hf_ex_avaya2_tlv_subtype, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset++;
 	switch (subType) {
-	case EX_AVAYA2_SUBTYPE_ZTFv2_TLV:  /* Zero Touch Fabric v2 TLV */
-		proto_tree_add_item(tree, hf_ex_avaya2_fabric_spbminstance, tvb, offset, 1, ENC_NA);
+	case EX_AVAYA2_SUBTYPE_ZTFv2_FC_TLV:  /* Zero Touch Fabric v2 Fabric Connect TLV */
+		proto_tree_add_item(tree, hf_ex_avaya2_fabric_connect, tvb, offset, 1, ENC_NA);
 		offset++;
 		proto_tree_add_item_ret_uint(tree, hf_ex_avaya2_fabric_numbvlans, tvb, offset, 1, ENC_NA, &numbvlans);
 		offset++;
@@ -4416,7 +4416,7 @@ dissect_organizational_specific_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 		subTypeStr = val_to_str(subType, ex_avaya2_subtypes, "Unknown subtype 0x%x");
 		switch(subType)
 		{
-		case EX_AVAYA2_SUBTYPE_ZTFv2_TLV: tempTree = ett_ex_avaya2SubTypes_4;
+		case EX_AVAYA2_SUBTYPE_ZTFv2_FC_TLV: tempTree = ett_ex_avaya2SubTypes_4;
 			break;
 		}
 		break;
@@ -6246,9 +6246,9 @@ proto_register_lldp(void)
 			{ "Subtype", "lldp.extreme_avaya.fabric.subtype", FT_UINT8, BASE_DEC,
 			VALS(ex_avaya2_subtypes), 0x0, NULL, HFILL }
 		},
-		{ &hf_ex_avaya2_fabric_spbminstance,
-			{ "SPBM Instance", "lldp.extreme_avaya.fabric.spbminstance", FT_UINT8, BASE_DEC,
-			NULL, 0x0, NULL, HFILL }
+		{ &hf_ex_avaya2_fabric_connect,
+			{ "FC Capability", "lldp.extreme_avaya.fabric.fabric_connect", FT_BOOLEAN, BASE_NONE,
+			TFS(&tfs_enabled_disabled), 0x0, "Fabric Connect aka auto-sense", HFILL }
 		},
 		{ &hf_ex_avaya2_fabric_numbvlans,
 			{ "Number B-VLANs", "lldp.extreme_avaya.fabric.numbvlans", FT_UINT8, BASE_DEC,
