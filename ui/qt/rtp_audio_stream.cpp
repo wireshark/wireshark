@@ -829,4 +829,28 @@ qint64 RtpAudioStream::sampleFileRead(SAMPLE *sample)
     return sample_file_->read((char *)sample, sizeof(SAMPLE));
 }
 
+bool RtpAudioStream::savePayload(QIODevice *file)
+{
+    for (int cur_packet = 0; cur_packet < rtp_packets_.size(); cur_packet++) {
+        // TODO: Update a progress bar here.
+        rtp_packet_t *rtp_packet = rtp_packets_[cur_packet];
+
+        if ((rtp_packet->info->info_payload_type != PT_CN) &&
+            (rtp_packet->info->info_payload_type != PT_CN_OLD)) {
+            // All other payloads
+            int64_t nchars;
+
+            if (rtp_packet->payload_data && (rtp_packet->info->info_payload_len > 0)) {
+                nchars = file->write((char *)rtp_packet->payload_data, rtp_packet->info->info_payload_len);
+                if (nchars != rtp_packet->info->info_payload_len) {
+                    return false;
+                }
+            }
+        }
+    }
+
+    return true;
+}
+
+
 #endif // QT_MULTIMEDIA_LIB

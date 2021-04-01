@@ -42,6 +42,11 @@ typedef enum {
     save_audio_wav
 } save_audio_t;
 
+typedef enum {
+    save_payload_none,
+    save_payload_data
+} save_payload_t;
+
 class RtpPlayerDialog : public WiresharkDialog
 {
     Q_OBJECT
@@ -150,6 +155,7 @@ private slots:
     void on_actionStop_triggered();
     void on_actionSaveAudioSyncStream_triggered();
     void on_actionSaveAudioSyncFile_triggered();
+    void on_actionSavePayload_triggered();
 
 private:
     Ui::RtpPlayerDialog *ui;
@@ -207,10 +213,12 @@ private:
 
     qint64 saveAudioHeaderAU(QFile *save_file, int channels, unsigned audio_rate);
     qint64 saveAudioHeaderWAV(QFile *save_file, int channels, unsigned audio_rate, qint64 samples);
-    void writeAudioStreamsSamples(QFile *out_file, QVector<RtpAudioStream *> streams, bool swap_bytes);
-    save_audio_t selectFileFormatAndName(QString *file_path);
+    bool writeAudioStreamsSamples(QFile *out_file, QVector<RtpAudioStream *> streams, bool swap_bytes);
+    save_audio_t selectFileAudioFormatAndName(QString *file_path);
+    save_payload_t selectFilePayloadFormatAndName(QString *file_path);
     QVector<RtpAudioStream *>getSelectedAudibleAudioStreams();
     void saveAudio(bool sync_to_stream);
+    void savePayload();
 
 #else // QT_MULTIMEDIA_LIB
 private:

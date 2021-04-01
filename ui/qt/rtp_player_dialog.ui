@@ -333,7 +333,7 @@
     <string>&amp;Export</string>
    </property>
    <property name="toolTip">
-    <string>Export audio of all unmuted selected channels.</string>
+    <string>Export audio of all unmuted selected channels or export payload of one channel.</string>
    </property>
   </action>
   <action name="actionSaveAudioSyncStream">
@@ -350,6 +350,14 @@
    </property>
    <property name="toolTip">
     <string>Save audio data synchronized to start of the capture file.</string>
+   </property>
+  </action>
+  <action name="actionSavePayload">
+   <property name="text">
+    <string>&amp;Payload</string>
+   </property>
+   <property name="toolTip">
+    <string>Save RTP payload of selected stream.</string>
    </property>
   </action>
   <action name="actionReset">

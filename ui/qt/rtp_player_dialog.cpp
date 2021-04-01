@@ -293,6 +293,8 @@ RtpPlayerDialog::RtpPlayerDialog(QWidget &parent, CaptureFile &cf) :
     QMenu *save_menu = new QMenu(export_btn);
     save_menu->addAction(ui->actionSaveAudioSyncStream);
     save_menu->addAction(ui->actionSaveAudioSyncFile);
+    save_menu->addSeparator();
+    save_menu->addAction(ui->actionSavePayload);
     save_menu->setToolTipsVisible(true);
     export_btn->setMenu(save_menu);
 
@@ -1946,7 +1948,7 @@ qint64 RtpPlayerDialog::saveAudioHeaderWAV(QFile *save_file, int channels, unsig
     return save_file->pos();
 }
 
-void RtpPlayerDialog::writeAudioStreamsSamples(QFile *out_file, QVector<RtpAudioStream *> streams, bool swap_bytes)
+bool RtpPlayerDialog::writeAudioStreamsSamples(QFile *out_file, QVector<RtpAudioStream *> streams, bool swap_bytes)
 {
     SAMPLE sample;
     uint8_t pd[2];
@@ -1956,24 +1958,34 @@ void RtpPlayerDialog::writeAudioStreamsSamples(QFile *out_file, QVector<RtpAudio
 
     while (read) {
         read = false;
+        // Loop over all streams, read one sample from each, write to output
         foreach(RtpAudioStream *audio_stream, streams) {
             if (sizeof(sample) == audio_stream->sampleFileRead(&sample)) {
                 if (swap_bytes) {
-                    phton16(pd, sample);
+                    // same as phton16(), but more clear in compare
+                    // to else branch
+                    pd[0] = (guint8)(sample >> 8);
+                    pd[1] = (guint8)(sample >> 0);
                 } else {
+                    // just copy
                     pd[1] = (guint8)(sample >> 8);
                     pd[0] = (guint8)(sample >> 0);
                 }
                 read = true;
             } else {
+                // for 0x0000 doesn't matter on order
                 phton16(pd, 0x0000);
             }
-            out_file->write((char *)&pd, sizeof(sample));
+            if (sizeof(sample) != out_file->write((char *)&pd, sizeof(sample))) {
+                return false;
+            }
         }
     }
+
+    return true;
 }
 
-save_audio_t RtpPlayerDialog::selectFileFormatAndName(QString *file_path)
+save_audio_t RtpPlayerDialog::selectFileAudioFormatAndName(QString *file_path)
 {
     QString ext_filter = "";
     QString ext_filter_wav = tr("WAV (*.wav)");
@@ -1994,6 +2006,27 @@ save_audio_t RtpPlayerDialog::selectFileFormatAndName(QString *file_path)
         save_format = save_audio_au;
     } else if (0 == QString::compare(sel_filter, ext_filter_wav)) {
         save_format = save_audio_wav;
+    }
+
+    return save_format;
+}
+
+save_payload_t RtpPlayerDialog::selectFilePayloadFormatAndName(QString *file_path)
+{
+    QString ext_filter = "";
+    QString ext_filter_raw = tr("Raw (*.raw)");
+    ext_filter.append(ext_filter_raw);
+
+    QString sel_filter;
+    *file_path = WiresharkFileDialog::getSaveFileName(
+                this, tr("Save payload"), wsApp->lastOpenDir().absoluteFilePath(""),
+                ext_filter, &sel_filter);
+
+    if (file_path->isEmpty()) return save_payload_none;
+
+    save_payload_t save_format = save_payload_none;
+    if (0 == QString::compare(sel_filter, ext_filter_raw)) {
+        save_format = save_payload_data;
     }
 
     return save_format;
@@ -2043,7 +2076,7 @@ void RtpPlayerDialog::saveAudio(bool sync_to_stream)
         }
     }
 
-    save_audio_t format = selectFileFormatAndName(&path);
+    save_audio_t format = selectFileAudioFormatAndName(&path);
     if (format == save_audio_none) return;
 
     // Use start silence and length of first stream
@@ -2075,23 +2108,63 @@ void RtpPlayerDialog::saveAudio(bool sync_to_stream)
     QFile file(path);
     file.open(QIODevice::WriteOnly);
 
-    switch (format) {
-        case save_audio_au:
-            if (-1 == saveAudioHeaderAU(&file, streams.count(), save_audio_rate)) {
-               QMessageBox::warning(this, tr("Error"), tr("Can't write header of AU file"));
-               return;
-            }
-            writeAudioStreamsSamples(&file, streams, true);
-            break;
-        case save_audio_wav:
-            if (-1 == saveAudioHeaderWAV(&file, streams.count(), save_audio_rate, (maxSample - startSample))) {
-               QMessageBox::warning(this, tr("Error"), tr("Can't write header of WAV file"));
-               return;
-            }
-            writeAudioStreamsSamples(&file, streams, false);
-            break;
-        case save_audio_none:
-            break;
+    if (!file.isOpen() || (file.error() != QFile::NoError)) {
+        QMessageBox::warning(this, tr("Warning"), tr("Save failed!"));
+    } else {
+        switch (format) {
+            case save_audio_au:
+                if (-1 == saveAudioHeaderAU(&file, streams.count(), save_audio_rate)) {
+                   QMessageBox::warning(this, tr("Error"), tr("Can't write header of AU file"));
+                   return;
+                }
+                if (!writeAudioStreamsSamples(&file, streams, true)) {
+                    QMessageBox::warning(this, tr("Warning"), tr("Save failed!"));
+                }
+                break;
+            case save_audio_wav:
+                if (-1 == saveAudioHeaderWAV(&file, streams.count(), save_audio_rate, (maxSample - startSample))) {
+                   QMessageBox::warning(this, tr("Error"), tr("Can't write header of WAV file"));
+                   return;
+                }
+                if (!writeAudioStreamsSamples(&file, streams, false)) {
+                    QMessageBox::warning(this, tr("Warning"), tr("Save failed!"));
+                }
+                break;
+            case save_audio_none:
+                break;
+        }
+    }
+
+    file.close();
+}
+
+void RtpPlayerDialog::savePayload()
+{
+    QString path;
+    QList<QTreeWidgetItem *> items;
+    RtpAudioStream *audio_stream = NULL;
+
+    items = ui->streamTreeWidget->selectedItems();
+    foreach(QTreeWidgetItem *ti, items) {
+        audio_stream = ti->data(stream_data_col_, Qt::UserRole).value<RtpAudioStream*>();
+        if (audio_stream)
+           break;
+    }
+    if (items.count() != 1 || !audio_stream) {
+        QMessageBox::warning(this, tr("Warning"), tr("Payload save works with just one audio stream."));
+        return;
+    }
+
+    save_payload_t format = selectFilePayloadFormatAndName(&path);
+    if (format == save_payload_none) return;
+
+    QFile file(path);
+    file.open(QIODevice::WriteOnly);
+
+    if (!file.isOpen() || (file.error() != QFile::NoError)) {
+        QMessageBox::warning(this, tr("Warning"), tr("Save failed!"));
+    } else if (!audio_stream->savePayload(&file)) {
+        QMessageBox::warning(this, tr("Warning"), tr("Save failed!"));
     }
 
     file.close();
@@ -2105,6 +2178,11 @@ void RtpPlayerDialog::on_actionSaveAudioSyncStream_triggered()
 void RtpPlayerDialog::on_actionSaveAudioSyncFile_triggered()
 {
     saveAudio(false);
+}
+
+void RtpPlayerDialog::on_actionSavePayload_triggered()
+{
+    savePayload();
 }
 
 #if 0

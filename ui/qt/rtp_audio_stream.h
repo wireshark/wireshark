@@ -154,6 +154,7 @@ public:
     qint64 sampleFileRead(SAMPLE *sample);
     qint64 getLeadSilenceSamples() { return prepend_samples_; }
     qint64 getTotalSamples() { return (sample_file_->size()/(qint64)sizeof(SAMPLE)); }
+    bool savePayload(QIODevice *file);
 
 signals:
     void processedSecs(double secs);
