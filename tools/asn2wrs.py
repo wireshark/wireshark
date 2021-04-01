@@ -713,7 +713,7 @@ class EthCtx:
             else:
                 attr.update(self.type[t]['attr'])
                 attr.update(self.eth_type[self.type[t]['ethname']]['attr'])
-        if attr['STRINGS'].startswith('VALS64('):
+        if attr['STRINGS'].startswith('VALS64(') and '|BASE_VAL64_STRING' not in attr['DISPLAY']:
             attr['DISPLAY'] += '|BASE_VAL64_STRING'
         #print " ", attr
         return attr
