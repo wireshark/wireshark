@@ -1451,6 +1451,23 @@ dissect_diameter_3gpp_location_estimate(tvbuff_t *tvb, packet_info *pinfo, proto
     return tvb_reported_length(tvb);
 }
 
+/* AVP Code: 1263 Access-Network-Information
+* 3GPP TS 32.299
+* The Access-Network-Information AVP (AVP code 1263) is of type OctetString
+* and indicates one instance of the SIP P-header "P-Access-Network-Info".
+* In SIP, as per RFC 7315 [404], the content of the "P-Access-Network-Info"
+* header is known as the access-net-spec.
+*/
+static int
+dissect_diameter_3gpp_access_network_information(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    int offset = 0;
+    int length = tvb_reported_length(tvb);
+
+    dissect_sip_p_access_network_info_header(tvb, tree, offset, length);
+
+    return length;
+}
 
 /* AVP Code: 1304 Secondary-RAT-Type
 * 3GPP TS 32.299
@@ -2955,6 +2972,9 @@ proto_reg_handoff_diameter_3gpp(void)
 
     /* AVP Code: 1242 location estimate */
     dissector_add_uint("diameter.3gpp", 1242, create_dissector_handle(dissect_diameter_3gpp_location_estimate, proto_diameter_3gpp));
+
+    /* AVP Code: 1263 Access-Network-Information */
+    dissector_add_uint("diameter.3gpp", 1263, create_dissector_handle(dissect_diameter_3gpp_access_network_information, proto_diameter_3gpp));
 
     /* AVP Code: 1304 Secondary-RAT-Type */
 	dissector_add_uint("diameter.3gpp", 1304, create_dissector_handle(dissect_diameter_3gpp_secondary_rat_type, proto_diameter_3gpp));

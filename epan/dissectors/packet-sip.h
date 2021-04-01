@@ -43,4 +43,6 @@ WS_DLL_PUBLIC const value_string sip_response_code_vals[];
 extern void dfilter_store_sip_from_addr(tvbuff_t *tvb, proto_tree *tree,
     guint parameter_offset, guint parameter_len);
 
+extern void dissect_sip_p_access_network_info_header(tvbuff_t *tvb, proto_tree *tree, gint start_offset, gint line_end_offset);
+
 #endif

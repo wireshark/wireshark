@@ -3044,7 +3044,7 @@ static void dissect_sip_session_id_header(tvbuff_t *tvb, proto_tree *tree, gint 
  *  gstn-location          = "gstn-location" EQUAL (token / quoted-string)
  *
  */
-static void dissect_sip_p_access_network_info_header(tvbuff_t *tvb, proto_tree *tree, gint start_offset, gint line_end_offset)
+void dissect_sip_p_access_network_info_header(tvbuff_t *tvb, proto_tree *tree, gint start_offset, gint line_end_offset)
 {
 
     gint  current_offset, semi_colon_offset, length, par_name_end_offset, equals_offset;
