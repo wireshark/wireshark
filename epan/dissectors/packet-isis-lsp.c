@@ -3894,42 +3894,48 @@ dissect_lsp_avaya_ipvpn(tvbuff_t *tvb, packet_info* pinfo _U_, proto_tree *tree,
         switch (subtype) {
         case 1:   /* Metric Type */
             if (sublength != 4) {
-            proto_tree_add_expert_format(subtlvtree, pinfo, &ei_isis_lsp_malformed_subtlv, tvb, offset, sublength,
+                proto_tree_add_expert_format(subtlvtree, pinfo, &ei_isis_lsp_malformed_subtlv, tvb, offset, sublength,
                                          "Unexpected Metric Type sub-TLV length (%d vs 4)", sublength);
+                offset += sublength;
+            } else {
+                proto_tree_add_item(subtlvtree, hf_isis_lsp_avaya_ipvpn_ipv4_metrictype, tvb, offset, 4, ENC_BIG_ENDIAN);
+                offset += 4;
             }
-            proto_tree_add_item(subtlvtree, hf_isis_lsp_avaya_ipvpn_ipv4_metrictype, tvb, offset, 4, ENC_BIG_ENDIAN);
-            offset += 4;
             break;
         case 135: /* IPv4 */
             if (sublength != 12) {
-            proto_tree_add_expert_format(subtlvtree, pinfo, &ei_isis_lsp_malformed_subtlv, tvb, offset, sublength,
+                proto_tree_add_expert_format(subtlvtree, pinfo, &ei_isis_lsp_malformed_subtlv, tvb, offset, sublength,
                                          "Unexpected IPv4 Reachability sub-TLV length (%d vs 12)", sublength);
-            }
-            proto_tree_add_item(subtlvtree, hf_isis_lsp_avaya_ipvpn_ipv4_metric, tvb, offset, 4, ENC_BIG_ENDIAN);
-            offset += 4;
-            ti_prefix = proto_tree_add_item(subtlvtree, hf_isis_lsp_avaya_ipvpn_ipv4_addr, tvb, offset, 4, ENC_BIG_ENDIAN);
-            offset += 4;
-            ti_pfxlen = proto_tree_add_item(subtlvtree, hf_isis_lsp_avaya_ipvpn_ipv4_mask, tvb, offset, 4, ENC_BIG_ENDIAN);
-            offset += 4;
-            proto_item_append_text(ti, ": %s/%s", proto_item_get_display_repr(wmem_packet_scope(), ti_prefix),
+                offset += sublength;
+            } else {
+                proto_tree_add_item(subtlvtree, hf_isis_lsp_avaya_ipvpn_ipv4_metric, tvb, offset, 4, ENC_BIG_ENDIAN);
+                offset += 4;
+                ti_prefix = proto_tree_add_item(subtlvtree, hf_isis_lsp_avaya_ipvpn_ipv4_addr, tvb, offset, 4, ENC_BIG_ENDIAN);
+                offset += 4;
+                ti_pfxlen = proto_tree_add_item(subtlvtree, hf_isis_lsp_avaya_ipvpn_ipv4_mask, tvb, offset, 4, ENC_BIG_ENDIAN);
+                offset += 4;
+                proto_item_append_text(ti, ": %s/%s", proto_item_get_display_repr(wmem_packet_scope(), ti_prefix),
                                                   proto_item_get_display_repr(wmem_packet_scope(), ti_pfxlen));
+            }
             break;
         case 236: /* IPv6 */
             if (sublength != 22) {
-            proto_tree_add_expert_format(subtlvtree, pinfo, &ei_isis_lsp_malformed_subtlv, tvb, offset, sublength,
+                proto_tree_add_expert_format(subtlvtree, pinfo, &ei_isis_lsp_malformed_subtlv, tvb, offset, sublength,
                                          "Unexpected IPv6 Reachability sub-TLV length (%d vs 22)", sublength);
-            }
-            proto_tree_add_item(subtlvtree, hf_isis_lsp_avaya_ipvpn_ipv6_metric, tvb, offset, 4, ENC_BIG_ENDIAN);
-            offset += 4;
-            ti_pfxlen = proto_tree_add_item(subtlvtree, hf_isis_lsp_avaya_ipvpn_ipv6_prefixlen, tvb, offset, 2, ENC_BIG_ENDIAN);
-            offset += 2;
-            ti_prefix = proto_tree_add_item(subtlvtree, hf_isis_lsp_avaya_ipvpn_ipv6_prefix, tvb, offset, 16, ENC_NA);
-            offset += 16;
-            proto_item_append_text(ti, ": %s/%s", proto_item_get_display_repr(wmem_packet_scope(), ti_prefix),
+                offset += sublength;
+            } else {
+                proto_tree_add_item(subtlvtree, hf_isis_lsp_avaya_ipvpn_ipv6_metric, tvb, offset, 4, ENC_BIG_ENDIAN);
+                offset += 4;
+                ti_pfxlen = proto_tree_add_item(subtlvtree, hf_isis_lsp_avaya_ipvpn_ipv6_prefixlen, tvb, offset, 2, ENC_BIG_ENDIAN);
+                offset += 2;
+                ti_prefix = proto_tree_add_item(subtlvtree, hf_isis_lsp_avaya_ipvpn_ipv6_prefix, tvb, offset, 16, ENC_NA);
+                offset += 16;
+                proto_item_append_text(ti, ": %s/%s", proto_item_get_display_repr(wmem_packet_scope(), ti_prefix),
                                                   proto_item_get_display_repr(wmem_packet_scope(), ti_pfxlen));
+            }
             break;
         default:
-            proto_tree_add_item(subtlvtree, hf_isis_lsp_avaya_ipvpn_unknown_sub, tvb, offset, 4, ENC_NA);
+            proto_tree_add_item(subtlvtree, hf_isis_lsp_avaya_ipvpn_unknown_sub, tvb, offset, sublength, ENC_NA);
             proto_tree_add_expert_format(subtlvtree, pinfo, &ei_isis_lsp_unknown_subtlv, tvb, offset, sublength,
                                          "Unknown Avaya IPVPN subTLV (%d): Please report to Wireshark developers.", subtype);
             offset += sublength;
