@@ -226,7 +226,7 @@ static int dissect_bencoding_rec(tvbuff_t *tvb, packet_info *pinfo,
          length -= op1len + op2len;
       }
 
-      proto_tree_add_item(dtree, hf_bencode_truncated_data, tvb, offset + used, -1, ENC_NA);
+      proto_tree_add_item(dtree, hf_bencode_truncated_data, tvb, offset + used, length ? -1 : 0, ENC_NA);
       return -1;
 
    case 'l':
