@@ -1172,6 +1172,7 @@ pbl_free_node(gpointer anode)
     if (node->children_by_name) {
         g_hash_table_destroy(node->children_by_name);
     }
+    g_free(node);
 }
 
 /*

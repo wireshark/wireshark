@@ -524,7 +524,7 @@ exIdent ::= PT_IDENT.
 
 strLit(A) ::= PT_STRLIT(B).  { A = pbl_store_string_token(state, g_strndup(B->v + 1, strlen(B->v) - 2)); }
 /* support one string being splitted into multi-lines */
-strLit(A) ::= strLit(B) PT_STRLIT(C). { A = pbl_store_string_token(state, g_strconcat(B, g_strndup(C->v + 1, strlen(C->v) - 2), NULL)); }
+strLit(A) ::= strLit(B) PT_STRLIT(C). { gchar *v = g_strndup(C->v + 1, strlen(C->v) - 2); A = pbl_store_string_token(state, g_strconcat(B, v, NULL)); g_free(v); }
 
 %code {
 
