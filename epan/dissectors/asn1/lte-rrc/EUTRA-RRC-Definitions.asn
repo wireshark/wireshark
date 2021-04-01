@@ -1,4 +1,4 @@
--- 3GPP TS 36.331 V16.3.0 (2020-12)
+-- 3GPP TS 36.331 V16.4.0 (2021-03)
 
 EUTRA-RRC-Definitions DEFINITIONS AUTOMATIC TAGS ::=
 
@@ -1827,7 +1827,7 @@ RRCConnectionRelease-v1320-IEs::=	SEQUENCE {
 }
 
 RRCConnectionRelease-v1530-IEs ::=	SEQUENCE {
-	drb-ContinueROHC-r15				ENUMERATED {true}			OPTIONAL,	-- Cond UP-EDT
+	drb-ContinueROHC-r15				ENUMERATED {true}			OPTIONAL,	-- Cond UP-EDTorPUR
 	nextHopChainingCount-r15			NextHopChainingCount		OPTIONAL,	-- Cond EarlySec
 	measIdleConfig-r15					MeasIdleConfigDedicated-r15	OPTIONAL,	-- Need ON
 	rrc-InactiveConfig-r15				RRC-InactiveConfig-r15		OPTIONAL,	-- Need OR
@@ -1850,7 +1850,7 @@ RRCConnectionRelease-v1610-IEs ::=	SEQUENCE {
 	shortI-RNTI-r16					ShortI-RNTI-r15 				OPTIONAL, -- Need OR
 	pur-Config-r16						CHOICE {release NULL, setup PUR-Config-r16}	OPTIONAL, -- Need ON
 	rrc-InactiveConfig-v1610			RRC-InactiveConfig-v1610	OPTIONAL,  -- Cond BLCE-IDLEeDRX
-	releaseIdleMeasConfig				ENUMERATED {true}			OPTIONAL, -- Need ON
+	releaseIdleMeasConfig-r16			ENUMERATED {true}			OPTIONAL, -- Need ON
 	altFreqPriorities-r16				ENUMERATED {true}			OPTIONAL, -- Need ON
 	t323-r16							ENUMERATED {
 										min5, min10, min20, min30, min60, min120, min180,
@@ -3594,6 +3594,11 @@ RLF-Report-r9 ::=					SEQUENCE {
 			}
 		}																	OPTIONAL,
 		timeUntilReconnection-r16		TimeUntilReconnection-r16			OPTIONAL
+	]],
+	[[	measResultListNR-v1640			SEQUENCE {
+			carrierFreqNR-r16				ARFCN-ValueNR-r15
+		}																	OPTIONAL,
+		measResultListExtNR-r16			MeasResultFreqListNR-r16		OPTIONAL
 	]]
 }
 
@@ -3681,6 +3686,11 @@ LogMeasInfo-r10 ::=		SEQUENCE {
 	[[	anyCellSelectionDetected-r15		ENUMERATED {true}			OPTIONAL
 	]],
 	[[	measResultListNR-r16				MeasResultCellListNR-r15	OPTIONAL
+	]],
+	[[	measResultListNR-v1640			SEQUENCE {
+			carrierFreqNR-r16				ARFCN-ValueNR-r15
+		}																	OPTIONAL,
+		measResultListExtNR-r16			MeasResultFreqListNR-r16		OPTIONAL
 	]]
 }
 
@@ -3717,6 +3727,8 @@ BLER-Range-r12 ::=						INTEGER(0..31)
 
 MeasResultList2GERAN-r10 ::=			SEQUENCE (SIZE (1..maxCellListGERAN)) OF MeasResultListGERAN
 
+MeasResultFreqListNR-r16::=		SEQUENCE (SIZE (1..maxFreq-1-r16)) OF MeasResultFreqFailNR-r15
+
 ConnEstFailReport-r11 ::=				SEQUENCE {
 	failedCellId-r11					CellGlobalIdEUTRA,
 	locationInfo-r11					LocationInfo-r10					OPTIONAL,
@@ -3746,6 +3758,11 @@ ConnEstFailReport-r11 ::=				SEQUENCE {
 		logMeasResultListWLAN-r15		LogMeasResultListWLAN-r15			OPTIONAL
 	]],
 	[[	measResultListNR-r16			MeasResultCellListNR-r15			OPTIONAL
+	]],
+	[[	measResultListNR-v1640			SEQUENCE {
+			carrierFreqNR-r16				ARFCN-ValueNR-r15
+		}																	OPTIONAL,
+		measResultListExtNR-r16			MeasResultFreqListNR-r16		OPTIONAL
 	]]
 }
 
@@ -8504,7 +8521,7 @@ DRB-ToAddMod ::=	SEQUENCE {
 		rlc-BearerConfigSecondary-r15		RLC-BearerConfig-r15	OPTIONAL,		-- Need ON
 		logicalChannelIdentity-r15			INTEGER (32..38)		OPTIONAL		-- Need ON
 	]],
-	[[	daps-HO-r16							ENUMERATED {true}		OPTIONAL		-- Cond NotFullConfigHO
+	[[	daps-HO-r16							ENUMERATED {true}		OPTIONAL		-- Cond DAPS
 	]]
 }
 
@@ -13819,7 +13836,7 @@ BandParameters-v1530 ::=	SEQUENCE {
 BandParameters-v1610 ::= 	SEQUENCE {
 	intraFreqDAPS-r16		SEQUENCE {
 		intraFreqAsyncDAPS-r16					ENUMERATED {supported}		OPTIONAL,
-		intraFreqMultiUL-TransmissionDAPS-r16	ENUMERATED {supported}		OPTIONAL,
+		dummy									ENUMERATED {supported}		OPTIONAL,
 		intraFreqTwoTAGs-DAPS-r16				ENUMERATED {supported}		OPTIONAL
 	}																	OPTIONAL,
 	addSRS-FrequencyHopping-r16 ENUMERATED {supported}			OPTIONAL,
@@ -16075,6 +16092,7 @@ maxFeatureSets-r15			INTEGER ::= 256	-- Total number of feature sets (size of po
 maxPerCC-FeatureSets-r15	INTEGER ::= 32	-- Total number of CC-specific feature sets
 												-- (size of the pool)
 maxFreq						INTEGER ::= 8	-- Maximum number of carrier frequencies
+maxFreq-1-r16				INTEGER ::= 7	-- Maximum number of carrier frequencies
 maxFreqIDC-r11				INTEGER ::= 32	-- Maximum number of carrier frequencies that are
 											-- affected by the IDC problems
 maxFreqIdle-r15				INTEGER ::= 8	-- Maximum number of carrier frequencies for
