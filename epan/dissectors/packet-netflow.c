@@ -156,6 +156,7 @@ void proto_reg_handoff_netflow(void);
 #define REVPEN            29305
 static dissector_handle_t netflow_handle;
 static dissector_handle_t netflow_tcp_handle;
+static dissector_handle_t eth_handle;
 
 /* If you want sort of safely to send enterprise specific element IDs
    using v9 you need to stake a claim in the wilds with the high bit
@@ -303,6 +304,7 @@ typedef enum {
     TF_CISCO,
     TF_NIAGARA_NETWORKS,
     TF_FASTIP,
+    TF_JUNIPER,
     TF_NO_VENDOR_INFO
 } v9_v10_tmplt_fields_type_t;
 #define TF_NUM 2
@@ -2042,6 +2044,23 @@ static const value_string v10_template_types_fastip[] = {
 };
 static value_string_ext v10_template_types_fastip_ext = VALUE_STRING_EXT_INIT(v10_template_types_fastip);
 
+static const value_string v10_template_types_juniper[] = {
+    {137, "OBSERVATION_DOMAIN_LEVEL_JUNIPER_COMMON_PROPERTIES"},
+    {0, NULL}
+};
+static value_string_ext v10_template_types_juniper_ext = VALUE_STRING_EXT_INIT(v10_template_types_juniper);
+
+static const value_string v10_juniper_cpid[] = {
+    {1, "Forwarding Class and Drop Priority"},
+    {2, "Forwarding Exception Details"},
+    {3, "Forwarding Nexthop Details"},
+    {4, "Egress Interface Details"},
+    {5, "Ingress Underlying Interface Details"},
+    {6, "Ingress Interface Details"},
+    {0, NULL}
+};
+static value_string_ext v10_juniper_cpid_ext = VALUE_STRING_EXT_INIT(v10_juniper_cpid);
+
 static const value_string v9_scope_field_types[] = {
     { 1, "System" },
     { 2, "Interface" },
@@ -2226,6 +2245,8 @@ static int      ett_fwdstat             = -1;
 static int      ett_mpls_label          = -1;
 static int      ett_tcpflags            = -1;
 static int      ett_subtemplate_list    = -1;
+static int      ett_resiliency          = -1;
+static int      ett_data_link_frame_sec = -1;
 /*
  * cflow header
  */
@@ -2295,6 +2316,7 @@ static int      hf_cflow_template_gigamon_field_type                = -1;
 static int      hf_cflow_template_cisco_field_type                  = -1;
 static int      hf_cflow_template_niagara_networks_field_type       = -1;
 static int      hf_cflow_template_fastip_field_type                 = -1;
+static int      hf_cflow_template_juniper_field_type                = -1;
 
 
 /*
@@ -3594,6 +3616,12 @@ static int      hf_pie_fastip_tcp_flags                          = -1;
 static int      hf_pie_fastip_tcp_handshake_rtt_usec             = -1;
 static int      hf_pie_fastip_app_rtt_usec                       = -1;
 
+static int      hf_pie_juniper                                   = -1;
+static int      hf_pie_juniper_cpid_16bit                        = -1;
+static int      hf_pie_juniper_cpid_32bit                        = -1;
+static int      hf_pie_juniper_cpdesc_16bit                      = -1;
+static int      hf_pie_juniper_cpdesc_32bit                      = -1;
+
 static int      hf_string_len_short = -1;
 static int      hf_string_len_long  = -1;
 
@@ -3811,6 +3839,8 @@ pen_to_type_hf_list(guint32 pen) {
         return TF_NIAGARA_NETWORKS;
     case VENDOR_FASTIP:
         return TF_FASTIP;
+    case VENDOR_JUNIPER:
+        return TF_JUNIPER;
     default:
         return TF_NO_VENDOR_INFO;
     }
@@ -4828,6 +4858,9 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
     int                   string_len_long = 0;
 
     proto_tree           *string_tree;
+    proto_tree           *dl_frame_sec_tree;
+    proto_tree           *juniper_resilincy_tree;
+    guint32               cpid, cpdesc;
 
     gchar                *gen_str = NULL;
     int                   gen_str_offset = 0;
@@ -4846,7 +4879,8 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
                          barracuda_pie_seen = FALSE,
                          gigamon_pie_seen = FALSE,
                          cisco_pie_seen = FALSE,
-                         niagara_networks_pie_seen = FALSE;
+                         niagara_networks_pie_seen = FALSE,
+                         juniper_networks_pie_seen = FALSE;
 
 
     guint8       ip_protocol = 0;
@@ -4992,6 +5026,13 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
                     proto_item *pie_niagara_networks_ti = proto_tree_add_item(pdutree, hf_pie_niagara_networks, tvb, 0, 0, ENC_NA);
                     proto_item_set_hidden(pie_niagara_networks_ti);
                     niagara_networks_pie_seen = TRUE;
+                }
+                break;
+            case VENDOR_JUNIPER:
+                if(!juniper_networks_pie_seen) {
+                    proto_item *pie_juniper_ti = proto_tree_add_item(pdutree, hf_pie_juniper, tvb, 0, 0, ENC_NA);
+                    proto_item_set_hidden(pie_juniper_ti);
+                    juniper_networks_pie_seen = TRUE;
                 }
                 break;
 
@@ -6561,9 +6602,51 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
                                      tvb, offset, length, ENC_NA);
             break;
 
-        case 315:
-            ti = proto_tree_add_item(pdutree, hf_cflow_data_link_frame_section,
-                                     tvb, offset, length, ENC_NA);
+        case 315: /* Data Link Frame Section */
+            {
+                gboolean save_writable;
+                address save_dl_src, save_dl_dst, save_net_src, save_net_dst, save_src, save_dst;
+                ti = proto_tree_add_item(pdutree, hf_cflow_data_link_frame_section,
+                        tvb, offset, length, ENC_NA);
+                dl_frame_sec_tree = proto_item_add_subtree (ti, ett_data_link_frame_sec);
+                tvbuff_t *tvb_new = tvb_new_subset_length (tvb, offset, length);
+
+                /* Before passing the packet to the eth dissector to decode IE315,
+                 * need to save the addresses of the current netflow packet.
+                 * This is because when we pass the packet to the next dissector,
+                 * it will overwrite the info column
+                 * (which currently displays the addresses of the netflow packet)
+                 * with the addresses of the l2 packet carried by IE315.
+                 * Once the decode of this IE is done we rewrite the info column with
+                 * the saved addresses.
+                 */
+
+                /* Save Writable Context */
+                save_writable = col_get_writable (pinfo->cinfo, -1);
+
+                /* Disable overwriting of the info column by the sub dissectors*/
+                col_set_writable (pinfo->cinfo, -1, FALSE);
+                /* Save the source and destination addresses */
+                copy_address_shallow(&save_dl_src, &pinfo->dl_src);
+                copy_address_shallow(&save_dl_dst, &pinfo->dl_dst);
+                copy_address_shallow(&save_net_src, &pinfo->net_src);
+                copy_address_shallow(&save_net_dst, &pinfo->net_dst);
+                copy_address_shallow(&save_src, &pinfo->src);
+                copy_address_shallow(&save_dst, &pinfo->dst);
+
+                /* Call the L2 dissector */
+                call_dissector(eth_handle, tvb_new, pinfo, dl_frame_sec_tree);
+
+                /* reset the state of the info column */
+                col_set_writable (pinfo->cinfo, -1, save_writable);
+                /* Copy back the source and the destination addresses */
+                copy_address_shallow(&pinfo->dl_src, &save_dl_src);
+                copy_address_shallow(&pinfo->dl_dst, &save_dl_dst);
+                copy_address_shallow(&pinfo->net_src, &save_net_src);
+                copy_address_shallow(&pinfo->net_dst, &save_net_dst);
+                copy_address_shallow(&pinfo->src, &save_src);
+                copy_address_shallow(&pinfo->dst, &save_dst);
+            }
             break;
 
         case 316: /* mplsLabelStackSection */
@@ -11465,6 +11548,38 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
 
             /* END Niagara Networks */
 
+            /* START Juniper Networks */
+        case ((VENDOR_JUNIPER << 16) | 137):   /* Juniper Resiliency */
+           juniper_resilincy_tree  = proto_tree_add_subtree_format (pdutree, tvb, offset, length,
+                                        ett_resiliency, NULL,
+                                        "Observation Cloud Level Juniper Common Properties");
+
+            if (length == 2){
+                proto_tree_add_item_ret_uint (juniper_resilincy_tree, hf_pie_juniper_cpid_16bit,
+                                                    tvb, offset, length, ENC_BIG_ENDIAN, &cpid);
+                proto_item_append_text (juniper_resilincy_tree, ": %s", val_to_str_ext(cpid, &v10_juniper_cpid_ext, " "));
+
+                ti = proto_tree_add_item_ret_uint (juniper_resilincy_tree, hf_pie_juniper_cpdesc_16bit,
+                                                    tvb, offset, length, ENC_BIG_ENDIAN, &cpdesc);
+            }
+            else if (length == 4){
+                proto_tree_add_item_ret_uint (juniper_resilincy_tree, hf_pie_juniper_cpid_32bit,
+                                                    tvb, offset, length, ENC_BIG_ENDIAN, &cpid);
+                proto_item_append_text (juniper_resilincy_tree, ": %s", val_to_str_ext(cpid, &v10_juniper_cpid_ext, " "));
+
+                ti = proto_tree_add_item_ret_uint (juniper_resilincy_tree, hf_pie_juniper_cpdesc_32bit,
+                                                    tvb, offset, length, ENC_BIG_ENDIAN, &cpdesc);
+            }
+            if (cpid == 0x01){
+                int fwd_class, drop_pr;
+                fwd_class = (cpdesc << 2) & 0xF0;
+                drop_pr = (cpdesc << 2) & 0x0F;
+                proto_item_append_text (ti, " [Forwarding class: %d  Drop Priority: %x]", fwd_class, drop_pr);
+            }
+            break;
+
+            /* END Juniper Networks */
+
         default:  /* Unknown Field ID */
             if ((hdrinfo_p->vspec == 9) || (pen == REVPEN)) {
                 ti = proto_tree_add_bytes_format_value(pdutree, hf_cflow_unknown_field_type,
@@ -11560,7 +11675,9 @@ static int * const v10_template_type_hf_list[TF_NUM_EXT] = {
     &hf_cflow_template_cisco_field_type,
     &hf_cflow_template_niagara_networks_field_type,
     &hf_cflow_template_fastip_field_type,
+    &hf_cflow_template_juniper_field_type,
     NULL};
+
 
 static value_string_ext *v9_template_type_vse_list[TF_NUM] = {
     &v9_scope_field_types_ext,                      /* scope */
@@ -11577,7 +11694,10 @@ static value_string_ext *v10_template_type_vse_list[TF_NUM_EXT] = {
     &v10_template_types_cisco_ext,
     &v10_template_types_niagara_networks_ext,
     &v10_template_types_fastip_ext,
+    &v10_template_types_juniper_ext,
     NULL};
+
+
 
 static int
 dissect_v9_v10_template_fields(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tmplt_tree, int offset,
@@ -14675,6 +14795,11 @@ proto_register_netflow(void)
         {&hf_cflow_template_fastip_field_type,
          {"Type", "cflow.template_fastip_field_type",
           FT_UINT16, BASE_DEC|BASE_EXT_STRING, &v10_template_types_fastip_ext, 0x7FFF,
+          "Template field type", HFILL}
+        },
+        {&hf_cflow_template_juniper_field_type,
+         {"Juniper Resiliency", "cflow.template_juniper_resiliency_type",
+          FT_UINT16, BASE_DEC|BASE_EXT_STRING, &v10_template_types_juniper_ext, 0x7FFF,
           "Template field type", HFILL}
         },
         {&hf_cflow_template_ipfix_field_type_enterprise,
@@ -19366,6 +19491,37 @@ proto_register_netflow(void)
           NULL, HFILL}
         },
 
+        /* Juniper Networks root (a hidden item to allow filtering) */
+        {&hf_pie_juniper,
+         {"JuniperNetworks", "cflow.pie.juniper",
+          FT_NONE, BASE_NONE, NULL, 0x0,
+          NULL, HFILL}
+        },
+       /* Juniper Networks, 2636 / 137 */
+        {&hf_pie_juniper_cpid_16bit,
+         {"Juniper CPID Type", "cflow.pie.juniper.resiliency.cpid",
+          FT_UINT16, BASE_HEX, VALS(v10_juniper_cpid), 0xFC00,
+          NULL, HFILL}
+        },
+       /* Juniper Networks, 2636 / 137 */
+        {&hf_pie_juniper_cpdesc_16bit,
+         {"Juniper CPID Value", "cflow.pie.juniper.resiliency.cpdesc",
+          FT_UINT16, BASE_DEC, NULL, 0X03FF,
+          NULL, HFILL}
+        },
+       /* Juniper Networks, 2636 / 137 */
+        {&hf_pie_juniper_cpid_32bit,
+         {"Juniper CPID Type", "cflow.pie.juniper.resiliency.cpid",
+          FT_UINT32, BASE_HEX, VALS(v10_juniper_cpid), 0xFC000000,
+          NULL, HFILL}
+        },
+       /* Juniper Networks, 2636 / 137 */
+        {&hf_pie_juniper_cpdesc_32bit,
+         {"Juniper CPID Value", "cflow.pie.juniper.resiliency.cpdesc",
+          FT_UINT32, BASE_DEC, NULL, 0X03FFFFFF,
+          NULL, HFILL}
+        },
+
 
         {&hf_string_len_short,
          {"String_len_short", "cflow.string_len_short",
@@ -19412,7 +19568,9 @@ proto_register_netflow(void)
         &ett_fwdstat,
         &ett_mpls_label,
         &ett_tcpflags,
-        &ett_subtemplate_list
+        &ett_subtemplate_list,
+        &ett_resiliency,
+        &ett_data_link_frame_sec
     };
 
     static ei_register_info ei[] = {
@@ -19555,6 +19713,9 @@ proto_reg_handoff_netflow(void)
     static gboolean  netflow_prefs_initialized = FALSE;
     static range_t  *netflow_ports;
     static range_t  *ipfix_ports;
+
+    /* Find eth_handle used for IE315*/
+    eth_handle = find_dissector ("eth_withoutfcs");
 
     if (!netflow_prefs_initialized) {
         netflow_handle = create_dissector_handle(dissect_netflow, proto_netflow);
