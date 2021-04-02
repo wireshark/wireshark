@@ -12,23 +12,14 @@
 
 #include <glib.h>
 
-#if 0
-#include <epan/epan.h>
-#include <wiretap/wtap.h>
-#endif
 #include <epan/wmem/wmem.h>
 #include <epan/packet_info.h>
 #include <epan/proto_data.h>
 #include <epan/proto.h>
-#if 0
-#include <epan/packet.h>
-#endif
-#if 0
-#include <epan/timestamp.h>
-#endif
 
 /* Protocol-specific data attached to a frame_data structure - protocol
-   index and opaque pointer. */
+   index, key for multiple items with the same protocol index,
+   and opaque pointer. */
 typedef struct _proto_data {
   int   proto;
   guint32 key;
