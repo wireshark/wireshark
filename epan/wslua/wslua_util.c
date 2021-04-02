@@ -142,6 +142,7 @@ WSLUA_FUNCTION wslua_get_preference(lua_State *L) {
         module_t *module = prefs_find_module(module_name);
         pref = prefs_find_preference(module, preference_name);
     }
+    g_free (module_name);
 
     if (pref) {
         switch (prefs_get_type(pref)) {
@@ -200,7 +201,6 @@ WSLUA_FUNCTION wslua_get_preference(lua_State *L) {
         lua_pushnil(L);
     }
 
-    g_free (module_name);
     WSLUA_RETURN(1); /* The preference value, or nil if not found. */
 }
 
@@ -223,6 +223,7 @@ WSLUA_FUNCTION wslua_set_preference(lua_State *L) {
         module = prefs_find_module(module_name);
         pref = prefs_find_preference(module, preference_name);
     }
+    g_free (module_name);
 
     if (pref) {
         unsigned int changed = 0;
@@ -287,7 +288,6 @@ WSLUA_FUNCTION wslua_set_preference(lua_State *L) {
         lua_pushnil(L);
     }
 
-    g_free(module_name);
     WSLUA_RETURN(1); /* true if changed, false if unchanged or nil if not found. */
 }
 
