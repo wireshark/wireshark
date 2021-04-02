@@ -750,7 +750,7 @@ main(int argc, char *argv[])
   volatile int         in_file_type = WTAP_TYPE_AUTO;
   gchar               *volatile cf_name = NULL;
   gchar               *rfilter = NULL;
-  gchar               *dfilter = NULL;
+  gchar               *volatile dfilter = NULL;
   dfilter_t           *rfcode = NULL;
   dfilter_t           *dfcode = NULL;
   e_prefs             *prefs_p;
@@ -1457,7 +1457,7 @@ main(int argc, char *argv[])
       /* already processed; just ignore it now */
       break;
     case 'Y':
-      dfilter = optarg;
+      dfilter = g_strdup(optarg);
       break;
     case 'z':
       /* We won't call the init function for the stat this soon
@@ -2344,6 +2344,7 @@ clean_exit:
   wtap_cleanup();
   free_progdirs();
   dfilter_free(dfcode);
+  g_free(dfilter);
   return exit_status;
 }
 
