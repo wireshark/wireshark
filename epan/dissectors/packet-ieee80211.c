@@ -5490,6 +5490,36 @@ static int hf_ieee80211_vht_ndp_annc_sta_info_feedback_type = -1;
 static int hf_ieee80211_vht_ndp_annc_sta_info_nc_index = -1;
 static int hf_ieee80211_vht_ndp_annc_sta_info_reserved = -1;
 
+static int hf_ieee80211_vht_ndp_annc_sta_info_ranging_2008 = -1;
+static int hf_ieee80211_vht_ndp_annc_sta_info_ranging_2008_aid11 = -1;
+static int hf_ieee80211_vht_ndp_annc_sta_info_ranging_2008_ltf_offset = -1;
+static int hf_ieee80211_vht_ndp_annc_sta_info_ranging_2008_r2i_n_sts = -1;
+static int hf_ieee80211_vht_ndp_annc_sta_info_ranging_2008_r2i_rep = -1;
+static int hf_ieee80211_vht_ndp_annc_sta_info_ranging_2008_i2r_n_sts = -1;
+static int hf_ieee80211_vht_ndp_annc_sta_info_ranging_2008_reserved1 = -1;
+static int hf_ieee80211_vht_ndp_annc_sta_info_ranging_2008_disambiguation = -1;
+static int hf_ieee80211_vht_ndp_annc_sta_info_ranging_2008_i2r_rep = -1;
+static int hf_ieee80211_vht_ndp_annc_sta_info_ranging_2008_reserved2 = -1;
+
+static int hf_ieee80211_vht_ndp_annc_sta_info_ranging_2043 = -1;
+static int hf_ieee80211_vht_ndp_annc_sta_info_ranging_2043_aid11 = -1;
+static int hf_ieee80211_vht_ndp_annc_sta_info_ranging_2043_sac = -1;
+static int hf_ieee80211_vht_ndp_annc_sta_info_ranging_2043_disambiguation = -1;
+static int hf_ieee80211_vht_ndp_annc_sta_info_ranging_2043_reserved = -1;
+
+static int hf_ieee80211_vht_ndp_annc_sta_info_ranging_2044 = -1;
+static int hf_ieee80211_vht_ndp_annc_sta_info_ranging_2044_aid11 = -1;
+static int hf_ieee80211_vht_ndp_annc_sta_info_ranging_2044_partial_tsf = -1;
+static int hf_ieee80211_vht_ndp_annc_sta_info_ranging_2044_disambiguation = -1;
+static int hf_ieee80211_vht_ndp_annc_sta_info_ranging_2044_reserved = -1;
+static int hf_ieee80211_vht_ndp_annc_sta_info_ranging_2044_token = -1;
+
+static int hf_ieee80211_vht_ndp_annc_sta_info_ranging_2045 = -1;
+static int hf_ieee80211_vht_ndp_annc_sta_info_ranging_2045_aid11 = -1;
+static int hf_ieee80211_vht_ndp_annc_sta_info_ranging_2045_i2r_ndp_tx_power = -1;
+static int hf_ieee80211_vht_ndp_annc_sta_info_ranging_2045_r2i_ndp_target_rssi = -1;
+static int hf_ieee80211_vht_ndp_annc_sta_info_ranging_2045_disambiguation = -1;
+static int hf_ieee80211_vht_ndp_annc_sta_info_ranging_2045_reserved = -1;
 
 static int hf_ieee80211_ff_vht_action = -1;
 static int hf_ieee80211_ff_vht_mimo_cntrl = -1;
@@ -7305,6 +7335,8 @@ static gint ett_vht_tpe_info_tree = -1;
 static gint ett_vht_ndp_annc = -1;
 static gint ett_vht_ndp_annc_sta_info_tree = -1;
 static gint ett_vht_ndp_annc_sta_list = -1;
+
+static gint ett_vht_ranging_annc = -1;
 
 static gint ett_ff_he_action = -1;
 static gint ett_ff_protected_he_action = -1;
@@ -30885,17 +30917,58 @@ static int * const vht_ndp_headers[] = {
   NULL
 };
 
+static int * const sta_info_ranging_2008[] = {
+  &hf_ieee80211_vht_ndp_annc_sta_info_ranging_2008_aid11,
+  &hf_ieee80211_vht_ndp_annc_sta_info_ranging_2008_ltf_offset,
+  &hf_ieee80211_vht_ndp_annc_sta_info_ranging_2008_r2i_n_sts,
+  &hf_ieee80211_vht_ndp_annc_sta_info_ranging_2008_r2i_rep,
+  &hf_ieee80211_vht_ndp_annc_sta_info_ranging_2008_i2r_n_sts,
+  &hf_ieee80211_vht_ndp_annc_sta_info_ranging_2008_reserved1,
+  &hf_ieee80211_vht_ndp_annc_sta_info_ranging_2008_disambiguation,
+  &hf_ieee80211_vht_ndp_annc_sta_info_ranging_2008_i2r_rep,
+  &hf_ieee80211_vht_ndp_annc_sta_info_ranging_2008_reserved2,
+  NULL
+};
+
+static int * const sta_info_ranging_2043[] = {
+  &hf_ieee80211_vht_ndp_annc_sta_info_ranging_2043_aid11,
+  &hf_ieee80211_vht_ndp_annc_sta_info_ranging_2043_sac,
+  &hf_ieee80211_vht_ndp_annc_sta_info_ranging_2043_disambiguation,
+  &hf_ieee80211_vht_ndp_annc_sta_info_ranging_2043_reserved,
+  NULL
+};
+
+static int * const sta_info_ranging_2044[] = {
+  &hf_ieee80211_vht_ndp_annc_sta_info_ranging_2044_aid11,
+  &hf_ieee80211_vht_ndp_annc_sta_info_ranging_2044_partial_tsf,
+  &hf_ieee80211_vht_ndp_annc_sta_info_ranging_2044_disambiguation,
+  &hf_ieee80211_vht_ndp_annc_sta_info_ranging_2044_reserved,
+  &hf_ieee80211_vht_ndp_annc_sta_info_ranging_2044_token,
+  NULL
+};
+
+static int * const sta_info_ranging_2045[] = {
+  &hf_ieee80211_vht_ndp_annc_sta_info_ranging_2045_aid11,
+  &hf_ieee80211_vht_ndp_annc_sta_info_ranging_2045_i2r_ndp_tx_power,
+  &hf_ieee80211_vht_ndp_annc_sta_info_ranging_2045_r2i_ndp_target_rssi,
+  &hf_ieee80211_vht_ndp_annc_sta_info_ranging_2045_disambiguation,
+  &hf_ieee80211_vht_ndp_annc_sta_info_ranging_2045_reserved,
+  NULL
+};
+
 static int
 dissect_ieee80211_vht_ndp_annc(tvbuff_t *tvb, packet_info *pinfo _U_,
   proto_tree *tree, int offset, gboolean has_fcs)
 {
   guint16          sta_info;
   guint8           len_fcs = 0;
+  guint8           sounding_dialog_token;
   proto_tree      *sta_list;
   proto_item      *sta_info_item, *pi;
   int              saved_offset = 0;
   int              sta_index = 0;
 
+  sounding_dialog_token = tvb_get_guint8(tvb, offset);
   proto_tree_add_bitmask_with_flags(tree, tvb, offset,
                         hf_ieee80211_vht_ndp_annc_token, ett_vht_ndp_annc,
                         vht_ndp_headers, ENC_NA, BMT_NO_APPEND);
@@ -30918,16 +30991,43 @@ dissect_ieee80211_vht_ndp_annc(tvbuff_t *tvb, packet_info *pinfo _U_,
     proto_tree_add_item(sta_info_item, hf_ieee80211_vht_ndp_annc_sta_info_feedback_type,
                         tvb, offset, 2, ENC_LITTLE_ENDIAN);
 
-    sta_info = tvb_get_letohs(tvb, offset);
+    if (sounding_dialog_token & 0x01) {
+      guint16 aid11 = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN) & 0x7ff;
+      if (aid11 < 2008) {
+        proto_tree_add_bitmask_with_flags(sta_info_item, tvb, offset,
+                              hf_ieee80211_vht_ndp_annc_sta_info_ranging_2008, ett_vht_ranging_annc,
+                              sta_info_ranging_2008, ENC_LITTLE_ENDIAN, BMT_NO_APPEND);
+      } else if (aid11 == 2043) {
+        proto_tree_add_bitmask_with_flags(tree, tvb, offset,
+                              hf_ieee80211_vht_ndp_annc_sta_info_ranging_2043, ett_vht_ranging_annc,
+                              sta_info_ranging_2043, ENC_LITTLE_ENDIAN, BMT_NO_APPEND);
+      } else if (aid11 == 2044) {
+        proto_tree_add_bitmask_with_flags(tree, tvb, offset,
+                              hf_ieee80211_vht_ndp_annc_sta_info_ranging_2044, ett_vht_ranging_annc,
+                              sta_info_ranging_2044, ENC_LITTLE_ENDIAN, BMT_NO_APPEND);
+      } else if (aid11 == 2045) {
+        proto_tree_add_bitmask_with_flags(tree, tvb, offset,
+                              hf_ieee80211_vht_ndp_annc_sta_info_ranging_2045, ett_vht_ranging_annc,
+                              sta_info_ranging_2045, ENC_LITTLE_ENDIAN, BMT_NO_APPEND);
+      }
+      offset += 4;
+    } else {
+      proto_tree_add_item(sta_info_item, hf_ieee80211_vht_ndp_annc_sta_info_aid12,
+                          tvb, offset, 2, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(sta_info_item, hf_ieee80211_vht_ndp_annc_sta_info_feedback_type,
+                          tvb, offset, 2, ENC_LITTLE_ENDIAN);
 
-    if (sta_info & 0x1000)
-       proto_tree_add_uint(sta_info_item,
-                           hf_ieee80211_vht_ndp_annc_sta_info_nc_index,
-                           tvb, offset, 2, sta_info);
-    else
-       proto_tree_add_item(sta_info_item, hf_ieee80211_vht_ndp_annc_sta_info_reserved,
-                           tvb, offset, 2, ENC_LITTLE_ENDIAN);
-    offset += 2;
+      sta_info = tvb_get_letohs(tvb, offset);
+
+      if (sta_info & 0x1000)
+        proto_tree_add_uint(sta_info_item,
+                            hf_ieee80211_vht_ndp_annc_sta_info_nc_index,
+                            tvb, offset, 2, sta_info);
+      else
+        proto_tree_add_item(sta_info_item, hf_ieee80211_vht_ndp_annc_sta_info_reserved,
+                            tvb, offset, 2, ENC_LITTLE_ENDIAN);
+      offset += 2;
+    }
   }
 
   proto_item_set_len(pi, offset - saved_offset);
@@ -31012,6 +31112,7 @@ dissect_ieee80211_vht_he_ndp_annc(tvbuff_t *tvb, packet_info *pinfo _U_,
   offset += 6;
 
   dialog_token = tvb_get_guint8(tvb, offset);
+  col_append_fstr(pinfo->cinfo, COL_INFO, ", Sounding Dialog Token=%d", dialog_token);
 
   /*
    * Is it VHT or HE?
@@ -35396,7 +35497,142 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_vht_ndp_annc_sta_info_reserved,
      {"Reserved", "wlan.vht_ndp.sta_info.reserved",
-      FT_UINT16, BASE_HEX, NULL, 0xE000,
+      FT_UINT32, BASE_HEX, NULL, 0xE000,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_vht_ndp_annc_sta_info_ranging_2008,
+     {"STA Info, AID11 < 2008", "wlan.vht_ndp.sta_info.ranging_2008",
+      FT_UINT32, BASE_HEX, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_vht_ndp_annc_sta_info_ranging_2008_aid11,
+     {"AID11", "wlan.vht_ndp.sta_info.ranging_2008.aid11",
+      FT_UINT32, BASE_DEC, NULL, GENMASK(10, 0),
+      NULL, HFILL }},
+
+    {&hf_ieee80211_vht_ndp_annc_sta_info_ranging_2008_ltf_offset,
+     {"LTF Offset", "wlan.vht_ndp.sta_info.ranging_2008.ltf_offset",
+      FT_UINT32, BASE_DEC, NULL, GENMASK(16, 11),
+      NULL, HFILL }},
+
+    {&hf_ieee80211_vht_ndp_annc_sta_info_ranging_2008_r2i_n_sts,
+     {"R2I N STS", "wlan.vht_ndp.sta_info.ranging_2008.r2i_n_sts",
+      FT_UINT32, BASE_DEC, NULL, GENMASK(19, 17),
+      NULL, HFILL }},
+
+    {&hf_ieee80211_vht_ndp_annc_sta_info_ranging_2008_r2i_rep,
+     {"R2I Rep", "wlan.vht_ndp.sta_info.ranging_2008.r2i_rep",
+      FT_UINT32, BASE_DEC, NULL, GENMASK(22, 20),
+      NULL, HFILL }},
+
+    {&hf_ieee80211_vht_ndp_annc_sta_info_ranging_2008_i2r_n_sts,
+     {"I2R N STS", "wlan.vht_ndp.sta_info.ranging_2008.i2r_n_sts",
+      FT_UINT32, BASE_DEC, NULL, GENMASK(25, 23),
+      NULL, HFILL }},
+
+    {&hf_ieee80211_vht_ndp_annc_sta_info_ranging_2008_reserved1,
+     {"Reserved", "wlan.vht_ndp.sta_info.ranging_2008.reserved1",
+      FT_UINT32, BASE_DEC, NULL, GENMASK(26, 26),
+      NULL, HFILL }},
+
+    {&hf_ieee80211_vht_ndp_annc_sta_info_ranging_2008_disambiguation,
+     {"Disambiguation", "wlan.vht_ndp.sta_info.ranging_2008.disambiguation",
+      FT_UINT32, BASE_DEC, NULL, GENMASK(27, 27),
+      NULL, HFILL }},
+
+    {&hf_ieee80211_vht_ndp_annc_sta_info_ranging_2008_i2r_rep,
+     {"I2R Rep", "wlan.vht_ndp.sta_info.ranging_2008.i2r_rep",
+      FT_UINT32, BASE_DEC, NULL, GENMASK(30, 28),
+      NULL, HFILL }},
+
+    {&hf_ieee80211_vht_ndp_annc_sta_info_ranging_2008_reserved2,
+     {"Reserved", "wlan.vht_ndp.sta_info.ranging_2008.reserved2",
+      FT_UINT32, BASE_DEC, NULL, GENMASK(31, 31),
+      NULL, HFILL }},
+
+    {&hf_ieee80211_vht_ndp_annc_sta_info_ranging_2043,
+     {"STA Info, AID11 == 2043", "wlan.sta_info_ranging_2043",
+      FT_UINT32, BASE_HEX, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_vht_ndp_annc_sta_info_ranging_2043_aid11,
+     {"AID11", "wlan.sta_info_ranging_2043.aid11",
+      FT_UINT32, BASE_DEC, NULL, GENMASK(10, 1),
+      NULL, HFILL }},
+
+    {&hf_ieee80211_vht_ndp_annc_sta_info_ranging_2043_sac,
+     {"SAC", "wlan.sta_info_ranging_2043.sac",
+      FT_UINT32, BASE_DEC, NULL, GENMASK(26, 11),
+      NULL, HFILL }},
+
+    {&hf_ieee80211_vht_ndp_annc_sta_info_ranging_2043_disambiguation,
+     {"Disambiguation", "wlan.sta_info_ranging_2043.disambiguation",
+      FT_UINT32, BASE_DEC, NULL, GENMASK(27, 27),
+      NULL, HFILL }},
+
+    {&hf_ieee80211_vht_ndp_annc_sta_info_ranging_2043_reserved,
+     {"Reserved", "wlan.sta_info_ranging_2043.reserved",
+      FT_UINT32, BASE_DEC, NULL, GENMASK(31, 28),
+      NULL, HFILL }},
+
+    {&hf_ieee80211_vht_ndp_annc_sta_info_ranging_2044,
+     {"STA Info, AID11 == 2044", "wlan.sta_info_ranging_2044",
+      FT_UINT32, BASE_HEX, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_vht_ndp_annc_sta_info_ranging_2044_aid11,
+     {"AID11", "wlan.sta_info_ranging_2044.aid11",
+      FT_UINT32, BASE_DEC, NULL, GENMASK(10, 1),
+      NULL, HFILL }},
+
+    {&hf_ieee80211_vht_ndp_annc_sta_info_ranging_2044_partial_tsf,
+     {"Partial TSF", "wlan.sta_info_ranging_2044.partial_tsf",
+      FT_UINT32, BASE_DEC, NULL, GENMASK(26, 11),
+      NULL, HFILL }},
+
+    {&hf_ieee80211_vht_ndp_annc_sta_info_ranging_2044_disambiguation,
+     {"Disambiguation", "wlan.sta_info_ranging_2044.disambiguation",
+      FT_UINT32, BASE_DEC, NULL, GENMASK(27, 27),
+      NULL, HFILL }},
+
+    {&hf_ieee80211_vht_ndp_annc_sta_info_ranging_2044_reserved,
+     {"Reserved", "wlan.sta_info_ranging_2044.reserved",
+      FT_UINT32, BASE_DEC, NULL, GENMASK(28, 28),
+      NULL, HFILL }},
+
+    {&hf_ieee80211_vht_ndp_annc_sta_info_ranging_2044_token,
+     {"Token", "wlan.sta_info_ranging_2044.token",
+      FT_UINT32, BASE_DEC, NULL, GENMASK(31, 29),
+      NULL, HFILL }},
+
+    {&hf_ieee80211_vht_ndp_annc_sta_info_ranging_2045,
+     {"STA Info Ranging, AID11 == 2045", "wlan.sta_info_ranging_2045",
+      FT_UINT32, BASE_HEX, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_vht_ndp_annc_sta_info_ranging_2045_aid11,
+     {"AID11", "wlan.sta_info_ranging_2045.aid11",
+      FT_UINT32, BASE_DEC, NULL, GENMASK(10, 1),
+      NULL, HFILL }},
+
+    {&hf_ieee80211_vht_ndp_annc_sta_info_ranging_2045_i2r_ndp_tx_power,
+     {"I2R NDP Tx Power", "wlan.sta_info_ranging_2045.i2r_ndp_tx_power",
+      FT_UINT32, BASE_DEC, NULL, GENMASK(18, 11),
+      NULL, HFILL }},
+
+    {&hf_ieee80211_vht_ndp_annc_sta_info_ranging_2045_r2i_ndp_target_rssi,
+     {"R2I NDP Target RSSI", "wlan.sta_info_ranging_2045.r2i_ndp_target_rssi",
+      FT_UINT32, BASE_DEC, NULL, GENMASK(26, 19),
+      NULL, HFILL }},
+
+    {&hf_ieee80211_vht_ndp_annc_sta_info_ranging_2045_disambiguation,
+     {"Disambiguation", "wlan.sta_info_ranging_2045.disambiguation",
+      FT_UINT32, BASE_DEC, NULL, GENMASK(27, 27),
+      NULL, HFILL }},
+
+    {&hf_ieee80211_vht_ndp_annc_sta_info_ranging_2045_reserved,
+     {"Reserved", "wlan.sta_info_ranging_2045.reserved",
+      FT_UINT32, BASE_DEC, NULL, GENMASK(31, 28),
       NULL, HFILL }},
 
     {&hf_ieee80211_data_encap_payload_type,
@@ -49486,6 +49722,8 @@ proto_register_ieee80211(void)
     &ett_vht_ndp_annc,
     &ett_vht_ndp_annc_sta_info_tree,
     &ett_vht_ndp_annc_sta_list,
+
+    &ett_vht_ranging_annc,
 
     &ett_ff_he_action,
     &ett_ff_protected_he_action,
