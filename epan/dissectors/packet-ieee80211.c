@@ -30671,7 +30671,7 @@ static const range_string ranging_trigger_subtype_vals[] = {
   { 2, 2, "Secured Sounding" },
   { 3, 3, "Report" },
   { 4, 4, "Passive TB Measurement Exchange" },
-  { 5, 255, "Reserved" },
+  { 5, 15, "Reserved" },
   { 0, 0, NULL},
 };
 
