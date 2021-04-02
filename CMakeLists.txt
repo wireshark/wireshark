@@ -677,15 +677,6 @@ else() # ! MSVC
 		# -Wimplicit-function-declaration into an error by default.
 		#
 		-Werror=implicit
-		#
-		# the value used for uninitialized fields is 0 and cannot be changed
-		# the workaround is to initialize everything to the wanted default
-		# any subsequent initializers then cause this warning
-		#
-		# XXX: in theory c++20+ could have this issue aswell, but we don't
-		# use designated initializers in c++ code anyway.
-		#
-		-Wno-override-init
 	)
 
 	#
