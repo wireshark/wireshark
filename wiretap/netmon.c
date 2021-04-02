@@ -997,27 +997,12 @@ netmon_set_pseudo_header_info(wtap_rec *rec, Buffer *buf)
 
 	case WTAP_ENCAP_IEEE_802_11_NETMON:
 		/*
-		 * It appears to be the case that management
-		 * frames (and control and extension frames ?) may
-		 * or may not have an FCS and data frames don't.
-		 * (Netmon capture files have been seen for this
-		 *  encapsulation having management frames either
-		 *  completely with or without an FCS. Also: instances have been
-		 *  seen where both Management and Control frames
-		 *  do not have an FCS).
-		 * An "FCS length" of -2 means "NetMon weirdness".
-		 *
-		 * The metadata header also has a bit indicating whether
-		 * the adapter was in monitor mode or not; if it isn't,
-		 * we set "decrypted" to TRUE, as, for those frames, the
-		 * Protected bit is preserved in received frames, but
-		 * the frame is decrypted.
+		 * The 802.11 metadata at the beginnning of the frame data
+		 * is processed by a dissector, which fills in a pseudo-
+		 * header and passes it to the 802.11 radio dissector,
+		 * just as is done with other 802.11 radio metadata headers
+		 * that are part of the packet data, such as radiotap.
 		 */
-		memset(&rec->rec_header.packet_header.pseudo_header.ieee_802_11, 0, sizeof(rec->rec_header.packet_header.pseudo_header.ieee_802_11));
-		rec->rec_header.packet_header.pseudo_header.ieee_802_11.fcs_len = -2;
-		rec->rec_header.packet_header.pseudo_header.ieee_802_11.decrypted = FALSE;
-		rec->rec_header.packet_header.pseudo_header.ieee_802_11.datapad = FALSE;
-		rec->rec_header.packet_header.pseudo_header.ieee_802_11.phy = PHDR_802_11_PHY_UNKNOWN;
 		break;
 	}
 }

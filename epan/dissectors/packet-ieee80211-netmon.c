@@ -71,9 +71,9 @@ static gint ett_netmon_802_11_op_mode = -1;
 static dissector_handle_t ieee80211_radio_handle;
 
 static int
-dissect_netmon_802_11(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+dissect_netmon_802_11(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-  struct ieee_802_11_phdr *phdr = (struct ieee_802_11_phdr *)data;
+  struct ieee_802_11_phdr phdr;
   proto_tree *wlan_tree = NULL, *opmode_tree;
   proto_item *ti;
   tvbuff_t   *next_tvb;
@@ -87,6 +87,25 @@ dissect_netmon_802_11(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
   gint        calc_channel;
   gint32      rssi;
   guint8      rate;
+
+  /*
+   * It appears to be the case that management frames (and control and
+   * extension frames ?) may or may not have an FCS and data frames don't.
+   * (Netmon capture files have been seen for this encapsulation
+   * management frames either completely with or without an FCS. Also:
+   * instances have been  seen where both Management and Control frames
+   * do not have an FCS).  An "FCS length" of -2 means "NetMon weirdness".
+   *
+   * The metadata header also has a bit indicating whether the adapter
+   * was in monitor mode or not; if it isn't, we set "decrypted" to TRUE,
+   * as, for those frames, the Protected bit is preserved in received
+   * frames, but the frame is decrypted.
+   */
+  memset(&phdr, 0, sizeof(phdr));
+  phdr.fcs_len = -2;
+  phdr.decrypted = FALSE;
+  phdr.datapad = FALSE;
+  phdr.phy = PHDR_802_11_PHY_UNKNOWN;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "WLAN");
   col_clear(pinfo->cinfo, COL_INFO);
@@ -152,14 +171,14 @@ dissect_netmon_802_11(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
      * the "monitor mode" flag wasn't set, so supporess treating the
      * Protect flag as an indication that the frame was encrypted.
      */
-    phdr->decrypted = TRUE;
+    phdr.decrypted = TRUE;
 
     /*
      * Furthermore, we may see frames with the A-MSDU Present flag set
      * in the QoS Control field but that have a regular frame, nto a
      * sequence of A-MSDUs, in the payload.
      */
-    phdr->no_a_msdus = TRUE;
+    phdr.no_a_msdus = TRUE;
   }
   offset += 4;
 
@@ -173,7 +192,7 @@ dissect_netmon_802_11(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
      * uPhyId?
      */
     phy_type = tvb_get_letohl(tvb, offset);
-    memset(&phdr->phy_info, 0, sizeof(phdr->phy_info));
+    memset(&phdr.phy_info, 0, sizeof(phdr.phy_info));
 
     /*
      * Unlike the channel flags in radiotap, this appears
@@ -183,43 +202,43 @@ dissect_netmon_802_11(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
     switch (phy_type) {
 
     case PHY_TYPE_UNKNOWN:
-        phdr->phy = PHDR_802_11_PHY_UNKNOWN;
+        phdr.phy = PHDR_802_11_PHY_UNKNOWN;
         break;
 
     case PHY_TYPE_FHSS:
-        phdr->phy = PHDR_802_11_PHY_11_FHSS;
+        phdr.phy = PHDR_802_11_PHY_11_FHSS;
         break;
 
     case PHY_TYPE_IR_BASEBAND:
-        phdr->phy = PHDR_802_11_PHY_11_IR;
+        phdr.phy = PHDR_802_11_PHY_11_IR;
         break;
 
     case PHY_TYPE_DSSS:
-        phdr->phy = PHDR_802_11_PHY_11_DSSS;
+        phdr.phy = PHDR_802_11_PHY_11_DSSS;
         break;
 
     case PHY_TYPE_HR_DSSS:
-        phdr->phy = PHDR_802_11_PHY_11B;
+        phdr.phy = PHDR_802_11_PHY_11B;
         break;
 
     case PHY_TYPE_OFDM:
-        phdr->phy = PHDR_802_11_PHY_11A;
+        phdr.phy = PHDR_802_11_PHY_11A;
         break;
 
     case PHY_TYPE_ERP:
-        phdr->phy = PHDR_802_11_PHY_11G;
+        phdr.phy = PHDR_802_11_PHY_11G;
         break;
 
     case PHY_TYPE_HT:
-        phdr->phy = PHDR_802_11_PHY_11N;
+        phdr.phy = PHDR_802_11_PHY_11N;
         break;
 
     case PHY_TYPE_VHT:
-        phdr->phy = PHDR_802_11_PHY_11AC;
+        phdr.phy = PHDR_802_11_PHY_11AC;
         break;
 
     default:
-        phdr->phy = PHDR_802_11_PHY_UNKNOWN;
+        phdr.phy = PHDR_802_11_PHY_UNKNOWN;
         break;
     }
     proto_tree_add_item(wlan_tree, hf_netmon_802_11_phy_type, tvb, offset, 4,
@@ -238,11 +257,11 @@ dissect_netmon_802_11(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
       } else {
         guint frequency;
 
-        phdr->has_channel = TRUE;
-        phdr->channel = channel;
+        phdr.has_channel = TRUE;
+        phdr.channel = channel;
         proto_tree_add_uint(wlan_tree, hf_netmon_802_11_channel,
                             tvb, offset, 4, channel);
-        switch (phdr->phy) {
+        switch (phdr.phy) {
 
         case PHDR_802_11_PHY_11B:
         case PHDR_802_11_PHY_11G:
@@ -260,19 +279,19 @@ dissect_netmon_802_11(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
           break;
         }
         if (frequency != 0) {
-          phdr->has_frequency = TRUE;
-          phdr->frequency = frequency;
+          phdr.has_frequency = TRUE;
+          phdr.frequency = frequency;
         }
       }
     } else {
-      phdr->has_frequency = TRUE;
-      phdr->frequency = channel;
+      phdr.has_frequency = TRUE;
+      phdr.frequency = channel;
       proto_tree_add_uint(wlan_tree, hf_netmon_802_11_frequency,
                                        tvb, offset, 4, channel);
       calc_channel = ieee80211_mhz_to_chan(channel);
       if (calc_channel != -1) {
-        phdr->has_channel = TRUE;
-        phdr->channel = calc_channel;
+        phdr.has_channel = TRUE;
+        phdr.channel = calc_channel;
       }
     }
     offset += 4;
@@ -290,8 +309,8 @@ dissect_netmon_802_11(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
                                       tvb, offset, 4, rssi,
                                       "Unknown");
     } else {
-      phdr->has_signal_dbm = TRUE;
-      phdr->signal_dbm = rssi;
+      phdr.has_signal_dbm = TRUE;
+      phdr.signal_dbm = rssi;
       proto_tree_add_int_format_value(wlan_tree, hf_netmon_802_11_rssi,
                                       tvb, offset, 4, rssi,
                                       "%d dBm", rssi);
@@ -307,8 +326,8 @@ dissect_netmon_802_11(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
                                        tvb, offset, 1, rate,
                                        "Unknown");
     } else {
-      phdr->has_data_rate = TRUE;
-      phdr->data_rate = rate;
+      phdr.has_data_rate = TRUE;
+      phdr.data_rate = rate;
       proto_tree_add_uint_format_value(wlan_tree, hf_netmon_802_11_datarate,
                                        tvb, offset, 1, rate,
                                        "%f Mb/s", rate*.5);
@@ -322,8 +341,8 @@ dissect_netmon_802_11(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
    *
    * If so, should this check the presense flag in flags?
    */
-  phdr->has_tsf_timestamp = TRUE;
-  phdr->tsf_timestamp = tvb_get_letoh64(tvb, offset);
+  phdr.has_tsf_timestamp = TRUE;
+  phdr.tsf_timestamp = tvb_get_letoh64(tvb, offset);
   proto_tree_add_item(wlan_tree, hf_netmon_802_11_timestamp, tvb, offset, 8,
                       ENC_LITTLE_ENDIAN);
   /*offset += 8;*/
@@ -333,7 +352,7 @@ skip:
 
   /* dissect the 802.11 packet next */
   next_tvb = tvb_new_subset_remaining(tvb, offset);
-  call_dissector_with_data(ieee80211_radio_handle, next_tvb, pinfo, tree, phdr);
+  call_dissector_with_data(ieee80211_radio_handle, next_tvb, pinfo, tree, &phdr);
   return offset;
 }
 
