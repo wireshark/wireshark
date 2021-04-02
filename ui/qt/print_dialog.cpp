@@ -31,6 +31,7 @@ extern "C" {
 
 // Page element callbacks
 
+
 static gboolean
 print_preamble_pd(print_stream_t *self, gchar *, const char *)
 {
@@ -123,6 +124,8 @@ PrintDialog::PrintDialog(QWidget *parent, capture_file *cf, QString selRange) :
             this, SLOT(checkValidity()));
     connect(pd_ui_->formFeedCheckBox, SIGNAL(toggled(bool)),
             preview_, SLOT(updatePreview()));
+    connect(pd_ui_->bannerCheckBox, SIGNAL(toggled(bool)),
+            preview_, SLOT(updatePreview()));
 
     checkValidity();
 }
@@ -153,12 +156,14 @@ gboolean PrintDialog::printHeader()
         page_pos_ = page_top;
     }
 
-    QString banner = QString(tr("%1 %2 total packets, %3 shown"))
-            .arg(cap_file_->filename)
-            .arg(cap_file_->count)
-            .arg(cap_file_->displayed_count);
-    cur_painter_->setFont(header_font_);
-    cur_painter_->drawText(0, page_top, banner);
+    if (pd_ui_->bannerCheckBox->isChecked()) {
+        QString banner = QString(tr("%1 %2 total packets, %3 shown"))
+                .arg(cap_file_->filename)
+                .arg(cap_file_->count)
+                .arg(cap_file_->displayed_count);
+        cur_painter_->setFont(header_font_);
+        cur_painter_->drawText(0, page_top, banner);
+    }
     page_pos_ += cur_painter_->fontMetrics().height();
     cur_painter_->setFont(packet_font_);
     return TRUE;
