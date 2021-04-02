@@ -3777,6 +3777,40 @@ static int hf_ieee80211_he_trigger_ul_dcm = -1;
 static int hf_ieee80211_he_trigger_ul_target_rssi = -1;
 static int hf_ieee80211_he_trigger_user_reserved = -1;
 static int hf_ieee80211_he_trigger_dep_basic_user_info = -1;
+static int hf_ieee80211_he_trigger_ranging_common_info_1 = -1;
+static int hf_ieee80211_he_trigger_ranging_common_info_2 = -1;
+static int hf_ieee80211_ranging_trigger_subtype1 = -1;
+static int hf_ieee80211_ranging_trigger_reserved1 = -1;
+static int hf_ieee80211_ranging_trigger_token = -1;
+static int hf_ieee80211_ranging_trigger_subtype2 = -1;
+static int hf_ieee80211_ranging_trigger_reserved2 = -1;
+static int hf_ieee80211_ranging_trigger_sounding_dialog_token = -1;
+static int hf_ieee80211_he_trigger_ranging_trigger_poll_rpt = -1;
+static int hf_ieee80211_ranging_pol_rpt_aid12_rsid12 = -1;
+static int hf_ieee80211_ranging_pol_rpt_ru_alloc = -1;
+static int hf_ieee80211_ranging_pol_rpt_ul_fec_coding_type = -1;
+static int hf_ieee80211_ranging_pol_rpt_ulmcs = -1;
+static int hf_ieee80211_ranging_pol_rpt_uldcm = -1;
+static int hf_ieee80211_ranging_pol_rpt_ss_alloc = -1;
+static int hf_ieee80211_ranging_pol_rpt_ul_target_rssi = -1;
+static int hf_ieee80211_ranging_pol_rpt_reserved = -1;
+static int hf_ieee80211_he_trigger_ranging_trigger_sounding = -1;
+static int hf_ieee80211_ranging_sounding_aid12_rsid12 = -1;
+static int hf_ieee80211_ranging_sounding_reserved1 = -1;
+static int hf_ieee80211_ranging_sounding_i2r_rep = -1;
+static int hf_ieee80211_ranging_sounding_reserved2 = -1;
+static int hf_ieee80211_ranging_sounding_ss_allocation = -1;
+static int hf_ieee80211_ranging_sounding_ul_target_rssi = -1;
+static int hf_ieee80211_ranging_sounding_reserved3 = -1;
+static int hf_ieee80211_he_trigger_ranging_trigger_sec_sound = -1;
+static int hf_ieee80211_ranging_sec_sound_aid12_rsid12 = -1;
+static int hf_ieee80211_ranging_sec_sound_reserved1 = -1;
+static int hf_ieee80211_ranging_sec_sound_i2r_rep = -1;
+static int hf_ieee80211_ranging_sec_sound_reserved2 = -1;
+static int hf_ieee80211_ranging_sec_sound_ss_allocation = -1;
+static int hf_ieee80211_ranging_sec_sound_ul_target_rssi = -1;
+static int hf_ieee80211_ranging_sec_sound_reserved3 = -1;
+static int hf_ieee80211_he_trigger_ranging_user_info_sac = -1;
 static int hf_ieee80211_he_ndp_annc_token = -1;
 static int hf_ieee80211_he_ndp_annc_sta = -1;
 static int hf_ieee80211_he_ndp_sounding_dialog_token_number = -1;
@@ -7572,6 +7606,9 @@ static gint ett_he_operation_6ghz = -1;
 static gint ett_he_operation_6ghz_control = -1;
 static gint ett_he_mu_edca_param = -1;
 static gint ett_he_trigger_common_info = -1;
+static gint ett_he_trigger_ranging = -1;
+static gint ett_he_trigger_ranging_poll = -1;
+static gint ett_he_trigger_packet_extension = -1;
 static gint ett_he_trigger_base_common_info = -1;
 static gint ett_he_trigger_bar_ctrl = -1;
 static gint ett_he_trigger_bar_info = -1;
@@ -30550,6 +30587,108 @@ add_he_trigger_user_info(proto_tree *tree, tvbuff_t *tvb, int offset,
   return length;
 }
 
+/*
+ * Dissect one of the ranging trigger types ...
+ */
+static int * const poll_rpt_hdrs[] = {
+  &hf_ieee80211_ranging_pol_rpt_aid12_rsid12,
+  &hf_ieee80211_ranging_pol_rpt_ru_alloc,
+  &hf_ieee80211_ranging_pol_rpt_ul_fec_coding_type,
+  &hf_ieee80211_ranging_pol_rpt_ulmcs,
+  &hf_ieee80211_ranging_pol_rpt_uldcm,
+  &hf_ieee80211_ranging_pol_rpt_ss_alloc,
+  &hf_ieee80211_ranging_pol_rpt_ul_target_rssi,
+  &hf_ieee80211_ranging_pol_rpt_reserved,
+  NULL
+};
+
+static int * const sounding_hdrs[] = {
+  &hf_ieee80211_ranging_sounding_aid12_rsid12,
+  &hf_ieee80211_ranging_sounding_reserved1,
+  &hf_ieee80211_ranging_sounding_i2r_rep,
+  &hf_ieee80211_ranging_sounding_reserved2,
+  &hf_ieee80211_ranging_sounding_ss_allocation,
+  &hf_ieee80211_ranging_sounding_ul_target_rssi,
+  &hf_ieee80211_ranging_sounding_reserved3,
+  NULL
+};
+
+static int * const sec_sound_hdrs[] = {
+  &hf_ieee80211_ranging_sec_sound_aid12_rsid12,
+  &hf_ieee80211_ranging_sec_sound_reserved1,
+  &hf_ieee80211_ranging_sec_sound_i2r_rep,
+  &hf_ieee80211_ranging_sec_sound_reserved2,
+  &hf_ieee80211_ranging_sec_sound_ss_allocation,
+  &hf_ieee80211_ranging_sec_sound_ul_target_rssi,
+  &hf_ieee80211_ranging_sec_sound_reserved3,
+  NULL
+};
+
+static int
+dissect_ieee80211_ranging_trigger_variant(proto_tree *tree, tvbuff_t *tvb,
+                                          int offset, packet_info *pinfo _U_,
+                                          guint8 subtype)
+{
+  int saved_offset = offset;
+
+  switch (subtype) {
+  case 0:
+  case 3:
+    proto_tree_add_bitmask(tree, tvb, offset,
+                           hf_ieee80211_he_trigger_ranging_trigger_poll_rpt,
+                           ett_he_trigger_ranging_poll, poll_rpt_hdrs,
+                           ENC_LITTLE_ENDIAN);
+    offset += 5;
+    break;
+  case 1: /* Sounding subvariant */
+    proto_tree_add_bitmask(tree, tvb, offset,
+                           hf_ieee80211_he_trigger_ranging_trigger_sounding,
+                           ett_he_trigger_ranging_poll, sounding_hdrs,
+                           ENC_LITTLE_ENDIAN);
+    offset += 5;
+    break;
+  case 2:
+    proto_tree_add_bitmask(tree, tvb, offset,
+                           hf_ieee80211_he_trigger_ranging_trigger_sec_sound,
+                           ett_he_trigger_ranging_poll, sec_sound_hdrs,
+                           ENC_LITTLE_ENDIAN);
+    offset += 5;
+
+    proto_tree_add_item(tree, hf_ieee80211_he_trigger_ranging_user_info_sac,
+                        tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+  default:
+    break;
+  }
+
+
+  return offset - saved_offset;
+}
+
+static const range_string ranging_trigger_subtype_vals[] = {
+  { 0, 0, "Poll" },
+  { 1, 1, "Sounding" },
+  { 2, 2, "Secured Sounding" },
+  { 3, 3, "Report" },
+  { 4, 4, "Passive TB Measurement Exchange" },
+  { 5, 255, "Reserved" },
+  { 0, 0, NULL},
+};
+
+static int * const ranging_headers1[] = {
+  &hf_ieee80211_ranging_trigger_subtype1,
+  &hf_ieee80211_ranging_trigger_reserved1,
+  &hf_ieee80211_ranging_trigger_token,
+  NULL
+};
+
+static int * const ranging_headers2[] = {
+  &hf_ieee80211_ranging_trigger_subtype2,
+  &hf_ieee80211_ranging_trigger_reserved2,
+  &hf_ieee80211_ranging_trigger_sounding_dialog_token,
+  NULL
+};
+
 static int
 dissect_ieee80211_he_trigger(tvbuff_t *tvb, packet_info *pinfo _U_,
   proto_tree *tree, int offset)
@@ -30582,11 +30721,41 @@ dissect_ieee80211_he_trigger(tvbuff_t *tvb, packet_info *pinfo _U_,
   offset += add_he_trigger_common_info(tree, tvb, offset, pinfo,
                         trigger_type, &length);
 
-  /*
-   * Now the User Info field. It returns an offset not a length used.
-   */
   add_he_trigger_user_info(tree, tvb, offset, pinfo,
                         trigger_type, &length);
+
+  /*
+   * If the trigger type is Ranging Trigger type, then deal with it separately.
+   */
+  if (trigger_type == 8) {
+    guint8 subtype = tvb_get_guint8(tvb, offset) & 0x0f;
+
+    switch (subtype) {
+    case 0:
+    case 1:
+    case 2:
+    case 3:
+      proto_tree_add_bitmask(tree, tvb, offset,
+                             hf_ieee80211_he_trigger_ranging_common_info_1,
+                             ett_he_trigger_ranging, ranging_headers1,
+                             ENC_NA);
+      break;
+    case 4:
+      proto_tree_add_bitmask(tree, tvb, offset,
+                             hf_ieee80211_he_trigger_ranging_common_info_2,
+                             ett_he_trigger_ranging, ranging_headers2,
+                             ENC_NA);
+      break;
+    default:
+      break;
+    }
+
+    dissect_ieee80211_ranging_trigger_variant(tree, tvb, offset,
+                                              pinfo, subtype);
+  } else {
+    add_he_trigger_user_info(tree, tvb, offset, pinfo,
+                             trigger_type, &length);
+  }
 
   /*
    *  Padding should commence here ... TODO, deal with it.
@@ -46186,6 +46355,149 @@ proto_register_ieee80211(void)
      {"Reserved", "wlan.trigger.he.user_reserved",
       FT_UINT40, BASE_HEX, NULL, 0x8000000000, NULL, HFILL }},
 
+    {&hf_ieee80211_he_trigger_ranging_common_info_1,
+     {"Ranging Common Info", "wlan.trigger.he.ranging.common_info",
+      FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
+    {&hf_ieee80211_he_trigger_ranging_common_info_2,
+     {"Ranging Common Info", "wlan.trigger.he.ranging.common_info",
+      FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
+    {&hf_ieee80211_ranging_trigger_subtype1,
+     {"Ranging Trigger Subtype",
+      "wlan.trigger.he.ranging.ranging_trigger_subtype",
+      FT_UINT8, BASE_RANGE_STRING|BASE_HEX, RVALS(ranging_trigger_subtype_vals),
+      0x0f, NULL, HFILL }},
+
+    {&hf_ieee80211_ranging_trigger_reserved1,
+     {"Reserved", "wlan.trigger.he.ranging.reserved",
+      FT_UINT8, BASE_HEX, NULL, 0x10, NULL, HFILL }},
+
+    {&hf_ieee80211_ranging_trigger_token,
+     {"Token", "wlan.trigger.he.ranging.token",
+      FT_UINT8, BASE_HEX, NULL, 0xe0, NULL, HFILL }},
+
+    {&hf_ieee80211_ranging_trigger_subtype2,
+     {"Ranging Trigger Subtype",
+      "wlan.trigger.he.ranging.ranging_trigger_subtype",
+      FT_UINT16, BASE_RANGE_STRING|BASE_HEX,
+      RVALS(ranging_trigger_subtype_vals), 0x000f, NULL, HFILL }},
+
+    {&hf_ieee80211_ranging_trigger_reserved2,
+     {"Reserved", "wlan.trigger.he.ranging.reserved2",
+      FT_UINT16, BASE_HEX, NULL, 0x03f0, NULL, HFILL }},
+
+    {&hf_ieee80211_ranging_trigger_sounding_dialog_token,
+     {"Sounding Dialog Token Number",
+      "wlan.trigger.he.ranging.sounding_dialog_token",
+      FT_UINT16, BASE_HEX, NULL, 0xfc00, NULL, HFILL }},
+
+    {&hf_ieee80211_he_trigger_ranging_trigger_poll_rpt,
+     {"Ranging Trigger Poll/Rpt", "wlan.trigger.he.ranging.poll_rpt",
+      FT_UINT40, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
+    {&hf_ieee80211_ranging_pol_rpt_aid12_rsid12,
+     {"AID12/RSID12", "wlan.trigger.he.ranging.poll_rpt.aid12_rsid12",
+      FT_UINT40, BASE_HEX, NULL, 0x0000000fff, NULL, HFILL }},
+
+    {&hf_ieee80211_ranging_pol_rpt_ru_alloc,
+     {"RU Allocation", "wlan.trigger.he.ranging.poll_rpt.ru_allocation",
+      FT_UINT40, BASE_HEX, NULL, 0x00000ff000, NULL, HFILL }},
+
+    {&hf_ieee80211_ranging_pol_rpt_ul_fec_coding_type,
+     {"UL FEC Coding Type",
+      "wlan.trigger.he.ranging.poll_rpt.ul_fec_coding_type",
+      FT_UINT40, BASE_HEX, NULL, 0x0000100000, NULL, HFILL }},
+
+    {&hf_ieee80211_ranging_pol_rpt_ulmcs,
+     {"UL MCS", "wlan.trigger.he.ranging.poll_rpt.ul_mcs",
+      FT_UINT40, BASE_HEX, NULL, 0x0001e00000, NULL, HFILL }},
+
+    {&hf_ieee80211_ranging_pol_rpt_uldcm,
+     {"UL DCM", "wlan.trigger.he.ranging.poll_rpt.ul_dcm",
+      FT_UINT40, BASE_HEX, NULL, 0x0002000000, NULL, HFILL }},
+
+    {&hf_ieee80211_ranging_pol_rpt_ss_alloc,
+     {"SS Allocation", "wlan.trigger.he.ranging.poll_rpt.ss_allocation",
+      FT_UINT40, BASE_HEX, NULL, 0x00fc000000, NULL, HFILL }},
+
+    {&hf_ieee80211_ranging_pol_rpt_ul_target_rssi,
+     {"UL Target RSSI", "wlan.trigger.he.ranging.poll_rpt.ul_target_rssi",
+      FT_UINT40, BASE_HEX, NULL, 0x7f00000000, NULL, HFILL }},
+
+    {&hf_ieee80211_ranging_pol_rpt_reserved,
+     {"Reserved", "wlan.trigger.he.ranging.poll_rpt.reserved",
+      FT_UINT40, BASE_HEX, NULL, 0x8000000000, NULL, HFILL }},
+
+    {&hf_ieee80211_he_trigger_ranging_trigger_sounding,
+     {"Ranging Trigger Sounding", "wlan.trigger.he.ranging.sounding",
+      FT_UINT40, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
+    {&hf_ieee80211_ranging_sounding_aid12_rsid12,
+     {"AID12/RSID12", "wlan.trigger.he.ranging.sounding.aid12_rsid12",
+      FT_UINT40, BASE_HEX, NULL, 0x0000000fff, NULL, HFILL }},
+
+    {&hf_ieee80211_ranging_sounding_reserved1,
+     {"Reserved", "wlan.trigger.he.ranging.sounding.reserved1",
+      FT_UINT40, BASE_HEX, NULL, 0x00001ff000, NULL, HFILL }},
+
+    {&hf_ieee80211_ranging_sounding_i2r_rep,
+     {"I2R Rep", "wlan.trigger.he.ranging.sounding.i2r_rep",
+      FT_UINT40, BASE_HEX, NULL, 0x0000e00000, NULL, HFILL }},
+
+    {&hf_ieee80211_ranging_sounding_reserved2,
+     {"Reserved", "wlan.trigger.he.ranging.sounding.reserved2",
+      FT_UINT40, BASE_HEX, NULL, 0x0003000000, NULL, HFILL }},
+
+    {&hf_ieee80211_ranging_sounding_ss_allocation,
+     {"SS Allocation", "wlan.trigger.he.ranging.sounding.ss_allocation",
+      FT_UINT40, BASE_HEX, NULL, 0x00fc000000, NULL, HFILL }},
+
+    {&hf_ieee80211_ranging_sounding_ul_target_rssi,
+     {"UL Target RSSI", "wlan.trigger.he.ranging.sounding.ul_target_rssi",
+      FT_UINT40, BASE_HEX, NULL, 0x7f00000000, NULL, HFILL }},
+
+    {&hf_ieee80211_ranging_sounding_reserved3,
+     {"Reserved", "wlan.trigger.he.ranging.sounding.reserved3",
+      FT_UINT40, BASE_HEX, NULL, 0x8000000000, NULL, HFILL }},
+
+    {&hf_ieee80211_he_trigger_ranging_trigger_sec_sound,
+     {"Secured Sounding", "wlan.trigger.he.ranging.secured_sounding",
+      FT_UINT40, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
+    {&hf_ieee80211_ranging_sec_sound_aid12_rsid12,
+     {"AID12/RSID12", "wlan.trigger.he.ranging.secured_sounding.aid12_rsid12",
+      FT_UINT40, BASE_HEX, NULL, 0x0000000fff, NULL, HFILL }},
+
+    {&hf_ieee80211_ranging_sec_sound_reserved1,
+     {"Reserved", "wlan.trigger.he.ranging.secured_sounding.reserved1",
+      FT_UINT40, BASE_HEX, NULL, 0x00001ff000, NULL, HFILL }},
+
+    {&hf_ieee80211_ranging_sec_sound_i2r_rep,
+     {"I2R Rep", "wlan.trigger.he.ranging.secured_sounding.i2r_rep",
+      FT_UINT40, BASE_HEX, NULL, 0x0000e00000, NULL, HFILL }},
+
+    {&hf_ieee80211_ranging_sec_sound_reserved2,
+     {"Reserved", "wlan.trigger.he.ranging.secured_sounding.reserved2",
+      FT_UINT40, BASE_HEX, NULL, 0x0003000000, NULL, HFILL }},
+
+    {&hf_ieee80211_ranging_sec_sound_ss_allocation,
+     {"SS Allocation", "wlan.trigger.he.ranging.secured_sounding.ss_allocation",
+      FT_UINT40, BASE_HEX, NULL, 0x00fc000000, NULL, HFILL }},
+
+    {&hf_ieee80211_ranging_sec_sound_ul_target_rssi,
+     {"UL Target RSSI",
+      "wlan.trigger.he.ranging.secured_sounding.ul_target_rssi",
+      FT_UINT40, BASE_HEX, NULL, 0x7f00000000, NULL, HFILL }},
+
+    {&hf_ieee80211_ranging_sec_sound_reserved3,
+     {"Reserved", "wlan.trigger.he.ranging.secured_sounding.reserved3",
+      FT_UINT40, BASE_HEX, NULL, 0x8000000000, NULL, HFILL }},
+
+    {&hf_ieee80211_he_trigger_ranging_user_info_sac,
+     {"SAC", "wlan.trigger.he.ranging.user_info.sac",
+      FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
     {&hf_ieee80211_he_qtp_control,
      {"Control", "wlan.ext_tag.quiet_time_period.control",
       FT_UINT8, BASE_RANGE_STRING | BASE_HEX, RVALS(quiet_time_period_control_rvals), 0,
@@ -49363,6 +49675,9 @@ proto_register_ieee80211(void)
     &ett_he_ess_report_info_field,
     &ett_he_bss_new_color_info,
     &ett_he_trigger_common_info,
+    &ett_he_trigger_ranging,
+    &ett_he_trigger_ranging_poll,
+    &ett_he_trigger_packet_extension,
     &ett_he_trigger_base_common_info,
     &ett_he_trigger_bar_ctrl,
     &ett_he_trigger_bar_info,
