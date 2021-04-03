@@ -73,13 +73,13 @@ PCRE_VERSION=8.44
 # (Yosemite) or newer.
 #
 # So on Mountain Lion and Mavericks we choose the last stable release that
-# works on them (3.18.5), and on Yosemite and later we choose the latest stable
-# version (currently 3.19.2).
+# works on them (3.18.6), and on Yosemite and later we choose the latest stable
+# version (currently 3.19.7).
 #
 if [[ $DARWIN_MAJOR_VERSION -gt 13 ]]; then
-    CMAKE_VERSION=${CMAKE_VERSION-3.19.2}
+    CMAKE_VERSION=${CMAKE_VERSION-3.19.7}
 else
-    CMAKE_VERSION=${CMAKE_VERSION-3.18.5}
+    CMAKE_VERSION=${CMAKE_VERSION-3.18.6}
 fi
 
 #
@@ -114,7 +114,7 @@ LIBGCRYPT_VERSION=1.8.7
 # "QT_VERSION=5.10.1 ./macos-setup.sh"
 # will build and install with QT 5.10.1.
 #
-QT_VERSION=${QT_VERSION-5.12.6}
+QT_VERSION=${QT_VERSION-5.12.10}
 
 if [ "$QT_VERSION" ]; then
     QT_MAJOR_VERSION="`expr $QT_VERSION : '\([0-9][0-9]*\).*'`"
@@ -186,9 +186,9 @@ OPUS_VERSION=1.3.1
 # macOS 11 Big Sur and Apple Silicon (Arm-based Macs).
 
 # So on Mountain Lion, choose 3.7.6, otherwise get the latest stable version
-# (3.9.1).
+# (3.9.3).
 if [[ $DARWIN_MAJOR_VERSION -gt 12 ]]; then
-    PYTHON3_VERSION=3.9.2
+    PYTHON3_VERSION=3.9.3
 else
     PYTHON3_VERSION=3.7.6
 fi
@@ -587,21 +587,22 @@ install_cmake() {
             # Download the DMG and do a drag install, where "drag" means
             # "mv".
             #
-            # 3.0.* and 3.1.0 have a Darwin64-universal DMG.
-            # 3.1.1 and later have a Darwin-x86_64 DMG.
-	    # 3.19.2 and later have a macos-universal DMG.
-            # Probably not many people are still developing on 32-bit
-            # Macs, so we don't worry about them.
+            # 3.1.1 to 3.19.1 have a Darwin-x86_64 DMG.
+            # 3.19.2 has a macos-universal DMG for 10.10 and later
+            # 3.19.3 and later have a macos-universal DMG for 10.13 and later,
+            # and a macos10.10-universal DMG for 10.10 and later.
             #
-            if [ "$CMAKE_MINOR_VERSION" = 0 -o \
-                 "$CMAKE_VERSION" = 3.1.0 ]; then
-                type="Darwin64-universal"
-	    elif [ "$CMAKE_MINOR_VERSION" -lt 19 -o \
-		 "$CMAKE_VERSION" = 3.19.0 -o \
-		 "$CMAKE_VERSION" = 3.19.1 ]; then
+            if [ "$CMAKE_MINOR_VERSION" -lt 5]; then
+                echo "CMake $CMAKE_VERSION" is too old 1>&2
+            elif [ "$CMAKE_MINOR_VERSION" -lt 19 -o \
+                 "$CMAKE_VERSION" = 3.19.0 -o \
+                 "$CMAKE_VERSION" = 3.19.1 ]; then
                 type="Darwin-x86_64"
-	    else
-		type="macos-universal"
+            elif [ "$CMAKE_VERSION" = 3.19.2 -o \
+                 "$DARWIN_MAJOR_VERSION" -ge 17 ]; then
+                type="macos-universal"
+            else
+                type="macos10.0-universal"
             fi
             [ -f cmake-$CMAKE_VERSION-$type.dmg ] || curl -L -O https://cmake.org/files/v$CMAKE_MAJOR_MINOR_VERSION/cmake-$CMAKE_VERSION-$type.dmg || exit 1
             $no_build && echo "Skipping installation" && return
@@ -658,9 +659,9 @@ uninstall_cmake() {
             # Get rid of the previously downloaded and unpacked version,
             # whatever it might happen to be called.
             #
-            rm -f cmake-$installed_cmake_version-Darwin64-universal.dmg
             rm -f cmake-$installed_cmake_version-Darwin-x86_64.dmg
             rm -f cmake-$installed_cmake_version-macos-universal.dmg
+            rm -f cmake-$installed_cmake_version-macos10.0-universal.dmg
         fi
 
         installed_cmake_version=""
@@ -851,7 +852,7 @@ install_qt() {
             echo "Qt $QT_VERSION" is too old 1>&2
             ;;
 
-        5*)
+        5)
             case $QT_MINOR_VERSION in
 
             0|1|2|3|4|5)
@@ -865,6 +866,10 @@ install_qt() {
             9|10|11|12|13|14)
                 QT_VOLUME=qt-opensource-mac-x64-$QT_VERSION
                 ;;
+            *)
+		echo "The Qt Company no longer provides open source offline installers for Qt $QT_VERSION" 1>&2
+		;;
+
             esac
             [ -f $QT_VOLUME.dmg ] || curl -L -O http://download.qt.io/archive/qt/$QT_MAJOR_MINOR_VERSION/$QT_MAJOR_MINOR_DOTDOT_VERSION/$QT_VOLUME.dmg || exit 1
             $no_build && echo "Skipping installation" && return
@@ -877,6 +882,9 @@ install_qt() {
             /Volumes/$QT_VOLUME/$QT_VOLUME.app/Contents/MacOS/$QT_VOLUME
             sudo hdiutil detach /Volumes/$QT_VOLUME
             touch qt-$QT_VERSION-done
+        *)
+            echo "The Qt Company no longer provides open source offline installers for Qt $QT_VERSION" 1>&2
+            ;;
         esac
     fi
 }
@@ -1980,14 +1988,19 @@ uninstall_opus() {
 }
 
 install_python3() {
-    # The macos11.0 installer can be deployed to older versions, down to
+    # The macos11 installer can be deployed to older versions, down to
     # 10.9 (Mavericks), but is still considered experimental so continue
     # to use the 64-bit installer (10.9) on earlier releases for now.
     local macver=x10.9
     if [[ $DARWIN_MAJOR_VERSION -gt 19 ]]; then
-        # The macos11.0 installer is required for Arm-based Macs, which require
-        # macOS 11 Big Sur. Note that the 'x' was removed from the package name.
-        macver=11.0
+        # The macos11 installer is required for Arm-based Macs, which require
+        # macOS 11 Big Sur. Note that the package name is "11.0" (no x) for
+        # 3.9.1 but simply "11" for 3.9.2 (and later)
+        if [[ $PYTHON3_VERSION = 3.9.1 ]]; then
+            macver=11.0
+        else
+            macver=11
+        fi
     elif [[ $DARWIN_MAJOR_VERSION -lt 13 ]]; then
         # The 64-bit installer requires 10.9 (Mavericks), use the 64-bit/32-bit
         # variant for 10.8 (Mountain Lion).
@@ -2028,6 +2041,7 @@ uninstall_python3() {
             #
             # Get rid of the previously downloaded and unpacked version.
             #
+            rm -f python-$installed_python3_version-macos11.pkg
             rm -f python-$installed_python3_version-macos11.0.pkg
             rm -f python-$installed_python3_version-macosx10.9.pkg
             rm -f python-$installed_python3_version-macosx10.6.pkg
