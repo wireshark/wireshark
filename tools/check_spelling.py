@@ -111,7 +111,8 @@ class File:
         next_word_start = 0
         for idx in range(1, length+1):
             w = word[next_word_start:idx]
-            if  len(w) > 3 and not spell.unknown([w]):
+            # N.B. allowing shorter words ends in gibberish being accepted.
+            if  len(w) >= 4 and not spell.unknown([w]):
                 next_word_start = idx
         if next_word_start == length:
             return True
