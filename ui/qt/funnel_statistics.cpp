@@ -155,13 +155,8 @@ FunnelStatistics::FunnelStatistics(QObject *parent, CaptureFile &cf) :
 
 FunnelStatistics::~FunnelStatistics()
 {
-    // At this point we're probably closing the program and will shortly
-    // call epan_cleanup, which calls ProgDlg__gc and TextWindow__gc.
-    // They in turn depend on funnel_ops_ being valid.
-    memset(funnel_ops_id_, 0, sizeof(struct _funnel_ops_id_t));
-    memset(funnel_ops_, 0, sizeof(struct _funnel_ops_t));
-    // delete(funnel_ops_id_);
-    // delete(funnel_ops_);
+    delete(funnel_ops_id_);
+    delete(funnel_ops_);
 }
 
 void FunnelStatistics::retapPackets()

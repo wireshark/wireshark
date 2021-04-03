@@ -693,7 +693,7 @@ int main(int argc, char *qt_argv[])
 #endif
 
     /* Create The Wireshark app */
-    WiresharkApplication ws_app(argc, qt_argv);
+    wsApp = new WiresharkApplication(argc, qt_argv);
 
     /* initialize the funnel mini-api */
     // xxx qtshark
@@ -737,9 +737,9 @@ int main(int argc, char *qt_argv[])
     main_w->show();
     // We may not need a queued connection here but it would seem to make sense
     // to force the issue.
-    main_w->connect(&ws_app, SIGNAL(openCaptureFile(QString,QString,unsigned int)),
+    main_w->connect(wsApp, SIGNAL(openCaptureFile(QString,QString,unsigned int)),
             main_w, SLOT(openCaptureFile(QString,QString,unsigned int)));
-    main_w->connect(&ws_app, SIGNAL(openCaptureOptions()),
+    main_w->connect(wsApp, SIGNAL(openCaptureOptions()),
             main_w, SLOT(on_actionCaptureOptions_triggered()));
 
     /* Init the "Open file" dialog directory */
@@ -832,7 +832,7 @@ int main(int argc, char *qt_argv[])
     ws_log(LOG_DOMAIN_MAIN, LOG_LEVEL_INFO, "Calling module preferences, elapsed time %" G_GUINT64_FORMAT " us \n", g_get_monotonic_time() - start_time);
 #endif
 
-    global_commandline_info.prefs_p = ws_app.readConfigurationFiles(false);
+    global_commandline_info.prefs_p = wsApp->readConfigurationFiles(false);
 
     /* Now get our args */
     commandline_other_options(argc, argv, TRUE);
@@ -1061,11 +1061,13 @@ int main(int argc, char *qt_argv[])
     profile_store_persconffiles(FALSE);
 
     ret_val = wsApp->exec();
-    wsApp = NULL;
 
-    delete main_w;
     recent_cleanup();
     epan_cleanup();
+
+    delete main_w;
+    delete wsApp;
+    wsApp = NULL;
 
     extcap_cleanup();
 
