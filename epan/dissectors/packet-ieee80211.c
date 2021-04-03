@@ -23011,6 +23011,11 @@ static void
 dissect_ista_availability_window(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, int len)
 {
   guint16 count = tvb_get_letohs(tvb, offset) & 0x1FF;
+  char avail_string[513];
+  char pad_string[8];
+  int i = 0, j;
+  int avail_bits_offset;
+  gint8 bits;
 
   /* These are at the same level as the avail bits */
   proto_tree_add_item(tree, hf_ieee80211_ftm_ista_availability_count,
@@ -23019,16 +23024,48 @@ dissect_ista_availability_window(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
                       tvb, offset, 2, ENC_LITTLE_ENDIAN);
   offset += 2;
 
-  /*
-   * This needs to be reworked because the number of bits can be as large as
-   * 512 so there likely needs to be a list of 64-bit quantities.
-   */
-  proto_tree_add_bits_item(tree, hf_ieee80211_ftm_ista_avail_bits, tvb,
-                           offset * 8, count, ENC_NA);
+  avail_bits_offset = offset;
+
+  /* Now, extract count  bits and set up the string 8-bits at a time */
+  for (i = 1; i <= (count / 8); i++) {
+    bits = tvb_get_guint8(tvb, offset);
+
+    for (j = 0; j < 8; j++) {
+      avail_string[(i - 1) + j] = (bits & 0x01) ? '1' : '0';
+      bits = bits >> 1;
+    }
+
+    offset += 1;
+  }
+
+  avail_string[i * 8] = 0;
+
+  if (count % 8) {
+    /* Deal with the remaining bits */
+    bits = tvb_get_guint8(tvb, offset);
+
+    for (j = (i - 1) * 8; j < count; j++) {
+      avail_string[j] = (bits & 0x01) ? '1' : '0';
+      bits = bits >> 1;
+    }
+
+    avail_string[j] = 0;
+
+    /* Deal with the padding */
+    for (j = 0; j < 8 - (count % 8); j++) {
+      pad_string[j] = (bits & 0x01) ? '1' : '0';
+      bits = bits >> 1;
+    }
+
+    pad_string[j] = 0;
+  }
+
+  proto_tree_add_string(tree, hf_ieee80211_ftm_ista_avail_bits, tvb,
+                        avail_bits_offset, (count + 7) / 8, avail_string);
 
   if (((len - 2) * 8) != count) {
-    proto_tree_add_bits_item(tree, hf_ieee80211_ftm_ista_avail_pad, tvb,
-                             offset * 8 + count, (len - 2) * 8 - count, ENC_NA);
+    proto_tree_add_string(tree, hf_ieee80211_ftm_ista_avail_pad, tvb,
+                          offset, 1, pad_string);
   }
 }
 
@@ -38022,11 +38059,11 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_ftm_ista_avail_bits,
      {"ISTA Availability", "wlan.ranging.ista.availability_bits",
-      FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
     {&hf_ieee80211_ftm_ista_avail_pad,
      {"Padding", "wlan.ranging.ista.availability_pad",
-      FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
     {&hf_ieee80211_ftm_rsta_count,
      {"RSTA Count", "wlan.ranging.rsta.count",
