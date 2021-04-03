@@ -526,6 +526,7 @@ static int dissect_otrxd(tvbuff_t *tvb, packet_info *pinfo,
 	/* Parse common TRXD PDU version */
 	proto_tree_add_item_ret_uint(otrxd_tree, hf_otrxd_pdu_ver, tvb,
 				     offset, 1, ENC_NA, &pi.ver);
+	proto_item_append_text(ti, " Version %u", pi.ver);
 
 	if (burst_dir == OTRXCD_DIR_L12TRX)
 		offset = dissect_otrxd_tx(tvb, pinfo, ti, otrxd_tree, &pi, offset);
