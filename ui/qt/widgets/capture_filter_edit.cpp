@@ -218,19 +218,26 @@ CaptureFilterEdit::CaptureFilterEdit(QWidget *parent, bool plain) :
 #endif
     }
 
-    QThread *syntax_thread = new QThread;
+    syntax_thread_ = new QThread;
     syntax_worker_ = new CaptureFilterSyntaxWorker;
-    syntax_worker_->moveToThread(syntax_thread);
+    syntax_worker_->moveToThread(syntax_thread_);
     connect(wsApp, &WiresharkApplication::appInitialized, this, &CaptureFilterEdit::updateBookmarkMenu);
     connect(wsApp, &WiresharkApplication::captureFilterListChanged, this, &CaptureFilterEdit::updateBookmarkMenu);
-    connect(syntax_thread, &QThread::started, syntax_worker_, &CaptureFilterSyntaxWorker::start);
-    connect(syntax_thread, &QThread::started, this,
+    connect(syntax_thread_, &QThread::started, this,
             static_cast<void (CaptureFilterEdit::*)()>(&CaptureFilterEdit::checkFilter));
     connect(syntax_worker_, &CaptureFilterSyntaxWorker::syntaxResult,
             this, &CaptureFilterEdit::setFilterSyntaxState);
-    connect(syntax_thread, &QThread::finished, syntax_worker_, &CaptureFilterSyntaxWorker::deleteLater);
-    syntax_thread->start();
+    connect(this, &CaptureFilterEdit::captureFilterChanged, syntax_worker_, &CaptureFilterSyntaxWorker::checkFilter);
+    syntax_thread_->start();
     updateBookmarkMenu();
+}
+
+CaptureFilterEdit::~CaptureFilterEdit()
+{
+    syntax_thread_->quit();
+    syntax_thread_->wait();
+    delete syntax_thread_;
+    delete syntax_worker_;
 }
 
 void CaptureFilterEdit::paintEvent(QPaintEvent *evt) {
@@ -366,7 +373,7 @@ void CaptureFilterEdit::checkFilter(const QString& filter)
     if (empty) {
         setFilterSyntaxState(filter, Empty, QString());
     } else {
-        syntax_worker_->checkFilter(filter);
+        emit captureFilterChanged(filter);
     }
 }
 
