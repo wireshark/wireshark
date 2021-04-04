@@ -2434,8 +2434,8 @@ dissect_isis_lsp_clv_sid_label_binding(tvbuff_t *tvb, packet_info* pinfo, proto_
     int sub_tlv_len = 0;
     int i = 0;
     guint8 clv_pref_l = 0;
-    guint   clv_code = 0;
-    guint   clv_len = 0;
+    guint   clv_code;
+    guint   clv_len;
 
     static int * const lsp_sl_flags[] = {
         &hf_isis_lsp_sl_binding_flags_f,

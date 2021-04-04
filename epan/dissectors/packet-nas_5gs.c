@@ -1955,8 +1955,7 @@ de_nas_5gs_mm_ciphering_key_data(tvbuff_t* tvb, proto_tree* tree, packet_info* p
         proto_tree_add_item_ret_uint(sub_tree, hf_nas_5gs_mm_ciph_key_data_eutra_pos_sib_len, tvb, curr_offset, 1, ENC_BIG_ENDIAN, &pos_sib_len);
         curr_offset++;
         if (pos_sib_len > 0) {
-            if (pos_sib_len >= 1)
-                proto_tree_add_bitmask_list(sub_tree, tvb, curr_offset, 1, eutra_flags1, ENC_NA);
+            proto_tree_add_bitmask_list(sub_tree, tvb, curr_offset, 1, eutra_flags1, ENC_NA);
             if (pos_sib_len >= 2)
                 proto_tree_add_bitmask_list(sub_tree, tvb, curr_offset + 1, 1, eutra_flags2, ENC_NA);
             if (pos_sib_len >= 3)
@@ -1971,8 +1970,7 @@ de_nas_5gs_mm_ciphering_key_data(tvbuff_t* tvb, proto_tree* tree, packet_info* p
         proto_tree_add_item_ret_uint(sub_tree, hf_nas_5gs_mm_ciph_key_data_nr_pos_sib_len, tvb, curr_offset, 1, ENC_BIG_ENDIAN, &pos_sib_len);
         curr_offset++;
         if (pos_sib_len > 0) {
-            if (pos_sib_len >= 1)
-                proto_tree_add_bitmask_list(sub_tree, tvb, curr_offset, 1, nr_flags1, ENC_NA);
+            proto_tree_add_bitmask_list(sub_tree, tvb, curr_offset, 1, nr_flags1, ENC_NA);
             if (pos_sib_len >= 2)
                 proto_tree_add_bitmask_list(sub_tree, tvb, curr_offset + 1, 1, nr_flags2, ENC_NA);
             if (pos_sib_len >= 3)
@@ -3881,11 +3879,9 @@ de_nas_5gs_sm_int_prot_max_data_rte(tvbuff_t *tvb, proto_tree *tree, packet_info
 {
     /* Maximum data rate per UE for user-plane integrity protection for uplink */
     proto_tree_add_item(tree, hf_nas_5gs_sm_int_prot_max_data_rate_ul, tvb, offset, 1, ENC_BIG_ENDIAN);
-    offset++;
 
     /* Maximum data rate per UE for user-plane integrity protection for downlink */
-    proto_tree_add_item(tree, hf_nas_5gs_sm_int_prot_max_data_rate_dl, tvb, offset, 1, ENC_BIG_ENDIAN);
-    offset++;
+    proto_tree_add_item(tree, hf_nas_5gs_sm_int_prot_max_data_rate_dl, tvb, offset+1, 1, ENC_BIG_ENDIAN);
 
     return 2;
 }
@@ -4193,7 +4189,7 @@ de_nas_5gs_sm_qos_flow_des(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _
 
     proto_tree *sub_tree, *sub_tree2;
     proto_item *item, *sub_item;
-    int i = 1, j = 1;
+    int i = 1, j;
     guint32 param_len, param_id;
     guint32 curr_offset, start_offset, start_offset2;
     guint8 num_param;
