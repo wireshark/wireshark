@@ -326,6 +326,18 @@ static int hf_nvme_get_logpage_selftest_res_flba = -1;
 static int hf_nvme_get_logpage_selftest_res_sct[3] = { NEG_LST_3 };
 static int hf_nvme_get_logpage_selftest_res_sc = -1;
 static int hf_nvme_get_logpage_selftest_res_vs = -1;
+static int hf_nvme_get_logpage_telemetry_li = -1;
+static int hf_nvme_get_logpage_telemetry_rsvd0 = -1;
+static int hf_nvme_get_logpage_telemetry_ieee = -1;
+static int hf_nvme_get_logpage_telemetry_da1lb = -1;
+static int hf_nvme_get_logpage_telemetry_da2lb = -1;
+static int hf_nvme_get_logpage_telemetry_da3lb = -1;
+static int hf_nvme_get_logpage_telemetry_rsvd1 = -1;
+static int hf_nvme_get_logpage_telemetry_da = -1;
+static int hf_nvme_get_logpage_telemetry_dgn = -1;
+static int hf_nvme_get_logpage_telemetry_ri = -1;
+static int hf_nvme_get_logpage_telemetry_db = -1;
+
 
 /* NVMe CQE fields */
 static int hf_nvme_cqe_sts = -1;
@@ -1940,6 +1952,54 @@ static void dissect_nvme_get_logpage_selftest_resp(proto_item *ti, tvbuff_t *cmd
     }
 }
 
+static void dissect_nvme_get_logpage_telemetry_resp(proto_item *ti, tvbuff_t *cmd_tvb, struct nvme_cmd_ctx *cmd_ctx, guint len)
+{
+    guint32 off = cmd_ctx->cmd_ctx.get_logpage.off  & 0xffffffff; /* need guint type to silence clang-11 errors */
+    proto_tree *grp;
+    guint64 next_block;
+    guint32 poff;
+    const char *pfx = (cmd_ctx->cmd_ctx.get_logpage.lid == 0x7) ? "Host-Initiated" : "Controller-Initiated";
+
+    poff = 512 - (cmd_ctx->cmd_ctx.get_logpage.off & 0x1ff);
+    next_block = (cmd_ctx->cmd_ctx.get_logpage.off + poff) / 512;
+
+    grp =  proto_item_add_subtree(ti, ett_data);
+
+
+    if (poff >= len && cmd_ctx->cmd_ctx.get_logpage.off >= 384)
+        return;
+
+    if (!off && len >= 1)
+        proto_tree_add_item(grp, hf_nvme_get_logpage_telemetry_li, cmd_tvb, 0, 1, ENC_LITTLE_ENDIAN);
+    if (off <= 1 && (5 - off) <= len)
+        proto_tree_add_item(grp, hf_nvme_get_logpage_telemetry_rsvd0, cmd_tvb, 1-off, 4, ENC_LITTLE_ENDIAN);
+    if (off <= 5 && (8 - off) <= len)
+        proto_tree_add_item(grp, hf_nvme_get_logpage_telemetry_ieee, cmd_tvb, 5-off, 3, ENC_LITTLE_ENDIAN);
+    if (off <= 8 && (10 - off) <= len)
+        proto_tree_add_item(grp, hf_nvme_get_logpage_telemetry_da1lb, cmd_tvb, 8-off, 2, ENC_LITTLE_ENDIAN);
+    if (off <= 10 && (12 - off) <= len)
+        proto_tree_add_item(grp, hf_nvme_get_logpage_telemetry_da2lb, cmd_tvb, 10-off, 2, ENC_LITTLE_ENDIAN);
+    if (off <= 12 && (14 - off) <= len)
+        proto_tree_add_item(grp, hf_nvme_get_logpage_telemetry_da3lb, cmd_tvb, 12-off, 3, ENC_LITTLE_ENDIAN);
+    if (off <= 14 && (372 - off) <= len)
+        proto_tree_add_item(grp, hf_nvme_get_logpage_telemetry_rsvd1, cmd_tvb, 14-off, 368, ENC_NA);
+    if (off <= 382 && (383 - off) <= len)
+        proto_tree_add_item(grp, hf_nvme_get_logpage_telemetry_da, cmd_tvb, 382-off, 1, ENC_LITTLE_ENDIAN);
+    if (off <= 383 && (384 - off) <= len)
+        proto_tree_add_item(grp, hf_nvme_get_logpage_telemetry_dgn, cmd_tvb, 383-off, 1, ENC_LITTLE_ENDIAN);
+    if (off <= 384 && (512 - off) <= len)
+        proto_tree_add_item(grp, hf_nvme_get_logpage_telemetry_ri, cmd_tvb, 384-off, 128, ENC_NA);
+
+    len -= poff;
+    while (len >= 512) {
+         proto_tree_add_bytes_format_value(grp, hf_nvme_get_logpage_telemetry_db, cmd_tvb, poff, 512, NULL,
+                                           "Telemetry %s data block %"G_GUINT64_FORMAT, pfx, next_block);
+        len -= 512;
+        next_block++;
+        poff += 512;
+    }
+}
+
 static void dissect_nvme_get_logpage_resp(tvbuff_t *cmd_tvb, proto_tree *cmd_tree, struct nvme_cmd_ctx *cmd_ctx, guint len)
 {
     proto_item *ti = proto_tree_add_bytes_format_value(cmd_tree, hf_nvme_gen_data, cmd_tvb, 0, len, NULL,
@@ -1959,6 +2019,9 @@ static void dissect_nvme_get_logpage_resp(tvbuff_t *cmd_tvb, proto_tree *cmd_tre
             return dissect_nvme_get_logpage_cmd_sup_and_eff_resp(ti, cmd_tvb, cmd_ctx, len);
         case 0x6:
             return dissect_nvme_get_logpage_selftest_resp(ti, cmd_tvb, cmd_ctx, len);
+        case 0x7:
+        case 0x8:
+            return dissect_nvme_get_logpage_telemetry_resp(ti, cmd_tvb, cmd_ctx, len);
         default:
             return;
     }
@@ -4115,6 +4178,51 @@ proto_register_nvme(void)
         { &hf_nvme_get_logpage_selftest_res_vs,
             { "Vendor Specific", "nvme.cmd.get_logpage.selftest.res.vs",
                FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        /* Telemetry Log Response */
+        { &hf_nvme_get_logpage_telemetry_li,
+            { "Log Identifier", "nvme.cmd.get_logpage.telemetry.li",
+               FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_telemetry_rsvd0,
+            { "Reserved", "nvme.cmd.get_logpage.telemetry.rsvd0",
+               FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_telemetry_ieee,
+            { "IEEE OUI Identifier (IEEE)", "nvme.cmd.get_logpage.telemetry.ieee",
+               FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_telemetry_da1lb,
+            { "Telemetry Data Area 1 Last Block", "nvme.cmd.get_logpage.telemetry.da1b",
+               FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_telemetry_da2lb,
+            { "Telemetry Data Area 2 Last Block", "nvme.cmd.get_logpage.telemetry.da2b",
+               FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_telemetry_da3lb,
+            { "Telemetry Data Area 3 Last Block", "nvme.cmd.get_logpage.telemetry.da3b",
+               FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_telemetry_rsvd1,
+            { "Reserved", "nvme.cmd.get_logpage.telemetry.rsvd1",
+               FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_telemetry_da,
+            { "Telemetry Data Available", "nvme.cmd.get_logpage.telemetry.da",
+               FT_BOOLEAN, 8, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_telemetry_dgn,
+            { "Telemetry Data Generation Number", "nvme.cmd.get_logpage.telemetry.dgn",
+               FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_telemetry_ri,
+            { "Reason Identifier", "nvme.cmd.get_logpage.telemetry.ri",
+               FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_telemetry_db,
+            { "Telemetry Data Block", "nvme.cmd.get_logpage.telemetry.db",
+               FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
         },
         /* NVMe Response fields */
         { &hf_nvme_cqe_sts,
