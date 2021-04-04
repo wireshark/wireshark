@@ -310,7 +310,6 @@ WS_DLL_PUBLIC module_t *prefs_register_codec(const char *name, const char *title
  * Register that a protocol has preferences and group it under a single
  * subtree
  */
-#define PREFERENCE_GROUPING
 WS_DLL_PUBLIC module_t *prefs_register_protocol_subtree(const char *subtree, int id,
     void (*apply_cb)(void));
 
