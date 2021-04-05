@@ -3315,7 +3315,7 @@ static int rtps_util_add_multichannel_locator_list(proto_tree *tree, packet_info
                 continue;
                 break;
             }
-            ti = proto_tree_add_item_ret_int(locator_item_tree, hf_rtps_locator_port, tvb, offset + 20, 4, encoding, &port);
+            ti = proto_tree_add_item_ret_uint(locator_item_tree, hf_rtps_locator_port, tvb, offset + 20, 4, encoding, &port);
             if (port == 0)
                 expert_add_info(pinfo, ti, &ei_rtps_locator_port);
             proto_item_append_text(tree, " (%s, %s:%d)",
