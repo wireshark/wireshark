@@ -3069,7 +3069,7 @@ static gint rtps_util_add_locator_t(proto_tree *tree, packet_info *pinfo, tvbuff
   proto_tree *ti;
   proto_tree *locator_tree;
   guint32 kind;
-  gint32 port;
+  guint32 port;
   const gint parameter_size = 24;
 
   locator_tree = proto_tree_add_subtree(tree, tvb, offset, parameter_size, ett_rtps_locator,
@@ -3079,12 +3079,19 @@ static gint rtps_util_add_locator_t(proto_tree *tree, packet_info *pinfo, tvbuff
   switch (kind) {
     case LOCATOR_KIND_UDPV4:
     case LOCATOR_KIND_TUDPV4: {
-      ti = proto_tree_add_item_ret_int(locator_tree, hf_rtps_locator_port, tvb, offset+4, 4, encoding, &port);
+      ti = proto_tree_add_item_ret_uint(
+              locator_tree,
+              hf_rtps_locator_port,
+              tvb,
+              offset + 4,
+              4,
+              encoding,
+              &port);
       proto_tree_add_item(locator_tree, hf_rtps_locator_ipv4, tvb, offset+20, 4,
               ENC_BIG_ENDIAN);
       if (port == 0)
         expert_add_info(pinfo, ti, &ei_rtps_locator_port);
-      proto_item_append_text(tree, " (%s, %s:%d)",
+      proto_item_append_text(tree, " (%s, %s:%u)",
                  val_to_str(kind, rtps_locator_kind_vals, "%02x"),
                  tvb_ip_to_str(tvb, offset + 20), port);
       break;
@@ -3094,7 +3101,14 @@ static gint rtps_util_add_locator_t(proto_tree *tree, packet_info *pinfo, tvbuff
     case LOCATOR_KIND_TLSV4_LAN:
     case LOCATOR_KIND_TLSV4_WAN: {
       guint16 ip_kind;
-      ti = proto_tree_add_item_ret_int(locator_tree, hf_rtps_locator_port, tvb, offset+4, 4, encoding, &port);
+      ti = proto_tree_add_item_ret_uint(
+              locator_tree,
+              hf_rtps_locator_port,
+              tvb,
+              offset + 4,
+              4,
+              encoding,
+              &port);
       if (port == 0)
         expert_add_info(pinfo, ti, &ei_rtps_locator_port);
       ip_kind = tvb_get_guint16(tvb, offset+16, encoding);
@@ -3104,13 +3118,13 @@ static gint rtps_util_add_locator_t(proto_tree *tree, packet_info *pinfo, tvbuff
                 tvb, offset+18, 2, ENC_BIG_ENDIAN);
         proto_tree_add_item(locator_tree, hf_rtps_locator_ipv4, tvb, offset+20,
                 4, ENC_BIG_ENDIAN);
-        proto_item_append_text(tree, " (%s, %s:%d, Logical Port = %d)",
+        proto_item_append_text(tree, " (%s, %s:%d, Logical Port = %u)",
                    val_to_str(kind, rtps_locator_kind_vals, "%02x"),
                    tvb_ip_to_str(tvb, offset + 20), public_address_port, port);
         } else { /* IPv6 format */
           proto_tree_add_item(locator_tree, hf_rtps_locator_ipv6, tvb, offset+8,
                   16, ENC_NA);
-          proto_item_append_text(tree, " (%s, %s, Logical Port = %d)",
+          proto_item_append_text(tree, " (%s, %s, Logical Port = %u)",
                   val_to_str(kind, rtps_locator_kind_vals, "%02x"),
                   tvb_ip6_to_str(tvb, offset + 8), port);
         }
@@ -3118,26 +3132,50 @@ static gint rtps_util_add_locator_t(proto_tree *tree, packet_info *pinfo, tvbuff
     }
     case LOCATOR_KIND_SHMEM: {
       guint32 hostId;
-      ti = proto_tree_add_item_ret_int(locator_tree, hf_rtps_locator_port, tvb, offset+4, 4, encoding, &port);
+      ti = proto_tree_add_item_ret_uint(
+              locator_tree,
+              hf_rtps_locator_port,
+              tvb,
+              offset + 4,
+              4,
+              encoding,
+              &port);
       proto_tree_add_item_ret_uint(locator_tree, hf_rtps_param_host_id, tvb, offset+10, 4, ENC_BIG_ENDIAN, &hostId);
       if (port == 0)
         expert_add_info(pinfo, ti, &ei_rtps_locator_port);
-      proto_item_append_text(tree, " (%s, HostId = 0x%08x, Port = %d)",
+      proto_item_append_text(tree, " (%s, HostId = 0x%08x, Port = %u)",
               val_to_str(kind, rtps_locator_kind_vals, "%02x"),
               hostId, port);
       break;
     }
     case LOCATOR_KIND_UDPV6: {
+      ti = proto_tree_add_item_ret_uint(
+              locator_tree,
+              hf_rtps_locator_port,
+              tvb,
+              offset + 4,
+              4,
+              encoding,
+              &port);
+      if (port == 0)
+        expert_add_info(pinfo, ti, &ei_rtps_locator_port);
       proto_tree_add_item(locator_tree, hf_rtps_locator_ipv6, tvb, offset+8, 16, ENC_NA);
-      proto_item_append_text(tree, " (%s, %s)",
+      proto_item_append_text(tree, " (%s, %s:%u)",
               val_to_str(kind, rtps_locator_kind_vals, "%02x"),
-              tvb_ip6_to_str(tvb, offset + 8));
+              tvb_ip6_to_str(tvb, offset + 8), port);
       break;
     }
     case LOCATOR_KIND_DTLS: {
-      proto_tree_add_item_ret_int(locator_tree, hf_rtps_locator_port, tvb, offset+4, 4, encoding, &port);
+      proto_tree_add_item_ret_uint(
+              locator_tree,
+              hf_rtps_locator_port,
+              tvb,
+              offset + 4,
+              4,
+              encoding,
+              &port);
       proto_tree_add_item(locator_tree, hf_rtps_locator_ipv6, tvb, offset+8, 16, ENC_NA);
-      proto_item_append_text(tree, " (%s, %s:%d)",
+      proto_item_append_text(tree, " (%s, %s:%u)",
               val_to_str(kind, rtps_locator_kind_vals, "%02x"),
               tvb_ip6_to_str(tvb, offset + 8), port);
       break;
@@ -12502,7 +12540,7 @@ void proto_register_rtps(void) {
 
     { &hf_rtps_locator_port,
       { "Port", "rtps.locator.port",
-        FT_INT32, BASE_DEC, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }
     },
 #if 0
