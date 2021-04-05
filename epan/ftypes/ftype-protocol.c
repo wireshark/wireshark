@@ -67,9 +67,11 @@ val_from_string(fvalue_t *fv, const char *s, gchar **err_msg _U_)
 
 	/* And let us know that we need to free the tvbuff */
 	fv->tvb_is_private = TRUE;
-	/* This "field" is a value, it has no protocol description. */
+	/* This "field" is a value, it has no protocol description, but
+	 * we might compare it to a protocol with NULL tvb.
+	 * (e.g., proto_expert) */
 	fv->value.protocol.tvb = new_tvb;
-	fv->value.protocol.proto_string = NULL;
+	fv->value.protocol.proto_string = g_strdup("");
 	return TRUE;
 }
 
@@ -98,6 +100,11 @@ val_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_,
 		/* And let us know that we need to free the tvbuff */
 		fv->tvb_is_private = TRUE;
 		fv->value.protocol.tvb = new_tvb;
+
+		/* This "field" is a value, it has no protocol description, but
+		 * we might compare it to a protocol with NULL tvb.
+		 * (e.g., proto_expert) */
+		fv->value.protocol.proto_string = g_strdup("");
 		return TRUE;
 	}
 
