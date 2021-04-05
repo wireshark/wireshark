@@ -3286,7 +3286,7 @@ static int rtps_util_add_multichannel_locator_list(proto_tree *tree, packet_info
         for (i = 0; i < num_locators; ++i) {
             proto_tree *ti, *locator_item_tree;
             guint32 kind;
-            gint32 port;
+            guint32 port;
             gchar *channel_address;
             locator_item_tree = proto_tree_add_subtree(locator_tree, tvb, offset, 24, ett_rtps_locator,
                 NULL, label);
@@ -3318,7 +3318,7 @@ static int rtps_util_add_multichannel_locator_list(proto_tree *tree, packet_info
             ti = proto_tree_add_item_ret_uint(locator_item_tree, hf_rtps_locator_port, tvb, offset + 20, 4, encoding, &port);
             if (port == 0)
                 expert_add_info(pinfo, ti, &ei_rtps_locator_port);
-            proto_item_append_text(tree, " (%s, %s:%d)",
+            proto_item_append_text(tree, " (%s, %s:%u)",
                 val_to_str(kind, rtps_locator_kind_vals, "%02x"),
                 channel_address, port);
             offset += 24;
