@@ -337,7 +337,21 @@ static int hf_nvme_get_logpage_telemetry_da = -1;
 static int hf_nvme_get_logpage_telemetry_dgn = -1;
 static int hf_nvme_get_logpage_telemetry_ri = -1;
 static int hf_nvme_get_logpage_telemetry_db = -1;
-
+static int hf_nvme_get_logpage_egroup_cw[6] = { NEG_LST_6 };
+static int hf_nvme_get_logpage_egroup_rsvd0 = -1;
+static int hf_nvme_get_logpage_egroup_as = -1;
+static int hf_nvme_get_logpage_egroup_ast = -1;
+static int hf_nvme_get_logpage_egroup_pu = -1;
+static int hf_nvme_get_logpage_egroup_rsvd1 = -1;
+static int hf_nvme_get_logpage_egroup_ee = -1;
+static int hf_nvme_get_logpage_egroup_dur = -1;
+static int hf_nvme_get_logpage_egroup_duw = -1;
+static int hf_nvme_get_logpage_egroup_muw = -1;
+static int hf_nvme_get_logpage_egroup_hrc = -1;
+static int hf_nvme_get_logpage_egroup_hwc = -1;
+static int hf_nvme_get_logpage_egroup_mdie = -1;
+static int hf_nvme_get_logpage_egroup_ele = -1;
+static int hf_nvme_get_logpage_egroup_rsvd2 = -1;
 
 /* NVMe CQE fields */
 static int hf_nvme_cqe_sts = -1;
@@ -2000,6 +2014,65 @@ static void dissect_nvme_get_logpage_telemetry_resp(proto_item *ti, tvbuff_t *cm
     }
 }
 
+static void dissect_nvme_get_logpage_egroup_resp(proto_item *ti, tvbuff_t *cmd_tvb, struct nvme_cmd_ctx *cmd_ctx, guint len)
+{
+    guint32 off = cmd_ctx->cmd_ctx.get_logpage.off & 0xffffffff; /* need guint type to silence clang-11 errors */
+    proto_tree *grp;
+
+    if (cmd_ctx->cmd_ctx.get_logpage.off >= 512)
+        return; /* max allowed offset is < 512, so we do not loose bits by casting to guint type */
+
+    grp =  proto_item_add_subtree(ti, ett_data);
+    if (!off && len >= 1)
+        add_group_mask_entry(cmd_tvb, grp, 0, 1, ASPEC(hf_nvme_get_logpage_egroup_cw));
+    if (off <= 1 && (3 - off) <= len)
+        proto_tree_add_item(grp, hf_nvme_get_logpage_egroup_rsvd0,  cmd_tvb, 1-off, 2, ENC_LITTLE_ENDIAN);
+    if (off <= 3 && (4 - off) <= len)
+        proto_tree_add_item(grp, hf_nvme_get_logpage_egroup_as,  cmd_tvb, 3-off, 1, ENC_LITTLE_ENDIAN);
+    if (off <= 4 && (5 - off) <= len)
+        proto_tree_add_item(grp, hf_nvme_get_logpage_egroup_ast,  cmd_tvb, 4-off, 1, ENC_LITTLE_ENDIAN);
+    if (off <= 5 && (6 - off) <= len)
+        proto_tree_add_item(grp, hf_nvme_get_logpage_egroup_pu,  cmd_tvb, 5-off, 1, ENC_LITTLE_ENDIAN);
+    if (off <= 6 && (32 - off) <= len)
+        proto_tree_add_item(grp, hf_nvme_get_logpage_egroup_rsvd1,  cmd_tvb, 6-off, 26, ENC_NA);
+    if (off <= 32 && (48 - off) <= len) {
+        ti = proto_tree_add_item(grp, hf_nvme_get_logpage_egroup_ee,  cmd_tvb, 32-off, 16, ENC_NA);
+        post_add_intval_from_16bytes(ti, cmd_tvb, 32-off);
+    }
+    if (off <= 48 && (64 - off) <= len) {
+        ti = proto_tree_add_item(grp, hf_nvme_get_logpage_egroup_dur,  cmd_tvb, 48-off, 16, ENC_NA);
+        post_add_intval_from_16bytes(ti, cmd_tvb, 48-off);
+    }
+    if (off <= 64 && (80 - off) <= len) {
+        ti = proto_tree_add_item(grp, hf_nvme_get_logpage_egroup_duw,  cmd_tvb, 64-off, 16, ENC_NA);
+        post_add_intval_from_16bytes(ti, cmd_tvb, 64-off);
+    }
+    if (off <= 80 && (96 - off) <= len) {
+        ti = proto_tree_add_item(grp, hf_nvme_get_logpage_egroup_muw,  cmd_tvb, 80-off, 16, ENC_NA);
+        post_add_intval_from_16bytes(ti, cmd_tvb, 80-off);
+    }
+    if (off <= 96 && (112 - off) <= len) {
+        ti = proto_tree_add_item(grp, hf_nvme_get_logpage_egroup_hrc,  cmd_tvb, 96-off, 16, ENC_NA);
+        post_add_intval_from_16bytes(ti, cmd_tvb, 96-off);
+    }
+    if (off <= 112 && (128 - off) <= len) {
+        ti = proto_tree_add_item(grp, hf_nvme_get_logpage_egroup_hwc,  cmd_tvb, 112-off, 16, ENC_NA);
+        post_add_intval_from_16bytes(ti, cmd_tvb, 112-off);
+    }
+    if (off <= 128 && (144 - off) <= len) {
+        ti = proto_tree_add_item(grp, hf_nvme_get_logpage_egroup_mdie,  cmd_tvb, 128-off, 16, ENC_NA);
+        post_add_intval_from_16bytes(ti, cmd_tvb, 128-off);
+    }
+    if (off <= 144 && (160 - off) <= len) {
+        ti = proto_tree_add_item(grp, hf_nvme_get_logpage_egroup_ele,  cmd_tvb, 144-off, 16, ENC_NA);
+        post_add_intval_from_16bytes(ti, cmd_tvb, 144-off);
+    }
+    if (off <= 508 && (512 - off) <= len) {
+        guint poff = (off <= 160) ? (160 - off) : (off - 160);
+        proto_tree_add_item(grp, hf_nvme_get_logpage_egroup_rsvd2,  cmd_tvb, poff, len - poff, ENC_NA);
+    }
+}
+
 static void dissect_nvme_get_logpage_resp(tvbuff_t *cmd_tvb, proto_tree *cmd_tree, struct nvme_cmd_ctx *cmd_ctx, guint len)
 {
     proto_item *ti = proto_tree_add_bytes_format_value(cmd_tree, hf_nvme_gen_data, cmd_tvb, 0, len, NULL,
@@ -2022,6 +2095,8 @@ static void dissect_nvme_get_logpage_resp(tvbuff_t *cmd_tvb, proto_tree *cmd_tre
         case 0x7:
         case 0x8:
             return dissect_nvme_get_logpage_telemetry_resp(ti, cmd_tvb, cmd_ctx, len);
+        case 0x9:
+            return dissect_nvme_get_logpage_egroup_resp(ti, cmd_tvb, cmd_ctx, len);
         default:
             return;
     }
@@ -3844,7 +3919,7 @@ proto_register_nvme(void)
                FT_BOOLEAN, 8, NULL, 0x4, NULL, HFILL}
         },
         { &hf_nvme_get_logpage_smart_egcws[4],
-            { "A Namespace in Endurance Group Plased in RO State", "nvme.cmd.get_logpage.smart.egcws.ro",
+            { "A Namespace in Endurance Group Placed in RO State", "nvme.cmd.get_logpage.smart.egcws.ro",
                FT_BOOLEAN, 8, NULL, 0x8, NULL, HFILL}
         },
         { &hf_nvme_get_logpage_smart_egcws[5],
@@ -4222,6 +4297,87 @@ proto_register_nvme(void)
         },
         { &hf_nvme_get_logpage_telemetry_db,
             { "Telemetry Data Block", "nvme.cmd.get_logpage.telemetry.db",
+               FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
+        },
+        /* Endurance Group Response */
+        { &hf_nvme_get_logpage_egroup_cw[0],
+            { "Critical Warning", "nvme.cmd.get_logpage.egroup.cw",
+               FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_egroup_cw[1],
+            { "Available Spare Capacity Below Threshold", "nvme.cmd.get_logpage.egroup.cw.asc",
+               FT_BOOLEAN, 8, NULL, 0x1, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_egroup_cw[2],
+            { "Reserevd", "nvme.cmd.get_logpage.egroup.cw.rsvd0",
+               FT_BOOLEAN, 8, NULL, 0x2, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_egroup_cw[3],
+            { "Reliability of Endurance Group Degraded due to Media Errors", "nvme.cmd.get_logpage.egroup.cw.rd",
+               FT_BOOLEAN, 8, NULL, 0x4, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_egroup_cw[4],
+            { "All Namespaces in Endurance Group Placed in RO State", "nvme.cmd.get_logpage.egroup.cw.ro",
+               FT_BOOLEAN, 8, NULL, 0x8, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_egroup_cw[5],
+            { "Reserved", "nvme.cmd.get_logpage.egroup.cw.rsvd1",
+               FT_BOOLEAN, 8, NULL, 0xf0, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_egroup_rsvd0,
+            { "Reserved", "nvme.cmd.get_logpage.egroup.rsvd0",
+               FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_egroup_as,
+            { "Available Spare Capacity %", "nvme.cmd.get_logpage.egroup.as",
+               FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_egroup_ast,
+            { "Available Spare Threshold %", "nvme.cmd.get_logpage.egroup.ast",
+               FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_egroup_pu,
+            { "Life Age (Percentage Used) %", "nvme.cmd.get_logpage.egroup.pu",
+               FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_egroup_rsvd1,
+            { "Reserved", "nvme.cmd.get_logpage.egroup.rsvd1",
+               FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_egroup_ee,
+            { "Endurance Estimate (GB that may be written)", "nvme.cmd.get_logpage.egroup.ee",
+               FT_BYTES, BASE_NO_DISPLAY_VALUE, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_egroup_dur,
+            { "Data Units Read (GB)", "nvme.cmd.get_logpage.egroup.dur",
+               FT_BYTES, BASE_NO_DISPLAY_VALUE, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_egroup_duw,
+            { "Data Units Written (GB)", "nvme.cmd.get_logpage.egroup.duw",
+               FT_BYTES, BASE_NO_DISPLAY_VALUE, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_egroup_muw,
+            { "Media Units Written (GB)", "nvme.cmd.get_logpage.egroup.muw",
+               FT_BYTES, BASE_NO_DISPLAY_VALUE, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_egroup_hrc,
+            { "Host Read Commands", "nvme.cmd.get_logpage.egroup.hrc",
+               FT_BYTES, BASE_NO_DISPLAY_VALUE, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_egroup_hwc,
+            { "Host Write Commands", "nvme.cmd.get_logpage.egroup.hwc",
+               FT_BYTES, BASE_NO_DISPLAY_VALUE, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_egroup_mdie,
+            { "Media and Data Integrity Errors", "nvme.cmd.get_logpage.egroup.mdie",
+               FT_BYTES, BASE_NO_DISPLAY_VALUE, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_egroup_ele,
+            { "Media and Data Integrity Errors", "nvme.cmd.get_logpage.egroup.ele",
+               FT_BYTES, BASE_NO_DISPLAY_VALUE, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_egroup_rsvd2,
+            { "Reserved", "nvme.cmd.get_logpage.egroup.rsvd2",
                FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
         },
         /* NVMe Response fields */
