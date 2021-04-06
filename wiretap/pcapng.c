@@ -127,9 +127,13 @@ typedef struct pcapng_name_resolution_block_s {
 
 /*
  * Minimum Sysdig size = minimum block size + packed size of sysdig_event_phdr.
+ * Minimum Sysdig event v2 header size = minimum block size + packed size of sysdig_event_v2_phdr (which, in addition 
+ * to sysdig_event_phdr, includes the nparams 32bit value).
  */
 #define SYSDIG_EVENT_HEADER_SIZE ((16 + 64 + 64 + 32 + 16)/8) /* CPU ID + TS + TID + Event len + Event type */
 #define MIN_SYSDIG_EVENT_SIZE    ((guint32)(MIN_BLOCK_SIZE + SYSDIG_EVENT_HEADER_SIZE))
+#define SYSDIG_EVENT_V2_HEADER_SIZE ((16 + 64 + 64 + 32 + 16 + 32)/8) /* CPU ID + TS + TID + Event len + Event type + nparams */
+#define MIN_SYSDIG_EVENT_V2_SIZE    ((guint32)(MIN_BLOCK_SIZE + SYSDIG_EVENT_V2_HEADER_SIZE))
 
 /*
  * We require __REALTIME_TIMESTAMP in the Journal Export Format reader in
@@ -2217,11 +2221,18 @@ pcapng_read_sysdig_event_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *p
     guint32 event_len;
     guint16 event_type;
     guint32 nparams;
+    guint min_event_size;
+
+    if (bh->block_type == BLOCK_TYPE_SYSDIG_EVENT_V2) {
+        min_event_size = MIN_SYSDIG_EVENT_V2_SIZE;
+    } else {
+        min_event_size = MIN_SYSDIG_EVENT_SIZE;
+    }
 
     if (bh->block_total_length < MIN_SYSDIG_EVENT_SIZE) {
         *err = WTAP_ERR_BAD_FILE;
         *err_info = g_strdup_printf("%s: total block length %u is too small (< %u)", G_STRFUNC,
-                                    bh->block_total_length, MIN_SYSDIG_EVENT_SIZE);
+                                    bh->block_total_length, min_event_size);
         return FALSE;
     }
 
@@ -2240,12 +2251,6 @@ pcapng_read_sysdig_event_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *p
     wblock->rec->rec_header.syscall_header.record_type = BLOCK_TYPE_SYSDIG_EVENT;
     wblock->rec->presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN /*|WTAP_HAS_INTERFACE_ID */;
     wblock->rec->tsprec = WTAP_TSPREC_NSEC;
-
-    if (bh->block_type == BLOCK_TYPE_SYSDIG_EVENT_V2) {
-        block_read = block_total_length - 4;
-    } else {
-        block_read = block_total_length;
-    }
 
     if (!wtap_read_bytes(fh, &cpu_id, sizeof cpu_id, err, err_info)) {
         pcapng_debug("pcapng_read_packet_block: failed to read sysdig event cpu id");
@@ -2274,7 +2279,6 @@ pcapng_read_sysdig_event_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *p
         }
     }
 
-    block_read -= MIN_SYSDIG_EVENT_SIZE;
     wblock->rec->rec_header.syscall_header.byte_order = G_BYTE_ORDER;
 
     /* XXX Use Gxxx_FROM_LE macros instead? */
@@ -2301,6 +2305,8 @@ pcapng_read_sysdig_event_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *p
 
     wblock->rec->ts.secs = (time_t) (ts / 1000000000);
     wblock->rec->ts.nsecs = (int) (ts % 1000000000);
+
+    block_read = block_total_length - min_event_size;
 
     wblock->rec->rec_header.syscall_header.event_filelen = block_read;
 
