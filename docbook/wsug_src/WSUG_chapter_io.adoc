@@ -1207,4 +1207,7 @@ Each packet on a new page::
 For printing and some export formats, put each packet on a separate page.
 For example, when exporting to a text file this will put a form feed character between each packet.
 
+Capture information header::
+Add a header to each page with capture filename and the amount of total packets and shown packets.
+
 // End of WSUG Chapter IO
