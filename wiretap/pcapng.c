@@ -281,6 +281,7 @@ register_pcapng_block_type_handler(guint block_type, block_reader reader,
     case BLOCK_TYPE_EPB:
     case BLOCK_TYPE_DSB:
     case BLOCK_TYPE_SYSDIG_EVENT:
+    case BLOCK_TYPE_SYSDIG_EVENT_V2:
     case BLOCK_TYPE_SYSTEMD_JOURNAL:
         /*
          * Yes; we already handle it, and don't allow a replacement to
@@ -438,6 +439,7 @@ get_block_type_index(guint block_type, guint *bt_index)
             break;
 
         case BLOCK_TYPE_SYSDIG_EVENT:
+        case BLOCK_TYPE_SYSDIG_EVENT_V2:
         /* case BLOCK_TYPE_SYSDIG_EVF: */
             *bt_index = BT_INDEX_EVT;
             break;
@@ -766,8 +768,8 @@ pcapng_read_section_header_block(FILE_T fh, pcapng_block_header_t *bh,
         return PCAPNG_BLOCK_ERROR;
     }
 
-    /* we currently only understand SHB V1.0 */
-    if (version_major != 1 || version_minor > 0) {
+    /* we currently only understand SHB V1.0  SHB V1.2*/
+    if (version_major != 1 || version_minor == 1 || version_minor > 2) {
         *err = WTAP_ERR_UNSUPPORTED;
         *err_info = g_strdup_printf("pcapng_read_section_header_block: unknown SHB version %u.%u",
                                     version_major, version_minor);
@@ -2353,6 +2355,7 @@ pcapng_read_sysdig_event_block(FILE_T fh, pcapng_block_header_t *bh,
     guint64 thread_id;
     guint32 event_len;
     guint16 event_type;
+    guint32 nparams;
 
     if (bh->block_total_length < MIN_SYSDIG_EVENT_SIZE) {
         *err = WTAP_ERR_BAD_FILE;
@@ -2377,7 +2380,11 @@ pcapng_read_sysdig_event_block(FILE_T fh, pcapng_block_header_t *bh,
     wblock->rec->presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN /*|WTAP_HAS_INTERFACE_ID */;
     wblock->rec->tsprec = WTAP_TSPREC_NSEC;
 
-    block_read = block_total_length;
+    if (bh->block_type == BLOCK_TYPE_SYSDIG_EVENT_V2) {
+        block_read = block_total_length - 4;
+    } else {
+        block_read = block_total_length;
+    }
 
     if (!wtap_read_bytes(fh, &cpu_id, sizeof cpu_id, err, err_info)) {
         pcapng_debug("pcapng_read_packet_block: failed to read sysdig event cpu id");
@@ -2398,6 +2405,12 @@ pcapng_read_sysdig_event_block(FILE_T fh, pcapng_block_header_t *bh,
     if (!wtap_read_bytes(fh, &event_type, sizeof event_type, err, err_info)) {
         pcapng_debug("pcapng_read_packet_block: failed to read sysdig event type");
         return FALSE;
+    }
+    if (bh->block_type == BLOCK_TYPE_SYSDIG_EVENT_V2) {
+        if (!wtap_read_bytes(fh, &nparams, sizeof nparams, err, err_info)) {
+            pcapng_debug("pcapng_read_packet_block: failed to read sysdig event type");
+            return FALSE;
+        }
     }
 
     block_read -= MIN_SYSDIG_EVENT_SIZE;
@@ -2422,6 +2435,7 @@ pcapng_read_sysdig_event_block(FILE_T fh, pcapng_block_header_t *bh,
         wblock->rec->rec_header.syscall_header.thread_id = thread_id;
         wblock->rec->rec_header.syscall_header.event_len = event_len;
         wblock->rec->rec_header.syscall_header.event_type = event_type;
+        wblock->rec->rec_header.syscall_header.nparams = nparams;
     }
 
     wblock->rec->ts.secs = (time_t) (ts / 1000000000);
@@ -2756,6 +2770,7 @@ pcapng_read_block(wtap *wth, FILE_T fh, pcapng_t *pn,
                     return FALSE;
                 break;
             case(BLOCK_TYPE_SYSDIG_EVENT):
+            case(BLOCK_TYPE_SYSDIG_EVENT_V2):
             /* case(BLOCK_TYPE_SYSDIG_EVF): */
                 if (!pcapng_read_sysdig_event_block(fh, &bh, section_info, wblock, err, err_info))
                     return FALSE;

@@ -28,6 +28,8 @@
 #define BLOCK_TYPE_DSB              0x0000000A /* Decryption Secrets Block */
 #define BLOCK_TYPE_SYSDIG_EVENT     0x00000204 /* Sysdig Event Block */
 #define BLOCK_TYPE_SYSDIG_EVF       0x00000208 /* Sysdig Event Block with flags */
+#define BLOCK_TYPE_SYSDIG_EVENT_V2  0x00000216 /* Sysdig Event Block version 2 */
+#define BLOCK_TYPE_SYSDIG_EVF_V2    0x00000217 /* Sysdig Event Block with flags version 2 */
 
 /* TODO: the following are not yet well defined in the draft spec,
  * and do not yet have block type values assigned to them:
