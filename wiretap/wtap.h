@@ -1374,6 +1374,7 @@ typedef struct {
     guint32   event_len;        /* length of the event */
     guint32   event_filelen;    /* event data length in the file */
     guint16   event_type;
+    guint32   nparams;          /* number of parameters of the event */
     guint16   cpu_id;
     /* ... Event ... */
 } wtap_syscall_header;

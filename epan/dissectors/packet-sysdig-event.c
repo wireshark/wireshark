@@ -50,6 +50,7 @@ static int proto_sysdig_event = -1;
 static int hf_se_cpu_id = -1;
 static int hf_se_thread_id = -1;
 static int hf_se_event_length = -1;
+static int hf_se_nparams = -1;
 static int hf_se_event_type = -1;
 
 static int hf_se_param_lens = -1;
@@ -2084,37 +2085,35 @@ static inline const gchar *format_param_str(tvbuff_t *tvb, int offset, int len) 
 /* Code to actually dissect the packets */
 
 static int
-dissect_header_lens(tvbuff_t *tvb, int offset, proto_tree *tree, int encoding, const int **hf_indexes)
+dissect_header_lens(tvbuff_t *tvb, wtap_syscall_header* syscall_header, int offset, proto_tree *tree, int encoding)
 {
-    int param_count;
+    guint32 param_count;
     proto_item *ti;
     proto_tree *len_tree;
 
-    for (param_count = 0; hf_indexes[param_count]; param_count++);
-
-    ti = proto_tree_add_item(tree, hf_se_param_lens, tvb, offset, param_count * 2, ENC_NA);
+    ti = proto_tree_add_item(tree, hf_se_param_lens, tvb, offset, syscall_header->nparams * 2, ENC_NA);
     len_tree = proto_item_add_subtree(ti, ett_sysdig_parm_lens);
 
-    for (param_count = 0; hf_indexes[param_count]; param_count++) {
+    for (param_count = 0; param_count < syscall_header->nparams; param_count++) {
         proto_tree_add_item(len_tree, hf_se_param_len, tvb, offset + (param_count * 2), 2, encoding);
     }
 
-    proto_item_set_len(ti, param_count * 2);
-    return param_count * 2;
+    proto_item_set_len(ti, syscall_header->nparams * 2);
+    return syscall_header->nparams * 2;
 }
 
 /* Dissect events */
 
 static int
-dissect_event_params(tvbuff_t *tvb, int offset, proto_tree *tree, int encoding, const int **hf_indexes)
+dissect_event_params(tvbuff_t *tvb, wtap_syscall_header* syscall_header, int offset, proto_tree *tree, int encoding, const int **hf_indexes)
 {
     int len_offset = offset;
     int param_offset;
-    int cur_param;
+    guint32 cur_param;
 
-    param_offset = offset + dissect_header_lens(tvb, offset, tree, encoding, hf_indexes);
+    param_offset = offset + dissect_header_lens(tvb, syscall_header, offset, tree, encoding);
 
-    for (cur_param = 0; hf_indexes[cur_param]; cur_param++) {
+    for (cur_param = 0; cur_param < syscall_header->nparams; cur_param++) {
         int param_len = tvb_get_guint16(tvb, len_offset, encoding);
         const int hf_index = *hf_indexes[cur_param];
         if (proto_registrar_get_ftype(hf_index) == FT_STRING) {
@@ -2201,13 +2200,16 @@ dissect_sysdig_event(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_tree_add_uint(se_tree, hf_se_cpu_id, tvb, 0, 0, pinfo->rec->rec_header.syscall_header.cpu_id);
     proto_tree_add_uint64(se_tree, hf_se_thread_id, tvb, 0, 0, pinfo->rec->rec_header.syscall_header.thread_id);
     proto_tree_add_uint(se_tree, hf_se_event_length, tvb, 0, 0, pinfo->rec->rec_header.syscall_header.event_len);
+    if (pinfo->rec->rec_header.syscall_header.nparams != 0) {
+        proto_tree_add_uint(se_tree, hf_se_nparams, tvb, 0, 0, pinfo->rec->rec_header.syscall_header.nparams);
+    }
     ti = proto_tree_add_uint(se_tree, hf_se_event_type, tvb, 0, 0, event_type);
 
     syscall_tree = proto_item_add_subtree(ti, ett_sysdig_syscall);
 
     for (cur_tree_info = event_tree_info; cur_tree_info->hf_indexes; cur_tree_info++) {
         if (cur_tree_info->event_type == event_type) {
-            dissect_event_params(tvb, 0, syscall_tree, encoding, cur_tree_info->hf_indexes);
+            dissect_event_params(tvb, &pinfo->rec->rec_header.syscall_header, 0, syscall_tree, encoding, cur_tree_info->hf_indexes);
             break;
         }
     }
@@ -2237,6 +2239,10 @@ proto_register_sysdig_event(void)
         },
         { &hf_se_event_length,
           { "Event length", "sysdig.event_len",
+            FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }
+        },
+        { &hf_se_nparams,
+          { "Number of parameters", "sysdig.nparams",
             FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }
         },
         { &hf_se_event_type,
@@ -2445,6 +2451,7 @@ proto_register_sysdig_event(void)
 }
 
 #define BLOCK_TYPE_SYSDIG_EVENT 0x00000204
+#define BLOCK_TYPE_SYSDIG_EVENT_V2 0x00000216
 void
 proto_reg_handoff_sysdig_event(void)
 {
@@ -2457,6 +2464,7 @@ proto_reg_handoff_sysdig_event(void)
     sysdig_event_handle = create_dissector_handle(dissect_sysdig_event,
             proto_sysdig_event);
     dissector_add_uint("pcapng.block_type", BLOCK_TYPE_SYSDIG_EVENT, sysdig_event_handle);
+    dissector_add_uint("pcapng.block_type", BLOCK_TYPE_SYSDIG_EVENT_V2, sysdig_event_handle);
 }
 
 /*
