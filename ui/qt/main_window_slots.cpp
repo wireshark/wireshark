@@ -3308,46 +3308,51 @@ void MainWindow::openTelephonyRtpPlayerDialog()
 {
     if (!rtp_player_dialog_) {
         rtp_player_dialog_ = new RtpPlayerDialog(*this, capture_file_);
-    }
 
-    connect(rtp_player_dialog_, SIGNAL(goToPacket(int)),
-            packet_list_, SLOT(goToPacket(int)));
-    connect(this, SIGNAL(replaceRtpStreams(QVector<rtpstream_info_t *>)),
-            rtp_player_dialog_, SLOT(replaceRtpStreams(QVector<rtpstream_info_t *>)));
-    connect(this, SIGNAL(addRtpStreams(QVector<rtpstream_info_t *>)),
-            rtp_player_dialog_, SLOT(addRtpStreams(QVector<rtpstream_info_t *>)));
-    connect(this, SIGNAL(removeRtpStreams(QVector<rtpstream_info_t *>)),
-            rtp_player_dialog_, SLOT(removeRtpStreams(QVector<rtpstream_info_t *>)));
+        connect(rtp_player_dialog_, SIGNAL(goToPacket(int)),
+                packet_list_, SLOT(goToPacket(int)));
+        connect(this, SIGNAL(replaceRtpStreams(QVector<rtpstream_info_t *>)),
+                rtp_player_dialog_, SLOT(replaceRtpStreams(QVector<rtpstream_info_t *>)));
+        connect(this, SIGNAL(addRtpStreams(QVector<rtpstream_info_t *>)),
+                rtp_player_dialog_, SLOT(addRtpStreams(QVector<rtpstream_info_t *>)));
+        connect(this, SIGNAL(removeRtpStreams(QVector<rtpstream_info_t *>)),
+                rtp_player_dialog_, SLOT(removeRtpStreams(QVector<rtpstream_info_t *>)));
+    }
     rtp_player_dialog_->show();
 }
 
 void MainWindow::openTelephonyVoipCallsDialog(bool all_flows)
 {
     VoipCallsDialog *dlg;
+    bool set_signals = false;
 
     if (all_flows) {
         if (!sip_calls_dialog_) {
             sip_calls_dialog_ = new VoipCallsDialog(*this, capture_file_, true);
+            set_signals = true;
         }
         dlg = sip_calls_dialog_;
     } else {
         if (!voip_calls_dialog_) {
             voip_calls_dialog_ = new VoipCallsDialog(*this, capture_file_, false);
+            set_signals = true;
         }
         dlg = voip_calls_dialog_;
     }
-    connect(dlg, SIGNAL(goToPacket(int)),
-            packet_list_, SLOT(goToPacket(int)));
-    connect(dlg, SIGNAL(updateFilter(QString, bool)),
-            this, SLOT(filterPackets(QString, bool)));
-    connect(this, SIGNAL(displayFilterSuccess(bool)),
-            dlg, SLOT(displayFilterSuccess(bool)));
-    connect(dlg, SIGNAL(rtpPlayerDialogReplaceRtpStreams(QVector<rtpstream_info_t *>)),
-            this, SLOT(rtpPlayerDialogReplaceRtpStreams(QVector<rtpstream_info_t *>)));
-    connect(dlg, SIGNAL(rtpPlayerDialogAddRtpStreams(QVector<rtpstream_info_t *>)),
-            this, SLOT(rtpPlayerDialogAddRtpStreams(QVector<rtpstream_info_t *>)));
-    connect(dlg, SIGNAL(rtpPlayerDialogRemoveRtpStreams(QVector<rtpstream_info_t *>)),
-            this, SLOT(rtpPlayerDialogRemoveRtpStreams(QVector<rtpstream_info_t *>)));
+    if (set_signals) {
+        connect(dlg, SIGNAL(goToPacket(int)),
+                packet_list_, SLOT(goToPacket(int)));
+        connect(dlg, SIGNAL(updateFilter(QString, bool)),
+                this, SLOT(filterPackets(QString, bool)));
+        connect(this, SIGNAL(displayFilterSuccess(bool)),
+                dlg, SLOT(displayFilterSuccess(bool)));
+        connect(dlg, SIGNAL(rtpPlayerDialogReplaceRtpStreams(QVector<rtpstream_info_t *>)),
+                this, SLOT(rtpPlayerDialogReplaceRtpStreams(QVector<rtpstream_info_t *>)));
+        connect(dlg, SIGNAL(rtpPlayerDialogAddRtpStreams(QVector<rtpstream_info_t *>)),
+                this, SLOT(rtpPlayerDialogAddRtpStreams(QVector<rtpstream_info_t *>)));
+        connect(dlg, SIGNAL(rtpPlayerDialogRemoveRtpStreams(QVector<rtpstream_info_t *>)),
+                this, SLOT(rtpPlayerDialogRemoveRtpStreams(QVector<rtpstream_info_t *>)));
+    }
     dlg->show();
 }
 
@@ -3442,23 +3447,24 @@ void MainWindow::openTelephonyRtpStreamsDialog()
 {
     if (!rtp_stream_dialog_) {
         rtp_stream_dialog_ = new RtpStreamDialog(*this, capture_file_);
+
+        connect(rtp_stream_dialog_, SIGNAL(packetsMarked()),
+                packet_list_, SLOT(redrawVisiblePackets()));
+        connect(rtp_stream_dialog_, SIGNAL(goToPacket(int)),
+                packet_list_, SLOT(goToPacket(int)));
+        connect(rtp_stream_dialog_, SIGNAL(updateFilter(QString, bool)),
+                this, SLOT(filterPackets(QString, bool)));
+        connect(this, SIGNAL(displayFilterSuccess(bool)),
+                rtp_stream_dialog_, SLOT(displayFilterSuccess(bool)));
+        connect(rtp_stream_dialog_, SIGNAL(rtpPlayerDialogReplaceRtpStreams(QVector<rtpstream_info_t *>)),
+                this, SLOT(rtpPlayerDialogReplaceRtpStreams(QVector<rtpstream_info_t *>)));
+        connect(rtp_stream_dialog_, SIGNAL(rtpPlayerDialogAddRtpStreams(QVector<rtpstream_info_t *>)),
+                this, SLOT(rtpPlayerDialogAddRtpStreams(QVector<rtpstream_info_t *>)));
+        connect(rtp_stream_dialog_, SIGNAL(rtpPlayerDialogRemoveRtpStreams(QVector<rtpstream_info_t *>)),
+                this, SLOT(rtpPlayerDialogRemoveRtpStreams(QVector<rtpstream_info_t *>)));
+        connect(this, SIGNAL(selectRtpStream(rtpstream_id_t *)), rtp_stream_dialog_, SLOT(selectRtpStream(rtpstream_id_t *)));
+        connect(this, SIGNAL(deselectRtpStream(rtpstream_id_t *)), rtp_stream_dialog_, SLOT(deselectRtpStream(rtpstream_id_t *)));
     }
-    connect(rtp_stream_dialog_, SIGNAL(packetsMarked()),
-            packet_list_, SLOT(redrawVisiblePackets()));
-    connect(rtp_stream_dialog_, SIGNAL(goToPacket(int)),
-            packet_list_, SLOT(goToPacket(int)));
-    connect(rtp_stream_dialog_, SIGNAL(updateFilter(QString, bool)),
-            this, SLOT(filterPackets(QString, bool)));
-    connect(this, SIGNAL(displayFilterSuccess(bool)),
-            rtp_stream_dialog_, SLOT(displayFilterSuccess(bool)));
-    connect(rtp_stream_dialog_, SIGNAL(rtpPlayerDialogReplaceRtpStreams(QVector<rtpstream_info_t *>)),
-            this, SLOT(rtpPlayerDialogReplaceRtpStreams(QVector<rtpstream_info_t *>)));
-    connect(rtp_stream_dialog_, SIGNAL(rtpPlayerDialogAddRtpStreams(QVector<rtpstream_info_t *>)),
-            this, SLOT(rtpPlayerDialogAddRtpStreams(QVector<rtpstream_info_t *>)));
-    connect(rtp_stream_dialog_, SIGNAL(rtpPlayerDialogRemoveRtpStreams(QVector<rtpstream_info_t *>)),
-            this, SLOT(rtpPlayerDialogRemoveRtpStreams(QVector<rtpstream_info_t *>)));
-    connect(this, SIGNAL(selectRtpStream(rtpstream_id_t *)), rtp_stream_dialog_, SLOT(selectRtpStream(rtpstream_id_t *)));
-    connect(this, SIGNAL(deselectRtpStream(rtpstream_id_t *)), rtp_stream_dialog_, SLOT(deselectRtpStream(rtpstream_id_t *)));
     rtp_stream_dialog_->show();
 }
 

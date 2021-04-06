@@ -217,6 +217,18 @@ RtpPlayerDialog::RtpPlayerDialog(QWidget &parent, CaptureFile &cf) :
     ui->stopButton->setIcon(StockIcon("media-playback-stop"));
     ui->stopButton->setEnabled(false);
 
+    export_btn_ = ui->buttonBox->addButton(ui->actionExportButton->text(), QDialogButtonBox::ActionRole);
+    export_btn_->setToolTip(ui->actionExportButton->toolTip());
+    export_btn_->setEnabled(false);
+
+    QMenu *save_menu = new QMenu(export_btn_);
+    save_menu->addAction(ui->actionSaveAudioSyncStream);
+    save_menu->addAction(ui->actionSaveAudioSyncFile);
+    save_menu->addSeparator();
+    save_menu->addAction(ui->actionSavePayload);
+    save_menu->setToolTipsVisible(true);
+    export_btn_->setMenu(save_menu);
+
     // Ordered, unique device names starting with the system default
     QMap<QString, bool> out_device_map; // true == default device
     out_device_map.insert(QAudioDeviceInfo::defaultOutputDevice().deviceName(), true);
@@ -287,17 +299,6 @@ RtpPlayerDialog::RtpPlayerDialog(QWidget &parent, CaptureFile &cf) :
     list_ctx_menu_->addAction(ui->actionGoToSetupPacketTree);
     set_action_shortcuts_visible_in_context_menu(list_ctx_menu_->actions());
 
-    QPushButton *export_btn = ui->buttonBox->addButton(ui->actionExportButton->text(), QDialogButtonBox::ActionRole);
-    export_btn->setToolTip(ui->actionExportButton->toolTip());
-
-    QMenu *save_menu = new QMenu(export_btn);
-    save_menu->addAction(ui->actionSaveAudioSyncStream);
-    save_menu->addAction(ui->actionSaveAudioSyncFile);
-    save_menu->addSeparator();
-    save_menu->addAction(ui->actionSavePayload);
-    save_menu->setToolTipsVisible(true);
-    export_btn->setMenu(save_menu);
-
     QTimer::singleShot(0, this, SLOT(retapPackets()));
 #endif // QT_MULTIMEDIA_LIB
 }
@@ -316,14 +317,14 @@ QPushButton *RtpPlayerDialog::addPlayerButton(QDialogButtonBox *button_box, QDia
     QMenu *button_menu = new QMenu(player_button);
     button_menu->setToolTipsVisible(true);
     QAction *ca;
-    ca = button_menu->addAction(tr("Re&place"));
-    ca->setToolTip(tr("Replace existing streams in RTP Player with new set"));
+    ca = button_menu->addAction(tr("&Set playlist"));
+    ca->setToolTip(tr("Replace existing playlist in RTP Player with new one"));
     connect(ca, SIGNAL(triggered()), dialog, SLOT(rtpPlayerReplace()));
-    ca = button_menu->addAction(tr("&Add"));
-    ca->setToolTip(tr("Add new set to existing list of streams in RTP Player"));
+    ca = button_menu->addAction(tr("&Add to playlist"));
+    ca->setToolTip(tr("Add new set to existing playlist in RTP Player"));
     connect(ca, SIGNAL(triggered()), dialog, SLOT(rtpPlayerAdd()));
-    ca = button_menu->addAction(tr("&Remove"));
-    ca->setToolTip(tr("Remove selected streams from list of streams in RTP Player"));
+    ca = button_menu->addAction(tr("&Remove from playlist"));
+    ca->setToolTip(tr("Remove selected streams from playlist in RTP Player"));
     connect(ca, SIGNAL(triggered()), dialog, SLOT(rtpPlayerRemove()));
     player_button->setMenu(button_menu);
 #else
@@ -1368,6 +1369,18 @@ void RtpPlayerDialog::on_streamTreeWidget_itemSelectionChanged()
             audio_graph->setSelected(ti->isSelected());
         }
     }
+
+    int selected = ui->streamTreeWidget->selectedItems().count();
+    if (selected == 0) {
+        export_btn_->setEnabled(false);
+    } else if (selected == 1) {
+        export_btn_->setEnabled(true);
+        ui->actionSavePayload->setEnabled(true);
+    } else {
+        export_btn_->setEnabled(true);
+        ui->actionSavePayload->setEnabled(false);
+    }
+
     ui->audioPlot->replot();
 }
 

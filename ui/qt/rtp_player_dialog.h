@@ -177,6 +177,7 @@ private:
     QAudioOutput *marker_stream_;
     QTreeWidgetItem *last_ti_;
     bool listener_removed_;
+    QPushButton *export_btn_;
 
 //    const QString streamKey(const rtpstream_info_t *rtpstream);
 //    const QString streamKey(const packet_info *pinfo, const struct _rtp_info *rtpinfo);
