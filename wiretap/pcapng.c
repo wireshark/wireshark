@@ -2359,7 +2359,7 @@ pcapng_read_sysdig_event_block(FILE_T fh, pcapng_block_header_t *bh,
     guint64 thread_id;
     guint32 event_len;
     guint16 event_type;
-    guint32 nparams;
+    guint32 nparams = 0;
     guint min_event_size;
 
     if (bh->block_type == BLOCK_TYPE_SYSDIG_EVENT_V2) {
@@ -2368,7 +2368,7 @@ pcapng_read_sysdig_event_block(FILE_T fh, pcapng_block_header_t *bh,
         min_event_size = MIN_SYSDIG_EVENT_SIZE;
     }
 
-    if (bh->block_total_length < MIN_SYSDIG_EVENT_SIZE) {
+    if (bh->block_total_length < min_event_size) {
         *err = WTAP_ERR_BAD_FILE;
         *err_info = g_strdup_printf("%s: total block length %u is too small (< %u)", G_STRFUNC,
                                     bh->block_total_length, min_event_size);
