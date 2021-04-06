@@ -102,6 +102,7 @@ variables:
     #- Get-Location
     - mkdir build
     - cd build
+  needs: []
 
 # Rely on fedora:latest and debian-stable jobs for testing a recent GCC version.
 clang-11:
