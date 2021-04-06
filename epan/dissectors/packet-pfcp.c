@@ -271,7 +271,7 @@ static int hf_pfcp_report_type_b0_dldr = -1;
 
 static int hf_pfcp_offending_ie = -1;
 
-
+static int hf_pfcp_up_function_features_o10_b1_quoaf = -1;
 static int hf_pfcp_up_function_features_o10_b0_rttwp = -1;
 static int hf_pfcp_up_function_features_o9_b7_rds = -1;
 static int hf_pfcp_up_function_features_o9_b6_ddds = -1;
@@ -2842,7 +2842,8 @@ dissect_pfcp_up_function_features(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     }
 
     static int * const pfcp_up_function_features_o10_flags[] = {
-        &hf_pfcp_spare_b7_b1,
+        &hf_pfcp_spare_b7_b2,
+        &hf_pfcp_up_function_features_o10_b1_quoaf,
         &hf_pfcp_up_function_features_o10_b0_rttwp,
         NULL
     };
@@ -10550,6 +10551,11 @@ proto_register_pfcp(void)
         { "RTTWP", "pfcp.up_function_features.rttwp",
             FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x01,
             "UPF support of RTT measurement towards the UE without PMF", HFILL }
+        },
+        { &hf_pfcp_up_function_features_o10_b1_quoaf,
+        { "QUOAF", "pfcp.up_function_features.quoaf",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x02,
+            "UP function supports being provisioned with the Quota Action Application ID or a Quota Action SDF Filter to apply when reaching quotas", HFILL }
         },
         { &hf_pfcp_sequence_number,
         { "Sequence Number", "pfcp.sequence_number",
