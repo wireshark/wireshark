@@ -619,7 +619,7 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 			 * be preferred?
 			 */
 			ti = proto_tree_add_protocol_format(tree, proto_syscall, tvb, 0, tvb_captured_length(tvb),
-			    "System Call %u: %u byte%s",
+			    "Sysdig Event %u: %u byte%s",
 			    pinfo->num, frame_len, frame_plurality);
 			break;
 

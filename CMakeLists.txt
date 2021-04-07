@@ -1593,6 +1593,7 @@ if(ENABLE_PLUGINS)
 		plugins/epan/opcua
 		plugins/epan/profinet
 		plugins/epan/stats_tree
+		plugins/epan/sysdig_bridge
 		plugins/epan/transum
 		plugins/epan/unistim
 		plugins/epan/wimax

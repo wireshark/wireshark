@@ -2307,7 +2307,7 @@ dissect_sysdig_event(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
      * Sysdig uses the term "event" internally. So far every event has been
      * a syscall.
      */
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "System Call");
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "Sysdig Event");
 
     col_clear(pinfo->cinfo, COL_INFO);
     col_add_str(pinfo->cinfo, COL_INFO, val_to_str(event_type, event_type_vals, "Unknown syscall %u"));
@@ -2604,7 +2604,7 @@ proto_register_sysdig_event(void)
     };
 
     /* Register the protocol name and description */
-    proto_sysdig_event = proto_register_protocol("Sysdig System Call",
+    proto_sysdig_event = proto_register_protocol("Sysdig Event",
             "Sysdig Event", "sysdig");
 
     /* Required function calls to register the header fields and subtrees */
