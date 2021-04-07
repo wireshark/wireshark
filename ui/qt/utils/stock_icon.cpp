@@ -46,6 +46,7 @@
 #include <QFontMetrics>
 #include <QMap>
 #include <QPainter>
+#include <QPainterPath>
 #include <QStyle>
 #include <QStyleOption>
 
@@ -164,6 +165,78 @@ QIcon StockIcon::colorIcon(const QRgb bg_color, const QRgb fg_color, const QStri
             QRectF bounding = painter.boundingRect(pm.rect(), glyph, Qt::AlignHCenter | Qt::AlignVCenter);
             painter.drawText(bounding, glyph);
         }
+
+        color_icon.addPixmap(pm);
+    }
+    return color_icon;
+}
+
+// Create a triangle icon filled with the specified color.
+QIcon StockIcon::colorIconTriangle(const QRgb bg_color, const QRgb fg_color)
+{
+    QList<int> sizes = QList<int>() << 12 << 16 << 24 << 32 << 48;
+    QIcon color_icon;
+
+    foreach (int size, sizes) {
+        QPixmap pm(size, size);
+        QPainter painter(&pm);
+        QPainterPath triangle;
+        pm.fill();
+        painter.fillRect(0, 0, size-1, size-1, Qt::transparent);
+        painter.setPen(fg_color);
+        painter.setBrush(QColor(bg_color));
+        triangle.moveTo(0, size-1);
+        triangle.lineTo(size-1, size-1);
+        triangle.lineTo((size-1)/2, 0);
+        triangle.closeSubpath();
+        painter.fillPath(triangle, QColor(bg_color));
+
+        color_icon.addPixmap(pm);
+    }
+    return color_icon;
+}
+
+// Create a cross icon filled with the specified color.
+QIcon StockIcon::colorIconCross(const QRgb bg_color, const QRgb fg_color)
+{
+    QList<int> sizes = QList<int>() << 12 << 16 << 24 << 32 << 48;
+    QIcon color_icon;
+
+    foreach (int size, sizes) {
+        QPixmap pm(size, size);
+        QPainter painter(&pm);
+        QPainterPath cross;
+        pm.fill();
+        painter.fillRect(0, 0, size-1, size-1, Qt::transparent);
+        painter.setPen(QPen(QBrush(bg_color), 3));
+        painter.setBrush(QColor(fg_color));
+        cross.moveTo(0, 0);
+        cross.lineTo(size-1, size-1);
+        cross.moveTo(0, size-1);
+        cross.lineTo(size-1, 0);
+        painter.drawPath(cross);
+
+        color_icon.addPixmap(pm);
+    }
+    return color_icon;
+}
+
+// Create a circle icon filled with the specified color.
+QIcon StockIcon::colorIconCircle(const QRgb bg_color, const QRgb fg_color)
+{
+    QList<int> sizes = QList<int>() << 12 << 16 << 24 << 32 << 48;
+    QIcon color_icon;
+
+    foreach (int size, sizes) {
+        QPixmap pm(size, size);
+        QPainter painter(&pm);
+        QRect border(2, 2, size - 3, size - 3);
+        pm.fill();
+        painter.fillRect(0, 0, size-1, size-1, Qt::transparent);
+        painter.setPen(QPen(QBrush(bg_color), 3));
+        painter.setBrush(QColor(fg_color));
+        painter.setBrush(QColor(bg_color));
+        painter.drawEllipse(border);
 
         color_icon.addPixmap(pm);
     }

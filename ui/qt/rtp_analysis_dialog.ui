@@ -17,122 +17,10 @@
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
-      <layout class="QVBoxLayout" name="verticalLayout">
-       <item>
-        <widget class="QLabel" name="statisticsLabel">
-         <property name="text">
-          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:medium; font-weight:600;&quot;&gt;Forward&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:medium; font-weight:600;&quot;&gt;Reverse&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-         </property>
-         <property name="textFormat">
-          <enum>Qt::RichText</enum>
-         </property>
-         <property name="textInteractionFlags">
-          <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByKeyboard|Qt::TextSelectableByMouse</set>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <spacer name="verticalSpacer">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>40</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-      </layout>
-     </item>
-     <item>
       <widget class="QTabWidget" name="tabWidget">
        <property name="currentIndex">
         <number>0</number>
        </property>
-       <widget class="QTreeWidget" name="forwardTreeWidget">
-        <property name="rootIsDecorated">
-         <bool>false</bool>
-        </property>
-        <property name="uniformRowHeights">
-         <bool>true</bool>
-        </property>
-        <property name="itemsExpandable">
-         <bool>false</bool>
-        </property>
-        <property name="sortingEnabled">
-         <bool>true</bool>
-        </property>
-        <property name="expandsOnDoubleClick">
-         <bool>false</bool>
-        </property>
-        <attribute name="title">
-         <string>Forward</string>
-        </attribute>
-        <column>
-         <property name="text">
-          <string>Packet</string>
-         </property>
-        </column>
-        <column>
-         <property name="text">
-          <string>Sequence</string>
-         </property>
-        </column>
-        <column>
-         <property name="text">
-          <string>Delta (ms)</string>
-         </property>
-        </column>
-        <column>
-         <property name="text">
-          <string>Jitter (ms)</string>
-         </property>
-        </column>
-        <column>
-         <property name="text">
-          <string>Skew</string>
-         </property>
-        </column>
-        <column>
-         <property name="text">
-          <string>Bandwidth</string>
-         </property>
-        </column>
-        <column>
-         <property name="text">
-          <string>Marker</string>
-         </property>
-        </column>
-        <column>
-         <property name="text">
-          <string>Status</string>
-         </property>
-        </column>
-       </widget>
-       <widget class="QTreeWidget" name="reverseTreeWidget">
-        <property name="rootIsDecorated">
-         <bool>false</bool>
-        </property>
-        <property name="uniformRowHeights">
-         <bool>true</bool>
-        </property>
-        <property name="itemsExpandable">
-         <bool>false</bool>
-        </property>
-        <property name="sortingEnabled">
-         <bool>true</bool>
-        </property>
-        <attribute name="title">
-         <string>Reverse</string>
-        </attribute>
-        <column>
-         <property name="text">
-          <string notr="true">1</string>
-         </property>
-        </column>
-       </widget>
        <widget class="QWidget" name="graphTab">
         <attribute name="title">
          <string>Graph</string>
@@ -140,152 +28,6 @@
         <layout class="QVBoxLayout" name="verticalLayout_2" stretch="1,0,0">
          <item>
           <widget class="QCustomPlot" name="streamGraph" native="true"/>
-         </item>
-         <item>
-          <layout class="QHBoxLayout" name="forwardHorizontalLayout" stretch="0,0,0,0,0,1">
-           <item>
-            <widget class="QCheckBox" name="fJitterCheckBox">
-             <property name="toolTip">
-              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show or hide forward jitter values.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-             </property>
-             <property name="text">
-              <string>Forward Jitter</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <spacer name="horizontalSpacer_3">
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>10</width>
-               <height>5</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
-           <item>
-            <widget class="QCheckBox" name="fDiffCheckBox">
-             <property name="toolTip">
-              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show or hide forward difference values.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-             </property>
-             <property name="text">
-              <string>Forward Difference</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <spacer name="horizontalSpacer_5">
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>10</width>
-               <height>5</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
-           <item>
-            <widget class="QCheckBox" name="fDeltaCheckBox">
-             <property name="toolTip">
-              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show or hide forward delta values.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-             </property>
-             <property name="text">
-              <string>Forward Delta</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <spacer name="horizontalSpacer">
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>10</width>
-               <height>5</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
-          </layout>
-         </item>
-         <item>
-          <layout class="QHBoxLayout" name="reverseHorizontalLayout" stretch="0,0,0,0,0,1">
-           <item>
-            <widget class="QCheckBox" name="rJitterCheckBox">
-             <property name="toolTip">
-              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show or hide reverse jitter values.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-             </property>
-             <property name="text">
-              <string>Reverse Jitter</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <spacer name="horizontalSpacer_4">
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>10</width>
-               <height>5</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
-           <item>
-            <widget class="QCheckBox" name="rDiffCheckBox">
-             <property name="toolTip">
-              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show or hide reverse difference values.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-             </property>
-             <property name="text">
-              <string>Reverse Difference</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <spacer name="horizontalSpacer_6">
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>10</width>
-               <height>5</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
-           <item>
-            <widget class="QCheckBox" name="rDeltaCheckBox">
-             <property name="toolTip">
-              <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show or hide reverse delta values.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-             </property>
-             <property name="text">
-              <string>Reverse Delta</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <spacer name="horizontalSpacer_2">
-             <property name="orientation">
-              <enum>Qt::Horizontal</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>10</width>
-               <height>5</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
-          </layout>
          </item>
         </layout>
        </widget>
@@ -336,52 +78,28 @@
     <string>Open export menu</string>
    </property>
   </action>
-  <action name="actionSaveAudioUnsync">
-   <property name="text">
-    <string>Unsynchronized Forward and Reverse Audio</string>
-   </property>
-   <property name="toolTip">
-    <string>Save the unsynchronized audio data for both channels.</string>
-   </property>
-  </action>
-  <action name="actionSaveForwardAudioUnsync">
-   <property name="text">
-    <string>Unsynchronized Forward Stream Audio</string>
-   </property>
-   <property name="toolTip">
-    <string>Save the unsynchronized forward stream audio data.</string>
-   </property>
-  </action>
-  <action name="actionSaveReverseAudioUnsync">
-   <property name="text">
-    <string>Unsynchronized Reverse Stream Audio</string>
-   </property>
-   <property name="toolTip">
-    <string>Save the unsynchronized reverse stream audio data.</string>
-   </property>
-  </action>
   <action name="actionSaveCsv">
    <property name="text">
     <string>CSV</string>
    </property>
    <property name="toolTip">
-    <string>Save both tables as CSV.</string>
+    <string>Save tables as CSV.</string>
    </property>
   </action>
-  <action name="actionSaveForwardCsv">
+  <action name="actionSaveOneCsv">
    <property name="text">
-    <string>Forward Stream CSV</string>
+    <string>Current Tab Stream CSV</string>
    </property>
    <property name="toolTip">
-    <string>Save the forward table as CSV.</string>
+    <string>Save the table on the current tab as CSV.</string>
    </property>
   </action>
-  <action name="actionSaveReverseCsv">
+  <action name="actionSaveAllCsv">
    <property name="text">
-    <string>Reverse Stream CSV</string>
+    <string>All Tab Streams CSV</string>
    </property>
    <property name="toolTip">
-    <string>Save the reverse table as CSV.</string>
+    <string>Save the table from all tabs as CSV.</string>
    </property>
   </action>
   <action name="actionSaveGraph">
@@ -412,54 +130,6 @@
    </property>
    <property name="shortcut">
     <string>N</string>
-   </property>
-  </action>
-  <action name="actionSaveAudioSyncStream">
-   <property name="text">
-    <string>Stream Synchronized Forward and Reverse Audio</string>
-   </property>
-   <property name="toolTip">
-    <string>Save the audio data for both channels synchronized to start of earlier stream.</string>
-   </property>
-  </action>
-  <action name="actionSaveForwardAudioSyncStream">
-   <property name="text">
-    <string>Stream Synchronized Forward Stream Audio</string>
-   </property>
-   <property name="toolTip">
-    <string>Save the forward stream audio data synchronized to start of earlier stream.</string>
-   </property>
-  </action>
-  <action name="actionSaveReverseAudioSyncStream">
-   <property name="text">
-    <string>Stream Synchronized Reverse Stream Audio</string>
-   </property>
-   <property name="toolTip">
-    <string>Save the reverse stream audio data synchronized to start of earlier stream.</string>
-   </property>
-  </action>
-  <action name="actionSaveAudioSyncFile">
-   <property name="text">
-    <string>File Synchronized Forward and Reverse Audio</string>
-   </property>
-   <property name="toolTip">
-    <string>Save the audio data for both channels synchronized to start of file.</string>
-   </property>
-  </action>
-  <action name="actionSaveForwardAudioSyncFile">
-   <property name="text">
-    <string>File Synchronized Forward Stream Audio</string>
-   </property>
-   <property name="toolTip">
-    <string>Save the forward stream audio data synchronized to start of file.</string>
-   </property>
-  </action>
-  <action name="actionSaveReverseAudioSyncFile">
-   <property name="text">
-    <string>File Synchronized Reverse Stream Audio</string>
-   </property>
-   <property name="toolTip">
-    <string>Save the reverse stream audio data synchronized to start of file.</string>
    </property>
   </action>
  </widget>

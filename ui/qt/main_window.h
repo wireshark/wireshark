@@ -77,6 +77,7 @@
 #include <ui/qt/models/pref_models.h>
 #include "rtp_stream_dialog.h"
 #include "voip_calls_dialog.h"
+#include "rtp_analysis_dialog.h"
 
 class AccordionFrame;
 class ByteViewTab;
@@ -250,6 +251,7 @@ private:
     QPointer<VoipCallsDialog> voip_calls_dialog_;       // Singleton pattern used
     QPointer<VoipCallsDialog> sip_calls_dialog_;        // Singleton pattern used
     QPointer<RtpPlayerDialog> rtp_player_dialog_;       // Singleton pattern used
+    QPointer<RtpAnalysisDialog> rtp_analysis_dialog_;   // Singleton pattern used
 
     void freeze();
     void thaw();
@@ -312,9 +314,6 @@ signals:
     void framesSelected(QList<int>);
 
     void captureActive(int);
-    void replaceRtpStreams(QVector<rtpstream_info_t *> stream_infos);
-    void addRtpStreams(QVector<rtpstream_info_t *> stream_infos);
-    void removeRtpStreams(QVector<rtpstream_info_t *> stream_infos);
     void selectRtpStream(rtpstream_id_t *id);
     void deselectRtpStream(rtpstream_id_t *id);
 
@@ -367,6 +366,9 @@ public slots:
     void rtpPlayerDialogReplaceRtpStreams(QVector<rtpstream_info_t *> stream_infos);
     void rtpPlayerDialogAddRtpStreams(QVector<rtpstream_info_t *> stream_infos);
     void rtpPlayerDialogRemoveRtpStreams(QVector<rtpstream_info_t *> stream_infos);
+    void rtpAnalysisDialogReplaceRtpStreams(QVector<rtpstream_info_t *> stream_infos);
+    void rtpAnalysisDialogAddRtpStreams(QVector<rtpstream_info_t *> stream_infos);
+    void rtpAnalysisDialogRemoveRtpStreams(QVector<rtpstream_info_t *> stream_infos);
     void rtpStreamsDialogSelectRtpStream(rtpstream_id_t *id);
     void rtpStreamsDialogDeselectRtpStream(rtpstream_id_t *id);
 
@@ -686,6 +688,7 @@ private slots:
     void openTelephonyRtpStreamsDialog();
     void openTelephonyRtpPlayerDialog();
     void openTelephonyVoipCallsDialog(bool all_flows);
+    void openTelephonyRtpAnalysisDialog();
     void on_actionTelephonyVoipCalls_triggered();
     void on_actionTelephonyGsmMapSummary_triggered();
     void statCommandLteMacStatistics(const char *arg, void *);

@@ -62,7 +62,6 @@ public:
      * @param button_box Caller's QDialogButtonBox.
      * @return The new "Play call" button.
      */
-    // XXX We might want to move this to qt_ui_utils.
     static QPushButton *addPlayerButton(QDialogButtonBox *button_box, QDialog *dialog);
 
 #ifdef QT_MULTIMEDIA_LIB
@@ -73,7 +72,6 @@ public:
 
     void setMarkers();
 
-public slots:
     /** Replace/Add/Remove an RTP streams to play.
      * Requires array of rtpstream_info_t.
      * Each item must have filled items: src_addr, src_port, dest_addr,

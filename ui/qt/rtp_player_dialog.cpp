@@ -14,6 +14,7 @@
 #ifdef QT_MULTIMEDIA_LIB
 
 #include <epan/dissectors/packet-rtp.h>
+#include <epan/to_str.h>
 
 #include <wsutil/report_message.h>
 #include <wsutil/utf8_entities.h>

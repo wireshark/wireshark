@@ -273,8 +273,7 @@ RtpStreamDialog::RtpStreamDialog(QWidget &parent, CaptureFile &cf) :
     // this? Perhaps you should volunteer to maintain this code!
     find_reverse_button_ = ui->buttonBox->addButton(ui->actionFindReverse->text(), QDialogButtonBox::ActionRole);
     find_reverse_button_->setToolTip(ui->actionFindReverse->toolTip());
-    analyze_button_ = ui->buttonBox->addButton(ui->actionAnalyze->text(), QDialogButtonBox::ActionRole);
-    analyze_button_->setToolTip(ui->actionAnalyze->toolTip());
+    analyze_button_ = RtpAnalysisDialog::addAnalyzeButton(ui->buttonBox, this);
     prepare_button_ = ui->buttonBox->addButton(ui->actionPrepareFilter->text(), QDialogButtonBox::ActionRole);
     prepare_button_->setToolTip(ui->actionPrepareFilter->toolTip());
     player_button_ = RtpPlayerDialog::addPlayerButton(ui->buttonBox, this);
@@ -619,26 +618,6 @@ void RtpStreamDialog::showStreamMenu(QPoint pos)
     ctx_menu_.popup(ui->streamTreeWidget->viewport()->mapToGlobal(pos));
 }
 
-void RtpStreamDialog::on_actionAnalyze_triggered()
-{
-    rtpstream_info_t *stream_a, *stream_b = NULL;
-
-    QTreeWidgetItem *ti = ui->streamTreeWidget->selectedItems()[0];
-    RtpStreamTreeWidgetItem *rsti = static_cast<RtpStreamTreeWidgetItem*>(ti);
-    stream_a = rsti->streamInfo();
-    if (ui->streamTreeWidget->selectedItems().count() > 1) {
-        ti = ui->streamTreeWidget->selectedItems()[1];
-        rsti = static_cast<RtpStreamTreeWidgetItem*>(ti);
-        stream_b = rsti->streamInfo();
-    }
-
-    if (stream_a == NULL && stream_b == NULL) return;
-
-    RtpAnalysisDialog *rtp_analysis_dialog = new RtpAnalysisDialog(*this, cap_file_, stream_a, stream_b);
-    connect(rtp_analysis_dialog, SIGNAL(goToPacket(int)), this, SIGNAL(goToPacket(int)));
-    rtp_analysis_dialog->show();
-}
-
 void RtpStreamDialog::on_actionCopyAsCsv_triggered()
 {
     QString csv;
@@ -807,8 +786,6 @@ void RtpStreamDialog::on_buttonBox_clicked(QAbstractButton *button)
         on_actionPrepareFilter_triggered();
     } else if (button == export_button_) {
         on_actionExportAsRtpDump_triggered();
-    } else if (button == analyze_button_) {
-        on_actionAnalyze_triggered();
     }
 }
 
@@ -889,6 +866,27 @@ void RtpStreamDialog::rtpPlayerRemove()
     if (ui->streamTreeWidget->selectedItems().count() < 1) return;
 
     emit rtpPlayerDialogRemoveRtpStreams(getSelectedRtpStreams());
+}
+
+void RtpStreamDialog::rtpAnalysisReplace()
+{
+    if (ui->streamTreeWidget->selectedItems().count() < 1) return;
+
+    emit rtpAnalysisDialogReplaceRtpStreams(getSelectedRtpStreams());
+}
+
+void RtpStreamDialog::rtpAnalysisAdd()
+{
+    if (ui->streamTreeWidget->selectedItems().count() < 1) return;
+
+    emit rtpAnalysisDialogAddRtpStreams(getSelectedRtpStreams());
+}
+
+void RtpStreamDialog::rtpAnalysisRemove()
+{
+    if (ui->streamTreeWidget->selectedItems().count() < 1) return;
+
+    emit rtpAnalysisDialogRemoveRtpStreams(getSelectedRtpStreams());
 }
 
 void RtpStreamDialog::displayFilterSuccess(bool success)

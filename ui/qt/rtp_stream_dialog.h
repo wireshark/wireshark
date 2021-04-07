@@ -29,6 +29,8 @@ class RtpStreamDialog : public WiresharkDialog
 public:
     explicit RtpStreamDialog(QWidget &parent, CaptureFile &cf);
     ~RtpStreamDialog();
+    void selectRtpStream(rtpstream_id_t *id);
+    void deselectRtpStream(rtpstream_id_t *id);
 
 signals:
     // Tells the packet list to redraw. An alternative might be to add a
@@ -40,14 +42,18 @@ signals:
     void rtpPlayerDialogReplaceRtpStreams(QVector<rtpstream_info_t *> stream_infos);
     void rtpPlayerDialogAddRtpStreams(QVector<rtpstream_info_t *> stream_infos);
     void rtpPlayerDialogRemoveRtpStreams(QVector<rtpstream_info_t *> stream_infos);
+    void rtpAnalysisDialogReplaceRtpStreams(QVector<rtpstream_info_t *> stream_infos);
+    void rtpAnalysisDialogAddRtpStreams(QVector<rtpstream_info_t *> stream_infos);
+    void rtpAnalysisDialogRemoveRtpStreams(QVector<rtpstream_info_t *> stream_infos);
 
 public slots:
-    void selectRtpStream(rtpstream_id_t *id);
-    void deselectRtpStream(rtpstream_id_t *id);
     void displayFilterSuccess(bool success);
     void rtpPlayerReplace();
     void rtpPlayerAdd();
     void rtpPlayerRemove();
+    void rtpAnalysisReplace();
+    void rtpAnalysisAdd();
+    void rtpAnalysisRemove();
 
 protected:
     bool eventFilter(QObject *obj, QEvent *event);
@@ -94,7 +100,6 @@ private slots:
     void on_buttonBox_helpRequested();
     void on_buttonBox_clicked(QAbstractButton *button);
     void on_actionExportAsRtpDump_triggered();
-    void on_actionAnalyze_triggered();
     void captureEvent(CaptureEvent e);
     void on_displayFilterCheckBox_toggled(bool checked);
     void on_todCheckBox_toggled(bool checked);
