@@ -40,6 +40,9 @@
 /* #include <epan/expert.h> */
 /* #include <epan/prefs.h> */
 
+#define BLOCK_TYPE_SYSDIG_EVENT 0x00000204
+#define BLOCK_TYPE_SYSDIG_EVENT_V2 0x00000216
+
 /* Prototypes */
 void proto_reg_handoff_sysdig_event(void);
 void proto_register_sysdig_event(void);
@@ -2085,7 +2088,27 @@ static inline const gchar *format_param_str(tvbuff_t *tvb, int offset, int len) 
 /* Code to actually dissect the packets */
 
 static int
-dissect_header_lens(tvbuff_t *tvb, wtap_syscall_header* syscall_header, int offset, proto_tree *tree, int encoding)
+dissect_header_lens_v1(tvbuff_t *tvb, int offset, proto_tree *tree, int encoding, int * const *hf_indexes)
+{
+    int param_count;
+    proto_item *ti;
+    proto_tree *len_tree;
+
+    for (param_count = 0; hf_indexes[param_count]; param_count++);
+
+    ti = proto_tree_add_item(tree, hf_se_param_lens, tvb, offset, param_count * 2, ENC_NA);
+    len_tree = proto_item_add_subtree(ti, ett_sysdig_parm_lens);
+
+    for (param_count = 0; hf_indexes[param_count]; param_count++) {
+        proto_tree_add_item(len_tree, hf_se_param_len, tvb, offset + (param_count * 2), 2, encoding);
+    }
+
+    proto_item_set_len(ti, param_count * 2);
+    return param_count * 2;
+}
+
+static int
+dissect_header_lens_v2(tvbuff_t *tvb, wtap_syscall_header* syscall_header, int offset, proto_tree *tree, int encoding)
 {
     guint32 param_count;
     proto_item *ti;
@@ -2111,7 +2134,11 @@ dissect_event_params(tvbuff_t *tvb, wtap_syscall_header* syscall_header, int off
     int param_offset;
     guint32 cur_param;
 
-    param_offset = offset + dissect_header_lens(tvb, syscall_header, offset, tree, encoding);
+    if (syscall_header->record_type == BLOCK_TYPE_SYSDIG_EVENT_V2) {
+        param_offset = offset + dissect_header_lens_v2(tvb, syscall_header, offset, tree, encoding);
+    } else {
+        param_offset = offset + dissect_header_lens_v1(tvb, offset, tree, encoding, hf_indexes);
+    }
 
     for (cur_param = 0; cur_param < syscall_header->nparams; cur_param++) {
         int param_len = tvb_get_guint16(tvb, len_offset, encoding);
@@ -2450,8 +2477,6 @@ proto_register_sysdig_event(void)
     register_dissector("sysdig", dissect_sysdig_event, proto_sysdig_event);
 }
 
-#define BLOCK_TYPE_SYSDIG_EVENT 0x00000204
-#define BLOCK_TYPE_SYSDIG_EVENT_V2 0x00000216
 void
 proto_reg_handoff_sysdig_event(void)
 {

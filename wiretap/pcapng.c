@@ -2387,7 +2387,7 @@ pcapng_read_sysdig_event_block(FILE_T fh, pcapng_block_header_t *bh,
                   bh->block_total_length);
 
     wblock->rec->rec_type = REC_TYPE_SYSCALL;
-    wblock->rec->rec_header.syscall_header.record_type = BLOCK_TYPE_SYSDIG_EVENT;
+    wblock->rec->rec_header.syscall_header.record_type = bh->block_type;
     wblock->rec->presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN /*|WTAP_HAS_INTERFACE_ID */;
     wblock->rec->tsprec = WTAP_TSPREC_NSEC;
 
@@ -2413,7 +2413,7 @@ pcapng_read_sysdig_event_block(FILE_T fh, pcapng_block_header_t *bh,
     }
     if (bh->block_type == BLOCK_TYPE_SYSDIG_EVENT_V2) {
         if (!wtap_read_bytes(fh, &nparams, sizeof nparams, err, err_info)) {
-            pcapng_debug("pcapng_read_packet_block: failed to read sysdig event type");
+            pcapng_debug("pcapng_read_packet_block: failed to read sysdig number of parameters");
             return FALSE;
         }
     }
