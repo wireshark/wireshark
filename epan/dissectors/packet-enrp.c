@@ -1029,7 +1029,7 @@ proto_register_enrp(void)
   };
 
   static stat_tap_table_ui enrp_stat_table = {
-    REGISTER_STAT_GROUP_UNSORTED,
+    REGISTER_STAT_GROUP_RSERPOOL,
     "ENRP Statistics",
     "enrp",
     "enrp,stat",
