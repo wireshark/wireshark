@@ -173,6 +173,7 @@ private:
     bool stereo_available_;
     QList<RtpAudioStream *> playing_streams_;
     QAudioOutput *marker_stream_;
+    quint32 marker_stream_requested_out_rate_;
     QTreeWidgetItem *last_ti_;
     bool listener_removed_;
     QPushButton *export_btn_;
@@ -209,6 +210,7 @@ private:
     void addSingleRtpStream(rtpstream_info_t *rtpstream);
     void removeRow(QTreeWidgetItem *ti);
     void fillAudioRateMenu();
+    void cleanupMarkerStream();
 
     qint64 saveAudioHeaderAU(QFile *save_file, int channels, unsigned audio_rate);
     qint64 saveAudioHeaderWAV(QFile *save_file, int channels, unsigned audio_rate, qint64 samples);

@@ -33,6 +33,7 @@
 #include <QDir>
 #include <QTemporaryFile>
 #include <QVariant>
+#include <QTimer>
 
 // To do:
 // - Only allow one rtpstream_info_t per RtpAudioStream?
@@ -710,20 +711,10 @@ bool RtpAudioStream::prepareForPlay(QAudioDeviceInfo out_device)
         size *= 2;
     }
     if (start_pos < size) {
-        int buffer_size;
-
-        // Start and stop audio with no connection to UI and store buffer size
         temp_file_ = new AudioRoutingFilter(sample_file_, stereo_required_, audio_routing_);
         temp_file_->seek(start_pos);
         if (audio_output_) delete audio_output_;
         audio_output_ = new QAudioOutput(out_device, format, this);
-        audio_output_->start(temp_file_);
-        buffer_size = audio_output_->bufferSize();
-        audio_output_->stop();
-
-        // Start audio again with trippled buffer size
-        temp_file_->seek(start_pos);
-        audio_output_->setBufferSize(buffer_size*3);
         audio_output_->setNotifyInterval(100); // ~15 fps
         connect(audio_output_, SIGNAL(stateChanged(QAudio::State)), this, SLOT(outputStateChanged(QAudio::State)));
         return true;
@@ -801,11 +792,21 @@ void RtpAudioStream::outputStateChanged(QAudio::State new_state)
         emit finishedPlaying(this);
         break;
     case QAudio::IdleState:
-        audio_output_->stop();
+        // Workaround for Qt behaving on some platforms with some soundcards:
+        // When ->stop() is called from outputStateChanged(), QMutexLocker is
+        // locked and application hangs.
+        // We can stop the stream later.
+        QTimer::singleShot(0, this, SLOT(delayedStopStream()));
+
         break;
     default:
         break;
     }
+}
+
+void RtpAudioStream::delayedStopStream()
+{
+    audio_output_->stop();
 }
 
 SAMPLE *RtpAudioStream::resizeBufferIfNeeded(SAMPLE *buff, gint32 *buff_bytes, qint64 requested_size)

@@ -34,6 +34,7 @@
 #include <QFrame>
 #include <QMenu>
 #include <QVBoxLayout>
+#include <QTimer>
 
 #include <QAudioFormat>
 #include <QAudioOutput>
@@ -149,6 +150,7 @@ RtpPlayerDialog::RtpPlayerDialog(QWidget &parent, CaptureFile &cf) :
     , datetime_ticker_(new QCPAxisTickerDateTime)
     , stereo_available_(false)
     , marker_stream_(0)
+    , marker_stream_requested_out_rate_(0)
     , last_ti_(0)
     , listener_removed_(true)
 {
@@ -339,10 +341,7 @@ QPushButton *RtpPlayerDialog::addPlayerButton(QDialogButtonBox *button_box, QDia
 #ifdef QT_MULTIMEDIA_LIB
 RtpPlayerDialog::~RtpPlayerDialog()
 {
-    if (marker_stream_) {
-        marker_stream_->stop();
-        delete marker_stream_;
-    }
+    cleanupMarkerStream();
     for (int row = 0; row < ui->streamTreeWidget->topLevelItemCount(); row++) {
         QTreeWidgetItem *ti = ui->streamTreeWidget->topLevelItem(row);
         RtpAudioStream *audio_stream = ti->data(stream_data_col_, Qt::UserRole).value<RtpAudioStream*>();
@@ -1089,6 +1088,7 @@ void RtpPlayerDialog::playFinished(RtpAudioStream *stream)
 {
     playing_streams_.removeOne(stream);
     if (playing_streams_.isEmpty()) {
+        marker_stream_->stop();
         updateWidgets();
     }
 }
@@ -1242,15 +1242,18 @@ QAudioOutput *RtpPlayerDialog::getSilenceAudioOutput()
     QAudioDeviceInfo cur_out_device = getCurrentDeviceInfo();
 
     QAudioFormat format;
-    format.setSampleRate(8000);
+    if (marker_stream_requested_out_rate_ > 0) {
+        format.setSampleRate(marker_stream_requested_out_rate_);
+    } else {
+        format.setSampleRate(8000);
+    }
     format.setSampleSize(SAMPLE_BYTES * 8); // bits
     format.setSampleType(QAudioFormat::SignedInt);
-    if (stereo_available_) {
-        format.setChannelCount(2);
-    } else {
-        format.setChannelCount(1);
-    }
+    format.setChannelCount(1);
     format.setCodec("audio/pcm");
+    if (!cur_out_device.isFormatSupported(format)) {
+        format = cur_out_device.nearestFormat(format);
+    }
 
     o = new QAudioOutput(cur_out_device, format, this);
     o->setNotifyInterval(100); // ~15 fps
@@ -1614,6 +1617,15 @@ void RtpPlayerDialog::fillAudioRateMenu()
     }
 }
 
+void RtpPlayerDialog::cleanupMarkerStream()
+{
+    if (marker_stream_) {
+        marker_stream_->stop();
+        delete marker_stream_;
+        marker_stream_ = NULL;
+    }
+}
+
 void RtpPlayerDialog::on_outputDeviceComboBox_currentIndexChanged(const QString &)
 {
     stereo_available_ = isStereoAvailable();
@@ -1626,6 +1638,8 @@ void RtpPlayerDialog::on_outputDeviceComboBox_currentIndexChanged(const QString 
         changeAudioRoutingOnItem(ti, audio_stream->getAudioRouting().convert(stereo_available_));
     }
 
+    marker_stream_requested_out_rate_ = 0;
+    cleanupMarkerStream();
     fillAudioRateMenu();
     rescanPackets();
 }
@@ -1643,6 +1657,8 @@ void RtpPlayerDialog::on_outputAudioRate_currentIndexChanged(const QString & rat
 
         audio_stream->setRequestedPlayRate(selected_rate);
     }
+    marker_stream_requested_out_rate_ = selected_rate;
+    cleanupMarkerStream();
     rescanPackets();
 }
 

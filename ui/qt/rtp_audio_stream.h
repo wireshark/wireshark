@@ -212,6 +212,7 @@ private:
 
 private slots:
     void outputStateChanged(QAudio::State new_state);
+    void delayedStopStream();
 };
 
 #endif // QT_MULTIMEDIA_LIB
