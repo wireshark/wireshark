@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>827</width>
+    <width>826</width>
     <height>672</height>
    </rect>
   </property>
@@ -28,7 +28,7 @@
      <x>5</x>
      <y>10</y>
      <width>821</width>
-     <height>571</height>
+     <height>661</height>
     </rect>
    </property>
    <property name="windowTitle">
@@ -129,10 +129,10 @@
     <widget class="QWidget" name="gridLayoutWidget_4">
      <property name="geometry">
       <rect>
-       <x>13</x>
-       <y>290</y>
+       <x>10</x>
+       <y>540</y>
        <width>791</width>
-       <height>55</height>
+       <height>51</height>
       </rect>
      </property>
      <layout class="QHBoxLayout" name="horizontalLayout">
@@ -192,7 +192,7 @@
        <x>10</x>
        <y>210</y>
        <width>791</width>
-       <height>297</height>
+       <height>301</height>
       </rect>
      </property>
      <layout class="QGridLayout" name="gridLayout">
@@ -220,14 +220,14 @@
       <item row="5" column="0">
        <widget class="QLabel" name="label_216">
         <property name="text">
-         <string>TextLabel</string>
+         <string>Minimum Number of Outbound Streams:</string>
         </property>
        </widget>
       </item>
       <item row="4" column="0">
        <widget class="QLabel" name="label_215">
         <property name="text">
-         <string>Minimum Number of Outbound Streams:</string>
+         <string>Provided Number of Outbound Streams:</string>
         </property>
        </widget>
       </item>
@@ -288,54 +288,71 @@
        <x>10</x>
        <y>60</y>
        <width>791</width>
-       <height>131</height>
+       <height>141</height>
       </rect>
      </property>
+    </widget>
+    <widget class="QWidget" name="gridLayoutWidget_5">
+     <property name="geometry">
+      <rect>
+       <x>10</x>
+       <y>540</y>
+       <width>791</width>
+       <height>55</height>
+      </rect>
+     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout_3">
+      <item>
+       <widget class="QPushButton" name="GraphBytes_1">
+        <property name="focusPolicy">
+         <enum>Qt::NoFocus</enum>
+        </property>
+        <property name="text">
+         <string>Graph Bytes</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="GraphTSN_1">
+        <property name="focusPolicy">
+         <enum>Qt::NoFocus</enum>
+        </property>
+        <property name="text">
+         <string>Graph TSN</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="GraphArwnd_1">
+        <property name="text">
+         <string>Graph Arwnd</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="pushButton_2">
+        <property name="focusPolicy">
+         <enum>Qt::NoFocus</enum>
+        </property>
+        <property name="text">
+         <string>Close</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
     </widget>
    </widget>
    <widget class="QWidget" name="Endpoint_2">
     <attribute name="title">
      <string>Endpoint 2</string>
     </attribute>
-    <widget class="QPushButton" name="GraphTSN_2">
-     <property name="geometry">
-      <rect>
-       <x>0</x>
-       <y>310</y>
-       <width>114</width>
-       <height>32</height>
-      </rect>
-     </property>
-     <property name="focusPolicy">
-      <enum>Qt::NoFocus</enum>
-     </property>
-     <property name="text">
-      <string>Graph TSN</string>
-     </property>
-    </widget>
-    <widget class="QPushButton" name="GraphBytes_2">
-     <property name="geometry">
-      <rect>
-       <x>110</x>
-       <y>310</y>
-       <width>114</width>
-       <height>32</height>
-      </rect>
-     </property>
-     <property name="focusPolicy">
-      <enum>Qt::NoFocus</enum>
-     </property>
-     <property name="text">
-      <string>Graph Bytes</string>
-     </property>
-    </widget>
     <widget class="QWidget" name="gridLayoutWidget_2">
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>170</y>
-       <width>651</width>
-       <height>254</height>
+       <y>210</y>
+       <width>791</width>
+       <height>301</height>
       </rect>
      </property>
      <layout class="QGridLayout" name="gridLayout_2">
@@ -430,103 +447,74 @@
       <rect>
        <x>10</x>
        <y>10</y>
-       <width>441</width>
-       <height>16</height>
+       <width>791</width>
+       <height>41</height>
       </rect>
      </property>
      <property name="text">
-      <string>Complete list of IP Addresses as provided in the INIT-ACK Chunk</string>
-     </property>
-    </widget>
-    <widget class="QPushButton" name="pushButton_3">
-     <property name="geometry">
-      <rect>
-       <x>390</x>
-       <y>310</y>
-       <width>114</width>
-       <height>32</height>
-      </rect>
-     </property>
-     <property name="focusPolicy">
-      <enum>Qt::NoFocus</enum>
-     </property>
-     <property name="text">
-      <string>Close</string>
+      <string>Complete list of IP Addresses as provided in the INIT_ACK Chunk:</string>
      </property>
     </widget>
     <widget class="QListWidget" name="listWidgetEP2">
      <property name="geometry">
       <rect>
        <x>10</x>
-       <y>30</y>
-       <width>501</width>
-       <height>131</height>
+       <y>60</y>
+       <width>791</width>
+       <height>141</height>
       </rect>
      </property>
     </widget>
-    <widget class="QPushButton" name="GraphArwnd_2">
+    <widget class="QWidget" name="horizontalLayoutWidget">
      <property name="geometry">
       <rect>
-       <x>220</x>
-       <y>310</y>
-       <width>121</width>
-       <height>32</height>
+       <x>10</x>
+       <y>540</y>
+       <width>791</width>
+       <height>55</height>
       </rect>
      </property>
-     <property name="text">
-      <string>Graph a_rwnd</string>
-     </property>
+     <layout class="QHBoxLayout" name="horizontalLayout_2">
+      <item>
+       <widget class="QPushButton" name="GraphBytes_2">
+        <property name="focusPolicy">
+         <enum>Qt::NoFocus</enum>
+        </property>
+        <property name="text">
+         <string>Graph Bytes</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="GraphTSN_2">
+        <property name="focusPolicy">
+         <enum>Qt::NoFocus</enum>
+        </property>
+        <property name="text">
+         <string>Graph TSN</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="GraphArwnd_2">
+        <property name="text">
+         <string>Graph Arwnd</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QPushButton" name="pushButton_3">
+        <property name="focusPolicy">
+         <enum>Qt::NoFocus</enum>
+        </property>
+        <property name="text">
+         <string>Close</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
     </widget>
    </widget>
-  </widget>
-  <widget class="QWidget" name="gridLayoutWidget_5">
-   <property name="geometry">
-    <rect>
-     <x>10</x>
-     <y>610</y>
-     <width>811</width>
-     <height>55</height>
-    </rect>
-   </property>
-   <layout class="QHBoxLayout" name="horizontalLayout_3">
-    <item>
-     <widget class="QPushButton" name="GraphBytes_1">
-      <property name="focusPolicy">
-       <enum>Qt::NoFocus</enum>
-      </property>
-      <property name="text">
-       <string>Graph Bytes</string>
-      </property>
-     </widget>
-    </item>
-    <item>
-     <widget class="QPushButton" name="GraphArwnd_1">
-      <property name="text">
-       <string>Graph Arwnd</string>
-      </property>
-     </widget>
-    </item>
-    <item>
-     <widget class="QPushButton" name="pushButton_2">
-      <property name="focusPolicy">
-       <enum>Qt::NoFocus</enum>
-      </property>
-      <property name="text">
-       <string>Close</string>
-      </property>
-     </widget>
-    </item>
-    <item>
-     <widget class="QPushButton" name="GraphTSN_1">
-      <property name="focusPolicy">
-       <enum>Qt::NoFocus</enum>
-      </property>
-      <property name="text">
-       <string>Graph TSN</string>
-      </property>
-     </widget>
-    </item>
-   </layout>
   </widget>
  </widget>
  <resources/>
