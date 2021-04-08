@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>685</width>
-    <height>300</height>
+    <width>827</width>
+    <height>546</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -46,11 +46,11 @@
      <property name="columnCount">
       <number>6</number>
      </property>
-     <attribute name="horizontalHeaderDefaultSectionSize">
-      <number>120</number>
-     </attribute>
      <attribute name="horizontalHeaderMinimumSectionSize">
       <number>50</number>
+     </attribute>
+     <attribute name="horizontalHeaderDefaultSectionSize">
+      <number>120</number>
      </attribute>
      <attribute name="horizontalHeaderStretchLastSection">
       <bool>true</bool>
@@ -411,6 +411,7 @@
    </property>
   </action>
  </widget>
+ <resources/>
  <connections>
   <connection>
    <sender>buttonBox</sender>

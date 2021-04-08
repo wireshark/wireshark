@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>519</width>
-    <height>504</height>
+    <width>830</width>
+    <height>673</height>
    </rect>
   </property>
   <property name="sizePolicy">
@@ -22,10 +22,10 @@
   <widget class="QDialogButtonBox" name="buttonBox">
    <property name="geometry">
     <rect>
-     <x>310</x>
-     <y>470</y>
-     <width>191</width>
-     <height>32</height>
+     <x>510</x>
+     <y>610</y>
+     <width>311</width>
+     <height>51</height>
     </rect>
    </property>
    <property name="orientation">
@@ -38,10 +38,10 @@
   <widget class="QTableWidget" name="tableWidget">
    <property name="geometry">
     <rect>
-     <x>30</x>
-     <y>30</y>
-     <width>471</width>
-     <height>431</height>
+     <x>0</x>
+     <y>10</y>
+     <width>831</width>
+     <height>591</height>
     </rect>
    </property>
    <property name="editTriggers">
@@ -87,10 +87,10 @@
   <widget class="QPushButton" name="pushButton">
    <property name="geometry">
     <rect>
-     <x>130</x>
-     <y>470</y>
-     <width>181</width>
-     <height>32</height>
+     <x>0</x>
+     <y>610</y>
+     <width>381</width>
+     <height>51</height>
     </rect>
    </property>
    <property name="text">
@@ -122,6 +122,7 @@
    </property>
   </action>
  </widget>
+ <resources/>
  <connections>
   <connection>
    <sender>buttonBox</sender>
