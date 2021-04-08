@@ -148,6 +148,11 @@ extern int dissect_pn_user_data(tvbuff_t *tvb, int offset, packet_info *pinfo _U
 extern int dissect_blocks(tvbuff_t *tvb, int offset,
                     packet_info *pinfo, proto_tree *tree, guint8 *drep);
 
+#define PDU_TYPE_REQ 0x05
+#define PDU_TYPE_RSP 0x06
+
+extern int dissect_rsi_blocks(tvbuff_t* tvb, int offset, packet_info* pinfo, proto_tree* tree, guint8* drep, guint32 u32FOpnumOffsetOpnum, int type);
+
 #define SUBST_DATA  1
 #define FRAG_DATA   2
 
@@ -170,7 +175,7 @@ extern int dissect_PNIO_C_SDU_RTC1(tvbuff_t* tvb, int offset, packet_info* pinfo
 
 extern int dissect_PNIO_RSI(tvbuff_t *tvb, int offset, packet_info *pinfo,
                     proto_tree *tree, guint8 *drep);
-					
+
 extern int dissect_PDRsiInstances_block(tvbuff_t *tvb, int offset,
                     packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint8 *drep, guint8 u8BlockVersionHigh, guint8 u8BlockVersionLow);
 

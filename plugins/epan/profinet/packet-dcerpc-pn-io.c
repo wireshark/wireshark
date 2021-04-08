@@ -11311,6 +11311,68 @@ dissect_IPNIO_Write_resp(tvbuff_t *tvb, int offset,
 }
 
 
+/* dissect any number of PN-RSI blocks */
+int
+dissect_rsi_blocks(tvbuff_t* tvb, int offset,
+    packet_info* pinfo, proto_tree* tree, guint8* drep, guint32 u32FOpnumOffsetOpnum, int type)
+{
+    pnio_ar_t* ar = NULL;
+    guint      recursion_count = 0;
+    guint16    u16Index = 0;
+    guint32    u32RecDataLen = 0;
+
+
+    switch (u32FOpnumOffsetOpnum) {
+    case(0x0): // Connect request or response
+        offset = dissect_blocks(tvb, offset, pinfo, tree, drep);
+        break;
+    case(0x2): // Read request or response
+        offset = dissect_RecordDataRead(tvb, offset, pinfo, tree, drep, u16Index, u32RecDataLen);
+        break;
+    case(0x3): // Write request or response
+        if (type == PDU_TYPE_REQ)
+            offset = dissect_IODWriteReq(tvb, offset, pinfo, tree, drep, &ar, recursion_count);
+        else if (type == PDU_TYPE_RSP)
+            offset = dissect_IODWriteRes(tvb, offset, pinfo, tree, drep);
+        break;
+    case(0x4): // Control request or response
+        offset = dissect_blocks(tvb, offset, pinfo, tree, drep);
+        break;
+    case(0x5): // ReadImplicit request or response
+        offset = dissect_RecordDataRead(tvb, offset, pinfo, tree, drep, u16Index, u32RecDataLen);
+        break;
+    case(0x6): // ReadConnectionless request or response
+        offset = dissect_RecordDataRead(tvb, offset, pinfo, tree, drep, u16Index, u32RecDataLen);
+        break;
+    case(0x7): // ReadNotification request or response
+        offset = dissect_RecordDataRead(tvb, offset, pinfo, tree, drep, u16Index, u32RecDataLen);
+        break;
+    case(0x8): // PrmWriteMore request or response
+        if (type == PDU_TYPE_REQ)
+            offset = dissect_IODWriteReq(tvb, offset, pinfo, tree, drep, &ar, recursion_count);
+        else if (type == PDU_TYPE_RSP)
+            offset = dissect_IODWriteRes(tvb, offset, pinfo, tree, drep);
+        break;
+    case(0x9): // PrmWriteEnd request or response
+        if (type == PDU_TYPE_REQ)
+            offset = dissect_IODWriteReq(tvb, offset, pinfo, tree, drep, &ar, recursion_count);
+        else if (type == PDU_TYPE_RSP)
+            offset = dissect_IODWriteRes(tvb, offset, pinfo, tree, drep);
+        break;
+    default:
+        col_append_str(pinfo->cinfo, COL_INFO, "Reserved");
+        offset = dissect_pn_undecoded(tvb, offset, pinfo, tree, tvb_captured_length(tvb));
+        break;
+    }
+
+    if (ar != NULL) {
+        pnio_ar_info(tvb, pinfo, tree, ar);
+    }
+
+    return offset;
+}
+
+
 /* dissect the IOxS (IOCS, IOPS) field */
 static int
 dissect_PNIO_IOxS(tvbuff_t *tvb, int offset,
