@@ -35,7 +35,7 @@
     <string>TabWidget</string>
    </property>
    <property name="currentIndex">
-    <number>1</number>
+    <number>2</number>
    </property>
    <widget class="QWidget" name="Statistics">
     <property name="focusPolicy">
@@ -132,7 +132,7 @@
        <x>10</x>
        <y>540</y>
        <width>791</width>
-       <height>51</height>
+       <height>55</height>
       </rect>
      </property>
      <layout class="QHBoxLayout" name="horizontalLayout">
@@ -183,7 +183,7 @@
       </rect>
      </property>
      <property name="text">
-      <string>Complete list of IP Addresses as provided in the INIT Chunk:</string>
+      <string>Complete List of IP addresses from INIT Chunk:</string>
      </property>
     </widget>
     <widget class="QWidget" name="gridLayoutWidget">
@@ -452,7 +452,7 @@
       </rect>
      </property>
      <property name="text">
-      <string>Complete list of IP Addresses as provided in the INIT_ACK Chunk:</string>
+      <string>Complete List of IP addresses from INIT_ACK Chunk:</string>
      </property>
     </widget>
     <widget class="QListWidget" name="listWidgetEP2">
