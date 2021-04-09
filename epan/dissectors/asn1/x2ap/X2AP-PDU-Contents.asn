@@ -1,4 +1,4 @@
--- 3GPP TS 36.423 V16.4.0 (2021-01)﻿
+-- 3GPP TS 36.423 V16.5.0 (2021-04)﻿
 -- 9.3.4	PDU Definitions
 -- **************************************************************
 --
@@ -230,7 +230,8 @@ IMPORTS
 	IABNodeIndication,
 	F1CTrafficContainer,
 	IntendedTDD-DL-ULConfiguration-NR,
-	UERadioCapability
+	UERadioCapability,
+	SFN-Offset
 
 
 
@@ -581,6 +582,7 @@ FROM X2AP-Containers
 	id-F1CTrafficContainer,
 	id-IntendedTDD-DL-ULConfiguration-NR,
 	id-UERadioCapability,
+	id-SFN-Offset,
 	maxCellineNB,
 	maxnoofBearers,
 	maxnoofPDCP-SN,
@@ -3909,7 +3911,8 @@ ServedNRCell-Information-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
 	{ ID id-BPLMN-ID-Info-NR				CRITICALITY ignore 	EXTENSION BPLMN-ID-Info-NR				PRESENCE optional}|
 	{ ID id-SSB-PositionsInBurst			CRITICALITY ignore	EXTENSION SSB-PositionsInBurst	PRESENCE optional}|
 	{ ID id-NRCellPRACHConfig				CRITICALITY ignore	EXTENSION NRCellPRACHConfig		PRESENCE optional}|
-	{ ID id-CSI-RSTransmissionIndication	CRITICALITY ignore	EXTENSION CSI-RSTransmissionIndication		PRESENCE optional},
+	{ ID id-CSI-RSTransmissionIndication	CRITICALITY ignore	EXTENSION CSI-RSTransmissionIndication		PRESENCE optional}|
+	{ ID id-SFN-Offset						CRITICALITY ignore EXTENSION SFN-Offset								PRESENCE optional},
 	...
 }
 

@@ -1,4 +1,4 @@
--- 3GPP TS 36.423 V16.4.0 (2021-01)﻿
+-- 3GPP TS 36.423 V16.5.0 (2021-04)﻿
 -- 9.3.5	Information Element definitions
 -- **************************************************************
 --
@@ -85,6 +85,7 @@ IMPORTS
 	id-QoS-Mapping-Information,
 	id-IntendedTDD-DL-ULConfiguration-NR,
 	id-TraceCollectionEntityURI,
+	id-SFN-Offset,
 
 	maxnoofBearers,
 	maxCellineNB,
@@ -447,7 +448,9 @@ CauseRadioNetwork ::= ENUMERATED {
 	unknown-old-en-gNB-UE-X2AP-ID,
 	pDCP-Overload,
 	cho-cpc-resources-tobechanged,
-	ue-power-saving
+	ue-power-saving,
+	insufficient-ue-capabilities,
+	normal-release
 
 
 }
@@ -2557,7 +2560,8 @@ ServedCell-Information-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
 	{ ID id-BandwidthReducedSI					CRITICALITY ignore	EXTENSION BandwidthReducedSI						PRESENCE optional}|
 	{ ID id-ProtectedEUTRAResourceIndication	CRITICALITY ignore	EXTENSION ProtectedEUTRAResourceIndication	PRESENCE optional}|
 	{ ID id-BPLMN-ID-Info-EUTRA					CRITICALITY ignore 	EXTENSION BPLMN-ID-Info-EUTRA						PRESENCE optional}|
-	{ ID id-NPRACHConfiguration					CRITICALITY ignore	EXTENSION	NPRACHConfiguration					PRESENCE optional},
+	{ ID id-NPRACHConfiguration					CRITICALITY ignore	EXTENSION	NPRACHConfiguration					PRESENCE optional}|
+	{ ID id-SFN-Offset							CRITICALITY ignore	EXTENSION SFN-Offset								PRESENCE optional},
 	...
 }
 
@@ -2823,6 +2827,16 @@ SULInformation-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
 	{ ID id-CarrierList						CRITICALITY ignore	EXTENSION NRCarrierList			PRESENCE optional }|
 	{ ID id-FrequencyShift7p5khz			CRITICALITY ignore	EXTENSION FrequencyShift7p5khz	PRESENCE optional },
 	...
+}
+
+SFN-Offset ::= SEQUENCE {
+	sFN-Time-Offset					BIT STRING (SIZE(24)),
+	iE-Extensions		ProtocolExtensionContainer { {SFN-Offset-ExtIEs} } OPTIONAL,
+	...
+}
+
+SFN-Offset-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
+		...
 }
 
 -- T

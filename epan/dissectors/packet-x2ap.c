@@ -20,7 +20,7 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
  * Ref:
- * 3GPP TS 36.423 V16.4.0 (2021-01)
+ * 3GPP TS 36.423 V16.5.0 (2021-04)
  */
 
 #include "config.h"
@@ -586,7 +586,8 @@ typedef enum _ProtocolIE_ID_enum {
   id_CellMeasurementResult_E_UTRA_ENDC_Item = 402,
   id_CellToReport_E_UTRA_ENDC = 403,
   id_CellToReport_E_UTRA_ENDC_Item = 404,
-  id_TraceCollectionEntityURI = 405
+  id_TraceCollectionEntityURI = 405,
+  id_SFN_Offset = 406
 } ProtocolIE_ID_enum;
 
 /*--- End of included file: packet-x2ap-val.h ---*/
@@ -843,6 +844,7 @@ static int hf_x2ap_SubframeAssignment_PDU = -1;   /* SubframeAssignment */
 static int hf_x2ap_SgNBSecurityKey_PDU = -1;      /* SgNBSecurityKey */
 static int hf_x2ap_SgNBtoMeNBContainer_PDU = -1;  /* SgNBtoMeNBContainer */
 static int hf_x2ap_SCGConfigurationQuery_PDU = -1;  /* SCGConfigurationQuery */
+static int hf_x2ap_SFN_Offset_PDU = -1;           /* SFN_Offset */
 static int hf_x2ap_TAC_PDU = -1;                  /* TAC */
 static int hf_x2ap_TargetCellInNGRAN_PDU = -1;    /* TargetCellInNGRAN */
 static int hf_x2ap_TargetCellInUTRAN_PDU = -1;    /* TargetCellInUTRAN */
@@ -1533,6 +1535,7 @@ static int hf_x2ap_oneframe = -1;                 /* Oneframe */
 static int hf_x2ap_fourframes = -1;               /* Fourframes */
 static int hf_x2ap_sUL_ARFCN = -1;                /* INTEGER_0_3279165 */
 static int hf_x2ap_sUL_TxBW = -1;                 /* NR_TxBW */
+static int hf_x2ap_sFN_Time_Offset = -1;          /* BIT_STRING_SIZE_24 */
 static int hf_x2ap_tAListforMDT = -1;             /* TAListforMDT */
 static int hf_x2ap_tAIListforMDT = -1;            /* TAIListforMDT */
 static int hf_x2ap_TAIListforMDT_item = -1;       /* TAI_Item */
@@ -2125,6 +2128,7 @@ static gint ett_x2ap_SubbandCQIItem = -1;
 static gint ett_x2ap_SubframeAllocation = -1;
 static gint ett_x2ap_SULInformation = -1;
 static gint ett_x2ap_SupportedSULFreqBandItem = -1;
+static gint ett_x2ap_SFN_Offset = -1;
 static gint ett_x2ap_TABasedMDT = -1;
 static gint ett_x2ap_TAIBasedMDT = -1;
 static gint ett_x2ap_TAIListforMDT = -1;
@@ -3161,6 +3165,7 @@ static const value_string x2ap_ProtocolIE_ID_vals[] = {
   { id_CellToReport_E_UTRA_ENDC, "id-CellToReport-E-UTRA-ENDC" },
   { id_CellToReport_E_UTRA_ENDC_Item, "id-CellToReport-E-UTRA-ENDC-Item" },
   { id_TraceCollectionEntityURI, "id-TraceCollectionEntityURI" },
+  { id_SFN_Offset, "id-SFN-Offset" },
   { 0, NULL }
 };
 
@@ -4449,6 +4454,8 @@ static const value_string x2ap_CauseRadioNetwork_vals[] = {
   {  50, "pDCP-Overload" },
   {  51, "cho-cpc-resources-tobechanged" },
   {  52, "ue-power-saving" },
+  {  53, "insufficient-ue-capabilities" },
+  {  54, "normal-release" },
   { 0, NULL }
 };
 
@@ -4458,7 +4465,7 @@ static value_string_ext x2ap_CauseRadioNetwork_vals_ext = VALUE_STRING_EXT_INIT(
 static int
 dissect_x2ap_CauseRadioNetwork(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     22, NULL, TRUE, 31, NULL);
+                                     22, NULL, TRUE, 33, NULL);
 
   return offset;
 }
@@ -11684,6 +11691,21 @@ static int
 dissect_x2ap_SCGConfigurationQuery(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
                                      1, NULL, TRUE, 0, NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t SFN_Offset_sequence[] = {
+  { &hf_x2ap_sFN_Time_Offset, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_x2ap_BIT_STRING_SIZE_24 },
+  { &hf_x2ap_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_x2ap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_x2ap_SFN_Offset(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_x2ap_SFN_Offset, SFN_Offset_sequence);
 
   return offset;
 }
@@ -19632,6 +19654,14 @@ static int dissect_SCGConfigurationQuery_PDU(tvbuff_t *tvb _U_, packet_info *pin
   offset += 7; offset >>= 3;
   return offset;
 }
+static int dissect_SFN_Offset_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_x2ap_SFN_Offset(tvb, offset, &asn1_ctx, tree, hf_x2ap_SFN_Offset_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
 static int dissect_TAC_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
@@ -22806,6 +22836,10 @@ void proto_register_x2ap(void) {
       { "SCGConfigurationQuery", "x2ap.SCGConfigurationQuery",
         FT_UINT32, BASE_DEC, VALS(x2ap_SCGConfigurationQuery_vals), 0,
         NULL, HFILL }},
+    { &hf_x2ap_SFN_Offset_PDU,
+      { "SFN-Offset", "x2ap.SFN_Offset_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
     { &hf_x2ap_TAC_PDU,
       { "TAC", "x2ap.TAC",
         FT_UINT16, BASE_DEC_HEX, NULL, 0,
@@ -25566,6 +25600,10 @@ void proto_register_x2ap(void) {
       { "sUL-TxBW", "x2ap.sUL_TxBW_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "NR_TxBW", HFILL }},
+    { &hf_x2ap_sFN_Time_Offset,
+      { "sFN-Time-Offset", "x2ap.sFN_Time_Offset",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "BIT_STRING_SIZE_24", HFILL }},
     { &hf_x2ap_tAListforMDT,
       { "tAListforMDT", "x2ap.tAListforMDT",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -27132,6 +27170,7 @@ void proto_register_x2ap(void) {
     &ett_x2ap_SubframeAllocation,
     &ett_x2ap_SULInformation,
     &ett_x2ap_SupportedSULFreqBandItem,
+    &ett_x2ap_SFN_Offset,
     &ett_x2ap_TABasedMDT,
     &ett_x2ap_TAIBasedMDT,
     &ett_x2ap_TAIListforMDT,
@@ -27947,6 +27986,7 @@ proto_reg_handoff_x2ap(void)
   dissector_add_uint("x2ap.extension", id_QoS_Mapping_Information, create_dissector_handle(dissect_QoS_Mapping_Information_PDU, proto_x2ap));
   dissector_add_uint("x2ap.extension", id_IntendedTDD_DL_ULConfiguration_NR, create_dissector_handle(dissect_IntendedTDD_DL_ULConfiguration_NR_PDU, proto_x2ap));
   dissector_add_uint("x2ap.extension", id_TraceCollectionEntityURI, create_dissector_handle(dissect_URI_Address_PDU, proto_x2ap));
+  dissector_add_uint("x2ap.extension", id_SFN_Offset, create_dissector_handle(dissect_SFN_Offset_PDU, proto_x2ap));
   dissector_add_uint("x2ap.proc.imsg", id_handoverPreparation, create_dissector_handle(dissect_HandoverRequest_PDU, proto_x2ap));
   dissector_add_uint("x2ap.proc.sout", id_handoverPreparation, create_dissector_handle(dissect_HandoverRequestAcknowledge_PDU, proto_x2ap));
   dissector_add_uint("x2ap.proc.uout", id_handoverPreparation, create_dissector_handle(dissect_HandoverPreparationFailure_PDU, proto_x2ap));

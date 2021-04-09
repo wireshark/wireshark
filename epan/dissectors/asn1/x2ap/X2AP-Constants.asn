@@ -1,4 +1,4 @@
--- 3GPP TS 36.423 V16.4.0 (2021-01)﻿
+-- 3GPP TS 36.423 V16.5.0 (2021-04)﻿
 -- 9.3.7	Constant definitions
 -- **************************************************************
 --
@@ -563,6 +563,7 @@ id-CellMeasurementResult-E-UTRA-ENDC-Item									ProtocolIE-ID ::= 402
 id-CellToReport-E-UTRA-ENDC													ProtocolIE-ID ::= 403
 id-CellToReport-E-UTRA-ENDC-Item											ProtocolIE-ID ::= 404
 id-TraceCollectionEntityURI													ProtocolIE-ID ::= 405
+id-SFN-Offset																ProtocolIE-ID ::= 406
 
 
 END

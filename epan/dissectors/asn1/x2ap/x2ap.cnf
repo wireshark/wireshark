@@ -1543,6 +1543,7 @@ id-CellMeasurementResult-E-UTRA-ENDC-Item			ProtocolIE-ID
 id-CellToReport-E-UTRA-ENDC					ProtocolIE-ID
 id-CellToReport-E-UTRA-ENDC-Item				ProtocolIE-ID
 id-TraceCollectionEntityURI					ProtocolIE-ID
+id-SFN-Offset							ProtocolIE-ID
 
 #.REGISTER
 
@@ -1944,6 +1945,7 @@ NRCellPRACHConfig						N x2ap.extension id-NRCellPRACHConfig
 QoS-Mapping-Information						N x2ap.extension id-QoS-Mapping-Information
 IntendedTDD-DL-ULConfiguration-NR				N x2ap.extension id-IntendedTDD-DL-ULConfiguration-NR
 URI-Address							N x2ap.extension id-TraceCollectionEntityURI
+SFN-Offset							N x2ap.extension id-SFN-Offset
 
 # X2AP-PDU-Descriptions.asn  Interface Elementary Procedures
 #X2AP-ELEMENTARY-PROCEDURE
