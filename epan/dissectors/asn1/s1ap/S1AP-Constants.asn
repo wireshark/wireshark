@@ -1,4 +1,4 @@
--- 3GPP TS 36.413 V16.4.0 (2021-01)﻿
+-- 3GPP TS 36.413 V16.5.0 (2021-04)﻿
 -- 9.3.6	Constant Definitions
 -- **************************************************************
 --
@@ -511,5 +511,6 @@ id-Bearers-SubjectToEarlyStatusTransfer-Item		ProtocolIE-ID ::= 322
 id-WUS-Assistance-Information						ProtocolIE-ID ::= 323
 id-NB-IoT-PagingDRX									ProtocolIE-ID ::= 324
 id-TraceCollectionEntityURI							ProtocolIE-ID ::= 325
+id-EmergencyIndicator								ProtocolIE-ID ::= 326
 
 END

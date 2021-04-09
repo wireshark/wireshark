@@ -1,4 +1,4 @@
--- 3GPP TS 36.413 V16.4.0 (2021-01)﻿
+-- 3GPP TS 36.413 V16.5.0 (2021-04)﻿
 -- 9.3.4	Information Element Definitions
 -- **************************************************************
 --
@@ -83,6 +83,7 @@ IMPORTS
 	id-DAPSResponseInfoItem,
 	id-Bearers-SubjectToEarlyStatusTransfer-Item,
 	id-TraceCollectionEntityURI,
+	id-EmergencyIndicator,
 	maxnoofCSGs,
 	maxnoofE-RABs,
 	maxnoofErrors,
@@ -889,6 +890,11 @@ CompletedCellinEAI-Item-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
 ECGI-List ::= SEQUENCE (SIZE(1..maxnoofCellsineNB)) OF EUTRAN-CGI
 
 EmergencyAreaIDListForRestart	::= SEQUENCE (SIZE(1..maxnoofRestartEmergencyAreaIDs)) OF EmergencyAreaID
+
+EmergencyIndicator ::= ENUMERATED {
+	true,
+	...
+}
 
 ENB-EarlyStatusTransfer-TransparentContainer ::= SEQUENCE {
 	bearers-SubjectToEarlyStatusTransferList		Bearers-SubjectToEarlyStatusTransferList,
@@ -2416,7 +2422,8 @@ SourceeNB-ToTargeteNB-TransparentContainer-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
 	{ID id-AdditionalRRMPriorityIndex			CRITICALITY ignore	EXTENSION AdditionalRRMPriorityIndex				PRESENCE optional}|
 	{ID id-ContextatSource						CRITICALITY ignore	EXTENSION ContextatSource							PRESENCE optional}|
 	{ID id-IntersystemMeasurementConfiguration	CRITICALITY ignore	EXTENSION IntersystemMeasurementConfiguration	PRESENCE optional}|
-	{ID id-SourceNodeID							CRITICALITY ignore	EXTENSION SourceNodeID										PRESENCE optional},
+	{ID id-SourceNodeID							CRITICALITY ignore	EXTENSION SourceNodeID										PRESENCE optional}|
+	{ID id-EmergencyIndicator					CRITICALITY ignore	EXTENSION EmergencyIndicator								PRESENCE optional},
 	...
 }
 
