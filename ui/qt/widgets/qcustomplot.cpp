@@ -25859,7 +25859,7 @@ QCPColorMapData &QCPColorMapData::operator=(const QCPColorMapData &other)
     if (!isEmpty())
     {
       memcpy(mData, other.mData, sizeof(mData[0])*size_t(keySize*valueSize));
-      if (mAlpha)
+      if (mAlpha && other.mAlpha)
         memcpy(mAlpha, other.mAlpha, sizeof(mAlpha[0])*size_t(keySize*valueSize));
     }
     mDataBounds = other.mDataBounds;
@@ -35434,13 +35434,13 @@ void QCPPolarGraph::getOptimizedLineData(QVector<QCPGraphData> *lineData, const 
   // to make fill not erratic, add last point normally if it was outside visible circle:
   if (aboveRange)
   {
-    aboveRange = false;
+    // aboveRange = false; // Dead store
     if (!reversed)
       lineData->append(*(it-1)); // just entered from above, draw previous point so entry angle is correct (if above means outer, so if not reversed axis)
   }
   if (belowRange)
   {
-    belowRange = false;
+    // belowRange = false; // Dead store
     if (reversed)
       lineData->append(*(it-1)); // just entered from below, draw previous point so entry angle is correct (if below means outer, so if reversed axis)
   }
