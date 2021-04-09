@@ -1332,7 +1332,7 @@ ek_write_field_value(field_info *fi, write_json_data* pdata)
 #endif
             if (tm != NULL) {
                 strftime(time_string, sizeof(time_string), "%FT%T", tm);
-                json_dumper_value_anyf(pdata->dumper, "\"%s.%uZ\"", time_string, t->nsecs);
+                json_dumper_value_anyf(pdata->dumper, "\"%s.%09uZ\"", time_string, t->nsecs);
             } else {
                 json_dumper_value_anyf(pdata->dumper, "\"Not representable\"");
             }
