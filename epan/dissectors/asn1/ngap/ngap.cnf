@@ -1132,6 +1132,20 @@ FiveG-TMSI TYPE = FT_UINT32 DISPLAY = BASE_DEC_HEX
 #.TYPE_ATTR
 QosMonitoringReportingFrequency DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
 
+#.FN_BODY UpdateFeedback VAL_PTR=&parameter_tvb
+  tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (parameter_tvb) {
+    static int * const fields[] = {
+      &hf_ngap_UpdateFeedback_CN_PDB_DL,
+      &hf_ngap_UpdateFeedback_CN_PDB_UL,
+      &hf_ngap_UpdateFeedback_reserved,
+      NULL
+    };
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_ngap_UpdateFeedback);
+    proto_tree_add_bitmask_list(subtree, parameter_tvb, 0, 1, fields, ENC_BIG_ENDIAN);
+  }
+
 #.ASSIGN_VALUE_TO_TYPE  # NGAP does not have constants assigned to types, they are pure INTEGER
 # ProcedureCode
 
@@ -1480,6 +1494,9 @@ id-Extended-AMFName                              ProtocolIE-ID
 id-GlobalCable-ID                                ProtocolIE-ID
 id-QosMonitoringReportingFrequency               ProtocolIE-ID
 id-QosFlowParametersList                         ProtocolIE-ID
+id-QosFlowFeedbackList                           ProtocolIE-ID
+id-BurstArrivalTimeDownlink                      ProtocolIE-ID
+id-ExtendedUEIdentityIndexValue                  ProtocolIE-ID
 #.END
 
 
@@ -1770,6 +1787,9 @@ ExtendedSliceSupportList                               N ngap.extension id-Exten
 ConfiguredTACIndication                                N ngap.extension id-ConfiguredTACIndication
 QosMonitoringReportingFrequency                        N ngap.extension id-QosMonitoringReportingFrequency
 QosFlowParametersList                                  N ngap.extension id-QosFlowParametersList
+QosFlowFeedbackList                                    N ngap.extension id-QosFlowFeedbackList
+BurstArrivalTime                                       N ngap.extension id-BurstArrivalTimeDownlink
+ExtendedUEIdentityIndexValue                           N ngap.extension id-ExtendedUEIdentityIndexValue
 
 #NGAP-ELEMENTARY-PROCEDURE
 

@@ -8,7 +8,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
- * References: 3GPP TS 38.413 v16.4.0 (2021-01)
+ * References: 3GPP TS 38.413 v16.5.0 (2021-04)
  */
 
 #include "config.h"
@@ -115,6 +115,9 @@ static int hf_ngap_MeasurementsToActivate_reserved = -1;
 static int hf_ngap_MDT_Location_Information_GNSS = -1;
 static int hf_ngap_MDT_Location_Information_reserved = -1;
 static int hf_ngap_GlobalCable_ID_str = -1;
+static int hf_ngap_UpdateFeedback_CN_PDB_DL = -1;
+static int hf_ngap_UpdateFeedback_CN_PDB_UL = -1;
+static int hf_ngap_UpdateFeedback_reserved = -1;
 #include "packet-ngap-hf.c"
 
 /* Initialize the subtree pointers */
@@ -157,6 +160,7 @@ static gint ett_ngap_NRUERLFReportContainer = -1;
 static gint ett_ngap_TargettoSource_Failure_TransparentContainer = -1;
 static gint ett_ngap_UERadioCapabilityForPagingOfNB_IoT = -1;
 static gint ett_ngap_GlobalCable_ID = -1;
+static gint ett_ngap_UpdateFeedback = -1;
 #include "packet-ngap-ett.c"
 
 static expert_field ei_ngap_number_pages_le15 = EI_INIT;
@@ -459,6 +463,11 @@ ngap_is_nbiot_ue(packet_info *pinfo)
   }
   return FALSE;
 }
+
+const true_false_string ngap_not_updated_updated = {
+    "Not updated",
+    "Updated"
+};
 
 #include "packet-ngap-fn.c"
 
@@ -915,6 +924,18 @@ void proto_register_ngap(void) {
       { "GlobalCable-ID", "ngap.GlobalCable_ID.str",
         FT_STRING, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+    { &hf_ngap_UpdateFeedback_CN_PDB_DL,
+      { "CN PDB DL", "ngap.UpdateFeedback.CN_PDB_DL",
+        FT_BOOLEAN, 8, TFS(&ngap_not_updated_updated), 0x80,
+        NULL, HFILL }},
+    { &hf_ngap_UpdateFeedback_CN_PDB_UL,
+      { "CN PDB UL", "ngap.UpdateFeedback.CN_PDB_UL",
+        FT_BOOLEAN, 8, TFS(&ngap_not_updated_updated), 0x40,
+        NULL, HFILL }},
+    { &hf_ngap_UpdateFeedback_reserved,
+      { "Reserved", "ngap.UpdateFeedback.reserved",
+        FT_UINT8, BASE_HEX, NULL, 0x3f,
+        NULL, HFILL }},
 #include "packet-ngap-hfarr.c"
   };
 
@@ -959,6 +980,7 @@ void proto_register_ngap(void) {
     &ett_ngap_TargettoSource_Failure_TransparentContainer,
     &ett_ngap_UERadioCapabilityForPagingOfNB_IoT,
     &ett_ngap_GlobalCable_ID,
+    &ett_ngap_UpdateFeedback,
 #include "packet-ngap-ettarr.c"
   };
 

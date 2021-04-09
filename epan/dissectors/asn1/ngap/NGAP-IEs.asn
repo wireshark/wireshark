@@ -1,4 +1,4 @@
--- 3GPP TS 38.413 V16.4.0 (2021-01)
+-- 3GPP TS 38.413 V16.5.0 (2021-04)﻿
 -- 9.4.5	Information Element Definitions
 -- **************************************************************
 --
@@ -27,6 +27,7 @@ IMPORTS
 	id-AdditionalRedundantUL-NGU-UP-TNLInformation,
 	id-AdditionalUL-NGU-UP-TNLInformation,
 	id-AlternativeQoSParaSetList,
+	id-BurstArrivalTimeDownlink,
 	id-Cause,
 	id-CNPacketDelayBudgetDL,
 	id-CNPacketDelayBudgetUL,
@@ -46,6 +47,7 @@ IMPORTS
 	id-ExtendedRATRestrictionInformation,
 	id-ExtendedSliceSupportList,
 	id-ExtendedTAISliceSupportList,
+	id-ExtendedUEIdentityIndexValue,
 	id-GlobalCable-ID,
 	id-GlobalRANNodeID,
 	id-GlobalTNGF-ID,
@@ -70,6 +72,7 @@ IMPORTS
 	id-PDUSessionType,
 	id-PSCellInformation,
 	id-QosFlowAddOrModifyRequestList,
+	id-QosFlowFeedbackList,
 	id-QosFlowParametersList,
 	id-QosFlowSetupRequestList,
 	id-QosFlowToReleaseList,
@@ -677,7 +680,7 @@ CauseMisc ::= ENUMERATED {
 	not-enough-user-plane-processing-resources,
 	hardware-failure,
 	om-intervention,
-	unknown-PLMN,
+	unknown-PLMN-or-SNPN,
 	unspecified,
 	...
 }
@@ -971,7 +974,8 @@ CoreNetworkAssistanceInformationForInactive ::= SEQUENCE {
 }
 
 CoreNetworkAssistanceInformationForInactive-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
-	{ ID id-PagingeDRXInformation	CRITICALITY ignore	EXTENSION PagingeDRXInformation		PRESENCE optional	},
+	{ ID id-PagingeDRXInformation				CRITICALITY ignore	EXTENSION PagingeDRXInformation					PRESENCE optional	}|
+	{ ID id-ExtendedUEIdentityIndexValue		CRITICALITY reject	EXTENSION ExtendedUEIdentityIndexValue			PRESENCE optional	},
 	...
 }
 
@@ -1603,6 +1607,7 @@ ExtendedRNC-ID					::= INTEGER (4096..65535)
 
 ExtendedSliceSupportList ::= SEQUENCE (SIZE(1..maxnoofExtSliceItems)) OF SliceSupportItem
 
+ExtendedUEIdentityIndexValue ::= BIT STRING (SIZE(16))
 
 EventTrigger::= CHOICE {
 	outOfCoverage				ENUMERATED {true, ...},
@@ -3277,7 +3282,8 @@ PDUSessionResourceModifyRequestTransferIEs NGAP-PROTOCOL-IES ::= {
 	{ ID id-AdditionalUL-NGU-UP-TNLInformation			CRITICALITY reject	TYPE UPTransportLayerInformationList			PRESENCE optional		}|
 	{ ID id-CommonNetworkInstance						CRITICALITY ignore	TYPE CommonNetworkInstance						PRESENCE optional		}|
 	{ ID id-AdditionalRedundantUL-NGU-UP-TNLInformation	CRITICALITY ignore	TYPE UPTransportLayerInformationList			PRESENCE optional		}|
-	{ ID id-RedundantCommonNetworkInstance				CRITICALITY ignore	TYPE CommonNetworkInstance						PRESENCE optional		},
+	{ ID id-RedundantCommonNetworkInstance				CRITICALITY ignore	TYPE CommonNetworkInstance						PRESENCE optional		}|
+	{ ID id-RedundantUL-NGU-UP-TNLInformation			CRITICALITY ignore	TYPE UPTransportLayerInformation				PRESENCE optional	 	},
 	...
 }	
 
@@ -3413,7 +3419,8 @@ PDUSessionResourceNotifyTransfer ::= SEQUENCE {
 }
 
 PDUSessionResourceNotifyTransfer-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
-	{ ID id-SecondaryRATUsageInformation		CRITICALITY ignore	EXTENSION SecondaryRATUsageInformation		PRESENCE optional	},
+	{ ID id-SecondaryRATUsageInformation		CRITICALITY ignore	EXTENSION SecondaryRATUsageInformation		PRESENCE optional	}|
+	{ ID id-QosFlowFeedbackList					CRITICALITY ignore	EXTENSION QosFlowFeedbackList					PRESENCE optional	},
 	...
 }
 
@@ -3846,6 +3853,21 @@ QosFlowAddOrModifyResponseItem-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
+QosFlowFeedbackList ::= SEQUENCE (SIZE(1..maxnoofQosFlows)) OF QosFlowFeedbackItem
+
+QosFlowFeedbackItem ::= SEQUENCE {
+	qosFlowIdentifier			QosFlowIdentifier,
+	updateFeedback				UpdateFeedback								OPTIONAL,
+	cNpacketDelayBudgetDL		ExtendedPacketDelayBudget					OPTIONAL,
+	cNpacketDelayBudgetUL		ExtendedPacketDelayBudget					OPTIONAL,
+	iE-Extensions		ProtocolExtensionContainer { {QosFlowFeedbackItem-ExtIEs} }	OPTIONAL,
+	...
+}
+
+QosFlowFeedbackItem-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
 QosFlowIdentifier ::= INTEGER (0..63, ...)
 
 QosFlowInformationList ::= SEQUENCE (SIZE(1..maxnoofQosFlows)) OF QosFlowInformationItem
@@ -3879,7 +3901,7 @@ QosFlowLevelQosParameters-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
 }
 
 
-QosMonitoringRequest ::= ENUMERATED {ul, dl, both, ...}
+QosMonitoringRequest ::= ENUMERATED {ul, dl, both, ..., stop}
 
 QosMonitoringReportingFrequency ::= INTEGER (1..1800, ...)
 
@@ -3931,6 +3953,9 @@ QosFlowParametersItem ::= SEQUENCE {
 }
 
 QosFlowParametersItem-ExtIEs NGAP-PROTOCOL-EXTENSION ::= {
+	{ ID id-CNPacketDelayBudgetDL			CRITICALITY ignore	EXTENSION ExtendedPacketDelayBudget		PRESENCE optional	}|
+	{ ID id-CNPacketDelayBudgetUL			CRITICALITY ignore	EXTENSION ExtendedPacketDelayBudget		PRESENCE optional	}|
+	{ ID id-BurstArrivalTimeDownlink		CRITICALITY ignore	EXTENSION BurstArrivalTime					PRESENCE optional	},
 	...
 }
 
@@ -5134,6 +5159,8 @@ ULForwarding ::= ENUMERATED {
 	ul-forwarding-proposed,
 	...
 }
+
+UpdateFeedback ::= BIT STRING (SIZE(8, ...))
 
 UPTransportLayerInformation ::= CHOICE {
 	gTPTunnel				GTPTunnel,
