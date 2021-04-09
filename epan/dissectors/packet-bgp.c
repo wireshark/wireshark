@@ -10264,7 +10264,7 @@ proto_register_bgp(void)
         { "Address family identifier (AFI)", "bgp.update.path_attribute.mp_reach_nlri.afi", FT_UINT16, BASE_DEC,
           VALS(afn_vals), 0x0, NULL, HFILL }},
       { &hf_bgp_update_path_attribute_mp_reach_nlri_safi,
-        { "Subsequent address family identifier (SAFI)", "bgp.update.path_attribute.mp_reach_nlri.afi", FT_UINT8, BASE_DEC,
+        { "Subsequent address family identifier (SAFI)", "bgp.update.path_attribute.mp_reach_nlri.safi", FT_UINT8, BASE_DEC,
           VALS(bgpattr_nlri_safi), 0x0, NULL, HFILL }},
       { &hf_bgp_update_path_attribute_mp_reach_nlri_next_hop,
         { "Next Hop", "bgp.update.path_attribute.mp_reach_nlri.next_hop", FT_STRING, BASE_NONE,
@@ -10283,7 +10283,7 @@ proto_register_bgp(void)
         { "Address family identifier (AFI)", "bgp.update.path_attribute.mp_unreach_nlri.afi", FT_UINT16, BASE_DEC,
           VALS(afn_vals), 0x0, NULL, HFILL }},
       { &hf_bgp_update_path_attribute_mp_unreach_nlri_safi,
-        { "Subsequent address family identifier (SAFI)", "bgp.update.path_attribute.mp_unreach_nlri.afi", FT_UINT8, BASE_DEC,
+        { "Subsequent address family identifier (SAFI)", "bgp.update.path_attribute.mp_unreach_nlri.safi", FT_UINT8, BASE_DEC,
           VALS(bgpattr_nlri_safi), 0x0, NULL, HFILL }},
 
       { &hf_bgp_pmsi_tunnel_flags,
