@@ -30300,6 +30300,8 @@ static const val64_string trigger_type_vals[] = {
   { 5, "GCR MU-BAR" },
   { 6, "Bandwidth Query Report Poll (BQRP)" },
   { 7, "NDP Feedback Report Poll (NFRP)" },
+  { 8, "Ranging" },
+  /* 9-15 reserved */
   { 0, NULL }
 };
 
