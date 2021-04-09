@@ -616,8 +616,22 @@ pcapng_read_section_header_block(FILE_T fh, pcapng_block_header_t *bh,
         return PCAPNG_BLOCK_ERROR;
     }
 
-    /* we currently only understand SHB V1.0  SHB V1.2*/
-    if (version_major != 1 || version_minor == 1 || version_minor > 2) {
+    /* Currently only SHB versions 1.0 and 1.2 are supported;
+       version 1.2 is treated as being the same as version 1.0.
+       See the current version of the pcapng specification.
+
+       Version 1.2 is written by some programs that write additional
+       block types (which can be read by any code that handles them,
+       regarless of whether the minor version if 0 or 2, so that's
+       not a reason to change the minor version number).
+
+       XXX - the pcapng specification says that readers should
+       just ignore sections with an unsupported version number;
+       presumably they can also report an error if they skip
+       all the way to the end of the file without finding
+       any versions that they support. */
+    if (!(version_major == 1 &&
+          (version_minor == 0 || version_minor == 2))) {
         *err = WTAP_ERR_UNSUPPORTED;
         *err_info = g_strdup_printf("pcapng_read_section_header_block: unknown SHB version %u.%u",
                                     version_major, version_minor);
