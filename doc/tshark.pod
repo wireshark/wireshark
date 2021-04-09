@@ -181,6 +181,13 @@ the filesize is limited to a maximum value of 2 GiB.
 B<packets>:I<value> switch to the next file after it contains I<value>
 packets. Same as B<-c>E<lt>capture packet countE<gt>.
 
+=item -A  E<lt>userE<gt>:E<lt>passwordE<gt>
+
+Specify a user and a password when B<TShark> captures from a rpcap:// interface
+where authentication is required.
+
+This option is available with libpcap with enabled remote support.
+
 =item -b|--ring-buffer  E<lt>capture ring buffer optionE<gt>
 
 Cause B<TShark> to run in "multiple files" mode.  In "multiple files" mode,
