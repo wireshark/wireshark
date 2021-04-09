@@ -626,7 +626,7 @@ void RtpAnalysisDialog::on_actionSaveGraph_triggered()
 
 void RtpAnalysisDialog::on_buttonBox_helpRequested()
 {
-    wsApp->helpTopicAction(HELP_RTP_ANALYSIS_DIALOG);
+    wsApp->helpTopicAction(HELP_TELEPHONY_RTP_ANALYSIS_DIALOG);
 }
 
 void RtpAnalysisDialog::tapReset(void *tapinfo_ptr)
@@ -1159,13 +1159,13 @@ QPushButton *RtpAnalysisDialog::addAnalyzeButton(QDialogButtonBox *button_box, Q
     QMenu *button_menu = new QMenu(analysis_button);
     button_menu->setToolTipsVisible(true);
     QAction *ca;
-    ca = button_menu->addAction(tr("&Set list"));
+    ca = button_menu->addAction(tr("&Set List"));
     ca->setToolTip(tr("Replace existing list in RTP Analysis Dialog with new one"));
     connect(ca, SIGNAL(triggered()), dialog, SLOT(rtpAnalysisReplace()));
-    ca = button_menu->addAction(tr("&Add to list"));
+    ca = button_menu->addAction(tr("&Add to List"));
     ca->setToolTip(tr("Add new set to existing list in RTP Analysis Dialog"));
     connect(ca, SIGNAL(triggered()), dialog, SLOT(rtpAnalysisAdd()));
-    ca = button_menu->addAction(tr("&Remove from playlist"));
+    ca = button_menu->addAction(tr("&Remove from List"));
     ca->setToolTip(tr("Remove selected streams from list in RTP Analysis Dialog"));
     connect(ca, SIGNAL(triggered()), dialog, SLOT(rtpAnalysisRemove()));
     analysis_button->setMenu(button_menu);

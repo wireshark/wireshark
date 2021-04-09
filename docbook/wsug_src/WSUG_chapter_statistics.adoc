@@ -648,7 +648,7 @@ You can filter, copy or save the data into a file.
 
 === Flow Graph
 
-The Flow Graph window shows connections between hosts. It displays the packet time, direction, ports and comments for each captured connection. You can filter all connections by ICMP Flows, ICMPv6 Flows, UIM Flows and TCP Flows.
+The Flow Graph window shows connections between hosts. It displays the packet time, direction, ports and comments for each captured connection. You can filter all connections by ICMP Flows, ICMPv6 Flows, UIM Flows and TCP Flows. Flow Graph window is used for showing multiple different topics. Based on it, it offers different controls.
 
 .Flow Graph window
 image::wsug_graphics/ws-flow-graph.png[{screenshot-attrs}]
@@ -662,6 +662,30 @@ The numbers at the both ends of each arrow between hosts represent the port numb
 Left-click a row to select a corresponding packet in the packet list.
 
 Right-click on the graph for additional options, such as selecting the previous, current, or next packet in the packet list. This menu also contains shortcuts for moving the diagram.
+
+Available controls:
+
+* btn:[Limit to display filter] filters calls just to ones matching display filter. When display filter is active before window is opened, checkbox is checked.
+* btn:[Flow type] allows limit type of protocol flows should be based on.
+* btn:[Addresses] allows switch shown addresses in diagram.
+* btn:[Reset Diagram] resets view position and zoom to default state.
+* btn:[Export] allows export diagram as image in multiple different formats (PDF, PNG, BMP, JPEG and ASCII (diagram is stored with ASCII characters only)).
+
+.Flow Graph window showing VoIP call sequences
+image::wsug_graphics/ws-tel-seq-dialog.png[{screenshot-attrs}]
+
+Available controls:
+
+* btn:[Reset Diagram] resets view position and zoom to default state.
+* btn:[Play Streams] sends selected RTP stream to playlist of <<ChTelRtpPlayer,RTP Player>> window.
+* btn:[Export] allows to export diagram as image in multiple different formats (PDF, PNG, BMP, JPEG and ASCII (diagram is stored with ASCII characters only)).
+
+Additional available shortcuts:
+
+* On selected RTP stream
+** kbd:[S] - Selects the stream in <<ChTelRTPStreams,RTP Streams>> window (if not opened, it opens it and put on background).
+** kbd:[D] - Deselects the stream in <<ChTelRTPStreams,RTP Streams>> window (if not opened, it opens it and put on background).
+
 
 [[ChStatHARTIP]]
 

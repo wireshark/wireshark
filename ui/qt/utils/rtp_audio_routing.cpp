@@ -18,7 +18,7 @@ AudioRouting::AudioRouting(bool muted, audio_routing_channel_t channel):
 char const *AudioRouting::formatAudioRoutingToString()
 {
     if (muted_) {
-        return "Mute";
+        return "Muted";
     } else {
         switch (channel_) {
             case channel_any:

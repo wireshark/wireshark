@@ -98,6 +98,7 @@ private slots:
     void on_actionZoomOut_triggered();
     void on_actionSelectRtpStream_triggered();
     void on_actionDeselectRtpStream_triggered();
+    void on_buttonBox_helpRequested();
 
     void rtpPlayerReplace();
     void rtpPlayerAdd();

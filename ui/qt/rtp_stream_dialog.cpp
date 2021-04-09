@@ -793,7 +793,7 @@ void RtpStreamDialog::on_buttonBox_clicked(QAbstractButton *button)
 
 void RtpStreamDialog::on_buttonBox_helpRequested()
 {
-    wsApp->helpTopicAction(HELP_RTP_ANALYSIS_DIALOG);
+    wsApp->helpTopicAction(HELP_TELEPHONY_RTP_STREAMS_DIALOG);
 }
 
 void RtpStreamDialog::on_displayFilterCheckBox_toggled(bool checked _U_)

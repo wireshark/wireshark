@@ -828,6 +828,11 @@ void SequenceDialog::rtpPlayerRemove()
     emit rtpPlayerDialogRemoveRtpStreams(getSelectedRtpStreams());
 }
 
+void SequenceDialog::on_buttonBox_helpRequested()
+{
+    wsApp->helpTopicAction(HELP_STAT_FLOW_GRAPH);
+}
+
 SequenceInfo::SequenceInfo(seq_analysis_info_t *sainfo) :
     sainfo_(sainfo),
     count_(1)

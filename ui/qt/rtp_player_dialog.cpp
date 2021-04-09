@@ -316,13 +316,13 @@ QPushButton *RtpPlayerDialog::addPlayerButton(QDialogButtonBox *button_box, QDia
     QMenu *button_menu = new QMenu(player_button);
     button_menu->setToolTipsVisible(true);
     QAction *ca;
-    ca = button_menu->addAction(tr("&Set playlist"));
+    ca = button_menu->addAction(tr("&Set Playlist"));
     ca->setToolTip(tr("Replace existing playlist in RTP Player with new one"));
     connect(ca, SIGNAL(triggered()), dialog, SLOT(rtpPlayerReplace()));
-    ca = button_menu->addAction(tr("&Add to playlist"));
+    ca = button_menu->addAction(tr("&Add to Playlist"));
     ca->setToolTip(tr("Add new set to existing playlist in RTP Player"));
     connect(ca, SIGNAL(triggered()), dialog, SLOT(rtpPlayerAdd()));
-    ca = button_menu->addAction(tr("&Remove from playlist"));
+    ca = button_menu->addAction(tr("&Remove from Playlist"));
     ca->setToolTip(tr("Remove selected streams from playlist in RTP Player"));
     connect(ca, SIGNAL(triggered()), dialog, SLOT(rtpPlayerRemove()));
     player_button->setMenu(button_menu);

@@ -2865,7 +2865,7 @@
   </action>
   <action name="actionTelephonyRtpStreamAnalysis">
    <property name="text">
-    <string>Stream Analysis</string>
+    <string>RTP Stream Analysis</string>
    </property>
    <property name="toolTip">
     <string>RTP Stream Analysis</string>

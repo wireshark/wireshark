@@ -692,7 +692,7 @@ Each menu item shows specific telephony related statistics.
 |menu:LTE[]||See <<ChTelLTE>>
 |menu:MTP3[]||See <<ChTelMTP3>>
 |menu:Osmux[]||See <<ChTelOsmux>>
-|menu:RTP[]||See <<ChTelRTPAnalysis>>
+|menu:RTP[]||See <<ChTelRTPStreams>> and <<ChTelRTPAnalysis>>
 |menu:RTSP[]||See <<ChTelRTSP>>
 |menu:SCTP[]||See <<ChTelSCTP>>
 |menu:SMPP Operations[]||See <<ChTelSMPPOperations>>

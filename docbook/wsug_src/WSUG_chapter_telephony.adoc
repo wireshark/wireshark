@@ -21,15 +21,204 @@ specific protocols and might be described in a later version of this document.
 Some of these statistics are described at the
 {wireshark-wiki-url}Statistics pages.
 
+=== Playing VoIP Calls
+
+The tool for playing VoIP calls is called RTP Player. It shows RTP streams and its waveforms, allows play stream and export it as audio or payload to file.
+
+==== Supported codecs
+
+RTP Player is able to play any codec supported by an installed plugins. The codecs supported by RTP Player depend on the version of Wireshark you're using. The official builds contain all of the plugins maintained by the Wireshark developers, but custom/distribution builds might not include some of those codecs. To check your Wireshark follow this procedure:
+
+* open menu:Help[About Wireshark] window
+* switch to menu:Plugins[] tab
+* select codec as menu:Filter by type[]
+
+.List of supported codecs
+image::wsug_graphics/ws-about-codecs.png[{screenshot-attrs}]
+
+==== Work with RTP streams - Playlist
+
+Wireshark can be used for RTP stream analysis. User can select one or more streams which can be played later. RTP Player window maintains playlist (list of RTP streams) for this purpose.
+
+Playlist is created empty when RTP Player window is opened and destroyed when window is closed. RTP Player window can be opened on background when not needed and put to front later. During its live, playlist is maintained.
+
+When RTP Player window is opened, playlist can be modified from other tools (Wireshark windows) in three ways:
+
+* button menu:Play Streams[Set playlist] clears existing playlist and adds streams selected in the tool.
+* button menu:Play Streams[Add to playlist] adds streams selected in the tool to playlist. Duplicated streams are not inserted again.
+* button menu:Play Streams[Remove from playlist] removes streams selected in the tool from playlist, if they are in the playlist.
+
+.btn:[Play Streams] button with opened action menu
+image::wsug_graphics/ws-tel-rtp-player_button.png[]
+
+When playlist is empty, there is no difference between btn:[Set playlist] and btn:[Add to playlist]. When RTP Player window is not opened, all three actions above open it.
+
+btn:[Remove from playlist] is useful e. g. in case user selected all RTP streams and wants to remove RTP streams from specific calls found with menu:VoIPCalls[].
+
+Tools below can be used to maintain content of playlist, they contain btn:[Play Streams] button. You can use one of procedures (Note: btn:[Add to playlist] action is demonstrated):
+
+* Open menu:Telephony[RTP > RTP Streams] window, it will show all streams in the capture. Select one or more streams and then press btn:[Play Streams]. Selected streams are added to playlist.
+* Select any RTP packet in packet list, open menu:Telephony[RTP > Stream Analysis] window. It will show analysis of selected forward stream and its reverse stream, if any. Then press btn:[Play Streams]. Forward and reverse stream is added to playlist.
+** menu:RTP Stream Analysis[] window can be opened from other tools too.
+* Open menu:Telephony[VoIP Calls] or menu:Telephony[SIP Flows] window, it will show all calls. Select one or more calls and then press btn:[Play Streams]. It will add all RTP streams related to selected calls to playlist.
+* Open btn:[Flow Sequence] window in menu:Telephony[VoIP Calls] or menu:Telephony[SIP Flows] window, it will show flow sequence of calls. Select any RTP stream and then press btn:[Play Streams]. It will add selected RTP stream to playlist.
+
+.Tools for modifying playlist in RTP Player window
+image::wsug_graphics/ws-tel-playlist.png[]
+
+[NOTE]
+====
+Same approach with set/add/remove actions is used for RTP Stream Analysis window. The playlist is there handled as different tabs in the window, see <<ChTelRTPAnalysis,RTP Stream Analysis>> window.
+====
+
+==== RTP Player Window
+
+[[ChTelRtpPlayer]]
+
+.RTP Player window
+image::wsug_graphics/ws-tel-rtp-player_1.png[{screenshot-attrs}]
+
+RTP Player Window consists of three parts:
+
+. Waveform view
+. Playlist
+. Controls
+
+Waveform view shows visual presentation of RTP stream.  Color of waveform and playlist row is matching. Height of wave shows volume.
+
+Waveform shows error marks for Out of Sequence, Jitter Drops, Wrong Timestamps and Inserted Silence marks if it happens in a stream.
+
+.Waveform with error marks
+image::wsug_graphics/ws-tel-rtp-player_3.png[{screenshot-attrs}]
+
+Playlist shows information about every stream:
+
+* Play - Audio routing
+* Source Address, Source Port, Destination Address, Destination Port, SSRC
+* Setup Frame
+** SETUP <number> is shown, when there is known signaling packet. Number is packet number of signaling packet. Note: Word SETUP is shown even RTP stream was initiated e. g. by SKINNY where no SETUP message exists.
+** RTP <number> is shown, when no related signaling was found. Number is packet number of first packet of the stream.
+* Packets - Count of packets in the stream.
+* Time Span - Start - Stop (Duration) of the stream
+* SR - Sample rate of used codec
+* PR - Decoded play rate used for stream playing
+* Payloads - One or more playload types used by the stream
+
+[NOTE]
+====
+When rtp_udp is active, most of streams shows just RTP <number> even there is setup frame in capture.
+
+When RTP stream contains multiple codecs, SR and PR is based on first observed coded. Later codecs in stream are resampled to first one.
+====
+
+Controls allow a user to:
+
+* btn:[Start]/btn:[Pause]/btn:[Stop] playing of unmuted streams
+* Select btn:[Output audio device] and btn:[Output audio rate]
+* Select btn:[Playback Timing]
+** Jitter Buffer - Packets outside btn:[Jitter Buffer] size are discarded during decoding
+** RTP Timestamp - Packets are ordered and played by its Timestamp, no Jitter Buffer is used
+** Uninterrupted Mode - All gaps (e. g. Comfort Noise, lost packets) are discarded therefore audio is shorted than timespan
+* btn:[Time of Day] selects whether waveform timescale is shown in seconds from start of capture or in absolute time of received packets
+* btn:[Export] - See <<tel-rtp-export>>.
+
+.RTP stream state indication
+image::wsug_graphics/ws-tel-rtp-player_2.png[{screenshot-attrs}]
+
+Waveform view and playlist shows state of a RTP stream:
+
+. stream is muted (dashed waveform, menu:Muted[] is shown in Play column) or unmuted (non-dashed waveform, audio routing is shown in Play column)
+. stream is selected (blue waveform, blue row)
+. stream is below mouse cursor (bold waveform, bold font)
+
+User can control to where audio of a stream is routed to:
+
+* L - Left channel
+* L+R - Left and Right (Middle) channel
+* R - Left channel
+* P - Play (when mono soundcard is available only)
+* M - Muted
+
+Audio routing can be changed by double clicking on first column of a row, by shortcut or by menu.
+
+User can use shortcuts:
+
+* Selection
+** kbd:[Ctrl + A] - Select all streams
+** kbd:[Ctrl + I] - Invert selection
+** kbd:[Ctrl + Shift + A] - Select none
+** Note: Common kbd:[Mouse click], kbd:[Shift + Mouse click] and kbd:[Ctrl + Mouse click] works too
+* Go to packet
+** kbd:[G] - Go to packet of stream under the mouse cursor
+** kbd:[Shift + G] - Go to setup packet of stream under the mouse cursor
+* Audio routing
+** kbd:[M] - Mute
+** kbd:[Shift + M] - Unmute
+** kbd:[Ctrl + M] - Invert muting
+* kbd:[P] - Play audio
+* kbd:[S] - Stop playing
+* kbd:[Del] or kbd:[Ctrl + X] - Remove stream from playlist
+
+[[tel-rtp-export]]
+
+===== Export
+
+[NOTE]
+====
+menu:Export[] was moved from menu:RTP Stream Analysis[] window to menu:RTP Player[] window in 3.5.0.
+
+Wireshark is able to export decoded audio in .au or .wav file format. Prior to version 3.2.0, Wireshark only supports exporting audio using the G.711 codec. From 3.2.0 it supports audio export using any codec with 8000 Hz sampling. From 3.5.0 is supported export of any codec, rate is defined by Output Audio Rate.
+====
+
+Export options available:
+* for one or more selected non-muted streams
+  * Stream Synchronized Audio - streams are synchronized to earliest stream in export (there is no silence at beginning of it)
+  * File Synchronized Audio - streams starts at beginning of file, therefore silence can be at start of file
+* for just one selected stream
+  * Payload - just payload with no information about coded is stored in the file
+
+Audio is exported as multi-channel file - one channel per RTP stream. One or two channels are equal to mono or stereo, but Wireshark can export e g. 100 channels. For later playing a tool with multi-channel support must be used (e.g. https://www.audacityteam.org/).
+
+Payload export is useful for codecs not supported by Wireshark.
+
+[NOTE]
+====
+Default value of btn:[Output Audio Rate] is btn:[Automatic]. When multiple codecs with different codec rates are captured, Wireshark decodes each stream with its own play audio rate. Therefore each stream can has different play audio rate. When export of audio is used in this case, it will fail because .au or .wav requires one common play audio rate.
+
+In this case user must manually select one of rates in btn:[Output Audio Rate], streams will be resampled and audio export succeeds.
+====
+
+
 [[ChTelVoipCalls]]
 
-=== VoIP Calls
+=== VoIP Calls Window
 
 The VoIP Calls window shows a list of all detected VoIP calls in the captured
-traffic. It finds calls by their signaling.
+traffic. It finds calls by their signaling and shows related RTP streams. The current VoIP supported protocols are:
 
-More details can be found on the {wireshark-wiki-url}VoIP_calls page.
+* H.323
+* IAX2
+* ISUP
+* MGCP/MEGACO
+* SIP
+* SKINNY
+* UNISTIM
 
+See https://gitlab.com/wireshark/wireshark/-/wikis/VOIPProtocolFamily[VOIPProtocolFamily] for an overview of the used VoIP protocols.
+
+VoIP Calls window can be opened as window showing all protocol types (menu:Telephony[VoIP Calls] window) or limited to SIP messages only (menu:Telephony[SIP Flows] window).
+
+.VoIP Calls window
+image::wsug_graphics/ws-tel-voip-calls.png[{screenshot-attrs}]
+
+Available controls are:
+
+* btn:[Limit to display filter] filters calls just to ones matching display filter. When display filter is active before window is opened, checkbox is checked.
+* btn:[Time of Day] switches format of shown time between relative to start of capture or absolute time of received packets.
+* btn:[Flow Sequence] opens <<ChStatFlowGraph,Flow Sequence>> window and shows selected calls in it.
+* btn:[Prepare Filter] generates display filter matching to selected calls (signaling and RTP streams) and apply it.
+* btn:[Play Streams] opens <<ChTelRtpPlayer,RTP Player>> window.
+* btn:[Copy] copies information from table to clipboard in CSV or YAML.
 
 [[ChTelANSI]]
 
@@ -37,30 +226,30 @@ More details can be found on the {wireshark-wiki-url}VoIP_calls page.
 
 This menu shows groups of statistic data for mobile communication protocols according to ETSI GSM standards.
 
-==== A-I/F BSMAP Statistics
+==== A-I/F BSMAP Statistics Window
 
 The A-Interface Base Station Management Application Part (BSMAP) Statistics window shows the messages list and the number of the captured messages. There is a possibility to filter the messages, copy or save the date into a file.
 
-==== A-I/F DTAP Statistics
+==== A-I/F DTAP Statistics Window
 
 The A-Interface Direct Transfer Application Part (DTAP) Statistics widow shows the messages list and the number of the captured messages. There is a possibility to filter the messages, copy or save the date into a file. 
 
 [[ChTelGSM]]
 
-=== GSM
+=== GSM Windows
 
 The Global System for Mobile Communications (GSM) is a standard for mobile networks. This menu shows a group of statistic data for mobile communication protocols according to ETSI GSM standard.
 
 [[ChTelIAX2Analysis]]
 
-=== IAX2 Stream Analysis
+=== IAX2 Stream Analysis Window
 
-The “IAX2 Stream Analysis” dialog shows statistics for the forward and reverse
+The “IAX2 Stream Analysis” window shows statistics for the forward and reverse
 streams of a selected IAX2 call along with a graph.
 
 [[ChTelISUPMessages]]
 
-=== ISUP Messages
+=== ISUP Messages Window
 
 Integrated Service User Part (ISUP) protocol provides voice and non-voice signalling for telephone communications. ISUP Messages menu opens the window which shows the related statistics. The user can filter, copy or save the data into a file.
 
@@ -70,7 +259,7 @@ Integrated Service User Part (ISUP) protocol provides voice and non-voice signal
 
 [[ChTelLTEMACTraffic]]
 
-==== LTE MAC Traffic Statistics
+==== LTE MAC Traffic Statistics Window
 
 Statistics of the captured LTE MAC traffic. This window will summarize the LTE
 MAC traffic found in the capture.
@@ -85,7 +274,7 @@ individual channel.
 
 [[ChTelLTERLCGraph]]
 
-==== LTE RLC Graph
+==== LTE RLC Graph Window
 
 The LTE RLC Graph menu launches a graph which shows LTE Radio Link Control protocol sequence numbers changing over time along with acknowledgements which are received in the opposite direction.
 
@@ -98,7 +287,7 @@ image::wsug_graphics/ws-rlc-graph.png[{screenshot-attrs}]
 
 [[ChTelLTERLCTraffic]]
 
-==== LTE RLC Traffic Statistics
+==== LTE RLC Traffic Statistics Window
 
 Statistics of the captured LTE RLC traffic. This window will summarize the LTE
 RLC traffic found in the capture.
@@ -120,7 +309,7 @@ direction and control PDUs in the opposite direction.
 
 [[ChTelMTP3]]
 
-=== MTP3
+=== MTP3 Windows
 
 The Message Transfer Part level 3 (MTP3) protocol is a part of the Signaling System 7 (SS7). The Public Switched Telephone Networks use it for reliable, unduplicated and in-sequence transport of SS7 messaging between communication partners.
 
@@ -128,49 +317,123 @@ This menu shows MTP3 Statistics and MTP3 Summary windows.
 
 [[ChTelOsmux]]
 
-=== Osmux
+=== Osmux Windows
 
 OSmux is a multiplex protocol which benefits satellite based GSM back-haul systems by reducing the bandwidth consumption of the voice proxying (RTP-AMR) and signalling traffic. The OSmux menu opens the packet counter window with the related statistic data. The user can filter, copy or save the data into a file.
 
+=== RTP
+
+[[ChTelRTPStreams]]
+
+==== RTP Streams Window
+
+The RTP streams window shows all RTP streams in capture file. Streams can be selected there and on selected streams other tools can be initiated.
+
+.The “RTP Streams” window
+image::wsug_graphics/ws-tel-rtp-streams.png[{screenshot-attrs}]
+
+User can use shortcuts:
+
+* Selection
+** kbd:[Ctrl + A] - Select all streams
+** kbd:[Ctrl + I] - Invert selection
+** kbd:[Ctrl + Shift + A] - Select none
+** Note: Common kbd:[Mouse click], kbd:[Shift + Mouse click] and kbd:[Ctrl + Mouse click] works too
+* kbd:[R] - Try search for reverse stream. If found, selects it in the list.
+* kbd:[G] - Go to packet of stream under the mouse cursor.
+* kbd:[M] - Mark all packets of selected streams.
+* kbd:[P] - Prepare filter matching selected streams and apply it.
+* kbd:[E] - Export selected streams in RTPDump format.
+* kbd:[A] - Open <<ChTelRTPAnalysis,RTP Stream Analysis>> window and add selected streams to it.
+
+Available controls are:
+
+* btn:[Find Reverse] tries to search for reverse stream. If found, selects it in the list.
+* btn:[Analyze] opens <<ChTelRTPAnalysis,RTP Stream Analysis>> window.
+* btn:[Prepare Filter] prepares filter matching selected streams and apply it.
+* btn:[Play Streams] opens <<ChTelRtpPlayer,RTP Player>> window.
+* btn:[Copy] copies information from table to clipboard in CSV or YAML.
+* btn:[Export] exports selected streams in RTPDump format.
+
+
 [[ChTelRTPAnalysis]]
 
-=== RTP Analysis
+==== RTP Stream Analysis Window
 
-The RTP analysis function takes the selected RTP stream (and the reverse stream,
-if possible) and generates a list of statistics on it.
+The RTP analysis function takes the selected RTP streams and generates a list of statistics on it including graph.
+
+Every stream is shown on own tab. Tabs are counted as streams are added. When tab is closed, number is not reused. Color of tab matches color of graphs on graph tab.
 
 .The “RTP Stream Analysis” window
-image::wsug_graphics/ws-tel-rtpstream-analysis.png[{screenshot-attrs}]
+image::wsug_graphics/ws-tel-rtpstream-analysis_1.png[{screenshot-attrs}]
 
-Starting with basic data as packet number and sequence number, further
-statistics are created based on arrival time, delay, jitter, packet size, etc.
+.Error indicated in “RTP Stream Analysis” window
+image::wsug_graphics/ws-tel-rtpstream-analysis_3.png[{screenshot-attrs}]
 
-Besides the per packet statistics, the lower pane shows the overall statistics,
-with minimums and maximums for delta, jitter and clock skew. Also an indication
-of lost packets is included.
+Per packet statistic shows:
 
-The RTP Stream Analysis window further provides the option to save the RTP
-payload (as raw data or, if in a PCM encoding, in an Audio file). Other options
-a to export and plot various statistics on the RTP streams.
+* Packet number
+* Sequence number
+* Delta (ms) to last packet
+* Jitter (ms)
+* Skew
+* Bandwidth
+* Marker - packet is marked in RTP header
+* Status - information related to the packet. E. g. change of codec, DTMF number, warning about incorrect sequence number.
 
-[[ChTelRtpPlayer]]
+Side panel left to packet list shows stream statistics:
 
-The RTP Player window lets you play back RTP audio data. In order to use
-this feature your version of Wireshark must support audio and the codecs
-used by each RTP stream.
+* Maximal delta and at which packet it occurred
+* Maximal jitter
+* Mean jitter
+* Maximal skew
+* Count of packets
+* Count of lost packets - calculated from sequence numbers
+* When the stream starts and first packet number
+* Duration of the stream
+* Clock drift
+* Frequency drift
 
-More details can be found on the
-{wireshark-wiki-url}VoIP_calls page.
+[NOTE]
+====
+Some statistic columns are calculated only when Wireshark is able to decode codec of RTP stream.
+====
+
+Available shortcuts are:
+
+* kbd:[G] - Go to selected packet of stream in packet list
+* kbd:[N] - Move to next problem packet
+
+Available controls are:
+
+* btn:[Play Streams] opens <<ChTelRtpPlayer,RTP Player>> window.
+* btn:[Export] allows export current stream or all streams as CSV or export graph as image in multiple different formats (PDF, PNG, BMP and JPEG).
+
+.Graph in “RTP Stream Analysis” window
+image::wsug_graphics/ws-tel-rtpstream-analysis_2.png[{screenshot-attrs}]
+
+Graph view shows graph of:
+
+* jitter
+* difference - difference between expected and real time of packet arrival
+* delta - time difference from reception of previous packet
+
+for every stream. Checkboxes below graph are enabling or disabling showing of a graph for every stream. btn:[Stream X] checkbox enables or disables all graphs for the stream.
+
+[NOTE]
+====
+Stream Analysis window contained tool for save audio and payload for analyzed streams. This tool was moved in Wireshark 3.5.0 to <<ChTelRtpPlayer,RTP Player>> window. New tool has more features.
+====
 
 [[ChTelRTSP]]
 
-=== RTSP
+=== RTSP Window
 
 In the Real Time Streaming Protocol (RTSP) menu the user can check the Packet Counter window. It shows Total RTCP Packets and divided into RTSP Response Packets, RTSP Request Packets and Other RTSP packets. The user can filter, copy or save the data into a file.
 
 [[ChTelSCTP]]
 
-=== SCTP
+=== SCTP Windows
 
 Stream Control Transmission Protocol (SCTP) is a computer network protocol which provides a message transfer in telecommunication in the transport layer. It overcomes some lacks of User Datagram Protocol (UDP) and Transmission Control Protocol (TCP). The SCTP packets consist of the _common header_ and the _data chunks_.
 
@@ -186,46 +449,41 @@ image::wsug_graphics/ws-sctp.png[{screenshot-attrs}]
 
 [[ChTelSMPPOperations]]
 
-=== SMPP Operations
+=== SMPP Operations Window
 
 Short Message Peer-to-Peer (SMPP) protocol uses TCP protocol as its transfer for exchanging Short Message Service (SMS) Messages, mainly between Short Message Service Centers (SMSC). The dissector determines whether the captured packet is SMPP or not by using the heuristics in the fixed header. The SMPP Operations window displays the related statistical data. The user can filter, copy or save the data into a file.
 
 [[ChTelUCPMessages]]
 
-=== UCP Messages
+=== UCP Messages Window
 
 The Universal Computer Protocol (UCP) plays role in transferring Short Messages between a Short Message Service Centre (SMSC) and an application, which is using transport protocol, such as TCP or X.25. The UCP Messages window displays the related statistical data. The user can filter, copy or save the data into a file.
 
 [[ChTelH225]]
 
-=== H.225
+=== H.225 Window
 
 H.225 telecommunication protocol which is responsible for messages in call signalling and media stream packetization for packet-based multimedia communication systems. The H.225 window shows the counted messages by types and reasons. The user can filter, copy or save the data into a file.
 
 [[ChTelSIPFlows]]
 
-=== SIP Flows
+=== SIP Flows Window
 
-Session Initiation Protocol (SIP) Flows window shows the list of all captured SIP transactions, such as client registrations, messages, calls and so on. 
+Session Initiation Protocol (SIP) Flows window shows the list of all captured SIP transactions, such as client registrations, messages, calls and so on.
 
-NOTE: This window will list both complete and in-progress SIP transactions.
+This window will list both complete and in-progress SIP transactions.
 
-User's operations in the window:
-
-* Filtering the captured data. To do so, click the btn:[Prepare Filter] button.
-* Checking the sequence diagram. To do so, click the btn:[Flow Sequence] button.
-* Listen to the captured RTP stream if a decoder for the payload exists. To do so, click the btn:[Play Streams] button.
-* Copy the data in the `SCV` or `YAML` format.
+Window has same features as <<ChTelVoipCalls,VoIP Calls>> window.
 
 [[ChTelSIPStatistics]]
 
-=== SIP Statistics
+=== SIP Statistics Window
 
 SIP Statistics window shows captured SIP transactions. It is divided into SIP Responses and SIP Requests. In this window the user can filter, copy or save the statistics into a file.  
 
 [[ChTelWAPWSPPacketCounter]]
 
-=== WAP-WSP Packet Counter
+=== WAP-WSP Packet Counter Window
 
 The WAP-WSP Packet Counter menu displays the number of packets for each Status Code and PDU Type in Wireless Session Protocol traffic. The user can filter, copy or save the data into a file.
 
