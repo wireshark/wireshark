@@ -645,6 +645,7 @@ static int hf_ieee802154_ack_time = -1;
 static int hf_ieee802154_tap_version = -1;
 static int hf_ieee802154_tap_reserved = -1;
 static int hf_ieee802154_tap_length = -1;
+static int hf_ieee802154_tap_data_length = -1;
 static int hf_ieee802154_tap_tlv_type = -1;
 static int hf_ieee802154_tap_tlv_length = -1;
 static int hf_ieee802154_tap_tlv_unknown = -1;
@@ -2068,8 +2069,10 @@ dissect_ieee802154_tap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
     proto_tree *info_tree = NULL;
     proto_tree *header_tree = NULL;
     proto_item *proto_root = NULL;
+    proto_item *ti = NULL;
     guint32     version = 0;
     guint32     length = 0;
+    guint32     data_length = 0;
     tvbuff_t*   tlv_tvb;
     tvbuff_t*   payload_tvb;
     ieee802154_fcs_type_t tap_fcs_type;
@@ -2126,11 +2129,18 @@ dissect_ieee802154_tap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
         return tvb_captured_length(tvb);
     }
 
+    /* Report the remaining bytes as the IEEE 802.15.4 Data Length */
+    data_length = tvb_reported_length_remaining(tvb, length);
+    ti = proto_tree_add_uint(info_tree, hf_ieee802154_tap_data_length, NULL, 0, 0, data_length);
+    proto_item_set_generated(ti);
+
     /*
-     * Call the common dissector with the data after the TLV header.
+     * Call the common dissector with the real 802.15.4 data which follows the TLV header.
+     * Create a separate packet bytes pane for the real data.
      * Specified FCS length, no flags.
      */
-    payload_tvb = tvb_new_subset_remaining(tvb, length);
+    payload_tvb = tvb_new_child_real_data(tvb, tvb_get_ptr(tvb, length, data_length), data_length, data_length);
+    add_new_data_source(pinfo, payload_tvb, "IEEE 802.15.4 Data");
     dissect_ieee802154_common(payload_tvb, pinfo, tree, fcs_len, 0);
 
     return tvb_captured_length(tvb);
@@ -6539,6 +6549,10 @@ void proto_register_ieee802154(void)
         { &hf_ieee802154_tap_length,
         { "Length",        "wpan-tap.length", FT_UINT16, BASE_DEC, NULL, 0x0,
             "TAP Packet Length", HFILL }},
+
+        { &hf_ieee802154_tap_data_length,
+        { "Data Length",   "wpan-tap.data_length", FT_UINT16, BASE_DEC, NULL, 0x0,
+            "IEEE 802.15.4 Data Length", HFILL }},
 
         { &hf_ieee802154_tap_tlv_type,
         { "TLV Type",       "wpan-tap.tlv.type", FT_UINT16, BASE_DEC, VALS(tap_tlv_types), 0x0,
