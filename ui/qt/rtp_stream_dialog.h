@@ -106,6 +106,7 @@ private slots:
     void on_actionSelectAll_triggered();
     void on_actionSelectInvert_triggered();
     void on_actionSelectNone_triggered();
+    void on_actionAnalyze_triggered();
 };
 
 #endif // RTP_STREAM_DIALOG_H

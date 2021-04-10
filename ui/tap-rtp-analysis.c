@@ -179,7 +179,6 @@ rtppacket_analyse(tap_rtp_stat_t *statinfo,
 
     /*  Is this the first packet we got in this direction? */
     if (statinfo->first_packet) {
-        /* Save the MAC address of the first RTP frame */
         statinfo->start_seq_nr = rtpinfo->info_seq_num;
         statinfo->stop_seq_nr = rtpinfo->info_seq_num;
         statinfo->seq_num = rtpinfo->info_seq_num;

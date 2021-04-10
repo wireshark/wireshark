@@ -260,7 +260,7 @@
     <string>&amp;Analyze</string>
    </property>
    <property name="toolTip">
-    <string>Open the analysis window for the selected stream(s)</string>
+    <string>Open the analysis window for the selected stream(s) and add it to it</string>
    </property>
    <property name="shortcut">
     <string>A</string>

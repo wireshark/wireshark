@@ -380,6 +380,8 @@ bool RtpStreamDialog::eventFilter(QObject *, QEvent *event)
                     // Ctrl+Shift+A
                     on_actionSelectNone_triggered();
                     return true;
+                } else if (keyEvent.modifiers() == Qt::NoModifier) {
+                    on_actionAnalyze_triggered();
                 }
                 break;
             default:
@@ -902,5 +904,10 @@ void RtpStreamDialog::invertSelection()
         QTreeWidgetItem *ti = ui->streamTreeWidget->topLevelItem(row);
         ti->setSelected(!ti->isSelected());
     }
+}
+
+void RtpStreamDialog::on_actionAnalyze_triggered()
+{
+    RtpStreamDialog::rtpAnalysisAdd();
 }
 

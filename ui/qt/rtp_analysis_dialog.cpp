@@ -255,11 +255,6 @@ RtpAnalysisDialog::RtpAnalysisDialog(QWidget &parent, CaptureFile &cf, rtpstream
 
     stream_ctx_menu_.addAction(ui->actionGoToPacket);
     stream_ctx_menu_.addAction(ui->actionNextProblem);
-    stream_ctx_menu_.addSeparator();
-    stream_ctx_menu_.addAction(ui->actionSaveOneCsv);
-    stream_ctx_menu_.addAction(ui->actionSaveAllCsv);
-    stream_ctx_menu_.addSeparator();
-    stream_ctx_menu_.addAction(ui->actionSaveGraph);
     set_action_shortcuts_visible_in_context_menu(stream_ctx_menu_.actions());
 
     connect(ui->streamGraph, SIGNAL(mousePress(QMouseEvent*)),
@@ -408,7 +403,7 @@ int RtpAnalysisDialog::addTabUI(tab_info_t *new_tab)
     connect(new_tab->stream_checkbox, SIGNAL(stateChanged(int)),
             this, SLOT(rowCheckboxChanged(int)));
 
-    new_tab->jitter_checkbox = new QCheckBox(tr("Stream %1 Forward Jitter").arg(tab_seq - 1), ui->graphTab);
+    new_tab->jitter_checkbox = new QCheckBox(tr("Stream %1 Jitter").arg(tab_seq - 1), ui->graphTab);
     new_tab->jitter_checkbox->setChecked(true);
     new_tab->jitter_checkbox->setIcon(StockIcon::colorIconCircle(color.rgb(), QPalette::Text));
     new_tab->graphHorizontalLayout->addWidget(new_tab->jitter_checkbox);
@@ -416,7 +411,7 @@ int RtpAnalysisDialog::addTabUI(tab_info_t *new_tab)
     connect(new_tab->jitter_checkbox, SIGNAL(stateChanged(int)),
             this, SLOT(singleCheckboxChanged(int)));
 
-    new_tab->diff_checkbox = new QCheckBox(tr("Stream %1 Forward Difference").arg(tab_seq - 1), ui->graphTab);
+    new_tab->diff_checkbox = new QCheckBox(tr("Stream %1 Difference").arg(tab_seq - 1), ui->graphTab);
     new_tab->diff_checkbox->setChecked(true);
     new_tab->diff_checkbox->setIcon(StockIcon::colorIconCross(color.rgb(), QPalette::Text));
     new_tab->graphHorizontalLayout->addWidget(new_tab->diff_checkbox);
@@ -424,7 +419,7 @@ int RtpAnalysisDialog::addTabUI(tab_info_t *new_tab)
     connect(new_tab->diff_checkbox, SIGNAL(stateChanged(int)),
             this, SLOT(singleCheckboxChanged(int)));
 
-    new_tab->delta_checkbox = new QCheckBox(tr("Stream %1 Forward Delta").arg(tab_seq - 1), ui->graphTab);
+    new_tab->delta_checkbox = new QCheckBox(tr("Stream %1 Delta").arg(tab_seq - 1), ui->graphTab);
     new_tab->delta_checkbox->setChecked(true);
     new_tab->delta_checkbox->setIcon(StockIcon::colorIconTriangle(color.rgb(), QPalette::Text));
     new_tab->graphHorizontalLayout->addWidget(new_tab->delta_checkbox);
