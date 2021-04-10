@@ -956,6 +956,9 @@ void RtpAnalysisDialog::findRtpStreams()
     dfilter_t *sfcode;
     gchar *err_msg;
 
+    memset(&fwd_info, 0, sizeof(rtpstream_info_t));
+    memset(&rev_info, 0, sizeof(rtpstream_info_t));
+
     /* Try to get the hfid for "rtp.ssrc". */
     int hfid_rtp_ssrc = proto_registrar_get_id_byname("rtp.ssrc");
     if (hfid_rtp_ssrc == -1) {
@@ -1056,7 +1059,7 @@ void RtpAnalysisDialog::findRtpStreams()
         }
     }
 
-    addRtpStreams(stream_infos);
+    addRtpStreamsPrivate(stream_infos);
 }
 
 void RtpAnalysisDialog::showStreamMenu(QPoint pos)
