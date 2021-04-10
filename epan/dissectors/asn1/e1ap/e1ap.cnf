@@ -282,6 +282,7 @@ id-Extended-GNB-CU-CP-Name                      ProtocolIE-ID
 id-Extended-GNB-CU-UP-Name                      ProtocolIE-ID
 id-DataForwardingtoE-UTRANInformationList       ProtocolIE-ID
 id-QosMonitoringReportingFrequency              ProtocolIE-ID
+id-QoSMonitoringDisabled                        ProtocolIE-ID
 #.END
 
 #.REGISTER
@@ -422,6 +423,7 @@ GBR-QoSFlowInformation                       N e1ap.extension id-MCG-OfferedGBRQ
 Number-of-tunnels                            N e1ap.extension id-Number-of-tunnels
 DataForwardingtoE-UTRANInformationList       N e1ap.extension id-DataForwardingtoE-UTRANInformationList
 QosMonitoringReportingFrequency              N e1ap.extension id-QosMonitoringReportingFrequency
+QosMonitoringDisabled                        N e1ap.extension id-QoSMonitoringDisabled
 
 #E1AP-ELEMENTARY-PROCEDURE
 Reset                                    N e1ap.proc.imsg id-reset

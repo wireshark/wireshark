@@ -8,7 +8,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
- * References: 3GPP TS 38.463 V16.4.0 (2021-01)
+ * References: 3GPP TS 38.463 V16.5.0 (2021-04)
  */
 
 #include "config.h"

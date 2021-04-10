@@ -1,4 +1,4 @@
--- 3GPP TS 38.463 V16.4.0 (2021-01)
+-- 3GPP TS 38.463 V16.5.0 (2021-04)
 -- **************************************************************
 --
 -- Constant definitions
@@ -224,6 +224,7 @@ id-Extended-GNB-CU-CP-Name										ProtocolIE-ID ::= 129
 id-Extended-GNB-CU-UP-Name										ProtocolIE-ID ::= 130
 id-DataForwardingtoE-UTRANInformationList						ProtocolIE-ID ::= 131
 id-QosMonitoringReportingFrequency								ProtocolIE-ID ::= 132
+id-QoSMonitoringDisabled										ProtocolIE-ID ::= 133
 
 
 END

@@ -1,4 +1,4 @@
--- 3GPP TS 38.463 V16.4.0 (2021-01)
+-- 3GPP TS 38.463 V16.5.0 (2021-04)
 -- **************************************************************
 --
 -- Information Element Definitions
@@ -26,6 +26,7 @@ IMPORTS
 	id-Cause,
 	id-QoSMonitoringRequest,
 	id-QosMonitoringReportingFrequency,
+	id-QoSMonitoringDisabled,
 	id-PDCP-StatusReportIndication,
 	id-RedundantCommonNetworkInstance,
 	id-redundant-nG-UL-UP-TNL-Information,
@@ -2092,15 +2093,18 @@ QoSFlowLevelQoSParameters	::= SEQUENCE {
 }
 
 QoSFlowLevelQoSParameters-ExtIEs 	E1AP-PROTOCOL-EXTENSION ::= {
-	{ID id-QoSMonitoringRequest	CRITICALITY ignore	EXTENSION QosMonitoringRequest	PRESENCE optional}|
-	{ID id-MCG-OfferedGBRQoSFlowInfo		CRITICALITY ignore	EXTENSION GBR-QoSFlowInformation	PRESENCE optional}|
-	{ID id-QosMonitoringReportingFrequency	CRITICALITY ignore	EXTENSION QosMonitoringReportingFrequency	PRESENCE optional},
+	{ID id-QoSMonitoringRequest				CRITICALITY ignore	EXTENSION QosMonitoringRequest					PRESENCE optional}|
+	{ID id-MCG-OfferedGBRQoSFlowInfo		CRITICALITY ignore	EXTENSION GBR-QoSFlowInformation				PRESENCE optional}|
+	{ID id-QosMonitoringReportingFrequency	CRITICALITY ignore	EXTENSION QosMonitoringReportingFrequency	PRESENCE optional}|
+	{ID id-QoSMonitoringDisabled			CRITICALITY ignore	EXTENSION QosMonitoringDisabled					PRESENCE optional},
 	...
 }
 
 QosMonitoringRequest ::= ENUMERATED {ul, dl, both}
 
 QosMonitoringReportingFrequency ::= INTEGER (1..1800, ...)
+
+QosMonitoringDisabled ::= ENUMERATED {true, ...}
 
 QoS-Flow-Removed-Item	::=	SEQUENCE {
 	qoS-Flow-Identifier						QoS-Flow-Identifier,
