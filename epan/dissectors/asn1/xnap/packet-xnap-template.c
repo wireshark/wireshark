@@ -10,7 +10,7 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
  * Ref:
- * 3GPP TS 38.423 V16.4.0 (2021-01)
+ * 3GPP TS 38.423 V16.5.0 (2021-04)
  */
 
 #include "config.h"
@@ -53,10 +53,15 @@ static int hf_xnap_transportLayerAddressIPv4 = -1;
 static int hf_xnap_transportLayerAddressIPv6 = -1;
 static int hf_xnap_NG_RANTraceID_TraceID = -1;
 static int hf_xnap_NG_RANTraceID_TraceRecordingSessionReference = -1;
-static int hf_xnap_ExtendedRATRestrictionInformation_e_UTRA = -1;
-static int hf_xnap_ExtendedRATRestrictionInformation_nR = -1;
-static int hf_xnap_ExtendedRATRestrictionInformation_nR_unlicensed = -1;
-static int hf_xnap_ExtendedRATRestrictionInformation_reserved = -1;
+static int hf_xnap_primaryRATRestriction_e_UTRA = -1;
+static int hf_xnap_primaryRATRestriction_nR = -1;
+static int hf_xnap_primaryRATRestriction_nR_unlicensed = -1;
+static int hf_xnap_primaryRATRestriction_reserved = -1;
+static int hf_xnap_secondaryRATRestriction_e_UTRA = -1;
+static int hf_xnap_secondaryRATRestriction_nR = -1;
+static int hf_xnap_secondaryRATRestriction_e_UTRA_unlicensed = -1;
+static int hf_xnap_secondaryRATRestriction_nR_unlicensed = -1;
+static int hf_xnap_secondaryRATRestriction_reserved = -1;
 static int hf_xnap_MDT_Location_Info_GNSS = -1;
 static int hf_xnap_MDT_Location_Info_reserved = -1;
 static int hf_xnap_MeasurementsToActivate_M1 = -1;
@@ -347,21 +352,41 @@ void proto_register_xnap(void) {
       { "TraceRecordingSessionReference", "xnap.NG_RANTraceID.TraceRecordingSessionReference",
         FT_UINT16, BASE_HEX, NULL, 0,
         NULL, HFILL }},
-    { &hf_xnap_ExtendedRATRestrictionInformation_e_UTRA,
-      { "e-UTRA", "xnap.ExtendedRATRestrictionInformation.e_UTRA",
+    { &hf_xnap_primaryRATRestriction_e_UTRA,
+      { "e-UTRA", "xnap.primaryRATRestriction.e_UTRA",
         FT_BOOLEAN, 8, TFS(&tfs_restricted_not_restricted), 0x80,
         NULL, HFILL }},
-    { &hf_xnap_ExtendedRATRestrictionInformation_nR,
-      { "nR", "xnap.ExtendedRATRestrictionInformation.nR",
+    { &hf_xnap_primaryRATRestriction_nR,
+      { "nR", "xnap.primaryRATRestriction.nR",
         FT_BOOLEAN, 8, TFS(&tfs_restricted_not_restricted), 0x40,
         NULL, HFILL }},
-    { &hf_xnap_ExtendedRATRestrictionInformation_nR_unlicensed,
-      { "nR-unlicensed", "xnap.ExtendedRATRestrictionInformation.nR_unlicensed",
+    { &hf_xnap_primaryRATRestriction_nR_unlicensed,
+      { "nR-unlicensed", "xnap.primaryRATRestriction.nR_unlicensed",
         FT_BOOLEAN, 8, TFS(&tfs_restricted_not_restricted), 0x20,
         NULL, HFILL }},
-    { &hf_xnap_ExtendedRATRestrictionInformation_reserved,
-      { "reserved", "xnap.ExtendedRATRestrictionInformation.reserved",
+    { &hf_xnap_primaryRATRestriction_reserved,
+      { "reserved", "xnap.primaryRATRestriction.reserved",
         FT_UINT8, BASE_HEX, NULL, 0x1f,
+        NULL, HFILL }},
+    { &hf_xnap_secondaryRATRestriction_e_UTRA,
+      { "e-UTRA", "xnap.secondaryRATRestriction.e_UTRA",
+        FT_BOOLEAN, 8, TFS(&tfs_restricted_not_restricted), 0x80,
+        NULL, HFILL }},
+    { &hf_xnap_secondaryRATRestriction_nR,
+      { "nR", "xnap.secondaryRATRestriction.nR",
+        FT_BOOLEAN, 8, TFS(&tfs_restricted_not_restricted), 0x40,
+        NULL, HFILL }},
+    { &hf_xnap_secondaryRATRestriction_e_UTRA_unlicensed,
+      { "e-UTRA-unlicensed", "xnap.secondaryRATRestriction.e_UTRA_unlicensed",
+        FT_BOOLEAN, 8, TFS(&tfs_restricted_not_restricted), 0x20,
+        NULL, HFILL }},
+    { &hf_xnap_secondaryRATRestriction_nR_unlicensed,
+      { "nR-unlicensed", "xnap.secondaryRATRestriction.nR_unlicensed",
+        FT_BOOLEAN, 8, TFS(&tfs_restricted_not_restricted), 0x10,
+        NULL, HFILL }},
+    { &hf_xnap_secondaryRATRestriction_reserved,
+      { "reserved", "xnap.secondaryRATRestriction.reserved",
+        FT_UINT8, BASE_HEX, NULL, 0x0f,
         NULL, HFILL }},
     { &hf_xnap_MDT_Location_Info_GNSS,
       { "GNSS", "xnap.MDT_Location_Info.GNSS",

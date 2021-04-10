@@ -1,4 +1,4 @@
--- 3GPP TS 38.423 V16.4.0 (2021-01)
+-- 3GPP TS 38.423 V16.5.0 (2021-04)
 -- 9.3.5	Information Element definitions
 -- **************************************************************
 --
@@ -53,6 +53,7 @@ IMPORTS
 	id-NRUESidelinkAggregateMaximumBitRate,
 	id-ExtendedRATRestrictionInformation,
 	id-QoSMonitoringRequest,
+	id-QoSMonitoringDisabled,
 	id-QosMonitoringReportingFrequency,
 	id-DAPSRequestInfo,
 	id-OffsetOfNbiotChannelNumberToDL-EARFCN,
@@ -86,6 +87,7 @@ IMPORTS
 	id-QoSFlowsMappedtoDRB-SetupResponse-MNterminated,
 	id-DL-scheduling-PDCCH-CCE-usage,
 	id-UL-scheduling-PDCCH-CCE-usage,
+	id-SFN-Offset,
 	maxEARFCN,
 	maxnoofAllowedAreas,
 	maxnoofAMFRegions,
@@ -565,7 +567,9 @@ CauseRadioNetworkLayer ::= ENUMERATED {
 	measurement-temporarily-not-available,
 	measurement-not-supported-for-the-object,
 	ue-power-saving,
-	unknown-NG-RAN-node2-Measurement-ID
+	unknown-NG-RAN-node2-Measurement-ID,
+	insufficient-ue-capabilities,
+	normal-release
 }
 
 CauseTransportLayer ::= ENUMERATED {
@@ -1369,6 +1373,8 @@ ExtendedRATRestrictionInformation-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
 ExtendedPacketDelayBudget ::= INTEGER (0..65535, ...)
 
 ExtendedSliceSupportList	::= SEQUENCE (SIZE(1..maxnoofExtSliceItems)) OF S-NSSAI
+
+ExtendedUEIdentityIndexValue ::= BIT STRING (SIZE(16))
 
 ExtTLAs ::= SEQUENCE (SIZE(1..maxnoofExtTLAs)) OF ExtTLA-Item
 
@@ -3845,7 +3851,8 @@ QoSFlowLevelQoSParameters ::= SEQUENCE {
 
 QoSFlowLevelQoSParameters-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
 	{ID id-QoSMonitoringRequest				CRITICALITY ignore	EXTENSION QosMonitoringRequest					PRESENCE optional}|
-	{ID id-QosMonitoringReportingFrequency	CRITICALITY ignore	EXTENSION QosMonitoringReportingFrequency	PRESENCE optional},
+	{ID id-QosMonitoringReportingFrequency	CRITICALITY ignore	EXTENSION QosMonitoringReportingFrequency	PRESENCE optional}|
+	{ID id-QoSMonitoringDisabled				CRITICALITY ignore	EXTENSION QoSMonitoringDisabled					PRESENCE optional},
 	...
 }
 
@@ -3948,6 +3955,7 @@ QoSFlowsUsageReport-Item-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
 }
 
 QosMonitoringRequest ::= ENUMERATED {ul, dl, both}
+QoSMonitoringDisabled ::= ENUMERATED {true, ...}
 QosMonitoringReportingFrequency ::= INTEGER (1..1800, ...)
 
 -- R
@@ -4510,7 +4518,8 @@ ServedCells-E-UTRA-Item ::= SEQUENCE {
 }
 
 ServedCells-E-UTRA-Item-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
-	...
+	{ ID id-SFN-Offset				CRITICALITY ignore EXTENSION SFN-Offset					PRESENCE optional },
+...
 }
 
 
@@ -4566,8 +4575,19 @@ ServedCellInformation-NR-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
 	{ ID id-SSB-PositionsInBurst			CRITICALITY ignore	EXTENSION SSB-PositionsInBurst					PRESENCE optional }|
 	{ ID id-NRCellPRACHConfig				CRITICALITY ignore	EXTENSION NRCellPRACHConfig						PRESENCE optional }|
 	{ ID id-NPN-Broadcast-Information		CRITICALITY reject	EXTENSION NPN-Broadcast-Information			PRESENCE optional }|
-	{ ID id-CSI-RSTransmissionIndication	CRITICALITY ignore	EXTENSION CSI-RSTransmissionIndication		PRESENCE optional },
+	{ ID id-CSI-RSTransmissionIndication	CRITICALITY ignore	EXTENSION CSI-RSTransmissionIndication		PRESENCE optional } |
+	{ ID id-SFN-Offset						CRITICALITY ignore	EXTENSION SFN-Offset							PRESENCE optional },
 	...
+}
+
+SFN-Offset ::= SEQUENCE {
+	sFN-Time-Offset					BIT STRING (SIZE(24)),
+	
+	iE-Extensions		ProtocolExtensionContainer { {SFN-Offset-ExtIEs} } OPTIONAL,
+	...
+}
+SFN-Offset-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
+		...
 }
 
 

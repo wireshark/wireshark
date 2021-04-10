@@ -1,4 +1,4 @@
--- 3GPP TS 38.423 V16.4.0 (2021-01)
+-- 3GPP TS 38.423 V16.5.0 (2021-04)
 -- 9.3.4	PDU Definitions
 -- **************************************************************
 --
@@ -57,6 +57,7 @@ IMPORTS
 	DRBToQoSFlowMapping-List,
 	E-UTRA-CGI,
 	ExpectedUEBehaviour,
+	ExtendedUEIdentityIndexValue,
 	FiveGCMobilityRestrictionListContainer,
 	GlobalCell-ID,
 	GlobalNG-RANNode-ID,
@@ -213,6 +214,7 @@ FROM XnAP-Containers
 	id-DesiredActNotificationLevel,
 	id-DRBsSubjectToStatusTransfer-List,
 	id-ExpectedUEBehaviour,
+	id-ExtendedUEIdentityIndexValue,
 	id-FiveGCMobilityRestrictionListContainer,
 	id-GlobalNG-RAN-node-ID,
 	id-GUAMI,
@@ -652,7 +654,8 @@ RANPaging-IEs XNAP-PROTOCOL-IES ::= {
 	{ ID id-RANPagingArea						CRITICALITY reject		TYPE RANPagingArea									PRESENCE mandatory}|
 	{ ID id-PagingPriority						CRITICALITY ignore		TYPE PagingPriority									PRESENCE optional }|
 	{ ID id-AssistanceDataForRANPaging			CRITICALITY ignore		TYPE AssistanceDataForRANPaging					PRESENCE optional }|
-	{ ID id-UERadioCapabilityForPaging			CRITICALITY ignore		TYPE UERadioCapabilityForPaging					PRESENCE optional },
+	{ ID id-UERadioCapabilityForPaging			CRITICALITY ignore		TYPE UERadioCapabilityForPaging					PRESENCE optional }|
+	{ ID id-ExtendedUEIdentityIndexValue		CRITICALITY ignore		TYPE ExtendedUEIdentityIndexValue				PRESENCE optional },
 	...
 }
 

@@ -1,4 +1,4 @@
--- 3GPP TS 38.423 V16.4.0 (2021-01)
+-- 3GPP TS 38.423 V16.5.0 (2021-04)
 -- 9.3.7	Constant definitions
 -- **************************************************************
 --
@@ -387,6 +387,8 @@ id-QosMonitoringReportingFrequency																	ProtocolIE-ID ::= 238
 id-QoSFlowsMappedtoDRB-SetupResponse-MNterminated														ProtocolIE-ID ::= 239
 id-DL-scheduling-PDCCH-CCE-usage																	ProtocolIE-ID ::= 240
 id-UL-scheduling-PDCCH-CCE-usage																	ProtocolIE-ID ::= 241
-
+id-SFN-Offset																						ProtocolIE-ID ::= 242
+id-QoSMonitoringDisabled																				ProtocolIE-ID ::= 243
+id-ExtendedUEIdentityIndexValue																		ProtocolIE-ID ::= 244
 
 END

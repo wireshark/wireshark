@@ -491,10 +491,10 @@ BluetoothName TYPE=FT_STRING DISPLAY = STR_UNICODE
 %(DEFAULT_BODY)s
   if (parameter_tvb) {
     static int * const fields[] = {
-      &hf_xnap_ExtendedRATRestrictionInformation_e_UTRA,
-      &hf_xnap_ExtendedRATRestrictionInformation_nR,
-      &hf_xnap_ExtendedRATRestrictionInformation_nR_unlicensed,
-      &hf_xnap_ExtendedRATRestrictionInformation_reserved,
+      &hf_xnap_primaryRATRestriction_e_UTRA,
+      &hf_xnap_primaryRATRestriction_nR,
+      &hf_xnap_primaryRATRestriction_nR_unlicensed,
+      &hf_xnap_primaryRATRestriction_reserved,
       NULL
     };
     proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_xnap_primaryRATRestriction);
@@ -506,10 +506,11 @@ BluetoothName TYPE=FT_STRING DISPLAY = STR_UNICODE
 %(DEFAULT_BODY)s
   if (parameter_tvb) {
     static int * const fields[] = {
-      &hf_xnap_ExtendedRATRestrictionInformation_e_UTRA,
-      &hf_xnap_ExtendedRATRestrictionInformation_nR,
-      &hf_xnap_ExtendedRATRestrictionInformation_nR_unlicensed,
-      &hf_xnap_ExtendedRATRestrictionInformation_reserved,
+      &hf_xnap_secondaryRATRestriction_e_UTRA,
+      &hf_xnap_secondaryRATRestriction_nR,
+      &hf_xnap_secondaryRATRestriction_e_UTRA_unlicensed,
+      &hf_xnap_secondaryRATRestriction_nR_unlicensed,
+      &hf_xnap_secondaryRATRestriction_reserved,
       NULL
     };
     proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_xnap_secondaryRATRestriction);
@@ -1180,6 +1181,9 @@ id-QosMonitoringReportingFrequency                ProtocolIE-ID
 id-QoSFlowsMappedtoDRB-SetupResponse-MNterminated ProtocolIE-ID
 id-DL-scheduling-PDCCH-CCE-usage                  ProtocolIE-ID
 id-UL-scheduling-PDCCH-CCE-usage                  ProtocolIE-ID
+id-SFN-Offset                                     ProtocolIE-ID
+id-QoSMonitoringDisabled                          ProtocolIE-ID
+id-ExtendedUEIdentityIndexValue                   ProtocolIE-ID
 
 #.REGISTER
 
@@ -1357,6 +1361,7 @@ MDTPLMNList                                       N xnap.ies id-MDTPLMNList
 UERadioCapabilityID                               N xnap.ies id-UERadioCapabilityID
 SNTriggered                                       N xnap.ies id-SNTriggered
 CellAssistanceInfo-EUTRA                          N xnap.ies id-cellAssistanceInfo-EUTRA
+ExtendedUEIdentityIndexValue                      N xnap.ies id-ExtendedUEIdentityIndexValue
 
 #XNAP-PROTOCOL-EXTENSION
 Additional-UL-NG-U-TNLatUPF-List                  N xnap.extension id-Additional-UL-NG-U-TNLatUPF-List
@@ -1430,6 +1435,8 @@ QosMonitoringReportingFrequency                   N xnap.extension id-QosMonitor
 QoSFlowsMappedtoDRB-SetupResponse-MNterminated    N xnap.extension id-QoSFlowsMappedtoDRB-SetupResponse-MNterminated
 DL-scheduling-PDCCH-CCE-usage                     N xnap.extension id-DL-scheduling-PDCCH-CCE-usage
 UL-scheduling-PDCCH-CCE-usage                     N xnap.extension id-UL-scheduling-PDCCH-CCE-usage
+SFN-Offset                                        N xnap.extension id-SFN-Offset
+QoSMonitoringDisabled                             N xnap.extension id-QoSMonitoringDisabled
 
 #XNAP-ELEMENTARY-PROCEDURE
 HandoverRequest                            N xnap.proc.imsg id-handoverPreparation
