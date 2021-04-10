@@ -147,6 +147,7 @@ private:
     tab_info_t *getTabInfoForCurrentTab();
     void deleteTabInfo(tab_info_t *tab_info);
     void clearLayout(QLayout *layout);
+    void addRtpStreamsPrivate(QVector<rtpstream_info_t *> stream_infos);
 };
 
 #endif // RTP_ANALYSIS_DIALOG_H

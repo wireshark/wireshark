@@ -1079,10 +1079,15 @@ void RtpAnalysisDialog::replaceRtpStreams(QVector<rtpstream_info_t *> stream_inf
             closeTab(i-1);
         }
     }
-    addRtpStreams(stream_infos);
+    addRtpStreamsPrivate(stream_infos);
 }
 
 void RtpAnalysisDialog::addRtpStreams(QVector<rtpstream_info_t *> stream_infos)
+{
+    addRtpStreamsPrivate(stream_infos);
+}
+
+void RtpAnalysisDialog::addRtpStreamsPrivate(QVector<rtpstream_info_t *> stream_infos)
 {
     int first_tab_no = -1;
 

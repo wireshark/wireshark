@@ -167,6 +167,7 @@ DIAG_ON(frame-larger-than=)
 #include <QToolBar>
 #include <QDesktopServices>
 #include <QUrl>
+#include <QMutex>
 
 // XXX You must uncomment QT_WINEXTRAS_LIB lines in CMakeList.txt and
 // cmakeconfig.h.in.
@@ -3304,6 +3305,8 @@ void MainWindow::on_actionStatisticsHTTP2_triggered()
 
 // Telephony Menu
 
+static QMutex telephony_dialog_mutex;
+
 void MainWindow::openTelephonyRtpPlayerDialog()
 {
     if (!rtp_player_dialog_) {
@@ -3318,8 +3321,9 @@ void MainWindow::openTelephonyRtpPlayerDialog()
 void MainWindow::openTelephonyVoipCallsDialog(bool all_flows)
 {
     VoipCallsDialog *dlg;
-    bool set_signals = false;
+    bool set_signals;
 
+    set_signals = false;
     if (all_flows) {
         if (!sip_calls_dialog_) {
             sip_calls_dialog_ = new VoipCallsDialog(*this, capture_file_, true);
@@ -3369,7 +3373,9 @@ void MainWindow::openTelephonyRtpAnalysisDialog()
 
 void MainWindow::on_actionTelephonyVoipCalls_triggered()
 {
+    telephony_dialog_mutex.lock();
     openTelephonyVoipCallsDialog(false);
+    telephony_dialog_mutex.unlock();
 }
 
 void MainWindow::on_actionTelephonyGsmMapSummary_triggered()
@@ -3484,13 +3490,17 @@ void MainWindow::openTelephonyRtpStreamsDialog()
 
 void MainWindow::on_actionTelephonyRtpStreams_triggered()
 {
+    telephony_dialog_mutex.lock();
     openTelephonyRtpStreamsDialog();
+    telephony_dialog_mutex.unlock();
 }
 
 void MainWindow::on_actionTelephonyRtpStreamAnalysis_triggered()
 {
+    telephony_dialog_mutex.lock();
     openTelephonyRtpAnalysisDialog();
     rtp_analysis_dialog_->findRtpStreams();
+    telephony_dialog_mutex.unlock();
 }
 
 void MainWindow::on_actionTelephonyRTSPPacketCounter_triggered()
@@ -3510,7 +3520,9 @@ void MainWindow::on_actionTelephonyUCPMessages_triggered()
 
 void MainWindow::on_actionTelephonySipFlows_triggered()
 {
+    telephony_dialog_mutex.lock();
     openTelephonyVoipCallsDialog(true);
+    telephony_dialog_mutex.unlock();
 }
 
 // Wireless Menu
@@ -4066,50 +4078,66 @@ void MainWindow::activatePluginIFToolbar(bool)
 
 void MainWindow::rtpPlayerDialogReplaceRtpStreams(QVector<rtpstream_info_t *> stream_infos)
 {
+    telephony_dialog_mutex.lock();
     openTelephonyRtpPlayerDialog();
     rtp_player_dialog_->replaceRtpStreams(stream_infos);
+    telephony_dialog_mutex.unlock();
 }
 
 void MainWindow::rtpPlayerDialogAddRtpStreams(QVector<rtpstream_info_t *> stream_infos)
 {
+    telephony_dialog_mutex.lock();
     openTelephonyRtpPlayerDialog();
     rtp_player_dialog_->addRtpStreams(stream_infos);
+    telephony_dialog_mutex.unlock();
 }
 
 void MainWindow::rtpPlayerDialogRemoveRtpStreams(QVector<rtpstream_info_t *> stream_infos)
 {
+    telephony_dialog_mutex.lock();
     openTelephonyRtpPlayerDialog();
     rtp_player_dialog_->removeRtpStreams(stream_infos);
+    telephony_dialog_mutex.unlock();
 }
 
 void MainWindow::rtpAnalysisDialogReplaceRtpStreams(QVector<rtpstream_info_t *> stream_infos)
 {
+    telephony_dialog_mutex.lock();
     openTelephonyRtpAnalysisDialog();
     rtp_analysis_dialog_->replaceRtpStreams(stream_infos);
+    telephony_dialog_mutex.unlock();
 }
 
 void MainWindow::rtpAnalysisDialogAddRtpStreams(QVector<rtpstream_info_t *> stream_infos)
 {
+    telephony_dialog_mutex.lock();
     openTelephonyRtpAnalysisDialog();
     rtp_analysis_dialog_->addRtpStreams(stream_infos);
+    telephony_dialog_mutex.unlock();
 }
 
 void MainWindow::rtpAnalysisDialogRemoveRtpStreams(QVector<rtpstream_info_t *> stream_infos)
 {
+    telephony_dialog_mutex.lock();
     openTelephonyRtpAnalysisDialog();
     rtp_analysis_dialog_->removeRtpStreams(stream_infos);
+    telephony_dialog_mutex.unlock();
 }
 
 void MainWindow::rtpStreamsDialogSelectRtpStream(rtpstream_id_t *id)
 {
+    telephony_dialog_mutex.lock();
     openTelephonyRtpStreamsDialog();
     rtp_stream_dialog_->selectRtpStream(id);
+    telephony_dialog_mutex.unlock();
 }
 
 void MainWindow::rtpStreamsDialogDeselectRtpStream(rtpstream_id_t *id)
 {
+    telephony_dialog_mutex.lock();
     openTelephonyRtpStreamsDialog();
     rtp_stream_dialog_->deselectRtpStream(id);
+    telephony_dialog_mutex.unlock();
 }
 
 #ifdef _MSC_VER

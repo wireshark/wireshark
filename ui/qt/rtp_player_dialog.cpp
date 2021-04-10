@@ -72,10 +72,6 @@
 // Bug 11409 - Wireshark crashes when using RTP player
 // Bug 12166 - RTP audio player crashes
 
-// XXX It looks like we duplicate some functionality here and in the RTP
-// analysis code, which has its own routines for writing audio data to a
-// file.
-
 // In some places we match by conv/call number, in others we match by first frame.
 
 enum {
