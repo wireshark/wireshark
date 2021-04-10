@@ -99,6 +99,7 @@ class File:
                 return False
 
         # Try splitting into 2 words recognised at various points.
+        # Allow 3-letter words.
         length = len(word)
         for idx in range(3, length-3):
             word1 = word[0:idx]
@@ -107,18 +108,28 @@ class File:
             if not spell.unknown([word1, word2]):
                 return True
 
-        # Run through, looking for any number of separate words.
-        next_word_start = 0
-        for idx in range(1, length+1):
-            w = word[next_word_start:idx]
-            # N.B. allowing shorter words ends in gibberish being accepted.
-            if  len(w) >= 4 and not spell.unknown([w]):
-                next_word_start = idx
-        if next_word_start == length:
-            return True
+        return self.checkMultiWordsRecursive(word)
+
+    def checkMultiWordsRecursive(self, word):
+        length = len(word)
+        #print('word=', word)
+        if length < 4:
+            return False
+
+        for idx in range(4, length+1):
+            w = word[0:idx]
+            #print('considering', w)
+            if not spell.unknown([w]):
+                #print('Recognised!')
+                if idx == len(word):
+                    #print('Was end of word, so TRUEE!!!!')
+                    return True
+                else:
+                    #print('More to go..')
+                    if self.checkMultiWordsRecursive(word[idx:]):
+                        return True
 
         return False
-
 
     # Check the spelling of all the words we have found
     def spellCheck(self):

@@ -8390,7 +8390,7 @@ static const value_string gsm_rlcmac_val_plus_1_vals[] = {
 
 static const true_false_string gsm_rlcmac_psi1_measurement_order_value = {
   "MS shall send measurement reports for cell re-selection",
-  "MS performs cell re-selection in both packet idle and transfert mode and shall not send any measurement reports to the network"
+  "MS performs cell re-selection in both packet idle and transfer mode and shall not send any measurement reports to the network"
 };
 
 static const value_string gsm_rlcmac_nmo_vals[] = {

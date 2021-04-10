@@ -480,13 +480,13 @@ static int hf_msg_auth_reply_proto		 = -1;
 static int hf_msg_auth_reply_result		 = -1;
 static int hf_msg_auth_reply_global_id		 = -1;
 static int hf_msg_auth_reply_msg		 = -1;
-static int hf_msg_mon_getverison		 = -1;
-static int hf_msg_mon_getverison_tid		 = -1;
-static int hf_msg_mon_getverison_what		 = -1;
-static int hf_msg_mon_getverisonreply		 = -1;
-static int hf_msg_mon_getverisonreply_tid	 = -1;
-static int hf_msg_mon_getverisonreply_ver	 = -1;
-static int hf_msg_mon_getverisonreply_veroldest	 = -1;
+static int hf_msg_mon_getversion		 = -1;
+static int hf_msg_mon_getversion_tid		 = -1;
+static int hf_msg_mon_getversion_what		 = -1;
+static int hf_msg_mon_getversionreply		 = -1;
+static int hf_msg_mon_getversionreply_tid	 = -1;
+static int hf_msg_mon_getversionreply_ver	 = -1;
+static int hf_msg_mon_getversionreply_veroldest	 = -1;
 static int hf_msg_mds_map			 = -1;
 static int hf_msg_mds_map_fsid			 = -1;
 static int hf_msg_mds_map_epoch			 = -1;
@@ -4664,15 +4664,15 @@ guint c_dissect_msg_mon_getversion(proto_tree *root,
 
 	c_set_type(data, "Monitor Get Version");
 
-	ti = proto_tree_add_item(root, hf_msg_mon_getverison, tvb, off, front_len, ENC_NA);
+	ti = proto_tree_add_item(root, hf_msg_mon_getversion, tvb, off, front_len, ENC_NA);
 	tree = proto_item_add_subtree(ti, ett_msg_mon_getversion);
 
 	tid = tvb_get_letoh64(tvb, off);
-	proto_tree_add_item(tree, hf_msg_mon_getverison_tid,
+	proto_tree_add_item(tree, hf_msg_mon_getversion_tid,
 			    tvb, off, 8, ENC_LITTLE_ENDIAN);
 	off += 8;
 
-	off = c_dissect_str(tree, hf_msg_mon_getverison_what, &what, tvb, off);
+	off = c_dissect_str(tree, hf_msg_mon_getversion_what, &what, tvb, off);
 
 
 	c_append_text(data, ti, ", TID: %"G_GINT64_MODIFIER"u, What: %s",
@@ -4701,21 +4701,21 @@ guint c_dissect_msg_mon_getversionreply(proto_tree *root,
 
 	c_set_type(data, "Monitor Get Version Reply");
 
-	ti = proto_tree_add_item(root, hf_msg_mon_getverisonreply, tvb, off, front_len, ENC_NA);
+	ti = proto_tree_add_item(root, hf_msg_mon_getversionreply, tvb, off, front_len, ENC_NA);
 	tree = proto_item_add_subtree(ti, ett_msg_mon_getversionreply);
 
 	tid = tvb_get_letoh64(tvb, off);
-	proto_tree_add_item(tree, hf_msg_mon_getverisonreply_tid,
+	proto_tree_add_item(tree, hf_msg_mon_getversionreply_tid,
 			    tvb, off, 8, ENC_LITTLE_ENDIAN);
 	off += 8;
 
 	ver = tvb_get_letoh64(tvb, off);
-	proto_tree_add_item(tree, hf_msg_mon_getverisonreply_ver,
+	proto_tree_add_item(tree, hf_msg_mon_getversionreply_ver,
 			    tvb, off, 8, ENC_LITTLE_ENDIAN);
 	off += 8;
 
 	veroldest = tvb_get_letoh64(tvb, off);
-	proto_tree_add_item(tree, hf_msg_mon_getverisonreply_veroldest,
+	proto_tree_add_item(tree, hf_msg_mon_getversionreply_veroldest,
 			    tvb, off, 8, ENC_LITTLE_ENDIAN);
 	off += 8;
 
@@ -9189,38 +9189,38 @@ proto_register_ceph(void)
 			FT_STRING, BASE_NONE, NULL, 0,
 			NULL, HFILL
 		} },
-		{ &hf_msg_mon_getverison, {
-			"Get Version", "ceph.msg.mon.getverison",
+		{ &hf_msg_mon_getversion, {
+			"Get Version", "ceph.msg.mon.getversion",
 			FT_NONE, BASE_NONE, NULL, 0,
 			NULL, HFILL
 		} },
-		{ &hf_msg_mon_getverison_tid, {
-			"Transaction ID", "ceph.msg.mon.getverison.tid",
+		{ &hf_msg_mon_getversion_tid, {
+			"Transaction ID", "ceph.msg.mon.getversion.tid",
 			FT_UINT64, BASE_DEC, NULL, 0,
 			NULL, HFILL
 		} },
-		{ &hf_msg_mon_getverison_what, {
-			"What", "ceph.msg.mon.getverison.what",
+		{ &hf_msg_mon_getversion_what, {
+			"What", "ceph.msg.mon.getversion.what",
 			FT_STRING, BASE_NONE, NULL, 0,
 			NULL, HFILL
 		} },
-		{ &hf_msg_mon_getverisonreply, {
-			"Get Version Reply", "ceph.msg.mon.getverisonreply",
+		{ &hf_msg_mon_getversionreply, {
+			"Get Version Reply", "ceph.msg.mon.getversionreply",
 			FT_NONE, BASE_NONE, NULL, 0,
 			NULL, HFILL
 		} },
-		{ &hf_msg_mon_getverisonreply_tid, {
-			"Transaction ID", "ceph.msg.mon.getverisonreply.tid",
+		{ &hf_msg_mon_getversionreply_tid, {
+			"Transaction ID", "ceph.msg.mon.getversionreply.tid",
 			FT_UINT64, BASE_DEC, NULL, 0,
 			NULL, HFILL
 		} },
-		{ &hf_msg_mon_getverisonreply_ver, {
-			"Version", "ceph.msg.mon.getverisonreply.ver",
+		{ &hf_msg_mon_getversionreply_ver, {
+			"Version", "ceph.msg.mon.getversionreply.ver",
 			FT_UINT64, BASE_DEC, NULL, 0,
 			NULL, HFILL
 		} },
-		{ &hf_msg_mon_getverisonreply_veroldest, {
-			"Oldest Version", "ceph.msg.mon.getverisonreply.veroldest",
+		{ &hf_msg_mon_getversionreply_veroldest, {
+			"Oldest Version", "ceph.msg.mon.getversionreply.veroldest",
 			FT_UINT64, BASE_DEC, NULL, 0,
 			NULL, HFILL
 		} },

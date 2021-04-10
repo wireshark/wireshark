@@ -152,12 +152,12 @@ static const value_string pn_rsi_add_flags_morefrag[] = {
 
 static const value_string pn_rsi_add_flags_notification[] = {
     { 0x00, "No action necessary" },
-    { 0x01, "The ApplicationReadyBlock is available for reading with the service ReadNotificaton" },
+    { 0x01, "The ApplicationReadyBlock is available for reading with the service ReadNotification" },
     { 0, NULL }
 };
 
 static const range_string pn_rsi_seq_num[] = {
-    { 0x0000, 0x7FFF, "synchronization and transmission between initiator and responser" },
+    { 0x0000, 0x7FFF, "synchronization and transmission between initiator and responder" },
     { 0x8000, 0xFFFD, "Reserved" },
     { 0xFFFE, 0xFFFE, "synchronize initiator and responder for establishment of an AR" },
     { 0xFFFF, 0xFFFF, "Reserved" },
@@ -184,7 +184,7 @@ static const value_string pn_rsi_f_opnum_offset_opnum[] = {
     { 0x02, "Read" },
     { 0x03, "Write" },
     { 0x04, "Control" },
-    { 0x05, "ReadImplcit" },
+    { 0x05, "ReadImplicit" },
     { 0x06, "ReadConnectionless" },
     { 0x07, "ReadNotification" },
     { 0x08, "PrmWriteMore" },
