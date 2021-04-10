@@ -506,6 +506,8 @@ static gint default_protocol_version;
 
 static dissector_handle_t mqtt_handle;
 
+static heur_dissector_list_t mqtt_topic_subdissector;
+
 /* Initialize the protocol and registered fields */
 static int proto_mqtt = -1;
 
@@ -752,6 +754,12 @@ static void mqtt_user_decode_message(proto_tree *tree, proto_tree *mqtt_tree, pa
 
       call_dissector(message_decode_entry->payload_proto, msg_tvb, pinfo, tree);
     }
+  }
+  else {
+    /* No UAT match, try the heuristic dissectors, pass the topic string as data */
+    heur_dtbl_entry_t *hdtbl_entry;
+    gchar *sub_data = wmem_strdup(wmem_packet_scope(), (const gchar*)topic_str);
+    dissector_try_heuristic(mqtt_topic_subdissector, msg_tvb, pinfo, tree, &hdtbl_entry, sub_data);
   }
 }
 
@@ -1805,6 +1813,8 @@ void proto_register_mqtt(void)
 
   proto_register_field_array(proto_mqtt, hf_mqtt, array_length(hf_mqtt));
   proto_register_subtree_array(ett_mqtt, array_length(ett_mqtt));
+
+  mqtt_topic_subdissector = register_heur_dissector_list("mqtt.topic", proto_mqtt);
 
   expert_mqtt = expert_register_protocol(proto_mqtt);
   expert_register_field_array(expert_mqtt, ei, array_length(ei));
