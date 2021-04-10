@@ -88,6 +88,15 @@ static int hf_ngap_RATRestrictionInformation_e_UTRA = -1;
 static int hf_ngap_RATRestrictionInformation_nR = -1;
 static int hf_ngap_RATRestrictionInformation_nR_unlicensed = -1;
 static int hf_ngap_RATRestrictionInformation_reserved = -1;
+static int hf_ngap_primaryRATRestriction_e_UTRA = -1;
+static int hf_ngap_primaryRATRestriction_nR = -1;
+static int hf_ngap_primaryRATRestriction_nR_unlicensed = -1;
+static int hf_ngap_primaryRATRestriction_reserved = -1;
+static int hf_ngap_secondaryRATRestriction_e_UTRA = -1;
+static int hf_ngap_secondaryRATRestriction_nR = -1;
+static int hf_ngap_secondaryRATRestriction_e_UTRA_unlicensed = -1;
+static int hf_ngap_secondaryRATRestriction_nR_unlicensed = -1;
+static int hf_ngap_secondaryRATRestriction_reserved = -1;
 static int hf_ngap_NrencryptionAlgorithms_nea1 = -1;
 static int hf_ngap_NrencryptionAlgorithms_nea2 = -1;
 static int hf_ngap_NrencryptionAlgorithms_nea3 = -1;
@@ -135,6 +144,8 @@ static gint ett_ngap_SourceToTarget_TransparentContainer = -1;
 static gint ett_ngap_TargetToSource_TransparentContainer = -1;
 static gint ett_ngap_RRCContainer = -1;
 static gint ett_ngap_RATRestrictionInformation = -1;
+static gint ett_ngap_primaryRATRestriction = -1;
+static gint ett_ngap_secondaryRATRestriction = -1;
 static gint ett_ngap_NrencryptionAlgorithms = -1;
 static gint ett_ngap_NrintegrityProtectionAlgorithms = -1;
 static gint ett_ngap_EUTRAencryptionAlgorithms = -1;
@@ -816,6 +827,42 @@ void proto_register_ngap(void) {
       { "reserved", "ngap.RATRestrictionInformation.reserved",
         FT_UINT8, BASE_HEX, NULL, 0x1f,
         NULL, HFILL }},
+    { &hf_ngap_primaryRATRestriction_e_UTRA,
+      { "e-UTRA", "ngap.primaryRATRestriction.e_UTRA",
+        FT_BOOLEAN, 8, TFS(&tfs_restricted_not_restricted), 0x80,
+        NULL, HFILL }},
+    { &hf_ngap_primaryRATRestriction_nR,
+      { "nR", "ngap.primaryRATRestriction.nR",
+        FT_BOOLEAN, 8, TFS(&tfs_restricted_not_restricted), 0x40,
+        NULL, HFILL }},
+    { &hf_ngap_primaryRATRestriction_nR_unlicensed,
+      { "nR-unlicensed", "ngap.primaryRATRestriction.nR_unlicensed",
+        FT_BOOLEAN, 8, TFS(&tfs_restricted_not_restricted), 0x20,
+        NULL, HFILL }},
+    { &hf_ngap_primaryRATRestriction_reserved,
+      { "reserved", "ngap.primaryRATRestriction.reserved",
+        FT_UINT8, BASE_HEX, NULL, 0x1f,
+        NULL, HFILL }},
+    { &hf_ngap_secondaryRATRestriction_e_UTRA,
+      { "e-UTRA", "ngap.secondaryRATRestriction.e_UTRA",
+        FT_BOOLEAN, 8, TFS(&tfs_restricted_not_restricted), 0x80,
+        NULL, HFILL }},
+    { &hf_ngap_secondaryRATRestriction_nR,
+      { "nR", "ngap.secondaryRATRestriction.nR",
+        FT_BOOLEAN, 8, TFS(&tfs_restricted_not_restricted), 0x40,
+        NULL, HFILL }},
+    { &hf_ngap_secondaryRATRestriction_e_UTRA_unlicensed,
+      { "e-UTRA-unlicensed", "ngap.secondaryRATRestriction.e_UTRA_unlicensed",
+        FT_BOOLEAN, 8, TFS(&tfs_restricted_not_restricted), 0x20,
+        NULL, HFILL }},
+    { &hf_ngap_secondaryRATRestriction_nR_unlicensed,
+      { "nR-unlicensed", "ngap.secondaryRATRestriction.nR_unlicensed",
+        FT_BOOLEAN, 8, TFS(&tfs_restricted_not_restricted), 0x10,
+        NULL, HFILL }},
+    { &hf_ngap_secondaryRATRestriction_reserved,
+      { "reserved", "ngap.secondaryRATRestriction.reserved",
+        FT_UINT8, BASE_HEX, NULL, 0x0f,
+        NULL, HFILL }},
 	{ &hf_ngap_NrencryptionAlgorithms_nea1,
 	  { "128-NEA1", "ngap.NrencryptionAlgorithms.nea1",
         FT_BOOLEAN, 16, TFS(&tfs_supported_not_supported), 0x8000,
@@ -955,6 +1002,8 @@ void proto_register_ngap(void) {
     &ett_ngap_TargetToSource_TransparentContainer,
     &ett_ngap_RRCContainer,
     &ett_ngap_RATRestrictionInformation,
+    &ett_ngap_primaryRATRestriction,
+    &ett_ngap_secondaryRATRestriction,
     &ett_ngap_NrencryptionAlgorithms,
     &ett_ngap_NrintegrityProtectionAlgorithms,
     &ett_ngap_EUTRAencryptionAlgorithms,

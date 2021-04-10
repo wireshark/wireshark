@@ -991,13 +991,13 @@ ExtendedPacketDelayBudget DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(ngap_ExtendedPacke
 %(DEFAULT_BODY)s
   if (parameter_tvb) {
     static int * const fields[] = {
-      &hf_ngap_RATRestrictionInformation_e_UTRA,
-      &hf_ngap_RATRestrictionInformation_nR,
-      &hf_ngap_RATRestrictionInformation_nR_unlicensed,
-      &hf_ngap_RATRestrictionInformation_reserved,
+      &hf_ngap_primaryRATRestriction_e_UTRA,
+      &hf_ngap_primaryRATRestriction_nR,
+      &hf_ngap_primaryRATRestriction_nR_unlicensed,
+      &hf_ngap_primaryRATRestriction_reserved,
       NULL
     };
-    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_ngap_RATRestrictionInformation);
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_ngap_primaryRATRestriction);
     proto_tree_add_bitmask_list(subtree, parameter_tvb, 0, 1, fields, ENC_BIG_ENDIAN);
   }
 
@@ -1006,13 +1006,14 @@ ExtendedPacketDelayBudget DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(ngap_ExtendedPacke
 %(DEFAULT_BODY)s
   if (parameter_tvb) {
     static int * const fields[] = {
-      &hf_ngap_RATRestrictionInformation_e_UTRA,
-      &hf_ngap_RATRestrictionInformation_nR,
-      &hf_ngap_RATRestrictionInformation_nR_unlicensed,
-      &hf_ngap_RATRestrictionInformation_reserved,
+      &hf_ngap_secondaryRATRestriction_e_UTRA,
+      &hf_ngap_secondaryRATRestriction_nR,
+      &hf_ngap_secondaryRATRestriction_e_UTRA_unlicensed,
+      &hf_ngap_secondaryRATRestriction_nR_unlicensed,
+      &hf_ngap_secondaryRATRestriction_reserved,
       NULL
     };
-    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_ngap_RATRestrictionInformation);
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_ngap_secondaryRATRestriction);
     proto_tree_add_bitmask_list(subtree, parameter_tvb, 0, 1, fields, ENC_BIG_ENDIAN);
   }
 
