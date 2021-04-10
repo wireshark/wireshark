@@ -1,4 +1,4 @@
--- 3GPP TS 38.473 V16.4.0 (2021-01)
+-- 3GPP TS 38.473 V16.5.0 (2021-04)
 -- 9.4.7	Constant Definitions
 -- **************************************************************
 --
@@ -579,8 +579,8 @@ id-TSCTrafficCharacteristics						ProtocolIE-ID ::= 364
 id-ReportingRequestType								ProtocolIE-ID ::= 365
 id-TimeReferenceInformation							ProtocolIE-ID ::= 366
 -- WS extension
-id-Unknown-367									ProtocolIE-ID ::= 367
-id-Unknown-368									ProtocolIE-ID ::= 368
+id-Unknown-367										ProtocolIE-ID ::= 367
+id-Unknown-368										ProtocolIE-ID ::= 368
 id-CNPacketDelayBudgetUplink						ProtocolIE-ID ::= 369
 id-AdditionalPDCPDuplicationTNL-List				ProtocolIE-ID ::= 370
 id-RLCDuplicationInformation						ProtocolIE-ID ::= 371
@@ -642,6 +642,9 @@ id-ConfiguredTACIndication							ProtocolIE-ID ::= 425
 id-Extended-GNB-DU-Name								ProtocolIE-ID ::= 426
 id-Extended-GNB-CU-Name								ProtocolIE-ID ::= 427
 id-F1CTransferPath									ProtocolIE-ID ::= 428
+id-SFN-Offset										ProtocolIE-ID ::= 429
+id-TransmissionStopIndicator						ProtocolIE-ID ::= 430
+id-SrsFrequency										ProtocolIE-ID ::= 431
 
 
 END

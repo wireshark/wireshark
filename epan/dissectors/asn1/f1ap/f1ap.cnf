@@ -585,6 +585,9 @@ id-ConfiguredTACIndication                           ProtocolIE-ID
 id-Extended-GNB-DU-Name                              ProtocolIE-ID
 id-Extended-GNB-CU-Name                              ProtocolIE-ID
 id-F1CTransferPath                                   ProtocolIE-ID
+id-SFN-Offset                                        ProtocolIE-ID
+id-TransmissionStopIndicator                         ProtocolIE-ID
+id-SrsFrequency                                      ProtocolIE-ID
 #.END
 
 #.REGISTER
@@ -1006,6 +1009,9 @@ NRCarrierList                                     N f1ap.extension id-DLCarrierL
 ExtendedSliceSupportList                          N f1ap.extension id-ExtendedTAISliceSupportList
 ConfiguredTACIndication                           N f1ap.extension id-ConfiguredTACIndication
 NRCGI                                             N f1ap.extension id-NRCGI
+SFN-Offset                                        N f1ap.extension id-SFN-Offset
+TransmissionStopIndicator                         N f1ap.extension id-TransmissionStopIndicator
+SrsFrequency                                      N f1ap.extension id-SrsFrequency
 
 #F1AP-ELEMENTARY-PROCEDURE
 Reset                                    N f1ap.proc.imsg id-Reset
