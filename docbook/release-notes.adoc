@@ -88,6 +88,7 @@ They previously shipped with Npcap 1.20.
 Kerberos SPAKE
 O-RAN fronthaul UC-plane (O-RAN)
 PDU Transport Protocol
+SparkplugB
 State Synchronization Protocol (SSyncP)
 UAVCAN\CAN
 R09.x (R09)

@@ -30,6 +30,7 @@
           <Directory Id="dirTpncp" Name="tpncp"/>
           <Directory Id="dirTranslations" Name="translations"/>
           <Directory Id="dirWimaxasncp" Name="wimaxasncp"/>
+          <Directory Id="dirProtobuf" Name="protobuf"/>
         </Directory>
       </Directory>
 

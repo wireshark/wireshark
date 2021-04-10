@@ -1773,6 +1773,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-someip.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-someip-sd.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-soupbintcp.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-sparkplug.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-spdy.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-spice.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-spp.c

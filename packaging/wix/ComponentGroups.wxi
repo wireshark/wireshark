@@ -221,6 +221,20 @@
       </ComponentGroup>
     </Fragment>
 
+  <!-- protobuf TLV definitions -->
+    <Fragment>
+      <DirectoryRef Id="dirProtobuf">
+        <Component Id="cmpProtobuf_sparkplug_b_proto" Guid="*">
+          <File Id="filProtobuf_sparkplug_b_proto" KeyPath="yes" Source="$(var.Protobuf.Dir)\sparkplug_b.proto" />
+        </Component>
+      </DirectoryRef>
+    </Fragment>
+    <Fragment>
+      <ComponentGroup Id="CG.Protobuf">
+        <ComponentRef Id="cmpProtobuf_sparkplug_b_proto" />
+      </ComponentGroup>
+    </Fragment>
+
   <!-- TShark -->
     <Fragment>
         <DirectoryRef Id="INSTALLFOLDER">

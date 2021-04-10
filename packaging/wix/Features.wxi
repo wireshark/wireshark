@@ -20,6 +20,7 @@
       <ComponentGroupRef Id="CG.Dtds" />
       <ComponentGroupRef Id="CG.Tpncp" />
       <ComponentGroupRef Id="CG.Wimaxasncp" />
+      <ComponentGroupRef Id="CG.Protobuf" />
       <ComponentGroupRef Id="CG.RequiredDependencies" />
 
     </Feature>
