@@ -4225,10 +4225,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
 <context>
     <name>ImportTextDialog</name>
     <message>
-        <source>Import From</source>
-        <translation type="vanished">导入来源</translation>
-    </message>
-    <message>
         <source>File:</source>
         <translation>文件:</translation>
     </message>
@@ -4348,10 +4344,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>ExportPDU</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Payload</source>
-        <translation type="vanished">载荷</translation>
     </message>
     <message>
         <source>Maximum frame length:</source>
@@ -4528,18 +4520,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Import Text File</source>
         <translation>导入文本文件</translation>
-    </message>
-    <message>
-        <source>Example: %1</source>
-        <translation type="vanished">示例: %1</translation>
-    </message>
-    <message>
-        <source>&lt;i&gt;(Wrong date format)&lt;/i&gt;</source>
-        <translation type="vanished">&lt;i&gt;(日期格式错误)&lt;/i&gt;</translation>
-    </message>
-    <message>
-        <source>&lt;i&gt;(No format will be applied)&lt;/i&gt;</source>
-        <translation type="vanished">&lt;i&gt;(不会应用任何格式变更)&lt;/i&gt;</translation>
     </message>
 </context>
 <context>
@@ -6620,6 +6600,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>对话过滤器</translation>
     </message>
     <message>
+        <source>Reliable Server Pooling (RSerPool)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Osmux</source>
         <translation type="unfinished"></translation>
     </message>
@@ -7272,6 +7256,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Display Filter Expression…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>REGISTER_STAT_GROUP_RSERPOOL</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Start of &quot;REGISTER_STAT_GROUP_RSERPOOL&quot;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -9042,6 +9034,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>每个分组另起一页打印</translation>
     </message>
     <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Print capture file information on each page&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Capture information header</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Use the &amp;quot;+&amp;quot; and &amp;quot;-&amp;quot; keys to zoom the preview in and out. Use the &amp;quot;0&amp;quot; key to reset the zoom level.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;使用“+”和“-”键可放大与缩小预览。用“0”键可重置缩放级别。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
@@ -10369,11 +10369,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:medium; font-weight:600;&quot;&gt;Forward&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:medium; font-weight:600;&quot;&gt;Reverse&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:medium; font-weight:600;&quot;&gt;正向&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:medium; font-weight:600;&quot;&gt;反向&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:medium; font-weight:600;&quot;&gt;正向&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:medium; font-weight:600;&quot;&gt;反向&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Forward</source>
-        <translation>正向</translation>
+        <translation type="vanished">正向</translation>
     </message>
     <message>
         <source>Packet</source>
@@ -10409,8 +10409,64 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>状态</translation>
     </message>
     <message>
+        <source>Stream %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Stream %1 Jitter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Stream %1 Difference</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Stream %1 Delta</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save one stream CSV</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save all stream&apos;s CSV</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Analyze</source>
+        <translation type="unfinished">分析(&amp;A)</translation>
+    </message>
+    <message>
+        <source>Open the analysis window for the selected stream(s)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Set list</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Replace existing list in RTP Analysis Dialog with new one</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Add to list</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Add new set to existing list in RTP Analysis Dialog</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Remove from playlist</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Remove selected streams from list in RTP Analysis Dialog</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Reverse</source>
-        <translation>反向</translation>
+        <translation type="vanished">反向</translation>
     </message>
     <message>
         <source>Graph</source>
@@ -10418,51 +10474,51 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show or hide forward jitter values.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;显示或隐藏正向抖动值。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;显示或隐藏正向抖动值。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Forward Jitter</source>
-        <translation>正向抖动</translation>
+        <translation type="vanished">正向抖动</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show or hide forward difference values.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;显示或隐藏正向差异值。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;显示或隐藏正向差异值。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Forward Difference</source>
-        <translation>正向差异</translation>
+        <translation type="vanished">正向差异</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show or hide forward delta values.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;显示或隐藏正向 delta 值。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;显示或隐藏正向 delta 值。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Forward Delta</source>
-        <translation>正向 Delta</translation>
+        <translation type="vanished">正向 Delta</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show or hide reverse jitter values.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;显示或隐藏反向抖动值。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;显示或隐藏反向抖动值。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Reverse Jitter</source>
-        <translation>反向抖动</translation>
+        <translation type="vanished">反向抖动</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show or hide reverse difference values.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;显示或隐藏反向差异值。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;显示或隐藏反向差异值。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Reverse Difference</source>
-        <translation>反向差异</translation>
+        <translation type="vanished">反向差异</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show or hide reverse delta values.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;显示或隐藏反向 delta 值。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;显示或隐藏反向 delta 值。&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Reverse Delta</source>
-        <translation>反向 Delta</translation>
+        <translation type="vanished">反向 Delta</translation>
     </message>
     <message>
         <source>&lt;small&gt;&lt;i&gt;A hint.&lt;/i&gt;&lt;/small&gt;</source>
@@ -10478,80 +10534,80 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Unsynchronized Forward and Reverse Audio</source>
-        <translation>不同步的正向与反向音频</translation>
+        <translation type="vanished">不同步的正向与反向音频</translation>
     </message>
     <message>
         <source>Stream Synchronized Forward and Reverse Audio</source>
-        <translation>流同步的正向与反向音频</translation>
+        <translation type="vanished">流同步的正向与反向音频</translation>
     </message>
     <message>
         <source>Save the audio data for both channels synchronized to start of earlier stream.</source>
-        <translation>保存两个通道的音频数据同步到早期流的开头。</translation>
+        <translation type="vanished">保存两个通道的音频数据同步到早期流的开头。</translation>
     </message>
     <message>
         <source>Stream Synchronized Forward Stream Audio</source>
-        <translation>流同步前向流音频</translation>
+        <translation type="vanished">流同步前向流音频</translation>
     </message>
     <message>
         <source>Save the forward stream audio data synchronized to start of earlier stream.</source>
-        <translation>保存同步到前一个流开始的前向流音频数据。</translation>
+        <translation type="vanished">保存同步到前一个流开始的前向流音频数据。</translation>
     </message>
     <message>
         <source>Stream Synchronized Reverse Stream Audio</source>
-        <translation>流同步反向流音频</translation>
+        <translation type="vanished">流同步反向流音频</translation>
     </message>
     <message>
         <source>Save the reverse stream audio data synchronized to start of earlier stream.</source>
-        <translation>保存与早期流开始同步的反向流音频数据。</translation>
+        <translation type="vanished">保存与早期流开始同步的反向流音频数据。</translation>
     </message>
     <message>
         <source>File Synchronized Forward and Reverse Audio</source>
-        <translation>文件同步正向和反向音频</translation>
+        <translation type="vanished">文件同步正向和反向音频</translation>
     </message>
     <message>
         <source>Save the audio data for both channels synchronized to start of file.</source>
-        <translation>保存同步到文件开头的两个通道的音频数据。</translation>
+        <translation type="vanished">保存同步到文件开头的两个通道的音频数据。</translation>
     </message>
     <message>
         <source>File Synchronized Forward Stream Audio</source>
-        <translation>文件同步前向流音频</translation>
+        <translation type="vanished">文件同步前向流音频</translation>
     </message>
     <message>
         <source>Save the forward stream audio data synchronized to start of file.</source>
-        <translation>保存同步到文件开头的前向流音频数据。</translation>
+        <translation type="vanished">保存同步到文件开头的前向流音频数据。</translation>
     </message>
     <message>
         <source>File Synchronized Reverse Stream Audio</source>
-        <translation>文件同步反向音频流</translation>
+        <translation type="vanished">文件同步反向音频流</translation>
     </message>
     <message>
         <source>Save the reverse stream audio data synchronized to start of file.</source>
-        <translation>保存同步到文件开头的反向音频流数据。</translation>
+        <translation type="vanished">保存同步到文件开头的反向音频流数据。</translation>
     </message>
     <message>
         <source>Save the unsynchronized audio data for both channels.</source>
         <oldsource>Save the audio data for both channels.</oldsource>
-        <translation>保存两个通道的不同步音频数据。</translation>
+        <translation type="vanished">保存两个通道的不同步音频数据。</translation>
     </message>
     <message>
         <source>Unsynchronized Forward Stream Audio</source>
         <oldsource>Forward Stream Audio</oldsource>
-        <translation>不同步的正向音频</translation>
+        <translation type="vanished">不同步的正向音频</translation>
     </message>
     <message>
         <source>Save the unsynchronized forward stream audio data.</source>
         <oldsource>Save the forward stream audio data.</oldsource>
-        <translation>保存不同步的正向音频流数据。</translation>
+        <translation type="vanished">保存不同步的正向音频流数据。</translation>
     </message>
     <message>
         <source>Unsynchronized Reverse Stream Audio</source>
         <oldsource>Reverse Stream Audio</oldsource>
-        <translation>不同步的反向音频</translation>
+        <translation type="vanished">不同步的反向音频</translation>
     </message>
     <message>
         <source>Save the unsynchronized reverse stream audio data.</source>
         <oldsource>Save the reverse stream audio data.</oldsource>
-        <translation>保存不同步的反向音频流数据。</translation>
+        <translation type="vanished">保存不同步的反向音频流数据。</translation>
     </message>
     <message>
         <source>CSV</source>
@@ -10559,23 +10615,43 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Save both tables as CSV.</source>
-        <translation>两个表另存为 CSV。</translation>
+        <translation type="vanished">两个表另存为 CSV。</translation>
     </message>
     <message>
         <source>Forward Stream CSV</source>
-        <translation>正向流 CSV</translation>
+        <translation type="vanished">正向流 CSV</translation>
     </message>
     <message>
         <source>Save the forward table as CSV.</source>
-        <translation>正向表另存为 CSV。</translation>
+        <translation type="vanished">正向表另存为 CSV。</translation>
     </message>
     <message>
         <source>Reverse Stream CSV</source>
-        <translation>反向流 CSV</translation>
+        <translation type="vanished">反向流 CSV</translation>
     </message>
     <message>
         <source>Save the reverse table as CSV.</source>
-        <translation>反向表另存为 CSV。</translation>
+        <translation type="vanished">反向表另存为 CSV。</translation>
+    </message>
+    <message>
+        <source>Save tables as CSV.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Current Tab Stream CSV</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save the table on the current tab as CSV.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>All Tab Streams CSV</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save the table from all tabs as CSV.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Save Graph</source>
@@ -10615,7 +10691,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Unable to save RTP data.</source>
-        <translation>无法保存 RTP 数据。</translation>
+        <translation type="vanished">无法保存 RTP 数据。</translation>
     </message>
     <message>
         <source>Save Graph As…</source>
@@ -10623,47 +10699,15 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Can&apos;t synchronize when only one channel is selected</source>
-        <translation>只选择一个通道时无法同步</translation>
-    </message>
-    <message>
-        <source>None of channels was selected</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">只选择一个通道时无法同步</translation>
     </message>
     <message>
         <source>Save forward and reverse stream audio</source>
-        <translation>保存正向和反向音频流</translation>
+        <translation type="vanished">保存正向和反向音频流</translation>
     </message>
     <message>
         <source>Raw (*.raw)</source>
-        <translation>原始数据 (*.raw)</translation>
-    </message>
-    <message>
-        <source>Saving %1…</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Analyzing RTP</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Information</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Save was interrupted</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Save or read of file was failed during saving</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Codec is not supported, file is incomplete</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Codec rate is not supported, file is incomplete</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">原始数据 (*.raw)</translation>
     </message>
     <message>
         <source>SSRC value not found.</source>
@@ -10671,11 +10715,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>No streams found.</source>
-        <translation>没有找到流。</translation>
+        <translation type="vanished">没有找到流。</translation>
     </message>
     <message>
         <source>%1 streams found.</source>
-        <translation>找到 %1 个流。</translation>
+        <translation type="vanished">找到 %1 个流。</translation>
     </message>
     <message>
         <source> G: Go to packet, N: Next problem packet</source>
@@ -10683,7 +10727,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>No Audio</source>
-        <translation>无音频</translation>
+        <translation type="vanished">无音频</translation>
     </message>
     <message>
         <source>Portable Document Format (*.pdf)</source>
@@ -10703,63 +10747,55 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Can&apos;t save in a file: Wrong length of captured packets.</source>
-        <translation>无法保存到一个文件：捕获到的分组长度错误。</translation>
+        <translation type="vanished">无法保存到一个文件：捕获到的分组长度错误。</translation>
     </message>
     <message>
         <source>Can&apos;t save in a file: RTP data with padding.</source>
-        <translation>无法保存在一个文件中：带有填充字节的 RTP 数据。</translation>
+        <translation type="vanished">无法保存在一个文件中：带有填充字节的 RTP 数据。</translation>
     </message>
     <message>
         <source>Can&apos;t save in a file: File I/O problem.</source>
-        <translation>无法保存到一个文件：文件 I/O 问题。</translation>
+        <translation type="vanished">无法保存到一个文件：文件 I/O 问题。</translation>
     </message>
     <message>
         <source>Can&apos;t save in a file: Not all data in all packets was captured.</source>
-        <translation>无法保存到一个文件：并非所有分组的所有数据被捕获。</translation>
+        <translation type="vanished">无法保存到一个文件：并非所有分组的所有数据被捕获。</translation>
     </message>
     <message>
         <source>Save forward stream audio</source>
-        <translation>保存正向音频流</translation>
+        <translation type="vanished">保存正向音频流</translation>
     </message>
     <message>
         <source>Save reverse stream audio</source>
-        <translation>保存反向音频流</translation>
+        <translation type="vanished">保存反向音频流</translation>
     </message>
     <message>
         <source>Sun Audio (*.au)</source>
-        <translation>Sun 音频 (*.au)</translation>
+        <translation type="vanished">Sun 音频 (*.au)</translation>
     </message>
     <message>
         <source>Warning</source>
-        <translation>警告</translation>
+        <translation type="vanished">警告</translation>
     </message>
     <message>
         <source>Unable to save in that format</source>
-        <translation>无法保存到该格式</translation>
+        <translation type="vanished">无法保存到该格式</translation>
     </message>
     <message>
         <source>Unable to save %1</source>
-        <translation>无法保存 %1</translation>
-    </message>
-    <message>
-        <source>Error</source>
-        <translation type="unfinished">错误</translation>
-    </message>
-    <message>
-        <source>Unknown error occurred</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">无法保存 %1</translation>
     </message>
     <message>
         <source>Save forward stream CSV</source>
-        <translation>保存正向流 CSV</translation>
+        <translation type="vanished">保存正向流 CSV</translation>
     </message>
     <message>
         <source>Save reverse stream CSV</source>
-        <translation>保存反向流 CSV</translation>
+        <translation type="vanished">保存反向流 CSV</translation>
     </message>
     <message>
         <source>Save CSV</source>
-        <translation>保存 CSV</translation>
+        <translation type="vanished">保存 CSV</translation>
     </message>
     <message>
         <source>Comma-separated values (*.csv)</source>
@@ -10829,7 +10865,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Sample Rate (Hz)</source>
-        <translation>采样率 (Hz)</translation>
+        <translation type="vanished">采样率 (Hz)</translation>
     </message>
     <message>
         <source>Payloads</source>
@@ -10842,6 +10878,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Output Device:</source>
         <translation>输出设备：</translation>
+    </message>
+    <message>
+        <source>Output Audio Rate:</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Jitter Buffer:</source>
@@ -10891,6 +10931,38 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Time of Day</source>
         <translation>当天时间</translation>
+    </message>
+    <message>
+        <source>&amp;Export</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Export audio of all unmuted selected channels or export payload of one channel.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Stream Synchronized Audio</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save audio data synchronized to start of the earliest stream.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;File Synchronized Audio</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save audio data synchronized to start of the capture file.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Payload</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save RTP payload of selected stream.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Reset Graph</source>
@@ -10993,6 +11065,22 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>放大</translation>
     </message>
     <message>
+        <source>SR (Hz)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sample rate of codec</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>PR (Hz)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Play rate of decoded audio (depends e. g. on selected sound card)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Zoom Out</source>
         <translation>缩小</translation>
     </message>
@@ -11054,12 +11142,39 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>&amp;Play Streams</source>
-        <oldsource>Play Streams</oldsource>
-        <translation type="unfinished">播放流</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Open RTP player dialog</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Set playlist</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Replace existing playlist in RTP Player with new one</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Add to playlist</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Add new set to existing playlist in RTP Player</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Remove from playlist</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Remove selected streams from playlist in RTP Player</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No Audio</source>
+        <translation type="unfinished">无音频</translation>
     </message>
     <message>
         <source>Decoding streams...</source>
@@ -11080,6 +11195,62 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Inserted Silence</source>
         <translation>插入的静默</translation>
+    </message>
+    <message>
+        <source>Automatic</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>WAV (*.wav)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Sun Audio (*.au)</source>
+        <translation type="unfinished">Sun 音频 (*.au)</translation>
+    </message>
+    <message>
+        <source>Save audio</source>
+        <translation type="unfinished">保存音频</translation>
+    </message>
+    <message>
+        <source>Raw (*.raw)</source>
+        <translation type="unfinished">原始数据 (*.raw)</translation>
+    </message>
+    <message>
+        <source>Save payload</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Warning</source>
+        <translation type="unfinished">警告</translation>
+    </message>
+    <message>
+        <source>No stream selected or none of selected streams provide audio</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Error</source>
+        <translation type="unfinished">错误</translation>
+    </message>
+    <message>
+        <source>All selected streams must use same play rate. Manual set of Output Audio Rate might help.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save failed!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Can&apos;t write header of AU file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Can&apos;t write header of WAV file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Payload save works with just one audio stream.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Double click to change audio routing</source>
@@ -11182,8 +11353,19 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Find &amp;Reverse</source>
-        <oldsource>Find Reverse</oldsource>
-        <translation type="unfinished">查找反向流</translation>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Prepare &amp;Filter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Export</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Analyze</source>
+        <translation type="unfinished">分析(&amp;A)</translation>
     </message>
     <message>
         <source>Find the reverse stream matching the selected forward stream.</source>
@@ -11242,25 +11424,12 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>G</translation>
     </message>
     <message>
-        <source>Prepare &amp;Filter</source>
-        <oldsource>Prepare Filter</oldsource>
-        <translation type="unfinished">准备过滤器</translation>
-    </message>
-    <message>
         <source>Prepare a filter matching the selected stream(s).</source>
         <translation>将匹配上的选中的流作为过滤器。</translation>
     </message>
     <message>
         <source>P</source>
         <translation>P</translation>
-    </message>
-    <message>
-        <source>&amp;Export</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Export As RTPDump</source>
-        <translation type="vanished">导出为 RTPDump</translation>
     </message>
     <message>
         <source>Export the stream payload as rtpdump</source>
@@ -11271,13 +11440,9 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>E</translation>
     </message>
     <message>
-        <source>&amp;Analyze</source>
-        <oldsource>Analyze</oldsource>
-        <translation type="unfinished">分析</translation>
-    </message>
-    <message>
-        <source>Open the analysis window for the selected stream(s)</source>
-        <translation>为选中的流打开分析窗口</translation>
+        <source>Open the analysis window for the selected stream(s) and add it to it</source>
+        <oldsource>Open the analysis window for the selected stream(s)</oldsource>
+        <translation type="unfinished">为选中的流打开分析窗口</translation>
     </message>
     <message>
         <source>A</source>
@@ -11316,10 +11481,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Copy</source>
-        <translation type="vanished">复制</translation>
-    </message>
-    <message>
         <source>as CSV</source>
         <translation>作为 CSV</translation>
     </message>
@@ -11334,10 +11495,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>, %1 selected, %2 total packets</source>
         <translation>, %1 项已选中, 总计 %2 项分组</translation>
-    </message>
-    <message>
-        <source>No Audio</source>
-        <translation type="unfinished">无音频</translation>
     </message>
     <message>
         <source>Save RTPDump As…</source>
@@ -13654,7 +13811,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Prepare &amp;Filter</source>
-        <translation type="unfinished">准备过滤器</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Prepare a filter matching the selected calls(s).</source>
@@ -13721,18 +13878,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>VoIP 呼叫</translation>
     </message>
     <message>
-        <source>Prepare Filter</source>
-        <translation type="vanished">准备过滤器</translation>
-    </message>
-    <message>
-        <source>Flow Sequence</source>
-        <translation type="vanished">流序列</translation>
-    </message>
-    <message>
-        <source>Copy</source>
-        <translation type="vanished">复制</translation>
-    </message>
-    <message>
         <source>as CSV</source>
         <translation>作为 CSV</translation>
     </message>
@@ -13746,7 +13891,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>No Audio</source>
-        <translation>无音频</translation>
+        <translation type="vanished">无音频</translation>
     </message>
 </context>
 <context>
