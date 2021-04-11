@@ -12607,6 +12607,10 @@ add_ff_auth_pasn(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_,
     offset += add_tagged_field(pinfo, tree, tvb, offset, 0, NULL, 0, NULL);
     /* Do we have any more of the possible fields */
   } else if (seq == 2) {
+    if (status_code != 0) {
+      offset += tvb_captured_length_remaining(tvb, offset);
+      return offset;
+    }
     /*
      * RSN element is present.
      * PASN element is present if status == 0.
@@ -30818,6 +30822,10 @@ dissect_ieee80211_he_trigger(tvbuff_t *tvb, packet_info *pinfo _U_,
    */
   if (trigger_type == 8) {
     guint8 subtype = tvb_get_guint8(tvb, offset) & 0x0f;
+
+    col_append_fstr(pinfo->cinfo, COL_INFO, ": %s",
+                    rval_to_str(subtype, ranging_trigger_subtype_vals,
+                                "Reserved"));
 
     switch (subtype) {
     case 0:
