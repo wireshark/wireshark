@@ -3783,6 +3783,44 @@ dissect_http_tls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 	return tvb_captured_length(tvb);
 }
 
+static gboolean
+dissect_http_heur_tls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+	gint offset = 0, next_offset, linelen;
+	conversation_t  *conversation;
+	http_conv_t	*conv_data;
+
+	conversation = find_or_create_conversation(pinfo);
+	conv_data = (http_conv_t *)conversation_get_proto_data(conversation, proto_http);
+	/* A http conversation was previously started, assume it is still active */
+	if (conv_data) {
+		dissect_http_tls(tvb, pinfo, tree, data);
+		return TRUE;
+	}
+
+	/* Check if we have a line terminated by CRLF
+	 * Return the length of the line (not counting the line terminator at
+	 * the end), or, if we don't find a line terminator:
+	 *
+	 *	if "deseg" is true, return -1;
+	 */
+	linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, TRUE);
+	if((linelen == -1)||(linelen == 8)){
+		return FALSE;
+	}
+
+	/* Check if the line start or ends with the HTTP token */
+	if((tvb_strncaseeql(tvb, linelen-8, "HTTP/1.", 7) != 0) && (tvb_strncaseeql(tvb, 0, "HTTP/1.", 7) != 0)) {
+	        /* we couldn't find the Magic Hello HTTP/1.X. */
+		return FALSE;
+	}
+
+        conv_data = wmem_new0(wmem_file_scope(), http_conv_t);
+        conversation_add_proto_data(conversation, proto_http2, conv_data);
+	dissect_http_tls(tvb, pinfo, tree, data);
+	return TRUE;
+}
+
 static int
 dissect_http_sctp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
@@ -4433,6 +4471,7 @@ proto_reg_handoff_message_http(void)
 	dissector_add_string("media_type", "message/http", message_http_handle);
 
 	heur_dissector_add("tcp", dissect_http_heur_tcp, "HTTP over TCP", "http_tcp", proto_http, HEURISTIC_ENABLE);
+	heur_dissector_add("tls", dissect_http_heur_tls, "HTTP over TLS", "http_tls", proto_http, HEURISTIC_ENABLE);
 
 	proto_http2 = proto_get_id_by_filter_name("http2");
 

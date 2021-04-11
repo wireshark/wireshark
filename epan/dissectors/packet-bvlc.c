@@ -32,6 +32,7 @@ void proto_reg_handoff_bvlc(void);
 #define BAC_WRAPPER_SECURE_BY_RTR	0x01
 
 static int proto_bvlc = -1;
+static int proto_bscvlc = -1;
 static int hf_bvlc_type = -1;
 static int hf_bvlc_function = -1;
 static int hf_bvlc_ipv6_function = -1;
@@ -53,25 +54,76 @@ static int hf_bvlc_virt_source = -1;
 static int hf_bvlc_virt_dest = -1;
 static int hf_bvlc_orig_source_addr = -1;
 static int hf_bvlc_orig_source_port = -1;
+static int hf_bscvlc_control = -1;
+static int hf_bscvlc_control_data_option = -1;
+static int hf_bscvlc_control_destination_option = -1;
+static int hf_bscvlc_control_destination_address = -1;
+static int hf_bscvlc_control_origin_address = -1;
+static int hf_bscvlc_control_reserved = -1;
+static int hf_bscvlc_header = -1;
+static int hf_bscvlc_header_marker = -1;
+static int hf_bscvlc_header_length = -1;
+static int hf_bscvlc_header_data = -1;
+static int hf_bscvlc_header_opt_type = -1;
+static int hf_bscvlc_header_opt_data = -1;
+static int hf_bscvlc_header_opt_must_understand = -1;
+static int hf_bscvlc_header_opt_more = -1;
+static int hf_bscvlc_vendor_id = -1;
+static int hf_bscvlc_proprietary_opt_type = -1;
+static int hf_bscvlc_proprietary_data = -1;
+static int hf_bscvlc_hub_conn_state = -1;
+static int hf_bscvlc_accept_conns = -1;
+static int hf_bscvlc_max_bvlc_length = -1;
+static int hf_bscvlc_max_npdu_length = -1;
+static int hf_bscvlc_function = -1;
+static int hf_bscvlc_result = -1;
+static int hf_bscvlc_error_class = -1;
+static int hf_bscvlc_error_code = -1;
+static int hf_bscvlc_result_data = -1;
+static int hf_bscvlc_uris = -1;
+static int hf_bscvlc_msg_id = -1;
+static int hf_bscvlc_orig_vmac = -1;
+static int hf_bscvlc_dest_vmac = -1;
+static int hf_bscvlc_connect_vmac = -1;
+static int hf_bscvlc_connect_uuid = -1;
 
 static dissector_table_t bvlc_dissector_table;
+static dissector_table_t bscvlc_dissector_table;
 static dissector_table_t bvlc_ipv6_dissector_table;
 static dissector_handle_t bvlc_handle = NULL;
+static dissector_handle_t bscvlc_handle = NULL;
 
 static const value_string bvlc_function_names[] = {
-	{ 0x00, "BVLC-Result", },
-	{ 0x01, "Write-Broadcast-Distribution-Table", },
-	{ 0x02, "Read-Broadcast-Distribution-Table", },
-	{ 0x03, "Read-Broadcast-Distribution-Table-Ack", },
-	{ 0x04, "Forwarded-NPDU", },
-	{ 0x05, "Register-Foreign-Device", },
-	{ 0x06, "Read-Foreign-Device-Table", },
-	{ 0x07, "Read-Foreign-Device-Table-Ack", },
-	{ 0x08, "Delete-Foreign-Device-Table-Entry", },
-	{ 0x09, "Distribute-Broadcast-To-Network", },
-	{ 0x0a, "Original-Unicast-NPDU", },
+	{ 0x00, "BVLC-Result" },
+	{ 0x01, "Write-Broadcast-Distribution-Table" },
+	{ 0x02, "Read-Broadcast-Distribution-Table" },
+	{ 0x03, "Read-Broadcast-Distribution-Table-Ack" },
+	{ 0x04, "Forwarded-NPDU" },
+	{ 0x05, "Register-Foreign-Device" },
+	{ 0x06, "Read-Foreign-Device-Table" },
+	{ 0x07, "Read-Foreign-Device-Table-Ack" },
+	{ 0x08, "Delete-Foreign-Device-Table-Entry" },
+	{ 0x09, "Distribute-Broadcast-To-Network" },
+	{ 0x0a, "Original-Unicast-NPDU" },
 	{ 0x0b, "Original-Broadcast-NPDU" },
 	{ 0x0c, "Secured-BVLL" },
+	{ 0, NULL }
+};
+
+static const value_string bscvlc_function_names[] = {
+	{ 0x00, "BVLC-Result" },
+	{ 0x01, "Encapsulated-NPDU" },
+	{ 0x02, "Address-Resolution" },
+	{ 0x03, "Address-Resolution-ACK" },
+	{ 0x04, "Advertisement" },
+	{ 0x05, "Advertisement-Solicitation" },
+	{ 0x06, "Connect-Request" },
+	{ 0x07, "Connect-Accept" },
+	{ 0x08, "Disconnect-Request" },
+	{ 0x09, "Disconnect-ACK" },
+	{ 0x0A, "Heartbeat-Request" },
+	{ 0x0B, "Heartbeat-ACK" },
+	{ 0x0C, "Proprietary-Message" },
 	{ 0, NULL }
 };
 
@@ -83,6 +135,12 @@ static const value_string bvlc_result_names[] = {
 	{ 0x40, "Read-Foreign-Device-Table NAK" },
 	{ 0x50, "Delete-Foreign-Device-Table-Entry NAK" },
 	{ 0x60, "Distribute-Broadcast-To-Network NAK" },
+	{ 0,    NULL }
+};
+
+static const value_string bscvlc_result_names[] = {
+	{ 0x00, "Successful completion (ACK)" },
+	{ 0x01, "Completion failed (NAK)" },
 	{ 0,    NULL }
 };
 
@@ -113,7 +171,29 @@ static const value_string bvlc_ipv6_result_names[] = {
 	{ 0, NULL }
 };
 
+static const value_string bscvlc_header_type_names[] = {
+	{ 0x01, "Secure Path" },
+	{ 0x1F, "Proprietary Header Option" },
+	{ 0,    NULL }
+};
+
+static const value_string bscvlc_hub_conn_state_names[] = {
+	{ 0x00, "No hub connection" },
+	{ 0x01, "Connected to primary hub" },
+	{ 0x02, "Connected to failover hub" },
+	{ 0,    NULL }
+};
+
+static const value_string bscvlc_hub_accept_conns_names[] = {
+	{ 0x00, "The node does not support accepting direct connections" },
+	{ 0x01, "The node supports accepting direct connections" },
+	{ 0,    NULL }
+};
+
 static gint ett_bvlc = -1;
+static gint ett_bscvlc = -1;
+static gint ett_bscvlc_ctrl = -1;
+static gint ett_bscvlc_hdr = -1;
 static gint ett_bdt = -1;
 static gint ett_fdt = -1;
 
@@ -124,6 +204,245 @@ static const value_string bvlc_types[] = {
 	{ BACNET_IP_ANNEX_J,	"BACnet/IP (Annex J)" },
 	{ BACNET_IPV6_ANNEX_U,	"BACnet/IPV6 (Annex U)" },
 	{ 0, NULL }
+};
+
+#define BSCVLC_CONTROL_DATA_OPTION		0x01
+#define BSCVLC_CONTROL_DEST_OPTION		0x02
+#define BSCVLC_CONTROL_DEST_ADDRESS		0x04
+#define BSCVLC_CONTROL_ORIG_ADDRESS		0x08
+#define BSCVLC_CONTROL_RESERVED			0xF0
+
+static const true_false_string control_data_option_set_high = {
+	"Data Options field is present.",
+	"Data Options field is absent."
+};
+
+static const true_false_string control_destination_option_set_high = {
+	"Destination Options field is present.",
+	"Destination Options field is absent."
+};
+
+static const true_false_string control_destination_address_set_high = {
+	"Destination Virtual Address is present.",
+	"Destination Virtual Address is absent."
+};
+
+static const true_false_string control_orig_address_set_high = {
+	"Originating Virtual Address is present.",
+	"Originating Virtual Address is absent."
+};
+
+static const true_false_string control_reserved_set_high = {
+	"Shall be zero, but is not.",
+	"Shall be zero and is zero."
+};
+
+#define BSCVLC_HEADER_OPTION_TYPE		0x1F
+#define BSCVLC_HEADER_OPTION_DATA		0x20
+#define BSCVLC_HEADER_OPTION_MUST_UNDERSTAND	0x40
+#define BSCVLC_HEADER_OPTION_MORE_OPTIONS	0x80
+
+#define BSCVLC_HEADER_TYPE_SECURE_PATH		0x01
+#define BSCVLC_HEADER_TYPE_PROPRIETARY		0x1F
+
+
+static const true_false_string header_opt_data_set_high = {
+	"The 'Header Length' and 'Header Data' fields are present.",
+	"The 'Header Length' and 'Header Data' fields are absent."
+};
+
+static const true_false_string header_opt_must_understand_set_high = {
+	"This header option must be understood for consuming the message.",
+	"This header option can be ignored if not understood."
+};
+
+static const true_false_string header_opt_more_set_high = {
+	"Another header option follows in the current header option list.",
+	"This is the last header option in the current header option list."
+};
+
+static const value_string
+BACnetErrorClass [] = {
+    { 0, "device" },
+    { 1, "object" },
+    { 2, "property" },
+    { 3, "resources" },
+    { 4, "security" },
+    { 5, "services" },
+    { 6, "vt" },
+    { 7, "communication" },
+    { 0, NULL }
+/* Enumerated values 0-63 are reserved for definition by ASHRAE.
+   Enumerated values64-65535 may be used by others subject to
+   the procedures and constraints described in Clause 23. */
+};
+
+static const value_string
+BACnetErrorCode[] = {
+    {   0, "other"},
+    {   1, "authentication-failed"},
+    {   2, "configuration-in-progress"},
+    {   3, "device-busy"},
+    {   4, "dynamic-creation-not-supported"},
+    {   5, "file-access-denied"},
+    {   6, "incompatible-security-levels"},
+    {   7, "inconsistent-parameters"},
+    {   8, "inconsistent-selection-criterion"},
+    {   9, "invalid-data-type"},
+    {  10, "invalid-file-access-method"},
+    {  11, "invalid-file-start-position"},
+    {  12, "invalid-operator-name"},
+    {  13, "invalid-parameter-data-type"},
+    {  14, "invalid-time-stamp"},
+    {  15, "key-generation-error"},
+    {  16, "missing-required-parameter"},
+    {  17, "no-objects-of-specified-type"},
+    {  18, "no-space-for-object"},
+    {  19, "no-space-to-add-list-element"},
+    {  20, "no-space-to-write-property"},
+    {  21, "no-vt-sessions-available"},
+    {  22, "property-is-not-a-list"},
+    {  23, "object-deletion-not-permitted"},
+    {  24, "object-identifier-already-exists"},
+    {  25, "operational-problem"},
+    {  26, "password-failure"},
+    {  27, "read-access-denied"},
+    {  28, "security-not-supported"},
+    {  29, "service-request-denied"},
+    {  30, "timeout"},
+    {  31, "unknown-object"},
+    {  32, "unknown-property"},
+    {  33, "removed enumeration"},
+    {  34, "unknown-vt-class"},
+    {  35, "unknown-vt-session"},
+    {  36, "unsupported-object-type"},
+    {  37, "value-out-of-range"},
+    {  38, "vt-session-already-closed"},
+    {  39, "vt-session-termination-failure"},
+    {  40, "write-access-denied"},
+    {  41, "character-set-not-supported"},
+    {  42, "invalid-array-index"},
+    {  43, "cov-subscription-failed"},
+    {  44, "not-cov-property"},
+    {  45, "optional-functionality-not-supported"},
+    {  46, "invalid-configuration-data"},
+    {  47, "datatype-not-supported"},
+    {  48, "duplicate-name"},
+    {  49, "duplicate-object-id"},
+    {  50, "property-is-not-an-array"},
+    {  51, "abort - buffer - overflow" },
+    {  52, "abort - invalid - apdu - in - this - state" },
+    {  53, "abort - preempted - by - higher - priority - task" },
+    {  54, "abort - segmentation - not - supported" },
+    {  55, "abort - proprietary" },
+    {  56, "abort - other" },
+    {  57, "reject - invalid - tag" },
+    {  58, "reject - network - down" },
+    {  59, "reject - buffer - overflow" },
+    {  60, "reject - inconsistent - parameters" },
+    {  61, "reject - invalid - parameter - data - type" },
+    {  62, "reject - invalid - tag" },
+    {  63, "reject - missing - required - parameter" },
+    {  64, "reject - parameter - out - of - range" },
+    {  65, "reject - too - many - arguments" },
+    {  66, "reject - undefined - enumeration" },
+    {  67, "reject - unrecognized - service" },
+    {  68, "reject - proprietary" },
+    {  69, "reject - other" },
+    {  70, "unknown - device" },
+    {  71, "unknown - route" },
+    {  72, "value - not - initialized" },
+    {  73, "invalid-event-state"},
+    {  74, "no-alarm-configured"},
+    {  75, "log-buffer-full"},
+    {  76, "logged-value-purged"},
+    {  77, "no-property-specified"},
+    {  78, "not-configured-for-triggered-logging"},
+    {  79, "unknown-subscription"},
+    {  80, "parameter-out-of-range"},
+    {  81, "list-element-not-found"},
+    {  82, "busy"},
+    {  83, "communication-disabled"},
+    {  84, "success"},
+    {  85, "access-denied"},
+    {  86, "bad-destination-address"},
+    {  87, "bad-destination-device-id"},
+    {  88, "bad-signature"},
+    {  89, "bad-source-address"},
+    {  90, "bad-timestamp"},
+    {  91, "cannot-use-key"},
+    {  92, "cannot-verify-message-id"},
+    {  93, "correct-key-revision"},
+    {  94, "destination-device-id-required"},
+    {  95, "duplicate-message"},
+    {  96, "encryption-not-configured"},
+    {  97, "encryption-required"},
+    {  98, "incorrect-key"},
+    {  99, "invalid-key-data"},
+    { 100, "key-update-in-progress"},
+    { 101, "malformed-message"},
+    { 102, "not-key-server"},
+    { 103, "security-not-configured"},
+    { 104, "source-security-required"},
+    { 105, "too-many-keys"},
+    { 106, "unknown-authentication-type"},
+    { 107, "unknown-key"},
+    { 108, "unknown-key-revision"},
+    { 109, "unknown-source-message"},
+    { 110, "not-router-to-dnet"},
+    { 111, "router-busy"},
+    { 112, "unknown-network-message"},
+    { 113, "message-too-long"},
+    { 114, "security-error"},
+    { 115, "addressing-error"},
+    { 116, "write-bdt-failed"},
+    { 117, "read-bdt-failed"},
+    { 118, "register-foreign-device-failed"},
+    { 119, "read-fdt-failed"},
+    { 120, "delete-fdt-entry-failed"},
+    { 121, "distribute-broadcast-failed"},
+    { 122, "unknown-file-size"},
+    { 123, "abort-apdu-too-long"},
+    { 124, "abort-application-exceeded-reply-time"},
+    { 125, "abort-out-of-resources"},
+    { 126, "abort-tsm-timeout"},
+    { 127, "abort-window-size-out-of-range"},
+    { 128, "file-full"},
+    { 129, "inconsistent-configuration"},
+    { 130, "inconsistent-object-type"},
+    { 131, "internal-error"},
+    { 132, "not-configured"},
+    { 133, "out-of-memory"},
+    { 134, "value-too-long"},
+    { 135, "abort-insufficient-security"},
+    { 136, "abort-security-error"},
+    { 137, "duplicate-entry"},
+    { 138, "invalid-value-in-this-state"},
+    { 139, "invalid-operation-in-this-state"},
+    { 140, "list-item-not-numbered"},
+    { 141, "list-item-not-timestamped"},
+    { 142, "invalid-data-encoding"},
+    { 0,   NULL}
+/* Enumerated values 0-255 are reserved for definition by ASHRAE.
+   Enumerated values 256-65535 may be used by others subject to the
+   procedures and constraints described in Clause 23. */
+};
+
+static int * const bscvlc_control_flags[] = {
+	&hf_bscvlc_control_data_option,
+	&hf_bscvlc_control_destination_option,
+	&hf_bscvlc_control_destination_address,
+	&hf_bscvlc_control_origin_address,
+	&hf_bscvlc_control_reserved,
+	NULL
+};
+
+static int * const bscvlc_header_flags[] = {
+	&hf_bscvlc_header_opt_type,
+	&hf_bscvlc_header_opt_data,
+	&hf_bscvlc_header_opt_must_understand,
+	&hf_bscvlc_header_opt_more,
+	NULL
 };
 
 static int
@@ -174,6 +493,10 @@ dissect_ipv4_bvlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 	if (bvlc_length < 4 || bvlc_length > packet_length) {
 		return 0;	/* reject */
 	}
+
+	/* Put the BVLC Type in the info column */
+	col_append_fstr(pinfo->cinfo, COL_INFO, " BVLC Function %s ",
+                  val_to_str_const(bvlc_function, bvlc_function_names, "unknown"));
 
 	ti = proto_tree_add_item(tree, proto_bvlc, tvb, 0, bvlc_length, ENC_NA);
 	bvlc_tree = proto_item_add_subtree(ti, ett_bvlc);
@@ -381,6 +704,10 @@ dissect_ipv6_bvlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 		return 0;	/* reject */
 	}
 
+	/* Put the BVLC Type in the info column */
+	col_append_fstr(pinfo->cinfo, COL_INFO, " BVLC Function %s ",
+                  val_to_str_const(bvlc_function, bvlc_function_names, "unknown"));
+
 	ti = proto_tree_add_item(tree, proto_bvlc, tvb, 0,
 		bvlc_length, ENC_NA);
 	bvlc_tree = proto_item_add_subtree(ti, ett_bvlc);
@@ -428,10 +755,17 @@ dissect_ipv6_bvlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 		offset += 3;
 		break;
 	case 0x04: /* Forwarded-Address-Resolution */
-	case 0x08: /* Forwarded-NPDU */
 		proto_tree_add_item(bvlc_tree, hf_bvlc_virt_dest, tvb, offset,
 			3, ENC_BIG_ENDIAN);
 		offset += 3;
+		proto_tree_add_item(bvlc_tree, hf_bvlc_orig_source_addr,
+			tvb, offset, 16, ENC_NA);
+		offset += 16;
+		proto_tree_add_item(bvlc_tree, hf_bvlc_orig_source_port,
+			tvb, offset, 2, ENC_BIG_ENDIAN);
+		offset += 2;
+		break;
+	case 0x08: /* Forwarded-NPDU */
 		proto_tree_add_item(bvlc_tree, hf_bvlc_orig_source_addr,
 			tvb, offset, 16, ENC_NA);
 		offset += 16;
@@ -514,6 +848,362 @@ dissect_bvlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 	}
 
 	return ret;
+}
+
+static int
+dissect_bscvlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+	proto_item *ti;
+	proto_tree *bvlc_tree;
+	tvbuff_t *next_tvb;
+	gint offset;
+	gint start;
+	gint bvlc_length;
+	gint packet_length;
+	gint npdu_length;
+	guint8 bvlc_function;
+	guint8 bvlc_control;
+	guint8 bvlc_result;
+	guint8 hdr_byte;
+	gint8 mac_buffer[16];
+	guint bvlc_message_id;
+	guint idx;
+	gboolean bMoreFlag;
+	gboolean bDataFlag;
+	proto_tree *subtree;
+
+	/* Calculate length of BSCVLC block to get remaining payload length */
+	offset = 0;
+
+	packet_length = tvb_reported_length_remaining(tvb, offset);
+	if(packet_length < 4)
+		return 0; /* reject */
+
+	/* Fix part of the header first */
+	bvlc_function = tvb_get_guint8(tvb, offset++);
+	bvlc_control = tvb_get_guint8(tvb, offset++);
+	bvlc_message_id = tvb_get_guint16(tvb, offset, ENC_BIG_ENDIAN);
+	offset += 2;
+
+	/* Variable part of the header next */
+	bvlc_length = offset;
+
+	if ((bvlc_control & BSCVLC_CONTROL_ORIG_ADDRESS) != 0)
+		bvlc_length += 6;
+
+	if ((bvlc_control & BSCVLC_CONTROL_DEST_ADDRESS) != 0)
+		bvlc_length += 6;
+
+	if ((bvlc_control & BSCVLC_CONTROL_DEST_OPTION) != 0)
+	{
+		bMoreFlag = TRUE;
+
+		while(tvb_reported_length_remaining(tvb, bvlc_length) > 0 &&
+		      (hdr_byte = tvb_get_guint8(tvb, bvlc_length)) != 0 && bMoreFlag)
+		{
+			/* get flags and type... */
+			bMoreFlag= (hdr_byte & BSCVLC_HEADER_OPTION_MORE_OPTIONS);
+			bDataFlag= (hdr_byte & BSCVLC_HEADER_OPTION_DATA);
+			bvlc_length++;
+
+			if(bDataFlag)
+			{
+				npdu_length = (gint)(tvb_get_guint8(tvb, bvlc_length++) << 8);
+				npdu_length += (gint)tvb_get_guint8(tvb, bvlc_length++);
+				bvlc_length += npdu_length;
+			}
+		}
+	}
+
+	if ((bvlc_control & BSCVLC_CONTROL_DATA_OPTION) != 0)
+	{
+		bMoreFlag = TRUE;
+
+		while(tvb_reported_length_remaining(tvb, bvlc_length) > 0 &&
+		      (hdr_byte = tvb_get_guint8(tvb, bvlc_length)) != 0 && bMoreFlag)
+		{
+			/* get flags and type... */
+			bMoreFlag= (hdr_byte & BSCVLC_HEADER_OPTION_MORE_OPTIONS);
+			bDataFlag= (hdr_byte & BSCVLC_HEADER_OPTION_DATA);
+			bvlc_length++;
+
+			if(bDataFlag)
+			{
+				npdu_length = (gint)(tvb_get_guint8(tvb, bvlc_length++) << 8);
+				npdu_length += (gint)tvb_get_guint8(tvb, bvlc_length++);
+				bvlc_length += npdu_length;
+			}
+		}
+	}
+
+	/* Now add the BSCVLC payload size for specified function */
+	switch (bvlc_function)
+	{
+	case 0x00: /* BVLC-Result */
+	case 0x03: /* Address-Resolution-ACK */
+	case 0x0C: /* Proprietary-Message */
+		/* complete packet length because of optional present variable length error data
+		   but no length encoded for it in the structure of this frame */
+		bvlc_length = packet_length;
+		break;
+	case 0x02: /* Address-Resolution */
+	case 0x05: /* Advertisement-Solicitation */
+	case 0x08: /* Disconnect-Request */
+	case 0x09: /* Disconnect-ACK */
+	case 0x0A: /* Heartbeat-Request */
+	case 0x0B: /* Heartbeat-ACK */
+		/* No additional payload here */
+		break;
+	case 0x04: /* Advertisement */
+		bvlc_length += 6;
+		break;
+	case 0x06: /* Connect-Request */
+	case 0x07: /* Connect-Accept */
+		bvlc_length += 26;
+		break;
+	case 0x01: /* Encapsulated-NPDU */
+	default:
+		/* The additional payload will be decoded elsewhere */
+		break;
+	}
+
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "BSCVLC");
+	col_set_str(pinfo->cinfo, COL_INFO, "BACnet Secure Conect Virtual Link Control");
+
+	/* Put the BSCVLC Type and Message ID in the info column */
+	col_append_fstr(pinfo->cinfo, COL_INFO, " BSCVLC Function %s Message-ID %u",
+                  val_to_str_const(bvlc_function, bscvlc_function_names, "unknown"), bvlc_message_id);
+
+	/* Fill the tree... */
+	offset = 0;
+	ti = proto_tree_add_item(tree, proto_bscvlc, tvb, 0, bvlc_length, ENC_NA);
+	bvlc_tree = proto_item_add_subtree(ti, ett_bvlc);
+
+	proto_tree_add_uint(bvlc_tree, hf_bscvlc_function, tvb,
+		offset, 1, bvlc_function);
+	offset++;
+	proto_tree_add_bitmask(bvlc_tree, tvb, offset, hf_bscvlc_control,
+				ett_bscvlc_ctrl, bscvlc_control_flags, ENC_NA);
+	offset ++;
+	proto_tree_add_uint(bvlc_tree, hf_bscvlc_msg_id, tvb,
+		offset, 2, bvlc_message_id);
+	offset += 2;
+
+	if ((bvlc_control & BSCVLC_CONTROL_ORIG_ADDRESS) != 0)
+	{
+		for(idx = 0; idx < 6; idx++)
+			g_snprintf(&mac_buffer[idx * 2], sizeof(mac_buffer) - (idx * 2), "%02X", tvb_get_guint8(tvb, offset + idx));
+		col_append_fstr(pinfo->cinfo, COL_INFO, " SMAC %s", mac_buffer);
+
+		proto_tree_add_item(bvlc_tree, hf_bscvlc_orig_vmac, tvb, offset, 6, ENC_NA);
+		offset += 6;
+	}
+
+	if ((bvlc_control & BSCVLC_CONTROL_DEST_ADDRESS) != 0)
+	{
+		for(idx = 0; idx < 6; idx++)
+			g_snprintf(&mac_buffer[idx * 2],  sizeof(mac_buffer) - (idx * 2), "%02X", tvb_get_guint8(tvb, offset + idx));
+		col_append_fstr(pinfo->cinfo, COL_INFO, " DMAC %s", mac_buffer);
+
+		proto_tree_add_item(bvlc_tree, hf_bscvlc_dest_vmac, tvb, offset, 6, ENC_NA);
+		offset += 6;
+	}
+
+	if ((bvlc_control & BSCVLC_CONTROL_DEST_OPTION) != 0)
+	{
+		bMoreFlag = TRUE;
+
+		while(tvb_reported_length_remaining(tvb, offset) > 0 &&
+		      (hdr_byte = tvb_get_guint8(tvb, offset)) != 0 && bMoreFlag)
+		{
+			/* get flags and type... */
+			bMoreFlag= (hdr_byte & BSCVLC_HEADER_OPTION_MORE_OPTIONS);
+			bDataFlag= (hdr_byte & BSCVLC_HEADER_OPTION_DATA);
+			start = offset;
+
+			offset++;
+
+			if(bDataFlag)
+			{
+				npdu_length = (gint)(tvb_get_guint8(tvb, offset++) << 8);
+				npdu_length += (gint)tvb_get_guint8(tvb, offset++);
+				offset += npdu_length;
+			}
+
+			subtree = proto_tree_add_subtree_format(bvlc_tree, tvb, start, offset - start,
+	                                ett_bscvlc_hdr, NULL, "%s", "Destination Options");
+			proto_tree_add_bitmask_value(subtree, tvb, start, hf_bscvlc_header,
+				ett_bscvlc_hdr, bscvlc_header_flags, hdr_byte);
+
+			if(bDataFlag)
+			{
+				proto_tree_add_item(subtree, hf_bscvlc_header_length, tvb, start + 1, 2, ENC_NA);
+				proto_tree_add_item(subtree, hf_bscvlc_header_data, tvb, start + 3, npdu_length, ENC_NA);
+			}
+		}
+	}
+
+	if ((bvlc_control & BSCVLC_CONTROL_DATA_OPTION) != 0)
+	{
+		bMoreFlag = TRUE;
+
+		while(tvb_reported_length_remaining(tvb, offset) > 0 &&
+		      (hdr_byte = tvb_get_guint8(tvb, offset)) != 0 && bMoreFlag)
+		{
+			/* get flags and type... */
+			bMoreFlag= (hdr_byte & BSCVLC_HEADER_OPTION_MORE_OPTIONS);
+			bDataFlag= (hdr_byte & BSCVLC_HEADER_OPTION_DATA);
+			start = offset;
+
+			offset++;
+
+			if(bDataFlag)
+			{
+				npdu_length = (gint)(tvb_get_guint8(tvb, offset++) << 8);
+				npdu_length += (gint)tvb_get_guint8(tvb, offset++);
+				offset += npdu_length;
+			}
+
+			subtree = proto_tree_add_subtree_format(bvlc_tree, tvb, start, offset - start,
+	                                ett_bscvlc_hdr, NULL, "%s", "Data Options");
+			proto_tree_add_bitmask_value(subtree, tvb, start, hf_bscvlc_header,
+				ett_bscvlc_hdr, bscvlc_header_flags, hdr_byte);
+
+			if(bDataFlag)
+			{
+				proto_tree_add_item(subtree, hf_bscvlc_header_length, tvb, start + 1, 2, ENC_NA);
+				proto_tree_add_item(subtree, hf_bscvlc_header_data, tvb, start + 3, npdu_length, ENC_NA);
+			}
+		}
+	}
+
+	switch (bvlc_function)
+	{
+	case 0x02: /* Address-Resolution */
+	case 0x05: /* Advertisement-Solicitation */
+	case 0x08: /* Disconnect-Request */
+	case 0x09: /* Disconnect-ACK */
+	case 0x0A: /* Heartbeat-Request */
+	case 0x0B: /* Heartbeat-ACK */
+		break;
+	case 0x00: /* BVLC-Result */
+		subtree = proto_tree_add_subtree_format(bvlc_tree, tvb, offset, packet_length - offset,
+	                        ett_bscvlc_hdr, NULL, "%s", "BVLC-Result");
+		proto_tree_add_item(subtree, hf_bscvlc_function, tvb,
+				offset, 1, ENC_NA);
+		offset++;
+		proto_tree_add_item(subtree, hf_bscvlc_result, tvb,
+				offset, 1, ENC_NA);
+		bvlc_result = tvb_get_guint8(tvb, offset);
+		offset++;
+
+		col_append_fstr(pinfo->cinfo, COL_INFO, " %s",
+                    val_to_str_const(bvlc_result, bscvlc_result_names, "unknown"));
+
+		if(bvlc_result)
+		{
+			proto_tree_add_item(subtree, hf_bscvlc_header_marker, tvb,
+					offset, 1, ENC_NA);
+			offset++;
+			proto_tree_add_item(subtree, hf_bscvlc_error_class, tvb,
+					offset, 2, ENC_NA);
+			offset += 2;
+			proto_tree_add_item(subtree, hf_bscvlc_error_code, tvb,
+					offset, 2, ENC_NA);
+			offset += 2;
+			proto_tree_add_item(subtree, hf_bscvlc_result_data, tvb,
+					offset, packet_length - offset, ENC_NA);
+		}
+		/* Force and of packet */
+		offset = packet_length;
+		break;
+	case 0x03: /* Address-Resolution-ACK */
+		subtree = proto_tree_add_subtree_format(bvlc_tree, tvb, offset, packet_length - offset,
+	                        ett_bscvlc_hdr, NULL, "%s", "Address-Resolution-ACK");
+		proto_tree_add_item(subtree, hf_bscvlc_uris, tvb,
+				offset, packet_length - offset, ENC_NA);
+		/* Force and of packet */
+		offset = packet_length;
+		break;
+	case 0x04: /* Advertisement */
+		subtree = proto_tree_add_subtree_format(bvlc_tree, tvb, offset, packet_length - offset,
+	                        ett_bscvlc_hdr, NULL, "%s", "Advertisement");
+		proto_tree_add_item(subtree, hf_bscvlc_hub_conn_state, tvb,
+				offset, 1, ENC_NA);
+		offset++;
+		proto_tree_add_item(subtree, hf_bscvlc_accept_conns, tvb,
+				offset, 1, ENC_NA);
+		offset++;
+		proto_tree_add_item(subtree, hf_bscvlc_max_bvlc_length, tvb,
+				offset, 2, ENC_NA);
+		offset += 2;
+		proto_tree_add_item(subtree, hf_bscvlc_max_npdu_length, tvb,
+				offset, 2, ENC_NA);
+		offset += 2;
+		break;
+	case 0x06: /* Connect-Request */
+		subtree = proto_tree_add_subtree_format(bvlc_tree, tvb, offset, packet_length - offset,
+	                        ett_bscvlc_hdr, NULL, "%s", "Connect-Request");
+		proto_tree_add_item(subtree, hf_bscvlc_connect_vmac, tvb,
+				offset, 6, ENC_NA);
+		offset += 6;
+		proto_tree_add_item(subtree, hf_bscvlc_connect_uuid, tvb,
+				offset, 16, ENC_NA);
+		offset += 16;
+		proto_tree_add_item(subtree, hf_bscvlc_max_bvlc_length, tvb,
+				offset, 2, ENC_NA);
+		offset += 2;
+		proto_tree_add_item(subtree, hf_bscvlc_max_npdu_length, tvb,
+				offset, 2, ENC_NA);
+		offset += 2;
+		break;
+	case 0x07: /* Connect-Accept */
+		subtree = proto_tree_add_subtree_format(bvlc_tree, tvb, offset, packet_length - offset,
+	                        ett_bscvlc_hdr, NULL, "%s", "Connect-Accept");
+		proto_tree_add_item(subtree, hf_bscvlc_connect_vmac, tvb,
+				offset, 6, ENC_NA);
+		offset += 6;
+		proto_tree_add_item(subtree, hf_bscvlc_connect_uuid, tvb,
+				offset, 16, ENC_NA);
+		offset += 16;
+		proto_tree_add_item(subtree, hf_bscvlc_max_bvlc_length, tvb,
+				offset, 2, ENC_NA);
+		offset += 2;
+		proto_tree_add_item(subtree, hf_bscvlc_max_npdu_length, tvb,
+				offset, 2, ENC_NA);
+		offset += 2;
+		break;
+	case 0x0C: /* Proprietary-Message */
+		subtree = proto_tree_add_subtree_format(bvlc_tree, tvb, offset, packet_length - offset,
+	                        ett_bscvlc_hdr, NULL, "%s", "Proprietary-Message");
+		proto_tree_add_item(subtree, hf_bscvlc_vendor_id, tvb,
+				offset, 2, ENC_NA);
+		offset += 2;
+		proto_tree_add_item(subtree, hf_bscvlc_proprietary_opt_type, tvb,
+				offset, 1, ENC_NA);
+		offset++;
+		proto_tree_add_item(subtree, hf_bscvlc_proprietary_data, tvb,
+				offset, packet_length - offset, ENC_NA);
+		/* Force and of packet */
+		offset = packet_length;
+		break;
+	case 0x01: /* Encapsulated-NPDU */
+	default:
+		/* Here we assume additional payload belongs to upper layers and will be decoded later */
+		break;
+	}
+
+	/* Let the remaining frame to be decoded elsewhere */
+	npdu_length = packet_length - offset;
+	next_tvb = tvb_new_subset_length_caplen(tvb, offset, -1, npdu_length);
+	/* Code from Guy Harris */
+	if (!dissector_try_uint(bscvlc_dissector_table,
+		bvlc_function, next_tvb, pinfo, tree)) {
+		/* Unknown function - dissect the paylod as data */
+		call_data_dissector(next_tvb, pinfo, tree);
+	}
+
+	return tvb_reported_length(tvb);
 }
 
 void
@@ -633,6 +1323,172 @@ proto_register_bvlc(void)
 		&ett_fdt,
 	};
 
+	static hf_register_info bsc_hf[] = {
+		{ &hf_bscvlc_control,
+			{ "Control",		"bscvlc.control",
+			FT_UINT8, BASE_HEX, NULL, 0,
+			"BSCVLC Control", HFILL }
+		},
+		{ &hf_bscvlc_control_data_option,
+			{ "Data Option",	"bscvlc.control_data_option",
+			FT_BOOLEAN, 8, TFS(&control_data_option_set_high),
+			BSCVLC_CONTROL_DATA_OPTION, "BSCVLC Control", HFILL }
+		},
+		{ &hf_bscvlc_control_destination_option,
+			{ "Destination Option",	"bscvlc.control_dest_option",
+			FT_BOOLEAN, 8, TFS(&control_destination_option_set_high),
+			BSCVLC_CONTROL_DEST_OPTION, "BSCVLC Control", HFILL }
+		},
+		{ &hf_bscvlc_control_destination_address,
+			{ "Destination Address","bscvlc.control_dest_address",
+			FT_BOOLEAN, 8, TFS(&control_destination_address_set_high),
+			BSCVLC_CONTROL_DEST_ADDRESS, "BSCVLC Control", HFILL }
+		},
+		{ &hf_bscvlc_control_origin_address,
+			{ "Origin Address",	"bscvlc.control_orig_address",
+			FT_BOOLEAN, 8, TFS(&control_orig_address_set_high),
+			BSCVLC_CONTROL_ORIG_ADDRESS, "BSCVLC Control", HFILL }
+		},
+		{ &hf_bscvlc_control_reserved,
+			{ "Reserved",	"bscvlc.control_reserved",
+			FT_BOOLEAN, 8, TFS(&control_reserved_set_high),
+			BSCVLC_CONTROL_RESERVED, "BSCVLC Control", HFILL }
+		},
+		{ &hf_bscvlc_header,
+			{ "Header Data Length",	"bscvlc.header",
+			FT_UINT8, BASE_HEX, NULL, 0,
+			"BSCVLC Header Control Data", HFILL }
+		},
+		{ &hf_bscvlc_header_marker,
+			{ "Header Error Marker","bscvlc.header_error_marker",
+			FT_UINT8, BASE_HEX, NULL, 0,
+			"BSCVLC Header Error Marker", HFILL }
+		},
+		{ &hf_bscvlc_header_length,
+			{ "Header Data Length",	"bscvlc.header_length",
+			FT_UINT16, BASE_DEC, NULL, 0,
+			"BSCVLC Header Data Length", HFILL }
+		},
+		{ &hf_bscvlc_header_data,
+			{ "Header Data",	"bscvlc.header_data",
+			FT_BYTES, BASE_NONE, NULL, 0,
+			"BSCVLC Header Option", HFILL }
+		},
+		{ &hf_bscvlc_header_opt_type,
+			{ "Header Type",	"bscvlc.header_type",
+			FT_UINT8, BASE_HEX, VALS(bscvlc_header_type_names),
+			BSCVLC_HEADER_OPTION_TYPE, "BSCVLC Header Option", HFILL }
+		},
+		{ &hf_bscvlc_header_opt_data,
+			{ "Header Data",	"bscvlc.header_data_present",
+			FT_BOOLEAN, 8, TFS(&header_opt_data_set_high),
+			BSCVLC_HEADER_OPTION_DATA, "BSCVLC Header Option", HFILL }
+		},
+		{ &hf_bscvlc_header_opt_must_understand,
+			{ "Header Must Understand","bscvlc.header_understand",
+			FT_BOOLEAN, 8, TFS(&header_opt_must_understand_set_high),
+			BSCVLC_HEADER_OPTION_MUST_UNDERSTAND, "BSCVLC Header Option", HFILL }
+		},
+		{ &hf_bscvlc_header_opt_more,
+			{ "Header More",	"bscvlc.header_more",
+			FT_BOOLEAN, 8, TFS(&header_opt_more_set_high),
+			BSCVLC_HEADER_OPTION_MORE_OPTIONS, "BSCVLC Header Option", HFILL }
+		},
+		{ &hf_bscvlc_vendor_id,
+			{ "Vendor ID",          "bscvlc.vendor_id",
+			FT_UINT16, BASE_HEX, NULL, 0,
+			"BSCVLC Vendor ID", HFILL }
+		},
+		{ &hf_bscvlc_proprietary_opt_type,
+			{ "Proprietary Type",	"bscvlc.proprietary_type",
+			FT_UINT8, BASE_HEX, NULL, 0,
+			"BSCVLC Proprietary Type", HFILL }
+		},
+		{ &hf_bscvlc_proprietary_data,
+			{ "Proprietary Data",	"bscvlc.proprietary_data",
+			FT_BYTES, BASE_NONE, NULL, 0,
+			"BSCVLC Proprietary Data", HFILL }
+		},
+		{ &hf_bscvlc_hub_conn_state,
+			{ "Hub Connection Status","bscvlc.hub_conn_state",
+			FT_UINT8, BASE_HEX, VALS(bscvlc_hub_conn_state_names), 0,
+			"BSCVLC Hub Connection Status", HFILL }
+		},
+		{ &hf_bscvlc_accept_conns,
+			{ "Hub Accepts Connections","bscvlc.accept_conns",
+			FT_UINT8, BASE_HEX, VALS(bscvlc_hub_accept_conns_names), 0,
+			"BSCVLC Accepts Connections", HFILL }
+		},
+		{ &hf_bscvlc_max_bvlc_length,
+			{ "Max. BVLC Length",	"bscvlc.max_bvlc_length",
+			FT_UINT16, BASE_DEC, NULL, 0,
+			"Max Supported BVLC Length", HFILL }
+		},
+		{ &hf_bscvlc_max_npdu_length,
+			{ "Max. NPDU Length",	"bscvlc.max_npdu_length",
+			FT_UINT16, BASE_DEC, NULL, 0,
+			"Max Supported NPDU Length", HFILL }
+		},
+		{ &hf_bscvlc_function,
+			{ "Function",           "bscvlc.function",
+			FT_UINT8, BASE_HEX, VALS(bscvlc_function_names), 0,
+			"BSCVLC Function", HFILL }
+		},
+		{ &hf_bscvlc_result,
+			{ "Result",             "bscvlc.result",
+			FT_UINT8, BASE_HEX, VALS(bscvlc_result_names), 0,
+			"Result Code", HFILL }
+		},
+		{ &hf_bscvlc_error_class,
+			{ "Error Class",	"bscvlc.error_class",
+			FT_UINT32, BASE_DEC, VALS(BACnetErrorClass), 0, NULL, HFILL }
+		},
+		{ &hf_bscvlc_error_code,
+			{ "Error Code",		"bscvlc.error_code",
+			FT_UINT32, BASE_DEC, VALS(BACnetErrorCode), 0, NULL, HFILL }
+		},
+		{ &hf_bscvlc_result_data,
+			{ "Result Data",	"bscvlc.result_data",
+			FT_BYTES, BASE_NONE, NULL, 0,
+			"BSCVLC Result Data", HFILL }
+		},
+		{ &hf_bscvlc_uris,
+			{ "URI's",		"bscvlc.uris",
+			FT_BYTES, BASE_NONE, NULL, 0,
+			"BSCVLC Address URI's", HFILL }
+		},
+		{ &hf_bscvlc_msg_id,
+			{ "Message ID",         "bscvlc.msgid",
+			FT_UINT16, BASE_DEC, NULL, 0,
+			"BSCVLC Message ID", HFILL }
+		},
+		{ &hf_bscvlc_orig_vmac,
+			{ "SVMAC",              "bscvlc.orig_virtual_address",
+			FT_BYTES, BASE_NONE, NULL, 0,
+			"ORIG VMAC", HFILL }
+		},
+		{ &hf_bscvlc_dest_vmac,
+			{ "DVMAC",              "bscvlc.dest_virtual_address",
+			FT_BYTES, BASE_NONE, NULL, 0,
+			"DEST VMAC", HFILL }
+		},
+		{ &hf_bscvlc_connect_vmac,
+			{ "Connecting VMAC",	"bscvlc.connect_virtual_address",
+			FT_BYTES, BASE_NONE, NULL, 0,
+			"BSCVLC Connecting VMAC", HFILL }
+		},
+		{ &hf_bscvlc_connect_uuid,
+			{ "Connecting UUID",	"bscvlc.connect_uuid",
+			FT_BYTES, BASE_NONE, NULL, 0,
+			"BSCVLC Connecting UUID", HFILL }
+		},
+	};
+
+	static gint *bsc_ett[] = {
+		&ett_bscvlc,
+		&ett_bscvlc_ctrl,
+		&ett_bscvlc_hdr
+	};
 
 	proto_bvlc = proto_register_protocol("BACnet Virtual Link Control", "BVLC", "bvlc");
 
@@ -643,12 +1499,23 @@ proto_register_bvlc(void)
 
 	bvlc_dissector_table = register_dissector_table("bvlc.function", "BVLC Function", proto_bvlc, FT_UINT8, BASE_HEX);
 	bvlc_ipv6_dissector_table = register_dissector_table("bvlc.function_ipv6", "BVLC Function IPV6", proto_bvlc, FT_UINT8, BASE_HEX);
+
+	proto_bscvlc = proto_register_protocol("BACnet Secure Connect Virtual Link Control", "BSCVLC", "bscvlc");
+
+	proto_register_field_array(proto_bscvlc, bsc_hf, array_length(bsc_hf));
+	proto_register_subtree_array(bsc_ett, array_length(bsc_ett));
+
+	bscvlc_handle = register_dissector("bscvlc", dissect_bscvlc, proto_bscvlc);
+
+	bscvlc_dissector_table = register_dissector_table("bscvlc.function", "BSCVLC Function", proto_bscvlc, FT_UINT8, BASE_HEX);
 }
 
 void
 proto_reg_handoff_bvlc(void)
 {
 	dissector_add_uint_with_preference("udp.port", BVLC_UDP_PORT, bvlc_handle);
+	dissector_add_string("ws.protocol", "hub.bsc.bacnet.org", bscvlc_handle);
+	dissector_add_string("ws.protocol", "dc.bsc.bacnet.org", bscvlc_handle);
 }
 
 /*
