@@ -37,16 +37,12 @@ static int hf_otrxc_msg_dir = -1;
 /* TRXD PDU version */
 static int hf_otrxd_pdu_ver = -1;
 
-/* Common TDMA fields */
+/* TRXD common fields */
 static int hf_otrxd_chdr_reserved = -1;
 static int hf_otrxd_tdma_tn = -1;
 static int hf_otrxd_tdma_fn = -1;
 
-/* RX TRXD header, V0 specific fields */
-static int hf_otrxd_rssi = -1;
-static int hf_otrxd_toa256 = -1;
-
-/* RX TRXD header, V1 specific fields */
+/* MTS (Modulation and Training Sequence) fields */
 static int hf_otrxd_nope_ind = -1;
 static int hf_otrxd_nope_ind_pad = -1;
 static int hf_otrxd_mod_2b = -1; /* 2 bit field */
@@ -55,9 +51,13 @@ static int hf_otrxd_mod_4b = -1; /* 4 bit field */
 static int hf_otrxd_tsc_set_x4 = -1;
 static int hf_otrxd_tsc_set_x2 = -1;
 static int hf_otrxd_tsc = -1;
+
+/* TRXD Rx header fields */
+static int hf_otrxd_rssi = -1;
+static int hf_otrxd_toa256 = -1;
 static int hf_otrxd_ci = -1;
 
-/* TX TRXC header, V0 / V1 specific fields */
+/* TRXD Tx header fields */
 static int hf_otrxd_tx_att = -1;
 
 /* Burst soft (255 .. 0) / hard (1 or 0) bits */
@@ -669,7 +669,7 @@ void proto_register_osmo_trx(void)
 		{ &hf_otrxd_burst_dir, { "Burst Direction", "osmo_trx.direction",
 		  FT_UINT8, BASE_DEC, VALS(otrxcd_dir_vals), 0, NULL, HFILL } },
 
-		/* Common TRXD header fields */
+		/* Rx/Tx header fields */
 		{ &hf_otrxd_pdu_ver, { "PDU Version", "osmo_trxd.pdu_ver",
 		  FT_UINT8, BASE_DEC, NULL, 0xf0, NULL, HFILL } },
 		{ &hf_otrxd_chdr_reserved, { "Reserved", "osmo_trxd.chdr_reserved",
@@ -679,18 +679,17 @@ void proto_register_osmo_trx(void)
 		{ &hf_otrxd_tdma_fn, { "TDMA Frame Number", "osmo_trxd.tdma.fn",
 		  FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL } },
 
-		/* Rx TRXD header, V0 specific fields */
+		/* Rx header fields */
 		{ &hf_otrxd_rssi, { "RSSI", "osmo_trxd.meas.rssi",
 		  FT_UINT8, BASE_CUSTOM, CF_FUNC(format_rssi), 0, NULL, HFILL } },
 		{ &hf_otrxd_toa256, { "Timing of Arrival", "osmo_trxd.meas.toa256",
 		  FT_INT16, BASE_DEC | BASE_UNIT_STRING, &otrx_units_toa256, 0, NULL, HFILL } },
 
-		/* Rx TRXD header, V1 specific fields */
+		/* MTS (Modulation and Training Sequence) fields */
 		{ &hf_otrxd_nope_ind, { "NOPE Indication", "osmo_trxd.nope_ind",
 		  FT_BOOLEAN, 8, TFS(&otrxd_nope_bool_val), 0x80, NULL, HFILL } },
 		{ &hf_otrxd_nope_ind_pad, { "NOPE Padding", "osmo_trxd.nope_ind_pad",
 		  FT_UINT8, BASE_DEC, NULL, 0x7f, NULL, HFILL } },
-
 		{ &hf_otrxd_mod_2b, { "Modulation", "osmo_trxd.mod",
 		  FT_UINT8, BASE_DEC, VALS(otrxd_mod_2b_vals), 0x60, NULL, HFILL } },
 		{ &hf_otrxd_mod_3b, { "Modulation", "osmo_trxd.mod",
@@ -706,7 +705,7 @@ void proto_register_osmo_trx(void)
 		{ &hf_otrxd_ci, { "C/I (Carrier-to-Interference ratio)", "osmo_trxd.meas.ci",
 		  FT_INT16, BASE_DEC | BASE_UNIT_STRING, &units_centibels, 0, NULL, HFILL } },
 
-		/* Tx TRXD header, V0 / V1 specific fields */
+		/* Tx header fields */
 		{ &hf_otrxd_tx_att, { "Tx Attenuation", "osmo_trxd.tx_att",
 		  FT_UINT8, BASE_DEC | BASE_UNIT_STRING, &units_decibels, 0, NULL, HFILL } },
 
