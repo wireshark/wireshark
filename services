@@ -1220,7 +1220,7 @@ ingreslock	1524/tcp/udp	# ingres
 orasrv		1525/tcp/udp	# oracle
 pdap-np		1526/tcp/udp	# Prospero Data Access Prot non-priv
 tlisrv		1527/tcp/udp	# oracle
-ngr-t		1528/udp	# NGR transport protocol for mobile ad-hoc networks
+norp		1528/tcp/udp/sctp	# Not Only a Routeing Protocol
 coauthor	1529/tcp/udp	# oracle
 rap-service	1530/tcp/udp
 rap-listen	1531/tcp/udp
