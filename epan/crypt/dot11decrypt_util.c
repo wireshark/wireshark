@@ -126,7 +126,7 @@ dot11decrypt_prf(const guint8 *key, size_t key_len,
     }
     if (label_len + 1 + context_len + 1 > MAX_R_LEN ||
         output_len > 64) {
-        DEBUG_PRINT_LINE("Invalid input or output sizes", DEBUG_LEVEL_3);
+        ws_warning("Invalid input or output sizes");
         return FALSE;
     }
 
@@ -184,7 +184,7 @@ dot11decrypt_kdf(const guint8 *key, size_t key_len,
     }
     if (2 + label_len + context_len + 2 > MAX_R_LEN ||
         iterations * hash_len > MAX_TMP_LEN) {
-        DEBUG_PRINT_LINE("Invalid input sizes", DEBUG_LEVEL_3);
+        ws_warning("Invalid input sizes");
         return FALSE;
     }
 
@@ -274,7 +274,7 @@ dot11decrypt_derive_pmk_r0(const guint8 *xxkey, size_t xxkey_len,
     }
     if (1 + ssid_len + 2 + 1 + r0kh_id_len + DOT11DECRYPT_MAC_LEN > MAX_CONTEXT_LEN)
     {
-        DEBUG_PRINT_LINE("Invalid input sizes", DEBUG_LEVEL_3);
+        ws_warning("Invalid input sizes");
         return FALSE;
     }
 

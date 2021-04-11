@@ -198,8 +198,6 @@ INT Dot11DecryptTkipDecrypt(
 	UINT16 TTAK[DOT11DECRYPT_TTAK_LEN];
 	UINT8 wep_seed[DOT11DECRYPT_WEP_128_KEY_LEN];
 
-	/* DEBUG_DUMP("TA", TA, 6); */
-
 	IV = tkip_mpdu;
 
 	TSC64 = READ_6(IV[2], IV[0], IV[4], IV[5], IV[6], IV[7]);

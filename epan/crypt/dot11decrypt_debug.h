@@ -9,49 +9,35 @@
 #ifndef	_DOT11DECRYPT_DEBUG_H
 #define	_DOT11DECRYPT_DEBUG_H
 
+#define WS_LOG_DOMAIN "dot11decrypt"
+
 #include "dot11decrypt_interop.h"
-
-/* #define DOT11DECRYPT_DEBUG 1 */
-
-/* Debug level definition */
-#define DEBUG_LEVEL_1 1
-#define DEBUG_LEVEL_2 2
-#define DEBUG_LEVEL_3 3
-#define DEBUG_LEVEL_4 4
-#define DEBUG_LEVEL_5 5
-
-#define DEBUG_USED_LEVEL DEBUG_LEVEL_3
+#include <wsutil/wslog.h>
 
 /******************************************************************************/
 /* Debug section: internal function to print debug information						*/
 /*																										*/
-#ifdef DOT11DECRYPT_DEBUG
-#include <stdio.h>
-#include <time.h>
-
+#ifndef WS_DISABLE_DEBUG
 #include <epan/to_str.h>
 
-static inline void print_debug_line(const CHAR *function, const CHAR *msg, const INT level)
+static inline void
+debug_dump(const char *file, int line, const char* func,
+           const char* x, const guint8* y, size_t z, enum ws_log_level level)
 {
-    if (level <= DEBUG_USED_LEVEL)
-        ws_warning("dbg(%d)|(%s) %s", level, function, msg);
-}
-
-#define DEBUG_PRINT_LINE(msg, level) print_debug_line(G_STRFUNC , msg, level)
-
-static inline void DEBUG_DUMP(const char* x, const guint8* y, int z)
-{
+    if (!ws_log_message_is_active(WS_LOG_DOMAIN, level))
+        return;
     char* tmp_str = bytes_to_str(NULL, y, (z));
-    ws_warning("%s: %s", x, tmp_str);
+    ws_log_full(WS_LOG_DOMAIN, level, file, line, func, "%s: %s", x, tmp_str);
     wmem_free(NULL, tmp_str);
 }
 
-#else	/* !defined DOT11DECRYPT_DEBUG	*/
+#define DEBUG_DUMP(x, y, z, level) debug_dump(__FILE__, __LINE__, G_STRFUNC, x, y, z, level)
 
-#define DEBUG_PRINT_LINE(msg, level)
-#define DEBUG_DUMP(x,y,z)
+#else	/* defined WS_DISABLE_DEBUG */
 
-#endif	/* ?defined DOT11DECRYPT_DEBUG	*/
+#define DEBUG_DUMP(x, y, z, level)
+
+#endif	/* ?defined WS_DISABLE_DEBUG */
 
 
 #endif	/* ?defined _DOT11DECRYPT_DEBUG_H	*/
