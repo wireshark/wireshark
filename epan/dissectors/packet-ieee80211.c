@@ -46705,16 +46705,16 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_ranging_pol_rpt_aid12_rsid12,
      {"AID12/RSID12", "wlan.trigger.he.ranging.poll_rpt.aid12_rsid12",
-      FT_UINT40, BASE_HEX, NULL, 0x0000000fff, NULL, HFILL }},
+      FT_UINT40, BASE_DEC, NULL, 0x0000000fff, NULL, HFILL }},
 
     {&hf_ieee80211_ranging_pol_rpt_ru_alloc,
      {"RU Allocation", "wlan.trigger.he.ranging.poll_rpt.ru_allocation",
-      FT_UINT40, BASE_HEX, NULL, 0x00000ff000, NULL, HFILL }},
+      FT_UINT40, BASE_CUSTOM, CF_FUNC(he_ru_allocation_base_custom), 0x00000ff000, NULL, HFILL }},
 
     {&hf_ieee80211_ranging_pol_rpt_ul_fec_coding_type,
      {"UL FEC Coding Type",
       "wlan.trigger.he.ranging.poll_rpt.ul_fec_coding_type",
-      FT_UINT40, BASE_HEX, NULL, 0x0000100000, NULL, HFILL }},
+      FT_BOOLEAN, 40, TFS(&he_trigger_ul_fec_coding_type_tfs), 0x0000100000, NULL, HFILL }},
 
     {&hf_ieee80211_ranging_pol_rpt_ulmcs,
      {"UL MCS", "wlan.trigger.he.ranging.poll_rpt.ul_mcs",
@@ -46730,7 +46730,7 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_ranging_pol_rpt_ul_target_rssi,
      {"UL Target RSSI", "wlan.trigger.he.ranging.poll_rpt.ul_target_rssi",
-      FT_UINT40, BASE_HEX, NULL, 0x7f00000000, NULL, HFILL }},
+      FT_UINT40, BASE_CUSTOM, CF_FUNC(target_rssi_base_custom), 0x7f00000000, NULL, HFILL }},
 
     {&hf_ieee80211_ranging_pol_rpt_reserved,
      {"Reserved", "wlan.trigger.he.ranging.poll_rpt.reserved",
@@ -46742,7 +46742,7 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_ranging_sounding_aid12_rsid12,
      {"AID12/RSID12", "wlan.trigger.he.ranging.sounding.aid12_rsid12",
-      FT_UINT40, BASE_HEX, NULL, 0x0000000fff, NULL, HFILL }},
+      FT_UINT40, BASE_DEC, NULL, 0x0000000fff, NULL, HFILL }},
 
     {&hf_ieee80211_ranging_sounding_reserved1,
      {"Reserved", "wlan.trigger.he.ranging.sounding.reserved1",
@@ -46750,7 +46750,7 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_ranging_sounding_i2r_rep,
      {"I2R Rep", "wlan.trigger.he.ranging.sounding.i2r_rep",
-      FT_UINT40, BASE_HEX, NULL, 0x0000e00000, NULL, HFILL }},
+      FT_UINT40, BASE_DEC, NULL, 0x0000e00000, NULL, HFILL }},
 
     {&hf_ieee80211_ranging_sounding_reserved2,
      {"Reserved", "wlan.trigger.he.ranging.sounding.reserved2",
@@ -46762,7 +46762,7 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_ranging_sounding_ul_target_rssi,
      {"UL Target RSSI", "wlan.trigger.he.ranging.sounding.ul_target_rssi",
-      FT_UINT40, BASE_HEX, NULL, 0x7f00000000, NULL, HFILL }},
+      FT_UINT40, BASE_CUSTOM, CF_FUNC(target_rssi_base_custom), 0x7f00000000, NULL, HFILL }},
 
     {&hf_ieee80211_ranging_sounding_reserved3,
      {"Reserved", "wlan.trigger.he.ranging.sounding.reserved3",
@@ -46774,7 +46774,7 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_ranging_sec_sound_aid12_rsid12,
      {"AID12/RSID12", "wlan.trigger.he.ranging.secured_sounding.aid12_rsid12",
-      FT_UINT40, BASE_HEX, NULL, 0x0000000fff, NULL, HFILL }},
+      FT_UINT40, BASE_DEC, NULL, 0x0000000fff, NULL, HFILL }},
 
     {&hf_ieee80211_ranging_sec_sound_reserved1,
      {"Reserved", "wlan.trigger.he.ranging.secured_sounding.reserved1",
