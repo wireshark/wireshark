@@ -685,7 +685,7 @@ UAT_CSTRING_CB_DEF(message_decode, topic_pattern, mqtt_message_decode_t)
 UAT_VS_DEF(message_decode, msg_decoding, mqtt_message_decode_t, guint, MSG_DECODING_NONE, "none")
 UAT_PROTO_DEF(message_decode, payload_proto, payload_proto, payload_proto_name, mqtt_message_decode_t)
 
-static void mqtt_user_decode_message(proto_tree *tree, proto_tree *mqtt_tree, packet_info *pinfo, const guint8 *topic_str, tvbuff_t *msg_tvb)
+static gboolean mqtt_user_decode_message(proto_tree *tree, proto_tree *mqtt_tree, packet_info *pinfo, const guint8 *topic_str, tvbuff_t *msg_tvb)
 {
   mqtt_message_decode_t *message_decode_entry = NULL;
   size_t topic_str_len = strlen(topic_str);
@@ -695,7 +695,7 @@ static void mqtt_user_decode_message(proto_tree *tree, proto_tree *mqtt_tree, pa
   if (topic_str_len == 0)
   {
     /* No topic to match */
-    return;
+    return FALSE;
   }
 
   for (guint i = 0; i < num_mqtt_message_decodes && !match_found; i++)
@@ -755,12 +755,8 @@ static void mqtt_user_decode_message(proto_tree *tree, proto_tree *mqtt_tree, pa
       call_dissector(message_decode_entry->payload_proto, msg_tvb, pinfo, tree);
     }
   }
-  else {
-    /* No UAT match, try the heuristic dissectors, pass the topic string as data */
-    heur_dtbl_entry_t *hdtbl_entry;
-    gchar *sub_data = wmem_strdup(wmem_packet_scope(), (const gchar*)topic_str);
-    dissector_try_heuristic(mqtt_topic_subdissector, msg_tvb, pinfo, tree, &hdtbl_entry, sub_data);
-  }
+
+  return match_found;
 }
 
 static guint dissect_string(tvbuff_t *tvb, proto_tree *tree, guint offset, int hf_len, int hf_value)
@@ -933,6 +929,7 @@ static int dissect_mqtt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
   mqtt_properties_t mqtt_properties = { 0 };
   mqtt_properties_t mqtt_will_properties = { 0 };
   guint       offset = 0;
+  gboolean    msg_handled = FALSE;
 
   static int * const publish_fields[] = {
     &hf_mqtt_msg_type,
@@ -1224,14 +1221,24 @@ static int dissect_mqtt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
       if (num_mqtt_message_decodes > 0)
       {
         tvbuff_t *msg_tvb = tvb_new_subset_length(tvb, offset, mqtt_payload_len);
-        mqtt_user_decode_message(tree, mqtt_tree, pinfo, topic_str, msg_tvb);
+        msg_handled = mqtt_user_decode_message(tree, mqtt_tree, pinfo, topic_str, msg_tvb);
       }
 
       if (mqtt_properties.content_type)
       {
         tvbuff_t *msg_tvb = tvb_new_subset_length(tvb, offset, mqtt_payload_len);
-        dissector_try_string(media_type_dissector_table, mqtt_properties.content_type,
-                             msg_tvb, pinfo, tree, NULL);
+        int bytes_read = dissector_try_string(media_type_dissector_table, mqtt_properties.content_type,
+                                              msg_tvb, pinfo, tree, NULL);
+
+        msg_handled = msg_handled | (bytes_read != 0);
+      }
+
+      /* No UAT or content property match, try the heuristic dissectors, pass the topic string as data */
+      if (!msg_handled) {
+        heur_dtbl_entry_t *hdtbl_entry;
+        tvbuff_t *msg_tvb = tvb_new_subset_length(tvb, offset, mqtt_payload_len);
+        gchar *sub_data = wmem_strdup(wmem_packet_scope(), (const gchar*)topic_str);
+        dissector_try_heuristic(mqtt_topic_subdissector, msg_tvb, pinfo, tree, &hdtbl_entry, sub_data);
       }
       break;
 
