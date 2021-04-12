@@ -491,7 +491,7 @@ identify the fields to import using named capturing subgroups. Using provided
 format information for each field they are then decoded and translated into a
 standard libpcap file retaining packet order.
 
-Note that each named capturing subgroup has to match _exaclty_ once a packet,
+Note that each named capturing subgroup has to match _exactly_ once a packet,
 but they may be present multiple times in the regex.
 
 For example the following dump:
