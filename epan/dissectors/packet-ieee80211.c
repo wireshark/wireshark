@@ -30415,7 +30415,8 @@ static int * const common_info_headers[] = {
 
 static int
 add_he_trigger_common_info(proto_tree *tree, tvbuff_t *tvb, int offset,
-  packet_info *pinfo _U_, guint8 trigger_type, int *frame_len)
+  packet_info *pinfo _U_, guint8 trigger_type, int *frame_len,
+  proto_tree **common_tree)
 {
   proto_item     *pi = NULL;
   proto_tree     *common_info = NULL;
@@ -30427,6 +30428,7 @@ add_he_trigger_common_info(proto_tree *tree, tvbuff_t *tvb, int offset,
 
   common_info = proto_tree_add_subtree(tree, tvb, offset, -1,
                         ett_he_trigger_common_info, &pi, "Common Info");
+  *common_tree = common_info;
 
   proto_tree_add_bitmask_with_flags(common_info, tvb, offset,
                         hf_ieee80211_he_trigger_common_info,
@@ -30788,6 +30790,7 @@ dissect_ieee80211_he_trigger(tvbuff_t *tvb, packet_info *pinfo _U_,
 {
   const gchar *ether_name = tvb_get_ether_name(tvb, offset);
   proto_item      *hidden_item;
+  proto_tree      *common_tree = NULL;
   guint8          trigger_type = 0;
   int             length = 0;
 
@@ -30812,10 +30815,7 @@ dissect_ieee80211_he_trigger(tvbuff_t *tvb, packet_info *pinfo _U_,
    * Deal with the common Info and then any user info after that.
    */
   offset += add_he_trigger_common_info(tree, tvb, offset, pinfo,
-                        trigger_type, &length);
-
-  add_he_trigger_user_info(tree, tvb, offset, pinfo,
-                        trigger_type, &length);
+                        trigger_type, &length, &common_tree);
 
   /*
    * If the trigger type is Ranging Trigger type, then deal with it separately.
@@ -30832,13 +30832,13 @@ dissect_ieee80211_he_trigger(tvbuff_t *tvb, packet_info *pinfo _U_,
     case 1:
     case 2:
     case 3:
-      proto_tree_add_bitmask(tree, tvb, offset,
+      proto_tree_add_bitmask(common_tree, tvb, offset,
                              hf_ieee80211_he_trigger_ranging_common_info_1,
                              ett_he_trigger_ranging, ranging_headers1,
                              ENC_NA);
       break;
     case 4:
-      proto_tree_add_bitmask(tree, tvb, offset,
+      proto_tree_add_bitmask(common_tree, tvb, offset,
                              hf_ieee80211_he_trigger_ranging_common_info_2,
                              ett_he_trigger_ranging, ranging_headers2,
                              ENC_NA);
