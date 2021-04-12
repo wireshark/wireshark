@@ -55,6 +55,12 @@ option(ENABLE_FUZZER "Enable libFuzzer instrumentation for use with fuzzshark" O
 option(ENABLE_CHECKHF_CONFLICT "Enable hf conflict check for debugging (start-up may be slower)" OFF)
 option(ENABLE_CCACHE "Speed up compiling and linking using ccache if possible" OFF)
 
+if(CMAKE_GENERATOR STREQUAL "Ninja")
+	option(ENABLE_COMPILER_COLOR_DIAGNOSTICS "Always enable the compiler's color diagnostic output" ON)
+else()
+	option(ENABLE_COMPILER_COLOR_DIAGNOSTICS "Always enable the compiler's color diagnostic output" OFF)
+endif()
+
 if (WIN32)
 	option(ENABLE_LTO "Improves performance using Link time Optimization" ON)
 else()

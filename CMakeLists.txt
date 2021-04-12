@@ -796,6 +796,18 @@ else() # ! MSVC
 		)
 	endif()
 
+	if(ENABLE_COMPILER_COLOR_DIAGNOSTICS)
+		if(CMAKE_C_COMPILER_ID MATCHES "Clang")
+			set(WIRESHARK_COMMON_FLAGS ${WIRESHARK_COMMON_FLAGS}
+				-fcolor-diagnostics
+			)
+		elseif(CMAKE_C_COMPILER_ID MATCHES "GNU")
+			set(WIRESHARK_COMMON_FLAGS ${WIRESHARK_COMMON_FLAGS}
+				-fdiagnostics-color=always
+			)
+		endif()
+	endif()
+
 	add_definitions(
 		-DG_DISABLE_DEPRECATED
 		-DG_DISABLE_SINGLE_INCLUDES
