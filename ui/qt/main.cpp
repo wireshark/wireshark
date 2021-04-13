@@ -905,23 +905,23 @@ int main(int argc, char *qt_argv[])
                     ret_val = INVALID_CAPABILITY;
                     goto clean_exit;
                 }
-            if (caps->data_link_types == NULL) {
-                cmdarg_err("The capture device \"%s\" has no data link types.", device->name);
-                ret_val = IFACE_HAS_NO_LINK_TYPES;
-                goto clean_exit;
-            }
+                if (caps->data_link_types == NULL) {
+                    cmdarg_err("The capture device \"%s\" has no data link types.", device->name);
+                    ret_val = IFACE_HAS_NO_LINK_TYPES;
+                    goto clean_exit;
+                }
 #ifdef _WIN32
-            create_console();
+                create_console();
 #endif /* _WIN32 */
 #if defined(HAVE_PCAP_CREATE)
-            if (device->monitor_mode_supported)
-                if_caps_queries |= CAPS_MONITOR_MODE;
+                if (device->monitor_mode_supported)
+                    if_caps_queries |= CAPS_MONITOR_MODE;
 #endif
-            capture_opts_print_if_capabilities(caps, device->name, if_caps_queries);
+                capture_opts_print_if_capabilities(caps, device->name, if_caps_queries);
 #ifdef _WIN32
-            destroy_console();
+                destroy_console();
 #endif /* _WIN32 */
-            free_if_capabilities(caps);
+                free_if_capabilities(caps);
             }
         }
         ret_val = EXIT_SUCCESS;
