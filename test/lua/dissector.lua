@@ -441,6 +441,7 @@ function dns.dissector(tvbuf,pktinfo,root)
 
         local pktlen_remaining = pktlen - pos
 
+        -- multiple questions in one query hasn't been used for a long time, but just in case, let's loop
         while num_queries > 0 and pktlen_remaining > 0 do
             if pktlen_remaining < MIN_QUERY_LEN then
                 -- old way: queries_tree:add_expert_info(PI_MALFORMED, PI_ERROR, "query field missing or too short")
@@ -475,7 +476,10 @@ function dns.dissector(tvbuf,pktinfo,root)
             pos = pos + 4
 
             -- now change the query text
-            q_tree:set_text(name..": type "..query_type_field().display ..", class "..query_class_field().display)
+            -- calling a Field returns a multival of one FieldInfo object for
+            -- each value, so we select() only the most recent one
+            q_tree:set_text(name..": type "..select(-1, query_type_field()).display
+                                ..", class "..select(-1, query_class_field()).display)
 
             pktlen_remaining = pktlen_remaining - (name_len + 4)
             num_queries = num_queries - 1
@@ -487,6 +491,8 @@ function dns.dissector(tvbuf,pktinfo,root)
             return
         end
     end
+
+    -- parsing answers, authority RRs, and additional RRs is up to you!
 
     dprint2("dns.dissector returning",pos)
 
