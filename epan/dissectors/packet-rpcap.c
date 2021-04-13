@@ -1518,7 +1518,7 @@ proto_register_rpcap (void)
   prefs_register_uint_preference (rpcap_module, "linktype",
                                   "Default link-layer type",
                                   "Default link-layer type to use if an Open Reply packet"
-                                  " has not been received.",
+                                  " has not been captured.",
                                   10, &global_linktype);
 }
 
