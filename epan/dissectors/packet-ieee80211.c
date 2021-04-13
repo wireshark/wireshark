@@ -30836,12 +30836,14 @@ dissect_ieee80211_he_trigger(tvbuff_t *tvb, packet_info *pinfo _U_,
                              hf_ieee80211_he_trigger_ranging_common_info_1,
                              ett_he_trigger_ranging, ranging_headers1,
                              ENC_NA);
+      offset += 1;
       break;
     case 4:
       proto_tree_add_bitmask(common_tree, tvb, offset,
                              hf_ieee80211_he_trigger_ranging_common_info_2,
                              ett_he_trigger_ranging, ranging_headers2,
                              ENC_NA);
+      offset += 2;
       break;
     default:
       break;
