@@ -748,8 +748,12 @@ image::wsug_graphics/ws-tools-menu.png[{screenshot-attrs}]
 
 It is assumed that the rules will be applied to an outside interface.
 
-|menu:Lua[]|| These options allow you to work with the Lua interpreter optionally build into Wireshark. See the “Lua Support in Wireshark” in the Wireshark Developer’s Guide.
-|menu:Credentials[]|| This allows you to extract credentials from the current capture file. Some of the dissectors have been instrumented to provide the module with usernames and passwords and more will be instrumented in the future. The window dialog provides you the packet number where the credentials have been found, the protocol that provided them, the username and the password.
+Menu item is greyed out unless one (and only one) frame is selected in the packet list.
+|menu:Credentials[]|| This allows you to extract credentials from the current capture file. Some of the dissectors (ftp, http, imap, pop, smtp) have been instrumented to provide the module with usernames and passwords and more will be instrumented in the future. The window dialog provides you the packet number where the credentials have been found, the protocol that provided them, the username and protocol specific information.
+|menu:Lua[]|| These options allow you to work with the Lua interpreter optionally built into Wireshark.
+See “Lua Support in Wireshark” in the Wireshark Developer’s Guide.
+
+The Lua menu structure is set by console.lua in the Wireshark install directory.
 |===
 
 [[ChUseHelpMenuSection]]
