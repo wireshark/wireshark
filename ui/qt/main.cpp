@@ -36,6 +36,7 @@
 
 #include <ui/clopts_common.h>
 #include <ui/cmdarg_err.h>
+#include <ui/exit_codes.h>
 #include <ui/urls.h>
 #include <wsutil/filesystem.h>
 #include <wsutil/privileges.h>
@@ -126,11 +127,6 @@
 #endif
 
 #include <ui/qt/utils/qt_ui_utils.h>
-
-#define INVALID_OPTION 1
-#define INIT_FAILED 2
-#define INVALID_CAPABILITY 2
-#define INVALID_LINK_TYPE 2
 
 //#define DEBUG_STARTUP_TIME 1
 /*
@@ -911,7 +907,7 @@ int main(int argc, char *qt_argv[])
                 }
             if (caps->data_link_types == NULL) {
                 cmdarg_err("The capture device \"%s\" has no data link types.", device->name);
-                ret_val = INVALID_LINK_TYPE;
+                ret_val = IFACE_HAS_NO_LINK_TYPES;
                 goto clean_exit;
             }
 #ifdef _WIN32

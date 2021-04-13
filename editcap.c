@@ -70,6 +70,7 @@
 
 #include <ui/clopts_common.h>
 #include <ui/cmdarg_err.h>
+#include <ui/exit_codes.h>
 #include <wsutil/filesystem.h>
 #include <wsutil/file_util.h>
 #include <wsutil/wsgcrypt.h>
@@ -88,11 +89,11 @@
 
 #include "ringbuffer.h" /* For RINGBUFFER_MAX_NUM_FILES */
 
-#define INVALID_OPTION 1
-#define INVALID_FILE 2
+/* Additional exit codes */
 #define CANT_EXTRACT_PREFIX 2
-#define WRITE_ERROR 2
-#define DUMP_ERROR 2
+#define WRITE_ERROR         2
+#define DUMP_ERROR          2
+
 #define NANOSECS_PER_SEC 1000000000
 
 /*

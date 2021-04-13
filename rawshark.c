@@ -52,6 +52,7 @@
 #include <epan/epan.h>
 
 #include <ui/cmdarg_err.h>
+#include <ui/exit_codes.h>
 #include <wsutil/filesystem.h>
 #include <wsutil/file_util.h>
 #include <wsutil/socket.h>
@@ -111,11 +112,9 @@
 static const gchar decode_as_arg_template[] = "<layer_type>==<selector>,<decode_as_protocol>";
 #endif
 
-#define INVALID_OPTION 1
-#define INIT_ERROR 2
+/* Additional exit codes */
 #define INVALID_DFILTER 2
-#define OPEN_ERROR 2
-#define FORMAT_ERROR 2
+#define FORMAT_ERROR    2
 
 capture_file cfile;
 
@@ -531,7 +530,7 @@ main(int argc, char *argv[])
        dissectors, and we must do it before we read the preferences, in
        case any dissectors register preferences. */
     if (!epan_init(NULL, NULL, TRUE)) {
-        ret = INIT_ERROR;
+        ret = INIT_FAILED;
         goto clean_exit;
     }
 
@@ -757,7 +756,7 @@ main(int argc, char *argv[])
         cmdarg_err("%s", err_msg);
         g_free(err_msg);
         cmdarg_err_cont("%s", please_report_bug());
-        ret = INIT_ERROR;
+        ret = INIT_FAILED;
         goto clean_exit;
     }
 

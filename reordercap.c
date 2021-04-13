@@ -31,6 +31,7 @@
 #include <wiretap/wtap.h>
 
 #include <ui/cmdarg_err.h>
+#include <ui/exit_codes.h>
 #include <wsutil/filesystem.h>
 #include <wsutil/file_util.h>
 #include <wsutil/privileges.h>
@@ -46,8 +47,7 @@
 
 #include "ui/failure_message.h"
 
-#define INVALID_OPTION 1
-#define OPEN_ERROR 2
+/* Additional exit codes */
 #define OUTPUT_FILE_ERROR 1
 
 /* Show command-line usage */

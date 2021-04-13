@@ -33,6 +33,7 @@
 
 #include <ui/clopts_common.h>
 #include <ui/cmdarg_err.h>
+#include <ui/exit_codes.h>
 #include <wsutil/filesystem.h>
 
 #include <epan/ex-opt.h>
@@ -280,7 +281,7 @@ void commandline_early_options(int argc, char *argv[])
                         cmdarg_err("%s", err_str);
                         g_free(err_str);
                     }
-                    exit(2);
+                    exit(INVALID_INTERFACE);
                 }
 #ifdef _WIN32
                 create_console();
@@ -290,14 +291,14 @@ void commandline_early_options(int argc, char *argv[])
 #ifdef _WIN32
                 destroy_console();
 #endif /* _WIN32 */
-                exit(0);
+                exit(EXIT_SUCCESS);
 #else /* HAVE_LIBPCAP */
                 capture_option_specified = TRUE;
 #endif /* HAVE_LIBPCAP */
                 break;
             case 'h':        /* Print help and exit */
                 commandline_print_usage(TRUE);
-                exit(0);
+                exit(EXIT_SUCCESS);
                 break;
 #ifdef _WIN32
             case 'i':
@@ -308,7 +309,7 @@ void commandline_early_options(int argc, char *argv[])
             case 'P':        /* Personal file directory path settings - change these before the Preferences and alike are processed */
                 if (!persfilepath_opt(opt, optarg)) {
                     cmdarg_err("-P flag \"%s\" failed (hint: is it quoted and existing?)", optarg);
-                    exit(2);
+                    exit(EXIT_SUCCESS);
                 }
                 break;
             case 'v':        /* Show version and exit */
@@ -319,7 +320,7 @@ void commandline_early_options(int argc, char *argv[])
 #ifdef _WIN32
                 destroy_console();
 #endif
-                exit(0);
+                exit(EXIT_SUCCESS);
                 break;
             case 'X':
                 /*
@@ -338,7 +339,7 @@ void commandline_early_options(int argc, char *argv[])
     if (capture_option_specified) {
         print_no_capture_support_error();
         commandline_print_usage(FALSE);
-        exit(1);
+        exit(EXIT_SUCCESS);
     }
 #endif
 }

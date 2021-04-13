@@ -39,6 +39,7 @@
 
 #include <ui/clopts_common.h>
 #include <ui/cmdarg_err.h>
+#include <ui/exit_codes.h>
 #include <ui/urls.h>
 #include <wsutil/filesystem.h>
 #include <wsutil/file_util.h>
@@ -80,11 +81,8 @@
 #include <wsutil/plugins.h>
 #endif
 
-#define INVALID_OPTION 1
+/* Additional exit codes */
 #define NO_FILE_SPECIFIED 1
-#define INIT_ERROR 2
-#define INVALID_FILTER 2
-#define OPEN_ERROR 2
 
 capture_file cfile;
 

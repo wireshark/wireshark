@@ -48,6 +48,7 @@
 
 #include <ui/clopts_common.h>
 #include <ui/cmdarg_err.h>
+#include <ui/exit_codes.h>
 #include <ui/urls.h>
 #include <wsutil/filesystem.h>
 #include <wsutil/file_util.h>
@@ -128,18 +129,10 @@
 #include <wsutil/plugins.h>
 #endif
 
-/* Exit codes */
-#define INVALID_OPTION 1
-#define INVALID_INTERFACE 2
-#define INVALID_FILE 2
-#define INVALID_FILTER 2
-#define INVALID_EXPORT 2
-#define INVALID_CAPABILITY 2
-#define INVALID_TAP 2
-#define INVALID_DATA_LINK 2
-#define INVALID_TIMESTAMP_TYPE 2
-#define INVALID_CAPTURE 2
-#define INIT_FAILED 2
+/* Additional exit codes */
+#define INVALID_EXPORT          2
+#define INVALID_TAP             2
+#define INVALID_CAPTURE         2
 
 #define LONGOPT_EXPORT_OBJECTS          LONGOPT_BASE_APPLICATION+1
 #define LONGOPT_COLOR                   LONGOPT_BASE_APPLICATION+2
@@ -2221,7 +2214,7 @@ main(int argc, char *argv[])
           }
           if ((if_caps_queries & CAPS_QUERY_LINK_TYPES) && caps->data_link_types == NULL) {
             cmdarg_err("The capture device \"%s\" has no data link types.", interface_opts->name);
-            exit_status = INVALID_DATA_LINK;
+            exit_status = IFACE_HAS_NO_LINK_TYPES;
             goto clean_exit;
           }
           if ((if_caps_queries & CAPS_QUERY_TIMESTAMP_TYPES) && caps->timestamp_types == NULL) {

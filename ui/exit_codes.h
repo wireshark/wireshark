@@ -1,0 +1,38 @@
+/* exit_codes.h
+ * Definition of exit codes for programs.
+ *
+ * Wireshark - Network traffic analyzer
+ * By Gerald Combs <gerald@wireshark.org>
+ * Copyright 1998 Gerald Combs
+ *
+ * SPDX-License-Identifier: GPL-2.0-or-later
+ */
+
+#ifndef __EXIT_CODES_H__
+#define __EXIT_CODES_H__
+
+/* Exit codes */
+#define INVALID_OPTION          1
+#define INVALID_INTERFACE       2
+#define INVALID_FILE            2
+#define INVALID_FILTER          2
+#define INVALID_CAPABILITY      2
+#define IFACE_HAS_NO_LINK_TYPES 2
+#define INVALID_TIMESTAMP_TYPE  2
+#define INIT_FAILED             2
+#define OPEN_ERROR              2
+
+#endif /* __EXIT_CODES_H__ */
+
+/*
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
+ *
+ * Local Variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */

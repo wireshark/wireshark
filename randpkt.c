@@ -18,6 +18,7 @@
 #include <ui/clopts_common.h>
 #include <ui/failure_message.h>
 #include <ui/cmdarg_err.h>
+#include <ui/exit_codes.h>
 #include <wsutil/file_util.h>
 #include <wsutil/filesystem.h>
 #include <wsutil/privileges.h>
@@ -44,9 +45,9 @@
 
 #include "randpkt_core/randpkt_core.h"
 
-#define INVALID_OPTION 1
+/* Additional exit codes */
 #define INVALID_TYPE 2
-#define CLOSE_ERROR 2
+#define CLOSE_ERROR  2
 
 /*
  * Report an error in command-line arguments.

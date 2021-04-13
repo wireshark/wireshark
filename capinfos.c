@@ -69,6 +69,7 @@
 #include <wiretap/wtap.h>
 
 #include <ui/cmdarg_err.h>
+#include <ui/exit_codes.h>
 #include <wsutil/filesystem.h>
 #include <wsutil/privileges.h>
 #include <cli_main.h>
@@ -86,9 +87,6 @@
 #include <wsutil/wsgcrypt.h>
 
 #include "ui/failure_message.h"
-
-#define INVALID_OPTION 1
-#define BAD_FLAG 1
 
 /*
  * By default capinfos now continues processing
@@ -1792,7 +1790,7 @@ main(int argc, char *argv[])
 
       case '?':              /* Bad flag - print usage message */
         print_usage(stderr);
-        overall_error_status = BAD_FLAG;
+        overall_error_status = INVALID_OPTION;
         goto exit;
         break;
     }
