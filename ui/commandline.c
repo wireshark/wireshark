@@ -456,7 +456,12 @@ void commandline_other_options(int argc, char *argv[], gboolean opt_reset)
                 global_commandline_info.jfilter = optarg;
                 break;
             case 'k':        /* Start capture immediately */
+#ifdef HAVE_LIBPCAP
                 global_commandline_info.start_capture = TRUE;
+#else
+                capture_option_specified = TRUE;
+                arg_error = TRUE;
+#endif
                 break;
             case 'l':        /* Automatic scrolling in live capture mode */
 #ifdef HAVE_LIBPCAP
