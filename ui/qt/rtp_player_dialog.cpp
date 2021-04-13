@@ -668,8 +668,8 @@ void RtpPlayerDialog::addSingleRtpStream(rtpstream_info_t *rtpstream)
 
             connect(audio_stream, SIGNAL(finishedPlaying(RtpAudioStream *, QAudio::Error)), this, SLOT(playFinished(RtpAudioStream *, QAudio::Error)));
             connect(audio_stream, SIGNAL(playbackError(QString)), this, SLOT(setPlaybackError(QString)));
-        } catch (int error) {
-            qWarning() << "Stream ignored, try to add less streams to playlist";
+        } catch (...) {
+            qWarning() << "Stream ignored, try to add fewer streams to playlist";
         }
     }
 
