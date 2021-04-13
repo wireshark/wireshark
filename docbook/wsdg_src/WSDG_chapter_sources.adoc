@@ -623,7 +623,7 @@ If the pre-commit hook is preventing you from committing what you believe is a v
 Warning: using --no-verify avoids the commit-msg hook, and thus if you have setup this hook it will not run.
 
 Additionally, if your system supports symbolic links, as all UNIX-like platforms do, you can use them instead of copying files.
-Running `ln -s ./tools/pre-commit .git/hooks` creates a symbolic link that will make the hook to be up-to-date with the current master.
+Running `ln -s ../../tools/pre-commit .git/hooks` creates a symbolic link that will make the hook to be up-to-date with the current master.
 
 .Choose a compatible license.
 Wireshark is released under the {spdx-license-url}GPL-2.0-or-later.html[GPL version 2 or later], and it is strongly recommended that incoming code use that license.
