@@ -352,6 +352,20 @@ static int hf_nvme_get_logpage_egroup_hwc = -1;
 static int hf_nvme_get_logpage_egroup_mdie = -1;
 static int hf_nvme_get_logpage_egroup_ele = -1;
 static int hf_nvme_get_logpage_egroup_rsvd2 = -1;
+static int hf_nvme_get_logpage_pred_lat_status[3] = { NEG_LST_3 };
+static int hf_nvme_get_logpage_pred_lat_rsvd0 = -1;
+static int hf_nvme_get_logpage_pred_lat_etype[7] = { NEG_LST_7 };
+static int hf_nvme_get_logpage_pred_lat_rsvd1 = -1;
+static int hf_nvme_get_logpage_pred_lat_dtwin_rt = -1;
+static int hf_nvme_get_logpage_pred_lat_dtwin_wt = -1;
+static int hf_nvme_get_logpage_pred_lat_dtwin_tm = -1;
+static int hf_nvme_get_logpage_pred_lat_ndwin_tmh = -1;
+static int hf_nvme_get_logpage_pred_lat_ndwin_tml = -1;
+static int hf_nvme_get_logpage_pred_lat_rsvd2 = -1;
+static int hf_nvme_get_logpage_pred_lat_dtwin_re = -1;
+static int hf_nvme_get_logpage_pred_lat_dtwin_we = -1;
+static int hf_nvme_get_logpage_pred_lat_dtwin_te = -1;
+static int hf_nvme_get_logpage_pred_lat_rsvd3 = -1;
 
 /* NVMe CQE fields */
 static int hf_nvme_cqe_sts = -1;
@@ -2072,6 +2086,55 @@ static void dissect_nvme_get_logpage_egroup_resp(proto_item *ti, tvbuff_t *cmd_t
         proto_tree_add_item(grp, hf_nvme_get_logpage_egroup_rsvd2,  cmd_tvb, poff, len - poff, ENC_NA);
     }
 }
+static const value_string plat_status_tbl[] = {
+    { 0,  "Predictable Latency Mode not Enabled" },
+    { 1,  "Deterministic Window (DTWIN)" },
+    { 2,  "Non-Deterministic Window (NDWIN)" },
+    { 0, NULL}
+};
+
+static void dissect_nvme_get_logpage_pred_lat_resp(proto_item *ti, tvbuff_t *cmd_tvb, struct nvme_cmd_ctx *cmd_ctx, guint len)
+{
+    guint32 off = cmd_ctx->cmd_ctx.get_logpage.off & 0xffffffff; /* need guint type to silence clang-11 errors */
+    proto_tree *grp;
+    guint poff;
+
+    if (cmd_ctx->cmd_ctx.get_logpage.off > 508)
+        return; /* max allowed offset is < 508, so we do not loose bits by casting to guint type */
+
+    grp =  proto_item_add_subtree(ti, ett_data);
+    if (!off && len >= 1)
+        add_group_mask_entry(cmd_tvb, grp, 0, 1, ASPEC(hf_nvme_get_logpage_pred_lat_status));
+    if (off <= 1 && (2 - off) <= len)
+        proto_tree_add_item(grp, hf_nvme_get_logpage_pred_lat_rsvd0,  cmd_tvb, 1-off, 1, ENC_LITTLE_ENDIAN);
+    if (off <= 2 && (4 - off) <= len)
+        add_group_mask_entry(cmd_tvb, grp, 2-off, 2, ASPEC(hf_nvme_get_logpage_pred_lat_etype));
+    if (off <= 4 && (32 - off) <= len)
+        proto_tree_add_item(grp, hf_nvme_get_logpage_pred_lat_rsvd1,  cmd_tvb, 4-off, 28, ENC_NA);
+    if (off <= 32 && (40 - off) <= len)
+        proto_tree_add_item(grp, hf_nvme_get_logpage_pred_lat_dtwin_rt,  cmd_tvb, 32-off, 8, ENC_LITTLE_ENDIAN);
+    if (off <= 40 && (48 - off) <= len)
+        proto_tree_add_item(grp, hf_nvme_get_logpage_pred_lat_dtwin_wt,  cmd_tvb, 40-off, 8, ENC_LITTLE_ENDIAN);
+    if (off <= 48 && (56 - off) <= len)
+        proto_tree_add_item(grp, hf_nvme_get_logpage_pred_lat_dtwin_tm,  cmd_tvb, 48-off, 8, ENC_LITTLE_ENDIAN);
+    if (off <= 56 && (64 - off) <= len)
+        proto_tree_add_item(grp, hf_nvme_get_logpage_pred_lat_ndwin_tmh,  cmd_tvb, 56-off, 8, ENC_LITTLE_ENDIAN);
+    if (off <= 64 && (72 - off) <= len)
+        proto_tree_add_item(grp, hf_nvme_get_logpage_pred_lat_ndwin_tml,  cmd_tvb, 64-off, 8, ENC_LITTLE_ENDIAN);
+    if (off <= 72 && (128 - off) <= len)
+        proto_tree_add_item(grp, hf_nvme_get_logpage_pred_lat_rsvd2,  cmd_tvb, 72-off, 56, ENC_NA);
+    if (off <= 128 && (136 - off) <= len)
+        proto_tree_add_item(grp, hf_nvme_get_logpage_pred_lat_dtwin_re,  cmd_tvb, 128-off, 8, ENC_LITTLE_ENDIAN);
+    if (off <= 136 && (144 - off) <= len)
+        proto_tree_add_item(grp, hf_nvme_get_logpage_pred_lat_dtwin_we,  cmd_tvb, 136-off, 8, ENC_LITTLE_ENDIAN);
+    if (off <= 144 && (152 - off) <= len)
+        proto_tree_add_item(grp, hf_nvme_get_logpage_pred_lat_dtwin_te,  cmd_tvb, 144-off, 152, ENC_LITTLE_ENDIAN);
+    poff = (off <= 152) ? (152 - off) : 0;
+    if (poff > len)
+        return;
+    proto_tree_add_item(grp, hf_nvme_get_logpage_pred_lat_rsvd3,  cmd_tvb, poff, len - poff, ENC_NA);
+
+}
 
 static void dissect_nvme_get_logpage_resp(tvbuff_t *cmd_tvb, proto_tree *cmd_tree, struct nvme_cmd_ctx *cmd_ctx, guint len)
 {
@@ -2097,6 +2160,8 @@ static void dissect_nvme_get_logpage_resp(tvbuff_t *cmd_tvb, proto_tree *cmd_tre
             return dissect_nvme_get_logpage_telemetry_resp(ti, cmd_tvb, cmd_ctx, len);
         case 0x9:
             return dissect_nvme_get_logpage_egroup_resp(ti, cmd_tvb, cmd_ctx, len);
+        case 0xA:
+            return dissect_nvme_get_logpage_pred_lat_resp(ti, cmd_tvb, cmd_ctx, len);
         default:
             return;
     }
@@ -4378,6 +4443,95 @@ proto_register_nvme(void)
         },
         { &hf_nvme_get_logpage_egroup_rsvd2,
             { "Reserved", "nvme.cmd.get_logpage.egroup.rsvd2",
+               FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
+        },
+        /* Predictable Latency NVMSet Response */
+        { &hf_nvme_get_logpage_pred_lat_status[0],
+            { "Predictable Latency NVM Set Status", "nvme.cmd.get_logpage.pred_lat.status",
+               FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_pred_lat_status[1],
+            { "Enabled Window Setting", "nvme.cmd.get_logpage.pred_lat.status.ws",
+               FT_UINT8, BASE_HEX, VALS(plat_status_tbl), 0x7, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_pred_lat_status[2],
+            { "Reserved", "nvme.cmd.get_logpage.pred_lat.status.rsvd",
+               FT_UINT8, BASE_HEX, NULL, 0xf8, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_pred_lat_rsvd0,
+            { "Reserved", "nvme.cmd.get_logpage.pred_lat.rsvd0",
+               FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_pred_lat_etype[0],
+            { "Event Type", "nvme.cmd.get_logpage.pred_lat.etype",
+               FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_pred_lat_etype[1],
+            { "DTWIN Reads Warning", "nvme.cmd.get_logpage.pred_lat.etype.rw",
+               FT_BOOLEAN, 16, NULL, 0x1, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_pred_lat_etype[2],
+            { "DTWIN Writes Warning", "nvme.cmd.get_logpage.pred_lat.etype.ww",
+               FT_BOOLEAN, 16, NULL, 0x2, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_pred_lat_etype[3],
+            { "DTWIN Time Warning", "nvme.cmd.get_logpage.pred_lat.etype.tw",
+               FT_BOOLEAN, 16, NULL, 0x4, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_pred_lat_etype[4],
+            { "Reserved", "nvme.cmd.get_logpage.pred_lat.etype.rsvd",
+               FT_UINT16, BASE_HEX, NULL, 0x3ff8, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_pred_lat_etype[5],
+            { "Autonomous transition from DTWIN to NDWIN due to typical or maximum value exceeded", "nvme.cmd.get_logpage.pred_lat.etype.atve",
+               FT_BOOLEAN, 16, NULL, 0x4000, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_pred_lat_etype[6],
+            { "Autonomous transition from DTWIN to NDWIN due to Deterministic Excursion", "nvme.cmd.get_logpage.pred_lat.etype.atde",
+               FT_BOOLEAN, 16, NULL, 0x8000, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_pred_lat_rsvd1,
+            { "Reserved", "nvme.cmd.get_logpage.pred_lat.rsvd1",
+               FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_pred_lat_dtwin_rt,
+            { "DTWIN Reads Typical (4 KiB blocks)", "nvme.cmd.get_logpage.pred_lat.dtwin_rt",
+               FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_pred_lat_dtwin_wt,
+            { "DTWIN Writes Typical (optimal block size)", "nvme.cmd.get_logpage.pred_lat.dtwin_wt",
+               FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_pred_lat_dtwin_tm,
+            { "DTWIN Time Maximum (ms)", "nvme.cmd.get_logpage.pred_lat.dtwin_tm",
+               FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_pred_lat_ndwin_tmh,
+            { "NDWIN Time Minimum High (ms)", "nvme.cmd.get_logpage.pred_lat.ndwin_tmh",
+               FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_pred_lat_ndwin_tml,
+            { "NDWIN Time Minimum Low (ms)", "nvme.cmd.get_logpage.pred_lat.ndwin_tml",
+               FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_pred_lat_rsvd2,
+            { "Reserved", "nvme.cmd.get_logpage.pred_lat.rsvd2",
+               FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_pred_lat_dtwin_re,
+            { "DTWIN Reads Estimate (4 KiB blocks)", "nvme.cmd.get_logpage.pred_lat.dtwin_re",
+               FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_pred_lat_dtwin_we,
+            { "DTWIN Writes Estimate (optimal block size)", "nvme.cmd.get_logpage.pred_lat.dtwin_we",
+               FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_pred_lat_dtwin_te,
+            { "DTWIN Time Estimate (ms)", "nvme.cmd.get_logpage.pred_lat.dtwin_te",
+               FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_pred_lat_rsvd3,
+            { "Reserved", "nvme.cmd.get_logpage.pred_lat.rsvd3",
                FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
         },
         /* NVMe Response fields */
