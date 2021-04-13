@@ -414,7 +414,6 @@ void commandline_other_options(int argc, char *argv[], gboolean opt_reset)
             case 'b':        /* Ringbuffer option */
             case 'c':        /* Capture xxx packets */
             case 'f':        /* capture filter */
-            case 'k':        /* Start capture immediately */
             case 'H':        /* Hide capture info dialog box */
             case 'p':        /* Don't capture in promiscuous mode */
             case 'i':        /* Use interface x */
@@ -433,8 +432,7 @@ void commandline_other_options(int argc, char *argv[], gboolean opt_reset)
             case 'B':        /* Buffer size */
 #endif
 #ifdef HAVE_LIBPCAP
-                status = capture_opts_add_opt(&global_capture_opts, opt, optarg,
-                                              &global_commandline_info.start_capture);
+                status = capture_opts_add_opt(&global_capture_opts, opt, optarg);
                 if(status != 0) {
                     exit_application(status);
                 }
@@ -456,6 +454,9 @@ void commandline_other_options(int argc, char *argv[], gboolean opt_reset)
                 break;
             case 'J':        /* Jump to the first packet which matches the filter criteria */
                 global_commandline_info.jfilter = optarg;
+                break;
+            case 'k':        /* Start capture immediately */
+                global_commandline_info.start_capture = TRUE;
                 break;
             case 'l':        /* Automatic scrolling in live capture mode */
 #ifdef HAVE_LIBPCAP

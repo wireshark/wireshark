@@ -4850,7 +4850,6 @@ main(int argc, char *argv[])
     struct sigaction  action, oldaction;
 #endif
 
-    gboolean          start_capture         = TRUE;
     gboolean          stats_known;
     struct pcap_stat  stats = {0};
     GLogLevelFlags    log_flags;
@@ -5195,7 +5194,7 @@ main(int argc, char *argv[])
         case 'I':        /* Monitor mode */
 #endif
         case LONGOPT_COMPRESS_TYPE:        /* compress type */
-            status = capture_opts_add_opt(&global_capture_opts, opt, optarg, &start_capture);
+            status = capture_opts_add_opt(&global_capture_opts, opt, optarg);
             if (status != 0) {
                 exit_main(status);
             }

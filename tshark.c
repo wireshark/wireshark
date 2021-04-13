@@ -738,7 +738,6 @@ main(int argc, char *argv[])
   volatile int         exit_status = EXIT_SUCCESS;
 #ifdef HAVE_LIBPCAP
   int                  caps_queries = 0;
-  gboolean             start_capture = FALSE;
   GList               *if_list;
   gchar               *err_str, *err_str_secondary;
   struct bpf_program   fcode;
@@ -1147,7 +1146,7 @@ main(int argc, char *argv[])
     case LONGOPT_COMPRESS_TYPE:        /* compress type */
       /* These are options only for packet capture. */
 #ifdef HAVE_LIBPCAP
-      exit_status = capture_opts_add_opt(&global_capture_opts, opt, optarg, &start_capture);
+      exit_status = capture_opts_add_opt(&global_capture_opts, opt, optarg);
       if (exit_status != 0) {
         goto clean_exit;
       }
@@ -1158,7 +1157,7 @@ main(int argc, char *argv[])
       break;
     case 'c':        /* Stop after x packets */
 #ifdef HAVE_LIBPCAP
-      exit_status = capture_opts_add_opt(&global_capture_opts, opt, optarg, &start_capture);
+      exit_status = capture_opts_add_opt(&global_capture_opts, opt, optarg);
       if (exit_status != 0) {
         goto clean_exit;
       }
@@ -1169,7 +1168,7 @@ main(int argc, char *argv[])
     case 'w':        /* Write to file x */
       output_file_name = g_strdup(optarg);
 #ifdef HAVE_LIBPCAP
-      exit_status = capture_opts_add_opt(&global_capture_opts, opt, optarg, &start_capture);
+      exit_status = capture_opts_add_opt(&global_capture_opts, opt, optarg);
       if (exit_status != 0) {
         goto clean_exit;
       }

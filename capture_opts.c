@@ -792,7 +792,7 @@ capture_opts_add_iface_opt(capture_options *capture_opts, const char *optarg_str
 
 
 int
-capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg_str_p, gboolean *start_capture)
+capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg_str_p)
 {
     int status, snaplen;
 
@@ -881,9 +881,6 @@ capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg_
         }
         break;
 #endif
-    case 'k':        /* Start capture immediately */
-        *start_capture = TRUE;
-        break;
     /*case 'l':*/    /* Automatic scrolling in live capture mode */
 #ifdef HAVE_PCAP_SETSAMPLING
     case 'm':
