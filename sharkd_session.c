@@ -2184,7 +2184,7 @@ sharkd_session_process_tap(char *buf, const jsmntok_t *tokens, int count)
 	int i;
 
 	rtpstream_tapinfo_t rtp_tapinfo =
-		{ NULL, NULL, NULL, NULL, 0, NULL, 0, TAP_ANALYSE, NULL, NULL, NULL, FALSE, FALSE};
+		{ NULL, NULL, NULL, NULL, 0, NULL, NULL, 0, TAP_ANALYSE, NULL, NULL, NULL, FALSE, FALSE};
 
 	for (i = 0; i < 16; i++)
 	{

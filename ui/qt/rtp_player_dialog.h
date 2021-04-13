@@ -20,6 +20,7 @@
 #include "rtp_audio_stream.h"
 
 #include <QMap>
+#include <QMultiHash>
 #include <QTreeWidgetItem>
 #include <QMetaType>
 #include <ui/qt/widgets/qcustomplot.h>
@@ -177,6 +178,9 @@ private:
     QTreeWidgetItem *last_ti_;
     bool listener_removed_;
     QPushButton *export_btn_;
+    QMultiHash<guint, RtpAudioStream *> stream_hash_;
+    bool block_redraw_;
+    int lock_ui_;
 
 //    const QString streamKey(const rtpstream_info_t *rtpstream);
 //    const QString streamKey(const packet_info *pinfo, const struct _rtp_info *rtpinfo);

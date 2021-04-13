@@ -38,6 +38,11 @@ typedef struct _rtpstream_id {
 } rtpstream_id_t;
 
 /**
+ * Get hash of rtpstream_id
+ */
+guint rtpstream_id_to_hash(const rtpstream_id_t *id);
+
+/**
  * Copy rtpstream_id_t structure
  */
 void rtpstream_id_copy(const rtpstream_id_t *src, rtpstream_id_t *dest);
@@ -69,6 +74,11 @@ gboolean rtpstream_id_equal(const rtpstream_id_t *id1, const rtpstream_id_t *id2
  * - compare ssrc with rtp_info
  */
 gboolean rtpstream_id_equal_pinfo_rtp_info(const rtpstream_id_t *id, const packet_info *pinfo, const struct _rtp_info *rtp_info);
+
+/**
+ * Get hash of rtpstream_id extracted from packet_info and _rtp_info
+ */
+guint pinfo_rtp_info_to_hash(const packet_info *pinfo, const struct _rtp_info *rtp_info);
 
 #ifdef __cplusplus
 }

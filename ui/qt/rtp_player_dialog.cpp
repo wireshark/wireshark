@@ -8,6 +8,7 @@
  */
 
 #include <ui/rtp_media.h>
+#include <ui/tap-rtp-common.h>
 #include "rtp_player_dialog.h"
 #include <ui_rtp_player_dialog.h>
 
@@ -149,6 +150,8 @@ RtpPlayerDialog::RtpPlayerDialog(QWidget &parent, CaptureFile &cf) :
     , marker_stream_requested_out_rate_(0)
     , last_ti_(0)
     , listener_removed_(true)
+    , block_redraw_(false)
+    , lock_ui_(0)
 {
     ui->setupUi(this);
     loadGeometry(parent.width(), parent.height());
@@ -414,6 +417,7 @@ void RtpPlayerDialog::retapPackets()
 
 void RtpPlayerDialog::rescanPackets(bool rescale_axes)
 {
+    lockUI();
     // Show information for a user - it can last long time...
     ui->hintLabel->setText("<i><small>" + tr("Decoding streams...") + "</i></small>");
     wsApp->processEvents();
@@ -453,6 +457,7 @@ void RtpPlayerDialog::rescanPackets(bool rescale_axes)
     createPlot(rescale_axes);
 
     updateWidgets();
+    unlockUI();
 }
 
 void RtpPlayerDialog::createPlot(bool rescale_axes)
@@ -600,6 +605,8 @@ void RtpPlayerDialog::createPlot(bool rescale_axes)
 
 void RtpPlayerDialog::addSingleRtpStream(rtpstream_info_t *rtpstream)
 {
+    bool found = false;
+
     AudioRouting audio_routing = AudioRouting(AUDIO_UNMUTED, channel_mono);
 
     if (!rtpstream) return;
@@ -607,23 +614,24 @@ void RtpPlayerDialog::addSingleRtpStream(rtpstream_info_t *rtpstream)
     // Find the RTP streams associated with this conversation.
     // gtk/rtp_player.c:mark_rtp_stream_to_play does this differently.
 
-    RtpAudioStream *audio_stream = NULL;
-    int tli_count = ui->streamTreeWidget->topLevelItemCount();
-    for (int row = 0; row < tli_count; row++) {
-        QTreeWidgetItem *ti = ui->streamTreeWidget->topLevelItem(row);
-        RtpAudioStream *row_stream = ti->data(stream_data_col_, Qt::UserRole).value<RtpAudioStream*>();
+    QList<RtpAudioStream *> streams = stream_hash_.values(rtpstream_to_hash(rtpstream));
+    for (int i = 0; i < streams.size(); i++) {
+        RtpAudioStream *row_stream = streams.at(i);
         if (row_stream->isMatch(rtpstream)) {
-            audio_stream = row_stream;
+            found = true;
             break;
         }
     }
 
-    if (!audio_stream) {
+    int tli_count = ui->streamTreeWidget->topLevelItemCount();
+
+    if (!found) {
         try {
-            audio_stream = new RtpAudioStream(this, rtpstream, stereo_available_);
+            RtpAudioStream *audio_stream = new RtpAudioStream(this, rtpstream, stereo_available_);
             audio_stream->setColor(ColorUtils::graphColor(tli_count));
 
             QTreeWidgetItem *ti = new RtpPlayerTreeWidgetItem(ui->streamTreeWidget);
+            stream_hash_.insert(rtpstream_to_hash(rtpstream), audio_stream);
             ti->setText(src_addr_col_, address_to_qstring(&rtpstream->id.src_addr));
             ti->setText(src_port_col_, QString::number(rtpstream->id.src_port));
             ti->setText(dst_addr_col_, address_to_qstring(&rtpstream->id.dst_addr));
@@ -686,15 +694,19 @@ void RtpPlayerDialog::addSingleRtpStream(rtpstream_info_t *rtpstream)
 
 void RtpPlayerDialog::lockUI()
 {
-    if (playing_streams_.count() > 0) {
-        on_stopButton_clicked();
+    if (0 == lock_ui_++) {
+        if (playing_streams_.count() > 0) {
+            on_stopButton_clicked();
+        }
+        setEnabled(false);
     }
-    setEnabled(false);
 }
 
 void RtpPlayerDialog::unlockUI()
 {
-    setEnabled(true);
+    if (--lock_ui_ == 0) {
+        setEnabled(true);
+    }
 }
 
 void RtpPlayerDialog::replaceRtpStreams(QVector<rtpstream_info_t *> stream_infos)
@@ -1197,15 +1209,16 @@ tap_packet_status RtpPlayerDialog::tapPacket(void *tapinfo_ptr, packet_info *pin
 
 void RtpPlayerDialog::addPacket(packet_info *pinfo, const _rtp_info *rtpinfo)
 {
-    for (int row = 0; row < ui->streamTreeWidget->topLevelItemCount(); row++) {
-        QTreeWidgetItem *ti = ui->streamTreeWidget->topLevelItem(row);
-        RtpAudioStream *row_stream = ti->data(stream_data_col_, Qt::UserRole).value<RtpAudioStream*>();
-
+    // Search stream in hash key, if there are multiple streams with same hash
+    QList<RtpAudioStream *> streams = stream_hash_.values(pinfo_rtp_info_to_hash(pinfo, rtpinfo));
+    for (int i = 0; i < streams.size(); i++) {
+        RtpAudioStream *row_stream = streams.at(i);
         if (row_stream->isMatch(pinfo, rtpinfo)) {
             row_stream->addRtpPacket(pinfo, rtpinfo);
-            return;
+            break;
         }
     }
+
 //    qDebug() << "=ap no match!" << address_to_qstring(&pinfo->src) << address_to_qstring(&pinfo->dst);
 }
 
@@ -1448,8 +1461,10 @@ void RtpPlayerDialog::on_streamTreeWidget_itemSelectionChanged()
         ui->actionSavePayload->setEnabled(false);
     }
 
-    ui->audioPlot->replot();
-    updateHintLabel();
+    if (!block_redraw_) {
+        ui->audioPlot->replot();
+        updateHintLabel();
+    }
 }
 
 // Change channel audio routing if double clicked channel column
@@ -1471,6 +1486,7 @@ void RtpPlayerDialog::removeRow(QTreeWidgetItem *ti)
 {
     RtpAudioStream *audio_stream = ti->data(stream_data_col_, Qt::UserRole).value<RtpAudioStream*>();
     if (audio_stream) {
+        stream_hash_.remove(audio_stream->getHash(), audio_stream);
         ti->setData(stream_data_col_, Qt::UserRole, QVariant());
         delete audio_stream;
     }
@@ -1513,13 +1529,16 @@ void RtpPlayerDialog::on_actionRemoveStream_triggered()
 {
     QList<QTreeWidgetItem *> items = ui->streamTreeWidget->selectedItems();
 
+    block_redraw_ = true;
     if (last_ti_) {
         highlightItem(last_ti_, false);
         last_ti_ = NULL;
     }
-    for(int i = 0; i<items.count(); i++ ) {
+    //for(int i = 0; i<items.count(); i++ ) {
+    for(int i = items.count() - 1; i>=0; i-- ) {
         removeRow(items[i]);
     }
+    block_redraw_ = false;
     // TODO: Recalculate legend
     // - Graphs used for legend could be removed above and we must add new
     // - If no legend is required, it should be removed
@@ -1551,7 +1570,9 @@ void RtpPlayerDialog::changeAudioRoutingOnItem(QTreeWidgetItem *ti, AudioRouting
 
         audio_graph->setSelected(ti->isSelected());
         audio_graph->setMuted(audio_routing.isMuted());
-        ui->audioPlot->replot();
+        if (!block_redraw_) {
+            ui->audioPlot->replot();
+        }
     }
 }
 
@@ -1560,11 +1581,14 @@ void RtpPlayerDialog::changeAudioRouting(AudioRouting new_audio_routing)
 {
     QList<QTreeWidgetItem *> items = ui->streamTreeWidget->selectedItems();
 
+    block_redraw_ = true;
     for(int i = 0; i<items.count(); i++ ) {
 
         QTreeWidgetItem *ti = items[i];
         changeAudioRoutingOnItem(ti, new_audio_routing);
     }
+    block_redraw_ = false;
+    ui->audioPlot->replot();
     updateHintLabel();
 }
 
@@ -1621,11 +1645,14 @@ void RtpPlayerDialog::on_actionAudioRoutingMuteInvert_triggered()
 {
     QList<QTreeWidgetItem *> items = ui->streamTreeWidget->selectedItems();
 
+    block_redraw_ = true;
     for(int i = 0; i<items.count(); i++ ) {
 
         QTreeWidgetItem *ti = items[i];
         invertAudioMutingOnItem(ti);
     }
+    block_redraw_ = false;
+    ui->audioPlot->replot();
     updateHintLabel();
 }
 
@@ -1695,6 +1722,7 @@ void RtpPlayerDialog::cleanupMarkerStream()
 
 void RtpPlayerDialog::on_outputDeviceComboBox_currentIndexChanged(const QString &)
 {
+    lockUI();
     stereo_available_ = isStereoAvailable();
     for (int row = 0; row < ui->streamTreeWidget->topLevelItemCount(); row++) {
         QTreeWidgetItem *ti = ui->streamTreeWidget->topLevelItem(row);
@@ -1709,10 +1737,12 @@ void RtpPlayerDialog::on_outputDeviceComboBox_currentIndexChanged(const QString 
     cleanupMarkerStream();
     fillAudioRateMenu();
     rescanPackets();
+    unlockUI();
 }
 
 void RtpPlayerDialog::on_outputAudioRate_currentIndexChanged(const QString & rate_string)
 {
+    lockUI();
     // Any unconvertable string is converted to 0 => used as Automatic rate
     unsigned selected_rate = rate_string.toInt();
 
@@ -1727,6 +1757,7 @@ void RtpPlayerDialog::on_outputAudioRate_currentIndexChanged(const QString & rat
     marker_stream_requested_out_rate_ = selected_rate;
     cleanupMarkerStream();
     rescanPackets();
+    unlockUI();
 }
 
 void RtpPlayerDialog::on_jitterSpinBox_valueChanged(double)
@@ -1844,10 +1875,14 @@ bool RtpPlayerDialog::isStereoAvailable()
 
 void RtpPlayerDialog::invertSelection()
 {
+    block_redraw_ = true;
     for (int row = 0; row < ui->streamTreeWidget->topLevelItemCount(); row++) {
         QTreeWidgetItem *ti = ui->streamTreeWidget->topLevelItem(row);
         ti->setSelected(!ti->isSelected());
     }
+    block_redraw_ = false;
+    ui->audioPlot->replot();
+    updateHintLabel();
 }
 
 void RtpPlayerDialog::on_actionSelectAll_triggered()

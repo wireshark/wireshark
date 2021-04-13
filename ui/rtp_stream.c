@@ -138,7 +138,6 @@ void rtpstream_mark(rtpstream_tapinfo_t *tapinfo, capture_file *cap_file, rtpstr
         remove_tap_listener_rtpstream(tapinfo);
 }
 
-
 /*
  * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *

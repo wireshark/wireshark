@@ -188,6 +188,39 @@ Default value of btn:[Output Audio Rate] is btn:[Automatic]. When multiple codec
 In this case user must manually select one of rates in btn:[Output Audio Rate], streams will be resampled and audio export succeeds.
 ====
 
+==== RTP Decoding Settings
+
+RTP is carried usually in UDP packets, on random source and destination port. Therefore without "help" Wireshark can't recognize it and shows just UDP packets.  Wireshark recognizes RTP streams based on VoIP signaling, e. g. based on SDP message in SIP signaling. When signaling is not captured, Wireshark shows just UDP packets. There are multiple settings which helps Wireshark to recognize RTP even there is no related signaling.
+
+You can use <<ChAdvDecodeAsFig,Decode As...>> function from menu:Analyze[Decode As...] menu or in mouse context menu. Here you can set that traffic on specific source or destination should be decoded as RTP. You can save settings for later use.
+
+Use of menu:Decode As...[] menu works fine, but for many streams it is arduous.
+
+You can enable heuristic dissector menu:rtp_udp[] in menu:Analyze[Enabled Protocols...]. See <<ChCustProtocolDissectionSection>> for details. Once menu:rtp_udp[] is enabled, Wireshark tries every UDP packet to decode as RTP. If decoding is possible, packet (and entire UDP stream) is decoded as RTP.
+
+When RTP stream uses well know port, heuristic dissector ignores it. So you might miss some RTP streams. You can enable setting for udp protocol menu:Preferences[Protocols > udp > Try heuristic sub-dissectors first], see <<ChCustPreferencesSection>>. In this case heuristics dissector tries to decode UDP packet even it uses well known.
+
+[NOTE]
+====
+Take into account that heuristics is just simple "test" whether packet can be read as RTP. It can be false positive and you can see decoded as RTP more UDP packets than expected.
+
+When you enable menu:udp[Try heuristic sub-dissectors first], it increases possibility of false positives. If you capture all traffic in network, false positives rate can be quite high.
+====
+
+==== VoIP Processing Performance and Related Limits
+
+Processing of RTP and decoding RTP voice takes resources. There are raw estimates you can use as guidelines...
+
+RTP Streams window can show as many streams as found in the capture. Its performance is limited just by memory and CPU.
+
+RTP Player can handle 1000+ streams, but take into account that waveforms are very small in this case.
+
+RTP Player creates temporary file for decoding of each stream. If your OS or user has OS enforced limit for count of opened files (most of Unix/Linux systems), you can see less streams that was added to playlist. Warnings are printed on console in this case and you will see less streams in the playlist than you send to it from other tools.
+
+RTP Player plays audio by OS sound system and OS is responsible for mixing audio when multiple streams are played. In many cases OS sound system has limited count of mixed streams it can play/mix. RTP Player tries to handle playback failures and show warning. If it happens, just mute some streams and start playback again.
+
+RTP Analysis window can handle 1000+ streams, but it is difficult to use it with so many streams - it is difficult to navigate between them. It is expected that RTP Analysis window will be used for analysis of lower tens of streams.
+
 
 [[ChTelVoipCalls]]
 
@@ -251,7 +284,7 @@ streams of a selected IAX2 call along with a graph.
 
 === ISUP Messages Window
 
-Integrated Service User Part (ISUP) protocol provides voice and non-voice signalling for telephone communications. ISUP Messages menu opens the window which shows the related statistics. The user can filter, copy or save the data into a file.
+Integrated Service User Part (ISUP) protocol provides voice and non-voice signaling for telephone communications. ISUP Messages menu opens the window which shows the related statistics. The user can filter, copy or save the data into a file.
 
 [[ChTelLTE]]
 
@@ -319,7 +352,7 @@ This menu shows MTP3 Statistics and MTP3 Summary windows.
 
 === Osmux Windows
 
-OSmux is a multiplex protocol which benefits satellite based GSM back-haul systems by reducing the bandwidth consumption of the voice proxying (RTP-AMR) and signalling traffic. The OSmux menu opens the packet counter window with the related statistic data. The user can filter, copy or save the data into a file.
+OSmux is a multiplex protocol which benefits satellite based GSM back-haul systems by reducing the bandwidth consumption of the voice proxying (RTP-AMR) and signaling traffic. The OSmux menu opens the packet counter window with the related statistic data. The user can filter, copy or save the data into a file.
 
 === RTP
 
@@ -463,7 +496,7 @@ The Universal Computer Protocol (UCP) plays role in transferring Short Messages 
 
 === H.225 Window
 
-H.225 telecommunication protocol which is responsible for messages in call signalling and media stream packetization for packet-based multimedia communication systems. The H.225 window shows the counted messages by types and reasons. The user can filter, copy or save the data into a file.
+H.225 telecommunication protocol which is responsible for messages in call signaling and media stream packetization for packet-based multimedia communication systems. The H.225 window shows the counted messages by types and reasons. The user can filter, copy or save the data into a file.
 
 [[ChTelSIPFlows]]
 

@@ -66,6 +66,26 @@ void rtpstream_id_free(rtpstream_id_t *id)
 }
 
 /****************************************************************************/
+/* convert rtpstream_id_t to hash */
+guint rtpstream_id_to_hash(const rtpstream_id_t *id)
+{
+	guint hash = 0;
+
+	if (!id) { return 0; }
+	/* XOR of: */
+	/* SRC PORT | DST_PORT */
+	/* SSRC */
+	/* SRC ADDR */
+	/* DST ADDR */
+	hash ^= id->src_port | id->dst_port << 16;
+	hash ^= id->ssrc;
+	add_address_to_hash(hash, &id->src_addr);
+	add_address_to_hash(hash, &id->dst_addr);
+
+	return hash;
+}
+
+/****************************************************************************/
 /* compare two ids by flags */
 gboolean rtpstream_id_equal(const rtpstream_id_t *id1, const rtpstream_id_t *id2, guint flags)
 {
@@ -103,6 +123,27 @@ gboolean rtpstream_id_equal_pinfo_rtp_info(const rtpstream_id_t *id, const packe
 
 	return FALSE;
 }
+
+/****************************************************************************/
+/* convert packet_info and _rtp_info to hash */
+guint pinfo_rtp_info_to_hash(const packet_info *pinfo, const struct _rtp_info *rtp_info)
+{
+	guint hash = 0;
+
+	if (!pinfo || !rtp_info) { return 0; }
+	/* XOR of: */
+	/* SRC PORT | DST_PORT */
+	/* SSRC */
+	/* SRC ADDR */
+	/* DST ADDR */
+	hash ^= pinfo->srcport | pinfo->destport << 16;
+	hash ^= rtp_info->info_sync_src;
+	add_address_to_hash(hash, &pinfo->src);
+	add_address_to_hash(hash, &pinfo->dst);
+
+	return hash;
+}
+
 
 /*
  * Editor modelines  -  https://www.wireshark.org/tools/modelines.html

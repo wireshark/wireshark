@@ -36,6 +36,7 @@
 #include <QVariant>
 #include <QTimer>
 #include <QDebug>
+#include <QBuffer>
 
 // To do:
 // - Only allow one rtpstream_info_t per RtpAudioStream?
@@ -80,7 +81,7 @@ RtpAudioStream::RtpAudioStream(QObject *parent, rtpstream_info_t *rtpstream, boo
         qWarning() << "Can't create temp file in " << tempname;
         throw -1;
     }
-    sample_file_frame_ = new QTemporaryFile(tempname, this);
+    sample_file_frame_ = new QBuffer(this);
     if (! sample_file_frame_->open(QIODevice::ReadWrite)) {
         // We are out of file resources
         delete sample_file_;
@@ -179,7 +180,7 @@ void RtpAudioStream::reset(double global_start_time)
     if (!sample_file_->open(QIODevice::ReadWrite)) {
         qWarning() << "Can't create temp file in " << tempname << " during retap";
     }
-    sample_file_frame_ = new QTemporaryFile(tempname, this);
+    sample_file_frame_ = new QBuffer(this);
     if (!sample_file_frame_->open(QIODevice::ReadWrite)) {
         qWarning() << "Can't create temp file in " << tempname << " during retap";
     }

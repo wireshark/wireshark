@@ -138,6 +138,26 @@ void rtpstream_info_calculate(const rtpstream_info_t *strinfo, rtpstream_info_ca
  */
 void rtpstream_info_calc_free(rtpstream_info_calc_t *calc);
 
+/**
+ * Get hash key for rtpstream_info_t
+ */
+guint rtpstream_to_hash(gconstpointer key);
+
+/**
+ * Insert new_stream_info into multihash
+ */
+void rtpstream_info_multihash_insert(GHashTable *multihash, rtpstream_info_t *new_stream_info);
+
+/**
+ * Lookup stream_info in stream_info multihash
+ */
+rtpstream_info_t *rtpstream_info_multihash_lookup(GHashTable *multihash, rtpstream_info_t *stream_info);
+
+/**
+ * GHFunc () for destroying GList in multihash
+ */
+void rtpstream_info_multihash_destroy_value(gpointer key, gpointer value, gpointer user_data);
+
 #ifdef __cplusplus
 }
 #endif /* __cplusplus */

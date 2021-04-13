@@ -90,6 +90,9 @@ struct _rtpstream_tapinfo {
     void              *tap_data;            /**< data for tap callbacks */
     int                nstreams; /**< number of streams in the list */
     GList             *strinfo_list; /**< list of rtpstream_info_t* */
+    GHashTable        *strinfo_hash; /**< multihash of rtpstream_info_t **/
+                                     /*   multihash means that there can be */
+                                     /*   more values related to one hash key */
     int                npackets; /**< total number of rtp packets of all streams */
     /* used while tapping. user shouldn't modify these */
     tap_mode_t         mode;

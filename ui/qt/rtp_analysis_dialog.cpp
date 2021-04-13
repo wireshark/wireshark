@@ -429,7 +429,7 @@ int RtpAnalysisDialog::addTabUI(tab_info_t *new_tab)
 
     new_tab->graphHorizontalLayout->setStretch(6, 1);
 
-    ui->verticalLayout_2->addLayout(new_tab->graphHorizontalLayout);
+    ui->layout->addLayout(new_tab->graphHorizontalLayout);
 
     return new_tab_no;
 }
@@ -504,6 +504,7 @@ void RtpAnalysisDialog::updateWidgets()
     ui->actionNextProblem->setEnabled(enable_nav);
 
     if (enable_nav) {
+        hint.append(tr(" %1 streams, ").arg(tabs_.count() - 1));
         hint.append(tr(" G: Go to packet, N: Next problem packet"));
     }
 
@@ -653,10 +654,13 @@ tap_packet_status RtpAnalysisDialog::tapPacket(void *tapinfo_ptr, packet_info *p
         return TAP_PACKET_DONT_REDRAW;
     /* is it the forward direction?  */
     else {
-        for(int i=0; i<rtp_analysis_dialog->tabs_.count(); i++) {
-            tab_info_t *tab = rtp_analysis_dialog->tabs_[i];
-            if (rtpstream_id_equal_pinfo_rtp_info(&(tab->stream.id),pinfo,rtpinfo))  {
+        // Search tab in hash key, if there are multiple tabs with same hash
+        QList<tab_info_t *> tabs = rtp_analysis_dialog->tab_hash_.values(pinfo_rtp_info_to_hash(pinfo, rtpinfo));
+        for (int i = 0; i < tabs.size(); i++) {
+            tab_info_t *tab = tabs.at(i);
+            if (rtpstream_id_equal_pinfo_rtp_info(&tab->stream.id, pinfo, rtpinfo))  {
                 rtp_analysis_dialog->addPacket(tab, pinfo, rtpinfo);
+                break;
             }
         }
     }
@@ -930,6 +934,7 @@ void RtpAnalysisDialog::closeTab(int index)
     if (index != tabs_.count()) {
         QWidget *remove_tab = qobject_cast<QWidget *>(ui->tabWidget->widget(index));
         tab_info_t *tab = tabs_[index];
+        tab_hash_.remove(rtpstream_to_hash(&tab->stream), tab);
         ui->tabWidget->removeTab(index);
         ui->streamGraph->removeGraph(tab->jitter_graph);
         ui->streamGraph->removeGraph(tab->diff_graph);
@@ -1089,11 +1094,16 @@ void RtpAnalysisDialog::addRtpStreamsPrivate(QVector<rtpstream_info_t *> stream_
 {
     int first_tab_no = -1;
 
+    setUpdatesEnabled(false);
     foreach(rtpstream_info_t *rtpstream, stream_infos) {
         bool found = false;
-        for(int i=0; i < tabs_.count(); i++) {
-            if (rtpstream_id_equal(&(tabs_[i]->stream.id), &(rtpstream->id), RTPSTREAM_ID_EQUAL_SSRC)) {
+
+        QList<tab_info_t *> tabs = tab_hash_.values(rtpstream_to_hash(rtpstream));
+        for (int i = 0; i < tabs.size(); i++) {
+            tab_info_t *tab = tabs.at(i);
+            if (rtpstream_id_equal(&tab->stream.id, &rtpstream->id, RTPSTREAM_ID_EQUAL_SSRC))  {
                 found = true;
+                break;
             }
         }
 
@@ -1108,6 +1118,7 @@ void RtpAnalysisDialog::addRtpStreamsPrivate(QVector<rtpstream_info_t *> stream_
             new_tab->delta_vals = new QVector<double>();
             tabs_ << new_tab;
             cur_tab_no = addTabUI(new_tab);
+            tab_hash_.insert(rtpstream_to_hash(rtpstream), new_tab);
             if (first_tab_no == -1) {
                 first_tab_no = cur_tab_no;
             }
@@ -1116,6 +1127,7 @@ void RtpAnalysisDialog::addRtpStreamsPrivate(QVector<rtpstream_info_t *> stream_
     if (first_tab_no != -1) {
          ui->tabWidget->setCurrentIndex(first_tab_no);
     }
+    setUpdatesEnabled(true);
     registerTapListener("rtp", this, NULL, 0, tapReset, tapPacket, tapDraw);
     cap_file_.retapPackets();
     removeTapListeners();
@@ -1125,13 +1137,17 @@ void RtpAnalysisDialog::addRtpStreamsPrivate(QVector<rtpstream_info_t *> stream_
 
 void RtpAnalysisDialog::removeRtpStreams(QVector<rtpstream_info_t *> stream_infos _U_)
 {
+    setUpdatesEnabled(false);
     foreach(rtpstream_info_t *rtpstream, stream_infos) {
-        for(int i=0; i < tabs_.count(); i++) {
-            if (rtpstream_id_equal(&(tabs_[i]->stream.id), &(rtpstream->id), RTPSTREAM_ID_EQUAL_SSRC)) {
-                closeTab(i);
+        QList<tab_info_t *> tabs = tab_hash_.values(rtpstream_to_hash(rtpstream));
+        for (int i = 0; i < tabs.size(); i++) {
+            tab_info_t *tab = tabs.at(i);
+            if (rtpstream_id_equal(&tab->stream.id, &rtpstream->id, RTPSTREAM_ID_EQUAL_SSRC))  {
+                closeTab(tabs_.indexOf(tab));
             }
         }
     }
+    setUpdatesEnabled(true);
 
     updateGraph();
 }

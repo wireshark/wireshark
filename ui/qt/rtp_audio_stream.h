@@ -154,6 +154,7 @@ public:
     qint64 getLeadSilenceSamples() { return prepend_samples_; }
     qint64 getTotalSamples() { return (sample_file_->size()/(qint64)sizeof(SAMPLE)); }
     bool savePayload(QIODevice *file);
+    guint getHash() { return rtpstream_id_to_hash(&id_); }
     QString getIDAsQString();
 
 signals:

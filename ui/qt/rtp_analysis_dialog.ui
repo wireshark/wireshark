@@ -25,9 +25,36 @@
         <attribute name="title">
          <string>Graph</string>
         </attribute>
-        <layout class="QVBoxLayout" name="verticalLayout_2" stretch="1,0,0">
+        <layout class="QVBoxLayout" name="verticalLayout_2" stretch="1,0">
          <item>
           <widget class="QCustomPlot" name="streamGraph" native="true"/>
+         </item>
+         <item>
+          <widget class="QScrollArea" name="scrollarea">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>200</height>
+            </size>
+           </property>
+           <property name="horizontalScrollBarPolicy">
+            <enum>Qt::ScrollBarAlwaysOff</enum>
+           </property>
+           <property name="widgetResizable">
+            <bool>true</bool>
+           </property>
+           <widget class="QWidget" name="qwidget">
+            <property name="geometry">
+             <rect>
+              <x>0</x>
+              <y>0</y>
+              <width>606</width>
+              <height>298</height>
+             </rect>
+            </property>
+            <layout class="QVBoxLayout" name="layout"/>
+           </widget>
+          </widget>
          </item>
         </layout>
        </widget>

@@ -147,6 +147,10 @@ void rtpstream_reset(rtpstream_tapinfo_t *tapinfo)
 
     if (tapinfo->mode == TAP_ANALYSE) {
         /* free the data items first */
+        if (tapinfo->strinfo_hash) {
+            g_hash_table_foreach(tapinfo->strinfo_hash, rtpstream_info_multihash_destroy_value, NULL);
+            g_hash_table_destroy(tapinfo->strinfo_hash);
+        }
         list = g_list_first(tapinfo->strinfo_list);
         while (list)
         {
@@ -157,6 +161,7 @@ void rtpstream_reset(rtpstream_tapinfo_t *tapinfo)
         }
         g_list_free(tapinfo->strinfo_list);
         tapinfo->strinfo_list = NULL;
+        tapinfo->strinfo_hash = NULL;
         tapinfo->nstreams = 0;
         tapinfo->npackets = 0;
     }
@@ -366,7 +371,6 @@ tap_packet_status rtpstream_packet_cb(void *arg, packet_info *pinfo, epan_dissec
     const struct _rtp_info *rtpinfo = (const struct _rtp_info *)arg2;
     rtpstream_info_t new_stream_info;
     rtpstream_info_t *stream_info = NULL;
-    GList* list;
     rtpdump_info_t rtpdump_info;
 
     struct _rtp_conversation_info *p_conv_data = NULL;
@@ -386,15 +390,8 @@ tap_packet_status rtpstream_packet_cb(void *arg, packet_info *pinfo, epan_dissec
         }
 
         /* check whether we already have a stream with these parameters in the list */
-        list = g_list_first(tapinfo->strinfo_list);
-        while (list)
-        {
-            if (rtpstream_info_cmp(&new_stream_info, (rtpstream_info_t *)(list->data))==0)
-            {
-                stream_info = (rtpstream_info_t *)(list->data);  /*found!*/
-                break;
-            }
-            list = g_list_next(list);
+        if (tapinfo->strinfo_hash) {
+            stream_info = rtpstream_info_multihash_lookup(tapinfo->strinfo_hash, &new_stream_info);
         }
 
         /* not in the list? then create a new entry */
@@ -419,6 +416,10 @@ tap_packet_status rtpstream_packet_cb(void *arg, packet_info *pinfo, epan_dissec
             stream_info = rtpstream_info_malloc_and_init();
             rtpstream_info_copy_deep(stream_info, &new_stream_info);
             tapinfo->strinfo_list = g_list_prepend(tapinfo->strinfo_list, stream_info);
+            if (!tapinfo->strinfo_hash) {
+                tapinfo->strinfo_hash = g_hash_table_new(g_direct_hash, g_direct_equal);
+            }
+            rtpstream_info_multihash_insert(tapinfo->strinfo_hash, stream_info);
         }
 
         /* get RTP stats for the packet */
@@ -534,6 +535,77 @@ void rtpstream_info_calc_free(rtpstream_info_calc_t *calc)
         wmem_free(NULL, calc->dst_addr_str);
         wmem_free(NULL, calc->all_payload_type_names);
 }
+
+/****************************************************************************/
+/* Get hash for rtpstream_info_t */
+guint rtpstream_to_hash(gconstpointer key)
+{
+    if (key) {
+        return rtpstream_id_to_hash(&((rtpstream_info_t *)key)->id);
+    } else {
+        return 0;
+    }
+}
+
+/****************************************************************************/
+/* Inserts new_stream_info to multihash if its not there */
+
+void rtpstream_info_multihash_insert(GHashTable *multihash, rtpstream_info_t *new_stream_info)
+{
+    GList *hlist = (GList *)g_hash_table_lookup(multihash, GINT_TO_POINTER(rtpstream_to_hash(new_stream_info)));
+    gboolean found = FALSE;
+    if (hlist) {
+        // Key exists in hash
+        GList *list = g_list_first(hlist);
+        while (list)
+        {
+            if (rtpstream_info_cmp(new_stream_info, (rtpstream_info_t *)(list->data))==0) {
+                found = TRUE;
+                break;
+            }
+            list = g_list_next(list);
+        }
+        if (!found) {
+            // stream_info is not in list yet, add it
+            hlist = g_list_prepend(hlist, new_stream_info);
+        }
+    } else {
+        // No key in hash, init new list
+        hlist = g_list_prepend(hlist, new_stream_info);
+    }
+    g_hash_table_insert(multihash, GINT_TO_POINTER(rtpstream_to_hash(new_stream_info)), hlist);
+}
+
+/****************************************************************************/
+/* Lookup stream_info in multihash */
+
+rtpstream_info_t *rtpstream_info_multihash_lookup(GHashTable *multihash, rtpstream_info_t *stream_info)
+{
+    GList *hlist = (GList *)g_hash_table_lookup(multihash, GINT_TO_POINTER(rtpstream_to_hash(stream_info)));
+    if (hlist) {
+        // Key exists in hash
+        GList *list = g_list_first(hlist);
+        while (list)
+        {
+            if (rtpstream_info_cmp(stream_info, (rtpstream_info_t *)(list->data))==0) {
+                return (rtpstream_info_t *)(list->data);
+            }
+            list = g_list_next(list);
+        }
+    }
+
+    // No stream_info in hash or was not found in existing list
+    return NULL;
+}
+
+/****************************************************************************/
+/* Destroys GList used in multihash */
+
+void rtpstream_info_multihash_destroy_value(gpointer key _U_, gpointer value, gpointer user_data _U_)
+{
+    g_list_free((GList *)value);
+}
+
 
 /*
  * Editor modelines  -  https://www.wireshark.org/tools/modelines.html

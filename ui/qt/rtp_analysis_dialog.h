@@ -115,6 +115,7 @@ private:
     int tab_seq;
 
     QVector<tab_info_t *> tabs_;
+    QMultiHash<guint, tab_info_t *> tab_hash_;
 
     QPushButton *player_button_;
 
