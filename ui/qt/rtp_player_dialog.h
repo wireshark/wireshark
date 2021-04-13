@@ -109,7 +109,7 @@ private slots:
     void updateHintLabel();
     void resetXAxis();
     void updateGraphs();
-    void playFinished(RtpAudioStream *stream);
+    void playFinished(RtpAudioStream *stream, QAudio::Error error);
 
     void setPlayPosition(double secs);
     void setPlaybackError(const QString playback_error);
@@ -220,6 +220,8 @@ private:
     QVector<RtpAudioStream *>getSelectedAudibleAudioStreams();
     void saveAudio(bool sync_to_stream);
     void savePayload();
+    void lockUI();
+    void unlockUI();
 
 #else // QT_MULTIMEDIA_LIB
 private:

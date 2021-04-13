@@ -28,12 +28,11 @@
 #include <QSet>
 #include <QVector>
 #include <QIODevice>
-#include <QTemporaryFile>
 #include <QAudioOutput>
 
 class QAudioFormat;
 class QAudioOutput;
-class QTemporaryFile;
+class QIODevice;
 
 struct _rtp_info;
 struct _rtp_sample;
@@ -155,11 +154,12 @@ public:
     qint64 getLeadSilenceSamples() { return prepend_samples_; }
     qint64 getTotalSamples() { return (sample_file_->size()/(qint64)sizeof(SAMPLE)); }
     bool savePayload(QIODevice *file);
+    QString getIDAsQString();
 
 signals:
     void processedSecs(double secs);
     void playbackError(const QString error_msg);
-    void finishedPlaying(RtpAudioStream *stream);
+    void finishedPlaying(RtpAudioStream *stream, QAudio::Error error);
 
 private:
     // Used to identify unique streams.
@@ -167,8 +167,8 @@ private:
     rtpstream_id_t id_;
 
     QVector<struct _rtp_packet *>rtp_packets_;
-    QTemporaryFile *sample_file_;       // Stores waveform samples
-    QTemporaryFile *sample_file_frame_; // Stores rtp_packet_info per packet
+    QIODevice *sample_file_;       // Stores waveform samples
+    QIODevice *sample_file_frame_; // Stores rtp_packet_info per packet
     QIODevice *temp_file_;
     struct _GHashTable *decoders_hash_;
     // TODO: It is not used

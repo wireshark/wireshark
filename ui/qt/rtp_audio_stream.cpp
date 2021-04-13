@@ -18,6 +18,7 @@
 #endif /* HAVE_SPEEXDSP */
 
 #include <epan/rtp_pt.h>
+#include <epan/to_str.h>
 
 #include <epan/dissectors/packet-rtp.h>
 
@@ -34,6 +35,7 @@
 #include <QTemporaryFile>
 #include <QVariant>
 #include <QTimer>
+#include <QDebug>
 
 // To do:
 // - Only allow one rtpstream_info_t per RtpAudioStream?
@@ -67,13 +69,27 @@ RtpAudioStream::RtpAudioStream(QObject *parent, rtpstream_info_t *rtpstream, boo
     // Rates will be set later, we just init visual resampler
     visual_resampler_ = speex_resampler_init(1, visual_sample_rate_,
                                                 visual_sample_rate_, SPEEX_RESAMPLER_QUALITY_MIN, NULL);
-    //speex_resampler_skip_zeros(visual_resampler_);
 
     QString tempname = QString("%1/wireshark_rtp_stream").arg(QDir::tempPath());
     sample_file_ = new QTemporaryFile(tempname, this);
-    sample_file_->open();
+    if (!sample_file_->open(QIODevice::ReadWrite)) {
+        // We are out of file resources
+        delete sample_file_;
+        speex_resampler_destroy(visual_resampler_);
+        rtpstream_id_free(&id_);
+        qWarning() << "Can't create temp file in " << tempname;
+        throw -1;
+    }
     sample_file_frame_ = new QTemporaryFile(tempname, this);
-    sample_file_frame_->open();
+    if (! sample_file_frame_->open(QIODevice::ReadWrite)) {
+        // We are out of file resources
+        delete sample_file_;
+        delete sample_file_frame_;
+        speex_resampler_destroy(visual_resampler_);
+        rtpstream_id_free(&id_);
+        qWarning() << "Can't create temp file in " << tempname;
+        throw -1;
+    }
 
     // RTP_STREAM_DEBUG("Writing to %s", tempname.toUtf8().constData());
 }
@@ -160,9 +176,13 @@ void RtpAudioStream::reset(double global_start_time)
     if (sample_file_frame_) delete sample_file_frame_;
     QString tempname = QString("%1/wireshark_rtp_stream").arg(QDir::tempPath());
     sample_file_ = new QTemporaryFile(tempname, this);
-    sample_file_->open();
+    if (!sample_file_->open(QIODevice::ReadWrite)) {
+        qWarning() << "Can't create temp file in " << tempname << " during retap";
+    }
     sample_file_frame_ = new QTemporaryFile(tempname, this);
-    sample_file_frame_->open();
+    if (!sample_file_frame_->open(QIODevice::ReadWrite)) {
+        qWarning() << "Can't create temp file in " << tempname << " during retap";
+    }
 
     // RTP_STREAM_DEBUG("Writing to %s", tempname.toUtf8().constData());
 }
@@ -662,6 +682,22 @@ const QString RtpAudioStream::formatDescription(const QAudioFormat &format)
     return fmt_descr;
 }
 
+QString RtpAudioStream::getIDAsQString()
+{
+    gchar *src_addr_str = address_to_display(NULL, &(id_.src_addr));
+    gchar *dst_addr_str = address_to_display(NULL, &(id_.dst_addr));
+    QString str = QString("%1:%2 - %3:%4 %5")
+        .arg(src_addr_str)
+        .arg(id_.src_port)
+        .arg(dst_addr_str)
+        .arg(id_.dst_port)
+        .arg(QString("0x%1").arg(id_.ssrc, 0, 16));
+    wmem_free(NULL, src_addr_str);
+    wmem_free(NULL, dst_addr_str);
+
+    return str;
+}
+
 bool RtpAudioStream::prepareForPlay(QAudioDeviceInfo out_device)
 {
     qint64 start_pos;
@@ -674,7 +710,12 @@ bool RtpAudioStream::prepareForPlay(QAudioDeviceInfo out_device)
         return false;
 
     if (audio_out_rate_ == 0) {
-        emit playbackError(tr("RTP stream is empty or codec is unsupported."));
+        /* It is observed, but is not an error
+        QString error = tr("RTP stream (%1) is empty or codec is unsupported.")
+            .arg(getIDAsQString());
+
+        emit playbackError(error);
+        */
         return false;
     }
 
@@ -715,7 +756,6 @@ bool RtpAudioStream::prepareForPlay(QAudioDeviceInfo out_device)
         temp_file_->seek(start_pos);
         if (audio_output_) delete audio_output_;
         audio_output_ = new QAudioOutput(out_device, format, this);
-        audio_output_->setNotifyInterval(100); // ~15 fps
         connect(audio_output_, SIGNAL(stateChanged(QAudio::State)), this, SLOT(outputStateChanged(QAudio::State)));
         return true;
     } else {
@@ -782,15 +822,19 @@ void RtpAudioStream::outputStateChanged(QAudio::State new_state)
     // delete audio_output_ here.
     switch (new_state) {
     case QAudio::StoppedState:
-        // RTP_STREAM_DEBUG("stopped %f", audio_output_->processedUSecs() / 100000.0);
-        // Detach from parent (RtpAudioStream) to prevent deleteLater from being
-        // run during destruction of this class.
-        audio_output_->setParent(0);
-        audio_output_->disconnect();
-        audio_output_->deleteLater();
-        audio_output_ = NULL;
-        emit finishedPlaying(this);
-        break;
+        {
+            // RTP_STREAM_DEBUG("stopped %f", audio_output_->processedUSecs() / 100000.0);
+            // Detach from parent (RtpAudioStream) to prevent deleteLater
+            // from being run during destruction of this class.
+            QAudio::Error error = audio_output_->error();
+
+            audio_output_->setParent(0);
+            audio_output_->disconnect();
+            audio_output_->deleteLater();
+            audio_output_ = NULL;
+            emit finishedPlaying(this, error);
+            break;
+        }
     case QAudio::IdleState:
         // Workaround for Qt behaving on some platforms with some soundcards:
         // When ->stop() is called from outputStateChanged(), QMutexLocker is
