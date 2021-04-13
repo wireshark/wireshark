@@ -867,6 +867,23 @@ class TestDissectProtobuf:
         assert not grep_output(stdout, '.last_field_for_wireshark_test')
         assert not grep_output(stdout, 'Protobuf: Error')
 
+class TestDissectRtpproxy:
+    def test_rtpengine_bencode_good(self, cmd_tshark, capture_file, test_env):
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('rtpengine_good_bencode.pcap'),
+                '-d', 'udp.port==12222,rtpproxy',
+                '-Y', 'rtpproxy.cookie == "19384_1139339" && bencode.str == "sdp"',
+            ), encoding='utf-8', env=test_env)
+        assert grep_output(stdout, 'RTPproxy-ng')
+
+    def test_rtpengine_bencode_bad(self, cmd_tshark, capture_file, test_env):
+        stdout = subprocess.check_output((cmd_tshark,
+                '-r', capture_file('rtpengine_bad_bencode.pcap'),
+                '-d', 'udp.port==12222,rtpproxy',
+                '-Y', 'rtpproxy.cookie == "19509_1136304" && bencode.str == "delete"',
+            ), encoding='utf-8', env=test_env)
+        assert grep_output(stdout, 'RTPproxy-ng')
+
 class TestDissectTcp:
     @staticmethod
     def check_tcp_out_of_order(cmd_tshark, dirs, test_env, extraArgs=[]):
