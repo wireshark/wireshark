@@ -884,45 +884,56 @@ int main(int argc, char *qt_argv[])
         }
     }
 
+    /*
+     * If requested, list the link layer types and/or time stamp types
+     * and exit.
+     */
     if (caps_queries) {
-        /* Get the list of link-layer types for the capture devices. */
-        if_capabilities_t *caps;
         guint i;
-        interface_t *device;
-        for (i = 0; i < global_capture_opts.all_ifaces->len; i++) {
+
+        /* Get the list of link-layer types for the capture devices. */
+        for (i = 0; i < global_capture_opts.ifaces->len; i++) {
+            interface_options *interface_opts;
+            if_capabilities_t *caps;
+            char *auth_str = NULL;
             int if_caps_queries = caps_queries;
-            device = &g_array_index(global_capture_opts.all_ifaces, interface_t, i);
-            if (device->selected) {
-#if defined(HAVE_PCAP_CREATE)
-                caps = capture_get_if_capabilities(device->name, device->monitor_mode_supported, NULL, &err_str, &err_str_secondary, main_window_update);
-#else
-                caps = capture_get_if_capabilities(device->name, FALSE, NULL, &err_str, &err_str_secondary, main_window_update);
-#endif
-                if (caps == NULL) {
-                    cmdarg_err("%s%s%s", err_str, err_str_secondary ? "\n" : "", err_str_secondary ? err_str_secondary : "");
-                    g_free(err_str);
-                    g_free(err_str_secondary);
-                    ret_val = INVALID_CAPABILITY;
-                    goto clean_exit;
-                }
-                if (caps->data_link_types == NULL) {
-                    cmdarg_err("The capture device \"%s\" has no data link types.", device->name);
-                    ret_val = IFACE_HAS_NO_LINK_TYPES;
-                    goto clean_exit;
-                }
-#ifdef _WIN32
-                create_console();
-#endif /* _WIN32 */
-#if defined(HAVE_PCAP_CREATE)
-                if (device->monitor_mode_supported)
-                    if_caps_queries |= CAPS_MONITOR_MODE;
-#endif
-                capture_opts_print_if_capabilities(caps, device->name, if_caps_queries);
-#ifdef _WIN32
-                destroy_console();
-#endif /* _WIN32 */
-                free_if_capabilities(caps);
+
+            interface_opts = &g_array_index(global_capture_opts.ifaces, interface_options, i);
+#ifdef HAVE_PCAP_REMOTE
+            if (interface_opts->auth_type == CAPTURE_AUTH_PWD) {
+                auth_str = g_strdup_printf("%s:%s", interface_opts->auth_username, interface_opts->auth_password);
             }
+#endif
+            caps = capture_get_if_capabilities(interface_opts->name, interface_opts->monitor_mode,
+                                               auth_str, &err_str, &err_str_secondary, NULL);
+            g_free(auth_str);
+            if (caps == NULL) {
+                cmdarg_err("%s%s%s", err_str, err_str_secondary ? "\n" : "", err_str_secondary ? err_str_secondary : "");
+                g_free(err_str);
+                g_free(err_str_secondary);
+                ret_val = INVALID_CAPABILITY;
+                goto clean_exit;
+            }
+            if ((if_caps_queries & CAPS_QUERY_LINK_TYPES) && caps->data_link_types == NULL) {
+                cmdarg_err("The capture device \"%s\" has no data link types.", interface_opts->name);
+                ret_val = IFACE_HAS_NO_LINK_TYPES;
+                goto clean_exit;
+            }
+            if ((if_caps_queries & CAPS_QUERY_TIMESTAMP_TYPES) && caps->timestamp_types == NULL) {
+                cmdarg_err("The capture device \"%s\" has no timestamp types.", interface_opts->name);
+                ret_val = INVALID_TIMESTAMP_TYPE;
+                goto clean_exit;
+            }
+#ifdef _WIN32
+            create_console();
+#endif /* _WIN32 */
+            if (interface_opts->monitor_mode)
+                if_caps_queries |= CAPS_MONITOR_MODE;
+            capture_opts_print_if_capabilities(caps, interface_opts->name, if_caps_queries);
+#ifdef _WIN32
+            destroy_console();
+#endif /* _WIN32 */
+            free_if_capabilities(caps);
         }
         ret_val = EXIT_SUCCESS;
         goto clean_exit;

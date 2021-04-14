@@ -2184,7 +2184,10 @@ main(int argc, char *argv[])
       goto clean_exit;
     }
 
-    /* if requested, list the link layer types and exit */
+    /*
+     * If requested, list the link layer types and/or time stamp types
+     * and exit.
+     */
     if (caps_queries) {
       guint i;
 
