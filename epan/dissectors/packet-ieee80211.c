@@ -3787,6 +3787,7 @@ static int hf_ieee80211_ranging_trigger_reserved2 = -1;
 static int hf_ieee80211_ranging_trigger_sounding_dialog_token = -1;
 static int hf_ieee80211_he_trigger_ranging_trigger_poll_rpt = -1;
 static int hf_ieee80211_ranging_pol_rpt_aid12_rsid12 = -1;
+static int hf_ieee80211_ranging_pol_rpt_ru_alloc_region = -1;
 static int hf_ieee80211_ranging_pol_rpt_ru_alloc = -1;
 static int hf_ieee80211_ranging_pol_rpt_ul_fec_coding_type = -1;
 static int hf_ieee80211_ranging_pol_rpt_ulmcs = -1;
@@ -30687,6 +30688,7 @@ add_he_trigger_user_info(proto_tree *tree, tvbuff_t *tvb, int offset,
  */
 static int * const poll_rpt_hdrs[] = {
   &hf_ieee80211_ranging_pol_rpt_aid12_rsid12,
+  &hf_ieee80211_ranging_pol_rpt_ru_alloc_region,
   &hf_ieee80211_ranging_pol_rpt_ru_alloc,
   &hf_ieee80211_ranging_pol_rpt_ul_fec_coding_type,
   &hf_ieee80211_ranging_pol_rpt_ulmcs,
@@ -46707,9 +46709,14 @@ proto_register_ieee80211(void)
      {"AID12/RSID12", "wlan.trigger.he.ranging.poll_rpt.aid12_rsid12",
       FT_UINT40, BASE_DEC, NULL, 0x0000000fff, NULL, HFILL }},
 
+    {&hf_ieee80211_ranging_pol_rpt_ru_alloc_region,
+     {"RU Allocation Region", "wlan.trigger.he.ranging.poll_rpt.ru_allocation_region",
+      FT_UINT40, BASE_CUSTOM, CF_FUNC(he_trigger_ru_allocation_region_custom),
+      0x0000001000, NULL, HFILL }},
+
     {&hf_ieee80211_ranging_pol_rpt_ru_alloc,
      {"RU Allocation", "wlan.trigger.he.ranging.poll_rpt.ru_allocation",
-      FT_UINT40, BASE_CUSTOM, CF_FUNC(he_ru_allocation_base_custom), 0x00000ff000, NULL, HFILL }},
+      FT_UINT40, BASE_CUSTOM, CF_FUNC(he_ru_allocation_base_custom), 0x00000fe000, NULL, HFILL }},
 
     {&hf_ieee80211_ranging_pol_rpt_ul_fec_coding_type,
      {"UL FEC Coding Type",
