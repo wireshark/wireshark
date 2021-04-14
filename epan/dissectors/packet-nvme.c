@@ -1025,9 +1025,9 @@ static void dissect_nvme_identify_ctrl_resp_nvmeof(tvbuff_t *cmd_tvb, proto_tree
     ti = proto_tree_add_item(cmd_tree, hf_nvme_identify_ctrl_nvmeof, cmd_tvb, 1792, 256, ENC_NA);
     grp =  proto_item_add_subtree(ti, ett_data);
 
-    ti = proto_tree_add_item(grp, hf_nvme_identify_ctrl_nvmeof_ioccsz, cmd_tvb, 1792, 4, ENC_LITTLE_ENDIAN);
-    ti = proto_tree_add_item(grp, hf_nvme_identify_ctrl_nvmeof_iorcsz, cmd_tvb, 1796, 4, ENC_LITTLE_ENDIAN);
-    ti = proto_tree_add_item(grp, hf_nvme_identify_ctrl_nvmeof_icdoff, cmd_tvb, 1800, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(grp, hf_nvme_identify_ctrl_nvmeof_ioccsz, cmd_tvb, 1792, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(grp, hf_nvme_identify_ctrl_nvmeof_iorcsz, cmd_tvb, 1796, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(grp, hf_nvme_identify_ctrl_nvmeof_icdoff, cmd_tvb, 1800, 2, ENC_LITTLE_ENDIAN);
 
     add_group_mask_entry(cmd_tvb, grp, 1802, 1, ASPEC(hf_nvme_identify_ctrl_nvmeof_fcatt));
     proto_tree_add_item(grp, hf_nvme_identify_ctrl_nvmeof_msdbd, cmd_tvb, 1803, 1, ENC_LITTLE_ENDIAN);
