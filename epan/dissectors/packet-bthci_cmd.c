@@ -9082,10 +9082,6 @@ dissect_eir_ad_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, bluetoo
                 {
                     call_dissector(gaen_handle, tvb, pinfo, entry_tree);
                 }
-                else if (uuid.bt_uuid == 0xFE95 && btmijia_beacon_handle)
-                {
-                    call_dissector(btmijia_beacon_handle, tvb_new_subset_length(tvb, offset, length), pinfo, proto_tree_get_root(tree));
-                }
                 else
                 {
                     proto_tree_add_item(entry_tree, hf_btcommon_eir_ad_service_data, tvb, offset, length - 2, ENC_NA);
@@ -10788,7 +10784,6 @@ proto_reg_handoff_btcommon(void)
     btmesh_pbadv_handle = find_dissector("btmesh.pbadv");
     btmesh_beacon_handle = find_dissector("btmesh.beacon");
     gaen_handle = find_dissector("bluetooth.gaen");
-    btmijia_beacon_handle = find_dissector("mijia.beacon");
 }
 
 
