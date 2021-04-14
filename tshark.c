@@ -2196,7 +2196,6 @@ main(int argc, char *argv[])
         interface_options *interface_opts;
         if_capabilities_t *caps;
         char *auth_str = NULL;
-        int if_caps_queries = caps_queries;
 
         interface_opts = &g_array_index(global_capture_opts.ifaces, interface_options, i);
 #ifdef HAVE_PCAP_REMOTE
@@ -2214,20 +2213,11 @@ main(int argc, char *argv[])
           exit_status = INVALID_CAPABILITY;
           goto clean_exit;
         }
-        if ((if_caps_queries & CAPS_QUERY_LINK_TYPES) && caps->data_link_types == NULL) {
-          cmdarg_err("The capture device \"%s\" has no data link types.", interface_opts->name);
-          exit_status = IFACE_HAS_NO_LINK_TYPES;
-          goto clean_exit;
-        }
-        if ((if_caps_queries & CAPS_QUERY_TIMESTAMP_TYPES) && caps->timestamp_types == NULL) {
-          cmdarg_err("The capture device \"%s\" has no timestamp types.", interface_opts->name);
-          exit_status = INVALID_TIMESTAMP_TYPE;
-          goto clean_exit;
-        }
-        if (interface_opts->monitor_mode)
-          if_caps_queries |= CAPS_MONITOR_MODE;
-        capture_opts_print_if_capabilities(caps, interface_opts->name, if_caps_queries);
+        exit_status = capture_opts_print_if_capabilities(caps, interface_opts,
+                                                         caps_queries);
         free_if_capabilities(caps);
+        if (exit_status != EXIT_SUCCESS)
+          goto clean_exit;
       }
       exit_status = EXIT_SUCCESS;
       goto clean_exit;

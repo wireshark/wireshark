@@ -26,6 +26,7 @@
 
 #include <ui/clopts_common.h>
 #include <ui/cmdarg_err.h>
+#include <ui/exit_codes.h>
 #include <wsutil/file_util.h>
 #include <wsutil/ws_pipe.h>
 
@@ -1002,17 +1003,26 @@ capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg_
     return 0;
 }
 
-void
-capture_opts_print_if_capabilities(if_capabilities_t *caps, char *name, int queries)
+int
+capture_opts_print_if_capabilities(if_capabilities_t *caps,
+                                   interface_options *interface_opts,
+                                   int queries)
 {
     GList *lt_entry, *ts_entry;
 
     if (queries & CAPS_QUERY_LINK_TYPES) {
+        if (caps->data_link_types == NULL) {
+            cmdarg_err("The capture device \"%s\" has no data link types.",
+                       interface_opts->name);
+            return IFACE_HAS_NO_LINK_TYPES;
+        }
         if (caps->can_set_rfmon)
             printf("Data link types of interface %s when %sin monitor mode (use option -y to set):\n",
-                   name, (queries & CAPS_MONITOR_MODE) ? "" : "not ");
+                   interface_opts->name,
+                   (interface_opts->monitor_mode) ? "" : "not ");
         else
-            printf("Data link types of interface %s (use option -y to set):\n", name);
+            printf("Data link types of interface %s (use option -y to set):\n",
+                   interface_opts->name);
         for (lt_entry = caps->data_link_types; lt_entry != NULL;
              lt_entry = g_list_next(lt_entry)) {
             data_link_info_t *data_link_info = (data_link_info_t *)lt_entry->data;
@@ -1026,6 +1036,11 @@ capture_opts_print_if_capabilities(if_capabilities_t *caps, char *name, int quer
     }
 
     if (queries & CAPS_QUERY_TIMESTAMP_TYPES) {
+        if (caps->timestamp_types == NULL) {
+            cmdarg_err("The capture device \"%s\" has no timestamp types.",
+                       interface_opts->name);
+            return IFACE_HAS_NO_TIMESTAMP_TYPES;
+        }
         printf("Timestamp types of the interface (use option --time-stamp-type to set):\n");
         for (ts_entry = caps->timestamp_types; ts_entry != NULL;
              ts_entry = g_list_next(ts_entry)) {
@@ -1038,6 +1053,7 @@ capture_opts_print_if_capabilities(if_capabilities_t *caps, char *name, int quer
             printf("\n");
         }
     }
+    return EXIT_SUCCESS;
 }
 
 /* Print an ASCII-formatted list of interfaces. */

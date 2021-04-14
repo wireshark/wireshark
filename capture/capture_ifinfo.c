@@ -322,15 +322,6 @@ capture_get_if_capabilities(const gchar *ifname, gboolean monitor_mode,
 
     g_strfreev(raw_list);
 
-    /* Check to see if we built a list */
-    if (linktype_list == NULL) {
-        /* No. */
-        if (err_primary_msg)
-            *err_primary_msg = g_strdup("Dumpcap returned no link-layer types");
-        g_free(caps);
-        return NULL;
-    }
-
     caps->data_link_types = linktype_list;
     /* Might be NULL. Not all systems report timestamp types */
     caps->timestamp_types = timestamp_list;

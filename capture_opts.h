@@ -341,14 +341,15 @@ extern void
 capture_opts_log(const char *log_domain, GLogLevelFlags log_level, capture_options *capture_opts);
 
 enum caps_query {
-    CAPS_MONITOR_MODE          = 0x1,
-    CAPS_QUERY_LINK_TYPES      = 0x2,
-    CAPS_QUERY_TIMESTAMP_TYPES = 0x4
+    CAPS_QUERY_LINK_TYPES      = 0x1,
+    CAPS_QUERY_TIMESTAMP_TYPES = 0x2
 };
 
 /* print interface capabilities, including link layer types */
-extern void
-capture_opts_print_if_capabilities(if_capabilities_t *caps, char *name, int queries);
+extern int
+capture_opts_print_if_capabilities(if_capabilities_t *caps,
+                                   interface_options *interface_opts,
+                                   int queries);
 
 /* print list of interfaces */
 extern void

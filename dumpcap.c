@@ -5472,7 +5472,6 @@ main(int argc, char *argv[])
         guint  ii;
 
         for (ii = 0; ii < global_capture_opts.ifaces->len; ii++) {
-            int if_caps_queries = caps_queries;
             interface_options *interface_opts;
 
             interface_opts = &g_array_index(global_capture_opts.ifaces, interface_options, ii);
@@ -5496,23 +5495,21 @@ main(int argc, char *argv[])
                 g_free(err_str);
                 exit_main(2);
             }
-            if ((if_caps_queries & CAPS_QUERY_LINK_TYPES) && caps->data_link_types == NULL) {
-                cmdarg_err("The capture device \"%s\" has no data link types.", interface_opts->name);
-                exit_main(2);
-            } /* No timestamp types is no big deal. So we will just ignore it */
 
-            if (interface_opts->monitor_mode)
-                if_caps_queries |= CAPS_MONITOR_MODE;
-
-            if (machine_readable)      /* tab-separated values to stdout */
+            if (machine_readable) {     /* tab-separated values to stdout */
                 /* XXX: We need to change the format and adapt consumers */
-                print_machine_readable_if_capabilities(caps, if_caps_queries);
-            else
+                print_machine_readable_if_capabilities(caps, caps_queries);
+                status = 0;
+	    } else
                 /* XXX: We might want to print also the interface name */
-                capture_opts_print_if_capabilities(caps, interface_opts->name, if_caps_queries);
+                status = capture_opts_print_if_capabilities(caps,
+                                                            interface_opts,
+                                                            caps_queries);
             free_if_capabilities(caps);
+            if (status != 0)
+                break;
         }
-        exit_main(0);
+        exit_main(status);
     }
 
 #ifdef HAVE_PCAP_SET_TSTAMP_TYPE

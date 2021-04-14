@@ -896,7 +896,6 @@ int main(int argc, char *qt_argv[])
             interface_options *interface_opts;
             if_capabilities_t *caps;
             char *auth_str = NULL;
-            int if_caps_queries = caps_queries;
 
             interface_opts = &g_array_index(global_capture_opts.ifaces, interface_options, i);
 #ifdef HAVE_PCAP_REMOTE
@@ -914,26 +913,17 @@ int main(int argc, char *qt_argv[])
                 ret_val = INVALID_CAPABILITY;
                 goto clean_exit;
             }
-            if ((if_caps_queries & CAPS_QUERY_LINK_TYPES) && caps->data_link_types == NULL) {
-                cmdarg_err("The capture device \"%s\" has no data link types.", interface_opts->name);
-                ret_val = IFACE_HAS_NO_LINK_TYPES;
-                goto clean_exit;
-            }
-            if ((if_caps_queries & CAPS_QUERY_TIMESTAMP_TYPES) && caps->timestamp_types == NULL) {
-                cmdarg_err("The capture device \"%s\" has no timestamp types.", interface_opts->name);
-                ret_val = INVALID_TIMESTAMP_TYPE;
-                goto clean_exit;
-            }
 #ifdef _WIN32
             create_console();
 #endif /* _WIN32 */
-            if (interface_opts->monitor_mode)
-                if_caps_queries |= CAPS_MONITOR_MODE;
-            capture_opts_print_if_capabilities(caps, interface_opts->name, if_caps_queries);
+            ret_val = capture_opts_print_if_capabilities(caps, interface_opts,
+                                                         caps_queries);
 #ifdef _WIN32
             destroy_console();
 #endif /* _WIN32 */
             free_if_capabilities(caps);
+            if (ret_val != EXIT_SUCCESS)
+                goto clean_exit;
         }
         ret_val = EXIT_SUCCESS;
         goto clean_exit;
