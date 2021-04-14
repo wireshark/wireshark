@@ -58,6 +58,12 @@ iousers_draw(void *arg)
 		printf("%s                                               | Frames  Size  | | Frames  Size  | | Frames  Size  |     Start      |              |\n",
 			display_ports ? "            " : "");
 		break;
+	case TS_EPOCH:
+		printf("%s                                               |       <-      | |       ->      | |     Total     |       Relative       |   Duration   |\n",
+			display_ports ? "            " : "");
+		printf("%s                                               | Frames  Bytes | | Frames  Bytes | | Frames  Bytes |         Start        |              |\n",
+			display_ports ? "            " : "");
+		break;
 	case TS_RELATIVE:
 	case TS_NOT_SET:
 	default:
@@ -206,6 +212,9 @@ iousers_draw(void *arg)
 							 tm_time->tm_sec);
 					} else
 						printf("XXXX/XXX XX:XX:XX");
+					break;
+				case TS_EPOCH:
+					printf("%20.9f", nstime_to_sec(&iui->start_abs_time));
 					break;
 				case TS_RELATIVE:
 				case TS_NOT_SET:
