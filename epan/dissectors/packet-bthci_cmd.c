@@ -1093,7 +1093,6 @@ static dissector_handle_t btmesh_handle;
 static dissector_handle_t btmesh_pbadv_handle;
 static dissector_handle_t btmesh_beacon_handle;
 static dissector_handle_t gaen_handle;
-static dissector_handle_t btmijia_beacon_handle;
 
 static dissector_table_t  bluetooth_eir_ad_manufacturer_company_id;
 static dissector_table_t  bluetooth_eir_ad_tds_organization_id;
