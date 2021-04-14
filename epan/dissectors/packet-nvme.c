@@ -368,6 +368,17 @@ static int hf_nvme_get_logpage_pred_lat_dtwin_te = -1;
 static int hf_nvme_get_logpage_pred_lat_rsvd3 = -1;
 static int hf_nvme_get_logpage_pred_lat_aggreg_ne = -1;
 static int hf_nvme_get_logpage_pred_lat_aggreg_nset = -1;
+static int hf_nvme_get_logpage_ana_chcnt = -1;
+static int hf_nvme_get_logpage_ana_ngd = -1;
+static int hf_nvme_get_logpage_ana_rsvd = -1;
+static int hf_nvme_get_logpage_ana_grp = -1;
+static int hf_nvme_get_logpage_ana_grp_id = -1;
+static int hf_nvme_get_logpage_ana_grp_nns = -1;
+static int hf_nvme_get_logpage_ana_grp_chcnt = -1;
+static int hf_nvme_get_logpage_ana_grp_anas[3] = { NEG_LST_3 };
+static int hf_nvme_get_logpage_ana_grp_rsvd = -1;
+static int hf_nvme_get_logpage_ana_grp_nsid = -1;
+
 
 /* NVMe CQE fields */
 static int hf_nvme_cqe_sts = -1;
@@ -2135,7 +2146,6 @@ static void dissect_nvme_get_logpage_pred_lat_resp(proto_item *ti, tvbuff_t *cmd
     if (poff > len)
         return;
     proto_tree_add_item(grp, hf_nvme_get_logpage_pred_lat_rsvd3,  cmd_tvb, poff, len - poff, ENC_NA);
-
 }
 
 static void dissect_nvme_get_logpage_pred_lat_aggreg_resp(proto_item *ti, tvbuff_t *cmd_tvb, struct nvme_cmd_ctx *cmd_ctx, guint len)
@@ -2164,6 +2174,96 @@ static void dissect_nvme_get_logpage_pred_lat_aggreg_resp(proto_item *ti, tvbuff
     }
 }
 
+static const value_string ana_state_tbl[] = {
+    { 0x1,  "ANA Optimized State" },
+    { 0x2,  "ANA Non-Optimized State" },
+    { 0x3,  "ANA Inaccessible State" },
+    { 0x4,  "ANA Persistent Loss State" },
+    { 0xF,  "ANA Change Sate" },
+    { 0, NULL}
+};
+
+static guint dissect_nvme_get_logpage_ana_resp_grp(proto_tree *grp, tvbuff_t *cmd_tvb, guint len, guint32 poff)
+{
+    guint done = 0;
+    guint bytes;
+    proto_item *ti;
+
+    if (len < 4)
+        return 0;
+
+    if (len < 8) {
+        bytes = len;
+    } else {
+        bytes = 32 + 4 * tvb_get_guint32(cmd_tvb, poff+4, ENC_LITTLE_ENDIAN);
+        if (bytes > len)
+            bytes = len;
+    }
+    ti = proto_tree_add_bytes_format_value(grp, hf_nvme_get_logpage_ana_grp, cmd_tvb, poff, bytes, NULL,
+            "ANA Group Descriptor");
+    grp =  proto_item_add_subtree(ti, ett_data);
+
+    proto_tree_add_item(grp, hf_nvme_get_logpage_ana_grp_id,  cmd_tvb, poff, 4, ENC_LITTLE_ENDIAN);
+    done += 4;
+
+    if ((len - done) < 4)
+        return done;
+    proto_tree_add_item(grp, hf_nvme_get_logpage_ana_grp_nns,  cmd_tvb, poff+4, 4, ENC_LITTLE_ENDIAN);
+    done += 4;
+
+    if ((len - done) < 8)
+        return done;
+    proto_tree_add_item(grp, hf_nvme_get_logpage_ana_grp_chcnt,  cmd_tvb, poff+8, 8, ENC_LITTLE_ENDIAN);
+    done += 4;
+
+    if ((len - done) < 1)
+        return done;
+    add_group_mask_entry(cmd_tvb, grp, poff+16, 1, ASPEC(hf_nvme_get_logpage_ana_grp_anas));
+    done += 1;
+
+    if ((len - done) < 15)
+        return done;
+    proto_tree_add_item(grp, hf_nvme_get_logpage_ana_grp_rsvd,  cmd_tvb, poff+17, 15, ENC_NA);
+    done += 4;
+
+    poff += 32;
+    while ((len - done) >= 4) {
+        proto_tree_add_item(grp, hf_nvme_get_logpage_ana_grp_nsid,  cmd_tvb, poff, 2, ENC_LITTLE_ENDIAN);
+        poff += 2;
+        done += 2;
+    }
+    return done;
+}
+
+static void dissect_nvme_get_logpage_ana_resp_header(proto_tree *grp, tvbuff_t *cmd_tvb, guint len, guint32 off)
+{
+    if (!off && len >= 8)
+        proto_tree_add_item(grp, hf_nvme_get_logpage_ana_chcnt,  cmd_tvb, off, 8, ENC_LITTLE_ENDIAN);
+    if (off <= 8 && (10 - off) <= len)
+        proto_tree_add_item(grp, hf_nvme_get_logpage_ana_ngd,  cmd_tvb, 8-off, 2, ENC_LITTLE_ENDIAN);
+    if (off <= 10 && (16 - off) <= len)
+        proto_tree_add_item(grp, hf_nvme_get_logpage_ana_rsvd,  cmd_tvb, 10-off, 6, ENC_LITTLE_ENDIAN);
+}
+
+static void dissect_nvme_get_logpage_ana_resp(proto_item *ti, tvbuff_t *cmd_tvb, struct nvme_cmd_ctx *cmd_ctx, guint len)
+{
+    guint32 off = cmd_ctx->cmd_ctx.get_logpage.off & 0xffffffff; /* need guint type to silence clang-11 errors */
+    proto_tree *grp;
+    guint poff = 0;
+
+
+    grp =  proto_item_add_subtree(ti, ett_data);
+    if (cmd_ctx->cmd_ctx.get_logpage.off < 16) {
+        dissect_nvme_get_logpage_ana_resp_header(grp, cmd_tvb, len, off);
+        poff = 16 - off;
+    }
+    len -= poff;
+    while (len >= 4) {
+        guint done = dissect_nvme_get_logpage_ana_resp_grp(grp, cmd_tvb, len, poff);
+        poff += done;
+        len -= done;
+    }
+}
 
 static void dissect_nvme_get_logpage_resp(tvbuff_t *cmd_tvb, proto_tree *cmd_tree, struct nvme_cmd_ctx *cmd_ctx, guint len)
 {
@@ -2193,6 +2293,8 @@ static void dissect_nvme_get_logpage_resp(tvbuff_t *cmd_tvb, proto_tree *cmd_tre
             return dissect_nvme_get_logpage_pred_lat_resp(ti, cmd_tvb, cmd_ctx, len);
         case 0xB:
             return dissect_nvme_get_logpage_pred_lat_aggreg_resp(ti, cmd_tvb, cmd_ctx, len);
+        case 0xC:
+            return dissect_nvme_get_logpage_ana_resp(ti, cmd_tvb, cmd_ctx, len);
         default:
             return;
     }
@@ -4572,6 +4674,55 @@ proto_register_nvme(void)
         },
         { &hf_nvme_get_logpage_pred_lat_aggreg_nset,
             { "NVM Set with Pending Predictable Latency Event", "nvme.cmd.get_logpage.pred_lat_aggreg.nset",
+               FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        /* ANA Response */
+        { &hf_nvme_get_logpage_ana_chcnt,
+            { "Change Count", "nvme.cmd.get_logpage.ana.chcnt",
+               FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_ana_ngd,
+            { "Number of ANA Group Descriptors", "nvme.cmd.get_logpage.ana.ngd",
+               FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_ana_rsvd,
+            { "Reserved", "nvme.cmd.get_logpage.ana.rsvd",
+               FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_ana_grp,
+            { "ANA Group Descriptor", "nvme.cmd.get_logpage.ana.grp",
+               FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_ana_grp_id,
+            { "ANA Group ID", "nvme.cmd.get_logpage.ana.grp.id",
+               FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_ana_grp_nns,
+            { "Number of NSID Values", "nvme.cmd.get_logpage.ana.grp.nns",
+               FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_ana_grp_chcnt,
+            { "Change Count", "nvme.cmd.get_logpage.ana.grp.chcnt",
+               FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_ana_grp_anas[0],
+            { "ANA State", "nvme.cmd.get_logpage.ana.grp.anas",
+               FT_UINT8, BASE_HEX, NULL, 0xf, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_ana_grp_anas[1],
+            { "Asymmetric Namespace Access State", "nvme.cmd.get_logpage.ana.grp.anas.state",
+               FT_UINT8, BASE_HEX, VALS(ana_state_tbl), 0xf, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_ana_grp_anas[2],
+            { "Reserved", "nvme.cmd.get_logpage.ana.grp.anas.rsvd",
+               FT_UINT8, BASE_HEX, NULL, 0xf0, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_ana_grp_rsvd,
+            { "Reserved", "nvme.cmd.get_logpage.ana.grp.rsvd",
+               FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_ana_grp_nsid,
+            { "Namespace Identifier", "nvme.cmd.get_logpage.ana.grp.nsid",
                FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}
         },
         /* NVMe Response fields */
