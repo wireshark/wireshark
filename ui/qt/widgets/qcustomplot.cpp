@@ -21821,8 +21821,10 @@ void QCPGraph::getOptimizedScatterData(QVector<QCPGraphData> *scatterData, QCPGr
         if (intervalDataCount >= 2) // last pixel had multiple data points, consolidate them
         {
           // determine value pixel span and add as many points in interval to maintain certain vertical data density (this is specific to scatter plot):
-          double valuePixelSpan = qAbs(valueAxis->coordToPixel(minValue)-valueAxis->coordToPixel(maxValue));
-          int dataModulo = qMax(1, qRound(intervalDataCount/(valuePixelSpan/4.0))); // approximately every 4 value pixels one data point on average
+          //   [ However, make sure that the span is at least 1 pixel ]
+          double valuePixelSpan = qMax(1.0, qAbs(valueAxis->coordToPixel(minValue)-valueAxis->coordToPixel(maxValue)));
+          double pointsToAdd = valuePixelSpan/4.0; // add approximately one data point for every 4 value pixels
+          int dataModulo = qMax(1, qRound(intervalDataCount/pointsToAdd));
           QCPGraphDataContainer::const_iterator intervalIt = currentIntervalStart;
           int c = 0;
           while (intervalIt != it)
@@ -21864,8 +21866,10 @@ void QCPGraph::getOptimizedScatterData(QVector<QCPGraphData> *scatterData, QCPGr
     if (intervalDataCount >= 2) // last pixel had multiple data points, consolidate them
     {
       // determine value pixel span and add as many points in interval to maintain certain vertical data density (this is specific to scatter plot):
+      //   [ However, make sure that the span is at least 1 pixel ]
       double valuePixelSpan = qAbs(valueAxis->coordToPixel(minValue)-valueAxis->coordToPixel(maxValue));
-      int dataModulo = qMax(1, qRound(intervalDataCount/(valuePixelSpan/4.0))); // approximately every 4 value pixels one data point on average
+      double pointsToAdd = valuePixelSpan/4.0; // add approximately one data point for every 4 value pixels
+      int dataModulo = qMax(1, qRound(intervalDataCount/pointsToAdd));
       QCPGraphDataContainer::const_iterator intervalIt = currentIntervalStart;
       int intervalItIndex = int(intervalIt-mDataContainer->constBegin());
       int c = 0;
