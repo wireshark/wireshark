@@ -204,10 +204,7 @@ void VoipCallsDialog::contextMenuEvent(QContextMenuEvent *event)
     QMenu popupMenu;
     QAction *action;
 
-    QMenu *selection_menu = popupMenu.addMenu(tr("Select"));
-    selection_menu->addAction(ui->actionSelectAll);
-    selection_menu->addAction(ui->actionSelectNone);
-    selection_menu->addAction(ui->actionSelectInvert);
+    popupMenu.addMenu(ui->menuSelect);
     action = popupMenu.addAction(tr("Display time as time of day"), this, SLOT(switchTimeOfDay()));
     action->setCheckable(true);
     action->setChecked(call_infos_model_->timeOfDay());

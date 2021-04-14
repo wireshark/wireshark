@@ -155,6 +155,7 @@ set(WSUG_GRAPHICS
 	wsug_graphics/ws-filter-toolbar.png
 	wsug_graphics/ws-filters.png # GTK+
 	wsug_graphics/ws-find-packet.png
+	wsug_graphics/ws-follow-sip-stream.png
 	wsug_graphics/ws-follow-stream.png
 	wsug_graphics/ws-follow-http2-stream.png
 	wsug_graphics/ws-go-menu.png

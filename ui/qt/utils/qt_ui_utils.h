@@ -21,6 +21,8 @@
 
 #include <glib.h>
 
+#include "ui/rtp_stream.h"
+
 #include <QString>
 
 class QAction;
@@ -230,6 +232,22 @@ bool rect_on_screen(const QRect &rect);
  * @param actions The actions to make visible.
  */
 void set_action_shortcuts_visible_in_context_menu(QList<QAction *> actions);
+
+/**
+ * Make display filter from list of rtpstream_id
+ *
+ * @param  List of ids
+ * @return Filter or empty string
+ */
+QString make_filter_based_on_rtpstream_id(QVector<rtpstream_id_t *> ids);
+
+/**
+ * Make display filter from list of rtpstream_infos
+ *
+ * @param  List of streams
+ * @return Filter or empty string
+ */
+QString make_filter_based_on_rtpstream_info(QVector<rtpstream_info_t *> streams);
 
 #endif /* __QT_UI_UTILS__H__ */
 

@@ -568,6 +568,7 @@
      </property>
      <addaction name="actionTelephonyRtpStreams"/>
      <addaction name="actionTelephonyRtpStreamAnalysis"/>
+     <addaction name="actionTelephonyRtpPlayer"/>
     </widget>
     <widget class="QMenu" name="menuTelephonySCTP">
      <property name="title">
@@ -2868,7 +2869,15 @@
     <string>RTP Stream Analysis</string>
    </property>
    <property name="toolTip">
-    <string>RTP Stream Analysis</string>
+    <string>RTP Stream Analysis for selected stream. Press CTRL key for adding reverse stream too.</string>
+   </property>
+  </action>
+  <action name="actionTelephonyRtpPlayer">
+   <property name="text">
+    <string>RTP Player</string>
+   </property>
+   <property name="toolTip">
+    <string>Play selected stream. Press CTRL key for playing reverse stream too.</string>
    </property>
   </action>
   <action name="actionTelephonyIax2StreamAnalysis">

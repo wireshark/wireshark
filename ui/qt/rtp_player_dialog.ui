@@ -336,6 +336,18 @@
     <string>Export audio of all unmuted selected channels or export payload of one channel.</string>
    </property>
   </action>
+  <widget class="QMenu" name="menuExport">
+   <property name="title">
+    <string>&amp;Export</string>
+   </property>
+   <property name="toolTipsVisible">
+    <bool>true</bool>
+   </property>
+   <addaction name="actionSaveAudioSyncStream"/>
+   <addaction name="actionSaveAudioSyncFile"/>
+   <addaction name="separator"/>
+   <addaction name="actionSavePayload"/>
+  </widget>
   <action name="actionSaveAudioSyncStream">
    <property name="text">
     <string>&amp;Stream Synchronized Audio</string>
@@ -470,6 +482,21 @@
     <string notr="true">Shift+G</string>
    </property>
   </action>
+  <widget class="QMenu" name="menuAudioRouting">
+   <property name="title">
+    <string>Audio Routing</string>
+   </property>
+   <property name="toolTipsVisible">
+    <bool>true</bool>
+   </property>
+   <addaction name="actionAudioRoutingMute"/>
+   <addaction name="actionAudioRoutingUnmute"/>
+   <addaction name="actionAudioRoutingMuteInvert"/>
+   <addaction name="actionAudioRoutingP"/>
+   <addaction name="actionAudioRoutingL"/>
+   <addaction name="actionAudioRoutingLR"/>
+   <addaction name="actionAudioRoutingR"/>
+  </widget>
   <action name="actionAudioRoutingMute">
    <property name="text">
     <string>Mute</string>
@@ -546,6 +573,17 @@
     <string notr="true">Delete</string>
    </property>
   </action>
+  <widget class="QMenu" name="menuSelect">
+   <property name="title">
+    <string>Select</string>
+   </property>
+   <property name="toolTipsVisible">
+    <bool>true</bool>
+   </property>
+   <addaction name="actionSelectAll"/>
+   <addaction name="actionSelectNone"/>
+   <addaction name="actionSelectInvert"/>
+  </widget>
   <action name="actionSelectAll">
    <property name="text">
     <string>All</string>
@@ -599,6 +637,54 @@
    </property>
    <property name="shortcut">
     <string notr="true">S</string>
+   </property>
+  </action>
+  <action name="actionInaudibleButton">
+   <property name="text">
+    <string>I&amp;naudible streams</string>
+   </property>
+   <property name="toolTip">
+    <string>Select/Deselect inaudible streams</string>
+   </property>
+  </action>
+  <widget class="QMenu" name="menuInaudible">
+   <property name="title">
+    <string>Inaudible streams</string>
+   </property>
+   <property name="toolTipsVisible">
+    <bool>true</bool>
+   </property>
+   <addaction name="actionSelectInaudible"/>
+   <addaction name="actionDeselectInaudible"/>
+  </widget>
+  <action name="actionSelectInaudible">
+   <property name="text">
+    <string>&amp;Select</string>
+   </property>
+   <property name="toolTip">
+    <string>Select inaudible streams</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">N</string>
+   </property>
+  </action>
+  <action name="actionDeselectInaudible">
+   <property name="text">
+    <string>&amp;Deselect</string>
+   </property>
+   <property name="toolTip">
+    <string>Deselect inaudible streams</string>
+   </property>
+   <property name="shortcut">
+    <string notr="true">Shift+N</string>
+   </property>
+  </action>
+  <action name="actionPrepareFilter">
+   <property name="text">
+    <string>Prepare &amp;Filter</string>
+   </property>
+   <property name="toolTip">
+    <string>Prepare a filter matching the selected stream(s).</string>
    </property>
   </action>
  </widget>

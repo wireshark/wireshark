@@ -21,9 +21,11 @@ specific protocols and might be described in a later version of this document.
 Some of these statistics are described at the
 {wireshark-wiki-url}Statistics pages.
 
+[[ChTelPlayingCalls]]
+
 === Playing VoIP Calls
 
-The tool for playing VoIP calls is called RTP Player. It shows RTP streams and its waveforms, allows play stream and export it as audio or payload to file.
+The tool for playing VoIP calls is called <<ChTelRtpPlayer,RTP Player>>. It shows RTP streams and its waveforms, allows play stream and export it as audio or payload to file. Its capabilites depends on supported codecs.
 
 ==== Supported codecs
 
@@ -58,7 +60,7 @@ btn:[Remove from playlist] is useful e. g. in case user selected all RTP streams
 Tools below can be used to maintain content of playlist, they contain btn:[Play Streams] button. You can use one of procedures (Note: btn:[Add to playlist] action is demonstrated):
 
 * Open menu:Telephony[RTP > RTP Streams] window, it will show all streams in the capture. Select one or more streams and then press btn:[Play Streams]. Selected streams are added to playlist.
-* Select any RTP packet in packet list, open menu:Telephony[RTP > Stream Analysis] window. It will show analysis of selected forward stream and its reverse stream, if any. Then press btn:[Play Streams]. Forward and reverse stream is added to playlist.
+* Select any RTP packet in packet list, open menu:Telephony[RTP > Stream Analysis] window. It will show analysis of selected forward stream and its reverse stream (if btn:[Ctrl] is pressed during window openning). Then press btn:[Play Streams]. Forward and reverse stream is added to playlist.
 ** menu:RTP Stream Analysis[] window can be opened from other tools too.
 * Open menu:Telephony[VoIP Calls] or menu:Telephony[SIP Flows] window, it will show all calls. Select one or more calls and then press btn:[Play Streams]. It will add all RTP streams related to selected calls to playlist.
 * Open btn:[Flow Sequence] window in menu:Telephony[VoIP Calls] or menu:Telephony[SIP Flows] window, it will show flow sequence of calls. Select any RTP stream and then press btn:[Play Streams]. It will add selected RTP stream to playlist.
@@ -69,123 +71,6 @@ image::wsug_graphics/ws-tel-playlist.png[]
 [NOTE]
 ====
 Same approach with set/add/remove actions is used for RTP Stream Analysis window. The playlist is there handled as different tabs in the window, see <<ChTelRTPAnalysis,RTP Stream Analysis>> window.
-====
-
-==== RTP Player Window
-
-[[ChTelRtpPlayer]]
-
-.RTP Player window
-image::wsug_graphics/ws-tel-rtp-player_1.png[{screenshot-attrs}]
-
-RTP Player Window consists of three parts:
-
-. Waveform view
-. Playlist
-. Controls
-
-Waveform view shows visual presentation of RTP stream.  Color of waveform and playlist row is matching. Height of wave shows volume.
-
-Waveform shows error marks for Out of Sequence, Jitter Drops, Wrong Timestamps and Inserted Silence marks if it happens in a stream.
-
-.Waveform with error marks
-image::wsug_graphics/ws-tel-rtp-player_3.png[{screenshot-attrs}]
-
-Playlist shows information about every stream:
-
-* Play - Audio routing
-* Source Address, Source Port, Destination Address, Destination Port, SSRC
-* Setup Frame
-** SETUP <number> is shown, when there is known signaling packet. Number is packet number of signaling packet. Note: Word SETUP is shown even RTP stream was initiated e. g. by SKINNY where no SETUP message exists.
-** RTP <number> is shown, when no related signaling was found. Number is packet number of first packet of the stream.
-* Packets - Count of packets in the stream.
-* Time Span - Start - Stop (Duration) of the stream
-* SR - Sample rate of used codec
-* PR - Decoded play rate used for stream playing
-* Payloads - One or more playload types used by the stream
-
-[NOTE]
-====
-When rtp_udp is active, most of streams shows just RTP <number> even there is setup frame in capture.
-
-When RTP stream contains multiple codecs, SR and PR is based on first observed coded. Later codecs in stream are resampled to first one.
-====
-
-Controls allow a user to:
-
-* btn:[Start]/btn:[Pause]/btn:[Stop] playing of unmuted streams
-* Select btn:[Output audio device] and btn:[Output audio rate]
-* Select btn:[Playback Timing]
-** Jitter Buffer - Packets outside btn:[Jitter Buffer] size are discarded during decoding
-** RTP Timestamp - Packets are ordered and played by its Timestamp, no Jitter Buffer is used
-** Uninterrupted Mode - All gaps (e. g. Comfort Noise, lost packets) are discarded therefore audio is shorted than timespan
-* btn:[Time of Day] selects whether waveform timescale is shown in seconds from start of capture or in absolute time of received packets
-* btn:[Export] - See <<tel-rtp-export>>.
-
-.RTP stream state indication
-image::wsug_graphics/ws-tel-rtp-player_2.png[{screenshot-attrs}]
-
-Waveform view and playlist shows state of a RTP stream:
-
-. stream is muted (dashed waveform, menu:Muted[] is shown in Play column) or unmuted (non-dashed waveform, audio routing is shown in Play column)
-. stream is selected (blue waveform, blue row)
-. stream is below mouse cursor (bold waveform, bold font)
-
-User can control to where audio of a stream is routed to:
-
-* L - Left channel
-* L+R - Left and Right (Middle) channel
-* R - Left channel
-* P - Play (when mono soundcard is available only)
-* M - Muted
-
-Audio routing can be changed by double clicking on first column of a row, by shortcut or by menu.
-
-User can use shortcuts:
-
-* Selection
-** kbd:[Ctrl + A] - Select all streams
-** kbd:[Ctrl + I] - Invert selection
-** kbd:[Ctrl + Shift + A] - Select none
-** Note: Common kbd:[Mouse click], kbd:[Shift + Mouse click] and kbd:[Ctrl + Mouse click] works too
-* Go to packet
-** kbd:[G] - Go to packet of stream under the mouse cursor
-** kbd:[Shift + G] - Go to setup packet of stream under the mouse cursor
-* Audio routing
-** kbd:[M] - Mute
-** kbd:[Shift + M] - Unmute
-** kbd:[Ctrl + M] - Invert muting
-* kbd:[P] - Play audio
-* kbd:[S] - Stop playing
-* kbd:[Del] or kbd:[Ctrl + X] - Remove stream from playlist
-
-[[tel-rtp-export]]
-
-===== Export
-
-[NOTE]
-====
-menu:Export[] was moved from menu:RTP Stream Analysis[] window to menu:RTP Player[] window in 3.5.0.
-
-Wireshark is able to export decoded audio in .au or .wav file format. Prior to version 3.2.0, Wireshark only supports exporting audio using the G.711 codec. From 3.2.0 it supports audio export using any codec with 8000 Hz sampling. From 3.5.0 is supported export of any codec, rate is defined by Output Audio Rate.
-====
-
-Export options available:
-* for one or more selected non-muted streams
-  * Stream Synchronized Audio - streams are synchronized to earliest stream in export (there is no silence at beginning of it)
-  * File Synchronized Audio - streams starts at beginning of file, therefore silence can be at start of file
-* for just one selected stream
-  * Payload - just payload with no information about coded is stored in the file
-
-Audio is exported as multi-channel file - one channel per RTP stream. One or two channels are equal to mono or stereo, but Wireshark can export e g. 100 channels. For later playing a tool with multi-channel support must be used (e.g. https://www.audacityteam.org/).
-
-Payload export is useful for codecs not supported by Wireshark.
-
-[NOTE]
-====
-Default value of btn:[Output Audio Rate] is btn:[Automatic]. When multiple codecs with different codec rates are captured, Wireshark decodes each stream with its own play audio rate. Therefore each stream can has different play audio rate. When export of audio is used in this case, it will fail because .au or .wav requires one common play audio rate.
-
-In this case user must manually select one of rates in btn:[Output Audio Rate], streams will be resampled and audio export succeeds.
 ====
 
 ==== RTP Decoding Settings
@@ -250,7 +135,7 @@ Available controls are:
 * btn:[Time of Day] switches format of shown time between relative to start of capture or absolute time of received packets.
 * btn:[Flow Sequence] opens <<ChStatFlowGraph,Flow Sequence>> window and shows selected calls in it.
 * btn:[Prepare Filter] generates display filter matching to selected calls (signaling and RTP streams) and apply it.
-* btn:[Play Streams] opens <<ChTelRtpPlayer,RTP Player>> window.
+* btn:[Play Streams] opens <<ChTelRtpPlayer,RTP Player>> window. Actions btn:[Set], btn:[Add] and btn:[Remove] are available.
 * btn:[Copy] copies information from table to clipboard in CSV or YAML.
 
 [[ChTelANSI]]
@@ -372,7 +257,10 @@ User can use shortcuts:
 ** kbd:[Ctrl + I] - Invert selection
 ** kbd:[Ctrl + Shift + A] - Select none
 ** Note: Common kbd:[Mouse click], kbd:[Shift + Mouse click] and kbd:[Ctrl + Mouse click] works too
-* kbd:[R] - Try search for reverse stream. If found, selects it in the list.
+* Find Reverse
+** kbd:[R] - Try search for reverse streams related to already selected streams. If found, selects them in the list too.
+** btn:[Shift+R] - Select all pair streams (forward/reverse relation).
+** btn:[Ctrl+R] - Select all single streams (no reverse stream does exist).
 * kbd:[G] - Go to packet of stream under the mouse cursor.
 * kbd:[M] - Mark all packets of selected streams.
 * kbd:[P] - Prepare filter matching selected streams and apply it.
@@ -381,10 +269,13 @@ User can use shortcuts:
 
 Available controls are:
 
-* btn:[Find Reverse] tries to search for reverse stream. If found, selects it in the list.
-* btn:[Analyze] opens <<ChTelRTPAnalysis,RTP Stream Analysis>> window.
+* Find Reverse
+** btn:[Find Reverse] search for reverse stream of every selected stream. If found, selects it in the list too.
+** btn:[Find All Pairs] select all streams which have forward/reverse relation.
+** btn:[Find Only Single] select all streams which are single - have no reverse stream.
+* btn:[Analyze] opens <<ChTelRTPAnalysis,RTP Stream Analysis>> window. Actions btn:[Set], btn:[Add] and btn:[Remove] are available.
 * btn:[Prepare Filter] prepares filter matching selected streams and apply it.
-* btn:[Play Streams] opens <<ChTelRtpPlayer,RTP Player>> window.
+* btn:[Play Streams] opens <<ChTelRtpPlayer,RTP Player>> window. Actions btn:[Set], btn:[Add] and btn:[Remove] are available.
 * btn:[Copy] copies information from table to clipboard in CSV or YAML.
 * btn:[Export] exports selected streams in RTPDump format.
 
@@ -395,7 +286,9 @@ Available controls are:
 
 The RTP analysis function takes the selected RTP streams and generates a list of statistics on it including graph.
 
-Every stream is shown on own tab. Tabs are counted as streams are added. When tab is closed, number is not reused. Color of tab matches color of graphs on graph tab.
+Menu menu:Telephony[RTP > RTP Stream Analysis] is enabled only when selected packed is RTP packet. When window is opened, selected RTP stream is added to analysis. If btn:[Ctrl] is pressed during menu opening, reverse RTP stream (if exists) is added to the window too.
+
+Every stream is shown on own tab. Tabs are numbered as streams are added and its tooltip shows identification of the stream. When tab is closed, number is not reused. Color of tab matches color of graphs on graph tab.
 
 .The “RTP Stream Analysis” window
 image::wsug_graphics/ws-tel-rtpstream-analysis_1.png[{screenshot-attrs}]
@@ -439,7 +332,10 @@ Available shortcuts are:
 
 Available controls are:
 
-* btn:[Play Streams] opens <<ChTelRtpPlayer,RTP Player>> window.
+* Prepare Filter
+** btn:[Current Tab] prepares filter matching current tab and applies it.
+** btn:[All Tabs] prepares filter matching all tabs and applies it.
+* btn:[Play Streams] opens <<ChTelRtpPlayer,RTP Player>> window. Actions btn:[Set], btn:[Add] and btn:[Remove] are available.
 * btn:[Export] allows export current stream or all streams as CSV or export graph as image in multiple different formats (PDF, PNG, BMP and JPEG).
 
 .Graph in “RTP Stream Analysis” window
@@ -448,7 +344,7 @@ image::wsug_graphics/ws-tel-rtpstream-analysis_2.png[{screenshot-attrs}]
 Graph view shows graph of:
 
 * jitter
-* difference - difference between expected and real time of packet arrival
+* difference - absolute value of difference between expected and real time of packet arrival
 * delta - time difference from reception of previous packet
 
 for every stream. Checkboxes below graph are enabling or disabling showing of a graph for every stream. btn:[Stream X] checkbox enables or disables all graphs for the stream.
@@ -456,6 +352,136 @@ for every stream. Checkboxes below graph are enabling or disabling showing of a 
 [NOTE]
 ====
 Stream Analysis window contained tool for save audio and payload for analyzed streams. This tool was moved in Wireshark 3.5.0 to <<ChTelRtpPlayer,RTP Player>> window. New tool has more features.
+====
+
+[[ChTelRtpPlayer]]
+
+==== RTP Player Window
+
+The RTP Player function is tool for playing VoIP calls. It shows RTP streams and its waveforms, allows play stream and export it as audio or payload to file. See related concepts in <<ChTelPlayingCalls>>.
+
+Menu menu:Telephony[RTP > RTP Player] is enabled only when selected packed is RTP packet. When window is opened, selected RTP stream is added to playlist. If btn:[Ctrl] is pressed during menu opening, reverse RTP stream (if exists) is added to the playlist too.
+
+.RTP Player window
+image::wsug_graphics/ws-tel-rtp-player_1.png[{screenshot-attrs}]
+
+RTP Player Window consists of three parts:
+
+. Waveform view
+. Playlist
+. Controls
+
+Waveform view shows visual presentation of RTP stream. Color of waveform and playlist row are matching. Height of wave shows volume.
+
+Waveform shows error marks for Out of Sequence, Jitter Drops, Wrong Timestamps and Inserted Silence marks if it happens in a stream.
+
+.Waveform with error marks
+image::wsug_graphics/ws-tel-rtp-player_3.png[{screenshot-attrs}]
+
+Playlist shows information about every stream:
+
+* Play - Audio routing
+* Source Address, Source Port, Destination Address, Destination Port, SSRC
+* Setup Frame
+** SETUP <number> is shown, when there is known signaling packet. Number is packet number of signaling packet. Note: Word SETUP is shown even RTP stream was initiated e. g. by SKINNY where no SETUP message exists.
+** RTP <number> is shown, when no related signaling was found. Number is packet number of first packet of the stream.
+* Packets - Count of packets in the stream.
+* Time Span - Start - Stop (Duration) of the stream
+* SR - Sample rate of used codec
+* PR - Decoded play rate used for stream playing
+* Payloads - One or more playload types used by the stream
+
+[NOTE]
+====
+When rtp_udp is active, most of streams shows just RTP <number> even there is setup frame in capture.
+
+When RTP stream contains multiple codecs, SR and PR is based on first observed coded. Later codecs in stream are resampled to first one.
+====
+
+Controls allow a user to:
+
+* btn:[Start]/btn:[Pause]/btn:[Stop] playing of unmuted streams
+* Select btn:[Output audio device] and btn:[Output audio rate]
+* Select btn:[Playback Timing]
+** Jitter Buffer - Packets outside btn:[Jitter Buffer] size are discarded during decoding
+** RTP Timestamp - Packets are ordered and played by its Timestamp, no Jitter Buffer is used
+** Uninterrupted Mode - All gaps (e. g. Comfort Noise, lost packets) are discarded therefore audio is shorted than timespan
+* btn:[Time of Day] selects whether waveform timescale is shown in seconds from start of capture or in absolute time of received packets
+* Inaudible streams
+** btn:[Select] select all inaudible streams (streams with zero play rate)
+** btn:[Deselect] deselect all inaudible streams (streams with zero play rate)
+* btn:[Analyze] open <<ChTelRTPAnalysis,RTP Stream Analysis>> window. Actions btn:[Set], btn:[Add] and btn:[Remove] are available.
+* btn:[Prepare Filter] prepare filter matching selected streams and apply it.
+* btn:[Export] - See <<tel-rtp-export>>.
+
+.RTP stream state indication
+image::wsug_graphics/ws-tel-rtp-player_2.png[{screenshot-attrs}]
+
+Waveform view and playlist shows state of a RTP stream:
+
+. stream is muted (dashed waveform, menu:Muted[] is shown in Play column) or unmuted (non-dashed waveform, audio routing is shown in Play column)
+. stream is selected (blue waveform, blue row)
+. stream is below mouse cursor (bold waveform, bold font)
+
+User can control to where audio of a stream is routed to:
+
+* L - Left channel
+* L+R - Left and Right (Middle) channel
+* R - Left channel
+* P - Play (when mono soundcard is available only)
+* M - Muted
+
+Audio routing can be changed by double clicking on first column of a row, by shortcut or by menu.
+
+User can use shortcuts:
+
+* Selection
+** kbd:[Ctrl + A] - Select all streams
+** kbd:[Ctrl + I] - Invert selection
+** kbd:[Ctrl + Shift + A] - Select none
+** Note: Common kbd:[Mouse click], kbd:[Shift + Mouse click] and kbd:[Ctrl + Mouse click] works too
+* Go to packet
+** kbd:[G] - Go to packet of stream under the mouse cursor
+** kbd:[Shift + G] - Go to setup packet of stream under the mouse cursor
+* Audio routing
+** kbd:[M] - Mute all selected streams
+** kbd:[Shift + M] - Unmute all selected streams
+** kbd:[Ctrl + M] - Invert muting of all selected streams
+* kbd:[P] - Play audio
+* kbd:[S] - Stop playing
+* kbd:[Del] or kbd:[Ctrl + X] - Remove all selected streams from playlist
+* Inaudible steams
+** kbd:[N] - Select all inaudible streams
+** kbd:[Shift + N] - Deselect all inaudible streams
+
+[[tel-rtp-export]]
+
+===== Export
+
+[NOTE]
+====
+menu:Export[] was moved from menu:RTP Stream Analysis[] window to menu:RTP Player[] window in 3.5.0.
+
+Wireshark is able to export decoded audio in .au or .wav file format. Prior to version 3.2.0, Wireshark only supported exporting audio using the G.711 codec. From 3.2.0 it supports audio export using any codec with 8000 Hz sampling. From 3.5.0 is supported export of any codec, rate is defined by Output Audio Rate.
+====
+
+Export options available:
+
+* for one or more selected non-muted streams
+** Stream Synchronized Audio - streams are synchronized to earliest stream in export (there is no silence at beginning of it)
+** File Synchronized Audio - streams starts at beginning of file, therefore silence can be at start of file
+* for just one selected stream
+** Payload - just payload with no information about coded is stored in the file
+
+Audio is exported as multi-channel file - one channel per RTP stream. One or two channels are equal to mono or stereo, but Wireshark can export e g. 100 channels. For later playing a tool with multi-channel support must be used (e.g. https://www.audacityteam.org/).
+
+Export of payload function is useful for codecs not supported by Wireshark.
+
+[NOTE]
+====
+Default value of btn:[Output Audio Rate] is btn:[Automatic]. When multiple codecs with different codec rates are captured, Wireshark decodes each stream with its own play audio rate. Therefore each stream can has different play audio rate. When export of audio is used in this case, it will fail because .au or .wav requires one common play audio rate.
+
+In this case user must manually select one of rates in btn:[Output Audio Rate], streams will be resampled and audio export succeeds.
 ====
 
 [[ChTelRTSP]]

@@ -366,9 +366,9 @@ public slots:
     void rtpPlayerDialogReplaceRtpStreams(QVector<rtpstream_info_t *> stream_infos);
     void rtpPlayerDialogAddRtpStreams(QVector<rtpstream_info_t *> stream_infos);
     void rtpPlayerDialogRemoveRtpStreams(QVector<rtpstream_info_t *> stream_infos);
-    void rtpAnalysisDialogReplaceRtpStreams(QVector<rtpstream_info_t *> stream_infos);
-    void rtpAnalysisDialogAddRtpStreams(QVector<rtpstream_info_t *> stream_infos);
-    void rtpAnalysisDialogRemoveRtpStreams(QVector<rtpstream_info_t *> stream_infos);
+    void rtpAnalysisDialogReplaceRtpStreams(QVector<rtpstream_id_t *> stream_infos);
+    void rtpAnalysisDialogAddRtpStreams(QVector<rtpstream_id_t *> stream_infos);
+    void rtpAnalysisDialogRemoveRtpStreams(QVector<rtpstream_id_t *> stream_infos);
     void rtpStreamsDialogSelectRtpStream(rtpstream_id_t *id);
     void rtpStreamsDialogDeselectRtpStream(rtpstream_id_t *id);
 
@@ -702,6 +702,7 @@ private slots:
     void on_actionTelephonyOsmuxPacketCounter_triggered();
     void on_actionTelephonyRtpStreams_triggered();
     void on_actionTelephonyRtpStreamAnalysis_triggered();
+    void on_actionTelephonyRtpPlayer_triggered();
     void on_actionTelephonyRTSPPacketCounter_triggered();
     void on_actionTelephonySMPPOperations_triggered();
     void on_actionTelephonyUCPMessages_triggered();
@@ -723,6 +724,8 @@ private slots:
 
     void extcap_options_finished(int result);
     void showExtcapOptionsDialog(QString & device_name);
+
+    QString findRtpStreams(QVector<rtpstream_info_t *> *stream_infos, bool reverse);
 
     friend WiresharkApplication;
 };

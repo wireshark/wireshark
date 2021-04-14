@@ -159,6 +159,40 @@
     <string>N</string>
    </property>
   </action>
+  <action name="actionPrepareButton">
+   <property name="text">
+    <string>Prepare &amp;Filter</string>
+   </property>
+   <property name="toolTip">
+    <string>Prepare a filter matching the selected stream(s).</string>
+   </property>
+  </action>
+  <widget class="QMenu" name="menuPrepareFilter">
+   <property name="title">
+    <string>Prepare &amp;Filter</string>
+   </property>
+   <property name="toolTipsVisible">
+    <bool>true</bool>
+   </property>
+   <addaction name="actionPrepareFilterOne"/>
+   <addaction name="actionPrepareFilterAll"/>
+  </widget>
+  <action name="actionPrepareFilterOne">
+   <property name="text">
+    <string>&amp;Current Tab</string>
+   </property>
+   <property name="toolTip">
+    <string>Prepare a filter matching current tab.</string>
+   </property>
+  </action>
+  <action name="actionPrepareFilterAll">
+   <property name="text">
+    <string>&amp;All Tabs</string>
+   </property>
+   <property name="toolTip">
+    <string>Prepare a filter matching all tabs.</string>
+   </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>

@@ -256,3 +256,37 @@ void set_action_shortcuts_visible_in_context_menu(QList<QAction *> actions)
     Q_UNUSED(actions)
 #endif
 }
+
+QString make_filter_based_on_rtpstream_id(QVector<rtpstream_id_t *> ids)
+{
+    QStringList stream_filters;
+    QString filter;
+
+    foreach(rtpstream_id_t *id, ids) {
+        QString ip_proto = id->src_addr.type == AT_IPv6 ? "ipv6" : "ip";
+        stream_filters << QString("(%1.src==%2 && udp.srcport==%3 && %1.dst==%4 && udp.dstport==%5 && rtp.ssrc==0x%6)")
+                         .arg(ip_proto) // %1
+                         .arg(address_to_qstring(&id->src_addr)) // %2
+                         .arg(id->src_port) // %3
+                         .arg(address_to_qstring(&id->dst_addr)) // %4
+                         .arg(id->dst_port) // %5
+                         .arg(id->ssrc, 0, 16);
+    }
+    if (stream_filters.length() > 0) {
+        filter = stream_filters.join(" || ");
+    }
+
+    return filter;
+}
+
+QString make_filter_based_on_rtpstream_info(QVector<rtpstream_info_t *> streams)
+{
+    QVector<rtpstream_id_t *> ids;
+
+    foreach(rtpstream_info_t *stream_info, streams) {
+        ids << &stream_info->id;
+    }
+
+    return make_filter_based_on_rtpstream_id(ids);
+}
+

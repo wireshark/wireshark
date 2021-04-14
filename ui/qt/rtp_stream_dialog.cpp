@@ -249,11 +249,8 @@ RtpStreamDialog::RtpStreamDialog(QWidget &parent, CaptureFile &cf) :
     setWindowSubtitle(tr("RTP Streams"));
     ui->streamTreeWidget->installEventFilter(this);
 
-    QMenu *selection_menu = ctx_menu_.addMenu(tr("Select"));
-    selection_menu->addAction(ui->actionSelectAll);
-    selection_menu->addAction(ui->actionSelectNone);
-    selection_menu->addAction(ui->actionSelectInvert);
-    ctx_menu_.addAction(ui->actionFindReverse);
+    ctx_menu_.addMenu(ui->menuSelect);
+    ctx_menu_.addMenu(ui->menuFindReverse);
     ctx_menu_.addAction(ui->actionGoToSetup);
     ctx_menu_.addAction(ui->actionMarkPackets);
     ctx_menu_.addAction(ui->actionPrepareFilter);
@@ -268,19 +265,22 @@ RtpStreamDialog::RtpStreamDialog(QWidget &parent, CaptureFile &cf) :
     connect(ui->streamTreeWidget, SIGNAL(customContextMenuRequested(QPoint)),
                 SLOT(showStreamMenu(QPoint)));
 
-    // Some GTK+ buttons have been left out intentionally in order to
-    // reduce clutter. Do you have a strong and informed opinion about
-    // this? Perhaps you should volunteer to maintain this code!
     find_reverse_button_ = ui->buttonBox->addButton(ui->actionFindReverse->text(), QDialogButtonBox::ActionRole);
     find_reverse_button_->setToolTip(ui->actionFindReverse->toolTip());
+    find_reverse_button_->setMenu(ui->menuFindReverse);
+    connect(ui->actionFindReverseNormal, SIGNAL(triggered()), this, SLOT(on_actionFindReverseNormal_triggered()));
+    connect(ui->actionFindReversePair, SIGNAL(triggered()), this, SLOT(on_actionFindReversePair_triggered()));
+    connect(ui->actionFindReverseSingle, SIGNAL(triggered()), this, SLOT(on_actionFindReverseSingle_triggered()));
     analyze_button_ = RtpAnalysisDialog::addAnalyzeButton(ui->buttonBox, this);
     prepare_button_ = ui->buttonBox->addButton(ui->actionPrepareFilter->text(), QDialogButtonBox::ActionRole);
     prepare_button_->setToolTip(ui->actionPrepareFilter->toolTip());
+    connect(prepare_button_, SIGNAL(pressed()), this, SLOT(on_actionPrepareFilter_triggered()));
     player_button_ = RtpPlayerDialog::addPlayerButton(ui->buttonBox, this);
     copy_button_ = ui->buttonBox->addButton(ui->actionCopyButton->text(), QDialogButtonBox::ActionRole);
     copy_button_->setToolTip(ui->actionCopyButton->toolTip());
     export_button_ = ui->buttonBox->addButton(ui->actionExportAsRtpDump->text(), QDialogButtonBox::ActionRole);
     export_button_->setToolTip(ui->actionExportAsRtpDump->toolTip());
+    connect(export_button_, SIGNAL(pressed()), this, SLOT(on_actionExportAsRtpDump_triggered()));
 
     QMenu *copy_menu = new QMenu(copy_button_);
     QAction *ca;
@@ -362,7 +362,13 @@ bool RtpStreamDialog::eventFilter(QObject *, QEvent *event)
                 on_actionPrepareFilter_triggered();
                 return true;
             case Qt::Key_R:
-                on_actionFindReverse_triggered();
+                if (keyEvent.modifiers() == Qt::ShiftModifier) {
+                    on_actionFindReversePair_triggered();
+                } else if (keyEvent.modifiers() == Qt::ControlModifier) {
+                    on_actionFindReverseSingle_triggered();
+                } else {
+                    on_actionFindReverseNormal_triggered();
+                }
                 return true;
             case Qt::Key_I:
                 if (keyEvent.modifiers() == Qt::ControlModifier) {
@@ -529,13 +535,15 @@ void RtpStreamDialog::updateWidgets()
     bool enable = selected && !file_closed_;
     bool has_data = ui->streamTreeWidget->topLevelItemCount() > 0;
 
-    find_reverse_button_->setEnabled(enable);
+    find_reverse_button_->setEnabled(has_data);
     prepare_button_->setEnabled(enable);
     export_button_->setEnabled(enable);
     copy_button_->setEnabled(has_data);
     analyze_button_->setEnabled(enable);
 
-    ui->actionFindReverse->setEnabled(enable);
+    ui->actionFindReverseNormal->setEnabled(enable);
+    ui->actionFindReversePair->setEnabled(has_data);
+    ui->actionFindReverseSingle->setEnabled(has_data);
     ui->actionGoToSetup->setEnabled(enable);
     ui->actionMarkPackets->setEnabled(enable);
     ui->actionPrepareFilter->setEnabled(enable);
@@ -684,34 +692,85 @@ void RtpStreamDialog::on_actionExportAsRtpDump_triggered()
     }
 }
 
-void RtpStreamDialog::on_actionFindReverse_triggered()
+// Search for reverse stream of every selected stream
+void RtpStreamDialog::on_actionFindReverseNormal_triggered()
 {
     if (ui->streamTreeWidget->selectedItems().count() < 1) return;
 
-    // Gather up our selected streams...
-    QList<rtpstream_info_t *> selected_streams;
-    foreach(QTreeWidgetItem *ti, ui->streamTreeWidget->selectedItems()) {
-        RtpStreamTreeWidgetItem *rsti = static_cast<RtpStreamTreeWidgetItem*>(ti);
-        rtpstream_info_t *stream_info = rsti->streamInfo();
-        if (stream_info) {
-            selected_streams << stream_info;
-        }
-    }
+    ui->streamTreeWidget->blockSignals(true);
 
-    // ...and compare them to our unselected streams.
-    QTreeWidgetItemIterator iter(ui->streamTreeWidget, QTreeWidgetItemIterator::Unselected);
-    while (*iter) {
-        RtpStreamTreeWidgetItem *rsti = static_cast<RtpStreamTreeWidgetItem*>(*iter);
-        rtpstream_info_t *stream_info = rsti->streamInfo();
-        if (stream_info) {
-            foreach (rtpstream_info_t *fwd_stream, selected_streams) {
-                if (rtpstream_info_is_reverse(fwd_stream, stream_info)) {
-                    (*iter)->setSelected(true);
+    // Traverse all items and if stream is selected, search reverse from
+    // current position till last item (NxN/2)
+    for (int fwd_row = 0; fwd_row < ui->streamTreeWidget->topLevelItemCount(); fwd_row++) {
+        RtpStreamTreeWidgetItem *fwd_rsti = static_cast<RtpStreamTreeWidgetItem*>(ui->streamTreeWidget->topLevelItem(fwd_row));
+        rtpstream_info_t *fwd_stream = fwd_rsti->streamInfo();
+        if (fwd_stream && fwd_rsti->isSelected()) {
+            for (int rev_row = fwd_row + 1; rev_row < ui->streamTreeWidget->topLevelItemCount(); rev_row++) {
+                RtpStreamTreeWidgetItem *rev_rsti = static_cast<RtpStreamTreeWidgetItem*>(ui->streamTreeWidget->topLevelItem(rev_row));
+                rtpstream_info_t *rev_stream = rev_rsti->streamInfo();
+                if (rev_stream && rtpstream_info_is_reverse(fwd_stream, rev_stream)) {
+                    rev_rsti->setSelected(true);
+                    break;
                 }
             }
         }
-        ++iter;
     }
+    ui->streamTreeWidget->blockSignals(false);
+    updateWidgets();
+}
+
+// Select all pairs of forward/reverse streams
+void RtpStreamDialog::on_actionFindReversePair_triggered()
+{
+    ui->streamTreeWidget->blockSignals(true);
+    ui->streamTreeWidget->clearSelection();
+
+    // Traverse all items and search reverse from current position till last
+    // item (NxN/2)
+    for (int fwd_row = 0; fwd_row < ui->streamTreeWidget->topLevelItemCount(); fwd_row++) {
+        RtpStreamTreeWidgetItem *fwd_rsti = static_cast<RtpStreamTreeWidgetItem*>(ui->streamTreeWidget->topLevelItem(fwd_row));
+        rtpstream_info_t *fwd_stream = fwd_rsti->streamInfo();
+        if (fwd_stream) {
+            for (int rev_row = fwd_row + 1; rev_row < ui->streamTreeWidget->topLevelItemCount(); rev_row++) {
+                RtpStreamTreeWidgetItem *rev_rsti = static_cast<RtpStreamTreeWidgetItem*>(ui->streamTreeWidget->topLevelItem(rev_row));
+                rtpstream_info_t *rev_stream = rev_rsti->streamInfo();
+                if (rev_stream && rtpstream_info_is_reverse(fwd_stream, rev_stream)) {
+                    fwd_rsti->setSelected(true);
+                    rev_rsti->setSelected(true);
+                    break;
+                }
+            }
+        }
+    }
+    ui->streamTreeWidget->blockSignals(false);
+    updateWidgets();
+}
+
+// Select all streams which don't have reverse stream
+void RtpStreamDialog::on_actionFindReverseSingle_triggered()
+{
+    ui->streamTreeWidget->blockSignals(true);
+    ui->streamTreeWidget->selectAll();
+
+    // Traverse all items and search reverse from current position till last
+    // item (NxN/2)
+    for (int fwd_row = 0; fwd_row < ui->streamTreeWidget->topLevelItemCount(); fwd_row++) {
+        RtpStreamTreeWidgetItem *fwd_rsti = static_cast<RtpStreamTreeWidgetItem*>(ui->streamTreeWidget->topLevelItem(fwd_row));
+        rtpstream_info_t *fwd_stream = fwd_rsti->streamInfo();
+        if (fwd_stream) {
+            for (int rev_row = fwd_row + 1; rev_row < ui->streamTreeWidget->topLevelItemCount(); rev_row++) {
+                RtpStreamTreeWidgetItem *rev_rsti = static_cast<RtpStreamTreeWidgetItem*>(ui->streamTreeWidget->topLevelItem(rev_row));
+                rtpstream_info_t *rev_stream = rev_rsti->streamInfo();
+                if (rev_stream && rtpstream_info_is_reverse(fwd_stream, rev_stream)) {
+                    fwd_rsti->setSelected(false);
+                    rev_rsti->setSelected(false);
+                    break;
+                }
+            }
+        }
+    }
+    ui->streamTreeWidget->blockSignals(false);
+    updateWidgets();
 }
 
 void RtpStreamDialog::on_actionGoToSetup_triggered()
@@ -750,26 +809,9 @@ void RtpStreamDialog::on_actionMarkPackets_triggered()
 
 void RtpStreamDialog::on_actionPrepareFilter_triggered()
 {
-    if (ui->streamTreeWidget->selectedItems().count() < 1) return;
-
-    // Gather up our selected streams...
-    QStringList stream_filters;
-    foreach(QTreeWidgetItem *ti, ui->streamTreeWidget->selectedItems()) {
-        RtpStreamTreeWidgetItem *rsti = static_cast<RtpStreamTreeWidgetItem*>(ti);
-        rtpstream_info_t *stream_info = rsti->streamInfo();
-        if (stream_info) {
-            QString ip_proto = stream_info->id.src_addr.type == AT_IPv6 ? "ipv6" : "ip";
-            stream_filters << QString("(%1.src==%2 && udp.srcport==%3 && %1.dst==%4 && udp.dstport==%5 && rtp.ssrc==0x%6)")
-                             .arg(ip_proto) // %1
-                             .arg(address_to_qstring(&stream_info->id.src_addr)) // %2
-                             .arg(stream_info->id.src_port) // %3
-                             .arg(address_to_qstring(&stream_info->id.dst_addr)) // %4
-                             .arg(stream_info->id.dst_port) // %5
-                             .arg(stream_info->id.ssrc, 0, 16);
-        }
-    }
-    if (stream_filters.length() > 0) {
-        QString filter = stream_filters.join(" || ");
+    QVector<rtpstream_info_t *> streams = getSelectedRtpStreams();
+    QString filter = make_filter_based_on_rtpstream_info(streams);
+    if (filter.length() > 0) {
         remove_tap_listener_rtpstream(&tapinfo_);
         emit updateFilter(filter);
     }
@@ -778,17 +820,6 @@ void RtpStreamDialog::on_actionPrepareFilter_triggered()
 void RtpStreamDialog::on_streamTreeWidget_itemSelectionChanged()
 {
     updateWidgets();
-}
-
-void RtpStreamDialog::on_buttonBox_clicked(QAbstractButton *button)
-{
-    if (button == find_reverse_button_) {
-        on_actionFindReverse_triggered();
-    } else if (button == prepare_button_) {
-        on_actionPrepareFilter_triggered();
-    } else if (button == export_button_) {
-        on_actionExportAsRtpDump_triggered();
-    }
 }
 
 void RtpStreamDialog::on_buttonBox_helpRequested()
@@ -849,6 +880,18 @@ QVector<rtpstream_info_t *>RtpStreamDialog::getSelectedRtpStreams()
     return stream_infos;
 }
 
+QVector<rtpstream_id_t *>RtpStreamDialog::getSelectedRtpStreamIDs()
+{
+    QVector<rtpstream_info_t *> stream_infos = getSelectedRtpStreams();
+    QVector<rtpstream_id_t *> ids;
+
+    foreach(rtpstream_info_t *stream, stream_infos) {
+        ids << &stream->id;
+    }
+
+    return ids;
+}
+
 void RtpStreamDialog::rtpPlayerReplace()
 {
     if (ui->streamTreeWidget->selectedItems().count() < 1) return;
@@ -874,21 +917,21 @@ void RtpStreamDialog::rtpAnalysisReplace()
 {
     if (ui->streamTreeWidget->selectedItems().count() < 1) return;
 
-    emit rtpAnalysisDialogReplaceRtpStreams(getSelectedRtpStreams());
+    emit rtpAnalysisDialogReplaceRtpStreams(getSelectedRtpStreamIDs());
 }
 
 void RtpStreamDialog::rtpAnalysisAdd()
 {
     if (ui->streamTreeWidget->selectedItems().count() < 1) return;
 
-    emit rtpAnalysisDialogAddRtpStreams(getSelectedRtpStreams());
+    emit rtpAnalysisDialogAddRtpStreams(getSelectedRtpStreamIDs());
 }
 
 void RtpStreamDialog::rtpAnalysisRemove()
 {
     if (ui->streamTreeWidget->selectedItems().count() < 1) return;
 
-    emit rtpAnalysisDialogRemoveRtpStreams(getSelectedRtpStreams());
+    emit rtpAnalysisDialogRemoveRtpStreams(getSelectedRtpStreamIDs());
 }
 
 void RtpStreamDialog::displayFilterSuccess(bool success)
@@ -900,10 +943,13 @@ void RtpStreamDialog::displayFilterSuccess(bool success)
 
 void RtpStreamDialog::invertSelection()
 {
+    ui->streamTreeWidget->blockSignals(true);
     for (int row = 0; row < ui->streamTreeWidget->topLevelItemCount(); row++) {
         QTreeWidgetItem *ti = ui->streamTreeWidget->topLevelItem(row);
         ti->setSelected(!ti->isSelected());
     }
+    ui->streamTreeWidget->blockSignals(false);
+    updateWidgets();
 }
 
 void RtpStreamDialog::on_actionAnalyze_triggered()

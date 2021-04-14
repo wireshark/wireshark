@@ -172,12 +172,53 @@
     <string>Find &amp;Reverse</string>
    </property>
    <property name="toolTip">
+    <string>All forward/reverse stream actions</string>
+   </property>
+  </action>
+  <action name="actionFindReverseNormal">
+   <property name="text">
+    <string>Find &amp;Reverse</string>
+   </property>
+   <property name="toolTip">
     <string>Find the reverse stream matching the selected forward stream.</string>
    </property>
    <property name="shortcut">
     <string>R</string>
    </property>
   </action>
+  <action name="actionFindReversePair">
+   <property name="text">
+    <string>Find All &amp;Pairs</string>
+   </property>
+   <property name="toolTip">
+    <string>Select all streams which are paired in forward/reverse relation</string>
+   </property>
+   <property name="shortcut">
+    <string>Shift+R</string>
+   </property>
+  </action>
+  <action name="actionFindReverseSingle">
+   <property name="text">
+    <string>Find Only &amp;Singles</string>
+   </property>
+   <property name="toolTip">
+    <string>Find all streams which don't have paired reverse stream</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+R</string>
+   </property>
+  </action>
+  <widget class="QMenu" name="menuFindReverse">
+   <property name="title">
+    <string>Find &amp;Reverse</string>
+   </property>
+   <property name="toolTipsVisible">
+    <bool>true</bool>
+   </property>
+   <addaction name="actionFindReverseNormal"/>
+   <addaction name="actionFindReversePair"/>
+   <addaction name="actionFindReverseSingle"/>
+  </widget>
   <action name="actionMarkPackets">
    <property name="text">
     <string>Mark Packets</string>
@@ -189,6 +230,17 @@
     <string>M</string>
    </property>
   </action>
+  <widget class="QMenu" name="menuSelect">
+   <property name="title">
+    <string>Select</string>
+   </property>
+   <property name="toolTipsVisible">
+    <bool>true</bool>
+   </property>
+   <addaction name="actionSelectAll"/>
+   <addaction name="actionSelectNone"/>
+   <addaction name="actionSelectInvert"/>
+  </widget>
   <action name="actionSelectAll">
    <property name="text">
     <string>All</string>

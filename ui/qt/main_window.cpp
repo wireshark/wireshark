@@ -26,6 +26,7 @@ DIAG_ON(frame-larger-than=)
 #include <epan/stats_tree_priv.h>
 #include <epan/plugin_if.h>
 #include <epan/export_object.h>
+#include <frame_tvbuff.h>
 
 #include "ui/iface_toolbar.h"
 
@@ -3016,3 +3017,119 @@ frame_data * MainWindow::frameDataForRow(int row) const
 
     return Q_NULLPTR;
 }
+
+// Finds rtp information for selected stream and adds it to stream_infos
+// If reverse is set, tries to find reverse stream too
+// Return error string if error happens
+//
+// Note: Caller must free each returned rtpstream_info_t
+QString MainWindow::findRtpStreams(QVector<rtpstream_info_t *> *stream_infos, bool reverse)
+{
+    rtpstream_tapinfo_t tapinfo;
+    rtpstream_info_t *fwd_info, *rev_info;
+    const gchar filter_text[] = "rtp && rtp.version == 2 && rtp.ssrc && (ip || ipv6)";
+    dfilter_t *sfcode;
+    gchar *err_msg;
+
+    fwd_info = rtpstream_info_malloc_and_init();
+    rev_info = rtpstream_info_malloc_and_init();
+
+    /* Try to get the hfid for "rtp.ssrc". */
+    int hfid_rtp_ssrc = proto_registrar_get_id_byname("rtp.ssrc");
+    if (hfid_rtp_ssrc == -1) {
+        return tr("There is no \"rtp.ssrc\" field in this version of Wireshark.");
+    }
+
+    /* Try to compile the filter. */
+    if (!dfilter_compile(filter_text, &sfcode, &err_msg)) {
+        QString err = QString(err_msg);
+        g_free(err_msg);
+        return err;
+    }
+
+    if (!capture_file_.capFile() || !capture_file_.capFile()->current_frame) close();
+
+    if (!cf_read_current_record(capture_file_.capFile())) close();
+
+    frame_data *fdata = capture_file_.capFile()->current_frame;
+
+    epan_dissect_t edt;
+
+    epan_dissect_init(&edt, capture_file_.capFile()->epan, true, false);
+    epan_dissect_prime_with_dfilter(&edt, sfcode);
+    epan_dissect_prime_with_hfid(&edt, hfid_rtp_ssrc);
+    epan_dissect_run(&edt, capture_file_.capFile()->cd_t,
+                     &capture_file_.capFile()->rec,
+                     frame_tvbuff_new_buffer(
+                         &capture_file_.capFile()->provider, fdata,
+                         &capture_file_.capFile()->buf),
+                     fdata, NULL);
+
+    /*
+     * Packet must be an RTPv2 packet with an SSRC; we use the filter to
+     * check.
+     */
+    if (!dfilter_apply_edt(sfcode, &edt)) {
+        epan_dissect_cleanup(&edt);
+        dfilter_free(sfcode);
+        return tr("Please select an RTPv2 packet with an SSRC value");
+    }
+
+    dfilter_free(sfcode);
+
+    /* OK, it is an RTP frame. Let's get the IP and port values */
+    rtpstream_id_copy_pinfo(&(edt.pi), &(fwd_info->id), false);
+
+    /* assume the inverse ip/port combination for the reverse direction */
+    rtpstream_id_copy_pinfo(&(edt.pi), &(rev_info->id), true);
+
+    /* now we need the SSRC value of the current frame */
+    GPtrArray *gp = proto_get_finfo_ptr_array(edt.tree, hfid_rtp_ssrc);
+    if (gp == NULL || gp->len == 0) {
+        /* XXX - should not happen, as the filter includes rtp.ssrc */
+        epan_dissect_cleanup(&edt);
+        return tr("SSRC value not found.");
+    }
+    fwd_info->id.ssrc = fvalue_get_uinteger(&((field_info *)gp->pdata[0])->value);
+
+    epan_dissect_cleanup(&edt);
+
+    /* Register the tap listener */
+    memset(&tapinfo, 0, sizeof(rtpstream_tapinfo_t));
+    tapinfo.tap_data = this;
+    tapinfo.mode = TAP_ANALYSE;
+
+    /* Scan for RTP streams (redissect all packets) */
+    rtpstream_scan(&tapinfo, capture_file_.capFile(), Q_NULLPTR);
+
+    for (GList *strinfo_list = g_list_first(tapinfo.strinfo_list); strinfo_list; strinfo_list = gxx_list_next(strinfo_list)) {
+        rtpstream_info_t * strinfo = gxx_list_data(rtpstream_info_t*, strinfo_list);
+        if (rtpstream_id_equal(&(strinfo->id), &(fwd_info->id),RTPSTREAM_ID_EQUAL_NONE))
+        {
+            fwd_info->packet_count = strinfo->packet_count;
+            fwd_info->setup_frame_number = strinfo->setup_frame_number;
+            nstime_copy(&fwd_info->start_rel_time, &strinfo->start_rel_time);
+            nstime_copy(&fwd_info->stop_rel_time, &strinfo->stop_rel_time);
+            nstime_copy(&fwd_info->start_abs_time, &strinfo->start_abs_time);
+            *stream_infos << fwd_info;
+        }
+
+        if (rtpstream_id_equal(&(strinfo->id), &(rev_info->id),RTPSTREAM_ID_EQUAL_NONE))
+        {
+            rev_info->packet_count = strinfo->packet_count;
+            rev_info->setup_frame_number = strinfo->setup_frame_number;
+            nstime_copy(&rev_info->start_rel_time, &strinfo->start_rel_time);
+            nstime_copy(&rev_info->stop_rel_time, &strinfo->stop_rel_time);
+            nstime_copy(&rev_info->start_abs_time, &strinfo->start_abs_time);
+            if (rev_info->id.ssrc == 0) {
+                rev_info->id.ssrc = strinfo->id.ssrc;
+            }
+            if (reverse) {
+                *stream_infos << rev_info;
+            }
+        }
+    }
+
+    return NULL;
+}
+

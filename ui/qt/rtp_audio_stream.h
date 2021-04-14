@@ -155,6 +155,7 @@ public:
     qint64 getTotalSamples() { return (sample_file_->size()/(qint64)sizeof(SAMPLE)); }
     bool savePayload(QIODevice *file);
     guint getHash() { return rtpstream_id_to_hash(&id_); }
+    rtpstream_id_t *getID() { return &id_; }
     QString getIDAsQString();
 
 signals:
@@ -172,8 +173,6 @@ private:
     QIODevice *sample_file_frame_; // Stores rtp_packet_info per packet
     QIODevice *temp_file_;
     struct _GHashTable *decoders_hash_;
-    // TODO: It is not used
-    //QList<const rtpstream_info_t *>rtpstreams_;
     double global_start_rel_time_;
     double start_abs_offset_;
     double start_rel_time_;

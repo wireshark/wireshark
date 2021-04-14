@@ -239,7 +239,7 @@ enum {
     num_graphs_
 };
 
-RtpAnalysisDialog::RtpAnalysisDialog(QWidget &parent, CaptureFile &cf, rtpstream_info_t *stream_fwd _U_, rtpstream_info_t *stream_rev _U_) :
+RtpAnalysisDialog::RtpAnalysisDialog(QWidget &parent, CaptureFile &cf) :
     WiresharkDialog(parent, cf),
     ui(new Ui::RtpAnalysisDialog),
     tab_seq(0)
@@ -264,6 +264,10 @@ RtpAnalysisDialog::RtpAnalysisDialog(QWidget &parent, CaptureFile &cf, rtpstream
 
     ui->streamGraph->xAxis->setLabel("Arrival Time");
     ui->streamGraph->yAxis->setLabel("Value (ms)");
+
+    QPushButton *prepare_button = ui->buttonBox->addButton(ui->actionPrepareButton->text(), QDialogButtonBox::ActionRole);
+    prepare_button->setToolTip(ui->actionPrepareButton->toolTip());
+    prepare_button->setMenu(ui->menuPrepareFilter);
 
     player_button_ = RtpPlayerDialog::addPlayerButton(ui->buttonBox, this);
 
@@ -512,6 +516,9 @@ void RtpAnalysisDialog::updateWidgets()
     ui->actionSaveOneCsv->setEnabled(enable_nav);
     ui->actionSaveAllCsv->setEnabled(enable_tab);
     ui->actionSaveGraph->setEnabled(enable_tab);
+
+    ui->actionPrepareFilterOne->setEnabled(enable_nav);
+    ui->actionPrepareFilterAll->setEnabled(enable_tab);
 
 #if defined(QT_MULTIMEDIA_LIB)
     player_button_->setEnabled(enable_tab);
@@ -935,131 +942,18 @@ void RtpAnalysisDialog::closeTab(int index)
         QWidget *remove_tab = qobject_cast<QWidget *>(ui->tabWidget->widget(index));
         tab_info_t *tab = tabs_[index];
         tab_hash_.remove(rtpstream_to_hash(&tab->stream), tab);
+        tabs_.remove(index);
         ui->tabWidget->removeTab(index);
         ui->streamGraph->removeGraph(tab->jitter_graph);
         ui->streamGraph->removeGraph(tab->diff_graph);
         ui->streamGraph->removeGraph(tab->delta_graph);
         clearLayout(tab->graphHorizontalLayout);
         delete remove_tab;
-        deleteTabInfo(tabs_[index]);
-        g_free(tabs_[index]);
-        tabs_.remove(index);
+        deleteTabInfo(tab);
+        g_free(tab);
 
         updateGraph();
     }
-}
-
-void RtpAnalysisDialog::findRtpStreams()
-{
-    rtpstream_info_t fwd_info, rev_info;
-    const gchar filter_text[] = "rtp && rtp.version == 2 && rtp.ssrc && (ip || ipv6)";
-    dfilter_t *sfcode;
-    gchar *err_msg;
-
-    memset(&fwd_info, 0, sizeof(rtpstream_info_t));
-    memset(&rev_info, 0, sizeof(rtpstream_info_t));
-
-    /* Try to get the hfid for "rtp.ssrc". */
-    int hfid_rtp_ssrc = proto_registrar_get_id_byname("rtp.ssrc");
-    if (hfid_rtp_ssrc == -1) {
-        err_str_ = tr("There is no \"rtp.ssrc\" field in this version of Wireshark.");
-        updateWidgets();
-        return;
-    }
-
-    /* Try to compile the filter. */
-    if (!dfilter_compile(filter_text, &sfcode, &err_msg)) {
-        err_str_ = QString(err_msg);
-        g_free(err_msg);
-        updateWidgets();
-        return;
-    }
-
-    if (!cap_file_.capFile() || !cap_file_.capFile()->current_frame) close();
-
-    if (!cf_read_current_record(cap_file_.capFile())) close();
-
-    frame_data *fdata = cap_file_.capFile()->current_frame;
-
-    epan_dissect_t edt;
-
-    epan_dissect_init(&edt, cap_file_.capFile()->epan, true, false);
-    epan_dissect_prime_with_dfilter(&edt, sfcode);
-    epan_dissect_prime_with_hfid(&edt, hfid_rtp_ssrc);
-    epan_dissect_run(&edt, cap_file_.capFile()->cd_t, &cap_file_.capFile()->rec,
-                     frame_tvbuff_new_buffer(&cap_file_.capFile()->provider, fdata, &cap_file_.capFile()->buf),
-                     fdata, NULL);
-
-    /*
-     * Packet must be an RTPv2 packet with an SSRC; we use the filter to
-     * check.
-     */
-    if (!dfilter_apply_edt(sfcode, &edt)) {
-        epan_dissect_cleanup(&edt);
-        dfilter_free(sfcode);
-        err_str_ = tr("Please select an RTPv2 packet with an SSRC value");
-        updateWidgets();
-        return;
-    }
-
-    dfilter_free(sfcode);
-
-    /* OK, it is an RTP frame. Let's get the IP and port values */
-    rtpstream_id_copy_pinfo(&(edt.pi),&(fwd_info.id),false);
-
-    /* assume the inverse ip/port combination for the reverse direction */
-    rtpstream_id_copy_pinfo(&(edt.pi),&(rev_info.id),true);
-
-    /* now we need the SSRC value of the current frame */
-    GPtrArray *gp = proto_get_finfo_ptr_array(edt.tree, hfid_rtp_ssrc);
-    if (gp == NULL || gp->len == 0) {
-        /* XXX - should not happen, as the filter includes rtp.ssrc */
-        epan_dissect_cleanup(&edt);
-        err_str_ = tr("SSRC value not found.");
-        updateWidgets();
-        return;
-    }
-    fwd_info.id.ssrc = fvalue_get_uinteger(&((field_info *)gp->pdata[0])->value);
-
-    epan_dissect_cleanup(&edt);
-
-    /* Register the tap listener */
-    memset(&tapinfo_, 0, sizeof(rtpstream_tapinfo_t));
-    tapinfo_.tap_data = this;
-    tapinfo_.mode = TAP_ANALYSE;
-
-    /* Scan for RTP streams (redissect all packets) */
-    rtpstream_scan(&tapinfo_, cap_file_.capFile(), Q_NULLPTR);
-
-    QVector<rtpstream_info_t *> stream_infos;
-
-    for (GList *strinfo_list = g_list_first(tapinfo_.strinfo_list); strinfo_list; strinfo_list = gxx_list_next(strinfo_list)) {
-        rtpstream_info_t * strinfo = gxx_list_data(rtpstream_info_t*, strinfo_list);
-        if (rtpstream_id_equal(&(strinfo->id), &(fwd_info.id),RTPSTREAM_ID_EQUAL_NONE))
-        {
-            fwd_info.packet_count = strinfo->packet_count;
-            fwd_info.setup_frame_number = strinfo->setup_frame_number;
-            nstime_copy(&fwd_info.start_rel_time, &strinfo->start_rel_time);
-            nstime_copy(&fwd_info.stop_rel_time, &strinfo->stop_rel_time);
-            nstime_copy(&fwd_info.start_abs_time, &strinfo->start_abs_time);
-            stream_infos << &fwd_info;
-        }
-
-        if (rtpstream_id_equal(&(strinfo->id), &(rev_info.id),RTPSTREAM_ID_EQUAL_NONE))
-        {
-            rev_info.packet_count = strinfo->packet_count;
-            rev_info.setup_frame_number = strinfo->setup_frame_number;
-            nstime_copy(&rev_info.start_rel_time, &strinfo->start_rel_time);
-            nstime_copy(&rev_info.stop_rel_time, &strinfo->stop_rel_time);
-            nstime_copy(&rev_info.start_abs_time, &strinfo->start_abs_time);
-            stream_infos << &rev_info;
-            if (rev_info.id.ssrc == 0) {
-                rev_info.id.ssrc = strinfo->id.ssrc;
-            }
-        }
-    }
-
-    addRtpStreamsPrivate(stream_infos);
 }
 
 void RtpAnalysisDialog::showStreamMenu(QPoint pos)
@@ -1074,7 +968,7 @@ void RtpAnalysisDialog::showStreamMenu(QPoint pos)
     stream_ctx_menu_.popup(cur_tree->viewport()->mapToGlobal(pos));
 }
 
-void RtpAnalysisDialog::replaceRtpStreams(QVector<rtpstream_info_t *> stream_infos)
+void RtpAnalysisDialog::replaceRtpStreams(QVector<rtpstream_id_t *> stream_ids)
 {
     // Delete existing tabs (from last to first)
     if (tabs_.count() > 0) {
@@ -1082,26 +976,26 @@ void RtpAnalysisDialog::replaceRtpStreams(QVector<rtpstream_info_t *> stream_inf
             closeTab(i-1);
         }
     }
-    addRtpStreamsPrivate(stream_infos);
+    addRtpStreamsPrivate(stream_ids);
 }
 
-void RtpAnalysisDialog::addRtpStreams(QVector<rtpstream_info_t *> stream_infos)
+void RtpAnalysisDialog::addRtpStreams(QVector<rtpstream_id_t *> stream_ids)
 {
-    addRtpStreamsPrivate(stream_infos);
+    addRtpStreamsPrivate(stream_ids);
 }
 
-void RtpAnalysisDialog::addRtpStreamsPrivate(QVector<rtpstream_info_t *> stream_infos)
+void RtpAnalysisDialog::addRtpStreamsPrivate(QVector<rtpstream_id_t *> stream_ids)
 {
     int first_tab_no = -1;
 
     setUpdatesEnabled(false);
-    foreach(rtpstream_info_t *rtpstream, stream_infos) {
+    foreach(rtpstream_id_t *id, stream_ids) {
         bool found = false;
 
-        QList<tab_info_t *> tabs = tab_hash_.values(rtpstream_to_hash(rtpstream));
+        QList<tab_info_t *> tabs = tab_hash_.values(rtpstream_id_to_hash(id));
         for (int i = 0; i < tabs.size(); i++) {
             tab_info_t *tab = tabs.at(i);
-            if (rtpstream_id_equal(&tab->stream.id, &rtpstream->id, RTPSTREAM_ID_EQUAL_SSRC))  {
+            if (rtpstream_id_equal(&tab->stream.id, id, RTPSTREAM_ID_EQUAL_SSRC))  {
                 found = true;
                 break;
             }
@@ -1111,14 +1005,14 @@ void RtpAnalysisDialog::addRtpStreamsPrivate(QVector<rtpstream_info_t *> stream_
             int cur_tab_no;
 
             tab_info_t *new_tab = g_new0(tab_info_t, 1);
-            rtpstream_info_copy_deep(&new_tab->stream, rtpstream);
+            rtpstream_id_copy(id, &(new_tab->stream.id));
             new_tab->time_vals = new QVector<double>();
             new_tab->jitter_vals = new QVector<double>();
             new_tab->diff_vals = new QVector<double>();
             new_tab->delta_vals = new QVector<double>();
             tabs_ << new_tab;
             cur_tab_no = addTabUI(new_tab);
-            tab_hash_.insert(rtpstream_to_hash(rtpstream), new_tab);
+            tab_hash_.insert(rtpstream_id_to_hash(id), new_tab);
             if (first_tab_no == -1) {
                 first_tab_no = cur_tab_no;
             }
@@ -1135,14 +1029,14 @@ void RtpAnalysisDialog::addRtpStreamsPrivate(QVector<rtpstream_info_t *> stream_
     updateGraph();
 }
 
-void RtpAnalysisDialog::removeRtpStreams(QVector<rtpstream_info_t *> stream_infos _U_)
+void RtpAnalysisDialog::removeRtpStreams(QVector<rtpstream_id_t *> stream_ids)
 {
     setUpdatesEnabled(false);
-    foreach(rtpstream_info_t *rtpstream, stream_infos) {
-        QList<tab_info_t *> tabs = tab_hash_.values(rtpstream_to_hash(rtpstream));
+    foreach(rtpstream_id_t *id, stream_ids) {
+        QList<tab_info_t *> tabs = tab_hash_.values(rtpstream_id_to_hash(id));
         for (int i = 0; i < tabs.size(); i++) {
             tab_info_t *tab = tabs.at(i);
-            if (rtpstream_id_equal(&tab->stream.id, &rtpstream->id, RTPSTREAM_ID_EQUAL_SSRC))  {
+            if (rtpstream_id_equal(&tab->stream.id, id, RTPSTREAM_ID_EQUAL_SSRC))  {
                 closeTab(tabs_.indexOf(tab));
             }
         }
@@ -1187,5 +1081,26 @@ QPushButton *RtpAnalysisDialog::addAnalyzeButton(QDialogButtonBox *button_box, Q
     analysis_button->setMenu(button_menu);
 
     return analysis_button;
+}
+
+void RtpAnalysisDialog::on_actionPrepareFilterOne_triggered()
+{
+    if ((ui->tabWidget->currentIndex() < (ui->tabWidget->count()-1))) {
+        QVector<rtpstream_info_t *> streams;
+        streams << &tabs_[ui->tabWidget->currentIndex()]->stream;
+        QString filter = make_filter_based_on_rtpstream_info(streams);
+        if (filter.length() > 0) {
+            emit updateFilter(filter);
+        }
+    }
+}
+
+void RtpAnalysisDialog::on_actionPrepareFilterAll_triggered()
+{
+    QVector<rtpstream_info_t *>streams = getSelectedRtpStreams();
+    QString filter = make_filter_based_on_rtpstream_info(streams);
+    if (filter.length() > 0) {
+        emit updateFilter(filter);
+    }
 }
 

@@ -11,6 +11,12 @@
 #include <ui/tap-rtp-common.h>
 #include "rtp_player_dialog.h"
 #include <ui_rtp_player_dialog.h>
+#include "epan/epan_dissect.h"
+
+#include "file.h"
+#include "frame_tvbuff.h"
+
+#include "rtp_analysis_dialog.h"
 
 #ifdef QT_MULTIMEDIA_LIB
 
@@ -219,17 +225,20 @@ RtpPlayerDialog::RtpPlayerDialog(QWidget &parent, CaptureFile &cf) :
     ui->stopButton->setIcon(StockIcon("media-playback-stop"));
     ui->stopButton->setEnabled(false);
 
+    inaudible_btn_ = ui->buttonBox->addButton(ui->actionInaudibleButton->text(), QDialogButtonBox::ActionRole);
+    inaudible_btn_->setToolTip(ui->actionInaudibleButton->toolTip());
+    inaudible_btn_->setEnabled(false);
+    inaudible_btn_->setMenu(ui->menuInaudible);
+
+    analyze_btn_ = RtpAnalysisDialog::addAnalyzeButton(ui->buttonBox, this);
+
+    prepare_btn_ = ui->buttonBox->addButton(ui->actionPrepareFilter->text(), QDialogButtonBox::ActionRole);
+    prepare_btn_->setToolTip(ui->actionPrepareFilter->toolTip());
+    connect(prepare_btn_, SIGNAL(pressed()), this, SLOT(on_actionPrepareFilter_triggered()));
     export_btn_ = ui->buttonBox->addButton(ui->actionExportButton->text(), QDialogButtonBox::ActionRole);
     export_btn_->setToolTip(ui->actionExportButton->toolTip());
     export_btn_->setEnabled(false);
-
-    QMenu *save_menu = new QMenu(export_btn_);
-    save_menu->addAction(ui->actionSaveAudioSyncStream);
-    save_menu->addAction(ui->actionSaveAudioSyncFile);
-    save_menu->addSeparator();
-    save_menu->addAction(ui->actionSavePayload);
-    save_menu->setToolTipsVisible(true);
-    export_btn_->setMenu(save_menu);
+    export_btn_->setMenu(ui->menuExport);
 
     // Ordered, unique device names starting with the system default
     QMap<QString, bool> out_device_map; // true == default device
@@ -240,6 +249,7 @@ RtpPlayerDialog::RtpPlayerDialog(QWidget &parent, CaptureFile &cf) :
         }
     }
 
+    ui->outputDeviceComboBox->blockSignals(true);
     foreach (QString out_name, out_device_map.keys()) {
         ui->outputDeviceComboBox->addItem(out_name);
         if (out_device_map.value(out_name)) {
@@ -257,6 +267,7 @@ RtpPlayerDialog::RtpPlayerDialog(QWidget &parent, CaptureFile &cf) :
         stereo_available_ = isStereoAvailable();
         fillAudioRateMenu();
     }
+    ui->outputDeviceComboBox->blockSignals(false);
 
     ui->audioPlot->setMouseTracking(true);
     ui->audioPlot->setEnabled(true);
@@ -271,31 +282,10 @@ RtpPlayerDialog::RtpPlayerDialog(QWidget &parent, CaptureFile &cf) :
     graph_ctx_menu_->addAction(ui->actionPlay);
     list_ctx_menu_->addAction(ui->actionStop);
     graph_ctx_menu_->addAction(ui->actionStop);
-    QMenu *selection_menu1 = list_ctx_menu_->addMenu(tr("Select"));
-    QMenu *selection_menu2 = graph_ctx_menu_->addMenu(tr("Select"));
-    selection_menu1->addAction(ui->actionSelectAll);
-    selection_menu2->addAction(ui->actionSelectAll);
-    selection_menu1->addAction(ui->actionSelectNone);
-    selection_menu2->addAction(ui->actionSelectNone);
-    selection_menu1->addAction(ui->actionSelectInvert);
-    selection_menu2->addAction(ui->actionSelectInvert);
-    QMenu *audio_routing_menu1 = list_ctx_menu_->addMenu(tr("Audio Routing"));
-    QMenu *audio_routing_menu2 = graph_ctx_menu_->addMenu(tr("Audio Routing"));
-    // All AudioRouting actions are in menu, some of them are disabled later
-    audio_routing_menu1->addAction(ui->actionAudioRoutingMute);
-    audio_routing_menu2->addAction(ui->actionAudioRoutingMute);
-    audio_routing_menu1->addAction(ui->actionAudioRoutingUnmute);
-    audio_routing_menu2->addAction(ui->actionAudioRoutingUnmute);
-    audio_routing_menu1->addAction(ui->actionAudioRoutingMuteInvert);
-    audio_routing_menu2->addAction(ui->actionAudioRoutingMuteInvert);
-    audio_routing_menu1->addAction(ui->actionAudioRoutingP);
-    audio_routing_menu2->addAction(ui->actionAudioRoutingP);
-    audio_routing_menu1->addAction(ui->actionAudioRoutingL);
-    audio_routing_menu2->addAction(ui->actionAudioRoutingL);
-    audio_routing_menu1->addAction(ui->actionAudioRoutingLR);
-    audio_routing_menu2->addAction(ui->actionAudioRoutingLR);
-    audio_routing_menu1->addAction(ui->actionAudioRoutingR);
-    audio_routing_menu2->addAction(ui->actionAudioRoutingR);
+    list_ctx_menu_->addMenu(ui->menuSelect);
+    graph_ctx_menu_->addMenu(ui->menuSelect);
+    list_ctx_menu_->addMenu(ui->menuAudioRouting);
+    graph_ctx_menu_->addMenu(ui->menuAudioRouting);
     list_ctx_menu_->addAction(ui->actionRemoveStream);
     graph_ctx_menu_->addAction(ui->actionRemoveStream);
     list_ctx_menu_->addAction(ui->actionGoToSetupPacketTree);
@@ -419,6 +409,7 @@ void RtpPlayerDialog::rescanPackets(bool rescale_axes)
 {
     lockUI();
     // Show information for a user - it can last long time...
+    playback_error_.clear();
     ui->hintLabel->setText("<i><small>" + tr("Decoding streams...") + "</i></small>");
     wsApp->processEvents();
 
@@ -902,6 +893,16 @@ bool RtpPlayerDialog::eventFilter(QObject *, QEvent *event)
             case Qt::Key_S:
                 on_actionStop_triggered();
                 return true;
+            case Qt::Key_N:
+                if (keyEvent.modifiers() == Qt::ShiftModifier) {
+                    // Shift+N
+                    on_actionDeselectInaudible_triggered();
+                    return true;
+                } else {
+                    on_actionSelectInaudible_triggered();
+                    return true;
+                }
+                break;
         }
     }
 
@@ -919,8 +920,10 @@ void RtpPlayerDialog::updateWidgets()
     bool enable_pause = false;
     bool enable_stop = false;
     bool enable_timing = true;
+    int count = ui->streamTreeWidget->topLevelItemCount();
+    int selected = ui->streamTreeWidget->selectedItems().count();
 
-    if (ui->streamTreeWidget->topLevelItemCount() < 1)
+    if (count < 1)
         enable_play = false;
 
     for (int row = 0; row < ui->streamTreeWidget->topLevelItemCount(); row++) {
@@ -958,6 +961,10 @@ void RtpPlayerDialog::updateWidgets()
     ui->jitterSpinBox->setEnabled(enable_timing);
     ui->timingComboBox->setEnabled(enable_timing);
     ui->todCheckBox->setEnabled(enable_timing);
+
+    inaudible_btn_->setEnabled(count > 0);
+    analyze_btn_->setEnabled(selected > 0);
+    prepare_btn_->setEnabled(selected > 0);
 
     updateHintLabel();
     ui->audioPlot->replot();
@@ -1452,11 +1459,17 @@ void RtpPlayerDialog::on_streamTreeWidget_itemSelectionChanged()
 
     int selected = ui->streamTreeWidget->selectedItems().count();
     if (selected == 0) {
+        analyze_btn_->setEnabled(false);
+        prepare_btn_->setEnabled(false);
         export_btn_->setEnabled(false);
     } else if (selected == 1) {
+        analyze_btn_->setEnabled(true);
+        prepare_btn_->setEnabled(true);
         export_btn_->setEnabled(true);
         ui->actionSavePayload->setEnabled(true);
     } else {
+        analyze_btn_->setEnabled(true);
+        prepare_btn_->setEnabled(true);
         export_btn_->setEnabled(true);
         ui->actionSavePayload->setEnabled(false);
     }
@@ -1704,11 +1717,13 @@ QString RtpPlayerDialog::currentOutputDeviceName()
 
 void RtpPlayerDialog::fillAudioRateMenu()
 {
+    ui->outputAudioRate->blockSignals(true);
     ui->outputAudioRate->clear();
     ui->outputAudioRate->addItem(tr("Automatic"));
     foreach (int rate, getCurrentDeviceInfo().supportedSampleRates()) {
         ui->outputAudioRate->addItem(QString::number(rate));
     }
+    ui->outputAudioRate->blockSignals(false);
 }
 
 void RtpPlayerDialog::cleanupMarkerStream()
@@ -1876,10 +1891,12 @@ bool RtpPlayerDialog::isStereoAvailable()
 void RtpPlayerDialog::invertSelection()
 {
     block_redraw_ = true;
+    ui->streamTreeWidget->blockSignals(true);
     for (int row = 0; row < ui->streamTreeWidget->topLevelItemCount(); row++) {
         QTreeWidgetItem *ti = ui->streamTreeWidget->topLevelItem(row);
         ti->setSelected(!ti->isSelected());
     }
+    ui->streamTreeWidget->blockSignals(false);
     block_redraw_ = false;
     ui->audioPlot->replot();
     updateHintLabel();
@@ -2167,7 +2184,24 @@ save_payload_t RtpPlayerDialog::selectFilePayloadFormatAndName(QString *file_pat
     return save_format;
 }
 
-QVector<RtpAudioStream *>RtpPlayerDialog::getSelectedAudibleAudioStreams()
+QVector<rtpstream_id_t *>RtpPlayerDialog::getSelectedRtpStreamIDs()
+{
+    QList<QTreeWidgetItem *> items = ui->streamTreeWidget->selectedItems();
+    QVector<rtpstream_id_t *> ids;
+
+    if (items.count() > 0) {
+        foreach(QTreeWidgetItem *ti, items) {
+            RtpAudioStream *audio_stream = ti->data(stream_data_col_, Qt::UserRole).value<RtpAudioStream*>();
+            if (audio_stream) {
+                ids << audio_stream->getID();
+            }
+        }
+    }
+
+    return ids;
+}
+
+QVector<RtpAudioStream *>RtpPlayerDialog::getSelectedAudibleNonmutedAudioStreams()
 {
     QList<QTreeWidgetItem *> items = ui->streamTreeWidget->selectedItems();
     QVector<RtpAudioStream *> streams;
@@ -2196,7 +2230,7 @@ void RtpPlayerDialog::saveAudio(bool sync_to_stream)
     QString path;
     QVector<RtpAudioStream *>streams;
 
-    streams = getSelectedAudibleAudioStreams();
+    streams = getSelectedAudibleNonmutedAudioStreams();
     if (streams.count() < 1) {
         QMessageBox::warning(this, tr("Warning"), tr("No stream selected or none of selected streams provide audio"));
         return;
@@ -2320,30 +2354,63 @@ void RtpPlayerDialog::on_actionSavePayload_triggered()
     savePayload();
 }
 
-#if 0
-// This also serves as a title in RtpAudioFrame.
-static const QString stream_key_tmpl_ = "%1:%2 " UTF8_RIGHTWARDS_ARROW " %3:%4 0x%5";
-const QString RtpPlayerDialog::streamKey(const rtpstream_info_t *rtpstream)
+void RtpPlayerDialog::selectInaudible(bool select)
 {
-    const QString stream_key = QString(stream_key_tmpl_)
-            .arg(address_to_display_qstring(&rtpstream->src_addr))
-            .arg(rtpstream->src_port)
-            .arg(address_to_display_qstring(&rtpstream->dst_addr))
-            .arg(rtpstream->dst_port)
-            .arg(rtpstream->ssrc, 0, 16);
-    return stream_key;
+    block_redraw_ = true;
+    ui->streamTreeWidget->blockSignals(true);
+    for (int row = 0; row < ui->streamTreeWidget->topLevelItemCount(); row++) {
+        QTreeWidgetItem *ti = ui->streamTreeWidget->topLevelItem(row);
+        RtpAudioStream *audio_stream = ti->data(stream_data_col_, Qt::UserRole).value<RtpAudioStream*>();
+        // Streams with no audio
+        if (audio_stream && (audio_stream->sampleRate()==0)) {
+            ti->setSelected(select);
+        }
+    }
+    ui->streamTreeWidget->blockSignals(false);
+    block_redraw_ = false;
+    ui->audioPlot->replot();
+    updateHintLabel();
 }
 
-const QString RtpPlayerDialog::streamKey(const packet_info *pinfo, const struct _rtp_info *rtpinfo)
+void RtpPlayerDialog::on_actionSelectInaudible_triggered()
 {
-    const QString stream_key = QString(stream_key_tmpl_)
-            .arg(address_to_display_qstring(&pinfo->src))
-            .arg(pinfo->srcport)
-            .arg(address_to_display_qstring(&pinfo->dst))
-            .arg(pinfo->destport)
-            .arg(rtpinfo->info_sync_src, 0, 16);
-    return stream_key;
+    selectInaudible(true);
 }
-#endif
+
+void RtpPlayerDialog::on_actionDeselectInaudible_triggered()
+{
+    selectInaudible(false);
+}
+
+void RtpPlayerDialog::on_actionPrepareFilter_triggered()
+{
+    QVector<rtpstream_id_t *> ids = getSelectedRtpStreamIDs();
+    QString filter = make_filter_based_on_rtpstream_id(ids);
+    if (filter.length() > 0) {
+        emit updateFilter(filter);
+    }
+}
+
+void RtpPlayerDialog::rtpAnalysisReplace()
+{
+    if (ui->streamTreeWidget->selectedItems().count() < 1) return;
+
+    emit rtpAnalysisDialogReplaceRtpStreams(getSelectedRtpStreamIDs());
+}
+
+void RtpPlayerDialog::rtpAnalysisAdd()
+{
+    if (ui->streamTreeWidget->selectedItems().count() < 1) return;
+
+    emit rtpAnalysisDialogAddRtpStreams(getSelectedRtpStreamIDs());
+}
+
+void RtpPlayerDialog::rtpAnalysisRemove()
+{
+    if (ui->streamTreeWidget->selectedItems().count() < 1) return;
+
+    emit rtpAnalysisDialogRemoveRtpStreams(getSelectedRtpStreamIDs());
+}
+
 
 #endif // QT_MULTIMEDIA_LIB

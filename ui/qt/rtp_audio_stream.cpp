@@ -798,7 +798,15 @@ void RtpAudioStream::stopPlaying()
         return;
 
     if (audio_output_) {
-        audio_output_->stop();
+        if (audio_output_->state() == QAudio::StoppedState) {
+            // Looks like "delayed" QTBUG-6548
+            // It may happen that stream is stopped, but no signal emited
+            // Probably triggered by some issue in sound system which is not
+            // handled by Qt correctly
+            outputStateChanged(QAudio::StoppedState);
+        } else {
+            audio_output_->stop();
+        }
     }
 }
 
@@ -838,8 +846,8 @@ void RtpAudioStream::outputStateChanged(QAudio::State new_state)
         }
     case QAudio::IdleState:
         // Workaround for Qt behaving on some platforms with some soundcards:
-        // When ->stop() is called from outputStateChanged(), QMutexLocker is
-        // locked and application hangs.
+        // When ->stop() is called from outputStateChanged(),
+        // internalQMutexLock is locked and application hangs.
         // We can stop the stream later.
         QTimer::singleShot(0, this, SLOT(delayedStopStream()));
 

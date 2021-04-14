@@ -85,7 +85,20 @@ public:
     void removeRtpStreams(QVector<rtpstream_info_t *> stream_infos);
 
 signals:
+    // Tells the packet list to redraw. An alternative might be to add a
+    // cf_packet_marked callback to file.[ch] but that's synchronous and
+    // might incur too much overhead.
+    void packetsMarked();
+    void updateFilter(QString filter, bool force = false);
     void goToPacket(int packet_num);
+    void rtpAnalysisDialogReplaceRtpStreams(QVector<rtpstream_id_t *> stream_infos);
+    void rtpAnalysisDialogAddRtpStreams(QVector<rtpstream_id_t *> stream_infos);
+    void rtpAnalysisDialogRemoveRtpStreams(QVector<rtpstream_id_t *> stream_infos);
+
+public slots:
+    void rtpAnalysisReplace();
+    void rtpAnalysisAdd();
+    void rtpAnalysisRemove();
 
 protected:
     virtual void showEvent(QShowEvent *);
@@ -155,6 +168,9 @@ private slots:
     void on_actionSaveAudioSyncStream_triggered();
     void on_actionSaveAudioSyncFile_triggered();
     void on_actionSavePayload_triggered();
+    void on_actionSelectInaudible_triggered();
+    void on_actionDeselectInaudible_triggered();
+    void on_actionPrepareFilter_triggered();
 
 private:
     Ui::RtpPlayerDialog *ui;
@@ -177,6 +193,9 @@ private:
     quint32 marker_stream_requested_out_rate_;
     QTreeWidgetItem *last_ti_;
     bool listener_removed_;
+    QPushButton *inaudible_btn_;
+    QPushButton *analyze_btn_;
+    QPushButton *prepare_btn_;
     QPushButton *export_btn_;
     QMultiHash<guint, RtpAudioStream *> stream_hash_;
     bool block_redraw_;
@@ -221,11 +240,13 @@ private:
     bool writeAudioStreamsSamples(QFile *out_file, QVector<RtpAudioStream *> streams, bool swap_bytes);
     save_audio_t selectFileAudioFormatAndName(QString *file_path);
     save_payload_t selectFilePayloadFormatAndName(QString *file_path);
-    QVector<RtpAudioStream *>getSelectedAudibleAudioStreams();
+    QVector<RtpAudioStream *>getSelectedAudibleNonmutedAudioStreams();
     void saveAudio(bool sync_to_stream);
     void savePayload();
     void lockUI();
     void unlockUI();
+    void selectInaudible(bool select);
+    QVector<rtpstream_id_t *>getSelectedRtpStreamIDs();
 
 #else // QT_MULTIMEDIA_LIB
 private:

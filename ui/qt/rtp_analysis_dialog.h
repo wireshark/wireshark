@@ -61,7 +61,7 @@ class RtpAnalysisDialog : public WiresharkDialog
     Q_OBJECT
 
 public:
-    explicit RtpAnalysisDialog(QWidget &parent, CaptureFile &cf, rtpstream_info_t *stream_fwd = 0, rtpstream_info_t *stream_rev = 0);
+    explicit RtpAnalysisDialog(QWidget &parent, CaptureFile &cf);
     ~RtpAnalysisDialog();
     /**
      * @brief Common routine to add a "Analyze" button to a QDialogButtonBox.
@@ -77,16 +77,16 @@ public:
      *
      * @param rtpstream struct with rtpstream info
      */
-    void replaceRtpStreams(QVector<rtpstream_info_t *> stream_infos);
-    void addRtpStreams(QVector<rtpstream_info_t *> stream_infos);
-    void removeRtpStreams(QVector<rtpstream_info_t *> stream_infos);
-    void findRtpStreams();
+    void replaceRtpStreams(QVector<rtpstream_id_t *> stream_ids);
+    void addRtpStreams(QVector<rtpstream_id_t *> stream_ids);
+    void removeRtpStreams(QVector<rtpstream_id_t *> stream_ids);
 
 signals:
     void goToPacket(int packet_num);
     void rtpPlayerDialogReplaceRtpStreams(QVector<rtpstream_info_t *> stream_infos);
     void rtpPlayerDialogAddRtpStreams(QVector<rtpstream_info_t *> stream_infos);
     void rtpPlayerDialogRemoveRtpStreams(QVector<rtpstream_info_t *> stream_infos);
+    void updateFilter(QString filter, bool force = false);
 
 public slots:
     void rtpPlayerReplace();
@@ -108,6 +108,8 @@ private slots:
     void closeTab(int index);
     void rowCheckboxChanged(int checked);
     void singleCheckboxChanged(int checked);
+    void on_actionPrepareFilterOne_triggered();
+    void on_actionPrepareFilterAll_triggered();
 
 private:
     Ui::RtpAnalysisDialog *ui;
@@ -122,7 +124,6 @@ private:
     // Graph data for QCustomPlot
     QList<QCPGraph *>graphs_;
 
-    rtpstream_tapinfo_t tapinfo_;
     QString err_str_;
 
     QMenu stream_ctx_menu_;
@@ -148,7 +149,7 @@ private:
     tab_info_t *getTabInfoForCurrentTab();
     void deleteTabInfo(tab_info_t *tab_info);
     void clearLayout(QLayout *layout);
-    void addRtpStreamsPrivate(QVector<rtpstream_info_t *> stream_infos);
+    void addRtpStreamsPrivate(QVector<rtpstream_id_t *> stream_ids);
 };
 
 #endif // RTP_ANALYSIS_DIALOG_H

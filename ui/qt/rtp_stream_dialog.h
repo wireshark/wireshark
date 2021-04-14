@@ -42,9 +42,9 @@ signals:
     void rtpPlayerDialogReplaceRtpStreams(QVector<rtpstream_info_t *> stream_infos);
     void rtpPlayerDialogAddRtpStreams(QVector<rtpstream_info_t *> stream_infos);
     void rtpPlayerDialogRemoveRtpStreams(QVector<rtpstream_info_t *> stream_infos);
-    void rtpAnalysisDialogReplaceRtpStreams(QVector<rtpstream_info_t *> stream_infos);
-    void rtpAnalysisDialogAddRtpStreams(QVector<rtpstream_info_t *> stream_infos);
-    void rtpAnalysisDialogRemoveRtpStreams(QVector<rtpstream_info_t *> stream_infos);
+    void rtpAnalysisDialogReplaceRtpStreams(QVector<rtpstream_id_t *> stream_infos);
+    void rtpAnalysisDialogAddRtpStreams(QVector<rtpstream_id_t *> stream_infos);
+    void rtpAnalysisDialogRemoveRtpStreams(QVector<rtpstream_id_t *> stream_infos);
 
 public slots:
     void displayFilterSuccess(bool success);
@@ -87,18 +87,20 @@ private:
     void freeLastSelected();
     void invertSelection();
     QVector<rtpstream_info_t *>getSelectedRtpStreams();
+    QVector<rtpstream_id_t *>getSelectedRtpStreamIDs();
 
 private slots:
     void showStreamMenu(QPoint pos);
     void on_actionCopyAsCsv_triggered();
     void on_actionCopyAsYaml_triggered();
-    void on_actionFindReverse_triggered();
+    void on_actionFindReverseNormal_triggered();
+    void on_actionFindReversePair_triggered();
+    void on_actionFindReverseSingle_triggered();
     void on_actionGoToSetup_triggered();
     void on_actionMarkPackets_triggered();
     void on_actionPrepareFilter_triggered();
     void on_streamTreeWidget_itemSelectionChanged();
     void on_buttonBox_helpRequested();
-    void on_buttonBox_clicked(QAbstractButton *button);
     void on_actionExportAsRtpDump_triggered();
     void captureEvent(CaptureEvent e);
     void on_displayFilterCheckBox_toggled(bool checked);

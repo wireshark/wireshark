@@ -109,6 +109,17 @@
     <string>Open copy menu</string>
    </property>
   </action>
+  <widget class="QMenu" name="menuSelect">
+   <property name="title">
+    <string>Select</string>
+   </property>
+   <property name="toolTipsVisible">
+    <bool>true</bool>
+   </property>
+   <addaction name="actionSelectAll"/>
+   <addaction name="actionSelectNone"/>
+   <addaction name="actionSelectInvert"/>
+  </widget>
   <action name="actionSelectAll">
    <property name="text">
     <string>All</string>
