@@ -436,7 +436,7 @@ isis_dissect_nlpid_clv(tvbuff_t *tvb, proto_tree *tree, int ett_nlpid, int hf_nl
     guint8 nlpid;
 
     if (length <= 0) {
-        nlpid_tree = proto_tree_add_subtree_format(tree, tvb, offset, 0, ett_nlpid, NULL, "No NLPIDs");
+        proto_tree_add_subtree_format(tree, tvb, offset, 0, ett_nlpid, NULL, "No NLPIDs");
     } else {
         nlpid_tree = proto_tree_add_subtree_format(tree, tvb, offset, length, ett_nlpid, &ti, "NLPID%s: ", PLURALIZE(length));
         while (length-- > 0 ) {
