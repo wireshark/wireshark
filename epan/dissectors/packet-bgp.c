@@ -571,7 +571,7 @@ static dissector_handle_t bgp_handle;
 #define BGP_OSPF_RTYPE_SHAM     129 /* OSPF-MPLS-VPN Sham link */
 #define BGP_OSPF_RTYPE_METRIC_TYPE 0x1 /* Type-1 (clear) or Type-2 (set) external metric */
 
-/* Extended community & Route dinstinguisher formats */
+/* Extended community & Route distinguisher formats */
 #define FORMAT_AS2_LOC      0x00    /* Format AS(2bytes):AN(4bytes) */
 #define FORMAT_IP_LOC       0x01    /* Format IP address:AN(2bytes) */
 #define FORMAT_AS4_LOC      0x02    /* Format AS(4bytes):AN(2bytes) */
@@ -1997,11 +1997,17 @@ static int hf_bgp_update_path_attribute_link_state = -1;
 static int hf_bgp_update_path_attribute_mp_reach_nlri_address_family = -1;
 static int hf_bgp_update_path_attribute_mp_reach_nlri_safi = -1;
 static int hf_bgp_update_path_attribute_mp_reach_nlri_next_hop = -1;
+static int hf_bgp_update_path_attribute_mp_reach_nlri_next_hop_rd = -1;
+static int hf_bgp_update_path_attribute_mp_reach_nlri_next_hop_ipv4 = -1;
+static int hf_bgp_update_path_attribute_mp_reach_nlri_next_hop_ipv6 = -1;
+static int hf_bgp_update_path_attribute_mp_reach_nlri_next_hop_ipv6_link_local = -1;
 static int hf_bgp_update_path_attribute_mp_reach_nlri_nbr_snpa = -1;
 static int hf_bgp_update_path_attribute_mp_reach_nlri_snpa_length = -1;
 static int hf_bgp_update_path_attribute_mp_reach_nlri_snpa = -1;
+static int hf_bgp_update_path_attribute_mp_reach_nlri = -1;
 static int hf_bgp_update_path_attribute_mp_unreach_nlri_address_family = -1;
 static int hf_bgp_update_path_attribute_mp_unreach_nlri_safi = -1;
+static int hf_bgp_update_path_attribute_mp_unreach_nlri = -1;
 static int hf_bgp_update_path_attribute_aigp = -1;
 static int hf_bgp_update_path_attribute_bgpsec_sb_len = -1;
 static int hf_bgp_update_path_attribute_bgpsec_algo_id = -1;
@@ -2778,6 +2784,8 @@ static expert_field ei_bgp_attr_pmsi_tunnel_type = EI_INIT;
 static expert_field ei_bgp_prefix_length_err = EI_INIT;
 static expert_field ei_bgp_attr_aigp_type = EI_INIT;
 static expert_field ei_bgp_attr_as_path_as_len_err = EI_INIT;
+static expert_field ei_bgp_next_hop_ipv6_scope = EI_INIT;
+static expert_field ei_bgp_next_hop_rd_nonzero = EI_INIT;
 
 static expert_field ei_bgp_evpn_nlri_rt_type_err = EI_INIT;
 static expert_field ei_bgp_evpn_nlri_rt_len_err = EI_INIT;
@@ -3964,165 +3972,373 @@ decode_MPLS_stack_tree(tvbuff_t *tvb, gint offset, proto_tree *parent_tree)
 }
 
 /*
- * Decode a multiprotocol address
+ * Decode a multiprotocol next hop address that expected to be IPv4.
+ * Returns 0 on failure (invalid length).
  */
-
 static int
-mp_addr_to_str (guint16 afi, guint8 safi, tvbuff_t *tvb, gint offset, wmem_strbuf_t *strbuf, gint nhlen)
+decode_mp_next_hop_ipv4(tvbuff_t *tvb, proto_tree *tree, gint offset, packet_info *pinfo _U_, wmem_strbuf_t *strbuf, gint nhlen)
 {
-    int                 length;                         /* length of the address in byte */
-    guint16             rd_type;                        /* Route Distinguisher type     */
+    switch (nhlen) {
+        case (FT_IPv4_LEN):
+            proto_tree_add_item(tree, hf_bgp_update_path_attribute_mp_reach_nlri_next_hop_ipv4, tvb, offset, FT_IPv4_LEN, ENC_BIG_ENDIAN);
+            wmem_strbuf_append(strbuf, tvb_ip_to_str(tvb, offset));
+            break;
+        default:
+            return 0;
+    }
+    return nhlen;
+}
+
+/*
+ * Decode a multiprotocol next hop address expected to be VPN-IPv4.
+ * Note that the Route Distinguisher is always 0. Returns 0 on failure
+ * (invalid length).
+ */
+static int
+decode_mp_next_hop_vpn_ipv4(tvbuff_t *tvb, proto_tree *tree, gint offset, packet_info *pinfo, wmem_strbuf_t *strbuf, gint nhlen)
+{
+    proto_item    *ti;
+    const char    *rd_string;
+    const guint8   rd_zero[] = {0x00, 0x00, 0x00, 0x00,
+                                0x00, 0x00, 0x00, 0x00 };
+
+    switch (nhlen) {
+        case (BGP_ROUTE_DISTINGUISHER_SIZE + FT_IPv4_LEN):
+            rd_string = decode_bgp_rd(tvb, offset);
+            ti = proto_tree_add_string(tree, hf_bgp_update_path_attribute_mp_reach_nlri_next_hop_rd, tvb, offset, BGP_ROUTE_DISTINGUISHER_SIZE, rd_string);
+            if (tvb_memeql(tvb, offset, rd_zero, BGP_ROUTE_DISTINGUISHER_SIZE) != 0) {
+                expert_add_info(pinfo, ti, &ei_bgp_next_hop_rd_nonzero);
+            }
+            wmem_strbuf_append_printf(strbuf, " RD=%s", rd_string);
+            offset += BGP_ROUTE_DISTINGUISHER_SIZE;
+            proto_tree_add_item(tree, hf_bgp_update_path_attribute_mp_reach_nlri_next_hop_ipv4, tvb, offset, FT_IPv4_LEN, ENC_BIG_ENDIAN);
+            wmem_strbuf_append_printf(strbuf, " IPv4=%s", tvb_ip_to_str(tvb, offset));
+            break;
+        default:
+            return 0;
+    }
+    return nhlen;
+}
+
+/*
+ * Decode a multiprotocol next hop address that is expected to be IPv6,
+ * optionally including a second, link-local, address, differentiating by
+ * length. Returns 0 on failure (invalid length).
+ */
+static int
+decode_mp_next_hop_ipv6(tvbuff_t *tvb, proto_tree *tree, gint offset, packet_info *pinfo, wmem_strbuf_t *strbuf, gint nhlen)
+{
+    proto_item    *ti;
+    ws_in6_addr    ipv6_addr;
+    char           ipv6_buffer[WS_INET6_ADDRSTRLEN];
+
+    switch (nhlen) {
+        case (FT_IPv6_LEN):
+            proto_tree_add_item(tree, hf_bgp_update_path_attribute_mp_reach_nlri_next_hop_ipv6, tvb, offset, FT_IPv6_LEN, ENC_NA);
+            wmem_strbuf_append(strbuf, tvb_ip6_to_str(tvb, offset));
+            break;
+        case (2*FT_IPv6_LEN):
+            /* global address followed by link-local */
+            proto_tree_add_item(tree, hf_bgp_update_path_attribute_mp_reach_nlri_next_hop_ipv6, tvb, offset, FT_IPv6_LEN, ENC_NA);
+            wmem_strbuf_append_printf(strbuf, "IPv6=%s", tvb_ip6_to_str(tvb, offset));
+            offset += FT_IPv6_LEN;
+            ti = proto_tree_add_item(tree, hf_bgp_update_path_attribute_mp_reach_nlri_next_hop_ipv6_link_local, tvb, offset, FT_IPv6_LEN, ENC_NA);
+            tvb_get_ipv6(tvb, offset, &ipv6_addr);
+            if (!in6_addr_is_linklocal(&ipv6_addr)) {
+                expert_add_info_format(pinfo, ti, &ei_bgp_next_hop_ipv6_scope, "Invalid IPv6 address scope; should be link-local");
+            }
+            ip6_to_str_buf(&ipv6_addr, ipv6_buffer, WS_INET6_ADDRSTRLEN);
+            wmem_strbuf_append_printf(strbuf, " Link-local=%s", ipv6_buffer);
+            break;
+        default:
+            return 0;
+    }
+    return nhlen;
+}
+
+/*
+ * Decode a multiprotocol next hop address that is expected to be VPN-IPv6,
+ * optionally including a second, link-local, address. Note that the Route
+ * Distinguisher is always 0. Returns 0 on failure (invalid length).
+ */
+static int
+decode_mp_next_hop_vpn_ipv6(tvbuff_t *tvb, proto_tree *tree, gint offset, packet_info *pinfo, wmem_strbuf_t *strbuf, gint nhlen)
+{
+    proto_item    *ti;
+    const char    *rd_string;
+    const guint8   rd_zero[] = {0x00, 0x00, 0x00, 0x00,
+                                0x00, 0x00, 0x00, 0x00 };
+    ws_in6_addr    ipv6_addr;
+    char           ipv6_buffer[WS_INET6_ADDRSTRLEN];
+
+    switch (nhlen) {
+        case (BGP_ROUTE_DISTINGUISHER_SIZE + FT_IPv6_LEN):
+            rd_string = decode_bgp_rd(tvb, offset);
+            ti = proto_tree_add_string(tree, hf_bgp_update_path_attribute_mp_reach_nlri_next_hop_rd, tvb, offset, BGP_ROUTE_DISTINGUISHER_SIZE, rd_string);
+            if (tvb_memeql(tvb, offset, rd_zero, BGP_ROUTE_DISTINGUISHER_SIZE) != 0) {
+                expert_add_info(pinfo, ti, &ei_bgp_next_hop_rd_nonzero);
+            }
+            wmem_strbuf_append_printf(strbuf, " RD=%s", rd_string);
+            offset += BGP_ROUTE_DISTINGUISHER_SIZE;
+            proto_tree_add_item(tree, hf_bgp_update_path_attribute_mp_reach_nlri_next_hop_ipv6, tvb, offset, FT_IPv6_LEN, ENC_NA);
+            wmem_strbuf_append_printf(strbuf, " IPv6=%s", tvb_ip6_to_str(tvb, offset));
+            break;
+        case (2*(BGP_ROUTE_DISTINGUISHER_SIZE + FT_IPv6_LEN)):
+            rd_string = decode_bgp_rd(tvb, offset);
+            ti = proto_tree_add_string(tree, hf_bgp_update_path_attribute_mp_reach_nlri_next_hop_rd, tvb, offset, BGP_ROUTE_DISTINGUISHER_SIZE, rd_string);
+            if (tvb_memeql(tvb, offset, rd_zero, BGP_ROUTE_DISTINGUISHER_SIZE) != 0) {
+                expert_add_info(pinfo, ti, &ei_bgp_next_hop_rd_nonzero);
+            }
+            wmem_strbuf_append_printf(strbuf, " RD=%s", rd_string);
+            offset += BGP_ROUTE_DISTINGUISHER_SIZE;
+            proto_tree_add_item(tree, hf_bgp_update_path_attribute_mp_reach_nlri_next_hop_ipv6, tvb, offset, FT_IPv6_LEN, ENC_NA);
+            wmem_strbuf_append_printf(strbuf, " IPv6=%s", tvb_ip6_to_str(tvb, offset));
+            offset += FT_IPv6_LEN;
+            rd_string = decode_bgp_rd(tvb, offset);
+            ti = proto_tree_add_string(tree, hf_bgp_update_path_attribute_mp_reach_nlri_next_hop_rd, tvb, offset, BGP_ROUTE_DISTINGUISHER_SIZE, rd_string);
+            if (tvb_memeql(tvb, offset, rd_zero, BGP_ROUTE_DISTINGUISHER_SIZE) != 0) {
+                expert_add_info(pinfo, ti, &ei_bgp_next_hop_rd_nonzero);
+            }
+            wmem_strbuf_append_printf(strbuf, " RD=%s", rd_string);
+            offset += BGP_ROUTE_DISTINGUISHER_SIZE;
+            ti = proto_tree_add_item(tree, hf_bgp_update_path_attribute_mp_reach_nlri_next_hop_ipv6_link_local, tvb, offset, FT_IPv6_LEN, ENC_NA);
+            tvb_get_ipv6(tvb, offset, &ipv6_addr);
+            if (!in6_addr_is_linklocal(&ipv6_addr)) {
+                expert_add_info_format(pinfo, ti, &ei_bgp_next_hop_ipv6_scope, "Invalid IPv6 address scope; should be link-local");
+            }
+            ip6_to_str_buf(&ipv6_addr, ipv6_buffer, WS_INET6_ADDRSTRLEN);
+            wmem_strbuf_append_printf(strbuf, " Link-local=%s", ipv6_buffer);
+            break;
+        default:
+            return 0;
+    }
+    return nhlen;
+}
+
+/*
+ * Decode a multiprotocol next hop address
+ */
+static int
+decode_mp_next_hop(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint16 afi, guint8 safi, gint nhlen)
+{
+    proto_item    *ti;
+    proto_tree    *next_hop_t;
+    int            length, offset = 0;
+    wmem_strbuf_t *strbuf;
+
+    strbuf = wmem_strbuf_new_label(wmem_packet_scope());
+
+    /* BGP Multiprotocol Next Hop Principles
+     *
+     * BGP Multiprotocol support is specified over a large variety of
+     * RFCs for different <AFI, SAFI> pairs, which leaves some theoretical
+     * pairings undefined (e.g., the Abstract of RFC 4760 contemplates
+     * supporting the IPX address family) as well as leading to some
+     * omissions, contradictions, and inconsistencies. However, some general
+     * principles that apply across (nearly) all extant pairs exist.
+     *
+     * 1. Global IPv6 addresses can be followed by a link-local IPv6 address
+     *
+     * RFC 2545 specifies in section 3, "Constructing the Next Hop field,"
+     * that when the next hop address type is IPv6, the address given should
+     * be in global (or site-local) unicast address scope, and it shall be
+     * followed by the link-local address if and only if the BGP speaker shares
+     * a common subnet with the address and the peer the route is being
+     * advertised to.
+     *
+     * The wording implies that this holds for any <AFI, SAFI> pair where
+     * a IPv6 address is used, and RFCs 5549, 7752, and 8950 demonstrate that
+     * this explicitly holds for the most common ones, including for VPN-IPv6
+     * addresses (where the route distinguisher field also appears, see
+     * RFC 4659). Sometimes the possibility is elided where it is known to
+     * exist e.g. RFC 7606 7.11 MP_REACH_NLRI "For example, if RFC5549 is in
+     * use, then the next hop would have to have a length of 4 or 16." Thus
+     * it is possible that its omission in other RFCs covering new <AFI, SAFI>
+     * pairs is an oversight.
+     *
+     * 2. [VPN-]IPv4 NLRI can have [VPN-]IPv6 Next Hop addresses
+     *
+     * RFCs 5549 and 8950 declare that the next hop address may not necessarily
+     * belong to the address family specified by the AFI, updating RFC 2858,
+     * specifically addressing the case of IPv6 islands across a IPv4 core
+     * and vice versa.
+     *
+     * IPv4 addresses can easily be mapped into IPv6 addresses, and that
+     * is the solution for one case, but in the other the Next Hop must be an
+     * IPv6 (or VPN-IPv6) address even though the NLRI is IPv4.
+     *
+     * The wording of RFC 8950 strongly implies that the intent is to allow
+     * IPv6 Net Hop addresses for any case of IPv4 or VPN-IPv4 NLRI, providing
+     * a BGP Capability to declare that the BGP speakers supports a different
+     * Next Hop AFI for <AFI, SAFI> pairs defined without this capability,
+     * and noting those (like <1, 132>, SAFNUM_ROUTE_TARGET, RFC 4684) that
+     * consider the possibility from the start.
+     *
+     * 3. Next Hop Route Distinguisher (RD) is 0 or omitted
+     *
+     * RDs do not have a meaning in the Next Hop network address. However, when
+     * RFC 2547 introduced the VPN-IPv4 address family, at that point the Next
+     * Hop address family had to be the same as the NLRI address family, so the
+     * RD was set to all 0. Later defined <AFI, SAFI> pairs with RDs in their
+     * NLRI have either used this custom of a 0 RD, or else omitted it and
+     * only had the IP address in the Next Hop.
+     */
+
+    ti = proto_tree_add_item(tree, hf_bgp_update_path_attribute_mp_reach_nlri_next_hop, tvb, offset, nhlen + 1, ENC_NA);
+    next_hop_t = proto_item_add_subtree(ti, ett_bgp_mp_nhna);
+    offset += 1;
 
     switch (afi) {
         case AFNUM_INET:
             switch (safi) {
-                case SAFNUM_UNICAST:
-                case SAFNUM_MULCAST:
-                case SAFNUM_UNIMULC:
-                case SAFNUM_MPLS_LABEL:
-                case SAFNUM_ENCAPSULATION:
-                case SAFNUM_ROUTE_TARGET:
-                    /* RTF NHop can be IPv4 or IPv6. They are differentiated by length of the field*/
-                    length = nhlen;
-                    if (nhlen == 4) {
-                        wmem_strbuf_append(strbuf, tvb_ip_to_str(tvb, offset));
-                    } else if (nhlen == 16) {
-                        wmem_strbuf_append(strbuf, tvb_ip6_to_str(tvb, offset));
-                    } else {
-                        wmem_strbuf_append(strbuf, "Unknown address");
+                case SAFNUM_UNICAST:       /* RFC 8950 */
+                case SAFNUM_MULCAST:       /* RFC 8950 */
+                case SAFNUM_UNIMULC:       /* Deprecated, but as above */
+                case SAFNUM_MPLS_LABEL:    /* RFC 8277 */
+                case SAFNUM_MCAST_VPN:     /* RFC 6514 */
+                case SAFNUM_ENCAPSULATION: /* RFC 5512, but "never been used"
+                                            * according to
+                                            * draft-ietf-idr-tunnel-encaps-22
+                                            */
+                case SAFNUM_ROUTE_TARGET:  /* RFC 4684 */
+                    /* IPv4 or IPv6, differentiated by field length, according
+                     * to the RFCs cited above. RFC 8950 explicitly addresses
+                     * the possible link-local IPv6 address. RFC 6514 depending
+                     * on the situation either the Next Hop MUST be the same
+                     * as in the IP Address field lower in the network stack,
+                     * or simply SHOULD be "a routeable address" of the ASBR/
+                     * local PE. */
+                    if ((length = decode_mp_next_hop_ipv4(tvb, next_hop_t, offset, pinfo, strbuf, nhlen)) == 0) {
+                        length = decode_mp_next_hop_ipv6(tvb, next_hop_t, offset, pinfo, strbuf, nhlen);
                     }
                     break;
                 case SAFNUM_TUNNEL:
-                    length = 4;
-                    wmem_strbuf_append(strbuf, tvb_ip_to_str(tvb, offset));
+                    /* Internet Draft draft-nalawade-kapoor-tunnel-safi-05
+                     * long expired, but "[NLRI] network address... SHOULD be
+                     * the same as the [Next Hop] network address."
+                     */
+                    length = decode_mp_next_hop_ipv4(tvb, next_hop_t, offset, pinfo, strbuf, nhlen);
                     break;
-                case SAFNUM_LAB_VPNUNICAST:
-                case SAFNUM_LAB_VPNMULCAST:
-                case SAFNUM_LAB_VPNUNIMULC:
-                    rd_type=tvb_get_ntohs(tvb,offset) ;
-                    wmem_strbuf_truncate(strbuf, 0);
-                    switch (rd_type) {
-                        case FORMAT_AS2_LOC:
-                            length = 12;
-                            wmem_strbuf_append_printf(strbuf, "Empty Label Stack RD=%u:%u IPv4=%s",
-                                                      tvb_get_ntohs(tvb, offset + 2),
-                                                      tvb_get_ntohl(tvb, offset + 4),
-                                                      tvb_ip_to_str(tvb, offset + 8)); /* Next Hop */
-                            break;
-                        case FORMAT_IP_LOC:
-                            length = 12;
-                            wmem_strbuf_append_printf(strbuf, "Empty Label Stack RD=%s:%u IPv4=%s",
-                                                      tvb_ip_to_str(tvb, offset + 2), /* IP part of the RD */
-                                                      tvb_get_ntohs(tvb, offset + 6),
-                                                      tvb_ip_to_str(tvb, offset + 8)); /* Next Hop */
-                            break ;
-                        case FORMAT_AS4_LOC:
-                            length = 12;
-                            wmem_strbuf_append_printf(strbuf, "Empty Label Stack RD=%u.%u:%u IPv4=%s",
-                                                      tvb_get_ntohs(tvb, offset + 2),
-                                                      tvb_get_ntohs(tvb, offset + 4),
-                                                      tvb_get_ntohs(tvb, offset + 6),
-                                                      tvb_ip_to_str(tvb, offset + 8)); /* Next Hop   */
-                            break ;
-                        default:
-                            length = 0 ;
-                            wmem_strbuf_append_printf(strbuf, "Unknown (0x%04x) labeled VPN IPv4 address format",rd_type);
-                            break;
-                    } /* switch (rd_type) */
+                case SAFNUM_LAB_VPNUNICAST: /* RFC 8950 */
+                case SAFNUM_LAB_VPNMULCAST: /* RFC 8950 */
+                case SAFNUM_LAB_VPNUNIMULC: /* Deprecated, but as above */
+                    /* RFC 8950 indicates that the next hop can be VPN-IPv4 or
+                     * VPN-IPv6 (with RD all 0), and in the latter case the
+                     * link-local IPv6 address can be included. Note that RFC
+                     * 5549 incorrectly did not include the RD in the Next Hop
+                     * for VPN-IPv6 (see Erratum ID 5253), but according to
+                     * RFC 8950 2. "Changes Compared to RFC 5549":
+                     * "As all known and deployed implementations are
+                     * interoperable today and use the new proposed encoding,
+                     * the change does not break existing interoperability,"
+                     * and thus we need not test for a missing RD.
+                     */
+                    if ((length = decode_mp_next_hop_vpn_ipv4(tvb, next_hop_t, offset, pinfo, strbuf, nhlen)) == 0) {
+                        length = decode_mp_next_hop_vpn_ipv6(tvb, next_hop_t, offset, pinfo, strbuf, nhlen);
+                    }
                     break;
                 default:
-                    length = 0 ;
-                    wmem_strbuf_truncate(strbuf, 0);
-                    wmem_strbuf_append_printf(strbuf, "Unknown SAFI (%u) for AFI %u", safi, afi);
+                    length = 0;
+                    expert_add_info_format(pinfo, ti, &ei_bgp_unknown_safi,
+                                    "Unknown SAFI (%u) for AFI %u", safi, afi);
                     break;
             } /* switch (safi) */
             break;
         case AFNUM_INET6:
-            wmem_strbuf_truncate(strbuf, 0);
             switch (safi) {
-                case SAFNUM_UNICAST:
-                case SAFNUM_MULCAST:
-                case SAFNUM_UNIMULC:
-                case SAFNUM_MPLS_LABEL:
-                case SAFNUM_ENCAPSULATION:
-                case SAFNUM_TUNNEL:
-                    length = 16;
-                    wmem_strbuf_append_printf(strbuf, "%s", tvb_ip6_to_str(tvb, offset));
+                case SAFNUM_UNICAST:       /* RFC 8950 */
+                case SAFNUM_MULCAST:       /* RFC 8950 */
+                case SAFNUM_UNIMULC:       /* Deprecated, but as above */
+                case SAFNUM_MPLS_LABEL:    /* RFC 8277 */
+                case SAFNUM_MCAST_VPN:     /* RFC 6514 */
+                case SAFNUM_ENCAPSULATION: /* RFC 5512, but "never been used" */
+                case SAFNUM_TUNNEL:        /* Expired Internet Draft */
+                    /* IPv6 address, possibly followed by link-local address */
+                    length = decode_mp_next_hop_ipv6(tvb, next_hop_t, offset, pinfo, strbuf, nhlen);
                     break;
-                case SAFNUM_LAB_VPNUNICAST:
-                case SAFNUM_LAB_VPNMULCAST:
-                case SAFNUM_LAB_VPNUNIMULC:
-                    rd_type=tvb_get_ntohs(tvb,offset) ;
-                    switch (rd_type) {
-                        case FORMAT_AS2_LOC:
-                            length = 8 + 16;
-                            wmem_strbuf_append_printf(strbuf, "Empty Label Stack RD=%u:%u IPv6=%s",
-                                                      tvb_get_ntohs(tvb, offset + 2),
-                                                      tvb_get_ntohl(tvb, offset + 4),
-                                                      tvb_ip6_to_str(tvb, offset + 8)); /* Next Hop */
-                            break;
-                        case FORMAT_IP_LOC:
-                            length = 8 + 16;
-                            wmem_strbuf_append_printf(strbuf, "Empty Label Stack RD=%s:%u IPv6=%s",
-                                                      tvb_ip_to_str(tvb, offset + 2), /* IP part of the RD */
-                                                      tvb_get_ntohs(tvb, offset + 6),
-                                                      tvb_ip6_to_str(tvb, offset + 8)); /* Next Hop */
-                            break ;
-                        case FORMAT_AS4_LOC:
-                            length = 8 + 16;
-                            wmem_strbuf_append_printf(strbuf, "Empty Label Stack RD=%u:%u IPv6=%s",
-                                                      tvb_get_ntohl(tvb, offset + 2),
-                                                      tvb_get_ntohs(tvb, offset + 6),
-                                                      tvb_ip6_to_str(tvb, offset + 8)); /* Next Hop */
-                            break ;
-                        default:
-                            length = 0 ;
-                            wmem_strbuf_append_printf(strbuf, "Unknown (0x%04x) labeled VPN IPv6 address format",rd_type);
-                            break;
-                    }  /* switch (rd_type) */
+                case SAFNUM_LAB_VPNUNICAST: /* RFC 8950 */
+                case SAFNUM_LAB_VPNMULCAST: /* RFC 8950 */
+                case SAFNUM_LAB_VPNUNIMULC: /* Deprecated, but as above */
+                    /* VPN-IPv6 address, possibly followed by link-local addr */
+                    length = decode_mp_next_hop_vpn_ipv6(tvb, next_hop_t, offset, pinfo, strbuf, nhlen);
                     break;
                 default:
-                    length = 0 ;
-                    wmem_strbuf_append_printf(strbuf, "Unknown SAFI (%u) for AFI %u", safi, afi);
+                    length = 0;
+                    expert_add_info_format(pinfo, ti, &ei_bgp_unknown_safi,
+                                    "Unknown SAFI (%u) for AFI %u", safi, afi);
                     break;
             } /* switch (safi) */
             break;
         case AFNUM_L2VPN:
         case AFNUM_L2VPN_OLD:
-            wmem_strbuf_truncate(strbuf, 0);
             switch (safi) {
-                case SAFNUM_LAB_VPNUNICAST: /* only labeles prefixes do make sense */
+                /* XXX: Do these first three really appear with L2VPN AFI? */
+                case SAFNUM_LAB_VPNUNICAST:
                 case SAFNUM_LAB_VPNMULCAST:
                 case SAFNUM_LAB_VPNUNIMULC:
-                case SAFNUM_VPLS:
-                case SAFNUM_EVPN:
-                    length = 4; /* the next-hop is simply an ipv4 addr */
-                    wmem_strbuf_append_printf(strbuf, "IPv4=%s",
-                                              tvb_ip_to_str(tvb, offset));
+                case SAFNUM_VPLS: /* RFC 4761 (VPLS) and RFC 6074 (BGP-AD) */
+                case SAFNUM_EVPN: /* RFC 7432 */
+                    /* The RFCs above specify that the next-hop is simply the
+                     * address of the PE (loopback address in some cases for
+                     * BGP-AD), either IPv4 or IPv6, differentiated by length.
+                     * A RD is included in the NLRI in these cases, but not in
+                     * the Next Hop address unlike in AFI 1 or 2.
+                     */
+                    if ((length = decode_mp_next_hop_ipv4(tvb, next_hop_t, offset, pinfo, strbuf, nhlen) == 0)) {
+                        length = decode_mp_next_hop_ipv6(tvb, next_hop_t, offset, pinfo, strbuf, nhlen);
+                    }
                     break;
                 default:
-                    length = 0 ;
-                    wmem_strbuf_append_printf(strbuf, "Unknown SAFI (%u) for AFI %u", safi, afi);
+                    length = 0;
+                    expert_add_info_format(pinfo, ti, &ei_bgp_unknown_safi,
+                                    "Unknown SAFI (%u) for AFI %u", safi, afi);
                     break;
             } /* switch (safi) */
             break;
         case AFNUM_BGP_LS:
-            length = nhlen;
-            if (nhlen == 4) {
-                wmem_strbuf_append(strbuf, tvb_ip_to_str(tvb, offset));
-            } else if (nhlen == 16) {
-                wmem_strbuf_append(strbuf, tvb_ip6_to_str(tvb, offset));
-            } else {
-                wmem_strbuf_append(strbuf, "Unknown address");
-            }
+            /* RFC 7752 section 3.4 "BGP Next-Hop Information" explains that
+             * the next-hop address length field specifes the next-hop address
+             * family. "If the next-hop length is 4, then the next hop is an
+             * IPv4 address; if the next-hop length is 16, then it is a global
+             * IPv6 address; and if the next-hop length is 32, then there is
+             * one global IPv6 address followed by a link-local IPv6 address"
+             */
+            switch (safi) {
+                case SAFNUM_BGP_LS:
+                    if ((length = decode_mp_next_hop_ipv4(tvb, next_hop_t, offset, pinfo, strbuf, nhlen)) == 0) {
+                        length = decode_mp_next_hop_ipv6(tvb, next_hop_t, offset, pinfo, strbuf, nhlen);
+                    }
+                    break;
+                case SAFNUM_BGP_LS_VPN:
+                    /* RFC 7752 3.4: "For VPN SAFI, as per custom, an 8-byte
+                     * Route Distinguisher set to all zero is prepended to the
+                     * next hop."
+                     */
+                    if ((length = decode_mp_next_hop_vpn_ipv4(tvb, next_hop_t, offset, pinfo, strbuf, nhlen)) == 0) {
+                        length = decode_mp_next_hop_vpn_ipv6(tvb, next_hop_t, offset, pinfo, strbuf, nhlen);
+                    }
+                    break;
+                default:
+                    length = 0;
+                    expert_add_info_format(pinfo, ti, &ei_bgp_unknown_safi,
+                                    "Unknown SAFI (%u) for AFI %u", safi, afi);
+                    break;
+            } /* switch (safi) */
             break;
         default:
-            length = 0 ;
-            wmem_strbuf_truncate(strbuf, 0);
-            wmem_strbuf_append_printf(strbuf, "Unknown AFI (%u) value", afi);
+            length = 0;
+            expert_add_info(pinfo, ti, &ei_bgp_unknown_afi);
             break;
-    } /* switch (afi) */
-    return(length) ;
+    } /* switch (af) */
+
+    if (length) {
+        proto_item_append_text(ti, ": %s", wmem_strbuf_get_str(strbuf));
+    } else {
+        expert_add_info_format(pinfo, ti, &ei_bgp_length_invalid, "Unknown Next Hop length (%u byte%s)", nhlen, plurality(nhlen, "", "s"));
+        proto_item_append_text(ti, ": %s", tvb_bytes_to_str(wmem_packet_scope(), tvb, offset, nhlen));
+    }
+
+    return length;
 }
 
 static int decode_bgp_link_node_descriptor(tvbuff_t *tvb, proto_tree *tree, gint offset, packet_info *pinfo, int length)
@@ -7987,7 +8203,6 @@ dissect_bgp_path_attr(proto_tree *subtree, tvbuff_t *tvb, guint16 path_attr_len,
     int           i=0, j, k;                  /* tmp                      */
     guint8        type=0;                     /* AS_PATH segment type     */
     guint8        length=0;                   /* AS_PATH segment length   */
-    wmem_strbuf_t *junk_emstr;                /* tmp                      */
     guint32       aggregator_as;
     guint16       ssa_type;                   /* SSA T + Type */
     guint16       ssa_len;                    /* SSA TLV Length */
@@ -8014,17 +8229,15 @@ dissect_bgp_path_attr(proto_tree *subtree, tvbuff_t *tvb, guint16 path_attr_len,
     guint16       srv6_service_data_subsubtlv_len;  /* SRv6 Service Data Sub-Sub-TLV length */
 
     o = tvb_off;
-    junk_emstr = wmem_strbuf_new_label(wmem_packet_scope());
 
     while (i < path_attr_len) {
         proto_item *ti_pa, *ti_flags;
         int     off;
         gint    alen, aoff, tlen, aoff_save;
-        guint16 af;
-        guint8  saf, snpa;
+        guint8  snpa;
         guint8  nexthop_len;
         guint8  asn_len = 0;
-        guint32 as_num;
+        guint32 af, saf, as_num;
 
         static int * const path_flags[] = {
             &hf_bgp_update_path_attribute_flags_optional,
@@ -8322,86 +8535,26 @@ dissect_bgp_path_attr(proto_tree *subtree, tvbuff_t *tvb, guint16 path_attr_len,
                 }
                 break;
             case BGPTYPE_MP_REACH_NLRI:
-                /*
-                 * RFC 2545 specifies that there may be more than one
-                 * address in the MP_REACH_NLRI attribute in section
-                 * 3, "Constructing the Next Hop field".
-                 *
-                 * Yes, RFC 2858 says you can't do that, and, yes, RFC
-                 * 2858 obsoletes RFC 2283, which says you can do that,
-                 * but that doesn't mean we shouldn't dissect packets
-                 * that conform to RFC 2283 but not RFC 2858, as some
-                 * device on the network might implement the 2283-style
-                 * BGP extensions rather than RFC 2858-style extensions.
+                /* RFC 2283 says that a MP_[UN]REACH_NLRI path attribute can
+                 * have more than one <AFI, SAFI, Next Hop, ..., NLRI> tuple.
+                 * However, that doesn't work because the NLRI is also a
+                 * variable number of <length, prefix> fields without a field
+                 * for the overall length of the NLRI. Thus one would have to
+                 * guess whether a particular byte were the length of the next
+                 * prefix or a new AFI. So no one ever implemented that, and
+                 * RFC 2858, obsoleting 2283, says you can't do that.
                  */
-                af = tvb_get_ntohs(tvb, o + i + aoff);
-                proto_tree_add_item(subtree2, hf_bgp_update_path_attribute_mp_reach_nlri_address_family, tvb,
-                                    o + i + aoff, 2, ENC_BIG_ENDIAN);
-                saf = tvb_get_guint8(tvb, o + i + aoff + 2) ;
-                proto_tree_add_item(subtree2, hf_bgp_update_path_attribute_mp_reach_nlri_safi, tvb,
-                                    o + i + aoff+2, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item_ret_uint(subtree2, hf_bgp_update_path_attribute_mp_reach_nlri_address_family, tvb,
+                                    o + i + aoff, 2, ENC_BIG_ENDIAN, &af);
+                proto_tree_add_item_ret_uint(subtree2, hf_bgp_update_path_attribute_mp_reach_nlri_safi, tvb,
+                                    o + i + aoff+2, 1, ENC_BIG_ENDIAN, &saf);
                 nexthop_len = tvb_get_guint8(tvb, o + i + aoff + 3);
-                subtree3 = proto_tree_add_subtree_format(subtree2, tvb, o + i + aoff + 3,
-                                                         nexthop_len + 1, ett_bgp_mp_nhna, NULL,
-                                                         "Next hop network address (%d byte%s)",
-                                                         nexthop_len, plurality(nexthop_len, "", "s"));
 
-                /* RFC 8514 defines that the Next Hop field of the MP_REACH_NLRI attribute of the route MUST
-                 * be set to the same IP address as the one carried in the Originating Router's IP Address field.
-                 * Therefore we have to get the upper layer protocol for MCAST-VPN saf.
-                 */
-
-                if ( saf == SAFNUM_MCAST_VPN ) {
-                    if (proto_is_frame_protocol(pinfo->layers, "ip") && nexthop_len == 4) {
-                        proto_tree_add_string(subtree3, hf_bgp_update_path_attribute_mp_reach_nlri_next_hop, tvb,
-                                             o + i + aoff + 4, nexthop_len, tvb_ip_to_str(tvb, o + i + aoff + 4));
-                    } else if (proto_is_frame_protocol(pinfo->layers, "ipv6") && nexthop_len == 16) {
-                        proto_tree_add_string(subtree3, hf_bgp_update_path_attribute_mp_reach_nlri_next_hop, tvb,
-                                             o + i + aoff + 4, nexthop_len, tvb_ip6_to_str(tvb, o + i + aoff + 4));
-                    } else {
-                        proto_tree_add_string(subtree3, hf_bgp_update_path_attribute_mp_reach_nlri_next_hop, tvb,
-                                             o + i + aoff + 4, nexthop_len, tvb_bytes_to_str(wmem_packet_scope(),
-                                             tvb, o + i + aoff + 4, nexthop_len));
-                    }
-                } else {
-                    /*
-                     * The addresses don't contain lengths, so if we
-                     * don't understand the address family type, we
-                     * cannot parse the subsequent addresses as we
-                     * don't know how long they are.
-                     */
-
-                    switch (af) {
-                        default:
-                        proto_tree_add_expert(subtree3, pinfo, &ei_bgp_unknown_afi, tvb, o + i + aoff + 4, nexthop_len);
-                        break;
-
-                        case AFNUM_INET:
-                        case AFNUM_INET6:
-                        case AFNUM_L2VPN:
-                        case AFNUM_L2VPN_OLD:
-                        case AFNUM_BGP_LS:
-
-                            j = 0;
-                            while (j < nexthop_len) {
-                                advance = mp_addr_to_str(af, saf, tvb, o + i + aoff + 4 + j,
-                                                         junk_emstr, nexthop_len) ;
-                                if (advance == 0) /* catch if this is a unknown AFI type*/
-                                    break;
-                                if (j + advance > nexthop_len)
-                                    break;
-                                proto_tree_add_string(subtree3, hf_bgp_update_path_attribute_mp_reach_nlri_next_hop, tvb,
-                                                     o + i + aoff + 4 + j, advance, wmem_strbuf_get_str(junk_emstr));
-
-                                j += advance;
-                            }
-                            break;
-                    } /* switch (af) */
-                }
+                decode_mp_next_hop(tvb_new_subset_length(tvb, o + i + aoff + 3, nexthop_len + 1), subtree2, pinfo, af, saf, nexthop_len);
 
                 aoff_save = aoff;
                 tlen -= nexthop_len + 4;
-                aoff += nexthop_len + 4 ;
+                aoff += nexthop_len + 4;
 
                 off = 0;
                 snpa = tvb_get_guint8(tvb, o + i + aoff);
@@ -8423,9 +8576,9 @@ dissect_bgp_path_attr(proto_tree *subtree, tvbuff_t *tvb, guint16 path_attr_len,
                 tlen -= off;
                 aoff += off;
 
-                subtree3 = proto_tree_add_subtree_format(subtree2, tvb, o + i + aoff, tlen,
-                                                         ett_bgp_mp_reach_nlri, NULL, "Network layer reachability information (%u byte%s)",
-                                                         tlen, plurality(tlen, "", "s"));
+                ti = proto_tree_add_item(subtree2, hf_bgp_update_path_attribute_mp_reach_nlri, tvb, o + i + aoff, tlen, ENC_NA);
+                subtree3 = proto_item_add_subtree(ti, ett_bgp_mp_reach_nlri);
+
                 if (tlen)  {
                     if (af != AFNUM_INET && af != AFNUM_INET6 && af != AFNUM_L2VPN && af != AFNUM_BGP_LS) {
                         proto_tree_add_expert(subtree3, pinfo, &ei_bgp_unknown_afi, tvb, o + i + aoff, tlen);
@@ -8454,9 +8607,8 @@ dissect_bgp_path_attr(proto_tree *subtree, tvbuff_t *tvb, guint16 path_attr_len,
                 proto_tree_add_item(subtree2, hf_bgp_update_path_attribute_mp_unreach_nlri_safi, tvb,
                                     o + i + aoff+2, 1, ENC_BIG_ENDIAN);
 
-                subtree3 = proto_tree_add_subtree_format(subtree2, tvb, o + i + aoff + 3,
-                                                         tlen - 3, ett_bgp_mp_unreach_nlri, NULL, "Withdrawn routes (%u byte%s)", tlen - 3,
-                                                         plurality(tlen - 3, "", "s"));
+                ti = proto_tree_add_item(subtree2, hf_bgp_update_path_attribute_mp_unreach_nlri, tvb, o + i + aoff + 3, tlen - 3, ENC_NA);
+                subtree3 = proto_item_add_subtree(ti, ett_bgp_mp_unreach_nlri);
 
                 aoff_save = aoff;
                 tlen -= 3;
@@ -10345,8 +10497,20 @@ proto_register_bgp(void)
         { "Subsequent address family identifier (SAFI)", "bgp.update.path_attribute.mp_reach_nlri.safi", FT_UINT8, BASE_DEC,
           VALS(bgpattr_nlri_safi), 0x0, NULL, HFILL }},
       { &hf_bgp_update_path_attribute_mp_reach_nlri_next_hop,
-        { "Next Hop", "bgp.update.path_attribute.mp_reach_nlri.next_hop", FT_STRING, BASE_NONE,
+        { "Next hop", "bgp.update.path_attribute.mp_reach_nlri.next_hop", FT_BYTES, BASE_NO_DISPLAY_VALUE,
           NULL, 0x0, NULL, HFILL }},
+      { &hf_bgp_update_path_attribute_mp_reach_nlri_next_hop_rd,
+        { "Route Distinguisher", "bgp.update.path_attribute.mp_reach_nlri.next_hop.rd", FT_STRING, BASE_NONE,
+          NULL, 0x0, "RD is always zero in the Next Hop", HFILL }},
+      { &hf_bgp_update_path_attribute_mp_reach_nlri_next_hop_ipv4,
+        { "IPv4 Address", "bgp.update.path_attribute.mp_reach_nlri.next_hop.ipv4", FT_IPv4, BASE_NONE,
+          NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_update_path_attribute_mp_reach_nlri_next_hop_ipv6,
+        { "IPv6 Address", "bgp.update.path_attribute.mp_reach_nlri.next_hop.ipv6", FT_IPv6, BASE_NONE,
+          NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_update_path_attribute_mp_reach_nlri_next_hop_ipv6_link_local,
+        { "Link-local Address", "bgp.update.path_attribute.mp_reach_nlri.next_hop.ipv6.link_local", FT_IPv6, BASE_NONE,
+          NULL, 0x0, NULL, HFILL}},
       { &hf_bgp_update_path_attribute_mp_reach_nlri_nbr_snpa,
         { "Number of Subnetwork points of attachment (SNPA)", "bgp.update.path_attribute.mp_reach_nlri.nbr_snpa", FT_UINT8, BASE_DEC,
           NULL, 0x0, NULL, HFILL }},
@@ -10356,6 +10520,9 @@ proto_register_bgp(void)
       { &hf_bgp_update_path_attribute_mp_reach_nlri_snpa,
         { "SNPA", "bgp.update.path_attribute.mp_reach_nlri.snpa", FT_BYTES, BASE_NONE,
           NULL, 0x0, NULL, HFILL }},
+      { &hf_bgp_update_path_attribute_mp_reach_nlri,
+        { "Network Layer Reachability Information (NLRI)", "bgp.update.path_attribute.mp_reach_nlri", FT_NONE, BASE_NONE,
+          NULL, 0x0, NULL, HFILL}},
 
       { &hf_bgp_update_path_attribute_mp_unreach_nlri_address_family,
         { "Address family identifier (AFI)", "bgp.update.path_attribute.mp_unreach_nlri.afi", FT_UINT16, BASE_DEC,
@@ -10363,6 +10530,9 @@ proto_register_bgp(void)
       { &hf_bgp_update_path_attribute_mp_unreach_nlri_safi,
         { "Subsequent address family identifier (SAFI)", "bgp.update.path_attribute.mp_unreach_nlri.safi", FT_UINT8, BASE_DEC,
           VALS(bgpattr_nlri_safi), 0x0, NULL, HFILL }},
+      { &hf_bgp_update_path_attribute_mp_unreach_nlri,
+        { "Withdrawn Routes", "bgp.update.path_attribute.mp_unreach_nlri", FT_NONE, BASE_NONE,
+          NULL, 0x0, NULL, HFILL}},
 
       { &hf_bgp_pmsi_tunnel_flags,
         { "Flags", "bgp.update.path_attribute.pmsi.tunnel.flags", FT_UINT8, BASE_DEC,
@@ -12216,6 +12386,8 @@ proto_register_bgp(void)
         { &ei_bgp_attr_aigp_type, { "bgp.attr.aigp.type", PI_MALFORMED, PI_NOTE, "Unknown AIGP attribute type", EXPFILL}},
         { &ei_bgp_prefix_length_err, { "bgp.prefix.length", PI_MALFORMED, PI_ERROR, "Invalid IPv6 prefix length", EXPFILL}},
         { &ei_bgp_attr_as_path_as_len_err, { "bgp.attr.as_path.as_len", PI_UNDECODED, PI_ERROR, "unable to determine 4 or 2 bytes ASN", EXPFILL}},
+        { &ei_bgp_next_hop_ipv6_scope, { "bgp.next_hop.ipv6.scope", PI_PROTOCOL, PI_WARN, "Invalid IPv6 address scope", EXPFILL}},
+        { &ei_bgp_next_hop_rd_nonzero, { "bgp.next_hop.rd.nonzero", PI_PROTOCOL, PI_WARN, "Route Distinguisher in Next Hop Network Address nonzero", EXPFILL}},
     };
 
     module_t *bgp_module;
