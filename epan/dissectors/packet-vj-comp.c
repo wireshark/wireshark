@@ -478,7 +478,7 @@ done_header_len:
     ti = proto_tree_add_boolean(subtree, hf_vjc_comp, tvb, 0, 0, TRUE);
     proto_item_set_generated(ti);
 
-    ti = proto_tree_add_bitmask(subtree, tvb, 0, hf_vjc_change_mask,
+   proto_tree_add_bitmask(subtree, tvb, 0, hf_vjc_change_mask,
             ett_vjc_change_mask, vjc_change_mask_fields, ENC_NA);
     if ((flags & VJC_FLAGS_SAWU) == VJC_FLAGS_SAWU) {
         proto_tree_add_expert(subtree, pinfo, &ei_vjc_sawu, tvb, 0, 1);
@@ -490,7 +490,7 @@ done_header_len:
     offset++;
 
     if (flags & VJC_FLAG_C) {
-        ti = proto_tree_add_item_ret_uint(subtree, hf_vjc_cnum, tvb, offset, 1,
+        proto_tree_add_item_ret_uint(subtree, hf_vjc_cnum, tvb, offset, 1,
                 ENC_BIG_ENDIAN, &vjc_cnum);
         last_cnum = vjc_cnum;
         offset++;
