@@ -104,7 +104,7 @@ static const value_string otrxd_mod_vals[] = {
 };
 
 /* RSSI is encoded without a negative sign, so we need to show it */
-static void format_rssi(gchar *buf, guint32 rssi)
+static void format_rssi(gchar *buf, const guint32 rssi)
 {
 	g_snprintf(buf, ITEM_LABEL_LENGTH, "-%u%s", rssi, unit_name_string_get_value(rssi, &units_dbm));
 }
