@@ -48,7 +48,6 @@ static const guint16 crc11_table_307_noreflect_noxor[256] = {
 /**
  * Update the crc value with new data.
  *
- * \param crc      The current crc value.
  * \param data     Pointer to a buffer of \a data_len bytes.
  * \param data_len Number of bytes in the \a data buffer.
  * \return         The updated crc value.

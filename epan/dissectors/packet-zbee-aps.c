@@ -1179,7 +1179,7 @@ dissect_zbee_aps_no_endpt:
  *@param tvb pointer to buffer containing raw packet.
  *@param pinfo pointer to packet information fields
  *@param tree pointer to data tree Wireshark uses to display packet.
- *@param proto_root pointer to the root of the APS tree
+ *@param version version of APS
  *@param data raw packet private data.
 */
 static void dissect_zbee_aps_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 version, void *data)
