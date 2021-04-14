@@ -366,6 +366,8 @@ static int hf_nvme_get_logpage_pred_lat_dtwin_re = -1;
 static int hf_nvme_get_logpage_pred_lat_dtwin_we = -1;
 static int hf_nvme_get_logpage_pred_lat_dtwin_te = -1;
 static int hf_nvme_get_logpage_pred_lat_rsvd3 = -1;
+static int hf_nvme_get_logpage_pred_lat_aggreg_ne = -1;
+static int hf_nvme_get_logpage_pred_lat_aggreg_nset = -1;
 
 /* NVMe CQE fields */
 static int hf_nvme_cqe_sts = -1;
@@ -2136,6 +2138,33 @@ static void dissect_nvme_get_logpage_pred_lat_resp(proto_item *ti, tvbuff_t *cmd
 
 }
 
+static void dissect_nvme_get_logpage_pred_lat_aggreg_resp(proto_item *ti, tvbuff_t *cmd_tvb, struct nvme_cmd_ctx *cmd_ctx, guint len)
+{
+    guint64 off = cmd_ctx->cmd_ctx.get_logpage.off;
+    proto_tree *grp;
+    guint poff;
+
+    if (off < 8) {
+        poff = (cmd_ctx->cmd_ctx.get_logpage.off & 0x7);
+        poff = 8 - poff;
+    } else {
+        poff = 0;
+    }
+    if (len < (poff + 2) && off)
+        return; /* nothing to display */
+
+    grp =  proto_item_add_subtree(ti, ett_data);
+    if (!off && len >= 8)
+        proto_tree_add_item(grp, hf_nvme_get_logpage_pred_lat_aggreg_ne,  cmd_tvb, 0, 8, ENC_LITTLE_ENDIAN);
+    len -= poff;
+    while (len >= 2) {
+        proto_tree_add_item(grp, hf_nvme_get_logpage_pred_lat_aggreg_nset,  cmd_tvb, poff, 2, ENC_LITTLE_ENDIAN);
+        poff += 2;
+        len -= 2;
+    }
+}
+
+
 static void dissect_nvme_get_logpage_resp(tvbuff_t *cmd_tvb, proto_tree *cmd_tree, struct nvme_cmd_ctx *cmd_ctx, guint len)
 {
     proto_item *ti = proto_tree_add_bytes_format_value(cmd_tree, hf_nvme_gen_data, cmd_tvb, 0, len, NULL,
@@ -2162,6 +2191,8 @@ static void dissect_nvme_get_logpage_resp(tvbuff_t *cmd_tvb, proto_tree *cmd_tre
             return dissect_nvme_get_logpage_egroup_resp(ti, cmd_tvb, cmd_ctx, len);
         case 0xA:
             return dissect_nvme_get_logpage_pred_lat_resp(ti, cmd_tvb, cmd_ctx, len);
+        case 0xB:
+            return dissect_nvme_get_logpage_pred_lat_aggreg_resp(ti, cmd_tvb, cmd_ctx, len);
         default:
             return;
     }
@@ -4533,6 +4564,15 @@ proto_register_nvme(void)
         { &hf_nvme_get_logpage_pred_lat_rsvd3,
             { "Reserved", "nvme.cmd.get_logpage.pred_lat.rsvd3",
                FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
+        },
+        /* Predictable Latency NVMSet Aggregate Response */
+        { &hf_nvme_get_logpage_pred_lat_aggreg_ne,
+            { "Number of Entries", "nvme.cmd.get_logpage.pred_lat_aggreg.ne",
+               FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_pred_lat_aggreg_nset,
+            { "NVM Set with Pending Predictable Latency Event", "nvme.cmd.get_logpage.pred_lat_aggreg.nset",
+               FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}
         },
         /* NVMe Response fields */
         { &hf_nvme_cqe_sts,
