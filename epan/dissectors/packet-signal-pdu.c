@@ -624,7 +624,7 @@ post_update_spdu_signal_list_read_in_data(spdu_signal_list_uat_t *data, guint da
     if (data_num) {
         /* lets create 2 hf_ids per entry (1x effective, 1x raw) */
         dynamic_hf = g_new0(hf_register_info, 2 * data_num);
-        dynamic_hf_size = data_num;
+        dynamic_hf_size = 2 * data_num;
 
         guint i = 0;
         for (i = 0; i < data_num; i++) {
