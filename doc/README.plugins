@@ -242,7 +242,7 @@ is encouraged to update their plugins as outlined below:
 
 To demonstrate the functionality of the plugin interface options, a
 demonstration plugin exists (pluginifdemo). To build it using cmake, the
-build option ENABLE_PLUGINIFDEMO has to be enabled.
+build option ENABLE_PLUGIN_IFDEMO has to be enabled.
 
 6.1 Implement a plugin GUI menu
 
