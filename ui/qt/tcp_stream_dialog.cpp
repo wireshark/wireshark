@@ -530,6 +530,13 @@ void TCPStreamDialog::fillGraph(bool reset_axes, bool set_focus)
         sp->graph(i)->data()->clear();
         sp->graph(i)->setVisible(i == 0 ? true : false);
     }
+    // also clear and hide ErrorBars plottables
+    seg_eb_->setVisible(false);
+    seg_eb_->data()->clear();
+    sack_eb_->setVisible(false);
+    sack_eb_->data()->clear();
+    sack2_eb_->setVisible(false);
+    sack2_eb_->data()->clear();
 
     base_graph_->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssDisc, pkt_point_size_));
 
@@ -804,9 +811,12 @@ void TCPStreamDialog::fillTcptrace()
     base_graph_->setScatterStyle(QCPScatterStyle(QCPScatterStyle::ssDot));
 
     seg_graph_->setVisible(true);
+    seg_eb_->setVisible(true);
     ack_graph_->setVisible(true);
     sack_graph_->setVisible(true);
+    sack_eb_->setVisible(true);
     sack2_graph_->setVisible(true);
+    sack2_eb_->setVisible(true);
     rwin_graph_->setVisible(true);
     dup_ack_graph_->setVisible(true);
     zero_win_graph_->setVisible(true);
@@ -871,7 +881,9 @@ void TCPStreamDialog::fillTcptrace()
                 }
             }
             // If ackno is the same as our last one mark it as a duplicate.
-            if (ack.size() > 0 && ack.last() == ackno) {
+            //   (but don't mark window updates as duplicate acks)
+            if (ack.size() > 0 && ack.last() == ackno
+                  && rwin.last() == ackno + seg->th_win) {
                 dup_ack_time.append(ts);
                 dup_ack.append(ackno);
             }
@@ -881,17 +893,17 @@ void TCPStreamDialog::fillTcptrace()
             rwin.append(ackno + seg->th_win);
         }
     }
-    base_graph_->setData(pkt_time, pkt_seqnums);
-    ack_graph_->setData(ackrwin_time, ack);
-    seg_graph_->setData(sb_time, sb_center);
+    base_graph_->setData(pkt_time, pkt_seqnums, true);
+    ack_graph_->setData(ackrwin_time, ack, true);
+    seg_graph_->setData(sb_time, sb_center, true);
     seg_eb_->setData(sb_span);
-    sack_graph_->setData(sack_time, sack_center);
+    sack_graph_->setData(sack_time, sack_center, true);
     sack_eb_->setData(sack_span);
-    sack2_graph_->setData(sack2_time, sack2_center);
+    sack2_graph_->setData(sack2_time, sack2_center, true);
     sack2_eb_->setData(sack2_span);
-    rwin_graph_->setData(ackrwin_time, rwin);
-    dup_ack_graph_->setData(dup_ack_time, dup_ack);
-    zero_win_graph_->setData(zero_win_time, zero_win);
+    rwin_graph_->setData(ackrwin_time, rwin, true);
+    dup_ack_graph_->setData(dup_ack_time, dup_ack, true);
+    zero_win_graph_->setData(zero_win_time, zero_win, true);
 }
 
 // If the current implementation of incorporating SACKs in goodput calc
