@@ -15836,6 +15836,14 @@ static const val64_string ieee80211_ranging_fmt_bw_vals[] = {
   { 0, NULL }
 };
 
+static const val64_string ieee80211_ranging_ltf_total_vals[] = {
+  { 0, "4 LTFs" },
+  { 1, "8 LTFs" },
+  { 2, "16 LTFs" },
+  { 3, "No max LTFs specified" },
+  { 0, NULL }
+};
+
 static void
 wpa_mcs_base_custom(gchar *result, guint32 mcs)
 {
@@ -38171,12 +38179,12 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_tag_ranging_max_r2i_ltf_total,
      {"Max R2I LTF Total", "wlan.ranging.max_r2i_ltf_total",
-      FT_UINT48, BASE_DEC, NULL, GENMASK64(39, 38),
+      FT_UINT48, BASE_DEC | BASE_VAL64_STRING, VALS64(ieee80211_ranging_ltf_total_vals), GENMASK64(39, 38),
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_ranging_max_i2r_ltf_total,
      {"Max I2R LTF Total", "wlan.ranging.max_i2r_ltf_total",
-      FT_UINT48, BASE_DEC, NULL, GENMASK64(41, 40),
+      FT_UINT48, BASE_DEC | BASE_VAL64_STRING, VALS64(ieee80211_ranging_ltf_total_vals), GENMASK64(41, 40),
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_ranging_max_i2r_sts_le_80_mhz,
