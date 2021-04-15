@@ -1540,6 +1540,7 @@ void RtpPlayerDialog::removeRow(QTreeWidgetItem *ti)
 
 void RtpPlayerDialog::on_actionRemoveStream_triggered()
 {
+    lockUI();
     QList<QTreeWidgetItem *> items = ui->streamTreeWidget->selectedItems();
 
     block_redraw_ = true;
@@ -1560,6 +1561,7 @@ void RtpPlayerDialog::on_actionRemoveStream_triggered()
     updateGraphs();
 
     updateWidgets();
+    unlockUI();
 }
 
 // If called with channel_any, just muted flag should be changed
@@ -1592,6 +1594,7 @@ void RtpPlayerDialog::changeAudioRoutingOnItem(QTreeWidgetItem *ti, AudioRouting
 // Find current item and apply change on it
 void RtpPlayerDialog::changeAudioRouting(AudioRouting new_audio_routing)
 {
+    lockUI();
     QList<QTreeWidgetItem *> items = ui->streamTreeWidget->selectedItems();
 
     block_redraw_ = true;
@@ -1603,6 +1606,7 @@ void RtpPlayerDialog::changeAudioRouting(AudioRouting new_audio_routing)
     block_redraw_ = false;
     ui->audioPlot->replot();
     updateHintLabel();
+    unlockUI();
 }
 
 // Invert mute/unmute on item
@@ -1656,6 +1660,7 @@ void RtpPlayerDialog::on_actionAudioRoutingUnmute_triggered()
 
 void RtpPlayerDialog::on_actionAudioRoutingMuteInvert_triggered()
 {
+    lockUI();
     QList<QTreeWidgetItem *> items = ui->streamTreeWidget->selectedItems();
 
     block_redraw_ = true;
@@ -1667,6 +1672,7 @@ void RtpPlayerDialog::on_actionAudioRoutingMuteInvert_triggered()
     block_redraw_ = false;
     ui->audioPlot->replot();
     updateHintLabel();
+    unlockUI();
 }
 
 const QString RtpPlayerDialog::getFormatedTime(double f_time)
