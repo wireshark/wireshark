@@ -79,8 +79,8 @@ guint rtpstream_id_to_hash(const rtpstream_id_t *id)
 	/* DST ADDR */
 	hash ^= id->src_port | id->dst_port << 16;
 	hash ^= id->ssrc;
-	add_address_to_hash(hash, &id->src_addr);
-	add_address_to_hash(hash, &id->dst_addr);
+	hash = add_address_to_hash(hash, &id->src_addr);
+	hash = add_address_to_hash(hash, &id->dst_addr);
 
 	return hash;
 }
@@ -138,8 +138,8 @@ guint pinfo_rtp_info_to_hash(const packet_info *pinfo, const struct _rtp_info *r
 	/* DST ADDR */
 	hash ^= pinfo->srcport | pinfo->destport << 16;
 	hash ^= rtp_info->info_sync_src;
-	add_address_to_hash(hash, &pinfo->src);
-	add_address_to_hash(hash, &pinfo->dst);
+	hash = add_address_to_hash(hash, &pinfo->src);
+	hash = add_address_to_hash(hash, &pinfo->dst);
 
 	return hash;
 }
