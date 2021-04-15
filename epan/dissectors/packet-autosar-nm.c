@@ -81,8 +81,23 @@ static const true_false_string tfs_autosar_nm_control_pni = {
   "NM message contains Partial Network request information", "NM message contains no Partial Network request information" };
 
 /*** Configuration items ***/
-/* Set the order of the first two fields (Source Node Identifier and Control Bit Vector */
-static gboolean g_autosar_nm_swap_first_fields = TRUE;
+
+enum parameter_byte_position_value {
+    byte_pos_off = -1,
+    byte_pos_0 = 0,
+    byte_pos_1 = 1
+};
+
+static const enum_val_t byte_position_vals[] = {
+    {"0", "Byte Position 0", byte_pos_0},
+    {"1", "Byte Position 1", byte_pos_1},
+    {"off", "Turned off", byte_pos_off},
+    {NULL, NULL, -1}
+};
+
+/* Set positions of the first two fields (Source Node Identifier and Control Bit Vector */
+static gint g_autosar_nm_pos_cbv = (gint)byte_pos_0;
+static gint g_autosar_nm_pos_sni = (gint)byte_pos_1;
 
 /* Read bits 1 and 2 of Control Bit Vector as NM Coordinator Id */
 static gboolean g_autosar_nm_interpret_coord_id = FALSE;
@@ -119,11 +134,6 @@ user_data_fields_update_cb(void *r, char **err)
 
   if (rec->udf_length > 4) {
     *err = g_strdup_printf("length of user data field can't be greater 4 Bytes (name: %s offset: %i length: %i)", rec->udf_name, rec->udf_offset, rec->udf_length);
-    return (*err == NULL);
-  }
-
-  if (rec->udf_offset < 2) {
-    *err = g_strdup_printf("offset of user data field can't be short than 2 (name: %s offset: %i length: %i)", rec->udf_name, rec->udf_offset, rec->udf_length);
     return (*err == NULL);
   }
 
@@ -381,15 +391,11 @@ dissect_autosar_nm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
   guint32 offset = 0;
   guint32 length = 0;
   guint32 msg_length = 0;
-  guint32 ctrl_bit_vector;
+  guint32 ctrl_bit_vector = 0;
   guint32 src_node_id = 0;
   guint i = 0;
   int* hf_id;
   int ett_id;
-
-  /* AUTOSAR says default is Source Node ID first and Ctrl Bit Vector second but this can be also swapped */
-  guint32 offset_ctrl_bit_vector = 1;
-  guint32 offset_src_node_id = 0;
 
   static int * const control_bits_legacy[] = {
     &hf_autosar_nm_control_bit_vector_repeat_msg_req,
@@ -414,11 +420,6 @@ dissect_autosar_nm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
     NULL
   };
 
-  if (g_autosar_nm_swap_first_fields == TRUE) {
-    offset_ctrl_bit_vector = 0;
-    offset_src_node_id = 1;
-  }
-
   col_set_str(pinfo->cinfo, COL_PROTOCOL, AUTOSAR_NM_NAME);
   col_clear(pinfo->cinfo, COL_INFO);
 
@@ -427,22 +428,42 @@ dissect_autosar_nm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
   ti = proto_tree_add_item(tree, proto_autosar_nm, tvb, 0, -1, ENC_NA);
   autosar_nm_tree = proto_item_add_subtree(ti, ett_autosar_nm);
 
-  if (g_autosar_nm_swap_first_fields == FALSE) {
-    proto_tree_add_item_ret_uint(autosar_nm_tree, hf_autosar_nm_source_node_identifier, tvb, offset_src_node_id, 1, ENC_BIG_ENDIAN, &src_node_id);
+  if (g_autosar_nm_pos_sni != byte_pos_off && g_autosar_nm_pos_sni < g_autosar_nm_pos_cbv) {
+    proto_tree_add_item_ret_uint(autosar_nm_tree, hf_autosar_nm_source_node_identifier, tvb, g_autosar_nm_pos_sni, 1, ENC_BIG_ENDIAN, &src_node_id);
   }
 
-  proto_tree_add_bitmask(autosar_nm_tree, tvb, offset_ctrl_bit_vector, hf_autosar_nm_control_bit_vector, ett_autosar_nm_cbv,
-                         (g_autosar_nm_interpret_coord_id ? control_bits_legacy : control_bits), ENC_BIG_ENDIAN);
-  ctrl_bit_vector = tvb_get_guint8(tvb, offset_ctrl_bit_vector);
-
-  if (g_autosar_nm_swap_first_fields == TRUE) {
-    proto_tree_add_item_ret_uint(autosar_nm_tree, hf_autosar_nm_source_node_identifier, tvb, offset_src_node_id, 1, ENC_BIG_ENDIAN, &src_node_id);
+  if (g_autosar_nm_pos_cbv != byte_pos_off) {
+      proto_tree_add_bitmask(autosar_nm_tree, tvb, g_autosar_nm_pos_cbv, hf_autosar_nm_control_bit_vector, ett_autosar_nm_cbv,
+          (g_autosar_nm_interpret_coord_id ? control_bits_legacy : control_bits), ENC_BIG_ENDIAN);
+      ctrl_bit_vector = tvb_get_guint8(tvb, g_autosar_nm_pos_cbv);
   }
 
-  col_add_fstr(pinfo->cinfo, COL_INFO, "NM (CBV: 0x%02x, Src: 0x%02x)", ctrl_bit_vector, src_node_id);
-  proto_item_append_text(ti, ", Control Bit Vector: 0x%02x, Source Node: %i", ctrl_bit_vector, src_node_id);
+  if (g_autosar_nm_pos_sni != byte_pos_off && g_autosar_nm_pos_sni >= g_autosar_nm_pos_cbv) {
+    proto_tree_add_item_ret_uint(autosar_nm_tree, hf_autosar_nm_source_node_identifier, tvb, g_autosar_nm_pos_sni, 1, ENC_BIG_ENDIAN, &src_node_id);
+  }
 
-  offset = 2;
+  if (g_autosar_nm_pos_cbv > g_autosar_nm_pos_sni) {
+      offset = g_autosar_nm_pos_cbv + 1;
+  } else {
+      /* This covers the case that both are turned off since -1 + 1 = 0 */
+      offset = g_autosar_nm_pos_sni + 1;
+  }
+
+  col_add_fstr(pinfo->cinfo, COL_INFO, "NM (");
+  if (g_autosar_nm_pos_cbv != byte_pos_off) {
+      col_append_fstr(pinfo->cinfo, COL_INFO, "CBV: 0x%02x", ctrl_bit_vector);
+      proto_item_append_text(ti, ", Control Bit Vector: 0x%02x", ctrl_bit_vector);
+      if (g_autosar_nm_pos_sni != byte_pos_off) {
+          col_append_fstr(pinfo->cinfo, COL_INFO, ", SNI: 0x%02x", src_node_id);
+          proto_item_append_text(ti, ", Source Node: %i", src_node_id);
+      }
+  } else {
+      if (g_autosar_nm_pos_sni != byte_pos_off) {
+          col_append_fstr(pinfo->cinfo, COL_INFO, "SNI: 0x%02x", src_node_id);
+          proto_item_append_text(ti, ", Source Node: %i", src_node_id);
+      }
+  }
+  col_append_fstr(pinfo->cinfo, COL_INFO, ")");
 
   /* now we need to process the user defined fields ... */
   ti = proto_tree_add_item(autosar_nm_tree, hf_autosar_nm_user_data, tvb, offset, msg_length - offset, ENC_NA);
@@ -475,7 +496,7 @@ dissect_autosar_nm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
 
   col_set_fence(pinfo->cinfo, COL_INFO);
 
-  return offset;
+  return msg_length;
 }
 
 static int
@@ -557,12 +578,15 @@ void proto_register_autosar_nm(void)
   /* Register configuration options */
   autosar_nm_module = prefs_register_protocol(proto_autosar_nm, proto_reg_handoff_autosar_nm);
 
-  prefs_register_bool_preference(autosar_nm_module, "swap_ctrl_and_src",
-    "Swap Source Node Identifier and Control Bit Vector",
-    "In the standard the Source Node Identifier is the first byte "
-    "and the Control Bit Vector is the second byte. "
-    "Using this parameter they can be swapped",
-    &g_autosar_nm_swap_first_fields);
+  prefs_register_enum_preference(autosar_nm_module, "cbv_position",
+    "Control Bit Vector position",
+    "Make the NM dissector interpret this byte as Control Bit Vector (CBV)",
+    &g_autosar_nm_pos_cbv, byte_position_vals, FALSE);
+
+  prefs_register_enum_preference(autosar_nm_module, "sni_position",
+    "Source Node Identifier position",
+    "Make the NM dissector interpret this byte as Source Node Identifier (SNI)",
+    &g_autosar_nm_pos_sni, byte_position_vals, FALSE);
 
   prefs_register_bool_preference(autosar_nm_module, "interpret_coord_id",
     "Interpret bits 1 and 2 of Control Bit Vector as 'NM Coordinator Id'",
