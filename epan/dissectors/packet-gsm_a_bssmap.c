@@ -6837,6 +6837,7 @@ bssmap_common_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 of
     /* Selected PLMN ID    3.2.2.126    MSC-BSC    O (note 3)    */
     ELEM_OPT_TV(BE_SELECTED_PLMN_ID, GSM_A_PDU_TYPE_BSSMAP, BE_SELECTED_PLMN_ID, NULL);
     /* Last used E-UTRAN PLMN ID    3.2.2.127    MSC-BSC    O (note 4)    4 */
+    ELEM_OPT_TV(BE_LAST_USED_E_UTRAN_PLMN_ID, GSM_A_PDU_TYPE_BSSMAP, BE_LAST_USED_E_UTRAN_PLMN_ID, NULL);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_bssmap_extraneous_data);
 }
