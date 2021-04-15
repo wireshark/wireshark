@@ -2192,6 +2192,7 @@ main(int argc, char *argv[])
       guint i;
 
       /* Get the list of link-layer types for the capture devices. */
+      exit_status = EXIT_SUCCESS;
       for (i = 0; i < global_capture_opts.ifaces->len; i++) {
         interface_options *interface_opts;
         if_capabilities_t *caps;
@@ -2211,15 +2212,15 @@ main(int argc, char *argv[])
           g_free(err_str);
           g_free(err_str_secondary);
           exit_status = INVALID_CAPABILITY;
-          goto clean_exit;
+          break;
         }
         exit_status = capture_opts_print_if_capabilities(caps, interface_opts,
                                                          caps_queries);
         free_if_capabilities(caps);
-        if (exit_status != EXIT_SUCCESS)
-          goto clean_exit;
+        if (exit_status != EXIT_SUCCESS) {
+          break;
+        }
       }
-      exit_status = EXIT_SUCCESS;
       goto clean_exit;
     }
 
