@@ -908,43 +908,70 @@ static dissector_handle_t bgp_handle;
 #define SRV6_SERVICE_DATA_SRV6_SID_STRUCTURE 1
 
 /* SRv6 Endpoint behavior */
-#define SRV6_ENDPOINT_BEHAVIOR_END                0x0001 /* End [draft-ietf-spring-srv6-network-programming]                       */
-#define SRV6_ENDPOINT_BEHAVIOR_END_PSP            0x0002 /* End with PSP [draft-ietf-spring-srv6-network-programming]              */
-#define SRV6_ENDPOINT_BEHAVIOR_END_USP            0x0003 /* End with USP [draft-ietf-spring-srv6-network-programming]              */
-#define SRV6_ENDPOINT_BEHAVIOR_END_PSP_USP        0x0004 /* End with PSP & USP [draft-ietf-spring-srv6-network-programming]        */
-#define SRV6_ENDPOINT_BEHAVIOR_END_X              0x0005 /* End.X [draft-ietf-spring-srv6-network-programming]                     */
-#define SRV6_ENDPOINT_BEHAVIOR_END_X_PSP          0x0006 /* End.X with PSP [draft-ietf-spring-srv6-network-programming]            */
-#define SRV6_ENDPOINT_BEHAVIOR_END_X_USP          0x0007 /* End.X with UPS [draft-ietf-spring-srv6-network-programming]            */
-#define SRV6_ENDPOINT_BEHAVIOR_END_X_PSP_USP      0x0008 /* End.X with PSP & USP [draft-ietf-spring-srv6-network-programming]      */
-#define SRV6_ENDPOINT_BEHAVIOR_END_T              0x0009 /* End.T [draft-ietf-spring-srv6-network-programming]                     */
-#define SRV6_ENDPOINT_BEHAVIOR_END_T_PSP          0x000A /* End.T with PSP [draft-ietf-spring-srv6-network-programming]            */
-#define SRV6_ENDPOINT_BEHAVIOR_END_T_USP          0x000B /* End.T with USP [draft-ietf-spring-srv6-network-programming]            */
-#define SRV6_ENDPOINT_BEHAVIOR_END_T_PSP_USP      0x000C /* End.T with PSP & USP [draft-ietf-spring-srv6-network-programming]      */
-#define SRV6_ENDPOINT_BEHAVIOR_END_B6_ENCAPS      0x000E /* End.B6.Encaps [draft-ietf-spring-srv6-network-programming]             */
-#define SRV6_ENDPOINT_BEHAVIOR_END_BM             0x000F /* End.BM [draft-ietf-spring-srv6-network-programming]                    */
-#define SRV6_ENDPOINT_BEHAVIOR_END_DX6            0x0010 /* End.DX6 [draft-ietf-spring-srv6-network-programming]                   */
-#define SRV6_ENDPOINT_BEHAVIOR_END_DX4            0x0011 /* End.DX4 [draft-ietf-spring-srv6-network-programming]                   */
-#define SRV6_ENDPOINT_BEHAVIOR_END_DT6            0x0012 /* End.DT6 [draft-ietf-spring-srv6-network-programming]                   */
-#define SRV6_ENDPOINT_BEHAVIOR_END_DT4            0x0013 /* End.DT4 [draft-ietf-spring-srv6-network-programming]                   */
-#define SRV6_ENDPOINT_BEHAVIOR_END_DT46           0x0014 /* End.DT46 [draft-ietf-spring-srv6-network-programming]                  */
-#define SRV6_ENDPOINT_BEHAVIOR_END_DX2            0x0015 /* End.DX2 [draft-ietf-spring-srv6-network-programming]                   */
-#define SRV6_ENDPOINT_BEHAVIOR_END_DX2V           0x0016 /* End.DX2V [draft-ietf-spring-srv6-network-programming]                  */
-#define SRV6_ENDPOINT_BEHAVIOR_END_DT2U           0x0017 /* End.DX2U [draft-ietf-spring-srv6-network-programming]                  */
-#define SRV6_ENDPOINT_BEHAVIOR_END_DT2M           0x0018 /* End.DT2M [draft-ietf-spring-srv6-network-programming]                  */
-#define SRV6_ENDPOINT_BEHAVIOR_END_B6_ENCAPS_RED  0x001B /* End.B6.Encaps.Red [draft-ietf-spring-srv6-network-programming]         */
-#define SRV6_ENDPOINT_BEHAVIOR_END_USD            0x001C /* End with USD [draft-ietf-spring-srv6-network-programming]              */
-#define SRV6_ENDPOINT_BEHAVIOR_END_PSP_USD        0x001D /* End with PSP & USD [draft-ietf-spring-srv6-network-programming]        */
-#define SRV6_ENDPOINT_BEHAVIOR_END_USP_USD        0x001E /* End with USP & USD [draft-ietf-spring-srv6-network-programming]        */
-#define SRV6_ENDPOINT_BEHAVIOR_END_PSP_USP_USD    0x001F /* End with PSP, USP & USD [draft-ietf-spring-srv6-network-programming]   */
-#define SRV6_ENDPOINT_BEHAVIOR_END_X_USD          0x0020 /* End.X with USD [draft-ietf-spring-srv6-network-programming]            */
-#define SRV6_ENDPOINT_BEHAVIOR_END_X_PSP_USD      0x0021 /* End.X with PSP & USD [draft-ietf-spring-srv6-network-programming]      */
-#define SRV6_ENDPOINT_BEHAVIOR_END_X_USP_USD      0x0022 /* End.X with USP & USD [draft-ietf-spring-srv6-network-programming]      */
-#define SRV6_ENDPOINT_BEHAVIOR_END_X_PSP_USP_USD  0x0023 /* End.X with PSP, USP & USD [draft-ietf-spring-srv6-network-programming] */
-#define SRV6_ENDPOINT_BEHAVIOR_END_T_USD          0x0024 /* End.T with USD [draft-ietf-spring-srv6-network-programming]            */
-#define SRV6_ENDPOINT_BEHAVIOR_END_T_PSP_USD      0x0025 /* End.T with PSP & USD [draft-ietf-spring-srv6-network-programming]      */
-#define SRV6_ENDPOINT_BEHAVIOR_END_T_USP_USD      0x0026 /* End.T with USP & USD [draft-ietf-spring-srv6-network-programming]      */
-#define SRV6_ENDPOINT_BEHAVIOR_END_T_PSP_USP_USD  0x0027 /* End.T with PSP, USP & USD [draft-ietf-spring-srv6-network-programming] */
-#define SRV6_ENDPOINT_BEHAVIOR_OPAQUE             0xFFFF /* Opaque [draft-ietf-spring-srv6-network-programming]                    */
+#define SRV6_ENDPOINT_BEHAVIOR_END                    0x0001 /* End [draft-ietf-spring-srv6-network-programming]                                         */
+#define SRV6_ENDPOINT_BEHAVIOR_END_PSP                0x0002 /* End with PSP [draft-ietf-spring-srv6-network-programming]                                */
+#define SRV6_ENDPOINT_BEHAVIOR_END_USP                0x0003 /* End with USP [draft-ietf-spring-srv6-network-programming]                                */
+#define SRV6_ENDPOINT_BEHAVIOR_END_PSP_USP            0x0004 /* End with PSP & USP [draft-ietf-spring-srv6-network-programming]                          */
+#define SRV6_ENDPOINT_BEHAVIOR_END_X                  0x0005 /* End.X [draft-ietf-spring-srv6-network-programming]                                       */
+#define SRV6_ENDPOINT_BEHAVIOR_END_X_PSP              0x0006 /* End.X with PSP [draft-ietf-spring-srv6-network-programming]                              */
+#define SRV6_ENDPOINT_BEHAVIOR_END_X_USP              0x0007 /* End.X with UPS [draft-ietf-spring-srv6-network-programming]                              */
+#define SRV6_ENDPOINT_BEHAVIOR_END_X_PSP_USP          0x0008 /* End.X with PSP & USP [draft-ietf-spring-srv6-network-programming]                        */
+#define SRV6_ENDPOINT_BEHAVIOR_END_T                  0x0009 /* End.T [draft-ietf-spring-srv6-network-programming]                                       */
+#define SRV6_ENDPOINT_BEHAVIOR_END_T_PSP              0x000A /* End.T with PSP [draft-ietf-spring-srv6-network-programming]                              */
+#define SRV6_ENDPOINT_BEHAVIOR_END_T_USP              0x000B /* End.T with USP [draft-ietf-spring-srv6-network-programming]                              */
+#define SRV6_ENDPOINT_BEHAVIOR_END_T_PSP_USP          0x000C /* End.T with PSP & USP [draft-ietf-spring-srv6-network-programming]                        */
+#define SRV6_ENDPOINT_BEHAVIOR_END_B6_ENCAPS          0x000E /* End.B6.Encaps [draft-ietf-spring-srv6-network-programming]                               */
+#define SRV6_ENDPOINT_BEHAVIOR_END_BM                 0x000F /* End.BM [draft-ietf-spring-srv6-network-programming]                                      */
+#define SRV6_ENDPOINT_BEHAVIOR_END_DX6                0x0010 /* End.DX6 [draft-ietf-spring-srv6-network-programming]                                     */
+#define SRV6_ENDPOINT_BEHAVIOR_END_DX4                0x0011 /* End.DX4 [draft-ietf-spring-srv6-network-programming]                                     */
+#define SRV6_ENDPOINT_BEHAVIOR_END_DT6                0x0012 /* End.DT6 [draft-ietf-spring-srv6-network-programming]                                     */
+#define SRV6_ENDPOINT_BEHAVIOR_END_DT4                0x0013 /* End.DT4 [draft-ietf-spring-srv6-network-programming]                                     */
+#define SRV6_ENDPOINT_BEHAVIOR_END_DT46               0x0014 /* End.DT46 [draft-ietf-spring-srv6-network-programming]                                    */
+#define SRV6_ENDPOINT_BEHAVIOR_END_DX2                0x0015 /* End.DX2 [draft-ietf-spring-srv6-network-programming]                                     */
+#define SRV6_ENDPOINT_BEHAVIOR_END_DX2V               0x0016 /* End.DX2V [draft-ietf-spring-srv6-network-programming]                                    */
+#define SRV6_ENDPOINT_BEHAVIOR_END_DT2U               0x0017 /* End.DX2U [draft-ietf-spring-srv6-network-programming]                                    */
+#define SRV6_ENDPOINT_BEHAVIOR_END_DT2M               0x0018 /* End.DT2M [draft-ietf-spring-srv6-network-programming]                                    */
+#define SRV6_ENDPOINT_BEHAVIOR_END_B6_ENCAPS_RED      0x001B /* End.B6.Encaps.Red [draft-ietf-spring-srv6-network-programming]                           */
+#define SRV6_ENDPOINT_BEHAVIOR_END_USD                0x001C /* End with USD [draft-ietf-spring-srv6-network-programming]                                */
+#define SRV6_ENDPOINT_BEHAVIOR_END_PSP_USD            0x001D /* End with PSP & USD [draft-ietf-spring-srv6-network-programming]                          */
+#define SRV6_ENDPOINT_BEHAVIOR_END_USP_USD            0x001E /* End with USP & USD [draft-ietf-spring-srv6-network-programming]                          */
+#define SRV6_ENDPOINT_BEHAVIOR_END_PSP_USP_USD        0x001F /* End with PSP, USP & USD [draft-ietf-spring-srv6-network-programming]                     */
+#define SRV6_ENDPOINT_BEHAVIOR_END_X_USD              0x0020 /* End.X with USD [draft-ietf-spring-srv6-network-programming]                              */
+#define SRV6_ENDPOINT_BEHAVIOR_END_X_PSP_USD          0x0021 /* End.X with PSP & USD [draft-ietf-spring-srv6-network-programming]                        */
+#define SRV6_ENDPOINT_BEHAVIOR_END_X_USP_USD          0x0022 /* End.X with USP & USD [draft-ietf-spring-srv6-network-programming]                        */
+#define SRV6_ENDPOINT_BEHAVIOR_END_X_PSP_USP_USD      0x0023 /* End.X with PSP, USP & USD [draft-ietf-spring-srv6-network-programming]                   */
+#define SRV6_ENDPOINT_BEHAVIOR_END_T_USD              0x0024 /* End.T with USD [draft-ietf-spring-srv6-network-programming]                              */
+#define SRV6_ENDPOINT_BEHAVIOR_END_T_PSP_USD          0x0025 /* End.T with PSP & USD [draft-ietf-spring-srv6-network-programming]                        */
+#define SRV6_ENDPOINT_BEHAVIOR_END_T_USP_USD          0x0026 /* End.T with USP & USD [draft-ietf-spring-srv6-network-programming]                        */
+#define SRV6_ENDPOINT_BEHAVIOR_END_T_PSP_USP_USD      0x0027 /* End.T with PSP, USP & USD [draft-ietf-spring-srv6-network-programming]                   */
+#define SRV6_ENDPOINT_BEHAVIOR_END_ONLY_CSID          0x002A /* End with NEXT-ONLY-CSID [draft-filsfils-spring-net-pgm-extension-srv6-usid]              */
+#define SRV6_ENDPOINT_BEHAVIOR_END_CSID               0x002B /* End with NEXT-CSID [draft-filsfils-spring-net-pgm-extension-srv6-usid]                   */
+#define SRV6_ENDPOINT_BEHAVIOR_END_CSID_PSP           0x002C /* End with NEXT-CSID & PSP [draft-filsfils-spring-net-pgm-extension-srv6-usid]             */
+#define SRV6_ENDPOINT_BEHAVIOR_END_CSID_USP           0x002D /* End with NEXT-CSID & USP [draft-filsfils-spring-net-pgm-extension-srv6-usid]             */
+#define SRV6_ENDPOINT_BEHAVIOR_END_CSID_PSP_USP       0x002E /* End with NEXT-CSID, PSP & USP [draft-filsfils-spring-net-pgm-extension-srv6-usid]        */
+#define SRV6_ENDPOINT_BEHAVIOR_END_CSID_USD           0x002F /* End with NEXT-CSID & USD [draft-filsfils-spring-net-pgm-extension-srv6-usid]             */
+#define SRV6_ENDPOINT_BEHAVIOR_END_CSID_PSP_USD       0x0030 /* End with NEXT-CSID, PSP & USD [draft-filsfils-spring-net-pgm-extension-srv6-usid]        */
+#define SRV6_ENDPOINT_BEHAVIOR_END_CSID_USP_USD       0x0031 /* End with NEXT-CSID, USP & USD [draft-filsfils-spring-net-pgm-extension-srv6-usid]        */
+#define SRV6_ENDPOINT_BEHAVIOR_END_CSID_PSP_USP_USD   0x0032 /* End with NEXT-CSID, PSP, USP & USD [draft-filsfils-spring-net-pgm-extension-srv6-usid]   */
+#define SRV6_ENDPOINT_BEHAVIOR_END_X_ONLY_CSID        0x0033 /* End.X with NEXT-ONLY-CSID [draft-filsfils-spring-net-pgm-extension-srv6-usid]            */
+#define SRV6_ENDPOINT_BEHAVIOR_END_X_CSID             0x0034 /* End.X with NEXT-CSID [draft-filsfils-spring-net-pgm-extension-srv6-usid]                 */
+#define SRV6_ENDPOINT_BEHAVIOR_END_X_CSID_PSP         0x0035 /* End.X with NEXT-CSID & PSP [draft-filsfils-spring-net-pgm-extension-srv6-usid]           */
+#define SRV6_ENDPOINT_BEHAVIOR_END_X_CSID_USP         0x0036 /* End.X with NEXT-CSID & USP [draft-filsfils-spring-net-pgm-extension-srv6-usid]           */
+#define SRV6_ENDPOINT_BEHAVIOR_END_X_CSID_PSP_USP     0x0037 /* End.X with NEXT-CSID, PSP & USP [draft-filsfils-spring-net-pgm-extension-srv6-usid]      */
+#define SRV6_ENDPOINT_BEHAVIOR_END_X_CSID_USD         0x0038 /* End.X with NEXT-CSID & USD [draft-filsfils-spring-net-pgm-extension-srv6-usid]           */
+#define SRV6_ENDPOINT_BEHAVIOR_END_X_CSID_PSP_USD     0x0039 /* End.X with NEXT-CSID, PSP & USD [draft-filsfils-spring-net-pgm-extension-srv6-usid]      */
+#define SRV6_ENDPOINT_BEHAVIOR_END_X_CSID_USP_USD     0x003A /* End.X with NEXT-CSID, USP & USD [draft-filsfils-spring-net-pgm-extension-srv6-usid]      */
+#define SRV6_ENDPOINT_BEHAVIOR_END_X_CSID_PSP_USP_USD 0x003B /* End.X with NEXT-CSID, PSP, USP & USD [draft-filsfils-spring-net-pgm-extension-srv6-usid] */
+#define SRV6_ENDPOINT_BEHAVIOR_END_DX6_CSID           0x003C /* End.DX6 with NEXT-CSID [draft-filsfils-spring-net-pgm-extension-srv6-usid]               */
+#define SRV6_ENDPOINT_BEHAVIOR_END_DX4_CSID           0x003D /* End.DX4 with NEXT-CSID [draft-filsfils-spring-net-pgm-extension-srv6-usid]               */
+#define SRV6_ENDPOINT_BEHAVIOR_END_DT6_CSID           0x003E /* End.DT6 with NEXT-CSID [draft-filsfils-spring-net-pgm-extension-srv6-usid]               */
+#define SRV6_ENDPOINT_BEHAVIOR_END_DT4_CSID           0x003F /* End.DT4 with NEXT-CSID [draft-filsfils-spring-net-pgm-extension-srv6-usid]               */
+#define SRV6_ENDPOINT_BEHAVIOR_END_DT46_CSID          0x0040 /* End.DT46 with NEXT-CSID [draft-filsfils-spring-net-pgm-extension-srv6-usid]              */
+#define SRV6_ENDPOINT_BEHAVIOR_END_DX2_CSID           0x0041 /* End.DX2 with NEXT-CSID [draft-filsfils-spring-net-pgm-extension-srv6-usid]               */
+#define SRV6_ENDPOINT_BEHAVIOR_END_DX2V_CSID          0x0042 /* End.DX2V with NEXT-CSID [draft-filsfils-spring-net-pgm-extension-srv6-usid]              */
+#define SRV6_ENDPOINT_BEHAVIOR_END_DT2U_CSID          0x0043 /* End.DT2U with NEXT-CSID [draft-filsfils-spring-net-pgm-extension-srv6-usid]              */
+#define SRV6_ENDPOINT_BEHAVIOR_END_DT2M_CSID          0x0044 /* End.DT2M with NEXT-CSID [draft-filsfils-spring-net-pgm-extension-srv6-usid]              */
+#define SRV6_ENDPOINT_BEHAVIOR_OPAQUE                 0xFFFF /* Opaque [draft-ietf-spring-srv6-network-programming]                                      */
 
 static const value_string bgptypevals[] = {
     { BGP_OPEN,                "OPEN Message" },
@@ -1708,43 +1735,70 @@ static const value_string srv6_service_data_sub_sub_tlv_type[] = {
 
 /* SRv6 Endpoint behavior value_string [draft-ietf-spring-srv6-network-programming-24]. */
 static const value_string srv6_endpoint_behavior[] = {
-    { SRV6_ENDPOINT_BEHAVIOR_END,               "End" },
-    { SRV6_ENDPOINT_BEHAVIOR_END_PSP,           "End with PSP" },
-    { SRV6_ENDPOINT_BEHAVIOR_END_USP,           "End with USP" },
-    { SRV6_ENDPOINT_BEHAVIOR_END_PSP_USP,       "End with PSP & USP" },
-    { SRV6_ENDPOINT_BEHAVIOR_END_X,             "End.X" },
-    { SRV6_ENDPOINT_BEHAVIOR_END_X_PSP,         "End.X with PSP" },
-    { SRV6_ENDPOINT_BEHAVIOR_END_X_USP,         "End.X with USP" },
-    { SRV6_ENDPOINT_BEHAVIOR_END_X_PSP_USP,     "End.X with PSP & USP" },
-    { SRV6_ENDPOINT_BEHAVIOR_END_T,             "End.T" },
-    { SRV6_ENDPOINT_BEHAVIOR_END_T_PSP,         "End.T with PSP" },
-    { SRV6_ENDPOINT_BEHAVIOR_END_T_USP,         "End.T with USP" },
-    { SRV6_ENDPOINT_BEHAVIOR_END_T_PSP_USP,     "End.T with PSP & USP" },
-    { SRV6_ENDPOINT_BEHAVIOR_END_B6_ENCAPS,     "End.B6.Encaps" },
-    { SRV6_ENDPOINT_BEHAVIOR_END_BM,            "End.BM" },
-    { SRV6_ENDPOINT_BEHAVIOR_END_DX6,           "End.DX6" },
-    { SRV6_ENDPOINT_BEHAVIOR_END_DX4,           "End.DX4" },
-    { SRV6_ENDPOINT_BEHAVIOR_END_DT6,           "End.DT6" },
-    { SRV6_ENDPOINT_BEHAVIOR_END_DT4,           "End.DT4" },
-    { SRV6_ENDPOINT_BEHAVIOR_END_DT46,          "End.DT46" },
-    { SRV6_ENDPOINT_BEHAVIOR_END_DX2,           "End.DX2" },
-    { SRV6_ENDPOINT_BEHAVIOR_END_DX2V,          "End.DX2V" },
-    { SRV6_ENDPOINT_BEHAVIOR_END_DT2U,          "End.DT2U" },
-    { SRV6_ENDPOINT_BEHAVIOR_END_DT2M,          "End.DT2M" },
-    { SRV6_ENDPOINT_BEHAVIOR_END_B6_ENCAPS_RED, "End.B6.Encaps.Red" },
-    { SRV6_ENDPOINT_BEHAVIOR_END_USD,           "End with USD" },
-    { SRV6_ENDPOINT_BEHAVIOR_END_PSP_USD,       "End with PSP & USD" },
-    { SRV6_ENDPOINT_BEHAVIOR_END_USP_USD,       "End with USP & USD" },
-    { SRV6_ENDPOINT_BEHAVIOR_END_PSP_USP_USD,   "End with PSP, USP & USD" },
-    { SRV6_ENDPOINT_BEHAVIOR_END_X_USD,         "End.X with USD" },
-    { SRV6_ENDPOINT_BEHAVIOR_END_X_PSP_USD,     "End.X with PSP & USD" },
-    { SRV6_ENDPOINT_BEHAVIOR_END_X_USP_USD,     "End.X with USP & USD" },
-    { SRV6_ENDPOINT_BEHAVIOR_END_X_PSP_USP_USD, "End.X with PSP, USP & USD" },
-    { SRV6_ENDPOINT_BEHAVIOR_END_T_USD,         "End.T with USD" },
-    { SRV6_ENDPOINT_BEHAVIOR_END_T_PSP_USD,     "End.T with PSP & USD" },
-    { SRV6_ENDPOINT_BEHAVIOR_END_T_USP_USD,     "End.T with USP & USD" },
-    { SRV6_ENDPOINT_BEHAVIOR_END_T_PSP_USP_USD, "End.T with PSP, USP & USD" },
-    { SRV6_ENDPOINT_BEHAVIOR_OPAQUE,            "Opaque" },
+    { SRV6_ENDPOINT_BEHAVIOR_END,                    "End" },
+    { SRV6_ENDPOINT_BEHAVIOR_END_PSP,                "End with PSP" },
+    { SRV6_ENDPOINT_BEHAVIOR_END_USP,                "End with USP" },
+    { SRV6_ENDPOINT_BEHAVIOR_END_PSP_USP,            "End with PSP & USP" },
+    { SRV6_ENDPOINT_BEHAVIOR_END_X,                  "End.X" },
+    { SRV6_ENDPOINT_BEHAVIOR_END_X_PSP,              "End.X with PSP" },
+    { SRV6_ENDPOINT_BEHAVIOR_END_X_USP,              "End.X with USP" },
+    { SRV6_ENDPOINT_BEHAVIOR_END_X_PSP_USP,          "End.X with PSP & USP" },
+    { SRV6_ENDPOINT_BEHAVIOR_END_T,                  "End.T" },
+    { SRV6_ENDPOINT_BEHAVIOR_END_T_PSP,              "End.T with PSP" },
+    { SRV6_ENDPOINT_BEHAVIOR_END_T_USP,              "End.T with USP" },
+    { SRV6_ENDPOINT_BEHAVIOR_END_T_PSP_USP,          "End.T with PSP & USP" },
+    { SRV6_ENDPOINT_BEHAVIOR_END_B6_ENCAPS,          "End.B6.Encaps" },
+    { SRV6_ENDPOINT_BEHAVIOR_END_BM,                 "End.BM" },
+    { SRV6_ENDPOINT_BEHAVIOR_END_DX6,                "End.DX6" },
+    { SRV6_ENDPOINT_BEHAVIOR_END_DX4,                "End.DX4" },
+    { SRV6_ENDPOINT_BEHAVIOR_END_DT6,                "End.DT6" },
+    { SRV6_ENDPOINT_BEHAVIOR_END_DT4,                "End.DT4" },
+    { SRV6_ENDPOINT_BEHAVIOR_END_DT46,               "End.DT46" },
+    { SRV6_ENDPOINT_BEHAVIOR_END_DX2,                "End.DX2" },
+    { SRV6_ENDPOINT_BEHAVIOR_END_DX2V,               "End.DX2V" },
+    { SRV6_ENDPOINT_BEHAVIOR_END_DT2U,               "End.DT2U" },
+    { SRV6_ENDPOINT_BEHAVIOR_END_DT2M,               "End.DT2M" },
+    { SRV6_ENDPOINT_BEHAVIOR_END_B6_ENCAPS_RED,      "End.B6.Encaps.Red" },
+    { SRV6_ENDPOINT_BEHAVIOR_END_USD,                "End with USD" },
+    { SRV6_ENDPOINT_BEHAVIOR_END_PSP_USD,            "End with PSP & USD" },
+    { SRV6_ENDPOINT_BEHAVIOR_END_USP_USD,            "End with USP & USD" },
+    { SRV6_ENDPOINT_BEHAVIOR_END_PSP_USP_USD,        "End with PSP, USP & USD" },
+    { SRV6_ENDPOINT_BEHAVIOR_END_X_USD,              "End.X with USD" },
+    { SRV6_ENDPOINT_BEHAVIOR_END_X_PSP_USD,          "End.X with PSP & USD" },
+    { SRV6_ENDPOINT_BEHAVIOR_END_X_USP_USD,          "End.X with USP & USD" },
+    { SRV6_ENDPOINT_BEHAVIOR_END_X_PSP_USP_USD,      "End.X with PSP, USP & USD" },
+    { SRV6_ENDPOINT_BEHAVIOR_END_T_USD,              "End.T with USD" },
+    { SRV6_ENDPOINT_BEHAVIOR_END_T_PSP_USD,          "End.T with PSP & USD" },
+    { SRV6_ENDPOINT_BEHAVIOR_END_T_USP_USD,          "End.T with USP & USD" },
+    { SRV6_ENDPOINT_BEHAVIOR_END_T_PSP_USP_USD,      "End.T with PSP, USP & USD" },
+    { SRV6_ENDPOINT_BEHAVIOR_END_ONLY_CSID,          "End with NEXT-ONLY-CSID" },
+    { SRV6_ENDPOINT_BEHAVIOR_END_CSID,               "End with NEXT-CSID" },
+    { SRV6_ENDPOINT_BEHAVIOR_END_CSID_PSP,           "End with NEXT-CSID & PSP" },
+    { SRV6_ENDPOINT_BEHAVIOR_END_CSID_USP,           "End with NEXT-CSID & USP" },
+    { SRV6_ENDPOINT_BEHAVIOR_END_CSID_PSP_USP,       "End with NEXT-CSID, PSP & USP" },
+    { SRV6_ENDPOINT_BEHAVIOR_END_CSID_USD,           "End with NEXT-CSID & USD" },
+    { SRV6_ENDPOINT_BEHAVIOR_END_CSID_PSP_USD,       "End with NEXT-CSID, PSP & USD" },
+    { SRV6_ENDPOINT_BEHAVIOR_END_CSID_USP_USD,       "End with NEXT-CSID, USP & USD" },
+    { SRV6_ENDPOINT_BEHAVIOR_END_CSID_PSP_USP_USD,   "End with NEXT-CSID, PSP, USP & USD" },
+    { SRV6_ENDPOINT_BEHAVIOR_END_X_ONLY_CSID,        "End.X with NEXT-ONLY-CSID" },
+    { SRV6_ENDPOINT_BEHAVIOR_END_X_CSID,             "End.X with NEXT-CSID" },
+    { SRV6_ENDPOINT_BEHAVIOR_END_X_CSID_PSP,         "End.X with NEXT-CSID & PSP" },
+    { SRV6_ENDPOINT_BEHAVIOR_END_X_CSID_USP,         "End.X with NEXT-CSID & USP" },
+    { SRV6_ENDPOINT_BEHAVIOR_END_X_CSID_PSP_USP,     "End.X with NEXT-CSID, PSP & USP" },
+    { SRV6_ENDPOINT_BEHAVIOR_END_X_CSID_USD,         "End.X with NEXT-CSID & USD" },
+    { SRV6_ENDPOINT_BEHAVIOR_END_X_CSID_PSP_USD,     "End.X with NEXT-CSID, PSP & USD" },
+    { SRV6_ENDPOINT_BEHAVIOR_END_X_CSID_USP_USD,     "End.X with NEXT-CSID, USP & USD" },
+    { SRV6_ENDPOINT_BEHAVIOR_END_X_CSID_PSP_USP_USD, "End.X with NEXT-CSID, PSP, USP & USD" },
+    { SRV6_ENDPOINT_BEHAVIOR_END_DX6_CSID,           "End.DX6 with NEXT-CSID" },
+    { SRV6_ENDPOINT_BEHAVIOR_END_DX4_CSID,           "End.DX4 with NEXT-CSID" },
+    { SRV6_ENDPOINT_BEHAVIOR_END_DT6_CSID,           "End.DT6 with NEXT-CSID" },
+    { SRV6_ENDPOINT_BEHAVIOR_END_DT4_CSID,           "End.DT4 with NEXT-CSID" },
+    { SRV6_ENDPOINT_BEHAVIOR_END_DT46_CSID,          "End.DT46 with NEXT-CSID" },
+    { SRV6_ENDPOINT_BEHAVIOR_END_DX2_CSID,           "End.DX2 with NEXT-CSID" },
+    { SRV6_ENDPOINT_BEHAVIOR_END_DX2V_CSID,          "End.DX2V with NEXT-CSID" },
+    { SRV6_ENDPOINT_BEHAVIOR_END_DT2U_CSID,          "End.DT2U with NEXT-CSID" },
+    { SRV6_ENDPOINT_BEHAVIOR_END_DT2M_CSID,          "End.DT2M with NEXT-CSID" },
+    { SRV6_ENDPOINT_BEHAVIOR_OPAQUE,                 "Opaque" },
     { 0,  NULL }
 };
 
