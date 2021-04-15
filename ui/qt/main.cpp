@@ -891,6 +891,9 @@ int main(int argc, char *qt_argv[])
     if (caps_queries) {
         guint i;
 
+#ifdef _WIN32
+        create_console();
+#endif /* _WIN32 */
         /* Get the list of link-layer types for the capture devices. */
         for (i = 0; i < global_capture_opts.ifaces->len; i++) {
             interface_options *interface_opts;
@@ -913,19 +916,20 @@ int main(int argc, char *qt_argv[])
                 ret_val = INVALID_CAPABILITY;
                 goto clean_exit;
             }
-#ifdef _WIN32
-            create_console();
-#endif /* _WIN32 */
             ret_val = capture_opts_print_if_capabilities(caps, interface_opts,
                                                          caps_queries);
-#ifdef _WIN32
-            destroy_console();
-#endif /* _WIN32 */
             free_if_capabilities(caps);
-            if (ret_val != EXIT_SUCCESS)
+            if (ret_val != EXIT_SUCCESS) {
+#ifdef _WIN32
+                destroy_console();
+#endif /* _WIN32 */
                 goto clean_exit;
+            }
         }
         ret_val = EXIT_SUCCESS;
+#ifdef _WIN32
+        destroy_console();
+#endif /* _WIN32 */
         goto clean_exit;
     }
 
