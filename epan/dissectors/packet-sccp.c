@@ -3707,7 +3707,7 @@ proto_register_sccp(void)
     },
     { &hf_sccp_called_gt_tt,
       { "Translation Type", "sccp.called.tt",
-        FT_UINT8, BASE_HEX, NULL, 0x0,
+        FT_UINT8, BASE_DEC, NULL, 0x0,
         NULL, HFILL }
     },
     { &hf_sccp_called_gt_np,
@@ -3827,7 +3827,7 @@ proto_register_sccp(void)
     },
     { &hf_sccp_calling_gt_tt,
       { "Translation Type", "sccp.calling.tt",
-        FT_UINT8, BASE_HEX, NULL, 0x0,
+        FT_UINT8, BASE_DEC, NULL, 0x0,
         NULL, HFILL }
     },
     { &hf_sccp_calling_gt_np,
