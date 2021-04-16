@@ -325,6 +325,17 @@ static int hf_isis_lsp_ext_is_reachability_code = -1;
 static int hf_isis_lsp_ext_is_reachability_len = -1;
 static int hf_isis_lsp_ext_is_reachability_value = -1;
 static int hf_isis_lsp_default_metric = -1;
+static int hf_isis_lsp_ext_is_reachability_unidir_link_flags = -1;
+static int hf_isis_lsp_ext_is_reachability_unidir_link_flags_a = -1;
+static int hf_isis_lsp_ext_is_reachability_unidir_link_reserved = -1;
+static int hf_isis_lsp_ext_is_reachability_unidir_link_delay = -1;
+static int hf_isis_lsp_ext_is_reachability_unidir_link_delay_min = -1;
+static int hf_isis_lsp_ext_is_reachability_unidir_link_delay_max = -1;
+static int hf_isis_lsp_ext_is_reachability_unidir_delay_variation = -1;
+static int hf_isis_lsp_ext_is_reachability_unidir_link_loss = -1;
+static int hf_isis_lsp_ext_is_reachability_unidir_residual_bandwidth = -1;
+static int hf_isis_lsp_ext_is_reachability_unidir_available_bandwidth = -1;
+static int hf_isis_lsp_ext_is_reachability_unidir_utilized_bandwidth = -1;
 static int hf_isis_lsp_ext_ip_reachability_distribution = -1;
 static int hf_isis_lsp_ext_ip_reachability_subtlv = -1;
 static int hf_isis_lsp_ext_ip_reachability_prefix_length = -1;
@@ -560,6 +571,7 @@ static gint ett_isis_lsp_clv_srv6_locator = -1;
 static gint ett_isis_lsp_clv_srv6_loc_flags = -1;
 static gint ett_isis_lsp_clv_srv6_loc_sub_tlv = -1;
 static gint ett_isis_lsp_clv_srv6_endx_sid_flags = -1;
+static gint ett_isis_lsp_clv_unidir_link_flags = -1;
 static gint ett_isis_lsp_clv_mac_reachability = -1;
 static gint ett_isis_lsp_clv_avaya_ipvpn = -1;
 static gint ett_isis_lsp_clv_avaya_ipvpn_subtlv = -1;
@@ -702,6 +714,11 @@ static const value_string isis_lsp_grp_types[] = {
     { 0, NULL }
 };
 
+static int * const unidir_link_flags[] = {
+    &hf_isis_lsp_ext_is_reachability_unidir_link_flags_a,
+    NULL,
+};
+
 /*
 http://www.iana.org/assignments/isis-tlv-codepoints/isis-tlv-codepoints.xhtml#isis-tlv-codepoints-22-23-141-222-223
 https://tools.ietf.org/html/rfc8667
@@ -733,6 +750,13 @@ static const value_string isis_lsp_ext_is_reachability_code_vals[] = {
     { 30, "SPB-A-OALG" },
     { 31, "Adj-SID" },
     { 32, "LAN-Adj-SID" },
+    { 33, "Unidirectional Link Delay"},
+    { 34, "Min/Max Unidirectional Link Delay"},
+    { 35, "Unidirectional Delay Variation"},
+    { 36, "Unidirectional Link Loss"},
+    { 37, "Unidirectional Residual Bandwidth"},
+    { 38, "Unidirectional Available Bandwidth"},
+    { 39, "Unidirectional Utilized Bandwidth"},
     { 43, "SRv6 End.X SID" },       /* Suggested Value */
     { 44, "SRv6 LAN End.X SID" },   /* Suggested Value */
     { 250, "Reserved for Cisco-specific extensions" },
@@ -3159,6 +3183,8 @@ dissect_sub_clv_tlv_22_22_23_141_222_223(tvbuff_t *tvb, packet_info* pinfo, prot
     int i = 0;
     guint  clv_code, clv_len;
     int local_offset, local_len;
+    proto_item *ti;
+    gfloat percentage;
 
     sub_tlv_offset  = offset;
     while (i < subclvs_len) {
@@ -3228,6 +3254,57 @@ dissect_sub_clv_tlv_22_22_23_141_222_223(tvbuff_t *tvb, packet_info* pinfo, prot
             case 31:
             case 32:
                 dissect_subclv_adj_sid(tvb, pinfo, subtree, sub_tlv_offset+13+i, clv_code, clv_len);
+            break;
+            case 33:
+                /* Unidirectional Link Delay (rfc8570) */
+                local_offset = sub_tlv_offset + 13 + i;
+                proto_tree_add_bitmask(subtree, tvb, local_offset,
+                                       hf_isis_lsp_ext_is_reachability_unidir_link_flags,
+                                       ett_isis_lsp_clv_unidir_link_flags,
+                                       unidir_link_flags, ENC_NA);
+                proto_tree_add_item(subtree, hf_isis_lsp_ext_is_reachability_unidir_link_delay, tvb, local_offset+1, 3, ENC_BIG_ENDIAN);
+            break;
+            case 34:
+                /* Min/Max Unidirectional Link Delay (rfc8570) */
+                local_offset = sub_tlv_offset + 13 + i;
+                proto_tree_add_bitmask(subtree, tvb, local_offset,
+                                       hf_isis_lsp_ext_is_reachability_unidir_link_flags,
+                                       ett_isis_lsp_clv_unidir_link_flags,
+                                       unidir_link_flags, ENC_NA);
+                proto_tree_add_item(subtree, hf_isis_lsp_ext_is_reachability_unidir_link_delay_min, tvb, local_offset+1, 3, ENC_BIG_ENDIAN);
+                proto_tree_add_item(subtree, hf_isis_lsp_ext_is_reachability_unidir_link_reserved, tvb, local_offset+4, 1, ENC_NA);
+                proto_tree_add_item(subtree, hf_isis_lsp_ext_is_reachability_unidir_link_delay_max, tvb, local_offset+5, 3, ENC_BIG_ENDIAN);
+            break;
+            case 35:
+                /* Unidirectional Delay Variation (rfc8570) */
+                local_offset = sub_tlv_offset + 13 + i;
+                proto_tree_add_item(subtree, hf_isis_lsp_ext_is_reachability_unidir_link_reserved, tvb, local_offset, 1, ENC_NA);
+                proto_tree_add_item(subtree, hf_isis_lsp_ext_is_reachability_unidir_delay_variation, tvb, local_offset+1, 3, ENC_BIG_ENDIAN);
+            break;
+            case 36:
+                /* Unidirectional Link Loss (rfc8570) */
+                local_offset = sub_tlv_offset + 13 + i;
+                proto_tree_add_bitmask(subtree, tvb, local_offset,
+                                       hf_isis_lsp_ext_is_reachability_unidir_link_flags,
+                                       ett_isis_lsp_clv_unidir_link_flags,
+                                       unidir_link_flags, ENC_NA);
+                ti = proto_tree_add_item(subtree, hf_isis_lsp_ext_is_reachability_unidir_link_loss, tvb, local_offset+1, 3, ENC_BIG_ENDIAN);
+                if (ti) {
+                    percentage = (gfloat)tvb_get_guint24(tvb, local_offset+1, ENC_BIG_ENDIAN);
+                    proto_item_append_text(ti, " (%f %%)", percentage * 0.000003);
+                }
+            break;
+            case 37:
+                /* 37: Unidirectional Residual Bandwidth (rfc8570) */
+                proto_tree_add_item(subtree, hf_isis_lsp_ext_is_reachability_unidir_residual_bandwidth, tvb, sub_tlv_offset+13+i, 4, ENC_BIG_ENDIAN);
+            break;
+            case 38:
+                /* 38: Unidirectional Available Bandwidth (rfc8570) */
+                proto_tree_add_item(subtree, hf_isis_lsp_ext_is_reachability_unidir_available_bandwidth, tvb, sub_tlv_offset+13+i, 4, ENC_BIG_ENDIAN);
+            break;
+            case 39:
+                /* 39: Unidirectional Utilized Bandwidth (rfc8570) */
+                proto_tree_add_item(subtree, hf_isis_lsp_ext_is_reachability_unidir_utilized_bandwidth, tvb, sub_tlv_offset+13+i, 4, ENC_BIG_ENDIAN);
             break;
             case 43:
                 /* SRv6 End.X SID */
@@ -5618,6 +5695,63 @@ proto_register_isis_lsp(void)
               FT_UINT24, BASE_DEC, NULL, 0x0,
               NULL, HFILL }
         },
+        /* rfc8570 */
+        { &hf_isis_lsp_ext_is_reachability_unidir_link_flags,
+            { "Flags", "isis.lsp.ext_is_reachability.unidirectional_link_flags",
+              FT_UINT8, BASE_HEX, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_ext_is_reachability_unidir_link_flags_a,
+            { "Anomalous bit", "isis.lsp.ext_is_reachability.unidirectional_link_flags.a",
+              FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x80,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_ext_is_reachability_unidir_link_reserved,
+            { "Reserved", "isis.lsp.ext_is_reachability.unidirectional_link_reserved",
+              FT_UINT8, BASE_HEX, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_ext_is_reachability_unidir_link_delay,
+            { "Delay", "isis.lsp.ext_is_reachability.unidirectional_link_delay",
+              FT_UINT24, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_ext_is_reachability_unidir_link_delay_min,
+            { "Min Delay", "isis.lsp.ext_is_reachability.unidirectional_link_delay_min",
+              FT_UINT24, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_ext_is_reachability_unidir_link_delay_max,
+            { "Max Delay", "isis.lsp.ext_is_reachability.unidirectional_link_delay_max",
+              FT_UINT24, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_ext_is_reachability_unidir_delay_variation,
+            { "Delay Variation", "isis.lsp.ext_is_reachability.unidirectional_delay_variation",
+              FT_UINT24, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_ext_is_reachability_unidir_link_loss,
+            { "Link Loss", "isis.lsp.ext_is_reachability.unidirectional_link_loss",
+              FT_UINT24, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_ext_is_reachability_unidir_residual_bandwidth,
+            { "Residual Bandwidth", "isis.lsp.ext_is_reachability.unidirectional_residual_bandwidth",
+              FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_ext_is_reachability_unidir_available_bandwidth,
+            { "Available Bandwidth", "isis.lsp.ext_is_reachability.unidirectional_available_bandwidth",
+              FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_ext_is_reachability_unidir_utilized_bandwidth,
+            { "Utilized Bandwidth", "isis.lsp.ext_is_reachability.unidirectional_utilized_bandwidth",
+              FT_UINT32, BASE_DEC, NULL, 0,
+              NULL, HFILL }
+        },
+
         { &hf_isis_lsp_partition_designated_l2_is,
             { "Partition designated L2 IS", "isis.lsp.partition_designated_l2_is",
               FT_SYSTEM_ID, BASE_NONE, NULL, 0x0,
@@ -6323,7 +6457,8 @@ proto_register_isis_lsp(void)
         &ett_isis_lsp_clv_avaya_ipvpn,
         &ett_isis_lsp_clv_avaya_ipvpn_subtlv,
         &ett_isis_lsp_clv_avaya_ipvpn_mc,
-        &ett_isis_lsp_clv_avaya_ip_grt_mc
+        &ett_isis_lsp_clv_avaya_ip_grt_mc,
+        &ett_isis_lsp_clv_unidir_link_flags,
     };
 
     static ei_register_info ei[] = {
