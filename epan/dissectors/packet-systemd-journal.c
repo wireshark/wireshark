@@ -855,7 +855,7 @@ proto_register_systemd_journal(void)
     /* Setup protocol expert items */
     static ei_register_info ei[] = {
         { &ei_unhandled_field_type,
-          { "systemd_journal.unhandled_field_type.undecoced", PI_UNDECODED, PI_ERROR,
+          { "systemd_journal.unhandled_field_type.undecoded", PI_UNDECODED, PI_ERROR,
             "Unhandled field type", EXPFILL }
         },
         { &ei_nonbinary_field,
