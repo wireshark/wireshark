@@ -194,6 +194,9 @@ QByteArray StatsTreeDialog::getTreeAsString(st_format_type format)
 }
 
 extern "C" {
+
+void register_tap_listener_qt_stats_tree_stat(void);
+
 void
 register_tap_listener_qt_stats_tree_stat(void)
 {
@@ -201,4 +204,5 @@ register_tap_listener_qt_stats_tree_stat(void)
                 StatsTreeDialog::setupNode,
                 NULL, NULL);
 }
+
 }

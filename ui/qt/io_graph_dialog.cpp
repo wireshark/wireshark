@@ -2238,9 +2238,13 @@ static stat_tap_ui io_stat_ui = {
 };
 
 extern "C" {
+
+void register_tap_listener_qt_iostat(void);
+
 void
 register_tap_listener_qt_iostat(void)
 {
     register_stat_tap_ui(&io_stat_ui, NULL);
 }
+
 }

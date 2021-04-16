@@ -476,9 +476,13 @@ static stat_tap_ui multicast_statistics_ui = {
 };
 
 extern "C" {
+
+void register_tap_listener_qt_multicast_statistics(void);
+
 void
 register_tap_listener_qt_multicast_statistics(void)
 {
     register_stat_tap_ui(&multicast_statistics_ui, NULL);
 }
+
 }

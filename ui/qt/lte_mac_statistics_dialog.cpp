@@ -916,9 +916,13 @@ static stat_tap_ui lte_mac_statistics_ui = {
 };
 
 extern "C" {
+
+void register_tap_listener_qt_lte_mac_statistics(void);
+
 void
-    register_tap_listener_qt_lte_mac_statistics(void)
-    {
-        register_stat_tap_ui(&lte_mac_statistics_ui, NULL);
-    }
+register_tap_listener_qt_lte_mac_statistics(void)
+{
+    register_stat_tap_ui(&lte_mac_statistics_ui, NULL);
+}
+
 }

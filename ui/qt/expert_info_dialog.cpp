@@ -341,9 +341,13 @@ static stat_tap_ui expert_info_stat_ui = {
 };
 
 extern "C" {
+
+void register_tap_listener_qt_expert_info(void);
+
 void
 register_tap_listener_qt_expert_info(void)
 {
     register_stat_tap_ui(&expert_info_stat_ui, NULL);
 }
+
 }

@@ -236,7 +236,7 @@ void set_action_shortcuts_visible_in_context_menu(QList<QAction *> actions);
 /**
  * Make display filter from list of rtpstream_id
  *
- * @param  List of ids
+ * @param ids List of ids
  * @return Filter or empty string
  */
 QString make_filter_based_on_rtpstream_id(QVector<rtpstream_id_t *> ids);
@@ -244,7 +244,7 @@ QString make_filter_based_on_rtpstream_id(QVector<rtpstream_id_t *> ids);
 /**
  * Make display filter from list of rtpstream_infos
  *
- * @param  List of streams
+ * @param streams List of streams
  * @return Filter or empty string
  */
 QString make_filter_based_on_rtpstream_info(QVector<rtpstream_info_t *> streams);

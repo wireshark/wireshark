@@ -312,6 +312,8 @@ void progress_window_destroy(progdlg *progress_dialog) {
 
 extern "C" {
 
+void register_tap_listener_qt_funnel(void);
+
 static void register_menu_cb(const char *name,
                              register_stat_group_t group,
                              funnel_menu_callback callback,

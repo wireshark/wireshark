@@ -287,6 +287,8 @@ void Mtp3SummaryDialog::updateWidgets()
 
 extern "C" {
 
+void register_tap_listener_qt_mtp3_summary(void);
+
 static void
 mtp3_summary_reset(
     void        *tapdata)

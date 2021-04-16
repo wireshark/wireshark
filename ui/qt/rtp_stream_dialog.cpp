@@ -75,6 +75,8 @@ const int lost_perc_col_   = 15;
 
 enum { rtp_stream_type_ = 1000 };
 
+bool operator==(rtpstream_id_t const& a, rtpstream_id_t const& b);
+
 class RtpStreamTreeWidgetItem : public QTreeWidgetItem
 {
 public:

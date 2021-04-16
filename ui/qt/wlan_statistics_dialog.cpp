@@ -739,9 +739,13 @@ static stat_tap_ui wlan_statistics_ui = {
 };
 
 extern "C" {
+
+void register_tap_listener_qt_wlan_statistics(void);
+
 void
 register_tap_listener_qt_wlan_statistics(void)
 {
     register_stat_tap_ui(&wlan_statistics_ui, NULL);
 }
+
 }

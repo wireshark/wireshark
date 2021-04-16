@@ -328,6 +328,8 @@ void GsmMapSummaryDialog::updateWidgets()
 
 extern "C" {
 
+void register_tap_listener_qt_gsm_map_summary(void);
+
 static void
 gsm_map_summary_reset(void *tapdata)
 {
