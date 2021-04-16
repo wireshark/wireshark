@@ -74,7 +74,7 @@ static header_field_info hfi_stcsig_seqnum_edm STCSIG_HFI_INIT =
 	    "Sequence Number (Enhanced Detection Mode)", HFILL };
 
 static header_field_info hfi_stcsig_seqnum_sm STCSIG_HFI_INIT =
-	  { "Sequence Number (SM)", "stcsig.seqnum", FT_UINT48, BASE_DEC, NULL, 0x0,
+	  { "Sequence Number (SM)", "stcsig.seqnum.sm", FT_UINT48, BASE_DEC, NULL, 0x0,
 	    "Sequence Number (Sequence Mode)", HFILL };
 
 static header_field_info hfi_stcsig_streamindex STCSIG_HFI_INIT =
