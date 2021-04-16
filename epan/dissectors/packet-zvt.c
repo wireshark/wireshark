@@ -276,7 +276,6 @@ static int hf_zvt_expiry_date = -1;
 static int hf_zvt_card_number = -1;
 static int hf_zvt_card_name = -1;
 static int hf_zvt_additional_data = -1;
-static int hf_zvt_result_code = -1;
 static int hf_zvt_characters_per_line = -1;
 
 static int * const receipt_parameter_flag_fields[] = {
@@ -1411,9 +1410,6 @@ proto_register_zvt(void)
                 BASE_NONE, NULL, 0, NULL, HFILL } },
         { &hf_zvt_additional_data,
             { "Additional data", "zvt.additional_data", FT_STRING,
-                BASE_NONE, NULL, 0, NULL, HFILL } },
-        { &hf_zvt_result_code,
-            { "Result code", "zvt.result_code", FT_BYTES,
                 BASE_NONE, NULL, 0, NULL, HFILL } },
         { &hf_zvt_characters_per_line,
             { "Characters per line", "zvt.characters_per_line", FT_STRING,
