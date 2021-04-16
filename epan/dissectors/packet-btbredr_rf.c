@@ -22,6 +22,7 @@
 #include <wiretap/wtap.h>
 
 #include "packet-bluetooth.h"
+#include "packet-btbredr_rf.h"
 #include "packet-bthci_acl.h"
 
 /*
@@ -202,27 +203,8 @@ typedef struct _device_info_t {
     gint8    dir;
 } device_info_t;
 
-typedef struct _reassembly_t {
-    guint   segment_len_rem;
-    guint32 l2cap_index;
-    guint   seqn : 1;
-} reassembly_t;
-
 #define BDADDR_MASTER  0
 #define BDADDR_SLAVE   1
-
-typedef struct _connection_info_t {
-    reassembly_t reassembly[2];
-    nstime_t     timestamp;
-    guint32      btclock;
-    guint32      interface_id;
-    guint32      adapter_id;
-    guint16      escosize[2];
-    guint8       bd_addr[2][6];
-    guint8       lt_addr;
-    guint8       escohandle;
-    guint8       esco : 1;
-} connection_info_t;
 
 typedef struct _btbredr_frame_info_t {
     guint    retransmit : 1;      /* 0 = No, 1 = Retransmitted frame */

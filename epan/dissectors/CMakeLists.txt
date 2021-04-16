@@ -271,6 +271,7 @@ set(DISSECTOR_PUBLIC_HEADERS
 	packet-btavctp.h
 	packet-btavdtp.h
 	packet-btavrcp.h
+	packet-btbredr_rf.h
 	packet-bthci_acl.h
 	packet-bthci_cmd.h
 	packet-bthci_evt.h
