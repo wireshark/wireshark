@@ -75,6 +75,8 @@ void proto_reg_handoff_rtps(void);
 #define DISSECTION_INFO_MAX_ELEMENTS    (100)
 #define MAX_MEMBER_NAME                 (256)
 #define HASHMAP_DISCRIMINATOR_CONSTANT  (-2)
+#define UUID_SIZE                       (9)
+#define LONG_ADDRESS_SIZE               (16)
 
 typedef struct _union_member_mapping {
     guint64 union_type_id;
@@ -274,6 +276,18 @@ static dissector_table_t rtps_type_name_table;
 #define FLAG_VIRTUAL_HEARTBEAT_V (0x02)
 #define FLAG_VIRTUAL_HEARTBEAT_W (0x04)
 #define FLAG_VIRTUAL_HEARTBEAT_N (0x08)
+
+/* UDPv4 WAN Transport locator flags */
+#define FLAG_UDPV4_WAN_LOCATOR_U (0x01)
+#define FLAG_UDPV4_WAN_LOCATOR_P (0x02)
+#define FLAG_UDPV4_WAN_LOCATOR_B (0x04)
+#define FLAG_UDPV4_WAN_LOCATOR_R (0x08)
+
+/* UDP WAN BINDING_PING submessage flags */
+#define FLAG_UDPV4_WAN_BINDING_PING_FLAG_E (0x01)
+#define FLAG_UDPV4_WAN_BINDING_PING_FLAG_L (0x02)
+#define FLAG_UDPV4_WAN_BINDING_PING_FLAG_B (0x04)
+
 
 /* The following PIDs are defined since RTPS 1.0 */
 #define PID_PAD                                 (0x00)
@@ -541,6 +555,7 @@ static dissector_table_t rtps_type_name_table;
 #define SUBMESSAGE_SEC_POSTFIX                          (0x32)
 #define SUBMESSAGE_SRTPS_PREFIX                         (0x33)
 #define SUBMESSAGE_SRTPS_POSTFIX                        (0x34)
+#define SUBMESSAGE_RTI_UDP_WAN_BINDING_PING                 (0x82)
 
 #define SUBMESSAGE_RTI_CRC                              (0x80)
 
@@ -640,6 +655,7 @@ static dissector_table_t rtps_type_name_table;
 #define LOCATOR_KIND_TLSV4_WAN          (11)
 #define LOCATOR_KIND_SHMEM              (0x01000000)
 #define LOCATOR_KIND_TUDPV4             (0x01001001)
+#define LOCATOR_KIND_UDPV4_WAN          (0x01000001)
 
 /* History Kind */
 #define HISTORY_KIND_KEEP_LAST          (0)
@@ -693,6 +709,7 @@ static dissector_table_t rtps_type_name_table;
 #define NDDS_TRANSPORT_CLASSID_PCIE                 (12)
 #define NDDS_TRANSPORT_CLASSID_ITP                  (13)
 #define NDDS_TRANSPORT_CLASSID_SHMEM                (0x01000000)
+#define NDDS_TRANSPORT_CLASSID_UDPv4_WAN            (0x01000001)
 
 #define TOPIC_INFO_ADD_GUID                      (0x01)
 #define TOPIC_INFO_ADD_TYPE_NAME                 (0x02)
@@ -1025,7 +1042,13 @@ static int hf_rtps_pl_cdr_member_length                         = -1;
 static int hf_rtps_pl_cdr_member_id_ext                         = -1;
 static int hf_rtps_pl_cdr_member_length_ext                     = -1;
 static int hf_rtps_dcps_publication_data_frame_number           = -1;
-
+static int hf_rtps_udpv4_wan_locator_flags                      = -1;
+static int hf_rtps_uuid                                         = -1;
+static int hf_rtps_udpv4_wan_locator_ip                         = -1;
+static int hf_rtps_udpv4_wan_locator_public_port                = -1;
+static int hf_rtps_udpv4_wan_binding_ping_port                  = -1;
+static int hf_rtps_udpv4_wan_binding_ping_flags                 = -1;
+static int hf_rtps_long_address                                 = -1;
 
 /* Flag bits */
 static int hf_rtps_flag_reserved80                              = -1;
@@ -1148,6 +1171,13 @@ static int hf_rtps_sm_rti_crc_number                            = -1;
 static int hf_rtps_sm_rti_crc_result                            = -1;
 static int hf_rtps_data_tag_name                                = -1;
 static int hf_rtps_data_tag_value                               = -1;
+static int hf_rtps_flag_udpv4_wan_locator_u                     = -1;
+static int hf_rtps_flag_udpv4_wan_locator_p                     = -1;
+static int hf_rtps_flag_udpv4_wan_locator_b                     = -1;
+static int hf_rtps_flag_udpv4_wan_locator_r                     = -1;
+static int hf_rtps_flag_udpv4_wan_binding_ping_e                = -1;
+static int hf_rtps_flag_udpv4_wan_binding_ping_l                = -1;
+static int hf_rtps_flag_udpv4_wan_binding_ping_b                = -1;
 
 static int hf_rtps_fragments                                    = -1;
 static int hf_rtps_fragment                                     = -1;
@@ -1371,6 +1401,7 @@ static const value_string rtps_locator_kind_vals[] = {
   { LOCATOR_KIND_SHMEM,        "LOCATOR_KIND_SHMEM" },
   { LOCATOR_KIND_TUDPV4,       "LOCATOR_KIND_TUDPV4" },
   { LOCATOR_KIND_RESERVED,     "LOCATOR_KIND_RESERVED" },
+  { LOCATOR_KIND_UDPV4_WAN,    "LOCATOR_KIND_UDPV4_WAN" },
   { 0, NULL }
 };
 
@@ -1426,7 +1457,8 @@ static const value_string submessage_id_valsv2[] = {
 };
 
 static const value_string submessage_id_rti[] = {
-  { SUBMESSAGE_RTI_CRC,           "RTI_CRC" },
+  { SUBMESSAGE_RTI_CRC,                  "RTI_CRC" },
+  { SUBMESSAGE_RTI_UDP_WAN_BINDING_PING, "RTI_BINDING_PING" },
   { 0, NULL }
 };
 
@@ -1828,6 +1860,31 @@ static int* const MEMBER_FLAGS[] = {
   &hf_rtps_flag_memberflag_key,                 /* Bit 0 */
   NULL
 };
+
+static int* const UDPV4_WAN_LOCATOR_FLAGS[] = {
+  &hf_rtps_flag_reserved80,                     /* Bit 7 */
+  &hf_rtps_flag_reserved40,                     /* Bit 6 */
+  &hf_rtps_flag_reserved20,                     /* Bit 5 */
+  &hf_rtps_flag_reserved10,                     /* Bit 4 */
+  &hf_rtps_flag_udpv4_wan_locator_r,       /* Bit 3 */
+  &hf_rtps_flag_udpv4_wan_locator_b,       /* Bit 2 */
+  &hf_rtps_flag_udpv4_wan_locator_p,       /* Bit 1 */
+  &hf_rtps_flag_udpv4_wan_locator_u,       /* Bit 0 */
+  NULL
+};
+
+static int* const UDPV4_WAN_BINDING_PING_FLAGS[] = {
+  &hf_rtps_flag_reserved80,                     /* Bit 7 */
+  &hf_rtps_flag_reserved40,                     /* Bit 6 */
+  &hf_rtps_flag_reserved20,                     /* Bit 5 */
+  &hf_rtps_flag_reserved10,                     /* Bit 4 */
+  &hf_rtps_flag_reserved08,                     /* Bit 3 */
+  &hf_rtps_flag_udpv4_wan_binding_ping_b,       /* Bit 2 */
+  &hf_rtps_flag_udpv4_wan_binding_ping_l,       /* Bit 1 */
+  &hf_rtps_flag_udpv4_wan_binding_ping_e,       /* Bit 0 */
+  NULL
+};
+
 /* Vendor specific: RTI */
 static const value_string ndds_transport_class_id_vals[] = {
   { NDDS_TRANSPORT_CLASSID_ANY,           "ANY" },
@@ -1843,6 +1900,7 @@ static const value_string ndds_transport_class_id_vals[] = {
   { NDDS_TRANSPORT_CLASSID_TLSV4_WAN,     "TLSv4_WAN" },
   { NDDS_TRANSPORT_CLASSID_PCIE,          "PCIE" },
   { NDDS_TRANSPORT_CLASSID_ITP,           "ITP" },
+  { NDDS_TRANSPORT_CLASSID_UDPv4_WAN,     "UDPv4_WAN" },
   { 0, NULL }
 };
 
@@ -3087,8 +3145,7 @@ static gint rtps_util_add_locator_t(proto_tree *tree, packet_info *pinfo, tvbuff
               4,
               encoding,
               &port);
-      proto_tree_add_item(locator_tree, hf_rtps_locator_ipv4, tvb, offset+20, 4,
-              ENC_BIG_ENDIAN);
+
       if (port == 0)
         expert_add_info(pinfo, ti, &ei_rtps_locator_port);
       proto_item_append_text(tree, " (%s, %s:%u)",
@@ -3179,6 +3236,88 @@ static gint rtps_util_add_locator_t(proto_tree *tree, packet_info *pinfo, tvbuff
               val_to_str(kind, rtps_locator_kind_vals, "%02x"),
               tvb_ip6_to_str(tvb, offset + 8), port);
       break;
+    }
+    /*
+     * +-------+-------+-------+-------+
+     * | Flags |                       |
+     * +-------+                       +
+     * |       DDS_Octet UUID[9]       |
+     * +               +-------+-------+
+     * |               | public_port   |
+     * +-------+-------+-------+-------+
+     * | DDS_Octet public_ip_address[4]|
+     * +-------+-------+-------+-------+
+     */
+    case LOCATOR_KIND_UDPV4_WAN: {
+        guint8 flags = 0;
+        const guint32 uuid_size = 9;
+        const guint32 locator_port_size = 4;
+        const guint32 locator_port_offset = offset + 4;
+        const guint32 flags_offset = locator_port_offset + locator_port_size;
+        const guint32 uuid_offset = flags_offset + 1;
+        const guint32 port_offset = uuid_offset + uuid_size;
+        const guint32 ip_offset = port_offset + 2;
+        gchar* ip_str = NULL;
+        guint32 public_port = 0;
+
+        ti = proto_tree_add_item_ret_uint(
+                locator_tree,
+                hf_rtps_locator_port,
+                tvb,
+                locator_port_offset,
+                locator_port_size,
+                encoding,
+                &port);
+        flags = tvb_get_bits8(tvb, flags_offset, 4);
+        proto_tree_add_bitmask_value(
+                locator_tree,
+                tvb,
+                flags_offset,
+                hf_rtps_udpv4_wan_locator_flags,
+                ett_rtps_flags,
+                UDPV4_WAN_LOCATOR_FLAGS,
+                (guint64)flags);
+        /*
+        * The U flag indicates if the locator contains a UUID.
+        * Locators with the U flag set are called UUID locators.
+        */
+        if (flags & FLAG_UDPV4_WAN_LOCATOR_U) {
+            proto_tree_add_item(locator_tree, hf_rtps_uuid, tvb, uuid_offset, UUID_SIZE, encoding);
+        }
+        /*
+        * The P flag indicates that the locator contains a globally public IP address
+        * and public port where a transport instance can be reached. public_ip_address
+        * contains the public IP address and public_port contains the public UDP port.
+        * Locators with the P flag set are called PUBLIC locators.
+        */
+        if (flags & FLAG_UDPV4_WAN_LOCATOR_P) {
+            ws_in4_addr locator_ip = 0;
+
+            ip_str = tvb_ip_to_str(tvb, ip_offset);
+            locator_ip = tvb_get_ipv4(tvb, ip_offset);
+            proto_tree_add_ipv4(
+                    locator_tree,
+                    hf_rtps_udpv4_wan_locator_ip,
+                    tvb,
+                    ip_offset,
+                    4,
+                    locator_ip);
+            proto_tree_add_item_ret_uint (
+                    locator_tree,
+                    hf_rtps_udpv4_wan_locator_public_port,
+                    tvb,
+                    port_offset,
+                    2,
+                    encoding,
+                    &public_port);
+        }
+        if (port == 0)
+            expert_add_info(pinfo, ti, &ei_rtps_locator_port);
+        if (ip_str != NULL) {
+            proto_item_append_text(tree, " (%s, %s:%u)",
+                val_to_str(kind, rtps_locator_kind_vals, "%02x"),
+                ip_str, port);
+        }
     }
     /* Default case, we already have the locator kind so don't do anything */
     default:
@@ -11352,6 +11491,66 @@ static void dissect_SECURE_POSTFIX(tvbuff_t *tvb, packet_info *pinfo _U_, gint o
   proto_tree_add_item(sec_data_tag_tree, hf_rtps_secure_datatag_plugin_sec_tag, tvb,
             offset, octets_to_next_header, encoding);
 }
+/*
+ * 0...2...........7...............15.............23...............31
+ * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+ * | BINDING_PING  |X|X|X|X|X|B|L|E|     octetsToNextHeader        |
+ * +---------------+---------------+---------------+---------------+
+ * |                 DDS_UnsignedLong rtps_port                    |
+ * +---------------+---------------+---------------+---------------+
+ * |                                                               |
+ * +              DDS_Octet address[12][If L = 0]                  +
+ * |                                                               |
+ * +                                                               +
+ * |                                                               |
+ * +---------------+---------------+---------------+---------------+
+ * |                                                               |
+ * +              DDS_Octet address[16][If L = 1]                  +
+ * |                                                               |
+ * +                                                               +
+ * |                                                               |
+ * +                                                               +
+ * |                                                               |
+ * +---------------+---------------+---------------+---------------+
+ *
+ */
+static void dissect_UDP_WAN_BINDING_PING(tvbuff_t *tvb, packet_info *pinfo _U_, gint offset,
+    guint8 flags, const guint encoding, int octets_to_next_header _U_,
+    proto_tree *tree, guint16 vendor_id _U_) {
+
+    const guint flags_offset = offset + 1;
+    const guint next_header_offset = flags_offset + 1;
+    const guint port_offset = next_header_offset + 2;
+    const guint address_offset = port_offset + 4;
+
+    proto_tree_add_bitmask_value(tree, tvb, flags_offset, hf_rtps_udpv4_wan_binding_ping_flags,
+        ett_rtps_flags, UDPV4_WAN_BINDING_PING_FLAGS, flags);
+    proto_tree_add_item(tree, hf_rtps_sm_octets_to_next_header, tvb, next_header_offset,
+        2, encoding);
+    proto_tree_add_item(tree, hf_rtps_udpv4_wan_binding_ping_port, tvb, port_offset,
+        4, encoding);
+    /*
+     * Address[12] [If L=0] is the only one we currently support, and it maps to:
+     * DDS_Octet UUID[9] + 3 bytes of padding.
+     */
+    if (flags & FLAG_UDPV4_WAN_BINDING_PING_FLAG_L) {
+        proto_tree_add_item(
+                tree,
+                hf_rtps_long_address,
+                tvb,
+                address_offset,
+                LONG_ADDRESS_SIZE,
+                encoding);
+    } else {
+        proto_tree_add_item(
+                tree,
+                hf_rtps_uuid,
+                tvb,
+                address_offset,
+                UUID_SIZE,
+                encoding);
+    }
+}
 
 static gboolean dissect_rtps_submessage_v2(tvbuff_t *tvb, packet_info *pinfo, gint offset, guint8 flags,
                                            const guint encoding, guint8 submessageId, guint16 vendor_id, gint octets_to_next_header,
@@ -11439,6 +11638,11 @@ static gboolean dissect_rtps_submessage_v2(tvbuff_t *tvb, packet_info *pinfo, gi
       dissect_SECURE_POSTFIX(tvb, pinfo, offset, flags, encoding, octets_to_next_header,
                                 rtps_submessage_tree, vendor_id);
       break;
+    case SUBMESSAGE_RTI_UDP_WAN_BINDING_PING:
+      dissect_UDP_WAN_BINDING_PING(tvb, pinfo, offset, flags, encoding, octets_to_next_header,
+            rtps_submessage_tree, vendor_id);
+      break;
+
     default:
       return FALSE;
   }
@@ -14270,9 +14474,64 @@ void proto_register_rtps(void) {
     },
 
     { &hf_rtps_dissection_string,
-      {"STRING", "rtps.dissection.string",
+      { "STRING", "rtps.dissection.string",
         FT_STRINGZ, BASE_NONE, NULL, 0, NULL, HFILL }
     },
+    { &hf_rtps_flag_udpv4_wan_locator_u, {
+        "UUID Locator", "rtps.flag.udpv4_wan_locator.u",
+        FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x01, NULL, HFILL }
+    },
+    { &hf_rtps_flag_udpv4_wan_locator_p, {
+        "Public Locator", "rtps.flag.udpv4_wan_locator.p",
+        FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x02, NULL, HFILL }
+    },
+    { &hf_rtps_flag_udpv4_wan_locator_b, {
+        "Bidirectional Locator", "rtps.flag.udpv4_wan_locator.b",
+        FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x04, NULL, HFILL }
+    },
+    { &hf_rtps_flag_udpv4_wan_locator_r, {
+        "Relay Locator", "rtps.flag.udpv4_wan_locator.r",
+        FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x08, NULL, HFILL }
+    },
+    { &hf_rtps_udpv4_wan_locator_flags, {
+        "UDPv4 WAN locator flags", "rtps.flag.udpv4_wan_locator",
+        FT_UINT8, BASE_HEX, NULL, 0, "Bitmask representing the flags UDPv4 WAN locator", HFILL }
+    },
+    { &hf_rtps_uuid,{
+        "UUID", "rtps.uuid",
+        FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }
+    },
+    { &hf_rtps_udpv4_wan_locator_ip, {
+        "WAN locator IP", "rtps.udpv4_wan_locator.ip",
+        FT_IPv4, BASE_NONE, NULL, 0, NULL, HFILL }
+    },
+    { &hf_rtps_udpv4_wan_locator_public_port, {
+        "WAN locator public port", "rtps.udpv4_wan_locator.public_port",
+        FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }
+    },
+    { &hf_rtps_flag_udpv4_wan_binding_ping_e, {
+        "Endianess", "rtps.flag.udpv4_wan_binding_ping.e",
+        FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x01, NULL, HFILL }
+    },
+    { &hf_rtps_flag_udpv4_wan_binding_ping_l, {
+        "long address", "rtps.flag.udpv4_wan_binding_ping.l",
+        FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x02, NULL, HFILL }
+    },
+    { &hf_rtps_flag_udpv4_wan_binding_ping_b,{
+        "Bidirectional", "rtps.flag.udpv4_wan_binding_ping.b",
+        FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x04, NULL, HFILL }
+    },
+    { &hf_rtps_udpv4_wan_binding_ping_flags, {
+        "UDPv4 WAN binding ping flags", "rtps.flag.udpv4_wan_binding_ping",
+        FT_UINT8, BASE_HEX, NULL, 0, "Bitmask representing the flags UDPv4 WAN binding ping", HFILL }
+    },
+    { &hf_rtps_udpv4_wan_binding_ping_port, {
+        "UDPv4 WAN binding RTPS port", "rtps.flag.udpv4_wan_binding_rtps_port",
+        FT_UINT32, BASE_DEC, NULL, 0, "UDPv4 WAN binding ping RTPS port", HFILL }
+    },
+    { &hf_rtps_long_address, {
+        "Long address", "rtps.long_adress", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }
+    }
   };
 
   static gint *ett[] = {
