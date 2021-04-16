@@ -13503,7 +13503,7 @@ proto_register_smb2(void)
 		},
 
 		{ &hf_smb2_comp_pattern_v1_reserved2,
-		  { "Reserved2", "smb2.pattern_v1.reserved2", FT_UINT8, BASE_HEX,
+		  { "Reserved2", "smb2.pattern_v1.reserved2", FT_UINT16, BASE_HEX,
 		    NULL, 0, NULL, HFILL }
 		},
 

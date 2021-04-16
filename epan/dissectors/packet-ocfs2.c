@@ -1595,7 +1595,7 @@ void proto_register_ocfs2(void)
 		},
 		{ &hf_dlm_qn_domain,
 			{ "Domain Name", "ocfs2.dlm_query_nodeinfo.qn_domain",
-			  FT_UINT8, BASE_DEC, NULL, 0x0, NULL,
+			  FT_STRING, BASE_NONE, NULL, 0x0, NULL,
 			  HFILL
 			}
 		},

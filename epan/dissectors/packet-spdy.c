@@ -1857,7 +1857,7 @@ void proto_register_spdy(void)
     },
     { &hf_spdy_ping_id,
       { "Ping ID",        "spdy.ping_id",
-          FT_UINT24, BASE_DEC, NULL, 0x0,
+          FT_UINT32, BASE_DEC, NULL, 0x0,
           NULL, HFILL
       }
     },

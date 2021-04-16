@@ -3138,7 +3138,7 @@ proto_register_llrp(void)
           NULL, HFILL }},
 
         { &hf_llrp_hop_table_id,
-        { "Hop table ID", "llrp.param.hop_table_id", FT_UINT8, BASE_DEC, NULL, 0,
+        { "Hop table ID", "llrp.param.hop_table_id", FT_UINT16, BASE_DEC, NULL, 0,
           NULL, HFILL }},
 
         { &hf_llrp_rfu,
@@ -3850,7 +3850,7 @@ proto_register_llrp(void)
           NULL, HFILL }},
 
         { &hf_llrp_gpi_debounce,
-        { "GPI debounce timer Msec", "llrp.param.gpi_debounce", FT_UINT16, BASE_DEC, NULL, 0,
+        { "GPI debounce timer Msec", "llrp.param.gpi_debounce", FT_UINT32, BASE_DEC, NULL, 0,
           NULL, HFILL }},
 
         { &hf_llrp_temperature,

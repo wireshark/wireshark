@@ -3269,7 +3269,7 @@ void proto_register_mysql(void)
 
 		{ &hf_mysql_max_packet,
 		{ "MAX Packet", "mysql.max_packet",
-		FT_UINT24, BASE_DEC, NULL, 0x0,
+		FT_UINT32, BASE_DEC, NULL, 0x0,
 		"MySQL Max packet", HFILL }},
 
 		{ &hf_mysql_charset,
@@ -3599,7 +3599,7 @@ void proto_register_mysql(void)
 
 		{ &hf_mysql_binlog_server_id,
 		{ "Binlog server id", "mysql.binlog.server_id",
-		FT_UINT16, BASE_HEX, NULL, 0x0,
+		FT_UINT32, BASE_HEX, NULL, 0x0,
 		"server_id of the slave", HFILL }},
 
 		{ &hf_mysql_binlog_file_name,
