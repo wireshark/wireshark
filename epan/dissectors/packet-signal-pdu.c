@@ -239,6 +239,8 @@ static guint spdu_pdu_transport_mapping_num = 0;
 
 void proto_register_signal_pdu(void);
 void proto_reg_handoff_signal_pdu(void);
+void proto_reg_handoff_signal_pdu_someip(void);
+void proto_reg_handoff_signal_pdu_pdu_transport(void);
 
 void
 proto_reg_handoff_signal_pdu_someip(void) {

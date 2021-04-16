@@ -18,6 +18,7 @@
 #include <epan/asn1.h>
 
 #include "packet-per.h"
+#include "packet-nrppa.h"
 
 #define PNAME  "NR Positioning Protocol A (NRPPa)"
 #define PSNAME "NRPPa"

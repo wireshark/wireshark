@@ -26,6 +26,7 @@
 #include <epan/asn1.h>
 
 #include "packet-per.h"
+#include "packet-nrppa.h"
 
 #define PNAME  "NR Positioning Protocol A (NRPPa)"
 #define PSNAME "NRPPa"
@@ -619,7 +620,7 @@ static int hf_nrppa_aperiodic_04 = -1;            /* T_aperiodic */
 static int hf_nrppa_sRSResourceTrigger_01 = -1;   /* SRSResourceTrigger */
 
 /*--- End of included file: packet-nrppa-hf.c ---*/
-#line 33 "./asn1/nrppa/packet-nrppa-template.c"
+#line 34 "./asn1/nrppa/packet-nrppa-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_nrppa = -1;
@@ -879,7 +880,7 @@ static gint ett_nrppa_PositioningActivationFailure = -1;
 static gint ett_nrppa_PositioningDeactivation = -1;
 
 /*--- End of included file: packet-nrppa-ett.c ---*/
-#line 37 "./asn1/nrppa/packet-nrppa-template.c"
+#line 38 "./asn1/nrppa/packet-nrppa-template.c"
 
 /* Global variables */
 static guint32 ProcedureCode;
@@ -1022,7 +1023,7 @@ typedef enum _ProtocolIE_ID_enum {
 } ProtocolIE_ID_enum;
 
 /*--- End of included file: packet-nrppa-val.h ---*/
-#line 51 "./asn1/nrppa/packet-nrppa-template.c"
+#line 52 "./asn1/nrppa/packet-nrppa-template.c"
 
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *);
 static int dissect_ProtocolExtensionFieldExtensionValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *);
@@ -9026,7 +9027,7 @@ static int dissect_PositioningDeactivation_PDU(tvbuff_t *tvb _U_, packet_info *p
 
 
 /*--- End of included file: packet-nrppa-fn.c ---*/
-#line 59 "./asn1/nrppa/packet-nrppa-template.c"
+#line 60 "./asn1/nrppa/packet-nrppa-template.c"
 
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
@@ -11372,7 +11373,7 @@ void proto_register_nrppa(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-nrppa-hfarr.c ---*/
-#line 92 "./asn1/nrppa/packet-nrppa-template.c"
+#line 93 "./asn1/nrppa/packet-nrppa-template.c"
   };
 
   /* List of subtrees */
@@ -11634,7 +11635,7 @@ void proto_register_nrppa(void) {
     &ett_nrppa_PositioningDeactivation,
 
 /*--- End of included file: packet-nrppa-ettarr.c ---*/
-#line 98 "./asn1/nrppa/packet-nrppa-template.c"
+#line 99 "./asn1/nrppa/packet-nrppa-template.c"
   };
 
   /* Register protocol */
@@ -11744,5 +11745,5 @@ proto_reg_handoff_nrppa(void)
 
 
 /*--- End of included file: packet-nrppa-dis-tab.c ---*/
-#line 121 "./asn1/nrppa/packet-nrppa-template.c"
+#line 122 "./asn1/nrppa/packet-nrppa-template.c"
 }

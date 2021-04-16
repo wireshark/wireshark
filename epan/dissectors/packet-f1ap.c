@@ -28,6 +28,7 @@
 #include <epan/proto_data.h>
 
 #include "packet-per.h"
+#include "packet-f1ap.h"
 #include "packet-x2ap.h"
 #include "packet-nr-rrc.h"
 #include "packet-e212.h"
@@ -634,7 +635,7 @@ typedef enum _ProtocolIE_ID_enum {
 } ProtocolIE_ID_enum;
 
 /*--- End of included file: packet-f1ap-val.h ---*/
-#line 40 "./asn1/f1ap/packet-f1ap-template.c"
+#line 41 "./asn1/f1ap/packet-f1ap-template.c"
 
 /* Initialize the protocol and registered fields */
 static int proto_f1ap = -1;
@@ -2100,7 +2101,7 @@ static int hf_f1ap_successfulOutcome_value = -1;  /* SuccessfulOutcome_value */
 static int hf_f1ap_unsuccessfulOutcome_value = -1;  /* UnsuccessfulOutcome_value */
 
 /*--- End of included file: packet-f1ap-hf.c ---*/
-#line 69 "./asn1/f1ap/packet-f1ap-template.c"
+#line 70 "./asn1/f1ap/packet-f1ap-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_f1ap = -1;
@@ -2850,7 +2851,7 @@ static gint ett_f1ap_SuccessfulOutcome = -1;
 static gint ett_f1ap_UnsuccessfulOutcome = -1;
 
 /*--- End of included file: packet-f1ap-ett.c ---*/
-#line 128 "./asn1/f1ap/packet-f1ap-template.c"
+#line 129 "./asn1/f1ap/packet-f1ap-template.c"
 
 enum{
   INITIATING_MESSAGE,
@@ -25471,7 +25472,7 @@ static int dissect_F1AP_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto
 
 
 /*--- End of included file: packet-f1ap-fn.c ---*/
-#line 229 "./asn1/f1ap/packet-f1ap-template.c"
+#line 230 "./asn1/f1ap/packet-f1ap-template.c"
 
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
@@ -31373,7 +31374,7 @@ void proto_register_f1ap(void) {
         "UnsuccessfulOutcome_value", HFILL }},
 
 /*--- End of included file: packet-f1ap-hfarr.c ---*/
-#line 398 "./asn1/f1ap/packet-f1ap-template.c"
+#line 399 "./asn1/f1ap/packet-f1ap-template.c"
   };
 
   /* List of subtrees */
@@ -32125,7 +32126,7 @@ void proto_register_f1ap(void) {
     &ett_f1ap_UnsuccessfulOutcome,
 
 /*--- End of included file: packet-f1ap-ettarr.c ---*/
-#line 459 "./asn1/f1ap/packet-f1ap-template.c"
+#line 460 "./asn1/f1ap/packet-f1ap-template.c"
   };
 
   /* Register protocol */
@@ -32675,7 +32676,7 @@ proto_reg_handoff_f1ap(void)
 
 
 /*--- End of included file: packet-f1ap-dis-tab.c ---*/
-#line 489 "./asn1/f1ap/packet-f1ap-template.c"
+#line 490 "./asn1/f1ap/packet-f1ap-template.c"
 }
 
 /*

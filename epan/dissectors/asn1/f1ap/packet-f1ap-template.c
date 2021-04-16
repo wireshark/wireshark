@@ -20,6 +20,7 @@
 #include <epan/proto_data.h>
 
 #include "packet-per.h"
+#include "packet-f1ap.h"
 #include "packet-x2ap.h"
 #include "packet-nr-rrc.h"
 #include "packet-e212.h"
