@@ -1847,7 +1847,7 @@ proto_register_stun(void)
             BASE_NONE, NULL, 0x0, NULL, HFILL }
         },
         { &hf_stun_att_username_opaque,
-          { "Username", "stun.att.username", FT_BYTES,
+          { "Username", "stun.att.username.opaque", FT_BYTES,
             BASE_NONE, NULL, 0x0, NULL, HFILL }
         },
         { &hf_stun_att_password,
