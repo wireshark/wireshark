@@ -2011,7 +2011,7 @@ static gboolean erf_dump(
   return TRUE;
 }
 
-int erf_dump_can_write_encap(int encap)
+static int erf_dump_can_write_encap(int encap)
 {
 
   if(encap == WTAP_ENCAP_PER_PACKET)
@@ -2023,7 +2023,7 @@ int erf_dump_can_write_encap(int encap)
   return 0;
 }
 
-int erf_dump_open(wtap_dumper *wdh, int *err _U_, gchar **err_info _U_)
+static int erf_dump_open(wtap_dumper *wdh, int *err _U_, gchar **err_info _U_)
 {
   erf_dump_t *dump_priv;
   gchar *s;

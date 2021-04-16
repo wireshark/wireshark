@@ -1716,7 +1716,7 @@ wtap_encap_to_netxray_1_1_encap(int encap)
 
 /* Returns 0 if we could write the specified encapsulation type,
    an error indication otherwise. */
-int
+static int
 netxray_dump_can_write_encap_1_1(int encap)
 {
 	/* Per-packet encapsulations aren't supported. */
@@ -1731,7 +1731,7 @@ netxray_dump_can_write_encap_1_1(int encap)
 
 /* Returns TRUE on success, FALSE on failure; sets "*err" to an error code on
    failure */
-gboolean
+static gboolean
 netxray_dump_open_1_1(wtap_dumper *wdh, int *err, gchar **err_info _U_)
 {
 	netxray_dump_t *netxray;
@@ -1902,7 +1902,7 @@ wtap_encap_to_netxray_2_0_encap(int encap)
 
 /* Returns 0 if we could write the specified encapsulation type,
    an error indication otherwise. */
-int
+static int
 netxray_dump_can_write_encap_2_0(int encap)
 {
 	/* Per-packet encapsulations aren't supported. */
@@ -1917,7 +1917,7 @@ netxray_dump_can_write_encap_2_0(int encap)
 
 /* Returns TRUE on success, FALSE on failure; sets "*err" to an error code on
    failure */
-gboolean
+static gboolean
 netxray_dump_open_2_0(wtap_dumper *wdh, int *err, gchar **err_info _U_)
 {
 	netxray_dump_t *netxray;

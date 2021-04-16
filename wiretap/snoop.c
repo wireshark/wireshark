@@ -818,7 +818,7 @@ static const int wtap_encap[] = {
 
 /* Returns 0 if we could write the specified encapsulation type,
    an error indication otherwise. */
-int snoop_dump_can_write_encap(int encap)
+static int snoop_dump_can_write_encap(int encap)
 {
 	/* Per-packet encapsulations aren't supported. */
 	if (encap == WTAP_ENCAP_PER_PACKET)
@@ -832,7 +832,7 @@ int snoop_dump_can_write_encap(int encap)
 
 /* Returns TRUE on success, FALSE on failure; sets "*err" to an error code on
    failure */
-gboolean snoop_dump_open(wtap_dumper *wdh, int *err, gchar **err_info _U_)
+static gboolean snoop_dump_open(wtap_dumper *wdh, int *err, gchar **err_info _U_)
 {
 	struct snoop_hdr file_hdr;
 

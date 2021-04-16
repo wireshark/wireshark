@@ -2026,7 +2026,7 @@ typedef struct {
 
 /* Returns 0 if we could write the specified encapsulation type,
 ** an error indication otherwise. */
-int nstrace_10_dump_can_write_encap(int encap)
+static int nstrace_10_dump_can_write_encap(int encap)
 {
     if (encap == WTAP_ENCAP_NSTRACE_1_0)
         return 0;
@@ -2037,7 +2037,7 @@ int nstrace_10_dump_can_write_encap(int encap)
 
 /* Returns 0 if we could write the specified encapsulation type,
 ** an error indication otherwise. */
-int nstrace_20_dump_can_write_encap(int encap)
+static int nstrace_20_dump_can_write_encap(int encap)
 {
     if (encap == WTAP_ENCAP_NSTRACE_2_0)
         return 0;
@@ -2047,7 +2047,7 @@ int nstrace_20_dump_can_write_encap(int encap)
 
 /* Returns 0 if we could write the specified encapsulation type,
 ** an error indication otherwise. */
-int nstrace_30_dump_can_write_encap(int encap)
+static int nstrace_30_dump_can_write_encap(int encap)
 {
     if (encap == WTAP_ENCAP_NSTRACE_3_0)
         return 0;
@@ -2057,7 +2057,7 @@ int nstrace_30_dump_can_write_encap(int encap)
 
 /* Returns 0 if we could write the specified encapsulation type,
 ** an error indication otherwise. */
-int nstrace_35_dump_can_write_encap(int encap)
+static int nstrace_35_dump_can_write_encap(int encap)
 {
     if (encap == WTAP_ENCAP_NSTRACE_3_5)
         return 0;
@@ -2467,7 +2467,7 @@ static const struct file_type_subtype_info nstrace_3_5_info = {
     nstrace_35_dump_can_write_encap, nstrace_35_dump_open, NULL
 };
 
-void register_netscaler(void)
+void register_nstrace(void)
 {
     nstrace_1_0_file_type_subtype = wtap_register_file_type_subtype(&nstrace_1_0_info);
     nstrace_2_0_file_type_subtype = wtap_register_file_type_subtype(&nstrace_2_0_info);

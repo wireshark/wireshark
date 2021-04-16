@@ -131,7 +131,7 @@ typedef struct pcapng_name_resolution_block_s {
 
 /*
  * Minimum Sysdig size = minimum block size + packed size of sysdig_event_phdr.
- * Minimum Sysdig event v2 header size = minimum block size + packed size of sysdig_event_v2_phdr (which, in addition 
+ * Minimum Sysdig event v2 header size = minimum block size + packed size of sysdig_event_v2_phdr (which, in addition
  * to sysdig_event_phdr, includes the nparams 32bit value).
  */
 #define SYSDIG_EVENT_HEADER_SIZE ((16 + 64 + 64 + 32 + 16)/8) /* CPU ID + TS + TID + Event len + Event type */
@@ -579,7 +579,7 @@ pcapng_process_string_option(wtapng_block_t *wblock,
          * will fail on the second and later occurrences of the option;
          * we silently ignore the failure.
          */
-        wtap_block_add_string_option(wblock->block, ohp->option_code, option_content, ohp->option_length);
+        wtap_block_add_string_option(wblock->block, ohp->option_code, (const char *)option_content, ohp->option_length);
     }
 }
 
@@ -1255,7 +1255,7 @@ pcapng_read_decryption_secrets_block(FILE_T fh, pcapng_block_header_t *bh,
       *err_info = g_strdup_printf("%s: secrets block is too large: %u", G_STRFUNC, dsb_mand->secrets_len);
       return FALSE;
     }
-    dsb_mand->secrets_data = (char *)g_malloc0(dsb_mand->secrets_len);
+    dsb_mand->secrets_data = (guint8 *)g_malloc0(dsb_mand->secrets_len);
     if (!wtap_read_bytes(fh, dsb_mand->secrets_data, dsb_mand->secrets_len, err, err_info)) {
         pcapng_debug("%s: failed to read DSB", G_STRFUNC);
         return FALSE;
@@ -5070,7 +5070,7 @@ static gboolean pcapng_dump_finish(wtap_dumper *wdh, int *err,
 
 /* Returns TRUE on success, FALSE on failure; sets "*err" to an error code on
    failure */
-gboolean
+static gboolean
 pcapng_dump_open(wtap_dumper *wdh, int *err, gchar **err_info _U_)
 {
     guint i;
@@ -5120,7 +5120,7 @@ pcapng_dump_open(wtap_dumper *wdh, int *err, gchar **err_info _U_)
 
 /* Returns 0 if we could write the specified encapsulation type,
    an error indication otherwise. */
-int pcapng_dump_can_write_encap(int wtap_encap)
+static int pcapng_dump_can_write_encap(int wtap_encap)
 {
     pcapng_debug("pcapng_dump_can_write_encap: encap = %d (%s)",
                   wtap_encap,

@@ -392,7 +392,8 @@ commview_read_header(commview_header_t *cv_hdr, FILE_T fh, int *err,
 
 /* Returns 0 if we can write out the specified encapsulation type
  * into a CommView format file. */
-int commview_dump_can_write_encap(int encap)
+static int
+commview_dump_can_write_encap(int encap)
 {
 	switch (encap) {
 
@@ -410,7 +411,8 @@ int commview_dump_can_write_encap(int encap)
 
 /* Returns TRUE on success, FALSE on failure;
    sets "*err" to an error code on failure */
-gboolean commview_dump_open(wtap_dumper *wdh, int *err _U_, gchar **err_info _U_)
+static gboolean
+commview_dump_open(wtap_dumper *wdh, int *err _U_, gchar **err_info _U_)
 {
 	wdh->subtype_write = commview_dump;
 

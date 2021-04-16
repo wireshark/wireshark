@@ -1015,7 +1015,7 @@ typedef struct {
 
 /* Returns 0 if we could write the specified encapsulation type,
    an error indication otherwise. */
-int libpcap_dump_can_write_encap(int encap)
+static int libpcap_dump_can_write_encap(int encap)
 {
 	/* Per-packet encapsulations aren't supported. */
 	if (encap == WTAP_ENCAP_PER_PACKET)

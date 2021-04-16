@@ -93,7 +93,7 @@ void register_log3gpp(void);
 /***************************************************************************/
 /* Free log3gpp-specific capture info from file that was open for reading  */
 /***************************************************************************/
-void log3gpp_close(wtap* wth)
+static void log3gpp_close(wtap* wth)
 {
     log3gpp_t* log3gpp = (log3gpp_t*)wth->priv;
     /* Also free this capture info */

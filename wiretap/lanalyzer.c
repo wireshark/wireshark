@@ -771,7 +771,7 @@ static gboolean lanalyzer_dump(wtap_dumper *wdh,
  * Returns 0 if we could write the specified encapsulation type,
  * an error indication otherwise.
  *---------------------------------------------------*/
-int lanalyzer_dump_can_write_encap(int encap)
+static int lanalyzer_dump_can_write_encap(int encap)
 {
       /* Per-packet encapsulations aren't supported. */
       if (encap == WTAP_ENCAP_PER_PACKET)
@@ -790,7 +790,7 @@ int lanalyzer_dump_can_write_encap(int encap)
  * Returns TRUE on success, FALSE on failure; sets "*err" to an
  * error code on failure
  *---------------------------------------------------*/
-gboolean lanalyzer_dump_open(wtap_dumper *wdh, int *err, gchar **err_info _U_)
+static gboolean lanalyzer_dump_open(wtap_dumper *wdh, int *err, gchar **err_info _U_)
 {
       int   jump;
       void  *tmp;
