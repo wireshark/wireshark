@@ -107,11 +107,11 @@ variables:
   needs: []
 
 # Rely on fedora:latest and debian-stable jobs for testing a recent GCC version.
-clang-11:
+clang-12:
   extends: .build-ubuntu
   variables:
-    CC: clang-11
-    CXX: clang++-11
+    CC: clang-12
+    CXX: clang++-12
 
 build:ubuntu-dist:
   stage: .pre
@@ -354,7 +354,7 @@ merge-req:ubuntu-gcc-ctest:
       - gcc_report.html
 
 merge-req:ubuntu-clang-other-tests:
-  extends: clang-11
+  extends: clang-12
   tags:
     - docker
   rules:
