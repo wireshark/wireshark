@@ -31,6 +31,7 @@ LastVisitedEUTRANCellInformation_PDU
 LastVisitedGERANCellInformation_PDU
 MDTMode_PDU
 SourceeNB-ToTargeteNB-TransparentContainer_PDU
+SONConfigurationTransfer_PDU
 SONtransferApplicationIdentity_PDU
 SONtransferRequestContainer_PDU
 SONtransferRequestContainer
@@ -51,6 +52,7 @@ LastVisitedGERANCellInformation
 MDTMode
 S1AP-PDU
 SourceeNB-ToTargeteNB-TransparentContainer
+SONConfigurationTransfer
 SONtransferApplicationIdentity
 SONtransferRequestContainer
 SONtransferResponseContainer
