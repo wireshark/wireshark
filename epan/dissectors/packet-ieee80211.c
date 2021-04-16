@@ -7988,6 +7988,13 @@ rcpi_and_power_level_custom(gchar *result, guint8 value)
     g_snprintf(result, ITEM_LABEL_LENGTH, "%d (Measurement not available)", value);
 }
 
+static void
+sts_custom(gchar *result, guint32 value)
+{
+  g_snprintf(result, ITEM_LABEL_LENGTH, "%d STS", value + 1);
+}
+
+
 /*
  * We use this is displaying the ru allocation region.
  */
@@ -38340,12 +38347,12 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_tag_ranging_max_r2i_sts_le_80_mhz,
      {"Max R2I STS <= 80 MHz", "wlan.ranging.max_r2i_sts_le_80_mhz",
-      FT_UINT48, BASE_DEC, NULL, GENMASK64(34, 32),
+      FT_UINT48, BASE_CUSTOM, CF_FUNC(sts_custom), GENMASK64(34, 32),
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_ranging_max_r2i_sts_gt_80_mhz,
      {"Max R2I STS > 80 MHz", "wlan.ranging.max_r2i_sts_gt_80_mhz",
-      FT_UINT48, BASE_DEC, NULL, GENMASK64(37, 35),
+      FT_UINT48, BASE_CUSTOM, CF_FUNC(sts_custom), GENMASK64(37, 35),
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_ranging_max_r2i_ltf_total,
@@ -38360,12 +38367,12 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_tag_ranging_max_i2r_sts_le_80_mhz,
      {"Max I2R STS <= 80 MHz", "wlan.ranging.max_i2r_sts_le_80_mhz",
-      FT_UINT48, BASE_DEC, NULL, GENMASK64(44, 42),
+      FT_UINT48, BASE_CUSTOM, CF_FUNC(sts_custom), GENMASK64(44, 42),
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_ranging_max_i2r_sts_gt_80_mhz,
      {"Max I2R STS > 80 MHz", "wlan.ranging.max_i2r_sts_gt_80_mhz",
-      FT_UINT48, BASE_DEC, NULL, GENMASK64(47, 45),
+      FT_UINT48, BASE_CUSTOM, CF_FUNC(sts_custom), GENMASK64(47, 45),
       NULL, HFILL }},
 
     /* az: non-TB-specific subelement */
