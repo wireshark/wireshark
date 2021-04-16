@@ -33,6 +33,8 @@ typedef struct {
     guint8 payload_len; /* Remember last payload_len */
 } ilbc_ctx_t;
 
+void codec_register_iLBC(void);
+
 static void *
 codec_iLBC_init(void)
 {

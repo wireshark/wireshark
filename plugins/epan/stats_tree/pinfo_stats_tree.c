@@ -43,6 +43,8 @@ static uat_plen_record_t *uat_plen_records = NULL;
 static uat_t *plen_uat = NULL;
 static guint num_plen_uat = 0;
 
+void register_tap_listener_pinfo_stat_tree(void);
+
 static void *uat_plen_record_copy_cb(void *n, const void *o, size_t siz _U_) {
 	const uat_plen_record_t *r = (const uat_plen_record_t *)o;
 	uat_plen_record_t *rn = (uat_plen_record_t *)n;

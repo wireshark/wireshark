@@ -16,6 +16,8 @@
 #include "wsutil/codecs.h"
 #include "ws_attributes.h"
 
+void codec_register_g722(void);
+
 static void *
 codec_g722_init(void)
 {

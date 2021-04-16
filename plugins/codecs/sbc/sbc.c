@@ -19,6 +19,8 @@
 
 #define SBC_BUFFER 8192
 
+void codec_register_sbc(void);
+
 static void *
 codec_sbc_init(void)
 {

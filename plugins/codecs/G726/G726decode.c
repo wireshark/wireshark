@@ -21,6 +21,8 @@ typedef struct _g726_codec_ctx {
     int bit_rate;
 } g726_codec_ctx;
 
+void codec_register_g726(void);
+
 static void *
 codec_g726_init(int bit_rate, int packing)
 {

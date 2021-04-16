@@ -15,6 +15,8 @@
 #include "wsutil/codecs.h"
 #include "ws_attributes.h"
 
+void codec_register_opus(void);
+
 static void *
 codec_opus_init(void)
 {

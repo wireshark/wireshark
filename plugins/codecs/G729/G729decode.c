@@ -16,6 +16,8 @@
 #include "wsutil/codecs.h"
 #include "ws_attributes.h"
 
+void codec_register_g729(void);
+
 static void *
 codec_g729_init(void)
 {

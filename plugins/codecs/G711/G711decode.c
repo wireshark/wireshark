@@ -85,6 +85,8 @@ static gint16 alaw_exp_table[256] = {
         944,   912,  1008,   976,   816,   784,   880,   848
 };
 
+void codec_register_g711(void);
+
 static void *
 codec_g711u_init(void)
 {
