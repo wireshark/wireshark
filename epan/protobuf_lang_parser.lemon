@@ -32,6 +32,10 @@
 #define NAME_TO_BE_SET "<NAME_TO_BE_SET>"
 #define NEED_NOT_NAME "<NEED_NOT_NAME>"
 
+static void *ProtobufLangParserAlloc(void *(*mallocProc)(size_t));
+static void ProtobufLangParser(void *yyp, int yymajor, protobuf_lang_token_t *yyminor, protobuf_lang_state_t *state);
+static void ProtobufLangParserFree(void *p, void (*freeProc)(void*));
+
 /* Error handling function for parser */
 void protobuf_lang_error(void* yyscanner, protobuf_lang_state_t *state, const char *msg);
 
