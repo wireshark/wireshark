@@ -779,6 +779,17 @@ static const value_string tag_num_vals_eid_ext[] = {
 };
 static value_string_ext tag_num_vals_eid_ext_ext = VALUE_STRING_EXT_INIT(tag_num_vals_eid_ext);
 
+const value_string wfa_qos_subtype_vals[] = {
+  { 1, "DSCP Policy Request" },
+  { 2, "DSCP Policy Response" },
+  { 0, NULL }
+};
+
+const value_string wfa_action_subtype_vals[] = {
+  { WFA_SUBTYPE_ACTION_QOS_MGMT, "QoS Management" },
+  { 0, NULL }
+};
+
 const value_string wfa_subtype_vals[] = {
   { WFA_SUBTYPE_SUBSCRIPTION_REMEDIATION, "Subscription Remediation" },
   { WFA_SUBTYPE_DEAUTHENTICATION_IMMINENT, "Deauthentication Imminent" },
@@ -4521,6 +4532,7 @@ static int hf_ieee80211_tag_length = -1;
 static int hf_ieee80211_tag_data = -1;
 static int hf_ieee80211_tag_oui = -1;
 static int hf_ieee80211_tag_oui_wfa_subtype = -1;
+static int hf_ieee80211_tag_oui_wfa_action_type = -1;
 static int hf_ieee80211_tag_ssid = -1;
 static int hf_ieee80211_tag_supp_rates = -1;
 static int hf_ieee80211_tag_fh_dwell_time = -1;
@@ -4562,6 +4574,21 @@ static int hf_ieee80211_tag_request = -1;
 static int hf_ieee80211_tag_extended_request_id = -1;
 static int hf_ieee80211_tag_extended_request_extension = -1;
 static int hf_ieee80211_tag_challenge_text = -1;
+
+static int hf_ieee80211_oui_qos_subtype = -1;
+static int hf_ieee80211_oui_qos_mgmt_dialog_token = -1;
+static int hf_ieee80211_oui_qos_mgmt_resp_control = -1;
+static int hf_ieee80211_oui_qos_mgmt_rsp_ctrl_more = -1;
+static int hf_ieee80211_oui_qos_mgmt_rsp_ctrl_reset = -1;
+static int hf_ieee80211_oui_qos_mgmt_rsp_reserved = -1;
+static int hf_ieee80211_oui_qos_mgmt_rqst_control = -1;
+static int hf_ieee80211_oui_qos_mgmt_rq_ctrl_more = -1;
+static int hf_ieee80211_oui_qos_mgmt_rq_ctrl_reset = -1;
+static int hf_ieee80211_oui_qos_mgmt_rq_reserved = -1;
+static int hf_ieee80211_oui_qos_mgmt_count = -1;
+static int hf_ieee80211_dscp_policy_id = -1;
+static int hf_ieee80211_dscp_policy_status = -1;
+static int hf_ieee80211_dscp_policy_scs_sts_list = -1;
 
 static int hf_ieee80211_tag_he_6ghz_cap_inf = -1;
 static int hf_ieee80211_tag_he_6ghz_cap_inf_b0_b2 = -1;
@@ -7524,6 +7551,17 @@ static gint ett_tag_mobility_domain_ft_capab_tree = -1;
 static gint ett_tag_ft_mic_control_tree = -1;
 static gint ett_tag_ft_subelem_tree = -1;
 
+static gint ett_qos_mgmt_pol_capa = -1;
+static gint ett_qos_mgmt_attributes = -1;
+static gint ett_qos_mgmt_dscp_policy_capabilities = -1;
+static gint ett_qos_mgmt_dscp_policy = -1;
+static gint ett_qos_mgmt_tclas = -1;
+static gint ett_qos_mgmt_domain_name = -1;
+static gint ett_qos_mgmt_unknown_attribute = -1;
+static gint ett_dscp_policy_status_list = -1;
+static gint ett_pol_rqst_cont_tree = -1;
+static gint ett_pol_resp_cont_tree = -1;
+
 static expert_field ei_ieee80211_bad_length = EI_INIT;
 static expert_field ei_ieee80211_inv_val = EI_INIT;
 static expert_field ei_ieee80211_vht_tpe_pwr_info_count = EI_INIT;
@@ -8647,6 +8685,133 @@ dissect_vendor_action_marvell(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
 }
 
 static int
+dissect_dscp_policy_query(tvbuff_t *tvb, packet_info *pinfo _U_,
+                          proto_tree *tree, int offset)
+{
+  int start_offset = offset;
+
+  while (tvb_captured_length_remaining(tvb, offset)) {
+    offset += add_tagged_field(pinfo, tree, tvb, offset, 0, NULL, 0, NULL);
+  }
+
+  return offset - start_offset;
+}
+
+static int * const rqst_control_fields[] = {
+  &hf_ieee80211_oui_qos_mgmt_rq_ctrl_more,
+  &hf_ieee80211_oui_qos_mgmt_rq_ctrl_reset,
+  &hf_ieee80211_oui_qos_mgmt_rq_reserved,
+  NULL
+};
+
+static int
+dissect_dscp_policy_request(tvbuff_t *tvb, packet_info *pinfo _U_,
+                            proto_tree *tree, int offset)
+{
+  int start_offset = offset;
+
+  proto_tree_add_bitmask(tree, tvb, offset,
+                         hf_ieee80211_oui_qos_mgmt_rqst_control,
+                         ett_pol_rqst_cont_tree, rqst_control_fields,
+                         ENC_NA);
+  offset += 1;
+
+  while (tvb_reported_length_remaining(tvb, offset)) {
+    offset += add_tagged_field(pinfo, tree, tvb, offset, 0, NULL, 0, NULL);
+  }
+
+  return offset - start_offset;
+}
+
+static int * const resp_control_fields[] = {
+  &hf_ieee80211_oui_qos_mgmt_rsp_ctrl_more,
+  &hf_ieee80211_oui_qos_mgmt_rsp_ctrl_reset,
+  &hf_ieee80211_oui_qos_mgmt_rsp_reserved,
+  NULL
+};
+
+static int
+dissect_dscp_policy_response(tvbuff_t *tvb, packet_info *pinfo _U_,
+                             proto_tree *tree, int offset)
+{
+  int start_offset = offset;
+  guint8 count;
+  char status_buf[256];
+  guint sts_len = 0;
+  int i;
+
+  proto_tree_add_bitmask(tree, tvb, offset,
+                         hf_ieee80211_oui_qos_mgmt_resp_control,
+                         ett_pol_resp_cont_tree, resp_control_fields,
+                         ENC_NA);
+  offset += 1;
+
+  count = tvb_get_guint8(tvb, offset);
+  proto_tree_add_item(tree, hf_ieee80211_oui_qos_mgmt_count, tvb, offset,
+                      1, ENC_NA);
+  offset += 1;
+
+  for (i = 0; i < count; i++) {
+    proto_tree *status_tree = NULL;
+    guint8 scsid, status;
+
+    scsid = tvb_get_guint8(tvb, offset);
+    status_tree = proto_tree_add_subtree_format(tree, tvb, offset, 2,
+                                                ett_dscp_policy_status_list,
+                                                NULL, "Status list item %d",
+                                                i);
+    proto_tree_add_item(status_tree, hf_ieee80211_dscp_policy_id, tvb,
+                        offset, 1, ENC_NA);
+    if (sts_len == 0) {
+      sts_len += g_snprintf(status_buf + sts_len, 256 - sts_len, "%u:", scsid);
+    } else {
+      sts_len += g_snprintf(status_buf + sts_len, 256 - sts_len, " %u:", scsid);
+    }
+    offset += 1;
+
+    status = tvb_get_guint8(tvb, offset);
+    proto_tree_add_item(status_tree, hf_ieee80211_dscp_policy_status, tvb,
+                        offset, 1, ENC_NA);
+    sts_len += g_snprintf(status_buf + sts_len, 256 - sts_len, "%u", status);
+    offset += 1;
+  }
+  proto_tree_add_string(tree, hf_ieee80211_dscp_policy_scs_sts_list, tvb, 0, 1,
+                        status_buf);
+
+  return offset - start_offset;
+}
+
+static int
+dissect_vendor_action_wfa_qos_mgmt(tvbuff_t *tvb, packet_info *pinfo,
+                                   proto_tree *tree, void *data _U_)
+{
+  int offset = 0;
+  guint8 subtype = tvb_get_guint8(tvb, offset);
+
+  proto_tree_add_item(tree, hf_ieee80211_oui_qos_subtype, tvb, offset, 1,
+                      ENC_NA);
+  offset += 1;
+
+  proto_tree_add_item(tree, hf_ieee80211_oui_qos_mgmt_dialog_token, tvb, offset,
+                      1, ENC_NA);
+  offset += 1;
+
+  switch (subtype) {
+  case 0:
+    offset += dissect_dscp_policy_query(tvb, pinfo, tree, offset);
+    break;
+  case 1:
+    offset += dissect_dscp_policy_request(tvb, pinfo, tree, offset);
+    break;
+  case 2:
+    offset += dissect_dscp_policy_response(tvb, pinfo, tree, offset);
+    break;
+  }
+
+  return offset;
+}
+
+static int
 dissect_vendor_action_wifi_alliance(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
   guint8 subtype;
@@ -8655,7 +8820,8 @@ dissect_vendor_action_wifi_alliance(tvbuff_t *tvb, packet_info *pinfo, proto_tre
   tvbuff_t *subtvb;
 
   subtype = tvb_get_guint8(tvb, offset);
-  proto_tree_add_item(tree, hf_ieee80211_tag_oui_wfa_subtype, tvb, offset, 1, ENC_NA);
+  proto_tree_add_item(tree, hf_ieee80211_tag_oui_wfa_action_type, tvb, offset,
+                      1, ENC_NA);
   offset += 1;
 
   subtvb = tvb_new_subset_remaining(tvb, offset);
@@ -15529,8 +15695,7 @@ add_ff_action(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset,
     return add_ff_action_protected_he(tree, tvb, pinfo, offset);
   case CAT_PROTECTED_FTM:
     return add_ff_action_protected_ftm(tree, tvb, pinfo, offset);
-/*  case CAT_VENDOR_SPECIFIC_PROTECTED:   Vendor Specific Protected Category - 126 */
-/*    return add_ff_action_vendor_specific_protected(tree, tvb, pinfo, offset);*/
+  case CAT_VENDOR_SPECIFIC_PROTECTED: /* Same as below for now */
   case CAT_VENDOR_SPECIFIC:  /* Vendor Specific Protected Category - 127 */
     return add_ff_action_vendor_specific(tree, tvb, pinfo, offset);
   default:
@@ -40906,6 +41071,66 @@ proto_register_ieee80211(void)
       FT_BYTES, BASE_NONE, NULL, 0,
       NULL, HFILL }},
 
+    {&hf_ieee80211_tag_oui_wfa_action_type,
+     {"OUI Type", "wlan.action.oui_type",
+      FT_UINT8, BASE_HEX, VALS(wfa_action_subtype_vals), 0x0, NULL, HFILL }},
+
+    {&hf_ieee80211_oui_qos_subtype,
+     {"OUI Subtype", "wlan.action.dscp_policy.oui_subtype",
+      FT_UINT8, BASE_HEX, VALS(wfa_qos_subtype_vals), 0x0, NULL, HFILL }},
+
+    {&hf_ieee80211_oui_qos_mgmt_dialog_token,
+     {"Dialog Token", "wlan.action.dscp_policy.dialog_token",
+      FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
+    {&hf_ieee80211_oui_qos_mgmt_rqst_control,
+     {"Request Control", "wlan.action.dscp_policy.request.control",
+      FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
+    {&hf_ieee80211_oui_qos_mgmt_rq_ctrl_more,
+     {"More", "wlan.action.dscp_policy.request.control.more",
+      FT_BOOLEAN, 8, NULL, 0x01, NULL, HFILL }},
+
+    {&hf_ieee80211_oui_qos_mgmt_rq_ctrl_reset,
+     {"Reset", "wlan.action.dscp_policy.request.control.reset",
+      FT_BOOLEAN, 8, NULL, 0x02, NULL, HFILL }},
+
+    {&hf_ieee80211_oui_qos_mgmt_rq_reserved,
+     {"Reserved", "wlan.action.dscp_policy.request.control.reserved",
+      FT_UINT8, BASE_HEX, NULL, 0xFC, NULL, HFILL }},
+
+    {&hf_ieee80211_dscp_policy_id,
+     {"Policy ID", "wlan.action.dscp_policy_response.policy_id",
+      FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+    {&hf_ieee80211_dscp_policy_status,
+     {"Status", "wlan.action.dscp_policy_response.policy_status",
+      FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+    {&hf_ieee80211_oui_qos_mgmt_resp_control,
+     {"Response Control", "wlan.action.dscp_policy.request.control",
+      FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
+    {&hf_ieee80211_oui_qos_mgmt_rsp_ctrl_more,
+     {"More", "wlan.action.dscp_policy.response.control.more",
+      FT_BOOLEAN, 8, NULL, 0x01, NULL, HFILL }},
+
+    {&hf_ieee80211_oui_qos_mgmt_rsp_ctrl_reset,
+     {"Reset", "wlan.action.dscp_policy.response.control.reset",
+      FT_BOOLEAN, 8, NULL, 0x02, NULL, HFILL }},
+
+    {&hf_ieee80211_oui_qos_mgmt_rsp_reserved,
+     {"Reserved", "wlan.action.dscp_policy.response.control.reserved",
+      FT_UINT8, BASE_HEX, NULL, 0xFC, NULL, HFILL }},
+
+    {&hf_ieee80211_dscp_policy_scs_sts_list,
+     {"Status List", "wlan.action.dscp_policy_response.policy_status_list",
+      FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_oui_qos_mgmt_count,
+     {"Count", "wlan.action.dscp_policy.response.count",
+      FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
     {&hf_ieee80211_tag_he_6ghz_cap_inf,
      {"Capabilities Information", "wlan.tag.he_6ghz.cap_inf",
       FT_UINT16, BASE_HEX, NULL, 0,
@@ -50028,6 +50253,17 @@ proto_register_ieee80211(void)
     &ett_rnr_tbtt_information_tree,
     &ett_rnr_bss_parameters,
 
+    &ett_qos_mgmt_dscp_policy_capabilities,
+    &ett_qos_mgmt_pol_capa,
+    &ett_qos_mgmt_attributes,
+    &ett_qos_mgmt_dscp_policy,
+    &ett_qos_mgmt_tclas,
+    &ett_qos_mgmt_domain_name,
+    &ett_qos_mgmt_unknown_attribute,
+    &ett_dscp_policy_status_list,
+    &ett_pol_rqst_cont_tree,
+    &ett_pol_resp_cont_tree,
+
     &ett_ff_fils_discovery_frame_control,
     &ett_ff_fils_discovery_capability,
   };
@@ -50755,6 +50991,9 @@ proto_reg_handoff_ieee80211(void)
   /* Vendor specific actions */
   dissector_add_uint("wlan.action.vendor_specific", OUI_MARVELL, create_dissector_handle(dissect_vendor_action_marvell, -1));
   dissector_add_uint("wlan.action.vendor_specific", OUI_WFA, create_dissector_handle(dissect_vendor_action_wifi_alliance, -1));
+
+  /* Protected action WFA ... */
+  dissector_add_uint("wlan.action.wifi_alliance.subtype", WFA_SUBTYPE_ACTION_QOS_MGMT, create_dissector_handle(dissect_vendor_action_wfa_qos_mgmt, -1));
 
   dissector_add_uint("wlan.anqp.vendor_specific", OUI_WFA, create_dissector_handle(dissect_vendor_wifi_alliance_anqp, -1));
   dissector_add_uint("wlan.anqp.wifi_alliance.subtype", WFA_ANQP_SUBTYPE_HS20, create_dissector_handle(dissect_hs20_anqp, -1));

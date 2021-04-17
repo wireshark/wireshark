@@ -338,6 +338,10 @@ typedef struct anqp_info_dissector_data {
 #define WFA_SUBTYPE_DPP                        26
 #define WFA_SUBTYPE_IEEE1905_MULTI_AP          27 /* ox1B */
 #define WFA_SUBTYPE_OWE_TRANSITION_MODE        28
+#define WFA_SUBTYPE_QOS_MGMT                   33 /* 0x21 */
+
+/* WFA Public Action Types */
+#define WFA_SUBTYPE_ACTION_QOS_MGMT          0x1A
 
 /* WFA vendor specific ANQP subtypes */
 #define WFA_ANQP_SUBTYPE_HS20                  17
