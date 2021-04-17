@@ -60,8 +60,8 @@ static expert_field ei_undecoded = EI_INIT;
 static expert_field ei_wrong_crc5 = EI_INIT;
 static expert_field ei_wrong_split_crc5 = EI_INIT;
 static expert_field ei_wrong_crc16 = EI_INIT;
+static expert_field ei_invalid_s = EI_INIT;
 static expert_field ei_invalid_e_u = EI_INIT;
-static expert_field ei_invalid_se = EI_INIT;
 static expert_field ei_invalid_pid_sequence = EI_INIT;
 
 static int usbll_address_type = -1;
@@ -171,39 +171,115 @@ static const value_string usb_endpoint_type_vals[] = {
 #define USBLL_ADDRESS_IS_HOST_TO_DEV(flags) \
     (!USBLL_ADDRESS_IS_DEV_TO_HOST(flags))
 
-/* usbll_state represents the state of a packet within a transaction.
- * Each packet state will represent the transaction upto that packet.
- */
 typedef enum usbll_state {
-    STANDARD,           /* STANDARD is default state of the packet in the beginning. */
-    SSPLIT,
-    CSPLIT,
-    SETUP,
-    OUT,
-    IN,
-    PING,
-    DATA0,
-    DATA1,
-    DATA2,
-    MDATA,
-    SSPLIT_SETUP,
-    SSPLIT_OUT,
-    SSPLIT_IN,
-    CSPLIT_SETUP,
-    CSPLIT_OUT,
-    CSPLIT_IN,
-    SETUP_DATA0,
-    OUT_DATA0,
-    OUT_DATA1,
-    IN_DATA0,
-    IN_DATA1,
-    SSPLIT_SETUP_DATA0,
-    SSPLIT_SETUP_DATA1,
-    SSPLIT_OUT_DATA0,
-    SSPLIT_OUT_DATA1,
-    CSPLIT_IN_DATA0,
-    CSPLIT_IN_DATA1,
-    CSPLIT_IN_MDATA
+    STATE_IDLE,      /* No transaction, e.g. after SOF */
+    STATE_INVALID,   /* Invalid PID sequence, e.g. ACK without transaction  */
+    STATE_IN,
+    STATE_IN_DATA0,
+    STATE_IN_DATA1,
+    STATE_IN_HS_ISOCHRONOUS_DATA2,
+    STATE_IN_ACK,
+    STATE_IN_NAK,
+    STATE_IN_STALL,
+    STATE_OUT,
+    STATE_OUT_DATA0,
+    STATE_OUT_DATA1,
+    STATE_OUT_HS_ISOCHRONOUS_DATA2,
+    STATE_OUT_HS_ISOCHRONOUS_MDATA,
+    STATE_OUT_ACK,
+    STATE_OUT_NAK,
+    STATE_OUT_STALL,
+    STATE_OUT_NYET,
+    STATE_PING,
+    STATE_PING_ACK,
+    STATE_PING_NAK,
+    STATE_PING_STALL,
+    STATE_SETUP,
+    STATE_SETUP_DATA0,
+    STATE_SETUP_ACK,
+    /* LS/FS Control transactions via HS hub */
+    STATE_SSPLIT_CONTROL,
+    STATE_SSPLIT_CONTROL_SETUP,
+    STATE_SSPLIT_CONTROL_SETUP_DATA0,
+    STATE_SSPLIT_CONTROL_SETUP_ACK,
+    STATE_SSPLIT_CONTROL_SETUP_NAK,
+    STATE_SSPLIT_CONTROL_OUT,
+    STATE_SSPLIT_CONTROL_OUT_DATA0,
+    STATE_SSPLIT_CONTROL_OUT_DATA1,
+    STATE_SSPLIT_CONTROL_OUT_ACK,
+    STATE_SSPLIT_CONTROL_OUT_NAK,
+    STATE_SSPLIT_CONTROL_IN,
+    STATE_SSPLIT_CONTROL_IN_ACK,
+    STATE_SSPLIT_CONTROL_IN_NAK,
+    STATE_CSPLIT_CONTROL,
+    STATE_CSPLIT_CONTROL_SETUP,
+    STATE_CSPLIT_CONTROL_SETUP_ACK,
+    STATE_CSPLIT_CONTROL_SETUP_NYET,
+    STATE_CSPLIT_CONTROL_OUT,
+    STATE_CSPLIT_CONTROL_OUT_ACK,
+    STATE_CSPLIT_CONTROL_OUT_NAK,
+    STATE_CSPLIT_CONTROL_OUT_STALL,
+    STATE_CSPLIT_CONTROL_OUT_NYET,
+    STATE_CSPLIT_CONTROL_IN,
+    STATE_CSPLIT_CONTROL_IN_DATA0,
+    STATE_CSPLIT_CONTROL_IN_DATA1,
+    STATE_CSPLIT_CONTROL_IN_NAK,
+    STATE_CSPLIT_CONTROL_IN_STALL,
+    STATE_CSPLIT_CONTROL_IN_NYET,
+    /* LS/FS Bulk transactions via HS hub */
+    STATE_SSPLIT_BULK,
+    STATE_SSPLIT_BULK_OUT,
+    STATE_SSPLIT_BULK_OUT_DATA0,
+    STATE_SSPLIT_BULK_OUT_DATA1,
+    STATE_SSPLIT_BULK_OUT_ACK,
+    STATE_SSPLIT_BULK_OUT_NAK,
+    STATE_SSPLIT_BULK_IN,
+    STATE_SSPLIT_BULK_IN_ACK,
+    STATE_SSPLIT_BULK_IN_NAK,
+    STATE_CSPLIT_BULK,
+    STATE_CSPLIT_BULK_OUT,
+    STATE_CSPLIT_BULK_OUT_ACK,
+    STATE_CSPLIT_BULK_OUT_NAK,
+    STATE_CSPLIT_BULK_OUT_STALL,
+    STATE_CSPLIT_BULK_OUT_NYET,
+    STATE_CSPLIT_BULK_IN,
+    STATE_CSPLIT_BULK_IN_DATA0,
+    STATE_CSPLIT_BULK_IN_DATA1,
+    STATE_CSPLIT_BULK_IN_NAK,
+    STATE_CSPLIT_BULK_IN_STALL,
+    STATE_CSPLIT_BULK_IN_NYET,
+    /* LS/FS Interrupt transactions via HS hub */
+    STATE_SSPLIT_INTERRUPT,
+    STATE_SSPLIT_INTERRUPT_OUT,
+    STATE_SSPLIT_INTERRUPT_OUT_DATA0,
+    STATE_SSPLIT_INTERRUPT_OUT_DATA1,
+    STATE_SSPLIT_INTERRUPT_IN,
+    STATE_CSPLIT_INTERRUPT,
+    STATE_CSPLIT_INTERRUPT_OUT,
+    STATE_CSPLIT_INTERRUPT_OUT_ACK,
+    STATE_CSPLIT_INTERRUPT_OUT_NAK,
+    STATE_CSPLIT_INTERRUPT_OUT_STALL,
+    STATE_CSPLIT_INTERRUPT_OUT_ERR,
+    STATE_CSPLIT_INTERRUPT_OUT_NYET,
+    STATE_CSPLIT_INTERRUPT_IN,
+    STATE_CSPLIT_INTERRUPT_IN_MDATA,
+    STATE_CSPLIT_INTERRUPT_IN_DATA0,
+    STATE_CSPLIT_INTERRUPT_IN_DATA1,
+    STATE_CSPLIT_INTERRUPT_IN_NAK,
+    STATE_CSPLIT_INTERRUPT_IN_STALL,
+    STATE_CSPLIT_INTERRUPT_IN_ERR,
+    STATE_CSPLIT_INTERRUPT_IN_NYET,
+    /* FS Isochronous transactions via HS hub */
+    STATE_SSPLIT_ISOCHRONOUS,
+    STATE_SSPLIT_ISOCHRONOUS_OUT,
+    STATE_SSPLIT_ISOCHRONOUS_OUT_DATA0,
+    STATE_SSPLIT_ISOCHRONOUS_IN,
+    STATE_CSPLIT_ISOCHRONOUS,
+    STATE_CSPLIT_ISOCHRONOUS_IN,
+    STATE_CSPLIT_ISOCHRONOUS_IN_DATA0,
+    STATE_CSPLIT_ISOCHRONOUS_IN_MDATA,
+    STATE_CSPLIT_ISOCHRONOUS_IN_ERR,
+    STATE_CSPLIT_ISOCHRONOUS_IN_NYET,
 } usbll_state_t;
 
 /* usbll_address_t represents the address
@@ -219,12 +295,17 @@ typedef struct {
                          */
 } usbll_address_t;
 
+typedef struct usbll_transaction_info {
+    guint32 starts_in;
+    guint8 pid;
+    guint8 address;
+    guint8 endpoint;
+    struct usbll_transaction_info *split_start;
+    struct usbll_transaction_info *split_complete;
+} usbll_transaction_info_t;
+
 /* USB is a stateful protocol. The addresses of Data Packets
  * and Handshake Packets depend on the packets before them.
- *
- * For every packet, we need to store it's source address and
- * destination address. We also need to store a reference to
- * previous and next packet.
  *
  * We maintain a static global pointer of the type usbll_data_t.
  * Maintaining a pointer instead of a conversation helps in reducing
@@ -232,23 +313,314 @@ typedef struct {
  * 1. Packets are always ordered.
  * 2. Addresses of packets only up to last 3 packets are required.
  *
- * Previous pointer is used in the initial pass to decide the
- * source and destination addresses for Data and Handshake packets.
- *
- * Previous and Next pointers help to idenitfy the transactions and
- * invalid sequences. Next pointer is used in the later passes.
+ * Previous pointer is used in the initial pass to link packets
+ * into transactions.
  */
 typedef struct usbll_data {
-    guint32 pid;
-    gboolean is_split_complete; /* TRUE if Split Complete, FALSE for Split Start. */
     usbll_state_t transaction_state;
-    usbll_address_t src;
-    usbll_address_t dst;
+    usbll_transaction_info_t *transaction;
     struct usbll_data *prev;
     struct usbll_data *next;
 } usbll_data_t;
 
 static usbll_data_t *usbll_data_ptr = NULL;
+
+/* Transaction Translator arrays used only during first pass. */
+static usbll_transaction_info_t ***tt_non_periodic;
+static usbll_transaction_info_t ***tt_periodic;
+
+static usbll_state_t
+usbll_next_state(usbll_state_t state, guint8 pid)
+{
+    if (pid == USB_PID_TOKEN_SOF)
+    {
+        return STATE_IDLE;
+    }
+    else if (pid == USB_PID_SPECIAL_PING)
+    {
+        return STATE_PING;
+    }
+    else if (pid == USB_PID_TOKEN_SETUP)
+    {
+        switch (state)
+        {
+            case STATE_SSPLIT_CONTROL:             return STATE_SSPLIT_CONTROL_SETUP;
+            case STATE_CSPLIT_CONTROL:             return STATE_CSPLIT_CONTROL_SETUP;
+            default:                               return STATE_SETUP;
+        }
+    }
+    else if (pid == USB_PID_TOKEN_OUT)
+    {
+        switch (state)
+        {
+            case STATE_SSPLIT_CONTROL:             return STATE_SSPLIT_CONTROL_OUT;
+            case STATE_CSPLIT_CONTROL:             return STATE_CSPLIT_CONTROL_OUT;
+            case STATE_SSPLIT_BULK:                return STATE_SSPLIT_BULK_OUT;
+            case STATE_CSPLIT_BULK:                return STATE_CSPLIT_BULK_OUT;
+            case STATE_SSPLIT_INTERRUPT:           return STATE_SSPLIT_INTERRUPT_OUT;
+            case STATE_CSPLIT_INTERRUPT:           return STATE_CSPLIT_INTERRUPT_OUT;
+            case STATE_SSPLIT_ISOCHRONOUS:         return STATE_SSPLIT_ISOCHRONOUS_OUT;
+            default:                               return STATE_OUT;
+        }
+    }
+    else if (pid == USB_PID_TOKEN_IN)
+    {
+        switch (state)
+        {
+            case STATE_SSPLIT_CONTROL:             return STATE_SSPLIT_CONTROL_IN;
+            case STATE_CSPLIT_CONTROL:             return STATE_CSPLIT_CONTROL_IN;
+            case STATE_SSPLIT_BULK:                return STATE_SSPLIT_BULK_IN;
+            case STATE_CSPLIT_BULK:                return STATE_CSPLIT_BULK_IN;
+            case STATE_SSPLIT_INTERRUPT:           return STATE_SSPLIT_INTERRUPT_IN;
+            case STATE_CSPLIT_INTERRUPT:           return STATE_CSPLIT_INTERRUPT_IN;
+            case STATE_SSPLIT_ISOCHRONOUS:         return STATE_SSPLIT_ISOCHRONOUS_IN;
+            case STATE_CSPLIT_ISOCHRONOUS:         return STATE_CSPLIT_ISOCHRONOUS_IN;
+            default:                               return STATE_IN;
+        }
+    }
+    else if (pid == USB_PID_DATA_DATA0)
+    {
+        switch (state)
+        {
+            case STATE_IN:                         return STATE_IN_DATA0;
+            case STATE_OUT:                        return STATE_OUT_DATA0;
+            case STATE_SETUP:                      return STATE_SETUP_DATA0;
+            case STATE_SSPLIT_CONTROL_SETUP:       return STATE_SSPLIT_CONTROL_SETUP_DATA0;
+            case STATE_SSPLIT_CONTROL_OUT:         return STATE_SSPLIT_CONTROL_OUT_DATA0;
+            case STATE_CSPLIT_CONTROL_IN:          return STATE_CSPLIT_CONTROL_IN_DATA0;
+            case STATE_SSPLIT_BULK_OUT:            return STATE_SSPLIT_BULK_OUT_DATA0;
+            case STATE_CSPLIT_BULK_IN:             return STATE_CSPLIT_BULK_IN_DATA0;
+            case STATE_SSPLIT_INTERRUPT_OUT:       return STATE_SSPLIT_INTERRUPT_OUT_DATA0;
+            case STATE_CSPLIT_INTERRUPT_IN:        return STATE_CSPLIT_INTERRUPT_IN_DATA0;
+            case STATE_SSPLIT_ISOCHRONOUS_OUT:     return STATE_SSPLIT_ISOCHRONOUS_OUT_DATA0;
+            case STATE_CSPLIT_ISOCHRONOUS_IN:      return STATE_CSPLIT_ISOCHRONOUS_IN_DATA0;
+            default:                               return STATE_INVALID;
+        }
+    }
+    else if (pid == USB_PID_DATA_DATA1)
+    {
+        switch (state)
+        {
+            case STATE_IN:                         return STATE_IN_DATA1;
+            case STATE_OUT:                        return STATE_OUT_DATA1;
+            case STATE_SSPLIT_CONTROL_OUT:         return STATE_SSPLIT_CONTROL_OUT_DATA1;
+            case STATE_CSPLIT_CONTROL_IN:          return STATE_CSPLIT_CONTROL_IN_DATA1;
+            case STATE_SSPLIT_BULK_OUT:            return STATE_SSPLIT_BULK_OUT_DATA1;
+            case STATE_CSPLIT_BULK_IN:             return STATE_CSPLIT_BULK_IN_DATA1;
+            case STATE_SSPLIT_INTERRUPT_OUT:       return STATE_SSPLIT_INTERRUPT_OUT_DATA1;
+            case STATE_CSPLIT_INTERRUPT_IN:        return STATE_CSPLIT_INTERRUPT_IN_DATA1;
+            default:                               return STATE_INVALID;
+        }
+    }
+    else if (pid == USB_PID_DATA_DATA2)
+    {
+        switch (state)
+        {
+            case STATE_IN:                         return STATE_IN_HS_ISOCHRONOUS_DATA2;
+            default:                               return STATE_INVALID;
+        }
+    }
+    else if (pid == USB_PID_DATA_MDATA)
+    {
+        switch (state)
+        {
+            case STATE_OUT:                        return STATE_OUT_HS_ISOCHRONOUS_MDATA;
+            case STATE_CSPLIT_INTERRUPT_IN:        return STATE_CSPLIT_INTERRUPT_IN_MDATA;
+            case STATE_CSPLIT_ISOCHRONOUS_IN:      return STATE_CSPLIT_ISOCHRONOUS_IN_MDATA;
+            default:                               return STATE_INVALID;
+        }
+    }
+    else if (pid == USB_PID_HANDSHAKE_ACK)
+    {
+        switch (state)
+        {
+            case STATE_IN_DATA0:                   return STATE_IN_ACK;
+            case STATE_IN_DATA1:                   return STATE_IN_ACK;
+            case STATE_OUT_DATA0:                  return STATE_OUT_ACK;
+            case STATE_OUT_DATA1:                  return STATE_OUT_ACK;
+            case STATE_PING:                       return STATE_PING_ACK;
+            case STATE_SETUP_DATA0:                return STATE_SETUP_ACK;
+            case STATE_SSPLIT_CONTROL_SETUP_DATA0: return STATE_SSPLIT_CONTROL_SETUP_ACK;
+            case STATE_CSPLIT_CONTROL_SETUP:       return STATE_CSPLIT_CONTROL_SETUP_ACK;
+            case STATE_SSPLIT_CONTROL_OUT_DATA0:   return STATE_SSPLIT_CONTROL_OUT_ACK;
+            case STATE_SSPLIT_CONTROL_OUT_DATA1:   return STATE_SSPLIT_CONTROL_OUT_ACK;
+            case STATE_CSPLIT_CONTROL_OUT:         return STATE_CSPLIT_CONTROL_OUT_ACK;
+            case STATE_SSPLIT_CONTROL_IN:          return STATE_SSPLIT_CONTROL_IN_ACK;
+            case STATE_SSPLIT_BULK_OUT_DATA0:      return STATE_SSPLIT_BULK_OUT_ACK;
+            case STATE_SSPLIT_BULK_OUT_DATA1:      return STATE_SSPLIT_BULK_OUT_ACK;
+            case STATE_SSPLIT_BULK_IN:             return STATE_SSPLIT_BULK_IN_ACK;
+            case STATE_CSPLIT_BULK_OUT:            return STATE_CSPLIT_BULK_OUT_ACK;
+            case STATE_CSPLIT_INTERRUPT_OUT:       return STATE_CSPLIT_INTERRUPT_OUT_ACK;
+            default:                               return STATE_INVALID;
+        }
+    }
+    else if (pid == USB_PID_HANDSHAKE_NAK)
+    {
+        switch (state)
+        {
+            case STATE_IN:                         return STATE_IN_NAK;
+            case STATE_OUT_DATA0:                  return STATE_OUT_NAK;
+            case STATE_OUT_DATA1:                  return STATE_OUT_NAK;
+            case STATE_PING:                       return STATE_PING_NAK;
+            case STATE_SSPLIT_CONTROL_SETUP_DATA0: return STATE_SSPLIT_CONTROL_SETUP_NAK;
+            case STATE_SSPLIT_CONTROL_OUT_DATA0:   return STATE_SSPLIT_CONTROL_OUT_NAK;
+            case STATE_SSPLIT_CONTROL_OUT_DATA1:   return STATE_SSPLIT_CONTROL_OUT_NAK;
+            case STATE_SSPLIT_CONTROL_IN:          return STATE_SSPLIT_CONTROL_IN_NAK;
+            case STATE_CSPLIT_CONTROL_OUT:         return STATE_CSPLIT_CONTROL_OUT_NAK;
+            case STATE_CSPLIT_CONTROL_IN:          return STATE_CSPLIT_CONTROL_IN_NAK;
+            case STATE_SSPLIT_BULK_OUT_DATA0:      return STATE_SSPLIT_BULK_OUT_NAK;
+            case STATE_SSPLIT_BULK_OUT_DATA1:      return STATE_SSPLIT_BULK_OUT_NAK;
+            case STATE_SSPLIT_BULK_IN:             return STATE_SSPLIT_BULK_IN_NAK;
+            case STATE_CSPLIT_BULK_OUT:            return STATE_CSPLIT_BULK_OUT_NAK;
+            case STATE_CSPLIT_BULK_IN:             return STATE_CSPLIT_BULK_IN_NAK;
+            case STATE_CSPLIT_INTERRUPT_OUT:       return STATE_CSPLIT_INTERRUPT_OUT_NAK;
+            case STATE_CSPLIT_INTERRUPT_IN:        return STATE_CSPLIT_INTERRUPT_IN_NAK;
+            default:                               return STATE_INVALID;
+        }
+    }
+    else if (pid == USB_PID_HANDSHAKE_STALL)
+    {
+        switch (state)
+        {
+            case STATE_IN:                         return STATE_IN_STALL;
+            case STATE_OUT_DATA0:                  return STATE_OUT_STALL;
+            case STATE_OUT_DATA1:                  return STATE_OUT_STALL;
+            case STATE_PING:                       return STATE_PING_STALL;
+            case STATE_CSPLIT_CONTROL_OUT:         return STATE_CSPLIT_CONTROL_OUT_STALL;
+            case STATE_CSPLIT_CONTROL_IN:          return STATE_CSPLIT_CONTROL_IN_STALL;
+            case STATE_CSPLIT_BULK_OUT:            return STATE_CSPLIT_BULK_OUT_STALL;
+            case STATE_CSPLIT_BULK_IN:             return STATE_CSPLIT_BULK_IN_STALL;
+            case STATE_CSPLIT_INTERRUPT_OUT:       return STATE_CSPLIT_INTERRUPT_OUT_STALL;
+            case STATE_CSPLIT_INTERRUPT_IN:        return STATE_CSPLIT_INTERRUPT_IN_STALL;
+            default:                               return STATE_INVALID;
+        }
+    }
+    else if (pid == USB_PID_HANDSHAKE_NYET)
+    {
+        /* Allowed only in High-Speed */
+        switch (state)
+        {
+            case STATE_OUT_DATA0:                return STATE_OUT_NYET;
+            case STATE_OUT_DATA1:                return STATE_OUT_NYET;
+            case STATE_CSPLIT_CONTROL_SETUP:     return STATE_CSPLIT_CONTROL_SETUP_NYET;
+            case STATE_CSPLIT_CONTROL_OUT:       return STATE_CSPLIT_CONTROL_OUT_NYET;
+            case STATE_CSPLIT_CONTROL_IN:        return STATE_CSPLIT_CONTROL_IN_NYET;
+            case STATE_CSPLIT_BULK_OUT:          return STATE_CSPLIT_BULK_OUT_NYET;
+            case STATE_CSPLIT_BULK_IN:           return STATE_CSPLIT_BULK_IN_NYET;
+            case STATE_CSPLIT_INTERRUPT_OUT:     return STATE_CSPLIT_INTERRUPT_OUT_NYET;
+            case STATE_CSPLIT_INTERRUPT_IN:      return STATE_CSPLIT_INTERRUPT_IN_NYET;
+            case STATE_CSPLIT_ISOCHRONOUS_IN:    return STATE_CSPLIT_ISOCHRONOUS_IN_NYET;
+            default:                             return STATE_INVALID;
+        }
+    }
+    else if (pid == USB_PID_SPECIAL_PRE_OR_ERR)
+    {
+        switch (state)
+        {
+            case STATE_CSPLIT_INTERRUPT_OUT:     return STATE_CSPLIT_INTERRUPT_OUT_ERR;
+            case STATE_CSPLIT_INTERRUPT_IN:      return STATE_CSPLIT_INTERRUPT_IN_ERR;
+            case STATE_CSPLIT_ISOCHRONOUS_IN:    return STATE_CSPLIT_ISOCHRONOUS_IN_ERR;
+            default:                             return STATE_IDLE;
+        }
+    }
+    else if (pid == USB_PID_SPECIAL_RESERVED)
+    {
+        /* TODO: Link Power Management */
+    }
+
+    /* SPLIT is not suitable for this function as the state cannot be
+     * determined by looking solely at PID.
+     */
+    DISSECTOR_ASSERT(pid != USB_PID_SPECIAL_SPLIT);
+
+    return STATE_IDLE;
+}
+
+static gboolean usbll_is_non_periodic_split_start_token(usbll_state_t state)
+{
+    switch (state)
+    {
+        case STATE_SSPLIT_CONTROL_SETUP:
+        case STATE_SSPLIT_CONTROL_OUT:
+        case STATE_SSPLIT_CONTROL_IN:
+        case STATE_SSPLIT_BULK_OUT:
+        case STATE_SSPLIT_BULK_IN:
+            return TRUE;
+        default:
+            return FALSE;
+    }
+
+}
+static gboolean usbll_is_periodic_split_start_token(usbll_state_t state)
+{
+    switch (state)
+    {
+        case STATE_SSPLIT_INTERRUPT_OUT:
+        case STATE_SSPLIT_INTERRUPT_IN:
+        case STATE_SSPLIT_ISOCHRONOUS_OUT:
+        case STATE_SSPLIT_ISOCHRONOUS_IN:
+            return TRUE;
+        default:
+            return FALSE;
+    }
+
+}
+static gboolean usbll_is_split_start_token(usbll_state_t state)
+{
+    return usbll_is_non_periodic_split_start_token(state) || usbll_is_periodic_split_start_token(state);
+}
+
+static gboolean usbll_is_non_periodic_split_complete_token(usbll_state_t state)
+{
+    switch (state)
+    {
+        case STATE_CSPLIT_CONTROL_SETUP:
+        case STATE_CSPLIT_CONTROL_OUT:
+        case STATE_CSPLIT_CONTROL_IN:
+        case STATE_CSPLIT_BULK_OUT:
+        case STATE_CSPLIT_BULK_IN:
+            return TRUE;
+        default:
+            return FALSE;
+    }
+}
+
+static gboolean usbll_is_periodic_split_complete_token(usbll_state_t state)
+{
+    switch (state)
+    {
+        case STATE_CSPLIT_INTERRUPT_OUT:
+        case STATE_CSPLIT_INTERRUPT_IN:
+        case STATE_CSPLIT_ISOCHRONOUS_IN:
+            return TRUE;
+        default:
+            return FALSE;
+    }
+}
+
+static gboolean usbll_is_split_complete_token(usbll_state_t state)
+{
+    return usbll_is_non_periodic_split_complete_token(state) || usbll_is_periodic_split_complete_token(state);
+}
+
+static gboolean usbll_is_split_token(usbll_state_t state)
+{
+    return usbll_is_split_start_token(state) || usbll_is_split_complete_token(state);
+}
+
+static gboolean usbll_is_non_split_token(usbll_state_t state)
+{
+    switch (state)
+    {
+        case STATE_IN:
+        case STATE_OUT:
+        case STATE_PING:
+        case STATE_SETUP:
+            return TRUE;
+        default:
+            return FALSE;
+    }
+}
 
 static int usbll_addr_to_str(const address* addr, gchar *buf, int buf_len)
 {
@@ -280,15 +652,15 @@ static int usbll_addr_str_len(const address* addr _U_)
 }
 
 static void
-usbll_set_address(proto_tree *tree, tvbuff_t *tvb,
-        packet_info *pinfo, guint8 device, guint8 endpoint, guint8 flags, usbll_address_t *src_out, usbll_address_t *dst_out)
+usbll_set_address(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
+                  guint8 device, guint8 endpoint, guint8 flags)
 {
     proto_item     *sub_item;
     usbll_address_t *src_addr, *dst_addr;
     guint8 *str_src_addr, *str_dst_addr;
 
-    src_addr = wmem_new0(wmem_file_scope(), usbll_address_t);
-    dst_addr = wmem_new0(wmem_file_scope(), usbll_address_t);
+    src_addr = wmem_new0(wmem_packet_scope(), usbll_address_t);
+    dst_addr = wmem_new0(wmem_packet_scope(), usbll_address_t);
 
     if (USBLL_ADDRESS_IS_HOST_TO_DEV(flags)) {
         src_addr->flags = USBLL_ADDRESS_HOST;
@@ -343,12 +715,232 @@ usbll_set_address(proto_tree *tree, tvbuff_t *tvb,
 
     sub_item = proto_tree_add_string(tree, hf_usbll_addr, tvb, 0, 0, str_dst_addr);
     proto_item_set_hidden(sub_item);
+}
 
-    if (src_out)
-        *src_out = *src_addr;
+static void
+usbll_generate_address(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, usbll_data_t *data)
+{
+    switch (data->transaction_state)
+    {
+        case STATE_IDLE:
+        case STATE_INVALID:
+            /* Do not set address if we are not sure about it */
+            break;
+        case STATE_IN:
+        case STATE_IN_ACK:
+        case STATE_OUT:
+        case STATE_OUT_DATA0:
+        case STATE_OUT_DATA1:
+        case STATE_OUT_HS_ISOCHRONOUS_DATA2:
+        case STATE_OUT_HS_ISOCHRONOUS_MDATA:
+        case STATE_PING:
+        case STATE_SETUP:
+        case STATE_SETUP_DATA0:
+            DISSECTOR_ASSERT(data->transaction != NULL);
+            usbll_set_address(tree, tvb, pinfo,
+                              data->transaction->address, data->transaction->endpoint,
+                              USBLL_ADDRESS_HOST_TO_DEV);
+            break;
+        case STATE_IN_DATA0:
+        case STATE_IN_DATA1:
+        case STATE_IN_HS_ISOCHRONOUS_DATA2:
+        case STATE_IN_NAK:
+        case STATE_IN_STALL:
+        case STATE_OUT_ACK:
+        case STATE_OUT_NAK:
+        case STATE_OUT_STALL:
+        case STATE_OUT_NYET:
+        case STATE_PING_ACK:
+        case STATE_PING_NAK:
+        case STATE_PING_STALL:
+        case STATE_SETUP_ACK:
+            DISSECTOR_ASSERT(data->transaction != NULL);
+            usbll_set_address(tree, tvb, pinfo,
+                              data->transaction->address, data->transaction->endpoint,
+                              USBLL_ADDRESS_DEV_TO_HOST);
+            break;
+        case STATE_SSPLIT_CONTROL:
+        case STATE_CSPLIT_CONTROL:
+        case STATE_SSPLIT_BULK:
+        case STATE_CSPLIT_BULK:
+        case STATE_SSPLIT_INTERRUPT:
+        case STATE_CSPLIT_INTERRUPT:
+        case STATE_SSPLIT_ISOCHRONOUS:
+        case STATE_CSPLIT_ISOCHRONOUS:
+            DISSECTOR_ASSERT(data->transaction != NULL);
+            usbll_set_address(tree, tvb, pinfo,
+                              data->transaction->address, data->transaction->endpoint,
+                              USBLL_ADDRESS_HOST_TO_DEV | USBLL_ADDRESS_HUB_PORT);
+            break;
+        case STATE_SSPLIT_CONTROL_SETUP:
+        case STATE_SSPLIT_CONTROL_SETUP_DATA0:
+        case STATE_SSPLIT_CONTROL_OUT:
+        case STATE_SSPLIT_CONTROL_OUT_DATA0:
+        case STATE_SSPLIT_CONTROL_OUT_DATA1:
+        case STATE_SSPLIT_CONTROL_IN:
+        case STATE_SSPLIT_BULK_OUT:
+        case STATE_SSPLIT_BULK_OUT_DATA0:
+        case STATE_SSPLIT_BULK_OUT_DATA1:
+        case STATE_SSPLIT_BULK_IN:
+        case STATE_SSPLIT_INTERRUPT_OUT:
+        case STATE_SSPLIT_INTERRUPT_OUT_DATA0:
+        case STATE_SSPLIT_INTERRUPT_OUT_DATA1:
+        case STATE_SSPLIT_INTERRUPT_IN:
+        case STATE_SSPLIT_ISOCHRONOUS_OUT:
+        case STATE_SSPLIT_ISOCHRONOUS_OUT_DATA0:
+        case STATE_SSPLIT_ISOCHRONOUS_IN:
+            DISSECTOR_ASSERT(data->transaction != NULL);
+            DISSECTOR_ASSERT(data->transaction->split_start != NULL);
+            usbll_set_address(tree, tvb, pinfo,
+                              data->transaction->address, data->transaction->endpoint,
+                              USBLL_ADDRESS_HOST_TO_DEV);
+            break;
+        case STATE_SSPLIT_CONTROL_SETUP_ACK:
+        case STATE_SSPLIT_CONTROL_SETUP_NAK:
+        case STATE_SSPLIT_CONTROL_OUT_ACK:
+        case STATE_SSPLIT_CONTROL_OUT_NAK:
+        case STATE_SSPLIT_CONTROL_IN_ACK:
+        case STATE_SSPLIT_CONTROL_IN_NAK:
+        case STATE_SSPLIT_BULK_OUT_ACK:
+        case STATE_SSPLIT_BULK_OUT_NAK:
+        case STATE_SSPLIT_BULK_IN_ACK:
+        case STATE_SSPLIT_BULK_IN_NAK:
+            DISSECTOR_ASSERT(data->transaction != NULL);
+            DISSECTOR_ASSERT(data->transaction->split_start != NULL);
+            usbll_set_address(tree, tvb, pinfo,
+                              data->transaction->split_start->address, data->transaction->split_start->endpoint,
+                              USBLL_ADDRESS_DEV_TO_HOST | USBLL_ADDRESS_HUB_PORT);
+            break;
+        case STATE_CSPLIT_CONTROL_SETUP:
+        case STATE_CSPLIT_CONTROL_OUT:
+        case STATE_CSPLIT_CONTROL_IN:
+        case STATE_CSPLIT_BULK_OUT:
+        case STATE_CSPLIT_BULK_IN:
+        case STATE_CSPLIT_INTERRUPT_OUT:
+        case STATE_CSPLIT_INTERRUPT_IN:
+        case STATE_CSPLIT_ISOCHRONOUS_IN:
+            DISSECTOR_ASSERT(data->transaction != NULL);
+            DISSECTOR_ASSERT(data->transaction->split_complete != NULL);
+            usbll_set_address(tree, tvb, pinfo,
+                              data->transaction->address, data->transaction->endpoint,
+                              USBLL_ADDRESS_HOST_TO_DEV);
+            break;
+        case STATE_CSPLIT_CONTROL_SETUP_ACK:
+        case STATE_CSPLIT_CONTROL_OUT_ACK:
+        case STATE_CSPLIT_CONTROL_OUT_NAK:
+        case STATE_CSPLIT_CONTROL_OUT_STALL:
+        case STATE_CSPLIT_CONTROL_IN_DATA0:
+        case STATE_CSPLIT_CONTROL_IN_DATA1:
+        case STATE_CSPLIT_CONTROL_IN_NAK:
+        case STATE_CSPLIT_CONTROL_IN_STALL:
+        case STATE_CSPLIT_BULK_OUT_ACK:
+        case STATE_CSPLIT_BULK_OUT_NAK:
+        case STATE_CSPLIT_BULK_OUT_STALL:
+        case STATE_CSPLIT_BULK_IN_DATA0:
+        case STATE_CSPLIT_BULK_IN_DATA1:
+        case STATE_CSPLIT_BULK_IN_NAK:
+        case STATE_CSPLIT_BULK_IN_STALL:
+        case STATE_CSPLIT_INTERRUPT_OUT_ACK:
+        case STATE_CSPLIT_INTERRUPT_OUT_NAK:
+        case STATE_CSPLIT_INTERRUPT_OUT_STALL:
+        case STATE_CSPLIT_INTERRUPT_IN_MDATA:
+        case STATE_CSPLIT_INTERRUPT_IN_DATA0:
+        case STATE_CSPLIT_INTERRUPT_IN_DATA1:
+        case STATE_CSPLIT_INTERRUPT_IN_NAK:
+        case STATE_CSPLIT_INTERRUPT_IN_STALL:
+        case STATE_CSPLIT_ISOCHRONOUS_IN_DATA0:
+        case STATE_CSPLIT_ISOCHRONOUS_IN_MDATA:
+            DISSECTOR_ASSERT(data->transaction != NULL);
+            DISSECTOR_ASSERT(data->transaction->split_complete != NULL);
+            usbll_set_address(tree, tvb, pinfo,
+                              data->transaction->address, data->transaction->endpoint,
+                              USBLL_ADDRESS_DEV_TO_HOST);
+            break;
+        case STATE_CSPLIT_CONTROL_SETUP_NYET:
+        case STATE_CSPLIT_CONTROL_OUT_NYET:
+        case STATE_CSPLIT_CONTROL_IN_NYET:
+        case STATE_CSPLIT_BULK_OUT_NYET:
+        case STATE_CSPLIT_BULK_IN_NYET:
+        case STATE_CSPLIT_INTERRUPT_OUT_ERR:
+        case STATE_CSPLIT_INTERRUPT_OUT_NYET:
+        case STATE_CSPLIT_INTERRUPT_IN_ERR:
+        case STATE_CSPLIT_INTERRUPT_IN_NYET:
+        case STATE_CSPLIT_ISOCHRONOUS_IN_ERR:
+        case STATE_CSPLIT_ISOCHRONOUS_IN_NYET:
+            DISSECTOR_ASSERT(data->transaction != NULL);
+            usbll_set_address(tree, tvb, pinfo,
+                              data->transaction->address, data->transaction->endpoint,
+                              USBLL_ADDRESS_DEV_TO_HOST | USBLL_ADDRESS_HUB_PORT);
+            break;
+        default:
+            DISSECTOR_ASSERT_NOT_REACHED();
+    }
+}
 
-    if (dst_out)
-        *dst_out = *dst_addr;
+static usbll_transaction_info_t *
+tt_restore_transaction(packet_info *pinfo, usbll_state_t state, guint8 hub_address, guint8 port)
+{
+    /* The buffer is simply updated with each subsequent packet, this is fine
+     * if and only if we access it only during first pass.
+     */
+    DISSECTOR_ASSERT(!PINFO_FD_VISITED(pinfo));
+    DISSECTOR_ASSERT(usbll_is_split_complete_token(state));
+    DISSECTOR_ASSERT(hub_address <= 127);
+    DISSECTOR_ASSERT(port <= 127);
+
+    if (!tt_periodic || !tt_non_periodic)
+    {
+        /* No transaciton has been registered yet */
+        return NULL;
+    }
+
+    if (usbll_is_periodic_split_complete_token(state))
+    {
+        return tt_periodic[hub_address][port];
+    }
+    else
+    {
+        DISSECTOR_ASSERT(usbll_is_non_periodic_split_complete_token(state));
+        return tt_non_periodic[hub_address][port];
+    }
+}
+
+static void
+tt_store_transaction(packet_info *pinfo, usbll_state_t state, guint8 hub_address, guint8 port,
+                     usbll_transaction_info_t *transaction)
+{
+    DISSECTOR_ASSERT(!PINFO_FD_VISITED(pinfo));
+    DISSECTOR_ASSERT(usbll_is_split_start_token(state));
+    DISSECTOR_ASSERT(hub_address <= 127);
+    DISSECTOR_ASSERT(port <= 127);
+
+    if (!tt_periodic || !tt_non_periodic)
+    {
+        /* Lazy allocate lookup table. Both address and port are 7 bit numbers,
+         * so simply allocate buffers capable to hold all possible combinations.
+         */
+        int i;
+        tt_periodic = wmem_alloc_array(wmem_file_scope(), usbll_transaction_info_t **, 128);
+        for (i = 0; i < 128; i++)
+        {
+            tt_periodic[i] = wmem_alloc0_array(wmem_file_scope(), usbll_transaction_info_t *, 128);
+        }
+        tt_non_periodic = wmem_alloc_array(wmem_file_scope(), usbll_transaction_info_t **, 128);
+        for (i = 0; i < 128; i++)
+        {
+            tt_non_periodic[i] = wmem_alloc0_array(wmem_file_scope(), usbll_transaction_info_t *, 128);
+        }
+    }
+
+    if (usbll_is_periodic_split_start_token(state))
+    {
+        tt_periodic[hub_address][port] = transaction;
+    }
+    else
+    {
+        DISSECTOR_ASSERT(usbll_is_non_periodic_split_start_token(state));
+        tt_non_periodic[hub_address][port] = transaction;
+    }
 }
 
 static gint
@@ -356,8 +948,7 @@ dissect_usbll_sof(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offs
 {
     guint32 frame;
     /* SOF Packets are broadcasted from Host to all devices. */
-    usbll_set_address(tree, tvb, pinfo, 0, 0, USBLL_ADDRESS_HOST_TO_DEV | USBLL_ADDRESS_BROADCAST,
-                      NULL, NULL);
+    usbll_set_address(tree, tvb, pinfo, 0, 0, USBLL_ADDRESS_HOST_TO_DEV | USBLL_ADDRESS_BROADCAST);
 
     proto_tree_add_item_ret_uint(tree, hf_usbll_sof_framenum, tvb, offset, 2, ENC_LITTLE_ENDIAN, &frame);
     proto_tree_add_checksum(tree, tvb, offset,
@@ -370,7 +961,8 @@ dissect_usbll_sof(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offs
 }
 
 static gint
-dissect_usbll_token(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
+dissect_usbll_token(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset,
+                    guint8 pid, usbll_data_t *data)
 {
     guint8           device_address;
     guint8           endpoint;
@@ -385,9 +977,6 @@ dissect_usbll_token(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint of
     address_bits = tvb_get_letohs(tvb, offset);
     device_address = TOKEN_BITS_GET_ADDRESS(address_bits);
     endpoint = TOKEN_BITS_GET_ENDPOINT(address_bits);
-    /* Tokens SETUP, IN, OUT and PING (special packet) are sent from Host to Device. */
-    usbll_set_address(tree, tvb, pinfo, device_address, endpoint, USBLL_ADDRESS_HOST_TO_DEV,
-                      &usbll_data_ptr->src, &usbll_data_ptr->dst);
 
     proto_tree_add_bitmask_list_value(tree, tvb, offset, 2, address_fields, address_bits);
     proto_tree_add_checksum(tree, tvb, offset,
@@ -396,32 +985,61 @@ dissect_usbll_token(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint of
                             ENC_LITTLE_ENDIAN, PROTO_CHECKSUM_VERIFY);
     offset += 2;
 
-    if (usbll_data_ptr->pid == USB_PID_TOKEN_SETUP)
-        usbll_data_ptr->transaction_state = SETUP;
-    else if (usbll_data_ptr->pid == USB_PID_TOKEN_OUT)
-        usbll_data_ptr->transaction_state = OUT;
-    else if (usbll_data_ptr->pid == USB_PID_TOKEN_IN)
-        usbll_data_ptr->transaction_state = IN;
-    else if (usbll_data_ptr->pid == USB_PID_SPECIAL_PING)
-        usbll_data_ptr->transaction_state = PING;
+    if (!PINFO_FD_VISITED(pinfo))
+    {
+        usbll_state_t             prev_state;
+        usbll_transaction_info_t *transaction = NULL;
+        usbll_transaction_info_t *split_transaction = NULL;
 
-    if (usbll_data_ptr->prev) {
-        if (usbll_data_ptr->prev->transaction_state == SSPLIT) {
-            if (usbll_data_ptr->pid == USB_PID_TOKEN_SETUP)
-                usbll_data_ptr->transaction_state = SSPLIT_SETUP;
-            else if (usbll_data_ptr->pid == USB_PID_TOKEN_OUT)
-                usbll_data_ptr->transaction_state = SSPLIT_OUT;
-            else if (usbll_data_ptr->pid == USB_PID_TOKEN_IN)
-                usbll_data_ptr->transaction_state = SSPLIT_IN;
+        prev_state = data->prev ? data->prev->transaction_state : STATE_IDLE;
+        data->transaction_state = usbll_next_state(prev_state, pid);
 
-        } else if (usbll_data_ptr->prev->transaction_state == CSPLIT) {
-            if (usbll_data_ptr->pid == USB_PID_TOKEN_SETUP)
-                usbll_data_ptr->transaction_state = CSPLIT_SETUP;
-            else if (usbll_data_ptr->pid == USB_PID_TOKEN_OUT)
-                usbll_data_ptr->transaction_state = CSPLIT_OUT;
-            else if (usbll_data_ptr->pid == USB_PID_TOKEN_IN)
-                usbll_data_ptr->transaction_state = CSPLIT_IN;
+        DISSECTOR_ASSERT(usbll_is_non_split_token(data->transaction_state) ||
+                         usbll_is_split_token(data->transaction_state));
+
+        if (usbll_is_split_complete_token(data->transaction_state))
+        {
+            DISSECTOR_ASSERT(data->prev != NULL);
+            DISSECTOR_ASSERT(data->prev->transaction != NULL);
+            DISSECTOR_ASSERT(data->prev->transaction->pid == USB_PID_SPECIAL_SPLIT);
+            split_transaction = data->prev->transaction;
+
+            transaction = tt_restore_transaction(pinfo, data->transaction_state,
+                                                 split_transaction->address, split_transaction->endpoint);
+
+            if (transaction == NULL)
+            {
+                /* Most likely capture simply misses Split Start */
+                transaction = wmem_new0(wmem_file_scope(), usbll_transaction_info_t);
+                transaction->pid = pid;
+                transaction->address = device_address;
+                transaction->endpoint = endpoint;
+            }
+
+            transaction->split_complete = data->prev->transaction;
         }
+        else
+        {
+            transaction = wmem_new0(wmem_file_scope(), usbll_transaction_info_t);
+            transaction->starts_in = pinfo->num;
+            transaction->pid = pid;
+            transaction->address = device_address;
+            transaction->endpoint = endpoint;
+        }
+
+        if (usbll_is_split_start_token(data->transaction_state))
+        {
+            DISSECTOR_ASSERT(data->prev != NULL);
+            DISSECTOR_ASSERT(data->prev->transaction != NULL);
+            DISSECTOR_ASSERT(data->prev->transaction->pid == USB_PID_SPECIAL_SPLIT);
+            transaction->split_start = data->prev->transaction;
+
+            tt_store_transaction(pinfo, data->transaction_state,
+                                 transaction->split_start->address, transaction->split_start->endpoint,
+                                 transaction);
+        }
+
+        data->transaction = transaction;
     }
 
     return offset;
@@ -429,7 +1047,7 @@ dissect_usbll_token(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint of
 
 static gint
 dissect_usbll_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset,
-                   proto_item *pid_item)
+                   guint8 pid, usbll_data_t *data)
 {
     /* TODO: How to determine the expected DATA size? */
     gint data_size = tvb_reported_length_remaining(tvb, offset) - 2;
@@ -445,107 +1063,36 @@ dissect_usbll_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offs
                             ENC_LITTLE_ENDIAN, PROTO_CHECKSUM_VERIFY);
     offset += 2;
 
-    if (usbll_data_ptr->prev) {
-        /* Data Packets from Device to Host */
+    if (!PINFO_FD_VISITED(pinfo))
+    {
+        usbll_state_t             prev_state;
 
-        /* Condition checks:
-         * 1. Previous packet state is CSPLIT_IN, or
-         * 2. Previous packet state is IN with current
-         *    packet either DATA0 and DATA1.
-         */
-        if (usbll_data_ptr->prev->transaction_state == CSPLIT_IN ||
-            (usbll_data_ptr->prev->transaction_state == IN &&
-             (usbll_data_ptr->pid == USB_PID_DATA_DATA0 ||
-              usbll_data_ptr->pid == USB_PID_DATA_DATA1))) {
-
-            usbll_set_address(tree, tvb, pinfo,
-                              usbll_data_ptr->prev->dst.device,
-                              usbll_data_ptr->prev->dst.endpoint,
-                              USBLL_ADDRESS_DEV_TO_HOST,
-                              &usbll_data_ptr->src, &usbll_data_ptr->dst);
-
-            if (usbll_data_ptr->prev->transaction_state == CSPLIT_IN) {
-                if (usbll_data_ptr->pid == USB_PID_DATA_DATA0)
-                    usbll_data_ptr->transaction_state = CSPLIT_IN_DATA0;
-                else if (usbll_data_ptr->pid == USB_PID_DATA_DATA1)
-                    usbll_data_ptr->transaction_state = CSPLIT_IN_DATA1;
-                else if(usbll_data_ptr->pid == USB_PID_DATA_MDATA)
-                    usbll_data_ptr->transaction_state = CSPLIT_IN_MDATA;
-
-            } else if (usbll_data_ptr->prev->transaction_state == IN) {
-                if (usbll_data_ptr->pid == USB_PID_DATA_DATA0)
-                    usbll_data_ptr->transaction_state = IN_DATA0;
-                else if (usbll_data_ptr->pid == USB_PID_DATA_DATA1)
-                    usbll_data_ptr->transaction_state = IN_DATA1;
-            }
+        prev_state = data->prev ? data->prev->transaction_state : STATE_IDLE;
+        data->transaction_state = usbll_next_state(prev_state, pid);
+        if (data->transaction_state != STATE_INVALID)
+        {
+            DISSECTOR_ASSERT(data->prev != NULL);
+            DISSECTOR_ASSERT(data->prev->transaction != NULL);
+            data->transaction = data->prev->transaction;
         }
-        /* Data Packets from Host to Device */
-
-        /* Condition checks:
-         * 1. Previous packet state is SSPLIT_SETUP or SETUP with current
-         *    packet DATA0, or
-         * 2. Previous packet state is SSPLIT_OUT or OUT with current packet
-         *    either DATA0 or DATA1.
-         */
-        else if (((usbll_data_ptr->prev->transaction_state == SSPLIT_SETUP ||
-                   usbll_data_ptr->prev->transaction_state == SETUP) &&
-                  usbll_data_ptr->pid == USB_PID_DATA_DATA0) ||
-                 ((usbll_data_ptr->prev->transaction_state == SSPLIT_OUT ||
-                   usbll_data_ptr->prev->transaction_state == OUT) &&
-                  (usbll_data_ptr->pid == USB_PID_DATA_DATA0 ||
-                   usbll_data_ptr->pid == USB_PID_DATA_DATA1))){
-
-            usbll_set_address(tree, tvb, pinfo,
-                              usbll_data_ptr->prev->dst.device,
-                              usbll_data_ptr->prev->dst.endpoint,
-                              USBLL_ADDRESS_HOST_TO_DEV,
-                              &usbll_data_ptr->src, &usbll_data_ptr->dst);
-
-            if (usbll_data_ptr->prev->transaction_state == SSPLIT_SETUP) {
-                if (usbll_data_ptr->pid == USB_PID_DATA_DATA0)
-                    usbll_data_ptr->transaction_state = SSPLIT_SETUP_DATA0;
-
-            } else if (usbll_data_ptr->prev->transaction_state == SSPLIT_OUT) {
-                if (usbll_data_ptr->pid == USB_PID_DATA_DATA0)
-                    usbll_data_ptr->transaction_state = SSPLIT_OUT_DATA0;
-                else if (usbll_data_ptr->pid == USB_PID_DATA_DATA1)
-                    usbll_data_ptr->transaction_state = SSPLIT_OUT_DATA1;
-
-            } else if (usbll_data_ptr->prev->transaction_state == SETUP) {
-                if (usbll_data_ptr->pid == USB_PID_DATA_DATA0)
-                    usbll_data_ptr->transaction_state = SETUP_DATA0;
-
-            } else if (usbll_data_ptr->prev->transaction_state == OUT) {
-                if (usbll_data_ptr->pid == USB_PID_DATA_DATA0)
-                    usbll_data_ptr->transaction_state = OUT_DATA0;
-                else if (usbll_data_ptr->pid == USB_PID_DATA_DATA1)
-                    usbll_data_ptr->transaction_state = OUT_DATA1;
-            }
-        }
-        /* If none of the conditions are satisfied, the PID sequence is invalid. */
-        else
-            expert_add_info(pinfo, pid_item, &ei_invalid_pid_sequence);
     }
 
     return offset;
 }
 
 static gint
-dissect_usbll_split(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
+dissect_usbll_split(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset,
+                    guint8 pid, usbll_data_t *data)
 {
     guint8           hub_address;
     guint8           hub_port;
     proto_item      *split_e_u;
-    proto_item      *split_se;
+    proto_item      *split_s;
 
     gint32 tmp = tvb_get_gint24(tvb, offset, ENC_LITTLE_ENDIAN);
 
     hub_address = SPLIT_BITS_GET_HUB_ADDRESS(tmp);
     hub_port = SPLIT_BITS_GET_HUB_PORT(tmp);
-
-    usbll_set_address(tree, tvb, pinfo, hub_address, hub_port,
-                      USBLL_ADDRESS_HOST_TO_DEV | USBLL_ADDRESS_HUB_PORT,
-                      &usbll_data_ptr->src, &usbll_data_ptr->dst);
 
     col_append_str(pinfo->cinfo, COL_INFO, (tmp & SPLIT_BIT_START_COMPLETE) ? " Complete" : " Start");
 
@@ -554,33 +1101,33 @@ dissect_usbll_split(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint of
     proto_tree_add_uint(tree, hf_usbll_split_port, tvb, offset, 3, tmp);
 
     if (tmp & SPLIT_BIT_START_COMPLETE) {
-        usbll_data_ptr->is_split_complete = TRUE;
-        usbll_data_ptr->transaction_state = CSPLIT;
-
         proto_tree_add_uint(tree, hf_usbll_split_s, tvb, offset, 3, tmp);
         split_e_u = proto_tree_add_uint(tree, hf_usbll_split_u, tvb, offset, 3, tmp);
 
         if (tmp & SPLIT_BIT_E_U)
             expert_add_info(pinfo, split_e_u, &ei_invalid_e_u);
     } else {
-        usbll_data_ptr->is_split_complete = FALSE;
-        usbll_data_ptr->transaction_state = SSPLIT;
-
         /* S/E fields have special meaning for Isochronous OUT transfers. */
-        if (SPLIT_BITS_GET_ENDPOINT_TYPE(tmp) == USB_EP_TYPE_ISOCHRONOUS) {
-            split_se = proto_tree_add_uint(tree, hf_usbll_split_iso_se, tvb, offset, 3, tmp);
-            /* Check if S = 0 and E = 0 if
-             * IN packet comes after Split Start.
-             */
-            if( usbll_data_ptr->next &&
-                usbll_data_ptr->next->pid == USB_PID_TOKEN_IN &&
-               (tmp & SPLIT_BIT_SPEED ||
-                tmp & SPLIT_BIT_E_U))
-                expert_add_info(pinfo, split_se, &ei_invalid_se);
-        } else {
-            proto_tree_add_uint(tree, hf_usbll_split_s, tvb, offset, 3, tmp);
+        if (data->next && data->next->transaction_state == STATE_SSPLIT_ISOCHRONOUS_OUT) {
+            DISSECTOR_ASSERT(SPLIT_BITS_GET_ENDPOINT_TYPE(tmp) == USB_EP_TYPE_ISOCHRONOUS);
+            proto_tree_add_uint(tree, hf_usbll_split_iso_se, tvb, offset, 3, tmp);
+        } else if (SPLIT_BITS_GET_ENDPOINT_TYPE(tmp) != USB_EP_TYPE_ISOCHRONOUS) {
+            split_s = proto_tree_add_uint(tree, hf_usbll_split_s, tvb, offset, 3, tmp);
             split_e_u = proto_tree_add_uint(tree, hf_usbll_split_e, tvb, offset, 3, tmp);
 
+            if ((SPLIT_BITS_GET_ENDPOINT_TYPE(tmp) == USB_EP_TYPE_BULK) && (tmp & SPLIT_BIT_SPEED))
+                expert_add_info(pinfo, split_s, &ei_invalid_s);
+            if (tmp & SPLIT_BIT_E_U)
+                expert_add_info(pinfo, split_e_u, &ei_invalid_e_u);
+        } else if (data->next &&
+                   (data->next->transaction_state == STATE_SSPLIT_ISOCHRONOUS_IN ||
+                    data->next->transaction_state == STATE_CSPLIT_ISOCHRONOUS_IN)) {
+            DISSECTOR_ASSERT(SPLIT_BITS_GET_ENDPOINT_TYPE(tmp) == USB_EP_TYPE_ISOCHRONOUS);
+            split_s = proto_tree_add_uint(tree, hf_usbll_split_s, tvb, offset, 3, tmp);
+            split_e_u = proto_tree_add_uint(tree, hf_usbll_split_e, tvb, offset, 3, tmp);
+
+            if (tmp & SPLIT_BIT_SPEED)
+                expert_add_info(pinfo, split_s, &ei_invalid_s);
             if (tmp & SPLIT_BIT_E_U)
                 expert_add_info(pinfo, split_e_u, &ei_invalid_e_u);
         }
@@ -593,133 +1140,87 @@ dissect_usbll_split(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint of
                             ENC_LITTLE_ENDIAN, PROTO_CHECKSUM_VERIFY);
     offset += 3;
 
+    if (!PINFO_FD_VISITED(pinfo))
+    {
+        usbll_transaction_info_t *transaction;
+        transaction = wmem_new0(wmem_file_scope(), usbll_transaction_info_t);
+        transaction->starts_in = pinfo->num;
+        transaction->pid = pid;
+        transaction->address = hub_address;
+        transaction->endpoint = hub_port;
+
+        data->transaction = transaction;
+        if (tmp & SPLIT_BIT_START_COMPLETE)
+        {
+            switch (SPLIT_BITS_GET_ENDPOINT_TYPE(tmp))
+            {
+                case USB_EP_TYPE_CONTROL:
+                    data->transaction_state = STATE_CSPLIT_CONTROL;
+                    break;
+                case USB_EP_TYPE_ISOCHRONOUS:
+                    data->transaction_state = STATE_CSPLIT_ISOCHRONOUS;
+                    break;
+                case USB_EP_TYPE_BULK:
+                    data->transaction_state = STATE_CSPLIT_BULK;
+                    break;
+                case USB_EP_TYPE_INTERRUPT:
+                    data->transaction_state = STATE_CSPLIT_INTERRUPT;
+                    break;
+            }
+        }
+        else
+        {
+            switch (SPLIT_BITS_GET_ENDPOINT_TYPE(tmp))
+            {
+                case USB_EP_TYPE_CONTROL:
+                    data->transaction_state = STATE_SSPLIT_CONTROL;
+                    break;
+                case USB_EP_TYPE_ISOCHRONOUS:
+                    data->transaction_state = STATE_SSPLIT_ISOCHRONOUS;
+                    break;
+                case USB_EP_TYPE_BULK:
+                    data->transaction_state = STATE_SSPLIT_BULK;
+                    break;
+                case USB_EP_TYPE_INTERRUPT:
+                    data->transaction_state = STATE_SSPLIT_INTERRUPT;
+                    break;
+            }
+        }
+    }
+
     return offset;
 }
 
 static gint
-dissect_usbll_handshake(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, proto_item *pid_item)
+dissect_usbll_handshake(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, int offset,
+                        guint8 pid, usbll_data_t *data)
 {
-    if (usbll_data_ptr->prev) {
-        /* Hub to Host for a Split Start Transactions with Data Packets. */
+    if (!PINFO_FD_VISITED(pinfo))
+    {
+        usbll_state_t             prev_state;
 
-        /* Check whether:
-         * 1. Previous packet state is either SSPLIT_SETUP_DATA0, SSPLIT_OUT_DATA0
-         *    or SSPLIT_OUT_DATA1, and
-         * 2. Current handshake packet is either ACK or NAK.
-         */
-        if ((usbll_data_ptr->prev->transaction_state == SSPLIT_SETUP_DATA0 ||
-             usbll_data_ptr->prev->transaction_state == SSPLIT_OUT_DATA0 ||
-             usbll_data_ptr->prev->transaction_state == SSPLIT_OUT_DATA1) &&
-            (usbll_data_ptr->pid == USB_PID_HANDSHAKE_ACK ||
-             usbll_data_ptr->pid == USB_PID_HANDSHAKE_NAK)) {
+        prev_state = data->prev ? data->prev->transaction_state : STATE_IDLE;
+        data->transaction_state = usbll_next_state(prev_state, pid);
 
-            usbll_set_address(tree, tvb, pinfo, usbll_data_ptr->prev->prev->prev->dst.device,
-                              usbll_data_ptr->prev->prev->prev->dst.endpoint,
-                              USBLL_ADDRESS_DEV_TO_HOST | USBLL_ADDRESS_HUB_PORT,
-                              &usbll_data_ptr->src, &usbll_data_ptr->dst);
+        if (data->transaction_state != STATE_INVALID)
+        {
+            DISSECTOR_ASSERT(data->prev != NULL);
+            DISSECTOR_ASSERT(data->prev->transaction != NULL);
+            data->transaction = data->prev->transaction;
         }
-        /* Hub to Host for a Split Transaction without Data Packets. */
-
-        /* Check whether:
-         * 1. Previous packet state is SSPLIT_IN and current packet is either ACK
-         *    or NAK, or
-         * 2. Previous packet state is either CSPLIT_SETUP, CSPLIT_OUT or CSPLIT_IN
-         *    and current packet is NYET.
-         */
-        else if ((usbll_data_ptr->prev->transaction_state == SSPLIT_IN &&
-                  (usbll_data_ptr->pid == USB_PID_HANDSHAKE_ACK ||
-                   usbll_data_ptr->pid == USB_PID_HANDSHAKE_NAK)) ||
-                 ((usbll_data_ptr->prev->transaction_state == CSPLIT_SETUP ||
-                   usbll_data_ptr->prev->transaction_state == CSPLIT_OUT ||
-                   usbll_data_ptr->prev->transaction_state == CSPLIT_IN) &&
-                  usbll_data_ptr->pid == USB_PID_HANDSHAKE_NYET)) {
-
-            usbll_set_address(tree, tvb, pinfo, usbll_data_ptr->prev->prev->dst.device,
-                              usbll_data_ptr->prev->prev->dst.endpoint,
-                              USBLL_ADDRESS_DEV_TO_HOST | USBLL_ADDRESS_HUB_PORT,
-                              &usbll_data_ptr->src, &usbll_data_ptr->dst);
-        }
-        /* Device to Host for Split Complete Transactions. */
-
-        /* Check whether:
-         * 1. Previous packet state is CSPLIT_IN and current packet is either
-         *    NAK or STALL, or
-         * 2. Previous packet state is CSPLIT_OUT or CSPLIT_SETUP (all handshakes
-         *    ACK, NAK and STALL can come).
-         */
-        else if ((usbll_data_ptr->prev->transaction_state == CSPLIT_IN &&
-                  (usbll_data_ptr->pid == USB_PID_HANDSHAKE_NAK ||
-                   usbll_data_ptr->pid == USB_PID_HANDSHAKE_STALL)) ||
-                 (usbll_data_ptr->prev->transaction_state == CSPLIT_OUT ||
-                 usbll_data_ptr->prev->transaction_state == CSPLIT_SETUP)) {
-
-            usbll_set_address(tree, tvb, pinfo,
-                              usbll_data_ptr->prev->dst.device,
-                              usbll_data_ptr->prev->dst.endpoint,
-                              USBLL_ADDRESS_DEV_TO_HOST,
-                              &usbll_data_ptr->src, &usbll_data_ptr->dst);
-        }
-        /* Host to Device for Non-split Transactions. */
-
-        /* Check whether:
-         * 1. Previous packet state is whether IN_DATA0 or IN_DATA1, and
-         *    current packet is ACK (Bulk IN and Interrupt IN transactions
-         *    with Data packet).
-         */
-        else if ((usbll_data_ptr->prev->transaction_state == IN_DATA0 ||
-                  usbll_data_ptr->prev->transaction_state == IN_DATA1) &&
-                 usbll_data_ptr->pid == USB_PID_HANDSHAKE_ACK) {
-
-            usbll_set_address(tree, tvb, pinfo,
-                              usbll_data_ptr->prev->src.device,
-                              usbll_data_ptr->prev->src.endpoint,
-                              USBLL_ADDRESS_HOST_TO_DEV,
-                              &usbll_data_ptr->src, &usbll_data_ptr->dst);
-        }
-        /* Device to Host for Non-slit Transactions. */
-
-        /* Check whether:
-         * 1. Previous packet state is IN and current packet is either
-         *    NAK or STALL (Bulk IN and Interrupt IN transactions with
-         *    no data packet), or
-         * 2. Previous packet is PING packet (PING can have all ACK, NAK
-         *    or STALL as response), or
-         * 3. Previous packet state is SETUP_DATA0 and current packet is
-         *    ACK, or
-         * 4. Previous packet state is either OUT_DATA0 or OUT_DATA1
-         *    (Bulk OUT and Interrupt OUT can have all ACK, NAK or STALL
-         *    as response).
-         */
-        else if ((usbll_data_ptr->prev->transaction_state == IN &&
-                  (usbll_data_ptr->pid == USB_PID_HANDSHAKE_NAK ||
-                   usbll_data_ptr->pid == USB_PID_HANDSHAKE_STALL)) ||
-                 usbll_data_ptr->prev->pid == USB_PID_SPECIAL_PING ||
-                 (usbll_data_ptr->prev->transaction_state == SETUP_DATA0 &&
-                  usbll_data_ptr->pid == USB_PID_HANDSHAKE_ACK) ||
-                 usbll_data_ptr->prev->transaction_state == OUT_DATA0 ||
-                 usbll_data_ptr->prev->transaction_state == OUT_DATA1) {
-
-            usbll_set_address(tree, tvb, pinfo,
-                              usbll_data_ptr->prev->dst.device,
-                              usbll_data_ptr->prev->dst.endpoint,
-                              USBLL_ADDRESS_DEV_TO_HOST,
-                              &usbll_data_ptr->src, &usbll_data_ptr->dst);
-        }
-        /* If none of the conditions are satisfied, the PID sequence is invalid. */
-        else
-            expert_add_info(pinfo, pid_item, &ei_invalid_pid_sequence);
     }
+
     return offset;
 }
 
-static usbll_data_t*
+static usbll_data_t *
 usbll_restore_data(packet_info *pinfo)
 {
     return (usbll_data_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_usbll, pinfo->num);
 }
 
-static usbll_data_t*
-usbll_create_data(packet_info *pinfo, guint32 pid)
+static usbll_data_t *
+usbll_create_data(packet_info *pinfo)
 {
     /* allocate a data structure, as it is the first call on this frame. */
     usbll_data_t *n_data_ptr = wmem_new0(wmem_file_scope(), usbll_data_t);
@@ -729,11 +1230,12 @@ usbll_create_data(packet_info *pinfo, guint32 pid)
     if (usbll_data_ptr)
         *n_data_ptr = *usbll_data_ptr;
 
-    n_data_ptr->pid = pid;
-    n_data_ptr->transaction_state = STANDARD;
-    n_data_ptr->src.flags = USBLL_ADDRESS_STANDARD;
-    n_data_ptr->dst.flags = USBLL_ADDRESS_STANDARD;
+    n_data_ptr->transaction_state = STATE_IDLE;
     n_data_ptr->prev = usbll_data_ptr;
+    if (n_data_ptr->prev)
+    {
+        n_data_ptr->prev->next = n_data_ptr;
+    }
 
     return n_data_ptr;
 }
@@ -742,6 +1244,8 @@ static void
 usbll_cleanup_data(void)
 {
     usbll_data_ptr = NULL;
+    tt_non_periodic = NULL;
+    tt_periodic = NULL;
 }
 
 static int
@@ -767,13 +1271,10 @@ dissect_usbll_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
         expert_add_info(pinfo, item, &ei_invalid_pid);
     }
 
-    if (PINFO_FD_VISITED(pinfo))
+    if (PINFO_FD_VISITED(pinfo)) {
         usbll_data_ptr = usbll_restore_data(pinfo);
-    else {
-        usbll_data_ptr = usbll_create_data(pinfo, pid);
-        /* Set the next pointer for the previous packet. */
-        if (usbll_data_ptr->prev)
-            usbll_data_ptr->prev->next = usbll_data_ptr;
+    } else {
+        usbll_data_ptr = usbll_create_data(pinfo);
     }
 
     switch (pid)
@@ -782,21 +1283,21 @@ dissect_usbll_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
         case USB_PID_TOKEN_OUT:
         case USB_PID_TOKEN_IN:
         case USB_PID_SPECIAL_PING:
-            offset = dissect_usbll_token(tvb, pinfo, tree, offset);
+            offset = dissect_usbll_token(tvb, pinfo, tree, offset, pid, usbll_data_ptr);
             break;
 
         case USB_PID_DATA_DATA0:
         case USB_PID_DATA_DATA1:
         case USB_PID_DATA_DATA2:
         case USB_PID_DATA_MDATA:
-            offset = dissect_usbll_data(tvb, pinfo, tree, offset, item);
+            offset = dissect_usbll_data(tvb, pinfo, tree, offset, pid, usbll_data_ptr);
             break;
 
         case USB_PID_HANDSHAKE_ACK:
         case USB_PID_HANDSHAKE_NAK:
         case USB_PID_HANDSHAKE_NYET:
         case USB_PID_HANDSHAKE_STALL:
-            offset = dissect_usbll_handshake(tvb, pinfo, tree, offset, item);
+            offset = dissect_usbll_handshake(tvb, pinfo, tree, offset, pid, usbll_data_ptr);
             break;
 
         case USB_PID_TOKEN_SOF:
@@ -804,7 +1305,7 @@ dissect_usbll_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
             break;
 
         case USB_PID_SPECIAL_SPLIT:
-            offset = dissect_usbll_split(tvb, pinfo, tree, offset);
+            offset = dissect_usbll_split(tvb, pinfo, tree, offset, pid, usbll_data_ptr);
             break;
         case USB_PID_SPECIAL_PRE_OR_ERR:
             break;
@@ -812,6 +1313,12 @@ dissect_usbll_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
             break;
         default:
             break;
+    }
+
+    usbll_generate_address(tree, tvb, pinfo, usbll_data_ptr);
+    if (usbll_data_ptr->transaction_state == STATE_INVALID)
+    {
+        expert_add_info(pinfo, item, &ei_invalid_pid_sequence);
     }
 
     if (tvb_reported_length_remaining(tvb, offset) > 0) {
@@ -935,8 +1442,8 @@ proto_register_usbll(void)
         { &ei_wrong_crc5, { "usbll.crc5.wrong", PI_PROTOCOL, PI_WARN, "Wrong CRC", EXPFILL }},
         { &ei_wrong_split_crc5, { "usbll.split_crc5.wrong", PI_PROTOCOL, PI_WARN, "Wrong CRC", EXPFILL }},
         { &ei_wrong_crc16, { "usbll.crc16.wrong", PI_PROTOCOL, PI_WARN, "Wrong CRC", EXPFILL }},
+        { &ei_invalid_s, { "usbll.invalid_s", PI_MALFORMED, PI_ERROR, "Invalid bit (Must be 0)", EXPFILL }},
         { &ei_invalid_e_u, { "usbll.invalid_e_u", PI_MALFORMED, PI_ERROR, "Invalid bit (Must be 0)", EXPFILL }},
-        { &ei_invalid_se, { "usbll.invalid_se", PI_MALFORMED, PI_ERROR, "Invalid bits (Must be 00 for Split Isochronous IN)", EXPFILL }},
         { &ei_invalid_pid_sequence, {"usbll.invalid_pid_sequence", PI_MALFORMED, PI_ERROR, "Invalid PID Sequence",EXPFILL }},
     };
 
