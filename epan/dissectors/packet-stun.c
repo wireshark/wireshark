@@ -1106,6 +1106,9 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
                                 offset, 2, att_length);
             offset += 2;
 
+            /* Zero out address */
+            clear_address(&addr);
+
             switch (att_type_display) {
 
                 /* Deprecated STUN RFC3489 attributes */
@@ -1363,6 +1366,7 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
                 case 2:
                     if (att_length < 20)
                         break;
+
                     proto_tree_add_item(att_tree, hf_stun_att_xor_ipv6, tvb, offset+4, 16, ENC_NA);
 
                     tvb_get_ipv6(tvb, offset+4, (ws_in6_addr *)clear_ip);
