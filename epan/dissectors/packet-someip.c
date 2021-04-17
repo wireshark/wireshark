@@ -21,6 +21,7 @@
 #include <epan/dissectors/packet-tcp.h>
 #include <epan/reassemble.h>
 #include "packet-udp.h"
+#include "packet-dtls.h"
 #include "packet-someip.h"
 
  /*
@@ -3587,6 +3588,9 @@ proto_register_someip(void) {
 
     /* Register ETTs */
     proto_someip = proto_register_protocol(SOMEIP_NAME_LONG, SOMEIP_NAME, SOMEIP_NAME_FILTER);
+    someip_handle_udp = register_dissector("someip_udp", dissect_someip_udp, proto_someip);
+    someip_handle_tcp = register_dissector("someip_tcp", dissect_someip_tcp, proto_someip);
+
     proto_register_field_array(proto_someip, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
     expert_module_someip = expert_register_protocol(proto_someip);
@@ -3869,8 +3873,8 @@ proto_reg_handoff_someip(void) {
     static gboolean initialized = FALSE;
 
     if (!initialized) {
-        someip_handle_udp = create_dissector_handle(dissect_someip_udp, proto_someip);
-        someip_handle_tcp = create_dissector_handle(dissect_someip_tcp, proto_someip);
+        /* add support for DTLS decode as */
+        dtls_dissector_add(0, someip_handle_udp);
 
         heur_dissector_add("udp", dissect_some_ip_heur_udp, "SOME/IP_UDP_Heuristic", "someip_udp_heur", proto_someip, HEURISTIC_DISABLE);
         heur_dissector_add("tcp", dissect_some_ip_heur_tcp, "SOME/IP_TCP_Heuristic", "someip_tcp_heur", proto_someip, HEURISTIC_DISABLE);
