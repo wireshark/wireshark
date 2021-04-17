@@ -3803,7 +3803,8 @@ static int hf_ieee80211_ranging_pol_rpt_ru_alloc = -1;
 static int hf_ieee80211_ranging_pol_rpt_ul_fec_coding_type = -1;
 static int hf_ieee80211_ranging_pol_rpt_ulmcs = -1;
 static int hf_ieee80211_ranging_pol_rpt_uldcm = -1;
-static int hf_ieee80211_ranging_pol_rpt_ss_alloc = -1;
+static int hf_ieee80211_ranging_pol_rpt_starting_spatial_stream = -1;
+static int hf_ieee80211_ranging_pol_rpt_number_spatial_streams = -1;
 static int hf_ieee80211_ranging_pol_rpt_ul_target_rssi = -1;
 static int hf_ieee80211_ranging_pol_rpt_reserved = -1;
 static int hf_ieee80211_he_trigger_ranging_trigger_sounding = -1;
@@ -3811,7 +3812,8 @@ static int hf_ieee80211_ranging_sounding_aid12_rsid12 = -1;
 static int hf_ieee80211_ranging_sounding_reserved1 = -1;
 static int hf_ieee80211_ranging_sounding_i2r_rep = -1;
 static int hf_ieee80211_ranging_sounding_reserved2 = -1;
-static int hf_ieee80211_ranging_sounding_ss_allocation = -1;
+static int hf_ieee80211_ranging_sounding_starting_spatial_stream = -1;
+static int hf_ieee80211_ranging_sounding_number_spatial_streams = -1;
 static int hf_ieee80211_ranging_sounding_ul_target_rssi = -1;
 static int hf_ieee80211_ranging_sounding_reserved3 = -1;
 static int hf_ieee80211_he_trigger_ranging_trigger_sec_sound = -1;
@@ -3819,7 +3821,8 @@ static int hf_ieee80211_ranging_sec_sound_aid12_rsid12 = -1;
 static int hf_ieee80211_ranging_sec_sound_reserved1 = -1;
 static int hf_ieee80211_ranging_sec_sound_i2r_rep = -1;
 static int hf_ieee80211_ranging_sec_sound_reserved2 = -1;
-static int hf_ieee80211_ranging_sec_sound_ss_allocation = -1;
+static int hf_ieee80211_ranging_sec_sound_starting_spatial_stream = -1;
+static int hf_ieee80211_ranging_sec_sound_number_spatial_streams = -1;
 static int hf_ieee80211_ranging_sec_sound_ul_target_rssi = -1;
 static int hf_ieee80211_ranging_sec_sound_reserved3 = -1;
 static int hf_ieee80211_he_trigger_ranging_user_info_sac = -1;
@@ -30866,7 +30869,8 @@ static int * const poll_rpt_hdrs[] = {
   &hf_ieee80211_ranging_pol_rpt_ul_fec_coding_type,
   &hf_ieee80211_ranging_pol_rpt_ulmcs,
   &hf_ieee80211_ranging_pol_rpt_uldcm,
-  &hf_ieee80211_ranging_pol_rpt_ss_alloc,
+  &hf_ieee80211_ranging_pol_rpt_starting_spatial_stream,
+  &hf_ieee80211_ranging_pol_rpt_number_spatial_streams,
   &hf_ieee80211_ranging_pol_rpt_ul_target_rssi,
   &hf_ieee80211_ranging_pol_rpt_reserved,
   NULL
@@ -30877,7 +30881,8 @@ static int * const sounding_hdrs[] = {
   &hf_ieee80211_ranging_sounding_reserved1,
   &hf_ieee80211_ranging_sounding_i2r_rep,
   &hf_ieee80211_ranging_sounding_reserved2,
-  &hf_ieee80211_ranging_sounding_ss_allocation,
+  &hf_ieee80211_ranging_sounding_starting_spatial_stream,
+  &hf_ieee80211_ranging_sounding_number_spatial_streams,
   &hf_ieee80211_ranging_sounding_ul_target_rssi,
   &hf_ieee80211_ranging_sounding_reserved3,
   NULL
@@ -30888,7 +30893,8 @@ static int * const sec_sound_hdrs[] = {
   &hf_ieee80211_ranging_sec_sound_reserved1,
   &hf_ieee80211_ranging_sec_sound_i2r_rep,
   &hf_ieee80211_ranging_sec_sound_reserved2,
-  &hf_ieee80211_ranging_sec_sound_ss_allocation,
+  &hf_ieee80211_ranging_sec_sound_starting_spatial_stream,
+  &hf_ieee80211_ranging_sec_sound_number_spatial_streams,
   &hf_ieee80211_ranging_sec_sound_ul_target_rssi,
   &hf_ieee80211_ranging_sec_sound_reserved3,
   NULL
@@ -46964,9 +46970,17 @@ proto_register_ieee80211(void)
      {"UL DCM", "wlan.trigger.he.ranging.poll_rpt.ul_dcm",
       FT_UINT40, BASE_HEX, NULL, 0x0002000000, NULL, HFILL }},
 
-    {&hf_ieee80211_ranging_pol_rpt_ss_alloc,
-     {"SS Allocation", "wlan.trigger.he.ranging.poll_rpt.ss_allocation",
-      FT_UINT40, BASE_HEX, NULL, 0x00fc000000, NULL, HFILL }},
+    {&hf_ieee80211_ranging_pol_rpt_starting_spatial_stream,
+     {"Starting Spatial Stream",
+      "wlan.trigger.he.ranging.poll_rpt.starting_spatial_stream",
+      FT_UINT40, BASE_HEX|BASE_CUSTOM, CF_FUNC(he_trigger_minus_one_custom),
+      0x001c000000, NULL, HFILL }},
+
+    {&hf_ieee80211_ranging_pol_rpt_number_spatial_streams,
+     {"Number Of Spatial Streams",
+      "wlan.trigger.he.ranging.poll_rpt.number_spatial_streams",
+      FT_UINT40, BASE_HEX|BASE_CUSTOM, CF_FUNC(he_trigger_minus_one_custom),
+      0x00e0000000, NULL, HFILL }},
 
     {&hf_ieee80211_ranging_pol_rpt_ul_target_rssi,
      {"UL Target RSSI", "wlan.trigger.he.ranging.poll_rpt.ul_target_rssi",
@@ -46996,9 +47010,17 @@ proto_register_ieee80211(void)
      {"Reserved", "wlan.trigger.he.ranging.sounding.reserved2",
       FT_UINT40, BASE_HEX, NULL, 0x0003000000, NULL, HFILL }},
 
-    {&hf_ieee80211_ranging_sounding_ss_allocation,
-     {"SS Allocation", "wlan.trigger.he.ranging.sounding.ss_allocation",
-      FT_UINT40, BASE_HEX, NULL, 0x00fc000000, NULL, HFILL }},
+    {&hf_ieee80211_ranging_sounding_starting_spatial_stream,
+     {"Starting Spatial Stream",
+      "wlan.trigger.he.ranging.sounding.starting_spatial_stream",
+      FT_UINT40, BASE_HEX|BASE_CUSTOM, CF_FUNC(he_trigger_minus_one_custom),
+      0x001c000000, NULL, HFILL }},
+
+    {&hf_ieee80211_ranging_sounding_number_spatial_streams,
+     {"Number of Spatial Streams",
+      "wlan.trigger.he.ranging.sounding.starting_spatial_stream",
+      FT_UINT40, BASE_HEX|BASE_CUSTOM, CF_FUNC(he_trigger_minus_one_custom),
+      0x00e0000000, NULL, HFILL }},
 
     {&hf_ieee80211_ranging_sounding_ul_target_rssi,
      {"UL Target RSSI", "wlan.trigger.he.ranging.sounding.ul_target_rssi",
@@ -47028,9 +47050,17 @@ proto_register_ieee80211(void)
      {"Reserved", "wlan.trigger.he.ranging.secured_sounding.reserved2",
       FT_UINT40, BASE_HEX, NULL, 0x0003000000, NULL, HFILL }},
 
-    {&hf_ieee80211_ranging_sec_sound_ss_allocation,
-     {"SS Allocation", "wlan.trigger.he.ranging.secured_sounding.ss_allocation",
-      FT_UINT40, BASE_HEX, NULL, 0x00fc000000, NULL, HFILL }},
+    {&hf_ieee80211_ranging_sec_sound_starting_spatial_stream,
+     {"Starting Spatial Stream",
+      "wlan.trigger.he.ranging.secured_sounding.starting_spatial_stream",
+      FT_UINT40, BASE_HEX|BASE_CUSTOM, CF_FUNC(he_trigger_minus_one_custom),
+      0x001c000000, NULL, HFILL }},
+
+    {&hf_ieee80211_ranging_sec_sound_number_spatial_streams,
+     {"Number of Spatial Streams",
+      "wlan.trigger.he.ranging.secured_sounding.number_spatial_streams",
+      FT_UINT40, BASE_HEX|BASE_CUSTOM, CF_FUNC(he_trigger_minus_one_custom),
+      0x00e0000000, NULL, HFILL }},
 
     {&hf_ieee80211_ranging_sec_sound_ul_target_rssi,
      {"UL Target RSSI",
