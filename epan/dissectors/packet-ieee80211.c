@@ -805,6 +805,7 @@ const value_string wfa_subtype_vals[] = {
   { WFA_SUBTYPE_WIFI_60G, "60GHz Information Element" },
   { WFA_WNM_SUBTYPE_NON_PREF_CHAN_REPORT, "Non-preferred Channel Report" },
   { WFA_WNM_SUBTYPE_CELL_DATA_CAPABILITIES, "Cellular Data Capabilities" },
+  { WFA_SUBTYPE_QOS_MGMT, "QoS Management" },
   { 0, NULL }
 };
 
@@ -6888,6 +6889,18 @@ static int hf_ieee80211_tag_fils_indication_public_key_list = -1;
 static int hf_ieee80211_tag_fils_indication_public_key_type = -1;
 static int hf_ieee80211_tag_fils_indication_public_key_length = -1;
 static int hf_ieee80211_tag_fils_indication_public_key_indicator = -1;
+
+static int hf_ieee80211_qos_mgmt_attribute_id = -1;
+static int hf_ieee80211_qos_mgmt_attribute_len = -1;
+static int hf_ieee80211_qos_mgmt_dscp_pol_capa = -1;
+static int hf_ieee80211_qos_mgmt_pol_capa_enabled = -1;
+static int hf_ieee80211_qos_mgmt_pol_capa_unsolicited = -1;
+static int hf_ieee80211_qos_mgmt_pol_capa_reserved = -1;
+static int hf_ieee80211_qos_mgmt_dscp_pol_id = -1;
+static int hf_ieee80211_qos_mgmt_dscp_pol_req_type = -1;
+static int hf_ieee80211_qos_mgmt_dscp_pol_dscp = -1;
+static int hf_ieee80211_qos_mgmt_domain_name = -1;
+static int hf_ieee80211_qos_mgmt_unknown_attr = -1;
 
 static int hf_ieee80211_ext_tag = -1;
 static int hf_ieee80211_ext_tag_number = -1;
@@ -16474,6 +16487,110 @@ static int dissect_group_data_cipher_suite(tvbuff_t *tvb, packet_info *pinfo _U_
   offset += 3;
   proto_tree_add_item(gdcs_tree, hf_array[1], tvb, offset, 1, ENC_NA);
   offset += 1;
+
+  return offset;
+}
+
+static const range_string qos_mgmt_attributes[] = {
+  { 0, 0, "Reserved" },
+  { 1, 1, "DSCP Management Capabilities" },
+  { 2, 2, "DSCP Policy" },
+  { 3, 3, "TCLAS" },
+  { 4, 4, "Domain Name" },
+  { 5, 255, "Reserved" },
+  { 0, 0, NULL }
+};
+
+static int * const qos_mgmt_pol_headers[] = {
+  &hf_ieee80211_qos_mgmt_pol_capa_enabled,
+  &hf_ieee80211_qos_mgmt_pol_capa_unsolicited,
+  &hf_ieee80211_qos_mgmt_pol_capa_reserved,
+  NULL
+};
+
+static int
+ieee80211_frame_classifier(tvbuff_t *tvb, packet_info *pinfo _U_,
+                           proto_tree *tree, int offset, int tag_len);
+
+static int
+dissect_qos_mgmt(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
+{
+  int offset = 0;
+  guint8 attr_id;
+  guint8 attr_len;
+  guint8 attr_num = 0;
+  proto_tree *sub_tree = NULL;
+
+  while (tvb_captured_length_remaining(tvb, offset)) {
+    attr_id = tvb_get_guint8(tvb, offset);
+    attr_len = tvb_get_guint8(tvb, offset + 1);
+    proto_tree *attr = NULL;
+
+    attr = proto_tree_add_subtree_format(tree, tvb, offset, attr_len + 2,
+                                  ett_qos_mgmt_attributes, NULL,
+                                  "QoS Management Attribute %d", attr_num++);
+    proto_tree_add_item(attr, hf_ieee80211_qos_mgmt_attribute_id, tvb, offset,
+                        1, ENC_NA);
+    offset += 1;
+
+    proto_tree_add_item(attr, hf_ieee80211_qos_mgmt_attribute_len, tvb, offset,
+                        1, ENC_NA);
+    offset += 1;
+
+    switch (attr_id) {
+    case 1:
+      sub_tree = proto_tree_add_subtree(attr, tvb, offset, 1,
+                          ett_qos_mgmt_dscp_policy_capabilities, NULL,
+                          "DSCP Policy Capabilities");
+      proto_tree_add_bitmask(sub_tree, tvb, offset,
+                             hf_ieee80211_qos_mgmt_dscp_pol_capa,
+                             ett_qos_mgmt_pol_capa, qos_mgmt_pol_headers,
+                             ENC_LITTLE_ENDIAN);
+      offset += 1;
+      break;
+    case 2:
+      sub_tree = proto_tree_add_subtree(attr, tvb, offset, attr_len,
+                          ett_qos_mgmt_dscp_policy, NULL,
+                          "DSCP Policy");
+
+      proto_tree_add_item(sub_tree, hf_ieee80211_qos_mgmt_dscp_pol_id, tvb,
+                          offset, 1, ENC_NA);
+      offset += 1;
+
+      proto_tree_add_item(sub_tree, hf_ieee80211_qos_mgmt_dscp_pol_req_type,
+                          tvb, offset, 1, ENC_NA);
+      offset += 1;
+
+      proto_tree_add_item(sub_tree, hf_ieee80211_qos_mgmt_dscp_pol_dscp, tvb,
+                          offset, 1, ENC_NA);
+      offset += 1;
+      break;
+    case 3:
+      sub_tree = proto_tree_add_subtree(attr, tvb, offset, attr_len,
+                          ett_qos_mgmt_tclas, NULL,
+                          "TCLAS");
+
+      ieee80211_frame_classifier(tvb, pinfo, sub_tree, offset, attr_len);
+      offset += attr_len;
+      break;
+    case 4:
+      sub_tree = proto_tree_add_subtree(attr, tvb, offset, attr_len,
+                          ett_qos_mgmt_domain_name, NULL,
+                          "Domain Name");
+      proto_tree_add_item(sub_tree, hf_ieee80211_qos_mgmt_domain_name, tvb,
+                          offset, attr_len, ENC_ASCII|ENC_NA);
+      offset += attr_len;
+      break;
+    default:
+      sub_tree = proto_tree_add_subtree(attr, tvb, offset, attr_len,
+                          ett_qos_mgmt_unknown_attribute, NULL,
+                          "Unknown attribute");
+      proto_tree_add_item(sub_tree, hf_ieee80211_qos_mgmt_unknown_attr, tvb,
+                          offset, attr_len, ENC_NA);
+      offset += attr_len;
+      break;
+    }
+  }
 
   return offset;
 }
@@ -48432,6 +48549,52 @@ proto_register_ieee80211(void)
      {"Public Key Indicator", "wlan.fils_indication.public_keys.indicator",
       FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
 
+    {&hf_ieee80211_qos_mgmt_attribute_id,
+     {"Attribute ID", "wlan.qos_mgmt.ie.attribute_id",
+      FT_UINT8, BASE_DEC|BASE_RANGE_STRING, RVALS(qos_mgmt_attributes), 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_qos_mgmt_attribute_len,
+     {"Length", "wlan.qos_mgmt.ie.length",
+      FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_qos_mgmt_dscp_pol_capa,
+     {"DSCP Policy Capabilities", "wlan.qos_mgmt.ie.mgmt_pol_capa",
+      FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
+    {&hf_ieee80211_qos_mgmt_pol_capa_enabled,
+     {"DSCP Policy", "wlan.qos_mgmt.ie.mgmt_pol_capa.enabled",
+      FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x01, NULL, HFILL }},
+
+    {&hf_ieee80211_qos_mgmt_pol_capa_unsolicited,
+     {"Unsolicited DSCP Policy at Association",
+      "wlan.qos_mgmt.ie.mgmt_pol_capa.unsolicited",
+      FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x01, NULL, HFILL }},
+
+    {&hf_ieee80211_qos_mgmt_pol_capa_reserved,
+     {"Reserved", "wlan.qos_mgmt.ie.mgmt_pol_capa.reserved",
+      FT_UINT8, BASE_HEX, NULL, 0xFE, NULL, HFILL }},
+
+    {&hf_ieee80211_qos_mgmt_dscp_pol_id,
+     {"Policy ID", "wlan.qos_mgmt.ie.dscp_policy.policy_id",
+      FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+    {&hf_ieee80211_qos_mgmt_dscp_pol_req_type,
+     {"Request Type", "wlan.qos_mgmt.ie.dscp_policy.request_type",
+      FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+    {&hf_ieee80211_qos_mgmt_dscp_pol_dscp,
+     {"DSCP", "wlan.qos_mgmt.ie.dscp_policy.dscp",
+      FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
+    {&hf_ieee80211_qos_mgmt_domain_name,
+     {"Domain Name", "wlan.qos_mgmt.ie.domain_name",
+      FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
+    {&hf_ieee80211_qos_mgmt_unknown_attr,
+     {"Unknown attribute", "wlan.qos_mgmt.ie.unknown_attribute",
+      FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
     {&hf_ieee80211_ext_tag,
      {"Ext Tag", "wlan.ext_tag",
       FT_NONE, BASE_NONE, 0x0, 0,
@@ -51044,6 +51207,7 @@ proto_reg_handoff_ieee80211(void)
   dissector_add_uint("wlan.ie.wifi_alliance.subtype", WFA_SUBTYPE_MBO_OCE, create_dissector_handle(dissect_mbo_oce, -1));
   dissector_add_uint("wlan.ie.wifi_alliance.subtype", WFA_WNM_SUBTYPE_NON_PREF_CHAN_REPORT, create_dissector_handle(dissect_wfa_wnm_non_pref_chan, -1));
   dissector_add_uint("wlan.ie.wifi_alliance.subtype", WFA_WNM_SUBTYPE_CELL_DATA_CAPABILITIES, create_dissector_handle(dissect_wfa_wnm_cell_cap, -1));
+  dissector_add_uint("wlan.ie.wifi_alliance.subtype", WFA_SUBTYPE_QOS_MGMT, create_dissector_handle(dissect_qos_mgmt, -1));
 }
 
 /*
