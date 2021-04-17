@@ -53,12 +53,17 @@ static int hf_autosar_nm_source_node_identifier = -1;
 static int hf_autosar_nm_control_bit_vector = -1;
 static int hf_autosar_nm_control_bit_vector_repeat_msg_req = -1;
 static int hf_autosar_nm_control_bit_vector_reserved1 = -1;
+static int hf_autosar_nm_control_bit_vector_pn_shutdown_request = -1;
 static int hf_autosar_nm_control_bit_vector_reserved2 = -1;
 static int hf_autosar_nm_control_bit_vector_nm_coord_id = -1;
+static int hf_autosar_nm_control_bit_vector_reserved3 = -1;
 static int hf_autosar_nm_control_bit_vector_nm_coord_sleep = -1;
+static int hf_autosar_nm_control_bit_vector_reserved4 = -1;
 static int hf_autosar_nm_control_bit_vector_active_wakeup = -1;
 static int hf_autosar_nm_control_bit_vector_reserved5 = -1;
+static int hf_autosar_nm_control_bit_vector_pn_learning = -1;
 static int hf_autosar_nm_control_bit_vector_pni = -1;
+static int hf_autosar_nm_control_bit_vector_reserved6 = -1;
 static int hf_autosar_nm_control_bit_vector_reserved7 = -1;
 static int hf_autosar_nm_user_data = -1;
 
@@ -71,11 +76,17 @@ static gint ett_autosar_nm_user_data = -1;
 static const true_false_string tfs_autosar_nm_control_rep_msg_req = {
   "Repeat Message State requested", "Repeat Message State not requested" };
 
+static const true_false_string tfs_autosar_nm_control_pn_shutdown_req= {
+  "NM message contains synchronized PN shutdown request", "NM message does not contain synchronized PN shutdown request" };
+
 static const true_false_string tfs_autosar_nm_control_sleep_bit = {
   "Start of synchronized shutdown requested", "Start of synchronized shutdown not requested" };
 
 static const true_false_string tfs_autosar_nm_control_active_wakeup = {
   "Node has woken up the network", "Node has not woken up the network" };
+
+static const true_false_string tfs_autosar_nm_control_pn_learning = {
+  "PNC learning is requested", "PNC learning is not requested" };
 
 static const true_false_string tfs_autosar_nm_control_pni = {
   "NM message contains Partial Network request information", "NM message contains no Partial Network request information" };
@@ -99,8 +110,24 @@ static const enum_val_t byte_position_vals[] = {
 static gint g_autosar_nm_pos_cbv = (gint)byte_pos_0;
 static gint g_autosar_nm_pos_sni = (gint)byte_pos_1;
 
-/* Read bits 1 and 2 of Control Bit Vector as NM Coordinator Id */
-static gboolean g_autosar_nm_interpret_coord_id = FALSE;
+enum parameter_cbv_version_value {
+    autosar_3_0_or_newer = 0,
+    autosar_3_2,
+    autosar_4_0,
+    autosar_4_1_or_newer,
+    autosar_20_11
+};
+
+static const enum_val_t cbv_version_vals[] = {
+    {"3.0", "AUTOSAR 3.0 or 3.1", autosar_3_0_or_newer},
+    {"3.2", "AUTOSAR 3.2", autosar_3_2},
+    {"4.0", "AUTOSAR 4.0", autosar_4_0},
+    {"4.1", "AUTOSAR 4.1 or newer", autosar_4_1_or_newer},
+    {"20-11", "AUTOSAR 20-11", autosar_20_11},
+    {NULL, NULL, -1}
+};
+
+static gint g_autosar_nm_cbv_version = (gint)autosar_4_1_or_newer;
 
 /* Id and mask of CAN frames to be dissected */
 static guint32 g_autosar_nm_can_id = 0;
@@ -397,7 +424,20 @@ dissect_autosar_nm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
   int* hf_id;
   int ett_id;
 
-  static int * const control_bits_legacy[] = {
+  static int * const control_bits_3_0[] = {
+    &hf_autosar_nm_control_bit_vector_repeat_msg_req,
+    &hf_autosar_nm_control_bit_vector_reserved1,
+    &hf_autosar_nm_control_bit_vector_reserved2,
+    &hf_autosar_nm_control_bit_vector_reserved3,
+    &hf_autosar_nm_control_bit_vector_reserved4,
+    &hf_autosar_nm_control_bit_vector_reserved5,
+    &hf_autosar_nm_control_bit_vector_reserved6,
+    &hf_autosar_nm_control_bit_vector_reserved7,
+    NULL
+  };
+
+
+  static int * const control_bits_3_2[] = {
     &hf_autosar_nm_control_bit_vector_repeat_msg_req,
     &hf_autosar_nm_control_bit_vector_nm_coord_id,
     &hf_autosar_nm_control_bit_vector_nm_coord_sleep,
@@ -408,13 +448,37 @@ dissect_autosar_nm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
     NULL
   };
 
-  static int * const control_bits[] = {
+  static int * const control_bits_4_0[] = {
+    &hf_autosar_nm_control_bit_vector_repeat_msg_req,
+    &hf_autosar_nm_control_bit_vector_reserved1,
+    &hf_autosar_nm_control_bit_vector_reserved2,
+    &hf_autosar_nm_control_bit_vector_nm_coord_sleep,
+    &hf_autosar_nm_control_bit_vector_reserved4,
+    &hf_autosar_nm_control_bit_vector_reserved5,
+    &hf_autosar_nm_control_bit_vector_reserved6,
+    &hf_autosar_nm_control_bit_vector_reserved7,
+    NULL
+  };
+
+  static int * const control_bits_4_1[] = {
     &hf_autosar_nm_control_bit_vector_repeat_msg_req,
     &hf_autosar_nm_control_bit_vector_reserved1,
     &hf_autosar_nm_control_bit_vector_reserved2,
     &hf_autosar_nm_control_bit_vector_nm_coord_sleep,
     &hf_autosar_nm_control_bit_vector_active_wakeup,
     &hf_autosar_nm_control_bit_vector_reserved5,
+    &hf_autosar_nm_control_bit_vector_pni,
+    &hf_autosar_nm_control_bit_vector_reserved7,
+    NULL
+  };
+
+  static int * const control_bits_20_11[] = {
+    &hf_autosar_nm_control_bit_vector_repeat_msg_req,
+    &hf_autosar_nm_control_bit_vector_pn_shutdown_request,
+    &hf_autosar_nm_control_bit_vector_reserved2,
+    &hf_autosar_nm_control_bit_vector_nm_coord_sleep,
+    &hf_autosar_nm_control_bit_vector_active_wakeup,
+    &hf_autosar_nm_control_bit_vector_pn_learning,
     &hf_autosar_nm_control_bit_vector_pni,
     &hf_autosar_nm_control_bit_vector_reserved7,
     NULL
@@ -433,8 +497,25 @@ dissect_autosar_nm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
   }
 
   if (g_autosar_nm_pos_cbv != byte_pos_off) {
-      proto_tree_add_bitmask(autosar_nm_tree, tvb, g_autosar_nm_pos_cbv, hf_autosar_nm_control_bit_vector, ett_autosar_nm_cbv,
-          (g_autosar_nm_interpret_coord_id ? control_bits_legacy : control_bits), ENC_BIG_ENDIAN);
+
+      switch (g_autosar_nm_cbv_version) {
+      case autosar_3_0_or_newer:
+        proto_tree_add_bitmask(autosar_nm_tree, tvb, g_autosar_nm_pos_cbv, hf_autosar_nm_control_bit_vector, ett_autosar_nm_cbv, control_bits_3_0, ENC_BIG_ENDIAN);
+        break;
+      case autosar_3_2:
+          proto_tree_add_bitmask(autosar_nm_tree, tvb, g_autosar_nm_pos_cbv, hf_autosar_nm_control_bit_vector, ett_autosar_nm_cbv, control_bits_3_2, ENC_BIG_ENDIAN);
+      break;
+      case autosar_4_0:
+          proto_tree_add_bitmask(autosar_nm_tree, tvb, g_autosar_nm_pos_cbv, hf_autosar_nm_control_bit_vector, ett_autosar_nm_cbv, control_bits_4_0, ENC_BIG_ENDIAN);
+      break;
+      case autosar_4_1_or_newer:
+          proto_tree_add_bitmask(autosar_nm_tree, tvb, g_autosar_nm_pos_cbv, hf_autosar_nm_control_bit_vector, ett_autosar_nm_cbv, control_bits_4_1, ENC_BIG_ENDIAN);
+      break;
+      case autosar_20_11:
+          proto_tree_add_bitmask(autosar_nm_tree, tvb, g_autosar_nm_pos_cbv, hf_autosar_nm_control_bit_vector, ett_autosar_nm_cbv, control_bits_20_11, ENC_BIG_ENDIAN);
+      break;
+      }
+
       ctrl_bit_vector = tvb_get_guint8(tvb, g_autosar_nm_pos_cbv);
   }
 
@@ -530,16 +611,26 @@ void proto_register_autosar_nm(void)
     { "Repeat Message Request", "autosar-nm.ctrl.repeat_msg_req", FT_BOOLEAN, 8, TFS(&tfs_autosar_nm_control_rep_msg_req), 0x01, "The Repeat Message Request Bit", HFILL } },
     { &hf_autosar_nm_control_bit_vector_reserved1,
     { "Reserved Bit 1", "autosar-nm.ctrl.reserved1", FT_UINT8, BASE_DEC, NULL, 0x02, "The Reserved Bit 1", HFILL } },
+    { &hf_autosar_nm_control_bit_vector_pn_shutdown_request,
+    { "PN Shutdown Request", "autosar-nm.ctrl.pn_shutdown_request", FT_BOOLEAN, 8, TFS(&tfs_autosar_nm_control_pn_shutdown_req), 0x02, "The Partial Network Shutdown Request Bit", HFILL } },
     { &hf_autosar_nm_control_bit_vector_reserved2,
     { "Reserved Bit 2", "autosar-nm.ctrl.reserved2", FT_UINT8, BASE_DEC, NULL, 0x04, "The Reserved Bit 2", HFILL } },
     { &hf_autosar_nm_control_bit_vector_nm_coord_id,
-    { "NM Coordinator Id", "autosar-nm.ctrl.nm_coord_id", FT_UINT8, BASE_DEC, NULL, 0x06, "The NM Coordinator Identifier", HFILL } },
+    { "NM Coordinator ID", "autosar-nm.ctrl.nm_coord_id", FT_UINT8, BASE_DEC, NULL, 0x06, "The NM Coordinator Identifier", HFILL } },
+    { &hf_autosar_nm_control_bit_vector_reserved3,
+    { "Reserved Bit 3", "autosar-nm.ctrl.reserved3", FT_UINT8, BASE_DEC, NULL, 0x08, "The Reserved Bit 3", HFILL } },
     { &hf_autosar_nm_control_bit_vector_nm_coord_sleep,
-    { "NM Coordinator Sleep", "autosar-nm.ctrl.nm_coord_sleep", FT_BOOLEAN, 8, TFS(&tfs_autosar_nm_control_sleep_bit), 0x08, "NM Coordinator Sleep Bit", HFILL } },
+    { "NM Coordinator Sleep Ready", "autosar-nm.ctrl.nm_coord_sleep", FT_BOOLEAN, 8, TFS(&tfs_autosar_nm_control_sleep_bit), 0x08, "NM Coordinator Sleep Ready Bit", HFILL } },
+    { &hf_autosar_nm_control_bit_vector_reserved4,
+    { "Reserved Bit 4", "autosar-nm.ctrl.reserved4", FT_UINT8, BASE_DEC, NULL, 0x10, "The Reserved Bit 4", HFILL } },
     { &hf_autosar_nm_control_bit_vector_active_wakeup,
     { "Active Wakeup", "autosar-nm.ctrl.active_wakeup", FT_BOOLEAN, 8, TFS(&tfs_autosar_nm_control_active_wakeup), 0x10, "Active Wakeup Bit", HFILL } },
     { &hf_autosar_nm_control_bit_vector_reserved5,
     { "Reserved Bit 5", "autosar-nm.ctrl.reserved5", FT_UINT8, BASE_DEC, NULL, 0x20, "The Reserved Bit 5", HFILL } },
+    { &hf_autosar_nm_control_bit_vector_pn_learning,
+    { "PN Learning", "autosar-nm.ctrl.pn_learning", FT_BOOLEAN, 8, TFS(&tfs_autosar_nm_control_pn_learning), 0x20, "The Partial Network Learning Bit", HFILL } },
+    { &hf_autosar_nm_control_bit_vector_reserved6,
+    { "Reserved Bit 6", "autosar-nm.ctrl.reserved6",FT_UINT8, BASE_DEC, NULL, 0x40, "Partial Network Information Bit", HFILL } },
     { &hf_autosar_nm_control_bit_vector_pni,
     { "Partial Network Information", "autosar-nm.ctrl.pni", FT_BOOLEAN, 8, TFS(&tfs_autosar_nm_control_pni), 0x40, "Partial Network Information Bit", HFILL } },
     { &hf_autosar_nm_control_bit_vector_reserved7,
@@ -578,6 +669,11 @@ void proto_register_autosar_nm(void)
   /* Register configuration options */
   autosar_nm_module = prefs_register_protocol(proto_autosar_nm, proto_reg_handoff_autosar_nm);
 
+  prefs_register_enum_preference(autosar_nm_module, "cbv_version",
+      "Control Bit Vector version",
+      "Define the standard version that applies to the CBV field",
+      &g_autosar_nm_cbv_version, cbv_version_vals, FALSE);
+
   prefs_register_enum_preference(autosar_nm_module, "cbv_position",
     "Control Bit Vector position",
     "Make the NM dissector interpret this byte as Control Bit Vector (CBV)",
@@ -587,12 +683,6 @@ void proto_register_autosar_nm(void)
     "Source Node Identifier position",
     "Make the NM dissector interpret this byte as Source Node Identifier (SNI)",
     &g_autosar_nm_pos_sni, byte_position_vals, FALSE);
-
-  prefs_register_bool_preference(autosar_nm_module, "interpret_coord_id",
-    "Interpret bits 1 and 2 of Control Bit Vector as 'NM Coordinator Id'",
-    "Revision 4.3.1 of the specification doesn't have 'NM Coordinator Id' in Control Bit Vector. "
-    "Using this parameter one may switch to a mode compatible with revision 3.2 of the specification.",
-    &g_autosar_nm_interpret_coord_id);
 
   /* UAT */
   user_data_fields_uat = uat_new("NM User Data Fields Table",
