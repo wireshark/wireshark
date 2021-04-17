@@ -14530,7 +14530,7 @@ void proto_register_rtps(void) {
         FT_UINT32, BASE_DEC, NULL, 0, "UDPv4 WAN binding ping RTPS port", HFILL }
     },
     { &hf_rtps_long_address, {
-        "Long address", "rtps.long_adress", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }
+        "Long address", "rtps.long_address", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }
     }
   };
 

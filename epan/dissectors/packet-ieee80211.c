@@ -47142,7 +47142,7 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_ranging_sounding_number_spatial_streams,
      {"Number of Spatial Streams",
-      "wlan.trigger.he.ranging.sounding.starting_spatial_stream",
+      "wlan.trigger.he.ranging.sounding.number_spatial_streams",
       FT_UINT40, BASE_HEX|BASE_CUSTOM, CF_FUNC(he_trigger_minus_one_custom),
       0x00e0000000, NULL, HFILL }},
 
@@ -48026,7 +48026,7 @@ proto_register_ieee80211(void)
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_time_adv_time_value_day,
-     {"Time Value: Day", "wlan.time_adv.time_value.month",
+     {"Time Value: Day", "wlan.time_adv.time_value.day",
       FT_UINT8, BASE_DEC, NULL, 0,
       NULL, HFILL }},
 
