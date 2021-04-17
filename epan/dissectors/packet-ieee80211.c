@@ -780,6 +780,7 @@ static const value_string tag_num_vals_eid_ext[] = {
 static value_string_ext tag_num_vals_eid_ext_ext = VALUE_STRING_EXT_INIT(tag_num_vals_eid_ext);
 
 const value_string wfa_qos_subtype_vals[] = {
+  { 0, "DSCP Policy Query" },
   { 1, "DSCP Policy Request" },
   { 2, "DSCP Policy Response" },
   { 0, NULL }
