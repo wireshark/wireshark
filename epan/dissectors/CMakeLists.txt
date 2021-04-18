@@ -913,6 +913,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-dcerpc-spoolss.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-dcerpc-svcctl.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-dcerpc-tapi.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-dcerpc-taskschedulerservice.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-dcerpc-tkn4int.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-dcerpc-trksvr.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-dcerpc-ubikdisk.c
