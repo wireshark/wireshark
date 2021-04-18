@@ -56,9 +56,22 @@ They previously shipped with Npcap 1.20.
   Also the timestamp format now allows the second-fractions to be placed anywhere in the timestamp and it will be stored with
   nanosecond instead of microsecond precision.
 
+* Significant RTP Player redesign and improvements (see Wireshark User Documentation, https://www.wireshark.org/docs/wsug_html_chunked/ChTelPlayingCalls.html[Playing VoIP Calls] and https://www.wireshark.org/docs/wsug_html_chunked/_rtp.html#ChTelRtpPlayer[RTP Player Window])
+** RTP Player can play many streams in row
+** UI is more responsive
+** RTP Player maintains playlist, other tools can add/remove streams to it
+** Every stream can be muted or routed to L/R channel for replay
+** Save audio is moved from RTP Analysis to RTP Player. RTP Player saves what was played. RTP Player can save in multichannel .au or .wav.
+** RTP Player added to menu Telephony>RTP>RTP Player
+
+* VoIP dialogs (VoIP Calls, RTP Streams, RTP Analysis, RTP Player, SIP Flows) are non-modal, can stay opened on background
+** Same tools are provided acros all dialogs (Prepare Filter, Analyse, RTP Player ...)
+
+* Follow stream is now able to follow SIP call by SIP.Call-ID
+
 // === Removed Features and Support
 
-//=== Removed Dissectors
+// === Removed Dissectors
 
 // === New File Format Decoding Support
 
