@@ -9,8 +9,6 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-/* see packet-dcom.c for details about DCOM */
-
 #include "config.h"
 
 #include <epan/packet.h>
