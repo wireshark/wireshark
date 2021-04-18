@@ -1665,7 +1665,7 @@ static void post_add_intval_from_16bytes(proto_item *ti, tvbuff_t *tvb, guint of
     guint64 hi = tvb_get_guint64(tvb, off, 8);
     double res;
 
-    res = hi;
+    res = (double)hi;
     res *= (((guint64)1) << 63);
     res *= 2;
     res += lo;
@@ -1938,7 +1938,12 @@ static const value_string stest_result_tbl[] = {
     {  0, NULL}
 };
 
-static const value_string * const stest_type_done_tbl = &stest_type_active_tbl[1];
+static const value_string stest_type_done_tbl[] = {
+    { 1,  "Short device self-test operation in progress" },
+    { 2,  "Extended device self-test operation in progress" },
+    { 0xE,  "Vendor Specific" },
+    { 0, NULL}
+};
 
 static void dissect_nvme_get_logpage_selftest_result(proto_tree *grp, tvbuff_t *cmd_tvb, guint32 off, guint tst_idx)
 {
@@ -2271,30 +2276,30 @@ static void dissect_nvme_get_logpage_resp(tvbuff_t *cmd_tvb, proto_tree *cmd_tre
                             "NVMe Get Log Page (%s)", get_logpage_name(cmd_ctx->cmd_ctx.get_logpage.lid));
     switch(cmd_ctx->cmd_ctx.get_logpage.lid) {
         case 0x70:
-            return dissect_nvme_get_logpage_ify_resp(ti, cmd_tvb, cmd_ctx, len);
+            dissect_nvme_get_logpage_ify_resp(ti, cmd_tvb, cmd_ctx, len); break;
         case 0x1:
-            return dissect_nvme_get_logpage_err_inf_resp(ti, cmd_tvb, cmd_ctx, len);
+            dissect_nvme_get_logpage_err_inf_resp(ti, cmd_tvb, cmd_ctx, len); break;
         case 0x2:
-            return dissect_nvme_get_logpage_smart_resp(ti, cmd_tvb, cmd_ctx, len);
+            dissect_nvme_get_logpage_smart_resp(ti, cmd_tvb, cmd_ctx, len); break;
         case 0x3:
-            return dissect_nvme_get_logpage_fw_slot_resp(ti, cmd_tvb, cmd_ctx, len);
+            dissect_nvme_get_logpage_fw_slot_resp(ti, cmd_tvb, cmd_ctx, len); break;
         case 0x4:
-            return dissect_nvme_get_logpage_changed_nslist_resp(ti, cmd_tvb, len);
+            dissect_nvme_get_logpage_changed_nslist_resp(ti, cmd_tvb, len); break;
         case 0x5:
-            return dissect_nvme_get_logpage_cmd_sup_and_eff_resp(ti, cmd_tvb, cmd_ctx, len);
+            dissect_nvme_get_logpage_cmd_sup_and_eff_resp(ti, cmd_tvb, cmd_ctx, len); break;
         case 0x6:
-            return dissect_nvme_get_logpage_selftest_resp(ti, cmd_tvb, cmd_ctx, len);
+            dissect_nvme_get_logpage_selftest_resp(ti, cmd_tvb, cmd_ctx, len); break;
         case 0x7:
         case 0x8:
-            return dissect_nvme_get_logpage_telemetry_resp(ti, cmd_tvb, cmd_ctx, len);
+            dissect_nvme_get_logpage_telemetry_resp(ti, cmd_tvb, cmd_ctx, len); break;
         case 0x9:
-            return dissect_nvme_get_logpage_egroup_resp(ti, cmd_tvb, cmd_ctx, len);
+            dissect_nvme_get_logpage_egroup_resp(ti, cmd_tvb, cmd_ctx, len); break;
         case 0xA:
-            return dissect_nvme_get_logpage_pred_lat_resp(ti, cmd_tvb, cmd_ctx, len);
+            dissect_nvme_get_logpage_pred_lat_resp(ti, cmd_tvb, cmd_ctx, len); break;
         case 0xB:
-            return dissect_nvme_get_logpage_pred_lat_aggreg_resp(ti, cmd_tvb, cmd_ctx, len);
+            dissect_nvme_get_logpage_pred_lat_aggreg_resp(ti, cmd_tvb, cmd_ctx, len); break;
         case 0xC:
-            return dissect_nvme_get_logpage_ana_resp(ti, cmd_tvb, cmd_ctx, len);
+            dissect_nvme_get_logpage_ana_resp(ti, cmd_tvb, cmd_ctx, len); break;
         default:
             return;
     }
