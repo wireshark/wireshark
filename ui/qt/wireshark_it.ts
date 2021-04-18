@@ -6624,7 +6624,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Reliable Server Pooling (RSerPool)</source>
-        <translation type="unfinished"></translation>
+        <translation>Reliable Server Pooling (RSerPool)</translation>
     </message>
     <message>
         <source>Osmux</source>
@@ -7283,11 +7283,11 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>REGISTER_STAT_GROUP_RSERPOOL</source>
-        <translation type="unfinished"></translation>
+        <translation>REGISTER_STAT_GROUP_RSERPOOL</translation>
     </message>
     <message>
         <source>Start of &quot;REGISTER_STAT_GROUP_RSERPOOL&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>Avvio di &quot;REGISTER_STAT_GROUP_RSERPOOL&quot;</translation>
     </message>
     <message>
         <source>No GSM statistics registered</source>
@@ -7303,7 +7303,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Stream Analysis</source>
-        <translation>Analisi flusso</translation>
+        <translation type="vanished">Analisi flusso</translation>
     </message>
     <message>
         <source>IAX2 Stream Analysis</source>
@@ -7735,6 +7735,18 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Nuova regola di colorazione...</translation>
     </message>
     <message>
+        <source>RTP Stream Analysis for selected stream. Press CTRL key for adding reverse stream too.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>RTP Player</source>
+        <translation type="unfinished">Lettore RTP</translation>
+    </message>
+    <message>
+        <source>Play selected stream. Press CTRL key for playing reverse stream too.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>IA&amp;X2 Stream Analysis</source>
         <translation>Analisi flusso IA&amp;X2</translation>
     </message>
@@ -8084,6 +8096,18 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Esci senza sal&amp;vare</translation>
     </message>
     <message>
+        <source>There is no &quot;rtp.ssrc&quot; field in this version of Wireshark.</source>
+        <translation type="unfinished">Non c&apos;è alcun campo &quot;rtp.ssrc&quot; in questa versione di Wireshark.</translation>
+    </message>
+    <message>
+        <source>Please select an RTPv2 packet with an SSRC value</source>
+        <translation type="unfinished">Seleziona un pacchetto RTPv2 con un valore SSRC</translation>
+    </message>
+    <message>
+        <source>SSRC value not found.</source>
+        <translation type="unfinished">Valore SSRC non trovato.</translation>
+    </message>
+    <message>
         <source>Show or hide the toolbar</source>
         <translation>Mostra o nascondi la barra degli strumenti</translation>
     </message>
@@ -8223,6 +8247,10 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <message>
         <source>The &quot;%1&quot; column already exists as &quot;%2&quot;.</source>
         <translation>La colonna &quot;%1&quot; esiste già come &quot;%2&quot;.</translation>
+    </message>
+    <message>
+        <source>RTP packet search failed</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>No Interface Selected.</source>
@@ -9061,11 +9089,11 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Print capture file information on each page&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Stampa il file di cattura su ogni pagina&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Capture information header</source>
-        <translation type="unfinished"></translation>
+        <translation>Intestazione delle informazioni di cattura</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Use the &amp;quot;+&amp;quot; and &amp;quot;-&amp;quot; keys to zoom the preview in and out. Use the &amp;quot;0&amp;quot; key to reset the zoom level.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -10406,14 +10434,6 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Finestra</translation>
     </message>
     <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:medium; font-weight:600;&quot;&gt;Forward&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:medium; font-weight:600;&quot;&gt;Reverse&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:medium; font-weight:600;&quot;&gt;Diretto&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:medium; font-weight:600;&quot;&gt;Inverso&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>Forward</source>
-        <translation type="vanished">Diretto</translation>
-    </message>
-    <message>
         <source>Packet</source>
         <translation>Pacchetto</translation>
     </message>
@@ -10448,115 +10468,79 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Stream %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Flusso %1</translation>
     </message>
     <message>
         <source>Stream %1 Jitter</source>
-        <translation type="unfinished"></translation>
+        <translation>Jitter del flusso %1</translation>
     </message>
     <message>
         <source>Stream %1 Difference</source>
-        <translation type="unfinished"></translation>
+        <translation>Differenza del flusso %1</translation>
     </message>
     <message>
         <source>Stream %1 Delta</source>
+        <translation>Delta del flusso %1</translation>
+    </message>
+    <message>
+        <source> %1 streams, </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Save one stream CSV</source>
-        <translation type="unfinished"></translation>
+        <translation>Salva CSV di un flusso</translation>
     </message>
     <message>
         <source>Save all stream&apos;s CSV</source>
-        <translation type="unfinished"></translation>
+        <translation>Salva CSV di tutti i flussi</translation>
     </message>
     <message>
         <source>&amp;Analyze</source>
-        <translation type="unfinished">&amp;Analizza</translation>
+        <translation>&amp;Analizza</translation>
     </message>
     <message>
         <source>Open the analysis window for the selected stream(s)</source>
+        <translation>Apri la finestra di analisi per i flussi selezionati</translation>
+    </message>
+    <message>
+        <source>&amp;Set List</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Add to List</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Remove from List</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>&amp;Set list</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">Impo&amp;sta elenco</translation>
     </message>
     <message>
         <source>Replace existing list in RTP Analysis Dialog with new one</source>
-        <translation type="unfinished"></translation>
+        <translation>Sostituisci l&apos;elenco esistente nella finestra di analisi RTP con uno nuovo</translation>
     </message>
     <message>
         <source>&amp;Add to list</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">&amp;Aggiungi a elenco</translation>
     </message>
     <message>
         <source>Add new set to existing list in RTP Analysis Dialog</source>
-        <translation type="unfinished"></translation>
+        <translation>Aggiungi nuovo insieme all&apos;elenco esistente nella finestra di analisi RTP</translation>
     </message>
     <message>
         <source>&amp;Remove from playlist</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">&amp;Rimuovi dalla scaletta</translation>
     </message>
     <message>
         <source>Remove selected streams from list in RTP Analysis Dialog</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Reverse</source>
-        <translation type="vanished">Inverso</translation>
+        <translation>Rimuovi i flussi selezionati dall&apos;elenco nella finestra di analisi RTP</translation>
     </message>
     <message>
         <source>Graph</source>
         <translation>Grafico</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show or hide forward jitter values.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Mostra o nascondi i valori di jitter diretto.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>Forward Jitter</source>
-        <translation type="vanished">Jitter diretto</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show or hide forward difference values.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Mostra o nascondi i valori di differenza diretta.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>Forward Difference</source>
-        <translation type="vanished">Differenza diretta</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show or hide forward delta values.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Mostra o nascondi i valori di delta diretto.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>Forward Delta</source>
-        <translation type="vanished">Delta diretto</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show or hide reverse jitter values.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Mostra o nascondi i valori di jitter inverso.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>Reverse Jitter</source>
-        <translation type="vanished">Jitter inverso</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show or hide reverse difference values.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Mostra o nascondi i valori di differenza inversa.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>Reverse Difference</source>
-        <translation type="vanished">Differenza inversa</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show or hide reverse delta values.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Mostra o nascondi i valori di delta inverso.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>Reverse Delta</source>
-        <translation type="vanished">Delta inverso</translation>
     </message>
     <message>
         <source>&lt;small&gt;&lt;i&gt;A hint.&lt;/i&gt;&lt;/small&gt;</source>
@@ -10571,125 +10555,28 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Apri menu di esportazione</translation>
     </message>
     <message>
-        <source>Unsynchronized Forward and Reverse Audio</source>
-        <translation type="vanished">Audio diretto e inverso non sincronizzato</translation>
-    </message>
-    <message>
-        <source>Stream Synchronized Forward and Reverse Audio</source>
-        <translation type="vanished">Audio diretto e inverso sincronizzato con flusso</translation>
-    </message>
-    <message>
-        <source>Save the audio data for both channels synchronized to start of earlier stream.</source>
-        <translation type="vanished">Salva i dati dell&apos;audio per entrambi i canali sincronizzato all&apos;inizio del primo flusso.</translation>
-    </message>
-    <message>
-        <source>Stream Synchronized Forward Stream Audio</source>
-        <translation type="vanished">Audio flusso diretto sincronizzato con flusso</translation>
-    </message>
-    <message>
-        <source>Save the forward stream audio data synchronized to start of earlier stream.</source>
-        <translation type="vanished">Salva i dati dell&apos;audio del flusso diretto sincronizzato all&apos;inizio del primo flusso.</translation>
-    </message>
-    <message>
-        <source>Stream Synchronized Reverse Stream Audio</source>
-        <translation type="vanished">Audio flusso inverso sincronizzato con flusso</translation>
-    </message>
-    <message>
-        <source>Save the reverse stream audio data synchronized to start of earlier stream.</source>
-        <translation type="vanished">Salva i dati dell&apos;audio del flusso inverso sincronizzato all&apos;inizio del primo flusso.</translation>
-    </message>
-    <message>
-        <source>File Synchronized Forward and Reverse Audio</source>
-        <translation type="vanished">Audio diretto e inverso sincronizzato con file</translation>
-    </message>
-    <message>
-        <source>Save the audio data for both channels synchronized to start of file.</source>
-        <translation type="vanished">Salva i dati dell&apos;audio per entrambi i canali sincronizzato all&apos;inizio del file.</translation>
-    </message>
-    <message>
-        <source>File Synchronized Forward Stream Audio</source>
-        <translation type="vanished">Audio flusso diretto sincronizzato con file</translation>
-    </message>
-    <message>
-        <source>Save the forward stream audio data synchronized to start of file.</source>
-        <translation type="vanished">Salva i dati audio del flusso diretto sincronizzato all&apos;inizio del file.</translation>
-    </message>
-    <message>
-        <source>File Synchronized Reverse Stream Audio</source>
-        <translation type="vanished">Audio flusso inverso sincronizzato con file</translation>
-    </message>
-    <message>
-        <source>Save the reverse stream audio data synchronized to start of file.</source>
-        <translation type="vanished">Salva i dati audio del flusso inverso sincronizzato all&apos;inizio del file.</translation>
-    </message>
-    <message>
-        <source>Save the unsynchronized audio data for both channels.</source>
-        <oldsource>Save the audio data for both channels.</oldsource>
-        <translation type="vanished">Salva i dati dell&apos;audio non sincronizzato per entrambi i canali.</translation>
-    </message>
-    <message>
-        <source>Unsynchronized Forward Stream Audio</source>
-        <oldsource>Forward Stream Audio</oldsource>
-        <translation type="vanished">Audio flusso diretto non sincronizzato</translation>
-    </message>
-    <message>
-        <source>Save the unsynchronized forward stream audio data.</source>
-        <oldsource>Save the forward stream audio data.</oldsource>
-        <translation type="vanished">Salva i dati audio del flusso diretto non sincronizzato.</translation>
-    </message>
-    <message>
-        <source>Unsynchronized Reverse Stream Audio</source>
-        <oldsource>Reverse Stream Audio</oldsource>
-        <translation type="vanished">Audio flusso inverso non sincronizzato</translation>
-    </message>
-    <message>
-        <source>Save the unsynchronized reverse stream audio data.</source>
-        <oldsource>Save the reverse stream audio data.</oldsource>
-        <translation type="vanished">Salva i dati audio del flusso inverso non sincronizzato.</translation>
-    </message>
-    <message>
         <source>CSV</source>
         <translation>CSV</translation>
     </message>
     <message>
-        <source>Save both tables as CSV.</source>
-        <translation type="vanished">Salva entrambe le tabelle come CSV.</translation>
-    </message>
-    <message>
-        <source>Forward Stream CSV</source>
-        <translation type="vanished">CSV flusso diretto</translation>
-    </message>
-    <message>
-        <source>Save the forward table as CSV.</source>
-        <translation type="vanished">Salva la tabella diretta come CSV.</translation>
-    </message>
-    <message>
-        <source>Reverse Stream CSV</source>
-        <translation type="vanished">CSV flusso inverso</translation>
-    </message>
-    <message>
-        <source>Save the reverse table as CSV.</source>
-        <translation type="vanished">Salva la tabella inversa come CSV.</translation>
-    </message>
-    <message>
         <source>Save tables as CSV.</source>
-        <translation type="unfinished"></translation>
+        <translation>Salva le tabelle come CSV.</translation>
     </message>
     <message>
         <source>Current Tab Stream CSV</source>
-        <translation type="unfinished"></translation>
+        <translation>CSV del flusso della scheda attuale</translation>
     </message>
     <message>
         <source>Save the table on the current tab as CSV.</source>
-        <translation type="unfinished"></translation>
+        <translation>Salva la tabella della scheda attuale come CSV.</translation>
     </message>
     <message>
         <source>All Tab Streams CSV</source>
-        <translation type="unfinished"></translation>
+        <translation>CSV dei flussi di tutte le schede</translation>
     </message>
     <message>
         <source>Save the table from all tabs as CSV.</source>
-        <translation type="unfinished"></translation>
+        <translation>Salva la tabella di tutte le schede come CSV.</translation>
     </message>
     <message>
         <source>Save Graph</source>
@@ -10724,80 +10611,44 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>N</translation>
     </message>
     <message>
-        <source>RTP Stream Analysis</source>
-        <translation>Analisi flusso RTP</translation>
+        <source>Prepare &amp;Filter</source>
+        <translation type="unfinished">Prepara &amp;filtro</translation>
     </message>
     <message>
-        <source>Unable to save RTP data.</source>
-        <translation type="vanished">Impossibile salvare i dati RTP.</translation>
+        <source>Prepare a filter matching the selected stream(s).</source>
+        <translation type="unfinished">Prepara un filtro che corrisponde ai flussi selezionati.</translation>
+    </message>
+    <message>
+        <source>&amp;Current Tab</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Prepare a filter matching current tab.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;All Tabs</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Prepare a filter matching all tabs.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>RTP Stream Analysis</source>
+        <translation>Analisi flusso RTP</translation>
     </message>
     <message>
         <source>Save Graph As…</source>
         <translation>Salva grafico come...</translation>
     </message>
     <message>
-        <source>Can&apos;t synchronize when only one channel is selected</source>
-        <translation type="vanished">Impossibile selezionare quando è selezionato solo un canale</translation>
-    </message>
-    <message>
-        <source>None of channels was selected</source>
-        <translation type="vanished">Nessuno dei canali è stato selezionato</translation>
-    </message>
-    <message>
-        <source>Save forward and reverse stream audio</source>
-        <translation type="vanished">Salva l&apos;audio del flusso diretto e inverso</translation>
-    </message>
-    <message>
-        <source>Raw (*.raw)</source>
-        <translation type="vanished">Raw (*.raw)</translation>
-    </message>
-    <message>
-        <source>Saving %1…</source>
-        <translation type="vanished">Salvataggio di %1...</translation>
-    </message>
-    <message>
-        <source>Analyzing RTP</source>
-        <translation type="vanished">Analisi RTP</translation>
-    </message>
-    <message>
-        <source>Information</source>
-        <translation type="vanished">Informazioni</translation>
-    </message>
-    <message>
-        <source>Save was interrupted</source>
-        <translation type="vanished">Il salvataggio è stato interrotto</translation>
-    </message>
-    <message>
-        <source>Save or read of file was failed during saving</source>
-        <translation type="vanished">Salvataggio o lettura del file non riuscita durante il salvataggio</translation>
-    </message>
-    <message>
-        <source>Codec is not supported, file is incomplete</source>
-        <translation type="vanished">Il codificatore non è supportato, il file è incompleto</translation>
-    </message>
-    <message>
-        <source>Codec rate is not supported, file is incomplete</source>
-        <translation type="vanished">La velocità di codifica non è supportata, il file è incompleto</translation>
-    </message>
-    <message>
         <source>SSRC value not found.</source>
-        <translation>Valore SSRC non trovato.</translation>
-    </message>
-    <message>
-        <source>No streams found.</source>
-        <translation type="vanished">Nessun flusso trovato.</translation>
-    </message>
-    <message>
-        <source>%1 streams found.</source>
-        <translation type="vanished">%1 flussi trovati.</translation>
+        <translation type="vanished">Valore SSRC non trovato.</translation>
     </message>
     <message>
         <source> G: Go to packet, N: Next problem packet</source>
         <translation> G: Vai al pacchetto, N: Pacchetto problematico successivo</translation>
-    </message>
-    <message>
-        <source>No Audio</source>
-        <translation type="vanished">Nessun audio</translation>
     </message>
     <message>
         <source>Portable Document Format (*.pdf)</source>
@@ -10816,83 +10667,23 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>JPEG File Interchange Format (*.jpeg *.jpg)</translation>
     </message>
     <message>
-        <source>Can&apos;t save in a file: Wrong length of captured packets.</source>
-        <translation type="vanished">Impossibile salvare in un file: lunghezza errata dei pacchetti catturati. </translation>
-    </message>
-    <message>
-        <source>Can&apos;t save in a file: RTP data with padding.</source>
-        <translation type="vanished">Impossibile salvare in un file: dati RTP con padding.</translation>
-    </message>
-    <message>
-        <source>Can&apos;t save in a file: File I/O problem.</source>
-        <translation type="vanished">Impossibile salvare in un file: problemi di I/O sul file.</translation>
-    </message>
-    <message>
-        <source>Can&apos;t save in a file: Not all data in all packets was captured.</source>
-        <translation type="vanished">Impossibile salvare in un file: non sono stati catturati tutti i dati di tutti i pacchetti.</translation>
-    </message>
-    <message>
-        <source>Save forward stream audio</source>
-        <translation type="vanished">Salva l&apos;audio del flusso diretto</translation>
-    </message>
-    <message>
-        <source>Save reverse stream audio</source>
-        <translation type="vanished">Salva l&apos;audio del flusso inverso</translation>
-    </message>
-    <message>
-        <source>Sun Audio (*.au)</source>
-        <translation type="vanished">Sun Audio (*.au)</translation>
-    </message>
-    <message>
-        <source>Warning</source>
-        <translation type="vanished">Avviso</translation>
-    </message>
-    <message>
-        <source>Unable to save in that format</source>
-        <translation type="vanished">Impossibile salvare in quel formato</translation>
-    </message>
-    <message>
-        <source>Unable to save %1</source>
-        <translation type="vanished">Impossibile salvare %1</translation>
-    </message>
-    <message>
-        <source>Error</source>
-        <translation type="vanished">Errore</translation>
-    </message>
-    <message>
-        <source>Unknown error occurred</source>
-        <translation type="vanished">Si è verificato un errore sconosciuto</translation>
-    </message>
-    <message>
-        <source>Save forward stream CSV</source>
-        <translation type="vanished">Salva CSV del flusso diretto</translation>
-    </message>
-    <message>
-        <source>Save reverse stream CSV</source>
-        <translation type="vanished">Salva CSV del flusso inverso</translation>
-    </message>
-    <message>
-        <source>Save CSV</source>
-        <translation type="vanished">Salva CSV</translation>
-    </message>
-    <message>
         <source>Comma-separated values (*.csv)</source>
         <translation>Valori separati da virgola (*.csv)</translation>
     </message>
     <message>
         <source>There is no &quot;rtp.ssrc&quot; field in this version of Wireshark.</source>
-        <translation>Non c&apos;è alcun campo &quot;rtp.ssrc&quot; in questa versione di Wireshark.</translation>
+        <translation type="vanished">Non c&apos;è alcun campo &quot;rtp.ssrc&quot; in questa versione di Wireshark.</translation>
     </message>
     <message>
         <source>Please select an RTPv2 packet with an SSRC value</source>
-        <translation>Seleziona un pacchetto RTPv2 con un valore SSRC</translation>
+        <translation type="vanished">Seleziona un pacchetto RTPv2 con un valore SSRC</translation>
     </message>
 </context>
 <context>
     <name>RtpAudioStream</name>
     <message>
         <source>RTP stream is empty or codec is unsupported.</source>
-        <translation>Il flusso RTP è vuoto o il codificatore non è supportato.</translation>
+        <translation type="vanished">Il flusso RTP è vuoto o il codificatore non è supportato.</translation>
     </message>
     <message>
         <source>%1 does not support PCM at %2. Preferred format is %3</source>
@@ -10942,10 +10733,6 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Arco temporale (s)</translation>
     </message>
     <message>
-        <source>Sample Rate (Hz)</source>
-        <translation type="vanished">Campionamento (Hz)</translation>
-    </message>
-    <message>
         <source>Payloads</source>
         <translation>Payload</translation>
     </message>
@@ -10959,7 +10746,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Output Audio Rate:</source>
-        <translation type="unfinished"></translation>
+        <translation>Velocità dell&apos;uscita audio:</translation>
     </message>
     <message>
         <source>Jitter Buffer:</source>
@@ -11012,35 +10799,35 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>&amp;Export</source>
-        <translation type="unfinished">&amp;Esporta</translation>
+        <translation>&amp;Esporta</translation>
     </message>
     <message>
         <source>Export audio of all unmuted selected channels or export payload of one channel.</source>
-        <translation type="unfinished"></translation>
+        <translation>Esporta l&apos;audio di tutti i canali non silenziati selezionati o esporta il payload di un canale.</translation>
     </message>
     <message>
         <source>&amp;Stream Synchronized Audio</source>
-        <translation type="unfinished"></translation>
+        <translation>Audio &amp;sincronizzato del flusso</translation>
     </message>
     <message>
         <source>Save audio data synchronized to start of the earliest stream.</source>
-        <translation type="unfinished"></translation>
+        <translation>Salva i dati dell&apos;audio sincronizzati all&apos;inizio del primo flusso.</translation>
     </message>
     <message>
         <source>&amp;File Synchronized Audio</source>
-        <translation type="unfinished"></translation>
+        <translation>Audio sincronizzato del &amp;file</translation>
     </message>
     <message>
         <source>Save audio data synchronized to start of the capture file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Salva i dati audio sincronizzati all&apos;inizio del file di cattura.</translation>
     </message>
     <message>
         <source>&amp;Payload</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Payload</translation>
     </message>
     <message>
         <source>Save RTP payload of selected stream.</source>
-        <translation type="unfinished"></translation>
+        <translation>Salva il payload RTP del flusso selezionato.</translation>
     </message>
     <message>
         <source>Reset Graph</source>
@@ -11139,24 +10926,60 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Ferma la riproduzione</translation>
     </message>
     <message>
+        <source>I&amp;naudible streams</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Select/Deselect inaudible streams</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Inaudible streams</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Select</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Select inaudible streams</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Deselect</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Deselect inaudible streams</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Prepare &amp;Filter</source>
+        <translation type="unfinished">Prepara &amp;filtro</translation>
+    </message>
+    <message>
+        <source>Prepare a filter matching the selected stream(s).</source>
+        <translation type="unfinished">Prepara un filtro che corrisponde ai flussi selezionati.</translation>
+    </message>
+    <message>
         <source>Zoom In</source>
         <translation>Ingrandisci</translation>
     </message>
     <message>
         <source>SR (Hz)</source>
-        <translation type="unfinished"></translation>
+        <translation>SR (Hz)</translation>
     </message>
     <message>
         <source>Sample rate of codec</source>
-        <translation type="unfinished"></translation>
+        <translation>Campionamento codificatore</translation>
     </message>
     <message>
         <source>PR (Hz)</source>
-        <translation type="unfinished"></translation>
+        <translation>PR (Hz)</translation>
     </message>
     <message>
         <source>Play rate of decoded audio (depends e. g. on selected sound card)</source>
-        <translation type="unfinished"></translation>
+        <translation>La velocità di riproduzione dell&apos;audio decodificato (dipende ad es. dalla scheda audio selezionata)</translation>
     </message>
     <message>
         <source>Zoom Out</source>
@@ -11228,31 +11051,31 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>&amp;Set playlist</source>
-        <translation type="unfinished"></translation>
+        <translation>Imposta &amp;scaletta</translation>
     </message>
     <message>
         <source>Replace existing playlist in RTP Player with new one</source>
-        <translation type="unfinished"></translation>
+        <translation>Sostituisci la scaletta esistente nel lettore RTP con una nuova</translation>
     </message>
     <message>
         <source>&amp;Add to playlist</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Aggiungi a scaletta</translation>
     </message>
     <message>
         <source>Add new set to existing playlist in RTP Player</source>
-        <translation type="unfinished"></translation>
+        <translation>Aggiungi nuovo insieme alla scaletta nel lettore RTP</translation>
     </message>
     <message>
         <source>&amp;Remove from playlist</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Rimuovi dalla scaletta</translation>
     </message>
     <message>
         <source>Remove selected streams from playlist in RTP Player</source>
-        <translation type="unfinished"></translation>
+        <translation>Rimuovi i flussi selezionati dalla scaletra nel lettore RTP</translation>
     </message>
     <message>
         <source>No Audio</source>
-        <translation type="unfinished">Nessun audio</translation>
+        <translation>Nessun audio</translation>
     </message>
     <message>
         <source>Decoding streams...</source>
@@ -11275,60 +11098,88 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Silenzio inserito</translation>
     </message>
     <message>
-        <source>Automatic</source>
+        <source>Double click on cell to change audio routing</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>%1 streams</source>
+        <translation type="unfinished">flussi %1</translation>
+    </message>
+    <message>
+        <source>, %1 selected</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>, %1 not muted</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>, start: %1. Double click on graph to set start of playback.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>, start: %1, cursor: %2. Press &quot;G&quot; to go to packet %3. Double click on graph to set start of playback.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Playback of stream %1 failed!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Automatic</source>
+        <translation>Automatico</translation>
     </message>
     <message>
         <source>WAV (*.wav)</source>
-        <translation type="unfinished"></translation>
+        <translation>WAV (*.wav)</translation>
     </message>
     <message>
         <source>Sun Audio (*.au)</source>
-        <translation type="unfinished">Sun Audio (*.au)</translation>
+        <translation>Sun Audio (*.au)</translation>
     </message>
     <message>
         <source>Save audio</source>
-        <translation type="unfinished">Salva audio</translation>
+        <translation>Salva audio</translation>
     </message>
     <message>
         <source>Raw (*.raw)</source>
-        <translation type="unfinished">Raw (*.raw)</translation>
+        <translation>Raw (*.raw)</translation>
     </message>
     <message>
         <source>Save payload</source>
-        <translation type="unfinished"></translation>
+        <translation>Salva payload</translation>
     </message>
     <message>
         <source>Warning</source>
-        <translation type="unfinished">Avviso</translation>
+        <translation>Avviso</translation>
     </message>
     <message>
         <source>No stream selected or none of selected streams provide audio</source>
-        <translation type="unfinished"></translation>
+        <translation>Nessun flusso selezionato o nessuno dei flussi selezionati fornisce audio</translation>
     </message>
     <message>
         <source>Error</source>
-        <translation type="unfinished">Errore</translation>
+        <translation>Errore</translation>
     </message>
     <message>
         <source>All selected streams must use same play rate. Manual set of Output Audio Rate might help.</source>
-        <translation type="unfinished"></translation>
+        <translation>Tutti i flussi selezionati devono utilizzare la stessa velocità di riproduzione. L&apos;impostazione manuale di velocità dell&apos;uscita audio potrebbe aiutare.</translation>
     </message>
     <message>
         <source>Save failed!</source>
-        <translation type="unfinished"></translation>
+        <translation>Salvataggio non riuscito</translation>
     </message>
     <message>
         <source>Can&apos;t write header of AU file</source>
-        <translation type="unfinished"></translation>
+        <translation>Impossibile scrivere l&apos;intestazione del file AU</translation>
     </message>
     <message>
         <source>Can&apos;t write header of WAV file</source>
-        <translation type="unfinished"></translation>
+        <translation>Impossibile scrivere l&apos;intestazione del file WAV</translation>
     </message>
     <message>
         <source>Payload save works with just one audio stream.</source>
-        <translation type="unfinished"></translation>
+        <translation>Il salvataggio del payload funziona con un solo flusso audio.</translation>
     </message>
     <message>
         <source>Double click to change audio routing</source>
@@ -11336,11 +11187,11 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Start: %1. Double click to set start of playback.</source>
-        <translation>Avvio: %1. Doppio clic per impostare l&apos;avvio della riproduzione.</translation>
+        <translation type="vanished">Avvio: %1. Doppio clic per impostare l&apos;avvio della riproduzione.</translation>
     </message>
     <message>
         <source>Start: %1, cursor: %2. Press &quot;G&quot; to go to packet %3. Double click to set start of playback.</source>
-        <translation>Avvio: %1, cursore: %2. Premi &quot;G&quot; per portarti sul pacchetti %3. Doppio clic per impostare l&apos;avvio della riproduzione.</translation>
+        <translation type="vanished">Avvio: %1, cursore: %2. Premi &quot;G&quot; per portarti sul pacchetti %3. Doppio clic per impostare l&apos;avvio della riproduzione.</translation>
     </message>
     <message>
         <source>Preparing to play...</source>
@@ -11446,12 +11297,44 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>&amp;Analizza</translation>
     </message>
     <message>
+        <source>Open the analysis window for the selected stream(s) and add it to it</source>
+        <translation>Apri la finestra di analisi per i flussi selezionati e aggiungili ad essa</translation>
+    </message>
+    <message>
         <source>Find the reverse stream matching the selected forward stream.</source>
         <translation>Trova il flusso inverso che corrisponde al flusso diretto selezionato.</translation>
     </message>
     <message>
+        <source>All forward/reverse stream actions</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>R</source>
         <translation>R</translation>
+    </message>
+    <message>
+        <source>Find All &amp;Pairs</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Select all streams which are paired in forward/reverse relation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Shift+R</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Find Only &amp;Singles</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Find all streams which don&apos;t have paired reverse stream</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Ctrl+R</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Mark Packets</source>
@@ -11518,11 +11401,6 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>E</translation>
     </message>
     <message>
-        <source>Open the analysis window for the selected stream(s) and add it to it</source>
-        <oldsource>Open the analysis window for the selected stream(s)</oldsource>
-        <translation type="unfinished">Apri la finestra di analisi per i flussi selezionati</translation>
-    </message>
-    <message>
         <source>A</source>
         <translation>A </translation>
     </message>
@@ -11573,10 +11451,6 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <message>
         <source>, %1 selected, %2 total packets</source>
         <translation>, selezionati %1, pacchetti totali %2</translation>
-    </message>
-    <message>
-        <source>No Audio</source>
-        <translation type="vanished">Nessun audio</translation>
     </message>
     <message>
         <source>Save RTPDump As…</source>
@@ -13973,10 +13847,6 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <message>
         <source>Select</source>
         <translation>Seleziona</translation>
-    </message>
-    <message>
-        <source>No Audio</source>
-        <translation type="vanished">Nessun audio</translation>
     </message>
 </context>
 <context>

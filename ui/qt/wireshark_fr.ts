@@ -7279,7 +7279,7 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     </message>
     <message>
         <source>Stream Analysis</source>
-        <translation>Analyse de Flux</translation>
+        <translation type="vanished">Analyse de Flux</translation>
     </message>
     <message>
         <source>IAX2 Stream Analysis</source>
@@ -7711,6 +7711,18 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>RTP Stream Analysis for selected stream. Press CTRL key for adding reverse stream too.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>RTP Player</source>
+        <translation type="unfinished">Player RTP</translation>
+    </message>
+    <message>
+        <source>Play selected stream. Press CTRL key for playing reverse stream too.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>IA&amp;X2 Stream Analysis</source>
         <translation type="unfinished"></translation>
     </message>
@@ -8060,6 +8072,18 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>There is no &quot;rtp.ssrc&quot; field in this version of Wireshark.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Please select an RTPv2 packet with an SSRC value</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>SSRC value not found.</source>
+        <translation type="unfinished">Valeur SSRC non trouvée.</translation>
+    </message>
+    <message>
         <source>Show or hide the toolbar</source>
         <translation type="unfinished"></translation>
     </message>
@@ -8190,6 +8214,10 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     </message>
     <message>
         <source>The &quot;%1&quot; column already exists as &quot;%2&quot;.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>RTP packet search failed</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -10371,14 +10399,6 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
         <translation>Dialogue</translation>
     </message>
     <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:medium; font-weight:600;&quot;&gt;Forward&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:medium; font-weight:600;&quot;&gt;Reverse&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:medium; font-weight:600;&quot;&gt;Aller&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:medium; font-weight:600;&quot;&gt;Retour&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>Forward</source>
-        <translation type="vanished">Aller</translation>
-    </message>
-    <message>
         <source>Packet</source>
         <translation>Paquet</translation>
     </message>
@@ -10428,6 +10448,10 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source> %1 streams, </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Save one stream CSV</source>
         <translation type="unfinished"></translation>
     </message>
@@ -10444,7 +10468,15 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>&amp;Set list</source>
+        <source>&amp;Set List</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Add to List</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Remove from List</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -10452,15 +10484,7 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>&amp;Add to list</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Add new set to existing list in RTP Analysis Dialog</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Remove from playlist</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -10468,56 +10492,8 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Reverse</source>
-        <translation type="vanished">Retour</translation>
-    </message>
-    <message>
         <source>Graph</source>
         <translation>Graphique</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show or hide forward jitter values.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Affiche ou masque les valeurs de gigue aller.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>Forward Jitter</source>
-        <translation type="vanished">Gigue aller</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show or hide forward difference values.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Affiche ou masque les valeurs de différence aller.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>Forward Difference</source>
-        <translation type="vanished">Différence Aller</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show or hide forward delta values.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Affiche ou masque les valeurs de delta aller.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>Forward Delta</source>
-        <translation type="vanished">Delta Aller</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show or hide reverse jitter values.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Affiche ou masque les valeurs de gigueretour.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>Reverse Jitter</source>
-        <translation type="vanished">Gigue Retour</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show or hide reverse difference values.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Affiche ou masqe les valeurs de différences retour.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>Reverse Difference</source>
-        <translation type="vanished">Différence Retour</translation>
-    </message>
-    <message>
-        <source>Reverse Delta</source>
-        <translation type="vanished">Delta Retour</translation>
     </message>
     <message>
         <source>&lt;small&gt;&lt;i&gt;A hint.&lt;/i&gt;&lt;/small&gt;</source>
@@ -10534,26 +10510,6 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     <message>
         <source>CSV</source>
         <translation>CSV</translation>
-    </message>
-    <message>
-        <source>Save both tables as CSV.</source>
-        <translation type="vanished">Sauvegarder les deux tables en CSV.</translation>
-    </message>
-    <message>
-        <source>Forward Stream CSV</source>
-        <translation type="vanished">Transférer le flux CSV</translation>
-    </message>
-    <message>
-        <source>Save the forward table as CSV.</source>
-        <translation type="vanished">Sauvegarder la table aller en CSV.</translation>
-    </message>
-    <message>
-        <source>Reverse Stream CSV</source>
-        <translation type="vanished">CSV Flux Retour</translation>
-    </message>
-    <message>
-        <source>Save the reverse table as CSV.</source>
-        <translation type="vanished">Sauvegarder la table inverse en CSV.</translation>
     </message>
     <message>
         <source>Save tables as CSV.</source>
@@ -10608,12 +10564,32 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
         <translation>N</translation>
     </message>
     <message>
-        <source>RTP Stream Analysis</source>
-        <translation>Analyse flux RTP</translation>
+        <source>Prepare &amp;Filter</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Unable to save RTP data.</source>
-        <translation type="vanished">Impossible de sauvegarder les données RTP.</translation>
+        <source>Prepare a filter matching the selected stream(s).</source>
+        <translation type="unfinished">Prépare un filtre correspondant au(x) flux sélectioné(s).</translation>
+    </message>
+    <message>
+        <source>&amp;Current Tab</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Prepare a filter matching current tab.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;All Tabs</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Prepare a filter matching all tabs.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>RTP Stream Analysis</source>
+        <translation>Analyse flux RTP</translation>
     </message>
     <message>
         <source>Save Graph As…</source>
@@ -10621,23 +10597,11 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     </message>
     <message>
         <source>SSRC value not found.</source>
-        <translation>Valeur SSRC non trouvée.</translation>
-    </message>
-    <message>
-        <source>No streams found.</source>
-        <translation type="vanished">Aucun flux trouvé.</translation>
-    </message>
-    <message>
-        <source>%1 streams found.</source>
-        <translation type="vanished">%1 flux trouvés.</translation>
+        <translation type="vanished">Valeur SSRC non trouvée.</translation>
     </message>
     <message>
         <source> G: Go to packet, N: Next problem packet</source>
         <translation>G: Aller au paquet, N: Paquet à problème suivant</translation>
-    </message>
-    <message>
-        <source>No Audio</source>
-        <translation type="vanished">Pas d&apos;Audio</translation>
     </message>
     <message>
         <source>Portable Document Format (*.pdf)</source>
@@ -10656,76 +10620,12 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
         <translation>Fichier JPEG (*.jpeg *.jpg)</translation>
     </message>
     <message>
-        <source>Can&apos;t save in a file: Wrong length of captured packets.</source>
-        <translation type="vanished">Ne peut sauvegarder dans un fichier: Longueur incorrecte des paquets capturés.</translation>
-    </message>
-    <message>
-        <source>Can&apos;t save in a file: RTP data with padding.</source>
-        <translation type="vanished">Ne peut sauvegarder dans un fichier: données RTP avec remplissage.</translation>
-    </message>
-    <message>
-        <source>Can&apos;t save in a file: File I/O problem.</source>
-        <translation type="vanished">Ne peut sauvegarder dans un fichier: Problème d&apos;E/S fichier.</translation>
-    </message>
-    <message>
-        <source>Can&apos;t save in a file: Not all data in all packets was captured.</source>
-        <translation type="vanished">Ne peut sauvegarder dans un fichier: Les données n&apos;ont pas toutes été capturées dans tous les paquets.</translation>
-    </message>
-    <message>
-        <source>Save forward stream audio</source>
-        <translation type="vanished">Sauvegarder flux audio aller</translation>
-    </message>
-    <message>
-        <source>Save reverse stream audio</source>
-        <translation type="vanished">Sauvegarder flux audio retour</translation>
-    </message>
-    <message>
-        <source>Sun Audio (*.au)</source>
-        <translation type="vanished">Sun Audio (*.au)</translation>
-    </message>
-    <message>
-        <source>Warning</source>
-        <translation type="vanished">Avertissement</translation>
-    </message>
-    <message>
-        <source>Unable to save in that format</source>
-        <translation type="vanished">Impossible de sauvegarder dans ce format</translation>
-    </message>
-    <message>
-        <source>Unable to save %1</source>
-        <translation type="vanished">Impossible de sauvegarder %1</translation>
-    </message>
-    <message>
-        <source>Save forward stream CSV</source>
-        <translation type="vanished">Sauvegarder CSV flux aller</translation>
-    </message>
-    <message>
-        <source>Save reverse stream CSV</source>
-        <translation type="vanished">Sauvegarder CSV flux retour</translation>
-    </message>
-    <message>
-        <source>Save CSV</source>
-        <translation type="vanished">Sauvegarder le CSV</translation>
-    </message>
-    <message>
         <source>Comma-separated values (*.csv)</source>
         <translation>Comma-separated values (*.csv)</translation>
-    </message>
-    <message>
-        <source>There is no &quot;rtp.ssrc&quot; field in this version of Wireshark.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Please select an RTPv2 packet with an SSRC value</source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>RtpAudioStream</name>
-    <message>
-        <source>RTP stream is empty or codec is unsupported.</source>
-        <translation type="unfinished"></translation>
-    </message>
     <message>
         <source>%1 does not support PCM at %2. Preferred format is %3</source>
         <translation type="unfinished"></translation>
@@ -10772,10 +10672,6 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     <message>
         <source>Time Span (s)</source>
         <translation>Étendue Temps (s)</translation>
-    </message>
-    <message>
-        <source>Sample Rate (Hz)</source>
-        <translation type="vanished">Taux d’échantillonnage (Hz)</translation>
     </message>
     <message>
         <source>Payloads</source>
@@ -10967,6 +10863,42 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>I&amp;naudible streams</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Select/Deselect inaudible streams</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Inaudible streams</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Select</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Select inaudible streams</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Deselect</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Deselect inaudible streams</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Prepare &amp;Filter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Prepare a filter matching the selected stream(s).</source>
+        <translation type="unfinished">Prépare un filtre correspondant au(x) flux sélectioné(s).</translation>
+    </message>
+    <message>
         <source>Zoom In</source>
         <translation>Zoom Avant</translation>
     </message>
@@ -11080,7 +11012,7 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     </message>
     <message>
         <source>No Audio</source>
-        <translation type="unfinished">Pas d&apos;Audio</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Decoding streams...</source>
@@ -11101,6 +11033,34 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     <message>
         <source>Inserted Silence</source>
         <translation>Silence Inséré</translation>
+    </message>
+    <message>
+        <source>Double click on cell to change audio routing</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>%1 streams</source>
+        <translation type="unfinished">%1 flux</translation>
+    </message>
+    <message>
+        <source>, %1 selected</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>, %1 not muted</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>, start: %1. Double click on graph to set start of playback.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>, start: %1, cursor: %2. Press &quot;G&quot; to go to packet %3. Double click on graph to set start of playback.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Playback of stream %1 failed!</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Automatic</source>
@@ -11160,14 +11120,6 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     </message>
     <message>
         <source>Double click to change audio routing</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Start: %1. Double click to set start of playback.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Start: %1, cursor: %2. Press &quot;G&quot; to go to packet %3. Double click to set start of playback.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -11274,12 +11226,44 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
         <translation type="unfinished">&amp;Analyser</translation>
     </message>
     <message>
+        <source>Open the analysis window for the selected stream(s) and add it to it</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Find the reverse stream matching the selected forward stream.</source>
         <translation>Trouver le flux retour correspondant au flux aller sélectionné.</translation>
     </message>
     <message>
+        <source>All forward/reverse stream actions</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>R</source>
         <translation>R</translation>
+    </message>
+    <message>
+        <source>Find All &amp;Pairs</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Select all streams which are paired in forward/reverse relation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Shift+R</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Find Only &amp;Singles</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Find all streams which don&apos;t have paired reverse stream</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Ctrl+R</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Mark Packets</source>
@@ -11344,11 +11328,6 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     <message>
         <source>E</source>
         <translation>E</translation>
-    </message>
-    <message>
-        <source>Open the analysis window for the selected stream(s) and add it to it</source>
-        <oldsource>Open the analysis window for the selected stream(s)</oldsource>
-        <translation type="unfinished">Ouvre la fenêtre d&apos;analyse pour le(s) flux sélectionné(s)</translation>
     </message>
     <message>
         <source>A</source>
@@ -13780,10 +13759,6 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     <message>
         <source>Select</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>No Audio</source>
-        <translation type="vanished">Pas d&apos;Audio</translation>
     </message>
 </context>
 <context>

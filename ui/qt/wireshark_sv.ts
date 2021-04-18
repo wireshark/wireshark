@@ -7303,7 +7303,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>Stream Analysis</source>
-        <translation>Strömanalys</translation>
+        <translation type="vanished">Strömanalys</translation>
     </message>
     <message>
         <source>IAX2 Stream Analysis</source>
@@ -7735,6 +7735,18 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>Ny färgläggningsregel …</translation>
     </message>
     <message>
+        <source>RTP Stream Analysis for selected stream. Press CTRL key for adding reverse stream too.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>RTP Player</source>
+        <translation type="unfinished">RTP-spelare</translation>
+    </message>
+    <message>
+        <source>Play selected stream. Press CTRL key for playing reverse stream too.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>IA&amp;X2 Stream Analysis</source>
         <translation>IA&amp;X2-strömanalys</translation>
     </message>
@@ -8084,6 +8096,18 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>Avsluta &amp;utan att spara</translation>
     </message>
     <message>
+        <source>There is no &quot;rtp.ssrc&quot; field in this version of Wireshark.</source>
+        <translation type="unfinished">Det finns inget &quot;rtp.ssrc&quot;-fält i denna version av Wireshark.</translation>
+    </message>
+    <message>
+        <source>Please select an RTPv2 packet with an SSRC value</source>
+        <translation type="unfinished">Välj ett RTPv2-paket med ett SSRC-värde</translation>
+    </message>
+    <message>
+        <source>SSRC value not found.</source>
+        <translation type="unfinished">SSRC-värdet finns inte.</translation>
+    </message>
+    <message>
         <source>Show or hide the toolbar</source>
         <translation>Visa eller dölj verktygsraden</translation>
     </message>
@@ -8223,6 +8247,10 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <message>
         <source>The &quot;%1&quot; column already exists as &quot;%2&quot;.</source>
         <translation>Kolumnen ”%1” finns redan som ”%2”.</translation>
+    </message>
+    <message>
+        <source>RTP packet search failed</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>No Interface Selected.</source>
@@ -10406,14 +10434,6 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>Dialog</translation>
     </message>
     <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:medium; font-weight:600;&quot;&gt;Forward&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:medium; font-weight:600;&quot;&gt;Reverse&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:medium; font-weight:600;&quot;&gt;Framåt&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:medium; font-weight:600;&quot;&gt;Tillbaka&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>Forward</source>
-        <translation type="vanished">Framåt</translation>
-    </message>
-    <message>
         <source>Packet</source>
         <translation>Paket</translation>
     </message>
@@ -10463,6 +10483,10 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source> %1 streams, </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Save one stream CSV</source>
         <translation type="unfinished"></translation>
     </message>
@@ -10479,7 +10503,15 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>&amp;Set list</source>
+        <source>&amp;Set List</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Add to List</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Remove from List</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -10487,15 +10519,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>&amp;Add to list</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Add new set to existing list in RTP Analysis Dialog</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Remove from playlist</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -10503,60 +10527,8 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Reverse</source>
-        <translation type="vanished">Omvänt</translation>
-    </message>
-    <message>
         <source>Graph</source>
         <translation>Graf</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show or hide forward jitter values.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Visa eller dölj framåtspridningsvärden.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>Forward Jitter</source>
-        <translation type="vanished">Framåtspridning</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show or hide forward difference values.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Visa eller dölj framåtskillnadsvärden.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>Forward Difference</source>
-        <translation type="vanished">Framåtskillnad</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show or hide forward delta values.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Visa eller dölj framåtdeltavärden.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>Forward Delta</source>
-        <translation type="vanished">Framåtdelta</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show or hide reverse jitter values.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Visa eller dölj omvända spridningsvärden.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>Reverse Jitter</source>
-        <translation type="vanished">Omvänd spridning</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show or hide reverse difference values.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Visa eller dölj omvända skillnadsvärden.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>Reverse Difference</source>
-        <translation type="vanished">Omvänd skillnad</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show or hide reverse delta values.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Visa eller dölj omvända deltavärden.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>Reverse Delta</source>
-        <translation type="vanished">Omvänt delta</translation>
     </message>
     <message>
         <source>&lt;small&gt;&lt;i&gt;A hint.&lt;/i&gt;&lt;/small&gt;</source>
@@ -10571,105 +10543,8 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Unsynchronized Forward and Reverse Audio</source>
-        <translation type="vanished">Osynkroniserad framåt och omvänd audio</translation>
-    </message>
-    <message>
-        <source>Stream Synchronized Forward and Reverse Audio</source>
-        <translation type="vanished">Strömma synkroniserad framåt och omvänd audio</translation>
-    </message>
-    <message>
-        <source>Save the audio data for both channels synchronized to start of earlier stream.</source>
-        <translation type="vanished">Spara audiodata för båda kanalerna synkroniserade till början på en tidigare ström.</translation>
-    </message>
-    <message>
-        <source>Stream Synchronized Forward Stream Audio</source>
-        <translation type="vanished">Strömma synkroniserad framåtströmaudio</translation>
-    </message>
-    <message>
-        <source>Save the forward stream audio data synchronized to start of earlier stream.</source>
-        <translation type="vanished">Spara framåtströmaudiodata för synkroniserad till början på en tidigare ström.</translation>
-    </message>
-    <message>
-        <source>Stream Synchronized Reverse Stream Audio</source>
-        <translation type="vanished">Strömma synkroniserad omvänd strömaudio</translation>
-    </message>
-    <message>
-        <source>Save the reverse stream audio data synchronized to start of earlier stream.</source>
-        <translation type="vanished">Spara omvänd strömaudiodata för synkroniserad till början på en tidigare ström.</translation>
-    </message>
-    <message>
-        <source>File Synchronized Forward and Reverse Audio</source>
-        <translation type="vanished">Spara synkroniserad framåt och omvänd audio</translation>
-    </message>
-    <message>
-        <source>Save the audio data for both channels synchronized to start of file.</source>
-        <translation type="vanished">Spara audiodata för båda kanalerna synkroniserade till början på en fil.</translation>
-    </message>
-    <message>
-        <source>File Synchronized Forward Stream Audio</source>
-        <translation type="vanished">Spara synkroniserad framåtströmaudio</translation>
-    </message>
-    <message>
-        <source>Save the forward stream audio data synchronized to start of file.</source>
-        <translation type="vanished">Spara framåtströmaudiodata för synkroniserad till början på en fil</translation>
-    </message>
-    <message>
-        <source>File Synchronized Reverse Stream Audio</source>
-        <translation type="vanished">Spara synkroniserad omvänd strömaudio</translation>
-    </message>
-    <message>
-        <source>Save the reverse stream audio data synchronized to start of file.</source>
-        <translation type="vanished">Spara omvänd strömaudiodata för synkroniserad till början på en fil</translation>
-    </message>
-    <message>
-        <source>Save the unsynchronized audio data for both channels.</source>
-        <oldsource>Save the audio data for both channels.</oldsource>
-        <translation type="vanished">Spara den osynkroniserade audiodatan för båda kanalerna.</translation>
-    </message>
-    <message>
-        <source>Unsynchronized Forward Stream Audio</source>
-        <oldsource>Forward Stream Audio</oldsource>
-        <translation type="vanished">Osynkroniserad framåtströmaudio</translation>
-    </message>
-    <message>
-        <source>Save the unsynchronized forward stream audio data.</source>
-        <oldsource>Save the forward stream audio data.</oldsource>
-        <translation type="vanished">Spara den osynkroniserade datan i framåtströmsaudio.</translation>
-    </message>
-    <message>
-        <source>Unsynchronized Reverse Stream Audio</source>
-        <oldsource>Reverse Stream Audio</oldsource>
-        <translation type="vanished">Osynkroniserad omvänd strömaudio</translation>
-    </message>
-    <message>
-        <source>Save the unsynchronized reverse stream audio data.</source>
-        <oldsource>Save the reverse stream audio data.</oldsource>
-        <translation type="vanished">Spara den osynkroniserade datan i omvänd strömaudio.</translation>
-    </message>
-    <message>
         <source>CSV</source>
         <translation>CSV</translation>
-    </message>
-    <message>
-        <source>Save both tables as CSV.</source>
-        <translation type="vanished">Spara båda tabellerna som CSV.</translation>
-    </message>
-    <message>
-        <source>Forward Stream CSV</source>
-        <translation type="vanished">Framåtströms-CSV</translation>
-    </message>
-    <message>
-        <source>Save the forward table as CSV.</source>
-        <translation type="vanished">Spara framåttabellen som CSV.</translation>
-    </message>
-    <message>
-        <source>Reverse Stream CSV</source>
-        <translation type="vanished">Omvänd ströms CSV</translation>
-    </message>
-    <message>
-        <source>Save the reverse table as CSV.</source>
-        <translation type="vanished">Spara den omvända tabellen som CSV.</translation>
     </message>
     <message>
         <source>Save tables as CSV.</source>
@@ -10724,76 +10599,44 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>N</translation>
     </message>
     <message>
-        <source>RTP Stream Analysis</source>
-        <translation>RTP-strömanalys</translation>
+        <source>Prepare &amp;Filter</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Unable to save RTP data.</source>
-        <translation type="vanished">Kan inte spara RTP-data.</translation>
+        <source>Prepare a filter matching the selected stream(s).</source>
+        <translation type="unfinished">Förbered ett filter som matchar den valda strömmen.</translation>
+    </message>
+    <message>
+        <source>&amp;Current Tab</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Prepare a filter matching current tab.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;All Tabs</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Prepare a filter matching all tabs.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>RTP Stream Analysis</source>
+        <translation>RTP-strömanalys</translation>
     </message>
     <message>
         <source>Save Graph As…</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Can&apos;t synchronize when only one channel is selected</source>
-        <translation type="vanished">Kan inte synkronisera när endast en kanal är vald</translation>
-    </message>
-    <message>
-        <source>None of channels was selected</source>
-        <translation type="vanished">Ingen av kanalerna valdes</translation>
-    </message>
-    <message>
-        <source>Save forward and reverse stream audio</source>
-        <translation type="vanished">Spara framåt och omvänd strömsaudio</translation>
-    </message>
-    <message>
-        <source>Raw (*.raw)</source>
-        <translation type="vanished">Rå (*.raw)</translation>
-    </message>
-    <message>
-        <source>Analyzing RTP</source>
-        <translation type="vanished">Analyserar RTP</translation>
-    </message>
-    <message>
-        <source>Information</source>
-        <translation type="vanished">Information</translation>
-    </message>
-    <message>
-        <source>Save was interrupted</source>
-        <translation type="vanished">Sparandet avbröts</translation>
-    </message>
-    <message>
-        <source>Save or read of file was failed during saving</source>
-        <translation type="vanished">Sparandet eller läsningen av filen misslyckades vid sparandet</translation>
-    </message>
-    <message>
-        <source>Codec is not supported, file is incomplete</source>
-        <translation type="vanished">Omkodaren stödjs inte, filen är ofullständig</translation>
-    </message>
-    <message>
-        <source>Codec rate is not supported, file is incomplete</source>
-        <translation type="vanished">Omkodarhastigheten stödjs inte, filen är ofullständig</translation>
-    </message>
-    <message>
         <source>SSRC value not found.</source>
-        <translation>SSRC-värdet finns inte.</translation>
-    </message>
-    <message>
-        <source>No streams found.</source>
-        <translation type="vanished">Inga strömmar hittades.</translation>
-    </message>
-    <message>
-        <source>%1 streams found.</source>
-        <translation type="vanished">%1 strömmar hittades.</translation>
+        <translation type="vanished">SSRC-värdet finns inte.</translation>
     </message>
     <message>
         <source> G: Go to packet, N: Next problem packet</source>
         <translation>G: gå till paket, N: nästa problempaket</translation>
-    </message>
-    <message>
-        <source>No Audio</source>
-        <translation type="vanished">Inget ljud</translation>
     </message>
     <message>
         <source>Portable Document Format (*.pdf)</source>
@@ -10812,79 +10655,23 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>JPEG File Interchange Format (*.jpeg *.jpg)</translation>
     </message>
     <message>
-        <source>Can&apos;t save in a file: Wrong length of captured packets.</source>
-        <translation type="vanished">Kan inte spara i en fil: fel längd på fångade paket.</translation>
-    </message>
-    <message>
-        <source>Can&apos;t save in a file: RTP data with padding.</source>
-        <translation type="vanished">Kan inte spara i en fil: RTP-data med utfyllnad.</translation>
-    </message>
-    <message>
-        <source>Can&apos;t save in a file: File I/O problem.</source>
-        <translation type="vanished">Kan inte spara i en fil: problem med fil-I/O.</translation>
-    </message>
-    <message>
-        <source>Can&apos;t save in a file: Not all data in all packets was captured.</source>
-        <translation type="vanished">Kan inte spara i en fil: alla data i alla paket fångades inte.</translation>
-    </message>
-    <message>
-        <source>Save forward stream audio</source>
-        <translation type="vanished">Spara framåtströmsaudio</translation>
-    </message>
-    <message>
-        <source>Save reverse stream audio</source>
-        <translation type="vanished">Spara omvänd strömaudio</translation>
-    </message>
-    <message>
-        <source>Sun Audio (*.au)</source>
-        <translation type="vanished">Sun Audio (*.au)</translation>
-    </message>
-    <message>
-        <source>Warning</source>
-        <translation type="vanished">Varning</translation>
-    </message>
-    <message>
-        <source>Unable to save in that format</source>
-        <translation type="vanished">Kan inte spara i det formatet</translation>
-    </message>
-    <message>
-        <source>Unable to save %1</source>
-        <translation type="vanished">Kan inte spara %1</translation>
-    </message>
-    <message>
-        <source>Error</source>
-        <translation type="vanished">Fel</translation>
-    </message>
-    <message>
-        <source>Save forward stream CSV</source>
-        <translation type="vanished">Spara framåtströms-CSV</translation>
-    </message>
-    <message>
-        <source>Save reverse stream CSV</source>
-        <translation type="vanished">Spara omvänd ström-CSV</translation>
-    </message>
-    <message>
-        <source>Save CSV</source>
-        <translation type="vanished">Spara CSV</translation>
-    </message>
-    <message>
         <source>Comma-separated values (*.csv)</source>
         <translation>Kommaseparerade värden (*.csv)</translation>
     </message>
     <message>
         <source>There is no &quot;rtp.ssrc&quot; field in this version of Wireshark.</source>
-        <translation>Det finns inget &quot;rtp.ssrc&quot;-fält i denna version av Wireshark.</translation>
+        <translation type="vanished">Det finns inget &quot;rtp.ssrc&quot;-fält i denna version av Wireshark.</translation>
     </message>
     <message>
         <source>Please select an RTPv2 packet with an SSRC value</source>
-        <translation>Välj ett RTPv2-paket med ett SSRC-värde</translation>
+        <translation type="vanished">Välj ett RTPv2-paket med ett SSRC-värde</translation>
     </message>
 </context>
 <context>
     <name>RtpAudioStream</name>
     <message>
         <source>RTP stream is empty or codec is unsupported.</source>
-        <translation>RTP-strömmen är tom eller omkodningen stödjs inte.</translation>
+        <translation type="vanished">RTP-strömmen är tom eller omkodningen stödjs inte.</translation>
     </message>
     <message>
         <source>%1 does not support PCM at %2. Preferred format is %3</source>
@@ -10932,10 +10719,6 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <message>
         <source>Time Span (s)</source>
         <translation>Tidsintervall (s)</translation>
-    </message>
-    <message>
-        <source>Sample Rate (Hz)</source>
-        <translation type="vanished">Samplingshastighet (Hz)</translation>
     </message>
     <message>
         <source>Payloads</source>
@@ -11131,6 +10914,42 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>I&amp;naudible streams</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Select/Deselect inaudible streams</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Inaudible streams</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Select</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Select inaudible streams</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Deselect</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Deselect inaudible streams</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Prepare &amp;Filter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Prepare a filter matching the selected stream(s).</source>
+        <translation type="unfinished">Förbered ett filter som matchar den valda strömmen.</translation>
+    </message>
+    <message>
         <source>Zoom In</source>
         <translation>Zooma in</translation>
     </message>
@@ -11244,7 +11063,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>No Audio</source>
-        <translation type="unfinished">Inget ljud</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Decoding streams...</source>
@@ -11267,6 +11086,34 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>Infogad tystnad</translation>
     </message>
     <message>
+        <source>Double click on cell to change audio routing</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>%1 streams</source>
+        <translation type="unfinished">%1 strömmar</translation>
+    </message>
+    <message>
+        <source>, %1 selected</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>, %1 not muted</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>, start: %1. Double click on graph to set start of playback.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>, start: %1, cursor: %2. Press &quot;G&quot; to go to packet %3. Double click on graph to set start of playback.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Playback of stream %1 failed!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Automatic</source>
         <translation type="unfinished"></translation>
     </message>
@@ -11284,7 +11131,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>Raw (*.raw)</source>
-        <translation type="unfinished">Rå (*.raw)</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Save payload</source>
@@ -11328,11 +11175,11 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>Start: %1. Double click to set start of playback.</source>
-        <translation>Start: %1.  Dubbelklicka för att ange start av uppspelning.</translation>
+        <translation type="vanished">Start: %1.  Dubbelklicka för att ange start av uppspelning.</translation>
     </message>
     <message>
         <source>Start: %1, cursor: %2. Press &quot;G&quot; to go to packet %3. Double click to set start of playback.</source>
-        <translation>Start: %1, markör: %2.  Tryck ”G” för att gå till paket %3.  Dubbelklicka för att ange start av uppspelning.</translation>
+        <translation type="vanished">Start: %1, markör: %2.  Tryck ”G” för att gå till paket %3.  Dubbelklicka för att ange start av uppspelning.</translation>
     </message>
     <message>
         <source>Preparing to play...</source>
@@ -11438,12 +11285,44 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation type="unfinished">A&amp;nalysera</translation>
     </message>
     <message>
+        <source>Open the analysis window for the selected stream(s) and add it to it</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Find the reverse stream matching the selected forward stream.</source>
         <translation>Hitta den omvända strömmen som matchar den valda framåtströmmen.</translation>
     </message>
     <message>
+        <source>All forward/reverse stream actions</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>R</source>
         <translation>R</translation>
+    </message>
+    <message>
+        <source>Find All &amp;Pairs</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Select all streams which are paired in forward/reverse relation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Shift+R</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Find Only &amp;Singles</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Find all streams which don&apos;t have paired reverse stream</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Ctrl+R</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Mark Packets</source>
@@ -11508,11 +11387,6 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <message>
         <source>E</source>
         <translation>E</translation>
-    </message>
-    <message>
-        <source>Open the analysis window for the selected stream(s) and add it to it</source>
-        <oldsource>Open the analysis window for the selected stream(s)</oldsource>
-        <translation type="unfinished">Öppna analysfönstret för den valda strömmen</translation>
     </message>
     <message>
         <source>A</source>
@@ -13966,10 +13840,6 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <message>
         <source>Select</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>No Audio</source>
-        <translation type="vanished">Inget ljud</translation>
     </message>
 </context>
 <context>

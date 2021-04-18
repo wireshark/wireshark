@@ -7322,7 +7322,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Stream Analysis</source>
-        <translation>Анализ Потока</translation>
+        <translation type="vanished">Анализ Потока</translation>
     </message>
     <message>
         <source>IAX2 Stream Analysis</source>
@@ -7754,6 +7754,18 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Новое Цветовое Правило…</translation>
     </message>
     <message>
+        <source>RTP Stream Analysis for selected stream. Press CTRL key for adding reverse stream too.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>RTP Player</source>
+        <translation type="unfinished">Проигрыватель RTP</translation>
+    </message>
+    <message>
+        <source>Play selected stream. Press CTRL key for playing reverse stream too.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>IA&amp;X2 Stream Analysis</source>
         <translation>Анализ потока IA&amp;X2</translation>
     </message>
@@ -8103,6 +8115,18 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Выйти &amp;без Сохранения</translation>
     </message>
     <message>
+        <source>There is no &quot;rtp.ssrc&quot; field in this version of Wireshark.</source>
+        <translation type="unfinished">Поле &quot;rtp.ssrc&quot; отсутствует в этой версии Wireshark.</translation>
+    </message>
+    <message>
+        <source>Please select an RTPv2 packet with an SSRC value</source>
+        <translation type="unfinished">Пожалуйста, выберите пакет RTPv2 со значением SSRC</translation>
+    </message>
+    <message>
+        <source>SSRC value not found.</source>
+        <translation type="unfinished">Значение SSRC не найдено.</translation>
+    </message>
+    <message>
         <source>Show or hide the toolbar</source>
         <translation>Показать или скрыть панель инструментов</translation>
     </message>
@@ -8244,6 +8268,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>The &quot;%1&quot; column already exists as &quot;%2&quot;.</source>
         <translation>Столбец &quot;%1&quot; уже существует как &quot;%2&quot;.</translation>
+    </message>
+    <message>
+        <source>RTP packet search failed</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>No Interface Selected.</source>
@@ -10433,14 +10461,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Диалог</translation>
     </message>
     <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:medium; font-weight:600;&quot;&gt;Forward&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:medium; font-weight:600;&quot;&gt;Reverse&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;span style=&quot; font-size:medium; font-weight:600;&quot;&gt;Вперёд&lt;/span&gt;&lt;/p&gt;&lt;p&gt;&lt;span style=&quot; font-size:medium; font-weight:600;&quot;&gt;Назад&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>Forward</source>
-        <translation type="vanished">Вперёд</translation>
-    </message>
-    <message>
         <source>Packet</source>
         <translation>Пакет</translation>
     </message>
@@ -10490,6 +10510,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source> %1 streams, </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Save one stream CSV</source>
         <translation type="unfinished"></translation>
     </message>
@@ -10506,7 +10530,15 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>&amp;Set list</source>
+        <source>&amp;Set List</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Add to List</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Remove from List</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -10514,15 +10546,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>&amp;Add to list</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Add new set to existing list in RTP Analysis Dialog</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>&amp;Remove from playlist</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -10530,60 +10554,8 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Reverse</source>
-        <translation type="vanished">Назад</translation>
-    </message>
-    <message>
         <source>Graph</source>
         <translation>График</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show or hide forward jitter values.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Показать или скрыть значения прямого джиттера.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>Forward Jitter</source>
-        <translation type="vanished">Прямой Джиттер</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show or hide forward difference values.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Показать или скрыть значения прямого отклонения.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>Forward Difference</source>
-        <translation type="vanished">Прямое Отклонение</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show or hide forward delta values.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Показать или скрыть значения прямой дельты.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>Forward Delta</source>
-        <translation type="vanished">Прямая Дельта</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show or hide reverse jitter values.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Показать или скрыть значения обратного джиттера.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>Reverse Jitter</source>
-        <translation type="vanished">Обратный Джиттер</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show or hide reverse difference values.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Показать или скрыть значения обратного отклонения.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>Reverse Difference</source>
-        <translation type="vanished">Обратное Отклонение</translation>
-    </message>
-    <message>
-        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show or hide reverse delta values.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="vanished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Показать или скрыть значения обратной дельты.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
-    </message>
-    <message>
-        <source>Reverse Delta</source>
-        <translation type="vanished">Обратная Дельта</translation>
     </message>
     <message>
         <source>&lt;small&gt;&lt;i&gt;A hint.&lt;/i&gt;&lt;/small&gt;</source>
@@ -10598,105 +10570,8 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Unsynchronized Forward and Reverse Audio</source>
-        <translation type="vanished">Несинхронизированное Прямое и Обратное Аудио</translation>
-    </message>
-    <message>
-        <source>Stream Synchronized Forward and Reverse Audio</source>
-        <translation type="vanished">Синхронизированный Поток Прямого и Обратного Аудио</translation>
-    </message>
-    <message>
-        <source>Save the audio data for both channels synchronized to start of earlier stream.</source>
-        <translation type="vanished">Сохранить аудиоданные для обоих каналов синхронизировано со стартом более раннего потока.</translation>
-    </message>
-    <message>
-        <source>Stream Synchronized Forward Stream Audio</source>
-        <translation type="vanished">Поток Синхронизирован с Прямым Потоком Аудио</translation>
-    </message>
-    <message>
-        <source>Save the forward stream audio data synchronized to start of earlier stream.</source>
-        <translation type="vanished">Сохранить аудиоданные прямого потока, синхронизированного  со стартом более раннего потока.</translation>
-    </message>
-    <message>
-        <source>Stream Synchronized Reverse Stream Audio</source>
-        <translation type="vanished">Поток Синхронизирован с Обратным Потоком Аудио</translation>
-    </message>
-    <message>
-        <source>Save the reverse stream audio data synchronized to start of earlier stream.</source>
-        <translation type="vanished">Сохранить аудиоданные обратного потока, синхронизированного  со стартом более раннего потока.</translation>
-    </message>
-    <message>
-        <source>File Synchronized Forward and Reverse Audio</source>
-        <translation type="vanished">Файл Синхронизированного Прямого и Обратного Аудио</translation>
-    </message>
-    <message>
-        <source>Save the audio data for both channels synchronized to start of file.</source>
-        <translation type="vanished">Сохранить аудиоданные для обоих каналов синхронизировано с началом файла.</translation>
-    </message>
-    <message>
-        <source>File Synchronized Forward Stream Audio</source>
-        <translation type="vanished">Файл Синхронизирован с Прямым Потоком Аудио</translation>
-    </message>
-    <message>
-        <source>Save the forward stream audio data synchronized to start of file.</source>
-        <translation type="vanished">Сохранить аудиоданные прямого потока, синхронизированного с началом файла.</translation>
-    </message>
-    <message>
-        <source>File Synchronized Reverse Stream Audio</source>
-        <translation type="vanished">Файл Синхронизирован с Обратным Потоком Аудио</translation>
-    </message>
-    <message>
-        <source>Save the reverse stream audio data synchronized to start of file.</source>
-        <translation type="vanished">Сохранить аудиоданные обратного потока, синхронизированного с началом файла.</translation>
-    </message>
-    <message>
-        <source>Save the unsynchronized audio data for both channels.</source>
-        <oldsource>Save the audio data for both channels.</oldsource>
-        <translation type="vanished">Сохранить несинхронизированные аудиоданные для обоих каналов.</translation>
-    </message>
-    <message>
-        <source>Unsynchronized Forward Stream Audio</source>
-        <oldsource>Forward Stream Audio</oldsource>
-        <translation type="vanished">Несинхронизированный Прямой Поток Аудио</translation>
-    </message>
-    <message>
-        <source>Save the unsynchronized forward stream audio data.</source>
-        <oldsource>Save the forward stream audio data.</oldsource>
-        <translation type="vanished">Сохранить несинхронизированные аудиоданные прямого потока.</translation>
-    </message>
-    <message>
-        <source>Unsynchronized Reverse Stream Audio</source>
-        <oldsource>Reverse Stream Audio</oldsource>
-        <translation type="vanished">Несинхронизированный Обратный Поток Аудио</translation>
-    </message>
-    <message>
-        <source>Save the unsynchronized reverse stream audio data.</source>
-        <oldsource>Save the reverse stream audio data.</oldsource>
-        <translation type="vanished">Сохранить несинхронизированные аудиоданные обратного потока.</translation>
-    </message>
-    <message>
         <source>CSV</source>
         <translation>CSV</translation>
-    </message>
-    <message>
-        <source>Save both tables as CSV.</source>
-        <translation type="vanished">Сохранить обе таблицы как CSV.</translation>
-    </message>
-    <message>
-        <source>Forward Stream CSV</source>
-        <translation type="vanished">Прямой Поток CSV</translation>
-    </message>
-    <message>
-        <source>Save the forward table as CSV.</source>
-        <translation type="vanished">Сохранить прямую таблицу как CSV.</translation>
-    </message>
-    <message>
-        <source>Reverse Stream CSV</source>
-        <translation type="vanished">Обратный Поток CSV</translation>
-    </message>
-    <message>
-        <source>Save the reverse table as CSV.</source>
-        <translation type="vanished">Сохранить обратную таблицу как CSV.</translation>
     </message>
     <message>
         <source>Save tables as CSV.</source>
@@ -10751,80 +10626,44 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>N</translation>
     </message>
     <message>
-        <source>RTP Stream Analysis</source>
-        <translation>Анализ Потока RTP</translation>
+        <source>Prepare &amp;Filter</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Unable to save RTP data.</source>
-        <translation type="vanished">Невозможно сохранить данные RTP.</translation>
+        <source>Prepare a filter matching the selected stream(s).</source>
+        <translation type="unfinished">Подготовить фильтр, соответствующий выбранному потоку (потокам).</translation>
+    </message>
+    <message>
+        <source>&amp;Current Tab</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Prepare a filter matching current tab.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;All Tabs</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Prepare a filter matching all tabs.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>RTP Stream Analysis</source>
+        <translation>Анализ Потока RTP</translation>
     </message>
     <message>
         <source>Save Graph As…</source>
         <translation>Сохранить График Как…</translation>
     </message>
     <message>
-        <source>Can&apos;t synchronize when only one channel is selected</source>
-        <translation type="vanished">Невозможно синхронизировать, если выбран лишь один канал</translation>
-    </message>
-    <message>
-        <source>None of channels was selected</source>
-        <translation type="vanished">Не выбран ни один канал</translation>
-    </message>
-    <message>
-        <source>Save forward and reverse stream audio</source>
-        <translation type="vanished">Сохранить прямой и обратный аудиопотоки</translation>
-    </message>
-    <message>
-        <source>Raw (*.raw)</source>
-        <translation type="vanished">Raw (*.raw)</translation>
-    </message>
-    <message>
-        <source>Saving %1…</source>
-        <translation type="vanished">Сохранение %1…</translation>
-    </message>
-    <message>
-        <source>Analyzing RTP</source>
-        <translation type="vanished">Анализируем RTP</translation>
-    </message>
-    <message>
-        <source>Information</source>
-        <translation type="vanished">Информация</translation>
-    </message>
-    <message>
-        <source>Save was interrupted</source>
-        <translation type="vanished">Сохранение было прервано</translation>
-    </message>
-    <message>
-        <source>Save or read of file was failed during saving</source>
-        <translation type="vanished">Сохранение или чтение файла не удалось при сохранении</translation>
-    </message>
-    <message>
-        <source>Codec is not supported, file is incomplete</source>
-        <translation type="vanished">Кодек не поддерживается, файл не полон</translation>
-    </message>
-    <message>
-        <source>Codec rate is not supported, file is incomplete</source>
-        <translation type="vanished">Битрейт кодека не поддерживается, файл не полон</translation>
-    </message>
-    <message>
         <source>SSRC value not found.</source>
-        <translation>Значение SSRC не найдено.</translation>
-    </message>
-    <message>
-        <source>No streams found.</source>
-        <translation type="vanished">Потоки не найдены.</translation>
-    </message>
-    <message>
-        <source>%1 streams found.</source>
-        <translation type="vanished">%1 потоки найдены.</translation>
+        <translation type="vanished">Значение SSRC не найдено.</translation>
     </message>
     <message>
         <source> G: Go to packet, N: Next problem packet</source>
         <translation> G: Перейти к пакету, N: Следующий проблемный пакет</translation>
-    </message>
-    <message>
-        <source>No Audio</source>
-        <translation type="vanished">Нет Аудио</translation>
     </message>
     <message>
         <source>Portable Document Format (*.pdf)</source>
@@ -10843,83 +10682,23 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>JPEG File Interchange Format (*.jpeg *.jpg)</translation>
     </message>
     <message>
-        <source>Can&apos;t save in a file: Wrong length of captured packets.</source>
-        <translation type="vanished">Невозможно сохранить в файл: Неверная длина захваченных пакетов.</translation>
-    </message>
-    <message>
-        <source>Can&apos;t save in a file: RTP data with padding.</source>
-        <translation type="vanished">Невозможно сохранить в файл: данные RTP с переполнением.</translation>
-    </message>
-    <message>
-        <source>Can&apos;t save in a file: File I/O problem.</source>
-        <translation type="vanished">Невозможно сохранить в файл: проблемы файлового ввода/вывода.</translation>
-    </message>
-    <message>
-        <source>Can&apos;t save in a file: Not all data in all packets was captured.</source>
-        <translation type="vanished">Невозможно сохранить в файл: Не все данные во всех пакетах были захвачены.</translation>
-    </message>
-    <message>
-        <source>Save forward stream audio</source>
-        <translation type="vanished">Сохранить прямой аудиопоток</translation>
-    </message>
-    <message>
-        <source>Save reverse stream audio</source>
-        <translation type="vanished">Сохранить обратный аудиопоток</translation>
-    </message>
-    <message>
-        <source>Sun Audio (*.au)</source>
-        <translation type="vanished">Sun Audio (*.au)</translation>
-    </message>
-    <message>
-        <source>Warning</source>
-        <translation type="vanished">Предупреждение</translation>
-    </message>
-    <message>
-        <source>Unable to save in that format</source>
-        <translation type="vanished">Невозможно сохранить в этом формате</translation>
-    </message>
-    <message>
-        <source>Unable to save %1</source>
-        <translation type="vanished">Невозможно сохранить %1</translation>
-    </message>
-    <message>
-        <source>Error</source>
-        <translation type="vanished">Ошибка</translation>
-    </message>
-    <message>
-        <source>Unknown error occurred</source>
-        <translation type="vanished">Произошла неизвестная ошибка</translation>
-    </message>
-    <message>
-        <source>Save forward stream CSV</source>
-        <translation type="vanished">Сохранить прямой поток CSV</translation>
-    </message>
-    <message>
-        <source>Save reverse stream CSV</source>
-        <translation type="vanished">Сохранить обратный поток CSV</translation>
-    </message>
-    <message>
-        <source>Save CSV</source>
-        <translation type="vanished">Сохранить CSV</translation>
-    </message>
-    <message>
         <source>Comma-separated values (*.csv)</source>
         <translation>Значения, разделённые запятой (*.csv)</translation>
     </message>
     <message>
         <source>There is no &quot;rtp.ssrc&quot; field in this version of Wireshark.</source>
-        <translation>Поле &quot;rtp.ssrc&quot; отсутствует в этой версии Wireshark.</translation>
+        <translation type="vanished">Поле &quot;rtp.ssrc&quot; отсутствует в этой версии Wireshark.</translation>
     </message>
     <message>
         <source>Please select an RTPv2 packet with an SSRC value</source>
-        <translation>Пожалуйста, выберите пакет RTPv2 со значением SSRC</translation>
+        <translation type="vanished">Пожалуйста, выберите пакет RTPv2 со значением SSRC</translation>
     </message>
 </context>
 <context>
     <name>RtpAudioStream</name>
     <message>
         <source>RTP stream is empty or codec is unsupported.</source>
-        <translation>Поток RTP пуст или кодек не поддерживается.</translation>
+        <translation type="vanished">Поток RTP пуст или кодек не поддерживается.</translation>
     </message>
     <message>
         <source>%1 does not support PCM at %2. Preferred format is %3</source>
@@ -10967,10 +10746,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Time Span (s)</source>
         <translation>Временной Промежуток (с)</translation>
-    </message>
-    <message>
-        <source>Sample Rate (Hz)</source>
-        <translation type="vanished">Скорость сэмплинга (Гц)</translation>
     </message>
     <message>
         <source>Payloads</source>
@@ -11166,6 +10941,42 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>I&amp;naudible streams</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Select/Deselect inaudible streams</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Inaudible streams</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Select</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Select inaudible streams</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Deselect</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Deselect inaudible streams</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Prepare &amp;Filter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Prepare a filter matching the selected stream(s).</source>
+        <translation type="unfinished">Подготовить фильтр, соответствующий выбранному потоку (потокам).</translation>
+    </message>
+    <message>
         <source>Zoom In</source>
         <translation>Увеличить Масштаб</translation>
     </message>
@@ -11279,7 +11090,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>No Audio</source>
-        <translation type="unfinished">Нет Аудио</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Decoding streams...</source>
@@ -11302,6 +11113,34 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Вставленная Заглушка</translation>
     </message>
     <message>
+        <source>Double click on cell to change audio routing</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>%1 streams</source>
+        <translation type="unfinished">%1 потоки</translation>
+    </message>
+    <message>
+        <source>, %1 selected</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>, %1 not muted</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>, start: %1. Double click on graph to set start of playback.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>, start: %1, cursor: %2. Press &quot;G&quot; to go to packet %3. Double click on graph to set start of playback.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Playback of stream %1 failed!</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Automatic</source>
         <translation type="unfinished"></translation>
     </message>
@@ -11311,7 +11150,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Sun Audio (*.au)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Аудио Sun (*.au)</translation>
     </message>
     <message>
         <source>Save audio</source>
@@ -11319,7 +11158,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Raw (*.raw)</source>
-        <translation type="unfinished">Raw (*.raw)</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Save payload</source>
@@ -11363,11 +11202,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Start: %1. Double click to set start of playback.</source>
-        <translation>Начало: %1. Двойной клик, чтобы установить начало воспроизведения.</translation>
+        <translation type="vanished">Начало: %1. Двойной клик, чтобы установить начало воспроизведения.</translation>
     </message>
     <message>
         <source>Start: %1, cursor: %2. Press &quot;G&quot; to go to packet %3. Double click to set start of playback.</source>
-        <translation>Начало: %1, курсор: %2. Нажмите &quot;G&quot;, чтобы перейти к пакету %3. Двойной клик, чтобы установить начало воспроизведения.</translation>
+        <translation type="vanished">Начало: %1, курсор: %2. Нажмите &quot;G&quot;, чтобы перейти к пакету %3. Двойной клик, чтобы установить начало воспроизведения.</translation>
     </message>
     <message>
         <source>Preparing to play...</source>
@@ -11473,12 +11312,44 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished">&amp;Анализ</translation>
     </message>
     <message>
+        <source>Open the analysis window for the selected stream(s) and add it to it</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Find the reverse stream matching the selected forward stream.</source>
         <translation>Искать обратный поток, соответствующий выбранному прямому потоку.</translation>
     </message>
     <message>
+        <source>All forward/reverse stream actions</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>R</source>
         <translation>R</translation>
+    </message>
+    <message>
+        <source>Find All &amp;Pairs</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Select all streams which are paired in forward/reverse relation</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Shift+R</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Find Only &amp;Singles</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Find all streams which don&apos;t have paired reverse stream</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Ctrl+R</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Mark Packets</source>
@@ -11545,11 +11416,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>E</translation>
     </message>
     <message>
-        <source>Open the analysis window for the selected stream(s) and add it to it</source>
-        <oldsource>Open the analysis window for the selected stream(s)</oldsource>
-        <translation type="unfinished">Открыть окно анализа для выбранного потока (потоков)</translation>
-    </message>
-    <message>
         <source>A</source>
         <translation type="unfinished"></translation>
     </message>
@@ -11600,10 +11466,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>, %1 selected, %2 total packets</source>
         <translation>, %1 выбрано, %2 всего пакетов</translation>
-    </message>
-    <message>
-        <source>No Audio</source>
-        <translation type="vanished">Нет Аудио</translation>
     </message>
     <message>
         <source>Save RTPDump As…</source>
@@ -14009,10 +13871,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Select</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>No Audio</source>
-        <translation type="vanished">Нет Аудио</translation>
     </message>
 </context>
 <context>
