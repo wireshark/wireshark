@@ -757,6 +757,7 @@ void SequenceDialog::on_actionSelectRtpStreams_triggered()
     if (current_rtp_sai_ && GA_INFO_TYPE_RTP == current_rtp_sai_->info_type) {
         QVector<rtpstream_id_t *> stream_ids;
 
+        // We don't need copy it as it is not cleared during retap
         stream_ids << &((rtpstream_info_t *)current_rtp_sai_->info_ptr)->id;
         emit rtpStreamsDialogSelectRtpStreams(stream_ids);
         raise();
@@ -768,6 +769,7 @@ void SequenceDialog::on_actionDeselectRtpStreams_triggered()
     if (current_rtp_sai_ && GA_INFO_TYPE_RTP == current_rtp_sai_->info_type) {
         QVector<rtpstream_id_t *> stream_ids;
 
+        // We don't need copy it as it is not cleared during retap
         stream_ids << &((rtpstream_info_t *)current_rtp_sai_->info_ptr)->id;
         emit rtpStreamsDialogDeselectRtpStreams(stream_ids);
         raise();

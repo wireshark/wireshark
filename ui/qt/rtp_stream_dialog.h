@@ -29,7 +29,9 @@ class RtpStreamDialog : public WiresharkDialog
 public:
     explicit RtpStreamDialog(QWidget &parent, CaptureFile &cf);
     ~RtpStreamDialog();
+    // Caller must provide ids which are immutable to recap
     void selectRtpStream(QVector<rtpstream_id_t *> stream_ids);
+    // Caller must provide ids which are immutable to recap
     void deselectRtpStream(QVector<rtpstream_id_t *> stream_ids);
 
 signals:
@@ -87,7 +89,6 @@ private:
     void freeLastSelected();
     void invertSelection();
     QVector<rtpstream_info_t *>getSelectedRtpStreams();
-    QVector<rtpstream_id_t *>getSelectedRtpStreamIDs();
 
 private slots:
     void showStreamMenu(QPoint pos);

@@ -55,16 +55,7 @@
 #include "wireshark_application.h"
 
 // To do:
-// - Fully implement shorcuts (drag, go to packet, etc.)
-// - Figure out selection and highlighting.
-// - Make streams checkable.
-// - Add silence, drop & jitter indicators to the graph.
-// - How to handle multiple channels?
 // - Threaded decoding?
-// - Play MP3s. As per Zawinski's Law we already read emails.
-// - RTP audio streams are currently keyed on src addr + src port + dst addr
-//   + dst port + ssrc. This means that we can have multiple rtp_stream_info
-//   structs per RtpAudioStream. Should we make them 1:1 instead?
 
 // Current and former RTP player bugs. Many have attachments that can be usef for testing.
 // Bug 3368 - The timestamp line in a RTP or RTCP packet display's "Not Representable"

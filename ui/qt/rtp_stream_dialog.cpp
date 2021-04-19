@@ -886,18 +886,6 @@ QVector<rtpstream_info_t *>RtpStreamDialog::getSelectedRtpStreams()
     return stream_infos;
 }
 
-QVector<rtpstream_id_t *>RtpStreamDialog::getSelectedRtpStreamIDs()
-{
-    QVector<rtpstream_info_t *> stream_infos = getSelectedRtpStreams();
-    QVector<rtpstream_id_t *> ids;
-
-    foreach(rtpstream_info_t *stream, stream_infos) {
-        ids << &stream->id;
-    }
-
-    return ids;
-}
-
 void RtpStreamDialog::rtpPlayerReplace()
 {
     if (ui->streamTreeWidget->selectedItems().count() < 1) return;
@@ -923,21 +911,21 @@ void RtpStreamDialog::rtpAnalysisReplace()
 {
     if (ui->streamTreeWidget->selectedItems().count() < 1) return;
 
-    emit rtpAnalysisDialogReplaceRtpStreams(getSelectedRtpStreamIDs());
+    emit rtpAnalysisDialogReplaceRtpStreams(make_rtpstream_ids_from_rtpstream_infos(getSelectedRtpStreams()));
 }
 
 void RtpStreamDialog::rtpAnalysisAdd()
 {
     if (ui->streamTreeWidget->selectedItems().count() < 1) return;
 
-    emit rtpAnalysisDialogAddRtpStreams(getSelectedRtpStreamIDs());
+    emit rtpAnalysisDialogAddRtpStreams(make_rtpstream_ids_from_rtpstream_infos(getSelectedRtpStreams()));
 }
 
 void RtpStreamDialog::rtpAnalysisRemove()
 {
     if (ui->streamTreeWidget->selectedItems().count() < 1) return;
 
-    emit rtpAnalysisDialogRemoveRtpStreams(getSelectedRtpStreamIDs());
+    emit rtpAnalysisDialogRemoveRtpStreams(make_rtpstream_ids_from_rtpstream_infos(getSelectedRtpStreams()));
 }
 
 void RtpStreamDialog::displayFilterSuccess(bool success)
