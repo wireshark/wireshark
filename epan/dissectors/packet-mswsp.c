@@ -313,8 +313,10 @@ struct CTableColumn {
 	guint16 lengthoffset;
 	char name[PROP_LENGTH];
 };
-/* minimum size in bytes on the wire CTableColumn can be */
+/* Minimum size in bytes on the wire CTableColumn can be */
 #define MIN_CTABLECOL_SIZE 32
+/* Maximum sane size in bytes on the wire CTableColumn can be. Arbitrary. */
+#define MAX_CTABLECOL_SIZE 5000
 
 /* 2.2.3.10 */
 
@@ -3973,6 +3975,8 @@ static int vvalue_tvb_lpwstr(tvbuff_t *tvb, int offset, void *val)
 	return 4 + vvalue_tvb_lpwstr_len(tvb, offset + 4, 0, val);
 }
 
+/* Maximum sane vector size. Arbitrary. */
+#define MAX_VT_VECTOR_SIZE 5000
 static int vvalue_tvb_vector_internal(tvbuff_t *tvb, int offset, struct vt_vector *val, struct vtype_data *type, guint num)
 {
 	const int offset_in = offset;
@@ -3987,18 +3991,14 @@ static int vvalue_tvb_vector_internal(tvbuff_t *tvb, int offset, struct vt_vecto
 	 * here, before making a possibly-doomed attempt to allocate
 	 * memory for it.
 	 *
-	 * First, check for an overflow.
+	 * First, check for sane values.
 	 */
-	if ((guint64)elsize * (guint64)num > G_MAXUINT) {
-		/*
-		 * We never have more than G_MAXUINT bytes in a tvbuff,
-		 * so this will *definitely* fail.
-		 */
+	if (num > MAX_VT_VECTOR_SIZE) {
 		THROW(ReportedBoundsError);
 	}
 
 	/*
-	 * No overflow; now make sure we at least have that data.
+	 * No huge numbers from the wire; now make sure we at least have that data.
 	 */
 	tvb_ensure_bytes_exist(tvb, offset, elsize * num);
 
@@ -5852,7 +5852,7 @@ static int dissect_CPMSetBindings(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
 		/* Sanity check size value */
 		column_size = num*MIN_CTABLECOL_SIZE;
-		if (column_size > tvb_reported_length_remaining(tvb, offset))
+		if (num > MAX_CTABLECOL_SIZE || column_size > tvb_reported_length_remaining(tvb, offset))
 		{
 			expert_add_info(pinfo, ti, &ei_mswsp_msg_cpmsetbinding_ccolumns);
 			return tvb_reported_length(tvb);
