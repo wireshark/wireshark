@@ -102,16 +102,3 @@ void capture_stat_stop(if_stat_cache_t *sc);
 #endif /* __cplusplus */
 
 #endif /* capture.h */
-
-/*
- * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
- *
- * Local Variables:
- * c-basic-offset: 4
- * tab-width: 8
- * indent-tabs-mode: nil
- * End:
- *
- * vi: set shiftwidth=4 tabstop=8 expandtab:
- * :indentSize=4:tabSize=8:noTabs=true:
- */

@@ -219,17 +219,3 @@ exp_pdu_pre_open(const char *tap_name, const char *filter, exp_pdu_t *exp_pdu_ta
 
     return NULL;
 }
-
-
-/*
- * Editor modelines
- *
- * Local Variables:
- * c-basic-offset: 4
- * tab-width: 8
- * indent-tabs-mode: nil
- * End:
- *
- * ex: set shiftwidth=4 tabstop=8 expandtab:
- * :indentSize=4:tabSize=8:noTabs=true:
- */

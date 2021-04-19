@@ -487,16 +487,3 @@ gboolean decode_as_command_option(const gchar *cl_param)
     g_free(decoded_param); /* "Decode As" rule has been successfully added */
     return TRUE;
 }
-
-/*
- * Editor modelines
- *
- * Local Variables:
- * c-basic-offset: 4
- * tab-width: 8
- * indent-tabs-mode: nil
- * End:
- *
- * ex: set shiftwidth=4 tabstop=8 expandtab:
- * :indentSize=4:tabSize=8:noTabs=true:
- */

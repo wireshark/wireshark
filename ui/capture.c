@@ -927,16 +927,3 @@ capture_input_init(capture_session *cap_session, capture_file *cf)
                          capture_input_cfilter_error, capture_input_closed);
 }
 #endif /* HAVE_LIBPCAP */
-
-/*
- * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
- *
- * Local Variables:
- * c-basic-offset: 4
- * tab-width: 8
- * indent-tabs-mode: nil
- * End:
- *
- * ex: set shiftwidth=4 tabstop=8 expandtab:
- * :indentSize=4:tabSize=8:noTabs=true:
- */

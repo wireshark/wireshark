@@ -101,16 +101,3 @@ void save_migrated_uat(const char *uat_name, gboolean *old_pref);
 #endif /* __cplusplus */
 
 #endif /* __PREFRENCE_UTILS_H__ */
-
-/*
- * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
- *
- * Local Variables:
- * c-basic-offset: 4
- * tab-width: 8
- * indent-tabs-mode: nil
- * End:
- *
- * ex: set shiftwidth=4 tabstop=8 expandtab:
- * :indentSize=4:tabSize=8:noTabs=true:
- */

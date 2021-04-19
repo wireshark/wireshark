@@ -27,16 +27,3 @@ void eo_save_entry(const gchar *save_as_filename, export_object_entry_t *entry);
 #endif /* __cplusplus */
 
 #endif /* __EXPORT_OBJECT_UI_H__ */
-
-/*
- * Editor modelines
- *
- * Local Variables:
- * c-basic-offset: 4
- * tab-width: 8
- * indent-tabs-mode: nil
- * End:
- *
- * ex: set shiftwidth=4 tabstop=8 expandtab:
- * :indentSize=4:tabSize=8:noTabs=true:
- */

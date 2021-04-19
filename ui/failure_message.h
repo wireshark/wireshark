@@ -126,16 +126,3 @@ extern void cfile_close_failure_message(const char *filename, int err,
 #endif /* __cplusplus */
 
 #endif /* __FAILURE_MESSAGE_H__ */
-
-/*
- * Editor modelines
- *
- * Local Variables:
- * c-basic-offset: 4
- * tab-width: 8
- * indent-tabs-mode: nil
- * End:
- *
- * ex: set shiftwidth=4 tabstop=8 expandtab:
- * :indentSize=4:tabSize=8:noTabs=true:
- */

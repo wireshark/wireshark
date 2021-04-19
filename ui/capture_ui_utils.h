@@ -161,16 +161,3 @@ extern GString *get_iface_list_string(capture_options *capture_opts, guint32 sty
 #endif /* __cplusplus */
 
 #endif /* __CAPTURE_UI_UTILS_H__ */
-
-/*
- * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
- *
- * Local Variables:
- * c-basic-offset: 4
- * tab-width: 8
- * indent-tabs-mode: nil
- * End:
- *
- * vi: set shiftwidth=4 tabstop=8 expandtab:
- * :indentSize=4:tabSize=8:noTabs=true:
- */

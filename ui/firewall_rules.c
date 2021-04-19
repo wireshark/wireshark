@@ -280,16 +280,3 @@ static void sf_netsh_ipv4_port_new(GString *rtxt, gchar *addr, guint32 port, por
     g_string_append_printf(rtxt, "add rule name=\"Wireshark\" dir=in action=%s protocol=%s localport=%u remoteip=%s",
         NETSH_RULE_NEW(deny), RT_TCP_UDP(ptype), port, addr);
 }
-
-/*
- * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
- *
- * Local variables:
- * c-basic-offset: 4
- * tab-width: 8
- * indent-tabs-mode: nil
- * End:
- *
- * vi: set shiftwidth=4 tabstop=8 expandtab:
- * :indentSize=4:tabSize=8:noTabs=true:
- */

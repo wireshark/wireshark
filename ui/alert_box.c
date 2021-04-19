@@ -595,16 +595,3 @@ write_failure_alert_box(const char *filename, int err)
                        file_write_error_message(err), display_basename);
     g_free(display_basename);
 }
-
-/*
- * Editor modelines
- *
- * Local Variables:
- * c-basic-offset: 4
- * tab-width: 8
- * indent-tabs-mode: nil
- * End:
- *
- * ex: set shiftwidth=4 tabstop=8 expandtab:
- * :indentSize=4:tabSize=8:noTabs=true:
- */

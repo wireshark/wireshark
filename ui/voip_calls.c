@@ -4452,16 +4452,3 @@ remove_tap_listener_prot__calls(voip_calls_tapinfo_t *tap_id_base)
     remove_tap_listener(tap_base_to_id(tap_id_base, tap_id_offset_prot_));
 }
 #endif
-
-/*
- * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
- *
- * Local Variables:
- * c-basic-offset: 4
- * tab-width: 8
- * indent-tabs-mode: nil
- * End:
- *
- * ex: set shiftwidth=4 tabstop=8 expandtab:
- * :indentSize=4:tabSize=8:noTabs=true:
- */
