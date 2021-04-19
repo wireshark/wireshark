@@ -584,6 +584,7 @@ set(DISSECTOR_PUBLIC_HEADERS
 	packet-tte.h
 	packet-ua.h
 	packet-uaudp.h
+	packet-uavcan-dsdl.h
 	packet-ubertooth.h
 	packet-udp.h
 	packet-umts_fp.h
@@ -1852,6 +1853,8 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ua3g.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-uasip.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-uaudp.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-uavcan-can.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-uavcan-dsdl.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ubdp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ubertooth.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ucp.c
