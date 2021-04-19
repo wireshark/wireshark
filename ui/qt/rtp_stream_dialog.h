@@ -29,8 +29,8 @@ class RtpStreamDialog : public WiresharkDialog
 public:
     explicit RtpStreamDialog(QWidget &parent, CaptureFile &cf);
     ~RtpStreamDialog();
-    void selectRtpStream(rtpstream_id_t *id);
-    void deselectRtpStream(rtpstream_id_t *id);
+    void selectRtpStream(QVector<rtpstream_id_t *> stream_ids);
+    void deselectRtpStream(QVector<rtpstream_id_t *> stream_ids);
 
 signals:
     // Tells the packet list to redraw. An alternative might be to add a

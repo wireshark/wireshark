@@ -151,11 +151,11 @@ SequenceDialog::SequenceDialog(QWidget &parent, CaptureFile &cf, SequenceInfo *i
     ctx_menu_.addAction(ui->actionGoToNextPacket);
     ctx_menu_.addAction(ui->actionGoToPreviousPacket);
     ctx_menu_.addSeparator();
-    action = ui->actionSelectRtpStream;
+    action = ui->actionSelectRtpStreams;
     ctx_menu_.addAction(action);
     action->setVisible(false);
     action->setEnabled(false);
-    action = ui->actionDeselectRtpStream;
+    action = ui->actionDeselectRtpStreams;
     ctx_menu_.addAction(action);
     action->setVisible(false);
     action->setEnabled(false);
@@ -217,8 +217,8 @@ void SequenceDialog::enableVoIPFeatures()
 {
     voipFeaturesEnabled = true;
     player_button_->setVisible(true);
-    ui->actionSelectRtpStream->setVisible(true);
-    ui->actionDeselectRtpStream->setVisible(true);
+    ui->actionSelectRtpStreams->setVisible(true);
+    ui->actionDeselectRtpStreams->setVisible(true);
 }
 
 void SequenceDialog::updateWidgets()
@@ -296,12 +296,12 @@ void SequenceDialog::keyPressEvent(QKeyEvent *event)
         break;
     case Qt::Key_S:
         if (voipFeaturesEnabled) {
-            on_actionSelectRtpStream_triggered();
+            on_actionSelectRtpStreams_triggered();
         }
         break;
     case Qt::Key_D:
         if (voipFeaturesEnabled) {
-            on_actionDeselectRtpStream_triggered();
+            on_actionDeselectRtpStreams_triggered();
         }
         break;
     }
@@ -343,13 +343,13 @@ void SequenceDialog::diagramClicked(QMouseEvent *event)
     if (event) {
         seq_analysis_item_t *sai = seq_diagram_->itemForPosY(event->pos().y());
         if (voipFeaturesEnabled) {
-            ui->actionSelectRtpStream->setEnabled(false);
-            ui->actionDeselectRtpStream->setEnabled(false);
+            ui->actionSelectRtpStreams->setEnabled(false);
+            ui->actionDeselectRtpStreams->setEnabled(false);
             player_button_->setEnabled(false);
             if (sai) {
                 if (GA_INFO_TYPE_RTP == sai->info_type) {
-                    ui->actionSelectRtpStream->setEnabled(true && !file_closed_);
-                    ui->actionDeselectRtpStream->setEnabled(true && !file_closed_);
+                    ui->actionSelectRtpStreams->setEnabled(true && !file_closed_);
+                    ui->actionDeselectRtpStreams->setEnabled(true && !file_closed_);
                     player_button_->setEnabled(true && !file_closed_);
                     current_rtp_sai_ = sai;
                 }
@@ -378,8 +378,8 @@ void SequenceDialog::mouseMoved(QMouseEvent *event)
         seq_analysis_item_t *sai = seq_diagram_->itemForPosY(event->pos().y());
         if (sai) {
             if (GA_INFO_TYPE_RTP == sai->info_type) {
-                ui->actionSelectRtpStream->setEnabled(true);
-                ui->actionDeselectRtpStream->setEnabled(true);
+                ui->actionSelectRtpStreams->setEnabled(true);
+                ui->actionDeselectRtpStreams->setEnabled(true);
                 current_rtp_sai_ = sai;
             }
             packet_num_ = sai->frame_number;
@@ -752,18 +752,24 @@ void SequenceDialog::on_actionZoomOut_triggered()
     zoomXAxis(false);
 }
 
-void SequenceDialog::on_actionSelectRtpStream_triggered()
+void SequenceDialog::on_actionSelectRtpStreams_triggered()
 {
     if (current_rtp_sai_ && GA_INFO_TYPE_RTP == current_rtp_sai_->info_type) {
-        emit rtpStreamsDialogSelectRtpStream(&((rtpstream_info_t *)current_rtp_sai_->info_ptr)->id);
+        QVector<rtpstream_id_t *> stream_ids;
+
+        stream_ids << &((rtpstream_info_t *)current_rtp_sai_->info_ptr)->id;
+        emit rtpStreamsDialogSelectRtpStreams(stream_ids);
         raise();
     }
 }
 
-void SequenceDialog::on_actionDeselectRtpStream_triggered()
+void SequenceDialog::on_actionDeselectRtpStreams_triggered()
 {
     if (current_rtp_sai_ && GA_INFO_TYPE_RTP == current_rtp_sai_->info_type) {
-        emit rtpStreamsDialogDeselectRtpStream(&((rtpstream_info_t *)current_rtp_sai_->info_ptr)->id);
+        QVector<rtpstream_id_t *> stream_ids;
+
+        stream_ids << &((rtpstream_info_t *)current_rtp_sai_->info_ptr)->id;
+        emit rtpStreamsDialogDeselectRtpStreams(stream_ids);
         raise();
     }
 }

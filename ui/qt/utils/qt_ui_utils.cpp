@@ -257,12 +257,43 @@ void set_action_shortcuts_visible_in_context_menu(QList<QAction *> actions)
 #endif
 }
 
-QString make_filter_based_on_rtpstream_id(QVector<rtpstream_id_t *> ids)
+QVector<rtpstream_id_t *>make_rtpstream_ids_from_rtpstream_infos(QVector<rtpstream_info_t *> stream_infos)
+{
+    QVector<rtpstream_id_t *>stream_ids;
+
+    foreach(rtpstream_info_t *stream, stream_infos) {
+        stream_ids << &stream->id;
+    }
+
+    return stream_ids;
+}
+
+QVector<rtpstream_id_t *>qvector_rtpstream_ids_copy(QVector<rtpstream_id_t *> stream_ids)
+{
+    QVector<rtpstream_id_t *>new_ids;
+
+    foreach(rtpstream_id_t *id, stream_ids) {
+        rtpstream_id_t *new_id = g_new0(rtpstream_id_t, 1);
+        rtpstream_id_copy(id, new_id);
+        new_ids << new_id;
+    }
+
+    return new_ids;
+}
+
+void qvector_rtpstream_ids_free(QVector<rtpstream_id_t *> stream_ids)
+{
+    foreach(rtpstream_id_t *id, stream_ids) {
+        rtpstream_id_free(id);
+    }
+}
+
+QString make_filter_based_on_rtpstream_id(QVector<rtpstream_id_t *> stream_ids)
 {
     QStringList stream_filters;
     QString filter;
 
-    foreach(rtpstream_id_t *id, ids) {
+    foreach(rtpstream_id_t *id, stream_ids) {
         QString ip_proto = id->src_addr.type == AT_IPv6 ? "ipv6" : "ip";
         stream_filters << QString("(%1.src==%2 && udp.srcport==%3 && %1.dst==%4 && udp.dstport==%5 && rtp.ssrc==0x%6)")
                          .arg(ip_proto) // %1
@@ -279,14 +310,8 @@ QString make_filter_based_on_rtpstream_id(QVector<rtpstream_id_t *> ids)
     return filter;
 }
 
-QString make_filter_based_on_rtpstream_info(QVector<rtpstream_info_t *> streams)
+QString make_filter_based_on_rtpstream_info(QVector<rtpstream_info_t *> stream_infos)
 {
-    QVector<rtpstream_id_t *> ids;
-
-    foreach(rtpstream_info_t *stream_info, streams) {
-        ids << &stream_info->id;
-    }
-
-    return make_filter_based_on_rtpstream_id(ids);
+    return make_filter_based_on_rtpstream_id(make_rtpstream_ids_from_rtpstream_infos(stream_infos));
 }
 

@@ -339,14 +339,18 @@ void RtpStreamDialog::setRtpStreamSelection(rtpstream_id_t *id, bool state)
     }
 }
 
-void RtpStreamDialog::selectRtpStream(rtpstream_id_t *id)
+void RtpStreamDialog::selectRtpStream(QVector<rtpstream_id_t *> stream_ids)
 {
-    setRtpStreamSelection(id, true);
+    foreach(rtpstream_id_t *id, stream_ids) {
+        setRtpStreamSelection(id, true);
+    }
 }
 
-void RtpStreamDialog::deselectRtpStream(rtpstream_id_t *id)
+void RtpStreamDialog::deselectRtpStream(QVector<rtpstream_id_t *> stream_ids)
 {
-    setRtpStreamSelection(id, false);
+    foreach(rtpstream_id_t *id, stream_ids) {
+        setRtpStreamSelection(id, false);
+    }
 }
 
 bool RtpStreamDialog::eventFilter(QObject *, QEvent *event)

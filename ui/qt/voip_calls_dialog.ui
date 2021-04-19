@@ -153,6 +153,28 @@
     <string notr="true">Ctrl+I</string>
    </property>
   </action>
+  <action name="actionSelectRtpStreams">
+   <property name="text">
+    <string>Select related RTP streams</string>
+   </property>
+   <property name="toolTip">
+    <string>Select RTP streams related to selected calls in RTP Streams dialog</string>
+   </property>
+   <property name="shortcut">
+    <string>S</string>
+   </property>
+  </action>
+  <action name="actionDeselectRtpStreams">
+   <property name="text">
+    <string>Deselect related RTP Streams</string>
+   </property>
+   <property name="toolTip">
+    <string>Select RTP streams related to selected calls in RTP Streams dialog</string>
+   </property>
+   <property name="shortcut">
+    <string>D</string>
+   </property>
+  </action>
  </widget>
  <resources/>
  <connections>

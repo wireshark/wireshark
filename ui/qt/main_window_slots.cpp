@@ -4181,19 +4181,19 @@ void MainWindow::rtpAnalysisDialogRemoveRtpStreams(QVector<rtpstream_id_t *> str
     telephony_dialog_mutex.unlock();
 }
 
-void MainWindow::rtpStreamsDialogSelectRtpStream(rtpstream_id_t *id)
+void MainWindow::rtpStreamsDialogSelectRtpStreams(QVector<rtpstream_id_t *> stream_ids)
 {
     telephony_dialog_mutex.lock();
     openTelephonyRtpStreamsDialog();
-    rtp_stream_dialog_->selectRtpStream(id);
+    rtp_stream_dialog_->selectRtpStream(stream_ids);
     telephony_dialog_mutex.unlock();
 }
 
-void MainWindow::rtpStreamsDialogDeselectRtpStream(rtpstream_id_t *id)
+void MainWindow::rtpStreamsDialogDeselectRtpStreams(QVector<rtpstream_id_t *> stream_ids)
 {
     telephony_dialog_mutex.lock();
     openTelephonyRtpStreamsDialog();
-    rtp_stream_dialog_->deselectRtpStream(id);
+    rtp_stream_dialog_->deselectRtpStream(stream_ids);
     telephony_dialog_mutex.unlock();
 }
 

@@ -366,11 +366,11 @@ public slots:
     void rtpPlayerDialogReplaceRtpStreams(QVector<rtpstream_info_t *> stream_infos);
     void rtpPlayerDialogAddRtpStreams(QVector<rtpstream_info_t *> stream_infos);
     void rtpPlayerDialogRemoveRtpStreams(QVector<rtpstream_info_t *> stream_infos);
-    void rtpAnalysisDialogReplaceRtpStreams(QVector<rtpstream_id_t *> stream_infos);
-    void rtpAnalysisDialogAddRtpStreams(QVector<rtpstream_id_t *> stream_infos);
-    void rtpAnalysisDialogRemoveRtpStreams(QVector<rtpstream_id_t *> stream_infos);
-    void rtpStreamsDialogSelectRtpStream(rtpstream_id_t *id);
-    void rtpStreamsDialogDeselectRtpStream(rtpstream_id_t *id);
+    void rtpAnalysisDialogReplaceRtpStreams(QVector<rtpstream_id_t *> stream_ids);
+    void rtpAnalysisDialogAddRtpStreams(QVector<rtpstream_id_t *> stream_ids);
+    void rtpAnalysisDialogRemoveRtpStreams(QVector<rtpstream_id_t *> stream_ids);
+    void rtpStreamsDialogSelectRtpStreams(QVector<rtpstream_id_t *> stream_ids);
+    void rtpStreamsDialogDeselectRtpStreams(QVector<rtpstream_id_t *> stream_ids);
 
 private slots:
 

@@ -59,8 +59,8 @@ protected:
     void keyPressEvent(QKeyEvent *event);
 
 signals:
-    void rtpStreamsDialogSelectRtpStream(rtpstream_id_t *id);
-    void rtpStreamsDialogDeselectRtpStream(rtpstream_id_t *id);
+    void rtpStreamsDialogSelectRtpStreams(QVector<rtpstream_id_t *> stream_infos);
+    void rtpStreamsDialogDeselectRtpStreams(QVector<rtpstream_id_t *> stream_infos);
     void rtpPlayerDialogReplaceRtpStreams(QVector<rtpstream_info_t *> stream_infos);
     void rtpPlayerDialogAddRtpStreams(QVector<rtpstream_info_t *> stream_infos);
     void rtpPlayerDialogRemoveRtpStreams(QVector<rtpstream_info_t *> stream_infos);
@@ -96,8 +96,8 @@ private slots:
     void on_actionMoveDown1_triggered();
     void on_actionZoomIn_triggered();
     void on_actionZoomOut_triggered();
-    void on_actionSelectRtpStream_triggered();
-    void on_actionDeselectRtpStream_triggered();
+    void on_actionSelectRtpStreams_triggered();
+    void on_actionDeselectRtpStreams_triggered();
     void on_buttonBox_helpRequested();
 
     void rtpPlayerReplace();

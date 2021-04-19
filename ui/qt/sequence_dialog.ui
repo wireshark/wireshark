@@ -376,7 +376,7 @@
     <string>P</string>
    </property>
   </action>
-  <action name="actionSelectRtpStream">
+  <action name="actionSelectRtpStreams">
    <property name="text">
     <string>Select RTP Stream</string>
    </property>
@@ -387,7 +387,7 @@
     <string>S</string>
    </property>
   </action>
-  <action name="actionDeselectRtpStream">
+  <action name="actionDeselectRtpStreams">
    <property name="text">
     <string>Deselect RTP Stream</string>
    </property>

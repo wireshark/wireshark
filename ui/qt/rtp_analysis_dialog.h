@@ -71,11 +71,9 @@ public:
     static QPushButton *addAnalyzeButton(QDialogButtonBox *button_box, QDialog *dialog);
 
     /** Replace/Add/Remove an RTP streams to analyse.
-     * Requires array of rtpstream_info_t.
-     * Each item must have filled items: src_addr, src_port, dest_addr,
-     *  dest_port, ssrc, packet_count, setup_frame_number, and start_rel_time.
+     * Requires array of rtpstream_id_t.
      *
-     * @param stream_ids structs with rtpstream info
+     * @param stream_ids structs with rtpstream_id
      */
     void replaceRtpStreams(QVector<rtpstream_id_t *> stream_ids);
     void addRtpStreams(QVector<rtpstream_id_t *> stream_ids);

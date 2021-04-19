@@ -129,6 +129,17 @@ VoIP Calls window can be opened as window showing all protocol types (menu:Telep
 .VoIP Calls window
 image::wsug_graphics/ws-tel-voip-calls.png[{screenshot-attrs}]
 
+User can use shortcuts:
+
+* Selection
+** kbd:[Ctrl + A] - Select all streams
+** kbd:[Ctrl + I] - Invert selection
+** kbd:[Ctrl + Shift + A] - Select none
+** Note: Common kbd:[Mouse click], kbd:[Shift + Mouse click] and kbd:[Ctrl + Mouse click] works too
+* On selected call/calls
+** kbd:[S] - Selects stream/streams related to call in RTP Streams window (if not opened, it opens it and put it on background).
+** kbd:[D] - Deselects stream/streams related to call in RTP Streams window (if not opened, it opens it and put it on background).
+
 Available controls are:
 
 * btn:[Limit to display filter] filters calls just to ones matching display filter. When display filter is active before window is opened, checkbox is checked.

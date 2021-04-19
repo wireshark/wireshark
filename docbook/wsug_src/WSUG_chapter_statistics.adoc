@@ -674,17 +674,18 @@ Available controls:
 .Flow Graph window showing VoIP call sequences
 image::wsug_graphics/ws-tel-seq-dialog.png[{screenshot-attrs}]
 
-Available controls:
+Additional shortcuts available for VoIP calls:
+
+* On selected RTP stream
+** kbd:[S] - Selects the stream in <<ChTelRTPStreams,RTP Streams>> window (if not opened, it opens it and put it on background).
+** kbd:[D] - Deselects the stream in <<ChTelRTPStreams,RTP Streams>> window (if not opened, it opens it and put it on background).
+
+Additional controls available for VoIP calls:
 
 * btn:[Reset Diagram] resets view position and zoom to default state.
 * btn:[Play Streams] sends selected RTP stream to playlist of <<ChTelRtpPlayer,RTP Player>> window.
 * btn:[Export] allows to export diagram as image in multiple different formats (PDF, PNG, BMP, JPEG and ASCII (diagram is stored with ASCII characters only)).
 
-Additional available shortcuts:
-
-* On selected RTP stream
-** kbd:[S] - Selects the stream in <<ChTelRTPStreams,RTP Streams>> window (if not opened, it opens it and put on background).
-** kbd:[D] - Deselects the stream in <<ChTelRTPStreams,RTP Streams>> window (if not opened, it opens it and put on background).
 
 
 [[ChStatHARTIP]]

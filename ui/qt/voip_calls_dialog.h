@@ -50,6 +50,8 @@ signals:
     void rtpPlayerDialogReplaceRtpStreams(QVector<rtpstream_info_t *> stream_infos);
     void rtpPlayerDialogAddRtpStreams(QVector<rtpstream_info_t *> stream_infos);
     void rtpPlayerDialogRemoveRtpStreams(QVector<rtpstream_info_t *> stream_infos);
+    void rtpStreamsDialogSelectRtpStreams(QVector<rtpstream_id_t *> stream_ids);
+    void rtpStreamsDialogDeselectRtpStreams(QVector<rtpstream_id_t *> stream_ids);
 
 public slots:
     void displayFilterSuccess(bool success);
@@ -114,6 +116,8 @@ private slots:
     void on_actionSelectAll_triggered();
     void on_actionSelectInvert_triggered();
     void on_actionSelectNone_triggered();
+    void on_actionSelectRtpStreams_triggered();
+    void on_actionDeselectRtpStreams_triggered();
 };
 
 #endif // VOIP_CALLS_DIALOG_H
