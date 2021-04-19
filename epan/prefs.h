@@ -218,6 +218,7 @@ typedef struct _e_prefs {
   gboolean     unknown_colorfilters; /* Warn when saving unknown or obsolete color filters. */
   gboolean     gui_qt_packet_list_separator;
   gboolean     gui_qt_packet_header_column_definition;
+  gboolean     gui_qt_packet_list_hover_style; /* Enable/Disable mouse-over colorization */
   gboolean     gui_qt_show_selected_packet;
   gboolean     gui_qt_show_file_load_time;
   gboolean     gui_packet_editor; /* Enable Packet Editor */

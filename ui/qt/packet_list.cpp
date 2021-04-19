@@ -370,7 +370,11 @@ void PacketList::colorsChanged()
     }
 
     // Set the style sheet
-    setStyleSheet(active_style + inactive_style + hover_style);
+    if(prefs.gui_qt_packet_list_hover_style) {
+        setStyleSheet(active_style + inactive_style + hover_style);
+    } else {
+        setStyleSheet(active_style + inactive_style);
+    }
 }
 
 QString PacketList::joinSummaryRow(QStringList col_parts, int row, SummaryCopyType type)

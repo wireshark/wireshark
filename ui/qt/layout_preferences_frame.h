@@ -39,6 +39,7 @@ private:
     pref_t *pref_layout_content_3_;
     pref_t *pref_packet_list_separator_;
     pref_t *pref_packet_header_column_definition_;
+    pref_t *pref_packet_list_hover_style_;
     pref_t *pref_show_selected_packet_;
     pref_t *pref_show_file_load_time_;
 
@@ -69,6 +70,7 @@ private slots:
     void on_restoreButtonBox_clicked(QAbstractButton *button);
     void on_packetListSeparatorCheckBox_toggled(bool checked);
     void on_packetListHeaderShowColumnDefinition_toggled(bool checked);
+    void on_packetListHoverStyleCheckbox_toggled(bool checked);
     void on_statusBarShowSelectedPacketCheckBox_toggled(bool checked);
     void on_statusBarShowFileLoadTimeCheckBox_toggled(bool checked);
 };
