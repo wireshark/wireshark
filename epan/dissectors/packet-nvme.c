@@ -1863,7 +1863,7 @@ static void dissect_nvme_get_logpage_changed_nslist_resp(proto_item *ti, tvbuff_
 
 static const value_string cmd_eff_cse_tbl[] = {
     { 0, "No command submission or execution restriction" },
-    { 1, "One concurrent command per namsespace" },
+    { 1, "One concurrent command per namespace" },
     { 2, "One concurrent command per system" },
     { 0, NULL}
 };
@@ -4358,7 +4358,7 @@ proto_register_nvme(void)
                FT_UINT8, BASE_HEX, VALS(stest_type_active_tbl), 0xf, NULL, HFILL}
         },
         { &hf_nvme_get_logpage_selftest_csto[2],
-            { "Reserevd", "nvme.cmd.get_logpage.selftest.csto.rsvd",
+            { "Reserved", "nvme.cmd.get_logpage.selftest.csto.rsvd",
                FT_UINT8, BASE_HEX, NULL, 0xf0, NULL, HFILL}
         },
         { &hf_nvme_get_logpage_selftest_cstc[0],
@@ -4406,7 +4406,7 @@ proto_register_nvme(void)
                FT_BOOLEAN, 8, NULL, 0x1, NULL, HFILL}
         },
         { &hf_nvme_get_logpage_selftest_res_vdi[2],
-            { "Faling LBA (FLBA) Field Valid", "nvme.cmd.get_logpage.selftest.res.vdi.flba",
+            { "Failing LBA (FLBA) Field Valid", "nvme.cmd.get_logpage.selftest.res.vdi.flba",
                FT_BOOLEAN, 8, NULL, 0x2, NULL, HFILL}
         },
         { &hf_nvme_get_logpage_selftest_res_vdi[3],
@@ -4418,11 +4418,11 @@ proto_register_nvme(void)
                FT_BOOLEAN, 8, NULL, 0x8, NULL, HFILL}
         },
         { &hf_nvme_get_logpage_selftest_res_vdi[5],
-            { "Reserevd", "nvme.cmd.get_logpage.selftest.res.vdi.rsvd",
+            { "Reserved", "nvme.cmd.get_logpage.selftest.res.vdi.rsvd",
                FT_BOOLEAN, 8, NULL, 0xf0, NULL, HFILL}
         },
         { &hf_nvme_get_logpage_selftest_res_rsvd,
-            { "Reserevd", "nvme.cmd.get_logpage.selftest.res.rsvd",
+            { "Reserved", "nvme.cmd.get_logpage.selftest.res.rsvd",
                FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
         },
         { &hf_nvme_get_logpage_selftest_res_poh,
@@ -4512,7 +4512,7 @@ proto_register_nvme(void)
                FT_BOOLEAN, 8, NULL, 0x1, NULL, HFILL}
         },
         { &hf_nvme_get_logpage_egroup_cw[2],
-            { "Reserevd", "nvme.cmd.get_logpage.egroup.cw.rsvd0",
+            { "Reserved", "nvme.cmd.get_logpage.egroup.cw.rsvd0",
                FT_BOOLEAN, 8, NULL, 0x2, NULL, HFILL}
         },
         { &hf_nvme_get_logpage_egroup_cw[3],

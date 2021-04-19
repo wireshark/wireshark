@@ -317,8 +317,11 @@ drbid
 droppable
 dsmcc
 dstport
+dtwin
 dumpcap
 duple
+dword
+dwords
 eapol
 earfcn
 ebcdic
@@ -326,6 +329,7 @@ ecdhe
 ecdsa
 editcap
 egprs
+egroup
 eigrp
 elink
 ellipsoid
@@ -345,6 +349,7 @@ entityid
 entryid
 enumerations
 epasv
+errinf
 errno
 errorcode
 errored
@@ -649,6 +654,7 @@ nssai
 nstime
 nstrace
 ntlmssp
+nvmeof
 obfuscated
 objectid
 objkey
@@ -878,6 +884,7 @@ rpcap
 rtpmidi
 rtpmux
 rxreq
+sanicap
 sanitize
 satisfiable
 scaler
@@ -1196,4 +1203,5 @@ xchannel
 xmlns
 xtreme
 z3950
+zeroes
 zigbee
