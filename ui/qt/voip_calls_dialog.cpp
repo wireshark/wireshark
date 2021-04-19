@@ -321,8 +321,8 @@ void VoipCallsDialog::tapDraw(void *tapinfo_ptr)
 
 gint VoipCallsDialog::compareCallNums(gconstpointer a, gconstpointer b)
 {
-    voip_calls_info_t *call_a = (voip_calls_info_t *)a;
-    voip_calls_info_t *call_b = (voip_calls_info_t *)b;
+    const voip_calls_info_t *call_a = (const voip_calls_info_t *)a;
+    const voip_calls_info_t *call_b = (const voip_calls_info_t *)b;
 
     return (call_a->call_num != call_b->call_num);
 }

@@ -37,7 +37,7 @@ QWidget *AdvancedPrefDelegate::createEditor(QWidget *parent, const QStyleOptionV
     case AdvancedPrefsModel::colType:
         //If user clicks on any of these columns, reset preference back to default
         //There is no need to launch an editor
-        ((QAbstractItemModel*)index.model())->setData(index, QVariant(), Qt::EditRole);
+        const_cast<QAbstractItemModel*>(index.model())->setData(index, QVariant(), Qt::EditRole);
         break;
     case AdvancedPrefsModel::colValue:
         pref = indexToPref(index);

@@ -120,9 +120,10 @@ static void plugin_if_mainwindow_preference(GHashTable * data_set)
     const char * pref_name;
     const char * pref_value;
 
-    if (g_hash_table_lookup_extended(data_set, "pref_module", NULL, (void**)&module_name) &&
-        g_hash_table_lookup_extended(data_set, "pref_key", NULL, (void**)&pref_name) &&
-        g_hash_table_lookup_extended(data_set, "pref_value", NULL, (void**)&pref_value))
+DIAG_OFF_CAST_AWAY_CONST
+    if (g_hash_table_lookup_extended(data_set, "pref_module", NULL, (gpointer *)&module_name) &&
+        g_hash_table_lookup_extended(data_set, "pref_key", NULL, (gpointer *)&pref_name) &&
+        g_hash_table_lookup_extended(data_set, "pref_value", NULL, (gpointer *)&pref_value))
     {
         unsigned int changed_flags = prefs_store_ext(module_name, pref_name, pref_value);
         if (changed_flags) {
@@ -130,6 +131,7 @@ static void plugin_if_mainwindow_preference(GHashTable * data_set)
             wsApp->emitAppSignal(WiresharkApplication::PreferencesChanged);
         }
     }
+DIAG_ON_CAST_AWAY_CONST
 }
 
 static void plugin_if_mainwindow_gotoframe(GHashTable * data_set)

@@ -92,7 +92,7 @@ void CredentialsDialog::tapReset(void *tapdata)
 tap_packet_status CredentialsDialog::tapPacket(void *tapdata, _packet_info *, epan_dissect *, const void *data)
 {
     CredentialsDialog * d = (CredentialsDialog*) tapdata;
-    d->model_->addRecord((tap_credential_t*)data);
+    d->model_->addRecord((const tap_credential_t*)data);
     return TAP_PACKET_REDRAW;
 }
 

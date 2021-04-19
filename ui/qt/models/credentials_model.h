@@ -30,7 +30,7 @@ public:
     virtual QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
     virtual QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
 
-    void addRecord(tap_credential_t* rec);
+    void addRecord(const tap_credential_t *rec);
     void clear();
 
     enum {

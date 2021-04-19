@@ -99,7 +99,7 @@ QVariant CredentialsModel::data(const QModelIndex &index, int role) const
     return QVariant();
 }
 
-void CredentialsModel::addRecord(tap_credential_t* auth)
+void CredentialsModel::addRecord(const tap_credential_t* auth)
 {
     emit beginInsertRows(QModelIndex(), rowCount(), rowCount() + 1);
 

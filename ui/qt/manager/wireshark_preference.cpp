@@ -51,7 +51,7 @@ public:
     BoolPreference(QObject * parent = Q_NULLPTR) : WiresharkPreference(parent) {}
     virtual QWidget * editor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index)
     {
-        ((QAbstractItemModel*)index.model())->setData(index, QString("BOOL"), Qt::EditRole);
+        const_cast<QAbstractItemModel*>(index.model())->setData(index, QString("BOOL"), Qt::EditRole);
         return WiresharkPreference::editor(parent, option, index);
     }
 };
@@ -180,7 +180,7 @@ public:
         QString filename = WiresharkFileDialog::getSaveFileName(parent, wsApp->windowTitleString(prefs_get_title(prefsItem()->getPref())),
                                                     index.model()->data(index, Qt::DisplayRole).toString());
         if (!filename.isEmpty()) {
-            ((QAbstractItemModel*)index.model())->setData(index, QDir::toNativeSeparators(filename), Qt::EditRole);
+            const_cast<QAbstractItemModel*>(index.model())->setData(index, QDir::toNativeSeparators(filename), Qt::EditRole);
         }
         return WiresharkPreference::editor(parent, option, index);
     }
@@ -196,7 +196,7 @@ public:
         QString filename = WiresharkFileDialog::getOpenFileName(parent, wsApp->windowTitleString(prefs_get_title(prefsItem()->getPref())),
                                                         index.model()->data(index, Qt::DisplayRole).toString());
         if (!filename.isEmpty()) {
-            ((QAbstractItemModel*)index.model())->setData(index, QDir::toNativeSeparators(filename), Qt::EditRole);
+            const_cast<QAbstractItemModel*>(index.model())->setData(index, QDir::toNativeSeparators(filename), Qt::EditRole);
         }
         return WiresharkPreference::editor(parent, option, index);
     }
@@ -212,7 +212,7 @@ public:
         QString filename = WiresharkFileDialog::getExistingDirectory(parent, wsApp->windowTitleString(prefs_get_title(prefsItem()->getPref())),
                                                     index.model()->data(index, Qt::DisplayRole).toString());
         if (!filename.isEmpty()) {
-            ((QAbstractItemModel*)index.model())->setData(index, QDir::toNativeSeparators(filename), Qt::EditRole);
+            const_cast<QAbstractItemModel*>(index.model())->setData(index, QDir::toNativeSeparators(filename), Qt::EditRole);
         }
         return WiresharkPreference::editor(parent, option, index);
     }
