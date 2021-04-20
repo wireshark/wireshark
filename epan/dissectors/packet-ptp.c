@@ -2625,7 +2625,6 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean ptp
         col_add_str(pinfo->cinfo, COL_INFO, val_to_str_ext(ptp_v2_messageid, &ptp_v2_messagetype_vals_ext, "Unknown PTP Message (%u)"));
         if (ptp_v2_messageid == PTP_V2_SIGNALLING_MESSAGE)
         {
-            guint   proto_len;
             guint32 tlv_offset;
             guint16 tlv_type;
             guint32 org_id;
@@ -2633,10 +2632,9 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean ptp
             guint16 tlv_length;
             guint16 wr_messageId;
 
-            proto_len  = tvb_reported_length(tvb);
             tlv_offset = PTP_V2_SIG_TLV_START;
 
-            while (tlv_offset < proto_len)
+            while (tlv_offset + PTP_V2_SIG_TLV_LENGTH_LEN + PTP_V2_SIG_TLV_TYPE_LEN <= msg_len)
             {
                 tlv_length   = tvb_get_ntohs(tvb, tlv_offset + PTP_V2_SIG_TLV_LENGTH_OFFSET);
                 tlv_type     = tvb_get_ntohs(tvb, tlv_offset + PTP_V2_SIG_TLV_TYPE_OFFSET);
