@@ -395,6 +395,12 @@ static int hf_nvme_get_logpage_lba_status_nel_ne_rd_rnlb = -1;
 static int hf_nvme_get_logpage_lba_status_nel_ne_rd_rsvd = -1;
 static int hf_nvme_get_logpage_egroup_aggreg_ne = -1;
 static int hf_nvme_get_logpage_egroup_aggreg_eg = -1;
+static int hf_nvme_get_logpage_reserv_notif_lpc = -1;
+static int hf_nvme_get_logpage_reserv_notif_lpt = -1;
+static int hf_nvme_get_logpage_reserv_notif_nalp = -1;
+static int hf_nvme_get_logpage_reserv_notif_rsvd0 = -1;
+static int hf_nvme_get_logpage_reserv_notif_nsid = -1;
+static int hf_nvme_get_logpage_reserv_notif_rsvd1 = -1;
 
 /* NVMe CQE fields */
 static int hf_nvme_cqe_sts = -1;
@@ -2411,6 +2417,48 @@ static void dissect_nvme_get_logpage_egroup_aggreg_resp(proto_item *ti, tvbuff_t
     }
 }
 
+static const value_string rnlpt_tbl[] = {
+    { 0,  "Empty Log Page" },
+    { 1,  "Registration Preempted" },
+    { 2,  "Reservation Released" },
+    { 3,  "Reservation Preempted" },
+    { 0, NULL}
+};
+
+static void dissect_nvme_get_logpage_reserv_notif_resp(proto_item *ti, tvbuff_t *cmd_tvb, struct nvme_cmd_ctx *cmd_ctx, guint len)
+{
+    guint32 off = cmd_ctx->cmd_ctx.get_logpage.off & 0xffffffff; /* need guint type to silence clang-11 errors */
+    proto_tree *grp;
+    guint poff = 0;
+
+    if (cmd_ctx->cmd_ctx.get_logpage.off > 60)
+        return; /* max allowed offset is < 60, so we do not loose bits by casting to guint type */
+
+    grp =  proto_item_add_subtree(ti, ett_data);
+    if (!off && len >= 8)
+        proto_tree_add_item(grp, hf_nvme_get_logpage_reserv_notif_lpc,  cmd_tvb, 0, 8, ENC_LITTLE_ENDIAN);
+    if (off <= 8 && (9 - off) <= len)
+        proto_tree_add_item(grp, hf_nvme_get_logpage_reserv_notif_lpt,  cmd_tvb, 8-off, 1, ENC_LITTLE_ENDIAN);
+    if (off <= 9 && (10 - off) <= len)
+        proto_tree_add_item(grp, hf_nvme_get_logpage_reserv_notif_nalp,  cmd_tvb, 9-off, 1, ENC_LITTLE_ENDIAN);
+    if (off <= 10 && (12 - off) <= len)
+        proto_tree_add_item(grp, hf_nvme_get_logpage_reserv_notif_rsvd0,  cmd_tvb, 10-off, 2, ENC_LITTLE_ENDIAN);
+    if (off <= 12 && (16 - off) <= len)
+        proto_tree_add_item(grp, hf_nvme_get_logpage_reserv_notif_nsid,  cmd_tvb, 12-off, 4, ENC_LITTLE_ENDIAN);
+    if (off < 16) {
+        poff = 16 - off;
+        if (len <= poff)
+            return;
+        len -= poff;
+        if (len > 48)
+            len = 48; /* max padding size is 48 */
+    } else {
+        if (len > (64 - off))
+            len = 64 - off; /* max padding size is 48 */
+    }
+    proto_tree_add_item(grp, hf_nvme_get_logpage_reserv_notif_rsvd1, cmd_tvb, poff, len, ENC_NA);
+}
+
 static void dissect_nvme_get_logpage_resp(tvbuff_t *cmd_tvb, proto_tree *cmd_tree, struct nvme_cmd_ctx *cmd_ctx, guint len)
 {
     proto_item *ti = proto_tree_add_bytes_format_value(cmd_tree, hf_nvme_gen_data, cmd_tvb, 0, len, NULL,
@@ -2445,6 +2493,8 @@ static void dissect_nvme_get_logpage_resp(tvbuff_t *cmd_tvb, proto_tree *cmd_tre
             dissect_nvme_get_logpage_lba_status_resp(ti, cmd_tvb, cmd_ctx, len); break;
         case 0xF:
             dissect_nvme_get_logpage_egroup_aggreg_resp(ti, cmd_tvb, cmd_ctx, len); break;
+        case 0x80:
+            dissect_nvme_get_logpage_reserv_notif_resp(ti, cmd_tvb, cmd_ctx, len); break;
         default:
             return;
     }
@@ -4944,6 +4994,31 @@ proto_register_nvme(void)
         { &hf_nvme_get_logpage_egroup_aggreg_eg,
             { "Endurance Group", "nvme.cmd.get_logpage.egroup_agreg.eg",
                FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        /* Get LogPage Reservation Notification Response */
+        { &hf_nvme_get_logpage_reserv_notif_lpc,
+            { "Log Page Count", "nvme.cmd.get_logpage.reserv_notif.lpc",
+               FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_reserv_notif_lpt,
+            { "Reservation Notification Log Page Type", "nvme.cmd.get_logpage.reserv_notif.lpt",
+               FT_UINT8, BASE_HEX, VALS(rnlpt_tbl), 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_reserv_notif_nalp,
+            { "Number of Available Log Pages", "nvme.cmd.get_logpage.reserv_notif.nalp",
+               FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_reserv_notif_rsvd0,
+            { "Reserved", "nvme.cmd.get_logpage.reserv_notif.rsvd0",
+               FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_reserv_notif_nsid,
+            { "Namespace ID", "nvme.cmd.get_logpage.reserv_notif.nsid",
+               FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_reserv_notif_rsvd1,
+            { "Reserved", "nvme.cmd.get_logpage.reserv_notif.rsvd1",
+               FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
         },
         /* NVMe Response fields */
         { &hf_nvme_cqe_sts,
