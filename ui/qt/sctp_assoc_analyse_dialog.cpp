@@ -114,9 +114,9 @@ void SCTPAssocAnalyseDialog::fillTabs(const sctp_assoc_info_t* selected_assoc)
     /* Tab Endpoint 1 */
 
     if (selected_assoc->init)
-            ui->labelEP1->setText(QString(tr("Complete List of IP addresses from INIT Chunk:")));
+            ui->labelEP1->setText(QString(tr("Complete list of IP addresses from INIT Chunk:")));
         else if ((selected_assoc->initack) && (selected_assoc->initack_dir == 1))
-            ui->labelEP1->setText(QString(tr("Complete List of IP addresses from INIT_ACK Chunk:")));
+            ui->labelEP1->setText(QString(tr("Complete list of IP addresses from INIT_ACK Chunk:")));
         else
             ui->labelEP1->setText(QString(tr("List of Used IP Addresses")));
 
@@ -168,7 +168,7 @@ void SCTPAssocAnalyseDialog::fillTabs(const sctp_assoc_info_t* selected_assoc)
     /* Tab Endpoint 2 */
 
     if ((selected_assoc->initack) && (selected_assoc->initack_dir == 2))
-        ui->labelEP2->setText(QString(tr("Complete List of IP addresses from INIT_ACK Chunk:")));
+        ui->labelEP2->setText(QString(tr("Complete list of IP addresses from INIT_ACK Chunk:")));
     else
         ui->labelEP2->setText(QString(tr("List of Used IP Addresses")));
 
