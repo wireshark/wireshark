@@ -393,6 +393,8 @@ static int hf_nvme_get_logpage_lba_status_nel_ne_rd = -1;
 static int hf_nvme_get_logpage_lba_status_nel_ne_rd_rslba = -1;
 static int hf_nvme_get_logpage_lba_status_nel_ne_rd_rnlb = -1;
 static int hf_nvme_get_logpage_lba_status_nel_ne_rd_rsvd = -1;
+static int hf_nvme_get_logpage_egroup_aggreg_ne = -1;
+static int hf_nvme_get_logpage_egroup_aggreg_eg = -1;
 
 /* NVMe CQE fields */
 static int hf_nvme_cqe_sts = -1;
@@ -2385,6 +2387,30 @@ static void dissect_nvme_get_logpage_lba_status_resp(proto_item *ti, tvbuff_t *c
     }
 }
 
+static void dissect_nvme_get_logpage_egroup_aggreg_resp(proto_item *ti, tvbuff_t *cmd_tvb, struct nvme_cmd_ctx *cmd_ctx, guint len)
+{
+    proto_tree *grp;
+    guint poff = 0;
+
+    if (cmd_ctx->cmd_ctx.get_logpage.off < 8) {
+        poff = 8 - (guint)cmd_ctx->cmd_ctx.get_logpage.off;
+        if (poff > len || (cmd_ctx->cmd_ctx.get_logpage.off && poff == len))
+            return;
+    } else if (len < 2) {
+        return;
+    }
+
+    len -= poff;
+    grp =  proto_item_add_subtree(ti, ett_data);
+    if (!cmd_ctx->cmd_ctx.get_logpage.off)
+        proto_tree_add_item(grp, hf_nvme_get_logpage_egroup_aggreg_ne, cmd_tvb, 0, 8, ENC_LITTLE_ENDIAN);
+    while (len >= 2) {
+        proto_tree_add_item(grp, hf_nvme_get_logpage_egroup_aggreg_eg, cmd_tvb, poff, 2, ENC_LITTLE_ENDIAN);
+        len -= 2;
+        poff += 2;
+    }
+}
+
 static void dissect_nvme_get_logpage_resp(tvbuff_t *cmd_tvb, proto_tree *cmd_tree, struct nvme_cmd_ctx *cmd_ctx, guint len)
 {
     proto_item *ti = proto_tree_add_bytes_format_value(cmd_tree, hf_nvme_gen_data, cmd_tvb, 0, len, NULL,
@@ -2417,6 +2443,8 @@ static void dissect_nvme_get_logpage_resp(tvbuff_t *cmd_tvb, proto_tree *cmd_tre
             dissect_nvme_get_logpage_ana_resp(ti, cmd_tvb, cmd_ctx, len); break;
         case 0xE:
             dissect_nvme_get_logpage_lba_status_resp(ti, cmd_tvb, cmd_ctx, len); break;
+        case 0xF:
+            dissect_nvme_get_logpage_egroup_aggreg_resp(ti, cmd_tvb, cmd_ctx, len); break;
         default:
             return;
     }
@@ -4907,6 +4935,15 @@ proto_register_nvme(void)
         { &hf_nvme_get_logpage_lba_status_nel_ne_rd_rsvd,
             { "Reserved", "nvme.cmd.get_logpage.lba_status.nel.ne.rd.rsvd",
                FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        /* Get LogPage Endurance Group Aggregate Response */
+        { &hf_nvme_get_logpage_egroup_aggreg_ne,
+            { "Number of Entries", "nvme.cmd.get_logpage.egroup_agreg.ne",
+               FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_get_logpage_egroup_aggreg_eg,
+            { "Endurance Group", "nvme.cmd.get_logpage.egroup_agreg.eg",
+               FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}
         },
         /* NVMe Response fields */
         { &hf_nvme_cqe_sts,
