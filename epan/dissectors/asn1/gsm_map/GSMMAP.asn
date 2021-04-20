@@ -286,7 +286,7 @@ GSMMAPLocalErrorcode ::= INTEGER{
 	illegalSS-Operation (16),
 	ss-ErrorStatus (17),
 	ss-NotAvailable (18),
-	ss-SubscriptionViolatio (19),
+	ss-SubscriptionViolation (19),
 	ss-Incompatibility (20),
 	facilityNotSupported (21),
 	ongoingGroupCall (22),
@@ -304,7 +304,7 @@ GSMMAPLocalErrorcode ::= INTEGER{
 	systemFailure (34),
 	dataMissing (35),
 	unexpectedDataValue (36),
-	pw-RegistrationFailur (37),
+	pw-RegistrationFailure (37),
 	negativePW-Check (38),
 	noRoamingNumberAvailable (39),
 	tracingBufferFull (40),
@@ -325,8 +325,8 @@ GSMMAPLocalErrorcode ::= INTEGER{
 	mm-EventNotSupported (59),
 	atsi-NotAllowed (60),
 	atm-NotAllowed (61),
-	informationNotAvailabl (62),
-	unknownAlphabe (71),
+	informationNotAvailable (62),
+	unknownAlphabet (71),
 	ussd-Busy (72)
 }
 
