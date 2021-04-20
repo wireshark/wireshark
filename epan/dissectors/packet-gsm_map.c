@@ -17812,7 +17812,7 @@ const value_string gsm_old_GSMMAPLocalErrorcode_vals[] = {
   {  16, "illegalSS-Operation" },
   {  17, "ss-ErrorStatus" },
   {  18, "ss-NotAvailable" },
-  {  19, "ss-SubscriptionViolatio" },
+  {  19, "ss-SubscriptionViolation" },
   {  20, "ss-Incompatibility" },
   {  21, "facilityNotSupported" },
   {  22, "ongoingGroupCall" },
@@ -17830,7 +17830,7 @@ const value_string gsm_old_GSMMAPLocalErrorcode_vals[] = {
   {  34, "systemFailure" },
   {  35, "dataMissing" },
   {  36, "unexpectedDataValue" },
-  {  37, "pw-RegistrationFailur" },
+  {  37, "pw-RegistrationFailure" },
   {  38, "negativePW-Check" },
   {  39, "noRoamingNumberAvailable" },
   {  40, "tracingBufferFull" },
@@ -17851,8 +17851,8 @@ const value_string gsm_old_GSMMAPLocalErrorcode_vals[] = {
   {  59, "mm-EventNotSupported" },
   {  60, "atsi-NotAllowed" },
   {  61, "atm-NotAllowed" },
-  {  62, "informationNotAvailabl" },
-  {  71, "unknownAlphabe" },
+  {  62, "informationNotAvailable" },
+  {  71, "unknownAlphabet" },
   {  72, "ussd-Busy" },
   { 0, NULL }
 };
