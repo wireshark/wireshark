@@ -1391,7 +1391,7 @@ which only calculates the number of packets and bytes in each interval.
 B<io,stat> can also do much more statistics and calculate COUNT(), SUM(),
 MIN(), MAX(), AVG() and LOAD() using a slightly different filter syntax:
 
-=item -z io,stat,I<interval>,E<34>[COUNT|SUM|MIN|MAX|AVG|LOAD](I<field>)I<filter>E<34>
+=item -z io,stat,I<interval>,E<34>COUNT|SUM|MIN|MAX|AVG|LOAD(I<field>)I<filter>E<34>
 
 NOTE: One important thing to note here is that the filter is not optional
 and that the field that the calculation is based on MUST be part of the filter
