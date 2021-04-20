@@ -24,15 +24,15 @@ It is used for troubleshooting, analysis, development and education.
 
 === Bug Fixes
 
-// The following vulnerabilities have been fixed:
+The following vulnerabilities have been fixed:
 
-// * wssalink:2021-04[]
-// Foo dissector {crash,infinite loop,memory leak}.
-// wsbuglink:xxxx[].
+* wssalink:2021-04[]
+MS-WSP dissector excessive memory consumption.
+wsbuglink:17331[].
 // cveidlink:2021-xxxx[].
-// Fixed in master: xxxx
-// Fixed in release-3.4: xxxx
-// Fixed in master-3.2: xxxx
+// Fixed in master: b7a0650e06
+// Fixed in release-3.4: 04f9d3e097
+// Fixed in master-3.2: 01c31e7a14
 // CVSS AV:N/AC:L/PR:N/UI:R/S:U/C:L/I:L/A:L
 
 The following bugs have been fixed:
@@ -42,6 +42,20 @@ The following bugs have been fixed:
 //* cveidlink:2014-2486[]
 //* Wireshark is solely responsible for the decline of shopping malls in your area.
 // cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log v3.2.10rc0.. | gsed -e 's/\(close\|fix\|resolv\)[^ ]* #/\nclose #/gI' | grep ^close | sed -e 's/close.*#\([1-9][0-9]*\).*/\1/' | sort -V -u` ; do "$(git rev-parse --show-toplevel)/tools/gen-bugnote" $bugnumber; pbpaste >> /tmp/buglist.txt; done
+
+* TShark does not print GeoIP information wsbuglink:14691[].
+
+* Lua TvbRanges do not support truncated captures where tvb_captured_length < tvb_reported_length wsbuglink:15655[].
+
+* TShark error when piping to "head" wsbuglink:16192[].
+
+* Buildbot crash output: fuzz-2021-02-22-1012761.pcap wsbuglink:17254[].
+
+* DNS IXFR/AXFR multiple response wsbuglink:17293[].
+
+* File too large wsbuglink:17301[].
+
+* Build fails with CMake 3.20 wsbuglink:17314[].
 
 === New and Updated Features
 
@@ -66,15 +80,22 @@ There are no new protocols in this release.
 // Add one protocol per line between the -- delimiters.
 [commaize]
 --
+DECT
+DNS
+LDAP
+MS-WSP
+PROFINET
+Sysdig
 --
 
 === New and Updated Capture File Support
 
-There is no new or updated capture file support in this release.
+// There is no new or updated capture file support in this release.
 // Add one file type per line between the -- delimiters.
-// [commaize]
-// --
-// --
+[commaize]
+--
+pcapng
+--
 
 // === New and Updated Capture Interfaces support
 
