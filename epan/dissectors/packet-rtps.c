@@ -339,6 +339,10 @@ static dissector_table_t rtps_type_name_table;
 #define PID_GROUP_ENTITY_ID                     (0x53)
 #define PID_FILTER_SIGNATURE                    (0x55)
 #define PID_COHERENT_SET                        (0x56)
+#define PID_GROUP_COHERENT_SET                  (0x0063)
+#define PID_END_COHERENT_SET                    (0x8022)
+#define PID_END_GROUP_COHERENT_SET              (0x8023)
+#define MIG_RTPS_PID_END_COHERENT_SET_SAMPLE_COUNT  (0x8024)
 
 /* The following QoS are deprecated */
 #define PID_PERSISTENCE                         (0x03)
@@ -1049,6 +1053,9 @@ static int hf_rtps_udpv4_wan_locator_public_port                = -1;
 static int hf_rtps_udpv4_wan_binding_ping_port                  = -1;
 static int hf_rtps_udpv4_wan_binding_ping_flags                 = -1;
 static int hf_rtps_long_address                                 = -1;
+static int hf_rtps_param_group_coherent_set                     = -1;
+static int hf_rtps_param_end_group_coherent_set                 = -1;
+static int hf_rtps_param_mig_end_coherent_set_sample_count      = -1;
 
 /* Flag bits */
 static int hf_rtps_flag_reserved80                              = -1;
@@ -1642,6 +1649,10 @@ static const value_string parameter_id_v2_vals[] = {
   { PID_PARTICIPANT_SECURITY_INFO,      "PID_PARTICIPANT_SECURITY_INFO" },
   { PID_DOMAIN_ID,                      "PID_DOMAIN_ID" },
   { PID_DOMAIN_TAG,                     "PID_DOMAIN_TAG" },
+  { PID_GROUP_COHERENT_SET,             "PID_GROUP_COHERENT_SET" },
+  { PID_END_COHERENT_SET,               "PID_END_COHERENT_SET" },
+  { PID_END_GROUP_COHERENT_SET,         "PID_END_GROUP_COHERENT_SET" },
+  { MIG_RTPS_PID_END_COHERENT_SET_SAMPLE_COUNT,  "MIG_RTPS_PID_END_COHERENT_SET_SAMPLE_COUNT" },
 
   /* The following PID are deprecated */
   { PID_DEADLINE_OFFERED,               "PID_DEADLINE_OFFERED [deprecated]" },
@@ -2943,9 +2954,10 @@ static void append_status_info(packet_info *pinfo,
  * Coherent set starts if seqNumber == writerSeqNumber
  *
  * Coherent sets end in three different ways:
- *-A new coherence set starts with the consecutive writerSeqNumber of the last coherent set packet.
+ * - A new coherence set starts with the consecutive writerSeqNumber of the last coherent set packet.
  *   -seqNumber == RTPS_SEQUENCENUMBER_UNKNOWN
- * -A DATA packet sent with the consecutive writerSeqNumber of the last coherent set packet.
+ * - A DATA packet sent with the consecutive writerSeqNumber of the last coherent set packet.
+ * - PID_END_COHERENT_SET received. That condition is not handled here. Check PID_END_COHERENT_SET dissection.
  * Empty Data condition is not handled here. rtps_util_detect_coherent_set_end_empty_data_case called at the end of dissect_RTPS_DATA and dissect_RTPS_DATA_FRAG
  */
 static void rtps_util_add_coherent_set_general_cases_case(
@@ -2970,7 +2982,7 @@ static void rtps_util_add_coherent_set_general_cases_case(
       register_entry);
   }
 
-  // The hash and compare functions treat the key as a sequence of bytes.
+  /* The hash and compare functions treat the key as a sequence of bytes */
   memset(&coherent_set_info_key, 0, sizeof(coherent_set_info_key));
   coherent_set_info_key.guid = coherent_set_entity_info_object->guid;
   coherent_set_info_key.coherent_set_seq_number = coherent_seq_number;
@@ -3017,6 +3029,7 @@ static void rtps_util_add_coherent_set_general_cases_case(
     coherent_set_info_key.coherent_set_seq_number = coherent_seq_number - 1;
 
     /* End case: Sequence unknown received */
+
     if (coherent_set_entity_info_object->coherent_set_seq_number == RTPS_SEQUENCENUMBER_UNKNOWN) {
       register_entry->coherent_set_seq_number = coherent_set_entity_info_object->coherent_set_seq_number;
       marked_item_tree = proto_tree_add_uint64(tree, hf_rtps_coherent_set_end,
@@ -3051,18 +3064,17 @@ static void rtps_util_detect_coherent_set_end_empty_data_case(
     coherent_set_info *coherent_set_info_entry;
     coherent_set_key key;
 
-    // The hash and compare functions treat the key as a sequence of bytes.
+    /* The hash and compare functions treat the key as a sequence of bytes. */
     memset(&key, 0, sizeof(key));
     key.guid = coherent_set_entity_info_object->guid;
     key.coherent_set_seq_number = coherent_set_entry->coherent_set_seq_number;
 
     coherent_set_info_entry = (coherent_set_info*)wmem_map_lookup(coherent_set_tracking.coherent_set_registry_map, &key);
-    if (coherent_set_info_entry) {
-      if (coherent_set_entry->expected_coherent_set_end_writers_seq_number == coherent_set_entity_info_object->writer_seq_number) {
-
+    if (coherent_set_info_entry
+                && coherent_set_entry->expected_coherent_set_end_writers_seq_number == coherent_set_entity_info_object->writer_seq_number
+                && !coherent_set_info_entry->is_set) {
         coherent_set_info_entry->is_set = TRUE;
         coherent_set_info_entry->writer_seq_number = coherent_set_entry->expected_coherent_set_end_writers_seq_number - 1;
-      }
     }
   }
 }
@@ -7732,7 +7744,8 @@ static gboolean dissect_parameter_sequence_v2(proto_tree *rtps_parameter_tree, p
                         proto_item *parameter_item _U_, proto_item *param_len_item,
                         gint offset, const guint encoding, int param_length,
                         guint16 parameter, guint32 *pStatusInfo, guint16 vendor_id _U_,
-                        type_mapping * type_mapping_object) {
+                        type_mapping * type_mapping_object,
+                        coherent_set_entity_info *coherent_set_entity_info_object _U_) {
   proto_item *ti;
 
   switch(parameter) {
@@ -8001,7 +8014,132 @@ static gboolean dissect_parameter_sequence_v2(proto_tree *rtps_parameter_tree, p
       }
       break;
     }
+    /* This parameter PID serializes a sequence number like the existing PID_COHERENT_SET */
+    /* 0...2...........7...............15.............23...............31
+    * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    * | PID_GROUP_COHERENT_SET        |            length             |
+    * +---------------+---------------+---------------+---------------+
+    * |                                                               |
+    * + SequenceNumber seqNumber                                      +
+    * |                                                               |
+    * +---------------+---------------+---------------+---------------+
+    */
+    case PID_GROUP_COHERENT_SET: {
+        guint64 hi = (guint64)tvb_get_guint32(tvb, offset, encoding);
+        guint64 lo = (guint64)tvb_get_guint32(tvb, offset + 4, encoding);
+        guint64 all = (hi << 32) | lo;
 
+        proto_tree_add_uint64(
+                rtps_parameter_tree,
+                hf_rtps_param_group_coherent_set,
+                tvb, offset,
+                sizeof(guint64),
+                all);
+        break;
+    }
+    /* This parameter serializes a sequence number like the existing PID_COHERENT_SET
+     * and only applies to an end coherent set sample.
+     */
+     /* 0...2...........7...............15.............23...............31
+     * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+     * | PID_END_GROUP_COHERENT_SET    |            length             |
+     * +---------------+---------------+---------------+---------------+
+     * |                                                               |
+     * + SequenceNumber seqNumber                                      +
+     * |                                                               |
+     * +---------------+---------------+---------------+---------------+
+     */
+    case PID_END_GROUP_COHERENT_SET: {
+        guint64 hi = (guint64)tvb_get_guint32(tvb, offset, encoding);
+        guint64 lo = (guint64)tvb_get_guint32(tvb, offset + 4, encoding);
+        guint64 all = (hi << 32) | lo;
+
+        proto_tree_add_uint64(
+            rtps_parameter_tree,
+            hf_rtps_param_end_group_coherent_set,
+            tvb, offset,
+            sizeof(guint64),
+            all);
+        break;
+    }
+    /* This parameter serializes a SN like the existing PID_COHERENT_SET and
+     * only applies to an end coherent set sample.
+     * Since there are different ways to finish a coherent set it is necessary
+     * to store information about the available coherent sets. this PID requires
+     * set the corrresponding coherence set as "is_set".
+     */
+     /* 0...2...........7...............15.............23...............31
+     * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+     * | PID_END_COHERENT_SET          |            length             |
+     * +---------------+---------------+---------------+---------------+
+     * |                                                               |
+     * + SequenceNumber seqNumber                                      +
+     * |                                                               |
+     * +---------------+---------------+---------------+---------------+
+     */
+    case PID_END_COHERENT_SET: {
+
+        coherent_set_key coherent_set_info_key;
+        guint64 coherent_seq_number = 0;
+        coherent_set_entity_info *register_entry = NULL;
+        coherent_set_info *coherent_set_info_entry;
+
+        coherent_seq_number = rtps_util_add_seq_number(
+                rtps_parameter_tree,
+                tvb,
+                offset,
+                encoding,
+                "coherenceSetSequenceNumber");
+        ti = proto_tree_add_uint64(
+                rtps_parameter_tree,
+                hf_rtps_coherent_set_end,
+                tvb,
+                0,
+                0,
+                coherent_seq_number);
+        proto_item_set_generated(ti);
+        /* Need to finish the stored coherence set */
+        if (coherent_set_entity_info_object != NULL) {
+            register_entry = (coherent_set_entity_info*)wmem_map_lookup(
+                    coherent_set_tracking.entities_using_map,
+                    &coherent_set_entity_info_object->guid);
+            if (register_entry) {
+                register_entry->coherent_set_seq_number = coherent_seq_number;
+                memset(&coherent_set_info_key, 0, sizeof(coherent_set_info_key));
+                coherent_set_info_key.guid = register_entry->guid;
+                coherent_set_info_key.coherent_set_seq_number = register_entry->coherent_set_seq_number;
+                coherent_set_info_entry = (coherent_set_info*)wmem_map_lookup(
+                        coherent_set_tracking.coherent_set_registry_map,
+                        &coherent_set_info_key);
+                if (coherent_set_info_entry) {
+                    /* The coherence set is completely set up */
+                    coherent_set_info_entry->is_set = TRUE;
+                    /* Updating by last time the writer_seq_number */
+                    coherent_set_info_entry->writer_seq_number = coherent_set_entity_info_object->writer_seq_number;
+                }
+            }
+        }
+        break;
+    }
+    /* This parameter serializes a long (4-byte integer) and only applies to an end coherent set sample */
+    /* 0...2...........7...............15.............23...............31
+    * +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+    * | MIG..._SET_SAMPLE_COUNT       |            length             |
+    * +---------------+---------------+---------------+---------------+
+    * + sampleCount                                                   +
+    * +---------------+---------------+---------------+---------------+
+    */
+    case MIG_RTPS_PID_END_COHERENT_SET_SAMPLE_COUNT: {
+        guint32 sample_count = tvb_get_guint32(tvb, offset, encoding);
+
+        proto_tree_add_uint(
+            rtps_parameter_tree,
+            hf_rtps_param_mig_end_coherent_set_sample_count,
+            tvb, offset,
+            sizeof(guint32),
+            sample_count);
+        break;
+    }
     default:
         return FALSE;
   } /* End of switch(parameter) */
@@ -8157,7 +8295,7 @@ static gint dissect_parameter_sequence(proto_tree *tree, packet_info *pinfo, tvb
           if ((version < 0x0200) ||
             !dissect_parameter_sequence_v2(rtps_parameter_tree, pinfo, tvb, param_item, param_len_item,
             offset, encoding, param_length, parameter,
-            pStatusInfo, vendor_id, type_mapping_object)) {
+            pStatusInfo, vendor_id, type_mapping_object, coherent_set_entity_info_object)) {
               if (param_length > 0) {
                 proto_tree_add_item(rtps_parameter_tree, hf_rtps_parameter_data, tvb,
                         offset, param_length, ENC_NA);
@@ -14531,6 +14669,18 @@ void proto_register_rtps(void) {
     },
     { &hf_rtps_long_address, {
         "Long address", "rtps.long_address", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }
+    },
+    { &hf_rtps_param_group_coherent_set, {
+        "Group coherent set sequence number", "rtps.param.group_coherent_set",
+        FT_UINT64, BASE_DEC, NULL, 0, "Decimal value representing the value of PID_GROUP_COHERENT_SET parameter", HFILL }
+    },
+    { &hf_rtps_param_end_group_coherent_set, {
+        "End group coherent set sequence number", "rtps.param.end_group_coherent_set",
+        FT_UINT64, BASE_DEC, NULL, 0, "Decimal value representing the value of PID_END_GROUP_COHERENT_SET parameter", HFILL }
+    },
+    { &hf_rtps_param_mig_end_coherent_set_sample_count, {
+        "Ended coherent set sample count", "rtps.param.mig_end_coherent_set_sample_count",
+        FT_UINT32, BASE_DEC, NULL, 0, "Decimal value representing the value of MIG_RTPS_PID_END_COHERENT_SET_SAMPLE_COUNT parameter", HFILL }
     }
   };
 
