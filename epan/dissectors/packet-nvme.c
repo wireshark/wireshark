@@ -3572,7 +3572,7 @@ proto_register_nvme(void)
                FT_BOOLEAN, 8, NULL, 0x2, NULL, HFILL}
         },
         { &hf_nvme_identify_ctrl_fna[3],
-            { "Cryptographic Erase Supportred", "nvme.cmd.identify.ctrl.fna.ces",
+            { "Cryptographic Erase Supported", "nvme.cmd.identify.ctrl.fna.ces",
                FT_BOOLEAN, 8, NULL, 0x4, NULL, HFILL}
         },
         { &hf_nvme_identify_ctrl_fna[4],

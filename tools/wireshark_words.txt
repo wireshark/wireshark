@@ -90,6 +90,7 @@ beamformee
 beamformer
 beamforming
 bidirectional
+bidirectionally
 bitfield
 bitmask
 bitrate
@@ -507,6 +508,7 @@ itunes
 iwarp
 ixveriwave
 jetds
+jsonraw
 kademlia
 keepalive
 kerberos
@@ -732,6 +734,7 @@ preconfiguration
 preconfigured
 preempting
 preemption
+prefname
 prefs
 preloaded
 prepay

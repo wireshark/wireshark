@@ -25,7 +25,7 @@ Some of these statistics are described at the
 
 === Playing VoIP Calls
 
-The tool for playing VoIP calls is called <<ChTelRtpPlayer,RTP Player>>. It shows RTP streams and its waveforms, allows play stream and export it as audio or payload to file. Its capabilites depends on supported codecs.
+The tool for playing VoIP calls is called <<ChTelRtpPlayer,RTP Player>>. It shows RTP streams and its waveforms, allows play stream and export it as audio or payload to file. Its capabilities depends on supported codecs.
 
 ==== Supported codecs
 
@@ -60,7 +60,7 @@ btn:[Remove from playlist] is useful e. g. in case user selected all RTP streams
 Tools below can be used to maintain content of playlist, they contain btn:[Play Streams] button. You can use one of procedures (Note: btn:[Add to playlist] action is demonstrated):
 
 * Open menu:Telephony[RTP > RTP Streams] window, it will show all streams in the capture. Select one or more streams and then press btn:[Play Streams]. Selected streams are added to playlist.
-* Select any RTP packet in packet list, open menu:Telephony[RTP > Stream Analysis] window. It will show analysis of selected forward stream and its reverse stream (if btn:[Ctrl] is pressed during window openning). Then press btn:[Play Streams]. Forward and reverse stream is added to playlist.
+* Select any RTP packet in packet list, open menu:Telephony[RTP > Stream Analysis] window. It will show analysis of selected forward stream and its reverse stream (if btn:[Ctrl] is pressed during window opening). Then press btn:[Play Streams]. Forward and reverse stream is added to playlist.
 ** menu:RTP Stream Analysis[] window can be opened from other tools too.
 * Open menu:Telephony[VoIP Calls] or menu:Telephony[SIP Flows] window, it will show all calls. Select one or more calls and then press btn:[Play Streams]. It will add all RTP streams related to selected calls to playlist.
 * Open btn:[Flow Sequence] window in menu:Telephony[VoIP Calls] or menu:Telephony[SIP Flows] window, it will show flow sequence of calls. Select any RTP stream and then press btn:[Play Streams]. It will add selected RTP stream to playlist.
