@@ -12767,7 +12767,6 @@ add_ff_auth_pasn(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_,
 {
   guint seq, status_code;
   ieee80211_pasn_data_t *pasn_data = NULL;
-  guint8 wrapped_fmt = 0;
 
   seq = tvb_get_letohs(tvb, 2);
   status_code = tvb_get_letohs(tvb, 4);
@@ -12787,17 +12786,11 @@ add_ff_auth_pasn(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_,
      * Timeout Interval element may be present
      * Fragment element may be present if it was fragmented.
      */
-    offset += add_tagged_field(pinfo, tree, tvb, offset, 0, NULL, 0, NULL);
-    /* Sigh, reach into the PASN element */
-    wrapped_fmt = tvb_get_guint8(tvb, offset + 4);
-    offset += add_tagged_field(pinfo, tree, tvb, offset, 0, NULL, 0, NULL);
-    if (wrapped_fmt > 0 && wrapped_fmt <= 3) {
+    while (tvb_captured_length_remaining(tvb, offset)) {
       offset += add_tagged_field(pinfo, tree, tvb, offset, 0, NULL, 0, NULL);
     }
-    /* How do we check if this is there? */
-    offset += add_tagged_field(pinfo, tree, tvb, offset, 0, NULL, 0, NULL);
-    /* Do we have any more of the possible fields */
   } else if (seq == 2) {
+    /* This test might not be needed */
     if (status_code != 0) {
       offset += tvb_captured_length_remaining(tvb, offset);
       return offset;
@@ -12808,17 +12801,9 @@ add_ff_auth_pasn(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_,
      * Wrapped Data element present if the PASN element says so.
      * ...
      */
-    offset += add_tagged_field(pinfo, tree, tvb, offset, 0, NULL, 0, NULL);
-
-    if (status_code == 0) {
-      wrapped_fmt = tvb_get_guint8(tvb, offset + 4);
+    while (tvb_captured_length_remaining(tvb, offset)) {
       offset += add_tagged_field(pinfo, tree, tvb, offset, 0, NULL, 0, NULL);
-      if (wrapped_fmt > 0 && wrapped_fmt <= 3) {
-        offset += add_tagged_field(pinfo, tree, tvb, offset, 0, NULL, 0, NULL);
-      }
     }
-    offset += add_tagged_field(pinfo, tree, tvb, offset, 0, NULL, 0, NULL);
-    offset += add_tagged_field(pinfo, tree, tvb, offset, 0, NULL, 0, NULL);
   } else if (seq == 3) {
     /*
      * Contains PASN element if status == 0
@@ -12826,14 +12811,9 @@ add_ff_auth_pasn(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_,
      * Contains MC element
      * May contain fragment elements.
      */
-    if (status_code == 0) {
-      wrapped_fmt = tvb_get_guint8(tvb, offset + 4);
+    while (tvb_captured_length_remaining(tvb, offset)) {
       offset += add_tagged_field(pinfo, tree, tvb, offset, 0, NULL, 0, NULL);
-      if (wrapped_fmt > 0 && wrapped_fmt <= 3) {
-        offset += add_tagged_field(pinfo, tree, tvb, offset, 0, NULL, 0, NULL);
-      }
     }
-    offset += add_tagged_field(pinfo, tree, tvb, offset, 0, NULL, 0, NULL);
   }
 
   offset += tvb_captured_length_remaining(tvb, offset);
