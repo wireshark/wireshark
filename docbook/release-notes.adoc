@@ -24,17 +24,16 @@ It is used for troubleshooting, analysis, development and education.
 
 === Bug Fixes
 
-The following vulnerabilities have been fixed:
+// The following vulnerabilities have been fixed:
 
-* wssalink:2021-04[]
-MS-WSP dissector excessive memory consumption.
-wsbuglink:17331[].
+// * wssalink:2021-04[]
+// Foo dissector {crash,infinite loop,memory leak}.
+// wsbuglink:xxxx[].
 // cveidlink:2021-xxxx[].
-// Fixed in master: b7a0650e06
-// Fixed in release-3.4: 04f9d3e097
-// Fixed in master-3.2: 01c31e7a14
-// CVSS AV:L/AC:L/PR:L/UI:N/S:U/C:N/I:N/A:H
-
+// Fixed in master: xxxx
+// Fixed in release-3.4: xxxx
+// Fixed in master-3.2: xxxx
+// CVSS AV:N/AC:L/PR:N/UI:R/S:U/C:L/I:L/A:L
 
 The following bugs have been fixed:
 
@@ -43,26 +42,6 @@ The following bugs have been fixed:
 //* cveidlink:2014-2486[]
 //* Wireshark exposed details your sordid redneck past, which were subsequently widely disseminated on social media.
 // cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log v3.4.4rc0.. | gsed -e 's/\(close\|fix\|resolv\)[^ ]* #/\nclose #/gI' | grep ^close | sed -e 's/close.*#\([1-9][0-9]*\).*/\1/' | sort -V -u` ; do "$(git rev-parse --show-toplevel)/tools/gen-bugnote" $bugnumber; pbpaste >> /tmp/buglist.txt; done
-
-* TShark does not print GeoIP information wsbuglink:14691[].
-
-* TShark error when piping to "head" wsbuglink:16192[].
-
-* Parts of ASCII representation in Packet Bytes pane are missing wsbuglink:17087[].
-
-* Buildbot crash output: fuzz-2021-02-22-1012761.pcap wsbuglink:17254[].
-
-* NDPE attribute of NAN packet is not dissected wsbuglink:17278[].
-
-* TECMP: reserved flag interpreted as part of timestamp wsbuglink:17279[].
-
-* Master branch does not compile at least with gcc-11 wsbuglink:17281[].
-
-* DNS IXFR/AXFR multiple response wsbuglink:17293[].
-
-* File too large wsbuglink:17301[].
-
-* Build fails with CMake 3.20 wsbuglink:17314[].
 
 === New and Updated Features
 
@@ -85,26 +64,15 @@ There are no new protocols in this release.
 // Add one protocol per line between the -- delimiters.
 [commaize]
 --
-DECT
-DNS
-EAP
-Kerberos
-LDAP
-MS-WSP
-SMB2
-Sysdig
-TECMP
-WiFi NAN
 --
 
 === New and Updated Capture File Support
 
-// There is no new or updated capture file support in this release.
+There is no new or updated capture file support in this release.
 // Add one file type per line between the -- delimiters.
-[commaize]
---
-pcapng
---
+// [commaize]
+// --
+// --
 
 // === New and Updated Capture Interfaces support
 
