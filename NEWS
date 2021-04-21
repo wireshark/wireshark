@@ -9,7 +9,28 @@ Wireshark 3.2.13 Release Notes
 
   Bug Fixes
 
+   The following vulnerabilities have been fixed:
+
+     • wnpa-sec-2021-04[1] MS-WSP dissector excessive memory
+       consumption. Issue 17331[2].
+
    The following bugs have been fixed:
+
+     • TShark does not print GeoIP information Issue 14691[3].
+
+     • Lua TvbRanges do not support truncated captures where
+       tvb_captured_length < tvb_reported_length Issue 15655[4].
+
+     • TShark error when piping to "head" Issue 16192[5].
+
+     • Buildbot crash output: fuzz-2021-02-22-1012761.pcap Issue
+       17254[6].
+
+     • DNS IXFR/AXFR multiple response Issue 17293[7].
+
+     • File too large Issue 17301[8].
+
+     • Build fails with CMake 3.20 Issue 17314[9].
 
   New and Updated Features
 
@@ -21,9 +42,11 @@ Wireshark 3.2.13 Release Notes
 
   Updated Protocol Support
 
+   DECT, DNS, LDAP, MS-WSP, PROFINET, and Sysdig
+
   New and Updated Capture File Support
 
-   There is no new or updated capture file support in this release.
+   pcapng
 
  Getting Wireshark
 
@@ -35,7 +58,7 @@ Wireshark 3.2.13 Release Notes
    Most Linux and Unix vendors supply their own Wireshark packages. You
    can usually install or upgrade Wireshark using the package management
    system specific to that platform. A list of third-party packages can
-   be found on the download page[1] on the Wireshark web site.
+   be found on the download page[10] on the Wireshark web site.
 
  File Locations
 
@@ -49,22 +72,31 @@ Wireshark 3.2.13 Release Notes
   The User’s Guide, manual pages and various other documentation can be
   found at https://www.wireshark.org/docs/
 
-  Community support is available on Wireshark’s Q&A site[2] and on the
+  Community support is available on Wireshark’s Q&A site[11] and on the
   wireshark-users mailing list. Subscription information and archives
-  for all of Wireshark’s mailing lists can be found on the web site[3].
+  for all of Wireshark’s mailing lists can be found on the web site[12].
 
-  Issues and feature requests can be reported on the issue tracker[4].
+  Issues and feature requests can be reported on the issue tracker[13].
 
  Frequently Asked Questions
 
-  A complete FAQ is available on the Wireshark web site[5].
+  A complete FAQ is available on the Wireshark web site[14].
 
-  Last updated 2021-04-18 09:54:16 UTC
+  Last updated 2021-04-21 17:07:30 UTC
 
  References
 
-   1. https://www.wireshark.org/download.html#thirdparty
-   2. https://ask.wireshark.org/
-   3. https://www.wireshark.org/lists/
-   4. https://gitlab.com/wireshark/wireshark/-/issues
-   5. https://www.wireshark.org/faq.html
+   1. https://www.wireshark.org/security/wnpa-sec-2021-04
+   2. https://gitlab.com/wireshark/wireshark/-/issues/17331
+   3. https://gitlab.com/wireshark/wireshark/-/issues/14691
+   4. https://gitlab.com/wireshark/wireshark/-/issues/15655
+   5. https://gitlab.com/wireshark/wireshark/-/issues/16192
+   6. https://gitlab.com/wireshark/wireshark/-/issues/17254
+   7. https://gitlab.com/wireshark/wireshark/-/issues/17293
+   8. https://gitlab.com/wireshark/wireshark/-/issues/17301
+   9. https://gitlab.com/wireshark/wireshark/-/issues/17314
+  10. https://www.wireshark.org/download.html#thirdparty
+  11. https://ask.wireshark.org/
+  12. https://www.wireshark.org/lists/
+  13. https://gitlab.com/wireshark/wireshark/-/issues
+  14. https://www.wireshark.org/faq.html
