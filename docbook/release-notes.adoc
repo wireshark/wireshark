@@ -33,7 +33,7 @@ wsbuglink:17331[].
 // Fixed in master: b7a0650e06
 // Fixed in release-3.4: 04f9d3e097
 // Fixed in master-3.2: 01c31e7a14
-// CVSS AV:N/AC:L/PR:N/UI:R/S:U/C:L/I:L/A:L
+// CVSS AV:L/AC:L/PR:L/UI:N/S:U/C:N/I:N/A:H
 
 
 The following bugs have been fixed:

@@ -1,488 +1,759 @@
-commit 144380001b
+commit 6548abd191
 Author: Gerald Combs <gerald@wireshark.org>
-Date:   Tue Mar 9 14:36:18 2021 -0800
+Date:   Mon Apr 19 12:23:07 2021 -0700
 
-    Windows: Update our spandsp packages.
+    Prep for 3.4.5.
+
+commit 04f9d3e097
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Mon Apr 19 10:39:01 2021 -0700
+
+    MS-WSP: Don't allocate huge amounts of memory.
     
-    Use the versions of lrint and lrintf defined by Visual C++. This should fix
+    Add a couple of memory allocation sanity checks, one of which
+    fixes #17331.
     
-        91>C:\buildbot\builders\wireshark-master-64\wireshark-win64-libs\spandsp-0.0.6-win64ws\include\spandsp/fast_convert.h(320,5): error C2169: 'lrint': intrinsic function, cannot be defined (compiling source file C:\buildbot\builders\wireshark-master-64\windows-2019-x64\build\plugins\codecs\G726\G726decode.c) [C:\buildbot\builders\wireshark-master-64\windows-2019-x64\build\cmbuild\plugins\codecs\G726\g726.vcxproj]
-        91>C:\buildbot\builders\wireshark-master-64\wireshark-win64-libs\spandsp-0.0.6-win64ws\include\spandsp/fast_convert.h(325,5): error C2169: 'lrintf': intrinsic function, cannot be defined (compiling source file C:\buildbot\builders\wireshark-master-64\windows-2019-x64\build\plugins\codecs\G726\G726decode.c) [C:\buildbot\builders\wireshark-master-64\windows-2019-x64\build\cmbuild\plugins\codecs\G726\g726.vcxproj]
     
-    for Visual C++ 16.9.1 and later.
+    (cherry picked from commit b7a0650e061b5418ab4a8f72c6e4b00317aff623)
+
+commit 19d03ef4ac
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Wed Mar 31 11:30:45 2021 -0700
+
+    CMake: Enable AUTO{MOC,UIC,RCC} according to our CMake version.
     
-    (cherry picked from commit 4b07a92103586daca58ad7db0d6a97230c73ce7c)
+    As noted in be2b0fc810, we need to set CMAKE_AUTO* before searching for
+    Qt packages when using 3.20.0 and later. However, this fails if we're
+    using CMake 3.9.6 or earlier. Set CMAKE_AUTO* where needed depending on
+    our CMake version.
+    
+    Ping #17314.
+    
+    (cherry picked from commit a80ea46ff7f19e4c7f9ade4970b0f2a2202f2ea2)
     
     Conflicts:
-            tools/win-setup.ps1
+            ui/qt/CMakeLists.txt
 
-commit 733c52cc0b
-Author: Gerald Combs <gerald@wireshark.org>
-Date:   Mon Mar 8 11:00:46 2021 -0800
+commit eee907aeb5
+Author: naf <naf@sdf.org>
+Date:   Tue Feb 2 13:25:52 2021 -0600
 
-    Prep for 3.4.4.
-
-commit f8acbe7598
-Author: Gerald Combs <gerald@wireshark.org>
-Date:   Sun Mar 7 10:33:11 2021 +0000
-
-    [Automatic update for 2021-03-07]
+    QT ByteViewText: calculate string widths consistently to prevent clipping
     
-    Update manuf, services enterprise numbers, translations, and other items.
-
-commit 0de80702bd
-Author: Nardi Ivan <nardi.ivan@gmail.com>
-Date:   Thu Feb 25 11:21:18 2021 +0000
-
-    GQUIC: fix parsing of unknown (but valid) tags
+    For QT >5.11, stringWidth() uses horizontalAdvance, which gives different
+    (longer) widths than the old boundingRect().width() method.
     
-    This commit should be a proper fix for the regression reported in #17250
-    (7fd71536 is a simple workaround). Such regression has been introduced by
-    b287e716 while fixing the infinite loop reported in #16897.
+    Other locations use the boundRect().width() method directly, resulting
+    in underestimating line widths and clipping the last characters in
+    the byte view window.
     
-    b287e716, while fixing the infinite loop, broke the decoding of perfectly
-    valid tags not yet supported by Wireshark.
+    Fix by forcing all width calculations to use stringWidth().
+    Closes #17087.
     
-    AFAIK, the root cause of the infinite loop is the overflow of the `offset`
-    variable. Therefore checking for this overflow should be sufficient to avoid
-    the loop.
-    Note that we already check for sensible values for the 'tag_len' variable;
-    we should update `total_tag_len` accordingly.
-    
-    Some words about testing: other than correctly handling unknown but valid
-    tags, it is important that this commit doesn't reintroduce the infinite
-    loop bug.
-    Fortunately #16897 provided a POC trace. Unfortunately, if you revert
-    b287e716, this POC doesn't work anymore in master-3.4 and master branches,
-    but it still triggers the infinite loop in master-3.2 branch.
-    Therefore I have been able to manually check that this MR + the
-    overflow check is enough to avoid the infinite loop bug, at least in master-3.2.
-    
-    Some traffic with unknown but valid tags is available in e2ee14ae03.
-    
-    
-    (cherry picked from commit 142cfb03ac5d0473d70f3e8adeabdc4f4496e953)
-
-commit 8c997a57da
-Author: Gerald Combs <gerald@wireshark.org>
-Date:   Sun Feb 28 10:31:23 2021 +0000
-
-    [Automatic update for 2021-02-28]
-    
-    Update manuf, services enterprise numbers, translations, and other items.
-
-commit 16bc7095b9
-Author: Nardi Ivan <nardi.ivan@gmail.com>
-Date:   Mon Feb 22 19:54:53 2021 +0000
-
-    GQUIC: add decoding of CGST tag
-    
-    Regression introduced by b287e7165e.
-    
-    To avoid an infinite loop with malformed packets, that commit stops
-    parsing the tags list after finding an unknown tag.
-    When this "unknown" tag is perfectly valid but not supported by
-    Wireshark, we don't decode any subsequent (valid) tags anymore.
-    
-    GQUIC is going to die soon and it is quite unlikely it will change in
-    the next future. Therefore the best/quick solution is simply decoding
-    any valid tag.
-    
-    Close #17250
-    
-    
-    (cherry picked from commit 7fd71536962cc24614cdc932770f0a4a200f6008)
-
-commit 4560ac0527
-Author: Guy Harris <gharris@sonic.net>
-Date:   Mon Feb 22 22:23:54 2021 -0800
-
-    Lua: add routines to return pcap/nsec pcap/pcapng file type/subtypes.
-    
-    These will be backported, for the benefit of Lua scripts that want those
-    specific file types/subtypes (typically in order to write files of those
-    types); that allows those types to be fetched without having to know the
-    right string to hand to wslua_wtap_name_to_file_type_subtype().
-    
-    (cherry picked from commit bc3cc17bc401ea9ae044c30f34e9c7052b04e603)
-
-commit 077a9c9354
-Author: Gerald Combs <gerald@wireshark.org>
-Date:   Sun Feb 21 10:31:58 2021 +0000
-
-    [Automatic update for 2021-02-21]
-    
-    Update manuf, services enterprise numbers, translations, and other items.
-
-commit 3fb8be3b91
-Author: Gerald Combs <gerald@wireshark.org>
-Date:   Mon Feb 15 18:28:57 2021 +0000
-
-    NVMe Fabrics RDMA: Initialize a variable.
-    
-    Make sure q_ctx is fully initialized. Fixes #17233.
-    
-    
-    (cherry picked from commit e29c934d7254eba19a943356e62d0d481df71c22)
-
-commit b2c58d020c
-Author: Gerald Combs <gerald@wireshark.org>
-Date:   Fri Feb 12 19:54:54 2021 +0000
-
-    Be more strict about opening URLs.
-    
-    In the proto tree, copy URLs instead of opening them.
-    
-    In the export dialog, enable previews only if the advertised MIME type
-    *and* the contents of the file are plain text, GIF, JPEG, or PNG.
-    
-    Add warnings to the wslua browser_open_url and browser_open_data_file
-    documentation.
-    
-    Fixes #17232.
-    
-    
-    (cherry picked from commit e99c9afce86edd47b4388dd6e10cf2e758fe31cf)
-
-commit 5e1db6219a
-Author: Guy Harris <gharris@sonic.net>
-Date:   Mon Feb 15 07:39:02 2021 +0000
-
-    rpm-setup: install libgcrypt by default.
-    
-    Wireshark now requires it.
-    
-    
-    (cherry picked from commit 3c404abf2c9aef2422ddc9d037424fecbc9bdb0c)
-
-commit 418c3360bf
-Author: Chuck Craft <bubbasnmp@gmail.com>
-Date:   Sun Feb 14 22:02:11 2021 +0000
-
-    ip: ip_ttl _ws.expert fields not set if no tree
-    
-    See 'if (tree) ...' comment
-    Closes #17228
-    
-    
-    (cherry picked from commit dde65b96cde8a4dd94ce15cb451a2e7fd85a9014)
-
-commit 24b27195f1
-Author: Gerald Combs <gerald@wireshark.org>
-Date:   Sun Feb 14 10:31:21 2021 +0000
-
-    [Automatic update for 2021-02-14]
-    
-    Update manuf, services enterprise numbers, translations, and other items.
-
-commit 66e6f092f9
-Author: Guy Harris <gharris@sonic.net>
-Date:   Sun Feb 14 06:12:23 2021 +0000
-
-    WSDG: deprecate wtap_filetypes.
-    
-    Recommend the use of wtap_name_to_file_type_subtype() to get filetype
-    values, unless you need to run on older versions of Wireshark that don't
-    have it.
-    
-    Don't even *mention* wtap_filetypes in the documentation for the new
-    wtap_ routines, as, if you have those routines, you have
-    wtap_name_to_file_type_subtype(), because it's one of those routines.
-    
-    Fix references to "nul" while we're at it - it's "nil" in Lua.
-    
-    (That part of the WSDG - the Lua reference - is generated, so this
-    involves changing the source code implementing the Lua routines.)
-    
-    
-    (cherry picked from commit 5b3c3d0682c869e6dd19a5245b1a22c90192e9ae)
-
-commit 3213fb0a19
-Author: Guy Harris <gharris@sonic.net>
-Date:   Sun Feb 14 04:23:08 2021 +0000
-
-    iseries: report Unicode files as Unicode rather than ASCII.
-    
-    While we're at it, that's "Unicode", not "UNICODE" - it's not an
-    initialism, and isn't all-caps.
-    
-    
-    (cherry picked from commit 8ec5906fd64260d5a59034e0a0e49bdd78553f5c)
-
-commit b88fcfafd7
-Author: Guy Harris <gharris@sonic.net>
-Date:   Sat Feb 13 18:35:58 2021 +0000
-
-    wiretap: remove spaces from file format names.
-    
-    File format names are used on the command line, so don't require them to
-    be quoted - replace the space in "systemd journal" with an underscore.
-    
-    
-    (cherry picked from commit 8bba6ebe5c5d6a501ba9f2c16386f6ab437025bf)
-
-commit db364ed3d5
-Author: Jaap Keuter <jaap.keuter@xs4all.nl>
-Date:   Fri Feb 12 13:20:53 2021 +0000
-
-    ASTERIX: fix dissection of I010_041 and I010_042 fields
-    
-    Fixes #17226
-    
-    
-    (cherry picked from commit b9bdc803bb3bc9edcf25a9aaec4b5c2723db7b3e)
-
-commit 3a60e4992d
-Author: Guy Harris <gharris@sonic.net>
-Date:   Sat Feb 13 03:29:33 2021 +0000
-
-    wslua: expose some libwiretap APIs in Lua.
-    
-    Provide Lua version of wtap_file_type_subtype_string(),
-    wtap_file_type_subtype_short_string(), and
-    wtap_short_string_to_file_type_subtype().
-    
-    This will be backported to the 3.2 and 3.4 branches, to allow scripts
-    not run on the bleeding-edge version to use them.
-    
-    
-    (cherry picked from commit f0ebc507626e3ffd0195b132486da11b3c7b138b)
-
-commit 21f9f3f1f2
-Author: Gerald Combs <gerald@wireshark.org>
-Date:   Tue Feb 9 15:48:08 2021 -0800
-
-    TShark: Load extcap preferences only when needed.
-    
-    In our first pass through our options, look for ones that might require
-    extcap. Call extcap_register_preferences() only when that's the case.
-    
-    Warn about missing extcap preferences only when we've loaded them.
-    
-    (cherry picked from commit c7f66cf93491fd3ed9ca03fe967a692d64546aa2)
+    (cherry picked from commit 95f3d1b0750044967c6cf2f767d809453ca7819b)
     
     Conflicts:
-            tshark.c
+            ui/qt/widgets/byte_view_text.cpp
 
-commit 90ed3ff952
-Author: Constantine Gavrilov <constg@il.ibm.com>
-Date:   Sun Feb 7 19:26:02 2021 +0000
-
-    Fix dissection of transport connect payload for NVMEoF with RDMA.
-    
-    
-    (cherry picked from commit 28937e9022f232504286c1abd34834bf0ec7d421)
-
-commit 108b84a591
-Author: Guy Harris <gharris@sonic.net>
-Date:   Tue Feb 9 19:38:51 2021 +0000
-
-    dumpcap: don't mention Npcap if we're not using it.
-    
-    
-    (cherry picked from commit 99c712ff5a2f4d2d52f90d6f3c711ab6c7990a35)
-
-commit 098fe77ec6
-Author: Guy Harris <gharris@sonic.net>
-Date:   Tue Feb 9 06:33:18 2021 +0000
-
-    dumpcap: provide more information to put into an Npcap bug.
-    
-    Turn the sequence of details to supply in an Npcap bug into a list, with
-    one element per line, and provide the interface name, Windows version
-    string, and Npcap version string.  Put that into a common routine.
-    
-    
-    (cherry picked from commit b09514f3b3edfc96bceff2c4c11e5ff0a55e4709)
-
-commit 089889acf2
-Author: Guy Harris <gharris@sonic.net>
-Date:   Mon Feb 8 23:16:33 2021 +0000
-
-    dumpcap: use the display name in error messages.
-    
-    That adds the description, if present, on UN*X, and replaces the ugly
-    GUID-based name with a friendly name on Windows.
-    
-    
-    (cherry picked from commit 9b771d2c14845bdcb7306ebb1a96cc68e5a3b9c0)
-
-commit ab6fb92ba3
-Author: Guy Harris <gharris@sonic.net>
-Date:   Mon Feb 8 21:10:54 2021 +0000
-
-    dumpcap: give details on how to fix Npcap bugs.
-    
-    Give a whole bunch of details to put into the bug, in the (vain?) hope
-    that the user will put them in the bug, to try to help Daniel and
-    possibly Microsoft networking stack folk figure out what's happening.
-    
-    (Remove an extra report_capture_error() left over from the previous
-    commit.)
-    
-    
-    (cherry picked from commit 37f5e0f7fd654f9f9ad3dd13ee4893779f56002d)
-
-commit 34dbb3bc32
-Author: Guy Harris <gharris@sonic.net>
-Date:   Mon Feb 8 20:35:43 2021 +0000
-
-    dumpcap: show the interface name in capture errors.
-    
-    dumpcap can capture on more than one interface at a time.  If the
-    capture stops due to an error on an interface, report the name of the
-    interface on which the error occurred.
-    
-    
-    (cherry picked from commit b3db9e3aa1d652dbb1ef2ec2b57b0ef39c40d244)
-
-commit 375f76bdeb
-Author: Guy Harris <gharris@sonic.net>
-Date:   Mon Feb 8 08:40:36 2021 +0000
-
-    "The device has been removed." can happen if it has, indeed, been removed.
-    
-    So only tell the user to report that as an Npcap bug if they *haven't*
-    removed the device.
-    
-    
-    (cherry picked from commit d28021cacb860722663e6402fe6aea37cd0de8a6)
-
-commit ebb55c3c02
-Author: Guy Harris <gharris@sonic.net>
-Date:   Mon Feb 8 06:51:44 2021 +0000
-
-    dumpcap: look for "PacketReceivePacket error: .* (1617)".
-    
-    The error message text for ERROR_DEVICE_REMOVED (1617) might be in the
-    user's language; just look for the numeric error code.
-    
-    
-    (cherry picked from commit 27cbb6852577a458b10d200714022af23c7a67a9)
-
-commit ebba9d3f45
-Author: Guy Harris <gharris@sonic.net>
-Date:   Mon Feb 8 03:12:44 2021 +0000
-
-    dumpcap: improve some secondary error emssages.
-    
-    For "PacketReceivePacket error: The device has been removed. (1617)",
-    report the error in that fashion, indicate that the interface is no
-    longer attached, *and* suggest that this may be an Npcap bug and that
-    the user should report it as such; give the URL for the Npcap issue
-    list.
-    
-    For "The other host terminated the connection", report the error in that
-    fashion, and suggest that it might be a problem with the host on which
-    the capture is being done.
-    
-    Hopefully this will mean fewer bugs filed as *Wireshark* bugs for those
-    issues.
-    
-    (And, with any new capture API in libpcap, these should all turn into
-    specific PCAP_ERROR_ codes, to make it easier to detect them in callers
-    of libpcap.)
-    
-    
-    (cherry picked from commit 152fd1fdab24e33b59c83b91ab2a37a99ad99cc6)
-
-commit 653071f630
+commit cc954fae7e
 Author: Gerald Combs <gerald@wireshark.org>
-Date:   Sun Feb 7 10:33:33 2021 +0000
+Date:   Sun Apr 18 09:52:11 2021 +0000
 
-    [Automatic update for 2021-02-07]
+    [Automatic update for 2021-04-18]
     
     Update manuf, services enterprise numbers, translations, and other items.
 
-commit 5b97f29a9a
-Author: Harald Welte <laforge@osmocom.org>
-Date:   Fri Feb 5 12:00:37 2021 +0000
+commit e49430b4d3
+Author: Stefan Metzmacher <metze@samba.org>
+Date:   Tue Apr 6 20:52:17 2021 +0200
 
-    packet-fr: Register for SLL dispatch to Frame Relay dissector
+    packet-ldap: fix regression for SASL handling
     
-    Without this patch, any Linux cooked packet capture on HDLC / frame
-    relay devices will not be dispatched to the proper dissector.
+    commit 19b3376a24192319a008399e8c44f1655f6dcebd
+    ("LDAP bogus malformed errors: decoding encrypted data")
+    introduced 2 problems:
     
-    Such packets do carry a proper sll_hatype set to ARPHRD_FRAD and should
-    be dispatched accordingly.  However, the packet-fr dissector so far
-    did not register itself accordingly.
+    - guint decr_len = tvb_reported_length(decr_tvb); was
+      always called with decr_tvb==NULL
+    
+    - dissect_ldap_payload() was not called if sasl_tree is NULL,
+      it needs to be called even if the tree pointer are NULL
+      in order to have the COL_INFO setup correctly.
+    
+    I guess this should also be backported to stable branches
+    (together with 2e6d3b571b50f6a0df31787cb95ba0f66c4fa85f
+     "LDAP: SASL Buffer doesn't include Length field")
+    
+    https://gitlab.com/wireshark/wireshark/-/issues/17347
+    
+    Signed-off-by: Stefan Metzmacher <metze@samba.org>
     
     
-    (cherry picked from commit b83f92a4580080a968f73b4cda8ca52f2d6332ba)
+    (cherry picked from commit 1d623fd54116fbe234300712a9cbf04560802e9f)
 
-commit d742da0e53
-Author: Jaap Keuter <jaap.keuter@xs4all.nl>
-Date:   Thu Feb 4 17:29:54 2021 +0000
+commit 0c1743656f
+Author: Uli Heilmeier <uh@heilmeier.eu>
+Date:   Mon Mar 22 22:34:20 2021 +0100
 
-    SIP: Fix header Id mapping
+    LDAP: SASL Buffer doesn't include Length field
     
-    Fixes #17215
+    SASL Buffer starts after the SASL Buffer Length field. Therefore
+    we should only mark the bytes without the Length field.
+    
+    Sample capture can be found in wireshark/wireshark#15128
     
     
-    (cherry picked from commit 7401dbaa82f0e8c7b9a4d64766d43f9e6f86a7cf)
+    (cherry picked from commit 2e6d3b571b50f6a0df31787cb95ba0f66c4fa85f)
 
-commit e372771997
+commit d28ded7244
+Author: Simon Holesch <simon@holesch.de>
+Date:   Sat Mar 6 01:56:06 2021 +0100
+
+    ptvcursor: Fix crash with deeply nested subtrees
+    
+    If the proto tree is more than 8 levels deep, the subtree_lvl array
+    length is extended, by allocating a new area and copying everything into
+    that new area. However the old array length wasn't calculated correctly,
+    so only part of the subtree_lvl array was copied, causing a crash after
+    two ptvcursor_pop_subtree() calls.
+    
+    
+    (cherry picked from commit fa483ac191d4ec6b1994d600e37af6815a97ce18)
+
+commit 489fc40a49
+Author: Michael Tuexen <tuexen@wireshark.org>
+Date:   Wed Apr 14 14:33:29 2021 +0200
+
+    Fix conversation table when using epoch based time
+    
+    Ensure that if using tshark -q -t e -z conv,tcp the reported
+    start time is relative to the epoch time and not relative to
+    the time of the first packet in the capture file.
+    
+    Thanks to Theresa Enghardt for reporting the issue and to
+    Peter Lei for initialy looking into it.
+    
+    (cherry picked from commit f099bd179a6ff86e3f9fd6b779ccad707f379aad)
+
+commit cb432b878e
 Author: Gerald Combs <gerald@wireshark.org>
-Date:   Sat Jan 30 00:36:23 2021 +0000
+Date:   Sun Apr 11 09:53:17 2021 +0000
 
-    Docs: Change the default wsbuglink text to "Issue".
+    [Automatic update for 2021-04-11]
     
-    Change the default text in the AsciiDoctor wsbuglink macrom from "Bug"
-    to "Issue".
-    
-    
-    (cherry picked from commit 9177f0e71a57303db01802d4f0ca6d7bdb473fac)
+    Update manuf, services enterprise numbers, translations, and other items.
 
-commit 003a730a20
-Author: João Valverde <joao.valverde@tecnico.ulisboa.pt>
-Date:   Fri Jan 29 21:39:31 2021 +0000
+commit cdca1f2d03
+Author: Guy Harris <gharris@sonic.net>
+Date:   Thu Apr 8 19:38:26 2021 -0700
 
-    Don't include config.h in system headers
+    pcapng: expand a comment and tweak the version test.
     
-    Config.h must not be installed so configuration must be performed by client code.
+    Drop in the comment from libpcap about version 1.2 (I wrote that
+    comment, and generously double-license it under the BSD license and the
+    GPL :-)).
     
-    Fixes #17190.
+    Redo the version test as
+    
+        if (!({version is one we handle}))
+    
+    to match the way it's done in libpcap.
     
     
-    (cherry picked from commit 10178fdb09528cfe43592d72a52274d98b7eb5f0)
+    (cherry picked from commit 7de6b0822ad764edfa0ddd76e6a383bd3408a4e6)
 
-commit 49393cf362
-Author: Jaap Keuter <jaap.keuter@xs4all.nl>
-Date:   Tue Feb 2 20:10:59 2021 +0000
+commit 716dd09605
+Author: Loris Degioanni <loris@sysdig.com>
+Date:   Wed Apr 7 16:54:26 2021 -0700
 
-    S7COMM: remove array size from function interface
+    sysdig: a couple more fixes
     
-    Fixes #17198
+    - parse the number of system call arguments in a way that works for both V1 and V2 event blocks
+    - returned the correct error string when unable to read the nparams entry from a sysdig event block V2
     
-    
-    (cherry picked from commit 55d53dbf1b1ed557455fd4a66ad52c761684b307)
+    (cherry picked from commit 7894b1d0ea86224a16c3dbebae0c6db56f590f84)
 
-commit 39da36ad6e
+commit 4e7df5af01
+Author: Loris Degioanni <loris@sysdig.com>
+Date:   Tue Apr 6 14:42:39 2021 -0700
+
+    sysdig: implementation fixes
+    
+    - make sure nparams is initialized
+    - validate block_total_length in the correct way for sysdig event blocks
+    
+    (cherry picked from commit cbbe6605043b6137f0a7eb22693969586893637d)
+
+commit 180c96beb8
+Author: Loris Degioanni <loris@sysdig.com>
+Date:   Tue Apr 6 13:35:58 2021 -0700
+
+    sysdig: simplified the separate handling of the two different sysdig block types
+    
+    (cherry picked from commit 8c70dd8d176fca0c7e4ed759de0a05c2dd6424cf)
+
+commit e94d9f4549
+Author: Loris Degioanni <loris@sysdig.com>
+Date:   Mon Apr 5 22:16:09 2021 -0700
+
+    sysdig: support the most recent version of sysdig
+    Update the pcap-ng reader and sysdig event dissector to support the second version of the sysdig event block, which was introduced after Wireshark's original implementation
+    
+    (cherry picked from commit fbe8d3a00f1408960186572de96f82b4616eed49)
+
+commit 1be17e2d30
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Apr 4 13:28:16 2021 -0700
+
+    GitLab CI: Switch to our new Windows runner.
+    
+    
+    (cherry picked from commit 85b36ef4b6090b719bb46bc17ec58a07faff97ab)
+
+commit f1677bd31c
+Author: David Perry <boolean263@protonmail.com>
+Date:   Thu Jan 7 16:21:42 2021 -0500
+
+    maxmind: add optional synchronous lookups
+    
+    When tshark enables synchronous resolution of IP addresses to names,
+    forces calls to maxmind_db_lookup_ipv4()/_ipv6() to block-wait for the
+    maxmind response.
+    
+    Proposed fix for #14691.
+    
+    (backported from commit c0abaa06f717a38ba15c24f10ee19fcc69b21537)
+
+commit 3e35fecccb
+Author: Vahap Emin Agaogullari <vahapemin44@gmail.com>
+Date:   Tue Feb 23 11:15:14 2021 +0000
+
+    PROFINET: Multiple write in record dissection
+    
+    COContainerContent dissects PDInterfaceMrpDataAdjust and
+    PDInterfaceMrpDataAdjust dissects remaining COContainerContent
+    because of offset problem. Offset problem is fixed.
+    
+    (cherry picked from commit ccec04ede0591a5e83d2664c26ed5cb4481a6809)
+    (cherry picked from commit ecbe04e0bbc6634eaa6c54968870fee61760107c)
+
+commit 4a7ddb6b1a
+Author: Guy Harris <gharris@sonic.net>
+Date:   Mon Mar 29 00:55:23 2021 +0000
+
+    tvbuff_subset: fix its implementation of string scanning.
+    
+    Both subset_find_guint8() and subset_pbrk_guint8() pass the parent
+    tvbuff to tvb_find_guint8()/tvb_ws_mempbrk_pattern_guint8(), along with
+    the offset in that tvbuff.
+    
+    That means that the offset they get back is relative to that tvbuff, so
+    it must be adjusted to be relative to the tvbuff *they* were handed.
+    
+    For subsets of frame and "real data" tvbuffs, there's a single lump of
+    data containing the content of the subset tvbuff, so they go through the
+    "fast path" and get the offset correct, bypassing the broken code;
+    that's the vast majority of calls to those routines.
+    
+    For subsets of *composite* tvbuffs, however, they don't go through the
+    "fast path", and this bug shows up.
+    
+    This causes both crashes and misdissection of HTTP if the link-layer is
+    PPP with Van Jacobson compression, as the decompression uses composite
+    tvbuffs.
+    
+    Fixes #17254 and its many soon-to-be-duplicates.
+    
+    
+    (cherry picked from commit 2ba52cdc0e4216dafdfc32498fc0210c99449ec9)
+
+commit 636f7f1c09
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Mar 28 09:54:39 2021 +0000
+
+    [Automatic update for 2021-03-28]
+    
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit 193b1fc545
+Author: Guy Harris <gharris@sonic.net>
+Date:   Sun Mar 28 02:31:37 2021 +0000
+
+    wslua_tvb: correctly trim off the end of a tvbuff.
+    
+    The length specified in a TvbRange is the *actual packet length*, not
+    the *sliced-to* length, so use tvb_new_subset_length() to cut it short.
+    
+    This fixes the fix for #15655, and addresses at least some of the issues
+    in #17255.
+    
+    
+    (cherry picked from commit cda18f951ebfe53dc5bbb841618dc12e31b38ec6)
+
+commit 6ef6e8f607
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Fri Mar 26 12:52:01 2021 -0700
+
+    CMake: Enable AUTO{MOC,UIC,RCC} earlier.
+    
+    Enable CMAKE_AUTOMOC, CMAKE_AUTOUIC, and CMAKE_AUTORCC before searching
+    for Qt packages. This is apparently required for CMake 3.20.0 and later.
+    Fixes #17314.
+    
+    (cherry picked from commit be2b0fc810fb2f2a80e471138dc29f0cbe87b209)
+    
+     Conflicts:
+            ui/qt/CMakeLists.txt
+
+commit 3bca4e3b3f
+Author: Nardi Ivan <nardi.ivan@gmail.com>
+Date:   Tue Mar 16 17:06:20 2021 +0000
+
+    SMB2: fix two memory leaks
+    
+    * Since c3342930 we don't free anymore the entries in the files hashtables.
+    The cleanest solution is probably to convert these hashtables into two
+    wmem_map_t structures and let the wmem core handling any cleanup.
+    
+    * b0f5b2c1749 added supported for chained compression; the uncompressed
+    tvb must be freed
+    
+    
+    (cherry picked from commit e677a909e15126a61253004c88e48ae3c64420fc)
+
+commit 6b072b63f0
+Author: Uli Heilmeier <uh@heilmeier.eu>
+Date:   Tue Mar 23 11:32:42 2021 +0000
+
+    DNS: Fix pointer for is_multiple_responses
+    
+    As discussed in wireshark/wireshark!2497 there is no need
+    for a pointer to a pointer.
+    
+    
+    (cherry picked from commit 337bdf8eb34be3fc5ccd1197868077e6276a2d6c)
+
+commit 06e20df535
+Author: Uli Heilmeier <uh@heilmeier.eu>
+Date:   Sun Mar 21 10:15:56 2021 +0100
+
+    DNS: IXFR/AXFR queries with multiple responses
+    
+    IXFR and AXFR queries can have multiple DNS responses. As all responses
+    belong to one transaction, they have the same transaction ID.
+    
+    We shouldn't handle them as retransmits.
+    
+    Fix: wireshark/wireshark#17293
+    (cherry picked from commit 07fb47111ee968ba132ce98764486dc825209e80)
+
+commit 878e8058a6
+Author: Guy Harris <gharris@sonic.net>
+Date:   Mon Mar 22 19:13:34 2021 -0700
+
+    Do the LFS checks before processing any subdirectories.
+    
+    That's necessary in order to make sure that the required -D flags show
+    up when building code from all subdirectories.
+    
+    (cherry picked from commit 3f556a6e7639716a7254a4fcdf88e33ef3896fe8)
+
+commit d0fdecc6b6
+Author: Guy Harris <gharris@sonic.net>
+Date:   Mon Mar 22 02:47:56 2021 -0700
+
+    Replace the Large File Support CMake stuff.
+    
+    The existing stuff doesn't appear to work (I tried it on 32-bit Ubuntu
+    18.04, and it did *not* add any flags to the compilation, as it appeared
+    not to conclude that they were necessary, even though they were).
+    
+    Pull in the stuff from libpcap, which *does* appear to work.  (it does
+    so in my 32-bit Ubuntu testing).
+    
+    This should fix #17301.
+    
+    While we're at it, fix cppcheck.sh so that it doesn't attempt to run
+    cppcheck on files that have been deleted.
+    
+    (cherry picked from commit 0cc59d38ab6ef38e965d4de8a3ec4b80bcb5a6a3)
+
+commit 76f01ea726
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Mar 21 09:57:41 2021 +0000
+
+    [Automatic update for 2021-03-21]
+    
+    Update manuf, services enterprise numbers, translations, and other items.
+
+commit b2d8858b9a
+Author: Darius Davis <darius@vmware.com>
+Date:   Fri Mar 19 23:37:53 2021 +0000
+
+    Minor doc cleanups.
+    
+    Here's a grab bag of trivial cleanup to the documentation.  This change:
+    
+    - Cleans up some comments in the asciidoctor macros which are no longer
+      accurate (and do not appear in the build products anyway).
+    
+    - Fixes a missing space in the text "Wireshark Q&A" in the release notes.
+    
+    - Allows the "docbook" backend to produce hyperlinks too... That seems to be
+      necessary if we want to start using our custom link macros in WSDG, which
+      seems like a reasonable thing to do.  And fixes up a wrong variable name in
+      the handling of the case where we are not able to produce a hyperlink.
+    
+    
+    (cherry picked from commit 4c513fb4ab880b2c63491d91b8ccf6ce17627f08)
+
+commit f63d93957d
+Author: Guy Harris <gharris@sonic.net>
+Date:   Thu Mar 18 04:22:41 2021 +0000
+
+    caputils: pull the includes out of extern "C" { ... }.
+    
+    Have separate #ifdef HAVE_LIBPCAP ... #endif sections for the includes
+    and the definitions/declarations.
+    
+    (There are no good solutions that don't require hopping in a time
+    machine and changing history.)
+    
+    
+    (cherry picked from commit 5a4cb7ce331830b74c703882c1738d6c1e2c5fa7)
+
+commit fcefe78a67
+Author: Guy Harris <gharris@sonic.net>
+Date:   Wed Mar 17 21:59:55 2021 +0000
+
+    caputils: get rid of the extern "C" { idiom.
+    
+    Instead, declare each function with EXTERN_C, #defined as extern "C" in
+    C++ and just extern in C.
+    
+    This avoids all the thrashing to try to keep headers outside extern "C"
+    { by the simple expedient of not *having* extern "C" {.
+    
+    
+    (cherry picked from commit 4584b9d1d396920468e0b8a71f1681c7cfda382b)
+
+commit 2974b30150
 Author: Dario Lombardo <lomato@gmail.com>
-Date:   Mon Dec 28 19:03:08 2020 +0100
+Date:   Wed Mar 17 21:12:42 2021 +0000
 
-    ntp: remove size constraint for invalid refid.
+    caputils: fix compilation without pcap.
     
-    When the refid contains non-ascii chars, the conversion function
-    returns a string longer than 4 chars. This results in an invalid
-    string if the output is limited to 4 bytes. Incidentally this
-    results in an invalid PDML output as well that caught this bug
-    in the first place.
+    The extern declaration must be put outside the ifdef to match the
+    closing statement as well as surrounding al the functions.
     
-    Fix: #17112.
+    Fixes: 2820156fbd4b0213ca015216d8cd97c31b503c8c (Move still *more* headers outside of extern "C".)
+    
+    
+    (cherry picked from commit 9ca121bcf87dc638d9f0bf1314bee7b906523b70)
 
-commit 564a52be19
+commit 95c7c1c0f2
+Author: Guy Harris <gharris@sonic.net>
+Date:   Tue Mar 16 21:57:30 2021 +0000
+
+    kerberos: regenerate packet-kerberos.h.
+    
+    We updated the template; regenerate the header.
+    
+    
+    (cherry picked from commit 7efb2120bc37cbb3b23682c16f5bb73e05295383)
+
+commit b5d65c0074
+Author: Guy Harris <gharris@sonic.net>
+Date:   Tue Mar 16 13:50:13 2021 -0700
+
+    Move still *more* headers outside of extern "C".
+    
+    If a header declares a function, or anything else requiring the extern
+    "C" decoration, have it wrap the declaration itself; don't rely on the
+    header itself being included inside extern "C".
+    
+    (cherry picked from commit 2820156fbd4b0213ca015216d8cd97c31b503c8c)
+
+commit 0b8c953533
+Author: Guy Harris <gharris@sonic.net>
+Date:   Tue Mar 16 04:33:00 2021 -0700
+
+    Move even more headers outside extern "C".
+    
+    If a header declares a function, or anything else requiring the extern
+    "C" decoration, have it wrap the declaration itself; don't rely on the
+    header itself being included inside extern "C".
+    
+    (cherry picked from commit e434d404d0db719440cc911729d225417a49b4f4)
+
+commit f1f937dd26
+Author: Guy Harris <gharris@sonic.net>
+Date:   Tue Mar 16 11:21:16 2021 +0000
+
+    Move more headers outside extern "C".
+    
+    If a header declares a function, or anything else requiring the extern
+    "C" decoration, have it wrap the declaration itself; don't rely on the
+    header itself being included inside extern "C".
+    
+    
+    (cherry picked from commit 1e1f4e6b5f9a309cef55d4459c8bba40d6acc104)
+
+commit d0e6ad310b
+Author: Michal Ruprich <michalruprich@gmail.com>
+Date:   Wed Feb 10 15:32:18 2021 +0100
+
+    Moving glib.h out of extern C
+    
+    (cherry picked from commit c8246c99737c7a844f45eb0e777382cc68397d17)
+
+commit f6cfb8362c
+Author: Guy Harris <gharris@sonic.net>
+Date:   Mon Mar 15 04:59:42 2021 +0000
+
+    debian-setup: include GCC and G++ in the basic list.
+    
+    At least on my just-now-installed Kubuntu 20.04 VM, G++ wasn't installed
+    by default, and you need that to compile Wireshark (you can avoid it if
+    you're not building the GUI code, but the GUI code is Qt-based, so it's
+    in C++).  Add both GCC and G++ to the basic list.
+    
+    
+    (cherry picked from commit 5f0dc153dd317ed1eaf8bb7fdf6b37268f951eac)
+
+commit 82f93c42f7
+Author: Guy Harris <gharris@sonic.net>
+Date:   Mon Mar 15 00:40:42 2021 +0000
+
+    Fix the captions for the buttons in the "export specified packets" dialog.
+    
+    The "Selected packet" caption is wrong, as there could be more than one
+    packet selected.  Furthermore, in the non-Windows "export specified
+    packets" dialog, the caption is "Selected packets only", so go with the
+    full caption.
+    
+    The "Marked packets" caption also lacks the "only" that it has in the
+    other dialog; add it as well.
+    
+    
+    (cherry picked from commit f785cf53401c38d695de7b961babc6b796466a50)
+
+commit 7e0360206e
+Author: Guy Harris <gharris@sonic.net>
+Date:   Sun Mar 14 06:51:36 2021 -0700
+
+    Clean up "Export PDUs to File" code.
+    
+    Combine exp_pdu_file_open() is called only by do_export_pdu(); just
+    combine them into one routine.
+    
+    Get rid of the exp_pdu_t * argument to do_export_pdu(); instead, have
+    the exp_pdu_t structure be a local variable in that routine.  There's no
+    need to initialize exp_pdu_data.pkt_encap in
+    ExportPDUDialog::on_buttonBox_accepted() - do_export_pdu() already does
+    so.
+    
+    The return value of do_export_pdu() isn't used; don't return anything.
+    
+    (backported from commit 01151ec332f6232cd7b86d1b9026e54decb88203)
+
+commit 6cbf30fa88
 Author: Gerald Combs <gerald@wireshark.org>
-Date:   Sun Jan 31 10:30:58 2021 +0000
+Date:   Sun Mar 14 10:32:22 2021 +0000
 
-    [Automatic update for 2021-01-31]
+    [Automatic update for 2021-03-14]
     
     Update manuf, services enterprise numbers, translations, and other items.
 
-commit e0abfddcc5
-Author: Gerald Combs <gerald@wireshark.org>
-Date:   Fri Jan 29 11:51:46 2021 -0800
+commit 3d9603e051
+Author: Guy Harris <gharris@sonic.net>
+Date:   Sun Mar 14 06:35:25 2021 +0000
 
-    Version: 3.4.3 → 3.4.4.
+    tap_export_pdu: free err_info for WTAP_ERR_INTERNAL.
+    
+    WTAP_ERR_INTERNAL also returns an err_info script describing the
+    internal error, so it should be freed to avoid leaking it.
+    
+    
+    (cherry picked from commit d4c55ba464f2b6842a0a05fc623030b80322367a)
+
+commit 7a7da50fc3
+Author: Guy Harris <gharris@sonic.net>
+Date:   Sun Mar 14 06:00:21 2021 +0000
+
+    pcapng: make sure the packet encapsulation matches the interface encapsulation.
+    
+    If an attempt is made to write a packet with one encapsulation for an
+    interface with a different encapsulation, report an internal error.
+    
+    
+    (cherry picked from commit 610dffbb19532034309a0ee326128a71608ebe6a)
+
+commit 4482949ddc
+Author: John Thacker <johnthacker@gmail.com>
+Date:   Fri Mar 12 22:12:40 2021 -0500
+
+    export_pdu: set pkt_encap to a WTAP_ENCAP value, not a pcap LINKTYPE_ value.
+    
+    rec.rec_header.packet_header.pkt_encap expects WTAP encapsulation types,
+    not PCAP encapsulation types, so don't call
+    wtap_wtap_encap_to_pcap_encap().
+    
+    Also, set the output file encapsulation, and the link-layer type of the
+    fake interface, to exp_pdu_tap_data->pkt_encap rather than wiring it to
+    WTAP_ENCAP_WIRESHARK_UPPER_PDU (we set exp_pdu_tap_data->pkt_encap to
+    WTAP_ENCAP_WIRESHARK_UPPER_PDU, but this is a bit cleaner).
+    
+    (backported from commit ea60a57826624bcdf8f955af85af7130c8864018)
+
+commit 53a7984431
+Author: Guy Harris <gharris@sonic.net>
+Date:   Sat Mar 13 23:32:14 2021 +0000
+
+    tshark: clean u the way the -U option lists available taps.
+    
+    Allow "-U ?" as well as an empty argument; an empty argument is a bit
+    counterintuitive.
+    
+    Simplify the introductory line of output - asking for a list of taps
+    isn't an error in which the user failed to supply a tap name, it's a
+    case where the user suplied a request for a list of tap names.
+    
+    Just use fprintf() to print the list, and indent the elements of the
+    list, as we do with other lists of valid arguments.
+    
+    List the valid arguments if the user specified an invalid argument as
+    well.
+    
+    
+    (cherry picked from commit 9bd144b8ea30a7345eca3c0cb590bc146f45f97c)
+
+commit 392d01c2cc
+Author: Guy Harris <gharris@sonic.net>
+Date:   Sat Mar 13 12:58:18 2021 +0000
+
+    tshark: fix handling of "you're writing to a closed pipe" errors on Windows.
+    
+    On Windows, a write to a pipe where the read side has been closed
+    apparently may return the Windows error ERROR_BROKEN_PIPE, which the
+    Visual Studio C library maps to EPIPE, or may return the Windows error
+    ERROR_NO_DATA, which the Visual Studio C library maps to EINVAL.
+    
+    So, on Windows, for errors other than the ones for which we're reporting
+    a special error message, check for EINVAL with a *Windows* error of
+    ERROR_NO_DATA and, if that's what we have, don't print an error message;
+    otherwise, print an error message that reports a message based on the
+    Windows error (rather than a relatively uninformative "Invalid argument"
+    error).
+    
+    This should fix issue #16192.
+    
+    Clean up indentation while we're at it.
+    
+    
+    (cherry picked from commit 1eb4a62dbc190b0f0cfcf7b945bb0e82ddf2246c)
+
+commit 20a013b835
+Author: Alexis La Goutte <alexis.lagoutte@gmail.com>
+Date:   Fri Mar 12 08:51:11 2021 +0000
+
+    NAN(WiFi): Fix wrong variable size
+    
+    NDPE Attribute is not dissected
+    
+    Issue (and fix) reported by Darren Chen
+    
+    Closed #17278
+    
+    
+    (cherry picked from commit 73de7b132559ad876f4be113b7356979a14730c2)
+
+commit fbbaa3d03d
+Author: Alexis La Goutte <alexis.lagoutte@gmail.com>
+Date:   Fri Mar 12 08:52:21 2021 +0000
+
+    EAP: fix a memory leak
+    
+    
+    (cherry picked from commit 20a6fea312342802cc76178cec673acf67ba7a26)
+
+commit fd940a364c
+Author: Guy Harris <gharris@sonic.net>
+Date:   Thu Mar 11 02:11:02 2021 -0800
+
+    pcapng: clean up pcapng_block_read().
+    
+    Instead of pcapng_open() calling pcap_block_read() to do all the work of
+    reading the initial SHB, have it do the read of the initial SHB itself,
+    by calling the same routines that pcap_block_read() calls.
+    
+    That way, pcap_block_read() doesn't have to be prepared to be called to
+    read that block, so it can treat all issues with an SHB that it reads as
+    errors, rather than possibly reporting them as "not a pcapng file", and
+    it doesn't have to support being called without a pointer to the
+    pcapng_t for the file being read, as it no longer ever is.  It can now
+    just return a gboolean success/failure indication.
+    
+    That makes pcapng_open() a little more complicated but it makes
+    pcap_block_read() less complicated.
+    
+    Fix some use of : as ' in comments, and fix some indentation, while
+    we're at it.
+    
+    (backported from commit aab0bd12a59a1f59e8e0f9cf8010b29e8092406c)
+
+commit 3a657cb4fb
+Author: Dr. Lars Völker <lars.voelker@technica-engineering.de>
+Date:   Tue Mar 9 12:12:14 2021 +0000
+
+    TECMP: Adding missing reserved flag to timestamp (BUGFIX)
+    
+    This patch fixes a bug in the current TECMP dissector that leads to
+    wrong timestamps, whenever the reserved flag is set to true.
+    
+    Closes: #17279
+    
+    
+    (cherry picked from commit 5d709459c4728a460888ee8602f3990f17e91318)
+
+commit e8421b1a0e
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Wed Mar 10 13:15:15 2021 -0800
+
+    GitLab CI: Add a `tshark -G` artifact.
+    
+    Dump `tshark -G fields` to a file and add it as an artifact. This
+    automates a step in the release process.
+
+commit 580812874a
+Author: Guy Harris <gharris@sonic.net>
+Date:   Wed Mar 10 20:55:50 2021 +0000
+
+    pcapng: get rid of the local pcapng_t in pcapng_open().
+    
+    Pass a null pointer to pcapng_read_block(), instead.  In
+    pcapng_read_block(), treat that as the indication that we're trying to
+    read the purported first SHB, rather than treating a null section_info
+    pointer as that indication.
+    
+    This addreses one, but not all, of the problems reported in issue #17281.
+    
+    
+    (cherry picked from commit 7446a16247a8f04b1fa476e526cdaa97be00f32e)
+
+commit 2f7cf6e528
+Author: Martin Mathieson <martin.mathieson@keysight.com>
+Date:   Wed Mar 10 21:21:56 2021 +0000
+
+    DECT: "tranceiver" -> "transceiver"
+    
+    
+    (cherry picked from commit 933e7f5eb6798e72e349099be3cd16a890be7fc7)
+
+commit 45aed9966c
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Wed Mar 10 12:23:46 2021 -0800
+
+    Version: 3.4.4 → 3.4.5.
     
     [skip ci]
