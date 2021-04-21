@@ -112,7 +112,7 @@ The Resolved Addresses window shows the list of resolved addresses and their hos
 
 NOTE: The resolved addresses are not updated automatically after users change the settings. To display newly available names user have to reopen the dialog.
 
-The `Ports` tab shows the list of service names, ports and types. 
+The `Ports` tab shows the list of service names, ports and types.
 
 Wireshark reads the entries for port mappings from the `hosts` service configuration files. See <<ChAppFilesConfigurationSection>> section for more information.
 
@@ -573,7 +573,7 @@ Open Network Computing (ONC) Remote Procedure Call (RPC) uses TCP or UDP protoco
 
 === 29West
 
-The 29West technology now refers to Ultra-Low Latency Messaging (ULLM) technology. It allows sending and receiving a high number of messages per second with microsecond delivery times for zero-latency data delivery. 
+The 29West technology now refers to Ultra-Low Latency Messaging (ULLM) technology. It allows sending and receiving a high number of messages per second with microsecond delivery times for zero-latency data delivery.
 
 The menu:Statistics[29West] shows:
 [cols="1,1"]
@@ -786,6 +786,30 @@ With this statistics you can:
 .UDP Multicast Streams window
 image::wsug_graphics/ws-udp-multicast-stream.png[{screenshot-attrs}]
 
+[[ChStatRSerPool]]
+
+=== Reliable Server Pooling (RSerPool)
+
+The Reliable Server Pooling (RSerPool) windows show statistics for the different protocols of Reliable Server Pooling (RSerPool):
+
+* Aggregate Server Access Protocol{nbsp}(ASAP)
+* Endpoint Handlespace Redundancy Protocol{nbsp}(ENRP)
+
+With these statistics you can:
+
+* Observe the number of packets and bytes per message type.
+* See the first and last occurrence of each message type.
+* See the interval between first and last occurrence of each message type (if there are at least 2 messages of the corresponding type).
+* See the message rate within the interval for each message type (if there are at least 2 messages of the corresponding type).
+
+See link:https://www.uni-due.de/~be0001/rserpool/[Thomas Dreibholz's Reliable Server Pooling (RSerPool) Page] and Chapter{nbsp}3 of link:https://duepublico.uni-duisburg-essen.de/servlets/DerivateServlet/Derivate-16326/Dre2006_final.pdf[Reliable Server Pooling – Evaluation, Optimization and Extension of a Novel IETF Architecture] for more details about RSerPool and its protocols.
+
+.ASAP Statistics window
+image::wsug_graphics/ws-asap-statistics.png[{screenshot-attrs}]
+
+.ENRP Statistics window
+image::wsug_graphics/ws-enrp-statistics.png[{screenshot-attrs}]
+
 [[ChStatF5]]
 
 === F5
@@ -807,7 +831,7 @@ Each `tmm Distribution` window contains the statistics for the following data:
 *** Traffic with a virtual server name.
 *** Traffic with a flow ID and no virtual server name.
 *** Traffic without a flow ID.
- 
+
 
 [[ChStatIPv4]]
 
@@ -822,7 +846,7 @@ The menu:Statistics[IPv4] menu provides the packet counter by submenus:
 * `IP Protocol Types`. Divides data by IP protocol type.
 * `Source and Destination addresses`. Divides data by source and destination IP address.
 
-You can see similar statistics in the menu:Statistics[Conversations] and menu:Statistics[Endpoints] menus. 
+You can see similar statistics in the menu:Statistics[Conversations] and menu:Statistics[Endpoints] menus.
 
 [[ChStatIPv6]]
 

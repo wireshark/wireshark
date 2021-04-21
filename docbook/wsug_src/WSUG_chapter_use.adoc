@@ -660,6 +660,7 @@ Each menu item brings up a new window showing specific statistics.
 |menu:Sametime[]||See <<ChStatSametime>>
 |menu:TCP Stream Graphs[]||See <<ChStatTCPStreamGraphs>>
 |menu:UDP Multicast Streams[]||See <<ChStatUDPMulticastStreams>>
+|menu:Reliable Server Pooling (RSerPool)[]||See <<ChStatRSerPool>>
 |menu:F5[]||See <<ChStatF5>>
 |menu:IPv4 Statistics[]||See <<ChStatIPv4>>
 |menu:IPv6 Statistics[]||See <<ChStatIPv6>>
