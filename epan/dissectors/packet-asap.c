@@ -740,14 +740,12 @@ asap_stat_packet(void* tapdata, packet_info* pinfo _U_, epan_dissect_t* edt _U_,
   if ((lastSeen - firstSeen) > 0.0) {
     /* Update interval */
     msg_data = stat_tap_get_field_data(table, idx, INTERVAL_COLUMN);
-    stat_tap_set_field_data(table, idx, INTERVAL_COLUMN, msg_data);
     msg_data->type = TABLE_ITEM_FLOAT;
     msg_data->value.float_value = lastSeen - firstSeen;
     stat_tap_set_field_data(table, idx, INTERVAL_COLUMN, msg_data);
 
     /* Update message rate */
     msg_data = stat_tap_get_field_data(table, idx, RATE_COLUMN);
-    stat_tap_set_field_data(table, idx, INTERVAL_COLUMN, msg_data);
     msg_data->type = TABLE_ITEM_FLOAT;
     msg_data->value.float_value = messages / (lastSeen - firstSeen);
     stat_tap_set_field_data(table, idx, RATE_COLUMN, msg_data);
