@@ -1291,6 +1291,27 @@ class TestDissectCommunityId:
 
         self.check_baseline(dirs, stdout, 'communityid-filtered.txt')
 
+class TestDissectTns:
+    '''TNS (Oracle wire protocol) dissector tests, exercising two captures
+    that previously tripped buffer-overrun / wrong-state bugs in the OPI
+    parameter-value path.'''
+
+    def test_tns_bad(self, cmd_tshark, capture_file, test_env):
+        stdout = subprocess.check_output((cmd_tshark,
+            '-r', capture_file('tns_bad.pcap'),
+            '-d', 'tcp.port==1521,tns',
+            '-Y', 'tns.data_opi.param_value == "06DE79977310E5B78E5A9493CB4FB3D6F5A0975F2B3B5D46737189DD4B7B92AA1A36B309D39D4471568CE287A52093BA"',
+        ), encoding='utf-8', env=test_env)
+        assert 'Return OPI Parameter' in stdout
+
+    def test_tns_bad2(self, cmd_tshark, capture_file, test_env):
+        stdout = subprocess.check_output((cmd_tshark,
+            '-r', capture_file('tns_bad2.pcap'),
+            '-d', 'tcp.port==1521,tns',
+            '-Y', 'tns.data_opi.param_value == "7BD0E1244A35B13E8E194519B105257020D2DAC3816B3C5F5A71D0A3E5C217C6E796E1B592719A0FD47B7A18EF8A0311"',
+        ), encoding='utf-8', env=test_env)
+        assert 'Return OPI Parameter' in stdout
+
 class TestDecompressMongo:
     def test_decompress_zstd(self, cmd_tshark, features, capture_file, test_env):
         if not features.have_zstd:
