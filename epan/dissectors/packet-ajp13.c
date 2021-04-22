@@ -422,7 +422,11 @@ display_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ajp13_tree, ajp13_con
 
         hval = ajp13_get_nstring(tvb, pos, &hval_len);
 
-        proto_tree_add_string_format(ajp13_tree, hf_ajp13_additional_header,
+        if (hcd >= array_length(rsp_headers)) {
+          hcd = 0;
+        }
+
+        proto_tree_add_string_format(ajp13_tree, *rsp_headers[hcd],
                                 tvb, hpos, hname_len+2+hval_len+2,
                                 wmem_strdup_printf(wmem_packet_scope(), "%s: %s", hname, hval),
                                 "%s: %s", hname, hval);
@@ -653,9 +657,10 @@ display_req_forward(tvbuff_t *tvb, packet_info *pinfo,
 
       hval = ajp13_get_nstring(tvb, pos, &hval_len);
 
-      pi = proto_tree_add_string_format(ajp13_tree, *req_headers[hid],
-                                     tvb, hpos, 2+hval_len+2, hval,
-                                     "%s", hval);
+
+      pi = proto_tree_add_string_format_value(ajp13_tree, *req_headers[hid],
+                                              tvb, hpos, 2+hval_len+2, hval,
+                                              "%s", hval);
 
       if (hid == 0x08 && !ws_strtou32(hval, NULL, &cd->content_length)) {
         expert_add_info(pinfo, pi, &ei_ajp13_content_length_invalid);
@@ -666,9 +671,13 @@ display_req_forward(tvbuff_t *tvb, packet_info *pinfo,
       hname = ajp13_get_nstring(tvb, pos, &hname_len);
       pos+=hname_len+2;
 
+      if (hcd >= array_length(req_headers)) {
+        hcd = 0;
+      }
+
       hval = ajp13_get_nstring(tvb, pos, &hval_len);
 
-      proto_tree_add_string_format(ajp13_tree, hf_ajp13_additional_header,
+      proto_tree_add_string_format(ajp13_tree, *req_headers[hcd],
                                      tvb, hpos, hname_len+2+hval_len+2,
                                      wmem_strdup_printf(wmem_packet_scope(), "%s: %s", hname, hval),
                                      "%s: %s", hname, hval);
