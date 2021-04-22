@@ -122,7 +122,7 @@ static const address anonymous_address = {
     NULL
 };
 
-const value_string uavcan_file_error_vals[] = {
+static const value_string uavcan_file_error_vals[] = {
     {      0, "Ok"             },
     {      2, "Not found"      },
     {      5, "I/O error"      },
@@ -136,7 +136,7 @@ const value_string uavcan_file_error_vals[] = {
     {      0, NULL             }
 };
 
-const value_string uavcan_diagnostic_severity_vals[] = {
+static const value_string uavcan_diagnostic_severity_vals[] = {
     {  0, "Trace"    },
     {  1, "Debug"    },
     {  2, "Info"     },
@@ -148,7 +148,7 @@ const value_string uavcan_diagnostic_severity_vals[] = {
     {  0, NULL       }
 };
 
-const value_string uavcan_heartbeat_mode_vals[] = {
+static const value_string uavcan_heartbeat_mode_vals[] = {
     {  0, "Operational"     },
     {  1, "Initialization"  },
     {  2, "Maintenance"     },
@@ -156,7 +156,7 @@ const value_string uavcan_heartbeat_mode_vals[] = {
     {  0, NULL              }
 };
 
-const value_string uavcan_heartbeat_health_vals[] = {
+static const value_string uavcan_heartbeat_health_vals[] = {
     {  0, "Nominal"  },
     {  1, "Advisory" },
     {  2, "Caution"  },
@@ -164,7 +164,7 @@ const value_string uavcan_heartbeat_health_vals[] = {
     {  0, NULL       }
 };
 
-const value_string uavcan_value_tag_vals[] = {
+static const value_string uavcan_value_tag_vals[] = {
     {   0, "Empty"            },
     {   1, "String"           },
     {   2, "Unstructured"     },
@@ -183,7 +183,7 @@ const value_string uavcan_value_tag_vals[] = {
     {   0, NULL               }
 };
 
-const value_string uavcan_nodeid_alloc_vals[] = {
+static const value_string uavcan_nodeid_alloc_vals[] = {
     {   0, "request message"  },
     {   1, "response message" },
     {   0, NULL               }

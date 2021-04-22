@@ -140,7 +140,7 @@ static dissector_handle_t dsdl_message_handle;
 static dissector_handle_t dsdl_request_handle;
 static dissector_handle_t dsdl_response_handle;
 
-const value_string uavcan_priority_vals[] = {
+static const value_string uavcan_priority_vals[] = {
     {  0, "Exceptional" },
     {  1, "Immediate"   },
     {  2, "Fast"        },
