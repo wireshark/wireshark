@@ -8008,6 +8008,11 @@ sts_custom(gchar *result, guint32 value)
   g_snprintf(result, ITEM_LABEL_LENGTH, "%d STS", value + 1);
 }
 
+static void
+rep_custom(gchar *result, guint32 value)
+{
+  g_snprintf(result, ITEM_LABEL_LENGTH, "%u repetition%s (%u)", value + 1, plurality(value + 1, "", "s"), value);
+}
 
 /*
  * We use this is displaying the ru allocation region.
@@ -35820,7 +35825,7 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_vht_ndp_annc_sta_info_ranging_2008_r2i_rep,
      {"R2I Rep", "wlan.vht_ndp.sta_info.ranging_2008.r2i_rep",
-      FT_UINT32, BASE_DEC, NULL, GENMASK(22, 20),
+      FT_UINT32, BASE_CUSTOM, CF_FUNC(rep_custom), GENMASK(22, 20),
       NULL, HFILL }},
 
     {&hf_ieee80211_vht_ndp_annc_sta_info_ranging_2008_i2r_n_sts,
@@ -35840,7 +35845,7 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_vht_ndp_annc_sta_info_ranging_2008_i2r_rep,
      {"I2R Rep", "wlan.vht_ndp.sta_info.ranging_2008.i2r_rep",
-      FT_UINT32, BASE_DEC, NULL, GENMASK(30, 28),
+      FT_UINT32, BASE_CUSTOM, CF_FUNC(rep_custom), GENMASK(30, 28),
       NULL, HFILL }},
 
     {&hf_ieee80211_vht_ndp_annc_sta_info_ranging_2008_reserved2,
@@ -38425,12 +38430,12 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_tag_ranging_max_i2r_repetition,
      {"Max I2R Repetition", "wlan.ranging.max_i2r_repetition",
-      FT_UINT48, BASE_DEC, NULL, GENMASK(26, 24),
+      FT_UINT48, BASE_CUSTOM, CF_FUNC(rep_custom), GENMASK(26, 24),
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_ranging_max_r2i_repetition,
      {"Max R2I Repetition", "wlan.ranging.max_r2i_repetition",
-      FT_UINT48, BASE_DEC, NULL, GENMASK(29, 27),
+      FT_UINT48, BASE_CUSTOM, CF_FUNC(rep_custom), GENMASK(29, 27),
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_ranging_device_class,
