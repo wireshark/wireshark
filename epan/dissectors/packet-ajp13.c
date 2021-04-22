@@ -731,7 +731,7 @@ display_req_forward(tvbuff_t *tvb, packet_info *pinfo,
       aval = ajp13_get_nstring(tvb, pos, &aval_len);
       pos+=aval_len+2;
 
-      proto_tree_add_string_format(ajp13_tree, *req_attributes[aid],
+      proto_tree_add_string_format_value(ajp13_tree, *req_attributes[aid],
                                      tvb, apos, 1+aval_len+2, aval,
                                      "%s", aval);
     }
