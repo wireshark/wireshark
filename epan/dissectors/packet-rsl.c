@@ -164,6 +164,10 @@ static int hf_rsl_phy_ctx_ab_rx_lvl            = -1;
 static int hf_rsl_phy_ctx_ab_err_bits          = -1;
 static int hf_rsl_phy_ctx_rx_lvl_ext           = -1;
 
+/* Osmocom specific IEs */
+static int hf_rsl_osmo_tsc_set = -1;
+static int hf_rsl_osmo_tsc_val = -1;
+
 /* Initialize the subtree pointers */
 static int ett_rsl = -1;
 static int ett_ie_link_id = -1;
@@ -231,6 +235,7 @@ static int ett_ie_local_port = -1;
 static int ett_ie_local_ip = -1;
 static int ett_ie_rtp_payload = -1;
 static int ett_ie_etws_pn = -1;
+static int ett_ie_osmo_training_seq = -1;
 
 /* Encapsulating paging messages into a packet REF: EP2192796 - proprietor Huawei */
 static int ett_ie_paging_package               = -1;
@@ -415,6 +420,9 @@ static const value_string rsl_msg_disc_vals[] = {
 #define RSL_IE_IPAC_RTP_PAYLOAD2          0xfc
 #define RSL_IE_IPAC_RTP_MPLEX             0xfd
 #define RSL_IE_IPAC_RTP_MPLEX_ID          0xfe
+
+/* Osmocom specific RSL IEs */
+#define RSL_IE_OSMO_TRAINING_SEQUENCE     0x61
 
 static const value_string rsl_msg_type_vals[] = {
       /*    0 0 0 0 - - - - Radio Link Layer Management messages: */
@@ -654,6 +662,7 @@ static const value_string rsl_ie_type_vals[] = {
             Not used
 
     */
+/* 0x61 */    { RSL_IE_OSMO_TRAINING_SEQUENCE, "Training Sequence Code/Set" },
 /* 0xe0 */    { RSL_IE_IPAC_SRTP_CONFIG,"SRTP Configuration" },
 /* 0xe1 */    { RSL_IE_IPAC_PROXY_UDP,  "BSC Proxy UDP Port" },
 /* 0xe2 */    { RSL_IE_IPAC_BSCMPL_TOUT,"BSC Multiplex Timeout" },
@@ -3563,6 +3572,45 @@ dissect_rsl_paging_package_number(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
     return package_number;
 }
 
+static const value_string rsl_osmo_tsc_set_vals[] = {
+    { 0, "TSC Set 1" },
+    { 1, "TSC Set 2" },
+    { 2, "TSC Set 3" },
+    { 3, "TSC Set 4" },
+    { 0, NULL }
+};
+
+static int
+dissect_rsl_ie_osmo_training_seq(tvbuff_t *tvb, packet_info *pinfo _U_,
+                                 proto_tree *tree, int offset,
+                                 gboolean is_mandatory)
+{
+    proto_item *ti;
+    proto_tree *ie_tree;
+    guint32     length;
+    guint8      ie_id;
+
+    if (is_mandatory == FALSE) {
+        ie_id = tvb_get_guint8(tvb, offset);
+        if (ie_id != RSL_IE_OSMO_TRAINING_SEQUENCE)
+            return offset;
+    }
+    ie_tree = proto_tree_add_subtree(tree, tvb, offset, 0,
+                                     ett_ie_osmo_training_seq, &ti,
+                                     "Osmocom Training Sequence IE");
+
+    /* Element identifier */
+    proto_tree_add_item(ie_tree, hf_rsl_ie_id, tvb, offset++, 1, ENC_NA);
+    /* Length */
+    proto_tree_add_item_ret_uint(ie_tree, hf_rsl_ie_length, tvb, offset++, 1, ENC_NA, &length);
+    proto_item_set_len(ti, length + 2);
+
+    proto_tree_add_item(ie_tree, hf_rsl_osmo_tsc_set, tvb, offset++, 1, ENC_NA);
+    proto_tree_add_item(ie_tree, hf_rsl_osmo_tsc_val, tvb, offset++, 1, ENC_NA);
+
+    return offset;
+}
+
 struct dyn_pl_info_t {
     guint8 rtp_codec;
     guint8 rtp_pt;
@@ -4071,6 +4119,9 @@ dissct_rsl_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
         /* TFO transparent container 9.3.59 O 12) TLV >=3   */
         if (tvb_reported_length_remaining(tvb, offset) > 0)
             offset = dissect_rsl_ie_tfo_transp_cont(tvb, pinfo, tree, offset, FALSE);
+        /* Training Sequence (Osmocom specific) O TLV 2 */
+        if (tvb_reported_length_remaining(tvb, offset) > 0)
+            offset = dissect_rsl_ie_osmo_training_seq(tvb, pinfo, tree, offset, FALSE);
         break;
 
     /* 8.4.2 CHANNEL ACTIVATION ACKNOWLEDGE 34*/
@@ -4117,6 +4168,9 @@ dissct_rsl_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
         /* Access Delay             9.3.17 O 1) TV 2        */
         if (tvb_reported_length_remaining(tvb, offset) > 0)
             offset = dissect_rsl_ie_access_delay(tvb, pinfo, tree, offset, FALSE);
+        /* Training Sequence (Osmocom specific) O TLV 2 */
+        if (tvb_reported_length_remaining(tvb, offset) > 0)
+            offset = dissect_rsl_ie_osmo_training_seq(tvb, pinfo, tree, offset, FALSE);
         break;
     /* 8.4.8 MEASUREMENT RESULT 40 */
     case RSL_MSG_MEAS_RES:
@@ -4169,6 +4223,9 @@ dissct_rsl_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
         /* TFO transparent container 9.3.59 O 4) TLV */
         if (tvb_reported_length_remaining(tvb, offset) > 0)
             offset = dissect_rsl_ie_tfo_transp_cont(tvb, pinfo, tree, offset, FALSE);
+        /* Training Sequence (Osmocom specific) O TLV 2 */
+        if (tvb_reported_length_remaining(tvb, offset) > 0)
+            offset = dissect_rsl_ie_osmo_training_seq(tvb, pinfo, tree, offset, FALSE);
         break;
     /* 8.4.10 MODE MODIFY ACKNOWLEDGE */
     case RSL_MSG_MODE_MODIFY_ACK:   /*  42  8.4.10 */
@@ -5070,6 +5127,16 @@ void proto_register_rsl(void)
             FT_BYTES, BASE_NONE, NULL, 0,
             NULL, HFILL }
         },
+        { &hf_rsl_osmo_tsc_set,
+          { "Training Sequence Set", "gsm_abis_rsl.osmo_tsc_set",
+            FT_UINT8, BASE_DEC, VALS(rsl_osmo_tsc_set_vals), 0,
+            NULL, HFILL }
+        },
+        { &hf_rsl_osmo_tsc_val,
+          { "Training Sequence Code", "gsm_abis_rsl.osmo_tsc_val",
+            FT_UINT8, BASE_DEC, NULL, 0,
+            NULL, HFILL }
+        },
       /* Generated from convert_proto_tree_add_text.pl */
       { &hf_rsl_channel_description_tag, { "Channel Description Tag", "gsm_abis_rsl.channel_description_tag", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_rsl_mobile_allocation_tag, { "Mobile Allocation Tag", "gsm_abis_rsl.mobile_allocation_tag", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
@@ -5162,6 +5229,7 @@ void proto_register_rsl(void)
         &ett_phy_ctx_ab_rx_lvl_err_bits,
         &ett_phy_ctx_rxlvl_ext,
         &ett_ie_etws_pn,
+        &ett_ie_osmo_training_seq,
     };
     static ei_register_info ei[] = {
       /* Generated from convert_proto_tree_add_text.pl */
@@ -5254,6 +5322,7 @@ void proto_register_rsl(void)
     RSL_ATT_TLVDEF(RSL_IE_IPAC_RTP_PAYLOAD2, TLV_TYPE_TV,            0);
     RSL_ATT_TLVDEF(RSL_IE_IPAC_RTP_PAYLOAD,  TLV_TYPE_TV,            0);
     RSL_ATT_TLVDEF(RSL_IE_IPAC_RTP_CSD_FMT,  TLV_TYPE_TV,            0);
+    RSL_ATT_TLVDEF(RSL_IE_OSMO_TRAINING_SEQUENCE, TLV_TYPE_TLV,      0);
 
     /* Register the protocol name and description */
     proto_rsl = proto_register_protocol("Radio Signalling Link (RSL)", "RSL", "gsm_abis_rsl");
