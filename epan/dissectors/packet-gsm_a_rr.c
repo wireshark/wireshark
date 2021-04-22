@@ -324,8 +324,8 @@ static const value_string gsm_rr_elem_strings[] = {
  * 10.5.2.79 DL-DCCH-Message
  * 10.5.2.80 CN to MS transparent information
  * 10.5.2.81 PLMN Index
- * 10.5.2.82 Extended TSC Set
  */
+    { DE_RR_EXTENDED_TSC_SET, "Extended TSC Set" },                     /* 10.5.2.82 Extended TSC Set */
     { DE_RR_EC_REQUEST_REFERENCE, "EC Request Reference" },             /* 10.5.2.83 EC Request reference */
     { DE_RR_EC_PKT_CH_DSC1, "EC Packet Channel Description Type 1" },   /* 10.5.2.84 EC Packet Channel Description Type 1 */
     { DE_RR_EC_PKT_CH_DSC2, "EC Packet Channel Description Type 2" },   /* 10.5.2.85 EC Packet Channel Description Type 2 */
@@ -1220,6 +1220,12 @@ static int hf_gsm_a_rr_implicit_reject_ps = -1;
 static int hf_gsm_a_rr_peo_dsc = -1;
 static int hf_gsm_a_rr_c1_delta_min = -1;
 static int hf_gsm_a_rr_c1_delta_max = -1;
+
+static int hf_gsm_a_rr_cs_tsc_set = -1;
+static int hf_gsm_a_rr_ps_sd_tsc_ass = -1;
+static int hf_gsm_a_rr_ps_pd_tsc_set = -1;
+static int hf_gsm_a_rr_ps_sd_tsc_set = -1;
+static int hf_gsm_a_rr_ps_sd_tsc_val = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_ccch_msg = -1;
@@ -9000,6 +9006,36 @@ de_rr_feature_indicator(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
     return(curr_offset - offset);
 }
 
+/*
+ * [3] 10.5.2.8 Extended TSC Set
+ */
+static const value_string gsm_a_rr_cs_tsc_set_vals[] = {
+    { 0, "TSC set 1" },
+    { 1, "TSC set 2" },
+    { 2, "TSC set 3" },
+    { 3, "TSC set 4" },
+    { 0, NULL }
+};
+
+static const value_string gsm_a_rr_ps_tsc_set_vals[] = {
+    { 0, "TSC set 1" },
+    { 1, "TSC set 2 for 8PSK, 16QAM and 32QAM or TSC set 3 for GMSK" },
+    { 0, NULL }
+};
+
+static guint16
+de_rr_extended_tsc_set(tvbuff_t *tvb, proto_tree *tree,
+                       packet_info *pinfo _U_, guint32 offset, guint len _U_,
+                       gchar *add_string _U_, int string_len _U_)
+{
+    proto_tree_add_item(tree, hf_gsm_a_rr_cs_tsc_set, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_gsm_a_rr_ps_sd_tsc_ass, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_gsm_a_rr_ps_pd_tsc_set, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_gsm_a_rr_ps_sd_tsc_set, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_gsm_a_rr_ps_sd_tsc_val, tvb, offset, 1, ENC_NA);
+    return 1;
+}
+
  /*
   * 10.5.2.83 EC Request reference
   */
@@ -9310,8 +9346,8 @@ guint16 (*rr_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gu
  * 10.5.2.79 DL-DCCH-Message
  * 10.5.2.80 CN to MS transparent information
  * 10.5.2.81 PLMN Index
- * 10.5.2.82 Extended TSC Set
  */
+    de_rr_extended_tsc_set,                     /* 10.5.2.82 Extended TSC Set */
     NULL,                                       /* 10.5.2.83 EC Request reference */
     de_rr_ec_pkt_ch_dsc1,                       /* 10.5.2.84 EC Packet Channel Description  Type 1      */
     NULL,                                       /* 10.5.2.85 EC Packet Channel Description  Type 1      */
@@ -9342,6 +9378,9 @@ dtap_rr_add_ass(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32
 
     /* Starting Time  10.5.2.38  O TV 3 */
     ELEM_OPT_TV(0x7c, GSM_A_PDU_TYPE_RR, DE_RR_STARTING_TIME, NULL);
+
+    /* 6D Extended TSC Set      10.5.2.82       O TV 2 */
+    ELEM_OPT_TV(0x6d, GSM_A_PDU_TYPE_RR, DE_RR_EXTENDED_TSC_SET, NULL);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_rr_extraneous_data);
 }
@@ -9436,6 +9475,12 @@ dtap_rr_ass_cmd(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32
     /* 04 VGCS Ciphering Parameters VGCS Ciphering Parameters 10.5.2.42b O TLV 3-15     */
     ELEM_OPT_TLV(0x04,GSM_A_PDU_TYPE_RR, DE_RR_VGCS_CIP_PAR, NULL);
 
+    /* 6D Extended TSC Set      10.5.2.82       O TV 2 */
+    ELEM_OPT_TV(0x6d, GSM_A_PDU_TYPE_RR, DE_RR_EXTENDED_TSC_SET, " - Extended TSC Set, after time");
+
+    /* 6E Extended TSC Set      10.5.2.82       O TV 2 */
+    ELEM_OPT_TV(0x6e, GSM_A_PDU_TYPE_RR, DE_RR_EXTENDED_TSC_SET, " - Extended TSC Set, before time");
+
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_rr_extraneous_data);
 
 }
@@ -9505,6 +9550,9 @@ dtap_rr_ch_mode_mod(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gui
     /* 03 Multi-Rate configuration,     MultiRate configuration 10.5.2.21aa     O TLV 4-8 */
     ELEM_OPT_TLV(0x03,GSM_A_PDU_TYPE_RR, DE_RR_MULTIRATE_CONF, NULL);
 
+    /* 6D Extended TSC Set      10.5.2.82       O TV 2 */
+    ELEM_OPT_TV(0x6d, GSM_A_PDU_TYPE_RR, DE_RR_EXTENDED_TSC_SET, NULL);
+
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_rr_extraneous_data);
 
 }
@@ -9527,6 +9575,9 @@ dtap_rr_ch_mode_mod_ack(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
 
     /* Channel Mode             10.5.2.6        M V 1 */
     ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_CH_MODE, NULL, ei_gsm_a_rr_missing_mandatory_element);
+
+    /* 6D Extended TSC Set      10.5.2.82       C TV 2 */
+    ELEM_OPT_TV(0x6d, GSM_A_PDU_TYPE_RR, DE_RR_EXTENDED_TSC_SET, NULL);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_rr_extraneous_data);
 
@@ -9805,6 +9856,9 @@ dtap_rr_dtm_ass_cmd(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gui
     /* 21 Channel Description C2 Channel Description 3 10.5.2.5c O TV 3 */
     ELEM_OPT_TV(0x21,GSM_A_PDU_TYPE_RR, DE_RR_CH_DSC3, " - Channel Description C2");
 
+    /* 6D Extended TSC Set      10.5.2.82       C TV 2 */
+    ELEM_OPT_TV(0x6d, GSM_A_PDU_TYPE_RR, DE_RR_EXTENDED_TSC_SET, NULL);
+
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_rr_extraneous_data);
 }
 
@@ -9923,6 +9977,9 @@ dtap_rr_freq_redef(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guin
 
     /* Channel Description 3  10.5.2.5c  O TV 3 */
     ELEM_OPT_TV(0x12,GSM_A_PDU_TYPE_RR, DE_RR_CH_DSC3, " - Channel Description C2");
+
+    /* 6D Extended TSC Set      10.5.2.82       C TV 2 */
+    ELEM_OPT_TV(0x6d, GSM_A_PDU_TYPE_RR, DE_RR_EXTENDED_TSC_SET, NULL);
 
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset, pinfo, &ei_gsm_a_rr_extraneous_data);
 }
@@ -10087,6 +10144,12 @@ dtap_rr_ho_cmd(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 
     /* Dedicated Service Information,   Dedicated Service Information 10.5.2.59 */
     ELEM_OPT_TV(0x51,GSM_A_PDU_TYPE_RR, DE_RR_DED_SERV_INF, NULL);
 
+    /* 6D Extended TSC Set      10.5.2.82       O TV 2 */
+    ELEM_OPT_TV(0x6d, GSM_A_PDU_TYPE_RR, DE_RR_EXTENDED_TSC_SET, " - Extended TSC Set, after time");
+
+    /* 6E Extended TSC Set      10.5.2.82       O TV 2 */
+    ELEM_OPT_TV(0x6e, GSM_A_PDU_TYPE_RR, DE_RR_EXTENDED_TSC_SET, " - Extended TSC Set, before time");
+
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset, pinfo, &ei_gsm_a_rr_extraneous_data);
 
 }
@@ -10211,6 +10274,8 @@ dtap_rr_imm_ass(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32
     if(tvb_reported_length_remaining(tvb,curr_offset) > 0)
         ELEM_MAND_V(GSM_A_PDU_TYPE_RR, DE_RR_IA_REST_OCT, NULL, ei_gsm_a_rr_missing_mandatory_element);
 
+    /* 6D Extended TSC Set                      10.5.2.82       O TV 2 */
+    ELEM_OPT_TV(0x6d, GSM_A_PDU_TYPE_RR, DE_RR_EXTENDED_TSC_SET, NULL);
 }
 
 /*
@@ -10341,6 +10406,9 @@ dtap_rr_pkt_assign(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guin
 
     /* 0x24 RR Packet Downlink Assignment Type 2 10.5.2.25e C TLV 3-n */
     ELEM_OPT_TLV(0x24, GSM_A_PDU_TYPE_RR, DE_RR_PKT_DL_ASS_TYPE2, NULL);
+
+    /* 0x6D Extended TSC Set 10.5.2.82 C TV 2 */
+    ELEM_OPT_TV(0x6d, GSM_A_PDU_TYPE_RR, DE_RR_EXTENDED_TSC_SET, NULL);
 
     EXTRANEOUS_DATA_CHECK(len, curr_offset - offset, pinfo, &ei_gsm_a_rr_extraneous_data);
 }
@@ -14706,6 +14774,11 @@ proto_register_gsm_a_rr(void)
             { &hf_gsm_a_rr_additions_in_rel_4, { "Additions in Rel-4", "gsm_a.rr.additions_in_rel_4", FT_BOOLEAN, BASE_NONE, TFS(&tfs_present_not_present), 0x00, NULL, HFILL }},
             { &hf_gsm_a_rr_si_change_alt, { "SI CHANGE ALT", "gsm_a.rr.si_change_alt", FT_BOOLEAN, BASE_NONE, TFS(&gsm_si_change_alt_value), 0x00, NULL, HFILL } },
 
+            { &hf_gsm_a_rr_cs_tsc_set, { "CS Domain TSC Set", "gsm_a.rr.cs_tsc_set", FT_UINT8, BASE_DEC, VALS(gsm_a_rr_cs_tsc_set_vals), 0x03, NULL, HFILL } },
+            { &hf_gsm_a_rr_ps_sd_tsc_ass, { "Secondary PS Domain TSC Assigned", "gsm_a.rr.ps_sd_tsc_ass", FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x04, NULL, HFILL } },
+            { &hf_gsm_a_rr_ps_pd_tsc_set, { "Primary PS Domain TSC Set", "gsm_a.rr.ps_pd_tsc_set", FT_UINT8, BASE_DEC, VALS(gsm_a_rr_ps_tsc_set_vals), 0x08, NULL, HFILL } },
+            { &hf_gsm_a_rr_ps_sd_tsc_set, { "Secondary PS Domain TSC Set", "gsm_a.rr.ps_sd_tsc_set", FT_UINT8, BASE_DEC, VALS(gsm_a_rr_ps_tsc_set_vals), 0x10, NULL, HFILL } },
+            { &hf_gsm_a_rr_ps_sd_tsc_val, { "Secondary PS Domain TSC Value", "gsm_a.rr.ps_sd_tsc_val", FT_UINT8, BASE_DEC, NULL, 0xe0, NULL, HFILL } },
         };
 
     static hf_register_info hf_rr_short_pd[] =

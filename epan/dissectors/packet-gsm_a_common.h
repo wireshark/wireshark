@@ -1545,6 +1545,7 @@ typedef enum
  */
     DE_RR_CARRIER_IND,              /* 10.5.2.69 Carrier Indication */
     DE_RR_FEATURE_INDICATOR,        /* 10.5.2.76 feature Inticator */
+    DE_RR_EXTENDED_TSC_SET,         /* 10.5.2.82 Extended TSC Set */
     DE_RR_EC_REQUEST_REFERENCE,     /* 10.5.2.83 EC Request reference */
     DE_RR_EC_PKT_CH_DSC1,           /* 10.5.2.84 EC Packet Channel Description Type 1 */
     DE_RR_EC_PKT_CH_DSC2,           /* 10.5.2.85 EC Packet Channel Description Type 2 */
