@@ -161,7 +161,7 @@ get_dyn_pt_clock_rate(const gchar *payload_type_str)
 /****************************************************************************/
 void
 rtppacket_analyse(tap_rtp_stat_t *statinfo,
-                       packet_info *pinfo,
+                       const packet_info *pinfo,
                        const struct _rtp_info *rtpinfo)
 {
     double current_time;

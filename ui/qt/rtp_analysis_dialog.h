@@ -81,9 +81,9 @@ public:
 
 signals:
     void goToPacket(int packet_num);
-    void rtpPlayerDialogReplaceRtpStreams(QVector<rtpstream_info_t *> stream_infos);
-    void rtpPlayerDialogAddRtpStreams(QVector<rtpstream_info_t *> stream_infos);
-    void rtpPlayerDialogRemoveRtpStreams(QVector<rtpstream_info_t *> stream_infos);
+    void rtpPlayerDialogReplaceRtpStreams(QVector<rtpstream_id_t *> stream_ids);
+    void rtpPlayerDialogAddRtpStreams(QVector<rtpstream_id_t *> stream_ids);
+    void rtpPlayerDialogRemoveRtpStreams(QVector<rtpstream_id_t *> stream_ids);
     void updateFilter(QString filter, bool force = false);
 
 public slots:
@@ -142,7 +142,7 @@ private:
 
     bool eventFilter(QObject*, QEvent* event);
 
-    QVector<rtpstream_info_t *>getSelectedRtpStreams();
+    QVector<rtpstream_id_t *>getSelectedRtpIds();
     int addTabUI(tab_info_t *new_tab);
     tab_info_t *getTabInfoForCurrentTab();
     void deleteTabInfo(tab_info_t *tab_info);

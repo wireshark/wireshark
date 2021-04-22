@@ -810,30 +810,30 @@ gboolean SequenceDialog::addFlowSequenceItem(const void* key, void *value, void 
     return FALSE;
 }
 
-QVector<rtpstream_info_t *>SequenceDialog::getSelectedRtpStreams()
+QVector<rtpstream_id_t *>SequenceDialog::getSelectedRtpIds()
 {
-    QVector<rtpstream_info_t *> stream_infos;
+    QVector<rtpstream_id_t *> stream_ids;
 
     if (current_rtp_sai_ && GA_INFO_TYPE_RTP == current_rtp_sai_->info_type) {
-        stream_infos << (rtpstream_info_t *)current_rtp_sai_->info_ptr;
+        stream_ids << &((rtpstream_info_t *)current_rtp_sai_->info_ptr)->id;
     }
 
-    return stream_infos;
+    return stream_ids;
 }
 
 void SequenceDialog::rtpPlayerReplace()
 {
-    emit rtpPlayerDialogReplaceRtpStreams(getSelectedRtpStreams());
+    emit rtpPlayerDialogReplaceRtpStreams(getSelectedRtpIds());
 }
 
 void SequenceDialog::rtpPlayerAdd()
 {
-    emit rtpPlayerDialogAddRtpStreams(getSelectedRtpStreams());
+    emit rtpPlayerDialogAddRtpStreams(getSelectedRtpIds());
 }
 
 void SequenceDialog::rtpPlayerRemove()
 {
-    emit rtpPlayerDialogRemoveRtpStreams(getSelectedRtpStreams());
+    emit rtpPlayerDialogRemoveRtpStreams(getSelectedRtpIds());
 }
 
 void SequenceDialog::on_buttonBox_helpRequested()

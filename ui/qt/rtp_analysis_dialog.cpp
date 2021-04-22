@@ -785,35 +785,35 @@ void RtpAnalysisDialog::updateGraph()
     ui->streamGraph->replot();
 }
 
-QVector<rtpstream_info_t *>RtpAnalysisDialog::getSelectedRtpStreams()
+QVector<rtpstream_id_t *>RtpAnalysisDialog::getSelectedRtpIds()
 {
-    QVector<rtpstream_info_t *> stream_infos;
+    QVector<rtpstream_id_t *> stream_ids;
     for(int i=0; i < tabs_.count(); i++) {
-        stream_infos << &tabs_[i]->stream;
+        stream_ids << &(tabs_[i]->stream.id);
     }
 
-    return stream_infos;
+    return stream_ids;
 }
 
 void RtpAnalysisDialog::rtpPlayerReplace()
 {
     if (tabs_.count() < 1) return;
 
-    emit rtpPlayerDialogReplaceRtpStreams(getSelectedRtpStreams());
+    emit rtpPlayerDialogReplaceRtpStreams(getSelectedRtpIds());
 }
 
 void RtpAnalysisDialog::rtpPlayerAdd()
 {
     if (tabs_.count() < 1) return;
 
-    emit rtpPlayerDialogAddRtpStreams(getSelectedRtpStreams());
+    emit rtpPlayerDialogAddRtpStreams(getSelectedRtpIds());
 }
 
 void RtpAnalysisDialog::rtpPlayerRemove()
 {
     if (tabs_.count() < 1) return;
 
-    emit rtpPlayerDialogRemoveRtpStreams(getSelectedRtpStreams());
+    emit rtpPlayerDialogRemoveRtpStreams(getSelectedRtpIds());
 }
 
 void RtpAnalysisDialog::saveCsvData(QFile *save_file, QTreeWidget *tree)
@@ -1086,9 +1086,9 @@ QPushButton *RtpAnalysisDialog::addAnalyzeButton(QDialogButtonBox *button_box, Q
 void RtpAnalysisDialog::on_actionPrepareFilterOne_triggered()
 {
     if ((ui->tabWidget->currentIndex() < (ui->tabWidget->count()-1))) {
-        QVector<rtpstream_info_t *> streams;
-        streams << &tabs_[ui->tabWidget->currentIndex()]->stream;
-        QString filter = make_filter_based_on_rtpstream_info(streams);
+        QVector<rtpstream_id_t *> ids;
+        ids << &(tabs_[ui->tabWidget->currentIndex()]->stream.id);
+        QString filter = make_filter_based_on_rtpstream_id(ids);
         if (filter.length() > 0) {
             emit updateFilter(filter);
         }
@@ -1097,8 +1097,8 @@ void RtpAnalysisDialog::on_actionPrepareFilterOne_triggered()
 
 void RtpAnalysisDialog::on_actionPrepareFilterAll_triggered()
 {
-    QVector<rtpstream_info_t *>streams = getSelectedRtpStreams();
-    QString filter = make_filter_based_on_rtpstream_info(streams);
+    QVector<rtpstream_id_t *>ids = getSelectedRtpIds();
+    QString filter = make_filter_based_on_rtpstream_id(ids);
     if (filter.length() > 0) {
         emit updateFilter(filter);
     }

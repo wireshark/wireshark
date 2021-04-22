@@ -139,6 +139,16 @@ void rtpstream_info_calculate(const rtpstream_info_t *strinfo, rtpstream_info_ca
 void rtpstream_info_calc_free(rtpstream_info_calc_t *calc);
 
 /**
+ * Init analyse counters in rtpstream_info_t from pinfo
+ */
+void rtpstream_info_analyse_init(rtpstream_info_t *stream_info, const packet_info *pinfo, const struct _rtp_info *rtpinfo);
+
+/**
+ * Update analyse counters in rtpstream_info_t from pinfo
+ */
+void rtpstream_info_analyse_process(rtpstream_info_t *stream_info, const packet_info *pinfo, const struct _rtp_info *rtpinfo);
+
+/**
  * Get hash key for rtpstream_info_t
  */
 guint rtpstream_to_hash(gconstpointer key);
@@ -151,7 +161,7 @@ void rtpstream_info_multihash_insert(GHashTable *multihash, rtpstream_info_t *ne
 /**
  * Lookup stream_info in stream_info multihash
  */
-rtpstream_info_t *rtpstream_info_multihash_lookup(GHashTable *multihash, rtpstream_info_t *stream_info);
+rtpstream_info_t *rtpstream_info_multihash_lookup(GHashTable *multihash, rtpstream_id_t *stream_id);
 
 /**
  * GHFunc () for destroying GList in multihash

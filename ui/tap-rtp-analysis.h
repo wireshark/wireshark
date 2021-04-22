@@ -108,7 +108,7 @@ struct _rtp_info;
 
 /* function for analysing an RTP packet. Called from rtp_analysis and rtp_streams */
 extern void rtppacket_analyse(tap_rtp_stat_t *statinfo,
-                              packet_info *pinfo,
+                              const packet_info *pinfo,
                               const struct _rtp_info *rtpinfo);
 
 #ifdef __cplusplus

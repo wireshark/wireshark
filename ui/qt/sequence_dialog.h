@@ -61,9 +61,9 @@ protected:
 signals:
     void rtpStreamsDialogSelectRtpStreams(QVector<rtpstream_id_t *> stream_infos);
     void rtpStreamsDialogDeselectRtpStreams(QVector<rtpstream_id_t *> stream_infos);
-    void rtpPlayerDialogReplaceRtpStreams(QVector<rtpstream_info_t *> stream_infos);
-    void rtpPlayerDialogAddRtpStreams(QVector<rtpstream_info_t *> stream_infos);
-    void rtpPlayerDialogRemoveRtpStreams(QVector<rtpstream_info_t *> stream_infos);
+    void rtpPlayerDialogReplaceRtpStreams(QVector<rtpstream_id_t *> stream_ids);
+    void rtpPlayerDialogAddRtpStreams(QVector<rtpstream_id_t *> stream_ids);
+    void rtpPlayerDialogRemoveRtpStreams(QVector<rtpstream_id_t *> stream_ids);
 
 private slots:
     void updateWidgets();
@@ -129,7 +129,7 @@ private:
 
     static gboolean addFlowSequenceItem(const void *key, void *value, void *userdata);
 
-    QVector<rtpstream_info_t *>getSelectedRtpStreams();
+    QVector<rtpstream_id_t *>getSelectedRtpIds();
 };
 
 #endif // SEQUENCE_DIALOG_H

@@ -815,8 +815,8 @@ void RtpStreamDialog::on_actionMarkPackets_triggered()
 
 void RtpStreamDialog::on_actionPrepareFilter_triggered()
 {
-    QVector<rtpstream_info_t *> streams = getSelectedRtpStreams();
-    QString filter = make_filter_based_on_rtpstream_info(streams);
+    QVector<rtpstream_id_t *> ids = getSelectedRtpIds();
+    QString filter = make_filter_based_on_rtpstream_id(ids);
     if (filter.length() > 0) {
         remove_tap_listener_rtpstream(&tapinfo_);
         emit updateFilter(filter);
@@ -871,61 +871,61 @@ void RtpStreamDialog::on_actionSelectNone_triggered()
     ui->streamTreeWidget->clearSelection();
 }
 
-QVector<rtpstream_info_t *>RtpStreamDialog::getSelectedRtpStreams()
+QVector<rtpstream_id_t *>RtpStreamDialog::getSelectedRtpIds()
 {
     // Gather up our selected streams...
-    QVector<rtpstream_info_t *> stream_infos;
+    QVector<rtpstream_id_t *> stream_ids;
     foreach(QTreeWidgetItem *ti, ui->streamTreeWidget->selectedItems()) {
         RtpStreamTreeWidgetItem *rsti = static_cast<RtpStreamTreeWidgetItem*>(ti);
         rtpstream_info_t *selected_stream = rsti->streamInfo();
         if (selected_stream) {
-            stream_infos << selected_stream;
+            stream_ids << &(selected_stream->id);
         }
     }
 
-    return stream_infos;
+    return stream_ids;
 }
 
 void RtpStreamDialog::rtpPlayerReplace()
 {
     if (ui->streamTreeWidget->selectedItems().count() < 1) return;
 
-    emit rtpPlayerDialogReplaceRtpStreams(getSelectedRtpStreams());
+    emit rtpPlayerDialogReplaceRtpStreams(getSelectedRtpIds());
 }
 
 void RtpStreamDialog::rtpPlayerAdd()
 {
     if (ui->streamTreeWidget->selectedItems().count() < 1) return;
 
-    emit rtpPlayerDialogAddRtpStreams(getSelectedRtpStreams());
+    emit rtpPlayerDialogAddRtpStreams(getSelectedRtpIds());
 }
 
 void RtpStreamDialog::rtpPlayerRemove()
 {
     if (ui->streamTreeWidget->selectedItems().count() < 1) return;
 
-    emit rtpPlayerDialogRemoveRtpStreams(getSelectedRtpStreams());
+    emit rtpPlayerDialogRemoveRtpStreams(getSelectedRtpIds());
 }
 
 void RtpStreamDialog::rtpAnalysisReplace()
 {
     if (ui->streamTreeWidget->selectedItems().count() < 1) return;
 
-    emit rtpAnalysisDialogReplaceRtpStreams(make_rtpstream_ids_from_rtpstream_infos(getSelectedRtpStreams()));
+    emit rtpAnalysisDialogReplaceRtpStreams(getSelectedRtpIds());
 }
 
 void RtpStreamDialog::rtpAnalysisAdd()
 {
     if (ui->streamTreeWidget->selectedItems().count() < 1) return;
 
-    emit rtpAnalysisDialogAddRtpStreams(make_rtpstream_ids_from_rtpstream_infos(getSelectedRtpStreams()));
+    emit rtpAnalysisDialogAddRtpStreams(getSelectedRtpIds());
 }
 
 void RtpStreamDialog::rtpAnalysisRemove()
 {
     if (ui->streamTreeWidget->selectedItems().count() < 1) return;
 
-    emit rtpAnalysisDialogRemoveRtpStreams(make_rtpstream_ids_from_rtpstream_infos(getSelectedRtpStreams()));
+    emit rtpAnalysisDialogRemoveRtpStreams(getSelectedRtpIds());
 }
 
 void RtpStreamDialog::displayFilterSuccess(bool success)

@@ -24,6 +24,7 @@
 
 #include <ui/rtp_media.h>
 #include <ui/rtp_stream.h>
+#include <ui/tap-rtp-common.h>
 
 #include <wsutil/nstime.h>
 
@@ -43,29 +44,32 @@
 
 static const spx_int16_t visual_sample_rate_ = 1000;
 
-RtpAudioStream::RtpAudioStream(QObject *parent, rtpstream_info_t *rtpstream, bool stereo_required) :
-    QObject(parent),
-    sample_file_(NULL),
-    sample_file_frame_(NULL),
-    decoders_hash_(rtp_decoder_hash_table_new()),
-    global_start_rel_time_(0.0),
-    start_abs_offset_(0.0),
-    start_rel_time_(0.0),
-    stop_rel_time_(0.0),
-    stereo_required_(stereo_required),
-    first_sample_rate_(0),
-    audio_out_rate_(0),
-    audio_requested_out_rate_(0),
-    audio_resampler_(0),
-    audio_output_(NULL),
-    max_sample_val_(1),
-    max_sample_val_used_(1),
-    color_(0),
-    jitter_buffer_size_(50),
-    timing_mode_(RtpAudioStream::JitterBuffer),
-    start_play_time_(0)
+RtpAudioStream::RtpAudioStream(QObject *parent, rtpstream_id_t *id, bool stereo_required) :
+    QObject(parent)
+    , first_packet_(true)
+    , sample_file_(NULL)
+    , sample_file_frame_(NULL)
+    , decoders_hash_(rtp_decoder_hash_table_new())
+    , global_start_rel_time_(0.0)
+    , start_abs_offset_(0.0)
+    , start_rel_time_(0.0)
+    , stop_rel_time_(0.0)
+    , stereo_required_(stereo_required)
+    , first_sample_rate_(0)
+    , audio_out_rate_(0)
+    , audio_requested_out_rate_(0)
+    , audio_resampler_(0)
+    , audio_output_(NULL)
+    , max_sample_val_(1)
+    , max_sample_val_used_(1)
+    , color_(0)
+    , jitter_buffer_size_(50)
+    , timing_mode_(RtpAudioStream::JitterBuffer)
+    , start_play_time_(0)
 {
-    rtpstream_id_copy(&rtpstream->id, &id_);
+    rtpstream_id_copy(id, &id_);
+    memset(&rtpstream_, 0, sizeof(rtpstream_));
+    rtpstream_id_copy(&id_, &rtpstream_.id);
 
     // Rates will be set later, we just init visual resampler
     visual_resampler_ = speex_resampler_init(1, visual_sample_rate_,
@@ -77,6 +81,7 @@ RtpAudioStream::RtpAudioStream(QObject *parent, rtpstream_info_t *rtpstream, boo
         // We are out of file resources
         delete sample_file_;
         speex_resampler_destroy(visual_resampler_);
+        rtpstream_info_free_data(&rtpstream_);
         rtpstream_id_free(&id_);
         qWarning() << "Can't create temp file in " << tempname;
         throw -1;
@@ -87,6 +92,7 @@ RtpAudioStream::RtpAudioStream(QObject *parent, rtpstream_info_t *rtpstream, boo
         delete sample_file_;
         delete sample_file_frame_;
         speex_resampler_destroy(visual_resampler_);
+        rtpstream_info_free_data(&rtpstream_);
         rtpstream_id_free(&id_);
         qWarning() << "Can't create temp file in " << tempname;
         throw -1;
@@ -106,6 +112,7 @@ RtpAudioStream::~RtpAudioStream()
     g_hash_table_destroy(decoders_hash_);
     if (audio_resampler_) speex_resampler_destroy(audio_resampler_);
     speex_resampler_destroy(visual_resampler_);
+    rtpstream_info_free_data(&rtpstream_);
     rtpstream_id_free(&id_);
     if (sample_file_) delete sample_file_;
     if (sample_file_frame_) delete sample_file_frame_;
@@ -113,10 +120,10 @@ RtpAudioStream::~RtpAudioStream()
     if (audio_output_) delete audio_output_;
 }
 
-bool RtpAudioStream::isMatch(const rtpstream_info_t *rtpstream) const
+bool RtpAudioStream::isMatch(const rtpstream_id_t *id) const
 {
-    if (rtpstream
-        && rtpstream_id_equal(&id_, &(rtpstream->id), RTPSTREAM_ID_EQUAL_SSRC))
+    if (id
+        && rtpstream_id_equal(&id_, id, RTPSTREAM_ID_EQUAL_SSRC))
         return true;
     return false;
 }
@@ -132,6 +139,12 @@ bool RtpAudioStream::isMatch(const _packet_info *pinfo, const _rtp_info *rtp_inf
 void RtpAudioStream::addRtpPacket(const struct _packet_info *pinfo, const struct _rtp_info *rtp_info)
 {
     if (!rtp_info) return;
+
+    if (first_packet_) {
+        rtpstream_info_analyse_init(&rtpstream_, pinfo, rtp_info);
+        first_packet_ = false;
+    }
+    rtpstream_info_analyse_process(&rtpstream_, pinfo, rtp_info);
 
     rtp_packet_t *rtp_packet = g_new0(rtp_packet_t, 1);
     rtp_packet->info = (struct _rtp_info *) g_memdup2(rtp_info, sizeof(struct _rtp_info));
@@ -159,6 +172,10 @@ void RtpAudioStream::clearPackets()
         g_free(rtp_packet);
     }
     rtp_packets_.clear();
+    rtpstream_info_free_data(&rtpstream_);
+    memset(&rtpstream_, 0, sizeof(rtpstream_));
+    rtpstream_id_copy(&id_, &rtpstream_.id);
+    first_packet_ = true;
 }
 
 void RtpAudioStream::reset(double global_start_time)
@@ -685,8 +702,8 @@ const QString RtpAudioStream::formatDescription(const QAudioFormat &format)
 
 QString RtpAudioStream::getIDAsQString()
 {
-    gchar *src_addr_str = address_to_display(NULL, &(id_.src_addr));
-    gchar *dst_addr_str = address_to_display(NULL, &(id_.dst_addr));
+    gchar *src_addr_str = address_to_display(NULL, &id_.src_addr);
+    gchar *dst_addr_str = address_to_display(NULL, &id_.dst_addr);
     QString str = QString("%1:%2 - %3:%4 %5")
         .arg(src_addr_str)
         .arg(id_.src_port)

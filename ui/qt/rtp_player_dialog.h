@@ -56,7 +56,7 @@ class RtpPlayerDialog : public WiresharkDialog
 #endif
 
 public:
-    explicit RtpPlayerDialog(QWidget &parent, CaptureFile &cf);
+    explicit RtpPlayerDialog(QWidget &parent, CaptureFile &cf, bool capture_running);
 
     /**
      * @brief Common routine to add a "Play call" button to a QDialogButtonBox.
@@ -80,9 +80,9 @@ public:
      *
      * @param stream_infos struct with rtpstream info
      */
-    void replaceRtpStreams(QVector<rtpstream_info_t *> stream_infos);
-    void addRtpStreams(QVector<rtpstream_info_t *> stream_infos);
-    void removeRtpStreams(QVector<rtpstream_info_t *> stream_infos);
+    void replaceRtpStreams(QVector<rtpstream_id_t *> stream_ids);
+    void addRtpStreams(QVector<rtpstream_id_t *> stream_ids);
+    void removeRtpStreams(QVector<rtpstream_id_t *> stream_ids);
 
 signals:
     // Tells the packet list to redraw. An alternative might be to add a
@@ -110,6 +110,7 @@ private slots:
      * streams added using ::addRtpStream.
      */
     void retapPackets();
+    void captureEvent(CaptureEvent e);
     /** Clear, decode, and redraw each stream.
      */
     void rescanPackets(bool rescale_axes = false);
@@ -171,6 +172,7 @@ private slots:
     void on_actionSelectInaudible_triggered();
     void on_actionDeselectInaudible_triggered();
     void on_actionPrepareFilter_triggered();
+    void on_actionReadCapture_triggered();
 
 private:
     Ui::RtpPlayerDialog *ui;
@@ -193,6 +195,7 @@ private:
     quint32 marker_stream_requested_out_rate_;
     QTreeWidgetItem *last_ti_;
     bool listener_removed_;
+    QPushButton *read_btn_;
     QPushButton *inaudible_btn_;
     QPushButton *analyze_btn_;
     QPushButton *prepare_btn_;
@@ -200,6 +203,7 @@ private:
     QMultiHash<guint, RtpAudioStream *> stream_hash_;
     bool block_redraw_;
     int lock_ui_;
+    bool read_capture_enabled_;
 
 //    const QString streamKey(const rtpstream_info_t *rtpstream);
 //    const QString streamKey(const packet_info *pinfo, const struct _rtp_info *rtpinfo);
@@ -219,7 +223,7 @@ private:
     double getStartPlayMarker();
     void drawStartPlayMarker();
     void setStartPlayMarker(double new_time);
-    void updateStartStopTime(rtpstream_info_t *rtpstream, int tli_count);
+    void updateStartStopTime(rtpstream_info_t *rtpstream, bool is_first);
     void formatAudioRouting(QTreeWidgetItem *ti, AudioRouting audio_routing);
     bool isStereoAvailable();
     QAudioOutput *getSilenceAudioOutput();
@@ -230,7 +234,7 @@ private:
     void highlightItem(QTreeWidgetItem *ti, bool highlight);
     void invertSelection();
     void handleGoToSetupPacket(QTreeWidgetItem *ti);
-    void addSingleRtpStream(rtpstream_info_t *rtpstream);
+    void addSingleRtpStream(rtpstream_id_t *id);
     void removeRow(QTreeWidgetItem *ti);
     void fillAudioRateMenu();
     void cleanupMarkerStream();
@@ -247,6 +251,7 @@ private:
     void unlockUI();
     void selectInaudible(bool select);
     QVector<rtpstream_id_t *>getSelectedRtpStreamIDs();
+    void fillTappedColumns();
 
 #else // QT_MULTIMEDIA_LIB
 private:

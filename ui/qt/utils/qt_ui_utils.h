@@ -234,14 +234,6 @@ bool rect_on_screen(const QRect &rect);
 void set_action_shortcuts_visible_in_context_menu(QList<QAction *> actions);
 
 /**
- * Extract rtpstream ids from rtpstream infos
- *
- * @param rtpstream_infos List of infos
- * @return Vector of rtpstream_ids
- */
-QVector<rtpstream_id_t *>make_rtpstream_ids_from_rtpstream_infos(QVector<rtpstream_info_t *> stream_infos);
-
-/**
  * Create copy of all rtpstream_ids to new QVector
  * => caller must release it with qvector_rtpstream_ids_free()
  *
@@ -264,14 +256,6 @@ void qvector_rtpstream_ids_free(QVector<rtpstream_id_t *> stream_ids);
  * @return Filter or empty string
  */
 QString make_filter_based_on_rtpstream_id(QVector<rtpstream_id_t *> stream_ids);
-
-/**
- * Make display filter from list of rtpstream_infos
- *
- * @param stream_infos List of stream infos
- * @return Filter or empty string
- */
-QString make_filter_based_on_rtpstream_info(QVector<rtpstream_info_t *> stream_infos);
 
 #endif /* __QT_UI_UTILS__H__ */
 

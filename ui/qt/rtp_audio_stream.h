@@ -49,9 +49,9 @@ class RtpAudioStream : public QObject
 public:
     enum TimingMode { JitterBuffer, RtpTimestamp, Uninterrupted };
 
-    explicit RtpAudioStream(QObject *parent, rtpstream_info_t *rtpstream, bool stereo_required);
+    explicit RtpAudioStream(QObject *parent, rtpstream_id_t *id, bool stereo_required);
     ~RtpAudioStream();
-    bool isMatch(const rtpstream_info_t *rtpstream) const;
+    bool isMatch(const rtpstream_id_t *id) const;
     bool isMatch(const struct _packet_info *pinfo, const struct _rtp_info *rtp_info) const;
     void addRtpPacket(const struct _packet_info *pinfo, const struct _rtp_info *rtp_info);
     void clearPackets();
@@ -154,9 +154,10 @@ public:
     qint64 getLeadSilenceSamples() { return prepend_samples_; }
     qint64 getTotalSamples() { return (sample_file_->size()/(qint64)sizeof(SAMPLE)); }
     bool savePayload(QIODevice *file);
-    guint getHash() { return rtpstream_id_to_hash(&id_); }
-    rtpstream_id_t *getID() { return &id_; }
+    guint getHash() { return rtpstream_id_to_hash(&(id_)); }
+    rtpstream_id_t *getID() { return &(id_); }
     QString getIDAsQString();
+    rtpstream_info_t *getStreamInfo() { return &rtpstream_; }
 
 signals:
     void processedSecs(double secs);
@@ -167,6 +168,8 @@ private:
     // Used to identify unique streams.
     // The GTK+ UI also uses the call number + current channel.
     rtpstream_id_t id_;
+    rtpstream_info_t rtpstream_;
+    bool first_packet_;
 
     QVector<struct _rtp_packet *>rtp_packets_;
     QIODevice *sample_file_;       // Stores waveform samples

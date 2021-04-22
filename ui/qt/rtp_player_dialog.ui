@@ -687,6 +687,14 @@
     <string>Prepare a filter matching the selected stream(s).</string>
    </property>
   </action>
+  <action name="actionReadCapture">
+   <property name="text">
+    <string>R&amp;efresh streams</string>
+   </property>
+   <property name="toolTip">
+    <string>Read captured packets from capture in progress to player</string>
+   </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>

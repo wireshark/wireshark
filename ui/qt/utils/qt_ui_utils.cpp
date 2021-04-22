@@ -257,17 +257,6 @@ void set_action_shortcuts_visible_in_context_menu(QList<QAction *> actions)
 #endif
 }
 
-QVector<rtpstream_id_t *>make_rtpstream_ids_from_rtpstream_infos(QVector<rtpstream_info_t *> stream_infos)
-{
-    QVector<rtpstream_id_t *>stream_ids;
-
-    foreach(rtpstream_info_t *stream, stream_infos) {
-        stream_ids << &stream->id;
-    }
-
-    return stream_ids;
-}
-
 QVector<rtpstream_id_t *>qvector_rtpstream_ids_copy(QVector<rtpstream_id_t *> stream_ids)
 {
     QVector<rtpstream_id_t *>new_ids;
@@ -308,10 +297,5 @@ QString make_filter_based_on_rtpstream_id(QVector<rtpstream_id_t *> stream_ids)
     }
 
     return filter;
-}
-
-QString make_filter_based_on_rtpstream_info(QVector<rtpstream_info_t *> stream_infos)
-{
-    return make_filter_based_on_rtpstream_id(make_rtpstream_ids_from_rtpstream_infos(stream_infos));
 }
 

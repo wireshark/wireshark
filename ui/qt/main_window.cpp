@@ -3020,21 +3020,21 @@ frame_data * MainWindow::frameDataForRow(int row) const
     return Q_NULLPTR;
 }
 
-// Finds rtp information for selected stream and adds it to stream_infos
+// Finds rtp id for selected stream and adds it to stream_ids
 // If reverse is set, tries to find reverse stream too
 // Return error string if error happens
 //
 // Note: Caller must free each returned rtpstream_info_t
-QString MainWindow::findRtpStreams(QVector<rtpstream_info_t *> *stream_infos, bool reverse)
+QString MainWindow::findRtpStreams(QVector<rtpstream_id_t *> *stream_ids, bool reverse)
 {
     rtpstream_tapinfo_t tapinfo;
-    rtpstream_info_t *fwd_info, *rev_info;
+    rtpstream_id_t *fwd_id, *rev_id;
     const gchar filter_text[] = "rtp && rtp.version == 2 && rtp.ssrc && (ip || ipv6)";
     dfilter_t *sfcode;
     gchar *err_msg;
 
-    fwd_info = rtpstream_info_malloc_and_init();
-    rev_info = rtpstream_info_malloc_and_init();
+    fwd_id = g_new0(rtpstream_id_t, 1);
+    rev_id = g_new0(rtpstream_id_t, 1);
 
     /* Try to get the hfid for "rtp.ssrc". */
     int hfid_rtp_ssrc = proto_registrar_get_id_byname("rtp.ssrc");
@@ -3080,10 +3080,10 @@ QString MainWindow::findRtpStreams(QVector<rtpstream_info_t *> *stream_infos, bo
     dfilter_free(sfcode);
 
     /* OK, it is an RTP frame. Let's get the IP and port values */
-    rtpstream_id_copy_pinfo(&(edt.pi), &(fwd_info->id), false);
+    rtpstream_id_copy_pinfo(&(edt.pi), fwd_id, false);
 
     /* assume the inverse ip/port combination for the reverse direction */
-    rtpstream_id_copy_pinfo(&(edt.pi), &(rev_info->id), true);
+    rtpstream_id_copy_pinfo(&(edt.pi), rev_id, true);
 
     /* now we need the SSRC value of the current frame */
     GPtrArray *gp = proto_get_finfo_ptr_array(edt.tree, hfid_rtp_ssrc);
@@ -3092,7 +3092,7 @@ QString MainWindow::findRtpStreams(QVector<rtpstream_info_t *> *stream_infos, bo
         epan_dissect_cleanup(&edt);
         return tr("SSRC value not found.");
     }
-    fwd_info->id.ssrc = fvalue_get_uinteger(&((field_info *)gp->pdata[0])->value);
+    fwd_id->ssrc = fvalue_get_uinteger(&((field_info *)gp->pdata[0])->value);
 
     epan_dissect_cleanup(&edt);
 
@@ -3106,28 +3106,18 @@ QString MainWindow::findRtpStreams(QVector<rtpstream_info_t *> *stream_infos, bo
 
     for (GList *strinfo_list = g_list_first(tapinfo.strinfo_list); strinfo_list; strinfo_list = gxx_list_next(strinfo_list)) {
         rtpstream_info_t * strinfo = gxx_list_data(rtpstream_info_t*, strinfo_list);
-        if (rtpstream_id_equal(&(strinfo->id), &(fwd_info->id),RTPSTREAM_ID_EQUAL_NONE))
+        if (rtpstream_id_equal(&(strinfo->id), fwd_id,RTPSTREAM_ID_EQUAL_NONE))
         {
-            fwd_info->packet_count = strinfo->packet_count;
-            fwd_info->setup_frame_number = strinfo->setup_frame_number;
-            nstime_copy(&fwd_info->start_rel_time, &strinfo->start_rel_time);
-            nstime_copy(&fwd_info->stop_rel_time, &strinfo->stop_rel_time);
-            nstime_copy(&fwd_info->start_abs_time, &strinfo->start_abs_time);
-            *stream_infos << fwd_info;
+            *stream_ids << fwd_id;
         }
 
-        if (rtpstream_id_equal(&(strinfo->id), &(rev_info->id),RTPSTREAM_ID_EQUAL_NONE))
+        if (rtpstream_id_equal(&(strinfo->id), rev_id,RTPSTREAM_ID_EQUAL_NONE))
         {
-            rev_info->packet_count = strinfo->packet_count;
-            rev_info->setup_frame_number = strinfo->setup_frame_number;
-            nstime_copy(&rev_info->start_rel_time, &strinfo->start_rel_time);
-            nstime_copy(&rev_info->stop_rel_time, &strinfo->stop_rel_time);
-            nstime_copy(&rev_info->start_abs_time, &strinfo->start_abs_time);
-            if (rev_info->id.ssrc == 0) {
-                rev_info->id.ssrc = strinfo->id.ssrc;
+            if (rev_id->ssrc == 0) {
+                rev_id->ssrc = strinfo->id.ssrc;
             }
             if (reverse) {
-                *stream_infos << rev_info;
+                *stream_ids << rev_id;
             }
         }
     }

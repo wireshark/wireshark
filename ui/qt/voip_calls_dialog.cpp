@@ -548,18 +548,18 @@ void VoipCallsDialog::showSequence()
     // Bypass this dialog and forward signals to parent
     connect(sequence_dialog, SIGNAL(rtpStreamsDialogSelectRtpStreams(QVector<rtpstream_id_t *>)), &parent_, SLOT(rtpStreamsDialogSelectRtpStreams(QVector<rtpstream_id_t *>)));
     connect(sequence_dialog, SIGNAL(rtpStreamsDialogDeselectRtpStreams(QVector<rtpstream_id_t *>)), &parent_, SLOT(rtpStreamsDialogDeselectRtpStreams(QVector<rtpstream_id_t *>)));
-    connect(sequence_dialog, SIGNAL(rtpPlayerDialogReplaceRtpStreams(QVector<rtpstream_info_t *>)), &parent_, SLOT(rtpPlayerDialogReplaceRtpStreams(QVector<rtpstream_info_t *>)));
-    connect(sequence_dialog, SIGNAL(rtpPlayerDialogAddRtpStreams(QVector<rtpstream_info_t *>)), &parent_, SLOT(rtpPlayerDialogAddRtpStreams(QVector<rtpstream_info_t *>)));
-    connect(sequence_dialog, SIGNAL(rtpPlayerDialogRemoveRtpStreams(QVector<rtpstream_info_t *>)), &parent_, SLOT(rtpPlayerDialogRemoveRtpStreams(QVector<rtpstream_info_t *>)));
+    connect(sequence_dialog, SIGNAL(rtpPlayerDialogReplaceRtpStreams(QVector<rtpstream_id_t *>)), &parent_, SLOT(rtpPlayerDialogReplaceRtpStreams(QVector<rtpstream_id_t *>)));
+    connect(sequence_dialog, SIGNAL(rtpPlayerDialogAddRtpStreams(QVector<rtpstream_id_t *>)), &parent_, SLOT(rtpPlayerDialogAddRtpStreams(QVector<rtpstream_id_t *>)));
+    connect(sequence_dialog, SIGNAL(rtpPlayerDialogRemoveRtpStreams(QVector<rtpstream_id_t *>)), &parent_, SLOT(rtpPlayerDialogRemoveRtpStreams(QVector<rtpstream_id_t *>)));
 
     sequence_dialog->setAttribute(Qt::WA_DeleteOnClose);
     sequence_dialog->enableVoIPFeatures();
     sequence_dialog->show();
 }
 
-QVector<rtpstream_info_t *>VoipCallsDialog::getSelectedRtpStreams()
+QVector<rtpstream_id_t *>VoipCallsDialog::getSelectedRtpIds()
 {
-    QVector<rtpstream_info_t *> stream_infos;
+    QVector<rtpstream_id_t *> stream_ids;
     foreach (QModelIndex index, ui->callTreeView->selectionModel()->selectedIndexes()) {
         voip_calls_info_t *vci = VoipCallsInfoModel::indexToCallInfo(index);
         if (!vci) continue;
@@ -573,36 +573,36 @@ QVector<rtpstream_info_t *>VoipCallsDialog::getSelectedRtpStreams()
             //                rsi->call_num, rsi->start_fd->num, rsi->setup_frame_number);
             if (vci->call_num == static_cast<guint>(rsi->call_num)) {
                 //VOIP_CALLS_DEBUG("adding call number %u", vci->call_num);
-                if (-1 == stream_infos.indexOf(rsi)) {
+                if (-1 == stream_ids.indexOf(&(rsi->id))) {
                     // Add only new stream
-                    stream_infos << rsi;
+                    stream_ids << &(rsi->id);
                 }
             }
         }
     }
 
-    return stream_infos;
+    return stream_ids;
 }
 
 void VoipCallsDialog::rtpPlayerReplace()
 {
     if (ui->callTreeView->selectionModel()->selectedIndexes().count() < 1) return;
 
-    emit rtpPlayerDialogReplaceRtpStreams(getSelectedRtpStreams());
+    emit rtpPlayerDialogReplaceRtpStreams(getSelectedRtpIds());
 }
 
 void VoipCallsDialog::rtpPlayerAdd()
 {
     if (ui->callTreeView->selectionModel()->selectedIndexes().count() < 1) return;
 
-    emit rtpPlayerDialogAddRtpStreams(getSelectedRtpStreams());
+    emit rtpPlayerDialogAddRtpStreams(getSelectedRtpIds());
 }
 
 void VoipCallsDialog::rtpPlayerRemove()
 {
     if (ui->callTreeView->selectionModel()->selectedIndexes().count() < 1) return;
 
-    emit rtpPlayerDialogRemoveRtpStreams(getSelectedRtpStreams());
+    emit rtpPlayerDialogRemoveRtpStreams(getSelectedRtpIds());
 }
 
 QList<QVariant> VoipCallsDialog::streamRowData(int row) const
@@ -763,7 +763,7 @@ void VoipCallsDialog::on_actionSelectNone_triggered()
 
 void VoipCallsDialog::on_actionSelectRtpStreams_triggered()
 {
-    QVector<rtpstream_id_t *>stream_ids = qvector_rtpstream_ids_copy(make_rtpstream_ids_from_rtpstream_infos(getSelectedRtpStreams()));
+    QVector<rtpstream_id_t *>stream_ids = qvector_rtpstream_ids_copy(getSelectedRtpIds());
 
     emit rtpStreamsDialogSelectRtpStreams(stream_ids);
 
@@ -773,7 +773,7 @@ void VoipCallsDialog::on_actionSelectRtpStreams_triggered()
 
 void VoipCallsDialog::on_actionDeselectRtpStreams_triggered()
 {
-    QVector<rtpstream_id_t *>stream_ids = qvector_rtpstream_ids_copy(make_rtpstream_ids_from_rtpstream_infos(getSelectedRtpStreams()));
+    QVector<rtpstream_id_t *>stream_ids = qvector_rtpstream_ids_copy(getSelectedRtpIds());
 
     emit rtpStreamsDialogDeselectRtpStreams(stream_ids);
 

@@ -3311,7 +3311,7 @@ static QMutex telephony_dialog_mutex;
 void MainWindow::openTelephonyRtpPlayerDialog()
 {
     if (!rtp_player_dialog_) {
-        rtp_player_dialog_ = new RtpPlayerDialog(*this, capture_file_);
+        rtp_player_dialog_ = new RtpPlayerDialog(*this, capture_file_, captureSession()->state != CAPTURE_STOPPED);
 
         connect(rtp_player_dialog_, SIGNAL(goToPacket(int)),
                 packet_list_, SLOT(goToPacket(int)));
@@ -3353,12 +3353,12 @@ void MainWindow::openTelephonyVoipCallsDialog(bool all_flows)
                 this, SLOT(filterPackets(QString, bool)));
         connect(this, SIGNAL(displayFilterSuccess(bool)),
                 dlg, SLOT(displayFilterSuccess(bool)));
-        connect(dlg, SIGNAL(rtpPlayerDialogReplaceRtpStreams(QVector<rtpstream_info_t *>)),
-                this, SLOT(rtpPlayerDialogReplaceRtpStreams(QVector<rtpstream_info_t *>)));
-        connect(dlg, SIGNAL(rtpPlayerDialogAddRtpStreams(QVector<rtpstream_info_t *>)),
-                this, SLOT(rtpPlayerDialogAddRtpStreams(QVector<rtpstream_info_t *>)));
-        connect(dlg, SIGNAL(rtpPlayerDialogRemoveRtpStreams(QVector<rtpstream_info_t *>)),
-                this, SLOT(rtpPlayerDialogRemoveRtpStreams(QVector<rtpstream_info_t *>)));
+        connect(dlg, SIGNAL(rtpPlayerDialogReplaceRtpStreams(QVector<rtpstream_id_t *>)),
+                this, SLOT(rtpPlayerDialogReplaceRtpStreams(QVector<rtpstream_id_t *>)));
+        connect(dlg, SIGNAL(rtpPlayerDialogAddRtpStreams(QVector<rtpstream_id_t *>)),
+                this, SLOT(rtpPlayerDialogAddRtpStreams(QVector<rtpstream_id_t *>)));
+        connect(dlg, SIGNAL(rtpPlayerDialogRemoveRtpStreams(QVector<rtpstream_id_t *>)),
+                this, SLOT(rtpPlayerDialogRemoveRtpStreams(QVector<rtpstream_id_t *>)));
     }
     dlg->show();
 }
@@ -3372,12 +3372,12 @@ void MainWindow::openTelephonyRtpAnalysisDialog()
                 packet_list_, SLOT(goToPacket(int)));
         connect(rtp_analysis_dialog_, SIGNAL(updateFilter(QString, bool)),
                 this, SLOT(filterPackets(QString, bool)));
-        connect(rtp_analysis_dialog_, SIGNAL(rtpPlayerDialogReplaceRtpStreams(QVector<rtpstream_info_t *>)),
-                this, SLOT(rtpPlayerDialogReplaceRtpStreams(QVector<rtpstream_info_t *>)));
-        connect(rtp_analysis_dialog_, SIGNAL(rtpPlayerDialogAddRtpStreams(QVector<rtpstream_info_t *>)),
-                this, SLOT(rtpPlayerDialogAddRtpStreams(QVector<rtpstream_info_t *>)));
-        connect(rtp_analysis_dialog_, SIGNAL(rtpPlayerDialogRemoveRtpStreams(QVector<rtpstream_info_t *>)),
-                this, SLOT(rtpPlayerDialogRemoveRtpStreams(QVector<rtpstream_info_t *>)));
+        connect(rtp_analysis_dialog_, SIGNAL(rtpPlayerDialogReplaceRtpStreams(QVector<rtpstream_id_t *>)),
+                this, SLOT(rtpPlayerDialogReplaceRtpStreams(QVector<rtpstream_id_t *>)));
+        connect(rtp_analysis_dialog_, SIGNAL(rtpPlayerDialogAddRtpStreams(QVector<rtpstream_id_t *>)),
+                this, SLOT(rtpPlayerDialogAddRtpStreams(QVector<rtpstream_id_t *>)));
+        connect(rtp_analysis_dialog_, SIGNAL(rtpPlayerDialogRemoveRtpStreams(QVector<rtpstream_id_t *>)),
+                this, SLOT(rtpPlayerDialogRemoveRtpStreams(QVector<rtpstream_id_t *>)));
     }
     rtp_analysis_dialog_->show();
 }
@@ -3483,12 +3483,12 @@ void MainWindow::openTelephonyRtpStreamsDialog()
                 this, SLOT(filterPackets(QString, bool)));
         connect(this, SIGNAL(displayFilterSuccess(bool)),
                 rtp_stream_dialog_, SLOT(displayFilterSuccess(bool)));
-        connect(rtp_stream_dialog_, SIGNAL(rtpPlayerDialogReplaceRtpStreams(QVector<rtpstream_info_t *>)),
-                this, SLOT(rtpPlayerDialogReplaceRtpStreams(QVector<rtpstream_info_t *>)));
-        connect(rtp_stream_dialog_, SIGNAL(rtpPlayerDialogAddRtpStreams(QVector<rtpstream_info_t *>)),
-                this, SLOT(rtpPlayerDialogAddRtpStreams(QVector<rtpstream_info_t *>)));
-        connect(rtp_stream_dialog_, SIGNAL(rtpPlayerDialogRemoveRtpStreams(QVector<rtpstream_info_t *>)),
-                this, SLOT(rtpPlayerDialogRemoveRtpStreams(QVector<rtpstream_info_t *>)));
+        connect(rtp_stream_dialog_, SIGNAL(rtpPlayerDialogReplaceRtpStreams(QVector<rtpstream_id_t *>)),
+                this, SLOT(rtpPlayerDialogReplaceRtpStreams(QVector<rtpstream_id_t *>)));
+        connect(rtp_stream_dialog_, SIGNAL(rtpPlayerDialogAddRtpStreams(QVector<rtpstream_id_t *>)),
+                this, SLOT(rtpPlayerDialogAddRtpStreams(QVector<rtpstream_id_t *>)));
+        connect(rtp_stream_dialog_, SIGNAL(rtpPlayerDialogRemoveRtpStreams(QVector<rtpstream_id_t *>)),
+                this, SLOT(rtpPlayerDialogRemoveRtpStreams(QVector<rtpstream_id_t *>)));
         connect(rtp_stream_dialog_, SIGNAL(rtpAnalysisDialogReplaceRtpStreams(QVector<rtpstream_id_t *>)),
                 this, SLOT(rtpAnalysisDialogReplaceRtpStreams(QVector<rtpstream_id_t *>)));
         connect(rtp_stream_dialog_, SIGNAL(rtpAnalysisDialogAddRtpStreams(QVector<rtpstream_id_t *>)),
@@ -3508,54 +3508,50 @@ void MainWindow::on_actionTelephonyRtpStreams_triggered()
 
 void MainWindow::on_actionTelephonyRtpStreamAnalysis_triggered()
 {
-    QVector<rtpstream_info_t *> stream_infos;
+    QVector<rtpstream_id_t *> stream_ids;
     QString err;
 
     telephony_dialog_mutex.lock();
     openTelephonyRtpAnalysisDialog();
     if (QGuiApplication::keyboardModifiers().testFlag(Qt::ControlModifier)) {
-        err = findRtpStreams(&stream_infos, true);
+        err = findRtpStreams(&stream_ids, true);
     } else {
-        err = findRtpStreams(&stream_infos, false);
+        err = findRtpStreams(&stream_ids, false);
     }
     if (err != NULL) {
         QMessageBox::warning(this, tr("RTP packet search failed"),
                              err,
                              QMessageBox::Ok);
     } else {
-        QVector<rtpstream_id_t *> ids;
-        foreach(rtpstream_info_t *stream, stream_infos) {
-            ids << &stream->id;
-        }
-        rtp_analysis_dialog_->addRtpStreams(ids);
+        rtp_analysis_dialog_->addRtpStreams(stream_ids);
     }
-    foreach(rtpstream_info_t *rtpstream, stream_infos) {
-        rtpstream_info_free_data(rtpstream);
+    foreach(rtpstream_id_t *id, stream_ids) {
+        rtpstream_id_free(id);
     }
     telephony_dialog_mutex.unlock();
 }
 
 void MainWindow::on_actionTelephonyRtpPlayer_triggered()
 {
-    QVector<rtpstream_info_t *> stream_infos;
+    QVector<rtpstream_id_t *> stream_ids;
     QString err;
 
     telephony_dialog_mutex.lock();
     openTelephonyRtpPlayerDialog();
     if (QGuiApplication::keyboardModifiers().testFlag(Qt::ControlModifier)) {
-        err = findRtpStreams(&stream_infos, true);
+        err = findRtpStreams(&stream_ids, true);
     } else {
-        err = findRtpStreams(&stream_infos, false);
+        err = findRtpStreams(&stream_ids, false);
     }
     if (err != NULL) {
         QMessageBox::warning(this, tr("RTP packet search failed"),
                              err,
                              QMessageBox::Ok);
     } else {
-        rtp_player_dialog_->addRtpStreams(stream_infos);
+        rtp_player_dialog_->addRtpStreams(stream_ids);
     }
-    foreach(rtpstream_info_t *rtpstream, stream_infos) {
-        rtpstream_info_free_data(rtpstream);
+    foreach(rtpstream_id_t *id, stream_ids) {
+        rtpstream_id_free(id);
     }
     telephony_dialog_mutex.unlock();
 }
@@ -4133,27 +4129,27 @@ void MainWindow::activatePluginIFToolbar(bool)
     }
 }
 
-void MainWindow::rtpPlayerDialogReplaceRtpStreams(QVector<rtpstream_info_t *> stream_infos)
+void MainWindow::rtpPlayerDialogReplaceRtpStreams(QVector<rtpstream_id_t *> stream_ids)
 {
     telephony_dialog_mutex.lock();
     openTelephonyRtpPlayerDialog();
-    rtp_player_dialog_->replaceRtpStreams(stream_infos);
+    rtp_player_dialog_->replaceRtpStreams(stream_ids);
     telephony_dialog_mutex.unlock();
 }
 
-void MainWindow::rtpPlayerDialogAddRtpStreams(QVector<rtpstream_info_t *> stream_infos)
+void MainWindow::rtpPlayerDialogAddRtpStreams(QVector<rtpstream_id_t *> stream_ids)
 {
     telephony_dialog_mutex.lock();
     openTelephonyRtpPlayerDialog();
-    rtp_player_dialog_->addRtpStreams(stream_infos);
+    rtp_player_dialog_->addRtpStreams(stream_ids);
     telephony_dialog_mutex.unlock();
 }
 
-void MainWindow::rtpPlayerDialogRemoveRtpStreams(QVector<rtpstream_info_t *> stream_infos)
+void MainWindow::rtpPlayerDialogRemoveRtpStreams(QVector<rtpstream_id_t *> stream_ids)
 {
     telephony_dialog_mutex.lock();
     openTelephonyRtpPlayerDialog();
-    rtp_player_dialog_->removeRtpStreams(stream_infos);
+    rtp_player_dialog_->removeRtpStreams(stream_ids);
     telephony_dialog_mutex.unlock();
 }
 

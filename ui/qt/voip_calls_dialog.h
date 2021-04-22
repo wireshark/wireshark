@@ -47,9 +47,9 @@ signals:
     void updateFilter(QString filter, bool force = false);
     void captureFileChanged(capture_file *cf);
     void goToPacket(int packet_num);
-    void rtpPlayerDialogReplaceRtpStreams(QVector<rtpstream_info_t *> stream_infos);
-    void rtpPlayerDialogAddRtpStreams(QVector<rtpstream_info_t *> stream_infos);
-    void rtpPlayerDialogRemoveRtpStreams(QVector<rtpstream_info_t *> stream_infos);
+    void rtpPlayerDialogReplaceRtpStreams(QVector<rtpstream_id_t *> stream_ids);
+    void rtpPlayerDialogAddRtpStreams(QVector<rtpstream_id_t *> stream_ids);
+    void rtpPlayerDialogRemoveRtpStreams(QVector<rtpstream_id_t *> stream_ids);
     void rtpStreamsDialogSelectRtpStreams(QVector<rtpstream_id_t *> stream_ids);
     void rtpStreamsDialogDeselectRtpStreams(QVector<rtpstream_id_t *> stream_ids);
 
@@ -99,7 +99,7 @@ private:
     void invertSelection();
 
     QList<QVariant> streamRowData(int row) const;
-    QVector<rtpstream_info_t *>getSelectedRtpStreams();
+    QVector<rtpstream_id_t *>getSelectedRtpIds();
 
 private slots:
     void selectAll();

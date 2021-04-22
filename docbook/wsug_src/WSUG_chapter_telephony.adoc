@@ -73,6 +73,28 @@ image::wsug_graphics/ws-tel-playlist.png[]
 Same approach with set/add/remove actions is used for RTP Stream Analysis window. The playlist is there handled as different tabs in the window, see <<ChTelRTPAnalysis,RTP Stream Analysis>> window.
 ====
 
+[[ChTelPlayingCallsLive]]
+
+==== Playing audio during live capture
+
+Decoding RTP payload and showing waveforms is time consuming task. To speedup it RTP Player window uses copy of packet payload for all streams in the playlist. During live capture the dialog is not refreshed automatically as other Wireshark dialogs, but user must initiate it.
+
+The copy is created or refreshed and dialog updated:
+
+* Every time window is opened.
+* Every time a new stream is added or set.
+* During live capture, when btn:[Refresh streams] is pressed.
+* Every time live capture is finished/stopped by a user.
+
+When capture file is opened (no live capturing), streams are read complete, no user action is required. Button btn:[Refresh streams] is disabled as it is useless.
+
+When live capture is running, streams are read only till "now" and are shown. When stream is continuous and user would like to see additional part, they must press btn:[Refresh stream]. When the user ends live capture, view is refreshed and button is disabled.
+
+[NOTE]
+====
+RTP Player dialog stays open even live capture is stopped and then started again. Play list stays unchanged. Therefore btn:[Refresh stream] tries to read same streams as before and shows them if they are still running. Past part of them (from previous live capture) is lost.
+====
+
 ==== RTP Decoding Settings
 
 RTP is carried usually in UDP packets, on random source and destination port. Therefore without "help" Wireshark can't recognize it and shows just UDP packets.  Wireshark recognizes RTP streams based on VoIP signaling, e. g. based on SDP message in SIP signaling. When signaling is not captured, Wireshark shows just UDP packets. There are multiple settings which helps Wireshark to recognize RTP even there is no related signaling.
@@ -418,6 +440,7 @@ Controls allow a user to:
 ** RTP Timestamp - Packets are ordered and played by its Timestamp, no Jitter Buffer is used
 ** Uninterrupted Mode - All gaps (e. g. Comfort Noise, lost packets) are discarded therefore audio is shorted than timespan
 * btn:[Time of Day] selects whether waveform timescale is shown in seconds from start of capture or in absolute time of received packets
+* btn:[Refresh streams] refreshes streams during live capture (see <<ChTelPlayingCallsLive>>). Button is disabled when no live capture is running.
 * Inaudible streams
 ** btn:[Select] select all inaudible streams (streams with zero play rate)
 ** btn:[Deselect] deselect all inaudible streams (streams with zero play rate)
