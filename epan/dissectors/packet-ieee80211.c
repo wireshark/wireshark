@@ -35815,7 +35815,7 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_vht_ndp_annc_sta_info_ranging_2008_r2i_n_sts,
      {"R2I N STS", "wlan.vht_ndp.sta_info.ranging_2008.r2i_n_sts",
-      FT_UINT32, BASE_DEC, NULL, GENMASK(19, 17),
+      FT_UINT32, BASE_CUSTOM, CF_FUNC(sts_custom), GENMASK(19, 17),
       NULL, HFILL }},
 
     {&hf_ieee80211_vht_ndp_annc_sta_info_ranging_2008_r2i_rep,
@@ -35825,7 +35825,7 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_vht_ndp_annc_sta_info_ranging_2008_i2r_n_sts,
      {"I2R N STS", "wlan.vht_ndp.sta_info.ranging_2008.i2r_n_sts",
-      FT_UINT32, BASE_DEC, NULL, GENMASK(25, 23),
+      FT_UINT32, BASE_CUSTOM, CF_FUNC(sts_custom), GENMASK(25, 23),
       NULL, HFILL }},
 
     {&hf_ieee80211_vht_ndp_annc_sta_info_ranging_2008_reserved1,
