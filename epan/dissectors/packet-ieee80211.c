@@ -625,7 +625,7 @@ const value_string ie_tag_num_vals[] = {
   { TAG_VHT_OPERATION,                        "VHT Operation" },
   { TAG_EXT_BSS_LOAD,                         "Extended BSS Load" },
   { TAG_WIDE_BW_CHANNEL_SWITCH,               "Wide Bandwidth Channel Switch" },
-  { TAG_VHT_TX_PWR_ENVELOPE,                  "VHT Tx Power Envelope" },
+  { TAG_TX_PWR_ENVELOPE,                      "Tx Power Envelope" },
   { TAG_CHANNEL_SWITCH_WRAPPER,               "Channel Switch Wrapper" },
   { TAG_OPERATING_MODE_NOTIFICATION,          "Operating Mode Notification" },
   { TAG_REDUCED_NEIGHBOR_REPORT,              "Reduced Neighbor Report" },
@@ -19592,7 +19592,7 @@ dissect_channel_switch_wrapper(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
   int offset = 0;
   int tmp_sublen;
   const guint8 ids[] = { TAG_COUNTRY_INFO, TAG_WIDE_BW_CHANNEL_SWITCH,
-    TAG_VHT_TX_PWR_ENVELOPE };
+    TAG_TX_PWR_ENVELOPE };
 
   /*
   Decode three subelement in IE-196(Channel Switch Wrapper element):
@@ -51048,7 +51048,7 @@ proto_reg_handoff_ieee80211(void)
   dissector_add_uint("wlan.tag.number", TAG_VHT_OPERATION, create_dissector_handle(dissect_vht_operation_ie, -1));
   dissector_add_uint("wlan.tag.number", TAG_EXT_BSS_LOAD, create_dissector_handle(dissect_ext_bss_load, -1));
   dissector_add_uint("wlan.tag.number", TAG_WIDE_BW_CHANNEL_SWITCH, create_dissector_handle(dissect_wide_bw_channel_switch, -1));
-  dissector_add_uint("wlan.tag.number", TAG_VHT_TX_PWR_ENVELOPE, create_dissector_handle(dissect_vht_tx_pwr_envelope, -1));
+  dissector_add_uint("wlan.tag.number", TAG_TX_PWR_ENVELOPE, create_dissector_handle(dissect_vht_tx_pwr_envelope, -1));
   dissector_add_uint("wlan.tag.number", TAG_CHANNEL_SWITCH_WRAPPER, create_dissector_handle(dissect_channel_switch_wrapper, -1));
   dissector_add_uint("wlan.tag.number", TAG_OPERATING_MODE_NOTIFICATION, create_dissector_handle(dissect_operating_mode_notification, -1));
   dissector_add_uint("wlan.tag.number", TAG_REDUCED_NEIGHBOR_REPORT, create_dissector_handle(dissect_reduced_neighbor_report, -1));

@@ -519,7 +519,7 @@ typedef struct anqp_info_dissector_data {
 #define TAG_VHT_OPERATION            192  /* IEEE Std 802.11ac/D3.1 */
 #define TAG_EXT_BSS_LOAD             193  /* IEEE Std 802.11ac */
 #define TAG_WIDE_BW_CHANNEL_SWITCH   194  /* IEEE Std 802.11ac */
-#define TAG_VHT_TX_PWR_ENVELOPE      195  /* IEEE Std 802.11ac/D5.0 */
+#define TAG_TX_PWR_ENVELOPE          195  /* IEEE Std 802.11-2020 */
 #define TAG_CHANNEL_SWITCH_WRAPPER   196  /* IEEE Std 802.11ac */
 #define TAG_OPERATING_MODE_NOTIFICATION 199  /* IEEE Std 802.11ac */
 #define TAG_REDUCED_NEIGHBOR_REPORT  201
