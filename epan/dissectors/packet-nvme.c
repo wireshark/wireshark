@@ -2375,7 +2375,7 @@ static guint dissect_nvme_get_logpage_lba_status_lba_range(proto_tree *grp, tvbu
 static void dissect_nvme_get_logpage_lba_status_resp(proto_item *ti, tvbuff_t *cmd_tvb, struct nvme_cmd_ctx *cmd_ctx, guint len)
 {
     guint32 off = cmd_ctx->cmd_ctx.get_logpage.off & 0xffffffff; /* need guint type to silence clang-11 errors */
-    proto_tree *grp;
+    proto_tree *grp = NULL;
     guint poff = 0;
 
     if (cmd_ctx->cmd_ctx.get_logpage.off < 16) {
