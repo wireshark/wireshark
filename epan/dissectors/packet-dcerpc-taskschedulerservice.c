@@ -62,7 +62,7 @@ void proto_register_dcerpc_taskschedulerservice(void)
         &ett_taskschedulerservice,
     };
 
-    proto_taskschedulerservice = proto_register_protocol("ITaskSchedulerService", "ITaskSchedulerService", "taskschedulerservice");
+    proto_taskschedulerservice = proto_register_protocol("Microsoft Task Scheduler Service", "TaskSchedulerService", "taskschedulerservice");
     proto_register_field_array(proto_taskschedulerservice, hf_taskschedulerservice_array, array_length (hf_taskschedulerservice_array));
     proto_register_subtree_array(ett, array_length(ett));
 }
