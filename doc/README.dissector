@@ -2488,7 +2488,7 @@ Where:
     next_tvb is the new TVBUFF_SUBSET.
 
     offset is the byte offset of 'tvb' at which the new tvbuff
-    should start. The first byte is the 0th byte.
+    should start. The first byte is the byte at offset 0.
 
 To create a new TVBUFF_SUBSET that begins at a specified offset in a
 parent tvbuff, with a specified number of bytes in the payload, the
@@ -2503,7 +2503,7 @@ Where:
     next_tvb is the new TVBUFF_SUBSET.
 
     offset is the byte offset of 'tvb' at which the new tvbuff
-    should start. The first byte is the 0th byte.
+    should start. The first byte is the byte at offset 0.
 
     reported_length is the number of bytes that the current protocol
     says should be in the payload.
@@ -2522,7 +2522,7 @@ Where:
     next_tvb is the new TVBUFF_SUBSET.
 
     offset is the byte offset of 'tvb' at which the new tvbuff
-    should start. The first byte is the 0th byte.
+    should start. The first byte is the byte at offset 0.
 
     length is the number of bytes in the new TVBUFF_SUBSET. A length
     argument of -1 says to use as many bytes as are available in
@@ -2560,7 +2560,7 @@ table using their unique identifier using one of the following APIs:
     table, but it lets the user add it from the command line or, in Wireshark,
     through the "Decode As" UI.
 
-Then when the dissector hits the common identifier field, it will useone of the
+Then when the dissector hits the common identifier field, it will use one of the
 following APIs to invoke the subdissector:
 
     int dissector_try_uint(dissector_table_t sub_dissectors,
@@ -2696,7 +2696,7 @@ function. The ptype variable is used to differentiate between
 conversations over different protocols, i.e. TCP and UDP. The options
 variable is used to define a conversation that will accept any destination
 address and/or port. Set options = 0 if the destination port and address
-are know when conversation_new is called. See section 2.4 for more
+are known when conversation_new is called. See section 2.4 for more
 information on usage of the options parameter.
 
 The conversation_new prototype:

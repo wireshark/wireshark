@@ -1115,7 +1115,7 @@ WS_DLL_PUBLIC void proto_item_prepend_text(proto_item *pi, const char *format, .
 
 /** Set proto_item's length inside tvb, after it has already been created.
  @param pi the item to set the length
- @param length the new length ot the item */
+ @param length the new length of the item */
 WS_DLL_PUBLIC void proto_item_set_len(proto_item *pi, const gint length);
 
 /**
@@ -1123,6 +1123,14 @@ WS_DLL_PUBLIC void proto_item_set_len(proto_item *pi, const gint length);
  * offset, which is the offset past the end of the item; as the start
  * in the item is relative to the beginning of the data source tvbuff,
  * we need to pass in a tvbuff.
+ *
+ * Given an item created as:
+ *      ti = proto_tree_add_item(*, *, tvb, offset, -1, *);
+ * then
+ *      proto_item_set_end(ti, tvb, end);
+ * is equivalent to
+ *      proto_item_set_len(ti, end - offset);
+ *
  @param pi the item to set the length
  @param tvb end is relative to this tvbuff
  @param end this end offset is relative to the beginning of tvb

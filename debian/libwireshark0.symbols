@@ -438,13 +438,20 @@ libwireshark.so.0 libwireshark0 #MINVER#
  dissect_rpc_void@Base 1.99.8
  dissect_rtp_shim_header@Base 2.9.1
  dissect_tcp_payload@Base 1.99.0
- dissect_thrift_t_byte@Base 2.5.0
+ dissect_thrift_t_bool@Base 3.5.0
+ dissect_thrift_t_i8@Base 3.5.0
+ dissect_thrift_t_i16@Base 3.5.0
  dissect_thrift_t_i32@Base 2.5.0
  dissect_thrift_t_i64@Base 2.5.1
+ dissect_thrift_t_double@Base 3.5.0
+ dissect_thrift_t_binary@Base 3.5.0
+ dissect_thrift_t_list@Base 3.5.0
+ dissect_thrift_t_map@Base 3.5.0
+ dissect_thrift_t_set@Base 3.5.0
+ dissect_thrift_t_string@Base 3.5.0
+ dissect_thrift_t_string_enc@Base 3.5.0
  dissect_thrift_t_stop@Base 2.5.0
  dissect_thrift_t_struct@Base 2.5.0
- dissect_thrift_t_u64@Base 2.5.1
- dissect_thrift_t_utf7@Base 2.5.0
  dissect_tpkt_encap@Base 1.9.1
  dissect_unknown_ber@Base 1.9.1
  dissect_xdlc_control@Base 1.9.1
