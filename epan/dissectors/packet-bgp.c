@@ -576,27 +576,39 @@ static dissector_handle_t bgp_handle;
 #define FORMAT_IP_LOC       0x01    /* Format IP address:AN(2bytes) */
 #define FORMAT_AS4_LOC      0x02    /* Format AS(4bytes):AN(2bytes) */
 
-/* RFC 2858 subsequent address family numbers */
-#define SAFNUM_UNICAST          1
-#define SAFNUM_MULCAST          2
-#define SAFNUM_UNIMULC          3
-#define SAFNUM_MPLS_LABEL       4  /* rfc3107 */
-#define SAFNUM_MCAST_VPN        5  /* draft-ietf-l3vpn-2547bis-mcast-bgp-08.txt */
-#define SAFNUM_ENCAPSULATION    7  /* rfc5512 */
-#define SAFNUM_TUNNEL          64  /* draft-nalawade-kapoor-tunnel-safi-02.txt */
-#define SAFNUM_VPLS            65
-#define SAFNUM_MDT             66  /* rfc6037 */
-#define SAFNUM_EVPN            70  /* EVPN RFC */
+/* RFC 4760 subsequent address family numbers (last updated 2021-03-23)
+ * https://www.iana.org/assignments/safi-namespace/safi-namespace.xhtml
+ */
+#define SAFNUM_UNICAST          1  /* RFC4760 */
+#define SAFNUM_MULCAST          2  /* RFC4760 */
+#define SAFNUM_UNIMULC          3  /* Deprecated, see RFC4760 */
+#define SAFNUM_MPLS_LABEL       4  /* RFC8277 */
+#define SAFNUM_MCAST_VPN        5  /* RFC6514 */
+#define SAFNUM_MULTISEG_PW      6  /* RFC7267 */
+#define SAFNUM_ENCAPSULATION    7  /* RFC5512, obsolete and never deployed, see draft-ietf-idr-tunnel-encaps-22 */
+#define SAFNUM_MCAST_VPLS       8  /* RFC7117 */
+#define SAFNUM_TUNNEL          64  /* draft-nalawade-kapoor-tunnel-safi-05.txt (Expired) */
+#define SAFNUM_VPLS            65  /* RFC4761, RFC6074 */
+#define SAFNUM_MDT             66  /* RFC6037 */
+#define SAFNUM_4OVER6          67  /* RFC5747 */
+#define SAFNUM_6OVER4          68  /* Never specified? Cf. RFC5747 */
+#define SAFNUM_L1VPN           69  /* RFC5195 */
+#define SAFNUM_EVPN            70  /* RFC7432 */
 #define SAFNUM_BGP_LS          71  /* RFC7752 */
 #define SAFNUM_BGP_LS_VPN      72  /* RFC7752 */
-#define SAFNUM_SR_POLICY       73  /* draft-ietf-idr-segment-routing-te-policy-05 */
-#define SAFNUM_LAB_VPNUNICAST 128  /* Draft-rosen-rfc2547bis-03 */
-#define SAFNUM_LAB_VPNMULCAST 129
-#define SAFNUM_LAB_VPNUNIMULC 130
+#define SAFNUM_SR_POLICY       73  /* draft-ietf-idr-segment-routing-te-policy-11 */
+#define SAFNUM_SD_WAN          74  /* draft-dunbar-idr-sdwan-port-safi-06, expired */
+#define SAFNUM_RPD             75  /* draft-ietf-idr-rpd-10 */
+#define SAFNUM_CT              76  /* draft-kaliraj-idr-bgp-classful-transport-planes-07 */
+#define SAFNUM_FLOWSPEC        77  /* draft-ietf-idr-flowspec-nvo3-13 */
+#define SAFNUM_MCAST_TREE      78  /* draft-ietf-bess-bgp-multicast-03 */
+#define SAFNUM_LAB_VPNUNICAST 128  /* RFC4364, RFC8277 */
+#define SAFNUM_LAB_VPNMULCAST 129  /* RFC6513, RFC6514 */
+#define SAFNUM_LAB_VPNUNIMULC 130  /* Obsolete and reserved, see RFC4760 */
 #define SAFNUM_ROUTE_TARGET   132  /* RFC 4684 Constrained Route Distribution for BGP/MPLS IP VPN */
-#define SAFNUM_FSPEC_RULE     133  /* RFC 5575 BGP flow spec SAFI */
-#define SAFNUM_FSPEC_VPN_RULE 134  /* RFC 5575 BGP flow spec SAFI VPN */
-
+#define SAFNUM_FSPEC_RULE     133  /* RFC 8955 BGP flow spec SAFI */
+#define SAFNUM_FSPEC_VPN_RULE 134  /* RFC 8955 BGP flow spec SAFI VPN */
+#define SAFNUM_L3VPN          140  /* Withdrawn, draft-ietf-l3vpn-bgpvpn-auto-09 */
 
 /* BGP Additional Paths Capability */
 #define BGP_ADDPATH_RECEIVE  0x01
@@ -1522,27 +1534,39 @@ static const value_string bgpext_com_ospf_rtype[] = {
   { 0, NULL }
 };
 
-/* Subsequent address family identifier, RFC2858 */
+/* Subsequent address family identifier, RFC4760 */
 static const value_string bgpattr_nlri_safi[] = {
     { 0,                        "Reserved" },
     { SAFNUM_UNICAST,           "Unicast" },
     { SAFNUM_MULCAST,           "Multicast" },
-    { SAFNUM_UNIMULC,           "Unicast+Multicast" },
-    { SAFNUM_MPLS_LABEL,        "Labeled Unicast"},
-    { SAFNUM_MCAST_VPN,         "MCAST-VPN"},
-    { SAFNUM_ENCAPSULATION,     "Encapsulation"},
-    { SAFNUM_TUNNEL,            "Tunnel"},
-    { SAFNUM_VPLS,              "VPLS"},
-    { SAFNUM_BGP_LS,            "BGP-LS"},
-    { SAFNUM_BGP_LS_VPN,        "BGP-LS-VPN"},
-    { SAFNUM_SR_POLICY,         "SR Policy"},
-    { SAFNUM_LAB_VPNUNICAST,    "Labeled VPN Unicast" },        /* draft-rosen-rfc2547bis-03 */
-    { SAFNUM_LAB_VPNMULCAST,    "Labeled VPN Multicast" },
-    { SAFNUM_LAB_VPNUNIMULC,    "Labeled VPN Unicast+Multicast" },
-    { SAFNUM_ROUTE_TARGET,      "Route Target Filter" },
+    { SAFNUM_UNIMULC,           "Unicast+Multicast (Deprecated)" },
+    { SAFNUM_MPLS_LABEL,        "Labeled Unicast" },
+    { SAFNUM_MCAST_VPN,         "MCAST-VPN" },
+    { SAFNUM_MULTISEG_PW,       "Multi-Segment Pseudowires" },
+    { SAFNUM_ENCAPSULATION,     "Encapsulation (Deprecated)" },
+    { SAFNUM_MCAST_VPLS,        "MCAST-VPLS" },
+    { SAFNUM_TUNNEL,            "Tunnel (Deprecated)" },
+    { SAFNUM_VPLS,              "VPLS" },
+    { SAFNUM_MDT,               "Cisco MDT" },
+    { SAFNUM_4OVER6,            "4over6" },
+    { SAFNUM_6OVER4,            "6over4" },
+    { SAFNUM_L1VPN,             "Layer-1 VPN" },
     { SAFNUM_EVPN,              "EVPN" },
+    { SAFNUM_BGP_LS,            "BGP-LS" },
+    { SAFNUM_BGP_LS_VPN,        "BGP-LS-VPN" },
+    { SAFNUM_SR_POLICY,         "SR Policy" },
+    { SAFNUM_SD_WAN,            "SD-WAN" },
+    { SAFNUM_RPD,               "Routing Policy Distribution" },
+    { SAFNUM_CT,                "Classful Transport Planes" },
+    { SAFNUM_FLOWSPEC,          "Tunneled Traffic Flowspec" },
+    { SAFNUM_MCAST_TREE,        "MCAST-TREE" },
+    { SAFNUM_LAB_VPNUNICAST,    "Labeled VPN Unicast" },
+    { SAFNUM_LAB_VPNMULCAST,    "Labeled VPN Multicast" },
+    { SAFNUM_LAB_VPNUNIMULC,    "Labeled VPN Unicast+Multicast (Deprecated)" },
+    { SAFNUM_ROUTE_TARGET,      "Route Target Filter" },
     { SAFNUM_FSPEC_RULE,        "Flow Spec Filter" },
     { SAFNUM_FSPEC_VPN_RULE,    "Flow Spec Filter VPN" },
+    { SAFNUM_L3VPN,             "Layer-3 VPN (Deprecated)" },
     { 0, NULL }
 };
 
