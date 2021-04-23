@@ -400,7 +400,7 @@ is_relevant_can_message(void *data)
         return FALSE;
     }
 
-    if ((can_info->id & g_autosar_nm_can_id_mask) != (g_autosar_nm_can_id & g_autosar_nm_can_id_mask)) {
+    if ((can_info->id & CAN_EFF_MASK & g_autosar_nm_can_id_mask) != (g_autosar_nm_can_id & CAN_EFF_MASK & g_autosar_nm_can_id_mask)) {
         /* Id doesn't match. The frame is not for us. */
         return FALSE;
     }

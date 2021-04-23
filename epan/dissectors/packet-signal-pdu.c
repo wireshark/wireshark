@@ -1010,7 +1010,7 @@ get_can_mapping(guint32 id) {
     }
 
     gint64 *key = wmem_new(wmem_epan_scope(), gint64);
-    *key = id;
+    *key = id & CAN_EFF_MASK;
     spdu_can_mapping_t *tmp = (spdu_can_mapping_t*)g_hash_table_lookup(data_spdu_can_mappings, key);
     wmem_free(wmem_epan_scope(), key);
 
