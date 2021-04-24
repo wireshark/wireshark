@@ -893,7 +893,7 @@ static const value_string btmesh_models_opcode_vals[] = {
     { 0x824A, "Scheduler Status" },
     { 0x60, "Scheduler Action Set" },
     { 0x61, "Scheduler Action Set Unacknowledged" },
-    { 0x824B, "Light Lightness Light Lightness Get" },
+    { 0x824B, "Light Lightness Get" },
     { 0x824C, "Light Lightness Set" },
     { 0x824D, "Light Lightness Set Unacknowledged" },
     { 0x824E, "Light Lightness Status" },
