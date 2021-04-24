@@ -601,7 +601,7 @@ module_t *ppcap_module;
 	{ "SSN",     "ppcap.ssn",   FT_UINT16,
 		BASE_DEC,       NULL,   0x00,   NULL,     HFILL}},
 	{ &hf_ppcap_spc,
-	{"OPC",     "ppcap.spc",   FT_UINT16,
+	{"OPC",     "ppcap.spc",   FT_UINT24,
 		BASE_DEC,       NULL,   0x00,   NULL,     HFILL}},
 	{ &hf_ppcap_opc,
 	{ "OPC",     "ppcap.opc",   FT_UINT16,

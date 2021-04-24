@@ -1413,7 +1413,7 @@ dissect_tibia(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *fragmen
         proto_tree_add_item(vertree, hf_tibia_file_version_pic, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
     } else if (convo->has.game_content_revision) {
-        proto_tree_add_item(tibia_tree, hf_tibia_content_revision, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(tibia_tree, hf_tibia_content_revision, tvb, offset, 2, ENC_LITTLE_ENDIAN);
         offset += 2;
     }
 
@@ -2169,7 +2169,7 @@ proto_register_tibia(void)
         },
         { &hf_tibia_client_ram,
             { "Total RAM", "tibia.client.ram",
-                FT_UINT8, BASE_DEC,
+                FT_UINT16, BASE_DEC,
                 NULL, 0x0,
                 NULL, HFILL }
         },
