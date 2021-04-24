@@ -62,6 +62,8 @@ static const guint8 png_magic[]    = { 0x89, 'P', 'N', 'G', '\r', '\n', 0x1A, '\
 static const guint8 gif87a_magic[] = { 'G', 'I', 'F', '8', '7', 'a'};
 static const guint8 gif89a_magic[] = { 'G', 'I', 'F', '8', '9', 'a'};
 static const guint8 elf_magic[]    = { 0x7F, 'E', 'L', 'F'};
+static const guint8 tiff_le_magic[]    = { 'I', 'I', 42, 0 };
+static const guint8 tiff_be_magic[]    = { 'M', 'M', 0, 42 };
 static const guint8 btsnoop_magic[]    = { 'b', 't', 's', 'n', 'o', 'o', 'p', 0};
 static const guint8 pcap_magic[]           = { 0xA1, 0xB2, 0xC3, 0xD4 };
 static const guint8 pcap_swapped_magic[]   = { 0xD4, 0xC3, 0xB2, 0xA1 };
@@ -80,6 +82,8 @@ static const mime_files_t magic_files[] = {
 	{ gif87a_magic, sizeof(gif87a_magic) },
 	{ gif89a_magic, sizeof(gif89a_magic) },
 	{ elf_magic, sizeof(elf_magic) },
+	{ tiff_le_magic, sizeof(tiff_le_magic) },
+	{ tiff_be_magic, sizeof(tiff_be_magic) },
 	{ btsnoop_magic, sizeof(btsnoop_magic) },
 	{ pcap_magic, sizeof(pcap_magic) },
 	{ pcap_swapped_magic, sizeof(pcap_swapped_magic) },
