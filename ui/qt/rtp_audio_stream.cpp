@@ -29,15 +29,12 @@
 #include <wsutil/nstime.h>
 
 #include <ui/qt/utils/rtp_audio_routing_filter.h>
+#include <ui/qt/utils/rtp_audio_file.h>
 
 #include <QAudioFormat>
 #include <QAudioOutput>
-#include <QDir>
-#include <QTemporaryFile>
 #include <QVariant>
 #include <QTimer>
-#include <QDebug>
-#include <QBuffer>
 
 // To do:
 // - Only allow one rtpstream_info_t per RtpAudioStream?
@@ -47,8 +44,6 @@ static const spx_int16_t visual_sample_rate_ = 1000;
 RtpAudioStream::RtpAudioStream(QObject *parent, rtpstream_id_t *id, bool stereo_required) :
     QObject(parent)
     , first_packet_(true)
-    , sample_file_(NULL)
-    , sample_file_frame_(NULL)
     , decoders_hash_(rtp_decoder_hash_table_new())
     , global_start_rel_time_(0.0)
     , start_abs_offset_(0.0)
@@ -75,26 +70,13 @@ RtpAudioStream::RtpAudioStream(QObject *parent, rtpstream_id_t *id, bool stereo_
     visual_resampler_ = speex_resampler_init(1, visual_sample_rate_,
                                                 visual_sample_rate_, SPEEX_RESAMPLER_QUALITY_MIN, NULL);
 
-    QString tempname = QString("%1/wireshark_rtp_stream").arg(QDir::tempPath());
-    sample_file_ = new QTemporaryFile(tempname, this);
-    if (!sample_file_->open(QIODevice::ReadWrite)) {
-        // We are out of file resources
-        delete sample_file_;
+    try {
+        // RtpAudioFile is ready for writing Frames
+        audio_file_ = new RtpAudioFile();
+    } catch (...) {
         speex_resampler_destroy(visual_resampler_);
         rtpstream_info_free_data(&rtpstream_);
         rtpstream_id_free(&id_);
-        qWarning() << "Can't create temp file in " << tempname;
-        throw -1;
-    }
-    sample_file_frame_ = new QBuffer(this);
-    if (! sample_file_frame_->open(QIODevice::ReadWrite)) {
-        // We are out of file resources
-        delete sample_file_;
-        delete sample_file_frame_;
-        speex_resampler_destroy(visual_resampler_);
-        rtpstream_info_free_data(&rtpstream_);
-        rtpstream_id_free(&id_);
-        qWarning() << "Can't create temp file in " << tempname;
         throw -1;
     }
 
@@ -114,8 +96,7 @@ RtpAudioStream::~RtpAudioStream()
     speex_resampler_destroy(visual_resampler_);
     rtpstream_info_free_data(&rtpstream_);
     rtpstream_id_free(&id_);
-    if (sample_file_) delete sample_file_;
-    if (sample_file_frame_) delete sample_file_frame_;
+    if (audio_file_) delete audio_file_;
     // temp_file_ is released by audio_output_
     if (audio_output_) delete audio_output_;
 }
@@ -188,21 +169,6 @@ void RtpAudioStream::reset(double global_start_time)
     visual_samples_.clear();
     out_of_seq_timestamps_.clear();
     jitter_drop_timestamps_.clear();
-
-    // Create new temp files
-    if (sample_file_) delete sample_file_;
-    if (sample_file_frame_) delete sample_file_frame_;
-    QString tempname = QString("%1/wireshark_rtp_stream").arg(QDir::tempPath());
-    sample_file_ = new QTemporaryFile(tempname, this);
-    if (!sample_file_->open(QIODevice::ReadWrite)) {
-        qWarning() << "Can't create temp file in " << tempname << " during retap";
-    }
-    sample_file_frame_ = new QBuffer(this);
-    if (!sample_file_frame_->open(QIODevice::ReadWrite)) {
-        qWarning() << "Can't create temp file in " << tempname << " during retap";
-    }
-
-    // RTP_STREAM_DEBUG("Writing to %s", tempname.toUtf8().constData());
 }
 
 AudioRouting RtpAudioStream::getAudioRouting()
@@ -215,11 +181,6 @@ void RtpAudioStream::setAudioRouting(AudioRouting audio_routing)
     audio_routing_ = audio_routing;
 }
 
-/* Fix for bug 4119/5902: don't insert too many silence frames.
- * XXX - is there a better thing to do here?
- */
-static const qint64 max_silence_samples_ = MAX_SILENCE_FRAMES;
-
 void RtpAudioStream::decode(QAudioDeviceInfo out_device)
 {
     if (rtp_packets_.size() < 1) return;
@@ -227,10 +188,15 @@ void RtpAudioStream::decode(QAudioDeviceInfo out_device)
     if (audio_resampler_) {
         speex_resampler_reset_mem(audio_resampler_);
     }
+    audio_file_->setFrameWriteStage();
     decodeAudio(out_device);
+
+    // Skip silence at begin of the stream
+    audio_file_->setFrameReadStage(prepend_samples_);
 
     speex_resampler_reset_mem(visual_resampler_);
     decodeVisual();
+    audio_file_->setDataReadStage();
 }
 
 // Side effect: it creates and initiates resampler if needed
@@ -296,8 +262,6 @@ void RtpAudioStream::decodeAudio(QAudioDeviceInfo out_device)
 
     size_t decoded_bytes_prev = 0;
 
-    rtp_frame_info frame_info;
-
     for (int cur_packet = 0; cur_packet < rtp_packets_.size(); cur_packet++) {
         SAMPLE *decode_buff = NULL;
         // TODO: Update a progress bar here.
@@ -354,6 +318,7 @@ void RtpAudioStream::decodeAudio(QAudioDeviceInfo out_device)
             audio_out_rate_ = calculateAudioOutRate(out_device, sample_rate, audio_requested_out_rate_);
 
             // Calculate count of prepend samples for the stream
+            // The earliest stream starts at 0.
             // Note: Order of operations and separation to two formulas is
             // important.
             // When joined, calculated incorrectly - probably caused by
@@ -361,10 +326,9 @@ void RtpAudioStream::decodeAudio(QAudioDeviceInfo out_device)
             prepend_samples_ = (start_rel_time_ - global_start_rel_time_) * sample_rate;
             prepend_samples_ = prepend_samples_ * audio_out_rate_ / sample_rate;
 
-            sample_file_->seek(0);
             // Prepend silence to match our sibling streams.
-            if (prepend_samples_ > 0) {
-                writeSilence(prepend_samples_);
+            if ((prepend_samples_ > 0) && (audio_out_rate_ != 0)) {
+                audio_file_->frameWriteSilence(rtp_packet->frame_num, prepend_samples_);
             }
         }
 
@@ -396,19 +360,10 @@ void RtpAudioStream::decodeAudio(QAudioDeviceInfo out_device)
 
                 silence_samples = (qint64)((arrive_time - arrive_time_prev)*sample_rate - decoded_bytes_prev / SAMPLE_BYTES);
                 silence_samples = silence_samples * audio_out_rate_ / sample_rate;
-                /* Fix for bug 4119/5902: don't insert too many silence frames.
-                 * XXX - is there a better thing to do here?
-                 */
-                silence_samples = qMin(silence_samples, max_silence_samples_);
                 silence_timestamps_.append(stop_rel_time_);
                 // Timestamp shift can make silence calculation negative
-                if (silence_samples > 0) {
-                    writeSilence(silence_samples);
-
-                    // Record frame info to separate file
-                    frame_info.len = silence_samples * SAMPLE_BYTES;
-                    frame_info.frame_num = rtp_packet->frame_num;
-                    sample_file_frame_->write((char *)&frame_info, sizeof(frame_info));
+                if ((silence_samples > 0) && (audio_out_rate_ != 0)) {
+                    audio_file_->frameWriteSilence(rtp_packet->frame_num, silence_samples);
                 }
 
                 decoded_bytes_prev = 0;
@@ -435,17 +390,10 @@ void RtpAudioStream::decodeAudio(QAudioDeviceInfo out_device)
             }
 
             if (silence_samples > 0) {
-                /* Fix for bug 4119/5902: don't insert too many silence frames.
-                 * XXX - is there a better thing to do here?
-                 */
-                silence_samples = qMin(silence_samples, max_silence_samples_);
                 silence_timestamps_.append(stop_rel_time_);
-                writeSilence(silence_samples);
-
-                // Record frame info to separate file
-                frame_info.len = silence_samples * SAMPLE_BYTES;
-                frame_info.frame_num = rtp_packet->frame_num;
-                sample_file_frame_->write((char *)&frame_info, sizeof(frame_info));
+                if ((silence_samples > 0) && (audio_out_rate_ != 0)) {
+                    audio_file_->frameWriteSilence(rtp_packet->frame_num, silence_samples);
+                }
             }
 
             // XXX rtp_player.c:696 adds audio here.
@@ -476,13 +424,8 @@ void RtpAudioStream::decodeAudio(QAudioDeviceInfo out_device)
         // We should write only newer data to avoid duplicates in replay
         if (last_sequence_w < last_sequence) {
             // Write the decoded, possibly-resampled audio to our temp file.
-            sample_file_->write(write_buff, write_bytes);
+            audio_file_->frameWriteSamples(rtp_packet->frame_num, write_buff, write_bytes);
             last_sequence_w = last_sequence;
-
-            // Record frame info to separate file
-            frame_info.len = write_bytes;
-            frame_info.frame_num = rtp_packet->frame_num;
-            sample_file_frame_->write((char *)&frame_info, sizeof(frame_info));
         }
 
         g_free(decode_buff);
@@ -495,48 +438,44 @@ void RtpAudioStream::decodeAudio(QAudioDeviceInfo out_device)
 #define VISUAL_BUFF_BYTES (SAMPLE_BYTES * VISUAL_BUFF_LEN)
 void RtpAudioStream::decodeVisual()
 {
-    guint64 read_bytes = 0;
     spx_uint32_t read_len = 0;
     gint32 read_buff_bytes = VISUAL_BUFF_BYTES;
     SAMPLE *read_buff = (SAMPLE *) g_malloc(read_buff_bytes);
     gint32 resample_buff_bytes = VISUAL_BUFF_BYTES;
     SAMPLE *resample_buff = (SAMPLE *) g_malloc(resample_buff_bytes);
     unsigned int sample_no = 0;
-    rtp_frame_info frame_info;
     spx_uint32_t out_len;
+    guint32 frame_num;
+    rtp_frame_type type;
 
     speex_resampler_set_rate(visual_resampler_, audio_out_rate_, visual_sample_rate_);
 
-    // Skip silence at begin of the stream
-    sample_file_->seek(prepend_samples_ * SAMPLE_BYTES);
-    sample_file_frame_->seek(0);
-
     // Loop over every frame record
-    while(sample_file_frame_->read((char *)&frame_info, sizeof(frame_info))) {
-        // Resize buffer when needed
-        if (frame_info.len > read_buff_bytes) {
-            while ((frame_info.len > read_buff_bytes)) {
-                read_buff_bytes *= 2;
-            }
-            read_buff = (SAMPLE *) g_realloc(read_buff, read_buff_bytes);
-        }
-
-        read_bytes = sample_file_->read((char *)read_buff, frame_info.len);
-        read_len = (spx_uint32_t)(read_bytes / SAMPLE_BYTES);
+    // readFrameSamples() maintains size of buffer for us
+    while (audio_file_->readFrameSamples(&read_buff_bytes, &read_buff, &read_len, &frame_num, &type)) {
         out_len = (spx_uint32_t)((read_len * visual_sample_rate_ ) / audio_out_rate_);
 
-        resample_buff = resizeBufferIfNeeded(resample_buff, &resample_buff_bytes, out_len * SAMPLE_BYTES);
+        if (type == RTP_FRAME_AUDIO) {
+            // We resample only audio samples
+            resample_buff = resizeBufferIfNeeded(resample_buff, &resample_buff_bytes, out_len * SAMPLE_BYTES);
 
-        // Resample
-        speex_resampler_process_int(visual_resampler_, 0, read_buff, &read_len, resample_buff, &out_len);
+            // Resample
+            speex_resampler_process_int(visual_resampler_, 0, read_buff, &read_len, resample_buff, &out_len);
 
-        // Create timestamp and visual sample
-        for (unsigned i = 0; i < out_len; i++) {
+            // Create timestamp and visual sample
+            for (unsigned i = 0; i < out_len; i++) {
+                double time = start_rel_time_ + (double) sample_no / visual_sample_rate_;
+                packet_timestamps_[time] = frame_num;
+                if (qAbs(resample_buff[i]) > max_sample_val_) max_sample_val_ = qAbs(resample_buff[i]);
+                visual_samples_.append(resample_buff[i]);
+                sample_no++;
+            }
+        } else {
+            // Insert end of line mark
             double time = start_rel_time_ + (double) sample_no / visual_sample_rate_;
-            packet_timestamps_[time] = frame_info.frame_num;
-            if (qAbs(resample_buff[i]) > max_sample_val_) max_sample_val_ = qAbs(resample_buff[i]);
-            visual_samples_.append(resample_buff[i]);
-            sample_no++;
+            packet_timestamps_[time] = frame_num;
+            visual_samples_.append(SAMPLE_NaN);
+            sample_no += out_len;
         }
     }
 
@@ -572,7 +511,12 @@ const QVector<double> RtpAudioStream::visualSamples(int y_offset)
     QVector<double> adj_samples;
     double scaled_offset = y_offset * stack_offset_;
     for (int i = 0; i < visual_samples_.size(); i++) {
-        adj_samples.append(((double)visual_samples_[i] * G_MAXINT16 / max_sample_val_used_) + scaled_offset);
+        if (SAMPLE_NaN != visual_samples_[i]) {
+            adj_samples.append(((double)visual_samples_[i] * G_MAXINT16 / max_sample_val_used_) + scaled_offset);
+        } else {
+            // Convert to break in graph line
+            adj_samples.append(qQNaN());
+        }
     }
     return adj_samples;
 }
@@ -763,14 +707,15 @@ bool RtpAudioStream::prepareForPlay(QAudioDeviceInfo out_device)
     start_pos = (qint64)(start_play_time_ * SAMPLE_BYTES * audio_out_rate_);
     // Round to SAMPLE_BYTES boundary
     start_pos = (start_pos / SAMPLE_BYTES) * SAMPLE_BYTES;
-    size = sample_file_->size();
+    size = audio_file_->sampleFileSize();
     if (stereo_required_) {
         // There is 2x more samples for stereo
         start_pos *= 2;
         size *= 2;
     }
     if (start_pos < size) {
-        temp_file_ = new AudioRoutingFilter(sample_file_, stereo_required_, audio_routing_);
+        audio_file_->setDataReadStage();
+        temp_file_ = new AudioRoutingFilter(audio_file_, stereo_required_, audio_routing_);
         temp_file_->seek(start_pos);
         if (audio_output_) delete audio_output_;
         audio_output_ = new QAudioOutput(out_device, format, this);
@@ -827,18 +772,6 @@ void RtpAudioStream::stopPlaying()
     }
 }
 
-void RtpAudioStream::writeSilence(qint64 samples)
-{
-    if (samples < 1 || audio_out_rate_ == 0) return;
-
-    qint64 silence_bytes = samples * SAMPLE_BYTES;
-    char *silence_buff = (char *) g_malloc0(silence_bytes);
-
-    RTP_STREAM_DEBUG("Writing " G_GUINT64_FORMAT " silence samples", samples);
-    sample_file_->write(silence_buff, silence_bytes);
-    g_free(silence_buff);
-}
-
 void RtpAudioStream::outputStateChanged(QAudio::State new_state)
 {
     if (!audio_output_) return;
@@ -890,14 +823,14 @@ SAMPLE *RtpAudioStream::resizeBufferIfNeeded(SAMPLE *buff, gint32 *buff_bytes, q
     return buff;
 }
 
-void RtpAudioStream::sampleFileSeek(qint64 samples)
+void RtpAudioStream::seekSample(qint64 samples)
 {
-    sample_file_->seek(sizeof(SAMPLE) * samples);
+    audio_file_->seekSample(samples);
 }
 
-qint64 RtpAudioStream::sampleFileRead(SAMPLE *sample)
+qint64 RtpAudioStream::readSample(SAMPLE *sample)
 {
-    return sample_file_->read((char *)sample, sizeof(SAMPLE));
+    return audio_file_->readSample(sample);
 }
 
 bool RtpAudioStream::savePayload(QIODevice *file)

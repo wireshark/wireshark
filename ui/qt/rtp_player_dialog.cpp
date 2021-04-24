@@ -2121,6 +2121,22 @@ qint64 RtpPlayerDialog::saveAudioHeaderWAV(QFile *save_file, int channels, unsig
     return save_file->pos();
 }
 
+bool RtpPlayerDialog::writeAudioSilenceSamples(QFile *out_file, qint64 samples, int stream_count)
+{
+    uint8_t pd[2];
+
+    phton16(pd, 0x0000);
+    for(int s=0; s < stream_count; s++) {
+        for(qint64 i=0; i < samples; i++) {
+            if (sizeof(SAMPLE) != out_file->write((char *)&pd, sizeof(SAMPLE))) {
+                return false;
+            }
+        }
+    }
+
+    return true;
+}
+
 bool RtpPlayerDialog::writeAudioStreamsSamples(QFile *out_file, QVector<RtpAudioStream *> streams, bool swap_bytes)
 {
     SAMPLE sample;
@@ -2133,7 +2149,7 @@ bool RtpPlayerDialog::writeAudioStreamsSamples(QFile *out_file, QVector<RtpAudio
         read = false;
         // Loop over all streams, read one sample from each, write to output
         foreach(RtpAudioStream *audio_stream, streams) {
-            if (sizeof(sample) == audio_stream->sampleFileRead(&sample)) {
+            if (sizeof(sample) == audio_stream->readSample(&sample)) {
                 if (swap_bytes) {
                     // same as phton16(), but more clear in compare
                     // to else branch
@@ -2247,6 +2263,7 @@ void RtpPlayerDialog::saveAudio(bool sync_to_stream)
 {
     qint64 minSilenceSamples;
     qint64 startSample;
+    qint64 lead_silence_samples;
     qint64 maxSample;
     QString path;
     QVector<RtpAudioStream *>streams;
@@ -2283,16 +2300,18 @@ void RtpPlayerDialog::saveAudio(bool sync_to_stream)
     }
 
     if (sync_to_stream) {
-        // Start of first stream
+        // Skip start of first stream, no lead silence
         startSample = minSilenceSamples;
+        lead_silence_samples = 0;
     } else {
-        // Start of file
+        // Full first stream, lead silence
         startSample = 0;
+        lead_silence_samples = first_stream_rel_start_time_ * save_audio_rate;
     }
 
     // Seek to correct start
     foreach(RtpAudioStream *audio_stream, streams) {
-        audio_stream->sampleFileSeek(startSample);
+        audio_stream->seekSample(startSample);
     }
 
     QFile file(path);
@@ -2307,14 +2326,24 @@ void RtpPlayerDialog::saveAudio(bool sync_to_stream)
                    QMessageBox::warning(this, tr("Error"), tr("Can't write header of AU file"));
                    return;
                 }
+                if (lead_silence_samples > 0) {
+                    if (!writeAudioSilenceSamples(&file, lead_silence_samples, streams.count())) {
+                        QMessageBox::warning(this, tr("Warning"), tr("Save failed!"));
+                    }
+                }
                 if (!writeAudioStreamsSamples(&file, streams, true)) {
                     QMessageBox::warning(this, tr("Warning"), tr("Save failed!"));
                 }
                 break;
             case save_audio_wav:
-                if (-1 == saveAudioHeaderWAV(&file, streams.count(), save_audio_rate, (maxSample - startSample))) {
+                if (-1 == saveAudioHeaderWAV(&file, streams.count(), save_audio_rate, (maxSample - startSample) + lead_silence_samples)) {
                    QMessageBox::warning(this, tr("Error"), tr("Can't write header of WAV file"));
                    return;
+                }
+                if (lead_silence_samples > 0) {
+                    if (!writeAudioSilenceSamples(&file, lead_silence_samples, streams.count())) {
+                        QMessageBox::warning(this, tr("Warning"), tr("Save failed!"));
+                    }
                 }
                 if (!writeAudioStreamsSamples(&file, streams, false)) {
                     QMessageBox::warning(this, tr("Warning"), tr("Save failed!"));

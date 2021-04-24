@@ -241,6 +241,7 @@ private:
 
     qint64 saveAudioHeaderAU(QFile *save_file, int channels, unsigned audio_rate);
     qint64 saveAudioHeaderWAV(QFile *save_file, int channels, unsigned audio_rate, qint64 samples);
+    bool writeAudioSilenceSamples(QFile *out_file, qint64 samples, int stream_count);
     bool writeAudioStreamsSamples(QFile *out_file, QVector<RtpAudioStream *> streams, bool swap_bytes);
     save_audio_t selectFileAudioFormatAndName(QString *file_path);
     save_payload_t selectFilePayloadFormatAndName(QString *file_path);

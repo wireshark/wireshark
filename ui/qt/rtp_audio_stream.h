@@ -19,6 +19,7 @@
 #include <epan/address.h>
 #include <ui/rtp_stream.h>
 #include <ui/qt/utils/rtp_audio_routing.h>
+#include <ui/qt/utils/rtp_audio_file.h>
 #include <ui/rtp_media.h>
 
 #include <QAudio>
@@ -34,14 +35,6 @@ class QAudioFormat;
 class QAudioOutput;
 class QIODevice;
 
-struct _rtp_info;
-struct _rtp_sample;
-
-// Structure used for storing frame num during visual waveform decoding
-typedef struct {
-    qint64  len;
-    guint32 frame_num;
-} rtp_frame_info;
 
 class RtpAudioStream : public QObject
 {
@@ -149,10 +142,10 @@ public:
     void setStereoRequired(bool stereo_required) { stereo_required_ = stereo_required; }
     qint16 getMaxSampleValue() { return max_sample_val_; }
     void setMaxSampleValue(gint16 max_sample_val) { max_sample_val_used_ = max_sample_val; }
-    void sampleFileSeek(qint64 samples);
-    qint64 sampleFileRead(SAMPLE *sample);
+    void seekSample(qint64 samples);
+    qint64 readSample(SAMPLE *sample);
     qint64 getLeadSilenceSamples() { return prepend_samples_; }
-    qint64 getTotalSamples() { return (sample_file_->size()/(qint64)sizeof(SAMPLE)); }
+    qint64 getTotalSamples() { return (audio_file_->getTotalSamples()); }
     bool savePayload(QIODevice *file);
     guint getHash() { return rtpstream_id_to_hash(&(id_)); }
     rtpstream_id_t *getID() { return &(id_); }
@@ -172,8 +165,7 @@ private:
     bool first_packet_;
 
     QVector<struct _rtp_packet *>rtp_packets_;
-    QIODevice *sample_file_;       // Stores waveform samples
-    QIODevice *sample_file_frame_; // Stores rtp_packet_info per packet
+    RtpAudioFile *audio_file_;      // Stores waveform samples in sparse file
     QIODevice *temp_file_;
     struct _GHashTable *decoders_hash_;
     double global_start_rel_time_;
@@ -204,7 +196,6 @@ private:
     TimingMode timing_mode_;
     double start_play_time_;
 
-    void writeSilence(qint64 samples);
     const QString formatDescription(const QAudioFormat & format);
     QString currentOutputDevice();
 

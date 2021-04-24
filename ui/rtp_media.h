@@ -33,6 +33,7 @@ extern "C" {
 typedef gint16 SAMPLE;
 #define SAMPLE_MAX G_MAXINT16
 #define SAMPLE_MIN G_MININT16
+#define SAMPLE_NaN SAMPLE_MIN
 #define SAMPLE_BYTES (sizeof(SAMPLE) / sizeof(char))
 
 /* Defines an RTP packet */
