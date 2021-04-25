@@ -61,7 +61,7 @@ public:
 
     // Functions for reading data during play
     void setDataReadStage();
-    bool open(QIODevice::OpenMode mode);
+    bool open(QIODevice::OpenMode mode) override;
     qint64 size() const override;
     qint64 pos() const override;
     bool seek(qint64 off) override;
