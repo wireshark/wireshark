@@ -5603,6 +5603,10 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>Visa kolumndefinitioner i kolumnkontextmenyn</translation>
     </message>
     <message>
+        <source>Enable mouse-over colorization</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Status Bar settings:</source>
         <translation>Statusradinställningar:</translation>
     </message>
@@ -7302,10 +7306,6 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>Ingen MTP3-statistik registrerad</translation>
     </message>
     <message>
-        <source>Stream Analysis</source>
-        <translation type="vanished">Strömanalys</translation>
-    </message>
-    <message>
         <source>IAX2 Stream Analysis</source>
         <translation>IAX2-strömanalys</translation>
     </message>
@@ -8097,15 +8097,15 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>There is no &quot;rtp.ssrc&quot; field in this version of Wireshark.</source>
-        <translation type="unfinished">Det finns inget &quot;rtp.ssrc&quot;-fält i denna version av Wireshark.</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Please select an RTPv2 packet with an SSRC value</source>
-        <translation type="unfinished">Välj ett RTPv2-paket med ett SSRC-värde</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>SSRC value not found.</source>
-        <translation type="unfinished">SSRC-värdet finns inte.</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Show or hide the toolbar</source>
@@ -10631,10 +10631,6 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>SSRC value not found.</source>
-        <translation type="vanished">SSRC-värdet finns inte.</translation>
-    </message>
-    <message>
         <source> G: Go to packet, N: Next problem packet</source>
         <translation>G: gå till paket, N: nästa problempaket</translation>
     </message>
@@ -10658,21 +10654,9 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <source>Comma-separated values (*.csv)</source>
         <translation>Kommaseparerade värden (*.csv)</translation>
     </message>
-    <message>
-        <source>There is no &quot;rtp.ssrc&quot; field in this version of Wireshark.</source>
-        <translation type="vanished">Det finns inget &quot;rtp.ssrc&quot;-fält i denna version av Wireshark.</translation>
-    </message>
-    <message>
-        <source>Please select an RTPv2 packet with an SSRC value</source>
-        <translation type="vanished">Välj ett RTPv2-paket med ett SSRC-värde</translation>
-    </message>
 </context>
 <context>
     <name>RtpAudioStream</name>
-    <message>
-        <source>RTP stream is empty or codec is unsupported.</source>
-        <translation type="vanished">RTP-strömmen är tom eller omkodningen stödjs inte.</translation>
-    </message>
     <message>
         <source>%1 does not support PCM at %2. Preferred format is %3</source>
         <translation>%1 stödjer inte PCM på %2.  Föredragna format är %3</translation>
@@ -10950,6 +10934,14 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation type="unfinished">Förbered ett filter som matchar den valda strömmen.</translation>
     </message>
     <message>
+        <source>R&amp;efresh streams</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Read captured packets from capture in progress to player</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Zoom In</source>
         <translation>Zooma in</translation>
     </message>
@@ -11172,14 +11164,6 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <message>
         <source>Double click to change audio routing</source>
         <translation>Dubbelklicka för att ändra audioruttläggning</translation>
-    </message>
-    <message>
-        <source>Start: %1. Double click to set start of playback.</source>
-        <translation type="vanished">Start: %1.  Dubbelklicka för att ange start av uppspelning.</translation>
-    </message>
-    <message>
-        <source>Start: %1, cursor: %2. Press &quot;G&quot; to go to packet %3. Double click to set start of playback.</source>
-        <translation type="vanished">Start: %1, markör: %2.  Tryck ”G” för att gå till paket %3.  Dubbelklicka för att ange start av uppspelning.</translation>
     </message>
     <message>
         <source>Preparing to play...</source>
@@ -11796,7 +11780,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>Complete list of IP Addresses as provided in the INIT Chunk</source>
-        <translation>Fullständig lista över IP-adresser som de tillhandahålls av INIT-stycket</translation>
+        <translation type="vanished">Fullständig lista över IP-adresser som de tillhandahålls av INIT-stycket</translation>
     </message>
     <message>
         <source>Requested Number of Inbound Streams:</source>
@@ -11815,6 +11799,10 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>Minsta antal av inkommande strömmar:</translation>
     </message>
     <message>
+        <source>Complete List of IP addresses from INIT Chunk:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Minimum Number of Outbound Streams:</source>
         <translation>Minsta antal av utgående strömmar:</translation>
     </message>
@@ -11827,16 +11815,20 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>Ändpunkt 2</translation>
     </message>
     <message>
+        <source>Complete List of IP addresses from INIT_ACK Chunk:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Provided Number of Outbound Streams:</source>
         <translation>Levererat antal utgående strömmar:</translation>
     </message>
     <message>
         <source>Complete list of IP Addresses as provided in the INIT-ACK Chunk</source>
-        <translation>Fullständig lista över IP-adresser som de tillhandahålls av INIT-ACK-stycket</translation>
+        <translation type="vanished">Fullständig lista över IP-adresser som de tillhandahålls av INIT-ACK-stycket</translation>
     </message>
     <message>
         <source>Graph a_rwnd</source>
-        <translation>Graf-a_rwnd</translation>
+        <translation type="vanished">Graf-a_rwnd</translation>
     </message>
     <message>
         <source>SCTP Analyse Association: %1 Port1 %2 Port2 %3</source>
@@ -11855,16 +11847,25 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>Kunde inte hitta någon SCTP-association med id: %1</translation>
     </message>
     <message>
-        <source>Complete list of IP-Addresses as provided in the INIT-Chunk</source>
-        <translation>Fullständig lista över IP-adresser som de tillhandahålls av INIT-stycket</translation>
+        <source>Complete list of IP addresses from INIT_ACK Chunk:</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Complete list of IP-Addresses as provided in the INITACK-Chunk</source>
-        <translation>Fullständig lista över IP-adresser som de tillhandahålls av INITACK-stycket</translation>
+        <source>List of Used IP Addresses</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Complete list of IP-Addresses as provided in the INIT-Chunk</source>
+        <translation type="vanished">Fullständig lista över IP-adresser som de tillhandahålls av INIT-stycket</translation>
+    </message>
+    <message>
+        <source>Complete list of IP addresses from INIT Chunk:</source>
+        <oldsource>Complete list of IP-Addresses as provided in the INITACK-Chunk</oldsource>
+        <translation type="unfinished">Fullständig lista över IP-adresser som de tillhandahålls av INITACK-stycket</translation>
     </message>
     <message>
         <source>List of used IP-Addresses</source>
-        <translation>Lista över använda IP-adresser</translation>
+        <translation type="vanished">Lista över använda IP-adresser</translation>
     </message>
     <message>
         <source>Used Number of Inbound Streams:</source>
@@ -13796,6 +13797,26 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <message>
         <source>Invert selection</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Select related RTP streams</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Select RTP streams related to selected calls in RTP Streams dialog</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>S</source>
+        <translation type="unfinished">S</translation>
+    </message>
+    <message>
+        <source>Deselect related RTP Streams</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>D</source>
+        <translation type="unfinished">D</translation>
     </message>
     <message>
         <source>Clear selection</source>

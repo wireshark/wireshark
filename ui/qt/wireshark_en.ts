@@ -5569,6 +5569,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Enable mouse-over colorization</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Status Bar settings:</source>
         <translation type="unfinished"></translation>
     </message>
@@ -10863,6 +10867,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>R&amp;efresh streams</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Read captured packets from capture in progress to player</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Zoom In</source>
         <translation type="unfinished"></translation>
     </message>
@@ -11700,10 +11712,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Complete list of IP Addresses as provided in the INIT Chunk</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Requested Number of Inbound Streams:</source>
         <translation type="unfinished"></translation>
     </message>
@@ -11720,6 +11728,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Complete List of IP addresses from INIT Chunk:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Minimum Number of Outbound Streams:</source>
         <translation type="unfinished"></translation>
     </message>
@@ -11732,15 +11744,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Complete List of IP addresses from INIT_ACK Chunk:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Provided Number of Outbound Streams:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Complete list of IP Addresses as provided in the INIT-ACK Chunk</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Graph a_rwnd</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -11760,15 +11768,15 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Complete list of IP-Addresses as provided in the INIT-Chunk</source>
+        <source>Complete list of IP addresses from INIT Chunk:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Complete list of IP-Addresses as provided in the INITACK-Chunk</source>
+        <source>Complete list of IP addresses from INIT_ACK Chunk:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>List of used IP-Addresses</source>
+        <source>List of Used IP Addresses</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -13638,6 +13646,26 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Invert selection</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Select related RTP streams</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Select RTP streams related to selected calls in RTP Streams dialog</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>S</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Deselect related RTP Streams</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>D</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

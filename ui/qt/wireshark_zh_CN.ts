@@ -5582,6 +5582,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Enable mouse-over colorization</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Status Bar settings:</source>
         <translation>状态栏设置：</translation>
     </message>
@@ -7279,10 +7283,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>没有已注册的 MTP3 统计</translation>
     </message>
     <message>
-        <source>Stream Analysis</source>
-        <translation type="vanished">流分析</translation>
-    </message>
-    <message>
         <source>IAX2 Stream Analysis</source>
         <translation>IAX2 流分析</translation>
     </message>
@@ -8074,15 +8074,15 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>There is no &quot;rtp.ssrc&quot; field in this version of Wireshark.</source>
-        <translation type="unfinished">此版本的 Wireshark 没有 &quot;rtp.ssrc&quot; 字段。</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Please select an RTPv2 packet with an SSRC value</source>
-        <translation type="unfinished">请选择一个有 SSRC 值的 RTPv2 分组</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>SSRC value not found.</source>
-        <translation type="unfinished">未找到 SSRC 值。</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Show or hide the toolbar</source>
@@ -10593,10 +10593,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>SSRC value not found.</source>
-        <translation type="vanished">未找到 SSRC 值。</translation>
-    </message>
-    <message>
         <source> G: Go to packet, N: Next problem packet</source>
         <translation>G: 转到分组，N: 转到问题分组</translation>
     </message>
@@ -10620,21 +10616,9 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <source>Comma-separated values (*.csv)</source>
         <translation>逗号分隔值 (*.csv)</translation>
     </message>
-    <message>
-        <source>There is no &quot;rtp.ssrc&quot; field in this version of Wireshark.</source>
-        <translation type="vanished">此版本的 Wireshark 没有 &quot;rtp.ssrc&quot; 字段。</translation>
-    </message>
-    <message>
-        <source>Please select an RTPv2 packet with an SSRC value</source>
-        <translation type="vanished">请选择一个有 SSRC 值的 RTPv2 分组</translation>
-    </message>
 </context>
 <context>
     <name>RtpAudioStream</name>
-    <message>
-        <source>RTP stream is empty or codec is unsupported.</source>
-        <translation type="vanished">RTP 流是空的，或者编码器不支持。</translation>
-    </message>
     <message>
         <source>%1 does not support PCM at %2. Preferred format is %3</source>
         <translation>%1 不支持 %2 上的 PCM。首选格式为 %3</translation>
@@ -10910,6 +10894,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Prepare a filter matching the selected stream(s).</source>
         <translation type="unfinished">将匹配上的选中的流作为过滤器。</translation>
+    </message>
+    <message>
+        <source>R&amp;efresh streams</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Read captured packets from capture in progress to player</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Zoom In</source>
@@ -11750,7 +11742,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Complete list of IP Addresses as provided in the INIT Chunk</source>
-        <translation>在INIT块中的IP地址完整列表</translation>
+        <translation type="vanished">在INIT块中的IP地址完整列表</translation>
     </message>
     <message>
         <source>Requested Number of Inbound Streams:</source>
@@ -11769,6 +11761,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>输入流的最小数量:</translation>
     </message>
     <message>
+        <source>Complete List of IP addresses from INIT Chunk:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Minimum Number of Outbound Streams:</source>
         <translation>输出流的最小数量:</translation>
     </message>
@@ -11781,16 +11777,20 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>端点2</translation>
     </message>
     <message>
+        <source>Complete List of IP addresses from INIT_ACK Chunk:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Provided Number of Outbound Streams:</source>
         <translation>输出流的提供数量:</translation>
     </message>
     <message>
         <source>Complete list of IP Addresses as provided in the INIT-ACK Chunk</source>
-        <translation>在INIT块中的IP地址完整列表</translation>
+        <translation type="vanished">在INIT块中的IP地址完整列表</translation>
     </message>
     <message>
         <source>Graph a_rwnd</source>
-        <translation>a_rwnd图</translation>
+        <translation type="vanished">a_rwnd图</translation>
     </message>
     <message>
         <source>SCTP Analyse Association: %1 Port1 %2 Port2 %3</source>
@@ -11809,16 +11809,25 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>找不到 ID 为 %1 的 SCTP 关联</translation>
     </message>
     <message>
-        <source>Complete list of IP-Addresses as provided in the INIT-Chunk</source>
-        <translation>在INIT块中的IP地址完整列表</translation>
+        <source>Complete list of IP addresses from INIT_ACK Chunk:</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Complete list of IP-Addresses as provided in the INITACK-Chunk</source>
-        <translation>在INITACK块中的IP地址完整列表</translation>
+        <source>List of Used IP Addresses</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Complete list of IP-Addresses as provided in the INIT-Chunk</source>
+        <translation type="vanished">在INIT块中的IP地址完整列表</translation>
+    </message>
+    <message>
+        <source>Complete list of IP addresses from INIT Chunk:</source>
+        <oldsource>Complete list of IP-Addresses as provided in the INITACK-Chunk</oldsource>
+        <translation type="unfinished">在INITACK块中的IP地址完整列表</translation>
     </message>
     <message>
         <source>List of used IP-Addresses</source>
-        <translation>使用的IP地址列表</translation>
+        <translation type="vanished">使用的IP地址列表</translation>
     </message>
     <message>
         <source>Used Number of Inbound Streams:</source>
@@ -13742,6 +13751,26 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Invert selection</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Select related RTP streams</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Select RTP streams related to selected calls in RTP Streams dialog</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>S</source>
+        <translation type="unfinished">S</translation>
+    </message>
+    <message>
+        <source>Deselect related RTP Streams</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>D</source>
+        <translation type="unfinished">D</translation>
     </message>
     <message>
         <source>Clear selection</source>

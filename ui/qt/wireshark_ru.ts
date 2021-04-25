@@ -5620,6 +5620,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Показывать определение столбца в контекстом меню столбца</translation>
     </message>
     <message>
+        <source>Enable mouse-over colorization</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Status Bar settings:</source>
         <translation>Настройки Строки Статуса:</translation>
     </message>
@@ -7321,10 +7325,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Нет зарегистрированной статистики MTP3</translation>
     </message>
     <message>
-        <source>Stream Analysis</source>
-        <translation type="vanished">Анализ Потока</translation>
-    </message>
-    <message>
         <source>IAX2 Stream Analysis</source>
         <translation>Анализ потока IAX2</translation>
     </message>
@@ -8116,15 +8116,15 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>There is no &quot;rtp.ssrc&quot; field in this version of Wireshark.</source>
-        <translation type="unfinished">Поле &quot;rtp.ssrc&quot; отсутствует в этой версии Wireshark.</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Please select an RTPv2 packet with an SSRC value</source>
-        <translation type="unfinished">Пожалуйста, выберите пакет RTPv2 со значением SSRC</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>SSRC value not found.</source>
-        <translation type="unfinished">Значение SSRC не найдено.</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Show or hide the toolbar</source>
@@ -10658,10 +10658,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Сохранить График Как…</translation>
     </message>
     <message>
-        <source>SSRC value not found.</source>
-        <translation type="vanished">Значение SSRC не найдено.</translation>
-    </message>
-    <message>
         <source> G: Go to packet, N: Next problem packet</source>
         <translation> G: Перейти к пакету, N: Следующий проблемный пакет</translation>
     </message>
@@ -10685,21 +10681,9 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <source>Comma-separated values (*.csv)</source>
         <translation>Значения, разделённые запятой (*.csv)</translation>
     </message>
-    <message>
-        <source>There is no &quot;rtp.ssrc&quot; field in this version of Wireshark.</source>
-        <translation type="vanished">Поле &quot;rtp.ssrc&quot; отсутствует в этой версии Wireshark.</translation>
-    </message>
-    <message>
-        <source>Please select an RTPv2 packet with an SSRC value</source>
-        <translation type="vanished">Пожалуйста, выберите пакет RTPv2 со значением SSRC</translation>
-    </message>
 </context>
 <context>
     <name>RtpAudioStream</name>
-    <message>
-        <source>RTP stream is empty or codec is unsupported.</source>
-        <translation type="vanished">Поток RTP пуст или кодек не поддерживается.</translation>
-    </message>
     <message>
         <source>%1 does not support PCM at %2. Preferred format is %3</source>
         <translation>%1 не поддерживает PCM в %2. Предпочтителен формат %3</translation>
@@ -10977,6 +10961,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished">Подготовить фильтр, соответствующий выбранному потоку (потокам).</translation>
     </message>
     <message>
+        <source>R&amp;efresh streams</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Read captured packets from capture in progress to player</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Zoom In</source>
         <translation>Увеличить Масштаб</translation>
     </message>
@@ -11199,14 +11191,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Double click to change audio routing</source>
         <translation>Щелкните дважды, чтобы изменить аудио прохождение</translation>
-    </message>
-    <message>
-        <source>Start: %1. Double click to set start of playback.</source>
-        <translation type="vanished">Начало: %1. Двойной клик, чтобы установить начало воспроизведения.</translation>
-    </message>
-    <message>
-        <source>Start: %1, cursor: %2. Press &quot;G&quot; to go to packet %3. Double click to set start of playback.</source>
-        <translation type="vanished">Начало: %1, курсор: %2. Нажмите &quot;G&quot;, чтобы перейти к пакету %3. Двойной клик, чтобы установить начало воспроизведения.</translation>
     </message>
     <message>
         <source>Preparing to play...</source>
@@ -11823,7 +11807,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Complete list of IP Addresses as provided in the INIT Chunk</source>
-        <translation>Полный Список IP-адресов, как предусмотрено в блоке INIT</translation>
+        <translation type="vanished">Полный Список IP-адресов, как предусмотрено в блоке INIT</translation>
     </message>
     <message>
         <source>Requested Number of Inbound Streams:</source>
@@ -11842,6 +11826,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Минимальное Число Входных Потоков:</translation>
     </message>
     <message>
+        <source>Complete List of IP addresses from INIT Chunk:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Minimum Number of Outbound Streams:</source>
         <translation>Минимальное Число Исходящих Потоков:</translation>
     </message>
@@ -11854,16 +11842,20 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Конечная точка 2</translation>
     </message>
     <message>
+        <source>Complete List of IP addresses from INIT_ACK Chunk:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Provided Number of Outbound Streams:</source>
         <translation>Поддерживаемое Число Исходящих Потоков:</translation>
     </message>
     <message>
         <source>Complete list of IP Addresses as provided in the INIT-ACK Chunk</source>
-        <translation>Полный Список IP-адресов, как предусмотрено в блоке INIT-ACK</translation>
+        <translation type="vanished">Полный Список IP-адресов, как предусмотрено в блоке INIT-ACK</translation>
     </message>
     <message>
         <source>Graph a_rwnd</source>
-        <translation>График a_rwnd</translation>
+        <translation type="vanished">График a_rwnd</translation>
     </message>
     <message>
         <source>SCTP Analyse Association: %1 Port1 %2 Port2 %3</source>
@@ -11882,16 +11874,25 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Невозможно найти Ассоциацию SCTP с id: %1</translation>
     </message>
     <message>
-        <source>Complete list of IP-Addresses as provided in the INIT-Chunk</source>
-        <translation>Полный список IP-адресов, как предусмотрено в INIT-Chunk</translation>
+        <source>Complete list of IP addresses from INIT_ACK Chunk:</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Complete list of IP-Addresses as provided in the INITACK-Chunk</source>
-        <translation>Полный список IP-адресов, как предусмотрено в INITACK-Chunk</translation>
+        <source>List of Used IP Addresses</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Complete list of IP-Addresses as provided in the INIT-Chunk</source>
+        <translation type="vanished">Полный список IP-адресов, как предусмотрено в INIT-Chunk</translation>
+    </message>
+    <message>
+        <source>Complete list of IP addresses from INIT Chunk:</source>
+        <oldsource>Complete list of IP-Addresses as provided in the INITACK-Chunk</oldsource>
+        <translation type="unfinished">Полный список IP-адресов, как предусмотрено в INITACK-Chunk</translation>
     </message>
     <message>
         <source>List of used IP-Addresses</source>
-        <translation>Список использованных IP-адресов</translation>
+        <translation type="vanished">Список использованных IP-адресов</translation>
     </message>
     <message>
         <source>Used Number of Inbound Streams:</source>
@@ -13827,6 +13828,26 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Invert selection</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Select related RTP streams</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Select RTP streams related to selected calls in RTP Streams dialog</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>S</source>
+        <translation type="unfinished">S</translation>
+    </message>
+    <message>
+        <source>Deselect related RTP Streams</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>D</source>
+        <translation type="unfinished">D</translation>
     </message>
     <message>
         <source>Clear selection</source>

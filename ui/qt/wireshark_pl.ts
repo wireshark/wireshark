@@ -5610,6 +5610,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Enable mouse-over colorization</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Status Bar settings:</source>
         <translation type="unfinished"></translation>
     </message>
@@ -7311,10 +7315,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Brak zarejestrowanych statystyk MTP3</translation>
     </message>
     <message>
-        <source>Stream Analysis</source>
-        <translation type="vanished">Analiza strumienia</translation>
-    </message>
-    <message>
         <source>IAX2 Stream Analysis</source>
         <translation>Analiza strumienia IAX2</translation>
     </message>
@@ -8106,15 +8106,15 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>There is no &quot;rtp.ssrc&quot; field in this version of Wireshark.</source>
-        <translation type="unfinished">Brak pola &quot;rtp.ssrc&quot; w tej wersji programu Wireshark.</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Please select an RTPv2 packet with an SSRC value</source>
-        <translation type="unfinished">Proszę wybrać pakiet RTPv2 z polem SSRC</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>SSRC value not found.</source>
-        <translation type="unfinished">Nie znaleziono wartości SSRC.</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Show or hide the toolbar</source>
@@ -10639,10 +10639,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>SSRC value not found.</source>
-        <translation type="vanished">Nie znaleziono wartości SSRC.</translation>
-    </message>
-    <message>
         <source> G: Go to packet, N: Next problem packet</source>
         <translation>G: Idź do pakiety, N: Następny problematyczny pakiet</translation>
     </message>
@@ -10666,21 +10662,9 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <source>Comma-separated values (*.csv)</source>
         <translation>Wartości rozdzielane przecinkami (*.csv)</translation>
     </message>
-    <message>
-        <source>There is no &quot;rtp.ssrc&quot; field in this version of Wireshark.</source>
-        <translation type="vanished">Brak pola &quot;rtp.ssrc&quot; w tej wersji programu Wireshark.</translation>
-    </message>
-    <message>
-        <source>Please select an RTPv2 packet with an SSRC value</source>
-        <translation type="vanished">Proszę wybrać pakiet RTPv2 z polem SSRC</translation>
-    </message>
 </context>
 <context>
     <name>RtpAudioStream</name>
-    <message>
-        <source>RTP stream is empty or codec is unsupported.</source>
-        <translation type="vanished">Strumień RTP jest pusty lub kodek nie jest obsługiwany.</translation>
-    </message>
     <message>
         <source>%1 does not support PCM at %2. Preferred format is %3</source>
         <translation>%1 nie obsługuje formatu PCM na %2. Preferowany format to %3</translation>
@@ -10956,6 +10940,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Prepare a filter matching the selected stream(s).</source>
         <translation type="unfinished">Przygotuj filtr dla zaznaczonych strumieni.</translation>
+    </message>
+    <message>
+        <source>R&amp;efresh streams</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Read captured packets from capture in progress to player</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Zoom In</source>
@@ -11796,7 +11788,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Complete list of IP Addresses as provided in the INIT Chunk</source>
-        <translation>Kompletna lista adresów IP dostarczonych w kawałku INIT</translation>
+        <translation type="vanished">Kompletna lista adresów IP dostarczonych w kawałku INIT</translation>
     </message>
     <message>
         <source>Requested Number of Inbound Streams:</source>
@@ -11815,6 +11807,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Minimalna liczba strumieni przychodzących:</translation>
     </message>
     <message>
+        <source>Complete List of IP addresses from INIT Chunk:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Minimum Number of Outbound Streams:</source>
         <translation>Minimalna liczba strumieni wychodzących:</translation>
     </message>
@@ -11827,16 +11823,20 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Punkt krańcowy 2</translation>
     </message>
     <message>
+        <source>Complete List of IP addresses from INIT_ACK Chunk:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Provided Number of Outbound Streams:</source>
         <translation>Liczba dostarczonych strumieni wychodzących:</translation>
     </message>
     <message>
         <source>Complete list of IP Addresses as provided in the INIT-ACK Chunk</source>
-        <translation>Kompletna lista adresów IP dostarczonych w kawałku INIT-ACK</translation>
+        <translation type="vanished">Kompletna lista adresów IP dostarczonych w kawałku INIT-ACK</translation>
     </message>
     <message>
         <source>Graph a_rwnd</source>
-        <translation>Wykres a_rwnd</translation>
+        <translation type="vanished">Wykres a_rwnd</translation>
     </message>
     <message>
         <source>SCTP Analyse Association: %1 Port1 %2 Port2 %3</source>
@@ -11855,16 +11855,25 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Complete list of IP-Addresses as provided in the INIT-Chunk</source>
-        <translation>Kompletna lista adresów IP dostarczonych w kawałku INIT</translation>
+        <source>Complete list of IP addresses from INIT_ACK Chunk:</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Complete list of IP-Addresses as provided in the INITACK-Chunk</source>
-        <translation>Kompletna lista adresów IP dostarczonych w kawałku INITACK</translation>
+        <source>List of Used IP Addresses</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Complete list of IP-Addresses as provided in the INIT-Chunk</source>
+        <translation type="vanished">Kompletna lista adresów IP dostarczonych w kawałku INIT</translation>
+    </message>
+    <message>
+        <source>Complete list of IP addresses from INIT Chunk:</source>
+        <oldsource>Complete list of IP-Addresses as provided in the INITACK-Chunk</oldsource>
+        <translation type="unfinished">Kompletna lista adresów IP dostarczonych w kawałku INITACK</translation>
     </message>
     <message>
         <source>List of used IP-Addresses</source>
-        <translation>Liczba używanych adresów IP</translation>
+        <translation type="vanished">Liczba używanych adresów IP</translation>
     </message>
     <message>
         <source>Used Number of Inbound Streams:</source>
@@ -13795,6 +13804,26 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Invert selection</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Select related RTP streams</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Select RTP streams related to selected calls in RTP Streams dialog</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>S</source>
+        <translation type="unfinished">S</translation>
+    </message>
+    <message>
+        <source>Deselect related RTP Streams</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>D</source>
+        <translation type="unfinished">D</translation>
     </message>
     <message>
         <source>Clear selection</source>

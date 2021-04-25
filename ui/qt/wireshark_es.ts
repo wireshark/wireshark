@@ -5564,6 +5564,10 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
         <translation>Mostrar definición de columna en menú contextual de columna</translation>
     </message>
     <message>
+        <source>Enable mouse-over colorization</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Status Bar settings:</source>
         <translation>Ajustes de barra de estado:</translation>
     </message>
@@ -7236,10 +7240,6 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     <message>
         <source>No MTP3 statistics registered</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Stream Analysis</source>
-        <translation type="vanished">Análisis de flujo</translation>
     </message>
     <message>
         <source>IAX2 Stream Analysis</source>
@@ -10847,6 +10847,14 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>R&amp;efresh streams</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Read captured packets from capture in progress to player</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Zoom In</source>
         <translation type="unfinished">Aumentar zoom</translation>
     </message>
@@ -11684,10 +11692,6 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Complete list of IP Addresses as provided in the INIT Chunk</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Requested Number of Inbound Streams:</source>
         <translation type="unfinished"></translation>
     </message>
@@ -11704,6 +11708,10 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Complete List of IP addresses from INIT Chunk:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Minimum Number of Outbound Streams:</source>
         <translation type="unfinished"></translation>
     </message>
@@ -11716,15 +11724,11 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Complete List of IP addresses from INIT_ACK Chunk:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Provided Number of Outbound Streams:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Complete list of IP Addresses as provided in the INIT-ACK Chunk</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Graph a_rwnd</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -11744,15 +11748,16 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Complete list of IP-Addresses as provided in the INIT-Chunk</source>
+        <source>Complete list of IP addresses from INIT_ACK Chunk:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Complete list of IP-Addresses as provided in the INITACK-Chunk</source>
+        <source>List of Used IP Addresses</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>List of used IP-Addresses</source>
+        <source>Complete list of IP addresses from INIT Chunk:</source>
+        <oldsource>Complete list of IP-Addresses as provided in the INITACK-Chunk</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -13622,6 +13627,26 @@ Por ejemplo, use 1 hora para tener creado un nuevo archivo cada hora en punto.</
     </message>
     <message>
         <source>Invert selection</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Select related RTP streams</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Select RTP streams related to selected calls in RTP Streams dialog</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>S</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Deselect related RTP Streams</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>D</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
