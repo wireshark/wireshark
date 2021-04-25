@@ -3311,7 +3311,11 @@ static QMutex telephony_dialog_mutex;
 void MainWindow::openTelephonyRtpPlayerDialog()
 {
     if (!rtp_player_dialog_) {
+#ifdef HAVE_LIBPCAP
         rtp_player_dialog_ = new RtpPlayerDialog(*this, capture_file_, captureSession()->state != CAPTURE_STOPPED);
+#else
+        rtp_player_dialog_ = new RtpPlayerDialog(*this, capture_file_, false);
+#endif
 
         connect(rtp_player_dialog_, SIGNAL(goToPacket(int)),
                 packet_list_, SLOT(goToPacket(int)));
