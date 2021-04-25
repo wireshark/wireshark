@@ -114,15 +114,23 @@ Take into account that heuristics is just simple "test" whether packet can be re
 When you enable menu:udp[Try heuristic sub-dissectors first], it increases possibility of false positives. If you capture all traffic in network, false positives rate can be quite high.
 ====
 
+RTP Player must store decoded data somewhere to be able to play it. When data are decoded, there are audio samples and dictionary for fast navigation. Both types of data are stored in memory for default, but you can configure Wireshark to store it on disk. There are two settings:
+
+* ui.rtp_player_use_disk1 - When set to FALSE (default), audio samples are kept in memory. When set to TRUE, audio samples are stored on temporary file.
+* ui.rtp_player_use_disk2 - When set to FALSE (default), dictionary is kept in memory. When set to TRUE, dictionary is stored on temporary file.
+
+When any data are configured to be stored on disk, one file is created for each stream. Therefore there might be up to two files for one RTP stream (audio samples and dictionary). If your OS or user has OS enforced limit for count of opened files (most of Unix/Linux systems), you can see fewer streams that was added to playlist. Warnings are printed on console in this case and you will see fewer streams in the playlist than you send to it from other tools.
+
+For common use you can use default settings - store everything in memory. When you will be out of memory, switch ui.rtp_player_use_disk1 to TRUE first - it saves much more memory than ui.rtp_player_use_disk2.
+
+
 ==== VoIP Processing Performance and Related Limits
 
 Processing of RTP and decoding RTP voice takes resources. There are raw estimates you can use as guidelines...
 
 RTP Streams window can show as many streams as found in the capture. Its performance is limited just by memory and CPU.
 
-RTP Player can handle 1000+ streams, but take into account that waveforms are very small in this case.
-
-RTP Player creates temporary file for decoding of each stream. If your OS or user has OS enforced limit for count of opened files (most of Unix/Linux systems), you can see less streams that was added to playlist. Warnings are printed on console in this case and you will see less streams in the playlist than you send to it from other tools.
+RTP Player can handle 1000+ streams, but take into account that waveforms are very small and difficult to recognize in this case.
 
 RTP Player plays audio by OS sound system and OS is responsible for mixing audio when multiple streams are played. In many cases OS sound system has limited count of mixed streams it can play/mix. RTP Player tries to handle playback failures and show warning. If it happens, just mute some streams and start playback again.
 

@@ -3481,6 +3481,26 @@ prefs_register_modules(void)
             "Value can be in range 2 to 10.",
             10,&prefs.gui_decimal_places3);
 
+    prefs_register_bool_preference(gui_module, "rtp_player_use_disk1",
+            "RTP Player saves temporary data to disk",
+            "If set to true, RTP Player saves temporary data to "
+            "temp files on disk. If not set, it uses memory."
+            "Every stream uses one file therefore you might touch "
+            "OS limit for count of opened files."
+            "When ui.rtp_player_use_disk2 is set to true too, it uses "
+            " two files per RTP stream together."
+            ,&prefs.gui_rtp_player_use_disk1);
+
+    prefs_register_bool_preference(gui_module, "rtp_player_use_disk2",
+            "RTP Player saves temporary dictionary for data to disk",
+            "If set to true, RTP Player saves temporary dictionary to "
+            "temp files on disk. If not set, it uses memory."
+            "Every stream uses one file therefore you might touch "
+            "OS limit for count of opened files."
+            "When ui.rtp_player_use_disk1 is set to true too, it uses "
+            " two files per RTP stream."
+            ,&prefs.gui_rtp_player_use_disk2);
+
 
     prefs_register_bool_preference(gui_layout_module, "packet_list_show_related",
                                    "Show Related Packets",
@@ -3661,8 +3681,6 @@ prefs_register_modules(void)
                                    "Determines time between tap updates",
                                    10,
                                    &prefs.tap_update_interval);
-
-    prefs_register_obsolete_preference(stats_module, "rtp_player_max_visible");
 
     prefs_register_bool_preference(stats_module, "st_enable_burstinfo",
             "Enable the calculation of burst information",

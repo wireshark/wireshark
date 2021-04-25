@@ -32,28 +32,43 @@
 #include "rtp_audio_file.h"
 #include <ws_attributes.h>
 
-RtpAudioFile::RtpAudioFile():
+RtpAudioFile::RtpAudioFile(bool use_disk_for_temp, bool use_disk_for_frames):
       real_pos_(0)
     , real_size_(0)
     , sample_pos_(0)
     , sample_size_(0)
 {
+    QString tempname;
+
     // ReadOnly because we write different way
     QIODevice::open(QIODevice::ReadOnly);
-    QString tempname = QString("%1/wireshark_rtp_stream").arg(QDir::tempPath());
-    sample_file_ = new QTemporaryFile(tempname, this);
+
+    tempname = "memory";
+    if (use_disk_for_temp) {
+        tempname = QString("%1/wireshark_rtp_stream").arg(QDir::tempPath());
+        sample_file_ = new QTemporaryFile(tempname, this);
+    } else {
+        sample_file_ = new QBuffer(this);
+    }
     if (!sample_file_->open(QIODevice::ReadWrite)) {
         // We are out of file resources
         delete sample_file_;
         qWarning() << "Can't create temp file in " << tempname;
         throw -1;
     }
-    sample_file_frame_ = new QBuffer(this);
+
+    tempname = "memory";
+    if (use_disk_for_frames) {
+        tempname = QString("%1/wireshark_rtp_frames").arg(QDir::tempPath());
+        sample_file_frame_ = new QTemporaryFile(tempname, this);
+    } else {
+        sample_file_frame_ = new QBuffer(this);
+    }
     if (!sample_file_frame_->open(QIODevice::ReadWrite)) {
         // We are out of file resources
         delete sample_file_;
         delete sample_file_frame_;
-        qWarning() << "Can't create temp file in memory";
+        qWarning() << "Can't create frame file in " << tempname;
         throw -1;
     }
 }

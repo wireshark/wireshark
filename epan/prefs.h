@@ -228,6 +228,8 @@ typedef struct _e_prefs {
   gint         gui_decimal_places1; /* Used for type 1 calculations */
   gint         gui_decimal_places2; /* Used for type 2 calculations */
   gint         gui_decimal_places3; /* Used for type 3 calculations */
+  gboolean     gui_rtp_player_use_disk1;
+  gboolean     gui_rtp_player_use_disk2;
   gboolean     st_enable_burstinfo;
   gboolean     st_burst_showcount;
   gint         st_burst_resolution;

@@ -72,7 +72,7 @@ RtpAudioStream::RtpAudioStream(QObject *parent, rtpstream_id_t *id, bool stereo_
 
     try {
         // RtpAudioFile is ready for writing Frames
-        audio_file_ = new RtpAudioFile();
+        audio_file_ = new RtpAudioFile(prefs.gui_rtp_player_use_disk1, prefs.gui_rtp_player_use_disk2);
     } catch (...) {
         speex_resampler_destroy(visual_resampler_);
         rtpstream_info_free_data(&rtpstream_);
