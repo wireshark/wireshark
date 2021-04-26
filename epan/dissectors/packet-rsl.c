@@ -1094,6 +1094,9 @@ static const value_string rsl_ch_rate_and_type_vals[] = {
     {  0x1a,    "Full rate TCH channel uni-directional downlink Bm, Multislot configuration" },
     {  0x28,    "Full rate TCH channel Bm Broadcast call channel" },
     {  0x29,    "PHalf rate TCH channel Lm Broadcast call channel" },
+    /* Osmocom specific extensions: */
+    {  0x88,    "Full rate TCH channel Bm in VAMOS mode" },
+    {  0x89,    "Half rate TCH channel Lm in VAMOS mode" },
     { 0,            NULL }
 };
 static value_string_ext rsl_ch_rate_and_type_vals_ext = VALUE_STRING_EXT_INIT(rsl_ch_rate_and_type_vals);
