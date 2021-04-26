@@ -63,6 +63,7 @@ endif()
 
 if (WIN32)
 	option(ENABLE_LTO "Improves performance using Link time Optimization" ON)
+	option(ENABLE_VLD "Enable Visual Leak Detect in Debug configuration" OFF)
 else()
 	option(ENABLE_LTO "Improves performance using Link time Optimization" OFF)
 endif()
