@@ -6334,7 +6334,9 @@ dissect_pfcp_ue_ip_address_pool_identity(tvbuff_t *tvb, packet_info *pinfo _U_, 
     * The UE IP address Pool Identity field shall be encoded as an OctetString
     * (see the Framed-Ipv6-Pool and Framed-Pool in clause 12.6.3 of 3GPP TS 29.561).
     */
-    proto_tree_add_item_ret_uint(tree, hf_pfcp_ue_ip_address_pool_length, tvb, 0, 1, ENC_BIG_ENDIAN, &pool_length);
+    proto_tree_add_item_ret_uint(tree, hf_pfcp_ue_ip_address_pool_length, tvb, 0, 2, ENC_BIG_ENDIAN, &pool_length);
+    offset += 2;
+
     proto_tree_add_item(tree, hf_pfcp_ue_ip_address_pool_identity, tvb, offset, pool_length, ENC_NA);
     offset += pool_length;
 
@@ -11707,13 +11709,13 @@ proto_register_pfcp(void)
         },
 
         { &hf_pfcp_ue_ip_address_pool_length,
-        { "UE IP address Pool Identity", "pfcp.ue_ip_address_pool_length",
-            FT_UINT16, BASE_DEC, NULL, 0xF,
+        { "UE IP address Pool Identity Length", "pfcp.ue_ip_address_pool_length",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_pfcp_ue_ip_address_pool_identity,
         { "UE IP address Pool Identity", "pfcp.ue_ip_address_pool_identity",
-            FT_BYTES, BASE_NONE, NULL, 0x0,
+            FT_BYTES, BASE_SHOW_ASCII_PRINTABLE, NULL, 0x0,
             NULL, HFILL }
         },
 
