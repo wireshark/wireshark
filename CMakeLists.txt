@@ -1691,7 +1691,7 @@ set_package_properties(SPANDSP PROPERTIES
 )
 set_package_properties(BCG729 PROPERTIES
 	DESCRIPTION "G.729 decoder"
-	URL "https://www.linphone.org/technical-corner/bcg729/overview"
+	URL "https://www.linphone.org/technical-corner/bcg729"
 	PURPOSE "Support for G.729 codec in RTP player"
 )
 set_package_properties(ILBC PROPERTIES
