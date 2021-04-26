@@ -3927,7 +3927,7 @@ proto_register_http2(void)
               "Must be zero", HFILL }
         },
         { &hf_http2_goaway_last_stream_id,
-            { "Promised-Stream-ID", "http2.goaway.last_stream_id",
+            { "Last-Stream-ID", "http2.goaway.last_stream_id",
                FT_UINT32, BASE_DEC, NULL, MASK_HTTP2_PRIORITY,
               "Contains the highest numbered stream identifier for which the sender of the GOAWAY frame has received frames on and might have taken some action on", HFILL }
         },
