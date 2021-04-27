@@ -56,4 +56,23 @@
     <type type-name="Enumerated"/>
     <enum name="Delivered" code="0"/>
   </avp>
+  <avp name="Operation-Result" code="20430" mandatory="mustnot" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="Huawei">
+    <type type-name="Enumerated"/>
+    <enum name="Success" code="0"/>
+    <enum name="Protocol is not supported" code="1"/>
+    <enum name="Other reason" code="10"/>
+    <enum name="MO account does not exist" code="11"/>
+    <enum name="MT account does not exist" code="12"/>
+    <enum name="MO account state is abnormal" code="13"/>
+    <enum name="MT account state is abnormal" code="14"/>
+    <enum name="MO balance is not enough" code="15"/>
+    <enum name="MT balance is not enough" code="16"/>
+</avp>
+  <avp name="Notify-Mode" code="20431" mandatory="mustnot" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="Huawei">
+    <type type-name="Enumerated"/>
+    <enum name="Send the report regardless of whether the message sending succeeds or fails" code="1"/>
+    <enum name="Send the report when the message sending fails" code="2"/>
+    <enum name="Send the report when the message succeeds" code="3"/>
+    <enum name="Never send the report" code="4"/>
+  </avp>
 </vendor>
