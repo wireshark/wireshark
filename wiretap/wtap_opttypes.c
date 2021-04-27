@@ -63,6 +63,56 @@ struct wtap_block
 /* Keep track of wtap_blocktype_t's via their id number */
 static wtap_blocktype_t* blocktype_list[MAX_WTAP_BLOCK_TYPE_VALUE];
 
+static if_filter_opt_t if_filter_dup(if_filter_opt_t* filter_src)
+{
+    if_filter_opt_t filter_dest;
+
+    memset(&filter_dest, 0, sizeof(filter_dest));
+
+    /* Deep copy. */
+    filter_dest.type = filter_src->type;
+    switch (filter_src->type) {
+
+    case if_filter_pcap:
+        /* pcap filter string */
+        filter_dest.data.filter_str =
+            g_strdup(filter_src->data.filter_str);
+        break;
+
+    case if_filter_bpf:
+        /* BPF program */
+        filter_dest.data.bpf_prog.bpf_prog_len =
+            filter_src->data.bpf_prog.bpf_prog_len;
+        filter_dest.data.bpf_prog.bpf_prog =
+            (wtap_bpf_insn_t *)g_memdup2(filter_src->data.bpf_prog.bpf_prog,
+                                        filter_src->data.bpf_prog.bpf_prog_len * sizeof (wtap_bpf_insn_t));
+        break;
+
+    default:
+        break;
+    }
+    return filter_dest;
+}
+
+static void if_filter_free(if_filter_opt_t* filter_src)
+{
+    switch (filter_src->type) {
+
+    case if_filter_pcap:
+        /* pcap filter string */
+        g_free(filter_src->data.filter_str);
+        break;
+
+    case if_filter_bpf:
+        /* BPF program */
+        g_free(filter_src->data.bpf_prog.bpf_prog);
+        break;
+
+    default:
+        break;
+    }
+}
+
 static void wtap_opttype_block_register(wtap_blocktype_t *blocktype)
 {
     wtap_block_type_t block_type;
@@ -180,20 +230,7 @@ static void wtap_block_free_option(wtap_block_t block, wtap_option_t *opt)
         break;
 
     case WTAP_OPTTYPE_IF_FILTER:
-        switch (opt->value.if_filterval.type) {
-
-        case if_filter_pcap:
-            /* pcap filter string */
-            g_free(opt->value.if_filterval.data.filter_str);
-            break;
-
-        case if_filter_bpf:
-            g_free(opt->value.if_filterval.data.bpf_prog.bpf_prog);
-            break;
-
-        default:
-            break;
-        }
+        if_filter_free(&opt->value.if_filterval);
         break;
 
     default:
@@ -752,56 +789,6 @@ wtap_block_get_nth_string_option_value(wtap_block_t block, guint option_id, guin
         return ret;
     *value = optval->stringval;
     return WTAP_OPTTYPE_SUCCESS;
-}
-
-static if_filter_opt_t if_filter_dup(if_filter_opt_t* filter_src)
-{
-    if_filter_opt_t filter_dest;
-
-    memset(&filter_dest, 0, sizeof(filter_dest));
-
-    /* Deep copy. */
-    filter_dest.type = filter_src->type;
-    switch (filter_src->type) {
-
-    case if_filter_pcap:
-        /* pcap filter string */
-        filter_dest.data.filter_str =
-            g_strdup(filter_src->data.filter_str);
-        break;
-
-    case if_filter_bpf:
-        /* BPF program */
-        filter_dest.data.bpf_prog.bpf_prog_len =
-            filter_src->data.bpf_prog.bpf_prog_len;
-        filter_dest.data.bpf_prog.bpf_prog =
-            (wtap_bpf_insn_t *)g_memdup2(filter_src->data.bpf_prog.bpf_prog,
-                                        filter_src->data.bpf_prog.bpf_prog_len * sizeof (wtap_bpf_insn_t));
-        break;
-
-    default:
-        break;
-    }
-    return filter_dest;
-}
-
-static void if_filter_free(if_filter_opt_t* filter_src)
-{
-    switch (filter_src->type) {
-
-    case if_filter_pcap:
-        /* pcap filter string */
-        g_free(filter_src->data.filter_str);
-        break;
-
-    case if_filter_bpf:
-        /* BPF program */
-        g_free(filter_src->data.bpf_prog.bpf_prog);
-        break;
-
-    default:
-        break;
-    }
 }
 
 wtap_opttype_return_val
