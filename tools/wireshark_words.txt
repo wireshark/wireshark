@@ -924,6 +924,7 @@ signaling
 simulcast
 skype
 slsch
+smpte
 sname
 snaplen
 snow3g
@@ -1072,6 +1073,7 @@ unauthenticated
 unbind
 unbuffered
 uncalculated
+uncalibrated
 uncategorized
 unchannelized
 unciphered
@@ -1127,6 +1129,7 @@ unparsed
 unprocessable
 unpublish
 unpunctuated
+unreach
 unreassembled
 unreceived
 unrecoverable

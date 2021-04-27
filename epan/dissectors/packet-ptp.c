@@ -1439,7 +1439,7 @@ static int hf_ptp_v2_sequenceid = -1;
 static int hf_ptp_v2_controlfield = -1;
 static int hf_ptp_v2_controlfield_default = -1;
 static int hf_ptp_v2_logmessageperiod = -1;
-static int hf_ptp_v2_flags_synchronizationUncertaion = -1;
+static int hf_ptp_v2_flags_synchronizationUncertain = -1;
 
 
 /* Fields for PTP_Announce (=an) messages */
@@ -2738,7 +2738,7 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean ptp
             hf_ptp_v2_flags_alternatemaster, tvb, PTP_V2_FLAGS_OFFSET, 2, ENC_BIG_ENDIAN);
 			
 		proto_tree_add_item(ptp_flags_tree,
-            hf_ptp_v2_flags_synchronizationUncertaion, tvb, PTP_V2_FLAGS_OFFSET, 2, ENC_BIG_ENDIAN);
+            hf_ptp_v2_flags_synchronizationUncertain, tvb, PTP_V2_FLAGS_OFFSET, 2, ENC_BIG_ENDIAN);
 
         proto_tree_add_item(ptp_flags_tree,
             hf_ptp_v2_flags_frequencytraceable, tvb, PTP_V2_FLAGS_OFFSET, 2, ENC_BIG_ENDIAN);
@@ -5582,8 +5582,8 @@ proto_register_ptp(void)
             FT_BOOLEAN, 16, NULL, PTP_V2_FLAGS_FREQUENCY_TRACEABLE_BITMASK,
             NULL, HFILL }
         },
-		 { &hf_ptp_v2_flags_synchronizationUncertaion,
-          { "SYNCHRONIZATION_UNCERTAIN",           "ptp.v2.flags.synchronizationUncertaion",
+        { &hf_ptp_v2_flags_synchronizationUncertain,
+          { "SYNCHRONIZATION_UNCERTAIN",           "ptp.v2.flags.synchronizationUncertain",
             FT_BOOLEAN, 16, NULL, PTP_V2_FLAGS_SYNCHRONIZATION_UNCERTAIN_BITMASK,
             NULL, HFILL }
         },
@@ -6885,7 +6885,7 @@ proto_register_ptp(void)
             NULL, HFILL }
         },
         { &hf_ptp_v2_oe_tlv_subtype_smpte_leapsecondjump_change,
-          { "Change in number", "ptp.v2.oe.smpte.leaspsecondjump",
+          { "Change in number", "ptp.v2.oe.smpte.leapsecondjump",
             FT_BOOLEAN, 8, TFS(&tfs_set_notset), PTP_V2_FLAGS_OE_SMPTE_LEAP_SECOND_JUMP_CHANGE,
             NULL, HFILL }
         },
