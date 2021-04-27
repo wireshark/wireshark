@@ -23379,7 +23379,7 @@ dissect_ista_availability_window(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
     bits = tvb_get_guint8(tvb, offset);
 
     for (j = 0; j < 8; j++) {
-      avail_string[(i - 1) + j] = (bits & 0x01) ? '1' : '0';
+      avail_string[(i - 1) * 8 + j] = (bits & 0x01) ? '1' : '0';
       bits = bits >> 1;
     }
 
