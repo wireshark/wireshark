@@ -8014,6 +8014,13 @@ rep_custom(gchar *result, guint32 value)
   g_snprintf(result, ITEM_LABEL_LENGTH, "%u repetition%s (%u)", value + 1, plurality(value + 1, "", "s"), value);
 }
 
+static void
+hundred_us_base_custom(gchar *result, guint32 value)
+{
+  g_snprintf(result, ITEM_LABEL_LENGTH, "%0.1f ms (%u)", ((double)value * 100 / 1000), value);
+}
+
+
 /*
  * We use this is displaying the ru allocation region.
  */
@@ -38632,7 +38639,7 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_ftm_rsta_duration1,
      {"Duration", "wlan.ranging.rsta.duration",
-      FT_UINT32, BASE_HEX, NULL, 0x7f0000, NULL, HFILL }},
+      FT_UINT32, BASE_CUSTOM, CF_FUNC(hundred_us_base_custom), 0x7f0000, NULL, HFILL }},
 
     {&hf_ieee80211_ftm_rsta_passive_tb_ranging_avail_win1,
      {"Passive TB Ranging Availability Window",
@@ -38649,7 +38656,7 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_ftm_rsta_duration,
      {"Duration", "wlan.ranging.rsta.duration",
-      FT_UINT40, BASE_HEX, NULL, 0x7f0000, NULL, HFILL }},
+      FT_UINT40, BASE_CUSTOM, CF_FUNC(hundred_us_base_custom), 0x7f0000, NULL, HFILL }},
 
     {&hf_ieee80211_ftm_rsta_passive_tb_ranging_avail_win,
      {"Passive TB Ranging Availability Window",
