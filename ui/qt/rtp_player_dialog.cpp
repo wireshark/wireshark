@@ -156,6 +156,7 @@ RtpPlayerDialog::RtpPlayerDialog(QWidget &parent, CaptureFile &cf, bool capture_
     setWindowTitle(wsApp->windowTitleString(tr("RTP Player")));
     ui->streamTreeWidget->installEventFilter(this);
     ui->audioPlot->installEventFilter(this);
+    installEventFilter(this);
 
 #ifdef QT_MULTIMEDIA_LIB
     ui->splitter->setStretchFactor(0, 3);
