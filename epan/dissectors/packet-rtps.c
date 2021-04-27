@@ -73,7 +73,8 @@ void proto_reg_handoff_rtps(void);
 #define LONG_ALIGN_ZERO(x,zero) (x -= zero, LONG_ALIGN(x), x += zero)
 #define SHORT_ALIGN_ZERO(x,zero) (x -= zero, SHORT_ALIGN(x), x += zero)
 
-#define DISSECTION_INFO_MAX_ELEMENTS    (100)
+#define DISSECTION_INFO_MAX_ELEMENTS_DEFAULT_VALUE    (100)
+#define DISSECTION_INFO_REMAINING_ELEMENTS_STR_d      "... %d element(s) remaining"
 #define MAX_MEMBER_NAME                 (256)
 #define HASHMAP_DISCRIMINATOR_CONSTANT  (-2)
 #define UUID_SIZE                       (9)
@@ -118,8 +119,8 @@ typedef struct _dissection_info {
   RTICdrTypeObjectExtensibility extensibility;
 
   gint32 bound;
-  gint32 num_elements;
-  dissection_element elements[DISSECTION_INFO_MAX_ELEMENTS];
+  guint32 num_elements;
+  dissection_element* elements;
 
 } dissection_info;
 
@@ -222,6 +223,7 @@ static wmem_map_t * mutable_member_mappings = NULL;
 /* Preferences                                                             */
 /***************************************************************************/
 static guint rtps_max_batch_samples_dissected = 16;
+static guint rtps_max_data_type_elements = DISSECTION_INFO_MAX_ELEMENTS_DEFAULT_VALUE;
 static gboolean enable_topic_info = TRUE;
 static gboolean enable_rtps_reassembly = FALSE;
 static gboolean enable_user_data_dissection = FALSE;
@@ -1261,6 +1263,7 @@ static gint ett_rtps_fragment                                   = -1;
 static gint ett_rtps_fragments                                  = -1;
 static gint ett_rtps_data_representation                        = -1;
 static gint ett_rtps_decompressed_type_object                   = -1;
+static gint ett_rtps_info_remaining_items                       = -1;
 
 static expert_field ei_rtps_sm_octets_to_next_header_error = EI_INIT;
 static expert_field ei_rtps_port_invalid = EI_INIT;
@@ -2725,7 +2728,7 @@ static gint dissect_user_defined(proto_tree *tree, tvbuff_t * tvb, gint offset, 
             break;
         }
         case RTI_CDR_TYPE_OBJECT_TYPE_KIND_STRUCTURE_TYPE: {
-            gint i;
+            guint i;
             proto_tree * aux_tree;
 
             offset_zero = offset;
@@ -2744,11 +2747,22 @@ static gint dissect_user_defined(proto_tree *tree, tvbuff_t * tvb, gint offset, 
                             offset, 0, 0);
                 }
 
-                for (i = 0; i < info->num_elements && i < DISSECTION_INFO_MAX_ELEMENTS; i++) {
+                for (i = 0; i < info->num_elements && i < rtps_max_data_type_elements; i++) {
                     if (info->elements[i].type_id > 0)
                             offset = dissect_user_defined(aux_tree, tvb, offset, encoding, NULL,
                                 info->elements[i].type_id, info->elements[i].member_name, info->extensibility,
                                 offset_zero, info->elements[i].flags, info->elements[i].member_id);
+                }
+                if (i < info->num_elements) {
+                    proto_tree_add_subtree_format(
+                        aux_tree,
+                        tvb,
+                        0,
+                        0,
+                        ett_rtps_info_remaining_items,
+                        NULL,
+                        DISSECTION_INFO_REMAINING_ELEMENTS_STR_d,
+                        info->num_elements - i);
                 }
             }
             break;
@@ -5175,7 +5189,7 @@ static void rtps_util_add_type_element_struct(proto_tree *tree,
         tvbuff_t * tvb, gint offset, const guint encoding, dissection_info * info) {
   proto_tree * member;
   guint32 member_id = 0, member_length = 0;
-  guint32 long_number, i;
+  guint32 long_number, i, max_elements = 0;
   gint offset_tmp, member_size;
 
   offset = rtps_util_add_type_library_type(tree, tvb, offset, encoding, info);
@@ -5191,19 +5205,37 @@ static void rtps_util_add_type_element_struct(proto_tree *tree,
   long_number = tvb_get_guint32(tvb, offset_tmp, encoding);
 
   offset_tmp += 4;
-  for (i = 0; i < long_number; i++) {
+  max_elements = (long_number < rtps_max_data_type_elements)
+       ? long_number
+       : rtps_max_data_type_elements;
+  if (info) {
+      info->elements = (dissection_element*)wmem_alloc0(
+            wmem_file_scope(),
+            sizeof(dissection_element) * max_elements);
+  }
+  for (i = 0; i < max_elements; i++) {
       member_size = offset_tmp;
       member = proto_tree_add_subtree(tree, tvb, offset_tmp, 0,
           ett_rtps_type_enum_constant, NULL, "");
-      if (info)
+      if (info && info->elements)
         offset_tmp = rtps_util_add_type_member(member, tvb, offset_tmp, encoding, info, &(info->elements[i]));
       else
         offset_tmp = rtps_util_add_type_member(member, tvb, offset_tmp, encoding, NULL, NULL);
       proto_item_set_len(member, offset_tmp - member_size);
   }
+  if (i < long_number) {
+      proto_tree_add_subtree_format(
+          tree,
+          tvb,
+          0,
+          0,
+          ett_rtps_info_remaining_items,
+          NULL,
+          DISSECTION_INFO_REMAINING_ELEMENTS_STR_d,
+          long_number - i);
+  }
   if (info)
     info->num_elements = long_number;
-
 }
 
 static void rtps_util_add_type_library(proto_tree *tree, packet_info * pinfo,
@@ -5230,6 +5262,7 @@ static gint rtps_util_add_type_library_element(proto_tree *tree, packet_info * p
   gboolean add_info = TRUE;
 
   info = wmem_new(wmem_file_scope(), dissection_info);
+  info->elements = NULL;
 
   rtps_util_dissect_parameter_header(tvb, &offset, encoding, &member_id, &member_length);
   long_number = tvb_get_guint32(tvb, offset, encoding);
@@ -14760,7 +14793,8 @@ void proto_register_rtps(void) {
     &ett_rtps_fragments,
     &ett_rtps_data_representation,
     &ett_rtps_decompressed_type_object,
-    &ett_rtps_dissection_tree
+    &ett_rtps_dissection_tree,
+    &ett_rtps_info_remaining_items
   };
 
   static ei_register_info ei[] = {
@@ -14797,6 +14831,13 @@ void proto_register_rtps(void) {
             "a DATA_BATCH submessage. Increasing this value may affect "
             "performances if the trace has a lot of big batched samples.",
             10, &rtps_max_batch_samples_dissected);
+
+  prefs_register_uint_preference(rtps_module, "max_dissection_info_elements",
+            "Max disection info elements shown",
+            "Specifies the maximum number of Data Type elements dissected. "
+            "Increasing this value may affect "
+            "performance if the trace has messages with large Data Types.",
+            10, &rtps_max_data_type_elements);
 
   prefs_register_bool_preference(rtps_module, "enable_topic_info",
               "Enable Topic Information",
