@@ -556,7 +556,7 @@ static gint dissect_parameter_transport_rtps_type(
                         0,
                         rtpsvt_ett_monitoring_sn,
                         NULL,
-                        "Monitoring Sequence Number: %lu",
+                        "Monitoring Sequence Number: %" G_GUINT64_FORMAT,
                         seqNr);
 
                 /* Add parameter identifier and length */
@@ -589,7 +589,7 @@ static gint dissect_parameter_transport_rtps_type(
                 /* Add summary to packet identifier header */
                 proto_item_append_text(
                         rtpsvt_tree_identifier,
-                        ", SeqNum: %lu",
+                        ", SeqNum: %" G_GUINT64_FORMAT,
                         seqNr);
             }
             break;
@@ -985,7 +985,7 @@ static gint dissect_rtps_virtual_transport_loss_info_type(
             g_snprintf(
                     info,
                     sizeof(info),
-                    "Missing RTPS messages [%ld-%ld]",
+                    "Missing RTPS messages [%" G_GUINT64_FORMAT "-%" G_GUINT64_FORMAT "]",
                     first_lost,
                     last_lost);
             col_append_str(pinfo->cinfo, COL_INFO, info);
