@@ -48,6 +48,12 @@ typedef enum {
     save_payload_data
 } save_payload_t;
 
+typedef enum {
+    save_mode_from_cursor,
+    save_mode_sync_stream,
+    save_mode_sync_file
+} save_mode_t;
+
 class RtpPlayerDialog : public WiresharkDialog
 {
     Q_OBJECT
@@ -166,6 +172,7 @@ private slots:
     void outputNotify();
     void on_actionPlay_triggered();
     void on_actionStop_triggered();
+    void on_actionSaveAudioFromCursor_triggered();
     void on_actionSaveAudioSyncStream_triggered();
     void on_actionSaveAudioSyncFile_triggered();
     void on_actionSavePayload_triggered();
@@ -246,7 +253,7 @@ private:
     save_audio_t selectFileAudioFormatAndName(QString *file_path);
     save_payload_t selectFilePayloadFormatAndName(QString *file_path);
     QVector<RtpAudioStream *>getSelectedAudibleNonmutedAudioStreams();
-    void saveAudio(bool sync_to_stream);
+    void saveAudio(save_mode_t save_mode);
     void savePayload();
     void lockUI();
     void unlockUI();

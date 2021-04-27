@@ -510,12 +510,13 @@ Wireshark is able to export decoded audio in .au or .wav file format. Prior to v
 Export options available:
 
 * for one or more selected non-muted streams
-** Stream Synchronized Audio - streams are synchronized to earliest stream in export (there is no silence at beginning of it)
-** File Synchronized Audio - streams starts at beginning of file, therefore silence can be at start of file
+** From cursor - Streams are saved from play start cursor. If some streams are shorter, they are removed from the list before save and count of saved streams is lower than count of selected streams.
+** Stream Synchronized Audio - File starts at the begin of earliest stream in export, therefore there is no silence at beginning of exported file.
+** File Synchronized Audio - Streams starts at beginning of file, therefore silence can be at start of file.
 * for just one selected stream
 ** Payload - just payload with no information about coded is stored in the file
 
-Audio is exported as multi-channel file - one channel per RTP stream. One or two channels are equal to mono or stereo, but Wireshark can export e g. 100 channels. For later playing a tool with multi-channel support must be used (e.g. https://www.audacityteam.org/).
+Audio is exported as multi-channel file - one channel per RTP stream. One or two channels are equal to mono or stereo, but Wireshark can export e.g. 100 channels. For playing a tool with multi-channel support must be used (e.g. https://www.audacityteam.org/).
 
 Export of payload function is useful for codecs not supported by Wireshark.
 

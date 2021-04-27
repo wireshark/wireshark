@@ -343,11 +343,20 @@
    <property name="toolTipsVisible">
     <bool>true</bool>
    </property>
+   <addaction name="actionSaveAudioFromCursor"/>
    <addaction name="actionSaveAudioSyncStream"/>
    <addaction name="actionSaveAudioSyncFile"/>
    <addaction name="separator"/>
    <addaction name="actionSavePayload"/>
   </widget>
+  <action name="actionSaveAudioFromCursor">
+   <property name="text">
+    <string>From &amp;cursor</string>
+   </property>
+   <property name="toolTip">
+    <string>Save audio data started at the cursor</string>
+   </property>
+  </action>
   <action name="actionSaveAudioSyncStream">
    <property name="text">
     <string>&amp;Stream Synchronized Audio</string>

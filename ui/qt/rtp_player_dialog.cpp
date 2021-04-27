@@ -2260,7 +2260,7 @@ QVector<RtpAudioStream *>RtpPlayerDialog::getSelectedAudibleNonmutedAudioStreams
     return streams;
 }
 
-void RtpPlayerDialog::saveAudio(bool sync_to_stream)
+void RtpPlayerDialog::saveAudio(save_mode_t save_mode)
 {
     qint64 minSilenceSamples;
     qint64 startSample;
@@ -2300,19 +2300,43 @@ void RtpPlayerDialog::saveAudio(bool sync_to_stream)
         }
     }
 
-    if (sync_to_stream) {
-        // Skip start of first stream, no lead silence
-        startSample = minSilenceSamples;
-        lead_silence_samples = 0;
-    } else {
-        // Full first stream, lead silence
-        startSample = 0;
-        lead_silence_samples = first_stream_rel_start_time_ * save_audio_rate;
+    switch (save_mode) {
+        case save_mode_from_cursor:
+            if (ui->todCheckBox->isChecked()) {
+                startSample = start_marker_time_ * save_audio_rate;
+            } else {
+                startSample = (start_marker_time_ - first_stream_rel_start_time_) * save_audio_rate;
+            }
+            lead_silence_samples = 0;
+            break;
+        case save_mode_sync_stream:
+            // Skip start of first stream, no lead silence
+            startSample = minSilenceSamples;
+            lead_silence_samples = 0;
+            break;
+        case save_mode_sync_file:
+        default:
+            // Full first stream, lead silence
+            startSample = 0;
+            lead_silence_samples = first_stream_rel_start_time_ * save_audio_rate;
+            break;
     }
 
-    // Seek to correct start
-    foreach(RtpAudioStream *audio_stream, streams) {
-        audio_stream->seekSample(startSample);
+    QVector<RtpAudioStream *>temp = QVector<RtpAudioStream *>(streams);
+
+    // Remove streams shorter than startSample and
+    // seek to correct start for longer ones
+    foreach(RtpAudioStream *audio_stream, temp) {
+        if (startSample > audio_stream->getTotalSamples()) {
+            streams.removeAll(audio_stream);
+        } else {
+            audio_stream->seekSample(startSample);
+        }
+    }
+
+    if (streams.count() < 1) {
+        QMessageBox::warning(this, tr("Warning"), tr("No streams are suitable for save"));
+        return;
     }
 
     QFile file(path);
@@ -2390,14 +2414,19 @@ void RtpPlayerDialog::savePayload()
     file.close();
 }
 
+void RtpPlayerDialog::on_actionSaveAudioFromCursor_triggered()
+{
+    saveAudio(save_mode_from_cursor);
+}
+
 void RtpPlayerDialog::on_actionSaveAudioSyncStream_triggered()
 {
-    saveAudio(true);
+    saveAudio(save_mode_sync_stream);
 }
 
 void RtpPlayerDialog::on_actionSaveAudioSyncFile_triggered()
 {
-    saveAudio(false);
+    saveAudio(save_mode_sync_file);
 }
 
 void RtpPlayerDialog::on_actionSavePayload_triggered()
