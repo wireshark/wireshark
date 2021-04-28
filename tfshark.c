@@ -503,7 +503,7 @@ main(int argc, char *argv[])
      dissectors, and we must do it before we read the preferences, in
      case any dissectors register preferences. */
   if (!epan_init(NULL, NULL, TRUE)) {
-    exit_status = INIT_ERROR;
+    exit_status = INIT_FAILED;
     goto clean_exit;
   }
 
