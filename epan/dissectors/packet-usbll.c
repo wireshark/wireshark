@@ -21,6 +21,7 @@
 #include <epan/address_types.h>
 #include <epan/to_str.h>
 #include <epan/proto_data.h>
+#include <epan/reassemble.h>
 #include "packet-usb.h"
 
 void proto_register_usbll(void);
@@ -51,9 +52,43 @@ static int hf_usbll_split_crc5_status = -1;
 static int hf_usbll_src = -1;
 static int hf_usbll_dst = -1;
 static int hf_usbll_addr = -1;
-
+static int hf_usbll_transfer_fragments = -1;
+static int hf_usbll_transfer_fragment = -1;
+static int hf_usbll_transfer_fragment_overlap = -1;
+static int hf_usbll_transfer_fragment_overlap_conflicts = -1;
+static int hf_usbll_transfer_fragment_multiple_tails = -1;
+static int hf_usbll_transfer_fragment_too_long_fragment = -1;
+static int hf_usbll_transfer_fragment_error = -1;
+static int hf_usbll_transfer_fragment_count = -1;
+static int hf_usbll_transfer_reassembled_in = -1;
+static int hf_usbll_transfer_reassembled_length = -1;
 
 static int ett_usbll = -1;
+static int ett_usbll_transfer_fragment = -1;
+static int ett_usbll_transfer_fragments = -1;
+
+static const fragment_items usbll_frag_items = {
+    /* Fragment subtrees */
+    &ett_usbll_transfer_fragment,
+    &ett_usbll_transfer_fragments,
+    /* Fragment Fields */
+    &hf_usbll_transfer_fragments,
+    &hf_usbll_transfer_fragment,
+    &hf_usbll_transfer_fragment_overlap,
+    &hf_usbll_transfer_fragment_overlap_conflicts,
+    &hf_usbll_transfer_fragment_multiple_tails,
+    &hf_usbll_transfer_fragment_too_long_fragment,
+    &hf_usbll_transfer_fragment_error,
+    &hf_usbll_transfer_fragment_count,
+    /* Reassembled in field */
+    &hf_usbll_transfer_reassembled_in,
+    /* Reassembled length field */
+    &hf_usbll_transfer_reassembled_length,
+    /* Reassembled data field */
+    NULL,
+    /* Tag */
+    "USB transfer fragments"
+};
 
 static expert_field ei_invalid_pid = EI_INIT;
 static expert_field ei_undecoded = EI_INIT;
@@ -63,10 +98,15 @@ static expert_field ei_wrong_crc16 = EI_INIT;
 static expert_field ei_invalid_s = EI_INIT;
 static expert_field ei_invalid_e_u = EI_INIT;
 static expert_field ei_invalid_pid_sequence = EI_INIT;
+static expert_field ei_invalid_setup_data = EI_INIT;
 
 static int usbll_address_type = -1;
 
 static dissector_handle_t usbll_handle;
+
+static reassembly_table usbll_reassembly_table;
+
+static wmem_map_t *transfer_info;
 
 /* USB packet ID is 4-bit. It is send in octet alongside complemented form.
  * The list of PIDs is available in Universal Serial Bus Specification Revision 2.0,
@@ -282,6 +322,14 @@ typedef enum usbll_state {
     STATE_CSPLIT_ISOCHRONOUS_IN_NYET,
 } usbll_state_t;
 
+typedef enum usbll_ep_type {
+    USBLL_EP_UNKNOWN,
+    USBLL_EP_CONTROL,
+    USBLL_EP_BULK,
+    USBLL_EP_INTERRUPT,
+    USBLL_EP_ISOCHRONOUS,
+} usbll_ep_type_t;
+
 /* usbll_address_t represents the address
  * of Host, Hub and Devices.
  */
@@ -303,6 +351,18 @@ typedef struct usbll_transaction_info {
     struct usbll_transaction_info *split_start;
     struct usbll_transaction_info *split_complete;
 } usbll_transaction_info_t;
+
+typedef struct usbll_transfer_info {
+    /* First data packet number, used as reassembly key */
+    guint32 first_packet;
+    /* Offset this packet starts at */
+    guint32 offset;
+    usbll_ep_type_t type;
+    /* TRUE if data from host to device, FALSE when from device to host */
+    gboolean from_host;
+    /* FALSE if this is the last packet */
+    gboolean more_frags;
+} usbll_transfer_info_t;
 
 /* USB is a stateful protocol. The addresses of Data Packets
  * and Handshake Packets depend on the packets before them.
@@ -328,6 +388,61 @@ static usbll_data_t *usbll_data_ptr = NULL;
 /* Transaction Translator arrays used only during first pass. */
 static usbll_transaction_info_t ***tt_non_periodic;
 static usbll_transaction_info_t ***tt_periodic;
+
+typedef enum usbll_transfer_data {
+    USBLL_TRANSFER_NORMAL,
+    USBLL_TRANSFER_GET_DEVICE_DESCRIPTOR,
+} usbll_transfer_data_t;
+
+typedef struct usbll_endpoint_info {
+    usbll_ep_type_t type;
+    usbll_transfer_data_t data;
+    /* Maximum packet size, 0 if not known */
+    guint16 max_packet_size;
+    /* DATA0/DATA1 tracking to detect retransmissions */
+    guint8 last_data_pid;
+    /* Current transfer key, 0 if no transfer in progress */
+    guint32 active_transfer_key;
+    /* Offset where next packet should start at */
+    guint32 transfer_offset;
+    /* Last data packet length that was part of transfer */
+    guint32 last_data_len;
+    /* Transfer length if known, 0 if unknown */
+    guint32 requested_transfer_length;
+} usbll_endpoint_info_t;
+
+/* Endpoint info arrays used only during first pass. */
+static usbll_endpoint_info_t **ep_info_in;
+static usbll_endpoint_info_t **ep_info_out;
+
+static guint usbll_fragment_key_hash(gconstpointer k)
+{
+    return GPOINTER_TO_UINT(k);
+}
+
+static gint usbll_fragment_key_equal(gconstpointer k1, gconstpointer k2)
+{
+    return GPOINTER_TO_UINT(k1) == GPOINTER_TO_UINT(k2);
+}
+
+static gpointer usbll_fragment_key(const packet_info *pinfo _U_, const guint32 id, const void *data _U_)
+{
+    return GUINT_TO_POINTER(id);
+}
+
+static void usbll_fragment_free_key(gpointer ptr _U_)
+{
+    /* there's nothing to be freed */
+}
+
+static const reassembly_table_functions usbll_reassembly_table_functions = {
+    .hash_func = usbll_fragment_key_hash,
+    .equal_func = usbll_fragment_key_equal,
+    .temporary_key_func = usbll_fragment_key,
+    .persistent_key_func = usbll_fragment_key,
+    .free_temporary_key_func = usbll_fragment_free_key,
+    .free_persistent_key_func = usbll_fragment_free_key,
+};
 
 static usbll_state_t
 usbll_next_state(usbll_state_t state, guint8 pid)
@@ -619,6 +734,54 @@ static gboolean usbll_is_non_split_token(usbll_state_t state)
             return TRUE;
         default:
             return FALSE;
+    }
+}
+
+static gboolean usbll_is_setup_data(usbll_state_t state)
+{
+    switch (state)
+    {
+        case STATE_SETUP_DATA0:
+        case STATE_SSPLIT_CONTROL_SETUP_DATA0:
+            return TRUE;
+        default:
+            return FALSE;
+    }
+}
+
+static gboolean usbll_is_data_from_host(usbll_state_t state)
+{
+    switch (state)
+    {
+        case STATE_OUT_DATA0:
+        case STATE_OUT_DATA1:
+        case STATE_OUT_HS_ISOCHRONOUS_DATA2:
+        case STATE_OUT_HS_ISOCHRONOUS_MDATA:
+        case STATE_SETUP_DATA0:
+        case STATE_SSPLIT_CONTROL_SETUP_DATA0:
+        case STATE_SSPLIT_CONTROL_OUT_DATA0:
+        case STATE_SSPLIT_CONTROL_OUT_DATA1:
+        case STATE_SSPLIT_BULK_OUT_DATA0:
+        case STATE_SSPLIT_BULK_OUT_DATA1:
+        case STATE_SSPLIT_INTERRUPT_OUT_DATA0:
+        case STATE_SSPLIT_INTERRUPT_OUT_DATA1:
+        case STATE_SSPLIT_ISOCHRONOUS_OUT_DATA0:
+            return TRUE;
+        case STATE_IN_DATA0:
+        case STATE_IN_DATA1:
+        case STATE_IN_HS_ISOCHRONOUS_DATA2:
+        case STATE_CSPLIT_CONTROL_IN_DATA0:
+        case STATE_CSPLIT_CONTROL_IN_DATA1:
+        case STATE_CSPLIT_BULK_IN_DATA0:
+        case STATE_CSPLIT_BULK_IN_DATA1:
+        case STATE_CSPLIT_INTERRUPT_IN_MDATA:
+        case STATE_CSPLIT_INTERRUPT_IN_DATA0:
+        case STATE_CSPLIT_INTERRUPT_IN_DATA1:
+        case STATE_CSPLIT_ISOCHRONOUS_IN_DATA0:
+        case STATE_CSPLIT_ISOCHRONOUS_IN_MDATA:
+            return FALSE;
+        default:
+            DISSECTOR_ASSERT_NOT_REACHED();
     }
 }
 
@@ -943,6 +1106,116 @@ tt_store_transaction(packet_info *pinfo, usbll_state_t state, guint8 hub_address
     }
 }
 
+static usbll_ep_type_t
+usbll_ep_type_from_urb_type(guint8 urb_type)
+{
+    switch (urb_type)
+    {
+        case URB_ISOCHRONOUS: return USBLL_EP_ISOCHRONOUS;
+        case URB_INTERRUPT:   return USBLL_EP_INTERRUPT;
+        case URB_CONTROL:     return USBLL_EP_CONTROL;
+        case URB_BULK:        return USBLL_EP_BULK;
+        default:              return USBLL_EP_UNKNOWN;
+    }
+}
+
+static void
+usbll_reset_endpoint_info(usbll_endpoint_info_t *info, usbll_ep_type_t type, guint16 max_packet_size)
+{
+    info->type = type;
+    info->data = USBLL_TRANSFER_NORMAL;
+    info->max_packet_size = max_packet_size;
+    info->last_data_pid = 0;
+    info->active_transfer_key = 0;
+    info->transfer_offset = 0;
+    info->last_data_len = 0;
+    info->requested_transfer_length = 0;
+}
+
+static void usbll_init_endpoint_tables(void)
+{
+    /* Address is 7 bits (0 - 127), while endpoint is 4 bits (0 - 15) */
+    int addr;
+    ep_info_in = wmem_alloc_array(wmem_file_scope(), usbll_endpoint_info_t *, 128);
+    for (addr = 0; addr < 128; addr++)
+    {
+        ep_info_in[addr] = wmem_alloc_array(wmem_file_scope(), usbll_endpoint_info_t, 16);
+    }
+    ep_info_out = wmem_alloc_array(wmem_file_scope(), usbll_endpoint_info_t *, 128);
+    for (addr = 0; addr < 128; addr++)
+    {
+        ep_info_out[addr] = wmem_alloc_array(wmem_file_scope(), usbll_endpoint_info_t, 16);
+    }
+
+    for (addr = 0; addr < 128; addr++)
+    {
+        int ep;
+        /* Endpoint 0 is always control type */
+        usbll_reset_endpoint_info(&ep_info_in[addr][0], USBLL_EP_CONTROL, 0);
+        usbll_reset_endpoint_info(&ep_info_out[addr][0], USBLL_EP_CONTROL, 0);
+        for (ep = 1; ep < 16; ep++)
+        {
+            usbll_reset_endpoint_info(&ep_info_in[addr][ep], USBLL_EP_UNKNOWN, 0);
+            usbll_reset_endpoint_info(&ep_info_out[addr][ep], USBLL_EP_UNKNOWN, 0);
+        }
+    }
+}
+
+static usbll_endpoint_info_t *
+usbll_get_endpoint_info(packet_info *pinfo, guint8 addr, guint8 ep, gboolean from_host)
+{
+    usbll_endpoint_info_t *info;
+    DISSECTOR_ASSERT(!PINFO_FD_VISITED(pinfo));
+    DISSECTOR_ASSERT(addr <= 127);
+    DISSECTOR_ASSERT(ep <= 15);
+
+    if (!ep_info_in || !ep_info_out)
+    {
+        usbll_init_endpoint_tables();
+        DISSECTOR_ASSERT(ep_info_in != NULL);
+        DISSECTOR_ASSERT(ep_info_out != NULL);
+    }
+
+    if (from_host)
+    {
+        info = &ep_info_out[addr][ep];
+    }
+    else
+    {
+        info = &ep_info_in[addr][ep];
+    }
+
+    if (ep != 0)
+    {
+        /* Get endpoint type and max packet size from USB dissector
+         * USB dissector gets the information from CONFIGURATION descriptor
+         *
+         * TODO: Reorganize USB dissector to call us whenever selected
+         *       configuration and/or interface changes. USB dissector
+         *       currently assumes only one configuration and that all
+         *       alternate interface settings have matching endpoint
+         *       information. This should be fixed but is good for now
+         *       as most devices fullfills this (wrong) assumption.
+         */
+        usb_conv_info_t *usb_conv_info;
+        usbll_ep_type_t  type = USBLL_EP_UNKNOWN;
+        guint16          max_packet_size = 0;
+        usb_conv_info = get_existing_usb_ep_conv_info(pinfo, 0, addr, ep);
+        if (usb_conv_info && usb_conv_info->max_packet_size)
+        {
+            type = usbll_ep_type_from_urb_type(usb_conv_info->descriptor_transfer_type);
+            max_packet_size = usb_conv_info->max_packet_size;
+        }
+        /* Reset endpoint info if endpoint parameters changed */
+        if ((info->type != type) || (info->max_packet_size != max_packet_size))
+        {
+            usbll_reset_endpoint_info(info, type, max_packet_size);
+        }
+    }
+
+    return info;
+}
+
 static gint
 dissect_usbll_sof(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
 {
@@ -1045,22 +1318,84 @@ dissect_usbll_token(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint of
     return offset;
 }
 
+static gboolean
+packet_ends_transfer(usbll_endpoint_info_t *ep_info, guint32 offset, gint data_size)
+{
+    DISSECTOR_ASSERT(ep_info->type != USBLL_EP_UNKNOWN);
+
+    if (ep_info->requested_transfer_length != 0)
+    {
+        /* We know requested transfer length */
+        if (offset + data_size >= ep_info->requested_transfer_length)
+        {
+            /* No more data needed */
+            return TRUE;
+        }
+        /* else check max packet size as transfer can end prematurely */
+    }
+    else
+    {
+        DISSECTOR_ASSERT(ep_info->type != USBLL_EP_CONTROL);
+        DISSECTOR_ASSERT(ep_info->max_packet_size != 0);
+        /* We don't know requested transfer length, for bulk transfers
+         * assume that transfer can be larger than max packet length,
+         * for periodic transfers assume transfer is not larger than
+         * max packet length.
+         */
+        if (ep_info->type != USBLL_EP_BULK)
+        {
+            return TRUE;
+        }
+    }
+
+    if (ep_info->max_packet_size)
+    {
+        return data_size < ep_info->max_packet_size;
+    }
+
+    DISSECTOR_ASSERT(ep_info->type == USBLL_EP_CONTROL);
+    /* This code is valid only for high-speed control endpoints */
+    if (data_size < 64)
+    {
+        return TRUE;
+    }
+
+    return FALSE;
+}
+
+static gboolean is_get_device_descriptor(guint8 setup[8])
+{
+    guint16 lang_id = setup[4] | (setup[5] << 8);
+    guint16 length = setup[6] | (setup[7] << 8);
+    return (setup[0] == USB_DIR_IN) &&
+           (setup[1] == USB_SETUP_GET_DESCRIPTOR) &&
+           (setup[2] == 0x00) && /* Descriptor Index */
+           (setup[3] == 0x01) && /* DEVICE descriptor */
+           (lang_id == 0x00) && /* no language specified */
+           (length >= 8); /* atleast 8 bytes needed to get bMaxPacketSize0 */
+}
+
 static gint
 dissect_usbll_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset,
                    guint8 pid, usbll_data_t *data)
 {
     /* TODO: How to determine the expected DATA size? */
-    gint data_size = tvb_reported_length_remaining(tvb, offset) - 2;
+    guint16                computed_crc, actual_crc;
+    gint                   data_offset = offset;
+    gint                   data_size = tvb_reported_length_remaining(tvb, offset) - 2;
+    proto_item            *data_item = NULL;
+    usbll_transfer_info_t *transfer = NULL;
 
     if (data_size > 0) {
-        proto_tree_add_item(tree, hf_usbll_data, tvb, offset, data_size, ENC_NA);
+        data_item = proto_tree_add_item(tree, hf_usbll_data, tvb, offset, data_size, ENC_NA);
         offset += data_size;
     }
 
+    actual_crc = tvb_get_letohs(tvb, offset);
+    computed_crc = crc16_usb_tvb_offset(tvb, 1, offset - 1);
     proto_tree_add_checksum(tree, tvb, offset,
                             hf_usbll_data_crc, hf_usbll_data_crc_status, &ei_wrong_crc16, pinfo,
-                            crc16_usb_tvb_offset(tvb, 1, offset - 1),
-                            ENC_LITTLE_ENDIAN, PROTO_CHECKSUM_VERIFY);
+                            computed_crc, ENC_LITTLE_ENDIAN, PROTO_CHECKSUM_VERIFY);
     offset += 2;
 
     if (!PINFO_FD_VISITED(pinfo))
@@ -1074,6 +1409,272 @@ dissect_usbll_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offs
             DISSECTOR_ASSERT(data->prev != NULL);
             DISSECTOR_ASSERT(data->prev->transaction != NULL);
             data->transaction = data->prev->transaction;
+        }
+    }
+
+    if (actual_crc != computed_crc)
+    {
+        /* Do not reassemble on CRC error */
+        return offset;
+    }
+
+    if (usbll_is_setup_data(data->transaction_state))
+    {
+        if (data_size != 8)
+        {
+            expert_add_info(pinfo, data_item, &ei_invalid_setup_data);
+        }
+        else if (!PINFO_FD_VISITED(pinfo))
+        {
+            usbll_endpoint_info_t *ep_out, *ep_in;
+            ep_out = usbll_get_endpoint_info(pinfo, data->transaction->address, data->transaction->endpoint, TRUE);
+            ep_in = usbll_get_endpoint_info(pinfo, data->transaction->address, data->transaction->endpoint, FALSE);
+            /* Check if SETUP data is indeed to control endpoint (discard if targtet endpoint is not control).
+             * Practically all control transfers are to endpoint 0 which is always control endpoint.
+             */
+            if ((ep_out->type == USBLL_EP_CONTROL) && (ep_in->type == USBLL_EP_CONTROL))
+            {
+                guint8 setup[8];
+                gboolean data_stage_from_host;
+                guint16  requested_length;
+
+                tvb_memcpy(tvb, setup, data_offset, 8);
+
+                /* bmRequestType D7 0 = Host-to-device, 1 = Device-to-host */
+                data_stage_from_host = (setup[0] & 0x80) ? FALSE : TRUE;
+                /* wLength */
+                requested_length = setup[6] | (setup[7] << 8);
+
+                usbll_reset_endpoint_info(ep_out, USBLL_EP_CONTROL, ep_out->max_packet_size);
+                usbll_reset_endpoint_info(ep_in, USBLL_EP_CONTROL, ep_in->max_packet_size);
+
+                transfer = wmem_new0(wmem_file_scope(), usbll_transfer_info_t);
+                transfer->first_packet = pinfo->num;
+                transfer->offset = 0;
+                transfer->type = USBLL_EP_CONTROL;
+                transfer->from_host = TRUE; /* SETUP is always from host to sevice */
+
+                if (requested_length > 0)
+                {
+                    if (data_stage_from_host)
+                    {
+                        /* Merge SETUP data with OUT Data to pass to USB dissector */
+                        transfer->more_frags = TRUE;
+                        ep_out->active_transfer_key = pinfo->num;
+                        ep_out->requested_transfer_length = requested_length;
+                        ep_out->transfer_offset = 8;
+                        ep_out->last_data_pid = pid;
+                        /* If SETUP is sent again, it always starts a new transfer.
+                         * If we receive DATA0 next then it is really a host failure.
+                         * Do not "overwrite" the 8 SETUP bytes in such case.
+                         */
+                        ep_out->last_data_len = 0;
+                    }
+                    else
+                    {
+                        transfer->more_frags = FALSE;
+                        /* Expect requested_length when reading from control endpoint.
+                         * The data should start with DATA1. If we receive DATA0 then
+                         * is is really device failure.
+                         */
+                        ep_in->requested_transfer_length = requested_length;
+                        ep_in->last_data_pid = pid;
+                        ep_in->last_data_len = 0;
+                    }
+                }
+
+                if (is_get_device_descriptor(setup))
+                {
+                    ep_in->data = USBLL_TRANSFER_GET_DEVICE_DESCRIPTOR;
+                }
+
+                wmem_map_insert(transfer_info, GUINT_TO_POINTER(pinfo->num), transfer);
+            }
+        }
+    }
+    else if (!PINFO_FD_VISITED(pinfo))
+    {
+        usbll_endpoint_info_t *ep_info;
+        gboolean               from_host;
+
+        from_host = usbll_is_data_from_host(data->transaction_state);
+        ep_info = usbll_get_endpoint_info(pinfo, data->transaction->address, data->transaction->endpoint, from_host);
+
+        if (ep_info->type == USBLL_EP_CONTROL)
+        {
+            if (ep_info->requested_transfer_length > 0)
+            {
+                if (pid == ep_info->last_data_pid)
+                {
+                    if (ep_info->last_data_len == 0)
+                    {
+                        /* We received DATA0 immediately after SETUP (as response to OUT or IN)
+                         * Do not reassemble the data, instead mark it as unexpected PID.
+                         */
+                        data->transaction_state = STATE_INVALID;
+                    }
+                    else
+                    {
+                        /* Retransmission */
+                        transfer = wmem_new0(wmem_file_scope(), usbll_transfer_info_t);
+                        transfer->first_packet = ep_info->active_transfer_key;
+                        transfer->offset = ep_info->transfer_offset - ep_info->last_data_len;
+                        transfer->type = USBLL_EP_CONTROL;
+                        transfer->from_host = from_host;
+                        transfer->more_frags = !packet_ends_transfer(ep_info, transfer->offset, data_size);
+                        wmem_map_insert(transfer_info, GUINT_TO_POINTER(pinfo->num), transfer);
+                        /* Do not update endpoint info, previously transferred packet must have
+                         * the same data length as retransmitted packet.
+                         */
+                    }
+                }
+                else if ((pid == USB_PID_DATA_DATA0) || (pid == USB_PID_DATA_DATA1))
+                {
+                    if (ep_info->active_transfer_key == 0)
+                    {
+                        /* This is allowed only when Data stage is from device to host */
+                        DISSECTOR_ASSERT(!from_host);
+                        DISSECTOR_ASSERT(ep_info->transfer_offset == 0);
+                        DISSECTOR_ASSERT(ep_info->last_data_len == 0);
+                        ep_info->active_transfer_key = pinfo->num;
+
+                        if ((ep_info->data == USBLL_TRANSFER_GET_DEVICE_DESCRIPTOR) && (data_size >= 8))
+                        {
+                            usbll_endpoint_info_t *ep_out;
+                            ep_out = usbll_get_endpoint_info(pinfo, data->transaction->address, data->transaction->endpoint, TRUE);
+                            ep_info->max_packet_size = tvb_get_guint8(tvb, data_offset + 7);
+                            ep_out->max_packet_size = ep_info->max_packet_size;
+                        }
+                    }
+                    transfer = wmem_new0(wmem_file_scope(), usbll_transfer_info_t);
+                    transfer->first_packet = ep_info->active_transfer_key;
+                    transfer->offset = ep_info->transfer_offset;
+                    transfer->type = USBLL_EP_CONTROL;
+                    transfer->from_host = from_host;
+                    transfer->more_frags = !packet_ends_transfer(ep_info, transfer->offset, data_size);
+                    wmem_map_insert(transfer_info, GUINT_TO_POINTER(pinfo->num), transfer);
+
+                    ep_info->last_data_pid = pid;
+                    ep_info->transfer_offset += data_size;
+                    ep_info->last_data_len = data_size;
+                }
+                else
+                {
+                    /* Only DATA0 and DATA1 are allowed in Control transfers */
+                    data->transaction_state = STATE_INVALID;
+                }
+            }
+            else
+            {
+                /* We don't know anything about the control transfer.
+                 * Most likely the capture is incomplete, there's nothing to be done here.
+                 */
+            }
+        }
+        else if ((ep_info->type == USBLL_EP_BULK) ||
+                 (ep_info->type == USBLL_EP_INTERRUPT) ||
+                 (ep_info->type == USBLL_EP_ISOCHRONOUS))
+        {
+            if (pid == ep_info->last_data_pid)
+            {
+                /* Retransmission */
+                DISSECTOR_ASSERT(ep_info->active_transfer_key != 0);
+                transfer = wmem_new0(wmem_file_scope(), usbll_transfer_info_t);
+                transfer->first_packet = ep_info->active_transfer_key;
+                transfer->offset = ep_info->transfer_offset - ep_info->last_data_len;
+                transfer->type = ep_info->type;
+                transfer->from_host = from_host;
+                transfer->more_frags = !packet_ends_transfer(ep_info, transfer->offset, data_size);
+                wmem_map_insert(transfer_info, GUINT_TO_POINTER(pinfo->num), transfer);
+                /* Do not update endpoint info, previously transferred packet must have
+                 * the same data length as retransmitted packet.
+                 */
+            }
+            else if ((ep_info->active_transfer_key == 0) ||
+                     packet_ends_transfer(ep_info, ep_info->transfer_offset, ep_info->last_data_len))
+            {
+                 /* Packet starts new transfer */
+                 transfer = wmem_new0(wmem_file_scope(), usbll_transfer_info_t);
+                 transfer->first_packet = pinfo->num;
+                 transfer->offset = 0;
+                 transfer->type = ep_info->type;
+                 transfer->from_host = from_host;
+                 transfer->more_frags = !packet_ends_transfer(ep_info, transfer->offset, data_size);
+                 wmem_map_insert(transfer_info, GUINT_TO_POINTER(pinfo->num), transfer);
+
+                 ep_info->last_data_pid = pid;
+                 ep_info->active_transfer_key = pinfo->num;
+                 ep_info->transfer_offset = data_size;
+                 ep_info->last_data_len = data_size;
+            }
+            else
+            {
+                transfer = wmem_new0(wmem_file_scope(), usbll_transfer_info_t);
+                transfer->first_packet = ep_info->active_transfer_key;
+                transfer->offset = ep_info->transfer_offset;
+                transfer->type = ep_info->type;
+                transfer->from_host = from_host;
+                transfer->more_frags = !packet_ends_transfer(ep_info, transfer->offset, data_size);
+                wmem_map_insert(transfer_info, GUINT_TO_POINTER(pinfo->num), transfer);
+
+                ep_info->last_data_pid = pid;
+                ep_info->transfer_offset += data_size;
+                ep_info->last_data_len = data_size;
+            }
+        }
+    }
+
+    transfer = (usbll_transfer_info_t *)wmem_map_lookup(transfer_info, GUINT_TO_POINTER(pinfo->num));
+    if (transfer)
+    {
+        tvbuff_t *transfer_tvb;
+
+        if ((transfer->first_packet == pinfo->num) && (!transfer->more_frags))
+        {
+            /* No multi-packet reassembly needed, simply construct tvb */
+            transfer_tvb = tvb_new_subset_length(tvb, data_offset, data_size);
+            add_new_data_source(pinfo, transfer_tvb, "USB transfer");
+        }
+        else
+        {
+            fragment_head *head;
+            head = fragment_add_check(&usbll_reassembly_table, tvb, data_offset,
+                                      pinfo, transfer->first_packet, NULL,
+                                      transfer->offset, data_size, transfer->more_frags);
+            transfer_tvb = process_reassembled_data(tvb, data_offset, pinfo,
+                                                    "USB transfer", head, &usbll_frag_items,
+                                                    NULL, tree);
+        }
+
+        if (transfer_tvb != NULL)
+        {
+            usb_pseudo_urb_t pseudo_urb;
+            pseudo_urb.from_host = transfer->from_host;
+            switch (transfer->type)
+            {
+                case USBLL_EP_UNKNOWN:
+                    pseudo_urb.transfer_type = URB_UNKNOWN;
+                    break;
+                case USBLL_EP_CONTROL:
+                    pseudo_urb.transfer_type = URB_CONTROL;
+                    break;
+                case USBLL_EP_BULK:
+                    pseudo_urb.transfer_type = URB_BULK;
+                    break;
+                case USBLL_EP_INTERRUPT:
+                    pseudo_urb.transfer_type = URB_INTERRUPT;
+                    break;
+                case USBLL_EP_ISOCHRONOUS:
+                    pseudo_urb.transfer_type = URB_ISOCHRONOUS;
+                    break;
+                default:
+                    DISSECTOR_ASSERT_NOT_REACHED();
+            }
+            pseudo_urb.device_address = data->transaction->address;
+            pseudo_urb.endpoint = data->transaction->endpoint;
+            pseudo_urb.bus_id = 0;
+            dissect_usb_common(transfer_tvb, pinfo, proto_tree_get_parent_tree(tree),
+                               USB_HEADER_PSEUDO_URB, &pseudo_urb);
         }
     }
 
@@ -1246,6 +1847,8 @@ usbll_cleanup_data(void)
     usbll_data_ptr = NULL;
     tt_non_periodic = NULL;
     tt_periodic = NULL;
+    ep_info_in = NULL;
+    ep_info_out = NULL;
 }
 
 static int
@@ -1434,6 +2037,39 @@ proto_register_usbll(void)
             { "CRC5 Status", "usbll.split_crc5.status",
               FT_UINT8, BASE_NONE, VALS(proto_checksum_vals), 0,
               NULL, HFILL }},
+        { &hf_usbll_transfer_fragments,
+            { "Transfer fragments", "usbll.fragments",
+              FT_NONE, BASE_NONE, NULL, 0x00,
+              NULL, HFILL }},
+        { &hf_usbll_transfer_fragment,
+            {"Transfer fragment", "usbll.fragment",
+            FT_FRAMENUM, BASE_NONE, NULL, 0x00, NULL, HFILL }},
+        { &hf_usbll_transfer_fragment_overlap,
+            {"Transfer fragment overlap", "usbll.fragment.overlap",
+            FT_BOOLEAN, 0, NULL, 0x00, NULL, HFILL }},
+        { &hf_usbll_transfer_fragment_overlap_conflicts,
+            {"Transfer fragment overlapping with conflicting data",
+            "usbll.fragment.overlap.conflicts",
+            FT_BOOLEAN, 0, NULL, 0x00, NULL, HFILL }},
+        { &hf_usbll_transfer_fragment_multiple_tails,
+            {"Transfer has multiple tail fragments",
+            "usbll.fragment.multiple_tails",
+            FT_BOOLEAN, 0, NULL, 0x00, NULL, HFILL }},
+        { &hf_usbll_transfer_fragment_too_long_fragment,
+            {"Transfer fragment too long", "usbll.fragment.too_long_fragment",
+            FT_BOOLEAN, 0, NULL, 0x00, NULL, HFILL }},
+        { &hf_usbll_transfer_fragment_error,
+            {"Transfer defragmentation error", "usbll.fragment.error",
+            FT_FRAMENUM, BASE_NONE, NULL, 0x00, NULL, HFILL }},
+        { &hf_usbll_transfer_fragment_count,
+            {"Transfer fragment count", "usbll.fragment.count",
+            FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }},
+        { &hf_usbll_transfer_reassembled_in,
+            {"Reassembled in", "usbll.reassembled.in",
+            FT_FRAMENUM, BASE_NONE, NULL, 0x00, NULL, HFILL }},
+        { &hf_usbll_transfer_reassembled_length,
+            {"Reassembled length", "usbll.reassembled.length",
+            FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }},
     };
 
     static ei_register_info ei[] = {
@@ -1445,12 +2081,16 @@ proto_register_usbll(void)
         { &ei_invalid_s, { "usbll.invalid_s", PI_MALFORMED, PI_ERROR, "Invalid bit (Must be 0)", EXPFILL }},
         { &ei_invalid_e_u, { "usbll.invalid_e_u", PI_MALFORMED, PI_ERROR, "Invalid bit (Must be 0)", EXPFILL }},
         { &ei_invalid_pid_sequence, {"usbll.invalid_pid_sequence", PI_MALFORMED, PI_ERROR, "Invalid PID Sequence",EXPFILL }},
+        { &ei_invalid_setup_data, {"usbll.invalid_setup_data", PI_MALFORMED, PI_ERROR, "Invalid data length (Must be 8 bytes)", EXPFILL }},
     };
 
     static gint *ett[] = {
         &ett_usbll,
+        &ett_usbll_transfer_fragment,
+        &ett_usbll_transfer_fragments,
     };
 
+    transfer_info = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), g_direct_hash, g_direct_equal);
     proto_usbll = proto_register_protocol("USB Link Layer", "USBLL", "usbll");
     proto_register_field_array(proto_usbll, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
@@ -1465,6 +2105,7 @@ proto_register_usbll(void)
                                                          usbll_addr_to_str, usbll_addr_str_len,
                                                          NULL, NULL, NULL, NULL, NULL);
 
+    reassembly_table_register(&usbll_reassembly_table, &usbll_reassembly_table_functions);
 }
 
 void

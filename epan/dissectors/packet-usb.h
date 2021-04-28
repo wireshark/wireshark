@@ -36,11 +36,20 @@ typedef enum {
     USB_HEADER_USBPCAP,
     USB_HEADER_MAUSB,
     USB_HEADER_USBIP,
-    USB_HEADER_DARWIN
+    USB_HEADER_DARWIN,
+    USB_HEADER_PSEUDO_URB,
 } usb_header_t;
 
 #define USB_HEADER_IS_LINUX(type) \
     ((type) == USB_HEADER_LINUX_48_BYTES || (type) == USB_HEADER_LINUX_64_BYTES)
+
+typedef struct _usb_pseudo_urb_t {
+    gboolean from_host;
+    guint8 transfer_type;
+    guint8 device_address;
+    guint8 endpoint;
+    guint16 bus_id;
+} usb_pseudo_urb_t;
 
 /* there is one such structure for each request/response */
 typedef struct _usb_trans_info_t {
@@ -89,7 +98,8 @@ struct _usb_conv_info_t {
     guint8   endpoint;
     gint     direction;
     guint8   transfer_type; /* transfer type from URB */
-    guint8   descriptor_transfer_type; /* transfer type lifted from the device descriptor */
+    guint8   descriptor_transfer_type; /* transfer type lifted from the configuration descriptor */
+    guint16  max_packet_size; /* max packet size from configuration descriptor */
     guint32  device_protocol;
     gboolean is_request;
     gboolean is_setup;
@@ -254,6 +264,8 @@ extern const true_false_string tfs_endpoint_direction;
 extern value_string_ext usb_class_vals_ext;
 
 usb_conv_info_t *get_usb_iface_conv_info(packet_info *pinfo, guint8 interface_num);
+usb_conv_info_t *get_existing_usb_ep_conv_info(packet_info *pinfo, guint16 bus_id,
+                                               guint16 device_address, int endpoint);
 
 proto_item * dissect_usb_descriptor_header(proto_tree *tree,
                                            tvbuff_t *tvb, int offset,
