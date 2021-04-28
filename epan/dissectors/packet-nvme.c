@@ -1497,7 +1497,7 @@ static const value_string pr_type_tbl[] = {
     { 2, "InfiniBand" },
     { 3, "RoCE (v1)" },
     { 4, "RoCE (v2)" },
-    { 3, "iWARP" },
+    { 5, "iWARP" },
     { 0, NULL }
 };
 
