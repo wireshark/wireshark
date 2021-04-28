@@ -8020,6 +8020,13 @@ hundred_us_base_custom(gchar *result, guint32 value)
   g_snprintf(result, ITEM_LABEL_LENGTH, "%0.1f ms (%u)", ((double)value * 100 / 1000), value);
 }
 
+static void
+partial_tsf_custom(gchar *result, guint32 value)
+{
+  guint32 shifted = value << 10;
+  g_snprintf(result, ITEM_LABEL_LENGTH, "%u %s (%u)", shifted,
+             unit_name_string_get_value(shifted, &units_microseconds), value);
+}
 
 /*
  * We use this is displaying the ru allocation region.
@@ -35897,7 +35904,7 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_vht_ndp_annc_sta_info_ranging_2044_partial_tsf,
      {"Partial TSF", "wlan.sta_info_ranging_2044.partial_tsf",
-      FT_UINT32, BASE_DEC, NULL, GENMASK(26, 11),
+      FT_UINT32, BASE_CUSTOM, CF_FUNC(partial_tsf_custom), GENMASK(26, 11),
       NULL, HFILL }},
 
     {&hf_ieee80211_vht_ndp_annc_sta_info_ranging_2044_disambiguation,
@@ -38315,7 +38322,7 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_ff_ftm_param_partial_tsf_timer,
      {"Partial TSF timer", "wlan.fixed.ftm.param.partial_tsf_timer",
-      FT_UINT32, BASE_HEX, 0, 0x00FFFF00,
+      FT_UINT32, BASE_CUSTOM, CF_FUNC(partial_tsf_custom), 0x00FFFF00,
       NULL, HFILL }},
 
     {&hf_ieee80211_ff_ftm_param_partial_tsf_no_pref,
@@ -38635,7 +38642,7 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_ftm_rsta_partial_tsf_timer1,
      {"Partial TSF Timer", "wlan.ranging.rsta.partial_tsf_timer",
-      FT_UINT32, BASE_HEX, NULL, 0xffff, NULL, HFILL }},
+      FT_UINT32, BASE_CUSTOM, CF_FUNC(partial_tsf_custom), 0xffff, NULL, HFILL }},
 
     {&hf_ieee80211_ftm_rsta_duration1,
      {"Duration", "wlan.ranging.rsta.duration",
@@ -38652,7 +38659,7 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_ftm_rsta_partial_tsf_timer,
      {"Partial TSF Timer", "wlan.ranging.rsta.partial_tsf_timer",
-      FT_UINT40, BASE_HEX, NULL, 0xffff, NULL, HFILL }},
+      FT_UINT40, BASE_CUSTOM, CF_FUNC(partial_tsf_custom), 0xffff, NULL, HFILL }},
 
     {&hf_ieee80211_ftm_rsta_duration,
      {"Duration", "wlan.ranging.rsta.duration",
