@@ -201,16 +201,16 @@ build:rpm-fedora:
     - ninja rpm-package
   needs:
     - build:ubuntu-dist
-test:rpm-fedora:
-  image: fedora
-  stage: test
-  script:
-    - dnf install -y build/packaging/rpm/RPMS/x86_64/*.rpm
-    - tshark --version
-  variables:
-    GIT_STRATEGY: none
-  needs:
-    - build:rpm-fedora
+# test:rpm-fedora:
+#   image: fedora
+#   stage: test
+#   script:
+#     - dnf install -y build/packaging/rpm/RPMS/x86_64/*.rpm
+#     - tshark --version
+#   variables:
+#     GIT_STRATEGY: none
+#   needs:
+#     - build:rpm-fedora
 
 # Job to generate packages for Debian stable
 build:debian-stable:
