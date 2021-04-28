@@ -1440,6 +1440,14 @@ static dissector_handle_t look_for_dissector(const char *protocol_name)
     if (strncmp(protocol_name, "x2ap_r", 6) == 0) {
         return find_dissector("x2ap");
     }
+    else
+    if (strncmp(protocol_name, "xnap_r1", 7) == 0) {
+        return find_dissector("xnap");
+    }
+    else
+    if (strncmp(protocol_name, "ngap_r1", 7) == 0) {
+        return find_dissector("ngap");
+    }
 
     /* Only check really old names to convert if preference is checked */
     else if (catapult_dct2000_dissect_old_protocol_names) {
