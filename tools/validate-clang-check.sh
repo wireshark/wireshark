@@ -14,7 +14,7 @@ COMMIT_FILES=$( git diff-index --cached --name-status HEAD^ | grep -v "^D" | cut
 
 for FILE in $COMMIT_FILES; do
     # Skip some special cases
-    FILE_BASENAME="$(basename file)"
+    FILE_BASENAME="$(basename $FILE)"
     # iLBC: the file is not even compiled when ilbc is not installed
     if test "$FILE_BASENAME" = "iLBCdecode.c"
     then
