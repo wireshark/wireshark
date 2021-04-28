@@ -615,7 +615,7 @@ write_current_packet (void)
             memset(&rec, 0, sizeof rec);
 
             rec.rec_type = REC_TYPE_PACKET;
-            rec.ts.secs = (guint32)ts_sec;
+            rec.ts.secs = ts_sec;
             rec.ts.nsecs = ts_nsec;
             if (ts_fmt == NULL) { ts_nsec++; }  /* fake packet counter */
             rec.rec_header.packet_header.caplen = rec.rec_header.packet_header.len = prefix_length + curr_offset + eth_trailer_length;

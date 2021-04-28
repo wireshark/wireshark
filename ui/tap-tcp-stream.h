@@ -32,7 +32,7 @@ struct segment {
     guint32 rel_secs;
     guint32 rel_usecs;
     /* Currently unused.
-    guint32 abs_secs;
+    time_t abs_secs;
     guint32 abs_usecs;
     */
 

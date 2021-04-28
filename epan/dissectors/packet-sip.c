@@ -2857,7 +2857,7 @@ static void dissect_sip_via_header(tvbuff_t *tvb, proto_tree *tree, gint start_o
                             if(dec_p_off > 0){
                                 value = tvb_get_string_enc(wmem_packet_scope(), tvb,
                                     parameter_name_end + 1, dec_p_off - parameter_name_end, ENC_UTF_8 | ENC_NA);
-                                ts.secs = (guint32)strtoul(value, NULL, 10);
+                                ts.secs = (time_t)strtoul(value, NULL, 10);
                                 value = tvb_get_string_enc(wmem_packet_scope(), tvb,
                                     dec_p_off + 1, current_offset - parameter_name_end - 1, ENC_UTF_8 | ENC_NA);
                                 ts.nsecs = (guint32)strtoul(value, NULL, 10) * 1000;

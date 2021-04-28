@@ -600,7 +600,7 @@ process_packet_data(wtap_rec *rec, Buffer *target, guint8 *buffer,
 
     ts = pntoh64(buffer + K12_PACKET_TIMESTAMP);
 
-    rec->ts.secs = (guint32) ((ts / 2000000) + 631152000);
+    rec->ts.secs = (time_t) ((ts / 2000000) + 631152000);
     rec->ts.nsecs = (guint32) ( (ts % 2000000) * 500 );
 
     rec->rec_header.packet_header.len = rec->rec_header.packet_header.caplen = length;

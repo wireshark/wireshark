@@ -67,7 +67,7 @@ tapall_tcpip_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, cons
         segment->rel_secs  = (guint32)pinfo->rel_ts.secs;
         segment->rel_usecs = pinfo->rel_ts.nsecs/1000;
         /* Currently unused
-        segment->abs_secs  = (guint32)pinfo->abs_ts.secs;
+        segment->abs_secs  = pinfo->abs_ts.secs;
         segment->abs_usecs = pinfo->abs_ts.nsecs/1000;
         */
         segment->th_seq    = tcphdr->th_seq;

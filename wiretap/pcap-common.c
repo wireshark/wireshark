@@ -1433,7 +1433,7 @@ pcap_read_erf_pseudoheader(FILE_T fh, wtap_rec *rec,
 	 * This allows an ultimate resolution of 1/(2^32) seconds, or approximately 233 picoseconds */
 	if (rec) {
 		guint64 ts = pseudo_header->erf.phdr.ts;
-		rec->ts.secs = (guint32) (ts >> 32);
+		rec->ts.secs = (time_t) (ts >> 32);
 		ts = ((ts & 0xffffffff) * 1000 * 1000 * 1000);
 		ts += (ts & 0x80000000) << 1; /* rounding */
 		rec->ts.nsecs = ((guint32) (ts >> 32));

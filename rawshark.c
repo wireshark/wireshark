@@ -912,7 +912,7 @@ raw_pipe_read(wtap_rec *rec, Buffer *buf, int *err, gchar **err_info, gint64 *da
 
 #if 0
     printf("mem_hdr: %lu disk_hdr: %lu\n", sizeof(mem_hdr), sizeof(disk_hdr));
-    printf("tv_sec: %u (%04x)\n", (unsigned int) rec->ts.secs, (unsigned int) rec->ts.secs);
+    printf("tv_sec: %d (%04x)\n", (unsigned int) rec->ts.secs, (unsigned int) rec->ts.secs);
     printf("tv_nsec: %d (%04x)\n", rec->ts.nsecs, rec->ts.nsecs);
     printf("caplen: %d (%04x)\n", rec->rec_header.packet_header.caplen, rec->rec_header.packet_header.caplen);
     printf("len: %d (%04x)\n", rec->rec_header.packet_header.len, rec->rec_header.packet_header.len);
@@ -990,9 +990,8 @@ process_packet(capture_file *cf, epan_dissect_t *edt, gint64 offset,
         /* The user sends an empty packet when he wants to get output from us even if we don't currently have
            packets to process. We spit out a line with the timestamp and the text "void"
         */
-        printf("%lu %lu %lu void -\n", (unsigned long int)cf->count,
-               (unsigned long int)rec->ts.secs,
-               (unsigned long int)rec->ts.nsecs);
+        printf("%lu %" G_GUINT64_FORMAT " %d void -\n", (unsigned long int)cf->count,
+               (guint64)rec->ts.secs, rec->ts.nsecs);
 
         fflush(stdout);
 
