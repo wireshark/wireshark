@@ -138,12 +138,12 @@ dissect_etw(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree _U_, void* data 
     col_set_str(pinfo->cinfo, COL_DEF_DST, "windows");
     if (memcmp(&mbim_net_providerid, &provider_id, sizeof(e_guid_t)) == 0) {
         if (pinfo->rec->presence_flags & WTAP_HAS_PACK_FLAGS) {
-            switch(pinfo->rec->rec_header.packet_header.pack_flags) {
-                case 1:
+            switch(pinfo->rec->rec_header.packet_header.pack_flags & PACK_FLAGS_DIRECTION_MASK) {
+                case PACK_FLAGS_DIRECTION_INBOUND:
                     col_set_str(pinfo->cinfo, COL_DEF_SRC, "device");
                     col_set_str(pinfo->cinfo, COL_DEF_DST, "host");
                     break;
-                case 2:
+                case PACK_FLAGS_DIRECTION_OUTBOUND:
                     col_set_str(pinfo->cinfo, COL_DEF_SRC, "host");
                     col_set_str(pinfo->cinfo, COL_DEF_DST, "device");
                     break;

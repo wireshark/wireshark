@@ -284,7 +284,7 @@ void wtap_etl_rec_dump(ULARGE_INTEGER timestamp, WTAP_ETL_RECORD* etl_record, UL
     rec.rec_header.packet_header.len = total_packet_length;
     rec.rec_header.packet_header.pkt_encap = WTAP_ENCAP_ETW;
     rec.presence_flags = rec.presence_flags | WTAP_HAS_PACK_FLAGS;
-    rec.rec_header.packet_header.pack_flags = is_inbound ? 1 : 2;
+    rec.rec_header.packet_header.pack_flags = is_inbound ? PACK_FLAGS_DIRECTION_INBOUND : PACK_FLAGS_DIRECTION_OUTBOUND;
     /* Convert usec of the timestamp into nstime_t */
     rec.ts.secs = (time_t)(timestamp.QuadPart / G_USEC_PER_SEC);
     rec.ts.nsecs = (int)(((timestamp.QuadPart % G_USEC_PER_SEC) * G_NSEC_PER_SEC) / G_USEC_PER_SEC);
