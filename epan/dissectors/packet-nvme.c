@@ -829,13 +829,13 @@ void dissect_nvme_cmd_sgl(tvbuff_t *cmd_tvb, proto_tree *cmd_tree,
     type_item = proto_tree_add_item(sgl_tree, hf_nvme_cmd_sgl_desc_type,
                                     cmd_tvb, offset + 15, 1, ENC_LITTLE_ENDIAN);
     proto_item_append_text(type_item, " %s",
-                           val_to_str(desc_type, sgl_type_tbl, "Reserved"));
+                           val_to_str_const(desc_type, sgl_type_tbl, "Reserved"));
 
     sub_type_item = proto_tree_add_item(sgl_tree, hf_nvme_cmd_sgl_desc_sub_type,
                                         cmd_tvb,
                                         offset + 15, 1, ENC_LITTLE_ENDIAN);
     proto_item_append_text(sub_type_item, " %s",
-                           val_to_str(desc_sub_type, sgl_sub_type_tbl, "Reserved"));
+                           val_to_str_const(desc_sub_type, sgl_sub_type_tbl, "Reserved"));
 
     switch (desc_type) {
     case NVME_CMD_SGL_DATA_DESC:
@@ -1419,7 +1419,7 @@ static void dissect_nvme_identify_cmd(tvbuff_t *cmd_tvb, proto_tree *cmd_tree,
     cmd_ctx->cmd_ctx.cmd_identify.cns = tvb_get_guint16(cmd_tvb, 40, ENC_LITTLE_ENDIAN);
     item = proto_tree_add_item_ret_uint(cmd_tree, hf_nvme_identify_cns, cmd_tvb,
                         40, 1, ENC_LITTLE_ENDIAN, &val);
-    proto_item_append_text(item, " %s", val_to_str(val, cns_table, "Reserved"));
+    proto_item_append_text(item, " %s", val_to_str_const(val, cns_table, "Reserved"));
     proto_tree_add_item(cmd_tree, hf_nvme_identify_rsvd, cmd_tvb,
                         41, 1, ENC_NA);
     proto_tree_add_item(cmd_tree, hf_nvme_identify_cntid, cmd_tvb,
@@ -1464,7 +1464,7 @@ static const char *get_logpage_name(guint lid)
     else if (lid >= 0xc0)
         return "Vendor Specific Page";
     else
-            return val_to_str(lid, logpage_tbl, "Reserved Page Name");
+        return val_to_str_const(lid, logpage_tbl, "Reserved Page Name");
 
 }
 
@@ -2599,13 +2599,13 @@ static void dissect_nvme_rw_cmd(tvbuff_t *cmd_tvb, proto_tree *cmd_tree)
     item = proto_tree_add_item(dsm_tree, hf_nvme_cmd_dsm_access_freq, cmd_tvb,
                                52, 1, ENC_LITTLE_ENDIAN);
     proto_item_append_text(item, " %s",
-                           val_to_str(val, dsm_acc_freq_tbl, "Reserved"));
+                           val_to_str_const(val, dsm_acc_freq_tbl, "Reserved"));
 
     val = (tvb_get_guint8(cmd_tvb, 52) & 0x30) >> 4;
     item = proto_tree_add_item(dsm_tree, hf_nvme_cmd_dsm_access_lat, cmd_tvb,
                                52, 1, ENC_LITTLE_ENDIAN);
     proto_item_append_text(item, " %s",
-                           val_to_str(val, dsm_acc_lat_tbl, "Reserved"));
+                           val_to_str_const(val, dsm_acc_lat_tbl, "Reserved"));
 
     proto_tree_add_item(dsm_tree, hf_nvme_cmd_dsm_seq_req, cmd_tvb,
                         52, 1, ENC_LITTLE_ENDIAN);
@@ -2628,8 +2628,8 @@ dissect_nvme_data_response(tvbuff_t *nvme_tvb, packet_info *pinfo, proto_tree *r
                              len, ENC_NA);
     cmd_tree = proto_item_add_subtree(ti, ett_data);
     if (q_ctx->qid) { //IOQ
-        str_opcode = val_to_str(cmd_ctx->opcode, ioq_opc_tbl,
-                                "Unknown IOQ Opcode");
+        str_opcode = val_to_str_const(cmd_ctx->opcode, ioq_opc_tbl,
+                                      "Unknown IOQ Opcode");
         switch (cmd_ctx->opcode) {
         case NVME_IOQ_OPC_READ:
         case NVME_IOQ_OPC_WRITE:
@@ -2640,8 +2640,8 @@ dissect_nvme_data_response(tvbuff_t *nvme_tvb, packet_info *pinfo, proto_tree *r
             break;
         }
     } else { //AQ
-        str_opcode = val_to_str(cmd_ctx->opcode, aq_opc_tbl,
-                                "Unknown AQ Opcode");
+        str_opcode = val_to_str_const(cmd_ctx->opcode, aq_opc_tbl,
+                                      "Unknown AQ Opcode");
         switch (cmd_ctx->opcode) {
         case NVME_AQ_OPC_IDENTIFY:
             dissect_nvme_identify_resp(nvme_tvb, cmd_tree, cmd_ctx);
@@ -2678,10 +2678,10 @@ dissect_nvme_cmd(tvbuff_t *nvme_tvb, packet_info *pinfo, proto_tree *root_tree,
                         0, 1, ENC_LITTLE_ENDIAN);
     if (q_ctx->qid)
         proto_item_append_text(opc_item, " %s",
-                               val_to_str(cmd_ctx->opcode, ioq_opc_tbl, "Reserved"));
+                               val_to_str_const(cmd_ctx->opcode, ioq_opc_tbl, "Reserved"));
     else
         proto_item_append_text(opc_item, " %s",
-                               val_to_str(cmd_ctx->opcode, aq_opc_tbl, "Reserved"));
+                               val_to_str_const(cmd_ctx->opcode, aq_opc_tbl, "Reserved"));
 
     nvme_publish_to_data_req_link(cmd_tree, nvme_tvb, hf_nvme_data_req, cmd_ctx);
     nvme_publish_to_cqe_link(cmd_tree, nvme_tvb, hf_nvme_cqe_pkt, cmd_ctx);
