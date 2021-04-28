@@ -30,6 +30,7 @@
 #include "packet-gsm_a_common.h"
 #include "packet-e212.h"
 #include "packet-http.h"
+#include "packet-tcp.h"
 
 void proto_register_nas_5gs(void);
 void proto_reg_handoff_nas_5gs(void);
@@ -8721,6 +8722,27 @@ dissect_nas_5gs_media_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
   }
 }
 
+static guint
+get_nas_5gs_tcp_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
+{
+	return tvb_get_ntohs(tvb, offset) + 2;
+}
+
+static int
+dissect_nas_5gs_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
+{
+    col_clear(pinfo->cinfo, COL_INFO);
+    return dissect_nas_5gs(tvb_new_subset_remaining(tvb, 2), pinfo, tree, data);
+}
+
+static int
+dissect_nas_5gs_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+    tcp_dissect_pdus(tvb, pinfo, tree, TRUE, 2, get_nas_5gs_tcp_len,
+                     dissect_nas_5gs_tcp_pdu, data);
+    return tvb_reported_length(tvb);
+}
+
 void
 proto_register_nas_5gs(void)
 {
@@ -11451,6 +11473,7 @@ proto_reg_handoff_nas_5gs(void)
         ipv6_handle = find_dissector("ipv6");
         ethernet_handle = find_dissector("eth_withoutfcs");
         dissector_add_string("media_type", "application/vnd.3gpp.5gnas", create_dissector_handle(dissect_nas_5gs_media_type, proto_nas_5gs));
+        dissector_add_for_decode_as("tcp.port", create_dissector_handle(dissect_nas_5gs_tcp, proto_nas_5gs));
         proto_json = proto_get_id_by_filter_name("json");
         initialized = TRUE;
     }
