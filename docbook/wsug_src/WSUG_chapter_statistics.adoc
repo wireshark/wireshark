@@ -564,6 +564,26 @@ btn:[Close] will close this dialog.
 
 The Dynamic Host Configuration Protocol (DHCP) is an option of the Bootstrap Protocol (BOOTP). It dynamically assigns IP addresses and other parameters to a DHCP client. The DHCP (BOOTP) Statistics window displays a table over the number of occurrences of a DHCP message type. The user can filter, copy or save the data into a file.
 
+[[ChStatNetPerfMeter]]
+
+=== NetPerfMeter Statistics
+
+The NetPerfMeter Protocol{nbsp}(NPMP) is the control and data transfer protocol of NetPerfMeter, the transport protocol performance testing tool. It transmits data streams over TCP, SCTP, UDP and DCCP with given parameters, such as frame rate, frame size, saturated flows, etc.
+
+With this statistics you can:
+
+* Observed number of messages and bytes per message type.
+* The share of messages and bytes for each message type.
+* See the first and last occurrence of each message type.
+* See the interval between first and last occurrence of each message type (if there are at least 2 messages of the corresponding type).
+* See the message and byte rate within the interval for each message type (if there are at least 2 messages of the corresponding type).
+
+See link:https://www.uni-due.de/~be0001/netperfmeter/[NetPerfMeter – A TCP/MPTCP/UDP/SCTP/DCCP Network Performance Meter Tool] and Section{nbsp}6.3 of
+link:https://duepublico2.uni-due.de/servlets/MCRFileNodeServlet/duepublico_derivate_00029737/Dre2012_final.pdf[Evaluation and Optimisation of Multi-Path Transport using the Stream Control Transmission Protocol] for more details about NetPerfMeter and the NetPerfMeter Protocol.
+
+.NetPerfMeter Statistics window
+image::wsug_graphics/ws-netperfmeter-statistics.png[{screenshot-attrs}]
+
 [[ChStatONCRPC]]
 
 === ONC-RPC Programs
