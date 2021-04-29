@@ -439,4 +439,39 @@ coverity-gcc:
         --form email=$GITLAB_USER_EMAIL
         --form description="Ubuntu $( git describe --tags ) $CI_COMMIT_REF_NAME:$CI_PIPELINE_ID"
         --form version=$( git describe --tags )
+
+coverity-visual-c++:
+  only:
+    - schedules
+    - $RUN_COVERITY_VISUAL_CPP == "True"
+  extends: .build-windows
+  tags:
+    - wireshark-windows-merge-req
+  stage: analysis
+  needs: []
+  script:
+    - $gitDescription = (( git describe --tags ) | Out-String).Trim()
+    - >
+      C:\ProgramData\chocolatey\bin\curl
+        --output $env:temp\cov-analysis-win64.zip
+        --form project=$COVERITY_SCAN_PROJECT_NAME
+        --form token=$COVERITY_SCAN_TOKEN
+        https://scan.coverity.com/download/win64
+    - C:\ProgramData\chocolatey\tools\7z x "$env:temp\cov-analysis-win64.zip" -y -r -o"$env:temp"
+    - cmake -DTEST_EXTRA_ARGS=--enable-release -DENABLE_LTO=off -G "Visual Studio 16 2019" -A x64 ..
+    - $covAnalysisWin64 = (Get-ChildItem -Path $env:temp -Filter "cov-analysis-win64-*" -Directory)[0].FullName
+    - >
+      Invoke-Expression "& $covAnalysisWin64\bin\cov-build.exe
+        --return-emit-failures
+        --dir cov-int
+        msbuild /verbosity:minimal `"/consoleloggerparameters:PerformanceSummary;NoSummary`" /maxcpucount:1 Wireshark.sln"
+    - Set-Location ..\cov-build
+    - C:\ProgramData\chocolatey\tools\7z a -tzip cov-int.zip cov-int
+    - >
+      C:\ProgramData\chocolatey\bin\curl
+        --form file=@cov-int.zip
+        --form token=$COVERITY_SCAN_TOKEN
+        --form email=$GITLAB_USER_EMAIL
+        --form description="Windows $gitDescription $CI_COMMIT_REF_NAME:$CI_PIPELINE_ID"
+        --form version=$gitDescription
           https://scan.coverity.com/builds?project=$COVERITY_SCAN_PROJECT_NAME
