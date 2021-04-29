@@ -124,9 +124,7 @@ static gint dissect_rtps_processed(
     tvbuff_t *rtps_payload = NULL;
     tvbuff_t *message_payload = NULL;
     struct rtpsvt_data *transport_data = (struct rtpsvt_data *) data;
-    const gchar *title_security = transport_data->direction == 1
-            ? "RTPS Security decoding"
-            : "RTPS Security pre-encoding";
+    const gchar *title_security;
     guint16 rtps_version = 0x0203;
     guint16 rtps_vendor_id = 0x0101;
 
@@ -135,6 +133,9 @@ static gint dissect_rtps_processed(
         return 0;
     }
     param_length = transport_data->rtps_length;
+    title_security = transport_data->direction == 1
+                        ? "RTPS Security decoding"
+                        : "RTPS Security pre-encoding";
 
     /* *****************************  MAIN  ***********************************/
     /*
