@@ -12079,6 +12079,7 @@ void dissect_rtps_submessages(
   endpoint_guid dst_guid;
 
   /* No fields have been set in GUID yet. */
+  guid.fields_present = 0;
   dst_guid.fields_present = 0;
   while (tvb_reported_length_remaining(tvb, offset) > 0) {
     submessageId = tvb_get_guint8(tvb, offset);
