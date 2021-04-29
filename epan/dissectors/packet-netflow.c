@@ -1590,6 +1590,100 @@ static const value_string v10_template_types_ixia[] = {
     {  183, "Host Name" },
     {  184, "HTTP URI" },
     {  185, "DNS record TXT" },
+    {  186, "Source AS Name" },
+    {  187, "Destination AS Name" },
+    {  188, "Transaction Latency (us)"},
+    {  189, "DNS Query Names"},
+    {  190, "DNS Answer Names"},
+    {  191, "DNS Classes"},
+    {  192, "Threat Type"},
+    {  193, "Threat IPv4"},
+    {  194, "Threat IPv6"},
+    {  195, "HTTP Sessions"},
+    {  196, "Request Time (s)"},
+    {  197, "DNS Records"},
+    {  198, "DNS Name"},
+    {  199, "DNS Rdata IPv4"},
+    {  200, "DNS Rdata IPv6"},
+    {  201, "TLS SNI"},
+    {  202, "DHCP Client Id"},
+    {  203, "DHCP Client MAC"},
+    {  204, "DHCP Events"},
+    {  205, "DHCP Event Timestamp"},
+    {  206, "DHCP Event Type"},
+    {  207, "DHCP lease Duration"},
+    {  208, "DHCP Servername"},
+    {  209, "RADIUS Messages"},
+    {  210, "RADIUS Message Rx Timestamp"},
+    {  211, "RADIUS Event Timestamp"},
+    {  212, "RADIUS Username"},
+    {  213, "RADIUS NAS IPv4"},
+    {  214, "RADIUS Service Type"},
+    {  215, "RADIUS Framed Protocol"},
+    {  216, "RADIUS Filter ID"},
+    {  217, "RADIUS Reply Message"},
+    {  218, "RADIUS Called Station ID"},
+    {  219, "HTTP Connection"},
+    {  220, "HTTP Accept"},
+    {  221, "HTTP Accept-Language"},
+    {  222, "HTTP Accept-Encoding"},
+    {  223, "HTTP Reason"},
+    {  224, "HTTP Server"},
+    {  225, "RADIUS Calling Station ID"},
+    {  226, "HTTP Content Length"},
+    {  227, "HTTP Referer"},
+    {  228, "HTTP UA-CPU"},
+    {  229, "Email Messages"},
+    {  230, "Email Msg ID"},
+    {  231, "Email Msg Date"},
+    {  232, "Email Msg Subject"},
+    {  233, "Email Msg To"},
+    {  234, "Email Msg From"},
+    {  235, "Email Msg CC"},
+    {  236, "Email Msg BCC"},
+    {  237, "Email Msg Attachments"},
+    {  238, "TLS Server Cert"},
+    {  239, "TLS Server Cert Issuer"},
+    {  240, "TLS Server Cert Issuer Attr"},
+    {  241, "TLS Server Cert Issuer Value"},
+    {  242, "TLS Server Cert Subject"},
+    {  243, "TLS Server Cert Subject Attr"},
+    {  244, "TLS Server Cert Subject Value"},
+    {  245, "TLS Server Cert Valid Not Before"},
+    {  246, "TLS Server Cert Valid Not After"},
+    {  247, "TLS Server Cert Serial Number"},
+    {  248, "TLS Server Cert Sign Algorithm"},
+    {  249, "TLS Server Cert Subject PKI Algorithm"},
+    {  250, "TLS Server Cert AltNames"},
+    {  251, "TLS Server Cert AltNames Attr"},
+    {  252, "TLS Server Cert AltNames Value"},
+    {  253, "DNS Messages"},
+    {  254, "DNS Transaction Id"},
+    {  255, "DNS Msg Opcode"},
+    {  256, "DNS Rec Request Type"},
+    {  257, "DNS Msg Rcode"},
+    {  258, "DNS Record TTL"},
+    {  259, "DNS Raw Rdata"},
+    {  260, "DNS Response Type"},
+    {  261, "RADIUS Framed IP"},
+    {  262, "DNS Msg QD Count"},
+    {  263, "DNS Msg AN Count"},
+    {  264, "DNS Msg NS Count"},
+    {  265, "DNS Msg AR Count"},
+    {  266, "DNS Msg Authoritative Answer"},
+    {  267, "DNS Msg Truncation"},
+    {  268, "DNS Msg Recursion Desired"},
+    {  269, "DNS Msg Recursion Available"},
+    {  270, "DNS Rdata Length"},
+    {  271, "DNS Questions"},
+    {  272, "DNS Query Type"},
+    {  273, "DNS Query Name"},
+    {  274, "DNS Section Type"},
+    {  275, "DNS Msg QR Flag"},
+    {  276, "DNS Cname"},
+    {  277, "DNS Mail Exchange Domain"},
+    {  278, "DHCP Agent Circuit ID"},
+    {  279, "JA3 fingerprint string"},
     { 0, NULL }
 };
 static value_string_ext v10_template_types_ixia_ext = VALUE_STRING_EXT_INIT(v10_template_types_ixia);
@@ -2082,6 +2176,19 @@ static const value_string v9_direction[] = {
     { 0, "Ingress" },
     { 1, "Egress" },
     { 0, NULL }
+};
+
+static const value_string v10_ixia_dns_section_type[] = {
+    {0, "Answer"},
+    {1, "Authoritative NS"},
+    {2, "Additional"},
+    {0, NULL}
+};
+
+static const value_string v10_ixia_req_res_flag[] = {
+    {0, "Request"},
+    {1, "Response"},
+    {0, NULL}
 };
 
 #define FORWARDING_STATUS_UNKNOWN 0
@@ -3268,6 +3375,94 @@ static int      hf_pie_ixia_transaction_latency         = -1;
 static int      hf_pie_ixia_dns_query_names             = -1;
 static int      hf_pie_ixia_dns_answer_names            = -1;
 static int      hf_pie_ixia_dns_classes                 = -1;
+static int      hf_pie_ixia_threat_type                 = -1;
+static int      hf_pie_ixia_threat_ipv4                 = -1;
+static int      hf_pie_ixia_threat_ipv6                 = -1;
+static int      hf_pie_ixia_http_session                = -1;
+static int      hf_pie_ixia_request_time                = -1;
+static int      hf_pie_ixia_http_connection             = -1;
+static int      hf_pie_ixia_http_accept                 = -1;
+static int      hf_pie_ixia_http_accept_language        = -1;
+static int      hf_pie_ixia_http_accept_encoding        = -1;
+static int      hf_pie_ixia_http_reason                 = -1;
+static int      hf_pie_ixia_http_server                 = -1;
+static int      hf_pie_ixia_http_content_length         = -1;
+static int      hf_pie_ixia_http_referer                = -1;
+static int      hf_pie_ixia_http_useragent_cpu          = -1;
+static int      hf_pie_ixia_dns_records                 = -1;
+static int      hf_pie_ixia_dns_name                    = -1;
+static int      hf_pie_ixia_dns_ipv4                    = -1;
+static int      hf_pie_ixia_dns_ipv6                    = -1;
+static int      hf_pie_ixia_dns_packets                 = -1;
+static int      hf_pie_ixia_dns_transaction_id          = -1;
+static int      hf_pie_ixia_dns_opcode                  = -1;
+static int      hf_pie_ixia_dns_request_type            = -1;
+static int      hf_pie_ixia_dns_response_code           = -1;
+static int      hf_pie_ixia_dns_record_ttl              = -1;
+static int      hf_pie_ixia_dns_raw_rdata               = -1;
+static int      hf_pie_ixia_dns_response_type           = -1;
+static int      hf_pie_ixia_dns_qdcount                 = -1;
+static int      hf_pie_ixia_dns_ancount                 = -1;
+static int      hf_pie_ixia_dns_nscount                 = -1;
+static int      hf_pie_ixia_dns_arcount                 = -1;
+static int      hf_pie_ixia_dns_auth_answer             = -1;
+static int      hf_pie_ixia_dns_trucation               = -1;
+static int      hf_pie_ixia_dns_recursion_desired       = -1;
+static int      hf_pie_ixia_dns_recursion_avail         = -1;
+static int      hf_pie_ixia_dns_rdata_len               = -1;
+static int      hf_pie_ixia_dns_questions               = -1;
+static int      hf_pie_ixia_dns_query_type              = -1;
+static int      hf_pie_ixia_dns_query_name              = -1;
+static int      hf_pie_ixia_dns_section_type            = -1;
+static int      hf_pie_ixia_dns_qr_flag                 = -1;
+static int      hf_pie_ixia_dns_canonical_name          = -1;
+static int      hf_pie_ixia_dns_mx_domain               = -1;
+static int      hf_pie_ixia_tls_sni                     = -1;
+static int      hf_pie_ixia_tls_srvr_cert               = -1;
+static int      hf_pie_ixia_tls_srvr_cert_issuer        = -1;
+static int      hf_pie_ixia_tls_srvr_cert_issuer_attr   = -1;
+static int      hf_pie_ixia_tls_srvr_cert_issuer_val    = -1;
+static int      hf_pie_ixia_tls_srvr_cert_subject       = -1;
+static int      hf_pie_ixia_tls_srvr_cert_subject_attr  = -1;
+static int      hf_pie_ixia_tls_srvr_cert_subject_val   = -1;
+static int      hf_pie_ixia_tls_srvr_cert_vld_nt_bfr    = -1;
+static int      hf_pie_ixia_tls_srvr_cert_vld_nt_aftr   = -1;
+static int      hf_pie_ixia_tls_srvr_cert_srl_num       = -1;
+static int      hf_pie_ixia_tls_srvr_cert_sign_algo     = -1;
+static int      hf_pie_ixia_tls_srvr_cert_subj_pki_algo = -1;
+static int      hf_pie_ixia_tls_srvr_cert_altnames      = -1;
+static int      hf_pie_ixia_tls_srvr_cert_altnames_attr = -1;
+static int      hf_pie_ixia_tls_srvr_cert_altnames_val  = -1;
+static int      hf_pie_ixia_dhcp_client_id              = -1;
+static int      hf_pie_ixia_dhcp_client_mac             = -1;
+static int      hf_pie_ixia_dhcp_messages               = -1;
+static int      hf_pie_ixia_dhcp_message_timestamp      = -1;
+static int      hf_pie_ixia_dhcp_message_type           = -1;
+static int      hf_pie_ixia_dhcp_lease_duration         = -1;
+static int      hf_pie_ixia_dhcp_servername             = -1;
+static int      hf_pie_ixia_dhcp_agent_circuit_id       = -1;
+static int      hf_pie_ixia_radius_events               = -1;
+static int      hf_pie_ixia_radius_timestamp            = -1;
+static int      hf_pie_ixia_radius_event_timestamp      = -1;
+static int      hf_pie_ixia_radius_username             = -1;
+static int      hf_pie_ixia_radius_nas_ipv4             = -1;
+static int      hf_pie_ixia_radius_service_type         = -1;
+static int      hf_pie_ixia_radius_framed_protocol      = -1;
+static int      hf_pie_ixia_radius_framed_ip            = -1;
+static int      hf_pie_ixia_radius_filter_id            = -1;
+static int      hf_pie_ixia_radius_reply_message        = -1;
+static int      hf_pie_ixia_radius_called_station_id    = -1;
+static int      hf_pie_ixia_radius_calling_station_id   = -1;
+static int      hf_pie_ixia_email_messages              = -1;
+static int      hf_pie_ixia_email_msg_id                = -1;
+static int      hf_pie_ixia_email_msg_date              = -1;
+static int      hf_pie_ixia_email_msg_subject           = -1;
+static int      hf_pie_ixia_email_msg_to                = -1;
+static int      hf_pie_ixia_email_msg_from              = -1;
+static int      hf_pie_ixia_email_msg_cc                = -1;
+static int      hf_pie_ixia_email_msg_bcc               = -1;
+static int      hf_pie_ixia_email_msg_attachments       = -1;
+static int      hf_pie_ixia_ja3_fingerprint_string      = -1;
 
 static int      hf_pie_netscaler                                         = -1;
 static int      hf_pie_netscaler_roundtriptime                           = -1;
@@ -10151,6 +10346,369 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
             break;
         case ((VENDOR_IXIA << 16) | 191):
             ti = proto_tree_add_item(pdutree, hf_pie_ixia_dns_classes,
+                                     tvb, offset, length, ENC_ASCII|ENC_NA);
+            break;
+        case ((VENDOR_IXIA << 16) | 192):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_threat_type,
+                                     tvb, offset, length, ENC_ASCII|ENC_NA);
+            break;
+        case ((VENDOR_IXIA << 16) | 193):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_threat_ipv4,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_IXIA << 16) | 194):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_threat_ipv6,
+                                     tvb, offset, length, ENC_NA);
+            break;
+        case ((VENDOR_IXIA << 16) | 195):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_http_session,
+                                     tvb, offset, length, ENC_NA);
+            dissect_v10_pdu_subtemplate_list(tvb, pinfo, ti, offset, length, hdrinfo_p);
+            break;
+        case ((VENDOR_IXIA << 16) | 196):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_request_time,
+                                     tvb, offset, length, ENC_TIME_SECS);
+            break;
+        case ((VENDOR_IXIA << 16) | 197):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_dns_records,
+                                     tvb, offset, length, ENC_NA);
+            dissect_v10_pdu_subtemplate_list(tvb, pinfo, ti, offset, length, hdrinfo_p);
+            break;
+        case ((VENDOR_IXIA << 16) | 198):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_dns_name,
+                                     tvb, offset, length, ENC_ASCII|ENC_NA);
+            break;
+        case ((VENDOR_IXIA << 16) | 199):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_dns_ipv4,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_IXIA << 16) | 200):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_dns_ipv6,
+                                     tvb, offset, length, ENC_NA);
+            break;
+        case ((VENDOR_IXIA << 16) | 201):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_tls_sni,
+                                     tvb, offset, length, ENC_ASCII|ENC_NA);
+            break;
+        case ((VENDOR_IXIA << 16) | 202):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_dhcp_client_id,
+                                     tvb, offset, length, ENC_NA);
+            break;
+        case ((VENDOR_IXIA << 16) | 203):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_dhcp_client_mac,
+                                     tvb, offset, length, ENC_NA);
+            break;
+        case ((VENDOR_IXIA << 16) | 204):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_dhcp_messages,
+                                     tvb, offset, length, ENC_NA);
+            dissect_v10_pdu_subtemplate_list(tvb, pinfo, ti, offset, length, hdrinfo_p);
+            break;
+        case ((VENDOR_IXIA << 16) | 205):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_dhcp_message_timestamp,
+                                     tvb, offset, length, ENC_TIME_SECS_NSECS);
+            break;
+        case ((VENDOR_IXIA << 16) | 206):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_dhcp_message_type,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_IXIA << 16) | 207):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_dhcp_lease_duration,
+                                     tvb, offset, length, ENC_TIME_SECS);
+            break;
+        case ((VENDOR_IXIA << 16) | 208):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_dhcp_servername,
+                                     tvb, offset, length, ENC_ASCII|ENC_NA);
+            break;
+        case ((VENDOR_IXIA << 16) | 209):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_radius_events,
+                                     tvb, offset, length, ENC_NA);
+            dissect_v10_pdu_subtemplate_list(tvb, pinfo, ti, offset, length, hdrinfo_p);
+            break;
+        case ((VENDOR_IXIA << 16) | 210):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_radius_timestamp,
+                                     tvb, offset, length, ENC_TIME_SECS_NSECS);
+            break;
+        case ((VENDOR_IXIA << 16) | 211):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_radius_event_timestamp,
+                                     tvb, offset, length, ENC_TIME_SECS_NSECS);
+            break;
+        case ((VENDOR_IXIA << 16) | 212):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_radius_username,
+                                     tvb, offset, length, ENC_ASCII|ENC_NA);
+            break;
+        case ((VENDOR_IXIA << 16) | 213):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_radius_nas_ipv4,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_IXIA << 16) | 214):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_radius_service_type,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_IXIA << 16) | 215):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_radius_framed_protocol,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_IXIA << 16) | 216):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_radius_filter_id,
+                                     tvb, offset, length, ENC_NA|ENC_ASCII);
+            break;
+        case ((VENDOR_IXIA << 16) | 217):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_radius_reply_message,
+                                     tvb, offset, length, ENC_NA|ENC_ASCII);
+            break;
+        case ((VENDOR_IXIA << 16) | 218):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_radius_called_station_id,
+                                     tvb, offset, length, ENC_NA|ENC_ASCII);
+            break;
+        case ((VENDOR_IXIA << 16) | 219):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_http_connection,
+                                     tvb, offset, length, ENC_ASCII|ENC_NA);
+            break;
+        case ((VENDOR_IXIA << 16) | 220):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_http_accept,
+                                     tvb, offset, length, ENC_ASCII|ENC_NA);
+            break;
+        case ((VENDOR_IXIA << 16) | 221):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_http_accept_language,
+                                     tvb, offset, length, ENC_ASCII|ENC_NA);
+            break;
+        case ((VENDOR_IXIA << 16) | 222):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_http_accept_encoding,
+                                     tvb, offset, length, ENC_ASCII|ENC_NA);
+            break;
+        case ((VENDOR_IXIA << 16) | 223):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_http_reason,
+                                     tvb, offset, length, ENC_ASCII|ENC_NA);
+            break;
+        case ((VENDOR_IXIA << 16) | 224):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_http_server,
+                                     tvb, offset, length, ENC_ASCII|ENC_NA);
+            break;
+        case ((VENDOR_IXIA << 16) | 225):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_radius_calling_station_id,
+                                     tvb, offset, length, ENC_NA|ENC_ASCII);
+            break;
+        case ((VENDOR_IXIA << 16) | 226):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_http_content_length,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_IXIA << 16) | 227):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_http_referer,
+                                     tvb, offset, length, ENC_ASCII|ENC_NA);
+            break;
+        case ((VENDOR_IXIA << 16) | 228):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_http_useragent_cpu,
+                                     tvb, offset, length, ENC_ASCII|ENC_NA);
+            break;
+        case ((VENDOR_IXIA << 16) | 229):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_email_messages,
+                                     tvb, offset, length, ENC_NA);
+            dissect_v10_pdu_subtemplate_list(tvb, pinfo, ti, offset, length, hdrinfo_p);
+            break;
+        case ((VENDOR_IXIA << 16) | 230):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_email_msg_id,
+                                     tvb, offset, length, ENC_ASCII|ENC_NA);
+            break;
+        case ((VENDOR_IXIA << 16) | 231):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_email_msg_date,
+                                     tvb, offset, length, ENC_ASCII|ENC_NA);
+            break;
+        case ((VENDOR_IXIA << 16) | 232):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_email_msg_subject,
+                                     tvb, offset, length, ENC_ASCII|ENC_NA);
+            break;
+        case ((VENDOR_IXIA << 16) | 233):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_email_msg_to,
+                                     tvb, offset, length, ENC_ASCII|ENC_NA);
+            break;
+        case ((VENDOR_IXIA << 16) | 234):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_email_msg_from,
+                                     tvb, offset, length, ENC_ASCII|ENC_NA);
+            break;
+        case ((VENDOR_IXIA << 16) | 235):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_email_msg_cc,
+                                     tvb, offset, length, ENC_ASCII|ENC_NA);
+            break;
+        case ((VENDOR_IXIA << 16) | 236):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_email_msg_bcc,
+                                     tvb, offset, length, ENC_ASCII|ENC_NA);
+            break;
+        case ((VENDOR_IXIA << 16) | 237):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_email_msg_attachments,
+                                     tvb, offset, length, ENC_ASCII|ENC_NA);
+            break;
+        case ((VENDOR_IXIA << 16) | 238):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_tls_srvr_cert,
+                                     tvb, offset, length, ENC_NA);
+            dissect_v10_pdu_subtemplate_list(tvb, pinfo, ti, offset, length, hdrinfo_p);
+            break;
+        case ((VENDOR_IXIA << 16) | 239):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_tls_srvr_cert_issuer,
+                                     tvb, offset, length, ENC_NA);
+            dissect_v10_pdu_subtemplate_list(tvb, pinfo, ti, offset, length, hdrinfo_p);
+            break;
+        case ((VENDOR_IXIA << 16) | 240):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_tls_srvr_cert_issuer_attr,
+                                     tvb, offset, length, ENC_ASCII|ENC_NA);
+            break;
+        case ((VENDOR_IXIA << 16) | 241):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_tls_srvr_cert_issuer_val,
+                                     tvb, offset, length, ENC_ASCII|ENC_NA);
+            break;
+        case ((VENDOR_IXIA << 16) | 242):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_tls_srvr_cert_subject,
+                                     tvb, offset, length, ENC_NA);
+            dissect_v10_pdu_subtemplate_list(tvb, pinfo, ti, offset, length, hdrinfo_p);
+            break;
+        case ((VENDOR_IXIA << 16) | 243):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_tls_srvr_cert_subject_attr,
+                                     tvb, offset, length, ENC_ASCII|ENC_NA);
+            break;
+        case ((VENDOR_IXIA << 16) | 244):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_tls_srvr_cert_subject_val,
+                                     tvb, offset, length, ENC_ASCII|ENC_NA);
+            break;
+        case ((VENDOR_IXIA << 16) | 245):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_tls_srvr_cert_vld_nt_bfr,
+                                     tvb, offset, length, ENC_ASCII|ENC_NA);
+            break;
+        case ((VENDOR_IXIA << 16) | 246):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_tls_srvr_cert_vld_nt_aftr,
+                                     tvb, offset, length, ENC_ASCII|ENC_NA);
+            break;
+        case ((VENDOR_IXIA << 16) | 247):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_tls_srvr_cert_srl_num,
+                                     tvb, offset, length, ENC_ASCII|ENC_NA);
+            break;
+        case ((VENDOR_IXIA << 16) | 248):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_tls_srvr_cert_sign_algo,
+                                     tvb, offset, length, ENC_ASCII|ENC_NA);
+            break;
+        case ((VENDOR_IXIA << 16) | 249):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_tls_srvr_cert_subj_pki_algo,
+                                     tvb, offset, length, ENC_ASCII|ENC_NA);
+            break;
+        case ((VENDOR_IXIA << 16) | 250):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_tls_srvr_cert_altnames,
+                                     tvb, offset, length, ENC_NA);
+            dissect_v10_pdu_subtemplate_list(tvb, pinfo, ti, offset, length, hdrinfo_p);
+            break;
+        case ((VENDOR_IXIA << 16) | 251):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_tls_srvr_cert_altnames_attr,
+                                     tvb, offset, length, ENC_ASCII|ENC_NA);
+            break;
+        case ((VENDOR_IXIA << 16) | 252):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_tls_srvr_cert_altnames_val,
+                                     tvb, offset, length, ENC_ASCII|ENC_NA);
+            break;
+        case ((VENDOR_IXIA << 16) | 253):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_dns_packets,
+                                     tvb, offset, length, ENC_NA);
+            dissect_v10_pdu_subtemplate_list(tvb, pinfo, ti, offset, length, hdrinfo_p);
+            break;
+        case ((VENDOR_IXIA << 16) | 254):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_dns_transaction_id,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_IXIA << 16) | 255):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_dns_opcode,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_IXIA << 16) | 256):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_dns_request_type,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_IXIA << 16) | 257):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_dns_response_code,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_IXIA << 16) | 258):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_dns_record_ttl,
+                                     tvb, offset, length, ENC_TIME_SECS);
+            break;
+        case ((VENDOR_IXIA << 16) | 259):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_dns_raw_rdata,
+                                     tvb, offset, length, ENC_ASCII|ENC_NA);
+            break;
+        case ((VENDOR_IXIA << 16) | 260):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_dns_response_type,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_IXIA << 16) | 261):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_radius_framed_ip,
+                                     tvb, offset, length, ENC_ASCII|ENC_NA);
+            break;
+        case ((VENDOR_IXIA << 16) | 262):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_dns_qdcount,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_IXIA << 16) | 263):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_dns_ancount,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_IXIA << 16) | 264):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_dns_nscount,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_IXIA << 16) | 265):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_dns_arcount,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_IXIA << 16) | 266):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_dns_auth_answer,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_IXIA << 16) | 267):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_dns_trucation,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_IXIA << 16) | 268):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_dns_recursion_desired,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_IXIA << 16) | 269):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_dns_recursion_avail,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_IXIA << 16) | 270):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_dns_rdata_len,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_IXIA << 16) | 271):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_dns_questions,
+                                     tvb, offset, length, ENC_NA);
+            dissect_v10_pdu_subtemplate_list(tvb, pinfo, ti, offset, length, hdrinfo_p);
+            break;
+        case ((VENDOR_IXIA << 16) | 272):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_dns_query_type,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_IXIA << 16) | 273):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_dns_query_name,
+                                     tvb, offset, length, ENC_ASCII|ENC_NA);
+            break;
+        case ((VENDOR_IXIA << 16) | 274):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_dns_section_type,
+                                     tvb, offset, length, ENC_ASCII);
+            break;
+        case ((VENDOR_IXIA << 16) | 275):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_dns_qr_flag,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_IXIA << 16) | 276):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_dns_canonical_name,
+                                     tvb, offset, length, ENC_ASCII|ENC_NA);
+            break;
+        case ((VENDOR_IXIA << 16) | 277):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_dns_mx_domain,
+                                     tvb, offset, length, ENC_ASCII|ENC_NA);
+            break;
+        case ((VENDOR_IXIA << 16) | 278):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_dhcp_agent_circuit_id,
+                                     tvb, offset, length, ENC_ASCII|ENC_NA);
+            break;
+        case ((VENDOR_IXIA << 16) | 279):
+            ti = proto_tree_add_item(pdutree, hf_pie_ixia_ja3_fingerprint_string,
                                      tvb, offset, length, ENC_ASCII|ENC_NA);
             break;
             /* END Ixia Communications */
@@ -17606,6 +18164,622 @@ proto_register_netflow(void)
          {"DNS Classes", "cflow.pie.ixia.dns-classes",
           FT_STRING, STR_ASCII, NULL, 0x0,
           "Class types appearing in a DNS message (comma separated list)", HFILL}
+        },
+
+        /* ixia, 3054 / 192 */
+        {&hf_pie_ixia_threat_type,
+         {"Threat Type", "cflow.pie.ixia.threat-type",
+          FT_STRING, STR_ASCII, NULL, 0x0,
+          "Potential threat type associated with the source/destination IP", HFILL}
+        },
+
+        /* ixia, 3054 / 193 */
+        {&hf_pie_ixia_threat_ipv4,
+         {"Threat IPv4", "cflow.pie.ixia.threat-ipv4",
+          FT_IPv4, BASE_NONE, NULL, 0x0,
+          "The source/destination IP associated with any threat", HFILL}
+        },
+
+        /* ixia, 3054 / 194 */
+        {&hf_pie_ixia_threat_ipv6,
+         {"Threat IPv6", "cflow.pie.ixia.threat-ipv6",
+          FT_IPv6, BASE_NONE, NULL, 0x0,
+          "The source/destination IP associated with any threat", HFILL}
+        },
+
+        /* ixia, 3054 / 195 */
+        {&hf_pie_ixia_http_session,
+         {"HTTP Sessions", "cflow.pie.ixia.http-session",
+          FT_NONE, BASE_NONE, NULL, 0x0,
+          "List of HTTP Sessions", HFILL}
+        },
+
+        /* ixia, 3054 / 196 */
+        {&hf_pie_ixia_request_time,
+         {"Request Time (s)", "cflow.pie.ixia.request-time",
+          FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x0,
+          "HTTP Request time (in seconds)", HFILL}
+        },
+
+        /* ixia, 3054 / 197 */
+        {&hf_pie_ixia_dns_records,
+         {"DNS Records", "cflow.pie.ixia.dns-records",
+          FT_NONE, BASE_NONE, NULL, 0x0,
+          "List of DNS Records", HFILL}
+        },
+
+        /* ixia, 3054 / 198 */
+        {&hf_pie_ixia_dns_name,
+         {"DNS Name", "cflow.pie.ixia.dns-name",
+          FT_STRING, STR_ASCII, NULL, 0x0,
+          "Name in DNS Records", HFILL}
+        },
+
+        /* ixia, 3054 / 199 */
+        {&hf_pie_ixia_dns_ipv4,
+         {"DNS Rdata IPv4", "cflow.pie.ixia.dns-ipv4",
+          FT_IPv4, BASE_NONE, NULL, 0x0,
+          "IPv4 from DNS A Record rdata", HFILL}
+        },
+
+        /* ixia, 3054 / 200 */
+        {&hf_pie_ixia_dns_ipv6,
+         {"DNS Rdata IPv6", "cflow.pie.ixia.dns-ipv6",
+          FT_IPv6, BASE_NONE, NULL, 0x0,
+          "IPv6 from DNS AAAA Record rdata", HFILL}
+        },
+
+        /* ixia, 3054 / 201 */
+        {&hf_pie_ixia_tls_sni,
+         {"TLS SNI", "cflow.pie.ixia.tls-sni",
+          FT_STRING, STR_ASCII, NULL, 0x0,
+          "TLS Extension Server Name Indication", HFILL}
+        },
+
+        /* ixia, 3054 / 202 */
+        {&hf_pie_ixia_dhcp_client_id,
+         {"DHCP Client Id", "cflow.pie.ixia.dhcp-client-id",
+          FT_BYTES, BASE_NONE, NULL, 0x0,
+          "DHCP Client Id (Option 61)", HFILL}
+        },
+
+        /* ixia, 3054 / 203 */
+        {&hf_pie_ixia_dhcp_client_mac,
+         {"DHCP Client MAC", "cflow.pie.ixia.dhcp-client-mac",
+          FT_ETHER, BASE_NONE, NULL, 0x0,
+          "DHCP header client MAC address", HFILL}
+        },
+
+        /* ixia, 3054 / 204 */
+        {&hf_pie_ixia_dhcp_messages,
+         {"DHCP Messages", "cflow.pie.ixia.dhcp-messages",
+          FT_NONE, BASE_NONE, NULL, 0x0,
+          "List of DHCP messages", HFILL}
+        },
+
+        /* ixia, 3054 / 205 */
+        {&hf_pie_ixia_dhcp_message_timestamp,
+         {"DHCP Message Timestamp", "cflow.pie.ixia.dhcp-msg-timestamp",
+          FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL, 0x0,
+          "DHCP message receive timestamp", HFILL}
+        },
+
+        /* ixia, 3054 / 206 */
+        {&hf_pie_ixia_dhcp_message_type,
+         {"DHCP Message Type", "cflow.pie.ixia.dhcp-msg-type",
+          FT_UINT8, BASE_DEC, NULL, 0x0,
+          "DHCP Message Type (Option 53)", HFILL}
+        },
+
+        /* ixia, 3054 / 207 */
+        {&hf_pie_ixia_dhcp_lease_duration,
+         {"DHCP Lease Duration", "cflow.pie.ixia.dhcp-lease-duration",
+          FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0,
+          "DHCP Lease Duration (Option 51)", HFILL}
+        },
+
+        /* ixia, 3054 / 208 */
+        {&hf_pie_ixia_dhcp_servername,
+         {"DHCP Servername", "cflow.pie.ixia.dhcp-servername",
+          FT_STRING, STR_ASCII, NULL, 0x0,
+          "DHCP header Servername", HFILL}
+        },
+
+        /* ixia, 3054 / 209 */
+        {&hf_pie_ixia_radius_events,
+         {"RADIUS Messages", "cflow.pie.ixia.radius-events",
+          FT_NONE, BASE_NONE, NULL, 0x0,
+          "List of RADIUS Events", HFILL}
+        },
+
+        /* ixia, 3054 / 210 */
+        {&hf_pie_ixia_radius_timestamp,
+         {"RADIUS Message Rx Timestamp", "cflow.pie.ixia.radius-timestamp",
+          FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL, 0x0,
+          "RADIUS message receive timestamp", HFILL}
+        },
+
+        /* ixia, 3054 / 211 */
+        {&hf_pie_ixia_radius_event_timestamp,
+         {"RADIUS Event Timestamp", "cflow.pie.ixia.radius-event-timestamp",
+          FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL, 0x0,
+          "RADIUS event timestamp (Attr 55)", HFILL}
+        },
+
+        /* ixia, 3054 / 212 */
+        {&hf_pie_ixia_radius_username,
+         {"RADIUS Username", "cflow.pie.ixia.radius-username",
+          FT_STRING, STR_ASCII, NULL, 0x0,
+          "RADIUS Username (Attr 1)", HFILL}
+        },
+
+        /* ixia, 3054 / 213 */
+        {&hf_pie_ixia_radius_nas_ipv4,
+         {"RADIUS NAS IPv4", "cflow.pie.ixia.radius-nas-ipv4",
+          FT_IPv4, BASE_NONE, NULL, 0x0,
+          "RADIUS NAS IP (Attr 4)", HFILL}
+        },
+
+        /* ixia, 3054 / 214 */
+        {&hf_pie_ixia_radius_service_type,
+         {"RADIUS Service Type", "cflow.pie.ixia.radius-service-type",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          "RADIUS Service Type (Attr 6)", HFILL}
+        },
+
+        /* ixia, 3054 / 215 */
+        {&hf_pie_ixia_radius_framed_protocol,
+         {"RADIUS Framed Protocol", "cflow.pie.ixia.radius-framed-protocol",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          "RADIUS Framed Protocol (Attr 7)", HFILL}
+        },
+
+        /* ixia, 3054 / 216 */
+        {&hf_pie_ixia_radius_filter_id,
+         {"RADIUS Filter ID", "cflow.pie.ixia.radius-filter-id",
+          FT_STRING, STR_ASCII, NULL, 0x0,
+          "RADIUS Filter ID (Attr 11)", HFILL}
+        },
+
+        /* ixia, 3054 / 217 */
+        {&hf_pie_ixia_radius_reply_message,
+         {"RADIUS Reply Message", "cflow.pie.ixia.radius-reply-msg",
+          FT_STRING, STR_ASCII, NULL, 0x0,
+          "RADIUS Reply Message (Attr 18)", HFILL}
+        },
+
+        /* ixia, 3054 / 218 */
+        {&hf_pie_ixia_radius_called_station_id,
+         {"RADIUS Called Station ID", "cflow.pie.ixia.radius-called-station",
+          FT_STRING, STR_ASCII, NULL, 0x0,
+          "RADIUS Called Station ID (Attr 30)", HFILL}
+        },
+
+        /* ixia, 3054 / 219 */
+        {&hf_pie_ixia_http_connection,
+         {"HTTP Connection", "cflow.pie.ixia.http-connection",
+          FT_STRING, STR_ASCII, NULL, 0x0,
+          "HTTP Connection header value", HFILL}
+        },
+
+        /* ixia, 3054 / 220 */
+        {&hf_pie_ixia_http_accept,
+         {"HTTP Accept", "cflow.pie.ixia.http-accept",
+          FT_STRING, STR_ASCII, NULL, 0x0,
+          "HTTP Accept header value", HFILL}
+        },
+
+        /* ixia, 3054 / 221 */
+        {&hf_pie_ixia_http_accept_language,
+         {"HTTP Accept-Language", "cflow.pie.ixia.http-accept-language",
+          FT_STRING, STR_ASCII, NULL, 0x0,
+          "HTTP Accept-Language header value", HFILL}
+        },
+
+        /* ixia, 3054 / 222 */
+        {&hf_pie_ixia_http_accept_encoding,
+         {"HTTP Accept-Encoding", "cflow.pie.ixia.http-accept-encoding",
+          FT_STRING, STR_ASCII, NULL, 0x0,
+          "HTTP Accept-Encoding header value", HFILL}
+        },
+
+        /* ixia, 3054 / 223 */
+        {&hf_pie_ixia_http_reason,
+         {"HTTP Reason", "cflow.pie.ixia.http-reason",
+          FT_STRING, STR_ASCII, NULL, 0x0,
+          "HTTP Status Reason", HFILL}
+        },
+
+            /* ixia, 3054 / 224 */
+        {&hf_pie_ixia_http_server,
+         {"HTTP Server", "cflow.pie.ixia.http-server",
+          FT_STRING, STR_ASCII, NULL, 0x0,
+          "HTTP Server header value", HFILL}
+        },
+
+        /* ixia, 3054 / 218 */
+        {&hf_pie_ixia_radius_calling_station_id,
+         {"RADIUS Calling Station ID", "cflow.pie.ixia.radius-calling-station",
+          FT_STRING, STR_ASCII, NULL, 0x0,
+          "RADIUS Calling Station ID (Attr 31)", HFILL}
+        },
+
+        /* ixia, 3054 / 226 */
+        {&hf_pie_ixia_http_content_length,
+         {"HTTP Content Length", "cflow.pie.ixia.http-content-length",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          "HTTP Content Length header value", HFILL}
+        },
+
+        /* ixia, 3054 / 227 */
+        {&hf_pie_ixia_http_referer,
+         {"HTTP Referer", "cflow.pie.ixia.http-referer",
+          FT_STRING, STR_ASCII, NULL, 0x0,
+          "HTTP Referer header value", HFILL}
+        },
+
+        /* ixia, 3054 / 228 */
+        {&hf_pie_ixia_http_useragent_cpu,
+         {"HTTP UA-CPU", "cflow.pie.ixia.http-ua-cpu",
+          FT_STRING, STR_ASCII, NULL, 0x0,
+          "HTTP UA-CPU header value", HFILL}
+        },
+
+        /* ixia, 3054 / 229 */
+        {&hf_pie_ixia_email_messages,
+         {"Email Messages", "cflow.pie.ixia.email-messages",
+          FT_NONE, BASE_NONE, NULL, 0x0,
+          "List of Email messages", HFILL}
+        },
+
+        /* ixia, 3054 / 230 */
+        {&hf_pie_ixia_email_msg_id,
+         {"Email Msg ID", "cflow.pie.ixia.email-msg-id",
+          FT_STRING, STR_ASCII, NULL, 0x0,
+          "Email Message ID", HFILL}
+        },
+
+        /* ixia, 3054 / 231 */
+        {&hf_pie_ixia_email_msg_date,
+         {"Email Msg Date", "cflow.pie.ixia.email-msg-date",
+          FT_STRING, STR_ASCII, NULL, 0x0,
+          "Email Message Date", HFILL}
+        },
+
+        /* ixia, 3054 / 232 */
+        {&hf_pie_ixia_email_msg_subject,
+         {"Email Msg Subject", "cflow.pie.ixia.email-msg-subject",
+          FT_STRING, STR_ASCII, NULL, 0x0,
+          "Email Message Subject", HFILL}
+        },
+
+        /* ixia, 3054 / 233 */
+        {&hf_pie_ixia_email_msg_to,
+         {"Email Msg To", "cflow.pie.ixia.email-msg-to",
+          FT_STRING, STR_ASCII, NULL, 0x0,
+          "Email Message To", HFILL}
+        },
+
+        /* ixia, 3054 / 234 */
+        {&hf_pie_ixia_email_msg_from,
+         {"Email Msg From", "cflow.pie.ixia.email-msg-from",
+          FT_STRING, STR_ASCII, NULL, 0x0,
+          "Email Message From", HFILL}
+        },
+
+        /* ixia, 3054 / 235 */
+        {&hf_pie_ixia_email_msg_cc,
+         {"Email Msg CC", "cflow.pie.ixia.email-msg-cc",
+          FT_STRING, STR_ASCII, NULL, 0x0,
+          "Email Message CC", HFILL}
+        },
+
+        /* ixia, 3054 / 236 */
+        {&hf_pie_ixia_email_msg_bcc,
+         {"Email Msg BCC", "cflow.pie.ixia.email-msg-bcc",
+          FT_STRING, STR_ASCII, NULL, 0x0,
+          "Email Message BCC", HFILL}
+        },
+
+        /* ixia, 3054 / 237 */
+        {&hf_pie_ixia_email_msg_attachments,
+         {"Email Msg Attachments", "cflow.pie.ixia.email-msg-attachments",
+          FT_STRING, STR_ASCII, NULL, 0x0,
+          "Email Message attachments", HFILL}
+        },
+
+        /* ixia, 3054 / 238 */
+        {&hf_pie_ixia_tls_srvr_cert,
+         {"TLS Server Cert", "cflow.pie.ixia.tls-server-cert",
+          FT_NONE, BASE_NONE, NULL, 0x0,
+          "TLS Server Certificates", HFILL}
+        },
+
+        /* ixia, 3054 / 239 */
+        {&hf_pie_ixia_tls_srvr_cert_issuer,
+         {"TLS Server Cert Issuer", "cflow.pie.ixia.tls-server-cert-issuer",
+          FT_NONE, BASE_NONE, NULL, 0x0,
+          "TLS Server Certificates Issuer", HFILL}
+        },
+
+        /* ixia, 3054 / 240 */
+        {&hf_pie_ixia_tls_srvr_cert_issuer_attr,
+         {"TLS Server Cert Issuer Attr", "cflow.pie.ixia.tls-server-cert-issuer.attr",
+          FT_STRING, STR_ASCII, NULL, 0x0,
+          "TLS Server Certificates Issuer Attribute", HFILL}
+        },
+
+        /* ixia, 3054 / 241 */
+        {&hf_pie_ixia_tls_srvr_cert_issuer_val,
+         {"TLS Server Cert Issuer Value", "cflow.pie.ixia.tls-server-cert-issuer.val",
+          FT_STRING, STR_ASCII, NULL, 0x0,
+          "TLS Server Certificates Issuer Value", HFILL}
+        },
+
+        /* ixia, 3054 / 242 */
+        {&hf_pie_ixia_tls_srvr_cert_subject,
+         {"TLS Server Cert Subject", "cflow.pie.ixia.tls-server-cert-subject",
+          FT_NONE, BASE_NONE, NULL, 0x0,
+          "TLS Server Certificates Subject", HFILL}
+        },
+
+        /* ixia, 3054 / 243 */
+        {&hf_pie_ixia_tls_srvr_cert_subject_attr,
+         {"TLS Server Cert Subject Attr", "cflow.pie.ixia.tls-server-cert-subject.attr",
+          FT_STRING, STR_ASCII, NULL, 0x0,
+          "TLS Server Certificates Subject Attribute", HFILL}
+        },
+
+        /* ixia, 3054 / 244 */
+        {&hf_pie_ixia_tls_srvr_cert_subject_val,
+         {"TLS Server Cert Subject Value", "cflow.pie.ixia.tls-server-cert-subject.val",
+          FT_STRING, STR_ASCII, NULL, 0x0,
+          "TLS Server Certificates Subject Value", HFILL}
+        },
+
+        /* ixia, 3054 / 245 */
+        {&hf_pie_ixia_tls_srvr_cert_vld_nt_bfr,
+         {"TLS Server Cert Valid Not Before", "cflow.pie.ixia.tls-server-cert-vld-notbefore",
+          FT_STRING, STR_ASCII, NULL, 0x0,
+          "TLS Server Certificates Valid Not Before", HFILL}
+        },
+
+        /* ixia, 3054 / 246 */
+        {&hf_pie_ixia_tls_srvr_cert_vld_nt_aftr,
+         {"TLS Server Cert Valid Not After", "cflow.pie.ixia.tls-server-cert-vld-notafter",
+          FT_STRING, STR_ASCII, NULL, 0x0,
+          "TLS Server Certificates Valid Not After", HFILL}
+        },
+
+        /* ixia, 3054 / 247 */
+        {&hf_pie_ixia_tls_srvr_cert_srl_num,
+         {"TLS Server Cert Serial Number", "cflow.pie.ixia.tls-server-cert-srlnum",
+          FT_STRING, STR_ASCII, NULL, 0x0,
+          "TLS Server Certificates Serial Number", HFILL}
+        },
+
+        /* ixia, 3054 / 248 */
+        {&hf_pie_ixia_tls_srvr_cert_sign_algo,
+         {"TLS Server Cert Sign Algo", "cflow.pie.ixia.tls-server-cert-sign-algo",
+          FT_STRING, STR_ASCII, NULL, 0x0,
+          "TLS Server Certificates Signature Algorithm", HFILL}
+        },
+
+        /* ixia, 3054 / 249 */
+        {&hf_pie_ixia_tls_srvr_cert_subj_pki_algo,
+         {"TLS Server Cert Subject PKI Algo", "cflow.pie.ixia.tls-server-cert-sub-pki-algo",
+          FT_STRING, STR_ASCII, NULL, 0x0,
+          "TLS Server Certificates Subject PKI Algorithm", HFILL}
+        },
+
+        /* ixia, 3054 / 250 */
+        {&hf_pie_ixia_tls_srvr_cert_altnames,
+         {"TLS Server Cert AltNames", "cflow.pie.ixia.tls-server-cert-altnames",
+          FT_NONE, BASE_NONE, NULL, 0x0,
+          "TLS Server Certificates AltNames", HFILL}
+        },
+
+        /* ixia, 3054 / 251 */
+        {&hf_pie_ixia_tls_srvr_cert_altnames_attr,
+         {"TLS Server Cert AltNames Attr", "cflow.pie.ixia.tls-server-cert-altnames.attr",
+          FT_STRING, STR_ASCII, NULL, 0x0,
+          "TLS Server Certificates AltNames Attribute", HFILL}
+        },
+
+        /* ixia, 3054 / 252 */
+        {&hf_pie_ixia_tls_srvr_cert_altnames_val,
+         {"TLS Server Cert AltNames Value", "cflow.pie.ixia.tls-server-cert-altnames.val",
+          FT_STRING, STR_ASCII, NULL, 0x0,
+          "TLS Server Certificates AltNames Value", HFILL}
+        },
+
+        /* ixia, 3054 / 253 */
+        {&hf_pie_ixia_dns_packets,
+         {"DNS Messages", "cflow.pie.ixia.dns-messages",
+          FT_NONE, BASE_NONE, NULL, 0x0,
+          "List of DNS Messages", HFILL}
+        },
+
+        /* ixia, 3054 / 254 */
+        {&hf_pie_ixia_dns_transaction_id,
+         {"DNS Transaction Id", "cflow.pie.ixia.dns-transaction-id",
+          FT_UINT16, BASE_HEX, NULL, 0x0,
+          "DNS Transaction Identifier", HFILL}
+        },
+
+        /* ixia, 3054 / 255 */
+        {&hf_pie_ixia_dns_opcode,
+         {"DNS Msg Opcode", "cflow.pie.ixia.dns-msg-opcode",
+          FT_UINT8, BASE_DEC, NULL, 0x0,
+          "DNS Message Operation Code", HFILL}
+        },
+
+        /* ixia, 3054 / 256 */
+        {&hf_pie_ixia_dns_request_type,
+         {"DNS Query Type", "cflow.pie.ixia.dns-query-type",
+          FT_UINT16, BASE_DEC, NULL, 0x0,
+          "DNS Query Request Type", HFILL}
+        },
+
+        /* ixia, 3054 / 257 */
+        {&hf_pie_ixia_dns_response_code,
+         {"DNS Msg Rcode", "cflow.pie.ixia.dns-msg-rcode",
+          FT_UINT8, BASE_DEC, NULL, 0x0,
+          "DNS Message Rcode", HFILL}
+        },
+
+        /* ixia, 3054 / 258 */
+        {&hf_pie_ixia_dns_record_ttl,
+         {"DNS Rec TTL", "cflow.pie.ixia.dns-rec-ttl",
+          FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0,
+          "DNS Record Time to Live (seconds)", HFILL}
+        },
+
+        /* ixia, 3054 / 259 */
+        {&hf_pie_ixia_dns_raw_rdata,
+         {"DNS Rec Raw rdata", "cflow.pie.ixia.dns-rec-raw-rdata",
+          FT_STRING, STR_ASCII, NULL, 0x0,
+          "DNS Record Raw Rdata", HFILL}
+        },
+
+        /* ixia, 3054 / 260 */
+        {&hf_pie_ixia_dns_response_type,
+         {"DNS Record Type", "cflow.pie.ixia.dns-rec-type",
+          FT_UINT16, BASE_DEC, NULL, 0x0,
+          "DNS Response Record Type", HFILL}
+        },
+
+        /* ixia, 3054 / 261 */
+        {&hf_pie_ixia_radius_framed_ip,
+         {"RADIUS Framed IP", "cflow.pie.ixia.radius-framedip",
+          FT_STRING, STR_ASCII, NULL, 0x0,
+          "RADIUS Framed IP (Attr 8/168)", HFILL}
+        },
+
+        /* ixia, 3054 / 262 */
+        {&hf_pie_ixia_dns_qdcount,
+         {"DNS HDR Question Count", "cflow.pie.ixia.dns-hdr-qdcount",
+          FT_UINT16, BASE_DEC, NULL, 0x0,
+          "DNS Header Question Count", HFILL}
+        },
+
+        /* ixia, 3054 / 263 */
+        {&hf_pie_ixia_dns_ancount,
+         {"DNS HDR Answer Count", "cflow.pie.ixia.dns-hdr-ancount",
+          FT_UINT16, BASE_DEC, NULL, 0x0,
+          "DNS Header Answer Count", HFILL}
+        },
+
+        /* ixia, 3054 / 264 */
+        {&hf_pie_ixia_dns_nscount,
+         {"DNS HDR Auth NS Count", "cflow.pie.ixia.dns-hdr-nscount",
+          FT_UINT16, BASE_DEC, NULL, 0x0,
+          "DNS Header Auth NS Count", HFILL}
+        },
+
+        /* ixia, 3054 / 265 */
+        {&hf_pie_ixia_dns_arcount,
+         {"DNS HDR Additional Count", "cflow.pie.ixia.dns-hdr-arcount",
+          FT_UINT16, BASE_DEC, NULL, 0x0,
+          "DNS Header Additional Count", HFILL}
+        },
+
+        /* ixia, 3054 / 266 */
+        {&hf_pie_ixia_dns_auth_answer,
+         {"DNS HDR Flag Authoritative Answer", "cflow.pie.ixia.dns-hdr-auth-ans",
+          FT_UINT8, BASE_DEC, NULL, 0x0,
+          "DNS Header Flag Authoritative Answer", HFILL}
+        },
+
+        /* ixia, 3054 / 267 */
+        {&hf_pie_ixia_dns_trucation,
+         {"DNS HDR Flag Truncated", "cflow.pie.ixia.dns-hdr-truncated",
+          FT_UINT8, BASE_DEC, NULL, 0x0,
+          "DNS Header Flag Truncated", HFILL}
+        },
+
+        /* ixia, 3054 / 268 */
+        {&hf_pie_ixia_dns_recursion_desired,
+         {"DNS HDR Flag Recursion Desired", "cflow.pie.ixia.dns-hdr-rd",
+          FT_UINT8, BASE_DEC, NULL, 0x0,
+          "DNS Header Flag Recursion Desired", HFILL}
+        },
+
+        /* ixia, 3054 / 269 */
+        {&hf_pie_ixia_dns_recursion_avail,
+         {"DNS HDR Flag Recursion Available", "cflow.pie.ixia.dns-hdr-ra",
+          FT_UINT8, BASE_DEC, NULL, 0x0,
+          "DNS Header Flag Recursion Available", HFILL}
+        },
+
+        /* ixia, 3054 / 270 */
+        {&hf_pie_ixia_dns_rdata_len,
+         {"DNS RData Len", "cflow.pie.ixia.dns-rdata-len",
+          FT_UINT16, BASE_DEC, NULL, 0x0,
+          "DNS RData Length", HFILL}
+        },
+
+        /* ixia, 3054 / 271 */
+        {&hf_pie_ixia_dns_questions,
+         {"DNS Questions", "cflow.pie.ixia.dns-questions",
+          FT_NONE, BASE_NONE, NULL, 0x0,
+          "List of Questions in a DNS Message", HFILL}
+        },
+
+        /* ixia, 3054 / 272 */
+        {&hf_pie_ixia_dns_query_type,
+         {"DNS Query Type", "cflow.pie.ixia.dns-qtype",
+          FT_UINT16, BASE_DEC, NULL, 0x0,
+          "DNS Question Qtype", HFILL}
+        },
+
+        /* ixia, 3054 / 273 */
+        {&hf_pie_ixia_dns_query_name,
+         {"DNS Query Name", "cflow.pie.ixia.dns-qname",
+          FT_STRING, STR_ASCII, NULL, 0x0,
+          "DNS Question Qname", HFILL}
+        },
+
+        /* ixia, 3054 / 274 */
+        {&hf_pie_ixia_dns_section_type,
+         {"DNS Msg Section Type", "cflow.pie.ixia.dns-section-type",
+          FT_UINT8, BASE_DEC, VALS(v10_ixia_dns_section_type), 0x0,
+          "DNS Message Section Type {0:Answer 1:Authoritative NS 2:Additional}", HFILL}
+        },
+
+        /* ixia, 3054 / 275 */
+        {&hf_pie_ixia_dns_qr_flag,
+         {"DNS HDR Flag QR", "cflow.pie.ixia.dns-hdr-qr",
+          FT_UINT8, BASE_DEC, VALS(v10_ixia_req_res_flag), 0x0,
+          "DNS Header Flag QR {0:Query, 1:Response}", HFILL}
+        },
+
+        /* ixia, 3054 / 276 */
+        {&hf_pie_ixia_dns_canonical_name,
+         {"DNS Cname", "cflow.pie.ixia.dns-cname",
+          FT_STRING, STR_ASCII, NULL, 0x0,
+          "DNS Canonical Name", HFILL}
+        },
+
+        /* ixia, 3054 / 277 */
+        {&hf_pie_ixia_dns_mx_domain,
+         {"DNS MX Domain", "cflow.pie.ixia.dns-mx-domain",
+          FT_STRING, STR_ASCII, NULL, 0x0,
+          "DNS Mail Exchange Domain", HFILL}
+        },
+
+        /* ixia, 3054 / 278 */
+        {&hf_pie_ixia_dhcp_agent_circuit_id,
+         {"DHCP Agent Circuit ID", "cflow.pie.ixia.dhcp-agent-circuitid",
+          FT_STRING, STR_ASCII, NULL, 0x0,
+          "DHCP Agent Circuit ID (Option 82 Sub 1)", HFILL}
+        },
+
+        /* ixia, 3054 / 279 */
+        {&hf_pie_ixia_ja3_fingerprint_string,
+         {"JA3 fingerprint", "cflow.pie.ixia.ja3-fingerprint",
+          FT_STRING, STR_ASCII, NULL, 0x0,
+          "JA3 fingerprint string", HFILL}
         },
 
         /* Netscaler root (a hidden item to allow filtering) */
