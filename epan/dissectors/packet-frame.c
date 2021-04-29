@@ -177,6 +177,15 @@ static dissector_table_t wtap_fts_rec_dissector_table;
 #define OPT_VERDICT_TYPE_TC  1
 #define OPT_VERDICT_TYPE_XDP 2
 
+/* Structure for passing as userdata to wtap_block_foreach_option */
+typedef struct fr_foreach_s {
+	proto_item *item;
+	proto_tree *tree;
+	tvbuff_t *tvb;
+	packet_info *pinfo;
+	guint n_changes;
+} fr_foreach_t;
+
 static const char *
 get_verdict_type_string(guint8 type)
 {
@@ -189,29 +198,6 @@ get_verdict_type_string(guint8 type)
 		return "eBPF_XDP";
 	}
 	return "Unknown";
-}
-
-static void
-format_verdict_summary(wtap_rec *rec, char *buffer, size_t n)
-{
-	buffer[0] = 0;
-
-	for(guint i = 0; i < rec->packet_verdict->len; i++) {
-		char *format = i ? ", %s (%u)" : "%s (%u)";
-		size_t offset = strlen(buffer);
-		GBytes *verdict = (GBytes *) g_ptr_array_index(rec->packet_verdict, i);
-		const guint8 *data;
-
-		if (verdict == NULL)
-			continue;
-
-		if (offset >= n)
-			return;
-
-		data = (const guint8 *) g_bytes_get_data(verdict, NULL);
-		snprintf(buffer + offset, n - offset,
-			 format, get_verdict_type_string(data[0]), data[0]);
-	}
 }
 
 static void
@@ -276,10 +262,80 @@ call_frame_end_routine(gpointer routine)
 	(*func)();
 }
 
+static gboolean
+frame_add_comment(wtap_block_t block _U_, guint option_id, wtap_opttype_e option_type _U_, wtap_optval_t *option, void *user_data)
+{
+	fr_foreach_t *fr_user_data = (fr_foreach_t *)user_data;
+	proto_item *comment_item;
+
+	if (option_id == OPT_COMMENT) {
+		comment_item = proto_tree_add_string_format(fr_user_data->tree, hf_comments_text,
+							    fr_user_data->tvb, 0, 0,
+							    option->stringval,
+							    "%s", option->stringval);
+		expert_add_info_format(fr_user_data->pinfo, comment_item, &ei_comments_text,
+				"%s",  option->stringval);
+	}
+	fr_user_data->n_changes++;
+	return TRUE;
+}
+
+static gboolean
+frame_add_verdict(wtap_block_t block _U_, guint option_id, wtap_opttype_e option_type _U_, wtap_optval_t *option, void *user_data)
+{
+	fr_foreach_t *fr_user_data = (fr_foreach_t *)user_data;
+
+	if (option_id == OPT_PKT_VERDICT) {
+		GBytes *verdict = option->byteval;
+		const guint8 *verdict_data;
+		gsize len;
+		char *format = fr_user_data->n_changes ? ", %s (%u)" : "%s (%u)";
+
+		if (verdict == NULL)
+			return TRUE;
+
+		verdict_data = (const guint8 *) g_bytes_get_data(verdict, &len);
+
+		if (len == 0)
+			return TRUE;
+
+		proto_item_append_text(fr_user_data->item, format,
+			 get_verdict_type_string(verdict_data[0]), verdict_data[0]);
+
+		len -= 1;
+		switch(verdict_data[0]) {
+			case OPT_VERDICT_TYPE_HW:
+				proto_tree_add_bytes_with_length(fr_user_data->tree, hf_frame_verdict_hardware,
+						fr_user_data->tvb, 0, 0, verdict_data + 1, (gint) len);
+				break;
+			case OPT_VERDICT_TYPE_TC:
+				if (len == 8) {
+					gint64 val;
+					memcpy(&val, verdict_data + 1, sizeof(val));
+					proto_tree_add_int64(fr_user_data->tree, hf_frame_verdict_tc, fr_user_data->tvb, 0, 0, val);
+				}
+				break;
+			case OPT_VERDICT_TYPE_XDP:
+				if (len == 8) {
+					gint64 val;
+					memcpy(&val, verdict_data + 1, sizeof(val));
+					proto_tree_add_int64(fr_user_data->tree, hf_frame_verdict_xdp, fr_user_data->tvb, 0, 0, val);
+				}
+				break;
+			default:
+				proto_tree_add_bytes_with_length(fr_user_data->tree, hf_frame_verdict_unknown,
+						fr_user_data->tvb, 0, 0, verdict_data, (gint) len + 1);
+				break;
+		}
+	}
+	fr_user_data->n_changes++;
+	return TRUE;
+}
+
 static int
 dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data)
 {
-	proto_item  *volatile ti = NULL, *comment_item;
+	proto_item  *volatile ti = NULL;
 	guint	     cap_len = 0, frame_len = 0;
 	proto_tree  *volatile tree;
 	proto_tree  *comments_tree;
@@ -289,6 +345,7 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 	frame_data_t *fr_data = (frame_data_t*)data;
 	const color_filter_t *color_filter;
 	dissector_handle_t dissector_handle;
+	fr_foreach_t fr_user_data;
 
 	tree=parent_tree;
 
@@ -397,17 +454,15 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 		DISSECTOR_ASSERT_NOT_REACHED();
 		break;
 	}
-
-	if (fr_data->pkt_comment) {
+	if (wtap_block_count_option(fr_data->pkt_block, OPT_COMMENT) > 0) {
 		item = proto_tree_add_item(tree, proto_pkt_comment, tvb, 0, 0, ENC_NA);
 		comments_tree = proto_item_add_subtree(item, ett_comments);
-		comment_item = proto_tree_add_string_format(comments_tree, hf_comments_text, tvb, 0, 0,
-									   fr_data->pkt_comment, "%s",
-									   fr_data->pkt_comment);
-		expert_add_info_format(pinfo, comment_item, &ei_comments_text,
-							       "%s",  fr_data->pkt_comment);
-
-
+		fr_user_data.item = item;
+		fr_user_data.tree = comments_tree;
+		fr_user_data.pinfo = pinfo;
+		fr_user_data.tvb = tvb;
+		fr_user_data.n_changes = 0;
+		wtap_block_foreach_option(fr_data->pkt_block, frame_add_comment, (void *)&fr_user_data);
 	}
 
 	/* if FRAME is not referenced from any filters we don't need to worry about
@@ -593,56 +648,18 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 			proto_tree_add_uint64(fh_tree, hf_frame_packet_id, tvb, 0, 0,
 					      pinfo->rec->rec_header.packet_header.packet_id);
 
-		if (pinfo->rec->presence_flags & WTAP_HAS_VERDICT &&
-		    pinfo->rec->packet_verdict != NULL) {
-			char line_buffer[128];
+		if (wtap_block_count_option(fr_data->pkt_block, OPT_PKT_VERDICT) > 0) {
 			proto_tree *verdict_tree;
 			proto_item *verdict_item;
 
-			format_verdict_summary(pinfo->rec, line_buffer, sizeof(line_buffer));
-			verdict_item = proto_tree_add_string(fh_tree, hf_frame_verdict, tvb, 0, 0, line_buffer);
+			verdict_item = proto_tree_add_string(fh_tree, hf_frame_verdict, tvb, 0, 0, "");
 			verdict_tree = proto_item_add_subtree(verdict_item, ett_verdict);
-
-			for(guint i = 0; i < pinfo->rec->packet_verdict->len; i++) {
-
-				GBytes *verdict = (GBytes *) g_ptr_array_index(pinfo->rec->packet_verdict, i);
-				const guint8 *verdict_data;
-				gsize len;
-
-				if (verdict == NULL)
-					continue;
-
-				verdict_data = (const guint8 *) g_bytes_get_data(verdict, &len);
-
-				if (len == 0)
-					continue;
-
-				len -= 1;
-				switch(verdict_data[0]) {
-				case OPT_VERDICT_TYPE_HW:
-					proto_tree_add_bytes_with_length(verdict_tree, hf_frame_verdict_hardware,
-									 tvb, 0, 0, verdict_data + 1, (gint) len);
-					break;
-				case OPT_VERDICT_TYPE_TC:
-					if (len == 8) {
-						gint64 val;
-						memcpy(&val, verdict_data + 1, sizeof(val));
-						proto_tree_add_int64(verdict_tree, hf_frame_verdict_tc, tvb, 0, 0, val);
-					}
-					break;
-				case OPT_VERDICT_TYPE_XDP:
-					if (len == 8) {
-						gint64 val;
-						memcpy(&val, verdict_data + 1, sizeof(val));
-						proto_tree_add_int64(verdict_tree, hf_frame_verdict_xdp, tvb, 0, 0, val);
-					}
-					break;
-				default:
-					proto_tree_add_bytes_with_length(verdict_tree, hf_frame_verdict_unknown,
-									 tvb, 0, 0, verdict_data, (gint) len + 1);
-					break;
-				}
-			}
+			fr_user_data.item = verdict_item;
+			fr_user_data.tree = verdict_tree;
+			fr_user_data.pinfo = pinfo;
+			fr_user_data.tvb = tvb;
+			fr_user_data.n_changes = 0;
+			wtap_block_foreach_option(pinfo->rec->block, frame_add_verdict, (void *)&fr_user_data);
 		}
 
 		if (pinfo->rec->rec_type == REC_TYPE_PACKET)

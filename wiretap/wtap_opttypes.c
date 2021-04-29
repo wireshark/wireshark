@@ -18,6 +18,16 @@
 #include <wsutil/ws_assert.h>
 
 #include <wsutil/glib-compat.h>
+#include <wsutil/inet_ipv6.h>
+
+#if 0
+#define wtap_debug(...) g_warning(__VA_ARGS__)
+#define DEBUG_COUNT_REFS
+#else
+#define wtap_debug(...)
+#endif
+
+#define ROUND_TO_4BYTE(len) (((len) + 3) & ~3)
 
 /*
  * Structure describing a type of block.
@@ -48,11 +58,36 @@ typedef struct {
 /* Flags */
 #define WTAP_OPTTYPE_FLAG_MULTIPLE_ALLOWED 0x00000001 /* multiple instances allowed */
 
+/* Debugging reference counting */
+#ifdef DEBUG_COUNT_REFS
+static guint block_count = 0;
+static guint8 blocks_active[sizeof(guint)/8];
+
+static void rc_set(guint refnum)
+{
+    guint cellno = refnum / 8;
+    guint bitno = refnum % 8;
+    blocks_active[cellno] |= (guint8)(1 << bitno);
+}
+
+static void rc_clear(guint refnum)
+{
+    guint cellno = refnum / 8;
+    guint bitno = refnum % 8;
+    blocks_active[cellno] &= (guint8)~(1 << bitno);
+}
+
+#endif /* DEBUG_COUNT_REFS */
+
 struct wtap_block
 {
     wtap_blocktype_t* info;
     void* mandatory_data;
     GArray* options;
+    gint ref_count;
+#ifdef DEBUG_COUNT_REFS
+    guint id;
+#endif
 };
 
 /* Keep track of wtap_blocktype_t's via their id number */
@@ -182,6 +217,10 @@ wtap_block_get_option(wtap_block_t block, guint option_id)
     guint i;
     wtap_option_t *opt;
 
+    if (block == NULL) {
+        return NULL;
+    }
+
     for (i = 0; i < block->options->len; i++) {
         opt = &g_array_index(block->options, wtap_option_t, i);
         if (opt->option_id == option_id)
@@ -197,6 +236,10 @@ wtap_block_get_nth_option(wtap_block_t block, guint option_id, guint idx)
     guint i;
     wtap_option_t *opt;
     guint opt_idx;
+
+    if (block == NULL) {
+        return NULL;
+    }
 
     opt_idx = 0;
     for (i = 0; i < block->options->len; i++) {
@@ -222,6 +265,12 @@ wtap_block_t wtap_block_create(wtap_block_type_t block_type)
     block->info = blocktype_list[block_type];
     block->options = g_array_new(FALSE, FALSE, sizeof(wtap_option_t));
     block->info->create(block);
+    block->ref_count = 1;
+#ifdef DEBUG_COUNT_REFS
+    block->id = block_count++;
+    rc_set(block->id);
+    wtap_debug("Created #%d %s", block->id, block->info->name);
+#endif /* DEBUG_COUNT_REFS */
 
     return block;
 }
@@ -230,11 +279,19 @@ static void wtap_block_free_option(wtap_block_t block, wtap_option_t *opt)
 {
     const wtap_opttype_t *opttype;
 
+    if (block == NULL) {
+        return;
+    }
+
     opttype = GET_OPTION_TYPE(block->info->options, opt->option_id);
     switch (opttype->data_type) {
 
     case WTAP_OPTTYPE_STRING:
         g_free(opt->value.stringval);
+        break;
+
+    case WTAP_OPTTYPE_BYTES:
+        g_bytes_unref(opt->value.byteval);
         break;
 
     case WTAP_OPTTYPE_IF_FILTER:
@@ -255,23 +312,52 @@ static void wtap_block_free_options(wtap_block_t block)
     guint i;
     wtap_option_t *opt;
 
+    if (block == NULL || block->options == NULL) {
+        return;
+    }
+
     for (i = 0; i < block->options->len; i++) {
         opt = &g_array_index(block->options, wtap_option_t, i);
         wtap_block_free_option(block, opt);
     }
+    g_array_remove_range(block->options, 0, block->options->len);
 }
 
-void wtap_block_free(wtap_block_t block)
+wtap_block_t wtap_block_ref(wtap_block_t block)
+{
+    if (block == NULL) {
+        return NULL;
+    }
+
+    g_atomic_int_inc(&block->ref_count);
+#ifdef DEBUG_COUNT_REFS
+        wtap_debug("Ref     #%d %s", block->id, block->info->name);
+#endif /* DEBUG_COUNT_REFS */
+    return block;
+}
+
+void wtap_block_unref(wtap_block_t block)
 {
     if (block != NULL)
     {
-        if (block->info->free_mand != NULL)
-            block->info->free_mand(block);
+        if (g_atomic_int_dec_and_test(&block->ref_count)) {
+#ifdef DEBUG_COUNT_REFS
+            wtap_debug("Destroy #%d %s", block->id, block->info->name);
+            rc_clear(block->id);
+#endif /* DEBUG_COUNT_REFS */
+            if (block->info->free_mand != NULL)
+                block->info->free_mand(block);
 
-        g_free(block->mandatory_data);
-        wtap_block_free_options(block);
-        g_array_free(block->options, TRUE);
-        g_free(block);
+            g_free(block->mandatory_data);
+            wtap_block_free_options(block);
+            g_array_free(block->options, TRUE);
+            g_free(block);
+        }
+#ifdef DEBUG_COUNT_REFS
+        else {
+            wtap_debug("Unref   #%d %s", block->id, block->info->name);
+        }
+#endif /* DEBUG_COUNT_REFS */
     }
 }
 
@@ -283,7 +369,7 @@ void wtap_block_array_free(GArray* block_array)
         return;
 
     for (block = 0; block < block_array->len; block++) {
-        wtap_block_free(g_array_index(block_array, wtap_block_t, block));
+        wtap_block_unref(g_array_index(block_array, wtap_block_t, block));
     }
     g_array_free(block_array, TRUE);
 }
@@ -318,6 +404,10 @@ wtap_block_copy(wtap_block_t dest_block, wtap_block_t src_block)
             wtap_block_add_uint8_option(dest_block, src_opt->option_id, src_opt->value.uint8val);
             break;
 
+        case WTAP_OPTTYPE_UINT32:
+            wtap_block_add_uint32_option(dest_block, src_opt->option_id, src_opt->value.uint32val);
+            break;
+
         case WTAP_OPTTYPE_UINT64:
             wtap_block_add_uint64_option(dest_block, src_opt->option_id, src_opt->value.uint64val);
             break;
@@ -332,6 +422,10 @@ wtap_block_copy(wtap_block_t dest_block, wtap_block_t src_block)
 
         case WTAP_OPTTYPE_STRING:
             wtap_block_add_string_option(dest_block, src_opt->option_id, src_opt->value.stringval, strlen(src_opt->value.stringval));
+            break;
+
+        case WTAP_OPTTYPE_BYTES:
+            wtap_block_add_bytes_option_borrow(dest_block, src_opt->option_id, src_opt->value.byteval);
             break;
 
         case WTAP_OPTTYPE_IF_FILTER:
@@ -354,11 +448,128 @@ wtap_block_t wtap_block_make_copy(wtap_block_t block)
     return block_copy;
 }
 
+/*
+ * Get the (un-padded) size of the given option value, by its type.
+ */
+gsize
+wtap_block_option_get_value_size(wtap_opttype_e option_type, wtap_optval_t *option)
+{
+    gsize ret_val = 0;
+
+    switch(option_type) {
+
+    case WTAP_OPTTYPE_UINT8:
+        ret_val += 1;
+        break;
+
+    case WTAP_OPTTYPE_UINT32:
+        ret_val += 4;
+        break;
+
+    case WTAP_OPTTYPE_UINT64:
+        ret_val += 8;
+        break;
+
+    case WTAP_OPTTYPE_IPv4:
+        ret_val += 4;
+        break;
+
+    case WTAP_OPTTYPE_IPv6:
+        ret_val += IPv6_ADDR_SIZE;
+        break;
+
+    case WTAP_OPTTYPE_STRING:
+        ret_val += strlen(option->stringval);
+        break;
+
+    case WTAP_OPTTYPE_BYTES:
+        ret_val += g_bytes_get_size(option->byteval);
+        break;
+
+    case WTAP_OPTTYPE_IF_FILTER:
+        switch(option->if_filterval.type) {
+
+        case if_filter_pcap:
+            ret_val += 1 + strlen(option->if_filterval.data.filter_str);
+            break;
+
+        case if_filter_bpf:
+            ret_val += 1 + (8 * option->if_filterval.data.bpf_prog.bpf_prog_len);
+            break;
+        }
+        break;
+
+    case WTAP_OPTTYPE_CUSTOM:
+        ret_val += sizeof(guint32) + option->custom_opt.custom_data_len;
+        break;
+    }
+    return ret_val;
+}
+
+/*
+ * Get the size of all options, padded to a 32-bit boundary.
+ */
+gsize
+wtap_block_get_options_size_padded(wtap_block_t block)
+{
+    gsize ret_val = 0;
+    gsize opt_size = 0;
+    guint i;
+    wtap_option_t *opt;
+    const wtap_opttype_t *opttype;
+
+    if (block == NULL) {
+        return 0;
+    }
+
+    for (i = 0; i < block->options->len; i++)
+    {
+
+        opt = &g_array_index(block->options, wtap_option_t, i);
+        opttype = GET_OPTION_TYPE(block->info->options, opt->option_id);
+
+        opt_size = ROUND_TO_4BYTE(wtap_block_option_get_value_size(opttype->data_type, &opt->value));
+
+        /* pcapng.c silently skips over data that's too big to fit in an option.
+         * Reflect that when calculating the size of our options.
+         */
+        if (opt_size <= 0xffff) {
+            ret_val += opt_size + 4; // 4 for size of type and length fields themselves
+        }
+    }
+    return ret_val;
+}
+
+guint
+wtap_block_count_option(wtap_block_t block, guint option_id)
+{
+    guint i;
+    guint ret_val = 0;
+    wtap_option_t *opt;
+
+    if (block == NULL) {
+        return 0;
+    }
+
+    for (i = 0; i < block->options->len; i++) {
+        opt = &g_array_index(block->options, wtap_option_t, i);
+        if (opt->option_id == option_id)
+            ret_val++;
+    }
+
+    return ret_val;
+}
+
+
 gboolean wtap_block_foreach_option(wtap_block_t block, wtap_block_foreach_func func, void* user_data)
 {
     guint i;
     wtap_option_t *opt;
     const wtap_opttype_t *opttype;
+
+    if (block == NULL) {
+        return TRUE;
+    }
 
     for (i = 0; i < block->options->len; i++) {
         opt = &g_array_index(block->options, wtap_option_t, i);
@@ -375,6 +586,10 @@ wtap_block_add_option_common(wtap_block_t block, guint option_id, wtap_opttype_e
     wtap_option_t *opt;
     const wtap_opttype_t *opttype;
     guint i;
+
+    if (block == NULL) {
+        return WTAP_OPTTYPE_BAD_BLOCK;
+    }
 
     opttype = GET_OPTION_TYPE(block->info->options, option_id);
     if (opttype == NULL) {
@@ -424,6 +639,10 @@ wtap_block_get_option_common(wtap_block_t block, guint option_id, wtap_opttype_e
     const wtap_opttype_t *opttype;
     wtap_optval_t *optval;
 
+    if (block == NULL) {
+        return WTAP_OPTTYPE_BAD_BLOCK;
+    }
+
     opttype = GET_OPTION_TYPE(block->info->options, option_id);
     if (opttype == NULL) {
         /* There's no option for this block with that option ID */
@@ -465,6 +684,10 @@ wtap_block_get_nth_option_common(wtap_block_t block, guint option_id, wtap_optty
 {
     const wtap_opttype_t *opttype;
     wtap_optval_t *optval;
+
+    if (block == NULL) {
+        return WTAP_OPTTYPE_BAD_BLOCK;
+    }
 
     opttype = GET_OPTION_TYPE(block->info->options, option_id);
     if (opttype == NULL) {
@@ -538,6 +761,45 @@ wtap_block_get_uint8_option_value(wtap_block_t block, guint option_id, guint8* v
     if (ret != WTAP_OPTTYPE_SUCCESS)
         return ret;
     *value = optval->uint8val;
+    return WTAP_OPTTYPE_SUCCESS;
+}
+
+wtap_opttype_return_val
+wtap_block_add_uint32_option(wtap_block_t block, guint option_id, guint32 value)
+{
+    wtap_opttype_return_val ret;
+    wtap_option_t *opt;
+
+    ret = wtap_block_add_option_common(block, option_id, WTAP_OPTTYPE_UINT32, &opt);
+    if (ret != WTAP_OPTTYPE_SUCCESS)
+        return ret;
+    opt->value.uint32val = value;
+    return WTAP_OPTTYPE_SUCCESS;
+}
+
+wtap_opttype_return_val
+wtap_block_set_uint32_option_value(wtap_block_t block, guint option_id, guint32 value)
+{
+    wtap_opttype_return_val ret;
+    wtap_optval_t *optval;
+
+    ret = wtap_block_get_option_common(block, option_id, WTAP_OPTTYPE_UINT32, &optval);
+    if (ret != WTAP_OPTTYPE_SUCCESS)
+        return ret;
+    optval->uint32val = value;
+    return WTAP_OPTTYPE_SUCCESS;
+}
+
+wtap_opttype_return_val
+wtap_block_get_uint32_option_value(wtap_block_t block, guint option_id, guint32* value)
+{
+    wtap_opttype_return_val ret;
+    wtap_optval_t *optval;
+
+    ret = wtap_block_get_option_common(block, option_id, WTAP_OPTTYPE_UINT32, &optval);
+    if (ret != WTAP_OPTTYPE_SUCCESS)
+        return ret;
+    *value = optval->uint32val;
     return WTAP_OPTTYPE_SUCCESS;
 }
 
@@ -810,6 +1072,95 @@ wtap_block_get_nth_string_option_value(wtap_block_t block, guint option_id, guin
 }
 
 wtap_opttype_return_val
+wtap_block_add_bytes_option(wtap_block_t block, guint option_id, const guint8 *value, gsize value_length)
+{
+    wtap_opttype_return_val ret;
+    wtap_option_t *opt;
+
+    ret = wtap_block_add_option_common(block, option_id, WTAP_OPTTYPE_BYTES, &opt);
+    if (ret != WTAP_OPTTYPE_SUCCESS)
+        return ret;
+    opt->value.byteval = g_bytes_new(value, value_length);
+    return WTAP_OPTTYPE_SUCCESS;
+}
+
+wtap_opttype_return_val
+wtap_block_add_bytes_option_borrow(wtap_block_t block, guint option_id, GBytes *value)
+{
+    wtap_opttype_return_val ret;
+    wtap_option_t *opt;
+
+    ret = wtap_block_add_option_common(block, option_id, WTAP_OPTTYPE_BYTES, &opt);
+    if (ret != WTAP_OPTTYPE_SUCCESS)
+        return ret;
+    opt->value.byteval = g_bytes_ref(value);
+    return WTAP_OPTTYPE_SUCCESS;
+}
+
+wtap_opttype_return_val
+wtap_block_set_bytes_option_value(wtap_block_t block, guint option_id, const guint8 *value, size_t value_length)
+{
+    wtap_opttype_return_val ret;
+    wtap_optval_t *optval;
+
+    ret = wtap_block_get_option_common(block, option_id, WTAP_OPTTYPE_BYTES, &optval);
+    if (ret != WTAP_OPTTYPE_SUCCESS) {
+        if (ret == WTAP_OPTTYPE_NOT_FOUND) {
+            /*
+             * There's no instance to set, so just try to create a new one
+             * with the value.
+             */
+            return wtap_block_add_bytes_option(block, option_id, value, value_length);
+        }
+        /* Otherwise fail. */
+        return ret;
+    }
+    g_bytes_unref(optval->byteval);
+    optval->byteval = g_bytes_new(value, value_length);
+    return WTAP_OPTTYPE_SUCCESS;
+}
+
+wtap_opttype_return_val
+wtap_block_set_nth_bytes_option_value(wtap_block_t block, guint option_id, guint idx, GBytes *value)
+{
+    wtap_opttype_return_val ret;
+    wtap_optval_t *optval;
+
+    ret = wtap_block_get_nth_option_common(block, option_id, WTAP_OPTTYPE_BYTES, idx, &optval);
+    if (ret != WTAP_OPTTYPE_SUCCESS)
+        return ret;
+    g_bytes_unref(optval->byteval);
+    optval->byteval = g_bytes_ref(value);
+    return WTAP_OPTTYPE_SUCCESS;
+}
+
+wtap_opttype_return_val
+wtap_block_get_bytes_option_value(wtap_block_t block, guint option_id, GBytes** value)
+{
+    wtap_opttype_return_val ret;
+    wtap_optval_t *optval;
+
+    ret = wtap_block_get_option_common(block, option_id, WTAP_OPTTYPE_BYTES, &optval);
+    if (ret != WTAP_OPTTYPE_SUCCESS)
+        return ret;
+    *value = optval->byteval;
+    return WTAP_OPTTYPE_SUCCESS;
+}
+
+wtap_opttype_return_val
+wtap_block_get_nth_bytes_option_value(wtap_block_t block, guint option_id, guint idx, GBytes** value)
+{
+    wtap_opttype_return_val ret;
+    wtap_optval_t *optval;
+
+    ret = wtap_block_get_nth_option_common(block, option_id, WTAP_OPTTYPE_BYTES, idx, &optval);
+    if (ret != WTAP_OPTTYPE_SUCCESS)
+        return ret;
+    *value = optval->byteval;
+    return WTAP_OPTTYPE_SUCCESS;
+}
+
+wtap_opttype_return_val
 wtap_block_add_if_filter_option(wtap_block_t block, guint option_id, if_filter_opt_t* value)
 {
     wtap_opttype_return_val ret;
@@ -875,6 +1226,10 @@ wtap_block_remove_option(wtap_block_t block, guint option_id)
     guint i;
     wtap_option_t *opt;
 
+    if (block == NULL) {
+        return WTAP_OPTTYPE_BAD_BLOCK;
+    }
+
     opttype = GET_OPTION_TYPE(block->info->options, option_id);
     if (opttype == NULL) {
         /* There's no option for this block with that option ID */
@@ -914,6 +1269,10 @@ wtap_block_remove_nth_option_instance(wtap_block_t block, guint option_id,
     guint i;
     wtap_option_t *opt;
     guint opt_idx;
+
+    if (block == NULL) {
+        return WTAP_OPTTYPE_BAD_BLOCK;
+    }
 
     opttype = GET_OPTION_TYPE(block->info->options, option_id);
     if (opttype == NULL) {
@@ -992,7 +1351,7 @@ static void idb_free_mand(wtap_block_t block)
 
     for(j = 0; j < mand->num_stat_entries; j++) {
         if_stats = g_array_index(mand->interface_statistics, wtap_block_t, j);
-        wtap_block_free(if_stats);
+        wtap_block_unref(if_stats);
     }
 
     if (mand->interface_statistics)
@@ -1042,6 +1401,17 @@ static void dsb_copy_mand(wtap_block_t dest_block, wtap_block_t src_block)
     dst->secrets_len = src->secrets_len;
     g_free(dst->secrets_data);
     dst->secrets_data = (guint8 *)g_memdup2(src->secrets_data, src->secrets_len);
+}
+
+static void pkt_create(wtap_block_t block)
+{
+    /* Commented out for now, there's no mandatory data that isn't handled by
+     * Wireshark in other ways.
+     */
+    //block->mandatory_data = g_new0(wtapng_packet_mandatory_t, 1);
+
+    /* Ensure this is null, so when g_free is called on it, it simply returns */
+    block->mandatory_data = NULL;
 }
 
 void wtap_opttypes_initialize(void)
@@ -1222,6 +1592,56 @@ void wtap_opttypes_initialize(void)
         0
     };
 
+    static wtap_blocktype_t pkt_block = {
+        WTAP_BLOCK_PACKET,            /* block_type */
+        "EPB/SPB/PB",                 /* name */
+        "Packet Block",               /* description */
+        pkt_create,                   /* create */
+        NULL,                         /* free_mand */
+        NULL,                         /* copy_mand */
+        NULL                          /* options */
+    };
+#if 0
+    // We handle these options via a different mechanism
+    static const wtap_opttype_t pkt_flags = {
+        "flags",
+        "Link-layer flags",
+        WTAP_OPTTYPE_UINT32,
+        0
+    };
+    static const wtap_opttype_t pkt_hash = {
+        "hash",
+        "Hash of packet data",
+        WTAP_OPTTYPE_BYTES,  // TODO: replace with a pkt_filter_opt_t
+        WTAP_OPTTYPE_FLAG_MULTIPLE_ALLOWED
+    };
+    static const wtap_opttype_t pkt_dropcount = {
+        "dropcount",
+        "Packets Dropped since last packet",
+        WTAP_OPTTYPE_UINT64,
+        0
+    };
+    static const wtap_opttype_t pkt_id = {
+        "packetid",
+        "Unique Packet Identifier",
+        WTAP_OPTTYPE_UINT64,
+        0
+    };
+    static const wtap_opttype_t pkt_queue = {
+        "queue",
+        "Queue ID in which packet was received",
+        WTAP_OPTTYPE_UINT32,
+        0
+    };
+#endif
+    static const wtap_opttype_t pkt_verdict = {
+        "verdict",
+        "Packet Verdict",
+        WTAP_OPTTYPE_BYTES,  // maybe replace with a pkt_verdict_opt_t
+                             // (or maybe not, packet-frame.c reads the raw bytes)
+        WTAP_OPTTYPE_FLAG_MULTIPLE_ALLOWED
+    };
+
     /*
      * Register the SHB and the options that can appear in it.
      */
@@ -1267,11 +1687,38 @@ void wtap_opttypes_initialize(void)
      * Register the DSB, currently no options are defined.
      */
     wtap_opttype_block_register(&dsb_block);
+
+    /*
+     * Register EPB/SPB/PB and the options that can appear in it/them.
+     * NB: Simple Packet Blocks have no options.
+     * NB: obsolete Packet Blocks have dropcount as a mandatory member instead
+     * of an option.
+     */
+    wtap_opttype_block_register(&pkt_block);
+#if 0
+    // We handle these options via a different mechanism
+    wtap_opttype_option_register(&pkt_block, OPT_PKT_FLAGS, &pkt_flags);
+    wtap_opttype_option_register(&pkt_block, OPT_PKT_HASH, &pkt_hash);
+    wtap_opttype_option_register(&pkt_block, OPT_PKT_DROPCOUNT, &pkt_dropcount);
+    wtap_opttype_option_register(&pkt_block, OPT_PKT_PACKETID, &pkt_id);
+    wtap_opttype_option_register(&pkt_block, OPT_PKT_QUEUE, &pkt_queue);
+#endif
+    wtap_opttype_option_register(&pkt_block, OPT_PKT_VERDICT, &pkt_verdict);
+
+#ifdef DEBUG_COUNT_REFS
+    memset(blocks_active, 0, sizeof(blocks_active));
+#endif
 }
 
 void wtap_opttypes_cleanup(void)
 {
     guint block_type;
+#ifdef DEBUG_COUNT_REFS
+    guint i;
+    guint cellno;
+    guint bitno;
+    guint8 mask;
+#endif /* DEBUG_COUNT_REFS */
 
     for (block_type = (guint)WTAP_BLOCK_SECTION;
          block_type < (guint)MAX_WTAP_BLOCK_TYPE_VALUE; block_type++) {
@@ -1281,4 +1728,16 @@ void wtap_opttypes_cleanup(void)
             blocktype_list[block_type] = NULL;
         }
     }
+
+#ifdef DEBUG_COUNT_REFS
+    for (i = 0 ; i < block_count; i++) {
+        cellno = i / 8;
+        bitno = i % 8;
+        mask = 1 << bitno;
+
+        if ((blocks_active[cellno] & mask) == mask) {
+            wtap_debug("wtap_opttypes_cleanup: orphaned block #%d", i);
+        }
+    }
+#endif /* DEBUG_COUNT_REFS */
 }

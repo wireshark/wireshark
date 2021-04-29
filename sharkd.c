@@ -48,6 +48,7 @@
 #include "ui/filter_files.h"
 #include "ui/tap_export_pdu.h"
 #include "ui/failure_message.h"
+#include "wtap.h"
 #include <epan/epan_dissect.h>
 #include <epan/tap.h>
 #include <epan/uat-int.h>
@@ -240,7 +241,7 @@ sharkd_epan_new(capture_file *cf)
     sharkd_get_frame_ts,
     cap_file_provider_get_interface_name,
     cap_file_provider_get_interface_description,
-    cap_file_provider_get_user_comment
+    cap_file_provider_get_user_block
   };
 
   return epan_new(&cf->provider, &funcs);
@@ -767,16 +768,55 @@ sharkd_filter(const char *dftext, guint8 **result)
   return framenum;
 }
 
-const char *
-sharkd_get_user_comment(const frame_data *fd)
+/*
+ * Get the user block if available, nothing otherwise.
+ * Must be cloned if changes desired.
+ */
+wtap_block_t
+sharkd_get_user_block(const frame_data *fd)
 {
-  return cap_file_provider_get_user_comment(&cfile.provider, fd);
+  return cap_file_provider_get_user_block(&cfile.provider, fd);
+}
+
+/*
+ * Gets the user block if available, otherwise the packet's default block,
+ * or a new packet block.
+ * User must wtap_block_unref() it when done.
+ */
+wtap_block_t
+sharkd_get_packet_block(const frame_data *fd)
+{
+  if (fd->has_user_block)
+    return wtap_block_ref(cap_file_provider_get_user_block(&cfile.provider, fd));
+  if (fd->has_phdr_block)
+  {
+    wtap_rec rec; /* Record metadata */
+    Buffer buf;   /* Record data */
+    wtap_block_t block;
+    int err;
+    gchar *err_info;
+
+    wtap_rec_init(&rec);
+    ws_buffer_init(&buf, 1514);
+
+    if (!wtap_seek_read(cfile.provider.wth, fd->file_off, &rec, &buf, &err, &err_info))
+      { /* XXX, what we can do here? */ }
+
+    /* rec.block is owned by the record, steal it before it is gone. */
+    block = wtap_block_ref(rec.block);
+
+    wtap_rec_cleanup(&rec);
+    ws_buffer_free(&buf);
+    return block;
+  }
+  else
+    return wtap_block_create(WTAP_BLOCK_PACKET);
 }
 
 int
-sharkd_set_user_comment(frame_data *fd, const gchar *new_comment)
+sharkd_set_user_block(frame_data *fd, wtap_block_t new_block)
 {
-  cap_file_provider_set_user_comment(&cfile.provider, fd, new_comment);
+  cap_file_provider_set_user_block(&cfile.provider, fd, new_block);
   return 0;
 }
 

@@ -19,6 +19,7 @@
 #include "config.h"
 
 #include "wslua.h"
+#include <wiretap/wtap_opttypes.h>
 #include <wiretap/wtap-int.h>
 
 /* this is way overkill for this one member, but in case we need to add

@@ -1342,17 +1342,10 @@ typedef struct {
         wtap_systemd_journal_export_header systemd_journal_export_header;
         wtap_custom_block_header custom_block_header;
     } rec_header;
-    /*
-     * XXX - this should become a full set of options.
-     */
-    gchar     *opt_comment;     /* NULL if not available */
-    gboolean  has_comment_changed; /* TRUE if the comment has been changed. Currently only valid while dumping. */
-    GPtrArray *packet_verdict;     /* packet verdicts. It would have made more
-                                      sense to put this in packet_header above
-                                      but due to the way the current code is
-                                      reusing the wtap_rec structure, it's
-                                      impossible to nicely clean it up. */
-    GArray    *custom_options;     /* Array of generic custom options of EPBs */
+
+    wtap_block_t block;         /* packet block; holds comments and verdicts in its options */
+    gboolean has_block_changed; /* TRUE if ANY aspect of the block has changed */
+
     /*
      * We use a Buffer so that we don't have to allocate and free
      * a buffer for the options for each record.
@@ -1385,12 +1378,10 @@ typedef struct {
 #define WTAP_HAS_TS            0x00000001  /**< time stamp */
 #define WTAP_HAS_CAP_LEN       0x00000002  /**< captured length separate from on-the-network length */
 #define WTAP_HAS_INTERFACE_ID  0x00000004  /**< interface ID */
-#define WTAP_HAS_COMMENTS      0x00000008  /**< comments */
 #define WTAP_HAS_DROP_COUNT    0x00000010  /**< drop count */
 #define WTAP_HAS_PACK_FLAGS    0x00000020  /**< packet flags */
 #define WTAP_HAS_PACKET_ID     0x00000040  /**< packet id */
 #define WTAP_HAS_INT_QUEUE     0x00000080  /**< interface queue */
-#define WTAP_HAS_VERDICT       0x00000100  /**< packet verdict */
 
 #ifndef MAXNAMELEN
 #define MAXNAMELEN  	64	/* max name length (hostname and port name) */

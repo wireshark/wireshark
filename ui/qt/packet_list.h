@@ -71,8 +71,9 @@ public:
     bool contextMenuActive();
     QString getFilterFromRowAndColumn(QModelIndex idx);
     void resetColorized();
-    QString packetComment();
-    void setPacketComment(QString new_comment);
+    QString getPacketComment(guint c_number);
+    void addPacketComment(QString new_comment);
+    void setPacketComment(guint c_number, QString new_comment);
     QString allPacketComments();
     void deleteAllPacketComments();
     void setVerticalAutoScroll(bool enabled = true);

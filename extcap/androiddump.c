@@ -503,8 +503,7 @@ static gboolean extcap_dumper_dump(struct extcap_dumper extcap_dumper,
     rec.ts.secs = seconds;
     rec.ts.nsecs = (int) nanoseconds;
 
-    rec.opt_comment = 0;
-    rec.opt_comment = NULL;
+    rec.block = NULL;
     rec.rec_header.packet_header.drop_count = 0;
     rec.rec_header.packet_header.pack_flags = 0;
 

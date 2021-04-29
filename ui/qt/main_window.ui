@@ -665,7 +665,12 @@
     <addaction name="separator"/>
     <addaction name="actionEditTimeShift"/>
     <addaction name="separator"/>
-    <addaction name="actionEditPacketComment"/>
+    <widget class="QMenu" name="menuPacketComment">
+     <property name="title">
+      <string>Packet Comments</string>
+     </property>
+    </widget>
+    <addaction name="menuPacketComment"/>
     <addaction name="actionDeleteAllPacketComments"/>
     <addaction name="separator"/>
     <addaction name="actionEditConfigurationProfiles"/>
@@ -1577,17 +1582,6 @@
    </property>
    <property name="shortcut">
     <string notr="true">Ctrl+Shift+T</string>
-   </property>
-  </action>
-  <action name="actionEditPacketComment">
-   <property name="text">
-    <string>Packet Comment…</string>
-   </property>
-   <property name="toolTip">
-    <string>Add or change a packet comment</string>
-   </property>
-   <property name="shortcut">
-    <string notr="true">Ctrl+Alt+C</string>
    </property>
   </action>
   <action name="actionDeleteAllPacketComments">

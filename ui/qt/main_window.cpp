@@ -510,6 +510,8 @@ MainWindow::MainWindow(QWidget *parent) :
     connect(packet_list_, SIGNAL(framesSelected(QList<int>)), this, SLOT(setMenusForSelectedPacket()));
     connect(packet_list_, SIGNAL(framesSelected(QList<int>)), this, SIGNAL(framesSelected(QList<int>)));
 
+    connect(main_ui_->menuPacketComment, SIGNAL(aboutToShow()), this, SLOT(setEditCommentsMenu()));
+
     proto_tree_ = new ProtoTree(&master_split_);
     proto_tree_->installEventFilter(this);
 

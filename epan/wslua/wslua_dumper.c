@@ -14,6 +14,7 @@
 
 #include "config.h"
 
+#include <wiretap/wtap_opttypes.h>
 #include <epan/wmem/wmem.h>
 
 /* WSLUA_MODULE Dumper Saving Capture Files
@@ -384,8 +385,8 @@ WSLUA_METHOD Dumper_dump(lua_State* L) {
         rec.rec_header.packet_header.pseudo_header = *ph->wph;
     }
 
-    /* TODO: Can we get access to pinfo->pkt_comment here somehow? We
-     * should be copying it to pkthdr.opt_comment if we can. */
+    /* TODO: Can we get access to pinfo->rec->block here somehow? We
+     * should be copying it to pkthdr.pkt_block if we can. */
 
     if (! wtap_dump(d, &rec, ba->data, &err, &err_info)) {
         switch (err) {
@@ -539,15 +540,15 @@ WSLUA_METHOD Dumper_dump_current(lua_State* L) {
     rec.rec_header.packet_header.pseudo_header = *lua_pinfo->pseudo_header;
 
     /*
-     * wtap_dump does not modify rec.opt_comment, so it should be possible to
-     * pass epan_get_user_comment() or lua_pinfo->rec->opt_comment directly.
+     * wtap_dump does not modify rec.block, so it should be possible to
+     * pass epan_get_user_block() or lua_pinfo->rec->block directly.
      * Temporarily duplicating the memory should not hurt though.
      */
-    if (lua_pinfo->fd->has_user_comment) {
-        rec.opt_comment = wmem_strdup(wmem_packet_scope(), epan_get_user_comment(lua_pinfo->epan, lua_pinfo->fd));
-        rec.has_comment_changed = TRUE;
-    } else if (lua_pinfo->fd->has_phdr_comment) {
-        rec.opt_comment = wmem_strdup(wmem_packet_scope(), lua_pinfo->rec->opt_comment);
+    if (lua_pinfo->fd->has_user_block) {
+        rec.block = epan_get_user_block(lua_pinfo->epan, lua_pinfo->fd);
+        rec.has_block_changed = TRUE;
+    } else if (lua_pinfo->fd->has_phdr_block) {
+        rec.block = lua_pinfo->rec->block;
     }
 
     data = (const guchar *)tvb_memdup(wmem_packet_scope(),tvb,0,rec.rec_header.packet_header.caplen);

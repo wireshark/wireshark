@@ -666,7 +666,6 @@ function Packet:set_wslua_fields(frame)
     frame.flags = wtap_presence_flags.TS  -- for timestamp
     if self.comment then
         frame.comment = self.comment
-        frame.flags = frame.flags + wtap_presence_flags.COMMENTS  -- comment flag
     end
     return true
 end

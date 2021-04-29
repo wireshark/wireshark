@@ -9,6 +9,7 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
+#include "wtap_opttypes.h"
 #include <config.h>
 
 #include <stdio.h>
@@ -1443,9 +1444,9 @@ sharkd_session_process_frames(const char *buf, const jsmntok_t *tokens, int coun
 
 		sharkd_json_value_anyf("num", "%u", framenum);
 
-		if (fdata->has_user_comment || fdata->has_phdr_comment)
+		if (fdata->has_user_block || fdata->has_phdr_block)
 		{
-			if (!fdata->has_user_comment || sharkd_get_user_comment(fdata) != NULL)
+			if (!fdata->has_user_block || sharkd_get_user_block(fdata) != NULL)
 				sharkd_json_value_anyf("ct", "true");
 		}
 
@@ -3347,20 +3348,34 @@ sharkd_session_process_frame_cb(epan_dissect_t *edt, proto_tree *tree, struct ep
 {
 	packet_info *pi = &edt->pi;
 	frame_data *fdata = pi->fd;
-	const char *pkt_comment = NULL;
+	wtap_block_t pkt_block = NULL;
 
 	const struct sharkd_frame_request_data * const req_data = (const struct sharkd_frame_request_data * const) data;
 	const gboolean display_hidden = (req_data) ? req_data->display_hidden : FALSE;
 
 	sharkd_json_result_prologue(rpcid);
 
-	if (fdata->has_user_comment)
-		pkt_comment = sharkd_get_user_comment(fdata);
-	else if (fdata->has_phdr_comment)
-		pkt_comment = pi->rec->opt_comment;
+	if (fdata->has_user_block)
+		pkt_block = sharkd_get_user_block(fdata);
+	else if (fdata->has_phdr_block)
+		pkt_block = pi->rec->block;
 
-	if (pkt_comment)
-		sharkd_json_value_string("comment", pkt_comment);
+	if (pkt_block)
+	{
+		guint i;
+		guint n;
+		gchar *comment;
+
+		n = wtap_block_count_option(pkt_block, OPT_COMMENT);
+
+		sharkd_json_array_open("comment");
+		for (i = 0; i < n; i++) {
+			if (WTAP_OPTTYPE_SUCCESS == wtap_block_get_nth_string_option_value(pkt_block, OPT_COMMENT, i, &comment)) {
+			sharkd_json_value_string(NULL, comment);
+			}
+		}
+		sharkd_json_array_close();
+	}
 
 	if (tree)
 	{
@@ -4179,6 +4194,9 @@ sharkd_session_process_complete(char *buf, const jsmntok_t *tokens, int count)
  *
  * Output object with attributes:
  *   (m) err   - error code: 0 succeed
+ *
+ * Note:
+ *   For now, adds comments, doesn't remove or replace them.
  */
 static void
 sharkd_session_process_setcomment(char *buf, const jsmntok_t *tokens, int count)
@@ -4188,7 +4206,8 @@ sharkd_session_process_setcomment(char *buf, const jsmntok_t *tokens, int count)
 
 	guint32 framenum;
 	frame_data *fdata;
-	int ret;
+	wtap_opttype_return_val ret;
+	wtap_block_t pkt_block = NULL;
 
 	if (!tok_frame || !ws_strtou32(tok_frame, NULL, &framenum) || framenum == 0)
 	{
@@ -4209,15 +4228,22 @@ sharkd_session_process_setcomment(char *buf, const jsmntok_t *tokens, int count)
 		return;
 	}
 
-	ret = sharkd_set_user_comment(fdata, tok_comment);
+	pkt_block = sharkd_get_packet_block(fdata);
 
-	if (ret)
+	ret = wtap_block_add_string_option(pkt_block, OPT_COMMENT, tok_comment, strlen(tok_comment));
+
+	if (ret != WTAP_OPTTYPE_SUCCESS)
+	{
 		sharkd_json_error(
 			rpcid, -3003, NULL,
 			"Unable to set the comment"
 		);
+	}
 	else
+	{
+		sharkd_set_user_block(fdata, pkt_block);
 		sharkd_json_simple_ok(rpcid);
+	}
 
 }
 

@@ -448,11 +448,11 @@ epan_new(struct packet_provider_data *prov,
 	return session;
 }
 
-const char *
-epan_get_user_comment(const epan_t *session, const frame_data *fd)
+wtap_block_t
+epan_get_user_block(const epan_t *session, const frame_data *fd)
 {
-	if (session->funcs.get_user_comment)
-		return session->funcs.get_user_comment(session->prov, fd);
+	if (session->funcs.get_user_block)
+		return session->funcs.get_user_block(session->prov, fd);
 
 	return NULL;
 }
@@ -558,6 +558,8 @@ epan_dissect_reset(epan_dissect_t *edt)
 
 	ws_assert(edt);
 
+	wtap_block_unref(edt->pi.rec->block);
+
 	g_slist_free(edt->pi.proto_data);
 	g_slist_free(edt->pi.dependent_frames);
 
@@ -611,6 +613,8 @@ epan_dissect_run(epan_dissect_t *edt, int file_type_subtype,
 
 	/* free all memory allocated */
 	wmem_leave_packet_scope();
+	wtap_block_unref(rec->block);
+	rec->block = NULL;
 }
 
 void
@@ -625,6 +629,8 @@ epan_dissect_run_with_taps(epan_dissect_t *edt, int file_type_subtype,
 
 	/* free all memory allocated */
 	wmem_leave_packet_scope();
+	wtap_block_unref(rec->block);
+	rec->block = NULL;
 }
 
 void
@@ -639,6 +645,8 @@ epan_dissect_file_run(epan_dissect_t *edt, wtap_rec *rec,
 
 	/* free all memory allocated */
 	wmem_leave_packet_scope();
+	wtap_block_unref(rec->block);
+	rec->block = NULL;
 }
 
 void
@@ -652,6 +660,8 @@ epan_dissect_file_run_with_taps(epan_dissect_t *edt, wtap_rec *rec,
 
 	/* free all memory allocated */
 	wmem_leave_packet_scope();
+	wtap_block_unref(rec->block);
+	rec->block = NULL;
 }
 
 void

@@ -12,6 +12,7 @@
 
 #include "ws_symbol_export.h"
 
+#include <wsutil/inet_ipv4.h>
 #include <wsutil/inet_ipv6.h>
 
 #ifdef __cplusplus
@@ -128,6 +129,16 @@ extern "C" {
 #define OPT_ISB_OSDROP       7
 #define OPT_ISB_USRDELIV     8
 
+/*
+ * These are the flags for an EPB, but we use them for all WTAP_BLOCK_PACKET
+ */
+#define OPT_PKT_FLAGS        2
+#define OPT_PKT_HASH         3
+#define OPT_PKT_DROPCOUNT    4
+#define OPT_PKT_PACKETID     5
+#define OPT_PKT_QUEUE        6
+#define OPT_PKT_VERDICT      7
+
 struct wtap_block;
 typedef struct wtap_block *wtap_block_t;
 
@@ -236,6 +247,25 @@ typedef struct wtapng_dsb_mandatory_s {
 } wtapng_dsb_mandatory_t;
 
 /**
+ * Holds the required data from a WTAP_BLOCK_PACKET.
+ * This includes Enhanced Packet Block, Simple Packet Block, and the deprecated Packet Block.
+ * NB. I'm not including the packet data here since Wireshark handles it in other ways.
+ * If we were to add it we'd need to implement copy and free routines in wtap_opttypes.c
+ */
+#if 0
+/* Commented out for now, there's no mandatory data that isn't handled by
+ * Wireshark in other ways.
+ */
+typedef struct wtapng_packet_mandatory_s {
+    guint32  interface_id;
+    guint32  ts_high;
+    guint32  ts_low;
+    guint32  captured_len;
+    guint32  orig_len;
+} wtapng_packet_mandatory_t;
+#endif
+
+/**
  * Holds the required data from a WTAP_BLOCK_FT_SPECIFIC_REPORT.
  */
 typedef struct wtapng_ft_specific_mandatory_s {
@@ -245,8 +275,10 @@ typedef struct wtapng_ft_specific_mandatory_s {
 /* Currently supported option types */
 typedef enum {
     WTAP_OPTTYPE_UINT8,
+    WTAP_OPTTYPE_UINT32,
     WTAP_OPTTYPE_UINT64,
     WTAP_OPTTYPE_STRING,
+    WTAP_OPTTYPE_BYTES,
     WTAP_OPTTYPE_IPv4,
     WTAP_OPTTYPE_IPv6,
     WTAP_OPTTYPE_IF_FILTER,
@@ -259,7 +291,8 @@ typedef enum {
     WTAP_OPTTYPE_NOT_FOUND = -2,
     WTAP_OPTTYPE_TYPE_MISMATCH = -3,
     WTAP_OPTTYPE_NUMBER_MISMATCH = -4,
-    WTAP_OPTTYPE_ALREADY_EXISTS = -5
+    WTAP_OPTTYPE_ALREADY_EXISTS = -5,
+    WTAP_OPTTYPE_BAD_BLOCK = -6,
 } wtap_opttype_return_val;
 
 /* Interface description data - if_filter option structure */
@@ -306,10 +339,12 @@ typedef struct custom_opt_s {
  */
 typedef union {
     guint8 uint8val;
+    guint32 uint32val;
     guint64 uint64val;
-    guint32 ipv4val;    /* network byte order */
+    ws_in4_addr ipv4val;    /* network byte order */
     ws_in6_addr ipv6val;
     char *stringval;
+    GBytes *byteval;
     if_filter_opt_t if_filterval;
     custom_opt_t custom_opt;
 } wtap_optval_t;
@@ -345,13 +380,22 @@ WS_DLL_PUBLIC void wtap_opttypes_initialize(void);
  */
 WS_DLL_PUBLIC wtap_block_t wtap_block_create(wtap_block_type_t block_type);
 
-/** Free a block
+/** Increase reference count of a block
  *
- * Needs to be called to clean up any allocated block
+ * Call when taking a copy of a block
  *
- * @param[in] block Block to be freed
+ * @param[in] block Block add ref to
+ * @return The block
  */
-WS_DLL_PUBLIC void wtap_block_free(wtap_block_t block);
+WS_DLL_PUBLIC wtap_block_t wtap_block_ref(wtap_block_t block);
+
+/** Decrease reference count of a block
+ *
+ * Needs to be called on any block once you're done with it
+ *
+ * @param[in] block Block to be deref'd
+ */
+WS_DLL_PUBLIC void wtap_block_unref(wtap_block_t block);
 
 /** Free an array of blocks
  *
@@ -376,6 +420,15 @@ WS_DLL_PUBLIC wtap_block_type_t wtap_block_get_type(wtap_block_t block);
  * @return Block mandatory data.  Structure varies based on block type
  */
 WS_DLL_PUBLIC void* wtap_block_get_mandatory_data(wtap_block_t block);
+
+/** Count the number of times the given option appears in the block
+ *
+ * @param[in] block Block to which to add the option
+ * @param[in] option_id Identifier value for option
+ * @return guint - the number of times the option was found
+ */
+WS_DLL_PUBLIC guint
+wtap_block_count_option(wtap_block_t block, guint option_id);
 
 /** Add UINT8 option value to a block
  *
@@ -409,6 +462,39 @@ wtap_block_set_uint8_option_value(wtap_block_t block, guint option_id, guint8 va
  */
 WS_DLL_PUBLIC wtap_opttype_return_val
 wtap_block_get_uint8_option_value(wtap_block_t block, guint option_id, guint8* value) G_GNUC_WARN_UNUSED_RESULT;
+
+/** Add UINT32 option value to a block
+ *
+ * @param[in] block Block to which to add the option
+ * @param[in] option_id Identifier value for option
+ * @param[in] value Value of option
+ * @return wtap_opttype_return_val - WTAP_OPTTYPE_SUCCESS if successful,
+ * error code otherwise
+ */
+WS_DLL_PUBLIC wtap_opttype_return_val
+wtap_block_add_uint32_option(wtap_block_t block, guint option_id, guint32 value);
+
+/** Set UINT32 option value in a block
+ *
+ * @param[in] block Block in which to set the option value
+ * @param[in] option_id Identifier value for option
+ * @param[in] value New value of option
+ * @return wtap_opttype_return_val - WTAP_OPTTYPE_SUCCESS if successful,
+ * error code otherwise
+ */
+WS_DLL_PUBLIC wtap_opttype_return_val
+wtap_block_set_uint32_option_value(wtap_block_t block, guint option_id, guint32 value);
+
+/** Get UINT32 option value from a block
+ *
+ * @param[in] block Block from which to get the option value
+ * @param[in] option_id Identifier value for option
+ * @param[out] value Returned value of option
+ * @return wtap_opttype_return_val - WTAP_OPTTYPE_SUCCESS if successful,
+ * error code otherwise
+ */
+WS_DLL_PUBLIC wtap_opttype_return_val
+wtap_block_get_uint32_option_value(wtap_block_t block, guint option_id, guint32* value) G_GNUC_WARN_UNUSED_RESULT;
 
 /** Add UINT64 option value to a block
  *
@@ -609,6 +695,81 @@ wtap_block_get_string_option_value(wtap_block_t block, guint option_id, char** v
 WS_DLL_PUBLIC wtap_opttype_return_val
 wtap_block_get_nth_string_option_value(wtap_block_t block, guint option_id, guint idx, char** value) G_GNUC_WARN_UNUSED_RESULT;
 
+/** Add a bytes option to a block
+ *
+ * @param[in] block Block to which to add the option
+ * @param[in] option_id Identifier value for option
+ * @param[in] value Value of option to copy
+ * @param[in] value_length Number of bytes to copy
+ * @return wtap_opttype_return_val - WTAP_OPTTYPE_SUCCESS if successful,
+ * error code otherwise
+ */
+WS_DLL_PUBLIC wtap_opttype_return_val
+wtap_block_add_bytes_option(wtap_block_t block, guint option_id, const guint8 *value, gsize value_length);
+
+/** Add a bytes option to a block, borrowing the value from a GBytes
+ *
+ * @param[in] block Block to which to add the option
+ * @param[in] option_id Identifier value for option
+ * @param[in] value Value of option as a GBytes
+ * @return wtap_opttype_return_val - WTAP_OPTTYPE_SUCCESS if successful,
+ * error code otherwise
+ */
+WS_DLL_PUBLIC wtap_opttype_return_val
+wtap_block_add_bytes_option_borrow(wtap_block_t block, guint option_id, GBytes *value);
+
+/** Set bytes option value in a block
+ *
+ * @param[in] block Block in which to set the option value
+ * @param[in] option_id Identifier value for option
+ * @param[in] value New value of option
+ * @param[in] value_length Number of bytes to copy.
+ * @return wtap_opttype_return_val - WTAP_OPTTYPE_SUCCESS if successful,
+ * error code otherwise
+ */
+WS_DLL_PUBLIC wtap_opttype_return_val
+wtap_block_set_bytes_option_value(wtap_block_t block, guint option_id, const guint8* value, gsize value_length);
+
+/** Set bytes option value for nth instance of a particular option in a block
+ *
+ * @param[in] block Block in which to set the option value
+ * @param[in] option_id Identifier value for option
+ * @param[in] idx Instance number of option with that ID
+ * @param[in] value New value of option
+ * @param[in] value_length Number of bytes to copy.
+ * @return wtap_opttype_return_val - WTAP_OPTTYPE_SUCCESS if successful,
+ * error code otherwise
+ */
+WS_DLL_PUBLIC wtap_opttype_return_val
+wtap_block_set_nth_bytes_option_value(wtap_block_t block, guint option_id, guint idx, GBytes* value);
+
+/** Get bytes option value from a block
+ *
+ * @param[in] block Block from which to get the option value
+ * @param[in] option_id Identifier value for option
+ * @param[out] value Returned value of option
+ * @return wtap_opttype_return_val - WTAP_OPTTYPE_SUCCESS if successful,
+ * error code otherwise
+ * @note You should call g_bytes_ref() on value if you plan to keep it around
+ * (and then g_bytes_unref() when you're done with it).
+ */
+WS_DLL_PUBLIC wtap_opttype_return_val
+wtap_block_get_bytes_option_value(wtap_block_t block, guint option_id, GBytes** value) G_GNUC_WARN_UNUSED_RESULT;
+
+/** Get bytes option value for nth instance of a particular option in a block
+ *
+ * @param[in] block Block from which to get the option value
+ * @param[in] option_id Identifier value for option
+ * @param[in] idx Instance number of option with that ID
+ * @param[out] value Returned value of option
+ * @return wtap_opttype_return_val - WTAP_OPTTYPE_SUCCESS if successful,
+ * error code otherwise
+ * @note You should call g_bytes_ref() on value if you plan to keep it around
+ * (and then g_bytes_unref() when you're done with it).
+ */
+WS_DLL_PUBLIC wtap_opttype_return_val
+wtap_block_get_nth_bytes_option_value(wtap_block_t block, guint option_id, guint idx, GBytes** value) G_GNUC_WARN_UNUSED_RESULT;
+
 /** Add an if_filter option value to a block
  *
  * @param[in] block Block to which to add the option
@@ -676,6 +837,28 @@ wtap_block_remove_option(wtap_block_t block, guint option_id);
 WS_DLL_PUBLIC wtap_opttype_return_val
 wtap_block_remove_nth_option_instance(wtap_block_t block, guint option_id,
                                       guint idx);
+
+/**
+ * Get the original (unpadded) length of an option's value
+ *
+ * @param[in] option_type The `wtap_opttype_e` for this option
+ * @param[in] option The option's value to measure
+ * @return gsize - the number of bytes occupied by the option's value
+ */
+WS_DLL_PUBLIC gsize
+wtap_block_option_get_value_size(wtap_opttype_e option_type, wtap_optval_t *option);
+
+/** Get the padded length of all options in the block
+ *
+ * @param[in] block Block from which to remove the option instance
+ * @param[in] option_id Identifier value for option
+ * @param[in] idx Instance number of option with that ID
+ * @return gsize - size in bytes of all options, each padded to 32 bits
+ * @note The size of any options with values larger than can be held in an option
+ * is NOT included, because pcapng.c skips over such option values.
+ */
+WS_DLL_PUBLIC gsize
+wtap_block_get_options_size_padded(wtap_block_t block);
 
 /** Copy a block to another.
  *

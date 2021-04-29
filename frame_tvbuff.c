@@ -36,6 +36,7 @@ frame_read(struct tvb_frame *frame_tvb, wtap_rec *rec, Buffer *buf)
 {
 	int    err;
 	gchar *err_info;
+	gboolean ok = TRUE;
 
 	/* XXX, what if phdr->caplen isn't equal to
 	 * frame_tvb->tvb.length + frame_tvb->offset?
@@ -45,11 +46,11 @@ frame_read(struct tvb_frame *frame_tvb, wtap_rec *rec, Buffer *buf)
 		switch (err) {
 			case WTAP_ERR_BAD_FILE:
 				g_free(err_info);
+				ok = FALSE;
 				break;
 		}
-		return FALSE;
 	}
-	return TRUE;
+	return ok;
 }
 
 static GPtrArray *buffer_cache = NULL;

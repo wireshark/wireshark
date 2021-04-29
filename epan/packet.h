@@ -11,6 +11,7 @@
 #ifndef __PACKET_H__
 #define __PACKET_H__
 
+#include <wiretap/wtap_opttypes.h>
 #include "proto.h"
 #include "tvbuff.h"
 #include "epan.h"
@@ -747,7 +748,7 @@ WS_DLL_PUBLIC void mark_frame_as_depended_upon(packet_info *pinfo, guint32 frame
 typedef struct frame_data_s
 {
     int file_type_subtype;
-    const gchar  *pkt_comment; /**< NULL if not available */
+    wtap_block_t pkt_block;         /**< NULL if not available */
     struct epan_dissect *color_edt; /** Used strictly for "coloring rules" */
 
 } frame_data_t;
@@ -755,7 +756,7 @@ typedef struct frame_data_s
 /* Structure passed to the file dissector */
 typedef struct file_data_s
 {
-    const gchar  *pkt_comment; /**< NULL if not available */
+    wtap_block_t pkt_block;         /**< NULL if not available */
     struct epan_dissect *color_edt; /** Used strictly for "coloring rules" */
 
 } file_data_t;

@@ -1499,6 +1499,7 @@ wtapng_process_dsb(wtap *wth, wtap_block_t dsb)
 		wth->add_new_secrets(dsb_mand->secrets_type, dsb_mand->secrets_data, dsb_mand->secrets_len);
 }
 
+/* Perform per-packet initialization */
 static void
 wtap_init_rec(wtap *wth, wtap_rec *rec)
 {
@@ -1514,6 +1515,8 @@ wtap_init_rec(wtap *wth, wtap_rec *rec)
 	 */
 	rec->rec_header.packet_header.pkt_encap = wth->file_encap;
 	rec->tsprec = wth->file_tsprec;
+	rec->block = NULL;
+	rec->has_block_changed = FALSE;
 }
 
 gboolean
@@ -1654,35 +1657,26 @@ wtap_read_so_far(wtap *wth)
 	return file_tell_raw(wth->fh);
 }
 
+/* Perform global/initial initialization */
 void
 wtap_rec_init(wtap_rec *rec)
 {
 	memset(rec, 0, sizeof *rec);
 	ws_buffer_init(&rec->options_buf, 0);
+	/* In the future, see if we can create rec->block here once
+	 * and have it be reused like the rest of rec.
+	 * Currently it's recreated for each packet.
+	 */
 }
 
+/* clean up record metadata */
 void
 wtap_rec_cleanup(wtap_rec *rec)
 {
-	wtap_option_t option;
-	guint i;
-
-	g_free(rec->opt_comment);
-	rec->opt_comment = NULL;
+	wtap_block_unref(rec->block);
+	rec->block = NULL;
+	rec->has_block_changed = FALSE;
 	ws_buffer_free(&rec->options_buf);
-	if (rec->packet_verdict != NULL) {
-		g_ptr_array_free(rec->packet_verdict, TRUE);
-		rec->packet_verdict = NULL;
-	}
-	if (rec->custom_options != NULL) {
-		for (i = 0; i < rec->custom_options->len; i++) {
-			option = g_array_index(rec->custom_options, wtap_option_t, i);
-			g_free(option.value.custom_opt.custom_data);
-			option.value.custom_opt.custom_data = NULL;
-		}
-		g_array_free(rec->custom_options, TRUE);
-		rec->custom_options = NULL;
-	}
 }
 
 gboolean

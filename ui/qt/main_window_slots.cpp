@@ -1114,6 +1114,45 @@ void MainWindow::recentActionTriggered() {
     }
 }
 
+void MainWindow::setEditCommentsMenu()
+{
+    main_ui_->menuPacketComment->clear();
+    main_ui_->menuPacketComment->addAction(tr("Add New Comment…"), this, SLOT(actionAddPacketComment()), QKeySequence(Qt::CTRL + Qt::ALT + Qt::Key_C));
+    if (selectedRows().count() == 1) {
+        const int thisRow = selectedRows().first();
+        frame_data * current_frame = frameDataForRow(thisRow);
+        wtap_block_t pkt_block = cf_get_packet_block(capture_file_.capFile(), current_frame);
+        guint nComments = wtap_block_count_option(pkt_block, OPT_COMMENT);
+        if (nComments > 0) {
+            QAction *aPtr;
+            main_ui_->menuPacketComment->addSeparator();
+            for (guint i = 0; i < nComments; i++) {
+                QString comment = packet_list_->getPacketComment(i).trimmed();
+                if (comment.size() > 40) {
+                    comment.truncate(40);
+                    comment += "…";
+                }
+                aPtr = main_ui_->menuPacketComment->addAction(tr("Edit \"%1\"", "edit packet comment").arg(comment),
+                        this, SLOT(actionEditPacketComment()));
+                aPtr->setData(i);
+            }
+
+            main_ui_->menuPacketComment->addSeparator();
+            for (guint i = 0; i < nComments; i++) {
+                QString comment = packet_list_->getPacketComment(i).trimmed();
+                if (comment.size() > 40) {
+                    comment.truncate(40);
+                    comment += "…";
+                }
+                aPtr = main_ui_->menuPacketComment->addAction(tr("Delete \"%1\"", "delete packet comment").arg(comment),
+                        this, SLOT(actionDeletePacketComment()));
+                aPtr->setData(i);
+            }
+        }
+        wtap_block_unref(pkt_block);
+    }
+}
+
 void MainWindow::setMenusForSelectedPacket()
 {
     gboolean is_ip = FALSE, is_tcp = FALSE, is_udp = FALSE, is_dccp = FALSE, is_sctp = FALSE, is_tls = FALSE, is_rtp = FALSE, is_lte_rlc = FALSE,
@@ -1213,8 +1252,9 @@ void MainWindow::setMenusForSelectedPacket()
     if (capture_file_.capFile() && capture_file_.capFile()->linktypes)
         linkTypes = capture_file_.capFile()->linktypes;
 
-    main_ui_->actionEditPacketComment->setEnabled(frame_selected && linkTypes && wtap_dump_can_write(capture_file_.capFile()->linktypes, WTAP_COMMENT_PER_PACKET));
-    main_ui_->actionDeleteAllPacketComments->setEnabled(linkTypes && wtap_dump_can_write(capture_file_.capFile()->linktypes, WTAP_COMMENT_PER_PACKET));
+    bool enableEditComments = frame_selected && linkTypes && wtap_dump_can_write(capture_file_.capFile()->linktypes, WTAP_COMMENT_PER_PACKET);
+    main_ui_->menuPacketComment->setEnabled(enableEditComments);
+    main_ui_->actionDeleteAllPacketComments->setEnabled(enableEditComments);
 
     main_ui_->actionEditIgnorePacket->setEnabled(frame_selected || multi_selection);
     main_ui_->actionEditIgnoreAllDisplayed->setEnabled(have_filtered);
@@ -2156,7 +2196,7 @@ void MainWindow::editTimeShiftFinished(int)
     }
 }
 
-void MainWindow::on_actionEditPacketComment_triggered()
+void MainWindow::actionAddPacketComment()
 {
     QList<int> rows = selectedRows();
     if (rows.count() != 1)
@@ -2167,19 +2207,55 @@ void MainWindow::on_actionEditPacketComment_triggered()
         return;
 
     PacketCommentDialog* pc_dialog;
-    pc_dialog = new PacketCommentDialog(fdata->num, this, packet_list_->packetComment());
-    connect(pc_dialog, &QDialog::finished, std::bind(&MainWindow::editPacketCommentFinished, this, pc_dialog, std::placeholders::_1));
+    pc_dialog = new PacketCommentDialog(fdata->num, this, NULL);
+    connect(pc_dialog, &QDialog::finished, std::bind(&MainWindow::addPacketCommentFinished, this, pc_dialog, std::placeholders::_1));
     pc_dialog->setWindowModality(Qt::ApplicationModal);
     pc_dialog->setAttribute(Qt::WA_DeleteOnClose);
     pc_dialog->show();
 }
 
-void MainWindow::editPacketCommentFinished(PacketCommentDialog* pc_dialog, int result)
+void MainWindow::addPacketCommentFinished(PacketCommentDialog* pc_dialog _U_, int result _U_)
 {
     if (result == QDialog::Accepted) {
-        packet_list_->setPacketComment(pc_dialog->text());
+        packet_list_->addPacketComment(pc_dialog->text());
         updateForUnsavedChanges();
     }
+}
+
+void MainWindow::actionEditPacketComment()
+{
+    QList<int> rows = selectedRows();
+    if (rows.count() != 1)
+        return;
+
+    frame_data * fdata = frameDataForRow(rows.at(0));
+    if (! fdata)
+        return;
+
+    QAction *ra = qobject_cast<QAction*>(sender());
+    guint nComment = ra->data().toUInt();
+    PacketCommentDialog* pc_dialog;
+    pc_dialog = new PacketCommentDialog(fdata->num, this, packet_list_->getPacketComment(nComment));
+    connect(pc_dialog, &QDialog::finished, std::bind(&MainWindow::editPacketCommentFinished, this, pc_dialog, std::placeholders::_1, nComment));
+    pc_dialog->setWindowModality(Qt::ApplicationModal);
+    pc_dialog->setAttribute(Qt::WA_DeleteOnClose);
+    pc_dialog->show();
+}
+
+void MainWindow::editPacketCommentFinished(PacketCommentDialog* pc_dialog _U_, int result _U_, guint nComment)
+{
+    if (result == QDialog::Accepted) {
+        packet_list_->setPacketComment(nComment, pc_dialog->text());
+        updateForUnsavedChanges();
+    }
+}
+
+void MainWindow::actionDeletePacketComment()
+{
+    QAction *ra = qobject_cast<QAction*>(sender());
+    guint nComment = ra->data().toUInt();
+    packet_list_->setPacketComment(nComment, QString(""));
+    updateForUnsavedChanges();
 }
 
 void MainWindow::on_actionDeleteAllPacketComments_triggered()

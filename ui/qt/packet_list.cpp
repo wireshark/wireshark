@@ -20,6 +20,7 @@
 
 #include <epan/column-info.h>
 #include <epan/column.h>
+#include <epan/expert.h>
 #include <epan/ipproto.h>
 #include <epan/packet.h>
 #include <epan/prefs.h>
@@ -34,6 +35,7 @@
 #include <wsutil/utf8_entities.h>
 #include "ui/util.h"
 
+#include "wiretap/wtap_opttypes.h"
 #include "wsutil/str_util.h"
 #include <wsutil/wslog.h>
 
@@ -645,7 +647,7 @@ void PacketList::contextMenuEvent(QContextMenuEvent *event)
     ctx_menu->addAction(window()->findChild<QAction *>("actionEditIgnorePacket"));
     ctx_menu->addAction(window()->findChild<QAction *>("actionEditSetTimeReference"));
     ctx_menu->addAction(window()->findChild<QAction *>("actionEditTimeShift"));
-    ctx_menu->addAction(window()->findChild<QAction *>("actionEditPacketComment"));
+    ctx_menu->addMenu(window()->findChild<QMenu *>("menuPacketComment"));
 
     ctx_menu->addSeparator();
 
@@ -1373,11 +1375,13 @@ void PacketList::resetColorized()
     update();
 }
 
-QString PacketList::packetComment()
+QString PacketList::getPacketComment(guint c_number)
 {
     int row = currentIndex().row();
     const frame_data *fdata;
     char *pkt_comment;
+    wtap_opttype_return_val result;
+    QString ret_val = NULL;
 
     if (!cap_file_ || !packet_list_model_) return NULL;
 
@@ -1385,17 +1389,41 @@ QString PacketList::packetComment()
 
     if (!fdata) return NULL;
 
-    pkt_comment = cf_get_packet_comment(cap_file_, fdata);
-    if (!pkt_comment) return NULL;
-
-    return gchar_free_to_qstring(pkt_comment);
+    wtap_block_t pkt_block = cf_get_packet_block(cap_file_, fdata);
+    result = wtap_block_get_nth_string_option_value(pkt_block, OPT_COMMENT, c_number, &pkt_comment);
+    if (result == WTAP_OPTTYPE_SUCCESS) {
+        ret_val = QString(pkt_comment);
+    }
+    wtap_block_unref(pkt_block);
+    return ret_val;
 }
 
-void PacketList::setPacketComment(QString new_comment)
+void PacketList::addPacketComment(QString new_comment)
 {
     int row = currentIndex().row();
     frame_data *fdata;
-    gchar *new_packet_comment;
+
+    if (!cap_file_ || !packet_list_model_) return;
+    if (new_comment.isEmpty()) return;
+
+    fdata = packet_list_model_->getRowFdata(row);
+
+    if (!fdata) return;
+
+    wtap_block_t pkt_block = cf_get_packet_block(cap_file_, fdata);
+
+    QByteArray ba = new_comment.toLocal8Bit();
+    wtap_block_add_string_option(pkt_block, OPT_COMMENT, ba.data(), ba.size());
+
+    cf_set_user_packet_block(cap_file_, fdata, pkt_block);
+
+    redrawVisiblePackets();
+}
+
+void PacketList::setPacketComment(guint c_number, QString new_comment)
+{
+    int row = currentIndex().row();
+    frame_data *fdata;
 
     if (!cap_file_ || !packet_list_model_) return;
 
@@ -1403,15 +1431,17 @@ void PacketList::setPacketComment(QString new_comment)
 
     if (!fdata) return;
 
+    wtap_block_t pkt_block = cf_get_packet_block(cap_file_, fdata);
+
     /* Check if we are clearing the comment */
     if (new_comment.isEmpty()) {
-        new_packet_comment = NULL;
+        wtap_block_remove_nth_option_instance(pkt_block, OPT_COMMENT, c_number);
     } else {
-        new_packet_comment = qstring_strdup(new_comment);
+        QByteArray ba = new_comment.toLocal8Bit();
+        wtap_block_set_nth_string_option_value(pkt_block, OPT_COMMENT, c_number, ba.data(), ba.size());
     }
 
-    cf_set_user_packet_comment(cap_file_, fdata, new_packet_comment);
-    g_free(new_packet_comment);
+    cf_set_user_packet_block(cap_file_, fdata, pkt_block);
 
     redrawVisiblePackets();
 }
@@ -1427,16 +1457,21 @@ QString PacketList::allPacketComments()
     for (framenum = 1; framenum <= cap_file_->count ; framenum++) {
         fdata = frame_data_sequence_find(cap_file_->provider.frames, framenum);
 
-        char *pkt_comment = cf_get_packet_comment(cap_file_, fdata);
+        wtap_block_t pkt_block = cf_get_packet_block(cap_file_, fdata);
 
-        if (pkt_comment) {
-            buf_str.append(QString(tr("Frame %1: %2\n\n")).arg(framenum).arg(pkt_comment));
-            g_free(pkt_comment);
-        }
-        if (buf_str.length() > max_comments_to_fetch_) {
-            buf_str.append(QString(tr("[ Comment text exceeds %1. Stopping. ]"))
-                           .arg(format_size(max_comments_to_fetch_, format_size_unit_bytes|format_size_prefix_si)));
-            return buf_str;
+        if (pkt_block) {
+            guint n_comments = wtap_block_count_option(pkt_block, OPT_COMMENT);
+            for (guint i = 0; i < n_comments; i++) {
+                char *comment_text;
+                if (WTAP_OPTTYPE_SUCCESS == wtap_block_get_nth_string_option_value(pkt_block, OPT_COMMENT, i, &comment_text)) {
+                    buf_str.append(QString(tr("Frame %1: %2\n\n")).arg(framenum).arg(comment_text));
+                    if (buf_str.length() > max_comments_to_fetch_) {
+                        buf_str.append(QString(tr("[ Comment text exceeds %1. Stopping. ]"))
+                                .arg(format_size(max_comments_to_fetch_, format_size_unit_bytes|format_size_prefix_si)));
+                        return buf_str;
+                    }
+                }
+            }
         }
     }
     return buf_str;
@@ -1447,16 +1482,24 @@ void PacketList::deleteAllPacketComments()
     guint32 framenum;
     frame_data *fdata;
     QString buf_str;
+    guint i;
 
     if (!cap_file_)
         return;
 
     for (framenum = 1; framenum <= cap_file_->count ; framenum++) {
         fdata = frame_data_sequence_find(cap_file_->provider.frames, framenum);
+        wtap_block_t pkt_block = cf_get_packet_block(cap_file_, fdata);
+        guint n_comments = wtap_block_count_option(pkt_block, OPT_COMMENT);
 
-        cf_set_user_packet_comment(cap_file_, fdata, NULL);
+        for (i = 0; i < n_comments; i++) {
+            wtap_block_remove_nth_option_instance(pkt_block, OPT_COMMENT, 0);
+        }
+        cf_set_user_packet_block(cap_file_, fdata, pkt_block);
     }
 
+    cap_file_->packet_comment_count = 0;
+    expert_update_comment_count(cap_file_->packet_comment_count);
     redrawVisiblePackets();
 }
 

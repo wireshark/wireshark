@@ -1260,7 +1260,6 @@ main(int argc, char *argv[])
         case LONGOPT_CAPTURE_COMMENT:
         {
             /* pcapng supports multiple comments, so support them here too.
-             * Wireshark only sees the first capture comment though.
              */
             if (!capture_comments) {
                 capture_comments = g_ptr_array_new_with_free_func(g_free);
@@ -2186,13 +2185,13 @@ main(int argc, char *argv[])
                     /* Copy and change rather than modify returned rec */
                     temp_rec = *rec;
                     /* The comment is not modified by dumper, cast away. */
-                    temp_rec.opt_comment = (char *)comment;
-                    temp_rec.has_comment_changed = TRUE;
+                    wtap_block_add_string_option(rec->block, OPT_COMMENT, (char *)comment, strlen((char *)comment));
+                    temp_rec.has_block_changed = TRUE;
                     rec = &temp_rec;
                 } else {
                     /* Copy and change rather than modify returned rec */
                     temp_rec = *rec;
-                    temp_rec.has_comment_changed = FALSE;
+                    temp_rec.has_block_changed = FALSE;
                     rec = &temp_rec;
                 }
             }
@@ -2278,7 +2277,7 @@ clean_exit:
     if (idbs_seen != NULL) {
         for (guint b = 0; b < idbs_seen->len; b++) {
             wtap_block_t if_data = g_array_index(idbs_seen, wtap_block_t, b);
-            wtap_block_free(if_data);
+            wtap_block_unref(if_data);
         }
         g_array_free(idbs_seen, TRUE);
     }

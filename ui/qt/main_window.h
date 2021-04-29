@@ -394,6 +394,10 @@ private slots:
     void mainStackChanged(int);
     void updateRecentCaptures();
     void recentActionTriggered();
+    void actionAddPacketComment();
+    void actionEditPacketComment();
+    void actionDeletePacketComment();
+    void setEditCommentsMenu();
     void setMenusForSelectedPacket();
     void setMenusForSelectedTreeRow(FieldInformation *fi = NULL);
     void interfaceSelectionChanged();
@@ -508,8 +512,8 @@ private slots:
     void on_actionEditPreviousTimeReference_triggered();
     void on_actionEditTimeShift_triggered();
     void editTimeShiftFinished(int);
-    void on_actionEditPacketComment_triggered();
-    void editPacketCommentFinished(PacketCommentDialog* pc_dialog, int result);
+    void addPacketCommentFinished(PacketCommentDialog* pc_dialog, int result);
+    void editPacketCommentFinished(PacketCommentDialog* pc_dialog, int result, guint nComment);
     void on_actionDeleteAllPacketComments_triggered();
     void deleteAllPacketCommentsFinished(int result);
     void on_actionEditConfigurationProfiles_triggered();

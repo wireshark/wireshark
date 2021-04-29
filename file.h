@@ -689,24 +689,24 @@ cf_merge_files_to_tempfile(gpointer pd_window, char **out_filenamep,
 void cf_update_section_comment(capture_file *cf, gchar *comment);
 
 /*
- * Get the comment on a packet (record).
- * If the comment has been edited, it returns the result of the edit,
- * otherwise it returns the comment from the file.
+ * Get the packet block for a packet (record).
+ * If the block has been edited, it returns the result of the edit,
+ * otherwise it returns the block from the file.
  *
  * @param cf the capture file
  * @param fd the frame_data structure for the frame
- * @returns A comment (use g_free to free) or NULL if there is none.
+ * @returns A block (use wtap_block_unref to free) or NULL if there is none.
  */
-char *cf_get_packet_comment(capture_file *cf, const frame_data *fd);
+wtap_block_t cf_get_packet_block(capture_file *cf, const frame_data *fd);
 
 /**
- * Update(replace) the comment on a capture from a frame
+ * Update(replace) the block on a capture from a frame
  *
  * @param cf the capture file
  * @param fd the frame_data structure for the frame
- * @param new_comment the string replacing the old comment
+ * @param new_block the block replacing the old block
  */
-gboolean cf_set_user_packet_comment(capture_file *cf, frame_data *fd, const gchar *new_comment);
+gboolean cf_set_user_packet_block(capture_file *cf, frame_data *fd, wtap_block_t new_block);
 
 /**
  * What types of comments does this file have?

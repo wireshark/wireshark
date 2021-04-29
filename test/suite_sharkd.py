@@ -438,7 +438,7 @@ class case_sharkd(subprocesstest.SubprocessTestCase):
             {"jsonrpc":"2.0","id":1,"result":{"status":"OK"}},
             {"jsonrpc":"2.0","id":2,"error":{"code":-3002,"message":"Frame number is out of range"}},
             {"jsonrpc":"2.0","id":3,"result":{"status":"OK"}},
-            {"jsonrpc":"2.0","id":4,"result":{"comment":"foo\nbar","fol": MatchAny(list)}},
+            {"jsonrpc":"2.0","id":4,"result":{"comment":["foo\nbar"],"fol": MatchAny(list)}},
         ))
 
     def test_sharkd_req_setconf_bad(self, check_sharkd_session):
