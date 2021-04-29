@@ -37,10 +37,27 @@ extern "C" {
 #define NDDS_TRANSPORT_CLASSID_SHMEM                (0x01000000)
 #define NDDS_TRANSPORT_CLASSID_UDPv4_WAN            (0x01000001)
 
+/*
+* Flags indicating which fields have been filled in.
+*/
+#define GUID_HAS_HOST_ID     0x00000001
+#define GUID_HAS_APP_ID      0x00000002
+#define GUID_HAS_INSTANCE_ID 0x00000004
+#define GUID_HAS_ENTITY_ID   0x00000008
+#define GUID_HAS_ALL         0x0000000F
+
+typedef struct _endpoint_guid {
+    guint   fields_present;
+    guint32 host_id;
+    guint32 app_id;
+    guint32 instance_id;
+    guint32 entity_id;
+} endpoint_guid;
+
 /* Process a submessage: used in packet-rtps-processed.c */
 extern void dissect_rtps_submessages(
     tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *rtps_tree,
-    guint16 version, guint16 vendor_id);
+    guint16 version, guint16 vendor_id, endpoint_guid *guid);
 
 /* Information that the RTPS-VT protocol passes to RTPS-PROC */
 struct rtpsvt_data {

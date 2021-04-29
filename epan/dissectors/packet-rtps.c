@@ -2369,15 +2369,6 @@ static int* const ENDPOINT_SECURITY_ATTRIBUTES[] = {
   NULL
 };
 
-/*
- * Flags indicating which fields have been filled in.
- */
-#define GUID_HAS_HOST_ID     0x00000001
-#define GUID_HAS_APP_ID      0x00000002
-#define GUID_HAS_INSTANCE_ID 0x00000004
-#define GUID_HAS_ENTITY_ID   0x00000008
-#define GUID_HAS_ALL         0x0000000F
-
 /**TCP get DomainId feature constants**/
 #define RTPS_UNKNOWN_DOMAIN_ID_VAL -1
 #define RTPS_UNKNOWN_DOMAIN_ID_STR "Unknown"
@@ -2389,14 +2380,6 @@ static int* const ENDPOINT_SECURITY_ATTRIBUTES[] = {
 typedef struct _participant_info {
   gint domainId;
 } participant_info;
-
-typedef struct _endpoint_guid {
-  guint   fields_present;
-  guint32 host_id;
-  guint32 app_id;
-  guint32 instance_id;
-  guint32 entity_id;
-} endpoint_guid;
 
 typedef struct _datawriter_qos {
   guint32 reliability_kind;
@@ -11939,7 +11922,7 @@ static gboolean dissect_rtps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     guid.host_id = tvb_get_ntohl(tvb, offset+8);
     guid.app_id = tvb_get_ntohl(tvb, offset+12);
     guid.instance_id = tvb_get_ntohl(tvb, offset+16);
-    guid.fields_present |= GUID_HAS_HOST_ID|GUID_HAS_APP_ID|GUID_HAS_INSTANCE_ID;
+    guid.fields_present = GUID_HAS_HOST_ID|GUID_HAS_APP_ID|GUID_HAS_INSTANCE_ID;
     /* If the packet uses TCP we need top store the participant GUID to get the domainId later
      * For that operation the member fields_present is not required and is not affected by
      * its changes.
@@ -12058,7 +12041,7 @@ static gboolean dissect_rtps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
   /* offset behind RTPS's Header (need to be set in case tree=NULL)*/
   offset += ((version < 0x0200) ? 16 : 20);
 
-  dissect_rtps_submessages(tvb, offset, pinfo, rtps_tree, version, vendor_id);
+  dissect_rtps_submessages(tvb, offset, pinfo, rtps_tree, version, vendor_id, &guid);
 
   /* If TCP there's an extra OOB byte at the end of the message */
   /* TODO: What to do with it? */
@@ -12068,7 +12051,7 @@ static gboolean dissect_rtps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
 void dissect_rtps_submessages(
     tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *rtps_tree,
-    guint16 version, guint16 vendor_id)
+    guint16 version, guint16 vendor_id, endpoint_guid *guid)
 {
   guint8 submessageId, flags;
   int sub_hf;
@@ -12077,11 +12060,9 @@ void dissect_rtps_submessages(
   proto_tree *rtps_submessage_tree;
   guint encoding;
   gint next_submsg, octets_to_next_header;
-  endpoint_guid guid;
   endpoint_guid dst_guid;
 
   /* No fields have been set in GUID yet. */
-  guid.fields_present = 0;
   dst_guid.fields_present = 0;
   while (tvb_reported_length_remaining(tvb, offset) > 0) {
     submessageId = tvb_get_guint8(tvb, offset);
@@ -12140,11 +12121,11 @@ void dissect_rtps_submessages(
     if (!dissect_rtps_submessage_v1(tvb, pinfo, offset, flags, encoding,
                                     submessageId, version, vendor_id,
                                     octets_to_next_header, rtps_submessage_tree,
-                                    ti, &guid, &dst_guid)) {
+                                    ti, guid, &dst_guid)) {
       if ((version < 0x0200) ||
           !dissect_rtps_submessage_v2(tvb, pinfo, offset, flags, encoding, submessageId,
                                       vendor_id, octets_to_next_header, rtps_submessage_tree,
-                                      ti, &guid, &dst_guid)) {
+                                      ti, guid, &dst_guid)) {
         proto_tree_add_uint(rtps_submessage_tree, hf_rtps_sm_flags,
                               tvb, offset + 1, 1, flags);
         proto_tree_add_uint(rtps_submessage_tree,

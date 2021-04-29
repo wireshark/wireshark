@@ -127,6 +127,7 @@ static gint dissect_rtps_processed(
     const gchar *title_security;
     guint16 rtps_version = 0x0203;
     guint16 rtps_vendor_id = 0x0101;
+    endpoint_guid guid;
 
     if (transport_data == NULL) {
         /* Reject the packet if no transport information */
@@ -150,7 +151,10 @@ static gint dissect_rtps_processed(
             tvb,
             offset + offset_version + 2,
             ENC_BIG_ENDIAN);
-
+    guid.host_id = tvb_get_ntohl(tvb, offset + offset_version + 4);
+    guid.app_id = tvb_get_ntohl(tvb, offset + offset_version + 8);
+    guid.instance_id = tvb_get_ntohl(tvb, offset + offset_version + 12);
+    guid.fields_present = GUID_HAS_HOST_ID | GUID_HAS_APP_ID | GUID_HAS_INSTANCE_ID;
     rtps_payload = tvb_new_subset_length(tvb, offset, param_length);
     if (rtps_handle != NULL) {
         call_dissector(rtps_handle, rtps_payload, pinfo, tree);
@@ -287,6 +291,7 @@ static gint dissect_rtps_processed(
             tvbuff_t *rtps_submessages = NULL;
             wmem_strbuf_t *info_w_encrypted = NULL; /* Current info */
             wmem_strbuf_t *info_w_decrypted = NULL; /* New info */
+
             /*
              * Get the current column info. This has the RTPS frames with the
              * encrypted submessages. We are going to update the text so that
@@ -310,7 +315,9 @@ static gint dissect_rtps_processed(
                     pinfo,
                     rtpsproc_tree_frame1,
                     rtps_version,
-                    rtps_vendor_id);
+                    rtps_vendor_id,
+                    &guid);
+
             offset += param_length;
             /*
              * Get the decrypted submessages and update the column information.
