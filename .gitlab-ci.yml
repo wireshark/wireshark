@@ -10,6 +10,11 @@
 # https://hub.docker.com/r/wireshark/wireshark-opensuse-15.2-dev
 # https://hub.docker.com/r/wireshark/wireshark-ubuntu-dev
 
+stages:
+  - build
+  - analysis
+  - test
+
 variables:
   # Ensure that checkouts are a) fast and b) have a reachable tag. In a
   # brighter, more glorious future we might be able to use --shallow-since:
@@ -398,3 +403,40 @@ merge-req:windows:
     - msbuild /verbosity:minimal "/consoleloggerparameters:PerformanceSummary;NoSummary" /maxcpucount Wireshark.sln
     - msbuild /verbosity:minimal test-programs.vcxproj
     - ctest -C RelWithDebInfo --parallel 3 --force-new-ctest-process --verbose
+
+# Adapted from https://www.synopsys.com/blogs/software-security/integrating-coverity-scan-with-gitlab-ci/
+# and https://gitlab.gnome.org/GNOME/glib/-/blob/8f57a5b9/.gitlab-ci.yml#L481
+coverity-gcc:
+  only:
+    - schedules
+    - $RUN_COVERITY_GCC == "True"
+  image: wireshark/wireshark-ubuntu-dev
+  stage: analysis
+  needs: []
+  variables:
+    CC: gcc
+    CXX: g++
+    # cov-build doesn’t handle GLIB_DEPRECATED_ENUMERATOR
+    CFLAGS: '-DGLIB_DISABLE_DEPRECATION_WARNINGS'
+    CXXFLAGS: '-DGLIB_DISABLE_DEPRECATION_WARNINGS'
+  script:
+    - >
+      curl
+        --output /tmp/cov-analysis-linux64.tar.gz
+        --form project=$COVERITY_SCAN_PROJECT_NAME
+        --form token=$COVERITY_SCAN_TOKEN
+        https://scan.coverity.com/download/linux64
+    - tar --directory=/tmp --extract --gzip --file /tmp/cov-analysis-linux64.tar.gz
+    - mkdir build
+    - cd build
+    - cmake -G Ninja ..
+    - /tmp/cov-analysis-linux64-*/bin/cov-build --return-emit-failures --dir cov-int ninja
+    - tar --create --gzip --file cov-int.tar.gz cov-int
+    - >
+      curl
+        --form file=@cov-int.tar.gz
+        --form token=$COVERITY_SCAN_TOKEN
+        --form email=$GITLAB_USER_EMAIL
+        --form description="Ubuntu $( git describe --tags ) $CI_COMMIT_REF_NAME:$CI_PIPELINE_ID"
+        --form version=$( git describe --tags )
+          https://scan.coverity.com/builds?project=$COVERITY_SCAN_PROJECT_NAME
