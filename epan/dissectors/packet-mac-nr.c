@@ -1824,7 +1824,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                         };
                         guint32 start_offset = offset;
                         guint8 scell_bitmap1;
-                        guint32 scell_bitmap2_3_4;
+                        guint32 scell_bitmap2_3_4 = 0;
                         proto_tree_add_bitmask_list(subheader_tree, tvb, offset, 1, me_phr_byte1_flags, ENC_NA);
                         scell_bitmap1 = tvb_get_guint8(tvb, offset);
                         offset++;
