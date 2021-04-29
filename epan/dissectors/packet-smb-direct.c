@@ -317,10 +317,6 @@ dissect_smb_direct(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	case SMB_DIRECT_HDR_DATA:
 		col_append_str(pinfo->cinfo, COL_INFO, "DataMessage");
 
-		if (tree == NULL) {
-			break;
-		}
-
 		rlen = MIN(rlen, 24);
 
 		item = proto_tree_add_item(tree, hf_smb_direct_data_message, tvb, 0, rlen, ENC_NA);
