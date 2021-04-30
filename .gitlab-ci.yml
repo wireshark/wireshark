@@ -452,3 +452,30 @@ coverity-visual-c++:
     - Set-Location ..\cov-build
     - C:\ProgramData\chocolatey\tools\7z a -tzip cov-int.zip cov-int
     - C:\Windows\System32\curl --form file=@cov-int.zip --form token=$COVERITY_SCAN_TOKEN--form email=$GITLAB_USER_EMAIL --form description="Windows $gitDescription $CI_COMMIT_REF_NAME:$CI_PIPELINE_ID" --form version=$gitDescription https://scan.coverity.com/builds?project=$COVERITY_SCAN_PROJECT_NAME
+
+clang-scan-build:
+  only:
+    refs:
+      - schedules
+    variables:
+      - $RUN_DAILY == "True"
+  image: wireshark/wireshark-ubuntu-dev
+  stage: analysis
+  needs: []
+  variables:
+    CLANG_VERSION: 11
+    CC: "clang-${CLANG_VERSION}"
+    CXX: "clang++-${CLANG_VERSION}"
+  script:
+    - mkdir build
+    - cd build
+    - scan-build-${CLANG_VERSION} cmake -DCMAKE_BUILD_TYPE=Debug -DDISABLE_WERROR=ON -G Ninja ..
+    - scan-build-${CLANG_VERSION} -o ../sbout ninja
+    - cd ../sbout
+    - RAW_DIR=$( find ../sbout -type d -name "20??-??-??-*" -printf "%P\n" | head )
+    - SB_DIR="scan-build-$RAW_DIR"
+    - mv "$RAW_DIR" "$SB_DIR"
+    - if [ -d logs ] ; then mv logs $SB_DIR ; fi
+    - chmod -R u=rwX,go=rX "$SB_DIR"
+    - zip -9 -r "${SB_DIR}.zip" "$SB_DIR"
+    - if [ -n "$AWS_ACCESS_KEY_ID" ] && [ -n "$AWS_SECRET_ACCESS_KEY" ] && [ -n "$S3_DESTINATION_ANALYSIS" ] ; then aws s3 cp "${SB_DIR}.zip" "$S3_DESTINATION_ANALYSIS/" ; fi
