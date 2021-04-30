@@ -429,7 +429,7 @@ coverity-gcc:
     - cmake -G Ninja ..
     - /tmp/cov-analysis-linux64-*/bin/cov-build --return-emit-failures --dir cov-int ninja
     - tar --create --gzip --file cov-int.tar.gz cov-int
-    - curl --form file=@cov-int.tar.gz --form token=$COVERITY_SCAN_TOKEN --form email=$GITLAB_USER_EMAIL --form description="Ubuntu $( git describe --tags ) $CI_COMMIT_REF_NAME:$CI_PIPELINE_ID" --form version=$( git describe --tags )
+    - curl --form file=@cov-int.tar.gz --form token=$COVERITY_SCAN_TOKEN --form email=$GITLAB_USER_EMAIL --form description="Ubuntu $( git describe --tags ) $CI_COMMIT_REF_NAME:$CI_PIPELINE_ID" --form version=$( git describe --tags ) https://scan.coverity.com/builds?project=$COVERITY_SCAN_PROJECT_NAME
 
 coverity-visual-c++:
   only:
