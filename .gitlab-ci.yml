@@ -26,6 +26,11 @@ variables:
   # Enable color output in CMake, Ninja, and other tools. https://bixense.com/clicolors/
   CLICOLOR_FORCE: 1
 
+# Scheduled builds additionally set WS_CI_SCHEDULE, which can be one of:
+# - daily: Daily at 10:00 UTC
+# - coverity-visual-c++: Monday, Wednesday, & Friday at 12:00 UTC
+# - coverity-gcc: Sunday, Tuesday, Thursday & Saturday at 12:00 UTC
+
 .build:
   stage: build
   after_script:
@@ -245,22 +250,6 @@ test:debian-stable:
   needs:
     - build:debian-stable
 
-# Windows runners are still beta, at least technically:
-# https://docs.gitlab.com/ee/user/gitlab_com/index.html#windows-shared-runners-beta
-# Dockerfile at https://github.com/wireshark/wireshark-windows-dev-docker.
-build:windows-vs-code-analysis:
-  extends: .build-windows
-  tags:
-    - wireshark-windows-dev
-  rules:
-    # The wireshark-windows-* tags are only available in wireshark/wireshark.
-    - if: '$CI_PIPELINE_SOURCE == "push" && $CI_PROJECT_URL =~ /.*gitlab.com\/wireshark\/wireshark/'
-      when: always
-  script:
-    - $env:caexcludepath = "C:\Qt;$env:INCLUDE"
-    - cmake -DENABLE_CODE_ANALYSIS=ON -G "Visual Studio 16 2019" -A x64 -DENABLE_LTO=off ..
-    - msbuild /verbosity:minimal "/consoleloggerparameters:PerformanceSummary;NoSummary" /maxcpucount:2 Wireshark.sln
-
 # Build Wireshark manuals
 # Note: Need ubuntu:focal with `ruby-coderay` and `ruby-asciidoctor-pdf` packages to build PDF docs
 docbook:
@@ -293,6 +282,9 @@ docbook:
 doxygen_all:
   stage: build
   image: wireshark/wireshark-ubuntu-dev
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule" && $WS_CI_SCHEDULE == "daily"'
+      when: always
   script:
     - mkdir build
     - cd build
@@ -389,7 +381,6 @@ merge-req:ubuntu-clang-other-tests:
 
 # Windows runners are still beta, at least technically:
 # https://docs.gitlab.com/ee/user/gitlab_com/index.html#windows-shared-runners-beta
-# Dockerfile at https://github.com/wireshark/wireshark-windows-dev-docker.
 merge-req:windows:
   extends: .build-windows
   tags:
@@ -407,11 +398,9 @@ merge-req:windows:
 # Adapted from https://www.synopsys.com/blogs/software-security/integrating-coverity-scan-with-gitlab-ci/
 # and https://gitlab.gnome.org/GNOME/glib/-/blob/8f57a5b9/.gitlab-ci.yml#L481
 coverity-gcc:
-  only:
-    refs:
-      - schedules
-    variables:
-      - $RUN_COVERITY_GCC == "True"
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule" && $WS_CI_SCHEDULE == "coverity-gcc"'
+      when: always
   image: wireshark/wireshark-ubuntu-dev
   stage: analysis
   needs: []
@@ -432,11 +421,9 @@ coverity-gcc:
     - curl --form file=@cov-int.tar.gz --form token=$COVERITY_SCAN_TOKEN --form email=$GITLAB_USER_EMAIL --form description="Ubuntu $( git describe --tags ) $CI_COMMIT_REF_NAME:$CI_PIPELINE_ID" --form version=$( git describe --tags ) https://scan.coverity.com/builds?project=$COVERITY_SCAN_PROJECT_NAME
 
 coverity-visual-c++:
-  only:
-    refs:
-      - schedules
-    variables:
-      - $RUN_COVERITY_VISUAL_CPP == "True"
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule" && $WS_CI_SCHEDULE == "coverity-visual-c++"'
+      when: always
   extends: .build-windows
   tags:
     - wireshark-windows-merge-req
@@ -453,16 +440,14 @@ coverity-visual-c++:
     - C:\Windows\System32\curl --form file=@cov-int.zip --form token=$COVERITY_SCAN_TOKEN--form email=$GITLAB_USER_EMAIL --form description="Windows $gitDescription $env:CI_COMMIT_REF_NAME`:$env:CI_PIPELINE_ID" --form version=$gitDescription https://scan.coverity.com/builds?project=$COVERITY_SCAN_PROJECT_NAME
 
 clang-scan-build:
-  only:
-    refs:
-      - schedules
-    variables:
-      - $RUN_DAILY == "True"
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule" && $WS_CI_SCHEDULE == "daily"'
+      when: always
   image: wireshark/wireshark-ubuntu-dev
   stage: analysis
   needs: []
   variables:
-    CLANG_VERSION: 11
+    CLANG_VERSION: 12
     CC: "clang-${CLANG_VERSION}"
     CXX: "clang++-${CLANG_VERSION}"
   script:
@@ -478,3 +463,18 @@ clang-scan-build:
     - chmod -R u=rwX,go=rX "$SB_DIR"
     - zip -9 -r "${SB_DIR}.zip" "$SB_DIR"
     - if [ -n "$AWS_ACCESS_KEY_ID" ] && [ -n "$AWS_SECRET_ACCESS_KEY" ] && [ -n "$S3_DESTINATION_ANALYSIS" ] ; then aws s3 cp "${SB_DIR}.zip" "$S3_DESTINATION_ANALYSIS/" ; fi
+
+# Windows runners are still beta, at least technically:
+# https://docs.gitlab.com/ee/user/gitlab_com/index.html#windows-shared-runners-beta
+build:windows-vs-code-analysis:
+  extends: .build-windows
+  tags:
+    - wireshark-windows-dev
+  rules:
+    # The wireshark-windows-* tags are only available in wireshark/wireshark.
+    - if: '$CI_PIPELINE_SOURCE == "schedule" && $WS_CI_SCHEDULE == "daily" && $CI_PROJECT_URL =~ /.*gitlab.com\/wireshark\/wireshark/'
+      when: always
+  script:
+    - $env:caexcludepath = "C:\Qt;$env:INCLUDE"
+    - cmake -DENABLE_CODE_ANALYSIS=ON -G "Visual Studio 16 2019" -A x64 -DENABLE_LTO=off ..
+    - msbuild /verbosity:minimal "/consoleloggerparameters:PerformanceSummary;NoSummary" /maxcpucount:2 Wireshark.sln
