@@ -23,6 +23,8 @@ variables:
   GIT_DEPTH: "1"
   GIT_FETCH_EXTRA_FLAGS: "--depth=5000"
   CCACHE_DIR: "${CI_PROJECT_DIR}/ccache"
+  # Preferred version of clang available on wireshark-ubuntu-dev
+  CLANG_VERSION: 12
   # Enable color output in CMake, Ninja, and other tools. https://bixense.com/clicolors/
   CLICOLOR_FORCE: 1
 
@@ -144,13 +146,13 @@ variables:
   needs: []
 
 # Rely on fedora:latest and debian-stable jobs for testing a recent GCC version.
-clang-12:
+clang-latest:
   extends:
     - .build-ubuntu
     - .if-merged
   variables:
-    CC: clang-12
-    CXX: clang++-12
+    CC: "clang-$CLANG_VERSION"
+    CXX: "clang++-$CLANG_VERSION"
 
 build:ubuntu-dist:
   stage: .pre
@@ -390,8 +392,8 @@ merge-req:ubuntu-clang-other-tests:
   tags:
     - docker
   variables:
-    CC: clang-12
-    CXX: clang++-12
+    CC: "clang-$CLANG_VERSION"
+    CXX: "clang++-$CLANG_VERSION"
   script:
     # build-ubuntu puts us in `build`.
     - cd ..
@@ -405,7 +407,7 @@ merge-req:ubuntu-clang-other-tests:
     - script --command ninja --flush --quiet --return ../clang_report.txt
     - ansi2html < ../clang_report.txt > ../clang_report.html
     - ./run/tshark -v
-    - sh -c '[ ! -e ../tools/validate-clang-check.sh ] || ../tools/validate-clang-check.sh'
+    - ../tools/validate-clang-check.sh -c $CLANG_VERSION
     - ninja checkAPI
   artifacts:
     paths:
@@ -487,7 +489,6 @@ clang-scan-build:
   stage: analysis
   needs: []
   variables:
-    CLANG_VERSION: 12
     CC: "clang-${CLANG_VERSION}"
     CXX: "clang++-${CLANG_VERSION}"
   script:
