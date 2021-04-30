@@ -56,9 +56,16 @@ variables:
       when: always
 # Daily jobs
 .if-daily-schedule:
-  rules:
-    - if: '$CI_PIPELINE_SOURCE == "schedule" && $WS_CI_SCHEDULE == "daily"'
-      when: always
+  # According to the GitLab docs, specifying "rules" is perferred over "only",
+  # but this doesn't get triggered.
+  # rules:
+  #   - if: '$CI_PIPELINE_SOURCE == "schedule" && $WS_CI_SCHEDULE == "daily"'
+  #     when: always
+  only:
+    refs:
+      - schedules
+    variables:
+      - $WS_CI_SCHEDULE == "daily"
 
 .build:
   stage: build
@@ -432,9 +439,14 @@ merge-req:windows:
 # Adapted from https://www.synopsys.com/blogs/software-security/integrating-coverity-scan-with-gitlab-ci/
 # and https://gitlab.gnome.org/GNOME/glib/-/blob/8f57a5b9/.gitlab-ci.yml#L481
 coverity-gcc:
-  rules:
-    - if: '$CI_PIPELINE_SOURCE == "schedule" && $WS_CI_SCHEDULE == "coverity-gcc"'
-      when: always
+  # rules:
+  #   - if: '$CI_PIPELINE_SOURCE == "schedule" && $WS_CI_SCHEDULE == "coverity-gcc"'
+  #     when: always
+  only:
+    refs:
+      - schedules
+    variables:
+      - $WS_CI_SCHEDULE == "coverity-gcc"
   image: wireshark/wireshark-ubuntu-dev
   stage: analysis
   needs: []
@@ -459,9 +471,14 @@ coverity-gcc:
       - build/cov-int.tar.gz
 
 coverity-visual-c++:
-  rules:
-    - if: '$CI_PIPELINE_SOURCE == "schedule" && $WS_CI_SCHEDULE == "coverity-visual-c++"'
-      when: always
+  # rules:
+  #   - if: '$CI_PIPELINE_SOURCE == "schedule" && $WS_CI_SCHEDULE == "coverity-visual-c++"'
+  #     when: always
+  only:
+    refs:
+      - schedules
+    variables:
+      - $WS_CI_SCHEDULE == "coverity-visual-c++"
   extends: .build-windows
   tags:
     - wireshark-windows-merge-req
