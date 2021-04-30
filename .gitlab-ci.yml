@@ -126,6 +126,12 @@ clang-12:
 build:ubuntu-dist:
   stage: .pre
   extends: .build-ubuntu
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "push" && $CI_PROJECT_URL =~ /.*gitlab.com\/wireshark\/wireshark/'
+      when: always
+    - if: '$CI_PROJECT_URL !~ /.*gitlab.com\/wireshark\/wireshark/'
+      when: manual
+    - when: never
   script:
     - perl ../tools/make-version.pl --set-release || ../perl make-version.pl --set-release
     - cmake -G Ninja $CMAKE_ARGS -DENABLE_CCACHE=ON ..
