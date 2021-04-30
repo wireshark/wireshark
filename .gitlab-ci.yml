@@ -518,3 +518,21 @@ build:windows-vs-code-analysis:
     - $env:caexcludepath = "C:\Qt;$env:INCLUDE"
     - cmake -DENABLE_CODE_ANALYSIS=ON -G "Visual Studio 16 2019" -A x64 -DENABLE_LTO=off ..
     - msbuild /verbosity:minimal "/consoleloggerparameters:PerformanceSummary;NoSummary" /maxcpucount:2 Wireshark.sln
+
+sloccount:
+  extends:
+    - .build-ubuntu
+    - .if-daily-schedule
+  stage: analysis
+  variables:
+    SLOC_OUT: sloccount.txt
+  needs: []
+  script:
+    - cmake -G Ninja ..
+    - ninja
+    - cd ..
+    - echo -n "SLOCCount version:\ "
+    - sloccount --version
+    - sloccount . | awk "/^Computing results/ { results=1 } { if (results) print }" > $SLOC_OUT
+    - cat $SLOC_OUT
+    - if [ -n "$AWS_ACCESS_KEY_ID" ] && [ -n "$AWS_SECRET_ACCESS_KEY" ] && [ -n "$S3_DESTINATION_ANALYSIS" ] ; then aws s3 cp "$SLOC_OUT" "$S3_DESTINATION_ANALYSIS/" ; fi
