@@ -408,8 +408,10 @@ merge-req:windows:
 # and https://gitlab.gnome.org/GNOME/glib/-/blob/8f57a5b9/.gitlab-ci.yml#L481
 coverity-gcc:
   only:
-    - schedules
-    - $RUN_COVERITY_GCC == "True"
+    refs:
+      - schedules
+    variables:
+      - $RUN_COVERITY_GCC == "True"
   image: wireshark/wireshark-ubuntu-dev
   stage: analysis
   needs: []
@@ -431,8 +433,10 @@ coverity-gcc:
 
 coverity-visual-c++:
   only:
-    - schedules
-    - $RUN_COVERITY_VISUAL_CPP == "True"
+    refs:
+      - schedules
+    variables:
+      - $RUN_COVERITY_VISUAL_CPP == "True"
   extends: .build-windows
   tags:
     - wireshark-windows-merge-req
