@@ -315,11 +315,9 @@ docbook:
 
 # Build all doxygen docs
 doxygen_all:
+  extends: .if-daily-schedule
   stage: build
   image: wireshark/wireshark-ubuntu-dev
-  rules:
-    - if: '$CI_PIPELINE_SOURCE == "schedule" && $WS_CI_SCHEDULE == "daily"'
-      when: always
   script:
     - mkdir build
     - cd build
