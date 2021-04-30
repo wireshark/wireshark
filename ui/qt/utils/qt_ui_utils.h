@@ -237,7 +237,7 @@ void set_action_shortcuts_visible_in_context_menu(QList<QAction *> actions);
  * Create copy of all rtpstream_ids to new QVector
  * => caller must release it with qvector_rtpstream_ids_free()
  *
- * @param rtpstream_ids List of infos
+ * @param stream_ids List of infos
  * @return Vector of rtpstream_ids
  */
 QVector<rtpstream_id_t *>qvector_rtpstream_ids_copy(QVector<rtpstream_id_t *> stream_ids);
@@ -245,7 +245,7 @@ QVector<rtpstream_id_t *>qvector_rtpstream_ids_copy(QVector<rtpstream_id_t *> st
 /**
  * Free all rtpstream_ids in QVector
  *
- * @param rtpstream_infos List of infos
+ * @param stream_ids List of infos
  */
 void qvector_rtpstream_ids_free(QVector<rtpstream_id_t *> stream_ids);
 

@@ -84,7 +84,7 @@ public:
      * Each item must have filled items: src_addr, src_port, dest_addr,
      *  dest_port, ssrc, packet_count, setup_frame_number, and start_rel_time.
      *
-     * @param stream_infos struct with rtpstream info
+     * @param stream_ids struct with rtpstream info
      */
     void replaceRtpStreams(QVector<rtpstream_id_t *> stream_ids);
     void addRtpStreams(QVector<rtpstream_id_t *> stream_ids);
