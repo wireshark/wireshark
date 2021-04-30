@@ -781,9 +781,9 @@ dissect_comport_subopt(packet_info *pinfo, const char *optname, tvbuff_t *tvb, i
         int bit = ls & 1;
         if (bit) {
           if (print_count != 0) {
-            g_strlcat(ls_buffer,", ",512);
+            (void) g_strlcat(ls_buffer,", ",512);
           }
-          g_strlcat(ls_buffer,linestate_bits[idx], 512);
+          (void) g_strlcat(ls_buffer,linestate_bits[idx], 512);
           print_count++;
         }
         ls = ls >> 1;
@@ -813,9 +813,9 @@ dissect_comport_subopt(packet_info *pinfo, const char *optname, tvbuff_t *tvb, i
         int bit = ms & 1;
         if (bit) {
           if (print_count != 0) {
-            g_strlcat(ms_buffer,", ",256);
+            (void) g_strlcat(ms_buffer,", ",256);
           }
-          g_strlcat(ms_buffer,modemstate_bits[idx],256);
+          (void) g_strlcat(ms_buffer,modemstate_bits[idx],256);
           print_count++;
         }
         ms = ms >> 1;

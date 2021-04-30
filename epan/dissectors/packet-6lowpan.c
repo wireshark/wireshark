@@ -3685,7 +3685,7 @@ prefs_6lowpan_apply(void)
 
     for (i = 0; i < LOWPAN_CONTEXT_MAX; i++) {
         if (!lowpan_context_prefs[i]) continue;
-        g_strlcpy(prefix_buf, lowpan_context_prefs[i], 48);
+        (void) g_strlcpy(prefix_buf, lowpan_context_prefs[i], 48);
         if ((prefix_str = strtok(prefix_buf, "/")) == NULL) continue;
         if ((prefix_len_str = strtok(NULL, "/")) == NULL) continue;
         if (sscanf(prefix_len_str, "%u", &prefix_len) != 1) continue;

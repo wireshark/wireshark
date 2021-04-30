@@ -4074,7 +4074,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
                             return offset - orig_offset;
                         }
                         else {
-                            g_strlcpy(cseq_method, value+sub_value_offset, MAX_CSEQ_METHOD_SIZE);
+                            (void) g_strlcpy(cseq_method, value+sub_value_offset, MAX_CSEQ_METHOD_SIZE);
 
                             /* Add CSeq method to the tree */
                             if (cseq_tree)
@@ -4173,7 +4173,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
                         proto_item *gen_item;
 
                         /* Store the Call-id */
-                        g_strlcpy(call_id, value, MAX_CALL_ID_SIZE);
+                        (void) g_strlcpy(call_id, value, MAX_CALL_ID_SIZE);
                         stat_info->tap_call_id = wmem_strdup(wmem_packet_scope(), call_id);
 
                         /* Add 'Call-id' string item to tree */
@@ -5262,7 +5262,7 @@ guint sip_is_packet_resend(packet_info *pinfo,
     /* No packet entry found, consult global hash table */
 
     /* Prepare the key */
-    g_strlcpy(key.call_id, call_id, MAX_CALL_ID_SIZE);
+    (void) g_strlcpy(key.call_id, call_id, MAX_CALL_ID_SIZE);
 
     /*  We're only using these addresses locally (for the hash lookup) so
      *  there is no need to make a (g_malloc'd) copy of them.
@@ -5291,7 +5291,7 @@ guint sip_is_packet_resend(packet_info *pinfo,
         if (cseq_number != p_val->cseq)
         {
             p_val->cseq = cseq_number;
-            g_strlcpy(p_val->method, cseq_method, MAX_CSEQ_METHOD_SIZE);
+            (void) g_strlcpy(p_val->method, cseq_method, MAX_CSEQ_METHOD_SIZE);
             p_val->transaction_state = nothing_seen;
             p_val->frame_number = 0;
             if (line_type == REQUEST_LINE)
@@ -5320,7 +5320,7 @@ guint sip_is_packet_resend(packet_info *pinfo,
         }
 
         p_val->cseq = cseq_number;
-        g_strlcpy(p_val->method, cseq_method, MAX_CSEQ_METHOD_SIZE);
+        (void) g_strlcpy(p_val->method, cseq_method, MAX_CSEQ_METHOD_SIZE);
         p_val->transaction_state = nothing_seen;
         if (line_type == REQUEST_LINE)
         {
@@ -5461,7 +5461,7 @@ guint sip_find_request(packet_info *pinfo,
     /* No packet entry found, consult global hash table */
 
     /* Prepare the key */
-    g_strlcpy(key.call_id, call_id, MAX_CALL_ID_SIZE);
+    (void) g_strlcpy(key.call_id, call_id, MAX_CALL_ID_SIZE);
 
     /* Looking for matching request, so reverse addresses for this lookup */
     set_address(&key.dest_address, pinfo->net_src.type, pinfo->net_src.len,
@@ -5575,7 +5575,7 @@ guint sip_find_invite(packet_info *pinfo,
     /* No packet entry found, consult global hash table */
 
     /* Prepare the key */
-    g_strlcpy(key.call_id, call_id, MAX_CALL_ID_SIZE);
+    (void) g_strlcpy(key.call_id, call_id, MAX_CALL_ID_SIZE);
 
     /* Looking for matching INVITE */
     set_address(&key.dest_address, pinfo->net_dst.type, pinfo->net_dst.len,

@@ -2726,19 +2726,19 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 
     if (NULL != sdp_data.ed137_fid) {
       col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", sdp_data.ed137_fid);
-      g_strlcat(sdp_pi->summary_str, sdp_data.ed137_fid, 50);
+      (void) g_strlcat(sdp_pi->summary_str, sdp_data.ed137_fid, 50);
     }
     if (NULL != sdp_data.ed137_txrxmode) {
       col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", sdp_data.ed137_txrxmode);
       if (strlen(sdp_pi->summary_str))
-          g_strlcat(sdp_pi->summary_str, " ", 50);
-      g_strlcat(sdp_pi->summary_str, sdp_data.ed137_txrxmode, 50);
+          (void) g_strlcat(sdp_pi->summary_str, " ", 50);
+      (void) g_strlcat(sdp_pi->summary_str, sdp_data.ed137_txrxmode, 50);
     }
     if (NULL != sdp_data.ed137_type) {
       col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", sdp_data.ed137_type);
       if (strlen(sdp_pi->summary_str))
-          g_strlcat(sdp_pi->summary_str, " ", 50);
-      g_strlcat(sdp_pi->summary_str, sdp_data.ed137_type, 50);
+          (void) g_strlcat(sdp_pi->summary_str, " ", 50);
+      (void) g_strlcat(sdp_pi->summary_str, sdp_data.ed137_type, 50);
     }
 
     /* Done parsing media description, no more need for the session-level details. */
@@ -2795,19 +2795,19 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
                         media_desc->media.pt[j]);
                     if (payload_type_str) {
                         if (strlen(sdp_pi->summary_str))
-                            g_strlcat(sdp_pi->summary_str, " ", 50);
-                        g_strlcat(sdp_pi->summary_str, payload_type_str, 50);
+                            (void) g_strlcat(sdp_pi->summary_str, " ", 50);
+                        (void) g_strlcat(sdp_pi->summary_str, payload_type_str, 50);
                     } else {
                         char num_pt[10];
                         g_snprintf(num_pt, 10, "%u", media_desc->media.pt[j]);
                         if (strlen(sdp_pi->summary_str))
-                            g_strlcat(sdp_pi->summary_str, " ", 50);
-                        g_strlcat(sdp_pi->summary_str, num_pt, 50);
+                            (void) g_strlcat(sdp_pi->summary_str, " ", 50);
+                        (void) g_strlcat(sdp_pi->summary_str, num_pt, 50);
                       }
                 } else {
                     if (strlen(sdp_pi->summary_str))
-                        g_strlcat(sdp_pi->summary_str, " ", 50);
-                    g_strlcat(sdp_pi->summary_str,
+                        (void) g_strlcat(sdp_pi->summary_str, " ", 50);
+                    (void) g_strlcat(sdp_pi->summary_str,
                               val_to_str_ext(media_desc->media.pt[j], &rtp_payload_type_short_vals_ext, "%u"),
                               50);
                 }
@@ -2819,8 +2819,8 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
          */
         if ((media_desc->media_port != 0) && media_desc->proto == SDP_PROTO_T38) {
             if (strlen(sdp_pi->summary_str))
-                g_strlcat(sdp_pi->summary_str, " ", 50);
-            g_strlcat(sdp_pi->summary_str, "t38", 50);
+                (void) g_strlcat(sdp_pi->summary_str, " ", 50);
+            (void) g_strlcat(sdp_pi->summary_str, "t38", 50);
         }
     }
 

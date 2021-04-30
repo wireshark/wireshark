@@ -1302,7 +1302,7 @@ int dissect_mscldap_string(tvbuff_t *tvb, int offset, char *str, int max_len, gb
 
   /* The name data MUST start at offset 0 of the tvb */
   compr_len = get_dns_name(tvb, offset, max_len, 0, &name, &name_len);
-  g_strlcpy(str, name, max_len);
+  (void) g_strlcpy(str, name, max_len);
   return offset + compr_len;
 }
 

@@ -58,7 +58,7 @@ string_to_repr(fvalue_t *fv, ftrepr_t rtype, int field_display _U_, char *buf, u
 {
 	switch (rtype) {
 		case FTREPR_DISPLAY:
-			g_strlcpy(buf, fv->value.string, size);
+			(void) g_strlcpy(buf, fv->value.string, size);
 			return;
 
 		case FTREPR_DFILTER:

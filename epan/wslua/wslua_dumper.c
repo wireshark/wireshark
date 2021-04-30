@@ -179,7 +179,7 @@ static const char* cross_plat_fname(const char* fname) {
     static char fname_clean[256];
     char* f;
 
-    g_strlcpy(fname_clean,fname,255);
+    (void) g_strlcpy(fname_clean,fname,255);
     fname_clean[255] = '\0';
 
     for(f = fname_clean; *f; f++) {

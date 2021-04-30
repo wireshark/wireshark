@@ -253,7 +253,7 @@ lte_mac_pseudo_hdr(char* option_str, packet_info* pinfo, guint16 length, packet_
     }
 
     /* Need to copy the string in a local buffer since strtok will modify it */
-    g_strlcpy(option, option_str, 30);
+    (void) g_strlcpy(option, option_str, 30);
 
     /* Only need to set info once per session. */
     p_mac_lte_info = (struct mac_lte_info*)p_get_proto_data(wmem_file_scope(), pinfo, proto_mac_lte, 0);
@@ -368,7 +368,7 @@ lte_rlc_pseudo_hdr(char* option_str, packet_info* pinfo, guint16 length, packet_
     {
         proto_rlc_lte = proto_get_id_by_filter_name("rlc-lte");
     }
-    g_strlcpy(option, option_str, 30);
+    (void) g_strlcpy(option, option_str, 30);
 
     /* Only need to set info once per session. */
     p_rlc_lte_info = (struct rlc_lte_info*)p_get_proto_data(wmem_file_scope(), pinfo, proto_rlc_lte, 0);
@@ -473,7 +473,7 @@ lte_pdcp_pseudo_hdr(char* option_str, packet_info* pinfo, guint16 length _U_, pa
     {
         proto_pdcp_lte = proto_get_id_by_filter_name("pdcp-lte");
     }
-    g_strlcpy(option, option_str, 30);
+    (void) g_strlcpy(option, option_str, 30);
 
     /* Only need to set info once per session. */
     p_pdcp_lte_info = (struct pdcp_lte_info*)p_get_proto_data(wmem_file_scope(), pinfo, proto_pdcp_lte, 0);

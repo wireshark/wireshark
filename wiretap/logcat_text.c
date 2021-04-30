@@ -208,7 +208,7 @@ static gboolean logcat_text_read_packet(FILE_T fh, wtap_rec *rec,
         file_off = file_tell(fh);
         ret2 = file_gets(lbuff,WTAP_MAX_PACKET_SIZE_STANDARD, fh);
         while (NULL != ret2 && 2 < strlen(lbuff) && !file_eof(fh)) {
-            g_strlcat(cbuff,lbuff,WTAP_MAX_PACKET_SIZE_STANDARD);
+            (void) g_strlcat(cbuff,lbuff,WTAP_MAX_PACKET_SIZE_STANDARD);
             file_off = file_tell(fh);
             ret2 = file_gets(lbuff,WTAP_MAX_PACKET_SIZE_STANDARD, fh);
         }

@@ -353,7 +353,7 @@ wdd_date ::= WDD_DATE wdd_decnum(MONTH) wdd_decnum(MDAY) wdd_decnum(YEAR) WDD_TI
     parser_state->timestamp = (guint32) mktime(&wddt);
     parser_state->saw_timestamp = TRUE;
 
-    g_strlcpy(parser_state->pseudo_header->call_num, CN_T.str_val, ASCEND_MAX_STR_LEN);
+    (void) g_strlcpy(parser_state->pseudo_header->call_num, CN_T.str_val, ASCEND_MAX_STR_LEN);
 }
 
 /*

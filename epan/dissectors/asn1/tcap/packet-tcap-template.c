@@ -1892,7 +1892,7 @@ dissect_tcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
      */
     if ( p_tcap_context && cur_oid && !p_tcap_context->oid_present ) {
       /* Save the application context and the sub dissector */
-      g_strlcpy(p_tcap_context->oid, cur_oid, sizeof(p_tcap_context->oid));
+      (void) g_strlcpy(p_tcap_context->oid, cur_oid, sizeof(p_tcap_context->oid));
       p_tcap_context->oid_present=TRUE;
       if ( (subdissector_handle = dissector_get_string_handle(ber_oid_dissector_table, cur_oid)) ) {
         p_tcap_context->subdissector_handle=subdissector_handle;
@@ -2231,7 +2231,7 @@ dissect_tcap_ITU_ComponentPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offs
                   /* ACN, changed, Fallback to lower version
                    * and update the subdissector (purely formal)
                    */
-                  g_strlcpy(p_tcap_context->oid, cur_oid, sizeof(p_tcap_context->oid));
+                  (void) g_strlcpy(p_tcap_context->oid, cur_oid, sizeof(p_tcap_context->oid));
                   if ((subdissector_handle = dissector_get_string_handle(ber_oid_dissector_table, cur_oid))) {
                       p_tcap_context->subdissector_handle = subdissector_handle;
                       p_tcap_context->subdissector_present = TRUE;
@@ -2239,7 +2239,7 @@ dissect_tcap_ITU_ComponentPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offs
               }
           } else {
               /* We do not have the OID in the TCAP context, so store it */
-              g_strlcpy(p_tcap_context->oid, cur_oid, sizeof(p_tcap_context->oid));
+              (void) g_strlcpy(p_tcap_context->oid, cur_oid, sizeof(p_tcap_context->oid));
               p_tcap_context->oid_present = TRUE;
               /* Try to find a subdissector according to OID */
               if ((subdissector_handle

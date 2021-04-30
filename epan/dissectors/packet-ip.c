@@ -992,13 +992,13 @@ dissect_ipopt_cipso(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void * 
                 while (cat_str_len < (strlen(cat_str) + 2 + USHRT_MAX_STRLEN))
                   cat_str_len += cat_str_len;
                 cat_str_new = (char *)wmem_alloc(wmem_packet_scope(), cat_str_len);
-                g_strlcpy(cat_str_new, cat_str, cat_str_len);
+                (void) g_strlcpy(cat_str_new, cat_str, cat_str_len);
                 cat_str_new[cat_str_len - 1] = '\0';
                 cat_str = cat_str_new;
               }
               if (cat_str[0] != '\0')
-                g_strlcat(cat_str, ",", cat_str_len);
-              g_strlcat(cat_str, cat_str_tmp, cat_str_len);
+                (void) g_strlcat(cat_str, ",", cat_str_len);
+              (void) g_strlcat(cat_str, cat_str_tmp, cat_str_len);
             }
             bit_spot++;
             bitmask >>= 1;
@@ -1038,8 +1038,8 @@ dissect_ipopt_cipso(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void * 
                      tvb_get_ntohs(tvb, offset));
           offset += 2;
           if (cat_str[0] != '\0')
-            g_strlcat(cat_str, ",", USHRT_MAX_STRLEN * 15);
-          g_strlcat(cat_str, cat_str_tmp, USHRT_MAX_STRLEN * 15);
+            (void) g_strlcat(cat_str, ",", USHRT_MAX_STRLEN * 15);
+          (void) g_strlcat(cat_str, cat_str_tmp, USHRT_MAX_STRLEN * 15);
         }
 
         proto_tree_add_string(field_tree, hf_ip_cipso_categories, tvb, offset - taglen + 4, taglen - 4, cat_str);
@@ -1082,8 +1082,8 @@ dissect_ipopt_cipso(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void * 
             g_snprintf(cat_str_tmp, USHRT_MAX_STRLEN * 2, "%u", cat_high);
 
           if (cat_str[0] != '\0')
-            g_strlcat(cat_str, ",", USHRT_MAX_STRLEN * 16);
-          g_strlcat(cat_str, cat_str_tmp, USHRT_MAX_STRLEN * 16);
+            (void) g_strlcat(cat_str, ",", USHRT_MAX_STRLEN * 16);
+          (void) g_strlcat(cat_str, cat_str_tmp, USHRT_MAX_STRLEN * 16);
         }
 
         proto_tree_add_string(field_tree, hf_ip_cipso_categories, tvb, offset - taglen + 4, taglen - 4, cat_str);

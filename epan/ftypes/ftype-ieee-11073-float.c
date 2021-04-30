@@ -214,19 +214,19 @@ sfloat_ieee_11073_val_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_displa
     if (fv->value.sfloat_ieee_11073 >= 0x07FE && fv->value.sfloat_ieee_11073 <= 0x0802) {
         switch (fv->value.sfloat_ieee_11073) {
         case SFLOAT_VALUE_INFINITY_PLUS:
-            g_strlcpy(buf, "+INFINITY", size);
+            (void) g_strlcpy(buf, "+INFINITY", size);
             break;
         case SFLOAT_VALUE_NAN:
-            g_strlcpy(buf, "NaN", size);
+            (void) g_strlcpy(buf, "NaN", size);
             break;
         case SFLOAT_VALUE_NRES:
-            g_strlcpy(buf, "NRes", size);
+            (void) g_strlcpy(buf, "NRes", size);
             break;
         case SFLOAT_VALUE_RFU:
-            g_strlcpy(buf, "RFU", size);
+            (void) g_strlcpy(buf, "RFU", size);
             break;
         case SFLOAT_VALUE_INFINITY_MINUS:
-            g_strlcpy(buf, "-INFINITY", size);
+            (void) g_strlcpy(buf, "-INFINITY", size);
             break;
         }
         return;
@@ -910,19 +910,19 @@ float_ieee_11073_val_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_display
     if (fv->value.float_ieee_11073 >= 0x007FFFFE && fv->value.float_ieee_11073 <= 0x00800002) {
         switch (fv->value.float_ieee_11073) {
         case FLOAT_VALUE_INFINITY_PLUS:
-            g_strlcpy(buf, "+INFINITY", size);
+            (void) g_strlcpy(buf, "+INFINITY", size);
             break;
         case FLOAT_VALUE_NAN:
-            g_strlcpy(buf, "NaN", size);
+            (void) g_strlcpy(buf, "NaN", size);
             break;
         case FLOAT_VALUE_NRES:
-            g_strlcpy(buf, "NRes", size);
+            (void) g_strlcpy(buf, "NRes", size);
             break;
         case FLOAT_VALUE_RFU:
-            g_strlcpy(buf, "RFU", size);
+            (void) g_strlcpy(buf, "RFU", size);
             break;
         case FLOAT_VALUE_INFINITY_MINUS:
-            g_strlcpy(buf, "-INFINITY", size);
+            (void) g_strlcpy(buf, "-INFINITY", size);
             break;
         }
     }

@@ -380,25 +380,25 @@ dissect_fmp_flushCmd(tvbuff_t *tvb, int offset,  proto_tree *tree)
             if (cmd & bitValue) {
                 switch (bitValue) {
                 case FMP_COMMIT_SPECIFIED:
-                    g_strlcat(msg, "COMMIT_SPECIFIED", MAX_MSG_SIZE);
+                    (void) g_strlcat(msg, "COMMIT_SPECIFIED", MAX_MSG_SIZE);
                     break;
                 case FMP_RELEASE_SPECIFIED:
-                    g_strlcat(msg, "RELEASE_SPECIFIED", MAX_MSG_SIZE);
+                    (void) g_strlcat(msg, "RELEASE_SPECIFIED", MAX_MSG_SIZE);
                     break;
                 case FMP_RELEASE_ALL:
-                    g_strlcat(msg, "RELEASE_ALL", MAX_MSG_SIZE);
+                    (void) g_strlcat(msg, "RELEASE_ALL", MAX_MSG_SIZE);
                     break;
                 case FMP_CLOSE_FILE:
-                    g_strlcat(msg, "CLOSE_FILE", MAX_MSG_SIZE);
+                    (void) g_strlcat(msg, "CLOSE_FILE", MAX_MSG_SIZE);
                     break;
                 case FMP_UPDATE_TIME:
-                    g_strlcat(msg, "UPDATE_TIME", MAX_MSG_SIZE);
+                    (void) g_strlcat(msg, "UPDATE_TIME", MAX_MSG_SIZE);
                     break;
                 case FMP_ACCESS_TIME:
-                    g_strlcat(msg, "ACCESS_TIME", MAX_MSG_SIZE);
+                    (void) g_strlcat(msg, "ACCESS_TIME", MAX_MSG_SIZE);
                     break;
                 default:
-                    g_strlcat(msg, "UNKNOWN", MAX_MSG_SIZE);
+                    (void) g_strlcat(msg, "UNKNOWN", MAX_MSG_SIZE);
                     break;
                 }
 
@@ -407,13 +407,13 @@ dissect_fmp_flushCmd(tvbuff_t *tvb, int offset,  proto_tree *tree)
 
                 /* add a "bitwise inclusive OR" symbol between cmds */
                 if (cmd) {
-                    g_strlcat(msg, " | ", MAX_MSG_SIZE);
+                    (void) g_strlcat(msg, " | ", MAX_MSG_SIZE);
                 }
             }
         }
 
         if (strlen(msg) == 0) {
-            g_strlcpy(msg, "No command specified", MAX_MSG_SIZE);
+            (void) g_strlcpy(msg, "No command specified", MAX_MSG_SIZE);
         }
 
         proto_tree_add_uint_format_value(tree, hf_fmp_cmd, tvb, offset, 4, cmd, "%s", msg);

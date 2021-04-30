@@ -1021,7 +1021,7 @@ static void
 fill_dummy_ip6(hashipv6_t* volatile tp)
 {
     /* Overwrite if we get async DNS reply */
-    g_strlcpy(tp->name, tp->ip6, MAXNAMELEN);
+    (void) g_strlcpy(tp->name, tp->ip6, MAXNAMELEN);
 }
 
 static void
@@ -1457,14 +1457,14 @@ parse_ether_line(char *line, ether_t *eth, unsigned int *mask,
     if ((cp = strtok(NULL, " \t")) == NULL)
         return -1;
 
-    g_strlcpy(eth->name, cp, MAXNAMELEN);
+    (void) g_strlcpy(eth->name, cp, MAXNAMELEN);
 
     if ((cp = strtok(NULL, "\t")) != NULL)
     {
-        g_strlcpy(eth->longname, cp, MAXNAMELEN);
+        (void) g_strlcpy(eth->longname, cp, MAXNAMELEN);
     } else {
         /* Make the long name the short name */
-        g_strlcpy(eth->longname, eth->name, MAXNAMELEN);
+        (void) g_strlcpy(eth->longname, eth->name, MAXNAMELEN);
     }
 
     return 0;
@@ -1550,13 +1550,13 @@ manuf_hash_new_entry(const guint8 *addr, char* name, char* longname)
 
     memcpy(manuf_value->addr, addr, 3);
     if (name != NULL) {
-        g_strlcpy(manuf_value->resolved_name, name, MAXNAMELEN);
+        (void) g_strlcpy(manuf_value->resolved_name, name, MAXNAMELEN);
         manuf_value->status = HASHETHER_STATUS_RESOLVED_NAME;
         if (longname != NULL) {
-            g_strlcpy(manuf_value->resolved_longname, longname, MAXNAMELEN);
+            (void) g_strlcpy(manuf_value->resolved_longname, longname, MAXNAMELEN);
         }
         else {
-            g_strlcpy(manuf_value->resolved_longname, name, MAXNAMELEN);
+            (void) g_strlcpy(manuf_value->resolved_longname, name, MAXNAMELEN);
         }
     }
     else {
@@ -1774,7 +1774,7 @@ eth_addr_resolve(hashether_t *tp) {
     const guint8 *addr = tp->addr;
 
     if ( (eth = get_ethbyaddr(addr)) != NULL) {
-        g_strlcpy(tp->resolved_name, eth->name, MAXNAMELEN);
+        (void) g_strlcpy(tp->resolved_name, eth->name, MAXNAMELEN);
         tp->status = HASHETHER_STATUS_RESOLVED_NAME;
         return tp;
     } else {
@@ -1907,7 +1907,7 @@ add_eth_name(const guint8 *addr, const gchar *name)
     }
 
     if (strcmp(tp->resolved_name, name) != 0) {
-        g_strlcpy(tp->resolved_name, name, MAXNAMELEN);
+        (void) g_strlcpy(tp->resolved_name, name, MAXNAMELEN);
         tp->status = HASHETHER_STATUS_RESOLVED_NAME;
         new_resolved_objects = TRUE;
     }
@@ -1981,7 +1981,7 @@ parse_ipxnets_line(char *line, ipxnet_t *ipxnet)
         ipxnet->addr = (a0 << 24) | (a1 << 16) | (a2 << 8) | a3;
     }
 
-    g_strlcpy(ipxnet->name, cp, MAXNAMELEN);
+    (void) g_strlcpy(ipxnet->name, cp, MAXNAMELEN);
 
     return 0;
 
@@ -2111,7 +2111,7 @@ ipxnet_name_lookup(wmem_allocator_t *allocator, const guint addr)
         g_snprintf(tp->name, MAXNAMELEN, "%X", addr);
 
     } else {
-        g_strlcpy(tp->name, ipxnet->name, MAXNAMELEN);
+        (void) g_strlcpy(tp->name, ipxnet->name, MAXNAMELEN);
     }
 
     return wmem_strdup(allocator, tp->name);
@@ -2141,7 +2141,7 @@ parse_vlan_line(char *line, vlan_t *vlan)
     if ((cp = strtok(NULL, "\t\n")) == NULL)
         return -1;
 
-    g_strlcpy(vlan->name, cp, MAXVLANNAMELEN);
+    (void) g_strlcpy(vlan->name, cp, MAXVLANNAMELEN);
 
     return 0;
 
@@ -2255,7 +2255,7 @@ vlan_name_lookup(const guint id)
         g_snprintf(tp->name, MAXVLANNAMELEN, "<%u>", id);
 
     } else {
-        g_strlcpy(tp->name, vlan->name, MAXVLANNAMELEN);
+        (void) g_strlcpy(tp->name, vlan->name, MAXVLANNAMELEN);
     }
 
     return tp->name;
@@ -2363,7 +2363,7 @@ add_ip_name_from_string (const char *addr, const char *name)
         if (resolved_entry)
         {
             // If we found a previous matching key (IP address), then just update the value (custom hostname);
-            g_strlcpy(resolved_entry->name, name, MAXNAMELEN);
+            (void) g_strlcpy(resolved_entry->name, name, MAXNAMELEN);
         }
         else
         {
@@ -2372,7 +2372,7 @@ add_ip_name_from_string (const char *addr, const char *name)
             memcpy(addr_key, &host_addr.ip6_addr, sizeof(ws_in6_addr));
 
             resolved_entry = wmem_new(wmem_epan_scope(), resolved_name_t);
-            g_strlcpy(resolved_entry->name, name, MAXNAMELEN);
+            (void) g_strlcpy(resolved_entry->name, name, MAXNAMELEN);
 
             wmem_map_insert(manually_resolved_ipv6_list, addr_key, resolved_entry);
         }
@@ -2381,13 +2381,13 @@ add_ip_name_from_string (const char *addr, const char *name)
         if (resolved_entry)
         {
             // If we found a previous matching key (IP address), then just update the value (custom hostname);
-            g_strlcpy(resolved_entry->name, name, MAXNAMELEN);
+            (void) g_strlcpy(resolved_entry->name, name, MAXNAMELEN);
         }
         else
         {
             // Add a new mapping entry, if this IP address isn't already in the list.
             resolved_entry = wmem_new(wmem_epan_scope(), resolved_name_t);
-            g_strlcpy(resolved_entry->name, name, MAXNAMELEN);
+            (void) g_strlcpy(resolved_entry->name, name, MAXNAMELEN);
 
             wmem_map_insert(manually_resolved_ipv4_list, GUINT_TO_POINTER(host_addr.ip4_addr), resolved_entry);
         }
@@ -2610,7 +2610,7 @@ subnet_entry_set(guint32 subnet_addr, const guint8 mask_length, const gchar* nam
 
     tp->next = NULL;
     tp->addr = subnet_addr;
-    g_strlcpy(tp->name, name, MAXNAMELEN); /* This is longer than subnet names can actually be */
+    (void) g_strlcpy(tp->name, name, MAXNAMELEN); /* This is longer than subnet names can actually be */
     have_subnet_entry = TRUE;
 }
 
@@ -2686,7 +2686,7 @@ void fill_unresolved_ss7pc(const gchar * pc_addr, const guint8 ni, const guint32
 {
     hashss7pc_t *tp = host_lookup_ss7pc(ni, pc);
 
-    g_strlcpy(tp->pc_addr, pc_addr, MAXNAMELEN);
+    (void) g_strlcpy(tp->pc_addr, pc_addr, MAXNAMELEN);
 }
 
 const gchar *
@@ -2725,7 +2725,7 @@ add_ss7pc_name(const guint8 ni, guint32 pc, const gchar *name)
     }
 
     if (g_ascii_strcasecmp(tp->name, name)) {
-        g_strlcpy(tp->name, name, MAXNAMELEN);
+        (void) g_strlcpy(tp->name, name, MAXNAMELEN);
     }
 }
 
@@ -3032,7 +3032,7 @@ add_ipv4_name(const guint addr, const gchar *name)
     }
 
     if (g_ascii_strcasecmp(tp->name, name)) {
-        g_strlcpy(tp->name, name, MAXNAMELEN);
+        (void) g_strlcpy(tp->name, name, MAXNAMELEN);
         new_resolved_objects = TRUE;
     }
     tp->flags |= TRIED_RESOLVE_ADDRESS|NAME_RESOLVED;
@@ -3062,7 +3062,7 @@ add_ipv6_name(const ws_in6_addr *addrp, const gchar *name)
     }
 
     if (g_ascii_strcasecmp(tp->name, name)) {
-        g_strlcpy(tp->name, name, MAXNAMELEN);
+        (void) g_strlcpy(tp->name, name, MAXNAMELEN);
         new_resolved_objects = TRUE;
     }
     tp->flags |= TRIED_RESOLVE_ADDRESS|NAME_RESOLVED;

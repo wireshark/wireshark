@@ -807,7 +807,7 @@ void sprt_add_address(packet_info *pinfo,
     }
 
     /* Update the conversation data. */
-    g_strlcpy(p_conv_data->method, setup_method, SPRT_CONV_MAX_SETUP_METHOD_SIZE);
+    (void) g_strlcpy(p_conv_data->method, setup_method, SPRT_CONV_MAX_SETUP_METHOD_SIZE);
     p_conv_data->frame_number = setup_frame_number;
 }
 

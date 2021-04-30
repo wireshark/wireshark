@@ -292,7 +292,7 @@ if_info_get(const char *name)
 	 * Get the description for the interface.
 	 */
 	memset(&ifrdesc, 0, sizeof ifrdesc);
-	g_strlcpy(ifrdesc.ifr_name, name, sizeof ifrdesc.ifr_name);
+	(void) g_strlcpy(ifrdesc.ifr_name, name, sizeof ifrdesc.ifr_name);
 	s = socket(AF_INET, SOCK_DGRAM, 0);
 	if (s >= 0) {
 #ifdef __FreeBSD__
@@ -1138,7 +1138,7 @@ is_linux_bonding_device(const char *ifname)
 		return FALSE;
 
 	memset(&ifr, 0, sizeof ifr);
-	g_strlcpy(ifr.ifr_name, ifname, sizeof ifr.ifr_name);
+	(void) g_strlcpy(ifr.ifr_name, ifname, sizeof ifr.ifr_name);
 	memset(&ifb, 0, sizeof ifb);
 	ifr.ifr_data = (caddr_t)&ifb;
 #if defined(SIOCBONDINFOQUERY)
@@ -1329,7 +1329,7 @@ open_capture_device_pcap_create(
 		 */
 		if (status == PCAP_ERROR) {
 			*open_err = CAP_DEVICE_OPEN_ERR_NOT_PERMISSIONS;
-			g_strlcpy(*open_err_str, pcap_geterr(pcap_h),
+			(void) g_strlcpy(*open_err_str, pcap_geterr(pcap_h),
 			    sizeof *open_err_str);
 			pcap_close(pcap_h);
 			return NULL;
@@ -1353,14 +1353,14 @@ open_capture_device_pcap_create(
 		/* Failed to activate, set to NULL */
 		if (status == PCAP_ERROR) {
 			*open_err = CAP_DEVICE_OPEN_ERR_GENERIC;
-			g_strlcpy(*open_err_str, pcap_geterr(pcap_h),
+			(void) g_strlcpy(*open_err_str, pcap_geterr(pcap_h),
 			    sizeof *open_err_str);
 		} else {
 			if (status == PCAP_ERROR_PERM_DENIED)
 				*open_err = CAP_DEVICE_OPEN_ERR_PERMISSIONS;
 			else
 				*open_err = CAP_DEVICE_OPEN_ERR_NOT_PERMISSIONS;
-			g_strlcpy(*open_err_str, pcap_statustostr(status),
+			(void) g_strlcpy(*open_err_str, pcap_statustostr(status),
 			    sizeof *open_err_str);
 		}
 		pcap_close(pcap_h);
@@ -1592,7 +1592,7 @@ open_capture_device(capture_options *capture_opts,
 				 * no error message is filled in on a
 				 * failure to open an rpcap: URL.
 				 */
-				g_strlcpy(*open_err_str,
+				(void) g_strlcpy(*open_err_str,
 				    "Unknown error (pcap bug; actual error cause not reported)",
 				    sizeof *open_err_str);
 			}

@@ -102,7 +102,7 @@ static int vsock_addr_to_str(const address* addr, gchar *buf, int buf_len)
     const guint8 *addrp = (const guint8 *)addr->data;
 
     if(pletoh64(&addrp[0])==2){
-        g_strlcpy(buf, "host", buf_len);
+        (void) g_strlcpy(buf, "host", buf_len);
     } else {
         g_snprintf(buf, buf_len, "%" G_GINT64_MODIFIER "u", pletoh64(&addrp[0]));
     }

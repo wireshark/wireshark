@@ -1294,7 +1294,7 @@ static int ieee802_15_4_short_address_to_str(const address* addr, gchar *buf, in
 
     if (ieee_802_15_4_short_addr == 0xffff)
     {
-        g_strlcpy(buf, "Broadcast", buf_len);
+        (void) g_strlcpy(buf, "Broadcast", buf_len);
         return 10;
     }
 

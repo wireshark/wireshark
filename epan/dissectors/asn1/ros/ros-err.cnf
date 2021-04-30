@@ -33,7 +33,7 @@
   if (actx->rose_ctx->fillin_info)
     col_append_str(actx->pinfo->cinfo, COL_INFO, descr);
   if (actx->rose_ctx->fillin_ptr)
-    g_strlcat(actx->rose_ctx->fillin_ptr, descr, actx->rose_ctx->fillin_buf_size);
+    (void) g_strlcat(actx->rose_ctx->fillin_ptr, descr, actx->rose_ctx->fillin_buf_size);
 
   if (!err_next_tvb) {  /* empty error */
     err_next_tvb = tvb_new_subset_length_caplen(tvb, (actx->encoding==ASN1_ENC_PER)?offset>>3:offset, 0, 0);

@@ -1865,7 +1865,7 @@ get_unicode_or_ascii_string(tvbuff_t *tvb, int *offsetp,
 			cur[copylen] = '\0';
 
 			if (overflow)
-				g_strlcat(cur, "...",MAX_UNICODE_STR_LEN+3+1);
+				(void) g_strlcat(cur, "...",MAX_UNICODE_STR_LEN+3+1);
 
 			string_len = *len;
 			string = cur;
@@ -5941,7 +5941,7 @@ dissect_search_resume_key(tvbuff_t *tvb, packet_info *pinfo _U_,
 		TRUE, TRUE, bcp);
 	CHECK_STRING_SUBR(fn);
 	/* ensure that it's null-terminated */
-	g_strlcpy(fname, fn, 11+1);
+	(void) g_strlcpy(fname, fn, 11+1);
 	proto_tree_add_string(tree, hf_smb_file_name, tvb, offset, 11,
 		fname);
 	COUNT_BYTES_SUBR(fn_len);
@@ -6019,7 +6019,7 @@ dissect_search_dir_info(tvbuff_t *tvb, packet_info *pinfo,
 		TRUE, TRUE, bcp);
 	CHECK_STRING_SUBR(fn);
 	/* ensure that it's null-terminated */
-	g_strlcpy(fname, fn, 13+1);
+	(void) g_strlcpy(fname, fn, 13+1);
 	proto_tree_add_string(tree, hf_smb_file_name, tvb, offset, fn_len,
 		fname);
 	COUNT_BYTES_SUBR(fn_len);

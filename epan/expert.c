@@ -557,7 +557,7 @@ expert_set_info_vformat(packet_info *pinfo, proto_item *pi, int group, int sever
 	if (use_vaformat) {
 		vsnprintf(formatted, ITEM_LABEL_LENGTH, format, ap);
 	} else {
-		g_strlcpy(formatted, format, ITEM_LABEL_LENGTH);
+		(void) g_strlcpy(formatted, format, ITEM_LABEL_LENGTH);
 	}
 
 	tree = expert_create_tree(pi, group, severity, formatted);

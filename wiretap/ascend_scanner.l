@@ -235,12 +235,12 @@ WDD_TYPE    "type "[^\n\r\t ]+
     if (after != '(' && after != ' ') {
         BEGIN(sc_wds_sess);
         if (yyextra->pseudo_header != NULL && yyextra->pseudo_header->user[0] == '\0') {
-        g_strlcpy(yyextra->pseudo_header->user, atcopy, ASCEND_MAX_STR_LEN);
+        (void) g_strlcpy(yyextra->pseudo_header->user, atcopy, ASCEND_MAX_STR_LEN);
         }
     } else {	/* We have a version 7 file */
         BEGIN(sc_gen_task);
         if (yyextra->pseudo_header != NULL && yyextra->pseudo_header->user[0] == '\0') {
-        g_strlcpy(yyextra->pseudo_header->user, NO_USER, ASCEND_MAX_STR_LEN);
+        (void) g_strlcpy(yyextra->pseudo_header->user, NO_USER, ASCEND_MAX_STR_LEN);
         }
         /* Are valid values ever > 2^32? If so we need to adjust YYSTYPE and a lot of */
         /* upstream code accordingly. */
@@ -368,7 +368,7 @@ WDD_TYPE    "type "[^\n\r\t ]+
 
 <sc_wdd_callnum>{WDD_CALLNUM} {
     BEGIN(sc_wdd_chunk);
-    g_strlcpy(yyextra->token.str_val, yytext, ASCEND_MAX_STR_LEN);
+    (void) g_strlcpy(yyextra->token.str_val, yytext, ASCEND_MAX_STR_LEN);
     return WDD_CALLNUM;
 }
 

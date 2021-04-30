@@ -340,9 +340,9 @@ _fill_label_value_string_bitmask(char *label, guint32 value, const value_string 
 		if (value & vals->value) {
 			value &= ~(vals->value);
 			if (label[0])
-				g_strlcat(label, ", ", ITEM_LABEL_LENGTH);
+				(void) g_strlcat(label, ", ", ITEM_LABEL_LENGTH);
 
-			g_strlcat(label, vals->strptr, ITEM_LABEL_LENGTH);
+			(void) g_strlcat(label, vals->strptr, ITEM_LABEL_LENGTH);
 		}
 
 		vals++;
@@ -350,9 +350,9 @@ _fill_label_value_string_bitmask(char *label, guint32 value, const value_string 
 
 	if (value) {
 		if (label[0])
-			g_strlcat(label, ", ", ITEM_LABEL_LENGTH);
+			(void) g_strlcat(label, ", ", ITEM_LABEL_LENGTH);
 		g_snprintf(tmp, sizeof(tmp), "0x%x", value);
-		g_strlcat(label, tmp, ITEM_LABEL_LENGTH);
+		(void) g_strlcat(label, tmp, ITEM_LABEL_LENGTH);
 	}
 }
 
@@ -412,7 +412,7 @@ hfi_netlink_route_ifi_flags_label(char *label, guint32 value)
 	_fill_label_value_string_bitmask(label, value, iff_vals);
 
 	g_snprintf(tmp, sizeof(tmp), " (0x%.8x)", value);
-	g_strlcat(label, tmp, ITEM_LABEL_LENGTH);
+	(void) g_strlcat(label, tmp, ITEM_LABEL_LENGTH);
 }
 
 static header_field_info hfi_netlink_route_ifi_flags NETLINK_ROUTE_HFI_INIT =
@@ -932,7 +932,7 @@ hfi_netlink_route_ifa_flags_label(char *label, guint32 value)
 	_fill_label_value_string_bitmask(label, value, iff_vals);
 
 	g_snprintf(tmp, sizeof(tmp), " (0x%.8x)", value);
-	g_strlcat(label, tmp, ITEM_LABEL_LENGTH);
+	(void) g_strlcat(label, tmp, ITEM_LABEL_LENGTH);
 }
 
 static header_field_info hfi_netlink_route_ifa_flags NETLINK_ROUTE_HFI_INIT =
@@ -1270,7 +1270,7 @@ hfi_netlink_route_nd_states_label(char *label, guint32 value)
 	_fill_label_value_string_bitmask(label, value, flags_vals);
 
 	g_snprintf(tmp, sizeof(tmp), " (0x%.4x)", value);
-	g_strlcat(label, tmp, ITEM_LABEL_LENGTH);
+	(void) g_strlcat(label, tmp, ITEM_LABEL_LENGTH);
 }
 
 static header_field_info hfi_netlink_route_nd_state NETLINK_ROUTE_HFI_INIT =

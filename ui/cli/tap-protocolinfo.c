@@ -103,7 +103,7 @@ protocolinfo_init(const char *opt_arg, void *userdata _U_)
 	rs->hf_index = hfi->id;
 	if ((field-filter) > 1) {
 		rs->filter = (char *)g_malloc(field-filter);
-		g_strlcpy(rs->filter, filter, (field-filter));
+		(void) g_strlcpy(rs->filter, filter, (field-filter));
 	} else {
 		rs->filter = NULL;
 	}

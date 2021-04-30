@@ -231,7 +231,7 @@ static int ringbuf_open_file(rb_file *rfile, int *err)
   if (tm != NULL)
     strftime(timestr, sizeof(timestr), "%Y%m%d%H%M%S", tm);
   else
-    g_strlcpy(timestr, "196912312359", sizeof(timestr)); /* second before the Epoch */
+    (void) g_strlcpy(timestr, "196912312359", sizeof(timestr)); /* second before the Epoch */
   rfile->name = g_strconcat(rb_data.fprefix, "_", filenum, "_", timestr,
                             rb_data.fsuffix, NULL);
 

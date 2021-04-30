@@ -292,7 +292,7 @@ dissect_q932_ros_Invoke(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
   if (actx->rose_ctx->fillin_info)
     col_append_str(actx->pinfo->cinfo, COL_INFO, descr);
   if (actx->rose_ctx->fillin_ptr)
-    g_strlcat(actx->rose_ctx->fillin_ptr, descr, actx->rose_ctx->fillin_buf_size);
+    (void) g_strlcat(actx->rose_ctx->fillin_ptr, descr, actx->rose_ctx->fillin_buf_size);
 
   if (!arg_next_tvb) {  /* empty argument */
     arg_next_tvb = tvb_new_subset_length_caplen(tvb, (actx->encoding==ASN1_ENC_PER)?offset>>3:offset, 0, 0);
@@ -385,7 +385,7 @@ dissect_q932_ros_ReturnResult(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
   if (actx->rose_ctx->fillin_info)
     col_append_str(actx->pinfo->cinfo, COL_INFO, descr);
   if (actx->rose_ctx->fillin_ptr)
-    g_strlcat(actx->rose_ctx->fillin_ptr, descr, actx->rose_ctx->fillin_buf_size);
+    (void) g_strlcat(actx->rose_ctx->fillin_ptr, descr, actx->rose_ctx->fillin_buf_size);
 
   if (actx->rose_ctx->d.code != -1) {
     if (!res_next_tvb) {  /* empty result */
@@ -465,7 +465,7 @@ dissect_q932_ros_ReturnError(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
   if (actx->rose_ctx->fillin_info)
     col_append_str(actx->pinfo->cinfo, COL_INFO, descr);
   if (actx->rose_ctx->fillin_ptr)
-    g_strlcat(actx->rose_ctx->fillin_ptr, descr, actx->rose_ctx->fillin_buf_size);
+    (void) g_strlcat(actx->rose_ctx->fillin_ptr, descr, actx->rose_ctx->fillin_buf_size);
 
   if (!err_next_tvb) {  /* empty error */
     err_next_tvb = tvb_new_subset_length_caplen(tvb, (actx->encoding==ASN1_ENC_PER)?offset>>3:offset, 0, 0);
@@ -494,7 +494,7 @@ dissect_q932_ros_GeneralProblem(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
                                                 &problem_val);
 
 #line 53 "./asn1/q932-ros/q932-ros.cnf"
-  g_strlcpy(problem_str, val_to_str_const(problem_val, VALS(q932_ros_GeneralProblem_vals), ""), 64);
+  (void) g_strlcpy(problem_str, val_to_str_const(problem_val, VALS(q932_ros_GeneralProblem_vals), ""), 64);
 
   return offset;
 }
@@ -519,7 +519,7 @@ dissect_q932_ros_InvokeProblem(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
                                                 &problem_val);
 
 #line 55 "./asn1/q932-ros/q932-ros.cnf"
-  g_strlcpy(problem_str, val_to_str_const(problem_val, VALS(q932_ros_InvokeProblem_vals), ""), 64);
+  (void) g_strlcpy(problem_str, val_to_str_const(problem_val, VALS(q932_ros_InvokeProblem_vals), ""), 64);
 
   return offset;
 }
@@ -539,7 +539,7 @@ dissect_q932_ros_ReturnResultProblem(gboolean implicit_tag _U_, tvbuff_t *tvb _U
                                                 &problem_val);
 
 #line 57 "./asn1/q932-ros/q932-ros.cnf"
-  g_strlcpy(problem_str, val_to_str_const(problem_val, VALS(q932_ros_ReturnResultProblem_vals), ""), 64);
+  (void) g_strlcpy(problem_str, val_to_str_const(problem_val, VALS(q932_ros_ReturnResultProblem_vals), ""), 64);
 
   return offset;
 }
@@ -561,7 +561,7 @@ dissect_q932_ros_ReturnErrorProblem(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
                                                 &problem_val);
 
 #line 59 "./asn1/q932-ros/q932-ros.cnf"
-  g_strlcpy(problem_str, val_to_str_const(problem_val, VALS(q932_ros_ReturnErrorProblem_vals), ""), 64);
+  (void) g_strlcpy(problem_str, val_to_str_const(problem_val, VALS(q932_ros_ReturnErrorProblem_vals), ""), 64);
 
   return offset;
 }
@@ -617,7 +617,7 @@ dissect_q932_ros_Reject(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
   if (actx->rose_ctx->fillin_info)
     col_append_str(actx->pinfo->cinfo, COL_INFO, descr);
   if (actx->rose_ctx->fillin_ptr)
-    g_strlcat(actx->rose_ctx->fillin_ptr, descr, actx->rose_ctx->fillin_buf_size);
+    (void) g_strlcat(actx->rose_ctx->fillin_ptr, descr, actx->rose_ctx->fillin_buf_size);
 
   return offset;
 }

@@ -204,7 +204,7 @@ catapult_dct2000_open(wtap *wth, int *err, gchar **err_info)
     file_externals = g_new0(dct2000_file_externals_t, 1);
 
     /* Copy this first line into buffer so could write out later */
-    g_strlcpy(file_externals->firstline, linebuff, firstline_length+1);
+    (void) g_strlcpy(file_externals->firstline, linebuff, firstline_length+1);
     file_externals->firstline_length = firstline_length;
 
 
@@ -235,7 +235,7 @@ catapult_dct2000_open(wtap *wth, int *err, gchar **err_info)
     file_externals->start_usecs = usecs;
 
     /* Copy this second line into buffer so could write out later */
-    g_strlcpy(file_externals->secondline, linebuff, file_externals->secondline_length+1);
+    (void) g_strlcpy(file_externals->secondline, linebuff, file_externals->secondline_length+1);
 
 
     /************************************************************/
@@ -845,7 +845,7 @@ parse_line(gchar *linebuff, gint line_length,
             }
 
             /* There is no variant, outhdr, etc.  Set protocol to be a comment */
-            g_strlcpy(protocol_name, "comment", MAX_PROTOCOL_NAME);
+            (void) g_strlcpy(protocol_name, "comment", MAX_PROTOCOL_NAME);
             *is_comment = TRUE;
             break;
         }
@@ -1227,7 +1227,7 @@ parse_line(gchar *linebuff, gint line_length,
     if (*is_comment) {
         if (strncmp(linebuff+n, "l $", 3) != 0) {
             *is_sprint = TRUE;
-            g_strlcpy(protocol_name, "sprint", MAX_PROTOCOL_NAME);
+            (void) g_strlcpy(protocol_name, "sprint", MAX_PROTOCOL_NAME);
         }
     }
 

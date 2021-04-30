@@ -176,7 +176,7 @@ Rfc2733Format  FECCapability/rfc2733Format  FECMode/rfc2733Format
 	h223_lc_params_temp->subdissector = data_handle;
 
   if (upcoming_channel && codec_type) {
-    g_strlcpy(upcoming_channel->data_type_str, codec_type, sizeof(upcoming_channel->data_type_str));
+    (void) g_strlcpy(upcoming_channel->data_type_str, codec_type, sizeof(upcoming_channel->data_type_str));
   }
   upcoming_channel = NULL;
 #.END
@@ -197,7 +197,7 @@ Rfc2733Format  FECCapability/rfc2733Format  FECMode/rfc2733Format
 %(DEFAULT_BODY)s
 
   if (upcoming_channel && codec_type) {
-    g_strlcpy(upcoming_channel->data_type_str, codec_type, sizeof(upcoming_channel->data_type_str));
+    (void) g_strlcpy(upcoming_channel->data_type_str, codec_type, sizeof(upcoming_channel->data_type_str));
   }
   upcoming_channel = NULL;
 #.END
@@ -386,12 +386,12 @@ Rfc2733Format  FECCapability/rfc2733Format  FECMode/rfc2733Format
       /* if it is OLC or RM*/
       if ((codec_type != NULL) && (( value == RequestMessage_openLogicalChannel) || ( value == RequestMessage_requestMode)))
       {
-        g_strlcat(h245_pi->frame_label, " (", 50);
-        g_strlcat(h245_pi->frame_label, codec_type, 50);
-        g_strlcat(h245_pi->frame_label, ")", 50);
+        (void) g_strlcat(h245_pi->frame_label, " (", 50);
+        (void) g_strlcat(h245_pi->frame_label, codec_type, 50);
+        (void) g_strlcat(h245_pi->frame_label, ")", 50);
       }
     }
-    g_strlcat(h245_pi->comment, val_to_str(value, h245_RequestMessage_vals, "<unknown>"), 50);
+    (void) g_strlcat(h245_pi->comment, val_to_str(value, h245_RequestMessage_vals, "<unknown>"), 50);
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_BODY ResponseMessage  VAL_PTR = &value
@@ -406,7 +406,7 @@ Rfc2733Format  FECCapability/rfc2733Format  FECMode/rfc2733Format
 		if ( strlen(h245_pi->frame_label) == 0 ){
 		   g_snprintf(h245_pi->frame_label, 50, "%%s", val_to_str(value, h245_ResponseMessage_short_vals, "UKN"));
 		}
-		g_strlcat(h245_pi->comment, val_to_str(value, h245_ResponseMessage_vals, "<unknown>"), 50);
+		(void) g_strlcat(h245_pi->comment, val_to_str(value, h245_ResponseMessage_vals, "<unknown>"), 50);
 	}
 
 #.END
@@ -423,7 +423,7 @@ Rfc2733Format  FECCapability/rfc2733Format  FECMode/rfc2733Format
       if ( strlen(h245_pi->frame_label) == 0 ){
 	    g_snprintf(h245_pi->frame_label, 50, "%%s", val_to_str(value, h245_IndicationMessage_short_vals, "UKN"));
 	  }
-      g_strlcat(h245_pi->comment, val_to_str(value, h245_IndicationMessage_vals, "<unknown>"), 50);
+      (void) g_strlcat(h245_pi->comment, val_to_str(value, h245_IndicationMessage_vals, "<unknown>"), 50);
 
     }
 
@@ -441,7 +441,7 @@ Rfc2733Format  FECCapability/rfc2733Format  FECMode/rfc2733Format
       if ( strlen(h245_pi->frame_label) == 0 ){
         g_snprintf(h245_pi->frame_label, 50, "%%s", val_to_str(value, h245_CommandMessage_short_vals, "UKN"));
       }
-	  g_strlcat(h245_pi->comment, val_to_str(value, h245_CommandMessage_vals, "<unknown>"), 50);
+	  (void) g_strlcat(h245_pi->comment, val_to_str(value, h245_CommandMessage_vals, "<unknown>"), 50);
     }
 
 #.END

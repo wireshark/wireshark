@@ -605,7 +605,7 @@ geonw_addr_resolve(hashgeonw_t *tp) {
     set_address(&eth_addr, AT_ETHER, 6, &(addr[2]));
     ether_to_str(&eth_addr, rname, 18);
     // We could use ether_name_resolution_str:
-    //     g_strlcpy(rname, ether_name_resolution_str(&eth_addr), MAXNAMELEN-l1-4);
+    //     (void) g_strlcpy(rname, ether_name_resolution_str(&eth_addr), MAXNAMELEN-l1-4);
 
     tp->status = 1;
 

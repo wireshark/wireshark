@@ -153,103 +153,103 @@ process_flags(proto_tree *sss_tree, tvbuff_t *tvb, guint32 foffset)
     flags = tvb_get_ntohl(tvb, foffset);
     for (i = 0 ; i < 256; i++) {
         if (flags & bvalue) {
-            g_strlcat(flags_str, sep, 1024);
+            (void) g_strlcat(flags_str, sep, 1024);
             switch(bvalue) {
                 case 0x00000001:
-                        g_strlcat(flags_str, "Enhanced Protection", 1024);
+                        (void) g_strlcat(flags_str, "Enhanced Protection", 1024);
                         break;
                 case 0x00000002:
-                        g_strlcat(flags_str, "Create ID", 1024);
+                        (void) g_strlcat(flags_str, "Create ID", 1024);
                         break;
                 case 0x00000004:
-                        g_strlcat(flags_str, "Remove Lock", 1024);
+                        (void) g_strlcat(flags_str, "Remove Lock", 1024);
                         break;
                 case 0x00000008:
-                        g_strlcat(flags_str, "Repair", 1024);
+                        (void) g_strlcat(flags_str, "Repair", 1024);
                         break;
                 case 0x00000010:
-                        g_strlcat(flags_str, "Unicode", 1024);
+                        (void) g_strlcat(flags_str, "Unicode", 1024);
                         break;
                 case 0x00000020:
-                        g_strlcat(flags_str, "EP Master Password Used", 1024);
+                        (void) g_strlcat(flags_str, "EP Master Password Used", 1024);
                         break;
                 case 0x00000040:
-                        g_strlcat(flags_str, "EP Password Used", 1024);
+                        (void) g_strlcat(flags_str, "EP Password Used", 1024);
                         break;
                 case 0x00000080:
-                        g_strlcat(flags_str, "Set Tree Name", 1024);
+                        (void) g_strlcat(flags_str, "Set Tree Name", 1024);
                         break;
                 case 0x00000100:
-                        g_strlcat(flags_str, "Get Context", 1024);
+                        (void) g_strlcat(flags_str, "Get Context", 1024);
                         break;
                 case 0x00000200:
-                        g_strlcat(flags_str, "Destroy Context", 1024);
+                        (void) g_strlcat(flags_str, "Destroy Context", 1024);
                         break;
                 case 0x00000400:
-                        g_strlcat(flags_str, "Not Defined", 1024);
+                        (void) g_strlcat(flags_str, "Not Defined", 1024);
                         break;
                 case 0x00000800:
-                        g_strlcat(flags_str, "Not Defined", 1024);
+                        (void) g_strlcat(flags_str, "Not Defined", 1024);
                         break;
                 case 0x00001000:
-                        g_strlcat(flags_str, "EP Lock", 1024);
+                        (void) g_strlcat(flags_str, "EP Lock", 1024);
                         break;
                 case 0x00002000:
-                        g_strlcat(flags_str, "Not Initialized", 1024);
+                        (void) g_strlcat(flags_str, "Not Initialized", 1024);
                         break;
                 case 0x00004000:
-                        g_strlcat(flags_str, "Enhanced Protection", 1024);
+                        (void) g_strlcat(flags_str, "Enhanced Protection", 1024);
                         break;
                 case 0x00008000:
-                        g_strlcat(flags_str, "Store Not Synced", 1024);
+                        (void) g_strlcat(flags_str, "Store Not Synced", 1024);
                         break;
                 case 0x00010000:
-                        g_strlcat(flags_str, "Admin Last Modified", 1024);
+                        (void) g_strlcat(flags_str, "Admin Last Modified", 1024);
                         break;
                 case 0x00020000:
-                        g_strlcat(flags_str, "EP Password Present", 1024);
+                        (void) g_strlcat(flags_str, "EP Password Present", 1024);
                         break;
                 case 0x00040000:
-                        g_strlcat(flags_str, "EP Master Password Present", 1024);
+                        (void) g_strlcat(flags_str, "EP Master Password Present", 1024);
                         break;
                 case 0x00080000:
-                        g_strlcat(flags_str, "MP Disabled", 1024);
+                        (void) g_strlcat(flags_str, "MP Disabled", 1024);
                         break;
                 case 0x00100000:
-                        g_strlcat(flags_str, "Not Defined", 1024);
+                        (void) g_strlcat(flags_str, "Not Defined", 1024);
                         break;
                 case 0x00200000:
-                        g_strlcat(flags_str, "Not Defined", 1024);
+                        (void) g_strlcat(flags_str, "Not Defined", 1024);
                         break;
                 case 0x00400000:
-                        g_strlcat(flags_str, "Not Defined", 1024);
+                        (void) g_strlcat(flags_str, "Not Defined", 1024);
                         break;
                 case 0x00800000:
-                        g_strlcat(flags_str, "Not Defined", 1024);
+                        (void) g_strlcat(flags_str, "Not Defined", 1024);
                         break;
                 case 0x01000000:
-                        g_strlcat(flags_str, "Not Defined", 1024);
+                        (void) g_strlcat(flags_str, "Not Defined", 1024);
                         break;
                 case 0x02000000:
-                        g_strlcat(flags_str, "Not Defined", 1024);
+                        (void) g_strlcat(flags_str, "Not Defined", 1024);
                         break;
                 case 0x04000000:
-                        g_strlcat(flags_str, "Not Defined", 1024);
+                        (void) g_strlcat(flags_str, "Not Defined", 1024);
                         break;
                 case 0x08000000:
-                        g_strlcat(flags_str, "Not Defined", 1024);
+                        (void) g_strlcat(flags_str, "Not Defined", 1024);
                         break;
                 case 0x10000000:
-                        g_strlcat(flags_str, "Not Defined", 1024);
+                        (void) g_strlcat(flags_str, "Not Defined", 1024);
                         break;
                 case 0x20000000:
-                        g_strlcat(flags_str, "Not Defined", 1024);
+                        (void) g_strlcat(flags_str, "Not Defined", 1024);
                         break;
                 case 0x40000000:
-                        g_strlcat(flags_str, "Not Defined", 1024);
+                        (void) g_strlcat(flags_str, "Not Defined", 1024);
                         break;
                 case 0x80000000:
-                        g_strlcat(flags_str, "Not Defined", 1024);
+                        (void) g_strlcat(flags_str, "Not Defined", 1024);
                         break;
                 default:
                         break;

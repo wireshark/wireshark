@@ -940,12 +940,12 @@ append_to_preamble (char *str)
     if (toklen != 0) {
         if (packet_preamble_len + toklen > PACKET_PREAMBLE_MAX_LEN)
             return; /* no room to add the token to the preamble */
-        g_strlcpy(&packet_preamble[packet_preamble_len], str, PACKET_PREAMBLE_MAX_LEN);
+        (void) g_strlcpy(&packet_preamble[packet_preamble_len], str, PACKET_PREAMBLE_MAX_LEN);
         packet_preamble_len += (int) toklen;
         if (debug >= 2) {
             char *c;
             char xs[PACKET_PREAMBLE_MAX_LEN];
-            g_strlcpy(xs, packet_preamble, PACKET_PREAMBLE_MAX_LEN);
+            (void) g_strlcpy(xs, packet_preamble, PACKET_PREAMBLE_MAX_LEN);
             while ((c = strchr(xs, '\r')) != NULL) *c=' ';
             fprintf (stderr, "[[append_to_preamble: \"%s\"]]", xs);
         }

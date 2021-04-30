@@ -258,7 +258,7 @@ void rdt_add_address(packet_info *pinfo,
     }
 
     /* Update the conversation data. */
-    g_strlcpy(p_conv_data->method, setup_method, MAX_RDT_SETUP_METHOD_SIZE);
+    (void) g_strlcpy(p_conv_data->method, setup_method, MAX_RDT_SETUP_METHOD_SIZE);
     p_conv_data->frame_number = pinfo->num;
     p_conv_data->feature_level = rdt_feature_level;
 }
@@ -1196,7 +1196,7 @@ static void show_setup_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             {
                 /* Save this conversation info into packet info */
                 p_conv_packet_data = wmem_new(wmem_file_scope(), struct _rdt_conversation_info);
-                g_strlcpy(p_conv_packet_data->method, p_conv_data->method, MAX_RDT_SETUP_METHOD_SIZE);
+                (void) g_strlcpy(p_conv_packet_data->method, p_conv_data->method, MAX_RDT_SETUP_METHOD_SIZE);
                 p_conv_packet_data->frame_number = p_conv_data->frame_number;
                 p_conv_packet_data->feature_level = p_conv_data->feature_level;
                 p_add_proto_data(wmem_file_scope(), pinfo, proto_rdt, 0, p_conv_packet_data);

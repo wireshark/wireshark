@@ -363,7 +363,7 @@ absolute_val_to_repr(fvalue_t *fv, ftrepr_t rtype, int field_display, char *buf,
 		*buf++ = '\"';
 	}
 
-	g_strlcpy(buf, rep, size);
+	(void) g_strlcpy(buf, rep, size);
 
 	if (rtype == FTREPR_DFILTER) {
 		buf += strlen(rep);
@@ -391,7 +391,7 @@ relative_val_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_, ch
 {
 	gchar *rep;
 	rep = rel_time_to_secs_str(NULL, &fv->value.time);
-	g_strlcpy(buf, rep, size);
+	(void) g_strlcpy(buf, rep, size);
 	wmem_free(NULL, rep);
 }
 

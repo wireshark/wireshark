@@ -355,7 +355,7 @@ dissect_ansi_tcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, vo
                  */
                 if ( p_tcap_context && cur_oid && !p_tcap_context->oid_present ) {
                         /* Save the application context and the sub dissector */
-                        g_strlcpy(p_tcap_context->oid, cur_oid, sizeof(p_tcap_context->oid));
+                        (void) g_strlcpy(p_tcap_context->oid, cur_oid, sizeof(p_tcap_context->oid));
                         if ( (subdissector_handle = dissector_get_string_handle(ber_oid_dissector_table, cur_oid)) ) {
                                 p_tcap_context->subdissector_handle=subdissector_handle;
                                 p_tcap_context->oid_present=TRUE;

@@ -447,7 +447,7 @@ dissect_h245_FastStart_OLC(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 	  h245_pi->msg_type = H245_OpenLogChn;
 
   if (codec_str && codec_type){
-        g_strlcpy(codec_str, codec_type, 50);
+        (void) g_strlcpy(codec_str, codec_type, 50);
   }
 
 }

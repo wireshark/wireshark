@@ -1056,7 +1056,7 @@ static void decode_payload_twopc_reply(tvbuff_t *tvb, proto_tree *tree)
 static void format_node_mask(gchar *s, guint64 value)
 {
     if (!value) {
-        g_strlcpy(s, "<none>", ITEM_LABEL_LENGTH);
+        (void) g_strlcpy(s, "<none>", ITEM_LABEL_LENGTH);
         return;
     }
 

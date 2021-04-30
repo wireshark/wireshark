@@ -280,7 +280,7 @@ read_mmdbr_stdout_worker(gpointer data _U_) {
         if (line[0] == '[' && line_len > 2) {
             // [init] or resolved address in square brackets.
             line[line_len - 1] = '\0';
-            g_strlcpy(cur_addr, line + 1, WS_INET6_ADDRSTRLEN);
+            (void) g_strlcpy(cur_addr, line + 1, WS_INET6_ADDRSTRLEN);
             if (ws_inet_pton4(cur_addr, &response->ipv4_addr)) {
                 response->is_ipv4 = TRUE;
             } else if (ws_inet_pton6(cur_addr, &response->ipv6_addr)) {

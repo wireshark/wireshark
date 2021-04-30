@@ -84,7 +84,7 @@ wmem_strbuf_new(wmem_allocator_t *allocator, const gchar *str)
     strbuf = wmem_strbuf_sized_new(allocator, alloc_len, 0);
 
     if (str && len > 0) {
-        g_strlcpy(strbuf->str, str, alloc_len);
+        (void) g_strlcpy(strbuf->str, str, alloc_len);
         strbuf->len = len;
     }
 
@@ -141,7 +141,7 @@ wmem_strbuf_append(wmem_strbuf_t *strbuf, const gchar *str)
 
     wmem_strbuf_grow(strbuf, append_len);
 
-    g_strlcpy(&strbuf->str[strbuf->len], str, strbuf->max_len ? WMEM_STRBUF_RAW_ROOM(strbuf) : append_len+1);
+    (void) g_strlcpy(&strbuf->str[strbuf->len], str, strbuf->max_len ? WMEM_STRBUF_RAW_ROOM(strbuf) : append_len+1);
 
     strbuf->len = MIN(strbuf->len + append_len, strbuf->alloc_len - 1);
 }

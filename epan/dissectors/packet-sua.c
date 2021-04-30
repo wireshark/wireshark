@@ -1411,12 +1411,12 @@ dissect_global_title_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tr
     even_signal = tvb_get_guint8(parameter_tvb, offset) & GT_EVEN_SIGNAL_MASK;
     even_signal >>= GT_EVEN_SIGNAL_SHIFT;
 
-    g_strlcat(gt_digits, val_to_str_const(odd_signal, sccp_address_signal_values,
+    (void) g_strlcat(gt_digits, val_to_str_const(odd_signal, sccp_address_signal_values,
                                           "Unknown"), GT_MAX_SIGNALS+1);
 
     /* If the last signal is NOT filler */
     if (offset != (GLOBAL_TITLE_OFFSET + global_title_length - 1) || even_length == TRUE)
-      g_strlcat(gt_digits, val_to_str_const(even_signal, sccp_address_signal_values,
+      (void) g_strlcat(gt_digits, val_to_str_const(even_signal, sccp_address_signal_values,
                                             "Unknown"), GT_MAX_SIGNALS+1);
 
     offset += GT_SIGNAL_LENGTH;

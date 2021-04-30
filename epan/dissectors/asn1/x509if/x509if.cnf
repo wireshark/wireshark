@@ -198,8 +198,8 @@ DistinguishedName B "2.16.840.1.101.2.2.1.188" "id-at-primaryMember"
     if(!name) name = actx->external.direct_reference;
 
     if(last_rdn) { /* append it to the RDN */
-      g_strlcat(last_rdn, name, MAX_RDN_STR_LEN);
-      g_strlcat(last_rdn, "=", MAX_RDN_STR_LEN);
+      (void) g_strlcat(last_rdn, name, MAX_RDN_STR_LEN);
+      (void) g_strlcat(last_rdn, "=", MAX_RDN_STR_LEN);
 
      /* append it to the tree */
      proto_item_append_text(tree, " (%%s=", name);
@@ -245,7 +245,7 @@ DistinguishedName B "2.16.840.1.101.2.2.1.188" "id-at-primaryMember"
     value = tvb_format_text(out_tvb, 0, tvb_reported_length(out_tvb));
 
     if(last_rdn) {
-      g_strlcat(last_rdn, value, MAX_RDN_STR_LEN);
+      (void) g_strlcat(last_rdn, value, MAX_RDN_STR_LEN);
 
       /* append it to the tree*/
       proto_item_append_text(tree, "%%s)", value);
@@ -345,9 +345,9 @@ DistinguishedName B "2.16.840.1.101.2.2.1.188" "id-at-primaryMember"
     if(*last_dn) {
       temp_dn = (char *)wmem_strdup_printf(wmem_packet_scope(), "%%s,%%s", last_rdn, last_dn);
       last_dn[0] = '\0';
-      g_strlcat(last_dn, temp_dn, MAX_DN_STR_LEN);
+      (void) g_strlcat(last_dn, temp_dn, MAX_DN_STR_LEN);
     } else {
-      g_strlcat(last_dn, last_rdn, MAX_DN_STR_LEN);
+      (void) g_strlcat(last_dn, last_rdn, MAX_DN_STR_LEN);
     }
   }
 
@@ -361,7 +361,7 @@ DistinguishedName B "2.16.840.1.101.2.2.1.188" "id-at-primaryMember"
 
    if(last_rdn)
      /* this is an additional value - delimit */
-     g_strlcat(last_rdn, "+", MAX_RDN_STR_LEN);
+     (void) g_strlcat(last_rdn, "+", MAX_RDN_STR_LEN);
   }
 
   %(DEFAULT_BODY)s

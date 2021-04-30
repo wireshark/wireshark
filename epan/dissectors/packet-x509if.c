@@ -720,8 +720,8 @@ dissect_x509if_T_type_02(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
     if(!name) name = actx->external.direct_reference;
 
     if(last_rdn) { /* append it to the RDN */
-      g_strlcat(last_rdn, name, MAX_RDN_STR_LEN);
-      g_strlcat(last_rdn, "=", MAX_RDN_STR_LEN);
+      (void) g_strlcat(last_rdn, name, MAX_RDN_STR_LEN);
+      (void) g_strlcat(last_rdn, "=", MAX_RDN_STR_LEN);
 
      /* append it to the tree */
      proto_item_append_text(tree, " (%s=", name);
@@ -776,7 +776,7 @@ dissect_x509if_T_atadv_value(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
     value = tvb_format_text(out_tvb, 0, tvb_reported_length(out_tvb));
 
     if(last_rdn) {
-      g_strlcat(last_rdn, value, MAX_RDN_STR_LEN);
+      (void) g_strlcat(last_rdn, value, MAX_RDN_STR_LEN);
 
       /* append it to the tree*/
       proto_item_append_text(tree, "%s)", value);
@@ -872,7 +872,7 @@ dissect_x509if_RelativeDistinguishedName_item(gboolean implicit_tag _U_, tvbuff_
 
    if(last_rdn)
      /* this is an additional value - delimit */
-     g_strlcat(last_rdn, "+", MAX_RDN_STR_LEN);
+     (void) g_strlcat(last_rdn, "+", MAX_RDN_STR_LEN);
   }
 
     offset = dissect_x509if_AttributeTypeAndDistinguishedValue(implicit_tag, tvb, offset, actx, tree, hf_index);
@@ -912,9 +912,9 @@ dissect_x509if_RelativeDistinguishedName(gboolean implicit_tag _U_, tvbuff_t *tv
     if(*last_dn) {
       temp_dn = (char *)wmem_strdup_printf(wmem_packet_scope(), "%s,%s", last_rdn, last_dn);
       last_dn[0] = '\0';
-      g_strlcat(last_dn, temp_dn, MAX_DN_STR_LEN);
+      (void) g_strlcat(last_dn, temp_dn, MAX_DN_STR_LEN);
     } else {
-      g_strlcat(last_dn, last_rdn, MAX_DN_STR_LEN);
+      (void) g_strlcat(last_dn, last_rdn, MAX_DN_STR_LEN);
     }
   }
 

@@ -8458,7 +8458,7 @@ dissect_h245_T_forwardLogicalChannelParameters(tvbuff_t *tvb _U_, int offset _U_
 	h223_lc_params_temp->subdissector = data_handle;
 
   if (upcoming_channel && codec_type) {
-    g_strlcpy(upcoming_channel->data_type_str, codec_type, sizeof(upcoming_channel->data_type_str));
+    (void) g_strlcpy(upcoming_channel->data_type_str, codec_type, sizeof(upcoming_channel->data_type_str));
   }
   upcoming_channel = NULL;
 
@@ -8527,7 +8527,7 @@ dissect_h245_OLC_reverseLogicalChannelParameters(tvbuff_t *tvb _U_, int offset _
 
 
   if (upcoming_channel && codec_type) {
-    g_strlcpy(upcoming_channel->data_type_str, codec_type, sizeof(upcoming_channel->data_type_str));
+    (void) g_strlcpy(upcoming_channel->data_type_str, codec_type, sizeof(upcoming_channel->data_type_str));
   }
   upcoming_channel = NULL;
 
@@ -10735,12 +10735,12 @@ dissect_h245_RequestMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
       /* if it is OLC or RM*/
       if ((codec_type != NULL) && (( value == RequestMessage_openLogicalChannel) || ( value == RequestMessage_requestMode)))
       {
-        g_strlcat(h245_pi->frame_label, " (", 50);
-        g_strlcat(h245_pi->frame_label, codec_type, 50);
-        g_strlcat(h245_pi->frame_label, ")", 50);
+        (void) g_strlcat(h245_pi->frame_label, " (", 50);
+        (void) g_strlcat(h245_pi->frame_label, codec_type, 50);
+        (void) g_strlcat(h245_pi->frame_label, ")", 50);
       }
     }
-    g_strlcat(h245_pi->comment, val_to_str(value, h245_RequestMessage_vals, "<unknown>"), 50);
+    (void) g_strlcat(h245_pi->comment, val_to_str(value, h245_RequestMessage_vals, "<unknown>"), 50);
 
 
   return offset;
@@ -12356,7 +12356,7 @@ dissect_h245_ResponseMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
 		if ( strlen(h245_pi->frame_label) == 0 ){
 		   g_snprintf(h245_pi->frame_label, 50, "%s", val_to_str(value, h245_ResponseMessage_short_vals, "UKN"));
 		}
-		g_strlcat(h245_pi->comment, val_to_str(value, h245_ResponseMessage_vals, "<unknown>"), 50);
+		(void) g_strlcat(h245_pi->comment, val_to_str(value, h245_ResponseMessage_vals, "<unknown>"), 50);
 	}
 
 
@@ -13388,7 +13388,7 @@ dissect_h245_CommandMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
       if ( strlen(h245_pi->frame_label) == 0 ){
         g_snprintf(h245_pi->frame_label, 50, "%s", val_to_str(value, h245_CommandMessage_short_vals, "UKN"));
       }
-	  g_strlcat(h245_pi->comment, val_to_str(value, h245_CommandMessage_vals, "<unknown>"), 50);
+	  (void) g_strlcat(h245_pi->comment, val_to_str(value, h245_CommandMessage_vals, "<unknown>"), 50);
     }
 
 
@@ -14449,7 +14449,7 @@ dissect_h245_IndicationMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
       if ( strlen(h245_pi->frame_label) == 0 ){
 	    g_snprintf(h245_pi->frame_label, 50, "%s", val_to_str(value, h245_IndicationMessage_short_vals, "UKN"));
 	  }
-      g_strlcat(h245_pi->comment, val_to_str(value, h245_IndicationMessage_vals, "<unknown>"), 50);
+      (void) g_strlcat(h245_pi->comment, val_to_str(value, h245_IndicationMessage_vals, "<unknown>"), 50);
 
     }
 
@@ -14559,7 +14559,7 @@ dissect_h245_FastStart_OLC(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 	  h245_pi->msg_type = H245_OpenLogChn;
 
   if (codec_str && codec_type){
-        g_strlcpy(codec_str, codec_type, 50);
+        (void) g_strlcpy(codec_str, codec_type, 50);
   }
 
 }

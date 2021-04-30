@@ -212,9 +212,9 @@ summary_fill_in(capture_file *cf, summary_tally *st)
     }
     g_free(idb_info);
 
-    g_strlcpy(st->file_sha256, "<unknown>", HASH_STR_SIZE);
-    g_strlcpy(st->file_rmd160, "<unknown>", HASH_STR_SIZE);
-    g_strlcpy(st->file_sha1, "<unknown>", HASH_STR_SIZE);
+    (void) g_strlcpy(st->file_sha256, "<unknown>", HASH_STR_SIZE);
+    (void) g_strlcpy(st->file_rmd160, "<unknown>", HASH_STR_SIZE);
+    (void) g_strlcpy(st->file_sha1, "<unknown>", HASH_STR_SIZE);
 
     gcry_md_open(&hd, GCRY_MD_SHA256, 0);
     if (hd) {

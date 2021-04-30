@@ -252,7 +252,7 @@ epl_eds_load(struct profile *profile, const char *eds_file)
 		if ((name = g_key_file_get_string(gkf, *group, "ParameterName", NULL)))
 		{
 			gsize count = strcspn(name, "#") + 1;
-			g_strlcpy(
+			(void) g_strlcpy(
 				tmpobj.name,
 				name,
 				count > sizeof tmpobj.name ? sizeof tmpobj.name : count
@@ -471,7 +471,7 @@ parse_obj_tag(xmlNode *cur, struct od_entry *out, struct profile *profile) {
 					return FALSE;
 
 			} else if (g_str_equal("name", key)) {
-				g_strlcpy(out->name, val, sizeof out->name);
+				(void) g_strlcpy(out->name, val, sizeof out->name);
 
 			} else if (g_str_equal("objectType", key)) {
 				out->type_class = 0;

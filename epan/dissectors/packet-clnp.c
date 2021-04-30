@@ -274,11 +274,11 @@ dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
             "Unknown (0x%02x)");
     flag_string[0] = '\0';
     if (cnf_type & CNF_SEG_OK)
-        g_strlcat(flag_string, "S ", 7);
+        (void) g_strlcat(flag_string, "S ", 7);
     if (cnf_type & CNF_MORE_SEGS)
-        g_strlcat(flag_string, "M ", 7);
+        (void) g_strlcat(flag_string, "M ", 7);
     if (cnf_type & CNF_ERR_OK)
-        g_strlcat(flag_string, "E ", 7);
+        (void) g_strlcat(flag_string, "E ", 7);
     ti = proto_tree_add_uint_format(clnp_tree, hf_clnp_type, tvb, P_CLNP_TYPE, 1,
             cnf_type,
             "PDU Type     : 0x%02x (%s%s)",

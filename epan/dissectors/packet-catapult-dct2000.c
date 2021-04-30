@@ -3102,8 +3102,8 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
                 /* TODO: only look inside if a preference enabled? */
                 char dotted_protocol_name[128];
                 /* N.B. avoiding g_snprintf(), which was slow */
-                g_strlcpy(dotted_protocol_name, "dct2000.", 128);
-                g_strlcpy(dotted_protocol_name+8, protocol_name, 128-8);
+                (void) g_strlcpy(dotted_protocol_name, "dct2000.", 128);
+                (void) g_strlcpy(dotted_protocol_name+8, protocol_name, 128-8);
                 protocol_handle = find_dissector(dotted_protocol_name);
             }
 

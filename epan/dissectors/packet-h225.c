@@ -3252,7 +3252,7 @@ dissect_h225_FastStart_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
   if (h225_pi != NULL) {
     char temp[50];
     g_snprintf(temp, 50, "%s %s", h225_pi->frame_label, codec_str);
-    g_strlcpy(h225_pi->frame_label, temp, 50);
+    (void) g_strlcpy(h225_pi->frame_label, temp, 50);
     h225_pi->is_faststart = TRUE;
   }
   contains_faststart = TRUE;
@@ -4290,7 +4290,7 @@ dissect_h225_Setup_UUIE(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_,
     if (contains_faststart) {
       char temp[50];
       g_snprintf(temp, 50, "%s OLC (%s)", val_to_str(h225_pi->cs_type, T_h323_message_body_vals, "<unknown>"), h225_pi->frame_label);
-      g_strlcpy(h225_pi->frame_label, temp, 50);
+      (void) g_strlcpy(h225_pi->frame_label, temp, 50);
     } else
       g_snprintf(h225_pi->frame_label, 50, "%s", val_to_str(h225_pi->cs_type, T_h323_message_body_vals, "<unknown>"));
   }
@@ -4348,7 +4348,7 @@ dissect_h225_CallProceeding_UUIE(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
     if (contains_faststart) {
       char temp[50];
       g_snprintf(temp, 50, "%s OLC (%s)", val_to_str(h225_pi->cs_type, T_h323_message_body_vals, "<unknown>"), h225_pi->frame_label);
-      g_strlcpy(h225_pi->frame_label, temp, 50);
+      (void) g_strlcpy(h225_pi->frame_label, temp, 50);
     } else
       g_snprintf(h225_pi->frame_label, 50, "%s", val_to_str(h225_pi->cs_type, T_h323_message_body_vals, "<unknown>"));
   }
@@ -4397,7 +4397,7 @@ dissect_h225_Connect_UUIE(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
     if (contains_faststart) {
       char temp[50];
       g_snprintf(temp, 50, "%s OLC (%s)", val_to_str(h225_pi->cs_type, T_h323_message_body_vals, "<unknown>"), h225_pi->frame_label);
-      g_strlcpy(h225_pi->frame_label, temp, 50);
+      (void) g_strlcpy(h225_pi->frame_label, temp, 50);
     } else
       g_snprintf(h225_pi->frame_label, 50, "%s", val_to_str(h225_pi->cs_type, T_h323_message_body_vals, "<unknown>"));
   }
@@ -4444,7 +4444,7 @@ dissect_h225_Alerting_UUIE(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
     if (contains_faststart) {
       char temp[50];
       g_snprintf(temp, 50, "%s OLC (%s)", val_to_str(h225_pi->cs_type, T_h323_message_body_vals, "<unknown>"), h225_pi->frame_label);
-      g_strlcpy(h225_pi->frame_label, temp, 50);
+      (void) g_strlcpy(h225_pi->frame_label, temp, 50);
     } else
       g_snprintf(h225_pi->frame_label, 50, "%s", val_to_str(h225_pi->cs_type, T_h323_message_body_vals, "<unknown>"));
   }
@@ -4804,7 +4804,7 @@ dissect_h225_Progress_UUIE(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
     if (contains_faststart) {
       char temp[50];
       g_snprintf(temp, 50, "%s OLC (%s)", val_to_str(h225_pi->cs_type, T_h323_message_body_vals, "<unknown>"), h225_pi->frame_label);
-      g_strlcpy(h225_pi->frame_label, temp, 50);
+      (void) g_strlcpy(h225_pi->frame_label, temp, 50);
     } else
       g_snprintf(h225_pi->frame_label, 50, "%s", val_to_str(h225_pi->cs_type, T_h323_message_body_vals, "<unknown>"));
   }

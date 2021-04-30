@@ -1460,11 +1460,11 @@ ipp_fmt_collection(tvbuff_t *tvb, int valoffset, char *buffer, int bufsize)
                 *bufptr++ = ',';
 
             if ((bufend - bufptr) < value_length) {
-                g_strlcpy(bufptr, "...", bufend - bufptr + 1);
+                (void) g_strlcpy(bufptr, "...", bufend - bufptr + 1);
                 overflow = 1;
             }
             else {
-                g_strlcpy(bufptr, tvb_format_text(tvb, valoffset + 1 + 2 + name_length + 2, value_length), bufend - bufptr + 1);
+                (void) g_strlcpy(bufptr, tvb_format_text(tvb, valoffset + 1 + 2 + name_length + 2, value_length), bufend - bufptr + 1);
             }
 
             bufptr += strlen(bufptr);
@@ -1478,11 +1478,11 @@ ipp_fmt_collection(tvbuff_t *tvb, int valoffset, char *buffer, int bufsize)
             valoffset = ipp_fmt_collection(tvb, valoffset, temp, sizeof(temp));
             if (!overflow) {
                 if ((bufend - bufptr) < (int)strlen(temp)) {
-                    g_strlcpy(bufptr, "...", bufend - bufptr + 1);
+                    (void) g_strlcpy(bufptr, "...", bufend - bufptr + 1);
                     overflow = 1;
                 }
                 else {
-                    g_strlcpy(bufptr, temp, bufend - bufptr + 1);
+                    (void) g_strlcpy(bufptr, temp, bufend - bufptr + 1);
                 }
                 bufptr += strlen(bufptr);
             }

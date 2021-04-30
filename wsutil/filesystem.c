@@ -632,8 +632,8 @@ init_progfile_dir(
                 path = (char *)g_malloc(path_len);
                 memcpy(path, path_start, path_component_len);
                 path[path_component_len] = '\0';
-                g_strlcat(path, "/", path_len);
-                g_strlcat(path, execname, path_len);
+                (void) g_strlcat(path, "/", path_len);
+                (void) g_strlcat(path, execname, path_len);
                 if (access(path, X_OK) == 0) {
                     /*
                      * Found it!

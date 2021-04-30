@@ -50,7 +50,7 @@ print_nsap_net_buf( const guint8 *ad, int length, gchar *buf, int buf_len)
   /* to do : NSAP / NET decoding */
 
   if ( (length <= 0 ) || ( length > MAX_NSAP_LEN ) ) {
-    g_strlcpy(buf, "<Invalid length of NSAP>", buf_len);
+    (void) g_strlcpy(buf, "<Invalid length of NSAP>", buf_len);
     return;
   }
   cur = buf;
@@ -94,7 +94,7 @@ print_system_id_buf( const guint8 *ad, int length, gchar *buf, int buf_len)
   int           tmp;
 
   if ( ( length <= 0 ) || ( length > MAX_SYSTEMID_LEN ) ) {
-    g_strlcpy(buf, "<Invalid length of SYSTEM ID>", buf_len);
+    (void) g_strlcpy(buf, "<Invalid length of SYSTEM ID>", buf_len);
     return;
   }
 
@@ -176,7 +176,7 @@ print_address_prefix_buf(const guint8 *ad, int length, gchar *buf, int buf_len)
   /* to do : all real area decoding now: NET is assumed if id len is 1 more byte
    */
   if (length <= 0 || length > MAX_AREA_LEN*2) {
-    g_strlcpy(buf, "<Invalid length of AREA>", buf_len);
+    (void) g_strlcpy(buf, "<Invalid length of AREA>", buf_len);
     return;
   }
 

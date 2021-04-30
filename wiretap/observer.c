@@ -720,7 +720,7 @@ static gboolean observer_dump_open(wtap_dumper *wdh, int *err,
 
     /* initialize the file header */
     memset(&file_header, 0x00, sizeof(file_header));
-    g_strlcpy(file_header.observer_version, observer_magic, 31);
+    (void) g_strlcpy(file_header.observer_version, observer_magic, 31);
     header_offset = (guint16)sizeof(file_header);
 
     /* create the file comment TLV */

@@ -2392,7 +2392,7 @@ wtap_dump_open_tempfile(char **filenamep, const char *pfx,
 		ext = "tmp";
 	sfx[0] = '.';
 	sfx[1] = '\0';
-	g_strlcat(sfx, ext, 16);
+	(void) g_strlcat(sfx, ext, 16);
 
 	/* Choose a random name for the file */
 	fd = create_tempfile(filenamep, pfx, sfx, NULL);

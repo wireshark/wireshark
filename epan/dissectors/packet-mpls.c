@@ -473,13 +473,13 @@ dissect_mpls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
         }
 
         if ((label == MPLS_LABEL_GACH) && bos) {
-            g_strlcpy(PW_ACH, "Generic Associated Channel Header",50);
+            (void) g_strlcpy(PW_ACH, "Generic Associated Channel Header",50);
             next_tvb = tvb_new_subset_remaining(tvb, offset);
             call_dissector(dissector_pw_ach, next_tvb, pinfo, tree );
             return tvb_captured_length(tvb);
         }
         else
-            g_strlcpy(PW_ACH, "PW Associated Channel Header",50);
+            (void) g_strlcpy(PW_ACH, "PW Associated Channel Header",50);
 
         if (bos)
             break;

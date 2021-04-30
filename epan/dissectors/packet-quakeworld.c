@@ -478,8 +478,8 @@ dissect_quakeworld_ConnectionlessPacket(tvbuff_t *tvb, packet_info *pinfo,
 			}
 			remaining[0] = '\0';
 			for (i=2; i<Cmd_Argc() ; i++) {
-				g_strlcat (remaining, Cmd_Argv(i), MAX_TEXT_SIZE+1);
-				g_strlcat (remaining, " ", MAX_TEXT_SIZE+1);
+				(void) g_strlcat (remaining, Cmd_Argv(i), MAX_TEXT_SIZE+1);
+				(void) g_strlcat (remaining, " ", MAX_TEXT_SIZE+1);
 			}
 			if (text_tree) {
 				proto_tree_add_string(argument_tree,

@@ -203,7 +203,7 @@ static gint64 cosine_seek_next_packet(wtap *wth, int *err, gchar **err_info,
 		}
 		if (strstr(buf, COSINE_REC_MAGIC_STR1) ||
 		    strstr(buf, COSINE_REC_MAGIC_STR2)) {
-			g_strlcpy(hdr, buf, COSINE_LINE_LENGTH);
+			(void) g_strlcpy(hdr, buf, COSINE_LINE_LENGTH);
 			return cur_off;
 		}
 	}
@@ -421,7 +421,7 @@ parse_cosine_packet(FILE_T fh, wtap_rec *rec, Buffer *buf,
 	} else if (strncmp(direction, "l2-rx", 5) == 0) {
 		pseudo_header->cosine.direction = COSINE_DIR_RX;
 	}
-	g_strlcpy(pseudo_header->cosine.if_name, if_name,
+	(void) g_strlcpy(pseudo_header->cosine.if_name, if_name,
 		COSINE_MAX_IF_NAME_LEN);
 	pseudo_header->cosine.pro = pro;
 	pseudo_header->cosine.off = off;

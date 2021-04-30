@@ -395,7 +395,7 @@ dissect_at_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             char *name;
 
             name = (char *) wmem_alloc(wmem_packet_scope(), i_char + 2);
-            g_strlcpy(name, at_command, i_char + 1);
+            (void) g_strlcpy(name, at_command, i_char + 1);
             name[i_char + 1] = '\0';
             proto_item_append_text(command_item, ": %s (Unknown)", name);
             proto_item_append_text(pitem, " (Unknown - Non-Standard HSP Command)");

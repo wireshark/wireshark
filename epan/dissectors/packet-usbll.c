@@ -627,9 +627,9 @@ static int usbll_addr_to_str(const address* addr, gchar *buf, int buf_len)
     const usbll_address_t *addrp = (const usbll_address_t *)addr->data;
 
     if (addrp->flags & USBLL_ADDRESS_HOST) {
-        g_strlcpy(buf, "host", buf_len);
+        (void) g_strlcpy(buf, "host", buf_len);
     } else if (addrp->flags & USBLL_ADDRESS_BROADCAST) {
-        g_strlcpy(buf, "broadcast", buf_len);
+        (void) g_strlcpy(buf, "broadcast", buf_len);
     } else if (addrp->flags & USBLL_ADDRESS_HUB_PORT) {
         /*
          * In split transaction we use : to mark that the last part is port not

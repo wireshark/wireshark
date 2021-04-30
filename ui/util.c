@@ -67,11 +67,11 @@ get_args_as_string(int argc, char **argv, int optindex)
     argstring[0] = '\0';
     i = optindex;
     for (;;) {
-        g_strlcat(argstring, argv[i], len);
+        (void) g_strlcat(argstring, argv[i], len);
         i++;
         if (i == argc)
             break;
-        g_strlcat(argstring, " ", len);
+        (void) g_strlcat(argstring, " ", len);
     }
     return argstring;
 }

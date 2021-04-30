@@ -306,7 +306,7 @@ IsupNumber/nationalStandardPartyNumber isupNationalStandardPartyNumber
   if (h225_pi != NULL) {
     char temp[50];
     g_snprintf(temp, 50, "%%s %%s", h225_pi->frame_label, codec_str);
-    g_strlcpy(h225_pi->frame_label, temp, 50);
+    (void) g_strlcpy(h225_pi->frame_label, temp, 50);
     h225_pi->is_faststart = TRUE;
   }
   contains_faststart = TRUE;
@@ -444,7 +444,7 @@ IsupNumber/nationalStandardPartyNumber isupNationalStandardPartyNumber
     if (contains_faststart) {
       char temp[50];
       g_snprintf(temp, 50, "%s OLC (%s)", val_to_str(h225_pi->cs_type, T_h323_message_body_vals, "<unknown>"), h225_pi->frame_label);
-      g_strlcpy(h225_pi->frame_label, temp, 50);
+      (void) g_strlcpy(h225_pi->frame_label, temp, 50);
     } else
       g_snprintf(h225_pi->frame_label, 50, "%s", val_to_str(h225_pi->cs_type, T_h323_message_body_vals, "<unknown>"));
   }
@@ -501,7 +501,7 @@ IsupNumber/nationalStandardPartyNumber isupNationalStandardPartyNumber
     if (contains_faststart) {
       char temp[50];
       g_snprintf(temp, 50, "%s OLC (%s)", val_to_str(h225_pi->cs_type, T_h323_message_body_vals, "<unknown>"), h225_pi->frame_label);
-      g_strlcpy(h225_pi->frame_label, temp, 50);
+      (void) g_strlcpy(h225_pi->frame_label, temp, 50);
     } else
       g_snprintf(h225_pi->frame_label, 50, "%s", val_to_str(h225_pi->cs_type, T_h323_message_body_vals, "<unknown>"));
   }
@@ -519,7 +519,7 @@ IsupNumber/nationalStandardPartyNumber isupNationalStandardPartyNumber
     if (contains_faststart) {
       char temp[50];
       g_snprintf(temp, 50, "%s OLC (%s)", val_to_str(h225_pi->cs_type, T_h323_message_body_vals, "<unknown>"), h225_pi->frame_label);
-      g_strlcpy(h225_pi->frame_label, temp, 50);
+      (void) g_strlcpy(h225_pi->frame_label, temp, 50);
     } else
       g_snprintf(h225_pi->frame_label, 50, "%s", val_to_str(h225_pi->cs_type, T_h323_message_body_vals, "<unknown>"));
   }
@@ -537,7 +537,7 @@ IsupNumber/nationalStandardPartyNumber isupNationalStandardPartyNumber
     if (contains_faststart) {
       char temp[50];
       g_snprintf(temp, 50, "%s OLC (%s)", val_to_str(h225_pi->cs_type, T_h323_message_body_vals, "<unknown>"), h225_pi->frame_label);
-      g_strlcpy(h225_pi->frame_label, temp, 50);
+      (void) g_strlcpy(h225_pi->frame_label, temp, 50);
     } else
       g_snprintf(h225_pi->frame_label, 50, "%s", val_to_str(h225_pi->cs_type, T_h323_message_body_vals, "<unknown>"));
   }
@@ -568,7 +568,7 @@ IsupNumber/nationalStandardPartyNumber isupNationalStandardPartyNumber
     if (contains_faststart) {
       char temp[50];
       g_snprintf(temp, 50, "%s OLC (%s)", val_to_str(h225_pi->cs_type, T_h323_message_body_vals, "<unknown>"), h225_pi->frame_label);
-      g_strlcpy(h225_pi->frame_label, temp, 50);
+      (void) g_strlcpy(h225_pi->frame_label, temp, 50);
     } else
       g_snprintf(h225_pi->frame_label, 50, "%s", val_to_str(h225_pi->cs_type, T_h323_message_body_vals, "<unknown>"));
   }

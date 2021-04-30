@@ -50,13 +50,13 @@ InvokeProblem        VAL_PTR = &problem_val
 ReturnResultProblem  VAL_PTR = &problem_val
 ReturnErrorProblem   VAL_PTR = &problem_val
 #.FN_FTR GeneralProblem
-  g_strlcpy(problem_str, val_to_str_const(problem_val, VALS(q932_ros_GeneralProblem_vals), ""), 64);
+  (void) g_strlcpy(problem_str, val_to_str_const(problem_val, VALS(q932_ros_GeneralProblem_vals), ""), 64);
 #.FN_FTR InvokeProblem
-  g_strlcpy(problem_str, val_to_str_const(problem_val, VALS(q932_ros_InvokeProblem_vals), ""), 64);
+  (void) g_strlcpy(problem_str, val_to_str_const(problem_val, VALS(q932_ros_InvokeProblem_vals), ""), 64);
 #.FN_FTR ReturnResultProblem
-  g_strlcpy(problem_str, val_to_str_const(problem_val, VALS(q932_ros_ReturnResultProblem_vals), ""), 64);
+  (void) g_strlcpy(problem_str, val_to_str_const(problem_val, VALS(q932_ros_ReturnResultProblem_vals), ""), 64);
 #.FN_FTR ReturnErrorProblem
-  g_strlcpy(problem_str, val_to_str_const(problem_val, VALS(q932_ros_ReturnErrorProblem_vals), ""), 64);
+  (void) g_strlcpy(problem_str, val_to_str_const(problem_val, VALS(q932_ros_ReturnErrorProblem_vals), ""), 64);
 #.END
 
 #--- INVOKE ---

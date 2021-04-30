@@ -9098,7 +9098,7 @@ dissect_ExpectedSubmoduleBlockReq_block(tvbuff_t *tvb, int offset,
     io_data_object = wmem_new0(wmem_file_scope(), ioDataObject);
     io_data_object->profisafeSupported = FALSE;
     io_data_object->moduleNameStr = (gchar*)wmem_alloc(wmem_file_scope(), MAX_NAMELENGTH);
-    g_strlcpy(io_data_object->moduleNameStr, "Unknown", MAX_NAMELENGTH);
+    (void) g_strlcpy(io_data_object->moduleNameStr, "Unknown", MAX_NAMELENGTH);
     vendorMatch = FALSE;
     deviceMatch = FALSE;
     gsdmlFoundFlag = FALSE;

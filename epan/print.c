@@ -712,7 +712,7 @@ write_json_index(json_dumper *dumper, epan_dissect_t *edt)
     if (timeinfo != NULL) {
         strftime(ts, sizeof(ts), "%Y-%m-%d", timeinfo);
     } else {
-        g_strlcpy(ts, "XXXX-XX-XX", sizeof(ts)); /* XXX - better way of saying "Not representable"? */
+        (void) g_strlcpy(ts, "XXXX-XX-XX", sizeof(ts)); /* XXX - better way of saying "Not representable"? */
     }
     json_dumper_set_member_name(dumper, "_index");
     str = g_strdup_printf("packets-%s", ts);
@@ -1781,23 +1781,23 @@ print_escaped_xml(FILE *fh, const char *unescaped_string)
     for (p = unescaped_string; *p != '\0'; p++) {
         switch (*p) {
         case '&':
-            g_strlcpy(&temp_buffer[offset], "&amp;", ESCAPED_BUFFER_MAX-offset);
+            (void) g_strlcpy(&temp_buffer[offset], "&amp;", ESCAPED_BUFFER_MAX-offset);
             offset += 5;
             break;
         case '<':
-            g_strlcpy(&temp_buffer[offset], "&lt;", ESCAPED_BUFFER_MAX-offset);
+            (void) g_strlcpy(&temp_buffer[offset], "&lt;", ESCAPED_BUFFER_MAX-offset);
             offset += 4;
             break;
         case '>':
-            g_strlcpy(&temp_buffer[offset], "&gt;", ESCAPED_BUFFER_MAX-offset);
+            (void) g_strlcpy(&temp_buffer[offset], "&gt;", ESCAPED_BUFFER_MAX-offset);
             offset += 4;
             break;
         case '"':
-            g_strlcpy(&temp_buffer[offset], "&quot;", ESCAPED_BUFFER_MAX-offset);
+            (void) g_strlcpy(&temp_buffer[offset], "&quot;", ESCAPED_BUFFER_MAX-offset);
             offset += 6;
             break;
         case '\'':
-            g_strlcpy(&temp_buffer[offset], "&#x27;", ESCAPED_BUFFER_MAX-offset);
+            (void) g_strlcpy(&temp_buffer[offset], "&#x27;", ESCAPED_BUFFER_MAX-offset);
             offset += 6;
             break;
         default:

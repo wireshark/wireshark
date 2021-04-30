@@ -1119,7 +1119,7 @@ static void field_display_to_string(header_field_info *hfi, char* buf, int size)
 {
     if (hfi->type != FT_BOOLEAN)
     {
-        g_strlcpy(buf, proto_field_display_to_string(hfi->display), size);
+        (void) g_strlcpy(buf, proto_field_display_to_string(hfi->display), size);
     }
     else
     {

@@ -166,7 +166,7 @@ dissect_cpfi_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   tda = (word1 & CPFI_DEST_MASK) >> CPFI_DEST_SHIFT;
   if ( tda >= FIRST_TIO_CARD_ADDRESS )
   {
-    g_strlcpy(src_str, " CPFI", sizeof(src_str));
+    (void) g_strlcpy(src_str, " CPFI", sizeof(src_str));
     src = 0;                            /* Make it smallest */
   }
   else
@@ -188,7 +188,7 @@ dissect_cpfi_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   tda = (word1 & CPFI_SOURCE_MASK) >> CPFI_SOURCE_SHIFT;
   if ( tda >= FIRST_TIO_CARD_ADDRESS )
   {
-    g_strlcpy(dst_str, " CPFI", sizeof(dst_str));
+    (void) g_strlcpy(dst_str, " CPFI", sizeof(dst_str));
     dst = 0;                            /* Make it smallest */
   }
   else

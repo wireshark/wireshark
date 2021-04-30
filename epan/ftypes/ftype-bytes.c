@@ -93,7 +93,7 @@ oid_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_, char *buf, 
 	 * I guess that is why this callback is not passed a length.
 	 *    -- lego
 	 */
-	g_strlcpy(buf,oid_str,OID_REPR_LEN(fv));
+	(void) g_strlcpy(buf,oid_str,OID_REPR_LEN(fv));
 	wmem_free(NULL, oid_str);
 }
 
@@ -115,7 +115,7 @@ rel_oid_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, int field_display _U_, char *b
 	 *    -- lego
 	 */
 	*buf++ = '.';
-	g_strlcpy(buf,oid_str,REL_OID_REPR_LEN(fv));
+	(void) g_strlcpy(buf,oid_str,REL_OID_REPR_LEN(fv));
 	wmem_free(NULL, oid_str);
 }
 

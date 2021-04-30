@@ -507,7 +507,7 @@ fill_enums_id_vals(FILE *file)
                     first_entry = FALSE;
                 }
                 tpncp_enums_name_vals[enum_val] = wmem_strdup(wmem_epan_scope(), enum_name);
-                g_strlcpy(enum_type, enum_name, MAX_TPNCP_DB_ENTRY_LEN);
+                (void) g_strlcpy(enum_type, enum_name, MAX_TPNCP_DB_ENTRY_LEN);
             }
             tpncp_enums_id_vals[enum_val][i].strptr = wmem_strdup(wmem_epan_scope(), enum_str);
             tpncp_enums_id_vals[enum_val][i].value = enum_id;

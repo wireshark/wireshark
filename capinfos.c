@@ -1820,9 +1820,9 @@ main(int argc, char *argv[])
 
   for (opt = optind; opt < argc; opt++) {
 
-    g_strlcpy(file_sha256, "<unknown>", HASH_STR_SIZE);
-    g_strlcpy(file_rmd160, "<unknown>", HASH_STR_SIZE);
-    g_strlcpy(file_sha1, "<unknown>", HASH_STR_SIZE);
+    (void) g_strlcpy(file_sha256, "<unknown>", HASH_STR_SIZE);
+    (void) g_strlcpy(file_rmd160, "<unknown>", HASH_STR_SIZE);
+    (void) g_strlcpy(file_sha1, "<unknown>", HASH_STR_SIZE);
 
     if (cap_file_hashes) {
       fh = ws_fopen(argv[opt], "rb");

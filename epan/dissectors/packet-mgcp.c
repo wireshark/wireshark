@@ -1165,7 +1165,7 @@ static void dissect_mgcp_firstline(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 				}
 
 				code = tvb_format_text(tvb, tvb_previous_offset, tokenlen);
-				g_strlcpy(mi->code, code, 5);
+				(void) g_strlcpy(mi->code, code, 5);
 				if (is_mgcp_verb(tvb, tvb_previous_offset, tvb_current_len, &verb_description))
 				{
 					mgcp_type = MGCP_REQUEST;
@@ -1311,7 +1311,7 @@ static void dissect_mgcp_firstline(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 							mi->request_available = TRUE;
 							mgcp_call->responded = TRUE;
 							mi->req_num = mgcp_call->req_num;
-							g_strlcpy(mi->code, mgcp_call->code, 5);
+							(void) g_strlcpy(mi->code, mgcp_call->code, 5);
 							item = proto_tree_add_uint_format(tree, hf_mgcp_req_frame,
 							                                  tvb, 0, 0, mgcp_call->req_num,
 							                                  "This is a response to a request in frame %u",
@@ -1459,7 +1459,7 @@ static void dissect_mgcp_firstline(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 					mgcp_call->transid   = mi->transid;
 					mgcp_call->responded = FALSE;
 					mgcp_call->req_time=pinfo->abs_ts;
-					g_strlcpy(mgcp_call->code, mi->code, 5);
+					(void) g_strlcpy(mgcp_call->code, mi->code, 5);
 
 					/* Store it */
 					wmem_map_insert(mgcp_calls, new_mgcp_call_key, mgcp_call);

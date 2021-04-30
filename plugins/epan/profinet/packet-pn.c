@@ -1448,7 +1448,7 @@ char *pn_fgets(char *str, int n, FILE *stream)
     /* Check we have space left in the buffer to move the trailing bytes after the comment end */
     size_t remaining_bytes = strlen(comment_end_end) + 1;
     if (remaining_bytes < remaining_space) {
-        g_strlcat(str, comment_end_end, n);
+        (void) g_strlcat(str, comment_end_end, n);
     }
     else {
       /* Seek the file back to the comment end so the next read picks it up */

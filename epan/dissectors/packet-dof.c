@@ -8179,20 +8179,20 @@ static int dissect_oap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
         guint8 no_of_bits = 5;
         guint8 i;
         guint8 bit = 3;
-        g_strlcpy(str, "...", 20);
+        (void) g_strlcpy(str, "...", 20);
 
         /* read the bits for the int */
         for (i = 0; i < no_of_bits; i++)
         {
             if (bit && (!(bit % 4)))
-                g_strlcat(str, " ", 20);
+                (void) g_strlcat(str, " ", 20);
 
             bit++;
 
             if (opcode & mask)
-                g_strlcat(str, "1", 20);
+                (void) g_strlcat(str, "1", 20);
             else
-                g_strlcat(str, "0", 20);
+                (void) g_strlcat(str, "0", 20);
 
             mask = mask >> 1;
         }

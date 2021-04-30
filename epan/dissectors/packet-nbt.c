@@ -654,9 +654,9 @@ dissect_nbns_answer(tvbuff_t *tvb, packet_info *pinfo, int offset, int nbns_data
                                       (cur_offset - offset) + data_len,
                                       ett_nbns_rr, NULL, "%s: type %s, class %s",
                                       name, type_name, class_name);
-            g_strlcat(name, " (", MAX_NAME_LEN);
-            g_strlcat(name, netbios_name_type_descr(name_type), MAX_NAME_LEN);
-            g_strlcat(name, ")", MAX_NAME_LEN);
+            (void) g_strlcat(name, " (", MAX_NAME_LEN);
+            (void) g_strlcat(name, netbios_name_type_descr(name_type), MAX_NAME_LEN);
+            (void) g_strlcat(name, ")", MAX_NAME_LEN);
             add_rr_to_tree(rr_tree, tvb, offset, name,
                                  name_len, type, dns_class, ttl, data_len);
         }

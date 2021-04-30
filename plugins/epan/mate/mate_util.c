@@ -127,7 +127,7 @@ gchar* scs_subscribe(SCS_collection* c, const gchar* s) {
 		}
 
 		orig = (gchar *)g_slice_alloc(len);
-		g_strlcpy(orig,s,len);
+		(void) g_strlcpy(orig,s,len);
 
 		g_hash_table_insert(c->hash,orig,ip);
 	}

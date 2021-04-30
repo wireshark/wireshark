@@ -33615,15 +33615,15 @@ dissect_ieee80211_common(tvbuff_t *tvb, packet_info *pinfo,
     }
 
     if (algorithm == PROTECTION_ALG_WEP) {
-      g_strlcpy(wlan_stats.protection, "WEP", MAX_PROTECT_LEN);
+      (void) g_strlcpy(wlan_stats.protection, "WEP", MAX_PROTECT_LEN);
     } else if (algorithm == PROTECTION_ALG_TKIP) {
-      g_strlcpy(wlan_stats.protection, "TKIP", MAX_PROTECT_LEN);
+      (void) g_strlcpy(wlan_stats.protection, "TKIP", MAX_PROTECT_LEN);
     } else if (algorithm == PROTECTION_ALG_CCMP || algorithm == PROTECTION_ALG_CCMP_256) {
-      g_strlcpy(wlan_stats.protection, "CCMP", MAX_PROTECT_LEN);
+      (void) g_strlcpy(wlan_stats.protection, "CCMP", MAX_PROTECT_LEN);
     } else if (algorithm == PROTECTION_ALG_GCMP || algorithm == PROTECTION_ALG_GCMP_256) {
-      g_strlcpy(wlan_stats.protection, "GCMP", MAX_PROTECT_LEN);
+      (void) g_strlcpy(wlan_stats.protection, "GCMP", MAX_PROTECT_LEN);
     } else {
-      g_strlcpy(wlan_stats.protection, "Unknown", MAX_PROTECT_LEN);
+      (void) g_strlcpy(wlan_stats.protection, "Unknown", MAX_PROTECT_LEN);
     }
 
     /* protection header                                  */
@@ -34909,7 +34909,7 @@ set_dot11decrypt_keys(void)
 
         /* XXX - This just lops the end if the key off if it's too long.
          *       Should we handle this more gracefully? */
-        g_strlcpy(key.UserPwd.Passphrase, dk->key->str, DOT11DECRYPT_WPA_PASSPHRASE_MAX_LEN+1);
+        (void) g_strlcpy(key.UserPwd.Passphrase, dk->key->str, DOT11DECRYPT_WPA_PASSPHRASE_MAX_LEN+1);
 
         key.UserPwd.SsidLen = 0;
         if ((dk->ssid != NULL) && (dk->ssid->len <= DOT11DECRYPT_WPA_SSID_MAX_LEN))

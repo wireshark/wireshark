@@ -329,7 +329,7 @@ WSLUA_FUNCTION wslua_apply_preferences(lua_State *L) {
     if (err) {
         /* Make a copy of pf_path because luaL_error() will return */
         gchar pf_path_copy[256];
-        g_strlcpy(pf_path_copy, pf_path, sizeof pf_path_copy);
+        (void) g_strlcpy(pf_path_copy, pf_path, sizeof pf_path_copy);
         g_free(pf_path);
 
         return luaL_error(L, "can't open preferences file\n\"%s\": %s.",
@@ -355,7 +355,7 @@ char* wslua_get_actual_filename(const char* fname) {
     char* f;
     char* filename;
 
-    g_strlcpy(fname_clean,fname,255);
+    (void) g_strlcpy(fname_clean,fname,255);
     fname_clean[255] = '\0';
 
     for(f = fname_clean; *f; f++) {

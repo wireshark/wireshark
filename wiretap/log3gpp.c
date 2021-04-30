@@ -751,11 +751,11 @@ int write_stub_header(guchar *frame_buffer, char *timestamp_string,
     int stub_offset = 0;
 
     /* Timestamp within file */
-    g_strlcpy((char*)&frame_buffer[stub_offset], timestamp_string, MAX_TIMESTAMP_LEN+1);
+    (void) g_strlcpy((char*)&frame_buffer[stub_offset], timestamp_string, MAX_TIMESTAMP_LEN+1);
     stub_offset += (int)(strlen(timestamp_string) + 1);
 
     /* Protocol name */
-    g_strlcpy((char*)&frame_buffer[stub_offset], protocol_name, MAX_PROTOCOL_NAME+1);
+    (void) g_strlcpy((char*)&frame_buffer[stub_offset], protocol_name, MAX_PROTOCOL_NAME+1);
     stub_offset += (int)(strlen(protocol_name) + 1);
 
     /* Direction */
@@ -763,7 +763,7 @@ int write_stub_header(guchar *frame_buffer, char *timestamp_string,
     stub_offset++;
 
     /* Option string (might be string of length 0) */
-    g_strlcpy((char*)&frame_buffer[stub_offset], protocol_parameters,MAX_PROTOCOL_PAR_STRING+1);
+    (void) g_strlcpy((char*)&frame_buffer[stub_offset], protocol_parameters,MAX_PROTOCOL_PAR_STRING+1);
     stub_offset += (int)(strlen(protocol_parameters) + 1);
     return stub_offset;
 }

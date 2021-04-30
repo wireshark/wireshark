@@ -669,12 +669,12 @@ append_to_preamble(char *str)
     if (toklen != 0) {
         if (packet_preamble_len + toklen > PACKET_PREAMBLE_MAX_LEN)
             return;    /* no room to add the token to the preamble */
-        g_strlcpy(&packet_preamble[packet_preamble_len], str, PACKET_PREAMBLE_MAX_LEN);
+        (void) g_strlcpy(&packet_preamble[packet_preamble_len], str, PACKET_PREAMBLE_MAX_LEN);
         packet_preamble_len += (int) toklen;
         if (debug >= 2) {
             char *c;
             char xs[PACKET_PREAMBLE_MAX_LEN];
-            g_strlcpy(xs, packet_preamble, PACKET_PREAMBLE_MAX_LEN);
+            (void) g_strlcpy(xs, packet_preamble, PACKET_PREAMBLE_MAX_LEN);
             while ((c = strchr(xs, '\r')) != NULL) *c=' ';
             fprintf (stderr, "[[append_to_preamble: \"%s\"]]", xs);
         }
@@ -941,8 +941,8 @@ static void _parse_time(const guchar* start_field, const guchar* end_field, cons
     char *p;
     int  i;
 
-    g_strlcpy(field, start_field, MIN(end_field - start_field + 1, PARSE_BUF));
-    g_strlcpy(format, _format, PARSE_BUF);
+    (void) g_strlcpy(field, start_field, MIN(end_field - start_field + 1, PARSE_BUF));
+    (void) g_strlcpy(format, _format, PARSE_BUF);
 
     /*
      * Initialize to today localtime, just in case not all fields
@@ -1017,7 +1017,7 @@ void parse_time(const guchar* start_field, const guchar* end_field, const gchar*
 
 void parse_seqno(const guchar* start_field, const guchar* end_field) {
     char* buf = (char*) g_alloca(end_field - start_field + 1);
-    g_strlcpy(buf, start_field, end_field - start_field + 1);
+    (void) g_strlcpy(buf, start_field, end_field - start_field + 1);
     seqno = g_ascii_strtoull(buf, NULL, 10);
 }
 

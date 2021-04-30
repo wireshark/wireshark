@@ -722,13 +722,13 @@ static void OUT_FS_AFSVolSync(ptvcursor_t *cursor)
 		int acllen; \
 		char tmp[10]; \
 		tmp[0] = 0; \
-		if ( acl & PRSFS_READ ) g_strlcat(tmp, "r", 10);	\
-		if ( acl & PRSFS_LOOKUP ) g_strlcat(tmp, "l", 10);	\
-		if ( acl & PRSFS_INSERT ) g_strlcat(tmp, "i", 10);	\
-		if ( acl & PRSFS_DELETE ) g_strlcat(tmp, "d", 10);	\
-		if ( acl & PRSFS_WRITE ) g_strlcat(tmp, "w", 10);	\
-		if ( acl & PRSFS_LOCK ) g_strlcat(tmp, "k", 10);	\
-		if ( acl & PRSFS_ADMINISTER ) g_strlcat(tmp, "a", 10);  \
+		if ( acl & PRSFS_READ ) (void) g_strlcat(tmp, "r", 10);	\
+		if ( acl & PRSFS_LOOKUP ) (void) g_strlcat(tmp, "l", 10);	\
+		if ( acl & PRSFS_INSERT ) (void) g_strlcat(tmp, "i", 10);	\
+		if ( acl & PRSFS_DELETE ) (void) g_strlcat(tmp, "d", 10);	\
+		if ( acl & PRSFS_WRITE ) (void) g_strlcat(tmp, "w", 10);	\
+		if ( acl & PRSFS_LOCK ) (void) g_strlcat(tmp, "k", 10);	\
+		if ( acl & PRSFS_ADMINISTER ) (void) g_strlcat(tmp, "a", 10);  \
 		save = tree; \
 		tree = proto_tree_add_subtree_format(tree, tvb, offset, bytes, \
 			ett_afs_acl, NULL, "ACL:  %s %s%s", \

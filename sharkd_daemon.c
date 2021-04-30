@@ -93,7 +93,7 @@ socket_init(char *path)
 
 		memset(&s_un, 0, sizeof(s_un));
 		s_un.sun_family = AF_UNIX;
-		g_strlcpy(s_un.sun_path, path, sizeof(s_un.sun_path));
+		(void) g_strlcpy(s_un.sun_path, path, sizeof(s_un.sun_path));
 
 		s_un_len = (socklen_t)(offsetof(struct sockaddr_un, sun_path) + strlen(s_un.sun_path));
 
@@ -432,13 +432,13 @@ sharkd_loop(int argc _U_, char* argv[])
 
 		if (mode <= SHARKD_MODE_CLASSIC_DAEMON)
 		{
-			g_strlcat(command_line, "sharkd.exe -", sizeof(command_line));
+			(void) g_strlcat(command_line, "sharkd.exe -", sizeof(command_line));
 		}
 		else
 		{
 			// The -m option used here is an internal-only option that notifies the child process that it should
 			// run in Gold Console mode
-			g_strlcat(command_line, "sharkd.exe -m", sizeof(command_line));
+			(void) g_strlcat(command_line, "sharkd.exe -m", sizeof(command_line));
 
 			for (size_t i = 1; i < argc; i++)
 			{
@@ -451,8 +451,8 @@ sharkd_loop(int argc _U_, char* argv[])
 				}
 				else
 				{
-					g_strlcat(command_line, " ", sizeof(command_line));
-					g_strlcat(command_line, argv[i], sizeof(command_line));
+					(void) g_strlcat(command_line, " ", sizeof(command_line));
+					(void) g_strlcat(command_line, argv[i], sizeof(command_line));
 				}
 			}
 		}

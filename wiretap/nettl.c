@@ -656,12 +656,12 @@ static gboolean nettl_dump_open(wtap_dumper *wdh, int *err, gchar **err_info _U_
     /* Write the file header. */
     memset(&file_hdr,0,sizeof(file_hdr));
     memcpy(file_hdr.magic,nettl_magic_hpux10,sizeof(file_hdr.magic));
-    g_strlcpy(file_hdr.file_name,"/tmp/wireshark.TRC000",NETTL_FILENAME_SIZE);
-    g_strlcpy(file_hdr.tz,"UTC",20);
-    g_strlcpy(file_hdr.host_name,"",9);
-    g_strlcpy(file_hdr.os_vers,"B.11.11",9);
+    (void) g_strlcpy(file_hdr.file_name,"/tmp/wireshark.TRC000",NETTL_FILENAME_SIZE);
+    (void) g_strlcpy(file_hdr.tz,"UTC",20);
+    (void) g_strlcpy(file_hdr.host_name,"",9);
+    (void) g_strlcpy(file_hdr.os_vers,"B.11.11",9);
     file_hdr.os_v=0x55;
-    g_strlcpy(file_hdr.model,"9000/800",11);
+    (void) g_strlcpy(file_hdr.model,"9000/800",11);
     file_hdr.unknown=g_htons(0x406);
     if (!wtap_dump_file_write(wdh, &file_hdr, sizeof file_hdr, err))
         return FALSE;

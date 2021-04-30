@@ -329,7 +329,7 @@ guint32_to_str_buf(guint32 u, gchar *buf, int buf_len)
 	gchar *bp = &buf[str_len];
 
 	if (buf_len < str_len) {
-		g_strlcpy(buf, BUF_TOO_SMALL_ERR, buf_len);	/* Let the unexpected value alert user */
+		(void) g_strlcpy(buf, BUF_TOO_SMALL_ERR, buf_len);	/* Let the unexpected value alert user */
 		return;
 	}
 
@@ -346,7 +346,7 @@ guint64_to_str_buf(guint64 u, gchar *buf, int buf_len)
 	gchar *bp = &buf[str_len];
 
 	if (buf_len < str_len) {
-		g_strlcpy(buf, BUF_TOO_SMALL_ERR, buf_len);	/* Let the unexpected value alert user */
+		(void) g_strlcpy(buf, BUF_TOO_SMALL_ERR, buf_len);	/* Let the unexpected value alert user */
 		return;
 	}
 
@@ -1034,7 +1034,7 @@ ip_to_str_buf(const guint8 *ad, gchar *buf, const int buf_len)
 	register gchar *b=buf;
 
 	if (buf_len < WS_INET_ADDRSTRLEN) {
-		g_strlcpy(buf, BUF_TOO_SMALL_ERR, buf_len);  /* Let the unexpected value alert user */
+		(void) g_strlcpy(buf, BUF_TOO_SMALL_ERR, buf_len);  /* Let the unexpected value alert user */
 		return;
 	}
 
@@ -1115,7 +1115,7 @@ guid_to_str_buf(const e_guid_t *guid, gchar *buf, int buf_len)
 	char *tempptr = buf;
 
 	if (buf_len < GUID_STR_LEN) {
-		g_strlcpy(buf, BUF_TOO_SMALL_ERR, buf_len);/* Let the unexpected value alert user */
+		(void) g_strlcpy(buf, BUF_TOO_SMALL_ERR, buf_len);/* Let the unexpected value alert user */
 		return buf;
 	}
 

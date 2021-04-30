@@ -1514,7 +1514,7 @@ iostat_init(const char *opt_arg, void *userdata _U_)
                     register_io_tap(io, i, NULL);
             } else {
                 filter = (gchar *)g_malloc((pos-str)+1);
-                g_strlcpy( filter, str, (gsize) ((pos-str)+1));
+                (void) g_strlcpy( filter, str, (gsize) ((pos-str)+1));
                 filter = g_strstrip(filter);
                 register_io_tap(io, i, (char *) filter);
             }

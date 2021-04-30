@@ -596,16 +596,16 @@ static void process_rule_option(Rule_t *rule, char *options, int option_start_of
 
     if (colon_offset != 0) {
         /* Name and value */
-        g_strlcpy(name, options+option_start_offset, colon_offset-option_start_offset);
+        (void) g_strlcpy(name, options+option_start_offset, colon_offset-option_start_offset);
         if (options[colon_offset] == ' ') {
             spaces_after_colon = 1;
         }
-        g_strlcpy(value, options+colon_offset+spaces_after_colon, options_end_offset-spaces_after_colon-colon_offset);
+        (void) g_strlcpy(value, options+colon_offset+spaces_after_colon, options_end_offset-spaces_after_colon-colon_offset);
         value_length = (gint)strlen(value);
     }
     else {
         /* Just name */
-        g_strlcpy(name, options+option_start_offset, options_end_offset-option_start_offset);
+        (void) g_strlcpy(name, options+option_start_offset, options_end_offset-option_start_offset);
     }
 
     /* Some rule options expect a number, parse it now. Note that any space

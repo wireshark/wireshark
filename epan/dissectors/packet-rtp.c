@@ -1014,7 +1014,7 @@ bluetooth_add_address(packet_info *pinfo, address *addr, guint32 stream_number,
     /* Free the hash if already exists */
     rtp_dyn_payload_free(p_conv_data->rtp_dyn_payload);
 
-    g_strlcpy(p_conv_data->method, setup_method, MAX_RTP_SETUP_METHOD_SIZE+1);
+    (void) g_strlcpy(p_conv_data->method, setup_method, MAX_RTP_SETUP_METHOD_SIZE+1);
     p_conv_data->frame_number = setup_frame_number;
     p_conv_data->media_types = media_types;
     p_conv_data->rtp_dyn_payload = NULL;
@@ -1153,7 +1153,7 @@ srtp_add_address(packet_info *pinfo, const port_type ptype, address *addr, int p
         DPRINT(("passed-in rtp_dyn_payload is the same as in the conversation"));
     }
 
-    g_strlcpy(p_conv_data->method, setup_method, MAX_RTP_SETUP_METHOD_SIZE+1);
+    (void) g_strlcpy(p_conv_data->method, setup_method, MAX_RTP_SETUP_METHOD_SIZE+1);
     p_conv_data->frame_number = setup_frame_number;
     p_conv_data->media_types = media_types;
     p_conv_data->srtp_info = srtp_info;
@@ -1249,7 +1249,7 @@ dissect_rtp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
             p_conv_data->rtp_conv_info->multisegment_pdus = wmem_tree_new(wmem_file_scope());
             conversation_add_proto_data(p_conv, proto_rtp, p_conv_data);
         }
-        g_strlcpy(p_conv_data->method, "HEUR RTP", MAX_RTP_SETUP_METHOD_SIZE+1);
+        (void) g_strlcpy(p_conv_data->method, "HEUR RTP", MAX_RTP_SETUP_METHOD_SIZE+1);
         p_conv_data->frame_number = pinfo->num;
         p_conv_data->media_types = 0;
         p_conv_data->srtp_info = NULL;
@@ -2550,7 +2550,7 @@ get_conv_info(packet_info *pinfo, struct _rtp_info *rtp_info)
                 /* Save this conversation info into packet info */
                 /* XXX: why is this file pool not pinfo->pool? */
                 p_conv_packet_data = wmem_new(wmem_file_scope(), struct _rtp_conversation_info);
-                g_strlcpy(p_conv_packet_data->method, p_conv_data->method, MAX_RTP_SETUP_METHOD_SIZE+1);
+                (void) g_strlcpy(p_conv_packet_data->method, p_conv_data->method, MAX_RTP_SETUP_METHOD_SIZE+1);
                 p_conv_packet_data->frame_number = p_conv_data->frame_number;
                 p_conv_packet_data->media_types = p_conv_data->media_types;
                 /* do not increment ref count for the rtp_dyn_payload */

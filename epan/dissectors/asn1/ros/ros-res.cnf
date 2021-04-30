@@ -34,7 +34,7 @@
   if (actx->rose_ctx->fillin_info)
     col_append_str(actx->pinfo->cinfo, COL_INFO, descr);
   if (actx->rose_ctx->fillin_ptr)
-    g_strlcat(actx->rose_ctx->fillin_ptr, descr, actx->rose_ctx->fillin_buf_size);
+    (void) g_strlcat(actx->rose_ctx->fillin_ptr, descr, actx->rose_ctx->fillin_buf_size);
 
   if (actx->rose_ctx->d.code != -1) {
     if (!res_next_tvb) {  /* empty result */

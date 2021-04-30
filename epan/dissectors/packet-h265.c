@@ -789,26 +789,26 @@ dissect_h265_exp_golomb_code(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint
 	str[0] = '\0';
 	for (bit = 0; bit<((int)(bit_offset & 0x07)); bit++) {
 		if (bit && (!(bit % 4))) {
-			g_strlcat(str, " ", 256);
+			(void) g_strlcat(str, " ", 256);
 		}
-		g_strlcat(str, ".", 256);
+		(void) g_strlcat(str, ".", 256);
 	}
 
 
 	leading_zero_bits = -1;
 	for (b = 0; !b; leading_zero_bits++) {
 		if (bit && (!(bit % 4))) {
-			g_strlcat(str, " ", 256);
+			(void) g_strlcat(str, " ", 256);
 		}
 		if (bit && (!(bit % 8))) {
-			g_strlcat(str, " ", 256);
+			(void) g_strlcat(str, " ", 256);
 		}
 		b = tvb_get_bits8(tvb, bit_offset, 1);
 		if (b != 0) {
-			g_strlcat(str, "1", 256);
+			(void) g_strlcat(str, "1", 256);
 		}
 		else {
-			g_strlcat(str, "0", 256);
+			(void) g_strlcat(str, "0", 256);
 		}
 		bit++;
 		bit_offset++;
@@ -819,13 +819,13 @@ dissect_h265_exp_golomb_code(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint
 		*start_bit_offset = bit_offset;
 		for (; bit % 8; bit++) {
 			if (bit && (!(bit % 4))) {
-				g_strlcat(str, " ", 256);
+				(void) g_strlcat(str, " ", 256);
 			}
-			g_strlcat(str, ".", 256);
+			(void) g_strlcat(str, ".", 256);
 		}
 		if (hf_field) {
-			g_strlcat(str, " = ", 256);
-			g_strlcat(str, hf_field->name, 256);
+			(void) g_strlcat(str, " = ", 256);
+			(void) g_strlcat(str, hf_field->name, 256);
 			switch (descriptor) {
 			case H265_SE_V:
 				/* if the syntax element is coded as se(v),
@@ -925,26 +925,26 @@ dissect_h265_exp_golomb_code(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint
 	/* read the bits for the int */
 	for (i = 0; i<leading_zero_bits; i++) {
 		if (bit && (!(bit % 4))) {
-			g_strlcat(str, " ", 256);
+			(void) g_strlcat(str, " ", 256);
 		}
 		if (bit && (!(bit % 8))) {
-			g_strlcat(str, " ", 256);
+			(void) g_strlcat(str, " ", 256);
 		}
 		bit++;
 		tmp = value & mask;
 		if (tmp != 0) {
-			g_strlcat(str, "1", 256);
+			(void) g_strlcat(str, "1", 256);
 		}
 		else {
-			g_strlcat(str, "0", 256);
+			(void) g_strlcat(str, "0", 256);
 		}
 		mask = mask >> 1;
 	}
 	for (; bit % 8; bit++) {
 		if (bit && (!(bit % 4))) {
-			g_strlcat(str, " ", 256);
+			(void) g_strlcat(str, " ", 256);
 		}
-		g_strlcat(str, ".", 256);
+		(void) g_strlcat(str, ".", 256);
 	}
 
 	switch (descriptor) {
@@ -966,11 +966,11 @@ dissect_h265_exp_golomb_code(proto_tree *tree, int hf_index, tvbuff_t *tvb, gint
 	}
 
 	if (hf_field) {
-		g_strlcat(str, " = ", 256);
-		g_strlcat(str, hf_field->name, 256);
+		(void) g_strlcat(str, " = ", 256);
+		(void) g_strlcat(str, hf_field->name, 256);
 		switch (descriptor) {
 		case H265_SE_V:
-			g_strlcat(str, "(se(v))", 256);
+			(void) g_strlcat(str, "(se(v))", 256);
 			/* if the syntax element is coded as se(v),
 			* the value of the syntax element is derived by invoking the
 			* mapping process for signed Exp-Golomb codes as specified in

@@ -279,7 +279,7 @@ dissect_corosynec_totemnet_with_decryption(tvbuff_t *tvb,
   memset(private_key, 0, sizeof(private_key));
 
   private_key_len = (strlen(key_for_trial)+4) & 0xFC;
-  g_strlcpy(private_key, key_for_trial, private_key_len);
+  (void) g_strlcpy(private_key, key_for_trial, private_key_len);
 
   /*
    * Generate MAC, CIPHER, IV keys from private key

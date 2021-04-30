@@ -1108,7 +1108,7 @@ static void conv_set_fid(packet_info *pinfo, guint32 fid, const gchar *path, gsi
 		return;
 
 	str = (char*)wmem_alloc(wmem_file_scope(), len);
-	g_strlcpy(str, path, len);
+	(void) g_strlcpy(str, path, len);
 	conv_set_fid_nocopy(pinfo, fid, str);
 }
 
@@ -1148,7 +1148,7 @@ static void conv_set_tag(packet_info *pinfo, guint16 tag, enum _9p_msg_t msgtype
 	taginfo->fid = fid;
 	if (fid_path) {
 		taginfo->fid_path = (char*)wmem_alloc(wmem_file_scope(), wmem_strbuf_get_len(fid_path)+1);
-		g_strlcpy(taginfo->fid_path, wmem_strbuf_get_str(fid_path), wmem_strbuf_get_len(fid_path)+1);
+		(void) g_strlcpy(taginfo->fid_path, wmem_strbuf_get_str(fid_path), wmem_strbuf_get_len(fid_path)+1);
 	} else {
 		taginfo->fid_path = NULL;
 	}

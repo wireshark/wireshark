@@ -3586,7 +3586,7 @@ megaco_fmt_content( gchar *result, guint32 context )
     case CHOOSE_CONTEXT:
     case ALL_CONTEXTS:
     case NULL_CONTEXT:
-        g_strlcpy(result, val_to_str_const(context, megaco_context_vals, "Unknown"), ITEM_LABEL_LENGTH);
+        (void) g_strlcpy(result, val_to_str_const(context, megaco_context_vals, "Unknown"), ITEM_LABEL_LENGTH);
         break;
     default:
         g_snprintf( result, ITEM_LABEL_LENGTH, "%d", context);

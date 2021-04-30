@@ -2667,14 +2667,14 @@ s7comm_add_timestamp_to_tree(tvbuff_t *tvb,
 static void
 make_registerflag_string(gchar *str, guint8 flags, gint max)
 {
-    g_strlcpy(str, "", max);
-    if (flags & 0x01) g_strlcat(str, "STW, ", max);
-    if (flags & 0x02) g_strlcat(str, "ACCU1, ", max);
-    if (flags & 0x04) g_strlcat(str, "ACCU2, ", max);
-    if (flags & 0x08) g_strlcat(str, "AR1, ", max);
-    if (flags & 0x10) g_strlcat(str, "AR2, ", max);
-    if (flags & 0x20) g_strlcat(str, "DB1, ", max);
-    if (flags & 0x40) g_strlcat(str, "DB2, ", max);
+    (void) g_strlcpy(str, "", max);
+    if (flags & 0x01) (void) g_strlcat(str, "STW, ", max);
+    if (flags & 0x02) (void) g_strlcat(str, "ACCU1, ", max);
+    if (flags & 0x04) (void) g_strlcat(str, "ACCU2, ", max);
+    if (flags & 0x08) (void) g_strlcat(str, "AR1, ", max);
+    if (flags & 0x10) (void) g_strlcat(str, "AR2, ", max);
+    if (flags & 0x20) (void) g_strlcat(str, "DB1, ", max);
+    if (flags & 0x40) (void) g_strlcat(str, "DB2, ", max);
     if (strlen(str) > 2)
         str[strlen(str) - 2 ] = '\0';
 }
@@ -5389,15 +5389,15 @@ s7comm_decode_message_service(tvbuff_t *tvb,
             proto_tree_add_item(data_tree, hf_s7comm_cpu_msgservice_req_reserved1, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset += 1;
 
-            g_strlcpy(events_string, "", sizeof(events_string));
-            if (events & 0x01) g_strlcat(events_string, "MODE,", sizeof(events_string));    /* Change in mode-transition: Stop, Run, by Push and Function-group=0, Subfunction: 0=Stop, 1=Warm Restart, 2=RUN */
-            if (events & 0x02) g_strlcat(events_string, "SYS,", sizeof(events_string));     /* System diagnostics */
-            if (events & 0x04) g_strlcat(events_string, "USR,", sizeof(events_string));     /* User-defined diagnostic messages */
-            if (events & 0x08) g_strlcat(events_string, "-4-,", sizeof(events_string));     /* currently unknown flag */
-            if (events & 0x10) g_strlcat(events_string, "-5-,", sizeof(events_string));     /* currently unknown flag */
-            if (events & 0x20) g_strlcat(events_string, "-6-,", sizeof(events_string));     /* currently unknown flag */
-            if (events & 0x40) g_strlcat(events_string, "-7-,", sizeof(events_string));     /* currently unknown flag */
-            if (events & 0x80) g_strlcat(events_string, "ALM,", sizeof(events_string));     /* Program block message, type of message in additional field */
+            (void) g_strlcpy(events_string, "", sizeof(events_string));
+            if (events & 0x01) (void) g_strlcat(events_string, "MODE,", sizeof(events_string));    /* Change in mode-transition: Stop, Run, by Push and Function-group=0, Subfunction: 0=Stop, 1=Warm Restart, 2=RUN */
+            if (events & 0x02) (void) g_strlcat(events_string, "SYS,", sizeof(events_string));     /* System diagnostics */
+            if (events & 0x04) (void) g_strlcat(events_string, "USR,", sizeof(events_string));     /* User-defined diagnostic messages */
+            if (events & 0x08) (void) g_strlcat(events_string, "-4-,", sizeof(events_string));     /* currently unknown flag */
+            if (events & 0x10) (void) g_strlcat(events_string, "-5-,", sizeof(events_string));     /* currently unknown flag */
+            if (events & 0x20) (void) g_strlcat(events_string, "-6-,", sizeof(events_string));     /* currently unknown flag */
+            if (events & 0x40) (void) g_strlcat(events_string, "-7-,", sizeof(events_string));     /* currently unknown flag */
+            if (events & 0x80) (void) g_strlcat(events_string, "ALM,", sizeof(events_string));     /* Program block message, type of message in additional field */
             if (strlen(events_string) > 2)
                 events_string[strlen(events_string) - 1 ] = '\0';
             col_append_fstr(pinfo->cinfo, COL_INFO, " SubscribedEvents=(%s)", events_string);

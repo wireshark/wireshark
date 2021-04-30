@@ -146,7 +146,7 @@ nettrace_parse_address(char* curr_pos, char* next_pos, gboolean is_src_addr, exp
 
 	curr_pos = skip_pos;
 
-	g_strlcpy(str, curr_pos, 3);
+	(void) g_strlcpy(str, curr_pos, 3);
 	/* If we find "" here we have no IP address */
 	if (strcmp(str, "\"\"") == 0) {
 		return next_pos;
@@ -168,7 +168,7 @@ nettrace_parse_address(char* curr_pos, char* next_pos, gboolean is_src_addr, exp
 	if (str_len > WS_INET6_ADDRSTRLEN) {
 		return next_pos;
 	}
-	g_strlcpy(ip_addr_str, curr_pos, str_len);
+	(void) g_strlcpy(ip_addr_str, curr_pos, str_len);
 	curr_pos = end_pos;
 	if (ws_inet_pton6(ip_addr_str, &ip6_addr)) {
 		if (is_src_addr) {
@@ -332,7 +332,7 @@ nettrace_msg_to_packet(nettrace_3gpp_32_423_file_info_t *file_info, wtap_rec *re
 			goto end;
 		}
 
-		g_strlcpy(name_str, curr_pos, (gsize)name_str_len + 1);
+		(void) g_strlcpy(name_str, curr_pos, (gsize)name_str_len + 1);
 		ascii_strdown_inplace(name_str);
 
 	}
@@ -392,7 +392,7 @@ nettrace_msg_to_packet(nettrace_3gpp_32_423_file_info_t *file_info, wtap_rec *re
 		status = FALSE;
 		goto end;
 	}
-	g_strlcpy(proto_name_str, curr_pos, (gsize)proto_str_len+1);
+	(void) g_strlcpy(proto_name_str, curr_pos, (gsize)proto_str_len+1);
 	ascii_strdown_inplace(proto_name_str);
 
 	/* Do string matching and replace with Wiresharks protocol name */
@@ -404,7 +404,7 @@ nettrace_msg_to_packet(nettrace_3gpp_32_423_file_info_t *file_info, wtap_rec *re
 	/* XXX Do we need to check for function="S1"? */
 	if (strcmp(proto_name_str, "nas") == 0) {
 		/* Change to nas-eps_plain */
-		g_strlcpy(proto_name_str, c_nas_eps, sizeof(c_nas_eps));
+		(void) g_strlcpy(proto_name_str, c_nas_eps, sizeof(c_nas_eps));
 		proto_str_len = CLEN(c_nas_eps);
 	}
 	if (strcmp(proto_name_str, "map") == 0) {
@@ -415,14 +415,14 @@ nettrace_msg_to_packet(nettrace_3gpp_32_423_file_info_t *file_info, wtap_rec *re
 
 		if (strcmp(name_str, "sai_request") == 0) {
 			use_proto_table = TRUE;
-			g_strlcpy(dissector_table_str, c_sai_req, sizeof(c_sai_req));
+			(void) g_strlcpy(dissector_table_str, c_sai_req, sizeof(c_sai_req));
 			dissector_table_str_len = CLEN(c_sai_req);
 			dissector_table_val = 56;
 			exported_pdu_info.presence_flags |= EXP_PDU_TAG_COL_PROT_BIT;
 		}
 		else if (strcmp(name_str, "sai_response") == 0) {
 			use_proto_table = TRUE;
-			g_strlcpy(dissector_table_str, c_sai_rsp, sizeof(c_sai_rsp));
+			(void) g_strlcpy(dissector_table_str, c_sai_rsp, sizeof(c_sai_rsp));
 			dissector_table_str_len = CLEN(c_sai_rsp);
 			dissector_table_val = 56;
 			exported_pdu_info.presence_flags |= EXP_PDU_TAG_COL_PROT_BIT;

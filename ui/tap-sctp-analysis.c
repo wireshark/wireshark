@@ -194,7 +194,7 @@ calc_checksum(const struct _sctp_info *check_data, sctp_assoc_info_t *data)
         if ((float)(data->n_adler32_correct*1.0/data->n_adler32_calculated) > 0.5)
         {
             char str[] = "ADLER32";
-            g_strlcpy(data->checksum_type, str, strlen(str));
+            (void) g_strlcpy(data->checksum_type, str, strlen(str));
             data->n_checksum_errors=(data->n_adler32_calculated-data->n_adler32_correct);
             ok = TRUE;
         }
@@ -205,7 +205,7 @@ calc_checksum(const struct _sctp_info *check_data, sctp_assoc_info_t *data)
         if ((float)(data->n_crc32c_correct*1.0/data->n_crc32c_calculated) > 0.5)
         {
             char str[] = "CRC32C";
-            g_strlcpy(data->checksum_type, str, strlen(str));
+            (void) g_strlcpy(data->checksum_type, str, strlen(str));
             data->n_checksum_errors=data->n_crc32c_calculated-data->n_crc32c_correct;
             ok = TRUE;
         }
@@ -214,7 +214,7 @@ calc_checksum(const struct _sctp_info *check_data, sctp_assoc_info_t *data)
     if (!ok)
     {
         char str[] = "UNKNOWN";
-        g_strlcpy(data->checksum_type, str, strlen(str));
+        (void) g_strlcpy(data->checksum_type, str, strlen(str));
         data->n_checksum_errors=0;
     }
 
@@ -743,7 +743,7 @@ packet(void *tapdata _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const voi
                 if ((tvb_get_guint8(sctp_info->tvb[0],0)) == SCTP_INIT_CHUNK_ID)
                 {
                     tmp_str = val_to_str_wmem(NULL, tvb_get_guint8(sctp_info->tvb[0],0),chunk_type_values,"Reserved (%d)");
-                    g_strlcpy(error->chunk_info, tmp_str, 200);
+                    (void) g_strlcpy(error->chunk_info, tmp_str, 200);
                     wmem_free(NULL, tmp_str);
                 }
                 else
@@ -751,7 +751,7 @@ packet(void *tapdata _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const voi
                     for (chunk_number = 0; chunk_number < sctp_info->number_of_tvbs; chunk_number++)
                     {
                         tmp_str = val_to_str_wmem(NULL, tvb_get_guint8(sctp_info->tvb[chunk_number],0),chunk_type_values,"Reserved (%d)");
-                        g_strlcat(error->chunk_info, tmp_str, 200);
+                        (void) g_strlcat(error->chunk_info, tmp_str, 200);
                         wmem_free(NULL, tmp_str);
                     }
                 }

@@ -67,10 +67,10 @@ void SCTPChunkStatisticsDialog::initializeChunkMap()
         temp.id = i;
         temp.row = i;
         g_snprintf(buf, sizeof buf, "%d", i);
-        g_strlcpy(temp.name, val_to_str_const(i, chunk_type_values, "NA"), sizeof temp.name);
+        (void) g_strlcpy(temp.name, val_to_str_const(i, chunk_type_values, "NA"), sizeof temp.name);
         if (strcmp(temp.name, "NA") == 0) {
             temp.hide = 1;
-            g_strlcpy(temp.name, buf, sizeof temp.name);
+            (void) g_strlcpy(temp.name, buf, sizeof temp.name);
         } else {
             temp.hide = 0;
         }
@@ -150,7 +150,7 @@ void SCTPChunkStatisticsDialog::fillTable(bool all, const sctp_assoc_info_t *sel
                 continue;
             /* Get rid of the quotation marks */
             QString ch = QString(token).mid(1, (int)strlen(token)-2);
-            g_strlcpy(id, qPrintable(ch), sizeof id);
+            (void) g_strlcpy(id, qPrintable(ch), sizeof id);
             if (!ws_strtoi32(id, NULL, &temp.id))
                 continue;
             temp.hide = 0;
@@ -164,7 +164,7 @@ void SCTPChunkStatisticsDialog::fillTable(bool all, const sctp_assoc_info_t *sel
                         temp.hide = 0;
                     } else {
                         QString ch2 = QString(token).mid(1, (int)strlen(token)-2);
-                        g_strlcpy(temp.name, qPrintable(ch2), sizeof temp.name);
+                        (void) g_strlcpy(temp.name, qPrintable(ch2), sizeof temp.name);
                     }
                 }
             }

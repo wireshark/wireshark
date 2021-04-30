@@ -163,7 +163,7 @@ static long vms_seek_next_packet(wtap *wth, int *err, gchar **err_info)
         if (strstr(buf, VMS_REC_MAGIC_STR1) ||
             strstr(buf, VMS_REC_MAGIC_STR2) ||
             strstr(buf, VMS_REC_MAGIC_STR2)) {
-            g_strlcpy(hdr, buf,VMS_LINE_LENGTH);
+            (void) g_strlcpy(hdr, buf,VMS_LINE_LENGTH);
             return cur_off;
         }
     }

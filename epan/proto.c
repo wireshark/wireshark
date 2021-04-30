@@ -6763,7 +6763,7 @@ proto_custom_set(proto_tree* tree, GSList *field_ids, gint occurrence,
 						} else {
 							number_out = hfinfo_char_value_format(hfinfo, number_buf, number);
 
-							g_strlcpy(expr+offset_e, number_out, size-offset_e);
+							(void) g_strlcpy(expr+offset_e, number_out, size-offset_e);
 						}
 
 						offset_e = (int)strlen(expr);
@@ -6797,7 +6797,7 @@ proto_custom_set(proto_tree* tree, GSList *field_ids, gint occurrence,
 						} else {
 							number_out = hfinfo_numeric_value_format(hfinfo, number_buf, number);
 
-							g_strlcpy(expr+offset_e, number_out, size-offset_e);
+							(void) g_strlcpy(expr+offset_e, number_out, size-offset_e);
 						}
 
 						offset_e = (int)strlen(expr);
@@ -6827,7 +6827,7 @@ proto_custom_set(proto_tree* tree, GSList *field_ids, gint occurrence,
 						} else {
 							number_out = hfinfo_numeric_value_format64(hfinfo, number_buf, number64);
 
-							g_strlcpy(expr+offset_e, number_out, size-offset_e);
+							(void) g_strlcpy(expr+offset_e, number_out, size-offset_e);
 						}
 
 						offset_e = (int)strlen(expr);
@@ -6895,7 +6895,7 @@ proto_custom_set(proto_tree* tree, GSList *field_ids, gint occurrence,
 
 				default:
 					/* for all others, just copy "result" to "expr" */
-					g_strlcpy(expr, result, size);
+					(void) g_strlcpy(expr, result, size);
 					break;
 			}
 
@@ -6999,13 +6999,13 @@ proto_item_prepend_text(proto_item *pi, const char *format, ...)
 			ITEM_LABEL_NEW(PNODE_POOL(pi), fi->rep);
 			proto_item_fill_label(fi, representation);
 		} else
-			g_strlcpy(representation, fi->rep->representation, ITEM_LABEL_LENGTH);
+			(void) g_strlcpy(representation, fi->rep->representation, ITEM_LABEL_LENGTH);
 
 		va_start(ap, format);
 		g_vsnprintf(fi->rep->representation,
 			ITEM_LABEL_LENGTH, format, ap);
 		va_end(ap);
-		g_strlcat(fi->rep->representation, representation, ITEM_LABEL_LENGTH);
+		(void) g_strlcat(fi->rep->representation, representation, ITEM_LABEL_LENGTH);
 	}
 }
 
@@ -8965,7 +8965,7 @@ label_mark_truncated(char *label_str, gsize name_pos)
 		*last_char = '\0';
 
 	} else if (name_pos < ITEM_LABEL_LENGTH)
-		g_strlcpy(label_str + name_pos, trunc_str, ITEM_LABEL_LENGTH - name_pos);
+		(void) g_strlcpy(label_str + name_pos, trunc_str, ITEM_LABEL_LENGTH - name_pos);
 }
 
 static gsize
@@ -9042,7 +9042,7 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 	switch (hfinfo->type) {
 		case FT_NONE:
 		case FT_PROTOCOL:
-			g_strlcpy(label_str, hfinfo->name, ITEM_LABEL_LENGTH);
+			(void) g_strlcpy(label_str, hfinfo->name, ITEM_LABEL_LENGTH);
 			break;
 
 		case FT_BOOLEAN:
@@ -12609,8 +12609,8 @@ _proto_tree_add_bits_format_value(proto_tree *tree, const int hfindex,
 
 	str = decode_bits_in_field(bit_offset, no_of_bits, value);
 
-	g_strlcat(str, " = ", 256+64);
-	g_strlcat(str, hf_field->name, 256+64);
+	(void) g_strlcat(str, " = ", 256+64);
+	(void) g_strlcat(str, hf_field->name, 256+64);
 
 	/*
 	 * This function does not receive an actual value but a dimensionless pointer to that value.

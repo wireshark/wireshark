@@ -257,15 +257,15 @@ static gboolean dissect_ircomm_parameters(tvbuff_t* tvb, guint offset, packet_in
 
                     pv = tvb_get_guint8(tvb, offset+2);
                     if (pv & IRCOMM_3_WIRE_RAW)
-                        g_strlcat(buf, ", 3-Wire raw", 256);
+                        (void) g_strlcat(buf, ", 3-Wire raw", 256);
                     if (pv & IRCOMM_3_WIRE)
-                        g_strlcat(buf, ", 3-Wire", 256);
+                        (void) g_strlcat(buf, ", 3-Wire", 256);
                     if (pv & IRCOMM_9_WIRE)
-                        g_strlcat(buf, ", 9-Wire", 256);
+                        (void) g_strlcat(buf, ", 9-Wire", 256);
                     if (pv & IRCOMM_CENTRONICS)
-                        g_strlcat(buf, ", Centronics", 256);
+                        (void) g_strlcat(buf, ", Centronics", 256);
 
-                    g_strlcat(buf, ")", 256);
+                    (void) g_strlcat(buf, ")", 256);
 
                     if (strlen(buf) > 2)
                         proto_item_append_text(ti, "%s", buf+2);
@@ -279,11 +279,11 @@ static gboolean dissect_ircomm_parameters(tvbuff_t* tvb, guint offset, packet_in
 
                     pv = tvb_get_guint8(tvb, offset+2);
                     if (pv & IRCOMM_SERIAL)
-                        g_strlcat(buf, ", serial", 256);
+                        (void) g_strlcat(buf, ", serial", 256);
                     if (pv & IRCOMM_PARALLEL)
-                        g_strlcat(buf, ", parallel", 256);
+                        (void) g_strlcat(buf, ", parallel", 256);
 
-                    g_strlcat(buf, ")", 256);
+                    (void) g_strlcat(buf, ")", 256);
 
                     if (strlen(buf) > 2)
                         proto_item_append_text(ti, "%s", buf+2);

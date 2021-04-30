@@ -390,7 +390,7 @@ static int fcwwn_name_res_len(void)
  ******************************************************************************/
 static int stringz_addr_to_str(const address* addr, gchar *buf, int buf_len)
 {
-    g_strlcpy(buf, (const gchar *)addr->data, buf_len);
+    (void) g_strlcpy(buf, (const gchar *)addr->data, buf_len);
     return (int)(strlen(buf)+1);
 }
 

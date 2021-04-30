@@ -781,7 +781,7 @@ dissect_snmp_VarBind(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset,
 
 		pi = proto_tree_add_item(pt_varbind,hfid,tvb,value_offset,value_len,ENC_BIG_ENDIAN);
 		expert_add_info_format(actx->pinfo, pi, &ei_snmp_varbind_response, "%s",note);
-		g_strlcpy (label, note, ITEM_LABEL_LENGTH);
+		(void) g_strlcpy (label, note, ITEM_LABEL_LENGTH);
 		goto set_label;
 	}
 

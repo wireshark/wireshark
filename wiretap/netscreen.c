@@ -106,7 +106,7 @@ static gint64 netscreen_seek_next_packet(wtap *wth, int *err, gchar **err_info,
 		}
 		if (strstr(buf, NETSCREEN_REC_MAGIC_STR1) ||
 		    strstr(buf, NETSCREEN_REC_MAGIC_STR2)) {
-			g_strlcpy(hdr, buf, NETSCREEN_LINE_LENGTH);
+			(void) g_strlcpy(hdr, buf, NETSCREEN_LINE_LENGTH);
 			return cur_off;
 		}
 	}
