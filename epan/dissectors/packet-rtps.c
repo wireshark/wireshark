@@ -1129,6 +1129,7 @@ static int hf_rtps_flag_service_request_reader                  = -1;
 static int hf_rtps_flag_locator_ping_writer                     = -1;
 static int hf_rtps_flag_locator_ping_reader                     = -1;
 static int hf_rtps_flag_secure_service_request_writer           = -1;
+static int hf_rtps_flag_cloud_discovery_service_announcer       = -1;
 static int hf_rtps_flag_secure_service_request_reader           = -1;
 static int hf_rtps_flag_security_access_protected               = -1;
 static int hf_rtps_flag_security_discovery_protected            = -1;
@@ -2350,6 +2351,7 @@ static int* const NACK_FLAGS[] = {
 #endif
 
 static int* const VENDOR_BUILTIN_ENDPOINT_FLAGS[] = {
+  &hf_rtps_flag_cloud_discovery_service_announcer,    /* Bit 6 */
   &hf_rtps_flag_secure_service_request_reader,        /* Bit 5 */
   &hf_rtps_flag_secure_service_request_writer,        /* Bit 4 */
   &hf_rtps_flag_locator_ping_reader,                  /* Bit 3 */
@@ -14714,7 +14716,10 @@ void proto_register_rtps(void) {
     { &hf_rtps_param_mig_end_coherent_set_sample_count, {
         "Ended coherent set sample count", "rtps.param.mig_end_coherent_set_sample_count",
         FT_UINT32, BASE_DEC, NULL, 0, "Decimal value representing the value of MIG_RTPS_PID_END_COHERENT_SET_SAMPLE_COUNT parameter", HFILL }
-    }
+    },
+    { &hf_rtps_flag_cloud_discovery_service_announcer,{
+        "Cloud Discovery Service Announcer", "rtps.flag.cloud_discovery_service_announcer",
+        FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00000040, NULL, HFILL } }
   };
 
   static gint *ett[] = {
