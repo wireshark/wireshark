@@ -450,7 +450,7 @@ coverity-visual-c++:
     - $covAnalysisWin64 = (Get-ChildItem -Path $env:temp -Filter "cov-analysis-win64-*" -Directory)[0].FullName
     - Invoke-Expression "& $covAnalysisWin64\bin\cov-build.exe --return-emit-failures --dir cov-int msbuild /verbosity:minimal `"/consoleloggerparameters:PerformanceSummary;NoSummary`" /maxcpucount:1 Wireshark.sln"
     - C:\ProgramData\chocolatey\tools\7z a -tzip cov-int.zip cov-int
-    - C:\Windows\System32\curl --form file=@cov-int.zip --form token=$COVERITY_SCAN_TOKEN--form email=$GITLAB_USER_EMAIL --form description="Windows $gitDescription $CI_COMMIT_REF_NAME:$CI_PIPELINE_ID" --form version=$gitDescription https://scan.coverity.com/builds?project=$COVERITY_SCAN_PROJECT_NAME
+    - C:\Windows\System32\curl --form file=@cov-int.zip --form token=$COVERITY_SCAN_TOKEN--form email=$GITLAB_USER_EMAIL --form description="Windows $gitDescription $env:CI_COMMIT_REF_NAME`:$env:CI_PIPELINE_ID" --form version=$gitDescription https://scan.coverity.com/builds?project=$COVERITY_SCAN_PROJECT_NAME
 
 clang-scan-build:
   only:
