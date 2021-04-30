@@ -659,8 +659,8 @@ usbll_set_address(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
     usbll_address_t *src_addr, *dst_addr;
     guint8 *str_src_addr, *str_dst_addr;
 
-    src_addr = wmem_new0(wmem_packet_scope(), usbll_address_t);
-    dst_addr = wmem_new0(wmem_packet_scope(), usbll_address_t);
+    src_addr = wmem_new0(pinfo->pool, usbll_address_t);
+    dst_addr = wmem_new0(pinfo->pool, usbll_address_t);
 
     if (USBLL_ADDRESS_IS_HOST_TO_DEV(flags)) {
         src_addr->flags = USBLL_ADDRESS_HOST;
