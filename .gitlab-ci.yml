@@ -31,6 +31,33 @@ variables:
 # - coverity-visual-c++: Monday, Wednesday, & Friday at 12:00 UTC
 # - coverity-gcc: Sunday, Tuesday, Thursday & Saturday at 12:00 UTC
 
+# Common rules
+
+# Commits that have been approved and merged. Run automatically in the main
+# repo and allow manual runs in forks.
+.if-merged:
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "push" && $CI_PROJECT_URL =~ /.*gitlab.com\/wireshark\/wireshark/'
+      when: always
+    - if: '$CI_PROJECT_URL !~ /.*gitlab.com\/wireshark\/wireshark/'
+      when: manual
+    - when: never
+# Incoming merge requests.
+.if-merge-request:
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+# Incoming non-detached merge requests. Must be used for runners which are only
+# available in wireshark/wireshark, e.g. wireshark-windows-*
+.if-attached-merge-request:
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_PROJECT_URL =~ /.*gitlab.com\/wireshark\/wireshark/'
+      when: always
+# Daily jobs
+.if-daily-schedule:
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule" && $WS_CI_SCHEDULE == "daily"'
+      when: always
+
 .build:
   stage: build
   after_script:
@@ -118,20 +145,18 @@ variables:
 
 # Rely on fedora:latest and debian-stable jobs for testing a recent GCC version.
 clang-12:
-  extends: .build-ubuntu
+  extends:
+    - .build-ubuntu
+    - .if-merged
   variables:
     CC: clang-12
     CXX: clang++-12
 
 build:ubuntu-dist:
   stage: .pre
-  extends: .build-ubuntu
-  rules:
-    - if: '$CI_PIPELINE_SOURCE == "push" && $CI_PROJECT_URL =~ /.*gitlab.com\/wireshark\/wireshark/'
-      when: always
-    - if: '$CI_PROJECT_URL !~ /.*gitlab.com\/wireshark\/wireshark/'
-      when: manual
-    - when: never
+  extends:
+    - .build-ubuntu
+    - .if-merged
   script:
     - perl ../tools/make-version.pl --set-release || ../perl make-version.pl --set-release
     - cmake -G Ninja $CMAKE_ARGS -DENABLE_CCACHE=ON ..
@@ -230,7 +255,9 @@ build:rpm-fedora:
 
 # Job to generate packages for Debian stable
 build:debian-stable:
-  extends: .build
+  extends:
+    - .build
+    - .if-merged
   image: wireshark/wireshark-debian-stable-dev
   script:
     - perl tools/make-version.pl --set-release
@@ -311,11 +338,11 @@ doxygen_all:
 # https://docs.gitlab.com/ee/user/gitlab_com/index.html#linux-shared-runners
 
 merge-req:commit-checks:
-  extends: .build-ubuntu
+  extends:
+    - .build-ubuntu
+    - .if-merge-request
   tags:
     - docker
-  rules:
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
   script:
     # build-ubuntu puts us in `build`.
     - cd ..
@@ -323,11 +350,11 @@ merge-req:commit-checks:
     - tools/validate-commit.py
 
 merge-req:ubuntu-dpkg:
-  extends: .build-ubuntu
+  extends:
+    - .build-ubuntu
+    - .if-merge-request
   tags:
     - docker
-  rules:
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
   script:
     # build-ubuntu puts us in `build`.
     - cd ..
@@ -339,11 +366,11 @@ merge-req:ubuntu-dpkg:
     - ccache --max-size $( du --summarize --block-size=1M --total "$CI_PROJECT_DIR"/obj-* | awk '/total$/ {printf ("%dM", $1 * 1.25)}' )
 
 merge-req:ubuntu-gcc-ctest:
-  extends: .build-ubuntu
+  extends:
+    - .build-ubuntu
+    - .if-merge-request
   tags:
     - docker
-  rules:
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
   script:
     # build-ubuntu puts us in `build`.
     - CC=gcc CXX=g++ cmake -DENABLE_EXTRA_COMPILER_WARNINGS=on -DCMAKE_EXPORT_COMPILE_COMMANDS=on -DENABLE_CCACHE=ON -G Ninja ..
@@ -357,11 +384,14 @@ merge-req:ubuntu-gcc-ctest:
       - gcc_report.html
 
 merge-req:ubuntu-clang-other-tests:
-  extends: clang-12
+  extends:
+    - .build-ubuntu
+    - .if-merge-request
   tags:
     - docker
-  rules:
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+  variables:
+    CC: clang-12
+    CXX: clang++-12
   script:
     # build-ubuntu puts us in `build`.
     - cd ..
@@ -388,13 +418,11 @@ merge-req:ubuntu-clang-other-tests:
 # Windows runners are still beta, at least technically:
 # https://docs.gitlab.com/ee/user/gitlab_com/index.html#windows-shared-runners-beta
 merge-req:windows:
-  extends: .build-windows
+  extends:
+    - .build-windows
+    - .if-attached-merge-request
   tags:
     - wireshark-windows-merge-req
-  rules:
-    # The wireshark-windows-* tags are only available in wireshark/wireshark.
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_PROJECT_URL =~ /.*gitlab.com\/wireshark\/wireshark/'
-      when: always
   script:
     - cmake -G "Visual Studio 16 2019" -A x64 -DENABLE_LTO=off ..
     - msbuild /verbosity:minimal "/consoleloggerparameters:PerformanceSummary;NoSummary" /maxcpucount Wireshark.sln
@@ -454,9 +482,7 @@ coverity-visual-c++:
       - build/cov-int.zip
 
 clang-scan-build:
-  rules:
-    - if: '$CI_PIPELINE_SOURCE == "schedule" && $WS_CI_SCHEDULE == "daily"'
-      when: always
+  extends: .if-daily-schedule
   image: wireshark/wireshark-ubuntu-dev
   stage: analysis
   needs: []

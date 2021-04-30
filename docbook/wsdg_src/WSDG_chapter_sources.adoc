@@ -553,6 +553,10 @@ In general, making it easier to understand and apply your patch by one of the ma
 Wireshark is a volunteer effort.
 As a result, we can’t guarantee a quick turnaround time.
 
+.Preview the final product.
+Wireshark’s GitLab CI jobs are disabled by default for forks, but if you need to test any CI jobs you can do so under the “Pipelines” section in your repository.
+For example, if your change might affect Debian (apt) packaging you can run the “build:debian-stable” job.
+
 [[ChSrcGoodCommitMessage]]
 ==== Writing a Good Commit Message
 
