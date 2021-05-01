@@ -53,6 +53,8 @@ When RTP Player window is opened, playlist can be modified from other tools (Wir
 .btn:[Play Streams] button with opened action menu
 image::wsug_graphics/ws-tel-rtp-player_button.png[]
 
+btn:[Play Streams] button can be clicked directly and opens RTP Player window directly with btn:[Set playlist] action. All actions are selectable by small down arrow next to button.
+
 When playlist is empty, there is no difference between btn:[Set playlist] and btn:[Add to playlist]. When RTP Player window is not opened, all three actions above open it.
 
 btn:[Remove from playlist] is useful e. g. in case user selected all RTP streams and wants to remove RTP streams from specific calls found with menu:VoIPCalls[].

@@ -15,7 +15,7 @@
 #include "ui/rtp_stream.h"
 #include "rtp_player_dialog.h"
 
-#include <QAbstractButton>
+#include <QToolButton>
 #include <QMenu>
 
 namespace Ui {
@@ -65,12 +65,12 @@ protected:
 private:
     Ui::RtpStreamDialog *ui;
     rtpstream_tapinfo_t tapinfo_;
-    QPushButton *find_reverse_button_;
+    QToolButton *find_reverse_button_;
     QPushButton *prepare_button_;
     QPushButton *export_button_;
     QPushButton *copy_button_;
-    QPushButton *analyze_button_;
-    QPushButton *player_button_;
+    QToolButton *analyze_button_;
+    QToolButton *player_button_;
     QMenu ctx_menu_;
     bool need_redraw_;
     QList<rtpstream_id_t> last_selected_;

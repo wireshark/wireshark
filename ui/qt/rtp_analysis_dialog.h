@@ -26,6 +26,7 @@
 #include <QFile>
 #include <QCheckBox>
 #include <QHBoxLayout>
+#include <QToolButton>
 
 #include "wireshark_dialog.h"
 
@@ -68,7 +69,7 @@ public:
      * @param button_box Caller's QDialogButtonBox.
      * @return The new "Analyze" button.
      */
-    static QPushButton *addAnalyzeButton(QDialogButtonBox *button_box, QDialog *dialog);
+    static QToolButton *addAnalyzeButton(QDialogButtonBox *button_box, QDialog *dialog);
 
     /** Replace/Add/Remove an RTP streams to analyse.
      * Requires array of rtpstream_id_t.
@@ -117,7 +118,7 @@ private:
     QVector<tab_info_t *> tabs_;
     QMultiHash<guint, tab_info_t *> tab_hash_;
 
-    QPushButton *player_button_;
+    QToolButton *player_button_;
 
     // Graph data for QCustomPlot
     QList<QCPGraph *>graphs_;

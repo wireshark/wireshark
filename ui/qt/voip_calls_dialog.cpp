@@ -27,7 +27,7 @@
 
 #include <QClipboard>
 #include <QContextMenuEvent>
-#include <QPushButton>
+#include <QToolButton>
 
 // To do:
 // - More context menu items

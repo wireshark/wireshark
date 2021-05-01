@@ -69,7 +69,7 @@ public:
      * @param button_box Caller's QDialogButtonBox.
      * @return The new "Play call" button.
      */
-    static QPushButton *addPlayerButton(QDialogButtonBox *button_box, QDialog *dialog);
+    static QToolButton *addPlayerButton(QDialogButtonBox *button_box, QDialog *dialog);
 
 #ifdef QT_MULTIMEDIA_LIB
     ~RtpPlayerDialog();
@@ -203,8 +203,8 @@ private:
     QTreeWidgetItem *last_ti_;
     bool listener_removed_;
     QPushButton *read_btn_;
-    QPushButton *inaudible_btn_;
-    QPushButton *analyze_btn_;
+    QToolButton *inaudible_btn_;
+    QToolButton *analyze_btn_;
     QPushButton *prepare_btn_;
     QPushButton *export_btn_;
     QMultiHash<guint, RtpAudioStream *> stream_hash_;

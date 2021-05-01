@@ -26,8 +26,9 @@
 #include "wireshark_dialog.h"
 
 #include <QMenu>
-
-class QAbstractButton;
+#include <QAbstractButton>
+#include <QPushButton>
+#include <QToolButton>
 
 class SequenceInfo;
 
@@ -80,7 +81,7 @@ private:
     SequenceInfo *sequence_info_;
     QPushButton *prepare_button_;
     QPushButton *sequence_button_;
-    QPushButton *player_button_;
+    QToolButton *player_button_;
     QPushButton *copy_button_;
     bool voip_calls_tap_listeners_removed_;
     GQueue* shown_callsinfos_; /* queue with all shown calls (voip_calls_info_t) */

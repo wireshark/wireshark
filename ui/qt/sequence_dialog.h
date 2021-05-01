@@ -113,7 +113,7 @@ private:
     double one_em_;
     int sequence_w_;
     QPushButton *reset_button_;
-    QPushButton *player_button_;
+    QToolButton *player_button_;
     QPushButton *export_button_;
     QMenu ctx_menu_;
     QCPItemText *key_text_;

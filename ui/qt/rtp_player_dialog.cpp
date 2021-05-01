@@ -50,6 +50,7 @@
 #endif // QT_MULTIMEDIA_LIB
 
 #include <QPushButton>
+#include <QToolButton>
 
 #include <ui/qt/utils/stock_icon.h>
 #include "wireshark_application.h"
@@ -227,8 +228,15 @@ RtpPlayerDialog::RtpPlayerDialog(QWidget &parent, CaptureFile &cf, bool capture_
     read_btn_->setEnabled(false);
     connect(read_btn_, SIGNAL(pressed()), this, SLOT(on_actionReadCapture_triggered()));
 
-    inaudible_btn_ = ui->buttonBox->addButton(ui->actionInaudibleButton->text(), QDialogButtonBox::ActionRole);
-    inaudible_btn_->setToolTip(ui->actionInaudibleButton->toolTip());
+    inaudible_btn_ = new QToolButton();
+    ui->buttonBox->addButton(inaudible_btn_, QDialogButtonBox::ActionRole);
+    inaudible_btn_->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
+    inaudible_btn_->setPopupMode(QToolButton::MenuButtonPopup);
+
+    connect(ui->actionInaudibleButton, SIGNAL(triggered()), this, SLOT(on_actionSelectInaudible_triggered()));
+    inaudible_btn_->setDefaultAction(ui->actionInaudibleButton);
+    // Overrides text striping of shortcut undercode in QAction
+    inaudible_btn_->setText(ui->actionInaudibleButton->text());
     inaudible_btn_->setEnabled(false);
     inaudible_btn_->setMenu(ui->menuInaudible);
 
@@ -237,6 +245,7 @@ RtpPlayerDialog::RtpPlayerDialog(QWidget &parent, CaptureFile &cf, bool capture_
     prepare_btn_ = ui->buttonBox->addButton(ui->actionPrepareFilter->text(), QDialogButtonBox::ActionRole);
     prepare_btn_->setToolTip(ui->actionPrepareFilter->toolTip());
     connect(prepare_btn_, SIGNAL(pressed()), this, SLOT(on_actionPrepareFilter_triggered()));
+
     export_btn_ = ui->buttonBox->addButton(ui->actionExportButton->text(), QDialogButtonBox::ActionRole);
     export_btn_->setToolTip(ui->actionExportButton->toolTip());
     export_btn_->setEnabled(false);
@@ -301,19 +310,27 @@ RtpPlayerDialog::RtpPlayerDialog(QWidget &parent, CaptureFile &cf, bool capture_
 }
 
 // _U_ is used when no QT_MULTIMEDIA_LIB is available
-QPushButton *RtpPlayerDialog::addPlayerButton(QDialogButtonBox *button_box, QDialog *dialog _U_)
+QToolButton *RtpPlayerDialog::addPlayerButton(QDialogButtonBox *button_box, QDialog *dialog _U_)
 {
     if (!button_box) return NULL;
 
-    QPushButton *player_button;
-    player_button = button_box->addButton(tr("&Play Streams"), QDialogButtonBox::ActionRole);
-    player_button->setToolTip(tr("Open RTP player dialog"));
-    player_button->setIcon(StockIcon("media-playback-start"));
+    QAction *ca;
+    QToolButton *player_button = new QToolButton();
+    button_box->addButton(player_button, QDialogButtonBox::ActionRole);
+    player_button->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
+    player_button->setPopupMode(QToolButton::MenuButtonPopup);
+
+    ca = new QAction(tr("&Play Streams"));
+    ca->setToolTip(tr("Open RTP player dialog"));
+    ca->setIcon(StockIcon("media-playback-start"));
+    connect(ca, SIGNAL(triggered()), dialog, SLOT(rtpPlayerReplace()));
+    player_button->setDefaultAction(ca);
+    // Overrides text striping of shortcut undercode in QAction
+    player_button->setText(ca->text());
 
 #if defined(QT_MULTIMEDIA_LIB)
     QMenu *button_menu = new QMenu(player_button);
     button_menu->setToolTipsVisible(true);
-    QAction *ca;
     ca = button_menu->addAction(tr("&Set playlist"));
     ca->setToolTip(tr("Replace existing playlist in RTP Player with new one"));
     connect(ca, SIGNAL(triggered()), dialog, SLOT(rtpPlayerReplace()));
@@ -910,8 +927,11 @@ bool RtpPlayerDialog::eventFilter(QObject *, QEvent *event)
                 ui->streamTreeWidget->setFocus();
                 break;
             case Qt::Key_P:
-                on_actionPlay_triggered();
-                return true;
+                if (keyEvent.modifiers() == Qt::NoModifier) {
+                    on_actionPlay_triggered();
+                    return true;
+                }
+                break;
             case Qt::Key_S:
                 on_actionStop_triggered();
                 return true;
