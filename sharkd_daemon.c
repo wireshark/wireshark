@@ -440,7 +440,7 @@ sharkd_loop(int argc _U_, char* argv[])
 			// run in Gold Console mode
 			(void) g_strlcat(command_line, "sharkd.exe -m", sizeof(command_line));
 
-			for (size_t i = 1; i < argc; i++)
+			for (int i = 1; i < argc; i++)
 			{
 				if (
 					!g_ascii_strncasecmp(argv[i], "-a", (guint)strlen(argv[i]))
