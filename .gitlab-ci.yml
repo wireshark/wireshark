@@ -28,7 +28,7 @@ variables:
   # Enable color output in CMake, Ninja, and other tools. https://bixense.com/clicolors/
   CLICOLOR_FORCE: 1
 
-# Scheduled builds additionally set WS_CI_SCHEDULE, which can be one of:
+# Scheduled builds additionally set SCHEDULE_TYPE, which can be one of:
 # - daily: Daily at 10:00 UTC
 # - coverity-visual-c++: Monday, Wednesday, & Friday at 12:00 UTC
 # - coverity-gcc: Sunday, Tuesday, Thursday & Saturday at 12:00 UTC
@@ -55,17 +55,11 @@ variables:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event" && $CI_PROJECT_URL =~ /.*gitlab.com\/wireshark\/wireshark/'
       when: always
 # Daily jobs
-.if-daily-schedule:
-  # According to the GitLab docs, specifying "rules" is perferred over "only",
-  # but this doesn't get triggered.
-  # rules:
-  #   - if: '$CI_PIPELINE_SOURCE == "schedule" && $WS_CI_SCHEDULE == "daily"'
-  #     when: always
-  only:
-    refs:
-      - schedules
-    variables:
-      - $SCHEDULE_TYPE == "daily"
+# Schedules don't appear to work with "extends" or YAML anchors, unfortunately.
+# .if-daily-schedule
+#   rules:
+#     - if: '$CI_PIPELINE_SOURCE == "schedule" && $SCHEDULE_TYPE == "daily"'
+#       when: always
 
 .build:
   stage: build
@@ -322,9 +316,11 @@ docbook:
 
 # Build all doxygen docs
 doxygen_all:
-  extends: .if-daily-schedule
-  stage: build
   image: wireshark/wireshark-ubuntu-dev
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule" && $SCHEDULE_TYPE == "daily"'
+      when: always
+  stage: build
   script:
     - mkdir build
     - cd build
@@ -439,15 +435,10 @@ merge-req:windows:
 # Adapted from https://www.synopsys.com/blogs/software-security/integrating-coverity-scan-with-gitlab-ci/
 # and https://gitlab.gnome.org/GNOME/glib/-/blob/8f57a5b9/.gitlab-ci.yml#L481
 coverity-gcc:
-  # rules:
-  #   - if: '$CI_PIPELINE_SOURCE == "schedule" && $WS_CI_SCHEDULE == "coverity-gcc"'
-  #     when: always
-  only:
-    refs:
-      - schedules
-    variables:
-      - $WS_CI_SCHEDULE == "coverity-gcc"
   image: wireshark/wireshark-ubuntu-dev
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule" && $SCHEDULE_TYPE == "coverity-gcc"'
+      when: always
   stage: analysis
   needs: []
   variables:
@@ -471,15 +462,10 @@ coverity-gcc:
       - build/cov-int.tar.gz
 
 coverity-visual-c++:
-  # rules:
-  #   - if: '$CI_PIPELINE_SOURCE == "schedule" && $WS_CI_SCHEDULE == "coverity-visual-c++"'
-  #     when: always
-  only:
-    refs:
-      - schedules
-    variables:
-      - $WS_CI_SCHEDULE == "coverity-visual-c++"
   extends: .build-windows
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule" && $SCHEDULE_TYPE == "coverity-visual-c++"'
+      when: always
   tags:
     - wireshark-windows-merge-req
   stage: analysis
@@ -499,8 +485,10 @@ coverity-visual-c++:
       - build/cov-int.zip
 
 clang-scan-build:
-  extends: .if-daily-schedule
   image: wireshark/wireshark-ubuntu-dev
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule" && $SCHEDULE_TYPE == "daily"'
+      when: always
   stage: analysis
   needs: []
   variables:
@@ -528,7 +516,7 @@ build:windows-vs-code-analysis:
     - wireshark-windows-dev
   rules:
     # The wireshark-windows-* tags are only available in wireshark/wireshark.
-    - if: '$CI_PIPELINE_SOURCE == "schedule" && $WS_CI_SCHEDULE == "daily" && $CI_PROJECT_URL =~ /.*gitlab.com\/wireshark\/wireshark/'
+    - if: '$CI_PIPELINE_SOURCE == "schedule" && $SCHEDULE_TYPE == "daily" && $CI_PROJECT_URL =~ /.*gitlab.com\/wireshark\/wireshark/'
       when: always
   script:
     - $env:caexcludepath = "C:\Qt;$env:INCLUDE"
@@ -536,9 +524,10 @@ build:windows-vs-code-analysis:
     - msbuild /verbosity:minimal "/consoleloggerparameters:PerformanceSummary;NoSummary" /maxcpucount:2 Wireshark.sln
 
 sloccount:
-  extends:
-    - .build-ubuntu
-    - .if-daily-schedule
+  extends: .build-ubuntu
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule" && $SCHEDULE_TYPE == "daily"'
+      when: always
   stage: analysis
   variables:
     SLOC_OUT: sloccount.txt
