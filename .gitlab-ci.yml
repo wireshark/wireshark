@@ -65,7 +65,7 @@ variables:
     refs:
       - schedules
     variables:
-      - $WS_CI_SCHEDULE == "daily"
+      - $SCHEDULE_TYPE == "daily"
 
 .build:
   stage: build
