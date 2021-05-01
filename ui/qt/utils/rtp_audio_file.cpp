@@ -327,6 +327,15 @@ qint64 RtpAudioFile::getTotalSamples()
     return (real_size_/(qint64)sizeof(SAMPLE));
 }
 
+qint64 RtpAudioFile::getEndOfSilenceSample()
+{
+    if (cur_frame_.type == RTP_FRAME_SILENCE) {
+        return (cur_frame_.real_pos + cur_frame_.len) / (qint64)sizeof(SAMPLE);
+    } else {
+        return -1;
+    }
+}
+
 qint64 RtpAudioFile::readData(char *data, qint64 maxSize)
 {
     qint64 to_read = maxSize;

@@ -69,6 +69,7 @@ public:
     void seekSample(qint64 samples);
     qint64 readSample(SAMPLE *sample);
     qint64 getTotalSamples();
+    qint64 getEndOfSilenceSample();
 
 protected:
     // Functions for reading data during play

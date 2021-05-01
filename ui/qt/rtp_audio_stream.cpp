@@ -772,6 +772,18 @@ void RtpAudioStream::stopPlaying()
     }
 }
 
+void RtpAudioStream::seekPlaying(qint64 samples _U_)
+{
+    if (audio_routing_.isMuted())
+        return;
+
+    if (audio_output_) {
+        audio_output_->suspend();
+        audio_file_->seekSample(samples);
+        audio_output_->resume();
+    }
+}
+
 void RtpAudioStream::outputStateChanged(QAudio::State new_state)
 {
     if (!audio_output_) return;

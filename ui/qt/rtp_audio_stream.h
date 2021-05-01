@@ -139,6 +139,7 @@ public:
     void startPlaying();
     void pausePlaying();
     void stopPlaying();
+    void seekPlaying(qint64 samples);
     void setStereoRequired(bool stereo_required) { stereo_required_ = stereo_required; }
     qint16 getMaxSampleValue() { return max_sample_val_; }
     void setMaxSampleValue(gint16 max_sample_val) { max_sample_val_used_ = max_sample_val; }
@@ -146,6 +147,9 @@ public:
     qint64 readSample(SAMPLE *sample);
     qint64 getLeadSilenceSamples() { return prepend_samples_; }
     qint64 getTotalSamples() { return (audio_file_->getTotalSamples()); }
+    qint64 getEndOfSilenceSample() { return (audio_file_->getEndOfSilenceSample()); }
+    double getEndOfSilenceTime() { return (double)getEndOfSilenceSample() / (double)playRate(); }
+    qint64 convertTimeToSamples(double time) { return (qint64)(time * playRate()); }
     bool savePayload(QIODevice *file);
     guint getHash() { return rtpstream_id_to_hash(&(id_)); }
     rtpstream_id_t *getID() { return &(id_); }

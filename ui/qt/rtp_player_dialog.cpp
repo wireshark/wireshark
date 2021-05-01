@@ -150,6 +150,7 @@ RtpPlayerDialog::RtpPlayerDialog(QWidget &parent, CaptureFile &cf, bool capture_
     , block_redraw_(false)
     , lock_ui_(0)
     , read_capture_enabled_(capture_running)
+    , silence_skipped_time_(0.0)
 {
     ui->setupUi(this);
     loadGeometry(parent.width(), parent.height());
@@ -217,6 +218,9 @@ RtpPlayerDialog::RtpPlayerDialog(QWidget &parent, CaptureFile &cf, bool capture_
     ui->pauseButton->setVisible(false);
     ui->stopButton->setIcon(StockIcon("media-playback-stop"));
     ui->stopButton->setEnabled(false);
+    ui->skipSilenceButton->setIcon(StockIcon("media-seek-forward"));
+    ui->skipSilenceButton->setCheckable(true);
+    ui->skipSilenceButton->setEnabled(false);
 
     read_btn_ = ui->buttonBox->addButton(ui->actionReadCapture->text(), QDialogButtonBox::ActionRole);
     read_btn_->setToolTip(ui->actionReadCapture->toolTip());
@@ -259,6 +263,8 @@ RtpPlayerDialog::RtpPlayerDialog(QWidget &parent, CaptureFile &cf, bool capture_
         ui->playButton->setEnabled(false);
         ui->pauseButton->setEnabled(false);
         ui->stopButton->setEnabled(false);
+        ui->skipSilenceButton->setEnabled(false);
+        ui->minSilenceSpinBox->setEnabled(false);
         ui->outputDeviceComboBox->addItem(tr("No devices available"));
         ui->outputAudioRate->setEnabled(false);
     } else {
@@ -939,8 +945,14 @@ void RtpPlayerDialog::updateWidgets()
     int count = ui->streamTreeWidget->topLevelItemCount();
     int selected = ui->streamTreeWidget->selectedItems().count();
 
-    if (count < 1)
+    if (count < 1) {
         enable_play = false;
+        ui->skipSilenceButton->setEnabled(false);
+        ui->minSilenceSpinBox->setEnabled(false);
+    } else {
+        ui->skipSilenceButton->setEnabled(true);
+        ui->minSilenceSpinBox->setEnabled(true);
+    }
 
     for (int row = 0; row < ui->streamTreeWidget->topLevelItemCount(); row++) {
         QTreeWidgetItem *ti = ui->streamTreeWidget->topLevelItem(row);
@@ -1283,6 +1295,7 @@ void RtpPlayerDialog::on_playButton_clicked()
 
     // Protect start time against move of marker during the play
     start_marker_time_play_ = start_marker_time_;
+    silence_skipped_time_ = 0.0;
     cur_play_pos_->point1->setCoords(start_marker_time_play_, 0.0);
     cur_play_pos_->point2->setCoords(start_marker_time_play_, 1.0);
     cur_play_pos_->setVisible(true);
@@ -1364,12 +1377,55 @@ QAudioOutput *RtpPlayerDialog::getSilenceAudioOutput()
 
 void RtpPlayerDialog::outputNotify()
 {
+    double new_current_pos = 0.0;
+    double current_pos = 0.0;
+
     double secs = marker_stream_->processedUSecs() / 1000000.0;
+
+    if (ui->skipSilenceButton->isChecked()) {
+        // We should check whether we can skip some silence
+        // We must calculate in time domain as every stream can use different
+        // play rate
+        double min_silence = playing_streams_[0]->getEndOfSilenceTime();
+        for( int i = 1; i<playing_streams_.count(); ++i ) {
+            qint64 cur_silence = playing_streams_[i]->getEndOfSilenceTime();
+            if (cur_silence < min_silence) {
+                min_silence = cur_silence;
+            }
+        }
+
+        if (min_silence > 0.0) {
+            double silence_duration;
+
+            // Calculate silence duration we can skip
+            new_current_pos = first_stream_rel_start_time_ + min_silence;
+            if (ui->todCheckBox->isChecked()) {
+                current_pos = secs + start_marker_time_play_ + first_stream_rel_start_time_;
+            } else {
+                current_pos = secs + start_marker_time_play_;
+            }
+            silence_duration = new_current_pos - current_pos;
+
+            if (silence_duration >= ui->minSilenceSpinBox->value()) {
+                // Skip silence gap and update cursor difference
+                for( int i = 0; i<playing_streams_.count(); ++i ) {
+                    // Convert silence from time domain to samples
+                    qint64 skip_samples = playing_streams_[i]->convertTimeToSamples(min_silence);
+                    playing_streams_[i]->seekPlaying(skip_samples);
+                }
+                silence_skipped_time_ = silence_duration;
+            }
+        }
+    }
+
+    // Calculate new cursor position
     if (ui->todCheckBox->isChecked()) {
         secs += start_marker_time_play_;
+        secs += silence_skipped_time_;
     } else {
         secs += start_marker_time_play_;
         secs -= first_stream_rel_start_time_;
+        secs += silence_skipped_time_;
     }
     setPlayPosition(secs);
 }

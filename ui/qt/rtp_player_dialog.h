@@ -211,6 +211,7 @@ private:
     bool block_redraw_;
     int lock_ui_;
     bool read_capture_enabled_;
+    double silence_skipped_time_;
 
 //    const QString streamKey(const rtpstream_info_t *rtpstream);
 //    const QString streamKey(const packet_info *pinfo, const struct _rtp_info *rtpinfo);

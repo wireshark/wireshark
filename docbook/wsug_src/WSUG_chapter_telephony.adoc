@@ -442,6 +442,8 @@ When RTP stream contains multiple codecs, SR and PR is based on first observed c
 Controls allow a user to:
 
 * btn:[Start]/btn:[Pause]/btn:[Stop] playing of unmuted streams
+* btn:[>>] enabling/disabling silence skipping
+** Min silence - Minimal duration of silence to skip in seconds. Shorter silence is played as it is.
 * Select btn:[Output audio device] and btn:[Output audio rate]
 * Select btn:[Playback Timing]
 ** Jitter Buffer - Packets outside btn:[Jitter Buffer] size are discarded during decoding
@@ -455,6 +457,11 @@ Controls allow a user to:
 * btn:[Analyze] open <<ChTelRTPAnalysis,RTP Stream Analysis>> window. Actions btn:[Set], btn:[Add] and btn:[Remove] are available.
 * btn:[Prepare Filter] prepare filter matching selected streams and apply it.
 * btn:[Export] - See <<tel-rtp-export>>.
+
+[NOTE]
+====
+RTP Player detects silence just by missing voice samples (Comfort Noise, interrupted RTP, missing RTP, ...) or when some streams are muted.
+====
 
 .RTP stream state indication
 image::wsug_graphics/ws-tel-rtp-player_2.png[{screenshot-attrs}]
