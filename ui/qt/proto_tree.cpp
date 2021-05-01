@@ -204,7 +204,11 @@ void ProtoTree::ctxOpenUrlWiki()
     QModelIndex idx = selectionModel()->selectedIndexes().first();
     FieldInformation finfo(proto_tree_model_->protoNodeFromIndex(idx).protoNode());
 
-    const QString proto_abbrev = proto_registrar_get_abbrev(finfo.headerInfo().id);
+    int field_id = finfo.headerInfo().id;
+    if (!proto_registrar_is_protocol(field_id) && (field_id != hf_text_only)) {
+        field_id = proto_registrar_get_parent(field_id);
+    }
+    const QString proto_abbrev = proto_registrar_get_abbrev(field_id);
 
     if (! is_field_reference)
     {
@@ -221,9 +225,15 @@ void ProtoTree::ctxOpenUrlWiki()
     }
     else
     {
-        url = QString(WS_DOCS_URL "/dfref/%1/%2")
+        if (field_id != hf_text_only) {
+            url = QString(WS_DOCS_URL "/dfref/%1/%2")
                 .arg(proto_abbrev[0])
                 .arg(proto_abbrev);
+        } else {
+            QMessageBox::information(this, tr("Not a field or protocol"),
+                tr("No field reference available for text labels."),
+                QMessageBox::Ok);
+        }
     }
 
     QDesktopServices::openUrl(url);
