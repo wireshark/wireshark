@@ -56,6 +56,9 @@ typedef struct _rtpstream_info_calc {
     gint32 lost_num;
     double lost_perc;
     double max_delta;
+    double min_delta;
+    double mean_delta;
+    double min_jitter;
     double max_jitter;
     double max_skew;
     double mean_jitter;

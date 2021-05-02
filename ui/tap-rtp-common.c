@@ -472,6 +472,9 @@ void rtpstream_info_calculate(const rtpstream_info_t *strinfo, rtpstream_info_ca
         }
 
         calc->max_delta = strinfo->rtp_stats.max_delta;
+        calc->min_delta = strinfo->rtp_stats.min_delta;
+        calc->mean_delta = strinfo->rtp_stats.mean_delta;
+        calc->min_jitter = strinfo->rtp_stats.min_jitter;
         calc->max_jitter = strinfo->rtp_stats.max_jitter;
         calc->mean_jitter = strinfo->rtp_stats.mean_jitter;
         calc->max_skew = strinfo->rtp_stats.max_skew;

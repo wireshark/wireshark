@@ -66,7 +66,10 @@ typedef struct _tap_rtp_stat_t {
     double          time;       /**< Unit is ms */
     double          start_time; /**< Unit is ms */
     double          lastnominaltime;
+    double          min_delta;
     double          max_delta;
+    double          mean_delta;
+    double          min_jitter;
     double          max_jitter;
     double          max_skew;
     double          mean_jitter;

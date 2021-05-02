@@ -66,12 +66,15 @@ const int duration_col_    =  6;
 const int payload_col_     =  7;
 const int packets_col_     =  8;
 const int lost_col_        =  9;
-const int max_delta_col_   = 10;
-const int max_jitter_col_  = 11;
-const int mean_jitter_col_ = 12;
-const int status_col_      = 13;
-const int ssrc_fmt_col_    = 14;
-const int lost_perc_col_   = 15;
+const int min_delta_col_   = 10;
+const int mean_delta_col_  = 11;
+const int max_delta_col_   = 12;
+const int min_jitter_col_  = 13;
+const int mean_jitter_col_ = 14;
+const int max_jitter_col_  = 15;
+const int status_col_      = 16;
+const int ssrc_fmt_col_    = 17;
+const int lost_perc_col_   = 18;
 
 enum { rtp_stream_type_ = 1000 };
 
@@ -114,9 +117,12 @@ public:
         setText(payload_col_, calc.all_payload_type_names);
         setText(packets_col_, QString::number(calc.packet_count));
         setText(lost_col_, QObject::tr("%1 (%L2%)").arg(calc.lost_num).arg(QString::number(calc.lost_perc, 'f', 1)));
+        setText(min_delta_col_, QString::number(calc.min_delta, 'f', prefs.gui_decimal_places3)); // This is RTP. Do we need nanoseconds?
+        setText(mean_delta_col_, QString::number(calc.mean_delta, 'f', prefs.gui_decimal_places3)); // This is RTP. Do we need nanoseconds?
         setText(max_delta_col_, QString::number(calc.max_delta, 'f', prefs.gui_decimal_places3)); // This is RTP. Do we need nanoseconds?
-        setText(max_jitter_col_, QString::number(calc.max_jitter, 'f', prefs.gui_decimal_places3));
+        setText(min_jitter_col_, QString::number(calc.min_jitter, 'f', prefs.gui_decimal_places3));
         setText(mean_jitter_col_, QString::number(calc.mean_jitter, 'f', prefs.gui_decimal_places3));
+        setText(max_jitter_col_, QString::number(calc.max_jitter, 'f', prefs.gui_decimal_places3));
 
         if (calc.problem) {
             setText(status_col_, UTF8_BULLET);
@@ -165,12 +171,18 @@ public:
             return calc.packet_count;
         case lost_col_:
             return calc.lost_num;
+        case min_delta_col_:
+            return calc.min_delta;
+        case mean_delta_col_:
+            return calc.mean_delta;
         case max_delta_col_:
             return calc.max_delta;
-        case max_jitter_col_:
-            return calc.max_jitter;
+        case min_jitter_col_:
+            return calc.min_jitter;
         case mean_jitter_col_:
             return calc.mean_jitter;
+        case max_jitter_col_:
+            return calc.max_jitter;
         case status_col_:
             return calc.problem ? "Problem" : "";
         case ssrc_fmt_col_:
@@ -216,12 +228,18 @@ public:
             return stream_info_->packet_count < other_rstwi.stream_info_->packet_count;
         case lost_col_:
             return lost_ < other_rstwi.lost_;
+        case min_delta_col_:
+            return stream_info_->rtp_stats.min_delta < other_rstwi.stream_info_->rtp_stats.min_delta;
+        case mean_delta_col_:
+            return stream_info_->rtp_stats.mean_delta < other_rstwi.stream_info_->rtp_stats.mean_delta;
         case max_delta_col_:
             return stream_info_->rtp_stats.max_delta < other_rstwi.stream_info_->rtp_stats.max_delta;
-        case max_jitter_col_:
-            return stream_info_->rtp_stats.max_jitter < other_rstwi.stream_info_->rtp_stats.max_jitter;
+        case min_jitter_col_:
+            return stream_info_->rtp_stats.min_jitter < other_rstwi.stream_info_->rtp_stats.min_jitter;
         case mean_jitter_col_:
             return stream_info_->rtp_stats.mean_jitter < other_rstwi.stream_info_->rtp_stats.mean_jitter;
+        case max_jitter_col_:
+            return stream_info_->rtp_stats.max_jitter < other_rstwi.stream_info_->rtp_stats.max_jitter;
         default:
             break;
         }

@@ -92,17 +92,32 @@
      </column>
      <column>
       <property name="text">
+       <string>Min Delta (ms)</string>
+      </property>
+     </column>
+     <column>
+      <property name="text">
+       <string>Mean Delta (ms)</string>
+      </property>
+     </column>
+     <column>
+      <property name="text">
        <string>Max Delta (ms)</string>
       </property>
      </column>
      <column>
       <property name="text">
-       <string>Max Jitter</string>
+       <string>Min Jitter</string>
       </property>
      </column>
      <column>
       <property name="text">
        <string>Mean Jitter</string>
+      </property>
+     </column>
+     <column>
+      <property name="text">
+       <string>Max Jitter</string>
       </property>
      </column>
      <column>
