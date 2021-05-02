@@ -18,7 +18,7 @@ Wireshark 3.5.0 Release Notes
    The following features are new (or have been significantly updated)
    since version 3.4.0:
 
-     • The Windows installers now ship with Npcap 1.30. They previously
+     • The Windows installers now ship with Npcap 1.31. They previously
        shipped with Npcap 1.20.
 
      • TCP conversations now support a completeness criteria, which
@@ -128,7 +128,7 @@ Wireshark 3.5.0 Release Notes
 
   A complete FAQ is available on the Wireshark web site[7].
 
-  Last updated 2021-04-25 09:05:54 UTC
+  Last updated 2021-05-02 09:04:46 UTC
 
  References
 

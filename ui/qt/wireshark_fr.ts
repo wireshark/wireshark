@@ -9387,6 +9387,14 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
         <translation>Détail du paquet</translation>
     </message>
     <message>
+        <source>Not a field or protocol</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No field reference available for text labels.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Expand Subtrees</source>
         <translation type="unfinished"></translation>
     </message>
@@ -10739,6 +10747,14 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>From &amp;cursor</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save audio data started at the cursor</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>&amp;Stream Synchronized Audio</source>
         <translation type="unfinished"></translation>
     </message>
@@ -11104,6 +11120,10 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     </message>
     <message>
         <source>All selected streams must use same play rate. Manual set of Output Audio Rate might help.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No streams are suitable for save</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -11740,10 +11760,6 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
         <translation>Graphique Octets</translation>
     </message>
     <message>
-        <source>Complete list of IP Addresses as provided in the INIT Chunk</source>
-        <translation type="vanished">Liste complète des adresses IP prévu dans le bloc INIT</translation>
-    </message>
-    <message>
         <source>Requested Number of Inbound Streams:</source>
         <translation>Nombre demandé de flux entrants:</translation>
     </message>
@@ -11784,14 +11800,6 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
         <translation>Nombre fourni de flux sortants:</translation>
     </message>
     <message>
-        <source>Complete list of IP Addresses as provided in the INIT-ACK Chunk</source>
-        <translation type="vanished">Liste complète des adresses IP prévu dans le bloc INIT ACK Chunk</translation>
-    </message>
-    <message>
-        <source>Graph a_rwnd</source>
-        <translation type="vanished">Graphique a_rwnd</translation>
-    </message>
-    <message>
         <source>SCTP Analyse Association: %1 Port1 %2 Port2 %3</source>
         <translation>Analyse Association SCTP %1 port1 %2 Port2 %3</translation>
     </message>
@@ -11808,25 +11816,16 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Complete list of IP addresses from INIT Chunk:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Complete list of IP addresses from INIT_ACK Chunk:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>List of Used IP Addresses</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Complete list of IP-Addresses as provided in the INIT-Chunk</source>
-        <translation type="vanished">Liste complète des adresses IP prévu dans le bloc INIT Chunk</translation>
-    </message>
-    <message>
-        <source>Complete list of IP addresses from INIT Chunk:</source>
-        <oldsource>Complete list of IP-Addresses as provided in the INITACK-Chunk</oldsource>
-        <translation type="unfinished">Liste complète des adresses IP prévu dans le bloc INITACK Chunk</translation>
-    </message>
-    <message>
-        <source>List of used IP-Addresses</source>
-        <translation type="vanished">Liste d&apos;adresses IP utilisées</translation>
     </message>
     <message>
         <source>Used Number of Inbound Streams:</source>

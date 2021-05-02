@@ -9424,6 +9424,14 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>Paketdetaljer</translation>
     </message>
     <message>
+        <source>Not a field or protocol</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No field reference available for text labels.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Expand Subtrees</source>
         <translation>Expandera underträd</translation>
     </message>
@@ -10778,6 +10786,14 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>From &amp;cursor</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save audio data started at the cursor</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>&amp;Stream Synchronized Audio</source>
         <translation type="unfinished"></translation>
     </message>
@@ -11143,6 +11159,10 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>All selected streams must use same play rate. Manual set of Output Audio Rate might help.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No streams are suitable for save</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -11779,10 +11799,6 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>Grafbyte</translation>
     </message>
     <message>
-        <source>Complete list of IP Addresses as provided in the INIT Chunk</source>
-        <translation type="vanished">Fullständig lista över IP-adresser som de tillhandahålls av INIT-stycket</translation>
-    </message>
-    <message>
         <source>Requested Number of Inbound Streams:</source>
         <translation>Begärt antal av inkommande strömmar:</translation>
     </message>
@@ -11823,14 +11839,6 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>Levererat antal utgående strömmar:</translation>
     </message>
     <message>
-        <source>Complete list of IP Addresses as provided in the INIT-ACK Chunk</source>
-        <translation type="vanished">Fullständig lista över IP-adresser som de tillhandahålls av INIT-ACK-stycket</translation>
-    </message>
-    <message>
-        <source>Graph a_rwnd</source>
-        <translation type="vanished">Graf-a_rwnd</translation>
-    </message>
-    <message>
         <source>SCTP Analyse Association: %1 Port1 %2 Port2 %3</source>
         <translation>SCTP-analysassociation: %1 Port1 %2 Port 2 %3</translation>
     </message>
@@ -11847,25 +11855,16 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>Kunde inte hitta någon SCTP-association med id: %1</translation>
     </message>
     <message>
+        <source>Complete list of IP addresses from INIT Chunk:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Complete list of IP addresses from INIT_ACK Chunk:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>List of Used IP Addresses</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Complete list of IP-Addresses as provided in the INIT-Chunk</source>
-        <translation type="vanished">Fullständig lista över IP-adresser som de tillhandahålls av INIT-stycket</translation>
-    </message>
-    <message>
-        <source>Complete list of IP addresses from INIT Chunk:</source>
-        <oldsource>Complete list of IP-Addresses as provided in the INITACK-Chunk</oldsource>
-        <translation type="unfinished">Fullständig lista över IP-adresser som de tillhandahålls av INITACK-stycket</translation>
-    </message>
-    <message>
-        <source>List of used IP-Addresses</source>
-        <translation type="vanished">Lista över använda IP-adresser</translation>
     </message>
     <message>
         <source>Used Number of Inbound Streams:</source>

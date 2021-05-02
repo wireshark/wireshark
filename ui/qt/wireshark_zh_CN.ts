@@ -9386,6 +9386,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>分组详情</translation>
     </message>
     <message>
+        <source>Not a field or protocol</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No field reference available for text labels.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Expand Subtrees</source>
         <translation type="unfinished"></translation>
     </message>
@@ -10740,6 +10748,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>From &amp;cursor</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save audio data started at the cursor</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>&amp;Stream Synchronized Audio</source>
         <translation type="unfinished"></translation>
     </message>
@@ -11105,6 +11121,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>All selected streams must use same play rate. Manual set of Output Audio Rate might help.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No streams are suitable for save</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -11741,10 +11761,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>字节图</translation>
     </message>
     <message>
-        <source>Complete list of IP Addresses as provided in the INIT Chunk</source>
-        <translation type="vanished">在INIT块中的IP地址完整列表</translation>
-    </message>
-    <message>
         <source>Requested Number of Inbound Streams:</source>
         <translation>输入流的请求数量:</translation>
     </message>
@@ -11785,14 +11801,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>输出流的提供数量:</translation>
     </message>
     <message>
-        <source>Complete list of IP Addresses as provided in the INIT-ACK Chunk</source>
-        <translation type="vanished">在INIT块中的IP地址完整列表</translation>
-    </message>
-    <message>
-        <source>Graph a_rwnd</source>
-        <translation type="vanished">a_rwnd图</translation>
-    </message>
-    <message>
         <source>SCTP Analyse Association: %1 Port1 %2 Port2 %3</source>
         <translation>SCTP分析助手：%1 端口1 %2 端口2 %3</translation>
     </message>
@@ -11809,25 +11817,16 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>找不到 ID 为 %1 的 SCTP 关联</translation>
     </message>
     <message>
+        <source>Complete list of IP addresses from INIT Chunk:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Complete list of IP addresses from INIT_ACK Chunk:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>List of Used IP Addresses</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Complete list of IP-Addresses as provided in the INIT-Chunk</source>
-        <translation type="vanished">在INIT块中的IP地址完整列表</translation>
-    </message>
-    <message>
-        <source>Complete list of IP addresses from INIT Chunk:</source>
-        <oldsource>Complete list of IP-Addresses as provided in the INITACK-Chunk</oldsource>
-        <translation type="unfinished">在INITACK块中的IP地址完整列表</translation>
-    </message>
-    <message>
-        <source>List of used IP-Addresses</source>
-        <translation type="vanished">使用的IP地址列表</translation>
     </message>
     <message>
         <source>Used Number of Inbound Streams:</source>

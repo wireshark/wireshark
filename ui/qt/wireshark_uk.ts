@@ -9349,6 +9349,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished">Складові пакету</translation>
     </message>
     <message>
+        <source>Not a field or protocol</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No field reference available for text labels.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Expand Subtrees</source>
         <translation type="unfinished"></translation>
     </message>
@@ -10697,6 +10705,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>From &amp;cursor</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save audio data started at the cursor</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>&amp;Stream Synchronized Audio</source>
         <translation type="unfinished"></translation>
     </message>
@@ -11062,6 +11078,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>All selected streams must use same play rate. Manual set of Output Audio Rate might help.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No streams are suitable for save</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -11754,16 +11774,15 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Complete list of IP addresses from INIT Chunk:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Complete list of IP addresses from INIT_ACK Chunk:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>List of Used IP Addresses</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Complete list of IP addresses from INIT Chunk:</source>
-        <oldsource>Complete list of IP-Addresses as provided in the INITACK-Chunk</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>

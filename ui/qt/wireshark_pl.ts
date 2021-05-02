@@ -9432,6 +9432,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Szczegóły pakietu</translation>
     </message>
     <message>
+        <source>Not a field or protocol</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No field reference available for text labels.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Expand Subtrees</source>
         <translation type="unfinished"></translation>
     </message>
@@ -10786,6 +10794,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>From &amp;cursor</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save audio data started at the cursor</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>&amp;Stream Synchronized Audio</source>
         <translation type="unfinished"></translation>
     </message>
@@ -11151,6 +11167,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>All selected streams must use same play rate. Manual set of Output Audio Rate might help.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No streams are suitable for save</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -11787,10 +11807,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Wykres bajtów</translation>
     </message>
     <message>
-        <source>Complete list of IP Addresses as provided in the INIT Chunk</source>
-        <translation type="vanished">Kompletna lista adresów IP dostarczonych w kawałku INIT</translation>
-    </message>
-    <message>
         <source>Requested Number of Inbound Streams:</source>
         <translation>Liczba żądanych strumieni przychodzących:</translation>
     </message>
@@ -11831,14 +11847,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Liczba dostarczonych strumieni wychodzących:</translation>
     </message>
     <message>
-        <source>Complete list of IP Addresses as provided in the INIT-ACK Chunk</source>
-        <translation type="vanished">Kompletna lista adresów IP dostarczonych w kawałku INIT-ACK</translation>
-    </message>
-    <message>
-        <source>Graph a_rwnd</source>
-        <translation type="vanished">Wykres a_rwnd</translation>
-    </message>
-    <message>
         <source>SCTP Analyse Association: %1 Port1 %2 Port2 %3</source>
         <translation>Analiza asocjacji SCTP: %1 Port1 %2 Port2 %3</translation>
     </message>
@@ -11855,25 +11863,16 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Complete list of IP addresses from INIT Chunk:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Complete list of IP addresses from INIT_ACK Chunk:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>List of Used IP Addresses</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Complete list of IP-Addresses as provided in the INIT-Chunk</source>
-        <translation type="vanished">Kompletna lista adresów IP dostarczonych w kawałku INIT</translation>
-    </message>
-    <message>
-        <source>Complete list of IP addresses from INIT Chunk:</source>
-        <oldsource>Complete list of IP-Addresses as provided in the INITACK-Chunk</oldsource>
-        <translation type="unfinished">Kompletna lista adresów IP dostarczonych w kawałku INITACK</translation>
-    </message>
-    <message>
-        <source>List of used IP-Addresses</source>
-        <translation type="vanished">Liczba używanych adresów IP</translation>
     </message>
     <message>
         <source>Used Number of Inbound Streams:</source>

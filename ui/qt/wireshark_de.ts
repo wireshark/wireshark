@@ -5604,7 +5604,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Enable mouse-over colorization</source>
-        <translation type="unfinished"></translation>
+        <translation>Mouse-Over Einfärbung aktivieren</translation>
     </message>
     <message>
         <source>Status Bar settings:</source>
@@ -7740,7 +7740,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>RTP Player</source>
-        <translation type="unfinished">RTP Player</translation>
+        <translation>RTP Player</translation>
     </message>
     <message>
         <source>Play selected stream. Press CTRL key for playing reverse stream too.</source>
@@ -8097,15 +8097,15 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>There is no &quot;rtp.ssrc&quot; field in this version of Wireshark.</source>
-        <translation type="unfinished"></translation>
+        <translation>In dieser Wireshark-Version ist kein &quot;rtp.ssrc&quot; Feld vorhanden.</translation>
     </message>
     <message>
         <source>Please select an RTPv2 packet with an SSRC value</source>
-        <translation type="unfinished"></translation>
+        <translation>Bitte ein RTPv2 Paket mit einem SSRC Wert auswählen</translation>
     </message>
     <message>
         <source>SSRC value not found.</source>
-        <translation type="unfinished"></translation>
+        <translation>SSRC Wert nicht gefunden</translation>
     </message>
     <message>
         <source>Show or hide the toolbar</source>
@@ -9089,7 +9089,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Print capture file information on each page&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Dateiinformation auf jeder Seite hinzufügen&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Capture information header</source>
@@ -9422,6 +9422,14 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     <message>
         <source>Packet details</source>
         <translation>Paketdetails</translation>
+    </message>
+    <message>
+        <source>Not a field or protocol</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No field reference available for text labels.</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Expand Subtrees</source>
@@ -10484,7 +10492,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source> %1 streams, </source>
-        <translation type="unfinished"></translation>
+        <translation>%1 Streams,</translation>
     </message>
     <message>
         <source>Save one stream CSV</source>
@@ -10496,7 +10504,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>&amp;Analyze</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Analysieren</translation>
     </message>
     <message>
         <source>Open the analysis window for the selected stream(s)</source>
@@ -10604,7 +10612,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Prepare a filter matching the selected stream(s).</source>
-        <translation type="unfinished">Filter für ausgewählten Stream vorbereiten.</translation>
+        <translation>Filter für ausgewählten Stream vorbereiten.</translation>
     </message>
     <message>
         <source>&amp;Current Tab</source>
@@ -10616,7 +10624,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>&amp;All Tabs</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Alle Tabs</translation>
     </message>
     <message>
         <source>Prepare a filter matching all tabs.</source>
@@ -10778,6 +10786,14 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>From &amp;cursor</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save audio data started at the cursor</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>&amp;Stream Synchronized Audio</source>
         <translation type="unfinished"></translation>
     </message>
@@ -10927,7 +10943,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Prepare &amp;Filter</source>
-        <translation type="unfinished">&amp;Filter vorbereiten</translation>
+        <translation>&amp;Filter vorbereiten</translation>
     </message>
     <message>
         <source>Prepare a filter matching the selected stream(s).</source>
@@ -10947,7 +10963,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>SR (Hz)</source>
-        <translation type="unfinished"></translation>
+        <translation>SR (Hz)</translation>
     </message>
     <message>
         <source>Sample rate of codec</source>
@@ -11119,7 +11135,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Save audio</source>
-        <translation type="unfinished">Audio speichern</translation>
+        <translation>Audio speichern</translation>
     </message>
     <message>
         <source>Raw (*.raw)</source>
@@ -11131,7 +11147,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Warning</source>
-        <translation type="unfinished"></translation>
+        <translation>Warnung</translation>
     </message>
     <message>
         <source>No stream selected or none of selected streams provide audio</source>
@@ -11143,6 +11159,10 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>All selected streams must use same play rate. Manual set of Output Audio Rate might help.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No streams are suitable for save</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -11294,7 +11314,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Shift+R</source>
-        <translation type="unfinished"></translation>
+        <translation>Umschalttaste+R</translation>
     </message>
     <message>
         <source>Find Only &amp;Singles</source>
@@ -11306,7 +11326,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Ctrl+R</source>
-        <translation type="unfinished"></translation>
+        <translation>Strg+R</translation>
     </message>
     <message>
         <source>Mark Packets</source>
@@ -11779,10 +11799,6 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <translation>Bytes Graph</translation>
     </message>
     <message>
-        <source>Complete list of IP Addresses as provided in the INIT Chunk</source>
-        <translation type="vanished">Komplette Liste aller IP Adressen aus dem INIT Chunk</translation>
-    </message>
-    <message>
         <source>Requested Number of Inbound Streams:</source>
         <translation>Angefrage Anzahl an Inbound Streams:</translation>
     </message>
@@ -11800,7 +11816,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Complete List of IP addresses from INIT Chunk:</source>
-        <translation type="unfinished"></translation>
+        <translation>Komplette Liste aller IP Adressen aus dem INIT Chunk:</translation>
     </message>
     <message>
         <source>Minimum Number of Outbound Streams:</source>
@@ -11816,19 +11832,11 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Complete List of IP addresses from INIT_ACK Chunk:</source>
-        <translation type="unfinished"></translation>
+        <translation>Komplette Liste aller IP Adressen aus dem INIT_ACK Chunk:</translation>
     </message>
     <message>
         <source>Provided Number of Outbound Streams:</source>
         <translation>Anzahl an zur Verfügung gestellten Outbound Streams:</translation>
-    </message>
-    <message>
-        <source>Complete list of IP Addresses as provided in the INIT-ACK Chunk</source>
-        <translation type="vanished">Komplette Liste aller IP Adressen aus dem INIT ACK Chunk</translation>
-    </message>
-    <message>
-        <source>Graph a_rwnd</source>
-        <translation type="vanished">a_rwnd Graph</translation>
     </message>
     <message>
         <source>SCTP Analyse Association: %1 Port1 %2 Port2 %3</source>
@@ -11847,25 +11855,16 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <translation>Es konnten keine SCTP Associationen mit ID %1 gefunden werden:</translation>
     </message>
     <message>
+        <source>Complete list of IP addresses from INIT Chunk:</source>
+        <translation>Komplette Liste aller IP Adressen aus dem INIT Chunk:</translation>
+    </message>
+    <message>
         <source>Complete list of IP addresses from INIT_ACK Chunk:</source>
-        <translation type="unfinished"></translation>
+        <translation>Komplette Liste aller IP Adressen aus dem INIT_ACK Chunk:</translation>
     </message>
     <message>
         <source>List of Used IP Addresses</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Complete list of IP-Addresses as provided in the INIT-Chunk</source>
-        <translation type="vanished">Komplette Liste aller IP Adressen aus dem INIT-Chunk</translation>
-    </message>
-    <message>
-        <source>Complete list of IP addresses from INIT Chunk:</source>
-        <oldsource>Complete list of IP-Addresses as provided in the INITACK-Chunk</oldsource>
-        <translation type="unfinished">Komplette Liste aller IP Adressen aus dem INITACK-Chunk</translation>
-    </message>
-    <message>
-        <source>List of used IP-Addresses</source>
-        <translation type="vanished">Liste an genutzten IP Adressen</translation>
+        <translation>Liste an genutzten IP Adressen</translation>
     </message>
     <message>
         <source>Used Number of Inbound Streams:</source>
@@ -13760,7 +13759,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Show flow sequence for selected call(s).</source>
-        <translation type="unfinished"></translation>
+        <translation>Flow Sequenz für ausgewählte/n Anruf/e anzeigen.</translation>
     </message>
     <message>
         <source>Prepare &amp;Filter</source>
@@ -13800,7 +13799,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Select related RTP streams</source>
-        <translation type="unfinished"></translation>
+        <translation>Zugehörige RTP Streams auswählen</translation>
     </message>
     <message>
         <source>Select RTP streams related to selected calls in RTP Streams dialog</source>
@@ -13808,15 +13807,15 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>S</source>
-        <translation type="unfinished">S</translation>
+        <translation>S</translation>
     </message>
     <message>
         <source>Deselect related RTP Streams</source>
-        <translation type="unfinished"></translation>
+        <translation>Zugehörige RTP Streams abwählen</translation>
     </message>
     <message>
         <source>D</source>
-        <translation type="unfinished">D</translation>
+        <translation>D</translation>
     </message>
     <message>
         <source>Clear selection</source>

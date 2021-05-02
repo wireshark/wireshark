@@ -9451,6 +9451,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Подробная информация о пакете</translation>
     </message>
     <message>
+        <source>Not a field or protocol</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No field reference available for text labels.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Expand Subtrees</source>
         <translation>Развернуть поддеревья</translation>
     </message>
@@ -10805,6 +10813,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>From &amp;cursor</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save audio data started at the cursor</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>&amp;Stream Synchronized Audio</source>
         <translation type="unfinished"></translation>
     </message>
@@ -11170,6 +11186,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>All selected streams must use same play rate. Manual set of Output Audio Rate might help.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No streams are suitable for save</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -11806,10 +11826,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>График Байтов</translation>
     </message>
     <message>
-        <source>Complete list of IP Addresses as provided in the INIT Chunk</source>
-        <translation type="vanished">Полный Список IP-адресов, как предусмотрено в блоке INIT</translation>
-    </message>
-    <message>
         <source>Requested Number of Inbound Streams:</source>
         <translation>Запрошенное Число Входных Потоков:</translation>
     </message>
@@ -11850,14 +11866,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Поддерживаемое Число Исходящих Потоков:</translation>
     </message>
     <message>
-        <source>Complete list of IP Addresses as provided in the INIT-ACK Chunk</source>
-        <translation type="vanished">Полный Список IP-адресов, как предусмотрено в блоке INIT-ACK</translation>
-    </message>
-    <message>
-        <source>Graph a_rwnd</source>
-        <translation type="vanished">График a_rwnd</translation>
-    </message>
-    <message>
         <source>SCTP Analyse Association: %1 Port1 %2 Port2 %3</source>
         <translation>Ассоциация Анализа SCTP: %1 Порт1 %2 Порт2 %3</translation>
     </message>
@@ -11874,25 +11882,16 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Невозможно найти Ассоциацию SCTP с id: %1</translation>
     </message>
     <message>
+        <source>Complete list of IP addresses from INIT Chunk:</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Complete list of IP addresses from INIT_ACK Chunk:</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>List of Used IP Addresses</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Complete list of IP-Addresses as provided in the INIT-Chunk</source>
-        <translation type="vanished">Полный список IP-адресов, как предусмотрено в INIT-Chunk</translation>
-    </message>
-    <message>
-        <source>Complete list of IP addresses from INIT Chunk:</source>
-        <oldsource>Complete list of IP-Addresses as provided in the INITACK-Chunk</oldsource>
-        <translation type="unfinished">Полный список IP-адресов, как предусмотрено в INITACK-Chunk</translation>
-    </message>
-    <message>
-        <source>List of used IP-Addresses</source>
-        <translation type="vanished">Список использованных IP-адресов</translation>
     </message>
     <message>
         <source>Used Number of Inbound Streams:</source>

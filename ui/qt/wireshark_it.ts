@@ -5604,7 +5604,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Enable mouse-over colorization</source>
-        <translation type="unfinished"></translation>
+        <translation>Abilita la colorazione al passaggio del puntatore</translation>
     </message>
     <message>
         <source>Status Bar settings:</source>
@@ -9424,6 +9424,14 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Dettagli del pacchetto</translation>
     </message>
     <message>
+        <source>Not a field or protocol</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No field reference available for text labels.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Expand Subtrees</source>
         <translation>Espandi sottoalberi</translation>
     </message>
@@ -10778,6 +10786,14 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Esporta l&apos;audio di tutti i canali non silenziati selezionati o esporta il payload di un canale.</translation>
     </message>
     <message>
+        <source>From &amp;cursor</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save audio data started at the cursor</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>&amp;Stream Synchronized Audio</source>
         <translation>Audio &amp;sincronizzato del flusso</translation>
     </message>
@@ -10935,11 +10951,11 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>R&amp;efresh streams</source>
-        <translation type="unfinished"></translation>
+        <translation>A&amp;ggiorna flussi</translation>
     </message>
     <message>
         <source>Read captured packets from capture in progress to player</source>
-        <translation type="unfinished"></translation>
+        <translation>Leggi i pacchetti catturati dalla cattura in corso sul lettore</translation>
     </message>
     <message>
         <source>Zoom In</source>
@@ -11144,6 +11160,10 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <message>
         <source>All selected streams must use same play rate. Manual set of Output Audio Rate might help.</source>
         <translation>Tutti i flussi selezionati devono utilizzare la stessa velocità di riproduzione. L&apos;impostazione manuale di velocità dell&apos;uscita audio potrebbe aiutare.</translation>
+    </message>
+    <message>
+        <source>No streams are suitable for save</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Save failed!</source>
@@ -11779,10 +11799,6 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Grafico Byte</translation>
     </message>
     <message>
-        <source>Complete list of IP Addresses as provided in the INIT Chunk</source>
-        <translation type="vanished">Elenco completo degli indirizzi IP come fornita nel blocco INIT</translation>
-    </message>
-    <message>
         <source>Requested Number of Inbound Streams:</source>
         <translation>Numero di flussi in ingresso richiesti:</translation>
     </message>
@@ -11800,7 +11816,7 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Complete List of IP addresses from INIT Chunk:</source>
-        <translation type="unfinished"></translation>
+        <translation>Elenco completo degli indirizzi IP dal blocco INIT:</translation>
     </message>
     <message>
         <source>Minimum Number of Outbound Streams:</source>
@@ -11816,19 +11832,11 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Complete List of IP addresses from INIT_ACK Chunk:</source>
-        <translation type="unfinished"></translation>
+        <translation>Elenco completo degli indirizzi IP dal blocco INIT_ACK:</translation>
     </message>
     <message>
         <source>Provided Number of Outbound Streams:</source>
         <translation>Numero fornito di flussi in uscito:</translation>
-    </message>
-    <message>
-        <source>Complete list of IP Addresses as provided in the INIT-ACK Chunk</source>
-        <translation type="vanished">Elenco completo degli indirizzi IP come fornito dal blocco INIT</translation>
-    </message>
-    <message>
-        <source>Graph a_rwnd</source>
-        <translation type="vanished">Grafico a_rwnd</translation>
     </message>
     <message>
         <source>SCTP Analyse Association: %1 Port1 %2 Port2 %3</source>
@@ -11847,25 +11855,16 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Impossibile trovare l&apos;associazione SCTP con id: %1 </translation>
     </message>
     <message>
+        <source>Complete list of IP addresses from INIT Chunk:</source>
+        <translation>Elenco completo degli indirizzi IP dal blocco INIT:</translation>
+    </message>
+    <message>
         <source>Complete list of IP addresses from INIT_ACK Chunk:</source>
-        <translation type="unfinished"></translation>
+        <translation>Elenco completo degli indirizzi IP dal blocco INIT_ACK:</translation>
     </message>
     <message>
         <source>List of Used IP Addresses</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Complete list of IP-Addresses as provided in the INIT-Chunk</source>
-        <translation type="vanished">Elenco completo degli indirizzi IP come fornito nel blocco INIT</translation>
-    </message>
-    <message>
-        <source>Complete list of IP addresses from INIT Chunk:</source>
-        <oldsource>Complete list of IP-Addresses as provided in the INITACK-Chunk</oldsource>
-        <translation type="unfinished">Elenco completo degli indirizzi IP come fornito dal blocco INITACK</translation>
-    </message>
-    <message>
-        <source>List of used IP-Addresses</source>
-        <translation type="vanished">Elenco degli indirizzi IP utilizzati</translation>
+        <translation>Elenco degli indirizzi IP utilizzati</translation>
     </message>
     <message>
         <source>Used Number of Inbound Streams:</source>
@@ -13795,23 +13794,23 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Select related RTP streams</source>
-        <translation type="unfinished"></translation>
+        <translation>Seleziona i flussi RTP relativi</translation>
     </message>
     <message>
         <source>Select RTP streams related to selected calls in RTP Streams dialog</source>
-        <translation type="unfinished"></translation>
+        <translation>Seleziona i flussi RTP relativi alle chiamate selezionate nella finestra Flussi RTP</translation>
     </message>
     <message>
         <source>S</source>
-        <translation type="unfinished">S</translation>
+        <translation>S</translation>
     </message>
     <message>
         <source>Deselect related RTP Streams</source>
-        <translation type="unfinished"></translation>
+        <translation>Deseleziona i flussi RTP relativi</translation>
     </message>
     <message>
         <source>D</source>
-        <translation type="unfinished">D</translation>
+        <translation>D</translation>
     </message>
     <message>
         <source>Clear selection</source>
