@@ -7,9 +7,9 @@
  *
  * Generated automatically by make-packet-dcm.py from the following sources:
  *
- * DICOM PS3.5 2020e - Data Structures and Encoding
- * DICOM PS3.6 2020e - Data Dictionary
- * DICOM PS3.7 2020e - Message Exchange
+ * DICOM PS3.5 2021b - Data Structures and Encoding
+ * DICOM PS3.6 2021b - Data Dictionary
+ * DICOM PS3.7 2021b - Message Exchange
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -935,6 +935,24 @@ static dcm_tag_t dcm_tag_data[] = {
     { 0x001811A3, "Compression Pressure", "DS", "1", 0, 0},
     { 0x001811A4, "Paddle Description", "LO", "1", 0, 0},
     { 0x001811A5, "Compression Contact Area", "DS", "1", 0, 0},
+    { 0x001811B0, "Acquisition Mode", "LO", "1", 0, 0},
+    { 0x001811B1, "Dose Mode Name", "LO", "1", 0, 0},
+    { 0x001811B2, "Acquired Subtraction Mask Flag", "CS", "1", 0, 0},
+    { 0x001811B3, "Fluoroscopy Persistence Flag", "CS", "1", 0, 0},
+    { 0x001811B4, "Fluoroscopy Last Image Hold Persistence Flag", "CS", "1", 0, 0},
+    { 0x001811B5, "Upper Limit Number Of Persistent Fluoroscopy Frames", "IS", "1", 0, 0},
+    { 0x001811B6, "Contrast/Bolus Auto Injection Trigger Flag", "CS", "1", 0, 0},
+    { 0x001811B7, "Contrast/Bolus Injection Delay", "FD", "1", 0, 0},
+    { 0x001811B8, "XA Acquisition Phase Details Sequence", "SQ", "1", 0, 0},
+    { 0x001811B9, "XA Acquisition Frame Rate", "FD", "1", 0, 0},
+    { 0x001811BA, "XA Plane Details Sequence", "SQ", "1", 0, 0},
+    { 0x001811BB, "Acquisition Field of View Label", "LO", "1", 0, 0},
+    { 0x001811BC, "X-Ray Filter Details Sequence", "SQ", "1", 0, 0},
+    { 0x001811BD, "XA Acquisition Duration", "FD", "1", 0, 0},
+    { 0x001811BE, "Reconstruction Pipeline Type", "CS", "1", 0, 0},
+    { 0x001811BF, "Image Filter Details Sequence", "SQ", "1", 0, 0},
+    { 0x001811C0, "Applied Mask Subtraction Flag", "CS", "1", 0, 0},
+    { 0x001811C1, "Requested Series Description Code Sequence", "SQ", "1", 0, 0},
     { 0x00181200, "Date of Last Calibration", "DA", "1-n", 0, 0},
     { 0x00181201, "Time of Last Calibration", "TM", "1-n", 0, 0},
     { 0x00181202, "DateTime of Last Calibration", "DT", "1", 0, 0},
@@ -1104,6 +1122,7 @@ static dcm_tag_t dcm_tag_data[] = {
     { 0x00186058, "Table of Pixel Values", "UL", "1-n", 0, 0},
     { 0x0018605A, "Table of Parameter Values", "FL", "1-n", 0, 0},
     { 0x00186060, "R Wave Time Vector", "FL", "1-n", 0, 0},
+    { 0x00186070, "Active Image Area Overlay Group", "US", "1", 0, 0},
     { 0x00187000, "Detector Conditions Nominal Flag", "CS", "1", 0, 0},
     { 0x00187001, "Detector Temperature", "DS", "1", 0, 0},
     { 0x00187004, "Detector Type", "CS", "1", 0, 0},
@@ -1333,7 +1352,7 @@ static dcm_tag_t dcm_tag_data[] = {
     { 0x00189321, "CT Exposure Sequence", "SQ", "1", 0, 0},
     { 0x00189322, "Reconstruction Pixel Spacing", "FD", "2", 0, 0},
     { 0x00189323, "Exposure Modulation Type", "CS", "1-n", 0, 0},
-    { 0x00189324, "Estimated Dose Saving", "FD", "1", 0, 0},
+    { 0x00189324, "Estimated Dose Saving", "FD", "1", -1, 0},
     { 0x00189325, "CT X-Ray Details Sequence", "SQ", "1", 0, 0},
     { 0x00189326, "CT Position Sequence", "SQ", "1", 0, 0},
     { 0x00189327, "Table Position", "FD", "1", 0, 0},
@@ -2578,6 +2597,7 @@ static dcm_tag_t dcm_tag_data[] = {
     { 0x0040A028, "Documenting Organization Identifier Code Sequence (Trial)", "SQ", "1", -1, 0},
     { 0x0040A030, "Verification DateTime", "DT", "1", 0, 0},
     { 0x0040A032, "Observation DateTime", "DT", "1", 0, 0},
+    { 0x0040A033, "Observation Start DateTime", "DT", "1", 0, 0},
     { 0x0040A040, "Value Type", "CS", "1", 0, 0},
     { 0x0040A043, "Concept Name Code Sequence", "SQ", "1", 0, 0},
     { 0x0040A047, "Measurement Precision Description (Trial)", "LO", "1", -1, 0},
@@ -3859,11 +3879,12 @@ static dcm_tag_t dcm_tag_data[] = {
     { 0x30060039, "ROI Contour Sequence", "SQ", "1", 0, 0},
     { 0x30060040, "Contour Sequence", "SQ", "1", 0, 0},
     { 0x30060042, "Contour Geometric Type", "CS", "1", 0, -1},
-    { 0x30060044, "Contour Slab Thickness", "DS", "1", 0, 0},
-    { 0x30060045, "Contour Offset Vector", "DS", "3", 0, 0},
+    { 0x30060044, "Contour Slab Thickness", "DS", "1", -1, 0},
+    { 0x30060045, "Contour Offset Vector", "DS", "3", -1, 0},
     { 0x30060046, "Number of Contour Points", "IS", "1", 0, 0},
     { 0x30060048, "Contour Number", "IS", "1", 0, 0},
-    { 0x30060049, "Attached Contours", "IS", "1-n", 0, 0},
+    { 0x30060049, "Attached Contours", "IS", "1-n", -1, 0},
+    { 0x3006004A, "Source Pixel Planes Characteristics Sequence", "SQ", "1", 0, 0},
     { 0x30060050, "Contour Data", "DS", "3-3n", 0, 0},
     { 0x30060080, "RT ROI Observations Sequence", "SQ", "1", 0, 0},
     { 0x30060082, "Observation Number", "IS", "1", 0, -1},
@@ -5314,6 +5335,7 @@ typedef struct dcm_uid {
 #define DCM_UID_SOP_CLASS_PATIENT_RADIATION_DOSE_SR_STORAGE "1.2.840.10008.5.1.4.1.1.88.73"
 #define DCM_UID_SOP_CLASS_PLANNED_IMAGING_AGENT_ADMINISTRATION_SR_STORAGE "1.2.840.10008.5.1.4.1.1.88.74"
 #define DCM_UID_SOP_CLASS_PERFORMED_IMAGING_AGENT_ADMINISTRATION_SR_STORAGE "1.2.840.10008.5.1.4.1.1.88.75"
+#define DCM_UID_SOP_CLASS_ENHANCED_X_RAY_RADIATION_DOSE_SR_STORAGE "1.2.840.10008.5.1.4.1.1.88.76"
 #define DCM_UID_SOP_CLASS_CONTENT_ASSESSMENT_RESULTS_STORAGE "1.2.840.10008.5.1.4.1.1.90.1"
 #define DCM_UID_SOP_CLASS_ENCAPSULATED_PDF_STORAGE "1.2.840.10008.5.1.4.1.1.104.1"
 #define DCM_UID_SOP_CLASS_ENCAPSULATED_CDA_STORAGE "1.2.840.10008.5.1.4.1.1.104.2"
@@ -5331,6 +5353,8 @@ typedef struct dcm_uid {
 #define DCM_UID_SOP_CLASS_PROTOCOL_APPROVAL_INFORMATION_MODEL_FIND "1.2.840.10008.5.1.4.1.1.200.4"
 #define DCM_UID_SOP_CLASS_PROTOCOL_APPROVAL_INFORMATION_MODEL_MOVE "1.2.840.10008.5.1.4.1.1.200.5"
 #define DCM_UID_SOP_CLASS_PROTOCOL_APPROVAL_INFORMATION_MODEL_GET "1.2.840.10008.5.1.4.1.1.200.6"
+#define DCM_UID_SOP_CLASS_XA_DEFINED_PROCEDURE_PROTOCOL_STORAGE "1.2.840.10008.5.1.4.1.1.200.7"
+#define DCM_UID_SOP_CLASS_XA_PERFORMED_PROCEDURE_PROTOCOL_STORAGE "1.2.840.10008.5.1.4.1.1.200.8"
 #define DCM_UID_SOP_CLASS_RT_IMAGE_STORAGE "1.2.840.10008.5.1.4.1.1.481.1"
 #define DCM_UID_SOP_CLASS_RT_DOSE_STORAGE "1.2.840.10008.5.1.4.1.1.481.2"
 #define DCM_UID_SOP_CLASS_RT_STRUCTURE_SET_STORAGE "1.2.840.10008.5.1.4.1.1.481.3"
@@ -5760,6 +5784,7 @@ static dcm_uid_t dcm_uid_data[] = {
     { DCM_UID_SOP_CLASS_PATIENT_RADIATION_DOSE_SR_STORAGE, "Patient Radiation Dose SR Storage", "SOP Class"},
     { DCM_UID_SOP_CLASS_PLANNED_IMAGING_AGENT_ADMINISTRATION_SR_STORAGE, "Planned Imaging Agent Administration SR Storage", "SOP Class"},
     { DCM_UID_SOP_CLASS_PERFORMED_IMAGING_AGENT_ADMINISTRATION_SR_STORAGE, "Performed Imaging Agent Administration SR Storage", "SOP Class"},
+    { DCM_UID_SOP_CLASS_ENHANCED_X_RAY_RADIATION_DOSE_SR_STORAGE, "Enhanced X-Ray Radiation Dose SR Storage", "SOP Class"},
     { DCM_UID_SOP_CLASS_CONTENT_ASSESSMENT_RESULTS_STORAGE, "Content Assessment Results Storage", "SOP Class"},
     { DCM_UID_SOP_CLASS_ENCAPSULATED_PDF_STORAGE, "Encapsulated PDF Storage", "SOP Class"},
     { DCM_UID_SOP_CLASS_ENCAPSULATED_CDA_STORAGE, "Encapsulated CDA Storage", "SOP Class"},
@@ -5777,6 +5802,8 @@ static dcm_uid_t dcm_uid_data[] = {
     { DCM_UID_SOP_CLASS_PROTOCOL_APPROVAL_INFORMATION_MODEL_FIND, "Protocol Approval Information Model - FIND", "SOP Class"},
     { DCM_UID_SOP_CLASS_PROTOCOL_APPROVAL_INFORMATION_MODEL_MOVE, "Protocol Approval Information Model - MOVE", "SOP Class"},
     { DCM_UID_SOP_CLASS_PROTOCOL_APPROVAL_INFORMATION_MODEL_GET, "Protocol Approval Information Model - GET", "SOP Class"},
+    { DCM_UID_SOP_CLASS_XA_DEFINED_PROCEDURE_PROTOCOL_STORAGE, "XA Defined Procedure Protocol Storage", "SOP Class"},
+    { DCM_UID_SOP_CLASS_XA_PERFORMED_PROCEDURE_PROTOCOL_STORAGE, "XA Performed Procedure Protocol Storage", "SOP Class"},
     { DCM_UID_SOP_CLASS_RT_IMAGE_STORAGE, "RT Image Storage", "SOP Class"},
     { DCM_UID_SOP_CLASS_RT_DOSE_STORAGE, "RT Dose Storage", "SOP Class"},
     { DCM_UID_SOP_CLASS_RT_STRUCTURE_SET_STORAGE, "RT Structure Set Storage", "SOP Class"},

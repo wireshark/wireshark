@@ -165,9 +165,6 @@ packet_dcm_h = """/* packet-dcm.h
 extern "C" {
 #endif /* __cplusplus */
 
-#include "config.h"
-
-
 """ + "\n".join(f"#define DCM_VR_{vr[0]} {i:2d}  /* {vr[1]:25s} */" for i,vr in vrs.items()) + """
 
 /* Following must be in the same order as the definitions above */
