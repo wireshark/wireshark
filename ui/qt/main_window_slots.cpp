@@ -3308,7 +3308,6 @@ void MainWindow::on_actionStatisticsHTTP2_triggered()
 
 static QMutex telephony_dialog_mutex;
 
-#ifdef HAVE_LIBPCAP
 void MainWindow::openTelephonyRtpPlayerDialog()
 {
     if (!rtp_player_dialog_) {
@@ -3331,11 +3330,6 @@ void MainWindow::openTelephonyRtpPlayerDialog()
     }
     rtp_player_dialog_->show();
 }
-#else
-void MainWindow::openTelephonyRtpPlayerDialog()
-{
-}
-#endif
 
 void MainWindow::openTelephonyVoipCallsDialog(bool all_flows)
 {
