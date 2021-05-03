@@ -323,28 +323,6 @@ docbook:
   needs: []
 
 
-# Build all doxygen docs
-doxygen_all:
-  image: wireshark/wireshark-ubuntu-dev
-  rules: !reference [.if-daily-schedule]
-  stage: build
-  script:
-    - mkdir build
-    - cd build
-    - cmake -GNinja ..
-    - ninja wsar_html 2>&1 > doxygen_output.txt | tee doxygen_errors.txt
-  after_script:
-    - mv build/wsar_html .
-    - mv build/doxygen_output.txt .
-    - mv build/doxygen_errors.txt .
-  artifacts:
-    when: always
-    paths:
-    - doxygen_errors.txt
-    - doxygen_output.txt
-    - wsar_html
-  needs: []
-
 # https://docs.gitlab.com/ee/user/gitlab_com/index.html#linux-shared-runners
 
 merge-req:commit-checks:
@@ -555,6 +533,29 @@ build:windows-vs-code-analysis:
     - $env:caexcludepath = "C:\Qt;$env:INCLUDE"
     - cmake -DENABLE_CODE_ANALYSIS=ON -G "Visual Studio 16 2019" -A x64 -DENABLE_LTO=off ..
     - msbuild /verbosity:minimal "/consoleloggerparameters:PerformanceSummary;NoSummary" /maxcpucount:2 Wireshark.sln
+
+# Build all doxygen docs
+doxygen_all:
+  image: wireshark/wireshark-ubuntu-dev
+  rules: !reference [.if-daily-schedule]
+  stage: build
+  script:
+    - mkdir build
+    - cd build
+    - cmake -GNinja ..
+    - ninja wsar_html_zip 2>&1 > doxygen_output.txt | tee doxygen_errors.txt
+  after_script:
+    - mv build/wsar_html_zip .
+    - mv build/doxygen_output.txt .
+    - mv build/doxygen_errors.txt .
+    - if [ -n "$AWS_ACCESS_KEY_ID" ] && [ -n "$AWS_SECRET_ACCESS_KEY" ] && [ -n "$S3_DESTINATION_DIST" ] ; then aws s3 cp wsar_html_zip "$S3_DESTINATION_DIST/" ; fi
+  artifacts:
+    when: always
+    paths:
+    - doxygen_errors.txt
+    - doxygen_output.txt
+    - wsar_html.zip
+  needs: []
 
 sloccount:
   extends: .build-ubuntu
