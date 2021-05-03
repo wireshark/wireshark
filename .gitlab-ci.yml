@@ -107,6 +107,7 @@ variables:
 
 .build-rpm:
   extends: .build
+  rules: !reference [.if-merged]
   before_script:
     # It might make sense to set "GIT_STRATEGY: none" and build from
     # the tarball.
@@ -120,6 +121,14 @@ variables:
     paths:
       - build/packaging/rpm/RPMS
     expire_in: 3 days
+  needs:
+    - build:ubuntu-dist
+
+.test-rpm:
+  rules: !reference [.if-merged]
+  stage: test
+  variables:
+    GIT_STRATEGY: none
 
 .build-windows:
   stage: build
@@ -176,70 +185,51 @@ build:ubuntu-dist:
 # https://gitlab.com/wireshark/wireshark-containers/-/tree/master/dev/centos-7
 build:rpm-centos-7:
   extends: .build-rpm
-  rules: !reference [.if-merged]
   image: wireshark/wireshark-centos-7-dev
   script:
     - cmake3 -GNinja ..
     - ninja-build rpm-package
-  needs:
-    - build:ubuntu-dist
 test:rpm-centos-7:
-  rules: !reference [.if-merged]
-  stage: test
+  extends: .test-rpm
   image: wireshark/wireshark-centos-7-dev
   script:
     - yum --nogpgcheck localinstall -y build/packaging/rpm/RPMS/x86_64/*.rpm
     - tshark --version
   needs:
     - build:rpm-centos-7
-  variables:
-    GIT_STRATEGY: none
 
 build:rpm-centos-8:
   extends: .build-rpm
-  rules: !reference [.if-merged]
   image: wireshark/wireshark-centos-8-dev
   script:
     - cmake -GNinja ..
     - ninja-build rpm-package
-  needs:
-    - build:ubuntu-dist
 test:rpm-centos-8:
-  rules: !reference [.if-merged]
-  stage: test
+  extends: .test-rpm
   image: wireshark/wireshark-centos-8-dev
   script:
     - dnf --nogpgcheck localinstall -y build/packaging/rpm/RPMS/x86_64/*.rpm
     - tshark --version
   needs:
     - build:rpm-centos-8
-  variables:
-    GIT_STRATEGY: none
 
 build:rpm-opensuse-15.2:
   extends: .build-rpm
-  rules: !reference [.if-merged]
   image: wireshark/wireshark-opensuse-15.2-dev
   script:
     - cmake -GNinja ..
     - ninja rpm-package
-  needs:
-    - build:ubuntu-dist
 test:rpm-opensuse-15.2:
-  rules: !reference [.if-merged]
+  extends: .test-rpm
   image: wireshark/wireshark-opensuse-15.2-dev
-  stage: test
   script:
     - zypper --no-gpg-checks install -y build/packaging/rpm/RPMS/x86_64/*.rpm
     - tshark --version
-  variables:
-    GIT_STRATEGY: none
   needs:
     - build:rpm-opensuse-15.2
 
 build:rpm-fedora:
   extends: .build-rpm
-  rules: !reference [.if-merged]
   image: wireshark/wireshark-fedora-dev
   script:
     # Shared GitLab runners limit the log size to 4M, so reduce verbosity. See
@@ -247,17 +237,12 @@ build:rpm-fedora:
     - export FORCE_CMAKE_NINJA_NON_VERBOSE=1
     - cmake3 -GNinja ..
     - ninja rpm-package
-  needs:
-    - build:ubuntu-dist
 # test:rpm-fedora:
-#  rules: !reference [.if-merged]
+  # extends: .test-rpm
 #   image: fedora
-#   stage: test
 #   script:
 #     - dnf install -y build/packaging/rpm/RPMS/x86_64/*.rpm
 #     - tshark --version
-#   variables:
-#     GIT_STRATEGY: none
 #   needs:
 #     - build:rpm-fedora
 
