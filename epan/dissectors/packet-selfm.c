@@ -1238,8 +1238,8 @@ dissect_fmdata_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int of
     gboolean         config_found = FALSE;
     fm_conversation  *conv;
     fm_config_frame  *cfg_data = NULL;
-	nstime_t  datetime;
-	struct tm tm;
+    nstime_t  datetime;
+    struct tm tm;
 
     len = tvb_get_guint8(tvb, offset);
 
