@@ -1,7 +1,7 @@
 /* packet-selfm.c
  * Routines for Schweitzer Engineering Laboratories (SEL) Protocols Dissection
  * By Chris Bontje (cbontje[AT]gmail.com
- * Copyright 2012-2018,
+ * Copyright 2012-2021,
  *
  ************************************************************************************************
  * Wireshark - Network traffic analyzer
@@ -1238,6 +1238,8 @@ dissect_fmdata_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int of
     gboolean         config_found = FALSE;
     fm_conversation  *conv;
     fm_config_frame  *cfg_data = NULL;
+	nstime_t  datetime;
+	struct tm tm;
 
     len = tvb_get_guint8(tvb, offset);
 
@@ -1386,8 +1388,19 @@ dissect_fmdata_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int of
                     ts_min  = tvb_get_guint8(tvb, offset+4);
                     ts_sec  = tvb_get_guint8(tvb, offset+5);
                     ts_msec = tvb_get_ntohs(tvb, offset+6);
-                    proto_tree_add_bytes_format_value(fmdata_tree, hf_selfm_fmdata_timestamp, tvb, offset, 8, NULL,
-                            "%.2d/%.2d/%.2d %.2d:%.2d:%.2d.%.3d", ts_mon, ts_day, ts_year, ts_hour, ts_min, ts_sec, ts_msec);
+
+                    tm.tm_sec = ts_sec;
+                    datetime.nsecs = (ts_msec % 1000) * 1000000;
+
+                    tm.tm_min = ts_min;
+                    tm.tm_hour = ts_hour;
+                    tm.tm_mday = ts_day;
+                    tm.tm_mon = ts_mon-1;
+                    tm.tm_year = ts_year + 100;
+
+                    datetime.secs = mktime(&tm);
+
+                    proto_tree_add_time(fmdata_tree, hf_selfm_fmdata_timestamp, tvb, offset, 8, &datetime);
 
                     offset += 8;
                 }
@@ -3024,7 +3037,7 @@ proto_register_selfm(void)
         { &hf_selfm_fid, { "FID", "selfm.fid", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_selfm_rid, { "RID", "selfm.rid", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_selfm_fastmsg_data_region_name, { "Data Region Name", "selfm.fastmsg.data_region_name", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-        { &hf_selfm_fmdata_timestamp, { "Timestamp", "selfm.fmdata.timestamp", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_selfm_fmdata_timestamp, { "Timestamp", "selfm.fmdata.timestamp", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x0, NULL, HFILL }},
         { &hf_selfm_fmdata_frame_data_format_reference, { "Frame Data Format Reference", "selfm.fmdata.frame_data_format_reference", FT_FRAMENUM, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_selfm_fastmsg_bit_label_name, { "Bit Label Name", "selfm.fastmsg.bit_label_name", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
     };
