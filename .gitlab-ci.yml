@@ -475,7 +475,7 @@ coverity-gcc-submit:
     - . job_environment_variables.sh
     - echo $ARTIFACT_JOB_URL
     - echo $GIT_DESCRIPTION
-    - curl --fail --data "project=$COVERITY_SCAN_PROJECT_NAME&token=$COVERITY_SCAN_TOKEN&email=$GITLAB_USER_EMAIL&url=$ARTIFACT_JOB_URL/artifacts/raw/build/cov-int.tar.gz&version=$GIT_DESCRIPTION&description=Ubuntu $GIT_DESCRIPTION $CI_COMMIT_REF_NAME:$CI_PIPELINE_ID" https://scan.coverity.com/builds
+    - curl --fail --data "project=$COVERITY_SCAN_PROJECT_NAME&token=$COVERITY_SCAN_TOKEN&email=$GITLAB_USER_EMAIL&url=$ARTIFACT_JOB_URL/artifacts/raw/cov-int.tar.gz&version=$GIT_DESCRIPTION&description=Ubuntu $GIT_DESCRIPTION $CI_COMMIT_REF_NAME:$CI_PIPELINE_ID" https://scan.coverity.com/builds
   needs:
     - coverity-gcc
 
@@ -515,7 +515,7 @@ coverity-visual-c++-submit:
     - . job_environment_variables.sh
     - echo $ARTIFACT_JOB_URL
     - echo $GIT_DESCRIPTION
-    - curl --fail --data "project=$COVERITY_SCAN_PROJECT_NAME&token=$COVERITY_SCAN_TOKEN&email=$GITLAB_USER_EMAIL&url=$ARTIFACT_JOB_URL/artifacts/raw/build/cov-int.zip&version=$GIT_DESCRIPTION&description=Windows $GIT_DESCRIPTION $CI_COMMIT_REF_NAME:$CI_PIPELINE_ID" https://scan.coverity.com/builds
+    - curl --fail --data "project=$COVERITY_SCAN_PROJECT_NAME&token=$COVERITY_SCAN_TOKEN&email=$GITLAB_USER_EMAIL&url=$ARTIFACT_JOB_URL/artifacts/raw/cov-int.zip&version=$GIT_DESCRIPTION&description=Windows $GIT_DESCRIPTION $CI_COMMIT_REF_NAME:$CI_PIPELINE_ID" https://scan.coverity.com/builds
   needs:
     - coverity-visual-c++
 
