@@ -500,7 +500,8 @@ coverity-visual-c++:
     - ("export GIT_DESCRIPTION=$gitDescription" | Out-File -Encoding ascii -Append job_environment_variables.txt)
   artifacts:
     paths:
-      - build/cov-int.zip
+      - cov-int.zip
+      - job_environment_variables.txt
 coverity-visual-c++-submit:
   image: curlimages/curl
   rules:
