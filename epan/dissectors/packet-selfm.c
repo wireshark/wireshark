@@ -1230,8 +1230,8 @@ dissect_fmdata_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int of
     proto_item       *fmdata_item, *fmdata_dig_ch_item;
     proto_item       *fmdata_ai_sf_item;
     proto_tree       *fmdata_tree, *fmdata_ai_tree=NULL, *fmdata_dig_tree=NULL, *fmdata_ai_ch_tree=NULL, *fmdata_dig_ch_tree=NULL;
-    guint8           len, idx=0, j=0, ts_mon, ts_day, ts_year, ts_hour, ts_min, ts_sec;
-    guint16          config_cmd, ts_msec;
+    guint8           len, idx=0, j=0;
+    guint16          config_cmd;
     gint16           ai_int16val;
     gint             cnt = 0, ch_size=0;
     gfloat           ai_sf_fp;
@@ -1381,23 +1381,14 @@ dissect_fmdata_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int of
                 if (cfg_data->offset_ts != 0xFFFF) {
                     /* Retrieve timestamp from 8-byte format                         */
                     /* Stored as: month, day, year (xx), hr, min, sec, msec (16-bit) */
-                    ts_mon  = tvb_get_guint8(tvb, offset);
-                    ts_day  = tvb_get_guint8(tvb, offset+1);
-                    ts_year = tvb_get_guint8(tvb, offset+2);
-                    ts_hour = tvb_get_guint8(tvb, offset+3);
-                    ts_min  = tvb_get_guint8(tvb, offset+4);
-                    ts_sec  = tvb_get_guint8(tvb, offset+5);
-                    ts_msec = tvb_get_ntohs(tvb, offset+6);
+                    tm.tm_mon = tvb_get_guint8(tvb, offset) - 1;
+                    tm.tm_mday = tvb_get_guint8(tvb, offset+1);
+                    tm.tm_year = tvb_get_guint8(tvb, offset+2) + 100;
+                    tm.tm_hour = tvb_get_guint8(tvb, offset+3);
+                    tm.tm_min = tvb_get_guint8(tvb, offset+4);
+                    tm.tm_sec = tvb_get_guint8(tvb, offset+5);
 
-                    tm.tm_sec = ts_sec;
-                    datetime.nsecs = (ts_msec % 1000) * 1000000;
-
-                    tm.tm_min = ts_min;
-                    tm.tm_hour = ts_hour;
-                    tm.tm_mday = ts_day;
-                    tm.tm_mon = ts_mon-1;
-                    tm.tm_year = ts_year + 100;
-
+                    datetime.nsecs = (tvb_get_ntohs(tvb, offset+6) % 1000) * 1000000;
                     datetime.secs = mktime(&tm);
 
                     proto_tree_add_time(fmdata_tree, hf_selfm_fmdata_timestamp, tvb, offset, 8, &datetime);
