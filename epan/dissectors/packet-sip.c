@@ -7711,6 +7711,8 @@ proto_reg_handoff_sip(void)
 
     dissector_add_uint("acdr.tls_application_port", 5061, sip_handle);
     dissector_add_uint("acdr.tls_application", TLS_APP_SIP, sip_handle);
+    dissector_add_string("protobuf_field", "adc.sip.ResponsePDU.body", sip_handle);
+    dissector_add_string("protobuf_field", "adc.sip.RequestPDU.body", sip_handle);
 
     exported_pdu_tap = find_tap_id(EXPORT_PDU_TAP_NAME_LAYER_7);
 }
