@@ -86,6 +86,9 @@ static gint ett_asap_parameter = -1;
 static gint ett_asap_cause = -1;
 static gint ett_asap_flags = -1;
 
+static guint64 asap_total_msgs = 0;
+static guint64 asap_total_bytes = 0;
+
 static void
 dissect_parameters(tvbuff_t *, proto_tree *);
 static void
@@ -633,21 +636,27 @@ typedef enum
 {
   MESSAGE_TYPE_COLUMN = 0,
   MESSAGES_COLUMN,
+  MESSAGES_SHARE_COLUMN,
   BYTES_COLUMN,
+  BYTES_SHARE_COLUMN,
   FIRST_SEEN_COLUMN,
   LAST_SEEN_COLUMN,
   INTERVAL_COLUMN,
-  RATE_COLUMN
+  MESSAGE_RATE_COLUMN,
+  BYTE_RATE_COLUMN
 } asap_stat_columns;
 
 static stat_tap_table_item asap_stat_fields[] = {
-  { TABLE_ITEM_STRING, TAP_ALIGN_LEFT,  "ASAP Message Type", "%-25s" },
-  { TABLE_ITEM_UINT,   TAP_ALIGN_RIGHT, "Messages ",      "%u"    },
-  { TABLE_ITEM_UINT,   TAP_ALIGN_RIGHT, "Bytes (B)",      "%u"    },
-  { TABLE_ITEM_FLOAT,  TAP_ALIGN_LEFT,  "First Seen (s)", "%1.6f" },
-  { TABLE_ITEM_FLOAT,  TAP_ALIGN_LEFT,  "Last Seen (s)",  "%1.6f" },
-  { TABLE_ITEM_FLOAT,  TAP_ALIGN_LEFT,  "Interval (s)",   "%1.6f" },
-  { TABLE_ITEM_FLOAT,  TAP_ALIGN_LEFT,  "Rate (1/s)",     "%1.2f" }
+  { TABLE_ITEM_STRING, TAP_ALIGN_LEFT,  "ASAP Message Type",    "%-25s"    },
+  { TABLE_ITEM_UINT,   TAP_ALIGN_RIGHT, "Messages ",            "%u"       },
+  { TABLE_ITEM_UINT,   TAP_ALIGN_RIGHT, "Messages Share (%)"  , "%1.3f %%" },
+  { TABLE_ITEM_UINT,   TAP_ALIGN_RIGHT, "Bytes (B)",            "%u"       },
+  { TABLE_ITEM_UINT,   TAP_ALIGN_RIGHT, "Bytes Share (%) ",     "%1.3f %%" },
+  { TABLE_ITEM_FLOAT,  TAP_ALIGN_LEFT,  "First Seen (s)",       "%1.6f"    },
+  { TABLE_ITEM_FLOAT,  TAP_ALIGN_LEFT,  "Last Seen (s)",        "%1.6f"    },
+  { TABLE_ITEM_FLOAT,  TAP_ALIGN_LEFT,  "Interval (s)",         "%1.6f"    },
+  { TABLE_ITEM_FLOAT,  TAP_ALIGN_LEFT,  "Message Rate (Msg/s)", "%1.2f"    },
+  { TABLE_ITEM_FLOAT,  TAP_ALIGN_LEFT,  "Byte Rate (B/s)",      "%1.2f"    }
 };
 
 static void asap_stat_init(stat_tap_table_ui* new_stat)
@@ -671,20 +680,26 @@ static void asap_stat_init(stat_tap_table_ui* new_stat)
 
   /* Add a row for each value type */
   while (message_type_values[i].strptr) {
-    items[MESSAGE_TYPE_COLUMN].type               = TABLE_ITEM_STRING;
-    items[MESSAGE_TYPE_COLUMN].value.string_value = message_type_values[i].strptr;
-    items[MESSAGES_COLUMN].type                   = TABLE_ITEM_UINT;
-    items[MESSAGES_COLUMN].value.uint_value       = 0;
-    items[BYTES_COLUMN].type                      = TABLE_ITEM_UINT;
-    items[BYTES_COLUMN].value.uint_value          = 0;
-    items[FIRST_SEEN_COLUMN].type                 = TABLE_ITEM_NONE;
-    items[FIRST_SEEN_COLUMN].value.float_value    = DBL_MAX;
-    items[LAST_SEEN_COLUMN].type                  = TABLE_ITEM_NONE;
-    items[LAST_SEEN_COLUMN].value.float_value     = DBL_MIN;
-    items[INTERVAL_COLUMN].type                   = TABLE_ITEM_NONE;
-    items[INTERVAL_COLUMN].value.float_value      = -1.0;
-    items[RATE_COLUMN].type                       = TABLE_ITEM_NONE;
-    items[RATE_COLUMN].value.float_value          = -1.0;
+    items[MESSAGE_TYPE_COLUMN].type                = TABLE_ITEM_STRING;
+    items[MESSAGE_TYPE_COLUMN].value.string_value  = message_type_values[i].strptr;
+    items[MESSAGES_COLUMN].type                    = TABLE_ITEM_UINT;
+    items[MESSAGES_COLUMN].value.uint_value        = 0;
+    items[MESSAGES_SHARE_COLUMN].type              = TABLE_ITEM_NONE;
+    items[MESSAGES_SHARE_COLUMN].value.float_value = -1.0;
+    items[BYTES_COLUMN].type                       = TABLE_ITEM_UINT;
+    items[BYTES_COLUMN].value.uint_value           = 0;
+    items[BYTES_SHARE_COLUMN].type                 = TABLE_ITEM_NONE;
+    items[BYTES_SHARE_COLUMN].value.float_value    = -1.0;
+    items[FIRST_SEEN_COLUMN].type                  = TABLE_ITEM_NONE;
+    items[FIRST_SEEN_COLUMN].value.float_value     = DBL_MAX;
+    items[LAST_SEEN_COLUMN].type                   = TABLE_ITEM_NONE;
+    items[LAST_SEEN_COLUMN].value.float_value      = DBL_MIN;
+    items[INTERVAL_COLUMN].type                    = TABLE_ITEM_NONE;
+    items[INTERVAL_COLUMN].value.float_value       = -1.0;
+    items[MESSAGE_RATE_COLUMN].type                = TABLE_ITEM_NONE;
+    items[MESSAGE_RATE_COLUMN].value.float_value   = -1.0;
+    items[BYTE_RATE_COLUMN].type                   = TABLE_ITEM_NONE;
+    items[BYTE_RATE_COLUMN].value.float_value      = -1.0;
     stat_tap_init_table_row(table, i, num_fields, items);
     i++;
   }
@@ -698,7 +713,9 @@ asap_stat_packet(void* tapdata, packet_info* pinfo _U_, epan_dissect_t* edt _U_,
   stat_tap_table*           table;
   stat_tap_table_item_type* msg_data;
   gint                      idx;
-  guint                     messages  = 0;
+  guint64                   messages;
+  guint64                   bytes;
+  int                       i         = 0;
   double                    firstSeen = -1.0;
   double                    lastSeen  = -1.0;
 
@@ -709,15 +726,37 @@ asap_stat_packet(void* tapdata, packet_info* pinfo _U_, epan_dissect_t* edt _U_,
   table = g_array_index(stat_data->stat_tap_data->tables, stat_tap_table*, 0);
 
   /* Update packets counter */
+  asap_total_msgs++;
   msg_data = stat_tap_get_field_data(table, idx, MESSAGES_COLUMN);
   msg_data->value.uint_value++;
-  messages =  msg_data->value.uint_value;
+  messages = msg_data->value.uint_value;
   stat_tap_set_field_data(table, idx, MESSAGES_COLUMN, msg_data);
 
   /* Update bytes counter */
+  asap_total_bytes += tap_rec->size;
   msg_data = stat_tap_get_field_data(table, idx, BYTES_COLUMN);
   msg_data->value.uint_value += tap_rec->size;
+  bytes = msg_data->value.uint_value;
   stat_tap_set_field_data(table, idx, BYTES_COLUMN, msg_data);
+
+  /* Update messages and bytes share */
+  while (message_type_values[i].strptr) {
+    msg_data = stat_tap_get_field_data(table, i, MESSAGES_COLUMN);
+    const guint m = msg_data->value.uint_value;
+    msg_data = stat_tap_get_field_data(table, i, BYTES_COLUMN);
+    const guint b = msg_data->value.uint_value;
+
+    msg_data = stat_tap_get_field_data(table, i, MESSAGES_SHARE_COLUMN);
+    msg_data->type = TABLE_ITEM_FLOAT;
+    msg_data->value.float_value = 100.0 * m / (double)asap_total_msgs;
+    stat_tap_set_field_data(table, i, MESSAGES_SHARE_COLUMN, msg_data);
+
+    msg_data = stat_tap_get_field_data(table, i, BYTES_SHARE_COLUMN);
+    msg_data->type = TABLE_ITEM_FLOAT;
+    msg_data->value.float_value = 100.0 * b / (double)asap_total_bytes;
+    stat_tap_set_field_data(table, i, BYTES_SHARE_COLUMN, msg_data);
+    i++;
+  }
 
   /* Update first seen time */
   if (pinfo->presence_flags & PINFO_HAS_TS) {
@@ -745,10 +784,16 @@ asap_stat_packet(void* tapdata, packet_info* pinfo _U_, epan_dissect_t* edt _U_,
     stat_tap_set_field_data(table, idx, INTERVAL_COLUMN, msg_data);
 
     /* Update message rate */
-    msg_data = stat_tap_get_field_data(table, idx, RATE_COLUMN);
+    msg_data = stat_tap_get_field_data(table, idx, MESSAGE_RATE_COLUMN);
     msg_data->type = TABLE_ITEM_FLOAT;
     msg_data->value.float_value = messages / (lastSeen - firstSeen);
-    stat_tap_set_field_data(table, idx, RATE_COLUMN, msg_data);
+    stat_tap_set_field_data(table, idx, MESSAGE_RATE_COLUMN, msg_data);
+
+    /* Update byte rate */
+    msg_data = stat_tap_get_field_data(table, idx, BYTE_RATE_COLUMN);
+    msg_data->type = TABLE_ITEM_FLOAT;
+    msg_data->value.float_value = bytes / (lastSeen - firstSeen);
+    stat_tap_set_field_data(table, idx, BYTE_RATE_COLUMN, msg_data);
   }
 
   return TAP_PACKET_REDRAW;
@@ -757,17 +802,27 @@ asap_stat_packet(void* tapdata, packet_info* pinfo _U_, epan_dissect_t* edt _U_,
 static void
 asap_stat_reset(stat_tap_table* table)
 {
-  stat_tap_table_item_type* item_data;
   guint element;
+  stat_tap_table_item_type* item_data;
 
   for (element = 0; element < table->num_elements; element++) {
     item_data = stat_tap_get_field_data(table, element, MESSAGES_COLUMN);
     item_data->value.uint_value = 0;
     stat_tap_set_field_data(table, element, MESSAGES_COLUMN, item_data);
 
+    item_data = stat_tap_get_field_data(table, element, MESSAGES_SHARE_COLUMN);
+    item_data->type = TABLE_ITEM_NONE;
+    item_data->value.float_value = -1.0;
+    stat_tap_set_field_data(table, element, MESSAGES_SHARE_COLUMN, item_data);
+
     item_data = stat_tap_get_field_data(table, element, BYTES_COLUMN);
     item_data->value.uint_value = 0;
-    stat_tap_set_field_data(table, element, FIRST_SEEN_COLUMN, item_data);
+    stat_tap_set_field_data(table, element, BYTES_COLUMN, item_data);
+
+    item_data = stat_tap_get_field_data(table, element, BYTES_SHARE_COLUMN);
+    item_data->type = TABLE_ITEM_NONE;
+    item_data->value.float_value = -1.0;
+    stat_tap_set_field_data(table, element, BYTES_SHARE_COLUMN, item_data);
 
     item_data = stat_tap_get_field_data(table, element, FIRST_SEEN_COLUMN);
     item_data->type = TABLE_ITEM_NONE;
@@ -784,11 +839,18 @@ asap_stat_reset(stat_tap_table* table)
     item_data->value.float_value = -1.0;
     stat_tap_set_field_data(table, element, INTERVAL_COLUMN, item_data);
 
-    item_data = stat_tap_get_field_data(table, element, RATE_COLUMN);
+    item_data = stat_tap_get_field_data(table, element, MESSAGE_RATE_COLUMN);
     item_data->type = TABLE_ITEM_NONE;
     item_data->value.float_value = -1.0;
-    stat_tap_set_field_data(table, element, RATE_COLUMN, item_data);
+    stat_tap_set_field_data(table, element, MESSAGE_RATE_COLUMN, item_data);
+
+    item_data = stat_tap_get_field_data(table, element, BYTE_RATE_COLUMN);
+    item_data->type = TABLE_ITEM_NONE;
+    item_data->value.float_value = -1.0;
+    stat_tap_set_field_data(table, element, BYTE_RATE_COLUMN, item_data);
   }
+  asap_total_msgs  = 0;
+  asap_total_bytes = 0;
 }
 
 /* Register the protocol with Wireshark */
