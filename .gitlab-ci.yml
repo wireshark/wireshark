@@ -459,12 +459,12 @@ coverity-gcc:
     - cd ..
     - tar --create --gzip --file cov-int.tar.gz cov-int
     # - curl --form file=@cov-int.tar.gz --form token=$COVERITY_SCAN_TOKEN --form email=$GITLAB_USER_EMAIL --form description="Ubuntu $( git describe --tags ) $CI_COMMIT_REF_NAME:$CI_PIPELINE_ID" --form version=$( git describe --tags ) https://scan.coverity.com/builds?project=$COVERITY_SCAN_PROJECT_NAME
-    - echo "export CI_JOB_URL=$CI_JOB_URL" > job_environment_variables.txt
-    - echo "export GIT_DESCRIPTION=$GIT_DESCRIPTION" >> job_environment_variables.txt
+    - echo "export ARTIFACT_JOB_URL=$CI_JOB_URL" > job_environment_variables.sh
+    - echo "export GIT_DESCRIPTION=$( git describe --tags )" >> job_environment_variables.sh
   artifacts:
     paths:
       - cov-int.tar.gz
-      - job_environment_variables.txt
+      - job_environment_variables.sh
 coverity-gcc-submit:
   image: curlimages/curl
   rules:
@@ -472,7 +472,9 @@ coverity-gcc-submit:
       when: always
   stage: .post
   script:
-    - . job_environment_variables.txt
+    - . job_environment_variables.sh
+    - echo $ARTIFACT_JOB_URL
+    - echo $GIT_DESCRIPTION
     - curl --fail --data "project=$COVERITY_SCAN_PROJECT_NAME&token=$COVERITY_SCAN_TOKEN&email=$GITLAB_USER_EMAIL&url=$ARTIFACT_JOB_URL/artifacts/raw/build/cov-int.tar.gz&version=$GIT_DESCRIPTION&description=Ubuntu $GIT_DESCRIPTION $CI_COMMIT_REF_NAME:$CI_PIPELINE_ID" https://scan.coverity.com/builds
   needs:
     - coverity-gcc
@@ -496,12 +498,12 @@ coverity-visual-c++:
     - cd ..
     - C:\ProgramData\chocolatey\tools\7z a -tzip cov-int.zip cov-int
     # - C:\Windows\System32\curl --form file=@cov-int.zip --form token=$COVERITY_SCAN_TOKEN--form email=$GITLAB_USER_EMAIL --form description="Windows $gitDescription $env:CI_COMMIT_REF_NAME`:$env:CI_PIPELINE_ID" --form version=$gitDescription https://scan.coverity.com/builds?project=$COVERITY_SCAN_PROJECT_NAME
-    - ("export CI_JOB_URL=$env:CI_JOB_URL" | Out-File -Encoding ascii job_environment_variables.txt)
-    - ("export GIT_DESCRIPTION=$gitDescription" | Out-File -Encoding ascii -Append job_environment_variables.txt)
+    - '"export ARTIFACT_JOB_URL=$env:CI_JOB_URL" | Out-File -Encoding ascii job_environment_variables.sh'
+    - '"export GIT_DESCRIPTION=$gitDescription" | Out-File -Encoding ascii -Append job_environment_variables.sh'
   artifacts:
     paths:
       - cov-int.zip
-      - job_environment_variables.txt
+      - job_environment_variables.sh
 coverity-visual-c++-submit:
   image: curlimages/curl
   rules:
@@ -509,8 +511,10 @@ coverity-visual-c++-submit:
       when: always
   stage: .post
   script:
-    - sed -i -e 's/\r//' job_environment_variables.txt
-    - . job_environment_variables.txt
+    - sed -i -e 's/\r//' job_environment_variables.sh
+    - . job_environment_variables.sh
+    - echo $ARTIFACT_JOB_URL
+    - echo $GIT_DESCRIPTION
     - curl --fail --data "project=$COVERITY_SCAN_PROJECT_NAME&token=$COVERITY_SCAN_TOKEN&email=$GITLAB_USER_EMAIL&url=$ARTIFACT_JOB_URL/artifacts/raw/build/cov-int.zip&version=$GIT_DESCRIPTION&description=Windows $GIT_DESCRIPTION $CI_COMMIT_REF_NAME:$CI_PIPELINE_ID" https://scan.coverity.com/builds
   needs:
     - coverity-visual-c++
