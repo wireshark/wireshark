@@ -906,7 +906,7 @@ static const value_string iec60870_5_103_ctrl_func_pri_to_sec_values[] = {
 	{ 5,     "Reserved" },
 	{ 6,     "Reserved" },
 	{ 7,     "Reset Frame Count Bit" },
-	{ 8,     "Reserved" },	
+	{ 8,     "Reserved" },
 	{ 9,     "Request Status of Link" },
 	{ 10,    "Request User Data Class 1" },
 	{ 11,    "Request User Data Class 2" },
@@ -993,7 +993,7 @@ static const value_string iec103_asdu_types_control_dir [] = {
 	{  16,		"reserved" },
 	{  17,		"reserved" },
 	{  18,		"reserved" },
-	{  19,		"reserved" },	
+	{  19,		"reserved" },
 	{  20,		"General command" },    /* dissection implemented */
 	{  21,		"Generic command" },
 	{  22,		"reserved" },
@@ -1020,7 +1020,7 @@ static const value_string iec60870_5_103_cot_monitor_dir [] = {
 	{ 6,     "Power on" },
 	{ 7,     "Test mode" },
 	{ 8,     "Time synchronization" },
-	{ 9,     "General interrogation" },	
+	{ 9,     "General interrogation" },
 	{ 10,    "Termination of general interrogation" },
 	{ 11,    "Local operation" },
 	{ 12,    "Remote operation" },
@@ -1037,10 +1037,10 @@ static const value_string iec60870_5_103_cot_monitor_dir [] = {
 
 static const value_string iec60870_5_103_cot_ctrl_dir [] = {
 	{ 8,     "Time synchronization" },
-	{ 9,     "Initiation of general interrogation" },	
+	{ 9,     "Initiation of general interrogation" },
 	{ 20,    "General command" },
 	{ 31,    "Transmission of disturbance data" },
-	{ 40,    "Generic write command" },	
+	{ 40,    "Generic write command" },
 	{ 42,    "Generic read command" },
 	{ 0,     NULL }
 };
@@ -1064,22 +1064,22 @@ static void get_CP24Time(tvbuff_t *tvb, guint8 *offset, proto_tree *iec104_heade
 {
 	guint16 ms;
 	guint8 min;
-	nstime_t time;
+	nstime_t datetime;
 	proto_item* ti;
 	proto_tree* cp24time_tree;
 
 	ms = tvb_get_letohs(tvb, *offset);
-	time.nsecs = (ms % 1000) * 1000000;
-	time.secs = ms / 1000;
+	datetime.nsecs = (ms % 1000) * 1000000;
+	datetime.secs = ms / 1000;
 	(*offset) += 2;
 
 	min = tvb_get_guint8(tvb, *offset);
-	time.secs += (min & 0x3F) * 60;
+	datetime.secs += (min & 0x3F) * 60;
 	(*offset)++;
 
 	(*offset) -= 3;
 
-	ti = proto_tree_add_time(iec104_header_tree, hf_cp24time, tvb, *offset, 3, &time);
+	ti = proto_tree_add_time(iec104_header_tree, hf_cp24time, tvb, *offset, 3, &datetime);
 	cp24time_tree = proto_item_add_subtree(ti, ett_cp24time);
 
 	proto_tree_add_item(cp24time_tree, hf_cp24time_ms, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
@@ -1091,7 +1091,7 @@ static void get_CP24Time(tvbuff_t *tvb, guint8 *offset, proto_tree *iec104_heade
 }
 
 /* ====================================================================
-   Dissect a CP32Time2a (four octet binary time), add to proto tree 
+   Dissect a CP32Time2a (four octet binary time), add to proto tree
    ==================================================================== */
 static void get_CP32TimeA(tvbuff_t *tvb, guint8 *offset, proto_tree *tree)
 {
@@ -1104,17 +1104,17 @@ static void get_CP32TimeA(tvbuff_t *tvb, guint8 *offset, proto_tree *tree)
 
 	ms = tvb_get_letohs(tvb, *offset);
 	tm.tm_sec = ms / 1000;
-	datetime.nsecs = (ms % 1000) * 1000000;	
+	datetime.nsecs = (ms % 1000) * 1000000;
 
 	value = tvb_get_guint8(tvb, *offset+2);
 	tm.tm_min = value & 0x3F;
-	
+
 	value = tvb_get_guint8(tvb, *offset+3);
 	tm.tm_hour = value & 0x1F;
 
 	/* The CP32Time2a structure does not contain any mm/dd/yyyy information.  Set these as default to 1/1/2000 */
 	tm.tm_mday = 1;
-	tm.tm_mon = 0;		
+	tm.tm_mon = 0;
 	tm.tm_year = 100;
 
 	datetime.secs = mktime(&tm);
@@ -2855,7 +2855,7 @@ dissect_iec60870_5_103(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 	offset += 1;
 
 	/* If this is a variable length frame, we need to perform additional dissection */
-	if (frametype == IEC103_VAR_LEN) {		
+	if (frametype == IEC103_VAR_LEN) {
 
 		if (ctrlfield_prm) {
 			proto_tree_add_item(iec103_tree, hf_iec60870_5_103_asdu_typeid_ctrl, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -2874,7 +2874,7 @@ dissect_iec60870_5_103(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 		else {
 			proto_tree_add_item(iec103_tree, hf_iec60870_5_103_cot_mon, tvb, offset+2, 1, ENC_LITTLE_ENDIAN);
 		}
-		
+
 		proto_tree_add_item(iec103_tree, hf_iec60870_5_103_asdu_address, tvb, offset+3, 1, ENC_LITTLE_ENDIAN);
 		proto_tree_add_item(iec103_tree, hf_iec60870_5_103_func_type, tvb, offset+4, 1, ENC_LITTLE_ENDIAN);
 		proto_tree_add_item(iec103_tree, hf_iec60870_5_103_info_num, tvb, offset+5, 1, ENC_LITTLE_ENDIAN);
@@ -2887,7 +2887,7 @@ dissect_iec60870_5_103(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 					case 0x06:   /* ASDU 6 - Time synchronization */
 						get_CP56Time(tvb, &offset, iec103_tree);
 						break;
-					case 0x07:   /* ASDU 7 - General interrogation */					
+					case 0x07:   /* ASDU 7 - General interrogation */
 						proto_tree_add_item(iec103_tree, hf_iec60870_5_103_scn, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 						offset += 1;
 						break;
@@ -2916,7 +2916,7 @@ dissect_iec60870_5_103(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 					case 0x05:    /* ASDU 5 - Identification */
 						proto_tree_add_item(iec103_tree, hf_iec60870_5_103_col, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 						offset += 1;
-						proto_tree_add_item(iec103_tree, hf_iec60870_5_103_mfg, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+						proto_tree_add_item(iec103_tree, hf_iec60870_5_103_mfg, tvb, offset, 8, ENC_ASCII);
 						offset += 8;
 						proto_tree_add_item(iec103_tree, hf_iec60870_5_103_mfg_sw, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 						offset += 4;
@@ -2932,7 +2932,7 @@ dissect_iec60870_5_103(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 						get_NVA(tvb, &offset, iec103_tree);
 						break;
 					case 0xcd:    /* ASDU 205 - private, siemens energy counters */
-						proto_tree_add_item(iec103_tree, hf_iec60870_5_103_asdu205_value, tvb, offset, 4, ENC_LITTLE_ENDIAN);						
+						proto_tree_add_item(iec103_tree, hf_iec60870_5_103_asdu205_value, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 						proto_tree_add_item(iec103_tree, hf_iec60870_5_103_asdu205_ms, tvb, offset+4, 2, ENC_LITTLE_ENDIAN);
 						proto_tree_add_item(iec103_tree, hf_iec60870_5_103_asdu205_min, tvb, offset+6, 1, ENC_LITTLE_ENDIAN);
 						proto_tree_add_item(iec103_tree, hf_iec60870_5_103_asdu205_h, tvb, offset+7, 1, ENC_LITTLE_ENDIAN);
@@ -2942,7 +2942,6 @@ dissect_iec60870_5_103(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 
 			}
 		}
-		
 	}
 
 	proto_tree_add_item(iec103_tree, hf_iec60870_5_103_checksum, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -3098,7 +3097,7 @@ proto_register_iec60870_5_103(void)
 		&ett_iec60870_5_103,
 		&ett_iec60870_5_103_ctrlfield,
 		&ett_iec60870_5_103_cp32time2a,
-	};	
+	};
 
 	/* Register the protocol name and description */
 	proto_iec60870_5_103 = proto_register_protocol("IEC 60870-5-103", "IEC 60870-5-103", "iec60870_5_103");
